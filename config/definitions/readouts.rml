@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<section readout name="PANDA_3MM_v1" title="PANDA readout definition" >
+    <myParameter name="nChannels" value="64" />
+    <myParameter name="pitch" value="3" />
+    <myParameter name="pixelSize" value="3./sqrt(2.)" />
+    <myParameter name="offset" value="3.5" />
+
+
+    <for variable="mod" from="0" to="1" step="1" />
+    <readoutModule id="[mod]" plane="0" origin="(0,0)" rotation="0" size="(200,200)" >
+        <for variable="nCh" from="0" to="nChannels" step="1" />
+            <readoutChannel id="[nCh]" >
+                <for variable="nPix" from="0" to="nChannels" step="1" />
+                <addPixel id="[nPix]" origin="(offset+[nPix]*pitch,offset-pitch/2+[nCh]*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
+                </for>
+            </readoutChannel>
+        </for>
+        <for variable="nCh" from="0" to="nChannels" step="1" />
+            <readoutChannel id="[nCh]+nChannels" >
+                <for variable="nPix" from="0" to="nChannels" step="1" />
+                <addPixel id="[nPix]" origin="(offset+pitch/2+[nCh]*pitch,offset+[nPix]*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
+                </for>
+            </readoutChannel>
+        </for>
+    </readoutModule>
+    </for>
+</section>
+
+<section readout name="test" title="A test readout" >
+   
+    <myParameter name="moduleSize" value="100" />
+    <myParameter name="pixelSize" value="20" />
+    
+    <readoutModule id="0" plane="0" origin="(-50,50)" rotation="45" size="(moduleSize,moduleSize)" >
+        <for variable="nChannel" from="0" to="6" step="1" />
+            <readoutChannel id="[nChannel]" >
+                <for variable="nPixel" from="0" to="5" step="1" />
+                <addPixel id="[nPixel]" origin="([nChannel]*pixelSize,[nPixel]*pixelSize)" size="(pixelSize,pixelSize)" rotation="0" />
+                </for>
+            </readoutChannel>
+        </for>
+    </readoutModule>
+    
+    <readoutModule id="0" plane="0" origin="(0,-50)" rotation="0" size="(moduleSize,moduleSize)" >
+        <for variable="nChannel" from="0" to="6" step="1" />
+            <readoutChannel id="[nChannel]" >
+                <for variable="nPixel" from="0" to="5" step="1" />
+                <addPixel id="[nPixel]" origin="([nChannel]*pixelSize,[nPixel]*pixelSize)" size="(pixelSize,pixelSize)" rotation="45" />
+                </for>
+            </readoutChannel>
+        </for>
+    </readoutModule>
+
+</section>
+
+
+<section readout name="NEXT-MM" title="NEXT-MM" />
+
+<myParameter name="pixelSize" value="8" />
+<myParameter name="maxPixels" value="19" />
+
+<myParameter name="pixelSize" value="8" />
+<myParameter name="maxPixels" value="19" />
+
+<myParameter name="modPosX0" value="0" />
+<myParameter name="modPosY0" value="-pixelSize*maxPixels" />
+
+<myParameter name="modPosX1" value="pixelSize*maxPixels" />
+<myParameter name="modPosY1" value="0" />
+
+<myParameter name="modPosX2" value="0" />
+<myParameter name="modPosY2" value="pixelSize*maxPixels" />
+
+<myParameter name="modPosX3" value="-pixelSize*maxPixels" />
+<myParameter name="modPosY3" value="0" />
+
+
+<for variable="mod" from="0" to="4" step="1" />
+    <readoutModule id="0" plane="0" origin="(modPosX[mod],modPosY[mod])" rotation="90*[mod]" size="((maxPixels)*pixelSize,(maxPixels)*pixelSize)" >
+
+        // 1st row (5 pixels/channels)
+        <for variable="ch" from="0" to="5" step="1" />
+        <readoutChannel id="[ch]" >
+                <addPixel id="0" origin="(pixelSize*[ch],0)" size="(pixelSize,pixelSize)" />
+        </readoutChannel>
+        </for>
+
+        // 2nd row (8 pixels/channels)
+        <for variable="ch" from="5" to="13" step="1" />
+        <readoutChannel id="[ch]" >
+                <addPixel id="0" origin="(pixelSize*([ch]-5),1*pixelSize)" size="(pixelSize,pixelSize)" />
+        </readoutChannel>
+        </for>
+
+        // 3rd row (10 pixels/channels)
+        <for variable="ch" from="13" to="23" step="1" />
+        <readoutChannel id="[ch]" >
+                <addPixel id="0" origin="(pixelSize*([ch]-13),2*pixelSize)" size="(pixelSize,pixelSize)" />
+        </readoutChannel>
+        </for>
+
+        // 4th row (11 pixels/channels)
+        <for variable="ch" from="23" to="34" step="1" />
+        <readoutChannel id="[ch]" >
+                <addPixel id="0" origin="(pixelSize*([ch]-23),3*pixelSize)" size="(pixelSize,pixelSize)" />
+        </readoutChannel>
+        </for>
+
+        // 5th row (12 pixels/channels)
+        <for variable="ch" from="34" to="46" step="1" />
+        <readoutChannel id="[ch]" >
+                <addPixel id="0" origin="(pixelSize*([ch]-34),4*pixelSize)" size="(pixelSize,pixelSize)" />
+        </readoutChannel>
+        </for>
+
+        // 6th-7th row (14 pixels/channels)
+        <for variable="rw" from="0" to="2" step="1" />
+            <for variable="ch" from="46+[rw]*14" to="46+([rw]+1)*14" step="1" />
+            <readoutChannel id="[ch]" >
+                    <addPixel id="0" origin="(pixelSize*([ch]-(46+[rw]*14)),pixelSize*(5+[rw]))" size="(pixelSize,pixelSize)" />
+            </readoutChannel>
+            </for>
+       </for>
+
+        // 8th row (15 pixels/channels)
+        <for variable="ch" from="74" to="89" step="1" />
+        <readoutChannel id="[ch]" >
+                <addPixel id="0" origin="(pixelSize*([ch]-74),7*pixelSize)" size="(pixelSize,pixelSize)" />
+        </readoutChannel>
+        </for>
+
+        // 9th row (16 pixels/channels)
+        <for variable="ch" from="89" to="105" step="1" />
+        <readoutChannel id="[ch]" >
+                <addPixel id="0" origin="(pixelSize*([ch]-89),8*pixelSize)" size="(pixelSize,pixelSize)" />
+        </readoutChannel>
+        </for>
+
+        // 10th-11th row (17 pixels/channels)
+        <for variable="rw" from="0" to="2" step="1" />
+            <for variable="ch" from="105+[rw]*17" to="105+([rw]+1)*17" step="1" />
+            <readoutChannel id="[ch]" >
+                    <addPixel id="0" origin="(pixelSize*([ch]-(105+[rw]*17)),pixelSize*(9+[rw]))" size="(pixelSize,pixelSize)" />
+            </readoutChannel>
+            </for>
+       </for>
+
+        // 12th-14th row (18 pixels/channels)
+        <for variable="rw" from="0" to="3" step="1" />
+            <for variable="ch" from="139+[rw]*18" to="139+([rw]+1)*18" step="1" />
+            <readoutChannel id="[ch]" >
+                    <addPixel id="0" origin="(pixelSize*([ch]-(139+[rw]*18)),pixelSize*(11+[rw]))" size="(pixelSize,pixelSize)" />
+            </readoutChannel>
+            </for>
+       </for>
+
+        // 15th-19th row (19 pixels/channels)
+        <for variable="rw" from="0" to="5" step="1" />
+            <for variable="ch" from="193+[rw]*19" to="193+([rw]+1)*19" step="1" />
+            <readoutChannel id="[ch]" >
+                    <addPixel id="0" origin="(pixelSize*([ch]-(193+[rw]*19)),pixelSize*(14+[rw]))" size="(pixelSize,pixelSize)" />
+            </readoutChannel>
+            </for>
+       </for>
+    </readoutModule>
+</for>
+</section>
+
+<section readout name="testReadout" title="NEXT-MM" />
+
+    <readoutModule id="0" plane="0" origin="(0,0)" rotation="0" size="(100,100)" >
+        <readoutChannel id="0" >
+            <addPixel id="0" origin="(30,30)" size="(15,15)" rotation="45" />
+            <addPixel id="1" origin="(70,30)" size="(15,15)" rotation="45" />
+            <addPixel id="2" origin="(30,70)" size="(15,15)" rotation="45" />
+        </readoutChannel>
+    </readoutModule>
+
+</section>
+
+    <readoutModule id="0" plane="0" origin="(-7.5,-7.5)" rotation="0" size="(moduleSize,moduleSize)" >
+        <for variable="nChannel" from="0" to="nChannels" step="2" />
+            <readoutChannel id="[nChannel]" >
+                <for variable="nPixel" from="0" to="4" step="1" />
+                    <addPixel id="[nPixel]" origin="(2+[nPixel]*3,[nChannel]*(3/2))" size="(2.1,2.1)" rotation="45" />
+                </for>
+            </readoutChannel>
+        </for>
+
+        <for variable="nChannel" from="1" to="nChannels" step="2" />
+            <readoutChannel id="[nChannel]" >
+                <for variable="nPixel" from="0" to="4" step="1" />
+                    <addPixel id="[nPixel]" origin="(3.5+([nChannel]-1)*(3/2),1.5+[nPixel]*3)" size="(2.1,2.1)" rotation="45" />
+                </for>
+            </readoutChannel>
+        </for> 
+    </readoutModule>

@@ -1,0 +1,42 @@
+<globals>
+    <parameter name="mainDataPath" value="/home/javier/restData/" />
+    <parameter name="verboseLevel" value="warning" />
+</globals>
+
+<section run name="PANDA-X run" title="First simulations v1.0">
+    <parameter name="Nevents" value="1000000"/>
+    <parameter name="experiment" value="PANDA X III"/>
+    <parameter name="runType" value="simulation"/>
+    <parameter name="runNumber" value="1"/>
+    <parameter name="runTag" value="ExternalGamma_WT8m"/>
+    <parameter name="runDescription" value="External gamma water tank 8m (biasing)."/>
+    <parameter name="user" value="system"/>
+    <parameter name="verboseLevel" value="3"/>
+</section>
+
+<section restG4 name="PANDA-X Simulation" title="External gamma from 8m water tank.">
+
+    <parameter name="gdml_file" value="noVessel.gdml"/>
+
+    <generator type="virtualBox" size="8000" >
+        <source particle="gamma">
+            <angularDist type="isotropic" />
+            <energyDist type="mono" energy="2614"/>
+        </source>
+    </generator>
+
+    <biasing value="on" type="virtualBox">
+        <biasingVolume particle="gamma" size="2500" position="(0,0,0)" factor="40" energyRange="(2400,2615)" />
+        <biasingVolume particle="gamma" size="3000" position="(0,0,0)" factor="15" energyRange="(2400,2615)" />
+        <biasingVolume particle="gamma" size="4000" position="(0,0,0)" factor="15" energyRange="(2400,2615)" />
+        <biasingVolume particle="gamma" size="5000" position="(0,0,0)" factor="15" energyRange="(2400,2615)" />
+        <biasingVolume particle="gamma" size="6000" position="(0,0,0)" factor="15" energyRange="(2400,2615)" />
+        <biasingVolume particle="gamma" size="7000" position="(0,0,0)" factor="45" energyRange="(2400,2615)" />
+    </biasing>
+
+    <storage sensitiveVolume="gas">
+        <parameter name="energyRange" value="(0,1000000)" />
+        <activeVolume name="gas" chance="1" />
+    </storage>
+
+</section>

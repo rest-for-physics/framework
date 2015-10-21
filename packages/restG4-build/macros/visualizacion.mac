@@ -1,0 +1,17 @@
+/vis/viewer/reset
+/vis/open HepRepFile
+/run/initialize
+/vis/scene/create
+/vis/viewer/create
+
+/vis/drawVolume
+/vis/scene/add/trajectories
+/vis/scene/add/hits
+
+/vis/sceneHandler/attach
+/vis/scene/endOfRunAction accumulate
+/vis/scene/endOfEventAction accumulate 20
+
+#/vis/viewer/flush
+
+exit

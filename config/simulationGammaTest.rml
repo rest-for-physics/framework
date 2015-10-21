@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<!-- Constructing XML-like REST metadata input file
+     File : config.rml
+     First concept author J. Galan (26-Apr-2015)
+ -->
+
+Any text that is outside the section structure will be ignored. Comments in RML are not fully supported.
+We cannot comment existing code. Metadata will just load the values it finds first.
+
+All units in mm, keV and degrees
+
+<globals>
+    <parameter name="mainDataPath" value="/home/javier/restData" />
+    <parameter name="verboseLevel" value="warning" /> %options are : silent, warning, info, debug
+</globals>
+
+<section run name="PANDA-X run" title="First simulations v1.0">
+    <parameter name="Nevents" value="10000"/>
+    <parameter name="experiment" value="PANDA X III"/>
+    <parameter name="runType" value="simulation"/>
+    <parameter name="runNumber" value="1"/>
+    <parameter name="runTag" value="Gamma"/>
+    <parameter name="runDescription" value="Water tank 3m"/>
+    <parameter name="user" value="system"/>
+    <parameter name="verboseLevel" value="3"/>
+</section>
+
+<section restG4 name="A simulation test." title="Simulation of Tl208 gamma">
+
+    <parameter name="gdml_file" value="geometry/pandaGeometry.gdml"/>
+
+    <generator type="virtualBox" size="1000" >
+        <source particle="gamma" fullchain="off">
+            <angularDist type="isotropic" />
+            <energyDist type="mono" energy="2614"/>
+        </source>
+    </generator>
+
+    <biasing value="off">
+        <biasingVolume particle="gamma" size="6000" position="(0,0,0)" factor="100" energyRange="(2400,3000)" />
+        <biasingVolume particle="gamma" size="6000" position="(0,0,0)" factor="100" energyRange="(2400,3000)" />
+        <biasingVolume particle="gamma" size="7000" position="(0,0,0)" factor="7500" energyRange="(2400,3000)" />
+    </biasing>
+
+    <storage>
+        <parameter name="energyRange" value="(0,3000)" />
+        <activeVolume name="gas" chance="1" />
+    </storage>
+
+</section>
+
+Any text that is outside the section structure will be ignored. Comments in RML are yet not allowed.
+
+            <energyDist type="flat" range="(2500,3000)"/>
+    <generator type="volume" from="Sphere" position="(0,0,0)" rotation="(90,0,0)" size="100" length="200" >
+        <source particle="e-">
+            <angularDist type="isotropic" direction="(5,5,0)" />
+            <energyDist type="mono" energy="100" range="(1,10)" file="xx.rsf" />   rsf -> Rest Spectrum File
+        </source>
+    </generator>
+
+        <source particle="gamma">
+            <angularDist type="backtoback" />
+            <energyDist type="flat" range="(0,10)" />
+        </source>
+

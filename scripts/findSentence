@@ -1,0 +1,5 @@
+#!/bin/bash
+#echo `find . -type f -name \"*.cc\" |  xargs egrep -i '($1)'`
+#echo find . -type f -name \"*.cc\" |  xargs egrep -i '(G4UI)'
+echo `find . -type f -name "*.cc" | xargs egrep -i '(RunMessenger)'`
+

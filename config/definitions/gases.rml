@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<section gas name="Xenon-TMA 1Pct" title="Xenon-TMA Mixture (1Pct TMA)">
+    <parameter name="pressure" value="10" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="100" Emax="1000000." nodes="20" />
+    <gasComponent name="xe" fraction="0.99" />
+    <gasComponent name="n(ch3)3" fraction="0.01" />
+</section>
+
+<section gas name="Xenon-TMA 3Pct" title="Xenon-TMA Mixture (3Pct TMA)">
+    <parameter name="pressure" value="10" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="100" Emax="1000000." nodes="20" />
+    <gasComponent name="xe" fraction="0.97" />
+    <gasComponent name="n(ch3)3" fraction="0.03" />
+</section>
+
+<section gas name="Xenon-TMA 5Pct" title="Xenon-TMA Mixture (5Pct TMA)">
+    <parameter name="pressure" value="10" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="100" Emax="1000000." nodes="20" />
+    <gasComponent name="xe" fraction="0.95" />
+    <gasComponent name="n(ch3)3" fraction="0.05" />
+</section>
+
+<section gas name="Xenon-TMA 7Pct" title="Xenon-TMA Mixture (7Pct TMA)">
+    <parameter name="pressure" value="10" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="100" Emax="1000000." nodes="20" />
+    <gasComponent name="xe" fraction="0.93" />
+    <gasComponent name="n(ch3)3" fraction="0.07" />
+</section>
+
+<section gs name="Xenon-TMA 9Pct" title="Xenon-TMA Mixture (9Pct TMA)">
+    <parameter name="pressure" value="10" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="100" Emax="1000000." nodes="20" />
+    <gasComponent name="xe" fraction="0.91" />
+    <gasComponent name="n(ch3)3" fraction="0.09" />
+</section>
+

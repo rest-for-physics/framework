@@ -1,0 +1,43 @@
+<globals>
+    <parameter name="mainDataPath" value="/home/javier/restData/" />
+    <parameter name="verboseLevel" value="warning" />
+</globals>
+
+<section run name="PANDA-X run" title="First simulations v1.0">
+    <parameter name="Nevents" value="100"/>
+    <parameter name="experiment" value="PANDA X III"/>
+    <parameter name="runType" value="simulation"/>
+    <parameter name="runNumber" value="1"/>
+    <parameter name="runTag" value="Test"/>
+    <parameter name="runDescription" value="Just a test"/>
+    <parameter name="user" value="system"/>
+    <parameter name="verboseLevel" value="3"/>
+</section>
+
+<section restG4 name="PANDA-X Simulation Run" title="Test Hao">
+
+    <parameter name="gdml_file" value="vessel1cmTest.gdml"/>
+
+    <generator type="volume" from="gas" >
+        <source fromFile="Xe136bb0n.dat">
+        </source>
+    </generator>
+
+
+    <biasing value="off" type="virtualBox">
+        <biasingVolume particle="gamma" size="2500" position="(0,0,0)" factor="10" energyRange="(2400,15000)" />
+    </biasing>
+
+    <storage sensitiveVolume="gas">
+        <parameter name="energyRange" value="(0,5000)" />
+        <activeVolume name="gas" chance="1" />
+    </storage>
+
+</section>
+
+    <generator type="volume" from="gas" >
+        <source particle="Tl208" fullChain="true">
+            <angularDist type="isotropic" />
+            <energyDist type="mono" energy="0"/>
+        </source>
+    </generator>

@@ -1,0 +1,17 @@
+
+REST_FW = $(REST_PATH)/source
+PATH_LIB = $(REST_PATH)/lib/
+
+# Compiler to be used
+CC = g++
+
+#Flags
+FLAGS = -fPIC -Wall -g -std=c++0x
+
+REST_INC = -I$(REST_FW)/restcore/inc -I$(REST_FW)/events/geant4/inc -I$(REST_FW)/events/general/inc -I$(REST_FW)/metadata/general/inc -I$(REST_FW)/metadata/readout/inc
+# "include" directories in which to search for .h files
+INC_DIRS = -I. -I./inc $(REST_INC) -I$(shell $(ROOTCONFIG) --incdir) -I$(GARFIELD_HOME)/Include
+
+# Libraries
+ROOTLIBS := $(shell root-config --libs)
+LIBS = -lm ${ROOTLIBS} -lEve -lGeom -L$(PATH_LIB) -L/usr/lib -L$(GARFIELD_HOME)/lib -lGarfield

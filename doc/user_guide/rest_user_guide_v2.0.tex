@@ -1,0 +1,125 @@
+% !TEX TS-program = pdflatex
+% !TEX encoding = UTF-8 Unicode
+
+% Example of the Memoir class, an alternative to the default LaTeX classes such as article and book, with many added features built into the class itself.
+
+\documentclass[12pt,a4paper]{memoir} % for a long document
+%\documentclass[12pt,a4paper,article]{memoir} % for a short document
+
+\usepackage[utf8]{inputenc} % set input encoding to utf8
+\PassOptionsToPackage{hyphens}{url}\usepackage{hyperref}
+%\usepackage{hyperref}
+\usepackage{eurosym}
+\usepackage{graphicx}
+%\usepackage[french]{babel}
+\graphicspath{ {figures/} }
+
+
+% Don't forget to read the Memoir manual: memman.pdf
+
+%%% Examples of Memoir customization
+%%% enable, disable or adjust these as desired
+
+%%% PAGE DIMENSIONS
+% Set up the paper to be as close as possible to both A4 & letter:
+\settrimmedsize{11in}{210mm}{*} % letter = 11in tall; a4 = 210mm wide
+\setlength{\trimtop}{0pt}
+\setlength{\trimedge}{\stockwidth}
+\addtolength{\trimedge}{-\paperwidth}
+\settypeblocksize{*}{\lxvchars}{1.618} % we want to the text block to have golden proportionals
+\setulmargins{1.5in}{*}{*} % 50pt upper margins
+\setlrmargins{*}{*}{1.618} % golden ratio again for left/right margins
+\setulmarginsandblock{1.5in}{1in}{1.618}
+\setlrmarginsandblock{1.7in}{1.2in}{1.618}
+\setheaderspaces{1in}{*}{1.618}
+\checkandfixthelayout 
+% This is from memman.pdf
+
+%%% \maketitle CUSTOMISATION
+% For more than trivial changes, you may as well do it yourself in a titlepage environment
+\pretitle{\begin{center}\sffamily\huge}
+\posttitle{\par\end{center}\vskip 0.5em}
+
+%%% ToC (table of contents) APPEARANCE
+\maxtocdepth{subsection} % include subsections
+\renewcommand{\cftchapterpagefont}{}
+\renewcommand{\cftchapterfont}{}     % no bold!
+
+%%% HEADERS & FOOTERS
+\pagestyle{ruled} % try also: empty , plain , headings , ruled , Ruled , companion
+
+%%% CHAPTERS
+\chapterstyle{hangnum} % try also: default , section , hangnum , companion , article, demo
+
+\renewcommand{\chaptitlefont}{\Huge\sffamily\raggedright} % set sans serif chapter title font
+\renewcommand{\chapnumfont}{\Huge\sffamily\raggedright} % set sans serif chapter number font
+\newcommand*{\pretoctitle}[1]{{\clearpage\centering
+\vspace*{-\topfiddle}#1\par}}
+\newcommand{\asuacknowledgements}{\pretoctitle{ACKNOWLEDGEMENTS}}
+\newcommand{\asudedication}[1]{%
+{\clearpage\mbox{}\vfill\centering #1 \par\vfill\clearpage}}
+
+%%% SECTIONS
+\hangsecnum % hang the section numbers into the margin to match \chapterstyle{hangnum}
+\maxsecnumdepth{subsection} % number subsections
+
+\setsecheadstyle{\Large\sffamily\raggedright} % set sans serif section font
+\setsubsecheadstyle{\large\sffamily\raggedright} % set sans serif subsection font
+
+%% END Memoir customization
+
+\title{REST: Rare Event Software for TPCs.\\User and developer guide.\\ version 2.0\\}
+\author{Javier Galan}
+%\date{} % Delete this line to display the current date
+
+
+\hyphenation{ in-de-pen-dan-te}
+
+%%% BEGIN DOCUMENT
+\begin{document}
+
+%\asuacknowledgements
+%\maketitle
+
+%\thispagestyle{empty}
+%\vspace*{\stretch{1}}
+%\begin{flushright}
+%\itshape
+%Pour Amélie\\
+%et Leonardo
+%\end{flushright}
+%\vspace{\stretch{2}}
+%\cleardoublepage
+
+
+\tableofcontents* % the asterisk means that the contents itself isn't put into the ToC
+\newpage
+%\listoffigures
+
+\chapter{Introduction}
+
+\section{Downloading REST}
+
+\section{Installing and preparing the environment}
+
+\chapter{restcore}
+
+\section{Metadata}
+
+\subsection{Creating your own metadata class}
+
+\subsubsection{Adding a new specific metadata class}
+
+\subsubsection{Adding new fields to metadata files}
+
+\chapter{restG4}
+
+\section{Defining the geometry}
+
+\chapter{Documentation}
+
+
+
+
+\end{document}
+

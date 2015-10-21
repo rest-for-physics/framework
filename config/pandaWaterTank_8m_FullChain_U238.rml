@@ -1,0 +1,32 @@
+<globals>
+    <parameter name="mainDataPath" value="/home/javier/restData/" />
+    <parameter name="verboseLevel" value="warning" />
+</globals>
+
+<section run name="PANDA-X run" title="First simulations v1.0">
+    <parameter name="Nevents" value="10000000"/>
+    <parameter name="experiment" value="PANDA X III"/>
+    <parameter name="runType" value="simulation"/>
+    <parameter name="runNumber" value="1"/>
+    <parameter name="runTag" value="WT_U238"/>
+    <parameter name="runDescription" value="Water tank 8m."/>
+    <parameter name="user" value="system"/>
+    <parameter name="verboseLevel" value="3"/>
+</section>
+
+<section restG4 name="PANDA-X Simulation" title="Water Tank contamination U238.">
+
+    <parameter name="gdml_file" value="vessel5cm_v1.1.gdml"/>
+
+    <generator type="volume" from="waterTank" >
+        <source particle="U238" fullchain="on">
+            <angularDist type="isotropic" />
+            <energyDist type="mono" energy="0"/>
+        </source>
+    </generator>
+
+    <storage sensitiveVolume="gas">
+        <parameter name="energyRange" value="(0,100000)" />
+        <activeVolume name="gas" chance="1" />
+    </storage>
+</section>

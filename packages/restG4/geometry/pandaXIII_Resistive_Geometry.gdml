@@ -1,0 +1,130 @@
+<solids>
+    <box name="WorldSolid" x="world_size" y="world_size" z="world_size" lunit="mm" />
+    <box name="waterTankSolidBox" x="waterTankSize" y="waterTankSize" z="waterTankSize" lunit="mm" />
+
+    <tube name="vesselSolidFull" startphi="0" deltaphi="360" rmin="0" rmax="gasVolumeRadius+resistiveInsulatorThickness+vesselThickness" z="gasVolumeLength+2*vesselBottomTopThickness" aunit="deg" lunit="mm" />
+
+    <tube name="resistiveSolidFull" startphi="0" deltaphi="360" rmin="0" rmax="gasVolumeRadius+resistiveInsulatorThickness" z="gasVolumeLength" aunit="deg" lunit="mm"/>
+
+    <tube name="gasSolidFull" startphi="0" deltaphi="360" rmin="0" rmax="gasVolumeRadius" z="gasVolumeLength" aunit="deg" lunit="mm"/>
+
+    <tube name="anodeSolid" startphi="0" deltaphi="360" rmin="0" rmax="gasVolumeRadius" z="anodeThickness" aunit="deg" lunit="mm"/>
+    <tube name="micromegasSolid" startphi="0" deltaphi="360" rmin="0" rmax="gasVolumeRadius" z="micromegasSupportThickness" aunit="deg" lunit="mm"/>
+    
+
+    <subtraction name="waterTankSolid">
+        <first ref="waterTankSolidBox"/>
+        <second ref="vesselSolidFull"/>
+    </subtraction>
+    
+    <subtraction name="vesselSolid">
+        <first ref="vesselSolidFull"/>
+        <second ref="resistiveSolidFull"/>
+    </subtraction>
+    
+    <subtraction name="resistiveSolid">
+        <first ref="resistiveSolidFull"/>
+        <second ref="gasSolidFull"/>
+    </subtraction>
+
+    <subtraction name="gasSolid_01">
+        <first ref="gasSolidFull"/>
+        <second ref="anodeSolid"/>
+        <position name="anodePosition" unit="mm" x="0" y="0" z="0"/>
+    </subtraction>
+
+    <subtraction name="gasSolid_02">
+        <first ref="gasSolid_01"/>
+        <second ref="micromegasSolid"/>
+        <position name="m1Position" unit="mm" x="0" y="0" z="micromegas1_Z"/>
+    </subtraction>
+
+    <subtraction name="gasSolid">
+        <first ref="gasSolid_02"/>
+        <second ref="micromegasSolid"/>
+        <position name="m2Position" unit="mm" x="0" y="0" z="micromegas2_Z"/>
+    </subtraction>
+
+</solids>
+
+<structure>
+    <!-- {{{ Volumes definition (material and solid assignment) -->
+    <volume name="gasVolume">
+        <materialref ref="Xenon_TMA"/>
+        <solidref ref="gasSolid"/>
+    </volume>
+
+    <volume name="waterTankVolume">
+        <materialref ref="Water"/>
+        <solidref ref="waterTankSolid"/>
+    </volume>
+
+    <volume name="vesselVolume">
+        <materialref ref="Copper"/>
+        <solidref ref="vesselSolid"/>
+    </volume>
+
+    <volume name="anodeVolume">
+        <materialref ref="Copper"/>
+        <solidref ref="anodeSolid"/>
+    </volume>
+
+    <volume name="micromegasVolume">
+        <materialref ref="Copper"/>
+        <solidref ref="micromegasSolid"/>
+    </volume>
+
+    <volume name="resistiveVolume">
+        <materialref ref="PTFE"/>
+        <solidref ref="resistiveSolid"/>
+    </volume>
+
+
+    <!-- {{{ Physical volume definition (volume and position assignment) -->
+    <volume name="World">
+        <materialref ref="Air"/>
+        <solidref ref="WorldSolid"/>
+
+        <physvol name="waterTank">
+            <volumeref ref="waterTankVolume"/>
+            <position name="waterTankPosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+        <physvol name="vessel">
+            <volumeref ref="vesselVolume"/>
+            <position name="vesselPosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+        <physvol name="anode">
+            <volumeref ref="anodeVolume"/>
+            <position name="anodePosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+        <physvol name="micromegas1">
+            <volumeref ref="micromegasVolume"/>
+            <position name="mM1Position" unit="mm" x="0" y="0" z="micromegas1_Z"/>
+        </physvol>
+
+        <physvol name="micromegas2">
+            <volumeref ref="micromegasVolume"/>
+            <position name="mM2Position" unit="mm" x="0" y="0" z="micromegas2_Z"/>
+        </physvol>
+
+        <physvol name="gas">
+            <volumeref ref="gasVolume"/>
+            <position name="gasPosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+        <physvol name="resistive">
+            <volumeref ref="resistiveVolume"/>
+            <position name="gasPosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+    </volume>
+    <!-- }}} -->
+    
+</structure>
+
+<setup name="Default" version="1.0">
+    <world ref="World"/>
+</setup>

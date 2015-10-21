@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<!-- Constructing XML-like REST metadata input file
+     File : config.rml
+     First concept author J. Galan (26-Apr-2015)
+ -->
+
+Any text that is outside the section structure will be ignored. Comments in RML are not fully supported.
+We cannot comment existing code. Metadata will just load the values it finds first.
+
+All units in mm, keV and degrees
+
+<globals>
+    <parameter name="mainDataPath" value="/home/javier/restData" />
+    <parameter name="verboseLevel" value="warning" /> %options are : silent, warning, info, debug
+</globals>
+
+
+<section gas name="Xenon-TMA 9Pct" title="Xenon-TMA Mixture (9Pct TMA)">
+    <parameter name="pressure" value="10" />
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="100" Emax="1000000." nodes="20" />
+    <gasComponent name="xe" fraction="0.91" />
+    <gasComponent name="n(ch3)3" fraction="0.09" />
+</section>
+

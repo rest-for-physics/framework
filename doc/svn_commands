@@ -1,0 +1,14 @@
+If there is a conflict an we postpone we can solve the conflit in the working copy.
+To solve the conflict we must do
+
+svn resolve --accept working test.txt
+
+
+We can get any revision in the working copy
+svn update --revision XX
+
+Or checkout a specific version in a new directory
+
+mkdir revision_XX
+cd revision_XX
+svn co http://sultan.unizar.es@XX

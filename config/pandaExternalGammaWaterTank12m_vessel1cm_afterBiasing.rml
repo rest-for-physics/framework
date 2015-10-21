@@ -1,0 +1,46 @@
+<globals>
+    <parameter name="mainDataPath" value="/home/javier/restData/" />
+    <parameter name="verboseLevel" value="warning" />
+</globals>
+
+<section run name="PANDA-X run" title="First simulations v1.0">
+    <parameter name="Nevents" value="1214674"/>
+    <parameter name="experiment" value="PANDA X III"/>
+    <parameter name="runType" value="simulation"/>
+    <parameter name="runNumber" value="1"/>
+    <parameter name="runTag" value="ExternalGamma_concreteTh232_Vessel1cm_WT12m"/>
+    <parameter name="runDescription" value="External gamma (concrete) water tank 12m (biasing)."/>
+    <parameter name="user" value="system"/>
+    <parameter name="verboseLevel" value="3"/>
+</section>
+
+<section restG4 name="PANDA-X Simulation" title="Concrete gamma flux from 12m water tank.">
+
+    <parameter name="gdml_file" value="vessel1cm_v1.1.gdml"/>
+
+    <generator type="virtualBox" size="2500" >
+        <source particle="gamma" fullchain="off">
+            <angularDist type="TH1D" file="Th232_concrete_12mWater.root" spctName="Bias_Angular_Distribution_0"/>
+            <energyDist type="TH1D" file="Th232_concrete_12mWater.root" spctName="Bias_Spectrum_0" range="(2400,15000)"/>
+        </source>
+    </generator>
+
+    <biasing value="off" type="virtualBox">
+        <biasingVolume particle="gamma" size="2500" position="(0,0,0)" factor="4" energyRange="(2400,15000)" />
+        <biasingVolume particle="gamma" size="3000" position="(0,0,0)" factor="10" energyRange="(2400,15000)" />
+        <biasingVolume particle="gamma" size="4000" position="(0,0,0)" factor="10" energyRange="(2400,15000)" />
+        <biasingVolume particle="gamma" size="5000" position="(0,0,0)" factor="10" energyRange="(2400,15000)" />
+        <biasingVolume particle="gamma" size="6000" position="(0,0,0)" factor="10" energyRange="(2400,15000)" />
+        <biasingVolume particle="gamma" size="7000" position="(0,0,0)" factor="10" energyRange="(2400,15000)" />
+        <biasingVolume particle="gamma" size="8000" position="(0,0,0)" factor="10" energyRange="(2400,15000)" />
+        <biasingVolume particle="gamma" size="9000" position="(0,0,0)" factor="10" energyRange="(2400,15000)" />
+        <biasingVolume particle="gamma" size="10000" position="(0,0,0)" factor="10" energyRange="(2400,15000)" />
+        <biasingVolume particle="gamma" size="11000" position="(0,0,0)" factor="20" energyRange="(2400,15000)" />
+    </biasing>
+
+    <storage sensitiveVolume="gas">
+        <parameter name="energyRange" value="(0,15000)" />
+        <activeVolume name="gas" chance="1" />
+    </storage>
+
+</section>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<!-- Constructing XML-like REST metadata input file
+     File : config.rml
+     First concept author J. Galan (26-Apr-2015)
+ -->
+
+Any text that is outside the section structure will be ignored. Comments in RML are not fully supported.
+We cannot comment existing code. Metadata will just load the values it finds first.
+
+All units in mm, keV and degrees
+
+<globals>
+    <parameter name="mainDataPath" value="/home/javier/restData" />
+    <parameter name="verboseLevel" value="warning" /> %options are : silent, warning, info, debug
+</globals>
+
+<section run name="PANDA-X run" title="First simulations v1.0">
+    <parameter name="Nevents" value="10"/>
+    <parameter name="experiment" value="PANDA X III"/>
+    <parameter name="runType" value="simulation"/>
+    <parameter name="runNumber" value="1"/>
+    <parameter name="runTag" value="Template"/>
+    <parameter name="runDescription" value="We launch just 100 events to check everything is ok."/>
+    <parameter name="user" value="system"/>
+    <parameter name="verboseLevel" value="3"/>
+</section>
+
+<section restG4 name="A simulation test." title="Simulation of Co60 decay">
+
+    <parameter name="gdml_file" value="pandaXIII_Traditional_Setup.gdml"/>
+    <parameter name="maxTargetStepSize" value="0.01" />
+
+    <generator type="point" position="(0,0,0)" >
+        <source particle="e-" fullChain="off">
+            <angularDist type="isotropic" />
+            <energyDist type="mono" energy="1500" />
+        </source>
+    </generator>
+
+    <biasing value="off" type="virtualBox">
+        <biasingVolume size="2850" position="(0,0,0)" factor="10" energyRange="(2400,5000)" />
+        <biasingVolume size="2450" position="(0,0,0)" factor="10" energyRange="(2400,5000)" />
+        <biasingVolume size="2050" position="(0,0,0)" factor="10" energyRange="(2400,5000)" />
+    </biasing>
+
+    <storage sensitiveVolume="gas">
+        <parameter name="energyRange" value="(0,1000000)" />
+        <activeVolume name="gas" chance="1" />
+    </storage>
+
+</section>
+
+<section electronDiffusionProcess name="pandaDiffusion" title="Half PANDA X-III Vessel" >
+    <parameter name="anodePosition" value="0" /> // mm
+    <parameter name="cathodePosition" value="-1000" /> // mm
+    <parameter name="electricField" value="1000" /> // V/cm
+</section>
+
+<section hitsToSignalProcess name="pandaDigitization" title="Half PANDA X-III Vessel" >
+</section>
+
+<section segmentationProcess title="XX" >
+    <parameter name="timeBinning" value="1" />  // microseconds
+</section>
+
+<section readout nameref="PANDA_3MM_v1" file="definitions/readouts.rml"> </section>
+
+<section gas nameref="Xenon-TMA 3Pct" file="definitions/gases.rml"> </section>
+

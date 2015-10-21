@@ -1,0 +1,286 @@
++++++++++++++++++++++
+File : rest.log
+Description : This file should keep track of all modifications done in svn. 
+	      Somehow we will find similar information when we execute "svn log -lN" (N is to show the N last revisions).
+	      However, it will allow to log your own activity (might be several days work) before making a commit, 
+	      and probably give more detailed comments than those given at commit time. It is a working log. 
+	      So when there are tasks that should be done we may write (TODO), when they are finished we can change it to (DONE).
+
+
++++++++++++++++++++++
+We are in revision 60!
+=================
+23/Apr/2015
+Author : J. Galan
+=================
+- Created new_trunk for the development of a refurbished Rest framework structure.
+- Added G4Rest (a copy from NEXTMM)
+- Many classes in PhysicsList from G4Rest have been removed in order to compile in the new G4.10 version. This should be checked (TODO)
+- Makefiles in restcore and in main directory have been simplified (ROOT_SYS) is now replaced by root-config.
+- Makefile in the root directory should check if modules/libraries are updated. 
+  If not it should go inside modules directory and call their Makefile (DONE)
+- restlauncher has been placed on the root directory. This may be kept this way if we let REST philosophy to only one exe file.
+	+ However we might want to have restLaunchTask, restLaunchGUI, restPrintRunInfo, etc (or perhaps they may go in scripts?)
+
+=================
+27/Apr/2015
+Author : J. Galan
+=================
+- Added TRestRun class (empty for future development) DONE
+- Added config/simulation.xml
+- Moved G4Rest to restG4. Updated CMakeLists to link Geant4 to ROOT and restlibs.
+- In order to create a building directory to launch restG4. Execute this on an empty directory (pointing to your specific source location and geant installation):
+	cmake -DGeant4_DIR=/usr/local/geant4.10.1-install/lib/Geant4-10.1.0/ $HOME/svn/new_trunk/restG4/
+
+=================
+16/Jun/2015
+Author : J. Galan
+=================
+- Added geometry/config/macros directories to restG4 source
+- geometry contains the main file (geometry.gdml) implementing the geometry. This file includes materials.xml (for material definition), parameters.xml (for definition of geometrical parameters) and gas.xml (for definition of basic gas properties [gas pressure, quencher fraction, etc]).
+- DetectorConstruction.cc has been updated to read this geometry file. DefineMaterials() and ConstructTPC() have been commented (disabled).
+- geometry.gdml is still missing some of the parts defined on the original file (shielding, drift, cathode, etc). TOBE implemented in the short future.
+- CMakeLists.txt has been updated so that geometry and config files are copied to the build directory when doing make.
+- I do a commit. revision 68.
+
+=================
+16/Jun/2015
+Author : J. Galan
+=================
+- restG4 package : CMakeLists.txt has been bug fixed. Now a REST_PATH enviroment variable is expected to be used. If REST_PATH does not exist, cmake command will complain asking to define REST_PATH in the environment. Add to .bashrc >> export REST_PATH=$HOME/svn/new_trunk or whereever your new_trunk is installed.
+
+=================
+7/Jul/2015
+Author : J. Galan
+=================
+Revision 77
+-----------------
+Major upgrade of restcore libraries. Classes added or implemented.
+- TRestMetadata : TRestMetadata has been implemented. It fixes the format using itself REST Metadata Language (RML). TRestMetadata includes helper classes to read configuration files and implement new derived classes.
+- TRestG4Metadata : A specific Geant4 Metadata class. It implements <generator> and <storage> key words to define the behaviour of a REST Geant4 simulation.
+- TRestHits : A helper class to store hits (x,y,z,energy)
+- TRestG4Hits : It derives from TRestHits and implements additional information of Geant4 hits, processID and volumeID.
+- TRestG4Track : It is used to store the information of a Geant4 track. It contains at TRestHits.
+- TRestParticleSource : A helper class to define a Geant4 particle source. Implemented inside TRestG4Metadata.
+- TRestTemplate : A class for copy/paste and produce a new empty class.
+- TRestRun : TRestRun has been implemented. It contains a generic TRestEvent and a TRestMetadata. Those must be specified during program execution. We need to include yet file management for openning, closing, writting and reading files.
+
+A restG4 REST Geant4 package has been implemented from scratch. There was some issues/problems on the radiactive decay generation that I could only solve starting from scratch. Some funcionalities from the original restG4 (that has been moved to restG4_old) are still missing in the new version. Specially the generation of primary events using an input file (TODO).
+
+The new restG4 package is now completely ROOTified and RESTified. It implements a TRestRun and gets support of TRestG4Event, TRestG4Track and TRestG4Metadata. These classes are implemented directly in Geant4 methods to obtain the configuration given by file to TRestRun, and to write the TRestG4Event structure. The TRestG4Event structure is filled, we can get the output on screen from the values stored inside setting verboseLevel in config.rml to 3.
+
+The structure is not yet written to file. Some additional functions must be implemented in TRestRun for managing the file processes.
+
+=================
+12/Jul/2015
+Author : J. Galan
+=================
+Revision 78
+-----------------
+-> Implemented in restG4 the writting of output files.
+-> Implemented in TRestRun the formatting of output files.
+-> Added to TRestG4Track the origin of the track using a TVector3
+-> Added several scripts to help reading ROOT files generated by restG4
+
+=================
+12/Jul/2015
+Author : J. Galan
+=================
+Revision 81
+-----------------
+Implemented TRestGeometry, which is defined inside TRestRun. In restG4 we import the GDML file and associate it to restRun.
+
+GDML importation to ROOT is tricky. Sometimes, the GDML file will be accepted by Geant4 but not by TGeoManager::Import. If that is the case, there will be some problems when trying to access the TRestGeometry object stored in TRestRun. We should always check that the GDML is properly imported in ROOT by testing TGeoManager::Import("your.gdml")
+
+A myGeometryTemplate.gdml has been added to restG4 directory. One should derive from this file to create his own myGeometry.gdml file. The simulation.rml config is prepared to read myGeometryTemplate.gdml file so that testing after installation is straight forward.
+
+There is a new script PrintGeometryInfo that accesses the TRestGeometry stored in the ROOT file and prints the volume names and materials defined inside.
+
+=================
+13/Jul/2015
+Author : J. Galan
+=================
+Revision 85
+-----------------
+Added launchBsub.py script and re-structured the scripts folder. Now restG4 takes as argument the config file and optionally a runIndex number which is automatically set by launchBsub.py when sending jobs from LXPLUS.
+ prese
+=================
+14/Jul/2015
+Author : J. Galan
+=================
+Revision 85
+-----------------
+Revised launchBsub.py script and added two scripts for checking and meging files.
+- CheckRunList( TString namePattern ) : It is used giving a name pattern (path must be included). I.e /myData/*Tl208*
+  The macro will try to read the files and it will return at the end a list with files that have no trees.
+  This will allow you to detect files not properly closed due to crashes or canceled jobs. Useful when you have launched many files to a batch job.
+- MergeFiles (TString pathAndNamePattern, TString outputFilename ) : It receives as input a file pattern exactly as CheckRunList. It specifies also the output file name.
+- Added a parameter name="energyRange" to the config file <storage> section to define the energy range for total deposited energy we should store.
+  Modifyied restG4 accordingly to receive this information and decide to store the event or not.
+
+=================
+15/Jul/2015
+Author : J. Galan
+=================
+Revision 89
+-----------------
+Added biasing option to restG4. Inside the config file one can introduce any number of biasing volumes. The size of these volumes must be defined in decreasing order. This biasing option is intended to simulate large shieldings. The generator should be placed outside the largest biasing volume.
+
+The smallest biasing volume should contain all our active volumes. No hits are recorded when we are in biasing mode. The hits are recorded once we launch from the last smaller volume.
+
+When a gamma enters the biasing volume, its energy is recorded and added to biasingSpectrum. Once the run we defined has finished, a new run will be launched from the biasing volume. The source of the biasing volume will be gammas with the biasingSpectrum obtained in the previous run.
+
+The new run where we launch events from the biasingVolume will launch a number of particles equal to the gammas that entered the volume in the previous run by the biasingFactor.
+
+In order for this method to work properly we need to have enough statistics in the biasingSpectrum to define a reasonable energy distribution.
+
+The equivalent number of particles we will have launched in the final simulation will be the initial number of particles by all the biasingFactors. Thus, if we launched 10M particles originally, and we have 3 volumes with biasing factor 3, is like if we would have launched 10,000M particles.
+
+The biasing spectra are written inside the ROOT file.
+
+=================
+18/Jul/2015
+Author : J. Galan
+=================
+Revision 90
+-----------------
+Added energy range on biasing. So we relaunch only the gammas inside the energy range. Angular momentum distribution code is also implemented but commented. Histograms should be moved to TRestBiasingVolume.
+
+
+=================
+19/Jul/2015
+Author : J. Galan
+=================
+Revision 91
+-----------------
+Modified REST scripts and re-structured scripts folder, now all of them start by REST_, and can be loaded using LoadAllScripts.C.
+I have removed all the geometries to have just a template geometry.
+
+Added to restG4 some histograms from energy deposition that are written to the ROOT file to access easily, instead of using quickLookAnalysis.
+
+=================
+19/Jul/2015
+Author : J. Galan
+=================
+Revision 100
+-----------------
+Added an option to choose the type of biasing volume. Now the biasing volume can be defined as
+
+<biasing value="on" type="virtualBox" >
+
+if nothing is specified "virtualBox" will be used. Please consider the size of the volume for a sphere is the radius, while for a box is the side of the box.
+
+=================
+19/Jul/2015
+Author : J. Galan
+=================
+Revision 100
+-----------------
+Added basic versioning system to Makefile. Makefile now defines a variable named VERSION. If we do anychange to the restcore classes we should change the numbers. If we add new variables to an existing class we increase R --> 2.0.R. If we add a new class to the library we increase C --> 2.C.0.
+
+Like that we can always recover and compile different versions of the library. librestcore.so is a link that should point to the version corresponding to the repository revision.
+
+
+=================
+19/Jul/2015
+Author : J. Galan
+=================
+Revision 101. librestcore.so.2.0.1
+-----------------
+
+=================
+19/Jul/2015
+Author : J. Galan
+=================
+Revision 102
+-----------------
+Added the version of restcore to the filename.
+
+=======
+
+=================
+19/Jul/2015
+Author : J. Galan
+=================
+Revision 107
+-----------------
+
+A major bug corrected in the biasing volume gamma transfer. We had to kill secondaries produced after entering the biasing volume. Now the angular distribution it is taken into account, since it is not isotrope. Also, the energy range of the gammas that we want to transfer to the biasing volume can be specified.
+
+=================
+19/Jul/2015
+Author : J. Galan
+=================
+Revision 108
+-----------------
+
+Added sensitive volume to storage sub-section. A event that gives zero hits on the sensitive volume will not be stored at all. Even if active volumes are enabled for storage.
+
+=================
+29/Jul/2015
+Author : J. Galan
+=================
+Revision 110 - librestcore.so.2.1.0
+-----------------
++ Added densities of materials directly inside materials.xml
++ Added energy spectrum histogram file/name to TRestParticleSource
++ Added angular distribution histogram file/name to TRestParticleSource
+    - Now the generator can be defined with an arbitrary energy spectrum and angular distribution.
+
++ Added TRestParticle class. Now TRestParticleSource derives from TRestParticle.
++ Added TRestG4PrimaryGenerator class. Now TRestG4Metadata stores a TRestG4EventGenerator that includes TRestParticleSource and a TRestParticle storage.
++ Added TRestParticleCollection class. It stores a vector of TRestParticles.
+
++ Added inputData folder containning generators, distributions and gas files
+
+=================
+10-Aug-2015
+Author : J. Galan
+=================
+Revision 116 - librestcore.so.2.1.1
+-----------------
++ Added CosineLaw angular distribution. Effective in VirtualBox and VirtualSphere generators.
++ Added start and end track in TrestG4Track. Now both are recorded
+
+
+=================
+11-Aug-2015
+Author : J. Galan
+=================
+Revision 117 - librestcore.so.2.1.2
+-----------------
+
+- Removed start and end track parameters from TRestG4Track
++ Added GlobalTrackTime (in seconds) and TrackTimeLength (in microseconds)
++ RestG4 now stores all the tracks inside an event (even if the track produced no hits)
++ Added a subEvebtID parameter to TRestG4Track. It keeps an index related to the decay step inside a full chain decay simulation. (All the tracks with the same index correspond to the same decay)
+
+=================
+19-Aug-2015
+Author : J. Galan
+=================
+Revision 119 - librestcore.so.2.2.0
+-----------------
+m string related classes inside TRestMetadata have been made static
++ TRestRun has been prepared for input/output (full remasterization of this class)
+    + Added fHistoricMetadata
+    - SetRunFilename is now a pure virtual method that must be implemented by the derived class 
+    - Added virtual method Save() that should be implemented in the derived class in case some special member must be stored in ROOT file
+m TRestG4Metadata has been renamed to TRestG4Run
+m TRestMetadata LoadConfigFile is now LoadSectionMetadata( ). This loads the specific section on the config buffer and calls the virtual function InitializeFromConfig() that is implemented in the derived class.
++ Added TRestTemplateRun
+- FileTask related classes have been moved to .trash. They have been substituted by TRestRun
+m scripts/restG4/RESTG4_readEventTemplate.C updated for the new TRestRun scheme. Other scripts must be updated yet.
+
+=================
+19-Aug-2015
+Author : J. Galan
+=================
+Revision 122 - librestcore.so.2.2.0
+-----------------
+
+A Added TRestEventViewer class, TRestG4EventViewer class and RESTG4_ViewEvent.C
+A Added TRestGas allowing to generate and read gas files. Implements method to access the properties of the gas.
+m Moved related G4 classes to restsim.
+
+

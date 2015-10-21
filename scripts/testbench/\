@@ -1,0 +1,115 @@
+
+#include <vector>
+#include <iostream>
+using namespace std;
+
+
+int REST_TestBench_Readout( string configFile )
+{
+
+    TRestReadout *readout = new TRestReadout( configFile.c_str() );
+
+    Int_t nModules = readout->GetNumberOfModules( );
+
+    Int_t totalPixels = 0;
+    for( int mdID = 0; mdID < nModules; mdID++ )
+    {
+        TRestReadoutModule *module = readout->GetReadoutModule( mdID );
+        Int_t nChannels = module->GetNumberOfChannels();
+
+        for( int ch = 0; ch < nChannels; ch++ )
+        {
+            TRestReadoutChannel *channel = module->GetChannel( ch );
+            Int_t nPixels = channel->GetNumberOfPixels();
+            totalPixels += nPixels;
+        }
+    }
+
+    cout << "Total pixels" << totalPixels << endl;
+    const Int_t tGr = totalPixels + nModules;
+    TGraph *pixelGraph[tGr];
+    TLatex *channelIDLabel[tGr];
+
+    cout << "modules : " << nModules << endl;
+
+    Int_t graph = 0;
+    for( int mdID = 0; mdID < nModules; mdID++ )
+    {
+        TRestReadoutModule *module = readout->GetReadoutModule( mdID );
+        Int_t nChannels = module->GetNumberOfChannels();
+
+        for( int ch = 0; ch < nChannels; ch++ )
+        {
+            TRestReadoutChannel *channel = module->GetChannel( ch );
+
+            Double_t x[5];
+            Double_t y[5];
+            /*
+            for( int v = 0; v < 5; v++ )
+            {
+                x[v] = module->GetVertex( v ).X();
+                y[v] = module->GetVertex( v ).Y();
+            }
+            pixelGraph[graph] = new TGraph( 5, x, y );
+
+            pixelGraph[graph]->SetLineColor( kBlue+4*mdID );
+            pixelGraph[graph]->SetLineWidth(2);
+            pixelGraph[graph]->SetMaximum( 200 );
+            pixelGraph[graph]->SetMinimum( -200 );
+            pixelGraph[graph]->GetXaxis()->SetLimits(-200,200);
+
+            graph++;
+            */
+
+            Int_t nPixels = channel->GetNumberOfPixels();
+
+            for( int px = 0; px < nPixels; px++ )
+            {
+                for( int v = 0; v < 5; v++ )
+                {
+                    x[v] = module->GetPixelVertex( ch, px, v ).X();
+                    y[v] = module->GetPixelVertex( ch, px, v ).Y();
+                }
+                pixelGraph[graph] = new TGraph( 5, x, y );
+
+                pixelGraph[graph]->SetLineColor( kBlue+4*mdID );
+                pixelGraph[graph]->SetLineWidth(2);
+                pixelGraph[graph]->SetMaximum( 200 );
+                pixelGraph[graph]->SetMinimum( -200 );
+                pixelGraph[graph]->GetXaxis()->SetLimits(-200,200);
+
+                Double_t xMin = 1e10;
+                Double_t yMin = 1e10;
+                Double_t xMax = -1e10;
+                for( int l = 0; l < 5; l++ )
+                {
+                    if( x[l] < xMin ) xMin = x[l];
+                    if( y[l] < yMin ) yMin = y[l];
+                    if( x[l] > xMax ) xMax = x[l];
+
+                }
+                channelIDLabel[graph] = new TLatex( xMin+(xMax-xMin)/2, yMin, Form("%d", channel->GetID() ) );
+                channelIDLabel[graph]->SetTextSize( 0.01 );
+                channelIDLabel[graph]->SetTextFont( 12 );
+                channelIDLabel[graph]->SetTextAlign( 21 );
+                //           channelIDLable[graph]->SetTextColor( kBlue+4*mdID );
+
+
+                //pixelGraph[graph]->Draw("same");
+                graph++;
+            }
+        }
+        cout << "Module : " << mdID << " Channels : " << nChannels << endl;
+    }
+
+    TCanvas* c = new TCanvas("ReadoutGraphViewer", "  ", 1080, 1080);
+
+    pixelGraph[0]->Draw("");
+    channelIDLabel[0]->Draw( "same" );
+    for( int i = 1; i < graph; i++ )
+    {
+        pixelGraph[i]->Draw("same");
+        channelIDLabel[i]->Draw("same");
+    }
+
+}

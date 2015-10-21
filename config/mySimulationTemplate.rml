@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<!-- Constructing XML-like REST metadata input file
+     File : config.rml
+     First concept author J. Galan (26-Apr-2015)
+ -->
+
+Any text that is outside the section structure will be ignored. Comments in RML are not fully supported.
+We cannot comment existing code. Metadata will just load the values it finds first.
+
+All units in mm, keV and degrees
+
+<globals>
+    <parameter name="mainDataPath" value="/home/javier/restData" />
+    <parameter name="verboseLevel" value="warning" /> %options are : silent, warning, info, debug
+</globals>
+
+<section run name="PANDA-X run" title="First simulations v1.0">
+    <parameter name="Nevents" value="10"/>
+    <parameter name="experiment" value="PANDA X III"/>
+    <parameter name="runType" value="simulation"/>
+    <parameter name="runNumber" value="1"/>
+    <parameter name="runTag" value="Template"/>
+    <parameter name="runDescription" value="We launch just 100 events to check everything is ok."/>
+    <parameter name="user" value="system"/>
+    <parameter name="verboseLevel" value="3"/>
+</section>
+
+<section restG4 name="A simulation test." title="Simulation of Co60 decay">
+
+    <parameter name="gdml_file" value="pandaXIII_Traditional_Setup.gdml"/>
+    <parameter name="maxTargetStepSize" value="0.01" />
+
+    <generator type="virtualCylinder" size="30" length="2000" >
+        <source particle="e-" fullChain="off">
+            <angularDist type="isotropic" />
+            <energyDist type="mono" energy="500" />
+        </source>
+    </generator>
+
+    <biasing value="off" type="virtualBox">
+        <biasingVolume size="2850" position="(0,0,0)" factor="10" energyRange="(2400,5000)" />
+        <biasingVolume size="2450" position="(0,0,0)" factor="10" energyRange="(2400,5000)" />
+        <biasingVolume size="2050" position="(0,0,0)" factor="10" energyRange="(2400,5000)" />
+    </biasing>
+
+    <storage sensitiveVolume="gas">
+        <parameter name="energyRange" value="(0,1000000)" />
+        <activeVolume name="gas" chance="1" />
+    </storage>
+
+</section>
+
+<section electronDiffusionProcess title="Half PANDA X-III Vessel" >
+    <parameter name="anodePosition" value="0" /> // mm
+    <parameter name="cathodePosition" value="-1000" /> // mm
+    <parameter name="electricField" value="1000" /> // V/cm
+</section>
+
+<section segmentationProcess title="XX" >
+    <parameter name="timeBinning" value="1" />  // microseconds
+</section>
+
+<section readout nameref="NEXT-MM" file="definitions/readouts.rml" />
+</section>
+
+<section gas nameref="Xenon-TMA 1Pct" file="definitions/gases.rml"> </section>
+
+Any text that is outside the section structure will be ignored. Comments in RML are yet not allowed.
+
+            <energyDist type="flat" range="(2500,3000)"/>
+    <generator type="volume" from="Sphere" position="(0,0,0)" rotation="(90,0,0)" size="100" length="200" >
+        <source particle="e-">
+            <angularDist type="isotropic" direction="(5,5,0)" />
+            <energyDist type="mono" energy="100" range="(1,10)" file="xx.rsf" />   rsf -> Rest Spectrum File
+        </source>
+    </generator>
+
+        <source particle="gamma">
+            <angularDist type="backtoback" />
+            <energyDist type="flat" range="(0,10)" />
+        </source>
+
+    <generator type="volume" from="gas" >
+        <source fromFile="Xe136bb0n.dat">
+        </source>
+    </generator>
+    <generator type="volume" from="gas" >
+        <source particle="Tl208" fullChain="off">
+            <angularDist type="isotropic" />
+            <energyDist type="mono" energy="0" />
+        </source>
+    </generator>
+
+
+    // 6th-7th row (14 pixels/channels)
+    <for variable="rw" from="0" to="2" step="1" />
+        <for variable="ch" from="46+[rw]*14" to="46+([rw]+1)*14" step="1" />
+        <readoutChannel id="[ch]" >
+                <addPixel id="0" origin="(pixelSize*([ch]-(46+[rw]*14)),5+[rw])" size="(pixelSize,pixelSize)" />
+        </readoutChannel>
+        </for>
+   </for>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<!-- Constructing XML-like REST metadata input file
+     File : Xenon-TMA.rml
+     First concept author J. Galan (26-Apr-2015)
+ -->
+
+<section gas name="Xenon-TMA 10Pct (100V/cm-10kV/cm)" title="Xenon-TMA  Mixture (10Pct TMA)">
+    <parameter name="pressure" value="10" />
+    <parameter name="temperature" value="293.15" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="100" Emax="10000." nodes="10" />
+    <gasComponent name="xe" fraction="0.9" />
+    <gasComponent name="n(ch3)3" fraction="0.1" />
+</section>
+
