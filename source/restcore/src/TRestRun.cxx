@@ -258,16 +258,14 @@ void TRestRun::SetVersion()
     chdir( buffer );
 
     // Reading the version of libcore.so
-    FILE *fV = popen("svn info", "r");
+    FILE *fV = popen("git rev-list --count --first-parent HEAD", "r");
     int nbytes;
     string versionStr;
     while ((nbytes = fread(buffer, 1, 255, fV)) > 0)
     {
         versionStr = buffer;
-        size_t last = versionStr.find("Revision: ");
-        versionStr = versionStr.substr(last, string::npos-1 );
-        last = versionStr.find(": ");
-        versionStr = versionStr.substr(last+2, 3 );
+        size_t last = versionStr.find("\n");
+        versionStr = versionStr.substr(0, last );
     }
 
     pclose( fV );
