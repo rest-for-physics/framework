@@ -55,7 +55,7 @@ class TRestEvent:public TObject {
    TString GetClassName() { return fEventClassName; }
 
    // Must be set on the derived events to remove content
-   virtual void Initialize(); 
+   virtual void Initialize() = 0; 
 
    virtual void PrintEvent();
 
