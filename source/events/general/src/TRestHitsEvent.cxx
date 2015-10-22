@@ -36,6 +36,15 @@ void TRestHitsEvent::AddHit( TVector3 pos, Double_t en )
     fTotEnergy += en;
 }
 
+void TRestHitsEvent::Initialize()
+{
+    TRestEvent::Initialize();
+    fEventClassName = "TRestHitsEvent";
+
+    RemoveHits();
+
+}
+
 void TRestHitsEvent::RemoveHits( )
 {
     //cout << "Removing hits" << endl;
