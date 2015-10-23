@@ -7,16 +7,7 @@
 ///
 ///             TRestHitsToSignalProcess.cxx
 ///
-///             Template to use to design "event process" classes inherited from 
-///             TRestHitsToSignalProcess
-///             How to use: replace TRestHitsToSignalProcess by your name, 
-///             fill the required functions following instructions and add all
-///             needed additional members and funcionality
-///
-///             jun 2014:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///                 Igor G. Irastorza
+///             oct 2015:  Javier Galan
 ///_______________________________________________________________________________
 
 
@@ -37,7 +28,7 @@ TRestHitsToSignalProcess::TRestHitsToSignalProcess( char *cfgFileName )
 {
     Initialize();
 
-    LoadConfig( "hitsToSignalProcess", cfgFileName );
+    if( LoadConfig( "hitsToSignalProcess", cfgFileName ) == -1 ) LoadDefaultConfig( );
 
     fReadout = new TRestReadout( cfgFileName );
 
@@ -52,6 +43,16 @@ TRestHitsToSignalProcess::~TRestHitsToSignalProcess()
     delete fHitsEvent;
     delete fSignalEvent;
    // TRestHitsToSignalProcess destructor
+}
+
+void TRestHitsToSignalProcess::LoadDefaultConfig( )
+{
+    SetName( "hitsToSignalProcess" );
+    SetTitle( "Default config" );
+
+
+    fSampling = 1;
+
 }
 
 //______________________________________________________________________________
@@ -86,18 +87,25 @@ void TRestHitsToSignalProcess::InitProcess()
 void TRestHitsToSignalProcess::BeginOfEventProcess() 
 {
     cout << "Begin of event process" << endl;
-    fHitsEvent->Initialize(); 
-
+    fSignalEvent->Initialize(); 
 }
 
 //______________________________________________________________________________
 TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
 {
-
-    
     fHitsEvent = (TRestHitsEvent *) evInput;
 
+    cout << "Event ID : " << fHitsEvent->GetEventID() << endl;
     cout << "Number of hits : " << fHitsEvent->GetNumberOfHits() << endl;
+
+    for( int hit = 0; hit < fHitsEvent->GetNumberOfHits(); hit++ )
+    {
+        cout << " X : " << fHitsEvent->GetX( hit ) << endl;
+        cout << " Y : " << fHitsEvent->GetY( hit ) << endl;
+        cout << " Z : " << fHitsEvent->GetZ( hit ) << endl;
+        cout << " E : " << fHitsEvent->GetEnergy( hit ) << endl;
+
+    }
 
     /*
     TRandom *rnd = new TRandom();

@@ -36,6 +36,8 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
 
         void Initialize();
 
+        void LoadDefaultConfig();
+
     protected:
         //add here the members of your event process
         TRestGas *fGas;
