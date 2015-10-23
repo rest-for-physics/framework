@@ -138,7 +138,7 @@ class TRestMetadata:public TNamed {
 
         //////////////////////////////////////////////////
 
-        void virtual PrintMetadata();
+        void virtual PrintMetadata() = 0;
 
         //Constructor
         TRestMetadata();
