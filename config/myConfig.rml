@@ -15,7 +15,7 @@ All units in mm, keV and degrees
     <parameter name="verboseLevel" value="warning" /> %options are : silent, warning, info, debug
 </globals>
 
-<section run name="Config run" title="First simulations v1.0">
+<section run name="Run metadata" title="First simulations v1.0">
     <parameter name="Nevents" value="100"/>
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
@@ -26,7 +26,7 @@ All units in mm, keV and degrees
     <parameter name="verboseLevel" value="3"/>
 </section>
 
-<section restG4 name="A simulation test." title="Simulation of Co60 decay">
+<section restG4 name="Geant4 metadata" title="Simulation of Co60 decay">
 
     <parameter name="gdml_file" value="mySetupTemplate.gdml"/>
     <parameter name="maxTargetStepSize" value="0.01" />
@@ -51,20 +51,13 @@ All units in mm, keV and degrees
 
 </section>
 
-<section electronDiffusionProcess name="pandaDiffusion" title="Half PANDA X-III Vessel" >
+<section electronDiffusionProcess name="electronDiffusion-Panda" title="Half PANDA X-III Vessel (Bottom)" >
     <parameter name="anodePosition" value="0" /> // mm
     <parameter name="cathodePosition" value="-1000" /> // mm
     <parameter name="electricField" value="1000" /> // V/cm
 </section>
 
-<section hitsToSignalProcess name="pandaDigitization" title="Half PANDA X-III Vessel" >
-</section>
+<section readout nameref="Readout-PANDA_3MM_v1" file="definitions/readouts.rml"> </section>
 
-<section segmentationProcess title="XX" >
-    <parameter name="timeBinning" value="1" />  // microseconds
-</section>
-
-<section readout nameref="PANDA_3MM_v1" file="definitions/readouts.rml"> </section>
-
-<section gas nameref="Xenon-TMA 3Pct" file="definitions/gases.rml"> </section>
+<section gas nameref="Gas-Xenon-TMA 3Pct" file="definitions/gases.rml"> </section>
 
