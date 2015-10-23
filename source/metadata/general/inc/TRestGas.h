@@ -185,6 +185,8 @@ public:
     void PlotTownsendCoefficient( Double_t eMin, Double_t eMax, Int_t nSteps );
 	void PrintGasInfo();
 
+	void PrintMetadata() { PrintGasInfo(); }
+
 	
 	ClassDef(TRestGas,1);  // Gas Parameters
 };
