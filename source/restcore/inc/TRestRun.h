@@ -60,10 +60,10 @@ class TRestRun:public TRestMetadata {
         Double_t fStartTime;              ///< Event absolute starting time/date (unix timestamp)
         Double_t fEndTime;              ///< Event absolute starting time/date (unix timestamp)
 
+#ifndef __CINT__
         vector <TRestMetadata*> fMetadata;
         vector <TRestMetadata*> fHistoricMetadata;  // Open input file should store the metadata (and historic) information in historic metadata
 
-#ifndef __CINT__
         vector <TRestEventProcess*> fEventProcess;
         
         TTree *fInputEventTree;

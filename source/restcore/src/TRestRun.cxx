@@ -146,6 +146,8 @@ void TRestRun::OpenInputFile( TString fName )
             this->Read( key->GetName() );
         }
     }
+
+    cout << "Metadatas  : " << fMetadata.size() << endl;
 }
 
 void TRestRun::OpenInputFile( TString fName, TString cName )
@@ -213,26 +215,24 @@ void TRestRun::CloseOutputFile( )
     fEndTime = (Double_t) timev;
 
     fOutputFile->cd();
-    cout << "Writting metadata" << endl;
     if( fMetadata.size() > 0 )
     {
         for( unsigned int i = 0; i < fMetadata.size(); i++ )
         {
-            cout << "Writting : " << fMetadata[i]->GetName() << endl;
+            cout << "Writting metadata (" << fMetadata[i]->GetName() << ") : " << fMetadata[i]->GetTitle() << endl;
             fMetadata[i]->Write( fMetadata[i]->GetName() );
         }
+        cout << "End writting metadata" << endl;
     }
 
-    cout << "Writting processes" << endl;
-    if( fMetadata.size() > 0 )
+    if( fEventProcess.size() > 0 )
     {
         for( unsigned int i = 0; i < fEventProcess.size(); i++ )
         {
-            cout << "Writting : " << fEventProcess[i]->GetName() << endl;
-            fEventProcess[i]->Write( fMetadata[i]->GetName() );
+            cout << "Writting process (" << fEventProcess[i]->GetName() << ") : " << fEventProcess[i]->GetTitle() << endl;
+            fEventProcess[i]->Write( fEventProcess[i]->GetName() );
         }
     }
-    cout << "Writting tree" << endl;
 
     //else { if( GetVerboseLevel() >= REST_Warning ) cout << "WARNNNNING : No Geometry found" << endl; }
 
@@ -395,7 +395,7 @@ void TRestRun::SetRunFilenameAndIndex()
         fRunIndex++;
         sprintf( runIndexStr, "%03d", fRunIndex );
         fOutputFilename = GetDataPath() + "/Run_" + expName + "_"+ fRunUser + "_"  
-            + runType + "_" + fRunTag + "_" + (TString) runIndexStr + "_VERSION_" + fVersion + ".root";
+            + runType + "_" + fRunTag + "_" + (TString) runIndexStr + "_r" + fVersion + ".root";
     }
 }
 
