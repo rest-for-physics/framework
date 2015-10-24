@@ -71,12 +71,13 @@ class TRestMetadata:public TNamed {
  //       { cout << "WARNING Please Implement the InitFromConfigFile( ) method in the TRestMetadata derived class!!!!!" << endl; };
 
         virtual void Initialize() = 0;// { cout << __PRETTY_FUNCTION__ << endl; };
-        void LoadSectionMetadata( string section, string cfgFileName );
+        Int_t LoadSectionMetadata( string section, string cfgFileName );
 
-        void LoadConfig( string section, string cfgFileName )
+        Int_t LoadConfig( string section, string cfgFileName )
         {
-            LoadSectionMetadata( section, cfgFileName );
-            InitFromConfigFile();
+            Int_t result = LoadSectionMetadata( section, cfgFileName );
+            if( result == 0 ) InitFromConfigFile();
+            return result;
         }
 
     private:
@@ -137,7 +138,7 @@ class TRestMetadata:public TNamed {
 
         //////////////////////////////////////////////////
 
-        void virtual PrintMetadata();
+        void virtual PrintMetadata() = 0;
 
         //Constructor
         TRestMetadata();

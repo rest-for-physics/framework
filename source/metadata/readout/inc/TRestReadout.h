@@ -45,6 +45,8 @@ class TRestReadout:public TRestMetadata {
 
         void PrintReadout( );
 
+        void PrintMetadata( ) { PrintReadout( ); }
+
         void AddModule( TRestReadoutModule &rModule ) { fReadoutModule.push_back( rModule ); }
 
         TRestReadoutModule *GetReadoutModule( int n ) { return &fReadoutModule[n]; }

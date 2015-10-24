@@ -138,14 +138,20 @@ void TRestRun::OpenInputFile( TString fName )
     TIter nextkey(fInputFile->GetListOfKeys());
     TKey *key;
     while ( (key = (TKey*)nextkey() ) ) {
+
         string className = key->GetClassName();
 
-        cout << "className : " << className << " Run className" << fRunClassName << endl;
-        if ( className == "TRestRun" )
-        {
-            this->Read( key->GetName() );
-        }
+        if ( className == "TRestRun" ) this->Read( key->GetName() );
+
     }
+
+    // Transfering metadata to historic
+    for( size_t i = 0; i < fMetadata.size(); i++ )
+        fHistoricMetadata.push_back( fMetadata[i] );
+    fMetadata.clear();
+    for( size_t i = 0; i < fEventProcess.size(); i++ )
+        fHistoricEventProcess.push_back( fEventProcess[i] );
+    fEventProcess.clear();
 }
 
 void TRestRun::OpenInputFile( TString fName, TString cName )
@@ -213,37 +219,53 @@ void TRestRun::CloseOutputFile( )
     fEndTime = (Double_t) timev;
 
     fOutputFile->cd();
-    cout << "Writting metadata" << endl;
+
     if( fMetadata.size() > 0 )
     {
         for( unsigned int i = 0; i < fMetadata.size(); i++ )
         {
-            cout << "Writting : " << fMetadata[i]->GetName() << endl;
+            cout << "Writting metadata (" << fMetadata[i]->GetName() << ") : " << fMetadata[i]->GetTitle() << endl;
             fMetadata[i]->Write( fMetadata[i]->GetName() );
         }
     }
 
-    cout << "Writting processes" << endl;
-    if( fMetadata.size() > 0 )
+    if( fHistoricMetadata.size() > 0 )
+    {
+        for( unsigned int i = 0; i < fHistoricMetadata.size(); i++ )
+        {
+            cout << "Writting historic metadata (" << fHistoricMetadata[i]->GetName() << ") : " << fHistoricMetadata[i]->GetTitle() << endl;
+            fHistoricMetadata[i]->Write( fHistoricMetadata[i]->GetName() );
+        }
+    }
+
+    if( fEventProcess.size() > 0 )
     {
         for( unsigned int i = 0; i < fEventProcess.size(); i++ )
         {
-            cout << "Writting : " << fEventProcess[i]->GetName() << endl;
-            fEventProcess[i]->Write( fMetadata[i]->GetName() );
+            cout << "Writting process (" << fEventProcess[i]->GetName() << ") : " << fEventProcess[i]->GetTitle() << endl;
+            fEventProcess[i]->Write( fEventProcess[i]->GetName() );
         }
     }
-    cout << "Writting tree" << endl;
+
+    if( fHistoricEventProcess.size() > 0 )
+    {
+        for( unsigned int i = 0; i < fHistoricEventProcess.size(); i++ )
+        {
+            cout << "Writting historic process (" << fHistoricEventProcess[i]->GetName() << ") : " << fHistoricEventProcess[i]->GetTitle() << endl;
+            fHistoricEventProcess[i]->Write( fHistoricEventProcess[i]->GetName() );
+        }
+    }
 
     //else { if( GetVerboseLevel() >= REST_Warning ) cout << "WARNNNNING : No Geometry found" << endl; }
 
-    if( fOutputEventTree != NULL ) fOutputEventTree->Write();
+    if( fOutputEventTree != NULL ) { cout << "Writting output tree" << endl; fOutputEventTree->Write(); }
 
     if( fGeometry != NULL ){ cout << "Writting geometry" << endl; fGeometry->Write(); cout << "End writting" << endl; }
 
     this->Write();
 
-    fOutputFile->Close();
     cout << "Closing output file : " << endl;
+    fOutputFile->Close();
     cout << fOutputFilename << endl;
 }
 
@@ -258,16 +280,14 @@ void TRestRun::SetVersion()
     chdir( buffer );
 
     // Reading the version of libcore.so
-    FILE *fV = popen("svn info", "r");
+    FILE *fV = popen("git rev-list --count --first-parent HEAD", "r");
     int nbytes;
     string versionStr;
     while ((nbytes = fread(buffer, 1, 255, fV)) > 0)
     {
         versionStr = buffer;
-        size_t last = versionStr.find("Revision: ");
-        versionStr = versionStr.substr(last, string::npos-1 );
-        last = versionStr.find(": ");
-        versionStr = versionStr.substr(last+2, 3 );
+        size_t last = versionStr.find("\n");
+        versionStr = versionStr.substr(0, last );
     }
 
     pclose( fV );
@@ -397,7 +417,7 @@ void TRestRun::SetRunFilenameAndIndex()
         fRunIndex++;
         sprintf( runIndexStr, "%03d", fRunIndex );
         fOutputFilename = GetDataPath() + "/Run_" + expName + "_"+ fRunUser + "_"  
-            + runType + "_" + fRunTag + "_" + (TString) runIndexStr + "_VERSION_" + fVersion + ".root";
+            + runType + "_" + fRunTag + "_" + (TString) runIndexStr + "_r" + fVersion + ".root";
     }
 }
 

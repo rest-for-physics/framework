@@ -28,6 +28,10 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
 
         void Initialize();
 
+        void LoadDefaultConfig();
+
+        Int_t fSampling; // us
+
     protected:
         //add here the members of your event process
         TRestReadout *fReadout;
@@ -38,6 +42,7 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
         TRestEvent *ProcessEvent( TRestEvent *eventInput );
         void EndOfEventProcess(); 
         void EndProcess();
+
 
         TRestMetadata *GetMetadata( ) { return fReadout; }
 
