@@ -98,6 +98,7 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
     cout << "Event ID : " << fHitsEvent->GetEventID() << endl;
     cout << "Number of hits : " << fHitsEvent->GetNumberOfHits() << endl;
 
+    /*
     for( int hit = 0; hit < fHitsEvent->GetNumberOfHits(); hit++ )
     {
         cout << " X : " << fHitsEvent->GetX( hit ) << endl;
@@ -106,6 +107,7 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
         cout << " E : " << fHitsEvent->GetEnergy( hit ) << endl;
 
     }
+    */
 
     /*
     TRandom *rnd = new TRandom();
