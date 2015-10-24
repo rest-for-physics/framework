@@ -178,6 +178,7 @@ class TRestRun:public TRestMetadata {
         void PrintEndDate();
 
         void PrintInfo( );
+        void PrintMetadata() { PrintInfo(); }
 
         Double_t GetRunLength();
 
