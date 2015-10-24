@@ -54,6 +54,12 @@ TRestElectronDiffusionProcess::~TRestElectronDiffusionProcess()
    // TRestElectronDiffusionProcess destructor
 }
 
+void TRestElectronDiffusionProcess::LoadDefaultConfig()
+{
+
+    // TOBE implemented
+}
+
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::Initialize()
 {

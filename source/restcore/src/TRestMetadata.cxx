@@ -241,7 +241,7 @@ void TRestMetadata::SetDefaultConfigFilePath()
    SetConfigFilePath((const char *) cfgpath);
 }
 
-void TRestMetadata::LoadSectionMetadata( string section, string cfgFileName )
+Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName )
 {
     // TODO we should remove here commented code inside the config.rml 
     // Comments not yet allowed inside config file!
@@ -296,10 +296,11 @@ void TRestMetadata::LoadSectionMetadata( string section, string cfgFileName )
 
     // Then we just extract the corresponding section defined in the derived class (fSectionName)
     size_t sectionPosition = FindSection( temporalBuffer );
+    if ( sectionPosition == (size_t) NOT_FOUND ) { cout << "Section " << fSectionName << " not found" << endl; return -1; }
+
     configBuffer = GetKEYStructure( "section", sectionPosition, temporalBuffer );
 
     string sectionDefinition = GetKEYDefinition( "section", configBuffer );
-
     if( (TString) this->GetName() == "Not defined" ) 
     {
         string nameref = GetFieldValue( "nameref", sectionDefinition );
@@ -385,6 +386,7 @@ void TRestMetadata::LoadSectionMetadata( string section, string cfgFileName )
     }
 
     if( file != NULL ) file.close();
+    return 0;
 }
 
 // This might be an improved version of GetKEYStructure()

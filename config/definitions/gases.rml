@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
-<section gas name="Xenon-TMA 1Pct" title="Xenon-TMA Mixture (1Pct TMA)">
+<section gas name="Gas-Xenon-TMA 1Pct" title="Xenon-TMA Mixture (1Pct TMA)">
     <parameter name="pressure" value="10" />  
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -11,7 +11,7 @@
     <gasComponent name="n(ch3)3" fraction="0.01" />
 </section>
 
-<section gas name="Xenon-TMA 3Pct" title="Xenon-TMA Mixture (3Pct TMA)">
+<section gas name="Gas-Xenon-TMA 3Pct" title="Xenon-TMA Mixture (3Pct TMA)">
     <parameter name="pressure" value="10" />  
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -22,7 +22,7 @@
     <gasComponent name="n(ch3)3" fraction="0.03" />
 </section>
 
-<section gas name="Xenon-TMA 5Pct" title="Xenon-TMA Mixture (5Pct TMA)">
+<section gas name="Gas-Xenon-TMA 5Pct" title="Xenon-TMA Mixture (5Pct TMA)">
     <parameter name="pressure" value="10" />  
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -33,7 +33,7 @@
     <gasComponent name="n(ch3)3" fraction="0.05" />
 </section>
 
-<section gas name="Xenon-TMA 7Pct" title="Xenon-TMA Mixture (7Pct TMA)">
+<section gas name="Gas-Xenon-TMA 7Pct" title="Xenon-TMA Mixture (7Pct TMA)">
     <parameter name="pressure" value="10" />  
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -44,7 +44,7 @@
     <gasComponent name="n(ch3)3" fraction="0.07" />
 </section>
 
-<section gs name="Xenon-TMA 9Pct" title="Xenon-TMA Mixture (9Pct TMA)">
+<section gs name="Gas-Xenon-TMA 9Pct" title="Xenon-TMA Mixture (9Pct TMA)">
     <parameter name="pressure" value="10" />  
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />

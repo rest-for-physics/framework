@@ -35,6 +35,9 @@ class TRestEventProcess:public TRestMetadata {
    TRestEvent *fInputEvent;
    TRestEvent *fOutputEvent;
 
+ private:
+   virtual void LoadDefaultConfig()=0;
+
  public:
    virtual TRestEvent *GetInputEvent() { return fInputEvent; }
    virtual TRestEvent *GetOutputEvent() { return fOutputEvent; }

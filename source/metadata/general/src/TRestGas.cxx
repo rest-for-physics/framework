@@ -105,6 +105,8 @@ void TRestGas::LoadGasFile( )
         else
         {
             cout << "Please, use EnableGasGeneration() if you want to produce a gas file." << endl;
+            cout << "This probably an error. Press a key to continue..." << endl;
+            getchar();
             fStatus = RESTGAS_ERROR; return; 
         }
     }
