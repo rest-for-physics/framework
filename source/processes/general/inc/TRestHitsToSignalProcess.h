@@ -43,6 +43,7 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
         void EndOfEventProcess(); 
         void EndProcess();
 
+        void PrintMetadata() { cout << "TODO : Needs to be implemented" << endl; }
 
         TRestMetadata *GetMetadata( ) { return fReadout; }
 

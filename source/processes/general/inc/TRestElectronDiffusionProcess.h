@@ -50,6 +50,8 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
         void EndOfEventProcess(); 
         void EndProcess();
 
+        void PrintMetadata() { cout << "TODO: Needs to be implemented!!!!" << endl; }
+
         TRestMetadata *GetMetadata( ) { return fGas; }
 
         TString GetProcessName() { return (TString) "electronDiffusion"; }
