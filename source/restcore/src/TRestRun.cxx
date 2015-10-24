@@ -220,12 +220,14 @@ void TRestRun::CloseOutputFile( )
 
     fOutputFile->cd();
 
+    char tmpString[256];
     if( fMetadata.size() > 0 )
     {
         for( unsigned int i = 0; i < fMetadata.size(); i++ )
         {
             cout << "Writting metadata (" << fMetadata[i]->GetName() << ") : " << fMetadata[i]->GetTitle() << endl;
-            fMetadata[i]->Write( fMetadata[i]->GetName() );
+            sprintf( tmpString, "M%d. %s", i,  fMetadata[i]->GetName() );
+            fMetadata[i]->Write( tmpString );
         }
     }
 
@@ -234,7 +236,8 @@ void TRestRun::CloseOutputFile( )
         for( unsigned int i = 0; i < fHistoricMetadata.size(); i++ )
         {
             cout << "Writting historic metadata (" << fHistoricMetadata[i]->GetName() << ") : " << fHistoricMetadata[i]->GetTitle() << endl;
-            fHistoricMetadata[i]->Write( fHistoricMetadata[i]->GetName() );
+            sprintf( tmpString, "HM%d. %s", i,  fHistoricMetadata[i]->GetName() );
+            fHistoricMetadata[i]->Write( tmpString );
         }
     }
 
@@ -243,7 +246,8 @@ void TRestRun::CloseOutputFile( )
         for( unsigned int i = 0; i < fEventProcess.size(); i++ )
         {
             cout << "Writting process (" << fEventProcess[i]->GetName() << ") : " << fEventProcess[i]->GetTitle() << endl;
-            fEventProcess[i]->Write( fEventProcess[i]->GetName() );
+            sprintf( tmpString, "P%d. %s", i,  fEventProcess[i]->GetName() );
+            fEventProcess[i]->Write( tmpString );
         }
     }
 
@@ -252,7 +256,8 @@ void TRestRun::CloseOutputFile( )
         for( unsigned int i = 0; i < fHistoricEventProcess.size(); i++ )
         {
             cout << "Writting historic process (" << fHistoricEventProcess[i]->GetName() << ") : " << fHistoricEventProcess[i]->GetTitle() << endl;
-            fHistoricEventProcess[i]->Write( fHistoricEventProcess[i]->GetName() );
+            sprintf( tmpString, "HP%d. %s", i,  fHistoricEventProcess[i]->GetName() );
+            fHistoricEventProcess[i]->Write( tmpString );
         }
     }
 
