@@ -7,23 +7,25 @@
     <myParameter name="offset" value="3.5" />
 
 
-    <for variable="mod" from="0" to="1" step="1" />
-    <readoutModule id="[mod]" plane="0" origin="(0,0)" rotation="0" size="(195.8,195.8)" >
-        <for variable="nCh" from="0" to="nChannels" step="1" />
-            <readoutChannel id="[nCh]" >
-                <for variable="nPix" from="0" to="nChannels" step="1" />
-                <addPixel id="[nPix]" origin="(4.5+[nPix]*pitch,2.65+[nCh]*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
-                </for>
-            </readoutChannel>
+    <for variable="modX" from="0" to="2" step="1" />
+        <for variable="modY" from="0" to="2" step="1" />
+        <readoutModule id="[mod]" plane="0" origin="(200*([modX]-1),200*([modY]-1))" rotation="0" size="(195.8,195.8)" >
+            <for variable="nCh" from="0" to="nChannels" step="1" />
+                <readoutChannel id="[nCh]" >
+                    <for variable="nPix" from="0" to="nChannels" step="1" />
+                    <addPixel id="[nPix]" origin="(4.5+[nPix]*pitch,2.65+[nCh]*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
+                    </for>
+                </readoutChannel>
+            </for>
+            <for variable="nCh" from="0" to="nChannels" step="1" />
+                <readoutChannel id="[nCh]+nChannels" >
+                    <for variable="nPix" from="0" to="nChannels" step="1" />
+                    <addPixel id="[nPix]" origin="(2.65+[nCh]*pitch,4.15+[nPix]*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
+                    </for>
+                </readoutChannel>
+            </for>
+        </readoutModule>
         </for>
-        <for variable="nCh" from="0" to="nChannels" step="1" />
-            <readoutChannel id="[nCh]+nChannels" >
-                <for variable="nPix" from="0" to="nChannels" step="1" />
-                <addPixel id="[nPix]" origin="(2.65+[nCh]*pitch,4.15+[nPix]*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
-                </for>
-            </readoutChannel>
-        </for>
-    </readoutModule>
     </for>
 </section>
 
