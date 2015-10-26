@@ -44,7 +44,7 @@
         </for>
     </readoutModule>
     
-    <readoutModule id="0" plane="0" origin="(0,-50)" rotation="0" size="(moduleSize,moduleSize)" >
+    <readoutModule id="1" plane="0" origin="(0,-50)" rotation="0" size="(moduleSize,moduleSize)" >
         <for variable="nChannel" from="0" to="6" step="1" />
             <readoutChannel id="[nChannel]" >
                 <for variable="nPixel" from="0" to="5" step="1" />
