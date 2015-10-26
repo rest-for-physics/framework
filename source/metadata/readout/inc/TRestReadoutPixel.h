@@ -103,9 +103,25 @@ class TRestReadoutPixel : public TObject {
         
         Bool_t isInside( Int_t x, Int_t y ) 
         {
-            if ( x >= fPixelOriginX && y >= fPixelOriginY )
-                if( x < fPixelOriginX+fPixelSizeX && y < fPixelOriginY+fPixelSizeY ) 
+            TVector2 pos(x,y);
+            return isInside( pos );
+        }
+
+        TVector2 TransformToPixelCoordinates( TVector2 p )
+        {
+            TVector2 pos( p.X() - fPixelOriginX, p.Y() - fPixelOriginY );
+            pos = pos.Rotate( -fRotation * TMath::Pi()/ 180. );
+            return pos;
+        }
+
+        Bool_t isInside( TVector2 pos )
+        {
+            pos = TransformToPixelCoordinates( pos );
+
+            if( pos.X() >= 0 && pos.X() <= fPixelSizeX )
+                if( pos.Y() >= 0 && pos.Y() <= fPixelSizeY )
                     return true;
+
             return false;
         }
         
