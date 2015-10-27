@@ -219,7 +219,7 @@ void TRestElectronDiffusionProcess::InitFromConfigFile( )
     fCathodePosition = StringToDouble( GetParameter( "cathodePosition" ) );
     fAnodePosition = StringToDouble( GetParameter( "anodePosition" ) );
     fElectricField = StringToDouble( GetParameter( "electricField" ) );
-    fResolution = StringToDouble( GetParameter( "gapDistance" ) );
+    fResolution = StringToDouble( GetParameter( "resolution" ) );
 
 
     if( fCathodePosition > fAnodePosition ) { fMaxPosition = fCathodePosition; fMinPosition = fAnodePosition; }
