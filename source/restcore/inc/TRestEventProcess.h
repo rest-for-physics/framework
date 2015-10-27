@@ -50,6 +50,17 @@ class TRestEventProcess:public TRestMetadata {
    virtual TString GetProcessName() = 0;
    virtual TRestMetadata *GetMetadata() { return NULL; }
 
+   void BeginPrintProcess()
+   {
+       cout << "--------------------------------------------------------------------------------------------------" << endl;
+       cout << "-- Process :" << GetProcessName() << " ## " << GetName() << " ## " << GetTitle() << endl;
+       cout << "--------------------------------------------------------------------------------------------------" << endl;
+   }
+
+   void EndPrintProcess()
+   {
+       cout << "--------------------------------------------------------------------------------------------------" << endl;
+   }
 
    //Getters
    Int_t GetStatus() { return fStatusOfProcess; }
