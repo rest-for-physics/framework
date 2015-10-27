@@ -37,8 +37,9 @@ TRestElectronDiffusionProcess::TRestElectronDiffusionProcess( char *cfgFileName 
 {
     Initialize();
 
-    LoadConfig( "electronDiffusionProcess", cfgFileName );
+    if( LoadConfig( "electronDiffusionProcess", cfgFileName ) ) LoadDefaultConfig( );
 
+    PrintMetadata();
     fGas = new TRestGas( cfgFileName );
 
    // TRestElectronDiffusionProcess default constructor
@@ -56,6 +57,12 @@ TRestElectronDiffusionProcess::~TRestElectronDiffusionProcess()
 
 void TRestElectronDiffusionProcess::LoadDefaultConfig()
 {
+    fCathodePosition = -1000;
+    fAnodePosition = 0;
+    fElectricField = 1000;
+    fResolution = 1;
+
+    fResolution = fResolution * fResolution;
 
     // TOBE implemented
 }
@@ -132,9 +139,10 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 
                     if ( z > fMinPosition && z < fMaxPosition )
                     {
-                        Double_t xDiff, yDiff, zDiff, tDiff;
+                        Double_t xDiff, yDiff, zDiff;
 
                         Int_t numberOfElectrons =  rnd->Poisson( eDep*1000./ionizationThreshold );
+                        Int_t initialHit = fHitsEvent->GetNumberOfHits();
                         while( numberOfElectrons > 0 )
                         {
                             numberOfElectrons--;
@@ -155,15 +163,25 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
                             driftDistance = zDiff - fCathodePosition;
                             if( driftDistance < 0 ) driftDistance = -driftDistance;
 
-                            tDiff = driftDistance*0.1/driftVelocity;
-
-
-                            fHitsEvent->AddHit( xDiff, yDiff, tDiff, 1. );
+                            fHitsEvent->AddHit( xDiff, yDiff, driftDistance, 1. );
                         }
 
+                        // compressing last energy deposit
+                        for( int i = initialHit; i < fHitsEvent->GetNumberOfHits(); i++ )
+                        {
+                            for( int j = i+1; j < fHitsEvent->GetNumberOfHits(); j++ )
+                            {
+                                if( fHitsEvent->GetDistance2( i, j ) < fResolution )
+                                    fHitsEvent->MergeHits( i, j );
+                            }
+                        }
                     }
                 }
             }
+
+            // Definning the drift time
+            for ( int k = 0; k < fHitsEvent->GetNumberOfHits(); k++ )
+                fHitsEvent->SetZ( k, fHitsEvent->GetX(k)*0.1/driftVelocity );
 
         }
 
@@ -201,10 +219,7 @@ void TRestElectronDiffusionProcess::InitFromConfigFile( )
     fCathodePosition = StringToDouble( GetParameter( "cathodePosition" ) );
     fAnodePosition = StringToDouble( GetParameter( "anodePosition" ) );
     fElectricField = StringToDouble( GetParameter( "electricField" ) );
-
-    cout << " cathode : " << fCathodePosition << endl;
-    cout << " anode : " << fAnodePosition << endl;
-    cout << " eField : " << fElectricField << endl;
+    fResolution = StringToDouble( GetParameter( "gapDistance" ) );
 
 
     if( fCathodePosition > fAnodePosition ) { fMaxPosition = fCathodePosition; fMinPosition = fAnodePosition; }
