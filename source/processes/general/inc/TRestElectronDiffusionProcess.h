@@ -31,6 +31,7 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
         Double_t fMinPosition;
 
         Double_t fElectricField;
+        Double_t fResolution;
 
         void InitFromConfigFile();
 
