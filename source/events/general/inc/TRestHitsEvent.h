@@ -33,12 +33,22 @@ class TRestHitsEvent : public TRestEvent
         void AddHit( TVector3 pos, Double_t en );
         void RemoveHits( );
 
+        void MergeHits( int n, int m );
+        void RemoveHit( int n );
+
         Int_t GetNumberOfHits( ) { return fNHits; }
 
         Double_t GetX( int n ) { return ( (Double_t) fX[n])/1000.; } // return value in mm
         Double_t GetY( int n ) { return ( (Double_t) fY[n])/1000.; } // return value in mm
         Double_t GetZ( int n ) { return ( (Double_t) fZ[n])/1000.; } // return value in mm
         Double_t GetEnergy( int n ) { return ( (Double_t) fEnergy[n])/1000.; } //return value in keV
+
+        void SetX( Int_t n, Double_t x ) { fX[n] = (Int_t)(x*1000.); } // return value in mm
+        void SetY( Int_t n, Double_t y ) { fY[n] = (Int_t)(y*1000.); } // return value in mm
+        void SetZ( Int_t n, Double_t z ) { fZ[n] = (Int_t)(z*1000.); } // return value in mm
+        void SetEnergy( Int_t n, Double_t e ) { fEnergy[n] = (Int_t)(e*1000.); } //return value in keV
+
+        Double_t GetDistance2( int n, int m );
 
         virtual void Initialize();
 
