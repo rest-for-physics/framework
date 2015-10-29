@@ -123,6 +123,39 @@ void TRestRun::Start( )
 
 }
 
+void TRestRun::RunProcess(TRestEventProcess *process){
+
+
+this->OpenOutputFile();
+this->SetOutputEvent( process->GetOutputEvent() );
+this->SetRunType( process->GetProcessName() );
+this->ResetRunTimes();
+
+TRestEvent *processedEvent;
+
+process->InitProcess();
+
+
+	while(processedEvent!=NULL){
+	
+	process->BeginOfEventProcess();
+	processedEvent = process->ProcessEvent(NULL);
+	fOutputEvent = processedEvent;
+	fOutputEventTree->Fill();
+	process->EndOfEventProcess();
+	//if(fOutputEventTree->GetEntries()>1000)break;
+	
+	PrintProcessedEvents(100);
+		
+	}
+
+cout<<fOutputEventTree->GetEntries()<<" processed events "<<endl;
+
+process->EndProcess();
+
+}
+
+
 void TRestRun::OpenInputFile( TString fName )
 {
     if( fInputFile != NULL ) fInputFile->Close();
@@ -455,3 +488,16 @@ void TRestRun::PrintInfo( )
         cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
 }
+
+void TRestRun::PrintProcessedEvents( Int_t rateE){
+
+if(fOutputEventTree->GetEntries()%rateE ==0)printf("%d processed events now...\r",(int)fOutputEventTree->GetEntries());
+fflush(stdout);
+
+}
+
+
+
+
+
+
