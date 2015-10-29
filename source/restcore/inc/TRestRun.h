@@ -84,6 +84,8 @@ class TRestRun:public TRestMetadata {
     public:
         
         void Start();
+        
+        void RunProcess(TRestEventProcess *process);
 
         Int_t GetNumberOfProcesses()
         {
@@ -179,6 +181,8 @@ class TRestRun:public TRestMetadata {
 
         void PrintInfo( );
         void PrintMetadata() { PrintInfo(); }
+        
+        void PrintProcessedEvents( Int_t rateE);
 
         Double_t GetRunLength();
 
