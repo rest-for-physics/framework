@@ -35,14 +35,14 @@ class TRestEvent:public TObject {
    // the precise meaning of the indexes may depend on the inherited class
    // (simulation or daq, e.g.)
    TTimeStamp fEventTime;              ///< Event absolute time
-   TString fEventClassName;
+   TString fEventClassName;		
 
  public:
    //Setters
    void SetEventID(Int_t eventid) { fEventID = eventid; }
    void SetEventTime(Double_t time) { 
    Int_t sec = (Int_t)time;
-   Int_t nsec = (Int_t) (time-sec)*1E9;
+   Int_t nsec = (Int_t) ((time-sec)*1E9);
    
    fEventTime.SetSec(sec);
    fEventTime.SetNanoSec(nsec);
@@ -58,7 +58,7 @@ class TRestEvent:public TObject {
    virtual void Initialize() = 0; 
 
    virtual void PrintEvent();
-
+   
    //Construtor
    TRestEvent();
    //Destructor
