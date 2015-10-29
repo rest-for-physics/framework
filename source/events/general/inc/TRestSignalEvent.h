@@ -24,6 +24,7 @@ using namespace std;
 
 #include <TObject.h>
 #include <TArrayD.h>
+#include <TPad.h>
 
 #include "TRestEvent.h"
 #include "TRestSignal.h"
@@ -41,12 +42,15 @@ class TRestSignalEvent: public TRestEvent {
         void AddSignal(TRestSignal s){fSignal.push_back(s);}
         
         //Getters
-        
+        Int_t GetNumberOfSignals(){return fSignal.size();}
+        TRestSignal *GetSignal(Int_t n ){return &fSignal[n];}
         
         void Initialize();
 
         void PrintEvent();
-                
+        
+        TPad *DrawEvent();
+        
         //Construtor
         TRestSignalEvent();
         //Destructor

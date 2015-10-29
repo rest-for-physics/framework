@@ -37,12 +37,18 @@ class TRestSignal: public TObject {
            
     public:
 
+	void Reset(){fEventSignal.clear(); }
         
         //Setters
         void AddPoint(TVector2 p){fEventSignal.push_back(p);}
         void SetSignalID(Int_t sID){fSignalID=sID;}
         //Getters
-                
+        Int_t GetNumberOfPoints(){return fEventSignal.size();}
+        TVector2 *GetPoint(Int_t n){
+        return &fEventSignal[n];
+        }
+        Int_t GetSignalID(){return fSignalID;}
+        
         //Construtor
         TRestSignal();
         //Destructor
