@@ -13,14 +13,7 @@
             <for variable="nCh" from="0" to="nChannels" step="1" />
                 <readoutChannel id="[nCh]" >
                     <for variable="nPix" from="0" to="nChannels" step="1" />
-                    <addPixel id="[nPix]" origin="(4.5+[nPix]*pitch,2.65+[nCh]*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
-                    </for>
-                </readoutChannel>
-            </for>
-            <for variable="nCh" from="0" to="nChannels" step="1" />
-                <readoutChannel id="[nCh]+nChannels" >
-                    <for variable="nPix" from="0" to="nChannels" step="1" />
-                    <addPixel id="[nPix]" origin="(2.65+[nCh]*pitch,4.15+[nPix]*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
+                    <addPixel id="[nPix]" origin="(4.25+[nPix]*pitch,5.6+[nCh]*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
                     </for>
                 </readoutChannel>
             </for>
@@ -31,29 +24,20 @@
 
 <section readout name="Readout-test" title="A test readout" >
    
-    <myParameter name="moduleSize" value="100" />
-    <myParameter name="pixelSize" value="20" />
+    <myParameter name="moduleSize" value="400" />
+    <myParameter name="pixelSize" value="40" />
+    <myParameter name="nChannels" value="10" />
+    <myParameter name="nPixels" value="10" />
     
-    <readoutModule id="0" plane="0" origin="(-50,50)" rotation="45" size="(moduleSize,moduleSize)" >
-        <for variable="nChannel" from="0" to="6" step="1" />
+    <readoutModule id="0" plane="0" origin="(-200,-200)" rotation="0" size="(moduleSize,moduleSize)" >
+        <for variable="nChannel" from="0" to="nChannels" step="1" />
             <readoutChannel id="[nChannel]" >
-                <for variable="nPixel" from="0" to="5" step="1" />
+                <for variable="nPixel" from="0" to="nPixels" step="1" />
                 <addPixel id="[nPixel]" origin="([nChannel]*pixelSize,[nPixel]*pixelSize)" size="(pixelSize,pixelSize)" rotation="0" />
                 </for>
             </readoutChannel>
         </for>
     </readoutModule>
-    
-    <readoutModule id="1" plane="0" origin="(0,-50)" rotation="0" size="(moduleSize,moduleSize)" >
-        <for variable="nChannel" from="0" to="6" step="1" />
-            <readoutChannel id="[nChannel]" >
-                <for variable="nPixel" from="0" to="5" step="1" />
-                <addPixel id="[nPixel]" origin="([nChannel]*pixelSize,[nPixel]*pixelSize)" size="(pixelSize,pixelSize)" rotation="45" />
-                </for>
-            </readoutChannel>
-        </for>
-    </readoutModule>
-
 </section>
 
 
