@@ -39,8 +39,6 @@ class TRestHits : public TObject
         Double_t GetZ( int n ) { return ( (Double_t) fZ[n])/1000.; } // return value in mm
         Double_t GetEnergy( int n ) { return ( (Double_t) fEnergy[n])/1000.; } //return value in keV
 
-        Double_t GetDistance2( int n, int m );
-
         TVector3 Get( int n ) {
             return TVector3 ( ( (Double_t) fX[n])/1000., ((Double_t) fY[n])/1000., ((Double_t) fZ[n])/1000. ) ; 
         }
