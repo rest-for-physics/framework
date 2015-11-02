@@ -16,7 +16,7 @@
 #include <TRandom.h>
 
 ClassImp(TRestHitsToSignalProcess)
-//______________________________________________________________________________
+    //______________________________________________________________________________
 TRestHitsToSignalProcess::TRestHitsToSignalProcess()
 {
     Initialize();
@@ -32,7 +32,7 @@ TRestHitsToSignalProcess::TRestHitsToSignalProcess( char *cfgFileName )
 
     fReadout = new TRestReadout( cfgFileName );
 
-   // TRestHitsToSignalProcess default constructor
+    // TRestHitsToSignalProcess default constructor
 }
 
 //______________________________________________________________________________
@@ -42,12 +42,12 @@ TRestHitsToSignalProcess::~TRestHitsToSignalProcess()
 
     delete fHitsEvent;
     delete fSignalEvent;
-   // TRestHitsToSignalProcess destructor
+    // TRestHitsToSignalProcess destructor
 }
 
 void TRestHitsToSignalProcess::LoadDefaultConfig( )
 {
-    SetName( "hitsToSignalProcess" );
+    SetName( "hitsToSignalProcess-Default" );
     SetTitle( "Default config" );
 
 
@@ -88,6 +88,27 @@ void TRestHitsToSignalProcess::BeginOfEventProcess()
 {
     cout << "Begin of event process" << endl;
     fSignalEvent->Initialize(); 
+
+    cout << "Number of signals : " << fSignalEvent->GetNumberOfSignals() << endl;
+}
+
+Int_t TRestHitsToSignalProcess::FindModuleAndChannel( Double_t x, Double_t y, Int_t &module, Int_t &channel )
+{
+    for ( int md = 0; md < fReadout->GetNumberOfModules(); md++ )
+    {
+        if( fReadout->GetReadoutModule( md )->isInside( x, y ) )
+            for( int ch = 0; ch < fReadout->GetReadoutModule( md )->GetNumberOfChannels(); ch++ )
+            {
+                if ( fReadout->GetReadoutModule( md )->isInsideChannel( ch, x , y ) )
+                {
+                    module = md;
+                    channel = ch;
+                    return 1;
+                }
+            }
+    }
+    return 0;
+
 }
 
 //______________________________________________________________________________
@@ -98,84 +119,45 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
     cout << "Event ID : " << fHitsEvent->GetEventID() << endl;
     cout << "Number of hits : " << fHitsEvent->GetNumberOfHits() << endl;
 
-    /*
+    fSignalEvent->SetEventTime( fHitsEvent->GetEventTime() );
+    fSignalEvent->SetEventID( fHitsEvent->GetEventID() );
+
+    Int_t mod = -1;
+    Int_t chnl = -1;
+
     for( int hit = 0; hit < fHitsEvent->GetNumberOfHits(); hit++ )
     {
-        cout << " X : " << fHitsEvent->GetX( hit ) << endl;
-        cout << " Y : " << fHitsEvent->GetY( hit ) << endl;
-        cout << " Z : " << fHitsEvent->GetZ( hit ) << endl;
-        cout << " E : " << fHitsEvent->GetEnergy( hit ) << endl;
+        Double_t x = fHitsEvent->GetX( hit );
+        Double_t y = fHitsEvent->GetY( hit );
 
-    }
-    */
-
-    /*
-    TRandom *rnd = new TRandom();
-
-    TRestG4Event *g4Event = (TRestG4Event *) evInput;
-
-    Double_t ionizationThreshold = fGas->GetIonizationPotential();
-    Double_t longlDiffCoeff = fGas->GetLongitudinalDiffusion( fElectricField );
-    Double_t transDiffCoeff = fGas->GetTransversalDiffusion( fElectricField );
-
-    // Get info from G4Event and process
-    for( int trk = 0; trk < g4Event->GetNumberOfTracks(); trk++ )
-    {
-        Int_t nHits = g4Event->GetTrack(trk)->GetNumberOfHits();
-        if ( nHits > 0 )
+        if( FindModuleAndChannel( x, y, mod, chnl ) )
         {
-            for( int n = 0; n < nHits; n++ )
+            Int_t channelID = 0;
+            for( int n = 0; n < mod-1; n++ )
+                channelID += fReadout->GetReadoutModule(n)->GetNumberOfChannels();
+            channelID += chnl;
+
+            if ( !fSignalEvent->signalIDExists( channelID ) )
             {
-                TRestHits *hits = g4Event->GetTrack(trk)->GetHits();
-
-                Double_t eDep = hits->GetEnergy(n);
-
-                if( eDep > 0 )
-                {
-                    const Double_t x = hits->GetX(n);
-                    const Double_t y = hits->GetY(n);
-                    const Double_t z = hits->GetZ(n);
-
-                    if ( z > fMinPosition && z < fMaxPosition )
-                    {
-                        Double_t xDiff, yDiff, zDiff;
-
-                        Int_t numberOfElectrons =  rnd->Poisson( eDep*1000./ionizationThreshold );
-                        while( numberOfElectrons > 0 )
-                        {
-                            numberOfElectrons--;
-
-                            Double_t driftDistance = z - fCathodePosition; 
-                            if( driftDistance < 0 ) driftDistance = -driftDistance;
-
-                            Double_t longHitDiffusion = TMath::Sqrt( driftDistance ) * longlDiffCoeff;
-
-                            Double_t transHitDiffusion = TMath::Sqrt( driftDistance ) * transDiffCoeff;
-
-                            xDiff = x + rnd->Gaus( 0, transHitDiffusion );
-
-                            yDiff = y + rnd->Gaus( 0, transHitDiffusion );
-
-                            zDiff = z + rnd->Gaus( 0, longHitDiffusion );
-
-                            fHitsEvent->AddHit( xDiff, yDiff, zDiff, 1. );
-                        }
-
-                    }
-                }
+                TRestSignal sgnl;
+                sgnl.SetSignalID( channelID );
+                fSignalEvent->AddSignal( sgnl );
             }
 
+            Double_t energy = fHitsEvent->GetEnergy( hit );
+            Double_t time = fHitsEvent->GetZ( hit );
+
+            time = fSampling * (Int_t) (time/fSampling);
+
+            fSignalEvent->AddChargeToSignal( channelID, time, energy );
         }
-
-
     }
 
+    fSignalEvent->SortSignals();
 
-    if( fHitsEvent->GetNumberOfHits() == 0 ) return NULL;
+ //   fSignalEvent->PrintEvent();
 
-    cout << "Event : " << g4Event->GetEventID() << " Tracks : " << g4Event->GetNumberOfTracks() << " electrons : " << fHitsEvent->GetNumberOfHits() << endl;
 
-    */
     return fSignalEvent;
 }
 
@@ -188,29 +170,17 @@ void TRestHitsToSignalProcess::EndOfEventProcess()
 //______________________________________________________________________________
 void TRestHitsToSignalProcess::EndProcess()
 {
-   // Function to be executed once at the end of the process 
-   // (after all events have been processed)
+    // Function to be executed once at the end of the process 
+    // (after all events have been processed)
 
-   //Start by calling the EndProcess function of the abstract class. 
-   //Comment this if you don't want it.
-   //TRestEventProcess::EndProcess();
+    //Start by calling the EndProcess function of the abstract class. 
+    //Comment this if you don't want it.
+    //TRestEventProcess::EndProcess();
 }
 
 //______________________________________________________________________________
 void TRestHitsToSignalProcess::InitFromConfigFile( )
 {
-    /*
-    fCathodePosition = StringToDouble( GetParameter( "cathodePosition" ) );
-    fAnodePosition = StringToDouble( GetParameter( "anodePosition" ) );
-    fElectricField = StringToDouble( GetParameter( "electricField" ) );
-
-    cout << " cathode : " << fCathodePosition << endl;
-    cout << " anode : " << fAnodePosition << endl;
-    cout << " eField : " << fElectricField << endl;
-
-
-    if( fCathodePosition > fAnodePosition ) { fMaxPosition = fCathodePosition; fMinPosition = fAnodePosition; }
-    else { fMinPosition = fCathodePosition; fMaxPosition = fAnodePosition; } 
-    */
+    cout << __PRETTY_FUNCTION__ << " --> TOBE implemented" << endl;
 
 }
