@@ -137,12 +137,14 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
                 channelID += fReadout->GetReadoutModule(n)->GetNumberOfChannels();
             channelID += chnl;
 
+            /* This is now done internally in TRestSignalEvent
             if ( !fSignalEvent->signalIDExists( channelID ) )
             {
                 TRestSignal sgnl;
                 sgnl.SetSignalID( channelID );
                 fSignalEvent->AddSignal( sgnl );
             }
+            */
 
             Double_t energy = fHitsEvent->GetEnergy( hit );
             Double_t time = fHitsEvent->GetZ( hit );

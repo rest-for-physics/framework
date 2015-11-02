@@ -34,6 +34,8 @@ class TRestSignalEvent: public TRestEvent {
         
         vector <TRestSignal> fSignal; //Collection of signals that define the event
 
+    private:
+        void AddSignal(TRestSignal s);
     
     public:
 
@@ -42,7 +44,6 @@ class TRestSignalEvent: public TRestEvent {
         void SortSignals( ) { for ( int n = 0; n < GetNumberOfSignals(); n++ ) fSignal[n].Sort(); }
 
         //Setters
-        void AddSignal(TRestSignal s);
         void AddChargeToSignal( Int_t sgnlID, Double_t tm, Double_t chrg );
 
         //Getters

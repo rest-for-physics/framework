@@ -71,7 +71,14 @@ Double_t TRestSignalEvent::GetIntegral( )
 void TRestSignalEvent::AddChargeToSignal( Int_t sgnlID, Double_t tm, Double_t chrg )
 {
     Int_t sgnlIndex = GetSignalIndex( sgnlID );
-    if( sgnlIndex == -1 ) { cout << "Warning. Signal ID does not exist. I cannot add charge to signal" << endl; return; }
+    if( sgnlIndex == -1 ) 
+    { 
+        sgnlIndex = GetNumberOfSignals();
+
+        TRestSignal sgnl;
+        sgnl.SetSignalID( sgnlID );
+        AddSignal( sgnl );
+    }
 
     fSignal[sgnlIndex].AddDeposit( tm, chrg );
 }
