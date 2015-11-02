@@ -57,6 +57,9 @@ TRestElectronDiffusionProcess::~TRestElectronDiffusionProcess()
 
 void TRestElectronDiffusionProcess::LoadDefaultConfig()
 {
+    SetName( "electronDiffusionProcess-Default" );
+    SetTitle( "Default config" );
+
     fCathodePosition = -1000;
     fAnodePosition = 0;
     fElectricField = 1000;
@@ -181,7 +184,7 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 
             // Definning the drift time
             for ( int k = 0; k < fHitsEvent->GetNumberOfHits(); k++ )
-                fHitsEvent->SetZ( k, fHitsEvent->GetX(k)*0.1/driftVelocity );
+                fHitsEvent->SetZ( k, fHitsEvent->GetZ(k)*0.1/driftVelocity );
 
         }
 
