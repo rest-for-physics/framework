@@ -25,6 +25,7 @@ using namespace std;
 #include "TObject.h"
 #include <TString.h>
 #include <TTimeStamp.h>
+#include <TPad.h>
 
 class TRestEvent:public TObject {
  protected:
@@ -58,6 +59,8 @@ class TRestEvent:public TObject {
    virtual void Initialize() = 0; 
 
    virtual void PrintEvent();
+   
+   virtual TPad *DrawEvent( ){ return NULL; }
    
    //Construtor
    TRestEvent();
