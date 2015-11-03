@@ -3,7 +3,7 @@
 
 
 
-RESTANA_DrawEvent(TString fName){
+RESTRAW_DrawEvent(TString fName){
 
 run = new TRestRun();
 

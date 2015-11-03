@@ -10,7 +10,7 @@ using namespace std;
 
 
 
-Int_t RESTANA_AGETToRoot( TString fName, char *cfgFilename )
+Int_t RESTRAW_AGETToRoot( TString fName, char *cfgFilename )
 {
     cout << "Filename : " << fName << endl;
 
@@ -31,9 +31,8 @@ Int_t RESTANA_AGETToRoot( TString fName, char *cfgFilename )
     	exit(0);
     	}
     run->AddProcess( agetToSignal );
-    run->RunProcess( agetToSignal );
 
-    //run->Start( );
+    run->Start( );
 
     delete run;
 }
