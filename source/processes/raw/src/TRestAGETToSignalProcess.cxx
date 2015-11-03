@@ -367,7 +367,6 @@ return fSignalEvent;
 void TRestAGETToSignalProcess::EndOfEventProcess() 
 {
 
-//close binary file??? Already done
 //cout << __PRETTY_FUNCTION__ << endl;
 
 }
@@ -376,6 +375,8 @@ void TRestAGETToSignalProcess::EndOfEventProcess()
 //______________________________________________________________________________
 void TRestAGETToSignalProcess::EndProcess()
 {
+
+//close binary file??? Already done
 
  cout << __PRETTY_FUNCTION__ << endl;
  
