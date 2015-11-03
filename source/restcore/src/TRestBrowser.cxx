@@ -32,11 +32,15 @@ TRestBrowser::~TRestBrowser()
 {
 
 frmMain->Cleanup();
-delete frmMain;
+//delete frmMain;
 
 }
 
 void TRestBrowser::Initialize(){
+
+isFile=kFALSE;
+
+run = new TRestRun();
 
 frmMain = new TGMainFrame(gClient->GetRoot(),300,200);
 frmMain->SetCleanup(kDeepCleanup);
@@ -46,6 +50,7 @@ currentEvent=0;
 
 setButtons( );
 
+canvas = new TCanvas("TEST");
 
 frmMain->DontCallClose();
 frmMain->MapSubwindows();
@@ -148,6 +153,63 @@ FILE *fExist;
 
 delete fExist;
 //delete fDialog;
+
+}
+
+Bool_t TRestBrowser::OpenFile( TString fName )
+{
+
+    string fname = fName.Data();
+    if( !run->fileExists( fname ) ) {
+        cout << "WARNING. Input file does not exist" << endl;
+        return kFALSE; 
+    }
+    else
+        run->OpenInputFile( fName );
+
+
+    if( run == NULL ){
+        cout << "WARNING no TRestG4Run class was found" << endl;
+        return kFALSE; 
+    }
+    
+    isFile=kTRUE;
+    run->PrintInfo();
+    
+    run->SetInputEvent( ev );
+
+    tr = (TTree *) run->GetInputEventTree();
+    
+    
+    return kTRUE; 
+
+}
+
+Bool_t TRestBrowser::LoadEvent( Int_t n ){
+
+    if(!isFile){cout<<"No file found, please load a valid file"<<endl; return kFALSE;}
+
+    if(n<0||n >= tr->GetEntries()){
+
+        cout<<"Event out of range 0-"<<tr->GetEntries()-1<<endl;
+
+        return kFALSE;
+    }
+
+    cout<<"Loading Event "<<n<<endl;
+
+    tr->GetEntry( n );
+
+    canvas->cd();
+    pad = ev->DrawEvent( );
+    pad->Draw( );
+    pad->Update();
+    canvas->Update( );
+
+    //viewer->ViewEvent( "ogl" );
+
+
+    return kTRUE;
 
 }
 
