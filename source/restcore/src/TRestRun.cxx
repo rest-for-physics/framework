@@ -82,6 +82,8 @@ TRestRun::~TRestRun()
 
 void TRestRun::Start( )
 {
+    fCurrentEvent=0;
+    
     if( fEventProcess.size() == 0 ) { cout << "WARNNING Run does not contain processes" << endl; return; }
 
     this->OpenOutputFile();
@@ -97,10 +99,9 @@ void TRestRun::Start( )
     for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->InitProcess();
 
     TRestEvent *processedEvent;
-    for( unsigned int i = 0; i < fInputEventTree->GetEntries(); i++ )
+    while( this->GetNextEvent() )
     {
         processedEvent = fInputEvent;
-        fInputEventTree->GetEntry( i );
 
         for( unsigned int j = 0; j < fEventProcess.size(); j++ )
         {
@@ -109,52 +110,22 @@ void TRestRun::Start( )
             if( processedEvent == NULL ) break;
             fEventProcess[j]->EndOfEventProcess();
         }
+        fOutputEvent = processedEvent;
         if( processedEvent == NULL ) continue;
 
-        fOutputEvent = processedEvent;
-
-        fOutputEvent->SetEventID( fInputEvent->GetEventID() );
+        if(fInputEvent!=NULL)fOutputEvent->SetEventID( fInputEvent->GetEventID() );
 
         fOutputEventTree->Fill();
+        
+        PrintProcessedEvents(100);
     }
+
+cout<<fOutputEventTree->GetEntries()<<" processed events"<<endl;
 
     for( unsigned int i = 0; i < fEventProcess.size(); i++ )
         fEventProcess[i]->EndProcess();
 
 }
-
-void TRestRun::RunProcess(TRestEventProcess *process){
-
-
-this->OpenOutputFile();
-this->SetOutputEvent( process->GetOutputEvent() );
-this->SetRunType( process->GetProcessName() );
-this->ResetRunTimes();
-
-TRestEvent *processedEvent;
-
-process->InitProcess();
-
-
-	while(processedEvent!=NULL){
-	
-	process->BeginOfEventProcess();
-	processedEvent = process->ProcessEvent(NULL);
-	fOutputEvent = processedEvent;
-	fOutputEventTree->Fill();
-	process->EndOfEventProcess();
-	//if(fOutputEventTree->GetEntries()>1000)break;
-	
-	PrintProcessedEvents(100);
-		
-	}
-
-cout<<fOutputEventTree->GetEntries()<<" processed events "<<endl;
-
-process->EndProcess();
-
-}
-
 
 void TRestRun::OpenInputFile( TString fName )
 {
@@ -495,6 +466,32 @@ if(fOutputEventTree->GetEntries()%rateE ==0)printf("%d processed events now...\r
 fflush(stdout);
 
 }
+
+//Return false when the file ends
+Bool_t TRestRun::GetNextEvent( ){
+
+ if(fInputEvent==NULL){
+    if(fOutputEvent==NULL){return kFALSE;}
+
+ }
+ else{
+
+   if(fInputEventTree->GetEntries()==fCurrentEvent-1)return kFALSE;
+   fInputEventTree->GetEntry(fCurrentEvent);
+   cout<<"Loading event "<<fCurrentEvent<<endl;
+   fCurrentEvent++;
+
+ }
+
+
+return kTRUE;
+
+}
+
+
+
+
+
 
 
 

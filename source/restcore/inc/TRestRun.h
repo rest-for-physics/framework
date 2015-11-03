@@ -54,7 +54,8 @@ class TRestRun:public TRestMetadata {
         TString fOutputFilename;
         TString fInputFilename;
         TString fVersion;
-
+        
+        Int_t fCurrentEvent;
         Int_t fRunEvents;
 
         Double_t fStartTime;              ///< Event absolute starting time/date (unix timestamp)
@@ -85,8 +86,6 @@ class TRestRun:public TRestMetadata {
         
         void Start();
         
-        void RunProcess(TRestEventProcess *process);
-
         Int_t GetNumberOfProcesses()
         {
             return fEventProcess.size();
@@ -165,16 +164,21 @@ class TRestRun:public TRestMetadata {
         virtual void SetInputEvent( TRestEvent *evt ) 
         { 
             fInputEvent = evt;
-
+	    
+	    if(evt==NULL)return;
+	    
             TString treeName = (TString) evt->GetName() + " Tree";
             fInputEventTree = (TTree * ) fInputFile->Get( treeName );
 
             TBranch *br = fInputEventTree->GetBranch( "eventBranch" );
 
             br->SetAddress( &fInputEvent );
+            
         }
 
-
+	
+	Bool_t GetNextEvent( );
+	
         // Printers
         void PrintStartDate();
         void PrintEndDate();
