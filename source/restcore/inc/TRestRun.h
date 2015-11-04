@@ -55,7 +55,6 @@ class TRestRun:public TRestMetadata {
         TString fInputFilename;
         TString fVersion;
         
-        Int_t fCurrentEvent;
         Int_t fRunEvents;
 
         Double_t fStartTime;              ///< Event absolute starting time/date (unix timestamp)
@@ -76,6 +75,8 @@ class TRestRun:public TRestMetadata {
         
         TFile *fInputFile;
         TFile *fOutputFile;
+        
+        Int_t fCurrentEvent;
 #endif
 
         TGeoManager *fGeometry;
