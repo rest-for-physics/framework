@@ -462,8 +462,18 @@ void TRestRun::PrintInfo( )
 
 void TRestRun::PrintProcessedEvents( Int_t rateE){
 
-if(fOutputEventTree->GetEntries()%rateE ==0)printf("%d processed events now...\r",(int)fOutputEventTree->GetEntries());
-fflush(stdout);
+if(fCurrentEvent%rateE ==0){
+	if(fInputEvent==NULL){
+	printf("%d processed events now...\r",fCurrentEvent);
+	fflush(stdout);
+	}
+	else{
+	printf("%.2lf\r",(float)(fCurrentEvent/fInputEventTree->GetEntries())*100.);
+	fflush(stdout);
+	}
+
+}
+
 
 }
 
@@ -472,7 +482,7 @@ Bool_t TRestRun::GetNextEvent( ){
 
  if(fInputEvent==NULL){
     if(fOutputEvent==NULL){return kFALSE;}
-
+ fCurrentEvent++;
  }
  else{
 
