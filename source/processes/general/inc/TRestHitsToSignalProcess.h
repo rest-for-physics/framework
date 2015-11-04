@@ -32,6 +32,8 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
 
         Int_t fSampling; // us
 
+        Int_t FindModuleAndChannel( Double_t x, Double_t y, Int_t &module, Int_t &channel );
+
     protected:
         //add here the members of your event process
         TRestReadout *fReadout;
