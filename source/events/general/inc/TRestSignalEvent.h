@@ -33,18 +33,27 @@ class TRestSignalEvent: public TRestEvent {
     protected:
         
         vector <TRestSignal> fSignal; //Collection of signals that define the event
-        
+
+    private:
+        void AddSignal(TRestSignal s);
     
     public:
 
-        //Setters
-        void AddSignal(TRestSignal s){fSignal.push_back(s);}
-        
-        //Getters
-        
-        
-        void Initialize();
+        Bool_t signalIDExists( Int_t sID ) { if( GetSignalIndex( sID ) == -1 ) return false; return true; }
 
+        void SortSignals( ) { for ( int n = 0; n < GetNumberOfSignals(); n++ ) fSignal[n].Sort(); }
+
+        //Setters
+        void AddChargeToSignal( Int_t sgnlID, Double_t tm, Double_t chrg );
+
+        //Getters
+        Int_t GetNumberOfSignals() { return fSignal.size(); }
+        Int_t GetSignalIndex( Int_t signalID );
+        
+        Double_t GetIntegral( );
+        
+        // Default
+        void Initialize();
         void PrintEvent();
                 
         //Construtor
