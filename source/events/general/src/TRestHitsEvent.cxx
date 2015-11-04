@@ -45,9 +45,33 @@ void TRestHitsEvent::Initialize()
 
 }
 
+Double_t TRestHitsEvent::GetDistance2( int n, int m )
+{
+    return (GetX(n)-GetX(m))*(GetX(n)-GetX(m)) +  (GetY(n)-GetY(m))*(GetY(n)-GetY(m)) + (GetZ(n)-GetZ(m))*(GetZ(n)-GetZ(m));
+}
+
+void TRestHitsEvent::MergeHits( int n, int m )
+{
+    fX[n] = fX[n]*.5 + fX[m]*.5;
+    fY[n] = fY[n]*.5 + fY[m]*.5;
+    fZ[n] = fZ[n]*.5 + fZ[m]*.5;
+
+    fEnergy[n] += fEnergy[m];
+
+    RemoveHit( m );
+}
+
+void TRestHitsEvent::RemoveHit( int n )
+{
+    fNHits--;
+    fX.erase(fX.begin()+n);
+    fY.erase(fY.begin()+n);
+    fZ.erase(fZ.begin()+n);
+    fEnergy.erase(fEnergy.begin()+n);
+}
+
 void TRestHitsEvent::RemoveHits( )
 {
-    //cout << "Removing hits" << endl;
     fNHits = 0;
     fX.clear();
     fY.clear();
