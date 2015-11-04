@@ -31,6 +31,7 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
         Double_t fMinPosition;
 
         Double_t fElectricField;
+        Double_t fResolution;
 
         void InitFromConfigFile();
 
@@ -50,7 +51,18 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
         void EndOfEventProcess(); 
         void EndProcess();
 
-        void PrintMetadata() { cout << "TODO: Needs to be implemented!!!!" << endl; }
+        void PrintMetadata() { 
+
+            BeginPrintProcess();
+
+            cout << " cathode : " << fCathodePosition << endl;
+            cout << " anode : " << fAnodePosition << endl;
+            cout << " eField : " << fElectricField << endl;
+            cout << " resolution : " << fResolution << endl;
+
+            EndPrintProcess();
+
+        }
 
         TRestMetadata *GetMetadata( ) { return fGas; }
 

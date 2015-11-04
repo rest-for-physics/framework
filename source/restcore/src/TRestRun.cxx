@@ -136,8 +136,6 @@ void TRestRun::OpenInputFile( TString fName )
         return;
     }
 
-    fInputFilename = fName;
-
     fInputFile = new TFile( fName );
     TIter nextkey(fInputFile->GetListOfKeys());
     TKey *key;
@@ -146,7 +144,6 @@ void TRestRun::OpenInputFile( TString fName )
         string className = key->GetClassName();
 
         if ( className == "TRestRun" ) this->Read( key->GetName() );
-
     }
 
     // Transfering metadata to historic
@@ -223,6 +220,8 @@ void TRestRun::CloseOutputFile( )
     fEndTime = (Double_t) timev;
 
     fOutputFile->cd();
+
+    if( fInputFile != NULL ) fInputFilename = fInputFile->GetName();
 
     char tmpString[256];
     if( fMetadata.size() > 0 )
@@ -456,6 +455,8 @@ void TRestRun::PrintInfo( )
         cout << "Date/Time : " << GetDateFormatted( GetStartTimestamp() ) << " / " << GetTime( GetStartTimestamp() ) << endl;
         cout << "End timestamp : " << GetEndTimestamp() << endl;
         cout << "Date/Time : " << GetDateFormatted( GetEndTimestamp() ) << " / " << GetTime( GetEndTimestamp() ) << endl;
+        cout << "Input filename : " << fInputFilename << endl;
+        cout << "Output filename : " << fOutputFilename << endl;
         cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
 }

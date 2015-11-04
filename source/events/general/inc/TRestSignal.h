@@ -12,7 +12,7 @@
 ///             sept 2015:   First concept
 ///                 Created as part of the conceptualization of existing REST 
 ///                 software.
-///                 JuanAn Garcia
+///                 JuanAn Garcia/Javier Galan
 ///_______________________________________________________________________________
 
 
@@ -31,24 +31,44 @@ class TRestSignal: public TObject {
         
         Int_t fSignalID;
         
-        vector <TVector2> fEventSignal;   //2D vector with the time and the charge of the signal
+        vector <TVector2> fSignalData;   //2D vector with the time and the charge of the signal
         				  //Convention: TVector2 p(t,c) first time and then the charge
         				  
            
     public:
 
-	void Reset(){fEventSignal.clear(); }
-        
-        //Setters
-        void AddPoint(TVector2 p){fEventSignal.push_back(p);}
-        void SetSignalID(Int_t sID){fSignalID=sID;}
         //Getters
         Int_t GetNumberOfPoints(){return fEventSignal.size();}
         TVector2 *GetPoint(Int_t n){
         return &fEventSignal[n];
         }
-        Int_t GetSignalID(){return fSignalID;}
+        Int_t GetSignalID( ) { return fSignalID; }
+        Int_t GetTimeIndex( Double_t t );
+
+        Int_t GetNumberOfPoints() { return fSignalData.size(); }
+
+        Double_t GetIntegral( );
+
+        Double_t GetData( Int_t index ) { return fSignalData[index].Y(); }
+        Double_t GetTime( Int_t index ) { return fSignalData[index].X(); }
         
+        //Setters
+        void SetSignalID(Int_t sID) { fSignalID = sID; }
+
+        void AddPoint( Double_t t, Double_t d );
+        void AddCharge( Double_t t, Double_t d );
+        void AddDeposit( Double_t t, Double_t d );
+
+        void AddPoint(TVector2 p);
+
+        Bool_t isSorted( );
+        void Sort();
+
+
+        void Reset() { fSignalData.clear(); }
+
+        void Print( );
+                
         //Construtor
         TRestSignal();
         //Destructor

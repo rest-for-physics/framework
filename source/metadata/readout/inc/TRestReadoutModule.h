@@ -45,6 +45,19 @@ class TRestReadoutModule : public TObject {
 
         void Initialize();
 
+        TVector2 TransformToModuleCoordinates( TVector2 p )
+        {
+            return TransformToModuleCoordinates( p.X(), p.Y() );
+        }
+
+        TVector2 TransformToModuleCoordinates( Double_t x, Double_t y )
+        {
+            TVector2 coords( x - fModuleOriginX, y - fModuleOriginY );
+            TVector2 rot = coords.Rotate( -fModuleRotation * TMath::Pi()/ 180. );
+
+            return rot;
+        }
+
     protected:
 
     public:
@@ -59,11 +72,34 @@ class TRestReadoutModule : public TObject {
 
         Bool_t isInside( Double_t x, Double_t y )
         {
-            /*
-            if( x < fModuleOriginX-fModuleSizeX/2. || x >= fModuleOriginX+fModuleSizeX/2. ) return false;
-            if( y < fModuleOriginY-fModuleSizeY/2. || x >= fModuleOriginY+fModuleSizeY/2. ) return false;
-            */
-            return true;
+            TVector2 v(x,y);
+            return isInside( v );
+        }
+
+        Bool_t isInside( TVector2 pos )
+        {
+            TVector2 rotPos = TransformToModuleCoordinates( pos );
+
+            if( rotPos.X() >= 0 && rotPos.X() <= fModuleSizeX )
+                if( rotPos.Y() >= 0 && rotPos.Y() <= fModuleSizeY )
+                    return true;
+
+            return false;
+        }
+
+        Bool_t isInsideChannel( Int_t channel, Double_t x, Double_t y )
+        {
+            TVector2 pos(x,y);
+
+            return isInsideChannel( channel, pos );
+        }
+
+        Bool_t isInsideChannel( Int_t channel, TVector2 pos )
+        {
+            pos = TransformToModuleCoordinates( pos );
+            for( int idx = 0; idx < GetChannel(channel)->GetNumberOfPixels(); idx++ )
+                if( GetChannel( channel )->GetPixel( idx )->isInside( pos ) ) return true;
+            return false;
         }
 
         TVector2 GetPixelOrigin( Int_t channel, Int_t pixel ) 
@@ -77,24 +113,19 @@ class TRestReadoutModule : public TObject {
         {
             TVector2 pixPosition = GetChannel( channel )->GetPixel(pixel)->GetVertex( vertex );
 
-            //cout << "X : " << pixPosition.X() << " Y : " << pixPosition.Y() << endl;
-            //cout << "Rot : " << fModuleRotation << endl;
-             
             pixPosition = pixPosition.Rotate( fModuleRotation * TMath::Pi()/ 180. );
-            //cout << "X : " << pixPosition.X() << " Y : " << pixPosition.Y() << endl;
- //           cout << "Module origin : " << 
             pixPosition = pixPosition + TVector2( fModuleOriginX, fModuleOriginY );
             return pixPosition;
         }
 
-	TVector2 GetPixelCenter( Int_t channel, Int_t pixel )
-	{
-		TVector2 corner1( GetPixelVertex( channel, pixel, 0 ) );
-		TVector2 corner2( GetPixelVertex( channel, pixel, 2 ) );
+        TVector2 GetPixelCenter( Int_t channel, Int_t pixel )
+        {
+            TVector2 corner1( GetPixelVertex( channel, pixel, 0 ) );
+            TVector2 corner2( GetPixelVertex( channel, pixel, 2 ) );
 
-		TVector2 center = (corner1+corner2)/2.;
-		return center;
-	}
+            TVector2 center = (corner1+corner2)/2.;
+            return center;
+        }
 
         TVector2 GetVertex( int n ) const 
         {
@@ -168,7 +199,7 @@ class TRestReadoutModule : public TObject {
 
         TRestReadoutChannel *GetChannelByID( int id );
         TRestReadoutChannel *GetChannel( int n ) { return &fReadoutChannel[n]; }
-        
+
         void Draw();
 
         void PrintReadoutModule( );
