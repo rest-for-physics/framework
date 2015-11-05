@@ -34,10 +34,17 @@ TRestSignal::~TRestSignal()
 void TRestSignal::AddPoint(TVector2 p)
 {
     Int_t index =  GetTimeIndex( p.X() );
-    if( index >= 0 )
-        fSignalData[index].Set( p.X(), fSignalData[index].Y() + p.Y() );
-    else
-        fSignalData.push_back(p);
+    Int_t x = p.X()*1000;
+    Int_t y = p.Y()*1000;
+    
+    if( index >= 0 ){
+        fSignalTime[index] =x;
+        fSignalCharge[index] +=y;
+        }
+    else{
+        fSignalTime.push_back(x);
+        fSignalCharge.push_back(y);
+        }
 }
 
 void TRestSignal::AddPoint( Double_t t, Double_t d ) { TVector2 p( t,d); AddPoint( p ); }
@@ -49,7 +56,7 @@ Double_t TRestSignal::GetIntegral( )
     Double_t sum = 0;
     for( int i = 0; i < GetNumberOfPoints(); i++ )
     {
-        sum += fSignalData[i].Y();
+        sum += GetData(i);
     }
 
     return sum;
@@ -57,8 +64,10 @@ Double_t TRestSignal::GetIntegral( )
 
 Int_t TRestSignal::GetTimeIndex( Double_t t )
 {
+    Int_t time = t*1000;
+    
     for( int n = 0; n < GetNumberOfPoints(); n++ )
-        if( t == fSignalData[n].X() ) return n;
+        if( time == fSignalTime[n] ) return n;
     return -1;
 }
 
@@ -79,8 +88,10 @@ void TRestSignal::Sort()
         {
             for( int j = i; j < GetNumberOfPoints(); j++ )
             {
-                if( GetTime( i ) > GetTime( j ) )
-                    iter_swap(fSignalData.begin() + i, fSignalData.begin() + j);
+                if( GetTime( i ) > GetTime( j ) ){
+                    iter_swap(fSignalTime.begin() + i, fSignalTime.begin() + j);
+                    iter_swap(fSignalCharge.begin() + i, fSignalCharge.begin() + j);
+                }
             }
         }
     }
@@ -90,5 +101,5 @@ void TRestSignal::Sort()
 void TRestSignal::Print( )
 {
     for( int i = 0; i < GetNumberOfPoints(); i++ )
-        cout << "Time : " << fSignalData[i].X() << " Charge : " << fSignalData[i].Y() << endl;
+        cout << "Time : " << GetTime(i) << " Charge : " << GetData(i) << endl;
 }
