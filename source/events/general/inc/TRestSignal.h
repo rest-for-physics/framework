@@ -25,32 +25,48 @@ using namespace std;
 #include <TObject.h>
 #include <TVector2.h>
 
+
 class TRestSignal: public TObject {
 
     protected:
         
         Int_t fSignalID;
         
-        vector <TVector2> fSignalData;   //2D vector with the time and the charge of the signal
-        				  //Convention: TVector2 p(t,c) first time and then the charge
-        				  
-           
+        vector <Int_t> fSignalTime;   //Vector with the time of the signal
+        vector <Int_t> fSignalCharge; //Vector with the charge of the signal
+        
+        #ifndef __CINT__
+	TVector2 vector2; 
+	#endif		  
+        
+        void AddPoint(TVector2 p);
+        
     public:
-
+	
         //Getters
-        Int_t GetNumberOfPoints(){return fEventSignal.size();}
         TVector2 *GetPoint(Int_t n){
-        return &fEventSignal[n];
+        vector2.Set(GetTime(n), GetData(n));
+        
+        return &vector2;
         }
+        
         Int_t GetSignalID( ) { return fSignalID; }
-        Int_t GetTimeIndex( Double_t t );
-
-        Int_t GetNumberOfPoints() { return fSignalData.size(); }
+        
+        Int_t GetNumberOfPoints(){
+       
+        if(fSignalTime.size()!=fSignalCharge.size()){
+        cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+        cout<<"WARNING, the two vector sizes did not match"<<endl;
+        cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+        }
+        return fSignalTime.size(); 
+        }
 
         Double_t GetIntegral( );
 
-        Double_t GetData( Int_t index ) { return fSignalData[index].Y(); }
-        Double_t GetTime( Int_t index ) { return fSignalData[index].X(); }
+        Double_t GetData( Int_t index ) { return (double)fSignalCharge[index]/1000.; }
+        Double_t GetTime( Int_t index ) { return (double)fSignalTime[index]/1000.; }
+        Int_t GetTimeIndex(Double_t t);
         
         //Setters
         void SetSignalID(Int_t sID) { fSignalID = sID; }
@@ -58,14 +74,12 @@ class TRestSignal: public TObject {
         void AddPoint( Double_t t, Double_t d );
         void AddCharge( Double_t t, Double_t d );
         void AddDeposit( Double_t t, Double_t d );
-
-        void AddPoint(TVector2 p);
-
+        
         Bool_t isSorted( );
         void Sort();
 
 
-        void Reset() { fSignalData.clear(); }
+        void Reset() { fSignalTime.clear();fSignalCharge.clear();}
 
         void Print( );
                 
