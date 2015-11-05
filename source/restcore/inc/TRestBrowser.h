@@ -31,11 +31,12 @@
 using namespace std;
 
 class TRestBrowser {
+    
     private:
 
         TGMainFrame* frmMain;
 
-        Int_t currentEvent;
+        Int_t fCurrentEvent;
 
         //Frames and buttons
         TGVerticalFrame *fVFrame;   	///< Vertical frame.
@@ -60,7 +61,7 @@ class TRestBrowser {
         TRestBrowser();
 
         //Destructor
-        ~TRestBrowser();
+        virtual ~TRestBrowser();
 
         void Initialize();                
 	
