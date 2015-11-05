@@ -43,6 +43,8 @@ class TRestAGETToSignalProcess:public TRestEventProcess {
    TRestSignalEvent *fSignalEvent;
    #ifndef __CINT__
    FILE *fInputBinFile;
+   int fRunNumber;
+   int fRunIndex;
    #endif
    
    void LoadDefaultConfig();
@@ -65,7 +67,9 @@ class TRestAGETToSignalProcess:public TRestEventProcess {
    void printBits(unsigned int num);
    
    Int_t GetTotalBytesReaded( ){return totalBytesReaded;}
-
+   Int_t GetRunNumber(){return fRunNumber;}
+   Int_t GetRunIndex(){return fRunIndex;}
+   
    //Constructor
    TRestAGETToSignalProcess();
    TRestAGETToSignalProcess(char *cfgFileName);

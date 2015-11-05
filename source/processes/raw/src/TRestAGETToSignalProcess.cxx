@@ -47,6 +47,9 @@ void TRestAGETToSignalProcess::Initialize()
 {
    fSignalEvent = new TRestSignalEvent( );
    
+   fRunNumber=-1;
+   fRunIndex=-1;
+   
    fInputEvent = NULL;
    fOutputEvent = fSignalEvent;
    fInputBinFile = NULL;
@@ -183,9 +186,6 @@ TRestEvent* TRestAGETToSignalProcess::ProcessEvent( TRestEvent *evInput )
 fSignalEvent->SetEventTime(tStart+timestamp*2.E-8);
 fSignalEvent->SetEventID(evID);
 
-TRestSignal signal;
-TVector2 v;
-
 int timeBin = 0;
 	
     int fecN;
@@ -197,7 +197,7 @@ int timeBin = 0;
 int physChannel;
 int chan;
 
-bool skip=false,firstEvent=true;
+bool skip=false;
 
 unsigned short dat, startDF;;
 
@@ -216,19 +216,12 @@ unsigned short dat, startDF;;
 	if((dat & 0xC000) >> 14 == 3 ){
 	
 	//Storing previous event, skipping if is the first one
-	if(!firstEvent&&!skip){
-	signal.SetSignalID(physChannel);
-	fSignalEvent->AddSignal(signal);
-	if(this->GetVerboseLevel()==REST_Debug)cout<<"Wrote "<<endl;
-	}
-	firstEvent=false;
 	
 	fecN = (dat & 0x3E00) >> 9;
 	asicN = (dat & 0x180) >> 7;
 	channel = (dat & 0x7F);
 	
 	timeBin =0;
-	signal.Reset();
 	if(this->GetVerboseLevel()==REST_Debug)cout<<"Reset"<<endl;
 	
     	//AGET Short Seq
@@ -260,6 +253,7 @@ unsigned short dat, startDF;;
 		
 	//FECN not included so far....
 	physChannel = asicN*72 + chan;
+	//physChannel = fecN*4*72+asicN*72 + chan;
 	
 	if(this->GetVerboseLevel()==REST_Debug)
 	{
@@ -283,7 +277,7 @@ unsigned short dat, startDF;;
 	adc = (dat & 0xFFF);
 	
 	if(this->GetVerboseLevel()==REST_Debug)cout<<"Time bin "<<timeBin<<"\tADC "<<adc<<endl;
-	if(!skip){v.Set((double)timeBin,(double)adc);signal.AddPoint(v);}
+	if(!skip)fSignalEvent->AddChargeToSignal( physChannel, timeBin, adc );
 	timeBin++;
 	}
 	//End of Frame, reading frame header and payload
@@ -313,15 +307,7 @@ unsigned short dat, startDF;;
    }//while
    
 //Storing last event 
-   if(!skip){
-	signal.SetSignalID(physChannel);
-	fSignalEvent->AddSignal(signal);
-	if(this->GetVerboseLevel()==REST_Debug)cout<<"Wrote "<<endl;
-	
-	signal.Reset();
-	if(this->GetVerboseLevel()==REST_Debug)cout<<"Reset"<<endl;
-	}
-
+   
 if(this->GetVerboseLevel()==REST_Debug)cout<<" End of event "<< dat<<endl;
 //End of event footer
 fread(&dat, sizeof(dat),1,fInputBinFile);
@@ -392,6 +378,13 @@ if(fInputBinFile!= NULL)fclose(fInputBinFile);
     }
 
 cout<<"File "<<fName.Data()<<" opened"<<endl;
+
+int size=fName.Sizeof();cout<<size<<endl;
+TString fN(fName(size-20,size-1));
+cout<<fN.Data()<<endl;
+sscanf(fN.Data(),"RUN_%d.%d.acq",&fRunNumber,&fRunIndex);
+
+cout<<"Run# "<<fRunNumber<<" index "<<fRunIndex<<endl;
 
 return kTRUE;
 }
