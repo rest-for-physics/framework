@@ -10,12 +10,12 @@ using namespace std;
 
 
 
-Int_t RESTRAW_AGETToRoot( TString fName, char *cfgFilename )
+Int_t RESTRAW_AGETToRoot( TString fName, TString cfgFilename="myConfig.rml" )
 {
     cout << "Filename : " << fName << endl;
 
  //   TRestElectronDiffusionRun *run = new TRestElectronDiffusionRun();
-    TRestRun *run = new TRestRun(cfgFilename);
+    TRestRun *run = new TRestRun(cfgFilename.Data());
 
     // We load the information from the input file on the new run
     //run->OpenInputFile( fName );
