@@ -46,7 +46,7 @@ frmMain = new TGMainFrame(gClient->GetRoot(),300,200);
 frmMain->SetCleanup(kDeepCleanup);
 frmMain->SetWindowName("Controller");
 
-currentEvent=0;
+fCurrentEvent=0;
 
 setButtons( );
 
@@ -65,8 +65,8 @@ void TRestBrowser::setButtons( ){
 
     fVFrame = new TGVerticalFrame(frmMain);
     
-    fNEvent= new TGNumberEntry(fVFrame,currentEvent);
-    fNEvent->SetIntNumber(currentEvent);
+    fNEvent= new TGNumberEntry(fVFrame,fCurrentEvent);
+    fNEvent->SetIntNumber(fCurrentEvent);
     fVFrame->AddFrame(fNEvent,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
             
     fLoadEvent = new  TGTextButton(fVFrame,"LOAD");///< Load Event button
@@ -103,32 +103,32 @@ Int_t eventN = (Int_t)fNEvent->GetNumber();
 
 cout<<"Loading event "<<eventN<<endl;
 
-if(LoadEvent(eventN))currentEvent =eventN;
+if(LoadEvent(eventN))fCurrentEvent =eventN;
 
 }
 
 void TRestBrowser::LoadNextEventAction( ){
 
-Int_t nextEvent = currentEvent+1;
+Int_t nextEvent = fCurrentEvent+1;
 
-cout<<" Next event "<<nextEvent<<"  "<<currentEvent<<endl;
+cout<<" Next event "<<nextEvent<<"  "<<fCurrentEvent<<endl;
 
 if(LoadEvent(nextEvent)){
-currentEvent=nextEvent;
-fNEvent->SetIntNumber(currentEvent);
+fCurrentEvent=nextEvent;
+fNEvent->SetIntNumber(fCurrentEvent);
 }
 
 }
 
 void TRestBrowser::LoadPrevEventAction( ){
 
-Int_t prevEvent = currentEvent-1;
+Int_t prevEvent = fCurrentEvent-1;
 
 cout<<" Previous event "<<prevEvent<<endl;
 
 if(LoadEvent(prevEvent)){
-currentEvent =prevEvent;
-fNEvent->SetIntNumber(currentEvent);
+fCurrentEvent =prevEvent;
+fNEvent->SetIntNumber(fCurrentEvent);
 
 }
 }
@@ -142,17 +142,11 @@ TString dir = fi.fFilename;
 
 cout<<"Opening "<<dir.Data( )<<endl;
 
-FILE *fExist;
-
-	if((fExist=fopen(dir.Data(),"r"))!=NULL){
-	fclose(fExist);
+	if(!run->fileExists( dir.Data() )){
 	OpenFile(dir);
-	currentEvent=0;
-	fNEvent->SetIntNumber(currentEvent);
+	fCurrentEvent=0;
+	fNEvent->SetIntNumber(fCurrentEvent);
 	}
-
-delete fExist;
-//delete fDialog;
 
 }
 
