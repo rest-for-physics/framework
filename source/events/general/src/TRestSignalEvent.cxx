@@ -122,6 +122,8 @@ double x,y;
 
 cout<<"N Signals "<<nSignals<<endl;
 
+if(nSignals==0)return NULL;
+
 	for(int i=0;i<nSignals;i++){
 	c=0;
 	cout<<"Signal "<<i<<" points "<<fSignal[i].GetNumberOfPoints()<<endl;

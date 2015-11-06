@@ -191,11 +191,13 @@ Bool_t TRestBrowser::LoadEvent( Int_t n ){
     }
 
     cout<<"Loading Event "<<n<<endl;
-
+    
+    
     tr->GetEntry( n );
 
     canvas->cd();
     pad = ev->DrawEvent( );
+    if(pad==NULL){cout<<"Empty event "<<endl;return kTRUE;}
     pad->Draw( );
     pad->Update();
     canvas->Update( );
