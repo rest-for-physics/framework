@@ -36,7 +36,7 @@ find_package(ROOT REQUIRED)
 include_directories(${PROJECT_SOURCE_DIR}/include 
     ${Geant4_INCLUDE_DIR}
     ${ROOT_INCLUDE_DIR}
-    ${REST_PATH}/source/restcore/inc ${REST_PATH}/source/events/geant4/inc ${REST_PATH}/source/metadata/geant4/inc )
+    ${REST_PATH}/source/restcore/inc ${REST_PATH}/source/events/geant4/inc ${REST_PATH}/source/events/general/inc ${REST_PATH}/source/metadata/geant4/inc )
 
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
