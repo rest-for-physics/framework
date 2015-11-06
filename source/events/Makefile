@@ -20,6 +20,6 @@ include ../.Makefile.REST
 # Name of RESTsoft module(s) to compile
 MODULE = RestEvents
 
-DIRECTORIES = geant4 general
+DIRECTORIES = geant4 general analysis
 
 include ../.Makefile.Lib
