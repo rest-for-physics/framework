@@ -1,8 +1,5 @@
 
 
-
-
-
 RESTRAW_DrawEvent(TString fName){
 
 TRestAGETToSignalProcess *agetToSignal = new TRestAGETToSignalProcess( );
@@ -10,6 +7,9 @@ TRestAGETToSignalProcess *agetToSignal = new TRestAGETToSignalProcess( );
     	cout<<"File "<<fName.Data()<<" not found"<<endl;
     	exit(0);
     	}
+
+//agetToSignal->SetVerboseLevel(3);
+    	
 TRestEvent *processedEvent = new TRestSignalEvent();
 
 TCanvas *can = new TCanvas("test","test");
@@ -24,6 +24,8 @@ while( processedEvent!=NULL )
         agetToSignal->EndOfEventProcess();
         
         pad = processedEvent->DrawEvent( );
+        if(pad==NULL)continue;
+        
 	pad->Draw( );
 	pad->Update();
 	can->Update( );
