@@ -24,6 +24,8 @@ using namespace std;
 
 #include <TObject.h>
 #include <TArrayD.h>
+#include <TPad.h>
+#include <TGraph.h>
 
 #include "TRestEvent.h"
 #include "TRestSignal.h"
@@ -31,6 +33,11 @@ using namespace std;
 class TRestSignalEvent: public TRestEvent {
 
     protected:
+        
+        #ifndef __CINT__
+	TGraph *fGr ;
+	TPad *fPad;  
+	#endif
         
         vector <TRestSignal> fSignal; //Collection of signals that define the event
 
@@ -47,7 +54,8 @@ class TRestSignalEvent: public TRestEvent {
         void AddChargeToSignal( Int_t sgnlID, Double_t tm, Double_t chrg );
 
         //Getters
-        Int_t GetNumberOfSignals() { return fSignal.size(); }
+        Int_t GetNumberOfSignals(){return fSignal.size();}
+        TRestSignal *GetSignal(Int_t n ){return &fSignal[n];}
         Int_t GetSignalIndex( Int_t signalID );
         
         Double_t GetIntegral( );
@@ -55,7 +63,9 @@ class TRestSignalEvent: public TRestEvent {
         // Default
         void Initialize();
         void PrintEvent();
-                
+        
+        TPad *DrawEvent();
+        
         //Construtor
         TRestSignalEvent();
         //Destructor

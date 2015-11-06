@@ -22,26 +22,40 @@
 #include "TGTextEntry.h"
 #include "TGFileDialog.h"
 #include "TApplication.h"
+#include "TCanvas.h"
+
+#include "TRestRun.h"
+#include "TRestEvent.h"
 
 #include <iostream>
 using namespace std;
 
 class TRestBrowser {
+    
     private:
 
         TGMainFrame* frmMain;
 
-        Int_t currentEvent;
+        Int_t fCurrentEvent;
 
         //Frames and buttons
-        TGVerticalFrame   	*fVFrame;   ///< Vertical frame.
-        TGNumberEntry       *fNEvent;  ///< Event number.
-        TGTextButton	*fLoadEvent;///< Load Event button
-        TGTextButton	*fExit;///< Load Event button
-        TGPictureButton	*fButNext;  ///< Next number.
-        TGPictureButton	*fButPrev;  ///< Previous event.
-        TGPictureButton	*fMenuOpen;
-
+        TGVerticalFrame *fVFrame;   	///< Vertical frame.
+        TGNumberEntry   *fNEvent;  	///< Event number.
+        TGTextButton	*fLoadEvent;	///< Load Event button
+        TGTextButton	*fExit;		///< Load Event button
+        TGPictureButton	*fButNext;  	///< Next number.
+        TGPictureButton	*fButPrev;  	///< Previous event.
+        TGPictureButton	*fMenuOpen;	///<Open file
+        
+        TCanvas *canvas;
+        TPad *pad;
+        
+        TRestRun *run ;
+    	TRestEvent *ev;
+    	TTree *tr;
+	
+	Bool_t isFile;
+	
     public:
         //Constructors
         TRestBrowser();
@@ -49,9 +63,10 @@ class TRestBrowser {
         //Destructor
         virtual ~TRestBrowser();
 
-        virtual void Initialize();                
-
-
+        void Initialize();                
+	
+	void SetInputEvent(TRestEvent *rE){ev=rE;}
+	
         void setWindowName(TString wName ){frmMain->SetWindowName(wName.Data());}
 
         void setButtons( );    
@@ -62,8 +77,8 @@ class TRestBrowser {
         void LoadFileAction( );
         void ExitAction( );
 
-        virtual Bool_t LoadEvent( Int_t n )=0;
-        virtual Bool_t OpenFile( TString fName )=0;
+        Bool_t LoadEvent( Int_t n );
+        Bool_t OpenFile( TString fName );
 
 
 

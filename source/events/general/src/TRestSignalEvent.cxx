@@ -36,7 +36,9 @@ void TRestSignalEvent::Initialize()
 {
     TRestEvent::Initialize();
     fEventClassName = "TRestSignalEvent";
-
+    fSignal.clear();
+    fGr=NULL;
+    fPad=NULL;
 }
 
 void TRestSignalEvent::AddSignal(TRestSignal s) 
@@ -85,7 +87,7 @@ void TRestSignalEvent::AddChargeToSignal( Int_t sgnlID, Double_t tm, Double_t ch
 
 void TRestSignalEvent::PrintEvent()
 {
-    TRestEvent::PrintEvent();
+    //TRestEvent::PrintEvent();
 
     for( int i = 0; i < GetNumberOfSignals(); i++ )
     {
@@ -102,3 +104,57 @@ void TRestSignalEvent::PrintEvent()
 
 
 }
+
+//Draw current event in a Tpad
+TPad *TRestSignalEvent::DrawEvent(){
+
+if(fGr!=NULL)delete[] fGr;
+if(fPad!=NULL)delete fPad;
+
+int nSignals = this->GetNumberOfSignals();
+
+fGr = new TGraph[nSignals];
+
+int c;
+
+double maxX=-1E10,minX=1E10,maxY=-1E10,minY=1E10;
+double x,y;
+
+cout<<"N Signals "<<nSignals<<endl;
+
+if(nSignals==0)return NULL;
+
+	for(int i=0;i<nSignals;i++){
+	c=0;
+	cout<<"Signal "<<i<<" points "<<fSignal[i].GetNumberOfPoints()<<endl;
+		for(int j=0;j<fSignal[i].GetNumberOfPoints();j++){
+		x=fSignal[i].GetTime(j);
+		y=fSignal[i].GetData(j);
+		fGr[i].SetPoint(c,x,y);
+		if(x>maxX)maxX=x;
+		if(x<minX)minX=x;
+		if(y>maxY)maxY=y;
+		if(y<minY)minY=y;
+		
+		//cout<<v->X()<<"  "<<v->Y()<<endl;
+		c++;
+		
+		}
+	
+	}
+
+fPad = new TPad(this->GetClassName().Data()," ",0,0,1,1);
+fPad->Draw();
+fPad->cd();
+fPad->DrawFrame(minX,minY,maxX,maxY);
+for(int i=0;i<nSignals;i++){
+fPad->cd();
+fGr[i].Draw("LP");
+}
+
+return fPad;
+
+}
+
+
+

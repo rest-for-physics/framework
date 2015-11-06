@@ -54,7 +54,7 @@ class TRestRun:public TRestMetadata {
         TString fOutputFilename;
         TString fInputFilename;
         TString fVersion;
-
+        
         Int_t fRunEvents;
 
         Double_t fStartTime;              ///< Event absolute starting time/date (unix timestamp)
@@ -75,6 +75,8 @@ class TRestRun:public TRestMetadata {
         
         TFile *fInputFile;
         TFile *fOutputFile;
+        
+        Int_t fCurrentEvent;
 #endif
 
         TGeoManager *fGeometry;
@@ -84,7 +86,7 @@ class TRestRun:public TRestMetadata {
     public:
         
         void Start();
-
+        
         Int_t GetNumberOfProcesses()
         {
             return fEventProcess.size();
@@ -131,6 +133,9 @@ class TRestRun:public TRestMetadata {
         void SetEndTimeStamp( Double_t tStamp ) { fEndTime = tStamp; }
 
         void SetGeometry( TGeoManager *g ) { cout << "AA" << endl; fGeometry = g; cout << "fGeo ::" << fGeometry << endl; } // fGeometry->SetName( "GDML_Geometry"); cout << "CC" << endl; }
+        void SetInputFileName( TString fName){fInputFilename=fName;}
+        
+        
 
         TString GetDateFormatted( Double_t runTime );
         TString GetDateForFilename( Double_t runTime );
@@ -163,22 +168,29 @@ class TRestRun:public TRestMetadata {
         virtual void SetInputEvent( TRestEvent *evt ) 
         { 
             fInputEvent = evt;
-
+	    
+	    if(evt==NULL)return;
+	    
             TString treeName = (TString) evt->GetName() + " Tree";
             fInputEventTree = (TTree * ) fInputFile->Get( treeName );
 
             TBranch *br = fInputEventTree->GetBranch( "eventBranch" );
 
             br->SetAddress( &fInputEvent );
+            
         }
 
-
+	
+	Bool_t GetNextEvent( );
+	
         // Printers
         void PrintStartDate();
         void PrintEndDate();
 
         void PrintInfo( );
         void PrintMetadata() { PrintInfo(); }
+        
+        void PrintProcessedEvents( Int_t rateE);
 
         Double_t GetRunLength();
 

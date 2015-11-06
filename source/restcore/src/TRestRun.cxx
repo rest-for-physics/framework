@@ -82,6 +82,8 @@ TRestRun::~TRestRun()
 
 void TRestRun::Start( )
 {
+    fCurrentEvent=0;
+    
     if( fEventProcess.size() == 0 ) { cout << "WARNNING Run does not contain processes" << endl; return; }
 
     this->OpenOutputFile();
@@ -97,10 +99,9 @@ void TRestRun::Start( )
     for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->InitProcess();
 
     TRestEvent *processedEvent;
-    for( unsigned int i = 0; i < fInputEventTree->GetEntries(); i++ )
+    while( this->GetNextEvent() )
     {
         processedEvent = fInputEvent;
-        fInputEventTree->GetEntry( i );
 
         for( unsigned int j = 0; j < fEventProcess.size(); j++ )
         {
@@ -109,14 +110,17 @@ void TRestRun::Start( )
             if( processedEvent == NULL ) break;
             fEventProcess[j]->EndOfEventProcess();
         }
+        fOutputEvent = processedEvent;
         if( processedEvent == NULL ) continue;
 
-        fOutputEvent = processedEvent;
-
-        fOutputEvent->SetEventID( fInputEvent->GetEventID() );
+        if(fInputEvent!=NULL)fOutputEvent->SetEventID( fInputEvent->GetEventID() );
 
         fOutputEventTree->Fill();
+        
+        PrintProcessedEvents(100);
     }
+
+cout<<fOutputEventTree->GetEntries()<<" processed events"<<endl;
 
     for( unsigned int i = 0; i < fEventProcess.size(); i++ )
         fEventProcess[i]->EndProcess();
@@ -456,3 +460,52 @@ void TRestRun::PrintInfo( )
         cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
 }
+
+void TRestRun::PrintProcessedEvents( Int_t rateE){
+
+if(fCurrentEvent%rateE ==0){
+	if(fInputEvent==NULL){
+	printf("%d processed events now...\r",fCurrentEvent);
+	fflush(stdout);
+	}
+	else{
+	printf("%.2lf\r",(float)(fCurrentEvent/fInputEventTree->GetEntries())*100.);
+	fflush(stdout);
+	}
+
+}
+
+
+}
+
+//Return false when the file ends
+Bool_t TRestRun::GetNextEvent( ){
+
+ if(fInputEvent==NULL){
+    if(fOutputEvent==NULL){return kFALSE;}
+ fCurrentEvent++;
+ }
+ else{
+
+   if(fInputEventTree->GetEntries()==fCurrentEvent-1)return kFALSE;
+   fInputEventTree->GetEntry(fCurrentEvent);
+   cout<<"Loading event "<<fCurrentEvent<<endl;
+   fCurrentEvent++;
+
+ }
+
+
+return kTRUE;
+
+}
+
+
+
+
+
+
+
+
+
+
+

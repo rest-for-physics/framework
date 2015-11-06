@@ -20,7 +20,7 @@ include ../.Makefile.REST
 # Name of RESTsoft module(s) to compile
 MODULE = RestProcesses
 
-DIRECTORIES = general
+DIRECTORIES = general raw
 
 LIBS += -lRestEvents
 include ../.Makefile.Lib
