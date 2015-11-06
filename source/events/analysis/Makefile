@@ -1,6 +1,6 @@
 include ../../.Makefile.arch
 include ../../.Makefile.REST
 
-CLASSES = TRestG4Event TRestG4Hits TRestG4Track 
+CLASSES = TRestTrackEvent TRestTrack
 
 include ../../.Makefile.Class
