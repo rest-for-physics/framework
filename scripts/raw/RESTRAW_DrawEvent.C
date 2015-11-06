@@ -5,32 +5,34 @@
 
 RESTRAW_DrawEvent(TString fName){
 
-run = new TRestRun();
-
-run->OpenInputFile( fName );
-
-TRestSignalEvent *ev = new TRestSignalEvent( );
-run->SetInputEvent( ev );
-
-tr = (TTree *) run->GetInputEventTree();
-
-cout << "Total number of entries : " << tr->GetEntries() << endl;
+TRestAGETToSignalProcess *agetToSignal = new TRestAGETToSignalProcess( );
+    	if(!agetToSignal->OpenInputBinFile(fName)){
+    	cout<<"File "<<fName.Data()<<" not found"<<endl;
+    	exit(0);
+    	}
+TRestEvent *processedEvent = new TRestSignalEvent();
 
 TCanvas *can = new TCanvas("test","test");
 TPad *pad;
 
-	for(int i=0;i<tr->GetEntries();i++){
-	
-	tr->GetEntry( i );
-	can->cd();
-	pad = ev->DrawEvent( );
+agetToSignal->InitProcess();
+
+while( processedEvent!=NULL )
+    {
+        agetToSignal->BeginOfEventProcess();
+        processedEvent = agetToSignal->ProcessEvent( NULL );
+        agetToSignal->EndOfEventProcess();
+        
+        pad = processedEvent->DrawEvent( );
 	pad->Draw( );
 	pad->Update();
 	can->Update( );
 	
 	getchar();
-	}
+        
+    }
 
+cout<<"End "<<endl;
 
 }
 
