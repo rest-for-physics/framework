@@ -35,7 +35,7 @@ TRestTrackEvent::~TRestTrackEvent()
 void TRestTrackEvent::Initialize()
 {
     nTracks = 0;
-    RemoveCluster();
+    fTrack.clear();
     TRestEvent::Initialize();
     fEventClassName = "TRestTrackEvent";
 

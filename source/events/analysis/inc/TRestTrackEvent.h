@@ -41,8 +41,9 @@ class TRestTrackEvent: public TRestEvent {
     public:
 
         //Setters
-        void AddCluster(TRestTrack c){fTrack.push_back(c); nTracks++;}
-        void RemoveCluster( ){fTrack.clear(); nTracks--;}  
+        void AddTrack(TRestTrack c){fTrack.push_back(c); nTracks++;}
+        void RemoveTrack(int n){fTrack.erase(fTrack.begin()+n); nTracks--;}  
+        void RemoveTrack( ){fTrack.clear();}  
         //Getters
         Int_t GetNTracks(){return nTracks;}
       
