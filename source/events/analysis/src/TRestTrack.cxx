@@ -32,5 +32,12 @@ TRestTrack::~TRestTrack()
 }
 
 
+void TRestTrack::Initialize()
+{
+    fTrackID = 0;  
+    fTrackEnergy = 0;
+    fTrackLength = 0;
+    fVolumeHits.RemoveHits();
 
+}
 
