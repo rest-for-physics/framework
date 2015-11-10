@@ -1,0 +1,16 @@
+OBJS += $(patsubst %, obj/%.o ,$(CLASSES))
+
+all : $(OBJS)
+
+CC = gcc
+
+#------------------------------------------------------------------------------
+# Object generation of each class.
+#------------------------------------------------------------------------------
+
+obj/%.o: src/%.c
+	@echo "\033[40m\033[0;31m  Compiling object $@ ........\033[0m"
+	@$(CC) -g -fPIC -O3 $(INC_DIRS) -c -o $@ $<
+
+clean:
+	@rm obj/*
