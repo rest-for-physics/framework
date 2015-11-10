@@ -1,0 +1,58 @@
+
+# Defining the REST library
+RESTLIB	= $(REST_PATH)/lib/lib$(MODULE).so
+
+OBJS := $(shell find . -name '*.o')
+
+CC = gcc
+
+#------------------------------------------------------------------------------
+#
+# Defining the compiling targets
+#
+#------------------------------------------------------------------------------
+
+all: Wellcome makedirs $(RESTLIB)
+
+#------------------------------------------------------------------------------
+# Wellcome message
+#------------------------------------------------------------------------------
+
+Wellcome:
+	@echo "\033[40m\033[0;1;32m----------------------------         \033[0m"
+	@echo "\033[40m\033[0;1;32mRESTsoft Module Makefile         \033[0m"
+	@echo "\033[40m\033[0;1;32m----------------------------         \033[0m"
+	@echo "\033[40m\033[0;1;32mCompiling $(MODULE) module            \033[0m"
+	@echo "\033[40m\033[0;1;32m----------------------------        \033[0m"
+	
+
+#------------------------------------------------------------------------------
+# Generation of the library.
+#------------------------------------------------------------------------------
+makedirs:
+	@for subdir in $(DIRECTORIES); do \
+	echo "Making all in $$subdir"; \
+	cd $$subdir; $(MAKE) all; cd ..; \
+	done
+
+$(RESTLIB): makedirs
+	@$(eval OBJS := $(shell find . -name '*.o'))
+	@echo "\033[40m\033[0;34m  Creating shared library "$(RESTLIB)"........\033[0m"  
+	$(CC) -fPIC -shared -o $(RESTLIB) $(OBJS) $(LIBS)
+
+
+#------------------------------------------------------------------------------
+# Cleaning.
+#------------------------------------------------------------------------------
+
+clean: 
+	@echo "\033[40m\033[0;34m  Removing objects ........\033[0m"
+	@rm -f $(OBJS)
+	@echo "\033[40m\033[0;34m  Removing main library ........\033[0m"
+	@rm -f $(RESTLIB)
+	@echo "\033[40m\033[0;34m  Removing dictionaries ........\033[0m"
+	@rm -f dict/*
+
+
+#------------------------------------------------------------------------------
+# end of makefile
