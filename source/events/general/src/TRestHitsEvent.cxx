@@ -52,9 +52,10 @@ Double_t TRestHitsEvent::GetDistance2( int n, int m )
 
 void TRestHitsEvent::MergeHits( int n, int m )
 {
-    fX[n] = fX[n]*.5 + fX[m]*.5;
-    fY[n] = fY[n]*.5 + fY[m]*.5;
-    fZ[n] = fZ[n]*.5 + fZ[m]*.5;
+    Double_t totalEnergy = fEnergy[n] + fEnergy[m];
+    fX[n] = (fX[n]*fEnergy[n] + fX[m]*fEnergy[m])/totalEnergy;
+    fY[n] = (fY[n]*fEnergy[n] + fY[m]*fEnergy[m])/totalEnergy;
+    fZ[n] = (fZ[n]*fEnergy[n] + fZ[m]*fEnergy[m])/totalEnergy;
 
     fEnergy[n] += fEnergy[m];
 
