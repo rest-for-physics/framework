@@ -18,9 +18,9 @@ include ../.Makefile.arch
 include ../.Makefile.REST
 
 # Name of RESTsoft module(s) to compile
-MODULE = RestProcesses
+MODULE = RestExternal
 
-DIRECTORIES = general raw
+DIRECTORIES = tsp
 
-LIBS += -lRestEvents -lRestExternal
-include ../.Makefile.Lib
+LIBS = -lm
+include ../.Makefile.ExtLib
