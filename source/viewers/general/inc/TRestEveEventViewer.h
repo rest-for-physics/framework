@@ -5,7 +5,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestSimEventViewer.h inherited from TRestEventViewer
+///             TRestEveEventViewer.h inherited from TRestEventViewer
 ///
 ///             nov 2015:   First concept
 ///                 Generic class for visualization of simulated events using gEveManager
@@ -13,8 +13,8 @@
 ///_______________________________________________________________________________
 
 
-#ifndef RestCore_TRestSimEventViewer
-#define RestCore_TRestSimEventViewer
+#ifndef RestCore_TRestEveEventViewer
+#define RestCore_TRestEveEventViewer
 
 #include "TRestEventViewer.h"
 
@@ -42,7 +42,7 @@
 
 #define GEOM_SCALE 0.1
 
-class TRestSimEventViewer:public TRestEventViewer {
+class TRestEveEventViewer:public TRestEventViewer {
 
  protected:
    
@@ -89,10 +89,10 @@ class TRestSimEventViewer:public TRestEventViewer {
    void SetMaxRadious(Double_t rmax){fMaxRadius=rmax;}
    
    //Constructor
-   TRestSimEventViewer();
+   TRestEveEventViewer();
    //Destructor
-   virtual ~TRestSimEventViewer();
+   virtual ~TRestEveEventViewer();
 
-   ClassDef(TRestSimEventViewer, 1);      //class inherited from TRestEventViewer
+   ClassDef(TRestEveEventViewer, 1);      //class inherited from TRestEventViewer
 };
 #endif

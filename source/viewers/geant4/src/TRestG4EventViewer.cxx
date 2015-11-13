@@ -45,7 +45,7 @@ void TRestG4EventViewer::DeleteCurrentEvent(  ){
 
    cout<<"Removing event"<<endl;
    
-   TRestSimEventViewer::DeleteCurrentEvent(  );
+   TRestEveEventViewer::DeleteCurrentEvent(  );
    
    fHitConnectors.clear();
    fHitConnectors.push_back( NULL );

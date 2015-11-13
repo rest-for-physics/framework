@@ -5,7 +5,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestG4EventViewer.h inherited from TRestSimEventViewer
+///             TRestG4EventViewer.h inherited from TRestEveEventViewer
 ///
 ///             nov 2015:   First concept
 ///                 Viewer class for a TRestG4Event
@@ -16,11 +16,11 @@
 #ifndef RestCore_TRestG4EventViewer
 #define RestCore_TRestG4EventViewer
 
-#include "TRestSimEventViewer.h"
+#include "TRestEveEventViewer.h"
 
 #include "TRestG4Event.h"
 
-class TRestG4EventViewer:public TRestSimEventViewer {
+class TRestG4EventViewer:public TRestEveEventViewer {
 
  private:
    
