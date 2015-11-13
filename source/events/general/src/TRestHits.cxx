@@ -80,3 +80,36 @@ void TRestHits::ChangeOrigin(double origx, double origy, double origz)
 	}
     */
 }
+
+void TRestHits::MergeHits( int n, int m )
+{
+    Double_t totalEnergy = fEnergy[n] + fEnergy[m];
+    fX[n] = (fX[n]*fEnergy[n] + fX[m]*fEnergy[m])/totalEnergy;
+    fY[n] = (fY[n]*fEnergy[n] + fY[m]*fEnergy[m])/totalEnergy;
+    fZ[n] = (fZ[n]*fEnergy[n] + fZ[m]*fEnergy[m])/totalEnergy;
+
+    fEnergy[n] += fEnergy[m];
+
+    RemoveHit( m );
+}
+
+void TRestHits::RemoveHit( int n )
+{
+    fNHits--;
+    fX.erase(fX.begin()+n);
+    fY.erase(fY.begin()+n);
+    fZ.erase(fZ.begin()+n);
+    fEnergy.erase(fEnergy.begin()+n);
+}
+
+void TRestHits::PrintEvent()
+{
+	//TRestEvent::PrintEvent();
+	for( int n = 0; n < GetNumberOfHits(); n++ )
+	{
+		cout << "Hit " << n << " X: " << GetX(n) << " Y: " << GetY(n) << " Z: " << GetZ(n) <<  " Energy: " << GetEnergy(n) << endl;
+	}
+
+
+}
+
