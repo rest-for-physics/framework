@@ -15,10 +15,10 @@ TRestHits::~TRestHits()
 void TRestHits::AddHit( Double_t x, Double_t y, Double_t z, Double_t en )
 {
     fNHits++;
-    fX.push_back( (Int_t) (x*1000) );
-    fY.push_back( (Int_t) y * 1000.);
-    fZ.push_back( (Int_t) ( z * 1000. ));
-    fEnergy.push_back( (Int_t) ( en * 1000. ) );
+    fX.push_back( (Float_t) (x) );
+    fY.push_back( (Float_t) (y ));
+    fZ.push_back( (Float_t) ( z));
+    fEnergy.push_back( (Float_t) ( en ) );
 
     fTotEnergy += en;
 }
@@ -28,10 +28,10 @@ void TRestHits::AddHit( TVector3 pos, Double_t en )
     //cout << "Adding hit : " << fNHits << endl;
     fNHits++;
 
-    fX.push_back( (Int_t) (pos.X()*1000) );
-    fY.push_back( (Int_t) pos.Y() * 1000.);
-    fZ.push_back( (Int_t) ( pos.Z() * 1000. ));
-    fEnergy.push_back( (Int_t) ( en * 1000. ) );
+    fX.push_back( (Float_t) (pos.X()) );
+    fY.push_back( (Float_t) (pos.Y() ));
+    fZ.push_back( (Float_t) ( pos.Z()  ));
+    fEnergy.push_back( (Float_t) ( en ) );
 
     fTotEnergy += en;
 }

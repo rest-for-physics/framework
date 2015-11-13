@@ -32,8 +32,8 @@ class TRestSignal: public TObject {
         
         Int_t fSignalID;
         
-        vector <Int_t> fSignalTime;   //Vector with the time of the signal
-        vector <Int_t> fSignalCharge; //Vector with the charge of the signal
+        vector <Float_t> fSignalTime;   //Vector with the time of the signal
+        vector <Float_t> fSignalCharge; //Vector with the charge of the signal
         
         #ifndef __CINT__
 	TVector2 vector2; 
@@ -64,8 +64,8 @@ class TRestSignal: public TObject {
 
         Double_t GetIntegral( );
 
-        Double_t GetData( Int_t index ) { return (double)fSignalCharge[index]/1000.; }
-        Double_t GetTime( Int_t index ) { return (double)fSignalTime[index]/1000.; }
+        Double_t GetData( Int_t index ) { return (double)fSignalCharge[index]; }
+        Double_t GetTime( Int_t index ) { return (double)fSignalTime[index]; }
         Int_t GetTimeIndex(Double_t t);
         
         //Setters
