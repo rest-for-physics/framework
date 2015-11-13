@@ -7,16 +7,9 @@
 ///
 ///             TRestG4EventViewer.cxx
 ///
-///             Template to use to design "event process" classes inherited from 
-///             TRestG4EventViewer
-///             How to use: replace TRestG4EventViewer by your name, 
-///             fill the required functions following instructions and add all
-///             needed additional members and funcionality
-///
-///             jun 2014:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///                 Igor G. Irastorza
+///             nov 2015:   First concept
+///                 Viewer class for a TRestG4Event
+///                 JuanAn Garcia
 ///_______________________________________________________________________________
 
 

@@ -9,11 +9,10 @@
 ///
 ///             G4 class description
 ///
-
-///             jul 2015:   First concept
+///             sept 2015:   First concept
 ///                 Created as part of the conceptualization of existing REST 
 ///                 software.
-///                 Javier Galan
+///                 JuanAn Garcia
 ///_______________________________________________________________________________
 
 

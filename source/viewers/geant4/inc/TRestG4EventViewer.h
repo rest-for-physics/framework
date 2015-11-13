@@ -5,12 +5,11 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestG4EventViewer.h
+///             TRestG4EventViewer.h inherited from TRestSimEventViewer
 ///
 ///             nov 2015:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///                 JuanAn
+///                 Viewer class for a TRestG4Event
+///                 JuanAn Garcia
 ///_______________________________________________________________________________
 
 

@@ -7,18 +7,10 @@
 ///
 ///             TRestSimEventViewer.cxx
 ///
-///             Template to use to design "event process" classes inherited from 
-///             TRestSimEventViewer
-///             How to use: replace TRestSimEventViewer by your name, 
-///             fill the required functions following instructions and add all
-///             needed additional members and funcionality
-///
-///             jun 2014:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///                 Igor G. Irastorza
+///             nov 2015:   First concept
+///                 Generic class for visualization of simulated events using gEveManager
+///                 JuanAn
 ///_______________________________________________________________________________
-
 
 #include "TRestSimEventViewer.h"
 

@@ -4,10 +4,10 @@
 #   RESTSoft : Software for Rare Event Searches with TPCs
 #   Makefile to create the RESTsofts libraries
 #                                                                      
-#      submodule: RESTMETADATA
+#      submodule: RESTVIEWERS
 #    
-#   Created  :  Oct 2015                                             
-#   Auth: J. Galan
+#   Created  :  Nov 2015                                             
+#   Auth: JuanAn Garcia
 #
 #------------------------------------------------------------------------------
 # generic info on makefiles:

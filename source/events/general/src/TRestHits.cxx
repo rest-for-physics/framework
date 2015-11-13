@@ -1,3 +1,24 @@
+///______________________________________________________________________________
+///______________________________________________________________________________
+///______________________________________________________________________________
+///             
+///
+///             RESTSoft : Software for Rare Event Searches with TPCs
+///
+///             TRestHits.cxx
+///
+///             Event class to store hits 
+///
+///             sept 2015:   First concept
+///                 Created as part of the conceptualization of existing REST 
+///                 software.
+///                 Javier Galan
+///		nov 2015:
+///		    Changed vectors fX fY fZ and fEnergy from <Int_t> to <Float_t>
+///	            JuanAn Garcia
+///_______________________________________________________________________________
+
+
 #include "TRestHits.h"
 
 ClassImp(TRestHits)
