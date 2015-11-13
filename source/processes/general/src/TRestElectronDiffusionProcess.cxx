@@ -107,6 +107,7 @@ void TRestElectronDiffusionProcess::BeginOfEventProcess()
     cout << "Begin of event process" << endl;
     fHitsEvent->Initialize(); 
 
+    fOutputEvent->SetEventID( fInputEvent->GetEventID() );
 }
 
 //______________________________________________________________________________
@@ -120,7 +121,7 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
     Double_t ionizationThreshold = fGas->GetIonizationPotential();
     Double_t longlDiffCoeff = fGas->GetLongitudinalDiffusion( fElectricField ); // (cm)^1/2
     Double_t transDiffCoeff = fGas->GetTransversalDiffusion( fElectricField ); // (cm)^1/2
-    Double_t driftVelocity = fGas->GetDriftVelocity( fElectricField ); // cm/us
+    //Double_t driftVelocity = fGas->GetDriftVelocity( fElectricField ); // cm/us
 
     // Get info from G4Event and process
     for( int trk = 0; trk < g4Event->GetNumberOfTracks(); trk++ )
@@ -163,13 +164,14 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 
                             zDiff = z + rnd->Gaus( 0, longHitDiffusion );
 
-                            driftDistance = zDiff - fCathodePosition;
-                            if( driftDistance < 0 ) driftDistance = -driftDistance;
+                            //driftDistance = zDiff - fCathodePosition;
+                            //if( driftDistance < 0 ) driftDistance = -driftDistance;
 
-                            fHitsEvent->AddHit( xDiff, yDiff, driftDistance, 1. );
+                            fHitsEvent->AddHit( xDiff, yDiff, zDiff, 1. );
                         }
 
                         // compressing last energy deposit
+                        //fHitsEvent->PrintEvent();
                         for( int i = initialHit; i < fHitsEvent->GetNumberOfHits(); i++ )
                         {
                             for( int j = i+1; j < fHitsEvent->GetNumberOfHits(); j++ )
@@ -178,13 +180,17 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
                                     fHitsEvent->MergeHits( i, j );
                             }
                         }
+			//cout << "After hit compression" << endl;
+                        //fHitsEvent->PrintEvent();
+			//cout << "-----------------------" << endl;
+                        //getchar();
                     }
                 }
             }
 
             // Definning the drift time
-            for ( int k = 0; k < fHitsEvent->GetNumberOfHits(); k++ )
-                fHitsEvent->SetZ( k, fHitsEvent->GetZ(k)*0.1/driftVelocity );
+            //for ( int k = 0; k < fHitsEvent->GetNumberOfHits(); k++ )
+              //  fHitsEvent->SetZ( k, fHitsEvent->GetZ(k)*0.1/driftVelocity );
 
         }
 

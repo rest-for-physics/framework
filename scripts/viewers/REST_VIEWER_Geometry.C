@@ -8,19 +8,19 @@
 using namespace std;
 
 
-Int_t REST_VIEWER_Geometry( TString gdmlName)
+Int_t REST_VIEWER_Geometry( TString fName)
 {
 
     TEveManager::Create();
    
-    cout << "Filename : " << gdmlName << endl;
+    cout << "Filename : " << fName << endl;
 
-    gSystem->Load("librestcore.so");
-    gSystem->Load("librestsim.so");
     
-    TGeoManager *geo = new TGeoManager();
-    geo->Import(gdmlName);
-    
+    TRestRun *run = new TRestRun( );
+    run->OpenInputFile(fName);
+        
+    TGeoManager *geo = run->GetGeometry();
+        
     TGeoNode* node = geo->GetTopNode();
     for(int i=0;i< geo->GetNNodes();i++)
     geo->GetVolume(i)->SetTransparency(50);

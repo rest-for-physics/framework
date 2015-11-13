@@ -9,11 +9,10 @@
 ///
 ///             G4 class description
 ///
-
-///             jul 2015:   First concept
+///             sept 2015:   First concept
 ///                 Created as part of the conceptualization of existing REST 
 ///                 software.
-///                 Javier Galan
+///                 JuanAn Garcia
 ///_______________________________________________________________________________
 
 
@@ -40,8 +39,6 @@ void TRestBrowser::Initialize(){
 
 isFile=kFALSE;
 
-run = new TRestRun();
-
 frmMain = new TGMainFrame(gClient->GetRoot(),300,200);
 frmMain->SetCleanup(kDeepCleanup);
 frmMain->SetWindowName("Controller");
@@ -50,13 +47,13 @@ fCurrentEvent=0;
 
 setButtons( );
 
-canvas = new TCanvas("TEST");
-
 frmMain->DontCallClose();
 frmMain->MapSubwindows();
 //frmMain->Resize();
 frmMain->Layout();
 frmMain->MapWindow();
+
+fEventViewer=NULL;
 
 }
 
@@ -103,7 +100,7 @@ Int_t eventN = (Int_t)fNEvent->GetNumber();
 
 cout<<"Loading event "<<eventN<<endl;
 
-if(LoadEvent(eventN))fCurrentEvent =eventN;
+if(LoadEvent(eventN))fCurrentEvent=eventN;
 
 }
 
@@ -111,7 +108,7 @@ void TRestBrowser::LoadNextEventAction( ){
 
 Int_t nextEvent = fCurrentEvent+1;
 
-cout<<" Next event "<<nextEvent<<"  "<<fCurrentEvent<<endl;
+cout<<" Next event "<<nextEvent<<endl;
 
 if(LoadEvent(nextEvent)){
 fCurrentEvent=nextEvent;
@@ -127,10 +124,11 @@ Int_t prevEvent = fCurrentEvent-1;
 cout<<" Previous event "<<prevEvent<<endl;
 
 if(LoadEvent(prevEvent)){
-fCurrentEvent =prevEvent;
+fCurrentEvent=prevEvent;
 fNEvent->SetIntNumber(fCurrentEvent);
 
 }
+
 }
 
 void TRestBrowser::LoadFileAction( ){
@@ -142,7 +140,7 @@ TString dir = fi.fFilename;
 
 cout<<"Opening "<<dir.Data( )<<endl;
 
-	if(!run->fileExists( dir.Data() )){
+	if(fileExists( dir.Data() )){
 	OpenFile(dir);
 	fCurrentEvent=0;
 	fNEvent->SetIntNumber(fCurrentEvent);
@@ -154,26 +152,39 @@ Bool_t TRestBrowser::OpenFile( TString fName )
 {
 
     string fname = fName.Data();
-    if( !run->fileExists( fname ) ) {
+    if( !fileExists( fname ) ) {
         cout << "WARNING. Input file does not exist" << endl;
         return kFALSE; 
     }
-    else
-        run->OpenInputFile( fName );
+    
+    if( fInputFile != NULL ) fInputFile->Close();
+        
+    fInputFile = new TFile( fName );
+    TIter nextkey(fInputFile->GetListOfKeys());
+    TKey *key;
+    while ( (key = (TKey*)nextkey() ) ) {
 
-
-    if( run == NULL ){
-        cout << "WARNING no TRestG4Run class was found" << endl;
-        return kFALSE; 
+        string className = key->GetClassName();
+	
+	cout<<className<<" "<<key->GetName()<<endl;
+	
+        if ( className == "TGeoManager" ) fGeometry = (TGeoManager *)fInputFile->Get(key->GetName());
     }
+
+    // Transfering metadata to historic
+    for( size_t i = 0; i < fMetadata.size(); i++ )
+        fHistoricMetadata.push_back( fMetadata[i] );
+    fMetadata.clear();
+    for( size_t i = 0; i < fEventProcess.size(); i++ )
+        fHistoricEventProcess.push_back( fEventProcess[i] );
+    fEventProcess.clear();
+                
+    SetInputEvent(fEventViewer->GetEvent());
+    
+    cout<<"Geometry "<<GetGeometry( )<<endl;
+    if(GetGeometry( )!=NULL)fEventViewer->SetGeometry(GetGeometry( ));
     
     isFile=kTRUE;
-    run->PrintInfo();
-    
-    run->SetInputEvent( ev );
-
-    tr = (TTree *) run->GetInputEventTree();
-    
     
     return kTRUE; 
 
@@ -181,39 +192,34 @@ Bool_t TRestBrowser::OpenFile( TString fName )
 
 Bool_t TRestBrowser::LoadEvent( Int_t n ){
 
-    if(!isFile){cout<<"No file found, please load a valid file"<<endl; return kFALSE;}
+if(!isFile){cout<<"No file..."<<endl;return kFALSE;}
 
-    if(n<0||n >= tr->GetEntries()){
-
-        cout<<"Event out of range 0-"<<tr->GetEntries()-1<<endl;
-
-        return kFALSE;
-    }
-
-    cout<<"Loading Event "<<n<<endl;
-    
-    
-    tr->GetEntry( n );
-
-    canvas->cd();
-    pad = ev->DrawEvent( );
-    if(pad==NULL){cout<<"Empty event "<<endl;return kTRUE;}
-    pad->Draw( );
-    pad->Update();
-    canvas->Update( );
-
-    //viewer->ViewEvent( "ogl" );
-
-
-    return kTRUE;
-
+if(n<fInputEventTree->GetEntries()&&n>=0){
+fInputEventTree->GetEntry(n);
+fCurrentEvent=n;
 }
+else{cout<<"Event out of limits"<<endl; return kFALSE;}
+   
+   if(fEventViewer==NULL)return kFALSE;
+   
+   SetInputEvent( fEventViewer->GetEvent() );
 
+   fEventViewer->AddEvent( fInputEvent );
+   
+    
+return kTRUE;    
+}
 
 
 void TRestBrowser::ExitAction( ){
  
 gApplication->Terminate(0);
 
+}
+
+void TRestBrowser::InitFromConfigFile()
+{
+    cout << __PRETTY_FUNCTION__ << endl;
+    
 }
 

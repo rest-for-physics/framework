@@ -113,6 +113,8 @@ if(fPad!=NULL)delete fPad;
 
 int nSignals = this->GetNumberOfSignals();
 
+if(nSignals==0)return NULL;
+
 fGr = new TGraph[nSignals];
 
 int c;
@@ -120,13 +122,10 @@ int c;
 double maxX=-1E10,minX=1E10,maxY=-1E10,minY=1E10;
 double x,y;
 
-cout<<"N Signals "<<nSignals<<endl;
-
-if(nSignals==0)return NULL;
-
 	for(int i=0;i<nSignals;i++){
 	c=0;
-	cout<<"Signal "<<i<<" points "<<fSignal[i].GetNumberOfPoints()<<endl;
+	
+	cout<<"Signal "<<i<<" ID "<<fSignal[i].GetSignalID( )<<" points "<<fSignal[i].GetNumberOfPoints()<<endl;
 		for(int j=0;j<fSignal[i].GetNumberOfPoints();j++){
 		x=fSignal[i].GetTime(j);
 		y=fSignal[i].GetData(j);
@@ -142,6 +141,7 @@ if(nSignals==0)return NULL;
 		}
 	
 	}
+
 
 fPad = new TPad(this->GetClassName().Data()," ",0,0,1,1);
 fPad->Draw();

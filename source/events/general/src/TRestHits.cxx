@@ -1,3 +1,24 @@
+///______________________________________________________________________________
+///______________________________________________________________________________
+///______________________________________________________________________________
+///             
+///
+///             RESTSoft : Software for Rare Event Searches with TPCs
+///
+///             TRestHits.cxx
+///
+///             Event class to store hits 
+///
+///             sept 2015:   First concept
+///                 Created as part of the conceptualization of existing REST 
+///                 software.
+///                 Javier Galan
+///		nov 2015:
+///		    Changed vectors fX fY fZ and fEnergy from <Int_t> to <Float_t>
+///	            JuanAn Garcia
+///_______________________________________________________________________________
+
+
 #include "TRestHits.h"
 
 ClassImp(TRestHits)
@@ -15,10 +36,10 @@ TRestHits::~TRestHits()
 void TRestHits::AddHit( Double_t x, Double_t y, Double_t z, Double_t en )
 {
     fNHits++;
-    fX.push_back( (Int_t) (x*1000) );
-    fY.push_back( (Int_t) y * 1000.);
-    fZ.push_back( (Int_t) ( z * 1000. ));
-    fEnergy.push_back( (Int_t) ( en * 1000. ) );
+    fX.push_back( (Float_t) (x) );
+    fY.push_back( (Float_t) (y ));
+    fZ.push_back( (Float_t) ( z));
+    fEnergy.push_back( (Float_t) ( en ) );
 
     fTotEnergy += en;
 }
@@ -28,10 +49,10 @@ void TRestHits::AddHit( TVector3 pos, Double_t en )
     //cout << "Adding hit : " << fNHits << endl;
     fNHits++;
 
-    fX.push_back( (Int_t) (pos.X()*1000) );
-    fY.push_back( (Int_t) pos.Y() * 1000.);
-    fZ.push_back( (Int_t) ( pos.Z() * 1000. ));
-    fEnergy.push_back( (Int_t) ( en * 1000. ) );
+    fX.push_back( (Float_t) (pos.X()) );
+    fY.push_back( (Float_t) (pos.Y() ));
+    fZ.push_back( (Float_t) ( pos.Z()  ));
+    fEnergy.push_back( (Float_t) ( en ) );
 
     fTotEnergy += en;
 }
@@ -59,3 +80,36 @@ void TRestHits::ChangeOrigin(double origx, double origy, double origz)
 	}
     */
 }
+
+void TRestHits::MergeHits( int n, int m )
+{
+    Double_t totalEnergy = fEnergy[n] + fEnergy[m];
+    fX[n] = (fX[n]*fEnergy[n] + fX[m]*fEnergy[m])/totalEnergy;
+    fY[n] = (fY[n]*fEnergy[n] + fY[m]*fEnergy[m])/totalEnergy;
+    fZ[n] = (fZ[n]*fEnergy[n] + fZ[m]*fEnergy[m])/totalEnergy;
+
+    fEnergy[n] += fEnergy[m];
+
+    RemoveHit( m );
+}
+
+void TRestHits::RemoveHit( int n )
+{
+    fNHits--;
+    fX.erase(fX.begin()+n);
+    fY.erase(fY.begin()+n);
+    fZ.erase(fZ.begin()+n);
+    fEnergy.erase(fEnergy.begin()+n);
+}
+
+void TRestHits::PrintEvent()
+{
+	//TRestEvent::PrintEvent();
+	for( int n = 0; n < GetNumberOfHits(); n++ )
+	{
+		cout << "Hit " << n << " X: " << GetX(n) << " Y: " << GetY(n) << " Z: " << GetZ(n) <<  " Energy: " << GetEnergy(n) << endl;
+	}
+
+
+}
+
