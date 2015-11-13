@@ -40,12 +40,14 @@ class TRestTrackEvent: public TRestEvent {
     
     public:
 
+        TRestTrack *GetTrack( int n)  { return &fTrack[n]; }
+
         //Setters
         void AddTrack(TRestTrack c){fTrack.push_back(c); nTracks++;}
         void RemoveTrack(int n){fTrack.erase(fTrack.begin()+n); nTracks--;}  
         void RemoveTrack( ){fTrack.clear();}  
         //Getters
-        Int_t GetNTracks(){return nTracks;}
+        Int_t GetNumberOfTracks(){return nTracks;}
       
         void Initialize();
 
