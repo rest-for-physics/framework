@@ -5,11 +5,10 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestSimEventViewer.h
+///             TRestSimEventViewer.h inherited from TRestEventViewer
 ///
 ///             nov 2015:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
+///                 Generic class for visualization of simulated events using gEveManager
 ///                 JuanAn
 ///_______________________________________________________________________________
 

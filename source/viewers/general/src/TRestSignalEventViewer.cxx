@@ -7,16 +7,9 @@
 ///
 ///             TRestSignalEventViewer.cxx
 ///
-///             Template to use to design "event process" classes inherited from 
-///             TRestSignalEventViewer
-///             How to use: replace TRestSignalEventViewer by your name, 
-///             fill the required functions following instructions and add all
-///             needed additional members and funcionality
-///
-///             jun 2014:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///                 Igor G. Irastorza
+///             nov 2015:   First concept
+///                 Viewer class for a TRestSignalEvent
+///                 JuanAn Garcia
 ///_______________________________________________________________________________
 
 

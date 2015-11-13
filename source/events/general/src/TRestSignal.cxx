@@ -5,15 +5,19 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestSignal.h
+///             TRestSignal.cxx
 ///
-///             Event class to store signals form simulation and acquisition events 
+///             Event class to store signals from simulation and acquisition events 
 ///
 ///             sept 2015:   First concept
 ///                 Created as part of the conceptualization of existing REST 
 ///                 software.
-///                 JuanAn Garcia
+///                 JuanAn Garcia/Javier Galan
+///		nov 2015:
+///		    Changed vectors fSignalTime and fSignalCharge from <Int_t> to <Float_t>
+///	            JuanAn Garcia
 ///_______________________________________________________________________________
+
 
 
 #include "TRestSignal.h"

@@ -5,13 +5,13 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestSignalEventViewer.h
+///             TRestSignalEventViewer.h inherited from TRestEventViewer
 ///
 ///             nov 2015:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///                 JuanAn
+///                 Viewer class for a TRestSignalEvent
+///                 JuanAn Garcia
 ///_______________________________________________________________________________
+
 
 
 #ifndef RestCore_TRestSignalEventViewer

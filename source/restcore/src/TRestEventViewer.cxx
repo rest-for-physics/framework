@@ -7,12 +7,13 @@
 ///
 ///             TRestEventViewer.cxx
 ///
-///             Base geometry class used to visualize events
+///             A geometry class to store detector geometry 
 ///
 ///             jul 2015:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
 ///                 J. Galan
+///		nov 2015: Generic class for event visualization
+///		    JuanAn Garcia
+///
 ///_______________________________________________________________________________
 
 

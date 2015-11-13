@@ -11,6 +11,9 @@
 ///
 ///             jul 2015:   First concept
 ///                 J. Galan
+///		nov 2015: Generic class for event visualization
+///		    JuanAn Garcia
+///
 ///_______________________________________________________________________________
 
 

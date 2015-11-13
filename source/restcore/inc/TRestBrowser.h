@@ -5,10 +5,14 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestG4EventViewer.h
+///             TRestBrowser.h : public TRestRun
 ///
-///             aug 2015:   First concept. Javier Galan
-//  
+///             G4 class description
+///
+///             sept 2015:   First concept
+///                 Created as part of the conceptualization of existing REST 
+///                 software.
+///                 JuanAn Garcia
 ///_______________________________________________________________________________
 
 

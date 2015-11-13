@@ -7,12 +7,15 @@
 ///
 ///             TRestSignal.h
 ///
-///             Event class to store signals form simulation and acquisition events 
+///             Event class to store signals fromm simulation and acquisition events 
 ///
 ///             sept 2015:   First concept
 ///                 Created as part of the conceptualization of existing REST 
 ///                 software.
 ///                 JuanAn Garcia/Javier Galan
+///		nov 2015:
+///		    Changed vectors fSignalTime and fSignalCharge from <Int_t> to <Float_t>
+///	            JuanAn Garcia
 ///_______________________________________________________________________________
 
 
