@@ -44,7 +44,7 @@ frmMain = new TGMainFrame(gClient->GetRoot(),300,200);
 frmMain->SetCleanup(kDeepCleanup);
 frmMain->SetWindowName("Controller");
 
-SetCurrentEvent(0);
+fCurrentEvent=0;
 
 setButtons( );
 
@@ -63,8 +63,8 @@ void TRestBrowser::setButtons( ){
 
     fVFrame = new TGVerticalFrame(frmMain);
     
-    fNEvent= new TGNumberEntry(fVFrame,GetCurrentEvent( ));
-    fNEvent->SetIntNumber(GetCurrentEvent( ));
+    fNEvent= new TGNumberEntry(fVFrame,fCurrentEvent);
+    fNEvent->SetIntNumber(fCurrentEvent);
     fVFrame->AddFrame(fNEvent,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
             
     fLoadEvent = new  TGTextButton(fVFrame,"LOAD");///< Load Event button
@@ -101,32 +101,32 @@ Int_t eventN = (Int_t)fNEvent->GetNumber();
 
 cout<<"Loading event "<<eventN<<endl;
 
-if(LoadEvent(eventN))SetCurrentEvent(eventN);
+if(LoadEvent(eventN))fCurrentEvent=eventN;
 
 }
 
 void TRestBrowser::LoadNextEventAction( ){
 
-Int_t nextEvent = GetCurrentEvent()+1;
+Int_t nextEvent = fCurrentEvent+1;
 
 cout<<" Next event "<<nextEvent<<endl;
 
 if(LoadEvent(nextEvent)){
-SetCurrentEvent(nextEvent);
-fNEvent->SetIntNumber(GetCurrentEvent());
+fCurrentEvent=nextEvent;
+fNEvent->SetIntNumber(fCurrentEvent);
 }
 
 }
 
 void TRestBrowser::LoadPrevEventAction( ){
 
-Int_t prevEvent = GetCurrentEvent()-1;
+Int_t prevEvent = fCurrentEvent-1;
 
 cout<<" Previous event "<<prevEvent<<endl;
 
 if(LoadEvent(prevEvent)){
-SetCurrentEvent(prevEvent);
-fNEvent->SetIntNumber(GetCurrentEvent());
+fCurrentEvent=prevEvent;
+fNEvent->SetIntNumber(fCurrentEvent);
 
 }
 
@@ -143,8 +143,8 @@ cout<<"Opening "<<dir.Data( )<<endl;
 
 	if(fileExists( dir.Data() )){
 	OpenFile(dir);
-	SetCurrentEvent(0);
-	fNEvent->SetIntNumber(GetCurrentEvent());
+	fCurrentEvent=0;
+	fNEvent->SetIntNumber(fCurrentEvent);
 	}
 
 }
@@ -197,7 +197,7 @@ if(!isFile){cout<<"No file..."<<endl;return kFALSE;}
 
 if(n<fInputEventTree->GetEntries()&&n>=0){
 fInputEventTree->GetEntry(n);
-SetCurrentEvent(n);
+fCurrentEvent=n;
 }
 else{cout<<"Event out of limits"<<endl; return kFALSE;}
    
