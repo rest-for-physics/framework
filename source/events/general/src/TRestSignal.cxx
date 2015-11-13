@@ -34,8 +34,8 @@ TRestSignal::~TRestSignal()
 void TRestSignal::AddPoint(TVector2 p)
 {
     Int_t index =  GetTimeIndex( p.X() );
-    Int_t x = p.X()*1000;
-    Int_t y = p.Y()*1000;
+    Float_t x = p.X();
+    Float_t y = p.Y();
     
     if( index >= 0 ){
         fSignalTime[index] =x;
@@ -64,7 +64,7 @@ Double_t TRestSignal::GetIntegral( )
 
 Int_t TRestSignal::GetTimeIndex( Double_t t )
 {
-    Int_t time = t*1000;
+    Float_t time = t;
     
     for( int n = 0; n < GetNumberOfPoints(); n++ )
         if( time == fSignalTime[n] ) return n;
