@@ -5,33 +5,33 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestSimEventViewer.cxx
+///             TRestEveEventViewer.cxx
 ///
 ///             nov 2015:   First concept
 ///                 Generic class for visualization of simulated events using gEveManager
 ///                 JuanAn
 ///_______________________________________________________________________________
 
-#include "TRestSimEventViewer.h"
+#include "TRestEveEventViewer.h"
 
-ClassImp(TRestSimEventViewer)
+ClassImp(TRestEveEventViewer)
 //______________________________________________________________________________
-TRestSimEventViewer::TRestSimEventViewer()
+TRestEveEventViewer::TRestEveEventViewer()
 {
   Initialize();
 }
 
 
 //______________________________________________________________________________
-TRestSimEventViewer::~TRestSimEventViewer()
+TRestEveEventViewer::~TRestEveEventViewer()
 {
-   // TRestSimEventViewer destructor
+   // TRestEveEventViewer destructor
    DeleteCurrentEvent( );
    DeleteGeometry( );
 }
 
 //______________________________________________________________________________
-void TRestSimEventViewer::Initialize()
+void TRestEveEventViewer::Initialize()
 {
        
    gEve = TEveManager::Create();
@@ -47,7 +47,7 @@ void TRestSimEventViewer::Initialize()
    
 }
 
-void TRestSimEventViewer::SetGeometry(TGeoManager *geo){
+void TRestEveEventViewer::SetGeometry(TGeoManager *geo){
     
     TRestEventViewer::SetGeometry(geo);
     
@@ -64,7 +64,7 @@ void TRestSimEventViewer::SetGeometry(TGeoManager *geo){
     
 }
 
-void TRestSimEventViewer::DeleteCurrentEvent(  ){
+void TRestEveEventViewer::DeleteCurrentEvent(  ){
 
    cout<<"Removing event"<<endl;
    gEve->GetViewers()->DeleteAnnotations();
@@ -72,14 +72,14 @@ void TRestSimEventViewer::DeleteCurrentEvent(  ){
       
 }
 
-void TRestSimEventViewer::DeleteGeometry(  ){
+void TRestEveEventViewer::DeleteGeometry(  ){
 
    cout<<"Removing geometry"<<endl;
    gEve->GetGlobalScene()->DestroyElements();
    
 }
 
-void TRestSimEventViewer::MultiView( ){
+void TRestEveEventViewer::MultiView( ){
 
 
     slot = TEveWindow::CreateWindowInTab(gEve->GetBrowser()->GetTabRight());
@@ -126,7 +126,7 @@ void TRestSimEventViewer::MultiView( ){
 
 }
 
-void TRestSimEventViewer::DrawTab( ){
+void TRestEveEventViewer::DrawTab( ){
          
    gEve->FullRedraw3D(kTRUE);
    
@@ -150,7 +150,7 @@ void TRestSimEventViewer::DrawTab( ){
 
 }
 
-void TRestSimEventViewer::Update( ){
+void TRestEveEventViewer::Update( ){
 
 rphi->ImportElements( gEve->GetCurrentEvent());
 rhoz->ImportElements( gEve->GetCurrentEvent());
@@ -161,7 +161,7 @@ rhozViewer->Redraw(kTRUE);
 }
 
 
-void TRestSimEventViewer::AddSphericalHit( double x, double y, double z, double radius, double en )
+void TRestEveEventViewer::AddSphericalHit( double x, double y, double z, double radius, double en )
 {
     TEvePointSet* ps = new TEvePointSet();
     ps->SetOwnIds(kTRUE);

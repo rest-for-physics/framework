@@ -42,7 +42,7 @@ void TRestHitsEventViewer::Initialize()
 
 void TRestHitsEventViewer::DeleteCurrentEvent(  ){
    
-   TRestSimEventViewer::DeleteCurrentEvent(  );
+   TRestEveEventViewer::DeleteCurrentEvent(  );
    cout<<"Removing event"<<endl;
          
 }
