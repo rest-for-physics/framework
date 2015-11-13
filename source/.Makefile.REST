@@ -8,7 +8,7 @@ CC = g++
 #Flags
 FLAGS = -fPIC -Wall -g -std=c++0x
 
-REST_INC = -I$(REST_FW)/restcore/inc -I$(REST_FW)/events/geant4/inc -I$(REST_FW)/events/general/inc -I$(REST_FW)/metadata/general/inc -I$(REST_FW)/metadata/readout/inc
+REST_INC = -I$(REST_FW)/restcore/inc -I$(REST_FW)/events/geant4/inc -I$(REST_FW)/events/general/inc -I$(REST_FW)/metadata/general/inc -I$(REST_FW)/metadata/readout/inc -I$(REST_FW)/viewers/general/inc -I$(REST_FW)/viewers/geant4/inc
 # "include" directories in which to search for .h files
 INC_DIRS = -I. -I./inc $(REST_INC) -I$(shell $(ROOTCONFIG) --incdir) -I$(GARFIELD_HOME)/Include
 
