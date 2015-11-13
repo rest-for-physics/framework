@@ -4,36 +4,24 @@ ClassImp(TRestHitsEvent)
 
 TRestHitsEvent::TRestHitsEvent()
 {
-    fNHits = 0;
-    fTotEnergy = 0;
+
+fHits = new TRestHits();
+    
 }
 
 TRestHitsEvent::~TRestHitsEvent()
 {
+delete fHits;
 }
 
 void TRestHitsEvent::AddHit( Double_t x, Double_t y, Double_t z, Double_t en )
 {
-    fNHits++;
-    fX.push_back( (Int_t) (x*1000) );
-    fY.push_back( (Int_t) (y * 1000.) );
-    fZ.push_back( (Int_t) ( z * 1000. ));
-    fEnergy.push_back( (Int_t) ( en * 1000. ) );
-
-    fTotEnergy += en;
+    fHits->AddHit(x,y,z,en);
 }
 
 void TRestHitsEvent::AddHit( TVector3 pos, Double_t en )
 {
-    //cout << "Adding hit : " << fNHits << endl;
-    fNHits++;
-
-    fX.push_back( (Int_t) (pos.X()*1000) );
-    fY.push_back( (Int_t) (pos.Y() * 1000.) );
-    fZ.push_back( (Int_t) ( pos.Z() * 1000. ));
-    fEnergy.push_back( (Int_t) ( en * 1000. ) );
-
-    fTotEnergy += en;
+    fHits->AddHit(pos,en);
 }
 
 void TRestHitsEvent::Initialize()
@@ -52,44 +40,37 @@ Double_t TRestHitsEvent::GetDistance2( int n, int m )
 
 void TRestHitsEvent::MergeHits( int n, int m )
 {
-    Double_t totalEnergy = fEnergy[n] + fEnergy[m];
-    fX[n] = (fX[n]*fEnergy[n] + fX[m]*fEnergy[m])/totalEnergy;
-    fY[n] = (fY[n]*fEnergy[n] + fY[m]*fEnergy[m])/totalEnergy;
-    fZ[n] = (fZ[n]*fEnergy[n] + fZ[m]*fEnergy[m])/totalEnergy;
-
-    fEnergy[n] += fEnergy[m];
-
-    RemoveHit( m );
+    fHits->MergeHits( n, m );
 }
 
 void TRestHitsEvent::RemoveHit( int n )
 {
-    fNHits--;
-    fX.erase(fX.begin()+n);
-    fY.erase(fY.begin()+n);
-    fZ.erase(fZ.begin()+n);
-    fEnergy.erase(fEnergy.begin()+n);
+    fHits->RemoveHit(n);
 }
 
 void TRestHitsEvent::RemoveHits( )
 {
-    fNHits = 0;
-    fX.clear();
-    fY.clear();
-    fZ.clear();
-    fEnergy.clear();
-    fTotEnergy = 0;
+    fHits->RemoveHits( );
 }
 
 
 void TRestHitsEvent::ChangeOrigin(double origx, double origy, double origz)
 {
     /*
-	for(int i = 0; i < fNHits; i++)
+	for(int i = 0; i < fHits; i++)
 	{
 		fX.fArray[i] += origx;
 		fY.fArray[i] += origy;
 		fZ.fArray[i] += origz;
 	}
     */
+}
+
+
+void TRestHitsEvent::PrintEvent()
+{
+	//TRestEvent::PrintEvent();
+	fHits->PrintEvent();
+
+
 }

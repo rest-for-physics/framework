@@ -51,7 +51,10 @@ class TRestHits : public TObject
         void AddHit( Double_t x, Double_t y, Double_t z, Double_t en );
         void AddHit( TVector3 pos, Double_t en );
         void RemoveHits( );
-
+	
+	void MergeHits( int n, int m );
+        void RemoveHit( int n );
+	
         Int_t GetNumberOfHits( ) { return fNHits; }
 
         Double_t GetX( int n ) { return ( (Double_t) fX[n]); } // return value in mm
@@ -63,10 +66,10 @@ class TRestHits : public TObject
             return TVector3 ( ( (Double_t) fX[n]), ((Double_t) fY[n]), ((Double_t) fZ[n]) ) ; 
         }
 
-
         Double_t GetTotalDepositedEnergy() { return fTotEnergy; }
 
-
+	void PrintEvent();
+	
         //Construtor
         TRestHits();
         //Destructor
