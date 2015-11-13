@@ -5,6 +5,7 @@ int LoadRESTScripts()
     gSystem->Load("libRestEvents.so");
     gSystem->Load("libRestMetadata.so");
     gSystem->Load("libRestProcesses.so");
+    gSystem->Load("libRestViewers.so");
     gSystem->Load("libRestExternal.so");
 
     char command[256];

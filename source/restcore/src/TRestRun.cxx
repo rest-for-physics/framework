@@ -113,7 +113,6 @@ void TRestRun::Start( )
         fOutputEvent = processedEvent;
         if( processedEvent == NULL ) continue;
 
-        if(fInputEvent!=NULL)fOutputEvent->SetEventID( fInputEvent->GetEventID() );
 
         fOutputEventTree->Fill();
         

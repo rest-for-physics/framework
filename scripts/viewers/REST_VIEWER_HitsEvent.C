@@ -1,0 +1,20 @@
+
+
+
+
+
+REST_VIEWER_HitsEvent(TString fName=" "){
+
+TRestBrowser *browser = new TRestBrowser( );
+
+TRestHitsEventViewer *viewer = new TRestHitsEventViewer( );
+browser->SetViewer( viewer );
+
+browser->OpenFile(fName);
+
+}
+
+
+
+
+
