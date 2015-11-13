@@ -22,66 +22,63 @@
 #include "TGTextEntry.h"
 #include "TGFileDialog.h"
 #include "TApplication.h"
-#include "TCanvas.h"
 
 #include "TRestRun.h"
-#include "TRestEvent.h"
+#include "TRestEventViewer.h"
 
 #include <iostream>
 using namespace std;
 
-class TRestBrowser {
+class TRestBrowser: public TRestRun {
     
-    private:
-
+    protected:
+	
+    #ifndef __CINT__
         TGMainFrame* frmMain;
 
-        Int_t fCurrentEvent;
-
         //Frames and buttons
-        TGVerticalFrame *fVFrame;   	///< Vertical frame.
-        TGNumberEntry   *fNEvent;  	///< Event number.
-        TGTextButton	*fLoadEvent;	///< Load Event button
-        TGTextButton	*fExit;		///< Load Event button
-        TGPictureButton	*fButNext;  	///< Next number.
-        TGPictureButton	*fButPrev;  	///< Previous event.
-        TGPictureButton	*fMenuOpen;	///<Open file
-        
-        TCanvas *canvas;
-        TPad *pad;
-        
-        TRestRun *run ;
-    	TRestEvent *ev;
-    	TTree *tr;
-	
+        TGVerticalFrame *fVFrame;   	//! < Vertical frame.
+        TGNumberEntry   *fNEvent;  	//! Event number.
+        TGTextButton	*fLoadEvent;	//! Load Event button
+        TGTextButton	*fExit;		//! Load Event button
+        TGPictureButton	*fButNext;  	//! Next number.
+        TGPictureButton	*fButPrev;  	//! Previous event.
+        TGPictureButton	*fMenuOpen;	//! Open file
+    #endif     
+
+
+private:                	
+    #ifndef __CINT__
 	Bool_t isFile;
+	
+	TRestEventViewer *fEventViewer;
+   #endif
 	
     public:
         //Constructors
         TRestBrowser();
 
         //Destructor
-        virtual ~TRestBrowser();
+        ~TRestBrowser();
 
         void Initialize();                
+	void InitFromConfigFile();
 	
-	void SetInputEvent(TRestEvent *rE){ev=rE;}
+	void SetViewer(TRestEventViewer *eV){fEventViewer=eV;}
 	
         void setWindowName(TString wName ){frmMain->SetWindowName(wName.Data());}
 
         void setButtons( );    
-
+	
         void LoadEventAction();
         void LoadNextEventAction();
         void LoadPrevEventAction();
         void LoadFileAction( );
         void ExitAction( );
 
-        Bool_t LoadEvent( Int_t n );
         Bool_t OpenFile( TString fName );
-
-
-
-        ClassDef(TRestBrowser, 1);     // REST event superclass
+	Bool_t LoadEvent( Int_t n);
+	
+        ClassDef(TRestBrowser, 1);     //
 };
 #endif
