@@ -37,7 +37,6 @@ class TRestTrackEvent: public TRestEvent {
         Int_t nTracks;       
         vector <TRestTrack> fTrack; //Collection of tracks that define the event
         
-    
     public:
 
         //Setters
