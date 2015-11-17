@@ -23,6 +23,8 @@ while( processedEvent!=NULL )
         processedEvent = agetToSignal->ProcessEvent( NULL );
         agetToSignal->EndOfEventProcess();
         
+        if(processedEvent==NULL)break;
+        
         pad = processedEvent->DrawEvent( );
         if(pad==NULL)continue;
         

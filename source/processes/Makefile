@@ -22,5 +22,5 @@ MODULE = RestProcesses
 
 DIRECTORIES = general raw
 
-LIBS += -lRestEvents
+LIBS += -lRestEvents -lRestExternal
 include ../.Makefile.Lib

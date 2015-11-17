@@ -133,7 +133,7 @@ class TRestRun:public TRestMetadata {
         void SetEndTimeStamp( Double_t tStamp ) { fEndTime = tStamp; }
 
         void SetGeometry( TGeoManager *g ) { cout << "AA" << endl; fGeometry = g; cout << "fGeo ::" << fGeometry << endl; } // fGeometry->SetName( "GDML_Geometry"); cout << "CC" << endl; }
-        void SetInputFileName( TString fName){fInputFilename=fName;}
+        void SetInputFileName( TString fN){fInputFilename=fN;}
         
         
 

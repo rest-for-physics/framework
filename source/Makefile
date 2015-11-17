@@ -29,7 +29,8 @@ FLAGS = -Wall -std=c++0x
 
 # Relevant directories
 PATH_LIB = lib
-DIRECTORIES = restcore events metadata processes
+DIRECTORIES = restcore external events metadata processes viewers
+
 
 #------------------------------------------------------------------------------
 # Defining the compiling targets.

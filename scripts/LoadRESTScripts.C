@@ -5,6 +5,8 @@ int LoadRESTScripts()
     gSystem->Load("libRestEvents.so");
     gSystem->Load("libRestMetadata.so");
     gSystem->Load("libRestProcesses.so");
+    gSystem->Load("libRestViewers.so");
+    gSystem->Load("libRestExternal.so");
 
     char command[256];
     sprintf( command, "find \$REST_PATH/scripts/ |grep .C | grep -v \"LoadRESTScripts.C\" | grep -v \"swo\" | grep -v \"swp\"  | grep -v \"svn\"> macros.list" );
