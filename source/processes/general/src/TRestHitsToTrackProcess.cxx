@@ -104,16 +104,22 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
     cout << "Number of hits : " << fHitsEvent->GetNumberOfHits() << endl;
 
     vector <Int_t> Q; //list of points (hits) that need to be checked
-    vector <Int_t> Qsort; //list of points (hits) that need to be checked
     vector <Int_t> P; //list of neighbours within a radious fClusterDistance
-    vector <Int_t> R; //remaining list of points
 
     bool isProcessed = false;
-    bool getDistance = true;
     Int_t qsize=0;
     TRestTrack *track = new TRestTrack();
 
     bool process = true;
+
+    //creating the matrix of distances between hits
+    distMatrix = new TMatrixD(fHitsEvent->GetNumberOfHits(), fHitsEvent->GetNumberOfHits());
+
+    for( int i = 0; i < fHitsEvent->GetNumberOfHits(); i++ )
+	for( int j = 0; j < fHitsEvent->GetNumberOfHits(); j++ )
+	{
+	   (*distMatrix)[i][j]  = fHitsEvent->GetDistance2( i , j );
+	}
 
     //for every event in the point cloud
    if (fHitsEvent->GetNumberOfHits()>0)
@@ -129,9 +135,8 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
 		{
 			    if (j != Q[q])
 			    {
-				   cout << "Distance "<<Q[q]<<"-"<<j<<": "<< fHitsEvent->GetDistance2( Q[q] , j )<< " < "<<fClusterDistance*fClusterDistance <<" ?"<< endl;
-	
-				   if(fHitsEvent->GetDistance2( Q[q] , j ) < fClusterDistance*fClusterDistance)
+				   //if(fHitsEvent->GetDistance2( Q[q] , j ) < fClusterDistance*fClusterDistance)
+				   if( (*distMatrix)[Q[q]][j] < fClusterDistance*fClusterDistance)
 				   {
 					  P.push_back( j );
 				   }
@@ -166,8 +171,6 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
 		P.clear();	
 	}
 
-	cout<<"A track has been clompleted "<<endl;
-
 	//We order the Q vector
          std::sort (Q.begin(), Q.end());
 	//Then we swap to decresing order
@@ -190,7 +193,7 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
 	}
 
 	fTrackEvent->AddTrack(*track);
-	cout<<"Added to Track Event "<<endl;
+
          if (fHitsEvent->GetNumberOfHits() == 0) { process = false;}
 
 	Q.clear();
@@ -199,7 +202,7 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
 
     if( fTrackEvent->GetNTracks() == 0 ) return NULL;
 
-    cout <<" Hits : " << fHitsEvent->GetNumberOfHits() <<  " Tracks : " << fTrackEvent->GetNTracks() << endl;
+    cout <<  " Tracks : " << fTrackEvent->GetNTracks() << endl;
     cout<<"***********************"<<endl;
 
     return fTrackEvent;

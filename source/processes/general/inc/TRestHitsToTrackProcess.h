@@ -16,6 +16,7 @@
 #include <TRestHitsEvent.h>
 #include <TRestTrackEvent.h>
 #include "TRestEventProcess.h"
+#include "TMatrixD.h"
 
 class TRestHitsToTrackProcess:public TRestEventProcess {
     private:
@@ -24,6 +25,7 @@ class TRestHitsToTrackProcess:public TRestEventProcess {
         TRestTrackEvent *fTrackEvent;
 
         Double_t fClusterDistance;
+        TMatrixD *distMatrix;
 
         void InitFromConfigFile();
 
