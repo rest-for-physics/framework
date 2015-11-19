@@ -147,6 +147,7 @@ fPad = new TPad(this->GetClassName().Data()," ",0,0,1,1);
 fPad->Draw();
 fPad->cd();
 fPad->DrawFrame(minX,minY,maxX,maxY);
+
 for(int i=0;i<nSignals;i++){
 fPad->cd();
 fGr[i].Draw("LP");

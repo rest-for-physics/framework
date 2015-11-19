@@ -111,19 +111,26 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
     TRestTrack *track = new TRestTrack();
 
     bool process = true;
+    Double_t trackEnergy = 0.;
+    TRestVolumeHits volHit;
+
 
     //creating the matrix of distances between hits
     distMatrix = new TMatrixD(fHitsEvent->GetNumberOfHits(), fHitsEvent->GetNumberOfHits());
 
+    //Filling the symmetric matrix
+/*
     for( int i = 0; i < fHitsEvent->GetNumberOfHits(); i++ )
-	for( int j = 0; j < fHitsEvent->GetNumberOfHits(); j++ )
+	for( int j = i+1; j < fHitsEvent->GetNumberOfHits(); j++ )
 	{
 	   (*distMatrix)[i][j]  = fHitsEvent->GetDistance2( i , j );
 	}
+*/
 
+    bool event = true;
+    Int_t nHits = 0;
     //for every event in the point cloud
-   if (fHitsEvent->GetNumberOfHits()>0)
-    while (process)
+    while (fHitsEvent->GetNumberOfHits()>0)
     {
  	Q.push_back( 0 );
 	
@@ -135,12 +142,17 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
 		{
 			    if (j != Q[q])
 			    {
-				   //if(fHitsEvent->GetDistance2( Q[q] , j ) < fClusterDistance*fClusterDistance)
-				   if( (*distMatrix)[Q[q]][j] < fClusterDistance*fClusterDistance)
-				   {
-					  P.push_back( j );
-				   }
-			    }
+			        if(fHitsEvent->GetDistance2( Q[q] , j ) < fClusterDistance*fClusterDistance)
+ 					P.push_back( j );
+
+/*				   if(Q[q]<j)
+				   	if( (*distMatrix)[Q[q]][j] < fClusterDistance*fClusterDistance)
+				  	   P.push_back( j );
+				   else if(Q[q]>j)
+					if( (*distMatrix)[j][Q[q]] < fClusterDistance*fClusterDistance)	
+					   P.push_back( j );	  
+*/
+			   }
 		}
 
 		qsize  = Q.size();
@@ -184,25 +196,30 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
               const Double_t z =  fHitsEvent->GetZ( Q[nhit] );
               const Double_t en = fHitsEvent->GetEnergy( Q[nhit] );
 
+	     trackEnergy += en;
  	     TVector3 pos ( x, y, z );
 	     TVector3 sigma ( 0., 0., 0. );		
 
-	     track->GetVolumeHits().AddHit(pos, en, sigma);
+
+	     volHit.AddHit(pos, en, sigma);
 
 	     fHitsEvent->RemoveHit(Q[nhit]);
 	}
+	
+	track->SetTrackEnergy(trackEnergy);
+         track->SetVolumeHit(volHit);
+	trackEnergy = 0.0;
+	volHit.RemoveHits();
 
 	fTrackEvent->AddTrack(*track);
-
-         if (fHitsEvent->GetNumberOfHits() == 0) { process = false;}
 
 	Q.clear();
     }
 
 
-    if( fTrackEvent->GetNTracks() == 0 ) return NULL;
+    if( fTrackEvent->GetNumberOfTracks() == 0 ) return NULL;
 
-    cout <<  " Tracks : " << fTrackEvent->GetNTracks() << endl;
+    cout <<  " Tracks : " << fTrackEvent->GetNumberOfTracks() << endl;
     cout<<"***********************"<<endl;
 
     return fTrackEvent;
