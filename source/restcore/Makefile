@@ -30,7 +30,7 @@ RESTLIB	= $(PATH_LIB)/lib$(MODULE).so
 ROOTLIBS := $(shell root-config --libs)
 
 # Dependencies
-DEPLIBS = -lm ${ROOTLIBS} -lEve -lGeom -L$(PATH_LIB) -L/usr/lib -L$(GARFIELD_HOME)/lib -lGarfield
+DEPLIBS = -lm -lGui ${ROOTLIBS} -lEve -lGeom -L$(PATH_LIB) -L/usr/lib -L$(GARFIELD_HOME)/lib -lGarfield
 
 # Classes and objects of the library
 # add names to this list whenever a new class is added to the library
