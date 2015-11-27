@@ -227,7 +227,7 @@
 
 
 <section readout name="Readout_IAXOD0_v1" title="IAXOD0 readout" >
-    <myParameter name="nChannels" value="12" />
+    <myParameter name="nChannels" value="120" />
     <myParameter name="pitch" value="0.5" />
     <myParameter name="pixelSize" value="0.5/sqrt(2.)" />
     <myParameter name="offset" value="0" />
