@@ -36,6 +36,8 @@ int REST_TestBench_Readout( string configFile )
     TGraph *channelGraph[nChConst];
     TGraph *modGraph[nModConst];
     TLatex *channelIDLabel[nPixConst];
+    
+    double xmin=1E9,xmax=-1E9,ymin=1E9,ymax=-1E9;
 
     cout << "modules : " << nModules << endl;
 
@@ -54,14 +56,20 @@ int REST_TestBench_Readout( string configFile )
         {
             x[v] = module->GetVertex( v ).X();
             y[v] = module->GetVertex( v ).Y();
+            
+            if(x[v]<xmin)xmin=x[v];
+            if(y[v]<ymin)ymin=y[v];
+            if(x[v]>xmax)xmax=x[v];
+            if(y[v]>ymax)ymax=y[v];
+            
         }
         modGraph[modGraphID] = new TGraph( 5, x, y );
 
-        modGraph[modGraphID]->SetLineColor( kBlue+4*mdID );
+        modGraph[modGraphID]->SetLineColor( kBlack );
         modGraph[modGraphID]->SetLineWidth(2);
-        modGraph[modGraphID]->SetMaximum( 200 );
-        modGraph[modGraphID]->SetMinimum( -200 );
-        modGraph[modGraphID]->GetXaxis()->SetLimits(-200,200);
+        //modGraph[modGraphID]->SetMaximum( 200 );
+        //modGraph[modGraphID]->SetMinimum( -200 );
+        //modGraph[modGraphID]->GetXaxis()->SetLimits(-200,200);
 
         modGraphID++;
 
@@ -85,11 +93,11 @@ int REST_TestBench_Readout( string configFile )
                 }
                 pixelGraph[graph] = new TGraph( 5, x, y );
 
-                pixelGraph[graph]->SetLineColor( kBlue+4*mdID );
+                pixelGraph[graph]->SetLineColor( kRed );
                 pixelGraph[graph]->SetLineWidth(2);
-                pixelGraph[graph]->SetMaximum( 200 );
-                pixelGraph[graph]->SetMinimum( -200 );
-                pixelGraph[graph]->GetXaxis()->SetLimits(-200,200);
+                //pixelGraph[graph]->SetMaximum( 200 );
+                //pixelGraph[graph]->SetMinimum( -200 );
+                //pixelGraph[graph]->GetXaxis()->SetLimits(-200,200);
 
                 Double_t xMin = 1e10;
                 Double_t yMin = 1e10;
@@ -113,36 +121,35 @@ int REST_TestBench_Readout( string configFile )
             }
                 channelGraph[chGraph] = new TGraph( nPixels, xCH, yCH );
 
-                channelGraph[chGraph]->SetLineColor( kBlue+4*mdID );
+                channelGraph[chGraph]->SetLineColor( kBlue );
                 channelGraph[chGraph]->SetLineWidth(2);
-		channelGraph[chGraph]->SetMarkerStyle(20);
-		channelGraph[chGraph]->SetMarkerSize(10);
-                channelGraph[chGraph]->SetMaximum( 200 );
-                channelGraph[chGraph]->SetMinimum( -200 );
-                channelGraph[chGraph]->GetXaxis()->SetLimits(-200,200);
+		//channelGraph[chGraph]->SetMarkerStyle(20);
+		//channelGraph[chGraph]->SetMarkerSize(10);
+                //channelGraph[chGraph]->SetMaximum( 200 );
+                //channelGraph[chGraph]->SetMinimum( -200 );
+                //channelGraph[chGraph]->GetXaxis()->SetLimits(-200,200);
 		chGraph++;
         }
         cout << "Module : " << mdID << " Channels : " << nChannels << endl;
     }
 
-    TCanvas* c = new TCanvas("ReadoutGraphViewer", "  ", 1080, 1080);
+    TCanvas* c = new TCanvas("ReadoutGraphViewer", "  ", 900, 900);
+    c->DrawFrame(xmin,ymin,xmax,ymax);
+    c->SetTicks();
+    
+    for( int i = 0; i < modGraphID; i++ )modGraph[i]->Draw("same");
+   
 
     
-     pixelGraph[0] ->Draw("");
-     channelIDLabel[0]->Draw("same");
-    for( int i = 1; i < graph; i++ )
+    for( int i = 0; i < graph; i++ )
     {
 	     pixelGraph[i] ->Draw("same");
-	     channelIDLabel[i]->Draw("same");
+	     //channelIDLabel[i]->Draw("same"); //If commented the graphics are faster
     }
 
-    modGraph[0]->Draw("same");
-    for( int i = 1; i < modGraphID; i++ )
-    {
-        modGraph[i]->Draw("same");
-    }
-
-    for( int i = 0; i < chGraph; i++ )
-	channelGraph[i]->Draw("same");
+    for( int i = 0; i < chGraph; i++ )channelGraph[i]->Draw("same");
+    
+    
+    
 }
 
