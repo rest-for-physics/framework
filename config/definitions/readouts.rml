@@ -222,3 +222,46 @@
             </readoutChannel>
         </for> 
     </readoutModule>
+
+
+
+
+<section readout name="Readout_IAXOD0_v1" title="IAXOD0 readout" >
+    <myParameter name="nChannels" value="12" />
+    <myParameter name="pitch" value="0.5" />
+    <myParameter name="pixelSize" value="0.5/sqrt(2.)" />
+    <myParameter name="offset" value="0" />
+
+
+    <for variable="modX" from="1" to="2" step="1" />
+        <for variable="modY" from="1" to="2" step="1" />
+        <readoutModule id="[mod]" plane="0" origin="(0.,-pitch*nChannels/sqrt(2.)-pixelSize/2.)" rotation="45" size="(pitch*nChannels+pitch,pitch*nChannels+pitch/2.)" >
+            //////////////////////////////////
+            // Y-strips
+              <for variable="nCh" from="0" to="nChannels" step="1" />
+                <readoutChannel id="[nCh]" >
+                    <for variable="nPix" from="0" to="nChannels" step="1" />
+                    <addPixel id="[nPix]" origin="((1+[nCh])*pitch,[nPix]*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
+                    </for>
+                 </readoutChannel>
+            </for>
+	    
+            //////////////////////////////////
+
+            //////////////////////////////////
+            // X-strips
+            
+            <for variable="nCh" from="0" to="nChannels" step="1" />
+                <readoutChannel id="nChannels+[nCh]" >
+                <for variable="nPix" from="0" to="nChannels" step="1" />
+                    <addPixel id="[nPix]+1" origin="([nPix]*pitch+pitch/2.,[nCh]*pitch+pitch/2.)" size="(pixelSize,pixelSize)" rotation="45" />
+                    </for>
+                </readoutChannel>
+            </for>
+            //////////////////////////////////
+        </readoutModule>
+        </for>
+    </for>
+</section>
+   
+    
