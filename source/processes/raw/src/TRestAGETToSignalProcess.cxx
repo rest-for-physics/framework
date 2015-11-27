@@ -120,7 +120,6 @@ void TRestAGETToSignalProcess::InitProcess()
   totalBytesReaded+=sizeof(startDF);
   
   //Payload from start data frame to end of data frame (including both)
-  unsigned short payload;
   fread(&payload, sizeof(payload),1,fInputBinFile);
   if(this->GetVerboseLevel()==REST_Debug){
   cout<<"Frame payload "<<payload<<endl;
@@ -404,7 +403,7 @@ void  TRestAGETToSignalProcess::printBits(unsigned short num)
 //For debugging
 void  TRestAGETToSignalProcess::printBits(unsigned int num)
 {
-   for(unsigned short bit=0;bit<(sizeof(unsigned int) * 8); bit++)
+   for(unsigned int bit=0;bit<(sizeof(unsigned int) * 8); bit++)
    {
       printf("%i ", num & 0x01);
       num = num >> 1;

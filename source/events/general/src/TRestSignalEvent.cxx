@@ -108,12 +108,15 @@ void TRestSignalEvent::PrintEvent()
 //Draw current event in a Tpad
 TPad *TRestSignalEvent::DrawEvent(){
 
-if(fGr!=NULL)delete[] fGr;
-if(fPad!=NULL)delete fPad;
+if(fGr!=NULL){delete[] fGr;fGr=NULL;}
+if(fPad!=NULL) { delete fPad; fPad=NULL;}
 
 int nSignals = this->GetNumberOfSignals();
 
-if(nSignals==0)return NULL;
+if(nSignals==0){
+cout<<"Empty event "<<endl;
+return NULL;
+}
 
 fGr = new TGraph[nSignals];
 
@@ -137,7 +140,6 @@ double x,y;
 		
 		//cout<<v->X()<<"  "<<v->Y()<<endl;
 		c++;
-		
 		}
 	
 	}
