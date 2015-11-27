@@ -67,11 +67,13 @@ eventSize+=sizeof(evID);
 
 cout<<"Event ID "<<evID<<endl;
 
-if(counter=!evID){cout<<"Counter and ID didn't match!!!!"<<endl;exit(0);}
+if(counter==0)counter=evID;
+
+if(counter!=evID){cout<<"Counter and ID didn't match!!!! "<<counter<<" / "<<evID<<endl;exit(0);}
 
 cout<<"Bits readed "<<frameBits<<" /"<<payload<<endl;
 
-//getchar( );
+getchar( );
 
 unsigned short dat=0;
 
@@ -79,7 +81,7 @@ unsigned short dat=0;
 	fread(&dat, sizeof(dat),1,fInputBinFile);
 	frameBits+=sizeof(dat);
 	eventSize+=sizeof(dat);
-	printBits(dat);
+	//printBits(dat);
 	if((dat & 0xC000) >> 14 == 3 ){
 	cout<<"fecN "<<((dat & 0x3E00) >> 9)<<" asicN "<<((dat & 0x180)>>7)<<" channel "<<((dat & 0x7F))<<endl;
 		
@@ -104,7 +106,6 @@ unsigned short dat=0;
 	frameBits+=sizeof(payload);
 	eventSize+=sizeof(payload);
 	}
-	
 	
 	}
 cout<<" End of event "<< dat<<endl;
@@ -174,7 +175,7 @@ void  printBits(unsigned short num)
 
 void  printBits(unsigned  int num)
 {
-   for(unsigned short bit=0;bit<(sizeof(bit) * 8); bit++)
+   for(unsigned int bit=0;bit<(sizeof(bit) * 8); bit++)
    {
       printf("%i ", num & 0x01);
       num = num >> 1;
