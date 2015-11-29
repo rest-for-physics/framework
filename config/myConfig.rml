@@ -62,3 +62,9 @@ All units in mm, keV and degrees
 
 <section gas nameref="Gas-Xenon-TMA 3Pct" file="definitions/gases.rml"> </section>
 
+<section decoding name="decoding-PANDA" title="PANDA_v0" >
+	<parameter name="fileName" value="myDecoding.dec" />
+	<parameter name="nChannels" value="200" />
+    </section>
+
+
