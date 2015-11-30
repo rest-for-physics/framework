@@ -9,7 +9,7 @@
 ///
 ///             nov 2015:   First concept
 ///                 Viewer class for a TRestG4Event
-///                 JuanAn Garcia
+///                 Javier Galan/JuanAn Garcia
 ///_______________________________________________________________________________
 
 

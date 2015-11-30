@@ -9,7 +9,7 @@
 ///
 ///             nov 2015:   First concept
 ///                 Generic class for visualization of simulated events using gEveManager
-///                 JuanAn
+///                 JuanAn/Javier Galan
 ///_______________________________________________________________________________
 
 #include "TRestEveEventViewer.h"
