@@ -66,6 +66,18 @@ Double_t TRestSignal::GetIntegral( )
     return sum;
 }
 
+Double_t TRestSignal::GetIntegral( Int_t ni, Int_t nf ) 
+{
+    if( nf > GetNumberOfPoints()) nf = GetNumberOfPoints();
+    Double_t sum = 0;
+    for( int i = ni; i < nf; i++ )
+    {
+        sum += GetData(i);
+    }
+
+    return sum;
+}
+
 Int_t TRestSignal::GetTimeIndex( Double_t t )
 {
     Float_t time = t;
@@ -99,6 +111,79 @@ void TRestSignal::Sort()
             }
         }
     }
+
+}
+
+void TRestSignal::GetDifferentialSignal( TRestSignal *diffSgnl, Int_t smearPoints )
+{
+
+    this->Sort();
+
+    for( int i = 0; i < smearPoints; i++ )
+         diffSgnl->AddPoint( GetTime(i), 0);
+
+    for ( int i = smearPoints; i < this->GetNumberOfPoints() - smearPoints; i++ )
+    {
+         Double_t value = (this->GetData(i+smearPoints) - GetData( i-smearPoints)) / (GetTime(i+smearPoints) - GetTime(i-smearPoints));
+         Double_t time = (GetTime(i+smearPoints) + GetTime(i-smearPoints))/2.;
+
+         diffSgnl->AddPoint( time, value );
+    }
+
+    for( int i = GetNumberOfPoints()-smearPoints; i < GetNumberOfPoints(); i++ )
+         diffSgnl->AddPoint( GetTime(i), 0);
+}
+
+void TRestSignal::GetSignalSmoothed( TRestSignal *smthSignal, Int_t averagingPoints )
+{
+
+    this->Sort();
+
+    averagingPoints = (averagingPoints / 2) * 2 + 1; // make it odd >= averagingPoints
+
+    Double_t sum = GetIntegral( 0, averagingPoints );
+    for( int i = 0; i <= averagingPoints/2; i++ )
+        smthSignal->AddPoint( GetTime(i), sum/averagingPoints);
+
+    for ( int i = averagingPoints/2+1; i < GetNumberOfPoints()-averagingPoints/2; i++ )
+    {
+        sum -= this->GetData( i-(averagingPoints/2+1) );
+        sum += this->GetData( i+averagingPoints/2 );
+        smthSignal->AddPoint( this->GetTime(i), sum/averagingPoints );
+    }
+
+    for ( int i = GetNumberOfPoints()-averagingPoints/2; i < GetNumberOfPoints(); i++ )
+         smthSignal->AddPoint( GetTime(i), sum/averagingPoints);
+
+}
+
+void TRestSignal::MultiplySignalBy( Double_t factor )
+{
+    for( int i = 0; i < GetNumberOfPoints(); i++ )
+        fSignalCharge[i] = factor * fSignalCharge[i];
+}
+
+void TRestSignal::SignalAddition( TRestSignal *inSgnl )
+{
+    if( this->GetNumberOfPoints() != inSgnl->GetNumberOfPoints() )
+    {
+        cout << "ERROR : I cannot add two signals with different number of points" << endl;
+        return;
+    }
+
+    Int_t badSignalTimes = 0;
+
+    for( int i = 0; i < GetNumberOfPoints(); i++ )
+        if( GetTime(i) != inSgnl->GetTime(i) ) { cout << "Time : " << GetTime(i) << " != " << inSgnl->GetTime(i) << endl; badSignalTimes++; }
+
+    if( badSignalTimes )
+    {
+        cout << "ERROR : The times of signal addition must be the same" << endl;
+        return;
+    }
+
+    for( int i = 0; i < GetNumberOfPoints(); i++ )
+        fSignalCharge[i] += inSgnl->GetData(i);
 
 }
 
