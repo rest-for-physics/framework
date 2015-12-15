@@ -55,6 +55,8 @@ void TRestReadoutEventViewer::AddEvent( TRestEvent *ev ){
 
 TRestSignalEventViewer::AddEvent(ev );
 
+if(fPad==NULL)return;
+
 fHistoXY->Reset(0);
 delete fHistoXZ;
 delete fHistoYZ;
