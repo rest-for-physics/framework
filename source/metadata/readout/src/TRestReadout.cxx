@@ -187,3 +187,73 @@ void TRestReadout::Draw()
 }
 
 
+TH2Poly *TRestReadout::GetReadoutHistogram( ){
+
+Double_t x[4];
+Double_t y[4];
+
+double xmin,xmax,ymin,ymax;
+
+GetBoundaries(xmin,xmax,ymin,ymax);
+
+TH2Poly *readoutHistogram = new TH2Poly("ReadoutHistogram","ReadoutHistogram",xmin,xmax,ymin,ymax);
+
+for( int mdID = 0; mdID < this->GetNumberOfModules( ); mdID++ )
+   {
+   TRestReadoutModule *module = this->GetReadoutModule( mdID );
+   
+   int nChannels = module->GetNumberOfChannels();
+   
+        for( int ch = 0; ch < nChannels; ch++ )
+        {
+        TRestReadoutChannel *channel = module->GetChannel( ch );
+        Int_t nPixels = channel->GetNumberOfPixels();
+           
+           for( int px = 0; px < nPixels; px++ )
+           {
+             for( int v = 0; v < 4; v++ )
+                {
+                    x[v] = module->GetPixelVertex( ch, px, v ).X();
+                    y[v] = module->GetPixelVertex( ch, px, v ).Y();
+                    //cout<<x[v]<<" "<<y[v]<<" ";
+                }
+           
+           //cout<<endl;
+           
+           readoutHistogram->AddBin(4,x,y);
+           }
+        
+        }
+   }
+
+
+return readoutHistogram;
+
+}
+
+void TRestReadout::GetBoundaries(double &xmin,double &xmax,double &ymin,double &ymax){
+
+Double_t x[4];
+Double_t y[4];
+
+xmin=1E9,xmax=-1E9,ymin=1E9,ymax=-1E9;
+
+for( int mdID = 0; mdID < this->GetNumberOfModules( ); mdID++ )
+    {
+        TRestReadoutModule *module = this->GetReadoutModule( mdID );
+        
+        for( int v = 0; v < 4; v++ )
+        {
+            x[v] = module->GetVertex( v ).X();
+            y[v] = module->GetVertex( v ).Y();
+            
+            if(x[v]<xmin)xmin=x[v];
+            if(y[v]<ymin)ymin=y[v];
+            if(x[v]>xmax)xmax=x[v];
+            if(y[v]>ymax)ymax=y[v];
+            
+        }
+     }
+
+
+}
