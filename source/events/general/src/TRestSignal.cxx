@@ -78,6 +78,25 @@ Double_t TRestSignal::GetIntegral( Int_t ni, Int_t nf )
     return sum;
 }
 
+Int_t TRestSignal::GetMaxIndex(){
+
+double max=1E-9;
+int index;
+
+for( int i = 0; i < GetNumberOfPoints(); i++ )
+    {
+    
+        if(GetData(i)>max){
+        max=GetData(i);
+        index=i;
+        }
+    
+    }
+
+return index;
+
+}
+
 Int_t TRestSignal::GetTimeIndex( Double_t t )
 {
     Float_t time = t;
