@@ -67,6 +67,8 @@ class TRestSignal: public TObject {
 
         Double_t GetIntegral( );
         Double_t GetIntegral( Int_t ni, Int_t nf );
+        
+        Int_t GetMaxIndex();
 
         Double_t GetData( Int_t index ) { return (double)fSignalCharge[index]; }
         Double_t GetTime( Int_t index ) { return (double)fSignalTime[index]; }

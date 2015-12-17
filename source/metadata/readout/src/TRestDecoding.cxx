@@ -104,7 +104,7 @@ void TRestDecoding::LoadDefaultDecoding( ){
 cout<<"Loading default config "<<endl;
                             
 for(int c=0;c<fNChannels;c++)AddChannel(c,c);  
-            
+
 }
 
 Bool_t TRestDecoding::LoadDecodingFromFile(TString fName){
@@ -123,101 +123,21 @@ int nChan=0;
 
 	while(!feof(f)){
 	
-	fscanf(f,"%d\t%d\n",&readoutChannel,&physChannel);
+	fscanf(f,"%d\t%d\n",&physChannel,&readoutChannel);
 	AddChannel(readoutChannel,physChannel);
 	nChan++;
 	}
 
 fclose(f);
 //delete f;
+if(nChan!=fNChannels){
 cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-if(nChan!=fNChannels)cout<<"WARNING file and config has different channel numbers "<<endl;
+cout<<"WARNING file and config has different numbers of channels "<<endl;
 cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+}
 return kTRUE;
 
 
 }
-
-
-/*
-Double_t TRestDecoding::GetX( int daqChannel){
-
-TRestReadoutChannel *fReadoutChannel;
-
-	if((fReadoutChannel = GetChannel(daqChannel))==NULL){
-	cout<<"Channel "<<daqChannel<<" not found"<<endl;
-	return -1;
-	}
-
-int pixelsPerChannel = fReadoutChannel->GetNumberOfPixels( );
-
-	if(pixelsPerChannel==1){
-	cout<<"Pixel readout"<<endl;
-	
-	return fReadoutChannel->GetPixel(0)->GetOriginX( );
-	}
-   
-   	else {
-   	cout<<"Strips readout"<<endl;
-   	   	   	
-   	if(fReadoutChannel->GetPixel(0)->GetOriginX( )==fReadoutChannel->GetPixel(1)->GetOriginX( ))return fReadoutChannel->GetPixel(0)->GetOriginX( );
-   	
-   	}
-
-cout<<"Channel "<<daqChannel<<" not found"<<endl;
-
-return -1;
-}
-
-
-Double_t TRestDecoding::GetY( int daqChannel){
-
-TRestReadoutChannel *fReadoutChannel;
-
-	if((fReadoutChannel = GetChannel(daqChannel))==NULL){
-	cout<<"Channel "<<daqChannel<<" not found"<<endl;
-	return -1;
-	}
-
-int pixelsPerChannel = fReadoutChannel->GetNumberOfPixels( );
-
-	if(pixelsPerChannel==1){
-	cout<<"Pixel readout"<<endl;
-	
-	return fReadoutChannel->GetPixel(0)->GetOriginY( );
-	}
-   
-   	else {
-   	cout<<"Strips readout"<<endl;
-   	   	   	
-   	if(fReadoutChannel->GetPixel(0)->GetOriginY( )==fReadoutChannel->GetPixel(1)->GetOriginY( ))return fReadoutChannel->GetPixel(0)->GetOriginY( );
-   	
-   	}
-
-cout<<"Channel "<<daqChannel<<" not found"<<endl;
-
-return -1;
-}
-
-TRestReadoutChannel *TRestDecoding::GetChannel( int daqChannel){
-
-int channelID =GetReadoutChannel( daqChannel);
-
-int nChannels,ID=0;
-
-	    for( int n = 0; n < fReadout->GetNumberOfModules( ); n++ ){
-            nChannels =fReadout->GetReadoutModule(n)->GetNumberOfChannels();
-            
-            if(channelID>ID&& channelID<ID+nChannels)return fReadout->GetReadoutModule(n)->GetChannelByID(channelID-ID);
-            
-	    ID+=nChannels;
-	    
-	    }
-
-cout<<"Channel ID "<<channelID<<" not found"<<endl;
-return NULL;
-
-}
-*/
 
 
