@@ -108,12 +108,15 @@ void TRestSignalEvent::PrintEvent()
 //Draw current event in a Tpad
 TPad *TRestSignalEvent::DrawEvent(){
 
-if(fGr!=NULL)delete[] fGr;
-if(fPad!=NULL)delete fPad;
+if(fGr!=NULL){delete[] fGr;fGr=NULL;}
+if(fPad!=NULL) { delete fPad; fPad=NULL;}
 
 int nSignals = this->GetNumberOfSignals();
 
-if(nSignals==0)return NULL;
+if(nSignals==0){
+cout<<"Empty event "<<endl;
+return NULL;
+}
 
 fGr = new TGraph[nSignals];
 
@@ -134,14 +137,16 @@ double x,y;
 		if(x<minX)minX=x;
 		if(y>maxY)maxY=y;
 		if(y<minY)minY=y;
-		
-		//cout<<v->X()<<"  "<<v->Y()<<endl;
+		//cout<<x<<"  "<<y<<endl;
 		c++;
-		
 		}
 	
 	}
 
+//cout<<minX<<" "<<maxX<<" "<<minY<<" "<<maxY<<endl;
+
+maxX++;minX--;
+maxY++;minY--;
 
 fPad = new TPad(this->GetClassName().Data()," ",0,0,1,1);
 fPad->Draw();
@@ -150,6 +155,7 @@ fPad->DrawFrame(minX,minY,maxX,maxY);
 
 for(int i=0;i<nSignals;i++){
 fPad->cd();
+fGr[i].SetMarkerStyle(7);
 fGr[i].Draw("LP");
 }
 

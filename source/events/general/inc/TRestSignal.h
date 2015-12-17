@@ -66,6 +66,9 @@ class TRestSignal: public TObject {
         }
 
         Double_t GetIntegral( );
+        Double_t GetIntegral( Int_t ni, Int_t nf );
+        
+        Int_t GetMaxIndex();
 
         Double_t GetData( Int_t index ) { return (double)fSignalCharge[index]; }
         Double_t GetTime( Int_t index ) { return (double)fSignalTime[index]; }
@@ -78,9 +81,14 @@ class TRestSignal: public TObject {
         void AddCharge( Double_t t, Double_t d );
         void AddDeposit( Double_t t, Double_t d );
         
+        void MultiplySignalBy( Double_t factor );
+        void SignalAddition( TRestSignal *inSgnl ); 
+
         Bool_t isSorted( );
         void Sort();
 
+        void GetDifferentialSignal( TRestSignal *diffSgnl, Int_t smearPoints = 5 );
+        void GetSignalSmoothed( TRestSignal *smthSignal, Int_t averagingPoints = 3 );
 
         void Reset() { fSignalTime.clear();fSignalCharge.clear();}
 

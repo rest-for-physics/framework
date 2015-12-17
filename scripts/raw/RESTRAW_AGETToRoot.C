@@ -20,7 +20,7 @@ Int_t RESTRAW_AGETToRoot( TString fName, TString cfgFilename="myConfig.rml" )
     // We load the information from the input file on the new run
     //run->OpenInputFile( fName );
 
-    run->SetRunType( "analysis" );
+    run->SetRunType( "rawSignal" );
     run->ResetRunTimes( );
 
     run->PrintInfo();

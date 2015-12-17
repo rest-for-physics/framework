@@ -34,9 +34,9 @@ class TRestSignalEventViewer:public TRestEventViewer {
     
  public:
  
-   void Initialize();
+   virtual void Initialize();
          
-   void AddEvent( TRestEvent *ev );
+   virtual void AddEvent( TRestEvent *ev );
    
    //Constructor
    TRestSignalEventViewer();
