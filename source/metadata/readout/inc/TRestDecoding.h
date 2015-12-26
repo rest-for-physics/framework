@@ -49,6 +49,7 @@ class TRestDecoding:public TRestMetadata{
 	fDaqChannelID.push_back(pCh);
 	}
 	
+	Int_t GetNChannels(){return fNChannels;}
 	Int_t GetReadoutChannel (int daqChannel);	
 	
 	Bool_t LoadDecodingFromFile(TString fName);

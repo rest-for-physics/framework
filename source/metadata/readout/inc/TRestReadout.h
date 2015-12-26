@@ -28,6 +28,7 @@ using namespace std;
 #include "TRestReadoutModule.h"
 
 #include <TGraph.h>
+#include <TH2Poly.h>
 
 class TRestReadout:public TRestMetadata {
     private:
@@ -52,7 +53,10 @@ class TRestReadout:public TRestMetadata {
         TRestReadoutModule *GetReadoutModule( int n ) { return &fReadoutModule[n]; }
 
         Int_t GetNumberOfModules( ) { return fReadoutModule.size(); }
-
+        
+        TH2Poly *GetReadoutHistogram( );
+        void GetBoundaries(double &xmin,double &xmax,double &ymin,double &ymax);
+        
         //Construtor
         TRestReadout();
         TRestReadout( char *cfgFileName);
