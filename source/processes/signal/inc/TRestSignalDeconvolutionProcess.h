@@ -13,7 +13,7 @@
 #ifndef RestCore_TRestSignalDeconvolutionProcess
 #define RestCore_TRestSignalDeconvolutionProcess
 
-//#include <TCanvas.h>
+#include <TCanvas.h>
 
 #include <TRestReadout.h>
 #include <TRestSignalEvent.h>
@@ -33,7 +33,7 @@ class TRestSignalDeconvolutionProcess:public TRestEventProcess {
 
         void LoadDefaultConfig();
 
-        //TCanvas *fCanvas;
+        TCanvas *fCanvas;
 
         Double_t fFreq1;
         Double_t fFreq2;
