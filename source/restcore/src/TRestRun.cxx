@@ -478,24 +478,23 @@ if(fCurrentEvent%rateE ==0){
 }
 
 //Return false when the file ends
-Bool_t TRestRun::GetNextEvent( ){
+Bool_t TRestRun::GetNextEvent( )
+{
 
- if(fInputEvent==NULL){
-    if(fOutputEvent==NULL){return kFALSE;}
- fCurrentEvent++;
- }
- else{
+    if(fInputEvent == NULL)
+    {
+        if( fOutputEvent == NULL ) { return kFALSE; }
+        fCurrentEvent++;
+    }
+    else
+    {
 
-   if(fInputEventTree->GetEntries()==fCurrentEvent-1)return kFALSE;
-   fInputEventTree->GetEntry(fCurrentEvent);
-   cout<<"Loading event "<<fCurrentEvent<<endl;
-   fCurrentEvent++;
+        if( fInputEventTree->GetEntries() == fCurrentEvent-1 ) return kFALSE;
+        fInputEventTree->GetEntry( fCurrentEvent );
+        fCurrentEvent++;
+    }
 
- }
-
-
-return kTRUE;
-
+    return kTRUE;
 }
 
 
