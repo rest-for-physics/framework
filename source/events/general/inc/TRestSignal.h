@@ -73,6 +73,7 @@ class TRestSignal: public TObject {
         Double_t GetAverage( Int_t start, Int_t end );
         Int_t GetMaxIndex();
         Int_t GetMaxPeakWidth();
+        Double_t GetMaxPeakValue();
 
         Double_t GetData( Int_t index ) { return (double)fSignalCharge[index]; }
         Double_t GetTime( Int_t index ) { return (double)fSignalTime[index]; }
