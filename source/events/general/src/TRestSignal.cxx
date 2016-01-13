@@ -138,6 +138,11 @@ Int_t TRestSignal::GetMaxPeakWidth()
     return rightIndex-leftIndex;
 }
 
+Double_t TRestSignal::GetMaxPeakValue() 
+{
+    return GetData( GetMaxIndex() ); 
+}
+
 Int_t TRestSignal::GetMaxIndex( )
 {
     Double_t max = 1E-9;

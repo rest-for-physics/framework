@@ -63,14 +63,14 @@ class TRestFFT: public TObject {
 
         void RenormalizeNode( Int_t n, Double_t factor );
         void ApplyLowPassFilter( Int_t cutFrequency);
-        void NoiseReductionFilter( Int_t cutOff );
+       // void NoiseReductionFilter( Int_t cutOff );
         void ButterWorthFilter( Int_t cutOff, Int_t order );
         void KillFrequencies( Int_t from, Int_t to );
 
         void RemoveBaseline( );
 
         void DivideBy( TRestFFT *fftInput );
-        void MultiplyBy( TRestFFT *fftInput );
+ //       void MultiplyBy( TRestFFT *fftInput );
         void MultiplyBy( TRestFFT *fftInput, Int_t from, Int_t to );
 
         void WriteFrequencyToTextFile ( TString filename );
