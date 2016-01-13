@@ -155,15 +155,15 @@ TPad *TRestSignalEvent::DrawEvent()
     maxX++; minX--;
     maxY++; minY--;
 
-    fPad = new TPad(this->GetClassName().Data()," ",0,0,1,1);
+    fPad = new TPad( this->GetClassName().Data(), " ", 0, 0, 1, 1 );
     fPad->Draw();
     fPad->cd();
-    fPad->DrawFrame(minX,minY,maxX,maxY);
+    fPad->DrawFrame( minX, minY, maxX, maxY );
     for( int i = 0; i < nSignals; i++ )
     {
         fPad->cd();
-        fGr[i].SetMarkerStyle(7);
-        fGr[i].Draw("LP");
+        fGr[i].SetMarkerStyle( 7 );
+        fGr[i].Draw( "LP" );
     }
 
     return fPad;
