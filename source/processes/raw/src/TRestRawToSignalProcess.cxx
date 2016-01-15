@@ -30,14 +30,13 @@ TRestRawToSignalProcess::TRestRawToSignalProcess()
   Initialize();
 }
 
-TRestRawToSignalProcess::TRestRawToSignalProcess(char *cfgFileName):TRestEventProcess(cfgFileName)
+TRestRawToSignalProcess::TRestRawToSignalProcess(char *cfgFileName)
 {
  Initialize();
  
- if( LoadConfig( "daq", fConfigFileName ) ) LoadDefaultConfig( );
+ if( LoadConfig( "daq", cfgFileName ) ) LoadDefaultConfig( );
+ PrintMetadata();  
   
- PrintMetadata();
- 
 }
 
 
@@ -85,8 +84,7 @@ void TRestRawToSignalProcess::LoadDefaultConfig(){
 
 cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
 cout<<"WARNING "<<endl;
-cout<<"Electronics type not found in config "<<fElectronicsType<<endl;
-cout<<"Setting it by default to AGET"<<endl;
+cout<<"Error Loading config file "<<endl;
 cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
 
 cout<<"Press a key to continue..."<<endl;

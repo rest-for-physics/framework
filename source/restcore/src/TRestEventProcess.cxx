@@ -28,9 +28,6 @@ ClassImp(TRestEventProcess)
    // TRestEventProcess default constructor
 }
 
-TRestEventProcess::TRestEventProcess(char *cfgFileName):TRestMetadata(cfgFileName){
-
-}
 
 //______________________________________________________________________________
 TRestEventProcess::~TRestEventProcess()
