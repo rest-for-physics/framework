@@ -39,8 +39,8 @@ class TRestDAQMetadata:public TRestMetadata{
 	vector <TString> fRunBuffer;//Run script
 	TString fNamePedScript;	//Name of the run script e.g. /home/user/scripts/run
 	TString fNameRunScript; //Name of the pedestal script e.g. /home/user/scripts/ped
-	UInt_t fGain;		//Hexadecimal value in the script you have to convert it to fC
-	UInt_t fShappingTime;	//Hexadecimal value in the script you have to convert it to nS
+	UInt_t fGain;		//Value of the gain in the script you have to convert it to fC
+	UInt_t fShappingTime;	//Value of the shapping time in the script you have to convert it to nS
 	
 	
     public:

@@ -4,12 +4,9 @@ void REST_DAQ_Metadata(char *cfg){
 TRestRun *run = new TRestRun(cfg);
 
 TRestDAQMetadata *daqMetadata = new TRestDAQMetadata(cfg);
-daqMetadata->SetScriptsBuffer( );
 
 daqMetadata->PrintRunScript( );
 daqMetadata->PrintPedScript( );
-
-daqMetadata->SetParFromPedBuffer( );
 
 daqMetadata->PrintMetadata( );
 

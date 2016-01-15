@@ -32,6 +32,10 @@ TRestDAQMetadata::TRestDAQMetadata( char *cfgFileName) : TRestMetadata (cfgFileN
     Initialize();
     
     LoadConfig( "daq", fConfigFileName );
+    
+    SetScriptsBuffer( );
+    SetParFromPedBuffer( );
+     
 }
 
 void TRestDAQMetadata::Initialize()
@@ -87,17 +91,25 @@ void TRestDAQMetadata::PrintMetadata( )
 
 void TRestDAQMetadata::SetScriptsBuffer( ){
 
-ifstream file(fNamePedScript);
-if( file == NULL ) { cout<< __PRETTY_FUNCTION__ << " ERROR:FILE " << fNamePedScript <<" not found " <<endl; return; }
+TString folder = getenv("REST_PATH");
+folder.Append("inputData/acquisition/");
+
+TString fName;
+
+fName = folder + fNamePedScript;
+
+ifstream file(fName);
+if( file == NULL ) { cout<< __PRETTY_FUNCTION__ << " ERROR:FILE " << fName <<" not found " <<endl; return; }
 
 string line;
 while(getline(file, line)){fPedBuffer.push_back(line); }
 
 file.close();
 
+fName = folder + fNameRunScript;
 
-ifstream file2(fNameRunScript);
-if( file2 == NULL ) { cout<< __PRETTY_FUNCTION__ << " ERROR:FILE " << fNameRunScript <<" not found " <<endl; return; }
+ifstream file2(fName);
+if( file2 == NULL ) { cout<< __PRETTY_FUNCTION__ << " ERROR:FILE " << fName <<" not found " <<endl; return; }
 
 while(getline(file2, line)){fRunBuffer.push_back(line); }
 

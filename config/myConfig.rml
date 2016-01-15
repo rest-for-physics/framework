@@ -27,8 +27,8 @@ All units in mm, keV and degrees
 </section>
 
 <section daq name="virtualDAQ" title="TEST">
-    <parameter name="pedScript" value="/home/juanan/AGETscripts/ped"/>
-    <parameter name="runScript" value="/home/juanan/AGETscripts/run"/>
+    <parameter name="pedScript" value="ped"/>
+    <parameter name="runScript" value="run"/>
     <parameter name="electronics" value="AGET"/>
 </section>
 
