@@ -20,6 +20,6 @@ include ../.Makefile.REST
 # Name of RESTsoft module(s) to compile
 MODULE = RestMetadata
 
-DIRECTORIES = general geant4 readout
+DIRECTORIES = general geant4 readout daq
 
 include ../.Makefile.Lib
