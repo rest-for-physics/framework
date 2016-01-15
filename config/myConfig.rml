@@ -64,6 +64,19 @@ All units in mm, keV and degrees
     <parameter name="resolution" value="1" /> // mm
 </section>
 
+<section signalDeconvolutionProcess name="deconvolution-Panda" title="Deconvolution of AGET signals" >
+    <parameter name="frequency1" value="2.35683005928202273e-02" />
+    <parameter name="frequency2" value="3.14067876433914706e-02" />
+    <parameter name="smoothingPoints" value="3" />
+    <parameter name="smearingPoints" value="5" />
+    <parameter name="baselineStart" value="32" />
+    <parameter name="baselineEnd" value="64" />
+    <parameter name="nFFTStart" value="32" />
+    <parameter name="nFFTEnd" value="32" />
+    <parameter name="cutFrequency" value="12" />
+    <parameter name="responseFile" value="AGET_Response_100MHz_Gain0x2_Shaping0x7.root" />
+</section>
+
 <section readout nameref="Readout-PANDA_3MM_v1" file="definitions/readouts.rml"> </section>
 
 <section gas nameref="Gas-Xenon-TMA 3Pct" file="definitions/gases.rml"> </section>
