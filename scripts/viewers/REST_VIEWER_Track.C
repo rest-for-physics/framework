@@ -74,8 +74,9 @@ REST_VIEWER_Track(TString fName=" "){
 TCanvas *fCanvas = new TCanvas("view_track","view_track",1,1,1000,600);
 fCanvas->Divide(3,1);
 
-	TVirtualPad *padxy = fCanvas->cd(1);
-	padxy->DrawFrame(minX-10,minY-10,maxX+10,maxY+10);
+	//TVirtualPad *padxy = 
+fCanvas->cd(1)->DrawFrame(minX-10,minY-10,maxX+10,maxY+10);
+	//padxy->DrawFrame(minX-10,minY-10,maxX+10,maxY+10);
 	TVirtualPad *padxz = fCanvas->cd(2);
 	padxz->DrawFrame(minX-10,minZ-10,maxX+10,maxZ+10);
 	TVirtualPad *padyz = fCanvas->cd(3);
@@ -93,11 +94,11 @@ fCanvas->Divide(3,1);
 	    fYZ[ntr].SetMarkerSize(1.);
 	    fYZ[ntr].SetMarkerStyle(21);
 
-	    padxy->cd();
-	    if(ntr==0)   
+	   fCanvas->cd(1)
+	    //if(ntr==0)   
 	        fXY[ntr].Draw("P");
-             else if (ntr>0)
-	        fXY[ntr].Draw("PSAME");
+             //else if (ntr>0)
+	        //fXY[ntr].Draw("PSAME");
 
 
 	    padxz->cd();

@@ -13,8 +13,6 @@
 #ifndef RestCore_TRestSignalDeconvolutionProcess
 #define RestCore_TRestSignalDeconvolutionProcess
 
-//#include <TCanvas.h>
-
 #include <TRestReadout.h>
 #include <TRestSignalEvent.h>
 #include <TRestHitsEvent.h>
@@ -33,12 +31,20 @@ class TRestSignalDeconvolutionProcess:public TRestEventProcess {
 
         void LoadDefaultConfig();
 
-        //TCanvas *fCanvas;
-
+        TString fResponseFilename;
         Double_t fFreq1;
         Double_t fFreq2;
+
+        Int_t fCutFrequency;
         Int_t fSmoothingPoints;
         Int_t fSmearingPoints;
+
+        Int_t fBaseLineStart;
+        Int_t fBaseLineEnd;
+
+        Int_t fFFTStart;
+        Int_t fFFTEnd;
+
 
     protected:
         //add here the members of your event process
@@ -50,7 +56,24 @@ class TRestSignalDeconvolutionProcess:public TRestEventProcess {
         void EndOfEventProcess(); 
         void EndProcess();
 
-        void PrintMetadata() { cout << "TODO : Needs to be implemented" << endl; }
+        void PrintMetadata() 
+        { 
+            BeginPrintProcess();
+
+            cout << "Response filename : " << fResponseFilename << endl;
+            cout << "Frequency 1 : " << fFreq1 << endl;
+            cout << "Frequency 2 : " << fFreq2 << endl;
+            cout << "Cut frequency : " << fCutFrequency << endl;
+
+            cout << "Smoothing points : " << fSmoothingPoints << endl;
+            cout << "Smearing points : " << fSmearingPoints << endl;
+
+            cout << "Baseline range : ( " << fBaseLineStart << " , " << fBaseLineEnd << " ) " << endl;
+            cout << "FFT remove beginning points : " << fFFTStart << endl;
+            cout << "FFT remove end points : " << fFFTEnd << endl;
+
+            EndPrintProcess();
+        }
 
         TRestMetadata *GetMetadata( ) { return NULL; }
 

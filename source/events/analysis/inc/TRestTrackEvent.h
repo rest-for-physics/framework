@@ -1,4 +1,3 @@
-
 ///______________________________________________________________________________
 ///______________________________________________________________________________
 ///______________________________________________________________________________
@@ -41,9 +40,12 @@ class TRestTrackEvent: public TRestEvent {
         vector <TRestTrack> fTrack; //Collection of tracks that define the event
 
         #ifndef __CINT__
-	TGraph *fGr;
-	TPad *fPad;  
-	#endif
+ 	TGraph *fXY;
+ 	TGraph *fXZ;
+ 	TGraph *fYZ;
+	TPad *fPad; 
+	#endif 
+
     public:
 
         TRestTrack *GetTrack( int n)  { return &fTrack[n]; }

@@ -1,0 +1,32 @@
+Distribution description
+
+- Gamma_cosmic: three distributions (all of them normalized) corresponding to gammas at sea level (from tables in "Cosmic Rays at Earth" by Grieder (Ed. Elsevier)). Flux data from the same book and also from a comparative integral
+	-LE gamma distribution : from 1 to 10 MeV-->bin size is 100 keV
+        (LE Flux ~ 8E-3 gammas/cm2 s sr, same for e and e+)
+        -ME gamma distribution:   from 10 to 100 MeV-->bin size is 100 keV
+         (ME Flux ~ 4E-3 gammas/cm2 s sr, same for e and e+)
+        -HE gamma distribution :  from 0.1 GeV to 100 GeV --> bin size is 0.1 GeV
+  	(HE Flux ~ 1E-3 gammas/cm2 s sr, same for e and e+)
+       Electrons and positron should follow the similar energy distributions
+
+It is assumed that angular distributions should go with Cos2\theta
+
+- Muons : two distributions (normalized) corresponding to Sea level and Canfranc underground site muons (from tables in "Cosmic Rays at Earth" by Grieder (Ed. Elsevier)) 
+	-cosmic muons (sea level) from 0.2 to 328 GeV --> bin size is 1 MeV
+	(Sea level Flux ~ 125 muons/m2 s) angular distributions goes with Cos2\theta
+	-LSC muons from 1 to 16410 GeV --> bin size 100 MeV
+         (LSC Flux ~ 5E-3 muons/m2 s)   angular distributions goes with Cos3\theta
+ 	-CJUL muons from 1 to 28708 GeV --> bin size 100 MeV
+	(CJUL Flux ~ 2.3E-6 muons/m2 s)     angular distributions goes with Cos7\theta (=All vertical)
+- Cosmic Neutrons: two normalized distributions following Ziegler formula in IBM Journal of Research and Development, Volume 40, Issue 1, pp. 19-39 (1996)
+	-Cosmic Neutrons (Medium energies): from 10 to 1000 MeV --> bin size is 1 MeV   
+	(Flux ~ values from 44 to 82 n/m2 s from different measurements, ~a few  1E-3 n/cm2 s)
+	-HE Cosmic Neutrons: from 1 to 10 GeV --> bin size is 0.01 GeV
+ 	(Flux ~ 0.1 n/m2 s infered from Ziegler)
+It is assumed that angular distributions should go with Cos2\theta
+
+- Radiactivity Neutrons : normalized distribution of the "Evaporation" spectra from 0 to 10 GeV --> bin size is 0.01 GeV
+	(LSC Flux ~ 3.82E-2 neutrons/m2 s)
+
+
+	
