@@ -70,6 +70,7 @@ class TRestEventProcess:public TRestMetadata {
 
    //Constructor
    TRestEventProcess();
+   TRestEventProcess(char *cfgFileName);
    //Destructor
    ~TRestEventProcess();
 

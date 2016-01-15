@@ -1,6 +1,6 @@
 include ../../.Makefile.arch
 include ../../.Makefile.REST
 
-CLASSES = TRestAGETToSignalProcess
+CLASSES = TRestRawToSignalProcess TRestFEMINOSToSignalProcess TRestAFTERToSignalProcess
 
 include ../../.Makefile.Class
