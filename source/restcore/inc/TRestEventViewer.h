@@ -46,6 +46,7 @@ class TRestEventViewer {
     virtual void DeleteCurrentEvent(  );
     //Setters
     virtual void SetGeometry( TGeoManager *geo){ fGeometry=geo;}
+    void SetEvent( TRestEvent *ev){fEvent=ev;}
     //Getters
     TGeoManager *GetGeometry( ){return fGeometry;}
     TRestEvent *GetEvent( ){return fEvent;}
