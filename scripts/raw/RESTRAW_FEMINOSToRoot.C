@@ -10,7 +10,7 @@ using namespace std;
 
 
 
-Int_t RESTRAW_AGETToRoot( TString fName, TString cfgFilename="myConfig.rml" )
+Int_t RESTRAW_FEMINOSToRoot( TString fName, TString cfgFilename="myConfig.rml" )
 {
     cout << "Filename : " << fName << endl;
 
@@ -25,7 +25,7 @@ Int_t RESTRAW_AGETToRoot( TString fName, TString cfgFilename="myConfig.rml" )
 
     run->PrintInfo();
     
-    TRestAGETToSignalProcess *agetToSignal = new TRestAGETToSignalProcess( );
+    TRestFEMINOSToSignalProcess *agetToSignal = new TRestFEMINOSToSignalProcess(cfgFilename.Data());
     	if(!agetToSignal->OpenInputBinFile(fName)){
     	cout<<"File "<<fName.Data()<<" not found"<<endl;
     	exit(0);

@@ -1,6 +1,6 @@
 include ../../.Makefile.arch
 include ../../.Makefile.REST
 
-CLASSES = TRestEveEventViewer TRestHitsEventViewer TRestSignalEventViewer TRestReadoutEventViewer
+CLASSES = TRestEveEventViewer TRestHitsEventViewer TRestGenericEventViewer TRestReadoutEventViewer
 
 include ../../.Makefile.Class
