@@ -5,11 +5,11 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestAGETToSignalProcess.h
+///             TRestRawToSignalProcess.h
 ///
 ///             Template to use to design "event process" classes inherited from 
 ///             TRestProcess
-///             How to use: replace TRestAGETToSignalProcess by your name, 
+///             How to use: replace TRestRawToSignalProcess by your name, 
 ///             fill the required functions following instructions and add all
 ///             needed additional members and funcionality
 ///
@@ -20,22 +20,20 @@
 ///_______________________________________________________________________________
 
 
-#ifndef RestCore_TRestAGETToSignalProcess
-#define RestCore_TRestAGETToSignalProcess
+#ifndef RestCore_TRestRawToSignalProcess
+#define RestCore_TRestRawToSignalProcess
 
 #include "TRestEventProcess.h"
 #include "TRestSignalEvent.h"
 
-class TRestAGETToSignalProcess:public TRestEventProcess {
+class TRestRawToSignalProcess:public TRestEventProcess {
 
  protected:
  
    void InitFromConfigFile();
-   unsigned short payload;
-   int frameBits;
-   
- 
- private:
+   unsigned int payload;
+   unsigned int frameBits;
+   TString fElectronicsType; //AFTER or AGET
    
    Double_t tStart;
    int totalBytesReaded;
@@ -50,16 +48,16 @@ class TRestAGETToSignalProcess:public TRestEventProcess {
    void LoadDefaultConfig();
 
  public:
-   void Initialize();
-   void InitProcess();
-   TRestEvent *ProcessEvent( TRestEvent *evInput );
-   void EndProcess();
-   void BeginOfEventProcess();
-   void EndOfEventProcess();
-   TString GetProcessName(){ return (TString) "AGETToSignal"; }
+   virtual void Initialize();
+   virtual void InitProcess()=0;
+   virtual TRestEvent *ProcessEvent( TRestEvent *evInput )=0;
+   virtual void EndProcess();
+   virtual void BeginOfEventProcess();
+   virtual void EndOfEventProcess();
+   virtual TString GetProcessName()=0;
    TRestMetadata *GetMetadata() { return NULL; }
    
-   void PrintMetadata() { cout << "TODO : Needs to be implemented" << endl; }
+   void PrintMetadata();
    
    Bool_t OpenInputBinFile(TString fName);
    
@@ -69,13 +67,14 @@ class TRestAGETToSignalProcess:public TRestEventProcess {
    Int_t GetTotalBytesReaded( ){return totalBytesReaded;}
    Int_t GetRunNumber(){return fRunNumber;}
    Int_t GetRunIndex(){return fRunIndex;}
+   TString GetElectronicsType( ){return fElectronicsType;}
    
    //Constructor
-   TRestAGETToSignalProcess();
-   TRestAGETToSignalProcess(char *cfgFileName);
+   TRestRawToSignalProcess();
+   TRestRawToSignalProcess(char *cfgFileName);
    //Destructor
-   ~TRestAGETToSignalProcess();
+   ~TRestRawToSignalProcess();
 
-   ClassDef(TRestAGETToSignalProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+   ClassDef(TRestRawToSignalProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
 };
 #endif

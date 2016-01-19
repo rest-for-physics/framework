@@ -5,7 +5,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestSignalEventViewer.cxx
+///             TRestGenericEventViewer.cxx
 ///
 ///             nov 2015:   First concept
 ///                 Viewer class for a TRestSignalEvent
@@ -13,41 +13,40 @@
 ///_______________________________________________________________________________
 
 
-#include "TRestSignalEventViewer.h"
+#include "TRestGenericEventViewer.h"
 
-ClassImp(TRestSignalEventViewer)
+ClassImp(TRestGenericEventViewer)
 //______________________________________________________________________________
-TRestSignalEventViewer::TRestSignalEventViewer()
+TRestGenericEventViewer::TRestGenericEventViewer()
 {
   Initialize();
 }
 
 
 //______________________________________________________________________________
-TRestSignalEventViewer::~TRestSignalEventViewer()
+TRestGenericEventViewer::~TRestGenericEventViewer()
 {
    
 }
 
 //______________________________________________________________________________
-void TRestSignalEventViewer::Initialize()
+void TRestGenericEventViewer::Initialize()
 {
        
 fPad = NULL;
 
-fCanvas = new TCanvas("Signal","Signal");
+fCanvas = new TCanvas("Event Viewer","Event Viewer");
 
-fSignalEvent = new TRestSignalEvent( );
-fEvent = fSignalEvent;
+//fEvent = new TRestSignalEvent();
 
 }
 
-void TRestSignalEventViewer::AddEvent( TRestEvent *ev ){
+void TRestGenericEventViewer::AddEvent( TRestEvent *ev ){
 
 
-fSignalEvent=(TRestSignalEvent *)ev;
+//fEvent=(TRestSignalEvent *)ev;
 
-fPad = fSignalEvent->DrawEvent();
+fPad = ev->DrawEvent();
 
 if(fPad==NULL)return;
 

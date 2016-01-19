@@ -5,7 +5,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestSignalEventViewer.h inherited from TRestEventViewer
+///             TRestGenericEventViewer.h inherited from TRestEventViewer
 ///
 ///             nov 2015:   First concept
 ///                 Viewer class for a TRestSignalEvent
@@ -14,35 +14,33 @@
 
 
 
-#ifndef RestCore_TRestSignalEventViewer
-#define RestCore_TRestSignalEventViewer
+#ifndef RestCore_TRestGenericEventViewer
+#define RestCore_TRestGenericEventViewer
 
 #include <TPad.h>
 #include <TCanvas.h>
-#include <TRestSignalEvent.h>
 
 #include "TRestEventViewer.h"
 
-class TRestSignalEventViewer:public TRestEventViewer {
+class TRestGenericEventViewer:public TRestEventViewer {
 
  protected:
    
     TPad *fPad;
     TCanvas *fCanvas;
     
-    TRestSignalEvent *fSignalEvent;
-    
+            
  public:
  
    virtual void Initialize();
          
    virtual void AddEvent( TRestEvent *ev );
-   
+         
    //Constructor
-   TRestSignalEventViewer();
+   TRestGenericEventViewer();
    //Destructor
-   ~TRestSignalEventViewer();
+   ~TRestGenericEventViewer();
 
-   ClassDef(TRestSignalEventViewer, 1);      //class inherited from TRestEventViewer
+   ClassDef(TRestGenericEventViewer, 1);      //class inherited from TRestEventViewer
 };
 #endif

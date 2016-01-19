@@ -120,6 +120,10 @@ class TRestRun:public TRestMetadata {
         Double_t GetEndTimestamp() { return fEndTime; }
         TString GetExperimentName() { return fExperimentName; }
         TGeoManager *GetGeometry() { return fGeometry; }
+        TRestMetadata *GetHistoricMetadata(unsigned int index){
+        if(index<fHistoricMetadata.size())return fHistoricMetadata[index];
+        else return NULL;
+        }
 
 
         void SetRunNumber( Int_t number ) { fRunNumber = number; }
