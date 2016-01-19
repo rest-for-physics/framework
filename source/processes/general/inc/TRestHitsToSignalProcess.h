@@ -55,7 +55,16 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
         void EndOfEventProcess(); 
         void EndProcess();
 
-        void PrintMetadata() { cout << "TODO : Needs to be implemented" << endl; }
+        void PrintMetadata() 
+        {
+            BeginPrintProcess();
+
+            cout << "Sampling : " << fSampling << " us" << endl;
+            cout << "Cathode position : " << fCathodePosition << " mm" << endl;
+            cout << "Electric field : " << fElectricField << " V/cm" << endl;
+
+            EndPrintProcess();
+        }
 
         TRestMetadata *GetMetadata( ) { return fReadout; }
 
