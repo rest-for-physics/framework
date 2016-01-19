@@ -48,6 +48,8 @@ class TRestTrack: public TObject {
         void SetTrackEnergy(Int_t energy){fTrackEnergy=energy;}
         void SetTrackLength(Int_t length){fTrackEnergy=length;}
 
+        void SetVolumeHit(TRestVolumeHits hit) {fVolumeHits = hit;};
+
         //Getters
 
         Int_t GetTrackID() { return fTrackID; }
