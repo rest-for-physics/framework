@@ -92,72 +92,75 @@ void TRestHitsToSignalProcess::BeginOfEventProcess()
     cout << "Number of signals : " << fSignalEvent->GetNumberOfSignals() << endl;
 }
 
-Int_t TRestHitsToSignalProcess::FindModuleAndChannel( Double_t x, Double_t y, Int_t &module, Int_t &channel )
+Int_t TRestHitsToSignalProcess::FindModule( Double_t x, Double_t y )
 {
     for ( int md = 0; md < fReadout->GetNumberOfModules(); md++ )
-    {
-        if( fReadout->GetReadoutModule( md )->isInside( x, y ) )
-            for( int ch = 0; ch < fReadout->GetReadoutModule( md )->GetNumberOfChannels(); ch++ )
-            {
-                if ( fReadout->GetReadoutModule( md )->isInsideChannel( ch, x , y ) )
-                {
-                    module = md;
-                    channel = ch;
-                    return 1;
-                }
-            }
-    }
-    return 0;
+        if( fReadout->GetReadoutModule( md )->isInside( x, y ) ) return md;
 
+    return -1;
 }
+
+Int_t TRestHitsToSignalProcess::FindChannel( Int_t module, Double_t x, Double_t y )
+{
+            return fReadout->GetReadoutModule( module )->FindChannel( x, y );
+}
+
 
 //______________________________________________________________________________
 TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
 {
     fHitsEvent = (TRestHitsEvent *) evInput;
 
+    /*
     cout << "Event ID : " << fHitsEvent->GetEventID() << endl;
     cout << "Number of hits : " << fHitsEvent->GetNumberOfHits() << endl;
+    cout << "--------------------------" << endl;
+    */
 
     fSignalEvent->SetEventTime( fHitsEvent->GetEventTime() );
     fSignalEvent->SetEventID( fHitsEvent->GetEventID() );
 
-    Int_t mod = -1;
-    Int_t chnl = -1;
 
     for( int hit = 0; hit < fHitsEvent->GetNumberOfHits(); hit++ )
     {
         Double_t x = fHitsEvent->GetX( hit );
         Double_t y = fHitsEvent->GetY( hit );
 
-        if( FindModuleAndChannel( x, y, mod, chnl ) )
+        Int_t mod = FindModule( x, y );
+        if( mod >= 0 )
         {
-            Int_t channelID = 0;
-            for( int n = 0; n < mod-1; n++ )
-                channelID += fReadout->GetReadoutModule(n)->GetNumberOfChannels();
-            channelID += chnl;
-
-            /* This is now done internally in TRestSignalEvent
-            if ( !fSignalEvent->signalIDExists( channelID ) )
+            Int_t chnl = FindChannel ( mod, x, y );
+            if( chnl >= 0 )
             {
-                TRestSignal sgnl;
-                sgnl.SetSignalID( channelID );
-                fSignalEvent->AddSignal( sgnl );
+                Int_t channelID = 0;
+                for( int n = 0; n < mod-1; n++ )
+                    channelID += fReadout->GetReadoutModule(n)->GetNumberOfChannels();
+                channelID += chnl;
+
+                //cout << "Hit found in channel : " << chnl << " chID : " << channelID << endl;
+
+                /* This is now done internally in TRestSignalEvent
+                   if ( !fSignalEvent->signalIDExists( channelID ) )
+                   {
+                   TRestSignal sgnl;
+                   sgnl.SetSignalID( channelID );
+                   fSignalEvent->AddSignal( sgnl );
+                   }
+                   */
+
+                Double_t energy = fHitsEvent->GetEnergy( hit );
+                Double_t time = fHitsEvent->GetZ( hit );
+
+                time = fSampling * (Int_t) (time/fSampling);
+
+                fSignalEvent->AddChargeToSignal( channelID, time, energy );
             }
-            */
-
-            Double_t energy = fHitsEvent->GetEnergy( hit );
-            Double_t time = fHitsEvent->GetZ( hit );
-
-            time = fSampling * (Int_t) (time/fSampling);
-
-            fSignalEvent->AddChargeToSignal( channelID, time, energy );
         }
     }
 
     fSignalEvent->SortSignals();
 
- //   fSignalEvent->PrintEvent();
+    fSignalEvent->PrintEvent();
 
 
     return fSignalEvent;
