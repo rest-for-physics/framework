@@ -31,9 +31,6 @@ ClassImp(TRestTrackEvent)
     fYZ=NULL;
     fPad=NULL;
 
-
-
-
 }
 
 //______________________________________________________________________________
@@ -54,8 +51,6 @@ void TRestTrackEvent::Initialize()
 void TRestTrackEvent::PrintEvent()
 {
     TRestEvent::PrintEvent();
-
-
 }
 
 
@@ -71,7 +66,6 @@ if(fPad!=NULL) { delete fPad; fPad=NULL;}
 
 int nTracks = this->GetNumberOfTracks();
 
-
 cout<<"Number of tracks "<<nTracks<<endl;
 
 if(nTracks==0){
@@ -85,11 +79,9 @@ TRestVolumeHits hits;
 double maxX=-1e10, minX = 1e10, maxZ=-1e10, minZ=1e10, maxY=-1e10, minY=1e10 ;
 int count;
 
-
  fXY = new TGraph[nTracks];
  fXZ = new TGraph[nTracks];
  fYZ = new TGraph[nTracks];
-
 
 	for (int j = 0; j< nTracks; j++)
 	{
@@ -132,7 +124,7 @@ fPad->cd(2)->DrawFrame(minX-10,minZ-10,maxX+10,maxZ+10);
 fPad->cd(3)->DrawFrame(minY-10,minZ-10,maxY+10,maxZ+10);
 
 
-for(int ntr=0;ntr<nTracks;ntr++)
+	for(int ntr=0;ntr<nTracks;ntr++)
 	{
 	    fXY[ntr].SetMarkerColor(1+ntr);
 	    fXY[ntr].SetMarkerSize(1.);
@@ -144,17 +136,16 @@ for(int ntr=0;ntr<nTracks;ntr++)
 	    fYZ[ntr].SetMarkerSize(1.);
 	    fYZ[ntr].SetMarkerStyle(21);
 
-	   fPad->cd(1); 
-	   fXY[ntr].Draw("P");
+	    fPad->cd(1); 
+	    fXY[ntr].Draw("P");
 
-	   fPad->cd(2); 
-	   fXZ[ntr].Draw("P");
+	    fPad->cd(2); 
+	    fXZ[ntr].Draw("P");
 
-	   fPad->cd(3); 
-	   fYZ[ntr].Draw("P");
+	    fPad->cd(3); 
+	    fYZ[ntr].Draw("P");
 
 	}
 
 return fPad;
-
 }
