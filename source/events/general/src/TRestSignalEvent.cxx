@@ -120,12 +120,14 @@ TPad *TRestSignalEvent::DrawEvent()
         return NULL;
     }
 
-    fGr = new TGraph[nSignals];
+<<<<<<< HEAD
+fGr = new TGraph[nSignals];
 
-    int c;
+int c;
 
-    double maxX=-1E10, minX=1E10, maxY=-1E10, minY=1E10;
-    double x,y;
+double maxX=-1E10,minX=1E10,maxY=-1E10,minY=1E10;
+double x,y;
+
 
     for(int i=0;i<nSignals;i++){
         c=0;
@@ -165,6 +167,7 @@ TPad *TRestSignalEvent::DrawEvent()
         fGr[i].SetMarkerStyle( 7 );
         fGr[i].Draw( "LP" );
     }
+
 
     return fPad;
 
