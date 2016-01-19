@@ -1,20 +1,18 @@
 
 
-
-
-
 REST_VIEWER_SignalEvent(TString fName=" "){
 
 TRestBrowser *browser = new TRestBrowser( );
 
-TRestSignalEventViewer *viewer = new TRestSignalEventViewer( );
+TRestGenericEventViewer *viewer = new TRestGenericEventViewer( );
+TRestSignalEvent *sEvent = new TRestSignalEvent();
+viewer->SetEvent(sEvent);
+
 browser->SetViewer( viewer );
 
 browser->OpenFile(fName);
 
 }
-
-
 
 
 

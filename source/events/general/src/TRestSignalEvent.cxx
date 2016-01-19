@@ -106,18 +106,21 @@ void TRestSignalEvent::PrintEvent()
 }
 
 //Draw current event in a Tpad
-TPad *TRestSignalEvent::DrawEvent(){
+TPad *TRestSignalEvent::DrawEvent()
+{
 
-if(fGr!=NULL){delete[] fGr;fGr=NULL;}
-if(fPad!=NULL) { delete fPad; fPad=NULL;}
+    if(fGr != NULL) { delete[] fGr; fGr=NULL; }
+    if(fPad != NULL) { delete fPad; fPad=NULL; }
 
-int nSignals = this->GetNumberOfSignals();
+    int nSignals = this->GetNumberOfSignals();
 
-if(nSignals==0){
-cout<<"Empty event "<<endl;
-return NULL;
-}
+    if(nSignals == 0)
+    {
+        cout<<"Empty event "<<endl;
+        return NULL;
+    }
 
+<<<<<<< HEAD
 fGr = new TGraph[nSignals];
 
 int c;
@@ -125,41 +128,48 @@ int c;
 double maxX=-1E10,minX=1E10,maxY=-1E10,minY=1E10;
 double x,y;
 
-	for(int i=0;i<nSignals;i++){
-	c=0;
-	
-	cout<<"Signal "<<i<<" ID "<<fSignal[i].GetSignalID( )<<" points "<<fSignal[i].GetNumberOfPoints()<<endl;
-		for(int j=0;j<fSignal[i].GetNumberOfPoints();j++){
-		x=fSignal[i].GetTime(j);
-		y=fSignal[i].GetData(j);
-		fGr[i].SetPoint(c,x,y);
-		if(x>maxX)maxX=x;
-		if(x<minX)minX=x;
-		if(y>maxY)maxY=y;
-		if(y<minY)minY=y;
-		//cout<<x<<"  "<<y<<endl;
-		c++;
-		}
-	
-	}
 
-//cout<<minX<<" "<<maxX<<" "<<minY<<" "<<maxY<<endl;
+    for(int i=0;i<nSignals;i++){
+        c=0;
 
-maxX++;minX--;
-maxY++;minY--;
+        cout << "Signal " << i << " ID " << fSignal[i].GetSignalID( ) << " points " << fSignal[i].GetNumberOfPoints() << endl;
 
-fPad = new TPad(this->GetClassName().Data()," ",0,0,1,1);
-fPad->Draw();
-fPad->cd();
-fPad->DrawFrame(minX,minY,maxX,maxY);
+        fGr[i].SetLineWidth( 2 );
+        fGr[i].SetLineColor( i + 1 );
 
-for(int i=0;i<nSignals;i++){
-fPad->cd();
-fGr[i].SetMarkerStyle(7);
-fGr[i].Draw("LP");
-}
+        for( int j = 0; j < fSignal[i].GetNumberOfPoints(); j++ )
+        {
+            x = fSignal[i].GetTime(j);
+            y = fSignal[i].GetData(j);
 
-return fPad;
+            fGr[i].SetPoint(c,x,y);
+
+            if( x > maxX ) maxX = x;
+            if( x < minX ) minX = x;
+            if( y > maxY ) maxY = y;
+            if( y < minY ) minY = y;
+            c++;
+        }
+    }
+
+    //cout<<minX<<" "<<maxX<<" "<<minY<<" "<<maxY<<endl;
+
+    maxX++; minX--;
+    maxY++; minY--;
+
+    fPad = new TPad( this->GetClassName().Data(), " ", 0, 0, 1, 1 );
+    fPad->Draw();
+    fPad->cd();
+    fPad->DrawFrame( minX, minY, maxX, maxY );
+    for( int i = 0; i < nSignals; i++ )
+    {
+        fPad->cd();
+        fGr[i].SetMarkerStyle( 7 );
+        fGr[i].Draw( "LP" );
+    }
+
+
+    return fPad;
 
 }
 

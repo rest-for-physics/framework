@@ -20,12 +20,13 @@
 #include <TPad.h>
 #include <TCanvas.h>
 
-#include "TRestSignalEventViewer.h"
+#include "TRestGenericEventViewer.h"
+#include "TRestSignalEvent.h"
 #include "TRestDecoding.h"
 #include "TRestReadout.h"
 #include "TH2Poly.h"
 
-class TRestReadoutEventViewer:public TRestSignalEventViewer {
+class TRestReadoutEventViewer:public TRestGenericEventViewer {
 
  protected:
    
@@ -34,6 +35,8 @@ class TRestReadoutEventViewer:public TRestSignalEventViewer {
     
     TRestDecoding *fDecoding;
     TRestReadout *fReadout;
+    
+    TRestSignalEvent *fSignalEvent;
     
     TH2Poly *fHistoXY;
     TH2D *fHistoXZ;

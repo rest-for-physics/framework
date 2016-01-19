@@ -36,14 +36,14 @@ TRestReadoutEventViewer::~TRestReadoutEventViewer()
 //______________________________________________________________________________
 void TRestReadoutEventViewer::Initialize()
 {
-TRestSignalEventViewer::Initialize();
+TRestGenericEventViewer::Initialize();
 
 fCanvasXY = new TCanvas("ReadoutMap","ReadoutMap");
 fCanvasXZYZ = new TCanvas("XZYZ","XZYZ");
 fCanvasXZYZ->Divide(2,1);
 
 fSignalEvent = new TRestSignalEvent( );
-fEvent = fSignalEvent;
+SetEvent( fSignalEvent);
 
 fHistoXY= fReadout->GetReadoutHistogram();
 fReadout->GetBoundaries(xmin,xmax,ymin,ymax);
@@ -53,7 +53,7 @@ fReadout->GetBoundaries(xmin,xmax,ymin,ymax);
 
 void TRestReadoutEventViewer::AddEvent( TRestEvent *ev ){
 
-TRestSignalEventViewer::AddEvent(ev );
+TRestGenericEventViewer::AddEvent(ev );
 
 if(fPad==NULL)return;
 

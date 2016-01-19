@@ -5,11 +5,11 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestAGETToSignalProcess.cxx
+///             TRestFEMINOSToSignalProcess.cxx
 ///
 ///             Template to use to design "event process" classes inherited from 
-///             TRestAGETToSignalProcess
-///             How to use: replace TRestAGETToSignalProcess by your name, 
+///             TRestFEMINOSToSignalProcess
+///             How to use: replace TRestFEMINOSToSignalProcess by your name, 
 ///             fill the required functions following instructions and add all
 ///             needed additional members and funcionality
 ///
@@ -20,63 +20,38 @@
 ///_______________________________________________________________________________
 
 
-#include "TRestAGETToSignalProcess.h"
+#include "TRestFEMINOSToSignalProcess.h"
 #include "TTimeStamp.h"
 
-ClassImp(TRestAGETToSignalProcess)
+ClassImp(TRestFEMINOSToSignalProcess)
 //______________________________________________________________________________
-TRestAGETToSignalProcess::TRestAGETToSignalProcess()
+TRestFEMINOSToSignalProcess::TRestFEMINOSToSignalProcess()
 {
   Initialize();
 }
 
-TRestAGETToSignalProcess::TRestAGETToSignalProcess(char *cfgFileName)
+TRestFEMINOSToSignalProcess::TRestFEMINOSToSignalProcess(char *cfgFileName):TRestRawToSignalProcess(cfgFileName)
 {
  Initialize();
 }
 
 
 //______________________________________________________________________________
-TRestAGETToSignalProcess::~TRestAGETToSignalProcess()
+TRestFEMINOSToSignalProcess::~TRestFEMINOSToSignalProcess()
 {
-   // TRestAGETToSignalProcess destructor
+   // TRestFEMINOSToSignalProcess destructor
 }
 
 //______________________________________________________________________________
-void TRestAGETToSignalProcess::Initialize()
+void TRestFEMINOSToSignalProcess::Initialize()
 {
-   fSignalEvent = new TRestSignalEvent( );
-   
-   fRunNumber=-1;
-   fRunIndex=-1;
-   
-   fInputEvent = NULL;
-   fOutputEvent = fSignalEvent;
-   fInputBinFile = NULL;
-}
 
-void TRestAGETToSignalProcess::BeginOfEventProcess() 
-{
-   // cout << "Begin of event process" << endl;
-    fSignalEvent->Initialize();
-}
-
-void TRestAGETToSignalProcess::InitFromConfigFile(){
-
- cout << __PRETTY_FUNCTION__ << endl;
+//this->SetVerboseLevel(REST_Debug);
 
 }
-
-
-void TRestAGETToSignalProcess::LoadDefaultConfig(){
-
- cout << __PRETTY_FUNCTION__ << endl;
-}
-
-
 
 //______________________________________________________________________________
-void TRestAGETToSignalProcess::InitProcess()
+void TRestFEMINOSToSignalProcess::InitProcess()
 {
 
 //Binary file header
@@ -120,19 +95,20 @@ void TRestAGETToSignalProcess::InitProcess()
   totalBytesReaded+=sizeof(startDF);
   
   //Payload from start data frame to end of data frame (including both)
-  fread(&payload, sizeof(payload),1,fInputBinFile);
+  fread(&pay, sizeof(pay),1,fInputBinFile);
+  payload=pay;
   if(this->GetVerboseLevel()==REST_Debug){
   cout<<"Frame payload "<<payload<<endl;
-  printBits(payload);
+  printBits(pay);
   }
-  frameBits+=sizeof(payload);
-  totalBytesReaded+=sizeof(payload);
+  frameBits+=sizeof(pay);
+  totalBytesReaded+=sizeof(pay);
 
   
 }
 
 //______________________________________________________________________________
-TRestEvent* TRestAGETToSignalProcess::ProcessEvent( TRestEvent *evInput )
+TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
 {
 
   //Now we start reading the events
@@ -174,6 +150,7 @@ TRestEvent* TRestAGETToSignalProcess::ProcessEvent( TRestEvent *evInput )
      if(this->GetVerboseLevel()==REST_Debug){
      printBits(evID);
      cout<<"Event ID "<<evID<<endl;
+     getchar();
      }
      frameBits+=sizeof(evID);
      totalBytesReaded+=sizeof(evID);
@@ -194,7 +171,6 @@ int timeBin = 0;
     int adc;
         
 int physChannel;
-int chan;
 
 bool skip=false;
 
@@ -223,43 +199,29 @@ unsigned short dat, startDF;;
 	timeBin =0;
 	if(this->GetVerboseLevel()==REST_Debug)cout<<"Reset"<<endl;
 	
-    	//AGET Short Seq
-	physChannel=-10;
-	if (channel> 1 && channel < 13 ) {
-      	physChannel= channel -2; 
-    	} else if (channel> 13 && channel < 24 ) {
-      physChannel= channel -3; 
-    	} else if (channel> 24 && channel < 47 ) {
-      physChannel= channel -4; 
-    	} else if (channel> 47 && channel < 58 ) {
-      	physChannel= channel -5; 
-    	} else if (channel> 58 ) {
-      	physChannel= channel -6; 
-    	}
-    	
-    	chan = physChannel;
-		
+	
+	physChannel = GetPhysChannel(channel);
+	
+    	   	    			
 		//Skipping non physical channels
 		if(physChannel<0){
 		skip=true;
 				
-		if(this->GetVerboseLevel()==REST_Debug){cout<<"Skipping channel "<<channel<<endl;getchar();}
-		
-		cout<<"Skipping channel "<<channel<<endl;
-		
+		if(this->GetVerboseLevel()==REST_Debug){cout<<"Skipping channel "<<channel<<endl;}
 		}
 		else skip=false;
+	
 		
 	//FECN not included so far....
-	physChannel = asicN*72 + chan;
-	//physChannel = fecN*4*72+asicN*72 + chan;
+	physChannel += asicN*72;
+	//physChannel += fecN*4*72+asicN*72;
 	
 	if(this->GetVerboseLevel()==REST_Debug)
 	{
 	cout<<"----------------------"<<endl;
 	cout<<"FEC "<<fecN<<endl;
 	cout<<"asic "<<asicN<<endl;
-	cout<<"Channel "<<chan<<endl;
+	cout<<"Channel "<<channel<<endl;
 	cout<<"PhysChannel "<<physChannel<<endl;
 	}
 	
@@ -294,13 +256,14 @@ unsigned short dat, startDF;;
 	frameBits+=sizeof(startDF);
 	totalBytesReaded+=sizeof(startDF);
 	
-	fread(&payload, sizeof(payload),1,fInputBinFile);
+	fread(&pay, sizeof(pay),1,fInputBinFile);
+	payload = pay;
 	if(this->GetVerboseLevel()==REST_Debug){
 	cout<<"Frame payload "<<payload<<endl;
-	printBits(payload);
+	printBits(pay);
 	}
-	frameBits+=sizeof(payload);
-	totalBytesReaded+=sizeof(payload);
+	frameBits+=sizeof(pay);
+	totalBytesReaded+=sizeof(pay);
 	}
   
    }//while
@@ -314,7 +277,7 @@ frameBits+=sizeof(dat);
 totalBytesReaded+=sizeof(dat);
 
 //If data frame is being finish, the data frame header is reader in order to avoid a misalignement reading the file
-if(payload<=frameBits+2){
+if((unsigned short)payload<=frameBits+2){
 	while( dat !=15 ){
 	fread(&dat, sizeof(dat),1,fInputBinFile);
 	frameBits+=sizeof(dat);
@@ -334,12 +297,13 @@ if(payload<=frameBits+2){
 	frameBits+=sizeof(startDF);
 	totalBytesReaded+=sizeof(startDF);
 	
-	fread(&payload, sizeof(payload),1,fInputBinFile);
-	frameBits+=sizeof(payload);
-	totalBytesReaded+=sizeof(payload);
+	fread(&pay, sizeof(pay),1,fInputBinFile);
+	payload=pay;
+	frameBits+=sizeof(pay);
+	totalBytesReaded+=sizeof(pay);
 	if(this->GetVerboseLevel()==REST_Debug){
 	cout<<"Frame payload "<<payload<<endl;
-	printBits(payload);
+	printBits(pay);
 	}
 	
 }
@@ -349,67 +313,44 @@ if(payload<=frameBits+2){
 return fSignalEvent;
 }
 
-void TRestAGETToSignalProcess::EndOfEventProcess() 
-{
+int TRestFEMINOSToSignalProcess::GetPhysChannel(int channel){
 
-//cout << __PRETTY_FUNCTION__ << endl;
+int physChannel=-10;
 
-}
+	//AFTER
+     if(GetElectronicsType( )=="AFTER"){
+	if (channel> 2 && channel < 15 ) {
+      	physChannel= channel -3; 
+    	} else if (channel> 15 && channel < 28 ) {
+      physChannel= channel -4; 
+    	} else if (channel> 28 && channel < 53 ) {
+      physChannel= channel -5; 
+    	} else if (channel> 53 && channel < 66 ) {
+      	physChannel= channel -6; 
+    	} else if (channel> 66  ) {
+      	physChannel= channel -7; 
+    	}
+     }
+	//AGET Short seq
+     else if(GetElectronicsType( )=="AGET"){
+	if (channel> 1 && channel < 13 ) {
+      	physChannel= channel -2; 
+    	} else if (channel> 13 && channel < 24 ) {
+      physChannel= channel -3; 
+    	} else if (channel> 24 && channel < 47 ) {
+      physChannel= channel -4; 
+    	} else if (channel> 47 && channel < 58 ) {
+      	physChannel= channel -5; 
+    	} else if (channel> 58 ) {
+      	physChannel= channel -6; 
+    	}
+     }
+     
+     else return -1;
 
 
-//______________________________________________________________________________
-void TRestAGETToSignalProcess::EndProcess()
-{
+return physChannel;
 
-//close binary file??? Already done
-
- cout << __PRETTY_FUNCTION__ << endl;
- 
-}
-//______________________________________________________________________________
-Bool_t TRestAGETToSignalProcess::OpenInputBinFile ( TString fName ){
-
-if(fInputBinFile!= NULL)fclose(fInputBinFile);
-
- if( (fInputBinFile = fopen(fName.Data(),"rb") )==NULL ) {
-        cout << "WARNING. Input file does not exist" << endl;
-        return kFALSE;
-    }
-
-cout<<"File "<<fName.Data()<<" opened"<<endl;
-
-int size=fName.Sizeof();cout<<size<<endl;
-TString fN(fName(size-20,size-1));
-cout<<fN.Data()<<endl;
-sscanf(fN.Data(),"RUN_%d.%d.acq",&fRunNumber,&fRunIndex);
-
-cout<<"Run# "<<fRunNumber<<" index "<<fRunIndex<<endl;
-
-return kTRUE;
-}
-
-//For debugging
-void  TRestAGETToSignalProcess::printBits(unsigned short num)
-{
-   for(unsigned short bit=0;bit<(sizeof(unsigned short) * 8); bit++)
-   {
-      printf("%i ", num & 0x01);
-      num = num >> 1;
-   }
-   
-   printf("\n");
-}
-
-//For debugging
-void  TRestAGETToSignalProcess::printBits(unsigned int num)
-{
-   for(unsigned int bit=0;bit<(sizeof(unsigned int) * 8); bit++)
-   {
-      printf("%i ", num & 0x01);
-      num = num >> 1;
-   }
-   
-   printf("\n");
 }
 
 
