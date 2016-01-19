@@ -13,7 +13,17 @@
 
 #include "TRestHitsToSignalProcess.h"
 
-#include <TRandom.h>
+//#include <TRandom.h>
+#include "TRestElectronDiffusionProcess.h"
+
+/* Chrono can be used for measuring time with better precision and test the time spent for different parts of the code
+	using high_resolution_clock
+#include <iostream>
+#include <chrono>
+
+using namespace std;
+using namespace std::chrono;
+*/
 
 ClassImp(TRestHitsToSignalProcess)
     //______________________________________________________________________________
@@ -29,6 +39,10 @@ TRestHitsToSignalProcess::TRestHitsToSignalProcess( char *cfgFileName )
     Initialize();
 
     if( LoadConfig( "hitsToSignalProcess", cfgFileName ) == -1 ) LoadDefaultConfig( );
+
+    cout << "Values : " << endl;
+    cout << fElectricField << endl;
+    cout << fCathodePosition << endl;
 
     fReadout = new TRestReadout( cfgFileName );
 
@@ -49,7 +63,6 @@ void TRestHitsToSignalProcess::LoadDefaultConfig( )
 {
     SetName( "hitsToSignalProcess-Default" );
     SetTitle( "Default config" );
-
 
     fSampling = 1;
 
@@ -77,10 +90,35 @@ void TRestHitsToSignalProcess::InitProcess()
     //Comment this if you don't want it.
     //TRestEventProcess::InitProcess();
 
-    if( fReadout == NULL ) cout << "REST ERRORRRR : Readout has not been initialized" << endl;
-
     cout << __PRETTY_FUNCTION__ << endl;
 
+    if( fReadout == NULL ) cout << "REST ERRORRRR : Readout has not been initialized" << endl;
+
+
+    fGas = GetGasFromRunMetadata( );
+
+    if ( fElectricField == PARAMETER_NOT_FOUND_DBL )
+    {	
+	fElectricField = GetElectricFieldFromElectronDiffusionProcess( );
+        if( fElectricField != PARAMETER_NOT_FOUND_DBL ) cout << "Getting electric field from electronDiffusionProcess : " << fElectricField << " V/cm" << endl;
+	else { cout << "WARNING!!! : Electric field has NO value" << endl; getchar(); }
+    }
+
+    if ( fCathodePosition == PARAMETER_NOT_FOUND_DBL )
+    {
+	    fCathodePosition = GetCathodePositionFromElectronDiffusionProcess( );
+	    if( fCathodePosition != PARAMETER_NOT_FOUND_DBL ) cout << "Getting cathode position from electronDiffusionProcess : " << fCathodePosition << " mm" << endl;
+		else { cout << "WARNING!!! : Cathode position has NO value" << endl; getchar(); }
+    }
+
+
+/*
+	cout << "Name : " << fGas->GetName() << endl;
+	printf( "Drift velocity : %e\n",  fGas->GetDriftVelocity( fElectricField ) );
+	cout << "Electric field : " << fElectricField <<  endl;
+	cout << "Cathode position : " << fCathodePosition << endl;
+	getchar();
+*/
 }
 
 //______________________________________________________________________________
@@ -130,7 +168,15 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
         Double_t x = fHitsEvent->GetX( hit );
         Double_t y = fHitsEvent->GetY( hit );
 
-        if( FindModuleAndChannel( x, y, mod, chnl ) )
+    //high_resolution_clock::time_point t1 = high_resolution_clock::now();
+    int found = FindModuleAndChannel( x, y, mod, chnl );
+    //high_resolution_clock::time_point t2 = high_resolution_clock::now();
+
+    //auto duration = duration_cast<microseconds>( t2 - t1 ).count();
+    //cout << duration << endl;
+    //getchar();
+
+        if( found )
         {
             Int_t channelID = 0;
             for( int n = 0; n < mod-1; n++ )
@@ -183,6 +229,57 @@ void TRestHitsToSignalProcess::EndProcess()
 //______________________________________________________________________________
 void TRestHitsToSignalProcess::InitFromConfigFile( )
 {
-    cout << __PRETTY_FUNCTION__ << " --> TOBE implemented" << endl;
+    fSampling = StringToDouble( GetParameter( "sampling" ) );
+    fCathodePosition = StringToDouble( GetParameter( "cathodePosition" ) );
+    fElectricField = StringToDouble( GetParameter( "electricField" )  );
+
+}
+
+TRestGas *TRestHitsToSignalProcess::GetGasFromRunMetadata( )
+{
+	// For the moment this function will return the first occurence of TRestGas.
+ 	// What happens if there are several? And if I want to use one gas from the config file? 
+	// We need to introduce an option somewhere.
+	// For the moment I know there will be an existing gas file since the hits come from electronDiffusion.
+
+	for( size_t i = 0; i < fRunMetadata.size(); i++ )
+		if ( fRunMetadata[i]->ClassName() == (TString) "TRestGas" )
+		{
+			((TRestGas *) fRunMetadata[i])->LoadGasFile();
+			return (TRestGas *) fRunMetadata[i];
+		}
+
+	return NULL;
+}
+
+Double_t TRestHitsToSignalProcess::GetCathodePositionFromElectronDiffusionProcess( )
+{
+	cout << __PRETTY_FUNCTION__ << endl;
+	
+	for( size_t i = 0; i < fRunMetadata.size(); i++ )
+		if ( fRunMetadata[i]->ClassName() == (TString) "TRestElectronDiffusionProcess" )
+		{
+			cout <<"HOLA1" << endl;
+			return ((TRestElectronDiffusionProcess *) fRunMetadata[i])->GetCathodePosition();
+		}
+
+	return PARAMETER_NOT_FOUND_DBL;
+
+}
+
+Double_t TRestHitsToSignalProcess::GetElectricFieldFromElectronDiffusionProcess( )
+{
+	cout << __PRETTY_FUNCTION__ << endl;
+	
+	for( size_t i = 0; i < fRunMetadata.size(); i++ )
+	{
+								
+		if ( fRunMetadata[i]->ClassName() == (TString) "TRestElectronDiffusionProcess" )
+		{
+			return ((TRestElectronDiffusionProcess *) fRunMetadata[i])->GetElectricField();
+		}
+	}
+
+	return PARAMETER_NOT_FOUND_DBL;
 
 }
