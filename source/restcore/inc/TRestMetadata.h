@@ -40,6 +40,10 @@ using namespace std;
 #include <TNamed.h>
 #include "string.h"
 
+const int PARAMETER_NOT_FOUND_INT = -99999999;
+const double PARAMETER_NOT_FOUND_DBL = -99999999;
+const TString PARAMETER_NOT_FOUND_STR = "-99999999";
+
 enum REST_Verbose_Level {REST_Silent, REST_Warning, REST_Info, REST_Debug };
 
 
@@ -58,7 +62,7 @@ class TRestMetadata:public TNamed {
         string GetKEYDefinition( string keyName, size_t &fromPosition, string buffer );
         string GetKEYDefinition( string keyName, size_t &fromPosition );
 
-        string GetParameter( string parName );
+	string GetParameter( string parName, TString defaultValue = PARAMETER_NOT_FOUND_STR );
         string GetParameter( string parName, size_t &pos, string inputString );
         string GetMyParameter( string &value, size_t &pos );
 

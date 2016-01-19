@@ -68,6 +68,9 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
 
         TString GetProcessName() { return (TString) "electronDiffusion"; }
 
+	Double_t GetCathodePosition() { return fCathodePosition; }
+	Double_t GetElectricField() { return fElectricField; }
+
         //Constructor
         TRestElectronDiffusionProcess();
         TRestElectronDiffusionProcess( char *cfgFileName );

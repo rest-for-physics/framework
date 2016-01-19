@@ -13,6 +13,7 @@
 #ifndef RestCore_TRestHitsToSignalProcess
 #define RestCore_TRestHitsToSignalProcess
 
+#include <TRestGas.h>
 #include <TRestReadout.h>
 #include <TRestSignalEvent.h>
 #include <TRestHitsEvent.h>
@@ -21,8 +22,18 @@
 
 class TRestHitsToSignalProcess:public TRestEventProcess {
     private:
+        Int_t fSampling; // ms
+        Double_t fCathodePosition;
+        Double_t fElectricField;
+
+#ifndef __CINT__
         TRestHitsEvent *fHitsEvent;
         TRestSignalEvent *fSignalEvent;
+
+        TRestReadout *fReadout;
+
+	TRestGas *fGas;
+#endif
 
         void InitFromConfigFile();
 
@@ -30,15 +41,12 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
 
         void LoadDefaultConfig();
 
-        Int_t fSampling; // us
-
-
         Int_t FindModule( Double_t x, Double_t y );
         Int_t FindChannel( Int_t module, Double_t x, Double_t y );
 
-    protected:
-        //add here the members of your event process
-        TRestReadout *fReadout;
+        TRestGas *GetGasFromRunMetadata( );
+        Double_t GetCathodePositionFromElectronDiffusionProcess( );
+        Double_t GetElectricFieldFromElectronDiffusionProcess( );
 
     public:
         void InitProcess();

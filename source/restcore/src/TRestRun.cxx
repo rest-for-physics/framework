@@ -18,6 +18,8 @@
 
 #include "TRestRun.h"
 
+const int debug = 0;
+
 ClassImp(TRestRun)
 //______________________________________________________________________________
     TRestRun::TRestRun()
@@ -82,48 +84,79 @@ TRestRun::~TRestRun()
 
 void TRestRun::Start( )
 {
-    fCurrentEvent=0;
-    
-    if( fEventProcess.size() == 0 ) { cout << "WARNNING Run does not contain processes" << endl; return; }
+	fCurrentEvent=0;
 
-    this->OpenOutputFile();
+	if( fEventProcess.size() == 0 ) { cout << "WARNNING Run does not contain processes" << endl; return; }
 
-    this->SetInputEvent( fEventProcess.front()->GetInputEvent() );
+	this->OpenOutputFile();
 
-    this->SetOutputEvent( fEventProcess.back()->GetOutputEvent() );
+	this->SetInputEvent( fEventProcess.front()->GetInputEvent() );
 
-    this->SetRunType( fEventProcess[fEventProcess.size()-1]->GetProcessName() );
+	this->SetOutputEvent( fEventProcess.back()->GetOutputEvent() );
 
-    this->ResetRunTimes();
+	this->SetRunType( fEventProcess[fEventProcess.size()-1]->GetProcessName() );
 
-    for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->InitProcess();
-
-    TRestEvent *processedEvent;
-    while( this->GetNextEvent() )
-    {
-        processedEvent = fInputEvent;
-
-        for( unsigned int j = 0; j < fEventProcess.size(); j++ )
-        {
-            fEventProcess[j]->BeginOfEventProcess();
-            processedEvent = fEventProcess[j]->ProcessEvent( processedEvent );
-            if( processedEvent == NULL ) break;
-            fEventProcess[j]->EndOfEventProcess();
-        }
-        fOutputEvent = processedEvent;
-        if( processedEvent == NULL ) continue;
+	this->ResetRunTimes();
 
 
-        fOutputEventTree->Fill();
-        
-        PrintProcessedEvents(100);
-    }
+	// We give a pointer to the metadata stored in TRestRun to the processes. This metadata will be destroyed afterwards
+	// it is not intended for storage, just for the processes so that they are aware of all metadata information.
+	// If a process instantiates and produces new metadata it should have already passed it to TRestRun through eventProcess->GetMetadata in AddProcess.
+	// Each proccess is responsible to implement GetMetadata so that TRestRun stores this metadata.
 
-cout<<fOutputEventTree->GetEntries()<<" processed events"<<endl;
+	vector <TRestMetadata*> metadata;
+	for( size_t i = 0; i < fMetadata.size(); i++ )
+		metadata.push_back( fMetadata[i] );
+	for( size_t i = 0; i < fHistoricMetadata.size(); i++ )
+		metadata.push_back( fHistoricMetadata[i] );
+	for( size_t i = 0; i < fEventProcess.size(); i++ )
+		metadata.push_back( fEventProcess[i] );
+	for( size_t i = 0; i < fHistoricEventProcess.size(); i++ )
+		metadata.push_back( fHistoricEventProcess[i] );
 
-    for( unsigned int i = 0; i < fEventProcess.size(); i++ )
-        fEventProcess[i]->EndProcess();
+	for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->SetMetadata( metadata );
 
+	if( debug > 0 )
+	{
+		cout << "Metadata given to processes" << endl;
+		cout << "---------------------------" << endl;
+		for( size_t i = 0; i < metadata.size(); i++ )
+			cout << metadata[i]->ClassName() << endl;
+		cout << "---------------------------" << endl;
+	}
+	//////////////////
+
+	
+	for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->InitProcess();
+
+
+	TRestEvent *processedEvent;
+	while( this->GetNextEvent() )
+	{
+		processedEvent = fInputEvent;
+
+		for( unsigned int j = 0; j < fEventProcess.size(); j++ )
+		{
+			fEventProcess[j]->BeginOfEventProcess();
+			processedEvent = fEventProcess[j]->ProcessEvent( processedEvent );
+			if( processedEvent == NULL ) break;
+			fEventProcess[j]->EndOfEventProcess();
+		}
+		fOutputEvent = processedEvent;
+		if( processedEvent == NULL ) continue;
+
+
+		fOutputEventTree->Fill();
+
+		PrintProcessedEvents(100);
+	}
+
+	cout<<fOutputEventTree->GetEntries()<<" processed events"<<endl;
+
+	for( unsigned int i = 0; i < fEventProcess.size(); i++ )
+		fEventProcess[i]->EndProcess();
+
+	metadata.clear();
 }
 
 void TRestRun::OpenInputFile( TString fName )
@@ -175,25 +208,26 @@ void TRestRun::OpenInputFile( TString fName, TString cName )
     */
 }
 
-Bool_t TRestRun::isClass(TString className){
+Bool_t TRestRun::isClass( TString className )
+{
+	if( fInputFile == NULL ) { cout << "No input file" << endl; return kFALSE; }
 
-if( fInputFile == NULL){cout<<"No input file"<<endl;return kFALSE;}
+	TIter nextkey( fInputFile->GetListOfKeys() );
+	TKey *key;
+	while ( (key = (TKey*) nextkey() ) ) 
+	{
+		TString cName (key->GetName());
 
-TIter nextkey(fInputFile->GetListOfKeys());
-    TKey *key;
-    while ( (key = (TKey*)nextkey() ) ) {
-        TString cName (key->GetName());
+		if ( cName.Contains(className.Data()) )
+		{
+			cout << "className : " << cName << " target "<< className << endl;
+			return kTRUE;
+		}
+	}
 
-        
-        if ( cName.Contains(className.Data()) ){
-        cout << "className : " << cName << " target "<<className << endl;
-        return kTRUE;
-        }
-    }
+	cout << "Class " << className << " not found" << endl;
 
-cout<<"Class "<<className<<" not found"<<endl;
-
-return kFALSE;
+	return kFALSE;
 }
 
 

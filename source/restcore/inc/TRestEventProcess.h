@@ -35,7 +35,12 @@ class TRestEventProcess:public TRestMetadata {
    TRestEvent *fInputEvent;
    TRestEvent *fOutputEvent;
 
+#ifndef __CINT__
+   vector <TRestMetadata*> fRunMetadata;
+#endif
+
  private:
+
    virtual void LoadDefaultConfig()=0;
 
  public:
@@ -48,7 +53,9 @@ class TRestEventProcess:public TRestMetadata {
    virtual void BeginOfEventProcess() = 0;
    virtual void EndOfEventProcess() = 0;
    virtual TString GetProcessName() = 0;
+
    virtual TRestMetadata *GetMetadata() { return NULL; }
+   void SetMetadata( vector <TRestMetadata*> meta ) { fRunMetadata = meta; }
 
    void BeginPrintProcess()
    {
