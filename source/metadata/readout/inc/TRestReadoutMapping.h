@@ -44,6 +44,17 @@ class TRestReadoutMapping: public TObject {
         //Getters
         Bool_t isNodeSet( Int_t i, Int_t j );
         Bool_t AllNodesSet( );
+        Int_t GetNumberOfNodesNotSet( )
+        {
+            Int_t counter = 0;
+            for( int i = 0; i < fNodesX; i++ )
+                for( int j = 0; j < fNodesY; j++ )
+                {
+                    if( !isNodeSet( i, j ) ) counter++;
+                }
+            return counter;
+
+        }
 
         Int_t GetNodeX_ForChannelAndPixel( Int_t ch, Int_t px )
         {
