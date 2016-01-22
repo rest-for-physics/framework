@@ -184,11 +184,8 @@ class TRestRun:public TRestMetadata {
             //process->LoadConfigFromFile( cfgFilename );
             // Each proccess is responsible to implement GetMetadata so that TRestRun stores this metadata.
 
-            for( unsigned int i = 0; i < fEventProcess.size(); i++ ) 
-            {
-                TRestMetadata *meta = fEventProcess[i]->GetProcessMetadata();
-                if( meta != NULL ) this->AddMetadata( meta );
-            }
+            TRestMetadata *meta = process->GetProcessMetadata();
+            if( meta != NULL ) this->AddMetadata( meta );
 
             process->PrintMetadata( );
 
