@@ -28,11 +28,11 @@ ClassImp(TRestReadout)
 
 }
 
-TRestReadout::TRestReadout( char *cfgFileName) : TRestMetadata (cfgFileName)
+TRestReadout::TRestReadout( const char *cfgFileName) : TRestMetadata (cfgFileName)
 {
     Initialize();
 
-    LoadConfig( "readout", fConfigFileName );
+    LoadConfigFromFile( fConfigFileName );
 
     for( int i = 0; i < this->GetNumberOfModules(); i++ )
         this->GetReadoutModule(i)->DoReadoutMapping();
@@ -40,9 +40,8 @@ TRestReadout::TRestReadout( char *cfgFileName) : TRestMetadata (cfgFileName)
 
 void TRestReadout::Initialize()
 {
+    SetName("readout");
 }
-
-
 
 
 //______________________________________________________________________________

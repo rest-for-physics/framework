@@ -53,8 +53,12 @@ class TRestEventProcess:public TRestMetadata {
    virtual void BeginOfEventProcess() = 0;
    virtual void EndOfEventProcess() = 0;
    virtual TString GetProcessName() = 0;
+   virtual void LoadConfig( string cfgFilename )=0;
 
-   virtual TRestMetadata *GetMetadata() { return NULL; }
+   TRestMetadata *GetGasMetadata( );
+   TRestMetadata *GetReadoutMetadata( );
+
+   virtual TRestMetadata *GetProcessMetadata() { return NULL; }
    void SetMetadata( vector <TRestMetadata*> meta ) { fRunMetadata = meta; }
 
    void BeginPrintProcess()

@@ -56,6 +56,8 @@ class TRestSignalDeconvolutionProcess:public TRestEventProcess {
         void EndOfEventProcess(); 
         void EndProcess();
 
+        void LoadConfig( string cfgFilename );
+
         void PrintMetadata() 
         { 
             BeginPrintProcess();
@@ -75,7 +77,7 @@ class TRestSignalDeconvolutionProcess:public TRestEventProcess {
             EndPrintProcess();
         }
 
-        TRestMetadata *GetMetadata( ) { return NULL; }
+        TRestMetadata *GetProcessMetadata( ) { return NULL; }
 
         TString GetProcessName() { return (TString) "signalDeconvolution"; }
 

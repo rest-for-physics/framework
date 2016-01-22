@@ -36,7 +36,7 @@ TRestHitsToTrackProcess::TRestHitsToTrackProcess( char *cfgFileName )
 {
     Initialize();
 
-    if( LoadConfig( "hitsToTrackProcess", cfgFileName ) == -1 ) LoadDefaultConfig( );
+    if( LoadConfigFromFile( cfgFileName ) == -1 ) LoadDefaultConfig( );
     PrintMetadata();
 
     // TRestHitsToTrackProcess default constructor
@@ -63,6 +63,7 @@ void TRestHitsToTrackProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestHitsToTrackProcess::Initialize()
 {
+    SetName("hitsToTrackProcess");
 
     fClusterDistance = 1.;
 
@@ -71,6 +72,14 @@ void TRestHitsToTrackProcess::Initialize()
 
     fOutputEvent = fTrackEvent;
     fInputEvent  = fHitsEvent;
+}
+
+void TRestHitsToTrackProcess::LoadConfig( string cfgFilename )
+{
+
+    if( LoadConfigFromFile( cfgFilename ) == -1 ) LoadDefaultConfig( );
+    PrintMetadata();
+
 }
 
 //______________________________________________________________________________

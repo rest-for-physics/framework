@@ -31,11 +31,12 @@ TRestDecoding::TRestDecoding( char *cfgFileName) : TRestMetadata (cfgFileName)
 {
     Initialize();
     
-    LoadConfig( "decoding", fConfigFileName );
+    LoadConfigFromFile( fConfigFileName );
 }
 
 void TRestDecoding::Initialize()
 {
+    SetName( "decoding" );
 fReadoutChannelID.clear();
 fDaqChannelID.clear();
 }

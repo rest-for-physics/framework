@@ -23,9 +23,9 @@ Int_t RESTSIM_ElectronDiffusion( TString fName, char *cfgFilename )
 
     run->PrintInfo();
     
-    TRestElectronDiffusionProcess *eDiffProcess = new TRestElectronDiffusionProcess( cfgFilename );
+    TRestElectronDiffusionProcess *eDiffProcess = new TRestElectronDiffusionProcess( );
     
-    run->AddProcess( eDiffProcess );
+    run->AddProcess( eDiffProcess, cfgFilename );
 
     run->Start( );
 

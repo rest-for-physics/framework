@@ -44,7 +44,7 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
         Int_t FindModule( Double_t x, Double_t y );
         Int_t FindChannel( Int_t module, Double_t x, Double_t y );
 
-        TRestGas *GetGasFromRunMetadata( );
+ //       TRestGas *GetGasFromRunMetadata( );
         Double_t GetCathodePositionFromElectronDiffusionProcess( );
         Double_t GetElectricFieldFromElectronDiffusionProcess( );
 
@@ -54,6 +54,8 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
         TRestEvent *ProcessEvent( TRestEvent *eventInput );
         void EndOfEventProcess(); 
         void EndProcess();
+
+        void LoadConfig( string cfgFilename );
 
         void PrintMetadata() 
         {
@@ -66,7 +68,7 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
             EndPrintProcess();
         }
 
-        TRestMetadata *GetMetadata( ) { return fReadout; }
+        TRestMetadata *GetProcessMetadata( ) { return fReadout; }
 
         TString GetProcessName() { return (TString) "chargeSegmentation"; }
 

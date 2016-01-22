@@ -85,7 +85,7 @@ class TRestAFTERToSignalProcess:public TRestRawToSignalProcess {
    void InitProcess();
    TRestEvent *ProcessEvent( TRestEvent *evInput );
    TString GetProcessName(){ return (TString) "AFTERToSignal"; }
-   TRestMetadata *GetMetadata() { return NULL; }
+   TRestMetadata *GetProcessMetadata() { return NULL; }
    
    //Constructor
    TRestAFTERToSignalProcess();

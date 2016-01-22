@@ -33,13 +33,14 @@ TRestRun::TRestRun( char *cfgFileName) : TRestMetadata (cfgFileName)
 {
     Initialize();
 
-    LoadConfig( "run", fConfigFileName );
+    this->LoadConfigFromFile( fConfigFileName );
 
     SetVersion();
 }
 
 void TRestRun::Initialize()
 {
+    SetName( "run" );
     cout << __PRETTY_FUNCTION__ << endl;
 
     time_t  timev; time(&timev);
@@ -84,6 +85,15 @@ TRestRun::~TRestRun()
 
 void TRestRun::Start( )
 {
+    cout << "TRestRun::Start( ) is OBSOLETE. You should change your code to use ProcessAll( ) instead" << endl;
+
+    ProcessAll();
+
+}
+
+void TRestRun::ProcessAll( )
+{
+
 	fCurrentEvent=0;
 
 	if( fEventProcess.size() == 0 ) { cout << "WARNNING Run does not contain processes" << endl; return; }
@@ -99,31 +109,6 @@ void TRestRun::Start( )
 	this->ResetRunTimes();
 
 
-	// We give a pointer to the metadata stored in TRestRun to the processes. This metadata will be destroyed afterwards
-	// it is not intended for storage, just for the processes so that they are aware of all metadata information.
-	// If a process instantiates and produces new metadata it should have already passed it to TRestRun through eventProcess->GetMetadata in AddProcess.
-	// Each proccess is responsible to implement GetMetadata so that TRestRun stores this metadata.
-
-	vector <TRestMetadata*> metadata;
-	for( size_t i = 0; i < fMetadata.size(); i++ )
-		metadata.push_back( fMetadata[i] );
-	for( size_t i = 0; i < fHistoricMetadata.size(); i++ )
-		metadata.push_back( fHistoricMetadata[i] );
-	for( size_t i = 0; i < fEventProcess.size(); i++ )
-		metadata.push_back( fEventProcess[i] );
-	for( size_t i = 0; i < fHistoricEventProcess.size(); i++ )
-		metadata.push_back( fHistoricEventProcess[i] );
-
-	for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->SetMetadata( metadata );
-
-	if( debug > 0 )
-	{
-		cout << "Metadata given to processes" << endl;
-		cout << "---------------------------" << endl;
-		for( size_t i = 0; i < metadata.size(); i++ )
-			cout << metadata[i]->ClassName() << endl;
-		cout << "---------------------------" << endl;
-	}
 	//////////////////
 
 	
@@ -156,7 +141,6 @@ void TRestRun::Start( )
 	for( unsigned int i = 0; i < fEventProcess.size(); i++ )
 		fEventProcess[i]->EndProcess();
 
-	metadata.clear();
 }
 
 void TRestRun::OpenInputFile( TString fName )

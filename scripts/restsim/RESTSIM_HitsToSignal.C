@@ -25,9 +25,9 @@ Int_t RESTSIM_HitsToSignal( TString fName, char *cfgFilename )
 
     run->PrintInfo();
     
-    TRestHitsToSignalProcess *hitsToSignalProcess = new TRestHitsToSignalProcess( cfgFilename );
+    TRestHitsToSignalProcess *hitsToSignalProcess = new TRestHitsToSignalProcess( );
     
-    run->AddProcess( hitsToSignalProcess );
+    run->AddProcess( hitsToSignalProcess, cfgFilename );
 
     run->Start( );
 

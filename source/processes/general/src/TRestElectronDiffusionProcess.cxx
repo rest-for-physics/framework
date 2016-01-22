@@ -37,7 +37,7 @@ TRestElectronDiffusionProcess::TRestElectronDiffusionProcess( char *cfgFileName 
 {
     Initialize();
 
-    if( LoadConfig( "electronDiffusionProcess", cfgFileName ) ) LoadDefaultConfig( );
+    if( LoadConfigFromFile( cfgFileName ) ) LoadDefaultConfig( );
 
     PrintMetadata();
     fGas = new TRestGas( cfgFileName );
@@ -57,7 +57,6 @@ TRestElectronDiffusionProcess::~TRestElectronDiffusionProcess()
 
 void TRestElectronDiffusionProcess::LoadDefaultConfig()
 {
-    SetName( "electronDiffusionProcess-Default" );
     SetTitle( "Default config" );
 
     fCathodePosition = -1000;
@@ -73,6 +72,8 @@ void TRestElectronDiffusionProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::Initialize()
 {
+    SetName( "electronDiffusionProcess" );
+
     fCathodePosition = 0;
     fAnodePosition = 0;
     fElectricField = 0;
@@ -83,6 +84,15 @@ void TRestElectronDiffusionProcess::Initialize()
 
     fOutputEvent = fHitsEvent;
     fInputEvent = fG4Event;
+}
+
+void TRestElectronDiffusionProcess::LoadConfig( string cfgFilename )
+{
+    if( LoadConfigFromFile( cfgFilename ) ) LoadDefaultConfig( );
+
+    PrintMetadata();
+    fGas = new TRestGas( cfgFilename.c_str() );
+    fGas->PrintMetadata( );
 }
 
 //______________________________________________________________________________

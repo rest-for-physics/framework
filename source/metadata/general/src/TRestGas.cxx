@@ -49,11 +49,11 @@ TRestGas::TRestGas() : TRestMetadata( )
 }
 
 //______________________________________________________________________________
-TRestGas::TRestGas( char *cfgFileName, bool gasGeneration) : TRestMetadata (cfgFileName)
+TRestGas::TRestGas( const char *cfgFileName, bool gasGeneration) : TRestMetadata (cfgFileName)
 {
     Initialize( );
 
-    LoadConfig( "gas", fConfigFileName );
+    LoadConfigFromFile( fConfigFileName );
 
     fGasGeneration = gasGeneration;
 
@@ -70,6 +70,7 @@ TRestGas::~TRestGas()
 
 void TRestGas::Initialize()
 {
+    SetName( "gas" );
 
 	fPressureInAtm =1;
 	fTemperatureInK = 300;

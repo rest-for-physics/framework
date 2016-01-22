@@ -41,7 +41,7 @@ ClassImp(TRestMetadata)
 
 
 //______________________________________________________________________________
-TRestMetadata::TRestMetadata( char *cfgFileName)
+TRestMetadata::TRestMetadata( const char *cfgFileName)
 {
     // TRestMetadata constructor loading data from config file
     SetDefaultConfigFilePath();

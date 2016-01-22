@@ -55,7 +55,9 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    virtual void BeginOfEventProcess();
    virtual void EndOfEventProcess();
    virtual TString GetProcessName()=0;
-   TRestMetadata *GetMetadata() { return NULL; }
+   TRestMetadata *GetProcessMetadata() { return NULL; }
+
+   void LoadConfig( string cfgFilename );
    
    void PrintMetadata();
    

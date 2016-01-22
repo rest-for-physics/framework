@@ -51,6 +51,8 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
         void EndOfEventProcess(); 
         void EndProcess();
 
+        void LoadConfig( string cfgFilename );
+
         void PrintMetadata() { 
 
             BeginPrintProcess();
@@ -64,7 +66,7 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
 
         }
 
-        TRestMetadata *GetMetadata( ) { return fGas; }
+        TRestMetadata *GetProcessMetadata( ) { return fGas; }
 
         TString GetProcessName() { return (TString) "electronDiffusion"; }
 

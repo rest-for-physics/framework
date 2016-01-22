@@ -85,6 +85,7 @@ class TRestRun:public TRestMetadata {
     public:
         
         void Start();
+        void ProcessAll();
         
         Int_t GetNumberOfProcesses()
         {
@@ -146,18 +147,53 @@ class TRestRun:public TRestMetadata {
 
         void ResetRunTimes();
 	
-	Bool_t isClass(TString className);
+        Bool_t isClass(TString className);
 	
 	
         //Setters
 
         void AddMetadata( TRestMetadata *metadata ) { fMetadata.push_back( metadata ); }
         void AddHistoricMetadata( TRestMetadata *metadata ) { fHistoricMetadata.push_back( metadata ); }
-        void AddProcess( TRestEventProcess *process ) 
+        void AddProcess( TRestEventProcess *process, string cfgFilename ) 
         {
+
+            // We give a pointer to the metadata stored in TRestRun to the processes. This metadata will be destroyed afterwards
+            // it is not intended for storage, just for the processes so that they are aware of all metadata information.
+            // Each proccess is responsible to implement GetProcessMetadata so that TRestRun stores this metadata.
+
+            vector <TRestMetadata*> metadata;
+            for( size_t i = 0; i < fMetadata.size(); i++ )
+                metadata.push_back( fMetadata[i] );
+            for( size_t i = 0; i < fHistoricMetadata.size(); i++ )
+                metadata.push_back( fHistoricMetadata[i] );
+            for( size_t i = 0; i < fEventProcess.size(); i++ )
+                metadata.push_back( fEventProcess[i] );
+            for( size_t i = 0; i < fHistoricEventProcess.size(); i++ )
+                metadata.push_back( fHistoricEventProcess[i] );
+
+            process->SetMetadata( metadata );
+
+            cout << "Metadata given to process : " << process->GetName() << endl;
+            cout << "------------------------------------------------------" << endl;
+            for( size_t i = 0; i < metadata.size(); i++ )
+                cout << metadata[i]->ClassName() << endl;
+            cout << "---------------------------" << endl;
+
+            process->LoadConfig( cfgFilename );
+
+            //process->LoadConfigFromFile( cfgFilename );
+            // Each proccess is responsible to implement GetMetadata so that TRestRun stores this metadata.
+
+            for( unsigned int i = 0; i < fEventProcess.size(); i++ ) 
+            {
+                TRestMetadata *meta = fEventProcess[i]->GetProcessMetadata();
+                if( meta != NULL ) this->AddMetadata( meta );
+            }
+
+            process->PrintMetadata( );
+
             fEventProcess.push_back( process ); 
-            TRestMetadata *meta = process->GetMetadata();
-            if( meta != NULL ) this->AddMetadata( meta );
+
         }
 
         virtual void SetOutputEvent( TRestEvent *evt ) 

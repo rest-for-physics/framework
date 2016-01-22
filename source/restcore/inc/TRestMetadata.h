@@ -77,8 +77,11 @@ class TRestMetadata:public TNamed {
         virtual void Initialize() = 0;// { cout << __PRETTY_FUNCTION__ << endl; };
         Int_t LoadSectionMetadata( string section, string cfgFileName );
 
-        Int_t LoadConfig( string section, string cfgFileName )
+        Int_t LoadConfigFromFile( string cfgFileName )
         {
+            string section = GetName();
+            cout << "Section name : " << section << endl;
+
             Int_t result = LoadSectionMetadata( section, cfgFileName );
             if( result == 0 ) InitFromConfigFile();
             return result;
@@ -146,7 +149,7 @@ class TRestMetadata:public TNamed {
 
         //Constructor
         TRestMetadata();
-        TRestMetadata( char *cfgFileName);
+        TRestMetadata( const char *cfgFileName);
         //Destructor
         ~TRestMetadata();
 
