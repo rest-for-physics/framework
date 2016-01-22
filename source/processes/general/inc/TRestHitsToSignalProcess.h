@@ -70,7 +70,7 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
 
         TRestMetadata *GetProcessMetadata( ) { return fReadout; }
 
-        TString GetProcessName() { return (TString) "chargeSegmentation"; }
+        TString GetProcessName() { return (TString) "hitsToSignal"; }
 
         //Constructor
         TRestHitsToSignalProcess();
