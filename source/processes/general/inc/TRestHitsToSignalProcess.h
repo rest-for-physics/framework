@@ -22,7 +22,7 @@
 
 class TRestHitsToSignalProcess:public TRestEventProcess {
     private:
-        Int_t fSampling; // ms
+        Double_t fSampling; // us
         Double_t fCathodePosition;
         Double_t fElectricField;
 

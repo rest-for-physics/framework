@@ -25,6 +25,8 @@ using namespace std;
 using namespace std::chrono;
  */
 
+const double cmTomm = 10.;
+
 ClassImp(TRestHitsToSignalProcess)
     //______________________________________________________________________________
 TRestHitsToSignalProcess::TRestHitsToSignalProcess()
@@ -161,6 +163,7 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
         Double_t y = fHitsEvent->GetY( hit );
 
         Int_t mod = this->FindModule( x, y );
+
         if( mod >= 0 )
         {
         //    high_resolution_clock::time_point t1 = high_resolution_clock::now();
@@ -191,9 +194,9 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
                    */
 
                 Double_t energy = fHitsEvent->GetEnergy( hit );
-                Double_t time = fHitsEvent->GetZ( hit );
-
-                time = fSampling * (Int_t) (time/fSampling);
+                Double_t time = fHitsEvent->GetZ( hit ) - fCathodePosition;
+                time = time /(fGas->GetDriftVelocity( fElectricField ) * cmTomm );
+                time = fSampling * (Double_t) ( (Int_t) (time/fSampling) );
 
                 fSignalEvent->AddChargeToSignal( channelID, time, energy );
             }
