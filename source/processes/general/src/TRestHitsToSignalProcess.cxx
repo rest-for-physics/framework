@@ -13,7 +13,17 @@
 
 #include "TRestHitsToSignalProcess.h"
 
-#include <TRandom.h>
+//#include <TRandom.h>
+#include "TRestElectronDiffusionProcess.h"
+
+/* Chrono can be used for measuring time with better precision and test the time spent for different parts of the code
+   using high_resolution_clock 
+#include <iostream>
+#include <chrono>
+
+using namespace std;
+using namespace std::chrono;
+ */
 
 ClassImp(TRestHitsToSignalProcess)
     //______________________________________________________________________________
@@ -29,6 +39,8 @@ TRestHitsToSignalProcess::TRestHitsToSignalProcess( char *cfgFileName )
     Initialize();
 
     if( LoadConfig( "hitsToSignalProcess", cfgFileName ) == -1 ) LoadDefaultConfig( );
+
+    PrintMetadata();
 
     fReadout = new TRestReadout( cfgFileName );
 
@@ -50,8 +62,11 @@ void TRestHitsToSignalProcess::LoadDefaultConfig( )
     SetName( "hitsToSignalProcess-Default" );
     SetTitle( "Default config" );
 
+    cout << "Hits to signal metadata not found. Loading default values" << endl;
 
     fSampling = 1;
+    fCathodePosition = 0;
+    fElectricField = 1000;
 
 }
 
@@ -79,86 +94,117 @@ void TRestHitsToSignalProcess::InitProcess()
 
     if( fReadout == NULL ) cout << "REST ERRORRRR : Readout has not been initialized" << endl;
 
-    cout << __PRETTY_FUNCTION__ << endl;
+    fGas = GetGasFromRunMetadata( );
 
+    // TODO : if fGas is NULL we should instantiate TRestGas so that it gets it from the configuration file
+
+    if ( fElectricField == PARAMETER_NOT_FOUND_DBL )
+    {	
+        fElectricField = GetElectricFieldFromElectronDiffusionProcess( );
+        if( fElectricField != PARAMETER_NOT_FOUND_DBL ) cout << "Getting electric field from electronDiffusionProcess : " << fElectricField << " V/cm" << endl;
+        else { cout << "WARNING!!! : Electric field has NO value" << endl; getchar(); }
+    }
+
+    if ( fCathodePosition == PARAMETER_NOT_FOUND_DBL )
+    {
+        fCathodePosition = GetCathodePositionFromElectronDiffusionProcess( );
+        if( fCathodePosition != PARAMETER_NOT_FOUND_DBL ) cout << "Getting cathode position from electronDiffusionProcess : " << fCathodePosition << " mm" << endl;
+        else { cout << "WARNING!!! : Cathode position has NO value" << endl; getchar(); }
+    }
+
+    PrintMetadata();
+
+
+    /*
+       cout << "Name : " << fGas->GetName() << endl;
+       printf( "Drift velocity : %e\n",  fGas->GetDriftVelocity( fElectricField ) );
+       cout << "Electric field : " << fElectricField <<  endl;
+       cout << "Cathode position : " << fCathodePosition << endl;
+       getchar();
+       */
 }
 
 //______________________________________________________________________________
 void TRestHitsToSignalProcess::BeginOfEventProcess() 
 {
-    cout << "Begin of event process" << endl;
+    //cout << "Begin of event process" << endl;
     fSignalEvent->Initialize(); 
-
-    cout << "Number of signals : " << fSignalEvent->GetNumberOfSignals() << endl;
 }
 
-Int_t TRestHitsToSignalProcess::FindModuleAndChannel( Double_t x, Double_t y, Int_t &module, Int_t &channel )
+Int_t TRestHitsToSignalProcess::FindModule( Double_t x, Double_t y )
 {
     for ( int md = 0; md < fReadout->GetNumberOfModules(); md++ )
-    {
-        if( fReadout->GetReadoutModule( md )->isInside( x, y ) )
-            for( int ch = 0; ch < fReadout->GetReadoutModule( md )->GetNumberOfChannels(); ch++ )
-            {
-                if ( fReadout->GetReadoutModule( md )->isInsideChannel( ch, x , y ) )
-                {
-                    module = md;
-                    channel = ch;
-                    return 1;
-                }
-            }
-    }
-    return 0;
+        if( fReadout->GetReadoutModule( md )->isInside( x, y ) ) return md;
 
+    return -1;
 }
+
 
 //______________________________________________________________________________
 TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
 {
     fHitsEvent = (TRestHitsEvent *) evInput;
 
-    cout << "Event ID : " << fHitsEvent->GetEventID() << endl;
-    cout << "Number of hits : " << fHitsEvent->GetNumberOfHits() << endl;
+    /*
+       cout << "Event ID : " << fHitsEvent->GetEventID() << endl;
+       cout << "Number of hits : " << fHitsEvent->GetNumberOfHits() << endl;
+       cout << "--------------------------" << endl;
+       */
 
     fSignalEvent->SetEventTime( fHitsEvent->GetEventTime() );
     fSignalEvent->SetEventID( fHitsEvent->GetEventID() );
 
-    Int_t mod = -1;
-    Int_t chnl = -1;
 
     for( int hit = 0; hit < fHitsEvent->GetNumberOfHits(); hit++ )
     {
         Double_t x = fHitsEvent->GetX( hit );
         Double_t y = fHitsEvent->GetY( hit );
 
-        if( FindModuleAndChannel( x, y, mod, chnl ) )
+        Int_t mod = this->FindModule( x, y );
+        if( mod >= 0 )
         {
-            Int_t channelID = 0;
-            for( int n = 0; n < mod-1; n++ )
-                channelID += fReadout->GetReadoutModule(n)->GetNumberOfChannels();
-            channelID += chnl;
+        //    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+            Int_t chnl = fReadout->GetReadoutModule( mod )->FindChannel( x, y );
+        //    high_resolution_clock::time_point t2 = high_resolution_clock::now();
 
-            /* This is now done internally in TRestSignalEvent
-            if ( !fSignalEvent->signalIDExists( channelID ) )
-            {
-                TRestSignal sgnl;
-                sgnl.SetSignalID( channelID );
-                fSignalEvent->AddSignal( sgnl );
-            }
+            /*
+            auto duration = duration_cast<microseconds>( t2 - t1 ).count();
+            cout << duration << " us" << endl;
+            getchar();
             */
+            if( chnl >= 0 )
+            {
+                Int_t channelID = 0;
+                for( int n = 0; n < mod-1; n++ )
+                    channelID += fReadout->GetReadoutModule(n)->GetNumberOfChannels();
+                channelID += chnl;
 
-            Double_t energy = fHitsEvent->GetEnergy( hit );
-            Double_t time = fHitsEvent->GetZ( hit );
+                //cout << "Hit found in channel : " << chnl << " chID : " << channelID << endl;
 
-            time = fSampling * (Int_t) (time/fSampling);
+                /* This is now done internally in TRestSignalEvent
+                   if ( !fSignalEvent->signalIDExists( channelID ) )
+                   {
+                   TRestSignal sgnl;
+                   sgnl.SetSignalID( channelID );
+                   fSignalEvent->AddSignal( sgnl );
+                   }
+                   */
 
-            fSignalEvent->AddChargeToSignal( channelID, time, energy );
+                Double_t energy = fHitsEvent->GetEnergy( hit );
+                Double_t time = fHitsEvent->GetZ( hit );
+
+                time = fSampling * (Int_t) (time/fSampling);
+
+                fSignalEvent->AddChargeToSignal( channelID, time, energy );
+            }
         }
     }
 
     fSignalEvent->SortSignals();
 
- //   fSignalEvent->PrintEvent();
+    //fSignalEvent->PrintEvent();
 
+    //cout << "Number of signals inside event : " << fSignalEvent->GetNumberOfSignals() << endl;
 
     return fSignalEvent;
 }
@@ -183,6 +229,44 @@ void TRestHitsToSignalProcess::EndProcess()
 //______________________________________________________________________________
 void TRestHitsToSignalProcess::InitFromConfigFile( )
 {
-    cout << __PRETTY_FUNCTION__ << " --> TOBE implemented" << endl;
+    fSampling = StringToDouble( GetParameter( "sampling" ) );
+    fCathodePosition = StringToDouble( GetParameter( "cathodePosition" ) );
+    fElectricField = StringToDouble( GetParameter( "electricField" )  );
 
+}
+
+TRestGas *TRestHitsToSignalProcess::GetGasFromRunMetadata( )
+{
+    // For the moment this function will return the first occurence of TRestGas.
+    // What happens if there are several? And if I want to use one gas from the config file? 
+    // We need to introduce an option somewhere.
+    // For the moment I know there will be an existing gas file since the hits come from electronDiffusion.
+
+    for( size_t i = 0; i < fRunMetadata.size(); i++ )
+        if ( fRunMetadata[i]->ClassName() == (TString) "TRestGas" )
+        {
+            ((TRestGas *) fRunMetadata[i])->LoadGasFile();
+            return (TRestGas *) fRunMetadata[i];
+        }
+
+    return NULL;
+}
+
+Double_t TRestHitsToSignalProcess::GetCathodePositionFromElectronDiffusionProcess( )
+{
+    for( size_t i = 0; i < fRunMetadata.size(); i++ )
+        if ( fRunMetadata[i]->ClassName() == (TString) "TRestElectronDiffusionProcess" )
+            return ((TRestElectronDiffusionProcess *) fRunMetadata[i])->GetCathodePosition();
+
+    return PARAMETER_NOT_FOUND_DBL;
+
+}
+
+Double_t TRestHitsToSignalProcess::GetElectricFieldFromElectronDiffusionProcess( )
+{
+    for( size_t i = 0; i < fRunMetadata.size(); i++ )
+        if ( fRunMetadata[i]->ClassName() == (TString) "TRestElectronDiffusionProcess" )
+            return ((TRestElectronDiffusionProcess *) fRunMetadata[i])->GetElectricField();
+
+    return PARAMETER_NOT_FOUND_DBL;
 }

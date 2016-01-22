@@ -707,7 +707,7 @@ string TRestMetadata::GetParameter( string parName, size_t &pos, string inputStr
     return "";
 }
 
-string TRestMetadata::GetParameter( string parName )
+string TRestMetadata::GetParameter( string parName, TString defaultValue )
 {
     // TODO : this can be probably removed since now we store only the section on configBuffer
     // TODO : It can be useful a GetParameter( string parName, string sectionBuffer )
@@ -747,8 +747,9 @@ string TRestMetadata::GetParameter( string parName )
     }
     debug = 0;
 
-    cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
-    return "";
+    cout << "Parameter (" << parName << ") NOT found" << endl;
+    cout << "Returning default value (" << defaultValue << ")" << endl;
+    return defaultValue.Data();
 }
 
 // gets the field from parName <key --- parName="XX" --- >
@@ -1014,7 +1015,7 @@ Int_t TRestMetadata::FindSection( string buffer, size_t startPos )
             TString name = GetFieldValue( "name", tmp );
             TString title = GetFieldValue( "title", tmp );
 
-            if( name == "Not defined" ) cout << "Section name not defined!" << endl;
+ //           if( name == "Not defined" ) cout << "Section name " << fSectionName << " not defined!" << endl;
             this->SetName ( name );
             this->SetTitle( title );
 

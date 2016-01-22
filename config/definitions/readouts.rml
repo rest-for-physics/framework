@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
 <section readout name="Readout-PANDA_3MM_v1" title="PANDA readout definition" >
-    <myParameter name="nChannels" value="16" />
+    <myParameter name="nChannels" value="64" />
     <myParameter name="pitch" value="3" />
     <myParameter name="pixelSize" value="3./sqrt(2.)" />
     <myParameter name="offset" value="3.5" />
@@ -9,7 +9,7 @@
 
     <for variable="modX" from="1" to="2" step="1" />
         <for variable="modY" from="1" to="2" step="1" />
-        <readoutModule id="[mod]" plane="0" origin="(200*([modX]-1),200*([modY]-1))" rotation="0" size="(17*pitch-pitch/4,17*pitch-pitch/2-pitch/4)" >
+        <readoutModule id="[modX]" plane="0" origin="(200*([modX]-1),200*([modY]-1))" rotation="0" size="((nChannels+1)*pitch-1*pitch/2,(nChannels+1)*pitch-pitch/2-pitch/4)" >
             //////////////////////////////////
             // Y-strips
             <for variable="nCh" from="0" to="nChannels-1" step="1" />
@@ -263,5 +263,4 @@
         </for>
     </for>
 </section>
-   
-    
+

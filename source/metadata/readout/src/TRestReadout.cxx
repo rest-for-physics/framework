@@ -33,6 +33,9 @@ TRestReadout::TRestReadout( char *cfgFileName) : TRestMetadata (cfgFileName)
     Initialize();
 
     LoadConfig( "readout", fConfigFileName );
+
+    for( int i = 0; i < this->GetNumberOfModules(); i++ )
+        this->GetReadoutModule(i)->DoReadoutMapping();
 }
 
 void TRestReadout::Initialize()
@@ -55,7 +58,6 @@ void TRestReadout::InitFromConfigFile()
 
     size_t position = 0;
     string moduleString;
-
 
     while( ( moduleString = GetKEYStructure( "readoutModule", position ) ) != "NotFound" )
     {

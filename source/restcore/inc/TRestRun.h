@@ -64,9 +64,8 @@ class TRestRun:public TRestMetadata {
         vector <TRestEventProcess*> fEventProcess;
         vector <TRestMetadata*> fHistoricMetadata;  // Open input file should store the metadata (and historic) information in historic metadata
         vector <TRestEventProcess*> fHistoricEventProcess;
-#ifndef __CINT__
 
-        
+#ifndef __CINT__
         TTree *fInputEventTree;
         TTree *fOutputEventTree;
 

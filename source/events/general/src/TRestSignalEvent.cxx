@@ -120,13 +120,12 @@ TPad *TRestSignalEvent::DrawEvent()
         return NULL;
     }
 
-<<<<<<< HEAD
-fGr = new TGraph[nSignals];
+    fGr = new TGraph[nSignals];
 
-int c;
+    int c;
 
-double maxX=-1E10,minX=1E10,maxY=-1E10,minY=1E10;
-double x,y;
+    double maxX=-1E10,minX=1E10,maxY=-1E10,minY=1E10;
+    double x,y;
 
 
     for(int i=0;i<nSignals;i++){
