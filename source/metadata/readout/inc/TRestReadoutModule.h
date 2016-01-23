@@ -107,6 +107,8 @@ class TRestReadoutModule : public TObject {
 
         Double_t GetModuleRotation() { return fModuleRotation; }
 
+        TRestReadoutMapping *GetMapping( ) { return &fMapping; }
+
         TRestReadoutChannel *GetChannelByID( int id );
         TRestReadoutChannel *GetChannel( int n ) { return &fReadoutChannel[n]; }
 
