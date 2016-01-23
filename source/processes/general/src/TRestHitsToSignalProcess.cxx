@@ -233,7 +233,7 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
                 Double_t energy = fHitsEvent->GetEnergy( hit );
                 Double_t time = fHitsEvent->GetZ( hit ) - fCathodePosition;
                 time = time /(fGas->GetDriftVelocity( fElectricField ) * cmTomm );
-                time = fSampling * (Double_t) ( (Int_t) (time/fSampling) );
+                time = ( (Int_t) (time/fSampling) );
 
                 fSignalEvent->AddChargeToSignal( channelID, time, energy );
             }
