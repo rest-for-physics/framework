@@ -62,7 +62,6 @@ class TRestMetadata:public TNamed {
         string GetKEYDefinition( string keyName, size_t &fromPosition, string buffer );
         string GetKEYDefinition( string keyName, size_t &fromPosition );
 
-	string GetParameter( string parName, TString defaultValue = PARAMETER_NOT_FOUND_STR );
         string GetParameter( string parName, size_t &pos, string inputString );
         string GetMyParameter( string &value, size_t &pos );
 
@@ -127,6 +126,10 @@ class TRestMetadata:public TNamed {
         Int_t FindEndSection( Int_t initPos );
 
         TString GetMainDataPath() { return fDataPath; }
+
+        string GetParameter( string parName, TString defaultValue = PARAMETER_NOT_FOUND_STR );
+
+        void PrintConfigBuffer( ) { cout << configBuffer << endl; }
         
         // String helper classes. Declared static to be able to access them without having to instantiate TRestMetadata.
         // Probably they should be in a different class (i.e. TRestStrings)

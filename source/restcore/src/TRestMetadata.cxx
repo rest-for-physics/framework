@@ -738,7 +738,9 @@ string TRestMetadata::GetParameter( string parName, TString defaultValue )
 
         if( parameterString.find( parName ) != string::npos )
         {
-            return GetFieldValue( "value", parameterString );
+            string value = GetFieldValue( "value", parameterString );
+            if( value == "" ) return defaultValue.Data();
+            else return value;
         }
         else
         {
