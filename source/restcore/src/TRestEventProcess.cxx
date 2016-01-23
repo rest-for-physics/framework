@@ -67,6 +67,19 @@ TRestMetadata *TRestEventProcess::GetReadoutMetadata( )
     return NULL;
 }
 
+Double_t TRestEventProcess::GetDoubleParameterFromClass( TString className, TString parName )
+{
+    for( size_t i = 0; i < fRunMetadata.size(); i++ )
+        if ( fRunMetadata[i]->ClassName() == className )
+        {
+ //           cout << "String parameter : " << fRunMetadata[i]->GetParameter( (string) parName ) << endl;
+ //           fRunMetadata[i]->PrintConfigBuffer( );
+            return StringToDouble( fRunMetadata[i]->GetParameter( (string) parName ) );
+        }
+
+    return PARAMETER_NOT_FOUND_DBL;
+}
+
 /*
 //______________________________________________________________________________
 void TRestEventProcess::InitProcess()

@@ -31,8 +31,7 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
         TRestSignalEvent *fSignalEvent;
 
         TRestReadout *fReadout;
-
-	TRestGas *fGas;
+        TRestGas *fGas;
 #endif
 
         void InitFromConfigFile();
@@ -43,10 +42,6 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
 
         Int_t FindModule( Double_t x, Double_t y );
         Int_t FindChannel( Int_t module, Double_t x, Double_t y );
-
- //       TRestGas *GetGasFromRunMetadata( );
-        Double_t GetCathodePositionFromElectronDiffusionProcess( );
-        Double_t GetElectricFieldFromElectronDiffusionProcess( );
 
     public:
         void InitProcess();

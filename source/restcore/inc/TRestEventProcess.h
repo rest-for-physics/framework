@@ -57,6 +57,7 @@ class TRestEventProcess:public TRestMetadata {
 
    TRestMetadata *GetGasMetadata( );
    TRestMetadata *GetReadoutMetadata( );
+   Double_t GetDoubleParameterFromClass( TString className, TString parName );
 
    virtual TRestMetadata *GetProcessMetadata() { return NULL; }
    void SetMetadata( vector <TRestMetadata*> meta ) { fRunMetadata = meta; }
