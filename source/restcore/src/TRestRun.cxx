@@ -119,6 +119,7 @@ void TRestRun::ProcessAll( )
 	while( this->GetNextEvent() )
 	{
 		processedEvent = fInputEvent;
+        cout << processedEvent << endl;
 
 		for( unsigned int j = 0; j < fEventProcess.size(); j++ )
 		{
@@ -197,7 +198,7 @@ void TRestRun::SetInputEvent( TRestEvent *evt )
 
     TString treeName = (TString) evt->GetName() + " Tree";
 
-    if( GetObjectKey( treeName ) == NULL )
+    if( GetObjectKeyByName( treeName ) == NULL )
     {
         cout << "REST ERROR (SetInputEvent) : " << treeName << " was not found" << endl;
         return;
@@ -233,7 +234,7 @@ Bool_t TRestRun::isClass( TString className )
 	return kFALSE;
 }
 
-TKey *TRestRun::GetObjectKey( TString className )
+TKey *TRestRun::GetObjectKeyByClass( TString className )
 {
     if( fInputFile == NULL ) { cout << "REST ERROR (GetObjectKey) : No file open" << endl; return NULL; }
 
@@ -250,6 +251,23 @@ TKey *TRestRun::GetObjectKey( TString className )
 
 }
 
+TKey *TRestRun::GetObjectKeyByName( TString name )
+{
+    if( fInputFile == NULL ) { cout << "REST ERROR (GetObjectKey) : No file open" << endl; return NULL; }
+
+    TIter nextkey(fInputFile->GetListOfKeys());
+    TKey *key;
+    while ( (key = (TKey*)nextkey() ) ) {
+
+        string kName = key->GetName();
+
+        if ( kName == name ) return key;
+    }
+    cout << "REST ERROR (GetObjectKey) : " << name << " was not found" << endl;
+    return NULL;
+
+}
+
 void TRestRun::OpenInputFile( TString fName )
 {
     if( fInputFile != NULL ) fInputFile->Close();
@@ -261,7 +279,7 @@ void TRestRun::OpenInputFile( TString fName )
 
     fInputFile = new TFile( fName );
 
-    TKey *key = GetObjectKey( "TRestRun" );
+    TKey *key = GetObjectKeyByClass( "TRestRun" );
     this->Read( key->GetName() );
 
     /*

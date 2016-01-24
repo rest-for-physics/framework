@@ -82,7 +82,8 @@ class TRestRun:public TRestMetadata {
         TGeoManager *fGeometry;
 
         void SetRunFilenameAndIndex();
-        TKey *GetObjectKey( TString className );
+        TKey *GetObjectKeyByClass( TString className );
+        TKey *GetObjectKeyByName( TString name );
 
     public:
         
