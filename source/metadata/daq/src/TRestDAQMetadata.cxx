@@ -31,7 +31,7 @@ TRestDAQMetadata::TRestDAQMetadata( char *cfgFileName) : TRestMetadata (cfgFileN
 {
     Initialize();
     
-    LoadConfig( "daq", fConfigFileName );
+    LoadConfigFromFile( fConfigFileName );
     
     SetScriptsBuffer( );
     SetParFromPedBuffer( );
@@ -41,6 +41,7 @@ TRestDAQMetadata::TRestDAQMetadata( char *cfgFileName) : TRestMetadata (cfgFileN
 void TRestDAQMetadata::Initialize()
 {
 
+    SetName( "daq" );
 
 
 }

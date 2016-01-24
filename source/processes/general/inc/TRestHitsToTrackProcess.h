@@ -43,6 +43,8 @@ class TRestHitsToTrackProcess:public TRestEventProcess {
         void EndProcess();
         void LoadDefaultConfig( );
 
+        void LoadConfig( string cfgFilename );
+
         void PrintMetadata() { 
 
             BeginPrintProcess();

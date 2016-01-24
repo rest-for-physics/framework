@@ -98,7 +98,7 @@ void TRestReadoutModule::DoReadoutMapping( )
                     {
                         if( isInsidePixel( ch, px, x + fModuleOriginX, y + fModuleOriginY ) ) 
                         {
-                            if( debug ) cout << "Setting node " << i << " , " << j << " : " << " Channel : " << ch << " pixel : " << px << endl;
+                            //if( debug ) cout << "Setting node " << i << " , " << j << " : " << " Channel : " << ch << " pixel : " << px << endl;
                             fMapping.SetNode( i, j, ch,  px );
                         }
                     }

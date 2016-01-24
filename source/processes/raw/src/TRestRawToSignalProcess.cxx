@@ -34,7 +34,7 @@ TRestRawToSignalProcess::TRestRawToSignalProcess(char *cfgFileName)
 {
  Initialize();
  
- if( LoadConfig( "daq", cfgFileName ) ) LoadDefaultConfig( );
+ if( LoadConfigFromFile( cfgFileName ) ) LoadDefaultConfig( );
  PrintMetadata();  
   
 }
@@ -44,19 +44,26 @@ TRestRawToSignalProcess::TRestRawToSignalProcess(char *cfgFileName)
 TRestRawToSignalProcess::~TRestRawToSignalProcess()
 {
    // TRestRawToSignalProcess destructor
+} 
+
+void TRestRawToSignalProcess::LoadConfig( string cfgFilename )
+{
+    if( LoadConfigFromFile( cfgFilename ) ) LoadDefaultConfig( );
+    PrintMetadata();  
 }
 
 //______________________________________________________________________________
 void TRestRawToSignalProcess::Initialize()
 {
-   fSignalEvent = new TRestSignalEvent( );
-   
-   fRunNumber=-1;
-   fRunIndex=-1;
-   
-   fInputEvent = NULL;
-   fOutputEvent = fSignalEvent;
-   fInputBinFile = NULL;
+    SetName( "daq" );
+    fSignalEvent = new TRestSignalEvent( );
+
+    fRunNumber=-1;
+    fRunIndex=-1;
+
+    fInputEvent = NULL;
+    fOutputEvent = fSignalEvent;
+    fInputBinFile = NULL;
 }
 
 void TRestRawToSignalProcess::BeginOfEventProcess() 

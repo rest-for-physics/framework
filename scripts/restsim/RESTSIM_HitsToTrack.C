@@ -24,9 +24,9 @@ Int_t RESTSIM_HitsToTrack( TString fName, char *cfgFilename )
 
     run->PrintInfo();
     
-    TRestHitsToTrackProcess *hitsToTrackProcess = new TRestHitsToTrackProcess( cfgFilename );
+    TRestHitsToTrackProcess *hitsToTrackProcess = new TRestHitsToTrackProcess( );
     
-    run->AddProcess( hitsToTrackProcess );
+    run->AddProcess( hitsToTrackProcess, cfgFilename );
 
     run->Start( );
 

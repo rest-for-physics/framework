@@ -40,6 +40,7 @@ class TRestRun:public TRestMetadata {
         void InitFromConfigFile();
         void SetVersion();
 
+
         virtual void Initialize();
 
     protected:
@@ -81,16 +82,15 @@ class TRestRun:public TRestMetadata {
         TGeoManager *fGeometry;
 
         void SetRunFilenameAndIndex();
+        TKey *GetObjectKeyByClass( TString className );
+        TKey *GetObjectKeyByName( TString name );
 
     public:
         
         void Start();
+        void ProcessAll();
         
-        Int_t GetNumberOfProcesses()
-        {
-            return fEventProcess.size();
-
-        }
+        Int_t GetNumberOfProcesses() { return fEventProcess.size(); }
 
         // File input/output
         void OpenOutputFile( );
@@ -146,45 +146,19 @@ class TRestRun:public TRestMetadata {
 
         void ResetRunTimes();
 	
-	Bool_t isClass(TString className);
+        Bool_t isClass(TString className);
 	
 	
         //Setters
 
         void AddMetadata( TRestMetadata *metadata ) { fMetadata.push_back( metadata ); }
         void AddHistoricMetadata( TRestMetadata *metadata ) { fHistoricMetadata.push_back( metadata ); }
-        void AddProcess( TRestEventProcess *process ) 
-        {
-            fEventProcess.push_back( process ); 
-            TRestMetadata *meta = process->GetMetadata();
-            if( meta != NULL ) this->AddMetadata( meta );
-        }
+        void AddProcess( TRestEventProcess *process, string cfgFilename );
 
-        virtual void SetOutputEvent( TRestEvent *evt ) 
-        { 
-            fOutputEvent = evt;
-            TString treeName = (TString) evt->GetName() + " Tree";
-            fOutputEventTree->SetName( treeName );
-            fOutputEventTree->Branch("eventBranch", evt->GetClassName(), fOutputEvent);
-        }
-
-        virtual void SetInputEvent( TRestEvent *evt ) 
-        { 
-            fInputEvent = evt;
-	    
-	    if(evt==NULL)return;
-	    
-            TString treeName = (TString) evt->GetName() + " Tree";
-            fInputEventTree = (TTree * ) fInputFile->Get( treeName );
-
-            TBranch *br = fInputEventTree->GetBranch( "eventBranch" );
-
-            br->SetAddress( &fInputEvent );
-            
-        }
-
+        virtual void SetOutputEvent( TRestEvent *evt );
+        virtual void SetInputEvent( TRestEvent *evt );
 	
-	Bool_t GetNextEvent( );
+        Bool_t GetNextEvent( );
 	
         // Printers
         void PrintStartDate();

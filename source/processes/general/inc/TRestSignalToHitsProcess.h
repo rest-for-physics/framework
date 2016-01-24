@@ -5,13 +5,13 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestHitsToSignalProcess.h
+///             TRestSignalToHitsProcess.h
 ///
 ///_______________________________________________________________________________
 
 
-#ifndef RestCore_TRestHitsToSignalProcess
-#define RestCore_TRestHitsToSignalProcess
+#ifndef RestCore_TRestSignalToHitsProcess
+#define RestCore_TRestSignalToHitsProcess
 
 #include <TRestGas.h>
 #include <TRestReadout.h>
@@ -20,11 +20,12 @@
 
 #include "TRestEventProcess.h"
 
-class TRestHitsToSignalProcess:public TRestEventProcess {
+class TRestSignalToHitsProcess:public TRestEventProcess {
     private:
         Double_t fSampling; // us
-        Double_t fCathodePosition;
-        Double_t fElectricField;
+        Double_t fAnodePosition; //mm
+        Double_t fCathodePosition; //mm
+        Double_t fElectricField; // V/cm
 
 #ifndef __CINT__
         TRestHitsEvent *fHitsEvent;
@@ -40,9 +41,6 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
 
         void LoadDefaultConfig();
 
-        Int_t FindModule( Double_t x, Double_t y );
-        Int_t FindChannel( Int_t module, Double_t x, Double_t y );
-
     public:
         void InitProcess();
         void BeginOfEventProcess(); 
@@ -56,24 +54,25 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
         {
             BeginPrintProcess();
 
-            cout << "Sampling : " << fSampling << " us" << endl;
+            cout << "Sampling rate : " << fSampling << " mm" << endl;
+            cout << "Anode position : " << fAnodePosition << " mm" << endl;
             cout << "Cathode position : " << fCathodePosition << " mm" << endl;
             cout << "Electric field : " << fElectricField << " V/cm" << endl;
 
             EndPrintProcess();
         }
 
-        TRestMetadata *GetProcessMetadata( ) { return fReadout; }
+        TRestMetadata *GetMetadata( ) { return fReadout; }
 
-        TString GetProcessName() { return (TString) "hitsToSignal"; }
+        TString GetProcessName() { return (TString) "signalToHits"; }
 
         //Constructor
-        TRestHitsToSignalProcess();
-        TRestHitsToSignalProcess( char *cfgFileName );
+        TRestSignalToHitsProcess();
+        TRestSignalToHitsProcess( char *cfgFileName );
         //Destructor
-        ~TRestHitsToSignalProcess();
+        ~TRestSignalToHitsProcess();
 
-        ClassDef(TRestHitsToSignalProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+        ClassDef(TRestSignalToHitsProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
 };
 #endif
 

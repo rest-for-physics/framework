@@ -35,6 +35,51 @@ TRestEventProcess::~TRestEventProcess()
    // TRestEventProcess destructor
 }
 
+TRestMetadata *TRestEventProcess::GetGasMetadata( )
+{
+    // TODO : For the moment this function will return the first occurence of TRestGas.
+    // What happens if there are several? And if I want to use one gas from the config file? 
+    // We need to introduce an option somewhere.
+    // For the moment I know there will be an existing gas file since the hits come from electronDiffusion.
+
+    for( size_t i = 0; i < fRunMetadata.size(); i++ )
+        if ( fRunMetadata[i]->ClassName() == (TString) "TRestGas" )
+        {
+            return fRunMetadata[i];
+        }
+
+    return NULL;
+}
+
+TRestMetadata *TRestEventProcess::GetReadoutMetadata( )
+{
+    // TODO : For the moment this function will return the first occurence of TRestReadout.
+    // What happens if there are several? And if I want to use one gas from the config file? 
+    // We need to introduce an option somewhere.
+    // For the moment I know there will be an existing gas file since the hits come from electronDiffusion.
+
+    for( size_t i = 0; i < fRunMetadata.size(); i++ )
+        if ( fRunMetadata[i]->ClassName() == (TString) "TRestReadout" )
+        {
+            return fRunMetadata[i];
+        }
+
+    return NULL;
+}
+
+Double_t TRestEventProcess::GetDoubleParameterFromClass( TString className, TString parName )
+{
+    for( size_t i = 0; i < fRunMetadata.size(); i++ )
+        if ( fRunMetadata[i]->ClassName() == className )
+        {
+ //           cout << "String parameter : " << fRunMetadata[i]->GetParameter( (string) parName ) << endl;
+ //           fRunMetadata[i]->PrintConfigBuffer( );
+            return StringToDouble( fRunMetadata[i]->GetParameter( (string) parName ) );
+        }
+
+    return PARAMETER_NOT_FOUND_DBL;
+}
+
 /*
 //______________________________________________________________________________
 void TRestEventProcess::InitProcess()

@@ -28,11 +28,11 @@ ClassImp(TRestReadout)
 
 }
 
-TRestReadout::TRestReadout( char *cfgFileName) : TRestMetadata (cfgFileName)
+TRestReadout::TRestReadout( const char *cfgFileName) : TRestMetadata (cfgFileName)
 {
     Initialize();
 
-    LoadConfig( "readout", fConfigFileName );
+    LoadConfigFromFile( fConfigFileName );
 
     for( int i = 0; i < this->GetNumberOfModules(); i++ )
         this->GetReadoutModule(i)->DoReadoutMapping();
@@ -40,9 +40,8 @@ TRestReadout::TRestReadout( char *cfgFileName) : TRestMetadata (cfgFileName)
 
 void TRestReadout::Initialize()
 {
+    SetName("readout");
 }
-
-
 
 
 //______________________________________________________________________________
@@ -133,6 +132,108 @@ void TRestReadout::InitFromConfigFile()
     }
 
         this->PrintReadout();
+}
+
+Int_t TRestReadout::GetNumberOfChannels( ) 
+{
+    Int_t nChannels = 0;
+    for( int md = 0; md < GetNumberOfModules(); md++ )
+        nChannels += GetReadoutModule(md)->GetNumberOfChannels();
+    return nChannels;
+}
+
+TRestReadoutModule *TRestReadout::GetModuleByID( Int_t modID )
+{
+
+    for( int md = 0; md < GetNumberOfModules(); md++ )
+        if( this->GetModule( md )->GetModuleID() == modID )
+            return this->GetModule( md );
+
+    cout << "REST ERROR (GetReadoutModuleByID) : Module ID : " << modID << " was not found" << endl;
+    return NULL;
+}
+
+TRestReadoutChannel *TRestReadout::GetChannelByID( Int_t modID, Int_t chID )
+{
+    TRestReadoutModule *module = GetModuleByID( modID );
+
+    for( int ch = 0; ch < module->GetNumberOfChannels(); ch++ )
+        if( module->GetChannel( ch )->GetID() == chID )
+            return module->GetChannel( ch );
+
+    cout << "REST ERROR (GetReadoutChannel) : Channel ID " << chID << " Module ID : " << modID << " was not found" << endl;
+    return NULL;
+}
+
+Double_t TRestReadout::GetX( Int_t modID, Int_t chID )
+{
+    TRestReadoutModule *rModule = GetModuleByID( modID );
+    Double_t xOrigin = rModule->GetModuleOriginX();
+
+    TRestReadoutChannel *rChannel = GetChannelByID( modID, chID );
+
+    Double_t x = 0;
+
+    if( rChannel->GetNumberOfPixels() == 1 )
+         x = xOrigin + rChannel->GetPixel(0)->GetCenter().X();
+
+    if( rChannel->GetNumberOfPixels() > 1 )
+    {
+
+        Double_t x1 = rChannel->GetPixel(0)->GetCenter().X();
+        Double_t x2 = rChannel->GetPixel(1)->GetCenter().X();
+
+        Double_t y1 = rChannel->GetPixel(0)->GetCenter().Y();
+        Double_t y2 = rChannel->GetPixel(1)->GetCenter().Y();
+
+        Double_t deltaX, deltaY;
+
+        if( x2 - x1 > 0 ) deltaX = x2 - x1;
+        else deltaX = x1 - x2;
+
+        if( y2 - y1 > 0 ) deltaY = y2 - y1;
+        else deltaX = y1 - y2;
+        
+        if( deltaY > deltaX ) x = xOrigin + rChannel->GetPixel(0)->GetCenter().X();
+    }
+
+    return x;
+}
+
+Double_t TRestReadout::GetY( Int_t modID, Int_t chID )
+{
+    TRestReadoutModule *rModule = GetModuleByID( modID );
+    Double_t yOrigin = rModule->GetModuleOriginY();
+
+    TRestReadoutChannel *rChannel = GetChannelByID( modID, chID );
+
+    Double_t y = 0;
+
+    if( rChannel->GetNumberOfPixels() == 1 )
+        y = yOrigin + rChannel->GetPixel(0)->GetCenter().Y();
+
+    if( rChannel->GetNumberOfPixels() > 1 )
+    {
+
+        Double_t x1 = rChannel->GetPixel(0)->GetCenter().X();
+        Double_t x2 = rChannel->GetPixel(1)->GetCenter().X();
+
+        Double_t y1 = rChannel->GetPixel(0)->GetCenter().Y();
+        Double_t y2 = rChannel->GetPixel(1)->GetCenter().Y();
+
+        Double_t deltaX, deltaY;
+
+        if( x2 - x1 > 0 ) deltaX = x2 - x1;
+        else deltaX = x1 - x2;
+
+        if( y2 - y1 > 0 ) deltaY = y2 - y1;
+        else deltaX = y1 - y2;
+        
+        if( deltaY < deltaX ) y = yOrigin + rChannel->GetPixel(0)->GetCenter().Y();
+    }
+
+
+    return y;
 }
 
 void TRestReadout::PrintReadout( )

@@ -44,15 +44,15 @@ class TRestHitsEvent : public TRestEvent
 
         virtual void Initialize();
 
-	virtual void PrintEvent();
+        virtual void PrintEvent();
 
 
-        TVector3 Get( int n ) {
-            return fHits->Get(n);
-        }
+        TVector3 Get( int n ) { return fHits->Get(n); }
 
 
         Double_t GetTotalDepositedEnergy() { return fHits->fTotEnergy; }
+        Double_t GetTotalEnergy() { return fHits->fTotEnergy; }
+        Double_t GetEnergy() { return fHits->fTotEnergy; }
 
 
         //Construtor

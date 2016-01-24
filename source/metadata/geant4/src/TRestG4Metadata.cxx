@@ -34,7 +34,7 @@ TRestG4Metadata::TRestG4Metadata( char *cfgFileName) : TRestMetadata (cfgFileNam
 
     Initialize();
 
-    LoadConfig( "restG4", fConfigFileName ); 
+    LoadConfigFromFile( fConfigFileName );
 
     PrintMetadata();
 }
@@ -48,6 +48,7 @@ TRestG4Metadata::~TRestG4Metadata()
 
 void TRestG4Metadata::Initialize()
 {
+    SetName( "restG4" );
     cout << __PRETTY_FUNCTION__ << endl;
 
     fChance.clear();

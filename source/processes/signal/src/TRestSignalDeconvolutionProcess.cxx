@@ -32,7 +32,7 @@ TRestSignalDeconvolutionProcess::TRestSignalDeconvolutionProcess( char *cfgFileN
 {
     Initialize();
 
-    if( LoadConfig( "signalDeconvolutionProcess", cfgFileName ) == -1 ) LoadDefaultConfig( );
+    if( LoadConfigFromFile( cfgFileName ) == -1 ) LoadDefaultConfig( );
 
     PrintMetadata();
     // TRestSignalDeconvolutionProcess default constructor
@@ -47,6 +47,13 @@ TRestSignalDeconvolutionProcess::~TRestSignalDeconvolutionProcess()
 
     delete cleanFFT;
     delete originalFFT;
+}
+
+void TRestSignalDeconvolutionProcess::LoadConfig( string cfgFilename )
+{
+    if( LoadConfigFromFile( cfgFilename ) ) LoadDefaultConfig( );
+
+    PrintMetadata();
 }
 
 void TRestSignalDeconvolutionProcess::LoadDefaultConfig( )
@@ -74,7 +81,7 @@ void TRestSignalDeconvolutionProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestSignalDeconvolutionProcess::Initialize()
 {
-
+    SetName( "signalDeconvolutionProcess" );
     fInputSignalEvent = new TRestSignalEvent();
 
     fOutputSignalEvent = new TRestSignalEvent();
