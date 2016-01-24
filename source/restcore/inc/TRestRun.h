@@ -40,6 +40,7 @@ class TRestRun:public TRestMetadata {
         void InitFromConfigFile();
         void SetVersion();
 
+
         virtual void Initialize();
 
     protected:
@@ -81,17 +82,14 @@ class TRestRun:public TRestMetadata {
         TGeoManager *fGeometry;
 
         void SetRunFilenameAndIndex();
+        TKey *GetObjectKey( TString className );
 
     public:
         
         void Start();
         void ProcessAll();
         
-        Int_t GetNumberOfProcesses()
-        {
-            return fEventProcess.size();
-
-        }
+        Int_t GetNumberOfProcesses() { return fEventProcess.size(); }
 
         // File input/output
         void OpenOutputFile( );
@@ -154,70 +152,12 @@ class TRestRun:public TRestMetadata {
 
         void AddMetadata( TRestMetadata *metadata ) { fMetadata.push_back( metadata ); }
         void AddHistoricMetadata( TRestMetadata *metadata ) { fHistoricMetadata.push_back( metadata ); }
-        void AddProcess( TRestEventProcess *process, string cfgFilename ) 
-        {
+        void AddProcess( TRestEventProcess *process, string cfgFilename );
 
-            // We give a pointer to the metadata stored in TRestRun to the processes. This metadata will be destroyed afterwards
-            // it is not intended for storage, just for the processes so that they are aware of all metadata information.
-            // Each proccess is responsible to implement GetProcessMetadata so that TRestRun stores this metadata.
-
-            vector <TRestMetadata*> metadata;
-            for( size_t i = 0; i < fMetadata.size(); i++ )
-                metadata.push_back( fMetadata[i] );
-            for( size_t i = 0; i < fHistoricMetadata.size(); i++ )
-                metadata.push_back( fHistoricMetadata[i] );
-            for( size_t i = 0; i < fEventProcess.size(); i++ )
-                metadata.push_back( fEventProcess[i] );
-            for( size_t i = 0; i < fHistoricEventProcess.size(); i++ )
-                metadata.push_back( fHistoricEventProcess[i] );
-
-            process->SetMetadata( metadata );
-
-            cout << "Metadata given to process : " << process->GetName() << endl;
-            cout << "------------------------------------------------------" << endl;
-            for( size_t i = 0; i < metadata.size(); i++ )
-                cout << metadata[i]->ClassName() << endl;
-            cout << "---------------------------" << endl;
-
-            process->LoadConfig( cfgFilename );
-
-            //process->LoadConfigFromFile( cfgFilename );
-            // Each proccess is responsible to implement GetMetadata so that TRestRun stores this metadata.
-
-            TRestMetadata *meta = process->GetProcessMetadata();
-            if( meta != NULL ) this->AddMetadata( meta );
-
-            process->PrintMetadata( );
-
-            fEventProcess.push_back( process ); 
-
-        }
-
-        virtual void SetOutputEvent( TRestEvent *evt ) 
-        { 
-            fOutputEvent = evt;
-            TString treeName = (TString) evt->GetName() + " Tree";
-            fOutputEventTree->SetName( treeName );
-            fOutputEventTree->Branch("eventBranch", evt->GetClassName(), fOutputEvent);
-        }
-
-        virtual void SetInputEvent( TRestEvent *evt ) 
-        { 
-            fInputEvent = evt;
-	    
-	    if(evt==NULL)return;
-	    
-            TString treeName = (TString) evt->GetName() + " Tree";
-            fInputEventTree = (TTree * ) fInputFile->Get( treeName );
-
-            TBranch *br = fInputEventTree->GetBranch( "eventBranch" );
-
-            br->SetAddress( &fInputEvent );
-            
-        }
-
+        virtual void SetOutputEvent( TRestEvent *evt );
+        virtual void SetInputEvent( TRestEvent *evt );
 	
-	Bool_t GetNextEvent( );
+        Bool_t GetNextEvent( );
 	
         // Printers
         void PrintStartDate();

@@ -142,6 +142,113 @@ void TRestRun::ProcessAll( )
 		fEventProcess[i]->EndProcess();
 
 }
+void TRestRun::AddProcess( TRestEventProcess *process, string cfgFilename ) 
+{
+
+    // We give a pointer to the metadata stored in TRestRun to the processes. This metadata will be destroyed afterwards
+    // it is not intended for storage, just for the processes so that they are aware of all metadata information.
+    // Each proccess is responsible to implement GetProcessMetadata so that TRestRun stores this metadata.
+
+    vector <TRestMetadata*> metadata;
+    for( size_t i = 0; i < fMetadata.size(); i++ )
+        metadata.push_back( fMetadata[i] );
+    for( size_t i = 0; i < fHistoricMetadata.size(); i++ )
+        metadata.push_back( fHistoricMetadata[i] );
+    for( size_t i = 0; i < fEventProcess.size(); i++ )
+        metadata.push_back( fEventProcess[i] );
+    for( size_t i = 0; i < fHistoricEventProcess.size(); i++ )
+        metadata.push_back( fHistoricEventProcess[i] );
+
+    process->SetMetadata( metadata );
+
+    cout << "Metadata given to process : " << process->GetName() << endl;
+    cout << "------------------------------------------------------" << endl;
+    for( size_t i = 0; i < metadata.size(); i++ )
+        cout << metadata[i]->ClassName() << endl;
+    cout << "---------------------------" << endl;
+
+    process->LoadConfig( cfgFilename );
+
+    //process->LoadConfigFromFile( cfgFilename );
+    // Each proccess is responsible to implement GetMetadata so that TRestRun stores this metadata.
+
+    TRestMetadata *meta = process->GetProcessMetadata();
+    if( meta != NULL ) this->AddMetadata( meta );
+
+    process->PrintMetadata( );
+
+    fEventProcess.push_back( process ); 
+
+}
+
+void TRestRun::SetOutputEvent( TRestEvent *evt ) 
+{ 
+    fOutputEvent = evt;
+    TString treeName = (TString) evt->GetName() + " Tree";
+    fOutputEventTree->SetName( treeName );
+    fOutputEventTree->Branch("eventBranch", evt->GetClassName(), fOutputEvent);
+}
+
+void TRestRun::SetInputEvent( TRestEvent *evt ) 
+{ 
+    fInputEvent = evt;
+
+    if( evt == NULL ) return;
+
+    TString treeName = (TString) evt->GetName() + " Tree";
+
+    if( GetObjectKey( treeName ) == NULL )
+    {
+        cout << "REST ERROR (SetInputEvent) : " << treeName << " was not found" << endl;
+        return;
+    }
+
+    fInputEventTree = (TTree * ) fInputFile->Get( treeName );
+
+    TBranch *br = fInputEventTree->GetBranch( "eventBranch" );
+
+    br->SetAddress( &fInputEvent );
+
+}
+
+Bool_t TRestRun::isClass( TString className )
+{
+	if( fInputFile == NULL ) { cout << "No input file" << endl; return kFALSE; }
+
+	TIter nextkey( fInputFile->GetListOfKeys() );
+	TKey *key;
+	while ( (key = (TKey*) nextkey() ) ) 
+	{
+		TString cName (key->GetName());
+
+		if ( cName.Contains(className.Data()) )
+		{
+			cout << "className : " << cName << " target "<< className << endl;
+			return kTRUE;
+		}
+	}
+
+	cout << "Class " << className << " not found" << endl;
+
+	return kFALSE;
+}
+
+TKey *TRestRun::GetObjectKey( TString className )
+{
+    if( fInputFile == NULL ) { cout << "REST ERROR (GetObjectKey) : No file open" << endl; return NULL; }
+
+    TIter nextkey(fInputFile->GetListOfKeys());
+    TKey *key;
+    while ( (key = (TKey*)nextkey() ) ) {
+
+        string cName = key->GetClassName();
+
+        if ( cName == className ) return key;
+    }
+    cout << "REST ERROR (GetObjectKey) : " << className << " was not found" << endl;
+    return NULL;
+
+}
 
 void TRestRun::OpenInputFile( TString fName )
 {
@@ -153,6 +260,11 @@ void TRestRun::OpenInputFile( TString fName )
     }
 
     fInputFile = new TFile( fName );
+
+    TKey *key = GetObjectKey( "TRestRun" );
+    this->Read( key->GetName() );
+
+    /*
     TIter nextkey(fInputFile->GetListOfKeys());
     TKey *key;
     while ( (key = (TKey*)nextkey() ) ) {
@@ -161,6 +273,7 @@ void TRestRun::OpenInputFile( TString fName )
 
         if ( className == "TRestRun" ) this->Read( key->GetName() );
     }
+    */
 
     // Transfering metadata to historic
     for( size_t i = 0; i < fMetadata.size(); i++ )
@@ -191,29 +304,6 @@ void TRestRun::OpenInputFile( TString fName, TString cName )
     }
     */
 }
-
-Bool_t TRestRun::isClass( TString className )
-{
-	if( fInputFile == NULL ) { cout << "No input file" << endl; return kFALSE; }
-
-	TIter nextkey( fInputFile->GetListOfKeys() );
-	TKey *key;
-	while ( (key = (TKey*) nextkey() ) ) 
-	{
-		TString cName (key->GetName());
-
-		if ( cName.Contains(className.Data()) )
-		{
-			cout << "className : " << cName << " target "<< className << endl;
-			return kTRUE;
-		}
-	}
-
-	cout << "Class " << className << " not found" << endl;
-
-	return kFALSE;
-}
-
 
 
 void TRestRun::OpenOutputFile( )
