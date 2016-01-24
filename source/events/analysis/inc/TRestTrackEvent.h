@@ -36,15 +36,17 @@ class TRestTrackEvent: public TRestEvent {
 
     protected:
  
-        Int_t nTracks;       
+        Int_t fNtracks;       
+        Int_t fNtracksX;
+        Int_t fNtracksY;
         vector <TRestTrack> fTrack; //Collection of tracks that define the event
 
         #ifndef __CINT__
- 	TGraph *fXY;
- 	TGraph *fXZ;
- 	TGraph *fYZ;
-	TPad *fPad; 
-	#endif 
+        TGraph *fXY;
+        TGraph *fXZ;
+        TGraph *fYZ;
+        TPad *fPad; 
+        #endif 
 
     public:
 
@@ -53,11 +55,17 @@ class TRestTrackEvent: public TRestEvent {
         TPad *DrawEvent();
 
         //Setters
-        void AddTrack( TRestTrack *c ){ fTrack.push_back(*c); nTracks++;}
-        void RemoveTrack(int n){fTrack.erase(fTrack.begin()+n); nTracks--;}  
+        void AddTrack( TRestTrack *c ){ fTrack.push_back(*c); fNtracks++;}
+        void RemoveTrack(int n){fTrack.erase(fTrack.begin()+n); fNtracks--;}  
         void RemoveTrack( ){fTrack.clear();}  
+
+        void SetNumberOfXTracks( Int_t x ) { fNtracksX = x; }
+        void SetNumberOfYTracks( Int_t y ) { fNtracksY = y; }
+
         //Getters
-        Int_t GetNumberOfTracks(){return nTracks;}
+        Int_t GetNumberOfTracks() { return fNtracks; }
+        Int_t GetNumberOfXTracks() { return fNtracksX; }
+        Int_t GetNumberOfYTracks() { return fNtracksY; }
       
         void Initialize();
 

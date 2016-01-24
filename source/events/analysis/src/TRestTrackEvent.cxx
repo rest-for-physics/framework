@@ -41,7 +41,7 @@ TRestTrackEvent::~TRestTrackEvent()
 
 void TRestTrackEvent::Initialize()
 {
-    nTracks = 0;
+    fNtracks = 0;
     fTrack.clear();
     TRestEvent::Initialize();
     fEventClassName = "TRestTrackEvent";
