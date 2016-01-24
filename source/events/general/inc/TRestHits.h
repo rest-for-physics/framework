@@ -67,6 +67,7 @@ class TRestHits : public TObject
         }
 
         Double_t GetTotalDepositedEnergy() { return fTotEnergy; }
+        Double_t GetDistance2( int n, int m );
 
 	void PrintEvent();
 	

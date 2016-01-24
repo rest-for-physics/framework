@@ -33,11 +33,6 @@ void TRestHitsEvent::Initialize()
 
 }
 
-Double_t TRestHitsEvent::GetDistance2( int n, int m )
-{
-    return (GetX(n)-GetX(m))*(GetX(n)-GetX(m)) +  (GetY(n)-GetY(m))*(GetY(n)-GetY(m)) + (GetZ(n)-GetZ(m))*(GetZ(n)-GetZ(m));
-}
-
 void TRestHitsEvent::MergeHits( int n, int m )
 {
     fHits->MergeHits( n, m );
@@ -51,6 +46,51 @@ void TRestHitsEvent::RemoveHit( int n )
 void TRestHitsEvent::RemoveHits( )
 {
     fHits->RemoveHits( );
+}
+
+TRestHits *TRestHitsEvent::GetXZHits() 
+{ 
+    //cout << "Getting XZ Hits" << endl;
+    TRestHits *xzHits = new TRestHits();
+    for( int i = 0; i < this->GetNumberOfHits(); i++ )
+    {
+        if( this->GetY(i) == 0 )
+        {
+            xzHits->AddHit( this->GetX(i), 0, this->GetZ(i), this->GetEnergy(i) );
+        }
+    }
+    //cout << "Number of XZ Hits : " << xzHits->GetNumberOfHits() << endl;
+    return xzHits;
+}
+
+TRestHits *TRestHitsEvent::GetYZHits() 
+{ 
+    //cout << "Getting YZ Hits" << endl;
+    TRestHits *yzHits = new TRestHits();
+    for( int i = 0; i < this->GetNumberOfHits(); i++ )
+    {
+        if( this->GetX(i) == 0 )
+        {
+            yzHits->AddHit( 0, this->GetY(i), this->GetZ(i), this->GetEnergy(i) );
+        }
+    }
+    //cout << "Number of YZ Hits : " << yzHits->GetNumberOfHits() << endl;
+    return yzHits;
+}
+
+TRestHits *TRestHitsEvent::GetXYZHits() 
+{ 
+    //cout << "Getting XYZ Hits" << endl;
+    TRestHits *xyzHits = new TRestHits();
+    for( int i = 0; i < this->GetNumberOfHits(); i++ )
+    {
+        if( this->GetX(i) != 0 &&  this->GetY(i) != 0  &&  this->GetZ(i) != 0)
+        {
+            xyzHits->AddHit( 0, this->GetY(i), this->GetZ(i), this->GetEnergy(i) );
+        }
+    }
+    //cout << "Number of XYZ Hits : " << xyzHits->GetNumberOfHits() << endl;
+    return xyzHits;
 }
 
 
