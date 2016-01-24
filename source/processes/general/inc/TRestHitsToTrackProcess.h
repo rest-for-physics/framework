@@ -25,11 +25,11 @@ class TRestHitsToTrackProcess:public TRestEventProcess {
         TRestTrackEvent *fTrackEvent;
 
         Double_t fClusterDistance;
-        TMatrixD *distMatrix;
 
         void InitFromConfigFile();
 
         void Initialize();
+        Int_t FindTracks( TRestHits *hits );
 
     protected:
         //add here the members of your event process

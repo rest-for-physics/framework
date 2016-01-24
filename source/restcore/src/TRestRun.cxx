@@ -119,7 +119,6 @@ void TRestRun::ProcessAll( )
 	while( this->GetNextEvent() )
 	{
 		processedEvent = fInputEvent;
-        cout << processedEvent << endl;
 
 		for( unsigned int j = 0; j < fEventProcess.size(); j++ )
 		{

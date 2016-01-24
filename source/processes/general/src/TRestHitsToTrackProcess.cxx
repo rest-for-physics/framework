@@ -7,22 +7,13 @@
 ///
 ///             TRestHitsToTrackProcess.cxx
 ///
-///             Template to use to design "event process" classes inherited from 
-///             TRestHitsToTrackProcess
-///             How to use: replace TRestHitsToTrackProcess by your name, 
-///             fill the required functions following instructions and add all
-///             needed additional members and funcionality
-///
-///             jun 2014:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///                 Igor G. Irastorza
+///             Dec 2015:   First concept (Javier Gracia Garza)
+//
+//              History : 
+//              Jan 2016: Readapted to obtain tracks in bi-dimensional hits (Javier Galan)
 ///_______________________________________________________________________________
 
-
 #include "TRestHitsToTrackProcess.h"
-
-#include <TRandom.h>
 
 ClassImp(TRestHitsToTrackProcess)
     //______________________________________________________________________________
@@ -99,19 +90,57 @@ void TRestHitsToTrackProcess::InitProcess()
 //______________________________________________________________________________
 void TRestHitsToTrackProcess::BeginOfEventProcess() 
 {
-    cout << "Begin of event process" << endl;
     fTrackEvent->Initialize(); 
 }
 
 //______________________________________________________________________________
 TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
 {
+    /* Time measurement
+    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+    */
 
     fHitsEvent = (TRestHitsEvent *) evInput;
 
+    /* Debugging output
     cout << "Event ID : " << fHitsEvent->GetEventID() << endl;
     cout << "Number of hits : " << fHitsEvent->GetNumberOfHits() << endl;
+    */
 
+    TRestHits *xzHits = fHitsEvent->GetXZHits();
+    Int_t xTracks = FindTracks( xzHits );
+    fTrackEvent->SetNumberOfXTracks( xTracks );
+
+    TRestHits *yzHits = fHitsEvent->GetYZHits();
+    Int_t yTracks = FindTracks( yzHits );
+    fTrackEvent->SetNumberOfYTracks( yTracks );
+
+    TRestHits *xyzHits = fHitsEvent->GetXYZHits();
+    FindTracks( xyzHits );
+
+    /* Debugging output
+    cout << "Tracks in X : " << fTrackEvent->GetNumberOfXTracks() << endl;
+    cout << "Tracks in Y : " << fTrackEvent->GetNumberOfYTracks() << endl;
+    cout <<  " Tracks : " << fTrackEvent->GetNumberOfTracks() << endl;
+
+    cout<<"***********************"<<endl;
+    */
+
+    /* Time measurement
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>( t2 - t1 ).count();
+    cout << duration << " us" << endl;
+    getchar();
+    */
+
+    if( fTrackEvent->GetNumberOfTracks() == 0 ) return NULL;
+
+    return fTrackEvent;
+}
+
+Int_t TRestHitsToTrackProcess::FindTracks( TRestHits *hits )
+{
+    Int_t nTracksFound = 0;
     vector <Int_t> Q; //list of points (hits) that need to be checked
     vector <Int_t> P; //list of neighbours within a radious fClusterDistance
 
@@ -119,27 +148,13 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
     Int_t qsize = 0;
     TRestTrack *track = new TRestTrack();
 
-    //bool process = true;
     Double_t trackEnergy = 0.;
     TRestVolumeHits volHit;
 
+    Float_t fClusterDistance2 = (Float_t) (fClusterDistance * fClusterDistance);
 
-    //creating the matrix of distances between hits
-    distMatrix = new TMatrixD(fHitsEvent->GetNumberOfHits(), fHitsEvent->GetNumberOfHits());
-
-    //Filling the symmetric matrix
-    /*
-       for( int i = 0; i < fHitsEvent->GetNumberOfHits(); i++ )
-       for( int j = i+1; j < fHitsEvent->GetNumberOfHits(); j++ )
-       {
-       (*distMatrix)[i][j]  = fHitsEvent->GetDistance2( i , j );
-       }
-       */
-
-    //bool event = true;
-    //Int_t nHits = 0;
     //for every event in the point cloud
-    while (fHitsEvent->GetNumberOfHits()>0)
+    while (hits->GetNumberOfHits()>0)
     {
         Q.push_back( 0 );
 
@@ -147,23 +162,14 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
         for ( unsigned int q = 0; q < Q.size(); q++)
         {		  
             //we look for the neighbours
-            for ( int j=0; j < fHitsEvent->GetNumberOfHits(); j++ )
+            for ( int j=0; j < hits->GetNumberOfHits(); j++ )
             {
                 if (j != Q[q])
                 {
-                    if(fHitsEvent->GetDistance2( Q[q] , j ) < fClusterDistance*fClusterDistance)
+                    if(hits->GetDistance2( Q[q] , j ) < fClusterDistance2 )
                         P.push_back( j );
-
-                    /*				   if(Q[q]<j)
-                                       if( (*distMatrix)[Q[q]][j] < fClusterDistance*fClusterDistance)
-                                       P.push_back( j );
-                                       else if(Q[q]>j)
-                                       if( (*distMatrix)[j][Q[q]] < fClusterDistance*fClusterDistance)	
-                                       P.push_back( j );	  
-                                       */
                 }
             }
-
             qsize  = Q.size();
 
             //For all the neighbours found P.size()
@@ -200,19 +206,18 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
         //When the list of all points in Q has been processed, we add the clusters to the TrackEvent and reset Q
         for (unsigned int nhit = 0; nhit < Q.size() ; nhit++)
         {
-            const Double_t x =  fHitsEvent->GetX( Q[nhit] );
-            const Double_t y =  fHitsEvent->GetY( Q[nhit] );
-            const Double_t z =  fHitsEvent->GetZ( Q[nhit] );
-            const Double_t en = fHitsEvent->GetEnergy( Q[nhit] );
+            const Double_t x =  hits->GetX( Q[nhit] );
+            const Double_t y =  hits->GetY( Q[nhit] );
+            const Double_t z =  hits->GetZ( Q[nhit] );
+            const Double_t en = hits->GetEnergy( Q[nhit] );
 
             trackEnergy += en;
             TVector3 pos ( x, y, z );
             TVector3 sigma ( 0., 0., 0. );		
 
-
             volHit.AddHit(pos, en, sigma);
 
-            fHitsEvent->RemoveHit(Q[nhit]);
+            hits->RemoveHit(Q[nhit]);
         }
 
         track->SetTrackEnergy(trackEnergy);
@@ -220,18 +225,13 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
         trackEnergy = 0.0;
         volHit.RemoveHits();
 
-        fTrackEvent->AddTrack(*track);
+        fTrackEvent->AddTrack(track);
+        nTracksFound++;
 
         Q.clear();
     }
 
-
-    if( fTrackEvent->GetNumberOfTracks() == 0 ) return NULL;
-
-    cout <<  " Tracks : " << fTrackEvent->GetNumberOfTracks() << endl;
-    cout<<"***********************"<<endl;
-
-    return fTrackEvent;
+    return nTracksFound;
 }
 
 //______________________________________________________________________________
