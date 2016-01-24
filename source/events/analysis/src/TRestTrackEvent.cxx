@@ -55,97 +55,101 @@ void TRestTrackEvent::PrintEvent()
 
 
 //Draw current event in a Tpad
-TPad *TRestTrackEvent::DrawEvent(){
+TPad *TRestTrackEvent::DrawEvent()
+{
 
-cout<<"Drawing event"<<endl;
+    cout<<"Drawing event"<<endl;
 
-if(fXY!=NULL){delete[] fXY;fXY=NULL;}
-if(fXZ!=NULL){delete[] fXZ;fXZ=NULL;}
-if(fYZ!=NULL){delete[] fYZ;fYZ=NULL;}
-if(fPad!=NULL) { delete fPad; fPad=NULL;}
+    if( fXY != NULL ) { delete[] fXY; fXY=NULL;}
+    if( fXZ != NULL ) { delete[] fXZ; fXZ=NULL;}
+    if( fYZ != NULL ) { delete[] fYZ; fYZ=NULL;}
+    if( fPad != NULL ) { delete fPad; fPad=NULL;}
 
-int nTracks = this->GetNumberOfTracks();
+    int nTracks = this->GetNumberOfTracks();
 
-cout<<"Number of tracks "<<nTracks<<endl;
+    cout << "Number of tracks " << nTracks << endl;
 
-if(nTracks==0){
-cout<<"Empty event "<<endl;
-return NULL;
-}
+    if( nTracks == 0 )
+    {
+        cout<<"Empty event "<<endl;
+        return NULL;
+    }
 
+    TRestVolumeHits hits;
 
-TRestVolumeHits hits;
+    double maxX=-1e10, minX = 1e10, maxZ=-1e10, minZ=1e10, maxY=-1e10, minY=1e10 ;
+    int count;
 
-double maxX=-1e10, minX = 1e10, maxZ=-1e10, minZ=1e10, maxY=-1e10, minY=1e10 ;
-int count;
+    fXY = new TGraph[nTracks];
+    fXZ = new TGraph[nTracks];
+    fYZ = new TGraph[nTracks];
 
- fXY = new TGraph[nTracks];
- fXZ = new TGraph[nTracks];
- fYZ = new TGraph[nTracks];
+    for (int j = 0; j< nTracks; j++)
+    {
+        hits = fTrack[j].GetVolumeHits( );
+        cout << "Number of hits " << hits.GetNumberOfHits( ) <<endl;
 
-	for (int j = 0; j< nTracks; j++)
-	{
-	     
-	     hits = fTrack[j].GetVolumeHits();
-	     cout<<"Number of hits "<< hits.GetNumberOfHits( ) <<endl;
-	     	    
-	     count = 0;
-	
-	    for(int nhit=0; nhit <  hits.GetNumberOfHits( ); nhit++ )
-	    {
-		  Double_t x= hits.GetX( nhit );
-		  Double_t y= hits.GetY( nhit );
-		  Double_t z= hits.GetZ( nhit );
-		  Double_t en= hits.GetEnergy( nhit );
+        count = 0;
 
-		  cout<<x<<" "<< y <<" "<< z <<"; energy "<< en << endl;
-		  fXY[j].SetPoint(count, x, y);
-		  fXZ[j].SetPoint(count, x, z);
-		  fYZ[j].SetPoint(count, y, z);
-	    
-		  if(x>maxX)maxX=x;
-		  if(x<minX)minX=x;
-		  if(y>maxY)maxY=y;
-		  if(y<minY)minY=y;
-	 	  if(z>maxZ)maxZ=z;
-		  if(z<minZ)minZ=z;
+        for( int nhit = 0; nhit < hits.GetNumberOfHits( ); nhit++ )
+        {
+            Double_t x = hits.GetX( nhit );
+            Double_t y = hits.GetY( nhit );
+            Double_t z = hits.GetZ( nhit );
+            Double_t en = hits.GetEnergy( nhit );
 
-		  count++;
-	    }
-	}
+            cout << x << " " << y << " " << z << ": energy " << en << endl;
 
+            if( x != 0 && y != 0 )
+                fXY[j].SetPoint(count, x, y);
+            if( x != 0 )
+                fXZ[j].SetPoint(count, x, z);
+            if( y!= 0 )
+                fYZ[j].SetPoint(count, y, z);
 
-fPad = new TPad(this->GetClassName().Data()," ",0,0,1,1);
-fPad->Divide(3,1);
-fPad->Draw();
+            if( x > maxX ) maxX = x;
+            if( x < minX ) minX = x;
+            if( y > maxY ) maxY = y;
+            if( y < minY ) minY = y;
+            if( z > maxZ ) maxZ = z;
+            if( z < minZ ) minZ = z;
 
-fPad->cd(1)->DrawFrame(minX-10,minY-10,maxX+10,maxY+10);
-fPad->cd(2)->DrawFrame(minX-10,minZ-10,maxX+10,maxZ+10);
-fPad->cd(3)->DrawFrame(minY-10,minZ-10,maxY+10,maxZ+10);
+            count++;
+        }
+    }
 
 
-	for(int ntr=0;ntr<nTracks;ntr++)
-	{
-	    fXY[ntr].SetMarkerColor(1+ntr);
-	    fXY[ntr].SetMarkerSize(1.);
-	    fXY[ntr].SetMarkerStyle(21);
-	    fXZ[ntr].SetMarkerColor(1+ntr);
-	    fXZ[ntr].SetMarkerSize(1.);
-	    fXZ[ntr].SetMarkerStyle(21);
-	    fYZ[ntr].SetMarkerColor(1+ntr);
-	    fYZ[ntr].SetMarkerSize(1.);
-	    fYZ[ntr].SetMarkerStyle(21);
+    fPad = new TPad(this->GetClassName().Data()," ",0,0,1,1);
+    fPad->Divide(3,1);
+    fPad->Draw();
 
-	    fPad->cd(1); 
-	    fXY[ntr].Draw("P");
+    fPad->cd(1)->DrawFrame(minX-10,minY-10,maxX+10,maxY+10);
+    fPad->cd(2)->DrawFrame(minX-10,minZ-10,maxX+10,maxZ+10);
+    fPad->cd(3)->DrawFrame(minY-10,minZ-10,maxY+10,maxZ+10);
 
-	    fPad->cd(2); 
-	    fXZ[ntr].Draw("P");
 
-	    fPad->cd(3); 
-	    fYZ[ntr].Draw("P");
+    for(int ntr=0;ntr<nTracks;ntr++)
+    {
+        fXY[ntr].SetMarkerColor(1+ntr);
+        fXY[ntr].SetMarkerSize(1.);
+        fXY[ntr].SetMarkerStyle(21);
+        fXZ[ntr].SetMarkerColor(1+ntr);
+        fXZ[ntr].SetMarkerSize(1.);
+        fXZ[ntr].SetMarkerStyle(21);
+        fYZ[ntr].SetMarkerColor(1+ntr);
+        fYZ[ntr].SetMarkerSize(1.);
+        fYZ[ntr].SetMarkerStyle(21);
 
-	}
+        fPad->cd(1); 
+        fXY[ntr].Draw("P");
 
-return fPad;
+        fPad->cd(2); 
+        fXZ[ntr].Draw("P");
+
+        fPad->cd(3); 
+        fYZ[ntr].Draw("P");
+
+    }
+
+    return fPad;
 }

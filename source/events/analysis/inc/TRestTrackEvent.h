@@ -53,7 +53,7 @@ class TRestTrackEvent: public TRestEvent {
         TPad *DrawEvent();
 
         //Setters
-        void AddTrack(TRestTrack c){fTrack.push_back(c); nTracks++;}
+        void AddTrack( TRestTrack *c ){ fTrack.push_back(*c); nTracks++;}
         void RemoveTrack(int n){fTrack.erase(fTrack.begin()+n); nTracks--;}  
         void RemoveTrack( ){fTrack.clear();}  
         //Getters
