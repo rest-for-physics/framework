@@ -75,7 +75,7 @@ TPad *TRestTrackEvent::DrawEvent()
         return NULL;
     }
 
-    TRestVolumeHits hits;
+    TRestVolumeHits *hits;
 
     double maxX=-1e10, minX = 1e10, maxZ=-1e10, minZ=1e10, maxY=-1e10, minY=1e10 ;
     int count;
@@ -87,18 +87,17 @@ TPad *TRestTrackEvent::DrawEvent()
     for (int j = 0; j< nTracks; j++)
     {
         hits = fTrack[j].GetVolumeHits( );
-        cout << "Number of hits " << hits.GetNumberOfHits( ) <<endl;
+        cout << "Number of hits " << hits->GetNumberOfHits( ) <<endl;
 
         count = 0;
 
-        for( int nhit = 0; nhit < hits.GetNumberOfHits( ); nhit++ )
+        for( int nhit = 0; nhit < hits->GetNumberOfHits( ); nhit++ )
         {
-            Double_t x = hits.GetX( nhit );
-            Double_t y = hits.GetY( nhit );
-            Double_t z = hits.GetZ( nhit );
-            Double_t en = hits.GetEnergy( nhit );
+            Double_t x = hits->GetX( nhit );
+            Double_t y = hits->GetY( nhit );
+            Double_t z = hits->GetZ( nhit );
 
-            cout << x << " " << y << " " << z << ": energy " << en << endl;
+    //        cout << x << " " << y << " " << z << ": energy " << en << endl;
 
             if( x != 0 && y != 0 )
                 fXY[j].SetPoint(count, x, y);
@@ -141,13 +140,13 @@ TPad *TRestTrackEvent::DrawEvent()
         fYZ[ntr].SetMarkerStyle(21);
 
         fPad->cd(1); 
-        fXY[ntr].Draw("P");
+        fXY[ntr].Draw("LP");
 
         fPad->cd(2); 
-        fXZ[ntr].Draw("P");
+        fXZ[ntr].Draw("LP");
 
         fPad->cd(3); 
-        fYZ[ntr].Draw("P");
+        fYZ[ntr].Draw("LP");
 
     }
 

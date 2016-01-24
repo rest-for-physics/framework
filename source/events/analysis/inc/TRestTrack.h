@@ -56,9 +56,7 @@ class TRestTrack: public TObject {
         Int_t GetTrackEnergy() { return fTrackEnergy; }
         Double_t GetTrackLength() { return fTrackLength; }
 
-        TRestVolumeHits GetVolumeHits() {return fVolumeHits;}
- 
-
+        TRestVolumeHits *GetVolumeHits() {return &fVolumeHits;}
  
         //Construtor
         TRestTrack();
