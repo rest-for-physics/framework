@@ -107,7 +107,7 @@ Double_t TRestHits::GetDistance2( int n, int m )
     return (GetX(n)-GetX(m))*(GetX(n)-GetX(m)) +  (GetY(n)-GetY(m))*(GetY(n)-GetY(m)) + (GetZ(n)-GetZ(m))*(GetZ(n)-GetZ(m));
 }
 
-void TRestHits::PrintEvent()
+void TRestHits::PrintHits()
 {
 	//TRestEvent::PrintEvent();
 	for( int n = 0; n < GetNumberOfHits(); n++ )

@@ -110,7 +110,7 @@ void TRestHitsEvent::ChangeOrigin(double origx, double origy, double origz)
 void TRestHitsEvent::PrintEvent()
 {
 	//TRestEvent::PrintEvent();
-	fHits->PrintEvent();
+	fHits->Print();
 
 
 }

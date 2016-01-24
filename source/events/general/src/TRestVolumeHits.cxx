@@ -58,6 +58,33 @@ void TRestVolumeHits::RemoveHits( )
      fSigmaX.clear();
      fSigmaY.clear();
      fSigmaZ.clear();
-
 }
 
+void TRestVolumeHits::MergeHits( Int_t n, Int_t m )
+{
+    Double_t totalEnergy = fEnergy[n] + fEnergy[m];
+
+    fSigmaX[n] = (fSigmaX[n]*fEnergy[n] + fSigmaX[m]*fEnergy[m])/totalEnergy;
+    fSigmaY[n] = (fSigmaY[n]*fEnergy[n] + fSigmaY[m]*fEnergy[m])/totalEnergy;
+    fSigmaZ[n] = (fSigmaZ[n]*fEnergy[n] + fSigmaZ[m]*fEnergy[m])/totalEnergy;
+
+    TRestHits::MergeHits( n, m );
+}
+
+void TRestVolumeHits::RemoveHit( int n )
+{
+    TRestHits::RemoveHit(n);
+
+    fSigmaX.erase(fSigmaX.begin()+n);        ;
+    fSigmaY.erase(fSigmaY.begin()+n);        ;
+    fSigmaZ.erase(fSigmaZ.begin()+n);   ;
+}
+
+void TRestVolumeHits::PrintHits( )
+{
+	for( int n = 0; n < GetNumberOfHits(); n++ )
+	{
+		cout << "Hit " << n << " X: " << GetX(n) << " sY: " << GetY(n) << " sZ: " << GetZ(n) <<  " sX: " << GetSigmaX(n) << " sY: " << GetSigmaY(n) << " sZ: " << GetSigmaZ(n) <<  " Energy: " << GetEnergy(n) << endl;
+	}
+
+}

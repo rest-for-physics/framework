@@ -52,8 +52,8 @@ class TRestHits : public TObject
         void AddHit( TVector3 pos, Double_t en );
         void RemoveHits( );
 	
-	void MergeHits( int n, int m );
-        void RemoveHit( int n );
+        void MergeHits( int n, int m );
+        virtual void RemoveHit( int n );
 	
         Int_t GetNumberOfHits( ) { return fNHits; }
 
@@ -69,7 +69,7 @@ class TRestHits : public TObject
         Double_t GetTotalDepositedEnergy() { return fTotEnergy; }
         Double_t GetDistance2( int n, int m );
 
-	void PrintEvent();
+        void PrintHits();
 	
         //Construtor
         TRestHits();
