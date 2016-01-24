@@ -16,7 +16,7 @@ All units in mm, keV and degrees
 </globals>
 
 <section run name="Run metadata" title="First simulations v1.0">
-    <parameter name="Nevents" value="100"/>
+    <parameter name="Nevents" value="10"/>
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
     <parameter name="runNumber" value="1"/>
@@ -37,10 +37,8 @@ All units in mm, keV and degrees
     <parameter name="gdml_file" value="mySetupTemplate.gdml"/>
     <parameter name="maxTargetStepSize" value="0.01" />
 
-    <generator type="point" position="(0,0,0)" >
-        <source particle="e-" fullChain="off">
-            <angularDist type="isotropic" />
-            <energyDist type="mono" energy="1500" />
+    <generator type="point" position="(0,0,-800)" >
+        <source fromFile="Xe136bb0n.dat">
         </source>
     </generator>
 
@@ -78,10 +76,26 @@ All units in mm, keV and degrees
 </section>
 
 <section hitsToSignalProcess name="hitsToSignal-Panda" title="Half PANDA X-III Vessel (Bottom)" >
-    <parameter name="sampling" value="1" /> // us
+    <parameter name="sampling" value="0.1" /> // us
     // If the following parameters are not defined the process will try to take the values from a previous electronDiffusionProcess
-    <parameter name="cathodePosition" value="-1000" /> // mm
-    <parameter name="electricField" value="1000" /> // V/cm
+    <parameter name="cathodePosition" value="" /> // mm
+    <parameter name="electricField" value="" /> // V/cm
+</section>
+
+<section signalToHitsProcess name="signalToHits-Panda" title="Half PANDA X-III Vessel (Bottom)" >
+    <parameter name="sampling" value="" /> // mm
+    <parameter name="cathodePosition" value="" /> // mm
+    <parameter name="electricField" value="" /> // V/cm
+</section>
+
+<section hitsToTrackProcess name="hitsToTrack-Panda" title="Half PANDA X-III Vessel (Bottom)" >
+    <parameter name="clusterDistance" value="25" /> // mm
+</section>
+
+<section trackReductionProcess name="trackReduction-Panda" title="Half PANDA X-III Vessel (Bottom)" >
+    <parameter name="minimumDistance" value="2" /> // mm
+    <parameter name="maximumDistance" value="8" /> // mm
+    <parameter name="maxNodes" value="30" /> 
 </section>
 
 <section readout nameref="Readout-PANDA_3MM_v1" file="definitions/readouts.rml"> </section>
