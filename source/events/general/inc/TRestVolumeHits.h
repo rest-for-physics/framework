@@ -20,7 +20,6 @@
 #define RestCore_TRestVolumeHits
 
 #include <iostream>
-using namespace std;
 
 #include <TObject.h>
 #include <TVector3.h>
@@ -29,16 +28,16 @@ using namespace std;
 class TRestVolumeHits: public TRestHits {
 
     protected:
-        
-     vector <Float_t>   fSigmaX;		// [fNHits] Sigma on X axis for each volume hit (units microms)
-     vector <Float_t>   fSigmaY;		// [fNHits] Sigma on Y axis for each volume hit (units microms)
-     vector <Float_t>   fSigmaZ;		// [fNHits] Sigma on Z axis for each volume hit (units microms)  				  
-           
+
+        std::vector <Float_t>   fSigmaX;		// [fNHits] Sigma on X axis for each volume hit (units microms)
+        std::vector <Float_t>   fSigmaY;		// [fNHits] Sigma on Y axis for each volume hit (units microms)
+        std::vector <Float_t>   fSigmaZ;		// [fNHits] Sigma on Z axis for each volume hit (units microms)  				  
+
     public:
 
-       void AddHit( Double_t x, Double_t y, Double_t z, Double_t en, Double_t sigmax, Double_t sigmay, Double_t sigmaz );
-       void AddHit( TVector3 pos, Double_t en, TVector3 sigma );
-        
+        void AddHit( Double_t x, Double_t y, Double_t z, Double_t en, Double_t sigmax, Double_t sigmay, Double_t sigmaz );
+        void AddHit( TVector3 pos, Double_t en, TVector3 sigma );
+
         void RemoveHits( );
         void MergeHits( Int_t n, Int_t m );
 
@@ -62,7 +61,7 @@ class TRestVolumeHits: public TRestHits {
         TRestVolumeHits();
         //Destructor
         ~TRestVolumeHits();
-        
+
         ClassDef(TRestVolumeHits, 1);
 
 };

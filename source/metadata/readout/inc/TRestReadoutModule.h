@@ -20,7 +20,6 @@
 #define RestCore_TRestReadoutModule
 
 #include <iostream>
-using namespace std;
 
 #include "TObject.h"
 #include <TMath.h>
@@ -42,7 +41,7 @@ class TRestReadoutModule : public TObject {
 
         Double_t fModuleRotation;
 
-        vector <TRestReadoutChannel> fReadoutChannel;
+        std::vector <TRestReadoutChannel> fReadoutChannel;
 
         TRestReadoutMapping fMapping;
 

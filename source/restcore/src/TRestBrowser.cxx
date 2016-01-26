@@ -17,6 +17,7 @@
 
 
 #include "TRestBrowser.h"
+using namespace std;
 
 ClassImp(TRestBrowser)
 //______________________________________________________________________________

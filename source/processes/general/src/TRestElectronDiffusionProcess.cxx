@@ -21,6 +21,7 @@
 
 
 #include "TRestElectronDiffusionProcess.h"
+using namespace std;
 
 #include <TRandom.h>
 

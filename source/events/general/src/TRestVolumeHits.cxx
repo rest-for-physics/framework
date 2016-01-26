@@ -17,6 +17,7 @@
 
 
 #include "TRestVolumeHits.h"
+using namespace std;
 
 ClassImp(TRestVolumeHits)
 //______________________________________________________________________________

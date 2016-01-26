@@ -20,7 +20,6 @@
 #define RestDAQ_TRestSignalEvent
 
 #include <iostream>
-using namespace std;
 
 #include <TObject.h>
 #include <TArrayD.h>
@@ -39,7 +38,7 @@ class TRestTrackEvent: public TRestEvent {
         Int_t fNtracks;       
         Int_t fNtracksX;
         Int_t fNtracksY;
-        vector <TRestTrack> fTrack; //Collection of tracks that define the event
+        std::vector <TRestTrack> fTrack; //Collection of tracks that define the event
 
         #ifndef __CINT__
         TGraph *fXYHit;

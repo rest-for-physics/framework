@@ -20,7 +20,6 @@
 #define RestDAQ_TRestSignalEvent
 
 #include <iostream>
-using namespace std;
 
 #include <TObject.h>
 #include <TArrayD.h>
@@ -39,7 +38,7 @@ class TRestSignalEvent: public TRestEvent {
 	TPad *fPad;  
 	#endif
         
-        vector <TRestSignal> fSignal; //Collection of signals that define the event
+    std::vector <TRestSignal> fSignal; //Collection of signals that define the event
 
     private:
     

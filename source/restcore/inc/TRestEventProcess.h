@@ -36,7 +36,7 @@ class TRestEventProcess:public TRestMetadata {
    TRestEvent *fOutputEvent;
 
 #ifndef __CINT__
-   vector <TRestMetadata*> fRunMetadata;
+   std::vector <TRestMetadata*> fRunMetadata;
 #endif
 
  private:
@@ -53,26 +53,17 @@ class TRestEventProcess:public TRestMetadata {
    virtual void BeginOfEventProcess() = 0;
    virtual void EndOfEventProcess() = 0;
    virtual TString GetProcessName() = 0;
-   virtual void LoadConfig( string cfgFilename )=0;
+   virtual void LoadConfig( std::string cfgFilename )=0;
 
    TRestMetadata *GetGasMetadata( );
    TRestMetadata *GetReadoutMetadata( );
    Double_t GetDoubleParameterFromClass( TString className, TString parName );
 
    virtual TRestMetadata *GetProcessMetadata() { return NULL; }
-   void SetMetadata( vector <TRestMetadata*> meta ) { fRunMetadata = meta; }
+   void SetMetadata( std::vector <TRestMetadata*> meta ) { fRunMetadata = meta; }
 
-   void BeginPrintProcess()
-   {
-       cout << "--------------------------------------------------------------------------------------------------" << endl;
-       cout << "-- Process :" << GetProcessName() << " ## " << GetName() << " ## " << GetTitle() << endl;
-       cout << "--------------------------------------------------------------------------------------------------" << endl;
-   }
-
-   void EndPrintProcess()
-   {
-       cout << "--------------------------------------------------------------------------------------------------" << endl;
-   }
+   void BeginPrintProcess();
+   void EndPrintProcess();
 
    //Getters
    Int_t GetStatus() { return fStatusOfProcess; }

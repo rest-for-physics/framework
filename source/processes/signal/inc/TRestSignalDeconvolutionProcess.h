@@ -56,23 +56,23 @@ class TRestSignalDeconvolutionProcess:public TRestEventProcess {
         void EndOfEventProcess(); 
         void EndProcess();
 
-        void LoadConfig( string cfgFilename );
+        void LoadConfig( std::string cfgFilename );
 
         void PrintMetadata() 
         { 
             BeginPrintProcess();
 
-            cout << "Response filename : " << fResponseFilename << endl;
-            cout << "Frequency 1 : " << fFreq1 << endl;
-            cout << "Frequency 2 : " << fFreq2 << endl;
-            cout << "Cut frequency : " << fCutFrequency << endl;
+            std::cout << "Response filename : " << fResponseFilename << std::endl;
+            std::cout << "Frequency 1 : " << fFreq1 << std::endl;
+            std::cout << "Frequency 2 : " << fFreq2 << std::endl;
+            std::cout << "Cut frequency : " << fCutFrequency << std::endl;
 
-            cout << "Smoothing points : " << fSmoothingPoints << endl;
-            cout << "Smearing points : " << fSmearingPoints << endl;
+            std::cout << "Smoothing points : " << fSmoothingPoints << std::endl;
+            std::cout << "Smearing points : " << fSmearingPoints << std::endl;
 
-            cout << "Baseline range : ( " << fBaseLineStart << " , " << fBaseLineEnd << " ) " << endl;
-            cout << "FFT remove beginning points : " << fFFTStart << endl;
-            cout << "FFT remove end points : " << fFFTEnd << endl;
+            std::cout << "Baseline range : ( " << fBaseLineStart << " , " << fBaseLineEnd << " ) " << std::endl;
+            std::cout << "FFT remove beginning points : " << fFFTStart << std::endl;
+            std::cout << "FFT remove end points : " << fFFTEnd << std::endl;
 
             EndPrintProcess();
         }

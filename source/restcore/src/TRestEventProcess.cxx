@@ -20,6 +20,7 @@
 
 
 #include "TRestEventProcess.h"
+using namespace std;
 
 ClassImp(TRestEventProcess)
 //______________________________________________________________________________
@@ -103,3 +104,14 @@ void TRestEventProcess::EndProcess()
    cout << GetName() << ": Process ending..." << endl;
 }
 */
+void TRestEventProcess::BeginPrintProcess()
+{
+   cout << "--------------------------------------------------------------------------------------------------" << endl;
+   cout << "-- Process :" << GetProcessName() << " ## " << GetName() << " ## " << GetTitle() << endl;
+   cout << "--------------------------------------------------------------------------------------------------" << endl;
+}
+
+void TRestEventProcess::EndPrintProcess()
+{
+   cout << "--------------------------------------------------------------------------------------------------" << endl;
+}

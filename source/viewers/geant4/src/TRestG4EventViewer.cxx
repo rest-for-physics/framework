@@ -14,6 +14,7 @@
 
 
 #include "TRestG4EventViewer.h"
+using namespace std;
 
 ClassImp(TRestG4EventViewer)
 //______________________________________________________________________________

@@ -44,15 +44,15 @@ class TRestTrackReductionProcess:public TRestEventProcess {
         void EndProcess();
         void LoadDefaultConfig( );
 
-        void LoadConfig( string cfgFilename );
+        void LoadConfig( std::string cfgFilename );
 
         void PrintMetadata() { 
 
             BeginPrintProcess();
 
-            cout << " Minimum distance : " << fMinimumDistance << endl;
-            cout << " Maximum distance : " << fMaximumDistance << endl;
-            cout << " Maximum number of nodes : " << fMaxNodes << endl;
+            std::cout << " Minimum distance : " << fMinimumDistance << std::endl;
+            std::cout << " Maximum distance : " << fMaximumDistance << std::endl;
+            std::cout << " Maximum number of nodes : " << fMaxNodes << std::endl;
 
             EndPrintProcess();
 

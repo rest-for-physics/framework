@@ -17,6 +17,7 @@
 
 
 #include "TRestReadout.h"
+using namespace std;
 
 const int debug = 0;
 

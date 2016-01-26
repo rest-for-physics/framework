@@ -12,6 +12,7 @@
 ///_______________________________________________________________________________
 
 #include "TRestTrackReductionProcess.h"
+using namespace std;
 
 ClassImp(TRestTrackReductionProcess)
 //______________________________________________________________________________

@@ -31,7 +31,6 @@
 #include <sstream> 
 #include <algorithm> 
 #include <sys/stat.h>
-using namespace std;
 
 
 #include <TFormula.h>
@@ -50,23 +49,23 @@ enum REST_Verbose_Level {REST_Silent, REST_Warning, REST_Info, REST_Debug };
 class TRestMetadata:public TNamed {
 
     protected:
-        string GetFieldValue( string fieldName, string definition );
+        std::string GetFieldValue( std::string fieldName, std::string definition );
 
-        string GetKEYStructure( string keyName );
-        string GetKEYStructure( string keyName, string buffer );
-        string GetKEYStructure( string keyName, size_t &fromPosition );
-        string GetKEYStructure( string keyName, size_t &fromPosition, string buffer );
+        std::string GetKEYStructure( std::string keyName );
+        std::string GetKEYStructure( std::string keyName, std::string buffer );
+        std::string GetKEYStructure( std::string keyName, size_t &fromPosition );
+        std::string GetKEYStructure( std::string keyName, size_t &fromPosition, std::string buffer );
 
-        string GetKEYDefinition( string keyName );
-        string GetKEYDefinition( string keyName, string buffer );
-        string GetKEYDefinition( string keyName, size_t &fromPosition, string buffer );
-        string GetKEYDefinition( string keyName, size_t &fromPosition );
+        std::string GetKEYDefinition( std::string keyName );
+        std::string GetKEYDefinition( std::string keyName, std::string buffer );
+        std::string GetKEYDefinition( std::string keyName, size_t &fromPosition, std::string buffer );
+        std::string GetKEYDefinition( std::string keyName, size_t &fromPosition );
 
-        string GetParameter( string parName, size_t &pos, string inputString );
-        string GetMyParameter( string &value, size_t &pos );
+        std::string GetParameter( std::string parName, size_t &pos, std::string inputString );
+        std::string GetMyParameter( std::string &value, size_t &pos );
 
-        string fConfigFileName;		// string with the name of the config file
-        string fSectionName;        // section name given in the constructor of TRestSpecificMetadata
+        std::string fConfigFileName;		// std::string with the name of the config file
+        std::string fSectionName;        // section name given in the constructor of TRestSpecificMetadata
 
         // This method must be implemented in the derived class to fill the class fields with a given section
         // It should be a pure virtual method. But there are problems INPUT/OUTPUT in ROOT
@@ -74,24 +73,16 @@ class TRestMetadata:public TNamed {
  //       { cout << "WARNING Please Implement the InitFromConfigFile( ) method in the TRestMetadata derived class!!!!!" << endl; };
 
         virtual void Initialize() = 0;// { cout << __PRETTY_FUNCTION__ << endl; };
-        Int_t LoadSectionMetadata( string section, string cfgFileName );
+        Int_t LoadSectionMetadata( std::string section, std::string cfgFileName );
 
-        Int_t LoadConfigFromFile( string cfgFileName )
-        {
-            string section = GetName();
-            cout << "Section name : " << section << endl;
-
-            Int_t result = LoadSectionMetadata( section, cfgFileName );
-            if( result == 0 ) InitFromConfigFile();
-            return result;
-        }
+        Int_t LoadConfigFromFile( std::string cfgFileName );
 
     private:
 
         ifstream configFile;    //! pointer to config file to load metadata
-        string configBuffer;
+        std::string configBuffer;
 
-        string fConfigFilePath;		//  string with the path to the config file
+        std::string fConfigFilePath;		//  std::string with the path to the config file
         
         TString fDataPath;
         REST_Verbose_Level fVerboseLevel;
@@ -100,17 +91,17 @@ class TRestMetadata:public TNamed {
 
         Int_t CheckConfigFile( );
 
-        string GetFieldValue( string fieldName, size_t fromPosition );
-        string GetFieldFromKEY( string parName, string key );
+        std::string GetFieldValue( std::string fieldName, size_t fromPosition );
+        std::string GetFieldFromKEY( std::string parName, std::string key );
 
-        string EvaluateExpression( string exp );
+        std::string EvaluateExpression( std::string exp );
 
-        string ExpandForLoops( string buffer );
-        string ReplaceMathematicalExpressions( string buffer );
-        string ExtractLoopStructure( string in, size_t pos );
+        std::string ExpandForLoops( std::string buffer );
+        std::string ReplaceMathematicalExpressions( std::string buffer );
+        std::string ExtractLoopStructure( std::string in, size_t pos );
 
-        string GetSectionByNameFromFile( string nref, string fref );
-        Int_t FindSection( string buffer, size_t startPos = 0 );
+        std::string GetSectionByNameFromFile( std::string nref, std::string fref );
+        Int_t FindSection( std::string buffer, size_t startPos = 0 );
 
     public:
         void CheckSection( );
@@ -127,22 +118,22 @@ class TRestMetadata:public TNamed {
 
         TString GetMainDataPath() { return fDataPath; }
 
-        string GetParameter( string parName, TString defaultValue = PARAMETER_NOT_FOUND_STR );
+        std::string GetParameter( std::string parName, TString defaultValue = PARAMETER_NOT_FOUND_STR );
 
-        void PrintConfigBuffer( ) { cout << configBuffer << endl; }
+        void PrintConfigBuffer( );
         
         // String helper classes. Declared static to be able to access them without having to instantiate TRestMetadata.
         // Probably they should be in a different class (i.e. TRestStrings)
-        static Int_t isANumber( string in );
-        Int_t isAExpression( string in );
-        static string trim(string str);
-        static Double_t StringToDouble( string in );
-        static Int_t StringToInteger( string in );
-        static TVector3 StringTo3DVector( string in );
-        static TVector2 StringTo2DVector( string in );
-        static string RemoveWhiteSpaces( string in );
-        static string Replace( string in, string thisString, string byThisString, size_t fromPosition );
-        static Int_t Count( string s, string sbstring);
+        static Int_t isANumber( std::string in );
+        Int_t isAExpression( std::string in );
+        static std::string trim(std::string str);
+        static Double_t StringToDouble( std::string in );
+        static Int_t StringToInteger( std::string in );
+        static TVector3 StringTo3DVector( std::string in );
+        static TVector2 StringTo2DVector( std::string in );
+        static std::string RemoveWhiteSpaces( std::string in );
+        static std::string Replace( std::string in, std::string thisString, std::string byThisString, size_t fromPosition );
+        static Int_t Count( std::string s, std::string sbstring);
         static bool fileExists(const std::string& filename);
 
 
@@ -157,7 +148,7 @@ class TRestMetadata:public TNamed {
         ~TRestMetadata();
 
         /*
-           string SearchString(const char *name);
+           std::string SearchString(const char *name);
            Int_t SearchInt(const char *name);
            Double_t SearchDouble(const char *name);
            */

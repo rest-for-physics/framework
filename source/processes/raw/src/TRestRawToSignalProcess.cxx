@@ -21,6 +21,7 @@
 
 
 #include "TRestRawToSignalProcess.h"
+using namespace std;
 #include "TTimeStamp.h"
 
 ClassImp(TRestRawToSignalProcess)

@@ -17,6 +17,7 @@
 
 
 #include "TRestGeometry.h"
+using namespace std;
 
 ClassImp(TRestGeometry)
 //______________________________________________________________________________

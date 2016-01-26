@@ -24,6 +24,7 @@
 
 
 #include "TRestSignal.h"
+using namespace std;
 
 #include <TMath.h>
 

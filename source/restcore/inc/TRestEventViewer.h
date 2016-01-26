@@ -21,7 +21,6 @@
 #define RestCore_TRestEventViewer
 
 #include <iostream>
-using namespace std;
 
 #include <TObject.h>
 #include <TGeoManager.h>

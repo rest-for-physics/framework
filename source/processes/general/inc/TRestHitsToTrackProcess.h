@@ -43,13 +43,13 @@ class TRestHitsToTrackProcess:public TRestEventProcess {
         void EndProcess();
         void LoadDefaultConfig( );
 
-        void LoadConfig( string cfgFilename );
+        void LoadConfig( std::string cfgFilename );
 
         void PrintMetadata() { 
 
             BeginPrintProcess();
 
-            cout << " cluster-distance : " << fClusterDistance << endl;
+            std::cout << " cluster-distance : " << fClusterDistance << std::endl;
 
             EndPrintProcess();
 

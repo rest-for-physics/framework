@@ -20,7 +20,6 @@
 #define RestCore_TRestParticleSource
 
 #include <iostream>
-using namespace std;
 
 #include "TObject.h"
 #include <TString.h>

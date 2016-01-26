@@ -12,6 +12,7 @@
 ///_______________________________________________________________________________
 
 #include "TRestTrackPathMinimizationProcess.h"
+using namespace std;
 
 const int Nmax = 50;
 

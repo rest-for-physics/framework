@@ -20,7 +20,6 @@
 #define RestCore_TRestG4Hits
 
 #include <iostream>
-using namespace std;
 
 #include "TObject.h"
 #include <TRestHits.h>

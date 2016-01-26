@@ -20,7 +20,6 @@
 #define RestCore_TRestReadout
 
 #include <iostream>
-using namespace std;
 
 #include "TObject.h"
 
@@ -37,7 +36,7 @@ class TRestReadout:public TRestMetadata {
 
         virtual void Initialize();
 
-        vector <TRestReadoutModule> fReadoutModule;
+        std::vector <TRestReadoutModule> fReadoutModule;
 
     protected:
 

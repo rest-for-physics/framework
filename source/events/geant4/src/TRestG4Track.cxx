@@ -17,6 +17,7 @@
 
 
 #include "TRestG4Track.h"
+using namespace std;
 
 ClassImp(TRestG4Track)
 //______________________________________________________________________________

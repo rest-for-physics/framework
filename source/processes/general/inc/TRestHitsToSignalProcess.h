@@ -50,15 +50,15 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
         void EndOfEventProcess(); 
         void EndProcess();
 
-        void LoadConfig( string cfgFilename );
+        void LoadConfig( std::string cfgFilename );
 
         void PrintMetadata() 
         {
             BeginPrintProcess();
 
-            cout << "Sampling : " << fSampling << " us" << endl;
-            cout << "Cathode position : " << fCathodePosition << " mm" << endl;
-            cout << "Electric field : " << fElectricField << " V/cm" << endl;
+            std::cout << "Sampling : " << fSampling << " us" << std::endl;
+            std::cout << "Cathode position : " << fCathodePosition << " mm" << std::endl;
+            std::cout << "Electric field : " << fElectricField << " V/cm" << std::endl;
 
             EndPrintProcess();
         }

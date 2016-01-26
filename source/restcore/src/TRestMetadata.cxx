@@ -23,6 +23,7 @@
 
 
 #include "TRestMetadata.h"
+using namespace std;
 
 int debug = 0;
 
@@ -387,6 +388,16 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName )
 
     if( file != NULL ) file.close();
     return 0;
+}
+
+Int_t TRestMetadata::LoadConfigFromFile( string cfgFileName )
+{
+    std::string section = GetName();
+    cout << "Section name : " << section << endl;
+
+    Int_t result = LoadSectionMetadata( section, cfgFileName );
+    if( result == 0 ) InitFromConfigFile();
+    return result;
 }
 
 // This might be an improved version of GetKEYStructure()
@@ -1028,6 +1039,7 @@ Int_t TRestMetadata::FindSection( string buffer, size_t startPos )
     return NOT_FOUND;
 }
 
+void TRestMetadata::PrintConfigBuffer( ) { cout << configBuffer << endl; }
 
 void TRestMetadata::PrintMetadata()
 {

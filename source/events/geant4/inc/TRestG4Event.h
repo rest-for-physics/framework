@@ -20,7 +20,6 @@
 #define RestCore_TRestG4Event
 
 #include <iostream>
-using namespace std;
 
 #include <TObject.h>
 #include <TH1D.h>
@@ -33,8 +32,8 @@ class TRestG4Event: public TRestEvent {
     protected:
         TVector3 fPrimaryEventOrigin;
 
-        vector <TVector3> fPrimaryEventDirection;
-        vector <Double_t> fPrimaryEventEnergy;
+        std::vector <TVector3> fPrimaryEventDirection;
+        std::vector <Double_t> fPrimaryEventEnergy;
         
         Double_t fTotalEventEnergy;
 
@@ -42,10 +41,10 @@ class TRestG4Event: public TRestEvent {
 
         Int_t fNTracks;
 
-        vector <TRestG4Track> fTrack;
+        std::vector <TRestG4Track> fTrack;
 
         Int_t fNVolumes;
-        vector <Int_t> fVolumeStored;
+        std::vector <Int_t> fVolumeStored;
 
 
     public:

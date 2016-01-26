@@ -20,7 +20,6 @@
 #define RestCore_TRestRun
 
 #include <iostream>
-using namespace std;
 
 #include "TObject.h"
 #include "TFile.h"
@@ -61,10 +60,10 @@ class TRestRun:public TRestMetadata {
         Double_t fStartTime;              ///< Event absolute starting time/date (unix timestamp)
         Double_t fEndTime;              ///< Event absolute starting time/date (unix timestamp)
 
-        vector <TRestMetadata*> fMetadata;
-        vector <TRestEventProcess*> fEventProcess;
-        vector <TRestMetadata*> fHistoricMetadata;  // Open input file should store the metadata (and historic) information in historic metadata
-        vector <TRestEventProcess*> fHistoricEventProcess;
+        std::vector <TRestMetadata*> fMetadata;
+        std::vector <TRestEventProcess*> fEventProcess;
+        std::vector <TRestMetadata*> fHistoricMetadata;  // Open input file should store the metadata (and historic) information in historic metadata
+        std::vector <TRestEventProcess*> fHistoricEventProcess;
 
 #ifndef __CINT__
         TTree *fInputEventTree;
@@ -135,7 +134,7 @@ class TRestRun:public TRestMetadata {
         void SetNumberOfEvents( Int_t nEvents ) { fRunEvents = nEvents; } 
         void SetEndTimeStamp( Double_t tStamp ) { fEndTime = tStamp; }
 
-        void SetGeometry( TGeoManager *g ) { cout << "AA" << endl; fGeometry = g; cout << "fGeo ::" << fGeometry << endl; } // fGeometry->SetName( "GDML_Geometry"); cout << "CC" << endl; }
+        void SetGeometry( TGeoManager *g ) { fGeometry = g; }
         void SetInputFileName( TString fN){fInputFilename=fN;}
         
         
@@ -153,7 +152,7 @@ class TRestRun:public TRestMetadata {
 
         void AddMetadata( TRestMetadata *metadata ) { fMetadata.push_back( metadata ); }
         void AddHistoricMetadata( TRestMetadata *metadata ) { fHistoricMetadata.push_back( metadata ); }
-        void AddProcess( TRestEventProcess *process, string cfgFilename );
+        void AddProcess( TRestEventProcess *process, std::string cfgFilename );
 
         virtual void SetOutputEvent( TRestEvent *evt );
         virtual void SetInputEvent( TRestEvent *evt );

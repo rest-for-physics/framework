@@ -18,7 +18,6 @@
 #define RestCore_TRestBiasingVolume
 
 #include <iostream>
-using namespace std;
 
 #include "TObject.h"
 #include "TVector3.h"
@@ -30,7 +29,7 @@ class TRestBiasingVolume:public TObject {
         TString fBiasingVolumeType;
         Double_t fBiasingFactor;
         TVector2 fEnergyRange;
-	TString fVolumeType;
+        TString fVolumeType;
 
     public:
 

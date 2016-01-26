@@ -18,7 +18,6 @@
 #define RestCore_TRestReadoutMapping
 
 #include <iostream>
-using namespace std;
 
 #include <TObject.h>
 #include <TMatrixD.h>

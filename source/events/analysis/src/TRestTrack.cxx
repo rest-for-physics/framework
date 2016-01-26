@@ -17,6 +17,7 @@
 
 
 #include "TRestTrack.h"
+using namespace std;
 
 ClassImp(TRestTrack)
 //______________________________________________________________________________

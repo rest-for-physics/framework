@@ -17,7 +17,7 @@
 
 
 #include "TRestDecoding.h"
-
+using namespace std;
 
 ClassImp(TRestDecoding)
 //______________________________________________________________________________

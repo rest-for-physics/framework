@@ -20,7 +20,6 @@
 #define RestCore_TRestTrack
 
 #include <iostream>
-using namespace std;
 
 #include <TObject.h>
 #include <TVector3.h>

@@ -23,7 +23,6 @@
 #define TRestSoft_TRestHits
 
 #include <iostream>
-using namespace std;
 
 #include "TObject.h"
 #include "TMath.h"
@@ -40,10 +39,10 @@ class TRestHits : public TObject
         Int_t     fNHits;	///< Number of punctual energy depositions, it is the lenght for all the array
         Double_t  fTotEnergy;	///< Event total energy
 
-        vector <Float_t>   fX;		// [fNHits] Position on X axis for each punctual deposition (units microms)
-        vector <Float_t>   fY;		// [fNHits] Position on Y axis for each punctual deposition (units microms)
-        vector <Float_t>   fZ;		// [fNHits] Position on Z axis for each punctual deposition (units microms)
-        vector <Float_t>   fEnergy;	// [fNHits] Energy deposited at each 3-coordinate position (units eV)
+        std::vector <Float_t>   fX;		// [fNHits] Position on X axis for each punctual deposition (units microms)
+        std::vector <Float_t>   fY;		// [fNHits] Position on Y axis for each punctual deposition (units microms)
+        std::vector <Float_t>   fZ;		// [fNHits] Position on Z axis for each punctual deposition (units microms)
+        std::vector <Float_t>   fEnergy;	// [fNHits] Energy deposited at each 3-coordinate position (units eV)
 
         //! Changes the orgin of the Cartesian coordinate system
         void Translate( Double_t x, Double_t y, Double_t z);

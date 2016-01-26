@@ -12,6 +12,7 @@
 
 
 #include "TRestHitsToSignalProcess.h"
+using namespace std;
 
 
 /* Chrono can be used for measuring time with better precision and test the time spent for different parts of the code

@@ -17,6 +17,7 @@
 
 
 #include "TRestReadoutModule.h"
+using namespace std;
 
 ClassImp(TRestReadoutModule)
 //______________________________________________________________________________

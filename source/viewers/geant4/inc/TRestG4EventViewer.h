@@ -24,7 +24,7 @@ class TRestG4EventViewer:public TRestEveEventViewer {
 
  private:
    
-    vector <TEveLine *> fHitConnectors;
+     std::vector <TEveLine *> fHitConnectors;
         
     TRestG4Event *fG4Event;
                

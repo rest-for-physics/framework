@@ -51,16 +51,16 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
         void EndOfEventProcess(); 
         void EndProcess();
 
-        void LoadConfig( string cfgFilename );
+        void LoadConfig( std::string cfgFilename );
 
         void PrintMetadata() { 
 
             BeginPrintProcess();
 
-            cout << " cathode : " << fCathodePosition << endl;
-            cout << " anode : " << fAnodePosition << endl;
-            cout << " eField : " << fElectricField << endl;
-            cout << " resolution : " << fResolution << endl;
+            std::cout << " cathode : " << fCathodePosition << std::endl;
+            std::cout << " anode : " << fAnodePosition << std::endl;
+            std::cout << " eField : " << fElectricField << std::endl;
+            std::cout << " resolution : " << fResolution << std::endl;
 
             EndPrintProcess();
 
@@ -70,8 +70,8 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
 
         TString GetProcessName() { return (TString) "electronDiffusion"; }
 
-	Double_t GetCathodePosition() { return fCathodePosition; }
-	Double_t GetElectricField() { return fElectricField; }
+        Double_t GetCathodePosition() { return fCathodePosition; }
+        Double_t GetElectricField() { return fElectricField; }
 
         //Constructor
         TRestElectronDiffusionProcess();

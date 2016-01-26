@@ -17,6 +17,7 @@
 
 
 #include "TRestG4Event.h"
+using namespace std;
 
 ClassImp(TRestG4Event)
 //______________________________________________________________________________

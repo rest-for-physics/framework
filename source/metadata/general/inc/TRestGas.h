@@ -38,7 +38,6 @@
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
-using namespace std;
 
 #include <TROOT.h>
 #include "TSystem.h"
@@ -83,8 +82,8 @@ private:
     Double_t fMaxElectronEnergy;
     Double_t fIonizationPotential;
 
-    vector <TString> fGasComponentName;
-    vector <Double_t> fGasComponentFraction;
+    std::vector <TString> fGasComponentName;
+    std::vector <Double_t> fGasComponentFraction;
 
 	Double_t	fPressureInAtm;		// pressure of the gas
 	Double_t	fTemperatureInK;	// temperature of the gas
@@ -92,7 +91,7 @@ private:
     Int_t fEnodes;
     Double_t fEmax, fEmin; // In V/cm
 
-    vector <Double_t> fEFields,  fBFields, fAngles;
+    std::vector <Double_t> fEFields,  fBFields, fAngles;
 
     bool fGasGeneration;
 
@@ -115,7 +114,7 @@ private:
     void ConstructFilename( );
 
 
-    void AddGasComponent( string gasName, Double_t fraction );
+    void AddGasComponent( std::string gasName, Double_t fraction );
 
     void GenerateGasFile( );
 

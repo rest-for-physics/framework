@@ -20,6 +20,7 @@
 
 
 #include "TRestHits.h"
+using namespace std;
 
 ClassImp(TRestHits)
 

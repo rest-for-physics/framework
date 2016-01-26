@@ -17,6 +17,7 @@
 
 
 #include "TRestTrackEvent.h"
+using namespace std;
 
 ClassImp(TRestTrackEvent)
 //______________________________________________________________________________

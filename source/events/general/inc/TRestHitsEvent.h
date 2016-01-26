@@ -3,7 +3,6 @@
 #define TRestSoft_TRestHitsEvent
 
 #include <iostream>
-using namespace std;
 
 #include "TObject.h"
 #include "TMath.h"

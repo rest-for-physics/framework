@@ -48,16 +48,16 @@ class TRestSignalToHitsProcess:public TRestEventProcess {
         void EndOfEventProcess(); 
         void EndProcess();
 
-        void LoadConfig( string cfgFilename );
+        void LoadConfig( std::string cfgFilename );
 
         void PrintMetadata() 
         {
             BeginPrintProcess();
 
-            cout << "Sampling rate : " << fSampling << " mm" << endl;
-            cout << "Anode position : " << fAnodePosition << " mm" << endl;
-            cout << "Cathode position : " << fCathodePosition << " mm" << endl;
-            cout << "Electric field : " << fElectricField << " V/cm" << endl;
+            std::cout << "Sampling rate : " << fSampling << " mm" << std::endl;
+            std::cout << "Anode position : " << fAnodePosition << " mm" << std::endl;
+            std::cout << "Cathode position : " << fCathodePosition << " mm" << std::endl;
+            std::cout << "Electric field : " << fElectricField << " V/cm" << std::endl;
 
             EndPrintProcess();
         }

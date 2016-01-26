@@ -37,6 +37,7 @@
 
 
 #include "TRestGas.h"
+using namespace std;
 
 ClassImp(TRestGas)
 

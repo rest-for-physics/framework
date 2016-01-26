@@ -17,6 +17,7 @@
 
 
 #include "TRestSignalEvent.h"
+using namespace std;
 
 ClassImp(TRestSignalEvent)
     //______________________________________________________________________________
