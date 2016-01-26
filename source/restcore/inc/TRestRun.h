@@ -54,6 +54,7 @@ class TRestRun:public TRestMetadata {
         TString fOutputFilename;
         TString fInputFilename;
         TString fVersion;
+        Bool_t fOverwrite;
         
         Int_t fRunEvents;
 

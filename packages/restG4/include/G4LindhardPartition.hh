@@ -36,6 +36,7 @@
 //
 
 #include "globals.hh"
+using namespace std;
 
 class G4Material;
 

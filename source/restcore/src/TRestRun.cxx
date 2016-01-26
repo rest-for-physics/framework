@@ -67,6 +67,8 @@ void TRestRun::Initialize()
     fOutputFilename = "null";
 
     fGeometry = NULL;
+
+    fOverwrite = false;
 }
 
 void TRestRun::ResetRunTimes()
@@ -185,7 +187,7 @@ void TRestRun::AddProcess( TRestEventProcess *process, string cfgFilename )
 void TRestRun::SetOutputEvent( TRestEvent *evt ) 
 { 
     fOutputEvent = evt;
-    TString treeName = (TString) evt->GetName() + " Tree";
+    TString treeName = (TString) evt->GetName() + "Tree";
     fOutputEventTree->SetName( treeName );
     fOutputEventTree->Branch("eventBranch", evt->GetClassName(), fOutputEvent);
 }
@@ -530,6 +532,8 @@ void TRestRun::InitFromConfigFile()
    fExperimentName = GetParameter( "experiment" );
 
    fRunTag = GetParameter( "runTag" );
+
+   if( GetParameter( "overwrite" ) == "on" ) { cout << "Overwrite : on" << endl; fOverwrite = true; }
 }
 
 void TRestRun::SetRunFilenameAndIndex()
@@ -545,7 +549,7 @@ void TRestRun::SetRunFilenameAndIndex()
     fOutputFilename = GetDataPath() + "/Run_" + expName + "_"+ fRunUser + "_"  
         + runType + "_" + fRunTag + "_" + (TString) runIndexStr + "_r" + fVersion + ".root";
 
-    while( fileExists( (string) fOutputFilename ) )
+    while( !fOverwrite && fileExists( (string) fOutputFilename ) )
     {
         fRunIndex++;
         sprintf( runIndexStr, "%03d", fRunIndex );

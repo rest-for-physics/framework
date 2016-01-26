@@ -453,6 +453,12 @@ Int_t TRestG4Metadata::GetActiveVolumeID( TString name )
     return -1;
 }
 
+void TRestG4Metadata::SetActiveVolume( TString name, Double_t chance )
+{
+    fActiveVolumes.push_back( name );
+    fChance.push_back( chance );
+}
+
 Double_t TRestG4Metadata::GetStorageChance( TString vol )
 {
     Int_t id;

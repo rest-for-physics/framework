@@ -67,6 +67,8 @@
 #include <map>
 #include <vector>
 
+using namespace std;
+
 class G4VNIELPartition;
 
 typedef c2_const_ptr<G4double> G4_c2_const_ptr;

@@ -1,6 +1,8 @@
 #ifndef DetectorConstruction_h
 #define DetectorConstruction_h 1
 
+using namespace std;
+
 #include "G4VUserDetectorConstruction.hh"
 #include <G4PhysicalVolumeStore.hh>
 //#include <G4SystemOfUnits.hh>

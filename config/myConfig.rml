@@ -24,6 +24,7 @@ All units in mm, keV and degrees
     <parameter name="runDescription" value="We launch just 100 events to check everything is ok."/>
     <parameter name="user" value="system"/>
     <parameter name="verboseLevel" value="3"/>
+    <parameter name="overwrite" value="on" />
 </section>
 
 <section daq name="virtualDAQ" title="TEST">
