@@ -42,9 +42,12 @@ class TRestTrackEvent: public TRestEvent {
         vector <TRestTrack> fTrack; //Collection of tracks that define the event
 
         #ifndef __CINT__
-        TGraph *fXY;
-        TGraph *fXZ;
-        TGraph *fYZ;
+        TGraph *fXYHit;
+        TGraph *fXZHit;
+        TGraph *fYZHit;
+        TGraph *fXYTrack;
+        TGraph *fXZTrack;
+        TGraph *fYZTrack;
         TPad *fPad; 
         #endif 
 
@@ -66,6 +69,8 @@ class TRestTrackEvent: public TRestEvent {
         Int_t GetNumberOfTracks() { return fNtracks; }
         Int_t GetNumberOfXTracks() { return fNtracksX; }
         Int_t GetNumberOfYTracks() { return fNtracksY; }
+
+        Int_t GetTotalHits( );
       
         void Initialize();
 
