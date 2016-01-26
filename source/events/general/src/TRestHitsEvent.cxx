@@ -86,7 +86,7 @@ TRestHits *TRestHitsEvent::GetXYZHits()
     {
         if( this->GetX(i) != 0 &&  this->GetY(i) != 0  &&  this->GetZ(i) != 0)
         {
-            xyzHits->AddHit( 0, this->GetY(i), this->GetZ(i), this->GetEnergy(i) );
+            xyzHits->AddHit( this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i) );
         }
     }
     //cout << "Number of XYZ Hits : " << xyzHits->GetNumberOfHits() << endl;
@@ -109,8 +109,8 @@ void TRestHitsEvent::ChangeOrigin(double origx, double origy, double origz)
 
 void TRestHitsEvent::PrintEvent()
 {
-	//TRestEvent::PrintEvent();
-	fHits->Print();
+	TRestEvent::PrintEvent();
+	fHits->PrintHits();
 
 
 }

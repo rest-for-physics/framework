@@ -33,6 +33,60 @@ TRestHits::~TRestHits()
 {
 }
 
+Bool_t TRestHits::areXY()
+{
+    for( int i = 0; i < GetNumberOfHits(); i++ )
+        if( GetZ(i) != 0 ) return false;
+    return true;
+}
+
+Bool_t TRestHits::areXZ()
+{
+    for( int i = 0; i < GetNumberOfHits(); i++ )
+        if( GetY(i) != 0 ) return false;
+    return true;
+}
+
+Bool_t TRestHits::areYZ()
+{
+    for( int i = 0; i < GetNumberOfHits(); i++ )
+        if( GetX(i) != 0 ) return false;
+    return true;
+}
+
+Bool_t TRestHits::areXYZ()
+{
+    for( int i = 0; i < GetNumberOfHits(); i++ )
+        if( GetX(i) == 0 ||  GetY(i) == 0 || GetZ(i) == 0 ) return false;
+    return true;
+}
+
+void TRestHits::GetXArray( Float_t *x )
+{
+    for( int i = 0; i < GetNumberOfHits(); i++ )
+        x[i] = GetX(i);
+}
+
+void TRestHits::GetYArray( Float_t *y )
+{
+    for( int i = 0; i < GetNumberOfHits(); i++ )
+        y[i] = GetY(i);
+}
+
+void TRestHits::GetZArray( Float_t *z )
+{
+    for( int i = 0; i < GetNumberOfHits(); i++ )
+        z[i] = GetZ(i);
+}
+
+Double_t TRestHits::GetEnergyIntegral()
+{
+    Double_t sum = 0;
+    for( int i = 0; i < GetNumberOfHits(); i++ )
+        sum += GetEnergy(i);
+    return sum;
+}
+
 void TRestHits::AddHit( Double_t x, Double_t y, Double_t z, Double_t en )
 {
     fNHits++;
@@ -46,7 +100,6 @@ void TRestHits::AddHit( Double_t x, Double_t y, Double_t z, Double_t en )
 
 void TRestHits::AddHit( TVector3 pos, Double_t en )
 {
-    //cout << "Adding hit : " << fNHits << endl;
     fNHits++;
 
     fX.push_back( (Float_t) (pos.X()) );
@@ -59,7 +112,6 @@ void TRestHits::AddHit( TVector3 pos, Double_t en )
 
 void TRestHits::RemoveHits( )
 {
-    //cout << "Removing hits" << endl;
     fNHits = 0;
     fX.clear();
     fY.clear();
@@ -69,16 +121,34 @@ void TRestHits::RemoveHits( )
 }
 
 
-void TRestHits::ChangeOrigin(double origx, double origy, double origz)
+void TRestHits::Translate(double origx, double origy, double origz)
 {
-    /*
 	for(int i = 0; i < fNHits; i++)
 	{
-		fX.fArray[i] += origx;
-		fY.fArray[i] += origy;
-		fZ.fArray[i] += origz;
+		fX[i] += origx;
+		fY[i] += origy;
+		fZ[i] += origz;
 	}
-    */
+}
+Double_t TRestHits::GetMaximumHitEnergy( )
+{
+    Double_t energy = 0;
+    for ( int i = 0; i < GetNumberOfHits( ); i++ )
+        if( GetEnergy(i) > energy ) energy = GetEnergy(i);
+    return energy;
+}
+
+Double_t TRestHits::GetMinimumHitEnergy( )
+{
+    Double_t energy = GetMaximumHitEnergy( );
+    for ( int i = 0; i < GetNumberOfHits( ); i++ )
+        if( GetEnergy(i) < energy ) energy = GetEnergy(i);
+    return energy;
+}
+
+Double_t TRestHits::GetMeanHitEnergy( )
+{
+    return GetTotalEnergy( )/GetNumberOfHits( );
 }
 
 void TRestHits::MergeHits( int n, int m )
@@ -90,16 +160,46 @@ void TRestHits::MergeHits( int n, int m )
 
     fEnergy[n] += fEnergy[m];
 
-    RemoveHit( m );
+    fNHits--;
+    fX.erase( fX.begin() + m);
+    fY.erase( fY.begin() + m);
+    fZ.erase( fZ.begin() + m);
+    fEnergy.erase( fEnergy.begin() + m );
+}
+
+void TRestHits::SwapHits( Int_t i, Int_t j )
+{
+    iter_swap(fX.begin() + i, fX.begin() + j);
+    iter_swap(fY.begin() + i, fY.begin() + j);
+    iter_swap(fZ.begin() + i, fZ.begin() + j);
+    iter_swap(fEnergy.begin() + i, fEnergy.begin() + j);
+}
+
+Bool_t TRestHits::isSortedByEnergy( )
+{
+    for( int i = 0; i < GetNumberOfHits()-1; i++ )
+    {
+        if( GetEnergy( i+1 ) > GetEnergy( i ) ) return false;
+    }
+    return true;
 }
 
 void TRestHits::RemoveHit( int n )
 {
     fNHits--;
+    fTotEnergy -= GetEnergy( n );
     fX.erase(fX.begin()+n);
     fY.erase(fY.begin()+n);
     fZ.erase(fZ.begin()+n);
     fEnergy.erase(fEnergy.begin()+n);
+}
+
+Double_t TRestHits::GetTotalDistance()
+{
+    Double_t distance = 0;
+    for( int i = 0; i < GetNumberOfHits()-1; i++ )
+        distance += TMath::Sqrt( GetDistance2( i, i+1 ) );
+    return distance;
 }
 
 Double_t TRestHits::GetDistance2( int n, int m )

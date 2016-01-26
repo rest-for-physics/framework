@@ -30,9 +30,9 @@ class TRestVolumeHits: public TRestHits {
 
     protected:
         
-     vector <Int_t>   fSigmaX;		// [fNHits] Sigma on X axis for each volume hit (units microms)
-     vector <Int_t>   fSigmaY;		// [fNHits] Sigma on Y axis for each volume hit (units microms)
-     vector <Int_t>   fSigmaZ;		// [fNHits] Sigma on Z axis for each volume hit (units microms)  				  
+     vector <Float_t>   fSigmaX;		// [fNHits] Sigma on X axis for each volume hit (units microms)
+     vector <Float_t>   fSigmaY;		// [fNHits] Sigma on Y axis for each volume hit (units microms)
+     vector <Float_t>   fSigmaZ;		// [fNHits] Sigma on Z axis for each volume hit (units microms)  				  
            
     public:
 
@@ -43,13 +43,15 @@ class TRestVolumeHits: public TRestHits {
         void MergeHits( Int_t n, Int_t m );
 
         void RemoveHit( int n );
+        void SortByEnergy();
+        void SwapHits( Int_t i, Int_t j );
         //Setters
 
-        //Getters
 
-        Double_t GetSigmaX( int n ) { return ( (Double_t) fSigmaX[n])/1000.; } // return value in mm
-        Double_t GetSigmaY( int n ) { return ( (Double_t) fSigmaY[n])/1000.; } // return value in mm
-        Double_t GetSigmaZ( int n ) { return ( (Double_t) fSigmaZ[n])/1000.; } // return value in mm
+        //Getters
+        Double_t GetSigmaX( int n ) { return  fSigmaX[n]; } // return value in mm
+        Double_t GetSigmaY( int n ) { return  fSigmaY[n]; } // return value in mm
+        Double_t GetSigmaZ( int n ) { return  fSigmaZ[n]; } // return value in mm
 
         void PrintHits();
 

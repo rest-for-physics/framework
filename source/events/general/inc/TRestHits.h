@@ -46,28 +46,49 @@ class TRestHits : public TObject
         vector <Float_t>   fEnergy;	// [fNHits] Energy deposited at each 3-coordinate position (units eV)
 
         //! Changes the orgin of the Cartesian coordinate system
-        void ChangeOrigin(double origx, double origy, double origz);
+        void Translate( Double_t x, Double_t y, Double_t z);
 
         void AddHit( Double_t x, Double_t y, Double_t z, Double_t en );
         void AddHit( TVector3 pos, Double_t en );
         void RemoveHits( );
 	
         void MergeHits( int n, int m );
+        void SwapHits( Int_t i, Int_t j );
         virtual void RemoveHit( int n );
+
+        Bool_t areXY();
+        Bool_t areXZ();
+        Bool_t areYZ();
+        Bool_t areXYZ();
+
+        void GetXArray( Float_t *x );
+        void GetYArray( Float_t *y );
+        void GetZArray( Float_t *z );
+
+        Bool_t isSortedByEnergy( );
 	
         Int_t GetNumberOfHits( ) { return fNHits; }
 
         Double_t GetX( int n ) { return ( (Double_t) fX[n]); } // return value in mm
         Double_t GetY( int n ) { return ( (Double_t) fY[n]); } // return value in mm
         Double_t GetZ( int n ) { return ( (Double_t) fZ[n]); } // return value in mm
-        Double_t GetEnergy( int n ) { return ( (Double_t) fEnergy[n]); } //return value in keV
 
-        TVector3 Get( int n ) {
+        TVector3 GetPosition( int n )
+        {
             return TVector3 ( ( (Double_t) fX[n]), ((Double_t) fY[n]), ((Double_t) fZ[n]) ) ; 
         }
 
+        Double_t GetEnergy( int n ) { return ( (Double_t) fEnergy[n]); } //return value in keV
+
+        Double_t GetMaximumHitEnergy( );
+        Double_t GetMinimumHitEnergy( );
+        Double_t GetMeanHitEnergy( );
+
+        Double_t GetEnergyIntegral();
         Double_t GetTotalDepositedEnergy() { return fTotEnergy; }
+        Double_t GetTotalEnergy() { return fTotEnergy; }
         Double_t GetDistance2( int n, int m );
+        Double_t GetTotalDistance();
 
         void PrintHits();
 	

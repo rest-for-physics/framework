@@ -33,7 +33,6 @@ ClassImp(TRestTrackEvent)
     fXZTrack = NULL;
     fYZTrack = NULL;
     fPad = NULL;
-    fCanvas = NULL;
 
 }
 
