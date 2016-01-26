@@ -36,7 +36,7 @@
 
 static int runHeldKarp (int ncount, CCdatagroup *dat, int *hk_tour);
 
-int TrackMinimization_3D ( int *xIn, int *yIn, int *zIn, int ncount )
+int TrackMinimization_3D ( int *xIn, int *yIn, int *zIn, int ncount, int *mytour )
 {
     int rval = 0;
     int i;
@@ -76,6 +76,7 @@ int TrackMinimization_3D ( int *xIn, int *yIn, int *zIn, int ncount )
         xIn[i] = dat.x[besttour[i]];
         yIn[i] = dat.y[besttour[i]];
         zIn[i] = dat.z[besttour[i]];
+        mytour[i] = besttour[i];
     }
 
 
@@ -90,14 +91,12 @@ CLEANUP:
     return rval;
 }
 
-int TrackMinimization_2D ( int *xIn, int *yIn, int ncount )
+int TrackMinimization_2D ( int *xIn, int *yIn, int ncount, int *mytour )
 {
     int rval = 0;
     int i;
     CCdatagroup dat;
     int *besttour = (int *) NULL;
-
-    if( ncount <= 3 ) return rval;
 
     /////////////////////////////////////////////
     // Initializing dat structure
@@ -118,8 +117,11 @@ int TrackMinimization_2D ( int *xIn, int *yIn, int ncount )
     // Solving using Held-Karp
     besttour = CC_SAFE_MALLOC (ncount, int);
     CCcheck_NULL (besttour, "out of memory for besttour");
-    rval = runHeldKarp (ncount, &dat, besttour);
-    CCcheck_rval (rval, "runHeldKarp failed");
+    if( ncount > 3 )
+    {
+        rval = runHeldKarp (ncount, &dat, besttour);
+        CCcheck_rval (rval, "runHeldKarp failed");
+    }
     /////////////////////////////////////////////
     //
 
@@ -127,6 +129,7 @@ int TrackMinimization_2D ( int *xIn, int *yIn, int ncount )
     {
         xIn[i] = dat.x[besttour[i]];
         yIn[i] = dat.y[besttour[i]];
+        mytour[i] = besttour[i];
     }
 
 

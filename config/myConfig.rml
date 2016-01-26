@@ -98,6 +98,11 @@ All units in mm, keV and degrees
     <parameter name="maxNodes" value="30" /> 
 </section>
 
+<section trackPathMinimizationProcess name="trackPathMinimization-Panda" title="Half PANDA X-III Vessel (Bottom)" >
+    <parameter name="energyThreshold" value="0.5" />
+    <parameter name="maxNodes" value="30" />
+</section>
+
 <section readout nameref="Readout-PANDA_3MM_v1" file="definitions/readouts.rml"> </section>
 
 <section gas nameref="Gas-Xenon-TMA 3Pct" file="definitions/gases.rml"> </section>
