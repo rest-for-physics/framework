@@ -35,9 +35,31 @@ TRestTrack::~TRestTrack()
 void TRestTrack::Initialize()
 {
     fTrackID = 0;  
+    fParentID = 0;
     fTrackEnergy = 0;
     fTrackLength = 0;
     fVolumeHits.RemoveHits();
 
 }
 
+void TRestTrack::SetVolumeHits( TRestVolumeHits hits )
+{
+    fVolumeHits = hits;
+    fTrackEnergy = hits.GetEnergyIntegral();
+    fTrackLength = hits.GetTotalDistance();
+}
+
+void TRestTrack::RemoveVolumeHits( )
+{
+    fVolumeHits.RemoveHits( );
+    fTrackEnergy = 0;
+    fTrackLength = 0;
+}
+
+void TRestTrack::PrintTrack()
+{
+        cout << "Track ID : " << fTrackID << " Parent ID : " << fParentID << endl;
+        cout << "----------------------------------------" << endl;
+        fVolumeHits.PrintHits();
+        cout << "----------------------------------------" << endl;
+}
