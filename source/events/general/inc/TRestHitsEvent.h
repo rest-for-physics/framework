@@ -50,7 +50,7 @@ class TRestHitsEvent : public TRestEvent
 
         virtual void PrintEvent();
 
-        TVector3 Get( int n ) { return fHits->Get(n); }
+        TVector3 GetPosition( int n ) { return fHits->GetPosition(n); }
 
 
         Double_t GetTotalDepositedEnergy() { return fHits->fTotEnergy; }
