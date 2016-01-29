@@ -63,6 +63,8 @@ class TRestEveEventViewer:public TRestEventViewer {
     
     TEveProjectionAxes* rphiAxes;
     TEveProjectionAxes* rhozAxes;
+
+    TEvePointSet *fEnergyDeposits;
     
     char pointName[256];
     

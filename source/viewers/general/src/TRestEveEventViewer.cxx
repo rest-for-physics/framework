@@ -20,12 +20,15 @@ ClassImp(TRestEveEventViewer)
 TRestEveEventViewer::TRestEveEventViewer()
 {
   Initialize();
+  fEnergyDeposits = new TEvePointSet();
+  fEnergyDeposits->SetElementName("Energy deposits");
 }
 
 
 //______________________________________________________________________________
 TRestEveEventViewer::~TRestEveEventViewer()
 {
+    delete fEnergyDeposits;
    // TRestEveEventViewer destructor
    DeleteCurrentEvent( );
    DeleteGeometry( );
@@ -67,10 +70,14 @@ void TRestEveEventViewer::SetGeometry(TGeoManager *geo){
 
 void TRestEveEventViewer::DeleteCurrentEvent(  ){
 
-   cout<<"Removing event"<<endl;
-   gEve->GetViewers()->DeleteAnnotations();
-   gEve->GetCurrentEvent()->DestroyElements();
-      
+    cout<<"Removing event"<<endl;
+    delete fEnergyDeposits;
+    fEnergyDeposits = new TEvePointSet();
+    fEnergyDeposits->SetElementName("Energy deposits");
+    gEve->GetViewers()->DeleteAnnotations();
+    gEve->GetCurrentEvent()->DestroyElements();
+
+
 }
 
 void TRestEveEventViewer::DeleteGeometry(  ){
@@ -164,16 +171,12 @@ rhozViewer->Redraw(kTRUE);
 
 void TRestEveEventViewer::AddSphericalHit( double x, double y, double z, double radius, double en )
 {
-    TEvePointSet* ps = new TEvePointSet();
-    ps->SetOwnIds(kTRUE);
-    ps->SetNextPoint(x*GEOM_SCALE,y*GEOM_SCALE,z*GEOM_SCALE);
-    sprintf(pointName,"Edep %.2lf",en);
-    ps->SetElementName(pointName);
-    ps->SetMarkerColor(kYellow);
-    ps->SetMarkerSize(radius);
-    ps->SetMarkerStyle(4);
-    
-    gEve->AddElement( ps);
-    
+    //TEvePointSet* ps = new TEvePointSet();
+
+    fEnergyDeposits->SetOwnIds(kTRUE);
+    fEnergyDeposits->SetNextPoint(x*GEOM_SCALE,y*GEOM_SCALE,z*GEOM_SCALE);
+    fEnergyDeposits->SetMarkerColor(kYellow);
+    fEnergyDeposits->SetMarkerSize(radius);
+    fEnergyDeposits->SetMarkerStyle(4);
 }
 

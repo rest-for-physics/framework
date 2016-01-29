@@ -139,9 +139,8 @@ for( int i = 0; i < fG4Event->GetNumberOfTracks(); i++ )
                 cout<<" track "<<trkID<<" hit "<<i<<" eDep "<<eDep<<endl;
             }
         }
-
-
     }
+    gEve->AddElement( fEnergyDeposits);
 
 
 Update( );
