@@ -86,18 +86,18 @@ TRestRun::~TRestRun()
     if( fOutputFile != NULL ) CloseOutputFile();
 }
 
-void TRestRun::Start( )
+void TRestRun::Start(  )
 {
-    cout << "TRestRun::Start( ) is OBSOLETE. You should change your code to use ProcessAll( ) instead" << endl;
+    cout << "TRestRun::Start( ) is OBSOLETE. You should change your code to use ProcessEvents( ) instead" << endl;
 
-    ProcessAll();
+    ProcessEvents(  );
 
 }
 
-void TRestRun::ProcessAll( )
+void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess ) 
 {
 
-	fCurrentEvent=0;
+	fCurrentEvent = firstEvent;
 
 	if( fEventProcess.size() == 0 ) { cout << "WARNNING Run does not contain processes" << endl; return; }
 
@@ -117,9 +117,11 @@ void TRestRun::ProcessAll( )
 	
 	for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->InitProcess();
 
+    fProcessedEvents = 0;
+    if( eventsToProcess == 0 && fInputEventTree != NULL ) eventsToProcess = fInputEventTree->GetEntries()+1;
 
 	TRestEvent *processedEvent;
-	while( this->GetNextEvent() )
+	while( this->GetNextEvent() && eventsToProcess > fProcessedEvents )
 	{
 		processedEvent = fInputEvent;
 
@@ -137,6 +139,8 @@ void TRestRun::ProcessAll( )
 		fOutputEventTree->Fill();
 
 		PrintProcessedEvents(100);
+
+        fProcessedEvents++;
 	}
 
 	cout<<fOutputEventTree->GetEntries()<<" processed events"<<endl;
@@ -145,6 +149,7 @@ void TRestRun::ProcessAll( )
 		fEventProcess[i]->EndProcess();
 
 }
+
 void TRestRun::AddProcess( TRestEventProcess *process, string cfgFilename ) 
 {
 
@@ -198,7 +203,7 @@ void TRestRun::SetInputEvent( TRestEvent *evt )
 
     if( evt == NULL ) return;
 
-    TString treeName = (TString) evt->GetName() + " Tree";
+    TString treeName = (TString) evt->GetName() + "Tree";
 
     if( GetObjectKeyByName( treeName ) == NULL )
     {
@@ -266,6 +271,18 @@ TKey *TRestRun::GetObjectKeyByName( TString name )
         if ( kName == name ) return key;
     }
     cout << "REST ERROR (GetObjectKey) : " << name << " was not found" << endl;
+    return NULL;
+
+}
+
+TRestMetadata *TRestRun::GetMetadata( TString name )
+{
+    for( unsigned int i = 0; i < fMetadata.size(); i++ )
+        if( fMetadata[i]->GetName() == name ) return fMetadata[i];
+
+    for( unsigned int i = 0; i < fHistoricMetadata.size(); i++ )
+        if( fHistoricMetadata[i]->GetName() == name ) return fHistoricMetadata[i];
+
     return NULL;
 
 }
@@ -620,6 +637,7 @@ Bool_t TRestRun::GetNextEvent( )
     {
 
         if( fInputEventTree->GetEntries() == fCurrentEvent-1 ) return kFALSE;
+
         fInputEventTree->GetEntry( fCurrentEvent );
         fCurrentEvent++;
     }

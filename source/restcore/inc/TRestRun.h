@@ -77,6 +77,7 @@ class TRestRun:public TRestMetadata {
         TFile *fOutputFile;
         
         Int_t fCurrentEvent;
+        Int_t fProcessedEvents;
 #endif
 
         TGeoManager *fGeometry;
@@ -87,8 +88,8 @@ class TRestRun:public TRestMetadata {
 
     public:
         
-        void Start();
-        void ProcessAll();
+        void Start(  );
+        void ProcessEvents( Int_t firstEvent = 0, Int_t eventsToProcess = 0 );
         
         Int_t GetNumberOfProcesses() { return fEventProcess.size(); }
 
@@ -120,10 +121,14 @@ class TRestRun:public TRestMetadata {
         Double_t GetEndTimestamp() { return fEndTime; }
         TString GetExperimentName() { return fExperimentName; }
         TGeoManager *GetGeometry() { return fGeometry; }
-        TRestMetadata *GetHistoricMetadata(unsigned int index){
-        if(index<fHistoricMetadata.size())return fHistoricMetadata[index];
-        else return NULL;
+
+        TRestMetadata *GetHistoricMetadata(unsigned int index)
+        {
+            if( index < fHistoricMetadata.size() ) return fHistoricMetadata[index];
+            else return NULL;
         }
+
+        TRestMetadata *GetMetadata( TString name );
 
 
         void SetRunNumber( Int_t number ) { fRunNumber = number; }
@@ -137,8 +142,6 @@ class TRestRun:public TRestMetadata {
 
         void SetGeometry( TGeoManager *g ) { fGeometry = g; }
         void SetInputFileName( TString fN){fInputFilename=fN;}
-        
-        
 
         TString GetDateFormatted( Double_t runTime );
         TString GetDateForFilename( Double_t runTime );
@@ -166,6 +169,19 @@ class TRestRun:public TRestMetadata {
 
         void PrintInfo( );
         void PrintMetadata() { PrintInfo(); }
+
+        void PrintAllMetadata()
+        {
+            this->PrintMetadata();
+            for( unsigned int i = 0; i < fMetadata.size(); i++ )
+                fMetadata[i]->PrintMetadata();
+            for( unsigned int i = 0; i < fEventProcess.size(); i++ )
+                fEventProcess[i]->PrintMetadata();
+            for( unsigned int i = 0; i < fHistoricMetadata.size(); i++ )
+                fHistoricMetadata[i]->PrintMetadata();
+            for( unsigned int i = 0; i < fHistoricEventProcess.size(); i++ )
+                fHistoricEventProcess[i]->PrintMetadata();
+        }
         
         void PrintProcessedEvents( Int_t rateE);
 
