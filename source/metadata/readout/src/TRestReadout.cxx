@@ -173,7 +173,7 @@ Double_t TRestReadout::GetX( Int_t modID, Int_t chID )
 
     TRestReadoutChannel *rChannel = GetChannelByID( modID, chID );
 
-    Double_t x = 0;
+    Double_t x = numeric_limits<Double_t>::quiet_NaN();
 
     if( rChannel->GetNumberOfPixels() == 1 )
          x = xOrigin + rChannel->GetPixel(0)->GetCenter().X();
@@ -208,7 +208,7 @@ Double_t TRestReadout::GetY( Int_t modID, Int_t chID )
 
     TRestReadoutChannel *rChannel = GetChannelByID( modID, chID );
 
-    Double_t y = 0;
+    Double_t y = numeric_limits<Double_t>::quiet_NaN();
 
     if( rChannel->GetNumberOfPixels() == 1 )
         y = yOrigin + rChannel->GetPixel(0)->GetCenter().Y();

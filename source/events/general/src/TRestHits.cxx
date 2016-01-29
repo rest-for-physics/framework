@@ -21,6 +21,7 @@
 
 #include "TRestHits.h"
 using namespace std;
+using namespace TMath;
 
 ClassImp(TRestHits)
 
@@ -37,28 +38,28 @@ TRestHits::~TRestHits()
 Bool_t TRestHits::areXY()
 {
     for( int i = 0; i < GetNumberOfHits(); i++ )
-        if( GetZ(i) != 0 ) return false;
+        if( IsNaN( GetZ(i) ) ) return false;
     return true;
 }
 
 Bool_t TRestHits::areXZ()
 {
     for( int i = 0; i < GetNumberOfHits(); i++ )
-        if( GetY(i) != 0 ) return false;
+        if( IsNaN( GetY(i) ) != 0 ) return false;
     return true;
 }
 
 Bool_t TRestHits::areYZ()
 {
     for( int i = 0; i < GetNumberOfHits(); i++ )
-        if( GetX(i) != 0 ) return false;
+        if( IsNaN( GetX(i) ) ) return false;
     return true;
 }
 
 Bool_t TRestHits::areXYZ()
 {
     for( int i = 0; i < GetNumberOfHits(); i++ )
-        if( GetX(i) == 0 ||  GetY(i) == 0 || GetZ(i) == 0 ) return false;
+        if( IsNaN ( GetX(i) ) || IsNaN( GetY(i) ) || IsNaN( GetZ(i) ) )  return false;
     return true;
 }
 
