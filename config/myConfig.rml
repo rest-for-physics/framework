@@ -16,7 +16,7 @@ All units in mm, keV and degrees
 </globals>
 
 <section run name="Run metadata" title="First simulations v1.0">
-    <parameter name="Nevents" value="10"/>
+    <parameter name="Nevents" value="100"/>
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
     <parameter name="runNumber" value="1"/>
@@ -53,14 +53,13 @@ All units in mm, keV and degrees
         <parameter name="energyRange" value="(0,1000000)" />
         <activeVolume name="gas" chance="1" />
     </storage>
-
 </section>
 
 <section electronDiffusionProcess name="electronDiffusion-Panda" title="Half PANDA X-III Vessel (Bottom)" >
     <parameter name="anodePosition" value="0" /> // mm
     <parameter name="cathodePosition" value="-1000" /> // mm
     <parameter name="electricField" value="1000" /> // V/cm
-    <parameter name="resolution" value="1" /> // mm
+    <parameter name="resolution" value="0.1" /> // mm
 </section>
 
 <section signalDeconvolutionProcess name="deconvolution-Panda" title="Deconvolution of AGET signals" >

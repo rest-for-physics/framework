@@ -31,7 +31,6 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
         Double_t fMinPosition;
 
         Double_t fElectricField;
-        Double_t fResolution;
 
         void InitFromConfigFile();
 
@@ -60,7 +59,6 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
             std::cout << " cathode : " << fCathodePosition << std::endl;
             std::cout << " anode : " << fAnodePosition << std::endl;
             std::cout << " eField : " << fElectricField << std::endl;
-            std::cout << " resolution : " << fResolution << std::endl;
 
             EndPrintProcess();
 
