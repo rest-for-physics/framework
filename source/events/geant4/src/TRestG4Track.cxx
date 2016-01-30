@@ -52,7 +52,11 @@ Int_t TRestG4Track::GetProcessID( TString pcsName )
     else if ( pcsName == "annihil" ) id = 10;
     else if ( pcsName == "RadioactiveDecay" ) id = 11;
     else if ( pcsName == "muIoni" ) id = 12;
-    else if ( pcsName == "StepLimiter") id = 20;
+    else if ( pcsName == "e-Step") id = 20;
+    else if ( pcsName == "e+Step") id = 21;
+    else if ( pcsName == "neutronStep") id = 22;
+    else if ( pcsName == "alphaStep") id = 23;
+    else if ( pcsName == "He3Step") id = 24;
     else
     {
         id = -1;
@@ -99,7 +103,11 @@ TString TRestG4Track::GetProcessName( Int_t id )
     else if ( id == 10 ) return "annihil";
     else if ( id == 11 ) return "RadioactiveDecay";
     else if ( id == 12 ) return "muIoni";
-    else if ( id == 20 ) return "StepLimiter";
+    else if ( id == 20 ) return "e-Step";
+    else if ( id == 21 ) return "e+Step";
+    else if ( id == 22 ) return "neutronStep";
+    else if ( id == 23 ) return "alphaStep";
+    else if ( id == 24 ) return "He3Step";
     else cout << "WARNING : The process ID : " << id << " could not be found" << endl;
 
     return "";

@@ -207,11 +207,13 @@ void PhysicsList::ConstructProcess()
     while((*theParticleIterator)()) {
         G4ParticleDefinition* particle = theParticleIterator->value();
         G4String partname = particle->GetParticleName();
-        if(partname == "e-" || partname == "e+" || partname == "positron"
-	  || partname == "neutron" || partname = "alpha" || partname == "He3") {
-            G4ProcessManager* processManager = particle->GetProcessManager();
-            processManager->AddDiscreteProcess(new G4StepLimiter());
-        }
+        G4ProcessManager* processManager = particle->GetProcessManager();
+	
+        if(partname =="e-") processManager->AddDiscreteProcess(new G4StepLimiter("e-Step")); 
+	else if(partname =="e+") processManager->AddDiscreteProcess(new G4StepLimiter("e+Step")); 
+	else if(partname =="neutron") processManager->AddDiscreteProcess(new G4StepLimiter("neutronStep")); 
+	else if(partname =="alpha") processManager->AddDiscreteProcess(new G4StepLimiter("alphaStep")); 
+	else if(partname =="He3") processManager->AddDiscreteProcess(new G4StepLimiter("He3Step")); 
     }
       
   G4UAtomicDeexcitation* de = new G4UAtomicDeexcitation();
