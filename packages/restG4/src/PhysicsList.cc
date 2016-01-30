@@ -84,6 +84,8 @@
 #include "G4UniversalFluctuation.hh"
 
 
+#include <G4StepLimiter.hh>
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -200,6 +202,17 @@ void PhysicsList::ConstructProcess()
   }
 
 
+
+    theParticleIterator->reset();
+    while((*theParticleIterator)()) {
+        G4ParticleDefinition* particle = theParticleIterator->value();
+        G4String partname = particle->GetParticleName();
+        if(partname == "e-" || partname == "e+" || partname == "positron"
+	  || partname == "neutron" || partname = "alpha" || partname == "He3") {
+            G4ProcessManager* processManager = particle->GetProcessManager();
+            processManager->AddDiscreteProcess(new G4StepLimiter());
+        }
+    }
       
   G4UAtomicDeexcitation* de = new G4UAtomicDeexcitation();
   de->SetFluo(true);

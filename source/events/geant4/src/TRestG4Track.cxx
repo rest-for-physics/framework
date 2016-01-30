@@ -39,8 +39,8 @@ Int_t TRestG4Track::GetProcessID( TString pcsName )
     // There must be a way to get all the registered processes from the physics list.
     // Would be a better way to do it
     // Or at least we must make a mapping id number to processName on a header file
-    if( pcsName == "initStep" ) id = 0;
-    else if( pcsName == "Transportation" ) id = 1;
+    if ( pcsName == "initStep" ) id = 0;
+    else if ( pcsName == "Transportation" ) id = 1;
     else if ( pcsName == "ionIoni" ) id = 2;
     else if ( pcsName == "phot" ) id = 3;
     else if ( pcsName == "eIoni" ) id = 4;
@@ -52,6 +52,7 @@ Int_t TRestG4Track::GetProcessID( TString pcsName )
     else if ( pcsName == "annihil" ) id = 10;
     else if ( pcsName == "RadioactiveDecay" ) id = 11;
     else if ( pcsName == "muIoni" ) id = 12;
+    else if ( pcsName == "StepLimiter") id = 20;
     else
     {
         id = -1;
@@ -98,8 +99,8 @@ TString TRestG4Track::GetProcessName( Int_t id )
     else if ( id == 10 ) return "annihil";
     else if ( id == 11 ) return "RadioactiveDecay";
     else if ( id == 12 ) return "muIoni";
-
-    cout << "WARNING : The process ID : " << id << " could not be found" << endl;
+    else if ( id == 20 ) return "StepLimiter";
+    else cout << "WARNING : The process ID : " << id << " could not be found" << endl;
 
     return "";
 }
