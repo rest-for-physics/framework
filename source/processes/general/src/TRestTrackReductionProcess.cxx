@@ -77,6 +77,7 @@ void TRestTrackReductionProcess::InitProcess()
 void TRestTrackReductionProcess::BeginOfEventProcess() 
 {
     fOutputTrackEvent->Initialize(); 
+    cout << "Processing Event : " << fInputTrackEvent->GetEventID() << endl;
 }
 
 //______________________________________________________________________________
@@ -84,21 +85,22 @@ TRestEvent* TRestTrackReductionProcess::ProcessEvent( TRestEvent *evInput )
 {
     fInputTrackEvent = (TRestTrackEvent *) evInput;
 
+
     fOutputTrackEvent->SetEventID( fInputTrackEvent->GetEventID() );
     fOutputTrackEvent->SetEventTime( fInputTrackEvent->GetEventTime() );
 
-    /* Debug output 
-    cout << "Event ID : " << fInputTrackEvent->GetEventID() << endl;
-    cout << "Number of tracks : " << fInputTrackEvent->GetNumberOfTracks() << endl;
-    */
+    // Copying the input tracks to the output track
+    for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
+        fOutputTrackEvent->AddTrack( fInputTrackEvent->GetTrack(tck) ); 
 
+    // Reducing the hits inside each track
     for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
     {
-        /* Debug output 
-        cout << "=======" << endl;
-        cout << "Initial hits : " << fInputTrackEvent->GetTrack(tck)->GetVolumeHits()->GetNumberOfHits( ) << endl;
-        */
-        TRestVolumeHits *hits = fInputTrackEvent->GetTrack(tck)->GetVolumeHits();
+     //   fInputTrackEvent->PrintOnlyTracks();
+        if( !fInputTrackEvent->isTopLevel( tck ) ) continue;
+
+        TRestTrack *track = fInputTrackEvent->GetTrack( tck );
+        TRestVolumeHits *hits = track->GetVolumeHits();
 
         Double_t distance = fMinimumDistance;
         while( distance < fMaximumDistance || hits->GetNumberOfHits() > fMaxNodes )
@@ -112,16 +114,33 @@ TRestEvent* TRestTrackReductionProcess::ProcessEvent( TRestEvent *evInput )
             distance *= 2;
         }
 
-        fOutputTrackEvent->AddTrack( fInputTrackEvent->GetTrack(tck) ); 
-        /* Debug output
-        cout << "Final hits : " << fInputTrackEvent->GetTrack(tck)->GetVolumeHits()->GetNumberOfHits() << endl;
-        cout << "=======" << endl;
-        */
+        track->SetParentID( track->GetTrackID() );
+        track->SetTrackID( fOutputTrackEvent->GetNumberOfTracks()+1 );
 
+        //fOutputTrackEvent->AddTrack( fInputTrackEvent->GetTrack(tck) ); 
+        fOutputTrackEvent->AddTrack( track ); 
     }
+
+    /*
+    cout << "output event" << endl;
+    cout << "+++++++++++++++++" << endl;
+    fOutputTrackEvent->PrintOnlyTracks();
+    cout << "+++++++++++++++++" << endl;
+    getchar();
+
+    cout << "Checking levels " << endl;
+    cout << "---------------------------------------------_" << endl;
+    cout << "TrackEvent pointer : " << fOutputTrackEvent << endl;
+    cout << fOutputTrackEvent->GetNumberOfTracks() << endl;
+    cout << "TrackEvent pointer : " << fOutputTrackEvent << endl;
+
+    fOutputTrackEvent->GetLevels();
+    cout << "---------------" << endl;
+    */
 
     //cout << "Number output of tracks : " << fOutputTrackEvent->GetNumberOfTracks() << endl;
 
+    fOutputTrackEvent->SetLevels();
     return fOutputTrackEvent;
 }
 

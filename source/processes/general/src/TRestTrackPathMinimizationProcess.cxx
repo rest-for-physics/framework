@@ -107,20 +107,31 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
     cout << "Number of tracks : " << fInputTrackEvent->GetNumberOfTracks() << endl;
     cout << "*****************************" << endl;
 
+    fOutputTrackEvent->SetEventID( fInputTrackEvent->GetEventID() );
+    fOutputTrackEvent->SetEventTime( fInputTrackEvent->GetEventTime() );
+
+    // Copying the input tracks to the output track
+    for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
+        fOutputTrackEvent->AddTrack( fInputTrackEvent->GetTrack(tck) ); 
+
     for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
     {
-        /* Debug output 
-        cout << "=======" << endl;
-        */
-        /*
-        fInputTrackEvent->GetTrack(tck)->GetVolumeHits()->PrintHits();
-        */
+        if( !fInputTrackEvent->isTopLevel( tck ) ) continue;
+        Int_t tckId = fInputTrackEvent->GetTrack( tck )->GetTrackID();
 
         TRestVolumeHits *hits = fInputTrackEvent->GetTrack(tck)->GetVolumeHits();
         Int_t nHits = hits->GetNumberOfHits();
         hits->SortByEnergy();
 
-        cout << "Track " << tck << " hits : " << hits->GetNumberOfHits( ) << endl;
+        /* {{{ Debug output
+        cout << "Input hits" << endl;
+        Int_t pId = fInputTrackEvent->GetTrack( tck )->GetParentID();
+        cout << "Track : " << tck << " TrackID : " << tckId << " ParentID : " << pId << endl;
+        cout << "-----------------" << endl;
+        hits->PrintHits();
+        cout << "-----------------" << endl;
+        getchar();
+        }}} */
 
         Double_t energy = 0.;
         Int_t n = 0;
@@ -142,16 +153,16 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
             Double_t maxDistance = hits->GetDistance2( 0, 1 );
             Int_t hitToSwap = 1;
             for( int i = 2; i <= n; i++ )
-                if( maxDistance < hits->GetDistance2( 0, n ) )
+            {
+                if( maxDistance < hits->GetDistance2( 0, i ) )
                 {
-                    maxDistance = hits->GetDistance2( 0, n );
+                    maxDistance = hits->GetDistance2( 0, i );
                     hitToSwap = i;
                 }
+            }
 
             hits->SwapHits( hitToSwap, nHits-1 );
         }
-
- //       fInputTrackEvent->GetTrack(tck)->GetVolumeHits()->PrintHits();
 
         Float_t x[fMaxNodes], y[fMaxNodes], z[fMaxNodes];
 
@@ -182,6 +193,12 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
                 TrackMinimization_2D( xInt, zInt, nHits, bestPath );
             }
         }
+        else
+        {
+            bestPath[0] = 0;
+            bestPath[1] = 1;
+            bestPath[2] = 2;
+        }
 
         TRestVolumeHits bestHitsOrder;
 
@@ -202,10 +219,30 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
 
         // TODO We must also copy other track info here
         TRestTrack bestTrack;
-        bestTrack.SetVolumeHits( bestHitsOrder );
-        fOutputTrackEvent->AddTrack( &bestTrack );
+        bestTrack.SetTrackID( fOutputTrackEvent->GetNumberOfTracks() + 1);
 
+        bestTrack.SetParentID( tckId );
+
+        bestTrack.SetVolumeHits( bestHitsOrder );
+
+        /* Debug output 
+        cout << "Output hits" << endl;
+        cout << "-----------------" << endl;
+        bestTrack.GetVolumeHits()->PrintHits();
+        cout << "-----------------" << endl;
+        getchar();
+        */
+
+        fOutputTrackEvent->AddTrack( &bestTrack );
     }
+
+ //   fOutputTrackEvent->SetLevels();
+
+    /* Debug output 
+    fOutputTrackEvent->PrintOnlyTracks();
+    fOutputTrackEvent->PrintEvent();
+    getchar();
+    */
 
     return fOutputTrackEvent;
 }

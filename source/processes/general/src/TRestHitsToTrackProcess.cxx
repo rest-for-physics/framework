@@ -29,7 +29,6 @@ TRestHitsToTrackProcess::TRestHitsToTrackProcess( char *cfgFileName )
     Initialize();
 
     if( LoadConfigFromFile( cfgFileName ) == -1 ) LoadDefaultConfig( );
-    PrintMetadata();
 
     // TRestHitsToTrackProcess default constructor
 }
@@ -70,7 +69,6 @@ void TRestHitsToTrackProcess::LoadConfig( string cfgFilename )
 {
 
     if( LoadConfigFromFile( cfgFilename ) == -1 ) LoadDefaultConfig( );
-    PrintMetadata();
 
 }
 
@@ -106,27 +104,36 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
     fTrackEvent->SetEventID( fHitsEvent->GetEventID() );
     fTrackEvent->SetEventTime( fHitsEvent->GetEventTime() );
 
-    /* Debugging output 
+    cout << "----------------------" << endl;
     cout << "Event ID : " << fHitsEvent->GetEventID() << endl;
     cout << "Number of hits : " << fHitsEvent->GetNumberOfHits() << endl;
 
+
+    /* Debugging output
     fHitsEvent->PrintEvent();
     getchar();
     */
 
     TRestHits *xzHits = fHitsEvent->GetXZHits();
-
+    cout << "Number of xzHits : " <<  xzHits->GetNumberOfHits() << endl;
     Int_t xTracks = FindTracks( xzHits );
+
     fTrackEvent->SetNumberOfXTracks( xTracks );
-    cout << "X tracks : " << xTracks << endl;
 
     TRestHits *yzHits = fHitsEvent->GetYZHits();
+    cout << "Number of yzHits : " <<  yzHits->GetNumberOfHits() << endl;
     Int_t yTracks = FindTracks( yzHits );
-    cout << "Y tracks : " << xTracks << endl;
+
     fTrackEvent->SetNumberOfYTracks( yTracks );
 
     TRestHits *xyzHits = fHitsEvent->GetXYZHits();
-    cout << "Tracks : " << FindTracks( xyzHits ) << endl;
+    cout << "Number of xyzHits : " <<  xyzHits->GetNumberOfHits() << endl;
+
+    FindTracks( xyzHits );
+
+    cout << "X tracks : " << xTracks << "  Y tracks : " << yTracks << endl;
+    cout << "Total number of tracks : " << fTrackEvent->GetNumberOfTracks() << endl;
+
 
     /* Debugging output
     cout << "Tracks in X : " << fTrackEvent->GetNumberOfXTracks() << endl;
@@ -144,6 +151,10 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
     */
 
     if( fTrackEvent->GetNumberOfTracks() == 0 ) return NULL;
+
+    //fTrackEvent->PrintOnlyTracks();
+
+    fTrackEvent->SetLevels();
 
     return fTrackEvent;
 }
@@ -228,9 +239,12 @@ Int_t TRestHitsToTrackProcess::FindTracks( TRestHits *hits )
             hits->RemoveHit(Q[nhit]);
         }
 
+        track->SetParentID( 0 );
+        track->SetTrackID( fTrackEvent->GetNumberOfTracks()+1 );
         track->SetVolumeHits( volHit );
         volHit.RemoveHits();
 
+  //      cout << "Adding track : id=" << track->GetTrackID() << " parent : " << track->GetParentID() << endl;
         fTrackEvent->AddTrack(track);
         nTracksFound++;
 
