@@ -1,35 +1,18 @@
-//#include <TObject.h>
-//#include <TString.h>
-//#include <TFile.h>
-//#include <TTree.h>
-//#include <TBranch.h>
 
-#include <iostream>
-using namespace std;
-
-
-Int_t RESTSIM_HitsToSignal( TString fName, char *cfgFilename )
+Int_t RESTSIM_HitsToSignal( TString fName, Int_t firstEvent = 0, Int_t numberOfEventsToProcess = 0, char *cfgFilename = "myConfig.rml" )
 {
-    cout << "Filename : " << fName << endl;
 
- //   TRestElectronDiffusionRun *run = new TRestElectronDiffusionRun();
-    TRestRun *run = new TRestRun();
+    TRestRun *run = new TRestRun( cfgFilename );
 
-    // We load the information from the input file on the new run
     run->OpenInputFile( fName );
 
-    cout << "N processes : " << run->GetNumberOfProcesses() << endl;
-
-    run->SetRunType( "segmentation" );
-    run->ResetRunTimes( );
-
     run->PrintInfo();
-    
+
     TRestHitsToSignalProcess *hitsToSignalProcess = new TRestHitsToSignalProcess( );
-    
+
     run->AddProcess( hitsToSignalProcess, cfgFilename );
 
-    run->Start( );
+    run->ProcessEvents( firstEvent, numberOfEventsToProcess );
 
     delete run;
 }

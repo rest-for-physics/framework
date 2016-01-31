@@ -1,21 +1,9 @@
 
-#include <iostream>
-using namespace std;
-
-
-Int_t RESTSIM_TrackReduction( TString fName, char *cfgFilename )
+Int_t RESTSIM_TrackReduction( TString fName, Int_t firstEvent = 0, Int_t numberOfEventsToProcess = 0, char *cfgFilename = "myConfig.rml" )
 {
-    cout << "Filename : " << fName << endl;
+    TRestRun *run = new TRestRun( cfgFilename );
 
-    TRestRun *run = new TRestRun();
-
-    // We load the information from the input file on the new run
     run->OpenInputFile( fName );
-
-    cout << "N processes : " << run->GetNumberOfProcesses() << endl;
-
-    run->SetRunType( "trackReduction" );
-    run->ResetRunTimes( );
 
     run->PrintInfo();
     
@@ -23,7 +11,7 @@ Int_t RESTSIM_TrackReduction( TString fName, char *cfgFilename )
     
     run->AddProcess( trackReductionProcess, cfgFilename );
 
-    run->Start( );
+    run->ProcessEvents( firstEvent, numberOfEventsToProcess );
 
     delete run;
 }
