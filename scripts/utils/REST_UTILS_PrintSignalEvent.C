@@ -1,0 +1,19 @@
+
+Int_t REST_UTILS_PrintSignalEvent( TString fName, Int_t firstEvent = 0 )
+{
+    TRestRun *run = new TRestRun();
+
+    run->OpenInputFile( fName );
+
+    run->PrintInfo();
+
+    TRestSignalEvent *evt = new TRestSignalEvent();
+
+    run->SetInputEvent( evt );
+
+    run->GetInputEventTree()->GetEntry( firstEvent );
+
+    evt->PrintEvent();
+
+    delete run;
+}
