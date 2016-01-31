@@ -16,7 +16,7 @@ All units in mm, keV and degrees
 </globals>
 
 <section run name="Run metadata" title="First simulations v1.0">
-    <parameter name="Nevents" value="100"/>
+    <parameter name="Nevents" value="50"/>
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
     <parameter name="runNumber" value="1"/>
@@ -36,9 +36,9 @@ All units in mm, keV and degrees
 <section restG4 name="Geant4 metadata" title="Simulation of Co60 decay">
 
     <parameter name="gdml_file" value="mySetupTemplate.gdml"/>
-    <parameter name="maxTargetStepSize" value="0.01" />
+    <parameter name="maxTargetStepSize" value="0.2" />
 
-    <generator type="point" position="(0,0,-800)" >
+    <generator type="point" position="(0,0,-200)" >
         <source fromFile="Xe136bb0n.dat">
         </source>
     </generator>
@@ -89,7 +89,7 @@ All units in mm, keV and degrees
 </section>
 
 <section hitsToTrackProcess name="hitsToTrack-Panda" title="Half PANDA X-III Vessel (Bottom)" >
-    <parameter name="clusterDistance" value="25" /> // mm
+    <parameter name="clusterDistance" value="15" /> // mm
 </section>
 
 <section trackReductionProcess name="trackReduction-Panda" title="Half PANDA X-III Vessel (Bottom)" >
@@ -99,8 +99,8 @@ All units in mm, keV and degrees
 </section>
 
 <section trackPathMinimizationProcess name="trackPathMinimization-Panda" title="Half PANDA X-III Vessel (Bottom)" >
-    <parameter name="energyThreshold" value="0.5" />
-    <parameter name="maxNodes" value="30" />
+    <parameter name="energyThreshold" value="0.8" />
+    <parameter name="maxNodes" value="100" />
 </section>
 
 <section readout nameref="Readout-PANDA_3MM_v1" file="definitions/readouts.rml"> </section>
