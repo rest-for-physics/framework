@@ -1,5 +1,8 @@
 #include "TRestHitsEvent.h"
 
+using namespace std;
+using namespace TMath;
+
 ClassImp(TRestHitsEvent)
 
 TRestHitsEvent::TRestHitsEvent()
@@ -50,46 +53,40 @@ void TRestHitsEvent::RemoveHits( )
 
 TRestHits *TRestHitsEvent::GetXZHits() 
 { 
-    //cout << "Getting XZ Hits" << endl;
     TRestHits *xzHits = new TRestHits();
     for( int i = 0; i < this->GetNumberOfHits(); i++ )
     {
-        if( this->GetY(i) == 0 )
+        if( IsNaN ( this->GetY(i) ) )
         {
             xzHits->AddHit( this->GetX(i), 0, this->GetZ(i), this->GetEnergy(i) );
         }
     }
-    //cout << "Number of XZ Hits : " << xzHits->GetNumberOfHits() << endl;
     return xzHits;
 }
 
 TRestHits *TRestHitsEvent::GetYZHits() 
 { 
-    //cout << "Getting YZ Hits" << endl;
     TRestHits *yzHits = new TRestHits();
     for( int i = 0; i < this->GetNumberOfHits(); i++ )
     {
-        if( this->GetX(i) == 0 )
+        if( IsNaN( this->GetX(i) ) )
         {
             yzHits->AddHit( 0, this->GetY(i), this->GetZ(i), this->GetEnergy(i) );
         }
     }
-    //cout << "Number of YZ Hits : " << yzHits->GetNumberOfHits() << endl;
     return yzHits;
 }
 
 TRestHits *TRestHitsEvent::GetXYZHits() 
 { 
-    //cout << "Getting XYZ Hits" << endl;
     TRestHits *xyzHits = new TRestHits();
     for( int i = 0; i < this->GetNumberOfHits(); i++ )
     {
-        if( this->GetX(i) != 0 &&  this->GetY(i) != 0  &&  this->GetZ(i) != 0)
+        if( !IsNaN( this->GetX(i) ) && !IsNaN( this->GetY(i) ) && !IsNaN( this->GetZ(i) ) )
         {
             xyzHits->AddHit( this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i) );
         }
     }
-    //cout << "Number of XYZ Hits : " << xyzHits->GetNumberOfHits() << endl;
     return xyzHits;
 }
 
