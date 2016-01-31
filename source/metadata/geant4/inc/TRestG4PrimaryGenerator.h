@@ -20,7 +20,6 @@
 #define RestCore_TRestG4PrimaryGenerator
 
 #include <iostream>
-using namespace std;
 
 #include "TObject.h"
 #include <TString.h>
@@ -32,10 +31,10 @@ using namespace std;
 class TRestG4PrimaryGenerator:public TObject {
     protected:
         Int_t fNsources;  // Number of sources to be generated
-        vector <TRestParticleSource> fSources;
+        std::vector <TRestParticleSource> fSources;
 
         Int_t fNCollections;
-        vector <TRestParticleCollection> fParticleCollections;
+        std::vector <TRestParticleCollection> fParticleCollections;
 
     public:
 

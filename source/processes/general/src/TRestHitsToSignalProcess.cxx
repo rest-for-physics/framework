@@ -12,6 +12,7 @@
 
 
 #include "TRestHitsToSignalProcess.h"
+using namespace std;
 
 
 /* Chrono can be used for measuring time with better precision and test the time spent for different parts of the code
@@ -184,11 +185,9 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
 {
     fHitsEvent = (TRestHitsEvent *) evInput;
 
-    /*
        cout << "Event ID : " << fHitsEvent->GetEventID() << endl;
        cout << "Number of hits : " << fHitsEvent->GetNumberOfHits() << endl;
        cout << "--------------------------" << endl;
-       */
 
     fSignalEvent->SetEventTime( fHitsEvent->GetEventTime() );
     fSignalEvent->SetEventID( fHitsEvent->GetEventID() );

@@ -12,6 +12,7 @@
 
 
 #include "TRestSignalToHitsProcess.h"
+using namespace std;
 
 const double cmTomm = 10.;
 

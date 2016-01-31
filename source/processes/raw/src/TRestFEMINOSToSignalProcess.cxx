@@ -21,6 +21,7 @@
 
 
 #include "TRestFEMINOSToSignalProcess.h"
+using namespace std;
 #include "TTimeStamp.h"
 
 ClassImp(TRestFEMINOSToSignalProcess)

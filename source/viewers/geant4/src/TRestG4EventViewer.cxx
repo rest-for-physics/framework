@@ -14,6 +14,7 @@
 
 
 #include "TRestG4EventViewer.h"
+using namespace std;
 
 ClassImp(TRestG4EventViewer)
 //______________________________________________________________________________
@@ -138,8 +139,6 @@ for( int i = 0; i < fG4Event->GetNumberOfTracks(); i++ )
                 cout<<" track "<<trkID<<" hit "<<i<<" eDep "<<eDep<<endl;
             }
         }
-
-
     }
 
 

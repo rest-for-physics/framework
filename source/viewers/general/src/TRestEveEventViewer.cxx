@@ -13,18 +13,22 @@
 ///_______________________________________________________________________________
 
 #include "TRestEveEventViewer.h"
+using namespace std;
 
 ClassImp(TRestEveEventViewer)
 //______________________________________________________________________________
 TRestEveEventViewer::TRestEveEventViewer()
 {
   Initialize();
+  fEnergyDeposits = new TEvePointSet();
+  fEnergyDeposits->SetElementName("Energy deposits");
 }
 
 
 //______________________________________________________________________________
 TRestEveEventViewer::~TRestEveEventViewer()
 {
+    delete fEnergyDeposits;
    // TRestEveEventViewer destructor
    DeleteCurrentEvent( );
    DeleteGeometry( );
@@ -37,7 +41,7 @@ void TRestEveEventViewer::Initialize()
    gEve = TEveManager::Create();
    gEve->GetBrowser()->DontCallClose();
    
-   fMinRadius = 1.5;
+   fMinRadius = 0.2;
    fMaxRadius = 3.;
    
    gEve->AddEvent(new TEveEventManager("Event", "Event"));
@@ -66,10 +70,14 @@ void TRestEveEventViewer::SetGeometry(TGeoManager *geo){
 
 void TRestEveEventViewer::DeleteCurrentEvent(  ){
 
-   cout<<"Removing event"<<endl;
-   gEve->GetViewers()->DeleteAnnotations();
-   gEve->GetCurrentEvent()->DestroyElements();
-      
+    cout<<"Removing event"<<endl;
+    delete fEnergyDeposits;
+    fEnergyDeposits = new TEvePointSet();
+    fEnergyDeposits->SetElementName("Energy deposits");
+    gEve->GetViewers()->DeleteAnnotations();
+    gEve->GetCurrentEvent()->DestroyElements();
+
+
 }
 
 void TRestEveEventViewer::DeleteGeometry(  ){
@@ -152,6 +160,7 @@ void TRestEveEventViewer::DrawTab( ){
 
 void TRestEveEventViewer::Update( ){
 
+    gEve->AddElement( fEnergyDeposits);
 rphi->ImportElements( gEve->GetCurrentEvent());
 rhoz->ImportElements( gEve->GetCurrentEvent());
 
@@ -163,16 +172,12 @@ rhozViewer->Redraw(kTRUE);
 
 void TRestEveEventViewer::AddSphericalHit( double x, double y, double z, double radius, double en )
 {
-    TEvePointSet* ps = new TEvePointSet();
-    ps->SetOwnIds(kTRUE);
-    ps->SetNextPoint(x*GEOM_SCALE,y*GEOM_SCALE,z*GEOM_SCALE);
-    sprintf(pointName,"Edep %.2lf",en);
-    ps->SetElementName(pointName);
-    ps->SetMarkerColor(kYellow);
-    ps->SetMarkerSize(radius);
-    ps->SetMarkerStyle(4);
-    
-    gEve->AddElement( ps);
-    
+    //TEvePointSet* ps = new TEvePointSet();
+
+    fEnergyDeposits->SetOwnIds(kTRUE);
+    fEnergyDeposits->SetNextPoint(x*GEOM_SCALE,y*GEOM_SCALE,z*GEOM_SCALE);
+    fEnergyDeposits->SetMarkerColor(kYellow);
+    fEnergyDeposits->SetMarkerSize(radius);
+    fEnergyDeposits->SetMarkerStyle(4);
 }
 

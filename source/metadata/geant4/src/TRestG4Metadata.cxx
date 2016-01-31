@@ -17,6 +17,7 @@
 
 
 #include "TRestG4Metadata.h"
+using namespace std;
 
 ClassImp(TRestG4Metadata)
 //______________________________________________________________________________
@@ -440,4 +441,32 @@ void TRestG4Metadata::ReadGeneratorFile( TString fName )
 
     fPrimaryGenerator.SetSourcesFromParticleCollection( 0 );
 
+}
+
+Int_t TRestG4Metadata::GetActiveVolumeID( TString name )
+{
+    Int_t id;
+    for( id = 0; id < (Int_t) fActiveVolumes.size(); id++ )
+    {
+        if( fActiveVolumes[id] == name ) return id;
+    }
+    return -1;
+}
+
+void TRestG4Metadata::SetActiveVolume( TString name, Double_t chance )
+{
+    fActiveVolumes.push_back( name );
+    fChance.push_back( chance );
+}
+
+Double_t TRestG4Metadata::GetStorageChance( TString vol )
+{
+    Int_t id;
+    for( id = 0; id < (Int_t) fActiveVolumes.size(); id++ )
+    {
+        if( fActiveVolumes[id] == vol ) return fChance[id];
+    }
+    cout << "STORAGE VOLUME NOT FOUND" << endl;
+
+    return 0;
 }

@@ -15,6 +15,7 @@
 
 
 #include "TRestReadoutMapping.h"
+using namespace std;
 
 ClassImp(TRestReadoutMapping)
 //______________________________________________________________________________

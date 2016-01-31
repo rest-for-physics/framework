@@ -20,7 +20,6 @@
 #define RestCore_TRestFFT
 
 #include <iostream>
-using namespace std;
 
 #include <TObject.h>
 #include <TArrayD.h>

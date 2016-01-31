@@ -1,25 +1,9 @@
-//#include <TObject.h>
-//#include <TString.h>
-//#include <TFile.h>
-//#include <TTree.h>
-//#include <TBranch.h>
 
-#include <iostream>
-using namespace std;
-
-
-Int_t RESTSIM_ElectronDiffusion( TString fName, char *cfgFilename )
+Int_t RESTSIM_ElectronDiffusion( TString fName, Int_t firstEvent = 0, Int_t numberOfEventsToProcess = 0, char *cfgFilename = "myConfig.rml" )
 {
-    cout << "Filename : " << fName << endl;
+    TRestRun *run = new TRestRun( cfgFilename );
 
- //   TRestElectronDiffusionRun *run = new TRestElectronDiffusionRun();
-    TRestRun *run = new TRestRun();
-
-    // We load the information from the input file on the new run
     run->OpenInputFile( fName );
-
-    run->SetRunType( "diffusion" );
-    run->ResetRunTimes( );
 
     run->PrintInfo();
     
@@ -27,7 +11,7 @@ Int_t RESTSIM_ElectronDiffusion( TString fName, char *cfgFilename )
     
     run->AddProcess( eDiffProcess, cfgFilename );
 
-    run->Start( );
+    run->ProcessEvents( firstEvent, numberOfEventsToProcess );
 
     delete run;
 }

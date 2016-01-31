@@ -17,6 +17,7 @@
 
 
 #include "TRestReadoutChannel.h"
+using namespace std;
 
 ClassImp(TRestReadoutChannel)
 //______________________________________________________________________________

@@ -18,7 +18,6 @@
 #define RestCore_TRestGeometry
 
 #include <iostream>
-using namespace std;
 
 #include "TObject.h"
 #include "TGeoMaterial.h"

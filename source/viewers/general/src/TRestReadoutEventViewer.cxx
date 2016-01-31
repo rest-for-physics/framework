@@ -14,6 +14,7 @@
 
 
 #include "TRestReadoutEventViewer.h"
+using namespace std;
 
 ClassImp(TRestReadoutEventViewer)
 

@@ -90,7 +90,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 PhysicsList::PhysicsList() : G4VModularPhysicsList(),
-	fCutForGamma( 0.00001*nm), fCutForElectron(1*mm), fCutForPositron(0.1*mm),
+	fCutForGamma( 0.00001*nm), fCutForElectron(0.01*mm), fCutForPositron(0.1*mm),
 	fEmPhysicsList(0) 
 {
   //add new units for radioActive decays

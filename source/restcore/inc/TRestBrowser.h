@@ -31,7 +31,6 @@
 #include "TRestEventViewer.h"
 
 #include <iostream>
-using namespace std;
 
 class TRestBrowser: public TRestRun {
     

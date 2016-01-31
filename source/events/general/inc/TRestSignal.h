@@ -23,7 +23,6 @@
 #define RestCore_TRestSignal
 
 #include <iostream>
-using namespace std;
 
 #include <TObject.h>
 #include <TString.h>
@@ -36,8 +35,8 @@ class TRestSignal: public TObject {
         
         Int_t fSignalID;
         
-        vector <Float_t> fSignalTime;   //Vector with the time of the signal
-        vector <Float_t> fSignalCharge; //Vector with the charge of the signal
+        std::vector <Float_t> fSignalTime;   //Vector with the time of the signal
+        std::vector <Float_t> fSignalCharge; //Vector with the charge of the signal
         
         #ifndef __CINT__
 	TVector2 vector2; 
@@ -56,14 +55,15 @@ class TRestSignal: public TObject {
         
         Int_t GetSignalID( ) { return fSignalID; }
         
-        Int_t GetNumberOfPoints(){
-       
-        if(fSignalTime.size()!=fSignalCharge.size()){
-        cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
-        cout<<"WARNING, the two vector sizes did not match"<<endl;
-        cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
-        }
-        return fSignalTime.size(); 
+        Int_t GetNumberOfPoints()
+        {
+            if(fSignalTime.size()!=fSignalCharge.size())
+            {
+                std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
+                std::cout<<"WARNING, the two vector sizes did not match"<<std::endl;
+                std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
+            }
+            return fSignalTime.size(); 
         }
 
         Double_t GetIntegral( );

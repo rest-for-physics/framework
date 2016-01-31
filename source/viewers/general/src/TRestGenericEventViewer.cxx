@@ -14,6 +14,7 @@
 
 
 #include "TRestGenericEventViewer.h"
+using namespace std;
 
 ClassImp(TRestGenericEventViewer)
 //______________________________________________________________________________

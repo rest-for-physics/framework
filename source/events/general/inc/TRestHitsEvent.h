@@ -3,7 +3,6 @@
 #define TRestSoft_TRestHitsEvent
 
 #include <iostream>
-using namespace std;
 
 #include "TObject.h"
 #include "TMath.h"
@@ -40,14 +39,17 @@ class TRestHitsEvent : public TRestEvent
         Double_t GetZ( int n ) { return fHits->GetZ(n); } // return value in mm
         Double_t GetEnergy( int n ) { return fHits->GetEnergy(n); } //return value in keV
 
-        Double_t GetDistance2( int n, int m );
+        Double_t GetDistance2( int n, int m ) { return fHits->GetDistance2( n, m ); }
+
+        TRestHits *GetXZHits();
+        TRestHits *GetYZHits();
+        TRestHits *GetXYZHits();
 
         virtual void Initialize();
 
         virtual void PrintEvent();
 
-
-        TVector3 Get( int n ) { return fHits->Get(n); }
+        TVector3 GetPosition( int n ) { return fHits->GetPosition(n); }
 
 
         Double_t GetTotalDepositedEnergy() { return fHits->fTotEnergy; }

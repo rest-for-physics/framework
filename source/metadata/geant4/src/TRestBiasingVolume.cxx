@@ -17,6 +17,7 @@
 
 
 #include "TRestBiasingVolume.h"
+using namespace std;
 
 ClassImp(TRestBiasingVolume)
 //______________________________________________________________________________

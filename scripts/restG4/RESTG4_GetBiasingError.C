@@ -1,18 +1,7 @@
-//#include <TObject.h>
-//#include <TString.h>
-//#include <TFile.h>
-//#include <TTree.h>
-//#include <TBranch.h>
-
-#include <iostream>
-using namespace std;
-
 
 Double_t RESTG4_GetBiasingError( TString fName, Int_t finalEvents = 0 )
 {
     cout << "Filename : " << fName << endl;
-
-    gSystem->Load("librestcore.so");
 
     TRestRun *run = new TRestRun();
     TRestG4Metadata *metadata = new TRestG4Metadata();

@@ -39,6 +39,7 @@
 #include "globals.hh"
 #include "G4EmConfigurator.hh"
 
+using namespace std;
 class G4VPhysicsConstructor;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

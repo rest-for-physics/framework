@@ -20,7 +20,6 @@
 #define RestCore_TRestReadoutPixel
 
 #include <iostream>
-using namespace std;
 
 #include "TObject.h"
 #include <TVector2.h>

@@ -17,6 +17,7 @@
 
 
 #include "TRestDAQMetadata.h"
+using namespace std;
 
 
 ClassImp(TRestDAQMetadata)

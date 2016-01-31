@@ -17,6 +17,7 @@
 
 
 #include "TRestReadoutPixel.h"
+using namespace std;
 
 ClassImp(TRestReadoutPixel)
 //______________________________________________________________________________

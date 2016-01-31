@@ -28,7 +28,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-using namespace std;
 
 #include <TMath.h>
 #include <TString.h>
@@ -63,13 +62,13 @@ class TRestG4Metadata:public TRestMetadata {
         TString fGeneratorFile;
 
         TVector2 fEnergyRangeStored;
-        vector <TString> fActiveVolumes;
-        vector <Double_t> fChance;
+        std::vector <TString> fActiveVolumes;
+        std::vector <Double_t> fChance;
 
         TRestG4PrimaryGenerator fPrimaryGenerator;
 
         Int_t fNBiasingVolumes;
-        vector <TRestBiasingVolume> fBiasingVolumes;
+        std::vector <TRestBiasingVolume> fBiasingVolumes;
         
         Double_t fMaxTargetStepSize;
 
@@ -122,39 +121,17 @@ class TRestG4Metadata:public TRestMetadata {
 
 
         Double_t GetStorageChance( Int_t n ) { return fChance[n]; }
-        Double_t GetStorageChance( TString vol )
-        {
-            Int_t id;
-            for( id = 0; id < (Int_t) fActiveVolumes.size(); id++ )
-            {
-                if( fActiveVolumes[id] == vol ) return fChance[id];
-            }
-            cout << "STORAGE VOLUME NOT FOUND" << endl;
-
-            return 0;
-        }
+        Double_t GetStorageChance( TString vol );
 
         Double_t GetMinimumEnergyStored() { return fEnergyRangeStored.X(); }
         Double_t GetMaximumEnergyStored() { return fEnergyRangeStored.Y(); }
 
         Int_t GetNumberOfActiveVolumes( ) { return fActiveVolumes.size(); }
-        Int_t GetActiveVolumeID( TString name )
-        {
-            Int_t id;
-            for( id = 0; id < (Int_t) fActiveVolumes.size(); id++ )
-            {
-                if( fActiveVolumes[id] == name ) return id;
-            }
-            return -1;
-        }
+        Int_t GetActiveVolumeID( TString name );
 
         TString GetActiveVolumeName( Int_t id ) { return fActiveVolumes[id]; }
 
-        void SetActiveVolume( TString name, Double_t chance )
-        {
-            fActiveVolumes.push_back( name );
-            fChance.push_back( chance );
-        }
+        void SetActiveVolume( TString name, Double_t chance );
 
         void PrintMetadata( );
 

@@ -21,6 +21,7 @@
 
 
 #include "TRestAFTERToSignalProcess.h"
+using namespace std;
 #include "TTimeStamp.h"
 
 #include <arpa/inet.h>

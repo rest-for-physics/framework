@@ -20,7 +20,6 @@
 #define RestCore_TRestRun
 
 #include <iostream>
-using namespace std;
 
 #include "TObject.h"
 #include "TFile.h"
@@ -61,12 +60,14 @@ class TRestRun:public TRestMetadata {
         Double_t fStartTime;              ///< Event absolute starting time/date (unix timestamp)
         Double_t fEndTime;              ///< Event absolute starting time/date (unix timestamp)
 
-        vector <TRestMetadata*> fMetadata;
-        vector <TRestEventProcess*> fEventProcess;
-        vector <TRestMetadata*> fHistoricMetadata;  // Open input file should store the metadata (and historic) information in historic metadata
-        vector <TRestEventProcess*> fHistoricEventProcess;
+        std::vector <TRestMetadata*> fMetadata;
+        std::vector <TRestEventProcess*> fEventProcess;
+        std::vector <TRestMetadata*> fHistoricMetadata;  // Open input file should store the metadata (and historic) information in historic metadata
+        std::vector <TRestEventProcess*> fHistoricEventProcess;
 
 #ifndef __CINT__
+        Bool_t fOverwrite;
+
         TTree *fInputEventTree;
         TTree *fOutputEventTree;
 
@@ -78,6 +79,7 @@ class TRestRun:public TRestMetadata {
         
         Int_t fCurrentEvent;
 #endif
+        Int_t fProcessedEvents;
 
         TGeoManager *fGeometry;
 
@@ -87,14 +89,17 @@ class TRestRun:public TRestMetadata {
 
     public:
         
-        void Start();
-        void ProcessAll();
+        void Start(  );
+        void ProcessEvents( Int_t firstEvent = 0, Int_t eventsToProcess = 0 );
         
         Int_t GetNumberOfProcesses() { return fEventProcess.size(); }
 
         // File input/output
         void OpenOutputFile( );
         void CloseOutputFile( );
+
+        void EnableOverWrite( ) { fOverwrite = true; }
+        void DisableOverWrite( ) { fOverwrite = false; }
 
         void OpenInputFile( TString fName );
         void OpenInputFile( TString fName, TString cName );
@@ -120,10 +125,16 @@ class TRestRun:public TRestMetadata {
         Double_t GetEndTimestamp() { return fEndTime; }
         TString GetExperimentName() { return fExperimentName; }
         TGeoManager *GetGeometry() { return fGeometry; }
-        TRestMetadata *GetHistoricMetadata(unsigned int index){
-        if(index<fHistoricMetadata.size())return fHistoricMetadata[index];
-        else return NULL;
+
+        Int_t GetNumberOfProcessedEvents() { return fProcessedEvents; }
+
+        TRestMetadata *GetHistoricMetadata(unsigned int index)
+        {
+            if( index < fHistoricMetadata.size() ) return fHistoricMetadata[index];
+            else return NULL;
         }
+
+        TRestMetadata *GetMetadata( TString name );
 
 
         void SetRunNumber( Int_t number ) { fRunNumber = number; }
@@ -135,10 +146,8 @@ class TRestRun:public TRestMetadata {
         void SetNumberOfEvents( Int_t nEvents ) { fRunEvents = nEvents; } 
         void SetEndTimeStamp( Double_t tStamp ) { fEndTime = tStamp; }
 
-        void SetGeometry( TGeoManager *g ) { cout << "AA" << endl; fGeometry = g; cout << "fGeo ::" << fGeometry << endl; } // fGeometry->SetName( "GDML_Geometry"); cout << "CC" << endl; }
+        void SetGeometry( TGeoManager *g ) { fGeometry = g; }
         void SetInputFileName( TString fN){fInputFilename=fN;}
-        
-        
 
         TString GetDateFormatted( Double_t runTime );
         TString GetDateForFilename( Double_t runTime );
@@ -153,7 +162,7 @@ class TRestRun:public TRestMetadata {
 
         void AddMetadata( TRestMetadata *metadata ) { fMetadata.push_back( metadata ); }
         void AddHistoricMetadata( TRestMetadata *metadata ) { fHistoricMetadata.push_back( metadata ); }
-        void AddProcess( TRestEventProcess *process, string cfgFilename );
+        void AddProcess( TRestEventProcess *process, std::string cfgFilename );
 
         virtual void SetOutputEvent( TRestEvent *evt );
         virtual void SetInputEvent( TRestEvent *evt );
@@ -166,6 +175,19 @@ class TRestRun:public TRestMetadata {
 
         void PrintInfo( );
         void PrintMetadata() { PrintInfo(); }
+
+        void PrintAllMetadata()
+        {
+            this->PrintMetadata();
+            for( unsigned int i = 0; i < fMetadata.size(); i++ )
+                fMetadata[i]->PrintMetadata();
+            for( unsigned int i = 0; i < fEventProcess.size(); i++ )
+                fEventProcess[i]->PrintMetadata();
+            for( unsigned int i = 0; i < fHistoricMetadata.size(); i++ )
+                fHistoricMetadata[i]->PrintMetadata();
+            for( unsigned int i = 0; i < fHistoricEventProcess.size(); i++ )
+                fHistoricEventProcess[i]->PrintMetadata();
+        }
         
         void PrintProcessedEvents( Int_t rateE);
 

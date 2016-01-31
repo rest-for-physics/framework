@@ -1,20 +1,8 @@
-//#include <TObject.h>
-//#include <TString.h>
-//#include <TFile.h>
-//#include <TTree.h>
-//#include <TBranch.h>
-
-#include <stdio.h>
-#include <unistd.h>
-#include <iostream>
-using namespace std;
 
 
 Int_t RESTG4_FindGammasEmitted( TString fName )
 {
     cout << "Filename : " << fName << endl;
-
-    gSystem->Load("librestcore.so");
 
     TRestRun *run = new TRestRun();
     string fname = fName.Data();

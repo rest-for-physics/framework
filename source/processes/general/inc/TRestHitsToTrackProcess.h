@@ -25,11 +25,11 @@ class TRestHitsToTrackProcess:public TRestEventProcess {
         TRestTrackEvent *fTrackEvent;
 
         Double_t fClusterDistance;
-        TMatrixD *distMatrix;
 
         void InitFromConfigFile();
 
         void Initialize();
+        Int_t FindTracks( TRestHits *hits );
 
     protected:
         //add here the members of your event process
@@ -43,19 +43,19 @@ class TRestHitsToTrackProcess:public TRestEventProcess {
         void EndProcess();
         void LoadDefaultConfig( );
 
-        void LoadConfig( string cfgFilename );
+        void LoadConfig( std::string cfgFilename );
 
         void PrintMetadata() { 
 
             BeginPrintProcess();
 
-            cout << " cluster-distance : " << fClusterDistance << endl;
+            std::cout << " cluster-distance : " << fClusterDistance << " mm " << std::endl;
 
             EndPrintProcess();
 
         }
 
-        TString GetProcessName() { return (TString) "HitsToTrackProcess"; }
+        TString GetProcessName() { return (TString) "hitsToTrack"; }
 
         //Constructor
         TRestHitsToTrackProcess();

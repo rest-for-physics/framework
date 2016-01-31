@@ -19,7 +19,6 @@
 
 #include <vector>
 #include <iostream>
-using namespace std;
 
 #include "TObject.h"
 #include <TString.h>

@@ -17,6 +17,7 @@
 
 
 #include "TRestBrowser.h"
+using namespace std;
 
 ClassImp(TRestBrowser)
 //______________________________________________________________________________
@@ -185,6 +186,7 @@ Bool_t TRestBrowser::OpenFile( TString fName )
     if(GetGeometry( )!=NULL)fEventViewer->SetGeometry(GetGeometry( ));
     
     isFile=kTRUE;
+    LoadEventAction( );
     
     return kTRUE; 
 

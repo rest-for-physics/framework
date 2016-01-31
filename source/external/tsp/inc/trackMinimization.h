@@ -10,9 +10,9 @@
 #ifdef __cplusplus
 extern "C" 
 #endif
-int TrackMinimization_2D ( int *xIn, int *yIn, int ncount );
+int TrackMinimization_2D ( int *xIn, int *yIn, int ncount, int *mytour );
 
 #ifdef __cplusplus
 extern "C" 
 #endif
-int TrackMinimization_3D ( int *xIn, int *yIn, int *zIn, int ncount );
+int TrackMinimization_3D ( int *xIn, int *yIn, int *zIn, int ncount, int *mytour );

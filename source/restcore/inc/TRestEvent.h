@@ -20,7 +20,6 @@
 #define RestCore_TRestEvent
 
 #include <iostream>
-using namespace std;
 
 #include "TObject.h"
 #include <TString.h>

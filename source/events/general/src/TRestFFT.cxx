@@ -19,6 +19,7 @@
 #include <TComplex.h>
 
 #include "TRestFFT.h"
+using namespace std;
 
 ClassImp(TRestFFT)
 //______________________________________________________________________________

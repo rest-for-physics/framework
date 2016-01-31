@@ -20,7 +20,6 @@
 #define RestCore_TRestReadoutChannel
 
 #include <iostream>
-using namespace std;
 
 #include "TObject.h"
 
@@ -29,7 +28,7 @@ using namespace std;
 class TRestReadoutChannel : public TObject {
     private:
         Int_t fChannelID;
-        vector <TRestReadoutPixel> fReadoutPixel;
+        std::vector <TRestReadoutPixel> fReadoutPixel;
 
         void Initialize();
 

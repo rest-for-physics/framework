@@ -24,6 +24,7 @@
 
 
 #include "TRestSignal.h"
+using namespace std;
 
 #include <TMath.h>
 
@@ -108,8 +109,6 @@ Double_t TRestSignal::GetAverage( Int_t start, Int_t end )
         sum += this->GetData(i);
     }
     return sum/(end-start);
-
-
 }
 
 Int_t TRestSignal::GetMaxPeakWidth()

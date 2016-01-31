@@ -20,7 +20,6 @@
 #define RestCore_TRestDecoding
 
 #include <iostream>
-using namespace std;
 
 #include "TRestMetadata.h"
 #include "TRestReadout.h"
@@ -30,30 +29,30 @@ class TRestDecoding:public TRestMetadata{
         void InitFromConfigFile();
 
         virtual void Initialize();
-	
-	vector <Int_t> fReadoutChannelID;
-	vector <Int_t> fDaqChannelID;
-	
-	Int_t fNChannels;
-	
+
+        std::vector <Int_t> fReadoutChannelID;
+        std::vector <Int_t> fDaqChannelID;
+
+        Int_t fNChannels;
+
     protected:
 
     public:
 
         void PrintMetadata( );
-	
-	void LoadDefaultDecoding( );
-	
-	void AddChannel( int rC, int pCh){
-	fReadoutChannelID.push_back(rC);
-	fDaqChannelID.push_back(pCh);
-	}
-	
-	Int_t GetNChannels(){return fNChannels;}
-	Int_t GetReadoutChannel (int daqChannel);	
-	
-	Bool_t LoadDecodingFromFile(TString fName);
-	
+
+        void LoadDefaultDecoding( );
+
+        void AddChannel( int rC, int pCh){
+            fReadoutChannelID.push_back(rC);
+            fDaqChannelID.push_back(pCh);
+        }
+
+        Int_t GetNChannels(){return fNChannels;}
+        Int_t GetReadoutChannel (int daqChannel);	
+
+        Bool_t LoadDecodingFromFile(TString fName);
+
         //Construtor
         TRestDecoding();
         TRestDecoding( char *cfgFileName);

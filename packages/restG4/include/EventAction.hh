@@ -34,6 +34,8 @@
 #ifndef EventAction_h
 #define EventAction_h 1
 
+using namespace std;
+
 #include "G4UserEventAction.hh"
 #include "globals.hh"
 

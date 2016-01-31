@@ -17,6 +17,7 @@
 
 
 #include "TRestG4Track.h"
+using namespace std;
 
 ClassImp(TRestG4Track)
 //______________________________________________________________________________
@@ -71,14 +72,14 @@ Double_t TRestG4Track::GetTrackLength( )
 {
     Double_t length = 0;
 
-    length = GetDistance( fHits.Get(0), GetTrackOrigin() );
+    length = GetDistance( fHits.GetPosition(0), GetTrackOrigin() );
     //cout << GetTrackOrigin().X() << " " << GetTrackOrigin().Y() << " " << GetTrackOrigin().Z() << endl;
     //cout << "Length : " << length << endl;
 
     for( int i = 1; i < GetNumberOfHits(); i++ )
     {
-        TVector3 prevHit = fHits.Get(i-1);
-        TVector3 hit = fHits.Get(i);
+        TVector3 prevHit = fHits.GetPosition(i-1);
+        TVector3 hit = fHits.GetPosition(i);
         length += GetDistance( hit, prevHit );
         //cout << prevHit.X() << " " << prevHit.Y() << " " << prevHit.Z() << endl;
         //cout << "Length : " << length << endl;

@@ -17,6 +17,7 @@
 
 
 #include "TRestRun.h"
+using namespace std;
 
 const int debug = 0;
 
@@ -66,6 +67,10 @@ void TRestRun::Initialize()
     fOutputFilename = "null";
 
     fGeometry = NULL;
+
+    fOverwrite = false;
+
+    fProcessedEvents = 0;
 }
 
 void TRestRun::ResetRunTimes()
@@ -83,20 +88,22 @@ TRestRun::~TRestRun()
     if( fOutputFile != NULL ) CloseOutputFile();
 }
 
-void TRestRun::Start( )
+void TRestRun::Start(  )
 {
-    cout << "TRestRun::Start( ) is OBSOLETE. You should change your code to use ProcessAll( ) instead" << endl;
+    cout << "TRestRun::Start( ) is OBSOLETE. You should change your code to use ProcessEvents( ) instead" << endl;
 
-    ProcessAll();
+    ProcessEvents(  );
 
 }
 
-void TRestRun::ProcessAll( )
+void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess ) 
 {
 
-	fCurrentEvent=0;
+	fCurrentEvent = firstEvent;
 
 	if( fEventProcess.size() == 0 ) { cout << "WARNNING Run does not contain processes" << endl; return; }
+
+	this->SetRunType( fEventProcess[fEventProcess.size()-1]->GetProcessName() );
 
 	this->OpenOutputFile();
 
@@ -104,22 +111,18 @@ void TRestRun::ProcessAll( )
 
 	this->SetOutputEvent( fEventProcess.back()->GetOutputEvent() );
 
-	this->SetRunType( fEventProcess[fEventProcess.size()-1]->GetProcessName() );
-
-	this->ResetRunTimes();
-
-
 	//////////////////
 
 	
 	for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->InitProcess();
 
+    fProcessedEvents = 0;
+    if( eventsToProcess == 0 && fInputEventTree != NULL ) eventsToProcess = fInputEventTree->GetEntries();
 
 	TRestEvent *processedEvent;
-	while( this->GetNextEvent() )
+	while( this->GetNextEvent() && eventsToProcess > fProcessedEvents )
 	{
 		processedEvent = fInputEvent;
-        cout << processedEvent << endl;
 
 		for( unsigned int j = 0; j < fEventProcess.size(); j++ )
 		{
@@ -135,6 +138,8 @@ void TRestRun::ProcessAll( )
 		fOutputEventTree->Fill();
 
 		PrintProcessedEvents(100);
+
+        fProcessedEvents++;
 	}
 
 	cout<<fOutputEventTree->GetEntries()<<" processed events"<<endl;
@@ -143,6 +148,7 @@ void TRestRun::ProcessAll( )
 		fEventProcess[i]->EndProcess();
 
 }
+
 void TRestRun::AddProcess( TRestEventProcess *process, string cfgFilename ) 
 {
 
@@ -185,7 +191,7 @@ void TRestRun::AddProcess( TRestEventProcess *process, string cfgFilename )
 void TRestRun::SetOutputEvent( TRestEvent *evt ) 
 { 
     fOutputEvent = evt;
-    TString treeName = (TString) evt->GetName() + " Tree";
+    TString treeName = (TString) evt->GetName() + "Tree";
     fOutputEventTree->SetName( treeName );
     fOutputEventTree->Branch("eventBranch", evt->GetClassName(), fOutputEvent);
 }
@@ -196,7 +202,7 @@ void TRestRun::SetInputEvent( TRestEvent *evt )
 
     if( evt == NULL ) return;
 
-    TString treeName = (TString) evt->GetName() + " Tree";
+    TString treeName = (TString) evt->GetName() + "Tree";
 
     if( GetObjectKeyByName( treeName ) == NULL )
     {
@@ -268,6 +274,18 @@ TKey *TRestRun::GetObjectKeyByName( TString name )
 
 }
 
+TRestMetadata *TRestRun::GetMetadata( TString name )
+{
+    for( unsigned int i = 0; i < fMetadata.size(); i++ )
+        if( fMetadata[i]->GetName() == name ) return fMetadata[i];
+
+    for( unsigned int i = 0; i < fHistoricMetadata.size(); i++ )
+        if( fHistoricMetadata[i]->GetName() == name ) return fHistoricMetadata[i];
+
+    return NULL;
+
+}
+
 void TRestRun::OpenInputFile( TString fName )
 {
     if( fInputFile != NULL ) fInputFile->Close();
@@ -326,6 +344,8 @@ void TRestRun::OpenInputFile( TString fName, TString cName )
 
 void TRestRun::OpenOutputFile( )
 {
+    this->ResetRunTimes();
+
     SetRunFilenameAndIndex();
 
     if( GetVerboseLevel() == REST_Info ) cout << "Opening file : " << fOutputFilename << endl;
@@ -530,6 +550,10 @@ void TRestRun::InitFromConfigFile()
    fExperimentName = GetParameter( "experiment" );
 
    fRunTag = GetParameter( "runTag" );
+
+   if( GetParameter( "overwrite" ) == "on" ) { cout << "Overwrite : on" << endl; fOverwrite = true; }
+
+
 }
 
 void TRestRun::SetRunFilenameAndIndex()
@@ -545,7 +569,7 @@ void TRestRun::SetRunFilenameAndIndex()
     fOutputFilename = GetDataPath() + "/Run_" + expName + "_"+ fRunUser + "_"  
         + runType + "_" + fRunTag + "_" + (TString) runIndexStr + "_r" + fVersion + ".root";
 
-    while( fileExists( (string) fOutputFilename ) )
+    while( !fOverwrite && fileExists( (string) fOutputFilename ) )
     {
         fRunIndex++;
         sprintf( runIndexStr, "%03d", fRunIndex );
@@ -582,6 +606,7 @@ void TRestRun::PrintInfo( )
         cout << "Date/Time : " << GetDateFormatted( GetEndTimestamp() ) << " / " << GetTime( GetEndTimestamp() ) << endl;
         cout << "Input filename : " << fInputFilename << endl;
         cout << "Output filename : " << fOutputFilename << endl;
+        cout << "Number of processed events : " << fProcessedEvents << endl;
         cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
 }
@@ -616,6 +641,7 @@ Bool_t TRestRun::GetNextEvent( )
     {
 
         if( fInputEventTree->GetEntries() == fCurrentEvent-1 ) return kFALSE;
+
         fInputEventTree->GetEntry( fCurrentEvent );
         fCurrentEvent++;
     }

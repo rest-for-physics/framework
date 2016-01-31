@@ -12,6 +12,7 @@
 
 
 #include "TRestSignalDeconvolutionProcess.h"
+using namespace std;
 
 #include <TRestFFT.h>
 

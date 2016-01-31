@@ -1,5 +1,8 @@
 #include "TRestHitsEvent.h"
 
+using namespace std;
+using namespace TMath;
+
 ClassImp(TRestHitsEvent)
 
 TRestHitsEvent::TRestHitsEvent()
@@ -33,11 +36,6 @@ void TRestHitsEvent::Initialize()
 
 }
 
-Double_t TRestHitsEvent::GetDistance2( int n, int m )
-{
-    return (GetX(n)-GetX(m))*(GetX(n)-GetX(m)) +  (GetY(n)-GetY(m))*(GetY(n)-GetY(m)) + (GetZ(n)-GetZ(m))*(GetZ(n)-GetZ(m));
-}
-
 void TRestHitsEvent::MergeHits( int n, int m )
 {
     fHits->MergeHits( n, m );
@@ -51,6 +49,45 @@ void TRestHitsEvent::RemoveHit( int n )
 void TRestHitsEvent::RemoveHits( )
 {
     fHits->RemoveHits( );
+}
+
+TRestHits *TRestHitsEvent::GetXZHits() 
+{ 
+    TRestHits *xzHits = new TRestHits();
+    for( int i = 0; i < this->GetNumberOfHits(); i++ )
+    {
+        if( IsNaN ( this->GetY(i) ) )
+        {
+            xzHits->AddHit( this->GetX(i), 0, this->GetZ(i), this->GetEnergy(i) );
+        }
+    }
+    return xzHits;
+}
+
+TRestHits *TRestHitsEvent::GetYZHits() 
+{ 
+    TRestHits *yzHits = new TRestHits();
+    for( int i = 0; i < this->GetNumberOfHits(); i++ )
+    {
+        if( IsNaN( this->GetX(i) ) )
+        {
+            yzHits->AddHit( 0, this->GetY(i), this->GetZ(i), this->GetEnergy(i) );
+        }
+    }
+    return yzHits;
+}
+
+TRestHits *TRestHitsEvent::GetXYZHits() 
+{ 
+    TRestHits *xyzHits = new TRestHits();
+    for( int i = 0; i < this->GetNumberOfHits(); i++ )
+    {
+        if( !IsNaN( this->GetX(i) ) && !IsNaN( this->GetY(i) ) && !IsNaN( this->GetZ(i) ) )
+        {
+            xyzHits->AddHit( this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i) );
+        }
+    }
+    return xyzHits;
 }
 
 
@@ -69,8 +106,8 @@ void TRestHitsEvent::ChangeOrigin(double origx, double origy, double origz)
 
 void TRestHitsEvent::PrintEvent()
 {
-	//TRestEvent::PrintEvent();
-	fHits->PrintEvent();
+	TRestEvent::PrintEvent();
+	fHits->PrintHits();
 
 
 }

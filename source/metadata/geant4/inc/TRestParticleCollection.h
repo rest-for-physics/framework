@@ -20,16 +20,14 @@
 #define RestCore_TRestParticleCollection
 
 #include <iostream>
-using namespace std;
 
 #include "TObject.h"
-
 
 #include <TRestParticle.h>
 
 class TRestParticleCollection:public TObject {
     protected:
-        vector <TRestParticle> fParticles;
+        std::vector <TRestParticle> fParticles;
 
     public:
 
