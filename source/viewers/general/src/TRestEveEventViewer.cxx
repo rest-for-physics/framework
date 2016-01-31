@@ -41,7 +41,7 @@ void TRestEveEventViewer::Initialize()
    gEve = TEveManager::Create();
    gEve->GetBrowser()->DontCallClose();
    
-   fMinRadius = 1.5;
+   fMinRadius = 0.2;
    fMaxRadius = 3.;
    
    gEve->AddEvent(new TEveEventManager("Event", "Event"));
@@ -160,6 +160,7 @@ void TRestEveEventViewer::DrawTab( ){
 
 void TRestEveEventViewer::Update( ){
 
+    gEve->AddElement( fEnergyDeposits);
 rphi->ImportElements( gEve->GetCurrentEvent());
 rhoz->ImportElements( gEve->GetCurrentEvent());
 

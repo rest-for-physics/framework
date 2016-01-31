@@ -140,7 +140,6 @@ for( int i = 0; i < fG4Event->GetNumberOfTracks(); i++ )
             }
         }
     }
-    gEve->AddElement( fEnergyDeposits);
 
 
 Update( );
