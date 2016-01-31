@@ -1,20 +1,9 @@
-//#include <TObject.h>
-//#include <TString.h>
-//#include <TFile.h>
-//#include <TTree.h>
-//#include <TBranch.h>
-
-#include <iostream>
-using namespace std;
 
 Double_t Qbb = 2458.;
 
 Double_t RESTG4_GetROIEvents_Fiducial( TString fName, Double_t zMin, Double_t zMax, Double_t radius, Double_t mean=2458, Double_t fwhm=25 )
 {
     cout << "Filename : " << fName << endl;
-
-    gSystem->Load("librestcore.so");
-    gSystem->Load("librestsim.so");
 
     TRestRun *run = new TRestRun();
     cout << "x" << endl;

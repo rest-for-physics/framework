@@ -1,13 +1,3 @@
-//#include <TObject.h>
-//#include <TString.h>
-//#include <TFile.h>
-//#include <TTree.h>
-//#include <TBranch.h>
-
-#include <stdio.h>
-#include <unistd.h>
-#include <iostream>
-using namespace std;
 
 TString dataPath = "/home/javier/restData/";
 
@@ -28,8 +18,6 @@ Int_t RESTG4_quickLookAnalysis( TString fName )
     Int_t nbinsROI = (Int_t ) ( eMax_ROI - eMin_ROI);
 
     cout << "Filename : " << fName << endl;
-
-    gSystem->Load("librestcore.so");
 
     TRestRun *run = new TRestRun();
     string fname = fName.Data();

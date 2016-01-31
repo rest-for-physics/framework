@@ -1,12 +1,3 @@
-//#include <TObject.h>
-//#include <TString.h>
-//#include <TFile.h>
-//#include <TTree.h>
-//#include <TBranch.h>
-
-#include <iostream>
-using namespace std;
-
 
 Int_t RESTG4_readEventTemplate( TString fName )
 {

@@ -1,17 +1,6 @@
-//#include <TObject.h>
-//#include <TString.h>
-//#include <TFile.h>
-//#include <TTree.h>
-//#include <TBranch.h>
-
-#include <iostream>
-using namespace std;
-
 
 Int_t RESTG4_CheckOverlaps( TString gdmlName )
 {
-    gSystem->Load("librestcore.so");
-
     TGeoManager *geo = new TGeoManager();
     geo->Import(gdmlName);
     
