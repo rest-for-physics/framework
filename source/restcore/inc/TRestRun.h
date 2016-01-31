@@ -54,7 +54,6 @@ class TRestRun:public TRestMetadata {
         TString fOutputFilename;
         TString fInputFilename;
         TString fVersion;
-        Bool_t fOverwrite;
         
         Int_t fRunEvents;
 
@@ -67,6 +66,8 @@ class TRestRun:public TRestMetadata {
         std::vector <TRestEventProcess*> fHistoricEventProcess;
 
 #ifndef __CINT__
+        Bool_t fOverwrite;
+
         TTree *fInputEventTree;
         TTree *fOutputEventTree;
 
@@ -77,8 +78,8 @@ class TRestRun:public TRestMetadata {
         TFile *fOutputFile;
         
         Int_t fCurrentEvent;
-        Int_t fProcessedEvents;
 #endif
+        Int_t fProcessedEvents;
 
         TGeoManager *fGeometry;
 
@@ -96,6 +97,9 @@ class TRestRun:public TRestMetadata {
         // File input/output
         void OpenOutputFile( );
         void CloseOutputFile( );
+
+        void EnableOverWrite( ) { fOverwrite = true; }
+        void DisableOverWrite( ) { fOverwrite = false; }
 
         void OpenInputFile( TString fName );
         void OpenInputFile( TString fName, TString cName );
@@ -121,6 +125,8 @@ class TRestRun:public TRestMetadata {
         Double_t GetEndTimestamp() { return fEndTime; }
         TString GetExperimentName() { return fExperimentName; }
         TGeoManager *GetGeometry() { return fGeometry; }
+
+        Int_t GetNumberOfProcessedEvents() { return fProcessedEvents; }
 
         TRestMetadata *GetHistoricMetadata(unsigned int index)
         {

@@ -69,6 +69,8 @@ void TRestRun::Initialize()
     fGeometry = NULL;
 
     fOverwrite = false;
+
+    fProcessedEvents = 0;
 }
 
 void TRestRun::ResetRunTimes()
@@ -101,16 +103,13 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
 
 	if( fEventProcess.size() == 0 ) { cout << "WARNNING Run does not contain processes" << endl; return; }
 
+	this->SetRunType( fEventProcess[fEventProcess.size()-1]->GetProcessName() );
+
 	this->OpenOutputFile();
 
 	this->SetInputEvent( fEventProcess.front()->GetInputEvent() );
 
 	this->SetOutputEvent( fEventProcess.back()->GetOutputEvent() );
-
-	this->SetRunType( fEventProcess[fEventProcess.size()-1]->GetProcessName() );
-
-	this->ResetRunTimes();
-
 
 	//////////////////
 
@@ -118,7 +117,7 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
 	for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->InitProcess();
 
     fProcessedEvents = 0;
-    if( eventsToProcess == 0 && fInputEventTree != NULL ) eventsToProcess = fInputEventTree->GetEntries()+1;
+    if( eventsToProcess == 0 && fInputEventTree != NULL ) eventsToProcess = fInputEventTree->GetEntries();
 
 	TRestEvent *processedEvent;
 	while( this->GetNextEvent() && eventsToProcess > fProcessedEvents )
@@ -345,6 +344,8 @@ void TRestRun::OpenInputFile( TString fName, TString cName )
 
 void TRestRun::OpenOutputFile( )
 {
+    this->ResetRunTimes();
+
     SetRunFilenameAndIndex();
 
     if( GetVerboseLevel() == REST_Info ) cout << "Opening file : " << fOutputFilename << endl;
@@ -551,6 +552,8 @@ void TRestRun::InitFromConfigFile()
    fRunTag = GetParameter( "runTag" );
 
    if( GetParameter( "overwrite" ) == "on" ) { cout << "Overwrite : on" << endl; fOverwrite = true; }
+
+
 }
 
 void TRestRun::SetRunFilenameAndIndex()
@@ -603,6 +606,7 @@ void TRestRun::PrintInfo( )
         cout << "Date/Time : " << GetDateFormatted( GetEndTimestamp() ) << " / " << GetTime( GetEndTimestamp() ) << endl;
         cout << "Input filename : " << fInputFilename << endl;
         cout << "Output filename : " << fOutputFilename << endl;
+        cout << "Number of processed events : " << fProcessedEvents << endl;
         cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
 }
