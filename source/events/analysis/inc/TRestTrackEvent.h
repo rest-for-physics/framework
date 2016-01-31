@@ -39,6 +39,7 @@ class TRestTrackEvent: public TRestEvent {
         Int_t fNtracksX;
         Int_t fNtracksY;
         std::vector <TRestTrack> fTrack; //Collection of tracks that define the event
+        Int_t fLevels;
 
         #ifndef __CINT__
         TGraph *fXYHit;
@@ -52,14 +53,32 @@ class TRestTrackEvent: public TRestEvent {
 
     public:
 
-        TRestTrack *GetTrack( int n)  { return &fTrack[n]; }
+        TRestTrack *GetTrack( Int_t n )  { return &fTrack[n]; }
+
+        TRestTrack *GetTrackById( Int_t id )
+        {
+            for( int i = 0; i < GetNumberOfTracks(); i++ )
+                if( GetTrack( i )->GetTrackID() == id ) return GetTrack( i );
+            return NULL;
+        }
+
+        Int_t GetLevel( Int_t tck );
+        void SetLevels();
+        Int_t GetLevels( ) { return fLevels; }
 
         TPad *DrawEvent();
 
         //Setters
-        void AddTrack( TRestTrack *c ){ fTrack.push_back(*c); fNtracks++;}
-        void RemoveTrack(int n){fTrack.erase(fTrack.begin()+n); fNtracks--;}  
+        void AddTrack( TRestTrack *c ){ fTrack.push_back(*c); fNtracks++; SetLevels(); }
+        void RemoveTrack(int n){fTrack.erase(fTrack.begin()+n); fNtracks--; SetLevels(); }  
         void RemoveTrack( ){fTrack.clear();}  
+
+        Bool_t isTopLevel( Int_t tck ) 
+        {
+            if( GetLevels() == GetLevel( tck ) )
+                return true;
+            return false; 
+        }
 
         void SetNumberOfXTracks( Int_t x ) { fNtracksX = x; }
         void SetNumberOfYTracks( Int_t y ) { fNtracksY = y; }
@@ -73,6 +92,7 @@ class TRestTrackEvent: public TRestEvent {
       
         void Initialize();
 
+        void PrintOnlyTracks();
         void PrintEvent();
                 
         //Construtor
