@@ -187,7 +187,7 @@ Int_t TRestReadoutModule::FindChannel( Double_t absX, Double_t absY )
         channel = fMapping.GetChannelByNode( nodeX, nodeY );
         pixel = fMapping.GetPixelByNode( nodeX, nodeY );
 
-        if( repeat > totalNodes ) 
+        if( count > totalNodes/10 ) 
         {
             cout << "REST Error? I did not found any channel for hit position (" << x << "," << y << ")" << endl; 
 
@@ -198,7 +198,8 @@ Int_t TRestReadoutModule::FindChannel( Double_t absX, Double_t absY )
                         cout << "Corresponding node :  nX: " << fMapping.GetNodeX_ForChannelAndPixel( ch, px ) << " nY : " << fMapping.GetNodeY_ForChannelAndPixel( ch, px ) << endl; 
                         cout << "Channel : " << ch << " Pixel : " << px << endl;
                         cout << "Pix X : " << GetChannel(ch)->GetPixel(px)->GetCenter().X() << " Pix Y : " <<  GetChannel(ch)->GetPixel(px)->GetCenter().Y() << endl; }
-            getchar();
+            sleep(5);
+         //   getchar();
             return -1; 
         }
     }
