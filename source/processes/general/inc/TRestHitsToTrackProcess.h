@@ -49,13 +49,13 @@ class TRestHitsToTrackProcess:public TRestEventProcess {
 
             BeginPrintProcess();
 
-            std::cout << " cluster-distance : " << fClusterDistance << std::endl;
+            std::cout << " cluster-distance : " << fClusterDistance << " mm " << std::endl;
 
             EndPrintProcess();
 
         }
 
-        TString GetProcessName() { return (TString) "HitsToTrackProcess"; }
+        TString GetProcessName() { return (TString) "hitsToTrack"; }
 
         //Constructor
         TRestHitsToTrackProcess();

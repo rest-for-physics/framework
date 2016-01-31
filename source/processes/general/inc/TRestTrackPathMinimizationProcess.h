@@ -56,7 +56,7 @@ class TRestTrackPathMinimizationProcess:public TRestEventProcess {
             EndPrintProcess();
         }
 
-        TString GetProcessName() { return (TString) "TrackPathMinimizationProcess"; }
+        TString GetProcessName() { return (TString) "trackPathMinimization"; }
 
         //Constructor
         TRestTrackPathMinimizationProcess();

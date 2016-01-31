@@ -58,7 +58,7 @@ class TRestTrackReductionProcess:public TRestEventProcess {
 
         }
 
-        TString GetProcessName() { return (TString) "TrackReductionProcess"; }
+        TString GetProcessName() { return (TString) "trackReduction"; }
 
         //Constructor
         TRestTrackReductionProcess();
