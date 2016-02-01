@@ -83,26 +83,18 @@ char inputConfigFile[256];
 
 int main(int argc,char** argv) {
 
-    // {{{ Getting by argument the simulation config file and runIndex (to modify timestamp in case files are launched at exactly the same time)
-    int runIndex = 0;
-    sprintf( inputConfigFile, "%s", "mySimulationTemplate.rml");
+    // {{{ Getting by argument the simulation config file 
+    sprintf( inputConfigFile, "%s", "myConfig.rml");
     if( argc >= 2 )
     {
         sprintf( inputConfigFile, "%s", argv[1] ); 
     }
 
-    if( argc == 3 )
-    {
-        runIndex = atoi( argv[2] );
-    }
-
-    cout << "Run index : " << runIndex << endl;
     // }}} 
 
     // {{{ Initializing REST classes
     restRun = new TRestRun( inputConfigFile );
     restRun->PrintInfo();
-    restRun->SetRunIndex( runIndex );
     restRun->OpenOutputFile();
 
     restG4Event = new TRestG4Event( );
@@ -164,7 +156,7 @@ int main(int argc,char** argv) {
     //choose the Random engine
     CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine);
     time_t systime = time(NULL);
-    long seed = (long) systime + runIndex*13;
+    long seed = (long) systime + restRun->GetRunNumber()*13;
     CLHEP::HepRandom::setTheSeed(seed);
 
     // Construct the default run manager

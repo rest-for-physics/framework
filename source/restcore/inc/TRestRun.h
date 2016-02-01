@@ -44,7 +44,7 @@ class TRestRun:public TRestMetadata {
 
     protected:
         Int_t fRunNumber;                 //< first identificative number
-        Int_t fRunIndex;
+        Int_t fParentRunNumber;
         TString fRunClassName;
         TString fRunType;             //< Stores bit by bit the type of run. 0: Calibration 1: Background 2: Pedestal 3: Simulation 4: DataTaking 
         TString fRunUser;	          //< To identify the author it has created the run. It might be also a word describing the origin of the run (I.e. REST_Prototype, T-REX, etc)
@@ -114,8 +114,8 @@ class TRestRun:public TRestMetadata {
 
         //Getters
         TString GetVersion() { return  fVersion; }
+        Int_t GetParentRunNumber() { return fParentRunNumber; }
         Int_t GetRunNumber() { return fRunNumber; }
-        Int_t GetRunIndex() { return fRunIndex; }
         TString GetRunType() { return fRunType; }
         TString GetRunUser() { return fRunUser; }
         TString GetRunTag() { return fRunTag; }
@@ -138,7 +138,6 @@ class TRestRun:public TRestMetadata {
 
 
         void SetRunNumber( Int_t number ) { fRunNumber = number; }
-        void SetRunIndex ( Int_t index ) { fRunIndex = index; }
         void SetRunType( TString type ) { fRunType = type; }
         void SetRunTag( TString tag ) { fRunTag = tag; }
         void SetRunUser( TString user ) { fRunUser = user; } 
