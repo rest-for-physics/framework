@@ -542,6 +542,9 @@ void TRestRun::InitFromConfigFile()
    fRunDescription = GetParameter( "runDescription" );
 
    TString rNumberStr = (TString) GetParameter( "runNumber" );
+
+   if( GetParameter( "overwrite" ) == "on" ) { cout << "Overwrite : on" << endl; fOverwrite = true; }
+
    if( rNumberStr == "auto" )
    {
        char runFilename[256];
@@ -557,7 +560,10 @@ void TRestRun::InitFromConfigFile()
            FILE *frun = fopen( runFilename, "r" );
            fscanf( frun, "%d\n", &fRunNumber );
            fclose( frun );
-           cout << "I got the Run number ! " << fRunNumber << endl;
+
+           if( fOverwrite )
+               fRunNumber -= 1;
+
            frun = fopen( runFilename, "w" );
            fprintf( frun, "%d\n", fRunNumber+1 );
            fclose( frun );
@@ -572,7 +578,6 @@ void TRestRun::InitFromConfigFile()
 
    fRunTag = GetParameter( "runTag" );
 
-   if( GetParameter( "overwrite" ) == "on" ) { cout << "Overwrite : on" << endl; fOverwrite = true; }
 
 
 }
