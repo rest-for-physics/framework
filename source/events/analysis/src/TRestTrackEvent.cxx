@@ -209,11 +209,12 @@ TPad *TRestTrackEvent::DrawEvent()
                 radius = m * en + n;
                 if( radius < 0.1 ) radius = 0.1;
                 if( hits->GetNumberOfHits() == 1 ) radius = 2;
+                if( trackLevels == 1 ) radius = 0.8;
 
             }
             else
             {
-                radius = 0.5 * minRadiusSize * level;
+                radius = 1.5 * minRadiusSize * level;
             }
 
             if( x != 0 && y != 0 )
