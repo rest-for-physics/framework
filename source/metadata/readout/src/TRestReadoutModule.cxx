@@ -89,17 +89,17 @@ void TRestReadoutModule::DoReadoutMapping( )
         {
             Double_t x = fMapping.GetX( i );
             Double_t y = fMapping.GetY( j );
+            Double_t xAbs = TransformToPhysicalCoordinates( x, y ).X();
+            Double_t yAbs = TransformToPhysicalCoordinates( x, y ).Y();
 
             if( !fMapping.isNodeSet( i, j ) )
             {
-
                 for( int ch = 0; ch < GetNumberOfChannels( ) && !fMapping.isNodeSet( i, j ); ch++ )
                 {
                     for( int px = 0; px < GetChannel(ch)->GetNumberOfPixels( ) && !fMapping.isNodeSet(i, j); px++ )
                     {
-                        if( isInsidePixel( ch, px, x + fModuleOriginX, y + fModuleOriginY ) ) 
+                        if( isInsidePixel( ch, px, xAbs , yAbs ) )
                         {
-                            //if( debug ) cout << "Setting node " << i << " , " << j << " : " << " Channel : " << ch << " pixel : " << px << endl;
                             fMapping.SetNode( i, j, ch,  px );
                         }
                     }
@@ -117,21 +117,21 @@ void TRestReadoutModule::DoReadoutMapping( )
             {
                 Double_t x = fMapping.GetX(i);
                 Double_t y = fMapping.GetY(j);
+                Double_t xAbs = TransformToPhysicalCoordinates( x, y ).X();
+                Double_t yAbs = TransformToPhysicalCoordinates( x, y ).Y();
                 cout << "Node NOT SET : " << i << " , " << j << " Mapping x : " << x << " y : " << y << endl;
 
                 for( int ch = 0; ch < GetNumberOfChannels( ); ch++ )
                 {
                     for( int px = 0; px < GetChannel(ch)->GetNumberOfPixels( ); px++ )
                     {
-                        if( isInsidePixel( ch, px, x + fModuleOriginX, y + fModuleOriginY ) )
+                        if( isInsidePixel( ch, px, xAbs, yAbs ) )
                         {
-                            cout << "X : " << x + fModuleOriginX << " , " << y+fModuleOriginY << " Is inside channel : " << ch << " pixel : " << px << endl;
+                            cout << "X : " << xAbs << " , " << yAbs << " Is inside channel : " << ch << " pixel : " << px << endl;
                         }
                     }
                 }
-
             }
-
         }
 
     cout << "Nodes not set : " << fMapping.GetNumberOfNodesNotSet( ) << endl;
@@ -365,7 +365,7 @@ void TRestReadoutModule::Draw()
 
 }
 
-void TRestReadoutModule::PrintReadoutModule( )
+void TRestReadoutModule::PrintReadoutModule( Int_t fullDetail )
 {
         cout << "-- Readout module : " << GetModuleID( ) << " (Plane : " << GetPlaneIndex( ) << ")" << endl;
         cout << "----------------------------------------------------------------" << endl;
@@ -375,11 +375,10 @@ void TRestReadoutModule::PrintReadoutModule( )
         cout << "-- Total channels : " << GetNumberOfChannels() << endl;
         cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
-        for( int n = 0; n < GetNumberOfChannels(); n++ )
-        {
-            fReadoutChannel[n].PrintReadoutChannel();
-        }
-
-
+        if( fullDetail )
+            for( int n = 0; n < GetNumberOfChannels(); n++ )
+            {
+                fReadoutChannel[n].PrintReadoutChannel();
+            }
 
 }
