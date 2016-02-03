@@ -47,14 +47,18 @@ Double_t TRestReadoutMapping::GetY( Int_t nodeY )
 //! Gets the nodeX index corresponding to the x coordinate
 Int_t TRestReadoutMapping::GetNodeX( Double_t x )
 {
-    return (Int_t) ( ( x / fNetSizeX ) * fNodesX );
+    Int_t nX = (Int_t) ( ( x / fNetSizeX ) * fNodesX );
+    if( nX >= fNodesX ) return fNodesX-1;
+    return nX;
 
 }
 
 //! Gets the nodeY index corresponding to the y coordinate
 Int_t TRestReadoutMapping::GetNodeY( Double_t y )
 {
-    return (Int_t) ( ( y / fNetSizeY ) * fNodesY );
+    Int_t nY = (Int_t) ( ( y / fNetSizeY ) * fNodesY );
+    if( nY >= fNodesY ) return fNodesY-1;
+    return nY;
 
 }
 
@@ -81,7 +85,7 @@ void TRestReadoutMapping::Initialize( Int_t nX, Int_t nY, Double_t sX, Double_t 
     fPixel.ResizeTo( fNodesX, fNodesY );
 
     for( int i = 0; i < fNodesX; i++ )
-        for( int j = 0; j < fNodesX; j++ )
+        for( int j = 0; j < fNodesY; j++ )
         {
             fChannel[i][j] = -1;
             fPixel[i][j] = -1;
