@@ -552,8 +552,8 @@ void TRestRun::InitFromConfigFile()
        if( !fileExists( (string) runFilename ) )
        {
            cout << "REST Warning : File " << runFilename << " does not exist" << endl;
-           cout << "Setting run number to 99999" << endl;
-           fRunNumber = 99999;
+           cout << "Setting run number to 1" << endl;
+           fRunNumber = 1;
        }
        else
        {
@@ -563,11 +563,11 @@ void TRestRun::InitFromConfigFile()
 
            if( fOverwrite )
                fRunNumber -= 1;
-
-           frun = fopen( runFilename, "w" );
-           fprintf( frun, "%d\n", fRunNumber+1 );
-           fclose( frun );
        }
+
+       FILE *frun = fopen( runFilename, "w" );
+       fprintf( frun, "%d\n", fRunNumber+1 );
+       fclose( frun );
    }
    else
    {
@@ -577,8 +577,6 @@ void TRestRun::InitFromConfigFile()
    fExperimentName = GetParameter( "experiment" );
 
    fRunTag = GetParameter( "runTag" );
-
-
 
 }
 
@@ -674,14 +672,4 @@ Bool_t TRestRun::GetNextEvent( )
 
     return kTRUE;
 }
-
-
-
-
-
-
-
-
-
-
 
