@@ -511,7 +511,7 @@ string TRestMetadata::ExpandForLoops( const string buffer )
 
     // We replace the variable by its loop value and to forReplacement
     string forReplacement = "";
-    for( double n = from; n < to; n = n + step )
+    for( double n = from; n <= to; n = n + step )
     {
         ostringstream ss;
         ss << n;

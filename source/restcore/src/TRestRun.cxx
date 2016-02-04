@@ -48,8 +48,9 @@ void TRestRun::Initialize()
     fStartTime = (Double_t) timev;
     fEndTime = fStartTime-1; // So that run length will be -1 if fEndTime is not set
 
-    fRunIndex = 0;
     fRunUser = getenv("USER");
+    fRunNumber = 0;
+    fParentRunNumber = 0;
     fRunType = "Null";
     fExperimentName = "Null";
     fRunTag = "Null";
@@ -297,19 +298,13 @@ void TRestRun::OpenInputFile( TString fName )
 
     fInputFile = new TFile( fName );
 
+    Int_t runNumber = GetRunNumber();
+
     TKey *key = GetObjectKeyByClass( "TRestRun" );
     this->Read( key->GetName() );
 
-    /*
-    TIter nextkey(fInputFile->GetListOfKeys());
-    TKey *key;
-    while ( (key = (TKey*)nextkey() ) ) {
-
-        string className = key->GetClassName();
-
-        if ( className == "TRestRun" ) this->Read( key->GetName() );
-    }
-    */
+    fParentRunNumber = fRunNumber;
+    fRunNumber = runNumber;
 
     // Transfering metadata to historic
     for( size_t i = 0; i < fMetadata.size(); i++ )
@@ -546,13 +541,42 @@ void TRestRun::InitFromConfigFile()
 
    fRunDescription = GetParameter( "runDescription" );
 
-   fRunNumber = StringToInteger ( GetParameter( "runNumber" ) );
-   fExperimentName = GetParameter( "experiment" );
-
-   fRunTag = GetParameter( "runTag" );
+   TString rNumberStr = (TString) GetParameter( "runNumber" );
 
    if( GetParameter( "overwrite" ) == "on" ) { cout << "Overwrite : on" << endl; fOverwrite = true; }
 
+   if( rNumberStr == "auto" )
+   {
+       char runFilename[256];
+       sprintf( runFilename, "%s/inputData/runNumber", getenv("REST_PATH") );
+       if( !fileExists( (string) runFilename ) )
+       {
+           cout << "REST Warning : File " << runFilename << " does not exist" << endl;
+           cout << "Setting run number to 1" << endl;
+           fRunNumber = 1;
+       }
+       else
+       {
+           FILE *frun = fopen( runFilename, "r" );
+           fscanf( frun, "%d\n", &fRunNumber );
+           fclose( frun );
+
+           if( fOverwrite )
+               fRunNumber -= 1;
+       }
+
+       FILE *frun = fopen( runFilename, "w" );
+       fprintf( frun, "%d\n", fRunNumber+1 );
+       fclose( frun );
+   }
+   else
+   {
+       fRunNumber = StringToInteger ( GetParameter( "runNumber" ) );
+   }
+
+   fExperimentName = GetParameter( "experiment" );
+
+   fRunTag = GetParameter( "runTag" );
 
 }
 
@@ -561,20 +585,20 @@ void TRestRun::SetRunFilenameAndIndex()
 
     string expName = RemoveWhiteSpaces( (string) GetExperimentName() );
     string runType = RemoveWhiteSpaces( (string) GetRunType() );
-    char runIndexStr[256];
-    sprintf( runIndexStr, "%03d", fRunIndex );
+    char runParentStr[256];
+    sprintf( runParentStr, "%05d", fParentRunNumber );
     char runNumberStr[256];
-    sprintf( runNumberStr, "%03d", fRunNumber );
+    sprintf( runNumberStr, "%05d", fRunNumber );
 
     fOutputFilename = GetDataPath() + "/Run_" + expName + "_"+ fRunUser + "_"  
-        + runType + "_" + fRunTag + "_" + (TString) runIndexStr + "_r" + fVersion + ".root";
+        + runType + "_" + fRunTag + "_" + (TString) runNumberStr + "_" + (TString) runParentStr + "_r" + fVersion + ".root";
 
     while( !fOverwrite && fileExists( (string) fOutputFilename ) )
     {
-        fRunIndex++;
-        sprintf( runIndexStr, "%03d", fRunIndex );
+        fRunNumber++;
+        sprintf( runNumberStr, "%05d", fRunNumber );
         fOutputFilename = GetDataPath() + "/Run_" + expName + "_"+ fRunUser + "_"  
-            + runType + "_" + fRunTag + "_" + (TString) runIndexStr + "_r" + fVersion + ".root";
+            + runType + "_" + fRunTag + "_" + (TString) runNumberStr + "_" + (TString) runParentStr + "_r" + fVersion + ".root";
     }
 }
 
@@ -593,8 +617,8 @@ void TRestRun::PrintInfo( )
         cout << "Name : " << GetName() << endl;
         cout << "Title : " << GetTitle() << endl;
         cout << "---------------------------------------" << endl;
+        cout << "Parent run number : " << GetParentRunNumber() << endl; 
         cout << "Run number : " << GetRunNumber() << endl; 
-        cout << "Run index : " << GetRunIndex() << endl; 
         cout << "Run type : " << GetRunType() << endl;
         cout << "Run tag : " << GetRunTag() << endl;
         cout << "Run user : " << GetRunUser() << endl;
@@ -648,14 +672,4 @@ Bool_t TRestRun::GetNextEvent( )
 
     return kTRUE;
 }
-
-
-
-
-
-
-
-
-
-
 

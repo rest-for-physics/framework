@@ -15,6 +15,7 @@
 ///             aug 2015    Javier Galan
 ///_______________________________________________________________________________
 
+double delta = 1.e-6;
 
 #include "TRestReadoutPixel.h"
 using namespace std;
@@ -97,8 +98,8 @@ Bool_t TRestReadoutPixel::isInside( TVector2 pos )
 {
     pos = TransformToPixelCoordinates( pos );
 
-    if( pos.X() >= 0 && pos.X() <= fPixelSizeX )
-        if( pos.Y() >= 0 && pos.Y() <= fPixelSizeY )
+    if( pos.X() >= -delta && pos.X() <= fPixelSizeX+delta )
+        if( pos.Y() >= -delta && pos.Y() <= fPixelSizeY+delta )
             return true;
 
     return false;

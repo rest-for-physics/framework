@@ -60,6 +60,14 @@ class TRestReadoutModule : public TObject {
             return rot;
         }
 
+        TVector2 TransformToPhysicalCoordinates( Double_t x, Double_t y )
+        {
+            TVector2 coords( x + fModuleOriginX, y + fModuleOriginY );
+            TVector2 rot = coords.Rotate( fModuleRotation * TMath::Pi()/ 180. );
+
+            return rot;
+        }
+
     protected:
 
     public:
@@ -100,6 +108,8 @@ class TRestReadoutModule : public TObject {
 
         Double_t GetModuleOriginX() { return fModuleOriginX; }
         Double_t GetModuleOriginY() { return fModuleOriginY; }
+        Double_t GetOriginX() { return fModuleOriginX; }
+        Double_t GetOriginY() { return fModuleOriginY; }
 
         Double_t GetModuleSizeX() { return fModuleSizeX; }
         Double_t GetModuleSizeY() { return fModuleSizeY; }
@@ -113,7 +123,7 @@ class TRestReadoutModule : public TObject {
 
         void Draw();
 
-        void PrintReadoutModule( );
+        void PrintReadoutModule( Int_t fullDetail = 0 );
 
         //Construtor
         TRestReadoutModule();

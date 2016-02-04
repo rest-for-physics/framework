@@ -19,7 +19,7 @@ All units in mm, keV and degrees
     <parameter name="Nevents" value="50"/>
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
-    <parameter name="runNumber" value="1"/>
+    <parameter name="runNumber" value="auto"/>
     <parameter name="runTag" value="Template"/>
     <parameter name="runDescription" value="We launch just 100 events to check everything is ok."/>
     <parameter name="user" value="system"/>
