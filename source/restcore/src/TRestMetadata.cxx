@@ -37,7 +37,6 @@ ClassImp(TRestMetadata)
     TRestMetadata::TRestMetadata()
 {
    // TRestMetadata default constructor
-   SetDefaultConfigFilePath();
 }
 
 
@@ -45,8 +44,7 @@ ClassImp(TRestMetadata)
 TRestMetadata::TRestMetadata( const char *cfgFileName)
 {
     // TRestMetadata constructor loading data from config file
-    SetDefaultConfigFilePath();
-    fConfigFileName = cfgFileName;
+    SetConfigFile( cfgFileName );
 
     SetTitle("Config");
     SetName("TRestMetadata");
@@ -68,12 +66,13 @@ TRestMetadata::~TRestMetadata()
 //______________________________________________________________________________
 void TRestMetadata::SetConfigFilePath(const char *configFilePath)
 {
-   // Lets the user define the default path where to search for the config 
-   // file for this metadata object. Normally one should not use this function, 
-   // as the constructor metadata provides a default value to
-   // fConfigFilePath through the SetDefaultConfigFilePath() function
+    // Lets the user define the default path where to search for the config 
+    // file for this metadata object. Normally one should not use this function, 
+    // as the constructor metadata provides a default value to
+    // fConfigFilePath through the SetDefaultConfigFilePath() function
 
-   fConfigFilePath = string(configFilePath);
+    cout << "Setting config file path : " << configFilePath << endl;
+    fConfigFilePath = string(configFilePath);
 }
 
 //______________________________________________________________________________
@@ -231,16 +230,41 @@ bool TRestMetadata::fileExists(const std::string& filename)
 
 
 //______________________________________________________________________________
-void TRestMetadata::SetDefaultConfigFilePath()
+void TRestMetadata::SetDefaultConfigFilePath( )
 {
-   // Assigns a default value to fConfigFilePath derived from the environment
+    // Assigns a default value to fConfigFilePath derived from the environment
 
-   char *path;
-   char cfgpath[256];
-   path = getenv("REST_PATH");
-   sprintf(cfgpath, "%s/config/", path);
-   SetConfigFilePath((const char *) cfgpath);
+    char path[256];
+    char cfgpath[256];
+
+    // 1st option we check if REST_CONFIG is defined
+    sprintf( path, "%s", getenv("REST_CONFIG") );
+
+    // 2nd option if REST_CONFIG is not defined we check if the config file exists where ever we launch our program
+    if ( strcmp( path, "" ) == 0 ) sprintf( path, "." );
+
+    sprintf( path, "%s/", path );
+
+    sprintf( cfgpath, "%s%s", path, fConfigFileName.c_str() );
+
+    if ( fileExists( cfgpath ) )
+    {
+        SetConfigFilePath( (const char *) path );
+        return;
+    }
+
+    // 3rd option. We take the default path of the repository
+    sprintf( path, "%s", getenv("REST_PATH") );
+    sprintf(cfgpath, "%s/config/", path );
+    SetConfigFilePath((const char *) cfgpath );
 }
+
+void TRestMetadata::SetConfigFile( string cfgFileName )
+{
+    fConfigFileName = cfgFileName;
+    SetDefaultConfigFilePath( );
+}
+
 
 Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName )
 {
@@ -249,10 +273,8 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName )
 
     fSectionName = section;
 
-    fConfigFileName = cfgFileName;
-    if( debug > 1 ) cout << fConfigFileName << endl;
+    SetConfigFile( cfgFileName );
     string fileName = fConfigFilePath + fConfigFileName;
-    if( debug > 1 ) cout << fileName << endl;
 
     ifstream file(fileName);
 

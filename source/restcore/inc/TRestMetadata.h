@@ -89,6 +89,8 @@ class TRestMetadata:public TNamed {
         
         void SetDefaultConfigFilePath();
 
+        void SetConfigFile( std::string cfgFileName );
+
         Int_t CheckConfigFile( );
 
         std::string GetFieldValue( std::string fieldName, size_t fromPosition );
