@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
-<section readout name="Readout-PANDA_3MM_v1" title="PANDA readout definition" >
-    <myParameter name="nChannels" value="8" />
+<section readout name="Readout-PANDA_3MM_64channels" title="PANDA readout definition" >
+    <myParameter name="nChannels" value="64" />
     <myParameter name="pitch" value="3" />
     <myParameter name="pixelSize" value="3./sqrt(2.)" />
 

@@ -48,7 +48,7 @@ void TRestRun::Initialize()
     fStartTime = (Double_t) timev;
     fEndTime = fStartTime-1; // So that run length will be -1 if fEndTime is not set
 
-    fRunUser = getenv("USER");
+    fRunUser = "";
     fRunNumber = 0;
     fParentRunNumber = 0;
     fRunType = "Null";
@@ -534,8 +534,7 @@ void TRestRun::InitFromConfigFile()
    // Initialize the metadata members from a configfile
    fRunEvents = StringToInteger( GetParameter( "Nevents" ) );
 
-   if( GetParameter( "user" ) != "system" )
-       fRunUser = GetParameter( "user" );
+   fRunUser = GetParameter( "user" );
 
    fRunType = GetParameter( "runType" );
 

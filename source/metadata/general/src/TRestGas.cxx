@@ -155,9 +155,6 @@ void TRestGas::InitFromConfigFile( )
     
     string eFieldString = GetKEYDefinition( "eField" );
 
-    cout << "Efield String : " << eFieldString << endl;
-
-    cout << "Field value : " <<  GetFieldValue( "Emax", eFieldString ) << endl;
     fEmax = StringToDouble( GetFieldValue( "Emax", eFieldString ) );
     fEmin = StringToDouble( GetFieldValue( "Emin", eFieldString ) );
     fEnodes = StringToInteger( GetFieldValue( "nodes", eFieldString ) );
