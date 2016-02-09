@@ -34,7 +34,7 @@ DEPLIBS = -lm -lGui ${ROOTLIBS} -lEve -lGeom -L$(PATH_LIB) -L/usr/lib -L$(GARFIE
 
 # Classes and objects of the library
 # add names to this list whenever a new class is added to the library
-CLASSES = TRestMesh
+CLASSES = TRestMesh TRestFFT
 CLASS_DICT = ${CLASSES}
 
 # with this syntax I generate, for every classname, two object files to compile,
