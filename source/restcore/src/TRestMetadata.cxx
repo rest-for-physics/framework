@@ -236,11 +236,14 @@ void TRestMetadata::SetDefaultConfigFilePath( )
     char path[256];
     char cfgpath[256];
 
+    sprintf( path, "NotDefined" );
+
     // 1st option we check if REST_CONFIG is defined
-    sprintf( path, "%s", getenv("REST_CONFIG") );
+    if( getenv( "REST_CONFIG" ) != NULL )
+        sprintf( path, "%s", getenv("REST_CONFIG") );
 
     // 2nd option if REST_CONFIG is not defined we check if the config file exists where ever we launch our program
-    if ( path == NULL || strcmp( path, "" ) == 0 ) sprintf( path, "." );
+    if ( strcmp( path, "NotDefined" ) == 0 ) sprintf( path, "." );
 
     sprintf( path, "%s/", path );
 
@@ -253,9 +256,17 @@ void TRestMetadata::SetDefaultConfigFilePath( )
     }
 
     // 3rd option. We take the default path of the repository
-    sprintf( path, "%s", getenv("REST_PATH") );
-    sprintf(cfgpath, "%s/config/", path );
-    SetConfigFilePath((const char *) cfgpath );
+    if( getenv( "REST_PATH" ) != NULL )
+    {
+        sprintf( path, "%s", getenv("REST_PATH") );
+        sprintf(cfgpath, "%s/config/", path );
+        SetConfigFilePath((const char *) cfgpath );
+    }
+    else
+    {
+        cout << "REST ERROR : Config path definition problem. REST_PATH not defined?" << endl;
+    }
+
 }
 
 void TRestMetadata::SetConfigFile( string cfgFileName )
