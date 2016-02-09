@@ -92,6 +92,12 @@ All units in mm, keV and degrees
     <parameter name="clusterDistance" value="15" /> // mm
 </section>
 
+<section fastHitsToTrackProcess name="fastHitsToTrack-Panda" title="Half PANDA X-III Vessel (Bottom)" >
+    <parameter name="cellResolution" value="10" /> // mm
+    <parameter name="netSize" value="1200" /> // mm
+    <parameter name="netOrigin" value="(-600,-600,-1100)" /> // mm
+</section>
+
 <section trackReductionProcess name="trackReduction-Panda" title="Half PANDA X-III Vessel (Bottom)" >
     <parameter name="minimumDistance" value="2" /> // mm
     <parameter name="maximumDistance" value="8" /> // mm
