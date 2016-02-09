@@ -29,7 +29,7 @@ FLAGS = -Wall -std=c++0x
 
 # Relevant directories
 PATH_LIB = lib
-DIRECTORIES = restcore external events metadata processes viewers
+DIRECTORIES = restcore external events metadata processes viewers tools
 
 
 #------------------------------------------------------------------------------
