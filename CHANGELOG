@@ -1,8 +1,25 @@
 
 ==========================================================
+Date : 9th / February / 2016
+Branch : fastHitsToTrackProcess
+Author : Javier Galan
+Merge : #26
+==========================================================
+
+A new library has been created to store all the classes that are used as tools. TRestFFT has been moved to this new module libRestTools.so.
+
+A new tool class TRestMesh has been created to help on definning node relation of a distribution of hits. A node is related to another node if it is found within 1-cell distance from it, then the nodes will be associated to the same group number.
+
+For the moment node association to a group is defined by using 1-cell neighbour. This could be generalized in the future to n-cell neighbourds. Then we may increase cell granularity, and even define spherical node association topology.
+
+A new process TRestFastHitsToTrackProcess has been added. This process uses TRestMesh to find the relation between the hits in order to define the tracks. The process requires to define the net size, net position and cell resolution (or size). See updates in myConfig.rml.
+
+
+==========================================================
 Date : 8th / February / 2016
 Branch : configAndPaths 
 Author : Javier Galan
+Merge : #25
 ==========================================================
 
 Issues #2 and #3 have been solved by this merge.
@@ -27,6 +44,7 @@ Added CHANGELOG file. It should contain similar information to the information g
 Date : 4th / February / 2016
 Branch : iss25
 Author : Javier Galan
+Merge : #24
 ==========================================================
 
 TRestMetadata, TRestReadout and TRestRun upgrades

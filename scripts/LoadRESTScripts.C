@@ -3,6 +3,7 @@ int LoadRESTScripts()
 {
     gSystem->Load("libRestCore.so");
     gSystem->Load("libRestEvents.so");
+    gSystem->Load("libRestTools.so");
     gSystem->Load("libRestMetadata.so");
     gSystem->Load("libRestProcesses.so");
     gSystem->Load("libRestViewers.so");
