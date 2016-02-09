@@ -1,0 +1,66 @@
+
+==========================================================
+Date : 8th / February / 2016
+Branch : configAndPaths 
+Author : Javier Galan
+==========================================================
+
+Issues #2 and #3 have been solved by this merge.
+
+Changes in TRestMetadata related to config path definition and environmental values interpretation inside a config file.
+
+New method TRestMetadata::ReplaceEnvironmentalVariables used to parse environmental variables inside a config file.
+
+REST now will read configuration files from a path using the following priorities:
+
+1) It will try to find first the configuration file inside REST_CONFIG
+
+2) If it does not find the config file (or REST_CONFIG), it will try to find the config file in the directory where we are launching our executable
+
+3) If still, it does not find the config file it will try to find it at REST_PATH/config.
+
+
+Added CHANGELOG file. It should contain similar information to the information given when we do a merge request.
+
+
+==========================================================
+Date : 4th / February / 2016
+Branch : iss25
+Author : Javier Galan
+==========================================================
+
+TRestMetadata, TRestReadout and TRestRun upgrades
++++++++++++++++++++++++++++++++++++++++++++++++++
+Issues #18 , #19 and #25 have been solved by the merge.
+
+TRestMetadata
+-------------
+
+The FOR loop implementation in config files has been modified. The tag "to" now includes the last value in the iteration.
+<for from="1" to="N" step="1" > means it will do 1,2,...,N
+
+TRestRun
+--------
+
+fRunIndex has been removed and fParentRunNumber has been implemented.
+The run filename is now by default :
+Run_experiment_user_processName_Tag_runNumber_parentNumber_codeVersion.root
+
+Modifications related to overwrite option.
+Now runNumber accepts option runNumber="auto". It will take by default an increasing value stored in inputData/runNumber.
+
+TRestReadoutModule
+------------------
+
+New methods have been implemented
+
+TRestReadoutMapping
+-------------------
+
+Solved bug related to mapping of module boundaries.
+
+TRestReadoutPixel
+-----------------
+
+Solved bug related to pixel boundaries precision. Now pixel size is increased by a small size delta.
+

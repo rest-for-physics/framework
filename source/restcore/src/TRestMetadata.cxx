@@ -37,7 +37,6 @@ ClassImp(TRestMetadata)
     TRestMetadata::TRestMetadata()
 {
    // TRestMetadata default constructor
-   SetDefaultConfigFilePath();
 }
 
 
@@ -45,8 +44,7 @@ ClassImp(TRestMetadata)
 TRestMetadata::TRestMetadata( const char *cfgFileName)
 {
     // TRestMetadata constructor loading data from config file
-    SetDefaultConfigFilePath();
-    fConfigFileName = cfgFileName;
+    SetConfigFile( cfgFileName );
 
     SetTitle("Config");
     SetName("TRestMetadata");
@@ -68,12 +66,12 @@ TRestMetadata::~TRestMetadata()
 //______________________________________________________________________________
 void TRestMetadata::SetConfigFilePath(const char *configFilePath)
 {
-   // Lets the user define the default path where to search for the config 
-   // file for this metadata object. Normally one should not use this function, 
-   // as the constructor metadata provides a default value to
-   // fConfigFilePath through the SetDefaultConfigFilePath() function
+    // Lets the user define the default path where to search for the config 
+    // file for this metadata object. Normally one should not use this function, 
+    // as the constructor metadata provides a default value to
+    // fConfigFilePath through the SetDefaultConfigFilePath() function
 
-   fConfigFilePath = string(configFilePath);
+    fConfigFilePath = string(configFilePath);
 }
 
 //______________________________________________________________________________
@@ -231,16 +229,41 @@ bool TRestMetadata::fileExists(const std::string& filename)
 
 
 //______________________________________________________________________________
-void TRestMetadata::SetDefaultConfigFilePath()
+void TRestMetadata::SetDefaultConfigFilePath( )
 {
-   // Assigns a default value to fConfigFilePath derived from the environment
+    // Assigns a default value to fConfigFilePath derived from the environment
 
-   char *path;
-   char cfgpath[256];
-   path = getenv("REST_PATH");
-   sprintf(cfgpath, "%s/config/", path);
-   SetConfigFilePath((const char *) cfgpath);
+    char path[256];
+    char cfgpath[256];
+
+    // 1st option we check if REST_CONFIG is defined
+    sprintf( path, "%s", getenv("REST_CONFIG") );
+
+    // 2nd option if REST_CONFIG is not defined we check if the config file exists where ever we launch our program
+    if ( path == NULL || strcmp( path, "" ) == 0 ) sprintf( path, "." );
+
+    sprintf( path, "%s/", path );
+
+    sprintf( cfgpath, "%s%s", path, fConfigFileName.c_str() );
+
+    if ( fileExists( cfgpath ) )
+    {
+        SetConfigFilePath( (const char *) path );
+        return;
+    }
+
+    // 3rd option. We take the default path of the repository
+    sprintf( path, "%s", getenv("REST_PATH") );
+    sprintf(cfgpath, "%s/config/", path );
+    SetConfigFilePath((const char *) cfgpath );
 }
+
+void TRestMetadata::SetConfigFile( string cfgFileName )
+{
+    fConfigFileName = cfgFileName;
+    SetDefaultConfigFilePath( );
+}
+
 
 Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName )
 {
@@ -249,10 +272,8 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName )
 
     fSectionName = section;
 
-    fConfigFileName = cfgFileName;
-    if( debug > 1 ) cout << fConfigFileName << endl;
+    SetConfigFile( cfgFileName );
     string fileName = fConfigFilePath + fConfigFileName;
-    if( debug > 1 ) cout << fileName << endl;
 
     ifstream file(fileName);
 
@@ -264,6 +285,8 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName )
     // We temporally associate the globals to the configBuffer
     size_t pos = 0;
     configBuffer = GetKEYStructure( "globals", pos, temporalBuffer );
+
+    configBuffer = ReplaceEnvironmentalVariables( configBuffer );
 
     // We extract the values from globals. 
     // Globals will not be stored but they will be used by the REST framework during execution
@@ -321,6 +344,8 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName )
 
     if( configBuffer == "" ) cout << "REST error : Config buffer is EMPTY" << endl;
 
+    configBuffer = ReplaceEnvironmentalVariables( configBuffer );
+
     size_t position = 0;
     string value, myParam;
     while( position != string::npos )
@@ -338,6 +363,8 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName )
             configBuffer = Replace( configBuffer, myParam, value, position );
         }
     }
+
+
     configBuffer = ReplaceMathematicalExpressions( configBuffer );
 
     while( Count ( configBuffer, "<for" ) > 0 )
@@ -557,6 +584,68 @@ string TRestMetadata::EvaluateExpression( string exp )
     string out = sss.str();
 
     return out;
+}
+
+string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
+{
+    string outputBuffer = buffer;
+
+    int startPosition = 0;
+    int endPosition = 0;
+
+    while ( ( startPosition = outputBuffer.find( "${", endPosition ) ) != (int) string::npos )
+    {
+        char envValue[256];
+        endPosition = outputBuffer.find( "}", startPosition+1 );
+        if( endPosition == (int) string::npos ) break;
+
+        string expression = outputBuffer.substr( startPosition+2, endPosition-startPosition-2 );
+
+        if( getenv( expression.c_str() ) != NULL )
+        {
+            sprintf( envValue, "%s", getenv( expression.c_str() ) );
+
+            outputBuffer.replace( startPosition, endPosition-startPosition+1,  envValue );
+
+        }
+        else
+        {
+            sprintf( envValue, " " );
+            cout << "REST ERROR :: In config file " << fConfigFilePath << fConfigFileName << endl;
+            cout << "Environmental variable " << expression << " is not defined" << endl; 
+            cout << "Press a KEY to continue ... " << endl;
+            getchar();
+        }
+    }
+
+    startPosition = 0;
+    endPosition = 0;
+
+    while ( ( startPosition = outputBuffer.find( "{", endPosition ) ) != (int) string::npos )
+    {
+        char envValue[256];
+        endPosition = outputBuffer.find( "}", startPosition+1 );
+        if( endPosition == (int) string::npos ) break;
+
+        string expression = outputBuffer.substr( startPosition+1, endPosition-startPosition-1 );
+
+        if( getenv( expression.c_str() ) != NULL )
+        {
+            sprintf( envValue, "%s", getenv( expression.c_str() ) );
+
+            outputBuffer.replace( startPosition, endPosition-startPosition+1,  envValue );
+        }
+        else
+        {
+            sprintf( envValue, " " );
+            cout << "REST ERROR :: In config file " << fConfigFilePath << fConfigFileName << endl;
+            cout << "Environmental variable " << expression << " is not defined" << endl; 
+            cout << "Press a KEY to continue ... " << endl;
+            getchar();
+        }
+    }
+
+    return outputBuffer;
 }
 
 string TRestMetadata::ReplaceMathematicalExpressions( const string buffer )

@@ -89,6 +89,8 @@ class TRestMetadata:public TNamed {
         
         void SetDefaultConfigFilePath();
 
+        void SetConfigFile( std::string cfgFileName );
+
         Int_t CheckConfigFile( );
 
         std::string GetFieldValue( std::string fieldName, size_t fromPosition );
@@ -98,6 +100,7 @@ class TRestMetadata:public TNamed {
 
         std::string ExpandForLoops( std::string buffer );
         std::string ReplaceMathematicalExpressions( std::string buffer );
+        std::string ReplaceEnvironmentalVariables( const std::string buffer );
         std::string ExtractLoopStructure( std::string in, size_t pos );
 
         std::string GetSectionByNameFromFile( std::string nref, std::string fref );
