@@ -22,13 +22,10 @@
 class TRestFastHitsToTrackProcess:public TRestEventProcess {
     private:
 
+#ifndef __CINT__
         TRestHitsEvent *fHitsEvent;
         TRestTrackEvent *fTrackEvent;
-
-        Double_t fCellResolution;
-        Double_t fNetSize;
-        TVector3 fNetOrigin;
-        Int_t fNodes;
+#endif
 
         void InitFromConfigFile();
 
@@ -37,6 +34,11 @@ class TRestFastHitsToTrackProcess:public TRestEventProcess {
 
     protected:
         //add here the members of your event process
+
+        Double_t fCellResolution;
+        Double_t fNetSize;
+        TVector3 fNetOrigin;
+        Int_t fNodes;
 	
 
     public:

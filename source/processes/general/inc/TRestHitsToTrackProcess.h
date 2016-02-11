@@ -21,10 +21,10 @@
 class TRestHitsToTrackProcess:public TRestEventProcess {
     private:
 
+#ifndef __CINT__
         TRestHitsEvent *fHitsEvent;
         TRestTrackEvent *fTrackEvent;
-
-        Double_t fClusterDistance;
+#endif
 
         void InitFromConfigFile();
 
@@ -33,6 +33,7 @@ class TRestHitsToTrackProcess:public TRestEventProcess {
 
     protected:
         //add here the members of your event process
+        Double_t fClusterDistance;
 	
 
     public:

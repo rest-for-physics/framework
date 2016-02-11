@@ -21,16 +21,12 @@
 
 class TRestElectronDiffusionProcess:public TRestEventProcess {
     private:
+#ifndef __CINT__
         TRestG4Event *fG4Event;
         TRestHitsEvent *fHitsEvent;
 
-        Double_t fCathodePosition;
-        Double_t fAnodePosition;
-
-        Double_t fMaxPosition;
-        Double_t fMinPosition;
-
-        Double_t fElectricField;
+        TRestGas *fGas;
+#endif
 
         void InitFromConfigFile();
 
@@ -39,8 +35,15 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
         void LoadDefaultConfig();
 
     protected:
+        
         //add here the members of your event process
-        TRestGas *fGas;
+        Double_t fCathodePosition;
+        Double_t fAnodePosition;
+
+        Double_t fMaxPosition;
+        Double_t fMinPosition;
+
+        Double_t fElectricField;
 
 
     public:

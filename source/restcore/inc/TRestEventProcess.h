@@ -32,10 +32,10 @@ class TRestEventProcess:public TRestMetadata {
 
    virtual void InitFromConfigFile() = 0;
 
+#ifndef __CINT__
    TRestEvent *fInputEvent;
    TRestEvent *fOutputEvent;
 
-#ifndef __CINT__
    std::vector <TRestMetadata*> fRunMetadata;
 #endif
 

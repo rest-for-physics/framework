@@ -23,23 +23,27 @@
 #endif
 
 class TRestTrackPathMinimizationProcess:public TRestEventProcess {
+
     private:
 
+#ifndef __CINT__
         TRestTrackEvent *fInputTrackEvent;
         TRestTrackEvent *fOutputTrackEvent;
-
-        Double_t fEnergyThreshold;
-        Int_t fMaxNodes;
+#endif
 
         void InitFromConfigFile();
 
         void Initialize();
 
+
     protected:
-        //add here the members of your event process
+
+        Double_t fEnergyThreshold;
+        Int_t fMaxNodes;
 
 
     public:
+
         void InitProcess();
         void BeginOfEventProcess(); 
         TRestEvent *ProcessEvent( TRestEvent *eventInput );
