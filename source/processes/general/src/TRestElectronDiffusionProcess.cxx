@@ -1,22 +1,16 @@
 ///______________________________________________________________________________
 ///______________________________________________________________________________
-///______________________________________________________________________________
 ///             
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
 ///             TRestElectronDiffusionProcess.cxx
 ///
-///             Template to use to design "event process" classes inherited from 
-///             TRestElectronDiffusionProcess
-///             How to use: replace TRestElectronDiffusionProcess by your name, 
-///             fill the required functions following instructions and add all
-///             needed additional members and funcionality
 ///
-///             jun 2014:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///                 Igor G. Irastorza
+///             First implementation of electron diffusion process into REST_v2
+///             Date : Sep/2015
+///             Author : J. Galan
+///
 ///_______________________________________________________________________________
 
 
@@ -82,6 +76,7 @@ void TRestElectronDiffusionProcess::Initialize()
 
     fOutputEvent = fHitsEvent;
     fInputEvent = fG4Event;
+    fGas = NULL;
 }
 
 void TRestElectronDiffusionProcess::LoadConfig( string cfgFilename )
@@ -125,6 +120,9 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
     TRandom *rnd = new TRandom();
 
     TRestG4Event *g4Event = (TRestG4Event *) evInput;
+
+    fHitsEvent->SetEventTime( g4Event->GetEventTime() );
+    fHitsEvent->SetEventID( g4Event->GetEventID() );
 
     Double_t ionizationThreshold = fGas->GetIonizationPotential();
     Double_t longlDiffCoeff = fGas->GetLongitudinalDiffusion( fElectricField ); // (cm)^1/2
