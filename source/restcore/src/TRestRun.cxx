@@ -461,14 +461,14 @@ void TRestRun::SetVersion()
     chdir( buffer );
 
     // Reading the version of libcore.so
-    FILE *fV = popen("git rev-list --count --first-parent HEAD", "r");
+    FILE *fV = popen("git rev-parse --verify HEAD", "r");
+
     int nbytes;
     string versionStr;
     while ((nbytes = fread(buffer, 1, 255, fV)) > 0)
     {
         versionStr = buffer;
-        size_t last = versionStr.find("\n");
-        versionStr = versionStr.substr(0, last );
+        versionStr = versionStr.substr(0, 8 );
     }
 
     pclose( fV );
@@ -623,14 +623,14 @@ void TRestRun::SetRunFilenameAndIndex()
     sprintf( runNumberStr, "%05d", fRunNumber );
 
     fOutputFilename = GetDataPath() + "/Run_" + expName + "_"+ fRunUser + "_"  
-        + runType + "_" + fRunTag + "_" + (TString) runNumberStr + "_" + (TString) runParentStr + "_r" + fVersion + ".root";
+        + runType + "_" + fRunTag + "_" + (TString) runNumberStr + "_" + (TString) runParentStr + "_V" + fVersion + ".root";
 
     while( !fOverwrite && fileExists( (string) fOutputFilename ) )
     {
         fRunNumber++;
         sprintf( runNumberStr, "%05d", fRunNumber );
         fOutputFilename = GetDataPath() + "/Run_" + expName + "_"+ fRunUser + "_"  
-            + runType + "_" + fRunTag + "_" + (TString) runNumberStr + "_" + (TString) runParentStr + "_r" + fVersion + ".root";
+            + runType + "_" + fRunTag + "_" + (TString) runNumberStr + "_" + (TString) runParentStr + "_V" + fVersion + ".root";
     }
 }
 
