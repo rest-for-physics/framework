@@ -179,18 +179,19 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
             zInt[i] = (int) (10.* z[i]);
         }
 
+        Int_t rval = 0;
         if( nHits > 3 )
         {
-            if( x[0] == 0 )
+            if( rval == 0 && x[0] == 0 )
             {
                 cout << "Minimizing track in Y" << endl;
-                TrackMinimization_2D( yInt, zInt, nHits, bestPath );
+                rval = TrackMinimization_2D( yInt, zInt, nHits, bestPath );
             }
 
-            if( y[0] == 0 )
+            if( rval == 0 && y[0] == 0 )
             {
                 cout << "Minimizing track in X" << endl;
-                TrackMinimization_2D( xInt, zInt, nHits, bestPath );
+                rval = TrackMinimization_2D( xInt, zInt, nHits, bestPath );
             }
         }
         else
@@ -202,9 +203,13 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
 
         TRestVolumeHits bestHitsOrder;
 
+        if( rval != 0 ) fOutputTrackEvent->SetOK( false );
+
         for( int i = 0; i < nHits; i++ )
         {
-            Int_t n = bestPath[i];
+            Int_t n;
+            if( rval == 0 ) n = bestPath[i];
+            else n = i;
 
             Double_t x = hits->GetX(n);
             Double_t y = hits->GetY(n);
