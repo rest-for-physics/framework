@@ -53,6 +53,13 @@ void TRestTrackEvent::Initialize()
 
 }
 
+TRestTrack *TRestTrackEvent::GetTrackById( Int_t id )
+{
+    for( int i = 0; i < GetNumberOfTracks(); i++ )
+        if( GetTrack( i )->GetTrackID() == id ) return GetTrack( i );
+    return NULL;
+}
+
 Int_t TRestTrackEvent::GetTotalHits( )
 {
     Int_t totHits = 0;
@@ -74,6 +81,26 @@ Int_t TRestTrackEvent::GetLevel( Int_t tck )
     return lvl;
 }
 
+Bool_t TRestTrackEvent::isTopLevel( Int_t tck )
+{
+    if( GetLevels() == GetLevel( tck ) )
+        return true;
+    return false;
+}
+
+Int_t TRestTrackEvent::GetOriginTrackID( Int_t tck )
+{
+    Int_t originTrackID = tck;
+    Int_t pID = GetTrack(tck)->GetParentID();
+
+    while( pID != 0 )
+    {
+        originTrackID = pID;
+        pID = GetTrack(originTrackID)->GetParentID();
+    }
+
+    return originTrackID;
+}
 
 void TRestTrackEvent::SetLevels( )
 {
