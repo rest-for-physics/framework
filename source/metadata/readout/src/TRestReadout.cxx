@@ -193,7 +193,7 @@ Double_t TRestReadout::GetX( Int_t modID, Int_t chID )
         else deltaX = x1 - x2;
 
         if( y2 - y1 > 0 ) deltaY = y2 - y1;
-        else deltaX = y1 - y2;
+        else deltaY = y1 - y2;
         
         if( deltaY > deltaX ) x = xOrigin + rChannel->GetPixel(0)->GetCenter().X();
     }
@@ -228,7 +228,7 @@ Double_t TRestReadout::GetY( Int_t modID, Int_t chID )
         else deltaX = x1 - x2;
 
         if( y2 - y1 > 0 ) deltaY = y2 - y1;
-        else deltaX = y1 - y2;
+        else deltaY = y1 - y2;
         
         if( deltaY < deltaX ) y = yOrigin + rChannel->GetPixel(0)->GetCenter().Y();
     }
