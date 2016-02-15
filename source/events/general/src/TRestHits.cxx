@@ -209,6 +209,17 @@ Double_t TRestHits::GetDistance2( int n, int m )
     return (GetX(n)-GetX(m))*(GetX(n)-GetX(m)) +  (GetY(n)-GetY(m))*(GetY(n)-GetY(m)) + (GetZ(n)-GetZ(m))*(GetZ(n)-GetZ(m));
 }
 
+Double_t TRestHits::GetDistanceToNode( Int_t n )
+{
+    Double_t distance = 0;
+    if( n > GetNumberOfHits()-1 ) n = GetNumberOfHits()-1;
+
+    for( int hit = 0; hit < n; hit++ )
+        distance += GetVector( hit+1, hit ).Mag();
+
+    return distance;
+}
+
 void TRestHits::PrintHits()
 {
 	//TRestEvent::PrintEvent();
