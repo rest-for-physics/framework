@@ -27,9 +27,16 @@
 #include <TObject.h>
 #include <TString.h>
 #include <TVector2.h>
+#include <TGraph.h>
 
 
 class TRestSignal: public TObject {
+
+    private:
+
+        Int_t GetMaxIndex();
+        Int_t GetMinIndex( );
+        Int_t GetTimeIndex(Double_t t);
 
     protected:
         
@@ -41,7 +48,11 @@ class TRestSignal: public TObject {
         void AddPoint(TVector2 p);
         
     public:
-	
+
+#ifndef __CINT__
+        TGraph *fGraph;
+#endif
+
         //Getters
         TVector2 GetPoint( Int_t n )
         {
@@ -68,13 +79,19 @@ class TRestSignal: public TObject {
         Double_t GetIntegralWithThreshold( Int_t ni, Int_t nf, Double_t threshold );
 
         Double_t GetAverage( Int_t start, Int_t end );
-        Int_t GetMaxIndex();
         Int_t GetMaxPeakWidth();
+
         Double_t GetMaxPeakValue();
+        Double_t GetMinPeakValue();
+
+        Double_t GetMaxValue() { return GetMaxPeakValue(); }
+        Double_t GetMinValue() { return GetMinPeakValue(); }
+
+        Double_t GetMinTime( );
+        Double_t GetMaxTime( );
 
         Double_t GetData( Int_t index ) { return (double)fSignalCharge[index]; }
         Double_t GetTime( Int_t index ) { return (double)fSignalTime[index]; }
-        Int_t GetTimeIndex(Double_t t);
         
         //Setters
         void SetSignalID(Int_t sID) { fSignalID = sID; }
@@ -100,6 +117,8 @@ class TRestSignal: public TObject {
 
         void WriteSignalToTextFile ( TString filename );
         void Print( );
+
+        TGraph *GetGraph( Int_t color = 1 );
                 
         //Construtor
         TRestSignal();

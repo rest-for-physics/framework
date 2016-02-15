@@ -33,6 +33,7 @@ ClassImp(TRestSignal)
     TRestSignal::TRestSignal()
 {
    // TRestSignal default constructor
+   fGraph = NULL;
 }
 
 //______________________________________________________________________________
@@ -46,15 +47,15 @@ void TRestSignal::AddPoint(TVector2 p)
     Int_t index =  GetTimeIndex( p.X() );
     Float_t x = p.X();
     Float_t y = p.Y();
-    
+
     if( index >= 0 ){
         fSignalTime[index] =x;
         fSignalCharge[index] +=y;
-        }
+    }
     else{
         fSignalTime.push_back(x);
         fSignalCharge.push_back(y);
-        }
+    }
 }
 
 void TRestSignal::AddPoint( Double_t t, Double_t d ) { TVector2 p( t,d); AddPoint( p ); }
@@ -144,7 +145,7 @@ Double_t TRestSignal::GetMaxPeakValue()
 
 Int_t TRestSignal::GetMaxIndex( )
 {
-    Double_t max = 1E-9;
+    Double_t max = -1E10;
     Int_t index;
 
     for( int i = 0; i < GetNumberOfPoints(); i++ )
@@ -158,6 +159,47 @@ Int_t TRestSignal::GetMaxIndex( )
     }
 
     return index;
+}
+
+Double_t TRestSignal::GetMinPeakValue()
+{
+    return GetData( GetMinIndex() );
+}
+
+Int_t TRestSignal::GetMinIndex( )
+{
+    Double_t min = 1E10;
+    Int_t index;
+
+    for( int i = 0; i < GetNumberOfPoints(); i++ )
+    {
+
+        if( this->GetData(i) < min )
+        {
+            min = GetData(i);
+            index = i;
+        }
+    }
+
+    return index;
+}
+
+Double_t TRestSignal::GetMinTime( )
+{
+    Double_t minTime = 1E10;
+    for( int n = 0; n < GetNumberOfPoints(); n++ )
+        if( minTime > fSignalTime[n] ) minTime = fSignalTime[n];
+
+    return minTime;
+}
+
+Double_t TRestSignal::GetMaxTime( )
+{
+    Double_t maxTime = -1E10;
+    for( int n = 0; n < GetNumberOfPoints(); n++ )
+        if( maxTime < fSignalTime[n] ) maxTime = fSignalTime[n];
+
+    return maxTime;
 }
 
 Int_t TRestSignal::GetTimeIndex( Double_t t )
@@ -317,4 +359,26 @@ void TRestSignal::Print( )
 {
     for( int i = 0; i < GetNumberOfPoints(); i++ )
         cout << "Time : " << GetTime(i) << " Charge : " << GetData(i) << endl;
+}
+
+TGraph *TRestSignal::GetGraph( Int_t color )
+{
+    if( fGraph != NULL ) { delete fGraph; fGraph = NULL; }
+
+    fGraph = new TGraph();
+
+    cout << "Signal ID " << this->GetSignalID( ) << " points " << this->GetNumberOfPoints() << endl;
+
+    fGraph->SetLineWidth( 2 );
+    fGraph->SetLineColor( color );
+    fGraph->SetMarkerStyle( 7 );
+
+    int points = 0;
+    for( int n = 0; n < GetNumberOfPoints(); n++ )
+    {
+        fGraph->SetPoint( points, GetTime(n), GetData(n) );
+        points++;
+    }
+
+    return fGraph;
 }
