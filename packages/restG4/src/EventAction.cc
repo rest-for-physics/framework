@@ -75,6 +75,7 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
 
  //   G4cout << "Event id : " << evt->GetEventID() << G4endl;
     restG4Event->SetEventID( evt->GetEventID() );
+    restG4Event->SetOK( true );
     time_t systime = time(NULL);
  //   G4cout << "Event time : " << (Double_t) systime << G4endl;
     restG4Event->SetEventTime( (Double_t) systime );
