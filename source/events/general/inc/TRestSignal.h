@@ -38,19 +38,16 @@ class TRestSignal: public TObject {
         std::vector <Float_t> fSignalTime;   //Vector with the time of the signal
         std::vector <Float_t> fSignalCharge; //Vector with the charge of the signal
         
-        #ifndef __CINT__
-	TVector2 vector2; 
-	#endif		  
-        
         void AddPoint(TVector2 p);
         
     public:
 	
         //Getters
-        TVector2 *GetPoint(Int_t n){
-        vector2.Set(GetTime(n), GetData(n));
-        
-        return &vector2;
+        TVector2 GetPoint( Int_t n )
+        {
+            TVector2 vector2( GetTime(n), GetData(n) );
+
+            return vector2;
         }
         
         Int_t GetSignalID( ) { return fSignalID; }
