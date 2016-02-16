@@ -13,7 +13,6 @@ Int_t RESTSIGNAL_AddNoise( TString fName, Int_t firstEvent = 0, Int_t numberOfEv
     // We load the information from the input file on the new run
     run->OpenInputFile( fName );
 
-    run->SetRunType( "addNoise" );
     run->ResetRunTimes( );
 
     run->PrintInfo();

@@ -55,7 +55,7 @@ class TRestAddSignalNoiseProcess:public TRestEventProcess {
 
         TRestMetadata *GetProcessMetadata( ) { return NULL; }
 
-        TString GetProcessName() { return (TString) "addSignalNoiseProcess"; }
+        TString GetProcessName() { return (TString) "addSignalNoise"; }
 
         //Constructor
         TRestAddSignalNoiseProcess();
