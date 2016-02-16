@@ -16,6 +16,7 @@
 
 #include "TRestMesh.h"
 using namespace std;
+using namespace TMath;
 
 ClassImp(TRestMesh)
 //______________________________________________________________________________
@@ -65,6 +66,7 @@ Double_t TRestMesh::GetZ( Int_t nZ )
 //! Gets the nodeX index corresponding to the x coordinate
 Int_t TRestMesh::GetNodeX( Double_t x )
 {
+    if( IsNaN( x ) ) return 0;
     Int_t nX = (Int_t) ( ( ( x-fNetOrigin.X() ) / fNetSizeX ) * fNodesX );
     if( nX < 0 ){ cout << "REST WARNING : X node outside boundaries. Setting it to : " << 0 << endl;  return 0; } 
     if( nX >= fNodesX ) { cout << "REST WARNING : X node outside boundaries. Setting it to : " << fNodesX-1 << endl;  return fNodesX-1; } 
@@ -74,6 +76,7 @@ Int_t TRestMesh::GetNodeX( Double_t x )
 //! Gets the nodeY index corresponding to the x coordinate
 Int_t TRestMesh::GetNodeY( Double_t y )
 {
+    if( IsNaN( y ) ) return 0;
     Int_t nY = (Int_t) ( ( ( y-fNetOrigin.Y() ) / fNetSizeY ) * fNodesY );
     if( nY < 0 ){ cout << "REST WARNING : Y node outside boundaries. Setting it to : " << 0 << endl;  return fNodesY-1; } 
     if( nY >= fNodesY ) { cout << "REST WARNING : Y node outside boundaries. Setting it to : " << fNodesY-1 << endl;  return fNodesY-1; } 
@@ -83,6 +86,7 @@ Int_t TRestMesh::GetNodeY( Double_t y )
 //! Gets the nodeY index corresponding to the x coordinate
 Int_t TRestMesh::GetNodeZ( Double_t z )
 {
+    if( IsNaN( z ) ) return 0;
     Int_t nZ = (Int_t) ( ( ( z-fNetOrigin.Z() ) / fNetSizeZ ) * fNodesZ );
     if( nZ < 0 ){ cout << "REST WARNING : Z node outside boundaries. Setting it to : " << 0 << endl;  return fNodesZ-1; } 
     if( nZ >= fNodesZ ) { cout << "REST WARNING : Z node outside boundaries. Setting it to : " << fNodesZ-1 << endl;  return fNodesZ-1; } 
@@ -254,6 +258,7 @@ void TRestMesh::AddNode( Double_t x, Double_t y, Double_t z )
     Int_t nx = GetNodeX( x );
     Int_t ny = GetNodeY( y );
     Int_t nz = GetNodeZ( z );
+
     /*
     cout << "Adding node : x=" << x  << " y=" << y << " z=" << z << endl;
     cout << "Node : " << nx << " " << ny << " " << nz << endl;

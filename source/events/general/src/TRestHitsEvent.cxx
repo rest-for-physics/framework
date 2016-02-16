@@ -58,7 +58,7 @@ TRestHits *TRestHitsEvent::GetXZHits()
     {
         if( IsNaN ( this->GetY(i) ) )
         {
-            xzHits->AddHit( this->GetX(i), 0, this->GetZ(i), this->GetEnergy(i) );
+            xzHits->AddHit( this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i) );
         }
     }
     return xzHits;
@@ -71,7 +71,7 @@ TRestHits *TRestHitsEvent::GetYZHits()
     {
         if( IsNaN( this->GetX(i) ) )
         {
-            yzHits->AddHit( 0, this->GetY(i), this->GetZ(i), this->GetEnergy(i) );
+            yzHits->AddHit( this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i) );
         }
     }
     return yzHits;

@@ -59,7 +59,11 @@ void TRestTrack::RemoveVolumeHits( )
 
 void TRestTrack::PrintTrack()
 {
-        cout << "Track ID : " << fTrackID << " Parent ID : " << fParentID << endl;
+        cout << "Track ID : " << fTrackID << " Parent ID : " << fParentID;
+        if( isXY() ) cout << " is XY " << endl;
+        if( isXZ() ) cout << " is XZ " << endl;
+        if( isYZ() ) cout << " is YZ " << endl;
+        if( isXYZ() ) cout << " is XYZ " << endl;
         cout << "----------------------------------------" << endl;
         fVolumeHits.PrintHits();
         cout << "----------------------------------------" << endl;
