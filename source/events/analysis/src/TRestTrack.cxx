@@ -57,7 +57,7 @@ void TRestTrack::RemoveVolumeHits( )
     fTrackLength = 0;
 }
 
-void TRestTrack::PrintTrack()
+void TRestTrack::PrintTrack( Bool_t printHits )
 {
         cout << "Track ID : " << fTrackID << " Parent ID : " << fParentID;
         if( isXY() ) cout << " is XY " << endl;
@@ -65,6 +65,11 @@ void TRestTrack::PrintTrack()
         if( isYZ() ) cout << " is YZ " << endl;
         if( isXYZ() ) cout << " is XYZ " << endl;
         cout << "----------------------------------------" << endl;
-        fVolumeHits.PrintHits();
-        cout << "----------------------------------------" << endl;
+
+        if( printHits )
+        {
+            fVolumeHits.PrintHits();
+            cout << "----------------------------------------" << endl;
+        }
 }
+

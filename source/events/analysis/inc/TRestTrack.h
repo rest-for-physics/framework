@@ -63,7 +63,7 @@ class TRestTrack: public TObject {
         TRestVolumeHits *GetVolumeHits() {return &fVolumeHits;}
         Int_t GetNumberOfHits() { return GetVolumeHits()->GetNumberOfHits(); }
 
-        void PrintTrack();
+        void PrintTrack( Bool_t printHits = true );
 
         //Construtor
         TRestTrack();
