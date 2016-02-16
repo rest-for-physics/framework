@@ -1,0 +1,73 @@
+///______________________________________________________________________________
+///______________________________________________________________________________
+///______________________________________________________________________________
+///             
+///
+///             RESTSoft : Software for Rare Event Searches with TPCs
+///
+///             TRestTrackLinearizationProcess.h
+//
+//              Jan 2016 : Javier Galan
+///
+///_______________________________________________________________________________
+
+
+#ifndef RestCore_TRestTrackLinearizationProcess
+#define RestCore_TRestTrackLinearizationProcess
+
+#include <TRestTrackEvent.h>
+#include <TRestLinearizedTrackEvent.h>
+#include "TRestEventProcess.h"
+
+class TRestTrackLinearizationProcess:public TRestEventProcess {
+
+    private:
+        Double_t fLengthResolution;
+        Double_t fTransversalResolution;
+
+#ifndef __CINT__
+        TRestTrackEvent *fInputTrackEvent;
+        TRestLinearizedTrackEvent *fOutputLinearizedTrackEvent;
+#endif
+
+        void InitFromConfigFile();
+
+        void Initialize();
+
+        TVector2 FindProjection( TVector3 position, TRestHits *nodes );
+
+
+    protected:
+
+
+    public:
+
+        void InitProcess();
+        void BeginOfEventProcess(); 
+        TRestEvent *ProcessEvent( TRestEvent *eventInput );
+        void EndOfEventProcess(); 
+        void EndProcess();
+        void LoadDefaultConfig( );
+
+        void LoadConfig( std::string cfgFilename );
+
+        void PrintMetadata() 
+        { 
+            BeginPrintProcess();
+            std::cout << "Lenght resolution : " << fLengthResolution << " mm" << std::endl;
+            std::cout << "Transversal resolution : " << fTransversalResolution << " mm" << std::endl;
+            EndPrintProcess();
+        }
+
+        TString GetProcessName() { return (TString) "trackLinearization"; }
+
+        //Constructor
+        TRestTrackLinearizationProcess();
+        TRestTrackLinearizationProcess( char *cfgFileName );
+        //Destructor
+        ~TRestTrackLinearizationProcess();
+
+        ClassDef( TRestTrackLinearizationProcess, 1);
+};
+#endif
+
