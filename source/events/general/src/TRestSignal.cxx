@@ -34,6 +34,7 @@ ClassImp(TRestSignal)
 {
    // TRestSignal default constructor
    fGraph = NULL;
+   fSignalID = -1;
 }
 
 //______________________________________________________________________________
@@ -48,7 +49,8 @@ void TRestSignal::AddPoint(TVector2 p)
     Float_t x = p.X();
     Float_t y = p.Y();
 
-    if( index >= 0 ){
+    if( index >= 0 )
+    {
         fSignalTime[index] =x;
         fSignalCharge[index] +=y;
     }

@@ -34,7 +34,6 @@ class TRestSignal: public TObject {
 
     private:
 
-        Int_t GetMaxIndex();
         Int_t GetMinIndex( );
         Int_t GetTimeIndex(Double_t t);
 
@@ -53,6 +52,9 @@ class TRestSignal: public TObject {
         TGraph *fGraph;
 #endif
 
+        // TODO other objects should probably skip using this direclty
+        Int_t GetMaxIndex();
+
         //Getters
         TVector2 GetPoint( Int_t n )
         {
@@ -62,6 +64,7 @@ class TRestSignal: public TObject {
         }
         
         Int_t GetSignalID( ) { return fSignalID; }
+        Int_t GetID( ) { return fSignalID; }
         
         Int_t GetNumberOfPoints()
         {
@@ -94,7 +97,8 @@ class TRestSignal: public TObject {
         Double_t GetTime( Int_t index ) { return (double)fSignalTime[index]; }
         
         //Setters
-        void SetSignalID(Int_t sID) { fSignalID = sID; }
+        void SetSignalID( Int_t sID ) { fSignalID = sID; }
+        void SetID( Int_t sID ) { fSignalID = sID; }
 
         void AddPoint( Double_t t, Double_t d );
         void AddCharge( Double_t t, Double_t d );
