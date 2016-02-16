@@ -35,7 +35,11 @@ class TRestEvent:public TObject {
    // the precise meaning of the indexes may depend on the inherited class
    // (simulation or daq, e.g.)
    TTimeStamp fEventTime;              ///< Event absolute time
+
+   // It is this really needed?
    TString fEventClassName;		
+
+   Bool_t fOk;
 
  public:
    //Setters
@@ -49,10 +53,14 @@ class TRestEvent:public TObject {
    
    }
 
+   void SetState( Bool_t state ) { fOk = state; }
+   void SetOK( Bool_t state ) { fOk = state; }
+
    //Getters
    Int_t GetEventID() { return fEventID; }
    Double_t GetEventTime() { return fEventTime.AsDouble(); }
    TString GetClassName() { return fEventClassName; }
+   Bool_t isOk() { return fOk; }
 
    // Must be set on the derived events to remove content
    virtual void Initialize() = 0; 

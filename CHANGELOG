@@ -9,15 +9,15 @@ Merge : #31
 New signal process : TRestAddSignalNoiseProcess. It adds white gaussian noise to a TRestSignal. It converts a TRestSignal into another TRestSignal. The noise is introduced in electrons, not as an int number but as a float. It uses a metadata: noiseLevel that would define the noise standard deviation.
 
 ==========================================================
-Date : 15th / February / 2016
+Date : 11th / February / 2016
 Branch : restcoreUpdates
 Author : Javier Galan
 Merge : #30
 ==========================================================
 
-TRestRun. Added time measurement for event processing, writting and reading. The time measurement will print out on screen after it has finished processing all the events. It can be deactivated by commenting out the line #define TIME_MEASUREMENT. In future this might be given as an option for the compiler.
+- TRestRun. Added time measurement for event processing, writting and reading. The time measurement will print out on screen after it has finished processing all the events. It can be deactivated by commenting out the line #define TIME_MEASUREMENT. In future this might be given as an option for the compiler.
 
-TRestEvent. Added a new member, fOK. This member is initialized to true by the original input process (restG4 or restAGET, ...). The processes may set the status of the event to a BAD state using this member in case something went wrong processing that event.
+- TRestEvent. Added a new member, fOK. This member is initialized to true by the original input process (restG4 or restAGET, ...). The processes may set the status of the event to a BAD state using this member in case something went wrong processing that event.
 
 ==========================================================
 Date : 9th / February / 2016

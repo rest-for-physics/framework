@@ -19,6 +19,16 @@
 #include "TRestRun.h"
 using namespace std;
 
+#define TIME_MEASUREMENT
+
+#ifdef TIME_MEASUREMENT
+#include <chrono>
+using namespace chrono;
+int deltaTime = 0;
+int writeTime = 0;
+int readTime = 0;
+#endif
+
 const int debug = 0;
 
 ClassImp(TRestRun)
@@ -125,6 +135,10 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
 	{
 		processedEvent = fInputEvent;
 
+#ifdef TIME_MEASUREMENT
+        high_resolution_clock::time_point t1 = high_resolution_clock::now();
+#endif
+
 		for( unsigned int j = 0; j < fEventProcess.size(); j++ )
 		{
 			fEventProcess[j]->BeginOfEventProcess();
@@ -132,18 +146,36 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
 			if( processedEvent == NULL ) break;
 			fEventProcess[j]->EndOfEventProcess();
 		}
+
+#ifdef TIME_MEASUREMENT
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+    deltaTime += (int) duration_cast<microseconds>( t2 - t1 ).count();
+#endif
+
 		fOutputEvent = processedEvent;
 		if( processedEvent == NULL ) continue;
 
-
+#ifdef TIME_MEASUREMENT
+        high_resolution_clock::time_point t3 = high_resolution_clock::now();
+#endif
 		fOutputEventTree->Fill();
+#ifdef TIME_MEASUREMENT
+    high_resolution_clock::time_point t4 = high_resolution_clock::now();
+    writeTime += (int) duration_cast<microseconds>( t4 - t3 ).count();
+#endif
 
 		PrintProcessedEvents(100);
 
         fProcessedEvents++;
 	}
 
-	cout<<fOutputEventTree->GetEntries()<<" processed events"<<endl;
+	cout << fOutputEventTree->GetEntries() << " processed events" << endl;
+
+#ifdef TIME_MEASUREMENT
+    cout << "Average event process time : " << ((Double_t) deltaTime)/fProcessedEvents/1000. << " ms" << endl;
+    cout << "Total write time to disk (per event) : " << ((Double_t) writeTime)/fProcessedEvents/1000. << " ms" << endl;
+    cout << "Total read time from disk (per event) : " << ((Double_t) readTime)/fProcessedEvents/1000. << " ms" << endl;
+#endif
 
 	for( unsigned int i = 0; i < fEventProcess.size(); i++ )
 		fEventProcess[i]->EndProcess();
@@ -346,6 +378,7 @@ void TRestRun::OpenOutputFile( )
     if( GetVerboseLevel() == REST_Info ) cout << "Opening file : " << fOutputFilename << endl;
 
     fOutputFile = new TFile( fOutputFilename, "recreate" );
+    fOutputFile->SetCompressionLevel(0);
 
     fOutputEventTree  = new TTree( GetName(), GetTitle() );
     if( GetVerboseLevel() == REST_Debug ) cout << "Creating tree : " << fOutputEventTree << endl;
@@ -654,7 +687,6 @@ if(fCurrentEvent%rateE ==0){
 //Return false when the file ends
 Bool_t TRestRun::GetNextEvent( )
 {
-
     if(fInputEvent == NULL)
     {
         if( fOutputEvent == NULL ) { return kFALSE; }
@@ -662,11 +694,18 @@ Bool_t TRestRun::GetNextEvent( )
     }
     else
     {
+#ifdef TIME_MEASUREMENT
+        high_resolution_clock::time_point t5 = high_resolution_clock::now();
+#endif
 
         if( fInputEventTree->GetEntries() == fCurrentEvent-1 ) return kFALSE;
 
         fInputEventTree->GetEntry( fCurrentEvent );
         fCurrentEvent++;
+#ifdef TIME_MEASUREMENT
+        high_resolution_clock::time_point t6 = high_resolution_clock::now();
+        readTime += (int) duration_cast<microseconds>( t6 - t5 ).count();
+#endif
     }
 
     return kTRUE;
