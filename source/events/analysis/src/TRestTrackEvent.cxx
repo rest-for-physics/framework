@@ -96,7 +96,7 @@ Int_t TRestTrackEvent::GetOriginTrackID( Int_t tck )
     while( pID != 0 )
     {
         originTrackID = pID;
-        pID = GetTrack(originTrackID)->GetParentID();
+        pID = GetTrackById(originTrackID)->GetParentID();
     }
 
     return originTrackID;
