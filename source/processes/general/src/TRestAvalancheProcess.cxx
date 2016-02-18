@@ -23,7 +23,7 @@
 #include "TRestAvalancheProcess.h"
 using namespace std;
 
-#include <TRandom.h>
+#include <TRandom3.h>
 
 ClassImp(TRestAvalancheProcess)
 //______________________________________________________________________________
@@ -70,6 +70,8 @@ void TRestAvalancheProcess::LoadDefaultConfig()
 void TRestAvalancheProcess::Initialize()
 {
     SetName( "avalancheProcess" );
+
+    fGas = NULL;
 
     fEnergyRef = 5.9;	
     fResolutionAtEref = 15.0; 
@@ -120,8 +122,6 @@ void TRestAvalancheProcess::BeginOfEventProcess()
 TRestEvent* TRestAvalancheProcess::ProcessEvent( TRestEvent *evInput )
 {
 
-    TRandom *rnd = new TRandom();
-
     fHitsInputEvent = (TRestHitsEvent *) evInput;
 
     Double_t fW = fGas->GetIonizationPotential();
@@ -132,21 +132,21 @@ TRestEvent* TRestAvalancheProcess::ProcessEvent( TRestEvent *evInput )
 
     cout<<"Initial electrons "<< fHitsInputEvent->GetTotalEnergy()<<" ; eDep "<< eDep << " keV; resolution "<< eRes*2.35*100 << " fwhm"<< endl;
 
+    TRandom3 *rnd = new TRandom3(0);
 
     for( int hit = 0; hit < fHitsInputEvent->GetNumberOfHits(); hit++ )
     {
-	 TRandom *rnd3 = new TRandom(0);
-	 gain = fDetectorGain * rnd3->Gaus(1.0, eRes);
+	 gain = fDetectorGain * rnd->Gaus(1.0, eRes);
 
     	 // The electronics gain is applied.
-   	 //gain = gain * 4096.0 / fElectronicsGain;
+   	 // gain = gain * 4096.0 / fElectronicsGain;
 
 	 totelectrons += gain;
 
-          fHitsOutputEvent->AddHit( fHitsInputEvent->GetX(hit), fHitsInputEvent->GetY(hit) , fHitsInputEvent->GetZ(hit), 1.*gain );   
-	 delete rnd3;  
+          fHitsOutputEvent->AddHit( fHitsInputEvent->GetX(hit), fHitsInputEvent->GetY(hit), fHitsInputEvent->GetZ(hit), fHitsInputEvent->GetEnergy(hit) * gain );   
     }
 
+    delete rnd;  
 
     if( fHitsOutputEvent->GetNumberOfHits() == 0 ) return NULL;
 
