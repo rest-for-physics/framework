@@ -63,6 +63,7 @@ void TRestElectronDiffusionProcess::LoadDefaultConfig()
     fCathodePosition = -1000;
     fAnodePosition = 0;
     fElectricField = 1000;
+    fAttachment = 0;
 
     // TOBE implemented
 }
@@ -75,6 +76,7 @@ void TRestElectronDiffusionProcess::Initialize()
     fCathodePosition = 0;
     fAnodePosition = 0;
     fElectricField = 0;
+    fAttachment = 0;
 
     fHitsEvent = new TRestHitsEvent();
 
@@ -130,6 +132,8 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
     Double_t longlDiffCoeff = fGas->GetLongitudinalDiffusion( fElectricField ); // (cm)^1/2
     Double_t transDiffCoeff = fGas->GetTransversalDiffusion( fElectricField ); // (cm)^1/2
 
+    Int_t isAttached;
+
     // Get info from G4Event and process
     for( int trk = 0; trk < g4Event->GetNumberOfTracks(); trk++ )
     {
@@ -164,13 +168,21 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 
                             Double_t transHitDiffusion = 10. * TMath::Sqrt( driftDistance/10. ) * transDiffCoeff; //mm
 
-                            xDiff = x + rnd->Gaus( 0, transHitDiffusion );
+			 if (fAttachment)
+			 	isAttached =  (rnd->Uniform(0,1) > pow(1-fAttachment, driftDistance/10. ) );
+			 else
+				isAttached = 0;
 
-                            yDiff = y + rnd->Gaus( 0, transHitDiffusion );
+			 if ( isAttached == 0)
+			 {
+                                xDiff = x + rnd->Gaus( 0, transHitDiffusion );
 
-                            zDiff = z + rnd->Gaus( 0, longHitDiffusion );
+                                yDiff = y + rnd->Gaus( 0, transHitDiffusion );
 
-                            fHitsEvent->AddHit( xDiff, yDiff, zDiff, 1. );
+                                zDiff = z + rnd->Gaus( 0, longHitDiffusion );
+
+                                fHitsEvent->AddHit( xDiff, yDiff, zDiff, 1. );
+			 }
                         }
 
                     }
@@ -212,6 +224,7 @@ void TRestElectronDiffusionProcess::InitFromConfigFile( )
     fCathodePosition = StringToDouble( GetParameter( "cathodePosition" ) );
     fAnodePosition = StringToDouble( GetParameter( "anodePosition" ) );
     fElectricField = StringToDouble( GetParameter( "electricField" ) );
+    fAttachment = StringToDouble( GetParameter( "attachment" ) );
 
     if( fCathodePosition > fAnodePosition ) { fMaxPosition = fCathodePosition; fMinPosition = fAnodePosition; }
     else { fMinPosition = fCathodePosition; fMaxPosition = fAnodePosition; } 
