@@ -1,5 +1,14 @@
 
 ==========================================================
+Date : 18th / February / 2016
+Branch : iss#17
+Author : Javier Gracia
+Merge : #32
+==========================================================
+
+New process added. TRestAvalancheProcess (issue#17). It is a simple process that transmforms a TRestHitsEvent into another TRestHitsEvent. The primary electrons are multiplied by a gausian-distributed random factor, being the mean the detectorGain (metadata) and width scaled with the root of the energy taking as reference the energy resolution (metadata) at a given reference energy (metadata).
+
+==========================================================
 Date : 16th / February / 2016
 Branch : iss#15
 Author : Javier Gracia
