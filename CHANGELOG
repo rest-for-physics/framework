@@ -1,6 +1,32 @@
 
 ==========================================================
 Date : 18th / February / 2016
+Branch : iss#31
+Author : Javier Gracia
+Merge : #35
+==========================================================
+
+Added attachment to ElectronDiffusionProcess. It requires the parameter atachment in the config file.
+
+==========================================================
+Date : 18th / February / 2016
+Branch : gasFiles
+Author : Elisa Ruiz Choliz 
+Merge : #34
+==========================================================
+
+Adding gas mixture files
+Adding in inputData/gasFiles/
+- pure Xe
+- pure He
+- Ar+iso; Xe+iso; Xe+CF4 mixtures - 0.5,1,2,3,5%
+- Xe+TMA mixture – 0.1,0.5,1,2,2.2,3,5%
+
+Uploading in config/definitions/
+- gases.rml
+
+==========================================================
+Date : 18th / February / 2016
 Branch : iss#17
 Author : Javier Gracia
 Merge : #32

@@ -26,7 +26,7 @@ using namespace std;
 #include <TRandom.h>
 
 ClassImp(TRestElectronDiffusionProcess)
-//______________________________________________________________________________
+    //______________________________________________________________________________
 TRestElectronDiffusionProcess::TRestElectronDiffusionProcess()
 {
     Initialize();
@@ -43,7 +43,7 @@ TRestElectronDiffusionProcess::TRestElectronDiffusionProcess( char *cfgFileName 
     PrintMetadata();
     fGas = new TRestGas( cfgFileName );
 
-   // TRestElectronDiffusionProcess default constructor
+    // TRestElectronDiffusionProcess default constructor
 }
 
 //______________________________________________________________________________
@@ -53,7 +53,7 @@ TRestElectronDiffusionProcess::~TRestElectronDiffusionProcess()
 
     delete fHitsEvent;
     delete fG4Event;
-   // TRestElectronDiffusionProcess destructor
+    // TRestElectronDiffusionProcess destructor
 }
 
 void TRestElectronDiffusionProcess::LoadDefaultConfig()
@@ -168,13 +168,13 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 
                             Double_t transHitDiffusion = 10. * TMath::Sqrt( driftDistance/10. ) * transDiffCoeff; //mm
 
-			 if (fAttachment)
-			 	isAttached =  (rnd->Uniform(0,1) > pow(1-fAttachment, driftDistance/10. ) );
-			 else
-				isAttached = 0;
+                            if (fAttachment)
+                                isAttached =  (rnd->Uniform(0,1) > pow(1-fAttachment, driftDistance/10. ) );
+                            else
+                                isAttached = 0;
 
-			 if ( isAttached == 0)
-			 {
+                            if ( isAttached == 0)
+                            {
                                 xDiff = x + rnd->Gaus( 0, transHitDiffusion );
 
                                 yDiff = y + rnd->Gaus( 0, transHitDiffusion );
@@ -182,7 +182,7 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
                                 zDiff = z + rnd->Gaus( 0, longHitDiffusion );
 
                                 fHitsEvent->AddHit( xDiff, yDiff, zDiff, 1. );
-			 }
+                            }
                         }
 
                     }
@@ -210,12 +210,12 @@ void TRestElectronDiffusionProcess::EndOfEventProcess()
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::EndProcess()
 {
-   // Function to be executed once at the end of the process 
-   // (after all events have been processed)
+    // Function to be executed once at the end of the process 
+    // (after all events have been processed)
 
-   //Start by calling the EndProcess function of the abstract class. 
-   //Comment this if you don't want it.
-   //TRestEventProcess::EndProcess();
+    //Start by calling the EndProcess function of the abstract class. 
+    //Comment this if you don't want it.
+    //TRestEventProcess::EndProcess();
 }
 
 //______________________________________________________________________________
