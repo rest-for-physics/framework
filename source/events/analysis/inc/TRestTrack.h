@@ -60,10 +60,12 @@ class TRestTrack: public TObject {
         Int_t GetTrackEnergy() { return fTrackEnergy; }
         Double_t GetTrackLength() { return fTrackLength; }
 
+        TVector3 GetMeanPosition() { return fVolumeHits.GetMeanPosition(); }
+
         TRestVolumeHits *GetVolumeHits() {return &fVolumeHits;}
         Int_t GetNumberOfHits() { return GetVolumeHits()->GetNumberOfHits(); }
 
-        void PrintTrack();
+        void PrintTrack( Bool_t fullInfo = true );
 
         //Construtor
         TRestTrack();

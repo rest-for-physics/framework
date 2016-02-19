@@ -27,8 +27,14 @@
 #include <TObject.h>
 #include <TString.h>
 #include <TVector2.h>
+#include <TGraph.h>
 
 class TRestSignal: public TObject {
+
+    private:
+
+        Int_t GetMinIndex( );
+        Int_t GetTimeIndex(Double_t t);
 
     protected:
         
@@ -37,22 +43,27 @@ class TRestSignal: public TObject {
         std::vector <Float_t> fSignalTime;   //Vector with the time of the signal
         std::vector <Float_t> fSignalCharge; //Vector with the charge of the signal
         
-        #ifndef __CINT__
-	TVector2 vector2; 
-	#endif		  
-        
         void AddPoint(TVector2 p);
         
     public:
 
+#ifndef __CINT__
+        TGraph *fGraph;
+#endif
+
+        // TODO other objects should probably skip using this direclty
+        Int_t GetMaxIndex();
+
         //Getters
-        TVector2 *GetPoint(Int_t n){
-        vector2.Set(GetTime(n), GetData(n));
-        
-        return &vector2;
+        TVector2 GetPoint( Int_t n )
+        {
+            TVector2 vector2( GetTime(n), GetData(n) );
+
+            return vector2;
         }
         
         Int_t GetSignalID( ) { return fSignalID; }
+        Int_t GetID( ) { return fSignalID; }
         
         Int_t GetNumberOfPoints()
         {
@@ -70,16 +81,23 @@ class TRestSignal: public TObject {
         Double_t GetIntegralWithThreshold( Int_t ni, Int_t nf, Double_t threshold );
 
         Double_t GetAverage( Int_t start, Int_t end );
-        Int_t GetMaxIndex();
         Int_t GetMaxPeakWidth();
+
         Double_t GetMaxPeakValue();
+        Double_t GetMinPeakValue();
+
+        Double_t GetMaxValue() { return GetMaxPeakValue(); }
+        Double_t GetMinValue() { return GetMinPeakValue(); }
+
+        Double_t GetMinTime( );
+        Double_t GetMaxTime( );
 
         Double_t GetData( Int_t index ) { return (double)fSignalCharge[index]; }
         Double_t GetTime( Int_t index ) { return (double)fSignalTime[index]; }
-        Int_t GetTimeIndex(Double_t t);
         
         //Setters
-        void SetSignalID(Int_t sID) { fSignalID = sID; }
+        void SetSignalID( Int_t sID ) { fSignalID = sID; }
+        void SetID( Int_t sID ) { fSignalID = sID; }
 
         void AddPoint( Double_t t, Double_t d );
         void AddCharge( Double_t t, Double_t d );
@@ -104,6 +122,8 @@ class TRestSignal: public TObject {
 
         void WriteSignalToTextFile ( TString filename );
         void Print( );
+
+        TGraph *GetGraph( Int_t color = 1 );
                 
         //Construtor
         TRestSignal();

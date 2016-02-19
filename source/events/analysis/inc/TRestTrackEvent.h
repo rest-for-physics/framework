@@ -16,20 +16,17 @@
 ///_______________________________________________________________________________
 
 
-#ifndef RestDAQ_TRestSignalEvent
-#define RestDAQ_TRestSignalEvent
+#ifndef RestDAQ_TRestTrackEvent
+#define RestDAQ_TRestTrackEvent
 
 #include <iostream>
 
 #include <TObject.h>
-#include <TArrayD.h>
-#include <TH2I.h>
 #include <TVirtualPad.h>
 #include <TGraph.h>
 
-#include "TRestEvent.h"
-#include "TRestSignal.h"
-#include "TRestTrack.h"
+#include <TRestEvent.h>
+#include <TRestTrack.h>
 
 class TRestTrackEvent: public TRestEvent {
 
@@ -38,10 +35,12 @@ class TRestTrackEvent: public TRestEvent {
         Int_t fNtracks;       
         Int_t fNtracksX;
         Int_t fNtracksY;
-        std::vector <TRestTrack> fTrack; //Collection of tracks that define the event
         Int_t fLevels;
+        std::vector <TRestTrack> fTrack; //Collection of tracks that define the event
 
         #ifndef __CINT__
+        // TODO These graphs should be placed in TRestTrack?
+        // (following GetGraph implementation in TRestSignal)
         TGraph *fXYHit;
         TGraph *fXZHit;
         TGraph *fYZHit;
@@ -54,13 +53,7 @@ class TRestTrackEvent: public TRestEvent {
     public:
 
         TRestTrack *GetTrack( Int_t n )  { return &fTrack[n]; }
-
-        TRestTrack *GetTrackById( Int_t id )
-        {
-            for( int i = 0; i < GetNumberOfTracks(); i++ )
-                if( GetTrack( i )->GetTrackID() == id ) return GetTrack( i );
-            return NULL;
-        }
+        TRestTrack *GetTrackById( Int_t id );
 
         Int_t GetLevel( Int_t tck );
         void SetLevels();
@@ -73,12 +66,8 @@ class TRestTrackEvent: public TRestEvent {
         void RemoveTrack(int n){fTrack.erase(fTrack.begin()+n); fNtracks--; SetLevels(); }  
         void RemoveTrack( ){fTrack.clear();}  
 
-        Bool_t isTopLevel( Int_t tck ) 
-        {
-            if( GetLevels() == GetLevel( tck ) )
-                return true;
-            return false; 
-        }
+        Bool_t isTopLevel( Int_t tck );
+        Int_t GetOriginTrackID( Int_t tck );
 
         void SetNumberOfXTracks( Int_t x ) { fNtracksX = x; }
         void SetNumberOfYTracks( Int_t y ) { fNtracksY = y; }
@@ -93,7 +82,7 @@ class TRestTrackEvent: public TRestEvent {
         void Initialize();
 
         void PrintOnlyTracks();
-        void PrintEvent();
+        void PrintEvent( Bool_t fullInfo = false );
                 
         //Construtor
         TRestTrackEvent();

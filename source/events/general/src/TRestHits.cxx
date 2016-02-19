@@ -37,48 +37,69 @@ TRestHits::~TRestHits()
 
 Bool_t TRestHits::areXY()
 {
-    for( int i = 0; i < GetNumberOfHits(); i++ )
-        if( IsNaN( GetZ(i) ) ) return false;
-    return true;
+    //for( int i = 0; i < GetNumberOfHits(); i++ )
+    if( IsNaN( GetZ(0) ) ) return true;
+    return false;
 }
 
 Bool_t TRestHits::areXZ()
 {
-    for( int i = 0; i < GetNumberOfHits(); i++ )
-        if( IsNaN( GetY(i) ) != 0 ) return false;
-    return true;
+    if( IsNaN( GetY(0) ) ) return true;
+    return false;
 }
 
 Bool_t TRestHits::areYZ()
 {
-    for( int i = 0; i < GetNumberOfHits(); i++ )
-        if( IsNaN( GetX(i) ) ) return false;
-    return true;
+    if( IsNaN( GetX(0) ) ) return true;
+    return false;
 }
 
 Bool_t TRestHits::areXYZ()
 {
-    for( int i = 0; i < GetNumberOfHits(); i++ )
-        if( IsNaN ( GetX(i) ) || IsNaN( GetY(i) ) || IsNaN( GetZ(i) ) )  return false;
+    if( IsNaN ( GetX(0) ) || IsNaN( GetY(0) ) || IsNaN( GetZ(0) ) )  return false;
     return true;
 }
 
 void TRestHits::GetXArray( Float_t *x )
 {
-    for( int i = 0; i < GetNumberOfHits(); i++ )
-        x[i] = GetX(i);
+    if( areYZ() )
+    {
+        for( int i = 0; i < GetNumberOfHits(); i++ )
+            x[i] = 0;
+    }
+    else
+    {
+        for( int i = 0; i < GetNumberOfHits(); i++ )
+            x[i] = GetX(i);
+    }
 }
 
 void TRestHits::GetYArray( Float_t *y )
 {
-    for( int i = 0; i < GetNumberOfHits(); i++ )
-        y[i] = GetY(i);
+    if( areXZ() )
+    {
+        for( int i = 0; i < GetNumberOfHits(); i++ )
+            y[i] = 0;
+    }
+    else
+    {
+        for( int i = 0; i < GetNumberOfHits(); i++ )
+            y[i] = GetY(i);
+    }
 }
 
 void TRestHits::GetZArray( Float_t *z )
 {
-    for( int i = 0; i < GetNumberOfHits(); i++ )
-        z[i] = GetZ(i);
+    if( areXY() )
+    {
+        for( int i = 0; i < GetNumberOfHits(); i++ )
+            z[i] = 0;
+    }
+    else
+    {
+        for( int i = 0; i < GetNumberOfHits(); i++ )
+            z[i] = GetZ(i);
+    }
 }
 
 Double_t TRestHits::GetEnergyIntegral()
@@ -196,6 +217,31 @@ void TRestHits::RemoveHit( int n )
     fEnergy.erase(fEnergy.begin()+n);
 }
 
+TVector3 TRestHits::GetMeanPosition( )
+{
+    Double_t meanX = 0;
+    Double_t meanY = 0;
+    Double_t meanZ = 0;
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+        meanX += fX[n] * fEnergy[n];
+        meanY += fY[n] * fEnergy[n];
+        meanZ += fZ[n] * fEnergy[n];
+
+        totalEnergy += fEnergy[n];
+    }
+
+    if( totalEnergy != GetTotalEnergy() )
+        cout << "REST WARNING (TRestHits) : Energies do not match. " << totalEnergy << " != " << GetTotalEnergy() << endl;
+
+    meanX /= totalEnergy;
+    meanY /= totalEnergy;
+    meanZ /= totalEnergy;
+
+    return TVector3( meanX, meanY, meanZ );
+}
+
 Double_t TRestHits::GetTotalDistance()
 {
     Double_t distance = 0;
@@ -206,8 +252,64 @@ Double_t TRestHits::GetTotalDistance()
 
 Double_t TRestHits::GetDistance2( int n, int m )
 {
-    return (GetX(n)-GetX(m))*(GetX(n)-GetX(m)) +  (GetY(n)-GetY(m))*(GetY(n)-GetY(m)) + (GetZ(n)-GetZ(m))*(GetZ(n)-GetZ(m));
+    Double_t dx = GetX(n) - GetX(m);
+    Double_t dy = GetY(n) - GetY(m);
+    Double_t dz = GetZ(n) - GetZ(m);
+
+    if( areXY() ) return dx*dx + dy*dy;
+    if( areXZ() ) return dx*dx + dz*dz;
+    if( areYZ() ) return dy*dy + dz*dz;
+
+    return dx*dx + dy*dy + dz*dz;
 }
+
+Double_t TRestHits::GetDistanceToNode( Int_t n )
+{
+    Double_t distance = 0;
+    if( n > GetNumberOfHits()-1 ) n = GetNumberOfHits()-1;
+
+    for( int hit = 0; hit < n; hit++ )
+        distance += GetVector( hit+1, hit ).Mag();
+
+    return distance;
+}
+
+Int_t TRestHits::GetClosestHit( TVector3 position )
+{
+    Int_t closestHit = 0;
+
+    Double_t minDistance = 1.e30;
+    for( int nHit = 0; nHit < GetNumberOfHits(); nHit++ )
+    {
+        TVector3 vector = position - GetPosition( nHit );
+
+        Double_t distance = vector.Mag2();
+        if( distance < minDistance )
+        {
+            closestHit = nHit;
+            minDistance = distance;
+        }
+    }
+
+    return closestHit;
+}
+
+TVector2 TRestHits::GetProjection( Int_t n, Int_t m, TVector3 position )
+{
+    TVector3 nodesSegment = this->GetVector( n, m );
+
+    TVector3 origin = position - this->GetPosition( m );
+
+    if( origin == TVector3( 0,0,0 ) ) return TVector2( 0, 0 );
+
+    Double_t longitudinal = nodesSegment.Unit().Dot( origin );
+    if( origin == nodesSegment ) return TVector2( longitudinal, 0 );
+
+    Double_t transversal = TMath::Sqrt( origin.Mag2() - longitudinal*longitudinal );
+
+    return TVector2( longitudinal, transversal );
+}
+
 
 void TRestHits::PrintHits()
 {

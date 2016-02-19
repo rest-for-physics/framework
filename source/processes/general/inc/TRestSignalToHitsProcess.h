@@ -22,10 +22,6 @@
 
 class TRestSignalToHitsProcess:public TRestEventProcess {
     private:
-        Double_t fSampling; // us
-        Double_t fAnodePosition; //mm
-        Double_t fCathodePosition; //mm
-        Double_t fElectricField; // V/cm
 
 #ifndef __CINT__
         TRestHitsEvent *fHitsEvent;
@@ -41,7 +37,15 @@ class TRestSignalToHitsProcess:public TRestEventProcess {
 
         void LoadDefaultConfig();
 
+    protected:
+
+        Double_t fSampling; // us
+        Double_t fAnodePosition; //mm
+        Double_t fCathodePosition; //mm
+        Double_t fElectricField; // V/cm
+
     public:
+
         void InitProcess();
         void BeginOfEventProcess(); 
         TRestEvent *ProcessEvent( TRestEvent *eventInput );

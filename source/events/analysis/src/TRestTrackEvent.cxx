@@ -53,6 +53,13 @@ void TRestTrackEvent::Initialize()
 
 }
 
+TRestTrack *TRestTrackEvent::GetTrackById( Int_t id )
+{
+    for( int i = 0; i < GetNumberOfTracks(); i++ )
+        if( GetTrack( i )->GetTrackID() == id ) return GetTrack( i );
+    return NULL;
+}
+
 Int_t TRestTrackEvent::GetTotalHits( )
 {
     Int_t totHits = 0;
@@ -74,6 +81,26 @@ Int_t TRestTrackEvent::GetLevel( Int_t tck )
     return lvl;
 }
 
+Bool_t TRestTrackEvent::isTopLevel( Int_t tck )
+{
+    if( GetLevels() == GetLevel( tck ) )
+        return true;
+    return false;
+}
+
+Int_t TRestTrackEvent::GetOriginTrackID( Int_t tck )
+{
+    Int_t originTrackID = tck;
+    Int_t pID = GetTrack(tck)->GetParentID();
+
+    while( pID != 0 )
+    {
+        originTrackID = pID;
+        pID = GetTrackById(originTrackID)->GetParentID();
+    }
+
+    return originTrackID;
+}
 
 void TRestTrackEvent::SetLevels( )
 {
@@ -102,14 +129,15 @@ void TRestTrackEvent::PrintOnlyTracks()
 
 }
 
-void TRestTrackEvent::PrintEvent()
+void TRestTrackEvent::PrintEvent( Bool_t fullInfo )
 {
     TRestEvent::PrintEvent();
+
     cout << "Number of tracks : " << GetNumberOfTracks() << endl;
+    cout << "Track levels : " << GetLevels() << endl;
+    cout << "+++++++++++++++++++++++++++++++++++" << endl;
     for( int i = 0; i < GetNumberOfTracks(); i++ )
-    {
-        this->GetTrack(i)->PrintTrack();
-    }
+        this->GetTrack(i)->PrintTrack( fullInfo );
 }
 
 //Draw current event in a Tpad
@@ -137,6 +165,7 @@ TPad *TRestTrackEvent::DrawEvent()
         return NULL;
     }
 
+    this->PrintEvent( false );
 
     double maxX = -1e10, minX = 1e10, maxZ = -1e10, minZ = 1e10, maxY = -1e10, minY = 1e10;
 
@@ -167,7 +196,6 @@ TPad *TRestTrackEvent::DrawEvent()
 
     Int_t maxTrackHits = 0;
     Int_t trackLevels = this->GetLevels();
-    cout << "Number of track levels : " << trackLevels << endl;
 
     Int_t tckColor = 1;
 

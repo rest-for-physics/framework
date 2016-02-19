@@ -5,41 +5,43 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestTrackReductionProcess.h
+///             TRestTrackLinearizationProcess.h
 //
 //              Jan 2016 : Javier Galan
 ///
 ///_______________________________________________________________________________
 
 
-#ifndef RestCore_TRestTrackReductionProcess
-#define RestCore_TRestTrackReductionProcess
+#ifndef RestCore_TRestTrackLinearizationProcess
+#define RestCore_TRestTrackLinearizationProcess
 
 #include <TRestTrackEvent.h>
+#include <TRestLinearizedTrackEvent.h>
 #include "TRestEventProcess.h"
 
-class TRestTrackReductionProcess:public TRestEventProcess {
+class TRestTrackLinearizationProcess:public TRestEventProcess {
 
     private:
+        Double_t fLengthResolution;
+        Double_t fTransversalResolution;
 
 #ifndef __CINT__
         TRestTrackEvent *fInputTrackEvent;
-        TRestTrackEvent *fOutputTrackEvent;
+        TRestLinearizedTrackEvent *fOutputLinearizedTrackEvent;
 #endif
 
         void InitFromConfigFile();
 
         void Initialize();
 
+        TVector2 FindProjection( TVector3 position, TRestHits *nodes );
+
+
     protected:
 
-        Double_t fStartingDistance;
-        Double_t fMinimumDistance;
-        Double_t fDistanceFactor;
-        Double_t fMaxNodes;
-	
 
     public:
+
         void InitProcess();
         void BeginOfEventProcess(); 
         TRestEvent *ProcessEvent( TRestEvent *eventInput );
@@ -49,27 +51,23 @@ class TRestTrackReductionProcess:public TRestEventProcess {
 
         void LoadConfig( std::string cfgFilename );
 
-        void PrintMetadata() { 
-
+        void PrintMetadata() 
+        { 
             BeginPrintProcess();
-
-            std::cout << " Starting distance : " << fStartingDistance << std::endl;
-            std::cout << " Minimum distance : " << fMinimumDistance << std::endl;
-            std::cout << " Distance step factor : " << fDistanceFactor << std::endl;
-            std::cout << " Maximum number of nodes : " << fMaxNodes << std::endl;
-
+            std::cout << "Lenght resolution : " << fLengthResolution << " mm" << std::endl;
+            std::cout << "Transversal resolution : " << fTransversalResolution << " mm" << std::endl;
             EndPrintProcess();
         }
 
-        TString GetProcessName() { return (TString) "trackReduction"; }
+        TString GetProcessName() { return (TString) "trackLinearization"; }
 
         //Constructor
-        TRestTrackReductionProcess();
-        TRestTrackReductionProcess( char *cfgFileName );
+        TRestTrackLinearizationProcess();
+        TRestTrackLinearizationProcess( char *cfgFileName );
         //Destructor
-        ~TRestTrackReductionProcess();
+        ~TRestTrackLinearizationProcess();
 
-        ClassDef(TRestTrackReductionProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+        ClassDef( TRestTrackLinearizationProcess, 1);
 };
 #endif
 

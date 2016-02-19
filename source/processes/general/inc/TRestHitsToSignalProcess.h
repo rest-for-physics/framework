@@ -22,9 +22,6 @@
 
 class TRestHitsToSignalProcess:public TRestEventProcess {
     private:
-        Double_t fSampling; // us
-        Double_t fCathodePosition;
-        Double_t fElectricField;
 
 #ifndef __CINT__
         TRestHitsEvent *fHitsEvent;
@@ -42,6 +39,13 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
 
         Int_t FindModule( Double_t x, Double_t y );
         Int_t FindChannel( Int_t module, Double_t x, Double_t y );
+
+    protected:
+
+        Double_t fSampling; // us
+        Double_t fCathodePosition;
+        Double_t fElectricField;
+
 
     public:
         void InitProcess();

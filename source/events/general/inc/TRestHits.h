@@ -64,6 +64,8 @@ class TRestHits : public TObject
         void GetYArray( Float_t *y );
         void GetZArray( Float_t *z );
 
+        Double_t GetDistanceToNode( Int_t n );
+
         Bool_t isSortedByEnergy( );
 	
         Int_t GetNumberOfHits( ) { return fNHits; }
@@ -74,8 +76,19 @@ class TRestHits : public TObject
 
         TVector3 GetPosition( int n )
         {
-            return TVector3 ( ( (Double_t) fX[n]), ((Double_t) fY[n]), ((Double_t) fZ[n]) ) ; 
+            if( areXY() )  return TVector3 ( ( (Double_t) fX[n]), ((Double_t) fY[n]), 0 );
+            if( areXZ() )  return TVector3 ( ( (Double_t) fX[n]), 0, ((Double_t) fZ[n]) );
+            if( areYZ() )  return TVector3 ( 0, ((Double_t) fY[n]), ((Double_t) fZ[n]) );
+            return TVector3 ( ( (Double_t) fX[n]), ((Double_t) fY[n]), ((Double_t) fZ[n]) );
         }
+
+        TVector3 GetVector( int i, int j )
+        {
+            TVector3 vector = GetPosition(i) - GetPosition(j);
+            return vector;
+        }
+
+        TVector3 GetMeanPosition( );
 
         Double_t GetEnergy( int n ) { return ( (Double_t) fEnergy[n]); } //return value in keV
 
@@ -88,6 +101,10 @@ class TRestHits : public TObject
         Double_t GetTotalEnergy() { return fTotEnergy; }
         Double_t GetDistance2( int n, int m );
         Double_t GetTotalDistance();
+
+        Int_t GetClosestHit( TVector3 position );
+
+        TVector2 GetProjection( Int_t n, Int_t m, TVector3 position );
 
         void PrintHits();
 	

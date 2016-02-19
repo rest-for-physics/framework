@@ -27,7 +27,6 @@ TRestTrackReductionProcess::TRestTrackReductionProcess( char *cfgFileName )
     Initialize();
 
     if( LoadConfigFromFile( cfgFileName ) == -1 ) LoadDefaultConfig( );
-    PrintMetadata();
 }
 
 //______________________________________________________________________________
@@ -42,9 +41,10 @@ void TRestTrackReductionProcess::LoadDefaultConfig( )
     SetName( "trackReductionProcess" );
     SetTitle( "Default config" );
 
-    fMinimumDistance = 1.0;
-    fMaximumDistance = 10.0;
-    fMaxNodes = 30;
+    fStartingDistance = 0.5;
+    fMinimumDistance  = 3;
+    fDistanceFactor   = 1.5;
+    fMaxNodes         = 30;
 }
 
 //______________________________________________________________________________
@@ -63,8 +63,6 @@ void TRestTrackReductionProcess::LoadConfig( string cfgFilename )
 {
 
     if( LoadConfigFromFile( cfgFilename ) == -1 ) LoadDefaultConfig( );
-    PrintMetadata();
-
 }
 
 //______________________________________________________________________________
@@ -102,22 +100,31 @@ TRestEvent* TRestTrackReductionProcess::ProcessEvent( TRestEvent *evInput )
         TRestTrack *track = fInputTrackEvent->GetTrack( tck );
         TRestVolumeHits *hits = track->GetVolumeHits();
 
-        Double_t distance = fMinimumDistance;
-        while( distance < fMaximumDistance || hits->GetNumberOfHits() > fMaxNodes )
+        Double_t distance = fStartingDistance;
+        while( distance < fMinimumDistance || hits->GetNumberOfHits() > fMaxNodes )
         {
-            for( int i = 0; i < hits->GetNumberOfHits(); i++ )
-                for( int j = i+1; j < hits->GetNumberOfHits(); j++ )
+            Bool_t merged = true;
+            while( merged )
+            {
+                merged = false;
+                for( int i = 0; i < hits->GetNumberOfHits(); i++ )
                 {
-                    if( hits->GetDistance2( i, j ) < distance * distance )
-                        hits->MergeHits( i, j );
+                    for( int j = i+1; j < hits->GetNumberOfHits(); j++ )
+                    {
+                        if( hits->GetDistance2( i, j ) < distance * distance )
+                        {
+                            hits->MergeHits( i, j );
+                            merged = true;
+                        }
+                    }
                 }
-            distance *= 2;
+            }
+            distance *= fDistanceFactor;
         }
 
         track->SetParentID( track->GetTrackID() );
         track->SetTrackID( fOutputTrackEvent->GetNumberOfTracks()+1 );
 
-        //fOutputTrackEvent->AddTrack( fInputTrackEvent->GetTrack(tck) ); 
         fOutputTrackEvent->AddTrack( track ); 
     }
 
@@ -158,8 +165,9 @@ void TRestTrackReductionProcess::EndProcess()
 //______________________________________________________________________________
 void TRestTrackReductionProcess::InitFromConfigFile( )
 {
-    fMinimumDistance = StringToDouble( GetParameter( "minimumDistance" ) );
-    fMaximumDistance = StringToDouble( GetParameter( "maximumDistance" ) );
-    fMaxNodes = StringToDouble( GetParameter( "maxNodes" ) );
+    fStartingDistance = StringToDouble( GetParameter( "startingDistance" ) );
+    fMinimumDistance  = StringToDouble( GetParameter( "minimumDistance" ) );
+    fDistanceFactor   = StringToDouble( GetParameter( "distanceStepFactor" ) );
+    fMaxNodes         = StringToDouble( GetParameter( "maxNodes" ) );
 }
 

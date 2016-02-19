@@ -22,14 +22,20 @@
 class TRestSignalDeconvolutionProcess:public TRestEventProcess {
 
     private:
+
+#ifndef __CINT__
         TRestSignalEvent *fInputSignalEvent;
         TRestSignalEvent *fOutputSignalEvent;
+#endif
 
         void InitFromConfigFile();
 
         void Initialize();
 
         void LoadDefaultConfig();
+
+
+    protected:
 
         TString fResponseFilename;
         Double_t fFreq1;
@@ -44,10 +50,6 @@ class TRestSignalDeconvolutionProcess:public TRestEventProcess {
 
         Int_t fFFTStart;
         Int_t fFFTEnd;
-
-
-    protected:
-        //add here the members of your event process
 
     public:
         void InitProcess();

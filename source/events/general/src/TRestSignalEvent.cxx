@@ -1,4 +1,4 @@
-///______________________________________________________________________________
+//______________________________________________________________________________
 ///______________________________________________________________________________
 ///______________________________________________________________________________
 ///             
@@ -38,8 +38,11 @@ void TRestSignalEvent::Initialize()
     TRestEvent::Initialize();
     fEventClassName = "TRestSignalEvent";
     fSignal.clear();
-    fGr=NULL;
-    fPad=NULL;
+    fPad = NULL;
+    fMinValue = 1E10;
+    fMaxValue = -1E10;
+    fMinTime = 1E10;
+    fMaxTime = -1E10;
 }
 
 void TRestSignalEvent::AddSignal(TRestSignal s) 
@@ -106,71 +109,69 @@ void TRestSignalEvent::PrintEvent()
 
 }
 
+void TRestSignalEvent::SetMaxAndMin()
+{
+    for( int s = 0; s < GetNumberOfSignals(); s++ )
+    {
+        if( fMinTime > fSignal[s].GetMinTime() - 1 ) fMinTime = fSignal[s].GetMinTime() - 1;
+        if( fMaxTime < fSignal[s].GetMaxTime() - 1 ) fMaxTime = fSignal[s].GetMaxTime() - 1;
+
+        if( fMinValue > fSignal[s].GetMinValue() - 1 ) fMinValue = fSignal[s].GetMinValue() - 1;
+        if( fMaxValue < fSignal[s].GetMaxValue() - 1 ) fMaxValue = fSignal[s].GetMaxValue() - 1;
+    }
+}
+
+Double_t TRestSignalEvent::GetMaxValue( )
+{
+    SetMaxAndMin();
+    return fMaxValue;
+}
+
+Double_t TRestSignalEvent::GetMinValue( )
+{
+    SetMaxAndMin();
+    return fMinValue;
+}
+
+Double_t TRestSignalEvent::GetMinTime( )
+{
+    SetMaxAndMin();
+    return fMinTime;
+}
+
+Double_t TRestSignalEvent::GetMaxTime( )
+{
+    SetMaxAndMin();
+    return fMaxTime;
+}
+
 //Draw current event in a Tpad
 TPad *TRestSignalEvent::DrawEvent()
 {
 
-    if(fGr != NULL) { delete[] fGr; fGr=NULL; }
     if(fPad != NULL) { delete fPad; fPad=NULL; }
 
     int nSignals = this->GetNumberOfSignals();
 
-    if(nSignals == 0)
+    if( nSignals == 0 )
     {
-        cout<<"Empty event "<<endl;
+        cout << "Empty event " << endl;
         return NULL;
     }
-
-    fGr = new TGraph[nSignals];
-
-    int c;
-
-    double maxX=-1E10,minX=1E10,maxY=-1E10,minY=1E10;
-    double x,y;
-
-
-    for(int i=0;i<nSignals;i++){
-        c=0;
-
-        cout << "Signal " << i << " ID " << fSignal[i].GetSignalID( ) << " points " << fSignal[i].GetNumberOfPoints() << endl;
-
-        fGr[i].SetLineWidth( 2 );
-        fGr[i].SetLineColor( i + 1 );
-
-        for( int j = 0; j < fSignal[i].GetNumberOfPoints(); j++ )
-        {
-            x = fSignal[i].GetTime(j);
-            y = fSignal[i].GetData(j);
-
-            fGr[i].SetPoint(c,x,y);
-
-            if( x > maxX ) maxX = x;
-            if( x < minX ) minX = x;
-            if( y > maxY ) maxY = y;
-            if( y < minY ) minY = y;
-            c++;
-        }
-    }
-
-    //cout<<minX<<" "<<maxX<<" "<<minY<<" "<<maxY<<endl;
-
-    maxX++; minX--;
-    maxY++; minY--;
 
     fPad = new TPad( this->GetClassName().Data(), " ", 0, 0, 1, 1 );
     fPad->Draw();
     fPad->cd();
-    fPad->DrawFrame( minX, minY, maxX, maxY );
-    for( int i = 0; i < nSignals; i++ )
+    fPad->DrawFrame( GetMinTime() , GetMinValue() , GetMaxTime(), GetMaxValue() );
+
+    for( int n = 0; n < nSignals; n++ )
     {
+        TGraph *gr = fSignal[n].GetGraph( n + 1 );
         fPad->cd();
-        fGr[i].SetMarkerStyle( 7 );
-        fGr[i].Draw( "LP" );
+        gr->Draw( "LP" );
     }
 
-
     return fPad;
-
 }
 
 

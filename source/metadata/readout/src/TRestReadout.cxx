@@ -176,7 +176,16 @@ Double_t TRestReadout::GetX( Int_t modID, Int_t chID )
     Double_t x = numeric_limits<Double_t>::quiet_NaN();
 
     if( rChannel->GetNumberOfPixels() == 1 )
+    {
+         Double_t sX = rChannel->GetPixel(0)->GetSize().X();
+         Double_t sY = rChannel->GetPixel(0)->GetSize().Y();
+
+         if ( sX > 2 * sY ) return x;
+
          x = xOrigin + rChannel->GetPixel(0)->GetCenter().X();
+
+         return x;
+    }
 
     if( rChannel->GetNumberOfPixels() > 1 )
     {
@@ -193,7 +202,7 @@ Double_t TRestReadout::GetX( Int_t modID, Int_t chID )
         else deltaX = x1 - x2;
 
         if( y2 - y1 > 0 ) deltaY = y2 - y1;
-        else deltaX = y1 - y2;
+        else deltaY = y1 - y2;
         
         if( deltaY > deltaX ) x = xOrigin + rChannel->GetPixel(0)->GetCenter().X();
     }
@@ -211,7 +220,16 @@ Double_t TRestReadout::GetY( Int_t modID, Int_t chID )
     Double_t y = numeric_limits<Double_t>::quiet_NaN();
 
     if( rChannel->GetNumberOfPixels() == 1 )
-        y = yOrigin + rChannel->GetPixel(0)->GetCenter().Y();
+    {
+         Double_t sX = rChannel->GetPixel(0)->GetSize().X();
+         Double_t sY = rChannel->GetPixel(0)->GetSize().Y();
+
+         if ( sY > 2 * sX ) return y;
+
+         y = yOrigin + rChannel->GetPixel(0)->GetCenter().Y();
+
+         return y;
+    }
 
     if( rChannel->GetNumberOfPixels() > 1 )
     {
@@ -228,7 +246,7 @@ Double_t TRestReadout::GetY( Int_t modID, Int_t chID )
         else deltaX = x1 - x2;
 
         if( y2 - y1 > 0 ) deltaY = y2 - y1;
-        else deltaX = y1 - y2;
+        else deltaY = y1 - y2;
         
         if( deltaY < deltaX ) y = yOrigin + rChannel->GetPixel(0)->GetCenter().Y();
     }

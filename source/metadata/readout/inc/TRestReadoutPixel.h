@@ -51,6 +51,7 @@ class TRestReadoutPixel : public TObject {
 
         Double_t GetSizeX( ) { return fPixelSizeX; }
         Double_t GetSizeY( ) { return fPixelSizeY; }
+        TVector2 GetSize( )  { return TVector2( fPixelSizeX, fPixelSizeY ); }
 
         TVector2 GetCenter( ) const;
 
