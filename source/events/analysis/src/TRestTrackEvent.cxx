@@ -129,14 +129,15 @@ void TRestTrackEvent::PrintOnlyTracks()
 
 }
 
-void TRestTrackEvent::PrintEvent()
+void TRestTrackEvent::PrintEvent( Bool_t fullInfo )
 {
     TRestEvent::PrintEvent();
+
     cout << "Number of tracks : " << GetNumberOfTracks() << endl;
+    cout << "Track levels : " << GetLevels() << endl;
+    cout << "+++++++++++++++++++++++++++++++++++" << endl;
     for( int i = 0; i < GetNumberOfTracks(); i++ )
-    {
-        this->GetTrack(i)->PrintTrack();
-    }
+        this->GetTrack(i)->PrintTrack( fullInfo );
 }
 
 //Draw current event in a Tpad
@@ -164,6 +165,7 @@ TPad *TRestTrackEvent::DrawEvent()
         return NULL;
     }
 
+    this->PrintEvent( false );
 
     double maxX = -1e10, minX = 1e10, maxZ = -1e10, minZ = 1e10, maxY = -1e10, minY = 1e10;
 
@@ -194,7 +196,6 @@ TPad *TRestTrackEvent::DrawEvent()
 
     Int_t maxTrackHits = 0;
     Int_t trackLevels = this->GetLevels();
-    cout << "Number of track levels : " << trackLevels << endl;
 
     Int_t tckColor = 1;
 

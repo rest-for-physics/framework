@@ -82,7 +82,7 @@ class TRestTrackEvent: public TRestEvent {
         void Initialize();
 
         void PrintOnlyTracks();
-        void PrintEvent();
+        void PrintEvent( Bool_t fullInfo = false );
                 
         //Construtor
         TRestTrackEvent();

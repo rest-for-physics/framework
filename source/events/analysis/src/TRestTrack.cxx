@@ -57,16 +57,24 @@ void TRestTrack::RemoveVolumeHits( )
     fTrackLength = 0;
 }
 
-void TRestTrack::PrintTrack( Bool_t printHits )
+void TRestTrack::PrintTrack( Bool_t fullInfo )
 {
+        Double_t x = GetMeanPosition().X();
+        Double_t y = GetMeanPosition().Y();
+        Double_t z = GetMeanPosition().Z();
+
         cout << "Track ID : " << fTrackID << " Parent ID : " << fParentID;
+
         if( isXY() ) cout << " is XY " << endl;
         if( isXZ() ) cout << " is XZ " << endl;
         if( isYZ() ) cout << " is YZ " << endl;
         if( isXYZ() ) cout << " is XYZ " << endl;
+        cout << "Energy : " << fTrackEnergy << endl;
+        cout << "Length : " << fTrackLength << endl;
+        cout << "Mean position : ( " << x << " , " << y << " , " << z << " ) " << endl;
         cout << "----------------------------------------" << endl;
 
-        if( printHits )
+        if( fullInfo )
         {
             fVolumeHits.PrintHits();
             cout << "----------------------------------------" << endl;
