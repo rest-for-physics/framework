@@ -33,8 +33,9 @@ class TRestTrackReductionProcess:public TRestEventProcess {
 
     protected:
 
+        Double_t fStartingDistance;
         Double_t fMinimumDistance;
-        Double_t fMaximumDistance;
+        Double_t fDistanceFactor;
         Double_t fMaxNodes;
 	
 
@@ -52,12 +53,12 @@ class TRestTrackReductionProcess:public TRestEventProcess {
 
             BeginPrintProcess();
 
+            std::cout << " Starting distance : " << fStartingDistance << std::endl;
             std::cout << " Minimum distance : " << fMinimumDistance << std::endl;
-            std::cout << " Maximum distance : " << fMaximumDistance << std::endl;
+            std::cout << " Distance step factor : " << fDistanceFactor << std::endl;
             std::cout << " Maximum number of nodes : " << fMaxNodes << std::endl;
 
             EndPrintProcess();
-
         }
 
         TString GetProcessName() { return (TString) "trackReduction"; }
