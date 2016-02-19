@@ -32,6 +32,8 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
 
         Double_t fElectricField;
 
+        Double_t fAttachment;
+
         void InitFromConfigFile();
 
         void Initialize();
