@@ -67,9 +67,20 @@ Double_t TRestMesh::GetZ( Int_t nZ )
 Int_t TRestMesh::GetNodeX( Double_t x )
 {
     if( IsNaN( x ) ) return 0;
+
     Int_t nX = (Int_t) ( ( ( x-fNetOrigin.X() ) / fNetSizeX ) * fNodesX );
-    if( nX < 0 ){ cout << "REST WARNING : X node outside boundaries. Setting it to : " << 0 << endl;  return 0; } 
-    if( nX >= fNodesX ) { cout << "REST WARNING : X node outside boundaries. Setting it to : " << fNodesX-1 << endl;  return fNodesX-1; } 
+
+    if( nX < 0 )
+    {
+        cout << "REST WARNING (TRestMesh) : X node (" << x << ") outside boundaries. Setting it to : " << 0 << endl;
+        return 0;
+    }
+
+    if( nX >= fNodesX )
+    {
+        cout << "REST WARNING (TRestMesh) : X node (" << x << ") outside boundaries. Setting it to : " << fNodesX-1 << endl;
+        return fNodesX-1;
+    }
     return nX;
 }
 
@@ -77,9 +88,21 @@ Int_t TRestMesh::GetNodeX( Double_t x )
 Int_t TRestMesh::GetNodeY( Double_t y )
 {
     if( IsNaN( y ) ) return 0;
+
     Int_t nY = (Int_t) ( ( ( y-fNetOrigin.Y() ) / fNetSizeY ) * fNodesY );
-    if( nY < 0 ){ cout << "REST WARNING : Y node outside boundaries. Setting it to : " << 0 << endl;  return fNodesY-1; } 
-    if( nY >= fNodesY ) { cout << "REST WARNING : Y node outside boundaries. Setting it to : " << fNodesY-1 << endl;  return fNodesY-1; } 
+
+    if( nY < 0 )
+    {
+        cout << "REST WARNING (TRestMesh) : Y node (" << y << ") outside boundaries. Setting it to : " << 0 << endl;
+        return 0;
+    }
+
+    if( nY >= fNodesY )
+    {
+        cout << "REST WARNING (TRestMesh) : Y node (" << y << ") outside boundaries. Setting it to : " << fNodesY-1 << endl;
+        return fNodesY-1;
+    }
+
     return nY;
 }
 
