@@ -39,6 +39,36 @@ void TRestLinearTrack::Initialize()
     TRestEvent::Initialize();
     fEventClassName = "TRestLinearTrack";
 
-    fProjectionType = 0;
+    fMeanPosition = TVector3( -1, -1, -1 );
+    fTrackEnergy = 0;
 }
 
+void TRestLinearTrack::Print( Bool_t fullInfo )
+{
+    Double_t x = fMeanPosition.X();
+    Double_t y = fMeanPosition.Y();
+    Double_t z = fMeanPosition.Z();
+
+    cout << "Linear track is ";
+    if( isXY() ) cout << " XY" << endl;
+    if( isXZ() ) cout << " XZ" << endl;
+    if( isYZ() ) cout << " YZ" << endl;
+    if( isXYZ() ) cout << " XYZ" << endl;
+
+    cout << "Energy : " << fTrackEnergy << " electrons" << endl;
+    cout << "Mean position : ( " << x << " , " << y << " , " << z << " ) " <<endl;
+
+    if( fullInfo )
+    {
+        cout << "-------------------------------" << endl;
+        cout << "------ Longitudinal hits ------" << 
+            cout << "-------------------------------" << endl;
+        fLinearCharge.Print();
+        cout << "-------------------------------" << endl;
+        cout << "------ Transversal hits ------" << 
+            cout << "-------------------------------" << endl;
+        fTransversalCharge.Print();
+        cout << "-------------------------------" << endl;
+    }
+
+}

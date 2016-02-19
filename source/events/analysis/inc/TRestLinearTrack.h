@@ -22,16 +22,17 @@
 #include <iostream>
 
 #include <TObject.h>
-#include <TH1D.h>
-#include <TH2D.h>
-#include <TRestSignal.h>
+#include <TMath.h>
+#include <TVector3.h>
 
 #include <TRestEvent.h>
+#include <TRestSignal.h>
 
 class TRestLinearTrack: public TRestEvent {
 
     protected:
-        Int_t fProjectionType;
+        TVector3 fMeanPosition;
+        Double_t fTrackEnergy;
         TRestSignal fLinearCharge;
         TRestSignal fTransversalCharge;
 
@@ -54,25 +55,58 @@ class TRestLinearTrack: public TRestEvent {
         TRestSignal *GetLongitudinalTrack() { return &fLinearCharge; }
         TRestSignal *GetTransversalTrack() { return &fTransversalCharge; }
 
-
-        void SetXY() { fProjectionType = 1; }
-        void SetYZ() { fProjectionType = 2; }
-        void SetXZ() { fProjectionType = 3; }
-        void SetXYZ() { fProjectionType = 4; }
-
+        // Setters
         void SetID( Int_t id )
         {
             fLinearCharge.SetID( id );
             fTransversalCharge.SetID( id );
         }
 
-        Int_t GetID( ) { return fLinearCharge.GetID(); }
-            
+        void SetMeanPosition( TVector3 pos ) { fMeanPosition = pos; }
+        void SetMeanPosition( Double_t x, Double_t y, Double_t z ) { fMeanPosition = TVector3( x, y, z ); }
 
-        Bool_t isXY() { if( fProjectionType == 1 ) return true; return false; }
-        Bool_t isYZ() { if( fProjectionType == 2 ) return true; return false; }
-        Bool_t isXZ() { if( fProjectionType == 3 ) return true; return false; }
-        Bool_t isXYZ() { if( fProjectionType == 4 ) return true; return false; }
+        void SetEnergy( Double_t en ) { fTrackEnergy = en; }
+
+
+        // Getters
+        Int_t GetID( ) { return fLinearCharge.GetID(); }
+
+        TVector3 GetMeanPosition( ) { return fMeanPosition; }
+
+        Double_t GetEnergy( ) { return fTrackEnergy; }
+
+        Bool_t isXY()
+        {
+            if( TMath::IsNaN( fMeanPosition.Z() ) )
+                return true;
+            return false;
+        }
+
+        Bool_t isYZ()
+        {
+            if( TMath::IsNaN( fMeanPosition.X() ) )
+                return true;
+            return false;
+        }
+
+        Bool_t isXZ()
+        {
+            if( TMath::IsNaN( fMeanPosition.Y() ) )
+                return true;
+            return false;
+        }
+
+        Bool_t isXYZ()
+        {
+            Double_t x = fMeanPosition.X();
+            Double_t y = fMeanPosition.Y();
+            Double_t z = fMeanPosition.Z();
+            
+            if( !TMath::IsNaN( x ) && !TMath::IsNaN( y ) && !TMath::IsNaN( z ) )
+                return true;
+
+            return false;
+        }
 
         void AddChargeToLinearTrack( Double_t lin, Double_t trans, Double_t charge )
         {
@@ -91,13 +125,14 @@ class TRestLinearTrack: public TRestEvent {
         TGraph *GetLinearGraph( Int_t color = 1 )
         {
             return fLinearCharge.GetGraph( color );
-
         }
 
         TGraph *GetTransversalGraph( Int_t color = 1 )
         {
             return fTransversalCharge.GetGraph( color );
         }
+
+        void Print( Bool_t fullInfo = false );
 
         //Construtor
         TRestLinearTrack();
