@@ -373,6 +373,8 @@ void TRestRun::OpenOutputFile( )
 {
     this->ResetRunTimes();
 
+    SetVersion();
+
     SetRunFilenameAndIndex();
 
     if( GetVerboseLevel() == REST_Info ) cout << "Opening file : " << fOutputFilename << endl;
