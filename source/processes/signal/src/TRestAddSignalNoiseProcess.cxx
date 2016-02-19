@@ -105,8 +105,6 @@ TRestEvent* TRestAddSignalNoiseProcess::ProcessEvent( TRestEvent *evInput )
 
     if( fInputSignalEvent->GetNumberOfSignals() <= 0 ) return NULL;
 
-    fOutputSignalEvent->SetEventTime( fInputSignalEvent->GetEventTime() );
-    fOutputSignalEvent->SetEventID( fInputSignalEvent->GetEventID() );
 
     for( int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++ ) 
     {

@@ -89,9 +89,6 @@ TRestEvent* TRestTrackLinearizationProcess::ProcessEvent( TRestEvent *evInput )
 {
     fInputTrackEvent = (TRestTrackEvent *) evInput;
 
-    fOutputLinearizedTrackEvent->SetEventID( fInputTrackEvent->GetEventID() );
-    fOutputLinearizedTrackEvent->SetEventTime( fInputTrackEvent->GetEventTime() );
-
     /* Debug output  */
     cout << "Event ID : " << fInputTrackEvent->GetEventID() << endl;
     cout << "Number of tracks : " << fInputTrackEvent->GetNumberOfTracks() << endl;

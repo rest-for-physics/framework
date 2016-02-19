@@ -189,10 +189,6 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
        cout << "Number of hits : " << fHitsEvent->GetNumberOfHits() << endl;
        cout << "--------------------------" << endl;
 
-    fSignalEvent->SetEventTime( fHitsEvent->GetEventTime() );
-    fSignalEvent->SetEventID( fHitsEvent->GetEventID() );
-
-
     for( int hit = 0; hit < fHitsEvent->GetNumberOfHits(); hit++ )
     {
         Double_t x = fHitsEvent->GetX( hit );
