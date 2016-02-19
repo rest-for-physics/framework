@@ -300,7 +300,10 @@ TVector2 TRestHits::GetProjection( Int_t n, Int_t m, TVector3 position )
 
     TVector3 origin = position - this->GetPosition( m );
 
+    if( origin == TVector3( 0,0,0 ) ) return TVector2( 0, 0 );
+
     Double_t longitudinal = nodesSegment.Unit().Dot( origin );
+    if( origin == nodesSegment ) return TVector2( longitudinal, 0 );
 
     Double_t transversal = TMath::Sqrt( origin.Mag2() - longitudinal*longitudinal );
 
