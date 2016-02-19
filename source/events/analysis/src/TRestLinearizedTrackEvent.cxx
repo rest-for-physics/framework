@@ -81,18 +81,18 @@ TPad *TRestLinearizedTrackEvent::DrawEvent()
         return NULL;
     }
 
-    this->PrintEvent( false );
+    this->PrintEvent( true );
 
     fPad = new TPad( this->GetClassName().Data(), " ", 0, 0, 1, 1 );
     fPad->Divide( 2 , 2 );
     fPad->cd();
     fPad->cd(1)->DrawFrame( GetMinLinearLength()-10, 0,
             GetMaxLinearLength()+10, 1.05*GetMaxLinearDeposit() );
-    fPad->cd(2)->DrawFrame( -10, 0,
+    fPad->cd(2)->DrawFrame( 0, 0,
             1.05*GetMaxTransversalLength(), 1.05*GetMaxTransversalDeposit() );
     fPad->cd(3)->DrawFrame( GetMinLinearLength()-10, 0,
             GetMaxLinearLength()+10, 1.05*GetMaxLinearDeposit() );
-    fPad->cd(4)->DrawFrame( -1, 0,
+    fPad->cd(4)->DrawFrame( 0, 0,
             1.05*GetMaxTransversalLength(), 1.05*GetMaxTransversalDeposit() );
     fPad->Draw();
 
