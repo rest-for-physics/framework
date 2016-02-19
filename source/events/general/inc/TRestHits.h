@@ -88,6 +88,8 @@ class TRestHits : public TObject
             return vector;
         }
 
+        TVector3 GetMeanPosition( );
+
         Double_t GetEnergy( int n ) { return ( (Double_t) fEnergy[n]); } //return value in keV
 
         Double_t GetMaximumHitEnergy( );

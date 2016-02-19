@@ -217,6 +217,31 @@ void TRestHits::RemoveHit( int n )
     fEnergy.erase(fEnergy.begin()+n);
 }
 
+TVector3 TRestHits::GetMeanPosition( )
+{
+    Double_t meanX = 0;
+    Double_t meanY = 0;
+    Double_t meanZ = 0;
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+        meanX += fX[n] * fEnergy[n];
+        meanY += fY[n] * fEnergy[n];
+        meanZ += fZ[n] * fEnergy[n];
+
+        totalEnergy += fEnergy[n];
+    }
+
+    if( totalEnergy != GetTotalEnergy() )
+        cout << "REST WARNING (TRestHits) : Energies do not match. " << totalEnergy << " != " << GetTotalEnergy() << endl;
+
+    meanX /= totalEnergy;
+    meanY /= totalEnergy;
+    meanZ /= totalEnergy;
+
+    return TVector3( meanX, meanY, meanZ );
+}
+
 Double_t TRestHits::GetTotalDistance()
 {
     Double_t distance = 0;
