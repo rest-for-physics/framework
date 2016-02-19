@@ -56,9 +56,16 @@ void TRestLinearizedTrackEvent::Initialize()
 }
 
 
-void TRestLinearizedTrackEvent::PrintEvent()
+void TRestLinearizedTrackEvent::PrintEvent( Bool_t fullInfo )
 {
     TRestEvent::PrintEvent();
+
+    for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
+    {
+        cout << "+++++++++ Linear track : " << tck << " ++++++" << endl;
+        fLinearTrack[tck].Print( fullInfo );
+    }
+
 }
 
 //Draw current event in a Tpad
@@ -73,6 +80,8 @@ TPad *TRestLinearizedTrackEvent::DrawEvent()
         cout << "Empty event " << endl;
         return NULL;
     }
+
+    this->PrintEvent( false );
 
     fPad = new TPad( this->GetClassName().Data(), " ", 0, 0, 1, 1 );
     fPad->Divide( 2 , 2 );

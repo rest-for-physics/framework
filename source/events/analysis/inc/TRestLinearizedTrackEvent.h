@@ -69,7 +69,7 @@ class TRestLinearizedTrackEvent: public TRestEvent {
       
         void Initialize();
 
-        void PrintEvent();
+        void PrintEvent( Bool_t fullInfo = false );
 
         void SetMaxAndMin( )
         {
