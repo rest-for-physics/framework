@@ -164,10 +164,8 @@ TRestEvent* TRestTrackLinearizationProcess::ProcessEvent( TRestEvent *evInput )
         }
 
         linTrack.SortTracks();
-        if( originHits->areXY() ) linTrack.SetXY();
-        if( originHits->areYZ() ) linTrack.SetYZ();
-        if( originHits->areXZ() ) linTrack.SetXZ();
-        if( originHits->areXYZ() ) linTrack.SetXYZ();
+        linTrack.SetEnergy( parentTrack->GetEnergy() );
+        linTrack.SetMeanPosition( parentTrack->GetMeanPosition() );
 
         fOutputLinearizedTrackEvent->AddLinearTrack( linTrack );
     }
