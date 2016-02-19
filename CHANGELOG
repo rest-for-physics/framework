@@ -1,5 +1,81 @@
 
 ==========================================================
+Date : 19th / February / 2016
+Branch : processes
+Author : Javier Galan
+Merge : #36
+==========================================================
+
+== RESTCORE ==
+
+- TRestRun. 
+    + SetVersion now takes the commit identificative number and writes it in the filename.
+    + The version member value inside TRestRun is properly updated now each time we open an output file, so that the version from the input file is not necesarily preserved.
+
+== RESTMETADATA ==
+
+- TRestReadout. 
+    + GetX and GetY now verify the case where we have 1-pixel strip. In order to return NaN in the undefined direction.
+    + Fixed a small spelling bug in GetX() and GetY().
+
+== RESTTOOLS ==
+
+- TRestMesh now associates a NaN value to node 0.
+
+== RESTEVENTS ==
+
+- TRestSignal and TRestSignalEvent.
+    + TGraph has been removed from TRestSignalEvent. 
+    + TRestSignal implements now a GetGraph method and defines the fGraph. 
+    + Changes in TRestSignalEvent::DrawEvent using the new GetGraph method.
+    + Removed vector2 member that was just used to return a value in a method!!
+
+- TRestHits and TRestHitsEvent. Added new methods:
+    + GetDistanceToNode( n ) : Obtains the distance from the first node to node n.
+    + GetVector( n, m ) : Gets the vector defined by n and m hits.
+    + GetClosestHit( position ) : Gets the closest hit to position.
+    + GetProjection( n, m, position ) : Returns the longitudinal and transversal projections of position in the vector created by n and m nodes.
+    + GetMeanDistance() : Returns the mean energy-weighted position of the hits.
+    + Revisited areXY methods and GetXArray methods to properly handle NaN values.
+    + GetXZHits methods now preserve the NaN values of the hits.
+    + GetDistance method verifies now if the hits are projected in a particular plane.
+    
+
+- TRestTrackEvent. Added new methods:
+    + GetOriginTrackID() : Finds the original track from which this track derives (the one with parentID = 0).
+
+- New event types. TRestLinearTrack and TRestLinearizedTrackEvent.
+    + A linear track stores longitudinal and transversal projections of the track inside a TRestSignal structure.
+    + It includes additional members : trackEnergy, meanPosition.
+
+== RESTPROCESSES ==
+
+- TRestElectronDiffusionProcess.
+    + fGas is properly initialized to NULL solving problem of segmentation fault when we use a TBrowser to open a file containning this process.
+
+- TRestPathMinimizationProcess. 
+    + Added error handling in case Heldkarp minimization method fails.
+
+- TRestTRackReductionProcess.
+    + The event processing has been modified. The process now starts merging hits at the new parameter startingDistance. All nodes within this distance will be merged. The process continues increasing the merging distance multiplying this distance by the new metadata parameter distanceStepFactor. The process continues as soon as the number of nodes is below the metadata parameter maxNodes or the metadata parameter minimumDistance has not been reached.
+
+- New process. TRestTrackLinearizationProcess. 
+    + This process projects the origin tracks from a TRestEventTrack using the top layer tracks (or nodes) as reference. The result is stored in the new event types TRestLinearizedTrackEvent.
+
+== SCRIPTS ==
+
+- New script. RESTSIM_G4ToSignal : Concatenates several simulation processes to obtain a Signal event directly from a Geant4 event.
+- New script. RESTSIM_G4ToTrack : Concatanates simulation and analysis processes to obtain the final processed track event.
+
+== INPUTDATA/CONFIG ==
+
+- Uploaded AGET signal response files.
+- Updated myConfig.rml with new metadata parameters of TRestTrackReductionProcess.
+- Updated myConfig.rml with a new section for the new process TRestTrackLinearizationProcess.
+
+
+
+==========================================================
 Date : 18th / February / 2016
 Branch : iss#31
 Author : Javier Gracia
