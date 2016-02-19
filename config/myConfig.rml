@@ -60,6 +60,7 @@ All units in mm, keV and degrees
     <parameter name="cathodePosition" value="-1000" /> // mm
     <parameter name="electricField" value="1000" /> // V/cm
     <parameter name="resolution" value="0.1" /> // mm
+    <parameter name="attachment" value="0" /> // ??
 </section>
 
 <section signalDeconvolutionProcess name="deconvolution-Panda" title="Deconvolution of AGET signals" >

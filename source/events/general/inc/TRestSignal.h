@@ -29,7 +29,6 @@
 #include <TVector2.h>
 #include <TGraph.h>
 
-
 class TRestSignal: public TObject {
 
     private:
@@ -114,6 +113,8 @@ class TRestSignal: public TObject {
         void GetDifferentialSignal( TRestSignal *diffSgnl, Int_t smearPoints = 5 );
         void GetSignalDelayed( TRestSignal *delayedSignal, Int_t delay );
         void GetSignalSmoothed( TRestSignal *smthSignal, Int_t averagingPoints = 3 );
+
+        void GetWhiteNoiseSignal( TRestSignal *noiseSgnl, Double_t noiseLevel = 1. );
 
         void AddGaussianSignal( Double_t amp, Double_t sigma, Double_t time, Int_t N, Double_t fromTime, Double_t toTime );
 

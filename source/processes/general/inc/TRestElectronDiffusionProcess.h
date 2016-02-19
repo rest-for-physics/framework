@@ -28,6 +28,8 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
         TRestGas *fGas;
 #endif
 
+        Double_t fAttachment;
+
         void InitFromConfigFile();
 
         void Initialize();

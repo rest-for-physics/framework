@@ -199,6 +199,8 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
         Double_t y = fHitsEvent->GetY( hit );
 
         Int_t mod = this->FindModule( x, y );
+	
+	//cout<<"module "<<mod<<endl;
 
         if( mod >= 0 )
         {
@@ -243,7 +245,7 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
 
     //fSignalEvent->PrintEvent();
 
-    //cout << "Number of signals inside event : " << fSignalEvent->GetNumberOfSignals() << endl;
+    cout << "Number of signals inside event : " << fSignalEvent->GetNumberOfSignals() << endl;
 
     return fSignalEvent;
 }

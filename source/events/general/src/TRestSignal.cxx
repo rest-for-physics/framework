@@ -27,6 +27,7 @@
 using namespace std;
 
 #include <TMath.h>
+#include <TRandom3.h>
 
 ClassImp(TRestSignal)
 //______________________________________________________________________________
@@ -42,6 +43,8 @@ TRestSignal::~TRestSignal()
 {
    // TRestSignal destructor
 }
+
+
 
 void TRestSignal::AddPoint(TVector2 p)
 {
@@ -347,6 +350,26 @@ void TRestSignal::AddGaussianSignal( Double_t amp, Double_t sigma, Double_t time
     }
 
 }
+
+
+
+void TRestSignal::GetWhiteNoiseSignal( TRestSignal *noiseSgnl, Double_t noiseLevel)
+{
+
+    this->Sort();
+    
+    for( int i = 0; i < GetNumberOfPoints(); i++ )
+    {
+         TRandom3* fRandom  = new TRandom3(0);
+
+         noiseSgnl->AddPoint( GetTime(i), GetData(i) + fRandom->Gaus(0,noiseLevel));
+
+	delete fRandom;
+    }
+
+}
+
+
 
 void TRestSignal::WriteSignalToTextFile ( TString filename )
 {
