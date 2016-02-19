@@ -76,7 +76,7 @@ All units in mm, keV and degrees
 </section>
 
 <section hitsToSignalProcess name="hitsToSignal-Panda" title="Half PANDA X-III Vessel (Bottom)" >
-    <parameter name="sampling" value="0.1" /> // us
+    <parameter name="sampling" value="1" /> // us
     // If the following parameters are not defined the process will try to take the values from a previous electronDiffusionProcess
     <parameter name="cathodePosition" value="" /> // mm
     <parameter name="electricField" value="" /> // V/cm
@@ -99,9 +99,10 @@ All units in mm, keV and degrees
 </section>
 
 <section trackReductionProcess name="trackReduction-Panda" title="Half PANDA X-III Vessel (Bottom)" >
-    <parameter name="minimumDistance" value="2" /> // mm
-    <parameter name="maximumDistance" value="8" /> // mm
-    <parameter name="maxNodes" value="30" /> 
+    <parameter name="startingDistance" value="0.5" /> // mm
+    <parameter name="minimumDistance" value="3" /> // mm
+    <parameter name="distanceStepFactor" value="1.5" />
+    <parameter name="maxNodes" value="25" />
 </section>
 
 <section trackPathMinimizationProcess name="trackPathMinimization-Panda" title="Half PANDA X-III Vessel (Bottom)" >
