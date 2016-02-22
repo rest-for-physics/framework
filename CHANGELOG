@@ -1,5 +1,51 @@
 
 ==========================================================
+Date : 22th / February / 2016
+Branch : issue#10
+Author : Javier Galan
+Merge : #38
+==========================================================
+
+Adding units support to REST.
+
+== RESTCORE ==
+
+- TRestSystemOfUnits
+
+  + New namespace REST_Units implemented in TRestSystemOfUnits
+  + Units and conversion are defined inside TRestSystemOfUnits
+  + Implemented units of : Energy, Time, Distance and Field.
+
+- TRestMetadata
+
+  + Added new methods to otain a parameter value renormalized to the standard REST units, using the coming units="" field. Any parameter that requires units is now defined using value="VV" units="UU". This can be read using the new methods in TRestMetadata.
+      *  GetDblParameterWithUnits
+      *  Get2DVectorParameterWithUnits
+      *  Get3DVectorParameterWithUnits
+
+== TRESTMETADATA ==
+
+   + RestG4 metadata classes have been modified to retrieve the parameter values using the specified unit.
+
+   + myConfig.rml has been updated.
+
+== RESTPROCESSES ==
+
+   + Several processes have been updated to retrieve the process parameters using the new units system.
+
+   + myConfig.rml has been updated.
+
+==========================================================
+Date : 22th / February / 2016
+Branch : issue#4
+Author : Javier Gracia
+Merge : #37
+==========================================================
+
+SetEventID and SetEventTime is now done in TRestRun after processing the events.
+The methods are removed from each event process.
+
+==========================================================
 Date : 19th / February / 2016
 Branch : processes
 Author : Javier Galan
