@@ -944,6 +944,9 @@ Double_t TRestMetadata::GetDblParameterWithUnits( string parName, Double_t defau
 
         if( parameterString.find( parName ) != string::npos )
         {
+            if( GetFieldValue( "value", parameterString ) == "" )
+                return defaultValue;
+
             Double_t value = GetDblFieldValueWithUnits( "value", parameterString );
             if( value == PARAMETER_NOT_FOUND_DBL ) return defaultValue;
             else return value;
@@ -971,6 +974,9 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits( string parName, TVector2 
 
         if( parameterString.find( parName ) != string::npos )
         {
+            if( GetFieldValue( "value", parameterString ) == "" )
+                return defaultValue;
+
             TVector2 value = Get2DVectorFieldValueWithUnits( "value", parameterString );
 
             if( value.X() == -1 && value.Y() == -1 ) return defaultValue;
@@ -999,6 +1005,9 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits( string parName, TVector3 
 
         if( parameterString.find( parName ) != string::npos )
         {
+            if( GetFieldValue( "value", parameterString ) == "" )
+                return defaultValue;
+
             TVector3 value = Get3DVectorFieldValueWithUnits( "value", parameterString );
 
             if( value.X() == -1 && value.Y() == -1 && value.Z() == -1 ) return defaultValue;
