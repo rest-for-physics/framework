@@ -272,7 +272,5 @@ void TRestHitsToTrackProcess::EndProcess()
 //______________________________________________________________________________
 void TRestHitsToTrackProcess::InitFromConfigFile( )
 {
-    fClusterDistance = StringToDouble( GetParameter( "clusterDistance" ) );
-
-    cout << " cluster-distance : " << fClusterDistance << endl;
+    fClusterDistance = GetDblParameterWithUnits( "clusterDistance" );
 }

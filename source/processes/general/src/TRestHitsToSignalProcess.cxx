@@ -112,14 +112,21 @@ void TRestHitsToSignalProcess::LoadConfig( string cfgFilename )
     {
         fElectricField = this->GetDoubleParameterFromClass( "TRestElectronDiffusionProcess", "electricField" );
         if( fElectricField != PARAMETER_NOT_FOUND_DBL )
+        {
             cout << "Getting electric field from electronDiffusionProcess : " << fElectricField << " V/cm" << endl;
+            getchar();
+        }
+
     }
 
     if ( fCathodePosition == PARAMETER_NOT_FOUND_DBL )
     {
         fCathodePosition = this->GetDoubleParameterFromClass( "TRestElectronDiffusionProcess", "cathodePosition" );
         if( fCathodePosition != PARAMETER_NOT_FOUND_DBL )
+        {
             cout << "Getting cathode position from electronDiffusionProcess : " << fCathodePosition << " mm" << endl;
+            getchar();
+        }
     }
 }
 
@@ -151,17 +158,6 @@ void TRestHitsToSignalProcess::InitProcess()
 
     if( fReadout == NULL ) cout << "REST ERRORRRR : Readout has not been initialized" << endl;
     if( fGas == NULL ) cout << "REST ERROR: Gas has not been initialized" << endl;
-
-
-
-
-    /*
-       cout << "Name : " << fGas->GetName() << endl;
-       printf( "Drift velocity : %e\n",  fGas->GetDriftVelocity( fElectricField ) );
-       cout << "Electric field : " << fElectricField <<  endl;
-       cout << "Cathode position : " << fCathodePosition << endl;
-       getchar();
-       */
 }
 
 //______________________________________________________________________________
@@ -266,9 +262,8 @@ void TRestHitsToSignalProcess::EndProcess()
 //______________________________________________________________________________
 void TRestHitsToSignalProcess::InitFromConfigFile( )
 {
-    fSampling = StringToDouble( GetParameter( "sampling" ) );
-    fCathodePosition = StringToDouble( GetParameter( "cathodePosition" ) );
-    fElectricField = StringToDouble( GetParameter( "electricField" )  );
-
+    fSampling = GetDblParameterWithUnits( "sampling" );
+    fCathodePosition = GetDblParameterWithUnits( "cathodePosition" );
+    fElectricField = GetDblParameterWithUnits( "electricField" );
 }
 

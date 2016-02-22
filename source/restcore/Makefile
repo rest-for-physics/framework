@@ -41,6 +41,7 @@ CLASS_DICT = ${CLASSES}
 # the normal one and the dictionary
 OBJS = $(patsubst %, dict/%.o ,$(CLASS_DICT))
 OBJS += $(patsubst %,obj/%.o ,$(CLASSES))
+OBJS +=  obj/TRestSystemOfUnits.o
 
 
 

@@ -61,9 +61,9 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
 
             BeginPrintProcess();
 
-            std::cout << " cathode : " << fCathodePosition << std::endl;
-            std::cout << " anode : " << fAnodePosition << std::endl;
-            std::cout << " eField : " << fElectricField << std::endl;
+            std::cout << " cathode : " << fCathodePosition << " mm" << std::endl;
+            std::cout << " anode : " << fAnodePosition << " mm" << std::endl;
+            std::cout << " eField : " << fElectricField << " V/cm" << std::endl;
 
             EndPrintProcess();
 

@@ -36,31 +36,30 @@ All units in mm, keV and degrees
 <section restG4 name="Geant4 metadata" title="Simulation of Co60 decay">
 
     <parameter name="gdml_file" value="mySetupTemplate.gdml"/>
-    <parameter name="maxTargetStepSize" value="0.2" />
+    <parameter name="maxTargetStepSize" value="200" units="um" />
 
-    <generator type="point" position="(0,0,-200)" >
+    <generator type="volume" from="gas" >
         <source fromFile="Xe136bb0n.dat">
         </source>
     </generator>
 
     <biasing value="off" type="virtualBox">
-        <biasingVolume size="2850" position="(0,0,0)" factor="10" energyRange="(2400,5000)" />
-        <biasingVolume size="2450" position="(0,0,0)" factor="10" energyRange="(2400,5000)" />
-        <biasingVolume size="2050" position="(0,0,0)" factor="10" energyRange="(2400,5000)" />
+        <biasingVolume size="2850" units="mm" position="(0,0,0)" units="mm" factor="10" energyRange="(2.4,5)" units="MeV" />
+        <biasingVolume size="2450" units="mm" position="(0,0,0)" units="mm" factor="10" energyRange="(2.4,5)" units="MeV" />
+        <biasingVolume size="2050" units="mm" position="(0,0,0)" units="mm" factor="10" energyRange="(2.4,5)" units="MeV" />
     </biasing>
 
     <storage sensitiveVolume="gas">
-        <parameter name="energyRange" value="(0,1000000)" />
+        <parameter name="energyRange" value="(0,1)" units="GeV" />
         <activeVolume name="gas" chance="1" />
     </storage>
 </section>
 
 <section electronDiffusionProcess name="electronDiffusion-Panda" title="Half PANDA X-III Vessel (Bottom)" >
-    <parameter name="anodePosition" value="0" /> // mm
-    <parameter name="cathodePosition" value="-1000" /> // mm
-    <parameter name="electricField" value="1000" /> // V/cm
-    <parameter name="resolution" value="0.1" /> // mm
-    <parameter name="attachment" value="0" /> // ??
+    <parameter name="anodePosition" value="0" units="mm" />
+    <parameter name="cathodePosition" value="-100" units="cm" />
+    <parameter name="electricField" value="1" units="kV/cm" />
+    <parameter name="attachment" value="0" /> // units??
 </section>
 
 <section signalDeconvolutionProcess name="deconvolution-Panda" title="Deconvolution of AGET signals" >
@@ -77,31 +76,33 @@ All units in mm, keV and degrees
 </section>
 
 <section hitsToSignalProcess name="hitsToSignal-Panda" title="Half PANDA X-III Vessel (Bottom)" >
-    <parameter name="sampling" value="1" /> // us
-    // If the following parameters are not defined the process will try to take the values from a previous electronDiffusionProcess
-    <parameter name="cathodePosition" value="" /> // mm
-    <parameter name="electricField" value="" /> // V/cm
+    <parameter name="sampling" value="1" units="us" />
+    // If the following parameters are not defined 
+    // the process will try to take the values from a previous electronDiffusionProcess
+    <parameter name="cathodePosition" value="" units="mm" />
+    <parameter name="electricField" value="" units="V/cm" />
 </section>
 
 <section signalToHitsProcess name="signalToHits-Panda" title="Half PANDA X-III Vessel (Bottom)" >
-    <parameter name="sampling" value="" /> // mm
-    <parameter name="cathodePosition" value="" /> // mm
-    <parameter name="electricField" value="" /> // V/cm
+    <parameter name="sampling" value="" units="us" />
+    <parameter name="anodePosition" value="" units="mm" />
+    <parameter name="cathodePosition" value="" units="mm" />
+    <parameter name="electricField" value="" units="V/cm" />
 </section>
 
 <section hitsToTrackProcess name="hitsToTrack-Panda" title="Half PANDA X-III Vessel (Bottom)" >
-    <parameter name="clusterDistance" value="15" /> // mm
+    <parameter name="clusterDistance" value="15" units="mm" />
 </section>
 
 <section fastHitsToTrackProcess name="fastHitsToTrack-Panda" title="Half PANDA X-III Vessel (Bottom)" >
-    <parameter name="cellResolution" value="10" /> // mm
-    <parameter name="netSize" value="1200" /> // mm
-    <parameter name="netOrigin" value="(-600,-600,-1100)" /> // mm
+    <parameter name="cellResolution" value="10" units="mm" />
+    <parameter name="netSize" value="1200" units="mm" />
+    <parameter name="netOrigin" value="(-600,-600,-1100)" units="mm" />
 </section>
 
 <section trackReductionProcess name="trackReduction-Panda" title="Half PANDA X-III Vessel (Bottom)" >
-    <parameter name="startingDistance" value="0.5" /> // mm
-    <parameter name="minimumDistance" value="3" /> // mm
+    <parameter name="startingDistance" value="0.5" units="mm" />
+    <parameter name="minimumDistance" value="3" units="mm" />
     <parameter name="distanceStepFactor" value="1.5" />
     <parameter name="maxNodes" value="25" />
 </section>
@@ -112,17 +113,16 @@ All units in mm, keV and degrees
 </section>
 
 <section trackLinearizationProcess name="trackLinearization-Panda" title="Half PANDA X-III Vessel (Bottom)" >
-    <parameter name="lengthResolution" value="2" />
-    <parameter name="transversalResolution" value="1" />
+    <parameter name="lengthResolution" value="2" units="mm" />
+    <parameter name="transversalResolution" value="1" units="mm" />
 </section>
 
 <section readout nameref="Readout-PANDA_3MM_64channels" file="definitions/readouts.rml"> </section>
 
-<section gas nameref="Gas-Xenon-TMA 3Pct" file="definitions/gases.rml"> </section>
+<section gas nameref="Xenon-TMA 3Pct 10-10E3V/cm" file="definitions/gases.rml"> </section>
 
 <section decoding name="decoding-PANDA" title="PANDA_v0" >
 	<parameter name="fileName" value="myDecoding.dec" />
 	<parameter name="nChannels" value="200" />
-    </section>
-
+</section>
 

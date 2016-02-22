@@ -41,8 +41,8 @@ void TRestBiasingVolume::PrintBiasingVolume( )
     cout << "volume size : " << GetBiasingVolumeSize() << " mm" << endl;
     cout << "volume type : " << GetBiasingVolumeType()  << endl;
     cout << "volume factor : " << GetBiasingFactor() << endl;
-    cout << "volume position : ( " << GetBiasingVolumePosition().X() << " , " << GetBiasingVolumePosition().Y() << " , " << GetBiasingVolumePosition().Z() << " ) " << endl;
-    cout << "Energy range : ( " << GetMinEnergy() << " , " << GetMaxEnergy() << " ) " << endl;
+    cout << "volume position : ( " << GetBiasingVolumePosition().X() << " , " << GetBiasingVolumePosition().Y() << " , " << GetBiasingVolumePosition().Z() << " ) mm" << endl;
+    cout << "Energy range : ( " << GetMinEnergy() << " , " << GetMaxEnergy() << " ) keV" << endl;
     cout << "-----------------------------" << endl;
 }
 
