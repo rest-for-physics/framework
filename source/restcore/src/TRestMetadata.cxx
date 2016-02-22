@@ -19,11 +19,12 @@
 ///             jul 2015:    Javier Galan
 ///_______________________________________________________________________________
 //
-// TODO IMPORTANT : Skip comments!!
 
 
+#include <TMath.h>
 #include "TRestMetadata.h"
 using namespace std;
+using namespace REST_Units;
 
 int debug = 0;
 
@@ -818,6 +819,72 @@ string TRestMetadata::GetParameter( string parName, size_t &pos, string inputStr
     return "";
 }
 
+Double_t TRestMetadata::GetDblParameterWithUnits( std::string parName, size_t &pos, std::string inputString )
+{
+    while( 1 )
+    {
+        string parameterString = GetKEYDefinition( "parameter", pos, inputString );
+
+        if( parameterString.find( parName ) != string::npos )
+        {
+            return GetDblFieldValueWithUnits( "value", parameterString );
+        }
+        else
+        {
+            if( debug > 1 ) cout << " I did not found" << endl;
+            cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
+            return PARAMETER_NOT_FOUND_DBL;
+        }
+    }
+
+    cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
+    return PARAMETER_NOT_FOUND_DBL;
+}
+
+TVector2 TRestMetadata::Get2DVectorParameterWithUnits( std::string parName, size_t &pos, std::string inputString )
+{
+    while( 1 )
+    {
+        string parameterString = GetKEYDefinition( "parameter", pos, inputString );
+
+        if( parameterString.find( parName ) != string::npos )
+        {
+            return Get2DVectorFieldValueWithUnits( "value", parameterString );
+        }
+        else
+        {
+            if( debug > 1 ) cout << " I did not found" << endl;
+            cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
+            return TVector2(-1,-1);
+        }
+    }
+
+    cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
+    return TVector2(-1,-1);
+}
+
+TVector3 TRestMetadata::Get3DVectorParameterWithUnits( std::string parName, size_t &pos, std::string inputString )
+{
+    while( 1 )
+    {
+        string parameterString = GetKEYDefinition( "parameter", pos, inputString );
+
+        if( parameterString.find( parName ) != string::npos )
+        {
+            return Get3DVectorFieldValueWithUnits( "value", parameterString );
+        }
+        else
+        {
+            if( debug > 1 ) cout << " I did not found" << endl;
+            cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
+            return TVector3( -1, -1, -1 );
+        }
+    }
+
+    cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
+    return TVector3( -1, -1, -1 );;
+}
+
 string TRestMetadata::GetParameter( string parName, TString defaultValue )
 {
     // TODO : this can be probably removed since now we store only the section on configBuffer
@@ -865,6 +932,89 @@ string TRestMetadata::GetParameter( string parName, TString defaultValue )
     return defaultValue.Data();
 }
 
+Double_t TRestMetadata::GetDblParameterWithUnits( string parName, Double_t defaultValue )
+{
+    size_t position = 0;
+
+    string parameterString;
+    while( position != string::npos )
+    {
+        parameterString = GetKEYDefinition( "parameter", position );
+        if( debug > 1 ) cout << "Parameter string : " << parameterString << endl;
+
+        if( parameterString.find( parName ) != string::npos )
+        {
+            Double_t value = GetDblFieldValueWithUnits( "value", parameterString );
+            if( value == PARAMETER_NOT_FOUND_DBL ) return defaultValue;
+            else return value;
+        }
+        else
+        {
+            if( debug > 1 ) cout << " I did not found" << endl;
+        }
+    }
+
+    cout << "Parameter (" << parName << ") NOT found" << endl;
+    cout << "Returning default value (" << defaultValue << ")" << endl;
+    return defaultValue;
+}
+
+TVector2 TRestMetadata::Get2DVectorParameterWithUnits( string parName, TVector2 defaultValue )
+{
+    size_t position = 0;
+
+    string parameterString;
+    while( position != string::npos )
+    {
+        parameterString = GetKEYDefinition( "parameter", position );
+        if( debug > 1 ) cout << "Parameter string : " << parameterString << endl;
+
+        if( parameterString.find( parName ) != string::npos )
+        {
+            TVector2 value = Get2DVectorFieldValueWithUnits( "value", parameterString );
+
+            if( value.X() == -1 && value.Y() == -1 ) return defaultValue;
+            else return value;
+        }
+        else
+        {
+            if( debug > 1 ) cout << " I did not found" << endl;
+        }
+    }
+
+    cout << "Parameter (" << parName << ") NOT found" << endl;
+    cout << "Returning default value (" << defaultValue.X() << " , " << defaultValue.Y() << ")" << endl;
+    return defaultValue;
+}
+
+TVector3 TRestMetadata::Get3DVectorParameterWithUnits( string parName, TVector3 defaultValue )
+{
+    size_t position = 0;
+
+    string parameterString;
+    while( position != string::npos )
+    {
+        parameterString = GetKEYDefinition( "parameter", position );
+        if( debug > 1 ) cout << "Parameter string : " << parameterString << endl;
+
+        if( parameterString.find( parName ) != string::npos )
+        {
+            TVector3 value = Get3DVectorFieldValueWithUnits( "value", parameterString );
+
+            if( value.X() == -1 && value.Y() == -1 && value.Z() == -1 ) return defaultValue;
+            else return value;
+        }
+        else
+        {
+            if( debug > 1 ) cout << " I did not found" << endl;
+        }
+    }
+
+    cout << "Parameter (" << parName << ") NOT found" << endl;
+    cout << "Returning default value (" << defaultValue.X() << " , " << defaultValue.Y() << " , " << defaultValue.Z() << ")" << endl;
+    return defaultValue;
+}
+
 // gets the field from parName <key --- parName="XX" --- >
 string TRestMetadata::GetFieldFromKEY( string parName, string key )
 {
@@ -884,20 +1034,140 @@ string TRestMetadata::GetFieldFromKEY( string parName, string key )
 }
 
 // Searches in substr
-string TRestMetadata::GetFieldValue( string fieldName, string definition )
+string TRestMetadata::GetFieldValue( string fieldName, string definition, size_t fromPosition )
 {
     string fldName = fieldName + "=\"";
 
     size_t pos, pos2;
-    pos = definition.find( fldName ); 
+    pos = definition.find( fldName, fromPosition ); 
 
-    if( (pos = definition.find( fldName )) == string::npos ) {  return "Not defined"; }
+    if( (pos = definition.find( fldName, fromPosition )) == string::npos ) {  return "Not defined"; }
     else
     {
         pos = definition.find( "\"", pos );
         pos++;
         pos2 = definition.find( "\"", pos );
         return definition.substr( pos, pos2-pos );
+    }
+}
+
+string TRestMetadata::GetUnits( string definition, size_t fromPosition )
+{
+    string fldName = "units=\"";
+
+    size_t pos, pos2;
+    pos = definition.find( fldName, fromPosition ); 
+
+    if( pos - fromPosition > 8 ) return "Not defined";
+
+
+    if( (pos = definition.find( fldName, fromPosition )) == string::npos ) {  return "Not defined"; }
+    else
+    {
+        pos = definition.find( "\"", pos );
+        pos++;
+        pos2 = definition.find( "\"", pos );
+        return definition.substr( pos, pos2-pos );
+    }
+}
+
+Double_t TRestMetadata::GetDblFieldValueWithUnits( string fieldName, string definition, size_t fromPosition )
+{
+    string fldName = fieldName + "=\"";
+
+    size_t pos, pos2;
+    pos = definition.find( fldName ); 
+
+    if( (pos = definition.find( fldName, fromPosition )) == string::npos ) {  return PARAMETER_NOT_FOUND_DBL; }
+    else
+    {
+        pos = definition.find( "\"", pos );
+        pos++;
+        pos2 = definition.find( "\"", pos );
+
+        TString unitsStr = GetUnits( definition, pos2 );
+
+        Double_t value = StringToDouble(  definition.substr( pos, pos2-pos ) );
+
+        value = REST_Units::GetValueInRESTUnits( value, unitsStr );
+
+        if( TMath::IsNaN( value ) )
+        {
+            cout << "REST ERROR : Check parameter \"" << fieldName << "\" units" << endl;
+            cout << "Inside definition : " << definition << endl;
+            getchar();
+        }
+
+
+        return value;
+    }
+}
+
+TVector2 TRestMetadata::Get2DVectorFieldValueWithUnits( string fieldName, string definition, size_t fromPosition )
+{
+    string fldName = fieldName + "=\"";
+
+    size_t pos, pos2;
+    pos = definition.find( fldName ); 
+
+    if( (pos = definition.find( fldName, fromPosition )) == string::npos ) {  return TVector2(-1, -1); }
+    else
+    {
+        pos = definition.find( "\"", pos );
+        pos++;
+        pos2 = definition.find( "\"", pos );
+
+        TString unitsStr = GetUnits( definition, pos2 );
+
+        TVector2 value = StringTo2DVector( definition.substr( pos, pos2-pos ) );
+
+        Double_t valueX = REST_Units::GetValueInRESTUnits( value.X(), unitsStr );
+        Double_t valueY = REST_Units::GetValueInRESTUnits( value.Y(), unitsStr );
+
+        if( TMath::IsNaN( valueX ) || TMath::IsNaN( valueY ) )
+        {
+            cout << "REST ERROR : Check parameter \"" << fieldName << "\" units" << endl;
+            cout << "Inside definition : " << definition << endl;
+            getchar();
+        }
+
+        return TVector2( valueX, valueY );
+    }
+}
+
+TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits( string fieldName, string definition, size_t fromPosition )
+{
+    string fldName = fieldName + "=\"";
+
+    size_t pos, pos2;
+    pos = definition.find( fldName ); 
+
+    if( (pos = definition.find( fldName, fromPosition )) == string::npos ) 
+    {
+        return TVector3(-1, -1, -1); 
+    }
+    else
+    {
+        pos = definition.find( "\"", pos );
+        pos++;
+        pos2 = definition.find( "\"", pos );
+
+        TString unitsStr = GetUnits( definition, pos2 );
+
+        TVector3 value = StringTo3DVector( definition.substr( pos, pos2-pos ) );
+
+        Double_t valueX = REST_Units::GetValueInRESTUnits( value.X(), unitsStr );
+        Double_t valueY = REST_Units::GetValueInRESTUnits( value.Y(), unitsStr );
+        Double_t valueZ = REST_Units::GetValueInRESTUnits( value.Z(), unitsStr );
+
+        if( TMath::IsNaN( valueX ) || TMath::IsNaN( valueY ) || TMath::IsNaN( valueZ ) )
+        {
+            cout << "REST ERROR : Check parameter \"" << fieldName << "\" units" << endl;
+            cout << "Inside definition : " << definition << endl;
+            getchar();
+        }
+
+        return TVector3( valueX, valueY, valueZ );
     }
 }
 

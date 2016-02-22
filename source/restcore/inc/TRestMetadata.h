@@ -14,8 +14,9 @@
 ///                 Created as part of the conceptualization of existing REST 
 ///                 software.
 ///                 Igor G. Irastorza
-//              Jul 2015:    Implementation  
-//                  J. Galan
+///
+///              Jul 2015:    Implementation  
+///                 J. Galan
 ///_______________________________________________________________________________
 
 
@@ -39,6 +40,8 @@
 #include <TNamed.h>
 #include "string.h"
 
+#include <TRestSystemOfUnits.h>
+
 const int PARAMETER_NOT_FOUND_INT = -99999999;
 const double PARAMETER_NOT_FOUND_DBL = -99999999;
 const TString PARAMETER_NOT_FOUND_STR = "-99999999";
@@ -49,7 +52,10 @@ enum REST_Verbose_Level {REST_Silent, REST_Warning, REST_Info, REST_Debug };
 class TRestMetadata:public TNamed {
 
     protected:
-        std::string GetFieldValue( std::string fieldName, std::string definition );
+        std::string GetFieldValue( std::string fieldName, std::string definition, size_t fromPosition = 0 );
+        Double_t GetDblFieldValueWithUnits( string fieldName, string definition, size_t fromPosition = 0 );
+        TVector2 Get2DVectorFieldValueWithUnits( string fieldName, string definition, size_t fromPosition = 0 );
+        TVector3 Get3DVectorFieldValueWithUnits( string fieldName, string definition, size_t fromPosition = 0 );
 
         std::string GetKEYStructure( std::string keyName );
         std::string GetKEYStructure( std::string keyName, std::string buffer );
@@ -62,17 +68,20 @@ class TRestMetadata:public TNamed {
         std::string GetKEYDefinition( std::string keyName, size_t &fromPosition );
 
         std::string GetParameter( std::string parName, size_t &pos, std::string inputString );
+        Double_t GetDblParameterWithUnits( std::string parName, size_t &pos, std::string inputString );
+        TVector2 Get2DVectorParameterWithUnits( std::string parName, size_t &pos, std::string inputString );
+        TVector3 Get3DVectorParameterWithUnits( std::string parName, size_t &pos, std::string inputString );
+
         std::string GetMyParameter( std::string &value, size_t &pos );
 
         std::string fConfigFileName;		// std::string with the name of the config file
         std::string fSectionName;        // section name given in the constructor of TRestSpecificMetadata
 
         // This method must be implemented in the derived class to fill the class fields with a given section
-        // It should be a pure virtual method. But there are problems INPUT/OUTPUT in ROOT
         virtual void InitFromConfigFile( ) = 0; 
- //       { cout << "WARNING Please Implement the InitFromConfigFile( ) method in the TRestMetadata derived class!!!!!" << endl; };
 
         virtual void Initialize() = 0;// { cout << __PRETTY_FUNCTION__ << endl; };
+
         Int_t LoadSectionMetadata( std::string section, std::string cfgFileName );
 
         Int_t LoadConfigFromFile( std::string cfgFileName );
@@ -94,6 +103,7 @@ class TRestMetadata:public TNamed {
         Int_t CheckConfigFile( );
 
         std::string GetFieldValue( std::string fieldName, size_t fromPosition );
+        std::string GetUnits( string definition, size_t fromPosition );
         std::string GetFieldFromKEY( std::string parName, std::string key );
 
         std::string EvaluateExpression( std::string exp );
@@ -122,6 +132,9 @@ class TRestMetadata:public TNamed {
         TString GetMainDataPath() { return fDataPath; }
 
         std::string GetParameter( std::string parName, TString defaultValue = PARAMETER_NOT_FOUND_STR );
+        Double_t GetDblParameterWithUnits( std::string parName, Double_t defaultValue = PARAMETER_NOT_FOUND_DBL );
+        TVector2 Get2DVectorParameterWithUnits( string parName, TVector2 defaultValue = TVector2(-1,-1) );
+        TVector3 Get3DVectorParameterWithUnits( string parName, TVector3 defaultValue = TVector3( -1, -1, -1) );
 
         void PrintConfigBuffer( );
         
