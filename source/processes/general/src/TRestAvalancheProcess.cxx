@@ -114,8 +114,6 @@ void TRestAvalancheProcess::BeginOfEventProcess()
 {
     cout << "Begin of event process" << endl;
     fHitsOutputEvent->Initialize(); 
-
-    fOutputEvent->SetEventID( fInputEvent->GetEventID() );
 }
 
 //______________________________________________________________________________

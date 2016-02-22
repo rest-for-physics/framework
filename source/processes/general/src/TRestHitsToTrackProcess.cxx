@@ -101,8 +101,6 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
 
     fHitsEvent = (TRestHitsEvent *) evInput;
 
-    fTrackEvent->SetEventID( fHitsEvent->GetEventID() );
-    fTrackEvent->SetEventTime( fHitsEvent->GetEventTime() );
 
     cout << "----------------------" << endl;
     cout << "Event ID : " << fHitsEvent->GetEventID() << endl;

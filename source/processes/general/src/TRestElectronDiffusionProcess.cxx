@@ -112,7 +112,6 @@ void TRestElectronDiffusionProcess::BeginOfEventProcess()
     cout << "Begin of event process" << endl;
     fHitsEvent->Initialize(); 
 
-    fOutputEvent->SetEventID( fInputEvent->GetEventID() );
 }
 
 //______________________________________________________________________________
@@ -122,9 +121,6 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
     TRandom *rnd = new TRandom();
 
     TRestG4Event *g4Event = (TRestG4Event *) evInput;
-
-    fHitsEvent->SetEventTime( g4Event->GetEventTime() );
-    fHitsEvent->SetEventID( g4Event->GetEventID() );
 
     Double_t ionizationThreshold = fGas->GetIonizationPotential();
     Double_t longlDiffCoeff = fGas->GetLongitudinalDiffusion( fElectricField ); // (cm)^1/2

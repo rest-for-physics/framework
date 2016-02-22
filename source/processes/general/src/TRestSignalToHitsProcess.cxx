@@ -160,9 +160,6 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
 {
     fSignalEvent = (TRestSignalEvent *) evInput;
 
-    fHitsEvent->SetEventTime( fSignalEvent->GetEventTime() );
-    fHitsEvent->SetEventID( fSignalEvent->GetEventID() );
-
     Int_t numberOfSignals = fSignalEvent->GetNumberOfSignals();
 
     Int_t numberOfHits = 0;

@@ -99,16 +99,10 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
 {
     fInputTrackEvent = (TRestTrackEvent *) evInput;
 
-    fOutputTrackEvent->SetEventID( fInputTrackEvent->GetEventID() );
-    fOutputTrackEvent->SetEventTime( fInputTrackEvent->GetEventTime() );
-
     /* Debug output  */
     cout << "Event ID : " << fInputTrackEvent->GetEventID() << endl;
     cout << "Number of tracks : " << fInputTrackEvent->GetNumberOfTracks() << endl;
     cout << "*****************************" << endl;
-
-    fOutputTrackEvent->SetEventID( fInputTrackEvent->GetEventID() );
-    fOutputTrackEvent->SetEventTime( fInputTrackEvent->GetEventTime() );
 
     // Copying the input tracks to the output track
     for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
