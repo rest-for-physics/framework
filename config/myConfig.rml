@@ -36,31 +36,30 @@ All units in mm, keV and degrees
 <section restG4 name="Geant4 metadata" title="Simulation of Co60 decay">
 
     <parameter name="gdml_file" value="mySetupTemplate.gdml"/>
-    <parameter name="maxTargetStepSize" value="0.2" />
+    <parameter name="maxTargetStepSize" value="200" units="um" />
 
-    <generator type="point" position="(0,0,-200)" >
+    <generator type="volume" from="gas" >
         <source fromFile="Xe136bb0n.dat">
         </source>
     </generator>
 
     <biasing value="off" type="virtualBox">
-        <biasingVolume size="2850" position="(0,0,0)" factor="10" energyRange="(2400,5000)" />
-        <biasingVolume size="2450" position="(0,0,0)" factor="10" energyRange="(2400,5000)" />
-        <biasingVolume size="2050" position="(0,0,0)" factor="10" energyRange="(2400,5000)" />
+        <biasingVolume size="2850" units="mm" position="(0,0,0)" units="mm" factor="10" energyRange="(2.4,5)" units="MeV" />
+        <biasingVolume size="2450" units="mm" position="(0,0,0)" units="mm" factor="10" energyRange="(2.4,5)" units="MeV" />
+        <biasingVolume size="2050" units="mm" position="(0,0,0)" units="mm" factor="10" energyRange="(2.4,5)" units="MeV" />
     </biasing>
 
     <storage sensitiveVolume="gas">
-        <parameter name="energyRange" value="(0,1000000)" />
+        <parameter name="energyRange" value="(0,1)" units="GeV" />
         <activeVolume name="gas" chance="1" />
     </storage>
 </section>
 
 <section electronDiffusionProcess name="electronDiffusion-Panda" title="Half PANDA X-III Vessel (Bottom)" >
-    <parameter name="anodePosition" value="0" /> // mm
-    <parameter name="cathodePosition" value="-1000" /> // mm
-    <parameter name="electricField" value="1000" /> // V/cm
-    <parameter name="resolution" value="0.1" /> // mm
-    <parameter name="attachment" value="0" /> // ??
+    <parameter name="anodePosition" value="0" />
+    <parameter name="cathodePosition" value="-100" />
+    <parameter name="electricField" value="1" />
+    <parameter name="attachment" value="0" /> // units??
 </section>
 
 <section signalDeconvolutionProcess name="deconvolution-Panda" title="Deconvolution of AGET signals" >
@@ -118,11 +117,10 @@ All units in mm, keV and degrees
 
 <section readout nameref="Readout-PANDA_3MM_64channels" file="definitions/readouts.rml"> </section>
 
-<section gas nameref="Gas-Xenon-TMA 3Pct" file="definitions/gases.rml"> </section>
+<section gas nameref="Xenon-TMA 3Pct 10-10E3V/cm" file="definitions/gases.rml"> </section>
 
 <section decoding name="decoding-PANDA" title="PANDA_v0" >
 	<parameter name="fileName" value="myDecoding.dec" />
 	<parameter name="nChannels" value="200" />
     </section>
-
 

@@ -77,7 +77,7 @@ void TRestG4Metadata::InitFromConfigFile()
     // Initialize the metadata members from a configfile
     fGDML_Filename = GetParameter( "gdml_file" );
 
-    fMaxTargetStepSize = StringToDouble( GetParameter( "maxTargetStepSize" ) );
+    fMaxTargetStepSize = GetDblParameterWithUnits( "maxTargetStepSize" );
 
     ReadGenerator();
 
@@ -122,12 +122,17 @@ void TRestG4Metadata::ReadBiasing()
             TRestBiasingVolume biasVolume;
 
             cout << "Def : " << biasVolumeDefinition << endl;
-
-            biasVolume.SetBiasingVolumePosition( StringTo3DVector( GetFieldValue( "position", biasVolumeDefinition ) ) );
+            
+            biasVolume.SetBiasingVolumePosition( Get3DVectorFieldValueWithUnits( "position", biasVolumeDefinition ) );
             biasVolume.SetBiasingFactor( StringToDouble( GetFieldValue( "factor", biasVolumeDefinition ) ) );
-            biasVolume.SetBiasingVolumeSize( StringToDouble( GetFieldValue( "size", biasVolumeDefinition ) ) );
-            biasVolume.SetEnergyRange( StringTo2DVector ( GetFieldValue( "energyRange", biasVolumeDefinition ) ) );
+            biasVolume.SetBiasingVolumeSize( GetDblFieldValueWithUnits( "size", biasVolumeDefinition ) );
+            biasVolume.SetEnergyRange( Get2DVectorFieldValueWithUnits( "energyRange", biasVolumeDefinition ) );
             biasVolume.SetBiasingVolumeType( biasType ); // For the moment all the volumes should be same type
+
+            /* TODO check that values are right if not printBiasingVolume with getchar() 
+            biasVolume.PrintBiasingVolume();
+            getchar();
+            */
 
             fBiasingVolumes.push_back( biasVolume );
 
@@ -155,14 +160,14 @@ void TRestG4Metadata::ReadGenerator()
 
     fGenType = GetFieldValue( "type", generatorDefinition );
     fGenFrom = GetFieldValue( "from", generatorDefinition );
-    fGenSize = StringToDouble(  GetFieldValue( "size", generatorDefinition ) );
+    fGenSize = GetDblFieldValueWithUnits( "size", generatorDefinition );
 
     // TODO : If not defined (and required to be) it just returns (0,0,0) we should make a WARNING. Inside StringToVector probably
-    fGenPosition = StringTo3DVector ( GetFieldValue( "position", generatorDefinition ) );
+    fGenPosition = Get3DVectorFieldValueWithUnits( "position", generatorDefinition );
 
     fGenRotation = StringTo3DVector ( GetFieldValue( "rotation", generatorDefinition ) );
 
-    fGenLength = StringToDouble ( GetFieldValue( "length", generatorDefinition ) );
+    fGenLength = GetDblFieldValueWithUnits ( "length", generatorDefinition );
 
     size_t position = 0;
     string sourceString;
@@ -170,14 +175,12 @@ void TRestG4Metadata::ReadGenerator()
     Int_t n = 0;
     while( ( sourceString = GetKEYStructure( "source", position, generatorString ) ) != "" )
     {
-
         TRestParticleSource source;
 
         // Source parameters
         string sourceDefinition = GetKEYDefinition( "source", sourceString );
 
         fGeneratorFile = GetFieldValue( "fromFile", sourceDefinition );
-        cout << "From file : " << fGeneratorFile << endl;
 
         if( fGeneratorFile != "Not defined" )
         {
@@ -228,49 +231,24 @@ void TRestG4Metadata::ReadGenerator()
 
         if( source.GetEnergyDistType() == "TH1D" )
         {
-
             source.SetSpectrumFilename ( GetFieldValue( "file", energyDefinition ) );
             source.SetSpectrumName ( GetFieldValue( "spctName", energyDefinition ) );
         }
 
-        source.SetEnergyRange( StringTo2DVector ( GetFieldValue( "range", energyDefinition ) ) );
-
-        cout << "-------------------------------------------------" << endl;
-        cout << energyDefinition << endl;
-        cout <<  GetFieldValue( "range", energyDefinition ) << endl;
-        cout << "-------------------------------------------------" << endl;
+        source.SetEnergyRange( Get2DVectorFieldValueWithUnits ( "range", energyDefinition ) );
 
         if( source.GetEnergyDistType() == "mono" )
         {
             Double_t en;
-            en =  StringToDouble( GetFieldValue( "energy", energyDefinition ) );
+            en = GetDblFieldValueWithUnits( "energy", energyDefinition );
             source.SetEnergyRange ( TVector2 (en,en) ); 
             source.SetEnergy( en );
         }
 
         fPrimaryGenerator.AddSource( source );
- //       fSources.push_back(source);
 
         n++;
     }
-
-    //fNsources = n;
-
-    /*
-    sourceString = GetKEYStructure( "source", position, generatorString );
-    cout << "Source string 2 ###" << sourceString << "####" << endl;
-    cout << "Position : " << position << endl;
-
-    sourceString = GetKEYStructure( "source", position, generatorString );
-    cout << "Source string 3 ###" << sourceString << "####" << endl;
-    cout << "Position : " << position << endl;
-    */
-
-
-
-
-    //tmp >> fGenSize;
- //   fGenSize = stod ( );
 
 }
 
@@ -289,7 +267,7 @@ void TRestG4Metadata::ReadStorage( )
     cout << fSensitiveVolume << endl;
     
     size_t pos = 0;
-    fEnergyRangeStored = StringTo2DVector( GetParameter( "energyRange", pos, storageString  ) );
+    fEnergyRangeStored = Get2DVectorParameterWithUnits( "energyRange", pos, storageString  );
 
     pos = 0;
     string volumeDefinition;
@@ -317,6 +295,7 @@ void TRestG4Metadata::PrintMetadata( )
         cout << "Title : " << GetTitle() << endl;
         cout << "---------------------------------------" << endl;
         cout << "Geometry File : " << Get_GDML_Filename() << endl;
+        cout << "Max. Step size : " << GetMaxTargetStepSize() << " mm" << endl;
         cout << "---------------------------------------" << endl;
         cout << "Generator type : " << GetGeneratorType() << endl;
         cout << "Generated from : " << GetGeneratedFrom() << endl;
@@ -341,7 +320,6 @@ void TRestG4Metadata::PrintMetadata( )
         cout << "***************************************" << endl;
         cout << "Energy range : Emin = " << GetMinimumEnergyStored() << " Emax : " << GetMaximumEnergyStored() << endl;
         cout << "Sensitive volume : " << GetSensitiveVolume() << endl;
-        cout << "Max. Step size : " << GetMaxTargetStepSize() << " mm" << endl;
         cout << "Active volumes : " << GetNumberOfActiveVolumes() << endl;
         cout << "---------------------------------------" << endl;
         for( int n = 0; n < GetNumberOfActiveVolumes(); n++ )
