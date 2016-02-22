@@ -228,9 +228,9 @@ void TRestSignalToHitsProcess::EndProcess()
 //______________________________________________________________________________
 void TRestSignalToHitsProcess::InitFromConfigFile( )
 {
-    fCathodePosition = StringToDouble( GetParameter( "cathodePosition" ) );
-    fAnodePosition = StringToDouble( GetParameter( "anodePosition" ) );
-    fElectricField = StringToDouble( GetParameter( "electricField" )  );
-    fSampling = StringToDouble( GetParameter( "sampling" )  );
+    fCathodePosition = GetDblParameterWithUnits( "cathodePosition" );
+    fAnodePosition = GetDblParameterWithUnits( "anodePosition" );
+    fElectricField = GetDblParameterWithUnits( "electricField" );
+    fSampling = GetDblParameterWithUnits( "sampling" );
 }
 

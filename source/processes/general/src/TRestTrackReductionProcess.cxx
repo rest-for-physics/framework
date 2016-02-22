@@ -161,8 +161,8 @@ void TRestTrackReductionProcess::EndProcess()
 //______________________________________________________________________________
 void TRestTrackReductionProcess::InitFromConfigFile( )
 {
-    fStartingDistance = StringToDouble( GetParameter( "startingDistance" ) );
-    fMinimumDistance  = StringToDouble( GetParameter( "minimumDistance" ) );
+    fStartingDistance = GetDblParameterWithUnits(  "startingDistance" );
+    fMinimumDistance  = GetDblParameterWithUnits( "minimumDistance" );
     fDistanceFactor   = StringToDouble( GetParameter( "distanceStepFactor" ) );
     fMaxNodes         = StringToDouble( GetParameter( "maxNodes" ) );
 }

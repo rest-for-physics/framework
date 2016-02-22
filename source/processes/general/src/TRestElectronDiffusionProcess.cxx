@@ -215,9 +215,9 @@ void TRestElectronDiffusionProcess::EndProcess()
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::InitFromConfigFile( )
 {
-    fCathodePosition = StringToDouble( GetParameter( "cathodePosition" ) );
-    fAnodePosition = StringToDouble( GetParameter( "anodePosition" ) );
-    fElectricField = StringToDouble( GetParameter( "electricField" ) );
+    fCathodePosition = GetDblParameterWithUnits( "cathodePosition" );
+    fAnodePosition = GetDblParameterWithUnits( "anodePosition" );
+    fElectricField = GetDblParameterWithUnits( "electricField" );
     fAttachment = StringToDouble( GetParameter( "attachment" ) );
 
     if( fCathodePosition > fAnodePosition ) { fMaxPosition = fCathodePosition; fMinPosition = fAnodePosition; }

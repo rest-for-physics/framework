@@ -238,7 +238,7 @@ void TRestTrackLinearizationProcess::EndProcess()
 //______________________________________________________________________________
 void TRestTrackLinearizationProcess::InitFromConfigFile( )
 {
-    fLengthResolution = StringToDouble( GetParameter( "lengthResolution" ) );
-    fTransversalResolution = StringToDouble( GetParameter( "transversalResolution" ) );
+    fLengthResolution = GetDblParameterWithUnits( "lengthResolution" );
+    fTransversalResolution = GetDblParameterWithUnits( "transversalResolution" );
 }
 

@@ -206,8 +206,8 @@ void TRestFastHitsToTrackProcess::EndProcess()
 //______________________________________________________________________________
 void TRestFastHitsToTrackProcess::InitFromConfigFile( )
 {
-    fCellResolution = StringToDouble( GetParameter( "cellResolution" ) );
-    fNetSize = StringToDouble( GetParameter( "netSize" ) ); 
-    fNetOrigin = StringTo3DVector( GetParameter( "netOrigin" ) );
+    fCellResolution = GetDblParameterWithUnits( "cellResolution" );
+    fNetSize = GetDblParameterWithUnits( "netSize" ); 
+    fNetOrigin = Get3DVectorParameterWithUnits( "netOrigin" );
     fNodes = (Int_t) ( fNetSize / fCellResolution );
 }
