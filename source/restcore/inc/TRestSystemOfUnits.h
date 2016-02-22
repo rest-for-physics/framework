@@ -32,6 +32,14 @@ namespace REST_Units {
     Bool_t isEnergy( TString unitsStr );
     Double_t GetEnergyInRESTUnits( Double_t energy, TString unitsStr );
 
+    const double ns = 1.e3;
+    const double us = 1.;
+    const double ms = 1.e-3;
+    const double s = 1.e-6;
+
+    Double_t GetTimeInRESTUnits( Double_t time, TString unitsStr );
+    Bool_t isTime( TString unitsStr );
+
     const double um = 1e3;
     const double mm = 1.;
     const double cm = 1e-1;

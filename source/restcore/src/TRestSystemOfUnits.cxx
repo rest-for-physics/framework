@@ -31,6 +31,26 @@ namespace REST_Units
         return false;
     }
 
+    Double_t GetTimeInRESTUnits( Double_t time, TString unitsStr )
+    {
+        if( unitsStr == "ns" ) return time/ns;
+        if( unitsStr == "us" ) return time/us;
+        if( unitsStr == "ms" ) return time/ms;
+        if( unitsStr == "s" ) return time/s;
+
+        return time;
+    }
+
+    Bool_t isTime( TString unitsStr )
+    {
+        if( unitsStr == "ns" ) return true;
+        if( unitsStr == "us" ) return true;
+        if( unitsStr == "ms" ) return true;
+        if( unitsStr == "s" ) return true;
+
+        return false;
+    }
+
     Double_t GetDistanceInRESTUnits( Double_t distance, TString unitsStr )
     {
         if( unitsStr == "um" ) return distance/um; 
@@ -86,6 +106,7 @@ namespace REST_Units
         if( isEnergy ( unitsStr ) ) return GetEnergyInRESTUnits( value, unitsStr );
         if( isDistance ( unitsStr ) ) return GetDistanceInRESTUnits( value, unitsStr );
         if( isField ( unitsStr ) ) return GetFieldInRESTUnits( value, unitsStr );
+        if( isTime ( unitsStr ) ) return GetTimeInRESTUnits( value, unitsStr );
 
         cout << endl;
         cout << "REST WARNING (REST_Units)  Unit=[" << unitsStr << "] not recognized" << endl;
