@@ -164,11 +164,26 @@ TPad *TRestSignalEvent::DrawEvent()
     fPad->cd();
     fPad->DrawFrame( GetMinTime() , GetMinValue() , GetMaxTime(), GetMaxValue() );
 
+    char title[256];
+    sprintf(title, "Event ID %d", this->GetEventID());
+
+
     for( int n = 0; n < nSignals; n++ )
     {
+
         TGraph *gr = fSignal[n].GetGraph( n + 1 );
+
+        if(n==0) 
+        {
+	   gr->SetTitle(title);
+	   gr->GetXaxis()->SetTitle("time (ns)");
+	   gr->GetYaxis()->SetTitle("charge (electrons)");
+        }
+
         fPad->cd();
-        gr->Draw( "LP" );
+
+        if (n==0) gr->Draw( "ALP" );
+        else gr->Draw( "LP" );
     }
 
     return fPad;

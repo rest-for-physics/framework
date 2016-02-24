@@ -25,6 +25,7 @@
 #include <TArrayD.h>
 #include <TPad.h>
 #include <TGraph.h>
+#include <TAxis.h>
 
 #include "TRestEvent.h"
 #include "TRestSignal.h"
