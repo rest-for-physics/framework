@@ -64,9 +64,9 @@ All units in mm, keV and degrees
 
 
 <section avalancheProcess name="avalancheProcess"  title="IAXOD0 chamber" >
-    <parameter name="energyReference" value="5.9" /> // keV
+    <parameter name="energyReference" value="5.9" units="keV" /> 
     <parameter name="resolutionReference" value="13" /> // fwhm
-    <parameter name="detectorGain" value="8000" /> // 
+    <parameter name="detectorGain" value="8000" /> // absolute gain 
   // parameter name="electronicsGain" value="671744"  // electrons for 4096 ADC units
 </section>
 
