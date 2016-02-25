@@ -152,11 +152,12 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
     deltaTime += (int) duration_cast<microseconds>( t2 - t1 ).count();
 #endif
 		
-		fOutputEvent->SetEventID( fInputEvent->GetEventID() );
-		fOutputEvent->SetEventTime( fInputEvent->GetEventTime() );
 
 		fOutputEvent = processedEvent;
 		if( processedEvent == NULL ) continue;
+
+		fOutputEvent->SetEventID( fInputEvent->GetEventID() );
+		fOutputEvent->SetEventTime( fInputEvent->GetEventTime() );
 
 #ifdef TIME_MEASUREMENT
         high_resolution_clock::time_point t3 = high_resolution_clock::now();

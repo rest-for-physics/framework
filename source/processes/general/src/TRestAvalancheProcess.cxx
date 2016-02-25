@@ -172,8 +172,7 @@ void TRestAvalancheProcess::EndProcess()
 //______________________________________________________________________________
 void TRestAvalancheProcess::InitFromConfigFile( )
 {
-    fEnergyRef = StringToDouble( GetParameter( "energyReference" ) );
+    fEnergyRef = GetDblParameterWithUnits( "energyReference"  );
     fResolutionAtEref = StringToDouble( GetParameter( "resolutionReference" ) );
     fDetectorGain = StringToDouble( GetParameter( "detectorGain" ) );
-
 }

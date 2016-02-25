@@ -62,6 +62,14 @@ All units in mm, keV and degrees
     <parameter name="attachment" value="0" /> // units??
 </section>
 
+
+<section avalancheProcess name="avalancheProcess"  title="IAXOD0 chamber" >
+    <parameter name="energyReference" value="5.9" units="keV" /> 
+    <parameter name="resolutionReference" value="13" /> // fwhm
+    <parameter name="detectorGain" value="8000" /> // absolute gain 
+  // parameter name="electronicsGain" value="671744"  // electrons for 4096 ADC units
+</section>
+
 <section signalDeconvolutionProcess name="deconvolution-Panda" title="Deconvolution of AGET signals" >
     <parameter name="frequency1" value="2.35683005928202273e-02" />
     <parameter name="frequency2" value="3.14067876433914706e-02" />
@@ -81,6 +89,10 @@ All units in mm, keV and degrees
     // the process will try to take the values from a previous electronDiffusionProcess
     <parameter name="cathodePosition" value="" units="mm" />
     <parameter name="electricField" value="" units="V/cm" />
+</section>
+
+<section addSignalNoiseProcess name="addSignalNoiseProcess" title="Test AddNoise to Signal" >
+    <parameter name="noiseLevel" value="10" /> // // electrons in each time bin
 </section>
 
 <section signalToHitsProcess name="signalToHits-Panda" title="Half PANDA X-III Vessel (Bottom)" >
@@ -116,6 +128,7 @@ All units in mm, keV and degrees
     <parameter name="lengthResolution" value="2" units="mm" />
     <parameter name="transversalResolution" value="1" units="mm" />
 </section>
+
 
 <section readout nameref="Readout-PANDA_3MM_64channels" file="definitions/readouts.rml"> </section>
 
