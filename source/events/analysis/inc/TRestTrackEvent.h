@@ -24,6 +24,8 @@
 #include <TObject.h>
 #include <TVirtualPad.h>
 #include <TGraph.h>
+#include <TMultiGraph.h>
+#include <TAxis.h>
 
 #include <TRestEvent.h>
 #include <TRestTrack.h>

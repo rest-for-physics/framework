@@ -13,6 +13,9 @@
 ///                 Created as part of the conceptualization of existing REST 
 ///                 software.
 ///                 JuanAn Garcia/Javier Galan
+///
+///	       feb 2016: Added titles to axis in DrawGraph using TMultiGraph
+///		  Javier Gracia
 ///_______________________________________________________________________________
 
 
