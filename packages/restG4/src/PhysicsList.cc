@@ -156,10 +156,6 @@ void PhysicsList::ConstructParticle()
 
     for( size_t i = 0; i < fHadronPhys.size(); i++) 
         fHadronPhys[i]->ConstructParticle();
-
-    // ions
-    G4IonConstructor iConstructor;
-    iConstructor.ConstructParticle();  
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
