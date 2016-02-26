@@ -55,9 +55,20 @@ Int_t TRestG4Track::GetProcessID( TString pcsName )
     else if ( pcsName == "muIoni" ) id = 12;
     else if ( pcsName == "e-Step") id = 20;
     else if ( pcsName == "e+Step") id = 21;
-    else if ( pcsName == "neutronStep") id = 22;
-    else if ( pcsName == "alphaStep") id = 23;
-    else if ( pcsName == "He3Step") id = 24;
+    //else if ( pcsName == "neutronStep") id = 22;
+    //else if ( pcsName == "alphaStep") id = 23;
+    //else if ( pcsName == "He3Step") id = 24;
+    else if ( pcsName == "muBrems" ) id = 30;
+    else if ( pcsName == "muPairProd" ) id = 31;
+    else if ( pcsName == "Decay" ) id = 32;
+    else if ( pcsName == "hIoni" ) id = 33;
+    else if ( pcsName == "hBrems" ) id = 34;
+    else if ( pcsName == "hPairProd" ) id = 35;
+    else if ( pcsName == "hadElastic" ) id = 36;
+    else if ( pcsName == "neutronInelastic" ) id = 37;
+    else if ( pcsName == "nCapture" ) id = 38;
+    else if ( pcsName == "nKiller" ) id = 39;
+    else if ( pcsName == "nuclearStopping" ) id = 40;
     else
     {
         id = -1;
@@ -102,10 +113,22 @@ TString TRestG4Track::GetProcessName( Int_t id )
     else if ( id == 12 ) return "muIoni";
     else if ( id == 20 ) return "e-Step";
     else if ( id == 21 ) return "e+Step";
-    else if ( id == 22 ) return "neutronStep";
-    else if ( id == 23 ) return "alphaStep";
-    else if ( id == 24 ) return "He3Step";
+    // else if ( id == 22 ) return "neutronStep";
+    // else if ( id == 23 ) return "alphaStep";
+    // else if ( id == 24 ) return "He3Step";
+    else if ( id == 30 ) return "muBrems";
+    else if ( id == 31 ) return "muPairProd";
+    else if ( id == 32 ) return "Decay" ;
+    else if ( id == 33 ) return "hIoni";
+    else if ( id == 34 ) return "hBrems";
+    else if ( id == 35 ) return "hPairProd";
+    else if ( id == 36 ) return "hadElastic" ;
+    else if ( id == 37 ) return "neutronInelastic";
+    else if ( id == 38 ) return "nCapture";
+    else if ( id == 39 ) return "nKiller" ;
+    else if ( id == 40 ) return "nuclearStopping";
     else cout << "WARNING : The process ID : " << id << " could not be found" << endl;
+
 
     return "";
 }
