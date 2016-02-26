@@ -13,6 +13,9 @@
 ///                 Created as part of the conceptualization of existing REST 
 ///                 software.
 ///                 JuanAn Garcia/Javier Galan
+///
+///	       feb 2016: Added titles to axis in DrawGraph using TMultiGraph
+///		  Javier Gracia
 ///_______________________________________________________________________________
 
 
@@ -159,20 +162,39 @@ TPad *TRestSignalEvent::DrawEvent()
         return NULL;
     }
 
+
+    fMinValue = 1E10;
+    fMaxValue = -1E10;
+    fMinTime = 1E10;
+    fMaxTime = -1E10;
+
     fPad = new TPad( this->GetClassName().Data(), " ", 0, 0, 1, 1 );
     fPad->Draw();
     fPad->cd();
-    fPad->DrawFrame( GetMinTime() , GetMinValue() , GetMaxTime(), GetMaxValue() );
+    fPad->DrawFrame( GetMinTime(), GetMinValue() , GetMaxTime(), GetMaxValue());
+
+    char title[256];
+    sprintf(title, "Event ID %d", this->GetEventID());
+
+
+    TMultiGraph *mg = new TMultiGraph();
+    mg->SetTitle(title);
+    mg->GetXaxis()->SetTitle("time (ns)");
+    mg->GetYaxis()->SetTitleOffset(1.4);
+    mg->GetYaxis()->SetTitle("charge (electrons)");
+
 
     for( int n = 0; n < nSignals; n++ )
     {
         TGraph *gr = fSignal[n].GetGraph( n + 1 );
-        fPad->cd();
-        gr->Draw( "LP" );
+
+        mg->Add(gr);
     }
+
+     fPad->cd();
+     mg->Draw("");
 
     return fPad;
 }
-
 
 

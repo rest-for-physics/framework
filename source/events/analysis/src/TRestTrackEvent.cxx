@@ -13,6 +13,8 @@
 ///                 Created as part of the conceptualization of existing REST 
 ///                 software.
 ///                 Javier Gracia
+///
+///	       
 ///_______________________________________________________________________________
 
 
@@ -307,27 +309,46 @@ TPad *TRestTrackEvent::DrawEvent()
     fPad->Divide( 3 , 1 );
     fPad->Draw( );
 
-    fPad->cd(1)->DrawFrame( minX-10 , minY-10, maxX+10, maxY+10 );
-    fPad->cd(2)->DrawFrame( minX-10 , minZ-10, maxX+10, maxZ+10 );
-    fPad->cd(3)->DrawFrame( minY-10 , minZ-10, maxY+10, maxZ+10 );
+    char title[256];
+    sprintf(title, "Event ID %d", this->GetEventID());
+
+    TMultiGraph *mgXY = new TMultiGraph();
+    TMultiGraph *mgXZ = new TMultiGraph();
+    TMultiGraph *mgYZ = new TMultiGraph();
+
+    fPad->cd(1)->DrawFrame( minX-10 , minY-10, maxX+10, maxY+10, title );
+    fPad->cd(2)->DrawFrame( minX-10 , minZ-10, maxX+10, maxZ+10, title );
+    fPad->cd(3)->DrawFrame( minY-10 , minZ-10, maxY+10, maxZ+10, title);
+
 
     for( int i = 0; i < countXY; i++ )
     {
-        fPad->cd(1); 
-        fXYHit[i].Draw("P");
+        mgXY->Add(&fXYHit[i]);
     }
+        fPad->cd(1); 
+        mgXY->GetXaxis()->SetTitle("X-axis (mm)");
+        mgXY->GetYaxis()->SetTitle("Y-axis (mm)");
+        mgXY->Draw("P");
 
     for( int i = 0; i < countXZ; i++ )
     {
-        fPad->cd(2); 
-        fXZHit[i].Draw("P");
+        mgXZ->Add(&fXZHit[i]);
     }
+        fPad->cd(2); 
+        mgXZ->GetXaxis()->SetTitle("X-axis (mm)");
+        mgXZ->GetYaxis()->SetTitle("Z-axis (mm)");
+        mgXZ->Draw("P");
+
 
     for( int i = 0; i < countYZ; i++ )
     {
-        fPad->cd(3); 
-        fYZHit[i].Draw("P");
+        mgYZ->Add(&fYZHit[i]);
     }
+        fPad->cd(3); 
+        mgYZ->GetXaxis()->SetTitle("Y-axis (mm)");
+        mgYZ->GetYaxis()->SetTitle("Z-axis (mm)");
+        mgYZ->Draw("P");
+
 
     for( int tck = 0; tck < nTckXY; tck++ )
     {
