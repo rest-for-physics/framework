@@ -90,28 +90,28 @@ void TRestSignalToHitsProcess::LoadConfig( string cfgFilename )
     // If the parameters have no value it tries to obtain it from electronDiffusionProcess
     if ( fElectricField == PARAMETER_NOT_FOUND_DBL )
     {	
-        fElectricField = this->GetDoubleParameterFromClass( "TRestElectronDiffusionProcess", "electricField" );
+        fElectricField = this->GetDoubleParameterFromClassWithUnits( "TRestElectronDiffusionProcess", "electricField" );
         if( fElectricField != PARAMETER_NOT_FOUND_DBL )
             cout << "Getting electric field from electronDiffusionProcess : " << fElectricField << " V/cm" << endl;
     }
 
     if ( fCathodePosition == PARAMETER_NOT_FOUND_DBL )
     {
-        fCathodePosition = this->GetDoubleParameterFromClass( "TRestElectronDiffusionProcess", "cathodePosition" );
+        fCathodePosition = this->GetDoubleParameterFromClassWithUnits( "TRestElectronDiffusionProcess", "cathodePosition" );
         if( fCathodePosition != PARAMETER_NOT_FOUND_DBL )
             cout << "Getting cathode position from electronDiffusionProcess : " << fCathodePosition << " mm" << endl;
     }
 
     if ( fAnodePosition == PARAMETER_NOT_FOUND_DBL )
     {
-        fAnodePosition = this->GetDoubleParameterFromClass( "TRestElectronDiffusionProcess", "anodePosition" );
+        fAnodePosition = this->GetDoubleParameterFromClassWithUnits( "TRestElectronDiffusionProcess", "anodePosition" );
         if( fAnodePosition != PARAMETER_NOT_FOUND_DBL )
             cout << "Getting cathode position from electronDiffusionProcess : " << fAnodePosition << " mm" << endl;
     }
 
     if ( fSampling == PARAMETER_NOT_FOUND_DBL )
     {
-        fSampling = this->GetDoubleParameterFromClass( "TRestHitsToSignalProcess", "sampling" );
+        fSampling = this->GetDoubleParameterFromClassWithUnits( "TRestHitsToSignalProcess", "sampling" );
         if( fCathodePosition != PARAMETER_NOT_FOUND_DBL )
             cout << "Getting sampling rate from hitsToSignal process : " << fSampling << " um" << endl;
     }
