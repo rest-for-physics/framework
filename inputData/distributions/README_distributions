@@ -1,5 +1,8 @@
 Distribution description
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+ File: "Gamma_cosmics.root" and histograms "hLEgamma", "hMEgamma" and "hHEgamma"
+
 - Gamma_cosmic: three distributions (all of them normalized) corresponding to gammas at sea level (from tables in "Cosmic Rays at Earth" by Grieder (Ed. Elsevier)). Flux data from the same book and also from a comparative integral
 	-LE gamma distribution : from 1 to 10 MeV-->bin size is 100 keV
         (LE Flux ~ 8E-3 gammas/cm2 s sr, same for e and e+)
@@ -8,8 +11,15 @@ Distribution description
         -HE gamma distribution :  from 0.1 GeV to 100 GeV --> bin size is 0.1 GeV
   	(HE Flux ~ 1E-3 gammas/cm2 s sr, same for e and e+)
        Electrons and positron should follow the similar energy distributions
+   
 
-It is assumed that angular distributions should go with Cos2\theta
+It is assumed that angular distributions should go with Cos2\theta 
+
+This distribution can be found in file "hVerticalAngle.root" and histogram "Cos2Theta"
+
+%%%%%%%%%%%%%%
+
+File "Muons.root" and histograms "cosmicmuon", "LSCmuon" and "CJULmuon"
 
 - Muons : two distributions (normalized) corresponding to Sea level and Canfranc underground site muons (from tables in "Cosmic Rays at Earth" by Grieder (Ed. Elsevier)) 
 	-cosmic muons (sea level) from 0.2 to 328 GeV --> bin size is 1 MeV
@@ -23,10 +33,20 @@ It is assumed that angular distributions should go with Cos2\theta
 	(Flux ~ values from 44 to 82 n/m2 s from different measurements, ~a few  1E-3 n/cm2 s)
 	-HE Cosmic Neutrons: from 1 to 10 GeV --> bin size is 0.01 GeV
  	(Flux ~ 0.1 n/m2 s infered from Ziegler)
-It is assumed that angular distributions should go with Cos2\theta
+It is assumed that angular distributions should go with Cos2\theta (or even Cos3\theta deeper in undergraound Labs) 
+This distribution can be found in file "hVerticalAngle.root" and histograms "Cos2Theta" os "Cos3Theta"
+
+%%%%%%%%%%
+File "radioactivityNeutrons.root" and histogram "EvaporationNeutrons"
 
 - Radiactivity Neutrons : normalized distribution of the "Evaporation" spectra from 0 to 10 GeV --> bin size is 0.01 GeV
 	(LSC Flux ~ 3.82E-2 neutrons/m2 s)
 
+The angle should be isotropic
 
+
+%%%%%%%%%%%%
+File "th232_histogram.root" (histogram th_th232), "u238_histogram.root" (histogram th_u238) and "concreteWallGamma.root" (histogram th__merged) and angular distributions "angular_u238.root" and "angular_th232" (open a root TBrowser to have a look to the different angles)
+
+Data for gammas coming from wall contamination
 	
