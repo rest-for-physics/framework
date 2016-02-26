@@ -52,6 +52,7 @@ class PhysicsList: public G4VModularPhysicsList
 
   protected:
     // Construct particle and physics
+    virtual void InitializePhysicsLists();
     virtual void ConstructParticle();
     virtual void ConstructProcess(); 
     virtual void SetCuts();   
@@ -63,7 +64,10 @@ class PhysicsList: public G4VModularPhysicsList
       G4double fCutForElectron;
       G4double fCutForPositron;
 
-      G4VPhysicsConstructor *fEmPhysicsList;
+      G4VPhysicsConstructor*                   fEmPhysicsList;
+      G4VPhysicsConstructor*                   fDecPhysicsList;
+      G4VPhysicsConstructor*                   fRadDecPhysicsList;
+      std::vector < G4VPhysicsConstructor* >   fHadronPhys;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
