@@ -122,7 +122,7 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 
     TRestG4Event *g4Event = (TRestG4Event *) evInput;
 
-    Double_t ionizationThreshold = fGas->GetIonizationPotential();
+    Double_t w_value = fGas->GetWvalue();
     Double_t longlDiffCoeff = fGas->GetLongitudinalDiffusion( fElectricField ); // (cm)^1/2
     Double_t transDiffCoeff = fGas->GetTransversalDiffusion( fElectricField ); // (cm)^1/2
 
@@ -150,7 +150,7 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
                     {
                         Double_t xDiff, yDiff, zDiff;
 
-                        Int_t numberOfElectrons =  rnd->Poisson( eDep*1000./ionizationThreshold );
+                        Int_t numberOfElectrons =  rnd->Poisson( eDep*1000./w_value );
                         while( numberOfElectrons > 0 )
                         {
                             numberOfElectrons--;

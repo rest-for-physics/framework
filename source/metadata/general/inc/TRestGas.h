@@ -76,17 +76,17 @@ private:
     
     Int_t fStatus;
     TString fGasFilename;
-	Int_t		fNofGases;			// number of different species composing the gas mixture
+    Int_t fNofGases;			// number of different species composing the gas mixture
 
     Int_t fNCollisions;
     Double_t fMaxElectronEnergy;
-    Double_t fIonizationPotential;
+    Double_t fW;
 
     std::vector <TString> fGasComponentName;
     std::vector <Double_t> fGasComponentFraction;
 
-	Double_t	fPressureInAtm;		// pressure of the gas
-	Double_t	fTemperatureInK;	// temperature of the gas
+    Double_t fPressureInAtm;		// pressure of the gas
+    Double_t fTemperatureInK;	// temperature of the gas
 
     Int_t fEnodes;
     Double_t fEmax, fEmin; // In V/cm
@@ -160,9 +160,9 @@ public:
     }
 
     Double_t GetGasComponentFraction( Int_t n ) { return fGasComponentFraction[n]; }
-	Double_t GetPressure() { return fPressureInAtm; }; 
-	Double_t GetTemperature() { return fTemperatureInK; }; 
-    Double_t GetIonizationPotential() { return fIonizationPotential; }
+    Double_t GetPressure() { return fPressureInAtm; }; 
+    Double_t GetTemperature() { return fTemperatureInK; }; 
+    Double_t GetWvalue() { return fW; }
 
     TString GetGasDataPath() { return (TString ) getenv("REST_PATH") + "/inputData/gasFiles/"; }
 
@@ -175,7 +175,7 @@ public:
 
     void SetGasPressure( Double_t pressure );
     void SetMaxElectronEnergy( Double_t energy ) { fMaxElectronEnergy = energy; }
-    void SetIonizationPotential( Double_t iP ) { fIonizationPotential = iP; }
+    void SetWvalue( Double_t iP ) { fW = iP; }
 
 
     void PlotDriftVelocity( Double_t eMin, Double_t eMax, Int_t nSteps );

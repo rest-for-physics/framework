@@ -138,10 +138,10 @@ void TRestGas::InitFromConfigFile( )
     fTemperatureInK = StringToDouble ( GetParameter( "temperature" ) );
     fNCollisions = StringToInteger( GetParameter( "nCollisions" ) );
     fMaxElectronEnergy = StringToDouble( GetParameter( "maxElectronEnergy" ) );
-    fIonizationPotential = StringToDouble( GetParameter( "ionizationPotential" ) );
+    fW = StringToDouble( GetParameter( "W_value" ) );
 
     if( fMaxElectronEnergy == -1 ) { fMaxElectronEnergy = 40; cout << "Setting default maxElectronEnergy to : " << fMaxElectronEnergy << endl; }
-    if( fIonizationPotential == -1 ) { fIonizationPotential = 10; cout << "Setting default ionization potential : " << fIonizationPotential << endl; }
+    if( fW == -1 ) { fW = 21.9; cout << "Setting default W-value : " << fW << endl; }
 
     string gasComponentString;
     size_t position = 0;
@@ -450,7 +450,7 @@ void TRestGas::PrintGasInfo()
     cout << "Gas filename : " << fGasFilename << endl;
     cout << "Pressure : " << fPressureInAtm << " atm" << endl;
     cout << "Temperature : " << fTemperatureInK << " K" << endl;
-    cout << "Ionization potential : " << fIonizationPotential<< " eV" << endl;
+    cout << "W-value : " << fW<< " eV" << endl;
     cout << "Max. Electron energy : " << fMaxElectronEnergy << " eV" << endl;
     cout << "Field grid nodes : " << fEnodes << endl;
     cout << "Efield range : ( " << fEmin << " , " << fEmax << " ) V/cm " << endl;
