@@ -1,5 +1,16 @@
 
 ==========================================================
+Date : 2nd / March / 2016
+Branch : readout
+Author : Javier Galan
+Merge : #46
+==========================================================
+
+Fixed a bug in method TRestReadoutModule::TransformToPhysicalCoordinates.
+
+The rotation-translation operations were in inverse order.
+
+==========================================================
 Date : 22th / February / 2016
 Branch : issue#10
 Author : Javier Galan
