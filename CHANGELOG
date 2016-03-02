@@ -1,12 +1,13 @@
 
+
 ==========================================================
 Date : 2nd / March / 2016
 Branch : newInputData
 Author : Gloria Luzón
-Merge : #38
+Merge : #43
 ==========================================================
 
-== InputData ===
+== Modified inputData. Distributions and generator sections===
 
 README files have been added or updated to give information about Root files and histograms. Decay0 input data have been added. Azimutal angle distributions have been added.
 
@@ -270,4 +271,3 @@ TRestReadoutPixel
 -----------------
 
 Solved bug related to pixel boundaries precision. Now pixel size is increased by a small size delta.
-
