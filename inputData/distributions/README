@@ -1,4 +1,29 @@
-Distribution description
+/////////////////////////////////////////////////////////
+// REST_v2 README file
+// File : inputData/distributions/README
+// Author : Gloria Luzon
+// Date : 2-Feb-2016
+/////////////////////////////////////////////////////////
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+File : Gamma_cosmics.root
+Histograms : hLEgamma, hMEgamma, hHEgamma
+
+Description : It contains three distributions (all of them normalized) corresponding to gammas at sea level (from tables in "Cosmic Rays at Earth" by Grieder (Ed. Elsevier)). Flux data from the same book and also from a comparative integral.
+
+  - hLEgamma : Low energy gammas distribution. From 1 to 10 MeV (bin size 100 keV).
+               Flux : 8e-3 cm-2 s-1 sr-1 (same for e- and e+)
+
+  - hMEgamma : Medium energy gammas distribution. From 10 to 100 MeV (bin size 100 keV).
+               Flux : 4e-3 cm-2 s-1 sr-1 (same for e- and e+)
+
+  - hHEgamma : Medium energy gammas distribution. From 0.1 to 100 GeV (bin size 100 MeV).
+               Flux : 1e-3 cm-2 s-1 sr-1 (same for e- and e+)
+
+Note : Electrons (e-) and positrons (e+) should follow similar distributions.
+---------------------------------------------------------------------------
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%
  File: "Gamma_cosmics.root" and histograms "hLEgamma", "hMEgamma" and "hHEgamma"
