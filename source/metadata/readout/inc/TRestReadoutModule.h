@@ -52,20 +52,22 @@ class TRestReadoutModule : public TObject {
             return TransformToModuleCoordinates( p.X(), p.Y() );
         }
 
-        TVector2 TransformToModuleCoordinates( Double_t x, Double_t y )
+        TVector2 TransformToModuleCoordinates( Double_t xPhys, Double_t yPhys )
         {
-            TVector2 coords( x - fModuleOriginX, y - fModuleOriginY );
+            TVector2 coords( xPhys - fModuleOriginX, yPhys - fModuleOriginY );
             TVector2 rot = coords.Rotate( -fModuleRotation * TMath::Pi()/ 180. );
 
             return rot;
         }
 
-        TVector2 TransformToPhysicalCoordinates( Double_t x, Double_t y )
+        TVector2 TransformToPhysicalCoordinates( Double_t xMod, Double_t yMod )
         {
-            TVector2 coords( x + fModuleOriginX, y + fModuleOriginY );
-            TVector2 rot = coords.Rotate( fModuleRotation * TMath::Pi()/ 180. );
+            TVector2 coords( xMod, yMod );
 
-            return rot;
+            coords = coords.Rotate( fModuleRotation * TMath::Pi()/ 180. );
+            coords = coords + TVector2 ( fModuleOriginX, fModuleOriginY );
+
+            return coords;
         }
 
     protected:
