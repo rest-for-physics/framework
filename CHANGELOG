@@ -8,8 +8,20 @@ Merge : #43
 
 README files have been added and/or modified in inputData/distributions and inputData/generator. This files contain detailed descriptions of the files found under each folfer.
 
-Reorganized the inputData/distributions. 
+- Reorganized the inputData/distributions. 
 
+- New generators found at inputData/generator
+
+==========================================================
+Date : 2nd / March / 2016
+Branch : readout
+Author : Javier Galan
+Merge : #46
+==========================================================
+
+Fixed a bug in method TRestReadoutModule::TransformToPhysicalCoordinates.
+
+The rotation-translation operations were in inverse order.
 
 ==========================================================
 Date : 22th / February / 2016
