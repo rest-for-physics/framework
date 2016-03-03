@@ -101,9 +101,9 @@ Histograms : Theta, Theta2, Theta3
 
 Description: It contains three angular distributions for cosmics arriving from zenit.
 
-    - Theta    :  linear in the theta angle
+    - Theta    :  following a Cos(theta) distributions
 
-    - Theta2   :  it goes with theta²
+    - Theta2   :  following a Cos^2(theta) distributions
 
-    - Theta3   :  it goes with theta³
+    - Theta3   :  following a Cos^3(theta) distributions
 ---------------------------------------------------------------------------
