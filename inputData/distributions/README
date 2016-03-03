@@ -23,7 +23,7 @@ Description : It contains three distributions (all of them normalized) correspon
 Notes :
     - Electrons (e-) and positrons (e+) should follow similar distributions.
     - It is assumed that angular distributions should go with Cos^2.
-      This distribution can be found in file "CosineAngle.root" and histogram "Cos2Theta".
+      The angular distribution can be found in file "CosmicAngles.root" and histogram "Theta2".
 ---------------------------------------------------------------------------
 
 
@@ -40,8 +40,8 @@ Description: it contains two normalized distributions following Ziegler formula 
                  Flux: ~0.1 n/m2 s infered from Ziegler)
 
 Notes:
-    - It is assumed that angular distributions should go with Cos2\theta
-      This distribution can be found in file "CosineAngle.root" and histograms "Cos2Theta" os "Cos3Theta"
+    - It is assumed that angular distributions should go with Cos^2
+      This distribution can be found in file "CosmicAngles.root" and histograms Theta, Theta2, Theta3.
 ---------------------------------------------------------------------------
 
 
@@ -96,14 +96,14 @@ Notes :
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-File : CosineAngle.root
-Histograms : CosTheta, Cos2Theta, Cos3Theta
+File : CosmicAngles.root
+Histograms : Theta, Theta2, Theta3
 
-Description: It contains three distributons for vertical angles.
+Description: It contains three angular distributions for cosmics arriving from zenit.
 
-    -CosTheta    :  linear in the theta angle
+    - Theta    :  linear in the theta angle
 
-    -Cos2Theta   :  it goes with theta²
+    - Theta2   :  it goes with theta²
 
-    -Cos3Theta   :  it goes with theta³ 
+    - Theta3   :  it goes with theta³
 ---------------------------------------------------------------------------
