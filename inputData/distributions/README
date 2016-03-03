@@ -33,15 +33,15 @@ Histograms : CosmicNeutrons, HECosmicNeutrons
 
 Description: it contains two normalized distributions following Ziegler formula in IBM Journal of Research and Development, Volume 40, Issue 1, pp. 19-39 (1996) for medium and high energy cosmic neutrons
 
-    -CosmicNeutrons: Medium energies from 10 to 1000 MeV --> bin size is 1 MeV
+    - CosmicNeutrons: Medium energies from 10 to 1000 MeV --> bin size is 1 MeV
 	             Flux: values from 44 to 82 n/m2 s from different measurements, ~a few  1E-3 n/cm2 s
 
-    -HECosmicNeutrons:from 1 to 10 GeV --> bin size is 0.01 GeV
-                 Flux: ~ 0.1 n/m2 s infered from Ziegler)
+    - HECosmicNeutrons: from 1 to 10 GeV --> bin size is 0.01 GeV
+                 Flux: ~0.1 n/m2 s infered from Ziegler)
 
-It is assumed that angular distributions should go with Cos2\theta 
-
-This distribution can be found in file "hVerticalAngle.root" and histograms "Cos2Theta" os "Cos3Theta"
+Notes:
+    - It is assumed that angular distributions should go with Cos2\theta
+      This distribution can be found in file "CosineAngle.root" and histograms "Cos2Theta" os "Cos3Theta"
 ---------------------------------------------------------------------------
 
 
@@ -70,19 +70,28 @@ Histograms : EvaporationNeutrons
 
 Description: it contains a normalized distribution of the neutrons coming form radioactivity of nearby materials and walls
 
-    -EvaporationNeutrons:  "Evaporation" spectra from 0 to 10 GeV --> bin size is 0.01 GeV
+    - EvaporationNeutrons: "Evaporation" spectra from 0 to 10 GeV --> bin size is 0.01 GeV
 		     LSC Flux ~ 3.82E-2 neutrons/m2 s
 		     The angle should be isotropic
 ---------------------------------------------------------------------------
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-File : RadiactivityGammas.root (TODO)
-Description : Data for gammas coming from wall contamination (Th232 and U238)
+File : RadioactivityGammas.root
+Histograms : Th232, U238, ThetaAngle
 
-TODO we must organize this distributions in a single file.
+Description : Full chain decay simulation of Th232 and U238 launched uniformly inside a concrete wall. Then the gammas coming out the wall are counted and its energy filled inside the histograms Th232 and U238. 
 
-Files "th232_histogram.root" (histogram th_th232), "u238_histogram.root" (histogram th_u238) and "concreteWallGamma.root" (histogram th__merged) and angular distributions "angular_u238.root" and "angular_th232" (open a root TBrowser to have a look to the different angles)
+    - Th232 : Gamma energy spectrum resulting from Th232 decay chain (Energy units in keV).
+
+    - U238 : Gamma energy spectrum resulting from U238 decay chain (Energy units in keV).
+
+    - ThetaAngle : Resulting angular distribution from the gamma flux. Theta=0 is the direction normal to the surface.
+
+Notes : 
+    - The total number of counts inside the energy distributions corresponds to a simulation of 20M events in a concrete mass of 17664 tonnes.
+    - The phi angular distribution is uniform.
+
 ---------------------------------------------------------------------------
 
 

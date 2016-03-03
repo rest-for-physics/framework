@@ -1,15 +1,14 @@
 
-
 ==========================================================
 Date : 2nd / March / 2016
 Branch : newInputData
-Author : Gloria Luzón
+Author : Gloria Luzón/Javier Galan
 Merge : #43
 ==========================================================
 
-== Modified inputData. Distributions and generator sections===
+README files have been added and/or modified in inputData/distributions and inputData/generator. This files contain detailed descriptions of the files found under each folfer.
 
-README files have been added or updated to give information about Root files and histograms. Decay0 input data have been added. Azimutal angle distributions have been added.
+Reorganized the inputData/distributions. 
 
 
 ==========================================================
