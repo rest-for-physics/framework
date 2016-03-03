@@ -20,16 +20,32 @@ Description : It contains three distributions (all of them normalized) correspon
   - hHEgamma : Medium energy gammas distribution. From 0.1 to 100 GeV (bin size 100 MeV).
                Flux : 1e-3 cm-2 s-1 sr-1 (same for e- and e+)
 
-Note : Electrons (e-) and positrons (e+) should follow similar distributions.
-
-
-It is assumed that angular distributions should go with Cos2\theta 
-
-This distribution can be found in file "CosineAngle.root" and histogram "Cos2Theta"
+Notes :
+    - Electrons (e-) and positrons (e+) should follow similar distributions.
+    - It is assumed that angular distributions should go with Cos^2.
+      This distribution can be found in file "CosineAngle.root" and histogram "Cos2Theta".
 ---------------------------------------------------------------------------
 
 
-%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+File : CosmicNeutrons.root
+Histograms : CosmicNeutrons, HECosmicNeutrons
+
+Description: it contains two normalized distributions following Ziegler formula in IBM Journal of Research and Development, Volume 40, Issue 1, pp. 19-39 (1996) for medium and high energy cosmic neutrons
+
+    -CosmicNeutrons: Medium energies from 10 to 1000 MeV --> bin size is 1 MeV
+	             Flux: values from 44 to 82 n/m2 s from different measurements, ~a few  1E-3 n/cm2 s
+
+    -HECosmicNeutrons:from 1 to 10 GeV --> bin size is 0.01 GeV
+                 Flux: ~ 0.1 n/m2 s infered from Ziegler)
+
+It is assumed that angular distributions should go with Cos2\theta 
+
+This distribution can be found in file "hVerticalAngle.root" and histograms "Cos2Theta" os "Cos3Theta"
+---------------------------------------------------------------------------
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 File : Muons.root
 Histograms : cosmicmuon, LSCmuon, CJULmuon
 
@@ -46,28 +62,9 @@ Description: it contains sea level, Canfranc and CJUL underground site muon dist
     -CJULmuon    : from 1 to 28708 GeV --> bin size 100 MeV
 		   Flux ~ 2.3E-6 muons/m2 s     
 		   angular distributions: Cos7\theta (=All vertical)
+---------------------------------------------------------------------------
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%
-
-File : CosmicNeutrons.root
-Histograms : CosmicNeutrons, HECosmicNeutrons
-
-Description: it contains two normalized distributions following Ziegler formula in IBM Journal of Research and Development, Volume 40, Issue 1, pp. 19-39 (1996) for medium and high energy cosmic neutrons
-
-    -CosmicNeutrons: Medium energies from 10 to 1000 MeV --> bin size is 1 MeV   
-	             Flux: values from 44 to 82 n/m2 s from different measurements, ~a few  1E-3 n/cm2 s
-
-    -HECosmicNeutrons:from 1 to 10 GeV --> bin size is 0.01 GeV
- 	             Flux: ~ 0.1 n/m2 s infered from Ziegler)
-
-It is assumed that angular distributions should go with Cos2\theta 
-
-This distribution can be found in file "hVerticalAngle.root" and histograms "Cos2Theta" os "Cos3Theta"
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 File : RadioactivityNeutrons.root
 Histograms : EvaporationNeutrons
 
@@ -76,18 +73,20 @@ Description: it contains a normalized distribution of the neutrons coming form r
     -EvaporationNeutrons:  "Evaporation" spectra from 0 to 10 GeV --> bin size is 0.01 GeV
 		     LSC Flux ~ 3.82E-2 neutrons/m2 s
 		     The angle should be isotropic
+---------------------------------------------------------------------------
 
 
-%%%%%%%%%%%%
-File "th232_histogram.root" (histogram th_th232), "u238_histogram.root" (histogram th_u238) and "concreteWallGamma.root" (histogram th__merged) and angular distributions "angular_u238.root" and "angular_th232" (open a root TBrowser to have a look to the different angles)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+File : RadiactivityGammas.root (TODO)
+Description : Data for gammas coming from wall contamination (Th232 and U238)
 
-Data for gammas coming from wall contamination
+TODO we must organize this distributions in a single file.
+
+Files "th232_histogram.root" (histogram th_th232), "u238_histogram.root" (histogram th_u238) and "concreteWallGamma.root" (histogram th__merged) and angular distributions "angular_u238.root" and "angular_th232" (open a root TBrowser to have a look to the different angles)
+---------------------------------------------------------------------------
 
 
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 File : CosineAngle.root
 Histograms : CosTheta, Cos2Theta, Cos3Theta
 
@@ -98,8 +97,4 @@ Description: It contains three distributons for vertical angles.
     -Cos2Theta   :  it goes with theta²
 
     -Cos3Theta   :  it goes with theta³ 
-
-
-
-
-
+---------------------------------------------------------------------------
