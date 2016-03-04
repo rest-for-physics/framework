@@ -1,3 +1,12 @@
+==========================================================
+Date : 02nd / March / 2016
+Branch : W_value
+Author : Javier Gracia
+Merge : #45
+==========================================================
+
+Added W-values of different gases in definitions/gases.rml.
+The name of the methods that call to this parameter (in electronDiffusionProcess and avalancheProcess) are changed from ionizationPotential to Wvalue
 
 ==========================================================
 Date : 2nd / March / 2016

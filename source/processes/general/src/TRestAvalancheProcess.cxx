@@ -122,7 +122,7 @@ TRestEvent* TRestAvalancheProcess::ProcessEvent( TRestEvent *evInput )
 
     fHitsInputEvent = (TRestHitsEvent *) evInput;
 
-    Double_t fW = fGas->GetIonizationPotential();
+    Double_t fW = fGas->GetWvalue();
     Double_t gain, totelectrons = 0;
 
     Double_t eDep = fHitsInputEvent->GetTotalEnergy() * fW / 1000.0;
