@@ -1,0 +1,18 @@
+The following files have been obtained running the program Decay0 arxiv.org/pdf/nucl-ex/0104018v1.pdf .
+They include energies and momentum distributions.
+
+ 	- BiPo212.dat --> Bi212(beta)+ Po112 (alpha) decays
+	- BiPo214.dat --> Bi214(beta)+ Po114 (alpha) decays
+ 	- K40.dat   --> K40 decays
+ 	- Pb212.dat--> Pb212 beta decay to Bi212
+ 	- Pb214.dat--> Pb214 beta decay to Bi214
+	- Tl208.dat--> Tl208 beta decay to Pb208
+	- Xe136bb0n.dat
+		event type: Xe136           
+              0nubb(mn) 0+ -> 0+     {2n}      
+              level, Elevel (MeV) =  0+       0.0000     MeV
+	- Xe136bb2n.dat
+		event type: Xe136           
+              2nubb     0+ -> 0+     {2n}      
+              level, Elevel (MeV) =  0+       0.0000     MeV
+

@@ -1,6 +1,19 @@
 
 ==========================================================
 Date : 2nd / March / 2016
+Branch : newInputData
+Author : Gloria Luzón/Javier Galan
+Merge : #43
+==========================================================
+
+README files have been added and/or modified in inputData/distributions and inputData/generator. This files contain detailed descriptions of the files found under each folfer.
+
+- Reorganized the inputData/distributions. 
+
+- New generators found at inputData/generator
+
+==========================================================
+Date : 2nd / March / 2016
 Branch : readout
 Author : Javier Galan
 Merge : #46
@@ -269,4 +282,3 @@ TRestReadoutPixel
 -----------------
 
 Solved bug related to pixel boundaries precision. Now pixel size is increased by a small size delta.
-
