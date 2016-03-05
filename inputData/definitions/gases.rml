@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+// -----------------------------------
+// -------------- XENON --------------
+// -----------------------------------
+
+<section gas name="Xenon 10-10E3V/cm" title="Xenon">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="xe" fraction="1" />
+</section>
+
+// -----------------------------------
+// -------------- HELIUM -------------
+// -----------------------------------
+
+<section gas name="Helium 10-10E3V/cm" title="Helium">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="he" fraction="1" />
+</section>
+
+// ---------------------------------------
+// -------------- XENON+TMA --------------
+// ---------------------------------------
+
+// ----- 0.1% ---------------------------------------------------------------------------------------------
+<section gas name="Xenon-TMA 0.1Pct 10-10E3V/cm" title="Xenon-TMA Mixture (0.1Pct TMA)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="xe" fraction="0.999" />
+    <gasComponent name="n(ch3)3" fraction="0.001" />
+</section>
+
+// ----- 0.5% ---------------------------------------------------------------------------------------------
+<section gas name="Xenon-TMA 0.5Pct 10-10E3V/cm" title="Xenon-TMA Mixture (0.5Pct TMA)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="xe" fraction="0.995" />
+    <gasComponent name="n(ch3)3" fraction="0.005" />
+</section>
+
+// ----- 1.0% ---------------------------------------------------------------------------------------------
+<section gas name="Xenon-TMA 1Pct 10-10E3V/cm" title="Xenon-TMA Mixture (1Pct TMA)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="xe" fraction="0.99" />
+    <gasComponent name="n(ch3)3" fraction="0.01" />
+</section>
+
+// ----- 2.0% ---------------------------------------------------------------------------------------------
+<section gas name="Xenon-TMA 2Pct 10-10E3V/cm" title="Xenon-TMA Mixture (2Pct TMA)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="xe" fraction="0.98" />
+    <gasComponent name="n(ch3)3" fraction="0.02" />
+</section>
+
+// ----- 2.2% ---------------------------------------------------------------------------------------------
+<section gas name="Xenon-TMA 2.2Pct 10-10E3V/cm" title="Xenon-TMA Mixture (2.2Pct TMA)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="xe" fraction="0.978" />
+    <gasComponent name="n(ch3)3" fraction="0.022" />
+</section>
+
+// ----- 3.0% ---------------------------------------------------------------------------------------------
+<section gas name="Xenon-TMA 3Pct 10-10E3V/cm" title="Xenon-TMA Mixture (3Pct TMA)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="xe" fraction="0.97" />
+    <gasComponent name="n(ch3)3" fraction="0.03" />
+</section>
+
+// ----- 5.0% ---------------------------------------------------------------------------------------------
+<section gas name="Xenon-TMA 5Pct 10-10E3V/cm" title="Xenon-TMA Mixture (5Pct TMA)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="xe" fraction="0.95" />
+    <gasComponent name="n(ch3)3" fraction="0.05" />
+</section>
+
+// ---------------------------------------------
+// -------------- XENON+ISOBUTANE --------------
+// ---------------------------------------------
+
+// ----- 0.5% ---------------------------------------------------------------------------------------------
+<section gas name="Xenon-Isobutane 0.5Pct 20-10E3V/cm" title="Xenon-Isobutane Mixture (0.5Pct Isobutane)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="20" Emax="1000." nodes="20" />
+    <gasComponent name="xe" fraction="0.995" />
+    <gasComponent name="iC4H10" fraction="0.005" />
+</section>
+
+// ----- 1.0% ---------------------------------------------------------------------------------------------
+<section gas name="Xenon-Isobutane 1Pct 20-10E3V/cm" title="Xenon-Isobutane Mixture (1Pct Isobutane)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="20" Emax="1000." nodes="20" />
+    <gasComponent name="xe" fraction="0.99" />
+    <gasComponent name="iC4H10" fraction="0.01" />
+</section>
+
+// ----- 2.0% ---------------------------------------------------------------------------------------------
+<section gas name="Xenon-Isobutane 2Pct 10-10E3V/cm" title="Xenon-Isobutane Mixture (2Pct Isobutane)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="xe" fraction="0.98" />
+    <gasComponent name="iC4H10" fraction="0.02" />
+</section>
+
+// ----- 3.0% ---------------------------------------------------------------------------------------------
+<section gas name="Xenon-Isobutane 3Pct 10-10E3V/cm" title="Xenon-Isobutane Mixture (3Pct Isobutane)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="xe" fraction="0.97" />
+    <gasComponent name="iC4H10" fraction="0.03" />
+</section>
+
+// ----- 5.0% ---------------------------------------------------------------------------------------------
+<section gas name="Xenon-Isobutane 5Pct 10-10E3V/cm" title="Xenon-Isobutane Mixture (5Pct Isobutane)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="xe" fraction="0.95" />
+    <gasComponent name="iC4H10" fraction="0.05" />
+</section>
+
+// ---------------------------------------
+// -------------- XENON+CF4 --------------
+// ---------------------------------------
+
+// ----- 0.5% ---------------------------------------------------------------------------------------------
+<section gas name="Xenon-CF4 0.5Pct 20-10E3V/cm" title="Xenon-CF4 Mixture (0.5Pct CF4)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="20" Emax="1000." nodes="20" />
+    <gasComponent name="xe" fraction="0.995" />
+    <gasComponent name="CF4" fraction="0.005" />
+</section>
+
+// ----- 1.0% ---------------------------------------------------------------------------------------------
+<section gas name="Xenon-CF4 1Pct 10-10E3V/cm" title="Xenon-CF4 Mixture (1Pct CF4)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="xe" fraction="0.99" />
+    <gasComponent name="CF4" fraction="0.01" />
+</section>
+
+// ----- 2.0% ---------------------------------------------------------------------------------------------
+<section gas name="Xenon-CF4 2Pct 20-10E3V/cm" title="Xenon-CF4 Mixture (2Pct CF4)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="20" Emax="1000." nodes="20" />
+    <gasComponent name="xe" fraction="0.98" />
+    <gasComponent name="CF4" fraction="0.02" />
+</section>
+
+// ----- 3.0% ---------------------------------------------------------------------------------------------
+<section gas name="Xenon-CF4 3Pct 20-10E3V/cm" title="Xenon-CF4 Mixture (3Pct CF4)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="20" Emax="1000." nodes="20" />
+    <gasComponent name="xe" fraction="0.97" />
+    <gasComponent name="CF4" fraction="0.03" />
+</section>
+
+// ----- 5.0% ---------------------------------------------------------------------------------------------
+<section gas name="Xenon-CF4 5Pct 20-10E3V/cm" title="Xenon-CF4 Mixture (5Pct CF4)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="20" Emax="1000." nodes="20" />
+    <gasComponent name="xe" fraction="0.95" />
+    <gasComponent name="CF4" fraction="0.05" />
+</section>
+
+// ---------------------------------------------
+// -------------- ARGON+ISOBUTANE --------------
+// ---------------------------------------------
+
+// ----- 0.5% ---------------------------------------------------------------------------------------------
+<section gas name="Argon-Isobutane 0.5Pct 20-10E3V/cm" title="Argon-Isobutane Mixture (0.5ct Isobutane)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="20" Emax="1000." nodes="20" />
+    <gasComponent name="ar" fraction="0.995" />
+    <gasComponent name="iC4H10" fraction="0.005" />
+</section>
+
+// ----- 1.0% ---------------------------------------------------------------------------------------------
+<section gas name="Argon-Isobutane 1Pct 10-10E3V/cm" title="Argon-Isobutane Mixture (1Pct Isobutane)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="ar" fraction="0.99" />
+    <gasComponent name="iC4H10" fraction="0.01" />
+</section>
+
+// ----- 2.0% ---------------------------------------------------------------------------------------------
+<section gas name="Argon-Isobutane 2Pct 10-10E3V/cm" title="Argon-Isobutane Mixture (2Pct Isobutane)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="ar" fraction="0.98" />
+    <gasComponent name="iC4H10" fraction="0.02" />
+</section>
+
+// ----- 3.0% ---------------------------------------------------------------------------------------------
+<section gas name="Argon-Isobutane 3Pct 10-10E3V/cm" title="Argon-Isobutane Mixture (3Pct Isobutane)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="ar" fraction="0.97" />
+    <gasComponent name="iC4H10" fraction="0.03" />
+</section>
+
+// ----- 5.0% ---------------------------------------------------------------------------------------------
+<section gas name="Argon-Isobutane 5Pct 10-10E3V/cm" title="Argon-Isobutane Mixture (5Pct Isobutane)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="ionizationPotential" value="10" />
+    <parametere name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="ar" fraction="0.95" />
+    <gasComponent name="iC4H10" fraction="0.05" />
+</section>
