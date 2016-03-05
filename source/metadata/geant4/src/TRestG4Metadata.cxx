@@ -77,6 +77,8 @@ void TRestG4Metadata::InitFromConfigFile()
     // Initialize the metadata members from a configfile
     fGDML_Filename = GetParameter( "gdml_file" );
 
+    fGeometryPath = GetParameter( "geometryPath" );
+
     fMaxTargetStepSize = GetDblParameterWithUnits( "maxTargetStepSize" );
 
     ReadGenerator();

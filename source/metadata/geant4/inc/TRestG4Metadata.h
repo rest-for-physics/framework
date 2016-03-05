@@ -50,6 +50,7 @@ class TRestG4Metadata:public TRestMetadata {
 
         void ReadGeneratorFile( TString fName );
 
+        TString fGeometryPath;
         TString fGDML_Filename;	
 
         TString fGenType;  // Type of spatial generator (surface, volume, point)
@@ -79,6 +80,7 @@ class TRestG4Metadata:public TRestMetadata {
 
     public:
 
+        TString GetGeometryPath() { return fGeometryPath; }
         TString Get_GDML_Filename() { return fGDML_Filename; }
         TString GetGeneratorType() { return fGenType; }
         TString GetGeneratedFrom() { return fGenFrom; }
