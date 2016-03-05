@@ -69,6 +69,7 @@ Int_t TRestG4Track::GetProcessID( TString pcsName )
     else if ( pcsName == "nCapture" ) id = 38;
     else if ( pcsName == "nKiller" ) id = 39;
     else if ( pcsName == "nuclearStopping" ) id = 40;
+    else if ( pcsName == "CoulombScat" ) id = 41; 
     else
     {
         id = -1;
@@ -127,6 +128,7 @@ TString TRestG4Track::GetProcessName( Int_t id )
     else if ( id == 38 ) return "nCapture";
     else if ( id == 39 ) return "nKiller" ;
     else if ( id == 40 ) return "nuclearStopping";
+    else if ( id == 41 ) return "CoulombScat";
     else cout << "WARNING : The process ID : " << id << " could not be found" << endl;
 
 
