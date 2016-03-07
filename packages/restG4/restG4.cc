@@ -106,8 +106,19 @@ int main(int argc,char** argv) {
     restTrack = new TRestG4Track( );
 
 
+    // Changing to Geometry directory
+    char originDirectory[255];
+    sprintf( originDirectory, "%s", get_current_dir_name() );
+
+    char buffer[255];
+    sprintf( buffer, "%s", (char *) restG4Metadata->GetGeometryPath().Data() );
+    chdir( buffer );
+
     restGeometry = new TRestGeometry( );
     restGeometry->Import( restG4Metadata->Get_GDML_Filename() );
+
+    // And coming back to origin directory
+    chdir( originDirectory );
 
     //restG4Metadata->SetGeometry( restGeometry );
 
