@@ -371,7 +371,7 @@ void TRestSignal::GetWhiteNoiseSignal( TRestSignal *noiseSgnl, Double_t noiseLev
 }
 
 
-void TRestSignal::GetSignalGaussianConvolution( TRestSignal *convSgnl, Double_t sigma )   
+void TRestSignal::GetSignalGaussianConvolution( TRestSignal *convSgnl, Double_t sigma, Int_t nSigmas )   
 {
    
    this->Sort();
@@ -383,7 +383,6 @@ void TRestSignal::GetSignalGaussianConvolution( TRestSignal *convSgnl, Double_t 
 
    Double_t totChargeInitial = 0.;
    Double_t totChargeFinal = 0.;
-   Int_t nSigmas = 5;
 
    Double_t sum;
 
@@ -397,7 +396,6 @@ void TRestSignal::GetSignalGaussianConvolution( TRestSignal *convSgnl, Double_t 
    {
   	for( int j = 0; j < GetNumberOfPoints(); j++ )
    	{
-
 		if (TMath::Abs(i - GetTime(j)) >  nSigmas * sigma ) continue;
 		if (TMath::Abs(i - GetTime(j)) >  nSigmas * sigma  && i < GetTime(j)) break;
 

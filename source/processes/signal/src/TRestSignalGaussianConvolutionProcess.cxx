@@ -50,8 +50,9 @@ void TRestSignalGaussianConvolutionProcess::LoadDefaultConfig( )
 {
     SetName( "gaussianConvolutionProcess-Default" );
     SetTitle( "Default config" );
-
-    fSigma  = 100.;
+	
+    fSigma  = 0.01;
+    fNSigmas  = 5;
 }
 
 //______________________________________________________________________________
@@ -59,7 +60,8 @@ void TRestSignalGaussianConvolutionProcess::Initialize()
 {
     SetName( "gaussianConvolutionProcess" );
 
-    fSigma = 100.;
+    fSigma  = 0.01;
+    fNSigmas  = 5;
 
     fInputSignalEvent = new TRestSignalEvent();
     fOutputSignalEvent = new TRestSignalEvent();
@@ -112,7 +114,7 @@ TRestEvent* TRestSignalGaussianConvolutionProcess::ProcessEvent( TRestEvent *evI
 
         // Asign ID and do convolution
    
-        fInputSignalEvent->GetSignal(n)->GetSignalGaussianConvolution( &convSignal, fSigma );
+        fInputSignalEvent->GetSignal(n)->GetSignalGaussianConvolution( &convSignal, fSigma, fNSigmas );
         convSignal.SetSignalID( fInputSignalEvent->GetSignal(n)->GetSignalID() );
 
         fOutputSignalEvent->AddSignal( convSignal );
@@ -143,5 +145,6 @@ void TRestSignalGaussianConvolutionProcess::EndProcess()
 void TRestSignalGaussianConvolutionProcess::InitFromConfigFile( )
 {
     fSigma = GetDblParameterWithUnits( "sigma" );
+    fNSigmas = StringToInteger( GetParameter( "nSigmas" ) );
 }
 

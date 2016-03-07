@@ -94,6 +94,7 @@ All units in mm, keV and degrees
 
 <section gaussianConvolutionProcess name="gaussian-Convolution"  title="Gaussian convolution of signals" >
     <parameter name="sigma" value="0.01" units="us" /> 
+    <parameter name="nSigmas" value="5" />  // Number of sigmas to perform the calculation
 </section>
 
 <section addSignalNoiseProcess name="addSignalNoiseProcess" title="Test AddNoise to Signal" >

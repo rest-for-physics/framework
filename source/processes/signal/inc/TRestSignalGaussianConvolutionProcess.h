@@ -31,6 +31,7 @@ class TRestSignalGaussianConvolutionProcess:public TRestEventProcess {
         void LoadDefaultConfig();
 
         Double_t fSigma;
+        Int_t fNSigmas;
 
     protected:
         //add here the members of your event process
@@ -49,6 +50,7 @@ class TRestSignalGaussianConvolutionProcess:public TRestEventProcess {
             BeginPrintProcess();
 
             std::cout << "Gaussian sigma : " << fSigma << std::endl;
+            std::cout << "Number of sigmas : " << fNSigmas << std::endl;
 
             EndPrintProcess();
         }
