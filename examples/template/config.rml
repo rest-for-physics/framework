@@ -15,7 +15,7 @@ All units in mm, keV and degrees
     <parameter name="verboseLevel" value="warning" /> %options are : silent, warning, info, debug
 </globals>
 
-<section run name="Run metadata" title="First simulations v1.0">
+<section run name="Run metadata" title="REST Simulation run (template)">
     <parameter name="Nevents" value="100"/>
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
@@ -131,9 +131,9 @@ All units in mm, keV and degrees
 </section>
 
 
-<section readout nameref="Readout-PANDA_3MM_64channels" file="definitions/readouts.rml"> </section>
+<section readout nameref="Readout-PANDA_3MM_64channels" file="{REST_PATH)/inputData/definitions/readouts.rml"> </section>
 
-<section gas nameref="Xenon-TMA 3Pct 10-10E3V/cm" file="definitions/gases.rml"> </section>
+<section gas nameref="Xenon-TMA 3Pct 10-10E3V/cm" file="{REST_PATH}/inputData/definitions/gases.rml"> </section>
 
 <section decoding name="decoding-PANDA" title="PANDA_v0" >
 	<parameter name="fileName" value="myDecoding.dec" />
