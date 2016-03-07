@@ -91,6 +91,11 @@ All units in mm, keV and degrees
     <parameter name="electricField" value="" units="V/cm" />
 </section>
 
+
+<section gaussianConvolutionProcess name="gaussian-Convolution"  title="Gaussian convolution of signals" >
+    <parameter name="sigma" value="0.01" units="us" /> 
+</section>
+
 <section addSignalNoiseProcess name="addSignalNoiseProcess" title="Test AddNoise to Signal" >
     <parameter name="noiseLevel" value="10" /> // // electrons in each time bin
 </section>
