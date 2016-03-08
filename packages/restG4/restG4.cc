@@ -93,19 +93,8 @@ int main(int argc,char** argv) {
     // }}} 
 
     // {{{ Initializing REST classes
-    restRun = new TRestRun( inputConfigFile );
-    restRun->PrintInfo();
-    restRun->OpenOutputFile();
-
-    restG4Event = new TRestG4Event( );
-    restRun->SetOutputEvent( restG4Event );
-
     restG4Metadata = new TRestG4Metadata( inputConfigFile );
-    restRun->AddMetadata( restG4Metadata );
-
-    restTrack = new TRestG4Track( );
-
-
+    
     // Changing to Geometry directory
     char originDirectory[255];
     sprintf( originDirectory, "%s", get_current_dir_name() );
@@ -114,15 +103,31 @@ int main(int argc,char** argv) {
     sprintf( buffer, "%s", (char *) restG4Metadata->GetGeometryPath().Data() );
     chdir( buffer );
 
-    restGeometry = new TRestGeometry( );
-    restGeometry->Import( restG4Metadata->Get_GDML_Filename() );
+    TRestGeometry *geo = new TRestGeometry( );
+    geo->Import( restG4Metadata->Get_GDML_Filename() );
+
 
     // And coming back to origin directory
     chdir( originDirectory );
 
+
+    restRun = new TRestRun( inputConfigFile );
+    restRun->PrintInfo();
+    restRun->OpenOutputFile();
+
+    restG4Event = new TRestG4Event( );
+    restRun->SetOutputEvent( restG4Event );
+
+    restRun->AddMetadata( restG4Metadata );
+
+    restTrack = new TRestG4Track( );
+
+
+
+
     //restG4Metadata->SetGeometry( restGeometry );
 
-    restRun->SetGeometry( restGeometry );
+ //   restRun->SetGeometry( restGeometry );
 
     // }}}
 
@@ -381,11 +386,29 @@ int main(int argc,char** argv) {
     //
     delete runManager;
 
+    restRun->CloseOutputFile();
+
+    TString Filename = restRun->GetOutputFilename();
+
+   // TFile *f1 = new TFile( restRun->GetOutputFilename(), "RECREATE" );
+    /*
+    TFile *f1 = new TFile( "new.root", "RECREATE" );
+    cout << "Writting geometry" << endl;
+    geo->Write();
+
+    f1->Close();
+    */
+
     delete restRun;
 
     //   delete restGeometry;
     delete restG4Event;
     delete restTrack;
+
+    TFile *f1 = new TFile( Filename, "update" );
+    cout << "Writting geometry" << endl;
+    geo->Write();
+    f1->Close();
 
     return 0;
 }

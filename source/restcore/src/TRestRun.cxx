@@ -77,8 +77,6 @@ void TRestRun::Initialize()
     fInputFilename = "null";
     fOutputFilename = "null";
 
-    fGeometry = NULL;
-
     fOverwrite = false;
 
     fProcessedEvents = 0;
@@ -447,12 +445,11 @@ void TRestRun::CloseOutputFile( )
 
     if( fOutputEventTree != NULL ) { cout << "Writting output tree" << endl; fOutputEventTree->Write(); }
 
-    if( fGeometry != NULL ){ cout << "Writting geometry" << endl; fGeometry->Write(); cout << "End writting" << endl; }
-
     this->Write();
 
     cout << "Closing output file : " << endl;
     fOutputFile->Close();
+    fOutputFile = NULL;
     cout << fOutputFilename << endl;
 }
 
