@@ -1,4 +1,15 @@
 ==========================================================
+Date : 08th / March / 2016
+Branch : issue#16
+Author : Javier Gracia
+Merge : #47
+==========================================================
+
+Implementation of TRestGaussianConvolutionProcess. 
+A TRestSignalEvent is transformed into another TRestSignalEvent.
+It requires as metadata the sigma of the gaussian function and the number of simgas to which the convolution is extended.
+
+==========================================================
 Date : 02nd / March / 2016
 Branch : W_value
 Author : Javier Gracia

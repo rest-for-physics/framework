@@ -27,6 +27,7 @@
 using namespace std;
 
 #include <TMath.h>
+#include <TF1.h>
 #include <TRandom3.h>
 
 ClassImp(TRestSignal)
@@ -368,6 +369,52 @@ void TRestSignal::GetWhiteNoiseSignal( TRestSignal *noiseSgnl, Double_t noiseLev
     }
 
 }
+
+
+void TRestSignal::GetSignalGaussianConvolution( TRestSignal *convSgnl, Double_t sigma, Int_t nSigmas )   
+{
+   
+   this->Sort();
+  
+   Int_t nPoints = GetMaxTime() - GetMinTime();
+   TF1 *fGaus = new TF1("fGauss", "exp(-0.5*((x-[1])/[2])**2)", -nPoints, nPoints );
+   sigma = sigma * 1000.; 		// conversion to nanoseconds
+   fGaus->SetParameter( 2, sigma );	// the width of the gaussian is set
+
+   Double_t totChargeInitial = 0.;
+   Double_t totChargeFinal = 0.;
+
+   Double_t sum;
+
+   // We calculate the charge of the event before convolution
+   for( int i = 0; i < GetNumberOfPoints(); i++ )
+	totChargeInitial += fSignalCharge[i];
+
+
+   // The gaussian convolution of the initial signal is performed
+   for( int i = GetMinTime()- nSigmas * sigma; i < GetMaxTime() + nSigmas * sigma; i++ )
+   {
+  	for( int j = 0; j < GetNumberOfPoints(); j++ )
+   	{
+		if (TMath::Abs(i - GetTime(j)) >  nSigmas * sigma ) continue;
+		if (TMath::Abs(i - GetTime(j)) >  nSigmas * sigma  && i < GetTime(j)) break;
+
+		fGaus->SetParameter(1, GetTime(j) );
+		sum = fSignalCharge[j] / TMath::Sqrt (2. * TMath::Pi()) / sigma * fGaus->Integral(i, i+1);
+
+		convSgnl->AddPoint( i , sum );	
+  		totChargeFinal += sum;
+	}
+
+   }
+
+    cout<<"Initial charge of the pulse " << totChargeInitial << endl;
+    cout<<"Final charge of the pulse " << totChargeFinal << endl;
+
+}
+
+
+
 
 
 
