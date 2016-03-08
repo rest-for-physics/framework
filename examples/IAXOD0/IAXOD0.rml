@@ -53,7 +53,7 @@ All units in mm, keV and degrees
     <generator type="volume" from="gas" >
         <source particle="Ar39">
             <angularDist type="isotropic" />
-             <energyDist type="mono" energy="0" />
+            <energyDist type="mono" energy="0" units="keV" />
         </source>
     </generator>
 
@@ -62,7 +62,7 @@ All units in mm, keV and degrees
     </biasing>
 
     <storage sensitiveVolume="gas">
-        <parameter name="energyRange" value="(0,15)" />
+        <parameter name="energyRange" value="(0,15)" units="keV"  />
         <activeVolume name="gas" chance="1" />
     </storage>
 

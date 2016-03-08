@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
 <!DOCTYPE gdml [
-<!ENTITY geometry SYSTEM "geometry/IAXOD0Geometry.gdml">
-<!ENTITY materials SYSTEM "geometry/materials.xml">
+<!ENTITY geometry SYSTEM "IAXOD0Geometry.gdml">
+<!ENTITY materials SYSTEM "materials.xml">
 ]>
 
 <gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
@@ -15,7 +15,10 @@
     <variable name="quencherFraction" value="0.02"/><!-- 2% -->
        <!-- geometry -->
     <variable name="chamberLength" value="30"/>
-    <variable name="chamberRadius" value="50"/>
+    <variable name="chamberRadius" value="50"/> 
+    <variable name="kaptonReadoutThickness" value="0.5"/>
+    <variable name="copperReadoutThickness" value="0.2"/>
+    <variable name="copperReadoutSide" value="60"/>
     <variable name="raquetteThickness" value="15"/>
     <variable name="raquetteLength" value="275.5"/>
     <variable name="raquetteWidth" value="80"/>
@@ -33,10 +36,13 @@
     <variable name="copperFlangeExtRad" value="57.5"/>
     <variable name="pipeLength" value="400"/>
     <variable name="pipeThickness" value="10"/>
+    <variable name="LeadBoxShift" value="50"/>
     <variable name="LeadBoxSize" value="550"/>
     <variable name="LeadHolePipeSize" value="50"/>
     <variable name="LeadHoleDetectorSize" value="150"/>
     <position name="raqueteUnion" unit="mm" x="-raquetteLength/2." y="0" z="0"/>
+    <position name="kaptonReadoutPosition" unit="mm" x="0" y="0" z="-chamberLength/2.-kaptonReadoutThickness/2."/>
+    <position name="copperReadoutPosition" unit="mm" x="0" y="0" z="-chamberLength/2.-kaptonReadoutThickness - copperReadoutThickness/2."/>
     <position name="mylarCathodePosition" unit="mm" x="0" y="0" z="chamberLength/2.-mylarThickness/2."/>
     <position name="teflonCover2Position" unit="mm" x="0" y="0" z="chamberLength/2.-teflonThickness/2."/>
     <position name="pipePos0" unit="mm" x="0" y="0" z="-pipeLength/2.+copperFlangeThickness/2."/>
@@ -57,6 +63,7 @@
     <rotation name="rotation1" unit="deg" x="0" y="0" z="67.5"/>
     <rotation name="rotation2" unit="deg" x="0" y="0" z="112.5"/>
     <rotation name="rotation3" unit="deg" x="0" y="0" z="157.5"/>
+    <rotation name="copperReadoutRotation" unit="deg" x="0" y="0" z="45."/>
 </define>
 
     &materials;
