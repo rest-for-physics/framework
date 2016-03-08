@@ -30,9 +30,11 @@
     </define>
 
     <define>
-        <variable name="targetGasPressure" value="11"/> <!-- in bar -->
-        <variable name="targetGasTemperature" value="300"/> <!-- K -->
-        <variable name="quencherFraction" value="0.03"/>
+        <variable name="targetGasDensity" value="56.5884"/> <!-- mg/cm3 (This density corresponds to 200Kg in vessel volume) --> 
+        <variable name="quencherDensity" value="0.254"/> <!-- mg/cm3 (Corresponds to 1% TMA) -->
+        <variable name="quencherFraction" value="0.01"/>
+        <variable name="gasTemperature" value="300"/> <!-- K -->
+        <variable name="gasPressure" value="10"/> <!-- bar -->
     </define>
 
 
