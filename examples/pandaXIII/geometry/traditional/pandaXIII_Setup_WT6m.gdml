@@ -2,7 +2,7 @@
 
 <!DOCTYPE gdml [
 <!ENTITY materials SYSTEM "materials.xml">
-<!ENTITY solids SYSTEM "pandaXIII_Traditional_Geometry.gdml">
+<!ENTITY solids SYSTEM "pandaXIII_Geometry.gdml">
 ]>
 
 <gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
@@ -18,11 +18,11 @@
         <constant name="vesselBottomTopThickness" value="150"/>
         <constant name="gasVolumeLength" value="2000"/>
         <constant name="gasVolumeRadius" value="750"/>
-        <constant name="waterTankSize" value="8000" />
+        <constant name="waterTankSize" value="6000" />
 
         <!-- Field cage (Number of rings must be changed in two places (solid definition and volume definition) ) -->
         <constant name="ringSpacing" value="20" />
-        <constant name="ringInternalRadius" value="645" />
+        <constant name="ringInternalRadius" value="725" />
         <constant name="ringThickness" value="5" />
         <constant name="ringHeight" value="10" />
 

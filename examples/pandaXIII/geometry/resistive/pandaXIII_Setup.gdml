@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
 <!DOCTYPE gdml [
-<!ENTITY materials SYSTEM "geometry/materials.xml">
-<!ENTITY solids SYSTEM "geometry/pandaXIII_Resistive_Geometry.gdml">
+<!ENTITY materials SYSTEM "materials.xml">
+<!ENTITY solids SYSTEM "pandaXIII_Geometry.gdml">
 ]>
 
 <gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
