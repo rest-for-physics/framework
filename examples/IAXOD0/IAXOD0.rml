@@ -19,7 +19,8 @@ All units in mm, keV and degrees
     <parameter name="Nevents" value="10000"/>
     <parameter name="experiment" value="IAXOD0"/>
     <parameter name="runType" value="simulation"/>
-    <parameter name="runNumber" value="1"/>
+    <parameter name="runNumber" value="auto"/>
+    <parameter name="runTag" value="iaxosim"/>
     <parameter name="runDescription" value="Ar 39 in IAXO D0 geometry"/>
     <parameter name="user" value="{USER}"/>
     <parameter name="verboseLevel" value="3"/>
@@ -45,7 +46,9 @@ All units in mm, keV and degrees
 
 <section restG4 name="A simulation test." title="Dummy 39 Ar">
 
+    <parameter name="geometryPath" value="{REST_PATH}/examples/IAXOD0/geometry/" />
     <parameter name="gdml_file" value="IAXOD0Setup.gdml"/>
+    <parameter name="maxTargetStepSize" value="200" units="um" />
 
     <generator type="volume" from="gas" >
         <source particle="Ar39">
@@ -140,9 +143,9 @@ All units in mm, keV and degrees
 </section>
 
 
-<section gas nameref="Xenon-Isobutane 2Pct 10-10E3V/cm" file="definitions/gases.rml"> </section>
+<section readout nameref="Readout_IAXOD0_v2" file="{REST_PATH)/inputData/definitions/readouts.rml"> </section>
 
-<section readout nameref="Readout_IAXOD0_v2" file="definitions/readouts.rml"> </section>
+<section gas nameref="Xenon-Isobutane 2Pct 10-10E3V/cm" file="{REST_PATH}/inputData/definitions/gases.rml"> </section>
 
 <section decoding name="decoding-IAXOD0" title="IAXO_v0" >
 	<parameter name="fileName" value="IAXOD0.dec" />
