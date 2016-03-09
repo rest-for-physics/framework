@@ -124,11 +124,10 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
 
 	//////////////////
 
-	bool writeIDfromInputEventTree;
+
 	
-	if (fInputEventTree != NULL) writeIDfromInputEventTree = true;
-	else writeIDfromInputEventTree = false;
 	
+
 	for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->InitProcess();
 
     fProcessedEvents = 0;
@@ -160,7 +159,7 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
 		fOutputEvent = processedEvent;
 		if( processedEvent == NULL ) continue;
 
-		if (writeIDfromInputEventTree)
+		if (fInputEventTree != NULL)
 		{
 		    fOutputEvent->SetEventID( fInputEvent->GetEventID() );
 		    fOutputEvent->SetEventTime( fInputEvent->GetEventTime() );
