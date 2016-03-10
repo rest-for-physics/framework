@@ -124,7 +124,10 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
 
 	//////////////////
 
+
 	
+	
+
 	for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->InitProcess();
 
     fProcessedEvents = 0;
@@ -156,8 +159,11 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
 		fOutputEvent = processedEvent;
 		if( processedEvent == NULL ) continue;
 
-		fOutputEvent->SetEventID( fInputEvent->GetEventID() );
-		fOutputEvent->SetEventTime( fInputEvent->GetEventTime() );
+		if (fInputEventTree != NULL)
+		{
+		    fOutputEvent->SetEventID( fInputEvent->GetEventID() );
+		    fOutputEvent->SetEventTime( fInputEvent->GetEventTime() );
+		}
 
 #ifdef TIME_MEASUREMENT
         high_resolution_clock::time_point t3 = high_resolution_clock::now();

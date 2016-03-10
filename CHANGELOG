@@ -1,4 +1,14 @@
 ==========================================================
+Date : 09th / March / 2016
+Branch : fixRawToRoot  
+Author : Javier Gracia
+Merge : #51
+==========================================================
+
+If the input event is a binary file from the daq, the eventID and timeStamp of the output event Tree are not filled from the input event Tree.
+Also, minor modifications in the RESTRAW_FEMINOSToRoot.C and RESTRAW_AFTERToRoot.C scripts, adapting them to TRestRun::ProcessEvents(), instead of TRestRun::Start()
+
+==========================================================
 Date : 08th / March / 2016
 Branch : issue#16
 Author : Javier Gracia
