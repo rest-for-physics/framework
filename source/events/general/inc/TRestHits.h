@@ -27,6 +27,8 @@
 #include "TObject.h"
 #include "TMath.h"
 #include "TArrayI.h"
+#include "TArrayD.h"
+#include "TMatrixD.h"
 #include <TVector3.h>
 
 //! Storage class
@@ -46,6 +48,13 @@ class TRestHits : public TObject
 
         //! Changes the orgin of the Cartesian coordinate system
         void Translate( Double_t x, Double_t y, Double_t z);
+       /// Event is rotated an angle around an axis.
+       void RotateAroundX(Double_t angle);
+       void RotateAroundY(Double_t angle);
+       void RotateAroundZ(Double_t angle);
+       /// Event is rotated in XYZ.
+       void RotateIn3D(Double_t alpha, Double_t beta, Double_t gamma);
+
 
         void AddHit( Double_t x, Double_t y, Double_t z, Double_t en );
         void AddHit( TVector3 pos, Double_t en );

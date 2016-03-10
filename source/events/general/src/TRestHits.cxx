@@ -153,6 +153,143 @@ void TRestHits::Translate(double origx, double origy, double origz)
 		fZ[i] += origz;
 	}
 }
+
+void TRestHits::RotateAroundX(Double_t angle)
+{
+
+    TMatrixD h(3,3);
+    TVector3 v;
+    TArrayD a(9);
+
+    // This matrix rotates a given angle around x axis in 3d.
+    a[0] = 1; a[1] = 0; a[2] = 0; 
+    a[3] = 0; a[4] = TMath::Cos(angle) ; a[5] = -TMath::Sin(angle);
+    a[6] = 0; a[7] = TMath::Sin(angle); a[8] = TMath::Cos(angle);
+
+    h.SetMatrixArray(a.GetArray());
+
+    for(int i = 0; i < fNHits; i++)
+    {
+	v[0] = fX[i]; 
+	v[1] = fY[i]; 
+	v[2] = fZ[i]; 
+	v = h*v;
+
+	fX[i] = v[0]; 
+	fY[i] = v[1]; 
+	fZ[i] = v[2];
+    }
+
+}
+
+void TRestHits::RotateAroundY(Double_t angle)
+{
+    TMatrixD h(3,3);
+    TVector3 v;
+    TArrayD a(9);
+
+    // This matrix rotates a given angle around x axis in 3d.
+    a[0] = TMath::Cos(angle); a[1] = 0; a[2] = TMath::Sin(angle); 
+    a[3] = 0; a[4] = 1 ; a[5] = 0;
+    a[6] = -TMath::Sin(angle); a[7] = 0; a[8] = TMath::Cos(angle);
+
+    h.SetMatrixArray(a.GetArray());
+
+    for(int i = 0; i < fNHits; i++)
+    {
+	v[0] = fX[i]; 
+	v[1] = fY[i]; 
+	v[2] = fZ[i]; 
+	v = h*v;
+
+	fX[i] = v[0]; 
+	fY[i] = v[1]; 
+	fZ[i] = v[2];
+    }
+}
+
+
+void TRestHits::RotateAroundZ(Double_t angle)
+{
+    TMatrixD h(3,3);
+    TVector3 v;
+    TArrayD a(9);
+
+    // This matrix rotates a given angle around x axis in 3d.
+    a[0] = TMath::Cos(angle); a[1] = -TMath::Sin(angle); a[2] = 0; 
+    a[3] = TMath::Sin(angle); a[4] = TMath::Cos(angle); a[5] = 0;
+    a[6] = 0; a[7] = 0; a[8] = 1;
+
+    h.SetMatrixArray(a.GetArray());
+
+    for(int i = 0; i < fNHits; i++)
+    {
+	v[0] = fX[i]; 
+	v[1] = fY[i]; 
+	v[2] = fZ[i]; 
+	v = h*v;
+
+	fX[i] = v[0]; 
+	fY[i] = v[1]; 
+	fZ[i] = v[2];
+    }
+}
+
+void TRestHits::RotateIn3D(Double_t alpha, Double_t beta, Double_t gamma)
+{
+    TMatrixD hz(3,3);
+    TArrayD az(9);
+
+    // Rotation matrix around Z.
+    az[0] = TMath::Cos(alpha); az[1] = -TMath::Sin(alpha); az[2] = 0; 
+    az[3] = TMath::Sin(alpha); az[4] = TMath::Cos(alpha); az[5] = 0;
+    az[6] = 0; az[7] = 0; az[8] = 1;
+
+    hz.SetMatrixArray(az.GetArray());
+
+    TMatrixD hy(3,3);
+    TArrayD ay(9);
+
+    // Rotation matrix around Y.
+    ay[0] = TMath::Cos(beta); ay[1] = 0; ay[2] = TMath::Sin(beta); 
+    ay[3] = 0; ay[4] = 1 ; ay[5] = 0;
+    ay[6] = -TMath::Sin(beta); ay[7] = 0; ay[8] = TMath::Cos(beta);
+
+    hy.SetMatrixArray(ay.GetArray());
+
+    TMatrixD hx(3,3);
+    TArrayD ax(9);
+
+    // This matrix rotates a given angle around x axis in 3d.
+    ax[0] = 1; ax[1] = 0; ax[2] = 0; 
+    ax[3] = 0; ax[4] = TMath::Cos(gamma) ; ax[5] = -TMath::Sin(gamma);
+    ax[6] = 0; ax[7] = TMath::Sin(gamma); ax[8] = TMath::Cos(gamma);
+
+    hx.SetMatrixArray(ax.GetArray());
+
+    TMatrixD R(3,3);
+    TVector3 v;
+
+    R = hz*hy*hx;
+
+    for(int i = 0; i < fNHits; i++)
+    {
+	v[0] = fX[i]; 
+	v[1] = fY[i]; 
+	v[2] = fZ[i]; 
+	v = R*v;
+
+	fX[i] = v[0]; 
+	fY[i] = v[1]; 
+	fZ[i] = v[2];
+    }
+
+}
+
+
+
+
+
 Double_t TRestHits::GetMaximumHitEnergy( )
 {
     Double_t energy = 0;
