@@ -1,0 +1,26 @@
+Hi
+    
+    steps to install root, geant4, garfied and REST_v2
+    1. Go to the parent folder of REST_v2.
+
+    2. If you are using Ubuntu, use `./install_requried_softwares_Ubuntu.sh' 
+       to install requried softwares. If your are working on a cluster, these
+       softwares should have been installed, so you can skip this step.
+    
+    3. Use `./REST_v2/install/make_geant4.sh' to build geant4
+    
+    4. Use `./REST_v2/install/make_root.sh' to build ROOT framework
+   
+    5. Use `./REST_v2/install/make_garfield.sh' to build garfield
+    
+    6. Add `source path/to/REST_v2/install/REST_ENV.sh' into `~/.bashrc'
+       to enable geant4, ROOT, garfield and REST.
+    
+    7. You can go to any folder, Use `path/to/make_RESTv2.sh' to build REST
+
+    8. You can copy `REST_v2/install/.rootrc' to `~/.rootrc' to load REST_v2
+       scripts while starting the root.
+    
+    If you skip any step from 2 to 5, if you want to use your own installation.
+
+
