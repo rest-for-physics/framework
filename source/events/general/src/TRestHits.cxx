@@ -190,8 +190,6 @@ void TRestHits::Rotate(Int_t n, Double_t alpha, TVector3 vAxis, TVector3 vMean)
 }
 
 
-
-
 Double_t TRestHits::GetMaximumHitEnergy( )
 {
     Double_t energy = 0;
