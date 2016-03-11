@@ -47,13 +47,9 @@ class TRestHits : public TObject
         std::vector <Float_t>   fEnergy;	// [fNHits] Energy deposited at each 3-coordinate position (units eV)
 
         //! Changes the orgin of the Cartesian coordinate system
-        void Translate( Double_t x, Double_t y, Double_t z);
-       /// Event is rotated an angle around an axis.
-       void RotateAroundX(Double_t angle);
-       void RotateAroundY(Double_t angle);
-       void RotateAroundZ(Double_t angle);
+        void Traslate( Int_t n, Double_t x, Double_t y, Double_t z);
        /// Event is rotated in XYZ.
-       void RotateIn3D(Double_t alpha, Double_t beta, Double_t gamma);
+       void RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma);
 
 
         void AddHit( Double_t x, Double_t y, Double_t z, Double_t en );
