@@ -1,0 +1,9 @@
+
+fillRmlVars
+    usage:
+        fillRmlVars input [output] "[REST_ISOTOPE=Bi214;REST_NEVENTS=100]"
+
+genExamples
+    generate some typical rml files for various volumes and isotopes
+    usage:
+        ./genExamples
