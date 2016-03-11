@@ -123,20 +123,17 @@ TRestEvent* TRestHitsRotateAndTraslateProcess::ProcessEvent( TRestEvent *evInput
 
     proEvent = fHitsInputEvent;
 
+    TVector3 meanPosition = proEvent->fHits->GetMeanPosition();
+
     for(int hit = 0; hit < fHitsInputEvent->GetNumberOfHits(); hit++)
     {
-
-       proEvent->fHits->RotateIn3D(hit, fAlpha , fBeta , fGamma );
+       proEvent->fHits->RotateIn3D(hit, fAlpha , fBeta , fGamma, meanPosition );
        proEvent->fHits->Traslate(hit, fDeltaX, fDeltaY, fDeltaZ );
 
       fHitsOutputEvent->AddHit( proEvent->GetX(hit), proEvent->GetY(hit), proEvent->GetZ(hit), proEvent->GetEnergy(hit) );   
-
     }
 
     if( fHitsOutputEvent->GetNumberOfHits() == 0 ) return NULL;
-
-    fHitsOutputEvent->SetEventID( fHitsInputEvent->GetEventID() );
-    fHitsOutputEvent->SetEventTime( fHitsInputEvent->GetEventTime() );
 
     cout << "Electrons rotated: " << fHitsInputEvent->GetNumberOfHits() << "e-s" << endl;
     return fHitsOutputEvent;

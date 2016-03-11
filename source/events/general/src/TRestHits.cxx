@@ -153,11 +153,10 @@ void TRestHits::Traslate(Int_t n, double deltax, double deltay, double deltaz)
 
 
 
-void TRestHits::RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma)
+void TRestHits::RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, TVector3 vMean)
 {
 
     TVector3 vHit;
-    TVector3 vMean = this->GetMeanPosition();
 
     vHit[0] = fX[n] - vMean[0]; 
     vHit[1] = fY[n] - vMean[1]; 

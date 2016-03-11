@@ -1,3 +1,16 @@
+
+==========================================================
+Date : 11th / March / 2016
+Branch : translate
+Author : Javier Gracia
+Merge : #47
+==========================================================
+
+Implementation of TRestHitsRotateAndTraslateProcess.
+It uses the TRestHits::RotateIn3D() and TRestHits::Traslate() methods.
+The process requires as metadata the distance to shift in x, y and z-asis, and the angles around x, y and z axis.
+An script to perform this operation is also icluded.
+
 ==========================================================
 Date : 08th / March / 2016
 Branch : issue#16

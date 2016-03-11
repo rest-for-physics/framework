@@ -49,8 +49,7 @@ class TRestHits : public TObject
         //! Changes the orgin of the Cartesian coordinate system
         void Traslate( Int_t n, Double_t x, Double_t y, Double_t z);
        /// Event is rotated in XYZ.
-       void RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma);
-
+       void RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, TVector3 vMean);  // vMean is the mean position of the event from GetMeanPosition()
 
         void AddHit( Double_t x, Double_t y, Double_t z, Double_t en );
         void AddHit( TVector3 pos, Double_t en );
