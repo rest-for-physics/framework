@@ -793,13 +793,13 @@
     <subtraction name="gasSolid_04">
         <first ref="gasSolid_03"/>
         <second ref="micromegasSolid"/>
-        <position name="m1Position" unit="mm" x="0" y="0" z="-micromegas_Z+micromegasThickness/2"/>
+        <position name="m1Position" unit="mm" x="0" y="0" z="-micromegas_Z+micromegasSupportThickness/2+micromegasThickness/2"/>
     </subtraction>
 
     <subtraction name="gasSolid_05">
         <first ref="gasSolid_04"/>
         <second ref="micromegasSolid"/>
-        <position name="m2Position" unit="mm" x="0" y="0" z="micromegas_Z-micromegasThickness/2"/>
+        <position name="m2Position" unit="mm" x="0" y="0" z="micromegas_Z-micromegasSupportThickness/2-micromegasThickness/2"/>
     </subtraction>
 
     <subtraction name="gasSolid_06">
@@ -892,12 +892,12 @@
 
         <physvol name="micromegas1">
             <volumeref ref="micromegasVolume"/>
-            <position name="mM1Position" unit="mm" x="0" y="0" z="micromegas_Z-micromegasThickness/2"/>
+            <position name="mM1Position" unit="mm" x="0" y="0" z="micromegas_Z-micromegasSupportThickness/2-micromegasThickness/2"/>
         </physvol>
 
         <physvol name="micromegas2">
             <volumeref ref="micromegasVolume"/>
-            <position name="mM2Position" unit="mm" x="0" y="0" z="-micromegas_Z+micromegasThickness/2"/>
+            <position name="mM2Position" unit="mm" x="0" y="0" z="-micromegas_Z+micromegasSupportThickness/2+micromegasThickness/2"/>
         </physvol>
 
         <physvol name="gas">
