@@ -50,6 +50,9 @@ class TRestHits : public TObject
         void Traslate( Int_t n, Double_t x, Double_t y, Double_t z);
        /// Event is rotated in XYZ.
        void RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, TVector3 vMean);  // vMean is the mean position of the event from GetMeanPosition()
+       /// Rotation around an arbitrary axis vAxis
+       void Rotate(Int_t n, Double_t alpha, TVector3 vAxis, TVector3 vMean);  // vMean is the mean position of the event from GetMeanPosition()
+
 
         void AddHit( Double_t x, Double_t y, Double_t z, Double_t en );
         void AddHit( TVector3 pos, Double_t en );

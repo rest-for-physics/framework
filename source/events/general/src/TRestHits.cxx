@@ -172,6 +172,25 @@ void TRestHits::RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamm
 
 }
 
+void TRestHits::Rotate(Int_t n, Double_t alpha, TVector3 vAxis, TVector3 vMean)
+{
+
+  TVector3 vHit;
+
+  vHit[0] = fX[n] - vMean[0];
+  vHit[1] = fY[n] - vMean[1];
+  vHit[2] = fZ[n] - vMean[2];
+
+  vHit.Rotate( alpha, vAxis);
+
+  fX[n] = vHit[0] + vMean[0];
+  fY[n] = vHit[1] + vMean[1];
+  fZ[n] = vHit[2] + vMean[2];
+
+}
+
+
+
 
 Double_t TRestHits::GetMaximumHitEnergy( )
 {
