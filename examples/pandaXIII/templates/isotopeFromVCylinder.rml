@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
-<!-- 
-     File   : isotopeFromVolume.rml
-     Authors : J. Galan / H.Liang
-     Date   :  9th-Apr-2016
-     Description : Template configuration file to launch radiactive {REST_ISOTOPE} decays from a given volume {REST_VOLUME} defined in the geometry.
+<!-- Constructing XML-like REST metadata input file
+     File : config.rml
+     First concept author J. Galan (26-Apr-2015)
  -->
 
 <globals>
@@ -17,20 +15,19 @@
     <parameter name="experiment" value="PANDAX-III"/>
     <parameter name="runType" value="simulation"/>
     <parameter name="runNumber" value="{REST_RUN}"/>
-    <parameter name="runTag" value="{REST_VOLUME}_{REST_GEOMETRY_TYPE}_{REST_ISOTOPE}"/>
-    <parameter name="runDescription" value="We launch {REST_ISOTOPE} decays from the {REST_VOLUME} volume."/>
+    <parameter name="runTag" value="VCyl_L{REST_LENGTH}m_R{REST_RADIUS}mm_{REST_GEOMETRY_TYPE}_{REST_ISOTOPE}"/>
+    <parameter name="runDescription" value="We launch {REST_ISOTOPE} decays from a virtual cylinder."/>
     <parameter name="user" value="{USER}"/>
     <parameter name="verboseLevel" value="3"/>
-    <parameter name="overwrite" value="on" />
+    <parameter name="overwrite" value="on"/>
 </section>
 
-<section restG4 name="restG4 Simulation run" title="Simulation of {REST_ISOTOPE} decay from rings.">
-
+<section restG4 name="restG4 Simulation run" title="Simulation of {REST_ISOTOPE} decay from a virtual cylinder.">
     <parameter name="geometryPath" value="{REST_PATH}/examples/pandaXIII/geometry/{REST_GEOMETRY_TYPE}/" />
     <parameter name="gdml_file" value="{REST_GEOMETRY_SETUP}"/>
     <parameter name="maxTargetStepSize" value="{REST_MAXSTEPSIZE}" units="um" />
 
-    <generator type="volume" from="{REST_VOLUME}" >
+    <generator type="virtualCylinder" size="{REST_RADIUS}" units="mm" length="{REST_LENGTH}" units="m" >
         <source particle="{REST_ISOTOPE}" fullChain="{REST_FULLCHAIN}">
             <angularDist type="isotropic" />
             <energyDist type="mono" energy="0" units="keV" />
