@@ -4,6 +4,10 @@ set -e
 source $(cd $(dirname $0); pwd)/REST_ENV.sh
 echo $REST_PATH
 
+if [[ -z $REST_PATH ]]; then
+    exit 1
+fi
+
 cd $REST_PATH/source
     #make clean
     make -j4
