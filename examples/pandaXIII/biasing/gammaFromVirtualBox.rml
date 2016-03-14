@@ -17,23 +17,23 @@
     <parameter name="experiment" value="PANDAX-III"/>
     <parameter name="runType" value="simulation"/>
     <parameter name="runNumber" value="{REST_RUN}"/>
-    <parameter name="runTag" value="{REST_RUN_TAG}_{REST_GEOMETRY_TYPE}"/>
-    <parameter name="runDescription" value="We launch {REST_ISOTOPE} decays from the virtual box."/>
+    <parameter name="runTag" value="external_{REST_ISOTOPE}_AfterBiasing_{REST_GEOMETRY_TYPE}"/>
+    <parameter name="runDescription" value="We launch gamma from the virtual box after biasing."/>
     <parameter name="user" value="{USER}"/>
     <parameter name="verboseLevel" value="3"/>
     <parameter name="overwrite" value="on" />
 </section>
 
-<section restG4 name="restG4 Simulation run" title="Simulation of {REST_ISOTOPE} decay from virtual box.">
+<section restG4 name="restG4 Simulation run" title="Simulation of {REST_ISOTOPE} decay from inner virtual box.">
 
     <parameter name="geometryPath" value="{REST_PATH}/examples/pandaXIII/geometry/{REST_GEOMETRY_TYPE}/" />
     <parameter name="gdml_file" value="{REST_GEOMETRY_SETUP}"/>
     <parameter name="maxTargetStepSize" value="{REST_MAXSTEPSIZE}" units="um" />
 
-    <generator type="virtualBox" size="{REST_BOX_SIZE}" >
-        <source particle="{REST_ISOTOPE}" fullChain="{REST_FULLCHAIN}">
-            <angularDist type="TH1D" file="RUN_PANDAXIII.root" spctName="Bias_Angular_Distribution_1"/>
-            <energyDist type="TH1D" file="RUN_PANDAXIII.root" spctName="Bias_Spectrum_1" range="(2400,15000)"/>
+    <generator type="virtualBox" size="{REST_BOX_SIZE}" units="mm" >
+        <source particle="gamma" fullChain="off">
+            <angularDist type="TH1D" file="Run_PANDAX-III_${USER}_simulation_external_{REST_ISOTOPE}_{REST_GEOMETRY_TYPE}_00000_00000_V2a3ada7e.root" spctName="Bias_Angular_Distribution_1" units="keV"/>
+            <energyDist type="TH1D" file="Run_PANDAX-III_${USER}_simulation_external_{REST_ISOTOPE}_{REST_GEOMETRY_TYPE}_00000_00000_V2a3ada7e.root" spctName="Bias_Spectrum_1" range="(2400,15000)" units="keV"/>
         </source>
     </generator>
 

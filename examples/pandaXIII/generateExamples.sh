@@ -21,11 +21,11 @@ Gamma='REST_ISOTOPE=gamma;REST_FULLCHAIN=off'
 
 
 GEO='REST_GEOMETRY_TYPE=traditional;REST_GEOMETRY_SETUP=pandaXIII_Setup_WT12m.gdml'
-GEO_SWT='REST_GEOMETRY_TYPE=traditional;REST_GEOMETRY_SETUP=pandaXIII_Setup_SplitWaterTank.gdml'
+GEO_SWT='REST_GEOMETRY_TYPE=traditional;REST_GEOMETRY_SETUP=pandaXIII_Setup_WT6m.gdml'
 
  ######################       GAS        ###########################
 PARAMS='REST_EMIN=0;REST_EMAX=10;REST_MAXSTEPSIZE=100'
-NEVENTS=100000
+NEVENTS=10000
 
 mkdir gas -p
  ./../replaceRMLVars.py templates/isotopeFromVolume.rml gas/Xe137.rml \
@@ -258,15 +258,15 @@ NEVENTS=100000
 
 mkdir -p external
 
- ../replaceRMLVars.py templates/ExtU238.rml external/ExtU238.rml \
- "[$Gamma;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS;REST_BOX_SIZE=12000;REST_RUN_TAG=ExtU238]" 
- ../replaceRMLVars.py templates/isotopeFromVirtualBox.rml external/U238Gamma.rml \
- "[$Gamma;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS;REST_BOX_SIZE=3000;REST_RUN_TAG=U238Gamma]" 
+ ../replaceRMLVars.py biasing/externalU238.rml external/gammaFromU238.rml \
+ "[REST_ISOTOPE=U238;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS;REST_BOX_SIZE=12000]" 
+ ../replaceRMLVars.py biasing/gammaFromVirtualBox.rml external/gammaFromU238AfterBiasing.rml \
+ "[REST_ISOTOPE=U238;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS;REST_BOX_SIZE=3000]" 
 
- ../replaceRMLVars.py templates/ExtTh232.rml external/ExtTh232.rml \
- "[$Gamma;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS;REST_BOX_SIZE=12000;REST_RUN_TAG=ExtTh232]"
- ../replaceRMLVars.py templates/isotopeFromVirtualBox.rml external/Th232Gamma.rml \
- "[$Gamma;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS;REST_BOX_SIZE=3000;REST_RUN_TAG=Th232Gamma]"
+ ../replaceRMLVars.py biasing/externalTh232.rml external/gammaFromTh232.rml \
+ "[REST_ISOTOPE=Th232;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS;REST_BOX_SIZE=12000]"
+ ../replaceRMLVars.py biasing/gammaFromVirtualBox.rml external/gammaFromTh232AfterBiasing.rml \
+ "[REST_ISOTOPE=Th232;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS;REST_BOX_SIZE=3000]"
 
 
 
