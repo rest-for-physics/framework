@@ -73,7 +73,7 @@ void TRestGas::Initialize()
 {
     SetName( "gas" );
 
-	fPressureInAtm =1;
+	fPressureInAtm = 1;
 	fTemperatureInK = 300;
 
 	fNofGases = 0;
@@ -257,7 +257,7 @@ void TRestGas::GenerateGasFile( )
     fGasMedium->WriteGasFile ( (string) (GetGasDataPath() + fGasFilename) );
 }
 
-void TRestGas::SetGasPressure( Double_t pressure )
+void TRestGas::SetPressure( Double_t pressure )
 {
     fPressureInAtm = pressure;
     fGasMedium->SetPressure( fPressureInAtm * 760. );
