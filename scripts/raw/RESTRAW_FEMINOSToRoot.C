@@ -5,11 +5,18 @@ Int_t RESTRAW_FEMINOSToRoot( TString fName, Int_t firstEvent = 0, Int_t numberOf
 {
     cout << "Filename : " << fName << endl;
 
+    int runNumber, runIndex;
+
     TRestRun *run = new TRestRun( cfgFilename );
 
+    int size=fName.Sizeof();
+    TString fN(fName(size-20,size-1));
+    sscanf(fN.Data(),"RUN_%d.%d.acq",&runNumber,&runIndex);
+    cout<<"Run# "<<runNumber<<" index "<<runIndex<<endl;
+
+    run->SetRunNumber( runNumber );
     run->SetRunType( "rawSignal" );
     run->ResetRunTimes( );
-
     run->PrintInfo();
     
     TRestFEMINOSToSignalProcess *agetToSignal = new TRestFEMINOSToSignalProcess( cfgFilename );
