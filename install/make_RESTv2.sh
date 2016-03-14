@@ -5,6 +5,7 @@ source $(cd $(dirname $0); pwd)/REST_ENV.sh
 echo $REST_PATH
 
 if [[ -z $REST_PATH ]]; then
+    echo "error: REST_PATH was not set!"
     exit 1
 fi
 
