@@ -16,10 +16,12 @@ Th232='REST_ISOTOPE=Th232;REST_FULLCHAIN=off'
 Ra228='REST_ISOTOPE=Ra228;REST_FULLCHAIN=on'
 U238='REST_ISOTOPE=U238;REST_FULLCHAIN=off'
 Th234='REST_ISOTOPE=Th234;REST_FULLCHAIN=on'
+Gamma='REST_ISOTOPE=gamma;REST_FULLCHAIN=off'
 
 
 
 GEO='REST_GEOMETRY_TYPE=traditional;REST_GEOMETRY_SETUP=pandaXIII_Setup_WT12m.gdml'
+GEO_SWT='REST_GEOMETRY_TYPE=traditional;REST_GEOMETRY_SETUP=pandaXIII_Setup_SplitWaterTank.gdml'
 
  ######################       GAS        ###########################
 PARAMS='REST_EMIN=0;REST_EMAX=10;REST_MAXSTEPSIZE=100'
@@ -69,6 +71,36 @@ mkdir vessel -p
 
  ./../replaceRMLVars.py templates/isotopeFromVolume.rml vessel/Tl208.rml \
  "[REST_VOLUME=vessel;$Tl208;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS]"
+
+
+
+ ######################       WATER TANK        ###########################
+
+PARAMS='REST_EMIN=0;REST_EMAX=50;REST_MAXSTEPSIZE=100'
+NEVENTS=100000
+
+mkdir waterTank -p
+ ./../replaceRMLVars.py templates/isotopeFromVolume.rml waterTank/Co60.rml \
+ "[REST_VOLUME=waterTank;$Co60;$GEO_SWT;$PARAMS;REST_NEVENTS=$NEVENTS]"
+
+ ./../replaceRMLVars.py templates/isotopeFromVolume.rml waterTank/Th232.rml \
+ "[REST_VOLUME=waterTank;$Th232;$GEO_SWT;$PARAMS;REST_NEVENTS=$NEVENTS]"
+
+ ./../replaceRMLVars.py templates/isotopeFromVolume.rml waterTank/Ra228.rml \
+ "[REST_VOLUME=waterTank;$Ra228;$GEO_SWT;$PARAMS;REST_NEVENTS=$NEVENTS]"
+
+ ./../replaceRMLVars.py templates/isotopeFromVolume.rml waterTank/U238.rml \
+ "[REST_VOLUME=waterTank;$U238;$GEO_SWT;$PARAMS;REST_NEVENTS=$NEVENTS]"
+
+ ./../replaceRMLVars.py templates/isotopeFromVolume.rml waterTank/Th234.rml \
+ "[REST_VOLUME=waterTank;$Th234;$GEO_SWT;$PARAMS;REST_NEVENTS=$NEVENTS]"
+
+ ./../replaceRMLVars.py templates/isotopeFromVolume.rml waterTank/Bi214.rml \
+ "[REST_VOLUME=waterTank;$Bi214;$GEO_SWT;$PARAMS;REST_NEVENTS=$NEVENTS]"
+
+ ./../replaceRMLVars.py templates/isotopeFromVolume.rml waterTank/Tl208.rml \
+ "[REST_VOLUME=waterTank;$Tl208;$GEO_SWT;$PARAMS;REST_NEVENTS=$NEVENTS]"
+
 
 
  ######################       MICROMEGAS        ###########################
@@ -197,7 +229,7 @@ mkdir $VOLUME -p
  ######################       RESISTIVE FIELD CAGE      ###########################
 
 GEO='REST_GEOMETRY_TYPE=resistive;REST_GEOMETRY_SETUP=pandaXIII_Setup.gdml'
-VCYL='REST_LENGTH=2;REST_RADIUS=730]'
+VCYL='REST_LENGTH=2;REST_RADIUS=730'
 
 NEVENTS=100000
 PARAMS='REST_EMIN=0;REST_EMAX=10;REST_MAXSTEPSIZE=100'
@@ -211,4 +243,26 @@ mkdir $VOLUME -p
 
  ./../replaceRMLVars.py templates/isotopeFromVCylinder.rml $VOLUME/Tl208.rml \
  "[$Tl208;$GEO;$VCYL;$PARAMS;REST_NEVENTS=$NEVENTS]"
+
+
+ ######################       EXTERNAL GAMMA      ###########################
+
+GEO='REST_GEOMETRY_TYPE=traditional;REST_GEOMETRY_SETUP=pandaXIII_Setup_WT12m.gdml'
+PARAMS='REST_EMIN=0;REST_EMAX=50;REST_MAXSTEPSIZE=100'
+NEVENTS=100000
+
+mkdir -p external
+
+ ../replaceRMLVars.py templates/ExtU238.rml external/ExtU238.rml \
+ "[$Gamma;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS;REST_BOX_SIZE=12000;REST_RUN_TAG=ExtU238]" 
+ ../replaceRMLVars.py templates/isotopeFromVirtualBox.rml external/U238Gamma.rml \
+ "[$Gamma;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS;REST_BOX_SIZE=3000;REST_RUN_TAG=U238Gamma]" 
+
+ ../replaceRMLVars.py templates/ExtTh232.rml external/ExtTh232.rml \
+ "[$Gamma;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS;REST_BOX_SIZE=12000;REST_RUN_TAG=ExtTh232]"
+ ../replaceRMLVars.py templates/isotopeFromVirtualBox.rml external/Th232Gamma.rml \
+ "[$Gamma;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS;REST_BOX_SIZE=3000;REST_RUN_TAG=Th232Gamma]"
+
+
+
 

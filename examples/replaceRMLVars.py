@@ -66,6 +66,8 @@ def main():
     text = inp.read()
 
     for i in range(0, len(froms)):
+        if text.find(froms[i]) == -1:
+            print('warning: {0}: not find `{1}\''.format(inp_name, froms[i]))
         text = text.replace(froms[i], tos[i]);
 
     #print(text)

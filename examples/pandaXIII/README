@@ -1,7 +1,7 @@
 
-fillRmlVars
+fillRMLVars
     usage:
-        fillRmlVars.py input [output] "[REST_ISOTOPE=Bi214;REST_NEVENTS=100]"
+        fillRMLVars.py input [output] "[REST_ISOTOPE=Bi214;REST_NEVENTS=100]"
 
 generateExamples
     generate some typical rml files for various volumes and isotopes
