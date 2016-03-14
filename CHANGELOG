@@ -1,9 +1,22 @@
 
 ==========================================================
+Date : 14th / March / 2016
+Branch : smallFixes
+Author : Javier Galan
+Merge : #53
+Title : Hotfix in electronDiffusion on random generation, and renamed method TRestGas::SetGasPressure.
+==========================================================
+
+TRestGas : method SetGasPressure has been renamed to SetPressure.
+
+TRestElectronDiffusionProcess. TRandom number generator has been sustituted by TRandom3. Previously the random sequences for each process where always reproduced!
+
+==========================================================
 Date : 11th / March / 2016
 Branch : translate
 Author : Javier Gracia
-Merge : #47
+Merge : #52
+Title : Translate and rotation of TRestHits 
 ==========================================================
 
 Implementation of TRestHitsRotateAndTraslateProcess.
@@ -16,6 +29,7 @@ Date : 09th / March / 2016
 Branch : fixRawToRoot  
 Author : Javier Gracia
 Merge : #51
+Title : Minor modifications in TRestRun::ProcessEvents() 
 ==========================================================
 
 If the input event is a binary file from the daq, the eventID and timeStamp of the output event Tree are not filled from the input event Tree.
@@ -25,7 +39,7 @@ Also, minor modifications in the RESTRAW_FEMINOSToRoot.C and RESTRAW_AFTERToRoot
 Date : 08th / March / 2016
 Branch : issue#16
 Author : Javier Gracia
-Merge : #47
+Merge : #50
 ==========================================================
 
 Implementation of TRestGaussianConvolutionProcess. 
