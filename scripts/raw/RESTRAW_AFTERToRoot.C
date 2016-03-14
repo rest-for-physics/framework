@@ -7,6 +7,7 @@ Int_t RESTRAW_AFTERToRoot( TString fName, Int_t firstEvent = 0, Int_t numberOfEv
 
     TRestRun *run = new TRestRun( cfgFilename );
 
+    int runNumber, runIndex;
     int size=fName.Sizeof();
     TString fN(fName(size-20,size-1));
     sscanf(fN.Data(),"RUN_%d.%d.acq",&runNumber,&runIndex);
@@ -15,7 +16,6 @@ Int_t RESTRAW_AFTERToRoot( TString fName, Int_t firstEvent = 0, Int_t numberOfEv
     run->SetRunNumber( runNumber );
     run->SetRunType( "rawSignal" );
     run->ResetRunTimes( );
-
     run->PrintInfo();
     
     TRestAFTERToSignalProcess *afterToSignal = new TRestAFTERToSignalProcess( );

@@ -5,10 +5,9 @@ Int_t RESTRAW_FEMINOSToRoot( TString fName, Int_t firstEvent = 0, Int_t numberOf
 {
     cout << "Filename : " << fName << endl;
 
-    int runNumber, runIndex;
-
     TRestRun *run = new TRestRun( cfgFilename );
 
+    int runNumber, runIndex;
     int size=fName.Sizeof();
     TString fN(fName(size-20,size-1));
     sscanf(fN.Data(),"RUN_%d.%d.acq",&runNumber,&runIndex);
