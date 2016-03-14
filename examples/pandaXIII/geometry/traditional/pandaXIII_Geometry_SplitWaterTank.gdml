@@ -1,0 +1,936 @@
+<solids>
+    <box name="WorldSolid" x="world_size" y="world_size" z="world_size" lunit="mm" />
+    <box name="waterTankSolidBoxOuter" x="waterTankSize" y="waterTankSize" z="waterTankSize" lunit="mm" />
+    <box name="waterTankSolidBox" x="6000" y="6000" z="6000" lunit="mm" />
+    <tube name="vesselSolidFull" startphi="0" deltaphi="360" rmin="0" rmax="gasVolumeRadius+vesselThickness" z="gasVolumeLength+2*vesselBottomTopThickness" aunit="deg" lunit="mm" />
+    <tube name="gasSolidFull" startphi="0" deltaphi="360" rmin="0" rmax="gasVolumeRadius" z="gasVolumeLength" aunit="deg" lunit="mm"/>
+
+    <tube name="ringSolid" startphi="0" deltaphi="360" rmin="ringInternalRadius" rmax="ringInternalRadius+ringThickness" z="ringHeight" aunit="deg" lunit="mm"/>
+
+    <box name="supporterSolid"  x="supporterThickness" y="supporterWidth" z="supporterHeight" lunit="mm" />
+
+    <tube name="anodeSolid" startphi="0" deltaphi="360" rmin="0" rmax="ringInternalRadius" z="anodeThickness" aunit="deg" lunit="mm"/>
+    <tube name="micromegasSupportSolid" startphi="0" deltaphi="360" rmin="0" rmax="ringInternalRadius" z="micromegasSupportThickness" aunit="deg" lunit="mm"/>
+
+    <tube name="micromegasSolid" startphi="0" deltaphi="360" rmin="0" rmax="ringInternalRadius" z="micromegasThickness" aunit="deg" lunit="mm"/>
+    
+
+    <subtraction name="waterTankSolid">
+        <first ref="waterTankSolidBox"/>
+        <second ref="vesselSolidFull"/>
+    </subtraction>
+    
+    <subtraction name="vesselSolid">
+        <first ref="vesselSolidFull"/>
+        <second ref="gasSolidFull"/>
+    </subtraction>
+
+    <!-- {{{ rings definition -->
+    <union name="ringSolid_1" >
+        <first ref="ringSolid" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_01" />
+    </union>
+
+    <union name="ringSolid_2" >
+        <first ref="ringSolid_1" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_01" />
+    </union>
+
+    <union name="ringSolid_3" >
+        <first ref="ringSolid_2" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_02" />
+    </union>
+
+    <union name="ringSolid_4" >
+        <first ref="ringSolid_3" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_02" />
+    </union>
+
+    <union name="ringSolid_5" >
+        <first ref="ringSolid_4" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_03" />
+    </union>
+
+    <union name="ringSolid_6" >
+        <first ref="ringSolid_5" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_03" />
+    </union>
+
+    <union name="ringSolid_7" >
+        <first ref="ringSolid_6" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_04" />
+    </union>
+
+    <union name="ringSolid_8" >
+        <first ref="ringSolid_7" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_04" />
+    </union>
+
+    <union name="ringSolid_9" >
+        <first ref="ringSolid_8" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_05" />
+    </union>
+
+    <union name="ringSolid_10" >
+        <first ref="ringSolid_9" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_05" />
+    </union>
+
+    <union name="ringSolid_11" >
+        <first ref="ringSolid_10" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_06" />
+    </union>
+
+    <union name="ringSolid_12" >
+        <first ref="ringSolid_11" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_06" />
+    </union>
+
+    <union name="ringSolid_13" >
+        <first ref="ringSolid_12" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_07" />
+    </union>
+
+    <union name="ringSolid_14" >
+        <first ref="ringSolid_13" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_07" />
+    </union>
+
+    <union name="ringSolid_15" >
+        <first ref="ringSolid_14" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_08" />
+    </union>
+
+    <union name="ringSolid_16" >
+        <first ref="ringSolid_15" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_08" />
+    </union>
+
+    <union name="ringSolid_17" >
+        <first ref="ringSolid_16" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_09" />
+    </union>
+
+    <union name="ringSolid_18" >
+        <first ref="ringSolid_17" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_09" />
+    </union>
+
+    <union name="ringSolid_19" >
+        <first ref="ringSolid_18" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_10" />
+    </union>
+
+    <union name="ringSolid_20" >
+        <first ref="ringSolid_19" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_10" />
+    </union>
+
+    <union name="ringSolid_21" >
+        <first ref="ringSolid_20" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_11" />
+    </union>
+
+    <union name="ringSolid_22" >
+        <first ref="ringSolid_21" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_11" />
+    </union>
+
+    <union name="ringSolid_23" >
+        <first ref="ringSolid_22" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_12" />
+    </union>
+
+    <union name="ringSolid_24" >
+        <first ref="ringSolid_23" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_12" />
+    </union>
+
+    <union name="ringSolid_25" >
+        <first ref="ringSolid_24" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_13" />
+    </union>
+
+    <union name="ringSolid_26" >
+        <first ref="ringSolid_25" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_13" />
+    </union>
+
+    <union name="ringSolid_27" >
+        <first ref="ringSolid_26" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_14" />
+    </union>
+
+    <union name="ringSolid_28" >
+        <first ref="ringSolid_27" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_14" />
+    </union>
+
+    <union name="ringSolid_29" >
+        <first ref="ringSolid_28" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_15" />
+    </union>
+
+    <union name="ringSolid_30" >
+        <first ref="ringSolid_29" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_15" />
+    </union>
+
+    <union name="ringSolid_31" >
+        <first ref="ringSolid_30" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_16" />
+    </union>
+
+    <union name="ringSolid_32" >
+        <first ref="ringSolid_31" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_16" />
+    </union>
+
+    <union name="ringSolid_33" >
+        <first ref="ringSolid_32" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_17" />
+    </union>
+
+    <union name="ringSolid_34" >
+        <first ref="ringSolid_33" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_17" />
+    </union>
+
+    <union name="ringSolid_35" >
+        <first ref="ringSolid_34" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_18" />
+    </union>
+
+    <union name="ringSolid_36" >
+        <first ref="ringSolid_35" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_18" />
+    </union>
+
+    <union name="ringSolid_37" >
+        <first ref="ringSolid_36" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_19" />
+    </union>
+
+    <union name="ringSolid_38" >
+        <first ref="ringSolid_37" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_19" />
+    </union>
+
+    <union name="ringSolid_39" >
+        <first ref="ringSolid_38" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_20" />
+    </union>
+
+    <union name="ringSolid_40" >
+        <first ref="ringSolid_39" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_20" />
+    </union>
+
+    <union name="ringSolid_41" >
+        <first ref="ringSolid_40" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_21" />
+    </union>
+
+    <union name="ringSolid_42" >
+        <first ref="ringSolid_41" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_21" />
+    </union>
+
+    <union name="ringSolid_43" >
+        <first ref="ringSolid_42" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_22" />
+    </union>
+
+    <union name="ringSolid_44" >
+        <first ref="ringSolid_43" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_22" />
+    </union>
+
+    <union name="ringSolid_45" >
+        <first ref="ringSolid_44" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_23" />
+    </union>
+
+    <union name="ringSolid_46" >
+        <first ref="ringSolid_45" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_23" />
+    </union>
+
+    <union name="ringSolid_47" >
+        <first ref="ringSolid_46" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_24" />
+    </union>
+
+    <union name="ringSolid_48" >
+        <first ref="ringSolid_47" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_24" />
+    </union>
+
+    <union name="ringSolid_49" >
+        <first ref="ringSolid_48" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_25" />
+    </union>
+
+    <union name="ringSolid_50" >
+        <first ref="ringSolid_49" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_25" />
+    </union>
+
+    <union name="ringSolid_51" >
+        <first ref="ringSolid_50" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_26" />
+    </union>
+
+    <union name="ringSolid_52" >
+        <first ref="ringSolid_51" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_26" />
+    </union>
+
+    <union name="ringSolid_53" >
+        <first ref="ringSolid_52" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_27" />
+    </union>
+
+    <union name="ringSolid_54" >
+        <first ref="ringSolid_53" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_27" />
+    </union>
+
+    <union name="ringSolid_55" >
+        <first ref="ringSolid_54" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_28" />
+    </union>
+
+    <union name="ringSolid_56" >
+        <first ref="ringSolid_55" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_28" />
+    </union>
+
+    <union name="ringSolid_57" >
+        <first ref="ringSolid_56" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_29" />
+    </union>
+
+    <union name="ringSolid_58" >
+        <first ref="ringSolid_57" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_29" />
+    </union>
+
+    <union name="ringSolid_59" >
+        <first ref="ringSolid_58" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_30" />
+    </union>
+
+    <union name="ringSolid_60" >
+        <first ref="ringSolid_59" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_30" />
+    </union>
+
+    <union name="ringSolid_61" >
+        <first ref="ringSolid_60" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_31" />
+    </union>
+
+    <union name="ringSolid_62" >
+        <first ref="ringSolid_61" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_31" />
+    </union>
+
+    <union name="ringSolid_63" >
+        <first ref="ringSolid_62" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_32" />
+    </union>
+
+    <union name="ringSolid_64" >
+        <first ref="ringSolid_63" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_32" />
+    </union>
+
+    <union name="ringSolid_65" >
+        <first ref="ringSolid_64" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_33" />
+    </union>
+
+    <union name="ringSolid_66" >
+        <first ref="ringSolid_65" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_33" />
+    </union>
+
+    <union name="ringSolid_67" >
+        <first ref="ringSolid_66" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_34" />
+    </union>
+
+    <union name="ringSolid_68" >
+        <first ref="ringSolid_67" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_34" />
+    </union>
+
+    <union name="ringSolid_69" >
+        <first ref="ringSolid_68" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_35" />
+    </union>
+
+    <union name="ringSolid_70" >
+        <first ref="ringSolid_69" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_35" />
+    </union>
+
+    <union name="ringSolid_71" >
+        <first ref="ringSolid_70" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_36" />
+    </union>
+
+    <union name="ringSolid_72" >
+        <first ref="ringSolid_71" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_36" />
+    </union>
+
+    <union name="ringSolid_73" >
+        <first ref="ringSolid_72" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_37" />
+    </union>
+
+    <union name="ringSolid_74" >
+        <first ref="ringSolid_73" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_37" />
+    </union>
+
+    <union name="ringSolid_75" >
+        <first ref="ringSolid_74" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_38" />
+    </union>
+
+    <union name="ringSolid_76" >
+        <first ref="ringSolid_75" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_38" />
+    </union>
+
+    <union name="ringSolid_77" >
+        <first ref="ringSolid_76" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_39" />
+    </union>
+
+    <union name="ringSolid_78" >
+        <first ref="ringSolid_77" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_39" />
+    </union>
+
+    <union name="ringSolid_79" >
+        <first ref="ringSolid_78" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_40" />
+    </union>
+
+    <union name="ringSolid_80" >
+        <first ref="ringSolid_79" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_40" />
+    </union>
+
+    <union name="ringSolid_81" >
+        <first ref="ringSolid_80" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_41" />
+    </union>
+
+    <union name="ringSolid_82" >
+        <first ref="ringSolid_81" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_41" />
+    </union>
+
+    <union name="ringSolid_83" >
+        <first ref="ringSolid_82" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_42" />
+    </union>
+
+    <union name="ringSolid_84" >
+        <first ref="ringSolid_83" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_42" />
+    </union>
+
+    <union name="ringSolid_85" >
+        <first ref="ringSolid_84" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_43" />
+    </union>
+
+    <union name="ringSolid_86" >
+        <first ref="ringSolid_85" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_43" />
+    </union>
+
+    <union name="ringSolid_87" >
+        <first ref="ringSolid_86" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_44" />
+    </union>
+
+    <union name="ringSolid_88" >
+        <first ref="ringSolid_87" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_44" />
+    </union>
+
+    <union name="ringSolid_89" >
+        <first ref="ringSolid_88" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_45" />
+    </union>
+
+    <union name="ringSolid_90" >
+        <first ref="ringSolid_89" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_45" />
+    </union>
+
+    <union name="ringSolid_91" >
+        <first ref="ringSolid_90" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_46" />
+    </union>
+
+    <union name="ringSolid_92" >
+        <first ref="ringSolid_91" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_46" />
+    </union>
+
+    <union name="ringSolid_93" >
+        <first ref="ringSolid_92" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_47" />
+    </union>
+
+    <union name="ringSolid_94" >
+        <first ref="ringSolid_93" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_47" />
+    </union>
+
+    <union name="ringSolid_95" >
+        <first ref="ringSolid_94" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionTop_48" />
+    </union>
+
+    <union name="ringSolid_96" >
+        <first ref="ringSolid_95" />
+        <second ref="ringSolid" />
+        <positionref ref="ringPositionBottom_48" />
+    </union>
+    <!-- }}} -->
+    
+    <!-- {{{ supporters definition -->
+    <union name="supportersSolid_01" >
+        <first ref="supporterSolid" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_01" />
+        <rotationref ref="supporterRotation_01" />
+    </union>
+
+    <union name="supportersSolid_02" >
+        <first ref="supportersSolid_01" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_02" />
+        <rotationref ref="supporterRotation_02" />
+    </union>
+
+    <union name="supportersSolid_03" >
+        <first ref="supportersSolid_02" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_03" />
+        <rotationref ref="supporterRotation_03" />
+    </union>
+
+    <union name="supportersSolid_04" >
+        <first ref="supportersSolid_03" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_04" />
+        <rotationref ref="supporterRotation_04" />
+    </union>
+
+    <union name="supportersSolid_05" >
+        <first ref="supportersSolid_04" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_05" />
+        <rotationref ref="supporterRotation_05" />
+    </union>
+
+    <union name="supportersSolid_06" >
+        <first ref="supportersSolid_05" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_06" />
+        <rotationref ref="supporterRotation_06" />
+    </union>
+
+    <union name="supportersSolid_07" >
+        <first ref="supportersSolid_06" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_07" />
+        <rotationref ref="supporterRotation_07" />
+    </union>
+
+    <union name="supportersSolid_08" >
+        <first ref="supportersSolid_07" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_08" />
+        <rotationref ref="supporterRotation_08" />
+    </union>
+
+    <union name="supportersSolid_09" >
+        <first ref="supportersSolid_08" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_09" />
+        <rotationref ref="supporterRotation_09" />
+    </union>
+
+    <union name="supportersSolid_10" >
+        <first ref="supportersSolid_09" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_10" />
+        <rotationref ref="supporterRotation_10" />
+    </union>
+
+    <union name="supportersSolid_11" >
+        <first ref="supportersSolid_10" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_11" />
+        <rotationref ref="supporterRotation_11" />
+    </union>
+
+    <union name="supportersSolid_12" >
+        <first ref="supportersSolid_11" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_12" />
+        <rotationref ref="supporterRotation_12" />
+    </union>
+
+    <union name="supportersSolid_13" >
+        <first ref="supportersSolid_12" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_13" />
+        <rotationref ref="supporterRotation_13" />
+    </union>
+
+    <union name="supportersSolid_14" >
+        <first ref="supportersSolid_13" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_14" />
+        <rotationref ref="supporterRotation_14" />
+    </union>
+
+    <union name="supportersSolid_15" >
+        <first ref="supportersSolid_14" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_15" />
+        <rotationref ref="supporterRotation_15" />
+    </union>
+
+    <union name="supportersSolid_16" >
+        <first ref="supportersSolid_15" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_16" />
+        <rotationref ref="supporterRotation_16" />
+    </union>
+
+    <union name="supportersSolid_17" >
+        <first ref="supportersSolid_16" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_17" />
+        <rotationref ref="supporterRotation_17" />
+    </union>
+
+    <union name="supportersSolid_18" >
+        <first ref="supportersSolid_17" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_18" />
+        <rotationref ref="supporterRotation_18" />
+    </union>
+
+    <union name="supportersSolid_19" >
+        <first ref="supportersSolid_18" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_19" />
+        <rotationref ref="supporterRotation_19" />
+    </union>
+
+    <union name="supportersSolid_20" >
+        <first ref="supportersSolid_19" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_20" />
+        <rotationref ref="supporterRotation_20" />
+    </union>
+
+    <union name="supportersSolid_21" >
+        <first ref="supportersSolid_20" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_21" />
+        <rotationref ref="supporterRotation_21" />
+    </union>
+
+    <union name="supportersSolid_22" >
+        <first ref="supportersSolid_21" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_22" />
+        <rotationref ref="supporterRotation_22" />
+    </union>
+
+    <union name="supportersSolid_23" >
+        <first ref="supportersSolid_22" />
+        <second ref="supporterSolid" />
+        <positionref ref="supporterPosition_23" />
+        <rotationref ref="supporterRotation_23" />
+    </union>
+
+    <subtraction name="supportersSolid_24">
+        <first ref="supportersSolid_23"/>
+        <second ref="ringSolid_96"/>
+        <position name="suppPosition" unit="mm" x="-(ringInternalRadius+supporterThickness/2.)" y="0" z="0"/>
+    </subtraction>
+    <!-- }}} -->
+    
+
+    <!-- Change here the number of rings to be removed from the gas volume -->
+    <subtraction name="gasSolid_01">
+        <first ref="gasSolidFull"/>
+        <second ref="ringSolid_96"/>
+    </subtraction>
+
+    <subtraction name="gasSolid_02">
+        <first ref="gasSolid_01"/>
+        <second ref="supportersSolid_23"/>
+        <position name="suppPosition_02" unit="mm" x="(ringInternalRadius+supporterThickness/2.)" y="0" z="0"/>
+    </subtraction>
+
+    <subtraction name="gasSolid_03">
+        <first ref="gasSolid_02"/>
+        <second ref="anodeSolid"/>
+        <position name="anodePosition" unit="mm" x="0" y="0" z="0"/>
+    </subtraction>
+
+    <subtraction name="gasSolid_04">
+        <first ref="gasSolid_03"/>
+        <second ref="micromegasSolid"/>
+        <position name="m1Position" unit="mm" x="0" y="0" z="-micromegas_Z+micromegasSupportThickness/2+micromegasThickness/2"/>
+    </subtraction>
+
+    <subtraction name="gasSolid_05">
+        <first ref="gasSolid_04"/>
+        <second ref="micromegasSolid"/>
+        <position name="m2Position" unit="mm" x="0" y="0" z="micromegas_Z-micromegasSupportThickness/2-micromegasThickness/2"/>
+    </subtraction>
+
+    <subtraction name="gasSolid_06">
+        <first ref="gasSolid_05"/>
+        <second ref="micromegasSupportSolid"/>
+        <position name="mS1Position" unit="mm" x="0" y="0" z="micromegas_Z"/>
+    </subtraction>
+
+    <subtraction name="gasSolid">
+        <first ref="gasSolid_06"/>
+        <second ref="micromegasSupportSolid"/>
+        <position name="mS2Position" unit="mm" x="0" y="0" z="-micromegas_Z"/>
+    </subtraction>
+
+</solids>
+
+<structure>
+    <!-- {{{ Volumes definition (material and solid assignment) -->
+    <volume name="gasVolume">
+        <materialref ref="Xenon_TMA"/>
+        <solidref ref="gasSolid"/>
+    </volume>
+
+    <volume name="waterTankVolumeOuter">
+        <materialref ref="Water"/>
+        <solidref ref="waterTankSolidBoxOuter"/>
+    </volume>
+
+    <volume name="waterTankVolume">
+        <materialref ref="Water"/>
+        <solidref ref="waterTankSolid"/>
+    </volume>
+
+    <volume name="vesselVolume">
+        <materialref ref="Copper"/>
+        <solidref ref="vesselSolid"/>
+    </volume>
+
+    <volume name="anodeVolume">
+        <materialref ref="Copper"/>
+        <solidref ref="anodeSolid"/>
+    </volume>
+
+    <volume name="micromegasSupportVolume">
+        <materialref ref="Copper"/>
+        <solidref ref="micromegasSupportSolid"/>
+    </volume>
+
+    <volume name="micromegasVolume">
+        <materialref ref="Kapton"/>
+        <solidref ref="micromegasSolid"/>
+    </volume>
+
+    <!-- Change here the number of rings -->
+    <volume name="ringVolume">
+        <materialref ref="Copper"/>
+        <solidref ref="ringSolid_96"/>
+    </volume>
+
+    <volume name="supportersVolume">
+        <materialref ref="PTFE"/>
+        <solidref ref="supportersSolid_24"/>
+    </volume>
+    <!-- }}} -->
+
+    <!-- {{{ Physical volume definition (volume and position assignment) -->
+    <volume name="World">
+        <materialref ref="Air"/>
+        <solidref ref="WorldSolid"/>
+
+        <physvol name="waterTankOuter">
+            <volumeref ref="waterTankVolumeOuter"/>
+            <position name="waterTankPosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+        <physvol name="waterTank">
+            <volumeref ref="waterTankVolume"/>
+            <position name="waterTankPosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+        <physvol name="vessel">
+            <volumeref ref="vesselVolume"/>
+            <position name="vesselPosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+        <physvol name="anode">
+            <volumeref ref="anodeVolume"/>
+            <position name="anodePosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+        <physvol name="micromegasSupport1">
+            <volumeref ref="micromegasSupportVolume"/>
+            <position name="mM1SPosition" unit="mm" x="0" y="0" z="micromegas_Z"/>
+        </physvol>
+
+        <physvol name="micromegasSupport2">
+            <volumeref ref="micromegasSupportVolume"/>
+            <position name="mM2SPosition" unit="mm" x="0" y="0" z="-micromegas_Z"/>
+        </physvol>
+
+        <physvol name="micromegas1">
+            <volumeref ref="micromegasVolume"/>
+            <position name="mM1Position" unit="mm" x="0" y="0" z="micromegas_Z-micromegasSupportThickness/2-micromegasThickness/2"/>
+        </physvol>
+
+        <physvol name="micromegas2">
+            <volumeref ref="micromegasVolume"/>
+            <position name="mM2Position" unit="mm" x="0" y="0" z="-micromegas_Z+micromegasSupportThickness/2+micromegasThickness/2"/>
+        </physvol>
+
+        <physvol name="gas">
+            <volumeref ref="gasVolume"/>
+            <position name="gasPosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+        <physvol name="ring">
+            <volumeref ref="ringVolume"/>
+            <position name="gasPosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+        <physvol name="supporters">
+            <volumeref ref="supportersVolume" />
+            <position name="waterTankPosition" unit="mm" x="(ringInternalRadius+supporterThickness/2.)" y="0" z="0"/>
+        </physvol>
+
+    </volume>
+    <!-- }}} -->
+    
+</structure>
+
+<setup name="Default" version="1.0">
+    <world ref="World"/>
+</setup>
