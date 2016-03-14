@@ -10,8 +10,8 @@ Bi214='REST_ISOTOPE=Bi214;REST_FULLCHAIN=off'
 Tl208='REST_ISOTOPE=Tl208;REST_FULLCHAIN=off'
 Xe137='REST_ISOTOPE=Xe137;REST_FULLCHAIN=off'
 Co60='REST_ISOTOPE=Co60;REST_FULLCHAIN=off'
-XeNLDBD='REST_GENERATOR=Xe136bb0n'
-Xe2NDBD='REST_GENERATOR=Xe136bb2n'
+XeNLDBD='REST_GENERATOR=Xe136bb0n;REST_GENERATOR_FILE=Xe136bb0n.dat'
+Xe2NDBD='REST_GENERATOR=Xe136bb2n;REST_GENERATOR_FILE=Xe136bb2n.dat'
 Th232='REST_ISOTOPE=Th232;REST_FULLCHAIN=off'
 Ra228='REST_ISOTOPE=Ra228;REST_FULLCHAIN=on'
 U238='REST_ISOTOPE=U238;REST_FULLCHAIN=off'
@@ -39,10 +39,15 @@ mkdir gas -p
 
  ./../replaceRMLVars.py templates/decay0FromVolume.rml gas/Xe136bb0n.rml \
  "[REST_VOLUME=gas;$XeNLDBD;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS]"
+ 
+ ./../replaceRMLVars.py templates/decay0FromVolume.rml gas/Xe136_0nubb_00.rml \
+ "[REST_VOLUME=gas;REST_GENERATOR=Xe136_0nubb_00;REST_GENERATOR_FILE=0nubb_data_00_o.evt;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS]"
 
  ./../replaceRMLVars.py templates/decay0FromVolume.rml gas/Xe136bb2n.rml \
  "[REST_VOLUME=gas;$Xe2NDBD;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS]"
 
+ ./../replaceRMLVars.py templates/decay0FromVolume.rml gas/Xe136_2nubb_00.rml \
+ "[REST_VOLUME=gas;REST_GENERATOR=Xe136_2nubb_00;REST_GENERATOR_FILE=2nubb_data_00_o.evt;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS]"
 
 
  ######################       VESSEL        ###########################

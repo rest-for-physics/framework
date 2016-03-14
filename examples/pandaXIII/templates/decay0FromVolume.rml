@@ -32,7 +32,7 @@
     <parameter name="maxTargetStepSize" value="{REST_MAXSTEPSIZE}" units="um" />
 
     <generator type="volume" from="{REST_VOLUME}" >
-        <source fromFile="{REST_GENERATOR}.dat">
+        <source fromFile="{REST_GENERATOR_FILE}">
         </source>
     </generator>
 
