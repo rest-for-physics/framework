@@ -173,7 +173,7 @@ public:
     Double_t GetTownsendCoefficient( Double_t E );
     Double_t GetAttachmentCoefficient( Double_t E );
 
-    void SetGasPressure( Double_t pressure );
+    void SetPressure( Double_t pressure );
     void SetMaxElectronEnergy( Double_t energy ) { fMaxElectronEnergy = energy; }
     void SetWvalue( Double_t iP ) { fW = iP; }
 
