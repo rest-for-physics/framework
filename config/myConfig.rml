@@ -135,6 +135,14 @@ All units in mm, keV and degrees
     <parameter name="transversalResolution" value="1" units="mm" />
 </section>
 
+<section rotateAndTraslate name="rotateAndTraslate" title="IAXOD0 TPC" >
+    <parameter name="deltaX" value="0." units="mm" />	
+    <parameter name="deltaY" value="0" units="mm" />
+    <parameter name="deltaZ" value="0" units="mm" />
+    <parameter name="alpha" value="90" />	// rotation angle around Z in degrees
+    <parameter name="beta" value="90"  />	// rotation angle around Y in degrees
+    <parameter name="gamma" value="90" />	// rotation angle around X in degrees
+</section>
 
 <section readout nameref="Readout-PANDA_3MM_64channels" file="definitions/readouts.rml"> </section>
 

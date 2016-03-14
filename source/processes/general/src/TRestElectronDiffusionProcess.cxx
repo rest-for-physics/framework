@@ -17,7 +17,9 @@
 #include "TRestElectronDiffusionProcess.h"
 using namespace std;
 
-#include <TRandom.h>
+#include <TRandom3.h>
+
+TRandom3 *rnd;
 
 ClassImp(TRestElectronDiffusionProcess)
     //______________________________________________________________________________
@@ -45,6 +47,7 @@ TRestElectronDiffusionProcess::~TRestElectronDiffusionProcess()
 {
     if( fGas != NULL ) delete fGas;
 
+    delete rnd;
     delete fHitsEvent;
     delete fG4Event;
     // TRestElectronDiffusionProcess destructor
@@ -79,6 +82,8 @@ void TRestElectronDiffusionProcess::Initialize()
     fOutputEvent = fHitsEvent;
     fInputEvent = fG4Event;
     fGas = NULL;
+
+    rnd = new TRandom3(0);
 }
 
 void TRestElectronDiffusionProcess::LoadConfig( string cfgFilename )
@@ -117,8 +122,6 @@ void TRestElectronDiffusionProcess::BeginOfEventProcess()
 //______________________________________________________________________________
 TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 {
-
-    TRandom *rnd = new TRandom();
 
     TRestG4Event *g4Event = (TRestG4Event *) evInput;
 
