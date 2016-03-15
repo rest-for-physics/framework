@@ -18,18 +18,17 @@ Int_t RESTRAW_FEMINOSToRoot( TString fName, Int_t firstEvent = 0, Int_t numberOf
     run->ResetRunTimes( );
     run->PrintInfo();
     
-    TRestFEMINOSToSignalProcess *agetToSignal = new TRestFEMINOSToSignalProcess( cfgFilename );
+    TRestFEMINOSToSignalProcess *agetToSignal = new TRestFEMINOSToSignalProcess( );
 
     if(!agetToSignal->OpenInputBinFile(fName))
     {
-    	cout<<"File "<<fName.Data()<<" not found"<<endl;
+    	cout << "File " << fName.Data() << " not found" << endl;
     	exit(0);
     }
 
     run->AddProcess( agetToSignal,  cfgFilename );
 
     run->ProcessEvents( firstEvent, numberOfEventsToProcess );
-   // run->Start( );
 
     delete run;
 }

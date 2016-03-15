@@ -36,7 +36,6 @@ TRestRawToSignalProcess::TRestRawToSignalProcess(char *cfgFileName)
  Initialize();
  
  if( LoadConfigFromFile( cfgFileName ) ) LoadDefaultConfig( );
- PrintMetadata();  
   
 }
 
@@ -49,8 +48,8 @@ TRestRawToSignalProcess::~TRestRawToSignalProcess()
 
 void TRestRawToSignalProcess::LoadConfig( string cfgFilename )
 {
-    if( LoadConfigFromFile( cfgFilename ) ) LoadDefaultConfig( );
-    PrintMetadata();  
+    SetName( "daq" );
+    if( LoadConfigFromFile( cfgFilename ) == -1 ) { cout << "Loading default" << endl; LoadDefaultConfig( ); }
 }
 
 //______________________________________________________________________________
@@ -170,7 +169,8 @@ void  TRestRawToSignalProcess::printBits(unsigned int num)
 }
 
 void TRestRawToSignalProcess::PrintMetadata(){
- cout << endl;
+
+     cout << endl;
     cout << "====================================" << endl;
     cout << "DAQ : " << GetTitle() << endl;
     cout << "Electronics type : " << fElectronicsType.Data() << endl;
@@ -179,5 +179,4 @@ void TRestRawToSignalProcess::PrintMetadata(){
     cout << endl;
 
 }
-
 
