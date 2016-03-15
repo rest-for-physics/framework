@@ -123,15 +123,16 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
 	this->SetOutputEvent( fEventProcess.back()->GetOutputEvent() );
 
 	//////////////////
-
-
-	
 	
 
 	for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->InitProcess();
 
     fProcessedEvents = 0;
-    if( eventsToProcess == 0 && fInputEventTree != NULL ) eventsToProcess = fInputEventTree->GetEntries();
+    if( eventsToProcess == 0 )
+    {
+       if( fInputEventTree != NULL ) eventsToProcess = fInputEventTree->GetEntries();
+       else eventsToProcess = 2E9;
+    }
 
 	TRestEvent *processedEvent;
 	while( this->GetNextEvent() && eventsToProcess > fProcessedEvents )
