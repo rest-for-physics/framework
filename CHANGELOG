@@ -1,5 +1,17 @@
 
 ==========================================================
+Date : 15th / March / 2016
+Branch : rawToSignalFix
+Author : Javier Galan
+Merge : #56
+Title : Minor fix on rawToSignal process when the number of events to process given is zero.
+==========================================================
+
+When the number of eventsToProcess is defined as zero, TRestRun will redefine the number of events to process to a big number 2E9 in case there is no inputEventTree existing.
+
+Small corrections regarding metadata management.
+
+==========================================================
 Date : 14th / March / 2016
 Branch : smallFixes
 Author : Javier Galan
