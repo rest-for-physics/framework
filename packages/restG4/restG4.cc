@@ -390,8 +390,8 @@ int main(int argc,char** argv) {
 
     TString Filename = restRun->GetOutputFilename();
 
-   // TFile *f1 = new TFile( restRun->GetOutputFilename(), "RECREATE" );
     /*
+   // TFile *f1 = new TFile( restRun->GetOutputFilename(), "RECREATE" );
     TFile *f1 = new TFile( "new.root", "RECREATE" );
     cout << "Writting geometry" << endl;
     geo->Write();
@@ -405,9 +405,23 @@ int main(int argc,char** argv) {
     delete restG4Event;
     delete restTrack;
 
+    // Writting the geometry
+    sprintf( originDirectory, "%s", get_current_dir_name() );
+
+    sprintf( buffer, "%s", (char *) restG4Metadata->GetGeometryPath().Data() );
+    chdir( buffer );
+
+    TGeoManager *geo2 = new TGeoManager( );
+    geo2->Import( restG4Metadata->Get_GDML_Filename() );
+    
+    // And coming back to origin directory
+    chdir( originDirectory );
+
     TFile *f1 = new TFile( Filename, "update" );
     cout << "Writting geometry" << endl;
-    geo->Write();
+    f1->cd();
+    geo2->Write();
+    cout << "Closing file" << endl;
     f1->Close();
 
     return 0;
