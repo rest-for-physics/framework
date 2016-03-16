@@ -75,7 +75,7 @@ void TRestRun::Initialize()
     fOutputEventTree = NULL;
 
     fInputFilename = "null";
-    fOutputFilename = "null";
+    fOutputFilename = "default";
 
     fOverwrite = false;
 
@@ -333,12 +333,15 @@ void TRestRun::OpenInputFile( TString fName )
     fInputFile = new TFile( fName );
 
     Int_t runNumber = GetRunNumber();
+    TString fileName = GetOutputFilename();
 
     TKey *key = GetObjectKeyByClass( "TRestRun" );
     this->Read( key->GetName() );
 
     fParentRunNumber = fRunNumber;
     fRunNumber = runNumber;
+
+    fOutputFilename = fileName; // We take this value from the configuration (not from TRestRun)
 
     // Transfering metadata to historic
     for( size_t i = 0; i < fMetadata.size(); i++ )
@@ -377,7 +380,8 @@ void TRestRun::OpenOutputFile( )
 
     SetVersion();
 
-    SetRunFilenameAndIndex();
+    if( fOutputFilename == "default" ) SetRunFilenameAndIndex();
+    else fOutputFilename = GetDataPath() + "/" + fOutputFilename;
 
     if( GetVerboseLevel() == REST_Info ) cout << "Opening file : " << fOutputFilename << endl;
 
@@ -577,6 +581,8 @@ void TRestRun::InitFromConfigFile()
    fRunDescription = GetParameter( "runDescription" );
 
    TString rNumberStr = (TString) GetParameter( "runNumber" );
+
+   fOutputFilename = GetParameter( "outputFile", "default" );
 
    if( GetParameter( "overwrite" ) == "on" ) { cout << "Overwrite : on" << endl; fOverwrite = true; }
 

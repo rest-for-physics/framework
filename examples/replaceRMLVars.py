@@ -14,7 +14,7 @@ import sys, os
 
 
 def wrong(info):
-    print("usage: fillRmlVars input_file [output_file] [REST_ISOTOPE=Bi214,REST_NEVENTS=100]")
+    print("usage: replaceRMLVars.py input_file [output_file] [REST_ISOTOPE=Bi214,REST_NEVENTS=100]")
     print(sys.argv)
     print("help information was printed because: {0}".format(info))
     exit(1)

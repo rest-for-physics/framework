@@ -297,6 +297,7 @@ void TRestG4Metadata::PrintMetadata( )
         cout << "Title : " << GetTitle() << endl;
         cout << "---------------------------------------" << endl;
         cout << "Geometry File : " << Get_GDML_Filename() << endl;
+        cout << "Geometry Path : " << GetGeometryPath() << endl;
         cout << "Max. Step size : " << GetMaxTargetStepSize() << " mm" << endl;
         cout << "---------------------------------------" << endl;
         cout << "Generator type : " << GetGeneratorType() << endl;
