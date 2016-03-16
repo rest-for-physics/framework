@@ -33,8 +33,8 @@
 
     <generator type="virtualBox" size="12000" units="mm" >
         <source particle="gamma" fullChain="off">
-            <angularDist type="TH1D" file="RadioactivityGammas.root" spctName="U238"/>
-            <energyDist type="TH1D" file="RadioactivityGammas.root" spctName="ThetaAngle" range="(2.4,15.0)" units="MeV"/>
+            <angularDist type="TH1D" file="RadioactivityGammas.root" spctName="ThetaAngle"/>
+            <energyDist type="TH1D" file="RadioactivityGammas.root" spctName="U238" range="(2.4,15.0)" units="MeV"/>
         </source>
     </generator>
 
