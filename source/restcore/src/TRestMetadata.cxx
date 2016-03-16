@@ -345,6 +345,14 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName )
         if( nameref != "Not defined" && fileref != "Not defined" )
         {
             configBuffer = GetSectionByNameFromFile( nameref, fileref );
+            if( configBuffer == "" ) 
+            { 
+                cout << "REST error : Could not find section " << fSectionName <<
+                    " with name : " << nameref <<
+                    " inside " << ReplaceEnvironmentalVariables( fileref ) << endl; 
+                exit(1); 
+                return -1; 
+            }
         }
         else
         {
@@ -354,7 +362,7 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName )
         }
     }
 
-    if( configBuffer == "" ) cout << "REST error : Config buffer is EMPTY" << endl;
+    if( configBuffer == "" ) { cout << "REST error reading section : " << section << ". Config buffer is EMPTY" << endl; exit(1); return -1; }
 
     configBuffer = ReplaceEnvironmentalVariables( configBuffer );
 
@@ -625,8 +633,7 @@ string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
             sprintf( envValue, " " );
             cout << "REST ERROR :: In config file " << fConfigFilePath << fConfigFileName << endl;
             cout << "Environmental variable " << expression << " is not defined" << endl; 
-            cout << "Press a KEY to continue ... " << endl;
-            getchar();
+            exit(1);
         }
     }
 
@@ -652,8 +659,7 @@ string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
             sprintf( envValue, " " );
             cout << "REST ERROR :: In config file " << fConfigFilePath << fConfigFileName << endl;
             cout << "Environmental variable " << expression << " is not defined" << endl; 
-            cout << "Press a KEY to continue ... " << endl;
-            getchar();
+            exit(1);
         }
     }
 
@@ -1347,12 +1353,11 @@ string TRestMetadata::GetKEYStructure( string keyName, size_t &fromPosition, str
 
 string TRestMetadata::GetSectionByNameFromFile( string nref, string fref )
 {
-    string fileName = fConfigFilePath + fref;
-    if( debug > 1 ) cout << __PRETTY_FUNCTION__ << " Filename : " << fileName << endl;
+    string fileName = ReplaceEnvironmentalVariables( fref );
 
     ifstream file(fileName);
 
-    if( file == NULL ) { cout << "REST Error : I could not open file : " << fileName << endl; return ""; }
+    if( file == NULL ) { cout << "REST Error : I could not open file : " << fileName << endl; exit(1); return ""; }
 
     string temporalBuffer;
     string line;
