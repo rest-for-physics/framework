@@ -4,7 +4,7 @@
      File   : isotopeFromPoint.rml
      Authors : J. Galan / H.Liang
      Date   :  9th-Apr-2016
-     Description : Template configuration file to launch radiactive {REST_ISOTOPE} decays from a given point {REST_X},{REST_Y},{REST_Z} in the geometry.
+     Description : Template configuration file to launch radioactive {REST_ISOTOPE} decays from a given point {REST_X},{REST_Y},{REST_Z} in the geometry.
  -->
 
 <globals>
@@ -22,6 +22,7 @@
     <parameter name="user" value="{USER}"/>
     <parameter name="verboseLevel" value="3"/>
     <parameter name="overwrite" value="on" />
+    <parameter name="outputFile" value="default" />
 </section>
 
 <section restG4 name="restG4 Simulation run" title="Simulation of {REST_ISOTOPE} decay from rings.">

@@ -18,7 +18,7 @@
 	    <constant name="vesselBottomTopThickness" value="150"/>
 	    <constant name="gasVolumeLength" value="2000"/>
 	    <constant name="gasVolumeRadius" value="730"/>
-	    <constant name="waterTankSize" value="8000" />
+	    <constant name="waterTankSize" value="12000" />
 
         <constant name="resistiveInsulatorThickness" value="20" />
 

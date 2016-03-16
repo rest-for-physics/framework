@@ -17,41 +17,42 @@
     <parameter name="experiment" value="PANDAX-III"/>
     <parameter name="runType" value="simulation"/>
     <parameter name="runNumber" value="{REST_RUN}"/>
-    <parameter name="runTag" value="external_{REST_ISOTOPE}_{REST_GEOMETRY_TYPE}"/>
-    <parameter name="runDescription" value="We launch {REST_ISOTOPE} decays from the virtual box."/>
+    <parameter name="runTag" value="biasing_U238"/>
+    <parameter name="runDescription" value="We launch U238 decays from the virtual box."/>
     <parameter name="user" value="{USER}"/>
     <parameter name="verboseLevel" value="3"/>
     <parameter name="overwrite" value="on" />
+    <parameter name="outputFile" value="Run_ConcreteWall_Biasing_U232.root" />
 </section>
 
-<section restG4 name="restG4 Simulation run" title="Simulation of {REST_ISOTOPE} decay from outer virtual box.">
+<section restG4 name="restG4 Simulation run" title="Biasing simulation of U238 gammas from a external concrete wall.">
 
-    <parameter name="geometryPath" value="{REST_PATH}/examples/pandaXIII/geometry/{REST_GEOMETRY_TYPE}/" />
-    <parameter name="gdml_file" value="{REST_GEOMETRY_SETUP}"/>
-    <parameter name="maxTargetStepSize" value="{REST_MAXSTEPSIZE}" units="um" />
+    <parameter name="geometryPath" value="{REST_PATH}/examples/pandaXIII/geometry/resistive/" />
+    <parameter name="gdml_file" value="pandaXIII_Setup.gdml"/>
+    <parameter name="maxTargetStepSize" value="10" units="mm" />
 
-    <generator type="virtualBox" size="{REST_BOX_SIZE}" units="mm" >
+    <generator type="virtualBox" size="12000" units="mm" >
         <source particle="gamma" fullChain="off">
-            <angularDist type="TH1D" file="RadioactivityGammas.root" spctName="{REST_ISOTOPE}"/>
-            <energyDist type="TH1D" file="RadioactivityGammas.root" spctName="ThetaAngle" range="(2400,15000)" units="keV"/>
+            <angularDist type="TH1D" file="RadioactivityGammas.root" spctName="U238"/>
+            <energyDist type="TH1D" file="RadioactivityGammas.root" spctName="ThetaAngle" range="(2.4,15.0)" units="MeV"/>
         </source>
     </generator>
 
     <biasing value="on" type="virtualBox">
-        <biasingVolume particle="gamma" size="2500" units="mm" position="(0,0,0)" units="mm" factor="10" energyRange="(2400,15000)" units="keV"/>
-        <biasingVolume particle="gamma" size="3000" units="mm" position="(0,0,0)" units="mm" factor="2.8" energyRange="(2400,15000)" units="keV"/>
-        <biasingVolume particle="gamma" size="4000" units="mm" position="(0,0,0)" units="mm" factor="6.3" energyRange="(2400,15000)" units="keV"/>
-        <biasingVolume particle="gamma" size="5000" units="mm" position="(0,0,0)" units="mm" factor="5.6" energyRange="(2400,15000)" units="keV"/>
-        <biasingVolume particle="gamma" size="6000" units="mm" position="(0,0,0)" units="mm" factor="5.2" energyRange="(2400,15000)" units="keV"/>
-        <biasingVolume particle="gamma" size="7000" units="mm" position="(0,0,0)" units="mm" factor="5.1" energyRange="(2400,15000)" units="keV"/>
-        <biasingVolume particle="gamma" size="8000" units="mm" position="(0,0,0)" units="mm" factor="5.3" energyRange="(2400,15000)" units="keV"/>
-        <biasingVolume particle="gamma" size="9000" units="mm" position="(0,0,0)" units="mm" factor="6.1" energyRange="(2400,15000)" units="keV"/>
-        <biasingVolume particle="gamma" size="10000" units="mm" position="(0,0,0)" units="mm" factor="7.9" energyRange="(2400,15000)" units="keV"/>
-        <biasingVolume particle="gamma" size="11000" units="mm" position="(0,0,0)" units="mm" factor="11.4" energyRange="(2400,15000)" units="keV"/>
+        <biasingVolume particle="gamma" size="2.5" units="m" position="(0,0,0)" units="mm" factor="10" energyRange="(2.4,15.0)" units="MeV"/>
+        <biasingVolume particle="gamma" size="3.0" units="m" position="(0,0,0)" units="mm" factor="2.8" energyRange="(2.4,15)" units="MeV"/>
+        <biasingVolume particle="gamma" size="4.0" units="m" position="(0,0,0)" units="mm" factor="6.3" energyRange="(2.4,15)" units="MeV"/>
+        <biasingVolume particle="gamma" size="5.0" units="m" position="(0,0,0)" units="mm" factor="5.6" energyRange="(2.4,15)" units="MeV"/>
+        <biasingVolume particle="gamma" size="6.0" units="m" position="(0,0,0)" units="mm" factor="5.2" energyRange="(2.4,15)" units="MeV"/>
+        <biasingVolume particle="gamma" size="7.0" units="m" position="(0,0,0)" units="mm" factor="5.1" energyRange="(2.4,15)" units="MeV"/>
+        <biasingVolume particle="gamma" size="8.0" units="m" position="(0,0,0)" units="mm" factor="5.3" energyRange="(2.4,15)" units="MeV"/>
+        <biasingVolume particle="gamma" size="9.0" units="m" position="(0,0,0)" units="mm" factor="6.1" energyRange="(2.4,15)" units="MeV"/>
+        <biasingVolume particle="gamma" size="10.0" units="m" position="(0,0,0)" units="mm" factor="7.9" energyRange="(2.4,15)" units="MeV"/>
+        <biasingVolume particle="gamma" size="11.0" units="m" position="(0,0,0)" units="mm" factor="11.4" energyRange="(2.4,15)" units="MeV"/>
     </biasing>
 
     <storage sensitiveVolume="gas">
-        <parameter name="energyRange" value="({REST_EMIN},{REST_EMAX})" units="MeV" />
+        <parameter name="energyRange" value="(2.4,15)" units="MeV" />
         <activeVolume name="gas" chance="1" />
     </storage>
 
