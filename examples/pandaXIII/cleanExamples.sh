@@ -1,6 +1,6 @@
 #!/bin/bash
 
-declare -a dirs=( "micromegas1" "vessel" "electronics" "supports" "rings" "gas" "resistive" "external" "waterTank" )
+declare -a dirs=( "micromegas1" "vessel" "electronics" "supports" "rings" "gas" "resistive" "external" "waterTank" "external" )
 
 for dir in "${dirs[@]}"
 do

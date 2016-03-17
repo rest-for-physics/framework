@@ -258,16 +258,9 @@ NEVENTS=100000
 
 mkdir -p external
 
- ../replaceRMLVars.py biasing/externalU238.rml external/gammaFromU238.rml \
- "[REST_ISOTOPE=U238;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS;REST_BOX_SIZE=12000]" 
- ../replaceRMLVars.py biasing/gammaFromVirtualBox.rml external/gammaFromU238AfterBiasing.rml \
- "[REST_ISOTOPE=U238;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS;REST_BOX_SIZE=3000]" 
+ ../replaceRMLVars.py templates/biasedIsotopeFromVirtualBox.rml external/gammaFromU238AfterBiasing.rml \
+ "[REST_ISOTOPE=U238;$PARAMS;REST_NEVENTS=$NEVENTS;REST_BOXSIZE=3000]" 
 
- ../replaceRMLVars.py biasing/externalTh232.rml external/gammaFromTh232.rml \
- "[REST_ISOTOPE=Th232;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS;REST_BOX_SIZE=12000]"
- ../replaceRMLVars.py biasing/gammaFromVirtualBox.rml external/gammaFromTh232AfterBiasing.rml \
- "[REST_ISOTOPE=Th232;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS;REST_BOX_SIZE=3000]"
-
-
-
+ ../replaceRMLVars.py templates/biasedIsotopeFromVirtualBox.rml external/gammaFromTh232AfterBiasing.rml \
+ "[REST_ISOTOPE=Th232;$PARAMS;REST_NEVENTS=$NEVENTS;REST_BOXSIZE=3000]" 
 

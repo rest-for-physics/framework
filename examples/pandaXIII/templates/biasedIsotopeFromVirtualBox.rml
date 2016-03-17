@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
 <!-- 
-     File   : isotopeFromVolume.rml
+     File   : biasedIsotopeFromVirtualBox.rml
      Authors : J. Galan / H.Liang
-     Date   :  9th-Apr-2016
-     Description : Template configuration file to launch radiactive {REST_ISOTOPE} decays from a given volume {REST_VOLUME} defined in the geometry.
+     Date   :  17th-March-2016
+     Description : Configuration file to launch biased concrete {REST_ISOTOPE} decays from a virtualBox 2.5m size.
  -->
 
 <globals>
@@ -30,10 +30,10 @@
     <parameter name="gdml_file" value="pandaXIII_Setup_WT12m.gdml"/>
     <parameter name="maxTargetStepSize" value="{REST_MAXSTEPSIZE}" units="um" />
 
-    <generator type="virtualBox" size="2500" units="mm" >
+    <generator type="virtualBox" size="{REST_BOXSIZE}" units="mm" >
         <source particle="gamma" fullChain="off">
-            <angularDist type="TH1D" file="Run_ConcreteWall_Biasing_{REST_ISOTOPE}.root" spctName="Bias_Angular_Distribution_0"/>
-            <energyDist type="TH1D" file="Run_ConcreteWall_Biasing_{REST_ISOTOPE}.root" spctName="Bias_Spectrum_0" range="(2400,15000)" units="keV"/>
+            <angularDist type="TH1D" file="{REST_PATH}/inputData/distributions/HighEnergyGammaBiasing.root" spctName="{REST_ISOTOPE}_Angular_{REST_BOXSIZE}"/>
+            <energyDist type="TH1D" file="{REST_PATH}/inputData/distributions/HighEnergyGammaBiasing.root" spctName="{REST_ISOTOPE}_Spectrum_{REST_BOXSIZE}" range="(2.4,15.0)" units="MeV"/>
         </source>
     </generator>
 
