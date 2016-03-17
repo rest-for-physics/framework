@@ -79,7 +79,9 @@ void TRestRun::Initialize()
 
     fOverwrite = false;
 
+    fCurrentEvent = 0;
     fProcessedEvents = 0;
+    fEventIDs.clear();
 }
 
 void TRestRun::ResetRunTimes()
@@ -126,6 +128,7 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
 	for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->InitProcess();
 
     fProcessedEvents = 0;
+    fEventIDs.clear();
     if( eventsToProcess == 0 && fInputEventTree != NULL ) eventsToProcess = fInputEventTree->GetEntries();
 
 	TRestEvent *processedEvent;
@@ -168,6 +171,7 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
 
 		PrintProcessedEvents(100);
 
+        fEventIDs.push_back( fOutputEvent->GetEventID() );
         fProcessedEvents++;
 	}
 
@@ -699,10 +703,16 @@ Int_t TRestRun::GetEventWithID( Int_t eventID )
 
     Int_t nEntries = fInputEventTree->GetEntries();
 
+    if( nEntries != (Int_t) fEventIDs.size() ) { cout << "REST WARNING. Tree and eventIDs have not the same size!!" << endl; return 0; }
+
     while( currentEvent != fCurrentEvent-1 )
     {
-        fInputEventTree->GetEntry( fCurrentEvent );
-        if( fInputEvent->GetEventID() == eventID ) return 1;
+        if( fEventIDs[currentEvent] == eventID )
+        {
+            fCurrentEvent = currentEvent;
+            fInputEventTree->GetEntry( fCurrentEvent );
+            return 1;
+        }
 
         if( currentEvent == nEntries-1 ) currentEvent = 0;
         else currentEvent++;

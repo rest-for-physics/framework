@@ -79,6 +79,7 @@ class TRestRun:public TRestMetadata {
         Int_t fCurrentEvent;
 #endif
         Int_t fProcessedEvents;
+        vector <Int_t> fEventIDs;
 
         void SetRunFilenameAndIndex();
         TKey *GetObjectKeyByClass( TString className );
