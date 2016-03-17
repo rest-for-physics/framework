@@ -693,6 +693,24 @@ if(fCurrentEvent%rateE ==0){
 
 }
 
+Int_t TRestRun::GetEventWithID( Int_t eventID )
+{
+    Int_t currentEvent = fCurrentEvent;
+
+    Int_t nEntries = fInputEventTree->GetEntries();
+
+    while( currentEvent != fCurrentEvent-1 )
+    {
+        fInputEventTree->GetEntry( fCurrentEvent );
+        if( fInputEvent->GetEventID() == eventID ) return 1;
+
+        if( currentEvent == nEntries-1 ) currentEvent = 0;
+        else currentEvent++;
+    }
+
+    return 0;
+}
+
 //Return false when the file ends
 Bool_t TRestRun::GetNextEvent( )
 {

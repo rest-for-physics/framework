@@ -104,6 +104,8 @@ class TRestRun:public TRestMetadata {
         TRestEvent *GetEventInput() { return fInputEvent; }
         TTree *GetInputEventTree() { return fInputEventTree; }
 
+        Int_t GetEventWithID( Int_t eventID );
+
         //TRestMetadata *GetEventMetadata() { return fEventMetadata; }
         TRestEvent *GetOutputEvent() { return fOutputEvent; }
         TFile *GetOutputFile() { return fOutputFile; }
@@ -123,7 +125,6 @@ class TRestRun:public TRestMetadata {
         Double_t GetStartTimestamp() { return fStartTime; }
         Double_t GetEndTimestamp() { return fEndTime; }
         TString GetExperimentName() { return fExperimentName; }
-
 
         Int_t GetNumberOfProcessedEvents() { return fProcessedEvents; }
 
