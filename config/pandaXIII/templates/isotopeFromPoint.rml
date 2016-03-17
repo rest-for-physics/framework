@@ -17,7 +17,7 @@
     <parameter name="experiment" value="PANDAX-III"/>
     <parameter name="runType" value="simulation"/>
     <parameter name="runNumber" value="{REST_RUN}"/>
-    <parameter name="runTag" value="Point{REST_X}_{REST_Y}_{REST_Z}_{REST_GEOMETRY_TYPE}_{REST_ISOTOPE}"/>
+    <parameter name="runTag" value="Point_X{REST_X}_Y{REST_Y}_Z{REST_Z}_{REST_GEOMETRY_TYPE}_{REST_ISOTOPE}"/>
     <parameter name="runDescription" value="We launch {REST_ISOTOPE} decays from position ({REST_X},{REST_Y},{REST_Z})."/>
     <parameter name="user" value="{USER}"/>
     <parameter name="verboseLevel" value="3"/>

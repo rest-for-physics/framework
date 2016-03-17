@@ -209,26 +209,28 @@ VOLUME='electronics'
 
 mkdir $VOLUME -p
 
- ./../replaceRMLVars.py templates/isotopeFromVolume.rml $VOLUME/Co60.rml \
- "[REST_VOLUME=$VOLUME;$Co60;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS]"
+POSITION='REST_X=0;REST_Y=0;REST_Z=-1150'
 
- ./../replaceRMLVars.py templates/isotopeFromVolume.rml $VOLUME/Th232.rml \
- "[REST_VOLUME=$VOLUME;$Th232;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS]"
+ ./../replaceRMLVars.py templates/isotopeFromPoint.rml $VOLUME/Co60.rml \
+ "[$POSITION;$Co60;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS]"
 
- ./../replaceRMLVars.py templates/isotopeFromVolume.rml $VOLUME/Ra228.rml \
- "[REST_VOLUME=$VOLUME;$Ra228;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS]"
+ ./../replaceRMLVars.py templates/isotopeFromPoint.rml $VOLUME/Th232.rml \
+ "[$POSITION;$Th232;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS]"
 
- ./../replaceRMLVars.py templates/isotopeFromVolume.rml $VOLUME/U238.rml \
- "[REST_VOLUME=$VOLUME;$U238;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS]"
+ ./../replaceRMLVars.py templates/isotopeFromPoint.rml $VOLUME/Ra228.rml \
+ "[$POSITION;$Ra228;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS]"
 
- ./../replaceRMLVars.py templates/isotopeFromVolume.rml $VOLUME/Th234.rml \
- "[REST_VOLUME=$VOLUME;$Th234;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS]"
+ ./../replaceRMLVars.py templates/isotopeFromPoint.rml $VOLUME/U238.rml \
+ "[$POSITION;$U238;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS]"
 
- ./../replaceRMLVars.py templates/isotopeFromVolume.rml $VOLUME/Bi214.rml \
- "[REST_VOLUME=$VOLUME;$Bi214;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS]"
+ ./../replaceRMLVars.py templates/isotopeFromPoint.rml $VOLUME/Th234.rml \
+ "[$POSITION;$Th234;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS]"
 
- ./../replaceRMLVars.py templates/isotopeFromVolume.rml $VOLUME/Tl208.rml \
- "[REST_VOLUME=$VOLUME;$Tl208;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS]"
+ ./../replaceRMLVars.py templates/isotopeFromPoint.rml $VOLUME/Bi214.rml \
+ "[$POSITION;$Bi214;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS]"
+
+ ./../replaceRMLVars.py templates/isotopeFromPoint.rml $VOLUME/Tl208.rml \
+ "[$POSITION;$Tl208;$GEO;$PARAMS;REST_NEVENTS=$NEVENTS]"
 
 
  ######################       RESISTIVE FIELD CAGE      ###########################
