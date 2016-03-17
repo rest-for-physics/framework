@@ -260,7 +260,7 @@ void TRestMetadata::SetDefaultConfigFilePath( )
     if( getenv( "REST_PATH" ) != NULL )
     {
         sprintf( path, "%s", getenv("REST_PATH") );
-        sprintf(cfgpath, "%s/examples/template/", path );
+        sprintf(cfgpath, "%s/examples/", path );
         SetConfigFilePath((const char *) cfgpath );
     }
     else
