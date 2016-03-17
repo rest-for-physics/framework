@@ -173,7 +173,7 @@ int main(int argc,char** argv) {
 
     if( restG4Metadata->GetParticleSource(0).GetEnergyDistType() == "TH1D" )
     {
-        TString fileFullPath = (TString ) getenv("REST_PATH") + "/inputData/distributions/" + restG4Metadata->GetParticleSource(0).GetSpectrumFilename();
+        TString fileFullPath = (TString ) restG4Metadata->GetParticleSource(0).GetSpectrumFilename();
 
         TFile fin( fileFullPath );
 
@@ -190,7 +190,7 @@ int main(int argc,char** argv) {
 
     if( restG4Metadata->GetParticleSource(0).GetAngularDistType() == "TH1D" )
     {
-        TString fileFullPath = (TString ) getenv("REST_PATH") + "/inputData/distributions/" + restG4Metadata->GetParticleSource(0).GetAngularFilename();
+        TString fileFullPath = (TString ) restG4Metadata->GetParticleSource(0).GetAngularFilename();
 
         TFile fin( fileFullPath );
 
