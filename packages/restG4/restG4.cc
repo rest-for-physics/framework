@@ -104,6 +104,7 @@ int main(int argc,char** argv) {
     restRun->AddMetadata( restG4Metadata );
 
     restTrack = new TRestG4Track( );
+    // }}} 
 
     // {{{ Setting the biasing spectra histograms 
     biasing = restG4Metadata->GetNumberOfBiasingVolumes();
@@ -379,8 +380,10 @@ int main(int argc,char** argv) {
     delete restTrack;
 
     // Writting the geometry in TGeoManager format to the ROOT file
+    char originDirectory[256];
     sprintf( originDirectory, "%s", get_current_dir_name() );
 
+    char buffer[256];
     sprintf( buffer, "%s", (char *) restG4Metadata->GetGeometryPath().Data() );
     chdir( buffer );
 
