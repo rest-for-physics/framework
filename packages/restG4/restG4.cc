@@ -52,7 +52,6 @@ TRestRun *restRun;
 TRestG4Track *restTrack;
 TRestG4Event *restG4Event;
 TRestG4Metadata *restG4Metadata;
-TGeoManager *restGeometry;
 
 #include <TGeoVolume.h>
 
@@ -94,22 +93,6 @@ int main(int argc,char** argv) {
 
     // {{{ Initializing REST classes
     restG4Metadata = new TRestG4Metadata( inputConfigFile );
-    
-    // Changing to Geometry directory
-    char originDirectory[255];
-    sprintf( originDirectory, "%s", get_current_dir_name() );
-
-    char buffer[255];
-    sprintf( buffer, "%s", (char *) restG4Metadata->GetGeometryPath().Data() );
-    chdir( buffer );
-
-    TRestGeometry *geo = new TRestGeometry( );
-    geo->Import( restG4Metadata->Get_GDML_Filename() );
-
-
-    // And coming back to origin directory
-    chdir( originDirectory );
-
 
     restRun = new TRestRun( inputConfigFile );
     restRun->PrintInfo();
@@ -121,15 +104,6 @@ int main(int argc,char** argv) {
     restRun->AddMetadata( restG4Metadata );
 
     restTrack = new TRestG4Track( );
-
-
-
-
-    //restG4Metadata->SetGeometry( restGeometry );
-
- //   restRun->SetGeometry( restGeometry );
-
-    // }}}
 
     // {{{ Setting the biasing spectra histograms 
     biasing = restG4Metadata->GetNumberOfBiasingVolumes();
@@ -401,11 +375,10 @@ int main(int argc,char** argv) {
 
     delete restRun;
 
-    //   delete restGeometry;
     delete restG4Event;
     delete restTrack;
 
-    // Writting the geometry
+    // Writting the geometry in TGeoManager format to the ROOT file
     sprintf( originDirectory, "%s", get_current_dir_name() );
 
     sprintf( buffer, "%s", (char *) restG4Metadata->GetGeometryPath().Data() );
