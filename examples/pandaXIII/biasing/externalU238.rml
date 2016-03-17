@@ -22,7 +22,7 @@
     <parameter name="user" value="{USER}"/>
     <parameter name="verboseLevel" value="3"/>
     <parameter name="overwrite" value="on" />
-    <parameter name="outputFile" value="Run_ConcreteWall_Biasing_U232.root" />
+    <parameter name="outputFile" value="Run_ConcreteWall_Biasing_U238.root" />
 </section>
 
 <section restG4 name="restG4 Simulation run" title="Biasing simulation of U238 gammas from a external concrete wall.">

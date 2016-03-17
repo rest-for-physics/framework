@@ -107,3 +107,43 @@ Description: It contains three angular distributions for cosmics arriving from z
 
     - Theta3   :  following a Cos^3(theta) distribution
 ---------------------------------------------------------------------------
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+File : HighEnergyGammaBiasing.root
+Histograms : Th232_Spectrum, Th232_Angular, U238_Spectrum, U238_Angular
+
+Description: This file contains the energy spectrum and angular distribution of the gammas biased through several biasing volumes inside a water tank.
+             The gammas are initially launched from the boundaries of a water tank of 12m side, using energy distributions Th232 and U238 given by RadiactivityGammas.root
+             The resulting biasing energy and angular spectra at a virtualBox of 2.5m side are registered in this file.
+
+    - Th232_Spectrum    :  Energy spectrum between 2.4MeV and 15MeV (Units in keV)
+
+    - U238_Spectrum     :  Energy spectrum between 2.4MeV and 15MeV (Units in keV)
+
+    - Th232_Angular     :  Theta angular distibution (Direction normal to the virtualBox walls).
+
+    - U238_Angular      :  Theta angular distibution (Direction normal to the virtualBox walls).
+
+
+Note : These spectra have been generated using config/pandaXIII/biasing/external[Th232,U238].rml
+
+The biasing factors used to obtain the final biasing spectra at the 2.5m virtualBox are given in the following table
+    
+                        Vbox size  |  Th232  |  U238
+                        ----------------------------
+                         11.0 m    |   13.2  |  11.4
+                         10.0 m    |   11.8  |   7.9
+                          9.0 m    |   10.7  |   6.1
+                          8.0 m    |    9.4  |   5.3
+                          7.0 m    |    7.7  |   5.1
+                          6.0 m    |    6.5  |   5.2
+                          5.0 m    |    6.0  |   5.6
+                          4.0 m    |    6.4  |   6.3
+                          3.0 m    |    2.7  |   2.8
+                        ----------------------------
+                         Total     |  8.1E7  | 7.6E6 
+    
+    
+
+
+---------------------------------------------------------------------------
