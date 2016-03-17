@@ -112,6 +112,7 @@ Description: It contains three angular distributions for cosmics arriving from z
 File : HighEnergyGammaBiasing.root
 Histograms : Th232_Spectrum, Th232_Angular, U238_Spectrum, U238_Angular
 
+
 Description: This file contains the energy spectrum and angular distribution of the gammas biased through several biasing volumes inside a water tank.
              The gammas are initially launched from the boundaries of a water tank of 12m side, using energy distributions Th232 and U238 given by RadiactivityGammas.root
              The resulting biasing energy and angular spectra at a virtualBox of 2.5m side are registered in this file.
@@ -124,6 +125,8 @@ Description: This file contains the energy spectrum and angular distribution of 
 
     - U238_Angular      :  Theta angular distibution (Direction normal to the virtualBox walls).
 
+Each of these spectra is given for different virtual box sizes (2500mm, 3000mm and 4000mm). 
+Thus Th232_Spectrum_2500 contains the gammas that reached the biasing volume at 2500mm.
 
 Note : These spectra have been generated using config/pandaXIII/biasing/external[Th232,U238].rml
 
