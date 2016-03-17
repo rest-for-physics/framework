@@ -93,6 +93,12 @@ All units in mm, keV and degrees
     <parameter name="electricField" value="" units="V/cm" />
 </section>
 
+
+<section gaussianConvolutionProcess name="gaussian-Convolution"  title="Gaussian convolution of signals" >
+    <parameter name="sigma" value="0.01" units="us" /> 
+    <parameter name="nSigmas" value="5" />  // Number of sigmas to perform the calculation
+</section>
+
 <section addSignalNoiseProcess name="addSignalNoiseProcess" title="Test AddNoise to Signal" >
     <parameter name="noiseLevel" value="10" /> // // electrons in each time bin
 </section>
@@ -131,6 +137,14 @@ All units in mm, keV and degrees
     <parameter name="transversalResolution" value="1" units="mm" />
 </section>
 
+<section rotateAndTraslate name="rotateAndTraslate" title="IAXOD0 TPC" >
+    <parameter name="deltaX" value="0." units="mm" />	
+    <parameter name="deltaY" value="0" units="mm" />
+    <parameter name="deltaZ" value="0" units="mm" />
+    <parameter name="alpha" value="90" />	// rotation angle around Z in degrees
+    <parameter name="beta" value="90"  />	// rotation angle around Y in degrees
+    <parameter name="gamma" value="90" />	// rotation angle around X in degrees
+</section>
 
 <section readout nameref="Readout-PANDA_3MM_64channels" file="{REST_PATH)/inputData/definitions/readouts.rml"> </section>
 

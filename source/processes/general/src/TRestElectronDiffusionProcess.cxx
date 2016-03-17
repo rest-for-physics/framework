@@ -17,7 +17,9 @@
 #include "TRestElectronDiffusionProcess.h"
 using namespace std;
 
-#include <TRandom.h>
+#include <TRandom3.h>
+
+TRandom3 *rnd;
 
 ClassImp(TRestElectronDiffusionProcess)
     //______________________________________________________________________________
@@ -45,6 +47,7 @@ TRestElectronDiffusionProcess::~TRestElectronDiffusionProcess()
 {
     if( fGas != NULL ) delete fGas;
 
+    delete rnd;
     delete fHitsEvent;
     delete fG4Event;
     // TRestElectronDiffusionProcess destructor
@@ -79,6 +82,8 @@ void TRestElectronDiffusionProcess::Initialize()
     fOutputEvent = fHitsEvent;
     fInputEvent = fG4Event;
     fGas = NULL;
+
+    rnd = new TRandom3(0);
 }
 
 void TRestElectronDiffusionProcess::LoadConfig( string cfgFilename )
@@ -118,11 +123,9 @@ void TRestElectronDiffusionProcess::BeginOfEventProcess()
 TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 {
 
-    TRandom *rnd = new TRandom();
-
     TRestG4Event *g4Event = (TRestG4Event *) evInput;
 
-    Double_t ionizationThreshold = fGas->GetIonizationPotential();
+    Double_t w_value = fGas->GetWvalue();
     Double_t longlDiffCoeff = fGas->GetLongitudinalDiffusion( fElectricField ); // (cm)^1/2
     Double_t transDiffCoeff = fGas->GetTransversalDiffusion( fElectricField ); // (cm)^1/2
 
@@ -150,7 +153,7 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
                     {
                         Double_t xDiff, yDiff, zDiff;
 
-                        Int_t numberOfElectrons =  rnd->Poisson( eDep*1000./ionizationThreshold );
+                        Int_t numberOfElectrons =  rnd->Poisson( eDep*1000./w_value );
                         while( numberOfElectrons > 0 )
                         {
                             numberOfElectrons--;

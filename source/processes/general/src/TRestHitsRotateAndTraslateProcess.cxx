@@ -5,77 +5,79 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestAvalancheProcess.cxx
+///             TRestHitsRotateAndTraslateProcess.cxx
 ///
 ///             Template to use to design "event process" classes inherited from 
-///             TRestAvalancheProcess
-///             How to use: replace TRestAvalancheProcess by your name, 
+///             TRestHitsRotateAndTraslateProcess
+///             How to use: replace TRestHitsRotateAndTraslateProcess by your name, 
 ///             fill the required functions following instructions and add all
 ///             needed additional members and funcionality
 ///
-///             feb 2016:   First concept
+///             march 2016:   First concept
 ///                 Created as part of the conceptualization of existing REST 
 ///                 software.
 ///                 Javier G. Garza
 ///_______________________________________________________________________________
 
 
-#include "TRestAvalancheProcess.h"
+#include "TRestHitsRotateAndTraslateProcess.h"
 using namespace std;
 
 #include <TRandom3.h>
 
-ClassImp(TRestAvalancheProcess)
+ClassImp(TRestHitsRotateAndTraslateProcess)
 //______________________________________________________________________________
-TRestAvalancheProcess::TRestAvalancheProcess()
+TRestHitsRotateAndTraslateProcess::TRestHitsRotateAndTraslateProcess()
 {
     Initialize();
 
 }
 
 //______________________________________________________________________________
-TRestAvalancheProcess::TRestAvalancheProcess( char *cfgFileName )
+TRestHitsRotateAndTraslateProcess::TRestHitsRotateAndTraslateProcess( char *cfgFileName )
 {
     Initialize();
 
     if( LoadConfigFromFile( cfgFileName ) ) LoadDefaultConfig( );
 
     PrintMetadata();
-    fGas = new TRestGas( cfgFileName );
 
-   // TRestAvalancheProcess default constructor
+   // TRestHitsRotateAndTraslateProcess default constructor
 }
 
 //______________________________________________________________________________
-TRestAvalancheProcess::~TRestAvalancheProcess()
+TRestHitsRotateAndTraslateProcess::~TRestHitsRotateAndTraslateProcess()
 {
-    if( fGas != NULL ) delete fGas;
-
     delete fHitsInputEvent;
     delete fHitsOutputEvent;
-   // TRestAvalancheProcess destructor
+   // TRestHitsRotateAndTraslateProcess destructor
 }
 
-void TRestAvalancheProcess::LoadDefaultConfig()
+void TRestHitsRotateAndTraslateProcess::LoadDefaultConfig()
 {
     	SetTitle( "Default config" );
 
-	fEnergyRef = 5.9;	
-	fResolutionAtEref = 15.0; 
-	fDetectorGain = 8000.0;	
+	fDeltaX = 1.0;	
+	fDeltaY = 1.0; 
+	fDeltaZ = 1.0;
+	fAlpha = 0.;	
+	fBeta  = 0.; 
+	fGamma = 0.;
+	
 
 }
 
 //______________________________________________________________________________
-void TRestAvalancheProcess::Initialize()
+void TRestHitsRotateAndTraslateProcess::Initialize()
 {
-    SetName( "avalancheProcess" );
+    SetName( "rotateAndTraslate" );
 
-    fGas = NULL;
-
-    fEnergyRef = 5.9;	
-    fResolutionAtEref = 15.0; 
-    fDetectorGain = 8000.0;	
+    fDeltaX = 1.0;	
+    fDeltaY = 1.0; 
+    fDeltaZ = 1.0;
+    fAlpha = 0.;	
+    fBeta  = 0.; 
+    fGamma = 0.;	
 
     fHitsInputEvent = new TRestHitsEvent();
     fHitsOutputEvent = new TRestHitsEvent();
@@ -84,17 +86,15 @@ void TRestAvalancheProcess::Initialize()
     fInputEvent = fHitsInputEvent;
 }
 
-void TRestAvalancheProcess::LoadConfig( string cfgFilename )
+void TRestHitsRotateAndTraslateProcess::LoadConfig( string cfgFilename )
 {
     if( LoadConfigFromFile( cfgFilename ) ) LoadDefaultConfig( );
 
     PrintMetadata();
-    fGas = new TRestGas( cfgFilename.c_str() );
-    fGas->PrintMetadata( );
 }
 
 //______________________________________________________________________________
-void TRestAvalancheProcess::InitProcess()
+void TRestHitsRotateAndTraslateProcess::InitProcess()
 {
     // Function to be executed once at the beginning of process
     // (before starting the process of the events)
@@ -103,63 +103,50 @@ void TRestAvalancheProcess::InitProcess()
     //Comment this if you don't want it.
     //TRestEventProcess::InitProcess();
 
-    if( fGas == NULL ) cout << "REST ERRORRRR : Gas has not been initialized" << endl;
-
     cout << __PRETTY_FUNCTION__ << endl;
 
 }
 
 //______________________________________________________________________________
-void TRestAvalancheProcess::BeginOfEventProcess() 
+void TRestHitsRotateAndTraslateProcess::BeginOfEventProcess() 
 {
     cout << "Begin of event process" << endl;
     fHitsOutputEvent->Initialize(); 
 }
 
 //______________________________________________________________________________
-TRestEvent* TRestAvalancheProcess::ProcessEvent( TRestEvent *evInput )
+TRestEvent* TRestHitsRotateAndTraslateProcess::ProcessEvent( TRestEvent *evInput )
 {
 
     fHitsInputEvent = (TRestHitsEvent *) evInput;
+    TRestHitsEvent *proEvent = new TRestHitsEvent();
 
-    Double_t fW = fGas->GetWvalue();
-    Double_t gain, totelectrons = 0;
+    proEvent = fHitsInputEvent;
 
-    Double_t eDep = fHitsInputEvent->GetTotalEnergy() * fW / 1000.0;
-    Double_t eRes = fResolutionAtEref * TMath::Sqrt(fEnergyRef / eDep) / 2.35 / 100.0;
+    TVector3 meanPosition = proEvent->fHits->GetMeanPosition();
 
-    cout<<"Initial electrons "<< fHitsInputEvent->GetTotalEnergy()<<" ; eDep "<< eDep << " keV; resolution "<< eRes*2.35*100 << " fwhm"<< endl;
-
-    TRandom3 *rnd = new TRandom3(0);
-
-    for( int hit = 0; hit < fHitsInputEvent->GetNumberOfHits(); hit++ )
+    for(int hit = 0; hit < fHitsInputEvent->GetNumberOfHits(); hit++)
     {
-	 gain = fDetectorGain * rnd->Gaus(1.0, eRes);
+       proEvent->fHits->RotateIn3D(hit, fAlpha , fBeta , fGamma, meanPosition );
+       proEvent->fHits->Traslate(hit, fDeltaX, fDeltaY, fDeltaZ );
 
-    	 // The electronics gain is applied.
-   	 // gain = gain * 4096.0 / fElectronicsGain;
-
-	 totelectrons += gain;
-
-          fHitsOutputEvent->AddHit( fHitsInputEvent->GetX(hit), fHitsInputEvent->GetY(hit), fHitsInputEvent->GetZ(hit), fHitsInputEvent->GetEnergy(hit) * gain );   
+      fHitsOutputEvent->AddHit( proEvent->GetX(hit), proEvent->GetY(hit), proEvent->GetZ(hit), proEvent->GetEnergy(hit) );   
     }
-
-    delete rnd;  
 
     if( fHitsOutputEvent->GetNumberOfHits() == 0 ) return NULL;
 
-    cout << "Initial: " << fHitsInputEvent->GetNumberOfHits() << "e-s, and amplified: " << totelectrons << " e-s : " << endl;
+    cout << "Electrons rotated: " << fHitsInputEvent->GetNumberOfHits() << "e-s" << endl;
     return fHitsOutputEvent;
 }
 
 //______________________________________________________________________________
-void TRestAvalancheProcess::EndOfEventProcess() 
+void TRestHitsRotateAndTraslateProcess::EndOfEventProcess() 
 {
 
 }
 
 //______________________________________________________________________________
-void TRestAvalancheProcess::EndProcess()
+void TRestHitsRotateAndTraslateProcess::EndProcess()
 {
    // Function to be executed once at the end of the process 
    // (after all events have been processed)
@@ -170,9 +157,19 @@ void TRestAvalancheProcess::EndProcess()
 }
 
 //______________________________________________________________________________
-void TRestAvalancheProcess::InitFromConfigFile( )
+void TRestHitsRotateAndTraslateProcess::InitFromConfigFile( )
 {
-    fEnergyRef = GetDblParameterWithUnits( "energyReference"  );
-    fResolutionAtEref = StringToDouble( GetParameter( "resolutionReference" ) );
-    fDetectorGain = StringToDouble( GetParameter( "detectorGain" ) );
+    fDeltaX = GetDblParameterWithUnits( "deltaX"  );
+    fDeltaY = GetDblParameterWithUnits( "deltaY"  );
+    fDeltaZ = GetDblParameterWithUnits( "deltaZ"  );
+
+    fAlpha = StringToDouble( GetParameter( "alpha" ) );  // rotation angle around Z
+    fBeta  = StringToDouble( GetParameter( "beta" ) );   // rotation angle around Y
+    fGamma = StringToDouble( GetParameter( "gamma" ) );  // rotation angle around X
+
+    //Conversion to radians
+    fAlpha = fAlpha  * TMath::Pi() / 180.;
+    fBeta  = fBeta   * TMath::Pi() / 180.;
+    fGamma = fGamma  * TMath::Pi() / 180.;
 }
+

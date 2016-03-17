@@ -1,5 +1,74 @@
 
 ==========================================================
+Date : 15th / March / 2016
+Branch : rawToSignalFix
+Author : Javier Galan
+Merge : #56
+Title : Minor fix on rawToSignal process when the number of events to process given is zero.
+==========================================================
+
+When the number of eventsToProcess is defined as zero, TRestRun will redefine the number of events to process to a big number 2E9 in case there is no inputEventTree existing.
+
+Small corrections regarding metadata management.
+
+==========================================================
+Date : 14th / March / 2016
+Branch : smallFixes
+Author : Javier Galan
+Merge : #53
+Title : Hotfix in electronDiffusion on random generation, and renamed method TRestGas::SetGasPressure.
+==========================================================
+
+TRestGas : method SetGasPressure has been renamed to SetPressure.
+
+TRestElectronDiffusionProcess. TRandom number generator has been sustituted by TRandom3. Previously the random sequences for each process where always reproduced!
+
+==========================================================
+Date : 11th / March / 2016
+Branch : translate
+Author : Javier Gracia
+Merge : #52
+Title : Translate and rotation of TRestHits 
+==========================================================
+
+Implementation of TRestHitsRotateAndTraslateProcess.
+It uses the TRestHits::RotateIn3D() and TRestHits::Traslate() methods.
+The process requires as metadata the distance to shift in x, y and z-asis, and the angles around x, y and z axis.
+An script to perform this operation is also icluded.
+
+==========================================================
+Date : 09th / March / 2016
+Branch : fixRawToRoot  
+Author : Javier Gracia
+Merge : #51
+Title : Minor modifications in TRestRun::ProcessEvents() 
+==========================================================
+
+If the input event is a binary file from the daq, the eventID and timeStamp of the output event Tree are not filled from the input event Tree.
+Also, minor modifications in the RESTRAW_FEMINOSToRoot.C and RESTRAW_AFTERToRoot.C scripts, adapting them to TRestRun::ProcessEvents(), instead of TRestRun::Start()
+
+==========================================================
+Date : 08th / March / 2016
+Branch : issue#16
+Author : Javier Gracia
+Merge : #50
+==========================================================
+
+Implementation of TRestGaussianConvolutionProcess. 
+A TRestSignalEvent is transformed into another TRestSignalEvent.
+It requires as metadata the sigma of the gaussian function and the number of simgas to which the convolution is extended.
+
+==========================================================
+Date : 02nd / March / 2016
+Branch : W_value
+Author : Javier Gracia
+Merge : #45
+==========================================================
+
+Added W-values of different gases in definitions/gases.rml.
+The name of the methods that call to this parameter (in electronDiffusionProcess and avalancheProcess) are changed from ionizationPotential to Wvalue
+
+==========================================================
 Date : 2nd / March / 2016
 Branch : newInputData
 Author : Gloria Luzón/Javier Galan

@@ -1,38 +1,34 @@
-//#include <TObject.h>
-//#include <TString.h>
-//#include <TFile.h>
-//#include <TTree.h>
-//#include <TBranch.h>
-
 #include <iostream>
 using namespace std;
 
-
-
-
-Int_t RESTRAW_FEMINOSToRoot( TString fName, TString cfgFilename="myConfig.rml" )
+Int_t RESTRAW_FEMINOSToRoot( TString fName, Int_t firstEvent = 0, Int_t numberOfEventsToProcess = 0, char *cfgFilename = "myConfig.rml" )
 {
     cout << "Filename : " << fName << endl;
 
- //   TRestElectronDiffusionRun *run = new TRestElectronDiffusionRun();
-    TRestRun *run = new TRestRun(cfgFilename.Data());
+    TRestRun *run = new TRestRun( cfgFilename );
 
-    // We load the information from the input file on the new run
-    //run->OpenInputFile( fName );
+    int runNumber, runIndex;
+    int size=fName.Sizeof();
+    TString fN(fName(size-20,size-1));
+    sscanf(fN.Data(),"RUN_%d.%d.acq",&runNumber,&runIndex);
+    cout<<"Run# "<<runNumber<<" index "<<runIndex<<endl;
 
+    run->SetRunNumber( runNumber );
     run->SetRunType( "rawSignal" );
     run->ResetRunTimes( );
-
     run->PrintInfo();
     
-    TRestFEMINOSToSignalProcess *agetToSignal = new TRestFEMINOSToSignalProcess(cfgFilename.Data());
-    	if(!agetToSignal->OpenInputBinFile(fName)){
-    	cout<<"File "<<fName.Data()<<" not found"<<endl;
-    	exit(0);
-    	}
-    run->AddProcess( agetToSignal );
+    TRestFEMINOSToSignalProcess *agetToSignal = new TRestFEMINOSToSignalProcess( );
 
-    run->Start( );
+    if(!agetToSignal->OpenInputBinFile(fName))
+    {
+    	cout << "File " << fName.Data() << " not found" << endl;
+    	exit(0);
+    }
+
+    run->AddProcess( agetToSignal,  cfgFilename );
+
+    run->ProcessEvents( firstEvent, numberOfEventsToProcess );
 
     delete run;
 }
