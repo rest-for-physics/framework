@@ -27,7 +27,7 @@
 
 <section restG4 name="restG4 Simulation run" title="Biasing simulation of U238 gammas from a external concrete wall.">
 
-    <parameter name="geometryPath" value="{REST_PATH}/examples/pandaXIII/geometry/resistive/" />
+    <parameter name="geometryPath" value="{REST_PATH}/config/pandaXIII/geometry/resistive/" />
     <parameter name="gdml_file" value="pandaXIII_Setup.gdml"/>
     <parameter name="maxTargetStepSize" value="10" units="mm" />
 

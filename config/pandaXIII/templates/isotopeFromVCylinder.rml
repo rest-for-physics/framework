@@ -24,7 +24,7 @@
 </section>
 
 <section restG4 name="restG4 Simulation run" title="Simulation of {REST_ISOTOPE} decay from a virtual cylinder.">
-    <parameter name="geometryPath" value="{REST_PATH}/examples/pandaXIII/geometry/{REST_GEOMETRY_TYPE}/" />
+    <parameter name="geometryPath" value="{REST_PATH}/config/pandaXIII/geometry/{REST_GEOMETRY_TYPE}/" />
     <parameter name="gdml_file" value="{REST_GEOMETRY_SETUP}"/>
     <parameter name="maxTargetStepSize" value="{REST_MAXSTEPSIZE}" units="um" />
 
