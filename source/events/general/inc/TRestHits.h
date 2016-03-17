@@ -106,7 +106,7 @@ class TRestHits : public TObject
 
         TVector2 GetProjection( Int_t n, Int_t m, TVector3 position );
 
-        void PrintHits();
+        void PrintHits( Int_t nHits = -1);
 	
         //Construtor
         TRestHits();

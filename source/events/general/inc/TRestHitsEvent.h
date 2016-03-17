@@ -47,7 +47,7 @@ class TRestHitsEvent : public TRestEvent
 
         virtual void Initialize();
 
-        virtual void PrintEvent();
+        virtual void PrintEvent( Int_t nHits = 10 );
 
         TVector3 GetPosition( int n ) { return fHits->GetPosition(n); }
 

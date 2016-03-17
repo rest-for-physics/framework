@@ -311,14 +311,13 @@ TVector2 TRestHits::GetProjection( Int_t n, Int_t m, TVector3 position )
 }
 
 
-void TRestHits::PrintHits()
+void TRestHits::PrintHits( Int_t nHits )
 {
-	//TRestEvent::PrintEvent();
-	for( int n = 0; n < GetNumberOfHits(); n++ )
-	{
+    Int_t N = nHits;
+
+    if( N == -1 ) N = GetNumberOfHits();
+
+	for( int n = 0; n < N; n++ )
 		cout << "Hit " << n << " X: " << GetX(n) << " Y: " << GetY(n) << " Z: " << GetZ(n) <<  " Energy: " << GetEnergy(n) << endl;
-	}
-
-
 }
 

@@ -104,10 +104,12 @@ void TRestHitsEvent::ChangeOrigin(double origx, double origy, double origz)
 }
 
 
-void TRestHitsEvent::PrintEvent()
+void TRestHitsEvent::PrintEvent( Int_t nHits )
 {
 	TRestEvent::PrintEvent();
-	fHits->PrintHits();
 
+    if( nHits != -1 ) cout << "Printing only the first " << nHits << " hits" << endl;
 
+	fHits->PrintHits( nHits );
 }
+
