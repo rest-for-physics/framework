@@ -127,6 +127,9 @@ class TRestRun:public TRestMetadata {
         Double_t GetEndTimestamp() { return fEndTime; }
         TString GetExperimentName() { return fExperimentName; }
 
+	Int_t GetEventID( Int_t entry ) { return fEventIDs[entry]; }
+	Int_t GetEntry( Int_t i ) { return fInputEventTree->GetEntry( i ); }
+
         Int_t GetNumberOfProcessedEvents() { return fProcessedEvents; }
 
         TRestMetadata *GetHistoricMetadata(unsigned int index)
