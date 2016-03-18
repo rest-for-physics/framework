@@ -73,12 +73,20 @@
             <fraction n="1-quencherFraction" ref="Xenon" />
         </material>
 
+        <material name="Xenon_ISO" state="gas">
+            <D unit="mg/cm3" value="targetGasDensity+quencherDensity" />
+            <P unit="bar" value="gasPressure" />
+            <T unit="K" value="gasTemperature" />
+            <fraction n="quencherFraction" ref="isobutane" />
+            <fraction n="1-quencherFraction" ref="Xenon" />
+        </material>
+
         <material name="PureArgon" state="gas">
             <T unit="K" value="gasTemperature"/>
             <P unit="bar" value="gasPressure"/>
             <MEE unit="eV" value="188"/>
             <D unit="mg/cm3" value="targetGasDensity"/>
-            <fraction n="1" ref="Ar"/>
+            <fraction n="1" ref="Argon"/>
         </material>
 
         <material name="Ar_ISO" state="gas">
