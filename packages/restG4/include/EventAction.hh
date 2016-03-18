@@ -78,6 +78,8 @@ class EventAction : public G4UserEventAction
         TH1D *fDepositSpectrum;
         TH1D *fDepositSpectrum_ROI;
 
+        Double_t absDouble( Double_t x ) { if( x > 0 ) return x; return -x; }
+
         void SetSubeventIDs();
 
         vector <Double_t> fTrackTimestampList;

@@ -24,7 +24,7 @@ GEO='REST_GEOMETRY_TYPE=traditional;REST_GEOMETRY_SETUP=pandaXIII_Setup_WT12m.gd
 GEO_SWT='REST_GEOMETRY_TYPE=traditional;REST_GEOMETRY_SETUP=pandaXIII_Setup_WT6m.gdml'
 
  ######################       GAS        ###########################
-PARAMS='REST_EMIN=0;REST_EMAX=10;REST_MAXSTEPSIZE=10'
+PARAMS='REST_EMIN=0;REST_EMAX=10;REST_MAXSTEPSIZE=10;REST_EVENTDELAY=100'
 
 mkdir gas -p
  ./../replaceRMLVars.py templates/isotopeFromVolume.rml gas/Xe137.rml \

@@ -31,6 +31,7 @@
     <parameter name="geometryPath" value="{REST_PATH}/config/pandaXIII/geometry/{REST_GEOMETRY_TYPE}/" />
     <parameter name="gdml_file" value="{REST_GEOMETRY_SETUP}"/>
     <parameter name="maxTargetStepSize" value="{REST_MAXSTEPSIZE}" units="um" />
+    <parameter name="subEventTimeDelay" value="{REST_EVENTDELAY}" units="us" />
 
     <generator type="volume" from="{REST_VOLUME}" >
         <source fromFile="{REST_GENERATOR_FILE}">

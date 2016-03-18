@@ -29,6 +29,7 @@
     <parameter name="geometryPath" value="{REST_PATH}/config/pandaXIII/geometry/traditional/" />
     <parameter name="gdml_file" value="pandaXIII_Setup_WT12m.gdml"/>
     <parameter name="maxTargetStepSize" value="{REST_MAXSTEPSIZE}" units="um" />
+    <parameter name="subEventTimeDelay" value="{REST_EVENTDELAY}" units="us" />
 
     <generator type="virtualBox" size="{REST_BOXSIZE}" units="mm" >
         <source particle="gamma" fullChain="off">

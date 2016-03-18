@@ -27,6 +27,7 @@
     <parameter name="geometryPath" value="{REST_PATH}/config/pandaXIII/geometry/{REST_GEOMETRY_TYPE}/" />
     <parameter name="gdml_file" value="{REST_GEOMETRY_SETUP}"/>
     <parameter name="maxTargetStepSize" value="{REST_MAXSTEPSIZE}" units="um" />
+    <parameter name="subEventTimeDelay" value="{REST_EVENTDELAY}" units="us" />
 
     <generator type="virtualCylinder" size="{REST_RADIUS}" units="mm" length="{REST_LENGTH}" units="m" >
         <source particle="{REST_ISOTOPE}" fullChain="{REST_FULLCHAIN}">

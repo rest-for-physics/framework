@@ -43,6 +43,8 @@ Example :
 
 * Now `restG4` main will import the GDML geometry `TGeoManager::Import(GDMLfile)` and append it to the ROOT file generated.
 
+* The `subEventID` definition has changed. Now a new parameter `subEventTimeDelay` has been added to `TRestG4Metadata`. If this parameter is not defined it will take by default 1 second. Events with timeStamp containned inside the `subEventTimeDelay` will be considered as a single `subEventID`.
+
 # Changes on inputData
 
 * inputData/definitions : New directory containning common definitions : `readouts.rml`, `materials.xml`, `gases.rml`
