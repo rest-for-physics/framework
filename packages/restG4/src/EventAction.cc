@@ -69,7 +69,7 @@ EventAction::~EventAction()
 
 void EventAction::BeginOfEventAction(const G4Event* evt)
 {
-    if( evt->GetEventID() % 50000 == 0 ) cout << "Starting event : " << evt->GetEventID() << endl;
+    if( evt->GetEventID() % 10000 == 0 ) cout << "Starting event : " << evt->GetEventID() << endl;
 
     restTrack->Initialize();
 
@@ -144,17 +144,17 @@ void EventAction::SetSubeventIDs()
 {
     Int_t nTracks = restG4Event->GetNumberOfTracks();
 
-    //fTrackTimestampList.push_back(0)
+    Double_t timeDelay = restG4Metadata->GetSubEventTimeDelay() * REST_Units::s;
+
     cout.precision(20);
     for( int n = 0; n < nTracks; n++ )
     {
         Double_t trkTime = restG4Event->GetTrack(n)->GetGlobalTrackTime();
-        modf( trkTime, &trkTime); // we remove the decimal part (we keep only seconds)
 
         Int_t Ifound = 0;
         for( unsigned int id = 0; id < fTrackTimestampList.size(); id++ )
         {
-            if( fTrackTimestampList[id] == trkTime ) Ifound = id;
+            if( absDouble ( fTrackTimestampList[id] - trkTime ) < timeDelay ) Ifound = id;
         }
 
         if ( Ifound == 0 ) fTrackTimestampList.push_back( trkTime );
@@ -165,21 +165,10 @@ void EventAction::SetSubeventIDs()
         for( int n = 0; n < nTracks; n++ )
         {
             Double_t trkTime = restG4Event->GetTrack(n)->GetGlobalTrackTime();
-            modf( trkTime, &trkTime); // we remove the decimal part (we keep only seconds)
 
-            if( trkTime == fTrackTimestampList[id] ) { restG4Event->SetTrackSubEventID( n, id ); }
- //           G4cout << "SubEvID : " << id << " --> " << fTrackTimestampList[id] << G4endl;
+            if( absDouble ( fTrackTimestampList[id] - trkTime ) < timeDelay ) { restG4Event->SetTrackSubEventID( n, id ); }
         }
     }
-
-    /*
-        for( int n = 0; n < nTracks; n++ )
-        {
-            G4cout << " Track n : " << restG4Event->GetTrack(n).GetTrackID() << " subEvtID : " << restG4Event->GetTrack(n).GetSubEventID( ) << G4endl;
-
-        }
-        */
-
 
 }
 

@@ -72,6 +72,7 @@ class TRestG4Metadata:public TRestMetadata {
         std::vector <TRestBiasingVolume> fBiasingVolumes;
         
         Double_t fMaxTargetStepSize;
+        Double_t fSubEventTimeDelay;
 
 
         Bool_t fFullChain;
@@ -92,6 +93,7 @@ class TRestG4Metadata:public TRestMetadata {
         TString GetGeneratorFile() { return fGeneratorFile; }
 
         Double_t GetMaxTargetStepSize() { return fMaxTargetStepSize; }
+        Double_t GetSubEventTimeDelay() { return fSubEventTimeDelay; }
 
         void SetGeneratorType( TString type ) { fGenType = type; } 
         void SetGeneratorSize( Double_t size ) { fGenSize = size; }

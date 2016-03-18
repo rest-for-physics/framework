@@ -39,6 +39,7 @@ All units in mm, keV and degrees
     <parameter name="geometryPath" value="{REST_PATH}/examples/template/geometry/" />
     <parameter name="gdml_file" value="mySetupTemplate.gdml"/>
     <parameter name="maxTargetStepSize" value="200" units="um" />
+    <parameter name="subEventTimeDelay" value="100" units="us" />
 
     <generator type="volume" from="gas" >
         <source fromFile="Xe136bb0n.dat">
