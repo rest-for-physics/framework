@@ -52,7 +52,6 @@ TRestRun *restRun;
 TRestG4Track *restTrack;
 TRestG4Event *restG4Event;
 TRestG4Metadata *restG4Metadata;
-TGeoManager *restGeometry;
 
 #include <TGeoVolume.h>
 
@@ -93,6 +92,8 @@ int main(int argc,char** argv) {
     // }}} 
 
     // {{{ Initializing REST classes
+    restG4Metadata = new TRestG4Metadata( inputConfigFile );
+
     restRun = new TRestRun( inputConfigFile );
     restRun->PrintInfo();
     restRun->OpenOutputFile();
@@ -100,20 +101,10 @@ int main(int argc,char** argv) {
     restG4Event = new TRestG4Event( );
     restRun->SetOutputEvent( restG4Event );
 
-    restG4Metadata = new TRestG4Metadata( inputConfigFile );
     restRun->AddMetadata( restG4Metadata );
 
     restTrack = new TRestG4Track( );
-
-
-    restGeometry = new TRestGeometry( );
-    restGeometry->Import( restG4Metadata->Get_GDML_Filename() );
-
-    //restG4Metadata->SetGeometry( restGeometry );
-
-    restRun->SetGeometry( restGeometry );
-
-    // }}}
+    // }}} 
 
     // {{{ Setting the biasing spectra histograms 
     biasing = restG4Metadata->GetNumberOfBiasingVolumes();
@@ -182,7 +173,7 @@ int main(int argc,char** argv) {
 
     if( restG4Metadata->GetParticleSource(0).GetEnergyDistType() == "TH1D" )
     {
-        TString fileFullPath = (TString ) getenv("REST_PATH") + "/inputData/distributions/" + restG4Metadata->GetParticleSource(0).GetSpectrumFilename();
+        TString fileFullPath = (TString ) restG4Metadata->GetParticleSource(0).GetSpectrumFilename();
 
         TFile fin( fileFullPath );
 
@@ -199,7 +190,7 @@ int main(int argc,char** argv) {
 
     if( restG4Metadata->GetParticleSource(0).GetAngularDistType() == "TH1D" )
     {
-        TString fileFullPath = (TString ) getenv("REST_PATH") + "/inputData/distributions/" + restG4Metadata->GetParticleSource(0).GetAngularFilename();
+        TString fileFullPath = (TString ) restG4Metadata->GetParticleSource(0).GetAngularFilename();
 
         TFile fin( fileFullPath );
 
@@ -370,11 +361,44 @@ int main(int argc,char** argv) {
     //
     delete runManager;
 
+    restRun->CloseOutputFile();
+
+    TString Filename = restRun->GetOutputFilename();
+
+    /*
+   // TFile *f1 = new TFile( restRun->GetOutputFilename(), "RECREATE" );
+    TFile *f1 = new TFile( "new.root", "RECREATE" );
+    cout << "Writting geometry" << endl;
+    geo->Write();
+
+    f1->Close();
+    */
+
     delete restRun;
 
-    //   delete restGeometry;
     delete restG4Event;
     delete restTrack;
+
+    // Writting the geometry in TGeoManager format to the ROOT file
+    char originDirectory[256];
+    sprintf( originDirectory, "%s", get_current_dir_name() );
+
+    char buffer[256];
+    sprintf( buffer, "%s", (char *) restG4Metadata->GetGeometryPath().Data() );
+    chdir( buffer );
+
+    TGeoManager *geo2 = new TGeoManager( );
+    geo2->Import( restG4Metadata->Get_GDML_Filename() );
+    
+    // And coming back to origin directory
+    chdir( originDirectory );
+
+    TFile *f1 = new TFile( Filename, "update" );
+    cout << "Writting geometry" << endl;
+    f1->cd();
+    geo2->Write();
+    cout << "Closing file" << endl;
+    f1->Close();
 
     return 0;
 }

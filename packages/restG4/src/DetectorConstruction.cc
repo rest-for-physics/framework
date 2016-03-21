@@ -16,6 +16,7 @@ DetectorConstruction::DetectorConstruction()
     G4cout << "Detector Construction" << G4endl;
 
     parser = new G4GDMLParser();
+
 }
 //_____________________________________________________________________________
 DetectorConstruction::~DetectorConstruction()
@@ -33,7 +34,18 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     // Reading the geometry
     TString geometryFile = restG4Metadata->Get_GDML_Filename();
 
+    char originDirectory[255];
+    sprintf( originDirectory, "%s", get_current_dir_name() );
+
+    char buffer[255];
+    sprintf( buffer, "%s", (char *) restG4Metadata->GetGeometryPath().Data() );
+    chdir( buffer );
+
     parser->Read( (string) geometryFile, false );
+
+    chdir( originDirectory );
+
+
     G4VPhysicalVolume *W = parser->GetWorldVolume();
 
     // TODO : Take the name of the sensitive volume and use it here to define its StepSize

@@ -152,6 +152,8 @@ cout<<"Opening "<<dir.Data( )<<endl;
 Bool_t TRestBrowser::OpenFile( TString fName )
 {
 
+    TGeoManager *geometry;
+
     string fname = fName.Data();
     if( !fileExists( fname ) ) {
         cout << "WARNING. Input file does not exist" << endl;
@@ -167,9 +169,7 @@ Bool_t TRestBrowser::OpenFile( TString fName )
 
         string className = key->GetClassName();
 	
-	cout<<className<<" "<<key->GetName()<<endl;
-	
-        if ( className == "TGeoManager" ) fGeometry = (TGeoManager *)fInputFile->Get(key->GetName());
+       if ( className == "TGeoManager" ) geometry = (TGeoManager *) fInputFile->Get( key->GetName() );
     }
 
     // Transfering metadata to historic
@@ -182,8 +182,7 @@ Bool_t TRestBrowser::OpenFile( TString fName )
                 
     SetInputEvent(fEventViewer->GetEvent());
     
-    cout<<"Geometry "<<GetGeometry( )<<endl;
-    if(GetGeometry( )!=NULL)fEventViewer->SetGeometry(GetGeometry( ));
+    if( geometry != NULL )fEventViewer->SetGeometry( geometry );
     
     isFile=kTRUE;
     LoadEventAction( );

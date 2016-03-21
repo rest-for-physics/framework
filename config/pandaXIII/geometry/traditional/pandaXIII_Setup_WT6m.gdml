@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<!DOCTYPE gdml [
+<!ENTITY materials SYSTEM "materials.xml">
+<!ENTITY solids SYSTEM "pandaXIII_Geometry.gdml">
+]>
+
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+    <define>
+        <!-- variables used for looping -->
+        <constant name="PI" value="3.14159265358979323846264" />
+        <constant name="degToRad" value="PI/180." />
+
+
+        <constant name="world_size" value="20000"/>
+        <constant name="vesselThickness" value="30"/>
+        <constant name="vesselBottomTopThickness" value="150"/>
+        <constant name="gasVolumeLength" value="2000"/>
+        <constant name="gasVolumeRadius" value="750"/>
+        <constant name="waterTankSize" value="6000" />
+
+        <!-- Field cage (Number of rings must be changed in two places (solid definition and volume definition) ) -->
+        <constant name="ringSpacing" value="20" />
+        <constant name="ringInternalRadius" value="725" />
+        <constant name="ringThickness" value="5" />
+        <constant name="ringHeight" value="10" />
+
+        <constant name="supporterThickness" value="15" />
+        <constant name="supporterWidth" value="50" />
+        <constant name="supporterHeight" value="gasVolumeLength-2*ringSpacing" />
+        <constant name="supporterAngle" value="15" />
+
+        <!-- anode and micromegas -->
+        <constant name="anodeThickness" value="0.1" />
+        <constant name="micromegas_Z" value="960" />
+        <constant name="micromegasSupportThickness" value="5" />
+        <constant name="micromegasThickness" value="0.05" />
+    </define>
+
+    <define>
+        <variable name="targetGasDensity" value="56.5884"/> <!-- mg/cm3 (This density corresponds to 200Kg in vessel volume) --> 
+        <variable name="quencherDensity" value="0.254"/> <!-- mg/cm3 (Corresponds to 1% TMA) -->
+        <variable name="quencherFraction" value="0.01"/>
+        <variable name="gasTemperature" value="300"/> <!-- K -->
+        <variable name="gasPressure" value="10"/> <!-- bar -->
+
+    </define>
+
+    <define>
+        <position name="ringPositionTop_01" x="0" y="0" z="ringSpacing*1" />
+        <position name="ringPositionTop_02" x="0" y="0" z="ringSpacing*2" />
+        <position name="ringPositionTop_03" x="0" y="0" z="ringSpacing*3" />
+        <position name="ringPositionTop_04" x="0" y="0" z="ringSpacing*4" />
+        <position name="ringPositionTop_05" x="0" y="0" z="ringSpacing*5" />
+        <position name="ringPositionTop_06" x="0" y="0" z="ringSpacing*6" />
+        <position name="ringPositionTop_07" x="0" y="0" z="ringSpacing*7" />
+        <position name="ringPositionTop_08" x="0" y="0" z="ringSpacing*8" />
+        <position name="ringPositionTop_09" x="0" y="0" z="ringSpacing*9" />
+        <position name="ringPositionTop_10" x="0" y="0" z="ringSpacing*10" />
+        <position name="ringPositionTop_11" x="0" y="0" z="ringSpacing*11" />
+        <position name="ringPositionTop_12" x="0" y="0" z="ringSpacing*12" />
+        <position name="ringPositionTop_13" x="0" y="0" z="ringSpacing*13" />
+        <position name="ringPositionTop_14" x="0" y="0" z="ringSpacing*14" />
+        <position name="ringPositionTop_15" x="0" y="0" z="ringSpacing*15" />
+        <position name="ringPositionTop_16" x="0" y="0" z="ringSpacing*16" />
+        <position name="ringPositionTop_17" x="0" y="0" z="ringSpacing*17" />
+        <position name="ringPositionTop_18" x="0" y="0" z="ringSpacing*18" />
+        <position name="ringPositionTop_19" x="0" y="0" z="ringSpacing*19" />
+        <position name="ringPositionTop_20" x="0" y="0" z="ringSpacing*20" />
+        <position name="ringPositionTop_21" x="0" y="0" z="ringSpacing*21" />
+        <position name="ringPositionTop_22" x="0" y="0" z="ringSpacing*22" />
+        <position name="ringPositionTop_23" x="0" y="0" z="ringSpacing*23" />
+        <position name="ringPositionTop_24" x="0" y="0" z="ringSpacing*24" />
+        <position name="ringPositionTop_25" x="0" y="0" z="ringSpacing*25" />
+        <position name="ringPositionTop_26" x="0" y="0" z="ringSpacing*26" />
+        <position name="ringPositionTop_27" x="0" y="0" z="ringSpacing*27" />
+        <position name="ringPositionTop_28" x="0" y="0" z="ringSpacing*28" />
+        <position name="ringPositionTop_29" x="0" y="0" z="ringSpacing*29" />
+        <position name="ringPositionTop_30" x="0" y="0" z="ringSpacing*30" />
+        <position name="ringPositionTop_31" x="0" y="0" z="ringSpacing*31" />
+        <position name="ringPositionTop_32" x="0" y="0" z="ringSpacing*32" />
+        <position name="ringPositionTop_33" x="0" y="0" z="ringSpacing*33" />
+        <position name="ringPositionTop_34" x="0" y="0" z="ringSpacing*34" />
+        <position name="ringPositionTop_35" x="0" y="0" z="ringSpacing*35" />
+        <position name="ringPositionTop_36" x="0" y="0" z="ringSpacing*36" />
+        <position name="ringPositionTop_37" x="0" y="0" z="ringSpacing*37" />
+        <position name="ringPositionTop_38" x="0" y="0" z="ringSpacing*38" />
+        <position name="ringPositionTop_39" x="0" y="0" z="ringSpacing*39" />
+        <position name="ringPositionTop_40" x="0" y="0" z="ringSpacing*40" />
+        <position name="ringPositionTop_41" x="0" y="0" z="ringSpacing*41" />
+        <position name="ringPositionTop_42" x="0" y="0" z="ringSpacing*42" />
+        <position name="ringPositionTop_43" x="0" y="0" z="ringSpacing*43" />
+        <position name="ringPositionTop_44" x="0" y="0" z="ringSpacing*44" />
+        <position name="ringPositionTop_45" x="0" y="0" z="ringSpacing*45" />
+        <position name="ringPositionTop_46" x="0" y="0" z="ringSpacing*46" />
+        <position name="ringPositionTop_47" x="0" y="0" z="ringSpacing*47" />
+        <position name="ringPositionTop_48" x="0" y="0" z="ringSpacing*48" />
+
+        <position name="ringPositionBottom_01" x="0" y="0" z="-ringSpacing*1" />
+        <position name="ringPositionBottom_02" x="0" y="0" z="-ringSpacing*2" />
+        <position name="ringPositionBottom_03" x="0" y="0" z="-ringSpacing*3" />
+        <position name="ringPositionBottom_04" x="0" y="0" z="-ringSpacing*4" />
+        <position name="ringPositionBottom_05" x="0" y="0" z="-ringSpacing*5" />
+        <position name="ringPositionBottom_06" x="0" y="0" z="-ringSpacing*6" />
+        <position name="ringPositionBottom_07" x="0" y="0" z="-ringSpacing*7" />
+        <position name="ringPositionBottom_08" x="0" y="0" z="-ringSpacing*8" />
+        <position name="ringPositionBottom_09" x="0" y="0" z="-ringSpacing*9" />
+        <position name="ringPositionBottom_10" x="0" y="0" z="-ringSpacing*10" />
+        <position name="ringPositionBottom_11" x="0" y="0" z="-ringSpacing*11" />
+        <position name="ringPositionBottom_12" x="0" y="0" z="-ringSpacing*12" />
+        <position name="ringPositionBottom_13" x="0" y="0" z="-ringSpacing*13" />
+        <position name="ringPositionBottom_14" x="0" y="0" z="-ringSpacing*14" />
+        <position name="ringPositionBottom_15" x="0" y="0" z="-ringSpacing*15" />
+        <position name="ringPositionBottom_16" x="0" y="0" z="-ringSpacing*16" />
+        <position name="ringPositionBottom_17" x="0" y="0" z="-ringSpacing*17" />
+        <position name="ringPositionBottom_18" x="0" y="0" z="-ringSpacing*18" />
+        <position name="ringPositionBottom_19" x="0" y="0" z="-ringSpacing*19" />
+        <position name="ringPositionBottom_20" x="0" y="0" z="-ringSpacing*20" />
+        <position name="ringPositionBottom_21" x="0" y="0" z="-ringSpacing*21" />
+        <position name="ringPositionBottom_22" x="0" y="0" z="-ringSpacing*22" />
+        <position name="ringPositionBottom_23" x="0" y="0" z="-ringSpacing*23" />
+        <position name="ringPositionBottom_24" x="0" y="0" z="-ringSpacing*24" />
+        <position name="ringPositionBottom_25" x="0" y="0" z="-ringSpacing*25" />
+        <position name="ringPositionBottom_26" x="0" y="0" z="-ringSpacing*26" />
+        <position name="ringPositionBottom_27" x="0" y="0" z="-ringSpacing*27" />
+        <position name="ringPositionBottom_28" x="0" y="0" z="-ringSpacing*28" />
+        <position name="ringPositionBottom_29" x="0" y="0" z="-ringSpacing*29" />
+        <position name="ringPositionBottom_30" x="0" y="0" z="-ringSpacing*30" />
+        <position name="ringPositionBottom_31" x="0" y="0" z="-ringSpacing*31" />
+        <position name="ringPositionBottom_32" x="0" y="0" z="-ringSpacing*32" />
+        <position name="ringPositionBottom_33" x="0" y="0" z="-ringSpacing*33" />
+        <position name="ringPositionBottom_34" x="0" y="0" z="-ringSpacing*34" />
+        <position name="ringPositionBottom_35" x="0" y="0" z="-ringSpacing*35" />
+        <position name="ringPositionBottom_36" x="0" y="0" z="-ringSpacing*36" />
+        <position name="ringPositionBottom_37" x="0" y="0" z="-ringSpacing*37" />
+        <position name="ringPositionBottom_38" x="0" y="0" z="-ringSpacing*38" />
+        <position name="ringPositionBottom_39" x="0" y="0" z="-ringSpacing*39" />
+        <position name="ringPositionBottom_40" x="0" y="0" z="-ringSpacing*40" />
+        <position name="ringPositionBottom_41" x="0" y="0" z="-ringSpacing*41" />
+        <position name="ringPositionBottom_42" x="0" y="0" z="-ringSpacing*42" />
+        <position name="ringPositionBottom_43" x="0" y="0" z="-ringSpacing*43" />
+        <position name="ringPositionBottom_44" x="0" y="0" z="-ringSpacing*44" />
+        <position name="ringPositionBottom_45" x="0" y="0" z="-ringSpacing*45" />
+        <position name="ringPositionBottom_46" x="0" y="0" z="-ringSpacing*46" />
+        <position name="ringPositionBottom_47" x="0" y="0" z="-ringSpacing*47" />
+        <position name="ringPositionBottom_48" x="0" y="0" z="-ringSpacing*48" />
+
+        <position name="supporterPosition_00" unit="mm" 
+            x="0" y="0" z="0" />
+        <position name="supporterPosition_01" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(1*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(1*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_02" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(2*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(2*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_03" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(3*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(3*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_04" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(4*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(4*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_05" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(5*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(5*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_06" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(6*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(6*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_07" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(7*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(7*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_08" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(8*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(8*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_09" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(9*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(9*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_10" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(10*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(10*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_11" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(11*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(11*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_12" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(12*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(12*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_13" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(13*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(13*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_14" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(14*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(14*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_15" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(15*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(15*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_16" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(16*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(16*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_17" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(17*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(17*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_18" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(18*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(18*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_19" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(19*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(19*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_20" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(20*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(20*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_21" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(21*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(21*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_22" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(22*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(22*degToRad*supporterAngle)" z="0" />
+        <position name="supporterPosition_23" unit="mm" 
+            x="(ringInternalRadius+supporterThickness/2.)*(cos(23*degToRad*supporterAngle)-1)" y="(ringInternalRadius+supporterThickness/2.)*sin(23*degToRad*supporterAngle)" z="0" />
+
+
+        <rotation name="supporterRotation_01" unit="deg" z="1*supporterAngle" />
+        <rotation name="supporterRotation_02" unit="deg" z="2*supporterAngle" />
+        <rotation name="supporterRotation_03" unit="deg" z="3*supporterAngle" />
+        <rotation name="supporterRotation_04" unit="deg" z="4*supporterAngle" />
+        <rotation name="supporterRotation_05" unit="deg" z="5*supporterAngle" />
+        <rotation name="supporterRotation_06" unit="deg" z="6*supporterAngle" />
+        <rotation name="supporterRotation_07" unit="deg" z="7*supporterAngle" />
+        <rotation name="supporterRotation_08" unit="deg" z="8*supporterAngle" />
+        <rotation name="supporterRotation_09" unit="deg" z="9*supporterAngle" />
+        <rotation name="supporterRotation_10" unit="deg" z="10*supporterAngle" />
+        <rotation name="supporterRotation_11" unit="deg" z="11*supporterAngle" />
+        <rotation name="supporterRotation_12" unit="deg" z="12*supporterAngle" />
+        <rotation name="supporterRotation_13" unit="deg" z="13*supporterAngle" />
+        <rotation name="supporterRotation_14" unit="deg" z="14*supporterAngle" />
+        <rotation name="supporterRotation_15" unit="deg" z="15*supporterAngle" />
+        <rotation name="supporterRotation_16" unit="deg" z="16*supporterAngle" />
+        <rotation name="supporterRotation_17" unit="deg" z="17*supporterAngle" />
+        <rotation name="supporterRotation_18" unit="deg" z="18*supporterAngle" />
+        <rotation name="supporterRotation_19" unit="deg" z="19*supporterAngle" />
+        <rotation name="supporterRotation_20" unit="deg" z="20*supporterAngle" />
+        <rotation name="supporterRotation_21" unit="deg" z="21*supporterAngle" />
+        <rotation name="supporterRotation_22" unit="deg" z="22*supporterAngle" />
+        <rotation name="supporterRotation_23" unit="deg" z="23*supporterAngle" />
+        <rotation name="supporterRotation_24" unit="deg" z="24*supporterAngle" />
+    </define>
+
+    &materials;
+    &solids;
+
+</gdml>
+

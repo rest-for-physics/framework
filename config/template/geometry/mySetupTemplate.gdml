@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<!DOCTYPE gdml [
+<!ENTITY geometry SYSTEM "myGeometryTemplate.gdml">
+<!ENTITY materials SYSTEM "materials.xml">
+]>
+
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+    <!-- Just an example of main geometry file : myGeometryTemplate.gdml 
+         This file just defines de parameters of the geometry.
+         The geometry it is defined in geometry/myGeometryDefinition.gdml
+         The materials are defined in geometry/materials.xml
+         Author :   J. Galan    Date : 09-Jul-2015
+    -->
+
+<!-- All values should be in mm -->
+
+    <define>
+        <constant name="world_size" value="20000" />
+
+        <!-- The TPC gas target -->
+        <constant name="gasRadius" value="750" />
+        <constant name="gasLength" value="2000" />
+
+        <variable name="targetGasDensity" value="56.5884"/> <!-- mg/cm3 (This density corresponds to 200Kg in vessel volume) --> 
+        <variable name="quencherDensity" value="0.254"/> <!-- mg/cm3 (Corresponds to 1% TMA) -->
+        <variable name="quencherFraction" value="0.01"/>
+        <variable name="gasTemperature" value="300"/> <!-- K -->
+        <variable name="gasPressure" value="10"/> <!-- bar -->
+
+        <!-- The vessel definitions -->
+        <constant name="vesselThickness" value="50" />
+
+        <!-- The water tank -->
+        <constant name="waterTankSize" value="8000" />
+    </define>
+
+    &materials;
+
+    &geometry;
+
+
+    <setup name="Default" version="1.0">
+        <world ref="World"/>
+    </setup>
+
+</gdml>

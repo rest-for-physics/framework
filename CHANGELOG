@@ -1,5 +1,81 @@
 
 ==========================================================
+Date : 17th / March / 2016
+Branch : examples
+Author : Javier Galan/Hao Liang/Javier Gracia
+Merge : #57
+Title : Several changes on configuration, metadata, restG4 and restcore
+==========================================================
+
+# Major change on the structure of configuration directory.
+
+Now config/ is distributed in diferent directories. Each directory related to a specific example of use of REST. An important change is that now the geometry of our detector setup is also stored inside the config directory tree 
+
+We will find the following new directories inside :
+
+* config/template (old myConfig.rml/mySetupTemplate.rml): It contains always a basic template for the first use inside REST, and for testing pourposes, any new metadata field should be always added to the template configuration.
+
+* config/IAXODO : It contains geometry and setup configuration for IAXOD0 simulations.
+
+* config/pandaXIII : Configuration files related to pandaXIII setup. It contains several geometry setups, traditional, resistive, etc.
+
+The pandaXIII directory contains just prototyped configuration files under pandaXIII/templates/ directory. The pandaXIII directory can be populated with specific config files using the following scripts:
+    
+      - generateExamples.sh : produces specific metadata files.
+      - cleanExamples.sh : removes configuration files generated with generateExamples.sh
+
+# Additional changes on configuration
+
+* Now the path to the geometry must be specicified inside restG4 section. We can then launch restG4 from anywhere we want. The geometry will be read from wherever we specify inside the configuration file (see template/config.rml).
+
+* If REST_CONFIG is not specified (and the configuration files are not found in the directory from where we are launching REST) REST will define a internal configuration path pointing to `$REST_PATH/config/`. Thus, we must specify the configuration files inside REST relative to this path. Thus, if we do not define any REST_CONFIG, it will be `template/config.rml` or `pandaXIII/vessel/Th232.rml`.
+
+* Added a script `replaceRMLVars.py` inside config/ directory. This script is used to replace enviromental variables in a prototyped configuration template substituting them for specific values.
+
+---
+Example : 
+  replaceRMLVars.py inputFile.rml outputFile.rml [REST_NEVENTS=100000;REST_ISOTOPE=Tl208;REST_RUN=100]
+---
+
+# Changes on restG4
+
+* Geometry setups have been removed from `restG4` and `restG4-build`. `CMakeLists.txt` has been updated accordingly. Geometry files are not copied anymore to `restG4-build`.
+
+* Now `restG4` main will import the GDML geometry `TGeoManager::Import(GDMLfile)` and append it to the ROOT file generated.
+
+* The `subEventID` definition has changed. Now a new parameter `subEventTimeDelay` has been added to `TRestG4Metadata`. If this parameter is not defined it will take by default 1 second. Events with timeStamp containned inside the `subEventTimeDelay` will be considered as a single `subEventID`.
+
+# Changes on inputData
+
+* inputData/definitions : New directory containning common definitions : `readouts.rml`, `materials.xml`, `gases.rml`
+       In order to implement materials.xml in specific configurations we just use a symbolic link.
+       materials.xml symlink has been added to the different geometries in the configuration directories.
+
+     Note : Now we must specify full path when referencing a file. 
+
+---
+Example:
+  <section gas nameref="Gas name" file="{REST_PATH}/inputData/definitions/gases.rml" >
+---
+
+* inputData/distributions : Added `HighEnergyGammaBiasing.root` distribution containning the resulting gamma after biasing in a water tank (see README).
+
+
+# Changes in restcore
+
+* The geometry `TRestGeometry::TGeoManager` is not anymore contained by `TRestRun`.
+    Undetermined problems were found when doing `fGeometry->Write()`, problems with `TGeoManager` serialization?
+
+* New method `GetEventWithID(Int_t id)`: This methods gets the tree entry correspoding to the event with `fEventID==id`.
+    Thus, it fills the fInputEvent structure inside `TRestRun` with the event with `id`.
+
+* A new member `vector <Int_t> fEventIDs;` has been added to the TRestRun members. 
+    This is a vector that relates directly the entries on the eventTree with its eventID. 
+    It is used in `GetEventWithID(id)` for quick pick-up of the required event with a specific `id`.
+
+And other minor fixes.
+
+==========================================================
 Date : 15th / March / 2016
 Branch : rawToSignalFix
 Author : Javier Galan

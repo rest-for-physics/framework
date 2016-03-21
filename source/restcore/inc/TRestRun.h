@@ -28,7 +28,6 @@
 #include <string>
 #include "TString.h"
 #include <TKey.h>
-#include <TGeoManager.h>
 
 #include "TRestEvent.h"
 #include "TRestMetadata.h"
@@ -80,8 +79,7 @@ class TRestRun:public TRestMetadata {
         Int_t fCurrentEvent;
 #endif
         Int_t fProcessedEvents;
-
-        TGeoManager *fGeometry;
+        vector <Int_t> fEventIDs;
 
         void SetRunFilenameAndIndex();
         TKey *GetObjectKeyByClass( TString className );
@@ -107,9 +105,13 @@ class TRestRun:public TRestMetadata {
         TRestEvent *GetEventInput() { return fInputEvent; }
         TTree *GetInputEventTree() { return fInputEventTree; }
 
+        Int_t GetEventWithID( Int_t eventID );
+
         //TRestMetadata *GetEventMetadata() { return fEventMetadata; }
         TRestEvent *GetOutputEvent() { return fOutputEvent; }
         TFile *GetOutputFile() { return fOutputFile; }
+        TString GetOutputFilename() { return fOutputFilename; }
+        TString GetInputFilename( ) { return fInputFilename; }
         TTree *GetOutputEventTree() { return fOutputEventTree; }
 
         //Getters
@@ -124,7 +126,9 @@ class TRestRun:public TRestMetadata {
         Double_t GetStartTimestamp() { return fStartTime; }
         Double_t GetEndTimestamp() { return fEndTime; }
         TString GetExperimentName() { return fExperimentName; }
-        TGeoManager *GetGeometry() { return fGeometry; }
+
+	Int_t GetEventID( Int_t entry ) { return fEventIDs[entry]; }
+	Int_t GetEntry( Int_t i ) { return fInputEventTree->GetEntry( i ); }
 
         Int_t GetNumberOfProcessedEvents() { return fProcessedEvents; }
 
@@ -145,7 +149,6 @@ class TRestRun:public TRestMetadata {
         void SetNumberOfEvents( Int_t nEvents ) { fRunEvents = nEvents; } 
         void SetEndTimeStamp( Double_t tStamp ) { fEndTime = tStamp; }
 
-        void SetGeometry( TGeoManager *g ) { fGeometry = g; }
         void SetInputFileName( TString fN){fInputFilename=fN;}
 
         TString GetDateFormatted( Double_t runTime );

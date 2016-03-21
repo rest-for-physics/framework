@@ -50,6 +50,7 @@ class TRestG4Metadata:public TRestMetadata {
 
         void ReadGeneratorFile( TString fName );
 
+        TString fGeometryPath;
         TString fGDML_Filename;	
 
         TString fGenType;  // Type of spatial generator (surface, volume, point)
@@ -71,6 +72,7 @@ class TRestG4Metadata:public TRestMetadata {
         std::vector <TRestBiasingVolume> fBiasingVolumes;
         
         Double_t fMaxTargetStepSize;
+        Double_t fSubEventTimeDelay;
 
 
         Bool_t fFullChain;
@@ -79,6 +81,7 @@ class TRestG4Metadata:public TRestMetadata {
 
     public:
 
+        TString GetGeometryPath() { return fGeometryPath; }
         TString Get_GDML_Filename() { return fGDML_Filename; }
         TString GetGeneratorType() { return fGenType; }
         TString GetGeneratedFrom() { return fGenFrom; }
@@ -90,6 +93,7 @@ class TRestG4Metadata:public TRestMetadata {
         TString GetGeneratorFile() { return fGeneratorFile; }
 
         Double_t GetMaxTargetStepSize() { return fMaxTargetStepSize; }
+        Double_t GetSubEventTimeDelay() { return fSubEventTimeDelay; }
 
         void SetGeneratorType( TString type ) { fGenType = type; } 
         void SetGeneratorSize( Double_t size ) { fGenSize = size; }

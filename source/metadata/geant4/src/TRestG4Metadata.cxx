@@ -77,7 +77,15 @@ void TRestG4Metadata::InitFromConfigFile()
     // Initialize the metadata members from a configfile
     fGDML_Filename = GetParameter( "gdml_file" );
 
-    fMaxTargetStepSize = GetDblParameterWithUnits( "maxTargetStepSize" );
+    fGeometryPath = GetParameter( "geometryPath" );
+
+    Double_t defaultStep = 100 * REST_Units::um;
+    fMaxTargetStepSize = GetDblParameterWithUnits( "maxTargetStepSize", defaultStep );
+
+    Double_t defaultTime = 1. / REST_Units::s;
+    fSubEventTimeDelay = GetDblParameterWithUnits( "subEventTimeDelay", defaultTime );
+
+
 
     ReadGenerator();
 
@@ -295,7 +303,9 @@ void TRestG4Metadata::PrintMetadata( )
         cout << "Title : " << GetTitle() << endl;
         cout << "---------------------------------------" << endl;
         cout << "Geometry File : " << Get_GDML_Filename() << endl;
+        cout << "Geometry Path : " << GetGeometryPath() << endl;
         cout << "Max. Step size : " << GetMaxTargetStepSize() << " mm" << endl;
+        cout << "Sub-event time delay : " << GetSubEventTimeDelay() << " us" << endl;
         cout << "---------------------------------------" << endl;
         cout << "Generator type : " << GetGeneratorType() << endl;
         cout << "Generated from : " << GetGeneratedFrom() << endl;

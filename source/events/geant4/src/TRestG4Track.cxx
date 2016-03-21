@@ -117,7 +117,9 @@ TString TRestG4Track::GetProcessName( Int_t id )
 void TRestG4Track::PrintTrack()
 {
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    cout.precision(10);
     cout << " SubEvent ID : " << fSubEventId << " Global timestamp : " << GetGlobalTrackTime() << " seconds" << endl;
+    cout.precision(2);
     cout << " Track ID : " << GetTrackID() << " Parent ID : " << GetParentID();
     cout << " Particle : " << GetParticleName() << " Time track length : " << GetTrackTimeLength() << " us" << endl;
     cout << " Ekin : " << GetKineticEnergy() << " keV" << endl;

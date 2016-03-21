@@ -54,13 +54,7 @@ target_link_libraries(restG4 ${Geant4_LIBRARIES} -L${ROOT_LIBRARY_DIR} ${ROOT_LI
 # build sphereSimLab. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 
-file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/geometry)
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/macros)
-
-set(G4Rest_GEOMETRY
-    materials.xml
-    myGeometryTemplate.gdml
-    )
 
 set(G4Rest_MACROS
     visualtrack.mac 
@@ -68,35 +62,8 @@ set(G4Rest_MACROS
     vis.mac
     )
 
-set(G4Rest_GEO_TEMPLATE
-    mySetupTemplate.gdml
-    )
-
 
 #
-foreach(_script ${G4Rest_GEO_TEMPLATE})
-    configure_file(
-        ${PROJECT_SOURCE_DIR}/${_script}
-        ${PROJECT_BINARY_DIR}/${_script}
-        COPYONLY
-        )
-endforeach()
-
-foreach(_script ${G4Rest_CONFIG})
-    configure_file(
-        ${PROJECT_SOURCE_DIR}/config/${_script}
-        ${PROJECT_BINARY_DIR}/config/${_script}
-        COPYONLY
-        )
-endforeach()
-
-foreach(_script ${G4Rest_GEOMETRY})
-    configure_file(
-        ${PROJECT_SOURCE_DIR}/geometry/${_script}
-        ${PROJECT_BINARY_DIR}/geometry/${_script}
-        COPYONLY
-        )
-endforeach()
 
 foreach(_script ${G4Rest_MACROS})
     configure_file(
@@ -104,14 +71,6 @@ foreach(_script ${G4Rest_MACROS})
         ${PROJECT_BINARY_DIR}/macros/${_script}
         COPYONLY
         )
-endforeach()
-
-foreach(_script ${sphereSimLab_SCRIPTS})
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/${_script}
-    ${PROJECT_BINARY_DIR}/${_script}
-    COPYONLY
-    )
 endforeach()
 
 #----------------------------------------------------------------------------

@@ -75,13 +75,13 @@ void TRestRun::Initialize()
     fOutputEventTree = NULL;
 
     fInputFilename = "null";
-    fOutputFilename = "null";
-
-    fGeometry = NULL;
+    fOutputFilename = "default";
 
     fOverwrite = false;
 
+    fCurrentEvent = 0;
     fProcessedEvents = 0;
+    fEventIDs.clear();
 }
 
 void TRestRun::ResetRunTimes()
@@ -128,6 +128,8 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
 	for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->InitProcess();
 
     fProcessedEvents = 0;
+    fEventIDs.clear();
+
     if( eventsToProcess == 0 )
     {
        if( fInputEventTree != NULL ) eventsToProcess = fInputEventTree->GetEntries();
@@ -177,6 +179,7 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
 
 		PrintProcessedEvents(100);
 
+        fEventIDs.push_back( fOutputEvent->GetEventID() );
         fProcessedEvents++;
 	}
 
@@ -342,12 +345,15 @@ void TRestRun::OpenInputFile( TString fName )
     fInputFile = new TFile( fName );
 
     Int_t runNumber = GetRunNumber();
+    TString fileName = GetOutputFilename();
 
     TKey *key = GetObjectKeyByClass( "TRestRun" );
     this->Read( key->GetName() );
 
     fParentRunNumber = fRunNumber;
     fRunNumber = runNumber;
+
+    fOutputFilename = fileName; // We take this value from the configuration (not from TRestRun)
 
     // Transfering metadata to historic
     for( size_t i = 0; i < fMetadata.size(); i++ )
@@ -386,7 +392,8 @@ void TRestRun::OpenOutputFile( )
 
     SetVersion();
 
-    SetRunFilenameAndIndex();
+    if( fOutputFilename == "default" ) SetRunFilenameAndIndex();
+    else fOutputFilename = GetDataPath() + "/" + fOutputFilename;
 
     if( GetVerboseLevel() == REST_Info ) cout << "Opening file : " << fOutputFilename << endl;
 
@@ -454,12 +461,11 @@ void TRestRun::CloseOutputFile( )
 
     if( fOutputEventTree != NULL ) { cout << "Writting output tree" << endl; fOutputEventTree->Write(); }
 
-    if( fGeometry != NULL ){ cout << "Writting geometry" << endl; fGeometry->Write(); cout << "End writting" << endl; }
-
     this->Write();
 
     cout << "Closing output file : " << endl;
     fOutputFile->Close();
+    fOutputFile = NULL;
     cout << fOutputFilename << endl;
 }
 
@@ -588,6 +594,8 @@ void TRestRun::InitFromConfigFile()
 
    TString rNumberStr = (TString) GetParameter( "runNumber" );
 
+   fOutputFilename = GetParameter( "outputFile", "default" );
+
    if( GetParameter( "overwrite" ) == "on" ) { cout << "Overwrite : on" << endl; fOverwrite = true; }
 
    if( rNumberStr == "auto" )
@@ -695,6 +703,30 @@ if(fCurrentEvent%rateE ==0){
 }
 
 
+}
+
+Int_t TRestRun::GetEventWithID( Int_t eventID )
+{
+    Int_t currentEvent = fCurrentEvent;
+
+    Int_t nEntries = fInputEventTree->GetEntries();
+
+    if( nEntries != (Int_t) fEventIDs.size() ) { cout << "REST WARNING. Tree and eventIDs have not the same size!!" << endl; return 0; }
+
+    while( currentEvent != fCurrentEvent-1 )
+    {
+        if( fEventIDs[currentEvent] == eventID )
+        {
+            fCurrentEvent = currentEvent;
+            fInputEventTree->GetEntry( fCurrentEvent );
+            return 1;
+        }
+
+        if( currentEvent == nEntries-1 ) currentEvent = 0;
+        else currentEvent++;
+    }
+
+    return 0;
 }
 
 //Return false when the file ends

@@ -19,11 +19,15 @@ Int_t REST_VIEWER_Geometry( TString fName)
     TRestRun *run = new TRestRun( );
     run->OpenInputFile(fName);
         
-    TGeoManager *geo = run->GetGeometry();
-        
+    TFile *fInputFile = new TFile( fName );
+    TGeoManager *geo = (TGeoManager *) fInputFile->Get( "Default" );
+
     TGeoNode* node = geo->GetTopNode();
-    for(int i=0;i< geo->GetNNodes();i++)
-    geo->GetVolume(i)->SetTransparency(50);
+
+    TObjArray *arr = geo->GetListOfVolumes();
+    Int_t nVolumes = arr->GetEntries();
+    for( int i=0; i< nVolumes; i++ )
+        geo->GetVolume(i)->SetTransparency(50);
     
     geo->CheckOverlaps(0.0000001);
     geo->PrintOverlaps();

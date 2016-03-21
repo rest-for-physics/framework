@@ -56,9 +56,12 @@ void TRestEveEventViewer::SetGeometry(TGeoManager *geo){
     TRestEventViewer::SetGeometry(geo);
     
     if(fGeometry==NULL)return;
+
+    TObjArray *arr = fGeometry->GetListOfVolumes();
+    Int_t nVolumes = arr->GetEntries();
     
-    for(int i=0;i< fGeometry->GetNNodes();i++)
-    fGeometry->GetVolume(i)->SetTransparency(85);
+    for(int i = 0; i< nVolumes; i++)
+            fGeometry->GetVolume(i)->SetTransparency(85);
     
     TEveGeoTopNode* en = new TEveGeoTopNode( fGeometry, fGeometry->GetTopNode());
 
