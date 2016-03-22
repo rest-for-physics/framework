@@ -105,8 +105,6 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     void SetPrimaryAngularDistribution( TH1D *ang ) { fPrimaryAngularDistribution = ang; }
     void SetPrimaryEnergyDistribution( TH1D *en ) { fPrimaryEnergyDistribution = en; }
 
- //   void SetPrimaryAngularDistribution( TH1D *ang ) { fPrimaryAngularDistribution = ang; };
-
   private:
     G4ParticleGun*  fParticleGun;
     DetectorConstruction *fDetector;

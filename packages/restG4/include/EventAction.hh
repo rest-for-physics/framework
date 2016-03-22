@@ -58,31 +58,12 @@ class EventAction : public G4UserEventAction
         virtual void BeginOfEventAction(const G4Event*);
         virtual void   EndOfEventAction(const G4Event*);
 
-        //  void AddDecayChain(G4String val) { fDecayChain += val;};
-        //  void AddOutputString(G4String val) { fOutputString += val;};
-
-        //   void SetPrevTime( G4double val ) { fPrevTime = val; } 
-        //   G4double GetPrevTime( ) { return fPrevTime; }
-        void SetDepositSpectrum( TH1D *dSpectrum ) { fDepositSpectrum = dSpectrum; }
-        void SetDepositSpectrum_ROI( TH1D *dSpectrum ) { fDepositSpectrum_ROI = dSpectrum; }
-        //       TH1D *GetDepositSpectrum() { return fDepositSpectrum; }
-        //       TH1D *GetDepositSpectrum_ROI() { return fDepositSpectrum_ROI; }
-
     private:
-        G4bool fDecayChain;
-        //  G4String        fDecayChain;                   
-        //  G4String        fOutputString;                   
-        //  G4double 	    fPrevTime;
-        //   EventMessenger* fEventMessenger;
-
-        TH1D *fDepositSpectrum;
-        TH1D *fDepositSpectrum_ROI;
-
         Double_t absDouble( Double_t x ) { if( x > 0 ) return x; return -x; }
 
-        void SetSubeventIDs();
+        void SetTrackSubeventIDs();
+        void FillSubEvent( Int_t subId );
 
-        vector <Double_t> fTrackTimestampList;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

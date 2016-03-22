@@ -118,14 +118,11 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
             //previousDirection = momentum;
         }
 
-
-
     }
     else
     {
-        // We add the energy to the sensitive volume
         if( (G4String) restG4Metadata->GetSensitiveVolume() == nom_vol )
-            restG4Event->AddEnergyDepositInSensitiveVolume( ener_dep/keV );
+            restG4Event->AddEnergyToSensitiveVolume( ener_dep/keV );
 
         // We check if the hit must be stored and keep it on restG4Track
         for( int volID = 0; volID < restG4Metadata->GetNumberOfActiveVolumes(); volID++ )
