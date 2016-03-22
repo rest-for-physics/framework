@@ -2,7 +2,7 @@
 
 RESTRAW_DrawEvent(TString fName, char *cfgFileName){
 
-TRestFEMINOSToSignalProcess *femToSignal = new TRestFEMINOSToSignalProcess(cfgFileName);
+TRestFEMINOSToSignalProcess *agetToSignal = new TRestFEMINOSToSignalProcess(cfgFileName);
     	if(!agetToSignal->OpenInputBinFile(fName)){
     	cout<<"File "<<fName.Data()<<" not found"<<endl;
     	exit(0);

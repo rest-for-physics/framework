@@ -11,7 +11,7 @@ Int_t REST_UTILS_PrintLinearLinearizedTrackEvent( TString fName, Int_t firstEven
 
     run->SetInputEvent( evt );
 
-    run->GetInputEventTree()->GetEntry( firstEvent );
+    run->GetEntry( firstEvent );
 
     evt->PrintEvent();
 

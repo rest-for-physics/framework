@@ -11,7 +11,7 @@ Int_t REST_UTILS_PrintSignalEvent( TString fName, Int_t firstEvent = 0 )
 
     run->SetInputEvent( evt );
 
-    run->GetInputEventTree()->GetEntry( firstEvent );
+    run->GetEntry( firstEvent );
 
     evt->PrintEvent();
 
