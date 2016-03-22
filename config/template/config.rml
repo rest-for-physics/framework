@@ -36,13 +36,15 @@ All units in mm, keV and degrees
 
 <section restG4 name="Geant4 metadata" title="A dummy DBD simulation">
 
-    <parameter name="geometryPath" value="{REST_PATH}/examples/template/geometry/" />
+    <parameter name="geometryPath" value="{REST_PATH}/config/template/geometry/" />
     <parameter name="gdml_file" value="mySetupTemplate.gdml"/>
     <parameter name="maxTargetStepSize" value="200" units="um" />
     <parameter name="subEventTimeDelay" value="100" units="us" />
 
     <generator type="volume" from="gas" >
-        <source fromFile="Xe136bb0n.dat">
+        <source particle="Cd109" fullChain="off">
+            <angularDist type="isotropic" />
+            <energyDist type="mono" energy="0" units="keV" />
         </source>
     </generator>
 
