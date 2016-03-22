@@ -26,61 +26,28 @@
 #include <TArrayI.h>
 
 class TRestG4Hits:public TRestHits {
- protected:
-     TArrayI fVolumeID;
-     TArrayI fProcessID; // [fNHits]
+    protected:
+        TArrayI fVolumeID;
+        TArrayI fProcessID; // [fNHits]
 
- public:
+    public:
 
-     Int_t GetProcess( int n ) { return fProcessID[n]; }
+        Int_t GetProcess( int n ) { return fProcessID[n]; }
 
-     void AddG4Hit( TVector3 pos, Double_t en, Int_t process, Int_t volume )
-     {
-         AddHit( pos, en );
+        void AddG4Hit( TVector3 pos, Double_t en, Int_t process, Int_t volume );
+        void AddG4Hit( Double_t X, Double_t Y, Double_t Z, Double_t en, Int_t process, Int_t volume );
+        void RemoveG4Hits( );
 
-         fProcessID.Set( fNHits );
+        Int_t GetHitProcess( int n ) { return fProcessID[n]; }
+        Int_t GetHitVolume( int n ) { return fVolumeID[n]; }
 
-         fProcessID[fNHits-1] = process;
+        Double_t GetEnergyInVolume( Int_t volID );
 
-         fVolumeID.Set( fNHits );
+        //Construtor
+        TRestG4Hits();
+        //Destructor
+        virtual ~ TRestG4Hits();
 
-         fVolumeID[fNHits-1] = volume;
-
-
-
-     }
-
-     void AddG4Hit( Double_t X, Double_t Y, Double_t Z, Double_t en, Int_t process, Int_t volume )
-     {
-         AddHit( X, Y, Z, en );
-
-         fProcessID.Set( fNHits );
-
-         fProcessID[fNHits-1] = process;
-
-         fVolumeID.Set( fNHits );
-
-         fVolumeID[fNHits-1] = volume;
-     }
-
-     void RemoveG4Hits( )
-     {
-         RemoveHits( );
-
-         fProcessID.Set(0);
-
-         fVolumeID.Set(0);
-     }
-
-     Int_t GetHitProcess( int n ) { return fProcessID[n]; }
-     Int_t GetHitVolume( int n ) { return fVolumeID[n]; }
-     
-
-   //Construtor
-   TRestG4Hits();
-   //Destructor
-   virtual ~ TRestG4Hits();
-
-   ClassDef(TRestG4Hits, 1);     // REST event superclass
+        ClassDef(TRestG4Hits, 1);     // REST event superclass
 };
 #endif

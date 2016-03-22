@@ -73,16 +73,12 @@ Double_t TRestG4Track::GetTrackLength( )
     Double_t length = 0;
 
     length = GetDistance( fHits.GetPosition(0), GetTrackOrigin() );
-    //cout << GetTrackOrigin().X() << " " << GetTrackOrigin().Y() << " " << GetTrackOrigin().Z() << endl;
-    //cout << "Length : " << length << endl;
 
     for( int i = 1; i < GetNumberOfHits(); i++ )
     {
         TVector3 prevHit = fHits.GetPosition(i-1);
         TVector3 hit = fHits.GetPosition(i);
         length += GetDistance( hit, prevHit );
-        //cout << prevHit.X() << " " << prevHit.Y() << " " << prevHit.Z() << endl;
-        //cout << "Length : " << length << endl;
     }
     return length;
 
@@ -118,7 +114,7 @@ void TRestG4Track::PrintTrack()
 {
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout.precision(10);
-    cout << " SubEvent ID : " << fSubEventId << " Global timestamp : " << GetGlobalTrackTime() << " seconds" << endl;
+    cout << " SubEvent ID : " << fSubEventId << " Global timestamp : " << GetGlobalTime() << " seconds" << endl;
     cout.precision(2);
     cout << " Track ID : " << GetTrackID() << " Parent ID : " << GetParentID();
     cout << " Particle : " << GetParticleName() << " Time track length : " << GetTrackTimeLength() << " us" << endl;

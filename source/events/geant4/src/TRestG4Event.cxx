@@ -37,25 +37,78 @@ TRestG4Event::~TRestG4Event()
 void TRestG4Event::Initialize()
 {
     TRestEvent::Initialize();
-    fEventClassName = "TRestG4Event";
 
-    //cout << "Initializing G4Event" << endl;
     fPrimaryEventDirection.clear();
     fPrimaryEventEnergy.clear();
     fPrimaryEventOrigin.SetXYZ( 0, 0, 0 );
 
-    fTotalSensitiveVolumeEnergy = 0;
-
-    /*
-    fVolumeStored.clear();
-    fVolumeStored.push_back(0);
-    fVolumeStored.push_back(0);
-    */
-
     fTrack.clear();
     fNTracks = 0;
 
-    fTotalEventEnergy = 0;
+    fTotalDepositedEnergy = 0;
+    fSensitiveVolumeEnergy = 0;
+    fMaxSubEventID = 0;
+}
+
+void TRestG4Event::AddActiveVolume( ) 
+{
+    fNVolumes++; 
+    fVolumeStored.push_back( 1 ); 
+    fVolumeDepositedEnergy.push_back(0);
+}
+
+void TRestG4Event::ClearVolumes( )
+{
+    fNVolumes = 0;
+    fVolumeStored.clear();
+    fVolumeDepositedEnergy.clear();
+}
+
+void TRestG4Event::AddEnergyDepositToVolume( Int_t volID, Double_t eDep ) 
+{ 
+    fVolumeDepositedEnergy[volID] += eDep; 
+}
+
+void TRestG4Event::SetTrackSubEventID( Int_t n, Int_t id ) 
+{
+    fTrack[n].SetSubEventID( id ); 
+    if( fMaxSubEventID < id ) fMaxSubEventID = id;
+}
+
+void TRestG4Event::AddTrack( TRestG4Track trk ) 
+{ 
+    fTrack.push_back( trk ); 
+    fNTracks = fTrack.size(); 
+    fTotalDepositedEnergy += trk.GetTotalDepositedEnergy(); 
+    for( int n = 0; n < GetNumberOfActiveVolumes(); n++ )
+        fVolumeDepositedEnergy[n] += trk.GetEnergyInVolume( n );
+}
+
+Double_t TRestG4Event::GetTotalDepositedEnergyFromTracks()
+{
+    Double_t eDep = 0;
+
+    for( int tk = 0; tk < GetNumberOfTracks(); tk++ )
+        eDep += GetTrack( tk )->GetTotalDepositedEnergy();
+
+    return eDep;
+}
+
+TRestG4Track *TRestG4Event::GetTrackByID( int id ) 
+{ 
+    for( int i = 0; i < fNTracks; i++ ) 
+        if( fTrack[i].GetTrackID( ) == id ) 
+            return &fTrack[i]; 
+    return NULL; 
+}
+
+Int_t TRestG4Event::GetNumberOfHits( )
+{
+    Int_t hits = 0;
+    for( int i = 0; i < fNTracks; i++ ) 
+        hits += GetTrack( i )->GetNumberOfHits();
+
+    return hits;
 }
 
 void TRestG4Event::PrintEvent()
@@ -64,17 +117,24 @@ void TRestG4Event::PrintEvent()
 
     cout.precision(4);
 
+    cout << "Total energy : " << fTotalDepositedEnergy << " keV" << endl;
     cout << "Source origin : (" << fPrimaryEventOrigin.X() << "," << fPrimaryEventOrigin.Y() << "," << fPrimaryEventOrigin.Z() << ") mm" << endl;
 
     for( int n = 0; n < GetNumberOfPrimaries(); n++ )
     {
-        cout << "Source " << n << " direction : (" << fPrimaryEventDirection[n].X() << "," << fPrimaryEventDirection[n].Y() << "," << fPrimaryEventDirection[n].Z() << ")" << endl;
+        TVector3 *dir = &fPrimaryEventDirection[n];
+        cout << "Source " << n << " direction : (" << dir->X() << "," << dir->Y() << "," << dir->Z() << ")" << endl;
         cout << "Source " << n << " energy : " << fPrimaryEventEnergy[n] << " keV" << endl;
     }
+
     cout << "Number of active volumes : " << GetNumberOfActiveVolumes() << endl;
     for( int i = 0; i < GetNumberOfActiveVolumes(); i++ )
     {
-        if( isVolumeStored(i) ) cout << "Active volume " << i << " has been stored" << endl;
+        if( isVolumeStored(i) )
+        {
+            cout << "Active volume " << i << " has been stored." << endl;
+            cout << "Total energy deposit in volume " << i << " : " << fVolumeDepositedEnergy[i] << " keV" << endl;
+        }
         else cout << "Active volume " << i << " has not been stored" << endl;
     }
 
@@ -84,12 +144,5 @@ void TRestG4Event::PrintEvent()
     {
         GetTrack(n)->PrintTrack();
     }
-
-
-    /*
-
-        vector <TRestG4Track> fTrack;
-        */
-
 
 }

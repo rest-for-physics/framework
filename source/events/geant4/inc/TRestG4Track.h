@@ -47,6 +47,7 @@ class TRestG4Track:public TObject {
         TVector3 fTrackOrigin;
 
     public:
+        void Initialize() { RemoveHits(); fSubEventId = 0.; }
 
         TRestG4Hits *GetHits( ) { return &fHits; }
 
@@ -54,17 +55,18 @@ class TRestG4Track:public TObject {
         Int_t GetTrackID() { return fTrack_ID; }
         Int_t GetParentID() { return fParent_ID; }
         TString GetParticleName() { return fParticleName; }
-        Double_t GetGlobalTrackTime() { return fGlobalTimestamp; }
+        Double_t GetGlobalTime() { return fGlobalTimestamp; }
         Double_t GetTrackTimeLength() { return fTrackTimestamp; }
         Double_t GetKineticEnergy() { return fKineticEnergy; }
         Double_t GetTotalDepositedEnergy( ) { return fHits.GetTotalDepositedEnergy(); }
         TVector3 GetTrackOrigin() { return fTrackOrigin; }
         Int_t GetSubEventID() { return fSubEventId; }
 
-        void Initialize() { RemoveHits(); fSubEventId = 0.; }
-        void PrintTrack();
-        void SetSubEventID( Int_t id ) { fSubEventId = id; }
+        Double_t GetEnergyInVolume( Int_t volID ) { return GetHits()->GetEnergyInVolume( volID ); }
 
+
+
+        void SetSubEventID( Int_t id ) { fSubEventId = id; }
 
         void SetTrackID( Int_t id ) { fTrack_ID = id; }
         void SetParentID ( Int_t id ) { fParent_ID = id; }
@@ -90,8 +92,17 @@ class TRestG4Track:public TObject {
 
         void RemoveHits( ) { fHits.RemoveHits ( ); }
 
+        // TODO move this to a header
         Int_t GetProcessID( TString pcsName );
         TString GetProcessName( Int_t id );
+        Bool_t isRadiactiveDecay( ) 
+        { 
+            for( int n = 0; n < GetHits()->GetNumberOfHits(); n++ )
+                if( GetHits()->GetHitProcess( n ) == 11 ) return true;
+            return false;
+        }
+
+        void PrintTrack();
         //    Int_t GetElement( Int_t n ) { return X.At(n); }
 
         //    Int_t GetParticleID();

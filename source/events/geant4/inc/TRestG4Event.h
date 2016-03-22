@@ -35,56 +35,55 @@ class TRestG4Event: public TRestEvent {
         std::vector <TVector3> fPrimaryEventDirection;
         std::vector <Double_t> fPrimaryEventEnergy;
         
-        Double_t fTotalEventEnergy;
-
-        Double_t fTotalSensitiveVolumeEnergy;
-
-        Int_t fNTracks;
-
-        std::vector <TRestG4Track> fTrack;
+        Double_t fTotalDepositedEnergy;
+        Double_t fSensitiveVolumeEnergy;
 
         Int_t fNVolumes;
         std::vector <Int_t> fVolumeStored;
+        std::vector <Double_t> fVolumeDepositedEnergy;
+
+        Int_t fNTracks;
+        std::vector <TRestG4Track> fTrack;
+
+        Int_t fMaxSubEventID;
 
 
     public:
 
-        Double_t GetTotalSensitiveVolumeEnergy() { return fTotalSensitiveVolumeEnergy; }
         TVector3 GetPrimaryEventDirection( int n ) { return fPrimaryEventDirection[n]; }
         TVector3 GetPrimaryEventOrigin() { return fPrimaryEventOrigin; }
         Double_t GetPrimaryEventEnergy( int n ) { return fPrimaryEventEnergy[n]; }
+
+        Int_t GetNumberOfHits();
         Int_t GetNumberOfTracks() { return fNTracks; }
         Int_t GetNumberOfPrimaries() { return fPrimaryEventDirection.size(); }
         Int_t GetNumberOfActiveVolumes() { return fNVolumes; }
+
         Int_t isVolumeStored( int n ) { return fVolumeStored[n]; }
         TRestG4Track *GetTrack( int n ) { return &fTrack[n]; }
-        TRestG4Track *GetTrackByID( int id ) { for( int i = 0; i < fNTracks; i++ ) if( fTrack[i].GetTrackID( ) == id ) return &fTrack[i]; return NULL; }
+        TRestG4Track *GetTrackByID( int id );
+        Int_t GetNumberOfSubEventIDTracks() { return fMaxSubEventID+1; }
 
-        void AddEnergyDepositInSensitiveVolume( Double_t eDep ) { fTotalSensitiveVolumeEnergy += eDep; }
-
-        Double_t GetTotalEventEnergy() { return fTotalEventEnergy; }
-
-        Double_t GetTotalDepositedEnergy()
-        {
-            Double_t eDep = 0;
-            //cout << "Number of tracks : " << GetNumberOfTracks() << endl;
-            for( int tk = 0; tk < GetNumberOfTracks(); tk++ )
-            {
-                eDep += GetTrack( tk )->GetTotalDepositedEnergy();
-            }
-
-            return eDep;
-        }
+        Double_t GetTotalDepositedEnergy() { return fTotalDepositedEnergy; }
+        Double_t GetTotalDepositedEnergyFromTracks();
+        Double_t GetEnergyDepositedInVolume( Int_t volID ) { return fVolumeDepositedEnergy[volID]; }
+        Double_t GetSensitiveVolumeEnergy( ) { return fSensitiveVolumeEnergy; }
 
         void SetPrimaryEventOrigin( TVector3 pos ) { fPrimaryEventOrigin = pos; }
         void SetPrimaryEventDirection( TVector3 dir ) { fPrimaryEventDirection.push_back( dir ); }
         void SetPrimaryEventEnergy( Double_t en ) { fPrimaryEventEnergy.push_back( en ); }
         void ActivateVolumeForStorage( Int_t n ) {  fVolumeStored[n] = 1; }
         void DisableVolumeForStorage( Int_t n ) {  fVolumeStored[n] = 0; }
-        void AddActiveVolume( Int_t active ) { fNVolumes++; fVolumeStored.push_back( active ); }
 
-        void SetTrackSubEventID( Int_t n, Int_t id ) { fTrack[n].SetSubEventID( id ); }
-        void AddTrack( TRestG4Track trk ) { fTrack.push_back( trk ); fNTracks = fTrack.size(); fTotalEventEnergy += trk.GetTotalDepositedEnergy(); }
+        void AddActiveVolume( );
+        void ClearVolumes( );
+        void AddEnergyDepositToVolume( Int_t volID, Double_t eDep );
+        void AddEnergyToSensitiveVolume( Double_t en ) { fSensitiveVolumeEnergy += en; }
+
+        void SetSensitiveVolumeEnergy( Double_t en ) { fSensitiveVolumeEnergy = en; }
+
+        void SetTrackSubEventID( Int_t n, Int_t id );
+        void AddTrack( TRestG4Track trk );
 
         void Initialize();
 
