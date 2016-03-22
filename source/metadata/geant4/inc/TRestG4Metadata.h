@@ -135,6 +135,13 @@ class TRestG4Metadata:public TRestMetadata {
 
         TString GetActiveVolumeName( Int_t id ) { return fActiveVolumes[id]; }
 
+        Bool_t isVolumeStored( TString volName )
+        {
+            for( int n = 0; n < GetNumberOfActiveVolumes(); n++ )
+                if( GetActiveVolumeName( n ) == volName ) return true;
+            return false;
+        }
+
         void SetActiveVolume( TString name, Double_t chance );
 
         void PrintMetadata( );
