@@ -37,7 +37,6 @@ TRestLinearizedTrackEvent::~TRestLinearizedTrackEvent()
 void TRestLinearizedTrackEvent::Initialize()
 {
     TRestEvent::Initialize();
-    fEventClassName = "TRestLinearizedTrackEvent";
 
     fPad = NULL;
 
@@ -83,7 +82,7 @@ TPad *TRestLinearizedTrackEvent::DrawEvent()
 
     this->PrintEvent( true );
 
-    fPad = new TPad( this->GetClassName().Data(), " ", 0, 0, 1, 1 );
+    fPad = new TPad( this->GetName(), " ", 0, 0, 1, 1 );
     fPad->Divide( 2 , 2 );
     fPad->cd();
     fPad->cd(1)->DrawFrame( GetMinLinearLength()-10, 0,

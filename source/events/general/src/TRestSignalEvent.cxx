@@ -39,7 +39,6 @@ TRestSignalEvent::~TRestSignalEvent()
 void TRestSignalEvent::Initialize()
 {
     TRestEvent::Initialize();
-    fEventClassName = "TRestSignalEvent";
     fSignal.clear();
     fPad = NULL;
     fMinValue = 1E10;
@@ -168,7 +167,7 @@ TPad *TRestSignalEvent::DrawEvent()
     fMinTime = 1E10;
     fMaxTime = -1E10;
 
-    fPad = new TPad( this->GetClassName().Data(), " ", 0, 0, 1, 1 );
+    fPad = new TPad( this->GetName(), " ", 0, 0, 1, 1 );
     fPad->Draw();
     fPad->cd();
     fPad->DrawFrame( GetMinTime(), GetMinValue() , GetMaxTime(), GetMaxValue());

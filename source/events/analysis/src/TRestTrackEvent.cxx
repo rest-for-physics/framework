@@ -27,7 +27,6 @@ ClassImp(TRestTrackEvent)
 {
    // TRestTrackEvent default constructor
     TRestEvent::Initialize();
-    fEventClassName = "TRestTrackEvent";
     fTrack.clear();
     fXYHit = NULL;
     fXZHit = NULL;
@@ -51,7 +50,6 @@ void TRestTrackEvent::Initialize()
     fNtracks = 0;
     fTrack.clear();
     TRestEvent::Initialize();
-    fEventClassName = "TRestTrackEvent";
 
 }
 
@@ -305,7 +303,7 @@ TPad *TRestTrackEvent::DrawEvent()
     }
 
 
-    fPad = new TPad(this->GetClassName().Data(), " ", 0, 0, 1, 1 );
+    fPad = new TPad(this->GetName(), " ", 0, 0, 1, 1 );
     fPad->Divide( 3 , 1 );
     fPad->Draw( );
 
