@@ -38,8 +38,10 @@ class TRestRun:public TRestMetadata {
         void InitFromConfigFile();
         void SetVersion();
 
-
         virtual void Initialize();
+
+        TTree *GetOutputEventTree() { return fOutputEventTree; }
+        TTree *GetInputEventTree() { return fInputEventTree; }
 
     protected:
         Int_t fRunNumber;                 //< first identificative number
@@ -80,6 +82,9 @@ class TRestRun:public TRestMetadata {
 #endif
         Int_t fProcessedEvents;
         vector <Int_t> fEventIDs;
+        vector <Int_t> fSubEventIDs;
+        vector <TString> fSubEventTags;
+        vector <TString> fSubEventTagList;
 
         void SetRunFilenameAndIndex();
         TKey *GetObjectKeyByClass( TString className );
@@ -103,16 +108,15 @@ class TRestRun:public TRestMetadata {
         void OpenInputFile( TString fName, TString cName );
 
         TRestEvent *GetEventInput() { return fInputEvent; }
-        TTree *GetInputEventTree() { return fInputEventTree; }
 
-        Int_t GetEventWithID( Int_t eventID );
+        Int_t GetEventWithID( Int_t eventID, Int_t subEventID = 0 );
+        Int_t GetEventWithID( Int_t eventID, TString tag );
 
         //TRestMetadata *GetEventMetadata() { return fEventMetadata; }
         TRestEvent *GetOutputEvent() { return fOutputEvent; }
         TFile *GetOutputFile() { return fOutputFile; }
         TString GetOutputFilename() { return fOutputFilename; }
         TString GetInputFilename( ) { return fInputFilename; }
-        TTree *GetOutputEventTree() { return fOutputEventTree; }
 
         //Getters
         TString GetVersion() { return  fVersion; }
@@ -127,8 +131,13 @@ class TRestRun:public TRestMetadata {
         Double_t GetEndTimestamp() { return fEndTime; }
         TString GetExperimentName() { return fExperimentName; }
 
-	Int_t GetEventID( Int_t entry ) { return fEventIDs[entry]; }
-	Int_t GetEntry( Int_t i ) { return fInputEventTree->GetEntry( i ); }
+        Int_t GetEventID( Int_t entry ) { return fEventIDs[entry]; }
+        Int_t GetSubEventID( Int_t entry ) { return fSubEventIDs[entry]; }
+        TString GetSubEventTag( Int_t entry ) { return fSubEventTags[entry]; }
+
+        Int_t GetEntry( Int_t i ) { return fInputEventTree->GetEntry( i ); }
+
+        Int_t Fill( );
 
         Int_t GetNumberOfProcessedEvents() { return fProcessedEvents; }
 
@@ -139,7 +148,6 @@ class TRestRun:public TRestMetadata {
         }
 
         TRestMetadata *GetMetadata( TString name );
-
 
         void SetRunNumber( Int_t number ) { fRunNumber = number; }
         void SetRunType( TString type ) { fRunType = type; }
@@ -189,6 +197,14 @@ class TRestRun:public TRestMetadata {
                 fHistoricMetadata[i]->PrintMetadata();
             for( unsigned int i = 0; i < fHistoricEventProcess.size(); i++ )
                 fHistoricEventProcess[i]->PrintMetadata();
+        }
+
+        void PrintTagEventList( )
+        {
+            cout << "Tag event list" << endl;
+            cout << "--------------" << endl;
+            for( unsigned int n = 0; n < fSubEventTagList.size(); n++ )
+                cout << "Tag " << n << " : " << fSubEventTagList[n] << endl;
         }
         
         void PrintProcessedEvents( Int_t rateE);

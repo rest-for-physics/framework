@@ -82,6 +82,8 @@ void TRestRun::Initialize()
     fCurrentEvent = 0;
     fProcessedEvents = 0;
     fEventIDs.clear();
+    fSubEventIDs.clear();
+    fSubEventTags.clear();
 }
 
 void TRestRun::ResetRunTimes()
@@ -129,6 +131,8 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
 
     fProcessedEvents = 0;
     fEventIDs.clear();
+    fSubEventIDs.clear();
+    fSubEventTags.clear();
 
     if( eventsToProcess == 0 )
     {
@@ -171,16 +175,15 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
 #ifdef TIME_MEASUREMENT
         high_resolution_clock::time_point t3 = high_resolution_clock::now();
 #endif
-		fOutputEventTree->Fill();
+
+        this->Fill();
+
 #ifdef TIME_MEASUREMENT
-    high_resolution_clock::time_point t4 = high_resolution_clock::now();
-    writeTime += (int) duration_cast<microseconds>( t4 - t3 ).count();
+        high_resolution_clock::time_point t4 = high_resolution_clock::now();
+        writeTime += (int) duration_cast<microseconds>( t4 - t3 ).count();
 #endif
 
 		PrintProcessedEvents(100);
-
-        fEventIDs.push_back( fOutputEvent->GetEventID() );
-        fProcessedEvents++;
 	}
 
 	cout << fOutputEventTree->GetEntries() << " processed events" << endl;
@@ -237,10 +240,17 @@ void TRestRun::AddProcess( TRestEventProcess *process, string cfgFilename )
 
 void TRestRun::SetOutputEvent( TRestEvent *evt ) 
 { 
+    cout << "Setting output event" << endl;
     fOutputEvent = evt;
-    TString treeName = (TString) evt->GetName() + "Tree";
-    fOutputEventTree->SetName( treeName );
-    fOutputEventTree->Branch("eventBranch", evt->GetClassName(), fOutputEvent);
+
+    if( fOutputEventTree == NULL )
+    {
+        TString treeName = (TString) evt->GetName() + "Tree";
+        fOutputEventTree  = new TTree( GetName(), GetTitle() );
+        if( GetVerboseLevel() == REST_Debug ) cout << "Creating tree : " << fOutputEventTree << endl;
+        fOutputEventTree->SetName( treeName );
+        fOutputEventTree->Branch("eventBranch", evt->GetName(), fOutputEvent);
+    }
 }
 
 void TRestRun::SetInputEvent( TRestEvent *evt ) 
@@ -399,9 +409,6 @@ void TRestRun::OpenOutputFile( )
 
     fOutputFile = new TFile( fOutputFilename, "recreate" );
     fOutputFile->SetCompressionLevel(0);
-
-    fOutputEventTree  = new TTree( GetName(), GetTitle() );
-    if( GetVerboseLevel() == REST_Debug ) cout << "Creating tree : " << fOutputEventTree << endl;
 }
 
 void TRestRun::CloseOutputFile( )
@@ -688,24 +695,42 @@ void TRestRun::PrintInfo( )
 
 }
 
-void TRestRun::PrintProcessedEvents( Int_t rateE){
+void TRestRun::PrintProcessedEvents( Int_t rateE)
+{
 
-if(fCurrentEvent%rateE ==0){
-	if(fInputEvent==NULL){
-	printf("%d processed events now...\r",fCurrentEvent);
-	fflush(stdout);
-	}
-	else{
-	printf("%.2lf\r",(float)(fCurrentEvent/fInputEventTree->GetEntries())*100.);
-	fflush(stdout);
-	}
+    if(fCurrentEvent%rateE ==0){
+        if(fInputEvent==NULL)
+        {
+            printf("%d processed events now...\r",fCurrentEvent);
+            fflush(stdout);
+        }
+        else
+        {
+            printf("%.2lf\r",(float)(fCurrentEvent/fInputEventTree->GetEntries())*100.);
+            fflush(stdout);
+        }
+
+    }
+
 
 }
+Int_t TRestRun::Fill( )
+{
+    fProcessedEvents++;
+    fEventIDs.push_back( fOutputEvent->GetEventID() );
+    fSubEventIDs.push_back( fOutputEvent->GetSubEventID() );
+    fSubEventTags.push_back( fOutputEvent->GetSubEventTag() );
 
+    Int_t found = 0;
+    for( unsigned int i = 0; i < fSubEventTagList.size(); i++ )
+        if( fOutputEvent->GetSubEventTag() == fSubEventTagList[i] ) found = 1;
 
+    if( !found ) fSubEventTagList.push_back( fOutputEvent->GetSubEventTag() );
+
+    return fOutputEventTree->Fill();
 }
 
-Int_t TRestRun::GetEventWithID( Int_t eventID )
+Int_t TRestRun::GetEventWithID( Int_t eventID, Int_t subEventID )
 {
     Int_t currentEvent = fCurrentEvent;
 
@@ -713,9 +738,9 @@ Int_t TRestRun::GetEventWithID( Int_t eventID )
 
     if( nEntries != (Int_t) fEventIDs.size() ) { cout << "REST WARNING. Tree and eventIDs have not the same size!!" << endl; return 0; }
 
-    while( currentEvent != fCurrentEvent-1 )
+    do
     {
-        if( fEventIDs[currentEvent] == eventID )
+        if( fEventIDs[currentEvent] == eventID && fSubEventIDs[currentEvent] == subEventID )
         {
             fCurrentEvent = currentEvent;
             fInputEventTree->GetEntry( fCurrentEvent );
@@ -725,6 +750,32 @@ Int_t TRestRun::GetEventWithID( Int_t eventID )
         if( currentEvent == nEntries-1 ) currentEvent = 0;
         else currentEvent++;
     }
+    while( currentEvent != fCurrentEvent );
+
+    return 0;
+}
+
+Int_t TRestRun::GetEventWithID( Int_t eventID, TString tag )
+{
+    Int_t currentEvent = fCurrentEvent;
+
+    Int_t nEntries = fInputEventTree->GetEntries();
+
+    if( nEntries != (Int_t) fEventIDs.size() ) { cout << "REST WARNING. Tree and eventIDs have not the same size!!" << endl; return 0; }
+
+    do
+    {
+        if( fEventIDs[currentEvent] == eventID && fSubEventTags[currentEvent] == tag )
+        {
+            fCurrentEvent = currentEvent;
+            fInputEventTree->GetEntry( fCurrentEvent );
+            return 1;
+        }
+
+        if( currentEvent == nEntries-1 ) currentEvent = 0;
+        else currentEvent++;
+    }
+    while( currentEvent != fCurrentEvent );
 
     return 0;
 }
