@@ -42,7 +42,7 @@ void TRestEvent::Initialize()
     fOk = true;
 }
 
-void TRestEvent::SetEventTime( Double_t time )
+void TRestEvent::SetTime( Double_t time )
 { 
     Int_t sec = (Int_t)time;
     Int_t nsec = (Int_t) ((time-sec)*1E9);
@@ -51,7 +51,7 @@ void TRestEvent::SetEventTime( Double_t time )
     fEventTime.SetNanoSec(nsec);
 }
 
-void TRestEvent::SetEventTime( Double_t seconds, Double_t nanoseconds )
+void TRestEvent::SetTime( Double_t seconds, Double_t nanoseconds )
 {
     fEventTime.SetSec( seconds );
     fEventTime.SetNanoSec( nanoseconds );
@@ -60,8 +60,8 @@ void TRestEvent::SetEventTime( Double_t seconds, Double_t nanoseconds )
 void TRestEvent::PrintEvent()
 {
     cout << "*******************************************************" << endl;
-    cout << " EVENT ID : " << GetEventID() << " TIME : " << GetEventTime() << endl;
-    cout << " SUB-EVENT ID : " << GetSubEventID();
+    cout << " EVENT ID : " << GetID() << " TIME : " << GetTime() << endl;
+    cout << " SUB-EVENT ID : " << GetSubID();
     if ( fSubEventTag != "" ) cout << "   SUB-EVENT TAG : \"" << fSubEventTag << "\""; 
     cout << endl;
     if( fOk ) cout << " Status : OK" << endl;

@@ -75,7 +75,7 @@ void TRestTrackReductionProcess::InitProcess()
 void TRestTrackReductionProcess::BeginOfEventProcess() 
 {
     fOutputTrackEvent->Initialize(); 
-    cout << "Processing Event : " << fInputTrackEvent->GetEventID() << endl;
+    cout << "Processing Event : " << fInputTrackEvent->GetID() << endl;
 }
 
 //______________________________________________________________________________

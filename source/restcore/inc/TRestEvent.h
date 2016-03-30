@@ -36,26 +36,25 @@ class TRestEvent:public TObject {
 
     public:
         //Setters
-        void SetEventID( Int_t id ) { fEventID = id; }
-        void SetSubEventID( Int_t id ) { fSubEventID = id; }
+        void SetID( Int_t id ) { fEventID = id; }
+        void SetSubID( Int_t id ) { fSubEventID = id; }
         void SetSubEventTag( TString tag ) { fSubEventTag = tag; }
 
-        void SetEventTime( Double_t time );
-        void SetEventTime( Double_t seconds, Double_t nanoseconds );
-        void SetEventTimeStamp( TTimeStamp time ) { fEventTime = time; }
+        void SetTime( Double_t time );
+        void SetTime( Double_t seconds, Double_t nanoseconds );
+        void SetTimeStamp( TTimeStamp time ) { fEventTime = time; }
 
         void SetState( Bool_t state ) { fOk = state; }
         void SetOK( Bool_t state ) { fOk = state; }
 
         //Getters
-        Int_t GetEventID( ) { return fEventID; }
-        Int_t GetSubEventID( ) { return fSubEventID; }
+        Int_t GetID( ) { return fEventID; }
+        Int_t GetSubID( ) { return fSubEventID; }
         TString GetSubEventTag() { return fSubEventTag; }
 
-        Double_t GetEventTime() { return fEventTime.AsDouble(); }
-        TTimeStamp GetEventTimeStamp() { return fEventTime; }
+        Double_t GetTime() { return fEventTime.AsDouble(); }
+        TTimeStamp GetTimeStamp() { return fEventTime; }
 
- //       TString GetClassName() { return fEventClassName; }
         Bool_t isOk() { return fOk; }
 
         // Must be set on the derived events to remove content

@@ -160,8 +160,8 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
      double timestamp = (double) (2147483648*tsl+32768*tsm+tsh);
 
 //Set timestamp and event ID
-fSignalEvent->SetEventTime(tStart+timestamp*2.E-8);
-fSignalEvent->SetEventID(evID);
+fSignalEvent->SetTime(tStart+timestamp*2.E-8);
+fSignalEvent->SetID(evID);
 
 int timeBin = 0;
 	
@@ -309,7 +309,7 @@ if((unsigned short)payload<=frameBits+2){
 	
 }
 
-//cout<<"Ev ID "<<fSignalEvent->GetEventID()<<" "<< <<endl;
+//cout<<"Ev ID "<<fSignalEvent->GetID()<<" "<< <<endl;
 
 return fSignalEvent;
 }

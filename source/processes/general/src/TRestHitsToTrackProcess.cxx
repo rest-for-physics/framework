@@ -103,7 +103,7 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
 
 
     cout << "----------------------" << endl;
-    cout << "Event ID : " << fHitsEvent->GetEventID() << endl;
+    cout << "Event ID : " << fHitsEvent->GetID() << endl;
     cout << "Number of hits : " << fHitsEvent->GetNumberOfHits() << endl;
 
 

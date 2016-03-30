@@ -110,7 +110,7 @@ for( int i = 0; i < fG4Event->GetNumberOfTracks(); i++ )
         if( parentID == 0 ) 
         {
             char evInfoStr[256];
-            sprintf( evInfoStr, "%s. EventID = %d at position (%4.2lf, %4.2lf, %4.2lf) mm", ptlName.Data(), fG4Event->GetEventID(), origin.X(), origin.Y(), origin.Z() );
+            sprintf( evInfoStr, "%s. EventID = %d at position (%4.2lf, %4.2lf, %4.2lf) mm", ptlName.Data(), fG4Event->GetID(), origin.X(), origin.Y(), origin.Z() );
             this->AddParentTrack( trkID, origin, pcleStr );
             this->AddText( evInfoStr, origin );
         }

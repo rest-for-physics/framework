@@ -193,7 +193,7 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 
     if( fHitsEvent->GetNumberOfHits() == 0 ) return NULL;
 
-    cout << "Event : " << g4Event->GetEventID() << " Tracks : " << g4Event->GetNumberOfTracks() << " electrons : " << fHitsEvent->GetNumberOfHits() << endl;
+    cout << "Event : " << g4Event->GetID() << " Tracks : " << g4Event->GetNumberOfTracks() << " electrons : " << fHitsEvent->GetNumberOfHits() << endl;
 
     return fHitsEvent;
 }

@@ -118,7 +118,7 @@ void TRestTrackEvent::SetLevels( )
 
 void TRestTrackEvent::PrintOnlyTracks()
 {
-    cout << "TrackEvent " << GetEventID() << endl;
+    cout << "TrackEvent " << GetID() << endl;
     cout << "-----------------------" << endl;
     for( int i = 0; i < GetNumberOfTracks(); i++ )
     {
@@ -308,7 +308,7 @@ TPad *TRestTrackEvent::DrawEvent()
     fPad->Draw( );
 
     char title[256];
-    sprintf(title, "Event ID %d", this->GetEventID());
+    sprintf(title, "Event ID %d", this->GetID());
 
     TMultiGraph *mgXY = new TMultiGraph();
     TMultiGraph *mgXZ = new TMultiGraph();

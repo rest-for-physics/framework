@@ -173,7 +173,7 @@ TPad *TRestSignalEvent::DrawEvent()
     fPad->DrawFrame( GetMinTime(), GetMinValue() , GetMaxTime(), GetMaxValue());
 
     char title[256];
-    sprintf(title, "Event ID %d", this->GetEventID());
+    sprintf(title, "Event ID %d", this->GetID());
 
 
     TMultiGraph *mg = new TMultiGraph();

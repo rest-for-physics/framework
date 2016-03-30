@@ -71,11 +71,11 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
 
     restTrack->Initialize();
 
-    restG4Event->SetEventID( evt->GetEventID() );
+    restG4Event->SetID( evt->GetEventID() );
     restG4Event->SetOK( true );
     time_t systime = time(NULL);
 
-    restG4Event->SetEventTime( (Double_t) systime );
+    restG4Event->SetTime( (Double_t) systime );
 
     // Defining if the hits in a given volume will be stored
     for( int i = 0; i < restG4Metadata->GetNumberOfActiveVolumes(); i++ )
@@ -129,8 +129,8 @@ void EventAction::FillSubEvent( Int_t subId )
     subRestG4Event->Initialize();
     subRestG4Event->ClearVolumes();
 
-    subRestG4Event->SetEventID( restG4Event->GetEventID( ) );
-    subRestG4Event->SetSubEventID( subId );
+    subRestG4Event->SetID( restG4Event->GetID( ) );
+    subRestG4Event->SetSubID( subId );
 
     subRestG4Event->SetPrimaryEventOrigin( restG4Event->GetPrimaryEventOrigin() );
     for( int n = 0; n < restG4Event->GetNumberOfPrimaries(); n++ )
@@ -171,7 +171,7 @@ void EventAction::FillSubEvent( Int_t subId )
             minTimestamp = subRestG4Event->GetTrack(n)->GetGlobalTime();
     }
 
-    subRestG4Event->SetEventTimeStamp( minTimestamp );
+    subRestG4Event->SetTimeStamp( minTimestamp );
 
     if( subId > 0 )
     {
