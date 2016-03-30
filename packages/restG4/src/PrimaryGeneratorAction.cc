@@ -131,7 +131,6 @@ void PrimaryGeneratorAction::SetParticleDirection( int n )
 
             Double_t theta = GetCosineLowRandomThetaAngle();
             // recording the primaries distribution
-            if( biasing == nBiasingVolumes ) fPrimaryAngularDistribution->Fill( theta );
             G4ThreeVector referenceOrigin = direction;
 
             // We rotate the origin direction by the angular distribution angle
@@ -148,9 +147,6 @@ void PrimaryGeneratorAction::SetParticleDirection( int n )
 
             Double_t theta = GetCosineLowRandomThetaAngle();
 
-            // recording the primaries distribution
-            if( biasing == nBiasingVolumes ) fPrimaryAngularDistribution->Fill( theta );
-
             G4ThreeVector referenceOrigin = direction;
 
             // We rotate the origin direction by the angular distribution angle
@@ -165,14 +161,6 @@ void PrimaryGeneratorAction::SetParticleDirection( int n )
         else
         {
             direction = GetIsotropicVector();
-
-            // recording the primaries distribution
-            if( biasing == nBiasingVolumes )
-            {
-                G4ThreeVector positionNorm = -fParticleGun->GetParticlePosition().unit();
-                Double_t angle = direction.angle( positionNorm );
-                fPrimaryAngularDistribution->Fill( angle );
-            }
         }
     }
 
@@ -193,9 +181,6 @@ void PrimaryGeneratorAction::SetParticleDirection( int n )
                 break;
             }
         }
-        
-        // recording the primaries distribution
-        if( biasing == nBiasingVolumes ) fPrimaryAngularDistribution->Fill( angle );
 
         // A vector pointing to the origin (virtualSphere )
         direction = -fParticleGun->GetParticlePosition().unit();
@@ -314,14 +299,9 @@ void PrimaryGeneratorAction::SetParticleEnergy( int n )
 
     fParticleGun->SetParticleEnergy( energy );
 
-    
     restG4Event->SetPrimaryEventEnergy( energy/keV );
-    
-    // recording the primaries distribution
-    if( biasing == nBiasingVolumes ) fPrimaryEnergyDistribution->Fill( energy/keV );
 
     if( restG4Metadata->GetVerboseLevel() >= REST_Debug ) cout << "Setting particle Energy : " << energy/keV << " keV" << endl;
-    //TODO : Write in TRestG4Event the energy of the event
 }
 
 //_____________________________________________________________________________

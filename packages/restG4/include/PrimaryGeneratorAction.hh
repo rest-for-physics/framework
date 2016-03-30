@@ -102,9 +102,6 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 
     void SetAngularDistribution( TH1D *ang ) { fAngularDistribution = ang; }
 
-    void SetPrimaryAngularDistribution( TH1D *ang ) { fPrimaryAngularDistribution = ang; }
-    void SetPrimaryEnergyDistribution( TH1D *en ) { fPrimaryEnergyDistribution = en; }
-
   private:
     G4ParticleGun*  fParticleGun;
     DetectorConstruction *fDetector;
@@ -115,8 +112,6 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     Int_t startEnergyBin;
     Int_t endEnergyBin;
     Double_t fSpectrumIntegral;
-    TH1D *fPrimaryAngularDistribution;
-    TH1D *fPrimaryEnergyDistribution;
 
     Int_t nBiasingVolumes;
 
