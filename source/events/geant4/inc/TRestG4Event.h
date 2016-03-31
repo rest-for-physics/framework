@@ -82,8 +82,48 @@ class TRestG4Event: public TRestEvent {
 
         void SetSensitiveVolumeEnergy( Double_t en ) { fSensitiveVolumeEnergy = en; }
 
+        Int_t GetLowestTrackID( )
+        {
+            Int_t lowestID;
+            if( fNTracks > 0 ) lowestID = GetTrack( 0 )->GetTrackID();
+
+            for( int i = 0; i < fNTracks; i++ )
+            {
+                TRestG4Track *tr = GetTrack( i );
+                if( tr->GetTrackID() < lowestID ) lowestID = tr->GetTrackID();
+            }
+
+            return lowestID;
+        }
+
         void SetTrackSubEventID( Int_t n, Int_t id );
         void AddTrack( TRestG4Track trk );
+
+        Bool_t isRadiactiveDecay( )
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isRadiactiveDecay( ) ) return true;
+            return false;
+        }
+
+        Bool_t isPhotoElectric( )
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isPhotoElectric( ) ) return true;
+            return false;
+        }
+        Bool_t isCompton( )
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isCompton( ) ) return true;
+            return false;
+        }
+        Bool_t isBremstralung( )
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isBremstralung( ) ) return true;
+            return false;
+        }
 
         void Initialize();
 

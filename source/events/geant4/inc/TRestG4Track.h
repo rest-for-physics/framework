@@ -92,7 +92,7 @@ class TRestG4Track:public TObject {
 
         void RemoveHits( ) { fHits.RemoveHits ( ); }
 
-        // TODO move this to a header
+        // TODO move this to a namespace header??
         Int_t GetProcessID( TString pcsName );
         TString GetProcessName( Int_t id );
         Bool_t isRadiactiveDecay( ) 
@@ -101,6 +101,25 @@ class TRestG4Track:public TObject {
                 if( GetHits()->GetHitProcess( n ) == 11 ) return true;
             return false;
         }
+        Bool_t isPhotoElectric( )
+        {
+            for( int n = 0; n < GetHits()->GetNumberOfHits(); n++ )
+                if( GetHits()->GetHitProcess( n ) == 3 ) return true;
+            return false;
+        }
+        Bool_t isCompton( )
+        {
+            for( int n = 0; n < GetHits()->GetNumberOfHits(); n++ )
+                if( GetHits()->GetHitProcess( n ) == 7 ) return true;
+            return false;
+        }
+        Bool_t isBremstralung( )
+        {
+            for( int n = 0; n < GetHits()->GetNumberOfHits(); n++ )
+                if( GetHits()->GetHitProcess( n ) == 5 ) return true;
+            return false;
+        }
+        /////////////////////////////////
 
         void PrintTrack();
         //    Int_t GetElement( Int_t n ) { return X.At(n); }
