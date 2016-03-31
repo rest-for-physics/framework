@@ -183,6 +183,37 @@ void EventAction::FillSubEvent( Int_t subId )
                 if( tck->isRadiactiveDecay() ) subRestG4Event->SetSubEventTag( tck->GetParticleName() );
         }
     }
+
+    // Re-ordering track IDs
+    Int_t lowestID = subRestG4Event->GetLowestTrackID();
+    Int_t nTracks = subRestG4Event->GetNumberOfTracks();
+
+    for( int i = 0; i < nTracks; i++ )
+    {
+        TRestG4Track *tr = subRestG4Event->GetTrack( i );
+        tr->SetTrackID( tr->GetTrackID() - lowestID + 1 );
+        tr->SetParentID( tr->GetParentID() - lowestID + 1 );
+        if( tr->GetParentID() < 0 ) tr->SetParentID( 0 );
+    }
+
+    lowestID = subRestG4Event->GetLowestTrackID();
+
+    for( int i = 0; i < nTracks; i++ )
+    {
+        TRestG4Track *tr = subRestG4Event->GetTrack( i );
+        Int_t id = tr->GetTrackID();
+
+        if( id - i  != 1 )
+        {
+            tr->SetTrackID( i + 1 );
+            for( int t = 0; t < subRestG4Event->GetNumberOfTracks(); t++ )
+            {
+                TRestG4Track *tr2 = subRestG4Event->GetTrack( t );
+                if( tr2->GetParentID( ) == id  ) tr2->SetParentID( i + 1 );
+            }
+        }
+    }
+
 }
 
 void EventAction::SetTrackSubeventIDs()
