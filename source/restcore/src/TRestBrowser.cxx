@@ -196,7 +196,7 @@ Bool_t TRestBrowser::LoadEvent( Int_t n ){
 if(!isFile){cout<<"No file..."<<endl;return kFALSE;}
 
 if(n<fInputEventTree->GetEntries()&&n>=0){
-fInputEventTree->GetEntry(n);
+GetEntry(n);
 fCurrentEvent=n;
 }
 else{cout<<"Event out of limits"<<endl; return kFALSE;}

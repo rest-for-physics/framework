@@ -28,9 +28,7 @@ TRestAnalysisTree::TRestAnalysisTree() : TTree( )
     SetName( "TRestAnalysisTree" );
     SetTitle( "Analysis tree" );
 
-    fSubEventTag = new TString();
-
-    fNObservables = 0;
+    Initialize( );
 }
 
 TRestAnalysisTree::TRestAnalysisTree( TString name, TString title ) : TTree( name, title )
@@ -38,9 +36,19 @@ TRestAnalysisTree::TRestAnalysisTree( TString name, TString title ) : TTree( nam
     SetName( name );
     SetTitle( title );
 
+    Initialize( );
+}
+
+void TRestAnalysisTree::Initialize( )
+{
+
     fSubEventTag = new TString();
 
     fNObservables = 0;
+
+    fConnected = false;
+    fBranchesCreated = false;
+
 }
 
 void TRestAnalysisTree::ConnectEventBranches( )
@@ -58,6 +66,36 @@ void TRestAnalysisTree::ConnectEventBranches( )
     br4->SetAddress( &fSubEventTag );
 }
 
+void TRestAnalysisTree::ConnectObservables( )
+{
+    TBranch *branch[fNObservables];
+    for( int i = 0; i < GetNumberOfObservables(); i++ )
+    {
+        Double_t x = 0;
+        branch[i] = GetBranch( fObservableNames[i] );
+        fObservableValues.push_back( x );
+        branch[i]->SetAddress( &fObservableValues[i] );
+    }
+    fConnected = true;
+
+}
+
+Int_t TRestAnalysisTree::AddObservable( TString observableName )
+{
+    if( fBranchesCreated )
+    {
+        cout << "REST ERROR : Branches have been already created" << endl; 
+        cout << "No more observables can be added" << endl;
+        return -1;
+    }
+    Double_t x = 0;
+    fObservableNames.push_back( observableName );
+    fObservableValues.push_back( x );
+
+    fNObservables++;
+    return fNObservables-1;
+}
+
 Int_t TRestAnalysisTree::FillEvent( TRestEvent *evt )
 {
     fEventID = evt->GetID( );
@@ -65,17 +103,12 @@ Int_t TRestAnalysisTree::FillEvent( TRestEvent *evt )
     fTimeStamp = evt->GetTimeStamp( ).AsDouble();
     *fSubEventTag = evt->GetSubEventTag( );
 
-    return this->Fill( );
-}
+    cout << fNObservables << endl;
+    cout << fObservableNames.size() << "    "  << fObservableValues.size() << endl;
+    for( int i = 0; i < fNObservables; i++ )
+        cout << "Value : " << fObservableValues[i] << endl;
 
-Int_t TRestAnalysisTree::AddObservable( TString observableName )
-{
-    Double_t x = 0;
-    fObservableNames.push_back( observableName );
-    fObservableValues.push_back( x );
-    Branch( observableName, &fObservableValues[fNObservables] );
-    fNObservables++;
-    return fNObservables-1;
+    return this->Fill( );
 }
 
 void TRestAnalysisTree::CreateEventBranches( )
@@ -85,6 +118,21 @@ void TRestAnalysisTree::CreateEventBranches( )
     Branch( "timeStamp", &fTimeStamp );
     Branch( "subEventTag", fSubEventTag );
 }
+
+void TRestAnalysisTree::CreateObservableBranches( )
+{
+    if( fBranchesCreated ) 
+    {
+        cout << "REST ERROR : Branches have been already created" << endl; 
+        exit(1); 
+    }
+
+    for( int n = 0; n < GetNumberOfObservables(); n++ )
+        Branch( fObservableNames[n], &fObservableValues[n] );
+
+    fBranchesCreated = true;
+}
+
 
 //______________________________________________________________________________
 TRestAnalysisTree::~TRestAnalysisTree()

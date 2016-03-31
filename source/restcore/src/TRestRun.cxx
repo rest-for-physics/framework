@@ -74,6 +74,9 @@ void TRestRun::Initialize()
     fInputEventTree = NULL;
     fOutputEventTree = NULL;
 
+    fInputAnalysisTree = NULL;
+    fOutputAnalysisTree = NULL;
+
     fInputFilename = "null";
     fOutputFilename = "default";
 
@@ -84,6 +87,7 @@ void TRestRun::Initialize()
     fEventIDs.clear();
     fSubEventIDs.clear();
     fSubEventTags.clear();
+
 }
 
 void TRestRun::ResetRunTimes()
@@ -126,8 +130,11 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
 
 	//////////////////
 	
+	for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->SetAnalysisTree( fOutputAnalysisTree );
 
 	for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->InitProcess();
+
+    fOutputAnalysisTree->CreateObservableBranches( );
 
     fProcessedEvents = 0;
     fEventIDs.clear();
@@ -168,8 +175,8 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
 
 		if (fInputEventTree != NULL)
 		{
-		    fOutputEvent->SetEventID( fInputEvent->GetEventID() );
-		    fOutputEvent->SetEventTime( fInputEvent->GetEventTime() );
+		    fOutputEvent->SetID( fInputEvent->GetID() );
+		    fOutputEvent->SetTime( fInputEvent->GetTime() );
 		}
 
 #ifdef TIME_MEASUREMENT
@@ -250,6 +257,19 @@ void TRestRun::SetOutputEvent( TRestEvent *evt )
         if( GetVerboseLevel() == REST_Debug ) cout << "Creating tree : " << fOutputEventTree << endl;
         fOutputEventTree->SetName( treeName );
         fOutputEventTree->Branch("eventBranch", evt->GetName(), fOutputEvent);
+
+    }
+    if( fOutputAnalysisTree == NULL )
+    {
+        fOutputAnalysisTree = new TRestAnalysisTree( "TRestAnalysisTree", GetTitle() );
+        fOutputAnalysisTree->CreateEventBranches( );
+
+        if( fInputAnalysisTree != NULL )
+        {
+            Int_t nObs = fInputAnalysisTree->GetNumberOfObservables( );
+            for( int n = 0; n < nObs; n++ )
+                fOutputAnalysisTree->AddObservable( fInputAnalysisTree->GetObservableName( n ) );
+        }
     }
 }
 
@@ -272,6 +292,17 @@ void TRestRun::SetInputEvent( TRestEvent *evt )
     TBranch *br = fInputEventTree->GetBranch( "eventBranch" );
 
     br->SetAddress( &fInputEvent );
+
+    if( GetObjectKeyByName( "TRestAnalysisTree" ) == NULL )
+    {
+        cout << "REST ERROR (SetInputEvent) : TRestAnalysisTree was not found" << endl;
+        return;
+    }
+
+    fInputAnalysisTree = ( TRestAnalysisTree * ) fInputFile->Get( "TRestAnalysisTree" ); 
+
+    fInputAnalysisTree->ConnectEventBranches( );
+    fInputAnalysisTree->ConnectObservables( );
 
 }
 
@@ -464,9 +495,12 @@ void TRestRun::CloseOutputFile( )
         }
     }
 
-    //else { if( GetVerboseLevel() >= REST_Warning ) cout << "WARNNNNING : No Geometry found" << endl; }
-
-    if( fOutputEventTree != NULL ) { cout << "Writting output tree" << endl; fOutputEventTree->Write(); }
+    if( fOutputEventTree != NULL )
+    {
+        cout << "Writting output tree" << endl;
+        fOutputEventTree->Write();
+        fOutputAnalysisTree->Write();
+    }
 
     this->Write();
 
@@ -711,14 +745,13 @@ void TRestRun::PrintProcessedEvents( Int_t rateE)
         }
 
     }
-
-
 }
+
 Int_t TRestRun::Fill( )
 {
     fProcessedEvents++;
-    fEventIDs.push_back( fOutputEvent->GetEventID() );
-    fSubEventIDs.push_back( fOutputEvent->GetSubEventID() );
+    fEventIDs.push_back( fOutputEvent->GetID() );
+    fSubEventIDs.push_back( fOutputEvent->GetSubID() );
     fSubEventTags.push_back( fOutputEvent->GetSubEventTag() );
 
     Int_t found = 0;
@@ -726,6 +759,15 @@ Int_t TRestRun::Fill( )
         if( fOutputEvent->GetSubEventTag() == fSubEventTagList[i] ) found = 1;
 
     if( !found ) fSubEventTagList.push_back( fOutputEvent->GetSubEventTag() );
+
+    if( fInputAnalysisTree != NULL )
+    {
+        fInputAnalysisTree->GetEntry( fOutputAnalysisTree->GetEntries()+1);
+
+        for( int n = 0; n < fInputAnalysisTree->GetNumberOfObservables(); n++ )
+            fOutputAnalysisTree->SetObservableValue( n, fInputAnalysisTree->GetObservableValue( n ) );
+    }
+    fOutputAnalysisTree->FillEvent( fOutputEvent );
 
     return fOutputEventTree->Fill();
 }

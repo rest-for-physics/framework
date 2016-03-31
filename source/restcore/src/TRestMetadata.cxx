@@ -938,6 +938,30 @@ string TRestMetadata::GetParameter( string parName, TString defaultValue )
     return defaultValue.Data();
 }
 
+vector <string> TRestMetadata::GetObservablesList( )
+{
+    size_t position = 0;
+
+    vector <string> output;
+    output.clear();
+
+    string observableString;
+    while( position != string::npos )
+    {
+        observableString = GetKEYDefinition( "observable", position );
+        if( debug > 1 ) cout << "Parameter string : " << observableString << endl;
+
+            string value = GetFieldValue( "value", observableString );
+            if( value == "ON" || value == "on" )
+            {
+                string observableName = GetFieldValue( "name", observableString );
+                output.push_back( observableName );
+            }
+    }
+
+    return output;
+}
+
 Double_t TRestMetadata::GetDblParameterWithUnits( string parName, Double_t defaultValue )
 {
     size_t position = 0;

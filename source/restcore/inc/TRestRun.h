@@ -33,6 +33,8 @@
 #include "TRestMetadata.h"
 #include "TRestEventProcess.h"
 
+#include "TRestAnalysisTree.h"
+
 class TRestRun:public TRestMetadata {
     private:
         void InitFromConfigFile();
@@ -58,7 +60,7 @@ class TRestRun:public TRestMetadata {
         
         Int_t fRunEvents;
 
-        Double_t fStartTime;              ///< Event absolute starting time/date (unix timestamp)
+        Double_t fStartTime;            ///< Event absolute starting time/date (unix timestamp)
         Double_t fEndTime;              ///< Event absolute starting time/date (unix timestamp)
 
         std::vector <TRestMetadata*> fMetadata;
@@ -72,6 +74,9 @@ class TRestRun:public TRestMetadata {
         TTree *fInputEventTree;
         TTree *fOutputEventTree;
 
+        TRestAnalysisTree *fInputAnalysisTree;
+        TRestAnalysisTree *fOutputAnalysisTree;
+
         TRestEvent *fInputEvent;
         TRestEvent *fOutputEvent;
         
@@ -80,6 +85,7 @@ class TRestRun:public TRestMetadata {
         
         Int_t fCurrentEvent;
 #endif
+
         Int_t fProcessedEvents;
         vector <Int_t> fEventIDs;
         vector <Int_t> fSubEventIDs;
@@ -89,6 +95,8 @@ class TRestRun:public TRestMetadata {
         void SetRunFilenameAndIndex();
         TKey *GetObjectKeyByClass( TString className );
         TKey *GetObjectKeyByName( TString name );
+
+        virtual void SetInputEvent( TRestEvent *evt );
 
     public:
         
@@ -135,7 +143,11 @@ class TRestRun:public TRestMetadata {
         Int_t GetSubEventID( Int_t entry ) { return fSubEventIDs[entry]; }
         TString GetSubEventTag( Int_t entry ) { return fSubEventTags[entry]; }
 
-        Int_t GetEntry( Int_t i ) { return fInputEventTree->GetEntry( i ); }
+        Int_t GetEntry( Int_t i )
+        {
+            fInputAnalysisTree->GetEntry( i );
+            return fInputEventTree->GetEntry( i );
+        }
 
         Int_t Fill( );
 
@@ -175,7 +187,6 @@ class TRestRun:public TRestMetadata {
         void AddProcess( TRestEventProcess *process, std::string cfgFilename );
 
         virtual void SetOutputEvent( TRestEvent *evt );
-        virtual void SetInputEvent( TRestEvent *evt );
 	
         Bool_t GetNextEvent( );
 	

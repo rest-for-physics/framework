@@ -24,6 +24,7 @@
 #include "TNamed.h"
 #include "TRestEvent.h"
 #include "TRestMetadata.h"
+#include "TRestAnalysisTree.h"
 
 class TRestEventProcess:public TRestMetadata {
  protected:
@@ -37,6 +38,8 @@ class TRestEventProcess:public TRestMetadata {
    TRestEvent *fOutputEvent;
 
    std::vector <TRestMetadata*> fRunMetadata;
+
+   TRestAnalysisTree *fAnalysisTree;
 #endif
 
  private:
@@ -57,11 +60,15 @@ class TRestEventProcess:public TRestMetadata {
 
    TRestMetadata *GetGasMetadata( );
    TRestMetadata *GetReadoutMetadata( );
+   TRestMetadata *GetGeant4Metadata( );
+
    Double_t GetDoubleParameterFromClass( TString className, TString parName );
    Double_t GetDoubleParameterFromClassWithUnits( TString className, TString parName );
 
    virtual TRestMetadata *GetProcessMetadata() { return NULL; }
    void SetMetadata( std::vector <TRestMetadata*> meta ) { fRunMetadata = meta; }
+
+   void SetAnalysisTree( TRestAnalysisTree *tree ) { fAnalysisTree = tree; }
 
    void BeginPrintProcess();
    void EndPrintProcess();

@@ -72,6 +72,8 @@ class TRestMetadata:public TNamed {
         TVector2 Get2DVectorParameterWithUnits( std::string parName, size_t &pos, std::string inputString );
         TVector3 Get3DVectorParameterWithUnits( std::string parName, size_t &pos, std::string inputString );
 
+        vector <string> GetObservablesList( );
+
         std::string GetMyParameter( std::string &value, size_t &pos );
 
         std::string fConfigFileName;		// std::string with the name of the config file
