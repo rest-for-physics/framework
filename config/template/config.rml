@@ -135,6 +135,13 @@ All units in mm, keV and degrees
     <parameter name="maxNodes" value="100" />
 </section>
 
+<section geant4AnalysisProcess name="geant4Analysis-Panda" title="Half PANDA X-III Vessel (Bottom)" >
+    <observable name="gasEnergyDeposit_InKeV" value="ON" />
+    <observable name="photoelectric" value="ON" />
+    <observable name="compton" value="ON" />
+    <observable name="bremstralung" value="ON" />
+</section>
+
 <section trackLinearizationProcess name="trackLinearization-Panda" title="Half PANDA X-III Vessel (Bottom)" >
     <parameter name="lengthResolution" value="2" units="mm" />
     <parameter name="transversalResolution" value="1" units="mm" />
