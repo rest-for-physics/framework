@@ -90,6 +90,7 @@ for( int i = 0; i < fG4Event->GetNumberOfTracks(); i++ )
     Double_t slope = (fMaxRadius-fMinRadius)/(eDepMax-eDepMin);
     Double_t bias = fMinRadius - slope * eDepMin;
 
+    Int_t textAdded = 0;
     for( int trkID = 1; trkID < fG4Event->GetNumberOfTracks()+1; trkID++ )
     {
         g4Track = fG4Event->GetTrackByID( trkID );
@@ -112,7 +113,14 @@ for( int i = 0; i < fG4Event->GetNumberOfTracks(); i++ )
             char evInfoStr[256];
             sprintf( evInfoStr, "%s. EventID = %d at position (%4.2lf, %4.2lf, %4.2lf) mm", ptlName.Data(), fG4Event->GetID(), origin.X(), origin.Y(), origin.Z() );
             this->AddParentTrack( trkID, origin, pcleStr );
-            this->AddText( evInfoStr, origin );
+            if( fG4Event->GetSubID() == 0 )
+                this->AddText( evInfoStr, origin );
+            else if( !textAdded )
+            {
+                textAdded = 1;
+                sprintf( evInfoStr, "%s. EventID = %d at position (%4.2lf, %4.2lf, %4.2lf) mm",  fG4Event->GetSubEventTag().Data(), fG4Event->GetID(), origin.X(), origin.Y(), origin.Z() );
+                this->AddText( evInfoStr, origin );
+            }
         }
         else this->AddTrack( trkID, parentID, origin, pcleStr );
 
@@ -128,7 +136,6 @@ for( int i = 0; i < fG4Event->GetNumberOfTracks(); i++ )
             Double_t z = g4Hits->GetZ(i);
 
             this->NextTrackVertex( trkID, TVector3( x, y, z ) );
-
 
             Double_t eDep = g4Hits->GetEnergy(i);
 
@@ -150,7 +157,7 @@ void TRestG4EventViewer::AddText( TString text, TVector3 at )
 {
     TEveText *evText = new TEveText( text );
     evText->SetName( "Event title" );
-    evText->SetFontSize(16);
+    evText->SetFontSize(12);
     evText->RefMainTrans().SetPos( (at.X()+15)*GEOM_SCALE, (at.Y()+15)*GEOM_SCALE, (at.Z()+15)*GEOM_SCALE );
 
     gEve->AddElement( evText );
@@ -189,7 +196,6 @@ void TRestG4EventViewer::AddTrack( Int_t trkID, Int_t parentID, TVector3 from, T
     fHitConnectors[trkID]->SetNextPoint( from.X()*GEOM_SCALE, from.Y()*GEOM_SCALE, from.Z()*GEOM_SCALE );
 
     fHitConnectors[parentID]->AddElement( fHitConnectors[trkID] );
-
 }
 
 void TRestG4EventViewer::AddParentTrack( Int_t trkID, TVector3 from, TString name )
