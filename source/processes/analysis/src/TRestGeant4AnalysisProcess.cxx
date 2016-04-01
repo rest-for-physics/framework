@@ -23,7 +23,6 @@ ClassImp(TRestGeant4AnalysisProcess)
 TRestGeant4AnalysisProcess::TRestGeant4AnalysisProcess()
 {
     Initialize();
-
 }
 
 //______________________________________________________________________________
@@ -32,24 +31,17 @@ TRestGeant4AnalysisProcess::TRestGeant4AnalysisProcess( char *cfgFileName )
     Initialize();
 
     if( LoadConfigFromFile( cfgFileName ) ) LoadDefaultConfig( );
-
-    PrintMetadata();
-
-    // TRestGeant4AnalysisProcess default constructor
 }
 
 //______________________________________________________________________________
 TRestGeant4AnalysisProcess::~TRestGeant4AnalysisProcess()
 {
     delete fG4Event;
-    // TRestGeant4AnalysisProcess destructor
 }
 
 void TRestGeant4AnalysisProcess::LoadDefaultConfig()
 {
     SetTitle( "Default config" );
-
-    // TOBE implemented
 }
 
 //______________________________________________________________________________
@@ -66,28 +58,17 @@ void TRestGeant4AnalysisProcess::Initialize()
 void TRestGeant4AnalysisProcess::LoadConfig( string cfgFilename )
 {
     if( LoadConfigFromFile( cfgFilename ) ) LoadDefaultConfig( );
-
-    PrintMetadata();
 }
 
 //______________________________________________________________________________
 void TRestGeant4AnalysisProcess::InitProcess()
 {
-    // Function to be executed once at the beginning of process
-    // (before starting the process of the events)
-
-    //Start by calling the InitProcess function of the abstract class. 
-    //Comment this if you don't want it.
-
-    cout << __PRETTY_FUNCTION__ << endl;
-
     vector <string> obsList = GetObservablesList( );
 
     for( unsigned int n = 0; n < obsList.size(); n++ )
         fAnalysisTree->AddObservable( obsList[n] );
 
     fG4Metadata = (TRestG4Metadata *) GetGeant4Metadata( );
-
 }
 
 //______________________________________________________________________________

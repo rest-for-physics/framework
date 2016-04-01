@@ -103,11 +103,6 @@ Int_t TRestAnalysisTree::FillEvent( TRestEvent *evt )
     fTimeStamp = evt->GetTimeStamp( ).AsDouble();
     *fSubEventTag = evt->GetSubEventTag( );
 
-    cout << fNObservables << endl;
-    cout << fObservableNames.size() << "    "  << fObservableValues.size() << endl;
-    for( int i = 0; i < fNObservables; i++ )
-        cout << "Value : " << fObservableValues[i] << endl;
-
     return this->Fill( );
 }
 
