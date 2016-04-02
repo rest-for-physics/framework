@@ -35,11 +35,7 @@
 #include "PhysicsList.hh"
 #include "G4UnitsTable.hh"
 #include "G4ParticleTypes.hh"
-#include "G4IonConstructor.hh"
-#include "G4PhysicsListHelper.hh"
 #include "G4RadioactiveDecay.hh"
-#include "G4ionIonisation.hh"
-#include "G4hMultipleScattering.hh"
 //#include "G4ScreenedNuclearRecoil.hh"
 #include "G4UAtomicDeexcitation.hh"
 #include "G4LossTableManager.hh"
@@ -82,8 +78,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 PhysicsList::PhysicsList() : G4VModularPhysicsList(),
-    fCutForGamma( 10.*um), fCutForElectron(1*mm), fCutForPositron(1*mm),
-    fEmPhysicsList(0) 
+    fCutForGamma( 10.*um), fCutForElectron(1*mm), fCutForPositron(1*mm)
 {
     //add new units for radioActive decays
     // 
@@ -177,25 +172,12 @@ void PhysicsList::ConstructProcess()
     for( size_t i = 0; i < fHadronPhys.size(); i++) 
         fHadronPhys[i]->ConstructProcess();
 
-    // not sure we need the following lines, kept for the moment
-
     G4RadioactiveDecay* radioactiveDecay = new G4RadioactiveDecay();
     radioactiveDecay->SetHLThreshold(nanosecond);
     radioactiveDecay->SetICM(true);                //Internal Conversion
 
     // When there is electronic capture X-rays cab be emitted
     radioactiveDecay->SetARM(true);               //Atomic Rearangement
-
-    G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();  
-    ph->RegisterProcess(radioactiveDecay, G4GenericIon::GenericIon());
-
-    /*
-       G4ionIonisation *ionIonisation = new G4ionIonisation();
-       ph->RegisterProcess( ionIonisation, G4GenericIon::GenericIon());
-
-       G4hMultipleScattering *mscIon = new G4hMultipleScattering();
-       ph->RegisterProcess( mscIon, G4GenericIon::GenericIon());
-       */
 
     /*
        G4ScreenedNuclearRecoil* nucr = new G4ScreenedNuclearRecoil();
@@ -204,7 +186,7 @@ void PhysicsList::ConstructProcess()
        ph->RegisterProcess( nucr, G4GenericIon::GenericIon());
        */
 
-    theParticleIterator->reset();
+    /* theParticleIterator->reset();
     while ((*theParticleIterator)())
     {
         G4ParticleDefinition* particle = theParticleIterator->value();
@@ -219,7 +201,7 @@ void PhysicsList::ConstructProcess()
                     new G4UniversalFluctuation());
 
         }
-    }
+    } */
 
     theParticleIterator->reset();
     while((*theParticleIterator)()) 
@@ -231,16 +213,6 @@ void PhysicsList::ConstructProcess()
         if(partname =="e-") processManager->AddDiscreteProcess(new G4StepLimiter("e-Step")); 
         else if(partname =="e+") processManager->AddDiscreteProcess(new G4StepLimiter("e+Step")); 
     }
-
-    G4UAtomicDeexcitation* de = new G4UAtomicDeexcitation();
-    de->SetFluo(true);
-    de->SetAuger(true);   
-    // Particle Induced X-ray Emission
-    de->SetPIXE(true);  
-    G4LossTableManager::Instance()->SetAtomDeexcitation(de);  
-
-    fEmPhysicsList->ConstructProcess();
-    em_config.AddModels();
 
 }
 
