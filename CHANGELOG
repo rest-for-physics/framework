@@ -86,6 +86,10 @@ TRestG4Event changes:
     - The splitting preserves the same `fEventID` and increases the `subEventID` number. 
     - A new metadata member has been added to `TRestG4Metadata`, `subEventTimeDelay`. This parameter defines the global time difference between two track that is used to split events.
 
+* TH1D energy generator type has been modified to accept energy distributions with different energies.
+    - The energy range is read from the x-label title. 
+    - In practice PrimaryGenerator::SetSpectrum will check if the title of x-axis contains the string MeV or GeV, in case they are not found keV is assumed.
+
 
 == RESTPROCESSES ==
 
