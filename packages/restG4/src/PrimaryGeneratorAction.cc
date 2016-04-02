@@ -280,13 +280,14 @@ void PrimaryGeneratorAction::SetParticleEnergy( int n )
 
         Double_t value = G4UniformRand() * fSpectrumIntegral;
         Double_t sum = 0;
+        Double_t deltaEnergy = fSpectrum->GetBinCenter(2) - fSpectrum->GetBinCenter(1);
         for( int bin = startEnergyBin; bin <= endEnergyBin; bin++ )
         {
             sum += fSpectrum->GetBinContent( bin );
 
             if( sum > value )
             {
-                energy = (Double_t) fSpectrum->GetBinCenter( bin ) * keV;
+                energy = energyFactor * (Double_t) ( fSpectrum->GetBinCenter( bin ) + deltaEnergy * (0.5-G4UniformRand()) ) * keV;
                 break;
             }
         }

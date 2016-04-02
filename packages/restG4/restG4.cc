@@ -149,7 +149,17 @@ int main(int argc,char** argv) {
 
         TFile fin( fileFullPath );
 
-        TH1D *h = (TH1D *) fin.Get( restG4Metadata->GetParticleSource(0).GetSpectrumName() );;
+        TString sptName = restG4Metadata->GetParticleSource(0).GetSpectrumName();
+
+        TH1D *h = (TH1D *) fin.Get( sptName );;
+        if( h == NULL ) 
+        { 
+            cout << "REST ERROR  when trying to find energy spectrum" << endl;
+            cout << "File : " << fileFullPath << endl;
+            cout << "Spectrum name : " << sptName << endl; 
+            exit(1);
+        }
+
         initialEnergySpectrum = *h;
 
 
@@ -169,7 +179,16 @@ int main(int argc,char** argv) {
 
         TFile fin( fileFullPath );
 
-        TH1D *h = (TH1D *) fin.Get( restG4Metadata->GetParticleSource(0).GetAngularName() );;
+        TString sptName = restG4Metadata->GetParticleSource(0).GetAngularName();
+        TH1D *h = (TH1D *) fin.Get( sptName );;
+        if( h == NULL ) 
+        { 
+            cout << "REST ERROR  when trying to find angular spectrum" << endl;
+            cout << "File : " << fileFullPath << endl;
+            cout << "Spectrum name : " << sptName << endl; 
+            exit(1);
+        }
+
         initialAngularDistribution = *h;
 
         // We set the initial angular distribution provided from TH1D
