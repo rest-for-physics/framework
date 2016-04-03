@@ -191,6 +191,8 @@ void TRestG4EventViewer::AddTrack( Int_t trkID, Int_t parentID, TVector3 from, T
 
     if( name.Contains("gamma") ) fHitConnectors[trkID]->SetMainColor( kGreen );
     if( name.Contains("e-") ) fHitConnectors[trkID]->SetMainColor( kRed );
+    if( name.Contains("mu-") ) fHitConnectors[trkID]->SetMainColor( kGray );
+    if( name.Contains("alpha") ) fHitConnectors[trkID]->SetMainColor( kYellow );
 
 
     fHitConnectors[trkID]->SetNextPoint( from.X()*GEOM_SCALE, from.Y()*GEOM_SCALE, from.Z()*GEOM_SCALE );

@@ -211,6 +211,21 @@ void EventAction::FillSubEvent( Int_t subId )
                 TRestG4Track *tr2 = subRestG4Event->GetTrack( t );
                 if( tr2->GetParentID( ) == id  ) tr2->SetParentID( i + 1 );
             }
+            for( int t = 0; t < subRestG4Event->GetNumberOfTracks(); t++ )
+            {
+                if( t == i ) continue;
+                TRestG4Track *tr2 = subRestG4Event->GetTrack( t );
+                if( tr2->GetTrackID( ) == i + 1 )
+                {
+                    tr2->SetTrackID( id );
+                    for( int k = 0; k < subRestG4Event->GetNumberOfTracks(); k++ )
+                    {
+                        TRestG4Track *tr3 = subRestG4Event->GetTrack( t );
+                        if( tr3->GetParentID() == i+1  ) tr3->SetParentID( id );
+                    }
+                }
+
+            }
         }
     }
 
@@ -231,10 +246,11 @@ void EventAction::SetTrackSubeventIDs()
 
         Int_t Ifound = 0;
         for( unsigned int id = 0; id < fTrackTimestampList.size(); id++ )
-            if( absDouble ( fTrackTimestampList[id] - trkTime ) < timeDelay ) Ifound = id;
+            if( absDouble ( fTrackTimestampList[id] - trkTime ) < timeDelay ) { Ifound = 1; }
 
         if ( Ifound == 0 ) fTrackTimestampList.push_back( trkTime );
     }
+
 
     for( unsigned int id = 0; id < fTrackTimestampList.size(); id++ )
     {

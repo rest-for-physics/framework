@@ -96,8 +96,6 @@ class TRestRun:public TRestMetadata {
         TKey *GetObjectKeyByClass( TString className );
         TKey *GetObjectKeyByName( TString name );
 
-        virtual void SetInputEvent( TRestEvent *evt );
-
     public:
         
         void Start(  );
@@ -187,6 +185,7 @@ class TRestRun:public TRestMetadata {
         void AddProcess( TRestEventProcess *process, std::string cfgFilename );
 
         virtual void SetOutputEvent( TRestEvent *evt );
+        virtual void SetInputEvent( TRestEvent *evt );
 	
         Bool_t GetNextEvent( );
 	
