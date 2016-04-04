@@ -52,11 +52,9 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
 
     if( biasing > 0 )
     {
-
         // In biasing mode we do not store hits. Just check if we observe a gamma inside the volume
         if( restBiasingVolume.isInside( x, y, z ) &&  nom_part == "gamma" )
         {
-
             Double_t eKinetic = aStep->GetPreStepPoint()->GetKineticEnergy()/keV;
 
             // we add the gamma energy to the energy spectrum
@@ -65,7 +63,6 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
                 G4ThreeVector position = aStep->GetPreStepPoint()->GetPosition();
                 G4ThreeVector positionNorm = -aStep->GetPreStepPoint()->GetPosition().unit();
                 G4ThreeVector momentum = aStep->GetPreStepPoint()->GetMomentumDirection();
-
 
                 Double_t angle;
                 if( restBiasingVolume.GetBiasingVolumeType() == "virtualBox" ) 
@@ -128,13 +125,16 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
         for( int volID = 0; volID < restG4Metadata->GetNumberOfActiveVolumes(); volID++ )
         {
 
-            if( restG4Event->isVolumeStored( volID ) )
+            Bool_t isDecay = (nom_proc == (G4String) "RadioactiveDecay" );
+            if( restG4Event->isVolumeStored( volID ) || isDecay )
             {
                 if( restG4Metadata->GetVerboseLevel() > REST_Info )
                     G4cout << "Step volume :" << nom_vol << "::("  << (G4String) restG4Metadata->GetActiveVolumeName( volID ) << ")" << G4endl;
 
                 // We store the hit if we have activated in the config 
-                if( nom_vol == (G4String) restG4Metadata->GetActiveVolumeName( volID ) )
+                Bool_t isActiveVolume = (nom_vol == (G4String) restG4Metadata->GetActiveVolumeName( volID ) );
+
+                if( isActiveVolume || isDecay )
                 {
                     if( restG4Metadata->GetVerboseLevel() > REST_Info ) G4cout << "Storing hit" << G4endl;
 
@@ -147,6 +147,5 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
             }
         }
     }
-
 }
 //_____________________________________________________________________________
