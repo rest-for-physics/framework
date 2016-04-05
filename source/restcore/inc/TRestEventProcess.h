@@ -60,6 +60,7 @@ class TRestEventProcess:public TRestMetadata {
 
    TRestMetadata *GetGasMetadata( );
    TRestMetadata *GetReadoutMetadata( );
+   TRestMetadata *GetDecodingMetadata( );
    TRestMetadata *GetGeant4Metadata( );
 
    Double_t GetDoubleParameterFromClass( TString className, TString parName );
