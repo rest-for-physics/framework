@@ -46,7 +46,7 @@ class TRestReadoutChannel : public TObject {
         void SetID( Int_t id ) { fChannelID = id; }
         void AddPixel( TRestReadoutPixel pix ) { fReadoutPixel.push_back( pix ); }
         
-        void PrintReadoutChannel( );
+        void Print( );
 
         //Construtor
         TRestReadoutChannel();

@@ -30,7 +30,6 @@
 
 class TRestReadoutModule : public TObject {
     private:
-        Int_t fPlaneIndex;
         Int_t fModuleID;
 
         Double_t fModuleOriginX;
@@ -77,7 +76,6 @@ class TRestReadoutModule : public TObject {
         
         void DoReadoutMapping( );
         
-        void SetPlaneIndex( Int_t index ) { fPlaneIndex = index; }
         void SetModuleID( Int_t modID ) { fModuleID = modID; }
         void SetSize( Double_t sX, Double_t sY ) { fModuleSizeX = sX; fModuleSizeY = sY; }
         void SetSize( TVector2 s ) { fModuleSizeX = s.X(); fModuleSizeY = s.Y(); }
@@ -106,7 +104,6 @@ class TRestReadoutModule : public TObject {
         void AddChannel( TRestReadoutChannel &rChannel );
 
         Int_t GetModuleID( ) { return fModuleID; }
-        Int_t GetPlaneIndex( ) { return fPlaneIndex; }
 
         Double_t GetModuleOriginX() { return fModuleOriginX; }
         Double_t GetModuleOriginY() { return fModuleOriginY; }
@@ -125,7 +122,7 @@ class TRestReadoutModule : public TObject {
 
         void Draw();
 
-        void PrintReadoutModule( Int_t fullDetail = 0 );
+        void Print( Int_t fullDetail = 0 );
 
         //Construtor
         TRestReadoutModule();

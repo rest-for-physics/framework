@@ -316,41 +316,41 @@ return fSignalEvent;
 
 int TRestFEMINOSToSignalProcess::GetPhysChannel(int channel){
 
-int physChannel=-10;
+    int physChannel=-10;
 
-	//AFTER
-     if(GetElectronicsType( )=="AFTER"){
-	if (channel> 2 && channel < 15 ) {
-      	physChannel= channel -3; 
-    	} else if (channel> 15 && channel < 28 ) {
-      physChannel= channel -4; 
-    	} else if (channel> 28 && channel < 53 ) {
-      physChannel= channel -5; 
-    	} else if (channel> 53 && channel < 66 ) {
-      	physChannel= channel -6; 
-    	} else if (channel> 66  ) {
-      	physChannel= channel -7; 
-    	}
-     }
-	//AGET Short seq
-     else if(GetElectronicsType( )=="AGET"){
-	if (channel> 1 && channel < 13 ) {
-      	physChannel= channel -2; 
-    	} else if (channel> 13 && channel < 24 ) {
-      physChannel= channel -3; 
-    	} else if (channel> 24 && channel < 47 ) {
-      physChannel= channel -4; 
-    	} else if (channel> 47 && channel < 58 ) {
-      	physChannel= channel -5; 
-    	} else if (channel> 58 ) {
-      	physChannel= channel -6; 
-    	}
-     }
-     
-     else return -1;
+    //AFTER
+    if(GetElectronicsType( )=="AFTER"){
+        if (channel> 2 && channel < 15 ) {
+            physChannel= channel -3; 
+        } else if (channel> 15 && channel < 28 ) {
+            physChannel= channel -4; 
+        } else if (channel> 28 && channel < 53 ) {
+            physChannel= channel -5; 
+        } else if (channel> 53 && channel < 66 ) {
+            physChannel= channel -6; 
+        } else if (channel> 66  ) {
+            physChannel= channel -7; 
+        }
+    }
+    //AGET Short seq
+    else if(GetElectronicsType( )=="AGET"){
+        if (channel> 1 && channel < 13 ) {
+            physChannel= channel -2; 
+        } else if (channel> 13 && channel < 24 ) {
+            physChannel= channel -3; 
+        } else if (channel> 24 && channel < 47 ) {
+            physChannel= channel -4; 
+        } else if (channel> 47 && channel < 58 ) {
+            physChannel= channel -5; 
+        } else if (channel> 58 ) {
+            physChannel= channel -6; 
+        }
+    }
+
+    else return -1;
 
 
-return physChannel;
+    return physChannel;
 
 }
 

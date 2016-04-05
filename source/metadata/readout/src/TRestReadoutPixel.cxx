@@ -105,7 +105,7 @@ Bool_t TRestReadoutPixel::isInside( TVector2 pos )
     return false;
 }
 
-void TRestReadoutPixel::PrintReadoutPixel( )
+void TRestReadoutPixel::Print( )
 {
     cout << "      ## Pixel ID : " << GetID() << " position : (" << GetOriginX() << "," << GetOriginY() << ") mm size : (" << GetSizeX() << "," << GetSizeY() << ") mm rotation : " << fRotation << " degrees" << endl;
 }

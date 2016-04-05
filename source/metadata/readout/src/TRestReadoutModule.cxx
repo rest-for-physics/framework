@@ -38,7 +38,6 @@ TRestReadoutModule::~TRestReadoutModule()
 void TRestReadoutModule::Initialize()
 {
     fReadoutChannel.clear();
-    fPlaneIndex = -1;
     fModuleID = -1;
     
     fModuleOriginX = 0;
@@ -219,7 +218,7 @@ TRestReadoutChannel *TRestReadoutModule::GetChannelByID( int id )
     if( chNumber != -1 )
         return &fReadoutChannel[chNumber];
 
-    cout << "REST Warning : Readout channel with ID : " << id << " not found in module : " << fModuleID << " (plane : " << fPlaneIndex << ")" << endl;
+    cout << "REST Warning : Readout channel with ID : " << id << " not found in module : " << fModuleID  << endl;
 
     return NULL; 
 }
@@ -365,9 +364,9 @@ void TRestReadoutModule::Draw()
 
 }
 
-void TRestReadoutModule::PrintReadoutModule( Int_t fullDetail )
+void TRestReadoutModule::Print( Int_t fullDetail )
 {
-        cout << "-- Readout module : " << GetModuleID( ) << " (Plane : " << GetPlaneIndex( ) << ")" << endl;
+        cout << "-- Readout module : " << GetModuleID( ) << endl;
         cout << "----------------------------------------------------------------" << endl;
         cout << "-- Origin position : X = " << fModuleOriginX << " mm " << " Y : " << fModuleOriginY << " mm" << endl;
         cout << "-- Size : X = " << fModuleSizeX << " Y : " << fModuleSizeY << endl;
@@ -377,8 +376,6 @@ void TRestReadoutModule::PrintReadoutModule( Int_t fullDetail )
 
         if( fullDetail )
             for( int n = 0; n < GetNumberOfChannels(); n++ )
-            {
-                fReadoutChannel[n].PrintReadoutChannel();
-            }
+                fReadoutChannel[n].Print();
 
 }

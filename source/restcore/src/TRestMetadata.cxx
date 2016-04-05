@@ -96,7 +96,7 @@ Int_t TRestMetadata::isAExpression( string in )
     in = Replace( in, st1, st2, pos );
 
     // If number returns 1. If not returns 0
-    return (in.find_first_not_of("-0123456789+*/.,)(") == std::string::npos && in.length() != 0);
+    return (in.find_first_not_of("-0123456789+*/.,)( ") == std::string::npos && in.length() != 0);
 }
 
 Int_t TRestMetadata::isANumber( string in )
@@ -390,6 +390,8 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName )
     while( Count ( configBuffer, "<for" ) > 0 )
         configBuffer = ExpandForLoops( configBuffer );
 
+    configBuffer = ReplaceMathematicalExpressions( configBuffer );
+
     position = 0;
     while( position != string::npos )
     {
@@ -613,7 +615,7 @@ string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
     int startPosition = 0;
     int endPosition = 0;
 
-    while ( ( startPosition = outputBuffer.find( "${", endPosition ) ) != (int) string::npos )
+    while ( ( startPosition = outputBuffer.find( "${REST", endPosition ) ) != (int) string::npos )
     {
         char envValue[256];
         endPosition = outputBuffer.find( "}", startPosition+1 );
@@ -640,7 +642,7 @@ string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
     startPosition = 0;
     endPosition = 0;
 
-    while ( ( startPosition = outputBuffer.find( "{", endPosition ) ) != (int) string::npos )
+    while ( ( startPosition = outputBuffer.find( "{REST", endPosition ) ) != (int) string::npos )
     {
         char envValue[256];
         endPosition = outputBuffer.find( "}", startPosition+1 );
