@@ -615,7 +615,7 @@ string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
     int startPosition = 0;
     int endPosition = 0;
 
-    while ( ( startPosition = outputBuffer.find( "${REST", endPosition ) ) != (int) string::npos )
+    while ( ( startPosition = outputBuffer.find( "${", endPosition ) ) != (int) string::npos )
     {
         char envValue[256];
         endPosition = outputBuffer.find( "}", startPosition+1 );
@@ -642,7 +642,7 @@ string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
     startPosition = 0;
     endPosition = 0;
 
-    while ( ( startPosition = outputBuffer.find( "{REST", endPosition ) ) != (int) string::npos )
+    while ( ( startPosition = outputBuffer.find( "{", endPosition ) ) != (int) string::npos )
     {
         char envValue[256];
         endPosition = outputBuffer.find( "}", startPosition+1 );
