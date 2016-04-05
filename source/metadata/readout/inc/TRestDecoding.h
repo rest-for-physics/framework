@@ -27,6 +27,7 @@
 class TRestDecoding:public TRestMetadata{
     private:
         void InitFromConfigFile();
+        void LoadDefaultConfig();
 
         virtual void Initialize();
 
@@ -43,19 +44,21 @@ class TRestDecoding:public TRestMetadata{
 
         void LoadDefaultDecoding( );
 
-        void AddChannel( int rC, int pCh){
+        void AddChannel( int rC, int pCh)
+        {
             fReadoutChannelID.push_back(rC);
             fDaqChannelID.push_back(pCh);
         }
 
-        Int_t GetNChannels(){return fNChannels;}
-        Int_t GetReadoutChannel (int daqChannel);	
+        Int_t GetNChannels() { return fNChannels; }
+        Int_t GetReadoutChannel( int daqChannel );	
+        Int_t GetDaqChannel( int readoutChannel );
 
         Bool_t LoadDecodingFromFile(TString fName);
 
         //Construtor
         TRestDecoding();
-        TRestDecoding( char *cfgFileName);
+        TRestDecoding( const char *cfgFileName );
         //Destructor
         virtual ~ TRestDecoding();
 
