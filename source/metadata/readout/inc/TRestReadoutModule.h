@@ -31,6 +31,7 @@
 class TRestReadoutModule : public TObject {
     private:
         Int_t fModuleID;
+        Int_t fFirstDaqChannel;
 
         Double_t fModuleOriginX;
         Double_t fModuleOriginY;

@@ -168,7 +168,7 @@ Double_t TRestReadoutPlane::GetY( Int_t modID, Int_t chID )
     return y;
 }
 
-void TRestReadoutPlane::Print( )
+void TRestReadoutPlane::Print( Int_t fullDetail )
 {
         cout << "-- Readout plane : " << GetID( ) << endl;
         cout << "----------------------------------------------------------------" << endl;
@@ -181,7 +181,7 @@ void TRestReadoutPlane::Print( )
         cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
     for( int i = 0; i < GetNumberOfModules(); i++ )
-        this->GetReadoutModule(i)->Print();
+        this->GetReadoutModule(i)->Print( fullDetail );
 
 }
 

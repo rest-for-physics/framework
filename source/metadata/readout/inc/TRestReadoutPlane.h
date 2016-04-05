@@ -61,7 +61,7 @@ class TRestReadoutPlane: public TObject {
 
         void Draw();
 
-        void Print( );
+        void Print( Int_t fullDetail = 0 );
 
         void PrintMetadata( ) { Print( ); }
 

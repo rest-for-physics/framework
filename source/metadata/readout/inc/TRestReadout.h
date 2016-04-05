@@ -32,6 +32,8 @@ class TRestReadout:public TRestMetadata {
 
         virtual void Initialize();
 
+        Bool_t fDecoding;
+
         Int_t fNReadoutPlanes;
         std::vector <TRestReadoutPlane> fReadoutPlanes;
 
@@ -41,7 +43,8 @@ class TRestReadout:public TRestMetadata {
 
         void Draw();
 
-        void PrintMetadata( );
+        void PrintMetadata( ) { PrintMetadata( 0 ); }
+        void PrintMetadata( Int_t fullDetail );
 
         TRestReadoutPlane *GetReadoutPlane( int p ) { return &fReadoutPlanes[p]; }
 

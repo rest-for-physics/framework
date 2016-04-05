@@ -39,6 +39,8 @@ void TRestReadout::Initialize()
 {
     SetName("readout");
 
+    fDecoding = false;
+
     fNReadoutPlanes = 0;
     fReadoutPlanes.clear();
 }
@@ -104,6 +106,42 @@ void TRestReadout::InitFromConfigFile()
             module.SetSize( StringTo2DVector( GetFieldValue( "size", moduleDefinition ) ) );
             module.SetRotation( StringToDouble( GetFieldValue( "rotation", moduleDefinition ) ) );
 
+            Int_t firstDaqChannel = StringToInteger( GetFieldValue( "firstDaqChannel", moduleDefinition ) );
+            if( firstDaqChannel == -1 ) firstDaqChannel = 0;
+
+            string decodingFile = GetFieldValue( "decodingFile", moduleDefinition );
+            if( decodingFile == "Not defined" || decodingFile == "" ) fDecoding = false;
+            else fDecoding = true;
+
+            if( fDecoding && !fileExists( decodingFile.c_str() ) )
+            { 
+                cout << "REST ERROR : The decoding file does not exist" << endl;
+                cout << "--------------------------------" << endl;
+                cout << "File : " << decodingFile << endl;
+                cout << "Default decoding will be used. readoutChannel=daqChannel" << endl;
+                cout << "To avoid this message and use the default decoding define : decodingFile=\"\"" << endl;
+                cout << "--------------------------------" << endl;
+                cout << "Press a KEY to continue..." << endl;
+                getchar();
+                fDecoding = false;
+            }
+
+            vector <Int_t> rChannel;
+            vector <Int_t> dChannel;
+            if( fDecoding && fileExists( decodingFile.c_str() ) )
+            {
+                FILE *f = fopen( decodingFile.c_str(), "r" );
+
+                Int_t daq, readout;
+                while( !feof( f ) )
+                {
+                    fscanf(f,"%d\t%d\n", &daq, &readout );
+                    rChannel.push_back( readout );
+                    dChannel.push_back( daq + firstDaqChannel );
+                }
+                fclose(f);
+            }
+
             if( debug )
             {
                 cout << "------module-----------------" << endl;
@@ -112,6 +150,8 @@ void TRestReadout::InitFromConfigFile()
                 cout << "position : " << posPlane << endl;
                 getchar();
             }
+
+            Int_t chIndex = 0;
 
             string channelString;
             size_t position2 = 0;
@@ -122,7 +162,25 @@ void TRestReadout::InitFromConfigFile()
                 string channelDefinition = GetKEYDefinition( "readoutChannel", position3, channelString );
 
                 TRestReadoutChannel channel;
-                channel.SetID( StringToInteger( GetFieldValue( "id", channelDefinition ) ) );
+                if( fDecoding )
+                {
+                    if( (unsigned int ) chIndex >= rChannel.size() ) 
+                    {
+                        cout << "REST WARNING : The number of channels defined in the readout is higher than the number of channels found in the decoding." << endl;
+                    }
+                    else
+                    {
+                        channel.SetID( rChannel[chIndex] );
+                        channel.SetDaqID( dChannel[chIndex] );
+                        chIndex++;
+                    }
+
+                }
+                else
+                {
+                    channel.SetID( StringToInteger( GetFieldValue( "id", channelDefinition ) ) );
+                    channel.SetDaqID( StringToInteger( GetFieldValue( "id", channelDefinition ) ) );
+                }
 
                 if( debug )
                 {
@@ -160,6 +218,13 @@ void TRestReadout::InitFromConfigFile()
 
             }
 
+            if( (unsigned int ) module.GetNumberOfChannels() != rChannel.size() )
+            {
+                cout << "REST WARNING: The number of channels in the readout is not the same as the number of channels in the decoding" << endl;
+                cout << "Press a KEY to continue..." << endl;
+                getchar();
+            }
+
             plane.AddModule( module );
 
             posPlane++;
@@ -181,7 +246,7 @@ Double_t TRestReadout::GetY( Int_t plane, Int_t modID, Int_t chID )
     return GetReadoutPlane( plane )->GetY( modID, chID );
 }
 
-void TRestReadout::PrintMetadata( )
+void TRestReadout::PrintMetadata( Int_t fullDetail )
 {
     cout << endl;
     cout << "====================================" << endl;
@@ -190,7 +255,7 @@ void TRestReadout::PrintMetadata( )
     cout << "====================================" << endl;
     cout << endl;
     for( int p = 0; p < GetNumberOfReadoutPlanes(); p++ )
-            this->GetReadoutPlane( p )->Print();
+            this->GetReadoutPlane( p )->Print( fullDetail );
     cout << "====================================" << endl;
 
 }

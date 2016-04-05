@@ -39,6 +39,8 @@ void TRestReadoutModule::Initialize()
 {
     fReadoutChannel.clear();
     fModuleID = -1;
+
+    fFirstDaqChannel = 0;
     
     fModuleOriginX = 0;
     fModuleOriginY = 0;
