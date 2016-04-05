@@ -1,17 +1,13 @@
 
 Int_t RESTG4_readEventTemplate( TString fName )
 {
-    cout << "Filename : " << fName << endl;
-
-    gSystem->Load("librestcore.so");
-
     TRestRun *run = new TRestRun();
 
     string fname = fName.Data();
     if( !run->fileExists( fname ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
     else run->OpenInputFile( fName );
 
-    if( run == NULL ) { cout << "WARNING no TRestG4Run class was found" << endl; exit(1); }
+    run->OpenInputFile( fName );
 
     run->PrintInfo();
 
@@ -23,16 +19,13 @@ Int_t RESTG4_readEventTemplate( TString fName )
 
     run->SetInputEvent( ev );
 
-    TTree *tr = (TTree *) run->GetInputEventTree();
+    run->GetEntry ( 0 );
 
-    cout << "Total number of entries : " << tr->GetEntries() << endl;
+    ev->PrintEvent();
 
-    // Printing the first event
-    if( tr->GetEntries() > 0 )
-    {
-        tr->GetEntry(3);
-        ev->PrintEvent();
-    }
+
+    // Do what ever you want with g4Event 
+
     /////////////////////////////
 
     delete run;
