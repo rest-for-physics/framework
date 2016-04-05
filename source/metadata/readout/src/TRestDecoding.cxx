@@ -20,8 +20,8 @@
 using namespace std;
 
 ClassImp(TRestDecoding)
-//______________________________________________________________________________
-    TRestDecoding::TRestDecoding()
+    //______________________________________________________________________________
+TRestDecoding::TRestDecoding()
 {
     Initialize();
 
@@ -30,15 +30,15 @@ ClassImp(TRestDecoding)
 TRestDecoding::TRestDecoding( char *cfgFileName) : TRestMetadata (cfgFileName)
 {
     Initialize();
-    
+
     LoadConfigFromFile( fConfigFileName );
 }
 
 void TRestDecoding::Initialize()
 {
     SetName( "decoding" );
-fReadoutChannelID.clear();
-fDaqChannelID.clear();
+    fReadoutChannelID.clear();
+    fDaqChannelID.clear();
 }
 
 
@@ -55,21 +55,21 @@ TRestDecoding::~TRestDecoding()
 void TRestDecoding::InitFromConfigFile()
 {
 
-string decodingString;
+    string decodingString;
 
-fNChannels= StringToInteger(GetParameter("nChannels"));
-cout<<"NChannels "<<fNChannels<<endl;
+    fNChannels= StringToInteger(GetParameter("nChannels"));
+    cout<<"NChannels "<<fNChannels<<endl;
 
-decodingString = GetParameter("fileName");
+    decodingString = GetParameter("fileName");
 
-if(decodingString==""){LoadDefaultDecoding();return;}
+    if(decodingString==""){LoadDefaultDecoding();return;}
 
-TString fName(getenv("REST_PATH"));
-fName.Append("/inputData/decoding/");
-fName.Append(decodingString);
+    TString fName(getenv("REST_PATH"));
+    fName.Append("/inputData/decoding/");
+    fName.Append(decodingString);
 
-cout<<"File Name "<<fName.Data()<<endl;
-	if(!LoadDecodingFromFile(fName))LoadDefaultDecoding();
+    cout<<"File Name "<<fName.Data()<<endl;
+    if(!LoadDecodingFromFile(fName))LoadDefaultDecoding();
 
 }
 
@@ -82,61 +82,61 @@ void TRestDecoding::PrintMetadata( )
     cout << "====================================" << endl;
     cout << "Readout\tDaq"<<endl;
     for(unsigned int i=0;i<fReadoutChannelID.size();i++)
-    cout<<fReadoutChannelID[i]<<"\t"<<fDaqChannelID[i]<<endl;
+        cout<<fReadoutChannelID[i]<<"\t"<<fDaqChannelID[i]<<endl;
     cout << endl;
-    
+
 }
 
 Int_t TRestDecoding:: GetReadoutChannel (int daqChannel){
 
-	for(unsigned int i=0;i<fDaqChannelID.size();i++){
-	
-	if(fDaqChannelID[i]==daqChannel)return fReadoutChannelID[i];
-		
-	}
+    for(unsigned int i=0;i<fDaqChannelID.size();i++){
 
-cout<<"Daq channel "<< daqChannel<<" not found"<<endl;
-return -1;
+        if(fDaqChannelID[i]==daqChannel)return fReadoutChannelID[i];
+
+    }
+
+    cout<<"Daq channel "<< daqChannel<<" not found"<<endl;
+    return -1;
 }
 
 //Default decoding daq and sim channels are the same
 void TRestDecoding::LoadDefaultDecoding( ){
 
-cout<<"Loading default config "<<endl;
-                            
-for(int c=0;c<fNChannels;c++)AddChannel(c,c);  
+    cout<<"Loading default config "<<endl;
+
+    for(int c=0;c<fNChannels;c++)AddChannel(c,c);  
 
 }
 
 Bool_t TRestDecoding::LoadDecodingFromFile(TString fName){
 
-FILE *f;
-	if((f=fopen(fName.Data(),"r"))==NULL ){
-	cout<<"File "<<fName.Data()<<" not found!!!"<<endl;
-	return kFALSE;
-	}
+    FILE *f;
+    if((f=fopen(fName.Data(),"r"))==NULL ){
+        cout<<"File "<<fName.Data()<<" not found!!!"<<endl;
+        return kFALSE;
+    }
 
-cout<<"Opening "<<fName.Data()<<endl;
+    cout<<"Opening "<<fName.Data()<<endl;
 
-int readoutChannel,physChannel;
+    int readoutChannel,physChannel;
 
-int nChan=0;
+    int nChan=0;
 
-	while(!feof(f)){
-	
-	fscanf(f,"%d\t%d\n",&physChannel,&readoutChannel);
-	AddChannel(readoutChannel,physChannel);
-	nChan++;
-	}
+    while(!feof(f)){
 
-fclose(f);
-//delete f;
-if(nChan!=fNChannels){
-cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-cout<<"WARNING file and config has different numbers of channels "<<endl;
-cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-}
-return kTRUE;
+        fscanf(f,"%d\t%d\n",&physChannel,&readoutChannel);
+        AddChannel(readoutChannel,physChannel);
+        nChan++;
+    }
+
+    fclose(f);
+    //delete f;
+    if(nChan!=fNChannels){
+        cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+        cout<<"WARNING file and config has different numbers of channels "<<endl;
+        cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+    }
+    return kTRUE;
 
 
 }
