@@ -4,18 +4,21 @@
 using namespace std;
 
 
-int REST_TestBench_Readout( string configFile )
+int REST_TestBench_Readout( string configFile, Int_t plane = 0 )
 {
 
     TRestReadout *readout = new TRestReadout( configFile.c_str() );
+    readout->PrintMetadata();
 
-    Int_t nModules = readout->GetNumberOfModules( );
+    TRestReadoutPlane *readoutPlane = readout->GetReadoutPlane( plane );
+
+    Int_t nModules = readoutPlane->GetNumberOfModules( );
 
     Int_t totalPixels = 0;
     Int_t totalChannels = 0;
     for( int mdID = 0; mdID < nModules; mdID++ )
     {
-        TRestReadoutModule *module = readout->GetReadoutModule( mdID );
+        TRestReadoutModule *module = readoutPlane->GetReadoutModule( mdID );
         Int_t nChannels = module->GetNumberOfChannels();
 	totalChannels += nChannels;
 
@@ -27,7 +30,6 @@ int REST_TestBench_Readout( string configFile )
         }
     }
 
-    cout << "Total pixels" << totalPixels << endl;
     const Int_t nPixConst = totalPixels;
     const Int_t nModConst = nModules;
     const Int_t nChConst = totalChannels;
@@ -39,14 +41,12 @@ int REST_TestBench_Readout( string configFile )
     
     double xmin=1E9,xmax=-1E9,ymin=1E9,ymax=-1E9;
 
-    cout << "modules : " << nModules << endl;
-
     Int_t graph = 0;
     Int_t modGraphID = 0; 
     Int_t chGraph = 0;
     for( int mdID = 0; mdID < nModules; mdID++ )
     {
-        TRestReadoutModule *module = readout->GetReadoutModule( mdID );
+        TRestReadoutModule *module = readoutPlane->GetReadoutModule( mdID );
         Int_t nChannels = module->GetNumberOfChannels();
 
         Double_t x[5];
@@ -130,7 +130,6 @@ int REST_TestBench_Readout( string configFile )
                 //channelGraph[chGraph]->GetXaxis()->SetLimits(-200,200);
 		chGraph++;
         }
-        cout << "Module : " << mdID << " Channels : " << nChannels << endl;
     }
 
     TCanvas* c = new TCanvas("ReadoutGraphViewer", "  ", 900, 900);

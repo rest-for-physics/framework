@@ -41,10 +41,11 @@ class TRestReadout:public TRestMetadata {
 
         void Draw();
 
-        void Print( );
+        void PrintMetadata( );
 
         TRestReadoutPlane *GetReadoutPlane( int p ) { return &fReadoutPlanes[p]; }
 
+        void AddReadoutPlane( TRestReadoutPlane plane ) { fReadoutPlanes.push_back( plane ); fNReadoutPlanes++; }
 
 
         Int_t GetNumberOfReadoutPlanes( );

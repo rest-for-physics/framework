@@ -85,17 +85,20 @@ void TRestReadout::InitFromConfigFile()
         TRestReadoutPlane plane;
 
         string planeDefinition = GetKEYDefinition( "readoutPlane", planeString );
+        plane.SetID( GetNumberOfReadoutPlanes() );
         plane.SetPosition( Get3DVectorFieldValueWithUnits( "position", planeDefinition ) );
         plane.SetCathodePosition( Get3DVectorFieldValueWithUnits( "cathodePosition", planeDefinition ) );
         plane.SetPlaneVector( StringTo3DVector( GetFieldValue( "planeVector", planeDefinition ) ) );
         plane.SetChargeCollection( StringToDouble( GetFieldValue( "chargeCollection", planeDefinition ) ) );
 
         string moduleString;
-        while( ( moduleString = GetKEYStructure( "readoutModule", position ) ) != "NotFound" )
+        size_t posPlane = 0;
+        while( ( moduleString = GetKEYStructure( "readoutModule", posPlane, planeString ) ) != "" )
         {
             TRestReadoutModule module;
 
             string moduleDefinition = GetKEYDefinition( "readoutModule", moduleString );
+
             module.SetModuleID( StringToInteger( GetFieldValue( "id", moduleDefinition ) ) );
             module.SetOrigin( StringTo2DVector( GetFieldValue( "origin", moduleDefinition ) ) );
             module.SetSize( StringTo2DVector( GetFieldValue( "size", moduleDefinition ) ) );
@@ -106,7 +109,7 @@ void TRestReadout::InitFromConfigFile()
                 cout << "------module-----------------" << endl;
                 cout << moduleString << endl;
                 cout << "---------------------------" << endl;
-                cout << "position : " << position << endl;
+                cout << "position : " << posPlane << endl;
                 getchar();
             }
 
@@ -159,11 +162,12 @@ void TRestReadout::InitFromConfigFile()
 
             plane.AddModule( module );
 
-            position++;
+            posPlane++;
         }
-    }
+        this->AddReadoutPlane( plane );
 
-    this->Print();
+        position++;
+    }
 }
 
 
@@ -177,7 +181,7 @@ Double_t TRestReadout::GetY( Int_t plane, Int_t modID, Int_t chID )
     return GetReadoutPlane( plane )->GetY( modID, chID );
 }
 
-void TRestReadout::Print( )
+void TRestReadout::PrintMetadata( )
 {
     cout << endl;
     cout << "====================================" << endl;

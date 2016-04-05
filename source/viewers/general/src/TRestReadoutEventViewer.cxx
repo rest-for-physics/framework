@@ -46,8 +46,10 @@ fCanvasXZYZ->Divide(2,1);
 fSignalEvent = new TRestSignalEvent( );
 SetEvent( fSignalEvent);
 
-fHistoXY= fReadout->GetReadoutHistogram();
-fReadout->GetBoundaries(xmin,xmax,ymin,ymax);
+cout << "WARNING : Only plane 0 is drawn. Implementation to draw several planes or to choose the plane must be implemented." << endl;
+TRestReadoutPlane *plane = fReadout->GetReadoutPlane( 0 );
+fHistoXY= plane->GetReadoutHistogram();
+plane->GetBoundaries(xmin,xmax,ymin,ymax);
 
 
 }
@@ -152,10 +154,11 @@ fHistoYZ = new TH2D("YZ","YZ",100,ymin,ymax,100,zmin,zmax);
 TRestReadoutChannel *TRestReadoutEventViewer::GetChannel( int readoutChannel){
 
 
-	    for( int n = 0; n < fReadout->GetNumberOfModules( ); n++ ){
+TRestReadoutPlane *plane = fReadout->GetReadoutPlane( 0 );
+	    for( int n = 0; n < plane->GetNumberOfModules( ); n++ ){
             
-            if (fReadout->GetReadoutModule(n)->GetChannelByID(readoutChannel)==NULL)continue;
-            return fReadout->GetReadoutModule(n)->GetChannelByID(readoutChannel);
+            if (plane->GetReadoutModule(n)->GetChannelByID(readoutChannel)==NULL)continue;
+            return plane->GetReadoutModule(n)->GetChannelByID(readoutChannel);
             	    	    
 	    }
 
@@ -166,10 +169,11 @@ return NULL;
 
 TRestReadoutModule *TRestReadoutEventViewer::GetModule( int readoutChannel){
 
+TRestReadoutPlane *plane = fReadout->GetReadoutPlane( 0 );
 	    for( int n = 0; n < fReadout->GetNumberOfModules( ); n++ ){
             
-            if (fReadout->GetReadoutModule(n)->GetChannelByID(readoutChannel)==NULL)continue;
-            return fReadout->GetReadoutModule(n);
+            if (plane->GetReadoutModule(n)->GetChannelByID(readoutChannel)==NULL)continue;
+            return plane->GetReadoutModule(n);
             	    	    
 	    }
 
