@@ -10,11 +10,10 @@
         cathodePosition="(0,0,170)" units="mm" >
 
         <readoutModule id="1" 
-            origin="(( (nChannels+1)*pitch-1*pitch/2)*(-1) , 2.5 * ((nChannels+1)*pitch-pitch/2-pitch/4) )" 
-            rotation="0" 
+            origin="(0,0)" rotation="0" 
             size="((nChannels+1)*pitch-1*pitch/2,(nChannels+1)*pitch-pitch/2-pitch/4)" 
             decodingFile="{REST_PATH}/inputData/decoding/pandaX_3mm.dec"
-             >
+            firstDaqChannel="0" >
 
             // Y-strips
             <for variable="nCh" from="0" to="nChannels-2" step="1" />
