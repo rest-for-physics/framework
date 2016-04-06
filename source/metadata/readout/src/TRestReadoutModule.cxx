@@ -40,8 +40,6 @@ void TRestReadoutModule::Initialize()
     fReadoutChannel.clear();
     fModuleID = -1;
 
-    fFirstDaqChannel = 0;
-    
     fModuleOriginX = 0;
     fModuleOriginY = 0;
 
@@ -49,6 +47,26 @@ void TRestReadoutModule::Initialize()
     fModuleSizeY = 0;
 
     fModuleRotation = 0;
+
+    fMaximumDaqId = -1;
+    fMininimumDaqId = -1;
+}
+
+void TRestReadoutModule::SetMinMaxDaqIDs( )
+{
+    Int_t maxID = GetChannel(0)->GetDaqID();
+    Int_t minID = GetChannel(0)->GetDaqID();
+    for( int ch = 0; ch < this->GetNumberOfChannels( ); ch++ )
+    {
+         Int_t daqID = GetChannel(ch)->GetDaqID();
+         if( daqID > maxID ) maxID = daqID;
+
+         if( daqID < minID ) minID = daqID;
+    }
+
+    fMaximumDaqId = maxID;
+    fMininimumDaqId = minID;
+
 }
 
 void TRestReadoutModule::DoReadoutMapping( )

@@ -133,9 +133,6 @@ fHistoYZ = new TH2D("YZ","YZ",100,ymin,ymax,100,zmin,zmax);
         Double_t xRead = plane->GetX( modId, readoutChannel );
         Double_t yRead = plane->GetY( modId, readoutChannel );
 
-        channel->Print();
-
-        cout << "xRead : " << xRead << " yRead : " << yRead << endl;
         //Pixel readout
         Int_t xStrip = 0;
         Int_t yStrip = 0;

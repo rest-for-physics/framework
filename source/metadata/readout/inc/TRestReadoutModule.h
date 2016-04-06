@@ -31,7 +31,6 @@
 class TRestReadoutModule : public TObject {
     private:
         Int_t fModuleID;
-        Int_t fFirstDaqChannel;
 
         Double_t fModuleOriginX;
         Double_t fModuleOriginY;
@@ -40,6 +39,9 @@ class TRestReadoutModule : public TObject {
         Double_t fModuleSizeY;
 
         Double_t fModuleRotation;
+
+        Int_t fMininimumDaqId;
+        Int_t fMaximumDaqId;
 
         std::vector <TRestReadoutChannel> fReadoutChannel;
 
@@ -84,6 +86,17 @@ class TRestReadoutModule : public TObject {
         void SetOrigin( TVector2 c ) { fModuleOriginX = c.X(); fModuleOriginY = c.Y(); }
         void SetRotation( Double_t rot ) { fModuleRotation = rot; }
 
+        void SetMinMaxDaqIDs( );
+        Int_t GetMinDaqID( ) { return fMininimumDaqId; }
+        Int_t GetMaxDaqID( ) { return fMaximumDaqId; }
+
+        Int_t DaqToReadoutChannel( Int_t daqChannel )
+        {
+            for( int n = 0; n < GetNumberOfChannels(); n++ )
+                if( GetChannel( n )->GetDaqID() == daqChannel ) return GetChannel( n )->GetID();
+            return -1;
+        }
+
         Bool_t isInside( Double_t x, Double_t y );
         Bool_t isInside( TVector2 pos );
 
@@ -92,6 +105,13 @@ class TRestReadoutModule : public TObject {
         
         Bool_t isInsidePixel( Int_t channel, Int_t pixel, Double_t x, Double_t y );
         Bool_t isInsidePixel( Int_t channel, Int_t pixel, TVector2 pos );
+
+        Bool_t isDaqIDInside( Int_t daqID )
+        {
+            if( daqID >= fMininimumDaqId && daqID <= fMaximumDaqId )
+                return true;
+            return false;
+        }
 
         Int_t FindChannel( Double_t x, Double_t y );
 

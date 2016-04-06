@@ -225,6 +225,7 @@ void TRestReadout::InitFromConfigFile()
                 getchar();
             }
 
+            module.SetMinMaxDaqIDs();
             plane.AddModule( module );
 
             posPlane++;
