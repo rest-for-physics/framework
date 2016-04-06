@@ -16,12 +16,14 @@
 #include "TRestReadoutEventViewer.h"
 using namespace std;
 
+Int_t planeId = 0;
+
 ClassImp(TRestReadoutEventViewer)
 
 TRestReadoutEventViewer::TRestReadoutEventViewer(char *cfgFilename)
 {
   fReadout = new TRestReadout(cfgFilename);
-  fDecoding = new TRestDecoding(cfgFilename);
+ // fDecoding = new TRestDecoding(cfgFilename);
   
   Initialize();
     
@@ -47,7 +49,8 @@ fSignalEvent = new TRestSignalEvent( );
 SetEvent( fSignalEvent);
 
 cout << "WARNING : Only plane 0 is drawn. Implementation to draw several planes or to choose the plane must be implemented." << endl;
-TRestReadoutPlane *plane = fReadout->GetReadoutPlane( 0 );
+fReadout->PrintMetadata();
+TRestReadoutPlane *plane = fReadout->GetReadoutPlane( planeId );
 fHistoXY= plane->GetReadoutHistogram();
 plane->GetBoundaries(xmin,xmax,ymin,ymax);
 
@@ -80,8 +83,9 @@ fCanvasXZYZ->Update();
 void TRestReadoutEventViewer::DrawReadoutPulses( ){
 
 int readoutChannel,daqChannel;
-double charge,x,y;
+double charge;
 
+Int_t modId;
 TRestReadoutModule *module;
 TRestReadoutChannel *channel;
 
@@ -104,49 +108,73 @@ zmin--;
 fHistoXZ = new TH2D("XZ","XZ",100,xmin,xmax,100,zmin,zmax);
 fHistoYZ = new TH2D("YZ","YZ",100,ymin,ymax,100,zmin,zmax);
 
-	for(int i=0;i<fSignalEvent->GetNumberOfSignals();i++){
-	
-	daqChannel=fSignalEvent->GetSignal(i)->GetSignalID();
-	readoutChannel = fDecoding->GetReadoutChannel(daqChannel);
-	cout<<"daqChannel "<<daqChannel<<" readoutChannel "<<readoutChannel<<endl;
-	if((module = GetModule(readoutChannel))==NULL)continue;
-	if((channel = GetChannel(readoutChannel))==NULL)continue;
-	
-	int nPixels=channel->GetNumberOfPixels();
-	
-	//Pixel readout
-	if(nPixels==1){
-	x=module->GetPixelCenter( readoutChannel, 0 ).X();
-	y=module->GetPixelCenter( readoutChannel, 0 ).Y();
-	for(int j=0;j<fSignalEvent->GetSignal(i)->GetNumberOfPoints();j++)
-	    fHistoXZ->Fill(module->GetPixelCenter( readoutChannel, 0 ).X(),fSignalEvent->GetSignal(i)->GetTime(j),fSignalEvent->GetSignal(i)->GetData(j));
-	for(int j=0;j<fSignalEvent->GetSignal(i)->GetNumberOfPoints();j++)
-	    fHistoYZ->Fill(module->GetPixelCenter( readoutChannel, 0 ).Y(),fSignalEvent->GetSignal(i)->GetTime(j),fSignalEvent->GetSignal(i)->GetData(j));
-	}
-	//Strips readout
-	else{
-	
-	    if((x=channel->GetPixel(0)->GetOriginX())==channel->GetPixel(1)->GetOriginX()){
-	    for(int j=0;j<fSignalEvent->GetSignal(i)->GetNumberOfPoints();j++)
-	    fHistoXZ->Fill(module->GetPixelCenter( readoutChannel, 0 ).X(),fSignalEvent->GetSignal(i)->GetTime(j),fSignalEvent->GetSignal(i)->GetData(j));
-	    }
-	    else if((y=channel->GetPixel(0)->GetOriginY())==channel->GetPixel(1)->GetOriginY()){
-	    for(int j=0;j<fSignalEvent->GetSignal(i)->GetNumberOfPoints();j++)
-	    fHistoYZ->Fill(module->GetPixelCenter( readoutChannel, 0 ).Y(),fSignalEvent->GetSignal(i)->GetTime(j),fSignalEvent->GetSignal(i)->GetData(j));
-	    }
-	    		
-	}
-	
-	//Only the maximum is plotted for the XY readout
-	maxIndex = fSignalEvent->GetSignal(i)->GetMaxIndex( );
-	charge= fSignalEvent->GetSignal(i)->GetData(maxIndex);
-		
-	   for( int px = 0; px < nPixels; px++ ){
-           //cout<<module->GetPixelCenter( readoutChannel, px ).X()<<" "<<module->GetPixelCenter( readoutChannel, px ).Y()<<" "<<charge<<endl;
-           fHistoXY->Fill(module->GetPixelCenter( readoutChannel, px ).X(),module->GetPixelCenter( readoutChannel, px ).Y(),charge);
-            	}
-		
-	}
+	for(int i=0;i<fSignalEvent->GetNumberOfSignals();i++)
+    {
+
+        daqChannel=fSignalEvent->GetSignal(i)->GetSignalID();
+
+        TRestReadoutPlane *plane = fReadout->GetReadoutPlane( planeId );
+        for( int m = 0; m < plane->GetNumberOfModules(); m++ )
+        {
+            module = plane->GetModule( m );
+
+            if( module->isDaqIDInside( daqChannel ) ) break;
+        }
+        modId = module->GetModuleID();
+
+        readoutChannel = module->DaqToReadoutChannel(daqChannel);
+        cout<<"daqChannel "<<daqChannel<<" readoutChannel "<<readoutChannel<<endl;
+        if((module = GetModule(readoutChannel))==NULL)continue;
+        if((channel = GetChannel(readoutChannel))==NULL)continue;
+
+
+        int nPixels=channel->GetNumberOfPixels();
+
+        Double_t xRead = plane->GetX( modId, readoutChannel );
+        Double_t yRead = plane->GetY( modId, readoutChannel );
+
+        channel->Print();
+
+        cout << "xRead : " << xRead << " yRead : " << yRead << endl;
+        //Pixel readout
+        Int_t xStrip = 0;
+        Int_t yStrip = 0;
+        if( TMath::IsNaN( yRead ) ) xStrip = 1;
+        if( TMath::IsNaN( xRead ) ) yStrip = 1;
+        if( xStrip == 0 && yStrip == 0){
+            for(int j=0;j<fSignalEvent->GetSignal(i)->GetNumberOfPoints();j++)
+                fHistoXZ->Fill( xRead, fSignalEvent->GetSignal(i)->GetTime(j),fSignalEvent->GetSignal(i)->GetData(j));
+            for(int j=0;j<fSignalEvent->GetSignal(i)->GetNumberOfPoints();j++)
+                fHistoYZ->Fill( yRead, fSignalEvent->GetSignal(i)->GetTime(j),fSignalEvent->GetSignal(i)->GetData(j));
+        }
+        //Strips readout
+        else{
+
+            if( yStrip == 0 )
+            {
+                for(int j=0;j<fSignalEvent->GetSignal(i)->GetNumberOfPoints();j++)
+                    fHistoXZ->Fill( xRead,fSignalEvent->GetSignal(i)->GetTime(j),fSignalEvent->GetSignal(i)->GetData(j));
+            }
+            else if( xStrip == 0 )
+            {
+                for(int j=0;j<fSignalEvent->GetSignal(i)->GetNumberOfPoints();j++)
+                {
+                    fHistoYZ->Fill( yRead,fSignalEvent->GetSignal(i)->GetTime(j),fSignalEvent->GetSignal(i)->GetData(j));
+                }
+            }
+
+        }
+
+        //Only the maximum is plotted for the XY readout
+        maxIndex = fSignalEvent->GetSignal(i)->GetMaxIndex( );
+        charge= fSignalEvent->GetSignal(i)->GetData(maxIndex);
+
+        for( int px = 0; px < nPixels; px++ ){
+            //cout<< "X : " << module->GetPixelCenter( readoutChannel, px ).X()<<" Y : "<<module->GetPixelCenter( readoutChannel, px ).Y()<<" Ch: "<<charge<<endl;
+            fHistoXY->Fill(module->GetPixelCenter( readoutChannel, px ).X(),module->GetPixelCenter( readoutChannel, px ).Y(),charge);
+        }
+
+    }
 
 }
 
