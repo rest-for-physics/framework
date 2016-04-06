@@ -3,7 +3,7 @@
 
 
 
-REST_VIEWER_ReadoutEvent(TString fName=" ", char *cfgFilename = "myConfig.rml" ){
+REST_VIEWER_ReadoutEvent(TString fName=" ", char *cfgFilename = "template/config.rml" ){
 
 TRestBrowser *browser = new TRestBrowser( );
 
