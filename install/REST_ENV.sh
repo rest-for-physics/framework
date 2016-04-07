@@ -41,4 +41,6 @@ echo "default config path $REST_CONFIG"
 export REST_RUN=0
 echo "default run number  $REST_RUN"
 
+export REST_NEVENTS=1000
+echo "default run events" $REST_NEVENTS
 
