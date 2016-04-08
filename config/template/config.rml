@@ -16,7 +16,7 @@ All units in mm, keV and degrees
 </globals>
 
 <section run name="Run metadata" title="REST Simulation run (template)">
-    <parameter name="Nevents" value="100"/>
+    <parameter name="Nevents" value="0"/>
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
     <parameter name="runNumber" value="auto"/>
@@ -42,9 +42,9 @@ All units in mm, keV and degrees
     <parameter name="subEventTimeDelay" value="100" units="us" />
 
     <generator type="volume" from="gas" >
-        <source particle="Cd109" fullChain="off">
+        <source particle="alpha" fullChain="off">
             <angularDist type="isotropic" />
-            <energyDist type="mono" energy="0" units="keV" />
+            <energyDist type="mono" energy="5" units="MeV" />
         </source>
     </generator>
 
@@ -107,10 +107,11 @@ All units in mm, keV and degrees
 </section>
 
 <section signalToHitsProcess name="signalToHits-Panda" title="Half PANDA X-III Vessel (Bottom)" >
-    <parameter name="sampling" value="" units="us" />
-    <parameter name="anodePosition" value="" units="mm" />
-    <parameter name="cathodePosition" value="" units="mm" />
-    <parameter name="electricField" value="" units="V/cm" />
+    <parameter name="sampling" value="100" units="ns" />
+    <parameter name="threshold" value="500" units="ns" />
+    <parameter name="anodePosition" value="0" units="mm" />
+    <parameter name="cathodePosition" value="0" units="mm" />
+    <parameter name="electricField" value="150" units="V/cm" />
 </section>
 
 <section hitsToTrackProcess name="hitsToTrack-Panda" title="Half PANDA X-III Vessel (Bottom)" >
@@ -118,7 +119,7 @@ All units in mm, keV and degrees
 </section>
 
 <section fastHitsToTrackProcess name="fastHitsToTrack-Panda" title="Half PANDA X-III Vessel (Bottom)" >
-    <parameter name="cellResolution" value="10" units="mm" />
+    <parameter name="cellResolution" value="30" units="mm" />
     <parameter name="netSize" value="1200" units="mm" />
     <parameter name="netOrigin" value="(-600,-600,-1100)" units="mm" />
 </section>
@@ -156,7 +157,7 @@ All units in mm, keV and degrees
     <parameter name="gamma" value="90" />	// rotation angle around X in degrees
 </section>
 
-<section readout nameref="Readout-PANDA_3MM_Jinping" file="{REST_PATH}/inputData/definitions/readouts.rml"> </section>
+<section readout nameref="Readout-PANDA_3MM_Single" file="{REST_PATH}/inputData/definitions/readouts.rml"> </section>
 
 <section gas nameref="Xenon-TMA 3Pct 10-10E3V/cm" file="{REST_PATH}/inputData/definitions/gases.rml"> </section>
 
