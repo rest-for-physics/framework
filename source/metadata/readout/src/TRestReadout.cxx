@@ -107,7 +107,7 @@ void TRestReadout::InitFromConfigFile()
             module.SetRotation( StringToDouble( GetFieldValue( "rotation", moduleDefinition ) ) );
 
             Int_t firstDaqChannel = StringToInteger( GetFieldValue( "firstDaqChannel", moduleDefinition ) );
-            if( firstDaqChannel == -1 ) firstDaqChannel = 0;
+            if( firstDaqChannel == -1 ) firstDaqChannel = this->GetNumberOfChannels();
 
             string decodingFile = GetFieldValue( "decodingFile", moduleDefinition );
             if( decodingFile == "Not defined" || decodingFile == "" ) fDecoding = false;
