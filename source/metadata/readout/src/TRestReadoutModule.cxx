@@ -15,7 +15,6 @@
 ///             aug 2015    Javier Galan
 ///_______________________________________________________________________________
 
-
 #include "TRestReadoutModule.h"
 using namespace std;
 
@@ -50,6 +49,8 @@ void TRestReadoutModule::Initialize()
 
     fMaximumDaqId = -1;
     fMininimumDaqId = -1;
+
+    fTolerance = 1.e-6;
 }
 
 void TRestReadoutModule::SetMinMaxDaqIDs( )
@@ -69,7 +70,7 @@ void TRestReadoutModule::SetMinMaxDaqIDs( )
 
 }
 
-void TRestReadoutModule::DoReadoutMapping( )
+void TRestReadoutModule::DoReadoutMapping( Int_t nodes = 0 )
 {
     ///////////////////////////////////////////////////////////////////////////////
     // We initialize the mapping readout net to sqrt(numberOfPixels)
@@ -79,8 +80,12 @@ void TRestReadoutModule::DoReadoutMapping( )
     for( int ch = 0; ch < this->GetNumberOfChannels( ); ch++ )
         totalNumberOfPixels += GetChannel(ch)->GetNumberOfPixels();
 
-    Int_t nodes = TMath::Sqrt( totalNumberOfPixels );
-    nodes = 2*nodes;
+    if( nodes == 0 )
+    {
+        nodes = TMath::Sqrt( totalNumberOfPixels );
+        nodes = 2*nodes;
+    }
+
     cout << "Performing readout mapping optimization (This might take few seconds)" << endl;
     cout << "---------------------------------------------------------------------" << endl;
     cout << "Total number of pixels : " << totalNumberOfPixels << endl;
@@ -364,11 +369,13 @@ void TRestReadoutModule::AddChannel( TRestReadoutChannel &rChannel )
         Double_t sX = rChannel.GetPixel( i )->GetVertex( 1 ).X();
         Double_t sY = rChannel.GetPixel( i )->GetVertex( 1 ).Y();
 
-        if( oX < 0 || oY < 0 || sX > fModuleSizeX || sY > fModuleSizeY )
+        if( oX + fTolerance < 0 || oY + fTolerance < 0 || sX - fTolerance > fModuleSizeX || sY - fTolerance > fModuleSizeY )
         {
             cout << "REST Warning (AddChannel) pixel outside the module boundaries" << endl;
+            cout << "Pixel " << i << " ID : " << rChannel.GetPixel(i)->GetID() << endl;
             cout << "Pixel origin = (" << oX << " , " << oY << ")" << endl;
             cout << "Pixel size = (" << sX << " , " << sY << ")" << endl;
+            cout << "Module size = (" << fModuleSizeX << " , " << fModuleSizeY << ")" << endl;
             channelError++;
         }
     }
