@@ -70,7 +70,7 @@ void TRestReadoutModule::SetMinMaxDaqIDs( )
 
 }
 
-void TRestReadoutModule::DoReadoutMapping( Int_t nodes = 0 )
+void TRestReadoutModule::DoReadoutMapping( Int_t nodes )
 {
     ///////////////////////////////////////////////////////////////////////////////
     // We initialize the mapping readout net to sqrt(numberOfPixels)
