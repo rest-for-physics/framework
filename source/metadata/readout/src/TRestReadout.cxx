@@ -178,8 +178,12 @@ void TRestReadout::InitFromConfigFile()
                 }
                 else
                 {
-                    channel.SetID( StringToInteger( GetFieldValue( "id", channelDefinition ) ) );
-                    channel.SetDaqID( StringToInteger( GetFieldValue( "id", channelDefinition ) ) );
+                    Int_t id = StringToInteger( GetFieldValue( "id", channelDefinition ) );
+                    channel.SetID( id );
+                    channel.SetDaqID( id + firstDaqChannel );
+
+                    rChannel.push_back( id );
+                    dChannel.push_back( id + firstDaqChannel );
                 }
 
                 if( debug )
@@ -215,7 +219,6 @@ void TRestReadout::InitFromConfigFile()
                 module.AddChannel( channel );
 
                 position2++;
-
             }
 
             if( (unsigned int ) module.GetNumberOfChannels() != rChannel.size() )
@@ -234,6 +237,20 @@ void TRestReadout::InitFromConfigFile()
 
         position++;
     }
+
+    ValidateReadout( );
+}
+
+void TRestReadout::ValidateReadout( )
+{
+    cout << "--------------------------------------------------" << endl;
+    cout << "TRestReadout::ValidateReadout:: NOT IMPLEMENTED" << endl;
+    cout << "This function should crosscheck that there are no repeated DaqChannels IDs" << endl;
+    cout << "No dead area in the readout module" << endl;
+    cout << "And other checks" << endl;
+    cout << "--------------------------------------------------" << endl;
+
+
 }
 
 
@@ -253,6 +270,8 @@ void TRestReadout::PrintMetadata( Int_t fullDetail )
     cout << "====================================" << endl;
     cout << "Readout : " << GetTitle() << endl;
     cout << "Number of readout planes : " << fNReadoutPlanes << endl;
+    cout << "Decoding was defined : ";
+    if( fDecoding ) cout << "YES" << endl; else cout << "NO" << endl;
     cout << "====================================" << endl;
     cout << endl;
     for( int p = 0; p < GetNumberOfReadoutPlanes(); p++ )
