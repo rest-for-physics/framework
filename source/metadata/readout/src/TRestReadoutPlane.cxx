@@ -168,6 +168,32 @@ Double_t TRestReadoutPlane::GetY( Int_t modID, Int_t chID )
     return y;
 }
 
+Double_t TRestReadoutPlane::GetDistanceTo( TVector3 pos )
+{
+        return ( pos - GetPosition() ).Dot( GetPlaneVector() );
+}
+
+Int_t TRestReadoutPlane::isInsideDriftVolume( Double_t x, Double_t y, Double_t z )
+{
+    TVector3 pos = TVector3( x, y, z );
+
+    return isInsideDriftVolume( pos );
+}
+
+Int_t TRestReadoutPlane::isInsideDriftVolume( TVector3 pos )
+{
+    Double_t distance = GetDistanceTo( pos );
+
+    if( distance > 0 && distance < fTotalDriftDistance )
+    {
+        for( int m = 0; m < GetNumberOfModules( ); m++ )
+            if( GetModule( m )->isInside( x, y ) ) return m;
+    }
+
+    return -1;
+}
+
+
 void TRestReadoutPlane::Print( Int_t fullDetail )
 {
         cout << "-- Readout plane : " << GetID( ) << endl;
@@ -175,6 +201,7 @@ void TRestReadoutPlane::Print( Int_t fullDetail )
         cout << "-- Position : X = " << fPosition.X() << " mm, " << " Y : " << fPosition.Y() << " mm, Z : " << fPosition.Z() << " mm" << endl;
         cout << "-- Vector : X = " << fPlaneVector.X() << " mm, " << " Y : " << fPlaneVector.Y() << " mm, Z : " << fPlaneVector.Z() << " mm" << endl;
         cout << "-- Cathode Position : X = " << fCathodePosition.X() << " mm, " << " Y : " << fCathodePosition.Y() << " mm, Z : " << fCathodePosition.Z() << " mm" << endl;
+        cout << "-- Total drift distance : " << fTotalDriftDistance << " mm" << endl;
         cout << "-- Charge collection : " << fChargeCollection << endl;
         cout << "-- Total modules : " << GetNumberOfModules() << endl;
         cout << "-- Total channels : " << GetNumberOfChannels() << endl;
