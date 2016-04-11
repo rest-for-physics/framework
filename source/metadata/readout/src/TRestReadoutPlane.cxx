@@ -187,7 +187,7 @@ Int_t TRestReadoutPlane::isInsideDriftVolume( TVector3 pos )
     if( distance > 0 && distance < fTotalDriftDistance )
     {
         for( int m = 0; m < GetNumberOfModules( ); m++ )
-            if( GetModule( m )->isInside( x, y ) ) return m;
+            if( GetModule( m )->isInside( pos.X(), pos.Y() ) ) return m;
     }
 
     return -1;
