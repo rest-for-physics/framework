@@ -49,7 +49,7 @@
 //#include "PhysListEmStandard.hh"
 //#include "PhysListEmStandardSS.hh"
 //#include "PhysListEmStandardNR.hh"
-
+#include "Particles.hh"
 #include "G4RegionStore.hh"
 #include "G4Region.hh"
 #include "G4ProductionCuts.hh"
