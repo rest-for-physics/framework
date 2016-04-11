@@ -58,6 +58,14 @@ class TRestEventProcess:public TRestMetadata {
    virtual TString GetProcessName() = 0;
    virtual void LoadConfig( std::string cfgFilename )=0;
 
+   void ReadObservables( )
+   {
+       vector <string> obsList = GetObservablesList( );
+
+       for( unsigned int n = 0; n < obsList.size(); n++ )
+           fAnalysisTree->AddObservable( obsList[n] );
+   }
+
    TRestMetadata *GetGasMetadata( );
    TRestMetadata *GetReadoutMetadata( );
    TRestMetadata *GetGeant4Metadata( );
