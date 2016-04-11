@@ -4,29 +4,29 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestGeant4AnalysisProcess.cxx
+///             TRestSignalAnalysisProcess.cxx
 ///
 ///
 ///             First implementation of Geant4 analysis process into REST_v2
-///             Date : mar/2016
+///             Date : apr/2016
 ///             Author : J. Galan
 ///
 ///_______________________________________________________________________________
 
 
-#include "TRestGeant4AnalysisProcess.h"
+#include "TRestSignalAnalysisProcess.h"
 using namespace std;
 
 
-ClassImp(TRestGeant4AnalysisProcess)
+ClassImp(TRestSignalAnalysisProcess)
     //______________________________________________________________________________
-TRestGeant4AnalysisProcess::TRestGeant4AnalysisProcess()
+TRestSignalAnalysisProcess::TRestSignalAnalysisProcess()
 {
     Initialize();
 }
 
 //______________________________________________________________________________
-TRestGeant4AnalysisProcess::TRestGeant4AnalysisProcess( char *cfgFileName )
+TRestSignalAnalysisProcess::TRestSignalAnalysisProcess( char *cfgFileName )
 {
     Initialize();
 
@@ -34,77 +34,65 @@ TRestGeant4AnalysisProcess::TRestGeant4AnalysisProcess( char *cfgFileName )
 }
 
 //______________________________________________________________________________
-TRestGeant4AnalysisProcess::~TRestGeant4AnalysisProcess()
+TRestSignalAnalysisProcess::~TRestSignalAnalysisProcess()
 {
-    delete fG4Event;
+    delete fSignalEvent;
 }
 
-void TRestGeant4AnalysisProcess::LoadDefaultConfig()
+void TRestSignalAnalysisProcess::LoadDefaultConfig()
 {
     SetTitle( "Default config" );
 }
 
 //______________________________________________________________________________
-void TRestGeant4AnalysisProcess::Initialize()
+void TRestSignalAnalysisProcess::Initialize()
 {
-    SetName( "geant4AnalysisProcess" );
+    SetName( "signalAnalysisProcess" );
 
-    fG4Event = new TRestG4Event();
+    fSignalEvent = new TRestSignalEvent();
 
-    fOutputEvent = fG4Event;
-    fInputEvent = fG4Event;
+    fOutputEvent = fSignalEvent;
+    fInputEvent = fSignalEvent;
 }
 
-void TRestGeant4AnalysisProcess::LoadConfig( string cfgFilename )
+void TRestSignalAnalysisProcess::LoadConfig( string cfgFilename )
 {
     if( LoadConfigFromFile( cfgFilename ) ) LoadDefaultConfig( );
 }
 
 //______________________________________________________________________________
-void TRestGeant4AnalysisProcess::InitProcess()
+void TRestSignalAnalysisProcess::InitProcess()
 {
     TRestEventProcess::ReadObservables();
-
-    fG4Metadata = (TRestG4Metadata *) GetGeant4Metadata( );
 }
 
 //______________________________________________________________________________
-void TRestGeant4AnalysisProcess::BeginOfEventProcess() 
+void TRestSignalAnalysisProcess::BeginOfEventProcess() 
 {
 
 }
 
 //______________________________________________________________________________
-TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent( TRestEvent *evInput )
+TRestEvent* TRestSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 {
 
-    TRestG4Event *g4Event = (TRestG4Event *) evInput;
+    TRestSignalEvent *signalEvent = (TRestSignalEvent *) evInput;
 
-    Double_t energy = g4Event->GetEnergyDepositedInVolume( 0 );
-    fAnalysisTree->SetObservableValue( "gasEnergyDeposit_InKeV", energy );
+    // TODO we must do this in each readout plane? 
+    Double_t timeDelay = signalEvent->GetMaxTime() - signalEvent->GetMinTime();
+    fAnalysisTree->SetObservableValue( "signalTimeBinsLength", timeDelay );
 
-    if ( g4Event->isPhotoElectric( ) ) { fAnalysisTree->SetObservableValue( "photoelectric", 1 ); }
-    else { fAnalysisTree->SetObservableValue( "photoelectric", 0 ); }
-
-    if ( g4Event->isCompton( ) ) fAnalysisTree->SetObservableValue( "compton", 1 );
-    else fAnalysisTree->SetObservableValue( "compton", 0 );
-
-    if ( g4Event->isBremstralung( ) ) fAnalysisTree->SetObservableValue( "bremstralung", 1 );
-    else fAnalysisTree->SetObservableValue( "bremstralung", 0 );
-
-    cout << "Event : " << g4Event->GetID() << " Tracks : " << g4Event->GetNumberOfTracks() << endl;
-
-    return fG4Event;
+    return fSignalEvent;
 }
 
 //______________________________________________________________________________
-void TRestGeant4AnalysisProcess::EndOfEventProcess() 
+void TRestSignalAnalysisProcess::EndOfEventProcess() 
 {
 
 }
 
 //______________________________________________________________________________
-void TRestGeant4AnalysisProcess::EndProcess()
+void TRestSignalAnalysisProcess::EndProcess()
 {
     // Function to be executed once at the end of the process 
     // (after all events have been processed)
@@ -115,7 +103,7 @@ void TRestGeant4AnalysisProcess::EndProcess()
 }
 
 //______________________________________________________________________________
-void TRestGeant4AnalysisProcess::InitFromConfigFile( )
+void TRestSignalAnalysisProcess::InitFromConfigFile( )
 {
 
 }
