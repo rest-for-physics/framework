@@ -160,6 +160,7 @@ class TRestRun:public TRestMetadata {
         }
 
         TRestMetadata *GetMetadata( TString name );
+        void ImportMetadata( TString rootFile, TString name );
 
         void SetRunNumber( Int_t number ) { fRunNumber = number; }
         void SetRunType( TString type ) { fRunType = type; }
@@ -169,7 +170,8 @@ class TRestRun:public TRestMetadata {
         void SetNumberOfEvents( Int_t nEvents ) { fRunEvents = nEvents; } 
         void SetEndTimeStamp( Double_t tStamp ) { fEndTime = tStamp; }
 
-        void SetInputFileName( TString fN){fInputFilename=fN;}
+        void SetInputFileName( TString fN ){ fInputFilename = fN; }
+        void SetOutputFileName( TString fN ){ fOutputFilename = fN; }
 
         TString GetDateFormatted( Double_t runTime );
         TString GetDateForFilename( Double_t runTime );

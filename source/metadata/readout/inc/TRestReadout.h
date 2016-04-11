@@ -37,6 +37,8 @@ class TRestReadout:public TRestMetadata {
         Int_t fNReadoutPlanes;
         std::vector <TRestReadoutPlane> fReadoutPlanes;
 
+        void ValidateReadout( );
+
     protected:
 
     public:

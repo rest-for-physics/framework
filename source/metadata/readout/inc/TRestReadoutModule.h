@@ -47,6 +47,8 @@ class TRestReadoutModule : public TObject {
 
         TRestReadoutMapping fMapping;
 
+        Double_t fTolerance;
+
         void Initialize();
 
         TVector2 TransformToModuleCoordinates( TVector2 p )
@@ -77,7 +79,7 @@ class TRestReadoutModule : public TObject {
     public:
         // Setters
         
-        void DoReadoutMapping( );
+        void DoReadoutMapping( Int_t nodes = 0 );
         
         void SetModuleID( Int_t modID ) { fModuleID = modID; }
         void SetSize( Double_t sX, Double_t sY ) { fModuleSizeX = sX; fModuleSizeY = sY; }

@@ -165,10 +165,12 @@ void TRestHitsToSignalProcess::BeginOfEventProcess()
     fSignalEvent->Initialize(); 
 }
 
-Int_t TRestHitsToSignalProcess::FindModule( Double_t x, Double_t y )
+Int_t TRestHitsToSignalProcess::FindModule( Int_t readoutPlane, Double_t x, Double_t y )
 {
-    for ( int md = 0; md < fReadout->GetNumberOfModules(); md++ )
-        if( fReadout->GetReadoutModule( md )->isInside( x, y ) ) return md;
+    // TODO verify this
+        TRestReadoutPlane *plane = fReadout->GetReadoutPlane( readoutPlane );
+        for ( int md = 0; md < plane->GetNumberOfModules(); md++ )
+            if( plane->GetReadoutModule( md )->isInside( x, y ) ) return md;
 
     return -1;
 }
@@ -188,14 +190,16 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
         Double_t x = fHitsEvent->GetX( hit );
         Double_t y = fHitsEvent->GetY( hit );
 
-        Int_t mod = this->FindModule( x, y );
+        // TODO : Here we must check to which readout plane it is related the event. For the moment we write the first plane for testing
+        Int_t mod = this->FindModule( 0, x, y );
+        TRestReadoutPlane *plane = fReadout->GetReadoutPlane( 0 );
 	
 	//cout<<"module "<<mod<<endl;
 
         if( mod >= 0 )
         {
         //    high_resolution_clock::time_point t1 = high_resolution_clock::now();
-            Int_t chnl = fReadout->GetReadoutModule( mod )->FindChannel( x, y );
+            Int_t chnl = plane->GetReadoutModule( mod )->FindChannel( x, y );
         //    high_resolution_clock::time_point t2 = high_resolution_clock::now();
 
             /*
@@ -207,7 +211,7 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
             {
                 Int_t channelID = 0;
                 for( int n = 0; n < mod-1; n++ )
-                    channelID += fReadout->GetReadoutModule(n)->GetNumberOfChannels();
+                    channelID += plane->GetReadoutModule(n)->GetNumberOfChannels();
                 channelID += chnl;
 
                 //cout << "Hit found in channel : " << chnl << " chID : " << channelID << endl;

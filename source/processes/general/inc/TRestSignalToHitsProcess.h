@@ -15,6 +15,7 @@
 
 #include <TRestGas.h>
 #include <TRestReadout.h>
+
 #include <TRestSignalEvent.h>
 #include <TRestHitsEvent.h>
 
@@ -40,6 +41,7 @@ class TRestSignalToHitsProcess:public TRestEventProcess {
     protected:
 
         Double_t fSampling; // us
+        Double_t fThreshold;
         Double_t fAnodePosition; //mm
         Double_t fCathodePosition; //mm
         Double_t fElectricField; // V/cm
@@ -62,6 +64,7 @@ class TRestSignalToHitsProcess:public TRestEventProcess {
             std::cout << "Anode position : " << fAnodePosition << " mm" << std::endl;
             std::cout << "Cathode position : " << fCathodePosition << " mm" << std::endl;
             std::cout << "Electric field : " << fElectricField << " V/cm" << std::endl;
+            std::cout << "Threshold : " << fThreshold << std::endl;
 
             EndPrintProcess();
         }

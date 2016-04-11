@@ -32,7 +32,10 @@ TRestReadout::TRestReadout( const char *cfgFileName) : TRestMetadata (cfgFileNam
 
     for( int p = 0; p < this->GetNumberOfReadoutPlanes(); p++ )
         for( int m = 0; m < this->GetReadoutPlane(p)->GetNumberOfModules(); m++ )
+        {
+            cout << "Mapping plane : " << p << " Module : " << m << endl;
             this->GetReadoutPlane(p)->GetReadoutModule(m)->DoReadoutMapping();
+        }
 }
 
 void TRestReadout::Initialize()
@@ -82,6 +85,7 @@ void TRestReadout::InitFromConfigFile()
     size_t position = 0;
     string planeString;
 
+    Int_t addedChannels = 0;
     while( ( planeString = GetKEYStructure( "readoutPlane", position ) ) != "NotFound" )
     {
         TRestReadoutPlane plane;
@@ -92,6 +96,9 @@ void TRestReadout::InitFromConfigFile()
         plane.SetCathodePosition( Get3DVectorFieldValueWithUnits( "cathodePosition", planeDefinition ) );
         plane.SetPlaneVector( StringTo3DVector( GetFieldValue( "planeVector", planeDefinition ) ) );
         plane.SetChargeCollection( StringToDouble( GetFieldValue( "chargeCollection", planeDefinition ) ) );
+
+        Double_t tDriftDistance = plane.GetDistanceTo( plane.GetCathodePosition() );
+        plane.SetTotalDriftDistance( tDriftDistance );
 
         string moduleString;
         size_t posPlane = 0;
@@ -107,7 +114,7 @@ void TRestReadout::InitFromConfigFile()
             module.SetRotation( StringToDouble( GetFieldValue( "rotation", moduleDefinition ) ) );
 
             Int_t firstDaqChannel = StringToInteger( GetFieldValue( "firstDaqChannel", moduleDefinition ) );
-            if( firstDaqChannel == -1 ) firstDaqChannel = 0;
+            if( firstDaqChannel == -1 ) firstDaqChannel = addedChannels;
 
             string decodingFile = GetFieldValue( "decodingFile", moduleDefinition );
             if( decodingFile == "Not defined" || decodingFile == "" ) fDecoding = false;
@@ -178,8 +185,12 @@ void TRestReadout::InitFromConfigFile()
                 }
                 else
                 {
-                    channel.SetID( StringToInteger( GetFieldValue( "id", channelDefinition ) ) );
-                    channel.SetDaqID( StringToInteger( GetFieldValue( "id", channelDefinition ) ) );
+                    Int_t id = StringToInteger( GetFieldValue( "id", channelDefinition ) );
+                    channel.SetID( id );
+                    channel.SetDaqID( id + firstDaqChannel );
+
+                    rChannel.push_back( id );
+                    dChannel.push_back( id + firstDaqChannel );
                 }
 
                 if( debug )
@@ -213,9 +224,9 @@ void TRestReadout::InitFromConfigFile()
                 }
 
                 module.AddChannel( channel );
+                addedChannels++;
 
                 position2++;
-
             }
 
             if( (unsigned int ) module.GetNumberOfChannels() != rChannel.size() )
@@ -230,10 +241,25 @@ void TRestReadout::InitFromConfigFile()
 
             posPlane++;
         }
+
         this->AddReadoutPlane( plane );
 
         position++;
     }
+
+    ValidateReadout( );
+}
+
+void TRestReadout::ValidateReadout( )
+{
+    cout << "--------------------------------------------------" << endl;
+    cout << "TRestReadout::ValidateReadout:: NOT IMPLEMENTED" << endl;
+    cout << "This function should crosscheck that there are no repeated DaqChannels IDs" << endl;
+    cout << "No dead area in the readout module" << endl;
+    cout << "And other checks" << endl;
+    cout << "--------------------------------------------------" << endl;
+
+
 }
 
 
@@ -253,6 +279,8 @@ void TRestReadout::PrintMetadata( Int_t fullDetail )
     cout << "====================================" << endl;
     cout << "Readout : " << GetTitle() << endl;
     cout << "Number of readout planes : " << fNReadoutPlanes << endl;
+    cout << "Decoding was defined : ";
+    if( fDecoding ) cout << "YES" << endl; else cout << "NO" << endl;
     cout << "====================================" << endl;
     cout << endl;
     for( int p = 0; p < GetNumberOfReadoutPlanes(); p++ )

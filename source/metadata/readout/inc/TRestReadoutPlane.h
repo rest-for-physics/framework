@@ -35,6 +35,7 @@ class TRestReadoutPlane: public TObject {
         TVector3 fPlaneVector;
         TVector3 fCathodePosition;
         Double_t fChargeCollection;
+        Double_t fTotalDriftDistance;
 
         Int_t fNModules;
         std::vector <TRestReadoutModule> fReadoutModules;
@@ -51,12 +52,20 @@ class TRestReadoutPlane: public TObject {
         void SetCathodePosition( TVector3 pos ) { fCathodePosition = pos; }
         void SetPlaneVector( TVector3 vect ) { fPlaneVector = vect.Unit(); }
         void SetChargeCollection( Double_t charge ) { fChargeCollection = charge; }
+        void SetTotalDriftDistance( Double_t d ) { fTotalDriftDistance = d; }
 
         Int_t GetID ( ) { return fPlaneID; }
         TVector3 GetPosition( ) { return fPosition; }
         TVector3 GetCathodePosition( ) { return fCathodePosition; }
         TVector3 GetPlaneVector( ) { return fPlaneVector; }
         Double_t GetChargeCollection( ) { return fChargeCollection; }
+
+        Double_t GetDistanceTo( TVector3 pos );
+        Double_t GetDistanceTo( Double_t x, Double_t y, Double_t z ) { return GetDistanceTo( TVector3( x, y, z ) ); }
+        Double_t GetTotalDriftDistance( ) { return fTotalDriftDistance; }
+
+        Int_t isInsideDriftVolume( Double_t x, Double_t y, Double_t z  );
+        Int_t isInsideDriftVolume( TVector3 pos );
 
 
         void Draw();
@@ -87,7 +96,6 @@ class TRestReadoutPlane: public TObject {
         
         //Construtor
         TRestReadoutPlane();
-        TRestReadoutPlane( const char *cfgFileName);
         //Destructor
         virtual ~ TRestReadoutPlane();
 

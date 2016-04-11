@@ -237,7 +237,11 @@ void TRestRun::AddProcess( TRestEventProcess *process, string cfgFilename )
     // Each proccess is responsible to implement GetMetadata so that TRestRun stores this metadata.
 
     TRestMetadata *meta = process->GetProcessMetadata();
-    if( meta != NULL ) this->AddMetadata( meta );
+    if( meta != NULL )
+    {
+        meta->PrintMetadata();
+        this->AddMetadata( meta );
+    }
 
     process->PrintMetadata( );
 
@@ -372,6 +376,15 @@ TRestMetadata *TRestRun::GetMetadata( TString name )
 
     return NULL;
 
+}
+
+void TRestRun::ImportMetadata( TString rootFile, TString name )
+{
+    TFile *f = new TFile( rootFile );
+    // TODO give error in case we try to obtain a class that is not TRestMetadata
+    TRestMetadata *meta = (TRestMetadata *) f->Get( name );
+    this->AddMetadata( meta );
+    f->Close();
 }
 
 void TRestRun::OpenInputFile( TString fName )

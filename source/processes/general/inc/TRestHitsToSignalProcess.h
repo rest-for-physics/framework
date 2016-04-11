@@ -37,7 +37,7 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
 
         void LoadDefaultConfig();
 
-        Int_t FindModule( Double_t x, Double_t y );
+        Int_t FindModule( Int_t readoutPlane, Double_t x, Double_t y );
         Int_t FindChannel( Int_t module, Double_t x, Double_t y );
 
     protected:

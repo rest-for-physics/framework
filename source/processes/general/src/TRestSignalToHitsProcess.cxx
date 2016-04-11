@@ -51,6 +51,7 @@ void TRestSignalToHitsProcess::LoadDefaultConfig( )
     cout << "Signal to hits metadata not found. Loading default values" << endl;
 
     fSampling = 1;
+    fThreshold = 400;
     fCathodePosition = -1000;
     fAnodePosition = 0;
     fElectricField = 1000;
@@ -84,8 +85,6 @@ void TRestSignalToHitsProcess::LoadConfig( string cfgFilename )
 
     if( fReadout == NULL )
         fReadout = new TRestReadout( cfgFilename.c_str() );
-
-    //if( fReadout != NULL ) fReadout->PrintMetadata();
 
     // If the parameters have no value it tries to obtain it from electronDiffusionProcess
     if ( fElectricField == PARAMETER_NOT_FOUND_DBL )
@@ -164,46 +163,52 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
 
     Int_t numberOfHits = 0;
     Double_t energy, x, y, z;
-    Int_t readoutChannel, readoutModule;
+    Int_t planeID, readoutChannel = -1, readoutModule;
     for( int i = 0; i < numberOfSignals; i++ )
     {
         TRestSignal *sgnl = fSignalEvent->GetSignal( i );
         Int_t signalID = sgnl->GetSignalID();
 
-         /////////////////////////////////////////////////////////////////////////
-         // Here we still need to implement the decoding in the future
-         // In simulations the channel numbering is just in order
+        for( int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++ )
+        {
+            TRestReadoutPlane *plane = fReadout->GetReadoutPlane( p );
+            for( int m = 0; m < plane->GetNumberOfModules(); m++ )
+            {
+                TRestReadoutModule *mod = plane->GetModule( m );
 
-         Int_t channels = 0;
-         Int_t channelsBef;
-         for( int md = 0; md < fReadout->GetNumberOfModules(); md++ )
-         {
-             channelsBef = channels;
-             channels += fReadout->GetReadoutModule(md)->GetNumberOfChannels();
-             if( signalID < channels )
-             {
-                 readoutModule = md+1;
-                 readoutChannel = signalID - channelsBef;
-                 break;
-             }
-         }
+                if( mod->isDaqIDInside( signalID ) )
+                {
+                    planeID = p;
+                    readoutChannel = mod->DaqToReadoutChannel( signalID );
+                    readoutModule = mod->GetModuleID();
+                }
+            }
 
+        }
+
+
+        if ( readoutChannel == -1 ) continue;
         /////////////////////////////////////////////////////////////////////////
 
-        numberOfHits += fSignalEvent->GetSignal( i )->GetNumberOfPoints(); 
+        TRestReadoutPlane *plane = fReadout->GetReadoutPlane( planeID );
+
+        numberOfHits += sgnl->GetNumberOfPoints(); 
         for( int j = 0; j < sgnl->GetNumberOfPoints(); j++ )
         {
-             energy = sgnl->GetData(j);
+            energy = sgnl->GetData(j);
+            if( energy < fThreshold ) continue;
 
-             z = ( sgnl->GetTime(j) * fSampling ) * (fGas->GetDriftVelocity( fElectricField ) * cmTomm );
-             if( fCathodePosition - fAnodePosition < 0 ) z += fCathodePosition;
-             else z -= fCathodePosition;
+            z = ( sgnl->GetTime(j) * fSampling ) * (fGas->GetDriftVelocity( fElectricField ) * cmTomm );
+            if( fCathodePosition - fAnodePosition < 0 ) z += fCathodePosition;
+            else z -= fCathodePosition;
 
-             x = fReadout->GetX( readoutModule, readoutChannel );
-             y = fReadout->GetY( readoutModule, readoutChannel );
-             fHitsEvent->AddHit( x, y, z, energy );
+            x = plane->GetX( readoutModule, readoutChannel );
+            y = plane->GetY( readoutModule, readoutChannel );
+            fHitsEvent->AddHit( x, y, z, energy );
         }
     }
+
+    if( numberOfHits == 0 ) return NULL;
 
     return fHitsEvent;
 }
@@ -232,5 +237,6 @@ void TRestSignalToHitsProcess::InitFromConfigFile( )
     fAnodePosition = GetDblParameterWithUnits( "anodePosition" );
     fElectricField = GetDblParameterWithUnits( "electricField" );
     fSampling = GetDblParameterWithUnits( "sampling" );
+    fThreshold = StringToDouble( GetParameter( "threshold" ) );
 }
 
