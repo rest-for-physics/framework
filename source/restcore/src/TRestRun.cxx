@@ -240,7 +240,6 @@ void TRestRun::AddProcess( TRestEventProcess *process, string cfgFilename )
     if( meta != NULL )
     {
         meta->PrintMetadata();
-        getchar();
         this->AddMetadata( meta );
     }
 
