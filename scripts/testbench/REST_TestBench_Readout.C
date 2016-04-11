@@ -4,10 +4,11 @@
 using namespace std;
 
 
-int REST_TestBench_Readout( string configFile, Int_t plane = 0 )
+int REST_TestBench_Readout( TString rootFile, TString name, Int_t plane = 0 )
 {
 
-    TRestReadout *readout = new TRestReadout( configFile.c_str() );
+    TFile *f = new TFile( rootFile );
+    TRestReadout *readout = (TRestReadout *) f->Get( name );
     readout->PrintMetadata();
 
     TRestReadoutPlane *readoutPlane = readout->GetReadoutPlane( plane );
