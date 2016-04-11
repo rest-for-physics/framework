@@ -32,7 +32,10 @@ TRestReadout::TRestReadout( const char *cfgFileName) : TRestMetadata (cfgFileNam
 
     for( int p = 0; p < this->GetNumberOfReadoutPlanes(); p++ )
         for( int m = 0; m < this->GetReadoutPlane(p)->GetNumberOfModules(); m++ )
+        {
+            cout << "Mapping plane : " << p << " Module : " << m << endl;
             this->GetReadoutPlane(p)->GetReadoutModule(m)->DoReadoutMapping();
+        }
 }
 
 void TRestReadout::Initialize()
@@ -82,6 +85,7 @@ void TRestReadout::InitFromConfigFile()
     size_t position = 0;
     string planeString;
 
+    Int_t addedChannels = 0;
     while( ( planeString = GetKEYStructure( "readoutPlane", position ) ) != "NotFound" )
     {
         TRestReadoutPlane plane;
@@ -92,6 +96,9 @@ void TRestReadout::InitFromConfigFile()
         plane.SetCathodePosition( Get3DVectorFieldValueWithUnits( "cathodePosition", planeDefinition ) );
         plane.SetPlaneVector( StringTo3DVector( GetFieldValue( "planeVector", planeDefinition ) ) );
         plane.SetChargeCollection( StringToDouble( GetFieldValue( "chargeCollection", planeDefinition ) ) );
+
+        Double_t tDriftDistance = plane.GetDistanceTo( plane.GetCathodePosition() );
+        plane.SetTotalDriftDistance( tDriftDistance );
 
         string moduleString;
         size_t posPlane = 0;
@@ -107,7 +114,7 @@ void TRestReadout::InitFromConfigFile()
             module.SetRotation( StringToDouble( GetFieldValue( "rotation", moduleDefinition ) ) );
 
             Int_t firstDaqChannel = StringToInteger( GetFieldValue( "firstDaqChannel", moduleDefinition ) );
-            if( firstDaqChannel == -1 ) firstDaqChannel = this->GetNumberOfChannels();
+            if( firstDaqChannel == -1 ) firstDaqChannel = addedChannels;
 
             string decodingFile = GetFieldValue( "decodingFile", moduleDefinition );
             if( decodingFile == "Not defined" || decodingFile == "" ) fDecoding = false;
@@ -217,6 +224,7 @@ void TRestReadout::InitFromConfigFile()
                 }
 
                 module.AddChannel( channel );
+                addedChannels++;
 
                 position2++;
             }
@@ -233,6 +241,7 @@ void TRestReadout::InitFromConfigFile()
 
             posPlane++;
         }
+
         this->AddReadoutPlane( plane );
 
         position++;
