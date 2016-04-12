@@ -15,6 +15,7 @@
 ///             aug 2015    Javier Galan
 ///_______________________________________________________________________________
 
+#include <TGeoManager.h>
 
 #include "TRestRun.h"
 using namespace std;
@@ -513,6 +514,14 @@ void TRestRun::CloseOutputFile( )
         cout << "Writting output tree" << endl;
         fOutputEventTree->Write();
         fOutputAnalysisTree->Write();
+    }
+
+    if( fInputFile != NULL )
+    {
+        TGeoManager *geo = (TGeoManager *) fInputFile->Get("Default");
+        if( geo != NULL ) geo->Write();
+
+
     }
 
     this->Write();

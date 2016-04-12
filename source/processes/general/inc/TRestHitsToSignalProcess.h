@@ -43,7 +43,7 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
     protected:
 
         Double_t fSampling; // us
-        Double_t fCathodePosition;
+        Double_t fGasPressure;
         Double_t fElectricField;
 
 
@@ -61,7 +61,7 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
             BeginPrintProcess();
 
             std::cout << "Sampling : " << fSampling << " us" << std::endl;
-            std::cout << "Cathode position : " << fCathodePosition << " mm" << std::endl;
+            std::cout << "Gas pressure : " << fGasPressure << " atm" << std::endl;
             std::cout << "Electric field : " << fElectricField << " V/cm" << std::endl;
 
             EndPrintProcess();

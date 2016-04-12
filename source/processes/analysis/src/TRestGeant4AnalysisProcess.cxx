@@ -63,10 +63,7 @@ void TRestGeant4AnalysisProcess::LoadConfig( string cfgFilename )
 //______________________________________________________________________________
 void TRestGeant4AnalysisProcess::InitProcess()
 {
-    vector <string> obsList = GetObservablesList( );
-
-    for( unsigned int n = 0; n < obsList.size(); n++ )
-        fAnalysisTree->AddObservable( obsList[n] );
+    TRestEventProcess::ReadObservables();
 
     fG4Metadata = (TRestG4Metadata *) GetGeant4Metadata( );
 }

@@ -16,7 +16,7 @@ All units in mm, keV and degrees
 </globals>
 
 <section run name="Run metadata" title="REST Simulation run (template)">
-    <parameter name="Nevents" value="0"/>
+    <parameter name="Nevents" value="200000"/>
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
     <parameter name="runNumber" value="auto"/>
@@ -42,9 +42,7 @@ All units in mm, keV and degrees
     <parameter name="subEventTimeDelay" value="100" units="us" />
 
     <generator type="volume" from="gas" >
-        <source particle="alpha" fullChain="off">
-            <angularDist type="isotropic" />
-            <energyDist type="mono" energy="5" units="MeV" />
+        <source fromFile="Xe136bb0n.dat">
         </source>
     </generator>
 
@@ -61,10 +59,9 @@ All units in mm, keV and degrees
 </section>
 
 <section electronDiffusionProcess name="electronDiffusion-Panda" title="Half PANDA X-III Vessel (Bottom)" >
-    <parameter name="anodePosition" value="0" units="mm" />
-    <parameter name="cathodePosition" value="-100" units="cm" />
     <parameter name="electricField" value="1" units="kV/cm" />
     <parameter name="attachment" value="0" /> // units??
+    <parameter name="gasPressure" value="10" />
 </section>
 
 
@@ -92,8 +89,8 @@ All units in mm, keV and degrees
     <parameter name="sampling" value="1" units="us" />
     // If the following parameters are not defined 
     // the process will try to take the values from a previous electronDiffusionProcess
-    <parameter name="cathodePosition" value="" units="mm" />
     <parameter name="electricField" value="" units="V/cm" />
+    <parameter name="gasPressure" value="10" />
 </section>
 
 
@@ -143,6 +140,10 @@ All units in mm, keV and degrees
     <observable name="bremstralung" value="ON" />
 </section>
 
+<section signalAnalysisProcess name="signalAnalysis-Panda" title="Half PANDA X-III Vessel (Bottom)" >
+    <observable name="signalTimeBinsLength" value="ON" />
+</section>
+
 <section trackLinearizationProcess name="trackLinearization-Panda" title="Half PANDA X-III Vessel (Bottom)" >
     <parameter name="lengthResolution" value="2" units="mm" />
     <parameter name="transversalResolution" value="1" units="mm" />
@@ -157,7 +158,7 @@ All units in mm, keV and degrees
     <parameter name="gamma" value="90" />	// rotation angle around X in degrees
 </section>
 
-<section readout nameref="Readout-PANDA_3MM_Single" file="{REST_PATH}/inputData/definitions/readouts.rml"> </section>
+<section readout nameref="Readout-PANDA_3MM_Jinping" file="{REST_PATH}/inputData/definitions/readouts.rml"> </section>
 
 <section gas nameref="Xenon-TMA 3Pct 10-10E3V/cm" file="{REST_PATH}/inputData/definitions/gases.rml"> </section>
 

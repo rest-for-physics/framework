@@ -113,13 +113,18 @@ void TRestSignalEvent::PrintEvent()
 
 void TRestSignalEvent::SetMaxAndMin()
 {
+    fMinValue = 1E10;
+    fMaxValue = -1E10;
+    fMinTime = 1E10;
+    fMaxTime = -1E10;
+
     for( int s = 0; s < GetNumberOfSignals(); s++ )
     {
-        if( fMinTime > fSignal[s].GetMinTime() - 1 ) fMinTime = fSignal[s].GetMinTime() - 1;
-        if( fMaxTime < fSignal[s].GetMaxTime() - 1 ) fMaxTime = fSignal[s].GetMaxTime() - 1;
+        if( fMinTime > fSignal[s].GetMinTime() ) fMinTime = fSignal[s].GetMinTime();
+        if( fMaxTime < fSignal[s].GetMaxTime() ) fMaxTime = fSignal[s].GetMaxTime();
 
-        if( fMinValue > fSignal[s].GetMinValue() - 1 ) fMinValue = fSignal[s].GetMinValue() - 1;
-        if( fMaxValue < fSignal[s].GetMaxValue() - 1 ) fMaxValue = fSignal[s].GetMaxValue() - 1;
+        if( fMinValue > fSignal[s].GetMinValue() ) fMinValue = fSignal[s].GetMinValue();
+        if( fMaxValue < fSignal[s].GetMaxValue() ) fMaxValue = fSignal[s].GetMaxValue();
     }
 }
 
@@ -170,7 +175,11 @@ TPad *TRestSignalEvent::DrawEvent()
     fPad = new TPad( this->GetName(), " ", 0, 0, 1, 1 );
     fPad->Draw();
     fPad->cd();
-    fPad->DrawFrame( GetMinTime(), GetMinValue() , GetMaxTime(), GetMaxValue());
+    cout << "GetMinTime : " << GetMinTime() << endl;
+    cout << "GetMaxTime : " << GetMaxTime() << endl;
+    cout << "GetMinValue : " << GetMinValue() << endl;
+    cout << "GetMaxValue : " << GetMaxValue() << endl;
+    fPad->DrawFrame( GetMinTime()-1, GetMinValue()-1 , GetMaxTime()+1, GetMaxValue()+1);
 
     char title[256];
     sprintf(title, "Event ID %d", this->GetID());
@@ -178,7 +187,7 @@ TPad *TRestSignalEvent::DrawEvent()
 
     TMultiGraph *mg = new TMultiGraph();
     mg->SetTitle(title);
-    mg->GetXaxis()->SetTitle("time (ns)");
+    mg->GetXaxis()->SetTitle("time bins");
     mg->GetYaxis()->SetTitleOffset(1.4);
     mg->GetYaxis()->SetTitle("charge (electrons)");
 
