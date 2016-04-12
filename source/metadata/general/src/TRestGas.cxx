@@ -92,7 +92,8 @@ void TRestGas::Initialize()
 
 void TRestGas::LoadGasFile( )
 {
-
+    Double_t pressure = fPressureInAtm;
+    fPressureInAtm = 1;
     ConstructFilename( );
 
     if( !fileExists( (string) (GetGasDataPath() + fGasFilename) ) ) 
@@ -122,6 +123,8 @@ void TRestGas::LoadGasFile( )
 
     for( unsigned int i = 0; i < fEFields.size(); i++ )
         cout << "node " << i << " Field : " << fEFields[i] << " V/cm" << endl;
+
+    this->SetPressure( pressure );
 
 }
 
