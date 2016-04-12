@@ -24,10 +24,24 @@ Int_t RESTSIM_AllProcesses( TString fName, Int_t firstEvent = 0, Int_t numberOfE
 
     TRestSignalAnalysisProcess *signalAnalysisProcess = new TRestSignalAnalysisProcess( );
 
-    run->AddProcess( g4AnalysisProcess, cfgFilename );
+    TRestSignalToHitsProcess *signalToHitsProcess = new TRestSignalToHitsProcess( );
+
+    TRestFastHitsToTrackProcess *hitsToTrackProcess = new TRestFastHitsToTrackProcess( );
+
+    TRestTrackReductionProcess *trackReductionProcess = new TRestTrackReductionProcess( );
+
+    TRestTrackPathMinimizationProcess *trackPathMinimizationProcess = new TRestTrackPathMinimizationProcess( );
+
+    // There is an issue when trying to use the viewers it seems related to Geant4 analysis process
+    // you need to comment the g4AnalysisProcess to skip this problem
+    //run->AddProcess( g4AnalysisProcess, cfgFilename );
     run->AddProcess( eDiffProcess, cfgFilename );
     run->AddProcess( hToSignalProcess, cfgFilename );
     run->AddProcess( signalAnalysisProcess, cfgFilename );
+    run->AddProcess( signalToHitsProcess, cfgFilename );
+    run->AddProcess( hitsToTrackProcess, cfgFilename );
+    run->AddProcess( trackReductionProcess, cfgFilename );
+    run->AddProcess( trackPathMinimizationProcess, cfgFilename );
 
     run->ProcessEvents( firstEvent, numberOfEventsToProcess );
 
