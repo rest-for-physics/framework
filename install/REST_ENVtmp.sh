@@ -35,12 +35,9 @@ fi
 export REST_DATAPATH=$REST_PATH_PARENT/data
 echo "default data path   $REST_DATAPATH"
 
-export REST_CONFIG=$REST_PATH/examples/pandaXIII
-echo "default config path $REST_CONFIG"
-
 export REST_RUN=0
 echo "default run number  $REST_RUN"
 
 export REST_NEVENTS=1000
-echo "default run events  $REST_NEVENTS"
+echo "default run events" $REST_NEVENTS
 
