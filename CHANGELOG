@@ -3,7 +3,7 @@
 ==========================================================
 Date : 31st / March / 2016
 Branch : restG4AndRestcoreUpgrades
-Author : Javier Galan
+Author : Javier Galan/Gloria Luzon
 Merge : #58
 Title : Major upgrade in Geant4 event storage and in restcore to include an analysis tree.
 ==========================================================
@@ -59,9 +59,22 @@ TRestEventProcess changes :
 
 * The analysis process must be incharged of the calculation of the observable and to set the value using fAnalysisTree->SetObservableValue( "obsName", value )
 
+RESTMETADATA
+============
 
-TRestEventProcess changes :
----------------------------
+Added TRestReadoutPlane:
+--------------------------
+
+* Added `TRestReadoutPlane`. Now the readout is defined using readout planes. The readout plane contains the micromegas modules. And it defines some members for the physical placement of the readout and the definition of the readout plane. Some of the members description:
+
+  - `fPosition` : Defines de position of the readout plane. It can be any point contained on the plane of the readoutPlane.
+  - `fPlaneVector` : Defines the orientation of the readout plane. It should be pointing towards the active volume.
+  - `fCathodePosition` : It must be a point contained inside the cathode plane.
+  - `fChargeCollection` : It defines the ratio of charge collected by that plane (i.e. one could create a micromegas stripped readout using two readoutPlanes and definning the chargeCollection="0.5").
+
+* Processes related to readout have been updated. Now the electron diffusion is done using the readout coordinates.
+
+* TRestDecoding has been removed. Now the decoding is defined directly in the readout. A new member `fDaqID` has been introduced in `TRestReadoutChannel`. New methods are available to convert from daqID to readoutId. The decoding of a module can be provided by using a config tag `decodingFile` inside the `readoutModule` definition. For simulations is not relevant to define a decoding. The parameter `firstDaqChannel` given in the definition of readoutModule can be used to add a number to the daq channels defined inside the decoding file.
 
 == RESTEVENTS ==
 
