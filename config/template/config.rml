@@ -89,7 +89,7 @@ All units in mm, keV and degrees
     <parameter name="sampling" value="1" units="us" />
     // If the following parameters are not defined 
     // the process will try to take the values from a previous electronDiffusionProcess
-    <parameter name="electricField" value="" units="V/cm" />
+    <parameter name="electricField" value="1000" units="V/cm" />
     <parameter name="gasPressure" value="10" />
 </section>
 
@@ -104,11 +104,10 @@ All units in mm, keV and degrees
 </section>
 
 <section signalToHitsProcess name="signalToHits-Panda" title="Half PANDA X-III Vessel (Bottom)" >
-    <parameter name="sampling" value="100" units="ns" />
-    <parameter name="threshold" value="500" units="ns" />
-    <parameter name="anodePosition" value="0" units="mm" />
-    <parameter name="cathodePosition" value="0" units="mm" />
-    <parameter name="electricField" value="150" units="V/cm" />
+    <parameter name="sampling" value="1" units="us" />
+    <parameter name="threshold" value="0" />
+    <parameter name="electricField" value="1000" units="V/cm" />
+    <parameter name="gasPressure" value="10" />
 </section>
 
 <section hitsToTrackProcess name="hitsToTrack-Panda" title="Half PANDA X-III Vessel (Bottom)" >
@@ -117,8 +116,8 @@ All units in mm, keV and degrees
 
 <section fastHitsToTrackProcess name="fastHitsToTrack-Panda" title="Half PANDA X-III Vessel (Bottom)" >
     <parameter name="cellResolution" value="30" units="mm" />
-    <parameter name="netSize" value="1200" units="mm" />
-    <parameter name="netOrigin" value="(-600,-600,-1100)" units="mm" />
+    <parameter name="netSize" value="2000" units="mm" />
+    <parameter name="netOrigin" value="(-1000,-1000,-1000)" units="mm" />
 </section>
 
 <section trackReductionProcess name="trackReduction-Panda" title="Half PANDA X-III Vessel (Bottom)" >
