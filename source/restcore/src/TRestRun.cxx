@@ -178,6 +178,8 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
 		{
 		    fOutputEvent->SetID( fInputEvent->GetID() );
 		    fOutputEvent->SetTime( fInputEvent->GetTime() );
+            fOutputEvent->SetSubID( fInputEvent->GetID() );
+            fOutputEvent->SetSubEventTag( fInputEvent->GetSubEventTag() );
 		}
 
 #ifdef TIME_MEASUREMENT

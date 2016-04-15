@@ -34,7 +34,7 @@ Int_t RESTSIM_AllProcesses( TString fName, Int_t firstEvent = 0, Int_t numberOfE
 
     // There is an issue when trying to use the viewers it seems related to Geant4 analysis process
     // you need to comment the g4AnalysisProcess to skip this problem
-    //run->AddProcess( g4AnalysisProcess, cfgFilename );
+    run->AddProcess( g4AnalysisProcess, cfgFilename );
     run->AddProcess( eDiffProcess, cfgFilename );
     run->AddProcess( hToSignalProcess, cfgFilename );
     run->AddProcess( signalAnalysisProcess, cfgFilename );

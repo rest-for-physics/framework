@@ -50,6 +50,7 @@ void TRestGeant4AnalysisProcess::Initialize()
     SetName( "geant4AnalysisProcess" );
 
     fG4Event = new TRestG4Event();
+    ///fOutputG4Event = new TRestG4Event();
 
     fOutputEvent = fG4Event;
     fInputEvent = fG4Event;
@@ -71,28 +72,27 @@ void TRestGeant4AnalysisProcess::InitProcess()
 //______________________________________________________________________________
 void TRestGeant4AnalysisProcess::BeginOfEventProcess() 
 {
-
+    fG4Event = new TRestG4Event();
 }
 
 //______________________________________________________________________________
 TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent( TRestEvent *evInput )
 {
+    fG4Event = (TRestG4Event *) evInput;
 
-    TRestG4Event *g4Event = (TRestG4Event *) evInput;
-
-    Double_t energy = g4Event->GetEnergyDepositedInVolume( 0 );
+    Double_t energy = fG4Event->GetEnergyDepositedInVolume( 0 );
     fAnalysisTree->SetObservableValue( "gasEnergyDeposit_InKeV", energy );
 
-    if ( g4Event->isPhotoElectric( ) ) { fAnalysisTree->SetObservableValue( "photoelectric", 1 ); }
+    if ( fG4Event->isPhotoElectric( ) ) { fAnalysisTree->SetObservableValue( "photoelectric", 1 ); }
     else { fAnalysisTree->SetObservableValue( "photoelectric", 0 ); }
 
-    if ( g4Event->isCompton( ) ) fAnalysisTree->SetObservableValue( "compton", 1 );
+    if ( fG4Event->isCompton( ) ) fAnalysisTree->SetObservableValue( "compton", 1 );
     else fAnalysisTree->SetObservableValue( "compton", 0 );
 
-    if ( g4Event->isBremstralung( ) ) fAnalysisTree->SetObservableValue( "bremstralung", 1 );
+    if ( fG4Event->isBremstralung( ) ) fAnalysisTree->SetObservableValue( "bremstralung", 1 );
     else fAnalysisTree->SetObservableValue( "bremstralung", 0 );
 
-    cout << "Event : " << g4Event->GetID() << " Tracks : " << g4Event->GetNumberOfTracks() << endl;
+    cout << "Event : " << fG4Event->GetID() << " Tracks : " << fG4Event->GetNumberOfTracks() << endl;
 
     return fG4Event;
 }
