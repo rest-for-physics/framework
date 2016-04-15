@@ -44,6 +44,9 @@ class TRestAnalysisTree:public TTree {
         Int_t fNObservables;
         std::vector <TString> fObservableNames;
 
+    protected:
+    public:
+
         Int_t GetObservableID( TString obsName )
         {
             for( int i = 0; i < GetNumberOfObservables( ); i++ )
@@ -51,10 +54,6 @@ class TRestAnalysisTree:public TTree {
             return -1;
         }
 
-
-    protected:
-
-    public:
         Bool_t isConnected( ) { return fConnected; }
 
         Int_t GetEventID( ) { return fEventID; }

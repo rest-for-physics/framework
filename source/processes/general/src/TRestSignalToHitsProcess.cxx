@@ -55,14 +55,13 @@ void TRestSignalToHitsProcess::LoadDefaultConfig( )
     fCathodePosition = -1000;
     fAnodePosition = 0;
     fElectricField = 1000;
+    fGasPressure = 10;
 
 }
 
 void TRestSignalToHitsProcess::LoadConfig( string cfgFilename )
 {
     if( LoadConfigFromFile( cfgFilename ) ) LoadDefaultConfig( );
-
-    this->PrintConfigBuffer();
 
     // The gas metadata will only be available after using AddProcess method of TRestRun
     fGas = (TRestGas *) this->GetGasMetadata( );
@@ -78,6 +77,9 @@ void TRestSignalToHitsProcess::LoadConfig( string cfgFilename )
     }
 
     if( fGas != NULL ) fGas->PrintMetadata( );
+
+    fGas->SetPressure( fGasPressure );
+    cout << "Drift velocity : " << fGas->GetDriftVelocity( fElectricField ) << "cm/us" << endl;
 
 
     // The readout metadata will only be available after using AddProcess method of TRestRun
@@ -191,6 +193,10 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
         /////////////////////////////////////////////////////////////////////////
 
         TRestReadoutPlane *plane = fReadout->GetReadoutPlane( planeID );
+        
+        // For the moment this will only be valid for a TPC with its axis (field direction) being in z
+        Double_t fieldZDirection = plane->GetPlaneVector().Z();
+        Double_t zPosition = plane->GetPosition().Z();
 
         numberOfHits += sgnl->GetNumberOfPoints(); 
         for( int j = 0; j < sgnl->GetNumberOfPoints(); j++ )
@@ -198,9 +204,9 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
             energy = sgnl->GetData(j);
             if( energy < fThreshold ) continue;
 
-            z = ( sgnl->GetTime(j) * fSampling ) * (fGas->GetDriftVelocity( fElectricField ) * cmTomm );
-            if( fCathodePosition - fAnodePosition < 0 ) z += fCathodePosition;
-            else z -= fCathodePosition;
+            Double_t distanceToPlane = ( sgnl->GetTime(j) * fSampling ) * (fGas->GetDriftVelocity( fElectricField ) * cmTomm );
+
+            z = zPosition + fieldZDirection * distanceToPlane;
 
             x = plane->GetX( readoutModule, readoutChannel );
             y = plane->GetY( readoutModule, readoutChannel );
@@ -238,5 +244,6 @@ void TRestSignalToHitsProcess::InitFromConfigFile( )
     fElectricField = GetDblParameterWithUnits( "electricField" );
     fSampling = GetDblParameterWithUnits( "sampling" );
     fThreshold = StringToDouble( GetParameter( "threshold" ) );
+    fGasPressure = StringToDouble( GetParameter( "gasPressure" ) );
 }
 

@@ -100,7 +100,6 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
     fInputTrackEvent = (TRestTrackEvent *) evInput;
 
     /* Debug output  */
-    cout << "Event ID : " << fInputTrackEvent->GetID() << endl;
     cout << "Number of tracks : " << fInputTrackEvent->GetNumberOfTracks() << endl;
     cout << "*****************************" << endl;
 

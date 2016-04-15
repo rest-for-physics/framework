@@ -77,6 +77,7 @@ TRestEvent* TRestSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 {
 
     TRestSignalEvent *signalEvent = (TRestSignalEvent *) evInput;
+    *fSignalEvent = *signalEvent;
 
     // TODO we must do this in each readout plane? 
     Double_t timeDelay = signalEvent->GetMaxTime() - signalEvent->GetMinTime();

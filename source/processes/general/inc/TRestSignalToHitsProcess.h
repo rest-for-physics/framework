@@ -45,6 +45,7 @@ class TRestSignalToHitsProcess:public TRestEventProcess {
         Double_t fAnodePosition; //mm
         Double_t fCathodePosition; //mm
         Double_t fElectricField; // V/cm
+        Double_t fGasPressure; // atm
 
     public:
 
@@ -65,6 +66,7 @@ class TRestSignalToHitsProcess:public TRestEventProcess {
             std::cout << "Cathode position : " << fCathodePosition << " mm" << std::endl;
             std::cout << "Electric field : " << fElectricField << " V/cm" << std::endl;
             std::cout << "Threshold : " << fThreshold << std::endl;
+            std::cout << "Gas pressure : " << fGasPressure << std::endl;
 
             EndPrintProcess();
         }

@@ -1,5 +1,3 @@
-
-
 ==========================================================
 Date : 31st / March / 2016
 Branch : restG4AndRestcoreUpgrades
@@ -75,6 +73,7 @@ TRestG4Event changes:
 
 * Added new methods to determine if a TRestG4Track or a TRestG4Event contains a given physics process isPhotoElectric(), isCompton(), etc.
 
+* Added new processes to `TRestG4Track`
 == RESTG4 ==
 
 * Major changes in restG4 main program. 
@@ -100,7 +99,23 @@ Added TRestGeant4AnalysisProcess
 
 
 
+GEANT4 SIMULATION
+=============
 
+Updated PhysicsList
+--------------------------------
+ 
+* This file has been changed to include a larger list of PhysicsList form Geant 4 distribution. 
+  - G4EmLivemorePhysics for em processes (already existing in previous versions of RESTSoft)
+  - G4DecayPhysicsList (already included) for decaying isotopes
+  - G4RadiactiveDeacyPhysics for decaying particles 
+  - High precision Hadronic PhyscisList: G4HadronElasticPhysicsHP, G4IonBinaryCascadePhysics, G4HadronPhysicsQGSP_BIC_HP, G4NeutronTrackingCut, new G4EmExtraPhysics for hadronic and photonulcear processes.
+
+* Processes and particles are constructed from predefined Geant4 PhysicsList
+
+Added Particles
+--------------------------------
+* This file is needed to contruct hadrons
 
 
 
