@@ -50,7 +50,7 @@ using namespace std;
 // We define rest objects that will be used in Geant4
 TRestRun *restRun;
 TRestG4Track *restTrack;
-TRestG4Event *restG4Event;
+TRestG4Event *restG4Event, *subRestG4Event;
 TRestG4Metadata *restG4Metadata;
 
 #include <TGeoVolume.h>
@@ -62,16 +62,6 @@ Int_t biasing = 0;
 TH1D *biasingSpectrum[maxBiasingVolumes];
 TH1D *angularDistribution[maxBiasingVolumes];
 TH2D *spatialDistribution[maxBiasingVolumes];
-
-// This histograms should be placed in TRestG4Event?
-TH1D *totalEdep;
-double eMinROI= 2458 - 25;
-double eMaxROI = 2458 + 25;
-TH1D *totalEdep_ROI;
-
-// Was just for testing
-TH1D *primaryAngularDistribution;
-TH1D *primaryEnergyDistribution;
 
 TH1D initialEnergySpectrum;
 TH1D initialAngularDistribution;
@@ -99,7 +89,8 @@ int main(int argc,char** argv) {
     restRun->OpenOutputFile();
 
     restG4Event = new TRestG4Event( );
-    restRun->SetOutputEvent( restG4Event );
+    subRestG4Event = new TRestG4Event( );
+    restRun->SetOutputEvent( subRestG4Event );
 
     restRun->AddMetadata( restG4Metadata );
 
@@ -134,16 +125,6 @@ int main(int argc,char** argv) {
     }
     // }}}
 
-    // {{{ Definning energy deposited histograms to be stored in ROOT file
-    // The range of these histograms should be obtained from <storage energyRange="" or specific analysis section >
-    Double_t eMin_Dep = restG4Metadata->GetMinimumEnergyStored();
-    Double_t eMax_Dep = restG4Metadata->GetMaximumEnergyStored();
-    Int_t nbins = (Int_t) ( (eMax_Dep - eMin_Dep) );
-
-    totalEdep = new TH1D( "Total energy deposited", "Total energy deposited", nbins , eMin_Dep, eMax_Dep );
-    totalEdep_ROI = new TH1D( "Total energy deposited (ROI)", "Total energy deposited (ROI)", 50, eMinROI, eMaxROI );
-    // }}} 
-
     //choose the Random engine
     CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine);
     time_t systime = time(NULL);
@@ -162,30 +143,34 @@ int main(int argc,char** argv) {
     // set user action classes
     PrimaryGeneratorAction* prim  = new PrimaryGeneratorAction( det );
 
-    Double_t minSpectrumEnergy = restG4Metadata->GetParticleSource(0).GetMinEnergy();
-    Double_t maxSpectrumEnergy = restG4Metadata->GetParticleSource(0).GetMaxEnergy();
-
-    primaryAngularDistribution = new TH1D( "Primary angular distribution", "Primary angular distribution", 300, 0, M_PI  );
-    primaryEnergyDistribution = new TH1D( "Primary energy distribution", "Primary energy distribution", (Int_t) (maxSpectrumEnergy-minSpectrumEnergy), minSpectrumEnergy, maxSpectrumEnergy  );
-
-    prim->SetPrimaryAngularDistribution ( primaryAngularDistribution );
-    prim->SetPrimaryEnergyDistribution ( primaryEnergyDistribution );
-
     if( restG4Metadata->GetParticleSource(0).GetEnergyDistType() == "TH1D" )
     {
         TString fileFullPath = (TString ) restG4Metadata->GetParticleSource(0).GetSpectrumFilename();
 
         TFile fin( fileFullPath );
 
-        TH1D *h = (TH1D *) fin.Get( restG4Metadata->GetParticleSource(0).GetSpectrumName() );;
+        TString sptName = restG4Metadata->GetParticleSource(0).GetSpectrumName();
+
+        TH1D *h = (TH1D *) fin.Get( sptName );;
+        if( h == NULL ) 
+        { 
+            cout << "REST ERROR  when trying to find energy spectrum" << endl;
+            cout << "File : " << fileFullPath << endl;
+            cout << "Spectrum name : " << sptName << endl; 
+            exit(1);
+        }
+
         initialEnergySpectrum = *h;
 
 
-        if( minSpectrumEnergy < 0 ) minSpectrumEnergy = 0;
-        if( maxSpectrumEnergy < 0 ) maxSpectrumEnergy = 0;
+        Double_t minEnergy = restG4Metadata->GetParticleSource(0).GetMinEnergy();
+        if( minEnergy < 0 ) minEnergy = 0;
+
+        Double_t maxEnergy = restG4Metadata->GetParticleSource(0).GetMaxEnergy();
+        if( maxEnergy < 0 ) maxEnergy = 0;
 
         // We set the initial spectrum energy provided from TH1D
-        prim->SetSpectrum( &initialEnergySpectrum, minSpectrumEnergy, maxSpectrumEnergy );
+        prim->SetSpectrum( &initialEnergySpectrum, minEnergy, maxEnergy );
     }
 
     if( restG4Metadata->GetParticleSource(0).GetAngularDistType() == "TH1D" )
@@ -194,28 +179,28 @@ int main(int argc,char** argv) {
 
         TFile fin( fileFullPath );
 
-        TH1D *h = (TH1D *) fin.Get( restG4Metadata->GetParticleSource(0).GetAngularName() );;
+        TString sptName = restG4Metadata->GetParticleSource(0).GetAngularName();
+        TH1D *h = (TH1D *) fin.Get( sptName );;
+        if( h == NULL ) 
+        { 
+            cout << "REST ERROR  when trying to find angular spectrum" << endl;
+            cout << "File : " << fileFullPath << endl;
+            cout << "Spectrum name : " << sptName << endl; 
+            exit(1);
+        }
+
         initialAngularDistribution = *h;
 
         // We set the initial angular distribution provided from TH1D
         prim->SetAngularDistribution( &initialAngularDistribution );
     }
-    
-                    
-
- //   prim->SetPrimaryAngularDistribution( primaryAngularDistribution );
-
 
     RunAction*              run   = new RunAction(prim);  
 
     EventAction*            event = new EventAction();  
     
-    // Setting the histograms where it will be stored energy deposited in G4 Event
-    event->SetDepositSpectrum( totalEdep ); 
-    event->SetDepositSpectrum_ROI( totalEdep_ROI ); 
-
     TrackingAction*         track = new TrackingAction(run,event);
-    SteppingAction*        step = new SteppingAction( );
+    SteppingAction*         step = new SteppingAction( );
 
     runManager->SetUserAction(run);
     runManager->SetUserAction(prim);
@@ -271,9 +256,6 @@ int main(int argc,char** argv) {
         //
 
         restRun->GetOutputFile()->cd();
-
-        primaryAngularDistribution->Write();
-        primaryEnergyDistribution->Write();
 
         while( biasing )
         {
@@ -340,9 +322,7 @@ int main(int argc,char** argv) {
     }
     restRun->GetOutputFile()->cd();
 
-    totalEdep->Write();
-    totalEdep_ROI->Write();
-
+    /*
     initialEnergySpectrum.SetName("initialEnergySpectrum");
     initialAngularDistribution.SetName("initialAngularDistribution");
 
@@ -351,7 +331,7 @@ int main(int argc,char** argv) {
 
     initialEnergySpectrum.Write();
     initialAngularDistribution.Write();
-    //primaryAngularDistribution->Write();
+    */
 
 #ifdef G4VIS_USE
     delete visManager;
@@ -365,18 +345,10 @@ int main(int argc,char** argv) {
 
     TString Filename = restRun->GetOutputFilename();
 
-    /*
-   // TFile *f1 = new TFile( restRun->GetOutputFilename(), "RECREATE" );
-    TFile *f1 = new TFile( "new.root", "RECREATE" );
-    cout << "Writting geometry" << endl;
-    geo->Write();
-
-    f1->Close();
-    */
-
     delete restRun;
 
     delete restG4Event;
+    delete subRestG4Event;
     delete restTrack;
 
     // Writting the geometry in TGeoManager format to the ROOT file

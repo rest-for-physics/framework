@@ -37,13 +37,13 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
 
         void LoadDefaultConfig();
 
-        Int_t FindModule( Double_t x, Double_t y );
+        Int_t FindModule( Int_t readoutPlane, Double_t x, Double_t y );
         Int_t FindChannel( Int_t module, Double_t x, Double_t y );
 
     protected:
 
         Double_t fSampling; // us
-        Double_t fCathodePosition;
+        Double_t fGasPressure;
         Double_t fElectricField;
 
 
@@ -61,7 +61,7 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
             BeginPrintProcess();
 
             std::cout << "Sampling : " << fSampling << " us" << std::endl;
-            std::cout << "Cathode position : " << fCathodePosition << " mm" << std::endl;
+            std::cout << "Gas pressure : " << fGasPressure << " atm" << std::endl;
             std::cout << "Electric field : " << fElectricField << " V/cm" << std::endl;
 
             EndPrintProcess();

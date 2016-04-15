@@ -27,7 +27,6 @@ ClassImp(TRestTrackEvent)
 {
    // TRestTrackEvent default constructor
     TRestEvent::Initialize();
-    fEventClassName = "TRestTrackEvent";
     fTrack.clear();
     fXYHit = NULL;
     fXZHit = NULL;
@@ -51,7 +50,6 @@ void TRestTrackEvent::Initialize()
     fNtracks = 0;
     fTrack.clear();
     TRestEvent::Initialize();
-    fEventClassName = "TRestTrackEvent";
 
 }
 
@@ -120,7 +118,7 @@ void TRestTrackEvent::SetLevels( )
 
 void TRestTrackEvent::PrintOnlyTracks()
 {
-    cout << "TrackEvent " << GetEventID() << endl;
+    cout << "TrackEvent " << GetID() << endl;
     cout << "-----------------------" << endl;
     for( int i = 0; i < GetNumberOfTracks(); i++ )
     {
@@ -305,12 +303,12 @@ TPad *TRestTrackEvent::DrawEvent()
     }
 
 
-    fPad = new TPad(this->GetClassName().Data(), " ", 0, 0, 1, 1 );
+    fPad = new TPad(this->GetName(), " ", 0, 0, 1, 1 );
     fPad->Divide( 3 , 1 );
     fPad->Draw( );
 
     char title[256];
-    sprintf(title, "Event ID %d", this->GetEventID());
+    sprintf(title, "Event ID %d", this->GetID());
 
     TMultiGraph *mgXY = new TMultiGraph();
     TMultiGraph *mgXZ = new TMultiGraph();

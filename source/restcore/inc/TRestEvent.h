@@ -27,53 +27,48 @@
 #include <TPad.h>
 
 class TRestEvent:public TObject {
- protected:
-   Int_t fEventID;              //< third identificative number
-   // with these 3 numbers one should be able to uniquely identify an event
-   // the first and second ones can refer to a run and subrun and the third one to the order number
-   // of the event inside the subrun, hence their names...
-   // the precise meaning of the indexes may depend on the inherited class
-   // (simulation or daq, e.g.)
-   TTimeStamp fEventTime;              ///< Event absolute time
+    protected:
+        Int_t fEventID;             //< Event identificative number
+        Int_t fSubEventID;          //< sub-Event identificative number
+        TString fSubEventTag;       //< A short length label to identify the sub-Event
+        TTimeStamp fEventTime;      //< Absolute event time
+        Bool_t fOk;                 //< Flag to be used by processes to define an event status. fOk=true is the default.
 
-   // It is this really needed?
-   TString fEventClassName;		
+    public:
+        //Setters
+        void SetID( Int_t id ) { fEventID = id; }
+        void SetSubID( Int_t id ) { fSubEventID = id; }
+        void SetSubEventTag( TString tag ) { fSubEventTag = tag; }
 
-   Bool_t fOk;
+        void SetTime( Double_t time );
+        void SetTime( Double_t seconds, Double_t nanoseconds );
+        void SetTimeStamp( TTimeStamp time ) { fEventTime = time; }
 
- public:
-   //Setters
-   void SetEventID(Int_t eventid) { fEventID = eventid; }
-   void SetEventTime(Double_t time) { 
-   Int_t sec = (Int_t)time;
-   Int_t nsec = (Int_t) ((time-sec)*1E9);
-   
-   fEventTime.SetSec(sec);
-   fEventTime.SetNanoSec(nsec);
-   
-   }
+        void SetState( Bool_t state ) { fOk = state; }
+        void SetOK( Bool_t state ) { fOk = state; }
 
-   void SetState( Bool_t state ) { fOk = state; }
-   void SetOK( Bool_t state ) { fOk = state; }
+        //Getters
+        Int_t GetID( ) { return fEventID; }
+        Int_t GetSubID( ) { return fSubEventID; }
+        TString GetSubEventTag() { return fSubEventTag; }
 
-   //Getters
-   Int_t GetEventID() { return fEventID; }
-   Double_t GetEventTime() { return fEventTime.AsDouble(); }
-   TString GetClassName() { return fEventClassName; }
-   Bool_t isOk() { return fOk; }
+        Double_t GetTime() { return fEventTime.AsDouble(); }
+        TTimeStamp GetTimeStamp() { return fEventTime; }
 
-   // Must be set on the derived events to remove content
-   virtual void Initialize() = 0; 
+        Bool_t isOk() { return fOk; }
 
-   virtual void PrintEvent();
-   
-   virtual TPad *DrawEvent( ){ return NULL; }
-   
-   //Construtor
-   TRestEvent();
-   //Destructor
-   virtual ~ TRestEvent();
+        // Must be set on the derived events to remove content
+        virtual void Initialize() = 0; 
 
-   ClassDef(TRestEvent, 2);     // REST event superclass
+        virtual void PrintEvent();
+
+        virtual TPad *DrawEvent( ){ return NULL; }
+
+        //Construtor
+        TRestEvent();
+        //Destructor
+        virtual ~ TRestEvent();
+
+        ClassDef(TRestEvent, 1);     // REST event superclass
 };
 #endif

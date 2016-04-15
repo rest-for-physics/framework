@@ -112,7 +112,7 @@ TRestEvent* TRestAFTERToSignalProcess::ProcessEvent( TRestEvent *evInput )
      getchar();
      }
 
-fSignalEvent->SetEventID(head.eventNumb);   
+fSignalEvent->SetID(head.eventNumb);   
 
 int timeBin = 0;
 	
@@ -155,7 +155,7 @@ bool first=true;
 	   reducedTime+=deltaTime;
 	   
 	   //Set timestamp and event ID
-	   fSignalEvent->SetEventTime(tStart+reducedTime*2.E-8);//timeStamp
+	   fSignalEvent->SetTime(tStart+reducedTime*2.E-8);//timeStamp
 	    	   
  	   //printf("Event time read %.3lf\n",tStart+reducedTime*2.E-8);
  	   
@@ -308,10 +308,10 @@ bool first=true;
       }//end while
 totalBytesReaded+= frameBits;
 
-//printf("Event ID %d time stored %.3lf\n",fSignalEvent->GetEventID(),fSignalEvent->GetEventTime());
+//printf("Event ID %d time stored %.3lf\n",fSignalEvent->GetID(),fSignalEvent->GetTime());
       
 if(this->GetVerboseLevel()==REST_Debug){cout<<"End of event "<<endl;getchar();}
-//cout<<"Ev ID "<<fSignalEvent->GetEventID()<<" " <<endl;
+//cout<<"Ev ID "<<fSignalEvent->GetID()<<" " <<endl;
 
 return fSignalEvent;
 }

@@ -129,7 +129,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
         G4VPhysicalVolume *pVol = GetPhysicalVolume( (G4String) restG4Metadata->GetActiveVolumeName( id )  );
 
         cout << "Activating volume : " << restG4Metadata->GetActiveVolumeName( id ) << endl;
-        restG4Event->AddActiveVolume( 1 );
+        restG4Event->AddActiveVolume( );
         if( pVol == NULL )
         {
             cout << "REST Warning : " <<  restG4Metadata->GetActiveVolumeName( id ) << " is not defined in the geometry" << endl;

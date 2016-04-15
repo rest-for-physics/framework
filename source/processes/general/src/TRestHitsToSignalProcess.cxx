@@ -72,8 +72,8 @@ void TRestHitsToSignalProcess::LoadDefaultConfig( )
     cout << "Hits to signal metadata not found. Loading default values" << endl;
 
     fSampling = 1;
-    fCathodePosition = 0;
     fElectricField = 1000;
+    fGasPressure = 10;
 
 }
 
@@ -86,6 +86,7 @@ void TRestHitsToSignalProcess::LoadConfig( string cfgFilename )
     if( fGas != NULL )
     {
         fGas->LoadGasFile( );
+        fGas->SetPressure( fGasPressure );
         cout << "Gas loaded from Run metadata" << endl;
     }
     else
@@ -114,16 +115,6 @@ void TRestHitsToSignalProcess::LoadConfig( string cfgFilename )
         if( fElectricField != PARAMETER_NOT_FOUND_DBL )
         {
             cout << "Getting electric field from electronDiffusionProcess : " << fElectricField << " V/cm" << endl;
-        }
-
-    }
-
-    if ( fCathodePosition == PARAMETER_NOT_FOUND_DBL )
-    {
-        fCathodePosition = this->GetDoubleParameterFromClassWithUnits( "TRestElectronDiffusionProcess", "cathodePosition" );
-        if( fCathodePosition != PARAMETER_NOT_FOUND_DBL )
-        {
-            cout << "Getting cathode position from electronDiffusionProcess : " << fCathodePosition << " mm" << endl;
         }
     }
 }
@@ -165,10 +156,12 @@ void TRestHitsToSignalProcess::BeginOfEventProcess()
     fSignalEvent->Initialize(); 
 }
 
-Int_t TRestHitsToSignalProcess::FindModule( Double_t x, Double_t y )
+Int_t TRestHitsToSignalProcess::FindModule( Int_t readoutPlane, Double_t x, Double_t y )
 {
-    for ( int md = 0; md < fReadout->GetNumberOfModules(); md++ )
-        if( fReadout->GetReadoutModule( md )->isInside( x, y ) ) return md;
+    // TODO verify this
+        TRestReadoutPlane *plane = fReadout->GetReadoutPlane( readoutPlane );
+        for ( int md = 0; md < plane->GetNumberOfModules(); md++ )
+            if( plane->GetReadoutModule( md )->isInside( x, y ) ) return md;
 
     return -1;
 }
@@ -179,65 +172,58 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
 {
     fHitsEvent = (TRestHitsEvent *) evInput;
 
-       cout << "Event ID : " << fHitsEvent->GetEventID() << endl;
-       cout << "Number of hits : " << fHitsEvent->GetNumberOfHits() << endl;
-       cout << "--------------------------" << endl;
+    cout << "Number of hits : " << fHitsEvent->GetNumberOfHits() << endl;
+    cout << "--------------------------" << endl;
 
     for( int hit = 0; hit < fHitsEvent->GetNumberOfHits(); hit++ )
     {
         Double_t x = fHitsEvent->GetX( hit );
         Double_t y = fHitsEvent->GetY( hit );
+        Double_t z = fHitsEvent->GetZ( hit );
 
-        Int_t mod = this->FindModule( x, y );
-	
-	//cout<<"module "<<mod<<endl;
-
-        if( mod >= 0 )
+        Int_t planeId = -1;
+        Int_t moduleId = -1;
+        TRestReadoutModule *module;
+        TRestReadoutPlane *plane;
+        for( int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++ )
         {
-        //    high_resolution_clock::time_point t1 = high_resolution_clock::now();
-            Int_t chnl = fReadout->GetReadoutModule( mod )->FindChannel( x, y );
-        //    high_resolution_clock::time_point t2 = high_resolution_clock::now();
-
-            /*
-            auto duration = duration_cast<microseconds>( t2 - t1 ).count();
-            cout << duration << " us" << endl;
-            getchar();
-            */
-            if( chnl >= 0 )
+            moduleId = fReadout->GetReadoutPlane(p)->isInsideDriftVolume( x, y, z );
+            if( moduleId >= 0 )
             {
-                Int_t channelID = 0;
-                for( int n = 0; n < mod-1; n++ )
-                    channelID += fReadout->GetReadoutModule(n)->GetNumberOfChannels();
-                channelID += chnl;
-
-                //cout << "Hit found in channel : " << chnl << " chID : " << channelID << endl;
-
-                /* This is now done internally in TRestSignalEvent
-                   if ( !fSignalEvent->signalIDExists( channelID ) )
-                   {
-                   TRestSignal sgnl;
-                   sgnl.SetSignalID( channelID );
-                   fSignalEvent->AddSignal( sgnl );
-                   }
-                   */
-
-                Double_t energy = fHitsEvent->GetEnergy( hit );
-                Double_t time = fHitsEvent->GetZ( hit ) - fCathodePosition;
-                time = time /(fGas->GetDriftVelocity( fElectricField ) * cmTomm );
-                time = ( (Int_t) (time/fSampling) );
-
-                fSignalEvent->AddChargeToSignal( channelID, time, energy );
+                planeId = p;
+                plane = fReadout->GetReadoutPlane( planeId );
+                module = plane->GetModule( moduleId );
+                break;
             }
         }
-    }
 
-    fSignalEvent->SortSignals();
 
-    //fSignalEvent->PrintEvent();
+        if( moduleId == -1 || planeId == -1 ) continue;
 
-    cout << "Number of signals inside event : " << fSignalEvent->GetNumberOfSignals() << endl;
+           if( moduleId >= 0 )
+           {
 
-    return fSignalEvent;
+               //    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+               Int_t readoutChannel = module->FindChannel( x, y );
+               Int_t daqId = module->GetChannel( readoutChannel )->GetDaqID( );
+               //    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+
+               Double_t energy = fHitsEvent->GetEnergy( hit );
+                
+               Double_t time = plane->GetDistanceTo( x, y, z ) / (fGas->GetDriftVelocity( fElectricField ) * cmTomm );
+               time = ( (Int_t) (time/fSampling) );
+
+               fSignalEvent->AddChargeToSignal( daqId, time, energy );
+           }
+}
+
+        fSignalEvent->SortSignals();
+
+        //fSignalEvent->PrintEvent();
+
+        cout << "Number of signals inside event : " << fSignalEvent->GetNumberOfSignals() << endl;
+
+        return fSignalEvent;
 }
 
 //______________________________________________________________________________
@@ -261,7 +247,7 @@ void TRestHitsToSignalProcess::EndProcess()
 void TRestHitsToSignalProcess::InitFromConfigFile( )
 {
     fSampling = GetDblParameterWithUnits( "sampling" );
-    fCathodePosition = GetDblParameterWithUnits( "cathodePosition" );
+    fGasPressure = StringToDouble( GetParameter( "gasPressure" ) );
     fElectricField = GetDblParameterWithUnits( "electricField" );
 }
 

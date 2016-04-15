@@ -73,7 +73,7 @@ class TRestReadoutPixel : public TObject {
         TVector2 TransformToPixelCoordinates( TVector2 p );
 
         
-        void PrintReadoutPixel( );
+        void Print( );
 
         //Construtor
         TRestReadoutPixel();

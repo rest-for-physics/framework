@@ -30,7 +30,6 @@
 
 class TRestReadoutModule : public TObject {
     private:
-        Int_t fPlaneIndex;
         Int_t fModuleID;
 
         Double_t fModuleOriginX;
@@ -41,9 +40,14 @@ class TRestReadoutModule : public TObject {
 
         Double_t fModuleRotation;
 
+        Int_t fMininimumDaqId;
+        Int_t fMaximumDaqId;
+
         std::vector <TRestReadoutChannel> fReadoutChannel;
 
         TRestReadoutMapping fMapping;
+
+        Double_t fTolerance;
 
         void Initialize();
 
@@ -75,15 +79,25 @@ class TRestReadoutModule : public TObject {
     public:
         // Setters
         
-        void DoReadoutMapping( );
+        void DoReadoutMapping( Int_t nodes = 0 );
         
-        void SetPlaneIndex( Int_t index ) { fPlaneIndex = index; }
         void SetModuleID( Int_t modID ) { fModuleID = modID; }
         void SetSize( Double_t sX, Double_t sY ) { fModuleSizeX = sX; fModuleSizeY = sY; }
         void SetSize( TVector2 s ) { fModuleSizeX = s.X(); fModuleSizeY = s.Y(); }
         void SetOrigin( Double_t x, Double_t y ) { fModuleOriginX = x; fModuleOriginY = y; }
         void SetOrigin( TVector2 c ) { fModuleOriginX = c.X(); fModuleOriginY = c.Y(); }
         void SetRotation( Double_t rot ) { fModuleRotation = rot; }
+
+        void SetMinMaxDaqIDs( );
+        Int_t GetMinDaqID( ) { return fMininimumDaqId; }
+        Int_t GetMaxDaqID( ) { return fMaximumDaqId; }
+
+        Int_t DaqToReadoutChannel( Int_t daqChannel )
+        {
+            for( int n = 0; n < GetNumberOfChannels(); n++ )
+                if( GetChannel( n )->GetDaqID() == daqChannel ) return GetChannel( n )->GetID();
+            return -1;
+        }
 
         Bool_t isInside( Double_t x, Double_t y );
         Bool_t isInside( TVector2 pos );
@@ -93,6 +107,13 @@ class TRestReadoutModule : public TObject {
         
         Bool_t isInsidePixel( Int_t channel, Int_t pixel, Double_t x, Double_t y );
         Bool_t isInsidePixel( Int_t channel, Int_t pixel, TVector2 pos );
+
+        Bool_t isDaqIDInside( Int_t daqID )
+        {
+            if( daqID >= fMininimumDaqId && daqID <= fMaximumDaqId )
+                return true;
+            return false;
+        }
 
         Int_t FindChannel( Double_t x, Double_t y );
 
@@ -106,7 +127,6 @@ class TRestReadoutModule : public TObject {
         void AddChannel( TRestReadoutChannel &rChannel );
 
         Int_t GetModuleID( ) { return fModuleID; }
-        Int_t GetPlaneIndex( ) { return fPlaneIndex; }
 
         Double_t GetModuleOriginX() { return fModuleOriginX; }
         Double_t GetModuleOriginY() { return fModuleOriginY; }
@@ -125,7 +145,7 @@ class TRestReadoutModule : public TObject {
 
         void Draw();
 
-        void PrintReadoutModule( Int_t fullDetail = 0 );
+        void Print( Int_t fullDetail = 0 );
 
         //Construtor
         TRestReadoutModule();

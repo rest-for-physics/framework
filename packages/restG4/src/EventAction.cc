@@ -43,10 +43,8 @@
 extern TRestRun *restRun;
 extern TRestG4Metadata *restG4Metadata;
 extern TRestG4Event *restG4Event;
+extern TRestG4Event *subRestG4Event;
 extern TRestG4Track *restTrack;
-
-extern double eMinROI;
-extern double eMaxROI;
 
 #include <fstream>
 using namespace std;
@@ -73,34 +71,23 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
 
     restTrack->Initialize();
 
- //   G4cout << "Event id : " << evt->GetEventID() << G4endl;
-    restG4Event->SetEventID( evt->GetEventID() );
+    restG4Event->SetID( evt->GetEventID() );
     restG4Event->SetOK( true );
     time_t systime = time(NULL);
- //   G4cout << "Event time : " << (Double_t) systime << G4endl;
-    restG4Event->SetEventTime( (Double_t) systime );
 
- //   G4cout << "Number of tracks : " << restG4Event->GetNumberOfTracks() << G4endl;
-
+    restG4Event->SetTime( (Double_t) systime );
 
     // Defining if the hits in a given volume will be stored
-
     for( int i = 0; i < restG4Metadata->GetNumberOfActiveVolumes(); i++ )
     {
         Double_t rndNumber = G4UniformRand();
-        //G4cout << "Storage chance volume : " << i << " chance : " <<  restG4Metadata->GetStorageChance(i) << G4endl;
 
         if ( restG4Metadata->GetStorageChance(i) >= rndNumber )
-        {
              restG4Event->ActivateVolumeForStorage( i );
-            //  G4cout << "Activating volume : " << restG4Metadata->GetActiveVolumeName( i ) << G4endl;
-        }
         else
-        {
              restG4Event->DisableVolumeForStorage( i );
-   //          G4cout << "Disabling volume : " << restG4Metadata->GetActiveVolumeName( i ) << G4endl;
-        }
     }
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -116,60 +103,164 @@ void EventAction::EndOfEventAction(const G4Event* evt)
         cout << "End of event : " << evtNb << endl;
     }
 
-    /*
-    for( int i = 0; i < restG4Event->GetNumberOfTracks(); i++ )
+    Double_t totEnergy = restG4Event->GetSensitiveVolumeEnergy();
+
+    Double_t minEnergy = restG4Metadata->GetMinimumEnergyStored();
+    Double_t maxEnergy = restG4Metadata->GetMaximumEnergyStored();
+
+    if ( maxEnergy == 0 ) maxEnergy = totEnergy + 1;
+
+    if( totEnergy > minEnergy && totEnergy < maxEnergy )
     {
-        G4cout << "Particle track : " << restG4Event->GetTrack( i ).GetParticleName() << G4endl;
-        G4cout << "Length : " << restG4Event->GetTrack(i).GetTrackLength() << " mm" << G4endl;
-    }
-    */
+        SetTrackSubeventIDs();
 
+        for( int subId = 0; subId < restG4Event->GetNumberOfSubEventIDTracks(); subId++ )
+        {
+            FillSubEvent( subId );
 
-    Double_t totEnergy = restG4Event->GetTotalSensitiveVolumeEnergy();
-    if( totEnergy > restG4Metadata->GetMinimumEnergyStored() &&
-            totEnergy < restG4Metadata->GetMaximumEnergyStored() )
-    {
-        SetSubeventIDs();
-
-   //     G4cout << "Storing event " << G4endl;
-
-        fDepositSpectrum->Fill( totEnergy );
-        if( totEnergy > eMinROI && totEnergy < eMaxROI )
-            fDepositSpectrum_ROI->Fill( totEnergy );
-        restRun->GetOutputEventTree( )->Fill();
+            if( subRestG4Event->GetTotalDepositedEnergy() > 0. )
+                restRun->Fill();
+        }
     }
 }
 
-void EventAction::SetSubeventIDs()
+void EventAction::FillSubEvent( Int_t subId )
+{
+    subRestG4Event->Initialize();
+    subRestG4Event->ClearVolumes();
+
+    subRestG4Event->SetID( restG4Event->GetID( ) );
+    subRestG4Event->SetSubID( subId );
+
+    subRestG4Event->SetPrimaryEventOrigin( restG4Event->GetPrimaryEventOrigin() );
+    for( int n = 0; n < restG4Event->GetNumberOfPrimaries(); n++ )
+    {
+        subRestG4Event->SetPrimaryEventDirection( restG4Event->GetPrimaryEventDirection( n ) );
+        subRestG4Event->SetPrimaryEventEnergy( restG4Event->GetPrimaryEventEnergy( n ) );
+    }
+
+    for( int n = 0; n < restG4Event->GetNumberOfActiveVolumes(); n++ )
+    {
+        subRestG4Event->AddActiveVolume();
+        if( restG4Event->isVolumeStored( n )) subRestG4Event->ActivateVolumeForStorage( n );
+        else subRestG4Event->DisableVolumeForStorage( n );
+    }
+
+    for( int n = 0; n < restG4Event->GetNumberOfTracks( ); n++ )
+    {
+        TRestG4Track *tck = restG4Event->GetTrack( n );
+
+        if( tck->GetSubEventID() == subId )
+            subRestG4Event->AddTrack( *tck );
+    }
+
+    if( restG4Metadata->isVolumeStored( restG4Metadata->GetSensitiveVolume() ) )
+    {
+        Int_t sensVolID = restG4Metadata->GetActiveVolumeID( restG4Metadata->GetSensitiveVolume() );
+
+        subRestG4Event->SetSensitiveVolumeEnergy( subRestG4Event->GetEnergyDepositedInVolume( sensVolID ) );
+    }
+
+    Double_t minTimestamp = 0;
+    if( subRestG4Event->GetNumberOfTracks() > 0 )
+        minTimestamp = subRestG4Event->GetTrack(0)->GetGlobalTime();
+
+    for( int n = 0; n < subRestG4Event->GetNumberOfTracks( ); n++ )
+    {
+        if( subRestG4Event->GetTrack(n)->GetGlobalTime() < minTimestamp )
+            minTimestamp = subRestG4Event->GetTrack(n)->GetGlobalTime();
+    }
+
+    subRestG4Event->SetTimeStamp( minTimestamp );
+
+    if( subId > 0 )
+    {
+        for( int n = 0; n < restG4Event->GetNumberOfTracks( ); n++ )
+        {
+            TRestG4Track *tck = restG4Event->GetTrack( n );
+
+            if( tck->GetSubEventID() == subId-1 )
+                if( tck->isRadiactiveDecay() ) subRestG4Event->SetSubEventTag( tck->GetParticleName() );
+        }
+    }
+
+    // Re-ordering track IDs
+    Int_t lowestID = subRestG4Event->GetLowestTrackID();
+    Int_t nTracks = subRestG4Event->GetNumberOfTracks();
+
+    for( int i = 0; i < nTracks; i++ )
+    {
+        TRestG4Track *tr = subRestG4Event->GetTrack( i );
+        tr->SetTrackID( tr->GetTrackID() - lowestID + 1 );
+        tr->SetParentID( tr->GetParentID() - lowestID + 1 );
+        if( tr->GetParentID() < 0 ) tr->SetParentID( 0 );
+    }
+
+    lowestID = subRestG4Event->GetLowestTrackID();
+
+    for( int i = 0; i < nTracks; i++ )
+    {
+        TRestG4Track *tr = subRestG4Event->GetTrack( i );
+        Int_t id = tr->GetTrackID();
+
+        if( id - i  != 1 )
+        {
+            tr->SetTrackID( i + 1 );
+            for( int t = 0; t < subRestG4Event->GetNumberOfTracks(); t++ )
+            {
+                TRestG4Track *tr2 = subRestG4Event->GetTrack( t );
+                if( tr2->GetParentID( ) == id  ) tr2->SetParentID( i + 1 );
+            }
+            for( int t = 0; t < subRestG4Event->GetNumberOfTracks(); t++ )
+            {
+                if( t == i ) continue;
+                TRestG4Track *tr2 = subRestG4Event->GetTrack( t );
+                if( tr2->GetTrackID( ) == i + 1 )
+                {
+                    tr2->SetTrackID( id );
+                    for( int k = 0; k < subRestG4Event->GetNumberOfTracks(); k++ )
+                    {
+                        TRestG4Track *tr3 = subRestG4Event->GetTrack( t );
+                        if( tr3->GetParentID() == i+1  ) tr3->SetParentID( id );
+                    }
+                }
+
+            }
+        }
+    }
+
+}
+
+void EventAction::SetTrackSubeventIDs()
 {
     Int_t nTracks = restG4Event->GetNumberOfTracks();
 
     Double_t timeDelay = restG4Metadata->GetSubEventTimeDelay() * REST_Units::s;
 
-    cout.precision(20);
+    vector <Double_t> fTrackTimestampList;
+    fTrackTimestampList.clear();
+
     for( int n = 0; n < nTracks; n++ )
     {
-        Double_t trkTime = restG4Event->GetTrack(n)->GetGlobalTrackTime();
+        Double_t trkTime = restG4Event->GetTrack(n)->GetGlobalTime();
 
         Int_t Ifound = 0;
         for( unsigned int id = 0; id < fTrackTimestampList.size(); id++ )
-        {
-            if( absDouble ( fTrackTimestampList[id] - trkTime ) < timeDelay ) Ifound = id;
-        }
+            if( absDouble ( fTrackTimestampList[id] - trkTime ) < timeDelay ) { Ifound = 1; }
 
         if ( Ifound == 0 ) fTrackTimestampList.push_back( trkTime );
     }
+
 
     for( unsigned int id = 0; id < fTrackTimestampList.size(); id++ )
     {
         for( int n = 0; n < nTracks; n++ )
         {
-            Double_t trkTime = restG4Event->GetTrack(n)->GetGlobalTrackTime();
+            Double_t trkTime = restG4Event->GetTrack(n)->GetGlobalTime();
 
             if( absDouble ( fTrackTimestampList[id] - trkTime ) < timeDelay ) { restG4Event->SetTrackSubEventID( n, id ); }
         }
     }
-
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

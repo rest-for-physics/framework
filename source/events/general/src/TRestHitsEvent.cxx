@@ -30,7 +30,6 @@ void TRestHitsEvent::AddHit( TVector3 pos, Double_t en )
 void TRestHitsEvent::Initialize()
 {
     TRestEvent::Initialize();
-    fEventClassName = "TRestHitsEvent";
 
     RemoveHits();
 

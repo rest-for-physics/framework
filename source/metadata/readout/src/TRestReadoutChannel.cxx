@@ -57,13 +57,13 @@ TRestReadoutPixel *TRestReadoutChannel::GetPixelByID( int id )
     return NULL; 
 }
 
-void TRestReadoutChannel::PrintReadoutChannel( )
+void TRestReadoutChannel::Print( )
 {
-        cout << "++++ Channel ID : " << GetID( ) << " Total pixels : " << GetNumberOfPixels() << endl;
+        cout << "++++ Channel ID : " << GetID( ) << " Daq channel : " << GetDaqID() << " Total pixels : " << GetNumberOfPixels() << endl;
         cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
         for( int n = 0; n < GetNumberOfPixels(); n++ )
         {
-            GetPixel(n)->PrintReadoutPixel();
+            GetPixel(n)->Print();
         }
 }

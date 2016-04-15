@@ -35,11 +35,7 @@
 #include "PhysicsList.hh"
 #include "G4UnitsTable.hh"
 #include "G4ParticleTypes.hh"
-#include "G4IonConstructor.hh"
-#include "G4PhysicsListHelper.hh"
 #include "G4RadioactiveDecay.hh"
-#include "G4ionIonisation.hh"
-#include "G4hMultipleScattering.hh"
 //#include "G4ScreenedNuclearRecoil.hh"
 #include "G4UAtomicDeexcitation.hh"
 #include "G4LossTableManager.hh"
@@ -53,20 +49,13 @@
 //#include "PhysListEmStandard.hh"
 //#include "PhysListEmStandardSS.hh"
 //#include "PhysListEmStandardNR.hh"
-
+#include "Particles.hh"
 #include "G4RegionStore.hh"
 #include "G4Region.hh"
 #include "G4ProductionCuts.hh"
 #include "G4ProcessManager.hh"
 #include "G4ParticleTypes.hh"
 #include "G4ParticleTable.hh"
-
-#include "G4Gamma.hh"
-#include "G4Electron.hh"
-#include "G4Positron.hh"
-
-#include "G4UnitsTable.hh"
-#include "G4LossTableManager.hh"
 
 #include "G4EmExtraPhysics.hh"
 #include "G4HadronElasticPhysics.hh"
@@ -76,13 +65,12 @@
 #include "G4RadioactiveDecayPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 #include "G4DecayPhysics.hh"
-
+#include "G4HadronPhysicsQGSP_BIC_HP.hh"
 #include "G4BraggIonGasModel.hh"
 #include "G4BetheBlochIonGasModel.hh"
 #include "G4IonFluctuations.hh"
 #include "G4IonParametrisedLossModel.hh"
 #include "G4UniversalFluctuation.hh"
-
 
 #include <G4StepLimiter.hh>
 
@@ -90,32 +78,24 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 PhysicsList::PhysicsList() : G4VModularPhysicsList(),
-	fCutForGamma( 10.*um), fCutForElectron(1*mm), fCutForPositron(1*mm),
-	fEmPhysicsList(0) 
+    fCutForGamma( 10.*um), fCutForElectron(1*mm), fCutForPositron(1*mm)
 {
-  //add new units for radioActive decays
-  // 
-  const G4double minute = 60*second;
-  const G4double hour   = 60*minute;
-  const G4double day    = 24*hour;
-  const G4double year   = 365*day;
-  new G4UnitDefinition("minute", "min", "Time", minute);
-  new G4UnitDefinition("hour",   "h",   "Time", hour);
-  new G4UnitDefinition("day",    "d",   "Time", day);
-  new G4UnitDefinition("year",   "y",   "Time", year);        
+    //add new units for radioActive decays
+    // 
+    const G4double minute = 60*second;
+    const G4double hour   = 60*minute;
+    const G4double day    = 24*hour;
+    const G4double year   = 365*day;
+    new G4UnitDefinition("minute", "min", "Time", minute);
+    new G4UnitDefinition("hour",   "h",   "Time", hour);
+    new G4UnitDefinition("day",    "d",   "Time", day);
+    new G4UnitDefinition("year",   "y",   "Time", year);        
 
-  //SetVerboseLevel(0);
+    //SetVerboseLevel(0);
 
-  defaultCutValue = 0.1 * mm;
+    defaultCutValue = 0.1 * mm;
 
-  fEmPhysicsList = new G4EmLivermorePhysics(0);
-  //fEmPhysicsList = new G4EmPenelopePhysics();
-
-// fEmPhysicsList = new G4EmStandardPhysics_option3();
-
-// fEmPhysicsList = new PhysListEmStandardNR();
-
-
+    InitializePhysicsLists();
 
 }
 
@@ -123,108 +103,116 @@ PhysicsList::PhysicsList() : G4VModularPhysicsList(),
 
 PhysicsList::~PhysicsList()
 {
-	delete fEmPhysicsList;
+    delete fEmPhysicsList;
 
- }
+    delete fDecPhysicsList;
+    delete fRadDecPhysicsList;
+    for( size_t i = 0; i < fHadronPhys.size(); i++) {delete fHadronPhys[i];}
+
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+void PhysicsList::InitializePhysicsLists()
+{
 
+    // Decay physics and all particles
+    fDecPhysicsList = new G4DecayPhysics();
+
+    // RadioactiveDecay physicsList
+    fRadDecPhysicsList = new G4RadioactiveDecayPhysics();
+
+    // Electromagnetic physicsList
+    fEmPhysicsList = new G4EmLivermorePhysics();
+    // TODO: This should be added as an option through metadata
+    // fEmPhysicsList = new G4EmPenelopePhysics();
+    // fEmPhysicsList = new G4EmStandardPhysics_option3();
+    // fEmPhysicsList = new PhysListEmStandardNR();
+
+    //Hadronic PhysicsList
+    fHadronPhys.push_back( new G4HadronElasticPhysicsHP());
+    fHadronPhys.push_back(new G4IonBinaryCascadePhysics());
+    fHadronPhys.push_back(new G4HadronPhysicsQGSP_BIC_HP());
+    fHadronPhys.push_back(new G4NeutronTrackingCut());
+    fHadronPhys.push_back(new G4EmExtraPhysics());
+
+    G4cout << "Number of hadronic physics lists added "<< fHadronPhys.size() << G4endl;
+
+}
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void PhysicsList::ConstructParticle()
 {
-  // pseudo-particles
-  G4Geantino::GeantinoDefinition();
-  
-  // gamma
-  G4Gamma::GammaDefinition();
+    // pseudo-particles
+    G4Geantino::GeantinoDefinition();
 
-  // leptons
-  G4Electron::ElectronDefinition();
-  G4Positron::PositronDefinition();
+    //particles defined in PhysicsLists
+    fDecPhysicsList->ConstructParticle();
+    fEmPhysicsList->ConstructParticle();
+    fRadDecPhysicsList->ConstructParticle();
 
-  G4NeutrinoE::NeutrinoEDefinition();
-  G4AntiNeutrinoE::AntiNeutrinoEDefinition();
-  
-  // baryons
-  G4Proton::ProtonDefinition();
-  G4Neutron::NeutronDefinition();  
-
-  // ions
-  G4IonConstructor iConstructor;
-  iConstructor.ConstructParticle();  
+    for( size_t i = 0; i < fHadronPhys.size(); i++) 
+        fHadronPhys[i]->ConstructParticle();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void PhysicsList::ConstructProcess()
 {
-  AddTransportation();
-  
-  G4RadioactiveDecay* radioactiveDecay = new G4RadioactiveDecay();
-  radioactiveDecay->SetHLThreshold(nanosecond);
-  radioactiveDecay->SetICM(true);                //Internal Conversion
+    AddTransportation();
+    // electromagnetic physics list
+    //
+    fEmPhysicsList->ConstructProcess();
+    em_config.AddModels();
 
-  // When there is electronic capture X-rays cab be emitted
-  radioactiveDecay->SetARM(true);               //Atomic Rearangement
-  
-  G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();  
-  ph->RegisterProcess(radioactiveDecay, G4GenericIon::GenericIon());
+    // decay physics list
 
-/*
-  G4ionIonisation *ionIonisation = new G4ionIonisation();
-  ph->RegisterProcess( ionIonisation, G4GenericIon::GenericIon());
+    fDecPhysicsList->ConstructProcess();
+    // Radioactive decay 
+    fRadDecPhysicsList->ConstructProcess();
+    // hadronic physics lists
+    for( size_t i = 0; i < fHadronPhys.size(); i++) 
+        fHadronPhys[i]->ConstructProcess();
 
-  G4hMultipleScattering *mscIon = new G4hMultipleScattering();
-  ph->RegisterProcess( mscIon, G4GenericIon::GenericIon());
-*/
+    G4RadioactiveDecay* radioactiveDecay = new G4RadioactiveDecay();
+    radioactiveDecay->SetHLThreshold(nanosecond);
+    radioactiveDecay->SetICM(true);                //Internal Conversion
 
-  /*
-  G4ScreenedNuclearRecoil* nucr = new G4ScreenedNuclearRecoil();
-  G4double energyLimit = 100.*MeV;
-  nucr->SetMaxEnergyForScattering(energyLimit);
-  ph->RegisterProcess( nucr, G4GenericIon::GenericIon());
-  */
+    // When there is electronic capture X-rays cab be emitted
+    radioactiveDecay->SetARM(true);               //Atomic Rearangement
 
-  theParticleIterator->reset();
-  while ((*theParticleIterator)())
-  {
-    G4ParticleDefinition* particle = theParticleIterator->value();
-    G4String partname = particle->GetParticleName();
-    if(partname == "alpha" || partname == "He3" || partname == "GenericIon") {
-      G4BraggIonGasModel* mod1 = new G4BraggIonGasModel();
-      G4BetheBlochIonGasModel* mod2 = new G4BetheBlochIonGasModel();
-      G4double eth = 2.*MeV*particle->GetPDGMass()/CLHEP::proton_mass_c2;
-      em_config.SetExtraEmModel(partname,"braggIoni",mod1,"",0.0,eth,
-                                 new G4IonFluctuations());
-      em_config.SetExtraEmModel(partname,"betheIoni",mod2,"",eth,100*TeV,
-                                 new G4UniversalFluctuation());
+    /*
+       G4ScreenedNuclearRecoil* nucr = new G4ScreenedNuclearRecoil();
+       G4double energyLimit = 100.*MeV;
+       nucr->SetMaxEnergyForScattering(energyLimit);
+       ph->RegisterProcess( nucr, G4GenericIon::GenericIon());
+       */
 
-    }
-  }
+    /* theParticleIterator->reset();
+    while ((*theParticleIterator)())
+    {
+        G4ParticleDefinition* particle = theParticleIterator->value();
+        G4String partname = particle->GetParticleName();
+        if(partname == "alpha" || partname == "He3" || partname == "GenericIon") {
+            G4BraggIonGasModel* mod1 = new G4BraggIonGasModel();
+            G4BetheBlochIonGasModel* mod2 = new G4BetheBlochIonGasModel();
+            G4double eth = 2.*MeV*particle->GetPDGMass()/CLHEP::proton_mass_c2;
+            em_config.SetExtraEmModel(partname,"braggIoni",mod1,"",0.0,eth,
+                    new G4IonFluctuations());
+            em_config.SetExtraEmModel(partname,"betheIoni",mod2,"",eth,100*TeV,
+                    new G4UniversalFluctuation());
 
-
+        }
+    } */
 
     theParticleIterator->reset();
-    while((*theParticleIterator)()) {
+    while((*theParticleIterator)()) 
+    {
         G4ParticleDefinition* particle = theParticleIterator->value();
         G4String partname = particle->GetParticleName();
         G4ProcessManager* processManager = particle->GetProcessManager();
-	
-        if(partname =="e-") processManager->AddDiscreteProcess(new G4StepLimiter("e-Step")); 
-	else if(partname =="e+") processManager->AddDiscreteProcess(new G4StepLimiter("e+Step")); 
-	else if(partname =="neutron") processManager->AddDiscreteProcess(new G4StepLimiter("neutronStep")); 
-	else if(partname =="alpha") processManager->AddDiscreteProcess(new G4StepLimiter("alphaStep")); 
-	else if(partname =="He3") processManager->AddDiscreteProcess(new G4StepLimiter("He3Step")); 
-    }
-      
-  G4UAtomicDeexcitation* de = new G4UAtomicDeexcitation();
-  de->SetFluo(true);
-  de->SetAuger(true);   
-// Particle Induced X-ray Emission
-  de->SetPIXE(true);  
-  G4LossTableManager::Instance()->SetAtomDeexcitation(de);  
 
-  fEmPhysicsList->ConstructProcess();
-  em_config.AddModels();
+        if(partname =="e-") processManager->AddDiscreteProcess(new G4StepLimiter("e-Step")); 
+        else if(partname =="e+") processManager->AddDiscreteProcess(new G4StepLimiter("e+Step")); 
+    }
 
 }
 
@@ -232,11 +220,11 @@ void PhysicsList::ConstructProcess()
 
 void PhysicsList::SetCuts()
 {
-  SetCutsWithDefault();
+    SetCutsWithDefault();
 
-  SetCutValue( fCutForGamma, "gamma" );
-  SetCutValue( fCutForElectron, "e-" );
-  SetCutValue( fCutForPositron, "e+" );
+    SetCutValue( fCutForGamma, "gamma" );
+    SetCutValue( fCutForElectron, "e-" );
+    SetCutValue( fCutForPositron, "e+" );
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

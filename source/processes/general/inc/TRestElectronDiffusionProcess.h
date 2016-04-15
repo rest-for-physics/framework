@@ -14,6 +14,7 @@
 #define RestCore_TRestElectronDiffusionProcess
 
 #include <TRestGas.h>
+#include <TRestReadout.h>
 #include <TRestG4Event.h>
 #include <TRestHitsEvent.h>
 
@@ -26,9 +27,8 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
         TRestHitsEvent *fHitsEvent;
 
         TRestGas *fGas;
+        TRestReadout *fReadout;
 #endif
-
-        Double_t fAttachment;
 
         void InitFromConfigFile();
 
@@ -38,14 +38,9 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
 
     protected:
         
-        //add here the members of your event process
-        Double_t fCathodePosition;
-        Double_t fAnodePosition;
-
-        Double_t fMaxPosition;
-        Double_t fMinPosition;
-
         Double_t fElectricField;
+        Double_t fAttachment;
+        Double_t fGasPressure;
 
 
     public:
@@ -61,9 +56,10 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
 
             BeginPrintProcess();
 
-            std::cout << " cathode : " << fCathodePosition << " mm" << std::endl;
-            std::cout << " anode : " << fAnodePosition << " mm" << std::endl;
             std::cout << " eField : " << fElectricField << " V/cm" << std::endl;
+            std::cout << " attachment coeficient : " << fAttachment << " V/cm" << std::endl;
+            std::cout << " gas pressure : " << fGasPressure << " atm" << std::endl;
+
 
             EndPrintProcess();
 
@@ -73,7 +69,6 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
 
         TString GetProcessName() { return (TString) "electronDiffusion"; }
 
-        Double_t GetCathodePosition() { return fCathodePosition; }
         Double_t GetElectricField() { return fElectricField; }
 
         //Constructor

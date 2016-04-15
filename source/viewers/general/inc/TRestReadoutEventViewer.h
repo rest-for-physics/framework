@@ -22,7 +22,7 @@
 
 #include "TRestGenericEventViewer.h"
 #include "TRestSignalEvent.h"
-#include "TRestDecoding.h"
+//#include "TRestDecoding.h"
 #include "TRestReadout.h"
 #include "TH2Poly.h"
 
@@ -33,7 +33,7 @@ class TRestReadoutEventViewer:public TRestGenericEventViewer {
     TCanvas *fCanvasXY;
     TCanvas *fCanvasXZYZ;
     
-    TRestDecoding *fDecoding;
+    //TRestDecoding *fDecoding;
     TRestReadout *fReadout;
     
     TRestSignalEvent *fSignalEvent;

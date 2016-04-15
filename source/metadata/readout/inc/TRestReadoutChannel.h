@@ -28,6 +28,7 @@
 class TRestReadoutChannel : public TObject {
     private:
         Int_t fChannelID;
+        Int_t fDaqID;
         std::vector <TRestReadoutPixel> fReadoutPixel;
 
         void Initialize();
@@ -37,6 +38,7 @@ class TRestReadoutChannel : public TObject {
     public:
 
         Int_t GetID() { return fChannelID; }
+        Int_t GetDaqID() { return fDaqID; }
 
         Int_t GetNumberOfPixels( ) { return fReadoutPixel.size(); }
 
@@ -44,9 +46,10 @@ class TRestReadoutChannel : public TObject {
         TRestReadoutPixel *GetPixelByID( int id );
 
         void SetID( Int_t id ) { fChannelID = id; }
+        void SetDaqID( Int_t id ) { fDaqID = id; }
         void AddPixel( TRestReadoutPixel pix ) { fReadoutPixel.push_back( pix ); }
         
-        void PrintReadoutChannel( );
+        void Print( );
 
         //Construtor
         TRestReadoutChannel();

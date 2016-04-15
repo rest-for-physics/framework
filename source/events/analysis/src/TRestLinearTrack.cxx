@@ -37,7 +37,6 @@ TRestLinearTrack::~TRestLinearTrack()
 void TRestLinearTrack::Initialize()
 {
     TRestEvent::Initialize();
-    fEventClassName = "TRestLinearTrack";
 
     fMeanPosition = TVector3( -1, -1, -1 );
     fTrackEnergy = 0;

@@ -200,7 +200,7 @@ void TRestG4Metadata::ReadGenerator()
 
         source.SetParticleName( GetFieldValue( "particle", sourceDefinition ) );
 
-        TString fullChain = GetFieldValue( "fullchain", sourceDefinition );
+        TString fullChain = GetFieldValue( "fullChain", sourceDefinition );
 
         if( fullChain == "on" || fullChain == "ON" || fullChain == "On" || fullChain == "oN" )
         {

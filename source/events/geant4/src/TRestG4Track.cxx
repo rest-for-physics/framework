@@ -55,9 +55,27 @@ Int_t TRestG4Track::GetProcessID( TString pcsName )
     else if ( pcsName == "muIoni" ) id = 12;
     else if ( pcsName == "e-Step") id = 20;
     else if ( pcsName == "e+Step") id = 21;
-    else if ( pcsName == "neutronStep") id = 22;
-    else if ( pcsName == "alphaStep") id = 23;
-    else if ( pcsName == "He3Step") id = 24;
+    //else if ( pcsName == "neutronStep") id = 22;
+    //else if ( pcsName == "alphaStep") id = 23;
+    //else if ( pcsName == "He3Step") id = 24;
+    else if ( pcsName == "muBrems" ) id = 30;
+    else if ( pcsName == "muPairProd" ) id = 31;
+    else if ( pcsName == "Decay" ) id = 32;
+    else if ( pcsName == "hIoni" ) id = 33;
+    else if ( pcsName == "hBrems" ) id = 34;
+    else if ( pcsName == "hPairProd" ) id = 35;
+    else if ( pcsName == "hadElastic" ) id = 36;
+    else if ( pcsName == "neutronInelastic" ) id = 37;
+    else if ( pcsName == "nCapture" ) id = 38;
+    else if ( pcsName == "nKiller" ) id = 39;
+    else if ( pcsName == "nuclearStopping" ) id = 40;
+    else if ( pcsName == "CoulombScat" ) id = 41; 
+    else if ( pcsName == "photonNuclear" ) id = 42;
+    else if ( pcsName == "protonInelastic" ) id = 43;
+    else if ( pcsName == "pi-Inelastic" ) id = 44;
+    else if ( pcsName == "pi+Inelastic" ) id = 45;
+    else if ( pcsName == "tInelastic" ) id = 46;
+    else if ( pcsName == "dInelastic" ) id = 47;
     else
     {
         id = -1;
@@ -73,16 +91,12 @@ Double_t TRestG4Track::GetTrackLength( )
     Double_t length = 0;
 
     length = GetDistance( fHits.GetPosition(0), GetTrackOrigin() );
-    //cout << GetTrackOrigin().X() << " " << GetTrackOrigin().Y() << " " << GetTrackOrigin().Z() << endl;
-    //cout << "Length : " << length << endl;
 
     for( int i = 1; i < GetNumberOfHits(); i++ )
     {
         TVector3 prevHit = fHits.GetPosition(i-1);
         TVector3 hit = fHits.GetPosition(i);
         length += GetDistance( hit, prevHit );
-        //cout << prevHit.X() << " " << prevHit.Y() << " " << prevHit.Z() << endl;
-        //cout << "Length : " << length << endl;
     }
     return length;
 
@@ -106,10 +120,29 @@ TString TRestG4Track::GetProcessName( Int_t id )
     else if ( id == 12 ) return "muIoni";
     else if ( id == 20 ) return "e-Step";
     else if ( id == 21 ) return "e+Step";
-    else if ( id == 22 ) return "neutronStep";
-    else if ( id == 23 ) return "alphaStep";
-    else if ( id == 24 ) return "He3Step";
+    // else if ( id == 22 ) return "neutronStep";
+    // else if ( id == 23 ) return "alphaStep";
+    // else if ( id == 24 ) return "He3Step";
+    else if ( id == 30 ) return "muBrems";
+    else if ( id == 31 ) return "muPairProd";
+    else if ( id == 32 ) return "Decay" ;
+    else if ( id == 33 ) return "hIoni";
+    else if ( id == 34 ) return "hBrems";
+    else if ( id == 35 ) return "hPairProd";
+    else if ( id == 36 ) return "hadElastic" ;
+    else if ( id == 37 ) return "neutronInelastic";
+    else if ( id == 38 ) return "nCapture";
+    else if ( id == 39 ) return "nKiller" ;
+    else if ( id == 40 ) return "nuclearStopping";
+    else if ( id == 41 ) return "CoulombScat";
+    else if ( id == 42 ) return "photonNuclear";
+    else if ( id == 43 ) return "protonInelastic";
+    else if ( id == 44 ) return "pi-Inelastic";
+    else if ( id == 45 ) return "pi+Inelastic";
+    else if ( id == 46 ) return "tInelastic";
+    else if ( id == 47 ) return "dInelastic";
     else cout << "WARNING : The process ID : " << id << " could not be found" << endl;
+
 
     return "";
 }
@@ -118,7 +151,7 @@ void TRestG4Track::PrintTrack()
 {
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout.precision(10);
-    cout << " SubEvent ID : " << fSubEventId << " Global timestamp : " << GetGlobalTrackTime() << " seconds" << endl;
+    cout << " SubEvent ID : " << fSubEventId << " Global timestamp : " << GetGlobalTime() << " seconds" << endl;
     cout.precision(2);
     cout << " Track ID : " << GetTrackID() << " Parent ID : " << GetParentID();
     cout << " Particle : " << GetParticleName() << " Time track length : " << GetTrackTimeLength() << " us" << endl;

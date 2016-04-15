@@ -1,3 +1,137 @@
+==========================================================
+Date : 31st / March / 2016
+Branch : restG4AndRestcoreUpgrades
+Author : Javier Galan/Gloria Luzon
+Merge : #58
+Title : Major upgrade in Geant4 event storage and in restcore to include an analysis tree.
+==========================================================
+
+== RESTCORE ==
+
+TRestEvent changes : 
+--------------------
+
+* New members added to store a sub-event identification number `fSubEventID` and tag name `fSubEventTag`.
+
+* The sub-event ID is mainly used now to define the different decays in a full chain decay simulation using restG4.
+
+* Removed `fEventClassName` since we can access using `GetName()` method from ROOT.
+
+* `GetEventXXX()` members have been replaced by `GetXXX()` members (i.e. `GetEventID()` is now `GetID()` ).
+
+TRestRun changes : 
+------------------
+
+* New members have been added containning a vector of event ids `fEventIDs` and a vector of sub-event ids `fSubEventIDs`. 
+    - These vectors contain the same entries as the analysis and event tree.
+    - They are used for quick search of events with an specific event and subevent id.
+
+* New method `GetEntry( Int_t entry )` implemented in TRestRun. 
+    - This method should be used now in order to fill all the event structures related to a particular entry in TRestRun.
+    - Instead of accessing directly the `inputEventTree` Now we should use `run->GetEntry( anEntry )` to load the input of a specific entry.
+
+* Added management of input/output analysis tree using the new `TRestAnalysisTree` class.
+
+Added TRestAnalysisTree :
+-------------------------
+
+This new class allows to add new observable branches to a tree and gives access through different methods.
+
+    - An analysis tree contains always the basic event information (id, tag, time, etc).
+    - And a vector to fObservableNames and fObservableValues that are connected to the branches.
+    - New branches can be added using AddObservable( obsName ) method.
+    - The branch creation and tree input/output is managed by TRestRun.
+    - A process can now add observables that will be added to the analyis tree.
+
+TRestMetadata :
+---------------
+
+* Added a new member GetObservablesList( ) obtainning all the key tags starting with the key <observable 
+    - The observable is defined as <observable name="obsName" value="on"/>.
+    - The observables can be activated or deactivated depending on its value.
+
+TRestEventProcess changes :
+---------------------------
+
+* Added a pointer to TRestAnalysisTree provided by TRestRun so that a process can add observables to the analysis tree.
+
+* The analysis process must be incharged of the calculation of the observable and to set the value using fAnalysisTree->SetObservableValue( "obsName", value )
+
+RESTMETADATA
+============
+
+Added TRestReadoutPlane:
+--------------------------
+
+* Added `TRestReadoutPlane`. Now the readout is defined using readout planes. The readout plane contains the micromegas modules. And it defines some members for the physical placement of the readout and the definition of the readout plane. Some of the members description:
+
+  - `fPosition` : Defines de position of the readout plane. It can be any point contained on the plane of the readoutPlane.
+  - `fPlaneVector` : Defines the orientation of the readout plane. It should be pointing towards the active volume.
+  - `fCathodePosition` : It must be a point contained inside the cathode plane.
+  - `fChargeCollection` : It defines the ratio of charge collected by that plane (i.e. one could create a micromegas stripped readout using two readoutPlanes and definning the chargeCollection="0.5").
+
+* Processes related to readout have been updated. Now the electron diffusion is done using the readout coordinates.
+
+* TRestDecoding has been removed. Now the decoding is defined directly in the readout. A new member `fDaqID` has been introduced in `TRestReadoutChannel`. New methods are available to convert from daqID to readoutId. The decoding of a module can be provided by using a config tag `decodingFile` inside the `readoutModule` definition. For simulations is not relevant to define a decoding. The parameter `firstDaqChannel` given in the definition of readoutModule can be used to add a number to the daq channels defined inside the decoding file.
+
+== RESTEVENTS ==
+
+TRestG4Event changes:
+---------------------
+
+* Added member `fTotalDepositedEnergy` containning the total energy deposited in the event.
+
+* Added a new vector member `fVolumeDepositedEnergy` to store the energy deposited in each of the active volumes.
+    - We can access it through the method `GetEnergyDepositedInVolume( Int_t id )`. The id is related to the volume list stored in `TRestG4Metadata`.
+
+* Added new methods to determine if a TRestG4Track or a TRestG4Event contains a given physics process isPhotoElectric(), isCompton(), etc.
+
+* Added new processes to `TRestG4Track`
+== RESTG4 ==
+
+* Major changes in restG4 main program. 
+    - All the histograms generated here have been removed. 
+    - This has been replaced now by a Geant4 analysis process, that fills user defined branches.
+
+* Major changes on TRestG4Event storage.
+    - Now the event will be splitted in several TRestG4Event structures that will be saved independently.
+    - The splitting preserves the same `fEventID` and increases the `subEventID` number. 
+    - A new metadata member has been added to `TRestG4Metadata`, `subEventTimeDelay`. This parameter defines the global time difference between two track that is used to split events.
+
+* TH1D energy generator type has been modified to accept energy distributions with different energies.
+    - The energy range is read from the x-label title. 
+    - In practice PrimaryGenerator::SetSpectrum will check if the title of x-axis contains the string MeV or GeV, in case they are not found keV is assumed.
+
+
+== RESTPROCESSES ==
+
+Added TRestGeant4AnalysisProcess
+--------------------------------
+
+* This process is a first example on how to use the analysis tree and add new observables to the analysis tree.
+
+
+
+GEANT4 SIMULATION
+=============
+
+Updated PhysicsList
+--------------------------------
+ 
+* This file has been changed to include a larger list of PhysicsList form Geant 4 distribution. 
+  - G4EmLivemorePhysics for em processes (already existing in previous versions of RESTSoft)
+  - G4DecayPhysicsList (already included) for decaying isotopes
+  - G4RadiactiveDeacyPhysics for decaying particles 
+  - High precision Hadronic PhyscisList: G4HadronElasticPhysicsHP, G4IonBinaryCascadePhysics, G4HadronPhysicsQGSP_BIC_HP, G4NeutronTrackingCut, new G4EmExtraPhysics for hadronic and photonulcear processes.
+
+* Processes and particles are constructed from predefined Geant4 PhysicsList
+
+Added Particles
+--------------------------------
+* This file is needed to contruct hadrons
+
+
+
 
 ==========================================================
 Date : 17th / March / 2016

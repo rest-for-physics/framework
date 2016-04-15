@@ -33,13 +33,17 @@
 #include "TRestMetadata.h"
 #include "TRestEventProcess.h"
 
+#include "TRestAnalysisTree.h"
+
 class TRestRun:public TRestMetadata {
     private:
         void InitFromConfigFile();
         void SetVersion();
 
-
         virtual void Initialize();
+
+        TTree *GetOutputEventTree() { return fOutputEventTree; }
+        TTree *GetInputEventTree() { return fInputEventTree; }
 
     protected:
         Int_t fRunNumber;                 //< first identificative number
@@ -56,7 +60,7 @@ class TRestRun:public TRestMetadata {
         
         Int_t fRunEvents;
 
-        Double_t fStartTime;              ///< Event absolute starting time/date (unix timestamp)
+        Double_t fStartTime;            ///< Event absolute starting time/date (unix timestamp)
         Double_t fEndTime;              ///< Event absolute starting time/date (unix timestamp)
 
         std::vector <TRestMetadata*> fMetadata;
@@ -70,6 +74,9 @@ class TRestRun:public TRestMetadata {
         TTree *fInputEventTree;
         TTree *fOutputEventTree;
 
+        TRestAnalysisTree *fInputAnalysisTree;
+        TRestAnalysisTree *fOutputAnalysisTree;
+
         TRestEvent *fInputEvent;
         TRestEvent *fOutputEvent;
         
@@ -78,8 +85,12 @@ class TRestRun:public TRestMetadata {
         
         Int_t fCurrentEvent;
 #endif
+
         Int_t fProcessedEvents;
         vector <Int_t> fEventIDs;
+        vector <Int_t> fSubEventIDs;
+        vector <TString> fSubEventTags;
+        vector <TString> fSubEventTagList;
 
         void SetRunFilenameAndIndex();
         TKey *GetObjectKeyByClass( TString className );
@@ -103,16 +114,15 @@ class TRestRun:public TRestMetadata {
         void OpenInputFile( TString fName, TString cName );
 
         TRestEvent *GetEventInput() { return fInputEvent; }
-        TTree *GetInputEventTree() { return fInputEventTree; }
 
-        Int_t GetEventWithID( Int_t eventID );
+        Int_t GetEventWithID( Int_t eventID, Int_t subEventID = 0 );
+        Int_t GetEventWithID( Int_t eventID, TString tag );
 
         //TRestMetadata *GetEventMetadata() { return fEventMetadata; }
         TRestEvent *GetOutputEvent() { return fOutputEvent; }
         TFile *GetOutputFile() { return fOutputFile; }
         TString GetOutputFilename() { return fOutputFilename; }
         TString GetInputFilename( ) { return fInputFilename; }
-        TTree *GetOutputEventTree() { return fOutputEventTree; }
 
         //Getters
         TString GetVersion() { return  fVersion; }
@@ -127,8 +137,19 @@ class TRestRun:public TRestMetadata {
         Double_t GetEndTimestamp() { return fEndTime; }
         TString GetExperimentName() { return fExperimentName; }
 
-	Int_t GetEventID( Int_t entry ) { return fEventIDs[entry]; }
-	Int_t GetEntry( Int_t i ) { return fInputEventTree->GetEntry( i ); }
+        Int_t GetEventID( Int_t entry ) { return fEventIDs[entry]; }
+        Int_t GetSubEventID( Int_t entry ) { return fSubEventIDs[entry]; }
+        TString GetSubEventTag( Int_t entry ) { return fSubEventTags[entry]; }
+
+        Int_t GetEntry( Int_t i )
+        {
+            fInputAnalysisTree->GetEntry( i );
+            return fInputEventTree->GetEntry( i );
+        }
+
+        Int_t GetEntries( ) { return fInputEventTree->GetEntries(); }
+
+        Int_t Fill( );
 
         Int_t GetNumberOfProcessedEvents() { return fProcessedEvents; }
 
@@ -139,7 +160,7 @@ class TRestRun:public TRestMetadata {
         }
 
         TRestMetadata *GetMetadata( TString name );
-
+        void ImportMetadata( TString rootFile, TString name );
 
         void SetRunNumber( Int_t number ) { fRunNumber = number; }
         void SetRunType( TString type ) { fRunType = type; }
@@ -149,7 +170,8 @@ class TRestRun:public TRestMetadata {
         void SetNumberOfEvents( Int_t nEvents ) { fRunEvents = nEvents; } 
         void SetEndTimeStamp( Double_t tStamp ) { fEndTime = tStamp; }
 
-        void SetInputFileName( TString fN){fInputFilename=fN;}
+        void SetInputFileName( TString fN ){ fInputFilename = fN; }
+        void SetOutputFileName( TString fN ){ fOutputFilename = fN; }
 
         TString GetDateFormatted( Double_t runTime );
         TString GetDateForFilename( Double_t runTime );
@@ -189,6 +211,14 @@ class TRestRun:public TRestMetadata {
                 fHistoricMetadata[i]->PrintMetadata();
             for( unsigned int i = 0; i < fHistoricEventProcess.size(); i++ )
                 fHistoricEventProcess[i]->PrintMetadata();
+        }
+
+        void PrintTagEventList( )
+        {
+            cout << "Tag event list" << endl;
+            cout << "--------------" << endl;
+            for( unsigned int n = 0; n < fSubEventTagList.size(); n++ )
+                cout << "Tag " << n << " : " << fSubEventTagList[n] << endl;
         }
         
         void PrintProcessedEvents( Int_t rateE);

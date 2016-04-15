@@ -15,7 +15,6 @@
 ///             aug 2015    Javier Galan
 ///_______________________________________________________________________________
 
-
 #include "TRestReadoutModule.h"
 using namespace std;
 
@@ -38,9 +37,8 @@ TRestReadoutModule::~TRestReadoutModule()
 void TRestReadoutModule::Initialize()
 {
     fReadoutChannel.clear();
-    fPlaneIndex = -1;
     fModuleID = -1;
-    
+
     fModuleOriginX = 0;
     fModuleOriginY = 0;
 
@@ -48,9 +46,31 @@ void TRestReadoutModule::Initialize()
     fModuleSizeY = 0;
 
     fModuleRotation = 0;
+
+    fMaximumDaqId = -1;
+    fMininimumDaqId = -1;
+
+    fTolerance = 1.e-6;
 }
 
-void TRestReadoutModule::DoReadoutMapping( )
+void TRestReadoutModule::SetMinMaxDaqIDs( )
+{
+    Int_t maxID = GetChannel(0)->GetDaqID();
+    Int_t minID = GetChannel(0)->GetDaqID();
+    for( int ch = 0; ch < this->GetNumberOfChannels( ); ch++ )
+    {
+         Int_t daqID = GetChannel(ch)->GetDaqID();
+         if( daqID > maxID ) maxID = daqID;
+
+         if( daqID < minID ) minID = daqID;
+    }
+
+    fMaximumDaqId = maxID;
+    fMininimumDaqId = minID;
+
+}
+
+void TRestReadoutModule::DoReadoutMapping( Int_t nodes )
 {
     ///////////////////////////////////////////////////////////////////////////////
     // We initialize the mapping readout net to sqrt(numberOfPixels)
@@ -60,8 +80,12 @@ void TRestReadoutModule::DoReadoutMapping( )
     for( int ch = 0; ch < this->GetNumberOfChannels( ); ch++ )
         totalNumberOfPixels += GetChannel(ch)->GetNumberOfPixels();
 
-    Int_t nodes = TMath::Sqrt( totalNumberOfPixels );
-    nodes = 2*nodes;
+    if( nodes == 0 )
+    {
+        nodes = TMath::Sqrt( totalNumberOfPixels );
+        nodes = 2*nodes;
+    }
+
     cout << "Performing readout mapping optimization (This might take few seconds)" << endl;
     cout << "---------------------------------------------------------------------" << endl;
     cout << "Total number of pixels : " << totalNumberOfPixels << endl;
@@ -219,7 +243,7 @@ TRestReadoutChannel *TRestReadoutModule::GetChannelByID( int id )
     if( chNumber != -1 )
         return &fReadoutChannel[chNumber];
 
-    cout << "REST Warning : Readout channel with ID : " << id << " not found in module : " << fModuleID << " (plane : " << fPlaneIndex << ")" << endl;
+    cout << "REST Warning : Readout channel with ID : " << id << " not found in module : " << fModuleID  << endl;
 
     return NULL; 
 }
@@ -345,11 +369,13 @@ void TRestReadoutModule::AddChannel( TRestReadoutChannel &rChannel )
         Double_t sX = rChannel.GetPixel( i )->GetVertex( 1 ).X();
         Double_t sY = rChannel.GetPixel( i )->GetVertex( 1 ).Y();
 
-        if( oX < 0 || oY < 0 || sX > fModuleSizeX || sY > fModuleSizeY )
+        if( oX + fTolerance < 0 || oY + fTolerance < 0 || sX - fTolerance > fModuleSizeX || sY - fTolerance > fModuleSizeY )
         {
             cout << "REST Warning (AddChannel) pixel outside the module boundaries" << endl;
+            cout << "Pixel " << i << " ID : " << rChannel.GetPixel(i)->GetID() << endl;
             cout << "Pixel origin = (" << oX << " , " << oY << ")" << endl;
             cout << "Pixel size = (" << sX << " , " << sY << ")" << endl;
+            cout << "Module size = (" << fModuleSizeX << " , " << fModuleSizeY << ")" << endl;
             channelError++;
         }
     }
@@ -365,9 +391,9 @@ void TRestReadoutModule::Draw()
 
 }
 
-void TRestReadoutModule::PrintReadoutModule( Int_t fullDetail )
+void TRestReadoutModule::Print( Int_t fullDetail )
 {
-        cout << "-- Readout module : " << GetModuleID( ) << " (Plane : " << GetPlaneIndex( ) << ")" << endl;
+        cout << "-- Readout module : " << GetModuleID( ) << endl;
         cout << "----------------------------------------------------------------" << endl;
         cout << "-- Origin position : X = " << fModuleOriginX << " mm " << " Y : " << fModuleOriginY << " mm" << endl;
         cout << "-- Size : X = " << fModuleSizeX << " Y : " << fModuleSizeY << endl;
@@ -377,8 +403,6 @@ void TRestReadoutModule::PrintReadoutModule( Int_t fullDetail )
 
         if( fullDetail )
             for( int n = 0; n < GetNumberOfChannels(); n++ )
-            {
-                fReadoutChannel[n].PrintReadoutChannel();
-            }
+                fReadoutChannel[n].Print();
 
 }

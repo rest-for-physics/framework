@@ -1,42 +1,42 @@
 
 
-RESTRAW_DrawEvent(TString fName, char *cfgFileName){
+RESTRAW_DrawEvent(TString fName, char *cfgFileName = "template/config.rml"){
 
-TRestFEMINOSToSignalProcess *femToSignal = new TRestFEMINOSToSignalProcess(cfgFileName);
-    	if(!agetToSignal->OpenInputBinFile(fName)){
-    	cout<<"File "<<fName.Data()<<" not found"<<endl;
-    	exit(0);
-    	}
+    TRestFEMINOSToSignalProcess *agetToSignal = new TRestFEMINOSToSignalProcess(cfgFileName);
+    if(!agetToSignal->OpenInputBinFile(fName)){
+        cout<<"File "<<fName.Data()<<" not found"<<endl;
+        exit(0);
+    }
 
-//agetToSignal->SetVerboseLevel(3);
-    	
-TRestEvent *processedEvent = new TRestSignalEvent();
+    //agetToSignal->SetVerboseLevel(3);
 
-TCanvas *can = new TCanvas("test","test");
-TPad *pad;
+    TRestEvent *processedEvent = new TRestSignalEvent();
 
-agetToSignal->InitProcess();
+    TCanvas *can = new TCanvas("test","test");
+    TPad *pad;
 
-while( processedEvent!=NULL )
+    agetToSignal->InitProcess();
+
+    while( processedEvent!=NULL )
     {
         agetToSignal->BeginOfEventProcess();
         processedEvent = agetToSignal->ProcessEvent( NULL );
         agetToSignal->EndOfEventProcess();
-        
+
         if(processedEvent==NULL)break;
-        
+
         pad = processedEvent->DrawEvent( );
         if(pad==NULL)continue;
-        
-	pad->Draw( );
-	pad->Update();
-	can->Update( );
-	
-	getchar();
-        
+
+        pad->Draw( );
+        pad->Update();
+        can->Update( );
+
+        getchar();
+
     }
 
-cout<<"End "<<endl;
+    cout<<"End "<<endl;
 
 }
 

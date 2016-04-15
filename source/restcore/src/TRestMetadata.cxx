@@ -96,7 +96,7 @@ Int_t TRestMetadata::isAExpression( string in )
     in = Replace( in, st1, st2, pos );
 
     // If number returns 1. If not returns 0
-    return (in.find_first_not_of("-0123456789+*/.,)(") == std::string::npos && in.length() != 0);
+    return (in.find_first_not_of("-0123456789+*/.,)( ") == std::string::npos && in.length() != 0);
 }
 
 Int_t TRestMetadata::isANumber( string in )
@@ -389,6 +389,8 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName )
 
     while( Count ( configBuffer, "<for" ) > 0 )
         configBuffer = ExpandForLoops( configBuffer );
+
+    configBuffer = ReplaceMathematicalExpressions( configBuffer );
 
     position = 0;
     while( position != string::npos )
@@ -936,6 +938,30 @@ string TRestMetadata::GetParameter( string parName, TString defaultValue )
     cout << "Parameter (" << parName << ") NOT found" << endl;
     cout << "Returning default value (" << defaultValue << ")" << endl;
     return defaultValue.Data();
+}
+
+vector <string> TRestMetadata::GetObservablesList( )
+{
+    size_t position = 0;
+
+    vector <string> output;
+    output.clear();
+
+    string observableString;
+    while( position != string::npos )
+    {
+        observableString = GetKEYDefinition( "observable", position );
+        if( debug > 1 ) cout << "Parameter string : " << observableString << endl;
+
+            string value = GetFieldValue( "value", observableString );
+            if( value == "ON" || value == "on" )
+            {
+                string observableName = GetFieldValue( "name", observableString );
+                output.push_back( observableName );
+            }
+    }
+
+    return output;
 }
 
 Double_t TRestMetadata::GetDblParameterWithUnits( string parName, Double_t defaultValue )
