@@ -905,7 +905,7 @@
             <position name="gasPosition" unit="mm" x="0" y="0" z="0"/>
         </physvol>
 
-        <physvol name="ring">
+        <physvol name="rings">
             <volumeref ref="ringVolume"/>
             <position name="gasPosition" unit="mm" x="0" y="0" z="0"/>
         </physvol>
