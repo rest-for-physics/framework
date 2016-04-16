@@ -6,7 +6,7 @@ PATH_LIB = $(REST_PATH)/lib/
 CC = g++
 
 #Flags
-FLAGS = -fPIC -Wall -g -std=c++0x
+FLAGS = -fPIC -Wall -g -std=c++0x -O3 -Wabi-tag
 
 
 REST_INC = -I$(REST_FW)/restcore/inc -I$(REST_FW)/tools/inc -I$(REST_FW)/events/geant4/inc -I$(REST_FW)/events/general/inc -I$(REST_FW)/events/analysis/inc -I$(REST_FW)/metadata/general/inc -I$(REST_FW)/metadata/geant4/inc -I$(REST_FW)/processes/analysis/inc -I$(REST_FW)/processes/general/inc -I$(REST_FW)/metadata/readout/inc -I$(REST_FW)/viewers/general/inc -I$(REST_FW)/viewers/geant4/inc -I$(REST_FW)/external/tsp/inc
