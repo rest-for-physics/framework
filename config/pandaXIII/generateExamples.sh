@@ -24,7 +24,7 @@ GEO='REST_GEOMETRY_TYPE=traditional;REST_GEOMETRY_SETUP=pandaXIII_Setup_WT12m.gd
 GEO_SWT='REST_GEOMETRY_TYPE=traditional;REST_GEOMETRY_SETUP=pandaXIII_Setup_WT6m.gdml'
 
  ######################       GAS        ###########################
-PARAMS='REST_EMIN=0;REST_EMAX=10;REST_MAXSTEPSIZE=10;REST_EVENTDELAY=100'
+PARAMS='REST_EMIN=0;REST_EMAX=10;REST_MAXSTEPSIZE=100;REST_EVENTDELAY=100'
 
 mkdir gas -p
  ./../replaceRMLVars.py templates/isotopeFromVolume.rml gas/Xe137.rml \
@@ -51,7 +51,7 @@ mkdir gas -p
 
  ######################       VESSEL        ###########################
 
-PARAMS='REST_EMIN=0;REST_EMAX=50;REST_MAXSTEPSIZE=10;REST_EVENTDELAY=100'
+PARAMS='REST_EMIN=0;REST_EMAX=50;REST_MAXSTEPSIZE=100;REST_EVENTDELAY=100'
 
 mkdir vessel -p
  ./../replaceRMLVars.py templates/isotopeFromVolume.rml vessel/Co60.rml \
@@ -79,7 +79,7 @@ mkdir vessel -p
 
  ######################       WATER TANK        ###########################
 
-PARAMS='REST_EMIN=0;REST_EMAX=50;REST_MAXSTEPSIZE=10;REST_EVENTDELAY=100'
+PARAMS='REST_EMIN=0;REST_EMAX=50;REST_MAXSTEPSIZE=100;REST_EVENTDELAY=100'
 
 mkdir waterTank -p
  ./../replaceRMLVars.py templates/isotopeFromVolume.rml waterTank/Co60.rml \
@@ -107,7 +107,7 @@ mkdir waterTank -p
 
  ######################       MICROMEGAS        ###########################
 
-PARAMS='REST_EMIN=0;REST_EMAX=50;REST_MAXSTEPSIZE=10;REST_EVENTDELAY=100'
+PARAMS='REST_EMIN=0;REST_EMAX=50;REST_MAXSTEPSIZE=100;REST_EVENTDELAY=100'
 
 VOLUME='micromegas1'
 
@@ -137,7 +137,7 @@ mkdir $VOLUME -p
 
  ######################       RINGS        ###########################
 
-PARAMS='REST_EMIN=0;REST_EMAX=50;REST_MAXSTEPSIZE=10;REST_EVENTDELAY=100'
+PARAMS='REST_EMIN=0;REST_EMAX=50;REST_MAXSTEPSIZE=100;REST_EVENTDELAY=100'
 
 VOLUME='rings'
 
@@ -166,7 +166,7 @@ mkdir $VOLUME -p
 
  ######################       SUPPORTS        ###########################
 
-PARAMS='REST_EMIN=0;REST_EMAX=50;REST_MAXSTEPSIZE=10;REST_EVENTDELAY=100'
+PARAMS='REST_EMIN=0;REST_EMAX=50;REST_MAXSTEPSIZE=100;REST_EVENTDELAY=100'
 
 VOLUME='supporters'
 
@@ -196,7 +196,7 @@ mkdir $VOLUME -p
 
  ######################       ELECTRONICS        ###########################
 
-PARAMS='REST_EMIN=0;REST_EMAX=50;REST_MAXSTEPSIZE=10;REST_EVENTDELAY=100'
+PARAMS='REST_EMIN=0;REST_EMAX=50;REST_MAXSTEPSIZE=100;REST_EVENTDELAY=100'
 
 VOLUME='electronics'
 
@@ -231,7 +231,7 @@ POSITION='REST_X=0;REST_Y=0;REST_Z=-1150'
 GEO='REST_GEOMETRY_TYPE=resistive;REST_GEOMETRY_SETUP=pandaXIII_Setup.gdml'
 VCYL='REST_LENGTH=2;REST_RADIUS=730'
 
-PARAMS='REST_EMIN=0;REST_EMAX=10;REST_MAXSTEPSIZE=10;REST_EVENTDELAY=100'
+PARAMS='REST_EMIN=0;REST_EMAX=10;REST_MAXSTEPSIZE=100;REST_EVENTDELAY=100'
 
 VOLUME='resistive'
 
@@ -247,7 +247,7 @@ mkdir $VOLUME -p
  ######################       EXTERNAL GAMMA      ###########################
 
 GEO='REST_GEOMETRY_TYPE=traditional;REST_GEOMETRY_SETUP=pandaXIII_Setup_WT12m.gdml'
-PARAMS='REST_EMIN=0;REST_EMAX=50;REST_MAXSTEPSIZE=10;REST_EVENTDELAY=100'
+PARAMS='REST_EMIN=0;REST_EMAX=50;REST_MAXSTEPSIZE=100;REST_EVENTDELAY=100'
 
 mkdir -p external
 
