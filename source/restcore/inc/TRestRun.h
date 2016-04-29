@@ -160,6 +160,7 @@ class TRestRun:public TRestMetadata {
         }
 
         TRestMetadata *GetMetadata( TString name );
+        TRestMetadata *GetMetadataClass( TString className );
         void ImportMetadata( TString rootFile, TString name );
 
         void SetRunNumber( Int_t number ) { fRunNumber = number; }
@@ -186,7 +187,7 @@ class TRestRun:public TRestMetadata {
 
         void AddMetadata( TRestMetadata *metadata ) { fMetadata.push_back( metadata ); }
         void AddHistoricMetadata( TRestMetadata *metadata ) { fHistoricMetadata.push_back( metadata ); }
-        void AddProcess( TRestEventProcess *process, std::string cfgFilename );
+        void AddProcess( TRestEventProcess *process, std::string cfgFilename, std::string name = "" );
 
         virtual void SetOutputEvent( TRestEvent *evt );
         virtual void SetInputEvent( TRestEvent *evt );
