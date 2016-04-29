@@ -38,6 +38,20 @@ TRestReadout::TRestReadout( const char *cfgFileName) : TRestMetadata (cfgFileNam
         }
 }
 
+TRestReadout::TRestReadout( const char *cfgFileName, string name) : TRestMetadata (cfgFileName)
+{
+    Initialize();
+
+    LoadConfigFromFile( fConfigFileName, name );
+
+    for( int p = 0; p < this->GetNumberOfReadoutPlanes(); p++ )
+        for( int m = 0; m < this->GetReadoutPlane(p)->GetNumberOfModules(); m++ )
+        {
+            cout << "Mapping plane : " << p << " Module : " << m << endl;
+            this->GetReadoutPlane(p)->GetReadoutModule(m)->DoReadoutMapping();
+        }
+}
+
 void TRestReadout::Initialize()
 {
     SetName("readout");

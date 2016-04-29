@@ -30,12 +30,12 @@ TRestG4Metadata::TRestG4Metadata() : TRestMetadata()
 
 
 //______________________________________________________________________________
-TRestG4Metadata::TRestG4Metadata( char *cfgFileName) : TRestMetadata (cfgFileName)
+TRestG4Metadata::TRestG4Metadata( char *cfgFileName, string name ) : TRestMetadata (cfgFileName)
 {
 
     Initialize();
 
-    LoadConfigFromFile( fConfigFileName );
+    LoadConfigFromFile( fConfigFileName, name );
 
     PrintMetadata();
 }

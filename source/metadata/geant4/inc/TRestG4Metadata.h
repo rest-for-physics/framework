@@ -148,7 +148,7 @@ class TRestG4Metadata:public TRestMetadata {
 
         //Constructors
         TRestG4Metadata();
-        TRestG4Metadata( char *cfgFileName);
+        TRestG4Metadata( char *cfgFileName, std::string name = "");
         //Destructor
         ~TRestG4Metadata();
 

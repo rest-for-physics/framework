@@ -63,6 +63,7 @@ class TRestReadout:public TRestMetadata {
         //Construtor
         TRestReadout();
         TRestReadout( const char *cfgFileName);
+        TRestReadout( const char *cfgFileName, std::string name);
         //Destructor
         virtual ~ TRestReadout();
 

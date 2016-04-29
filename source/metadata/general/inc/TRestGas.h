@@ -121,7 +121,7 @@ private:
 		
 public:
 	TRestGas();
-    TRestGas( const char *cfgFileName, bool gasGeneration = false);
+    TRestGas( const char *cfgFileName, string name = "", bool gasGeneration = false);
 	~TRestGas();
 
     void EnableGasGeneration ( ) { fGasGeneration = true; }

@@ -50,16 +50,15 @@ TRestGas::TRestGas() : TRestMetadata( )
 }
 
 //______________________________________________________________________________
-TRestGas::TRestGas( const char *cfgFileName, bool gasGeneration) : TRestMetadata (cfgFileName)
+TRestGas::TRestGas( const char *cfgFileName, string name, bool gasGeneration) : TRestMetadata (cfgFileName)
 {
     Initialize( );
 
-    LoadConfigFromFile( fConfigFileName );
+    LoadConfigFromFile( fConfigFileName, name );
 
     fGasGeneration = gasGeneration;
 
     if ( fStatus == RESTGAS_CFG_LOADED ) LoadGasFile( );
-
 }
 
 //______________________________________________________________________________
