@@ -54,7 +54,7 @@ class TRestHitsToSignalProcess:public TRestEventProcess {
         void EndOfEventProcess(); 
         void EndProcess();
 
-        void LoadConfig( std::string cfgFilename );
+        void LoadConfig( std::string cfgFilename, std::string name = "" );
 
         void PrintMetadata() 
         {

@@ -59,9 +59,9 @@ void TRestSignalToHitsProcess::LoadDefaultConfig( )
 
 }
 
-void TRestSignalToHitsProcess::LoadConfig( string cfgFilename )
+void TRestSignalToHitsProcess::LoadConfig( std::string cfgFilename, std::string name )
 {
-    if( LoadConfigFromFile( cfgFilename ) ) LoadDefaultConfig( );
+    if( LoadConfigFromFile( cfgFilename, name ) ) LoadDefaultConfig( );
 
     // The gas metadata will only be available after using AddProcess method of TRestRun
     fGas = (TRestGas *) this->GetGasMetadata( );

@@ -56,7 +56,7 @@ class TRestEventProcess:public TRestMetadata {
    virtual void BeginOfEventProcess() = 0;
    virtual void EndOfEventProcess() = 0;
    virtual TString GetProcessName() = 0;
-   virtual void LoadConfig( std::string cfgFilename )=0;
+   virtual void LoadConfig( std::string cfgFilename, std::string cfgName = "" )=0;
 
    void ReadObservables( )
    {

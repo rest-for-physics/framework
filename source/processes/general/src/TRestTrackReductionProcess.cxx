@@ -59,10 +59,10 @@ void TRestTrackReductionProcess::Initialize( )
     fInputEvent  = fInputTrackEvent;
 }
 
-void TRestTrackReductionProcess::LoadConfig( string cfgFilename )
+void TRestTrackReductionProcess::LoadConfig( std::string cfgFilename, std::string name )
 {
 
-    if( LoadConfigFromFile( cfgFilename ) == -1 ) LoadDefaultConfig( );
+    if( LoadConfigFromFile( cfgFilename, name ) == -1 ) LoadDefaultConfig( );
 }
 
 //______________________________________________________________________________

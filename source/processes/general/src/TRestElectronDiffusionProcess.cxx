@@ -83,25 +83,19 @@ void TRestElectronDiffusionProcess::Initialize()
     rnd = new TRandom3(0);
 }
 
-void TRestElectronDiffusionProcess::LoadConfig( string cfgFilename )
+void TRestElectronDiffusionProcess::LoadConfig( string cfgFilename, string name )
 {
-    if( LoadConfigFromFile( cfgFilename ) ) LoadDefaultConfig( );
-
-    fGas = new TRestGas( cfgFilename.c_str() );
+    if( LoadConfigFromFile( cfgFilename, name ) ) LoadDefaultConfig( );
 }
 
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::InitProcess()
 {
-
+    fGas = (TRestGas *) GetGasMetadata( );
     if( fGas == NULL ) cout << "REST ERRORRRR : Gas has not been initialized" << endl;
 
     fReadout = (TRestReadout *) GetReadoutMetadata();
-
     if( fReadout == NULL ) cout << "REST ERRORRRR : Readout has not been initialized" << endl;
-    cout << __PRETTY_FUNCTION__ << endl;
-
-    fGas->SetPressure( fGasPressure );
 }
 
 //______________________________________________________________________________
@@ -109,7 +103,6 @@ void TRestElectronDiffusionProcess::BeginOfEventProcess()
 {
     cout << "Begin of event process" << endl;
     fHitsEvent->Initialize(); 
-
 }
 
 //______________________________________________________________________________

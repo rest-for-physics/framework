@@ -55,9 +55,9 @@ void TRestSignalAnalysisProcess::Initialize()
     fInputEvent = fSignalEvent;
 }
 
-void TRestSignalAnalysisProcess::LoadConfig( string cfgFilename )
+void TRestSignalAnalysisProcess::LoadConfig( std::string cfgFilename, std::string name )
 {
-    if( LoadConfigFromFile( cfgFilename ) ) LoadDefaultConfig( );
+    if( LoadConfigFromFile( cfgFilename, name ) ) LoadDefaultConfig( );
 }
 
 //______________________________________________________________________________

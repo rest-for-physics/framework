@@ -56,9 +56,9 @@ void TRestGeant4AnalysisProcess::Initialize()
     fInputEvent = fG4Event;
 }
 
-void TRestGeant4AnalysisProcess::LoadConfig( string cfgFilename )
+void TRestGeant4AnalysisProcess::LoadConfig( std::string cfgFilename, std::string name )
 {
-    if( LoadConfigFromFile( cfgFilename ) ) LoadDefaultConfig( );
+    if( LoadConfigFromFile( cfgFilename, name ) ) LoadDefaultConfig( );
 }
 
 //______________________________________________________________________________
@@ -72,7 +72,6 @@ void TRestGeant4AnalysisProcess::InitProcess()
 //______________________________________________________________________________
 void TRestGeant4AnalysisProcess::BeginOfEventProcess() 
 {
-    fG4Event = new TRestG4Event();
 }
 
 //______________________________________________________________________________

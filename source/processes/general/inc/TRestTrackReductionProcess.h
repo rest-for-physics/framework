@@ -47,7 +47,7 @@ class TRestTrackReductionProcess:public TRestEventProcess {
         void EndProcess();
         void LoadDefaultConfig( );
 
-        void LoadConfig( std::string cfgFilename );
+        void LoadConfig( std::string cfgFilename, std::string name = "" );
 
         void PrintMetadata() { 
 
