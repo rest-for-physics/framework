@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<section electronDiffusionProcess name="electronDiffusion-Template" title="Half Template X-III Vessel (Bottom)" >
+    <parameter name="electricField" value="1" units="kV/cm" />
+    <parameter name="attachment" value="0" /> // units??
+    <parameter name="gasPressure" value="10" />
+</section>
+
+<section electronDiffusionProcess name="electronDiffusion-Template2" title="Half Template X-III Vessel (Bottom)" >
+    <parameter name="electricField" value="0.5" units="kV/cm" />
+    <parameter name="attachment" value="0" /> // units??
+    <parameter name="gasPressure" value="10" />
+</section>
+
+
+<section avalancheProcess name="avalancheProcess"  title="IAXOD0 chamber" >
+    <parameter name="energyReference" value="5.9" units="keV" /> 
+    <parameter name="resolutionReference" value="13" /> // fwhm
+    <parameter name="detectorGain" value="8000" /> // absolute gain 
+  // parameter name="electronicsGain" value="671744"  // electrons for 4096 ADC units
+</section>
+
+<section signalDeconvolutionProcess name="deconvolution-Template" title="Deconvolution of AGET signals" >
+    <parameter name="frequency1" value="2.35683005928202273e-02" />
+    <parameter name="frequency2" value="3.14067876433914706e-02" />
+    <parameter name="smoothingPoints" value="3" />
+    <parameter name="smearingPoints" value="5" />
+    <parameter name="baselineStart" value="32" />
+    <parameter name="baselineEnd" value="64" />
+    <parameter name="nFFTStart" value="32" />
+    <parameter name="nFFTEnd" value="32" />
+    <parameter name="cutFrequency" value="12" />
+    <parameter name="responseFile" value="AGET_Response_100MHz_Gain0x2_Shaping0x7.root" />
+</section>
+
+<section hitsToSignalProcess name="hitsToSignal-Template" title="Half Template X-III Vessel (Bottom)" >
+    <parameter name="sampling" value="1" units="us" />
+    // If the following parameters are not defined 
+    // the process will try to take the values from a previous electronDiffusionProcess
+    <parameter name="electricField" value="1000" units="V/cm" />
+    <parameter name="gasPressure" value="10" />
+</section>
+
+
+<section gaussianConvolutionProcess name="gaussian-Convolution"  title="Gaussian convolution of signals" >
+    <parameter name="sigma" value="0.01" units="us" /> 
+    <parameter name="nSigmas" value="5" />  // Number of sigmas to perform the calculation
+</section>
+
+<section addSignalNoiseProcess name="addSignalNoiseProcess" title="Test AddNoise to Signal" >
+    <parameter name="noiseLevel" value="10" /> // // electrons in each time bin
+</section>
+
+<section signalToHitsProcess name="signalToHits-Template" title="Half Template X-III Vessel (Bottom)" >
+    <parameter name="sampling" value="1" units="us" />
+    <parameter name="threshold" value="0" />
+    <parameter name="electricField" value="1000" units="V/cm" />
+    <parameter name="gasPressure" value="10" />
+</section>
+
+<section hitsToTrackProcess name="hitsToTrack-Template" title="Half Template X-III Vessel (Bottom)" >
+    <parameter name="clusterDistance" value="15" units="mm" />
+</section>
+
+<section fastHitsToTrackProcess name="fastHitsToTrack-Template" title="Half Template X-III Vessel (Bottom)" >
+    <parameter name="cellResolution" value="30" units="mm" />
+    <parameter name="netSize" value="2000" units="mm" />
+    <parameter name="netOrigin" value="(-1000,-1000,-1000)" units="mm" />
+</section>
+
+<section trackReductionProcess name="trackReduction-Template" title="Half Template X-III Vessel (Bottom)" >
+    <parameter name="startingDistance" value="0.5" units="mm" />
+    <parameter name="minimumDistance" value="3" units="mm" />
+    <parameter name="distanceStepFactor" value="1.5" />
+    <parameter name="maxNodes" value="25" />
+</section>
+
+<section trackPathMinimizationProcess name="trackPathMinimization-Template" title="Half Template X-III Vessel (Bottom)" >
+    <parameter name="energyThreshold" value="0.8" />
+    <parameter name="maxNodes" value="100" />
+</section>
+
+<section geant4AnalysisProcess name="geant4Analysis-Template" title="Half Template X-III Vessel (Bottom)" >
+    <observable name="gasEnergyDeposit_InKeV" value="ON" />
+    <observable name="photoelectric" value="ON" />
+    <observable name="compton" value="ON" />
+    <observable name="bremstralung" value="ON" />
+</section>
+
+<section signalAnalysisProcess name="signalAnalysis-Template" title="Half Template X-III Vessel (Bottom)" >
+    <observable name="signalTimeBinsLength" value="ON" />
+</section>
+
+<section trackLinearizationProcess name="trackLinearization-Template" title="Half Template X-III Vessel (Bottom)" >
+    <parameter name="lengthResolution" value="2" units="mm" />
+    <parameter name="transversalResolution" value="1" units="mm" />
+</section>
+
+<section rotateAndTraslate name="rotateAndTraslate" title="IAXOD0 TPC" >
+    <parameter name="deltaX" value="0." units="mm" />	
+    <parameter name="deltaY" value="0" units="mm" />
+    <parameter name="deltaZ" value="0" units="mm" />
+    <parameter name="alpha" value="90" />	// rotation angle around Z in degrees
+    <parameter name="beta" value="90"  />	// rotation angle around Y in degrees
+    <parameter name="gamma" value="90" />	// rotation angle around X in degrees
+</section>
