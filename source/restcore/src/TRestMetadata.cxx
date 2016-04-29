@@ -326,10 +326,14 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
     {
         sectionPosition = FindSection( temporalBuffer, sectionPosition );
         if( this->GetName() == name || name == "" ) break;
+        if( sectionPosition == (size_t) NOT_FOUND )
+        {
+            cout << "REST ERROR : Section " << fSectionName << " with name : " << name << " not found" << endl;
+            exit(-1);
+        }
+
         sectionPosition++;
     }
-
-    if ( sectionPosition == (size_t) NOT_FOUND ) { cout << "Section " << fSectionName << " not found" << endl; return -1; }
 
     configBuffer = GetKEYStructure( "section", sectionPosition, temporalBuffer );
 
