@@ -72,8 +72,12 @@ void TRestAnalysisTree::ConnectObservables( )
     for( int i = 0; i < GetNumberOfObservables(); i++ )
     {
         Double_t x = 0;
-        branch[i] = GetBranch( fObservableNames[i] );
         fObservableValues.push_back( x );
+    }
+
+    for( int i = 0; i < GetNumberOfObservables(); i++ )
+    {
+        branch[i] = GetBranch( fObservableNames[i] );
         branch[i]->SetAddress( &fObservableValues[i] );
     }
     fConnected = true;
@@ -123,7 +127,7 @@ void TRestAnalysisTree::CreateObservableBranches( )
     }
 
     for( int n = 0; n < GetNumberOfObservables(); n++ )
-        Branch( fObservableNames[n], &fObservableValues[n] );
+        Branch( fObservableNames[n], (Double_t *) &fObservableValues[n] );
 
     fBranchesCreated = true;
 }
