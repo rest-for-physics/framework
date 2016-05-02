@@ -63,7 +63,7 @@ class TRestEventProcess:public TRestMetadata {
        vector <string> obsList = GetObservablesList( );
 
        for( unsigned int n = 0; n < obsList.size(); n++ )
-           fAnalysisTree->AddObservable( obsList[n] );
+           fAnalysisTree->AddObservable( this->GetName() + (TString) "." + (TString) obsList[n] );
    }
 
    TRestMetadata *GetGasMetadata( );

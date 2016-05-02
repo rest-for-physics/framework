@@ -76,11 +76,14 @@ void TRestSignalAnalysisProcess::BeginOfEventProcess()
 TRestEvent* TRestSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 {
 
+    TString obsName;
+
     fSignalEvent = (TRestSignalEvent *) evInput;
 
     // TODO we must do this in each readout plane? 
+    obsName = this->GetName() + (TString) ".signalTimeBinsLength";
     Double_t timeDelay = fSignalEvent->GetMaxTime() - fSignalEvent->GetMinTime();
-    fAnalysisTree->SetObservableValue( "signalTimeBinsLength", timeDelay );
+    fAnalysisTree->SetObservableValue( obsName, timeDelay );
 
     return fSignalEvent;
 }
