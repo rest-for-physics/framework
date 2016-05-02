@@ -147,6 +147,8 @@ class TRestRun:public TRestMetadata {
             return fInputEventTree->GetEntry( i );
         }
 
+        TRestAnalysisTree *GetAnalysisTree( ) { return fInputAnalysisTree; }
+
         Int_t GetEntries( ) { return fInputEventTree->GetEntries(); }
 
         Int_t Fill( );
