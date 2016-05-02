@@ -191,6 +191,8 @@ class TRestRun:public TRestMetadata {
 
         virtual void SetOutputEvent( TRestEvent *evt );
         virtual void SetInputEvent( TRestEvent *evt );
+
+        Int_t ValidateProcessChain ( );
 	
         Bool_t GetNextEvent( );
 	

@@ -114,12 +114,36 @@ void TRestRun::Start(  )
 
 }
 
+Int_t TRestRun::ValidateProcessChain ( )
+{
+	for( unsigned int i = 0; i < fEventProcess.size()-1; i++ )
+    {
+        TString outEventType = fEventProcess[i]->GetOutputEvent( )->ClassName();
+        TString inEventType = fEventProcess[i+1]->GetInputEvent( )->ClassName();
+
+        if( outEventType != inEventType )
+        {
+            cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+            cout << "REST ERROR : Event process input/output does not match" << endl;
+            cout << "The event output for process" << fEventProcess[i]->GetName() << " is " << outEventType << endl;
+            cout << "The event input for process" << fEventProcess[i+1]->GetName() << " is " << inEventType << endl;
+            cout << "No events will be processed. Please correct event process input/output." << endl;
+            cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+            GetChar();
+            return 0;
+        }
+    }
+    return 1;
+}
+
 void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess ) 
 {
 
 	fCurrentEvent = firstEvent;
 
 	if( fEventProcess.size() == 0 ) { cout << "WARNNING Run does not contain processes" << endl; return; }
+
+    if ( ValidateProcessChain( ) == 0 ) return;
 
 	this->SetRunType( fEventProcess[fEventProcess.size()-1]->GetProcessName() );
 
@@ -290,7 +314,8 @@ void TRestRun::SetInputEvent( TRestEvent *evt )
     if( GetObjectKeyByName( treeName ) == NULL )
     {
         cout << "REST ERROR (SetInputEvent) : " << treeName << " was not found" << endl;
-        return;
+        cout << "Inside file : " << fInputFilename << endl;
+        exit(1);
     }
 
     fInputEventTree = (TTree * ) fInputFile->Get( treeName );
@@ -302,7 +327,8 @@ void TRestRun::SetInputEvent( TRestEvent *evt )
     if( GetObjectKeyByName( "TRestAnalysisTree" ) == NULL )
     {
         cout << "REST ERROR (SetInputEvent) : TRestAnalysisTree was not found" << endl;
-        return;
+        cout << "Inside file : " << fInputFilename << endl;
+        exit(1);
     }
 
     fInputAnalysisTree = ( TRestAnalysisTree * ) fInputFile->Get( "TRestAnalysisTree" ); 
@@ -427,6 +453,7 @@ void TRestRun::OpenInputFile( TString fName )
         return;
     }
 
+
     fInputFile = new TFile( fName );
 
     Int_t runNumber = GetRunNumber();
@@ -438,6 +465,7 @@ void TRestRun::OpenInputFile( TString fName )
     fParentRunNumber = fRunNumber;
     fRunNumber = runNumber;
 
+    fInputFilename = fName;
     fOutputFilename = fileName; // We take this value from the configuration (not from TRestRun)
 
     // Transfering metadata to historic
