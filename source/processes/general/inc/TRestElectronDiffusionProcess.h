@@ -42,6 +42,9 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
         Double_t fAttachment;
         Double_t fGasPressure;
         Double_t fDriftVelocity;
+        Double_t fWvalue;
+        Double_t fLonglDiffCoeff;
+        Double_t fTransDiffCoeff;
 
     public:
         void InitProcess();
@@ -60,6 +63,9 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
             std::cout << " attachment coeficient : " << fAttachment << " V/cm" << std::endl;
             std::cout << " gas pressure : " << fGasPressure << " atm" << std::endl;
             std::cout << " drift velocity : " << fDriftVelocity << " cm/us" << std::endl;
+            std::cout << " longitudinal diffusion coefficient : " << fLonglDiffCoeff << " cm^1/2" << std::endl;
+            std::cout << " transversal diffusion coefficient : " << fTransDiffCoeff << " cm^1/2" << std::endl;
+            std::cout << " W value : " << fWvalue << " eV" << std::endl;
 
 
             EndPrintProcess();

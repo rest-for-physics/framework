@@ -1,15 +1,38 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
-<section electronDiffusionProcess name="electronDiffusion-1kVcm-1atm" title="Half Template X-III Vessel (Bottom)" >
+<section electronDiffusionProcess name="electronDiffusion-1kVcm-1atm" title="A first template for electron diffusion process." >
     <parameter name="electricField" value="1" units="kV/cm" />
-    <parameter name="attachment" value="0" /> // units??
+    <parameter name="attachment" value="0" /> <!-- units?? -->
+
+    <!-- We can re-define the value of the pressure inside TRestGas using this parameter -->
     <parameter name="gasPressure" value="1" />
+
+    <!-- The following parameters will override the values given by the defined gas properties in TRestGas stored in TRestRun.
+         As soon as the parameter is not defined, the value will be obtained from TRestGas metadata.
+         If all these parameters are provided with a value, there is no need for the electron diffusion process to use the gas definition. Thus, it should not complain in case there is no existing TRestGas definition inside TRestRun.
+         -->
+    <parameter name="driftVelocity" value="" /> 
+    <!-- drift velocity units are in cm/us (this must be added to TRestSystemOfUnits.h -->
+
+    <parameter name="longitudinalDiffusionCoefficient" value="" /> 
+    <!-- diffusion coefficient units are in cm^1/2 (this must be added to TRestSystemOfUnits.h -->
+
+    <parameter name="transversalDiffusionCoefficient" value="" />
+    <!-- diffusion coefficient units are in cm^1/2 (this must be added to TRestSystemOfUnits.h -->
+
+    <parameter name="Wvalue" value="" units="eV" />
+
 </section>
 
-<section electronDiffusionProcess name="electronDiffusion-1kVcm-10atm" title="Half Template X-III Vessel (Bottom)" >
+<section electronDiffusionProcess name="electronDiffusion-1kVcm-10atm" title="A second template for electron diffusion process." >
     <parameter name="electricField" value="1" units="kV/cm" />
-    <parameter name="attachment" value="0" /> // units??
+    <parameter name="attachment" value="0" /> <!-- units?? -->
+
     <parameter name="gasPressure" value="10" />
+
+    <parameter name="Wvalue" value="10" units="eV" />
+
+    <!-- There is no need to specify additional parameters if all values will be taken from the gas properties (TRestGas). -->
 </section>
 
 
