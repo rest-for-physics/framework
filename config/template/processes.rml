@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
-<section electronDiffusionProcess name="electronDiffusion-Template" title="Half Template X-III Vessel (Bottom)" >
+<section electronDiffusionProcess name="electronDiffusion-1kVcm-1atm" title="Half Template X-III Vessel (Bottom)" >
     <parameter name="electricField" value="1" units="kV/cm" />
     <parameter name="attachment" value="0" /> // units??
-    <parameter name="gasPressure" value="10" />
+    <parameter name="gasPressure" value="1" />
 </section>
 
-<section electronDiffusionProcess name="electronDiffusion-Template2" title="Half Template X-III Vessel (Bottom)" >
-    <parameter name="electricField" value="0.5" units="kV/cm" />
+<section electronDiffusionProcess name="electronDiffusion-1kVcm-10atm" title="Half Template X-III Vessel (Bottom)" >
+    <parameter name="electricField" value="1" units="kV/cm" />
     <parameter name="attachment" value="0" /> // units??
     <parameter name="gasPressure" value="10" />
 </section>
@@ -80,14 +80,14 @@
     <parameter name="maxNodes" value="100" />
 </section>
 
-<section geant4AnalysisProcess name="geant4Analysis-Template" title="Half Template X-III Vessel (Bottom)" >
+<section geant4AnalysisProcess name="g4Ana" title="Geant4 analysis template" >
     <observable name="gasEnergyDeposit_InKeV" value="ON" />
     <observable name="photoelectric" value="ON" />
     <observable name="compton" value="ON" />
     <observable name="bremstralung" value="ON" />
 </section>
 
-<section signalAnalysisProcess name="signalAnalysis-Template" title="Half Template X-III Vessel (Bottom)" >
+<section signalAnalysisProcess name="sgnlAna" title="Half Template X-III Vessel (Bottom)" >
     <observable name="signalTimeBinsLength" value="ON" />
 </section>
 

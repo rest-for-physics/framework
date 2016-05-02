@@ -42,13 +42,13 @@ By default REST units are mm, keV and degrees
     <!-- ++++++++++++++++
          Adding processes 
          ++++++++++++++++ -->
-    <addProcess type="geant4AnalysisProcess" name="geant4Analysis-Template" value="ON" >
-    <addProcess type="electronDiffusionProcess" name="electronDiffusion-Template" value="ON" >
+    <addProcess type="geant4AnalysisProcess" name="g4Ana" value="ON" >
+    <addProcess type="electronDiffusionProcess" name="electronDiffusion-1kVcm-10atm" value="ON" >
 
     <!-- This processes will not be added to TRestRun (value=OFF) -->
 
-    <addProcess type="hitsToSignalProcess" name="hitsToSignal-Template" value="OFF" >
-    <addProcess type="signalAnalysisProcess" name="signalAnalysis-Template" value="OFF" >
+    <addProcess type="hitsToSignalProcess" name="hitsToSignal-Template" value="ON" >
+    <addProcess type="signalAnalysisProcess" name="sgnlAna" value="ON" >
 
     <!-- You can also comment out some processes to do not consider them in a particular run 
 
