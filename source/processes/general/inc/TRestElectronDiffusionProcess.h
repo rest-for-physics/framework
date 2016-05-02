@@ -41,7 +41,7 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
         Double_t fElectricField;
         Double_t fAttachment;
         Double_t fGasPressure;
-
+        Double_t fDriftVelocity;
 
     public:
         void InitProcess();
@@ -59,6 +59,7 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
             std::cout << " eField : " << fElectricField << " V/cm" << std::endl;
             std::cout << " attachment coeficient : " << fAttachment << " V/cm" << std::endl;
             std::cout << " gas pressure : " << fGasPressure << " atm" << std::endl;
+            std::cout << " drift velocity : " << fDriftVelocity << " cm/us" << std::endl;
 
 
             EndPrintProcess();
@@ -70,6 +71,9 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
         TString GetProcessName() { return (TString) "electronDiffusion"; }
 
         Double_t GetElectricField() { return fElectricField; }
+        Double_t GetDriftVelocity() { return fDriftVelocity; }
+        Double_t GetAttachmentCoefficient() { return fAttachment; }
+        Double_t GetGasPressure() { return fGasPressure; }
 
         //Constructor
         TRestElectronDiffusionProcess();

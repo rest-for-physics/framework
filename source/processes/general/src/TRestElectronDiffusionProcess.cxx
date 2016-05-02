@@ -34,24 +34,14 @@ TRestElectronDiffusionProcess::TRestElectronDiffusionProcess( char *cfgFileName 
     Initialize();
 
     if( LoadConfigFromFile( cfgFileName ) ) LoadDefaultConfig( );
-
-    PrintMetadata();
-    fGas = new TRestGas( cfgFileName );
-    fReadout = new TRestReadout( cfgFileName );
-
-    // TRestElectronDiffusionProcess default constructor
 }
 
 //______________________________________________________________________________
 TRestElectronDiffusionProcess::~TRestElectronDiffusionProcess()
 {
-    if( fGas != NULL ) { delete fGas; fGas = NULL; }
-    if( fReadout != NULL ) { delete fReadout; fReadout = NULL; }
-
     delete rnd;
     delete fHitsEvent;
     delete fG4Event;
-    // TRestElectronDiffusionProcess destructor
 }
 
 void TRestElectronDiffusionProcess::LoadDefaultConfig()
@@ -60,6 +50,7 @@ void TRestElectronDiffusionProcess::LoadDefaultConfig()
 
     fElectricField = 1000;
     fAttachment = 0;
+    fGasPressure = 1;
 }
 
 //______________________________________________________________________________
@@ -69,7 +60,7 @@ void TRestElectronDiffusionProcess::Initialize()
 
     fElectricField = 0;
     fAttachment = 0;
-    fGasPressure = 10;
+    fGasPressure = 1;
 
     fHitsEvent = new TRestHitsEvent();
     fG4Event = new TRestG4Event();
@@ -92,10 +83,24 @@ void TRestElectronDiffusionProcess::LoadConfig( string cfgFilename, string name 
 void TRestElectronDiffusionProcess::InitProcess()
 {
     fGas = (TRestGas *) GetGasMetadata( );
-    if( fGas == NULL ) cout << "REST ERRORRRR : Gas has not been initialized" << endl;
+    if( fGas == NULL )
+    {
+        cout << "REST ERRORRRR : Gas has not been initialized" << endl;
+        exit(-1);
+    }
+
+    fGas->SetPressure( fGasPressure );
+
+    fDriftVelocity = fGas->GetDriftVelocity( fElectricField );
+
+    PrintMetadata();
 
     fReadout = (TRestReadout *) GetReadoutMetadata();
-    if( fReadout == NULL ) cout << "REST ERRORRRR : Readout has not been initialized" << endl;
+    if( fReadout == NULL )
+    {
+        cout << "REST ERRORRRR : Readout has not been initialized" << endl;
+        exit(-1);
+    }
 }
 
 //______________________________________________________________________________
