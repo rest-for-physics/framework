@@ -156,7 +156,11 @@ void TRestReadout::InitFromConfigFile()
                 Int_t daq, readout;
                 while( !feof( f ) )
                 {
-                    fscanf(f,"%d\t%d\n", &daq, &readout );
+                    if( fscanf(f,"%d\t%d\n", &daq, &readout ) <= 0 )
+                    {
+                        cout << "REST Error!!. TRestG4Metadata::ReadGeneratorFile. Contact rest-dev@cern.ch" << endl;
+                        exit(-1);
+                    }
                     rChannel.push_back( readout );
                     dChannel.push_back( daq + firstDaqChannel );
                 }

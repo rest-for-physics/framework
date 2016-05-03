@@ -84,7 +84,7 @@ class TRestG4Event: public TRestEvent {
 
         Int_t GetLowestTrackID( )
         {
-            Int_t lowestID;
+            Int_t lowestID = 0;
             if( fNTracks > 0 ) lowestID = GetTrack( 0 )->GetTrackID();
 
             for( int i = 0; i < fNTracks; i++ )

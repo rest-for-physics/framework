@@ -86,7 +86,7 @@ int readoutChannel,daqChannel;
 double charge;
 
 Int_t modId;
-TRestReadoutModule *module;
+TRestReadoutModule *module = NULL;
 TRestReadoutChannel *channel;
 
 int maxIndex;

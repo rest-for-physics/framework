@@ -152,7 +152,7 @@ Double_t TRestSignal::GetMaxPeakValue()
 Int_t TRestSignal::GetMaxIndex( )
 {
     Double_t max = -1E10;
-    Int_t index;
+    Int_t index = 0;
 
     for( int i = 0; i < GetNumberOfPoints(); i++ )
     {
@@ -175,11 +175,10 @@ Double_t TRestSignal::GetMinPeakValue()
 Int_t TRestSignal::GetMinIndex( )
 {
     Double_t min = 1E10;
-    Int_t index;
+    Int_t index = 0;
 
     for( int i = 0; i < GetNumberOfPoints(); i++ )
     {
-
         if( this->GetData(i) < min )
         {
             min = GetData(i);
