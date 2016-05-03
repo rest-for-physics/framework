@@ -79,7 +79,8 @@ class TRestG4Event: public TRestEvent {
         void ClearVolumes( );
         void AddEnergyDepositToVolume( Int_t volID, Double_t eDep );
         void AddEnergyToSensitiveVolume( Double_t en ) { fSensitiveVolumeEnergy += en; }
-
+        
+        void SetEnergyDepositedInVolume( Int_t volID, Double_t eDep ) {fVolumeDepositedEnergy[volID]=eDep; }
         void SetSensitiveVolumeEnergy( Double_t en ) { fSensitiveVolumeEnergy = en; }
 
         Int_t GetLowestTrackID( )
@@ -124,6 +125,52 @@ class TRestG4Event: public TRestEvent {
                 if( GetTrack( n )->isBremstralung( ) ) return true;
             return false;
         }
+
+	Bool_t ishadElastic( )
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->ishadElastic( ) ) return true;
+            return false;
+        }
+        Bool_t isneutronInelastic( )
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isneutronInelastic( ) ) return true;
+            return false;
+        }
+
+	Bool_t isnCapture( )
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isnCapture( ) ) return true;
+            return false;
+        }
+       Bool_t ishIoni( )
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->ishIoni( ) ) return true;
+            return false;
+        }
+
+
+        Bool_t isAlpha( )
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->GetParticleName()=="alpha" ) return true;
+            return false;
+        }
+      Bool_t isNeutron( )
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->GetParticleName()=="neutron" ) return true;
+            return false;
+        }
+    
+     
+    
+
+   
+
 
         void Initialize();
 
