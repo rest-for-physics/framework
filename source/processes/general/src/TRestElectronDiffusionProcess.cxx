@@ -95,6 +95,8 @@ void TRestElectronDiffusionProcess::InitProcess()
     else
     {
 
+        if( fGasPressure == -1 ) 
+            fGasPressure = fGas->GetPressure();
         fGas->SetPressure( fGasPressure );
 
         if( fDriftVelocity == 0 )
@@ -227,7 +229,7 @@ void TRestElectronDiffusionProcess::EndProcess()
 void TRestElectronDiffusionProcess::InitFromConfigFile( )
 {
     // TODO add pressure units
-    fGasPressure = StringToDouble( GetParameter( "gasPressure", "1" ) );
+    fGasPressure = StringToDouble( GetParameter( "gasPressure", "-1" ) );
     fElectricField = GetDblParameterWithUnits( "electricField", 1000 );
     fAttachment = StringToDouble( GetParameter( "attachment", "0" ) );
     fDriftVelocity = StringToDouble( GetParameter( "driftVelocity" , "0") );
