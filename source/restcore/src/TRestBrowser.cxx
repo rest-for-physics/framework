@@ -152,7 +152,7 @@ cout<<"Opening "<<dir.Data( )<<endl;
 Bool_t TRestBrowser::OpenFile( TString fName )
 {
 
-    TGeoManager *geometry;
+    TGeoManager *geometry = NULL;
 
     string fname = fName.Data();
     if( !fileExists( fname ) ) {

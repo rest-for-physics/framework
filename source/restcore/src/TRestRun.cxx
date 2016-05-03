@@ -598,7 +598,11 @@ void TRestRun::SetVersion()
 
     char buffer[255];
     sprintf( buffer, "%s", getenv( "REST_PATH" ) );
-    chdir( buffer );
+    if( chdir( buffer ) != 0 )
+    {
+        cout << "Error setting REST version! REST_PATH properly defined?" << endl; 
+        return;
+    }
 
     // Reading the version of libcore.so
     FILE *fV = popen("git rev-parse --verify HEAD", "r");
@@ -613,7 +617,11 @@ void TRestRun::SetVersion()
 
     pclose( fV );
 
-    chdir( originDirectory );
+    if( chdir( originDirectory ) != 0 )
+    {
+        cout << "REST ERROR. TRestRun::SetVersion. Internal error. Report a bug at rest-dev@cern.ch" << endl;
+        exit(1);
+    }
 
     fVersion = versionStr;
 }
@@ -732,7 +740,11 @@ void TRestRun::InitFromConfigFile()
        else
        {
            FILE *frun = fopen( runFilename, "r" );
-           fscanf( frun, "%d\n", &fRunNumber );
+           if( fscanf( frun, "%d\n", &fRunNumber ) <= 0 )
+           {
+               cout << "REST ERROR. TRestRun::InitFromConfigFile. Internal error. Report a bug at rest-dev@cern.ch" << endl;
+               exit(1);
+           }
            fclose( frun );
 
            if( fOverwrite )
