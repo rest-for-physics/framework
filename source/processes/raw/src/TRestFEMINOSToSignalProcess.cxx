@@ -25,29 +25,29 @@ using namespace std;
 #include "TTimeStamp.h"
 
 ClassImp(TRestFEMINOSToSignalProcess)
-//______________________________________________________________________________
+    //______________________________________________________________________________
 TRestFEMINOSToSignalProcess::TRestFEMINOSToSignalProcess()
 {
-  Initialize();
+    Initialize();
 }
 
 TRestFEMINOSToSignalProcess::TRestFEMINOSToSignalProcess(char *cfgFileName):TRestRawToSignalProcess(cfgFileName)
 {
- Initialize();
+    Initialize();
 }
 
 
 //______________________________________________________________________________
 TRestFEMINOSToSignalProcess::~TRestFEMINOSToSignalProcess()
 {
-   // TRestFEMINOSToSignalProcess destructor
+    // TRestFEMINOSToSignalProcess destructor
 }
 
 //______________________________________________________________________________
 void TRestFEMINOSToSignalProcess::Initialize()
 {
 
-//this->SetVerboseLevel(REST_Debug);
+    //this->SetVerboseLevel(REST_Debug);
 
 }
 
@@ -55,263 +55,263 @@ void TRestFEMINOSToSignalProcess::Initialize()
 void TRestFEMINOSToSignalProcess::InitProcess()
 {
 
-//Binary file header
+    //Binary file header
 
-  //The binary starts here
-  char runUid[26],initTime[25];
-  fread(runUid, 1, 26, fInputBinFile);
-  
-  sprintf(initTime,"%s",runUid);
-  printf("File UID is %s \n",initTime); 
-  totalBytesReaded = sizeof(runUid);
-  
-  int year,day,month,hour,minute,second;
-  sscanf(initTime,"%*c%*cR%d_%02d_%02d-%02d_%02d_%02d-%*d",&year,&month,&day,&hour,&minute,&second);
-  printf("R%d_%02d_%02d-%02d_%02d_%02d\n",year,month,day,hour,minute,second);
-  TTimeStamp tS (year,month,day,hour,minute,second);  
-  tStart = tS.AsDouble();
-  cout<<tStart<<endl;
-  //Timestamp of the run
-  
-  //NULL word
-  unsigned short nullword;
-  fread(&nullword, sizeof(nullword),1,fInputBinFile);
-  if(this->GetVerboseLevel()==REST_Debug){
-  cout<<"NULL word "<<nullword<<endl;
-  printBits(nullword);
-  }
-  frameBits=0;
-  totalBytesReaded+=sizeof(nullword);
-  
-  //Start of Data frame
-  unsigned short startDF;
-  fread(&startDF, sizeof(startDF),1,fInputBinFile);
-  if(this->GetVerboseLevel()==REST_Debug){
-  cout<<"PFX_START "<<startDF<<endl;
-  printBits(startDF);
-  cout<<" Version "<< ((startDF & 0x1E0) >> 5) <<endl;
-  cout<<" FEC "<<(startDF & 0x1F)<<endl;
-  }
-  frameBits+=sizeof(startDF);
-  totalBytesReaded+=sizeof(startDF);
-  
-  //Payload from start data frame to end of data frame (including both)
-  fread(&pay, sizeof(pay),1,fInputBinFile);
-  payload=pay;
-  if(this->GetVerboseLevel()==REST_Debug){
-  cout<<"Frame payload "<<payload<<endl;
-  printBits(pay);
-  }
-  frameBits+=sizeof(pay);
-  totalBytesReaded+=sizeof(pay);
+    //The binary starts here
+    char runUid[26],initTime[25];
+    fread(runUid, 1, 26, fInputBinFile);
 
-  
+    sprintf(initTime,"%s",runUid);
+    printf("File UID is %s \n",initTime); 
+    totalBytesReaded = sizeof(runUid);
+
+    int year,day,month,hour,minute,second;
+    sscanf(initTime,"%*c%*cR%d_%02d_%02d-%02d_%02d_%02d-%*d",&year,&month,&day,&hour,&minute,&second);
+    printf("R%d_%02d_%02d-%02d_%02d_%02d\n",year,month,day,hour,minute,second);
+    TTimeStamp tS (year,month,day,hour,minute,second);  
+    tStart = tS.AsDouble();
+    cout<<tStart<<endl;
+    //Timestamp of the run
+
+    //NULL word
+    unsigned short nullword;
+    fread(&nullword, sizeof(nullword),1,fInputBinFile);
+    if(this->GetVerboseLevel()==REST_Debug){
+        cout<<"NULL word "<<nullword<<endl;
+        printBits(nullword);
+    }
+    frameBits=0;
+    totalBytesReaded+=sizeof(nullword);
+
+    //Start of Data frame
+    unsigned short startDF;
+    fread(&startDF, sizeof(startDF),1,fInputBinFile);
+    if(this->GetVerboseLevel()==REST_Debug){
+        cout<<"PFX_START "<<startDF<<endl;
+        printBits(startDF);
+        cout<<" Version "<< ((startDF & 0x1E0) >> 5) <<endl;
+        cout<<" FEC "<<(startDF & 0x1F)<<endl;
+    }
+    frameBits+=sizeof(startDF);
+    totalBytesReaded+=sizeof(startDF);
+
+    //Payload from start data frame to end of data frame (including both)
+    fread(&pay, sizeof(pay),1,fInputBinFile);
+    payload=pay;
+    if(this->GetVerboseLevel()==REST_Debug){
+        cout<<"Frame payload "<<payload<<endl;
+        printBits(pay);
+    }
+    frameBits+=sizeof(pay);
+    totalBytesReaded+=sizeof(pay);
+
+
 }
 
 //______________________________________________________________________________
 TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
 {
 
-  //Now we start reading the events
+    //Now we start reading the events
 
-  unsigned short startEv;
-     
-     //Event header
-     if(fread(&startEv, sizeof(startEv),1,fInputBinFile) !=1){
-     fclose(fInputBinFile);
-	cout<<"File END"<<endl;
-	return NULL;//File end
-     }
-     if(this->GetVerboseLevel()==REST_Debug){
-     cout<<"Start of Event "<<startEv<<endl;
-     printBits(startEv);
-     cout<<" Event type "<<(startEv & 0xF)<<endl;
-     }
-     frameBits+=sizeof(startEv);
-     totalBytesReaded+=sizeof(startEv);
-     
-     //TimeStamp of the event 48 bit word
-     unsigned short tsh,tsm,tsl;
-     fread(&tsh, sizeof(tsh),1,fInputBinFile);
-     fread(&tsm, sizeof(tsm),1,fInputBinFile);
-     fread(&tsl, sizeof(tsl),1,fInputBinFile);
-     if(this->GetVerboseLevel()==REST_Debug){
-     printBits(tsh);
-     printBits(tsm);
-     printBits(tsl);
-     cout<<" TimeStamp "<<2147483648*tsl+32768*tsm+tsh<<endl;
-     }
+    unsigned short startEv;
 
-     frameBits+=sizeof(tsh)*3;
-     totalBytesReaded+=sizeof(tsh)*3;
-     
-     //Event ID 32 bit word
-     unsigned int evID;
-     fread(&evID, sizeof(evID),1,fInputBinFile);
-     if(this->GetVerboseLevel()==REST_Debug){
-     printBits(evID);
-     cout<<"Event ID "<<evID<<endl;
-     getchar();
-     }
-     frameBits+=sizeof(evID);
-     totalBytesReaded+=sizeof(evID);
-     
-     //Timestamp number of clocks since the start of the run (1 clock ~20 ns)
-     double timestamp = (double) (2147483648*tsl+32768*tsm+tsh);
+    //Event header
+    if(fread(&startEv, sizeof(startEv),1,fInputBinFile) !=1){
+        fclose(fInputBinFile);
+        cout<<"File END"<<endl;
+        return NULL;//File end
+    }
+    if(this->GetVerboseLevel()==REST_Debug){
+        cout<<"Start of Event "<<startEv<<endl;
+        printBits(startEv);
+        cout<<" Event type "<<(startEv & 0xF)<<endl;
+    }
+    frameBits+=sizeof(startEv);
+    totalBytesReaded+=sizeof(startEv);
 
-//Set timestamp and event ID
-fSignalEvent->SetTime(tStart+timestamp*2.E-8);
-fSignalEvent->SetID(evID);
+    //TimeStamp of the event 48 bit word
+    unsigned short tsh,tsm,tsl;
+    fread(&tsh, sizeof(tsh),1,fInputBinFile);
+    fread(&tsm, sizeof(tsm),1,fInputBinFile);
+    fread(&tsl, sizeof(tsl),1,fInputBinFile);
+    if(this->GetVerboseLevel()==REST_Debug){
+        printBits(tsh);
+        printBits(tsm);
+        printBits(tsl);
+        cout<<" TimeStamp "<<2147483648*tsl+32768*tsm+tsh<<endl;
+    }
 
-int timeBin = 0;
-	
+    frameBits+=sizeof(tsh)*3;
+    totalBytesReaded+=sizeof(tsh)*3;
+
+    //Event ID 32 bit word
+    unsigned int evID;
+    fread(&evID, sizeof(evID),1,fInputBinFile);
+    if(this->GetVerboseLevel()==REST_Debug){
+        printBits(evID);
+        cout<<"Event ID "<<evID<<endl;
+        getchar();
+    }
+    frameBits+=sizeof(evID);
+    totalBytesReaded+=sizeof(evID);
+
+    //Timestamp number of clocks since the start of the run (1 clock ~20 ns)
+    double timestamp = (double) (2147483648*tsl+32768*tsm+tsh);
+
+    //Set timestamp and event ID
+    fSignalEvent->SetTime(tStart+timestamp*2.E-8);
+    fSignalEvent->SetID(evID);
+
+    int timeBin = 0;
+
     int fecN;
     int channel;
     int asicN;
-    
+
     int adc;
-        
-int physChannel;
 
-bool skip=false;
+    int physChannel;
 
-unsigned short dat, startDF;;
+    bool skip=false;
 
-//Bucle till it finds the data end
-   while (((dat & 0xFFF0)>>4) !=14) {
-   
-  	if(fread(&dat, sizeof(dat), 1, fInputBinFile) !=1){
-        fclose(fInputBinFile);
-	cout<<"File END 2"<<endl;
-	return NULL;//File end
-     	}
-	frameBits+=sizeof(dat);
-	totalBytesReaded +=sizeof(dat);
-			
-	//New Event
-	if((dat & 0xC000) >> 14 == 3 ){
-	
-	//Storing previous event, skipping if is the first one
-	
-	fecN = (dat & 0x3E00) >> 9;
-	asicN = (dat & 0x180) >> 7;
-	channel = (dat & 0x7F);
-	
-	timeBin =0;
-	if(this->GetVerboseLevel()==REST_Debug)cout<<"Reset"<<endl;
-	
-	
-	physChannel = GetPhysChannel(channel);
-	
-    	   	    			
-		//Skipping non physical channels
-		if(physChannel<0){
-		skip=true;
-				
-		if(this->GetVerboseLevel()==REST_Debug){cout<<"Skipping channel "<<channel<<endl;}
-		}
-		else skip=false;
-	
-		
-	//FECN not included so far....
-	physChannel += asicN*72;
-	//physChannel += fecN*4*72+asicN*72;
-	
-	if(this->GetVerboseLevel()==REST_Debug)
-	{
-	cout<<"----------------------"<<endl;
-	cout<<"FEC "<<fecN<<endl;
-	cout<<"asic "<<asicN<<endl;
-	cout<<"Channel "<<channel<<endl;
-	cout<<"PhysChannel "<<physChannel<<endl;
-	}
-	
-			
-	}
-	//Timebin, may be not present if zero-suppresion is not active
-	else if((dat & 0xFE00) >> 9 == 7 ){
-	timeBin = (dat & 0x1FF);
-	if(this->GetVerboseLevel()==REST_Debug)cout<<"TimeBin "<<timeBin<<endl;
-	}
-	//ADC values
-	else if((dat & 0xF000) >> 12 == 3 ){
-		
-	adc = (dat & 0xFFF);
-	
-	if(this->GetVerboseLevel()==REST_Debug)cout<<"Time bin "<<timeBin<<"\tADC "<<adc<<endl;
-	if(!skip)fSignalEvent->AddChargeToSignal( physChannel, timeBin, adc );
-	timeBin++;
-	}
-	//End of Frame, reading frame header and payload
-	else if(dat==15){
-	if(this->GetVerboseLevel()==REST_Debug)cout<<" End of frame "<<"Bits readed "<<frameBits<<" /"<<payload<<endl;
-	frameBits=0;
-	
-	fread(&startDF, sizeof(startDF),1,fInputBinFile);
-	if(this->GetVerboseLevel()==REST_Debug){
-	cout<<"PFX_START "<<startDF<<endl;
-	printBits(startDF);
-	cout<<" Version "<< ((startDF & 0x1E0) >> 5) <<endl;
-	cout<<" FEC "<<(startDF & 0x1F)<<endl;
-	}
-	frameBits+=sizeof(startDF);
-	totalBytesReaded+=sizeof(startDF);
-	
-	fread(&pay, sizeof(pay),1,fInputBinFile);
-	payload = pay;
-	if(this->GetVerboseLevel()==REST_Debug){
-	cout<<"Frame payload "<<payload<<endl;
-	printBits(pay);
-	}
-	frameBits+=sizeof(pay);
-	totalBytesReaded+=sizeof(pay);
-	}
-  
-   }//while
-   
-//Storing last event 
-   
-if(this->GetVerboseLevel()==REST_Debug)cout<<" End of event "<< dat<<endl;
-//End of event footer
-fread(&dat, sizeof(dat),1,fInputBinFile);
-frameBits+=sizeof(dat);
-totalBytesReaded+=sizeof(dat);
+    unsigned short dat, startDF;;
 
-//If data frame is being finish, the data frame header is reader in order to avoid a misalignement reading the file
-if((unsigned short)payload<=frameBits+2){
-	while( dat !=15 ){
-	fread(&dat, sizeof(dat),1,fInputBinFile);
-	frameBits+=sizeof(dat);
-	totalBytesReaded+=sizeof(dat);
-	}
-	
-	if(this->GetVerboseLevel()==REST_Debug)cout<<" End of frame "<<"Bits readed "<<frameBits<<" /"<<payload<<endl;
-	
-	frameBits=0;
-	fread(&startDF, sizeof(startDF),1,fInputBinFile);
-	if(this->GetVerboseLevel()==REST_Debug){
-	printBits(startDF);
-	cout<<"PFX_START "<<startDF<<endl;
-	cout<<" Version "<< ((startDF & 0x1E0) >> 5) <<endl;
-	cout<<" FEC "<<(startDF & 0x1F)<<endl;
-	}
-	frameBits+=sizeof(startDF);
-	totalBytesReaded+=sizeof(startDF);
-	
-	fread(&pay, sizeof(pay),1,fInputBinFile);
-	payload=pay;
-	frameBits+=sizeof(pay);
-	totalBytesReaded+=sizeof(pay);
-	if(this->GetVerboseLevel()==REST_Debug){
-	cout<<"Frame payload "<<payload<<endl;
-	printBits(pay);
-	}
-	
-}
+    //Bucle till it finds the data end
+    while (((dat & 0xFFF0)>>4) !=14) {
 
-//cout<<"Ev ID "<<fSignalEvent->GetID()<<" "<< <<endl;
+        if(fread(&dat, sizeof(dat), 1, fInputBinFile) !=1){
+            fclose(fInputBinFile);
+            cout<<"File END 2"<<endl;
+            return NULL;//File end
+        }
+        frameBits+=sizeof(dat);
+        totalBytesReaded +=sizeof(dat);
 
-return fSignalEvent;
+        //New Event
+        if((dat & 0xC000) >> 14 == 3 ){
+
+            //Storing previous event, skipping if is the first one
+
+            fecN = (dat & 0x3E00) >> 9;
+            asicN = (dat & 0x180) >> 7;
+            channel = (dat & 0x7F);
+
+            timeBin =0;
+            if(this->GetVerboseLevel()==REST_Debug)cout<<"Reset"<<endl;
+
+
+            physChannel = GetPhysChannel(channel);
+
+
+            //Skipping non physical channels
+            if(physChannel<0){
+                skip=true;
+
+                if(this->GetVerboseLevel()==REST_Debug){cout<<"Skipping channel "<<channel<<endl;}
+            }
+            else skip=false;
+
+
+            //FECN not included so far....
+            physChannel += asicN*72;
+            //physChannel += fecN*4*72+asicN*72;
+
+            if(this->GetVerboseLevel()==REST_Debug)
+            {
+                cout<<"----------------------"<<endl;
+                cout<<"FEC "<<fecN<<endl;
+                cout<<"asic "<<asicN<<endl;
+                cout<<"Channel "<<channel<<endl;
+                cout<<"PhysChannel "<<physChannel<<endl;
+            }
+
+
+        }
+        //Timebin, may be not present if zero-suppresion is not active
+        else if((dat & 0xFE00) >> 9 == 7 ){
+            timeBin = (dat & 0x1FF);
+            if(this->GetVerboseLevel()==REST_Debug)cout<<"TimeBin "<<timeBin<<endl;
+        }
+        //ADC values
+        else if((dat & 0xF000) >> 12 == 3 ){
+
+            adc = (dat & 0xFFF);
+
+            if(this->GetVerboseLevel()==REST_Debug)cout<<"Time bin "<<timeBin<<"\tADC "<<adc<<endl;
+            if(!skip)fSignalEvent->AddChargeToSignal( physChannel, timeBin, adc );
+            timeBin++;
+        }
+        //End of Frame, reading frame header and payload
+        else if(dat==15){
+            if(this->GetVerboseLevel()==REST_Debug)cout<<" End of frame "<<"Bits readed "<<frameBits<<" /"<<payload<<endl;
+            frameBits=0;
+
+            fread(&startDF, sizeof(startDF),1,fInputBinFile);
+            if(this->GetVerboseLevel()==REST_Debug){
+                cout<<"PFX_START "<<startDF<<endl;
+                printBits(startDF);
+                cout<<" Version "<< ((startDF & 0x1E0) >> 5) <<endl;
+                cout<<" FEC "<<(startDF & 0x1F)<<endl;
+            }
+            frameBits+=sizeof(startDF);
+            totalBytesReaded+=sizeof(startDF);
+
+            fread(&pay, sizeof(pay),1,fInputBinFile);
+            payload = pay;
+            if(this->GetVerboseLevel()==REST_Debug){
+                cout<<"Frame payload "<<payload<<endl;
+                printBits(pay);
+            }
+            frameBits+=sizeof(pay);
+            totalBytesReaded+=sizeof(pay);
+        }
+
+    }//while
+
+    //Storing last event 
+
+    if(this->GetVerboseLevel()==REST_Debug)cout<<" End of event "<< dat<<endl;
+    //End of event footer
+    fread(&dat, sizeof(dat),1,fInputBinFile);
+    frameBits+=sizeof(dat);
+    totalBytesReaded+=sizeof(dat);
+
+    //If data frame is being finish, the data frame header is reader in order to avoid a misalignement reading the file
+    if((unsigned short)payload<=frameBits+2){
+        while( dat !=15 ){
+            fread(&dat, sizeof(dat),1,fInputBinFile);
+            frameBits+=sizeof(dat);
+            totalBytesReaded+=sizeof(dat);
+        }
+
+        if(this->GetVerboseLevel()==REST_Debug)cout<<" End of frame "<<"Bits readed "<<frameBits<<" /"<<payload<<endl;
+
+        frameBits=0;
+        fread(&startDF, sizeof(startDF),1,fInputBinFile);
+        if(this->GetVerboseLevel()==REST_Debug){
+            printBits(startDF);
+            cout<<"PFX_START "<<startDF<<endl;
+            cout<<" Version "<< ((startDF & 0x1E0) >> 5) <<endl;
+            cout<<" FEC "<<(startDF & 0x1F)<<endl;
+        }
+        frameBits+=sizeof(startDF);
+        totalBytesReaded+=sizeof(startDF);
+
+        fread(&pay, sizeof(pay),1,fInputBinFile);
+        payload=pay;
+        frameBits+=sizeof(pay);
+        totalBytesReaded+=sizeof(pay);
+        if(this->GetVerboseLevel()==REST_Debug){
+            cout<<"Frame payload "<<payload<<endl;
+            printBits(pay);
+        }
+
+    }
+
+    //cout<<"Ev ID "<<fSignalEvent->GetID()<<" "<< <<endl;
+
+    return fSignalEvent;
 }
 
 int TRestFEMINOSToSignalProcess::GetPhysChannel(int channel){
