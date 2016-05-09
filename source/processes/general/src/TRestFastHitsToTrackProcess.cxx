@@ -103,9 +103,16 @@ TRestEvent* TRestFastHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
 
     fHitsEvent = (TRestHitsEvent *) evInput;
 
+    fTrackEvent->SetID( fHitsEvent->GetID() );
+    fTrackEvent->SetSubID( fHitsEvent->GetSubID() );
+    fTrackEvent->SetTimeStamp( fHitsEvent->GetTimeStamp() );
+    fTrackEvent->SetSubEventTag( fHitsEvent->GetSubEventTag() );
+
+    /* Debug output
     cout << "----------------------" << endl;
     cout << "Event ID : " << fHitsEvent->GetID() << endl;
     cout << "Number of hits : " << fHitsEvent->GetNumberOfHits() << endl;
+    */
 
 
     /* Debugging output
@@ -114,24 +121,26 @@ TRestEvent* TRestFastHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
     */
 
     TRestHits *xzHits = fHitsEvent->GetXZHits();
-    cout << "Number of xzHits : " <<  xzHits->GetNumberOfHits() << endl;
+    //cout << "Number of xzHits : " <<  xzHits->GetNumberOfHits() << endl;
     Int_t xTracks = FindTracks( xzHits );
 
     fTrackEvent->SetNumberOfXTracks( xTracks );
 
     TRestHits *yzHits = fHitsEvent->GetYZHits();
-    cout << "Number of yzHits : " <<  yzHits->GetNumberOfHits() << endl;
+    //cout << "Number of yzHits : " <<  yzHits->GetNumberOfHits() << endl;
     Int_t yTracks = FindTracks( yzHits );
 
     fTrackEvent->SetNumberOfYTracks( yTracks );
 
     TRestHits *xyzHits = fHitsEvent->GetXYZHits();
-    cout << "Number of xyzHits : " <<  xyzHits->GetNumberOfHits() << endl;
+    //cout << "Number of xyzHits : " <<  xyzHits->GetNumberOfHits() << endl;
 
     FindTracks( xyzHits );
 
+    /*
     cout << "X tracks : " << xTracks << "  Y tracks : " << yTracks << endl;
     cout << "Total number of tracks : " << fTrackEvent->GetNumberOfTracks() << endl;
+    */
 
     /* Time measurement
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
