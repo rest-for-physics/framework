@@ -62,7 +62,6 @@ void TRestElectronDiffusionProcess::Initialize()
     fAttachment = 0;
     fGasPressure = 1;
 
-    fDriftVelocity = 0;
     fTransDiffCoeff = 0;
     fLonglDiffCoeff = 0;
     fWvalue = 0;
@@ -94,13 +93,9 @@ void TRestElectronDiffusionProcess::InitProcess()
     }
     else
     {
-
         if( fGasPressure == -1 ) 
             fGasPressure = fGas->GetPressure();
         fGas->SetPressure( fGasPressure );
-
-        if( fDriftVelocity == 0 )
-            fDriftVelocity = fGas->GetDriftVelocity( fElectricField );
 
         if( fWvalue == 0 )
             fWvalue = fGas->GetWvalue();
@@ -232,7 +227,6 @@ void TRestElectronDiffusionProcess::InitFromConfigFile( )
     fGasPressure = StringToDouble( GetParameter( "gasPressure", "-1" ) );
     fElectricField = GetDblParameterWithUnits( "electricField", 1000 );
     fAttachment = StringToDouble( GetParameter( "attachment", "0" ) );
-    fDriftVelocity = StringToDouble( GetParameter( "driftVelocity" , "0") );
     fLonglDiffCoeff = StringToDouble( GetParameter( "longitudinalDiffusionCoefficient" , "0") );
     fTransDiffCoeff = StringToDouble( GetParameter( "transversalDiffusionCoefficient" , "0") );
     fWvalue = GetDblParameterWithUnits( "Wvalue" , 0) * REST_Units::eV;
