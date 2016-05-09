@@ -136,7 +136,7 @@ Int_t TRestRun::ValidateProcessChain ( )
     return 1;
 }
 
-void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess ) 
+void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t lastEvent ) 
 {
 
 	fCurrentEvent = firstEvent;
@@ -172,8 +172,14 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
        else eventsToProcess = 2E9;
     }
 
+    if( lastEvent == 0 )
+    {
+       if( fInputEventTree != NULL ) lastEvent = fInputEventTree->GetEntries();
+       else lastEvent = 2E9;
+    }
+
 	TRestEvent *processedEvent;
-	while( this->GetNextEvent() && eventsToProcess > fProcessedEvents )
+	while( this->GetNextEvent() && eventsToProcess > fProcessedEvents && lastEvent >= fCurrentEvent )
 	{
 		processedEvent = fInputEvent;
 

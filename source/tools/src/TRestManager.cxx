@@ -18,22 +18,30 @@ using namespace std;
 #include <TRestReadout.h>
 #include <TRestGas.h>
 
+// REST processes
+#include <TRestHitsToSignalProcess.h>
+#include <TRestSignalToHitsProcess.h>
+#include <TRestFastHitsToTrackProcess.h>
+
+// physics processes
+#include <TRestElectronDiffusionProcess.h>
+
+// track processes
+#include <TRestTrackReductionProcess.h>
+#include <TRestTrackPathMinimizationProcess.h>
+
+// signal processes
+#include <TRestAddSignalNoiseProcess.h>
+#include <TRestSignalGaussianConvolutionProcess.h>
+
+// external processes
+#include <TRestFEMINOSToSignalProcess.h>
+
 // analysis processes
 #include <TRestGeant4AnalysisProcess.h>
 #include <TRestFindG4BlobAnalysisProcess.h>
 #include <TRestSignalAnalysisProcess.h>
 #include <TRestTrackAnalysisProcess.h>
-
-// specific processes
-#include <TRestElectronDiffusionProcess.h>
-#include <TRestHitsToSignalProcess.h>
-#include <TRestSignalToHitsProcess.h>
-#include <TRestFastHitsToTrackProcess.h>
-#include <TRestTrackReductionProcess.h>
-#include <TRestTrackPathMinimizationProcess.h>
-
-// raw processes
-#include <TRestFEMINOSToSignalProcess.h>
 
 const int debug = 0;
 
@@ -60,6 +68,7 @@ void TRestManager::Initialize()
     fRun = NULL;
 
     fFirstEntry = 0;
+    fLastEntry = 0;
     fNEventsToProcess = 0;
 }
 
@@ -80,6 +89,7 @@ void TRestManager::InitFromConfigFile()
 
     fFirstEntry = StringToInteger( GetParameter( "firstEntry", "0") );
     fNEventsToProcess = StringToInteger( GetParameter( "eventsToProcess", "0") );
+    fLastEntry = StringToInteger( GetParameter( "lastEntry", "0") );
 
     TString inputFile = GetParameter("inputFile" );
     Bool_t isAcquisition = inputFile.EndsWith("aqs");
@@ -155,6 +165,12 @@ void TRestManager::InitFromConfigFile()
 
             fRun->AddProcess( femPcs, (string) processesCfgFile, (string) processName );
         }
+
+        if( processType == "addSignalNoiseProcess" )
+            fRun->AddProcess( new TRestAddSignalNoiseProcess( ), (string) processesCfgFile, (string) processName );
+
+        if( processType == "signalGaussianConvolutionProcess" )
+            fRun->AddProcess( new TRestSignalGaussianConvolutionProcess( ), (string) processesCfgFile, (string) processName );
     }
 
 }

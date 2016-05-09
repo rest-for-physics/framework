@@ -31,6 +31,7 @@ class TRestManager:public TRestMetadata {
         TRestRun *fRun;
 
         Int_t fFirstEntry;
+        Int_t fLastEntry;
         Int_t fNEventsToProcess;
 
         void AddReadout( string readoutDefinition );
@@ -43,7 +44,7 @@ class TRestManager:public TRestMetadata {
         void ProcessEvents( ) 
         { 
             if( fRun != NULL ) 
-                fRun->ProcessEvents( fFirstEntry, fNEventsToProcess ); 
+                fRun->ProcessEvents( fFirstEntry, fNEventsToProcess, fLastEntry ); 
         }
 
         void Draw();

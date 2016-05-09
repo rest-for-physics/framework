@@ -99,7 +99,7 @@ class TRestRun:public TRestMetadata {
     public:
         
         void Start(  );
-        void ProcessEvents( Int_t firstEvent = 0, Int_t eventsToProcess = 0 );
+        void ProcessEvents( Int_t firstEvent = 0, Int_t eventsToProcess = 0, Int_t lastEvent = 0 );
         
         Int_t GetNumberOfProcesses() { return fEventProcess.size(); }
 
