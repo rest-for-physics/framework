@@ -18,6 +18,7 @@
 ///		  Javier Gracia
 ///_______________________________________________________________________________
 
+#include <TMath.h>
 
 #include "TRestSignalEvent.h"
 using namespace std;
@@ -66,14 +67,57 @@ Int_t TRestSignalEvent::GetSignalIndex( Int_t signalID )
     return -1; 
 } 
 
-Double_t TRestSignalEvent::GetIntegral( ) 
+Double_t TRestSignalEvent::GetIntegral( Int_t startBin, Int_t endBin ) 
 {
     Double_t sum = 0;
+
     for( int i = 0; i < GetNumberOfSignals(); i++ )
-    {
-        sum += fSignal[i].GetIntegral();
-    }
+        sum += fSignal[i].GetIntegral( startBin, endBin );
+
     return sum;
+}
+
+Double_t TRestSignalEvent::GetIntegralWithThreshold( Int_t from, Int_t to, Int_t startBaseline, Int_t endBaseline, Double_t nSigmas, Int_t nPointsOverThreshold, Double_t minPeakAmplitude ) 
+{
+    Double_t sum = 0;
+
+    for( int i = 0; i < GetNumberOfSignals(); i++ )
+        sum += fSignal[i].GetIntegralWithThreshold( from, to, startBaseline, endBaseline, nSigmas, nPointsOverThreshold, minPeakAmplitude );
+
+    return sum;
+
+}
+
+Double_t TRestSignalEvent::GetBaseLineAverage( Int_t startBin, Int_t endBin )
+{
+    Double_t baseLineMean = 0;
+
+    for( int sgnl = 0; sgnl < GetNumberOfSignals(); sgnl++ )
+    {
+        Double_t baseline = GetSignal(sgnl)->GetBaseLine( startBin, endBin );
+        baseLineMean += baseline;
+    }
+
+    return baseLineMean/GetNumberOfSignals();
+}
+
+Double_t TRestSignalEvent::GetBaseLineSigmaAverage( Int_t startBin, Int_t endBin )
+{
+    Double_t baseLineSigmaMean = 0;
+
+    for( int sgnl = 0; sgnl < GetNumberOfSignals(); sgnl++ )
+    {
+        Double_t baselineSigma = GetSignal(sgnl)->GetBaseLineSigma( startBin, endBin );
+        baseLineSigmaMean += baselineSigma;
+    }   
+
+    return baseLineSigmaMean / GetNumberOfSignals();
+}
+
+void TRestSignalEvent::SubstractBaselines( Int_t startBin, Int_t endBin )
+{
+    for( int sgnl = 0; sgnl < GetNumberOfSignals(); sgnl++ )
+        GetSignal( sgnl )->SubstractBaseline( startBin, endBin );
 }
 
 void TRestSignalEvent::AddChargeToSignal( Int_t sgnlID, Double_t tm, Double_t chrg )

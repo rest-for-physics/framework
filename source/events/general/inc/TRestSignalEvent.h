@@ -65,7 +65,11 @@ class TRestSignalEvent: public TRestEvent {
         TRestSignal *GetSignal(Int_t n ) { return &fSignal[n]; }
         Int_t GetSignalIndex( Int_t signalID );
 
-        Double_t GetIntegral( );
+        Double_t GetBaseLineAverage( Int_t startBin, Int_t endBin );
+        Double_t GetBaseLineSigmaAverage( Int_t startBin, Int_t endBin );
+        void SubstractBaselines( Int_t startBin, Int_t endBin );
+        Double_t GetIntegral( Int_t startBin = 0, Int_t endBin = 0 );
+        Double_t GetIntegralWithThreshold( Int_t from, Int_t to, Int_t startBaseline, Int_t endBaseline, Double_t nSigmas, Int_t nPointsOverThreshold, Double_t minPeakAmplitude );
 
         Double_t GetMaxValue( );
         Double_t GetMinValue( );

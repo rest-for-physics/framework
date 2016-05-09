@@ -37,6 +37,8 @@ ClassImp(TRestSignal)
    // TRestSignal default constructor
    fGraph = NULL;
    fSignalID = -1;
+   fSignalTime.clear();
+   fSignalCharge.clear();
 }
 
 //______________________________________________________________________________
@@ -45,6 +47,11 @@ TRestSignal::~TRestSignal()
    // TRestSignal destructor
 }
 
+void TRestSignal::NewPoint( Float_t time, Float_t data )
+{
+        fSignalTime.push_back( time );
+        fSignalCharge.push_back( data ); 
+}
 
 
 void TRestSignal::AddPoint(TVector2 p)
@@ -68,40 +75,80 @@ void TRestSignal::AddPoint( Double_t t, Double_t d ) { TVector2 p( t,d); AddPoin
 void TRestSignal::AddCharge( Double_t t, Double_t d ) { TVector2 p( t,d); AddPoint( p ); }
 void TRestSignal::AddDeposit( Double_t t, Double_t d ) { TVector2 p( t,d); AddPoint( p ); }
 
-Double_t TRestSignal::GetIntegral( ) 
+Double_t TRestSignal::GetIntegral( Int_t startBin, Int_t endBin ) 
 {
+    if( startBin < 0 ) startBin = 0;
+    if( endBin <= 0 || endBin > GetNumberOfPoints() ) endBin = GetNumberOfPoints();
+
     Double_t sum = 0;
-    for( int i = 0; i < GetNumberOfPoints(); i++ )
-    {
+    for( int i = startBin; i < endBin; i++ )
         sum += GetData(i);
-    }
 
     return sum;
 }
 
-Double_t TRestSignal::GetIntegral( Int_t ni, Int_t nf ) 
-{
-    if( nf > GetNumberOfPoints()) nf = GetNumberOfPoints();
-    Double_t sum = 0;
-    for( int i = ni; i < nf; i++ )
-    {
-        sum += GetData(i);
-    }
 
-    return sum;
+Double_t TRestSignal::GetIntegralWithThreshold( Int_t from, Int_t to, Int_t startBaseline, Int_t endBaseline, Double_t nSigmas, Int_t nPointsOverThreshold, Double_t minPeakAmplitude ) 
+{
+    if( startBaseline < 0 ) startBaseline = 0;
+    if( endBaseline <= 0 || endBaseline > GetNumberOfPoints()) endBaseline = GetNumberOfPoints();
+
+    Double_t baseLine = GetBaseLine( startBaseline, endBaseline );
+
+    Double_t thr = nSigmas * GetBaseLineSigma( startBaseline, endBaseline );
+
+    return GetIntegralWithThreshold( from, to, baseLine, thr, nPointsOverThreshold, minPeakAmplitude );
 }
 
-Double_t TRestSignal::GetIntegralWithThreshold( Int_t ni, Int_t nf, Double_t threshold ) 
+Double_t TRestSignal::GetIntegralWithThreshold( Int_t from, Int_t to, Double_t baseline, Double_t threshold, Int_t nPointsOverThreshold, Double_t minPeakAmplitude ) 
 {
-    if( nf <= 0 || nf > GetNumberOfPoints()) nf = GetNumberOfPoints();
-    if( ni < 0 ) ni = 0;
-
     Double_t sum = 0;
-    for( int i = ni; i < nf; i++ )
+    Int_t nPoints = 0;
+
+    if( to > GetNumberOfPoints() ) to = GetNumberOfPoints();
+
+    //FILE *f = fopen("/tmp/integrated", "w" );
+    Float_t maxValue = 0;
+    for( int i = from; i < to; i++ )
     {
-        if( GetData(i) > threshold )
-            sum += this->GetData(i);
+        if( GetData(i) > baseline + threshold )
+        {
+            if( GetData( i ) > maxValue ) maxValue = GetData( i );
+            nPoints++;
+        }
+        else
+        {
+            if( nPoints >= nPointsOverThreshold && maxValue > minPeakAmplitude )
+            {
+                for( int j = i - nPoints; j < i; j++ )
+                {
+      //              fprintf( f, "%lf\t%lf\n", GetTime(j), GetData(j) );
+                    sum += this->GetData( j );
+                }
+            }
+            nPoints = 0;
+            maxValue = 0;
+        }
     }
+
+    if( nPoints >= nPointsOverThreshold && maxValue > minPeakAmplitude )
+    {
+        for( int j = to - nPoints; j < to; j++ )
+        {
+        //    fprintf( f, "%lf\t%lf\n", GetTime(j), GetData(j) );
+            sum += this->GetData( j );
+        }
+    }
+    //fclose( f );
+
+    /*
+    FILE *f2 = fopen("/tmp/pulse", "w" );
+    for( int j = 0; j < GetNumberOfPoints(); j++ )
+                    fprintf( f2, "%lf\t%lf\n", GetTime(j), GetData(j) );
+    fclose( f2);
+    cout << "Saved" << endl;
+    getchar();
+    */
 
     return sum;
 }
@@ -165,6 +212,11 @@ Int_t TRestSignal::GetMaxIndex( )
     }
 
     return index;
+}
+
+Double_t TRestSignal::GetMaxPeakTime()
+{
+    return GetTime( GetMaxIndex() );
 }
 
 Double_t TRestSignal::GetMinPeakValue()
@@ -296,6 +348,43 @@ void TRestSignal::GetSignalSmoothed( TRestSignal *smthSignal, Int_t averagingPoi
     for ( int i = GetNumberOfPoints()-averagingPoints/2; i < GetNumberOfPoints(); i++ )
          smthSignal->AddPoint( GetTime(i), sum/averagingPoints);
 
+}
+
+Double_t TRestSignal::GetBaseLine( Int_t startBin, Int_t endBin )
+{
+    Double_t baseLine = 0;
+    for( int i = startBin; i < endBin; i++ )
+        baseLine += fSignalCharge[i];
+
+    return baseLine/(endBin-startBin);
+}
+
+Double_t TRestSignal::GetBaseLineSigma( Int_t startBin, Int_t endBin, Double_t baseline )
+{
+    Double_t bL = baseline;
+    if( bL == 0 ) bL = GetBaseLine( startBin, endBin );
+
+    Double_t baseLineSigma = 0;
+    for( int i = startBin; i < endBin; i++ )
+        baseLineSigma += (bL-fSignalCharge[i]) * (bL-fSignalCharge[i]);
+
+    return TMath::Sqrt(baseLineSigma)/(endBin-startBin);
+}
+
+Double_t TRestSignal::SubstractBaseline( Int_t startBin, Int_t endBin )
+{
+    Double_t bL = GetBaseLine( startBin, endBin );
+
+    AddOffset( -bL );
+
+    return bL;
+}
+
+
+void TRestSignal::AddOffset( Double_t offset )
+{
+    for( int i = 0; i < GetNumberOfPoints(); i++ )
+        fSignalCharge[i] = fSignalCharge[i] + offset;
 }
 
 void TRestSignal::MultiplySignalBy( Double_t factor )
