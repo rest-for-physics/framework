@@ -194,7 +194,6 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
     deltaTime += (int) duration_cast<microseconds>( t2 - t1 ).count();
 #endif
 		
-
 		fOutputEvent = processedEvent;
 		if( processedEvent == NULL ) continue;
 
@@ -205,6 +204,15 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess )
             fOutputEvent->SetSubID( fInputEvent->GetSubID() );
             fOutputEvent->SetSubEventTag( fInputEvent->GetSubEventTag() );
 		}
+        else if ( fEventProcess.front()->isExternal() )
+        {
+            // If there is no input event then we are using a process filling an event from external data.
+            // Then the process must be responsible to define the event ID, its timestamp, event tag, etc
+            TRestEvent *frontEvt = fEventProcess.front()->GetOutputEvent();
+            fOutputEvent->SetID( frontEvt->GetID() );
+            fOutputEvent->SetTime( frontEvt->GetTime() );
+            fOutputEvent->SetSubID( frontEvt->GetSubID() );
+        }
 
 #ifdef TIME_MEASUREMENT
         high_resolution_clock::time_point t3 = high_resolution_clock::now();
@@ -915,9 +923,13 @@ Int_t TRestRun::GetEventWithID( Int_t eventID, TString tag )
 //Return false when the file ends
 Bool_t TRestRun::GetNextEvent( )
 {
-    if(fInputEvent == NULL)
+    if( fEventProcess.front()->isExternal() )
     {
-        if( fOutputEvent == NULL ) { return kFALSE; }
+        if( fEventProcess.front()->GetOutputEvent() == NULL )
+        {
+            SetNumberOfEvents( fCurrentEvent );
+            return kFALSE;
+        }
         fCurrentEvent++;
     }
     else

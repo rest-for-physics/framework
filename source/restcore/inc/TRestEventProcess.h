@@ -58,6 +58,8 @@ class TRestEventProcess:public TRestMetadata {
    virtual TString GetProcessName() = 0;
    virtual void LoadConfig( std::string cfgFilename, std::string cfgName = "" )=0;
 
+   virtual Bool_t isExternal( ) { return false; }
+
    void ReadObservables( )
    {
        vector <string> obsList = GetObservablesList( );
