@@ -11,8 +11,6 @@
          As soon as the parameter is not defined, the value will be obtained from TRestGas metadata.
          If all these parameters are provided with a value, there is no need for the electron diffusion process to use the gas definition. Thus, it should not complain in case there is no existing TRestGas definition inside TRestRun.
          -->
-    <parameter name="driftVelocity" value="" /> 
-    <!-- drift velocity units are in cm/us (this must be added to TRestSystemOfUnits.h -->
 
     <parameter name="longitudinalDiffusionCoefficient" value="" /> 
     <!-- diffusion coefficient units are in cm^1/2 (this must be added to TRestSystemOfUnits.h -->
@@ -30,7 +28,7 @@
 
     <parameter name="gasPressure" value="10" />
 
-    <parameter name="Wvalue" value="10" units="eV" />
+    <parameter name="Wvalue" value="" units="eV" />
 
     <!-- There is no need to specify additional parameters if all values will be taken from the gas properties (TRestGas). -->
 </section>
@@ -56,14 +54,16 @@
     <parameter name="responseFile" value="AGET_Response_100MHz_Gain0x2_Shaping0x7.root" />
 </section>
 
-<section hitsToSignalProcess name="hitsToSignal-Template" title="Half Template X-III Vessel (Bottom)" >
-    <parameter name="sampling" value="1" units="us" />
-    // If the following parameters are not defined 
-    // the process will try to take the values from a previous electronDiffusionProcess
-    <parameter name="electricField" value="1000" units="V/cm" />
-    <parameter name="gasPressure" value="10" />
-</section>
+<section hitsToSignalProcess name="hitsToSignal-Template" title="A hits to signal template" >
 
+    <parameter name="sampling" value="1" units="us" />
+    <parameter name="electricField" value="1000" units="V/cm" />
+
+    <!-- If specified, the following parameters will modify the properties of the gas found in TRestGas -->
+    <parameter name="gasPressure" value="" />
+    <parameter name="driftVelocity" value="" />
+
+</section>
 
 <section gaussianConvolutionProcess name="gaussian-Convolution"  title="Gaussian convolution of signals" >
     <parameter name="sigma" value="0.01" units="us" /> 
@@ -74,11 +74,16 @@
     <parameter name="noiseLevel" value="10" /> // // electrons in each time bin
 </section>
 
-<section signalToHitsProcess name="signalToHits-Template" title="Half Template X-III Vessel (Bottom)" >
-    <parameter name="sampling" value="1" units="us" />
-    <parameter name="threshold" value="0" />
-    <parameter name="electricField" value="1000" units="V/cm" />
-    <parameter name="gasPressure" value="10" />
+<section signalToHitsProcess name="signalToHits_Template" title="A hit reconstruction template." >
+
+    <parameter name="sampling" value="80" units="ns" />
+    <parameter name="threshold" value="80" />
+    <parameter name="electricField" value="200" units="V/cm" />
+
+    <!-- If not specified, the following values will be taken from TRestGas properties -->
+    <parameter name="gasPressure" value="1" /> <!-- in atm -->
+    <parameter name="driftVelocity" value="" /> <!-- in cm/us -->
+
 </section>
 
 <section hitsToTrackProcess name="hitsToTrack-Template" title="Half Template X-III Vessel (Bottom)" >
@@ -86,22 +91,23 @@
 </section>
 
 <section fastHitsToTrackProcess name="fastHitsToTrack-Template" title="Half Template X-III Vessel (Bottom)" >
-    <parameter name="cellResolution" value="30" units="mm" />
+    <parameter name="cellResolution" value="5" units="mm" />
     <parameter name="netSize" value="2000" units="mm" />
     <parameter name="netOrigin" value="(-1000,-1000,-1000)" units="mm" />
 </section>
 
 <section trackReductionProcess name="trackReduction-Template" title="Half Template X-III Vessel (Bottom)" >
-    <parameter name="startingDistance" value="0.5" units="mm" />
+    <parameter name="startingDistance" value="0.25" units="mm" />
     <parameter name="minimumDistance" value="3" units="mm" />
-    <parameter name="distanceStepFactor" value="1.5" />
-    <parameter name="maxNodes" value="25" />
+    <parameter name="distanceStepFactor" value="1.25" />
+    <parameter name="maxNodes" value="24" />
 </section>
 
 <section trackPathMinimizationProcess name="trackPathMinimization-Template" title="Half Template X-III Vessel (Bottom)" >
     <parameter name="energyThreshold" value="0.8" />
     <parameter name="maxNodes" value="100" />
 </section>
+
 
 <section geant4AnalysisProcess name="g4Ana" title="Geant4 analysis template" >
     <observable name="gasEnergyDeposit_InKeV" value="ON" />
@@ -110,8 +116,119 @@
     <observable name="bremstralung" value="ON" />
 </section>
 
+<section trackAnalysisProcess name="tckAna" title="Track analysis template" >
+    <parameter name="nTracksXCut" value="(1,1)" />
+    <parameter name="nTracksYCut" value="(1,1)" />
+
+    <observable name="MeanRate_InHz" value="ON" />
+    <observable name="EventTimeDelay" value="ON" />
+
+    <observable name="LengthX" value="ON" />
+    <observable name="nTracksX" value="ON" />
+    <observable name="LengthY" value="ON" />
+    <observable name="nTracksY" value="ON" />
+    <observable name="xMean" value="ON" />
+    <observable name="yMean" value="ON" />
+</section>
+
+<section findG4BlobAnalysisProcess name="g4Blob" title="Find blobs in DBD">
+    <observable name="xBlob1" value="ON" />
+    <observable name="yBlob1" value="ON" />
+    <observable name="zBlob1" value="ON" />
+    <observable name="xBlob2" value="ON" />
+    <observable name="yBlob2" value="ON" />
+    <observable name="zBlob2" value="ON" />
+    <observable name="blobDistance" value="ON" />
+</section>
+
 <section signalAnalysisProcess name="sgnlAna" title="Half Template X-III Vessel (Bottom)" >
-    <observable name="signalTimeBinsLength" value="ON" />
+
+    <!-- This parameter is used to define the baseline calculation -->
+    <parameter name="baseLineRange" value="(10,90)" />
+
+    <!-- This parameter is used to define the signal integration window -->
+    <parameter name="integralRange" value="(100,200)" />
+
+    <!-- These parameters define the integral with threshold. 
+         threshold : number of baseline noise sigmas to consider a point for integration.
+         pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
+         minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
+        -->
+    <parameter name="threshold" value="10" />
+    <parameter name="pointsOverThreshold" value="20" />
+    <parameter name="minPeakAmplitude" value="50" />
+
+    <!-- ++++++++++++++++++++++
+         Observable definitions
+         ++++++++++++++++++++++ -->
+
+    <!-- This observable needs to be refined -->
+    <observable name="TimeBinsLength" value="OFF" />
+
+    <!-- Event time observables -->
+    <observable name="SecondsFromStart" value="ON" />
+    <observable name="HoursFromStart" value="ON" />
+    <observable name="MeanRate_InHz" value="ON" />
+    <observable name="EventTimeDelay" value="ON" />
+
+    <!-- The numbers of signals that are found inside the event -->
+    <observable name="NumberOfSignals" value="ON" />
+
+    <!-- Number of signals after noisy signals reduction -->
+    <observable name="NumberOfGoodSignals" value="ON" />
+
+    <!-- The baseline average of the signals -->
+    <observable name="BaseLineMean" value="ON" />
+
+    <!-- The baseline sigma average of each independent signal -->
+    <observable name="BaseLineSigmaMean" value="ON" />
+
+    <!-- The full signal integral in the integralRange -->
+    <observable name="FullIntegral" value="ON" />
+
+    <!-- The signal integral in the integralRange using threshold -->
+    <observable name="ThresholdIntegral" value="ON" />
+
+    <!-- The energy balance between full integral and threshold integral -->
+    <observable name="IntegralBalance" value="ON" />
+
+    <!-- Maximum peak amplitude found in the signal event -->
+    <observable name="MaxPeakAmplitude" value="ON" />
+   
+    <!-- Integral of all the signals maximum amplitude -->
+    <observable name="PeakAmplitudeIntegral" value="ON" />
+
+    <!-- Ratio between peak amplitude integral and maximum signal amplitude -->
+    <observable name="AmplitudeRatio" value="ON" />
+
+    <!-- Maximum time at which a maximum peak amplitude is found -->
+    <observable name="MaxPeakTime" value="ON" />
+
+    <!-- Minimum time at which a maximum peak amplitude is found -->
+    <observable name="MinPeakTime" value="ON" />
+
+    <!-- Time difference between MaxPeakTime and MinPeakTime -->
+    <observable name="MaxPeakTimeDelay" value="ON" />
+
+    <!-- Max peak time average -->
+    <observable name="AveragePeakTime" value="ON" />
+
+    <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+         Cut/event selection definition
+         This are the cut range definition on the observables 
+         Events that are not in those ranges will be rejected if cutsEnables is true.
+         ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+    <parameter name="cutsEnabled" value="true" />
+
+    <parameter name="meanBaseLineCutRange" value="(0,300)" />
+    <parameter name="meanBaseLineSigmaCutRange" value="(0,2)" />
+    <parameter name="maxNumberOfSignalsCut" value="(1,20)" />
+    <parameter name="maxNumberOfGoodSignalsCut" value="(1,10)" />
+    <parameter name="fullIntegralCut" value="(1,50000)" />
+    <parameter name="thresholdIntegralCut" value="(1,300000)" />
+    <parameter name="peakTimeDelayCut" value="(0,40)" />
+
 </section>
 
 <section trackLinearizationProcess name="trackLinearization-Template" title="Half Template X-III Vessel (Bottom)" >
@@ -126,4 +243,10 @@
     <parameter name="alpha" value="90" />	// rotation angle around Z in degrees
     <parameter name="beta" value="90"  />	// rotation angle around Y in degrees
     <parameter name="gamma" value="90" />	// rotation angle around X in degrees
+</section>
+
+<section daq name="virtualDAQ" title="TEST">
+    <parameter name="pedScript" value="ped"/>
+    <parameter name="runScript" value="run"/>
+    <parameter name="electronics" value="AGET"/>
 </section>
