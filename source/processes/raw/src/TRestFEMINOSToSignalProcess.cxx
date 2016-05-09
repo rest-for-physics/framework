@@ -19,6 +19,7 @@
 ///                 Igor G. Irastorza
 ///_______________________________________________________________________________
 
+//int counter = 0;
 
 #include "TRestFEMINOSToSignalProcess.h"
 using namespace std;
@@ -120,6 +121,7 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
     if(fread(&startEv, sizeof(startEv),1,fInputBinFile) !=1){
         fclose(fInputBinFile);
         cout<<"File END"<<endl;
+        fOutputEvent = NULL;
         return NULL;//File end
     }
     if(this->GetVerboseLevel()==REST_Debug){
@@ -129,6 +131,11 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
     }
     frameBits+=sizeof(startEv);
     totalBytesReaded+=sizeof(startEv);
+
+    /*
+    counter++;
+    if( counter % 100 == 0 ) cout << "Events read : " << counter << endl;
+    */
 
     //TimeStamp of the event 48 bit word
     unsigned short tsh,tsm,tsl;
@@ -176,6 +183,9 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
     bool skip=false;
 
     unsigned short dat, startDF;;
+    TRestSignal sgnl;
+    sgnl.SetSignalID( -1 );
+
 
     //Bucle till it finds the data end
     while (((dat & 0xFFF0)>>4) !=14) {
@@ -183,6 +193,7 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
         if(fread(&dat, sizeof(dat), 1, fInputBinFile) !=1){
             fclose(fInputBinFile);
             cout<<"File END 2"<<endl;
+            fOutputEvent = NULL;
             return NULL;//File end
         }
         frameBits+=sizeof(dat);
@@ -226,6 +237,11 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
                 cout<<"PhysChannel "<<physChannel<<endl;
             }
 
+            if( sgnl.GetSignalID( ) != -1 )
+                fSignalEvent->AddSignal( sgnl );
+
+            sgnl.Initialize();
+            sgnl.SetSignalID( physChannel );
 
         }
         //Timebin, may be not present if zero-suppresion is not active
@@ -239,7 +255,7 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
             adc = (dat & 0xFFF);
 
             if(this->GetVerboseLevel()==REST_Debug)cout<<"Time bin "<<timeBin<<"\tADC "<<adc<<endl;
-            if(!skip)fSignalEvent->AddChargeToSignal( physChannel, timeBin, adc );
+            if(!skip) sgnl.NewPoint( timeBin, adc );
             timeBin++;
         }
         //End of Frame, reading frame header and payload
@@ -270,6 +286,8 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
     }//while
 
     //Storing last event 
+    if( sgnl.GetSignalID( ) != -1 )
+                fSignalEvent->AddSignal( sgnl );
 
     if(this->GetVerboseLevel()==REST_Debug)cout<<" End of event "<< dat<<endl;
     //End of event footer
