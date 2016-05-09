@@ -52,7 +52,7 @@ class TRestManager:public TRestMetadata {
 
         //Construtor
         TRestManager();
-        TRestManager( const char *cfgFileName);
+        TRestManager( const char *cfgFileName, const char *name = "" );
         //Destructor
         virtual ~ TRestManager();
 

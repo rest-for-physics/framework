@@ -18,16 +18,22 @@ using namespace std;
 #include <TRestReadout.h>
 #include <TRestGas.h>
 
+// analysis processes
+#include <TRestGeant4AnalysisProcess.h>
+#include <TRestFindG4BlobAnalysisProcess.h>
+#include <TRestSignalAnalysisProcess.h>
+#include <TRestTrackAnalysisProcess.h>
+
 // specific processes
 #include <TRestElectronDiffusionProcess.h>
-#include <TRestGeant4AnalysisProcess.h>
-#include <TRestElectronDiffusionProcess.h>
 #include <TRestHitsToSignalProcess.h>
-#include <TRestSignalAnalysisProcess.h>
 #include <TRestSignalToHitsProcess.h>
 #include <TRestFastHitsToTrackProcess.h>
 #include <TRestTrackReductionProcess.h>
 #include <TRestTrackPathMinimizationProcess.h>
+
+// raw processes
+#include <TRestFEMINOSToSignalProcess.h>
 
 const int debug = 0;
 
@@ -39,11 +45,11 @@ TRestManager::TRestManager()
 
 }
 
-TRestManager::TRestManager( const char *cfgFileName) : TRestMetadata (cfgFileName)
+TRestManager::TRestManager( const char *cfgFileName, const char *name) : TRestMetadata (cfgFileName)
 {
     Initialize();
 
-    LoadConfigFromFile( fConfigFileName );
+    LoadConfigFromFile( fConfigFileName, name );
 
 }
 
@@ -76,7 +82,8 @@ void TRestManager::InitFromConfigFile()
     fNEventsToProcess = StringToInteger( GetParameter( "eventsToProcess", "0") );
 
     TString inputFile = GetParameter("inputFile" );
-    fRun->OpenInputFile( inputFile );
+    Bool_t isAcquisition = inputFile.EndsWith("aqs");
+    if( !isAcquisition ) fRun->OpenInputFile( inputFile );
 
     // Adding metadata
     size_t position = 0;
@@ -109,6 +116,9 @@ void TRestManager::InitFromConfigFile()
         if( processType == "geant4AnalysisProcess" )
             fRun->AddProcess( new TRestGeant4AnalysisProcess( ), (string) processesCfgFile, (string) processName );
 
+        if( processType == "findG4BlobAnalysisProcess" )
+            fRun->AddProcess( new TRestFindG4BlobAnalysisProcess( ), (string) processesCfgFile, (string) processName );
+
         if( processType == "electronDiffusionProcess" )
             fRun->AddProcess( new TRestElectronDiffusionProcess( ), (string) processesCfgFile, (string) processName );
 
@@ -129,6 +139,22 @@ void TRestManager::InitFromConfigFile()
 
         if( processType == "trackPathMinimizationProcess" )
             fRun->AddProcess( new TRestTrackPathMinimizationProcess( ), (string) processesCfgFile, (string) processName );
+
+        if( processType == "trackAnalysisProcess" )
+            fRun->AddProcess( new TRestTrackAnalysisProcess( ), (string) processesCfgFile, (string) processName );
+
+        if( processType == "feminosToSignalProcess" )
+        {
+            TRestFEMINOSToSignalProcess *femPcs = new TRestFEMINOSToSignalProcess();
+            if( !femPcs->OpenInputBinFile( inputFile ) )
+            {
+                cout << "Error file not found : " << inputFile << endl;
+                GetChar();
+                continue;
+            }
+
+            fRun->AddProcess( femPcs, (string) processesCfgFile, (string) processName );
+        }
     }
 
 }
@@ -184,7 +210,11 @@ void TRestManager::AddGas( string gasDefinition )
         GetChar();
     } 
 
-    if( gas != NULL ) return;
+    if( gas != NULL )
+    {
+        gas->LoadGasFile();
+        return;
+    }
 
     TString gasFile = GetParameter( "gasFile" );
     TString gasName = GetFieldValue( "name", gasDefinition );
@@ -195,6 +225,7 @@ void TRestManager::AddGas( string gasDefinition )
     fRun->AddMetadata( gas );
 
     gas = (TRestGas *) fRun->GetMetadataClass( "TRestGas" );
+    gas->LoadGasFile();
 
     gas->PrintMetadata();
 }
