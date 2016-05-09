@@ -170,7 +170,7 @@ TRestEvent* TRestSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     fAnalysisTree->SetObservableValue( obsName, thrIntegral );
 
     Double_t integralRatio = (fullIntegral-thrIntegral)/(fullIntegral+thrIntegral);
-    obsName = this->GetName() + (TString) ".IntegralRatio";
+    obsName = this->GetName() + (TString) ".IntegralBalance";
     fAnalysisTree->SetObservableValue( obsName, integralRatio );
 
     Double_t maxValue = 0;
