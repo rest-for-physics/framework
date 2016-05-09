@@ -23,7 +23,8 @@ By default REST units are mm, keV and degrees
 
     <parameter name="inputFile" value="{REST_INPUTFILE}">
     <parameter name="firstEntry" value="0" >
-    <parameter name="eventsToProcess" value="1000" >
+    <parameter name="lastEntry" value="10000" >
+    <parameter name="eventsToProcess" value="10000" >
 
     <!-- +++++++++++++++++++++++++++
          Setting source config files
@@ -35,7 +36,7 @@ By default REST units are mm, keV and degrees
     <!-- +++++++++++++++
          Adding metadata 
          +++++++++++++++ -->
-    <addMetadata type="readout" name="Readout-PANDA_3MM_Jinping" value="OFF" overwrite="false" >
+    <addMetadata type="readout" name="Readout-PANDA_3MM_Jinping" value="ON" overwrite="false" >
         <!-- gas pressure units in TRestGas is atm -->
     <addMetadata type="gas" name="Xenon-TMA 3Pct 10-10E3V/cm" pressure="10" value="ON" overwrite="false" >
 
@@ -43,12 +44,13 @@ By default REST units are mm, keV and degrees
          Adding processes 
          ++++++++++++++++ -->
     <addProcess type="geant4AnalysisProcess" name="g4Ana" value="ON" >
-    <addProcess type="findG4BlobAnalysisProcess" name="g4Blob" value="ON" >
-    <addProcess type="electronDiffusionProcess" name="electronDiffusion-1kVcm-10atm" value="ON" >
 
     <!-- This processes will not be added to TRestRun (value=OFF) -->
-
+    <addProcess type="findG4BlobAnalysisProcess" name="g4Blob" value="OFF" >
+    <addProcess type="electronDiffusionProcess" name="electronDiffusion-1kVcm-10atm" value="OFF" >
     <addProcess type="hitsToSignalProcess" name="hitsToSignal-Template" value="OFF" >
+    <addProcess type="signalGaussianConvolutionProcess" name="gaussian-Convolution" value="OFF" >
+    <addProcess type="addSignalNoiseProcess" name="addSignalNoiseProcess" value="OFF" >
     <addProcess type="signalAnalysisProcess" name="sgnlAna" value="OFF" >
 
         <!-- You can also comment out some processes to do not consider them in a particular run 
@@ -66,6 +68,7 @@ By default REST units are mm, keV and degrees
 
     <parameter name="inputFile" value="{REST_INPUTFILE}">
     <parameter name="firstEntry" value="0" >
+    <parameter name="lastEntry" value="1000" />
     <parameter name="eventsToProcess" value="1000" >
 
     <!-- +++++++++++++++++++++++++++
