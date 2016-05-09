@@ -1460,6 +1460,23 @@ Int_t TRestMetadata::FindSection( string buffer, size_t startPos )
     return NOT_FOUND;
 }
 
+void TRestMetadata::PrintTimeStamp( Double_t timeStamp )
+{
+       cout.precision(10);
+
+       time_t tt = (time_t) timeStamp;
+       struct tm *tm = localtime( &tt);
+
+       char date[20];
+       strftime(date, sizeof(date), "%Y-%m-%d", tm);
+       cout << "Date : " << date << endl;
+
+       char time[20];
+       strftime(time, sizeof(time), "%H:%M:%S", tm);
+       cout << "Time : " << time << endl;
+       cout << "++++++++++++++++++++++++" << endl;
+}
+
 void TRestMetadata::PrintConfigBuffer( ) { cout << configBuffer << endl; }
 
 void TRestMetadata::PrintMetadata()
