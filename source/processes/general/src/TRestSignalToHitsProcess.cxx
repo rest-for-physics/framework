@@ -114,7 +114,7 @@ void TRestSignalToHitsProcess::InitProcess()
         fGas->SetPressure( fGasPressure );
 
         if( fDriftVelocity == 0 )
-            fDriftVelocity = fGas->GetDriftVelocity( fElectricField );
+            fDriftVelocity = fGas->GetDriftVelocity( fElectricField ) * cmTomm;
     }
     else
     {
@@ -141,6 +141,14 @@ void TRestSignalToHitsProcess::BeginOfEventProcess()
 TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
 {
     fSignalEvent = (TRestSignalEvent *) evInput;
+
+    // TODO we must take this values from configuration
+    fSignalEvent->SubstractBaselines( 5, 100 );
+
+    fHitsEvent->SetID( fSignalEvent->GetID() );
+    fHitsEvent->SetSubID( fSignalEvent->GetSubID() );
+    fHitsEvent->SetTimeStamp( fSignalEvent->GetTimeStamp() );
+    fHitsEvent->SetSubEventTag( fSignalEvent->GetSubEventTag() );
 
     Int_t numberOfSignals = fSignalEvent->GetNumberOfSignals();
 
@@ -180,10 +188,11 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
         Double_t zPosition = plane->GetPosition().Z();
 
         numberOfHits += sgnl->GetNumberOfPoints(); 
+        Double_t thr = fThreshold * sgnl->GetBaseLineSigma( 5, 100 );
         for( int j = 0; j < sgnl->GetNumberOfPoints(); j++ )
         {
             energy = sgnl->GetData(j);
-            if( energy < fThreshold ) continue;
+            if( energy < thr ) continue;
 
             Double_t distanceToPlane = ( sgnl->GetTime(j) * fSampling ) * fDriftVelocity;
 
