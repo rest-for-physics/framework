@@ -116,6 +116,47 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
         Int_t nHits = hits->GetNumberOfHits();
         hits->SortByEnergy();
 
+        /* {{{ Debug output
+        cout << "Input hits" << endl;
+        Int_t pId = fInputTrackEvent->GetTrack( tck )->GetParentID();
+        cout << "Track : " << tck << " TrackID : " << tckId << " ParentID : " << pId << endl;
+        cout << "-----------------" << endl;
+        hits->PrintHits();
+        cout << "-----------------" << endl;
+        getchar();
+        }}} */
+
+        Double_t energy = 0.;
+        Int_t n = 0;
+        while( n < nHits && energy < fEnergyThreshold * hits->GetTotalEnergy() )
+        {
+            energy += hits->GetEnergy(n);
+            n++;
+        }
+        n++;
+
+        cout << "Number of nodes that contain the " << fEnergyThreshold * 100 << "\% of the energy : " << n << endl;
+
+        if( n < 3 ) n = 2;
+        if( n > nHits-1 ) n = nHits-1;
+
+        // Swaping hit
+        if( n > 1 )
+        {
+            Double_t maxDistance = hits->GetDistance2( 0, 1 );
+            Int_t hitToSwap = 1;
+            for( int i = 2; i <= n; i++ )
+            {
+                if( maxDistance < hits->GetDistance2( 0, i ) )
+                {
+                    maxDistance = hits->GetDistance2( 0, i );
+                    hitToSwap = i;
+                }
+            }
+
+            hits->SwapHits( hitToSwap, nHits-1 );
+        }
+
         Float_t x[fMaxNodes], y[fMaxNodes], z[fMaxNodes];
 
         hits->GetXArray( x );
