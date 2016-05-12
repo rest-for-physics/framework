@@ -128,8 +128,7 @@ int CCheldkarp_small (int ncount, CCdatagroup *dat, double *upbound,
             elist[2*k] = i;
             elist[2*k+1] = j;
             elen[k] = CCutil_dat_edgelen (i, j, dat);
-            // we dont't need this anymore
-            //if( i == ncount-1 && j == 0 ) elen[k] = -5000;
+            if( i == ncount-1 && j == 0 ) elen[k] = -5000;
             k++;
         }
     }

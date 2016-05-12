@@ -153,66 +153,37 @@ static int runHeldKarp (int ncount, CCdatagroup *dat, int *hk_tour)
     int m = 0;
     int i = 0;
     int silent = 2;
-    int j = 0;
-    int k = 0;
-    int ecount;
-    int *elist = (int *) NULL;
-    int *elen  = (int *) NULL;
-    int *besttour  = (int *) NULL;
-
-
-
-    ncount++; // add a new pseudo city
 
     hk_tlist = CC_SAFE_MALLOC (2*ncount, int);
     CCcheck_NULL (hk_tlist, "out of memory for hk_tlist");
 
-    ecount = ncount * (ncount-1) / 2;
-    elist = CC_SAFE_MALLOC (ecount*2, int);
-    elen  = CC_SAFE_MALLOC (ecount, int);
-    if (elist == (int *) NULL || elen == (int *) NULL) {
-        fprintf (stderr, "out of memory in CCheldkarp_small\n");
-        rval = HELDKARP_ERROR; goto CLEANUP;
-    }
-    
-    for (i = 0, k = 0; i < ncount; i++) {
-        for (j = 0; j < i; j++) {
-            elist[2*k] = i;
-            elist[2*k+1] = j;
-            // the distance to our pseudo city is 0
-            if( i == ncount - 1 ) { elen[k] = 0; }
-            else elen[k] = CCutil_dat_edgelen (i, j, dat);
-            k++;
-        }
-    }
-
-    rval = CCheldkarp_small_elist (ncount, ecount, elist, elen, (double *)NULL,
-                                   &hk_val, &hk_found, 0, hk_tlist,
-                                   1000000, silent);
+    rval = CCheldkarp_small (ncount, dat, (double *) NULL, &hk_val,
+                             &hk_found, 0, hk_tlist, 1000000, silent);
     CCcheck_rval (rval, "CCheldkarp_small failed");
     //printf ("Optimal Solution: %.2f\n", hk_val); fflush (stdout);
 
-    besttour = CC_SAFE_MALLOC (ncount, int);
-    CCcheck_NULL (besttour, "out of memory for besttour");
+    rval = CCutil_edge_to_cycle (ncount, hk_tlist, &hk_yesno, hk_tour);
 
-    rval = CCutil_edge_to_cycle (ncount, hk_tlist, &hk_yesno, besttour);
-    
-    // shift our pseudo to the end
-    for(;besttour[ncount-1] != ncount-1;) {
-        int t = besttour[0];
-        for(j = 1; j < ncount; ++j) {
-            besttour[j-1] = besttour[j]; 
+    int contiguos = 1;
+    while( contiguos )
+    {
+        contiguos = 0;
+        for( i = 1; i < ncount; i++ )
+            if( hk_tour[i] - hk_tour[i-1] == ncount-1 ) contiguos = 1;
+            if( hk_tour[i] - hk_tour[i-1] == 1-ncount ) contiguos = 1;
+
+        if( contiguos )
+        {
+            int tmp = hk_tour[0];
+            for( i = 1; i < ncount; i++ )
+                hk_tour[i-1] = hk_tour[i];
+            hk_tour[ncount-1] = tmp;
         }
-        besttour[ncount-1] = t;        
     }
-    memcpy(hk_tour, besttour, (ncount - 1) * sizeof(int));
 
 CLEANUP:
-    CC_IFFREE (besttour, int);
-    CC_IFFREE (elen, int);
-    CC_IFFREE (elist, int);
-    CC_IFFREE (hk_tlist, int);
 
-    return rval;
+     CC_IFFREE (hk_tlist, int);
+     return rval;
 }
 
