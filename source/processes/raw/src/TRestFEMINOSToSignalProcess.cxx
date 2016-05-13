@@ -327,6 +327,7 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
 
     }
 
+    if( fSignalEvent->GetNumberOfSignals() == 0 ) return NULL;
     //cout<<"Ev ID "<<fSignalEvent->GetID()<<" "<< <<endl;
 
     return fSignalEvent;
