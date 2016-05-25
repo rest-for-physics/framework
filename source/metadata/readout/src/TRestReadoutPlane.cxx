@@ -182,12 +182,14 @@ Int_t TRestReadoutPlane::isInsideDriftVolume( Double_t x, Double_t y, Double_t z
 
 Int_t TRestReadoutPlane::isInsideDriftVolume( TVector3 pos )
 {
-    Double_t distance = GetDistanceTo( pos );
+    TVector3 posNew = TVector3( pos.X()-fPosition.X(), pos.Y()-fPosition.Y(), pos.Z() );
+
+    Double_t distance = GetDistanceTo( posNew );
 
     if( distance > 0 && distance < fTotalDriftDistance )
     {
         for( int m = 0; m < GetNumberOfModules( ); m++ )
-            if( GetModule( m )->isInside( pos.X(), pos.Y() ) ) return m;
+            if( GetModule( m )->isInside( posNew.X(), posNew.Y() ) ) return m;
     }
 
     return -1;
