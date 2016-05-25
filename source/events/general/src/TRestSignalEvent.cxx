@@ -199,7 +199,6 @@ Double_t TRestSignalEvent::GetMaxTime( )
 //Draw current event in a Tpad
 TPad *TRestSignalEvent::DrawEvent()
 {
-
     if(fPad != NULL) { delete fPad; fPad=NULL; }
 
     int nSignals = this->GetNumberOfSignals();
@@ -219,10 +218,6 @@ TPad *TRestSignalEvent::DrawEvent()
     fPad = new TPad( this->GetName(), " ", 0, 0, 1, 1 );
     fPad->Draw();
     fPad->cd();
-    cout << "GetMinTime : " << GetMinTime() << endl;
-    cout << "GetMaxTime : " << GetMaxTime() << endl;
-    cout << "GetMinValue : " << GetMinValue() << endl;
-    cout << "GetMaxValue : " << GetMaxValue() << endl;
     fPad->DrawFrame( GetMinTime()-1, GetMinValue()-1 , GetMaxTime()+1, GetMaxValue()+1);
 
     char title[256];
