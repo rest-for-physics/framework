@@ -39,6 +39,8 @@ ClassImp(TRestSignal)
    fSignalID = -1;
    fSignalTime.clear();
    fSignalCharge.clear();
+
+   fPointsOverThreshold.clear();
 }
 
 //______________________________________________________________________________
@@ -87,43 +89,60 @@ Double_t TRestSignal::GetIntegral( Int_t startBin, Int_t endBin )
     return sum;
 }
 
+Double_t TRestSignal::GetIntegralWithTime( Int_t startTime, Int_t endTime ) 
+{
+    Double_t sum = 0;
+    for( int i = 0; i < GetNumberOfPoints(); i++ )
+        if( GetTime(i) >= startTime && GetTime(i) < endTime )
+            sum += GetData(i);
 
-Double_t TRestSignal::GetIntegralWithThreshold( Int_t from, Int_t to, Int_t startBaseline, Int_t endBaseline, Double_t nSigmas, Int_t nPointsOverThreshold, Double_t minPeakAmplitude ) 
+    return sum;
+}
+
+
+
+
+Double_t TRestSignal::GetIntegralWithThreshold( Int_t from, Int_t to, Int_t startBaseline, Int_t endBaseline, Double_t nSigmas, Int_t nPointsOverThreshold, Double_t nMinSigmas ) 
 {
     if( startBaseline < 0 ) startBaseline = 0;
     if( endBaseline <= 0 || endBaseline > GetNumberOfPoints()) endBaseline = GetNumberOfPoints();
 
     Double_t baseLine = GetBaseLine( startBaseline, endBaseline );
 
-    Double_t thr = nSigmas * GetBaseLineSigma( startBaseline, endBaseline );
+    Double_t pointThreshold = nSigmas * GetBaseLineSigma( startBaseline, endBaseline );
+    Double_t signalThreshold = nMinSigmas * GetBaseLineSigma( startBaseline, endBaseline );
 
-    return GetIntegralWithThreshold( from, to, baseLine, thr, nPointsOverThreshold, minPeakAmplitude );
+    return GetIntegralWithThreshold( from, to, baseLine, pointThreshold, nPointsOverThreshold, signalThreshold);
 }
 
-Double_t TRestSignal::GetIntegralWithThreshold( Int_t from, Int_t to, Double_t baseline, Double_t threshold, Int_t nPointsOverThreshold, Double_t minPeakAmplitude ) 
+Double_t TRestSignal::GetIntegralWithThreshold( Int_t from, Int_t to, Double_t baseline, Double_t pointThreshold, Int_t nPointsOverThreshold, Double_t signalThreshold ) 
 {
     Double_t sum = 0;
     Int_t nPoints = 0;
+    fPointsOverThreshold.clear();
 
     if( to > GetNumberOfPoints() ) to = GetNumberOfPoints();
 
-    //FILE *f = fopen("/tmp/integrated", "w" );
     Float_t maxValue = 0;
     for( int i = from; i < to; i++ )
     {
-        if( GetData(i) > baseline + threshold )
+        if( GetData(i) > baseline + pointThreshold )
         {
             if( GetData( i ) > maxValue ) maxValue = GetData( i );
             nPoints++;
         }
         else
         {
-            if( nPoints >= nPointsOverThreshold && maxValue > minPeakAmplitude )
+            if( nPoints >= nPointsOverThreshold )
             {
-                for( int j = i - nPoints; j < i; j++ )
+                Double_t sig = GetStandardDeviation( i - nPoints, i );
+                if( sig > signalThreshold )
                 {
-      //              fprintf( f, "%lf\t%lf\n", GetTime(j), GetData(j) );
-                    sum += this->GetData( j );
+                    for( int j = i - nPoints; j < i; j++ )
+                    {
+                        sum += this->GetData( j );
+                        fPointsOverThreshold.push_back( j );
+                    }
                 }
             }
             nPoints = 0;
@@ -131,27 +150,22 @@ Double_t TRestSignal::GetIntegralWithThreshold( Int_t from, Int_t to, Double_t b
         }
     }
 
-    if( nPoints >= nPointsOverThreshold && maxValue > minPeakAmplitude )
+    if( nPoints >= nPointsOverThreshold )
     {
-        for( int j = to - nPoints; j < to; j++ )
+        Double_t sig = GetStandardDeviation( to - nPoints, to );
+        if( sig > signalThreshold )
         {
-        //    fprintf( f, "%lf\t%lf\n", GetTime(j), GetData(j) );
-            sum += this->GetData( j );
+            for( int j = to - nPoints; j < to; j++ )
+            {
+                sum += this->GetData( j );
+                fPointsOverThreshold.push_back( j );
+            }
         }
     }
-    //fclose( f );
-
-    /*
-    FILE *f2 = fopen("/tmp/pulse", "w" );
-    for( int j = 0; j < GetNumberOfPoints(); j++ )
-                    fprintf( f2, "%lf\t%lf\n", GetTime(j), GetData(j) );
-    fclose( f2);
-    cout << "Saved" << endl;
-    getchar();
-    */
 
     return sum;
 }
+
 
 Double_t TRestSignal::GetAverage( Int_t start, Int_t end )
 {
@@ -359,6 +373,12 @@ Double_t TRestSignal::GetBaseLine( Int_t startBin, Int_t endBin )
     return baseLine/(endBin-startBin);
 }
 
+Double_t TRestSignal::GetStandardDeviation( Int_t startBin, Int_t endBin )
+{
+    Double_t bL = GetBaseLine( startBin, endBin );
+    return GetBaseLineSigma( startBin, endBin, bL );
+}
+
 Double_t TRestSignal::GetBaseLineSigma( Int_t startBin, Int_t endBin, Double_t baseline )
 {
     Double_t bL = baseline;
@@ -368,7 +388,7 @@ Double_t TRestSignal::GetBaseLineSigma( Int_t startBin, Int_t endBin, Double_t b
     for( int i = startBin; i < endBin; i++ )
         baseLineSigma += (bL-fSignalCharge[i]) * (bL-fSignalCharge[i]);
 
-    return TMath::Sqrt(baseLineSigma)/(endBin-startBin);
+    return TMath::Sqrt(baseLineSigma/(endBin-startBin));
 }
 
 Double_t TRestSignal::SubstractBaseline( Int_t startBin, Int_t endBin )
@@ -482,17 +502,17 @@ void TRestSignal::GetSignalGaussianConvolution( TRestSignal *convSgnl, Double_t 
    // The gaussian convolution of the initial signal is performed
    for( int i = GetMinTime()- nSigmas * sigma; i < GetMaxTime() + nSigmas * sigma; i++ )
    {
-  	for( int j = 0; j < GetNumberOfPoints(); j++ )
-   	{
-		if (TMath::Abs(i - GetTime(j)) >  nSigmas * sigma ) continue;
-		if (TMath::Abs(i - GetTime(j)) >  nSigmas * sigma  && i < GetTime(j)) break;
+       for( int j = 0; j < GetNumberOfPoints(); j++ )
+       {
+           if (TMath::Abs(i - GetTime(j)) >  nSigmas * sigma ) continue;
+           if (TMath::Abs(i - GetTime(j)) >  nSigmas * sigma  && i < GetTime(j)) break;
 
-		fGaus->SetParameter(1, GetTime(j) );
-		sum = fSignalCharge[j] / TMath::Sqrt (2. * TMath::Pi()) / sigma * fGaus->Integral(i, i+1);
+           fGaus->SetParameter(1, GetTime(j) );
+           sum = fSignalCharge[j] / TMath::Sqrt (2. * TMath::Pi()) / sigma * fGaus->Integral(i, i+1);
 
-		convSgnl->AddPoint( i , sum );	
-  		totChargeFinal += sum;
-	}
+           convSgnl->AddPoint( i , sum );	
+           totChargeFinal += sum;
+       }
 
    }
 
@@ -527,7 +547,7 @@ TGraph *TRestSignal::GetGraph( Int_t color )
 
     fGraph = new TGraph();
 
-    cout << "Signal ID " << this->GetSignalID( ) << " points " << this->GetNumberOfPoints() << endl;
+ //   cout << "Signal ID " << this->GetSignalID( ) << " points " << this->GetNumberOfPoints() << endl;
 
     fGraph->SetLineWidth( 2 );
     fGraph->SetLineColor( color );
