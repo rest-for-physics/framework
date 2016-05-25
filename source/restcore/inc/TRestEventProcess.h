@@ -60,12 +60,14 @@ class TRestEventProcess:public TRestMetadata {
 
    virtual Bool_t isExternal( ) { return false; }
 
-   void ReadObservables( )
+   vector <string> ReadObservables( )
    {
        vector <string> obsList = GetObservablesList( );
 
        for( unsigned int n = 0; n < obsList.size(); n++ )
            fAnalysisTree->AddObservable( this->GetName() + (TString) "." + (TString) obsList[n] );
+
+       return obsList;
    }
 
    TRestMetadata *GetGasMetadata( );
