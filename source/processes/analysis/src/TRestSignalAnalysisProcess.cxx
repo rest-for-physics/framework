@@ -13,10 +13,13 @@
 ///
 ///_______________________________________________________________________________
 
+#include <TPaveText.h>
+#include <TLegend.h>
 
 #include "TRestSignalAnalysisProcess.h"
 using namespace std;
 
+int counter = 0;
 
 ClassImp(TRestSignalAnalysisProcess)
     //______________________________________________________________________________
@@ -57,6 +60,11 @@ void TRestSignalAnalysisProcess::Initialize()
     fCutsEnabled = false;
     fFirstEventTime = -1;
     fPreviousEventTime.clear();
+
+    fDrawRefresh = 0;
+    fCanvas = NULL;
+
+    time(&timeStored);
 }
 
 void TRestSignalAnalysisProcess::LoadConfig( std::string cfgFilename, std::string name )
@@ -67,11 +75,16 @@ void TRestSignalAnalysisProcess::LoadConfig( std::string cfgFilename, std::strin
 //______________________________________________________________________________
 void TRestSignalAnalysisProcess::InitProcess()
 {
-    TRestEventProcess::ReadObservables();
+    fSignalAnalysisObservables = TRestEventProcess::ReadObservables();
 
     fChannelsHisto = new TH1D( "readoutChannelActivity", "readoutChannelActivity", 128, 0, 128 );
 
     fReadout = (TRestReadout*) GetReadoutMetadata();
+
+    if( fCanvas == NULL && fDrawRefresh > 0 )
+    {
+        fCanvas = new TCanvas( this->GetName(), "Signal analysis", 1024, 768);
+    }
 }
 
 //______________________________________________________________________________
@@ -96,12 +109,13 @@ TRestEvent* TRestSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     fSignalEvent->SetSubEventTag( fInputSignalEvent->GetSubEventTag() );
 
     for( int sgnl = 0; sgnl < fInputSignalEvent->GetNumberOfSignals(); sgnl++ )
+    {
         fSignalEvent->AddSignal( *fInputSignalEvent->GetSignal( sgnl ) );
+    }
     /////////////////////////////////////////////////
 
     if( fFirstEventTime == -1 )
         fFirstEventTime = fInputSignalEvent->GetTime( );
-
 
     Double_t secondsFromStart = fInputSignalEvent->GetTime() - fFirstEventTime;
     obsName = this->GetName() + (TString) ".SecondsFromStart";
@@ -165,7 +179,7 @@ TRestEvent* TRestSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     fAnalysisTree->SetObservableValue( obsName, fullIntegral );
 
 
-    Double_t thrIntegral = fSignalEvent->GetIntegralWithThreshold( from, to, fBaseLineRange.X(), fBaseLineRange.Y(), fThreshold, fNPointsOverThreshold, fMinPeakAmplitude );
+    Double_t thrIntegral = fSignalEvent->GetIntegralWithThreshold( from, to, fBaseLineRange.X(), fBaseLineRange.Y(), fPointThreshold, fNPointsOverThreshold, fSignalThreshold );
     obsName = this->GetName() + (TString) ".ThresholdIntegral";
     fAnalysisTree->SetObservableValue( obsName, thrIntegral );
 
@@ -184,7 +198,7 @@ TRestEvent* TRestSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     for( int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++ )
     {
         TRestSignal *sgnl = fSignalEvent->GetSignal( s );
-        if( sgnl->GetIntegralWithThreshold( from, to, fBaseLineRange.X(), fBaseLineRange.Y(), fThreshold, fNPointsOverThreshold, fMinPeakAmplitude ) > 0 )
+        if( sgnl->GetIntegralWithThreshold( from, to, fBaseLineRange.X(), fBaseLineRange.Y(), fPointThreshold, fNPointsOverThreshold, fSignalThreshold ) > 0 )
         {
             Double_t value = fSignalEvent->GetSignal(s)->GetMaxValue();
             if( value > maxValue ) maxValue = value;
@@ -247,6 +261,31 @@ TRestEvent* TRestSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     }
 
+
+    if( fDrawRefresh > 0 )
+    {
+        counter++;
+        if( counter > fDrawRefresh )
+        {
+            counter = 0;
+            for( unsigned int i = 0; i < fDrawingObjects.size(); i++ )
+                delete fDrawingObjects[i];
+            fDrawingObjects.clear();
+
+            TPad *pad2 = DrawSignal(0);
+
+            fCanvas->cd(); 
+            pad2->Draw();
+
+            /*
+            fCanvas->cd(4); 
+            txt->Draw();
+            */
+
+            fCanvas->Update();
+        }
+    }
+
     return fSignalEvent;
 }
 
@@ -267,16 +306,113 @@ void TRestSignalAnalysisProcess::EndProcess()
     //Comment this if you don't want it.
     //TRestEventProcess::EndProcess();
     fChannelsHisto->Write();
+
+    if( fCanvas == NULL )
+        delete fCanvas;
+}
+
+TPad *TRestSignalAnalysisProcess::DrawObservables( )
+{
+    TPad *pad = new TPad( "Signal", " ", 0, 0, 1, 1 );
+    //fDrawingObjects.push_back( (TObject *) pad );
+    pad->cd();
+
+    TPaveText *txt = new TPaveText( .05, .1, .95, .8 );
+ //   fDrawingObjects.push_back( (TObject *) txt );
+
+    txt->AddText(" ");
+    for( unsigned int i = 0; i < fSignalAnalysisObservables.size(); i++ )
+    {
+        Int_t id = fAnalysisTree->GetObservableID( this->GetName() + (TString) "." + fSignalAnalysisObservables[i] );
+        TString valueStr;
+        valueStr.Form( " : %lf", fAnalysisTree->GetObservableValue( id ) );
+        TString sentence = (TString) fSignalAnalysisObservables[i] + valueStr; 
+        txt->AddText( sentence );
+    }
+    txt->AddText(" ");
+
+    txt->Draw();
+
+    return pad;
+}
+
+TPad *TRestSignalAnalysisProcess::DrawSignal( Int_t signal )
+{
+    TPad *pad = new TPad( "Signal", " ", 0, 0, 1, 1 );
+    pad->cd();
+
+    fDrawingObjects.push_back( (TObject *) pad );
+
+    TGraph *gr = new TGraph();
+    fDrawingObjects.push_back( (TObject *) gr );
+
+    TRestSignal *sgnl = fSignalEvent->GetSignal( signal );
+
+    for( int n = 0; n < sgnl->GetNumberOfPoints(); n++ )
+        gr->SetPoint( n, sgnl->GetTime(n), sgnl->GetData(n) );
+
+    gr->Draw();
+
+    TGraph *gr2 = new TGraph();
+    fDrawingObjects.push_back( (TObject *) gr2 );
+
+    gr2->SetLineWidth( 2 );
+    gr2->SetLineColor( 2 );
+
+    for( int n = fBaseLineRange.X(); n < fBaseLineRange.Y(); n++ )
+        gr2->SetPoint( n - fBaseLineRange.X(), sgnl->GetTime(n), sgnl->GetData(n) );
+
+    gr2->Draw("same");
+
+    vector <Int_t> pOver = sgnl->GetPointsOverThreshold( );
+
+    TGraph *gr3[5];
+    Int_t nGraphs = 0;
+    gr3[nGraphs] = new TGraph();
+    fDrawingObjects.push_back( (TObject *) gr3[nGraphs] );
+    gr3[nGraphs]->SetLineWidth( 2 );
+    gr3[nGraphs]->SetLineColor( 3 );
+    Int_t point = 0;
+    Int_t nPoints = pOver.size();
+    for( int n = 0; n < nPoints-1; n++ )
+    {
+        gr3[nGraphs]->SetPoint( point, sgnl->GetTime(pOver[n]), sgnl->GetData(pOver[n]) );
+        point++;
+        if( pOver[n+1] - pOver[n] > 1 )
+        {
+            gr3[nGraphs]->Draw("same");
+            nGraphs++;
+            if( nGraphs > 4 ) cout << "Ngraphs : " << nGraphs << endl;
+            point = 0;
+            gr3[nGraphs] = new TGraph();
+            fDrawingObjects.push_back( (TObject *) gr3[nGraphs] );
+            gr3[nGraphs]->SetLineWidth( 2 );
+            gr3[nGraphs]->SetLineColor( 3 );
+        }
+    }
+    if( nPoints > 0 )
+        gr3[nGraphs]->Draw("same");
+
+    /*
+    TLegend *leg = new TLegend(.6,.7,.9,.9);
+    fDrawingObjects.push_back( (TObject *) leg );
+    leg->AddEntry( gr2, (TString) "Baseline" );
+    leg->Draw("same");
+    */
+
+    return pad;
 }
 
 //______________________________________________________________________________
 void TRestSignalAnalysisProcess::InitFromConfigFile( )
 {
+    fDrawRefresh = StringToDouble( GetParameter( "refreshEvery", "0" ) );
+
     fBaseLineRange = StringTo2DVector( GetParameter( "baseLineRange", "(5,55)") );
     fIntegralRange = StringTo2DVector( GetParameter( "integralRange", "(10,500)") );
-    fThreshold = StringToDouble( GetParameter( "threshold", 5 ) );
+    fPointThreshold = StringToDouble( GetParameter( "pointThreshold", 2 ) );
     fNPointsOverThreshold = StringToInteger( GetParameter( "pointsOverThreshold", 5 ) );
-    fMinPeakAmplitude = StringToDouble( GetParameter( "minPeakAmplitude", 50 ) );
+    fSignalThreshold = StringToDouble( GetParameter( "signalThreshold", 5 ) );
 
     fMeanBaseLineCutRange = StringTo2DVector( GetParameter( "meanBaseLineCutRange", "(0,4096)") );
     fMeanBaseLineSigmaCutRange = StringTo2DVector( GetParameter( "meanBaseLineSigmaCutRange", "(0,4096)") );

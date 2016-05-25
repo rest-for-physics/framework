@@ -15,6 +15,8 @@
 
 #include <TH1D.h>
 
+#include <TCanvas.h>
+
 #include <TRestGas.h>
 #include <TRestReadout.h>
 #include <TRestSignalEvent.h>
@@ -32,7 +34,18 @@ class TRestSignalAnalysisProcess:public TRestEventProcess {
 
         Double_t fFirstEventTime;
         vector <Double_t> fPreviousEventTime;
+
+        TCanvas *fCanvas;
+        vector <TObject *> fDrawingObjects;
+        Double_t fDrawRefresh;
+
+        time_t timeStored;
+
+        std::vector <std::string> fSignalAnalysisObservables;
 #endif
+
+        TPad *DrawSignal( Int_t signal );
+        TPad *DrawObservables( );
 
         void InitFromConfigFile();
 
@@ -46,8 +59,8 @@ class TRestSignalAnalysisProcess:public TRestEventProcess {
         //
         TVector2 fBaseLineRange;
         TVector2 fIntegralRange;
-        Double_t fThreshold;
-        Double_t fMinPeakAmplitude;
+        Double_t fPointThreshold;
+        Double_t fSignalThreshold;
         Int_t fNPointsOverThreshold;
 
         Bool_t fCutsEnabled;
@@ -78,7 +91,8 @@ class TRestSignalAnalysisProcess:public TRestEventProcess {
 
             cout << "Baseline range : ( " << fBaseLineRange.X() << " , " << fBaseLineRange.Y() << " ) " << endl;
             cout << "Integral range : ( " << fIntegralRange.X() << " , " << fIntegralRange.Y() << " ) " << endl;
-            cout << "Threshold : " << fThreshold << " sigmas" << endl;
+            cout << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
+            cout << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
             cout << "Number of points over threshold : " << fNPointsOverThreshold << endl;
             cout << "Mean base line cut range : ( " << fMeanBaseLineCutRange.X() << " , " << fMeanBaseLineCutRange.Y() << " ) " << endl;
             cout << "Mean base line sigma cut range : ( " << fMeanBaseLineSigmaCutRange.X() << " , " << fMeanBaseLineSigmaCutRange.Y() << " ) " << endl;
