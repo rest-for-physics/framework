@@ -66,7 +66,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
 
     // TODO if we do not find the volume given in the config inside the geometry we should RETURN error
-    if( volume != "Not defined" )
+    if( type == "volume" && volume != "Not defined" )
     {
         G4VPhysicalVolume *pVol = GetPhysicalVolume( volume );
 
