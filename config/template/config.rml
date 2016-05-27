@@ -100,7 +100,7 @@ By default REST units are mm, keV and degrees
 
 </section>
 
-<section run name="simulation" title="REST Simulation run (template)">
+<section run name="Run metadata" title="REST Simulation run (template)">
     <parameter name="Nevents" value="100"/>
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
