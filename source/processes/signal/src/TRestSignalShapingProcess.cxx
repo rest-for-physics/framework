@@ -67,9 +67,9 @@ void TRestSignalShapingProcess::Initialize()
 
 }
 
-void TRestSignalShapingProcess::LoadConfig( string cfgFilename )
+void TRestSignalShapingProcess::LoadConfig( string cfgFilename, string name )
 {
-    if( LoadConfigFromFile( cfgFilename ) == -1 ) LoadDefaultConfig( );
+    if( LoadConfigFromFile( cfgFilename, name ) == -1 ) LoadDefaultConfig( );
 }
 
 //______________________________________________________________________________
@@ -103,7 +103,7 @@ TRestEvent* TRestSignalShapingProcess::ProcessEvent( TRestEvent *evInput )
 
     fInputSignalEvent = (TRestSignalEvent *) evInput;
 
-	cout<<"Number of signals "<< fInputSignalEvent->GetNumberOfSignals()<< endl;
+	//cout<<"Number of signals "<< fInputSignalEvent->GetNumberOfSignals()<< endl;
 
     if( fInputSignalEvent->GetNumberOfSignals() <= 0 ) return NULL;
 
