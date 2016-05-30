@@ -51,6 +51,8 @@ class TRestHitsEvent : public TRestEvent
 
         TVector3 GetPosition( int n ) { return fHits->GetPosition(n); }
 
+        TVector3 GetMeanPosition( ) { return fHits->GetMeanPosition(); }
+
 
         Double_t GetTotalDepositedEnergy() { return fHits->fTotEnergy; }
         Double_t GetTotalEnergy() { return fHits->fTotEnergy; }
