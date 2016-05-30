@@ -81,7 +81,6 @@ void TRestSignalShapingProcess::InitProcess()
     //Start by calling the InitProcess function of the abstract class. 
     //Comment this if you don't want it.
     //TRestEventProcess::InitProcess();
-   cout << __PRETTY_FUNCTION__ << endl;
 
    responseSignal = new TRestSignal();
    TString fullPathName = (TString) getenv("REST_PATH") + "/inputData/signal/" + fResponseFilename;

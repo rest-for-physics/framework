@@ -168,7 +168,11 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 	
 	for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->SetAnalysisTree( fOutputAnalysisTree );
 
-	for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->InitProcess();
+	for( unsigned int i = 0; i < fEventProcess.size(); i++ )
+    {
+        fEventProcess[i]->InitProcess();
+        fEventProcess[i]->PrintMetadata();
+    }
 
     fOutputAnalysisTree->CreateObservableBranches( );
 
@@ -297,8 +301,6 @@ void TRestRun::AddProcess( TRestEventProcess *process, string cfgFilename, strin
         meta->PrintMetadata();
         this->AddMetadata( meta );
     }
-
-    process->PrintMetadata( );
 
     fEventProcess.push_back( process ); 
 

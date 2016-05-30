@@ -48,6 +48,8 @@ class TRestSignalShapingProcess:public TRestEventProcess {
         { 
             BeginPrintProcess();
 
+            std::cout << "Response file : " << fResponseFilename << std::endl;
+
             EndPrintProcess();
         }
 

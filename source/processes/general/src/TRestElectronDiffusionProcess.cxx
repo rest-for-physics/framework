@@ -102,8 +102,6 @@ void TRestElectronDiffusionProcess::InitProcess()
             fTransDiffCoeff = fGas->GetTransversalDiffusion( fElectricField ); // (cm)^1/2
     }
 
-    PrintMetadata();
-
     fReadout = (TRestReadout *) GetReadoutMetadata();
     if( fReadout == NULL )
     {

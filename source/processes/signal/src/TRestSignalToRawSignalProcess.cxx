@@ -83,7 +83,6 @@ void TRestSignalToRawSignalProcess::InitProcess()
     //Comment this if you don't want it.
     //TRestEventProcess::InitProcess();
 
-    cout << __PRETTY_FUNCTION__ << endl;
 }
 
 //______________________________________________________________________________

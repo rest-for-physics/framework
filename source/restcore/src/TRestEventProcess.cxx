@@ -129,12 +129,14 @@ void TRestEventProcess::EndProcess()
 */
 void TRestEventProcess::BeginPrintProcess()
 {
+   cout << endl;
    cout << "--------------------------------------------------------------------------------------------------" << endl;
-   cout << "-- Process :" << GetProcessName() << " ## " << GetName() << " ## " << GetTitle() << endl;
+   cout << "-- Process : " << GetProcessName() << " Name : " << GetName() << " Title : " << GetTitle() << endl;
    cout << "--------------------------------------------------------------------------------------------------" << endl;
 }
 
 void TRestEventProcess::EndPrintProcess()
 {
    cout << "--------------------------------------------------------------------------------------------------" << endl;
+   cout << endl;
 }
