@@ -18,6 +18,8 @@
 #include <TRestG4Event.h>
 #include <TRestHitsEvent.h>
 
+#include <TRandom3.h>
+
 #include "TRestEventProcess.h"
 
 class TRestElectronDiffusionProcess:public TRestEventProcess {
@@ -28,6 +30,8 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
 
         TRestGas *fGas;
         TRestReadout *fReadout;
+
+        TRandom3 *fRandom;
 #endif
 
         void InitFromConfigFile();

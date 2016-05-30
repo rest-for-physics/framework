@@ -17,10 +17,6 @@
 #include "TRestElectronDiffusionProcess.h"
 using namespace std;
 
-#include <TRandom3.h>
-
-TRandom3 *rnd;
-
 ClassImp(TRestElectronDiffusionProcess)
     //______________________________________________________________________________
 TRestElectronDiffusionProcess::TRestElectronDiffusionProcess()
@@ -39,7 +35,6 @@ TRestElectronDiffusionProcess::TRestElectronDiffusionProcess( char *cfgFileName 
 //______________________________________________________________________________
 TRestElectronDiffusionProcess::~TRestElectronDiffusionProcess()
 {
-    delete rnd;
     delete fHitsEvent;
     delete fG4Event;
 }
@@ -75,7 +70,7 @@ void TRestElectronDiffusionProcess::Initialize()
     fGas = NULL;
     fReadout = NULL;
 
-    rnd = new TRandom3(0);
+    fRandom = new TRandom3(0);
 }
 
 void TRestElectronDiffusionProcess::LoadConfig( string cfgFilename, string name )
@@ -120,7 +115,6 @@ void TRestElectronDiffusionProcess::InitProcess()
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::BeginOfEventProcess() 
 {
-    cout << "Begin of event process" << endl;
     fHitsEvent->Initialize(); 
 }
 
@@ -160,7 +154,7 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 
                             Double_t driftDistance = plane->GetDistanceTo( x, y, z );
 
-                            Int_t numberOfElectrons =  rnd->Poisson( eDep*1000./fWvalue );
+                            Int_t numberOfElectrons = (Int_t) (eDep*1000./fWvalue);
                             while( numberOfElectrons > 0 )
                             {
                                 numberOfElectrons--;
@@ -170,17 +164,17 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
                                 Double_t transHitDiffusion = 10. * TMath::Sqrt( driftDistance/10. ) * fTransDiffCoeff; //mm
 
                                 if (fAttachment)
-                                    isAttached =  (rnd->Uniform(0,1) > pow(1-fAttachment, driftDistance/10. ) );
+                                    isAttached =  (fRandom->Uniform(0,1) > pow(1-fAttachment, driftDistance/10. ) );
                                 else
                                     isAttached = 0;
 
                                 if ( isAttached == 0)
                                 {
-                                    xDiff = x + rnd->Gaus( 0, transHitDiffusion );
+                                    xDiff = x + fRandom->Gaus( 0, transHitDiffusion );
 
-                                    yDiff = y + rnd->Gaus( 0, transHitDiffusion );
+                                    yDiff = y + fRandom->Gaus( 0, transHitDiffusion );
 
-                                    zDiff = z + rnd->Gaus( 0, longHitDiffusion );
+                                    zDiff = z + fRandom->Gaus( 0, longHitDiffusion );
 
                                     fHitsEvent->AddHit( xDiff, yDiff, zDiff, 1. );
                                 }
@@ -197,8 +191,6 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 
 
     if( fHitsEvent->GetNumberOfHits() == 0 ) return NULL;
-
-    cout << "Event : " << g4Event->GetID() << " Tracks : " << g4Event->GetNumberOfTracks() << " electrons : " << fHitsEvent->GetNumberOfHits() << endl;
 
     return fHitsEvent;
 }
