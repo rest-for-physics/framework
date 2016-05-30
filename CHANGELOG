@@ -1,3 +1,123 @@
+
+==========================================================
+Date : 30th / May / 2016
+Branch : mainDevelopmentBranch
+Author : Javier Galan/Gloria Luzon/Hao Liang/Xinglong Li
+Merge : #64
+Title : Major upgrade. Added TRestManager and TRestAnalysisTree
+==========================================================
+
+RESTCORE
+========
+
+TRestRun changes :
+------------------
+
+* **HOTFIX**. Solved a problem related with `fInputAnalysisTree`. It was not getting the right analysis tree entry when filling `fOutputAnalysisTree`. Now `fInputAnalysisTree` entry is also updated in `GetNextEvent()`.
+
+* The method `AddProcess` now considers the name of the process : `AddProcess( cfgFile, name )`
+
+* Added method `GetMetadataClass( className )`. It returns the first occurrence of className.
+
+* The method GetAnalysisTree() has been added to get external access to the analysis tree. The members of the analysis tree are updated when we call TRestRun::GetEntry( n ), TRestRun::GetNextEvent(), TRestRun::GetEventWithID( id ), etc, for the instance of TRestRun containing the analysis tree. 
+
+TRestMetadata changes :
+-----------------------
+
+* Added method `std::out = RemoveComments( std::in )`to help removing comments in the config buffer string.
+
+* Now as soon as we read the buffer string the comments are removed. Comments are defined using XML-style `<!-- COMMENT -->`
+
+* **IMPORTANT**. `REST_CONFIG` is not used anymore, now **we will have to specify the full config path** in order to assign config files. Thus, we must execute restG4 as follows : `restG4 $REST_PATH/config/template/config.rml` (or relative to the path where we are executing the command or script).
+
+* The `LoadSectionMetadata` method accepts now a second argument with the name of the section that we want to read. If no name is specified the first occurence of `fSectionName` is loaded in the config buffer.
+
+* Several classes deriving from TRestMetadata have been re-adapted to accept retrieving the section specifying the name : TRestGas, TRestReadout, TRestEventProcess, and several processes. Not all processes have been updated to this new scheme. 
+
+* Commit 21885cb1 shows the changes required in a specific process. All the specific processes  that have been added to `TRestManager.cxx` have been migrated to this scheme.
+
+
+TRestAnalysisTree changes :
+---------------------------
+
+* **HOTFIX**. Fix related to the connection of branches with `fObservableValues`, that was leading to wrong values when reading the input analysis tree using `GetObservableValue(n)`.
+
+* Extended TRestAnalysisTree::PrintObservables to show the event ID and the event time.
+
+RESTG4
+======
+
+* Added a new argument to `restG4.cc` in order to be able to specify the name of the restG4 section we want to read. We can now have several restG4 sections in a same config file and select the section name we will use in our simulation. 
+
+* Then, we can execute as follows `restG4 $REST_PATH/config/template/config.rml DBDsimulation` to read the section defined as `<section restG4 name="DBDsimulation" ..>`. If the name is not specified the first occurrence of restG4 section will be read.
+
+* Now we define the `TRestRun::fRunTag` using the title of the restG4 section. `WARNING` We should be careful for the moment and define the title without spaces, since the `runTag` is used to define the file name. This will be prevented in the future by re-implementing `TRestRun::SetRunTag` eliminating spaces in the runTag (or directly in the filename construction).
+
+TRestG4Event and TRestG4Track changes
+-------------------------------------
+
+* Added methods to determine if an event contains a particular physics process (`isneutronInelastic()`, `isAlpha()`, `isNeutron()`). A better naming convention for these methods could be `containsXXX`.
+
+* Added a new physics process `electronNuclear` to the list of processes in `TRestG4Track`.
+
+RESTTOOLS
+=========
+
+Added TRestManager :
+--------------------
+
+* This class is used to read processes and metadata that should be added to `TRestRun` through a section named `manager`.
+
+* The *gas* and the *readout* can be added to the `manager`. In the case of the *readout*, `ROOT` and `RML` formats can be provided in the file section. The `ROOT` file should contain an object of type `TRestReadout`. As usual, we should specify the name of the *readout* in order to choose one of the possible readouts found in the file we provide (RML or ROOT).
+
+* In order to insert new processes inside `TRestManager`, the old existing processes will have to be re-adapted as it was done for the already existing processes inside `TRestManager` (See commit 21885cb1).
+
+CONFIG/INPUTDATA
+=================
+
+* A new section `manager` has been added to `template/config.rml`. Several comments have been added to this section for *insitu* explanations.
+
+* The template *event processes* configuration sections have been moved to an independent file `template/processes.rml`.
+
+* Pre-produced readouts file has been moved from definitions/PandaXIII.root to readouts_PandaXIII.root. A new readout for PandaXIII single micromegas module has been added.
+
+SCRIPTS
+=======
+
+* Several scripts have been removed related to the processing of events.
+
+* These scripts have been replaced by the macro `REST_Manager.C`. This script launches `TRestManager` using the configuration found in the section `manager`.
+
+* REST_Manager usage : `REST_Manager( "inputFile", "ManagerSectionName", "configurationFile_WithFullPath" )`.
+      - In order to accept an `inputFile`, an enviromental variable `REST_INPUTFILE` must be defined inside the `manager` section as the input file. If the input filename is directly provided inside the manager section, `REST_Manager` will ignore the value of `inputFile`.
+      - If the `configurationFile_WithFullPath` is not defined it will try to retrieve the configuration file from `REST_CONFIGFILE`, if this enviroment variable is not defined it will use as default `REST_PATH/config/template/config.rml`.
+
+PROCESSES
+=========
+
+TRestElectronDiffusion process :
+--------------------------------
+
+* The metadata management inside the process has been reviewed. Metadata structures are not created anymore inside the process. And they are obtained from the TRestRun metadata available.
+
+* New members have been added to the process. `fDriftVelocity`, `fLongDiffCoeff`, `fTransDiffCoeff`, and `fWvalue`. These members are now used in the event processing. The values of these members can be provided directly through the configuration file. If values are not specified in the config file, the values of these members are obtained from `TRestGas`, that should be found inside `TRestRun`.
+
+Analysis processes : 
+--------------------
+
+* The method `TRestEventProcess::ReadObservables` has been modified in order to modify the name of the observable (or branch name). The name of the observable will be `processName.obsName`.
+
+* Thus, in order **to reference properly the observable** inside the process implementation we need to construct the observable name with the specific name of the process. 
+
+       TString obsName = this->GetName + (TString) "./obsName";
+
+  You can check `TRestG4AnalysisProcess` for an example of implementation.
+
+**Note** : This change has been introduced in order to allow to re-use an analysis process at different processing levels, by extending the observable name (or branch name) with the specific name of the process.
+
+
+
+
 ==========================================================
 Date : 31st / March / 2016
 Branch : restG4AndRestcoreUpgrades
