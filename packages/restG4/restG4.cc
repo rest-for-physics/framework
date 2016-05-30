@@ -84,6 +84,7 @@ int main(int argc,char** argv) {
     restG4Metadata = new TRestG4Metadata( inputConfigFile, (string) restG4Name );
 
     restRun = new TRestRun( inputConfigFile );
+    restRun->SetRunTag( restG4Metadata->GetTitle() );
     restRun->PrintInfo();
     restRun->OpenOutputFile();
 
