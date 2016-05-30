@@ -286,7 +286,6 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
     configBuffer = GetKEYStructure( "globals", pos, temporalBuffer );
     if( configBuffer != "" )
     {
-
         configBuffer = ReplaceEnvironmentalVariables( configBuffer );
 
         // We extract the values from globals. 
@@ -640,6 +639,7 @@ string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
 
             outputBuffer.replace( startPosition, endPosition-startPosition+1,  envValue );
 
+            endPosition -= ( endPosition - startPosition + 1 );
         }
         else
         {
@@ -666,6 +666,8 @@ string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
             sprintf( envValue, "%s", getenv( expression.c_str() ) );
 
             outputBuffer.replace( startPosition, endPosition-startPosition+1,  envValue );
+
+            endPosition -= ( endPosition - startPosition + 1 );
         }
         else
         {
