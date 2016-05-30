@@ -181,9 +181,26 @@ class TRestRun:public TRestMetadata {
         void ImportMetadata( TString rootFile, TString name );
 
         void SetRunNumber( Int_t number ) { fRunNumber = number; }
-        void SetRunType( TString type ) { fRunType = type; }
-        void SetRunTag( TString tag ) { fRunTag = tag; }
-        void SetRunUser( TString user ) { fRunUser = user; } 
+
+        void SetRunType( TString type )
+        {
+            std::string cleanType = RemoveWhiteSpaces( (std::string) type );
+            fRunType = (TString) cleanType;
+            fRunType = type;
+        }
+
+        void SetRunTag( TString tag )
+        {
+            std::string cleanTag = RemoveWhiteSpaces( (std::string) tag );
+            fRunTag = (TString) cleanTag;
+        }
+
+        void SetRunUser( TString user )
+        {
+            std::string cleanUser = RemoveWhiteSpaces( (std::string) user );
+            fRunUser = (TString) cleanUser;
+        }
+
         void SetRunDescription( TString description ) { fRunDescription = description; }
         void SetNumberOfEvents( Int_t nEvents ) { fRunEvents = nEvents; } 
         void SetEndTimeStamp( Double_t tStamp ) { fEndTime = tStamp; }
