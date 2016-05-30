@@ -1,0 +1,3 @@
+[submodule "config/barraconSetup"]
+	path = config/barraconSetup
+	url = git@sultan.unizar.es:jgalan/barraconSetup.git
