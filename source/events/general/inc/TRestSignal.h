@@ -74,6 +74,13 @@ class TRestSignal: public TObject {
         
         Int_t GetSignalID( ) { return fSignalID; }
         Int_t GetID( ) { return fSignalID; }
+
+        void IncreaseTimeBinBy( Int_t bin, Double_t data )
+        {
+            if( bin >= GetNumberOfPoints() ) { std::cout << "Increase time bin: outside limits" << std::endl; return; }
+
+            fSignalCharge[bin] += data;
+        }
         
         Int_t GetNumberOfPoints()
         {
