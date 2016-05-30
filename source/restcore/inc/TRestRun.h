@@ -68,6 +68,9 @@ class TRestRun:public TRestMetadata {
         std::vector <TRestMetadata*> fHistoricMetadata;  // Open input file should store the metadata (and historic) information in historic metadata
         std::vector <TRestEventProcess*> fHistoricEventProcess;
 
+        Bool_t fPureAnalysisOutput;
+        Bool_t fContainsEventTree;
+
 #ifndef __CINT__
         Bool_t fOverwrite;
 
@@ -147,9 +150,21 @@ class TRestRun:public TRestMetadata {
             return fInputEventTree->GetEntry( i );
         }
 
+        void SetPureAnalysisOutput( ) { fPureAnalysisOutput = true; }
+        Bool_t ContainsEventTree( ) { return fContainsEventTree; }
         TRestAnalysisTree *GetAnalysisTree( ) { return fInputAnalysisTree; }
 
-        Int_t GetEntries( ) { return fInputEventTree->GetEntries(); }
+        Int_t GetEntries( )
+        {
+            if( fInputEventTree == NULL )
+            {
+                std::cout << "Input event tree has not been initialized" << std::endl;
+                std::cout << "This is a sign that you did not allocate an input event structure in TRestRun." << std::endl;
+                std::cout << "You should use : run->SetInputEvent( specificEventPointer )" << std::endl;
+                return 0;
+            }
+            return fInputEventTree->GetEntries();
+        }
 
         Int_t Fill( );
 
