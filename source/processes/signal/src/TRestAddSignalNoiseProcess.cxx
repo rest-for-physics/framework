@@ -101,7 +101,7 @@ TRestEvent* TRestAddSignalNoiseProcess::ProcessEvent( TRestEvent *evInput )
 
     fInputSignalEvent = (TRestSignalEvent *) evInput;
 
-	cout<<"Number of signals "<< fInputSignalEvent->GetNumberOfSignals()<< endl;
+	//cout<<"Number of signals "<< fInputSignalEvent->GetNumberOfSignals()<< endl;
 
     if( fInputSignalEvent->GetNumberOfSignals() <= 0 ) return NULL;
 
