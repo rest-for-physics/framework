@@ -35,6 +35,9 @@
         <element name="Argon" formula="Ar" Z="18" state="gas">
             <atom value="39.948" />
         </element>
+        <element name="Neon" formula="Ar" Z="10" state="gas">
+            <atom value="20.1797" />
+        </element>
         <!-- }}} -->
 
         <!-- {{{ Quenchers -->
@@ -95,6 +98,14 @@
             <T unit="K" value="gasTemperature" />
             <fraction n="quencherFraction" ref="isobutane" />
             <fraction n="1-quencherFraction" ref="Argon" />
+        </material>
+
+        <material name="Neon_ISO" state="gas">
+            <D unit="mg/cm3" value="targetGasDensity+quencherDensity" />
+            <P unit="bar" value="gasPressure" />
+            <T unit="K" value="gasTemperature" />
+            <fraction n="quencherFraction" ref="isobutane" />
+            <fraction n="1-quencherFraction" ref="Neon" />
         </material>
 
         <!-- }}} -->

@@ -46,10 +46,10 @@ TRestRawToSignalProcess::~TRestRawToSignalProcess()
    // TRestRawToSignalProcess destructor
 } 
 
-void TRestRawToSignalProcess::LoadConfig( string cfgFilename )
+void TRestRawToSignalProcess::LoadConfig( string cfgFilename, string name )
 {
     SetName( "daq" );
-    if( LoadConfigFromFile( cfgFilename ) == -1 ) { cout << "Loading default" << endl; LoadDefaultConfig( ); }
+    if( LoadConfigFromFile( cfgFilename, name ) == -1 ) { cout << "Loading default" << endl; LoadDefaultConfig( ); }
 }
 
 //______________________________________________________________________________

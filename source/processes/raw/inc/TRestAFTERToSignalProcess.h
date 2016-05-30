@@ -87,6 +87,8 @@ class TRestAFTERToSignalProcess:public TRestRawToSignalProcess {
    TString GetProcessName(){ return (TString) "AFTERToSignal"; }
    TRestMetadata *GetProcessMetadata() { return NULL; }
    
+   Bool_t isExternal() { return true; }
+
    //Constructor
    TRestAFTERToSignalProcess();
    TRestAFTERToSignalProcess(char *cfgFileName);

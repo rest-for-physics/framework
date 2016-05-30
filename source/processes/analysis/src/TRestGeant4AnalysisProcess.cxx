@@ -56,9 +56,9 @@ void TRestGeant4AnalysisProcess::Initialize()
     fInputEvent = fG4Event;
 }
 
-void TRestGeant4AnalysisProcess::LoadConfig( string cfgFilename )
+void TRestGeant4AnalysisProcess::LoadConfig( std::string cfgFilename, std::string name )
 {
-    if( LoadConfigFromFile( cfgFilename ) ) LoadDefaultConfig( );
+    if( LoadConfigFromFile( cfgFilename, name ) ) LoadDefaultConfig( );
 }
 
 //______________________________________________________________________________
@@ -72,7 +72,6 @@ void TRestGeant4AnalysisProcess::InitProcess()
 //______________________________________________________________________________
 void TRestGeant4AnalysisProcess::BeginOfEventProcess() 
 {
-    fG4Event = new TRestG4Event();
 }
 
 //______________________________________________________________________________
@@ -80,17 +79,23 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent( TRestEvent *evInput )
 {
     fG4Event = (TRestG4Event *) evInput;
 
+    TString obsName;
+
     Double_t energy = fG4Event->GetEnergyDepositedInVolume( 0 );
-    fAnalysisTree->SetObservableValue( "gasEnergyDeposit_InKeV", energy );
+    obsName = this->GetName() + (TString) ".gasEnergyDeposit_InKeV";
+    fAnalysisTree->SetObservableValue( obsName, energy );
 
-    if ( fG4Event->isPhotoElectric( ) ) { fAnalysisTree->SetObservableValue( "photoelectric", 1 ); }
-    else { fAnalysisTree->SetObservableValue( "photoelectric", 0 ); }
+    obsName = this->GetName() + (TString) ".photoelectric";
+    if ( fG4Event->isPhotoElectric( ) ) { fAnalysisTree->SetObservableValue( obsName, 1 ); }
+    else { fAnalysisTree->SetObservableValue( obsName, 0 ); }
 
-    if ( fG4Event->isCompton( ) ) fAnalysisTree->SetObservableValue( "compton", 1 );
-    else fAnalysisTree->SetObservableValue( "compton", 0 );
+    obsName = this->GetName() + (TString) ".compton";
+    if ( fG4Event->isCompton( ) ) fAnalysisTree->SetObservableValue( obsName, 1 );
+    else fAnalysisTree->SetObservableValue( obsName, 0 );
 
-    if ( fG4Event->isBremstralung( ) ) fAnalysisTree->SetObservableValue( "bremstralung", 1 );
-    else fAnalysisTree->SetObservableValue( "bremstralung", 0 );
+    obsName = this->GetName() + (TString) ".bremstralung";
+    if ( fG4Event->isBremstralung( ) ) fAnalysisTree->SetObservableValue( obsName, 1 );
+    else fAnalysisTree->SetObservableValue( obsName, 0 );
 
     cout << "Event : " << fG4Event->GetID() << " Tracks : " << fG4Event->GetNumberOfTracks() << endl;
 

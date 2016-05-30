@@ -34,24 +34,14 @@ TRestElectronDiffusionProcess::TRestElectronDiffusionProcess( char *cfgFileName 
     Initialize();
 
     if( LoadConfigFromFile( cfgFileName ) ) LoadDefaultConfig( );
-
-    PrintMetadata();
-    fGas = new TRestGas( cfgFileName );
-    fReadout = new TRestReadout( cfgFileName );
-
-    // TRestElectronDiffusionProcess default constructor
 }
 
 //______________________________________________________________________________
 TRestElectronDiffusionProcess::~TRestElectronDiffusionProcess()
 {
-    if( fGas != NULL ) { delete fGas; fGas = NULL; }
-    if( fReadout != NULL ) { delete fReadout; fReadout = NULL; }
-
     delete rnd;
     delete fHitsEvent;
     delete fG4Event;
-    // TRestElectronDiffusionProcess destructor
 }
 
 void TRestElectronDiffusionProcess::LoadDefaultConfig()
@@ -60,6 +50,7 @@ void TRestElectronDiffusionProcess::LoadDefaultConfig()
 
     fElectricField = 1000;
     fAttachment = 0;
+    fGasPressure = 1;
 }
 
 //______________________________________________________________________________
@@ -69,7 +60,11 @@ void TRestElectronDiffusionProcess::Initialize()
 
     fElectricField = 0;
     fAttachment = 0;
-    fGasPressure = 10;
+    fGasPressure = 1;
+
+    fTransDiffCoeff = 0;
+    fLonglDiffCoeff = 0;
+    fWvalue = 0;
 
     fHitsEvent = new TRestHitsEvent();
     fG4Event = new TRestG4Event();
@@ -83,25 +78,43 @@ void TRestElectronDiffusionProcess::Initialize()
     rnd = new TRandom3(0);
 }
 
-void TRestElectronDiffusionProcess::LoadConfig( string cfgFilename )
+void TRestElectronDiffusionProcess::LoadConfig( string cfgFilename, string name )
 {
-    if( LoadConfigFromFile( cfgFilename ) ) LoadDefaultConfig( );
-
-    fGas = new TRestGas( cfgFilename.c_str() );
+    if( LoadConfigFromFile( cfgFilename, name ) ) LoadDefaultConfig( );
 }
 
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::InitProcess()
 {
+    fGas = (TRestGas *) GetGasMetadata( );
+    if( fGas == NULL )
+    {
+        cout << "REST WARNING : Gas has not been initialized" << endl;
+    }
+    else
+    {
+        if( fGasPressure == -1 ) 
+            fGasPressure = fGas->GetPressure();
+        fGas->SetPressure( fGasPressure );
 
-    if( fGas == NULL ) cout << "REST ERRORRRR : Gas has not been initialized" << endl;
+        if( fWvalue == 0 )
+            fWvalue = fGas->GetWvalue();
+
+        if( fLonglDiffCoeff == 0 )
+            fLonglDiffCoeff = fGas->GetLongitudinalDiffusion( fElectricField ); // (cm)^1/2
+
+        if( fTransDiffCoeff == 0 )
+            fTransDiffCoeff = fGas->GetTransversalDiffusion( fElectricField ); // (cm)^1/2
+    }
+
+    PrintMetadata();
 
     fReadout = (TRestReadout *) GetReadoutMetadata();
-
-    if( fReadout == NULL ) cout << "REST ERRORRRR : Readout has not been initialized" << endl;
-    cout << __PRETTY_FUNCTION__ << endl;
-
-    fGas->SetPressure( fGasPressure );
+    if( fReadout == NULL )
+    {
+        cout << "REST ERRORRRR : Readout has not been initialized" << endl;
+        exit(-1);
+    }
 }
 
 //______________________________________________________________________________
@@ -109,7 +122,6 @@ void TRestElectronDiffusionProcess::BeginOfEventProcess()
 {
     cout << "Begin of event process" << endl;
     fHitsEvent->Initialize(); 
-
 }
 
 //______________________________________________________________________________
@@ -117,10 +129,6 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 {
 
     TRestG4Event *g4Event = (TRestG4Event *) evInput;
-
-    Double_t w_value = fGas->GetWvalue();
-    Double_t longlDiffCoeff = fGas->GetLongitudinalDiffusion( fElectricField ); // (cm)^1/2
-    Double_t transDiffCoeff = fGas->GetTransversalDiffusion( fElectricField ); // (cm)^1/2
 
     Int_t isAttached;
 
@@ -152,14 +160,14 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 
                             Double_t driftDistance = plane->GetDistanceTo( x, y, z );
 
-                            Int_t numberOfElectrons =  rnd->Poisson( eDep*1000./w_value );
+                            Int_t numberOfElectrons =  rnd->Poisson( eDep*1000./fWvalue );
                             while( numberOfElectrons > 0 )
                             {
                                 numberOfElectrons--;
 
-                                Double_t longHitDiffusion = 10. * TMath::Sqrt( driftDistance/10. ) * longlDiffCoeff; //mm
+                                Double_t longHitDiffusion = 10. * TMath::Sqrt( driftDistance/10. ) * fLonglDiffCoeff; //mm
 
-                                Double_t transHitDiffusion = 10. * TMath::Sqrt( driftDistance/10. ) * transDiffCoeff; //mm
+                                Double_t transHitDiffusion = 10. * TMath::Sqrt( driftDistance/10. ) * fTransDiffCoeff; //mm
 
                                 if (fAttachment)
                                     isAttached =  (rnd->Uniform(0,1) > pow(1-fAttachment, driftDistance/10. ) );
@@ -216,7 +224,10 @@ void TRestElectronDiffusionProcess::EndProcess()
 void TRestElectronDiffusionProcess::InitFromConfigFile( )
 {
     // TODO add pressure units
-    fGasPressure = StringToDouble( GetParameter( "gasPressure" ) );
-    fElectricField = GetDblParameterWithUnits( "electricField" );
-    fAttachment = StringToDouble( GetParameter( "attachment" ) );
+    fGasPressure = StringToDouble( GetParameter( "gasPressure", "-1" ) );
+    fElectricField = GetDblParameterWithUnits( "electricField", 1000 );
+    fAttachment = StringToDouble( GetParameter( "attachment", "0" ) );
+    fLonglDiffCoeff = StringToDouble( GetParameter( "longitudinalDiffusionCoefficient" , "0") );
+    fTransDiffCoeff = StringToDouble( GetParameter( "transversalDiffusionCoefficient" , "0") );
+    fWvalue = GetDblParameterWithUnits( "Wvalue" , 0) * REST_Units::eV;
 }

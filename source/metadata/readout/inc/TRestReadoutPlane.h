@@ -54,6 +54,12 @@ class TRestReadoutPlane: public TObject {
         void SetChargeCollection( Double_t charge ) { fChargeCollection = charge; }
         void SetTotalDriftDistance( Double_t d ) { fTotalDriftDistance = d; }
 
+        void SetDriftDistance( )
+        {
+            Double_t tDriftDistance = this->GetDistanceTo( this->GetCathodePosition() );
+            this->SetTotalDriftDistance( tDriftDistance );
+        }
+
         Int_t GetID ( ) { return fPlaneID; }
         TVector3 GetPosition( ) { return fPosition; }
         TVector3 GetCathodePosition( ) { return fCathodePosition; }
@@ -84,6 +90,13 @@ class TRestReadoutPlane: public TObject {
 
         TRestReadoutModule *GetReadoutModule( int mod ) { return GetModule( mod ); }
         TRestReadoutChannel *GetReadoutChannel( Int_t mod, Int_t ch ) { return GetChannel( mod, ch ); }
+
+        Int_t FindChannel( Int_t module, Double_t absX, Double_t absY )
+        {
+            Double_t modX = absX - fPosition.X();
+            Double_t modY = absY - fPosition.Y();
+            return GetModule( module )->FindChannel( modX, modY );
+        }
 
         Int_t GetNumberOfModules( ) { return fReadoutModules.size(); }
         Int_t GetNumberOfChannels( );

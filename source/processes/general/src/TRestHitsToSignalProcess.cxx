@@ -14,16 +14,6 @@
 #include "TRestHitsToSignalProcess.h"
 using namespace std;
 
-
-/* Chrono can be used for measuring time with better precision and test the time spent for different parts of the code
-   using high_resolution_clock 
-#include <iostream>
-#include <chrono>
-
-using namespace std;
-using namespace std::chrono;
- */
-
 const double cmTomm = 10.;
 
 ClassImp(TRestHitsToSignalProcess)
@@ -77,14 +67,15 @@ void TRestHitsToSignalProcess::LoadDefaultConfig( )
 
 }
 
-void TRestHitsToSignalProcess::LoadConfig( string cfgFilename )
+void TRestHitsToSignalProcess::LoadConfig( string cfgFilename, string name )
 {
-    if( LoadConfigFromFile( cfgFilename ) ) LoadDefaultConfig( );
+    if( LoadConfigFromFile( cfgFilename, name ) ) LoadDefaultConfig( );
 
     // The gas metadata will only be available after using AddProcess method of TRestRun
     fGas = (TRestGas *) this->GetGasMetadata( );
     if( fGas != NULL )
     {
+        if( fGasPressure == -1 ) fGasPressure = fGas->GetPressure();
         fGas->LoadGasFile( );
         fGas->SetPressure( fGasPressure );
         cout << "Gas loaded from Run metadata" << endl;
@@ -145,8 +136,25 @@ void TRestHitsToSignalProcess::InitProcess()
     //Comment this if you don't want it.
     //TRestEventProcess::InitProcess();
 
-    if( fReadout == NULL ) cout << "REST ERRORRRR : Readout has not been initialized" << endl;
-    if( fGas == NULL ) cout << "REST ERROR: Gas has not been initialized" << endl;
+    fReadout = (TRestReadout *) GetReadoutMetadata();
+    if( fReadout == NULL )
+    {
+        cout << "REST ERROR : Readout has not been initialized" << endl;
+        exit(-1);
+    }
+
+    fGas = (TRestGas *) GetGasMetadata( );
+    if( fGas == NULL )
+    {
+        cout << "REST WARNING : Gas has not been initialized" << endl;
+    }
+    else
+    {
+        fGas->SetPressure( fGasPressure );
+
+        if( fDriftVelocity == 0 )
+            fDriftVelocity = fGas->GetDriftVelocity( fElectricField );
+    }
 }
 
 //______________________________________________________________________________
@@ -203,14 +211,12 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
            if( moduleId >= 0 )
            {
 
-               //    high_resolution_clock::time_point t1 = high_resolution_clock::now();
                Int_t readoutChannel = module->FindChannel( x, y );
                Int_t daqId = module->GetChannel( readoutChannel )->GetDaqID( );
-               //    high_resolution_clock::time_point t2 = high_resolution_clock::now();
 
                Double_t energy = fHitsEvent->GetEnergy( hit );
                 
-               Double_t time = plane->GetDistanceTo( x, y, z ) / (fGas->GetDriftVelocity( fElectricField ) * cmTomm );
+               Double_t time = plane->GetDistanceTo( x, y, z ) / fDriftVelocity;
                time = ( (Int_t) (time/fSampling) );
 
                fSignalEvent->AddChargeToSignal( daqId, time, energy );
@@ -247,7 +253,10 @@ void TRestHitsToSignalProcess::EndProcess()
 void TRestHitsToSignalProcess::InitFromConfigFile( )
 {
     fSampling = GetDblParameterWithUnits( "sampling" );
-    fGasPressure = StringToDouble( GetParameter( "gasPressure" ) );
+    fGasPressure = StringToDouble( GetParameter( "gasPressure", "-1" ) );
     fElectricField = GetDblParameterWithUnits( "electricField" );
+    
+    // TODO : Still units must be implemented for velocity quantities
+    fDriftVelocity = StringToDouble( GetParameter( "driftVelocity" , "0") ) * cmTomm;
 }
 

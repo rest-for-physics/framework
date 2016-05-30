@@ -59,13 +59,19 @@ void TRestRunMerger::SetFilelist( TString namePattern )
     TString command = "ls -d -1 " + namePattern + " > /tmp/RunMerger_X8asa2kf";
     char cmd[256];
     sprintf( cmd, "%s", command.Data() );
-    system( cmd );
-
-    char filename[256];
-    FILE *flist = fopen( "/tmp/RunMerger_X8asa2kf", "rt" ); 
-    while ( fscanf( flist, "%s\n", filename ) != EOF )
+    if( system( cmd ) == -1 ) 
     {
-        fInputFileList.push_back( filename );
+        cout << "TRestRunMerger::SetFileList." << endl;
+        cout << "REST Internal error. Contact rest-dev@cern.ch" << endl;
+    }
+    else
+    {
+        char filename[256];
+        FILE *flist = fopen( "/tmp/RunMerger_X8asa2kf", "rt" ); 
+        while ( fscanf( flist, "%s\n", filename ) != EOF )
+        {
+            fInputFileList.push_back( filename );
+        }
     }
 
 }

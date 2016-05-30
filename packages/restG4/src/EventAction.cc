@@ -205,26 +205,20 @@ void EventAction::FillSubEvent( Int_t subId )
 
         if( id - i  != 1 )
         {
+            // Changing track ids
             tr->SetTrackID( i + 1 );
+            for( int t = i+1; t < subRestG4Event->GetNumberOfTracks(); t++ )
+            {
+                TRestG4Track *tr2 = subRestG4Event->GetTrack( t );
+                if( tr2->GetTrackID() == i + 1 ) tr2->SetTrackID( id );
+            }
+
+            // Changing parent ids
             for( int t = 0; t < subRestG4Event->GetNumberOfTracks(); t++ )
             {
                 TRestG4Track *tr2 = subRestG4Event->GetTrack( t );
                 if( tr2->GetParentID( ) == id  ) tr2->SetParentID( i + 1 );
-            }
-            for( int t = 0; t < subRestG4Event->GetNumberOfTracks(); t++ )
-            {
-                if( t == i ) continue;
-                TRestG4Track *tr2 = subRestG4Event->GetTrack( t );
-                if( tr2->GetTrackID( ) == i + 1 )
-                {
-                    tr2->SetTrackID( id );
-                    for( int k = 0; k < subRestG4Event->GetNumberOfTracks(); k++ )
-                    {
-                        TRestG4Track *tr3 = subRestG4Event->GetTrack( t );
-                        if( tr3->GetParentID() == i+1  ) tr3->SetParentID( id );
-                    }
-                }
-
+                else if( tr2->GetParentID( ) == i + 1 ) tr2->SetParentID( id );
             }
         }
     }

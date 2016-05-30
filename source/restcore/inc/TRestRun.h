@@ -99,7 +99,7 @@ class TRestRun:public TRestMetadata {
     public:
         
         void Start(  );
-        void ProcessEvents( Int_t firstEvent = 0, Int_t eventsToProcess = 0 );
+        void ProcessEvents( Int_t firstEvent = 0, Int_t eventsToProcess = 0, Int_t lastEvent = 0 );
         
         Int_t GetNumberOfProcesses() { return fEventProcess.size(); }
 
@@ -147,6 +147,8 @@ class TRestRun:public TRestMetadata {
             return fInputEventTree->GetEntry( i );
         }
 
+        TRestAnalysisTree *GetAnalysisTree( ) { return fInputAnalysisTree; }
+
         Int_t GetEntries( ) { return fInputEventTree->GetEntries(); }
 
         Int_t Fill( );
@@ -160,6 +162,7 @@ class TRestRun:public TRestMetadata {
         }
 
         TRestMetadata *GetMetadata( TString name );
+        TRestMetadata *GetMetadataClass( TString className );
         void ImportMetadata( TString rootFile, TString name );
 
         void SetRunNumber( Int_t number ) { fRunNumber = number; }
@@ -186,10 +189,12 @@ class TRestRun:public TRestMetadata {
 
         void AddMetadata( TRestMetadata *metadata ) { fMetadata.push_back( metadata ); }
         void AddHistoricMetadata( TRestMetadata *metadata ) { fHistoricMetadata.push_back( metadata ); }
-        void AddProcess( TRestEventProcess *process, std::string cfgFilename );
+        void AddProcess( TRestEventProcess *process, std::string cfgFilename, std::string name = "" );
 
         virtual void SetOutputEvent( TRestEvent *evt );
         virtual void SetInputEvent( TRestEvent *evt );
+
+        Int_t ValidateProcessChain ( );
 	
         Bool_t GetNextEvent( );
 	

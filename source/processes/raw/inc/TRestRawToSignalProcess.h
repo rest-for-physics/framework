@@ -57,7 +57,9 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    virtual TString GetProcessName()=0;
    TRestMetadata *GetProcessMetadata() { return NULL; }
 
-   void LoadConfig( std::string cfgFilename );
+   void LoadConfig( std::string cfgFilename, std::string name = "" );
+
+   virtual Bool_t isExternal() { return true; }
    
    void PrintMetadata();
    

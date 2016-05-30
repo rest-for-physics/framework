@@ -52,42 +52,18 @@ void TRestSignalToHitsProcess::LoadDefaultConfig( )
 
     fSampling = 1;
     fThreshold = 400;
-    fCathodePosition = -1000;
-    fAnodePosition = 0;
     fElectricField = 1000;
     fGasPressure = 10;
 
 }
 
-void TRestSignalToHitsProcess::LoadConfig( string cfgFilename )
+void TRestSignalToHitsProcess::LoadConfig( std::string cfgFilename, std::string name )
 {
-    if( LoadConfigFromFile( cfgFilename ) ) LoadDefaultConfig( );
+    if( LoadConfigFromFile( cfgFilename, name ) ) LoadDefaultConfig( );
 
-    // The gas metadata will only be available after using AddProcess method of TRestRun
-    fGas = (TRestGas *) this->GetGasMetadata( );
-    if( fGas != NULL )
-    {
-        fGas->LoadGasFile( );
-        cout << "Gas loaded from Run metadata" << endl;
-    }
-    else
-    {
-        cout << "I did not find the gas inside run. Loading gas from config file" << endl;
-        fGas = new TRestGas( cfgFilename.c_str() );
-    }
-
-    if( fGas != NULL ) fGas->PrintMetadata( );
-
-    fGas->SetPressure( fGasPressure );
-    cout << "Drift velocity : " << fGas->GetDriftVelocity( fElectricField ) << "cm/us" << endl;
-
-
-    // The readout metadata will only be available after using AddProcess method of TRestRun
-    fReadout = (TRestReadout *) this->GetReadoutMetadata( );
-
-    if( fReadout == NULL )
-        fReadout = new TRestReadout( cfgFilename.c_str() );
-
+    ////////////////////////////////////////////////
+    // TODO : These lines should be probably avoided
+    
     // If the parameters have no value it tries to obtain it from electronDiffusionProcess
     if ( fElectricField == PARAMETER_NOT_FOUND_DBL )
     {	
@@ -96,26 +72,13 @@ void TRestSignalToHitsProcess::LoadConfig( string cfgFilename )
             cout << "Getting electric field from electronDiffusionProcess : " << fElectricField << " V/cm" << endl;
     }
 
-    if ( fCathodePosition == PARAMETER_NOT_FOUND_DBL )
-    {
-        fCathodePosition = this->GetDoubleParameterFromClassWithUnits( "TRestElectronDiffusionProcess", "cathodePosition" );
-        if( fCathodePosition != PARAMETER_NOT_FOUND_DBL )
-            cout << "Getting cathode position from electronDiffusionProcess : " << fCathodePosition << " mm" << endl;
-    }
-
-    if ( fAnodePosition == PARAMETER_NOT_FOUND_DBL )
-    {
-        fAnodePosition = this->GetDoubleParameterFromClassWithUnits( "TRestElectronDiffusionProcess", "anodePosition" );
-        if( fAnodePosition != PARAMETER_NOT_FOUND_DBL )
-            cout << "Getting cathode position from electronDiffusionProcess : " << fAnodePosition << " mm" << endl;
-    }
-
     if ( fSampling == PARAMETER_NOT_FOUND_DBL )
     {
         fSampling = this->GetDoubleParameterFromClassWithUnits( "TRestHitsToSignalProcess", "sampling" );
-        if( fCathodePosition != PARAMETER_NOT_FOUND_DBL )
+        if( fSampling != PARAMETER_NOT_FOUND_DBL )
             cout << "Getting sampling rate from hitsToSignal process : " << fSampling << " um" << endl;
     }
+    ////////////////////////////////////////////////
 }
 
 //______________________________________________________________________________
@@ -124,7 +87,6 @@ void TRestSignalToHitsProcess::Initialize()
     SetName( "signalToHitsProcess" );
 
     fHitsEvent = new TRestHitsEvent();
-
     fSignalEvent = new TRestSignalEvent();
 
     fInputEvent = fSignalEvent;
@@ -144,9 +106,28 @@ void TRestSignalToHitsProcess::InitProcess()
     //Comment this if you don't want it.
     //TRestEventProcess::InitProcess();
 
-    if( fReadout == NULL ) cout << "REST ERRORRRR : Readout has not been initialized" << endl;
-    if( fGas == NULL ) cout << "REST ERROR : Gas metadata is not initialized!" << endl;
+    fGas = (TRestGas *) this->GetGasMetadata( );
+    if( fGas != NULL )
+    {
+        if( fGasPressure == -1 ) 
+            fGasPressure = fGas->GetPressure();
+        fGas->SetPressure( fGasPressure );
 
+        if( fDriftVelocity == 0 )
+            fDriftVelocity = fGas->GetDriftVelocity( fElectricField ) * cmTomm;
+    }
+    else
+    {
+        cout << "REST_WARNING. No TRestGas found in TRestRun." << endl;
+    }
+
+    fReadout = (TRestReadout *) this->GetReadoutMetadata( );
+
+    if( fReadout == NULL )
+    {
+        cout << "REST ERRORRRR : Readout has not been initialized" << endl;
+        exit(-1);
+    }
 }
 
 //______________________________________________________________________________
@@ -160,6 +141,14 @@ void TRestSignalToHitsProcess::BeginOfEventProcess()
 TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
 {
     fSignalEvent = (TRestSignalEvent *) evInput;
+
+    // TODO we must take this values from configuration
+    fSignalEvent->SubstractBaselines( 5, 100 );
+
+    fHitsEvent->SetID( fSignalEvent->GetID() );
+    fHitsEvent->SetSubID( fSignalEvent->GetSubID() );
+    fHitsEvent->SetTimeStamp( fSignalEvent->GetTimeStamp() );
+    fHitsEvent->SetSubEventTag( fSignalEvent->GetSubEventTag() );
 
     Int_t numberOfSignals = fSignalEvent->GetNumberOfSignals();
 
@@ -199,12 +188,13 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
         Double_t zPosition = plane->GetPosition().Z();
 
         numberOfHits += sgnl->GetNumberOfPoints(); 
+        Double_t thr = fThreshold * sgnl->GetBaseLineSigma( 5, 100 );
         for( int j = 0; j < sgnl->GetNumberOfPoints(); j++ )
         {
             energy = sgnl->GetData(j);
-            if( energy < fThreshold ) continue;
+            if( energy < thr ) continue;
 
-            Double_t distanceToPlane = ( sgnl->GetTime(j) * fSampling ) * (fGas->GetDriftVelocity( fElectricField ) * cmTomm );
+            Double_t distanceToPlane = ( sgnl->GetTime(j) * fSampling ) * fDriftVelocity;
 
             z = zPosition + fieldZDirection * distanceToPlane;
 
@@ -239,11 +229,10 @@ void TRestSignalToHitsProcess::EndProcess()
 //______________________________________________________________________________
 void TRestSignalToHitsProcess::InitFromConfigFile( )
 {
-    fCathodePosition = GetDblParameterWithUnits( "cathodePosition" );
-    fAnodePosition = GetDblParameterWithUnits( "anodePosition" );
     fElectricField = GetDblParameterWithUnits( "electricField" );
     fSampling = GetDblParameterWithUnits( "sampling" );
     fThreshold = StringToDouble( GetParameter( "threshold" ) );
-    fGasPressure = StringToDouble( GetParameter( "gasPressure" ) );
+    fGasPressure = StringToDouble( GetParameter( "gasPressure", "-1" ) );
+    fDriftVelocity = StringToDouble( GetParameter( "driftVelocity" , "0") ) * cmTomm;
 }
 

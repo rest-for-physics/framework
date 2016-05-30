@@ -63,6 +63,8 @@ class TRestTrackEvent: public TRestEvent {
 
         TPad *DrawEvent();
 
+        TPad *GetPad() { return fPad; }
+
         //Setters
         void AddTrack( TRestTrack *c ){ fTrack.push_back(*c); fNtracks++; SetLevels(); }
         void RemoveTrack(int n){fTrack.erase(fTrack.begin()+n); fNtracks--; SetLevels(); }  

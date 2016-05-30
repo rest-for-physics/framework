@@ -43,7 +43,7 @@ class TRestSignalGaussianConvolutionProcess:public TRestEventProcess {
         void EndOfEventProcess(); 
         void EndProcess();
 
-        void LoadConfig( std::string cfgFilename );
+        void LoadConfig( std::string cfgFilename, string name = "" );
 
         void PrintMetadata() 
         { 

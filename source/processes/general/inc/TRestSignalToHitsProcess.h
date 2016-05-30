@@ -42,10 +42,9 @@ class TRestSignalToHitsProcess:public TRestEventProcess {
 
         Double_t fSampling; // us
         Double_t fThreshold;
-        Double_t fAnodePosition; //mm
-        Double_t fCathodePosition; //mm
         Double_t fElectricField; // V/cm
         Double_t fGasPressure; // atm
+        Double_t fDriftVelocity; // mm/us
 
     public:
 
@@ -55,18 +54,18 @@ class TRestSignalToHitsProcess:public TRestEventProcess {
         void EndOfEventProcess(); 
         void EndProcess();
 
-        void LoadConfig( std::string cfgFilename );
+        void LoadConfig( std::string cfgFilename, std::string name = "" );
 
         void PrintMetadata() 
         {
             BeginPrintProcess();
 
             std::cout << "Sampling rate : " << fSampling << " mm" << std::endl;
-            std::cout << "Anode position : " << fAnodePosition << " mm" << std::endl;
-            std::cout << "Cathode position : " << fCathodePosition << " mm" << std::endl;
             std::cout << "Electric field : " << fElectricField << " V/cm" << std::endl;
             std::cout << "Threshold : " << fThreshold << std::endl;
-            std::cout << "Gas pressure : " << fGasPressure << std::endl;
+            std::cout << "Gas pressure : " << fGasPressure << " atm" << std::endl;
+            std::cout << "Drift velocity : " << fDriftVelocity << " mm/us" << std::endl;
+
 
             EndPrintProcess();
         }

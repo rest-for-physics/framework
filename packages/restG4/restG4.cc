@@ -68,23 +68,23 @@ TH1D initialAngularDistribution;
 
 Int_t N_events;
 char inputConfigFile[256];
+char restG4Name[256];
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
 
 int main(int argc,char** argv) {
 
     // {{{ Getting by argument the simulation config file 
     sprintf( inputConfigFile, "%s", "myConfig.rml");
-    if( argc >= 2 )
-    {
-        sprintf( inputConfigFile, "%s", argv[1] ); 
-    }
+    if( argc >= 2 ) sprintf( inputConfigFile, "%s", argv[1] );
+    if( argc >= 3 ) sprintf( restG4Name, "%s", argv[2] );
 
     // }}} 
 
     // {{{ Initializing REST classes
-    restG4Metadata = new TRestG4Metadata( inputConfigFile );
+    restG4Metadata = new TRestG4Metadata( inputConfigFile, (string) restG4Name );
 
     restRun = new TRestRun( inputConfigFile );
+    restRun->SetRunTag( restG4Metadata->GetTitle() );
     restRun->PrintInfo();
     restRun->OpenOutputFile();
 

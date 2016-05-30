@@ -59,10 +59,10 @@ void TRestTrackPathMinimizationProcess::Initialize( )
     fInputEvent  = fInputTrackEvent;
 }
 
-void TRestTrackPathMinimizationProcess::LoadConfig( string cfgFilename )
+void TRestTrackPathMinimizationProcess::LoadConfig( std::string cfgFilename, std::string name )
 {
 
-    if( LoadConfigFromFile( cfgFilename ) == -1 ) LoadDefaultConfig( );
+    if( LoadConfigFromFile( cfgFilename, name ) == -1 ) LoadDefaultConfig( );
 
     if( fEnergyThreshold <= 0 || fEnergyThreshold >= 1 )
     {

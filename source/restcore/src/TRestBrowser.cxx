@@ -107,14 +107,15 @@ if(LoadEvent(eventN))fCurrentEvent=eventN;
 
 void TRestBrowser::LoadNextEventAction( ){
 
-Int_t nextEvent = fCurrentEvent+1;
+    Int_t nextEvent = fCurrentEvent+1;
 
-cout<<" Next event "<<nextEvent<<endl;
+    cout<<" Next event "<<nextEvent<<endl;
 
-if(LoadEvent(nextEvent)){
-fCurrentEvent=nextEvent;
-fNEvent->SetIntNumber(fCurrentEvent);
-}
+    if(LoadEvent(nextEvent))
+    {
+        fCurrentEvent=nextEvent;
+        fNEvent->SetIntNumber(fCurrentEvent);
+    }
 
 }
 
@@ -152,7 +153,7 @@ cout<<"Opening "<<dir.Data( )<<endl;
 Bool_t TRestBrowser::OpenFile( TString fName )
 {
 
-    TGeoManager *geometry;
+    TGeoManager *geometry = NULL;
 
     string fname = fName.Data();
     if( !fileExists( fname ) ) {
@@ -184,6 +185,7 @@ Bool_t TRestBrowser::OpenFile( TString fName )
     
     if( geometry != NULL )fEventViewer->SetGeometry( geometry );
     
+    PrintAllMetadata();
     isFile=kTRUE;
     LoadEventAction( );
     
@@ -197,6 +199,9 @@ if(!isFile){cout<<"No file..."<<endl;return kFALSE;}
 
 if(n<fInputEventTree->GetEntries()&&n>=0){
 fInputEventTree->GetEntry(n);
+
+        this->GetEntry(fCurrentEvent);
+        GetAnalysisTree()->PrintObservables();
 fCurrentEvent=n;
 }
 else{cout<<"Event out of limits"<<endl; return kFALSE;}

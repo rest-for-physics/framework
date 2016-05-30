@@ -38,6 +38,20 @@ TRestReadout::TRestReadout( const char *cfgFileName) : TRestMetadata (cfgFileNam
         }
 }
 
+TRestReadout::TRestReadout( const char *cfgFileName, string name) : TRestMetadata (cfgFileName)
+{
+    Initialize();
+
+    LoadConfigFromFile( fConfigFileName, name );
+
+    for( int p = 0; p < this->GetNumberOfReadoutPlanes(); p++ )
+        for( int m = 0; m < this->GetReadoutPlane(p)->GetNumberOfModules(); m++ )
+        {
+            cout << "Mapping plane : " << p << " Module : " << m << endl;
+            this->GetReadoutPlane(p)->GetReadoutModule(m)->DoReadoutMapping();
+        }
+}
+
 void TRestReadout::Initialize()
 {
     SetName("readout");
@@ -142,7 +156,11 @@ void TRestReadout::InitFromConfigFile()
                 Int_t daq, readout;
                 while( !feof( f ) )
                 {
-                    fscanf(f,"%d\t%d\n", &daq, &readout );
+                    if( fscanf(f,"%d\t%d\n", &daq, &readout ) <= 0 )
+                    {
+                        cout << "REST Error!!. TRestG4Metadata::ReadGeneratorFile. Contact rest-dev@cern.ch" << endl;
+                        exit(-1);
+                    }
                     rChannel.push_back( readout );
                     dChannel.push_back( daq + firstDaqChannel );
                 }

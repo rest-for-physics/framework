@@ -71,9 +71,9 @@ void TRestAddSignalNoiseProcess::Initialize()
 
 }
 
-void TRestAddSignalNoiseProcess::LoadConfig( string cfgFilename )
+void TRestAddSignalNoiseProcess::LoadConfig( string cfgFilename, string name )
 {
-    if( LoadConfigFromFile( cfgFilename ) == -1 ) LoadDefaultConfig( );
+    if( LoadConfigFromFile( cfgFilename, name ) == -1 ) LoadDefaultConfig( );
 }
 
 //______________________________________________________________________________

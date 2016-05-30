@@ -48,10 +48,20 @@ class TRestSignal: public TObject {
     public:
 
 #ifndef __CINT__
+
         TGraph *fGraph;
+
+        std::vector <Int_t> fPointsOverThreshold;
 #endif
 
-        // TODO other objects should probably skip using this direclty
+        void Initialize()
+        {
+            fSignalCharge.clear();
+            fSignalTime.clear();
+            fSignalID = -1;
+        }
+
+        // TODO other objects should probably skip using GetMaxIndex direclty
         Int_t GetMaxIndex();
 
         //Getters
@@ -64,6 +74,13 @@ class TRestSignal: public TObject {
         
         Int_t GetSignalID( ) { return fSignalID; }
         Int_t GetID( ) { return fSignalID; }
+
+        void IncreaseTimeBinBy( Int_t bin, Double_t data )
+        {
+            if( bin >= GetNumberOfPoints() ) { std::cout << "Increase time bin: outside limits" << std::endl; return; }
+
+            fSignalCharge[bin] += data;
+        }
         
         Int_t GetNumberOfPoints()
         {
@@ -76,15 +93,21 @@ class TRestSignal: public TObject {
             return fSignalTime.size(); 
         }
 
-        Double_t GetIntegral( );
-        Double_t GetIntegral( Int_t ni, Int_t nf );
-        Double_t GetIntegralWithThreshold( Int_t ni, Int_t nf, Double_t threshold );
+        Double_t GetIntegralWithTime( Int_t startTime, Int_t endTime );
+        Double_t GetIntegral( Int_t startBin = 0, Int_t endBin = 0 );
+        Double_t GetIntegralWithThreshold( Int_t from, Int_t to, Int_t startBaseline, Int_t endBaseline, Double_t threshold = 2, Int_t nPointsOverThreshold = 5, Double_t nMinSigmas = 5 );
+        Double_t GetIntegralWithThreshold( Int_t from, Int_t to, Double_t baseline, Double_t pointThreshold, Int_t nPointsOverThreshold, Double_t signalThreshold );
+ //       Double_t GetIntegralWithThreshold( Int_t from, Int_t to, Double_t baseline, Double_t threshold = 5, Int_t nPointsOverThreshold = 5, Double_t nMinSigmas = 5 );
+
+        std::vector <Int_t> GetPointsOverThreshold( ) { return fPointsOverThreshold; }
 
         Double_t GetAverage( Int_t start, Int_t end );
         Int_t GetMaxPeakWidth();
 
         Double_t GetMaxPeakValue();
         Double_t GetMinPeakValue();
+
+        Double_t GetMaxPeakTime();
 
         Double_t GetMaxValue() { return GetMaxPeakValue(); }
         Double_t GetMinValue() { return GetMinPeakValue(); }
@@ -99,9 +122,17 @@ class TRestSignal: public TObject {
         void SetSignalID( Int_t sID ) { fSignalID = sID; }
         void SetID( Int_t sID ) { fSignalID = sID; }
 
+        void NewPoint( Float_t time , Float_t data );
         void AddPoint( Double_t t, Double_t d );
         void AddCharge( Double_t t, Double_t d );
         void AddDeposit( Double_t t, Double_t d );
+
+        Double_t GetStandardDeviation( Int_t startBin, Int_t endBin );
+        Double_t GetBaseLine( Int_t startBin, Int_t endBin );
+        Double_t GetBaseLineSigma( Int_t startBin, Int_t endBin, Double_t baseline = 0 );
+
+        Double_t SubstractBaseline( Int_t startBin, Int_t endBin );
+        void AddOffset( Double_t offset );
         
         void MultiplySignalBy( Double_t factor );
         void ExponentialConvolution( Double_t fromTime, Double_t decayTime, Double_t offset = 0 );

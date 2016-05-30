@@ -105,6 +105,19 @@ Int_t TRestMetadata::isANumber( string in )
     return (in.find_first_not_of("-+0123456789.e") == std::string::npos && in.length() != 0);
 }
 
+string TRestMetadata::RemoveComments( string in )
+{
+    string out = in;
+    size_t pos = 0;
+    while( (pos = out.find("<!--", pos)) != string::npos )
+    {
+        int length = out.find("-->", pos) - pos;
+        out.erase( pos, length+3 ); 
+    }
+
+    return out;
+}
+
 string TRestMetadata::RemoveWhiteSpaces( string in )
 {
     string out = in;
@@ -228,46 +241,20 @@ bool TRestMetadata::fileExists(const std::string& filename)
     return false;
 }
 
+bool TRestMetadata::isRootFile( const std::string& filename )
+{
+    if ( filename.find( ".root" ) == string::npos ) return false; 
+
+    return true;
+}
+
 
 //______________________________________________________________________________
 void TRestMetadata::SetDefaultConfigFilePath( )
 {
     // Assigns a default value to fConfigFilePath derived from the environment
 
-    char path[256];
-    char cfgpath[256];
-
-    sprintf( path, "NotDefined" );
-
-    // 1st option we check if REST_CONFIG is defined
-    if( getenv( "REST_CONFIG" ) != NULL )
-        sprintf( path, "%s", getenv("REST_CONFIG") );
-
-    // 2nd option if REST_CONFIG is not defined we check if the config file exists where ever we launch our program
-    if ( strcmp( path, "NotDefined" ) == 0 ) sprintf( path, "." );
-
-    sprintf( path, "%s/", path );
-
-    sprintf( cfgpath, "%s%s", path, fConfigFileName.c_str() );
-
-    if ( fileExists( cfgpath ) )
-    {
-        SetConfigFilePath( (const char *) path );
-        return;
-    }
-
-    // 3rd option. We take the default path of the repository
-    if( getenv( "REST_PATH" ) != NULL )
-    {
-        sprintf( path, "%s", getenv("REST_PATH") );
-        sprintf(cfgpath, "%s/config/", path );
-        SetConfigFilePath((const char *) cfgpath );
-    }
-    else
-    {
-        cout << "REST ERROR : Config path definition problem. REST_PATH not defined?" << endl;
-    }
-
+    SetConfigFilePath( "" );
 }
 
 void TRestMetadata::SetConfigFile( string cfgFileName )
@@ -277,62 +264,75 @@ void TRestMetadata::SetConfigFile( string cfgFileName )
 }
 
 
-Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName )
+Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, string name )
 {
-    // TODO we should remove here commented code inside the config.rml 
-    // Comments not yet allowed inside config file!
-
     fSectionName = section;
 
     SetConfigFile( cfgFileName );
-    string fileName = fConfigFilePath + fConfigFileName;
+    string fileName = fConfigFileName;
 
     ifstream file(fileName);
 
     // We load all the config file in a temporal buffer
     string temporalBuffer;
     string line;
-    while(getline(file, line)) temporalBuffer += line;
+    while(getline(file, line))
+        temporalBuffer += line;
+
+    temporalBuffer = RemoveComments( temporalBuffer );
 
     // We temporally associate the globals to the configBuffer
     size_t pos = 0;
     configBuffer = GetKEYStructure( "globals", pos, temporalBuffer );
-
-    configBuffer = ReplaceEnvironmentalVariables( configBuffer );
-
-    // We extract the values from globals. 
-    // Globals will not be stored but they will be used by the REST framework during execution
-
-    pos = 0;
-    fDataPath = GetParameter( "mainDataPath", pos, configBuffer );
-    string vLevelString  = GetParameter( "verboseLevel", pos, configBuffer );
-
-    if( vLevelString == "silent" )
+    if( configBuffer != "" )
     {
-        fVerboseLevel = REST_Silent;
-        cout << "Setting verbose level to silent : " << fVerboseLevel << endl;
-    }
-    else if ( vLevelString == "warning" )
-    {
-        fVerboseLevel = REST_Warning;
-        cout << "Setting verbose level to warning : " << fVerboseLevel <<  endl;
+        configBuffer = ReplaceEnvironmentalVariables( configBuffer );
 
-    }
-    else if ( vLevelString == "info" )
-    {
-        fVerboseLevel = REST_Info;
-        cout << "Setting verbose level to info : " << fVerboseLevel << endl;
+        // We extract the values from globals. 
+        // Globals will not be stored but they will be used by the REST framework during execution
 
-    }
-    else if ( vLevelString == "debug" )
-    {
-        fVerboseLevel = REST_Debug;
-        cout << "Setting verbose level to debug : " << fVerboseLevel << endl;
+        pos = 0;
+        fDataPath = GetParameter( "mainDataPath", pos, configBuffer );
+        string vLevelString  = GetParameter( "verboseLevel", pos, configBuffer );
+
+        if( vLevelString == "silent" )
+        {
+            fVerboseLevel = REST_Silent;
+            cout << "Setting verbose level to silent : " << fVerboseLevel << endl;
+        }
+        else if ( vLevelString == "warning" )
+        {
+            fVerboseLevel = REST_Warning;
+            cout << "Setting verbose level to warning : " << fVerboseLevel <<  endl;
+
+        }
+        else if ( vLevelString == "info" )
+        {
+            fVerboseLevel = REST_Info;
+            cout << "Setting verbose level to info : " << fVerboseLevel << endl;
+
+        }
+        else if ( vLevelString == "debug" )
+        {
+            fVerboseLevel = REST_Debug;
+            cout << "Setting verbose level to debug : " << fVerboseLevel << endl;
+        }
     }
 
     // Then we just extract the corresponding section defined in the derived class (fSectionName)
-    size_t sectionPosition = FindSection( temporalBuffer );
-    if ( sectionPosition == (size_t) NOT_FOUND ) { cout << "Section " << fSectionName << " not found" << endl; return -1; }
+    size_t sectionPosition = 0;
+    while( sectionPosition != (size_t) NOT_FOUND && sectionPosition != string::npos )
+    {
+        sectionPosition = FindSection( temporalBuffer, sectionPosition );
+        if( this->GetName() == name || name == "" ) break;
+        if( sectionPosition == (size_t) NOT_FOUND )
+        {
+            cout << "REST ERROR : Section " << fSectionName << " with name : " << name << " not found" << endl;
+            exit(-1);
+        }
+
+        sectionPosition++;
+    }
 
     configBuffer = GetKEYStructure( "section", sectionPosition, temporalBuffer );
 
@@ -437,6 +437,16 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName )
 
     if( file != NULL ) file.close();
     return 0;
+}
+
+Int_t TRestMetadata::LoadConfigFromFile( string cfgFileName, string name )
+{
+    std::string section = GetName();
+    cout << "Section name : " << section << endl;
+
+    Int_t result = LoadSectionMetadata( section, cfgFileName, name );
+    if( result == 0 ) InitFromConfigFile();
+    return result;
 }
 
 Int_t TRestMetadata::LoadConfigFromFile( string cfgFileName )
@@ -629,6 +639,7 @@ string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
 
             outputBuffer.replace( startPosition, endPosition-startPosition+1,  envValue );
 
+            endPosition -= ( endPosition - startPosition + 1 );
         }
         else
         {
@@ -655,6 +666,8 @@ string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
             sprintf( envValue, "%s", getenv( expression.c_str() ) );
 
             outputBuffer.replace( startPosition, endPosition-startPosition+1,  envValue );
+
+            endPosition -= ( endPosition - startPosition + 1 );
         }
         else
         {
@@ -1447,6 +1460,23 @@ Int_t TRestMetadata::FindSection( string buffer, size_t startPos )
     }
 
     return NOT_FOUND;
+}
+
+void TRestMetadata::PrintTimeStamp( Double_t timeStamp )
+{
+       cout.precision(10);
+
+       time_t tt = (time_t) timeStamp;
+       struct tm *tm = localtime( &tt);
+
+       char date[20];
+       strftime(date, sizeof(date), "%Y-%m-%d", tm);
+       cout << "Date : " << date << endl;
+
+       char time[20];
+       strftime(time, sizeof(time), "%H:%M:%S", tm);
+       cout << "Time : " << time << endl;
+       cout << "++++++++++++++++++++++++" << endl;
 }
 
 void TRestMetadata::PrintConfigBuffer( ) { cout << configBuffer << endl; }

@@ -41,7 +41,9 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
         Double_t fElectricField;
         Double_t fAttachment;
         Double_t fGasPressure;
-
+        Double_t fWvalue;
+        Double_t fLonglDiffCoeff;
+        Double_t fTransDiffCoeff;
 
     public:
         void InitProcess();
@@ -50,7 +52,7 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
         void EndOfEventProcess(); 
         void EndProcess();
 
-        void LoadConfig( std::string cfgFilename );
+        void LoadConfig( std::string cfgFilename, std::string name = "" );
 
         void PrintMetadata() { 
 
@@ -59,6 +61,9 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
             std::cout << " eField : " << fElectricField << " V/cm" << std::endl;
             std::cout << " attachment coeficient : " << fAttachment << " V/cm" << std::endl;
             std::cout << " gas pressure : " << fGasPressure << " atm" << std::endl;
+            std::cout << " longitudinal diffusion coefficient : " << fLonglDiffCoeff << " cm^1/2" << std::endl;
+            std::cout << " transversal diffusion coefficient : " << fTransDiffCoeff << " cm^1/2" << std::endl;
+            std::cout << " W value : " << fWvalue << " eV" << std::endl;
 
 
             EndPrintProcess();
@@ -70,6 +75,8 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
         TString GetProcessName() { return (TString) "electronDiffusion"; }
 
         Double_t GetElectricField() { return fElectricField; }
+        Double_t GetAttachmentCoefficient() { return fAttachment; }
+        Double_t GetGasPressure() { return fGasPressure; }
 
         //Constructor
         TRestElectronDiffusionProcess();

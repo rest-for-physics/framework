@@ -71,9 +71,9 @@ void TRestSignalGaussianConvolutionProcess::Initialize()
 
 }
 
-void TRestSignalGaussianConvolutionProcess::LoadConfig( string cfgFilename )
+void TRestSignalGaussianConvolutionProcess::LoadConfig( string cfgFilename, string name )
 {
-    if( LoadConfigFromFile( cfgFilename ) == -1 ) LoadDefaultConfig( );
+    if( LoadConfigFromFile( cfgFilename, name ) == -1 ) LoadDefaultConfig( );
 }
 
 //______________________________________________________________________________

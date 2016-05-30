@@ -95,6 +95,7 @@ class TRestG4Track:public TObject {
         // TODO move this to a namespace header??
         Int_t GetProcessID( TString pcsName );
         TString GetProcessName( Int_t id );
+
         Bool_t isRadiactiveDecay( ) 
         { 
             for( int n = 0; n < GetHits()->GetNumberOfHits(); n++ )
@@ -119,6 +120,37 @@ class TRestG4Track:public TObject {
                 if( GetHits()->GetHitProcess( n ) == 5 ) return true;
             return false;
         }
+
+      Bool_t ishadElastic( )
+        {
+            for( int n = 0; n < GetHits()->GetNumberOfHits(); n++ )
+                if( GetHits()->GetHitProcess( n ) == 36 ) return true;
+            return false;
+        }
+ 	Bool_t isneutronInelastic( )
+        {
+            for( int n = 0; n < GetHits()->GetNumberOfHits(); n++ )
+                if( GetHits()->GetHitProcess( n ) == 37 ) return true;
+            return false;
+        }
+       Bool_t isnCapture( )
+        {
+            for( int n = 0; n < GetHits()->GetNumberOfHits(); n++ )
+                if( GetHits()->GetHitProcess( n ) == 38 ) return true;
+            return false;
+        }
+
+    Bool_t ishIoni( )
+        {
+            for( int n = 0; n < GetHits()->GetNumberOfHits(); n++ )
+                if( GetHits()->GetHitProcess( n ) == 33 ) return true;
+            return false;
+        }
+
+
+   
+
+
         /////////////////////////////////
 
         void PrintTrack();

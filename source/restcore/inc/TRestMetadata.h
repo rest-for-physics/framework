@@ -84,8 +84,9 @@ class TRestMetadata:public TNamed {
 
         virtual void Initialize() = 0;// { cout << __PRETTY_FUNCTION__ << endl; };
 
-        Int_t LoadSectionMetadata( std::string section, std::string cfgFileName );
+        Int_t LoadSectionMetadata( std::string section, std::string cfgFileName, string name="" );
 
+        Int_t LoadConfigFromFile( string cfgFileName, std::string name );
         Int_t LoadConfigFromFile( std::string cfgFileName );
 
     private:
@@ -114,6 +115,7 @@ class TRestMetadata:public TNamed {
         std::string ReplaceMathematicalExpressions( std::string buffer );
         std::string ReplaceEnvironmentalVariables( const std::string buffer );
         std::string ExtractLoopStructure( std::string in, size_t pos );
+        std::string RemoveComments( string in );
 
         std::string GetSectionByNameFromFile( std::string nref, std::string fref );
         Int_t FindSection( std::string buffer, size_t startPos = 0 );
@@ -138,6 +140,7 @@ class TRestMetadata:public TNamed {
         TVector2 Get2DVectorParameterWithUnits( string parName, TVector2 defaultValue = TVector2(-1,-1) );
         TVector3 Get3DVectorParameterWithUnits( string parName, TVector3 defaultValue = TVector3( -1, -1, -1) );
 
+        void PrintTimeStamp( Double_t timeStamp );
         void PrintConfigBuffer( );
         
         // String helper classes. Declared static to be able to access them without having to instantiate TRestMetadata.
@@ -152,7 +155,9 @@ class TRestMetadata:public TNamed {
         static std::string RemoveWhiteSpaces( std::string in );
         static std::string Replace( std::string in, std::string thisString, std::string byThisString, size_t fromPosition );
         static Int_t Count( std::string s, std::string sbstring);
-        static bool fileExists(const std::string& filename);
+        static bool fileExists( const std::string& filename );
+        static bool isRootFile( const std::string& filename ); 
+        static void GetChar(){ cout << "Press a KEY to continue ..." << endl; getchar(); }
 
 
         //////////////////////////////////////////////////
