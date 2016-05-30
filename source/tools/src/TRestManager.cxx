@@ -25,6 +25,10 @@ using namespace std;
 
 // physics processes
 #include <TRestElectronDiffusionProcess.h>
+#include <TRestAvalancheProcess.h>
+
+// hits processes
+#include <TRestSmearingProcess.h>
 
 // track processes
 #include <TRestTrackReductionProcess.h>
@@ -33,6 +37,8 @@ using namespace std;
 // signal processes
 #include <TRestAddSignalNoiseProcess.h>
 #include <TRestSignalGaussianConvolutionProcess.h>
+#include <TRestSignalShapingProcess.h>
+#include <TRestSignalToRawSignalProcess.h>
 
 // external processes
 #include <TRestFEMINOSToSignalProcess.h>
@@ -42,6 +48,8 @@ using namespace std;
 #include <TRestFindG4BlobAnalysisProcess.h>
 #include <TRestSignalAnalysisProcess.h>
 #include <TRestTrackAnalysisProcess.h>
+#include <TRestTriggerAnalysisProcess.h>
+#include <TRestHitsAnalysisProcess.h>
 
 const int debug = 0;
 
@@ -83,6 +91,8 @@ TRestManager::~TRestManager()
 //______________________________________________________________________________
 void TRestManager::InitFromConfigFile()
 {
+    TString inputFile = GetParameter("inputFile" );
+
     char *cfgFile = (char *) fConfigFileName.c_str(); 
     fRun = new TRestRun( cfgFile );
 
@@ -91,9 +101,12 @@ void TRestManager::InitFromConfigFile()
     fNEventsToProcess = StringToInteger( GetParameter( "eventsToProcess", "0") );
     fLastEntry = StringToInteger( GetParameter( "lastEntry", "0") );
 
-    TString inputFile = GetParameter("inputFile" );
     Bool_t isAcquisition = inputFile.EndsWith("aqs");
     if( !isAcquisition ) fRun->OpenInputFile( inputFile );
+
+    TString analysisString = GetParameter( "pureAnalysisOutput", "OFF" );
+    if( analysisString == "ON" || analysisString == "On" || analysisString == "on" )
+        fRun->SetPureAnalysisOutput();
 
     // Adding metadata
     size_t position = 0;
@@ -108,6 +121,29 @@ void TRestManager::InitFromConfigFile()
         if( metadataType == "readout" ) AddReadout( addMetadataString );
 
         if( metadataType == "gas" ) AddGas( addMetadataString );
+    }
+
+    position = 0;
+    string readoutPlaneString;
+    while( ( readoutPlaneString = GetKEYDefinition( "readoutPlane", position ) ) != "" )
+    {
+        Int_t rId = StringToInteger ( GetFieldValue( "id", readoutPlaneString ) );
+
+        TVector3 plPos = StringTo3DVector( GetFieldValue( "planePosition", readoutPlaneString ) );
+
+        TVector3 cPos = StringTo3DVector( GetFieldValue( "cathodePosition", readoutPlaneString ) );
+
+        TRestReadout *readout = (TRestReadout *) fRun->GetMetadataClass( "TRestReadout" );
+
+        if( plPos != TVector3(0,0,0) )
+            readout->GetReadoutPlane( rId )->SetPosition( plPos );
+
+        if( cPos != TVector3(0,0,0) )
+            readout->GetReadoutPlane( rId )->SetCathodePosition( cPos );
+
+        readout->GetReadoutPlane( rId )->SetDriftDistance();
+
+        readout->PrintMetadata();
     }
 
     // Adding processes
@@ -132,11 +168,17 @@ void TRestManager::InitFromConfigFile()
         if( processType == "electronDiffusionProcess" )
             fRun->AddProcess( new TRestElectronDiffusionProcess( ), (string) processesCfgFile, (string) processName );
 
+        if( processType == "avalancheProcess" )
+            fRun->AddProcess( new TRestAvalancheProcess( ), (string) processesCfgFile, (string) processName );
+
         if( processType == "hitsToSignalProcess" )
             fRun->AddProcess( new TRestHitsToSignalProcess( ), (string) processesCfgFile, (string) processName );
 
         if( processType == "signalAnalysisProcess" )
             fRun->AddProcess( new TRestSignalAnalysisProcess( ), (string) processesCfgFile, (string) processName );
+
+        if( processType == "hitsAnalysisProcess" )
+            fRun->AddProcess( new TRestHitsAnalysisProcess( ), (string) processesCfgFile, (string) processName );
 
         if( processType == "signalToHitsProcess" )
             fRun->AddProcess( new TRestSignalToHitsProcess( ), (string) processesCfgFile, (string) processName );
@@ -152,6 +194,9 @@ void TRestManager::InitFromConfigFile()
 
         if( processType == "trackAnalysisProcess" )
             fRun->AddProcess( new TRestTrackAnalysisProcess( ), (string) processesCfgFile, (string) processName );
+
+        if( processType == "triggerAnalysisProcess" )
+            fRun->AddProcess( new TRestTriggerAnalysisProcess( ), (string) processesCfgFile, (string) processName );
 
         if( processType == "feminosToSignalProcess" )
         {
@@ -171,6 +216,15 @@ void TRestManager::InitFromConfigFile()
 
         if( processType == "signalGaussianConvolutionProcess" )
             fRun->AddProcess( new TRestSignalGaussianConvolutionProcess( ), (string) processesCfgFile, (string) processName );
+
+        if( processType == "signalShapingProcess" )
+            fRun->AddProcess( new TRestSignalShapingProcess( ), (string) processesCfgFile, (string) processName );
+
+        if( processType == "signalToRawSignalProcess" )
+            fRun->AddProcess( new TRestSignalToRawSignalProcess( ), (string) processesCfgFile, (string) processName );
+
+        if( processType == "smearingProcess" )
+            fRun->AddProcess( new TRestSmearingProcess( ), (string) processesCfgFile, (string) processName );
     }
 
 }
@@ -205,9 +259,6 @@ void TRestManager::AddReadout( string readoutDefinition )
         fRun->AddMetadata( readout );
     }
 
-    readout = (TRestReadout *) fRun->GetMetadataClass( "TRestReadout" );
-
-    readout->PrintMetadata();
 }
 
 void TRestManager::AddGas( string gasDefinition )
