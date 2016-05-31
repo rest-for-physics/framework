@@ -225,7 +225,7 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
 
 
             //FECN not included so far....
-            physChannel += asicN*72;
+            if( physChannel >= 0 ) physChannel += asicN*72;
             //physChannel += fecN*4*72+asicN*72;
 
             if(this->GetVerboseLevel()==REST_Debug)
@@ -237,12 +237,11 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
                 cout<<"PhysChannel "<<physChannel<<endl;
             }
 
-            if( sgnl.GetSignalID( ) != -1 )
+            if( sgnl.GetSignalID( ) >= 0 )
                 fSignalEvent->AddSignal( sgnl );
 
             sgnl.Initialize();
             sgnl.SetSignalID( physChannel );
-
         }
         //Timebin, may be not present if zero-suppresion is not active
         else if((dat & 0xFE00) >> 9 == 7 ){
@@ -328,7 +327,6 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
     }
 
     if( fSignalEvent->GetNumberOfSignals() == 0 ) return NULL;
-    //cout<<"Ev ID "<<fSignalEvent->GetID()<<" "<< <<endl;
 
     return fSignalEvent;
 }
