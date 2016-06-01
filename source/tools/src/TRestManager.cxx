@@ -168,8 +168,10 @@ void TRestManager::InitFromConfigFile()
         if( processType == "electronDiffusionProcess" )
             fRun->AddProcess( new TRestElectronDiffusionProcess( ), (string) processesCfgFile, (string) processName );
 
+        /*
         if( processType == "avalancheProcess" )
             fRun->AddProcess( new TRestAvalancheProcess( ), (string) processesCfgFile, (string) processName );
+            */
 
         if( processType == "hitsToSignalProcess" )
             fRun->AddProcess( new TRestHitsToSignalProcess( ), (string) processesCfgFile, (string) processName );
