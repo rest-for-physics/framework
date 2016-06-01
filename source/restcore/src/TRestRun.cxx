@@ -91,6 +91,8 @@ void TRestRun::Initialize()
 
     fPureAnalysisOutput = false;
     fContainsEventTree = true;
+
+    fSkipEventTree = false;
 }
 
 void TRestRun::ResetRunTimes()
@@ -358,18 +360,6 @@ void TRestRun::SetInputEvent( TRestEvent *evt )
         br->SetAddress( &fInputEvent );
     }
 
-    if( GetObjectKeyByName( "TRestAnalysisTree" ) == NULL )
-    {
-        cout << "REST ERROR (SetInputEvent) : TRestAnalysisTree was not found" << endl;
-        cout << "Inside file : " << fInputFilename << endl;
-        exit(1);
-    }
-
-    fInputAnalysisTree = ( TRestAnalysisTree * ) fInputFile->Get( "TRestAnalysisTree" ); 
-
-    fInputAnalysisTree->ConnectEventBranches( );
-    fInputAnalysisTree->ConnectObservables( );
-
 }
 
 Bool_t TRestRun::isClass( TString className )
@@ -509,6 +499,18 @@ void TRestRun::OpenInputFile( TString fName )
     for( size_t i = 0; i < fEventProcess.size(); i++ )
         fHistoricEventProcess.push_back( fEventProcess[i] );
     fEventProcess.clear();
+
+    if( GetObjectKeyByName( "TRestAnalysisTree" ) == NULL )
+    {
+        cout << "REST ERROR (SetInputEvent) : TRestAnalysisTree was not found" << endl;
+        cout << "Inside file : " << fInputFilename << endl;
+        exit(1);
+    }
+
+    fInputAnalysisTree = ( TRestAnalysisTree * ) fInputFile->Get( "TRestAnalysisTree" ); 
+
+    fInputAnalysisTree->ConnectEventBranches( );
+    fInputAnalysisTree->ConnectObservables( );
 }
 
 void TRestRun::OpenInputFile( TString fName, TString cName )

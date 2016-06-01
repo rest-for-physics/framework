@@ -72,6 +72,7 @@ class TRestRun:public TRestMetadata {
         Bool_t fContainsEventTree;
 
 #ifndef __CINT__
+        Bool_t fSkipEventTree;
         Bool_t fOverwrite;
 
         TTree *fInputEventTree;
@@ -146,24 +147,51 @@ class TRestRun:public TRestMetadata {
 
         Int_t GetEntry( Int_t i )
         {
-            fInputAnalysisTree->GetEntry( i );
-            return fInputEventTree->GetEntry( i );
+            if( !fSkipEventTree && fInputEventTree == NULL )
+            {
+                std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+                std::cout << "Input event tree has not been initialized" << std::endl;
+                std::cout << "This is a sign that you did not allocate an input event structure in TRestRun." << std::endl;
+                std::cout << "The Event tree will be not be accesible" << std::endl;
+                std::cout << "You should use : run->SetInputEvent( specificEventPointer )" << std::endl;
+                std::cout << "........................... " << std::endl;
+                std::cout << "... Skipping event tree ... " << std::endl;
+                std::cout << "........................... " << std::endl;
+                fSkipEventTree = true;
+                std::cout << "If you dont need access to the event tree use fRun->SkipEventTree() to avoid this message" << std::endl;
+                std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+                GetChar();
+            }
+
+            if( !fSkipEventTree ) fInputEventTree->GetEntry( i );
+            return fInputAnalysisTree->GetEntry( i );
         }
 
         void SetPureAnalysisOutput( ) { fPureAnalysisOutput = true; }
         Bool_t ContainsEventTree( ) { return fContainsEventTree; }
+
+        void SkipEventTree( ) { fSkipEventTree = true; }
         TRestAnalysisTree *GetAnalysisTree( ) { return fInputAnalysisTree; }
 
         Int_t GetEntries( )
         {
-            if( fInputEventTree == NULL )
+            if( !fSkipEventTree && fInputEventTree == NULL )
             {
+                std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
                 std::cout << "Input event tree has not been initialized" << std::endl;
                 std::cout << "This is a sign that you did not allocate an input event structure in TRestRun." << std::endl;
+                std::cout << "The Event tree will be not be accesible" << std::endl;
                 std::cout << "You should use : run->SetInputEvent( specificEventPointer )" << std::endl;
-                return 0;
+                std::cout << "........................... " << std::endl;
+                std::cout << "... Skipping event tree ... " << std::endl;
+                std::cout << "........................... " << std::endl;
+                fSkipEventTree = true;
+                std::cout << "Use fRun->SkipEventTree() to avoid this message" << std::endl;
+                std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+                GetChar();
             }
-            return fInputEventTree->GetEntries();
+
+            return fInputAnalysisTree->GetEntries();
         }
 
         Int_t Fill( );
