@@ -237,7 +237,7 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
                 cout<<"PhysChannel "<<physChannel<<endl;
             }
 
-            if( sgnl.GetSignalID( ) >= 0 )
+            if( sgnl.GetSignalID( ) >= 0 && sgnl.GetNumberOfPoints() > 0 && sgnl.GetNumberOfPoints() >= fMinPoints )
                 fSignalEvent->AddSignal( sgnl );
 
             sgnl.Initialize();

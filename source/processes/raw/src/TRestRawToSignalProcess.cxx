@@ -64,6 +64,8 @@ void TRestRawToSignalProcess::Initialize()
     fInputEvent = NULL;
     fOutputEvent = fSignalEvent;
     fInputBinFile = NULL;
+
+    fMinPoints = 512;
 }
 
 void TRestRawToSignalProcess::BeginOfEventProcess() 
@@ -75,6 +77,7 @@ void TRestRawToSignalProcess::BeginOfEventProcess()
 void TRestRawToSignalProcess::InitFromConfigFile(){
 
 fElectronicsType = GetParameter("electronics");
+ fMinPoints = StringToInteger( GetParameter("minPoints", "512" ) );
   if(fElectronicsType==""){
   cout<<"electronic type not found "<<endl;
   LoadDefaultConfig();
@@ -99,6 +102,7 @@ cout<<"Press a key to continue..."<<endl;
 getchar();
 
 fElectronicsType = "AGET";
+fMinPoints = 512;
 
 }
 

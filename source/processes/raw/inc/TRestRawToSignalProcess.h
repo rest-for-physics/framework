@@ -34,6 +34,7 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    unsigned int payload;
    unsigned int frameBits;
    TString fElectronicsType; //AFTER or AGET
+   Int_t fMinPoints;
    
    Double_t tStart;
    int totalBytesReaded;
