@@ -237,7 +237,7 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
                 cout<<"PhysChannel "<<physChannel<<endl;
             }
 
-            if( sgnl.GetSignalID( ) >= 0 && sgnl.GetNumberOfPoints() > 0 && sgnl.GetNumberOfPoints() >= fMinPoints )
+            if( sgnl.GetSignalID( ) >= 0 && sgnl.GetNumberOfPoints() >= fMinPoints )
                 fSignalEvent->AddSignal( sgnl );
 
             sgnl.Initialize();
@@ -285,7 +285,7 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
     }//while
 
     //Storing last event 
-    if( sgnl.GetSignalID( ) != -1 )
+    if( sgnl.GetSignalID( ) >= 0 && sgnl.GetNumberOfPoints() >= fMinPoints )
                 fSignalEvent->AddSignal( sgnl );
 
     if(this->GetVerboseLevel()==REST_Debug)cout<<" End of event "<< dat<<endl;
