@@ -42,8 +42,6 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    TRestSignalEvent *fSignalEvent;
    #ifndef __CINT__
    FILE *fInputBinFile;
-   int fRunNumber;
-   int fRunIndex;
    #endif
    
    void LoadDefaultConfig();
@@ -70,8 +68,8 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    void printBits(unsigned int num);
    
    Int_t GetTotalBytesReaded( ){return totalBytesReaded;}
-   Int_t GetRunNumber(){return fRunNumber;}
-   Int_t GetRunIndex(){return fRunIndex;}
+ //  Int_t GetRunNumber(){return fRunNumber;}
+ //  Int_t GetRunIndex(){return fRunIndex;}
    TString GetElectronicsType( ){return fElectronicsType;}
    
    //Constructor

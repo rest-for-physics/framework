@@ -58,9 +58,6 @@ void TRestRawToSignalProcess::Initialize()
     SetName( "daq" );
     fSignalEvent = new TRestSignalEvent( );
 
-    fRunNumber=-1;
-    fRunIndex=-1;
-
     fInputEvent = NULL;
     fOutputEvent = fSignalEvent;
     fInputBinFile = NULL;
@@ -127,25 +124,17 @@ void TRestRawToSignalProcess::EndProcess()
  
 }
 //______________________________________________________________________________
-Bool_t TRestRawToSignalProcess::OpenInputBinFile ( TString fName ){
+Bool_t TRestRawToSignalProcess::OpenInputBinFile ( TString fName )
+{
 
-if(fInputBinFile!= NULL)fclose(fInputBinFile);
+	if(fInputBinFile!= NULL)fclose(fInputBinFile);
 
- if( (fInputBinFile = fopen(fName.Data(),"rb") )==NULL ) {
-        cout << "WARNING. Input file does not exist" << endl;
-        return kFALSE;
-    }
+	if( (fInputBinFile = fopen(fName.Data(),"rb") )==NULL ) {
+		cout << "WARNING. Input file does not exist" << endl;
+		return kFALSE;
+	}
 
-cout<<"File "<<fName.Data()<<" opened"<<endl;
-
-int size=fName.Sizeof();cout<<size<<endl;
-TString fN(fName(size-20,size-1));
-cout<<fN.Data()<<endl;
-sscanf(fN.Data(),"RUN_%d.%d.acq",&fRunNumber,&fRunIndex);
-
-cout<<"Run# "<<fRunNumber<<" index "<<fRunIndex<<endl;
-
-return kTRUE;
+	return kTRUE;
 }
 
 //For debugging
