@@ -17,6 +17,7 @@ using namespace std;
 // specific metadata
 #include <TRestReadout.h>
 #include <TRestGas.h>
+#include <TRestDetectorSetup.h>
 
 // REST processes
 #include <TRestHitsToSignalProcess.h>
@@ -211,6 +212,12 @@ void TRestManager::InitFromConfigFile()
             }
 
             fRun->AddProcess( femPcs, (string) processesCfgFile, (string) processName );
+
+	    TRestDetectorSetup *detSetup = new TRestDetectorSetup();
+	    detSetup->InitFromFileName( inputFile );
+	    fRun->AddMetadata( detSetup );
+
+	    fRun->SetParentRunNumber( detSetup->GetRunNumber() );
         }
 
         if( processType == "addSignalNoiseProcess" )
