@@ -28,6 +28,8 @@
 
 class TRestEvent:public TObject {
     protected:
+	Int_t fRunOrigin;	    //< run Id number
+	Int_t fSubRunOrigin;	    //< Sub-run Id number
         Int_t fEventID;             //< Event identificative number
         Int_t fSubEventID;          //< sub-Event identificative number
         TString fSubEventTag;       //< A short length label to identify the sub-Event
@@ -36,6 +38,9 @@ class TRestEvent:public TObject {
 
     public:
         //Setters
+	void SetRunOrigin( Int_t id ) { fRunOrigin = id; }
+	void SetSubRunOrigin( Int_t id ) { fSubRunOrigin = id; }
+	
         void SetID( Int_t id ) { fEventID = id; }
         void SetSubID( Int_t id ) { fSubEventID = id; }
         void SetSubEventTag( TString tag ) { fSubEventTag = tag; }
@@ -51,6 +56,9 @@ class TRestEvent:public TObject {
         Int_t GetID( ) { return fEventID; }
         Int_t GetSubID( ) { return fSubEventID; }
         TString GetSubEventTag() { return fSubEventTag; }
+
+	Int_t GetRunOrigin(  ) { return fRunOrigin; }
+	Int_t GetSubRunOrigin(  ) { return fSubRunOrigin; }
 
         Double_t GetTime() { return fEventTime.AsDouble(); }
         TTimeStamp GetTimeStamp() { return fEventTime; }
