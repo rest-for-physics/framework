@@ -53,6 +53,8 @@ void TRestTrackAnalysisProcess::Initialize()
 
     fOutputEvent = fTrackEvent;
     fInputEvent = fTrackEvent;
+
+    fCutsEnabled = false;
 }
 
 void TRestTrackAnalysisProcess::LoadConfig( std::string cfgFilename, std::string name )
@@ -139,14 +141,15 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     if( nTracksX < fNTracksXCut.X() || nTracksX > fNTracksXCut.Y() ) return NULL;
     if( nTracksY < fNTracksYCut.X() || nTracksY > fNTracksYCut.Y() ) return NULL;
 
-    Double_t x, y;
-    TRestTrack *t1 = fTrackEvent->GetTrack(0);
-    if( t1->isXZ() ) x = t1->GetMeanPosition().X();
-    else y = t1->GetMeanPosition().Y();
+    Double_t x = 0, y = 0;
 
-    TRestTrack *t2 = fTrackEvent->GetTrack(1);
-    if( t2->isXZ() ) x = t2->GetMeanPosition().X();
-    else y = t2->GetMeanPosition().Y();
+    TRestTrack *tX = fTrackEvent->GetMaxEnergyTrackInX();
+    if( tX != NULL )
+	    x = tX->GetMeanPosition().X();
+
+    TRestTrack *tY = fTrackEvent->GetMaxEnergyTrackInY();
+    if( tY != NULL )
+	    y = tY->GetMeanPosition().Y();
 
     obsName = this->GetName() + (TString) ".xMean";
     fAnalysisTree->SetObservableValue( obsName, x );
@@ -192,5 +195,7 @@ void TRestTrackAnalysisProcess::InitFromConfigFile( )
 {
     fNTracksXCut = StringTo2DVector( GetParameter( "nTracksXCut", "(1,10)") );
     fNTracksYCut = StringTo2DVector( GetParameter( "nTracksYCut", "(1,10)") );
+
+    if( GetParameter( "cutsEnabled" ) == "true" ) fCutsEnabled = true;
 }
 
