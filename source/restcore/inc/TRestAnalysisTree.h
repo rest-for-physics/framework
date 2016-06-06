@@ -37,6 +37,8 @@ class TRestAnalysisTree:public TTree {
         Int_t fSubEventID;
         Double_t fTimeStamp;
         TString *fSubEventTag;
+	Int_t fRunOrigin;
+	Int_t fSubRunOrigin;
 
         std::vector <Double_t> fObservableValues;
 #endif
@@ -60,6 +62,8 @@ class TRestAnalysisTree:public TTree {
         Int_t GetSubEventID( ) { return fSubEventID; }
         Double_t GetTimeStamp( ) { return fTimeStamp; }
         TString GetSubEventTag( ) { return *fSubEventTag; }
+	Int_t GetRunOrigin( ) { return fRunOrigin; }
+	Int_t GetSubRunOrigin( ) { return fSubRunOrigin; }
 
         Int_t GetNumberOfObservables( ) { return fNObservables; }
         TString GetObservableName( Int_t n ) { return fObservableNames[n]; } // TODO implement error message in case n >= fNObservables
@@ -81,6 +85,8 @@ class TRestAnalysisTree:public TTree {
 
         void PrintObservables( )
         {
+            std::cout << "Run origin : " << GetRunOrigin() << std::endl;
+            std::cout << "Sub run origin : " << GetSubRunOrigin() << std::endl;
             std::cout << "Event ID : " << GetEventID() << std::endl;
             std::cout << "Event Time : " << GetTimeStamp() << std::endl;
             std::cout << "-----------------------------------------" << std::endl;
