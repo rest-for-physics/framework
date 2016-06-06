@@ -203,19 +203,20 @@ void TRestManager::InitFromConfigFile()
 
         if( processType == "feminosToSignalProcess" )
         {
+	    TRestDetectorSetup *detSetup = new TRestDetectorSetup();
+	    detSetup->InitFromFileName( inputFile );
+	    fRun->AddMetadata( detSetup );
+
             TRestFEMINOSToSignalProcess *femPcs = new TRestFEMINOSToSignalProcess();
+
+            fRun->AddProcess( femPcs, (string) processesCfgFile, (string) processName );
+
             if( !femPcs->OpenInputBinFile( inputFile ) )
             {
                 cout << "Error file not found : " << inputFile << endl;
                 GetChar();
                 continue;
             }
-
-            fRun->AddProcess( femPcs, (string) processesCfgFile, (string) processName );
-
-	    TRestDetectorSetup *detSetup = new TRestDetectorSetup();
-	    detSetup->InitFromFileName( inputFile );
-	    fRun->AddMetadata( detSetup );
 
 	    fRun->SetParentRunNumber( detSetup->GetRunNumber() );
         }
