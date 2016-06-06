@@ -126,6 +126,18 @@ void TRestRawToSignalProcess::EndProcess()
 //______________________________________________________________________________
 Bool_t TRestRawToSignalProcess::OpenInputBinFile ( TString fName )
 {
+	TRestDetectorSetup *det = (TRestDetectorSetup *) this->GetDetectorSetup();
+
+	if( det != NULL )
+	{
+		fRunOrigin = det->GetRunNumber();
+		fSubRunOrigin = det->GetSubRunNumber();
+	}
+	else
+	{
+		cout << "REST WARNING : Detector setup has not been defined. Run and subRunNumber will not be defined!" << endl;
+
+	}
 
 	if(fInputBinFile!= NULL)fclose(fInputBinFile);
 

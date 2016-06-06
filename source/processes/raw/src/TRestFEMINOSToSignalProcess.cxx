@@ -63,15 +63,12 @@ void TRestFEMINOSToSignalProcess::InitProcess()
     fread(runUid, 1, 26, fInputBinFile);
 
     sprintf(initTime,"%s",runUid);
-    printf("File UID is %s \n",initTime); 
     totalBytesReaded = sizeof(runUid);
 
     int year,day,month,hour,minute,second;
     sscanf(initTime,"%*c%*cR%d_%02d_%02d-%02d_%02d_%02d-%*d",&year,&month,&day,&hour,&minute,&second);
-    printf("R%d_%02d_%02d-%02d_%02d_%02d\n",year,month,day,hour,minute,second);
     TTimeStamp tS (year,month,day,hour,minute,second);  
     tStart = tS.AsDouble();
-    cout<<tStart<<endl;
     //Timestamp of the run
 
     //NULL word
@@ -169,6 +166,8 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
     //Set timestamp and event ID
     fSignalEvent->SetTime(tStart+timestamp*2.E-8);
     fSignalEvent->SetID(evID);
+    fSignalEvent->SetRunOrigin( fRunOrigin );
+    fSignalEvent->SetSubRunOrigin( fSubRunOrigin );
 
     int timeBin = 0;
 

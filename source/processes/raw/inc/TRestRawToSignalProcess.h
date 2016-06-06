@@ -25,6 +25,7 @@
 
 #include "TRestEventProcess.h"
 #include "TRestSignalEvent.h"
+#include <TRestDetectorSetup.h>
 
 class TRestRawToSignalProcess:public TRestEventProcess {
 
@@ -42,6 +43,9 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    TRestSignalEvent *fSignalEvent;
    #ifndef __CINT__
    FILE *fInputBinFile;
+
+   Int_t fRunOrigin;
+   Int_t fSubRunOrigin;
    #endif
    
    void LoadDefaultConfig();
