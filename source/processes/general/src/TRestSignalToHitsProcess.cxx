@@ -143,7 +143,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
     fSignalEvent = (TRestSignalEvent *) evInput;
 
     // TODO we must take this values from configuration
-    //fSignalEvent->SubstractBaselines( 5, 100 );
+    fSignalEvent->SubstractBaselines( 5, 100 );
 
     fHitsEvent->SetID( fSignalEvent->GetID() );
     fHitsEvent->SetSubID( fSignalEvent->GetSubID() );
@@ -152,7 +152,6 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
 
     Int_t numberOfSignals = fSignalEvent->GetNumberOfSignals();
 
-    Int_t numberOfHits = 0;
     Double_t energy, x, y, z;
     Int_t planeID, readoutChannel = -1, readoutModule;
     for( int i = 0; i < numberOfSignals; i++ )
@@ -187,12 +186,11 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
         Double_t fieldZDirection = plane->GetPlaneVector().Z();
         Double_t zPosition = plane->GetPosition().Z();
 
-        numberOfHits += sgnl->GetNumberOfPoints(); 
-        //Double_t thr = fThreshold * sgnl->GetBaseLineSigma( 5, 100 );
+        Double_t thr = fThreshold * sgnl->GetBaseLineSigma( 5, 100 );
         for( int j = 0; j < sgnl->GetNumberOfPoints(); j++ )
         {
             energy = sgnl->GetData(j);
-      //      if( energy < thr ) continue;
+            if( energy < thr ) continue;
 
             Double_t distanceToPlane = ( sgnl->GetTime(j) * fSampling ) * fDriftVelocity;
 
@@ -201,10 +199,9 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
             x = plane->GetX( readoutModule, readoutChannel );
             y = plane->GetY( readoutModule, readoutChannel );
             fHitsEvent->AddHit( x, y, z, energy );
+
         }
     }
-
-    if( numberOfHits == 0 ) return NULL;
 
     return fHitsEvent;
 }
