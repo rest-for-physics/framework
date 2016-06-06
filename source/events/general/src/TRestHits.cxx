@@ -254,29 +254,58 @@ void TRestHits::RemoveHit( int n )
     fEnergy.erase(fEnergy.begin()+n);
 }
 
-TVector3 TRestHits::GetMeanPosition( )
+Double_t TRestHits::GetMeanPositionX( )
 {
     Double_t meanX = 0;
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+	if( !IsNaN( fX[n] ) )
+	{
+		meanX += fX[n] * fEnergy[n];
+		totalEnergy += fEnergy[n];
+	}
+    }
+
+    meanX /= totalEnergy;
+
+    return meanX;
+}
+
+Double_t TRestHits::GetMeanPositionY( )
+{
     Double_t meanY = 0;
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+	if( !IsNaN( fY[n] ) )
+	{
+		meanY += fY[n] * fEnergy[n];
+		totalEnergy += fEnergy[n];
+	}
+    }
+
+    meanY /= totalEnergy;
+
+    return meanY;
+}
+
+Double_t TRestHits::GetMeanPositionZ( )
+{
     Double_t meanZ = 0;
     Double_t totalEnergy = 0;
     for( int n = 0; n < GetNumberOfHits(); n++ )
     {
-        meanX += fX[n] * fEnergy[n];
-        meanY += fY[n] * fEnergy[n];
-        meanZ += fZ[n] * fEnergy[n];
-
-        totalEnergy += fEnergy[n];
+	if( !IsNaN( fZ[n] ) )
+	{
+		meanZ += fZ[n] * fEnergy[n];
+		totalEnergy += fEnergy[n];
+	}
     }
 
-    if( totalEnergy != GetTotalEnergy() )
-        cout << "REST WARNING (TRestHits) : Energies do not match. " << totalEnergy << " != " << GetTotalEnergy() << endl;
-
-    meanX /= totalEnergy;
-    meanY /= totalEnergy;
     meanZ /= totalEnergy;
 
-    return TVector3( meanX, meanY, meanZ );
+    return meanZ;
 }
 
 Double_t TRestHits::GetTotalDistance()
