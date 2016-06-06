@@ -78,6 +78,20 @@ TRestMetadata *TRestEventProcess::GetGeant4Metadata( )
     return NULL;
 }
 
+TRestMetadata *TRestEventProcess::GetDetectorSetup( )
+{
+    // TODO : For the moment this function will return the first occurence of TRestReadout.
+    // What happens if there are several? And if I want to use one gas from the config file? 
+    // We need to introduce an option somewhere.
+    // For the moment I know there will be an existing gas file since the hits come from electronDiffusion.
+
+    for( size_t i = 0; i < fRunMetadata.size(); i++ )
+        if ( fRunMetadata[i]->ClassName() == (TString) "TRestDetectorSetup" )
+            return fRunMetadata[i];
+
+    return NULL;
+}
+
 Double_t TRestEventProcess::GetDoubleParameterFromClass( TString className, TString parName )
 {
     for( size_t i = 0; i < fRunMetadata.size(); i++ )

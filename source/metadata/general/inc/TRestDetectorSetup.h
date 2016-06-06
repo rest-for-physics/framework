@@ -50,6 +50,7 @@ class TRestDetectorSetup:public TRestMetadata {
     public:
 
 	Int_t GetRunNumber() { return fRunNumber; }
+	Int_t GetSubRunNumber() { return fSubRunNumber; }
 
 	void InitFromFileName( TString fName );
 
