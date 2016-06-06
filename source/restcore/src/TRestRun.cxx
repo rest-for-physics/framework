@@ -206,38 +206,43 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
         high_resolution_clock::time_point t1 = high_resolution_clock::now();
 #endif
 
-		for( unsigned int j = 0; j < fEventProcess.size(); j++ )
-		{
-			fEventProcess[j]->BeginOfEventProcess();
-			processedEvent = fEventProcess[j]->ProcessEvent( processedEvent );
-			if( processedEvent == NULL ) break;
-			fEventProcess[j]->EndOfEventProcess();
-		}
+	for( unsigned int j = 0; j < fEventProcess.size(); j++ )
+	{
+		fEventProcess[j]->BeginOfEventProcess();
+		processedEvent = fEventProcess[j]->ProcessEvent( processedEvent );
+		if( processedEvent == NULL ) break;
+		fEventProcess[j]->EndOfEventProcess();
+	}
 
 #ifdef TIME_MEASUREMENT
-    high_resolution_clock::time_point t2 = high_resolution_clock::now();
-    deltaTime += (int) duration_cast<microseconds>( t2 - t1 ).count();
+	high_resolution_clock::time_point t2 = high_resolution_clock::now();
+	deltaTime += (int) duration_cast<microseconds>( t2 - t1 ).count();
 #endif
 
-		fOutputEvent = processedEvent;
-		if( processedEvent == NULL ) continue;
+	fOutputEvent = processedEvent;
+	if( processedEvent == NULL ) continue;
 
-		if (fInputEventTree != NULL)
-		{
-		    fOutputEvent->SetID( fInputEvent->GetID() );
-		    fOutputEvent->SetTime( fInputEvent->GetTime() );
-            fOutputEvent->SetSubID( fInputEvent->GetSubID() );
-            fOutputEvent->SetSubEventTag( fInputEvent->GetSubEventTag() );
-		}
-        else if ( fEventProcess.front()->isExternal() )
-        {
-            // If there is no input event then we are using a process filling an event from external data.
-            // Then the process must be responsible to define the event ID, its timestamp, event tag, etc
-            TRestEvent *frontEvt = fEventProcess.front()->GetOutputEvent();
-            fOutputEvent->SetID( frontEvt->GetID() );
-            fOutputEvent->SetTime( frontEvt->GetTime() );
-            fOutputEvent->SetSubID( frontEvt->GetSubID() );
-        }
+	if (fInputEventTree != NULL)
+	{
+		fOutputEvent->SetID( fInputEvent->GetID() );
+		fOutputEvent->SetTime( fInputEvent->GetTime() );
+		fOutputEvent->SetSubID( fInputEvent->GetSubID() );
+		fOutputEvent->SetSubEventTag( fInputEvent->GetSubEventTag() );
+		fOutputEvent->SetRunOrigin( fInputEvent->GetRunOrigin() );
+		fOutputEvent->SetSubRunOrigin( fInputEvent->GetSubRunOrigin() );
+		
+	}
+	else if ( fEventProcess.front()->isExternal() )
+	{
+		// If there is no input event then we are using a process filling an event from external data.
+		// Then the process must be responsible to define the event ID, its timestamp, event tag, etc
+		TRestEvent *frontEvt = fEventProcess.front()->GetOutputEvent();
+		fOutputEvent->SetID( frontEvt->GetID() );
+		fOutputEvent->SetTime( frontEvt->GetTime() );
+		fOutputEvent->SetSubID( frontEvt->GetSubID() );
+		fOutputEvent->SetRunOrigin( frontEvt->GetRunOrigin() );
+		fOutputEvent->SetSubRunOrigin( frontEvt->GetSubRunOrigin() );
+	}
 
 #ifdef TIME_MEASUREMENT
         high_resolution_clock::time_point t3 = high_resolution_clock::now();
