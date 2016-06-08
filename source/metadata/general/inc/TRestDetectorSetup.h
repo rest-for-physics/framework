@@ -34,25 +34,26 @@ class TRestDetectorSetup:public TRestMetadata {
 
         void InitFromConfigFile();
 
-	Int_t fRunNumber;
-	Int_t fSubRunNumber;
-	TString fRunTag;
+        Int_t fRunNumber;
+        Int_t fSubRunNumber;
+        TString fRunTag;
 
-	Double_t fMeshVoltage;
-	Double_t fDriftField;
-	Double_t fDetectorPressure;
+        Double_t fMeshVoltage;
+        Double_t fDriftField;
+        Double_t fDetectorPressure;
 
-	TString fElectronicsGain;
-	TString fShapingTime;
-	TString fSamplingTime;
-	
+        TString fElectronicsGain;
+        TString fShapingTime;
+        TString fSamplingTime;
+
 
     public:
 
-	Int_t GetRunNumber() { return fRunNumber; }
-	Int_t GetSubRunNumber() { return fSubRunNumber; }
+        Int_t GetRunNumber() { return fRunNumber; }
+        Int_t GetSubRunNumber() { return fSubRunNumber; }
+        TString GetRunTag() { return fRunTag; }
 
-	void InitFromFileName( TString fName );
+        void InitFromFileName( TString fName );
 
         void PrintMetadata( );
 
