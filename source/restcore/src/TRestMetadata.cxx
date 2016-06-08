@@ -1250,7 +1250,8 @@ string TRestMetadata::GetFieldValue( string fieldName, size_t fromPosition )
 string TRestMetadata::GetKEYDefinition( string keyName )
 {
     Int_t fromPosition = 0;
-    size_t startPos = configBuffer.find( keyName, fromPosition );
+    string key = "<" + keyName;
+    size_t startPos = configBuffer.find( key, fromPosition );
     size_t endPos = configBuffer.find( ">", startPos );
 
     fromPosition = endPos;
@@ -1262,7 +1263,8 @@ string TRestMetadata::GetKEYDefinition( string keyName )
 
 string TRestMetadata::GetKEYDefinition( string keyName, size_t &fromPosition )
 {
-    size_t startPos = configBuffer.find( keyName, fromPosition );
+    string key = "<" + keyName;
+    size_t startPos = configBuffer.find( key, fromPosition );
     size_t endPos = configBuffer.find( ">", startPos );
 
     fromPosition = endPos;
@@ -1274,8 +1276,9 @@ string TRestMetadata::GetKEYDefinition( string keyName, size_t &fromPosition )
 
 string TRestMetadata::GetKEYDefinition( string keyName, string buffer )
 {
+    string key = "<" + keyName;
 
-    size_t startPos = buffer.find( keyName, 0 );
+    size_t startPos = buffer.find( key, 0 );
     size_t endPos = buffer.find( ">", startPos );
 
     return buffer.substr( startPos, endPos-startPos );
@@ -1284,8 +1287,9 @@ string TRestMetadata::GetKEYDefinition( string keyName, string buffer )
 
 string TRestMetadata::GetKEYDefinition( string keyName, size_t &fromPosition, string buffer )
 {
+    string key = "<" + keyName;
 
-    size_t startPos = buffer.find( keyName, fromPosition );
+    size_t startPos = buffer.find( key, fromPosition );
     if ( startPos == string::npos ) return "";
     size_t endPos = buffer.find( ">", startPos );
     if ( endPos == string::npos ) return "";
