@@ -67,7 +67,6 @@ TRestManager::TRestManager( const char *cfgFileName, const char *name) : TRestMe
     Initialize();
 
     LoadConfigFromFile( fConfigFileName, name );
-
 }
 
 void TRestManager::Initialize()
@@ -86,17 +85,16 @@ void TRestManager::Initialize()
 TRestManager::~TRestManager()
 {
     if( fRun != NULL ) delete fRun;
-    cout << "Deleting TRestManager" << endl;
 }
 
 //______________________________________________________________________________
 void TRestManager::InitFromConfigFile()
 {
     TString inputFile = GetParameter("inputFile" );
+    fInputFile = inputFile;
 
     char *cfgFile = (char *) fConfigFileName.c_str(); 
     fRun = new TRestRun( cfgFile );
-
 
     fFirstEntry = StringToInteger( GetParameter( "firstEntry", "0") );
     fNEventsToProcess = StringToInteger( GetParameter( "eventsToProcess", "0") );
@@ -122,6 +120,7 @@ void TRestManager::InitFromConfigFile()
         if( metadataType == "readout" ) AddReadout( addMetadataString );
 
         if( metadataType == "gas" ) AddGas( addMetadataString );
+
     }
 
     position = 0;
@@ -160,6 +159,25 @@ void TRestManager::InitFromConfigFile()
 
         TString processType = GetFieldValue( "type", addProcessString );
 
+        fProcessType.push_back( processType );
+        fProcessName.push_back( processName );
+        fPcsConfigFile.push_back( processesCfgFile ); 
+    }
+
+}
+
+void TRestManager::LoadProcesses( )
+{
+    TString processType;
+    TString processName;
+    TString processesCfgFile;
+
+    for( unsigned int i = 0; i < fProcessType.size(); i++ )
+    {
+        processType = fProcessType[i];
+        processName = fProcessName[i];
+        processesCfgFile = fPcsConfigFile[i];
+
         if( processType == "geant4AnalysisProcess" )
             fRun->AddProcess( new TRestGeant4AnalysisProcess( ), (string) processesCfgFile, (string) processName );
 
@@ -170,9 +188,9 @@ void TRestManager::InitFromConfigFile()
             fRun->AddProcess( new TRestElectronDiffusionProcess( ), (string) processesCfgFile, (string) processName );
 
         /*
-        if( processType == "avalancheProcess" )
-            fRun->AddProcess( new TRestAvalancheProcess( ), (string) processesCfgFile, (string) processName );
-            */
+           if( processType == "avalancheProcess" )
+           fRun->AddProcess( new TRestAvalancheProcess( ), (string) processesCfgFile, (string) processName );
+           */
 
         if( processType == "hitsToSignalProcess" )
             fRun->AddProcess( new TRestHitsToSignalProcess( ), (string) processesCfgFile, (string) processName );
@@ -203,22 +221,24 @@ void TRestManager::InitFromConfigFile()
 
         if( processType == "feminosToSignalProcess" )
         {
-	    TRestDetectorSetup *detSetup = new TRestDetectorSetup();
-	    detSetup->InitFromFileName( inputFile );
-	    fRun->AddMetadata( detSetup );
+            TRestDetectorSetup *detSetup = new TRestDetectorSetup();
+            detSetup->InitFromFileName( fInputFile );
+
+            fRun->AddMetadata( detSetup );
 
             TRestFEMINOSToSignalProcess *femPcs = new TRestFEMINOSToSignalProcess();
 
             fRun->AddProcess( femPcs, (string) processesCfgFile, (string) processName );
 
-            if( !femPcs->OpenInputBinFile( inputFile ) )
+            if( !femPcs->OpenInputBinFile( fInputFile ) )
             {
-                cout << "Error file not found : " << inputFile << endl;
+                cout << "Error file not found : " << fInputFile << endl;
                 GetChar();
                 continue;
             }
 
-	    fRun->SetParentRunNumber( detSetup->GetRunNumber() );
+            fRun->SetParentRunNumber( detSetup->GetRunNumber() );
+            fRun->SetRunTag( detSetup->GetRunTag() );
         }
 
         if( processType == "addSignalNoiseProcess" )
@@ -235,9 +255,11 @@ void TRestManager::InitFromConfigFile()
 
         if( processType == "smearingProcess" )
             fRun->AddProcess( new TRestSmearingProcess( ), (string) processesCfgFile, (string) processName );
-    }
 
+        LoadExternalProcess( processType, (string) processesCfgFile, (string) processName );
+    }
 }
+
 
 void TRestManager::AddReadout( string readoutDefinition )
 {

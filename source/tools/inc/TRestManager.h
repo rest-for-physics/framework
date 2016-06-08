@@ -22,9 +22,6 @@
 
 class TRestManager:public TRestMetadata {
     private:
-        void InitFromConfigFile();
-
-        virtual void Initialize();
 
         // TODO: In future TRestManager might handle several input files.
         // Still is to be defined how this will be done
@@ -34,20 +31,40 @@ class TRestManager:public TRestMetadata {
         Int_t fLastEntry;
         Int_t fNEventsToProcess;
 
+        TString fInputFile;
+
+        std::vector <TString> fProcessType;
+        std::vector <TString> fProcessName;
+        std::vector <TString> fPcsConfigFile;
+
+
         void AddReadout( string readoutDefinition );
         void AddGas( string gasDefinition );
 
     protected:
 
+        void InitFromConfigFile();
+
+        virtual void Initialize();
+
+        void LoadProcesses();
+
+        virtual void LoadExternalProcess( TString processType, std::string processesCfgFile, std::string processName ) {  }
+
+        void AddProcess( TRestEventProcess *evPcs, string cfgFile, string pcsName ) { fRun->AddProcess( evPcs, cfgFile, pcsName ); }
+
+        void AddMetadata( TRestMetadata *meta ) { fRun->AddMetadata( meta ); }
+
+
     public:
 
         void ProcessEvents( ) 
         { 
+            LoadProcesses();
+
             if( fRun != NULL ) 
                 fRun->ProcessEvents( fFirstEntry, fNEventsToProcess, fLastEntry ); 
         }
-
-        void Draw();
 
         void PrintMetadata( );
 
