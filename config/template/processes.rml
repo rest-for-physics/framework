@@ -56,7 +56,7 @@
 
 <section hitsToSignalProcess name="hitsToSignal-Template" title="A hits to signal template" >
 
-    <parameter name="sampling" value="1" units="us" />
+    <parameter name="sampling" value="0.2" units="us" />
     <parameter name="electricField" value="1000" units="V/cm" />
 
     <!-- If specified, the following parameters will modify the properties of the gas found in TRestGas -->
@@ -71,17 +71,29 @@
 </section>
 
 <section addSignalNoiseProcess name="addSignalNoiseProcess" title="Test AddNoise to Signal" >
-    <parameter name="noiseLevel" value="10" /> // // electrons in each time bin
+    <parameter name="noiseLevel" value="5" /> // // electrons in each time bin
 </section>
 
 <section signalToHitsProcess name="signalToHits_Template" title="A hit reconstruction template." >
 
     <parameter name="sampling" value="80" units="ns" />
-    <parameter name="threshold" value="80" />
-    <parameter name="electricField" value="200" units="V/cm" />
+    <parameter name="threshold" value="5" />
+    <parameter name="electricField" value="100" units="V/cm" />
 
     <!-- If not specified, the following values will be taken from TRestGas properties -->
     <parameter name="gasPressure" value="1" /> <!-- in atm -->
+    <parameter name="driftVelocity" value="" /> <!-- in cm/us -->
+
+</section>
+
+<section signalToHitsProcess name="simulation" title="A hit reconstruction template." >
+
+    <parameter name="sampling" value="1" units="us" />
+    <parameter name="threshold" value="0" />
+    <parameter name="electricField" value="1000" units="V/cm" />
+
+    <!-- If not specified, the following values will be taken from TRestGas properties -->
+    <parameter name="gasPressure" value="" /> <!-- in atm -->
     <parameter name="driftVelocity" value="" /> <!-- in cm/us -->
 
 </section>
@@ -100,12 +112,19 @@
     <parameter name="startingDistance" value="0.25" units="mm" />
     <parameter name="minimumDistance" value="3" units="mm" />
     <parameter name="distanceStepFactor" value="1.25" />
-    <parameter name="maxNodes" value="24" />
+    <parameter name="maxNodes" value="15" />
+</section>
+
+<section trackReductionProcess name="simulation" title="Half PANDA X-III Vessel (Bottom)" >
+    <parameter name="startingDistance" value="0.5" units="mm" />
+    <parameter name="minimumDistance" value="3" units="mm" />
+    <parameter name="distanceStepFactor" value="1.5" />
+    <parameter name="maxNodes" value="25" />
 </section>
 
 <section trackPathMinimizationProcess name="trackPathMinimization-Template" title="Half Template X-III Vessel (Bottom)" >
     <parameter name="energyThreshold" value="0.8" />
-    <parameter name="maxNodes" value="100" />
+    <parameter name="maxNodes" value="50" />
 </section>
 
 
@@ -131,6 +150,25 @@
     <observable name="yMean" value="ON" />
 </section>
 
+<section triggerAnalysisProcess name="trigger" title="Trigger analysis template" >
+    <observable name="Integral_Eth500" value="ON" />
+    <observable name="Integral_Eth600" value="ON" />
+    <observable name="Integral_Eth700" value="ON" />
+    <observable name="Integral_Eth800" value="ON" />
+    <observable name="Integral_Eth900" value="ON" />
+    <observable name="Integral_Eth1000" value="ON" />
+    <observable name="Integral_Eth1100" value="ON" />
+    <observable name="Integral_Eth1200" value="ON" />
+    <observable name="Integral_Eth1300" value="ON" />
+    <observable name="Integral_Eth1400" value="ON" />
+    <observable name="Integral_Eth1500" value="ON" />
+    <observable name="Integral_Eth1600" value="ON" />
+    <observable name="Integral_Eth1700" value="ON" />
+    <observable name="Integral_Eth1800" value="ON" />
+    <observable name="Integral_Eth1900" value="ON" />
+    <observable name="RawIntegral" value="ON" />
+</section>
+
 <section findG4BlobAnalysisProcess name="g4Blob" title="Find blobs in DBD">
     <observable name="xBlob1" value="ON" />
     <observable name="yBlob1" value="ON" />
@@ -143,27 +181,32 @@
 
 <section signalAnalysisProcess name="sgnlAna" title="Half Template X-III Vessel (Bottom)" >
 
+    <!-- This parameter defines every how many seconds a signal will be drawn.
+         In case the value is zero. There will not be any drawing. -->
+    <parameter name="refreshEvery" value="1000" />
+
     <!-- This parameter is used to define the baseline calculation -->
     <parameter name="baseLineRange" value="(10,90)" />
 
     <!-- This parameter is used to define the signal integration window -->
-    <parameter name="integralRange" value="(100,200)" />
+    <parameter name="integralRange" value="(20,492)" />
 
     <!-- These parameters define the integral with threshold. 
          threshold : number of baseline noise sigmas to consider a point for integration.
          pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
          minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
         -->
-    <parameter name="threshold" value="10" />
-    <parameter name="pointsOverThreshold" value="20" />
-    <parameter name="minPeakAmplitude" value="50" />
+    <parameter name="pointThreshold" value="3." />
+    <parameter name="pointsOverThreshold" value="18" />
+    <parameter name="signalThreshold" value="4.5" />
 
     <!-- ++++++++++++++++++++++
          Observable definitions
          ++++++++++++++++++++++ -->
 
-    <!-- This observable needs to be refined -->
-    <observable name="TimeBinsLength" value="OFF" />
+    <!-- This observable needs to be refined 
+    <observable name="TimeBinsLength" value="ON" />
+-->
 
     <!-- Event time observables -->
     <observable name="SecondsFromStart" value="ON" />
@@ -222,11 +265,11 @@
     <parameter name="cutsEnabled" value="true" />
 
     <parameter name="meanBaseLineCutRange" value="(0,300)" />
-    <parameter name="meanBaseLineSigmaCutRange" value="(0,2)" />
+    <parameter name="meanBaseLineSigmaCutRange" value="(0,20)" />
     <parameter name="maxNumberOfSignalsCut" value="(1,20)" />
     <parameter name="maxNumberOfGoodSignalsCut" value="(1,10)" />
-    <parameter name="fullIntegralCut" value="(1,50000)" />
-    <parameter name="thresholdIntegralCut" value="(1,300000)" />
+    <parameter name="fullIntegralCut" value="(1,500000)" />
+    <parameter name="thresholdIntegralCut" value="(1,150000)" />
     <parameter name="peakTimeDelayCut" value="(0,40)" />
 
 </section>
@@ -249,4 +292,14 @@
     <parameter name="pedScript" value="ped"/>
     <parameter name="runScript" value="run"/>
     <parameter name="electronics" value="AGET"/>
+</section>
+
+<section avalancheProcess name="NLDBD" title="1PctGain" >
+    <parameter name="energyReference" value="2458" units="keV" />
+    <parameter name="resolutionReference" value="1" />
+    <parameter name="detectorGain" value="1" />
+</section>
+
+<section signalShapingProcess name="signalShapingProcess" title="Test SignalShaping" >
+    <parameter name="responseFile" value="AGET_Response_12.5MHz_Gain0x1_Shaping0x4.root" /> //response file to be used to shape the signal
 </section>
