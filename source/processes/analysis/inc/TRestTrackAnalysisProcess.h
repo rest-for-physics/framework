@@ -23,6 +23,8 @@ class TRestTrackAnalysisProcess:public TRestEventProcess {
         TRestTrackEvent *fTrackEvent;
 
         vector <Double_t> fPreviousEventTime;
+
+	Bool_t fCutsEnabled;
 #endif
 
         void InitFromConfigFile();
