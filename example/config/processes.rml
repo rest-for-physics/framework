@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<section signalAnalysisProcess name="sgnlAna" title="Signal analysis" >
+
+    <!-- This parameter defines every how many seconds a signal will be drawn.
+         In case the value is zero. There will not be any drawing. -->
+    <parameter name="refreshEvery" value="1000" />
+
+    <!-- This parameter is used to define the baseline calculation -->
+    <parameter name="baseLineRange" value="(10,90)" />
+
+    <!-- This parameter is used to define the signal integration window -->
+    <parameter name="integralRange" value="(20,492)" />
+
+    <!-- These parameters define the integral with threshold. 
+         threshold : number of baseline noise sigmas to consider a point for integration.
+         pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
+         minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
+        -->
+    <parameter name="pointThreshold" value="2.5" />
+    <parameter name="pointsOverThreshold" value="18" />
+    <parameter name="signalThreshold" value="3.5" />
+
+    <!-- ++++++++++++++++++++++
+         Observable definitions
+         ++++++++++++++++++++++ -->
+
+    <!-- This observable needs to be refined 
+    <observable name="TimeBinsLength" value="ON" />
+-->
+
+    <!-- Event time observables -->
+    <observable name="SecondsFromStart" value="ON" />
+    <observable name="HoursFromStart" value="ON" />
+    <observable name="MeanRate_InHz" value="ON" />
+    <observable name="EventTimeDelay" value="ON" />
+
+    <!-- The numbers of signals that are found inside the event -->
+    <observable name="NumberOfSignals" value="ON" />
+
+    <!-- Number of signals after noisy signals reduction -->
+    <observable name="NumberOfGoodSignals" value="ON" />
+
+    <!-- The baseline average of the signals -->
+    <observable name="BaseLineMean" value="ON" />
+
+    <!-- The baseline sigma average of each independent signal -->
+    <observable name="BaseLineSigmaMean" value="ON" />
+
+    <!-- The full signal integral in the integralRange -->
+    <observable name="FullIntegral" value="ON" />
+
+    <!-- The signal integral in the integralRange using threshold -->
+    <observable name="ThresholdIntegral" value="ON" />
+
+    <!-- The energy balance between full integral and threshold integral -->
+    <observable name="IntegralBalance" value="ON" />
+
+    <!-- Maximum peak amplitude found in the signal event -->
+    <observable name="MaxPeakAmplitude" value="ON" />
+   
+    <!-- Integral of all the signals maximum amplitude -->
+    <observable name="PeakAmplitudeIntegral" value="ON" />
+
+    <!-- Ratio between peak amplitude integral and maximum signal amplitude -->
+    <observable name="AmplitudeRatio" value="ON" />
+
+    <!-- Maximum time at which a maximum peak amplitude is found -->
+    <observable name="MaxPeakTime" value="ON" />
+
+    <!-- Minimum time at which a maximum peak amplitude is found -->
+    <observable name="MinPeakTime" value="ON" />
+
+    <!-- Time difference between MaxPeakTime and MinPeakTime -->
+    <observable name="MaxPeakTimeDelay" value="ON" />
+
+    <!-- Max peak time average -->
+    <observable name="AveragePeakTime" value="ON" />
+
+    <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+         Cut/event selection definition
+         This are the cut range definition on the observables 
+         Events that are not in those ranges will be rejected if cutsEnables is true.
+         ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+    <parameter name="cutsEnabled" value="false" />
+
+    <parameter name="meanBaseLineCutRange" value="(0,300)" />
+    <parameter name="meanBaseLineSigmaCutRange" value="(0,20)" />
+    <parameter name="maxNumberOfSignalsCut" value="(1,20)" />
+    <parameter name="maxNumberOfGoodSignalsCut" value="(1,10)" />
+    <parameter name="fullIntegralCut" value="(1,500000)" />
+    <parameter name="thresholdIntegralCut" value="(1,150000)" />
+    <parameter name="peakTimeDelayCut" value="(0,40)" />
+
+</section>
+
+<section daq name="virtualDAQ" title="TEST">
+    <parameter name="pedScript" value="ped"/>
+    <parameter name="runScript" value="run"/>
+    <parameter name="electronics" value="AGET"/>
+</section>
+
+<section myProcess name="myProcessName" title="An external process" >
+    <parameter name="showEvery" value="1000" />
+</section>
