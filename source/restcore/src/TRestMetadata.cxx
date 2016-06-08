@@ -1359,7 +1359,7 @@ string TRestMetadata::GetKEYStructure( string keyName, size_t &fromPosition )
 
     if( endPos == string::npos  ) { if( debug ) cout << "END KEY not found!!" << endl; return "NotFound"; }
 
-    fromPosition = endPos;
+    fromPosition = endPos+1;
 
     return configBuffer.substr( initPos, endPos-initPos + endKEY.length()+1 );
 }

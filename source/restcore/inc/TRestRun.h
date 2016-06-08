@@ -122,6 +122,11 @@ class TRestRun:public TRestMetadata {
         Int_t GetEventWithID( Int_t eventID, Int_t subEventID = 0 );
         Int_t GetEventWithID( Int_t eventID, TString tag );
 
+
+        // Quick analysis tree access
+        Int_t GetObservableID( TString name ) { return fInputAnalysisTree->GetObservableID( name ); }
+        Bool_t ObservableExists( TString name ) { return fInputAnalysisTree->ObservableExists( name ); }
+
         //TRestMetadata *GetEventMetadata() { return fEventMetadata; }
         TRestEvent *GetOutputEvent() { return fOutputEvent; }
         TFile *GetOutputFile() { return fOutputFile; }

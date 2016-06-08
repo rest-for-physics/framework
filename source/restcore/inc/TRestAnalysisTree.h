@@ -56,6 +56,12 @@ class TRestAnalysisTree:public TTree {
             return -1;
         }
 
+        Bool_t ObservableExists( TString obsName )
+        {
+            if( GetObservableID( obsName ) >= 0 ) return true;
+            return false;
+        }
+
         Bool_t isConnected( ) { return fConnected; }
 
         Int_t GetEventID( ) { return fEventID; }
