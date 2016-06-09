@@ -94,6 +94,49 @@ Double_t TRestG4Event::GetTotalDepositedEnergyFromTracks()
     return eDep;
 }
 
+TVector3 TRestG4Event::GetMeanPositionInVolume(Int_t volID)
+{
+    TVector3 pos;
+    Double_t eDep = 0;
+
+    for( int t = 0; t < GetNumberOfTracks(); t++ )
+    {
+        TRestG4Track *tck = GetTrack( t );
+        if( tck->GetEnergyInVolume( volID ) > 0 )
+        {
+            pos += tck->GetMeanPositionInVolume( volID ) * tck->GetEnergyInVolume( volID );
+
+            eDep += tck->GetEnergyInVolume( volID );
+        }
+    }
+
+    if( eDep == 0 ) return pos;
+    pos = (1/eDep) * pos;
+    return pos;
+}
+
+TVector3 TRestG4Event::GetFirstPositionInVolume(Int_t volID)
+{
+    TVector3 pos;
+
+    for( int t = 0; t < GetNumberOfTracks(); t++ )
+        if( GetTrack( t )->GetEnergyInVolume( volID ) > 0 )
+            return GetTrack( t )->GetFirstPositionInVolume( volID );
+
+    return pos;
+}
+
+TVector3 TRestG4Event::GetLastPositionInVolume(Int_t volID)
+{
+    TVector3 pos;
+
+    for( int t = GetNumberOfTracks()-1; t >= 0; t-- )
+        if( GetTrack( t )->GetEnergyInVolume( volID ) > 0 )
+            return GetTrack( t )->GetLastPositionInVolume( volID );
+
+    return pos;
+}
+
 TRestG4Track *TRestG4Event::GetTrackByID( int id ) 
 { 
     for( int i = 0; i < fNTracks; i++ ) 

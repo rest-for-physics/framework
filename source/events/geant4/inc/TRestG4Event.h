@@ -29,6 +29,9 @@
 
 class TRestG4Event: public TRestEvent {
 
+    private:
+        void AddEnergyDepositToVolume( Int_t volID, Double_t eDep );
+
     protected:
         TVector3 fPrimaryEventOrigin;
 
@@ -68,6 +71,9 @@ class TRestG4Event: public TRestEvent {
         Double_t GetTotalDepositedEnergyFromTracks();
         Double_t GetEnergyDepositedInVolume( Int_t volID ) { return fVolumeDepositedEnergy[volID]; }
         Double_t GetSensitiveVolumeEnergy( ) { return fSensitiveVolumeEnergy; }
+        TVector3 GetMeanPositionInVolume( Int_t volID );
+        TVector3 GetFirstPositionInVolume( Int_t volID );
+        TVector3 GetLastPositionInVolume( Int_t volID );
 
         TRestHits GetHits( );
 
@@ -79,7 +85,6 @@ class TRestG4Event: public TRestEvent {
 
         void AddActiveVolume( );
         void ClearVolumes( );
-        void AddEnergyDepositToVolume( Int_t volID, Double_t eDep );
         void AddEnergyToSensitiveVolume( Double_t en ) { fSensitiveVolumeEnergy += en; }
         
         void SetEnergyDepositedInVolume( Int_t volID, Double_t eDep ) {fVolumeDepositedEnergy[volID]=eDep; }
