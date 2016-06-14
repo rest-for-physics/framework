@@ -10,11 +10,11 @@ int LoadRESTScripts()
     gSystem->Load("libRestExternal.so");
 
     char command[256];
-    sprintf( command, "find \$REST_PATH/scripts/ |grep .C | grep -v \"LoadRESTScripts.C\" | grep -v \"swo\" | grep -v \"swp\"  | grep -v \"svn\"> macros.list" );
+    sprintf( command, "find \$REST_PATH/scripts/ |grep .C | grep -v \"LoadRESTScripts.C\" | grep -v \"swo\" | grep -v \"swp\"  | grep -v \"svn\"> /tmp/macros.list" );
 
     system( command );
 
-    FILE *f = fopen( "macros.list", "r" );
+    FILE *f = fopen( "/tmp/macros.list", "r" );
 
     char str[256];
     while ( fscanf ( f, "%s\n", str ) != EOF )
@@ -25,5 +25,5 @@ int LoadRESTScripts()
 
     fclose( f );
 
-    system( "rm macros.list" );
+    system( "rm /tmp/macros.list" );
 }
