@@ -74,8 +74,6 @@ void TRestAnalysisPlot::InitFromConfigFile()
         fCanvasDivisions = StringTo2DVector ( GetFieldValue( "divide", canvasDefinition ) );
     }
 
-    fCanvasDivisions.Print();
-
     vector <TString> globalCuts;
 
     position = 0;

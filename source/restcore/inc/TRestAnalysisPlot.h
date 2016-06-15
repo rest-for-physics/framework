@@ -47,7 +47,6 @@ class TRestAnalysisPlot:public TRestMetadata {
     protected:
 
     public:
-        void Test();
 
         void Initialize( );
 
