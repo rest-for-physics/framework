@@ -53,7 +53,6 @@ TRestRun::TRestRun( char *cfgFileName) : TRestMetadata (cfgFileName)
 void TRestRun::Initialize()
 {
     SetName( "run" );
-    cout << __PRETTY_FUNCTION__ << endl;
 
     time_t  timev; time(&timev);
     fStartTime = (Double_t) timev;
@@ -106,7 +105,6 @@ void TRestRun::ResetRunTimes()
 //______________________________________________________________________________
 TRestRun::~TRestRun()
 {
-    cout << "Deleting TRestRun" << endl;
     if( fOutputFile != NULL ) CloseOutputFile();
 }
 
