@@ -4,9 +4,11 @@
      The file where we have applied a signalAnalysisProcess name sgnl.Ana -->
 <section analysisPlot name="Template" title="Basic Plots">
 
-    <!-- Here you can add as many files as you want -->
+    <!-- Here you can add as many files as you want through a config file using addFile -->
+    <!--
     <addFile name="{REST_INPUT_FILE}" />
     <addFile name="{REST_INPUT_FILE2}" />
+    -->
 
     <parameter name="plotMode" value="compare" > <!-- plotModes available : compare, add -->
 
@@ -30,7 +32,7 @@
           <variable name="hitsAna.xMean" range="(0,200)" nbins="1000" />
     </plot>
 
-    <plot name="Hitmap" title="Spectrum (single tracks)" xlabel="Threshold integral energy [ADC units]" ylabel="Counts" 
+    <plot name="Spectrum2" title="Spectrum (single tracks)" xlabel="Threshold integral energy [ADC units]" ylabel="Counts" 
           logscale="true" save="/tmp/file4.pdf"  value="ON" >
           <variable name="sgnlAna.ThresholdIntegral" range="(0,100000)" nbins="1000" />
 
