@@ -96,11 +96,11 @@ int main( int argc, char *argv[] )
 
             FILE *fin = fopen( "/tmp/fileList.tmp", "r" );
             char str[256];
-                while ( fscanf ( fin, "%s\n", str ) != EOF )
-                {
-                    TString newFile = str;
-                    inputFilesNew.push_back( newFile );
-                }
+            while ( fscanf ( fin, "%s\n", str ) != EOF )
+            {
+                TString newFile = str;
+                inputFilesNew.push_back( newFile );
+            }
             fclose( fin );
 
             system ( "rm /tmp/fileList.tmp" );
@@ -113,8 +113,11 @@ int main( int argc, char *argv[] )
 
     TRestAnalysisPlot *anPlot = new TRestAnalysisPlot( cfgFileName, sectionName );
 
-    for( unsigned int n = 0; n < inputFiles.size(); n++ )
+    for( unsigned int n = 0; n < inputFilesNew.size(); n++ )
+    {
+        cout << "Adding file : " << inputFilesNew[n] << endl;
         anPlot->AddFile( inputFilesNew[n] );
+    }
 
     anPlot->PlotCombinedCanvas( );
 
