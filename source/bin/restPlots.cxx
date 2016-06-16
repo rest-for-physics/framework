@@ -24,6 +24,12 @@ void PrintHelp( )
     cout << "-----------------------------------------------------------------------------------" << endl;
     cout << " INPUT_FILE : Input file name. It can be also specified from the analysisPlot " << endl;
     cout << " section using addFile key. " << endl;
+    cout << endl;
+    cout << " You can also specify a file input range using the shell *,? characters as in ls." << endl;
+    cout << " For example : \"Run_simulation_*.root\". " << endl;
+    cout << endl;
+    cout << " IMPORTANT : You should then write the filename range between quotes!! \"\"" << endl;
+    cout << endl;
     cout << " ==================================================================================" << endl;
 }
 
@@ -78,16 +84,39 @@ int main( int argc, char *argv[] )
         }
     }
 
+    std::vector <TString> inputFilesNew;
+    for( unsigned int n = 0; n < inputFiles.size(); n++ )
+    {
+        if( inputFiles[n].First( "*" ) >= 0 || inputFiles[n].First( "?" ) >= 0  )
+        {
+            char command[256];
+            sprintf( command, "find %s > /tmp/fileList.tmp", inputFiles[n].Data() );
+
+            system( command );
+
+            FILE *fin = fopen( "/tmp/fileList.tmp", "r" );
+            char str[256];
+                while ( fscanf ( fin, "%s\n", str ) != EOF )
+                {
+                    TString newFile = str;
+                    inputFilesNew.push_back( newFile );
+                }
+            fclose( fin );
+
+            system ( "rm /tmp/fileList.tmp" );
+        }
+        else
+        {
+            inputFilesNew.push_back( inputFiles[n] );
+        }
+    }
+
     TRestAnalysisPlot *anPlot = new TRestAnalysisPlot( cfgFileName, sectionName );
 
     for( unsigned int n = 0; n < inputFiles.size(); n++ )
-    {
-        anPlot->AddFile( inputFiles[n] );
-
-    }
+        anPlot->AddFile( inputFilesNew[n] );
 
     anPlot->PlotCombinedCanvas( );
-
 
     theApp.Run();
 
