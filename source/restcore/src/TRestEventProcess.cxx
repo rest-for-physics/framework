@@ -143,14 +143,33 @@ void TRestEventProcess::EndProcess()
 */
 void TRestEventProcess::BeginPrintProcess()
 {
-   cout << endl;
-   cout << "--------------------------------------------------------------------------------------------------" << endl;
-   cout << "-- Process : " << GetProcessName() << " Name : " << GetName() << " Title : " << GetTitle() << endl;
-   cout << "--------------------------------------------------------------------------------------------------" << endl;
+	cout << endl;
+	cout << "--------------------------------------------------------------------------------------------------" << endl;
+	cout << "-- Process : " << GetProcessName() << " Name : " << GetName() << " Title : " << GetTitle() << endl;
+	cout << "--------------------------------------------------------------------------------------------------" << endl;
+
+	cout << endl;
+	if( fObservableNames.size() > 0 )
+	{
+		cout << " Analysis tree observables added by this process " << endl;
+		cout << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
+	}
+
+	for( unsigned int i = 0; i < fObservableNames.size(); i++ )
+	{
+		cout << " ++ " << fObservableNames[i] << endl;
+	}
+
+	if( fObservableNames.size() > 0 )
+	{
+		cout << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
+		cout << endl;
+	}
 }
 
 void TRestEventProcess::EndPrintProcess()
 {
+   cout << endl;
    cout << "--------------------------------------------------------------------------------------------------" << endl;
    cout << endl;
 }

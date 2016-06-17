@@ -39,6 +39,8 @@ class TRestEventProcess:public TRestMetadata {
 
    std::vector <TRestMetadata*> fRunMetadata;
 
+   std::vector <string> fObservableNames;
+
    TRestAnalysisTree *fAnalysisTree;
 #endif
 
@@ -65,7 +67,10 @@ class TRestEventProcess:public TRestMetadata {
        vector <string> obsList = GetObservablesList( );
 
        for( unsigned int n = 0; n < obsList.size(); n++ )
-           fAnalysisTree->AddObservable( this->GetName() + (TString) "." + (TString) obsList[n] );
+       {
+	       fAnalysisTree->AddObservable( this->GetName() + (TString) "." + (TString) obsList[n] );
+		fObservableNames.push_back ( this->GetName() + (string) "." + obsList[n] );
+       }
 
        return obsList;
    }
