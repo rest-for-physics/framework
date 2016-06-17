@@ -61,6 +61,8 @@ void TRestDetectorSetup::Initialize()
 	fElectronicsGain = "";
 	fSamplingTime = "";
 	fShapingTime = "";
+
+	fSamplingInMicroSec = 0;
 }
 
 //______________________________________________________________________________
@@ -84,8 +86,6 @@ void TRestDetectorSetup::InitFromFileName( TString fName )
 	string name =  fullName.substr( startPos, length - startPos );
 
 	fRunNumber = StringToInteger( name.substr( 1, 5 ) );
-
-	
 
 	unsigned int pos = name.find("_") + 1;
 	unsigned int len = name.find("_Vm") - pos;
@@ -115,15 +115,13 @@ void TRestDetectorSetup::InitFromFileName( TString fName )
 	len = name.find("-") - pos;
 	fSamplingTime = name.substr( pos, len ); 
 
+	TString samplingReduced = fSamplingTime( 2, fSamplingTime.Length() );
+	fSamplingInMicroSec = (Double_t ) strtol( samplingReduced.Data(), NULL, 16) / 100.; // This is only for AGET
+	
 	pos = name.find("-") + 1;
 	len = name.find(".aqs") - pos;
 	fSubRunNumber = StringToInteger( name.substr( pos, len ) );
 
-
-	// TODO : we should be able to define the filefullName format
-
-	PrintMetadata();
-	
 }
 
 
@@ -142,9 +140,10 @@ void TRestDetectorSetup::PrintMetadata( )
 	cout << " Drift field : " << fDriftField << " V/cm/bar" << endl;
 	cout << " Detector pressure : " << fDetectorPressure << " bar" << endl;
 	cout << " --------------------------------------------" << endl;
-	cout << " Electronics gain : " << fElectronicsGain << endl;
-	cout << " Shaphing time : " << fShapingTime << endl;
-	cout << " Sampling rate : " << fSamplingTime << endl;
+	cout << " Electronics gain register : " << fElectronicsGain << endl;
+	cout << " Shaping time register : " << fShapingTime << endl;
+	cout << " Sampling rate register : " << fSamplingTime << endl;
+	cout << " Sampling rate : " << fSamplingInMicroSec << " us " << endl;
 	cout << " --------------------------------------------" << endl;
 
 }

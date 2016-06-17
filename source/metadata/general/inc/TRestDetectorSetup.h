@@ -39,19 +39,26 @@ class TRestDetectorSetup:public TRestMetadata {
         TString fRunTag;
 
         Double_t fMeshVoltage;
-        Double_t fDriftField;
-        Double_t fDetectorPressure;
+        Double_t fDriftField; // Drift field in V/cm/bar
+        Double_t fDetectorPressure;	// In bar
 
         TString fElectronicsGain;
         TString fShapingTime;
         TString fSamplingTime;
 
+	Double_t fSamplingInMicroSec;
 
     public:
 
         Int_t GetRunNumber() { return fRunNumber; }
         Int_t GetSubRunNumber() { return fSubRunNumber; }
         TString GetRunTag() { return fRunTag; }
+
+	Double_t GetSamplingInMicroSeconds( ) { return fSamplingInMicroSec; }
+
+	Double_t GetFieldInVPerCm( ) { return fDriftField * fDetectorPressure; }
+
+	Double_t GetPressureInBar( ) { return fDetectorPressure; }
 
         void InitFromFileName( TString fName );
 
