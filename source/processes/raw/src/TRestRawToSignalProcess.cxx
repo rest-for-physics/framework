@@ -77,9 +77,8 @@ void TRestRawToSignalProcess::InitFromConfigFile(){
 
    if( GetParameter( "rejectNoise", "OFF" ) == "ON" ) 
    {
-	cout << "Activating noise rejection in RAWToSignalProcess" << endl;
+	cout << "RAWToSignalProcess : Activating noise rejection" << endl;
 	fRejectNoise = true;
-
    }
 fElectronicsType = GetParameter("electronics");
  fMinPoints = StringToInteger( GetParameter("minPoints", "512" ) );
