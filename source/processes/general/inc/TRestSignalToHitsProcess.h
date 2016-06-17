@@ -60,12 +60,11 @@ class TRestSignalToHitsProcess:public TRestEventProcess {
         {
             BeginPrintProcess();
 
-            std::cout << "Sampling rate : " << fSampling << " mm" << std::endl;
+            std::cout << "Sampling rate : " << fSampling << " us" << std::endl;
             std::cout << "Electric field : " << fElectricField << " V/cm" << std::endl;
             std::cout << "Threshold : " << fThreshold << std::endl;
             std::cout << "Gas pressure : " << fGasPressure << " atm" << std::endl;
             std::cout << "Drift velocity : " << fDriftVelocity << " mm/us" << std::endl;
-
 
             EndPrintProcess();
         }
