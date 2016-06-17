@@ -50,15 +50,24 @@ class TRestTrackAnalysisProcess:public TRestEventProcess {
 
         void LoadConfig( std::string cfgFilename, std::string name = "" );
 
-        void PrintMetadata() { 
+	void PrintMetadata() { 
 
-            BeginPrintProcess();
+		BeginPrintProcess();
 
-            cout << "Number of tracks in X cut : ( " << fNTracksXCut.X() << " , " << fNTracksXCut.Y() << " ) " << endl;
-            cout << "Number of tracks in Y cut : ( " << fNTracksYCut.X() << " , " << fNTracksYCut.Y() << " ) " << endl;
+		if( fCutsEnabled )
+		{
+			cout << "Number of tracks in X cut : ( " << fNTracksXCut.X() << " , " << fNTracksXCut.Y() << " ) " << endl;
+			cout << "Number of tracks in Y cut : ( " << fNTracksYCut.X() << " , " << fNTracksYCut.Y() << " ) " << endl;
+		}
+		else
+		{
+			cout << endl;
+			cout << "No cuts have been enabled" << endl;
 
-            EndPrintProcess();
-        }
+		}
+
+		EndPrintProcess();
+	}
 
         TString GetProcessName() { return (TString) "trackAnalysis"; }
 
