@@ -39,6 +39,8 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    
    Double_t tStart;
    int totalBytesReaded;
+
+   Bool_t fRejectNoise;
    
    TRestSignalEvent *fSignalEvent;
    #ifndef __CINT__

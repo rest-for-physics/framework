@@ -63,6 +63,8 @@ void TRestRawToSignalProcess::Initialize()
     fInputBinFile = NULL;
 
     fMinPoints = 512;
+
+    fRejectNoise = false;
 }
 
 void TRestRawToSignalProcess::BeginOfEventProcess() 
@@ -73,6 +75,12 @@ void TRestRawToSignalProcess::BeginOfEventProcess()
 
 void TRestRawToSignalProcess::InitFromConfigFile(){
 
+   if( GetParameter( "rejectNoise", "OFF" ) == "ON" ) 
+   {
+	cout << "Activating noise rejection in RAWToSignalProcess" << endl;
+	fRejectNoise = true;
+
+   }
 fElectronicsType = GetParameter("electronics");
  fMinPoints = StringToInteger( GetParameter("minPoints", "512" ) );
   if(fElectronicsType==""){
@@ -82,7 +90,6 @@ fElectronicsType = GetParameter("electronics");
 
   if(fElectronicsType=="AFTER"||fElectronicsType=="AGET")return;
   LoadDefaultConfig();
-  
 
 }
 
