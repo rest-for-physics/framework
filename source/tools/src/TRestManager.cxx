@@ -221,6 +221,7 @@ void TRestManager::LoadProcesses( )
 
         if( processType == "feminosToSignalProcess" )
         {
+
             TRestDetectorSetup *detSetup = new TRestDetectorSetup();
             detSetup->InitFromFileName( fInputFile );
 
@@ -326,8 +327,6 @@ void TRestManager::AddGas( string gasDefinition )
 
     gas = (TRestGas *) fRun->GetMetadataClass( "TRestGas" );
     gas->LoadGasFile();
-
-    gas->PrintMetadata();
 }
 
 void TRestManager::PrintMetadata( )
