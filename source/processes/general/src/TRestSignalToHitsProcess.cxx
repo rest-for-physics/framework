@@ -10,6 +10,7 @@
 ///             jan 2016:  Javier Galan
 ///_______________________________________________________________________________
 
+#include <TRestDetectorSetup.h>
 
 #include "TRestSignalToHitsProcess.h"
 using namespace std;
@@ -61,10 +62,41 @@ void TRestSignalToHitsProcess::LoadConfig( std::string cfgFilename, std::string 
 {
     if( LoadConfigFromFile( cfgFilename, name ) ) LoadDefaultConfig( );
 
-    ////////////////////////////////////////////////
-    // TODO : These lines should be probably avoided
-    
-    // If the parameters have no value it tries to obtain it from electronDiffusionProcess
+    // If the parameters have no value it tries to obtain it from detector setup
+
+    if( fElectricField == PARAMETER_NOT_FOUND_DBL )
+    {
+	    TRestDetectorSetup *detSetup = (TRestDetectorSetup *) this->GetDetectorSetup();
+	    if ( detSetup != NULL )
+	    {
+		    fElectricField = detSetup->GetFieldInVPerCm( );
+		    cout << "SignalToHitsProcess : Obtainning electric field from detector setup : " << fElectricField << " V/cm" << endl;
+	    }
+    }
+
+    if ( fSampling == PARAMETER_NOT_FOUND_DBL )
+    {
+	    TRestDetectorSetup *detSetup = (TRestDetectorSetup *) this->GetDetectorSetup();
+	    if ( detSetup != NULL )
+	    {
+		    fSampling = detSetup->GetSamplingInMicroSeconds( );
+		    cout << "SignalToHitsProcess : Obtainning sampling from detector setup : " << fSampling << " us" << endl;
+	    }
+    }
+
+    if( fGasPressure == -1 )
+    {
+	    TRestDetectorSetup *detSetup = (TRestDetectorSetup *) this->GetDetectorSetup();
+	    if ( detSetup != NULL )
+	    {
+		    fGasPressure = detSetup->GetPressureInBar( );
+		    cout << "SignalToHitsProcess : Obtainning gas pressure from detector setup : " << fGasPressure << " bar" << endl;
+	    }
+
+
+    }
+
+/* THIS IS OBSOLETE ( NOW WE SHOULD DEFINE TRestDetectorSetup inside TRestRun, TRestDetectorSetup defines field, pressure, sampling, etc )
     if ( fElectricField == PARAMETER_NOT_FOUND_DBL )
     {	
         fElectricField = this->GetDoubleParameterFromClassWithUnits( "TRestElectronDiffusionProcess", "electricField" );
@@ -72,13 +104,15 @@ void TRestSignalToHitsProcess::LoadConfig( std::string cfgFilename, std::string 
             cout << "Getting electric field from electronDiffusionProcess : " << fElectricField << " V/cm" << endl;
     }
 
+    GetChar();
+
     if ( fSampling == PARAMETER_NOT_FOUND_DBL )
     {
         fSampling = this->GetDoubleParameterFromClassWithUnits( "TRestHitsToSignalProcess", "sampling" );
         if( fSampling != PARAMETER_NOT_FOUND_DBL )
             cout << "Getting sampling rate from hitsToSignal process : " << fSampling << " um" << endl;
     }
-    ////////////////////////////////////////////////
+*/
 }
 
 //______________________________________________________________________________
