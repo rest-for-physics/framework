@@ -423,7 +423,7 @@ void TRestSignalAnalysisProcess::InitFromConfigFile( )
     fThresholdIntegralCut  = StringTo2DVector( GetParameter( "thresholdIntegralCut", "(0,100000)" ) );
 
     fPeakTimeDelayCut  = StringTo2DVector( GetParameter( "peakTimeDelayCut", "(0,20)" ) );
-    if( GetParameter( "cutsEnabled" ) == "true" ) fCutsEnabled = true;
+    if( GetParameter( "cutsEnabled", "false" ) == "true" ) fCutsEnabled = true;
 
 
 }

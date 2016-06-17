@@ -138,8 +138,11 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     fTrackEvent->SetNumberOfXTracks( nTracksX );
     fTrackEvent->SetNumberOfYTracks( nTracksY );
 
-    if( nTracksX < fNTracksXCut.X() || nTracksX > fNTracksXCut.Y() ) return NULL;
-    if( nTracksY < fNTracksYCut.X() || nTracksY > fNTracksYCut.Y() ) return NULL;
+    if( fCutsEnabled )
+    {
+	    if( nTracksX < fNTracksXCut.X() || nTracksX > fNTracksXCut.Y() ) return NULL;
+	    if( nTracksY < fNTracksYCut.X() || nTracksY > fNTracksYCut.Y() ) return NULL;
+    }
 
     Double_t x = 0, y = 0;
 
@@ -196,6 +199,6 @@ void TRestTrackAnalysisProcess::InitFromConfigFile( )
     fNTracksXCut = StringTo2DVector( GetParameter( "nTracksXCut", "(1,10)") );
     fNTracksYCut = StringTo2DVector( GetParameter( "nTracksYCut", "(1,10)") );
 
-    if( GetParameter( "cutsEnabled" ) == "true" ) fCutsEnabled = true;
+    if( GetParameter( "cutsEnabled", "false" ) == "true" ) fCutsEnabled = true;
 }
 
