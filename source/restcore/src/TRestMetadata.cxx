@@ -442,7 +442,6 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
 Int_t TRestMetadata::LoadConfigFromFile( string cfgFileName, string name )
 {
     std::string section = GetName();
-    cout << "Section name : " << section << endl;
 
     Int_t result = LoadSectionMetadata( section, cfgFileName, name );
     if( result == 0 ) InitFromConfigFile();
