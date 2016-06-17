@@ -81,6 +81,7 @@ int main( int argc, char *argv[] )
 
     manager->ProcessEvents( );
 
+    delete manager;
 
     return 0;
 }
