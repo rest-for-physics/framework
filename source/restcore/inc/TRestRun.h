@@ -253,7 +253,7 @@ class TRestRun:public TRestMetadata {
 	
         //Setters
 
-        void AddMetadata( TRestMetadata *metadata ) { fMetadata.push_back( metadata ); }
+        void AddMetadata( TRestMetadata *metadata ) { fMetadata.push_back( metadata ); metadata->PrintMetadata(); }
         void AddHistoricMetadata( TRestMetadata *metadata ) { fHistoricMetadata.push_back( metadata ); }
         void AddProcess( TRestEventProcess *process, std::string cfgFilename, std::string name = "" );
 
