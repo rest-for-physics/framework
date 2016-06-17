@@ -237,7 +237,8 @@ void TRestManager::LoadProcesses( )
                 continue;
             }
 
-            fRun->SetParentRunNumber( detSetup->GetRunNumber() );
+            fRun->SetParentRunNumber( detSetup->GetSubRunNumber() );
+	    fRun->SetRunNumber( detSetup->GetRunNumber() );
             fRun->SetRunTag( detSetup->GetRunTag() );
         }
 

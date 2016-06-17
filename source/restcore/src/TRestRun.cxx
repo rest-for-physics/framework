@@ -489,8 +489,11 @@ void TRestRun::OpenInputFile( TString fName )
     TKey *key = GetObjectKeyByClass( "TRestRun" );
     this->Read( key->GetName() );
 
-    fParentRunNumber = fRunNumber;
-    fRunNumber = runNumber;
+    if( runNumber != -1 ) // Run number = -1 is runNumber="preserve" option
+    {
+	    fParentRunNumber = fRunNumber;
+	    fRunNumber = runNumber;
+    }
 
     fInputFilename = fName;
     fOutputFilename = fileName; // We take this value from the configuration (not from TRestRun)
@@ -795,6 +798,10 @@ void TRestRun::InitFromConfigFile()
        FILE *frun = fopen( runFilename, "w" );
        fprintf( frun, "%d\n", fRunNumber+1 );
        fclose( frun );
+   }
+   else if ( rNumberStr == "preserve" )
+   {
+	fRunNumber = -1;
    }
    else
    {
