@@ -483,17 +483,11 @@ void TRestRun::OpenInputFile( TString fName )
 
     fInputFile = new TFile( fName );
 
-    Int_t runNumber = GetRunNumber();
+    inputRunNumber = GetRunNumber();
     TString fileName = GetOutputFilename();
 
     TKey *key = GetObjectKeyByClass( "TRestRun" );
     this->Read( key->GetName() );
-
-    if( runNumber != -1 ) // Run number = -1 is runNumber="preserve" option
-    {
-	    fParentRunNumber = fRunNumber;
-	    fRunNumber = runNumber;
-    }
 
     fInputFilename = fName;
     fOutputFilename = fileName; // We take this value from the configuration (not from TRestRun)
@@ -561,6 +555,12 @@ void TRestRun::CloseOutputFile( )
     cout << __PRETTY_FUNCTION__ << endl;
     time_t  timev;
     time(&timev);
+
+    if( inputRunNumber != -1 ) // Run number = -1 is runNumber="preserve" option
+    {
+	    fParentRunNumber = fRunNumber;
+	    fRunNumber = inputRunNumber;
+    }
 
     fEndTime = (Double_t) timev;
 
