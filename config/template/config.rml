@@ -34,6 +34,7 @@ By default REST units are mm, keV and degrees
     <parameter name="gasFile" value="{REST_PATH}/inputData/definitions/gases.rml" >
     <parameter name="readoutFile" value="{REST_PATH}/inputData/definitions/readouts_PandaXIII.root" >
     <parameter name="processesFile" value="{REST_PATH}/config/template/processes.rml" >
+    <parameter name="tasksFile" value="{REST_PATH}/config/template/plots.rml" >
 
     <!-- +++++++++++++++
          Adding metadata 
@@ -71,6 +72,15 @@ By default REST units are mm, keV and degrees
     <addProcess type="trackAnalysisProcess" name="tckAna" value="ON" >
 
                 -->
+
+    <!-- Now we need to define in the manager the tasks we will perform.
+         If task processEvents is not enabled processes will not be launched --> 
+    <addTask type="processEvents" value="ON" >
+
+    <!-- If analysisPlot is before the processEvents task it will take as input file the input for TRestRun.
+         If it is after processEvents it will take the output of TRestRun. -->
+    <addTask type="analysisPlot" name="Template" value="OFF" >
+
 </section>
 
 <section manager name="RESTManagerData" title="Template manager to process a rawdata.">
