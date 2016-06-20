@@ -140,6 +140,8 @@ Int_t TRestRun::ValidateProcessChain ( )
 
 void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t lastEvent ) 
 {
+	if( fEventProcess.size() == 0 ) { cout << "REST WARNING. Run does not contain processes" << endl; return; }
+
     if( !fContainsEventTree )
     {
         cout << "REST WARNING: This run does not contain an event tree." << endl;
@@ -151,8 +153,6 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
     }
 
 	fCurrentEvent = firstEvent;
-
-	if( fEventProcess.size() == 0 ) { cout << "WARNNING Run does not contain processes" << endl; return; }
 
     if ( ValidateProcessChain( ) == 0 ) return;
 
