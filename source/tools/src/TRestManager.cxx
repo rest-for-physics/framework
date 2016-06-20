@@ -52,6 +52,10 @@ using namespace std;
 #include <TRestTriggerAnalysisProcess.h>
 #include <TRestHitsAnalysisProcess.h>
 
+
+// task processes
+#include <TRestAnalysisPlot.h>
+
 const int debug = 0;
 
 ClassImp(TRestManager)
@@ -78,6 +82,8 @@ void TRestManager::Initialize()
     fFirstEntry = 0;
     fLastEntry = 0;
     fNEventsToProcess = 0;
+
+    fEventsProcessed = false;
 }
 
 
@@ -164,13 +170,65 @@ void TRestManager::InitFromConfigFile()
         fPcsConfigFile.push_back( processesCfgFile ); 
     }
 
+    // Adding tasks
+    position = 0;
+    string addTaskString;
+    while( ( addTaskString = GetKEYDefinition( "addTask", position ) ) != "" )
+    {
+        TString active = GetFieldValue( "value", addTaskString );
+        if( active != "ON" && active != "On" && active != "on" ) continue;
+
+        TString tasksCfgFile = GetParameter( "tasksFile" );
+
+        TString taskName = GetFieldValue( "name", addTaskString );
+        TString taskType = GetFieldValue( "type", addTaskString );
+
+        fTaskType.push_back( taskType );
+        fTaskName.push_back( taskName );
+        fTasksConfigFile.push_back( tasksCfgFile ); 
+    }
+
 }
 
-void TRestManager::LoadProcesses( )
+void TRestManager::LaunchTasks( )
+{
+
+    for( unsigned int n = 0; n < fTaskType.size(); n++ )
+    {
+        if( fTaskType[n] == "analysisPlot" )
+        {
+            TRestAnalysisPlot *anPlot = new TRestAnalysisPlot( fTasksConfigFile[n], fTaskName[n] );
+
+            TString fName = fInputFile;
+            if( fEventsProcessed ) fName = fRun->GetOutputFilename( );
+
+            anPlot->AddFile( fName );
+
+            anPlot->PlotCombinedCanvas( );
+
+            delete anPlot;
+        }
+        else if( fTaskType[n] == "processEvents" )
+        {
+            ProcessEvents( );
+        }
+        else
+        {
+            cout << "REST WARNING : TRestManager::LaunchTasks(). Task type : " << fTaskType[n] << " not recognized" << endl;
+
+        }
+
+    }
+
+}
+
+Int_t TRestManager::LoadProcesses( )
 {
     TString processType;
     TString processName;
     TString processesCfgFile;
+
+    Int_t nProcesses = 0;
 
     for( unsigned int i = 0; i < fProcessType.size(); i++ )
     {
@@ -239,7 +297,7 @@ void TRestManager::LoadProcesses( )
             }
 
             fRun->SetParentRunNumber( detSetup->GetSubRunNumber() );
-	    fRun->SetRunNumber( detSetup->GetRunNumber() );
+            fRun->SetRunNumber( detSetup->GetRunNumber() );
             fRun->SetRunTag( detSetup->GetRunTag() );
         }
 
@@ -259,7 +317,11 @@ void TRestManager::LoadProcesses( )
             fRun->AddProcess( new TRestSmearingProcess( ), (string) processesCfgFile, (string) processName );
 
         LoadExternalProcess( processType, (string) processesCfgFile, (string) processName );
+
+        nProcesses++;
     }
+
+    return nProcesses;
 }
 
 

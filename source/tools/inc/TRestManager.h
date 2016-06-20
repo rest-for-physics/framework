@@ -37,6 +37,12 @@ class TRestManager:public TRestMetadata {
         std::vector <TString> fProcessName;
         std::vector <TString> fPcsConfigFile;
 
+        std::vector <TString> fTaskType;
+        std::vector <TString> fTaskName;
+        std::vector <TString> fTasksConfigFile;
+
+        Bool_t fEventsProcessed;
+
 
         void AddReadout( string readoutDefinition );
         void AddGas( string gasDefinition );
@@ -47,7 +53,7 @@ class TRestManager:public TRestMetadata {
 
         virtual void Initialize();
 
-        void LoadProcesses();
+        Int_t LoadProcesses();
 
         virtual void LoadExternalProcess( TString processType, std::string processesCfgFile, std::string processName ) {  }
 
@@ -60,11 +66,13 @@ class TRestManager:public TRestMetadata {
 
         void ProcessEvents( ) 
         { 
-            LoadProcesses();
+            if( LoadProcesses() > 0 ) fEventsProcessed = true;
 
             if( fRun != NULL ) 
                 fRun->ProcessEvents( fFirstEntry, fNEventsToProcess, fLastEntry ); 
         }
+
+        void LaunchTasks( );
 
         void PrintMetadata( );
 
