@@ -79,7 +79,7 @@ int main( int argc, char *argv[] )
 
     TRestManager *manager = new TRestManager( cfgFile.Data(), sectionName );
 
-    manager->ProcessEvents( );
+    manager->LaunchTasks( );
 
     delete manager;
 
