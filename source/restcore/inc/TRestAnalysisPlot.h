@@ -33,6 +33,7 @@ class TRestAnalysisPlot:public TRestMetadata {
         TString fPlotMode;
         TVector2 fCanvasSize;
         TVector2 fCanvasDivisions;
+        TString fCanvasSave;
         std::vector <TString> fPlotNames;
         std::vector <TString> fPlotSaveToFile;
         std::vector <TString> fPlotXLabel;
@@ -43,6 +44,8 @@ class TRestAnalysisPlot:public TRestMetadata {
         std::vector <TString> fCutString;
 
 #endif
+
+        TString ReplaceFilenameTags( TString filename, TRestRun *run );
 
     protected:
 

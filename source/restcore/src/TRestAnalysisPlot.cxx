@@ -72,6 +72,7 @@ void TRestAnalysisPlot::InitFromConfigFile()
     {
         fCanvasSize = StringTo2DVector ( GetFieldValue( "size", canvasDefinition ) );
         fCanvasDivisions = StringTo2DVector ( GetFieldValue( "divide", canvasDefinition ) );
+        fCanvasSave = GetFieldValue( "save", canvasDefinition );
     }
 
     vector <TString> globalCuts;
@@ -258,6 +259,8 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
         trees.push_back( anT );
     }
 
+    fCanvasSave = ReplaceFilenameTags( fCanvasSave, runs[0] );
+
     if( fCombinedCanvas != NULL ) 
     {
         delete fCombinedCanvas;
@@ -296,8 +299,10 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
         if( fPlotSaveToFile[n] != "Notdefined" && fPlotSaveToFile[n] != "" )
             SavePlotToPDF( fPlotNames[n], fPlotSaveToFile[n] );
         fCombinedCanvas->Update();
-
     }
+
+    if( fCanvasSave != "" )
+        fCombinedCanvas->Print( fCanvasSave );
 }
 
 void TRestAnalysisPlot::PlotCombinedCanvasCompare( )
@@ -315,6 +320,8 @@ void TRestAnalysisPlot::PlotCombinedCanvasCompare( )
         anT = r->GetAnalysisTree();
         trees.push_back( anT );
     }
+
+    fCanvasSave = ReplaceFilenameTags( fCanvasSave, runs[0] );
 
     if( fCombinedCanvas != NULL ) 
     {
@@ -355,8 +362,10 @@ void TRestAnalysisPlot::PlotCombinedCanvasCompare( )
         if( fPlotSaveToFile[n] != "Notdefined" && fPlotSaveToFile[n] != "" )
             SavePlotToPDF( fPlotNames[n], fPlotSaveToFile[n] );
         fCombinedCanvas->Update();
-
     }
+
+    if( fCanvasSave != "" )
+        fCombinedCanvas->Print( fCanvasSave );
 }
 
 void TRestAnalysisPlot::SavePlotToPDF( TString plotName, TString fileName )
@@ -389,5 +398,23 @@ void TRestAnalysisPlot::SavePlotToPDF( Int_t n, TString fileName )
     c->Print( fileName );
 
     delete c;
+}
+
+// TODO : This method should be migrated to TRestRun. We can generalize to build more flexible output file names
+TString TRestAnalysisPlot::ReplaceFilenameTags( TString filename, TRestRun *run )
+{
+    TString outString = filename;
+
+    TString runStr;
+    runStr.Form( "%d",run->GetRunNumber( ) );
+
+    TString subRunStr;
+    subRunStr.Form( "%d",run->GetParentRunNumber( ) );
+
+    outString = Replace( (string) outString, "[RUN]", (string) runStr, 0 );
+    outString = Replace( (string) outString, "[SUBRUN]", (string) subRunStr, 0 );
+    outString = Replace( (string) outString, "[PARENTRUN]", (string) subRunStr, 0 );
+
+    return outString;
 }
 
