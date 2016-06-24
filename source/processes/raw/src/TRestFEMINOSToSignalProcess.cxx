@@ -58,19 +58,6 @@ void TRestFEMINOSToSignalProcess::InitProcess()
 
     //Binary file header
 
-    //The binary starts here
-    char runUid[26],initTime[25];
-    fread(runUid, 1, 26, fInputBinFile);
-
-    sprintf(initTime,"%s",runUid);
-    totalBytesReaded = sizeof(runUid);
-
-    int year,day,month,hour,minute,second;
-    sscanf(initTime,"%*c%*cR%d_%02d_%02d-%02d_%02d_%02d-%*d",&year,&month,&day,&hour,&minute,&second);
-    TTimeStamp tS (year,month,day,hour,minute,second);  
-    tStart = tS.AsDouble();
-    //Timestamp of the run
-
     //NULL word
     unsigned short nullword;
     fread(&nullword, sizeof(nullword),1,fInputBinFile);
