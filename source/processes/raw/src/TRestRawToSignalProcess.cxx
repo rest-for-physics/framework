@@ -152,6 +152,17 @@ Bool_t TRestRawToSignalProcess::OpenInputBinFile ( TString fName )
 		return kFALSE;
 	}
 
+    struct tm* clock;
+    struct stat st;
+    int ierr = stat ( fName.Data(), &st);
+
+    clock = gmtime( &( st.st_mtime ) );
+
+    time_t tstamp = mktime ( clock );
+
+    tStart = (Double_t ) tstamp;
+    
+
 	return kTRUE;
 }
 
