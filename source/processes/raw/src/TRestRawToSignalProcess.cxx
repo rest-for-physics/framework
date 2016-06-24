@@ -154,7 +154,7 @@ Bool_t TRestRawToSignalProcess::OpenInputBinFile ( TString fName )
 
     struct tm* clock;
     struct stat st;
-    int ierr = stat ( fName.Data(), &st);
+    stat ( fName.Data(), &st);
 
     clock = gmtime( &( st.st_mtime ) );
 

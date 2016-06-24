@@ -224,12 +224,15 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
             }
 
             if( sgnl.GetSignalID( ) >= 0 && sgnl.GetNumberOfPoints() >= fMinPoints )
-	    {
-		    if ( fRejectNoise && sgnl.GetIntegralWithThreshold( 10, 490, 5, 90, 2.2, 9, 3.5 ) > 0 )
-			    fSignalEvent->AddSignal( sgnl );
-		    else
-			    fSignalEvent->AddSignal( sgnl );
-	    }
+            {
+                if ( fRejectNoise )
+                {
+                    if ( sgnl.GetIntegralWithThreshold( 10, 490, 5, 90, 2.2, 9, 3.5 ) > 0 )
+                        fSignalEvent->AddSignal( sgnl );
+                }
+                else
+                    fSignalEvent->AddSignal( sgnl );
+            }
 
             sgnl.Initialize();
             sgnl.SetSignalID( physChannel );
@@ -278,8 +281,11 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
     //Storing last event 
     if( sgnl.GetSignalID( ) >= 0 && sgnl.GetNumberOfPoints() >= fMinPoints )
     {
-	    if ( fRejectNoise && sgnl.GetIntegralWithThreshold( 10, 490, 5, 90, 2.2, 9, 3.5 ) > 0 )
-		    fSignalEvent->AddSignal( sgnl );
+	    if ( fRejectNoise )
+        {
+            if ( sgnl.GetIntegralWithThreshold( 10, 490, 5, 90, 2.2, 9, 3.5 ) > 0 )
+                fSignalEvent->AddSignal( sgnl );
+        }
 	    else
 		    fSignalEvent->AddSignal( sgnl );
     }
