@@ -236,9 +236,9 @@ endif
 
 ifeq ($(ARCH),linux)
 # Linux with egcs, gcc 2.9x, gcc 3.x
-CXX           = g++
+CXX           = g++-4.9
 CXXFLAGS      = $(OPT2) -Wall -fPIC
-LD            = g++
+LD            = g++-4.9
 LDFLAGS       = $(OPT2)
 SOFLAGS       = -shared
 endif

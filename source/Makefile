@@ -21,7 +21,7 @@
 include .Makefile.arch
 
 # Compiler to be used
-CC = g++
+CC = g++4.9
 
 #Flags
 COPTS = -fPIC -DLINUX

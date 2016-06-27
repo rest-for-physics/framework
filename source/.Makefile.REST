@@ -3,7 +3,7 @@ REST_FW = $(REST_PATH)/source
 PATH_LIB = $(REST_PATH)/lib/
 
 # Compiler to be used
-CC = g++
+CC = g++-4.9
 
 #Flags
 FLAGS = -fPIC -Wall -g -std=c++0x -Wabi-tag
