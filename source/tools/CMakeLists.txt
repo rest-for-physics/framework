@@ -1,17 +1,16 @@
-include_directories(inc)
-
 #Generate CINT file
-set(CLASS_DICT TRestEvent TRestMetadata TRestEventProcess TRestRun TRestGeometry TRestRunMerger TRestEventViewer TRestBrowser)
+set(CLASS_DICT TRestMesh TRestFFT TRestManager)
 foreach (CLASS ${CLASS_DICT})
     message("Generate dict file for " ${CLASS})
-    execute_process(COMMAND rootcint -f ${CMAKE_CURRENT_SOURCE_DIR}/dict/${CLASS}.cxx -c ${CMAKE_CURRENT_SOURCE_DIR}/inc/${CLASS}.h)
+    set(INC -I. -I./inc -I${RESTCORE_INC} -I${ROOT_INCLUDE_DIRS} -I${EVENTS_GENERAL_INC} )
+    execute_process(COMMAND rootcint -f ${CMAKE_CURRENT_SOURCE_DIR}/dict/${CLASS}.cxx -c ${INC} ${CMAKE_CURRENT_SOURCE_DIR}/inc/${CLASS}.h)
 endforeach (CLASS)
 
-file(GLOB RestCoreSrc
+file(GLOB RestToolsSrc
         "src/*.cxx"
         "dict/*.cxx"
         )
 
-add_library(RestCore ${RestCoreSrc})
+add_library(RestTools ${RestToolsSrc})
 
-set(RESTCORE_INC ${CMAKE_CURRENT_SOURCE_DIR}/inc PARENT_SCOPE)
+set(RESTTOOLS_INC ${CMAKE_CURRENT_SOURCE_DIR}/inc PARENT_SCOPE)

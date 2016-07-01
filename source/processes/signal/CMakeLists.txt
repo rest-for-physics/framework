@@ -1,18 +1,16 @@
-include_directories(inc)
-
 #Generate CINT file
-set(CLASS_DICT TRestGas)
+set(CLASS_DICT TRestSignalDeconvolutionProcess TRestAddSignalNoiseProcess TRestSignalGaussianConvolutionProcess)
 foreach (CLASS ${CLASS_DICT})
     message("Generate dict file for " ${CLASS})
-    set(INC -I. -I./inc -I${RESTCORE_INC_DIR} -I${ROOT_INCLUDE_DIRS})
+    set(INC -I. -I./inc -I${RESTCORE_INC} -I${METADATA_GEANT4_INC} -I${EVENTS_GEANT4_INC} -I${EVENTS_GENERAL_INC} -I${EVENTS_ANALYSIS_INC} -I${METADATA_GENERAL_INC} -I${METADATA_READOUT_INC} -I${ROOT_INCLUDE_DIRS})
     execute_process(COMMAND rootcint -f ${CMAKE_CURRENT_SOURCE_DIR}/dict/${CLASS}.cxx -c ${INC} ${CMAKE_CURRENT_SOURCE_DIR}/inc/${CLASS}.h)
 endforeach (CLASS)
 
-file(GLOB ProcessRaw
+file(GLOB ProcessSignal
         "src/*.cxx"
         "dict/*.cxx"
         )
 
-set(ProcessRaw ${ProcessRaw} PARENT_SCOPE)
+set(ProcessSignal ${ProcessSignal} PARENT_SCOPE)
 
-set(PROCESS_RAW_INC ${CMAKE_CURRENT_SOURCE_DIR}/inc PARENT_SCOPE)
+set(PROCESS_SIGNAL_INC ${CMAKE_CURRENT_SOURCE_DIR}/inc PARENT_SCOPE)

@@ -7,4 +7,7 @@ include_directories(${ROOT_INCLUDE_DIRS})
 
 SET(CMAKE_CXX_FLAGS "-std=c++11 -Wall -march=native")
 
+add_subdirectory(garfield)
+include_directories(garfield/Include)
+
 add_subdirectory(source)

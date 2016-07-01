@@ -1,15 +1,13 @@
-include_directories(${RESTCORE_INC_DIR})
-
 add_subdirectory(general)
-include_directories(general/inc)
+set(PROCESS_GENERAL_INC ${PROCESS_GENERAL_INC} PARENT_SCOPE)
 
-add_subdirectory(daq)
-include_directories(daq/inc)
+add_subdirectory(analysis)
+set(PROCESS_ANALYSIS_INC ${PROCESS_ANALYSIS_INC} PARENT_SCOPE)
 
-add_subdirectory(geant4)
-include_directories(geant4/inc)
+add_subdirectory(raw)
+set(PROCESS_RAW_INC ${PROCESS_RAW_INC} PARENT_SCOPE)
 
-add_subdirectory(readout)
-include_directories(readout/inc)
+add_subdirectory(signal)
+set(PROCESS_SIGNAL_INC ${PROCESS_SIGNAL_INC} PARENT_SCOPE)
 
-add_library(RestMetadata ${MetadataGeneral} ${MetadataGeant4} ${Metadatadaq} ${MetadataReadout})
+add_library(RestProcesses ${ProcessGeneral} ${ProcessGeant4} ${Processdaq} ${ProcessReadout})
