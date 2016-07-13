@@ -14,3 +14,5 @@ add_subdirectory(garfield)
 include_directories(garfield/Include)
 
 add_subdirectory(source)
+
+install(PROGRAMS scripts/thisREST.sh DESTINATION .)
