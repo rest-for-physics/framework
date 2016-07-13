@@ -1,14 +1,16 @@
 #Generate CINT file
 set(CLASS_DICT TRestEvent TRestMetadata TRestEventProcess TRestRun TRestGeometry TRestRunMerger TRestEventViewer TRestBrowser TRestAnalysisTree TRestAnalysisPlot)
-foreach (CLASS ${CLASS_DICT})
-    message("Generate dict file for " ${CLASS})
-    execute_process(COMMAND rootcint -f ${CMAKE_CURRENT_SOURCE_DIR}/dict/${CLASS}.cxx -c ${CMAKE_CURRENT_SOURCE_DIR}/inc/${CLASS}.h)
-endforeach (CLASS)
 
 file(GLOB RestCoreSrc
         "src/*.cxx"
-        "dict/*.cxx"
         )
+
+foreach (CLASS ${CLASS_DICT})
+    set(ROOT_DICT_INCLUDE_DIRS )
+    set(ROOT_DICT_INPUT_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/inc/${CLASS}.h)
+    GEN_ROOT_DICT_SOURCES(${CLASS}.cxx)
+    LIST(APPEND RestCoreSrc ${ROOT_DICT_OUTPUT_SOURCES})
+endforeach (CLASS)
 
 add_library(RestCore SHARED ${RestCoreSrc})
 #add_library(RestCoreStatic STATIC ${RestCoreSrc})

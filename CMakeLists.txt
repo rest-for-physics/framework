@@ -6,6 +6,7 @@ message("CIP = ${CMAKE_INSTALL_PREFIX} (Install Path.)")
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 include(FindROOT)
+include(MacroRootDict)
 include_directories(${ROOT_INCLUDE_DIRS})
 
 SET(CMAKE_CXX_FLAGS "-std=c++11 -Wall -march=native")
