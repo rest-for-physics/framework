@@ -10,6 +10,12 @@ file(GLOB RestCoreSrc
         "dict/*.cxx"
         )
 
-add_library(RestCore ${RestCoreSrc})
+add_library(RestCore SHARED ${RestCoreSrc})
+add_library(RestCoreStatic STATIC ${RestCoreSrc})
+
+install(TARGETS RestCore RestCoreStatic
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib/static)
 
 set(RESTCORE_INC ${CMAKE_CURRENT_SOURCE_DIR}/inc PARENT_SCOPE)

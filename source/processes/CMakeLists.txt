@@ -10,4 +10,10 @@ set(PROCESS_RAW_INC ${PROCESS_RAW_INC} PARENT_SCOPE)
 add_subdirectory(signal)
 set(PROCESS_SIGNAL_INC ${PROCESS_SIGNAL_INC} PARENT_SCOPE)
 
-add_library(RestProcesses ${ProcessGeneral} ${ProcessGeant4} ${Processdaq} ${ProcessReadout})
+add_library(RestProcesses SHARED ${ProcessGeneral} ${ProcessGeant4} ${Processdaq} ${ProcessReadout})
+add_library(RestProcessesStatic STATIC ${ProcessGeneral} ${ProcessGeant4} ${Processdaq} ${ProcessReadout})
+
+install(TARGETS RestProcesses RestProcessesStatic
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib/static)

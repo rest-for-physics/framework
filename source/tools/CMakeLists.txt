@@ -11,6 +11,11 @@ file(GLOB RestToolsSrc
         "dict/*.cxx"
         )
 
-add_library(RestTools ${RestToolsSrc})
+add_library(RestTools SHARED ${RestToolsSrc})
+add_library(RestToolsStatic STATIC ${RestToolsSrc})
+install(TARGETS RestTools RestToolsStatic
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib/static)
 
-set(RESTTOOLS_INC ${CMAKE_CURRENT_SOURCE_DIR}/inc PARENT_SCOPE)
+set(RESTTOOLS_INC SHARED ${CMAKE_CURRENT_SOURCE_DIR}/inc PARENT_SCOPE)
