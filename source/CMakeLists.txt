@@ -29,3 +29,5 @@ add_subdirectory(metadata)
 add_subdirectory(tools)
 add_subdirectory(processes)
 add_subdirectory(viewers)
+
+add_subdirectory(bin)

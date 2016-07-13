@@ -1,5 +1,5 @@
 #Generate CINT file
-set(CLASS_DICT TRestSignalDeconvolutionProcess TRestAddSignalNoiseProcess TRestSignalGaussianConvolutionProcess)
+set(CLASS_DICT TRestSignalDeconvolutionProcess TRestAddSignalNoiseProcess TRestSignalGaussianConvolutionProcess TRestSignalShapingProcess TRestSignalToRawSignalProcess)
 foreach (CLASS ${CLASS_DICT})
     message("Generate dict file for " ${CLASS})
     set(INC -I. -I./inc -I${RESTCORE_INC} -I${METADATA_GEANT4_INC} -I${EVENTS_GEANT4_INC} -I${EVENTS_GENERAL_INC} -I${EVENTS_ANALYSIS_INC} -I${METADATA_GENERAL_INC} -I${METADATA_READOUT_INC} -I${ROOT_INCLUDE_DIRS})

@@ -1,5 +1,5 @@
 #Generate CINT file
-set(CLASS_DICT TRestGas)
+set(CLASS_DICT TRestGas TRestDetectorSetup)
 foreach (CLASS ${CLASS_DICT})
     message("Generate dict file for " ${CLASS})
     set(INC -I. -I./inc -I${RESTCORE_INC} -I${ROOT_INCLUDE_DIRS})

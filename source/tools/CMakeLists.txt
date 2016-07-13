@@ -12,8 +12,9 @@ file(GLOB RestToolsSrc
         )
 
 add_library(RestTools SHARED ${RestToolsSrc})
-add_library(RestToolsStatic STATIC ${RestToolsSrc})
-install(TARGETS RestTools RestToolsStatic
+#add_library(RestToolsStatic STATIC ${RestToolsSrc})
+
+install(TARGETS RestTools
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib/static)

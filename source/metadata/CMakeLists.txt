@@ -13,9 +13,9 @@ add_subdirectory(readout)
 set(METADATA_READOUT_INC ${METADATA_READOUT_INC} PARENT_SCOPE)
 
 add_library(RestMetadata SHARED ${MetadataGeneral} ${MetadataGeant4} ${Metadatadaq} ${MetadataReadout})
-add_library(RestMetadataStatic STATIC ${MetadataGeneral} ${MetadataGeant4} ${Metadatadaq} ${MetadataReadout})
+#add_library(RestMetadataStatic STATIC ${MetadataGeneral} ${MetadataGeant4} ${Metadatadaq} ${MetadataReadout})
 
-install(TARGETS RestMetadata RestMetadataStatic
+install(TARGETS RestMetadata
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib/static)
