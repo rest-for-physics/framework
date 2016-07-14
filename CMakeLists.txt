@@ -10,6 +10,7 @@ include(MacroRootDict)
 include_directories(${ROOT_INCLUDE_DIRS})
 include(FindGarfield)
 include_directories(${Garfield_INCLUDE_DIRS})
+message(${Garfield_INCLUDE_DIRS})
 
 SET(CMAKE_CXX_FLAGS "-std=c++11 -Wall -march=native")
 
