@@ -1,4 +1,4 @@
-set(target_libraries RestViewers RestTools RestEvents RestMetadata RestProcesses RestExternal RestCore ${Garfield_LIBRARIES} ${ROOT_LIBRARIES} -lGui -lEve -lGeom)
+set(target_libraries RestViewers RestTools RestEvents RestMetadata RestProcesses RestExternal RestCore -lGui ${ROOT_LIBRARIES} -lEve -lGeom Garfield)
 
 add_executable(restManager restManager.cxx)
 install(TARGETS restManager RUNTIME DESTINATION bin)

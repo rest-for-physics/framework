@@ -13,6 +13,7 @@ foreach (CLASS ${CLASS_DICT})
 endforeach (CLASS)
 
 add_library(RestCore SHARED ${RestCoreSrc})
+target_link_libraries(RestCore Garfield)
 #add_library(RestCoreStatic STATIC ${RestCoreSrc})
 
 install(TARGETS RestCore
