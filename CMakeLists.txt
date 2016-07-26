@@ -12,15 +12,13 @@ include_directories(${ROOT_INCLUDE_DIRS})
 
 SET(CMAKE_CXX_FLAGS "-std=c++11 -Wall -march=native")
 
-set(BUILD_GARFIELD)
-if (NOT ${BUILD_GARFIELD})
-    include(FindGarfield)
-    include_directories(${Garfield_INCLUDE_DIRS})
-else ()
-    add_subdirectory(garfield)
-    include_directories(garfield/Include)
-    set(Garfield_LIBRARIES Garfield)
-endif ()
+set(Garfield_FIND_REQUIRED TRUE)
+set(Garfield_DIR "../garfield/build")
+message("Garfield_Dir is" ${Garfield_DIR})
+
+include(FindGarfield)
+include_directories(${Garfield_INCLUDE_DIRS})
+
 
 add_subdirectory(source)
 
