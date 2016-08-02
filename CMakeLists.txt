@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(REST)
-set(CMAKE_INSTALL_PREFIX .)
+#set(CMAKE_INSTALL_PREFIX .)
 message("CIP = ${CMAKE_INSTALL_PREFIX} (Install Path.)")
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
