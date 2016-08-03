@@ -22,4 +22,14 @@ include_directories(${Garfield_INCLUDE_DIRS})
 
 add_subdirectory(source)
 
-install(PROGRAMS scripts/thisREST.sh DESTINATION .)
+install(PROGRAMS scripts/thisREST.sh scripts/LoadRESTScripts.C DESTINATION .)
+
+install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/scripts
+         DESTINATION ${CMAKE_INSTALL_PREFIX}
+         COMPONENT install
+       )
+
+install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/inputData
+         DESTINATION ${CMAKE_INSTALL_PREFIX}
+         COMPONENT install
+       )
