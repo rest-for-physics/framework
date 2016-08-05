@@ -10,17 +10,20 @@ if [ ! -s "$REST_DIR/lib/libRestCore.so" ]; then
 	exit 1
 fi
 
-echo "                                                "
+echo "                                                    "
 echo "  **************************************************"
-echo "              W E L C O M E   to  R E S T       "
-echo "                  Environmental set-up          "
-echo "                                                "
-echo "        Version : UNTAGGED     5th August 2016  "
-echo "                                                "
-echo "        REST_PATH = $REST_PATH        "
-echo "                                                "
+echo "              W E L C O M E   to  R E S T           "
+echo "                  Environmental set-up              "
+echo "                                                    "
+echo "        Version : untagged     5th August 2016      "
+echo "                                                    "
+echo "        REST_PATH = $REST_PATH                      "
+echo "                                                    "
+echo "        Use restRoot command to launch ROOT with    "
+echo "        REST libraries and scripts loaded           "
+echo "                                                    "
 echo "  **************************************************"
-echo "                                                "
+echo "                                                    "
 
 alias restRoot="root -l $REST_DIR/LoadRESTScripts.C"
 
