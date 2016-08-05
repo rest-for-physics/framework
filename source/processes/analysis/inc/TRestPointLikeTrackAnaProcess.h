@@ -53,7 +53,7 @@ class TRestPointLikeTrackAnaProcess:public TRestEventProcess {
         }
 
         TString GetProcessName() { return (TString) "pointLikeTrackAna"; }
-        Double_t GetCalibFactor();           ///< Calibration factor is found.
+ //       Double_t GetCalibFactor();           ///< Calibration factor is found.
 
         //Constructor
         TRestPointLikeTrackAnaProcess();
