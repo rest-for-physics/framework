@@ -1,8 +1,15 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(REST)
-#set(CMAKE_INSTALL_PREFIX .)
-message("CIP = ${CMAKE_INSTALL_PREFIX} (Install Path.)")
+
+IF(DEFINED INSTALL_PREFIX)
+    message("\noo Using user install path.")
+ELSE()
+    message("\noo Using default install path.")
+    set(INSTALL_PREFIX /usr/local/REST)
+ENDIF()
+
+message ("oo Install prefix : ${INSTALL_PREFIX}\n" )
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 include(FindROOT)
@@ -86,11 +93,11 @@ INSTALL(FILES ${TSP_HS} DESTINATION include/tsp)
 install(PROGRAMS scripts/thisREST.sh scripts/LoadRESTScripts.C DESTINATION .)
 
 install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/scripts
-         DESTINATION ${CMAKE_INSTALL_PREFIX}
+         DESTINATION ${INSTALL_PREFIX}
          COMPONENT install
        )
 
 install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/inputData
-         DESTINATION ${CMAKE_INSTALL_PREFIX}
+         DESTINATION ${INSTALL_PREFIX}
          COMPONENT install
        )
