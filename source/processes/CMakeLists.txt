@@ -21,7 +21,7 @@ set(PROCESS_ANALYSIS_INC ${CMAKE_CURRENT_SOURCE_DIR}/analysis/inc PARENT_SCOPE)
 file(GLOB ProcessesAnalysis
         "analysis/src/*.cxx"
         )
-set(CLASS_DICT TRestGeant4AnalysisProcess TRestSignalAnalysisProcess TRestFindG4BlobAnalysisProcess TRestTrackAnalysisProcess TRestTriggerAnalysisProcess TRestHitsAnalysisProcess)
+set(CLASS_DICT TRestGeant4AnalysisProcess TRestSignalAnalysisProcess TRestFindG4BlobAnalysisProcess TRestTrackAnalysisProcess TRestTriggerAnalysisProcess TRestHitsAnalysisProcess TRestPointLikeAnaProcess TRestPointLikeTrackAnaProcess)
 foreach (CLASS ${CLASS_DICT})
     set(ROOT_DICT_INCLUDE_DIRS ${RESTCORE_INC} ${ROOT_INCLUDE_DIRS} ${METADATA_GENERAL_INC} ${METADATA_GEANT4_INC} ${METADATA_READOUT_INC} ${EVENTS_ANALYSIS_INC} ${EVENTS_GENERAL_INC} ${EVENTS_GEANT4_INC} ${PROCESS_GENERAL_INC})
     set(ROOT_DICT_INPUT_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/analysis/inc/${CLASS}.h)
