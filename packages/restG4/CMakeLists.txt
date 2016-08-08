@@ -84,7 +84,7 @@ string(SUBSTRING ${Geant4_DIR} 0 ${cutStr} G4_LIBDIR)
 
 message( "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n
           After \"make install\" restG4 will be installed in ${REST_PATH}/bin\n\n
-          IMPORTANT : include the following line in your .bashrc\n\n
+          IMPORTANT : You might need to include the following line in your .bashrc\n\n
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${G4_LIBDIR}\n
           \n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" )
 
