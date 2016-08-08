@@ -9,9 +9,12 @@ ELSE()
     set(INSTALL_PREFIX /usr/local/REST)
 ENDIF()
 
-message ("oo Install prefix : ${INSTALL_PREFIX}\n" )
+
+set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
+message ("oo Install prefix : ${CMAKE_INSTALL_PREFIX}\n" )
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+
 include(FindROOT)
 include(MacroRootDict)
 include_directories(${ROOT_INCLUDE_DIRS})
@@ -80,7 +83,7 @@ set(HS ${HS} ${headers})
 file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/tools/inc/*.h" )
 set(HS ${HS} ${headers})
 
-INSTALL(FILES ${HS} DESTINATION include)
+INSTALL(FILES ${HS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
 
 #########################################################
 
@@ -88,16 +91,25 @@ INSTALL(FILES ${HS} DESTINATION include)
 file(GLOB_RECURSE tsp_headers "${CMAKE_CURRENT_SOURCE_DIR}/source/external/tsp/inc/*.h" )
 set(TSP_HS ${tsp_headers})
 
-INSTALL(FILES ${TSP_HS} DESTINATION include/tsp)
+INSTALL(FILES ${TSP_HS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/tsp)
 
 install(PROGRAMS scripts/thisREST.sh scripts/LoadRESTScripts.C DESTINATION .)
 
 install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/scripts
-         DESTINATION ${INSTALL_PREFIX}
+         DESTINATION .
          COMPONENT install
        )
 
 install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/inputData
-         DESTINATION ${INSTALL_PREFIX}
+    DESTINATION .
          COMPONENT install
        )
+
+get_filename_component(result ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_PREFIX} ABSOLUTE)
+set(FULL_PATH_INSTALL ${result})
+
+message( "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n
+          After \"make install\" REST will be installed in ${FULL_PATH_INSTALL}\n\n
+          IMPORTANT : include the following line in your .bashrc\n\n
+          source ${FULL_PATH_INSTALL}/thisREST.sh\n
+          \n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" )

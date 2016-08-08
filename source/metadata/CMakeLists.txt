@@ -57,6 +57,7 @@ foreach (CLASS ${CLASS_DICT})
 endforeach (CLASS)
 
 add_library(RestMetadata SHARED ${MetadataGeneral} ${MetadataGeant4} ${MetadataDaq} ${MetadataReadout})
+target_link_libraries(RestMetadata ${ROOT_LIBRARIES} -lGui -lEve -lGeom ${Garfield_LIBRARIES})
 #add_library(RestMetadataStatic STATIC ${MetadataGeneral} ${MetadataGeant4} ${Metadatadaq} ${MetadataReadout})
 
 install(TARGETS RestMetadata
