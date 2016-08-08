@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<section myMetadataSection name="myMetadataName" title="My first metadata" >
+    <parameter name="dummy" value="100" >
+</section>
+
+

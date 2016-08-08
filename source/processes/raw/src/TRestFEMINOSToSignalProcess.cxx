@@ -58,22 +58,6 @@ void TRestFEMINOSToSignalProcess::InitProcess()
 
     //Binary file header
 
-    //The binary starts here
-    char runUid[26],initTime[25];
-    fread(runUid, 1, 26, fInputBinFile);
-
-    sprintf(initTime,"%s",runUid);
-    printf("File UID is %s \n",initTime); 
-    totalBytesReaded = sizeof(runUid);
-
-    int year,day,month,hour,minute,second;
-    sscanf(initTime,"%*c%*cR%d_%02d_%02d-%02d_%02d_%02d-%*d",&year,&month,&day,&hour,&minute,&second);
-    printf("R%d_%02d_%02d-%02d_%02d_%02d\n",year,month,day,hour,minute,second);
-    TTimeStamp tS (year,month,day,hour,minute,second);  
-    tStart = tS.AsDouble();
-    cout<<tStart<<endl;
-    //Timestamp of the run
-
     //NULL word
     unsigned short nullword;
     fread(&nullword, sizeof(nullword),1,fInputBinFile);
@@ -169,6 +153,8 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
     //Set timestamp and event ID
     fSignalEvent->SetTime(tStart+timestamp*2.E-8);
     fSignalEvent->SetID(evID);
+    fSignalEvent->SetRunOrigin( fRunOrigin );
+    fSignalEvent->SetSubRunOrigin( fSubRunOrigin );
 
     int timeBin = 0;
 
@@ -225,7 +211,7 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
 
 
             //FECN not included so far....
-            physChannel += asicN*72;
+            if( physChannel >= 0 ) physChannel += asicN*72;
             //physChannel += fecN*4*72+asicN*72;
 
             if(this->GetVerboseLevel()==REST_Debug)
@@ -237,12 +223,19 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
                 cout<<"PhysChannel "<<physChannel<<endl;
             }
 
-            if( sgnl.GetSignalID( ) != -1 )
-                fSignalEvent->AddSignal( sgnl );
+            if( sgnl.GetSignalID( ) >= 0 && sgnl.GetNumberOfPoints() >= fMinPoints )
+            {
+                if ( fRejectNoise )
+                {
+                    if ( sgnl.GetIntegralWithThreshold( 10, 490, 5, 90, 2.2, 9, 3.5 ) > 0 )
+                        fSignalEvent->AddSignal( sgnl );
+                }
+                else
+                    fSignalEvent->AddSignal( sgnl );
+            }
 
             sgnl.Initialize();
             sgnl.SetSignalID( physChannel );
-
         }
         //Timebin, may be not present if zero-suppresion is not active
         else if((dat & 0xFE00) >> 9 == 7 ){
@@ -286,8 +279,16 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
     }//while
 
     //Storing last event 
-    if( sgnl.GetSignalID( ) != -1 )
+    if( sgnl.GetSignalID( ) >= 0 && sgnl.GetNumberOfPoints() >= fMinPoints )
+    {
+	    if ( fRejectNoise )
+        {
+            if ( sgnl.GetIntegralWithThreshold( 10, 490, 5, 90, 2.2, 9, 3.5 ) > 0 )
                 fSignalEvent->AddSignal( sgnl );
+        }
+	    else
+		    fSignalEvent->AddSignal( sgnl );
+    }
 
     if(this->GetVerboseLevel()==REST_Debug)cout<<" End of event "<< dat<<endl;
     //End of event footer
@@ -328,7 +329,6 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
     }
 
     if( fSignalEvent->GetNumberOfSignals() == 0 ) return NULL;
-    //cout<<"Ev ID "<<fSignalEvent->GetID()<<" "<< <<endl;
 
     return fSignalEvent;
 }

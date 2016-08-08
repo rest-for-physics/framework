@@ -78,6 +78,20 @@ TRestMetadata *TRestEventProcess::GetGeant4Metadata( )
     return NULL;
 }
 
+TRestMetadata *TRestEventProcess::GetDetectorSetup( )
+{
+    // TODO : For the moment this function will return the first occurence of TRestReadout.
+    // What happens if there are several? And if I want to use one gas from the config file? 
+    // We need to introduce an option somewhere.
+    // For the moment I know there will be an existing gas file since the hits come from electronDiffusion.
+
+    for( size_t i = 0; i < fRunMetadata.size(); i++ )
+        if ( fRunMetadata[i]->ClassName() == (TString) "TRestDetectorSetup" )
+            return fRunMetadata[i];
+
+    return NULL;
+}
+
 Double_t TRestEventProcess::GetDoubleParameterFromClass( TString className, TString parName )
 {
     for( size_t i = 0; i < fRunMetadata.size(); i++ )
@@ -129,12 +143,33 @@ void TRestEventProcess::EndProcess()
 */
 void TRestEventProcess::BeginPrintProcess()
 {
-   cout << "--------------------------------------------------------------------------------------------------" << endl;
-   cout << "-- Process :" << GetProcessName() << " ## " << GetName() << " ## " << GetTitle() << endl;
-   cout << "--------------------------------------------------------------------------------------------------" << endl;
+	cout << endl;
+	cout << "--------------------------------------------------------------------------------------------------" << endl;
+	cout << "-- Process : " << GetProcessName() << " Name : " << GetName() << " Title : " << GetTitle() << endl;
+	cout << "--------------------------------------------------------------------------------------------------" << endl;
+
+	cout << endl;
+	if( fObservableNames.size() > 0 )
+	{
+		cout << " Analysis tree observables added by this process " << endl;
+		cout << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
+	}
+
+	for( unsigned int i = 0; i < fObservableNames.size(); i++ )
+	{
+		cout << " ++ " << fObservableNames[i] << endl;
+	}
+
+	if( fObservableNames.size() > 0 )
+	{
+		cout << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
+		cout << endl;
+	}
 }
 
 void TRestEventProcess::EndPrintProcess()
 {
+   cout << endl;
    cout << "--------------------------------------------------------------------------------------------------" << endl;
+   cout << endl;
 }

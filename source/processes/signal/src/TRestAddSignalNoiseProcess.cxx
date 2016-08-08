@@ -85,8 +85,6 @@ void TRestAddSignalNoiseProcess::InitProcess()
     //Start by calling the InitProcess function of the abstract class. 
     //Comment this if you don't want it.
     //TRestEventProcess::InitProcess();
-
-    cout << __PRETTY_FUNCTION__ << endl;
 }
 
 //______________________________________________________________________________
@@ -101,7 +99,7 @@ TRestEvent* TRestAddSignalNoiseProcess::ProcessEvent( TRestEvent *evInput )
 
     fInputSignalEvent = (TRestSignalEvent *) evInput;
 
-	cout<<"Number of signals "<< fInputSignalEvent->GetNumberOfSignals()<< endl;
+	//cout<<"Number of signals "<< fInputSignalEvent->GetNumberOfSignals()<< endl;
 
     if( fInputSignalEvent->GetNumberOfSignals() <= 0 ) return NULL;
 

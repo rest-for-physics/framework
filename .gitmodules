@@ -1,0 +1,6 @@
+[submodule "config/barraconSetup"]
+	path = config/barraconSetup
+	url = git@sultan.unizar.es:jgalan/barraconSetup.git
+[submodule "config/IAXOD0-REST"]
+	path = config/IAXOD0-REST
+	url = git@sultan.unizar.es:gifna/IAXOD0-REST.git

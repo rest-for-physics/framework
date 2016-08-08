@@ -442,7 +442,6 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
 Int_t TRestMetadata::LoadConfigFromFile( string cfgFileName, string name )
 {
     std::string section = GetName();
-    cout << "Section name : " << section << endl;
 
     Int_t result = LoadSectionMetadata( section, cfgFileName, name );
     if( result == 0 ) InitFromConfigFile();
@@ -1250,7 +1249,8 @@ string TRestMetadata::GetFieldValue( string fieldName, size_t fromPosition )
 string TRestMetadata::GetKEYDefinition( string keyName )
 {
     Int_t fromPosition = 0;
-    size_t startPos = configBuffer.find( keyName, fromPosition );
+    string key = "<" + keyName;
+    size_t startPos = configBuffer.find( key, fromPosition );
     size_t endPos = configBuffer.find( ">", startPos );
 
     fromPosition = endPos;
@@ -1262,7 +1262,8 @@ string TRestMetadata::GetKEYDefinition( string keyName )
 
 string TRestMetadata::GetKEYDefinition( string keyName, size_t &fromPosition )
 {
-    size_t startPos = configBuffer.find( keyName, fromPosition );
+    string key = "<" + keyName;
+    size_t startPos = configBuffer.find( key, fromPosition );
     size_t endPos = configBuffer.find( ">", startPos );
 
     fromPosition = endPos;
@@ -1274,8 +1275,9 @@ string TRestMetadata::GetKEYDefinition( string keyName, size_t &fromPosition )
 
 string TRestMetadata::GetKEYDefinition( string keyName, string buffer )
 {
+    string key = "<" + keyName;
 
-    size_t startPos = buffer.find( keyName, 0 );
+    size_t startPos = buffer.find( key, 0 );
     size_t endPos = buffer.find( ">", startPos );
 
     return buffer.substr( startPos, endPos-startPos );
@@ -1284,8 +1286,9 @@ string TRestMetadata::GetKEYDefinition( string keyName, string buffer )
 
 string TRestMetadata::GetKEYDefinition( string keyName, size_t &fromPosition, string buffer )
 {
+    string key = "<" + keyName;
 
-    size_t startPos = buffer.find( keyName, fromPosition );
+    size_t startPos = buffer.find( key, fromPosition );
     if ( startPos == string::npos ) return "";
     size_t endPos = buffer.find( ">", startPos );
     if ( endPos == string::npos ) return "";
@@ -1355,7 +1358,7 @@ string TRestMetadata::GetKEYStructure( string keyName, size_t &fromPosition )
 
     if( endPos == string::npos  ) { if( debug ) cout << "END KEY not found!!" << endl; return "NotFound"; }
 
-    fromPosition = endPos;
+    fromPosition = endPos+1;
 
     return configBuffer.substr( initPos, endPos-initPos + endKEY.length()+1 );
 }

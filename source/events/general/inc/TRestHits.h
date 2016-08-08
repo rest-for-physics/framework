@@ -95,7 +95,16 @@ class TRestHits : public TObject
             return vector;
         }
 
-        TVector3 GetMeanPosition( );
+	Double_t GetMeanPositionX( );
+	Double_t GetMeanPositionY( );
+	Double_t GetMeanPositionZ( );
+
+        TVector3 GetMeanPosition( )
+	{
+		TVector3 mean( GetMeanPositionX(), GetMeanPositionY(), GetMeanPositionZ() );
+		return mean;
+	}
+
 
         Double_t GetEnergy( int n ) { return ( (Double_t) fEnergy[n]); } //return value in keV
 

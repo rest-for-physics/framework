@@ -53,7 +53,6 @@ TRestRun::TRestRun( char *cfgFileName) : TRestMetadata (cfgFileName)
 void TRestRun::Initialize()
 {
     SetName( "run" );
-    cout << __PRETTY_FUNCTION__ << endl;
 
     time_t  timev; time(&timev);
     fStartTime = (Double_t) timev;
@@ -89,6 +88,10 @@ void TRestRun::Initialize()
     fSubEventIDs.clear();
     fSubEventTags.clear();
 
+    fPureAnalysisOutput = false;
+    fContainsEventTree = true;
+
+    fSkipEventTree = false;
 }
 
 void TRestRun::ResetRunTimes()
@@ -102,7 +105,6 @@ void TRestRun::ResetRunTimes()
 //______________________________________________________________________________
 TRestRun::~TRestRun()
 {
-    cout << "Deleting TRestRun" << endl;
     if( fOutputFile != NULL ) CloseOutputFile();
 }
 
@@ -138,10 +140,19 @@ Int_t TRestRun::ValidateProcessChain ( )
 
 void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t lastEvent ) 
 {
+	if( fEventProcess.size() == 0 ) { cout << "REST WARNING. Run does not contain processes" << endl; return; }
+
+    if( !fContainsEventTree )
+    {
+        cout << "REST WARNING: This run does not contain an event tree." << endl;
+        if( fPureAnalysisOutput )
+            cout << "It is a pure analysis output file." << endl;
+        cout << "No event processing to be done" << endl;
+        GetChar();
+        return;
+    }
 
 	fCurrentEvent = firstEvent;
-
-	if( fEventProcess.size() == 0 ) { cout << "WARNNING Run does not contain processes" << endl; return; }
 
     if ( ValidateProcessChain( ) == 0 ) return;
 
@@ -157,7 +168,11 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 	
 	for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->SetAnalysisTree( fOutputAnalysisTree );
 
-	for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->InitProcess();
+	for( unsigned int i = 0; i < fEventProcess.size(); i++ )
+    {
+        fEventProcess[i]->InitProcess();
+        fEventProcess[i]->PrintMetadata();
+    }
 
     fOutputAnalysisTree->CreateObservableBranches( );
 
@@ -181,44 +196,51 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 	TRestEvent *processedEvent;
 	while( this->GetNextEvent() && eventsToProcess > fProcessedEvents && lastEvent >= fCurrentEvent )
 	{
+		PrintProcessedEvents(100);
+
 		processedEvent = fInputEvent;
 
 #ifdef TIME_MEASUREMENT
         high_resolution_clock::time_point t1 = high_resolution_clock::now();
 #endif
 
-		for( unsigned int j = 0; j < fEventProcess.size(); j++ )
-		{
-			fEventProcess[j]->BeginOfEventProcess();
-			processedEvent = fEventProcess[j]->ProcessEvent( processedEvent );
-			if( processedEvent == NULL ) break;
-			fEventProcess[j]->EndOfEventProcess();
-		}
+	for( unsigned int j = 0; j < fEventProcess.size(); j++ )
+	{
+		fEventProcess[j]->BeginOfEventProcess();
+		processedEvent = fEventProcess[j]->ProcessEvent( processedEvent );
+		if( processedEvent == NULL ) break;
+		fEventProcess[j]->EndOfEventProcess();
+	}
 
 #ifdef TIME_MEASUREMENT
-    high_resolution_clock::time_point t2 = high_resolution_clock::now();
-    deltaTime += (int) duration_cast<microseconds>( t2 - t1 ).count();
+	high_resolution_clock::time_point t2 = high_resolution_clock::now();
+	deltaTime += (int) duration_cast<microseconds>( t2 - t1 ).count();
 #endif
-		
-		fOutputEvent = processedEvent;
-		if( processedEvent == NULL ) continue;
 
-		if (fInputEventTree != NULL)
-		{
-		    fOutputEvent->SetID( fInputEvent->GetID() );
-		    fOutputEvent->SetTime( fInputEvent->GetTime() );
-            fOutputEvent->SetSubID( fInputEvent->GetSubID() );
-            fOutputEvent->SetSubEventTag( fInputEvent->GetSubEventTag() );
-		}
-        else if ( fEventProcess.front()->isExternal() )
-        {
-            // If there is no input event then we are using a process filling an event from external data.
-            // Then the process must be responsible to define the event ID, its timestamp, event tag, etc
-            TRestEvent *frontEvt = fEventProcess.front()->GetOutputEvent();
-            fOutputEvent->SetID( frontEvt->GetID() );
-            fOutputEvent->SetTime( frontEvt->GetTime() );
-            fOutputEvent->SetSubID( frontEvt->GetSubID() );
-        }
+	fOutputEvent = processedEvent;
+	if( processedEvent == NULL ) continue;
+
+	if (fInputEventTree != NULL)
+	{
+		fOutputEvent->SetID( fInputEvent->GetID() );
+		fOutputEvent->SetTime( fInputEvent->GetTime() );
+		fOutputEvent->SetSubID( fInputEvent->GetSubID() );
+		fOutputEvent->SetSubEventTag( fInputEvent->GetSubEventTag() );
+		fOutputEvent->SetRunOrigin( fInputEvent->GetRunOrigin() );
+		fOutputEvent->SetSubRunOrigin( fInputEvent->GetSubRunOrigin() );
+		
+	}
+	else if ( fEventProcess.front()->isExternal() )
+	{
+		// If there is no input event then we are using a process filling an event from external data.
+		// Then the process must be responsible to define the event ID, its timestamp, event tag, etc
+		TRestEvent *frontEvt = fEventProcess.front()->GetOutputEvent();
+		fOutputEvent->SetID( frontEvt->GetID() );
+		fOutputEvent->SetTime( frontEvt->GetTime() );
+		fOutputEvent->SetSubID( frontEvt->GetSubID() );
+		fOutputEvent->SetRunOrigin( frontEvt->GetRunOrigin() );
+		fOutputEvent->SetSubRunOrigin( frontEvt->GetSubRunOrigin() );
+	}
 
 #ifdef TIME_MEASUREMENT
         high_resolution_clock::time_point t3 = high_resolution_clock::now();
@@ -231,10 +253,9 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
         writeTime += (int) duration_cast<microseconds>( t4 - t3 ).count();
 #endif
 
-		PrintProcessedEvents(100);
 	}
 
-	cout << fOutputEventTree->GetEntries() << " processed events" << endl;
+    cout << fOutputAnalysisTree->GetEntries() << " processed events" << endl;
 
 #ifdef TIME_MEASUREMENT
     cout << "Average event process time : " << ((Double_t) deltaTime)/fProcessedEvents/1000. << " ms" << endl;
@@ -245,6 +266,7 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 	for( unsigned int i = 0; i < fEventProcess.size(); i++ )
 		fEventProcess[i]->EndProcess();
 
+    if( fPureAnalysisOutput ) fContainsEventTree = false;
 }
 
 void TRestRun::AddProcess( TRestEventProcess *process, string cfgFilename, string name ) 
@@ -265,11 +287,13 @@ void TRestRun::AddProcess( TRestEventProcess *process, string cfgFilename, strin
 
     process->SetMetadata( metadata );
 
+    /*
     cout << "Metadata given to process : " << process->GetName() << endl;
     cout << "------------------------------------------------------" << endl;
     for( size_t i = 0; i < metadata.size(); i++ )
         cout << metadata[i]->ClassName() << endl;
     cout << "---------------------------" << endl;
+    */
 
     process->LoadConfig( cfgFilename, name );
 
@@ -283,26 +307,23 @@ void TRestRun::AddProcess( TRestEventProcess *process, string cfgFilename, strin
         this->AddMetadata( meta );
     }
 
-    process->PrintMetadata( );
-
     fEventProcess.push_back( process ); 
 
 }
 
 void TRestRun::SetOutputEvent( TRestEvent *evt ) 
 { 
-    cout << "Setting output event" << endl;
     fOutputEvent = evt;
 
-    if( fOutputEventTree == NULL )
+    if( !fPureAnalysisOutput && fOutputEventTree == NULL )
     {
         TString treeName = (TString) evt->GetName() + "Tree";
         fOutputEventTree  = new TTree( GetName(), GetTitle() );
         if( GetVerboseLevel() == REST_Debug ) cout << "Creating tree : " << fOutputEventTree << endl;
         fOutputEventTree->SetName( treeName );
         fOutputEventTree->Branch("eventBranch", evt->GetName(), fOutputEvent);
-
     }
+
     if( fOutputAnalysisTree == NULL )
     {
         fOutputAnalysisTree = new TRestAnalysisTree( "TRestAnalysisTree", GetTitle() );
@@ -315,6 +336,7 @@ void TRestRun::SetOutputEvent( TRestEvent *evt )
                 fOutputAnalysisTree->AddObservable( fInputAnalysisTree->GetObservableName( n ) );
         }
     }
+
 }
 
 void TRestRun::SetInputEvent( TRestEvent *evt ) 
@@ -323,32 +345,23 @@ void TRestRun::SetInputEvent( TRestEvent *evt )
 
     if( evt == NULL ) return;
 
-    TString treeName = (TString) evt->GetName() + "Tree";
-
-    if( GetObjectKeyByName( treeName ) == NULL )
+    if( fContainsEventTree )
     {
-        cout << "REST ERROR (SetInputEvent) : " << treeName << " was not found" << endl;
-        cout << "Inside file : " << fInputFilename << endl;
-        exit(1);
+        TString treeName = (TString) evt->GetName() + "Tree";
+
+        if( GetObjectKeyByName( treeName ) == NULL )
+        {
+            cout << "REST ERROR (SetInputEvent) : " << treeName << " was not found" << endl;
+            cout << "Inside file : " << fInputFilename << endl;
+            exit(1);
+        }
+
+        fInputEventTree = (TTree * ) fInputFile->Get( treeName );
+
+        TBranch *br = fInputEventTree->GetBranch( "eventBranch" );
+
+        br->SetAddress( &fInputEvent );
     }
-
-    fInputEventTree = (TTree * ) fInputFile->Get( treeName );
-
-    TBranch *br = fInputEventTree->GetBranch( "eventBranch" );
-
-    br->SetAddress( &fInputEvent );
-
-    if( GetObjectKeyByName( "TRestAnalysisTree" ) == NULL )
-    {
-        cout << "REST ERROR (SetInputEvent) : TRestAnalysisTree was not found" << endl;
-        cout << "Inside file : " << fInputFilename << endl;
-        exit(1);
-    }
-
-    fInputAnalysisTree = ( TRestAnalysisTree * ) fInputFile->Get( "TRestAnalysisTree" ); 
-
-    fInputAnalysisTree->ConnectEventBranches( );
-    fInputAnalysisTree->ConnectObservables( );
 
 }
 
@@ -470,14 +483,11 @@ void TRestRun::OpenInputFile( TString fName )
 
     fInputFile = new TFile( fName );
 
-    Int_t runNumber = GetRunNumber();
+    inputRunNumber = GetRunNumber();
     TString fileName = GetOutputFilename();
 
     TKey *key = GetObjectKeyByClass( "TRestRun" );
     this->Read( key->GetName() );
-
-    fParentRunNumber = fRunNumber;
-    fRunNumber = runNumber;
 
     fInputFilename = fName;
     fOutputFilename = fileName; // We take this value from the configuration (not from TRestRun)
@@ -489,6 +499,18 @@ void TRestRun::OpenInputFile( TString fName )
     for( size_t i = 0; i < fEventProcess.size(); i++ )
         fHistoricEventProcess.push_back( fEventProcess[i] );
     fEventProcess.clear();
+
+    if( GetObjectKeyByName( "TRestAnalysisTree" ) == NULL )
+    {
+        cout << "REST ERROR (SetInputEvent) : TRestAnalysisTree was not found" << endl;
+        cout << "Inside file : " << fInputFilename << endl;
+        exit(1);
+    }
+
+    fInputAnalysisTree = ( TRestAnalysisTree * ) fInputFile->Get( "TRestAnalysisTree" ); 
+
+    fInputAnalysisTree->ConnectEventBranches( );
+    fInputAnalysisTree->ConnectObservables( );
 }
 
 void TRestRun::OpenInputFile( TString fName, TString cName )
@@ -533,6 +555,12 @@ void TRestRun::CloseOutputFile( )
     cout << __PRETTY_FUNCTION__ << endl;
     time_t  timev;
     time(&timev);
+
+    if( inputRunNumber != -1 ) // Run number = -1 is runNumber="preserve" option
+    {
+	    fParentRunNumber = fRunNumber;
+	    fRunNumber = inputRunNumber;
+    }
 
     fEndTime = (Double_t) timev;
 
@@ -581,12 +609,14 @@ void TRestRun::CloseOutputFile( )
         }
     }
 
-    if( fOutputEventTree != NULL )
+    if( !fPureAnalysisOutput && fOutputEventTree != NULL )
     {
         cout << "Writting output tree" << endl;
         fOutputEventTree->Write();
-        fOutputAnalysisTree->Write();
     }
+
+    if( fOutputAnalysisTree != NULL )
+        fOutputAnalysisTree->Write();
 
     if( fInputFile != NULL )
     {
@@ -769,6 +799,10 @@ void TRestRun::InitFromConfigFile()
        fprintf( frun, "%d\n", fRunNumber+1 );
        fclose( frun );
    }
+   else if ( rNumberStr == "preserve" )
+   {
+	fRunNumber = -1;
+   }
    else
    {
        fRunNumber = StringToInteger ( GetParameter( "runNumber" ) );
@@ -837,7 +871,6 @@ void TRestRun::PrintInfo( )
 
 void TRestRun::PrintProcessedEvents( Int_t rateE)
 {
-
     if(fCurrentEvent%rateE ==0){
         if(fInputEvent==NULL)
         {
@@ -846,7 +879,7 @@ void TRestRun::PrintProcessedEvents( Int_t rateE)
         }
         else
         {
-            printf("%.2lf\r",(float)(fCurrentEvent/fInputEventTree->GetEntries())*100.);
+            printf("Completed : %.2lf %%\r", ( 100.0 * (Double_t)fCurrentEvent )/fInputEventTree->GetEntries() );
             fflush(stdout);
         }
 
@@ -873,7 +906,11 @@ Int_t TRestRun::Fill( )
     }
     fOutputAnalysisTree->FillEvent( fOutputEvent );
 
-    return fOutputEventTree->Fill();
+    Int_t treeFillOutput = 0;
+    if( !fPureAnalysisOutput ) 
+       treeFillOutput = fOutputEventTree->Fill();
+
+    return treeFillOutput;
 }
 
 Int_t TRestRun::GetEventWithID( Int_t eventID, Int_t subEventID )

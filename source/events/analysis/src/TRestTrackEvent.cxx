@@ -60,6 +60,51 @@ TRestTrack *TRestTrackEvent::GetTrackById( Int_t id )
     return NULL;
 }
 
+TRestTrack *TRestTrackEvent::GetMaxEnergyTrackInX( )
+{
+    Int_t track = -1;
+    Double_t maxEnergy = 0;
+    for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
+    {
+        TRestTrack *t = GetTrack( tck );
+        if( t->isXZ() )
+        {
+            if ( t->GetEnergy() > maxEnergy )
+            {
+                maxEnergy = t->GetEnergy();
+                track = tck;
+            }
+        }
+    }
+
+    if ( track == -1 ) return NULL;
+
+    return GetTrack( track );
+}
+
+TRestTrack *TRestTrackEvent::GetMaxEnergyTrackInY( )
+{
+    Int_t track = -1;
+    Double_t maxEnergy = 0;
+    for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
+    {
+        TRestTrack *t = GetTrack( tck );
+        if( t->isYZ() )
+        {
+            if ( t->GetEnergy() > maxEnergy )
+            {
+                maxEnergy = t->GetEnergy();
+                track = tck;
+            }
+        }
+    }
+
+    if ( track == -1 ) return NULL;
+
+    return GetTrack( track );
+}
+
+
 Int_t TRestTrackEvent::GetTotalHits( )
 {
     Int_t totHits = 0;

@@ -173,6 +173,18 @@ Bool_t TRestBrowser::OpenFile( TString fName )
        if ( className == "TGeoManager" ) geometry = (TGeoManager *) fInputFile->Get( key->GetName() );
     }
 
+    if( GetObjectKeyByName( "TRestAnalysisTree" ) == NULL )
+    {
+        cout << "REST ERROR (SetInputEvent) : TRestAnalysisTree was not found" << endl;
+        cout << "Inside file : " << fInputFilename << endl;
+        exit(1);
+    }
+
+    fInputAnalysisTree = ( TRestAnalysisTree * ) fInputFile->Get( "TRestAnalysisTree" ); 
+
+    fInputAnalysisTree->ConnectEventBranches( );
+    fInputAnalysisTree->ConnectObservables( );
+
     // Transfering metadata to historic
     for( size_t i = 0; i < fMetadata.size(); i++ )
         fHistoricMetadata.push_back( fMetadata[i] );

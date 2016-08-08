@@ -64,6 +64,12 @@ void TRestAnalysisTree::ConnectEventBranches( )
 
     TBranch *br4 = GetBranch( "subEventTag" );
     br4->SetAddress( &fSubEventTag );
+
+    TBranch *br5 = GetBranch( "runOrigin" );
+    br5->SetAddress( &fRunOrigin );
+
+    TBranch *br6 = GetBranch( "subRunOrigin" );
+    br6->SetAddress( &fSubRunOrigin );
 }
 
 void TRestAnalysisTree::ConnectObservables( )
@@ -106,12 +112,16 @@ Int_t TRestAnalysisTree::FillEvent( TRestEvent *evt )
     fSubEventID = evt->GetSubID( );
     fTimeStamp = evt->GetTimeStamp( ).AsDouble();
     *fSubEventTag = evt->GetSubEventTag( );
+    fRunOrigin = evt->GetRunOrigin();
+    fSubRunOrigin = evt->GetSubRunOrigin();
 
     return this->Fill( );
 }
 
 void TRestAnalysisTree::CreateEventBranches( )
 {
+    Branch( "runOrigin", &fRunOrigin );
+    Branch( "subRunOrigin", &fSubRunOrigin );
     Branch( "eventID", &fEventID );
     Branch( "subEventID", &fSubEventID );
     Branch( "timeStamp", &fTimeStamp );

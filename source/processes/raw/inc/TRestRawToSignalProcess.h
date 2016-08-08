@@ -25,6 +25,7 @@
 
 #include "TRestEventProcess.h"
 #include "TRestSignalEvent.h"
+#include <TRestDetectorSetup.h>
 
 class TRestRawToSignalProcess:public TRestEventProcess {
 
@@ -34,15 +35,19 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    unsigned int payload;
    unsigned int frameBits;
    TString fElectronicsType; //AFTER or AGET
+   Int_t fMinPoints;
    
    Double_t tStart;
    int totalBytesReaded;
+
+   Bool_t fRejectNoise;
    
    TRestSignalEvent *fSignalEvent;
    #ifndef __CINT__
    FILE *fInputBinFile;
-   int fRunNumber;
-   int fRunIndex;
+
+   Int_t fRunOrigin;
+   Int_t fSubRunOrigin;
    #endif
    
    void LoadDefaultConfig();
@@ -69,8 +74,8 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    void printBits(unsigned int num);
    
    Int_t GetTotalBytesReaded( ){return totalBytesReaded;}
-   Int_t GetRunNumber(){return fRunNumber;}
-   Int_t GetRunIndex(){return fRunIndex;}
+ //  Int_t GetRunNumber(){return fRunNumber;}
+ //  Int_t GetRunIndex(){return fRunIndex;}
    TString GetElectronicsType( ){return fElectronicsType;}
    
    //Constructor

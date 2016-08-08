@@ -153,7 +153,7 @@ void TRestHitsToSignalProcess::InitProcess()
         fGas->SetPressure( fGasPressure );
 
         if( fDriftVelocity == 0 )
-            fDriftVelocity = fGas->GetDriftVelocity( fElectricField );
+            fDriftVelocity = fGas->GetDriftVelocity( fElectricField ) * cmTomm;
     }
 }
 
@@ -180,8 +180,10 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
 {
     fHitsEvent = (TRestHitsEvent *) evInput;
 
+    /*
     cout << "Number of hits : " << fHitsEvent->GetNumberOfHits() << endl;
     cout << "--------------------------" << endl;
+    */
 
     for( int hit = 0; hit < fHitsEvent->GetNumberOfHits(); hit++ )
     {
@@ -205,29 +207,27 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
             }
         }
 
-
         if( moduleId == -1 || planeId == -1 ) continue;
 
-           if( moduleId >= 0 )
-           {
+        if( moduleId >= 0 )
+        {
+            Int_t readoutChannel = plane->FindChannel( moduleId, x, y );
+            Int_t daqId = module->GetChannel( readoutChannel )->GetDaqID( );
 
-               Int_t readoutChannel = module->FindChannel( x, y );
-               Int_t daqId = module->GetChannel( readoutChannel )->GetDaqID( );
+            Double_t energy = fHitsEvent->GetEnergy( hit );
 
-               Double_t energy = fHitsEvent->GetEnergy( hit );
-                
-               Double_t time = plane->GetDistanceTo( x, y, z ) / fDriftVelocity;
-               time = ( (Int_t) (time/fSampling) );
+            Double_t time = plane->GetDistanceTo( x, y, z ) / fDriftVelocity;
+            time = ( (Int_t) (time/fSampling) );
 
-               fSignalEvent->AddChargeToSignal( daqId, time, energy );
-           }
+            fSignalEvent->AddChargeToSignal( daqId, time, energy );
+        }
 }
 
         fSignalEvent->SortSignals();
 
         //fSignalEvent->PrintEvent();
 
-        cout << "Number of signals inside event : " << fSignalEvent->GetNumberOfSignals() << endl;
+ //       cout << "Number of signals inside event : " << fSignalEvent->GetNumberOfSignals() << endl;
 
         return fSignalEvent;
 }

@@ -68,8 +68,14 @@ class TRestRun:public TRestMetadata {
         std::vector <TRestMetadata*> fHistoricMetadata;  // Open input file should store the metadata (and historic) information in historic metadata
         std::vector <TRestEventProcess*> fHistoricEventProcess;
 
+        Bool_t fPureAnalysisOutput;
+        Bool_t fContainsEventTree;
+
 #ifndef __CINT__
+        Bool_t fSkipEventTree;
         Bool_t fOverwrite;
+
+        Int_t inputRunNumber;
 
         TTree *fInputEventTree;
         TTree *fOutputEventTree;
@@ -118,6 +124,11 @@ class TRestRun:public TRestMetadata {
         Int_t GetEventWithID( Int_t eventID, Int_t subEventID = 0 );
         Int_t GetEventWithID( Int_t eventID, TString tag );
 
+
+        // Quick analysis tree access
+        Int_t GetObservableID( TString name ) { return fInputAnalysisTree->GetObservableID( name ); }
+        Bool_t ObservableExists( TString name ) { return fInputAnalysisTree->ObservableExists( name ); }
+
         //TRestMetadata *GetEventMetadata() { return fEventMetadata; }
         TRestEvent *GetOutputEvent() { return fOutputEvent; }
         TFile *GetOutputFile() { return fOutputFile; }
@@ -143,13 +154,52 @@ class TRestRun:public TRestMetadata {
 
         Int_t GetEntry( Int_t i )
         {
-            fInputAnalysisTree->GetEntry( i );
-            return fInputEventTree->GetEntry( i );
+            if( !fSkipEventTree && fInputEventTree == NULL )
+            {
+                std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+                std::cout << "Input event tree has not been initialized" << std::endl;
+                std::cout << "This is a sign that you did not allocate an input event structure in TRestRun." << std::endl;
+                std::cout << "The Event tree will be not be accesible" << std::endl;
+                std::cout << "You should use : run->SetInputEvent( specificEventPointer )" << std::endl;
+                std::cout << "........................... " << std::endl;
+                std::cout << "... Skipping event tree ... " << std::endl;
+                std::cout << "........................... " << std::endl;
+                fSkipEventTree = true;
+                std::cout << "If you dont need access to the event tree use fRun->SkipEventTree() to avoid this message" << std::endl;
+                std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+                GetChar();
+            }
+
+            if( !fSkipEventTree ) fInputEventTree->GetEntry( i );
+            return fInputAnalysisTree->GetEntry( i );
         }
 
+        void SetPureAnalysisOutput( ) { fPureAnalysisOutput = true; }
+        Bool_t ContainsEventTree( ) { return fContainsEventTree; }
+
+        void SkipEventTree( ) { fSkipEventTree = true; }
         TRestAnalysisTree *GetAnalysisTree( ) { return fInputAnalysisTree; }
 
-        Int_t GetEntries( ) { return fInputEventTree->GetEntries(); }
+        Int_t GetEntries( )
+        {
+            if( !fSkipEventTree && fInputEventTree == NULL )
+            {
+                std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+                std::cout << "Input event tree has not been initialized" << std::endl;
+                std::cout << "This is a sign that you did not allocate an input event structure in TRestRun." << std::endl;
+                std::cout << "The Event tree will be not be accesible" << std::endl;
+                std::cout << "You should use : run->SetInputEvent( specificEventPointer )" << std::endl;
+                std::cout << "........................... " << std::endl;
+                std::cout << "... Skipping event tree ... " << std::endl;
+                std::cout << "........................... " << std::endl;
+                fSkipEventTree = true;
+                std::cout << "Use fRun->SkipEventTree() to avoid this message" << std::endl;
+                std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+                GetChar();
+            }
+
+            return fInputAnalysisTree->GetEntries();
+        }
 
         Int_t Fill( );
 
@@ -166,9 +216,27 @@ class TRestRun:public TRestMetadata {
         void ImportMetadata( TString rootFile, TString name );
 
         void SetRunNumber( Int_t number ) { fRunNumber = number; }
-        void SetRunType( TString type ) { fRunType = type; }
-        void SetRunTag( TString tag ) { fRunTag = tag; }
-        void SetRunUser( TString user ) { fRunUser = user; } 
+	void SetParentRunNumber( Int_t number ) { fParentRunNumber = number; }
+
+        void SetRunType( TString type )
+        {
+            std::string cleanType = RemoveWhiteSpaces( (std::string) type );
+            fRunType = (TString) cleanType;
+            fRunType = type;
+        }
+
+        void SetRunTag( TString tag )
+        {
+            std::string cleanTag = RemoveWhiteSpaces( (std::string) tag );
+            fRunTag = (TString) cleanTag;
+        }
+
+        void SetRunUser( TString user )
+        {
+            std::string cleanUser = RemoveWhiteSpaces( (std::string) user );
+            fRunUser = (TString) cleanUser;
+        }
+
         void SetRunDescription( TString description ) { fRunDescription = description; }
         void SetNumberOfEvents( Int_t nEvents ) { fRunEvents = nEvents; } 
         void SetEndTimeStamp( Double_t tStamp ) { fEndTime = tStamp; }
@@ -187,7 +255,7 @@ class TRestRun:public TRestMetadata {
 	
         //Setters
 
-        void AddMetadata( TRestMetadata *metadata ) { fMetadata.push_back( metadata ); }
+        void AddMetadata( TRestMetadata *metadata ) { fMetadata.push_back( metadata ); metadata->PrintMetadata(); }
         void AddHistoricMetadata( TRestMetadata *metadata ) { fHistoricMetadata.push_back( metadata ); }
         void AddProcess( TRestEventProcess *process, std::string cfgFilename, std::string name = "" );
 

@@ -23,22 +23,31 @@ By default REST units are mm, keV and degrees
 
     <parameter name="inputFile" value="{REST_INPUTFILE}">
     <parameter name="firstEntry" value="0" >
-    <parameter name="lastEntry" value="10000" >
-    <parameter name="eventsToProcess" value="10000" >
+    <parameter name="lastEntry" value="0" >
+    <parameter name="eventsToProcess" value="0" >
+
+    <parameter name="pureAnalysisOutput" value="OFF" >
 
     <!-- +++++++++++++++++++++++++++
-         Setting source config files
-         +++++++++++++++++++++++++++ -->
+     Setting source config files
+     +++++++++++++++++++++++++++ -->
     <parameter name="gasFile" value="{REST_PATH}/inputData/definitions/gases.rml" >
     <parameter name="readoutFile" value="{REST_PATH}/inputData/definitions/readouts_PandaXIII.root" >
     <parameter name="processesFile" value="{REST_PATH}/config/template/processes.rml" >
+    <parameter name="tasksFile" value="{REST_PATH}/config/template/plots.rml" >
 
     <!-- +++++++++++++++
          Adding metadata 
          +++++++++++++++ -->
     <addMetadata type="readout" name="Readout-PANDA_3MM_Jinping" value="ON" overwrite="false" >
+
+    <!-- We can modify/shift the readout plane definition that was prebuilt in a root file here using a sentence like  
+
+    <readoutPlane id="0" planePosition="(-96.75,-96.375,-255)" cathodePosition="(0,0,93)" />
+
+    -->
         <!-- gas pressure units in TRestGas is atm -->
-    <addMetadata type="gas" name="Xenon-TMA 3Pct 10-10E3V/cm" pressure="10" value="ON" overwrite="false" >
+    <addMetadata type="gas" name="Xenon-TMA 3Pct 10-10E3V/cm" pressure="1" value="ON" overwrite="false" >
 
     <!-- ++++++++++++++++
          Adding processes 
@@ -47,8 +56,9 @@ By default REST units are mm, keV and degrees
 
     <!-- This processes will not be added to TRestRun (value=OFF) -->
     <addProcess type="findG4BlobAnalysisProcess" name="g4Blob" value="OFF" >
-    <addProcess type="electronDiffusionProcess" name="electronDiffusion-1kVcm-10atm" value="OFF" >
-    <addProcess type="hitsToSignalProcess" name="hitsToSignal-Template" value="OFF" >
+    <addProcess type="electronDiffusionProcess" name="electronDiffusion-1kVcm-10atm" value="ON" >
+    <addProcess type="hitsToSignalProcess" name="hitsToSignal-Template" value="ON" >
+    <addProcess type="signalShapingProcess" name="signalShapingProcess" value="ON" >
     <addProcess type="signalGaussianConvolutionProcess" name="gaussian-Convolution" value="OFF" >
     <addProcess type="addSignalNoiseProcess" name="addSignalNoiseProcess" value="OFF" >
     <addProcess type="signalAnalysisProcess" name="sgnlAna" value="OFF" >
@@ -62,14 +72,23 @@ By default REST units are mm, keV and degrees
     <addProcess type="trackAnalysisProcess" name="tckAna" value="ON" >
 
                 -->
+
+    <!-- Now we need to define in the manager the tasks we will perform.
+         If task processEvents is not enabled processes will not be launched --> 
+    <addTask type="processEvents" value="ON" >
+
+    <!-- If analysisPlot is before the processEvents task it will take as input file the input for TRestRun.
+         If it is after processEvents it will take the output of TRestRun. -->
+    <addTask type="analysisPlot" name="Template" value="OFF" >
+
 </section>
 
 <section manager name="RESTManagerData" title="Template manager to process a rawdata.">
 
     <parameter name="inputFile" value="{REST_INPUTFILE}">
     <parameter name="firstEntry" value="0" >
-    <parameter name="lastEntry" value="1000" />
-    <parameter name="eventsToProcess" value="1000" >
+    <parameter name="lastEntry" value="0" />
+    <parameter name="eventsToProcess" value="0" >
 
     <!-- +++++++++++++++++++++++++++
          Setting source config files
@@ -82,8 +101,15 @@ By default REST units are mm, keV and degrees
          Adding metadata 
          +++++++++++++++ -->
         <!-- gas pressure units in TRestGas is atm -->
-    <addMetadata type="gas" name="Xenon-TMA 3Pct 10-10E3V/cm" pressure="10" value="ON" overwrite="false" >
+    <addMetadata type="gas" name="Xenon-TMA 3Pct 10-10E3V/cm" pressure="1" value="ON" overwrite="false" >
+
     <addMetadata type="readout" name="Readout-PANDA_3MM_Single" value="ON" overwrite="false" >
+
+    <!-- We can modify/shift the readout plane definition that was prebuilt in a root file here using a sentence like  
+
+    <readoutPlane id="0" planePosition="(-96.75,-96.375,-255)" cathodePosition="(0,0,93)" />
+
+    -->
 
     <!-- ++++++++++++++++
          Adding processes 
@@ -100,7 +126,7 @@ By default REST units are mm, keV and degrees
 
 </section>
 
-<section run name="Run metadata" title="REST Simulation run (template)">
+<section run name="Run metadata" title="REST Metadata run info (template)">
     <parameter name="Nevents" value="100"/>
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
@@ -111,12 +137,6 @@ By default REST units are mm, keV and degrees
     <parameter name="verboseLevel" value="3"/>
     <parameter name="overwrite" value="off" />
     <parameter name="outputFile" value="default" />
-</section>
-
-<section daq name="virtualDAQ" title="TEST">
-    <parameter name="pedScript" value="ped"/>
-    <parameter name="runScript" value="run"/>
-    <parameter name="electronics" value="AGET"/>
 </section>
 
 <!-- 

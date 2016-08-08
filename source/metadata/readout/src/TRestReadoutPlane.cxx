@@ -32,13 +32,10 @@ TRestReadoutPlane::TRestReadoutPlane()
 //______________________________________________________________________________
 TRestReadoutPlane::~TRestReadoutPlane()
 {
-    cout << "Deleting TRestReadoutPlane" << endl;
 }
 
 void TRestReadoutPlane::Initialize()
 {
-    cout << "Initializing TRestReadoutPlane" << endl;
-
     fCathodePosition = TVector3( 0, 0, 0 );
     fPosition = TVector3( 0, 0, 0 );
     fPlaneVector = TVector3( 0, 0, 0 );

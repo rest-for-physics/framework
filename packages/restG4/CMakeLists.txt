@@ -4,10 +4,10 @@ cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 project(restG4)
 
 IF(DEFINED ENV{REST_PATH})
-    message("...using environment REST_PATH variable $ENV{REST_PATH}")
+    message("Using environment REST_PATH variable $ENV{REST_PATH}")
     set(REST_PATH $ENV{REST_PATH})
 ELSE()
-    message("ERROR ::: REST_PATH must be defined as an environment variable and point to new_trunk source directory")
+    message("ERROR ::: REST_PATH must be defined as an environment variable and point to REST install directory")
     return()
 ENDIF()
 
@@ -36,7 +36,7 @@ find_package(ROOT REQUIRED)
 include_directories(${PROJECT_SOURCE_DIR}/include 
     ${Geant4_INCLUDE_DIR}
     ${ROOT_INCLUDE_DIR}
-    ${REST_PATH}/source/restcore/inc ${REST_PATH}/source/events/geant4/inc ${REST_PATH}/source/events/general/inc ${REST_PATH}/source/metadata/geant4/inc )
+    ${REST_PATH}/include )
 
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
@@ -45,8 +45,7 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 # Add the executable, and link it to the Geant4 libraries
 #
 add_executable(restG4 restG4.cc ${sources} ${headers})
-target_link_libraries(restG4 ${Geant4_LIBRARIES} -L${ROOT_LIBRARY_DIR} ${ROOT_LIBRARIES} -L${REST_PATH}/lib/ -lRestCore -lRestEvents -lRestMetadata -lEve -lGeom) 
-
+target_link_libraries(restG4 ${Geant4_LIBRARIES} -L${ROOT_LIBRARY_DIR} ${ROOT_LIBRARIES} -L${REST_PATH}/lib/ -lRestCore -lRestEvents -lRestMetadata -lEve -lGeom ${Garfield_LIBRARIES}) 
 
 
 #----------------------------------------------------------------------------
@@ -76,5 +75,16 @@ endforeach()
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
-install(TARGETS restG4 DESTINATION bin)
+install(TARGETS restG4 DESTINATION ${REST_PATH}/bin)
+
+string(FIND ${Geant4_DIR} "lib/" cutStr REVERSE)
+MATH(EXPR cutStr "${cutStr}+4")
+
+string(SUBSTRING ${Geant4_DIR} 0 ${cutStr} G4_LIBDIR)
+
+message( "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n
+          After \"make install\" restG4 will be installed in ${REST_PATH}/bin\n\n
+          IMPORTANT : You might need to include the following line in your .bashrc\n\n
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${G4_LIBDIR}\n
+          \n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" )
 

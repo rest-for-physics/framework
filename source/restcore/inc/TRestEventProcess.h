@@ -39,6 +39,8 @@ class TRestEventProcess:public TRestMetadata {
 
    std::vector <TRestMetadata*> fRunMetadata;
 
+   std::vector <string> fObservableNames;
+
    TRestAnalysisTree *fAnalysisTree;
 #endif
 
@@ -50,11 +52,11 @@ class TRestEventProcess:public TRestMetadata {
    virtual TRestEvent *GetInputEvent() { return fInputEvent; }
    virtual TRestEvent *GetOutputEvent() { return fOutputEvent; }
 
-   virtual void InitProcess() = 0;
+   virtual void InitProcess() { }
    virtual TRestEvent *ProcessEvent( TRestEvent *evInput ) = 0;
-   virtual void EndProcess() = 0;
-   virtual void BeginOfEventProcess() = 0;
-   virtual void EndOfEventProcess() = 0;
+   virtual void EndProcess() { }
+   virtual void BeginOfEventProcess() { fOutputEvent->Initialize(); }
+   virtual void EndOfEventProcess() { }
    virtual TString GetProcessName() = 0;
    virtual void LoadConfig( std::string cfgFilename, std::string cfgName = "" )=0;
 
@@ -65,7 +67,10 @@ class TRestEventProcess:public TRestMetadata {
        vector <string> obsList = GetObservablesList( );
 
        for( unsigned int n = 0; n < obsList.size(); n++ )
-           fAnalysisTree->AddObservable( this->GetName() + (TString) "." + (TString) obsList[n] );
+       {
+	       fAnalysisTree->AddObservable( this->GetName() + (TString) "." + (TString) obsList[n] );
+		fObservableNames.push_back ( this->GetName() + (string) "." + obsList[n] );
+       }
 
        return obsList;
    }
@@ -73,6 +78,7 @@ class TRestEventProcess:public TRestMetadata {
    TRestMetadata *GetGasMetadata( );
    TRestMetadata *GetReadoutMetadata( );
    TRestMetadata *GetGeant4Metadata( );
+   TRestMetadata *GetDetectorSetup( );
 
    Double_t GetDoubleParameterFromClass( TString className, TString parName );
    Double_t GetDoubleParameterFromClassWithUnits( TString className, TString parName );

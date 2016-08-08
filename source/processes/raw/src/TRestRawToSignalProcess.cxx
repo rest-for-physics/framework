@@ -58,12 +58,13 @@ void TRestRawToSignalProcess::Initialize()
     SetName( "daq" );
     fSignalEvent = new TRestSignalEvent( );
 
-    fRunNumber=-1;
-    fRunIndex=-1;
-
     fInputEvent = NULL;
     fOutputEvent = fSignalEvent;
     fInputBinFile = NULL;
+
+    fMinPoints = 512;
+
+    fRejectNoise = false;
 }
 
 void TRestRawToSignalProcess::BeginOfEventProcess() 
@@ -74,7 +75,13 @@ void TRestRawToSignalProcess::BeginOfEventProcess()
 
 void TRestRawToSignalProcess::InitFromConfigFile(){
 
+   if( GetParameter( "rejectNoise", "OFF" ) == "ON" ) 
+   {
+	cout << "RAWToSignalProcess : Activating noise rejection" << endl;
+	fRejectNoise = true;
+   }
 fElectronicsType = GetParameter("electronics");
+ fMinPoints = StringToInteger( GetParameter("minPoints", "512" ) );
   if(fElectronicsType==""){
   cout<<"electronic type not found "<<endl;
   LoadDefaultConfig();
@@ -82,7 +89,6 @@ fElectronicsType = GetParameter("electronics");
 
   if(fElectronicsType=="AFTER"||fElectronicsType=="AGET")return;
   LoadDefaultConfig();
-  
 
 }
 
@@ -99,6 +105,7 @@ cout<<"Press a key to continue..."<<endl;
 getchar();
 
 fElectronicsType = "AGET";
+fMinPoints = 512;
 
 }
 
@@ -123,25 +130,40 @@ void TRestRawToSignalProcess::EndProcess()
  
 }
 //______________________________________________________________________________
-Bool_t TRestRawToSignalProcess::OpenInputBinFile ( TString fName ){
+Bool_t TRestRawToSignalProcess::OpenInputBinFile ( TString fName )
+{
+	TRestDetectorSetup *det = (TRestDetectorSetup *) this->GetDetectorSetup();
 
-if(fInputBinFile!= NULL)fclose(fInputBinFile);
+	if( det != NULL )
+	{
+		fRunOrigin = det->GetRunNumber();
+		fSubRunOrigin = det->GetSubRunNumber();
+	}
+	else
+	{
+		cout << "REST WARNING : Detector setup has not been defined. Run and subRunNumber will not be defined!" << endl;
 
- if( (fInputBinFile = fopen(fName.Data(),"rb") )==NULL ) {
-        cout << "WARNING. Input file does not exist" << endl;
-        return kFALSE;
-    }
+	}
 
-cout<<"File "<<fName.Data()<<" opened"<<endl;
+	if(fInputBinFile!= NULL)fclose(fInputBinFile);
 
-int size=fName.Sizeof();cout<<size<<endl;
-TString fN(fName(size-20,size-1));
-cout<<fN.Data()<<endl;
-sscanf(fN.Data(),"RUN_%d.%d.acq",&fRunNumber,&fRunIndex);
+	if( (fInputBinFile = fopen(fName.Data(),"rb") )==NULL ) {
+		cout << "WARNING. Input file does not exist" << endl;
+		return kFALSE;
+	}
 
-cout<<"Run# "<<fRunNumber<<" index "<<fRunIndex<<endl;
+    struct tm* clock;
+    struct stat st;
+    stat ( fName.Data(), &st);
 
-return kTRUE;
+    clock = gmtime( &( st.st_mtime ) );
+
+    time_t tstamp = mktime ( clock );
+
+    tStart = (Double_t ) tstamp;
+    
+
+	return kTRUE;
 }
 
 //For debugging
