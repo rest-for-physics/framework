@@ -699,7 +699,7 @@ string TRestMetadata::ReplaceMathematicalExpressions( const string buffer )
 
         string replacement = "";
 
-        if( expression[0] == '(' && expression[expression.length()-1] == ')' )
+        if( expression[0] == '(' && expression[expression.length()-1] == ')' && expression.find(",") != string::npos )
         {
             replacement += "(";
             string firstComponent = expression.substr( 1, expression.find(",")-1 );
