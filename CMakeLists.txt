@@ -105,6 +105,11 @@ install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/inputData
          COMPONENT install
        )
 
+install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/config
+    DESTINATION .
+         COMPONENT install
+       )
+
 get_filename_component(result ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_PREFIX} ABSOLUTE)
 set(FULL_PATH_INSTALL ${result})
 
