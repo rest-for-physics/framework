@@ -774,7 +774,7 @@ void TRestRun::InitFromConfigFile()
    if( rNumberStr == "auto" )
    {
        char runFilename[256];
-       sprintf( runFilename, "%s/inputData/runNumber", getenv("REST_PATH") );
+       sprintf( runFilename, "%s/runNumber", getenv("REST_PATH") );
        if( !fileExists( (string) runFilename ) )
        {
            cout << "REST Warning : File " << runFilename << " does not exist" << endl;
