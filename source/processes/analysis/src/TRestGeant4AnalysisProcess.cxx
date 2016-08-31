@@ -81,12 +81,17 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     TString obsName;
 
-    Double_t energy = fG4Event->GetEnergyDepositedInVolume( 0 );
+    Double_t energy = fG4Event->GetSensitiveVolumeEnergy( );
+
     if( energy < fLowEnergyCut ) return NULL;
     if( fHighEnergyCut > 0 && energy > fHighEnergyCut ) return NULL;
 
     obsName = this->GetName() + (TString) ".gasEnergyDeposit_InKeV";
     fAnalysisTree->SetObservableValue( obsName, energy );
+
+    Double_t energyTotal = fG4Event->GetTotalDepositedEnergy();
+    obsName = this->GetName() + (TString) ".TotalEnergy_InKeV";
+    fAnalysisTree->SetObservableValue( obsName, energyTotal );
 
     obsName = this->GetName() + (TString) ".photoelectric";
     if ( fG4Event->isPhotoElectric( ) ) { fAnalysisTree->SetObservableValue( obsName, 1 ); }
@@ -100,8 +105,31 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent( TRestEvent *evInput )
     if ( fG4Event->isBremstralung( ) ) fAnalysisTree->SetObservableValue( obsName, 1 );
     else fAnalysisTree->SetObservableValue( obsName, 0 );
 
-    cout << "Event : " << fG4Event->GetID() << " G4_Tracks : " << fG4Event->GetNumberOfTracks() << endl;
+    obsName = this->GetName() + (TString) ".hadElastic";
+    if ( fG4Event->ishadElastic( ) ) fAnalysisTree->SetObservableValue( obsName, 1 );
+    else fAnalysisTree->SetObservableValue( obsName, 0 );
 
+    obsName = this->GetName() + (TString) ".neutronInelastic";
+    if ( fG4Event->isneutronInelastic( ) ) fAnalysisTree->SetObservableValue( obsName, 1 );
+    else fAnalysisTree->SetObservableValue( obsName, 0 );
+
+    obsName = this->GetName() + (TString) ".nCapture";
+    if ( fG4Event->isnCapture( ) ) fAnalysisTree->SetObservableValue( obsName, 1 );
+    else fAnalysisTree->SetObservableValue( obsName, 0 );
+
+    obsName = this->GetName() + (TString) ".hIoni";
+    if ( fG4Event->ishIoni( ) ) fAnalysisTree->SetObservableValue( obsName, 1 );
+    else fAnalysisTree->SetObservableValue( obsName, 0 );
+
+    obsName = this->GetName() + (TString) ".alpha";
+    if ( fG4Event->isAlpha( ) ) fAnalysisTree->SetObservableValue( obsName, 1 );
+    else fAnalysisTree->SetObservableValue( obsName, 0 );
+
+    obsName = this->GetName() + (TString) ".neutron";
+    if ( fG4Event->isNeutron( ) ) fAnalysisTree->SetObservableValue(obsName, 1 );
+    else fAnalysisTree->SetObservableValue( obsName, 0 );
+
+    cout << "Event : " << fG4Event->GetID() << " G4 Tracks : " << fG4Event->GetNumberOfTracks() << endl;
     return fG4Event;
 }
 
