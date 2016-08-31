@@ -121,7 +121,13 @@ get_filename_component(result ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_PREFIX
 set(FULL_PATH_INSTALL ${result})
 
 message( "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n
-          After \"make install\" REST will be installed in ${FULL_PATH_INSTALL}\n\n
-          IMPORTANT : include the following line in your .bashrc\n\n
-          source ${FULL_PATH_INSTALL}/thisREST.sh\n
+          After \"make install\" REST will be installed in ${CMAKE_INSTALL_PREFIX}\n
+	  If you are installing to a system directory you will need administrative privileges\n
+	  Executing : sudo make install\n\n
+
+	  If you want to change the installation directory execute cmake as follows: \n
+	  cmake -DINSTALL_PREFIX=PATH_TO_INSTALL_DIRECTORY PATH_TO_RESTv2_DIRECTORY \n\n
+
+          IMPORTANT : include the following line in your .bashrc\n
+          source ${CMAKE_INSTALL_PREFIX}/thisREST.sh\n
           \n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" )
