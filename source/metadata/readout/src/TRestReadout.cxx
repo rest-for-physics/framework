@@ -30,12 +30,14 @@ TRestReadout::TRestReadout( const char *cfgFileName) : TRestMetadata (cfgFileNam
 
     LoadConfigFromFile( fConfigFileName );
 
+    /*
     for( int p = 0; p < this->GetNumberOfReadoutPlanes(); p++ )
         for( int m = 0; m < this->GetReadoutPlane(p)->GetNumberOfModules(); m++ )
         {
             cout << "Mapping plane : " << p << " Module : " << m << endl;
-            this->GetReadoutPlane(p)->GetReadoutModule(m)->DoReadoutMapping();
+            this->GetReadoutPlane(p)->GetReadoutModule(m)->DoReadoutMapping( fMappingNodes );
         }
+        */
 }
 
 TRestReadout::TRestReadout( const char *cfgFileName, string name) : TRestMetadata (cfgFileName)
@@ -44,12 +46,13 @@ TRestReadout::TRestReadout( const char *cfgFileName, string name) : TRestMetadat
 
     LoadConfigFromFile( fConfigFileName, name );
 
+    /*
     for( int p = 0; p < this->GetNumberOfReadoutPlanes(); p++ )
         for( int m = 0; m < this->GetReadoutPlane(p)->GetNumberOfModules(); m++ )
         {
-            cout << "Mapping plane : " << p << " Module : " << m << endl;
-            this->GetReadoutPlane(p)->GetReadoutModule(m)->DoReadoutMapping();
+            this->GetReadoutPlane(p)->GetReadoutModule(m)->DoReadoutMapping( fMappingNodes );
         }
+        */
 }
 
 void TRestReadout::Initialize()
@@ -91,6 +94,14 @@ Int_t TRestReadout::GetNumberOfChannels( )
     return channels;
 }
 
+Int_t TRestReadout::GetModuleDefinitionId( TString name )
+{
+    for( unsigned int i = 0; i < fModuleDefinitions.size(); i++ )
+        if( fModuleDefinitions[i].GetName() == name )
+            return i;
+    return -1;
+}
+
 
 //______________________________________________________________________________
 void TRestReadout::InitFromConfigFile()
@@ -98,6 +109,66 @@ void TRestReadout::InitFromConfigFile()
 
     size_t position = 0;
     string planeString;
+
+    fMappingNodes = StringToInteger( GetParameter( "mappingNodes", "0" ) );
+
+    string moduleString;
+    size_t posSection = 0;
+    while( ( moduleString = GetKEYStructure( "readoutModule", posSection ) ) != "NotFound" )
+    {
+        TRestReadoutModule module;
+
+        string moduleDefinition = GetKEYDefinition( "readoutModule", moduleString );
+
+        module.SetName( GetFieldValue( "name", moduleDefinition ) );
+        module.SetSize( StringTo2DVector( GetFieldValue( "size", moduleDefinition ) ) );
+
+        if( debug )
+        {
+            cout << "------module-----------------" << endl;
+            cout << moduleString << endl;
+            cout << "---------------------------" << endl;
+            cout << "position : " << posSection << endl;
+            GetChar();
+        }
+
+        string channelString;
+        size_t position2 = 0;
+        while( ( channelString = GetKEYStructure( "readoutChannel", position2, moduleString ) ) != "" )
+        {
+            size_t position3 = 0;
+            string channelDefinition = GetKEYDefinition( "readoutChannel", position3, channelString );
+
+            TRestReadoutChannel channel;
+
+            Int_t id = StringToInteger( GetFieldValue( "id", channelDefinition ) );
+            channel.SetID( id );
+            channel.SetDaqID( -1 );
+
+            string pixelString;
+            while( ( pixelString = GetKEYDefinition( "addPixel", position3, channelString ) ) != "" )
+            {
+                TRestReadoutPixel pixel;
+
+                pixel.SetID( StringToInteger( GetFieldValue( "id", pixelString ) ) );
+                pixel.SetOrigin( StringTo2DVector( GetFieldValue( "origin", pixelString ) ) );
+                pixel.SetSize( StringTo2DVector( GetFieldValue( "size", pixelString ) ) );
+                pixel.SetRotation( StringToDouble( GetFieldValue( "rotation", pixelString ) ) );
+
+                channel.AddPixel( pixel );
+            }
+
+            module.AddChannel( channel );
+
+            position2++;
+        }
+
+        module.DoReadoutMapping( fMappingNodes );
+
+        fModuleDefinitions.push_back( module );
+
+        posSection++;
+    }
 
     Int_t addedChannels = 0;
     while( ( planeString = GetKEYStructure( "readoutPlane", position ) ) != "NotFound" )
@@ -114,18 +185,16 @@ void TRestReadout::InitFromConfigFile()
         Double_t tDriftDistance = plane.GetDistanceTo( plane.GetCathodePosition() );
         plane.SetTotalDriftDistance( tDriftDistance );
 
-        string moduleString;
+        string moduleDefinition;
         size_t posPlane = 0;
-        while( ( moduleString = GetKEYStructure( "readoutModule", posPlane, planeString ) ) != "" )
+        while( ( moduleDefinition = GetKEYDefinition( "addReadoutModule", posPlane, planeString ) ) != "" )
         {
-            TRestReadoutModule module;
+            TString modName = GetFieldValue( "name", moduleDefinition );
+            Int_t mid = GetModuleDefinitionId( modName );
 
-            string moduleDefinition = GetKEYDefinition( "readoutModule", moduleString );
-
-            module.SetModuleID( StringToInteger( GetFieldValue( "id", moduleDefinition ) ) );
-            module.SetOrigin( StringTo2DVector( GetFieldValue( "origin", moduleDefinition ) ) );
-            module.SetSize( StringTo2DVector( GetFieldValue( "size", moduleDefinition ) ) );
-            module.SetRotation( StringToDouble( GetFieldValue( "rotation", moduleDefinition ) ) );
+            fModuleDefinitions[mid].SetModuleID( StringToInteger( GetFieldValue( "id", moduleDefinition ) ) );
+            fModuleDefinitions[mid].SetOrigin( StringTo2DVector( GetFieldValue( "origin", moduleDefinition ) ) );
+            fModuleDefinitions[mid].SetRotation( StringToDouble( GetFieldValue( "rotation", moduleDefinition ) ) );
 
             Int_t firstDaqChannel = StringToInteger( GetFieldValue( "firstDaqChannel", moduleDefinition ) );
             if( firstDaqChannel == -1 ) firstDaqChannel = addedChannels;
@@ -158,7 +227,7 @@ void TRestReadout::InitFromConfigFile()
                 {
                     if( fscanf(f,"%d\t%d\n", &daq, &readout ) <= 0 )
                     {
-                        cout << "REST Error!!. TRestG4Metadata::ReadGeneratorFile. Contact rest-dev@cern.ch" << endl;
+                        cout << "REST Error!!. TRestReadout::InitFromConfigFile. Contact rest-dev@cern.ch" << endl;
                         exit(-1);
                     }
                     rChannel.push_back( readout );
@@ -176,86 +245,33 @@ void TRestReadout::InitFromConfigFile()
                 getchar();
             }
 
-            Int_t chIndex = 0;
-
-            string channelString;
-            size_t position2 = 0;
-            while( ( channelString = GetKEYStructure( "readoutChannel", position2, moduleString ) ) != "" )
+            if( fDecoding && (unsigned int) fModuleDefinitions[mid].GetNumberOfChannels() != rChannel.size() )
             {
+                cout << "REST ERROR : TRestReadout."
+                     << " The number of channels defined in the readout is not the same" 
+                     << " as the number of channels found in the decoding." << endl;
+                exit(1);
+            }
 
-                size_t position3 = 0;
-                string channelDefinition = GetKEYDefinition( "readoutChannel", position3, channelString );
+            for( int ch = 0; ch < fModuleDefinitions[mid].GetNumberOfChannels(); ch++ )
+            {
+                cout << "Channel : " << ch << endl;
 
-                TRestReadoutChannel channel;
-                if( fDecoding )
+                if( !fDecoding )
                 {
-                    if( (unsigned int ) chIndex >= rChannel.size() ) 
-                    {
-                        cout << "REST WARNING : The number of channels defined in the readout is higher than the number of channels found in the decoding." << endl;
-                    }
-                    else
-                    {
-                        channel.SetID( rChannel[chIndex] );
-                        channel.SetDaqID( dChannel[chIndex] );
-                        chIndex++;
-                    }
-
-                }
-                else
-                {
-                    Int_t id = StringToInteger( GetFieldValue( "id", channelDefinition ) );
-                    channel.SetID( id );
-                    channel.SetDaqID( id + firstDaqChannel );
-
+                    Int_t id = fModuleDefinitions[mid].GetChannel(ch)->GetID( );
                     rChannel.push_back( id );
                     dChannel.push_back( id + firstDaqChannel );
                 }
 
-                if( debug )
-                {
-                    cout << "-----channel-----------------" << endl;
-                    cout << channelString << endl;
-                    cout << "---------------------------" << endl;
-                    getchar();
-                }
+                    fModuleDefinitions[mid].GetChannel(ch)->SetID( rChannel[ch] );
+                    fModuleDefinitions[mid].GetChannel(ch)->SetDaqID( dChannel[ch] );
 
-                string pixelString;
-                while( ( pixelString = GetKEYDefinition( "addPixel", position3, channelString ) ) != "" )
-                {
-                    TRestReadoutPixel pixel;
-
-                    pixel.SetID( StringToInteger( GetFieldValue( "id", pixelString ) ) );
-                    pixel.SetOrigin( StringTo2DVector( GetFieldValue( "origin", pixelString ) ) );
-                    pixel.SetSize( StringTo2DVector( GetFieldValue( "size", pixelString ) ) );
-                    pixel.SetRotation( StringToDouble( GetFieldValue( "rotation", pixelString ) ) );
-
-                    //               cout << "Rotation : " << StringToDouble( GetFieldValue( "rotation", pixelString ) ) << endl;
-                    //               cout << "Rotation : " << pixel.GetRotation() << endl;
-
-                    channel.AddPixel( pixel );
-
-                    if(  debug )
-                    {
-                        cout << "pixel" << endl;
-                        cout << pixelString << endl;
-                    }
-                }
-
-                module.AddChannel( channel );
                 addedChannels++;
 
-                position2++;
             }
-
-            if( (unsigned int ) module.GetNumberOfChannels() != rChannel.size() )
-            {
-                cout << "REST WARNING: The number of channels in the readout is not the same as the number of channels in the decoding" << endl;
-                cout << "Press a KEY to continue..." << endl;
-                getchar();
-            }
-
-            module.SetMinMaxDaqIDs();
-            plane.AddModule( module );
+            fModuleDefinitions[mid].SetMinMaxDaqIDs();
+            plane.AddModule( fModuleDefinitions[mid] );
 
             posPlane++;
         }
