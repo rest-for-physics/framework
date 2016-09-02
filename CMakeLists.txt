@@ -30,6 +30,8 @@ include_directories(${Garfield_INCLUDE_DIRS})
 
 add_subdirectory(source)
 
+set ( SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
+
 ########### TODO : THERE MUST BE A WAY IN CMAKE TO ENTER RECURSIVELY IN DIRECTORIES LOOKING FOR .h FILES
 ########### excluding external directory would be necessary.
 file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/restcore/inc/*.h" )
@@ -100,8 +102,6 @@ install(
     COMPONENT install
    )
 
-install(PROGRAMS scripts/thisREST.sh scripts/LoadRESTScripts.C DESTINATION .)
-
 install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/scripts
          DESTINATION .
          COMPONENT install
@@ -131,3 +131,77 @@ message( "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
           IMPORTANT : include the following line in your .bashrc\n
           source ${CMAKE_INSTALL_PREFIX}/thisREST.sh\n
           \n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" )
+
+#### This code gets the commit number to be inserted in thisREST.sh
+set (git_cmd git)
+set (git_arg rev-parse --verify HEAD )
+
+install( CODE 
+                "
+execute_process(COMMAND ${git_cmd} ${git_arg}
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+  RESULT_VARIABLE git_result
+  OUTPUT_VARIABLE git_ver)
+
+string(SUBSTRING \${git_ver} 0 8 git_commit )
+message(STATUS \"REST commit : \${git_commit}\")
+
+"
+)
+
+#### This code gets the branch number to be inserted in thisREST.sh
+install( CODE 
+                "
+execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/cmake/printBranch.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+  RESULT_VARIABLE git_result
+  OUTPUT_VARIABLE git_branch)
+
+message(STATUS \"REST branch : \${git_branch}\")
+"
+)
+
+
+#### This code generates thisREST.sh
+
+install( CODE
+"
+file( WRITE \${CMAKE_INSTALL_PREFIX}/thisREST.sh 
+
+\"\#!/bin/bash
+export REST_INSTALL=\${CMAKE_INSTALL_PREFIX}
+export REST_SOURCE=${SOURCE_DIR}
+export REST_PATH=\\\$REST_INSTALL
+export PATH=\\\$PATH:\\\$REST_PATH/bin
+export LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH:\\\$REST_PATH/lib
+export LIBRARY_PATH=\\\$LIBRARY_PATH:\\\$REST_PATH/lib
+
+alias restRoot=\\\"root -l \\\$REST_PATH/scripts/LoadRESTScripts.C\\\"
+
+
+
+echo \\\"*****************************************************************************\\\"
+echo \\\"  W E L C O M E   to  R E S T              \\\"
+echo \\\"                                                                               \\\"
+echo \\\"  Commit : \${git_commit} 		                        \\\"
+echo \\\"  Branch : \${git_branch}                                     \\\"
+echo \\\"  REST_INSTALL = $REST_PATH                                   \\\"
+echo \\\"                                                                               \\\"
+echo \\\"  Use restRoot command to load REST libraries and scripts inside ROOT     \\\"
+echo \\\"                                                                               \\\"
+echo \\\"  REST Support mail-list : rest-support@cern.ch               \\\"
+echo \\\"  REST Development mail-list : rest-dev@cern.ch               \\\"
+echo \\\"                                                                               \\\"
+echo \\\"  You can subscribe at egroups.cern.ch                    \\\"
+echo \\\"                                                                              \\\"
+echo \\\"  If you have no CERN account you can get an account            \\\"
+echo \\\"  linked to your usual mail address at this site:              \\\"
+echo \\\"                                                                               \\\"
+echo \\\"  https://account.cern.ch/account/Externals/                 \\\"
+echo \\\"  *****************************************************************************\\\"
+echo \\\"                                                                               \\\"
+
+\"
+)
+        "
+)
