@@ -489,6 +489,8 @@ void TRestRun::OpenInputFile( TString fName )
     TKey *key = GetObjectKeyByClass( "TRestRun" );
     this->Read( key->GetName() );
 
+    fRunNumber = inputRunNumber;
+
     fInputFilename = fName;
     fOutputFilename = fileName; // We take this value from the configuration (not from TRestRun)
 
@@ -517,6 +519,7 @@ void TRestRun::OpenInputFile( TString fName, TString cName )
 {
     cout << __PRETTY_FUNCTION__ << endl;
     cout << "OBSOLETE.........." << endl;
+
     /*
     if( fInputFile != NULL ) fInputFile->Close();
 
