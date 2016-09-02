@@ -641,10 +641,10 @@ void TRestRun::SetVersion()
     sprintf( originDirectory, "%s", get_current_dir_name() );
 
     char buffer[255];
-    sprintf( buffer, "%s", getenv( "REST_PATH" ) );
+    sprintf( buffer, "%s", getenv( "REST_SOURCE" ) );
     if( chdir( buffer ) != 0 )
     {
-        cout << "Error setting REST version! REST_PATH properly defined?" << endl; 
+        cout << "Error setting REST version! REST_SOURCE properly defined?" << endl; 
         return;
     }
 
