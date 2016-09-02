@@ -451,7 +451,7 @@ void TRestRun::ImportMetadata( TString rootFile, TString name )
     if( !fileExists( rootFile.Data() ) )
     {
         cout << "REST ERROR. The file " << rootFile << " does not exist" << endl;
-        return;
+        exit(1);
     }
 
     TFile *f = new TFile( rootFile );
@@ -464,7 +464,7 @@ void TRestRun::ImportMetadata( TString rootFile, TString name )
         cout << "Inside root file : " << rootFile << endl;
         GetChar();
         f->Close();
-        return;
+        exit(1);
     }
 
     this->AddMetadata( meta );
