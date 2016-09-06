@@ -32,6 +32,8 @@ class TRestReadoutModule : public TObject {
     private:
         Int_t fModuleID;
 
+        TString fModuleName;
+
         Double_t fModuleOriginX;
         Double_t fModuleOriginY;
 
@@ -87,6 +89,7 @@ class TRestReadoutModule : public TObject {
         void SetOrigin( Double_t x, Double_t y ) { fModuleOriginX = x; fModuleOriginY = y; }
         void SetOrigin( TVector2 c ) { fModuleOriginX = c.X(); fModuleOriginY = c.Y(); }
         void SetRotation( Double_t rot ) { fModuleRotation = rot; }
+        void SetName( TString name ) { fModuleName = name; }
 
         void SetMinMaxDaqIDs( );
         Int_t GetMinDaqID( ) { return fMininimumDaqId; }
@@ -137,6 +140,8 @@ class TRestReadoutModule : public TObject {
         Double_t GetModuleSizeY() { return fModuleSizeY; }
 
         Double_t GetModuleRotation() { return fModuleRotation; }
+
+        TString GetName( ) { return fModuleName; }
 
         TRestReadoutMapping *GetMapping( ) { return &fMapping; }
 

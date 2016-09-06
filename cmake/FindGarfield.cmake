@@ -12,6 +12,7 @@
 #set(Garfield_DIR "" CACHE PATH "Directory where Garfield is installed")
 #set(Garfield_INC_DIR "" CACHE PATH "Alternative directory for Garfield includes")
 #set(Garfield_LIB_DIR "" CACHE PATH "Alternative directory for Garfield libraries")
+set(Garfield_DIR ${GARFIELD_HOME})
 
 find_path(Garfield_INCLUDE_DIRS Sensor.hh
     HINTS ${Garfield_DIR}/include ${Garfield_INC_DIR}
@@ -29,6 +30,13 @@ find_library(Garfield_LIBRARIES NAMES libGarfield.so Garfield
 
 if (Garfield_INCLUDE_DIRS AND Garfield_LIBRARIES)
     set (Garfield_FOUND TRUE)
+endif()
+
+if (NOT DEFINED ENV{GARFIELD_HOME} )
+	message("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\nGARFIELD HOME has not been defined!
+		\nCheck Garfield is installed and GARFIELD_HOME is pointing to install directory
+		\nHINT : GARFIELD_HOME/lib/libGarfield.so should exist.
+		\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n" )
 endif()
 
 if (Garfield_FOUND)

@@ -411,9 +411,12 @@ TString TRestAnalysisPlot::ReplaceFilenameTags( TString filename, TRestRun *run 
     TString subRunStr;
     subRunStr.Form( "%d",run->GetParentRunNumber( ) );
 
+    TString runTagStr = run->GetRunTag( );
+
     outString = Replace( (string) outString, "[RUN]", (string) runStr, 0 );
     outString = Replace( (string) outString, "[SUBRUN]", (string) subRunStr, 0 );
     outString = Replace( (string) outString, "[PARENTRUN]", (string) subRunStr, 0 );
+    outString = Replace( (string) outString, "[RUNTAG]", (string) runTagStr, 0 );
 
     return outString;
 }

@@ -105,6 +105,7 @@ class TRestMetadata:public TNamed {
 
         Int_t CheckConfigFile( );
 
+        void SetEnvVariable( size_t &pos );
         std::string GetFieldValue( std::string fieldName, size_t fromPosition );
         std::string GetUnits( string definition, size_t fromPosition );
         std::string GetFieldFromKEY( std::string parName, std::string key );

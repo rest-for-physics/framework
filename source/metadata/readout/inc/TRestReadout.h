@@ -37,7 +37,13 @@ class TRestReadout:public TRestMetadata {
         Int_t fNReadoutPlanes;
         std::vector <TRestReadoutPlane> fReadoutPlanes;
 
+#ifndef __CINT__
+        Int_t fMappingNodes;
+        vector <TRestReadoutModule> fModuleDefinitions;
+#endif
+
         void ValidateReadout( );
+
 
     protected:
 
@@ -56,6 +62,8 @@ class TRestReadout:public TRestMetadata {
         Int_t GetNumberOfReadoutPlanes( );
         Int_t GetNumberOfModules( );
         Int_t GetNumberOfChannels( );
+
+        Int_t GetModuleDefinitionId( TString name );
 
         Double_t GetX( Int_t plane, Int_t modID, Int_t chID );
         Double_t GetY( Int_t plane, Int_t modID, Int_t chID );

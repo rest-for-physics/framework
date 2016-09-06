@@ -137,6 +137,8 @@ void TRestManager::InitFromConfigFile()
 
         TVector3 plPos = StringTo3DVector( GetFieldValue( "planePosition", readoutPlaneString ) );
 
+        TVector3 vPos = StringTo3DVector( GetFieldValue( "planeVector", readoutPlaneString ) );
+
         TVector3 cPos = StringTo3DVector( GetFieldValue( "cathodePosition", readoutPlaneString ) );
 
         TRestReadout *readout = (TRestReadout *) fRun->GetMetadataClass( "TRestReadout" );
@@ -146,6 +148,9 @@ void TRestManager::InitFromConfigFile()
 
         if( cPos != TVector3(0,0,0) )
             readout->GetReadoutPlane( rId )->SetCathodePosition( cPos );
+
+        if( vPos != TVector3(0,0,0) )
+            readout->GetReadoutPlane( rId )->SetPlaneVector( vPos );
 
         readout->GetReadoutPlane( rId )->SetDriftDistance();
 

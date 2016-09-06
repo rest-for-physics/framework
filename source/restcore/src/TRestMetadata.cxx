@@ -22,6 +22,7 @@
 
 
 #include <TMath.h>
+#include <TSystem.h>
 #include "TRestMetadata.h"
 using namespace std;
 using namespace REST_Units;
@@ -281,12 +282,23 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
 
     temporalBuffer = RemoveComments( temporalBuffer );
 
+    // We temporally associate the environment to the configBuffer
+    // We define environment variables that have validity only during execution
+    size_t p = 0;
+    configBuffer = GetKEYStructure( "environment", p, temporalBuffer );
+    if( configBuffer != "" )
+    {
+        p = 0;
+        while( p != string::npos ) SetEnvVariable( p );
+    }
+
+    temporalBuffer = ReplaceEnvironmentalVariables( temporalBuffer );
+
     // We temporally associate the globals to the configBuffer
     size_t pos = 0;
     configBuffer = GetKEYStructure( "globals", pos, temporalBuffer );
     if( configBuffer != "" )
     {
-        configBuffer = ReplaceEnvironmentalVariables( configBuffer );
 
         // We extract the values from globals. 
         // Globals will not be stored but they will be used by the REST framework during execution
@@ -699,7 +711,7 @@ string TRestMetadata::ReplaceMathematicalExpressions( const string buffer )
 
         string replacement = "";
 
-        if( expression[0] == '(' && expression[expression.length()-1] == ')' )
+        if( expression[0] == '(' && expression[expression.length()-1] == ')' && expression.find(",") != string::npos )
         {
             replacement += "(";
             string firstComponent = expression.substr( 1, expression.find(",")-1 );
@@ -794,6 +806,25 @@ string TRestMetadata::GetMyParameter( string &value, size_t &pos )
     }
 
     return "";
+}
+
+void TRestMetadata::SetEnvVariable( size_t &pos )
+{
+
+    string envString = GetKEYDefinition( "variable", pos );
+
+    if( envString.find( "name" ) != string::npos && envString.find( "value" ) != string::npos )
+    {
+        string oWrite = GetFieldValue( "overwrite", envString );
+        if( oWrite == "Not defined" )
+            oWrite = "false";
+
+        Int_t oWriteInt = 0;
+
+        if( oWrite == "true" ) oWriteInt = 1;
+
+        setenv( GetFieldValue( "name", envString).c_str() , GetFieldValue( "value", envString ).c_str(), oWriteInt );
+    }
 }
 
 string TRestMetadata::GetParameter( string parName, size_t &pos, string inputString )
