@@ -537,6 +537,27 @@ void TRestRun::OpenInputFile( TString fName, TString cName )
     */
 }
 
+TString TRestRun::ConstructFilename( TString filenameIn )
+{
+    TString outString = filenameIn;
+
+    TString runStr;
+    runStr.Form( "%05d", GetRunNumber() );
+
+    TString subRunStr;
+    subRunStr.Form( "%05d", this->GetParentRunNumber( ) );
+
+    outString = Replace( (string) outString, "[RUN]", (string) runStr, 0 );
+    outString = Replace( (string) outString, "[SUBRUN]", (string) subRunStr, 0 );
+    outString = Replace( (string) outString, "[PARENTRUN]", (string) subRunStr, 0 );
+    outString = Replace( (string) outString, "[RUNTAG]", (string) this->GetRunTag( ), 0 );
+    outString = Replace( (string) outString, "[VERSION]", (string) this->GetVersion( ), 0 );
+    outString = Replace( (string) outString, "[EXPERIMENT]", (string) this->GetExperimentName( ), 0 );
+    outString = Replace( (string) outString, "[USER]", (string) this->GetRunUser( ), 0 );
+
+    return outString;
+}
+
 
 void TRestRun::OpenOutputFile( )
 {
@@ -545,7 +566,7 @@ void TRestRun::OpenOutputFile( )
     SetVersion();
 
     if( fOutputFilename == "default" ) SetRunFilenameAndIndex();
-    else fOutputFilename = GetDataPath() + "/" + fOutputFilename;
+    else fOutputFilename = GetDataPath() + "/" + ConstructFilename( fOutputFilename );
 
     if( GetVerboseLevel() == REST_Info ) cout << "Opening file : " << fOutputFilename << endl;
 

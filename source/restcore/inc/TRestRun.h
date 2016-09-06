@@ -244,6 +244,8 @@ class TRestRun:public TRestMetadata {
         void SetInputFileName( TString fN ){ fInputFilename = fN; }
         void SetOutputFileName( TString fN ){ fOutputFilename = fN; }
 
+        TString ConstructFilename( TString filenameIn );
+
         TString GetDateFormatted( Double_t runTime );
         TString GetDateForFilename( Double_t runTime );
         TString GetTime( Double_t runTime );
