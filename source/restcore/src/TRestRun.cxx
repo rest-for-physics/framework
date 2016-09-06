@@ -451,7 +451,7 @@ void TRestRun::ImportMetadata( TString rootFile, TString name )
     if( !fileExists( rootFile.Data() ) )
     {
         cout << "REST ERROR. The file " << rootFile << " does not exist" << endl;
-        return;
+        exit(1);
     }
 
     TFile *f = new TFile( rootFile );
@@ -464,7 +464,7 @@ void TRestRun::ImportMetadata( TString rootFile, TString name )
         cout << "Inside root file : " << rootFile << endl;
         GetChar();
         f->Close();
-        return;
+        exit(1);
     }
 
     this->AddMetadata( meta );
@@ -488,6 +488,8 @@ void TRestRun::OpenInputFile( TString fName )
 
     TKey *key = GetObjectKeyByClass( "TRestRun" );
     this->Read( key->GetName() );
+
+    fRunNumber = inputRunNumber;
 
     fInputFilename = fName;
     fOutputFilename = fileName; // We take this value from the configuration (not from TRestRun)
@@ -517,6 +519,7 @@ void TRestRun::OpenInputFile( TString fName, TString cName )
 {
     cout << __PRETTY_FUNCTION__ << endl;
     cout << "OBSOLETE.........." << endl;
+
     /*
     if( fInputFile != NULL ) fInputFile->Close();
 
@@ -641,10 +644,10 @@ void TRestRun::SetVersion()
     sprintf( originDirectory, "%s", get_current_dir_name() );
 
     char buffer[255];
-    sprintf( buffer, "%s", getenv( "REST_PATH" ) );
+    sprintf( buffer, "%s", getenv( "REST_SOURCE" ) );
     if( chdir( buffer ) != 0 )
     {
-        cout << "Error setting REST version! REST_PATH properly defined?" << endl; 
+        cout << "Error setting REST version! REST_SOURCE properly defined?" << endl; 
         return;
     }
 
@@ -774,7 +777,7 @@ void TRestRun::InitFromConfigFile()
    if( rNumberStr == "auto" )
    {
        char runFilename[256];
-       sprintf( runFilename, "%s/inputData/runNumber", getenv("REST_PATH") );
+       sprintf( runFilename, "%s/runNumber", getenv("REST_PATH") );
        if( !fileExists( (string) runFilename ) )
        {
            cout << "REST Warning : File " << runFilename << " does not exist" << endl;
