@@ -122,6 +122,7 @@ void TRestReadout::InitFromConfigFile()
 
         module.SetName( GetFieldValue( "name", moduleDefinition ) );
         module.SetSize( StringTo2DVector( GetFieldValue( "size", moduleDefinition ) ) );
+        module.SetTolerance( StringToDouble( GetFieldValue( "tolerance", moduleDefinition ) ) );
 
         if( debug )
         {
