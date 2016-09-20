@@ -547,7 +547,10 @@ TString TRestRun::ConstructFilename( TString filenameIn )
     TString subRunStr;
     subRunStr.Form( "%05d", this->GetParentRunNumber( ) );
 
+    TString runTypeStr = (TString) RemoveWhiteSpaces( (string) GetRunType() );
+
     outString = Replace( (string) outString, "[RUN]", (string) runStr, 0 );
+    outString = Replace( (string) outString, "[RUNTYPE]", (string) runTypeStr, 0 );
     outString = Replace( (string) outString, "[SUBRUN]", (string) subRunStr, 0 );
     outString = Replace( (string) outString, "[PARENTRUN]", (string) subRunStr, 0 );
     outString = Replace( (string) outString, "[RUNTAG]", (string) this->GetRunTag( ), 0 );
@@ -822,6 +825,7 @@ void TRestRun::InitFromConfigFile()
        FILE *frun = fopen( runFilename, "w" );
        fprintf( frun, "%d\n", fRunNumber+1 );
        fclose( frun );
+
    }
    else if ( rNumberStr == "preserve" )
    {
