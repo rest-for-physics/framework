@@ -7,3 +7,7 @@ target_link_libraries(restManager ${target_libraries})
 add_executable(restPlots restPlots.cxx)
 install(TARGETS restPlots RUNTIME DESTINATION bin)
 target_link_libraries(restPlots ${target_libraries})
+
+add_executable(restIntegrate restIntegrate.cxx)
+install(TARGETS restIntegrate RUNTIME DESTINATION bin)
+target_link_libraries(restIntegrate ${target_libraries})
