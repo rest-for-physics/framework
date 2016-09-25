@@ -56,8 +56,8 @@ int main( int argc, char *argv[] )
 
 	gSystem->Load("libRestCore.so");
 	gSystem->Load("libRestMetadata.so");
-	gSystem->Load("libRestProcesses.so");
 	gSystem->Load("libRestEvents.so");
+	gSystem->Load("libRestProcesses.so");
 
 	if( argc <= 1 ) { PrintHelp(); exit(1); }
 
