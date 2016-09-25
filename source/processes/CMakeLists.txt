@@ -6,7 +6,7 @@ file(GLOB ProcessesGeneral
         )
 set(CLASS_DICT  TRestElectronDiffusionProcess TRestHitsToSignalProcess TRestHitsToTrackProcess TRestFastHitsToTrackProcess TRestSignalToHitsProcess
         TRestTrackReductionProcess TRestTrackPathMinimizationProcess TRestTrackLinearizationProcess
-        TRestAvalancheProcess TRestHitsRotateAndTraslateProcess TRestSmearingProcess)
+        TRestAvalancheProcess TRestHitsRotateAndTraslateProcess TRestSmearingProcess TRestHitsNormalizationProcess)
 foreach (CLASS ${CLASS_DICT})
     set(ROOT_DICT_INCLUDE_DIRS ${RESTCORE_INC} ${ROOT_INCLUDE_DIRS} ${METADATA_GENERAL_INC} ${METADATA_READOUT_INC} ${EVENTS_ANALYSIS_INC} ${EVENTS_GENERAL_INC} ${EVENTS_GEANT4_INC})
     set(ROOT_DICT_INPUT_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/general/inc/${CLASS}.h)

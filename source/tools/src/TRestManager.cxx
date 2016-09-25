@@ -30,6 +30,7 @@ using namespace std;
 
 // hits processes
 #include <TRestSmearingProcess.h>
+#include <TRestHitsNormalizationProcess.h>
 
 // track processes
 #include <TRestTrackReductionProcess.h>
@@ -320,6 +321,9 @@ Int_t TRestManager::LoadProcesses( )
 
         if( processType == "smearingProcess" )
             fRun->AddProcess( new TRestSmearingProcess( ), (string) processesCfgFile, (string) processName );
+
+        if( processType == "hitsNormalizationProcess" )
+            fRun->AddProcess( new TRestHitsNormalizationProcess( ), (string) processesCfgFile, (string) processName );
 
         LoadExternalProcess( processType, (string) processesCfgFile, (string) processName );
 
