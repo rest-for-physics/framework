@@ -65,12 +65,8 @@ void TRestSmearingProcess::Initialize()
 {
     SetName( "smearingProcess" );
 
-    fGas = NULL;
-
     fEnergyRef = 5.9;	
     fResolutionAtEref = 15.0; 
-
-    fWvalue = 0;
 
     fHitsInputEvent = new TRestHitsEvent();
     fHitsOutputEvent = new TRestHitsEvent();
@@ -99,21 +95,6 @@ void TRestSmearingProcess::InitProcess()
     //Start by calling the InitProcess function of the abstract class. 
     //Comment this if you don't want it.
     //TRestEventProcess::InitProcess();
-
-    if( fGas == NULL )
-    {
-        cout << "REST ERRORRRR : Gas has not been initialized" << endl;
-        fWvalue = 1;
-    }
-    else
-    {
-        if( fGasPressure == -1 ) 
-            fGasPressure = fGas->GetPressure();
-        fGas->SetPressure( fGasPressure );
-
-        if( fWvalue == 0 )
-            fWvalue = fGas->GetWvalue();
-    }
 
     cout << __PRETTY_FUNCTION__ << endl;
 
