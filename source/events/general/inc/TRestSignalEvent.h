@@ -76,6 +76,15 @@ class TRestSignalEvent: public TRestEvent {
         Double_t GetMinTime( );
         Double_t GetMaxTime( );
 
+        Double_t GetIntegralWithTime( Int_t startTime, Int_t endTime )
+        {
+            Double_t sum = 0;
+            for( int n = 0; n < GetNumberOfSignals(); n++ )
+                sum += fSignal[n].GetIntegralWithTime( startTime, endTime );
+
+            return sum;
+        }
+
         // Default
         void Initialize();
         void PrintEvent();
