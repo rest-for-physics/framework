@@ -10,18 +10,23 @@
 
 char varName[256];
 char iFile[256];
-Double_t start = 0;
-Double_t endVal = 0;
+
+Double_t Qbb = 2457.83;
+Double_t mean = Qbb;
 
 std::vector <TString> inputFiles;
 
 void PrintHelp( )
 {
     cout << "-----------------------------------------------------------------------------------" << endl;
-    cout << "This program will integrate an existing variable inside TRestAnalysisTree" << endl;
-    cout << "The integration range must be given by argument" << endl;
+    cout << " This program will integrate the variable VAR_NAME, " << endl;
+    cout << " which should be defined inside TRestAnalysisTree" << endl;
     cout << endl;
-    cout << "Usage : ./restIntegrate --v VAR_NAME --s START --e END --f INPUT_FILE" << endl;
+    cout << " If no MEAN_VALUE is specified the Qbb = 2457.84 is used." << endl;
+    cout << endl;
+    cout << " It will proide the integration in 3 different ranges: 0.5\%, 1\% and 3\% FWHM." << endl;
+    cout << endl;
+    cout << " Usage : ./restIntegrateSmearing --v VAR_NAME --m MEAN_VALUE --f INPUT_FILE" << endl;
     cout << "-----------------------------------------------------------------------------------" << endl;
     cout << endl;
     cout << " INPUT_FILE : Input file name. " << endl;
@@ -36,11 +41,21 @@ void PrintHelp( )
 
 int main( int argc, char *argv[] )
 {
+    Double_t fwhm = 0.005;
+    Double_t sigma_1 = mean * fwhm /  (2*TMath::Sqrt( 2 * TMath::Log(2.) )  );
+
+    fwhm = 0.01;
+    Double_t sigma_2 = mean * fwhm /  (2*TMath::Sqrt( 2 * TMath::Log(2.) )  );
+    
+    fwhm = 0.03;
+    Double_t sigma_3 = mean * fwhm /  (2*TMath::Sqrt( 2 * TMath::Log(2.) )  );
+
+
 	int argRint = 1;
 	char *argVRint[3];
 
 	char batch[64], quit[64], appName[64];
-	sprintf ( appName, "restIntegrate" );
+	sprintf ( appName, "restIntegrateSmearing" );
 	sprintf( batch, "%s", "-b" );
 	sprintf( quit, "%s", "-q" );
 
@@ -73,8 +88,7 @@ int main( int argc, char *argv[] )
 					switch ( *argv[i] )
 					{
 						case 'v' : sprintf( varName, "%s", argv[i+1] ); break;
-						case 's' : start = atof ( argv[i+1] ); break;
-						case 'e' : endVal = atof ( argv[i+1] ); break;
+						case 'm' : mean = atof( argv[i+1] ); break;
 						case 'f' : 
 							   {
 								   sprintf( iFile, "%s", argv[i+1] );
@@ -88,10 +102,6 @@ int main( int argc, char *argv[] )
 				}
 			}
 	}
-
-    cout << "Variable name : " << varName << endl;
-    cout << "Integration range : ( " << start << " , " << endVal << " ) " << endl;
-    if( start == -1 || endVal == -1 ) cout << "Start or End integration values not properly defined!!!" << endl;
 
 	std::vector <TString> inputFilesNew;
 	for( unsigned int n = 0; n < inputFiles.size(); n++ )
@@ -120,7 +130,6 @@ int main( int argc, char *argv[] )
 		}
 	}
 
-    Int_t integral = 0;
 	for( unsigned int n = 0; n < inputFilesNew.size(); n++ )
 	{
         TRestRun *run = new TRestRun();
@@ -131,17 +140,49 @@ int main( int argc, char *argv[] )
         run->PrintInfo();
 
         Int_t obsID = run->GetAnalysisTree( )->GetObservableID( varName );
+        cout << "Entries : " << run->GetEntries() << endl;
+        TH1D *h = new TH1D("histo", "histo", 180, Qbb-90, Qbb+90 );
+        Int_t peak = 0;
         for( int i = 0; i < run->GetEntries( ); i++ )
         {
             run->GetEntry(i);
-            Double_t value = run->GetAnalysisTree()->GetObservableValue( obsID );
-            if( value >= start && value < endVal ) integral++;
+            Double_t en = run->GetAnalysisTree()->GetObservableValue( obsID );
+            if( en > Qbb - 5 && en < Qbb + 5 )
+                peak++;
+
+            h->Fill(en);
         }
+
+        h->Draw();
+
+        TF1 *gausFunc = new TF1( "g", "[0]*exp(-0.5*((x-[1])/[2])**2)", 0, 10000 );
+
+        Double_t contribution_1 = 0;
+        Double_t contribution_2 = 0;
+        Double_t contribution_3 = 0;
+        for( int i = 1; i <= h->GetNbinsX(); i++ )
+        {
+            Double_t en = h->GetXaxis()->GetBinCenter(i);
+            Double_t counts = h->GetBinContent(i);
+
+            gausFunc->SetParameters( counts/TMath::Sqrt(2*TMath::Pi())/sigma_1, en, sigma_1 );
+            contribution_1 += gausFunc->Integral( mean-2*sigma_1, mean+2*sigma_1 );
+
+            gausFunc->SetParameters( counts/TMath::Sqrt(2*TMath::Pi())/sigma_2, en, sigma_2 );
+            contribution_2 += gausFunc->Integral( mean-2*sigma_2, mean+2*sigma_2 );
+
+            gausFunc->SetParameters( counts/TMath::Sqrt(2*TMath::Pi())/sigma_3, en, sigma_3 );
+            contribution_3 += gausFunc->Integral( mean-2*sigma_3, mean+2*sigma_3 );
+
+        }
+
+        cout << "FWHM = 0.5% -> " << contribution_1 << endl;
+        cout << "FWHM = 1.% -> " << contribution_2 << endl;
+        cout << "FWHM = 3.% -> " << contribution_3 << endl;
+        cout << "peak : " << peak << endl;
 
         delete run;
 	}
-
-    cout << "Integral : " << integral << endl;
 
 	theApp.Run();
 

@@ -11,3 +11,7 @@ target_link_libraries(restPlots ${target_libraries})
 add_executable(restIntegrate restIntegrate.cxx)
 install(TARGETS restIntegrate RUNTIME DESTINATION bin)
 target_link_libraries(restIntegrate ${target_libraries})
+
+add_executable(restIntegrateSmearing restIntegrateSmearing.cxx)
+install(TARGETS restIntegrateSmearing RUNTIME DESTINATION bin)
+target_link_libraries(restIntegrateSmearing ${target_libraries})
