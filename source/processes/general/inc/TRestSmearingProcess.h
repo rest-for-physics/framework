@@ -45,9 +45,6 @@ class TRestSmearingProcess:public TRestEventProcess {
 
         Double_t fEnergyRef;	///< reference energy for the FWHM
         Double_t fResolutionAtEref; ///< FWHM at Energy of reference
-        Double_t fGasPressure;
-        Double_t fWvalue;
-
 
     public:
         void InitProcess();
@@ -64,7 +61,6 @@ class TRestSmearingProcess:public TRestEventProcess {
 
             std::cout << " reference energy (Eref): " << fEnergyRef << std::endl;
             std::cout << " resolution at Eref : " << fResolutionAtEref << std::endl;
-            std::cout << " W value : " << fWvalue << " eV" << std::endl;
 
             EndPrintProcess();
 

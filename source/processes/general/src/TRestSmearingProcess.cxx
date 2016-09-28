@@ -131,7 +131,7 @@ TRestEvent* TRestSmearingProcess::ProcessEvent( TRestEvent *evInput )
 
     fHitsInputEvent = (TRestHitsEvent *) evInput;
 
-    Double_t eDep = fHitsInputEvent->GetTotalEnergy() * fWvalue / 1000.0;
+    Double_t eDep = fHitsInputEvent->GetTotalEnergy();
     Double_t eRes = fResolutionAtEref * TMath::Sqrt(fEnergyRef / eDep) / 2.35 / 100.0;
 
     Double_t gain = fRandom->Gaus(1.0, eRes);
@@ -161,8 +161,6 @@ void TRestSmearingProcess::EndProcess()
 //______________________________________________________________________________
 void TRestSmearingProcess::InitFromConfigFile( )
 {
-    fGasPressure = StringToDouble( GetParameter( "gasPressure", "-1" ) );
-    fEnergyRef = GetDblParameterWithUnits( "energyReference"  );
+    fEnergyRef = StringToDouble( GetParameter( "energyReference"  ) );
     fResolutionAtEref = StringToDouble( GetParameter( "resolutionReference" ) );
-    fWvalue = GetDblParameterWithUnits( "Wvalue" , 0) * REST_Units::eV;
 }
