@@ -15,3 +15,7 @@ target_link_libraries(restIntegrate ${target_libraries})
 add_executable(restIntegrateSmearing restIntegrateSmearing.cxx)
 install(TARGETS restIntegrateSmearing RUNTIME DESTINATION bin)
 target_link_libraries(restIntegrateSmearing ${target_libraries})
+
+add_executable(restCreateHisto restCreateHisto.cxx)
+install(TARGETS restCreateHisto RUNTIME DESTINATION bin)
+target_link_libraries(restCreateHisto ${target_libraries})
