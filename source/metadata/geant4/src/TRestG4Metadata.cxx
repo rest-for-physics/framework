@@ -85,7 +85,9 @@ void TRestG4Metadata::InitFromConfigFile()
     Double_t defaultTime = 1. / REST_Units::s;
     fSubEventTimeDelay = GetDblParameterWithUnits( "subEventTimeDelay", defaultTime );
 
-
+    fNEvents = StringToInteger( GetParameter( "Nevents" ) );
+    fActivity = StringToDouble( GetParameter( "activity" ) );
+    fMass = StringToDouble( GetParameter( "mass" ) );
 
     ReadGenerator();
 
