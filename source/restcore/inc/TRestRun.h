@@ -63,15 +63,16 @@ class TRestRun:public TRestMetadata {
         Double_t fStartTime;            ///< Event absolute starting time/date (unix timestamp)
         Double_t fEndTime;              ///< Event absolute starting time/date (unix timestamp)
 
+        Bool_t fPureAnalysisOutput;
+        Bool_t fContainsEventTree;
+
+#ifndef __CINT__
+
         std::vector <TRestMetadata*> fMetadata;
         std::vector <TRestEventProcess*> fEventProcess;
         std::vector <TRestMetadata*> fHistoricMetadata;  // Open input file should store the metadata (and historic) information in historic metadata
         std::vector <TRestEventProcess*> fHistoricEventProcess;
 
-        Bool_t fPureAnalysisOutput;
-        Bool_t fContainsEventTree;
-
-#ifndef __CINT__
         Bool_t fSkipEventTree;
         Bool_t fOverwrite;
 
@@ -213,10 +214,10 @@ class TRestRun:public TRestMetadata {
 
         TRestMetadata *GetMetadata( TString name );
         TRestMetadata *GetMetadataClass( TString className );
-        void ImportMetadata( TString rootFile, TString name );
+        void ImportMetadata( TString rootFile, TString name, Bool_t store = true );
 
         void SetRunNumber( Int_t number ) { fRunNumber = number; }
-	void SetParentRunNumber( Int_t number ) { fParentRunNumber = number; }
+        void SetParentRunNumber( Int_t number ) { fParentRunNumber = number; }
 
         void SetRunType( TString type )
         {

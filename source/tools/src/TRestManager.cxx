@@ -339,28 +339,35 @@ void TRestManager::AddReadout( string readoutDefinition )
     TRestReadout *readout = (TRestReadout *) fRun->GetMetadataClass( "TRestReadout" );
 
     Bool_t fOverwrite = false;
+    Bool_t fStore = true;
     if( GetFieldValue( "overwrite", readoutDefinition ) == "true" ) fOverwrite = true;
+    if( GetFieldValue( "store", readoutDefinition ) == "false" ) fStore = false;
 
     if( readout != NULL && fOverwrite )
     {
+        readout->PrintMetadata();
         cout << "Overwritting a readout is not yet IMPLEMENTED." << endl;
         cout << "Please send a request to rest-dev@cern.ch if necessary" << endl;
         cout << "The existing readout will be used." << endl;
-        readout->PrintMetadata();
         GetChar();
     } 
     
-    if( readout != NULL ) return;
+    if( readout != NULL )
+    {
+        if( !fStore ) { readout->DoNotStore(); }
+        return;
+    }
 
     TString readoutFile = GetParameter( "readoutFile" );
     TString readoutName = GetFieldValue( "name", readoutDefinition );
 
     Bool_t isRoot = isRootFile( ((string) readoutFile).c_str() );
 
-    if( isRoot ) fRun->ImportMetadata( readoutFile, readoutName );
+    if( isRoot ) fRun->ImportMetadata( readoutFile, readoutName, fStore );
     else
     {
         readout = new TRestReadout( readoutFile.Data(), (string) readoutName );
+        if( !fStore ) readout->DoNotStore();
         fRun->AddMetadata( readout );
     }
 

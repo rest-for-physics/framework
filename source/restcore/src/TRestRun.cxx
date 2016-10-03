@@ -305,6 +305,7 @@ void TRestRun::AddProcess( TRestEventProcess *process, string cfgFilename, strin
     {
         meta->PrintMetadata();
         this->AddMetadata( meta );
+        GetChar();
     }
 
     fEventProcess.push_back( process ); 
@@ -446,7 +447,7 @@ TRestMetadata *TRestRun::GetMetadataClass( TString className )
     return NULL;
 }
 
-void TRestRun::ImportMetadata( TString rootFile, TString name )
+void TRestRun::ImportMetadata( TString rootFile, TString name, Bool_t store )
 {
     if( !fileExists( rootFile.Data() ) )
     {
@@ -466,6 +467,8 @@ void TRestRun::ImportMetadata( TString rootFile, TString name )
         f->Close();
         exit(1);
     }
+
+    if( !store ) meta->DoNotStore( );
 
     this->AddMetadata( meta );
     f->Close();
@@ -600,9 +603,12 @@ void TRestRun::CloseOutputFile( )
     {
         for( unsigned int i = 0; i < fMetadata.size(); i++ )
         {
-            cout << "Writting metadata (" << fMetadata[i]->GetName() << ") : " << fMetadata[i]->GetTitle() << endl;
-            sprintf( tmpString, "M%d. %s", i,  fMetadata[i]->GetName() );
-            fMetadata[i]->Write( tmpString );
+            if( fMetadata[i]->Store() )
+            {
+                cout << "Writting metadata (" << fMetadata[i]->GetName() << ") : " << fMetadata[i]->GetTitle() << endl;
+                sprintf( tmpString, "M%d. %s", i,  fMetadata[i]->GetName() );
+                fMetadata[i]->Write( tmpString );
+            }
         }
     }
 
@@ -610,9 +616,12 @@ void TRestRun::CloseOutputFile( )
     {
         for( unsigned int i = 0; i < fHistoricMetadata.size(); i++ )
         {
-            cout << "Writting historic metadata (" << fHistoricMetadata[i]->GetName() << ") : " << fHistoricMetadata[i]->GetTitle() << endl;
-            sprintf( tmpString, "HM%d. %s", i,  fHistoricMetadata[i]->GetName() );
-            fHistoricMetadata[i]->Write( tmpString );
+            if( fHistoricMetadata[i]->Store() )
+            {
+                cout << "Writting historic metadata (" << fHistoricMetadata[i]->GetName() << ") : " << fHistoricMetadata[i]->GetTitle() << endl;
+                sprintf( tmpString, "HM%d. %s", i,  fHistoricMetadata[i]->GetName() );
+                fHistoricMetadata[i]->Write( tmpString );
+            }
         }
     }
 
