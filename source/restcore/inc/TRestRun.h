@@ -57,21 +57,20 @@ class TRestRun:public TRestMetadata {
         TString fOutputFilename;
         TString fInputFilename;
         TString fVersion;
-        
-        Int_t fRunEvents;
 
         Double_t fStartTime;            ///< Event absolute starting time/date (unix timestamp)
         Double_t fEndTime;              ///< Event absolute starting time/date (unix timestamp)
+
+        Bool_t fPureAnalysisOutput;
+        Bool_t fContainsEventTree;
+
+#ifndef __CINT__
 
         std::vector <TRestMetadata*> fMetadata;
         std::vector <TRestEventProcess*> fEventProcess;
         std::vector <TRestMetadata*> fHistoricMetadata;  // Open input file should store the metadata (and historic) information in historic metadata
         std::vector <TRestEventProcess*> fHistoricEventProcess;
 
-        Bool_t fPureAnalysisOutput;
-        Bool_t fContainsEventTree;
-
-#ifndef __CINT__
         Bool_t fSkipEventTree;
         Bool_t fOverwrite;
 
@@ -143,7 +142,6 @@ class TRestRun:public TRestMetadata {
         TString GetRunUser() { return fRunUser; }
         TString GetRunTag() { return fRunTag; }
         TString GetRunDescription() { return fRunDescription; }
-        Int_t GetNumberOfEvents() { return fRunEvents; }
         Double_t GetStartTimestamp() { return fStartTime; }
         Double_t GetEndTimestamp() { return fEndTime; }
         TString GetExperimentName() { return fExperimentName; }
@@ -213,10 +211,10 @@ class TRestRun:public TRestMetadata {
 
         TRestMetadata *GetMetadata( TString name );
         TRestMetadata *GetMetadataClass( TString className );
-        void ImportMetadata( TString rootFile, TString name );
+        void ImportMetadata( TString rootFile, TString name, Bool_t store = true );
 
         void SetRunNumber( Int_t number ) { fRunNumber = number; }
-	void SetParentRunNumber( Int_t number ) { fParentRunNumber = number; }
+        void SetParentRunNumber( Int_t number ) { fParentRunNumber = number; }
 
         void SetRunType( TString type )
         {
@@ -238,11 +236,12 @@ class TRestRun:public TRestMetadata {
         }
 
         void SetRunDescription( TString description ) { fRunDescription = description; }
-        void SetNumberOfEvents( Int_t nEvents ) { fRunEvents = nEvents; } 
         void SetEndTimeStamp( Double_t tStamp ) { fEndTime = tStamp; }
 
         void SetInputFileName( TString fN ){ fInputFilename = fN; }
         void SetOutputFileName( TString fN ){ fOutputFilename = fN; }
+
+        TString ConstructFilename( TString filenameIn );
 
         TString GetDateFormatted( Double_t runTime );
         TString GetDateForFilename( Double_t runTime );

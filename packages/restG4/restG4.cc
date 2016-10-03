@@ -219,7 +219,7 @@ int main(int argc,char** argv) {
     visManager->Initialize();
 #endif
 
-    N_events = restRun->GetNumberOfEvents();
+    N_events = restG4Metadata->GetNumberOfEvents();
     // We pass the volume definition to Stepping action so that it records gammas entering in
     // We pass also the biasing spectrum so that gammas energies entering the volume are recorded
     if( biasing )

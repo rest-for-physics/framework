@@ -1,30 +1,37 @@
 #include <TSystem.h>
 #include <TRint.h>
 #include <TApplication.h>
-#include <TRestAnalysisPlot.h>
+#include <TMath.h>
+#include <TF1.h>
+#include <TH1D.h>
+#include <TCanvas.h>
+#include <TRestRun.h>
 
-char cfgFileName[256];
-char sectionName[256];
+
+char varName[256];
 char iFile[256];
+char rootFileName[256];
+char histoName[256];
+
+int startVal = 0;
+int endVal = 1000;
+int bins = 1000;
+Double_t normFactor = 1;
 
 std::vector <TString> inputFiles;
 
 void PrintHelp( )
 {
+    cout << "-----------------------------------------------------------------------------------" << endl;
+    cout << " This program will produce a histogram using VAR_NAME, " << endl;
+    cout << " which should be defined inside TRestAnalysisTree" << endl;
     cout << endl;
-    cout << "Usage : ./restPlots --c CONFIG_FILE --n SECTION_NAME --f INPUT_FILE" << endl;
+    cout << " The histogram will be added to an existing root file (or will be created)" << endl;
     cout << endl;
+    cout << " Usage : ./restCreateHisto --v VAR_NAME --o ROOT_FILE --n HISTO_NAME --b BINS --s START --e END --f INPUT_FILEs" << endl;
     cout << "-----------------------------------------------------------------------------------" << endl;
-    cout << " CONFIG_FILE : RML configuration file containing at least one analysisPlot section." << endl;
-    cout << " If config file is not provided the configuration file will be taken from " << endl;
-    cout << " the environment variable REST_CONFIGFILE. If this last is not defined " << endl;
-    cout << " the config file will be taken from REST_PATH/config/template/plots.rml" << endl;
-    cout << "-----------------------------------------------------------------------------------" << endl;
-    cout << " SECTION_NAME : Name of the manager section. If not defined, the first " << endl;
-    cout << " section inside the config file will be taken. " << endl;
-    cout << "-----------------------------------------------------------------------------------" << endl;
-    cout << " INPUT_FILE : Input file name. It can be also specified from the analysisPlot " << endl;
-    cout << " section using addFile key. " << endl;
+    cout << endl;
+    cout << " INPUT_FILE : Input file name. " << endl;
     cout << endl;
     cout << " You can also specify a file input range using the shell *,? characters as in ls." << endl;
     cout << " For example : \"Run_simulation_*.root\". " << endl;
@@ -40,7 +47,7 @@ int main( int argc, char *argv[] )
 	char *argVRint[3];
 
 	char batch[64], quit[64], appName[64];
-	sprintf ( appName, "restPlots" );
+	sprintf ( appName, "restCreateHisto" );
 	sprintf( batch, "%s", "-b" );
 	sprintf( quit, "%s", "-q" );
 
@@ -59,6 +66,9 @@ int main( int argc, char *argv[] )
 	gSystem->Load("libRestEvents.so");
 	gSystem->Load("libRestProcesses.so");
 
+    sprintf( rootFileName, "%s", "default.root" );
+    sprintf( histoName, "%s", "default" );
+
 	if( argc <= 1 ) { PrintHelp(); exit(1); }
 
 	if( argc >= 2 )
@@ -70,11 +80,14 @@ int main( int argc, char *argv[] )
 				if( *argv[i] == '-')
 				{
 					argv[i]++;
-	//				printf( "arg : %s\n", argv[i+1] );
 					switch ( *argv[i] )
 					{
-						case 'c' : sprintf( cfgFileName, "%s", argv[i+1] ); break;
-						case 'n' : sprintf( sectionName, "%s", argv[i+1] ); break;
+                        case 'o' : sprintf( rootFileName, "%s", argv[i+1] ); break;
+                        case 'n' : sprintf( histoName, "%s", argv[i+1] ); break;
+                        case 's' : startVal = atof( argv[i+1] ); break;
+                        case 'e' : endVal = atof( argv[i+1] ); break;
+                        case 'b' : bins = atoi( argv[i+1] ); break;
+						case 'v' : sprintf( varName, "%s", argv[i+1] ); break;
 						case 'f' : 
 							   {
 								   sprintf( iFile, "%s", argv[i+1] );
@@ -82,23 +95,12 @@ int main( int argc, char *argv[] )
 								   inputFiles.push_back( iFileStr );
 								   break;
 							   }
+                        case 'F' : normFactor = atof( argv[i+1] ); break; 
 						case 'h' : PrintHelp(); exit(1);
 						default : ;
 					}
 				}
 			}
-	}
-
-	TString cfgFile = cfgFileName;
-	if( cfgFile == "" )
-	{
-		cfgFile = getenv( "REST_CONFIGFILE" );
-
-		if( cfgFile == "" )
-		{
-			TString restPath = getenv( "REST_PATH" );
-			cfgFile = restPath + "/config/template/plots.rml";
-		}
 	}
 
 	std::vector <TString> inputFilesNew;
@@ -128,15 +130,37 @@ int main( int argc, char *argv[] )
 		}
 	}
 
-	TRestAnalysisPlot *anPlot = new TRestAnalysisPlot( cfgFileName, sectionName );
+    TH1D *h = new TH1D( histoName, histoName, bins, startVal, endVal );
 
 	for( unsigned int n = 0; n < inputFilesNew.size(); n++ )
 	{
-		cout << "Adding file : " << inputFilesNew[n] << endl;
-		anPlot->AddFile( inputFilesNew[n] );
+        TRestRun *run = new TRestRun();
+
+        run->OpenInputFile( inputFilesNew[n] );
+
+        run->SkipEventTree();
+        run->PrintInfo();
+
+        Int_t obsID = run->GetAnalysisTree( )->GetObservableID( varName );
+
+        for( int i = 0; i < run->GetEntries( ); i++ )
+        {
+            run->GetEntry(i);
+            Double_t val = run->GetAnalysisTree()->GetObservableValue( obsID );
+            if( val >= startVal && val <= endVal )
+                h->Fill(val);
+        }
+
+        delete run;
 	}
 
-	anPlot->PlotCombinedCanvas( );
+    h->Scale( normFactor );
+
+    TFile *f = new TFile( rootFileName, "update" );
+    h->Write( histoName );
+    f->Close();
+
+    cout << "Written histogram " << histoName << " into " << rootFileName << endl;
 
 	theApp.Run();
 

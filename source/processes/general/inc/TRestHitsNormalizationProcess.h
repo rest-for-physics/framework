@@ -5,7 +5,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestSmearingProcess.h
+///             TRestHitsNormalizationProcess.h
 ///
 ///             feb 2016:   First concept
 ///                 Created as part of the conceptualization of existing REST 
@@ -14,17 +14,14 @@
 ///_______________________________________________________________________________
 
 
-#ifndef RestCore_TRestSmearingProcess
-#define RestCore_TRestSmearingProcess
+#ifndef RestCore_TRestHitsNormalizationProcess
+#define RestCore_TRestHitsNormalizationProcess
 
-#include <TRestGas.h>
 #include <TRestHitsEvent.h>
-
-#include <TRandom3.h>
 
 #include "TRestEventProcess.h"
 
-class TRestSmearingProcess:public TRestEventProcess {
+class TRestHitsNormalizationProcess:public TRestEventProcess {
     private:
 
 #ifndef __CINT__
@@ -32,7 +29,6 @@ class TRestSmearingProcess:public TRestEventProcess {
         TRestHitsEvent *fHitsInputEvent;
         TRestHitsEvent *fHitsOutputEvent;
 
-        TRandom3 *fRandom;
 #endif
 
         void InitFromConfigFile();
@@ -41,10 +37,9 @@ class TRestSmearingProcess:public TRestEventProcess {
 
     protected:
         //add here the members of your event process
-        TRestGas *fGas;
 
-        Double_t fEnergyRef;	///< reference energy for the FWHM
-        Double_t fResolutionAtEref; ///< FWHM at Energy of reference
+        Double_t fFactor;
+
 
     public:
         void InitProcess();
@@ -59,8 +54,7 @@ class TRestSmearingProcess:public TRestEventProcess {
 
             BeginPrintProcess();
 
-            std::cout << " reference energy (Eref): " << fEnergyRef << std::endl;
-            std::cout << " resolution at Eref : " << fResolutionAtEref << std::endl;
+            std::cout << " Renormalization factor : " << fFactor << std::endl;
 
             EndPrintProcess();
 
@@ -68,18 +62,15 @@ class TRestSmearingProcess:public TRestEventProcess {
 
         TRestMetadata *GetProcessMetadata( ) { return NULL; }
 
-        TString GetProcessName() { return (TString) "smearingProcess"; }
-
-        Double_t GetEnergyReference() { return fEnergyRef; }
-        Double_t GetResolutionReference() { return fResolutionAtEref; }
+        TString GetProcessName() { return (TString) "hitsNormalizationProcess"; }
 
         //Constructor
-        TRestSmearingProcess();
-        TRestSmearingProcess( char *cfgFileName );
+        TRestHitsNormalizationProcess();
+        TRestHitsNormalizationProcess( char *cfgFileName );
         //Destructor
-        ~TRestSmearingProcess();
+        ~TRestHitsNormalizationProcess();
 
-        ClassDef(TRestSmearingProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+        ClassDef(TRestHitsNormalizationProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
 };
 #endif
 

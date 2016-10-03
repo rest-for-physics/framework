@@ -305,6 +305,7 @@ void TRestRun::AddProcess( TRestEventProcess *process, string cfgFilename, strin
     {
         meta->PrintMetadata();
         this->AddMetadata( meta );
+        GetChar();
     }
 
     fEventProcess.push_back( process ); 
@@ -446,7 +447,7 @@ TRestMetadata *TRestRun::GetMetadataClass( TString className )
     return NULL;
 }
 
-void TRestRun::ImportMetadata( TString rootFile, TString name )
+void TRestRun::ImportMetadata( TString rootFile, TString name, Bool_t store )
 {
     if( !fileExists( rootFile.Data() ) )
     {
@@ -466,6 +467,8 @@ void TRestRun::ImportMetadata( TString rootFile, TString name )
         f->Close();
         exit(1);
     }
+
+    if( !store ) meta->DoNotStore( );
 
     this->AddMetadata( meta );
     f->Close();
@@ -495,11 +498,24 @@ void TRestRun::OpenInputFile( TString fName )
     fOutputFilename = fileName; // We take this value from the configuration (not from TRestRun)
 
     // Transfering metadata to historic
-    for( size_t i = 0; i < fMetadata.size(); i++ )
-        fHistoricMetadata.push_back( fMetadata[i] );
+	TIter nextkey( fInputFile->GetListOfKeys() );
+	while ( (key = (TKey*) nextkey() ) )
+	{
+		TString cName (key->GetClassName());
+
+        if ( cName.Contains("Metadata") )
+            fHistoricMetadata.push_back( (TRestMetadata *) fInputFile->Get( key->GetName() ) );
+	}
     fMetadata.clear();
-    for( size_t i = 0; i < fEventProcess.size(); i++ )
-        fHistoricEventProcess.push_back( fEventProcess[i] );
+
+	nextkey = fInputFile->GetListOfKeys();
+	while ( (key = (TKey*) nextkey() ) )
+	{
+		TString cName (key->GetClassName());
+
+        if ( cName.Contains("Process") )
+            fHistoricEventProcess.push_back( (TRestEventProcess *) fInputFile->Get(  key->GetName() ) );
+	}
     fEventProcess.clear();
 
     if( GetObjectKeyByName( "TRestAnalysisTree" ) == NULL )
@@ -537,6 +553,30 @@ void TRestRun::OpenInputFile( TString fName, TString cName )
     */
 }
 
+TString TRestRun::ConstructFilename( TString filenameIn )
+{
+    TString outString = filenameIn;
+
+    TString runStr;
+    runStr.Form( "%05d", GetRunNumber() );
+
+    TString subRunStr;
+    subRunStr.Form( "%05d", this->GetParentRunNumber( ) );
+
+    TString runTypeStr = (TString) RemoveWhiteSpaces( (string) GetRunType() );
+
+    outString = Replace( (string) outString, "[RUN]", (string) runStr, 0 );
+    outString = Replace( (string) outString, "[RUNTYPE]", (string) runTypeStr, 0 );
+    outString = Replace( (string) outString, "[SUBRUN]", (string) subRunStr, 0 );
+    outString = Replace( (string) outString, "[PARENTRUN]", (string) subRunStr, 0 );
+    outString = Replace( (string) outString, "[RUNTAG]", (string) this->GetRunTag( ), 0 );
+    outString = Replace( (string) outString, "[VERSION]", (string) this->GetVersion( ), 0 );
+    outString = Replace( (string) outString, "[EXPERIMENT]", (string) this->GetExperimentName( ), 0 );
+    outString = Replace( (string) outString, "[USER]", (string) this->GetRunUser( ), 0 );
+
+    return outString;
+}
+
 
 void TRestRun::OpenOutputFile( )
 {
@@ -545,7 +585,7 @@ void TRestRun::OpenOutputFile( )
     SetVersion();
 
     if( fOutputFilename == "default" ) SetRunFilenameAndIndex();
-    else fOutputFilename = GetDataPath() + "/" + fOutputFilename;
+    else fOutputFilename = GetDataPath() + "/" + ConstructFilename( fOutputFilename );
 
     if( GetVerboseLevel() == REST_Info ) cout << "Opening file : " << fOutputFilename << endl;
 
@@ -576,9 +616,12 @@ void TRestRun::CloseOutputFile( )
     {
         for( unsigned int i = 0; i < fMetadata.size(); i++ )
         {
-            cout << "Writting metadata (" << fMetadata[i]->GetName() << ") : " << fMetadata[i]->GetTitle() << endl;
-            sprintf( tmpString, "M%d. %s", i,  fMetadata[i]->GetName() );
-            fMetadata[i]->Write( tmpString );
+            if( fMetadata[i]->Store() )
+            {
+                cout << "Writting metadata (" << fMetadata[i]->GetName() << ") : " << fMetadata[i]->GetTitle() << endl;
+                sprintf( tmpString, "M%d. %s", i,  fMetadata[i]->GetName() );
+                fMetadata[i]->Write( tmpString );
+            }
         }
     }
 
@@ -586,9 +629,12 @@ void TRestRun::CloseOutputFile( )
     {
         for( unsigned int i = 0; i < fHistoricMetadata.size(); i++ )
         {
-            cout << "Writting historic metadata (" << fHistoricMetadata[i]->GetName() << ") : " << fHistoricMetadata[i]->GetTitle() << endl;
-            sprintf( tmpString, "HM%d. %s", i,  fHistoricMetadata[i]->GetName() );
-            fHistoricMetadata[i]->Write( tmpString );
+            if( fHistoricMetadata[i]->Store() )
+            {
+                cout << "Writting historic metadata (" << fHistoricMetadata[i]->GetName() << ") : " << fHistoricMetadata[i]->GetTitle() << endl;
+                sprintf( tmpString, "HM%d. %s", i,  fHistoricMetadata[i]->GetName() );
+                fHistoricMetadata[i]->Write( tmpString );
+            }
         }
     }
 
@@ -639,38 +685,7 @@ void TRestRun::CloseOutputFile( )
 
 void TRestRun::SetVersion()
 {
-
-    char originDirectory[255];
-    sprintf( originDirectory, "%s", get_current_dir_name() );
-
-    char buffer[255];
-    sprintf( buffer, "%s", getenv( "REST_SOURCE" ) );
-    if( chdir( buffer ) != 0 )
-    {
-        cout << "Error setting REST version! REST_SOURCE properly defined?" << endl; 
-        return;
-    }
-
-    // Reading the version of libcore.so
-    FILE *fV = popen("git rev-parse --verify HEAD", "r");
-
-    int nbytes;
-    string versionStr;
-    while ((nbytes = fread(buffer, 1, 255, fV)) > 0)
-    {
-        versionStr = buffer;
-        versionStr = versionStr.substr(0, 8 );
-    }
-
-    pclose( fV );
-
-    if( chdir( originDirectory ) != 0 )
-    {
-        cout << "REST ERROR. TRestRun::SetVersion. Internal error. Report a bug at rest-dev@cern.ch" << endl;
-        exit(1);
-    }
-
-    fVersion = versionStr;
+    fVersion = "2.1.0";
 }
 
 
@@ -760,8 +775,6 @@ void TRestRun::InitFromConfigFile()
     cout << __PRETTY_FUNCTION__ << endl;
 
    // Initialize the metadata members from a configfile
-   fRunEvents = StringToInteger( GetParameter( "Nevents" ) );
-
    fRunUser = GetParameter( "user" );
 
    fRunType = GetParameter( "runType" );
@@ -801,6 +814,7 @@ void TRestRun::InitFromConfigFile()
        FILE *frun = fopen( runFilename, "w" );
        fprintf( frun, "%d\n", fRunNumber+1 );
        fclose( frun );
+
    }
    else if ( rNumberStr == "preserve" )
    {
@@ -860,7 +874,6 @@ void TRestRun::PrintInfo( )
         cout << "Run tag : " << GetRunTag() << endl;
         cout << "Run user : " << GetRunUser() << endl;
         cout << "Run description : " << GetRunDescription() << endl;
-        cout << "Run events : " << GetNumberOfEvents() << endl;
         cout << "Start timestamp : " << GetStartTimestamp() << endl;
         cout << "Date/Time : " << GetDateFormatted( GetStartTimestamp() ) << " / " << GetTime( GetStartTimestamp() ) << endl;
         cout << "End timestamp : " << GetEndTimestamp() << endl;
@@ -973,7 +986,9 @@ Bool_t TRestRun::GetNextEvent( )
     {
         if( fEventProcess.front()->GetOutputEvent() == NULL )
         {
-            SetNumberOfEvents( fCurrentEvent );
+            // TODO : This was done to set the number of events in TRestRun from the raw data
+            // In future : We will have to put this number in TRestRawToSignalProcess
+            //SetNumberOfEvents( fCurrentEvent );
             return kFALSE;
         }
         fCurrentEvent++;

@@ -91,6 +91,9 @@ class TRestReadoutModule : public TObject {
         void SetRotation( Double_t rot ) { fModuleRotation = rot; }
         void SetName( TString name ) { fModuleName = name; }
 
+        void SetTolerance( Double_t tol ) { fTolerance = tol; }
+        Double_t GetTolerance( ) { return fTolerance; }
+
         void SetMinMaxDaqIDs( );
         Int_t GetMinDaqID( ) { return fMininimumDaqId; }
         Int_t GetMaxDaqID( ) { return fMaximumDaqId; }

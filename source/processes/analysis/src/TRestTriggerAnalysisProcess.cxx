@@ -110,39 +110,47 @@ TRestEvent* TRestTriggerAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     for( unsigned int i = 0; i < fIntegralObservables.size(); i++ )
         integral.push_back(0);
 
-    TRestSignal *sgnl = fSignalEvent->GetSignal( 0 );
+    Int_t maxT = fSignalEvent->GetMaxTime();
+    Int_t minT = fSignalEvent->GetMinTime();
 
-    Int_t maxT = sgnl->GetMaxTime();
-    Int_t minT = sgnl->GetMinTime();
+    if( fSignalEvent->GetNumberOfSignals() <= 0 ) return fSignalEvent;
+
+    Int_t triggerStarts = 0;
 
     unsigned int counter = 0;
     unsigned int nObs = fIntegralObservables.size();
     for( int i = minT-256; i <= maxT && counter < nObs ; i++ )
     {
-        Double_t en = sgnl->GetIntegralWithTime( i, i+256 ) * fW / 1000.;
+        Double_t en = fSignalEvent->GetIntegralWithTime( i, i+256 );
 
         for( unsigned int n = 0; n < nObs; n++ )
             if ( integral[n] == 0 && en > fThreshold[n] )
-                integral[n] = sgnl->GetIntegralWithTime( i, i+512 );
+            {
+                // We define the trigger start only for the first threshold definition
+                if( n == 0 ) triggerStarts = i;
+                integral[n] = fSignalEvent->GetIntegralWithTime( i, i+512 );
+            }
+
 
         // Break condition
         counter = 0;
         for( unsigned int n = 0; n < nObs; n++ )
             if( integral[n] > 0 ) counter++;
     }
-
-    
+ 
     for( unsigned int i = 0; i < nObs ; i++ )
     {
         obsName = this->GetName() + (TString) "." + fIntegralObservables[i];
-        fAnalysisTree->SetObservableValue( obsName, integral[i] * fW / 1000. );
+        fAnalysisTree->SetObservableValue( obsName, integral[i] );
     }
 
-    Double_t full = sgnl->GetIntegralWithTime( minT-1, maxT+1 );
+    Double_t full = fSignalEvent->GetIntegralWithTime( minT-1, maxT+1 );
 
     obsName = this->GetName() + (TString) ".RawIntegral";
-    fAnalysisTree->SetObservableValue( obsName, full * fW / 1000. );
+    fAnalysisTree->SetObservableValue( obsName, full );
 
+    obsName = this->GetName() + (TString) ".TriggerStarts";
+    fAnalysisTree->SetObservableValue( obsName, triggerStarts );
 
     return fSignalEvent;
 }

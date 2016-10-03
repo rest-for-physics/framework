@@ -1,30 +1,31 @@
 #include <TSystem.h>
 #include <TRint.h>
 #include <TApplication.h>
-#include <TRestAnalysisPlot.h>
+#include <TMath.h>
+#include <TF1.h>
+#include <TH1D.h>
+#include <TCanvas.h>
+#include <TRestRun.h>
+#include <TRestG4Metadata.h>
 
-char cfgFileName[256];
-char sectionName[256];
+
+char varName[256];
 char iFile[256];
+Double_t start = 0;
+Double_t endVal = 0;
 
 std::vector <TString> inputFiles;
 
 void PrintHelp( )
 {
+    cout << "-----------------------------------------------------------------------------------" << endl;
+    cout << "This program will integrate an existing variable inside TRestAnalysisTree" << endl;
+    cout << "The integration range must be given by argument" << endl;
     cout << endl;
-    cout << "Usage : ./restPlots --c CONFIG_FILE --n SECTION_NAME --f INPUT_FILE" << endl;
+    cout << "Usage : ./restIntegrate --v VAR_NAME --s START --e END --f INPUT_FILE" << endl;
+    cout << "-----------------------------------------------------------------------------------" << endl;
     cout << endl;
-    cout << "-----------------------------------------------------------------------------------" << endl;
-    cout << " CONFIG_FILE : RML configuration file containing at least one analysisPlot section." << endl;
-    cout << " If config file is not provided the configuration file will be taken from " << endl;
-    cout << " the environment variable REST_CONFIGFILE. If this last is not defined " << endl;
-    cout << " the config file will be taken from REST_PATH/config/template/plots.rml" << endl;
-    cout << "-----------------------------------------------------------------------------------" << endl;
-    cout << " SECTION_NAME : Name of the manager section. If not defined, the first " << endl;
-    cout << " section inside the config file will be taken. " << endl;
-    cout << "-----------------------------------------------------------------------------------" << endl;
-    cout << " INPUT_FILE : Input file name. It can be also specified from the analysisPlot " << endl;
-    cout << " section using addFile key. " << endl;
+    cout << " INPUT_FILE : Input file name. " << endl;
     cout << endl;
     cout << " You can also specify a file input range using the shell *,? characters as in ls." << endl;
     cout << " For example : \"Run_simulation_*.root\". " << endl;
@@ -40,7 +41,7 @@ int main( int argc, char *argv[] )
 	char *argVRint[3];
 
 	char batch[64], quit[64], appName[64];
-	sprintf ( appName, "restPlots" );
+	sprintf ( appName, "restIntegrate" );
 	sprintf( batch, "%s", "-b" );
 	sprintf( quit, "%s", "-q" );
 
@@ -70,11 +71,11 @@ int main( int argc, char *argv[] )
 				if( *argv[i] == '-')
 				{
 					argv[i]++;
-	//				printf( "arg : %s\n", argv[i+1] );
 					switch ( *argv[i] )
 					{
-						case 'c' : sprintf( cfgFileName, "%s", argv[i+1] ); break;
-						case 'n' : sprintf( sectionName, "%s", argv[i+1] ); break;
+						case 'v' : sprintf( varName, "%s", argv[i+1] ); break;
+						case 's' : start = atof ( argv[i+1] ); break;
+						case 'e' : endVal = atof ( argv[i+1] ); break;
 						case 'f' : 
 							   {
 								   sprintf( iFile, "%s", argv[i+1] );
@@ -89,17 +90,9 @@ int main( int argc, char *argv[] )
 			}
 	}
 
-	TString cfgFile = cfgFileName;
-	if( cfgFile == "" )
-	{
-		cfgFile = getenv( "REST_CONFIGFILE" );
-
-		if( cfgFile == "" )
-		{
-			TString restPath = getenv( "REST_PATH" );
-			cfgFile = restPath + "/config/template/plots.rml";
-		}
-	}
+    cout << "Variable name : " << varName << endl;
+    cout << "Integration range : ( " << start << " , " << endVal << " ) " << endl;
+    if( start == -1 || endVal == -1 ) cout << "Start or End integration values not properly defined!!!" << endl;
 
 	std::vector <TString> inputFilesNew;
 	for( unsigned int n = 0; n < inputFiles.size(); n++ )
@@ -128,15 +121,34 @@ int main( int argc, char *argv[] )
 		}
 	}
 
-	TRestAnalysisPlot *anPlot = new TRestAnalysisPlot( cfgFileName, sectionName );
-
+    Int_t totalEntries = 0;
+    Int_t integral = 0;
 	for( unsigned int n = 0; n < inputFilesNew.size(); n++ )
 	{
-		cout << "Adding file : " << inputFilesNew[n] << endl;
-		anPlot->AddFile( inputFilesNew[n] );
+        TRestRun *run = new TRestRun();
+
+        run->OpenInputFile( inputFilesNew[n] );
+
+        run->SkipEventTree();
+        run->PrintInfo();
+
+        TRestG4Metadata *g4MD = (TRestG4Metadata *) run->GetMetadataClass( "TRestG4Metadata" );
+        if( g4MD != NULL ) totalEntries += g4MD->GetNumberOfEvents();
+        if( g4MD == NULL ) { cout << "Warning!! G4Metadata is NULL!! Press a KEY ...." << endl; getchar(); }
+
+        Int_t obsID = run->GetAnalysisTree( )->GetObservableID( varName );
+        for( int i = 0; i < run->GetEntries( ); i++ )
+        {
+            run->GetEntry(i);
+            Double_t value = run->GetAnalysisTree()->GetObservableValue( obsID );
+            if( value >= start && value < endVal ) integral++;
+        }
+
+        delete run;
 	}
 
-	anPlot->PlotCombinedCanvas( );
+    cout << "Events : " << ( (Double_t) totalEntries)/1000000. << " M" << endl;
+    cout << "Integral : " << integral << endl;
 
 	theApp.Run();
 

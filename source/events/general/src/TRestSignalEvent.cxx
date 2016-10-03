@@ -147,14 +147,10 @@ void TRestSignalEvent::PrintEvent()
         cout << "------------------------------------------------" << endl;
         fSignal[i].Print();
         cout << "================================================" << endl;
-
-
     }
-
-
-
 }
 
+// TODO: GetMaxTimeFast, GetMinTimeFast, GetMaxValueFast that return the value of fMinTime, fMaxTime, etc
 void TRestSignalEvent::SetMaxAndMin()
 {
     fMinValue = 1E10;
@@ -186,14 +182,18 @@ Double_t TRestSignalEvent::GetMinValue( )
 
 Double_t TRestSignalEvent::GetMinTime( )
 {
-    SetMaxAndMin();
-    return fMinTime;
+    Double_t minTime = 1.e10;
+    for( int s = 0; s < GetNumberOfSignals(); s++ )
+        if( minTime > fSignal[s].GetMinTime() ) minTime = fSignal[s].GetMinTime();
+    return minTime;
 }
 
 Double_t TRestSignalEvent::GetMaxTime( )
 {
-    SetMaxAndMin();
-    return fMaxTime;
+    Double_t maxTime = -1.e10;
+    for( int s = 0; s < GetNumberOfSignals(); s++ )
+        if( maxTime < fSignal[s].GetMaxTime() ) maxTime = fSignal[s].GetMaxTime();
+    return maxTime;
 }
 
 //Draw current event in a Tpad

@@ -74,10 +74,14 @@ class TRestG4Metadata:public TRestMetadata {
         Double_t fMaxTargetStepSize;
         Double_t fSubEventTimeDelay;
 
-
         Bool_t fFullChain;
 
         TString fSensitiveVolume;
+
+        Double_t fActivity;
+        Double_t fMass; // This might be also the area
+
+        Int_t fNEvents;
 
     public:
 
@@ -101,6 +105,16 @@ class TRestG4Metadata:public TRestMetadata {
 
         void SetGeneratorPosition( TVector3 pos ) { fGenPosition = pos; }
         void SetGeneratorPosition( double x, double y, double z ) { fGenPosition = TVector3( x, y, z ); }
+
+        void SetActivity( Double_t a ) { fActivity = a; }
+        void SetMass( Double_t mass ) { fMass = mass; }
+
+        void SetNEvents( Int_t n ) { fNEvents = n; }
+
+        Int_t GetNumberOfEvents( ) { return fNEvents; }
+
+        Double_t GetActivity ( ) { return fActivity; }
+        Double_t GetMass ( ) { return fMass; }
 
         // Direct access to sources in primary generator
         Int_t GetNumberOfSources() { return fPrimaryGenerator.GetNumberOfSources(); }

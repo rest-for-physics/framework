@@ -5,34 +5,34 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestSmearingProcess.cxx
+///             TRestHitsNormalizationProcess.cxx
 ///
 ///             Template to use to design "event process" classes inherited from 
-///             TRestSmearingProcess
-///             How to use: replace TRestSmearingProcess by your name, 
+///             TRestHitsNormalizationProcess
+///             How to use: replace TRestHitsNormalizationProcess by your name, 
 ///             fill the required functions following instructions and add all
 ///             needed additional members and funcionality
 ///
-///             feb 2016:   First concept
+///             sep 2016:   First concept
 ///                 Created as part of the conceptualization of existing REST 
 ///                 software.
-///                 Javier G. Garza
+///                 Javier Galan
 ///_______________________________________________________________________________
 
 
-#include "TRestSmearingProcess.h"
+#include "TRestHitsNormalizationProcess.h"
 using namespace std;
 
-ClassImp(TRestSmearingProcess)
+ClassImp(TRestHitsNormalizationProcess)
 //______________________________________________________________________________
-TRestSmearingProcess::TRestSmearingProcess()
+TRestHitsNormalizationProcess::TRestHitsNormalizationProcess()
 {
     Initialize();
 
 }
 
 //______________________________________________________________________________
-TRestSmearingProcess::TRestSmearingProcess( char *cfgFileName )
+TRestHitsNormalizationProcess::TRestHitsNormalizationProcess( char *cfgFileName )
 {
     Initialize();
 
@@ -40,54 +40,48 @@ TRestSmearingProcess::TRestSmearingProcess( char *cfgFileName )
 
     PrintMetadata();
 
-   // TRestSmearingProcess default constructor
+   // TRestHitsNormalizationProcess default constructor
 }
 
 //______________________________________________________________________________
-TRestSmearingProcess::~TRestSmearingProcess()
+TRestHitsNormalizationProcess::~TRestHitsNormalizationProcess()
 {
     delete fHitsInputEvent;
     delete fHitsOutputEvent;
-   // TRestSmearingProcess destructor
+   // TRestHitsNormalizationProcess destructor
 }
 
-void TRestSmearingProcess::LoadDefaultConfig()
+void TRestHitsNormalizationProcess::LoadDefaultConfig()
 {
-    	SetTitle( "Default config" );
+    SetTitle( "Default config" );
 
-	fEnergyRef = 5.9;	
-	fResolutionAtEref = 15.0; 
+	fFactor = 5.9;	
 
 }
 
 //______________________________________________________________________________
-void TRestSmearingProcess::Initialize()
+void TRestHitsNormalizationProcess::Initialize()
 {
-    SetName( "smearingProcess" );
+    SetName( "hitsNormalizationProcess" );
 
-    fEnergyRef = 5.9;	
-    fResolutionAtEref = 15.0; 
+    fFactor = 1.;	
 
     fHitsInputEvent = new TRestHitsEvent();
     fHitsOutputEvent = new TRestHitsEvent();
 
     fOutputEvent = fHitsOutputEvent;
     fInputEvent = fHitsInputEvent;
-
-    fRandom = new TRandom3(0);
 }
 
-void TRestSmearingProcess::LoadConfig( string cfgFilename, string name )
+void TRestHitsNormalizationProcess::LoadConfig( string cfgFilename, string name )
 {
     if( LoadConfigFromFile( cfgFilename, name ) ) LoadDefaultConfig( );
 
     PrintMetadata();
-
-    fGas = (TRestGas *) GetGasMetadata();
 }
 
 //______________________________________________________________________________
-void TRestSmearingProcess::InitProcess()
+void TRestHitsNormalizationProcess::InitProcess()
 {
     // Function to be executed once at the beginning of process
     // (before starting the process of the events)
@@ -96,40 +90,34 @@ void TRestSmearingProcess::InitProcess()
     //Comment this if you don't want it.
     //TRestEventProcess::InitProcess();
 
-    cout << __PRETTY_FUNCTION__ << endl;
-
 }
 
 //______________________________________________________________________________
-void TRestSmearingProcess::BeginOfEventProcess() 
+void TRestHitsNormalizationProcess::BeginOfEventProcess() 
 {
     fHitsOutputEvent->Initialize(); 
 }
 
 //______________________________________________________________________________
-TRestEvent* TRestSmearingProcess::ProcessEvent( TRestEvent *evInput )
+TRestEvent* TRestHitsNormalizationProcess::ProcessEvent( TRestEvent *evInput )
 {
 
     fHitsInputEvent = (TRestHitsEvent *) evInput;
 
-    Double_t eDep = fHitsInputEvent->GetTotalEnergy();
-    Double_t eRes = fResolutionAtEref * TMath::Sqrt(fEnergyRef / eDep) / 2.35 / 100.0;
-
-    Double_t gain = fRandom->Gaus(1.0, eRes);
     for( int hit = 0; hit < fHitsInputEvent->GetNumberOfHits(); hit++ )
-        fHitsOutputEvent->AddHit( fHitsInputEvent->GetX(hit), fHitsInputEvent->GetY(hit), fHitsInputEvent->GetZ(hit), fHitsInputEvent->GetEnergy(hit) * gain );   
+        fHitsOutputEvent->AddHit( fHitsInputEvent->GetX(hit), fHitsInputEvent->GetY(hit), fHitsInputEvent->GetZ(hit), fHitsInputEvent->GetEnergy(hit) * fFactor );   
 
     return fHitsOutputEvent;
 }
 
 //______________________________________________________________________________
-void TRestSmearingProcess::EndOfEventProcess() 
+void TRestHitsNormalizationProcess::EndOfEventProcess() 
 {
 
 }
 
 //______________________________________________________________________________
-void TRestSmearingProcess::EndProcess()
+void TRestHitsNormalizationProcess::EndProcess()
 {
    // Function to be executed once at the end of the process 
    // (after all events have been processed)
@@ -140,8 +128,7 @@ void TRestSmearingProcess::EndProcess()
 }
 
 //______________________________________________________________________________
-void TRestSmearingProcess::InitFromConfigFile( )
+void TRestHitsNormalizationProcess::InitFromConfigFile( )
 {
-    fEnergyRef = StringToDouble( GetParameter( "energyReference"  ) );
-    fResolutionAtEref = StringToDouble( GetParameter( "resolutionReference" ) );
+    fFactor = StringToDouble( GetParameter( "normFactor", "1" ) );
 }

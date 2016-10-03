@@ -77,8 +77,7 @@ endforeach()
 #
 install(TARGETS restG4 DESTINATION ${REST_PATH}/bin)
 
-string(FIND ${Geant4_DIR} "lib/" cutStr REVERSE)
-MATH(EXPR cutStr "${cutStr}+4")
+string(FIND ${Geant4_DIR} "/Geant4" cutStr REVERSE)
 
 string(SUBSTRING ${Geant4_DIR} 0 ${cutStr} G4_LIBDIR)
 

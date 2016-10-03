@@ -39,6 +39,7 @@ ClassImp(TRestMetadata)
     TRestMetadata::TRestMetadata()
 {
    // TRestMetadata default constructor
+    fStore = true;
 }
 
 
@@ -53,6 +54,8 @@ TRestMetadata::TRestMetadata( const char *cfgFileName)
     fSectionName = "Metadata";
 
     CheckConfigFile( ); // just checking if file exists it will give a warning if not
+
+    fStore = true;
 
     // TODO. CheckConfigGrammar
 }

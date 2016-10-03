@@ -98,6 +98,11 @@ class TRestMetadata:public TNamed {
         
         TString fDataPath;
         REST_Verbose_Level fVerboseLevel;
+
+#ifndef __CINT__
+        Bool_t fStore;
+
+#endif
         
         void SetDefaultConfigFilePath();
 
@@ -159,6 +164,9 @@ class TRestMetadata:public TNamed {
         static bool fileExists( const std::string& filename );
         static bool isRootFile( const std::string& filename ); 
         static void GetChar(){ cout << "Press a KEY to continue ..." << endl; getchar(); }
+
+        void DoNotStore( ) { fStore = false; }
+        Bool_t Store( ) { return fStore; }
 
 
         //////////////////////////////////////////////////
