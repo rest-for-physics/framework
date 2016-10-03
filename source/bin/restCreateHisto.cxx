@@ -16,6 +16,7 @@ char histoName[256];
 int startVal = 0;
 int endVal = 1000;
 int bins = 1000;
+Double_t normFactor = 1;
 
 std::vector <TString> inputFiles;
 
@@ -94,6 +95,7 @@ int main( int argc, char *argv[] )
 								   inputFiles.push_back( iFileStr );
 								   break;
 							   }
+                        case 'F' : normFactor = atof( argv[i+1] ); break; 
 						case 'h' : PrintHelp(); exit(1);
 						default : ;
 					}
@@ -151,6 +153,8 @@ int main( int argc, char *argv[] )
 
         delete run;
 	}
+
+    h->Scale( normFactor );
 
     TFile *f = new TFile( rootFileName, "update" );
     h->Write( histoName );
