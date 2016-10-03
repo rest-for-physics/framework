@@ -57,8 +57,6 @@ class TRestRun:public TRestMetadata {
         TString fOutputFilename;
         TString fInputFilename;
         TString fVersion;
-        
-        Int_t fRunEvents;
 
         Double_t fStartTime;            ///< Event absolute starting time/date (unix timestamp)
         Double_t fEndTime;              ///< Event absolute starting time/date (unix timestamp)
@@ -144,7 +142,6 @@ class TRestRun:public TRestMetadata {
         TString GetRunUser() { return fRunUser; }
         TString GetRunTag() { return fRunTag; }
         TString GetRunDescription() { return fRunDescription; }
-        Int_t GetNumberOfEvents() { return fRunEvents; }
         Double_t GetStartTimestamp() { return fStartTime; }
         Double_t GetEndTimestamp() { return fEndTime; }
         TString GetExperimentName() { return fExperimentName; }
@@ -239,7 +236,6 @@ class TRestRun:public TRestMetadata {
         }
 
         void SetRunDescription( TString description ) { fRunDescription = description; }
-        void SetNumberOfEvents( Int_t nEvents ) { fRunEvents = nEvents; } 
         void SetEndTimeStamp( Double_t tStamp ) { fEndTime = tStamp; }
 
         void SetInputFileName( TString fN ){ fInputFilename = fN; }

@@ -127,7 +127,6 @@ By default REST units are mm, keV and degrees
 </section>
 
 <section run name="Run metadata" title="REST Metadata run info (template)">
-    <parameter name="Nevents" value="100"/>
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
     <parameter name="runNumber" value="auto"/>
@@ -144,7 +143,6 @@ By default REST units are mm, keV and degrees
 
      Usage: 
         To launch DBDSimulation we do : ./restG4 $REST_PATH/config/template/config.rml DBDSimulation
-        To launch Bi214VesselSimulation we do : ./restG4 $REST_PATH/config/template/config.rml Bi214VesselSimulation 
 
     Note : 
         If we launch restG4 without specifying the section name the first occurence of a restG4 section will be used.
@@ -156,6 +154,13 @@ By default REST units are mm, keV and degrees
     <parameter name="gdml_file" value="mySetupTemplate.gdml"/>
     <parameter name="maxTargetStepSize" value="200" units="um" />
     <parameter name="subEventTimeDelay" value="100" units="us" />
+
+    <!-- A member to store the component activity (and mass) are now present in G4Metadata -->
+    <parameter name="activity" value="0.01" />
+    <parameter name="mass" value="3000" />
+
+    <!-- The number of events to be simulated is now defined in TRestG4Metadata -->
+    <parameter name="Nevents" value="100" />
 
     <generator type="volume" from="gas" >
         <source fromFile="Xe136bb0n.dat">

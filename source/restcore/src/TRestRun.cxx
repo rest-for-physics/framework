@@ -793,8 +793,6 @@ void TRestRun::InitFromConfigFile()
     cout << __PRETTY_FUNCTION__ << endl;
 
    // Initialize the metadata members from a configfile
-   fRunEvents = StringToInteger( GetParameter( "Nevents" ) );
-
    fRunUser = GetParameter( "user" );
 
    fRunType = GetParameter( "runType" );
@@ -894,7 +892,6 @@ void TRestRun::PrintInfo( )
         cout << "Run tag : " << GetRunTag() << endl;
         cout << "Run user : " << GetRunUser() << endl;
         cout << "Run description : " << GetRunDescription() << endl;
-        cout << "Run events : " << GetNumberOfEvents() << endl;
         cout << "Start timestamp : " << GetStartTimestamp() << endl;
         cout << "Date/Time : " << GetDateFormatted( GetStartTimestamp() ) << " / " << GetTime( GetStartTimestamp() ) << endl;
         cout << "End timestamp : " << GetEndTimestamp() << endl;
@@ -1007,7 +1004,9 @@ Bool_t TRestRun::GetNextEvent( )
     {
         if( fEventProcess.front()->GetOutputEvent() == NULL )
         {
-            SetNumberOfEvents( fCurrentEvent );
+            // TODO : This was done to set the number of events in TRestRun from the raw data
+            // In future : We will have to put this number in TRestRawToSignalProcess
+            //SetNumberOfEvents( fCurrentEvent );
             return kFALSE;
         }
         fCurrentEvent++;

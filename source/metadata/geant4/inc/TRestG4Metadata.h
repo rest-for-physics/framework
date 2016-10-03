@@ -107,7 +107,7 @@ class TRestG4Metadata:public TRestMetadata {
         void SetGeneratorPosition( double x, double y, double z ) { fGenPosition = TVector3( x, y, z ); }
 
         void SetActivity( Double_t a ) { fActivity = a; }
-        void SetMass( Double_t m ) { fMass = m; }
+        void SetMass( Double_t mass ) { fMass = mass; }
 
         void SetNEvents( Int_t n ) { fNEvents = n; }
 
