@@ -498,11 +498,24 @@ void TRestRun::OpenInputFile( TString fName )
     fOutputFilename = fileName; // We take this value from the configuration (not from TRestRun)
 
     // Transfering metadata to historic
-    for( size_t i = 0; i < fMetadata.size(); i++ )
-        fHistoricMetadata.push_back( fMetadata[i] );
+	TIter nextkey( fInputFile->GetListOfKeys() );
+	while ( (key = (TKey*) nextkey() ) )
+	{
+		TString cName (key->GetClassName());
+
+        if ( cName.Contains("Metadata") )
+            fHistoricMetadata.push_back( (TRestMetadata *) fInputFile->Get( key->GetName() ) );
+	}
     fMetadata.clear();
-    for( size_t i = 0; i < fEventProcess.size(); i++ )
-        fHistoricEventProcess.push_back( fEventProcess[i] );
+
+	nextkey = fInputFile->GetListOfKeys();
+	while ( (key = (TKey*) nextkey() ) )
+	{
+		TString cName (key->GetClassName());
+
+        if ( cName.Contains("Process") )
+            fHistoricEventProcess.push_back( (TRestEventProcess *) fInputFile->Get(  key->GetName() ) );
+	}
     fEventProcess.clear();
 
     if( GetObjectKeyByName( "TRestAnalysisTree" ) == NULL )
