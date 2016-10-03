@@ -6,6 +6,7 @@
 #include <TH1D.h>
 #include <TCanvas.h>
 #include <TRestRun.h>
+#include <TRestG4Metadata.h>
 
 
 char varName[256];
@@ -130,6 +131,7 @@ int main( int argc, char *argv[] )
 		}
 	}
 
+    Int_t totalEvents = 0;
 	for( unsigned int n = 0; n < inputFilesNew.size(); n++ )
 	{
         TRestRun *run = new TRestRun();
@@ -138,6 +140,10 @@ int main( int argc, char *argv[] )
 
         run->SkipEventTree();
         run->PrintInfo();
+
+        TRestG4Metadata *g4MD = (TRestG4Metadata *) run->GetMetadataClass( "TRestG4Metadata" );
+        if( g4MD != NULL ) totalEvents += g4MD->GetNumberOfEvents();
+        if( g4MD == NULL ) { cout << "Warning!! G4Metadata is NULL!! Press a KEY ...." << endl; getchar(); }
 
         Int_t obsID = run->GetAnalysisTree( )->GetObservableID( varName );
         cout << "Entries : " << run->GetEntries() << endl;
@@ -175,6 +181,8 @@ int main( int argc, char *argv[] )
             contribution_3 += gausFunc->Integral( mean-2*sigma_3, mean+2*sigma_3 );
 
         }
+
+        cout << "Total events : " << totalEvents << endl;
 
         cout << "FWHM = 0.5% -> " << contribution_1 << endl;
         cout << "FWHM = 1.% -> " << contribution_2 << endl;
