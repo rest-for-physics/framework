@@ -6,6 +6,7 @@
 #include <TH1D.h>
 #include <TCanvas.h>
 #include <TRestRun.h>
+#include <TRestG4Metadata.h>
 
 
 char varName[256];
@@ -120,6 +121,7 @@ int main( int argc, char *argv[] )
 		}
 	}
 
+    Int_t totalEntries = 0;
     Int_t integral = 0;
 	for( unsigned int n = 0; n < inputFilesNew.size(); n++ )
 	{
@@ -129,6 +131,10 @@ int main( int argc, char *argv[] )
 
         run->SkipEventTree();
         run->PrintInfo();
+
+        TRestG4Metadata *g4MD = (TRestG4Metadata *) run->GetMetadataClass( "TRestG4Metadata" );
+        if( g4MD != NULL ) totalEntries += g4MD->GetNumberOfEvents();
+        if( g4MD == NULL ) { cout << "Warning!! G4Metadata is NULL!! Press a KEY ...." << endl; getchar(); }
 
         Int_t obsID = run->GetAnalysisTree( )->GetObservableID( varName );
         for( int i = 0; i < run->GetEntries( ); i++ )
@@ -141,6 +147,7 @@ int main( int argc, char *argv[] )
         delete run;
 	}
 
+    cout << "Events : " << ( (Double_t) totalEntries)/1000000. << " M" << endl;
     cout << "Integral : " << integral << endl;
 
 	theApp.Run();
