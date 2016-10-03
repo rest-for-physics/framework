@@ -672,38 +672,7 @@ void TRestRun::CloseOutputFile( )
 
 void TRestRun::SetVersion()
 {
-
-    char originDirectory[255];
-    sprintf( originDirectory, "%s", get_current_dir_name() );
-
-    char buffer[255];
-    sprintf( buffer, "%s", getenv( "REST_SOURCE" ) );
-    if( chdir( buffer ) != 0 )
-    {
-        cout << "Error setting REST version! REST_SOURCE properly defined?" << endl; 
-        return;
-    }
-
-    // Reading the version of libcore.so
-    FILE *fV = popen("git rev-parse --verify HEAD", "r");
-
-    int nbytes;
-    string versionStr;
-    while ((nbytes = fread(buffer, 1, 255, fV)) > 0)
-    {
-        versionStr = buffer;
-        versionStr = versionStr.substr(0, 8 );
-    }
-
-    pclose( fV );
-
-    if( chdir( originDirectory ) != 0 )
-    {
-        cout << "REST ERROR. TRestRun::SetVersion. Internal error. Report a bug at rest-dev@cern.ch" << endl;
-        exit(1);
-    }
-
-    fVersion = versionStr;
+    fVersion = "2.1.0";
 }
 
 
