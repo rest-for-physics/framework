@@ -869,6 +869,7 @@ void TRestRun::PrintInfo( )
         cout << "Title : " << GetTitle() << endl;
         cout << "---------------------------------------" << endl;
         cout << "Parent run number : " << GetParentRunNumber() << endl; 
+        cout << "Number of initial events : " << GetNumberOfEvents() << endl;
         cout << "Run number : " << GetRunNumber() << endl; 
         cout << "Run type : " << GetRunType() << endl;
         cout << "Run tag : " << GetRunTag() << endl;

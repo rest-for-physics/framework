@@ -209,6 +209,19 @@ class TRestRun:public TRestMetadata {
             else return NULL;
         }
 
+        Int_t GetNumberOfInitialEvents( ) 
+        {
+            TRestMetadata *md = this->GetMetadataClass( "TRestG4Metadata" );
+
+            if( md != NULL )
+            {
+                return StringToInteger ( md->GetParameter("Nevents" ) );
+            }
+            
+            return -1;
+        }
+        Int_t GetNumberOfEvents( ) { return GetNumberOfInitialEvents(); }
+
         TRestMetadata *GetMetadata( TString name );
         TRestMetadata *GetMetadataClass( TString className );
         void ImportMetadata( TString rootFile, TString name, Bool_t store = true );
