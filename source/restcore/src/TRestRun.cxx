@@ -485,10 +485,12 @@ void TRestRun::OpenInputFile( TString fName )
 
     inputRunNumber = GetRunNumber();
     TString fileName = GetOutputFilename();
+    TString outputDataPath = GetMainDataPath();
 
     TKey *key = GetObjectKeyByClass( "TRestRun" );
     this->Read( key->GetName() );
 
+    fMainDataPath = outputDataPath;
     fRunNumber = inputRunNumber;
 
     fInputFilename = fName;
