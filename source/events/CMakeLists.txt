@@ -38,6 +38,7 @@ endforeach (CLASS)
 
 
 add_library(RestEvents SHARED ${EventsAnalysis} ${EventsGeant4} ${EventsGeneral})
+target_link_libraries(RestEvents ${ROOT_LIBRARIES} -lGui -lEve -lGeom ${Garfield_LIBRARIES})
 #add_library(RestEventsStatic STATIC ${EventsGeneral} ${EventsGeant4} ${EventsAnalysis})
 
 install(TARGETS RestEvents

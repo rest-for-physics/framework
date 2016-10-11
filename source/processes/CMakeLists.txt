@@ -53,6 +53,7 @@ endforeach (CLASS)
 
 
 add_library(RestProcesses SHARED ${ProcessesGeneral} ${ProcessesAnalysis} ${ProcessesRaw} ${ProcessesSignal})
+target_link_libraries(RestProcesses ${ROOT_LIBRARIES} -lGui -lEve -lGeom ${Garfield_LIBRARIES})
 #add_library(RestProcessesStatic STATIC ${ProcessGeneral} ${ProcessAnalysis} ${ProcessRaw} ${ProcessSignal})
 
 install(TARGETS RestProcesses

@@ -30,7 +30,7 @@ include_directories(${Garfield_INCLUDE_DIRS})
 
 add_subdirectory(source)
 include_directories(${REST_INCLUDE_DIR})
-add_subdirectory(example)
+#add_subdirectory(example)
 
 #set ( SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
 
@@ -176,6 +176,8 @@ file( WRITE \${CMAKE_INSTALL_PREFIX}/thisREST.sh
 export REST_INSTALL=\${CMAKE_INSTALL_PREFIX}
 export REST_SOURCE=${SOURCE_DIR}
 export REST_PATH=\\\$REST_INSTALL
+export REST_GARFIELD_INCLUDE=${Garfield_INCLUDE_DIRS}
+export REST_GARFIELD_LIB=${Garfield_LIBRARIES}
 export PATH=\\\$PATH:\\\$REST_PATH/bin
 export LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH:\\\$REST_PATH/lib
 export LIBRARY_PATH=\\\$LIBRARY_PATH:\\\$REST_PATH/lib

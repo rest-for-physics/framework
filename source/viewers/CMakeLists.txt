@@ -25,6 +25,7 @@ endforeach (CLASS)
 
 
 add_library(RestViewers SHARED ${ViewersGeneral} ${ViewersGeant4} )
+target_link_libraries(RestViewers ${ROOT_LIBRARIES} -lGui -lEve -lGeom ${Garfield_LIBRARIES})
 #add_library(RestViewersStatic STATIC ${ViewersGeneral} ${ViewersGeant4} )
 
 target_link_libraries(RestViewers ${ROOT_LIBRARIES} -lGui -lEve -lGeom ${Garfield_LIBRARIES})

@@ -15,6 +15,7 @@ endforeach (CLASS)
 
 
 add_library(RestTools SHARED ${RestToolsSrc})
+target_link_libraries(RestTools ${ROOT_LIBRARIES} -lGui -lEve -lGeom ${Garfield_LIBRARIES})
 #add_library(RestToolsStatic STATIC ${RestToolsSrc})
 
 install(TARGETS RestTools
