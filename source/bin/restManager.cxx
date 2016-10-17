@@ -53,7 +53,11 @@ int main( int argc, char *argv[] )
                         case 'n' : sprintf( sectionName, "%s", argv[i+1] ); break;
                         case 'f' : sprintf( iFile, "%s", argv[i+1] ); break;
                         case 'h' : PrintHelp(); exit(1);
-                        default : return 0;
+                        default : 
+                                   cout << endl;
+                                   cout << "REST ERROR: Please verify the arguments given to restManager" << endl;
+                                   PrintHelp(); 
+                                   return 0;
                     }
                 }
             }
