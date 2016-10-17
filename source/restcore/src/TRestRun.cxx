@@ -493,7 +493,7 @@ void TRestRun::OpenInputFile( TString fName )
     TKey *key = GetObjectKeyByClass( "TRestRun" );
     this->Read( key->GetName() );
 
-    fMainDataPath = outputDataPath;
+    SetDataPath( outputDataPath );
     fRunNumber = inputRunNumber;
 
     fInputFilename = fName;
