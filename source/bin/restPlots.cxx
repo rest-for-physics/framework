@@ -83,7 +83,11 @@ int main( int argc, char *argv[] )
 								   break;
 							   }
 						case 'h' : PrintHelp(); exit(1);
-						default : ;
+						default : 
+                                   cout << endl;
+                                   cout << "REST ERROR : Please verify the arguments given to restPlot" << endl;
+                                   PrintHelp(); 
+                                   exit(1);
 					}
 				}
 			}
