@@ -1,26 +1,23 @@
-include_directories(restcore/inc)
+set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/restcore/inc)
+set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/external/tsp/inc)
+set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/events/geant4/inc)
+set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/events/analysis/inc)
+set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/events/general/inc)
+set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/metadata/daq/inc)
+set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/metadata/general/inc)
+set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/metadata/geant4/inc)
+set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/metadata/readout/inc)
+set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/tools/inc)
+set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/processes/general/inc)
+set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/processes/analysis/inc)
+set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/processes/raw/inc)
+set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/processes/signal/inc)
+set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/viewers/general/inc)
+set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/viewers/geant4/inc)
 
-include_directories(external/tsp/inc)
+include_directories(${REST_INCLUDE_DIR})
 
-include_directories(events/geant4/inc)
-include_directories(events/analysis/inc)
-include_directories(events/general/inc)
-
-include_directories(metadata/daq/inc)
-include_directories(metadata/general/inc)
-include_directories(metadata/geant4/inc)
-include_directories(metadata/readout/inc)
-
-include_directories(tools/inc)
-
-include_directories(processes/general/inc)
-include_directories(processes/analysis/inc)
-include_directories(processes/raw/inc)
-include_directories(processes/signal/inc)
-
-include_directories(viewers/general/inc)
-include_directories(viewers/geant4/inc)
-
+set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} PARENT_SCOPE)
 
 add_subdirectory(restcore)
 add_subdirectory(external)

@@ -29,61 +29,65 @@ include_directories(${Garfield_INCLUDE_DIRS})
 
 
 add_subdirectory(source)
+include_directories(${REST_INCLUDE_DIR})
+#add_subdirectory(example)
 
-set ( SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
+#set ( SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
 
 ########### TODO : THERE MUST BE A WAY IN CMAKE TO ENTER RECURSIVELY IN DIRECTORIES LOOKING FOR .h FILES
 ########### excluding external directory would be necessary.
-file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/restcore/inc/*.h" )
-set(HS ${HS} ${headers})
+#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/restcore/inc/*.h" )
+#set(HS ${HS} ${headers})
+#
+#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/general/inc/*.h" )
+#set(HS ${HS} ${headers})
+#
+#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/geant4/inc/*.h" )
+#set(HS ${HS} ${headers})
+#
+#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/daq/inc/*.h" )
+#set(HS ${HS} ${headers})
+#
+#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/readout/inc/*.h" )
+#set(HS ${HS} ${headers})
+#
+#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/events/analysis/inc/*.h" )
+#set(HS ${HS} ${headers})
+#
+#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/events/geant4/inc/*.h" )
+#set(HS ${HS} ${headers})
+#
+#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/events/general/inc/*.h" )
+#set(HS ${HS} ${headers})
+#
+#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/events/general/inc/*.h" )
+#set(HS ${HS} ${headers})
+#
+#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/processes/general/inc/*.h" )
+#set(HS ${HS} ${headers})
+#
+#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/processes/analysis/inc/*.h" )
+#set(HS ${HS} ${headers})
+#
+#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/processes/raw/inc/*.h" )
+#set(HS ${HS} ${headers})
+#
+#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/processes/signal/inc/*.h" )
+#set(HS ${HS} ${headers})
+#
+#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/viewers/general/inc/*.h" )
+#set(HS ${HS} ${headers})
+#
+#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/viewers/geant4/inc/*.h" )
+#set(HS ${HS} ${headers})
+#
+#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/tools/inc/*.h" )
+#set(HS ${HS} ${headers})
+#
+#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/tools/inc/*.h" )
+#set(HS ${HS} ${headers})
 
-file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/general/inc/*.h" )
-set(HS ${HS} ${headers})
-
-file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/geant4/inc/*.h" )
-set(HS ${HS} ${headers})
-
-file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/daq/inc/*.h" )
-set(HS ${HS} ${headers})
-
-file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/readout/inc/*.h" )
-set(HS ${HS} ${headers})
-
-file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/events/analysis/inc/*.h" )
-set(HS ${HS} ${headers})
-
-file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/events/geant4/inc/*.h" )
-set(HS ${HS} ${headers})
-
-file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/events/general/inc/*.h" )
-set(HS ${HS} ${headers})
-
-file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/events/general/inc/*.h" )
-set(HS ${HS} ${headers})
-
-file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/processes/general/inc/*.h" )
-set(HS ${HS} ${headers})
-
-file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/processes/analysis/inc/*.h" )
-set(HS ${HS} ${headers})
-
-file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/processes/raw/inc/*.h" )
-set(HS ${HS} ${headers})
-
-file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/processes/signal/inc/*.h" )
-set(HS ${HS} ${headers})
-
-file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/viewers/general/inc/*.h" )
-set(HS ${HS} ${headers})
-
-file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/viewers/geant4/inc/*.h" )
-set(HS ${HS} ${headers})
-
-file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/tools/inc/*.h" )
-set(HS ${HS} ${headers})
-
-file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/tools/inc/*.h" )
-set(HS ${HS} ${headers})
+file(GLOB_RECURSE HS "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h")
 
 INSTALL(FILES ${HS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
 
@@ -172,6 +176,8 @@ file( WRITE \${CMAKE_INSTALL_PREFIX}/thisREST.sh
 export REST_INSTALL=\${CMAKE_INSTALL_PREFIX}
 export REST_SOURCE=${SOURCE_DIR}
 export REST_PATH=\\\$REST_INSTALL
+export REST_GARFIELD_INCLUDE=${Garfield_INCLUDE_DIRS}
+export REST_GARFIELD_LIB=${Garfield_LIBRARIES}
 export PATH=\\\$PATH:\\\$REST_PATH/bin
 export LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH:\\\$REST_PATH/lib
 export LIBRARY_PATH=\\\$LIBRARY_PATH:\\\$REST_PATH/lib
