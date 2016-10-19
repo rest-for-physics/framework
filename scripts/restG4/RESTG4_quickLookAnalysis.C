@@ -52,7 +52,7 @@ Int_t RESTG4_quickLookAnalysis( TString fName )
 
     TRestG4Event *ev = new TRestG4Event();
 
-    TTree *tr = (TTree *) f->Get("TRestG4Event Tree");
+    TTree *tr = (TTree *) f->Get("TRestG4EventTree");
 
     TBranch *br = tr->GetBranch( "eventBranch" );
 
