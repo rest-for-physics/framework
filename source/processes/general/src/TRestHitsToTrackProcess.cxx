@@ -65,10 +65,11 @@ void TRestHitsToTrackProcess::Initialize()
     fInputEvent  = fHitsEvent;
 }
 
-void TRestHitsToTrackProcess::LoadConfig( string cfgFilename )
+//______________________________________________________________________________
+void TRestHitsToTrackProcess::LoadConfig( string cfgFilename, std::string name )
 {
 
-    if( LoadConfigFromFile( cfgFilename ) == -1 ) LoadDefaultConfig( );
+    if( LoadConfigFromFile( cfgFilename, name ) == -1 ) LoadDefaultConfig( );
 
 }
 
