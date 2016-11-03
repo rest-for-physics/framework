@@ -132,6 +132,9 @@ void EventAction::FillSubEvent( Int_t subId )
     subRestG4Event->SetID( restG4Event->GetID( ) );
     subRestG4Event->SetSubID( subId );
 
+    subRestG4Event->SetRunOrigin( restRun->GetRunNumber() );
+    subRestG4Event->SetSubRunOrigin( 0 );
+
     subRestG4Event->SetPrimaryEventOrigin( restG4Event->GetPrimaryEventOrigin() );
     for( int n = 0; n < restG4Event->GetNumberOfPrimaries(); n++ )
     {
