@@ -72,7 +72,7 @@ class TRestTrack: public TObject {
         //Destructor
         ~TRestTrack();
 
-        ClassDef(TRestTrack, 1);
+        ClassDef(TRestTrack, 2);
 
 };
 #endif
