@@ -31,7 +31,7 @@ class TRestTrack: public TObject {
 
         Int_t fTrackID; 		///< Track ID
         Int_t fParentID;        ///< Parent ID
-        Int_t fTrackEnergy;		///< Total energy of the track
+        Double_t fTrackEnergy;		///< Total energy of the track
         Double_t fTrackLength;	///< Total length of the track
 
         //Hit volumes
@@ -56,8 +56,8 @@ class TRestTrack: public TObject {
         //Getters
         Int_t GetTrackID() { return fTrackID; }
         Int_t GetParentID() { return fParentID; }
-        Int_t GetEnergy() { return fTrackEnergy; }
-        Int_t GetTrackEnergy() { return fTrackEnergy; }
+        Double_t GetEnergy() { return fTrackEnergy; }
+        Double_t GetTrackEnergy() { return fTrackEnergy; }
         Double_t GetTrackLength() { return fTrackLength; }
 
         TVector3 GetMeanPosition() { return fVolumeHits.GetMeanPosition(); }
