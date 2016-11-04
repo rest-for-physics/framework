@@ -5,36 +5,45 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestHitsToTrackProcess.h
+///             TRestG4toHitsEventProcess.cxx
+///
+///
+///             Simple process to convert a TRestG4Event class into a
+///             TRestHitsEvent, that is, we just "extract" the hits information
+///             Date : oct/2016
+///             Author : I. G. Irastorza
 ///
 ///_______________________________________________________________________________
 
 
-#ifndef RestCore_TRestHitsToTrackProcess
-#define RestCore_TRestHitsToTrackProcess
+#ifndef RestCore_TRestG4toHitsEventProcess
+#define RestCore_TRestG4toHitsEventProcess
 
+#include <TRestGas.h>
+#include <TRestG4Event.h>
+//#include <TRestG4Metadata.h>
 #include <TRestHitsEvent.h>
-#include <TRestTrackEvent.h>
+
 #include "TRestEventProcess.h"
-#include "TMatrixD.h"
 
-class TRestHitsToTrackProcess:public TRestEventProcess {
+class TRestG4toHitsEventProcess:public TRestEventProcess {
     private:
-
 #ifndef __CINT__
-        TRestHitsEvent *fHitsEvent;
-        TRestTrackEvent *fTrackEvent;
+        TRestG4Event *fG4Event;
+//        TRestG4Metadata *fG4Metadata;
+	TRestHitsEvent *fHitsEvent;
 #endif
 
         void InitFromConfigFile();
 
         void Initialize();
-        Int_t FindTracks( TRestHits *hits );
+
+        void LoadDefaultConfig();
 
     protected:
+        
         //add here the members of your event process
-        Double_t fClusterDistance;
-	
+
 
     public:
         void InitProcess();
@@ -42,7 +51,6 @@ class TRestHitsToTrackProcess:public TRestEventProcess {
         TRestEvent *ProcessEvent( TRestEvent *eventInput );
         void EndOfEventProcess(); 
         void EndProcess();
-        void LoadDefaultConfig( );
 
         void LoadConfig( std::string cfgFilename, std::string name = "" );
 
@@ -50,21 +58,19 @@ class TRestHitsToTrackProcess:public TRestEventProcess {
 
             BeginPrintProcess();
 
-            std::cout << " cluster-distance : " << fClusterDistance << " mm " << std::endl;
-
             EndPrintProcess();
 
         }
 
-        TString GetProcessName() { return (TString) "hitsToTrack"; }
+        TString GetProcessName() { return (TString) "g4toHitsEvent"; }
 
         //Constructor
-        TRestHitsToTrackProcess();
-        TRestHitsToTrackProcess( char *cfgFileName );
+        TRestG4toHitsEventProcess();
+        TRestG4toHitsEventProcess( char *cfgFileName );
         //Destructor
-        ~TRestHitsToTrackProcess();
+        ~TRestG4toHitsEventProcess();
 
-        ClassDef(TRestHitsToTrackProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+        ClassDef(TRestG4toHitsEventProcess, 1);      // Transform a TRestG4Event event to a TRestHitsEvent (hits-collection event)
 };
 #endif
 

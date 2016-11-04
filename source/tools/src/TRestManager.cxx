@@ -23,6 +23,8 @@ using namespace std;
 #include <TRestHitsToSignalProcess.h>
 #include <TRestSignalToHitsProcess.h>
 #include <TRestFastHitsToTrackProcess.h>
+#include <TRestHitsToTrackProcess.h>
+#include <TRestG4toHitsEventProcess.h>
 
 // physics processes
 #include <TRestElectronDiffusionProcess.h>
@@ -98,7 +100,9 @@ TRestManager::~TRestManager()
 void TRestManager::InitFromConfigFile()
 {
     TString inputFile = GetParameter("inputFile" );
+ 
     fInputFile = inputFile;
+    cout << "ifile: " << fInputFile << endl;
 
     char *cfgFile = (char *) fConfigFileName.c_str(); 
     fRun = new TRestRun( cfgFile );
@@ -271,6 +275,9 @@ Int_t TRestManager::LoadProcesses( )
         if( processType == "fastHitsToTrackProcess" )
             fRun->AddProcess( new TRestFastHitsToTrackProcess( ), (string) processesCfgFile, (string) processName );
 
+        if( processType == "hitsToTrackProcess" )
+            fRun->AddProcess( new TRestHitsToTrackProcess( ), (string) processesCfgFile, (string) processName );
+
         if( processType == "trackReductionProcess" )
             fRun->AddProcess( new TRestTrackReductionProcess( ), (string) processesCfgFile, (string) processName );
 
@@ -325,11 +332,18 @@ Int_t TRestManager::LoadProcesses( )
         if( processType == "hitsNormalizationProcess" )
             fRun->AddProcess( new TRestHitsNormalizationProcess( ), (string) processesCfgFile, (string) processName );
 
+        if( processType == "G4toHitsEventProcess" )
+            fRun->AddProcess( new TRestG4toHitsEventProcess( ), (string) processesCfgFile, (string) processName );
+
         LoadExternalProcess( processType, (string) processesCfgFile, (string) processName );
 
         nProcesses++;
     }
-
+    
+    cout << fRun->GetNumberOfProcesses() << " processes loaded." << endl;
+    if (nProcesses !=  fRun->GetNumberOfProcesses() )
+         cout << "WARNING: no all requested proceses were loaded." << endl;
+   
     return nProcesses;
 }
 
