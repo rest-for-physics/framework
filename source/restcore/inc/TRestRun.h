@@ -154,6 +154,15 @@ class TRestRun:public TRestMetadata {
         {
             if( !fSkipEventTree && fInputEventTree == NULL )
             {
+                SkipEventTreeWarning();
+            }
+
+            if( !fSkipEventTree ) fInputEventTree->GetEntry( i );
+            return fInputAnalysisTree->GetEntry( i );
+        }
+
+        void SkipEventTreeWarning()
+        {
                 std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
                 std::cout << "Input event tree has not been initialized" << std::endl;
                 std::cout << "This is a sign that you did not allocate an input event structure in TRestRun." << std::endl;
@@ -166,10 +175,6 @@ class TRestRun:public TRestMetadata {
                 std::cout << "If you dont need access to the event tree use fRun->SkipEventTree() to avoid this message" << std::endl;
                 std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
                 GetChar();
-            }
-
-            if( !fSkipEventTree ) fInputEventTree->GetEntry( i );
-            return fInputAnalysisTree->GetEntry( i );
         }
 
         void SetPureAnalysisOutput( ) { fPureAnalysisOutput = true; }

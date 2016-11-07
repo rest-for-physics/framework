@@ -936,7 +936,9 @@ Int_t TRestRun::GetEventWithID( Int_t eventID, Int_t subEventID )
 {
     Int_t currentEvent = fCurrentEvent;
 
-    Int_t nEntries = fInputEventTree->GetEntries();
+    Int_t nEntries = fInputAnalysisTree->GetEntries();
+
+    if( fInputEventTree == NULL && fSkipEventTree == false ) SkipEventTreeWarning();
 
     if( nEntries != (Int_t) fEventIDs.size() ) { cout << "REST WARNING. Tree and eventIDs have not the same size!!" << endl; return 0; }
 
@@ -945,7 +947,8 @@ Int_t TRestRun::GetEventWithID( Int_t eventID, Int_t subEventID )
         if( fEventIDs[currentEvent] == eventID && fSubEventIDs[currentEvent] == subEventID )
         {
             fCurrentEvent = currentEvent;
-            fInputEventTree->GetEntry( fCurrentEvent );
+            if( !fSkipEventTree ) fInputEventTree->GetEntry( fCurrentEvent );
+            fInputAnalysisTree->GetEntry( fCurrentEvent );
             return 1;
         }
 
@@ -961,7 +964,9 @@ Int_t TRestRun::GetEventWithID( Int_t eventID, TString tag )
 {
     Int_t currentEvent = fCurrentEvent;
 
-    Int_t nEntries = fInputEventTree->GetEntries();
+    Int_t nEntries = fInputAnalysisTree->GetEntries();
+
+    if( fInputEventTree == NULL && fSkipEventTree == false ) SkipEventTreeWarning();
 
     if( nEntries != (Int_t) fEventIDs.size() ) { cout << "REST WARNING. Tree and eventIDs have not the same size!!" << endl; return 0; }
 
@@ -970,7 +975,8 @@ Int_t TRestRun::GetEventWithID( Int_t eventID, TString tag )
         if( fEventIDs[currentEvent] == eventID && fSubEventTags[currentEvent] == tag )
         {
             fCurrentEvent = currentEvent;
-            fInputEventTree->GetEntry( fCurrentEvent );
+            if( !fSkipEventTree ) fInputEventTree->GetEntry( fCurrentEvent );
+            fInputAnalysisTree->GetEntry( fCurrentEvent );
             return 1;
         }
 
@@ -1005,7 +1011,7 @@ Bool_t TRestRun::GetNextEvent( )
         if( fInputEventTree->GetEntries() == fCurrentEvent-1 ) return kFALSE;
 
         fInputEventTree->GetEntry( fCurrentEvent );
-        if( fInputEventTree != NULL ) fInputAnalysisTree->GetEntry( fCurrentEvent );
+        if( fInputAnalysisTree != NULL ) fInputAnalysisTree->GetEntry( fCurrentEvent );
 
         fCurrentEvent++;
 #ifdef TIME_MEASUREMENT
