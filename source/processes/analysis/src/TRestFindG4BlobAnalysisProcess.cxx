@@ -77,7 +77,7 @@ void TRestFindG4BlobAnalysisProcess::BeginOfEventProcess()
 //______________________________________________________________________________
 TRestEvent* TRestFindG4BlobAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 {
-    fG4Event = (TRestG4Event *) evInput;
+    *fG4Event = *((TRestG4Event *) evInput);
 
     TString obsName;
 

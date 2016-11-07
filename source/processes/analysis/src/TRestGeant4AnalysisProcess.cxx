@@ -77,7 +77,7 @@ void TRestGeant4AnalysisProcess::BeginOfEventProcess()
 //______________________________________________________________________________
 TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent( TRestEvent *evInput )
 {
-    fG4Event = (TRestG4Event *) evInput;
+    *fG4Event =  *(( TRestG4Event *) evInput);
 
     TString obsName;
 
