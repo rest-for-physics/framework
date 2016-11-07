@@ -44,7 +44,7 @@ void TRestG4EventViewer::Initialize()
 
 void TRestG4EventViewer::DeleteCurrentEvent(  ){
 
-   cout<<"Removing event"<<endl;
+   //cout<<"Removing event"<<endl;
    
    TRestEveEventViewer::DeleteCurrentEvent(  );
    
@@ -79,7 +79,7 @@ for( int i = 0; i < fG4Event->GetNumberOfTracks(); i++ )
             if( eDep > eDepMax ) eDepMax = eDep;
             if( eDep < eDepMin ) eDepMin = eDep;
             
-            cout<<" track "<<i<<" hit "<<j<<" eDep "<<eDep<<endl;
+            //cout<<" track "<<i<<" hit "<<j<<" eDep "<<eDep<<endl;
             
             totalEDep+=eDep;
         }
@@ -143,7 +143,6 @@ for( int i = 0; i < fG4Event->GetNumberOfTracks(); i++ )
             {
                 Double_t radius = slope * eDep + bias;
                 AddSphericalHit( x, y, z, radius, eDep );
-                cout<<" track "<<trkID<<" hit "<<i<<" eDep "<<eDep<<endl;
             }
         }
     }
