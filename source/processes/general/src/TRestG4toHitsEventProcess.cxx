@@ -52,7 +52,7 @@ void TRestG4toHitsEventProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestG4toHitsEventProcess::Initialize()
 {
-    SetName( "g4toHitsEventProcess" );
+    SetName( "g4ToHitsProcess" );
 
     fG4Event = new TRestG4Event();
     fHitsEvent = new TRestHitsEvent();
