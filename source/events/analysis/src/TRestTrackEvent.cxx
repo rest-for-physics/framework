@@ -31,9 +31,11 @@ ClassImp(TRestTrackEvent)
     fXYHit = NULL;
     fXZHit = NULL;
     fYZHit = NULL;
+    fXYZHit = NULL;
     fXYTrack = NULL;
     fXZTrack = NULL;
     fYZTrack = NULL;
+    fXYZTrack = NULL;
     fPad = NULL;
     fLevels = -1;
 
@@ -48,6 +50,8 @@ TRestTrackEvent::~TRestTrackEvent()
 void TRestTrackEvent::Initialize()
 {
     fNtracks = 0;
+    fNtracksX = 0;
+    fNtracksY = 0;
     fTrack.clear();
     TRestEvent::Initialize();
 
@@ -179,6 +183,8 @@ void TRestTrackEvent::PrintEvent( Bool_t fullInfo )
     TRestEvent::PrintEvent();
 
     cout << "Number of tracks : " << GetNumberOfTracks() << endl;
+    cout << "Number of tracks XZ " << fNtracksX << endl;
+    cout << "Number of tracks YZ " << fNtracksY << endl;
     cout << "Track levels : " << GetLevels() << endl;
     cout << "+++++++++++++++++++++++++++++++++++" << endl;
     for( int i = 0; i < GetNumberOfTracks(); i++ )
@@ -218,13 +224,16 @@ TPad *TRestTrackEvent::DrawEvent()
     fXYHit = new TGraph[nTotHits];
     fXZHit = new TGraph[nTotHits];
     fYZHit = new TGraph[nTotHits];
+    fXYZHit = new TGraph2D[nTotHits];
     fXYTrack = new TGraph[nTracks];
     fXZTrack = new TGraph[nTracks];
     fYZTrack = new TGraph[nTracks];
+    fXYZTrack = new TGraph2D[nTracks];
 
     Int_t drawLinesXY[nTracks];
     Int_t drawLinesXZ[nTracks];
     Int_t drawLinesYZ[nTracks];
+    Int_t drawLinesXYZ[nTracks];
 
     for( int i = 0; i < nTracks; i++ )
     {
@@ -233,8 +242,8 @@ TPad *TRestTrackEvent::DrawEvent()
         drawLinesYZ[i] = 0;
     }
 
-    int countXY = 0, countYZ = 0, countXZ = 0;
-    int nTckXY = 0, nTckXZ = 0, nTckYZ = 0;
+    int countXY = 0, countYZ = 0, countXZ = 0, countXYZ = 0;
+    int nTckXY = 0, nTckXZ = 0, nTckYZ = 0, nTckXYZ = 0;
 
     Double_t minRadiusSize = 0.4;
     Double_t maxRadiusSize = 2.;
@@ -263,17 +272,19 @@ TPad *TRestTrackEvent::DrawEvent()
         if( isTopLevel ) tckColor++;
         Int_t level = this->GetLevel( tck );
 
-        int tckXY = 0, tckYZ = 0, tckXZ = 0;
+        int tckXY = 0, tckYZ = 0, tckXZ = 0, tckXYZ = 0;
         Double_t radius;
 
         for( int nhit = 0; nhit < hits->GetNumberOfHits( ); nhit++ )
         {
             if( hits->GetNumberOfHits() > maxTrackHits ) maxTrackHits = hits->GetNumberOfHits();
+
             Double_t x = hits->GetX( nhit );
             Double_t y = hits->GetY( nhit );
             Double_t z = hits->GetZ( nhit );
             Double_t en = hits->GetEnergy( nhit );
 
+            /* {{{ Hit size definition (radius) */
             Double_t m = (maxRadiusSize)/(maxHitEnergy-meanHitEnergy);
             Double_t n = (maxRadiusSize-minRadiusSize) - m * meanHitEnergy;
 
@@ -288,6 +299,30 @@ TPad *TRestTrackEvent::DrawEvent()
             else
             {
                 radius = 1.5 * minRadiusSize * level;
+            }
+            /* }}} */
+
+            if( this->isXYZ() && nhit > 1 )
+            {
+                if( tckXYZ == 0 ) nTckXYZ++;
+                fXYZTrack[nTckXYZ-1].SetPoint( tckXYZ , x, y, z);
+
+                if( isTopLevel ) drawLinesXYZ[nTckXYZ-1] = 1;
+
+                if( isTopLevel )
+                {
+                    fXYZHit[countXYZ].SetPoint( 0 , x, y, z);
+                    // If there is only one-point the TGraph2D does NOT draw the point!
+                    fXYZHit[countXYZ].SetPoint( 1, x+0.001, y+0.001, z+0.001 );
+
+                    if( !isTopLevel ) fXYZHit[countXYZ].SetMarkerColor( level + 11 );
+                    else fXYZHit[countXYZ].SetMarkerColor( tckColor );
+
+                    fXYZHit[countXYZ].SetMarkerSize(radius);
+                    fXYZHit[countXYZ].SetMarkerStyle(20);
+                    countXYZ++;
+                }
+                tckXYZ++;
             }
 
             if( x != 0 && y != 0 )
@@ -347,9 +382,11 @@ TPad *TRestTrackEvent::DrawEvent()
         }
     }
 
-
     fPad = new TPad(this->GetName(), " ", 0, 0, 1, 1 );
-    fPad->Divide( 3 , 1 );
+    if( this->isXYZ() )
+        fPad->Divide( 2 , 2 );
+    else
+        fPad->Divide( 2 , 1 );
     fPad->Draw( );
 
     char title[256];
@@ -359,51 +396,43 @@ TPad *TRestTrackEvent::DrawEvent()
     TMultiGraph *mgXZ = new TMultiGraph();
     TMultiGraph *mgYZ = new TMultiGraph();
 
-    fPad->cd(1)->DrawFrame( minX-10 , minY-10, maxX+10, maxY+10, title );
-    fPad->cd(2)->DrawFrame( minX-10 , minZ-10, maxX+10, maxZ+10, title );
-    fPad->cd(3)->DrawFrame( minY-10 , minZ-10, maxY+10, maxZ+10, title);
+    fPad->cd(1)->DrawFrame( minX-10 , minZ-10, maxX+10, maxZ+10, title );
+    fPad->cd(2)->DrawFrame( minY-10 , minZ-10, maxY+10, maxZ+10, title );
 
-
-    for( int i = 0; i < countXY; i++ )
-    {
-        mgXY->Add(&fXYHit[i]);
-    }
-        fPad->cd(1); 
-        mgXY->GetXaxis()->SetTitle("X-axis (mm)");
-        mgXY->GetYaxis()->SetTitle("Y-axis (mm)");
-        mgXY->Draw("P");
+    if( this->isXYZ() )
+        fPad->cd(3)->DrawFrame( minX-10 , minY-10, maxX+10, maxY+10, title);
 
     for( int i = 0; i < countXZ; i++ )
-    {
         mgXZ->Add(&fXZHit[i]);
-    }
-        fPad->cd(2); 
-        mgXZ->GetXaxis()->SetTitle("X-axis (mm)");
-        mgXZ->GetYaxis()->SetTitle("Z-axis (mm)");
-        mgXZ->Draw("P");
+
+    fPad->cd(1); 
+    mgXZ->GetXaxis()->SetTitle("X-axis (mm)");
+    mgXZ->GetYaxis()->SetTitle("Z-axis (mm)");
+    mgXZ->Draw("P");
 
 
     for( int i = 0; i < countYZ; i++ )
-    {
         mgYZ->Add(&fYZHit[i]);
-    }
-        fPad->cd(3); 
-        mgYZ->GetXaxis()->SetTitle("Y-axis (mm)");
-        mgYZ->GetYaxis()->SetTitle("Z-axis (mm)");
-        mgYZ->Draw("P");
 
+    fPad->cd(2); 
+    mgYZ->GetXaxis()->SetTitle("Y-axis (mm)");
+    mgYZ->GetYaxis()->SetTitle("Z-axis (mm)");
+    mgYZ->Draw("P");
 
-    for( int tck = 0; tck < nTckXY; tck++ )
+    if( this->isXYZ() )
     {
-        fPad->cd(1);
-        fXYTrack[tck].SetLineWidth(2.);
-        if( fXYTrack[tck].GetN() < 50 && drawLinesXY[tck] == 1 )
-            fXYTrack[tck].Draw("L");
+        for( int i = 0; i < countXY; i++ )
+            mgXY->Add(&fXYHit[i]);
+
+        fPad->cd(3); 
+        mgXY->GetXaxis()->SetTitle("X-axis (mm)");
+        mgXY->GetYaxis()->SetTitle("Y-axis (mm)");
+        mgXY->Draw("P");
     }
 
     for( int tck = 0; tck < nTckXZ; tck++ )
     {
-        fPad->cd(2);
+        fPad->cd(1);
         fXZTrack[tck].SetLineWidth(2.);
         if( fXZTrack[tck].GetN() < 50 && drawLinesXZ[tck] == 1 )
             fXZTrack[tck].Draw("L");
@@ -411,11 +440,35 @@ TPad *TRestTrackEvent::DrawEvent()
 
     for( int tck = 0; tck < nTckYZ; tck++ )
     {
-        fPad->cd(3);
+        fPad->cd(2);
         fYZTrack[tck].SetLineWidth(2.);
         if( fYZTrack[tck].GetN() < 50 && drawLinesYZ[tck] == 1 )
             fYZTrack[tck].Draw("L");
     }
 
+    if( this->isXYZ() )
+    {
+        for( int tck = 0; tck < nTckXY; tck++ )
+        {
+            fPad->cd(3);
+            fXYTrack[tck].SetLineWidth(2.);
+            if( fXYTrack[tck].GetN() < 50 && drawLinesXY[tck] == 1 )
+                fXYTrack[tck].Draw("L");
+        }
+
+        fPad->cd(4);
+
+        for( int tck = 0; tck < nTckXYZ; tck++ )
+        {
+            fXYZTrack[tck].SetLineWidth(2.);
+            if( fXYZTrack[tck].GetN() < 50 && drawLinesXYZ[tck] == 1 )
+                fXYZTrack[tck].Draw("LINE");
+        }
+
+        for( int i = 0; i < countXYZ; i++ )
+            fXYZHit[i].Draw("same P");
+    }
+
     return fPad;
 }
+
