@@ -72,6 +72,7 @@ void TRestTrack::PrintTrack( Bool_t fullInfo )
         cout << "Energy : " << fTrackEnergy << endl;
         cout << "Length : " << fTrackLength << endl;
         cout << "Mean position : ( " << x << " , " << y << " , " << z << " ) " << endl;
+        cout << "Number of track hits : " << fVolumeHits.GetNumberOfHits() << endl;
         cout << "----------------------------------------" << endl;
 
         if( fullInfo )
