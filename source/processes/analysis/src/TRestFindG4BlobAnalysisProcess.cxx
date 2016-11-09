@@ -152,9 +152,6 @@ TRestEvent* TRestFindG4BlobAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     obsName = this->GetName() + (TString) ".blobDistance";
     fAnalysisTree->SetObservableValue( obsName, blobDistance );
 
-
-    cout << "Event : " << fG4Event->GetID() << " Tracks : " << fG4Event->GetNumberOfTracks() << endl;
-
     return fG4Event;
 }
 

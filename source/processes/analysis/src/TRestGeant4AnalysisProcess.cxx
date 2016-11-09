@@ -97,7 +97,7 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent( TRestEvent *evInput )
     if ( fG4Event->isBremstralung( ) ) fAnalysisTree->SetObservableValue( obsName, 1 );
     else fAnalysisTree->SetObservableValue( obsName, 0 );
 
-    cout << "Event : " << fG4Event->GetID() << " Tracks : " << fG4Event->GetNumberOfTracks() << endl;
+    cout << "Event : " << fG4Event->GetID() << " G4_Tracks : " << fG4Event->GetNumberOfTracks() << endl;
 
     return fG4Event;
 }
