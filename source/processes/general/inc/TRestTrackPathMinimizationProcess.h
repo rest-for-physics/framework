@@ -38,7 +38,6 @@ class TRestTrackPathMinimizationProcess:public TRestEventProcess {
 
     protected:
 
-        Double_t fEnergyThreshold;
         Int_t fMaxNodes;
 
 
@@ -56,7 +55,7 @@ class TRestTrackPathMinimizationProcess:public TRestEventProcess {
         void PrintMetadata() 
         { 
             BeginPrintProcess();
-            std::cout << " Energy threshold : " << fEnergyThreshold << std::endl;
+            cout << "Maximum number of nodes (hits) allowed : " << fMaxNodes << endl;
             EndPrintProcess();
         }
 

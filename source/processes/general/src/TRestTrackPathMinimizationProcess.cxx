@@ -44,7 +44,6 @@ void TRestTrackPathMinimizationProcess::LoadDefaultConfig( )
     SetName( "trackPathMinimizationProcess" );
     SetTitle( "Default config" );
 
-    fEnergyThreshold = 0.5;
 }
 
 //______________________________________________________________________________
@@ -63,13 +62,6 @@ void TRestTrackPathMinimizationProcess::LoadConfig( std::string cfgFilename, std
 {
 
     if( LoadConfigFromFile( cfgFilename, name ) == -1 ) LoadDefaultConfig( );
-
-    if( fEnergyThreshold <= 0 || fEnergyThreshold >= 1 )
-    {
-        cout << "REST WARNING : Energy threshold should be a value between 0 and 1." << endl;
-        fEnergyThreshold = 0.5;
-        cout << "Setting energy threshold to : " << fEnergyThreshold << endl;
-    }
 
     if( fMaxNodes > Nmax )
     {
@@ -221,7 +213,6 @@ void TRestTrackPathMinimizationProcess::EndProcess()
 //______________________________________________________________________________
 void TRestTrackPathMinimizationProcess::InitFromConfigFile( )
 {
-    fEnergyThreshold = StringToDouble( GetParameter( "energyThreshold" ) );
     fMaxNodes = StringToDouble( GetParameter( "maxNodes" ) );
 }
 
