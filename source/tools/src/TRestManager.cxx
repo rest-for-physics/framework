@@ -34,6 +34,7 @@ using namespace std;
 #include <TRestSmearingProcess.h>
 #include <TRestHitsNormalizationProcess.h>
 #include <TRestHitsReductionProcess.h>
+#include <TRestHitsShuffleProcess.h>
 
 // track processes
 #include <TRestTrackReductionProcess.h>
@@ -281,6 +282,9 @@ Int_t TRestManager::LoadProcesses( )
 
         if( processType == "hitsReductionProcess" )
             fRun->AddProcess( new TRestHitsReductionProcess( ), (string) processesCfgFile, (string) processName );
+
+        if( processType == "hitsShuffleProcess" )
+            fRun->AddProcess( new TRestHitsShuffleProcess( ), (string) processesCfgFile, (string) processName );
 
         if( processType == "trackReductionProcess" )
             fRun->AddProcess( new TRestTrackReductionProcess( ), (string) processesCfgFile, (string) processName );
