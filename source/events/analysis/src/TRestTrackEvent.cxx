@@ -293,7 +293,7 @@ TPad *TRestTrackEvent::DrawEvent()
                 radius = m * en + n;
                 if( radius < 0.1 ) radius = 0.1;
                 if( hits->GetNumberOfHits() == 1 ) radius = 2;
-                if( trackLevels == 1 ) radius = 0.8;
+                if( hits->GetNumberOfHits() > 100 ) radius = 0.8;
 
             }
             else
@@ -434,7 +434,7 @@ TPad *TRestTrackEvent::DrawEvent()
     {
         fPad->cd(1);
         fXZTrack[tck].SetLineWidth(2.);
-        if( fXZTrack[tck].GetN() < 50 && drawLinesXZ[tck] == 1 )
+        if( fXZTrack[tck].GetN() < 100 && drawLinesXZ[tck] == 1 )
             fXZTrack[tck].Draw("L");
     }
 
@@ -442,7 +442,7 @@ TPad *TRestTrackEvent::DrawEvent()
     {
         fPad->cd(2);
         fYZTrack[tck].SetLineWidth(2.);
-        if( fYZTrack[tck].GetN() < 50 && drawLinesYZ[tck] == 1 )
+        if( fYZTrack[tck].GetN() < 100 && drawLinesYZ[tck] == 1 )
             fYZTrack[tck].Draw("L");
     }
 
@@ -452,7 +452,7 @@ TPad *TRestTrackEvent::DrawEvent()
         {
             fPad->cd(3);
             fXYTrack[tck].SetLineWidth(2.);
-            if( fXYTrack[tck].GetN() < 50 && drawLinesXY[tck] == 1 )
+            if( fXYTrack[tck].GetN() < 100 && drawLinesXY[tck] == 1 )
                 fXYTrack[tck].Draw("L");
         }
 
@@ -462,7 +462,7 @@ TPad *TRestTrackEvent::DrawEvent()
         for( int tck = 0; tck < nTckXYZ; tck++ )
         {
             fXYZTrack[tck].SetLineWidth(2.);
-            if( fXYZTrack[tck].GetN() < 50 && drawLinesXYZ[tck] == 1 )
+            if(fXZTrack[tck].GetN() < 100 && drawLinesXYZ[tck] == 1 )
             {
                 fXYZTrack[tck].Draw("LINE");
                 option = "same P";
