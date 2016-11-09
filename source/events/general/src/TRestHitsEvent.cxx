@@ -107,7 +107,14 @@ void TRestHitsEvent::PrintEvent( Int_t nHits )
 {
 	TRestEvent::PrintEvent();
 
-    if( nHits != -1 ) cout << "Printing only the first " << nHits << " hits" << endl;
+    cout << "Total energy : " << GetEnergy() << endl;
+    cout << "Mean position : ( " << GetMeanPositionX() << " , " << GetMeanPositionY() << " , " << GetMeanPositionZ() << " ) " << endl;
+    cout << "Number of hits : " << fHits->GetNumberOfHits() << endl;
+    if( nHits != -1 )
+    {
+        cout << "+++++++++++++++++++++++" << endl;
+        cout << "Printing only the first " << nHits << " hits" << endl;
+    }
 
 	fHits->PrintHits( nHits );
 }
