@@ -24,6 +24,7 @@
 #include <TObject.h>
 #include <TVirtualPad.h>
 #include <TGraph.h>
+#include <TGraph2D.h>
 #include <TMultiGraph.h>
 #include <TAxis.h>
 
@@ -46,9 +47,11 @@ class TRestTrackEvent: public TRestEvent {
         TGraph *fXYHit;
         TGraph *fXZHit;
         TGraph *fYZHit;
+        TGraph2D *fXYZHit;
         TGraph *fXYTrack;
         TGraph *fXZTrack;
         TGraph *fYZTrack;
+        TGraph2D *fXYZTrack;
         TPad *fPad; 
         #endif 
 
@@ -70,9 +73,36 @@ class TRestTrackEvent: public TRestEvent {
         TPad *GetPad() { return fPad; }
 
         //Setters
-        void AddTrack( TRestTrack *c ){ fTrack.push_back(*c); fNtracks++; SetLevels(); }
-        void RemoveTrack(int n){fTrack.erase(fTrack.begin()+n); fNtracks--; SetLevels(); }  
-        void RemoveTrack( ){fTrack.clear();}  
+        void AddTrack( TRestTrack *c )
+        {
+            if( c->isXZ() ) fNtracksX++;
+            if( c->isYZ() ) fNtracksY++;
+            fNtracks++;
+
+            fTrack.push_back(*c);
+
+            SetLevels(); 
+        }
+        void RemoveTrack( int n )
+        {
+            if ( fTrack[n].isXZ() ) fNtracksX--;
+            if ( fTrack[n].isYZ() ) fNtracksY--;
+            fNtracks--;
+
+            fTrack.erase(fTrack.begin()+n);
+
+            SetLevels();
+        }  
+
+        Bool_t isXYZ( )
+        {
+            for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
+                if ( !fTrack[tck].isXYZ() ) return false;
+            return true;
+        }
+
+
+        void RemoveTracks( ){fTrack.clear();}  
 
         Bool_t isTopLevel( Int_t tck );
         Int_t GetOriginTrackID( Int_t tck );

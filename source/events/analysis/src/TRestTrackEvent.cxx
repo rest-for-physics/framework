@@ -458,15 +458,22 @@ TPad *TRestTrackEvent::DrawEvent()
 
         fPad->cd(4);
 
+        TString option = "P";
         for( int tck = 0; tck < nTckXYZ; tck++ )
         {
             fXYZTrack[tck].SetLineWidth(2.);
             if( fXYZTrack[tck].GetN() < 50 && drawLinesXYZ[tck] == 1 )
+            {
                 fXYZTrack[tck].Draw("LINE");
+                option = "same P";
+            }
         }
 
         for( int i = 0; i < countXYZ; i++ )
-            fXYZHit[i].Draw("same P");
+        {
+            if( i > 0 ) option = "same P";
+            fXYZHit[i].Draw( option );
+        }
     }
 
     return fPad;
