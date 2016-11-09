@@ -34,6 +34,9 @@ class TRestHitsEvent : public TRestEvent
 
         Int_t GetNumberOfHits( ) { return fHits->fNHits; }
 
+        TRestHits *GetHits( ) { return fHits; }
+
+
         Double_t GetX( int n ) { return fHits->GetX(n); } // return value in mm
         Double_t GetY( int n ) { return fHits->GetY(n); } // return value in mm
         Double_t GetZ( int n ) { return fHits->GetZ(n); } // return value in mm
@@ -52,6 +55,10 @@ class TRestHitsEvent : public TRestEvent
         TVector3 GetPosition( int n ) { return fHits->GetPosition(n); }
 
         TVector3 GetMeanPosition( ) { return fHits->GetMeanPosition(); }
+
+        Double_t GetMeanPositionX( ) { return fHits->GetMeanPositionX(); }
+        Double_t GetMeanPositionY( ) { return fHits->GetMeanPositionY(); }
+        Double_t GetMeanPositionZ( ) { return fHits->GetMeanPositionZ(); }
 
 
         Double_t GetTotalDepositedEnergy() { return fHits->fTotEnergy; }
