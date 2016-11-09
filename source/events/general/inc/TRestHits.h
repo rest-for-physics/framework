@@ -95,15 +95,15 @@ class TRestHits : public TObject
             return vector;
         }
 
-	Double_t GetMeanPositionX( );
-	Double_t GetMeanPositionY( );
-	Double_t GetMeanPositionZ( );
+        Double_t GetMeanPositionX( );
+        Double_t GetMeanPositionY( );
+        Double_t GetMeanPositionZ( );
 
         TVector3 GetMeanPosition( )
-	{
-		TVector3 mean( GetMeanPositionX(), GetMeanPositionY(), GetMeanPositionZ() );
-		return mean;
-	}
+        {
+            TVector3 mean( GetMeanPositionX(), GetMeanPositionY(), GetMeanPositionZ() );
+            return mean;
+        }
 
 
         Double_t GetEnergy( int n ) { return ( (Double_t) fEnergy[n]); } //return value in keV
@@ -115,6 +115,7 @@ class TRestHits : public TObject
         Double_t GetEnergyIntegral();
         Double_t GetTotalDepositedEnergy() { return fTotEnergy; }
         Double_t GetTotalEnergy() { return fTotEnergy; }
+        Double_t GetEnergy() { return fTotEnergy; }
         Double_t GetDistance2( int n, int m );
         Double_t GetTotalDistance();
 
