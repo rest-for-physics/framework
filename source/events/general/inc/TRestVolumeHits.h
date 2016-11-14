@@ -37,6 +37,18 @@ class TRestVolumeHits: public TRestHits {
 
         void AddHit( Double_t x, Double_t y, Double_t z, Double_t en, Double_t sigmax, Double_t sigmay, Double_t sigmaz );
         void AddHit( TVector3 pos, Double_t en, TVector3 sigma );
+        void AddHit( TRestVolumeHits &hits, Int_t n )
+        {
+            Double_t x =  hits.GetX( n );
+            Double_t y =  hits.GetY( n );
+            Double_t z =  hits.GetZ( n );
+            Double_t en = hits.GetEnergy( n );
+            Double_t sx =  hits.GetSigmaX( n );
+            Double_t sy =  hits.GetSigmaY( n );
+            Double_t sz =  hits.GetSigmaZ( n );
+
+            AddHit( x, y, z, en, sx, sy, sz );
+        }
 
         void RemoveHits( );
         void MergeHits( Int_t n, Int_t m );
