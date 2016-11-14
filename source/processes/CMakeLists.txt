@@ -3,7 +3,7 @@ file(GLOB ProcessesGeneral
         "general/src/*.cxx"
         )
     set(CLASS_DICT  TRestElectronDiffusionProcess TRestHitsReductionProcess TRestHitsShuffleProcess TRestHitsToSignalProcess TRestHitsToTrackProcess TRestFastHitsToTrackProcess TRestSignalToHitsProcess
-        TRestTrackReductionProcess TRestTrackPathMinimizationProcess TRestTrackLinearizationProcess
+        TRestTrackReductionProcess TRestTrackPathMinimizationProcess TRestTrackReconnectionProcess TRestTrackLinearizationProcess
         TRestAvalancheProcess TRestHitsRotateAndTraslateProcess TRestSmearingProcess TRestHitsNormalizationProcess TRestG4toHitsEventProcess )
 foreach (CLASS ${CLASS_DICT})
     set(ROOT_DICT_INCLUDE_DIRS ${REST_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})

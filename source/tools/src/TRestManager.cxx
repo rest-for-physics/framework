@@ -39,6 +39,7 @@ using namespace std;
 // track processes
 #include <TRestTrackReductionProcess.h>
 #include <TRestTrackPathMinimizationProcess.h>
+#include <TRestTrackReconnectionProcess.h>
 
 // signal processes
 #include <TRestAddSignalNoiseProcess.h>
@@ -291,6 +292,9 @@ Int_t TRestManager::LoadProcesses( )
 
         if( processType == "trackPathMinimizationProcess" )
             fRun->AddProcess( new TRestTrackPathMinimizationProcess( ), (string) processesCfgFile, (string) processName );
+
+        if( processType == "trackReconnectionProcess" )
+            fRun->AddProcess( new TRestTrackReconnectionProcess( ), (string) processesCfgFile, (string) processName );
 
         if( processType == "trackAnalysisProcess" )
             fRun->AddProcess( new TRestTrackAnalysisProcess( ), (string) processesCfgFile, (string) processName );
