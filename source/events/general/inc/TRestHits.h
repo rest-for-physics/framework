@@ -117,6 +117,7 @@ class TRestHits : public TObject
         Double_t GetTotalEnergy() { return fTotEnergy; }
         Double_t GetEnergy() { return fTotEnergy; }
         Double_t GetDistance2( int n, int m );
+        Double_t GetDistance( int n, int m ) { return TMath::Sqrt( GetDistance2( n, m ) ); }
         Double_t GetTotalDistance();
 
         Int_t GetClosestHit( TVector3 position );
