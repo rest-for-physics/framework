@@ -249,7 +249,6 @@ TPad *TRestTrackEvent::DrawEvent()
     Double_t maxRadiusSize = 2.;
 
     Int_t maxTrackHits = 0;
-    Int_t trackLevels = this->GetLevels();
 
     Int_t tckColor = 1;
 
