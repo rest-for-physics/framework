@@ -14,8 +14,6 @@
 #include "TRestTrackReconnectionProcess.h"
 using namespace std;
 
-const int Nmax = 50;
-
 ClassImp(TRestTrackReconnectionProcess)
 //______________________________________________________________________________
 TRestTrackReconnectionProcess::TRestTrackReconnectionProcess( )
@@ -69,6 +67,8 @@ void TRestTrackReconnectionProcess::LoadConfig( std::string cfgFilename, std::st
 //______________________________________________________________________________
 void TRestTrackReconnectionProcess::InitProcess()
 {
+    TRestEventProcess::ReadObservables();
+
     cout << __PRETTY_FUNCTION__ << endl;
 }
 
@@ -81,6 +81,8 @@ void TRestTrackReconnectionProcess::BeginOfEventProcess()
 //______________________________________________________________________________
 TRestEvent* TRestTrackReconnectionProcess::ProcessEvent( TRestEvent *evInput )
 {
+    Int_t trackBranches = 0;
+
     fInputTrackEvent = (TRestTrackEvent *) evInput;
 
     // Copying the input tracks to the output track
@@ -102,33 +104,56 @@ TRestEvent* TRestTrackReconnectionProcess::ProcessEvent( TRestEvent *evInput )
         Int_t pId = fInputTrackEvent->GetTrack( tck )->GetParentID();
         cout << "Track : " << tck << " TrackID : " << tckId << " ParentID : " << pId << endl;
         cout << "-----------------" << endl;
+        /* }}} */
 
-        Double_t meanDistance = 0;
+        cout << endl;
+        meanDistance = 0;
         for( int n = 1; n < nHits; n++ )
             meanDistance += hits->GetDistance( n-1, n );
         meanDistance /= nHits;
+        sigma = TMath::Sqrt( meanDistance );
 
-        Double_t sigma = 0;
-        for( int n = 1; n < nHits; n++ )
-        {
-            Double_t d = hits->GetDistance( n-1, n );
-            sigma += ( d - meanDistance ) * ( d - meanDistance ); 
-        }
-        sigma = TMath::Sqrt( sigma/nHits )/2;
-
-        if( meanDistance == 0 ) continue;
-
-        /* Debug output */
+        /* {{{ Debug output 
         cout << "Mean ; " << meanDistance << endl;
         cout << "Sigma : " << sigma << endl;
-       /* */
+        cout << endl;
+        }}} */
 
-        TRestVolumeHits subHits;
+        if( meanDistance == 0 ) continue; // We have just 1-hit
+
         vector <TRestVolumeHits> subHitSets;
+        BreakTracks( hits, subHitSets );
+        ReconnectTracks( subHitSets );
 
-        hits->PrintHits();
+        // We create the new track and add it giving its parent ID
+        TRestTrack bestTrack;
+        bestTrack.SetTrackID( fOutputTrackEvent->GetNumberOfTracks() + 1);
 
-        for( int n = 0; n < nHits; n++ )
+        bestTrack.SetParentID( tckId );
+
+        bestTrack.SetVolumeHits( subHitSets[0] );
+
+        TRestHits finalHits = (TRestHits) subHitSets[0];
+
+        Int_t tBranches = GetTrackBranches( finalHits, meanDistance, sigma );
+
+        // We just take the value for the track with more number of branches
+        if( tBranches > trackBranches ) trackBranches = tBranches;
+
+        fOutputTrackEvent->AddTrack( &bestTrack );
+    }
+
+    TString obsName = this->GetName() + (TString) ".branches";
+    fAnalysisTree->SetObservableValue( obsName, trackBranches );
+    //cout << "Track branches : " << trackBranches << endl;
+
+    return fOutputTrackEvent;
+}
+
+void TRestTrackReconnectionProcess::BreakTracks( TRestVolumeHits *hits, vector <TRestVolumeHits>& hitSets )
+{
+        TRestVolumeHits subHits;
+        for( int n = 0; n < hits->GetNumberOfHits(); n++ )
         {
             Double_t x = hits->GetX(n);
             Double_t y = hits->GetY(n);
@@ -138,58 +163,35 @@ TRestEvent* TRestTrackReconnectionProcess::ProcessEvent( TRestEvent *evInput )
             Double_t sZ = hits->GetSigmaZ(n);
             Double_t energy = hits->GetEnergy(n);
 
-            /*
+            /* {{{ Debug output 
             if( n > 0 )
             {
                 cout << "Distance : " << hits->GetDistance( n-1, n );
-                if ( hits->GetDistance( n-1, n ) > meanDistance + sigma ) cout << " BREAKKKK";
+                if ( hits->GetDistance( n-1, n ) > meanDistance + 0.5 * sigma ) cout << " BREAKKKK";
                 cout << endl;
             }
-            */
+            }}} */
 
-            if( n > 0 && hits->GetDistance( n-1, n ) > meanDistance + sigma ) 
+            if( n > 0 && hits->GetDistance( n-1, n ) > meanDistance + 0.5 * sigma ) 
             {
-                subHitSets.push_back( subHits );
+                hitSets.push_back( subHits );
                 subHits.RemoveHits();
             }
 
             subHits.AddHit( x, y, z, energy, sX, sY, sZ);
-            //cout << "H : " << n << " X : " << x << " Y : " << y << " Z : " << z << endl;
-
+            // cout << "H : " << n << " X : " << x << " Y : " << y << " Z : " << z << endl;
         }
-        subHitSets.push_back( subHits );
+        hitSets.push_back( subHits );
 
-        /*
-        cout << "Number of subtracks : " << subHitSets.size() << endl;
 
-        GetChar();
-        */
-
-        ReconnectTracks( subHitSets );
-        /*
-        cout << "-----------------" << endl;
-        GetChar();
-        */
-        /* }}} */
-
-        // TODO We must also copy other track info here
-        TRestTrack bestTrack;
-        bestTrack.SetTrackID( fOutputTrackEvent->GetNumberOfTracks() + 1);
-
-        bestTrack.SetParentID( tckId );
-
-        bestTrack.SetVolumeHits( subHitSets[0] );
-
-        fOutputTrackEvent->AddTrack( &bestTrack );
-    }
-
-    return fOutputTrackEvent;
 }
 
 void TRestTrackReconnectionProcess::ReconnectTracks( vector <TRestVolumeHits>& hitSets )
 {
     Int_t nSubTracks = hitSets.size();
-    
+
+    if ( nSubTracks == 1 ) return;
+
     Double_t minDistance = 1.e10;
 
     Int_t tracks[2][2];
@@ -198,7 +200,7 @@ void TRestTrackReconnectionProcess::ReconnectTracks( vector <TRestVolumeHits>& h
     for( int i = 0; i < nSubTracks; i++ )
         nHits[i] = hitSets[i].GetNumberOfHits();
 
-    /*
+    /* {{{ Debug output
     cout << "ORIGINAL" << endl;
     cout << "--------" << endl;
     for( int i = 0; i < nSubTracks; i++ )
@@ -209,7 +211,7 @@ void TRestTrackReconnectionProcess::ReconnectTracks( vector <TRestVolumeHits>& h
         hitSets[i].PrintHits();
     }
     cout << "--------" << endl;
-    */
+    }}} */
 
     /* {{{ Finds the closest sub-track extremes */
     for( int i = 0; i < nSubTracks; i++ )
@@ -286,11 +288,11 @@ void TRestTrackReconnectionProcess::ReconnectTracks( vector <TRestVolumeHits>& h
     }
     /* }}} */
 
-    /*
+    /* {{{ Debug output
     cout << "Tracks" << endl;
     cout << tracks[0][0] << " ::: " << tracks[0][1] << endl;
     cout << tracks[1][0] << " ::: " << tracks[1][1] << endl;
-    */
+    }}} */
 
     TRestVolumeHits newHits;
     newHits.RemoveHits();
@@ -298,6 +300,7 @@ void TRestTrackReconnectionProcess::ReconnectTracks( vector <TRestVolumeHits>& h
     Int_t tck1 = tracks[0][0];
     Int_t tck2 = tracks[1][0];
 
+    /* {{{ Rejoins the closest sub-track extremes into 1-single track */
     if( tracks[0][1] == 0 && tracks[1][1] == 0 )
     {
         // We invert the first and add the second
@@ -341,10 +344,11 @@ void TRestTrackReconnectionProcess::ReconnectTracks( vector <TRestVolumeHits>& h
     hitSets.erase (hitSets.begin()+tck2);
     hitSets.erase (hitSets.begin()+tck1);
     hitSets.push_back( newHits );
+    /* }}} */
 
     nSubTracks = hitSets.size();
 
-    /* Debug output 
+    /* {{{ Debug output 
     cout << "New subtracks : " << nSubTracks << endl;
 
     cout << "AFTER REMOVAL" << endl;
@@ -358,9 +362,26 @@ void TRestTrackReconnectionProcess::ReconnectTracks( vector <TRestVolumeHits>& h
     }
     cout << "--------" << endl;
     GetChar();
-    */
+    }}} */
 
     if( nSubTracks > 1 ) ReconnectTracks( hitSets );
+}
+
+Int_t TRestTrackReconnectionProcess::GetTrackBranches( TRestHits &h, Double_t mean, Double_t sigma )
+{
+    Int_t breaks = 0;
+    Int_t nHits = h.GetNumberOfHits();
+
+    for( int n = 1; n < nHits; n++ )
+    {
+        Double_t x = h.GetX(n);
+        Double_t y = h.GetY(n);
+        Double_t z = h.GetZ(n);
+
+        if(  h.GetDistance( n-1, n ) > mean + 2*sigma ) 
+                breaks++;
+    }
+    return breaks;
 }
 
 //______________________________________________________________________________

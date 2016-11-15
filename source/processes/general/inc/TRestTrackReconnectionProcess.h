@@ -25,6 +25,9 @@ class TRestTrackReconnectionProcess:public TRestEventProcess {
 #ifndef __CINT__
         TRestTrackEvent *fInputTrackEvent;
         TRestTrackEvent *fOutputTrackEvent;
+
+        Double_t meanDistance;
+        Double_t sigma;
 #endif
 
         void InitFromConfigFile();
@@ -53,7 +56,9 @@ class TRestTrackReconnectionProcess:public TRestEventProcess {
 
         TString GetProcessName() { return (TString) "trackReconnection"; }
 
+        void BreakTracks( TRestVolumeHits *hits, vector <TRestVolumeHits>& hitSets );
         void ReconnectTracks( vector <TRestVolumeHits>& hitSets );
+        Int_t GetTrackBranches( TRestHits &h, Double_t mean, Double_t sigma );
 
         //Constructor
         TRestTrackReconnectionProcess();
