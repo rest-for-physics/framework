@@ -373,14 +373,8 @@ Int_t TRestTrackReconnectionProcess::GetTrackBranches( TRestHits &h, Double_t me
     Int_t nHits = h.GetNumberOfHits();
 
     for( int n = 1; n < nHits; n++ )
-    {
-        Double_t x = h.GetX(n);
-        Double_t y = h.GetY(n);
-        Double_t z = h.GetZ(n);
-
         if(  h.GetDistance( n-1, n ) > mean + 2*sigma ) 
                 breaks++;
-    }
     return breaks;
 }
 
