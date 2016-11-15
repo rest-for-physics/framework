@@ -112,13 +112,13 @@ TRestEvent* TRestFindG4BlobAnalysisProcess::ProcessEvent( TRestEvent *evInput )
                 yBlob1 = track->GetHits()->GetY( nHits-1); 
                 zBlob1 = track->GetHits()->GetZ( nHits-1); 
 
-                obsName = this->GetName() + (TString) ".xBlob1";
+                obsName = this->GetName() + (TString) ".x1";
                 fAnalysisTree->SetObservableValue( obsName, xBlob1 );
 
-                obsName = this->GetName() + (TString) ".yBlob1";
+                obsName = this->GetName() + (TString) ".y1";
                 fAnalysisTree->SetObservableValue( obsName, yBlob1 );
 
-                obsName = this->GetName() + (TString) ".zBlob1";
+                obsName = this->GetName() + (TString) ".z1";
                 fAnalysisTree->SetObservableValue( obsName, zBlob1 );
             }
             else
@@ -127,13 +127,13 @@ TRestEvent* TRestFindG4BlobAnalysisProcess::ProcessEvent( TRestEvent *evInput )
                 yBlob2 = track->GetHits()->GetY( nHits-1); 
                 zBlob2 = track->GetHits()->GetZ( nHits-1); 
                 
-                obsName = this->GetName() + (TString) ".xBlob2";
+                obsName = this->GetName() + (TString) ".x2";
                 fAnalysisTree->SetObservableValue( obsName, xBlob2 );
 
-                obsName = this->GetName() + (TString) ".yBlob2";
+                obsName = this->GetName() + (TString) ".y2";
                 fAnalysisTree->SetObservableValue( obsName, yBlob2 );
 
-                obsName = this->GetName() + (TString) ".zBlob2";
+                obsName = this->GetName() + (TString) ".z2";
                 fAnalysisTree->SetObservableValue( obsName, zBlob2 );
             }
 
@@ -149,7 +149,7 @@ TRestEvent* TRestFindG4BlobAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     Double_t blobDistance = deltaX*deltaX + deltaY*deltaY + deltaZ*deltaZ;
     blobDistance = TMath::Sqrt( blobDistance );
 
-    obsName = this->GetName() + (TString) ".blobDistance";
+    obsName = this->GetName() + (TString) ".distance";
     fAnalysisTree->SetObservableValue( obsName, blobDistance );
 
     return fG4Event;
