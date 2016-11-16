@@ -110,6 +110,23 @@ Double_t TRestHits::GetEnergyIntegral()
     return sum;
 }
 
+Double_t TRestHits::GetEnergyInSphere( Double_t x0, Double_t y0, Double_t z0, Double_t radius )
+{
+    Double_t sum = 0;
+    for( int i = 0; i < GetNumberOfHits(); i++ )
+    {
+        Double_t x = this->GetX(i);
+        Double_t y = this->GetY(i);
+        Double_t z = this->GetZ(i);
+
+        Double_t dist = (x-x0) * (x-x0) + (y-y0) * (y-y0) + (z-z0) * (z-z0);
+
+        if( dist < radius * radius )
+            sum += GetEnergy(i);
+    }
+    return sum;
+}
+
 void TRestHits::AddHit( Double_t x, Double_t y, Double_t z, Double_t en )
 {
     fNHits++;

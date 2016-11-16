@@ -109,6 +109,8 @@ class TRestHits : public TObject
 
         Double_t GetEnergy( int n ) { return ( (Double_t) fEnergy[n]); } //return value in keV
 
+        Double_t GetEnergyInSphere( Double_t x, Double_t y, Double_t z, Double_t radius );
+
         Double_t GetMaximumHitEnergy( );
         Double_t GetMinimumHitEnergy( );
         Double_t GetMeanHitEnergy( );
