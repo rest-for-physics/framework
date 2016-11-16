@@ -181,6 +181,20 @@ Int_t TRestTrackEvent::GetOriginTrackID( Int_t tck )
     return originTrackID;
 }
 
+TRestTrack *TRestTrackEvent::GetOriginTrackById( Int_t tckId )
+{
+    Int_t originTrackID = tckId;
+    Int_t pID = GetTrackById(tckId)->GetParentID();
+
+    while( pID != 0 )
+    {
+        originTrackID = pID;
+        pID = GetTrackById(originTrackID)->GetParentID();
+    }
+
+    return GetTrackById( originTrackID );
+}
+
 void TRestTrackEvent::SetLevels( )
 {
     Int_t maxLevel = 0;

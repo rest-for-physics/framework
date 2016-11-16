@@ -60,6 +60,8 @@ class TRestTrackEvent: public TRestEvent {
         TRestTrack *GetTrack( Int_t n )  { return &fTrack[n]; }
         TRestTrack *GetTrackById( Int_t id );
 
+        TRestTrack *GetOriginTrackById( Int_t tckId );
+
         TRestTrack *GetMaxEnergyTrackInX( );
         TRestTrack *GetMaxEnergyTrackInY( );
 
