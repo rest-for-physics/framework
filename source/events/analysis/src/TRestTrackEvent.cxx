@@ -108,6 +108,36 @@ TRestTrack *TRestTrackEvent::GetMaxEnergyTrackInY( )
     return GetTrack( track );
 }
 
+TRestTrack *TRestTrackEvent::GetLongestTopLevelTrack()
+{
+    Int_t found = 0;
+    Double_t len = 0;
+    Int_t theTrack = 0;
+
+    for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
+    {
+        if( this->isTopLevel( tck ) )
+        {
+            Double_t l = this->GetTrack(tck)->GetTrackLength();
+
+            if( l > len )
+            {
+                len = l;
+                theTrack = tck;
+                found = 1;
+            }
+        }
+    }
+
+    if( found == 0 )
+    {
+        cout << "REST warning! A track was not found!" << endl;
+        return NULL;
+    }
+    return GetTrack( theTrack );
+
+}
+
 
 Int_t TRestTrackEvent::GetTotalHits( )
 {

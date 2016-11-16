@@ -63,6 +63,8 @@ class TRestTrackEvent: public TRestEvent {
         TRestTrack *GetMaxEnergyTrackInX( );
         TRestTrack *GetMaxEnergyTrackInY( );
 
+        TRestTrack *GetLongestTopLevelTrack();
+
 
         Int_t GetLevel( Int_t tck );
         void SetLevels();
