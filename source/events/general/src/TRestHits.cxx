@@ -340,6 +340,23 @@ Double_t TRestHits::GetDistanceToNode( Int_t n )
     return distance;
 }
 
+Int_t TRestHits::GetMostEnergeticHitInRange( Int_t n, Int_t m )
+{
+    Int_t maxEn = 0;
+    Int_t hit = -1;
+    for( int i = n; i < m; i++ )
+    {
+        if( this->GetEnergy( i ) > maxEn )
+        {
+            maxEn = this->GetEnergy( i );
+            hit = i;
+        }
+    }
+    if( hit == -1 ) cout << "REST warning : No largest hit found! No hits?" << endl;
+    return hit;
+}
+
+
 Int_t TRestHits::GetClosestHit( TVector3 position )
 {
     Int_t closestHit = 0;

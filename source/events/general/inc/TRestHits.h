@@ -53,10 +53,11 @@ class TRestHits : public TObject
        /// Rotation around an arbitrary axis vAxis
        void Rotate(Int_t n, Double_t alpha, TVector3 vAxis, TVector3 vMean);  // vMean is the mean position of the event from GetMeanPosition()
 
-
         void AddHit( Double_t x, Double_t y, Double_t z, Double_t en );
         void AddHit( TVector3 pos, Double_t en );
         void RemoveHits( );
+
+        Int_t GetMostEnergeticHitInRange( Int_t n, Int_t m );
 	
         void MergeHits( int n, int m );
         void SwapHits( Int_t i, Int_t j );
