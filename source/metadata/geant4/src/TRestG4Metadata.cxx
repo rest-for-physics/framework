@@ -50,7 +50,6 @@ TRestG4Metadata::~TRestG4Metadata()
 void TRestG4Metadata::Initialize()
 {
     SetName( "restG4" );
-    cout << __PRETTY_FUNCTION__ << endl;
 
     fChance.clear();
     fActiveVolumes.clear();
@@ -70,8 +69,6 @@ void TRestG4Metadata::Initialize()
 //______________________________________________________________________________
 void TRestG4Metadata::InitFromConfigFile()
 {
-    cout << __PRETTY_FUNCTION__ << endl;
-
     this->Initialize();
 
     // Initialize the metadata members from a configfile
