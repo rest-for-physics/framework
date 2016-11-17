@@ -131,7 +131,7 @@ TRestTrack *TRestTrackEvent::GetLongestTopLevelTrack()
 
     if( found == 0 )
     {
-        cout << "REST warning! A track was not found!" << endl;
+        cout << "REST warning! TRestTrackEvent. GetLongestTopLevelTrack. A track was not found!" << endl;
         return NULL;
     }
     return GetTrack( theTrack );
