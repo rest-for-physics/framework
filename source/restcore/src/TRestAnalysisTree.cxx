@@ -90,7 +90,7 @@ void TRestAnalysisTree::ConnectObservables( )
 
 }
 
-Int_t TRestAnalysisTree::AddObservable( TString observableName )
+Int_t TRestAnalysisTree::AddObservable( TString observableName, TString description )
 {
     if( fBranchesCreated )
     {
@@ -100,6 +100,7 @@ Int_t TRestAnalysisTree::AddObservable( TString observableName )
     }
     Double_t x = 0;
     fObservableNames.push_back( observableName );
+    fObservableDescriptions.push_back( description );
     fObservableValues.push_back( x );
 
     fNObservables++;

@@ -37,14 +37,15 @@ class TRestAnalysisTree:public TTree {
         Int_t fSubEventID;
         Double_t fTimeStamp;
         TString *fSubEventTag;
-	Int_t fRunOrigin;
-	Int_t fSubRunOrigin;
+        Int_t fRunOrigin;
+        Int_t fSubRunOrigin;
 
         std::vector <Double_t> fObservableValues;
 #endif
 
         Int_t fNObservables;
         std::vector <TString> fObservableNames;
+        std::vector <TString> fObservableDescriptions;
 
     protected:
     public:
@@ -68,11 +69,12 @@ class TRestAnalysisTree:public TTree {
         Int_t GetSubEventID( ) { return fSubEventID; }
         Double_t GetTimeStamp( ) { return fTimeStamp; }
         TString GetSubEventTag( ) { return *fSubEventTag; }
-	Int_t GetRunOrigin( ) { return fRunOrigin; }
-	Int_t GetSubRunOrigin( ) { return fSubRunOrigin; }
+        Int_t GetRunOrigin( ) { return fRunOrigin; }
+        Int_t GetSubRunOrigin( ) { return fSubRunOrigin; }
 
         Int_t GetNumberOfObservables( ) { return fNObservables; }
         TString GetObservableName( Int_t n ) { return fObservableNames[n]; } // TODO implement error message in case n >= fNObservables
+        TString GetObservableDescription( Int_t n ) { return fObservableDescriptions[n]; }
         Double_t GetObservableValue( Int_t n ) { return fObservableValues[n]; } // TODO implement error message in case n >= fNObservables
 
         void SetObservableValue( Int_t n, Double_t value ) {  fObservableValues[n] = value; }
@@ -104,7 +106,7 @@ class TRestAnalysisTree:public TTree {
         
         Int_t FillEvent( TRestEvent *evt );
         
-        Int_t AddObservable( TString observableName );
+        Int_t AddObservable( TString observableName, TString description = "" );
         
         //Construtor
         TRestAnalysisTree();
