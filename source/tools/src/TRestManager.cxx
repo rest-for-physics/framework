@@ -57,6 +57,7 @@ using namespace std;
 #include <TRestTrackAnalysisProcess.h>
 #include <TRestTriggerAnalysisProcess.h>
 #include <TRestHitsAnalysisProcess.h>
+#include <TRestFindTrackBlobsProcess.h>
 
 
 // task processes
@@ -271,6 +272,9 @@ Int_t TRestManager::LoadProcesses( )
 
         if( processType == "hitsAnalysisProcess" )
             fRun->AddProcess( new TRestHitsAnalysisProcess( ), (string) processesCfgFile, (string) processName );
+
+        if( processType == "findTrackBlobsProcess" )
+            fRun->AddProcess( new TRestFindTrackBlobsProcess( ), (string) processesCfgFile, (string) processName );
 
         if( processType == "signalToHitsProcess" )
             fRun->AddProcess( new TRestSignalToHitsProcess( ), (string) processesCfgFile, (string) processName );
