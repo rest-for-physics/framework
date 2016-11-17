@@ -26,6 +26,8 @@ class TRestGeant4AnalysisProcess:public TRestEventProcess {
         TRestG4Event *fG4Event;
         TRestG4Metadata *fG4Metadata;
 #endif
+        Double_t fLowEnergyCut;
+        Double_t fHighEnergyCut;
 
         void InitFromConfigFile();
 
@@ -50,6 +52,9 @@ class TRestGeant4AnalysisProcess:public TRestEventProcess {
         void PrintMetadata() { 
 
             BeginPrintProcess();
+
+            cout << "Low energy cut : " << fLowEnergyCut << " keV" << endl;
+            cout << "High energy cut : " << fHighEnergyCut << " keV" << endl;
 
             EndPrintProcess();
 
