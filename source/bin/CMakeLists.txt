@@ -19,3 +19,7 @@ target_link_libraries(restIntegrateSmearing ${target_libraries})
 add_executable(restCreateHisto restCreateHisto.cxx)
 install(TARGETS restCreateHisto RUNTIME DESTINATION bin)
 target_link_libraries(restCreateHisto ${target_libraries})
+
+add_executable(restAnaVarList restAnaVarList.cxx)
+install(TARGETS restAnaVarList RUNTIME DESTINATION bin)
+target_link_libraries(restAnaVarList ${target_libraries})
