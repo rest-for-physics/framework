@@ -73,6 +73,7 @@ class TRestMetadata:public TNamed {
         TVector3 Get3DVectorParameterWithUnits( std::string parName, size_t &pos, std::string inputString );
 
         vector <string> GetObservablesList( );
+        vector <string> GetObservableDescriptionsList( );
 
         std::string GetMyParameter( std::string &value, size_t &pos );
 
