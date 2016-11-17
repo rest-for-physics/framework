@@ -23,3 +23,7 @@ target_link_libraries(restCreateHisto ${target_libraries})
 add_executable(restAnaVarList restAnaVarList.cxx)
 install(TARGETS restAnaVarList RUNTIME DESTINATION bin)
 target_link_libraries(restAnaVarList ${target_libraries})
+
+add_executable(restFit restFit.cxx)
+install(TARGETS restFit RUNTIME DESTINATION bin)
+target_link_libraries(restFit ${target_libraries})
