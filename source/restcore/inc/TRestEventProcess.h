@@ -27,81 +27,84 @@
 #include "TRestAnalysisTree.h"
 
 class TRestEventProcess:public TRestMetadata {
- protected:
-   Int_t fStatusOfProcess;		// integer to hold the status of task: 0 = successful >0 = some error happened
-   Int_t fVerbose;              //! Verbose level of the process execution [0...3]
+    protected:
+        Int_t fStatusOfProcess;		// integer to hold the status of task: 0 = successful >0 = some error happened
+        Int_t fVerbose;              //! Verbose level of the process execution [0...3]
 
-   virtual void InitFromConfigFile() = 0;
+        virtual void InitFromConfigFile() = 0;
 
 #ifndef __CINT__
-   TRestEvent *fInputEvent;
-   TRestEvent *fOutputEvent;
+        TRestEvent *fInputEvent;
+        TRestEvent *fOutputEvent;
 
-   std::vector <TRestMetadata*> fRunMetadata;
+        std::vector <TRestMetadata*> fRunMetadata;
 
-   std::vector <string> fObservableNames;
+        std::vector <string> fObservableNames;
 
-   TRestAnalysisTree *fAnalysisTree;
+        TRestAnalysisTree *fAnalysisTree;
 #endif
 
- private:
+    private:
 
-   virtual void LoadDefaultConfig()=0;
+        virtual void LoadDefaultConfig()=0;
 
- public:
-   virtual TRestEvent *GetInputEvent() { return fInputEvent; }
-   virtual TRestEvent *GetOutputEvent() { return fOutputEvent; }
+    public:
+        virtual TRestEvent *GetInputEvent() { return fInputEvent; }
+        virtual TRestEvent *GetOutputEvent() { return fOutputEvent; }
 
-   virtual void InitProcess() { }
-   virtual TRestEvent *ProcessEvent( TRestEvent *evInput ) = 0;
-   virtual void EndProcess() { }
-   virtual void BeginOfEventProcess() { fOutputEvent->Initialize(); }
-   virtual void EndOfEventProcess() { }
-   virtual TString GetProcessName() = 0;
-   virtual void LoadConfig( std::string cfgFilename, std::string cfgName = "" )=0;
+        virtual void InitProcess() { }
+        virtual TRestEvent *ProcessEvent( TRestEvent *evInput ) = 0;
+        virtual void EndProcess() { }
+        virtual void BeginOfEventProcess() { fOutputEvent->Initialize(); }
+        virtual void EndOfEventProcess() { }
+        virtual TString GetProcessName() = 0;
+        virtual void LoadConfig( std::string cfgFilename, std::string cfgName = "" )=0;
 
-   virtual Bool_t isExternal( ) { return false; }
+        virtual Bool_t isExternal( ) { return false; }
 
-   vector <string> ReadObservables( )
-   {
-       vector <string> obsList = GetObservablesList( );
+        vector <string> ReadObservables( )
+        {
+            vector <string> obsList = GetObservablesList( );
+            vector <string> obsDescList = GetObservableDescriptionsList( );
 
-       for( unsigned int n = 0; n < obsList.size(); n++ )
-       {
-	       fAnalysisTree->AddObservable( this->GetName() + (TString) "." + (TString) obsList[n] );
-		fObservableNames.push_back ( this->GetName() + (string) "." + obsList[n] );
-       }
+            for( unsigned int n = 0; n < obsList.size(); n++ )
+            {
+                TString obsName = this->GetName() + (TString) "." + (TString) obsList[n];
 
-       return obsList;
-   }
+                fAnalysisTree->AddObservable( obsName, obsDescList[n] );
+                fObservableNames.push_back ( (string) obsName );
+            }
 
-   TRestMetadata *GetGasMetadata( );
-   TRestMetadata *GetReadoutMetadata( );
-   TRestMetadata *GetGeant4Metadata( );
-   TRestMetadata *GetDetectorSetup( );
+            return obsList;
+        }
 
-   Double_t GetDoubleParameterFromClass( TString className, TString parName );
-   Double_t GetDoubleParameterFromClassWithUnits( TString className, TString parName );
+        TRestMetadata *GetGasMetadata( );
+        TRestMetadata *GetReadoutMetadata( );
+        TRestMetadata *GetGeant4Metadata( );
+        TRestMetadata *GetDetectorSetup( );
 
-   virtual TRestMetadata *GetProcessMetadata() { return NULL; }
-   void SetMetadata( std::vector <TRestMetadata*> meta ) { fRunMetadata = meta; }
+        Double_t GetDoubleParameterFromClass( TString className, TString parName );
+        Double_t GetDoubleParameterFromClassWithUnits( TString className, TString parName );
 
-   void SetAnalysisTree( TRestAnalysisTree *tree ) { fAnalysisTree = tree; }
+        virtual TRestMetadata *GetProcessMetadata() { return NULL; }
+        void SetMetadata( std::vector <TRestMetadata*> meta ) { fRunMetadata = meta; }
 
-   void BeginPrintProcess();
-   void EndPrintProcess();
+        void SetAnalysisTree( TRestAnalysisTree *tree ) { fAnalysisTree = tree; }
 
-   //Getters
-   Int_t GetStatus() { return fStatusOfProcess; }
-   Int_t GetVerboseLevel() { return fVerbose; } 
-   //Setters
-   void SetVerboseLevel(Int_t verbose) { fVerbose = verbose; }
+        void BeginPrintProcess();
+        void EndPrintProcess();
 
-   //Constructor
-   TRestEventProcess();
-   //Destructor
-   ~TRestEventProcess();
+        //Getters
+        Int_t GetStatus() { return fStatusOfProcess; }
+        Int_t GetVerboseLevel() { return fVerbose; } 
+        //Setters
+        void SetVerboseLevel(Int_t verbose) { fVerbose = verbose; }
 
-   ClassDef(TRestEventProcess, 1);      // Base class for a REST process
+        //Constructor
+        TRestEventProcess();
+        //Destructor
+        ~TRestEventProcess();
+
+        ClassDef(TRestEventProcess, 1);      // Base class for a REST process
 };
 #endif
