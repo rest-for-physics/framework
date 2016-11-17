@@ -82,6 +82,9 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent( TRestEvent *evInput )
     TString obsName;
 
     Double_t energy = fG4Event->GetEnergyDepositedInVolume( 0 );
+    if( energy < fLowEnergyCut ) return NULL;
+    if( fHighEnergyCut > 0 && energy > fHighEnergyCut ) return NULL;
+
     obsName = this->GetName() + (TString) ".gasEnergyDeposit_InKeV";
     fAnalysisTree->SetObservableValue( obsName, energy );
 
@@ -122,6 +125,7 @@ void TRestGeant4AnalysisProcess::EndProcess()
 //______________________________________________________________________________
 void TRestGeant4AnalysisProcess::InitFromConfigFile( )
 {
-
+    fLowEnergyCut = GetDblParameterWithUnits ( "lowEnergyCut", 0 );
+    fHighEnergyCut = GetDblParameterWithUnits ( "highEnergyCut", 0 );
 }
 
