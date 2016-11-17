@@ -111,6 +111,26 @@ Int_t TRestG4Event::GetNumberOfHits( )
     return hits;
 }
 
+TRestHits TRestG4Event::GetHits( )
+{
+    TRestHits hits;
+    for( int t = 0; t < fNTracks; t++ ) 
+    {
+        TRestG4Hits *g4Hits = GetTrack( t )->GetHits( );
+        for( int n = 0; n < g4Hits->GetNumberOfHits(); n++ )
+        {
+            Double_t x = g4Hits->GetX(n);
+            Double_t y = g4Hits->GetY(n);
+            Double_t z = g4Hits->GetZ(n);
+            Double_t en = g4Hits->GetEnergy(n);
+
+            hits.AddHit( x, y, z, en );
+        }
+    }
+
+    return hits;
+}
+
 void TRestG4Event::PrintEvent()
 {
     TRestEvent::PrintEvent();
