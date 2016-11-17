@@ -62,11 +62,35 @@ int main( int argc, char *argv[] )
     TRestAnalysisTree *anaTree = run->GetAnalysisTree();
 
     cout << endl;
-    cout << "----------------------------" << endl;
-    cout << "TRestAnalysis tree variables" << endl;
-    cout << "----------------------------" << endl;
-        for( int i = 0; i < anaTree->GetNumberOfObservables( ); i++ )
+    cout << "++++++++++++++++++++++++++++++++++++++++++" << endl;
+    cout << "TRestAnalysis tree observables description" << endl;
+    cout << "++++++++++++++++++++++++++++++++++++++++++" << endl;
+    cout << endl;
+
+    for( int i = 0; i < anaTree->GetNumberOfObservables( ); i++ )
+    {
+        if( anaTree->GetObservableDescription( i ) != "Not defined" )
+        {
+            cout << " - " << i << ". " << anaTree->GetObservableName( i ) << endl;
+            cout << endl;
+            cout << "    Description : " << anaTree->GetObservableDescription( i ) << endl;
+            cout << endl;
+        }
+    }
+    cout << endl;
+
+    cout << endl;
+    cout << "++++++++++++++++++++++++++++++++++++++" << endl;
+    cout << "TRestAnalysis tree observable index" << endl;
+    cout << "++++++++++++++++++++++++++++++++++++++" << endl;
+    cout << endl;
+
+    for( int i = 0; i < anaTree->GetNumberOfObservables( ); i++ )
+    {
         cout << " - " << i << ". " << anaTree->GetObservableName( i ) << endl;
+    }
+    cout << endl;
+
     cout << "----------------------------" << endl;
     cout << endl;
 
