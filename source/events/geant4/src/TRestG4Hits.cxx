@@ -86,23 +86,33 @@ TVector3 TRestG4Hits::GetMeanPositionInVolume( Int_t volID )
             en += GetEnergy( n );
         }
 
-    if( en == 0 ) return pos;
+    if( en == 0 )
+    {
+        TVector3 pos;
+        Double_t nan = TMath::QuietNaN();
+        return TVector3( nan, nan, nan );
+    }
+
     pos =  (1./ en) * pos;
     return pos;
 }
 
 TVector3 TRestG4Hits::GetFirstPositionInVolume( Int_t volID )
 {
-    TVector3 pos;
     for( int n = 0; n < fNHits; n++ )
         if( fVolumeID[n] == volID ) return GetPosition( n );
-    return pos;
+
+    TVector3 pos;
+    Double_t nan = TMath::QuietNaN();
+    return TVector3( nan, nan, nan );
 }
 
 TVector3 TRestG4Hits::GetLastPositionInVolume( Int_t volID )
 {
-    TVector3 pos;
     for( int n = fNHits-1; n >= 0; n-- )
         if( fVolumeID[n] == volID ) return GetPosition( n );
-    return pos;
+
+    TVector3 pos;
+    Double_t nan = TMath::QuietNaN();
+    return TVector3( nan, nan, nan );
 }

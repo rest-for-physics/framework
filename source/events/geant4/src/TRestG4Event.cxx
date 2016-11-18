@@ -110,31 +110,37 @@ TVector3 TRestG4Event::GetMeanPositionInVolume(Int_t volID)
         }
     }
 
-    if( eDep == 0 ) return pos;
+    if( eDep == 0 )
+    {
+        TVector3 pos;
+        Double_t nan = TMath::QuietNaN();
+        return TVector3( nan, nan, nan );
+    }
+
     pos = (1/eDep) * pos;
     return pos;
 }
 
 TVector3 TRestG4Event::GetFirstPositionInVolume(Int_t volID)
 {
-    TVector3 pos;
-
     for( int t = 0; t < GetNumberOfTracks(); t++ )
         if( GetTrack( t )->GetEnergyInVolume( volID ) > 0 )
             return GetTrack( t )->GetFirstPositionInVolume( volID );
 
-    return pos;
+    TVector3 pos;
+    Double_t nan = TMath::QuietNaN();
+    return TVector3( nan, nan, nan );
 }
 
 TVector3 TRestG4Event::GetLastPositionInVolume(Int_t volID)
 {
-    TVector3 pos;
-
     for( int t = GetNumberOfTracks()-1; t >= 0; t-- )
         if( GetTrack( t )->GetEnergyInVolume( volID ) > 0 )
             return GetTrack( t )->GetLastPositionInVolume( volID );
 
-    return pos;
+    TVector3 pos;
+    Double_t nan = TMath::QuietNaN();
+    return TVector3( nan, nan, nan );
 }
 
 TRestG4Track *TRestG4Event::GetTrackByID( int id ) 
