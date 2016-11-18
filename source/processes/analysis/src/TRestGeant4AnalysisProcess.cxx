@@ -129,6 +129,18 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent( TRestEvent *evInput )
     if ( fG4Event->isNeutron( ) ) fAnalysisTree->SetObservableValue(obsName, 1 );
     else fAnalysisTree->SetObservableValue( obsName, 0 );
 
+    obsName = this->GetName() + (TString) ".Ar";
+    if ( fG4Event->isArgon( ) ) fAnalysisTree->SetObservableValue(obsName, 1 );
+    else fAnalysisTree->SetObservableValue( obsName, 0 );
+
+    obsName = this->GetName() + (TString) ".Xe";
+    if ( fG4Event->isXenon( ) ) fAnalysisTree->SetObservableValue(obsName, 1 );
+    else fAnalysisTree->SetObservableValue( obsName, 0 );
+
+    obsName = this->GetName() + (TString) ".Ne";
+    if ( fG4Event->isNeon( ) ) fAnalysisTree->SetObservableValue(obsName, 1 );
+    else fAnalysisTree->SetObservableValue( obsName, 0 );
+
     cout << "Event : " << fG4Event->GetID() << " G4 Tracks : " << fG4Event->GetNumberOfTracks() << endl;
     return fG4Event;
 }
