@@ -129,10 +129,42 @@
 
 
 <section geant4AnalysisProcess name="g4Ana" title="Geant4 analysis template" >
-    <observable name="gasEnergyDeposit_InKeV" value="ON" />
-    <observable name="photoelectric" value="ON" />
-    <observable name="compton" value="ON" />
-    <observable name="bremstralung" value="ON" />
+
+    <!-- Volume observables
+         You may define an observable with the energy deposited in any active volume in the restG4 simulation.
+
+         This observable must be defined as : [VOL_NAME]EDep (i.e. gasEDep, vesselEDep )
+
+         Here -EDep- is a key word, and it is recommended not to use it in the definition of other observables
+    -->
+
+    <observable name="gasEDep" value="ON"
+        description="Energy deposited in the gas volume in keV" />
+
+    <observable name="vesselEDep" value="ON"
+        description="Energy deposited in the vessel volume in keV" />
+
+    <!-- Notice that total is not a volume but totalEdep is an observable hard-coded inside the analysis process.
+         That is why we write Edep and not EDep, which is a reserved word. -->
+
+    <observable name="totalEdep" value="ON"
+        description="Total energy deposited in all the volumes in keV" />
+
+    <observable name="photoelectric" value="ON"
+        description="Its value will be 1 if the event contains a photoelectric interaction." />
+
+    <observable name="compton" value="ON"
+        description="Its value will be 1 if the event contains a compton scattering process." />
+
+    <observable name="bremstralung" value="ON"
+        description="Its value will be 1 if the event contains a bremstralung physics process." />
+
+    <!-- These parameters define an energy cut. Only events within the range will be processed.  
+         If these are defined as 0 all events will be accepted. -->
+
+    <parameter name="lowEnergyCut" value="2350" units="keV" />
+    <parameter name="highEnergyCut" value="0" units="keV" />
+
 </section>
 
 <section trackAnalysisProcess name="tckAna" title="Track analysis template" >
