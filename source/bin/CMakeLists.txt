@@ -20,10 +20,14 @@ add_executable(restCreateHisto restCreateHisto.cxx)
 install(TARGETS restCreateHisto RUNTIME DESTINATION bin)
 target_link_libraries(restCreateHisto ${target_libraries})
 
-add_executable(restAnaVarList restAnaVarList.cxx)
-install(TARGETS restAnaVarList RUNTIME DESTINATION bin)
-target_link_libraries(restAnaVarList ${target_libraries})
+add_executable(restPrintAnaTreeVariables restPrintAnaTreeVariables.cxx)
+install(TARGETS restPrintAnaTreeVariables RUNTIME DESTINATION bin)
+target_link_libraries(restPrintAnaTreeVariables ${target_libraries})
 
 add_executable(restFit restFit.cxx)
 install(TARGETS restFit RUNTIME DESTINATION bin)
 target_link_libraries(restFit ${target_libraries})
+
+add_executable(restPrintRunInfo restPrintRunInfo.cxx)
+install(TARGETS restPrintRunInfo RUNTIME DESTINATION bin)
+target_link_libraries(restPrintRunInfo ${target_libraries})
