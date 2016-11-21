@@ -31,3 +31,7 @@ target_link_libraries(restFit ${target_libraries})
 add_executable(restPrintRunInfo restPrintRunInfo.cxx)
 install(TARGETS restPrintRunInfo RUNTIME DESTINATION bin)
 target_link_libraries(restPrintRunInfo ${target_libraries})
+
+add_executable(restPrintAllMetadata restPrintAllMetadata.cxx)
+install(TARGETS restPrintAllMetadata RUNTIME DESTINATION bin)
+target_link_libraries(restPrintAllMetadata ${target_libraries})
