@@ -103,8 +103,6 @@ void EventAction::EndOfEventAction(const G4Event* evt)
         cout << "End of event : " << evtNb << endl;
     }
 
-    Double_t totEnergy = restG4Event->GetSensitiveVolumeEnergy();
-
     Double_t minEnergy = restG4Metadata->GetMinimumEnergyStored();
     Double_t maxEnergy = restG4Metadata->GetMaximumEnergyStored();
 
