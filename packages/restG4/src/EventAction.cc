@@ -108,19 +108,18 @@ void EventAction::EndOfEventAction(const G4Event* evt)
     Double_t minEnergy = restG4Metadata->GetMinimumEnergyStored();
     Double_t maxEnergy = restG4Metadata->GetMaximumEnergyStored();
 
-    if ( maxEnergy == 0 ) maxEnergy = totEnergy + 1;
+    SetTrackSubeventIDs();
 
-    if( totEnergy > minEnergy && totEnergy < maxEnergy )
+    for( int subId = 0; subId < restG4Event->GetNumberOfSubEventIDTracks(); subId++ )
     {
-        SetTrackSubeventIDs();
+        FillSubEvent( subId );
 
-        for( int subId = 0; subId < restG4Event->GetNumberOfSubEventIDTracks(); subId++ )
-        {
-            FillSubEvent( subId );
+        Double_t en = subRestG4Event->GetTotalDepositedEnergy( );
+        if( minEnergy < 0 ) minEnergy = 0;
+        if( maxEnergy == 0 ) maxEnergy = en + 1.;
 
-            if( subRestG4Event->GetTotalDepositedEnergy() > 0. )
-                restRun->Fill();
-        }
+        if( en > minEnergy && en < maxEnergy )
+            restRun->Fill();
     }
 }
 
