@@ -18,7 +18,7 @@ void PrintHelp( )
     cout << "-----------------------------------------------------------------------------------" << endl;
     cout << "This program prints on screen the existing variables inside TRestAnalysisTree" << endl;
     cout << endl;
-    cout << "Usage : ./restAnaVarList INPUT_FILE" << endl;
+    cout << "Usage : ./restPrintAnaTreeVariables INPUT_FILE" << endl;
     cout << "-----------------------------------------------------------------------------------" << endl;
     cout << endl;
 }
@@ -29,7 +29,7 @@ int main( int argc, char *argv[] )
 	char *argVRint[3];
 
 	char batch[64], quit[64], appName[64];
-	sprintf ( appName, "restAnaVarList" );
+	sprintf ( appName, "restPrintAnaTreeVariables" );
 	sprintf( batch, "%s", "-b" );
 	sprintf( quit, "%s", "-q" );
 
