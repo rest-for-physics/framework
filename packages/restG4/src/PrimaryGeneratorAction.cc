@@ -94,7 +94,7 @@ G4ParticleDefinition *PrimaryGeneratorAction::SetParticleDefinition( int n )
         if( particle == NULL ) 
         {
             // There might be a better way to do this
-            for( int Z = 1; Z <= 92; Z++ )
+            for( int Z = 1; Z <= 110; Z++ )
                 for( int A = 2*Z; A <= 3*Z; A++ )
                 {
  //                          cout << "Ion name : " << G4IonTable::GetIonTable()->GetIonName ( Z, A ) << endl;
