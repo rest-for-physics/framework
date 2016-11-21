@@ -138,6 +138,7 @@ void TRestG4Event::PrintEvent()
     cout.precision(4);
 
     cout << "Total energy : " << fTotalDepositedEnergy << " keV" << endl;
+    cout << "Sensitive volume energy : " << fSensitiveVolumeEnergy << " keV" << endl;
     cout << "Source origin : (" << fPrimaryEventOrigin.X() << "," << fPrimaryEventOrigin.Y() << "," << fPrimaryEventOrigin.Z() << ") mm" << endl;
 
     for( int n = 0; n < GetNumberOfPrimaries(); n++ )
