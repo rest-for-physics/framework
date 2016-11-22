@@ -1,25 +1,61 @@
-///______________________________________________________________________________;
-///______________________________________________________________________________
-///______________________________________________________________________________
-///             
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestMetadata.cxx
-///
-///             Base class from which to inherit all other REST metadata classes 
-///             (config, etc...) 
-///             TRestMetadata controls the I/O to config files.
-///             It also offers inspection of the command line arguments
-///
-///             jun 2014:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///                 Igor G. Irastorza
-///             jul 2015:    Javier Galan
-///_______________________________________________________________________________
-//
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
+
+//////////////////////////////////////////////////////////////////////////
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// \class      TRestMetadata
+/// A base class for any REST metadata class
+///
+/// One of the core classes of REST. Absract class
+/// from which all REST "metadta classes" must derive.
+/// A metadata class in REST is any holder of data other than event data
+/// that is relevant to understand the origan and history of 
+/// transformations a given set of event data has gone through. 
+/// For example the geometry of a simulation,
+/// the configuration of a process, the properties of a gas, 
+/// the readout patter with which to "pixelise" data, etc... are examples 
+/// of metadata.
+/// All metadata classes have the propoerty to be "initialized" via
+/// configuration (.rml) files that the user can write. Alternatively
+/// they can be read from root files. TRestMetadata contains 
+/// the common functionality that allows metadata to be read from .rml
+/// files.
+///
+/// [To be added: Brief description of .rml file philosophy.]
+///
+/// History of developments:
+///
+/// 2014-june: First concept. As part of conceptualization of previous REST
+///            code (REST v2)
+///            Igor G. Irastorza
+///
+/// 2015-jul:  Re-implementation to read .rml files with xml-inspired 
+///            syntax
+///            Javier Galán
+///
+//////////////////////////////////////////////////////////////////////////
 
 #include <TMath.h>
 #include <TSystem.h>
@@ -35,18 +71,20 @@ const int ERROR = -1;
 const int OK = 0;
 
 ClassImp(TRestMetadata)
-//______________________________________________________________________________
-    TRestMetadata::TRestMetadata()
+
+//////////////////////////////////////////////////////////////////////////
+/// Default TRestMetadata constuctor
+///
+TRestMetadata::TRestMetadata()
 {
-   // TRestMetadata default constructor
     fStore = true;
 }
 
-
-//______________________________________________________________________________
+//////////////////////////////////////////////////////////////////////////
+/// TRestMetadata constructor loading data from config file
+///
 TRestMetadata::TRestMetadata( const char *cfgFileName)
 {
-    // TRestMetadata constructor loading data from config file
     SetConfigFile( cfgFileName );
 
     SetTitle("Config");
@@ -61,25 +99,28 @@ TRestMetadata::TRestMetadata( const char *cfgFileName)
 }
 
 
-//______________________________________________________________________________
+//////////////////////////////////////////////////////////////////////////
+/// TRestMetadata destructor
+///
 TRestMetadata::~TRestMetadata()
 {
-   // TRestMetadata destructor
  //  fclose( configFile );
 }
 
-//______________________________________________________________________________
+//////////////////////////////////////////////////////////////////////////
+/// Lets the user define the default path where to search for the config
+/// file for this metadata object. Normally one should not use this function,
+/// as the constructor metadata provides a default value to
+/// fConfigFilePath through the SetDefaultConfigFilePath() function
+///
 void TRestMetadata::SetConfigFilePath(const char *configFilePath)
 {
-    // Lets the user define the default path where to search for the config 
-    // file for this metadata object. Normally one should not use this function, 
-    // as the constructor metadata provides a default value to
-    // fConfigFilePath through the SetDefaultConfigFilePath() function
-
     fConfigFilePath = string(configFilePath);
 }
 
-//______________________________________________________________________________
+
+//////////////////////////////////////////////////////////////////////////
+///
 string TRestMetadata::trim(string str)
 {
     size_t first = str.find_first_not_of(' ');
@@ -87,6 +128,9 @@ string TRestMetadata::trim(string str)
     return str.substr(first, (last-first+1));
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// If expression (not a number) returns 1. If not returns 0
+///
 Int_t TRestMetadata::isAExpression( string in )
 {
     size_t pos = 0;
@@ -103,12 +147,17 @@ Int_t TRestMetadata::isAExpression( string in )
     return (in.find_first_not_of("-0123456789+*/.,)( ") == std::string::npos && in.length() != 0);
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// If number returns 1. If not returns 0
+///
 Int_t TRestMetadata::isANumber( string in )
 {
-    // If number returns 1. If not returns 0
     return (in.find_first_not_of("-+0123456789.e") == std::string::npos && in.length() != 0);
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Remove .rml comments from input string
+///
 string TRestMetadata::RemoveComments( string in )
 {
     string out = in;
@@ -118,10 +167,13 @@ string TRestMetadata::RemoveComments( string in )
         int length = out.find("-->", pos) - pos;
         out.erase( pos, length+3 ); 
     }
-
     return out;
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+/// Remove white spaces from input string
+///
 string TRestMetadata::RemoveWhiteSpaces( string in )
 {
     string out = in;
@@ -135,19 +187,25 @@ string TRestMetadata::RemoveWhiteSpaces( string in )
     return out;
 }
 
-Int_t TRestMetadata::Count( string s, string sbstring)
+//////////////////////////////////////////////////////////////////////////
+/// Count number of occurences of sgstring inside inputstring 
+///
+Int_t TRestMetadata::Count( string inputstring, string sbstring )
 {
     int count = 0;
-    size_t nPos = s.find(sbstring, 0); // fist occurrence
+    size_t nPos = inputstring.find(sbstring, 0); // fist occurrence
     while(nPos != string::npos)
     {
         count++;
-        nPos = s.find( sbstring, nPos+1);
+        nPos = inputstring.find( sbstring, nPos+1);
     }
 
     return count;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Replace every occurences of thisSring by byThisString inside string in
+///
 string TRestMetadata::Replace( string in, string thisString, string byThisString, size_t fromPosition = 0 )
 {
     string out = in;
@@ -162,6 +220,9 @@ string TRestMetadata::Replace( string in, string thisString, string byThisString
     return out;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Get a double from a string
+///
 Double_t TRestMetadata::StringToDouble( string in )
 {
     if( isANumber ( in ) )
@@ -174,14 +235,21 @@ Double_t TRestMetadata::StringToDouble( string in )
     }
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Get an integer from a string
+///
 Int_t TRestMetadata::StringToInteger( string in )
 {
     return (Int_t) StringToDouble( in );
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Get a 3Dvector from a string
+///
+/// TODO: make a warning when format is not correct
+///
 TVector3 TRestMetadata::StringTo3DVector( string in )
 {
-    // TODO make a warning when format is not correct
     TVector3 a;
 
     size_t startVector = in.find_first_of("(");
@@ -208,9 +276,13 @@ TVector3 TRestMetadata::StringTo3DVector( string in )
     return a;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Get a 2Dvector from a string
+///
+/// TODO: make a warning when format is not correct
+///
 TVector2 TRestMetadata::StringTo2DVector( string in )
 {
-    // TODO make a warning when format is not correct
     TVector2 a(-1,-1);
 
     size_t startVector = in.find_first_of("(");
@@ -235,6 +307,9 @@ TVector2 TRestMetadata::StringTo2DVector( string in )
     return a;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Return true if file filename exists
+///
 bool TRestMetadata::fileExists(const std::string& filename)
 {
     struct stat buf;
@@ -245,6 +320,9 @@ bool TRestMetadata::fileExists(const std::string& filename)
     return false;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Return true if file filename is a root file
+///
 bool TRestMetadata::isRootFile( const std::string& filename )
 {
     if ( filename.find( ".root" ) == string::npos ) return false; 
@@ -253,14 +331,18 @@ bool TRestMetadata::isRootFile( const std::string& filename )
 }
 
 
-//______________________________________________________________________________
+//////////////////////////////////////////////////////////////////////////
+/// Assigns a default value to fConfigFilePath derived from the environment
+///
 void TRestMetadata::SetDefaultConfigFilePath( )
 {
-    // Assigns a default value to fConfigFilePath derived from the environment
 
     SetConfigFilePath( "" );
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Assigns a config file to the metadata object
+///
 void TRestMetadata::SetConfigFile( string cfgFileName )
 {
     fConfigFileName = cfgFileName;
@@ -268,6 +350,13 @@ void TRestMetadata::SetConfigFile( string cfgFileName )
 }
 
 
+//////////////////////////////////////////////////////////////////////////
+/// Load a given section from the config file into memory buffer
+///
+/// \param section type of section to find
+/// \param cfgFileName config file name
+/// \param name name of the section load 
+///
 Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, string name )
 {
     fSectionName = section;
@@ -454,6 +543,10 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
     return 0;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Load the section corresponding to this metadata object 
+/// from the config file into memory buffer
+///
 Int_t TRestMetadata::LoadConfigFromFile( string cfgFileName, string name )
 {
     std::string section = GetName();
@@ -463,6 +556,10 @@ Int_t TRestMetadata::LoadConfigFromFile( string cfgFileName, string name )
     return result;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Load the section corresponding to this metadata object 
+/// from the config file into memory buffer
+///
 Int_t TRestMetadata::LoadConfigFromFile( string cfgFileName )
 {
     std::string section = GetName();
@@ -473,9 +570,12 @@ Int_t TRestMetadata::LoadConfigFromFile( string cfgFileName )
     return result;
 }
 
-// This might be an improved version of GetKEYStructure()
+//////////////////////////////////////////////////////////////////////////
+/// Interpret FOR structures in config file
+///
 string TRestMetadata::ExtractLoopStructure( string in, size_t pos )
 {
+// This might be an improved version of GetKEYStructure()
     if( debug > 2 )
     {
         cout << "------IN------" << endl;
@@ -515,7 +615,9 @@ string TRestMetadata::ExtractLoopStructure( string in, size_t pos )
 
 }
 
-
+//////////////////////////////////////////////////////////////////////////
+/// Interpret FOR structures in config file
+///
 string TRestMetadata::ExpandForLoops( const string buffer )
 {
     string outputBuffer = buffer;
@@ -615,6 +717,9 @@ string TRestMetadata::ExpandForLoops( const string buffer )
     return outputBuffer;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Evaluate formula expression in config file
+///
 string TRestMetadata::EvaluateExpression( string exp )
 {
     if( !isAExpression( exp ) ) { return exp; }
@@ -632,6 +737,9 @@ string TRestMetadata::EvaluateExpression( string exp )
     return out;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Replace environmental variable by its value in the buffer
+///
 string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
 {
     string outputBuffer = buffer;
@@ -695,6 +803,10 @@ string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
     return outputBuffer;
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+/// Evaluate and replace mathematical expression in the buffer
+///
 string TRestMetadata::ReplaceMathematicalExpressions( const string buffer )
 {
     string outputBuffer = buffer;
@@ -758,7 +870,10 @@ string TRestMetadata::ReplaceMathematicalExpressions( const string buffer )
     return outputBuffer;
 }
 
-//______________________________________________________________________________
+//////////////////////////////////////////////////////////////////////////
+/// Check if config file can be opiened
+/// return OK if yes, ERROR otherwise
+///
 Int_t TRestMetadata::CheckConfigFile( )
 {
     string fileName = fConfigFilePath + fConfigFileName;
@@ -774,19 +889,22 @@ Int_t TRestMetadata::CheckConfigFile( )
 }
 
 
-
+//////////////////////////////////////////////////////////////////////////
+/// Check if the section defined in TRestSpecificMetadata is in the config file
+/// TODO
+///
 void TRestMetadata::CheckSection( )
 {
-
     /*
      *  TODO : Check if the section defined in TRestSpecificMetadata is in the config file
      *
-     *
      * */
-
-
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Check if the section defined in TRestSpecificMetadata is in the config file
+/// TODO
+///
 Int_t TRestMetadata::FindEndSection( Int_t initPos )
 {
     Int_t endSectionPos = configBuffer.find("</section>", initPos );
@@ -795,9 +913,10 @@ Int_t TRestMetadata::FindEndSection( Int_t initPos )
     else return endSectionPos;
 }
 
+//////////////////////////////////////////////////////////////////////////
+///
 string TRestMetadata::GetMyParameter( string &value, size_t &pos )
 {
-
     string parameterString = GetKEYDefinition( "myParameter", pos );
  //   cout << "Parameter string : " << parameterString << endl;
 
@@ -811,9 +930,10 @@ string TRestMetadata::GetMyParameter( string &value, size_t &pos )
     return "";
 }
 
+//////////////////////////////////////////////////////////////////////////
+///
 void TRestMetadata::SetEnvVariable( size_t &pos )
 {
-
     string envString = GetKEYDefinition( "variable", pos );
 
     if( envString.find( "name" ) != string::npos && envString.find( "value" ) != string::npos )
@@ -830,6 +950,9 @@ void TRestMetadata::SetEnvVariable( size_t &pos )
     }
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// 
+///
 string TRestMetadata::GetParameter( string parName, size_t &pos, string inputString )
 {
     // TODO : this can be probably removed since now we store only the section on configBuffer
@@ -873,6 +996,9 @@ string TRestMetadata::GetParameter( string parName, size_t &pos, string inputStr
     return "";
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// 
+///
 Double_t TRestMetadata::GetDblParameterWithUnits( std::string parName, size_t &pos, std::string inputString )
 {
     while( 1 )
@@ -895,6 +1021,10 @@ Double_t TRestMetadata::GetDblParameterWithUnits( std::string parName, size_t &p
     return PARAMETER_NOT_FOUND_DBL;
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+/// Return parameter type 2D vector from config file 
+///
 TVector2 TRestMetadata::Get2DVectorParameterWithUnits( std::string parName, size_t &pos, std::string inputString )
 {
     while( 1 )
@@ -917,6 +1047,9 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits( std::string parName, size
     return TVector2(-1,-1);
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// 
+///
 TVector3 TRestMetadata::Get3DVectorParameterWithUnits( std::string parName, size_t &pos, std::string inputString )
 {
     while( 1 )
@@ -929,7 +1062,7 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits( std::string parName, size
         }
         else
         {
-            if( debug > 1 ) cout << " I did not found" << endl;
+            if( debug > 1 ) cout << " I did not find" << endl;
             cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
             return TVector3( -1, -1, -1 );
         }
@@ -939,6 +1072,9 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits( std::string parName, size
     return TVector3( -1, -1, -1 );;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// 
+///
 string TRestMetadata::GetParameter( string parName, TString defaultValue )
 {
     // TODO : this can be probably removed since now we store only the section on configBuffer
@@ -986,6 +1122,9 @@ string TRestMetadata::GetParameter( string parName, TString defaultValue )
     return defaultValue.Data();
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// 
+///
 vector <string> TRestMetadata::GetObservablesList( )
 {
     size_t position = 0;
@@ -1010,6 +1149,9 @@ vector <string> TRestMetadata::GetObservablesList( )
     return output;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// 
+///
 vector <string> TRestMetadata::GetObservableDescriptionsList( )
 {
     size_t position = 0;
@@ -1035,6 +1177,9 @@ vector <string> TRestMetadata::GetObservableDescriptionsList( )
     return output;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// 
+///
 Double_t TRestMetadata::GetDblParameterWithUnits( string parName, Double_t defaultValue )
 {
     size_t position = 0;
@@ -1065,6 +1210,9 @@ Double_t TRestMetadata::GetDblParameterWithUnits( string parName, Double_t defau
     return defaultValue;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// 
+///
 TVector2 TRestMetadata::Get2DVectorParameterWithUnits( string parName, TVector2 defaultValue )
 {
     size_t position = 0;
@@ -1096,6 +1244,9 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits( string parName, TVector2 
     return defaultValue;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// 
+///
 TVector3 TRestMetadata::Get3DVectorParameterWithUnits( string parName, TVector3 defaultValue )
 {
     size_t position = 0;
@@ -1127,7 +1278,9 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits( string parName, TVector3 
     return defaultValue;
 }
 
-// gets the field from parName <key --- parName="XX" --- >
+//////////////////////////////////////////////////////////////////////////
+/// Gets the field from parName <key --- parName="XX" --- >
+///
 string TRestMetadata::GetFieldFromKEY( string parName, string key )
 {
     size_t position = 0;
@@ -1145,7 +1298,9 @@ string TRestMetadata::GetFieldFromKEY( string parName, string key )
     return "";
 }
 
-// Searches in substr
+//////////////////////////////////////////////////////////////////////////
+/// 
+///
 string TRestMetadata::GetFieldValue( string fieldName, string definition, size_t fromPosition )
 {
     string fldName = fieldName + "=\"";
@@ -1163,6 +1318,9 @@ string TRestMetadata::GetFieldValue( string fieldName, string definition, size_t
     }
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// 
+///
 string TRestMetadata::GetUnits( string definition, size_t fromPosition )
 {
     string fldName = "units=\"";
@@ -1183,6 +1341,9 @@ string TRestMetadata::GetUnits( string definition, size_t fromPosition )
     }
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// 
+///
 Double_t TRestMetadata::GetDblFieldValueWithUnits( string fieldName, string definition, size_t fromPosition )
 {
     string fldName = fieldName + "=\"";
@@ -1215,6 +1376,9 @@ Double_t TRestMetadata::GetDblFieldValueWithUnits( string fieldName, string defi
     }
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// 
+///
 TVector2 TRestMetadata::Get2DVectorFieldValueWithUnits( string fieldName, string definition, size_t fromPosition )
 {
     string fldName = fieldName + "=\"";
@@ -1247,6 +1411,9 @@ TVector2 TRestMetadata::Get2DVectorFieldValueWithUnits( string fieldName, string
     }
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// 
+///
 TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits( string fieldName, string definition, size_t fromPosition )
 {
     string fldName = fieldName + "=\"";
@@ -1283,7 +1450,9 @@ TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits( string fieldName, string
     }
 }
 
-// Searches in the configBuffer from position
+//////////////////////////////////////////////////////////////////////////
+/// Searches in the buffer from position 
+///
 string TRestMetadata::GetFieldValue( string fieldName, size_t fromPosition )
 {
     string fldName = fieldName + "=\"";
@@ -1303,8 +1472,9 @@ string TRestMetadata::GetFieldValue( string fieldName, size_t fromPosition )
     }
 }
 
-
-// returns the string containing <KEY --- >
+//////////////////////////////////////////////////////////////////////////
+/// Returns the string containing <KEY --- >
+///
 string TRestMetadata::GetKEYDefinition( string keyName )
 {
     Int_t fromPosition = 0;
@@ -1319,6 +1489,9 @@ string TRestMetadata::GetKEYDefinition( string keyName )
 
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Returns the string containing <KEY --- >
+///
 string TRestMetadata::GetKEYDefinition( string keyName, size_t &fromPosition )
 {
     string key = "<" + keyName;
@@ -1332,6 +1505,9 @@ string TRestMetadata::GetKEYDefinition( string keyName, size_t &fromPosition )
 
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Returns the string containing <KEY --- >
+///
 string TRestMetadata::GetKEYDefinition( string keyName, string buffer )
 {
     string key = "<" + keyName;
@@ -1343,6 +1519,9 @@ string TRestMetadata::GetKEYDefinition( string keyName, string buffer )
 
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Returns the string containing <KEY --- >
+///
 string TRestMetadata::GetKEYDefinition( string keyName, size_t &fromPosition, string buffer )
 {
     string key = "<" + keyName;
@@ -1358,7 +1537,9 @@ string TRestMetadata::GetKEYDefinition( string keyName, size_t &fromPosition, st
 
 }
 
-// returns the string containing <KEY --- /KEY>
+//////////////////////////////////////////////////////////////////////////
+/// returns the string containing <KEY --- /KEY>
+///
 string TRestMetadata::GetKEYStructure( string keyName )
 {
     string strNotFound = "NotFound";
@@ -1379,8 +1560,10 @@ string TRestMetadata::GetKEYStructure( string keyName )
     return configBuffer.substr( initPos, endPos-initPos + endKEY.length()+1 );
 
 }
-//
-// returns the string containing <KEY --- /KEY>
+
+//////////////////////////////////////////////////////////////////////////
+/// returns the string containing <KEY --- /KEY>
+///
 string TRestMetadata::GetKEYStructure( string keyName, string buffer )
 {
 
@@ -1402,6 +1585,9 @@ string TRestMetadata::GetKEYStructure( string keyName, string buffer )
 
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// returns the string containing <KEY --- /KEY>
+///
 string TRestMetadata::GetKEYStructure( string keyName, size_t &fromPosition )
 {
     size_t position = fromPosition;
@@ -1422,6 +1608,9 @@ string TRestMetadata::GetKEYStructure( string keyName, size_t &fromPosition )
     return configBuffer.substr( initPos, endPos-initPos + endKEY.length()+1 );
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// returns the string containing <KEY --- /KEY>
+///
 string TRestMetadata::GetKEYStructure( string keyName, size_t &fromPosition, string buffer )
 {
     size_t position = fromPosition;
@@ -1452,6 +1641,8 @@ string TRestMetadata::GetKEYStructure( string keyName, size_t &fromPosition, str
     return buffer.substr( initPos, endPos-initPos + endKEY.length()+1 );
 }
 
+//////////////////////////////////////////////////////////////////////////
+///
 string TRestMetadata::GetSectionByNameFromFile( string nref, string fref )
 {
     string fileName = ReplaceEnvironmentalVariables( fref );
@@ -1477,6 +1668,8 @@ string TRestMetadata::GetSectionByNameFromFile( string nref, string fref )
     return "";
 }
 
+//////////////////////////////////////////////////////////////////////////
+///
 Int_t TRestMetadata::FindSection( string buffer, size_t startPos )
 {
 
@@ -1524,6 +1717,9 @@ Int_t TRestMetadata::FindSection( string buffer, size_t startPos )
     return NOT_FOUND;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Print curent time on the console
+///
 void TRestMetadata::PrintTimeStamp( Double_t timeStamp )
 {
        cout.precision(10);
@@ -1541,8 +1737,15 @@ void TRestMetadata::PrintTimeStamp( Double_t timeStamp )
        cout << "++++++++++++++++++++++++" << endl;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Print config buffer on the console
+///
 void TRestMetadata::PrintConfigBuffer( ) { cout << configBuffer << endl; }
 
+
+//////////////////////////////////////////////////////////////////////////
+/// Print metadata info on teh console
+///
 void TRestMetadata::PrintMetadata()
 {
         cout << "TRestMetadata content" << endl;
