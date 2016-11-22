@@ -1,20 +1,24 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///             
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestEvent.h
-///
-///             Base class from which to inherit all other event classes in REST 
-///
-///             jun 2014:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///                 Igor G. Irastorza
-///_______________________________________________________________________________
-
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
 #ifndef RestCore_TRestEvent
 #define RestCore_TRestEvent
@@ -28,10 +32,10 @@
 
 class TRestEvent:public TObject {
     protected:
-	Int_t fRunOrigin;	    //< run Id number
-	Int_t fSubRunOrigin;	    //< Sub-run Id number
+	Int_t fRunOrigin;	    //< Run ID number of the event
+	Int_t fSubRunOrigin;	    //< Sub-run ID number of the event
         Int_t fEventID;             //< Event identificative number
-        Int_t fSubEventID;          //< sub-Event identificative number
+        Int_t fSubEventID;          //< Sub-Event identificative number
         TString fSubEventTag;       //< A short length label to identify the sub-Event
         TTimeStamp fEventTime;      //< Absolute event time
         Bool_t fOk;                 //< Flag to be used by processes to define an event status. fOk=true is the default.
