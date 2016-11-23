@@ -229,14 +229,112 @@
     <observable name="RawIntegral" value="ON" />
 </section>
 
-<section findG4BlobAnalysisProcess name="g4Blob" title="Find blobs in DBD">
-    <observable name="xBlob1" value="ON" />
-    <observable name="yBlob1" value="ON" />
-    <observable name="zBlob1" value="ON" />
-    <observable name="xBlob2" value="ON" />
-    <observable name="yBlob2" value="ON" />
-    <observable name="zBlob2" value="ON" />
-    <observable name="blobDistance" value="ON" />
+<section findG4BlobAnalysisProcess name="g4Blob" title="Find blobs in a Geant4 event for DBD">
+
+    <!-- The first blob is the one with z-coordinate closer to z=0 -->
+    <observable name="x1" value="ON" 
+        description="First blob x-coordinate."/>
+
+    <observable name="y1" value="ON" 
+        description="First blob y-coordinate."/>
+
+    <observable name="z1" value="ON" 
+        description="First blob z-coordinate."/>
+
+    <observable name="x2" value="ON" 
+        description="First blob x-coordinate."/>
+
+    <observable name="y2" value="ON" 
+        description="First blob y-coordinate."/>
+
+    <observable name="z2" value="ON" 
+        description="First blob z-coordinate."/>
+
+    <observable name="distance" value="ON" 
+        description="Euclidean distance between the two blobs."/>
+
+    <observable name="Q1_R5" value="ON" 
+        description="Charge in the first blob. Integrated to R=5mm."/>
+
+    <observable name="Q1_R10" value="ON" 
+        description="Charge in the first blob. Integrated to R=10mm."/>
+
+    <observable name="Q1_R15" value="ON" 
+        description="Charge in the first blob. Integrated to R=15mm."/>
+
+    <observable name="Q1_R20" value="ON" 
+        description="Charge in the first blob. Integrated to R=20mm."/>
+
+    
+    <observable name="Q2_R5" value="ON"
+        description="Charge in the second blob. Integrated to R=5mm."/>
+
+    <observable name="Q2_R10" value="ON" 
+        description="Charge in the second blob. Integrated to R=10mm."/>
+
+    <observable name="Q2_R15" value="ON" 
+        description="Charge in the second blob. Integrated to R=15mm."/>
+
+    <observable name="Q2_R20" value="ON" 
+        description="Charge in the second blob. Integrated to R=20mm."/>
+</section>
+
+<section findTrackBlobsProcess name="tckBlob" title="Find blobs in a track event for any event">
+
+    <!-- The first blob is the one with z-coordinate closer to z=0 -->
+    <observable name="x1" value="ON" 
+        description="First blob x-coordinate."/>
+
+    <observable name="y1" value="ON" 
+        description="First blob y-coordinate."/>
+
+    <observable name="z1" value="ON" 
+        description="First blob z-coordinate."/>
+
+    <observable name="x2" value="ON" 
+        description="First blob x-coordinate."/>
+
+    <observable name="y2" value="ON" 
+        description="First blob y-coordinate."/>
+
+    <observable name="z2" value="ON" 
+        description="First blob z-coordinate."/>
+
+    <observable name="distance" value="ON" 
+        description="Euclidean distance between the two blobs."/>
+
+    <observable name="Q1_R5" value="ON" 
+        description="Charge in the first blob. Integrated to R=5mm."/>
+
+    <observable name="Q1_R10" value="ON" 
+        description="Charge in the first blob. Integrated to R=10mm."/>
+
+    <observable name="Q1_R15" value="ON" 
+        description="Charge in the first blob. Integrated to R=15mm."/>
+
+    <observable name="Q1_R20" value="ON" 
+        description="Charge in the first blob. Integrated to R=20mm."/>
+
+    
+    <observable name="Q2_R5" value="ON"
+        description="Charge in the second blob. Integrated to R=5mm."/>
+
+    <observable name="Q2_R10" value="ON" 
+        description="Charge in the second blob. Integrated to R=10mm."/>
+
+    <observable name="Q2_R15" value="ON" 
+        description="Charge in the second blob. Integrated to R=15mm."/>
+
+    <observable name="Q2_R20" value="ON" 
+        description="Charge in the second blob. Integrated to R=20mm."/>
+
+    <!-- parameter hitsToCheckFraction :
+         is the fraction of hits to be checked at the extremes of the track. 
+         The one with the highest deposit will be selected as the center of the blob.
+         I.e. for a track with a total number of hits, N=16, 4-hits at the beginning
+         and 4-hits at the end of the track will be considered as possible blob centers. -->
+    <parameter name="hitsToCheckFraction" value="0.25" />
+
 </section>
 
 <section signalAnalysisProcess name="sgnlAna" title="Half Template X-III Vessel (Bottom)" >
@@ -363,3 +461,4 @@
 <section signalShapingProcess name="signalShapingProcess" title="Test SignalShaping" >
     <parameter name="responseFile" value="AGET_Response_12.5MHz_Gain0x1_Shaping0x4.root" /> //response file to be used to shape the signal
 </section>
+
