@@ -168,18 +168,46 @@
 </section>
 
 <section trackAnalysisProcess name="tckAna" title="Track analysis template" >
+    
     <parameter name="nTracksXCut" value="(1,1)" />
     <parameter name="nTracksYCut" value="(1,1)" />
 
     <observable name="MeanRate_InHz" value="ON" />
     <observable name="EventTimeDelay" value="ON" />
 
-    <observable name="LengthX" value="ON" />
-    <observable name="nTracksX" value="ON" />
-    <observable name="LengthY" value="ON" />
-    <observable name="nTracksY" value="ON" />
-    <observable name="xMean" value="ON" />
-    <observable name="yMean" value="ON" />
+    <observable name="xMean" value="ON"
+        description="The mean X-position of the highest energy track." />
+
+    <observable name="yMean" value="ON" 
+        description="The mean Y-position of the highest energy track." />
+
+    <observable name="LengthX" value="ON"
+        description="Integrated length of tracks in the XZ-plane." />
+    <observable name="LengthY" value="ON"
+        description="Integrated length of tracks in the YZ-plane." />
+
+    <observable name="nTracksX" value="ON"
+        description="Number of tracks defined in plane XZ (where Y-positions are not defined)." />
+
+    <observable name="nTracksY" value="ON"
+        description="Number of tracks defined in plane YZ (where X-positions are not defined)." />
+
+    <observable name="nTracksXYZ" value="ON"
+        description="Number of pure 3D-tracks (with valid XYZ-hits)." />
+
+    <!-- 
+         The keywords nTracks_HE_ and nTracks_LE_ are used to define observables with the number 
+         of tracks above or below a given EnergyThreshold. 
+
+         Any EnergyThreshold can be defined as : nTracks_HE_[EnergyThreshold]. 
+    -->
+
+    <observable name="nTracks_HE_400" value="ON"
+        description="Number of tracks with energy higher than 400 keV." />
+
+    <observable name="nTracks_LE_100" value="ON"
+        description="Number of tracks with energy lower than 100 keV." />
+
 </section>
 
 <section triggerAnalysisProcess name="trigger" title="Trigger analysis template" >
