@@ -69,7 +69,7 @@ int main( int argc, char *argv[] )
 
     for( int i = 0; i < anaTree->GetNumberOfObservables( ); i++ )
     {
-        if( anaTree->GetObservableDescription( i ) != "Not defined" )
+        if( anaTree->GetObservableDescription( i ) != "Not defined" && anaTree->GetObservableDescription( i ) != "" )
         {
             cout << " - " << i << ". " << anaTree->GetObservableName( i ) << endl;
             cout << endl;
