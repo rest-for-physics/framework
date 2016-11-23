@@ -29,6 +29,9 @@
 
 class TRestG4Event: public TRestEvent {
 
+    private:
+        void AddEnergyDepositToVolume( Int_t volID, Double_t eDep );
+
     protected:
         TVector3 fPrimaryEventOrigin;
 
@@ -68,6 +71,9 @@ class TRestG4Event: public TRestEvent {
         Double_t GetTotalDepositedEnergyFromTracks();
         Double_t GetEnergyDepositedInVolume( Int_t volID ) { return fVolumeDepositedEnergy[volID]; }
         Double_t GetSensitiveVolumeEnergy( ) { return fSensitiveVolumeEnergy; }
+        TVector3 GetMeanPositionInVolume( Int_t volID );
+        TVector3 GetFirstPositionInVolume( Int_t volID );
+        TVector3 GetLastPositionInVolume( Int_t volID );
 
         TRestHits GetHits( );
 
@@ -79,7 +85,6 @@ class TRestG4Event: public TRestEvent {
 
         void AddActiveVolume( );
         void ClearVolumes( );
-        void AddEnergyDepositToVolume( Int_t volID, Double_t eDep );
         void AddEnergyToSensitiveVolume( Double_t en ) { fSensitiveVolumeEnergy += en; }
         
         void SetEnergyDepositedInVolume( Int_t volID, Double_t eDep ) {fVolumeDepositedEnergy[volID]=eDep; }
@@ -128,7 +133,7 @@ class TRestG4Event: public TRestEvent {
             return false;
         }
 
-	Bool_t ishadElastic( )
+        Bool_t ishadElastic( )
         {
             for( int n = 0; n < GetNumberOfTracks(); n++ )
                 if( GetTrack( n )->ishadElastic( ) ) return true;
@@ -141,19 +146,19 @@ class TRestG4Event: public TRestEvent {
             return false;
         }
 
-	Bool_t isnCapture( )
+        Bool_t isnCapture( )
         {
             for( int n = 0; n < GetNumberOfTracks(); n++ )
                 if( GetTrack( n )->isnCapture( ) ) return true;
             return false;
         }
-       Bool_t ishIoni( )
+
+        Bool_t ishIoni( )
         {
             for( int n = 0; n < GetNumberOfTracks(); n++ )
                 if( GetTrack( n )->ishIoni( ) ) return true;
             return false;
         }
-
 
         Bool_t isAlpha( )
         {
@@ -161,18 +166,34 @@ class TRestG4Event: public TRestEvent {
                 if( GetTrack( n )->GetParticleName()=="alpha" ) return true;
             return false;
         }
-      Bool_t isNeutron( )
+
+        Bool_t isNeutron( )
         {
             for( int n = 0; n < GetNumberOfTracks(); n++ )
                 if( GetTrack( n )->GetParticleName()=="neutron" ) return true;
             return false;
         }
-    
-     
-    
 
-   
+        Bool_t isArgon( )
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( (GetTrack( n )->GetParticleName()).Contains("Ar" ))return true;
+            return false;
+        }
 
+        Bool_t isXenon( )
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( (GetTrack( n )->GetParticleName()).Contains("Xe" )) return true;
+            return false;
+        }
+
+        Bool_t isNeon( )
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( (GetTrack( n )->GetParticleName()).Contains("Ne" )) return true;
+            return false;
+        }
 
         void Initialize();
 

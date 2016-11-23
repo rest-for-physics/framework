@@ -65,31 +65,39 @@ void TRestTrackAnalysisProcess::LoadConfig( std::string cfgFilename, std::string
 //______________________________________________________________________________
 void TRestTrackAnalysisProcess::InitProcess()
 {
-    TRestEventProcess::ReadObservables();
+    std::vector <string> fObservables;
+    fObservables = TRestEventProcess::ReadObservables();
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "nTracks_LE_" ) != string::npos )
+        {
+            Double_t energy = StringToDouble ( fObservables[i].substr( 11, fObservables[i].length() ).c_str() );
+
+            fTrack_LE_EnergyObservables.push_back( fObservables[i] );
+            fTrack_LE_Threshold.push_back( energy );
+            nTracks_LE.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "nTracks_HE_" ) != string::npos )
+        {
+            Double_t energy = StringToDouble ( fObservables[i].substr( 11, fObservables[i].length() ).c_str() );
+
+            fTrack_HE_EnergyObservables.push_back( fObservables[i] );
+            fTrack_HE_Threshold.push_back( energy );
+            nTracks_HE.push_back(0);
+        }
 }
 
 //______________________________________________________________________________
 void TRestTrackAnalysisProcess::BeginOfEventProcess() 
 {
-    fTrackEvent->Initialize( );
 }
 
 //______________________________________________________________________________
 TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 {
-    TRestTrackEvent *fInputTrackEvent = (TRestTrackEvent *) evInput;
-
-    /// Copying the signal event to the output event
-    
-    fTrackEvent->SetID( fInputTrackEvent->GetID() );
-    fTrackEvent->SetSubID( fInputTrackEvent->GetSubID() );
-    fTrackEvent->SetTimeStamp( fInputTrackEvent->GetTimeStamp() );
-    fTrackEvent->SetSubEventTag( fInputTrackEvent->GetSubEventTag() );
-
-
-    for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
-        fTrackEvent->AddTrack( fInputTrackEvent->GetTrack( tck ) );
-    /////////////////////////////////////////////////
+    *fTrackEvent =  *(( TRestTrackEvent *) evInput);
 
     TString obsName;
 
@@ -97,11 +105,19 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     Double_t tckLenY = 0;
     Int_t nTracksX = 0;
     Int_t nTracksY = 0;
+    Int_t nTracksXYZ = 0;
+
+    for( unsigned int n = 0; n < nTracks_HE.size(); n++ )
+        nTracks_HE[n] = 0;
+    for( unsigned int n = 0; n < nTracks_LE.size(); n++ )
+        nTracks_LE[n] = 0;
+
     for( int tck = 0; tck < fTrackEvent->GetNumberOfTracks(); tck++ )
     {
         if( !fTrackEvent->isTopLevel( tck ) ) continue;
 
         TRestTrack *t = fTrackEvent->GetTrack( tck );
+        Double_t en = t->GetEnergy( );
 
         if( t->isXZ() )
         {
@@ -120,6 +136,16 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
                 tckLenY += t->GetTrackLength();
             }
         }
+
+        if( t->isXYZ() ) nTracksXYZ++;
+
+        for( unsigned int n = 0; n < fTrack_HE_EnergyObservables.size(); n++ )
+            if( en > fTrack_HE_Threshold[n] )
+                nTracks_HE[n]++;
+
+        for( unsigned int n = 0; n < fTrack_LE_EnergyObservables.size(); n++ )
+            if( en < fTrack_LE_Threshold[n] )
+                nTracks_LE[n]++;
     }
 
     Double_t evTimeDelay = 0;
@@ -171,6 +197,23 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     obsName = this->GetName() + (TString) ".nTracksY";
     fAnalysisTree->SetObservableValue( obsName, nTracksY );
+
+    obsName = this->GetName() + (TString) ".nTracksXYZ";
+    fAnalysisTree->SetObservableValue( obsName, nTracksXYZ );
+
+    for( unsigned int n = 0; n < fTrack_LE_EnergyObservables.size(); n++ )
+    {
+        TString obsName = fTrack_LE_EnergyObservables[n];
+        obsName = this->GetName( ) + (TString) "." + obsName;
+        fAnalysisTree->SetObservableValue( obsName, nTracks_LE[n] );
+    }
+
+    for( unsigned int n = 0; n < fTrack_HE_EnergyObservables.size(); n++ )
+    {
+        TString obsName = fTrack_HE_EnergyObservables[n];
+        obsName = this->GetName( ) + (TString) "." + obsName;
+        fAnalysisTree->SetObservableValue( obsName, nTracks_HE[n] );
+    }
 
     return fTrackEvent;
 }

@@ -43,6 +43,10 @@ class TRestG4Hits:public TRestHits {
 
         Double_t GetEnergyInVolume( Int_t volID );
 
+        TVector3 GetMeanPositionInVolume( Int_t volID );
+        TVector3 GetFirstPositionInVolume( Int_t volID );
+        TVector3 GetLastPositionInVolume( Int_t volID );
+
         //Construtor
         TRestG4Hits();
         //Destructor

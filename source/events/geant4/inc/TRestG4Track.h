@@ -63,8 +63,9 @@ class TRestG4Track:public TObject {
         Int_t GetSubEventID() { return fSubEventId; }
 
         Double_t GetEnergyInVolume( Int_t volID ) { return GetHits()->GetEnergyInVolume( volID ); }
-
-
+        TVector3 GetMeanPositionInVolume( Int_t volID ){ return GetHits()->GetMeanPositionInVolume( volID ); }
+        TVector3 GetFirstPositionInVolume( Int_t volID ){ return GetHits()->GetFirstPositionInVolume( volID ); }
+        TVector3 GetLastPositionInVolume( Int_t volID ){ return GetHits()->GetLastPositionInVolume( volID ); }
 
         void SetSubEventID( Int_t id ) { fSubEventId = id; }
 
@@ -88,7 +89,6 @@ class TRestG4Track:public TObject {
         Double_t GetDistance( TVector3 v1, TVector3 v2 ) {
             return TMath::Sqrt( (v1.X()-v2.X()) * (v1.X()-v2.X()) +  (v1.Y()-v2.Y()) * (v1.Y()-v2.Y()) +  (v1.Z()-v2.Z()) * (v1.Z()-v2.Z()) );
         }
-
 
         void RemoveHits( ) { fHits.RemoveHits ( ); }
 
