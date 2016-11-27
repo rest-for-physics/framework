@@ -486,7 +486,6 @@ void TRestRun::OpenInputFile( TString fName )
 
     fInputFile = new TFile( fName );
 
-    inputRunNumber = GetRunNumber();
     TString fileName = GetOutputFilename();
     TString outputDataPath = GetMainDataPath();
 
@@ -586,6 +585,12 @@ void TRestRun::OpenOutputFile( )
 
     SetVersion();
 
+    if( inputRunNumber != -1 ) // Run number = -1 is runNumber="preserve" option
+    {
+	    fParentRunNumber = fRunNumber;
+	    fRunNumber = inputRunNumber;
+    }
+
     if( fOutputFilename == "default" ) SetRunFilenameAndIndex();
     else fOutputFilename = GetDataPath() + "/" + ConstructFilename( fOutputFilename );
 
@@ -600,12 +605,6 @@ void TRestRun::CloseOutputFile( )
     cout << __PRETTY_FUNCTION__ << endl;
     time_t  timev;
     time(&timev);
-
-    if( inputRunNumber != -1 ) // Run number = -1 is runNumber="preserve" option
-    {
-	    fParentRunNumber = fRunNumber;
-	    fRunNumber = inputRunNumber;
-    }
 
     fEndTime = (Double_t) timev;
 
@@ -820,7 +819,7 @@ void TRestRun::InitFromConfigFile()
    }
    else if ( rNumberStr == "preserve" )
    {
-	fRunNumber = -1;
+	inputRunNumber = -1;
    }
    else
    {
