@@ -49,6 +49,7 @@ using namespace std;
 
 // external processes
 #include <TRestFEMINOSToSignalProcess.h>
+#include <TRestCoBoAsAdToSignalProcess.h>
 
 // analysis processes
 #include <TRestGeant4AnalysisProcess.h>
@@ -115,7 +116,7 @@ void TRestManager::InitFromConfigFile()
     fNEventsToProcess = StringToInteger( GetParameter( "eventsToProcess", "0") );
     fLastEntry = StringToInteger( GetParameter( "lastEntry", "0") );
 
-    Bool_t isAcquisition = inputFile.EndsWith("aqs");
+    Bool_t isAcquisition = inputFile.EndsWith("aqs") || inputFile.EndsWith("graw");
     if( !isAcquisition ) fRun->OpenInputFile( inputFile );
 
     TString analysisString = GetParameter( "pureAnalysisOutput", "OFF" );
@@ -328,6 +329,31 @@ Int_t TRestManager::LoadProcesses( )
             fRun->SetParentRunNumber( detSetup->GetSubRunNumber() );
             fRun->SetRunNumber( detSetup->GetRunNumber() );
             fRun->SetRunTag( detSetup->GetRunTag() );
+        }
+
+        if( processType == "coboAsadToSignalProcess" )
+        {
+
+            //TRestDetectorSetup *detSetup = new TRestDetectorSetup();
+            //detSetup->InitFromFileName( fInputFile );
+
+            //fRun->AddMetadata( detSetup );
+
+            TRestCoBoAsAdToSignalProcess *coboPcs = new TRestCoBoAsAdToSignalProcess();
+
+            fRun->AddProcess( coboPcs, (string) processesCfgFile, (string) processName );
+
+            if( !coboPcs->OpenInputCoBoAsAdBinFile( fInputFile ) )
+  //          if( !coboPcs->OpenInputBinFile( fInputFile ) )
+            {
+                cout << "Error file not found : " << fInputFile << endl;
+                GetChar();
+                continue;
+            }
+
+            //fRun->SetParentRunNumber( detSetup->GetSubRunNumber() );
+            //fRun->SetRunNumber( detSetup->GetRunNumber() );
+            //fRun->SetRunTag( detSetup->GetRunTag() );
         }
 
         if( processType == "addSignalNoiseProcess" )

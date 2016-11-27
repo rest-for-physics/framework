@@ -30,7 +30,7 @@ endforeach (CLASS)
 file(GLOB ProcessesRaw
         "raw/src/*.cxx"
         )
-set(CLASS_DICT TRestRawToSignalProcess TRestFEMINOSToSignalProcess TRestAFTERToSignalProcess)
+set(CLASS_DICT TRestRawToSignalProcess TRestFEMINOSToSignalProcess TRestCoBoAsAdToSignalProcess TRestAFTERToSignalProcess)
 foreach (CLASS ${CLASS_DICT})
     set(ROOT_DICT_INCLUDE_DIRS ${REST_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
     set(ROOT_DICT_INPUT_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/raw/inc/${CLASS}.h)

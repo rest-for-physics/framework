@@ -69,7 +69,10 @@ class TRestManager:public TRestMetadata {
             if( LoadProcesses() > 0 ) fEventsProcessed = true;
 
             if( fRun != NULL ) 
+	    {
                 fRun->ProcessEvents( fFirstEntry, fNEventsToProcess, fLastEntry ); 
+		fRun->CloseOutputFile( );
+	    }
         }
 
         void LaunchTasks( );
