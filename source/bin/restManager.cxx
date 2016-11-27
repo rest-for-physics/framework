@@ -22,7 +22,7 @@ void PrintHelp( )
     cout << "-----------------------------------------------------------------------------------" << endl;
     cout << " INPUT_FILE : Input file name. It can be also specified from the manager " << endl;
     cout << " section using inputFile parameter. In order to give as argument here the input " << endl;
-    cout << " filename it is necessary to define the parameter inputData to REST_INPUT_FILE  " << endl;
+    cout << " filename it is necessary to define the parameter inputData to REST_INPUTFILE  " << endl;
     cout << " ==================================================================================" << endl;
 }
 
