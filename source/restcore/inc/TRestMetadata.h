@@ -52,8 +52,15 @@ enum REST_Verbose_Level {REST_Silent, REST_Warning, REST_Info, REST_Debug };
 class TRestMetadata:public TNamed {
 
     protected:
+
+        std::string fConfigFileName;    ///< Name of the config file associated to this metadata
+        std::string fSectionName;       ///< Section name given in the constructor of the derived metadata class
+
         std::string GetFieldValue( std::string fieldName, std::string definition, size_t fromPosition = 0 );
+
         Double_t GetDblFieldValueWithUnits( string fieldName, string definition, size_t fromPosition = 0 );
+
+
         TVector2 Get2DVectorFieldValueWithUnits( string fieldName, string definition, size_t fromPosition = 0 );
         TVector3 Get3DVectorFieldValueWithUnits( string fieldName, string definition, size_t fromPosition = 0 );
 
@@ -75,14 +82,13 @@ class TRestMetadata:public TNamed {
         vector <string> GetObservablesList( );
         vector <string> GetObservableDescriptionsList( );
 
-        std::string fConfigFileName;		///< Name of the config file associated to this metadata
-        std::string fSectionName;        ///< Section name given in the constructor of the derived metadata class
-
         std::string GetMyParameter( std::string &value, size_t &pos );
-
-        virtual void InitFromConfigFile( ) = 0;        ///< This method must be implemented in the derived class to fill the class fields with a given section
-
-        virtual void Initialize() = 0;// { cout << __PRETTY_FUNCTION__ << endl; };
+        
+        /// This method must be implemented in the derived class to fill specific metadata members using a RML file.
+        virtual void InitFromConfigFile( ) = 0;     
+        
+        /// This method must be implemented in the derived class to initialize/clear the event data.
+        virtual void Initialize() = 0; 
 
         Int_t LoadSectionMetadata( std::string section, std::string cfgFileName, string name="" );
         Int_t LoadConfigFromFile( string cfgFileName, std::string name );
@@ -90,8 +96,8 @@ class TRestMetadata:public TNamed {
 
     private:
 
-        ifstream configFile;    ///<! Pointer to config file to load metadata
-        std::string configBuffer;
+        ifstream configFile;        /// Pointer to config file to load metadata
+        std::string configBuffer;   /// The buffer where the corresponding metadata section is stored
         std::string fConfigFilePath;		/// Path to the config file associated with this metadata
         
         TString fDataPath;
@@ -125,19 +131,23 @@ class TRestMetadata:public TNamed {
         Int_t FindSection( std::string buffer, size_t startPos = 0 );
 
     public:
-        void CheckSection( );
-
-        void SetConfigFilePath(const char *configFilePath);
-
+        /// Returns a string with the path used for data storage
         TString GetDataPath( ) { return fDataPath; }
 
+        /// Sets the path that will be used for data storage
         void SetDataPath( TString path ) { fDataPath = path; }
 
+        /// Gets the verbose level used to dump on screen different levels of information
         REST_Verbose_Level GetVerboseLevel( ) { return fVerboseLevel; }
+
+        /// Gets a string with the path used for data storage
+        TString GetMainDataPath() { return fDataPath; }
 
         Int_t FindEndSection( Int_t initPos );
 
-        TString GetMainDataPath() { return fDataPath; }
+        void CheckSection( );
+
+        void SetConfigFilePath(const char *configFilePath);
 
         std::string GetParameter( std::string parName, TString defaultValue = PARAMETER_NOT_FOUND_STR );
         Double_t GetDblParameterWithUnits( std::string parName, Double_t defaultValue = PARAMETER_NOT_FOUND_DBL );
@@ -161,9 +171,14 @@ class TRestMetadata:public TNamed {
         static Int_t Count( std::string s, std::string sbstring);
         static bool fileExists( const std::string& filename );
         static bool isRootFile( const std::string& filename ); 
+
+        /// Calling this method will ask the user to press a key to continue
         static void GetChar(){ cout << "Press a KEY to continue ..." << endl; getchar(); }
 
+        /// If this method is called the metadata information will **not** be stored in disk. I/O is handled by TRestRun.
         void DoNotStore( ) { fStore = false; }
+        
+        /// If this method is called the metadata information will be stored in disk. This is the default behaviour.
         Bool_t Store( ) { return fStore; }
 
 
