@@ -191,7 +191,7 @@ string TRestMetadata::RemoveWhiteSpaces( string in )
 ///////////////////////////////////////////////
 /// \brief Counts the number of occurences of **substring** inside the input string **in**. 
 ///
-Int_t TRestMetadata::Count( string in, string subString )
+Int_t TRestMetadata::Count( string in, string substring )
 {
     int count = 0;
     size_t nPos = in.find(substring, 0); // First occurrence
