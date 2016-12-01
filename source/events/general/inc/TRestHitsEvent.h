@@ -12,10 +12,10 @@
 #include <TRestEvent.h>
 #include <TRestHits.h>
 
-//! Storage class
+// Storage class
 
-//! It let save an event as a set of punctual deposition.
-//! It saves a 3-coordinate position and an energy for each punctual deposition.
+// It let save an event as a set of punctual deposition.
+// It saves a 3-coordinate position and an energy for each punctual deposition.
 class TRestHitsEvent : public TRestEvent
 {
     public:

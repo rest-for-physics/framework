@@ -60,6 +60,8 @@ class TRestGeant4AnalysisProcess:public TRestEventProcess {
 
         }
 
+        TRestEventProcess *Maker() { return new TRestGeant4AnalysisProcess; }
+
         TString GetProcessName() { return (TString) "geant4Analysis"; }
 
         //Constructor

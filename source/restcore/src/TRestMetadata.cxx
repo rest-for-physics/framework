@@ -23,11 +23,6 @@
 
 //////////////////////////////////////////////////////////////////////////
 ///
-///
-/// This class implements the capability to read RML files. 
-/// Any class willing to retrieve information from an RML file must derive 
-/// from this class.
-///
 /// One of the core classes of REST. Abstract class
 /// from which all REST "metadata classes" must derive.
 /// A metadata class in REST is any holder of data other than event data
@@ -46,7 +41,7 @@
 ///
 /// [To be added: Brief description of .rml file philosophy.]
 ///
-/// <hr>
+///--------------------------------------------------------------------------
 ///
 /// RESTsoft - Software for Rare Event Searches with TPCs
 ///
@@ -66,7 +61,6 @@
 ///
 /// <hr>
 ///
-//////////////////////////////////////////////////////////////////////////
 
 #include <TMath.h>
 #include <TSystem.h>
