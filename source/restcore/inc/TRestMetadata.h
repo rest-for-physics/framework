@@ -48,7 +48,7 @@ const TString PARAMETER_NOT_FOUND_STR = "-99999999";
 
 enum REST_Verbose_Level {REST_Silent, REST_Warning, REST_Info, REST_Debug };
 
-
+//! A base class for any REST metadata class
 class TRestMetadata:public TNamed {
 
     protected:

@@ -23,10 +23,10 @@
 
 //////////////////////////////////////////////////////////////////////////
 ///
-/// RESTsoft - Software for Rare Event Searches with TPCs
 ///
-/// \class      TRestMetadata
-/// A base class for any REST metadata class
+/// This class implements the capability to read RML files. 
+/// Any class willing to retrieve information from an RML file must derive 
+/// from this class.
 ///
 /// One of the core classes of REST. Abstract class
 /// from which all REST "metadata classes" must derive.
@@ -42,9 +42,13 @@
 /// they can be read from root files. TRestMetadata contains 
 /// the common functionality that allows metadata to be read from .rml
 /// files or previously stored TRestMetadata structures stored in a 
-//  ROOT file.
+///  ROOT file.
 ///
 /// [To be added: Brief description of .rml file philosophy.]
+///
+/// <hr>
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
 ///
 /// History of developments:
 ///
@@ -55,6 +59,12 @@
 /// 2015-jul:  Re-implementation to read .rml files with xml-inspired 
 ///            syntax
 ///            Javier Galán
+///
+/// \class      TRestMetadata
+/// \author     Igor G. Irastorza
+/// \author     Javier Galan
+///
+/// <hr>
 ///
 //////////////////////////////////////////////////////////////////////////
 
