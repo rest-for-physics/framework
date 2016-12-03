@@ -31,7 +31,7 @@
 #define NEW_DAQ_T2K_2_X
 
 //--------------------------------------------------------
-///Structure acquisition data
+// Structure acquisition data
 //--------------------------------------------------------
 struct EventHeader {
   int eventSize;

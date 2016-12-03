@@ -6,6 +6,53 @@
     <variable name="CHANNELS" value="64" overwrite="false" /> <!-- The number of pixels per side PxP -->
 </environment>
 
+<section readout name="PixelReadout_MxM" title="PIXEL readout {PITCH}mm-Pitch {MODULES}x{MODULES} modules {CHANNELS}+{CHANNELS} channels" >
+    <myParameter name="nChannels" value="{CHANNELS}" />
+    <myParameter name="nModules" value="{MODULES}" />
+    <myParameter name="pitch" value="{PITCH}" />
+    <myParameter name="pixelSize" value="{PITCH}/sqrt(2.)" />
+
+    <parameter name="mappingNodes" value="0" />
+
+    <readoutModule name="module" size="(nChannels*pitch,nChannels*pitch)" tolerance="1.e-4" >
+        <for variable="nChX" from="0" to="nChannels-1" step="1" />
+            <for variable="nChY" from="0" to="nChannels-1" step="1" />
+                <readoutChannel id="[nChX]*nChannels + [nChY]" >
+                    <addPixel id="0" origin="([nChX]*pitch,[nChY]*pitch)" size="(pitch,pitch)" rotation="0" />
+                </readoutChannel>
+            </for>
+        </for>
+    </readoutModule>
+
+
+    <readoutPlane position="(0,0,-990)" units="mm" planeVector="(0,0,1)"
+        chargeCollection="1" 
+        cathodePosition="(0,0,0)" units="mm" >
+
+        <for variable="nModX" from="1" to="nModules" step="1" />
+            <for variable="nModY" from="1" to="nModules" step="1" />
+            <addReadoutModule id="[nModX]+nModules*([nModY]-1)-1" name="module"
+                origin="(([nModX]-nModules/2-1)*nChannels*pitch,([nModY]-nModules/2-1)*nChannels*pitch)" 
+                rotation="0"  >
+            </for>
+        </for>
+    </readoutPlane>
+
+    <readoutPlane position="(0,0,990)" units="mm" planeVector="(0,0,-1)"
+        chargeCollection="1" 
+        cathodePosition="(0,0,0)" units="mm" >
+
+        <for variable="nModX" from="1" to="nModules" step="1" />
+            <for variable="nModY" from="1" to="nModules" step="1" />
+            <addReadoutModule id="[nModX]+nModules*([nModY]-1)-1" name="module"
+                origin="(([nModX]-nModules/2-1)*nChannels*pitch,([nModY]-nModules/2-1)*nChannels*pitch)" 
+                rotation="0"  >
+            </for>
+        </for>
+    </readoutPlane>
+
+</section>
+
 <section readout name="PandaReadout_MxM" title="PANDA readout {PITCH}mm-Pitch {MODULES}x{MODULES} modules {CHANNELS}+{CHANNELS} channels" >
     <myParameter name="nChannels" value="{CHANNELS}" />
     <myParameter name="nModules" value="{MODULES}" />
