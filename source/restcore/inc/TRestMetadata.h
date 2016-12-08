@@ -1,24 +1,24 @@
-/*************************************************************************
- * This file is part of the REST software framework.                     *
- *                                                                       *
- * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
- * For more information see http://gifna.unizar.es/trex                  *
- *                                                                       *
- * REST is free software: you can redistribute it and/or modify          *
- * it under the terms of the GNU General Public License as published by  *
- * the Free Software Foundation, either version 3 of the License, or     *
- * (at your option) any later version.                                   *
- *                                                                       *
- * REST is distributed in the hope that it will be useful,               *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
- * GNU General Public License for more details.                          *
- *                                                                       *
- * You should have a copy of the GNU General Public License along with   *
- * REST in $REST_PATH/LICENSE.                                           *
- * If not, see http://www.gnu.org/licenses/.                             *
- * For the list of contributors see $REST_PATH/CREDITS.                  *
- *************************************************************************/
+///______________________________________________________________________________
+///______________________________________________________________________________
+///______________________________________________________________________________
+///             
+///
+///             RESTSoft : Software for Rare Event Searches with TPCs
+///
+///             TRestMetadata.h
+///
+///             Base class from which to inherit all other REST metadata classes (config, etc...) 
+///             TRestMetadata controls the access to config files.
+///
+///             jun 2014:   First concept
+///                 Created as part of the conceptualization of existing REST 
+///                 software.
+///                 Igor G. Irastorza
+///
+///              Jul 2015:    Implementation  
+///                 J. Galan
+///_______________________________________________________________________________
+
 
 #ifndef RestCore_TRestMetadata
 #define RestCore_TRestMetadata
@@ -53,9 +53,6 @@ class TRestMetadata:public TNamed {
 
     protected:
 
-        std::string fConfigFileName;    ///< Name of the config file associated to this metadata
-        std::string fSectionName;       ///< Section name given in the constructor of the derived metadata class
-
         std::string GetFieldValue( std::string fieldName, std::string definition, size_t fromPosition = 0 );
 
         Double_t GetDblFieldValueWithUnits( string fieldName, string definition, size_t fromPosition = 0 );
@@ -83,25 +80,29 @@ class TRestMetadata:public TNamed {
         vector <string> GetObservableDescriptionsList( );
 
         std::string GetMyParameter( std::string &value, size_t &pos );
-        
-        /// This method must be implemented in the derived class to fill specific metadata members using a RML file.
-        virtual void InitFromConfigFile( ) = 0;     
-        
-        /// This method must be implemented in the derived class to initialize/clear the event data.
-        virtual void Initialize() = 0; 
+
+        std::string fConfigFileName;		// std::string with the name of the config file
+        std::string fSectionName;        // section name given in the constructor of TRestSpecificMetadata
+
+        // This method must be implemented in the derived class to fill the class fields with a given section
+        virtual void InitFromConfigFile( ) = 0; 
+
+        virtual void Initialize() = 0;// { cout << __PRETTY_FUNCTION__ << endl; };
 
         Int_t LoadSectionMetadata( std::string section, std::string cfgFileName, string name="" );
+
         Int_t LoadConfigFromFile( string cfgFileName, std::string name );
         Int_t LoadConfigFromFile( std::string cfgFileName );
 
     private:
 
-        ifstream configFile;        /// Pointer to config file to load metadata
-        std::string configBuffer;   /// The buffer where the corresponding metadata section is stored
-        std::string fConfigFilePath;		/// Path to the config file associated with this metadata
+        ifstream configFile;    //! pointer to config file to load metadata
+        std::string configBuffer;
+
+        std::string fConfigFilePath;		//  std::string with the path to the config file
         
         TString fDataPath;
-        REST_Verbose_Level fVerboseLevel; 
+        REST_Verbose_Level fVerboseLevel;
 
 #ifndef __CINT__
         Bool_t fStore;
@@ -198,6 +199,6 @@ class TRestMetadata:public TNamed {
            Double_t SearchDouble(const char *name);
            */
 
-        ClassDef(TRestMetadata, 1); // REST metadata base class 
+        ClassDef(TRestMetadata, 1); // Rest metadata Base class 
 };
 #endif
