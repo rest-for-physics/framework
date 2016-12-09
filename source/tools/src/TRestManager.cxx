@@ -24,7 +24,7 @@ using namespace std;
 #include <TRestSignalToHitsProcess.h>
 #include <TRestFastHitsToTrackProcess.h>
 #include <TRestHitsToTrackProcess.h>
-#include <TRestG4toHitsEventProcess.h>
+#include <TRestG4toHitsProcess.h>
 
 // physics processes
 #include <TRestElectronDiffusionProcess.h>
@@ -374,8 +374,8 @@ Int_t TRestManager::LoadProcesses( )
         if( processType == "hitsNormalizationProcess" )
             fRun->AddProcess( new TRestHitsNormalizationProcess( ), (string) processesCfgFile, (string) processName );
 
-        if( processType == "G4toHitsEventProcess" )
-            fRun->AddProcess( new TRestG4toHitsEventProcess( ), (string) processesCfgFile, (string) processName );
+        if( processType == "G4toHitsProcess" )
+            fRun->AddProcess( new TRestG4toHitsProcess( ), (string) processesCfgFile, (string) processName );
 
         LoadExternalProcess( processType, (string) processesCfgFile, (string) processName );
 
