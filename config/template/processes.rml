@@ -76,6 +76,12 @@
 
 <section TRestSignalToHitsProcess name="signalToHits_Template" title="A hit reconstruction template." >
 
+    <parameter name="substractBaseLine" value="false" />
+    <parameter name="baseLineRange" value="(5,11)" />
+
+    <parameter name="thresholdType" value="absolute" />
+    <parameter name="threshold" value="0" />
+
     <parameter name="sampling" value="80" units="ns" />
     <parameter name="threshold" value="5" />
     <parameter name="electricField" value="100" units="V/cm" />
