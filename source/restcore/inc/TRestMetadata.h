@@ -82,6 +82,10 @@ class TRestMetadata:public TNamed {
 
         std::string GetMyParameter( std::string &value, size_t &pos );
 
+        std::string GetSectionName( ) { return fSectionName; }
+
+        void SetSectionName( std::string sName ) { fSectionName = sName; }
+
         /// This method must be implemented in the derived class to fill specific metadata members using a RML file.
         virtual void InitFromConfigFile( ) = 0;
 
