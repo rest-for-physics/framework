@@ -366,6 +366,8 @@ void TRestSignal::GetSignalSmoothed( TRestSignal *smthSignal, Int_t averagingPoi
 
 Double_t TRestSignal::GetBaseLine( Int_t startBin, Int_t endBin )
 {
+    if( endBin-startBin <= 0 ) return 0.;
+
     Double_t baseLine = 0;
     for( int i = startBin; i < endBin; i++ )
         baseLine += fSignalCharge[i];
