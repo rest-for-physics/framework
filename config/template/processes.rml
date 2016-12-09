@@ -462,3 +462,6 @@
     <parameter name="responseFile" value="AGET_Response_12.5MHz_Gain0x1_Shaping0x4.root" /> //response file to be used to shape the signal
 </section>
 
+<section TRestG4toHitsProcess name="G4ToHits" title="G4Hits to Hits process" >
+</section>
+
