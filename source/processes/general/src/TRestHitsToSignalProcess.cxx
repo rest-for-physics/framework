@@ -166,6 +166,7 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
         Double_t x = fHitsEvent->GetX( hit );
         Double_t y = fHitsEvent->GetY( hit );
         Double_t z = fHitsEvent->GetZ( hit );
+     //   cout << " x : " << x << " y : " << y << " z : " << z << endl;
 
         Int_t planeId = -1;
         Int_t moduleId = -1;
@@ -176,6 +177,7 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
             moduleId = fReadout->GetReadoutPlane(p)->isInsideDriftVolume( x, y, z );
             if( moduleId >= 0 )
             {
+     //           cout << "Plane : " << p << " Module : " << moduleId << endl;
                 planeId = p;
                 plane = fReadout->GetReadoutPlane( planeId );
                 module = plane->GetModule( moduleId );
@@ -189,12 +191,14 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
         {
             Int_t readoutChannel = plane->FindChannel( moduleId, x, y );
             Int_t daqId = module->GetChannel( readoutChannel )->GetDaqID( );
+   //         cout << "Channel : " << readoutChannel << " daq ID : " << daqId << endl;
 
             Double_t energy = fHitsEvent->GetEnergy( hit );
 
             Double_t time = plane->GetDistanceTo( x, y, z ) / fDriftVelocity;
             time = ( (Int_t) (time/fSampling) );
 
+ //           cout << "Energy : " << energy << " time : " << time << endl;
             fSignalEvent->AddChargeToSignal( daqId, time, energy );
         }
 }
