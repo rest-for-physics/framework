@@ -507,7 +507,7 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
     while( sectionPosition != (size_t) NOT_FOUND && sectionPosition != string::npos )
     {
         sectionPosition = FindSection( temporalBuffer, sectionPosition );
-        if( this->GetSectionName() == name || name == "" ) break;
+        if( this->GetName() == name || name == "" ) break;
         if( sectionPosition == (size_t) NOT_FOUND )
         {
             cout << "REST ERROR : Section " << fSectionName << " with name : " << name << " not found" << endl;
