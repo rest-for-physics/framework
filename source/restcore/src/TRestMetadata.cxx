@@ -36,10 +36,75 @@
 /// configuration (.rml) files that the user can write. Alternatively
 /// they can be read from root files. TRestMetadata contains 
 /// the common functionality that allows metadata to be read from .rml
-/// files or previously stored TRestMetadata structures stored in a 
+/// files or previously `stored` TRestMetadata structures stored in a 
 ///  ROOT file.
 ///
-/// [To be added: Brief description of .rml file philosophy.]
+/// ### RML file structure 
+///
+/// A class deriving from TRestMetadata can retrieve information from a plain text
+/// configuration file (or RML file). The syntaxis in an RML file is imposed by
+/// TRestMetadata. The metadata information provided through an RML file to a class
+/// deriving from TRestMetadata corresponds to a *section* structure inside the file.
+/// The following piece of code shows the common structure of the metadata description 
+/// corresponding to a specific metadata class.
+///
+/// \code
+///
+/// <section sectionName name="userGivenName" title="User given title" >
+///
+///     <keyStructure field1="value1" field2="value2" ... >
+///
+///         <keyDefinition field1="value1" field2="value2">  
+///         
+///          ...
+///
+///     </keyStructure>
+///
+/// </section>
+///
+/// \endcode
+///
+/// The derived class from TRestMetadata is resposible to define the name of the
+/// section (*sectionName*) used to extract the corresponding metadata section 
+/// and store it in TRestMetadata::configBuffer. The default behaviour in REST is
+/// that *sectionName* will be the name of the specific metadata class.
+///
+/// This must be implemented at each specific metadata class, at the construction 
+/// time, by implementing the TRestMetadata::Initialize method, as follows:
+///
+/// \code
+/// void TRestSpecificMetadata::Initialize( )
+/// {
+///
+///     SetName( this->ClassName() );
+///
+///     ....
+///
+/// }
+/// \endcode
+///
+/// The methods defined inside TRestMetadata class allow to extract different metadata 
+/// structures with openning-closing tags (as the *keyStructure* shown in the previous 
+/// code), and definitions (as in the definition *keyDefinition* shown in the previous 
+/// code).
+///
+/// Each specific metadata class is responsible to extract the information found in its
+/// section. The initialization of a specific metadata class through a RML file should
+/// be implemented in TRestMetadata::InitFromConfigFile( ).
+///
+/// The derived metadata class can access to the different structures using the 
+/// different methods provided, as TRestMetadata::GetKEYStructure, 
+/// TRestMetadata::GetKEYDefinition, etc. If a string *buffer* is given as argument, 
+/// the specific *keyStructure* or *keyDefinition* we are looking for will be searched 
+/// in the entire metadata section found in TRestMetadata::configBuffer.
+///
+/// In order to read several key definitions or structures with the same name we need
+/// to provide as argument a position (size_t &fromPosition) that it is updated with 
+/// the position where the end of the structure or definition read by the method is 
+/// found. This position value can be given to the next method call to read the next
+/// definition.
+/// 
+/// 
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -443,7 +508,7 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
     while( sectionPosition != (size_t) NOT_FOUND && sectionPosition != string::npos )
     {
         sectionPosition = FindSection( temporalBuffer, sectionPosition );
-        if( this->GetName() == name || name == "" ) break;
+        if( this->GetSectionName() == name || name == "" ) break;
         if( sectionPosition == (size_t) NOT_FOUND )
         {
             cout << "REST ERROR : Section " << fSectionName << " with name : " << name << " not found" << endl;
@@ -569,7 +634,7 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
 ///
 Int_t TRestMetadata::LoadConfigFromFile( string cfgFileName, string name )
 {
-    std::string section = GetName();
+    std::string section = GetSectionName();
 
     Int_t result = LoadSectionMetadata( section, cfgFileName, name );
     if( result == 0 ) InitFromConfigFile();
@@ -584,7 +649,7 @@ Int_t TRestMetadata::LoadConfigFromFile( string cfgFileName, string name )
 ///
 Int_t TRestMetadata::LoadConfigFromFile( string cfgFileName )
 {
-    std::string section = GetName();
+    std::string section = GetSectionName();
 
     Int_t result = LoadSectionMetadata( section, cfgFileName );
     if( result == 0 ) InitFromConfigFile();
