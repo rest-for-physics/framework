@@ -1073,7 +1073,7 @@ string TRestMetadata::GetParameter( string parName, size_t &pos, string inputStr
     {
         string parameterString = GetKEYDefinition( "parameter", pos, inputString );
 
-        if( parameterString.find( parName ) != string::npos )
+        if( GetFieldValue( "name", parameterString ) == parName )
         {
             return GetFieldValue( "value", parameterString );
         }
@@ -1230,7 +1230,7 @@ string TRestMetadata::GetParameter( string parName, TString defaultValue )
         parameterString = GetKEYDefinition( "parameter", position );
         if( debug > 1 ) cout << "Parameter string : " << parameterString << endl;
 
-        if( parameterString.find( parName ) != string::npos )
+        if( GetFieldValue( "name", parameterString ) == parName )
         {
             string value = GetFieldValue( "value", parameterString );
             if( value == "" ) return defaultValue.Data();
