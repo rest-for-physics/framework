@@ -547,7 +547,13 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
         }
     }
 
-    if( configBuffer == "" ) { cout << "REST error reading section : " << section << ". Config buffer is EMPTY" << endl; exit(1); return -1; }
+    if( configBuffer == "" )
+    {
+        cout << "REST error reading section : " << section << " ( " << GetName() << " )." << endl;
+        cout << "Config buffer is EMPTY" << endl;
+        exit(1);
+        return -1;
+    }
 
     configBuffer = ReplaceEnvironmentalVariables( configBuffer );
 
