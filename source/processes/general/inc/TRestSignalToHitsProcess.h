@@ -69,8 +69,6 @@ class TRestSignalToHitsProcess:public TRestEventProcess {
             EndPrintProcess();
         }
 
-        TRestMetadata *GetMetadata( ) { return fReadout; }
-
         TString GetProcessName() { return (TString) "signalToHits"; }
 
         //Constructor

@@ -37,8 +37,6 @@ TRestSignalToHitsProcess::TRestSignalToHitsProcess( char *cfgFileName )
 //______________________________________________________________________________
 TRestSignalToHitsProcess::~TRestSignalToHitsProcess()
 {
-    if( fReadout != NULL ) delete fReadout;
-
     delete fHitsEvent;
     delete fSignalEvent;
     // TRestSignalToHitsProcess destructor
