@@ -521,6 +521,7 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
     configBuffer = GetKEYStructure( "section", sectionPosition, temporalBuffer );
 
     string sectionDefinition = GetKEYDefinition( "section", configBuffer );
+
     if( (TString) this->GetName() == "Not defined" ) 
     {
         string nameref = GetFieldValue( "nameref", sectionDefinition );
@@ -567,7 +568,6 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
             configBuffer = Replace( configBuffer, myParam, value, position );
         }
     }
-
 
     configBuffer = ReplaceMathematicalExpressions( configBuffer );
 
@@ -1704,6 +1704,8 @@ string TRestMetadata::GetKEYDefinition( string keyName, size_t &fromPosition )
 ///
 string TRestMetadata::GetKEYDefinition( string keyName, string buffer )
 {
+    if( buffer == "" ) return "";
+
     string key = "<" + keyName;
 
     size_t startPos = buffer.find( key, 0 );
