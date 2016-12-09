@@ -6,7 +6,7 @@
     <variable name="CHANNELS" value="64" overwrite="false" /> <!-- The number of pixels per side PxP -->
 </environment>
 
-<section readout name="PixelReadout_MxM" title="PIXEL readout {PITCH}mm-Pitch {MODULES}x{MODULES} modules {CHANNELS}+{CHANNELS} channels" >
+<section TRestReadout name="PixelReadout_MxM" title="PIXEL readout {PITCH}mm-Pitch {MODULES}x{MODULES} modules {CHANNELS}+{CHANNELS} channels" >
     <myParameter name="nChannels" value="{CHANNELS}" />
     <myParameter name="nModules" value="{MODULES}" />
     <myParameter name="pitch" value="{PITCH}" />
@@ -53,7 +53,7 @@
 
 </section>
 
-<section readout name="PandaReadout_MxM" title="PANDA readout {PITCH}mm-Pitch {MODULES}x{MODULES} modules {CHANNELS}+{CHANNELS} channels" >
+<section TRestReadout name="PandaReadout_MxM" title="PANDA readout {PITCH}mm-Pitch {MODULES}x{MODULES} modules {CHANNELS}+{CHANNELS} channels" >
     <myParameter name="nChannels" value="{CHANNELS}" />
     <myParameter name="nModules" value="{MODULES}" />
     <myParameter name="pitch" value="{PITCH}" />
@@ -128,7 +128,7 @@
 
 </section>
 
-<section readout name="Panda_SJTU_Proto" title="PANDA SJTU Prototype readout. 7 modules {PITCH}mm-Pitch {CHANNELS}+{CHANNELS} channels" >
+<section TRestReadout name="Panda_SJTU_Proto" title="PANDA SJTU Prototype readout. 7 modules {PITCH}mm-Pitch {CHANNELS}+{CHANNELS} channels" >
     <myParameter name="nChannels" value="{CHANNELS}" />
     <myParameter name="pitch" value="{PITCH}" />
     <myParameter name="pixelSize" value="{PITCH}/sqrt(2.)" />
@@ -199,7 +199,7 @@
 
 </section>
 
-<section readout name="SingleAnode" title="Single" >
+<section TRestReadout name="SingleAnode" title="Single" >
 
     <parameter name="mappingNodes" value="0" />
 
@@ -217,7 +217,7 @@
     </for>
 </section>
 
-<section readout name="Panda-CDR" title="PANDA SJTU Jinping readout. 2 planes 41 modules {PITCH}mm-Pitch {CHANNELS}+{CHANNELS} channels" >
+<section TRestReadout name="Panda-CDR" title="PANDA SJTU Jinping readout. 2 planes 41 modules {PITCH}mm-Pitch {CHANNELS}+{CHANNELS} channels" >
     <myParameter name="nChannels" value="{CHANNELS}" />
     <myParameter name="pitch" value="{PITCH}" />
     <myParameter name="pixelSize" value="{PITCH}/sqrt(2.)" />
@@ -325,7 +325,7 @@
 	We do the readoutModule definition outside the readoutPlane and
 	then we use addReadoutModule giving the name as reference -->
 
-<section readout name="Panda-Jinping" title="PANDA SJTU Jinping readout. 2 planes 33 modules {PITCH}mm-Pitch {CHANNELS}+{CHANNELS} channels" >
+<section TRestReadout name="Panda-Jinping" title="PANDA SJTU Jinping readout. 2 planes 33 modules {PITCH}mm-Pitch {CHANNELS}+{CHANNELS} channels" >
     <myParameter name="nChannels" value="{CHANNELS}" />
     <myParameter name="pitch" value="{PITCH}" />
     <myParameter name="pixelSize" value="{PITCH}/sqrt(2.)" />
@@ -432,7 +432,7 @@
 	We do the readoutModule definition outside the readoutPlane and
 	then we use addReadoutModule giving the name as reference -->
 
-<section readout name="Readout-NEXT-MM" title="NEXT-MM" />
+<section TRestReadout name="Readout-NEXT-MM" title="NEXT-MM" />
 
 	<myParameter name="pixelSize" value="8" />
 	<myParameter name="maxPixels" value="19" />
@@ -549,7 +549,7 @@
 	We do the readoutModule definition outside the readoutPlane and
 	then we use addReadoutModule giving the name as reference -->
 
-<section readout name="Readout_IAXOD0_v1" title="IAXOD0 readout" >
+<section TRestReadout name="Readout_IAXOD0_v1" title="IAXOD0 readout" >
     <myParameter name="nChannels" value="120" />
     <myParameter name="pitch" value="0.5" />
     <myParameter name="pixelSize" value="0.5/sqrt(2.)" />
