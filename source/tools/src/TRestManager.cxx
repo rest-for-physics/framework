@@ -133,9 +133,9 @@ void TRestManager::InitFromConfigFile()
 
         TString metadataType = GetFieldValue( "type", addMetadataString );
 
-        if( metadataType == "readout" ) AddReadout( addMetadataString );
+        if( metadataType == "TRestReadout" ) AddReadout( addMetadataString );
 
-        if( metadataType == "gas" ) AddGas( addMetadataString );
+        if( metadataType == "TRestGas" ) AddGas( addMetadataString );
 
     }
 
