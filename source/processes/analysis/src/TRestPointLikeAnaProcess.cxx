@@ -52,7 +52,7 @@ void TRestPointLikeAnaProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestPointLikeAnaProcess::Initialize()
 {
-    SetName( "pointLikeAna" );
+    SetSectionName( this->ClassName() );
 
     fThreshold = 50;
     fPedLevel = 0;

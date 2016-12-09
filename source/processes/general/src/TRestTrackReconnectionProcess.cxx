@@ -44,7 +44,7 @@ void TRestTrackReconnectionProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestTrackReconnectionProcess::Initialize( )
 {
-    SetName("trackReconnectionProcess");
+    SetSectionName( this->ClassName() );
 
     fInputTrackEvent = new TRestTrackEvent();
     fOutputTrackEvent = new TRestTrackEvent();

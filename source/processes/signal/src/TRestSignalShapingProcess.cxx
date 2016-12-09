@@ -57,7 +57,7 @@ void TRestSignalShapingProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestSignalShapingProcess::Initialize()
 {
-    SetName( "signalShapingProcess" );
+    SetSectionName( this->ClassName() );
 
     fInputSignalEvent = new TRestSignalEvent();
     fOutputSignalEvent = new TRestSignalEvent();

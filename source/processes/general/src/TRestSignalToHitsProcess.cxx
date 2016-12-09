@@ -118,7 +118,7 @@ void TRestSignalToHitsProcess::LoadConfig( std::string cfgFilename, std::string 
 //______________________________________________________________________________
 void TRestSignalToHitsProcess::Initialize()
 {
-    SetName( "signalToHitsProcess" );
+    SetSectionName( this->ClassName() );
 
     fHitsEvent = new TRestHitsEvent();
     fSignalEvent = new TRestSignalEvent();

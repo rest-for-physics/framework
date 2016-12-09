@@ -49,7 +49,7 @@ void TRestTrackLinearizationProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestTrackLinearizationProcess::Initialize( )
 {
-    SetName("trackLinearizationProcess");
+    SetSectionName( this->ClassName() );
 
     fInputTrackEvent = new TRestTrackEvent();
     fOutputLinearizedTrackEvent = new TRestLinearizedTrackEvent();

@@ -47,7 +47,7 @@ void TRestFindTrackBlobsProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestFindTrackBlobsProcess::Initialize()
 {
-    SetName( "findTrackBlobsProcess" );
+    SetSectionName( this->ClassName() );
 
     fTrackEvent = new TRestTrackEvent();
 

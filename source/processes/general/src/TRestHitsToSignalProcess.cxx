@@ -113,7 +113,7 @@ void TRestHitsToSignalProcess::LoadConfig( string cfgFilename, string name )
 //______________________________________________________________________________
 void TRestHitsToSignalProcess::Initialize()
 {
-    SetName("hitsToSignalProcess");
+    SetSectionName( this->ClassName() );
 
     fReadout = NULL;
     fGas = NULL;

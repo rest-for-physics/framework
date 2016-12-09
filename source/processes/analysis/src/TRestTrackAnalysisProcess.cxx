@@ -47,7 +47,7 @@ void TRestTrackAnalysisProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestTrackAnalysisProcess::Initialize()
 {
-    SetName( "trackAnalysisProcess" );
+    SetSectionName( this->ClassName() );
 
     fTrackEvent = new TRestTrackEvent();
 

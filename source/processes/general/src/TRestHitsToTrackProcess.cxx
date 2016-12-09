@@ -47,14 +47,12 @@ void TRestHitsToTrackProcess::LoadDefaultConfig( )
     SetTitle( "Default config" );
 
     fClusterDistance = 1.0;
-
-
 }
 
 //______________________________________________________________________________
 void TRestHitsToTrackProcess::Initialize()
 {
-    SetName("hitsToTrackProcess");
+    SetSectionName( this->ClassName() );
 
     fClusterDistance = 1.;
 

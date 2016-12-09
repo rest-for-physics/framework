@@ -46,7 +46,7 @@ void TRestTrackPathMinimizationProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestTrackPathMinimizationProcess::Initialize( )
 {
-    SetName("trackPathMinimizationProcess");
+    SetSectionName( this->ClassName() );
 
     fInputTrackEvent = new TRestTrackEvent();
     fOutputTrackEvent = new TRestTrackEvent();

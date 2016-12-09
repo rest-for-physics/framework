@@ -47,7 +47,7 @@ void TRestFindG4BlobAnalysisProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestFindG4BlobAnalysisProcess::Initialize()
 {
-    SetName( "findG4BlobAnalysisProcess" );
+    SetSectionName( this->ClassName() );
 
     fG4Event = new TRestG4Event();
     ///fOutputG4Event = new TRestG4Event();

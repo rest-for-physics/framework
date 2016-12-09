@@ -49,7 +49,7 @@ TRestG4Metadata::~TRestG4Metadata()
 
 void TRestG4Metadata::Initialize()
 {
-    SetName( "restG4" );
+    SetSectionName( this->ClassName() );
 
     fChance.clear();
     fActiveVolumes.clear();

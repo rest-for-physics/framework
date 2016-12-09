@@ -58,7 +58,7 @@ void TRestSignalToRawSignalProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestSignalToRawSignalProcess::Initialize()
 {
-    SetName( "signalToRawSignalProcess" );
+    SetSectionName( this->ClassName() );
 
     fInputSignalEvent = new TRestSignalEvent();
     fOutputSignalEvent = new TRestSignalEvent();

@@ -76,7 +76,7 @@
 /// void TRestSpecificMetadata::Initialize( )
 /// {
 ///
-///     SetName( this->ClassName() );
+///     SetSectionName( this->ClassName() );
 ///
 ///     ....
 ///
@@ -165,8 +165,7 @@ TRestMetadata::TRestMetadata( const char *cfgFileName)
     SetConfigFile( cfgFileName );
 
     SetTitle("Config");
-    SetName("TRestMetadata");
-    fSectionName = "Metadata";
+    SetSectionName("TRestMetadata");
 
     CheckConfigFile( );
 
@@ -1954,7 +1953,6 @@ Int_t TRestMetadata::FindSection( string buffer, size_t startPos )
             TString name = GetFieldValue( "name", tmp );
             TString title = GetFieldValue( "title", tmp );
 
- //           if( name == "Not defined" ) cout << "Section name " << fSectionName << " not defined!" << endl;
             this->SetName ( name );
             this->SetTitle( title );
 

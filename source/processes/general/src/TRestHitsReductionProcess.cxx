@@ -50,7 +50,7 @@ void TRestHitsReductionProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestHitsReductionProcess::Initialize( )
 {
-    SetName("hitsReductionProcess");
+    SetSectionName( this->ClassName() );
 
     fInputHitsEvent = new TRestHitsEvent();
     fOutputHitsEvent = new TRestHitsEvent();

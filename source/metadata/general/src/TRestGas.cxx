@@ -70,7 +70,7 @@ TRestGas::~TRestGas()
 
 void TRestGas::Initialize()
 {
-    SetName( "gas" );
+    SetSectionName( this->ClassName() );
 
 	fPressureInAtm = 1;
 	fTemperatureInK = 300;

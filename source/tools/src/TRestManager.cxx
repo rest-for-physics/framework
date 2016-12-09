@@ -83,7 +83,7 @@ TRestManager::TRestManager( const char *cfgFileName, const char *name) : TRestMe
 
 void TRestManager::Initialize()
 {
-    SetName("manager");
+    SetSectionName( this->ClassName() );
 
     fRun = NULL;
 

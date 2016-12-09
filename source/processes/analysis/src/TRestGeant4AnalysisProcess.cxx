@@ -47,7 +47,7 @@ void TRestGeant4AnalysisProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestGeant4AnalysisProcess::Initialize()
 {
-    SetName( "geant4AnalysisProcess" );
+    SetSectionName( this->ClassName() );
 
     fG4Event = new TRestG4Event();
     ///fOutputG4Event = new TRestG4Event();

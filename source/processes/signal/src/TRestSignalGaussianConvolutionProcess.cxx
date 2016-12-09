@@ -58,7 +58,7 @@ void TRestSignalGaussianConvolutionProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestSignalGaussianConvolutionProcess::Initialize()
 {
-    SetName( "gaussianConvolutionProcess" );
+    SetSectionName( this->ClassName() );
 
     fSigma  = 0.01;
     fNSigmas  = 5;

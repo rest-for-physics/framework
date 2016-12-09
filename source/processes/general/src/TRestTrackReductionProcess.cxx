@@ -47,7 +47,7 @@ void TRestTrackReductionProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestTrackReductionProcess::Initialize( )
 {
-    SetName("trackReductionProcess");
+    SetSectionName( this->ClassName() );
 
     fInputTrackEvent = new TRestTrackEvent();
     fOutputTrackEvent = new TRestTrackEvent();

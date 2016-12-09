@@ -51,7 +51,7 @@ void TRestElectronDiffusionProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::Initialize()
 {
-    SetName( "electronDiffusionProcess" );
+    SetSectionName( this->ClassName() );
 
     fElectricField = 0;
     fAttachment = 0;

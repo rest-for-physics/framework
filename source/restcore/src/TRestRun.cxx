@@ -52,7 +52,7 @@ TRestRun::TRestRun( char *cfgFileName) : TRestMetadata (cfgFileName)
 
 void TRestRun::Initialize()
 {
-    SetName( "run" );
+    SetSectionName( this->ClassName() );
 
     time_t  timev; time(&timev);
     fStartTime = (Double_t) timev;

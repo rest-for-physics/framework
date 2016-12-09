@@ -44,7 +44,7 @@ void TRestHitsShuffleProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestHitsShuffleProcess::Initialize( )
 {
-    SetName("hitsShuffleProcess");
+    SetSectionName( this->ClassName() );
 
     fInputHitsEvent = new TRestHitsEvent();
     fOutputHitsEvent = new TRestHitsEvent();

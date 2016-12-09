@@ -8,7 +8,7 @@
 ///
 ///
 ///             Simple process to convert a TRestG4Event class into a 
-///    		TRestHitsEvent, that is, we just "extract" the hits information
+///    		    TRestHitsEvent, that is, we just "extract" the hits information
 ///             Date : oct/2016
 ///             Author : I. G. Irastorza
 ///
@@ -52,7 +52,7 @@ void TRestG4toHitsEventProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestG4toHitsEventProcess::Initialize()
 {
-    SetName( "g4ToHitsProcess" );
+    SetSectionName( this->ClassName() );
 
     fG4Event = new TRestG4Event();
     fHitsEvent = new TRestHitsEvent();
