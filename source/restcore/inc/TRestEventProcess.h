@@ -48,8 +48,6 @@ class TRestEventProcess:public TRestMetadata {
 
 	private:
 
-		virtual void LoadDefaultConfig()=0;
-
 	public:
 		virtual TRestEvent *GetInputEvent() { return fInputEvent; } ///< Get pointer to input event
 		virtual TRestEvent *GetOutputEvent() { return fOutputEvent; } ///< Get pointer to output event
@@ -59,22 +57,16 @@ class TRestEventProcess:public TRestMetadata {
 		virtual void EndProcess() { } ///< To be executed at the end of the run
 		virtual void BeginOfEventProcess() { fOutputEvent->Initialize(); } ///< To be executed before processing event
 		virtual void EndOfEventProcess() { } ///< To be executed after processing event
-		virtual TString GetProcessName() = 0; ///< Return name of process
-		virtual void LoadConfig( std::string cfgFilename, std::string cfgName = "" )=0; ///< Read process metadata from config file
 
-		virtual Bool_t isExternal( ) { return false; } 
+        virtual TString GetProcessName();
 
-		vector <string> ReadObservables( ) ///< 
-		{
-			vector <string> obsList = GetObservablesList( );
+        virtual void LoadDefaultConfig();
 
-			for( unsigned int n = 0; n < obsList.size(); n++ )
-			{
-				fAnalysisTree->AddObservable( this->GetName() + (TString) "." + (TString) obsList[n] );
-				fObservableNames.push_back ( this->GetName() + (string) "." + obsList[n] );
-			}
-			return obsList;
-		}
+        virtual void LoadConfig( std::string cfgFilename, std::string cfgName = "" );
+
+        virtual Bool_t isExternal( ) { return false; } 
+
+		vector <string> ReadObservables( );
 
 		TRestMetadata *GetGasMetadata( );
 		TRestMetadata *GetReadoutMetadata( );
