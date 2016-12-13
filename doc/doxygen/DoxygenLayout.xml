@@ -3,7 +3,6 @@
   <!-- Navigation index tabs for HTML output -->
   <navindex>
     <tab type="mainpage" visible="yes" title=""/>
-    <tab type="pages" visible="yes" title="" intro=""/>
     <tab type="modules" visible="yes" title="" intro=""/>
     <tab type="namespaces" visible="yes" title="">
       <tab type="namespacelist" visible="yes" title="" intro=""/>
@@ -15,6 +14,7 @@
       <tab type="hierarchy" visible="yes" title="" intro=""/>
       <tab type="classmembers" visible="no" title="" intro=""/>
     </tab>
+    <tab type="pages" visible="yes" title="Tutorials" intro="Here it is a list of tutorials showing the basic usage of REST."/>
     <tab type="files" visible="no" title="">
       <tab type="filelist" visible="no" title="" intro=""/>
       <tab type="globals" visible="no" title="" intro=""/>
