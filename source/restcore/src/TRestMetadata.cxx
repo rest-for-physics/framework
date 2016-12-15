@@ -94,16 +94,39 @@
 ///
 /// The derived metadata class can access to the different structures using the 
 /// different methods provided, as TRestMetadata::GetKEYStructure, 
-/// TRestMetadata::GetKEYDefinition, etc. If a string *buffer* is given as argument, 
+/// TRestMetadata::GetKEYDefinition, etc. If no string *buffer* is given as argument, 
 /// the specific *keyStructure* or *keyDefinition* we are looking for will be searched 
-/// in the entire metadata section found in TRestMetadata::configBuffer.
+/// in the entire metadata section found in TRestMetadata::configBuffer. The search will
+/// start from the beginning of the section, except that a position *fromPostion* is 
+/// specified by argument. The first match will be returned in a string.
 ///
-/// In order to read several key definitions or structures with the same name we need
+/// In order to read several key definitions or structures with the same name we must
 /// to provide as argument a position (size_t &fromPosition) that it is updated with 
 /// the position where the end of the structure or definition read by the method is 
 /// found. This position value can be given to the next method call to read the next
-/// definition.
+/// definition. You might find useful examples of use in the implementations of
+/// complex metadata structures as in TRestG4Metadata::InitFromConfigFile and 
+/// TRestReadout::InitFromConfigFile.
 /// 
+///
+/// ### Using environmental variables in RML files
+///
+/// TODO globals section description
+///
+/// TOBE writen ..
+///
+///
+/// ### Using physical units in fields definitions 
+///
+/// ## Complex metadata description
+///
+/// ### Mathematical expression evaluation
+///
+/// TOBE writen ..
+///
+/// ### FOR loops definition
+///
+/// TOBE writen ..
 /// 
 ///
 ///--------------------------------------------------------------------------
@@ -148,6 +171,9 @@ ClassImp(TRestMetadata)
 TRestMetadata::TRestMetadata()
 {
     fStore = true;
+
+    fGasDataPath = (TString) getenv("REST_PATH") + (TString) "/inputData/gasFiles/";
+
 }
 
 ///////////////////////////////////////////////
@@ -170,6 +196,8 @@ TRestMetadata::TRestMetadata( const char *cfgFileName)
     CheckConfigFile( );
 
     fStore = true;
+
+    fGasDataPath = (TString) getenv("REST_PATH") + (TString) "/inputData/gasFiles/";
 }
 
 ///////////////////////////////////////////////
@@ -476,6 +504,7 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
 
         pos = 0;
         fDataPath = GetParameter( "mainDataPath", pos, configBuffer );
+        fGasDataPath = GetParameter( "gasDataPath", pos, configBuffer );
         string vLevelString  = GetParameter( "verboseLevel", pos, configBuffer );
 
         if( vLevelString == "silent" )

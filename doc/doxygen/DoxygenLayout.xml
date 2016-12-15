@@ -9,8 +9,8 @@
       <tab type="namespacemembers" visible="yes" title="" intro=""/>
     </tab>
     <tab type="classes" visible="yes" title="Class Documentation">
-      <tab type="classlist" visible="yes" title="List (only fully documented classes have a description here)" intro=""/>
       <tab type="classindex" visible="$ALPHABETICAL_INDEX" title="Index"/> 
+      <tab type="classlist" visible="yes" title="List (only fully documented classes have a description here)" intro=""/>
       <tab type="hierarchy" visible="yes" title="" intro=""/>
       <tab type="classmembers" visible="no" title="" intro=""/>
     </tab>

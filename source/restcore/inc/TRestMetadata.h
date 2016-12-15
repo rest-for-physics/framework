@@ -42,7 +42,7 @@
 
 #include <TRestSystemOfUnits.h>
 
-const int PARAMETER_NOT_FOUND_INT = -99999999;
+const int PARAMETER_NOT_FOUND_INT = -99999999; 
 const double PARAMETER_NOT_FOUND_DBL = -99999999;
 const TString PARAMETER_NOT_FOUND_STR = "-99999999";
 
@@ -108,6 +108,8 @@ class TRestMetadata:public TNamed {
 
 #ifndef __CINT__
         Bool_t fStore;  //!< This variable is used to determine if the metadata structure should be stored in the ROOT file.
+
+        TString fGasDataPath; //!< The path where the gas pre-generated files are stored.
 #endif
         
         void SetDefaultConfigFilePath();
@@ -135,9 +137,15 @@ class TRestMetadata:public TNamed {
     public:
         /// Returns a string with the path used for data storage
         TString GetDataPath( ) { return fDataPath; }
+        
+        /// Returns a string with the path used for pre-generated gas files
+        TString GetGasDataPath( ) { return fGasDataPath; }
 
         /// Sets the path that will be used for data storage
         void SetDataPath( TString path ) { fDataPath = path; }
+        
+        /// Sets the path that will be used for pre-generated gas files
+        void SetGasDataPath( TString path ) { fGasDataPath = path; }
 
         /// Gets the verbose level used to dump on screen different levels of information
         REST_Verbose_Level GetVerboseLevel( ) { return fVerboseLevel; }
@@ -186,6 +194,7 @@ class TRestMetadata:public TNamed {
 
         //////////////////////////////////////////////////
 
+        /// Must be imlemented in the derived metadata class to print out specific metadata information.
         void virtual PrintMetadata() = 0;
 
         //Constructor
