@@ -64,6 +64,8 @@ void TRestRawToSignalProcess::Initialize()
     fMinPoints = 512;
 
     fRejectNoise = false;
+
+    fIsExternal = true;
 }
 
 void TRestRawToSignalProcess::BeginOfEventProcess() 

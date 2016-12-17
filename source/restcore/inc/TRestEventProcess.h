@@ -44,6 +44,8 @@ class TRestEventProcess:public TRestMetadata {
 		std::vector <string> fObservableNames; ///< Array to observables names to be produced by the process
 
 		TRestAnalysisTree *fAnalysisTree; ///< Pointer to analysis tree where to store the observables. 
+
+        Bool_t fIsExternal; ///< It defines if the process reads event data from an external source.
 #endif
 
 	private:
@@ -51,6 +53,8 @@ class TRestEventProcess:public TRestMetadata {
 	public:
 		virtual TRestEvent *GetInputEvent() { return fInputEvent; } ///< Get pointer to input event
 		virtual TRestEvent *GetOutputEvent() { return fOutputEvent; } ///< Get pointer to output event
+
+        virtual Bool_t OpenInputFile(TString fName);
 
 		virtual void InitProcess() { } ///< To be executed at the beginning of the run
 		virtual TRestEvent *ProcessEvent( TRestEvent *evInput ) = 0; ///< Process one event
@@ -64,7 +68,7 @@ class TRestEventProcess:public TRestMetadata {
 
         virtual void LoadConfig( std::string cfgFilename, std::string cfgName = "" );
 
-        virtual Bool_t isExternal( ) { return false; } 
+        Bool_t isExternal( ) { return fIsExternal; } 
 
 		vector <string> ReadObservables( );
 

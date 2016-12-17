@@ -215,6 +215,17 @@ Double_t TRestEventProcess::GetDoubleParameterFromClassWithUnits( TString classN
     return PARAMETER_NOT_FOUND_DBL;
 }
 
+Bool_t TRestEventProcess::OpenInputFile( TString fName )
+{
+    if( this->isExternal( ) )
+    {
+        cout << "REST Warning: " << endl;
+        cout << "This method should be overloaded in the derived class." << endl;
+    }
+
+    return false;
+}
+
 /*
 //______________________________________________________________________________
 void TRestEventProcess::InitProcess()
