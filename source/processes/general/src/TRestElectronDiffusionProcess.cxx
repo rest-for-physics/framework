@@ -35,8 +35,8 @@ TRestElectronDiffusionProcess::TRestElectronDiffusionProcess( char *cfgFileName 
 //______________________________________________________________________________
 TRestElectronDiffusionProcess::~TRestElectronDiffusionProcess()
 {
-    delete fHitsEvent;
-    delete fG4Event;
+    delete fOutputHitsEvent;
+    delete fInputHitsEvent;
 }
 
 void TRestElectronDiffusionProcess::LoadDefaultConfig()
@@ -61,11 +61,11 @@ void TRestElectronDiffusionProcess::Initialize()
     fLonglDiffCoeff = 0;
     fWvalue = 0;
 
-    fHitsEvent = new TRestHitsEvent();
-    fG4Event = new TRestG4Event();
+    fOutputHitsEvent = new TRestHitsEvent();
+    fInputHitsEvent = new TRestHitsEvent();
 
-    fOutputEvent = fHitsEvent;
-    fInputEvent = fG4Event;
+    fOutputEvent = fOutputHitsEvent;
+    fInputEvent = fInputHitsEvent;
 
     fGas = NULL;
     fReadout = NULL;
@@ -113,84 +113,76 @@ void TRestElectronDiffusionProcess::InitProcess()
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::BeginOfEventProcess() 
 {
-    fHitsEvent->Initialize(); 
+    fOutputHitsEvent->Initialize(); 
 }
 
 //______________________________________________________________________________
 TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 {
 
-    TRestG4Event *g4Event = (TRestG4Event *) evInput;
+    TRestHitsEvent *inputHitsEvent = (TRestHitsEvent *) evInput;
+
+    Int_t nHits = inputHitsEvent->GetNumberOfHits();
+    if( nHits <= 0 ) return NULL;
 
     Int_t isAttached;
 
-    // Get info from G4Event and process
-    for( int trk = 0; trk < g4Event->GetNumberOfTracks(); trk++ )
+    for( int n = 0; n < nHits; n++ )
     {
-        Int_t nHits = g4Event->GetTrack(trk)->GetNumberOfHits();
-        if ( nHits > 0 )
+        TRestHits *hits = inputHitsEvent->GetHits();
+
+        Double_t eDep = hits->GetEnergy(n);
+
+        if( eDep > 0 )
         {
-            for( int n = 0; n < nHits; n++ )
+            const Double_t x = hits->GetX(n);
+            const Double_t y = hits->GetY(n);
+            const Double_t z = hits->GetZ(n);
+
+            for( int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++ )
             {
-                TRestHits *hits = g4Event->GetTrack(trk)->GetHits();
+                TRestReadoutPlane *plane = fReadout->GetReadoutPlane( p );
 
-                Double_t eDep = hits->GetEnergy(n);
-
-                if( eDep > 0 )
+                if ( plane->isInsideDriftVolume( x, y, z ) >= 0 )
                 {
-                    const Double_t x = hits->GetX(n);
-                    const Double_t y = hits->GetY(n);
-                    const Double_t z = hits->GetZ(n);
+                    Double_t xDiff, yDiff, zDiff;
 
-                    for( int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++ )
+                    Double_t driftDistance = plane->GetDistanceTo( x, y, z );
+
+                    Int_t numberOfElectrons = (Int_t) (eDep*1000./fWvalue);
+                    while( numberOfElectrons > 0 )
                     {
-                        TRestReadoutPlane *plane = fReadout->GetReadoutPlane( p );
+                        numberOfElectrons--;
 
-                        if ( plane->isInsideDriftVolume( x, y, z ) >= 0 )
+                        Double_t longHitDiffusion = 10. * TMath::Sqrt( driftDistance/10. ) * fLonglDiffCoeff; //mm
+
+                        Double_t transHitDiffusion = 10. * TMath::Sqrt( driftDistance/10. ) * fTransDiffCoeff; //mm
+
+                        if (fAttachment)
+                            isAttached =  (fRandom->Uniform(0,1) > pow(1-fAttachment, driftDistance/10. ) );
+                        else
+                            isAttached = 0;
+
+                        if ( isAttached == 0)
                         {
-                            Double_t xDiff, yDiff, zDiff;
+                            xDiff = x + fRandom->Gaus( 0, transHitDiffusion );
 
-                            Double_t driftDistance = plane->GetDistanceTo( x, y, z );
+                            yDiff = y + fRandom->Gaus( 0, transHitDiffusion );
 
-                            Int_t numberOfElectrons = (Int_t) (eDep*1000./fWvalue);
-                            while( numberOfElectrons > 0 )
-                            {
-                                numberOfElectrons--;
+                            zDiff = z + fRandom->Gaus( 0, longHitDiffusion );
 
-                                Double_t longHitDiffusion = 10. * TMath::Sqrt( driftDistance/10. ) * fLonglDiffCoeff; //mm
-
-                                Double_t transHitDiffusion = 10. * TMath::Sqrt( driftDistance/10. ) * fTransDiffCoeff; //mm
-
-                                if (fAttachment)
-                                    isAttached =  (fRandom->Uniform(0,1) > pow(1-fAttachment, driftDistance/10. ) );
-                                else
-                                    isAttached = 0;
-
-                                if ( isAttached == 0)
-                                {
-                                    xDiff = x + fRandom->Gaus( 0, transHitDiffusion );
-
-                                    yDiff = y + fRandom->Gaus( 0, transHitDiffusion );
-
-                                    zDiff = z + fRandom->Gaus( 0, longHitDiffusion );
-
-                                    fHitsEvent->AddHit( xDiff, yDiff, zDiff, 1. );
-                                }
-                            }
-
+                            fOutputHitsEvent->AddHit( xDiff, yDiff, zDiff, 1. );
                         }
                     }
+
                 }
             }
         }
-
-
     }
 
+    if( fOutputHitsEvent->GetNumberOfHits() == 0 ) return NULL;
 
-    if( fHitsEvent->GetNumberOfHits() == 0 ) return NULL;
-
-    return fHitsEvent;
+    return fOutputHitsEvent;
 }
 
 //______________________________________________________________________________
