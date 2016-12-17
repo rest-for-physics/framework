@@ -20,6 +20,7 @@ using namespace std;
 #include <TRestDetectorSetup.h>
 
 // REST processes
+/*
 #include <TRestSignalToHitsProcess.h>
 #include <TRestFastHitsToTrackProcess.h>
 #include <TRestHitsToTrackProcess.h>
@@ -46,11 +47,13 @@ using namespace std;
 #include <TRestSignalShapingProcess.h>
 #include <TRestSignalToRawSignalProcess.h>
 
+*/
 // external processes
 #include <TRestFEMINOSToSignalProcess.h>
 #include <TRestCoBoAsAdToSignalProcess.h>
 
 // analysis processes
+/*
 #include <TRestGeant4AnalysisProcess.h>
 #include <TRestFindG4BlobAnalysisProcess.h>
 #include <TRestSignalAnalysisProcess.h>
@@ -58,6 +61,7 @@ using namespace std;
 #include <TRestTriggerAnalysisProcess.h>
 #include <TRestHitsAnalysisProcess.h>
 #include <TRestFindTrackBlobsProcess.h>
+*/
 
 
 // task processes
@@ -115,15 +119,38 @@ void TRestManager::InitFromConfigFile()
     fNEventsToProcess = StringToInteger( GetParameter( "eventsToProcess", "0") );
     fLastEntry = StringToInteger( GetParameter( "lastEntry", "0") );
 
-    Bool_t isAcquisition = inputFile.EndsWith("aqs") || inputFile.EndsWith("graw");
-    if( !isAcquisition ) fRun->OpenInputFile( inputFile );
+    // Adding processes
+    size_t position = 0;
+    string addProcessString;
+    while( ( addProcessString = GetKEYDefinition( "addProcess", position ) ) != "" )
+    {
+        TString active = GetFieldValue( "value", addProcessString );
+        if( active != "ON" && active != "On" && active != "on" ) continue;
+
+        TString processesCfgFile = GetParameter( "processesFile" );
+        TString processName = GetFieldValue( "name", addProcessString );
+
+        TString processType = GetFieldValue( "type", addProcessString );
+
+        fProcessType.push_back( processType );
+        fProcessName.push_back( processName );
+        fPcsConfigFile.push_back( processesCfgFile ); 
+    }
+
+    if( fProcessType.size() > 0 )
+    {
+        TClass *cl = TClass::GetClass( fProcessType[0] );
+        TRestEventProcess *pc = (TRestEventProcess *) cl->New();
+        
+        if( !pc->isExternal() ) fRun->OpenInputFile( inputFile );
+    }
 
     TString analysisString = GetParameter( "pureAnalysisOutput", "OFF" );
     if( analysisString == "ON" || analysisString == "On" || analysisString == "on" )
         fRun->SetPureAnalysisOutput();
 
     // Adding metadata
-    size_t position = 0;
+    position = 0;
     string addMetadataString;
     while( ( addMetadataString = GetKEYDefinition( "addMetadata", position ) ) != "" )
     {
@@ -164,24 +191,6 @@ void TRestManager::InitFromConfigFile()
         readout->GetReadoutPlane( rId )->SetDriftDistance();
 
         readout->PrintMetadata();
-    }
-
-    // Adding processes
-    position = 0;
-    string addProcessString;
-    while( ( addProcessString = GetKEYDefinition( "addProcess", position ) ) != "" )
-    {
-        TString active = GetFieldValue( "value", addProcessString );
-        if( active != "ON" && active != "On" && active != "on" ) continue;
-
-        TString processesCfgFile = GetParameter( "processesFile" );
-        TString processName = GetFieldValue( "name", addProcessString );
-
-        TString processType = GetFieldValue( "type", addProcessString );
-
-        fProcessType.push_back( processType );
-        fProcessName.push_back( processName );
-        fPcsConfigFile.push_back( processesCfgFile ); 
     }
 
     // Adding tasks
@@ -260,12 +269,9 @@ Int_t TRestManager::LoadProcesses( )
             continue;
         }
 
-        TRestEventProcess *pc = (TRestEventProcess *) cl->New( );
-        fRun->AddProcess( pc, (string) fPcsConfigFile[i], (string) fProcessName[i] );
-
         // TODO: Still we need to improve this so that is more generic.
-        // I.e. checking inheritance from TRestRawSignalProcess
-        if( fProcessType[i] == "TRestFeminosToSignalProcess" )
+        // I.e. OpenInputBinFile can be done in InitProcess
+        if( i == 0 && fProcessType[i] == "TRestFeminosToSignalProcess" )
         {
             TRestDetectorSetup *detSetup = new TRestDetectorSetup();
             detSetup->InitFromFileName( fInputFile );
@@ -287,8 +293,7 @@ Int_t TRestManager::LoadProcesses( )
             fRun->SetRunNumber( detSetup->GetRunNumber() );
             fRun->SetRunTag( detSetup->GetRunTag() );
         }
-
-        if( fProcessType[i] == "TRestCoboAsadToSignalProcess" )
+        else if( i == 0 && fProcessType[i] == "TRestCoboAsadToSignalProcess" )
         {
 
             //TRestDetectorSetup *detSetup = new TRestDetectorSetup();
@@ -303,14 +308,27 @@ Int_t TRestManager::LoadProcesses( )
             if( !coboPcs->OpenInputCoBoAsAdBinFile( fInputFile ) )
   //          if( !coboPcs->OpenInputBinFile( fInputFile ) )
             {
-                cout << "Error file not found : " << fInputFile << endl;
-                GetChar();
-                continue;
+                cout << "REST ERROR: TRestManager. File not found : " << fInputFile << endl;
+                exit(1);
             }
 
             //fRun->SetParentRunNumber( detSetup->GetSubRunNumber() );
             //fRun->SetRunNumber( detSetup->GetRunNumber() );
             //fRun->SetRunTag( detSetup->GetRunTag() );
+        }
+        else
+        {
+            TRestEventProcess *pc = (TRestEventProcess *) cl->New( );
+
+            if( i != 0 && pc->isExternal( ) )
+            {
+                cout << "REST ERROR: TRestManager. Only the first process can be external" << endl;
+                exit(1);
+            }
+
+            if( pc->isExternal() ) pc->OpenInputFile( fInputFile );
+
+            fRun->AddProcess( pc, (string) fPcsConfigFile[i], (string) fProcessName[i] );
         }
 
         nProcesses++;
