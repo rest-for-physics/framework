@@ -89,11 +89,11 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         fHitsEvent->AddHit( fInputHitsEvent->GetX(hit), fInputHitsEvent->GetY(hit), fInputHitsEvent->GetZ(hit), fInputHitsEvent->GetEnergy(hit)  );
     /////////////////////////////////////////////////
 
-    Double_t electrons = fHitsEvent->GetEnergy( );
+    Double_t energy = fHitsEvent->GetEnergy( );
     TVector3 meanPosition = fHitsEvent->GetMeanPosition();
 
-    obsName = this->GetName() + (TString) ".electrons";
-    fAnalysisTree->SetObservableValue( obsName, electrons );
+    obsName = this->GetName() + (TString) ".energy";
+    fAnalysisTree->SetObservableValue( obsName, energy );
 
     obsName = this->GetName() + (TString) ".xMean";
     fAnalysisTree->SetObservableValue( obsName, meanPosition.X() );
