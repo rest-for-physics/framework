@@ -110,6 +110,63 @@ Double_t TRestHits::GetEnergyIntegral()
     return sum;
 }
 
+Bool_t TRestHits::isHitNInsideCylinder( Int_t n, TVector3 x0, TVector3 x1, Double_t radius )
+{
+    cout << "TRestHits::isHitNInsideCylinder has not been validated." << endl;
+    cout << "After validation this output should be removed" << endl;
+
+    TVector3 axis = x1 - x0;
+
+    Double_t cylLength = axis.Mag();
+
+    cout << "X0 : " << endl;
+    x0.Print();
+    cout << "Y0 : " << endl;
+    x1.Print();
+    cout << "Radius : " << radius << endl;
+
+    cout << "Absolute position" << endl;
+    this->GetPosition( n ).Print();
+
+    TVector3 hitPos = this->GetPosition( n ) - x0;
+    cout << "HitPos" << endl;
+    hitPos.Print();
+
+    Double_t l = axis.Dot( hitPos ) / cylLength;
+
+    if( l > 0 && l < cylLength )
+    {
+        cout << "Is inside length" << endl;
+        Double_t hitPosNorm2 = hitPos.Mag2();
+        Double_t r = TMath::Sqrt( hitPosNorm2 - l*l );
+
+        if( r < radius ) return true;
+    }
+
+    return false;
+}
+
+Double_t TRestHits::GetEnergyInCylinder( TVector3 x0, TVector3 x1, Double_t radius )
+{
+    Double_t energy = 0.;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+        if( isHitInsideCylinder( n, x0, x1, radius ) )
+            energy += this->GetEnergy( n );
+    }
+
+    return energy;
+}
+
+Int_t TRestHits::GetNumberOfHitsInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius )
+{
+    Int_t hits = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+        if( isHitInsideCylinder( n, x0, x1, radius ) ) hits++;
+
+    return hits;
+}
+
 Double_t TRestHits::GetEnergyInSphere( Double_t x0, Double_t y0, Double_t z0, Double_t radius )
 {
     Double_t sum = 0;
@@ -167,8 +224,6 @@ void TRestHits::Traslate(Int_t n, double deltax, double deltay, double deltaz)
 	fY[n] += deltay;
 	fZ[n] += deltaz;
 }
-
-
 
 void TRestHits::RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, TVector3 vMean)
 {
