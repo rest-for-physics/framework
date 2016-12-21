@@ -151,7 +151,7 @@ Double_t TRestHits::GetEnergyInCylinder( TVector3 x0, TVector3 x1, Double_t radi
     Double_t energy = 0.;
     for( int n = 0; n < GetNumberOfHits(); n++ )
     {
-        if( isHitInsideCylinder( n, x0, x1, radius ) )
+        if( isHitNInsideCylinder( n, x0, x1, radius ) )
             energy += this->GetEnergy( n );
     }
 
@@ -162,7 +162,7 @@ Int_t TRestHits::GetNumberOfHitsInsideCylinder( TVector3 x0, TVector3 x1, Double
 {
     Int_t hits = 0;
     for( int n = 0; n < GetNumberOfHits(); n++ )
-        if( isHitInsideCylinder( n, x0, x1, radius ) ) hits++;
+        if( isHitNInsideCylinder( n, x0, x1, radius ) ) hits++;
 
     return hits;
 }
