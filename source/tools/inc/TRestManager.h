@@ -55,8 +55,6 @@ class TRestManager:public TRestMetadata {
 
         Int_t LoadProcesses();
 
-        virtual void LoadExternalProcess( TString processType, std::string processesCfgFile, std::string processName ) {  }
-
         void AddProcess( TRestEventProcess *evPcs, string cfgFile, string pcsName ) { fRun->AddProcess( evPcs, cfgFile, pcsName ); }
 
         void AddMetadata( TRestMetadata *meta ) { fRun->AddMetadata( meta ); }
@@ -69,7 +67,10 @@ class TRestManager:public TRestMetadata {
             if( LoadProcesses() > 0 ) fEventsProcessed = true;
 
             if( fRun != NULL ) 
+	    {
                 fRun->ProcessEvents( fFirstEntry, fNEventsToProcess, fLastEntry ); 
+		fRun->CloseOutputFile( );
+	    }
         }
 
         void LaunchTasks( );

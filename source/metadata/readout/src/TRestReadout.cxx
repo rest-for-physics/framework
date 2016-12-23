@@ -57,7 +57,7 @@ TRestReadout::TRestReadout( const char *cfgFileName, string name) : TRestMetadat
 
 void TRestReadout::Initialize()
 {
-    SetName("readout");
+    SetSectionName( this->ClassName() );
 
     fDecoding = false;
 

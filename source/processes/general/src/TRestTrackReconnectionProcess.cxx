@@ -1,6 +1,4 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
+//////////////////////////////////////////////////////////////////////////
 ///             
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
@@ -8,8 +6,8 @@
 ///             TRestTrackReconnectionProcess.cxx
 ///
 ///             Jan 2016:   First concept (Javier Galan)
-//
-///_______________________________________________________________________________
+///
+//////////////////////////////////////////////////////////////////////////
 
 #include "TRestTrackReconnectionProcess.h"
 using namespace std;
@@ -46,7 +44,7 @@ void TRestTrackReconnectionProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestTrackReconnectionProcess::Initialize( )
 {
-    SetName("trackReconnectionProcess");
+    SetSectionName( this->ClassName() );
 
     fInputTrackEvent = new TRestTrackEvent();
     fOutputTrackEvent = new TRestTrackEvent();

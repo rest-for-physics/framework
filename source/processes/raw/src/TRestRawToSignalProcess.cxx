@@ -48,14 +48,13 @@ TRestRawToSignalProcess::~TRestRawToSignalProcess()
 
 void TRestRawToSignalProcess::LoadConfig( string cfgFilename, string name )
 {
-    SetName( "daq" );
     if( LoadConfigFromFile( cfgFilename, name ) == -1 ) { cout << "Loading default" << endl; LoadDefaultConfig( ); }
 }
 
 //______________________________________________________________________________
 void TRestRawToSignalProcess::Initialize()
 {
-    SetName( "daq" );
+    SetSectionName( this->ClassName() );
     fSignalEvent = new TRestSignalEvent( );
 
     fInputEvent = NULL;

@@ -71,34 +71,6 @@ void TRestHitsToSignalProcess::LoadConfig( string cfgFilename, string name )
 {
     if( LoadConfigFromFile( cfgFilename, name ) ) LoadDefaultConfig( );
 
-    // The gas metadata will only be available after using AddProcess method of TRestRun
-    fGas = (TRestGas *) this->GetGasMetadata( );
-    if( fGas != NULL )
-    {
-        if( fGasPressure == -1 ) fGasPressure = fGas->GetPressure();
-        fGas->LoadGasFile( );
-        fGas->SetPressure( fGasPressure );
-        cout << "Gas loaded from Run metadata" << endl;
-    }
-    else
-    {
-        cout << "I did not find the gas inside run. Loading gas from config file" << endl;
-        fGas = new TRestGas( cfgFilename.c_str() );
-    }
-
-    if( fGas != NULL ) fGas->PrintMetadata( );
-
-
-    // The readout metadata will only be available after using AddProcess method of TRestRun
-    fReadout = (TRestReadout *) this->GetReadoutMetadata( );
-
-    if( fReadout != NULL )
-        cout << "Readout imported from Run metadata" << endl;
-    else
-        fReadout = new TRestReadout( cfgFilename.c_str() );
-
-    if( fReadout != NULL ) fReadout->PrintMetadata();
-
     // If the parameters have no value it tries to obtain it from electronDiffusionProcess
     if ( fElectricField == PARAMETER_NOT_FOUND_DBL )
     {
@@ -113,7 +85,7 @@ void TRestHitsToSignalProcess::LoadConfig( string cfgFilename, string name )
 //______________________________________________________________________________
 void TRestHitsToSignalProcess::Initialize()
 {
-    SetName("hitsToSignalProcess");
+    SetSectionName( this->ClassName() );
 
     fReadout = NULL;
     fGas = NULL;
@@ -136,25 +108,29 @@ void TRestHitsToSignalProcess::InitProcess()
     //Comment this if you don't want it.
     //TRestEventProcess::InitProcess();
 
-    fReadout = (TRestReadout *) GetReadoutMetadata();
-    if( fReadout == NULL )
+    fGas = (TRestGas *) this->GetGasMetadata( );
+    if( fGas != NULL )
     {
-        cout << "REST ERROR : Readout has not been initialized" << endl;
-        exit(-1);
-    }
-
-    fGas = (TRestGas *) GetGasMetadata( );
-    if( fGas == NULL )
-    {
-        cout << "REST WARNING : Gas has not been initialized" << endl;
-    }
-    else
-    {
+        if( fGasPressure == -1 ) 
+            fGasPressure = fGas->GetPressure();
         fGas->SetPressure( fGasPressure );
 
         if( fDriftVelocity == 0 )
             fDriftVelocity = fGas->GetDriftVelocity( fElectricField ) * cmTomm;
     }
+    else
+    {
+        cout << "REST_WARNING. No TRestGas found in TRestRun." << endl;
+    }
+
+    fReadout = (TRestReadout *) this->GetReadoutMetadata( );
+
+    if( fReadout == NULL )
+    {
+        cout << "REST ERRORRRR : Readout has not been initialized" << endl;
+        exit(-1);
+    }
+
 }
 
 //______________________________________________________________________________
@@ -190,6 +166,7 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
         Double_t x = fHitsEvent->GetX( hit );
         Double_t y = fHitsEvent->GetY( hit );
         Double_t z = fHitsEvent->GetZ( hit );
+     //   cout << " x : " << x << " y : " << y << " z : " << z << endl;
 
         Int_t planeId = -1;
         Int_t moduleId = -1;
@@ -200,6 +177,7 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
             moduleId = fReadout->GetReadoutPlane(p)->isInsideDriftVolume( x, y, z );
             if( moduleId >= 0 )
             {
+     //           cout << "Plane : " << p << " Module : " << moduleId << endl;
                 planeId = p;
                 plane = fReadout->GetReadoutPlane( planeId );
                 module = plane->GetModule( moduleId );
@@ -213,12 +191,14 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
         {
             Int_t readoutChannel = plane->FindChannel( moduleId, x, y );
             Int_t daqId = module->GetChannel( readoutChannel )->GetDaqID( );
+   //         cout << "Channel : " << readoutChannel << " daq ID : " << daqId << endl;
 
             Double_t energy = fHitsEvent->GetEnergy( hit );
 
             Double_t time = plane->GetDistanceTo( x, y, z ) / fDriftVelocity;
             time = ( (Int_t) (time/fSampling) );
 
+ //           cout << "Energy : " << energy << " time : " << time << endl;
             fSignalEvent->AddChargeToSignal( daqId, time, energy );
         }
 }

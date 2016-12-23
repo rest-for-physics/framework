@@ -45,7 +45,7 @@ void TRestHitsAnalysisProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestHitsAnalysisProcess::Initialize()
 {
-    SetName( "hitsAnalysisProcess" );
+    SetSectionName( this->ClassName() );
 
     fHitsEvent = new TRestHitsEvent();
 

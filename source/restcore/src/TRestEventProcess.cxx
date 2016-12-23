@@ -66,6 +66,46 @@ TRestEventProcess::~TRestEventProcess()
 {
 }
 
+void TRestEventProcess::LoadConfig( std::string cfgFilename, std::string cfgName )
+{
+    if( LoadConfigFromFile( cfgFilename, cfgName ) == -1 ) LoadDefaultConfig( );
+}
+
+void TRestEventProcess::LoadDefaultConfig() 
+{
+    SetName( "cfgDefault" ); 
+    SetTitle( "Default config" ); 
+}
+
+vector <string> TRestEventProcess::ReadObservables( )
+{
+    vector <string> obsList = GetObservablesList( );
+
+    for( unsigned int n = 0; n < obsList.size(); n++ )
+    {
+        fAnalysisTree->AddObservable( this->GetName() + (TString) "." + (TString) obsList[n] );
+        fObservableNames.push_back ( this->GetName() + (string) "." + obsList[n] );
+    }
+    return obsList;
+}
+
+TString TRestEventProcess::GetProcessName()
+{
+    TString sectionName = this->GetSectionName();
+    TString processName = sectionName;
+    if( sectionName.Contains( "TRest" ) )
+    {
+        TString pcsName ( sectionName( 5, sectionName.Length() ) );
+        TString firstChar( sectionName( 0, 1 ) ); 
+        TString remainingString( sectionName( 1, sectionName.Length() ) ); 
+
+        firstChar.ToLower();
+        processName = firstChar + remainingString;
+    }
+
+    return processName;
+}
+
 //////////////////////////////////////////////////////////////////////////
 /// Returns pointer to gas (TRestGas) metadata
 ///

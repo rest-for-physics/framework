@@ -70,7 +70,7 @@ void TRestHitsRotateAndTraslateProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestHitsRotateAndTraslateProcess::Initialize()
 {
-    SetName( "rotateAndTraslate" );
+    SetSectionName( this->ClassName() );
 
     fDeltaX = 1.0;	
     fDeltaY = 1.0; 

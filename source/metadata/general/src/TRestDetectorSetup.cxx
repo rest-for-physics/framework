@@ -48,7 +48,7 @@ TRestDetectorSetup::~TRestDetectorSetup()
 
 void TRestDetectorSetup::Initialize()
 {
-	SetName( "detectorSetup" );
+	SetSectionName( this->ClassName() );
 
 	fRunNumber = 0;
 	fSubRunNumber = 0;

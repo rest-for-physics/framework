@@ -62,7 +62,7 @@ void TRestHitsNormalizationProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestHitsNormalizationProcess::Initialize()
 {
-    SetName( "hitsNormalizationProcess" );
+    SetSectionName( this->ClassName() );
 
     fFactor = 1.;	
 

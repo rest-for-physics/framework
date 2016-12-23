@@ -25,6 +25,9 @@ class TRestGeant4AnalysisProcess:public TRestEventProcess {
 #ifndef __CINT__
         TRestG4Event *fG4Event;
         TRestG4Metadata *fG4Metadata;
+
+        std::vector <std::string> fEnergyInObservables;
+        std::vector <Int_t> fVolumeID;
 #endif
         Double_t fLowEnergyCut;
         Double_t fHighEnergyCut;
@@ -59,6 +62,8 @@ class TRestGeant4AnalysisProcess:public TRestEventProcess {
             EndPrintProcess();
 
         }
+
+        TRestEventProcess *Maker() { return new TRestGeant4AnalysisProcess; }
 
         TString GetProcessName() { return (TString) "geant4Analysis"; }
 

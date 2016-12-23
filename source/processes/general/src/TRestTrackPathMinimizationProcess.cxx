@@ -1,15 +1,12 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///             
+//////////////////////////////////////////////////////////////////////////
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
 ///             TRestTrackPathMinimizationProcess.cxx
 ///
 ///             Jan 2016:   First concept (Javier Galan)
-//
-///_______________________________________________________________________________
+///
+//////////////////////////////////////////////////////////////////////////
 
 #include "TRestTrackPathMinimizationProcess.h"
 using namespace std;
@@ -49,7 +46,7 @@ void TRestTrackPathMinimizationProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestTrackPathMinimizationProcess::Initialize( )
 {
-    SetName("trackPathMinimizationProcess");
+    SetSectionName( this->ClassName() );
 
     fInputTrackEvent = new TRestTrackEvent();
     fOutputTrackEvent = new TRestTrackEvent();

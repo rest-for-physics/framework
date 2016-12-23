@@ -58,7 +58,7 @@ TRestAvalancheProcess::~TRestAvalancheProcess()
 
 void TRestAvalancheProcess::LoadDefaultConfig()
 {
-    	SetTitle( "Default config" );
+    SetTitle( "Default config" );
 
 	fEnergyRef = 5.9;	
 	fResolutionAtEref = 15.0; 
@@ -69,7 +69,7 @@ void TRestAvalancheProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestAvalancheProcess::Initialize()
 {
-    SetName( "avalancheProcess" );
+    SetSectionName( this->ClassName() );
 
     fGas = NULL;
 

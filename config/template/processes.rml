@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
-<section electronDiffusionProcess name="electronDiffusion-1kVcm-1atm" title="A first template for electron diffusion process." >
+<section TRestElectronDiffusionProcess name="electronDiffusion-1kVcm-1atm" title="A first template for electron diffusion process." >
     <parameter name="electricField" value="1" units="kV/cm" />
     <parameter name="attachment" value="0" /> <!-- units?? -->
 
@@ -22,7 +22,7 @@
 
 </section>
 
-<section electronDiffusionProcess name="electronDiffusion-1kVcm-10atm" title="A second template for electron diffusion process." >
+<section TRestElectronDiffusionProcess name="electronDiffusion-1kVcm-10atm" title="A second template for electron diffusion process." >
     <parameter name="electricField" value="1" units="kV/cm" />
     <parameter name="attachment" value="0" /> <!-- units?? -->
 
@@ -34,14 +34,14 @@
 </section>
 
 
-<section avalancheProcess name="avalancheProcess"  title="IAXOD0 chamber" >
+<section TRestAvalancheProcess name="avalancheProcess"  title="IAXOD0 chamber" >
     <parameter name="energyReference" value="5.9" units="keV" /> 
     <parameter name="resolutionReference" value="13" /> // fwhm
     <parameter name="detectorGain" value="8000" /> // absolute gain 
   // parameter name="electronicsGain" value="671744"  // electrons for 4096 ADC units
 </section>
 
-<section signalDeconvolutionProcess name="deconvolution-Template" title="Deconvolution of AGET signals" >
+<section TRestSignalDeconvolutionProcess name="deconvolution-Template" title="Deconvolution of AGET signals" >
     <parameter name="frequency1" value="2.35683005928202273e-02" />
     <parameter name="frequency2" value="3.14067876433914706e-02" />
     <parameter name="smoothingPoints" value="3" />
@@ -54,7 +54,7 @@
     <parameter name="responseFile" value="AGET_Response_100MHz_Gain0x2_Shaping0x7.root" />
 </section>
 
-<section hitsToSignalProcess name="hitsToSignal-Template" title="A hits to signal template" >
+<section TRestHitsToSignalProcess name="hitsToSignal-Template" title="A hits to signal template" >
 
     <parameter name="sampling" value="0.2" units="us" />
     <parameter name="electricField" value="1000" units="V/cm" />
@@ -65,16 +65,22 @@
 
 </section>
 
-<section gaussianConvolutionProcess name="gaussian-Convolution"  title="Gaussian convolution of signals" >
+<section TRestGaussianConvolutionProcess name="gaussian-Convolution"  title="Gaussian convolution of signals" >
     <parameter name="sigma" value="0.01" units="us" /> 
     <parameter name="nSigmas" value="5" />  // Number of sigmas to perform the calculation
 </section>
 
-<section addSignalNoiseProcess name="addSignalNoiseProcess" title="Test AddNoise to Signal" >
+<section TRestAddSignalNoiseProcess name="addSignalNoiseProcess" title="Test AddNoise to Signal" >
     <parameter name="noiseLevel" value="5" /> // // electrons in each time bin
 </section>
 
-<section signalToHitsProcess name="signalToHits_Template" title="A hit reconstruction template." >
+<section TRestSignalToHitsProcess name="signalToHits_Template" title="A hit reconstruction template." >
+
+    <parameter name="substractBaseLine" value="false" />
+    <parameter name="baseLineRange" value="(5,11)" />
+
+    <parameter name="thresholdType" value="absolute" />
+    <parameter name="threshold" value="0" />
 
     <parameter name="sampling" value="80" units="ns" />
     <parameter name="threshold" value="5" />
@@ -86,7 +92,7 @@
 
 </section>
 
-<section signalToHitsProcess name="simulation" title="A hit reconstruction template." >
+<section TRestSignalToHitsProcess name="simulation" title="A hit reconstruction template." >
 
     <parameter name="sampling" value="1" units="us" />
     <parameter name="threshold" value="0" />
@@ -98,59 +104,119 @@
 
 </section>
 
-<section hitsToTrackProcess name="hitsToTrack-Template" title="Half Template X-III Vessel (Bottom)" >
+<section TRestHitsToTrackProcess name="hitsToTrack-Template" title="Half Template X-III Vessel (Bottom)" >
     <parameter name="clusterDistance" value="15" units="mm" />
 </section>
 
-<section fastHitsToTrackProcess name="fastHitsToTrack-Template" title="Half Template X-III Vessel (Bottom)" >
+<section TRestFastHitsToTrackProcess name="fastHitsToTrack-Template" title="Half Template X-III Vessel (Bottom)" >
     <parameter name="cellResolution" value="5" units="mm" />
     <parameter name="netSize" value="2000" units="mm" />
     <parameter name="netOrigin" value="(-1000,-1000,-1000)" units="mm" />
 </section>
 
-<section trackReductionProcess name="trackReduction-Template" title="Half Template X-III Vessel (Bottom)" >
+<section TRestTrackReductionProcess name="trackReduction-Template" title="Half Template X-III Vessel (Bottom)" >
     <parameter name="startingDistance" value="0.25" units="mm" />
     <parameter name="minimumDistance" value="3" units="mm" />
     <parameter name="distanceStepFactor" value="1.25" />
     <parameter name="maxNodes" value="15" />
 </section>
 
-<section trackReductionProcess name="simulation" title="Half PANDA X-III Vessel (Bottom)" >
+<section TRestTrackReductionProcess name="simulation" title="Half PANDA X-III Vessel (Bottom)" >
     <parameter name="startingDistance" value="0.5" units="mm" />
     <parameter name="minimumDistance" value="3" units="mm" />
     <parameter name="distanceStepFactor" value="1.5" />
     <parameter name="maxNodes" value="25" />
 </section>
 
-<section trackPathMinimizationProcess name="trackPathMinimization-Template" title="Half Template X-III Vessel (Bottom)" >
+<section TRestTrackPathMinimizationProcess name="trackPathMinimization-Template" title="Half Template X-III Vessel (Bottom)" >
     <parameter name="energyThreshold" value="0.8" />
     <parameter name="maxNodes" value="50" />
 </section>
 
 
-<section geant4AnalysisProcess name="g4Ana" title="Geant4 analysis template" >
-    <observable name="gasEnergyDeposit_InKeV" value="ON" />
-    <observable name="photoelectric" value="ON" />
-    <observable name="compton" value="ON" />
-    <observable name="bremstralung" value="ON" />
+<section TRestGeant4AnalysisProcess name="g4Ana" title="Geant4 analysis template" >
+
+    <!-- Volume observables
+         You may define an observable with the energy deposited in any active volume in the restG4 simulation.
+
+         This observable must be defined as : [VOL_NAME]EDep (i.e. gasEDep, vesselEDep )
+
+         Here -EDep- is a key word, and it is recommended not to use it in the definition of other observables
+    -->
+
+    <observable name="gasEDep" value="ON"
+        description="Energy deposited in the gas volume in keV" />
+
+    <observable name="vesselEDep" value="ON"
+        description="Energy deposited in the vessel volume in keV" />
+
+    <!-- Notice that total is not a volume but totalEdep is an observable hard-coded inside the analysis process.
+         That is why we write Edep and not EDep, which is a reserved word. -->
+
+    <observable name="totalEdep" value="ON"
+        description="Total energy deposited in all the volumes in keV" />
+
+    <observable name="photoelectric" value="ON"
+        description="Its value will be 1 if the event contains a photoelectric interaction." />
+
+    <observable name="compton" value="ON"
+        description="Its value will be 1 if the event contains a compton scattering process." />
+
+    <observable name="bremstralung" value="ON"
+        description="Its value will be 1 if the event contains a bremstralung physics process." />
+
+    <!-- These parameters define an energy cut. Only events within the range will be processed.  
+         If these are defined as 0 all events will be accepted. -->
+
+    <parameter name="lowEnergyCut" value="2350" units="keV" />
+    <parameter name="highEnergyCut" value="0" units="keV" />
+
 </section>
 
-<section trackAnalysisProcess name="tckAna" title="Track analysis template" >
+<section TRestTrackAnalysisProcess name="tckAna" title="Track analysis template" >
+    
     <parameter name="nTracksXCut" value="(1,1)" />
     <parameter name="nTracksYCut" value="(1,1)" />
 
     <observable name="MeanRate_InHz" value="ON" />
     <observable name="EventTimeDelay" value="ON" />
 
-    <observable name="LengthX" value="ON" />
-    <observable name="nTracksX" value="ON" />
-    <observable name="LengthY" value="ON" />
-    <observable name="nTracksY" value="ON" />
-    <observable name="xMean" value="ON" />
-    <observable name="yMean" value="ON" />
+    <observable name="xMean" value="ON"
+        description="The mean X-position of the highest energy track." />
+
+    <observable name="yMean" value="ON" 
+        description="The mean Y-position of the highest energy track." />
+
+    <observable name="LengthX" value="ON"
+        description="Integrated length of tracks in the XZ-plane." />
+    <observable name="LengthY" value="ON"
+        description="Integrated length of tracks in the YZ-plane." />
+
+    <observable name="nTracksX" value="ON"
+        description="Number of tracks defined in plane XZ (where Y-positions are not defined)." />
+
+    <observable name="nTracksY" value="ON"
+        description="Number of tracks defined in plane YZ (where X-positions are not defined)." />
+
+    <observable name="nTracksXYZ" value="ON"
+        description="Number of pure 3D-tracks (with valid XYZ-hits)." />
+
+    <!-- 
+         The keywords nTracks_HE_ and nTracks_LE_ are used to define observables with the number 
+         of tracks above or below a given EnergyThreshold. 
+
+         Any EnergyThreshold can be defined as : nTracks_HE_[EnergyThreshold]. 
+    -->
+
+    <observable name="nTracks_HE_400" value="ON"
+        description="Number of tracks with energy higher than 400 keV." />
+
+    <observable name="nTracks_LE_100" value="ON"
+        description="Number of tracks with energy lower than 100 keV." />
+
 </section>
 
-<section triggerAnalysisProcess name="trigger" title="Trigger analysis template" >
+<section TRestTriggerAnalysisProcess name="trigger" title="Trigger analysis template" >
     <observable name="Integral_Eth500" value="ON" />
     <observable name="Integral_Eth600" value="ON" />
     <observable name="Integral_Eth700" value="ON" />
@@ -169,17 +235,115 @@
     <observable name="RawIntegral" value="ON" />
 </section>
 
-<section findG4BlobAnalysisProcess name="g4Blob" title="Find blobs in DBD">
-    <observable name="xBlob1" value="ON" />
-    <observable name="yBlob1" value="ON" />
-    <observable name="zBlob1" value="ON" />
-    <observable name="xBlob2" value="ON" />
-    <observable name="yBlob2" value="ON" />
-    <observable name="zBlob2" value="ON" />
-    <observable name="blobDistance" value="ON" />
+<section TRestFindG4BlobAnalysisProcess name="g4Blob" title="Find blobs in a Geant4 event for DBD">
+
+    <!-- The first blob is the one with z-coordinate closer to z=0 -->
+    <observable name="x1" value="ON" 
+        description="First blob x-coordinate."/>
+
+    <observable name="y1" value="ON" 
+        description="First blob y-coordinate."/>
+
+    <observable name="z1" value="ON" 
+        description="First blob z-coordinate."/>
+
+    <observable name="x2" value="ON" 
+        description="First blob x-coordinate."/>
+
+    <observable name="y2" value="ON" 
+        description="First blob y-coordinate."/>
+
+    <observable name="z2" value="ON" 
+        description="First blob z-coordinate."/>
+
+    <observable name="distance" value="ON" 
+        description="Euclidean distance between the two blobs."/>
+
+    <observable name="Q1_R5" value="ON" 
+        description="Charge in the first blob. Integrated to R=5mm."/>
+
+    <observable name="Q1_R10" value="ON" 
+        description="Charge in the first blob. Integrated to R=10mm."/>
+
+    <observable name="Q1_R15" value="ON" 
+        description="Charge in the first blob. Integrated to R=15mm."/>
+
+    <observable name="Q1_R20" value="ON" 
+        description="Charge in the first blob. Integrated to R=20mm."/>
+
+    
+    <observable name="Q2_R5" value="ON"
+        description="Charge in the second blob. Integrated to R=5mm."/>
+
+    <observable name="Q2_R10" value="ON" 
+        description="Charge in the second blob. Integrated to R=10mm."/>
+
+    <observable name="Q2_R15" value="ON" 
+        description="Charge in the second blob. Integrated to R=15mm."/>
+
+    <observable name="Q2_R20" value="ON" 
+        description="Charge in the second blob. Integrated to R=20mm."/>
 </section>
 
-<section signalAnalysisProcess name="sgnlAna" title="Half Template X-III Vessel (Bottom)" >
+<section TRestFindTrackBlobsProcess name="tckBlob" title="Find blobs in a track event for any event">
+
+    <!-- The first blob is the one with z-coordinate closer to z=0 -->
+    <observable name="x1" value="ON" 
+        description="First blob x-coordinate."/>
+
+    <observable name="y1" value="ON" 
+        description="First blob y-coordinate."/>
+
+    <observable name="z1" value="ON" 
+        description="First blob z-coordinate."/>
+
+    <observable name="x2" value="ON" 
+        description="First blob x-coordinate."/>
+
+    <observable name="y2" value="ON" 
+        description="First blob y-coordinate."/>
+
+    <observable name="z2" value="ON" 
+        description="First blob z-coordinate."/>
+
+    <observable name="distance" value="ON" 
+        description="Euclidean distance between the two blobs."/>
+
+    <observable name="Q1_R5" value="ON" 
+        description="Charge in the first blob. Integrated to R=5mm."/>
+
+    <observable name="Q1_R10" value="ON" 
+        description="Charge in the first blob. Integrated to R=10mm."/>
+
+    <observable name="Q1_R15" value="ON" 
+        description="Charge in the first blob. Integrated to R=15mm."/>
+
+    <observable name="Q1_R20" value="ON" 
+        description="Charge in the first blob. Integrated to R=20mm."/>
+
+    
+    <observable name="Q2_R5" value="ON"
+        description="Charge in the second blob. Integrated to R=5mm."/>
+
+    <observable name="Q2_R10" value="ON" 
+        description="Charge in the second blob. Integrated to R=10mm."/>
+
+    <observable name="Q2_R15" value="ON" 
+        description="Charge in the second blob. Integrated to R=15mm."/>
+
+    <observable name="Q2_R20" value="ON" 
+        description="Charge in the second blob. Integrated to R=20mm."/>
+
+    <!-- parameter hitsToCheckFraction :
+         is the fraction of hits to be checked at the extremes of the track. 
+         The one with the highest deposit will be selected as the center of the blob.
+         I.e. for a track with a total number of hits, N=16, 4-hits at the beginning
+         and 4-hits at the end of the track will be considered as possible blob centers. -->
+    <parameter name="hitsToCheckFraction" value="0.25" />
+
+</section>
+
+<section TRestSignalAnalysisProcess name="sgnlAna" title="Half Template X-III Vessel (Bottom)" >
 
     <!-- This parameter defines every how many seconds a signal will be drawn.
          In case the value is zero. There will not be any drawing. -->
@@ -274,12 +438,12 @@
 
 </section>
 
-<section trackLinearizationProcess name="trackLinearization-Template" title="Half Template X-III Vessel (Bottom)" >
+<section TRestTrackLinearizationProcess name="trackLinearization-Template" title="Half Template X-III Vessel (Bottom)" >
     <parameter name="lengthResolution" value="2" units="mm" />
     <parameter name="transversalResolution" value="1" units="mm" />
 </section>
 
-<section rotateAndTraslate name="rotateAndTraslate" title="IAXOD0 TPC" >
+<section TRestRotateAndTraslate name="rotateAndTraslate" title="IAXOD0 TPC" >
     <parameter name="deltaX" value="0." units="mm" />	
     <parameter name="deltaY" value="0" units="mm" />
     <parameter name="deltaZ" value="0" units="mm" />
@@ -288,18 +452,22 @@
     <parameter name="gamma" value="90" />	// rotation angle around X in degrees
 </section>
 
-<section daq name="virtualDAQ" title="TEST">
+<section TRestRawToSignalProcess name="virtualDAQ" title="TEST">
     <parameter name="pedScript" value="ped"/>
     <parameter name="runScript" value="run"/>
     <parameter name="electronics" value="AGET"/>
 </section>
 
-<section avalancheProcess name="NLDBD" title="1PctGain" >
+<section TRestAvalancheProcess name="NLDBD" title="1PctGain" >
     <parameter name="energyReference" value="2458" units="keV" />
     <parameter name="resolutionReference" value="1" />
     <parameter name="detectorGain" value="1" />
 </section>
 
-<section signalShapingProcess name="signalShapingProcess" title="Test SignalShaping" >
+<section TRestSignalShapingProcess name="signalShapingProcess" title="Test SignalShaping" >
     <parameter name="responseFile" value="AGET_Response_12.5MHz_Gain0x1_Shaping0x4.root" /> //response file to be used to shape the signal
 </section>
+
+<section TRestG4toHitsProcess name="G4ToHits" title="G4Hits to Hits process" >
+</section>
+

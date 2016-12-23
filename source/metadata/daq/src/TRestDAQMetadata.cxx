@@ -42,8 +42,7 @@ TRestDAQMetadata::TRestDAQMetadata( char *cfgFileName) : TRestMetadata (cfgFileN
 void TRestDAQMetadata::Initialize()
 {
 
-    SetName( "daq" );
-
+    SetSectionName( this->ClassName() );
 
 }
 

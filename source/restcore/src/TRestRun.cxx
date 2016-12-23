@@ -52,7 +52,7 @@ TRestRun::TRestRun( char *cfgFileName) : TRestMetadata (cfgFileName)
 
 void TRestRun::Initialize()
 {
-    SetName( "run" );
+    SetSectionName( this->ClassName() );
 
     time_t  timev; time(&timev);
     fStartTime = (Double_t) timev;
@@ -127,8 +127,8 @@ Int_t TRestRun::ValidateProcessChain ( )
         {
             cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
             cout << "REST ERROR : Event process input/output does not match" << endl;
-            cout << "The event output for process" << fEventProcess[i]->GetName() << " is " << outEventType << endl;
-            cout << "The event input for process" << fEventProcess[i+1]->GetName() << " is " << inEventType << endl;
+            cout << "The event output for process " << fEventProcess[i]->GetName() << " is " << outEventType << endl;
+            cout << "The event input for process " << fEventProcess[i+1]->GetName() << " is " << inEventType << endl;
             cout << "No events will be processed. Please correct event process input/output." << endl;
             cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
             GetChar();
@@ -305,7 +305,9 @@ void TRestRun::AddProcess( TRestEventProcess *process, string cfgFilename, strin
     {
         meta->PrintMetadata();
         this->AddMetadata( meta );
-        GetChar();
+        cout << "Process : " << process->GetName() << " is adding metadata!!" << endl;
+        cout << "This should not happen in this version.!!" << endl;
+        GetChar( );
     }
 
     fEventProcess.push_back( process ); 
@@ -687,7 +689,7 @@ void TRestRun::CloseOutputFile( )
 
 void TRestRun::SetVersion()
 {
-    fVersion = "2.1.2";
+    fVersion = "2.1.3";
 }
 
 

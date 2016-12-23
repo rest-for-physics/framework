@@ -1,24 +1,24 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///             
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestMetadata.h
-///
-///             Base class from which to inherit all other REST metadata classes (config, etc...) 
-///             TRestMetadata controls the access to config files.
-///
-///             jun 2014:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///                 Igor G. Irastorza
-///
-///              Jul 2015:    Implementation  
-///                 J. Galan
-///_______________________________________________________________________________
-
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
 #ifndef RestCore_TRestMetadata
 #define RestCore_TRestMetadata
@@ -42,17 +42,22 @@
 
 #include <TRestSystemOfUnits.h>
 
-const int PARAMETER_NOT_FOUND_INT = -99999999;
+const int PARAMETER_NOT_FOUND_INT = -99999999; 
 const double PARAMETER_NOT_FOUND_DBL = -99999999;
 const TString PARAMETER_NOT_FOUND_STR = "-99999999";
 
 enum REST_Verbose_Level {REST_Silent, REST_Warning, REST_Info, REST_Debug };
 
-
+//! A base class for any REST metadata class
 class TRestMetadata:public TNamed {
 
     protected:
+
+        std::string fConfigFileName;	///< Name of the config file associated to this metadata 
+        std::string fSectionName;       ///< Section name given in the constructor of the derived metadata class
+
         std::string GetFieldValue( std::string fieldName, std::string definition, size_t fromPosition = 0 );
+
         Double_t GetDblFieldValueWithUnits( string fieldName, string definition, size_t fromPosition = 0 );
         TVector2 Get2DVectorFieldValueWithUnits( string fieldName, string definition, size_t fromPosition = 0 );
         TVector3 Get3DVectorFieldValueWithUnits( string fieldName, string definition, size_t fromPosition = 0 );
@@ -77,32 +82,34 @@ class TRestMetadata:public TNamed {
 
         std::string GetMyParameter( std::string &value, size_t &pos );
 
-        std::string fConfigFileName;		// std::string with the name of the config file
-        std::string fSectionName;        // section name given in the constructor of TRestSpecificMetadata
+        std::string GetSectionName( ) { return fSectionName; }
 
-        // This method must be implemented in the derived class to fill the class fields with a given section
-        virtual void InitFromConfigFile( ) = 0; 
+        void SetSectionName( std::string sName ) { fSectionName = sName; }
 
-        virtual void Initialize() = 0;// { cout << __PRETTY_FUNCTION__ << endl; };
+        /// This method must be implemented in the derived class to fill specific metadata members using a RML file.
+        virtual void InitFromConfigFile( ) = 0;
+
+        /// This method must be implemented in the derived class to initialize/clear the metadata members from the derived class.
+        virtual void Initialize() = 0;
 
         Int_t LoadSectionMetadata( std::string section, std::string cfgFileName, string name="" );
-
         Int_t LoadConfigFromFile( string cfgFileName, std::string name );
         Int_t LoadConfigFromFile( std::string cfgFileName );
 
     private:
 
-        ifstream configFile;    //! pointer to config file to load metadata
-        std::string configBuffer;
+        ifstream configFile;        //!< Pointer to config file to load metadata
+        std::string configBuffer;   //!< The buffer where the corresponding metadata section is stored
 
-        std::string fConfigFilePath;		//  std::string with the path to the config file
+        std::string fConfigFilePath;	//!< Path to the config file associated with this metadata
         
-        TString fDataPath;
-        REST_Verbose_Level fVerboseLevel;
+        TString fDataPath;              //!< REST Data path
+        REST_Verbose_Level fVerboseLevel;   //!< Verbose level used to print debug info
 
 #ifndef __CINT__
-        Bool_t fStore;
+        Bool_t fStore;  //!< This variable is used to determine if the metadata structure should be stored in the ROOT file.
 
+        TString fGasDataPath; //!< The path where the gas pre-generated files are stored.
 #endif
         
         void SetDefaultConfigFilePath();
@@ -128,19 +135,29 @@ class TRestMetadata:public TNamed {
         Int_t FindSection( std::string buffer, size_t startPos = 0 );
 
     public:
-        void CheckSection( );
-
-        void SetConfigFilePath(const char *configFilePath);
-
+        /// Returns a string with the path used for data storage
         TString GetDataPath( ) { return fDataPath; }
+        
+        /// Returns a string with the path used for pre-generated gas files
+        TString GetGasDataPath( ) { return fGasDataPath; }
 
+        /// Sets the path that will be used for data storage
         void SetDataPath( TString path ) { fDataPath = path; }
+        
+        /// Sets the path that will be used for pre-generated gas files
+        void SetGasDataPath( TString path ) { fGasDataPath = path; }
 
+        /// Gets the verbose level used to dump on screen different levels of information
         REST_Verbose_Level GetVerboseLevel( ) { return fVerboseLevel; }
+
+        /// Gets a string with the path used for data storage
+        TString GetMainDataPath() { return fDataPath; }
 
         Int_t FindEndSection( Int_t initPos );
 
-        TString GetMainDataPath() { return fDataPath; }
+        void CheckSection( );
+
+        void SetConfigFilePath(const char *configFilePath);
 
         std::string GetParameter( std::string parName, TString defaultValue = PARAMETER_NOT_FOUND_STR );
         Double_t GetDblParameterWithUnits( std::string parName, Double_t defaultValue = PARAMETER_NOT_FOUND_DBL );
@@ -164,14 +181,20 @@ class TRestMetadata:public TNamed {
         static Int_t Count( std::string s, std::string sbstring);
         static bool fileExists( const std::string& filename );
         static bool isRootFile( const std::string& filename ); 
+
+        /// Calling this method will ask the user to press a key to continue
         static void GetChar(){ cout << "Press a KEY to continue ..." << endl; getchar(); }
 
+        /// If this method is called the metadata information will **not** be stored in disk. I/O is handled by TRestRun.
         void DoNotStore( ) { fStore = false; }
+        
+        /// If this method is called the metadata information will be stored in disk. This is the default behaviour.
         Bool_t Store( ) { return fStore; }
 
 
         //////////////////////////////////////////////////
 
+        /// Must be imlemented in the derived metadata class to print out specific metadata information.
         void virtual PrintMetadata() = 0;
 
         //Constructor

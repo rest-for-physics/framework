@@ -5,7 +5,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestG4toHitsEventProcess.cxx
+///             TRestG4toHitsProcess.cxx
 ///
 ///
 ///             Simple process to convert a TRestG4Event class into a
@@ -16,8 +16,8 @@
 ///_______________________________________________________________________________
 
 
-#ifndef RestCore_TRestG4toHitsEventProcess
-#define RestCore_TRestG4toHitsEventProcess
+#ifndef RestCore_TRestG4toHitsProcess
+#define RestCore_TRestG4toHitsProcess
 
 #include <TRestGas.h>
 #include <TRestG4Event.h>
@@ -26,7 +26,7 @@
 
 #include "TRestEventProcess.h"
 
-class TRestG4toHitsEventProcess:public TRestEventProcess {
+class TRestG4toHitsProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
         TRestG4Event *fG4Event;
@@ -65,12 +65,12 @@ class TRestG4toHitsEventProcess:public TRestEventProcess {
         TString GetProcessName() { return (TString) "g4toHitsEvent"; }
 
         //Constructor
-        TRestG4toHitsEventProcess();
-        TRestG4toHitsEventProcess( char *cfgFileName );
+        TRestG4toHitsProcess();
+        TRestG4toHitsProcess( char *cfgFileName );
         //Destructor
-        ~TRestG4toHitsEventProcess();
+        ~TRestG4toHitsProcess();
 
-        ClassDef(TRestG4toHitsEventProcess, 1);      // Transform a TRestG4Event event to a TRestHitsEvent (hits-collection event)
+        ClassDef(TRestG4toHitsProcess, 1);      // Transform a TRestG4Event event to a TRestHitsEvent (hits-collection event)
 };
 #endif
 

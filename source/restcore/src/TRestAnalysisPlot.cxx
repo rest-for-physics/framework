@@ -36,7 +36,7 @@ TRestAnalysisPlot::TRestAnalysisPlot( const char *cfgFileName, const char *name)
 
 void TRestAnalysisPlot::Initialize()
 {
-    SetName("analysisPlot");
+    SetSectionName( this->ClassName() );
 
     fRun = NULL;
 

@@ -1,25 +1,156 @@
-///______________________________________________________________________________;
-///______________________________________________________________________________
-///______________________________________________________________________________
-///             
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestMetadata.cxx
-///
-///             Base class from which to inherit all other REST metadata classes 
-///             (config, etc...) 
-///             TRestMetadata controls the I/O to config files.
-///             It also offers inspection of the command line arguments
-///
-///             jun 2014:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///                 Igor G. Irastorza
-///             jul 2015:    Javier Galan
-///_______________________________________________________________________________
-//
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
+
+//////////////////////////////////////////////////////////////////////////
+///
+/// One of the core classes of REST. Abstract class
+/// from which all REST "metadata classes" must derive.
+/// A metadata class in REST is any holder of data other than event data
+/// that is relevant to understand the origin and history of 
+/// transformations that a given set of event data has gone through. 
+/// For example the geometry of a simulation,
+/// the parameters of a process, the properties of a gas, 
+/// the readout pattern used to "pixelize" data, etc... are examples 
+/// of metadata.
+/// All metadata classes can be "initialized" via
+/// configuration (.rml) files that the user can write. Alternatively
+/// they can be read from root files. TRestMetadata contains 
+/// the common functionality that allows metadata to be read from .rml
+/// files or previously `stored` TRestMetadata structures stored in a 
+///  ROOT file.
+///
+/// ### RML file structure 
+///
+/// A class deriving from TRestMetadata can retrieve information from a plain text
+/// configuration file (or RML file). The syntaxis in an RML file is imposed by
+/// TRestMetadata. The metadata information provided through an RML file to a class
+/// deriving from TRestMetadata corresponds to a *section* structure inside the file.
+/// The following piece of code shows the common structure of the metadata description 
+/// corresponding to a specific metadata class.
+///
+/// \code
+///
+/// <section sectionName name="userGivenName" title="User given title" >
+///
+///     <keyStructure field1="value1" field2="value2" ... >
+///
+///         <keyDefinition field1="value1" field2="value2">  
+///         
+///          ...
+///
+///     </keyStructure>
+///
+/// </section>
+///
+/// \endcode
+///
+/// The derived class from TRestMetadata is resposible to define the name of the
+/// section (*sectionName*) used to extract the corresponding metadata section 
+/// and store it in TRestMetadata::configBuffer. The default behaviour in REST is
+/// that *sectionName* will be the name of the specific metadata class.
+///
+/// This must be implemented at each specific metadata class, at the construction 
+/// time, by implementing the TRestMetadata::Initialize method, as follows:
+///
+/// \code
+/// void TRestSpecificMetadata::Initialize( )
+/// {
+///
+///     SetSectionName( this->ClassName() );
+///
+///     ....
+///
+/// }
+/// \endcode
+///
+/// The methods defined inside TRestMetadata class allow to extract different metadata 
+/// structures with openning-closing tags (as the *keyStructure* shown in the previous 
+/// code), and definitions (as in the definition *keyDefinition* shown in the previous 
+/// code).
+///
+/// Each specific metadata class is responsible to extract the information found in its
+/// section. The initialization of a specific metadata class through a RML file should
+/// be implemented in TRestMetadata::InitFromConfigFile( ).
+///
+/// The derived metadata class can access to the different structures using the 
+/// different methods provided, as TRestMetadata::GetKEYStructure, 
+/// TRestMetadata::GetKEYDefinition, etc. If no string *buffer* is given as argument, 
+/// the specific *keyStructure* or *keyDefinition* we are looking for will be searched 
+/// in the entire metadata section found in TRestMetadata::configBuffer. The search will
+/// start from the beginning of the section, except that a position *fromPostion* is 
+/// specified by argument. The first match will be returned in a string.
+///
+/// In order to read several key definitions or structures with the same name we must
+/// to provide as argument a position (size_t &fromPosition) that it is updated with 
+/// the position where the end of the structure or definition read by the method is 
+/// found. This position value can be given to the next method call to read the next
+/// definition. You might find useful examples of use in the implementations of
+/// complex metadata structures as in TRestG4Metadata::InitFromConfigFile and 
+/// TRestReadout::InitFromConfigFile.
+/// 
+///
+/// ### Using environmental variables in RML files
+///
+/// TODO globals section description
+///
+/// TOBE writen ..
+///
+///
+/// ### Using physical units in fields definitions 
+///
+/// ## Complex metadata description
+///
+/// ### Mathematical expression evaluation
+///
+/// TOBE writen ..
+///
+/// ### FOR loops definition
+///
+/// TOBE writen ..
+///
+/// ### Comments support
+/// 
+///
+///--------------------------------------------------------------------------
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2014-june: First concept. As part of conceptualization of previous REST
+///            code (REST v2)
+///            Igor G. Irastorza
+///
+/// 2015-jul:  Re-implementation to read .rml files with xml-inspired 
+///            syntax
+///            Javier Galán
+///
+/// \class      TRestMetadata
+/// \author     Igor G. Irastorza
+/// \author     Javier Galan
+///
+/// <hr>
+///
 
 #include <TMath.h>
 #include <TSystem.h>
@@ -35,51 +166,62 @@ const int ERROR = -1;
 const int OK = 0;
 
 ClassImp(TRestMetadata)
-//______________________________________________________________________________
-    TRestMetadata::TRestMetadata()
+
+///////////////////////////////////////////////
+/// \brief TRestMetadata default constructor
+///
+TRestMetadata::TRestMetadata()
 {
-   // TRestMetadata default constructor
     fStore = true;
+
+    fGasDataPath = (TString) getenv("REST_PATH") + (TString) "/inputData/gasFiles/";
+
 }
 
-
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief TRestMetadata constructor loading data from a config file
+/// 
+/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or relative.
+///
+/// By default the config file must be specified with full path, absolute or relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+///
 TRestMetadata::TRestMetadata( const char *cfgFileName)
 {
-    // TRestMetadata constructor loading data from config file
     SetConfigFile( cfgFileName );
 
     SetTitle("Config");
-    SetName("TRestMetadata");
-    fSectionName = "Metadata";
+    SetSectionName("TRestMetadata");
 
-    CheckConfigFile( ); // just checking if file exists it will give a warning if not
+    CheckConfigFile( );
 
     fStore = true;
 
-    // TODO. CheckConfigGrammar
+    fGasDataPath = (TString) getenv("REST_PATH") + (TString) "/inputData/gasFiles/";
 }
 
-
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief TRestMetadata default destructor
+///
 TRestMetadata::~TRestMetadata()
 {
-   // TRestMetadata destructor
- //  fclose( configFile );
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Sets the configfile path to be used.
+///
+/// If the path to configuration file is not specified the location of the configuration file is relative to the directory where we are launching REST.
+///
 void TRestMetadata::SetConfigFilePath(const char *configFilePath)
 {
-    // Lets the user define the default path where to search for the config 
-    // file for this metadata object. Normally one should not use this function, 
-    // as the constructor metadata provides a default value to
-    // fConfigFilePath through the SetDefaultConfigFilePath() function
-
     fConfigFilePath = string(configFilePath);
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Returns the input string removing any starting and/or ending white spaces.
+///
 string TRestMetadata::trim(string str)
 {
     size_t first = str.find_first_not_of(' ');
@@ -87,6 +229,9 @@ string TRestMetadata::trim(string str)
     return str.substr(first, (last-first+1));
 }
 
+///////////////////////////////////////////////
+/// \brief Returns 1 only if valid mathematical expression keywords (or numbers) are found in the string **in**. If not it returns 0.
+///
 Int_t TRestMetadata::isAExpression( string in )
 {
     size_t pos = 0;
@@ -99,16 +244,20 @@ Int_t TRestMetadata::isAExpression( string in )
     st2 = "0";
     in = Replace( in, st1, st2, pos );
 
-    // If number returns 1. If not returns 0
     return (in.find_first_not_of("-0123456789+*/.,)( ") == std::string::npos && in.length() != 0);
 }
 
+///////////////////////////////////////////////
+/// \brief Returns 1 only if a valid number is found in the string **in**. If not it returns 0.
+///
 Int_t TRestMetadata::isANumber( string in )
 {
-    // If number returns 1. If not returns 0
     return (in.find_first_not_of("-+0123456789.e") == std::string::npos && in.length() != 0);
 }
 
+///////////////////////////////////////////////
+/// \brief Returns the input string without comments. Comments are enclosed between \<!-- \-->.
+///
 string TRestMetadata::RemoveComments( string in )
 {
     string out = in;
@@ -118,10 +267,12 @@ string TRestMetadata::RemoveComments( string in )
         int length = out.find("-->", pos) - pos;
         out.erase( pos, length+3 ); 
     }
-
     return out;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns the input string removing white spaces.
+///
 string TRestMetadata::RemoveWhiteSpaces( string in )
 {
     string out = in;
@@ -135,19 +286,25 @@ string TRestMetadata::RemoveWhiteSpaces( string in )
     return out;
 }
 
-Int_t TRestMetadata::Count( string s, string sbstring)
+///////////////////////////////////////////////
+/// \brief Counts the number of occurences of **substring** inside the input string **in**. 
+///
+Int_t TRestMetadata::Count( string in, string substring )
 {
     int count = 0;
-    size_t nPos = s.find(sbstring, 0); // fist occurrence
-    while(nPos != string::npos)
+    size_t nPos = in.find(substring, 0); // First occurrence
+    while( nPos != string::npos )
     {
         count++;
-        nPos = s.find( sbstring, nPos+1);
+        nPos = in.find( substring, nPos+1);
     }
 
     return count;
 }
 
+///////////////////////////////////////////////
+/// \brief Replace every occurences of **thisSring** by **byThisString** inside string **in**.
+///
 string TRestMetadata::Replace( string in, string thisString, string byThisString, size_t fromPosition = 0 )
 {
     string out = in;
@@ -162,6 +319,9 @@ string TRestMetadata::Replace( string in, string thisString, string byThisString
     return out;
 }
 
+///////////////////////////////////////////////
+/// \brief Gets a double from a string.
+///
 Double_t TRestMetadata::StringToDouble( string in )
 {
     if( isANumber ( in ) )
@@ -174,14 +334,23 @@ Double_t TRestMetadata::StringToDouble( string in )
     }
 }
 
+
+///////////////////////////////////////////////
+/// \brief Gets an integer from a string.
+///
 Int_t TRestMetadata::StringToInteger( string in )
 {
     return (Int_t) StringToDouble( in );
 }
 
+
+///////////////////////////////////////////////
+/// \brief Gets a 3D-vector from a string. Format should be : (X,Y,Z).
+///
+/// TODO : Implement a warning when the format is not correct.
+///
 TVector3 TRestMetadata::StringTo3DVector( string in )
 {
-    // TODO make a warning when format is not correct
     TVector3 a;
 
     size_t startVector = in.find_first_of("(");
@@ -208,9 +377,14 @@ TVector3 TRestMetadata::StringTo3DVector( string in )
     return a;
 }
 
+
+///////////////////////////////////////////////
+/// \brief Gets a 2D-vector from a string.
+///
+/// TODO : Implement a warning when the format is not correct.
+///
 TVector2 TRestMetadata::StringTo2DVector( string in )
 {
-    // TODO make a warning when format is not correct
     TVector2 a(-1,-1);
 
     size_t startVector = in.find_first_of("(");
@@ -235,6 +409,10 @@ TVector2 TRestMetadata::StringTo2DVector( string in )
     return a;
 }
 
+
+///////////////////////////////////////////////
+/// \brief Returns true if the filename exists.
+///
 bool TRestMetadata::fileExists(const std::string& filename)
 {
     struct stat buf;
@@ -245,6 +423,9 @@ bool TRestMetadata::fileExists(const std::string& filename)
     return false;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns true if the **filename** has *.root* extension.
+///
 bool TRestMetadata::isRootFile( const std::string& filename )
 {
     if ( filename.find( ".root" ) == string::npos ) return false; 
@@ -252,22 +433,39 @@ bool TRestMetadata::isRootFile( const std::string& filename )
     return true;
 }
 
-
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Sets the default configuration path. The default is empty. 
+///
+/// If the default configuration path is set (by calling this method) the config file must 
+/// be provided with full path, or with path relative to the directory where REST is being executed.
+///
+/// This is the default behaviour in REST.
+/// 
 void TRestMetadata::SetDefaultConfigFilePath( )
 {
-    // Assigns a default value to fConfigFilePath derived from the environment
-
     SetConfigFilePath( "" );
 }
 
+///////////////////////////////////////////////
+/// \brief Assigns a config filename to the metadata object. When this is done the default empty path is defined.
+///
 void TRestMetadata::SetConfigFile( string cfgFileName )
 {
     fConfigFileName = cfgFileName;
     SetDefaultConfigFilePath( );
 }
 
-
+///////////////////////////////////////////////
+/// \brief Loads a **section** with a given **name** from a **cfgFileName** into the buffer.
+///
+/// This method loads a **section** with a given **name** into the buffer. 
+/// Only the section corresponding to the specific metadata (which defines the **section** keyword) is assigned to the TRestMetadata::configBuffer.
+/// If the name is not provided the first section will be extracted.
+///
+/// \param section The name that defines the section type (i.e. restG4, run, etc). This name is implemented in the derived class.
+/// \param cfgFileName The name of the config file from where the section will be extracted.
+/// \param name The specific name of the section to be loaded. Given by the user at the RML file.
+///
 Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, string name )
 {
     fSectionName = section;
@@ -308,6 +506,7 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
 
         pos = 0;
         fDataPath = GetParameter( "mainDataPath", pos, configBuffer );
+        fGasDataPath = GetParameter( "gasDataPath", pos, configBuffer );
         string vLevelString  = GetParameter( "verboseLevel", pos, configBuffer );
 
         if( vLevelString == "silent" )
@@ -352,6 +551,7 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
     configBuffer = GetKEYStructure( "section", sectionPosition, temporalBuffer );
 
     string sectionDefinition = GetKEYDefinition( "section", configBuffer );
+
     if( (TString) this->GetName() == "Not defined" ) 
     {
         string nameref = GetFieldValue( "nameref", sectionDefinition );
@@ -377,7 +577,13 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
         }
     }
 
-    if( configBuffer == "" ) { cout << "REST error reading section : " << section << ". Config buffer is EMPTY" << endl; exit(1); return -1; }
+    if( configBuffer == "" )
+    {
+        cout << "REST error reading section : " << section << " ( " << GetName() << " )." << endl;
+        cout << "Config buffer is EMPTY" << endl;
+        exit(1);
+        return -1;
+    }
 
     configBuffer = ReplaceEnvironmentalVariables( configBuffer );
 
@@ -398,7 +604,6 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
             configBuffer = Replace( configBuffer, myParam, value, position );
         }
     }
-
 
     configBuffer = ReplaceMathematicalExpressions( configBuffer );
 
@@ -454,33 +659,45 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
     return 0;
 }
 
+///////////////////////////////////////////////
+/// \brief Loads the corresponding metadata section named by the user as **name**, and found inside the file **cfgFileName** into TRestMetadata::configBuffer.
+///
+/// In case of sucess TRestMetadata::InitFromConfigFile( ) is invoked, 
+/// and the specific members of the specific metadata structure are initialized using the values found in the RML file.
+///
+/// \param cfgFileName The RML filename where the section can be found with the given **name**.
+/// \param name The user defined name of the section.
+///
 Int_t TRestMetadata::LoadConfigFromFile( string cfgFileName, string name )
 {
-    std::string section = GetName();
+    std::string section = GetSectionName();
 
     Int_t result = LoadSectionMetadata( section, cfgFileName, name );
     if( result == 0 ) InitFromConfigFile();
     return result;
 }
 
+///////////////////////////////////////////////
+/// \brief Loads the corresponding metadata section found inside the file **cfgFileName** into TRestMetadata::configBuffer.
+///
+/// In case of sucess TRestMetadata::InitFromConfigFile( ) is invoked, 
+/// and the specific members of the specific metadata structure are initialized using the values found in the RML file.
+///
 Int_t TRestMetadata::LoadConfigFromFile( string cfgFileName )
 {
-    std::string section = GetName();
-    cout << "Section name : " << section << endl;
+    std::string section = GetSectionName();
 
     Int_t result = LoadSectionMetadata( section, cfgFileName );
     if( result == 0 ) InitFromConfigFile();
     return result;
 }
 
-// This might be an improved version of GetKEYStructure()
+///////////////////////////////////////////////
+/// \brief Extracts the inner FOR structure in nested FOR loops.
+///
 string TRestMetadata::ExtractLoopStructure( string in, size_t pos )
 {
-    if( debug > 2 )
-    {
-        cout << "------IN------" << endl;
-        cout << in << endl;
-    }
+    // This might be an improved version of GetKEYStructure()
     string startKey = "<for";
     string endKey = "/for";
 
@@ -515,18 +732,12 @@ string TRestMetadata::ExtractLoopStructure( string in, size_t pos )
 
 }
 
-
+///////////////////////////////////////////////
+/// \brief Expands the loop structures found in **buffer** by substituting the running indexes by their values.
+///
 string TRestMetadata::ExpandForLoops( const string buffer )
 {
     string outputBuffer = buffer;
-
-    /*
-    string forLoop = GetKEYStructure( "for", outputBuffer );
-
-    cout << "-------Loop FOR------" << endl;
-    cout << forLoop << endl;
-    getchar();
-    */
 
     // Searching the most internal for
     if( debug > 2 ) 
@@ -615,6 +826,9 @@ string TRestMetadata::ExpandForLoops( const string buffer )
     return outputBuffer;
 }
 
+///////////////////////////////////////////////
+/// \brief Evaluates a complex numerical expression and returns the resulting value using TFormula.
+///
 string TRestMetadata::EvaluateExpression( string exp )
 {
     if( !isAExpression( exp ) ) { return exp; }
@@ -632,6 +846,11 @@ string TRestMetadata::EvaluateExpression( string exp )
     return out;
 }
 
+///////////////////////////////////////////////
+/// \brief Identifies enviromental variable definitions inside the RML and substitutes them by their value.
+///
+/// Enviromental variables inside RML can be used by placing the variable name between brackets {VARIABLE_NAME} or ${VARIABLE_NAME}
+///
 string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
 {
     string outputBuffer = buffer;
@@ -695,6 +914,9 @@ string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
     return outputBuffer;
 }
 
+///////////////////////////////////////////////
+/// \brief Evaluates and replaces valid mathematical expressions found in the input string **buffer**.
+///
 string TRestMetadata::ReplaceMathematicalExpressions( const string buffer )
 {
     string outputBuffer = buffer;
@@ -758,35 +980,39 @@ string TRestMetadata::ReplaceMathematicalExpressions( const string buffer )
     return outputBuffer;
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Checks if the config file can be openned. It returns OK in case of success, ERROR otherwise.
+///
 Int_t TRestMetadata::CheckConfigFile( )
 {
     string fileName = fConfigFilePath + fConfigFileName;
-    cout << "Config filename : " << fileName << endl;
 
     ifstream ifs;
     ifs.open ( fileName, std::ifstream::in);
 
-    if( !ifs ) { cout << "WARNING. Config file could not be opened. Right path/filename?" << endl; exit(1); return ERROR; }
+    if( !ifs ) 
+    {
+        cout << "Config filename : " << fileName << endl;
+        cout << "REST WARNING. TRestMetadata. Config file could not be opened. Right path/filename?" << endl; 
+        exit(1);
+    }
     else ifs.close();
 
     return OK;
 }
 
-
-
+/////////////////////////////////////////////////////////////
+/// \brief Method not implemented!!
+///
+/// TODO : Check if the section defined in TRestSpecificMetadata is in the config file
+///
 void TRestMetadata::CheckSection( )
 {
-
-    /*
-     *  TODO : Check if the section defined in TRestSpecificMetadata is in the config file
-     *
-     *
-     * */
-
-
 }
 
+///////////////////////////////////////////////
+/// \brief Gets the position for the first occurence of the keyword </section> inside **TRestMetadata::configBuffer** starting from **initPos**.
+///
 Int_t TRestMetadata::FindEndSection( Int_t initPos )
 {
     Int_t endSectionPos = configBuffer.find("</section>", initPos );
@@ -795,25 +1021,42 @@ Int_t TRestMetadata::FindEndSection( Int_t initPos )
     else return endSectionPos;
 }
 
+///////////////////////////////////////////////
+/// \brief Finds next *myParameter* definition found in **TRestMetadata::configBuffer** starting from **pos**.
+///
+/// This special parameter is intended to be used for personal and very particular cases.
+///
+/// \param value The value found inside myParameter definition is returned here.
+/// \param pos The position where we start to search inside TRestMetadata::configBuffer.
+/// \return It returns the name of the defined parameter. In case no myParameter definition is found an empty string is returned.
+/// 
 string TRestMetadata::GetMyParameter( string &value, size_t &pos )
 {
-
     string parameterString = GetKEYDefinition( "myParameter", pos );
- //   cout << "Parameter string : " << parameterString << endl;
 
     if( parameterString.find( "name" ) != string::npos && parameterString.find( "value" ) != string::npos )
     {
         value = GetFieldValue( "value", parameterString );
- //       pos = parameterString.find("value");
         return GetFieldValue( "name", parameterString );
     }
 
     return "";
 }
 
+///////////////////////////////////////////////
+/// \brief Finds an environment variable definition inside the buffer and sets it.
+///
+/// The environment variables defined inside the buffer have validity in the context of a REST program execution.
+/// After the execution of a REST program the environment variables defined this way have not impact on the 
+/// system (as it is imposed by UNIX shell).
+/// 
+/// In any case, if the environment variable exists already, its value can be overriden here. In this case we define 
+/// *overwrite="true"*
+/// 
+/// Example of environmental variable definition : \code <variable name="TEST" value="VALUE" overwrite="true" > \endcode
+///
 void TRestMetadata::SetEnvVariable( size_t &pos )
 {
-
     string envString = GetKEYDefinition( "variable", pos );
 
     if( envString.find( "name" ) != string::npos && envString.find( "value" ) != string::npos )
@@ -830,6 +1073,11 @@ void TRestMetadata::SetEnvVariable( size_t &pos )
     }
 }
 
+///////////////////////////////////////////////
+/// \brief Returns the value for the parameter name **parName** found in **inputString**. 
+/// 
+/// The methods starts searching in **inputString** after a given position **pos**.
+///
 string TRestMetadata::GetParameter( string parName, size_t &pos, string inputString )
 {
     // TODO : this can be probably removed since now we store only the section on configBuffer
@@ -855,9 +1103,8 @@ string TRestMetadata::GetParameter( string parName, size_t &pos, string inputStr
     while( 1 )
     {
         string parameterString = GetKEYDefinition( "parameter", pos, inputString );
- //       cout << "Parameter string : " << parameterString << endl;
 
-        if( parameterString.find( parName ) != string::npos )
+        if( GetFieldValue( "name", parameterString ) == parName )
         {
             return GetFieldValue( "value", parameterString );
         }
@@ -873,6 +1120,18 @@ string TRestMetadata::GetParameter( string parName, size_t &pos, string inputStr
     return "";
 }
 
+///////////////////////////////////////////////
+/// \brief Gets the double value of the parameter name **parName**, found in **inputString**, after applying unit conversion.
+///
+/// The parameter must defined providing the additional field units just behind the parameter value. As in the following example :
+///
+/// \code <parameter name="electricField" value="1" units="kVm" > \endcode
+///
+/// \param parName The name of the parameter from which we want to obtain the value.
+/// \param pos Defines the position inside **inputString** where to start searching the definition of **parName**.
+///
+/// \return A double value in the default correspoding REST units (keV, us, mm, Vcm).
+///
 Double_t TRestMetadata::GetDblParameterWithUnits( std::string parName, size_t &pos, std::string inputString )
 {
     while( 1 )
@@ -895,6 +1154,18 @@ Double_t TRestMetadata::GetDblParameterWithUnits( std::string parName, size_t &p
     return PARAMETER_NOT_FOUND_DBL;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns a 2D vector value of the parameter name **parName**, found in **inputString**, after applying unit conversion.
+///
+/// The parameter must defined providing the additional field units just behind the parameter value. As in the following example :
+///
+/// \code <parameter name="position" value="(10,0)" units="mm" > \endcode
+///
+/// \param parName The name of the parameter from which we want to obtain the value.
+/// \param pos Defines the position inside **inputString** where to start searching the definition of **parName**.
+///
+/// \return A 2D vector value in the default correspoding REST units (keV, us, mm, Vcm).
+///
 TVector2 TRestMetadata::Get2DVectorParameterWithUnits( std::string parName, size_t &pos, std::string inputString )
 {
     while( 1 )
@@ -917,6 +1188,18 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits( std::string parName, size
     return TVector2(-1,-1);
 }
 
+///////////////////////////////////////////////
+/// \brief Returns a 3D vector value of the parameter name **parName**, found in **inputString**, after applying unit conversion.
+///
+/// The parameter must defined providing the additional field units just behind the parameter value. As in the following example :
+///
+/// \code <parameter name="position" value="(10,0,-10)" units="mm" > \endcode
+///
+/// \param parName The name of the parameter from which we want to obtain the value.
+/// \param pos Defines the position inside **inputString** where to start searching the definition of **parName**.
+///
+/// \return A 3D vector value in the default correspoding REST units (keV, us, mm, Vcm).
+///
 TVector3 TRestMetadata::Get3DVectorParameterWithUnits( std::string parName, size_t &pos, std::string inputString )
 {
     while( 1 )
@@ -929,7 +1212,7 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits( std::string parName, size
         }
         else
         {
-            if( debug > 1 ) cout << " I did not found" << endl;
+            if( debug > 1 ) cout << " I did not find" << endl;
             cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
             return TVector3( -1, -1, -1 );
         }
@@ -939,6 +1222,16 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits( std::string parName, size
     return TVector3( -1, -1, -1 );;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns a string with the value of the parameter name **parName**, found in TRestMetadata::configBuffer.
+///
+/// The same parameter name should not be used in a given section. Only the first occurence of **parName** is given.
+///
+/// \param parName The name of the parameter from which we want to obtain the value.
+/// \param defaultValue An optional value that will be given in case the parameter is not found.
+///
+/// \return A string with the value of the parameter **parName**.
+///
 string TRestMetadata::GetParameter( string parName, TString defaultValue )
 {
     // TODO : this can be probably removed since now we store only the section on configBuffer
@@ -968,7 +1261,7 @@ string TRestMetadata::GetParameter( string parName, TString defaultValue )
         parameterString = GetKEYDefinition( "parameter", position );
         if( debug > 1 ) cout << "Parameter string : " << parameterString << endl;
 
-        if( parameterString.find( parName ) != string::npos )
+        if( GetFieldValue( "name", parameterString ) == parName )
         {
             string value = GetFieldValue( "value", parameterString );
             if( value == "" ) return defaultValue.Data();
@@ -986,6 +1279,14 @@ string TRestMetadata::GetParameter( string parName, TString defaultValue )
     return defaultValue.Data();
 }
 
+///////////////////////////////////////////////
+/// \brief Returns a list of observable names found inside TRestMetadata::configBuffer.
+///
+/// An observable can be defined as follows inside an RML file
+/// \code <observable name="OBS_NAME" value="ON" /> \endcode
+/// 
+/// The observable will be added to the list only in the case the value of the observable is ON.
+///
 vector <string> TRestMetadata::GetObservablesList( )
 {
     size_t position = 0;
@@ -1010,6 +1311,12 @@ vector <string> TRestMetadata::GetObservablesList( )
     return output;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns a list of observables description correspoding to the observable list retrieved using TRestMetadata::GetObservablesList.
+///
+/// Optionally we can add a description to the observable definition as follows inside an RML file
+/// \code <observable name="OBS_NAME" value="ON" description="A text description" /> \endcode
+///
 vector <string> TRestMetadata::GetObservableDescriptionsList( )
 {
     size_t position = 0;
@@ -1035,6 +1342,18 @@ vector <string> TRestMetadata::GetObservableDescriptionsList( )
     return output;
 }
 
+///////////////////////////////////////////////
+/// \brief Gets the double value of the parameter name **parName**, defined inside TRestMetadata::configBuffer, after applying unit conversion.
+///
+/// The parameter must defined providing the additional field units just behind the parameter value. As in the following example :
+///
+/// \code <parameter name="electricField" value="1" units="kVm" > \endcode
+///
+/// \param parName The name of the parameter from which we want to obtain the value.
+/// \param defaultValue The value that will be returned in case the parameter is not found.
+///
+/// \return A double value in the default correspoding REST units (keV, us, mm, Vcm).
+///
 Double_t TRestMetadata::GetDblParameterWithUnits( string parName, Double_t defaultValue )
 {
     size_t position = 0;
@@ -1065,6 +1384,18 @@ Double_t TRestMetadata::GetDblParameterWithUnits( string parName, Double_t defau
     return defaultValue;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns a 2D vector value of the parameter name **parName**, found in TRestMetadata::configBuffer, after applying unit conversion.
+///
+/// The parameter must defined providing the additional field units just behind the parameter value. As in the following example :
+///
+/// \code <parameter name="position" value="(10,0)" units="mm" > \endcode
+///
+/// \param parName The name of the parameter from which we want to obtain the value.
+/// \param defaultValue The value that will be returned in case the parameter is not found.
+///
+/// \return A 2D vector value in the default correspoding REST units (keV, us, mm, Vcm).
+///
 TVector2 TRestMetadata::Get2DVectorParameterWithUnits( string parName, TVector2 defaultValue )
 {
     size_t position = 0;
@@ -1096,6 +1427,18 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits( string parName, TVector2 
     return defaultValue;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns a 3D vector value of the parameter name **parName**, found in TRestMetadata::configBuffer, after applying unit conversion.
+///
+/// The parameter must defined providing the additional field units just behind the parameter value. As in the following example :
+///
+/// \code <parameter name="position" value="(10,0)" units="mm" > \endcode
+///
+/// \param parName The name of the parameter from which we want to obtain the value.
+/// \param defaultValue The value that will be returned in case the parameter is not found.
+///
+/// \return A 3D vector value in the default correspoding REST units (keV, us, mm, Vcm).
+///
 TVector3 TRestMetadata::Get3DVectorParameterWithUnits( string parName, TVector3 defaultValue )
 {
     size_t position = 0;
@@ -1127,7 +1470,14 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits( string parName, TVector3 
     return defaultValue;
 }
 
-// gets the field from parName <key --- parName="XX" --- >
+///////////////////////////////////////////////
+/// \brief Returns a string with the value of a field named **parName** found inside a definition tag **key**.
+///
+/// The basic structure of a **key** definition is as follows:
+/// \code <key parName="value" /> \endcode
+///
+/// \param parName The name of the field from which we want to get the value
+/// \param key The tag used in the definition where we want to look for **parName**.
 string TRestMetadata::GetFieldFromKEY( string parName, string key )
 {
     size_t position = 0;
@@ -1145,7 +1495,13 @@ string TRestMetadata::GetFieldFromKEY( string parName, string key )
     return "";
 }
 
-// Searches in substr
+///////////////////////////////////////////////
+/// \brief Returns a string with the value of a field named **fieldName** found inside the string **definition**.
+///
+/// \param fieldName The name of the field from which we want to get the value
+/// \param definition The string that contains the field name and value in the format field="value".
+/// \param fromPosition The position inside **definition** from where we start searching for the **fieldName**.
+///
 string TRestMetadata::GetFieldValue( string fieldName, string definition, size_t fromPosition )
 {
     string fldName = fieldName + "=\"";
@@ -1163,6 +1519,14 @@ string TRestMetadata::GetFieldValue( string fieldName, string definition, size_t
     }
 }
 
+///////////////////////////////////////////////
+/// \brief Returns a string with the unit name provided inside **definition**.
+///
+/// The first occurence of units="" is given.
+/// 
+/// \param definition The string where we search for the units definition.
+/// \param fromPosition The position inside the string **definition** where we start looking for the units definition.
+///
 string TRestMetadata::GetUnits( string definition, size_t fromPosition )
 {
     string fldName = "units=\"";
@@ -1183,6 +1547,13 @@ string TRestMetadata::GetUnits( string definition, size_t fromPosition )
     }
 }
 
+///////////////////////////////////////////////
+/// \brief Returns a double value of a field named **fieldName** found inside the string **definition**, after applying unit conversion.
+///
+/// \param fieldName The name of the field from which we want to get the value
+/// \param definition The string that contains the field name and value in the format field="value".
+/// \param fromPosition The position inside **definition** from where we start searching for the **fieldName**.
+///
 Double_t TRestMetadata::GetDblFieldValueWithUnits( string fieldName, string definition, size_t fromPosition )
 {
     string fldName = fieldName + "=\"";
@@ -1215,6 +1586,13 @@ Double_t TRestMetadata::GetDblFieldValueWithUnits( string fieldName, string defi
     }
 }
 
+///////////////////////////////////////////////
+/// \brief Returns a 2D vector with the value of a field named **fieldName** found inside the string **definition**, after applying unit conversion.
+///
+/// \param fieldName The name of the field from which we want to get the value
+/// \param definition The string that contains the field name and value in the format fieldName="(value,value)".
+/// \param fromPosition The position inside **definition** from where we start searching for the **fieldName**.
+///
 TVector2 TRestMetadata::Get2DVectorFieldValueWithUnits( string fieldName, string definition, size_t fromPosition )
 {
     string fldName = fieldName + "=\"";
@@ -1247,6 +1625,13 @@ TVector2 TRestMetadata::Get2DVectorFieldValueWithUnits( string fieldName, string
     }
 }
 
+///////////////////////////////////////////////
+/// \brief Returns a 3D vector with the value of a field named **fieldName** found inside the string **definition**, after applying unit conversion.
+///
+/// \param fieldName The name of the field from which we want to get the value
+/// \param definition The string that contains the field name and value in the format fieldName="(value,value,value)".
+/// \param fromPosition The position inside **definition** from where we start searching for the **fieldName**.
+///
 TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits( string fieldName, string definition, size_t fromPosition )
 {
     string fldName = fieldName + "=\"";
@@ -1283,7 +1668,12 @@ TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits( string fieldName, string
     }
 }
 
-// Searches in the configBuffer from position
+///////////////////////////////////////////////
+/// \brief Returns a string with the value of a field named **fieldName** found inside TRestMetadata::configBuffer.
+///
+/// \param fieldName The name of the field from which we want to get the value
+/// \param fromPosition The position inside TRestMetadata::configBuffer from where we start searching for the **fieldName**.
+///
 string TRestMetadata::GetFieldValue( string fieldName, size_t fromPosition )
 {
     string fldName = fieldName + "=\"";
@@ -1303,8 +1693,12 @@ string TRestMetadata::GetFieldValue( string fieldName, size_t fromPosition )
     }
 }
 
-
-// returns the string containing <KEY --- >
+///////////////////////////////////////////////
+/// \brief Gets the first key definition for **keyName** found inside TRestMetadata::configBuffer
+///
+/// A key definition is written as follows:
+/// \code <keyName field1="value1" field2="value2" > \endcode
+///
 string TRestMetadata::GetKEYDefinition( string keyName )
 {
     Int_t fromPosition = 0;
@@ -1319,6 +1713,12 @@ string TRestMetadata::GetKEYDefinition( string keyName )
 
 }
 
+///////////////////////////////////////////////
+/// \brief Gets the first key definition for **keyName** found inside TRestMetadata::configBuffer starting at **fromPosition**.
+///
+/// A key definition is written as follows:
+/// \code <keyName field1="value1" field2="value2" > \endcode
+///
 string TRestMetadata::GetKEYDefinition( string keyName, size_t &fromPosition )
 {
     string key = "<" + keyName;
@@ -1332,8 +1732,16 @@ string TRestMetadata::GetKEYDefinition( string keyName, size_t &fromPosition )
 
 }
 
+///////////////////////////////////////////////
+/// \brief Gets the first key definition for **keyName** found inside **buffer**.
+///
+/// A key definition is written as follows:
+/// \code <keyName field1="value1" field2="value2" > \endcode
+///
 string TRestMetadata::GetKEYDefinition( string keyName, string buffer )
 {
+    if( buffer == "" ) return "";
+
     string key = "<" + keyName;
 
     size_t startPos = buffer.find( key, 0 );
@@ -1343,6 +1751,12 @@ string TRestMetadata::GetKEYDefinition( string keyName, string buffer )
 
 }
 
+///////////////////////////////////////////////
+/// \brief Gets the first key definition for **keyName** found inside **buffer** starting at **fromPosition**.
+///
+/// A key definition is written as follows:
+/// \code <keyName field1="value1" field2="value2" > \endcode
+///
 string TRestMetadata::GetKEYDefinition( string keyName, size_t &fromPosition, string buffer )
 {
     string key = "<" + keyName;
@@ -1358,7 +1772,17 @@ string TRestMetadata::GetKEYDefinition( string keyName, size_t &fromPosition, st
 
 }
 
-// returns the string containing <KEY --- /KEY>
+///////////////////////////////////////////////
+/// \brief Gets the first key structure for **keyName** found inside TRestMetadata::configBuffer.
+///
+/// A key definition is written as follows:
+/// \code <keyName field1="value1" field2="value2" > 
+///
+///     ....
+///
+///  </keyName>
+/// \endcode
+///
 string TRestMetadata::GetKEYStructure( string keyName )
 {
     string strNotFound = "NotFound";
@@ -1379,8 +1803,18 @@ string TRestMetadata::GetKEYStructure( string keyName )
     return configBuffer.substr( initPos, endPos-initPos + endKEY.length()+1 );
 
 }
-//
-// returns the string containing <KEY --- /KEY>
+
+///////////////////////////////////////////////
+/// \brief Gets the first key structure for **keyName** found inside **buffer**.
+///
+/// A key definition is written as follows:
+/// \code <keyName field1="value1" field2="value2" > 
+///
+///     ....
+///
+///  </keyName>
+/// \endcode
+///
 string TRestMetadata::GetKEYStructure( string keyName, string buffer )
 {
 
@@ -1402,6 +1836,17 @@ string TRestMetadata::GetKEYStructure( string keyName, string buffer )
 
 }
 
+///////////////////////////////////////////////
+/// \brief Gets the first key structure for **keyName** found inside TRestMetadata::configBuffer after **fromPosition**.
+///
+/// A key definition is written as follows:
+/// \code <keyName field1="value1" field2="value2" > 
+///
+///     ....
+///
+///  </keyName>
+/// \endcode
+///
 string TRestMetadata::GetKEYStructure( string keyName, size_t &fromPosition )
 {
     size_t position = fromPosition;
@@ -1422,6 +1867,17 @@ string TRestMetadata::GetKEYStructure( string keyName, size_t &fromPosition )
     return configBuffer.substr( initPos, endPos-initPos + endKEY.length()+1 );
 }
 
+///////////////////////////////////////////////
+/// \brief Gets the first key structure for **keyName** found inside **buffer** after **fromPosition**.
+///
+/// A key definition is written as follows:
+/// \code <keyName field1="value1" field2="value2" > 
+///
+///     ....
+///
+///  </keyName>
+/// \endcode
+///
 string TRestMetadata::GetKEYStructure( string keyName, size_t &fromPosition, string buffer )
 {
     size_t position = fromPosition;
@@ -1452,6 +1908,16 @@ string TRestMetadata::GetKEYStructure( string keyName, size_t &fromPosition, str
     return buffer.substr( initPos, endPos-initPos + endKEY.length()+1 );
 }
 
+///////////////////////////////////////////////
+/// \brief Gets a string containning the section structure from a file **fref** by using the name **nref** as the user defined section name.
+///
+/// The section format searched inside **fref** is as follows :
+/// \code 
+///
+/// <section metadataName name="nref">
+///
+/// \endcode
+/// 
 string TRestMetadata::GetSectionByNameFromFile( string nref, string fref )
 {
     string fileName = ReplaceEnvironmentalVariables( fref );
@@ -1477,17 +1943,22 @@ string TRestMetadata::GetSectionByNameFromFile( string nref, string fref )
     return "";
 }
 
+///////////////////////////////////////////////
+/// \brief Finds the first occurence of the <section keyword inside **buffer** from **startPos**.
+///
+/// \param buffer A string containning the <section definition
+/// \param startPos The position inside **buffer** where we start searching for <section.
+///
 Int_t TRestMetadata::FindSection( string buffer, size_t startPos )
 {
 
     size_t sectionPos, pos = startPos, pos2 = 0;
     while ( (sectionPos = buffer.find( "<section", pos ) ) != string::npos )
     {
-        /** TODO
-         *          *
-         *                   *  This code can be simplified now by using GetKeyString
-         *                            *
-         *                                     * */
+        /* TODO
+         *             This code can be simplified now by using GetKeyString
+         *                                     */
+
         if( debug > 1 ) cout << "Start section pos : " << sectionPos << endl;
 
         pos = buffer.find( " ", sectionPos+1 );
@@ -1513,7 +1984,6 @@ Int_t TRestMetadata::FindSection( string buffer, size_t startPos )
             TString name = GetFieldValue( "name", tmp );
             TString title = GetFieldValue( "title", tmp );
 
- //           if( name == "Not defined" ) cout << "Section name " << fSectionName << " not defined!" << endl;
             this->SetName ( name );
             this->SetTitle( title );
 
@@ -1524,6 +1994,9 @@ Int_t TRestMetadata::FindSection( string buffer, size_t startPos )
     return NOT_FOUND;
 }
 
+///////////////////////////////////////////////
+/// \brief Prints a UNIX timestamp in human readable format
+///
 void TRestMetadata::PrintTimeStamp( Double_t timeStamp )
 {
        cout.precision(10);
@@ -1541,8 +2014,14 @@ void TRestMetadata::PrintTimeStamp( Double_t timeStamp )
        cout << "++++++++++++++++++++++++" << endl;
 }
 
+///////////////////////////////////////////////
+/// \brief Prints TRestMetadata::configBuffer in screen.
+///
 void TRestMetadata::PrintConfigBuffer( ) { cout << configBuffer << endl; }
 
+///////////////////////////////////////////////
+/// \brief Prints metadata content on screen. Usually overloaded by the derived metadata class.
+///
 void TRestMetadata::PrintMetadata()
 {
         cout << "TRestMetadata content" << endl;
@@ -1551,107 +2030,3 @@ void TRestMetadata::PrintMetadata()
         cout << "Section name : " << fSectionName << endl;        // section name given in the constructor of TRestSpecificMetadata
 }
 
-/* {{{ Trash
-//______________________________________________________________________________
-string TRestMetadata::SearchString(const char *name)
-{
-   // Search a datum of type string in a config file using "name" as key, 
-   // and returns it as a string object.
-
-   char str[256], str2[256];
-
-   if (fConfigFileName == "") {
-      cout << "Warning: " << GetName() <<
-          " trying to load string but input file not assigned." << endl;
-      return "";
-   }
-
-   if ((configFile = fopen(fConfigFileName, "rt")) == NULL) {
-      cout << GetName() << ": COULD NOT OPEN " << fConfigFileName << endl;
-      return "";
-   } else {
-      while (!feof(configFile)) {
-         fscanf(configFile, "%s %[^\n]", str, str2);
-         if (strstr(str, name) != NULL) {
-            fclose(configFile);
-            return string(str2);
-         }
-      }
-   }
-
-   cout << GetName() << ": " << name << " NOT FOUND in " << fConfigFileName << ", using NULL" << endl;
-   fclose(configFile);
-   return "";
-}
-
-//______________________________________________________________________________
-Int_t TRestMetadata::SearchInt(const char *name)
-{
-   // Search a datum of type integer in a config file using "name" as key, 
-   // and returns it as a Int_t object.
-
-   char str[256];
-   Int_t var;
-
-   if (fConfigFileName == "") {
-      cout << "Warning: " << GetName() <<
-          " trying to load string but input file not assigned." << endl;
-      return 0;
-   }
-
-   if ((configFile = fopen(fConfigFileName, "rt")) == NULL) {
-      cout << GetName() << ": COULD NOT OPEN " << fConfigFileName << endl;
-      return 0;
-   } else {
-      while (!feof(configFile)) {
-         fscanf(configFile, "%s %i\n", str, &var);
-         if (!strcmp(str, name)) {
-            fclose(configFile);
-            return var;
-         }
-      }
-   }
-
-   cout << GetName() << ": " << name << " NOT FOUND in " << fConfigFileName
-       << ", using 0" << endl;
-   fclose(configFile);
-   return 0;
-}
-
-//______________________________________________________________________________
-Double_t TRestMetadata::SearchDouble(const char *name)
-{
-   // Search a datum of type double in a config file using "name" as key, and returns it as a Double_t
-
-   if (fConfigFileName == "") {
-      cout << "Warning: " << GetName() <<
-          " trying to load string but input file not assigned." << endl;
-      return 0.0;
-   }
-
-   char str[256];
-   double bo = 0.0;
-
-   if ((configFile = fopen(fConfigFileName, "rt")) == NULL) {
-      cout << GetName() << "COULD NOT OPEN " << fConfigFileName << endl;
-      return 0.0;
-   } else {
-      while (!feof(configFile)) {
-         fscanf(configFile, "%s %lf\n", str, &bo);
-         if (!strcmp(str, name)) {
-            fclose(configFile);
-            return bo;
-         }
-      }
-   }
-
-   cout << GetName() << ": " << name << " NOT FOUND in " << fConfigFileName
-       << ", using 0" << endl;
-   fclose(configFile);
-   return 0.0;
-}
-}}} */
-
-/*
- *
-*/;

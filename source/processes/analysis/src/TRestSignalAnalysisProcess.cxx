@@ -50,7 +50,7 @@ void TRestSignalAnalysisProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestSignalAnalysisProcess::Initialize()
 {
-    SetName( "signalAnalysisProcess" );
+    SetSectionName( this->ClassName() );
 
     fSignalEvent = new TRestSignalEvent();
 

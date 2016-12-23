@@ -1,6 +1,4 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
+//////////////////////////////////////////////////////////////////////////
 ///             
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
@@ -13,10 +11,12 @@
 ///                 Created as part of the conceptualization of existing REST 
 ///                 software.
 ///                 Javier Galan
-///		nov 2015:
-///		    Changed vectors fX fY fZ and fEnergy from <Int_t> to <Float_t>
-///	            JuanAn Garcia
-///_______________________________________________________________________________
+///
+///		        nov 2015:
+///		            Changed vectors fX fY fZ and fEnergy from <Int_t> to <Float_t>
+///	                JuanAn Garcia
+///
+//////////////////////////////////////////////////////////////////////////
 
 
 #ifndef TRestSoft_TRestHits
@@ -30,8 +30,6 @@
 #include "TArrayD.h"
 #include "TMatrixD.h"
 #include <TVector3.h>
-
-//! Storage class
 
 //! It let save an event as a set of punctual deposition.
 //! It saves a 3-coordinate position and an energy for each punctual deposition.

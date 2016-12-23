@@ -47,7 +47,7 @@ void TRestFindG4BlobAnalysisProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestFindG4BlobAnalysisProcess::Initialize()
 {
-    SetName( "findG4BlobAnalysisProcess" );
+    SetSectionName( this->ClassName() );
 
     fG4Event = new TRestG4Event();
     ///fOutputG4Event = new TRestG4Event();
@@ -114,12 +114,19 @@ TRestEvent* TRestFindG4BlobAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         {
             if( track->GetParticleName() != "e-" )
             {
-                cout << "TRestFindG4BlobAnalysis Warning. Primary particle is not an electron" << endl;
+                cout << "TRestFindG4BlobAnalysis Warning. Primary particle is not an electron!!" << endl;
                 cout << "Skipping." << endl;
-                continue;
-            }
+		continue;
+	    }
 
-            if( nBlobs >= 2 ) 
+	    if( track->GetNumberOfHits() == 0 )
+	    {
+		    cout << "REST. FindG4Blobs WARNING. A primary electron with no hits was found!!" << endl;
+		    cout << "Skipping." << endl;
+		    continue;
+	    }
+
+	    if( nBlobs >= 2 ) 
             {
                 cout << "TRestFindG4BlobAnalysis Warning. More than 2 e- primaries found!" << endl;
                 continue;
@@ -144,6 +151,8 @@ TRestEvent* TRestFindG4BlobAnalysisProcess::ProcessEvent( TRestEvent *evInput )
             nBlobs++;
         }
     }
+
+    if( nBlobs != 2 ) { cout << "REST. FindG4Blobs ERROR. Blobs != 2. Blobs found " << nBlobs << endl; }
     
     // The blob with z-coordinate closer to z=0 is stored in x1,y1,z1 
     Double_t x1,y1,z1;

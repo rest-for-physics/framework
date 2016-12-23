@@ -1,15 +1,12 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///             
+//////////////////////////////////////////////////////////////////////////
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
 ///             TRestTrackReductionProcess.cxx
 ///
 ///             Jan 2016:   First concept (Javier Galan)
-//
-///_______________________________________________________________________________
+///             
+//////////////////////////////////////////////////////////////////////////
 
 #include "TRestTrackReductionProcess.h"
 using namespace std;
@@ -50,7 +47,7 @@ void TRestTrackReductionProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestTrackReductionProcess::Initialize( )
 {
-    SetName("trackReductionProcess");
+    SetSectionName( this->ClassName() );
 
     fInputTrackEvent = new TRestTrackEvent();
     fOutputTrackEvent = new TRestTrackEvent();

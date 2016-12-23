@@ -1,6 +1,4 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
+//////////////////////////////////////////////////////////////////////////
 ///             
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
@@ -8,8 +6,8 @@
 ///             TRestTrackLinearizationProcess.cxx
 ///
 ///             Feb 2016:   First concept (Javier Galan)
-//
-///_______________________________________________________________________________
+///
+//////////////////////////////////////////////////////////////////////////
 
 #include "TRestTrackLinearizationProcess.h"
 using namespace std;
@@ -51,7 +49,7 @@ void TRestTrackLinearizationProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestTrackLinearizationProcess::Initialize( )
 {
-    SetName("trackLinearizationProcess");
+    SetSectionName( this->ClassName() );
 
     fInputTrackEvent = new TRestTrackEvent();
     fOutputLinearizedTrackEvent = new TRestLinearizedTrackEvent();
