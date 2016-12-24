@@ -19,7 +19,7 @@ os.chdir( REST_Build_Path )
 # Updating master
 os.system ('/usr/bin/git checkout master' )
 
-p = subprocess.Popen(['/usr/bin/git', 'pull'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+p = subprocess.Popen(['/usr/bin/git', 'pull --tags'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 out, err = p.communicate()
 
