@@ -19,6 +19,8 @@
 
 
 #include "TRestTrackEvent.h"
+#include "TRestTools.h"
+
 using namespace std;
 
 ClassImp(TRestTrackEvent)
@@ -236,8 +238,25 @@ void TRestTrackEvent::PrintEvent( Bool_t fullInfo )
 }
 
 //Draw current event in a Tpad
-TPad *TRestTrackEvent::DrawEvent()
+TPad *TRestTrackEvent::DrawEvent( TString option )
 {
+    Bool_t drawXZ = false;
+    Bool_t drawYZ = false;
+    Bool_t drawXY = false;
+    Bool_t drawXYZ = false;
+    Bool_t drawLines = false;
+
+    vector <TString> optList = REST_Tools::GetOptions( option );
+
+    for( unsigned int n = 0; n < optList.size(); n++ )
+    {
+        if( optList[n] == "XZ" ) drawXZ = true;
+        if( optList[n] == "YZ" ) drawYZ = true;
+        if( optList[n] == "XY" ) drawXY = true;
+        if( optList[n] == "XYZ" ) drawXYZ = true;
+        if( optList[n] == "L" || optList[n] == "lines"  ) drawLines = true;
+    }
+
     if( fXYHit != NULL ) { delete[] fXYHit; fXYHit=NULL;}
     if( fXZHit != NULL ) { delete[] fXZHit; fXZHit=NULL;}
     if( fYZHit != NULL ) { delete[] fYZHit; fYZHit=NULL;}
@@ -247,12 +266,6 @@ TPad *TRestTrackEvent::DrawEvent()
     if( fPad != NULL ) { delete fPad; fPad=NULL;}
 
     int nTracks = this->GetNumberOfTracks();
-
-    /*
-    PrintOnlyTracks();
-    PrintEvent();
-    getchar();
-    */
 
     if( nTracks == 0 )
     {
