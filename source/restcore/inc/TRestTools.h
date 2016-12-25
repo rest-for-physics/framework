@@ -33,5 +33,9 @@ namespace REST_Tools {
     TString GetFirstPath( TString &path );
 
     vector <TString> GetFilesInDirectory( TString path );
+
+    vector <TString> GetOptions( TString optionsStr  );
+
+    TString GetFirstOption( TString &path );
 }
 #endif

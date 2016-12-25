@@ -44,6 +44,27 @@ namespace REST_Tools
         return pathList;
     }
 
+    vector <TString> GetOptions( TString optionsStr  )
+    {
+        vector <TString> optionsList;
+
+        TString p ( optionsStr );
+
+        while( p.Length() > 0 )
+        {
+            TString option = GetFirstOption( p );
+
+            if ( option.Length() > 0 ) optionsList.push_back( option );
+        }
+
+        return optionsList;
+    }
+
+    TString GetFirstOption( TString &path )
+    {
+        return GetFirstPath( path );
+    }
+
     TString GetFirstPath( TString &path )
     {
         TString resultPath;
