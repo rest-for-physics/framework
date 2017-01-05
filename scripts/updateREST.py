@@ -90,5 +90,12 @@ for tag in notInstalledTags:
 	os.system ('/usr/bin/make clean' )
 	os.system ('/usr/bin/make -j4' )
 	os.system ('/usr/bin/make install' )
+	os.environ["REST_PATH"] = REST_Install_Path  + tag
+	os.chdir( REST_Build_Path + "/../packages/restG4/build/" )
+	os.system( "cmake ../" )
+	os.system ('/usr/bin/make clean' )
+	os.system ('/usr/bin/make -j4' )
+	os.system ('/usr/bin/make install' )
 	os.system ('git checkout master' )
+	os.system ('git branch -d ' + tag )
 
