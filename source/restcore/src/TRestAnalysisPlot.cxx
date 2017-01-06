@@ -192,7 +192,7 @@ void TRestAnalysisPlot::InitFromConfigFile()
 
             for( unsigned int i = 0; i < globalCuts.size(); i++ )
             {
-                if( n > 0 ) cutString += " && ";
+                if( i > 0 ) cutString += " && ";
                 cutString += globalCuts[i];
             }
 

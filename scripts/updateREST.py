@@ -11,19 +11,26 @@
 import os,sys, time, commands
 import subprocess, StringIO
 
+#===================================================
+#================ Must be changed ==================
+#===================================================
+# Modify this PATH with your REST_v2 build directory
 REST_Build_Path = "/home/jgalan/git/REST_v2/build"
+
+# Modify this PATH with the final destination of REST installation
 REST_Install_Path = "/programas/REST/"
+#===================================================
 
 os.chdir( REST_Build_Path )
 
 # Updating master
 os.system ('/usr/bin/git checkout master' )
 
-p = subprocess.Popen(['/usr/bin/git', 'pull --tags'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+p = subprocess.Popen(['/usr/bin/git', 'pull', '--tags'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 out, err = p.communicate()
 
-if "up-to-date" in out:
+if err == "" and "up-to-date" in out:
 	print "Master is already updated"
 else:
 	os.system( "cmake -DINSTALL_PREFIX=" + REST_Install_Path + "master" + " ../" )
@@ -83,5 +90,12 @@ for tag in notInstalledTags:
 	os.system ('/usr/bin/make clean' )
 	os.system ('/usr/bin/make -j4' )
 	os.system ('/usr/bin/make install' )
+	os.environ["REST_PATH"] = REST_Install_Path  + tag
+	os.chdir( REST_Build_Path + "/../packages/restG4/build/" )
+	os.system( "cmake ../" )
+	os.system ('/usr/bin/make clean' )
+	os.system ('/usr/bin/make -j4' )
+	os.system ('/usr/bin/make install' )
 	os.system ('git checkout master' )
+	os.system ('git branch -d ' + tag )
 
