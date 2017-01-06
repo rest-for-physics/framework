@@ -19,6 +19,11 @@ REST_Build_Path = "/home/jgalan/git/REST_v2/build"
 
 # Modify this PATH with the final destination of REST installation
 REST_Install_Path = "/programas/REST/"
+
+# You might need to add some environment definitions needed to build REST
+os.environ["GARFIELD_HOME"]="/programas/garfield"
+os.environ["LD_LIBRARY_PATH"]= "/programas/root34.32/root/lib:/programas/geant4.10.02.p02-install/lib::/programas/garfield/lib"
+os.environ["PATH"]= os.environ["PATH"] + ":/programas/root34.32/root/bin/"
 #===================================================
 
 os.chdir( REST_Build_Path )
@@ -34,6 +39,12 @@ if err == "" and "up-to-date" in out:
 	print "Master is already updated"
 else:
 	os.system( "cmake -DINSTALL_PREFIX=" + REST_Install_Path + "master" + " ../" )
+	os.system ('/usr/bin/make clean' )
+	os.system ('/usr/bin/make -j4' )
+	os.system ('/usr/bin/make install' )
+	os.environ["REST_PATH"] = REST_Install_Path  + tag
+	os.chdir( REST_Build_Path + "/../packages/restG4/build/" )
+	os.system( "cmake ../" )
 	os.system ('/usr/bin/make clean' )
 	os.system ('/usr/bin/make -j4' )
 	os.system ('/usr/bin/make install' )
