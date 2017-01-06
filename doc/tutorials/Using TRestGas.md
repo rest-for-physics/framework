@@ -83,8 +83,6 @@ Finally, we can quickly visualize the dependency of different gas properties as 
 
 [5] gas->PlotDriftVelocity( 1, 1000, 100 )
 
-[4] cout << "The drift velocity at 100V/cm at 10 bar is : " << gas->GetDriftVelocity( 100 ) << endl;
-
 \endcode
 
 Thats it. Other gas parameters and relevant information related to TRestGas can be found in the class documentation.

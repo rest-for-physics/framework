@@ -187,11 +187,7 @@ Double_t TRestEventProcess::GetDoubleParameterFromClass( TString className, TStr
 {
     for( size_t i = 0; i < fRunMetadata.size(); i++ )
         if ( fRunMetadata[i]->ClassName() == className )
-        {
- //           cout << "String parameter : " << fRunMetadata[i]->GetParameter( (string) parName ) << endl;
- //           fRunMetadata[i]->PrintConfigBuffer( );
             return StringToDouble( fRunMetadata[i]->GetParameter( (string) parName ) );
-        }
 
     return PARAMETER_NOT_FOUND_DBL;
 }
@@ -207,11 +203,7 @@ Double_t TRestEventProcess::GetDoubleParameterFromClassWithUnits( TString classN
 {
     for( size_t i = 0; i < fRunMetadata.size(); i++ )
         if ( fRunMetadata[i]->ClassName() == className )
-        {
- //           cout << "String parameter : " << fRunMetadata[i]->GetParameter( (string) parName ) << endl;
- //           fRunMetadata[i]->PrintConfigBuffer( );
             return fRunMetadata[i]->GetDblParameterWithUnits( (string) parName );
-        }
 
     return PARAMETER_NOT_FOUND_DBL;
 }
