@@ -31,6 +31,6 @@ cd $WP
 echo ""
 echo "You should add the following line to your .bashrc file"
 echo ""
-echo "source $HOME/apps/root_v5.34.32/install/bin/thisroot.sh"
+echo "source \$HOME/apps/root_v5.34.32/install/bin/thisroot.sh"
 echo ""
 
