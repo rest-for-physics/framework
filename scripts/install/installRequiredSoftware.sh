@@ -4,7 +4,7 @@ sudo apt-get update
 sudo apt-get -y install vim zip unzip
 
 sudo apt-get -y install cmake g++ gfortran
-sudo apt-get -y install g++-4.8 gcc-4.8
+sudo apt-get -y install g++-4.8 gcc-4.8 gfortran-4.8
 sudo apt-get -y install libgl1-mesa-dev libglu1-mesa-dev
 sudo apt-get -y install libfftw3-dev
 

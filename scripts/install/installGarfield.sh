@@ -8,13 +8,13 @@ mkdir -p $GARFIELD_HOME
 cd $GARFIELD_HOME
 
 echo checkout the code...
-svn co http://svn.cern.ch/guest/garfield/trunk $GARFIELD_HOME
+svn co http://svn.cern.ch/guest/garfield/tags/v1r0 $GARFIELD_HOME
 
 echo building...
 mkdir build -p
 cd build
 
-cmake -DCMAKE_INSTALL_PREFIX=$GARFIELD_HOME ../
+cmake -DCMAKE_INSTALL_PREFIX=$GARFIELD_HOME -DCMAKE_CXX_COMPILER=g++-4.8 -DCMAKE_Fortran_COMPILER=gfortran-4.8 -DWITH_EXAMPLES=OFF ../
 make -j4
 mkdir ../lib -p
 
