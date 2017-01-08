@@ -1,6 +1,6 @@
 \brief Instructions to setup your local environment, compile and install REST in your local system
 
-The following instructions assume you have a linux system with ubuntu or debian based distribution.
+The following instructions assume you have a linux system with ubuntu or debian based distribution. This will basically affect only to the installation of required packages using apt-get command.
 
 ## Downloading REST from the Git repository
 
@@ -96,6 +96,12 @@ REST provides access to Garfield++ objects and some metadata structures as TRest
 
 *  [Garfield++ getting started] (http://garfieldpp.web.cern.ch/garfieldpp/getting-started/).
 
+It is **recommended** to install the release <code>v1r0</code> that can be downloaded by executing:
+
+\code
+svn co http://svn.cern.ch/guest/garfield/tags/v1r0 $GARFIELD_HOME
+\endcode
+
 And define in your .bashrc file the following environmental variables (according to your installation):
 
 \code
@@ -163,19 +169,19 @@ First of all, create a build directory wherever you want, here we assume it is d
  cd build
 \endcode
 
-We then create the compilation environment, i.e., the REST install path. If we do not specify it, the default is <code>/usr/local/REST</code> (which requires admin privileges). We use cmake for this, with the following syntax:
+We then create the compilation environment using cmake (i.e., we define the REST install path, the compiler version, etc). If we do not specify the installation path, the default is <code>/usr/local/REST</code> (which requires admin privileges). We use cmake for this, with the following syntax:
 
 \code
  cmake -DCMAKE_CXX_COMPILER=g++-4.8 -DINSTALL_PREFIX=/full/path/to/install/destination/ $REST_v2
 \endcode
 
-Where *DINSTALL_PREFIX* will be the directory where headers, libraries and other required files will be installed. You can choose for example $REST_v2/install. Since *../* points to $REST_v2, you could execute
+Where *DINSTALL_PREFIX* will be the directory where headers, libraries and other required files will be installed. You can choose for example $REST_v2/install. It is **important** that full path to installation is specified in the INSTALL_PREFIX definition. Since *../* points to $REST_v2, you could execute
 
 \code
  cmake -DCMAKE_CXX_COMPILER=g++-4.8 -DINSTALL_PREFIX=$REST_v2/install ../
 \endcode
 
-being $REST_v2 the full path directory pointing to your REST_v2 directory. It is important that **full path** is specified in the INSTALL_PREFIX definition.
+being $REST_v2 the full path directory pointing to your REST_v2 directory.
 
 After this is done, you can launch the compilation of REST,
 
