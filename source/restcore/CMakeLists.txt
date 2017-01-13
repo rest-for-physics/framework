@@ -1,5 +1,5 @@
 #Generate CINT file
-set(CLASS_DICT TRestEvent TRestMetadata TRestEventProcess TRestRun TRestGeometry TRestRunMerger TRestEventViewer TRestBrowser TRestAnalysisTree TRestAnalysisPlot)
+set(CLASS_DICT TRestEvent TRestMetadata TRestEventProcess TRestRun TRestGeometry TRestRunMerger TRestEventViewer TRestBrowser TRestAnalysisTree TRestAnalysisPlot TRestTools)
 
 file(GLOB RestCoreSrc
         "src/*.cxx"

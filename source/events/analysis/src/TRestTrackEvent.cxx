@@ -246,7 +246,7 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
     Bool_t drawXYZ = false;
     Bool_t drawLines = false;
 
-    vector <TString> optList = REST_Tools::GetOptions( option );
+    vector <TString> optList = TRestTools::GetOptions( option );
 
     for( unsigned int n = 0; n < optList.size(); n++ )
     {

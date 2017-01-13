@@ -34,8 +34,11 @@ int main( int argc, char *argv[] )
 
     TApplication theApp("App", 0, 0 );
 
+    gSystem->Load("libRestCore.so");
+    gSystem->Load("libRestEvents.so");
+    gSystem->Load("libRestMetadata.so");
     // Loading REST or Rest Libraries found in LD_LIBRARY_PATH
-    vector <TString> list = REST_Tools::GetListOfRESTLibraries( );
+    vector <TString> list = TRestTools::GetListOfRESTLibraries( );
     for( unsigned int n = 0; n < list.size(); n++ )
     {
         cout << "Loading library : " << list[n] << endl;
