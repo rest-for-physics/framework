@@ -3,11 +3,13 @@ int LoadRESTScripts()
 {
     gSystem->Load("libRestCore.so");
     gSystem->Load("libRestEvents.so");
-    gSystem->Load("libRestTools.so");
     gSystem->Load("libRestMetadata.so");
-    gSystem->Load("libRestProcesses.so");
-    gSystem->Load("libRestViewers.so");
-    gSystem->Load("libRestExternal.so");
+    vector <TString> list = TRestTools::GetListOfRESTLibraries( );
+    for( unsigned int n = 0; n < list.size(); n++ )
+    {
+        cout << "Loading library : " << list[n] << endl;
+        gSystem->Load( list[n] );
+    }
 
     char command[256];
     sprintf( command, "find \$REST_PATH/scripts/ |grep .C | grep -v \"LoadRESTScripts.C\" | grep -v \"swo\" | grep -v \"swp\"  | grep -v \"svn\"> /tmp/macros.list" );
