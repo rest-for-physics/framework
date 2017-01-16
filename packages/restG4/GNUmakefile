@@ -7,6 +7,10 @@ ifndef G4INSTALL
   G4INSTALL = ../../../..
 endif
 
+CPPFLAGS = `root-config --cflags`  -I $(REST_INSTALL)/include
+LDFLAGS = `root-config --libs` -L$(G4LIB) -L $(REST_INSTALL)/lib -lRestCore -lRestMetadata -lRestEvents `root-config --libs` -lGeom 
+
+
 .PHONY: all
 all: lib bin
 
