@@ -38,26 +38,32 @@ TRestHits::~TRestHits()
 Bool_t TRestHits::areXY()
 {
     //for( int i = 0; i < GetNumberOfHits(); i++ )
-    if( IsNaN( GetZ(0) ) ) return true;
+    if( !IsNaN( GetX(0) ) && !IsNaN( GetY(0) ) && IsNaN( GetZ(0) ) ) return true;
     return false;
 }
 
 Bool_t TRestHits::areXZ()
 {
-    if( IsNaN( GetY(0) ) ) return true;
+    if( IsNaN( GetY(0) ) && !IsNaN( GetX(0) ) && !IsNaN( GetZ(0) ) ) return true;
     return false;
 }
 
 Bool_t TRestHits::areYZ()
 {
-    if( IsNaN( GetX(0) ) ) return true;
+    if( IsNaN( GetX(0) ) && !IsNaN( GetY(0) ) && !IsNaN( GetZ(0) ) ) return true;
     return false;
 }
 
 Bool_t TRestHits::areXYZ()
 {
-    if( IsNaN ( GetX(0) ) || IsNaN( GetY(0) ) || IsNaN( GetZ(0) ) )  return false;
+    if( !isNaN(0) && (IsNaN ( GetX(0) ) || IsNaN( GetY(0) ) || IsNaN( GetZ(0) ) ) )  return false;
     return true;
+}
+
+Bool_t TRestHits::isNaN( Int_t n )
+{
+    if( IsNaN ( GetX(n) ) && IsNaN( GetY(n) ) && IsNaN( GetZ(n) ) )  return true;
+    return false;
 }
 
 void TRestHits::GetXArray( Float_t *x )

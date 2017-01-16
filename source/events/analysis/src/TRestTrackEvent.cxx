@@ -335,6 +335,13 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
         {
             if( hits->GetNumberOfHits() > maxTrackHits ) maxTrackHits = hits->GetNumberOfHits();
 
+            if( hits->isNaN( nhit ) )
+            {
+                cout << "REST Warning. TRestTrackEvent::Draw. Hit is not defined!!" << endl;
+                getchar();
+                continue;
+            }
+
             Double_t x = hits->GetX( nhit );
             Double_t y = hits->GetY( nhit );
             Double_t z = hits->GetZ( nhit );

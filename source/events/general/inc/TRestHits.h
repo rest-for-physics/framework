@@ -66,6 +66,8 @@ class TRestHits : public TObject
         Bool_t areYZ();
         Bool_t areXYZ();
 
+        Bool_t isNaN( Int_t n );
+
         void GetXArray( Float_t *x );
         void GetYArray( Float_t *y );
         void GetZArray( Float_t *z );
