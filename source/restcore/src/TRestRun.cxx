@@ -946,7 +946,7 @@ Int_t TRestRun::GetEventWithID( Int_t eventID, Int_t subEventID )
 
     do
     {
-        if( fEventIDs[currentEvent] == eventID && fSubEventIDs[currentEvent] == subEventID )
+        if( fEventIDs[currentEvent] == eventID && ( subEventID == -1 || fSubEventIDs[currentEvent] == subEventID ) )
         {
             fCurrentEvent = currentEvent;
             if( !fSkipEventTree ) fInputEventTree->GetEntry( fCurrentEvent );

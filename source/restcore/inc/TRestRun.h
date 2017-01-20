@@ -120,7 +120,7 @@ class TRestRun:public TRestMetadata {
 
         TRestEvent *GetEventInput() { return fInputEvent; }
 
-        Int_t GetEventWithID( Int_t eventID, Int_t subEventID = 0 );
+        Int_t GetEventWithID( Int_t eventID, Int_t subEventID = -1 );
         Int_t GetEventWithID( Int_t eventID, TString tag );
 
 
