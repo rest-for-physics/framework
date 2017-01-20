@@ -227,6 +227,18 @@ class TRestRun:public TRestMetadata {
         }
         Int_t GetNumberOfEvents( ) { return GetNumberOfInitialEvents(); }
 
+        TString GetInputEventType( )
+        {
+            if( fContainsEventTree )
+            {
+                TKey *key = GetObjectKeyByClass( "TTree" );
+                std::string name = key->GetName();
+                unsigned int pos = name.find( "Tree" );
+                return (TString) name.substr( 0, pos );
+            }
+            return "";
+        }
+
         TRestMetadata *GetMetadata( TString name );
         TRestMetadata *GetMetadataClass( TString className );
         void ImportMetadata( TString rootFile, TString name, Bool_t store = true );
