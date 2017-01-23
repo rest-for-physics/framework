@@ -485,47 +485,41 @@ void TRestRun::OpenInputFile( TString fName )
         return;
     }
 
-
     fInputFile = new TFile( fName );
 
-    inputRunNumber = GetRunNumber();
-    TString fileName = GetOutputFilename();
-    TString outputDataPath = GetMainDataPath();
+    tmpInputRunNumber = GetRunNumber();
+    tmpOutputFileName = GetOutputFilename();
+    tmpInputFileName = fName;
+    tmpOutputDataPath = GetMainDataPath();
 
     TKey *key = GetObjectKeyByClass( "TRestRun" );
     this->Read( key->GetName() );
 
-    SetDataPath( outputDataPath );
-    fRunNumber = inputRunNumber;
-
-    fInputFilename = fName;
-    fOutputFilename = fileName; // We take this value from the configuration (not from TRestRun)
-
     // Transfering metadata to historic
-	TIter nextkey( fInputFile->GetListOfKeys() );
-	while ( (key = (TKey*) nextkey() ) )
-	{
-		TString cName (key->GetClassName());
+    TIter nextkey( fInputFile->GetListOfKeys() );
+    while ( (key = (TKey*) nextkey() ) )
+    {
+        TString cName (key->GetClassName());
 
         if ( cName.Contains("Metadata") )
             fHistoricMetadata.push_back( (TRestMetadata *) fInputFile->Get( key->GetName() ) );
-	}
+    }
     fMetadata.clear();
 
-	nextkey = fInputFile->GetListOfKeys();
-	while ( (key = (TKey*) nextkey() ) )
-	{
-		TString cName (key->GetClassName());
+    nextkey = fInputFile->GetListOfKeys();
+    while ( (key = (TKey*) nextkey() ) )
+    {
+        TString cName (key->GetClassName());
 
         if ( cName.Contains("Process") )
             fHistoricEventProcess.push_back( (TRestEventProcess *) fInputFile->Get(  key->GetName() ) );
-	}
+    }
     fEventProcess.clear();
 
     if( GetObjectKeyByName( "TRestAnalysisTree" ) == NULL )
     {
         cout << "REST ERROR (SetInputEvent) : TRestAnalysisTree was not found" << endl;
-        cout << "Inside file : " << fInputFilename << endl;
+        cout << "Inside file : " << fName << endl;
         exit(1);
     }
 
@@ -588,6 +582,19 @@ void TRestRun::OpenOutputFile( )
 
     SetVersion();
 
+    if( fInputFile != NULL )
+    {
+        fOutputFilename = tmpOutputFileName;
+        SetDataPath( tmpOutputDataPath );
+        fInputFilename = tmpInputFileName;
+
+        if( tmpInputRunNumber != -1 ) // Run number = -1 is runNumber="preserve" option
+        {
+            fParentRunNumber = fRunNumber;
+            fRunNumber = tmpInputRunNumber;
+        }
+    }
+
     if( fOutputFilename == "default" ) SetRunFilenameAndIndex();
     else fOutputFilename = GetDataPath() + "/" + ConstructFilename( fOutputFilename );
 
@@ -602,12 +609,6 @@ void TRestRun::CloseOutputFile( )
     cout << __PRETTY_FUNCTION__ << endl;
     time_t  timev;
     time(&timev);
-
-    if( inputRunNumber != -1 ) // Run number = -1 is runNumber="preserve" option
-    {
-	    fParentRunNumber = fRunNumber;
-	    fRunNumber = inputRunNumber;
-    }
 
     fEndTime = (Double_t) timev;
 

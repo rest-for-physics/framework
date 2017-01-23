@@ -74,7 +74,10 @@ class TRestRun:public TRestMetadata {
         Bool_t fSkipEventTree;
         Bool_t fOverwrite;
 
-        Int_t inputRunNumber;
+        Int_t tmpInputRunNumber;
+        TString tmpOutputFileName;
+        TString tmpOutputDataPath;
+        TString tmpInputFileName;
 
         TTree *fInputEventTree;
         TTree *fOutputEventTree;
