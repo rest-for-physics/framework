@@ -150,7 +150,7 @@
 /// environment variable will not have effect on the RML, and the local definition will
 /// not be overwritten.
 /// 
-/// ### The globals metadata section
+/// ### The globals section
 ///
 /// The *globals* section allows to specify few common definitions used in the REST 
 /// framework. As the output data path, the gas data path, verbose level, etc. An example
