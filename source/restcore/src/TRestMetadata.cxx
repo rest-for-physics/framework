@@ -107,29 +107,187 @@
 /// definition. You might find useful examples of use in the implementations of
 /// complex metadata structures as in TRestG4Metadata::InitFromConfigFile and 
 /// TRestReadout::InitFromConfigFile.
+///
+/// ### Using system environment variables in RML files
 /// 
+/// RML files allow to retrieve environment variables defined in our system. This feature
+/// may result specially useful to generate configuration templates that can be used for
+/// different purposes. The environment variables must be introduced by using curly 
+/// brackets (i.e. {USER}).
 ///
-/// ### Using environmental variables in RML files
+/// The RML file will be parsed and the words contained inside {} will be replaced by
+/// their corresponding system variable. 
 ///
-/// TODO globals section description
+/// We can define externally different variables in our environment (i.e. in bash we
+/// could use *export RUN_NUMBER="101"*). Then, define in our RML the field value 
+/// **runNumber** from TRestRun, using that value:
 ///
-/// TOBE writen ..
+/// \code
 ///
+/// <parameter name="runNumber" value="{RUN_NUMBER}" />
+///
+/// \endcode
+/// 
+/// ### Defining local environment variables in RML files
+///
+/// If we write an RML file relying on many environmental variables, and some of those
+/// variables have not been defined in the system environment, REST will complain during
+/// exexution time of the undefined variable. A solution is to define inside the RML
+/// file default values for those variables by using the *environment* section.
+///
+/// \code
+///   <environment>
+///       <variable name="ISOTOPE" value="Rn222" overwrite="false" />
+///       <variable name="FULLCHAIN" value="on" overwrite="true" />
+///   </environment>
+///
+/// \endcode
+/// 
+/// This section allows to define those variables, that at the same time could allow
+/// us to identify the most important definitions in our RML file. Additionally, we 
+/// can protect the local variable we have defined from the system definition. Therefore,
+/// if the **overwrite** parameter is set as **false**, the external definition of the
+/// environment variable will not have effect on the RML, and the local definition will
+/// not be overwritten.
+/// 
+/// ### The globals metadata section
+///
+/// The *globals* section allows to specify few common definitions used in the REST 
+/// framework. As the output data path, the gas data path, verbose level, etc. An example
+/// of this section definition follows.
+///
+/// \code
+/// <globals>
+///    <parameter name="mainDataPath" value="{REST_DATAPATH}" />
+///    <parameter name="verboseLevel" value="debug" /> // options are : silent, warning, info, debug 
+/// </globals>
+///
+/// \endcode
 ///
 /// ### Using physical units in fields definitions 
 ///
-/// ## Complex metadata description
+/// Some physical parameters need to specify the unit so that the provided value makes 
+/// sense. For example, when defining the electric field we must provide its units.
+///
+/// \code
+/// <parameter name="electricField" value="1000" units="V/cm" />
+/// \endcode
+/// 
+/// The implementation inside TRestMetadata::InitFromConfigFile requires we 
+/// specify that we will read the field value with units, by using the method(s)
+/// TRestMetadata::GetDblParameterWithUnits. If we use this method, and no units
+/// are provided in the RML file REST will complain of the inexistence of the
+/// units field. We can also use fields with units in complex key multi-field 
+/// definitions by using the method(s) TRestMetadata::GetDblFieldValueWithUnits.
+///
+/// The physical field values read in this way will be converted to the standard unit 
+/// system used by REST. REST_Units namespace provides details on the different existing 
+/// units, unit conversion and unit definition. 
+///
+/// When we retrieve any value from a REST member in a TRestMetadata class the value 
+/// will be returned in the default REST units (mm, keV, V/cm, us). We may convert
+/// this member to the desired units (as defined in REST_Units), by doing:
+///
+/// \code
+/// Double_t valueInMeV = value * REST_Units::MeV;
+/// \endcode
 ///
 /// ### Mathematical expression evaluation
 ///
-/// TOBE writen ..
+/// Any field value found inside the RML will be previously evaluated by the ROOT
+/// class TFormula. In case the field is a valid regular expression, the mathematical
+/// formula found in the field value will be substituted by the value returned by
+/// the TFormula::Eval method.
+/// 
+/// The evaluation of complex mathematical expression is done after the replacement
+/// of environment variables in the configuration buffer. Therefore, the use of 
+/// environment variables inside the field computation is allowed. As for example,
+///
+/// \code
+/// <parameter name="circleArea" value="pi * {RADIUS} * {RADIUS}" />
+/// \endcode
+///
+/// where RADIUS would be an environment variable previously defined. Any 
+/// mathematical function allowed by TRestFormula (as sqrt, log) should be allowed 
+/// to be used here.
+/// 
+/// ### Defining internal parameters
+///
+/// Another option to define an internal parameter is using the special key definition
+/// *myParameter*.
+///
+/// \code
+/// <myParameter name="pixelsPerDetector" value="100" />
+/// <myParameter name="detectors" value="5" />
+/// \endcode
+///
+/// The value of a parameter defined this way can be retrieved
+/// at any time, by using TRestMetadata::GetMyParameter method.
+/// This type of parameter will be pre-processed by the RML interpreter
+/// and it can be used later in the same way as environment variables are used.
+/// However, in the case of *myParameter* definition, no braces are necessary inside
+/// other field definitions, as for example:
+///
+/// \code
+/// <parameter name="totalChannels" value="pixelsPerDetector * detectors" />
+/// \endcode
 ///
 /// ### FOR loops definition
 ///
-/// TOBE writen ..
+/// The definition of FOR loops is implemented in RML in order to allow extense
+/// definitions, where many elements may need to be added to an existing array in
+/// our metadata structure. The use of FOR loops allows to introduce more
+/// versatil and extense definitions. Its implementation was fundamentally triggered 
+/// by its use in the construction of complex, multi-channel generic readouts by
+/// TRestReadout.
+/// 
+/// The start of the *for* loop definition is as follows
+///
+/// \code
+/// <for variable="n" from="1" to="5" step="1" > 
+/// \endcode
+///
+/// where we define the name of the *variable* that will be iterated ( *variable="n"* ),
+/// the initial value of the variable *n* ( *from="1"* ), the final value of *n*
+/// ( *to="5"* ), and the step value the variable will be increased in 
+/// each iteration ( *step="1"* ). The for loop continues its executing until the end
+/// condition defined by the *to="X"* statement is not valid anymore. Therefore, in the
+/// previous example the variable *n* will take values 1,2,3,4,5.
+///
+///
+/// All the key structures and parameter definitions found inside the for definition
+/// <code> <for ... >  </for> </code> will be replicated until the *for* loop conditions
+/// is not valid any more. The *variable name* defined can be used inside the field values 
+/// inside the *for* loop definition using square brackets []. Any other named variable
+/// (enviromental variable or internal parameter) will be evaluated as usual.
+///
+/// Nested loops are also possible, as it is shown in the following example
+///
+/// \code
+/// <for variable="nChX" from="1" to="nChannels" step="1" />
+///      <for variable="nChY" from="1" to="nChannels" step="1" />
+///           <readoutChannel id="([nChX]-1)+nChannels*([nChY]-1)" >
+///               <addPixel id="0" origin="(([nChX]-1)*pitch,([nChY]-1)*pitch)" size="(pixelSize,pixelSize)" rotation="0" />
+///           </readoutChannel>
+///      </for>
+///  </for>
+/// \endcode
+///
+/// where *pitch* and *nChannels* are previously defined internal parameters, and *nChX* 
+/// and *nChY* are the *for* loop iteration variables.
 ///
 /// ### Comments support
 /// 
+/// Any not recognized statement written inside a RML file will be just ignored. However, 
+/// any information written in the RML will be stored inside the configuration buffer
+/// in TRestMetadata::configBuffer, anytime we save to disk a TRestMetadata structure
+/// this config buffer is stored and the "original" RML file (after loop expansion, and
+/// variable replacement) can be recovered.
+///
+/// Although we can just write text outside key definition without impact on the read
+/// of the RML key definition statements, we can use the XML-style comments to avoid
+/// some sentences (or sensitive data) to be stored in the config buffer. Therefore, 
+/// any text containned between <code> \<!-- --> </code> will be fully ignored.
 ///
 ///--------------------------------------------------------------------------
 ///
