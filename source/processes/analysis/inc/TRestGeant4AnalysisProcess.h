@@ -23,7 +23,8 @@
 class TRestGeant4AnalysisProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
-        TRestG4Event *fG4Event;
+        TRestG4Event *fInputG4Event;
+        TRestG4Event *fOutputG4Event;
         TRestG4Metadata *fG4Metadata;
 
         std::vector <std::string> fEnergyInObservables;

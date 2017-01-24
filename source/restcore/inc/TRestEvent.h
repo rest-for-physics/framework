@@ -73,9 +73,9 @@ class TRestEvent:public TObject {
         // Must be set on the derived events to remove content
         virtual void Initialize() = 0; 
 
-        virtual void PrintEvent();
+        virtual void PrintEvent( );
 
-        virtual TPad *DrawEvent( ){ return NULL; }
+        virtual TPad *DrawEvent( TString option = "" ){ return NULL; }
 
         //Construtor
         TRestEvent();

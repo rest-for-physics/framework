@@ -85,7 +85,6 @@ int main(int argc,char** argv) {
 
     restRun = new TRestRun( inputConfigFile );
     restRun->SetRunTag( restG4Metadata->GetTitle() );
-    restRun->PrintInfo();
     restRun->OpenOutputFile();
 
     restG4Event = new TRestG4Event( );
@@ -93,6 +92,7 @@ int main(int argc,char** argv) {
     restRun->SetOutputEvent( subRestG4Event );
 
     restRun->AddMetadata( restG4Metadata );
+    restRun->PrintInfo();
 
     restTrack = new TRestG4Track( );
     // }}} 

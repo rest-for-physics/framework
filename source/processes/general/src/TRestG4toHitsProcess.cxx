@@ -108,7 +108,7 @@ TRestEvent* TRestG4toHitsProcess::ProcessEvent( TRestEvent *evInput )
             E = fG4Event->GetTrack(i)->GetHits()->fEnergy[j];
 
             // and write them in the output hits event:
-            fHitsEvent->AddHit (x, y, z, E);
+            if( E > 0 ) fHitsEvent->AddHit (x, y, z, E);
         }
     }
 

@@ -74,7 +74,10 @@ class TRestRun:public TRestMetadata {
         Bool_t fSkipEventTree;
         Bool_t fOverwrite;
 
-        Int_t inputRunNumber;
+        Int_t tmpInputRunNumber;
+        TString tmpOutputFileName;
+        TString tmpOutputDataPath;
+        TString tmpInputFileName;
 
         TTree *fInputEventTree;
         TTree *fOutputEventTree;
@@ -120,7 +123,7 @@ class TRestRun:public TRestMetadata {
 
         TRestEvent *GetEventInput() { return fInputEvent; }
 
-        Int_t GetEventWithID( Int_t eventID, Int_t subEventID = 0 );
+        Int_t GetEventWithID( Int_t eventID, Int_t subEventID = -1 );
         Int_t GetEventWithID( Int_t eventID, TString tag );
 
 
@@ -226,6 +229,18 @@ class TRestRun:public TRestMetadata {
             return -1;
         }
         Int_t GetNumberOfEvents( ) { return GetNumberOfInitialEvents(); }
+
+        TString GetInputEventType( )
+        {
+            if( fContainsEventTree )
+            {
+                TKey *key = GetObjectKeyByClass( "TTree" );
+                std::string name = key->GetName();
+                unsigned int pos = name.find( "Tree" );
+                return (TString) name.substr( 0, pos );
+            }
+            return "";
+        }
 
         TRestMetadata *GetMetadata( TString name );
         TRestMetadata *GetMetadataClass( TString className );

@@ -64,8 +64,6 @@ class TRestRawToSignalProcess:public TRestEventProcess {
 
    void LoadConfig( std::string cfgFilename, std::string name = "" );
 
-   virtual Bool_t isExternal() { return true; }
-   
    void PrintMetadata();
    
    Bool_t OpenInputBinFile(TString fName);
