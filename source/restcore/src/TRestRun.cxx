@@ -204,9 +204,15 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
         high_resolution_clock::time_point t1 = high_resolution_clock::now();
 #endif
 
+    if( this->GetVerboseLevel() >= REST_Debug )
+        cout << "Event ID : " << fInputEvent->GetID() << endl;
+
 	for( unsigned int j = 0; j < fEventProcess.size(); j++ )
 	{
 		fEventProcess[j]->BeginOfEventProcess();
+
+        if( this->GetVerboseLevel() >= REST_Debug )
+            cout << "Starting process : " << fEventProcess[j]->GetName() << endl;
 		processedEvent = fEventProcess[j]->ProcessEvent( processedEvent );
 		if( processedEvent == NULL ) break;
 		fEventProcess[j]->EndOfEventProcess();
