@@ -58,7 +58,7 @@
 /// TRestGas section, assuring first that the addition of the gas fractions equals 1.
 /// Any gas component defined at the gases table in the  
 /// <a href="https://garfieldpp.web.cern.ch/garfieldpp/documentation/"> Garfield++ 
-/// user guide </a> can be used in REST. It uses the same gas component name convention.
+/// user guide </a> can be used in REST. We use the same gas component name convention.
 /// 
 /// ### Pre-generated gas files
 ///
@@ -101,7 +101,7 @@
 ///
 /// \endcode
 ///
-/// where *gasName* must be an existing TRestGas section with that name, *gasName* could 
+/// where *GasName* must be an existing TRestGas section with that name, *GasName* could 
 /// be for example *Xenon 10-10E3V/cm*, found at *gases.rml*.
 ///
 /// By default, the gas generation is disabled. So that we are warned by default of the 
@@ -113,6 +113,37 @@
 /// TRestGas *gas = new TRestGas( "config.rml", "GasName", true );
 ///
 /// \endcode
+/// 
+/// ### Using TRestGas to obtain gas properties
+///
+/// Once the gas file has been generated we can use it directly calling to the same RML gas 
+/// section used to generate it.
+///
+/// \code
+/// 
+/// TRestGas *gas = new TRestGas( "config.rml", "GasName" );
+///
+/// \endcode
+/// 
+/// we can then modify some gas conditions as, i.e. the pressure,
+///
+/// \code
+/// 
+/// gas->SetPressure( 5. ); // To set the gas pressure to 5 bar
+///
+/// \endcode
+///
+/// then we could get the gas mixture properties, as drift velocity,
+/// or diffusion coefficients, at 5 bar by using
+///
+/// \code
+/// 
+/// gas->GetDriftVelocity( 100. ); // To get the electron drift velocity at 100V/cm
+/// gas->GetLongitudinalDiffusion( 100. ); // To get the longitudinal diffusion coefficient at 100V/cm
+///
+/// \endcode
+/// 
+/// 
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -435,7 +466,7 @@ void TRestGas::GenerateGasFile( )
 /// \brief Defines the pressure of the gas.
 ///
 /// The gas pressure is used during gas file generation to define the E over P range.
-/// Once tha gas file has been loaded, the pressure might be changed at any time, the
+/// Once the gas file has been loaded, the pressure might be changed at any time, the
 /// gas properties requested will be valid for the given pressure.
 /// 
 /// \param pressure The new pressure of the gas in atm.
