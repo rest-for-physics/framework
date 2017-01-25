@@ -176,6 +176,7 @@ TRestMetadata::TRestMetadata()
 
     fGasDataPath = (TString) getenv("REST_PATH") + (TString) "/inputData/gasFiles/";
 
+    fVerboseLevel = REST_Silent;
 }
 
 ///////////////////////////////////////////////
@@ -200,6 +201,8 @@ TRestMetadata::TRestMetadata( const char *cfgFileName)
     fStore = true;
 
     fGasDataPath = (TString) getenv("REST_PATH") + (TString) "/inputData/gasFiles/";
+
+    fVerboseLevel = REST_Silent;
 }
 
 ///////////////////////////////////////////////
@@ -578,6 +581,11 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
             configBuffer = "";
         }
     }
+
+    sectionDefinition = GetKEYDefinition( "section", configBuffer );
+    string debugStr = GetFieldValue( "debug", sectionDefinition );
+    if ( debugStr == "true" )
+       fVerboseLevel = REST_Debug;
 
     if( configBuffer == "" )
     {
@@ -1112,7 +1120,7 @@ string TRestMetadata::GetParameter( string parName, size_t &pos, string inputStr
     }
     while( parameterString.length() > 0 );
 
-    cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
+    cout << fSectionName << " Parameter (" << parName << ") NOT found" << endl;
     return "";
 }
 
