@@ -149,6 +149,26 @@
 /// if the **overwrite** parameter is set as **false**, the external definition of the
 /// environment variable will not have effect on the RML, and the local definition will
 /// not be overwritten.
+///
+/// ### Including external RML files in a main RML file
+///
+/// We have the possibility to add several section definitions in an external file, and then include,
+/// or link, them in a main indexing file. We should define the name of the section we want to include,
+/// and the file where we can find the real complete metadata description.
+///
+/// For example, the following code lines would implement the readout and gas definitions found in 
+/// external files.
+///
+/// \code
+///
+/// <section TRestReadout nameref="Readout-PANDA_3MM_Single" file="{REST_PATH}/inputData/definitions/readouts.rml"> </section>
+///
+/// <section TRestGas nameref="Xenon-TMA 3Pct 10-10E3V/cm" file="{REST_PATH}/inputData/definitions/gases.rml"> </section>
+///
+/// \endcode
+///
+/// This link is made by definning the *nameref* and *file* fields in the section definition. It is
+/// still important to close the section definition using </section>.
 /// 
 /// ### The globals section
 ///
@@ -159,10 +179,32 @@
 /// \code
 /// <globals>
 ///    <parameter name="mainDataPath" value="{REST_DATAPATH}" />
+///    <parameter name="gasDataPath" value="{GAS_PATH}" /> // allows to modify the default gas path
 ///    <parameter name="verboseLevel" value="debug" /> // options are : silent, warning, info, debug 
 /// </globals>
-///
 /// \endcode
+///
+/// The global section will have effect on *all the metadata structures* (or sections) that are
+/// defined in a same RML file. It does not affect to other possible linked sections defined by 
+/// reference using for example nameref.
+///
+/// ### Definning the output level
+///
+/// We can change the amount of output REST will print on screen by definning different verbose
+/// levels. The *verboseLevel* defined inside the *globals* section will be the default output
+/// level for all the metadata sections defined in that RML file. 
+///
+/// However, we can define the verbose level for any particular metadata structure (including 
+/// processes, since they derive from TRestMetadata ). In order to change the output level for
+/// a particular section we must add the *verboseLevel* field in its definition.
+///
+/// The following line would print on screen any debug message implemented in 
+/// TRestSignalAnalysisProcess.
+///
+/// \code
+/// <section TRestSignalAnalysisProcess name="sgnlAna" title="Data analysis" verboseLevel="debug" >
+/// \endcode
+///
 ///
 /// ### Using physical units in fields definitions 
 ///
@@ -213,7 +255,7 @@
 /// 
 /// ### Defining internal parameters
 ///
-/// Another option to define an internal parameter is using the special key definition
+/// Another option is to define an internal parameter by using the special key definition
 /// *myParameter*.
 ///
 /// \code
@@ -1284,7 +1326,8 @@ string TRestMetadata::GetParameter( string parName, size_t &pos, string inputStr
     }
     while( parameterString.length() > 0 );
 
-    cout << fSectionName << " Parameter (" << parName << ") NOT found" << endl;
+    if( this->GetVerboseLevel() >= REST_Warning )
+        cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
     return "";
 }
 
@@ -1312,13 +1355,14 @@ Double_t TRestMetadata::GetDblParameterWithUnits( std::string parName, size_t &p
         }
         else
         {
-            if( debug > 1 ) cout << " I did not found" << endl;
-            cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
+            if( this->GetVerboseLevel() >= REST_Warning )
+                cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
             return PARAMETER_NOT_FOUND_DBL;
         }
     }
 
-    cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
+    if( this->GetVerboseLevel() >= REST_Warning )
+        cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
     return PARAMETER_NOT_FOUND_DBL;
 }
 
@@ -1346,13 +1390,15 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits( std::string parName, size
         }
         else
         {
-            if( debug > 1 ) cout << " I did not found" << endl;
-            cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
+            if( this->GetVerboseLevel() >= REST_Warning )
+                cout << "Parameter (" << parName << ") NOT found" << endl;
             return TVector2(-1,-1);
         }
     }
 
-    cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
+    if( this->GetVerboseLevel() >= REST_Warning )
+        cout << "Parameter (" << parName << ") NOT found" << endl;
+
     return TVector2(-1,-1);
 }
 
@@ -1380,13 +1426,14 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits( std::string parName, size
         }
         else
         {
-            if( debug > 1 ) cout << " I did not find" << endl;
-            cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
+            if( this->GetVerboseLevel() >= REST_Warning )
+                cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
             return TVector3( -1, -1, -1 );
         }
     }
 
-    cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
+    if( this->GetVerboseLevel() >= REST_Warning )
+        cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
     return TVector3( -1, -1, -1 );;
 }
 
@@ -1442,8 +1489,11 @@ string TRestMetadata::GetParameter( string parName, TString defaultValue )
     }
     debug = 0;
 
-    cout << "Parameter (" << parName << ") NOT found" << endl;
-    cout << "Returning default value (" << defaultValue << ")" << endl;
+    if( this->GetVerboseLevel() >= REST_Warning )
+    {
+        cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
+        cout << "Returning default value (" << defaultValue << ")" << endl;
+    }
     return defaultValue.Data();
 }
 
@@ -1547,8 +1597,11 @@ Double_t TRestMetadata::GetDblParameterWithUnits( string parName, Double_t defau
         }
     }
 
-    cout << "Parameter (" << parName << ") NOT found" << endl;
-    cout << "Returning default value (" << defaultValue << ")" << endl;
+    if( this->GetVerboseLevel() >= REST_Warning )
+    {
+        cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
+        cout << "Returning default value (" << defaultValue << ")" << endl;
+    }
     return defaultValue;
 }
 
@@ -1590,8 +1643,11 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits( string parName, TVector2 
         }
     }
 
-    cout << "Parameter (" << parName << ") NOT found" << endl;
-    cout << "Returning default value (" << defaultValue.X() << " , " << defaultValue.Y() << ")" << endl;
+    if( this->GetVerboseLevel() >= REST_Warning )
+    {
+        cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
+        cout << "Returning default value (" << defaultValue.X() << " , " << defaultValue.Y() << ")" << endl;
+    }
     return defaultValue;
 }
 
@@ -1633,8 +1689,11 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits( string parName, TVector3 
         }
     }
 
-    cout << "Parameter (" << parName << ") NOT found" << endl;
-    cout << "Returning default value (" << defaultValue.X() << " , " << defaultValue.Y() << " , " << defaultValue.Z() << ")" << endl;
+    if( this->GetVerboseLevel() >= REST_Warning )
+    {
+        cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
+        cout << "Returning default value (" << defaultValue.X() << " , " << defaultValue.Y() << " , " << defaultValue.Z() << ")" << endl;
+    }
     return defaultValue;
 }
 
@@ -1659,7 +1718,9 @@ string TRestMetadata::GetFieldFromKEY( string parName, string key )
             return GetFieldValue( parName, parameterString );
     }
 
-    cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
+    if( this->GetVerboseLevel() >= REST_Warning )
+        cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
+
     return "";
 }
 
