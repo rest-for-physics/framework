@@ -74,7 +74,6 @@ void TRestTrackPathMinimizationProcess::LoadConfig( std::string cfgFilename, std
 //______________________________________________________________________________
 void TRestTrackPathMinimizationProcess::InitProcess()
 {
-    cout << __PRETTY_FUNCTION__ << endl;
 }
 
 //______________________________________________________________________________
@@ -88,9 +87,9 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
 {
     fInputTrackEvent = (TRestTrackEvent *) evInput;
 
-    /* Debug output  */
-    cout << "Number of tracks : " << fInputTrackEvent->GetNumberOfTracks() << endl;
-    cout << "*****************************" << endl;
+
+    if( this->GetVerboseLevel() >= REST_Debug )
+        cout << "TRestTrackPathMinimizationProcess. Number of tracks : " << fInputTrackEvent->GetNumberOfTracks() << endl;
 
     // Copying the input tracks to the output track
     for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
@@ -104,15 +103,18 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
         TRestVolumeHits *hits = fInputTrackEvent->GetTrack(tck)->GetVolumeHits();
         Int_t nHits = hits->GetNumberOfHits();
 
-        /* {{{ Debug output 
-        cout << "Input hits" << endl;
-        Int_t pId = fInputTrackEvent->GetTrack( tck )->GetParentID();
-        cout << "Track : " << tck << " TrackID : " << tckId << " ParentID : " << pId << endl;
-        cout << "-----------------" << endl;
-        hits->PrintHits();
-        cout << "-----------------" << endl;
-        GetChar();
-         }}} */
+        /* {{{ Debug output */
+
+        if( this->GetVerboseLevel() >= REST_Debug )
+        {
+            Int_t pId = fInputTrackEvent->GetTrack( tck )->GetParentID();
+            cout << "Track : " << tck << " TrackID : " << tckId << " ParentID : " << pId << endl;
+            cout << "-----------------" << endl;
+            hits->PrintHits();
+            cout << "-----------------" << endl;
+            GetChar();
+        }
+        /* }}} */
 
         Float_t x[fMaxNodes], y[fMaxNodes], z[fMaxNodes];
 
@@ -138,19 +140,22 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
         {
             if( isYZ && rval == 0 )
             {
-                cout << "Minimizing track in Y" << endl;
+                if( this->GetVerboseLevel() >= REST_Debug )
+                    cout << "Minimizing track in Y" << endl;
                 rval = TrackMinimization_2D( yInt, zInt, nHits, bestPath );
             }
 
             if( isXZ && rval == 0 )
             {
-                cout << "Minimizing track in X" << endl;
+                if( this->GetVerboseLevel() >= REST_Debug )
+                    cout << "Minimizing track in X" << endl;
                 rval = TrackMinimization_2D( xInt, zInt, nHits, bestPath );
             }
 
             if( isXYZ && rval == 0 )
             {
-                cout << "Minimizing track in XYZ" << endl;
+                if( this->GetVerboseLevel() >= REST_Debug )
+                    cout << "Minimizing track in XYZ" << endl;
                 rval = TrackMinimization_3D( xInt, yInt, zInt, nHits, bestPath );
             }
         }

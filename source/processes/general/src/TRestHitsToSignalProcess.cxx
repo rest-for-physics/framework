@@ -207,7 +207,11 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
 
         //fSignalEvent->PrintEvent();
 
- //       cout << "Number of signals inside event : " << fSignalEvent->GetNumberOfSignals() << endl;
+        if( this->GetVerboseLevel() >= REST_Debug )
+        {
+            cout << "TRestHitsToSignalProcess : Number of signals added : " << fSignalEvent->GetNumberOfSignals() << endl;
+            cout << "TRestHitsToSignalProcess : Total signals integral : " << fSignalEvent->GetIntegral() << endl;
+        }
 
         return fSignalEvent;
 }
