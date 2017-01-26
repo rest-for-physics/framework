@@ -28,6 +28,7 @@ using namespace chrono;
 int deltaTime = 0;
 int writeTime = 0;
 int readTime = 0;
+high_resolution_clock::time_point tS, tE;
 #endif
 
 const int debug = 0;
@@ -205,17 +206,45 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 #endif
 
     if( this->GetVerboseLevel() >= REST_Debug )
-        cout << "Event ID : " << fInputEvent->GetID() << endl;
+    {
+        cout << "+------------------------------------------------------+" << endl;
+        cout << "Starting to process event with ID : " << fInputEvent->GetID() << endl;
+        cout << "+------------------------------------------------------+" << endl;
+    }
+
+    if( this->GetVerboseLevel() >= REST_Info )
+        fInputEvent->PrintEvent();
 
 	for( unsigned int j = 0; j < fEventProcess.size(); j++ )
 	{
 		fEventProcess[j]->BeginOfEventProcess();
 
         if( this->GetVerboseLevel() >= REST_Debug )
-            cout << "Starting process : " << fEventProcess[j]->GetName() << endl;
+        {
+            cout << "Starting process " << j << " : " << fEventProcess[j]->GetName() << endl;
+            cout << "+------------------------------------------------------+" << endl;
+            cout << "Process output level : " << fEventProcess[j]->GetVerboseLevelString() << endl;
+#ifdef TIME_MEASUREMENT
+            tS = high_resolution_clock::now();
+#endif
+        }
 		processedEvent = fEventProcess[j]->ProcessEvent( processedEvent );
 		if( processedEvent == NULL ) break;
 		fEventProcess[j]->EndOfEventProcess();
+
+        if( this->GetVerboseLevel() >= REST_Debug )
+        {
+#ifdef TIME_MEASUREMENT
+            tE = high_resolution_clock::now();
+            cout << "Process time in ms : " <<  (double) duration_cast<microseconds>( tE - tS ).count() / 1000. << endl;;
+#endif
+            cout << "Ending process " << j << " : " << fEventProcess[j]->GetName() << endl;
+            cout << "+------------------------------------------------------+" << endl;
+
+            if( fEventProcess[j]->GetVerboseLevel() >= REST_Debug )
+                GetChar();
+
+        }
 	}
 
 #ifdef TIME_MEASUREMENT
