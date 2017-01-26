@@ -423,6 +423,57 @@ TKey *TRestRun::GetObjectKeyByName( TString name )
     return NULL;
 
 }
+std::vector <std::string> TRestRun::GetMetadataStructureNames( ) 
+{ 
+    std::vector <std::string> strings;
+
+    for( int n = 0; n < GetNumberOfMetadataStructures(); n++ )
+        strings.push_back( fMetadata[n]->GetName() );
+
+    for( int n = 0; n < GetNumberOfHistoricMetadataStructures(); n++ )
+        strings.push_back( fHistoricMetadata[n]->GetName() );
+
+    return strings;
+}
+
+std::vector <std::string> TRestRun::GetMetadataStructureTitles( ) 
+{ 
+    std::vector <std::string> strings;
+
+    for( int n = 0; n < GetNumberOfMetadataStructures(); n++ )
+        strings.push_back( fMetadata[n]->GetTitle() );
+
+    for( int n = 0; n < GetNumberOfHistoricMetadataStructures(); n++ )
+        strings.push_back( fHistoricMetadata[n]->GetTitle() );
+
+    return strings;
+}
+
+std::vector <std::string> TRestRun::GetProcessNames( ) 
+{ 
+    std::vector <std::string> strings;
+
+    for( int n = 0; n < GetNumberOfProcesses(); n++ )
+        strings.push_back( fEventProcess[n]->GetName() );
+
+    for( int n = 0; n < GetNumberOfHistoricProcesses(); n++ )
+        strings.push_back( fHistoricEventProcess[n]->GetName() );
+
+    return strings;
+}
+
+std::vector <std::string> TRestRun::GetProcessTitles( ) 
+{ 
+    std::vector <std::string> strings;
+
+    for( int n = 0; n < GetNumberOfProcesses(); n++ )
+        strings.push_back( fEventProcess[n]->GetTitle() );
+
+    for( int n = 0; n < GetNumberOfHistoricProcesses(); n++ )
+        strings.push_back( fHistoricEventProcess[n]->GetTitle() );
+
+    return strings;
+}
 
 TRestMetadata *TRestRun::GetMetadata( TString name )
 {

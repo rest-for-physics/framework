@@ -110,6 +110,16 @@ class TRestRun:public TRestMetadata {
         void ProcessEvents( Int_t firstEvent = 0, Int_t eventsToProcess = 0, Int_t lastEvent = 0 );
         
         Int_t GetNumberOfProcesses() { return fEventProcess.size(); }
+        Int_t GetNumberOfMetadataStructures() { return fMetadata.size(); }
+        
+        Int_t GetNumberOfHistoricProcesses() { return fHistoricEventProcess.size(); }
+        Int_t GetNumberOfHistoricMetadataStructures() { return fHistoricMetadata.size(); }
+
+        std::vector <std::string> GetMetadataStructureNames( );
+        std::vector <std::string> GetMetadataStructureTitles( );
+
+        std::vector <std::string> GetProcessNames( );
+        std::vector <std::string> GetProcessTitles( );
 
         // File input/output
         void OpenOutputFile( );
