@@ -334,6 +334,7 @@ TRestMetadata::TRestMetadata()
 
     fGasDataPath = (TString) getenv("REST_PATH") + (TString) "/inputData/gasFiles/";
 
+    fVerboseLevel = REST_Silent;
 }
 
 ///////////////////////////////////////////////
@@ -358,6 +359,8 @@ TRestMetadata::TRestMetadata( const char *cfgFileName)
     fStore = true;
 
     fGasDataPath = (TString) getenv("REST_PATH") + (TString) "/inputData/gasFiles/";
+
+    fVerboseLevel = REST_Silent;
 }
 
 ///////////////////////////////////////////////
@@ -736,6 +739,17 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
             configBuffer = "";
         }
     }
+
+    sectionDefinition = GetKEYDefinition( "section", configBuffer );
+    string debugStr = GetFieldValue( "verboseLevel", sectionDefinition );
+    if ( debugStr == "silent" )
+       fVerboseLevel = REST_Silent;
+    if ( debugStr == "info" )
+       fVerboseLevel = REST_Info;
+    if ( debugStr == "warning" )
+       fVerboseLevel = REST_Warning;
+    if ( debugStr == "debug" )
+       fVerboseLevel = REST_Debug;
 
     if( configBuffer == "" )
     {
@@ -1270,7 +1284,7 @@ string TRestMetadata::GetParameter( string parName, size_t &pos, string inputStr
     }
     while( parameterString.length() > 0 );
 
-    cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
+    cout << fSectionName << " Parameter (" << parName << ") NOT found" << endl;
     return "";
 }
 
@@ -2202,5 +2216,16 @@ void TRestMetadata::PrintMetadata()
         cout << "-----------------------" << endl;
         cout << "Config file : " << fConfigFileName << endl;
         cout << "Section name : " << fSectionName << endl;        // section name given in the constructor of TRestSpecificMetadata
+}
+
+TString TRestMetadata::GetVerboseLevelString( )
+{
+    TString level = "unknown";
+    if( this->GetVerboseLevel() == REST_Debug ) level = "debug";
+    if( this->GetVerboseLevel() == REST_Info ) level = "info";
+    if( this->GetVerboseLevel() == REST_Warning ) level = "warning";
+    if( this->GetVerboseLevel() == REST_Silent ) level = "silent";
+
+    return level;
 }
 

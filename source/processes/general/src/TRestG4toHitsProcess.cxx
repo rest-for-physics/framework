@@ -112,6 +112,12 @@ TRestEvent* TRestG4toHitsProcess::ProcessEvent( TRestEvent *evInput )
         }
     }
 
+    if( this->GetVerboseLevel() >= REST_Debug ) 
+    {
+        cout << "TRestG4toHitsProcess. Hits added : " << fHitsEvent->GetNumberOfHits() << endl;
+        cout << "TRestG4toHitsProcess. Hits total energy : " << fHitsEvent->GetEnergy() << endl;
+    }
+
     return fHitsEvent;
 }
 

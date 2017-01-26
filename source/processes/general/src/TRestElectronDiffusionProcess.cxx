@@ -182,6 +182,12 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 
     if( fOutputHitsEvent->GetNumberOfHits() == 0 ) return NULL;
 
+    if( this->GetVerboseLevel() >= REST_Debug ) 
+    {
+        cout << "TRestElectronDiffusionProcess. Hits added : " << fOutputHitsEvent->GetNumberOfHits() << endl;
+        cout << "TRestElectronDiffusionProcess. Hits total energy : " << fOutputHitsEvent->GetEnergy() << endl;
+    }
+
     return fOutputHitsEvent;
 }
 
