@@ -583,8 +583,14 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
     }
 
     sectionDefinition = GetKEYDefinition( "section", configBuffer );
-    string debugStr = GetFieldValue( "debug", sectionDefinition );
-    if ( debugStr == "true" )
+    string debugStr = GetFieldValue( "verboseLevel", sectionDefinition );
+    if ( debugStr == "silent" )
+       fVerboseLevel = REST_Silent;
+    if ( debugStr == "info" )
+       fVerboseLevel = REST_Info;
+    if ( debugStr == "warning" )
+       fVerboseLevel = REST_Warning;
+    if ( debugStr == "debug" )
        fVerboseLevel = REST_Debug;
 
     if( configBuffer == "" )
@@ -2052,5 +2058,16 @@ void TRestMetadata::PrintMetadata()
         cout << "-----------------------" << endl;
         cout << "Config file : " << fConfigFileName << endl;
         cout << "Section name : " << fSectionName << endl;        // section name given in the constructor of TRestSpecificMetadata
+}
+
+TString TRestMetadata::GetVerboseLevelString( )
+{
+    TString level = "unknown";
+    if( this->GetVerboseLevel() == REST_Debug ) level = "debug";
+    if( this->GetVerboseLevel() == REST_Info ) level = "info";
+    if( this->GetVerboseLevel() == REST_Warning ) level = "warning";
+    if( this->GetVerboseLevel() == REST_Silent ) level = "silent";
+
+    return level;
 }
 

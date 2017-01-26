@@ -150,6 +150,8 @@ class TRestMetadata:public TNamed {
 
         /// Gets the verbose level used to dump on screen different levels of information
         REST_Verbose_Level GetVerboseLevel( ) { return fVerboseLevel; }
+        
+        TString GetVerboseLevelString( );
 
         /// Gets a string with the path used for data storage
         TString GetMainDataPath() { return fDataPath; }
