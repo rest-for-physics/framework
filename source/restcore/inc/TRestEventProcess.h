@@ -31,7 +31,7 @@
 class TRestEventProcess:public TRestMetadata {
 	protected:
 		Int_t fStatusOfProcess;	///< integer to hold the status of task: 0 = successful >0 = some error happened
-		Int_t fVerbose;              ///<! Verbose level of the process execution [0...3]
+		Int_t fVerbose;              ///<! Verbose level of the process execution [0...3] OBSOLETE!!
 
 		virtual void InitFromConfigFile() = 0;
 
@@ -90,7 +90,7 @@ class TRestEventProcess:public TRestMetadata {
 
 		//Getters
 		Int_t GetStatus() { return fStatusOfProcess; }
-		Int_t GetVerboseLevel() { return fVerbose; } 
+	//	Int_t GetVerboseLevel() { return fVerbose; } 
 		//Setters
 		void SetVerboseLevel(Int_t verbose) { fVerbose = verbose; }
 

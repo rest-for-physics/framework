@@ -58,6 +58,7 @@ ClassImp(TRestEventProcess)
 TRestEventProcess::TRestEventProcess()
 {
     fIsExternal = false;
+    fVerbose = -1;
 }
 
 //////////////////////////////////////////////////////////////////////////
