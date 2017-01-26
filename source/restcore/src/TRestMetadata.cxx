@@ -506,7 +506,9 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
 
         pos = 0;
         fDataPath = GetParameter( "mainDataPath", pos, configBuffer );
+        pos = 0;
         fGasDataPath = GetParameter( "gasDataPath", pos, configBuffer );
+        pos = 0;
         string vLevelString  = GetParameter( "verboseLevel", pos, configBuffer );
 
         if( vLevelString == "silent" )
@@ -1100,21 +1102,15 @@ string TRestMetadata::GetParameter( string parName, size_t &pos, string inputStr
      *
      * */
 
-    while( 1 )
+    string parameterString;
+    do
     {
-        string parameterString = GetKEYDefinition( "parameter", pos, inputString );
+        parameterString = GetKEYDefinition( "parameter", pos, inputString );
 
         if( GetFieldValue( "name", parameterString ) == parName )
-        {
             return GetFieldValue( "value", parameterString );
-        }
-        else
-        {
-            if( debug > 1 ) cout << " I did not found" << endl;
-            cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
-            return "";
-        }
     }
+    while( parameterString.length() > 0 );
 
     cout << "Something went wrong. Parameter (" << parName << ") NOT found" << endl;
     return "";
