@@ -48,6 +48,35 @@ cd REST_v2/scripts/install/
 
 **Note:** you will need to provide the rights to install packages on your system, you will be prompted for a password.
 
+## Quick ROOT, Geant4 and Garfield installation
+
+If you installed all the required software in the previous step, and if you are feeling lucky, you can try to launch the following three scripts to install ROOT, Garfield++ and Geant4. These script will always install the recommended version to be used with REST.
+
+\code
+./installROOT.sh
+source $HOME/apps/root_v5.34.32/install/bin/thisroot.sh
+./installGarfield.sh
+./installGeant4.sh
+\endcode
+
+If you succeed to execute these scripts without any error, you will end up with the installation of ROOT, Garfield, and Geant4 under your $HOME/apps.
+
+You should add the following lines to your $HOME/.bashrc file,
+
+\code
+
+source /programas/root34.32/root/bin/thisroot.sh
+
+export GARFIELD_HOME=$HOME/apps/garfield
+export HEED_DATABASE=$GARFIELD_HOME/Heed/heed++/database
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GARFIELD_HOME/lib
+
+source $HOME/apps/geant4_10_02_p02-install/bin/geant4.sh
+
+\endcode
+
+then re-launch your terminal. You can directly proceed to the compilation and installation of REST, described in the section "Building and installing REST".
+
 ### Install ROOT
 
 The installation of ROOT 5.34/32 with GDML support (and gcc compiler version 4.8) is the recommended setup to be used with REST.
@@ -92,11 +121,12 @@ REST uses [GDML] (http://gdml.web.cern.ch/GDML/) to encode geometry information.
 
 ### Install Garfield++
 
-REST provides access to Garfield++ objects and some metadata structures as TRestGas use Garfield++ to generate gas properties using Magboltz. Follow instructions in the link, it is recommended to follow the alternative installation scheme using cmake which generates the dynamic libGarfield.so library:
-
+REST provides access to Garfield++ objects and some metadata structures as TRestGas use Garfield++ to generate gas properties using Magboltz. You can follow the official instructions provided in this link.
 *  [Garfield++ getting started] (http://garfieldpp.web.cern.ch/garfieldpp/getting-started/).
 
-It is **recommended** to install the release <code>v1r0</code> that can be downloaded by executing:
+\warning It is mandatory to follow the alternative installation scheme using cmake which generates the dynamic libGarfield.so library:
+
+It is **highly recommended** to install the release <code>v1r0</code> that can be downloaded by executing:
 
 \code
 svn co http://svn.cern.ch/guest/garfield/tags/v1r0 $GARFIELD_HOME
