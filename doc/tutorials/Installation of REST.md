@@ -33,7 +33,7 @@ And, finally, clone the repository in a local folder:
 
 You will have downloaded the code into a new folder named <code>REST_v2</code>, and you should be now in the master branch
 
-**Note:** if you get a request for a password here is because you didnt add your previoustly generated SSH key to your git profile. Go to the [REST Git web interface] (https://sultan.unizar.es:4443/), go to your profile, *profile settings* at the top-right corner, go to *SSH Keys* tab, and add the public SSH key you generated previously.
+\warning if you get a request for a password here is because you didnt add your previoustly generated SSH key to your git profile. Go to the [REST Git web interface] (https://sultan.unizar.es:4443/), go to your profile, *profile settings* at the top-right corner, go to *SSH Keys* tab, and add the public SSH key you generated previously.
 
 ## Preparing the environment
 
@@ -46,7 +46,9 @@ cd REST_v2/scripts/install/
 ./installRequiredSoftware.sh
 \endcode
 
-**Note:** you will need to provide the rights to install packages on your system, you will be prompted for a password.
+\warning By using this script you will be prompted for a password, in order to gain the rights to install packages on your system.
+
+\warning If you are not using ubuntu/debian, or apt-like software management, you will need to check the packages being installed by the installRequiredSoftware.sh, and install them following your system packaging system.
 
 ## Quick ROOT, Geant4 and Garfield installation
 
@@ -119,6 +121,8 @@ REST uses [GDML] (http://gdml.web.cern.ch/GDML/) to encode geometry information.
 
 **Note:** It is a good option to install the latest consolidated release of ROOT. For the moment, REST has been successfully tested with the last ROOT5 version (*ROOT version 5.34/32*). Working with ROOT6 has not been tested yet.
 
+\warning You should choose **cmake** compilation scheme in ROOT so that REST compilation recognizes the ROOT installation.
+
 ### Install Garfield++
 
 REST provides access to Garfield++ objects and some metadata structures as TRestGas use Garfield++ to generate gas properties using Magboltz. You can follow the official instructions provided in this link.
@@ -148,7 +152,7 @@ cd REST_v2/scripts/install
 ./installGarfield.sh
 \endcode
 
-**Note:** Make sure you load the Garfield++ env variables in your environment by openning a new terminal.
+\warning Make sure you load the Garfield++ env variables in your environment by openning a new terminal.
 
 ### Install Geant4 (optional)
 
@@ -182,8 +186,7 @@ After the installation you should add the following line to your <code> .bashrc 
 source $HOME/apps/geant4_10_02_p02-install/bin/geant4.sh
 \endcode
 
-**Note:** Make sure you load the Garfield++ env variables in your environment by openning a new terminal.
-
+\warning Make sure you load the Geant4 env variables in your environment by openning a new terminal.
 
 ## Building and installing REST
 
@@ -205,13 +208,15 @@ We then create the compilation environment using cmake (i.e., we define the REST
  cmake -DCMAKE_CXX_COMPILER=g++-4.8 -DINSTALL_PREFIX=/full/path/to/install/destination/ $REST_v2
 \endcode
 
-Where *DINSTALL_PREFIX* will be the directory where headers, libraries and other required files will be installed. You can choose for example $REST_v2/install. It is **important** that full path to installation is specified in the INSTALL_PREFIX definition. Since *../* points to $REST_v2, you could execute
+Where *DINSTALL_PREFIX* will be the directory where headers, libraries and other required files will be installed. You can choose for example $REST_v2/install. Since *../* points to $REST_v2, you could execute
 
 \code
  cmake -DCMAKE_CXX_COMPILER=g++-4.8 -DINSTALL_PREFIX=$REST_v2/install ../
 \endcode
 
 being $REST_v2 the full path directory pointing to your REST_v2 directory.
+
+\warning It is **important** that full path to installation is specified in the INSTALL_PREFIX definition.
 
 After this is done, you can launch the compilation of REST,
 
@@ -225,7 +230,7 @@ and install of REST at the previously specified *INSTALL_PREFIX*,
  make install
 \endcode
 
-**Note:** You will need to have write access to the final installation destination.
+\warning You will need to have write access to the final installation destination.
 
 
 Finally, you must add the following line to your .bashrc so that REST environment is loaded 
@@ -236,7 +241,13 @@ Finally, you must add the following line to your .bashrc so that REST environmen
 
 Where $REST_v2 must be sustituted by the full path pointing your REST directory. 
 
-Then restart a new terminal to load REST.
+Then restart a new terminal to load REST. If everything went fine you should be able to launch a root session with REST libraries/scripts loaded,
+
+\code
+restRoot
+\endcode
+
+and a root terminal should open without any message errors.
 
 If you reached this point you have REST libraries and binaries operational... Congratulations!
 
