@@ -162,7 +162,7 @@ class TRestLinearizedTrackEvent: public TRestEvent {
             return fMaxTransversalDeposit;
         }
 
-        TPad *DrawEvent();
+        TPad *DrawEvent( TString option = "");
                 
         //Construtor
         TRestLinearizedTrackEvent();

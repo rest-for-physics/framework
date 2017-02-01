@@ -199,6 +199,7 @@ class TRestG4Event: public TRestEvent {
 
         void PrintEvent();
 
+	TPad *DrawEvent( TString option = "" ) { std::cout << "TRestG4Event::DrawEvent not implemented. TODO" << std::endl; return NULL; }
 
         //Construtor
         TRestG4Event();
