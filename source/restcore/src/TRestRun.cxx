@@ -311,8 +311,6 @@ void TRestRun::AddProcess( TRestEventProcess *process, string cfgFilename, strin
     // it is not intended for storage, just for the processes so that they are aware of all metadata information.
 
     vector <TRestMetadata*> metadata;
- //   if( fInputFile != NULL ) metadata = GetAllMetadataStructures();
-
     for( size_t i = 0; i < fMetadata.size(); i++ )
         metadata.push_back( fMetadata[i] );
     for( size_t i = 0; i < fHistoricMetadata.size(); i++ )
@@ -460,82 +458,15 @@ TKey *TRestRun::GetObjectKeyByName( TString name )
     return NULL;
 
 }
-
-std::vector <TRestMetadata *> TRestRun::GetAllMetadataStructures( )
-{
-    std::vector <TRestMetadata *> md;
-    if( fInputFile == NULL )
-    {
-	cout << "TRestRun::GetMetadataStructures. Warning no input file open!" << endl;
-	return md;
-    }
-
-    TIter nextkey( fInputFile->GetListOfKeys() );
-    TKey *key;
-    while ( (key = (TKey*) nextkey() ) )
-    {
-        TString cName (key->GetClassName());
-
-	if ( ( (TObject *) fInputFile->Get( key->GetName() ))->InheritsFrom( "TRestMetadata" ) )
-            md.push_back( (TRestMetadata *) fInputFile->Get( key->GetName() ) );
-    }
-
-    return md;
-}
-
-std::vector <TRestMetadata *> TRestRun::GetPureMetadataStructures( )
-{
-    std::vector <TRestMetadata *> md;
-    if( fInputFile == NULL )
-    {
-	cout << "TRestRun::GetMetadataStructures. Warning no input file open!" << endl;
-	return md;
-    }
-
-    TIter nextkey( fInputFile->GetListOfKeys() );
-    TKey *key;
-    while ( (key = (TKey*) nextkey() ) )
-    {
-        TString cName (key->GetClassName());
-
-	if ( ( (TObject *) fInputFile->Get( key->GetName() ))->InheritsFrom( "TRestMetadata" ) )
-		if ( !( (TObject *)fInputFile->Get( key->GetName() ))->InheritsFrom( "TRestEventProcess" ) )
-		    md.push_back( (TRestMetadata *) fInputFile->Get( key->GetName() ) );
-    }
-
-    return md;
-}
-
-std::vector <TRestMetadata *> TRestRun::GetProcessMetadataStructures( )
-{
-    std::vector <TRestMetadata *> md;
-    if( fInputFile == NULL )
-    {
-	cout << "TRestRun::GetMetadataStructures. Warning no input file open!" << endl;
-	return md;
-    }
-
-    TIter nextkey( fInputFile->GetListOfKeys() );
-    TKey *key;
-    while ( (key = (TKey*) nextkey() ) )
-    {
-        TString cName (key->GetClassName());
-
-	if ( ( (TObject *)fInputFile->Get( key->GetName() ))->InheritsFrom( "TRestEventProcess" ) )
-	    md.push_back( (TRestMetadata *) fInputFile->Get( key->GetName() ) );
-    }
-
-    return md;
-}
-
 std::vector <std::string> TRestRun::GetMetadataStructureNames( ) 
 { 
     std::vector <std::string> strings;
 
-    std::vector <TRestMetadata *> md = GetPureMetadataStructures();
+    for( int n = 0; n < GetNumberOfMetadataStructures(); n++ )
+        strings.push_back( fMetadata[n]->GetName() );
 
-    for( unsigned int n = 0; n < md.size(); n++ )
-        strings.push_back( md[n]->GetName() );
+    for( int n = 0; n < GetNumberOfHistoricMetadataStructures(); n++ )
+        strings.push_back( fHistoricMetadata[n]->GetName() );
 
     return strings;
 }
@@ -544,10 +475,11 @@ std::vector <std::string> TRestRun::GetMetadataStructureTitles( )
 { 
     std::vector <std::string> strings;
 
-    std::vector <TRestMetadata *> md = GetPureMetadataStructures();
+    for( int n = 0; n < GetNumberOfMetadataStructures(); n++ )
+        strings.push_back( fMetadata[n]->GetTitle() );
 
-    for( unsigned int n = 0; n < md.size(); n++ )
-        strings.push_back( md[n]->GetTitle() );
+    for( int n = 0; n < GetNumberOfHistoricMetadataStructures(); n++ )
+        strings.push_back( fHistoricMetadata[n]->GetTitle() );
 
     return strings;
 }
@@ -556,10 +488,11 @@ std::vector <std::string> TRestRun::GetProcessNames( )
 { 
     std::vector <std::string> strings;
 
-    std::vector <TRestMetadata *> md = GetProcessMetadataStructures();
+    for( int n = 0; n < GetNumberOfProcesses(); n++ )
+        strings.push_back( fEventProcess[n]->GetName() );
 
-    for( unsigned int n = 0; n < md.size(); n++ )
-        strings.push_back( md[n]->GetName() );
+    for( int n = 0; n < GetNumberOfHistoricProcesses(); n++ )
+        strings.push_back( fHistoricEventProcess[n]->GetName() );
 
     return strings;
 }
@@ -568,10 +501,11 @@ std::vector <std::string> TRestRun::GetProcessTitles( )
 { 
     std::vector <std::string> strings;
 
-    std::vector <TRestMetadata *> md = GetProcessMetadataStructures();
+    for( int n = 0; n < GetNumberOfProcesses(); n++ )
+        strings.push_back( fEventProcess[n]->GetTitle() );
 
-    for( unsigned int n = 0; n < md.size(); n++ )
-        strings.push_back( md[n]->GetTitle() );
+    for( int n = 0; n < GetNumberOfHistoricProcesses(); n++ )
+        strings.push_back( fHistoricEventProcess[n]->GetTitle() );
 
     return strings;
 }
@@ -647,16 +581,25 @@ void TRestRun::OpenInputFile( TString fName )
     TKey *key = GetObjectKeyByClass( "TRestRun" );
     this->Read( key->GetName() );
 
+    // Transfering metadata to historic
     TIter nextkey( fInputFile->GetListOfKeys() );
     while ( (key = (TKey*) nextkey() ) )
     {
         TString cName (key->GetClassName());
 
-	if ( ( (TObject *) fInputFile->Get( key->GetName() ))->InheritsFrom( "TRestMetadata" ) )
+        if ( cName.Contains("Metadata") )
             fHistoricMetadata.push_back( (TRestMetadata *) fInputFile->Get( key->GetName() ) );
     }
-
     fMetadata.clear();
+
+    nextkey = fInputFile->GetListOfKeys();
+    while ( (key = (TKey*) nextkey() ) )
+    {
+        TString cName (key->GetClassName());
+
+        if ( cName.Contains("Process") )
+            fHistoricEventProcess.push_back( (TRestEventProcess *) fInputFile->Get(  key->GetName() ) );
+    }
     fEventProcess.clear();
 
     if( GetObjectKeyByName( "TRestAnalysisTree" ) == NULL )
