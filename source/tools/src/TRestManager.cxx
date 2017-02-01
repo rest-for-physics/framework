@@ -273,6 +273,8 @@ Int_t TRestManager::LoadProcesses( )
         if( i == 0 && fProcessType[i] == "TRestFEMINOSToSignalProcess" )
         {
             TRestDetectorSetup *detSetup = new TRestDetectorSetup();
+            detSetup->SetName("DetectorSetup" );
+            detSetup->SetTitle("FeminosSetup" );
             detSetup->InitFromFileName( fInputFile );
 
             fRun->AddMetadata( detSetup );
