@@ -253,13 +253,20 @@ TRestEvent* TRestSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         if( peakTimeDelay < fPeakTimeDelayCut.X() || peakTimeDelay > fPeakTimeDelayCut.Y() ) return NULL;
     }
 
-    TRestReadoutModule *mod = fReadout->GetReadoutPlane(0)->GetModule(0);
-    for( int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++ )
+    if( fReadout != NULL )
     {
-        Int_t readoutChannel = mod->DaqToReadoutChannel( fSignalEvent->GetSignal(s)->GetID() );
-        fChannelsHisto->Fill( readoutChannel );
-
+        TRestReadoutModule *mod = fReadout->GetReadoutPlane(0)->GetModule(0);
+        for( int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++ )
+        {
+            Int_t readoutChannel = mod->DaqToReadoutChannel( fSignalEvent->GetSignal(s)->GetID() );
+            fChannelsHisto->Fill( readoutChannel );
+        }
     }
+    else
+    {
+        if( GetVerboseLevel() >= REST_Warning )
+            cout << "TRestSignalAnalysisProcess. Readout not defined!" << endl;
+	}
 
 
     if( fDrawRefresh > 0 )
