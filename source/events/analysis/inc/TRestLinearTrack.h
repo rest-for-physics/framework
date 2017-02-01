@@ -28,7 +28,7 @@
 #include <TRestEvent.h>
 #include <TRestSignal.h>
 
-class TRestLinearTrack: public TRestEvent {
+class TRestLinearTrack: public TObject {
 
     protected:
         TVector3 fMeanPosition;
