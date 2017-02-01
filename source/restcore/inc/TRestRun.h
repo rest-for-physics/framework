@@ -115,6 +115,10 @@ class TRestRun:public TRestMetadata {
         Int_t GetNumberOfHistoricProcesses() { return fHistoricEventProcess.size(); }
         Int_t GetNumberOfHistoricMetadataStructures() { return fHistoricMetadata.size(); }
 
+	std::vector <TRestMetadata *> GetAllMetadataStructures( );
+	std::vector <TRestMetadata *> GetPureMetadataStructures( );
+	std::vector <TRestMetadata *> GetProcessMetadataStructures( );
+
         std::vector <std::string> GetMetadataStructureNames( );
         std::vector <std::string> GetMetadataStructureTitles( );
 
