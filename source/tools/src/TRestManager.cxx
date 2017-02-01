@@ -110,7 +110,6 @@ void TRestManager::InitFromConfigFile()
     TString inputFile = GetParameter("inputFile" );
  
     fInputFile = inputFile;
-    cout << "ifile: " << fInputFile << endl;
 
     char *cfgFile = (char *) fConfigFileName.c_str(); 
     fRun = new TRestRun( cfgFile );
@@ -271,7 +270,7 @@ Int_t TRestManager::LoadProcesses( )
 
         // TODO: Still we need to improve this so that is more generic.
         // I.e. OpenInputBinFile can be done in InitProcess
-        if( i == 0 && fProcessType[i] == "TRestFeminosToSignalProcess" )
+        if( i == 0 && fProcessType[i] == "TRestFEMINOSToSignalProcess" )
         {
             TRestDetectorSetup *detSetup = new TRestDetectorSetup();
             detSetup->InitFromFileName( fInputFile );
@@ -280,7 +279,7 @@ Int_t TRestManager::LoadProcesses( )
 
             TRestFEMINOSToSignalProcess *femPcs = new TRestFEMINOSToSignalProcess();
 
-            fRun->AddProcess( femPcs, (string) processesCfgFile, (string) processName );
+            fRun->AddProcess( femPcs, (string) fPcsConfigFile[i], (string) fProcessName[i] );
 
             if( !femPcs->OpenInputBinFile( fInputFile ) )
             {
@@ -303,7 +302,7 @@ Int_t TRestManager::LoadProcesses( )
 
             TRestCoBoAsAdToSignalProcess *coboPcs = new TRestCoBoAsAdToSignalProcess();
 
-            fRun->AddProcess( coboPcs, (string) processesCfgFile, (string) processName );
+            fRun->AddProcess( coboPcs, (string) fPcsConfigFile[i], (string) fProcessName[i] );
 
             if( !coboPcs->OpenInputCoBoAsAdBinFile( fInputFile ) )
   //          if( !coboPcs->OpenInputBinFile( fInputFile ) )
