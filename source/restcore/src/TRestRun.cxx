@@ -229,6 +229,7 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 #endif
         }
 		processedEvent = fEventProcess[j]->ProcessEvent( processedEvent );
+
 		if( processedEvent == NULL ) break;
 		fEventProcess[j]->EndOfEventProcess();
 
@@ -587,19 +588,20 @@ void TRestRun::OpenInputFile( TString fName )
     {
         TString cName (key->GetClassName());
 
-        if ( cName.Contains("Metadata") )
+        if( !fInputFile->Get( key->GetName() )) 
+        { 
+            if( GetVerboseLevel() >= REST_Debug ) 
+            {
+                cout << "REST warning : " << cName << " not initialized!!" << endl;
+                GetChar(); 
+            }
+            continue; 
+        }
+
+        if ( ((TObject *) fInputFile->Get( key->GetName() ))->InheritsFrom("TRestMetadata") )
             fHistoricMetadata.push_back( (TRestMetadata *) fInputFile->Get( key->GetName() ) );
     }
     fMetadata.clear();
-
-    nextkey = fInputFile->GetListOfKeys();
-    while ( (key = (TKey*) nextkey() ) )
-    {
-        TString cName (key->GetClassName());
-
-        if ( cName.Contains("Process") )
-            fHistoricEventProcess.push_back( (TRestEventProcess *) fInputFile->Get(  key->GetName() ) );
-    }
     fEventProcess.clear();
 
     if( GetObjectKeyByName( "TRestAnalysisTree" ) == NULL )
