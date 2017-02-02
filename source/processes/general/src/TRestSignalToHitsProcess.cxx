@@ -175,10 +175,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
     fSignalEvent = (TRestSignalEvent *) evInput;
 
     if( fSubstractBaseLine )
-    {
-        cout << "Substracting baseline" << endl;
         fSignalEvent->SubstractBaselines( fBaseLineRange.X(), fBaseLineRange.Y() );
-    }
 
     fHitsEvent->SetID( fSignalEvent->GetID() );
     fHitsEvent->SetSubID( fSignalEvent->GetSubID() );
