@@ -139,6 +139,13 @@ void TRestManager::InitFromConfigFile()
     if( fProcessType.size() > 0 )
     {
         TClass *cl = TClass::GetClass( fProcessType[0] );
+        if( cl == NULL )
+        {
+            cout << "TRestManager. " << GetName() << " : ERROR" << endl;
+            cout << "Process : " << fProcessType[0] << " unknown!!" << endl;
+            exit(0);
+        }
+
         TRestEventProcess *pc = (TRestEventProcess *) cl->New();
         
         if( !pc->isExternal() ) fRun->OpenInputFile( inputFile );
