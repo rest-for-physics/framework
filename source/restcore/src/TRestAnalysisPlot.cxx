@@ -14,6 +14,7 @@
 #include "TRestAnalysisPlot.h"
 using namespace std;
 
+#include <TStyle.h>
 
 
 const int debug = 0;
@@ -192,7 +193,7 @@ void TRestAnalysisPlot::InitFromConfigFile()
 
             for( unsigned int i = 0; i < globalCuts.size(); i++ )
             {
-                if( i > 0 ) cutString += " && ";
+                if( i > 0 || cutString != "" ) cutString += " && ";
                 cutString += globalCuts[i];
             }
 
@@ -271,6 +272,9 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
 
     fCombinedCanvas->Divide( (Int_t) fCanvasDivisions.X(), (Int_t) fCanvasDivisions.Y() );
 
+    TStyle *st = new TStyle();
+    st->SetPalette(1);
+
     for( unsigned int n = 0; n < fPlotString.size(); n++ )
     {
         fCombinedCanvas->cd(n+1);
@@ -288,7 +292,7 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
                 plotString = plotString( 0, fPlotString[n].First(">>+") + 3 ) + fPlotNames[n];
             }
 
-            trees[m]->Draw( plotString, fCutString[n], "" );
+            trees[m]->Draw( plotString, fCutString[n], "colz" );
         }
 
         TH3F *htemp = (TH3F*)gPad->GetPrimitive( fPlotNames[n] );
