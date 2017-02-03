@@ -81,9 +81,9 @@ void TRestSignalAnalysisProcess::InitProcess()
 
     fReadout = (TRestReadout*) GetReadoutMetadata();
 
-    if( fCanvas == NULL && fDrawRefresh > 0 )
+    if( GetVerboseLevel() >= REST_Debug && fCanvas == NULL && fDrawRefresh > 0 )
     {
-        fCanvas = new TCanvas( this->GetName(), "Signal analysis", 1024, 768);
+        fCanvas = new TCanvas( this->GetName(), "Signal analysis", 400, 300);
     }
 }
 
@@ -269,7 +269,7 @@ TRestEvent* TRestSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 	}
 
 
-    if( fDrawRefresh > 0 )
+    if( GetVerboseLevel() >= REST_Debug && fDrawRefresh > 0 )
     {
         counter++;
         if( counter > fDrawRefresh )
@@ -290,8 +290,14 @@ TRestEvent* TRestSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
             */
 
             fCanvas->Update();
+            if( GetVerboseLevel() >= REST_Debug ) 
+            {
+                fAnalysisTree->PrintObservables();
+                GetChar(); 
+            }
         }
     }
+
 
     return fSignalEvent;
 }
@@ -314,7 +320,7 @@ void TRestSignalAnalysisProcess::EndProcess()
     //TRestEventProcess::EndProcess();
     fChannelsHisto->Write();
 
-    if( fCanvas == NULL )
+    if( fCanvas != NULL )
         delete fCanvas;
 }
 
