@@ -185,13 +185,13 @@ void TRestManager::InitFromConfigFile()
 
         TRestReadout *readout = (TRestReadout *) fRun->GetMetadataClass( "TRestReadout" );
 
-        if( plPos != TVector3(0,0,0) )
-            readout->GetReadoutPlane( rId )->SetPosition( plPos );
+        // Removed condition when it was (0,0,0). Since it is a valid value.
+        // Some other value should be given as default value
+        readout->GetReadoutPlane( rId )->SetPosition( plPos );
 
-        if( cPos != TVector3(0,0,0) )
-            readout->GetReadoutPlane( rId )->SetCathodePosition( cPos );
+        readout->GetReadoutPlane( rId )->SetCathodePosition( cPos );
 
-        if( vPos != TVector3(0,0,0) )
+        if( vPos != TVector3(0, 0, 0) )
             readout->GetReadoutPlane( rId )->SetPlaneVector( vPos );
 
         readout->GetReadoutPlane( rId )->SetDriftDistance();
