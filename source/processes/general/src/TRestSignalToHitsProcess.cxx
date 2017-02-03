@@ -177,6 +177,9 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
     if( fSubstractBaseLine )
         fSignalEvent->SubstractBaselines( fBaseLineRange.X(), fBaseLineRange.Y() );
 
+    if( GetVerboseLevel() >= REST_Debug )
+        fSignalEvent->PrintEvent();
+
     fHitsEvent->SetID( fSignalEvent->GetID() );
     fHitsEvent->SetSubID( fSignalEvent->GetSubID() );
     fHitsEvent->SetTimeStamp( fSignalEvent->GetTimeStamp() );
@@ -203,9 +206,13 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
                     planeID = p;
                     readoutChannel = mod->DaqToReadoutChannel( signalID );
                     readoutModule = mod->GetModuleID();
+                    if( GetVerboseLevel() >= REST_Debug ) {
+                    cout << "-------------------------------------------------------------------" << endl;
+                    cout << "signal Id : " << signalID << endl;
+                    cout << "channel : " << readoutChannel << " module : " << readoutModule << endl;
+                    cout << "-------------------------------------------------------------------" << endl; }
                 }
             }
-
         }
 
 
@@ -231,6 +238,8 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
 
             x = plane->GetX( readoutModule, readoutChannel );
             y = plane->GetY( readoutModule, readoutChannel );
+            if( GetVerboseLevel() >= REST_Debug )
+                cout << "Adding hit. Time : " << sgnl->GetTime(j) << " x : " << x << " y : " << y << " z : " << z << endl;
             fHitsEvent->AddHit( x, y, z, energy );
 
         }
@@ -238,8 +247,11 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
 
     if( this->GetVerboseLevel() >= REST_Debug ) 
     {
+        fHitsEvent->PrintEvent(300);
         cout << "TRestSignalToHitsProcess. Hits added : " << fHitsEvent->GetNumberOfHits() << endl;
         cout << "TRestSignalToHitsProcess. Hits total energy : " << fHitsEvent->GetEnergy() << endl;
+        fReadout->PrintMetadata();
+        GetChar();
     }
 
     return fHitsEvent;
