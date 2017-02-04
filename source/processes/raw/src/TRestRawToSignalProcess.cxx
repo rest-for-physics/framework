@@ -76,7 +76,7 @@ void TRestRawToSignalProcess::BeginOfEventProcess()
 
 void TRestRawToSignalProcess::InitFromConfigFile(){
 
-   if( GetParameter( "rejectNoise", "OFF" ) == "ON" ) 
+   if( GetParameter( "rejectNoise", "OFF" ) == "ON" || GetParameter( "rejectNoise", "OFF" ) == "On" ||GetParameter( "rejectNoise", "OFF" ) == "on"  ) 
    {
 	cout << "RAWToSignalProcess : Activating noise rejection" << endl;
 	fRejectNoise = true;

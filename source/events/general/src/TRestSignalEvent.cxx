@@ -197,7 +197,7 @@ Double_t TRestSignalEvent::GetMaxTime( )
 }
 
 //Draw current event in a Tpad
-TPad *TRestSignalEvent::DrawEvent()
+TPad *TRestSignalEvent::DrawEvent( TString option )
 {
     if(fPad != NULL) { delete fPad; fPad=NULL; }
 

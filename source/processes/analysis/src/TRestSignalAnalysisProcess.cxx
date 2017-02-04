@@ -81,9 +81,9 @@ void TRestSignalAnalysisProcess::InitProcess()
 
     fReadout = (TRestReadout*) GetReadoutMetadata();
 
-    if( fCanvas == NULL && fDrawRefresh > 0 )
+    if( GetVerboseLevel() >= REST_Debug && fCanvas == NULL && fDrawRefresh > 0 )
     {
-        fCanvas = new TCanvas( this->GetName(), "Signal analysis", 1024, 768);
+        fCanvas = new TCanvas( this->GetName(), "Signal analysis", 400, 300);
     }
 }
 
@@ -253,16 +253,23 @@ TRestEvent* TRestSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         if( peakTimeDelay < fPeakTimeDelayCut.X() || peakTimeDelay > fPeakTimeDelayCut.Y() ) return NULL;
     }
 
-    TRestReadoutModule *mod = fReadout->GetReadoutPlane(0)->GetModule(0);
-    for( int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++ )
+    if( fReadout != NULL )
     {
-        Int_t readoutChannel = mod->DaqToReadoutChannel( fSignalEvent->GetSignal(s)->GetID() );
-        fChannelsHisto->Fill( readoutChannel );
-
+        TRestReadoutModule *mod = fReadout->GetReadoutPlane(0)->GetModule(0);
+        for( int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++ )
+        {
+            Int_t readoutChannel = mod->DaqToReadoutChannel( fSignalEvent->GetSignal(s)->GetID() );
+            fChannelsHisto->Fill( readoutChannel );
+        }
     }
+    else
+    {
+        if( GetVerboseLevel() >= REST_Warning )
+            cout << "TRestSignalAnalysisProcess. Readout not defined!" << endl;
+	}
 
 
-    if( fDrawRefresh > 0 )
+    if( GetVerboseLevel() >= REST_Debug && fDrawRefresh > 0 )
     {
         counter++;
         if( counter > fDrawRefresh )
@@ -283,8 +290,14 @@ TRestEvent* TRestSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
             */
 
             fCanvas->Update();
+            if( GetVerboseLevel() >= REST_Debug ) 
+            {
+                fAnalysisTree->PrintObservables();
+                GetChar(); 
+            }
         }
     }
+
 
     return fSignalEvent;
 }
@@ -307,7 +320,7 @@ void TRestSignalAnalysisProcess::EndProcess()
     //TRestEventProcess::EndProcess();
     fChannelsHisto->Write();
 
-    if( fCanvas == NULL )
+    if( fCanvas != NULL )
         delete fCanvas;
 }
 

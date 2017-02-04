@@ -110,7 +110,6 @@ void TRestManager::InitFromConfigFile()
     TString inputFile = GetParameter("inputFile" );
  
     fInputFile = inputFile;
-    cout << "ifile: " << fInputFile << endl;
 
     char *cfgFile = (char *) fConfigFileName.c_str(); 
     fRun = new TRestRun( cfgFile );
@@ -140,6 +139,13 @@ void TRestManager::InitFromConfigFile()
     if( fProcessType.size() > 0 )
     {
         TClass *cl = TClass::GetClass( fProcessType[0] );
+        if( cl == NULL )
+        {
+            cout << "TRestManager. " << GetName() << " : ERROR" << endl;
+            cout << "Process : " << fProcessType[0] << " unknown!!" << endl;
+            exit(0);
+        }
+
         TRestEventProcess *pc = (TRestEventProcess *) cl->New();
         
         if( !pc->isExternal() ) fRun->OpenInputFile( inputFile );
@@ -179,13 +185,13 @@ void TRestManager::InitFromConfigFile()
 
         TRestReadout *readout = (TRestReadout *) fRun->GetMetadataClass( "TRestReadout" );
 
-        if( plPos != TVector3(0,0,0) )
-            readout->GetReadoutPlane( rId )->SetPosition( plPos );
+        // Removed condition when it was (0,0,0). Since it is a valid value.
+        // Some other value should be given as default value
+        readout->GetReadoutPlane( rId )->SetPosition( plPos );
 
-        if( cPos != TVector3(0,0,0) )
-            readout->GetReadoutPlane( rId )->SetCathodePosition( cPos );
+        readout->GetReadoutPlane( rId )->SetCathodePosition( cPos );
 
-        if( vPos != TVector3(0,0,0) )
+        if( vPos != TVector3(0, 0, 0) )
             readout->GetReadoutPlane( rId )->SetPlaneVector( vPos );
 
         readout->GetReadoutPlane( rId )->SetDriftDistance();
@@ -271,16 +277,18 @@ Int_t TRestManager::LoadProcesses( )
 
         // TODO: Still we need to improve this so that is more generic.
         // I.e. OpenInputBinFile can be done in InitProcess
-        if( i == 0 && fProcessType[i] == "TRestFeminosToSignalProcess" )
+        if( i == 0 && fProcessType[i] == "TRestFEMINOSToSignalProcess" )
         {
             TRestDetectorSetup *detSetup = new TRestDetectorSetup();
+            detSetup->SetName("DetectorSetup" );
+            detSetup->SetTitle("FeminosSetup" );
             detSetup->InitFromFileName( fInputFile );
 
             fRun->AddMetadata( detSetup );
 
             TRestFEMINOSToSignalProcess *femPcs = new TRestFEMINOSToSignalProcess();
 
-            fRun->AddProcess( femPcs, (string) processesCfgFile, (string) processName );
+            fRun->AddProcess( femPcs, (string) fPcsConfigFile[i], (string) fProcessName[i] );
 
             if( !femPcs->OpenInputBinFile( fInputFile ) )
             {
@@ -303,7 +311,7 @@ Int_t TRestManager::LoadProcesses( )
 
             TRestCoBoAsAdToSignalProcess *coboPcs = new TRestCoBoAsAdToSignalProcess();
 
-            fRun->AddProcess( coboPcs, (string) processesCfgFile, (string) processName );
+            fRun->AddProcess( coboPcs, (string) fPcsConfigFile[i], (string) fProcessName[i] );
 
             if( !coboPcs->OpenInputCoBoAsAdBinFile( fInputFile ) )
   //          if( !coboPcs->OpenInputBinFile( fInputFile ) )

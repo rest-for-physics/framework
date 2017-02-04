@@ -28,7 +28,7 @@ TRestHitsAnalysisProcess::TRestHitsAnalysisProcess( char *cfgFileName )
 {
     Initialize();
 
-    if( LoadConfigFromFile( cfgFileName ) ) LoadDefaultConfig( );
+    if( LoadConfigFromFile( cfgFileName ) == -1 ) LoadDefaultConfig( );
 }
 
 //______________________________________________________________________________
@@ -57,14 +57,13 @@ void TRestHitsAnalysisProcess::Initialize()
 
 void TRestHitsAnalysisProcess::LoadConfig( std::string cfgFilename, std::string name )
 {
-    if( LoadConfigFromFile( cfgFilename, name ) ) LoadDefaultConfig( );
+    if( LoadConfigFromFile( cfgFilename, name ) == -1 ) LoadDefaultConfig( );
 }
 
 //______________________________________________________________________________
 void TRestHitsAnalysisProcess::InitProcess()
 {
     TRestEventProcess::ReadObservables();
-
 }
 
 //______________________________________________________________________________
@@ -76,9 +75,10 @@ void TRestHitsAnalysisProcess::BeginOfEventProcess()
 //______________________________________________________________________________
 TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 {
+    fInputHitsEvent = (TRestHitsEvent *) evInput;
     TString obsName;
 
-    *fOutputHitsEvent =  *(( TRestHitsEvent *) evInput);
+    fOutputHitsEvent = (TRestHitsEvent *) fInputHitsEvent->Clone();
 
     Double_t energy = fOutputHitsEvent->GetEnergy( );
     TVector3 meanPosition = fOutputHitsEvent->GetMeanPosition();

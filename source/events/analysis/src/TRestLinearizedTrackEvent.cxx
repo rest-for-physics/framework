@@ -68,7 +68,7 @@ void TRestLinearizedTrackEvent::PrintEvent( Bool_t fullInfo )
 }
 
 //Draw current event in a Tpad
-TPad *TRestLinearizedTrackEvent::DrawEvent()
+TPad *TRestLinearizedTrackEvent::DrawEvent( TString option )
 {
     if( fPad != NULL ) { delete fPad; fPad=NULL;}
 

@@ -190,12 +190,11 @@ export REST_SOURCE=${SOURCE_DIR}
 export REST_PATH=\\\$REST_INSTALL
 export REST_GARFIELD_INCLUDE=${Garfield_INCLUDE_DIRS}
 export REST_GARFIELD_LIB=${Garfield_LIBRARIES}
-export PATH=\\\$PATH:\\\$REST_PATH/bin
-export LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH:\\\$REST_PATH/lib
+export PATH=\\\$REST_PATH/bin:\\\$PATH
+export LD_LIBRARY_PATH=\\\$REST_PATH/lib:\\\$LD_LIBRARY_PATH
 export LIBRARY_PATH=\\\$LIBRARY_PATH:\\\$REST_PATH/lib
 
 alias restRoot=\\\"root -l \\\$REST_PATH/scripts/LoadRESTScripts.C\\\"
-
 
 
 echo \\\"*****************************************************************************\\\"
