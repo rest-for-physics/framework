@@ -47,12 +47,20 @@ class TRestEventProcess:public TRestMetadata {
 
         Bool_t fIsExternal; ///< It defines if the process reads event data from an external source.
 #endif
+        template <typename eventType> 
+        void TransferEvent ( eventType *evOutput, eventType *evInput )
+        { 
+            if( evOutput != NULL ) 
+            {
+                delete evOutput;
+                evOutput = NULL;
+            }
+            evOutput = (eventType *) evInput->Clone();
+        } 
 
-	private:
-
-	public:
-		virtual TRestEvent *GetInputEvent() { return fInputEvent; } ///< Get pointer to input event
-		virtual TRestEvent *GetOutputEvent() { return fOutputEvent; } ///< Get pointer to output event
+        public:
+            virtual TRestEvent *GetInputEvent() { return fInputEvent; } ///< Get pointer to input event
+            virtual TRestEvent *GetOutputEvent() { return fOutputEvent; } ///< Get pointer to output event
 
         virtual Bool_t OpenInputFile(TString fName);
 
