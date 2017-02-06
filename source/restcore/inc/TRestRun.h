@@ -163,6 +163,8 @@ class TRestRun:public TRestMetadata {
         Int_t GetSubEventID( Int_t entry ) { return fSubEventIDs[entry]; }
         TString GetSubEventTag( Int_t entry ) { return fSubEventTags[entry]; }
 
+        void PrintEvent (  ) { fInputEvent->PrintEvent( ); }
+
         Int_t GetEntry( Int_t i )
         {
             if( !fSkipEventTree && fInputEventTree == NULL )
