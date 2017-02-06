@@ -78,7 +78,7 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     fInputHitsEvent = (TRestHitsEvent *) evInput;
     TString obsName;
 
-    fOutputHitsEvent = (TRestHitsEvent *) fInputHitsEvent->Clone();
+    TransferEvent( fOutputHitsEvent, fInputHitsEvent );
 
     Double_t energy = fOutputHitsEvent->GetEnergy( );
     TVector3 meanPosition = fOutputHitsEvent->GetMeanPosition();
@@ -94,6 +94,12 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     obsName = this->GetName() + (TString) ".zMean";
     fAnalysisTree->SetObservableValue( obsName, meanPosition.Z() );
+
+    if( GetVerboseLevel() >= REST_Extreme )
+    {
+        fOutputHitsEvent->PrintEvent( 1000 );
+        GetChar();
+    }
 
     return fOutputHitsEvent;
 }
