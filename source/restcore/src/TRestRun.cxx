@@ -1082,7 +1082,7 @@ Int_t TRestRun::GetEventWithID( Int_t eventID, TString tag )
 //Return false when the file ends
 Bool_t TRestRun::GetNextEvent( )
 {
-    if( fEventProcess.front()->isExternal() )
+    if( fEventProcess.size() > 0 && fEventProcess.front()->isExternal() )
     {
         if( fEventProcess.front()->GetOutputEvent() == NULL )
         {
