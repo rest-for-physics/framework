@@ -736,6 +736,11 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
             fVerboseLevel = REST_Debug;
             cout << "Setting verbose level to debug : " << fVerboseLevel << endl;
         }
+        else if ( vLevelString == "extreme" )
+        {
+            fVerboseLevel = REST_Extreme;
+            cout << "Setting verbose level to extreme : " << fVerboseLevel << endl;
+        }
     }
 
     // Then we just extract the corresponding section defined in the derived class (fSectionName)
@@ -792,6 +797,8 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
        fVerboseLevel = REST_Warning;
     if ( debugStr == "debug" )
        fVerboseLevel = REST_Debug;
+    if ( debugStr == "extreme" )
+       fVerboseLevel = REST_Extreme;
 
     if( configBuffer == "" )
     {
