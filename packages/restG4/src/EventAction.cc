@@ -116,7 +116,7 @@ void EventAction::EndOfEventAction(const G4Event* evt)
         if( minEnergy < 0 ) minEnergy = 0;
         if( maxEnergy == 0 ) maxEnergy = en + 1.;
 
-        if( en > minEnergy && en < maxEnergy )
+        if( subRestG4Event->GetSensitiveVolumeEnergy() > 0 && en > minEnergy && en < maxEnergy )
             restRun->Fill();
     }
 }
