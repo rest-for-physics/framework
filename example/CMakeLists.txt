@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 2.8)
 # To integrate with REST framework, the name of the library
 # should contain REST or Rest in its name
 
-set( MY_LIBRARY "myRESTLibrary" )
+set( MY_LIBRARY "MyRESTLibrary" )
 project( ${MY_LIBRARY} )
 
 ################################################################

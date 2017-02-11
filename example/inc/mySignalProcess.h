@@ -14,6 +14,8 @@
 #define _mySignalProcess
 
 #include "TRestEventProcess.h"
+#include "TRestSignalEvent.h"
+
 
 class mySignalProcess:public TRestEventProcess {
 
