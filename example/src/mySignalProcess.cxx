@@ -50,7 +50,16 @@ TRestEvent* mySignalProcess::ProcessEvent( TRestEvent *evInput )
 
     if( fInputSignalEvent->GetNumberOfSignals() <= 0 ) return NULL;
 
-    cout << "I am a new signal process" << endl;
+    if( GetVerboseLevel() >= REST_Debug ) {
+        cout << "This a debug message" << endl;
+        cout << "I am in event id : " << fInputSignalEvent->GetID() << endl;
+        cout << "I am a new signal process" << endl;
+    }
+
+    /* If you are not modifying the input signal event
+       You may just skip this loop and use
+
+       TransferEvent( fOutputSignalEvent, fInputSignalEvent ); */
 
     for( int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++ ) 
     {
