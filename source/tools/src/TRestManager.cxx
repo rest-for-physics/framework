@@ -195,9 +195,10 @@ void TRestManager::InitFromConfigFile()
             readout->GetReadoutPlane( rId )->SetPlaneVector( vPos );
 
         readout->GetReadoutPlane( rId )->SetDriftDistance();
-
-        readout->PrintMetadata();
     }
+
+    TRestReadout *readout = (TRestReadout *) fRun->GetMetadataClass( "TRestReadout" );
+    if( readout != NULL ) readout->PrintMetadata();
 
     // Adding tasks
     position = 0;
