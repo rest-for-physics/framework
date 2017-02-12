@@ -215,7 +215,6 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
             }
         }
 
-
         if ( readoutChannel == -1 ) continue;
         /////////////////////////////////////////////////////////////////////////
 
@@ -226,6 +225,9 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
         Double_t zPosition = plane->GetPosition().Z();
 
         Double_t thr = GetThreshold( sgnl );
+
+        if( GetVerboseLevel() >= REST_Debug )
+            cout << "Signal Threshold : " << thr << endl;
 
         for( int j = 0; j < sgnl->GetNumberOfPoints(); j++ )
         {
@@ -250,9 +252,10 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
         fHitsEvent->PrintEvent(300);
         cout << "TRestSignalToHitsProcess. Hits added : " << fHitsEvent->GetNumberOfHits() << endl;
         cout << "TRestSignalToHitsProcess. Hits total energy : " << fHitsEvent->GetEnergy() << endl;
-        fReadout->PrintMetadata();
         GetChar();
     }
+
+    if( fHitsEvent->GetNumberOfHits() <= 0 ) return NULL;
 
     return fHitsEvent;
 }
