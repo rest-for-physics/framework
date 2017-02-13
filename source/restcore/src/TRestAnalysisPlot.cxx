@@ -66,6 +66,7 @@ void TRestAnalysisPlot::InitFromConfigFile()
     }
 
     fPlotMode = GetParameter( "plotMode", "compare" );
+    fHistoOutputFile = GetParameter( "histoFilename", "/tmp/histos.root" );
 
     position = 0;
     string canvasDefinition;
@@ -262,6 +263,11 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
 
     fCanvasSave = ReplaceFilenameTags( fCanvasSave, runs[0] );
 
+    fHistoOutputFile = ReplaceFilenameTags( fHistoOutputFile, runs[0] );
+    TFile *f = new TFile( fHistoOutputFile, "RECREATE");
+
+    cout << "Saving histograms to ROOT file : " << fHistoOutputFile << endl;
+
     if( fCombinedCanvas != NULL ) 
     {
         delete fCombinedCanvas;
@@ -300,6 +306,9 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
         htemp->GetXaxis()->SetTitle( fPlotXLabel[n] );
         htemp->GetYaxis()->SetTitle( fPlotYLabel[n] );
 
+        f->cd();
+        htemp->Write( fPlotNames[n] );
+
         if( fPlotSaveToFile[n] != "Notdefined" && fPlotSaveToFile[n] != "" )
             SavePlotToPDF( fPlotNames[n], fPlotSaveToFile[n] );
         fCombinedCanvas->Update();
@@ -307,6 +316,8 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
 
     if( fCanvasSave != "" )
         fCombinedCanvas->Print( fCanvasSave );
+
+    f->Close();
 }
 
 void TRestAnalysisPlot::PlotCombinedCanvasCompare( )
