@@ -48,6 +48,8 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
         Double_t fLonglDiffCoeff;
         Double_t fTransDiffCoeff;
 
+        Int_t fMaxHits;
+
     public:
         void InitProcess();
         void BeginOfEventProcess(); 
@@ -68,6 +70,7 @@ class TRestElectronDiffusionProcess:public TRestEventProcess {
             std::cout << " transversal diffusion coefficient : " << fTransDiffCoeff << " cm^1/2" << std::endl;
             std::cout << " W value : " << fWvalue << " eV" << std::endl;
 
+            std::cout << " Maximum number of hits : " << fMaxHits << endl;
 
             EndPrintProcess();
 
