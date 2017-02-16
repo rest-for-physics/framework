@@ -109,6 +109,10 @@ void TRestReadoutModule::DoReadoutMapping( Int_t nodes )
     }
 
     for( int i = 0; i < nodes; i++ )
+    {
+        Double_t progress = (Double_t) 100. * i / nodes;
+        printf("Completed : %.2lf %%\r", progress );
+        fflush(stdout);
         for( int j = 0; j < nodes; j++ )
         {
             Double_t x = fMapping.GetX( i );
@@ -130,6 +134,7 @@ void TRestReadoutModule::DoReadoutMapping( Int_t nodes )
                 }
             }
         }
+    }
 
     if( !fMapping.AllNodesSet( ) ) cout << "Not all nodes set" << endl;
     else cout << "All Nodes set" << endl;
