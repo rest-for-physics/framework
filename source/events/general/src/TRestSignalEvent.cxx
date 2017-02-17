@@ -228,7 +228,7 @@ TPad *TRestSignalEvent::DrawEvent( TString option )
     mg->SetTitle(title);
     mg->GetXaxis()->SetTitle("time bins");
     mg->GetYaxis()->SetTitleOffset(1.4);
-    mg->GetYaxis()->SetTitle("charge (electrons)");
+    mg->GetYaxis()->SetTitle("Energy");
 
 
     for( int n = 0; n < nSignals; n++ )
