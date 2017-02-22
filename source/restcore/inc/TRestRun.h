@@ -101,6 +101,7 @@ class TRestRun:public TRestMetadata {
         vector <TString> fSubEventTagList;
 
         void SetRunFilenameAndIndex();
+
         TKey *GetObjectKeyByClass( TString className );
         TKey *GetObjectKeyByName( TString name );
 
@@ -162,6 +163,8 @@ class TRestRun:public TRestMetadata {
         Int_t GetEventID( Int_t entry ) { return fEventIDs[entry]; }
         Int_t GetSubEventID( Int_t entry ) { return fSubEventIDs[entry]; }
         TString GetSubEventTag( Int_t entry ) { return fSubEventTags[entry]; }
+
+        TString GetInputEventName( );
 
         void PrintEvent (  ) { fInputEvent->PrintEvent( ); }
 

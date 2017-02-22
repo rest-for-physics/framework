@@ -395,7 +395,7 @@ void TRestRun::SetInputEvent( TRestEvent *evt )
             exit(1);
         }
 
-        fInputEventTree = (TTree * ) fInputFile->Get( treeName );
+        fInputEventTree = (TTree *) fInputFile->Get( treeName );
 
         TBranch *br = fInputEventTree->GetBranch( "eventBranch" );
 
@@ -440,7 +440,6 @@ TKey *TRestRun::GetObjectKeyByClass( TString className )
     }
     cout << "REST ERROR (GetObjectKey) : " << className << " was not found" << endl;
     return NULL;
-
 }
 
 TKey *TRestRun::GetObjectKeyByName( TString name )
@@ -459,6 +458,23 @@ TKey *TRestRun::GetObjectKeyByName( TString name )
     return NULL;
 
 }
+
+TString TRestRun::GetInputEventName( )
+{
+    if( fInputFile == NULL ) { cout << "REST ERROR (GetInputEventName) : No file open" << endl; return ""; }
+
+    TIter nextkey(fInputFile->GetListOfKeys());
+    TKey *key;
+    while ( (key = (TKey*)nextkey() ) ) {
+
+        TString name = key->GetName();
+        if( name.EndsWith("EventTree") )
+            return name( 0, name.Length()-4 );
+    }
+    cout << "REST ERROR (GetEventTreeName) : was not found" << endl;
+    return "";
+}
+
 std::vector <std::string> TRestRun::GetMetadataStructureNames( ) 
 { 
     std::vector <std::string> strings;
