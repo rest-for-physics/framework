@@ -636,6 +636,13 @@ bool TRestMetadata::isRootFile( const std::string& filename )
     return true;
 }
 
+bool TRestMetadata::isPathWritable( const std::string& path )
+{
+    int result = access(path.c_str(), W_OK);
+    if (result == 0) return true;
+    else return false;
+}
+
 ///////////////////////////////////////////////
 /// \brief Sets the default configuration path. The default is empty. 
 ///

@@ -184,6 +184,7 @@ class TRestMetadata:public TNamed {
         static Int_t Count( std::string s, std::string sbstring);
         static bool fileExists( const std::string& filename );
         static bool isRootFile( const std::string& filename ); 
+        static bool isPathWritable( const std::string& path );
 
         /// Calling this method will ask the user to press a key to continue
         static void GetChar(){ cout << "Press a KEY to continue ..." << endl; getchar(); }
