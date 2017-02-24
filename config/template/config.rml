@@ -102,9 +102,9 @@ By default REST units are mm, keV and degrees
          Adding metadata 
          +++++++++++++++ -->
         <!-- gas pressure units in TRestGas is atm -->
-    <addMetadata type="gas" name="Xenon-TMA 3Pct 10-10E3V/cm" pressure="1" value="ON" overwrite="false" >
+    <addMetadata type="TRestGas" name="Xenon-TMA 3Pct 10-10E3V/cm" pressure="1" value="ON" overwrite="false" >
 
-    <addMetadata type="readout" name="Readout-PANDA_3MM_Single" value="ON" overwrite="false" >
+    <addMetadata type="TRestReadout" name="Readout-PANDA_3MM_Single" value="ON" overwrite="false" >
 
     <!-- We can modify/shift the readout plane definition that was prebuilt in a root file here using a sentence like  
 
