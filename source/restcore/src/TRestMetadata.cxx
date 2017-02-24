@@ -636,6 +636,9 @@ bool TRestMetadata::isRootFile( const std::string& filename )
     return true;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns true if the **path** given by argument is writable 
+///
 bool TRestMetadata::isPathWritable( const std::string& path )
 {
     int result = access(path.c_str(), W_OK);
