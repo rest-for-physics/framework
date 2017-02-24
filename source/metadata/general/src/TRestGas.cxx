@@ -425,6 +425,18 @@ void TRestGas::ConstructFilename( )
 /// 
 void TRestGas::GenerateGasFile( )
 {
+    if ( !isPathWritable( (string) GetGasDataPath() ) )
+    {
+        cout << endl;
+        cout << "REST ERROR. TRestGas. GasDataPath is not writtable." << endl;
+        cout << "Path : " << GetGasDataPath() << endl;
+        cout << "Make sure the final data path is writtable before proceed to gas generation." << endl;
+        cout << "or change the gas data path ... " << endl;
+        cout << endl;
+        GetChar();
+        return;
+    }
+
     if( fEnodes <= 0 ) { cout << "REST ERROR : The number of nodes is not a positive number!!. Gas file generation cancelled." << endl; fStatus = RESTGAS_ERROR; return; }
     if( fEmin >= fEmax ) { cout << "REST ERROR : The Electric field grid boundaries are not properly defined." << endl; fStatus = RESTGAS_ERROR; return; }
 
@@ -459,6 +471,10 @@ void TRestGas::GenerateGasFile( )
 
     fGasMedium->GenerateGasTable( fNCollisions, true );
 
+    cout << "Writting gas file" << endl;
+    cout << "-----------------" << endl;
+    cout << "Path : " << GetGasDataPath() << endl;
+    cout << "Filename : " << fGasFilename << endl;
     fGasMedium->WriteGasFile ( (string) (GetGasDataPath() + fGasFilename) );
 }
 
