@@ -245,8 +245,36 @@
 </section>
 
 // ---------------------------------------------
+// -------------- ARGON+METHANE --------------
+// ---------------------------------------------
+
+// ----- 0.5% ---------------------------------------------------------------------------------------------
+<section TRestGas name="Argon-Methane 1Pct 0.1-10E3V/cm" title="Argon-Isobutane Mixture (1Pct Methane)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="W_value" value="1" />
+    <parameter name="nCollisions" value="10" />
+    <eField Emin="0.1" Emax="1000." nodes="200" />
+    <gasComponent name="ar" fraction="0.99" />
+    <gasComponent name="CH4" fraction="0.01" />
+</section>
+
+// ---------------------------------------------
 // -------------- ARGON+ISOBUTANE --------------
 // ---------------------------------------------
+
+// ----- 0.5% ---------------------------------------------------------------------------------------------
+<section TRestGas name="Argon-Isobutane 0.5Pct 0.1-10E3V/cm" title="Argon-Isobutane Mixture (0.5ct Isobutane)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="W_value" value="1" />
+    <parameter name="nCollisions" value="10" />
+    <eField Emin="0.1" Emax="1000." nodes="200" />
+    <gasComponent name="ar" fraction="0.995" />
+    <gasComponent name="iC4H10" fraction="0.005" />
+</section>
 
 // ----- 0.5% ---------------------------------------------------------------------------------------------
 <section TRestGas name="Argon-Isobutane 0.5Pct 20-10E3V/cm" title="Argon-Isobutane Mixture (0.5ct Isobutane)">
