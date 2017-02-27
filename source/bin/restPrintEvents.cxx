@@ -23,15 +23,10 @@ void PrintHelp( )
     cout << "This program will integrate an existing variable inside TRestAnalysisTree" << endl;
     cout << "The integration range must be given by argument" << endl;
     cout << endl;
-    cout << "Usage : ./restIntegrate --v VAR_NAME --s START --e END --f INPUT_FILE" << endl;
+    cout << "Usage : ./restPrintEvents --f INPUT_FILE" << endl;
     cout << "-----------------------------------------------------------------------------------" << endl;
     cout << endl;
     cout << " INPUT_FILE : Input file name. " << endl;
-    cout << endl;
-    cout << " You can also specify a file input range using the shell *,? characters as in ls." << endl;
-    cout << " For example : \"Run_simulation_*.root\". " << endl;
-    cout << endl;
-    cout << " IMPORTANT : You should then write the filename range between quotes!! \"\"" << endl;
     cout << endl;
     cout << " ==================================================================================" << endl;
 }
