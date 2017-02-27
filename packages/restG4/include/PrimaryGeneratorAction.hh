@@ -67,10 +67,10 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     void SetSpectrum( TH1D *spt, double eMin = 0, double eMax = 0 ) 
     {
 
-        TString *xLabel = (TString *) spt->GetXaxis()->GetTitle();
+        TString xLabel = (TString) spt->GetXaxis()->GetTitle();
 
-        if( xLabel->Contains("MeV") ) { energyFactor = 1.e3; }
-        else if( xLabel->Contains("GeV") ) { energyFactor = 1.e6; }
+        if( xLabel.Contains("MeV") ) { energyFactor = 1.e3; }
+        else if( xLabel.Contains("GeV") ) { energyFactor = 1.e6; }
         else { energyFactor = 1.; }
         
         fSpectrum = spt; 
