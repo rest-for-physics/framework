@@ -107,6 +107,7 @@ Bool_t TRestCoBoAsAdToSignalProcess::OpenInputCoBoAsAdBinFile ( TString fName )
 
    fStartTimeStamp.Print();
 
+   cout << "OK" << endl;
 	return kTRUE;
 //*/
 }
@@ -132,10 +133,8 @@ TRestEvent* TRestCoBoAsAdToSignalProcess::ProcessEvent( TRestEvent *evInput )
    unsigned int i;
    int j;
 
-   TRestSignal sgnl;
+   TRestRawSignal sgnl;
    sgnl.SetSignalID(-1);
-
-
 
    if( fread(frameHeader,256,1,fInputBinFile)!=1 || feof(fInputBinFile))
    {
@@ -252,7 +251,7 @@ TRestEvent* TRestCoBoAsAdToSignalProcess::ProcessEvent( TRestEvent *evInput )
                {
                   sgnl.Initialize();
                   sgnl.SetSignalID(i+asadIdx*272);
-                  for(j=0;j<512;j++) sgnl.NewPoint(j,adcSample[i][j]);
+                  for(j=0;j<512;j++) sgnl.AddPoint( (Short_t) adcSample[i][j] );
                   fSignalEvent->AddSignal(sgnl);
                }
             }
@@ -357,7 +356,7 @@ TRestEvent* TRestCoBoAsAdToSignalProcess::ProcessEvent( TRestEvent *evInput )
             for(i=0;i<272;i++)
             {
                chHit[i]=0;
-               for(j=0;j<512;j++) adcSample[i][j]=0;
+               for(j=0;j<512;j++) adcSample[i][j] = 0;
             }
 
             if( fread(frameDataF,2048,136,fInputBinFile)!=136 || feof(fInputBinFile))
@@ -413,7 +412,7 @@ TRestEvent* TRestCoBoAsAdToSignalProcess::ProcessEvent( TRestEvent *evInput )
             {
                   sgnl.Initialize();
                   sgnl.SetSignalID(i+asadIdx*272);
-                  for(j=0;j<512;j++) sgnl.NewPoint(j,adcSample[i][j]);
+                  for(j=0;j<512;j++) sgnl.AddPoint( (Short_t) adcSample[i][j] );
                   fSignalEvent->AddSignal(sgnl);
             }
 
