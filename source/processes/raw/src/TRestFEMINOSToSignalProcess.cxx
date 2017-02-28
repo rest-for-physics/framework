@@ -169,7 +169,7 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
     bool skip=false;
 
     unsigned short dat, startDF;;
-    TRestSignal sgnl;
+    TRestRawSignal sgnl;
     sgnl.SetSignalID( -1 );
 
 
@@ -248,7 +248,7 @@ TRestEvent* TRestFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput )
             adc = (dat & 0xFFF);
 
             if(this->GetVerboseLevel()==REST_Debug)cout<<"Time bin "<<timeBin<<"\tADC "<<adc<<endl;
-            if(!skip) sgnl.NewPoint( timeBin, adc );
+            if(!skip) sgnl.AddPoint( (Short_t) adc );
             timeBin++;
         }
         //End of Frame, reading frame header and payload
