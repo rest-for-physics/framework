@@ -2,7 +2,7 @@
 file(GLOB EventsGeneral
         "general/src/*.cxx"
         )
-    set(CLASS_DICT TRestSignalEvent TRestHitsEvent TRestSignal TRestRawSignal TRestHits TRestVolumeHits)
+    set(CLASS_DICT TRestSignalEvent TRestRawSignalEvent TRestHitsEvent TRestSignal TRestRawSignal TRestHits TRestVolumeHits)
 foreach (CLASS ${CLASS_DICT})
     set(ROOT_DICT_INCLUDE_DIRS ${REST_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
     set(ROOT_DICT_INPUT_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/general/inc/${CLASS}.h)
