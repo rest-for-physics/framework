@@ -24,7 +24,7 @@
 #define RestCore_TRestRawToSignalProcess
 
 #include "TRestEventProcess.h"
-#include "TRestSignalEvent.h"
+#include "TRestRawSignalEvent.h"
 #include <TRestDetectorSetup.h>
 
 class TRestRawToSignalProcess:public TRestEventProcess {
@@ -42,7 +42,7 @@ class TRestRawToSignalProcess:public TRestEventProcess {
 
    Bool_t fRejectNoise;
    
-   TRestSignalEvent *fSignalEvent;
+   TRestRawSignalEvent *fSignalEvent;
    #ifndef __CINT__
    FILE *fInputBinFile;
 
