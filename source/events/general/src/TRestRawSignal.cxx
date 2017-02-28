@@ -24,7 +24,7 @@ using namespace std;
 
 ClassImp(TRestRawSignal)
 //______________________________________________________________________________
-    TRestRawSignal::TRestRawSignal()
+TRestRawSignal::TRestRawSignal()
 {
    // TRestRawSignal default constructor
    fGraph = NULL;
@@ -32,6 +32,19 @@ ClassImp(TRestRawSignal)
    fSignalData.clear();
 
    fPointsOverThreshold.clear();
+}
+
+TRestRawSignal::TRestRawSignal( Int_t nBins )
+{
+   // TRestRawSignal default constructor
+   fGraph = NULL;
+   fSignalID = -1;
+   fSignalData.clear();
+
+   fPointsOverThreshold.clear();
+
+   for( int n = 0; n < nBins; n++ )
+       fSignalData.push_back( 0 );
 }
 
 //______________________________________________________________________________
@@ -45,6 +58,14 @@ void TRestRawSignal::Initialize()
     fSignalData.clear();
     fPointsOverThreshold.clear();
     fSignalID = -1;
+}
+
+void TRestRawSignal::Reset()
+{
+    Int_t nBins = GetNumberOfPoints();
+    fSignalData.clear();
+    for( int n = 0; n < nBins; n++ )
+        fSignalData.push_back( 0 );
 }
 
 void TRestRawSignal::AddPoint( Short_t d )
@@ -212,6 +233,28 @@ Int_t TRestRawSignal::GetMaxPeakBin( )
         if( this->GetData(i) > max) 
         {
             max = GetData(i);
+            index = i;
+        }
+    }
+
+    return index;
+}
+
+Double_t TRestRawSignal::GetMinPeakValue() 
+{
+    return GetData( GetMinPeakBin() ); 
+}
+
+Int_t TRestRawSignal::GetMinPeakBin( )
+{
+    Double_t min = 1E10;
+    Int_t index = 0;
+
+    for( int i = 0; i < GetNumberOfPoints(); i++ )
+    {
+        if( this->GetData(i) < min) 
+        {
+            min = GetData(i);
             index = i;
         }
     }
