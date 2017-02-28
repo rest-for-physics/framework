@@ -302,7 +302,7 @@ Int_t TRestManager::LoadProcesses( )
             fRun->SetRunNumber( detSetup->GetRunNumber() );
             fRun->SetRunTag( detSetup->GetRunTag() );
         }
-        else if( i == 0 && fProcessType[i] == "TRestCoboAsadToSignalProcess" )
+        else if( i == 0 && fProcessType[i] == "TRestCoBoAsAdToSignalProcess" )
         {
 
             //TRestDetectorSetup *detSetup = new TRestDetectorSetup();
