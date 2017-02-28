@@ -15,7 +15,6 @@
 
 #include <TRestGas.h>
 #include <TRestReadout.h>
-#include <TRestG4Event.h>
 #include <TRestHitsEvent.h>
 
 #include <TRandom3.h>
@@ -25,8 +24,8 @@
 class TRestElectronDiffusionProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
-        TRestG4Event *fG4Event;
-        TRestHitsEvent *fHitsEvent;
+        TRestHitsEvent *fInputHitsEvent;
+        TRestHitsEvent *fOutputHitsEvent;
 
         TRestGas *fGas;
         TRestReadout *fReadout;

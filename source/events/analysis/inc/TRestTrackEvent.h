@@ -72,7 +72,7 @@ class TRestTrackEvent: public TRestEvent {
         void SetLevels();
         Int_t GetLevels( ) { return fLevels; }
 
-        TPad *DrawEvent();
+        TPad *DrawEvent( TString option = "" );
 
         TPad *GetPad() { return fPad; }
 

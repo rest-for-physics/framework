@@ -46,6 +46,12 @@ class TRestSignalToHitsProcess:public TRestEventProcess {
         Double_t fGasPressure; // atm
         Double_t fDriftVelocity; // mm/us
 
+        TVector2 fBaseLineRange;
+
+        Bool_t fSubstractBaseLine;
+
+        Int_t fThresholdType;
+
     public:
 
         void InitProcess();
@@ -65,11 +71,24 @@ class TRestSignalToHitsProcess:public TRestEventProcess {
             std::cout << "Threshold : " << fThreshold << std::endl;
             std::cout << "Gas pressure : " << fGasPressure << " atm" << std::endl;
             std::cout << "Drift velocity : " << fDriftVelocity << " mm/us" << std::endl;
+            std::cout << "Base line range definition : ( " << fBaseLineRange.X() << " , " << fBaseLineRange.Y() << " ) " << std::endl;
+
+            if( fSubstractBaseLine )
+                std::cout << "Substract baseline : true" << std::endl;
+            else
+                std::cout << "Substract baseline : false" << std::endl;
+
+            if( fThreshold == 0 )
+                std::cout << "Threshold type : absolute " << std::endl;
+            else if( fThreshold == 1 )
+                std::cout << "Threshold type : sigma " << std::endl;
+            else
+                std::cout << "Threshold type : unknown " << std::endl;
 
             EndPrintProcess();
         }
 
-        TRestMetadata *GetMetadata( ) { return fReadout; }
+        Double_t GetThreshold( TRestSignal *sgnl );
 
         TString GetProcessName() { return (TString) "signalToHits"; }
 

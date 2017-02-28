@@ -59,7 +59,7 @@ void TRestAddSignalNoiseProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestAddSignalNoiseProcess::Initialize()
 {
-    SetName( "addSignalNoiseProcess" );
+    SetSectionName( this->ClassName() );
 
     fNoiseLevel = 1;
 

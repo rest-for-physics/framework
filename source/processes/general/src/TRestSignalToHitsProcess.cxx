@@ -37,8 +37,6 @@ TRestSignalToHitsProcess::TRestSignalToHitsProcess( char *cfgFileName )
 //______________________________________________________________________________
 TRestSignalToHitsProcess::~TRestSignalToHitsProcess()
 {
-    if( fReadout != NULL ) delete fReadout;
-
     delete fHitsEvent;
     delete fSignalEvent;
     // TRestSignalToHitsProcess destructor
@@ -118,7 +116,7 @@ void TRestSignalToHitsProcess::LoadConfig( std::string cfgFilename, std::string 
 //______________________________________________________________________________
 void TRestSignalToHitsProcess::Initialize()
 {
-    SetName( "signalToHitsProcess" );
+    SetSectionName( this->ClassName() );
 
     fHitsEvent = new TRestHitsEvent();
     fSignalEvent = new TRestSignalEvent();
@@ -176,8 +174,11 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
 {
     fSignalEvent = (TRestSignalEvent *) evInput;
 
-    // TODO we must take this values from configuration
-    fSignalEvent->SubstractBaselines( 5, 100 );
+    if( fSubstractBaseLine )
+        fSignalEvent->SubstractBaselines( fBaseLineRange.X(), fBaseLineRange.Y() );
+
+    if( GetVerboseLevel() >= REST_Debug )
+        fSignalEvent->PrintEvent();
 
     fHitsEvent->SetID( fSignalEvent->GetID() );
     fHitsEvent->SetSubID( fSignalEvent->GetSubID() );
@@ -205,11 +206,14 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
                     planeID = p;
                     readoutChannel = mod->DaqToReadoutChannel( signalID );
                     readoutModule = mod->GetModuleID();
+                    if( GetVerboseLevel() >= REST_Debug ) {
+                    cout << "-------------------------------------------------------------------" << endl;
+                    cout << "signal Id : " << signalID << endl;
+                    cout << "channel : " << readoutChannel << " module : " << readoutModule << endl;
+                    cout << "-------------------------------------------------------------------" << endl; }
                 }
             }
-
         }
-
 
         if ( readoutChannel == -1 ) continue;
         /////////////////////////////////////////////////////////////////////////
@@ -220,7 +224,11 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
         Double_t fieldZDirection = plane->GetPlaneVector().Z();
         Double_t zPosition = plane->GetPosition().Z();
 
-        Double_t thr = fThreshold * sgnl->GetBaseLineSigma( 5, 100 );
+        Double_t thr = GetThreshold( sgnl );
+
+        if( GetVerboseLevel() >= REST_Debug )
+            cout << "Signal Threshold : " << thr << endl;
+
         for( int j = 0; j < sgnl->GetNumberOfPoints(); j++ )
         {
             energy = sgnl->GetData(j);
@@ -232,10 +240,22 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
 
             x = plane->GetX( readoutModule, readoutChannel );
             y = plane->GetY( readoutModule, readoutChannel );
+            if( GetVerboseLevel() >= REST_Debug )
+                cout << "Adding hit. Time : " << sgnl->GetTime(j) << " x : " << x << " y : " << y << " z : " << z << endl;
             fHitsEvent->AddHit( x, y, z, energy );
 
         }
     }
+
+    if( this->GetVerboseLevel() >= REST_Debug ) 
+    {
+        fHitsEvent->PrintEvent(300);
+        cout << "TRestSignalToHitsProcess. Hits added : " << fHitsEvent->GetNumberOfHits() << endl;
+        cout << "TRestSignalToHitsProcess. Hits total energy : " << fHitsEvent->GetEnergy() << endl;
+        GetChar();
+    }
+
+    if( fHitsEvent->GetNumberOfHits() <= 0 ) return NULL;
 
     return fHitsEvent;
 }
@@ -260,10 +280,40 @@ void TRestSignalToHitsProcess::EndProcess()
 //______________________________________________________________________________
 void TRestSignalToHitsProcess::InitFromConfigFile( )
 {
+
     fElectricField = GetDblParameterWithUnits( "electricField" );
     fSampling = GetDblParameterWithUnits( "sampling" );
-    fThreshold = StringToDouble( GetParameter( "threshold" ) );
+    fThreshold = StringToDouble( GetParameter( "threshold", "-1" ) );
     fGasPressure = StringToDouble( GetParameter( "gasPressure", "-1" ) );
     fDriftVelocity = StringToDouble( GetParameter( "driftVelocity" , "0") ) * cmTomm;
+
+    fBaseLineRange = StringTo2DVector( GetParameter( "baseLineRange", "(5,55)") );
+    fSubstractBaseLine = false;
+    if( GetParameter( "substractBaseLine", "false" ) == "true" ) fSubstractBaseLine = true;
+
+    TString thType = GetParameter( "thresholdType", "absolute" );
+
+    if( thType == "absolute" ) fThresholdType = 0;
+    else if( thType == "sigma" ) fThresholdType = 1;
+    else fThresholdType = -1;
+
 }
 
+Double_t TRestSignalToHitsProcess::GetThreshold( TRestSignal *sgnl )
+{
+    Double_t thr = 0;
+    if( fThresholdType == 1 )
+    {
+        thr = fThreshold * sgnl->GetBaseLineSigma( fBaseLineRange.X(), fBaseLineRange.Y() );
+    }
+    else if ( fThresholdType == 0 )
+    {
+        thr = fThreshold;
+    }
+    else
+    {
+        cout << "REST Warning. TRestSignalToHitsProcess. Unknown threshold type" << endl;
+    }
+
+    return thr;
+}

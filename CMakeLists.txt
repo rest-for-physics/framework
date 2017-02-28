@@ -153,6 +153,18 @@ message(STATUS \"REST commit : \${git_commit}\")
 "
 )
 
+install( CODE 
+                "
+execute_process(COMMAND date 
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+  RESULT_VARIABLE git_result
+  OUTPUT_VARIABLE system_date)
+
+message(STATUS \"Date : \${system_date}\")
+
+"
+)
+
 #### This code gets the branch number to be inserted in thisREST.sh
 install( CODE 
                 "
@@ -178,16 +190,17 @@ export REST_SOURCE=${SOURCE_DIR}
 export REST_PATH=\\\$REST_INSTALL
 export REST_GARFIELD_INCLUDE=${Garfield_INCLUDE_DIRS}
 export REST_GARFIELD_LIB=${Garfield_LIBRARIES}
-export PATH=\\\$PATH:\\\$REST_PATH/bin
-export LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH:\\\$REST_PATH/lib
+export PATH=\\\$REST_PATH/bin:\\\$PATH
+export LD_LIBRARY_PATH=\\\$REST_PATH/lib:\\\$LD_LIBRARY_PATH
 export LIBRARY_PATH=\\\$LIBRARY_PATH:\\\$REST_PATH/lib
 
 alias restRoot=\\\"root -l \\\$REST_PATH/scripts/LoadRESTScripts.C\\\"
 
 
-
 echo \\\"*****************************************************************************\\\"
 echo \\\"  W E L C O M E   to  R E S T              \\\"
+echo \\\"                                                                               \\\"
+echo \\\"  Last update : \${system_date}      \\\"
 echo \\\"                                                                               \\\"
 echo \\\"  Commit : \${git_commit} 		                        \\\"
 echo \\\"  Branch : \${git_branch}                                     \\\"

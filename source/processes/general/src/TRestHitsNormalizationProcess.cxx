@@ -62,7 +62,7 @@ void TRestHitsNormalizationProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestHitsNormalizationProcess::Initialize()
 {
-    SetName( "hitsNormalizationProcess" );
+    SetSectionName( this->ClassName() );
 
     fFactor = 1.;	
 
@@ -106,6 +106,12 @@ TRestEvent* TRestHitsNormalizationProcess::ProcessEvent( TRestEvent *evInput )
 
     for( int hit = 0; hit < fHitsInputEvent->GetNumberOfHits(); hit++ )
         fHitsOutputEvent->AddHit( fHitsInputEvent->GetX(hit), fHitsInputEvent->GetY(hit), fHitsInputEvent->GetZ(hit), fHitsInputEvent->GetEnergy(hit) * fFactor );   
+
+    if( this->GetVerboseLevel() >= REST_Debug ) 
+    {
+        cout << "TRestHitsNormalizationProcess. Hits added : " << fHitsOutputEvent->GetNumberOfHits() << endl;
+        cout << "TRestHitsNormalizationProcess. Hits total energy : " << fHitsOutputEvent->GetEnergy() << endl;
+    }
 
     return fHitsOutputEvent;
 }

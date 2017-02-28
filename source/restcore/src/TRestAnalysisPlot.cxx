@@ -14,6 +14,7 @@
 #include "TRestAnalysisPlot.h"
 using namespace std;
 
+#include <TStyle.h>
 
 
 const int debug = 0;
@@ -36,7 +37,7 @@ TRestAnalysisPlot::TRestAnalysisPlot( const char *cfgFileName, const char *name)
 
 void TRestAnalysisPlot::Initialize()
 {
-    SetName("analysisPlot");
+    SetSectionName( this->ClassName() );
 
     fRun = NULL;
 
@@ -65,6 +66,7 @@ void TRestAnalysisPlot::InitFromConfigFile()
     }
 
     fPlotMode = GetParameter( "plotMode", "compare" );
+    fHistoOutputFile = GetParameter( "histoFilename", "/tmp/histos.root" );
 
     position = 0;
     string canvasDefinition;
@@ -192,7 +194,7 @@ void TRestAnalysisPlot::InitFromConfigFile()
 
             for( unsigned int i = 0; i < globalCuts.size(); i++ )
             {
-                if( n > 0 ) cutString += " && ";
+                if( i > 0 || cutString != "" ) cutString += " && ";
                 cutString += globalCuts[i];
             }
 
@@ -261,6 +263,11 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
 
     fCanvasSave = ReplaceFilenameTags( fCanvasSave, runs[0] );
 
+    fHistoOutputFile = ReplaceFilenameTags( fHistoOutputFile, runs[0] );
+    TFile *f = new TFile( fHistoOutputFile, "RECREATE");
+
+    cout << "Saving histograms to ROOT file : " << fHistoOutputFile << endl;
+
     if( fCombinedCanvas != NULL ) 
     {
         delete fCombinedCanvas;
@@ -270,6 +277,9 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
     fCombinedCanvas = new TCanvas( "combined", "combined", 0, 0, fCanvasSize.X(), fCanvasSize.Y() );
 
     fCombinedCanvas->Divide( (Int_t) fCanvasDivisions.X(), (Int_t) fCanvasDivisions.Y() );
+
+    TStyle *st = new TStyle();
+    st->SetPalette(1);
 
     for( unsigned int n = 0; n < fPlotString.size(); n++ )
     {
@@ -288,13 +298,16 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
                 plotString = plotString( 0, fPlotString[n].First(">>+") + 3 ) + fPlotNames[n];
             }
 
-            trees[m]->Draw( plotString, fCutString[n], "" );
+            trees[m]->Draw( plotString, fCutString[n], "colz" );
         }
 
         TH3F *htemp = (TH3F*)gPad->GetPrimitive( fPlotNames[n] );
         htemp->SetTitle( fPlotTitle[n] );
         htemp->GetXaxis()->SetTitle( fPlotXLabel[n] );
         htemp->GetYaxis()->SetTitle( fPlotYLabel[n] );
+
+        f->cd();
+        htemp->Write( fPlotNames[n] );
 
         if( fPlotSaveToFile[n] != "Notdefined" && fPlotSaveToFile[n] != "" )
             SavePlotToPDF( fPlotNames[n], fPlotSaveToFile[n] );
@@ -303,6 +316,8 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
 
     if( fCanvasSave != "" )
         fCombinedCanvas->Print( fCanvasSave );
+
+    f->Close();
 }
 
 void TRestAnalysisPlot::PlotCombinedCanvasCompare( )

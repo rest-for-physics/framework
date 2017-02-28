@@ -1,21 +1,66 @@
 cmake_minimum_required(VERSION 2.8)
-project(myREST)
+
+################################################################
+# Replace "myRESTLibrary" by the name of your library
+# To integrate with REST framework, the name of the library
+# should contain REST or Rest in its name
+
+set( MY_LIBRARY "MyRESTLibrary" )
+project( ${MY_LIBRARY} )
+
+################################################################
+
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+
+################################################################
+# Including external libraries
+#
 include(FindROOT)
 include(MacroRootDict)
 include(FindREST)
+
 include_directories(${ROOT_INCLUDE_DIRS})
 include_directories(${REST_INCLUDE_DIRS})
+################################################################
+
+################################################################
+# Definning the install directory
+#
+
+IF(DEFINED INSTALL_PREFIX)
+    message("\noo Using user install path.")
+ELSE()
+    message("\noo Using default install path.")
+    set(INSTALL_PREFIX ${REST_INSTLL_PATH})
+ENDIF()
+
+set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
+################################################################
+
 SET(CMAKE_CXX_FLAGS "-std=c++11 -Wall -march=native")
-set(CMAKE_INSTALL_PREFIX ${REST_INSTLL_PATH})
-message ("oo Install prefix : ${CMAKE_INSTALL_PREFIX}\n" )
 
-#Generate CINT file
-set(CLASS_DICT myManager myProcess myMetadata)
+################################################################
+# Adding classes to dictionary
+#
+file(GLOB_RECURSE classes_list "${CMAKE_SOURCE_DIR}/src/*.cxx")
 
-file(GLOB MyRESTLibrarySrc
-        "src/*.cxx"
-        )
+foreach (file ${classes_list})
+          get_filename_component (name_without_extension ${file} NAME_WE)
+          set( CLASS_DICT ${CLASS_DICT} ${name_without_extension} )
+endforeach()
+################################################################
+
+file(GLOB MyRESTLibrarySrc "src/*.cxx" )
+
+message( "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n
+            After \"make install\" your library will be installed in ${CMAKE_INSTALL_PREFIX}\n\n
+
+            If you want to change the installation directory execute cmake as follows: \n
+            cmake -DINSTALL_PREFIX=PATH_TO_INSTALL_DIR PATH_TO_SOURCE_DIR\n\n
+
+            IMPORTANT : make sure you add the location of the new library to the LD_LIBRARY_PATH\n
+          \n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" )
+
 
 foreach (CLASS ${CLASS_DICT})
     set(ROOT_DICT_INCLUDE_DIRS ${REST_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS})
@@ -25,21 +70,11 @@ foreach (CLASS ${CLASS_DICT})
 endforeach (CLASS)
 
 include_directories(inc)
-add_library(MyRESTLibrary SHARED ${MyRESTLibrarySrc})
+add_library( ${MY_LIBRARY} SHARED ${MyRESTLibrarySrc})
 set(target_libraries ${target_libraries} ${REST_LIBRARIES} -lGui ${ROOT_LIBRARIES} -lEve -lGeom)
-#target_link_libraries(MyRESTLibrary ${ROOT_LIBRARIES} -lGui -lEve -lGeom ${Garfield_LIBRARIES})
-#add_library(RestCoreStatic STATIC ${RestCoreSrc})
-target_link_libraries(MyRESTLibrary ${target_libraries})
+target_link_libraries( ${MY_LIBRARY} ${target_libraries})
 
-add_executable(restLauncher restLauncher.cc)
-target_link_libraries(restLauncher MyRESTLibrary)
-
-install(TARGETS MyRESTLibrary
+install(TARGETS ${MY_LIBRARY}
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib/static)
-install(TARGETS restLauncher
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib/static)
-

@@ -55,7 +55,7 @@ void TRestFastHitsToTrackProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestFastHitsToTrackProcess::Initialize()
 {
-    SetName("fastHitsToTrackProcess");
+    SetSectionName( this->ClassName() );
 
     fCellResolution = 10.; 
     fNetSize = 1000.;

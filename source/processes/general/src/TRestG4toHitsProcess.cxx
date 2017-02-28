@@ -4,30 +4,30 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestG4toHitsEventProcess.cxx
+///             TRestG4toHitsProcess.cxx
 ///
 ///
 ///             Simple process to convert a TRestG4Event class into a 
-///    		TRestHitsEvent, that is, we just "extract" the hits information
+///    		    TRestHitsEvent, that is, we just "extract" the hits information
 ///             Date : oct/2016
 ///             Author : I. G. Irastorza
 ///
 ///_______________________________________________________________________________
 
 
-#include "TRestG4toHitsEventProcess.h"
+#include "TRestG4toHitsProcess.h"
 using namespace std;
 
 
-ClassImp(TRestG4toHitsEventProcess)
+ClassImp(TRestG4toHitsProcess)
     //______________________________________________________________________________
-TRestG4toHitsEventProcess::TRestG4toHitsEventProcess()
+TRestG4toHitsProcess::TRestG4toHitsProcess()
 {
     Initialize();
 }
 
 //______________________________________________________________________________
-TRestG4toHitsEventProcess::TRestG4toHitsEventProcess( char *cfgFileName )
+TRestG4toHitsProcess::TRestG4toHitsProcess( char *cfgFileName )
 {
     Initialize();
 
@@ -35,14 +35,14 @@ TRestG4toHitsEventProcess::TRestG4toHitsEventProcess( char *cfgFileName )
 }
 
 //______________________________________________________________________________
-TRestG4toHitsEventProcess::~TRestG4toHitsEventProcess()
+TRestG4toHitsProcess::~TRestG4toHitsProcess()
 {
     delete fG4Event;
     delete fHitsEvent;
 }
 
 //______________________________________________________________________________
-void TRestG4toHitsEventProcess::LoadDefaultConfig()
+void TRestG4toHitsProcess::LoadDefaultConfig()
 {
     SetTitle( "Default config" );
 
@@ -50,9 +50,9 @@ void TRestG4toHitsEventProcess::LoadDefaultConfig()
 }
 
 //______________________________________________________________________________
-void TRestG4toHitsEventProcess::Initialize()
+void TRestG4toHitsProcess::Initialize()
 {
-    SetName( "g4ToHitsProcess" );
+    SetSectionName( this->ClassName() );
 
     fG4Event = new TRestG4Event();
     fHitsEvent = new TRestHitsEvent();
@@ -61,13 +61,13 @@ void TRestG4toHitsEventProcess::Initialize()
     fInputEvent = fG4Event;
 }
 
-void TRestG4toHitsEventProcess::LoadConfig( std::string cfgFilename, std::string name )
+void TRestG4toHitsProcess::LoadConfig( std::string cfgFilename, std::string name )
 {
     if( LoadConfigFromFile( cfgFilename, name ) ) LoadDefaultConfig( );
 }
 
 //______________________________________________________________________________
-void TRestG4toHitsEventProcess::InitProcess()
+void TRestG4toHitsProcess::InitProcess()
 {
 //    TRestEventProcess::ReadObservables();
 
@@ -75,13 +75,13 @@ void TRestG4toHitsEventProcess::InitProcess()
 }
 
 //______________________________________________________________________________
-void TRestG4toHitsEventProcess::BeginOfEventProcess() 
+void TRestG4toHitsProcess::BeginOfEventProcess() 
 {
     fHitsEvent->Initialize();
 }
 
 //______________________________________________________________________________
-TRestEvent* TRestG4toHitsEventProcess::ProcessEvent( TRestEvent *evInput )
+TRestEvent* TRestG4toHitsProcess::ProcessEvent( TRestEvent *evInput )
 {
     fG4Event = (TRestG4Event *) evInput;
 
@@ -108,21 +108,27 @@ TRestEvent* TRestG4toHitsEventProcess::ProcessEvent( TRestEvent *evInput )
             E = fG4Event->GetTrack(i)->GetHits()->fEnergy[j];
 
             // and write them in the output hits event:
-            fHitsEvent->AddHit (x, y, z, E);
+            if( E > 0 ) fHitsEvent->AddHit (x, y, z, E);
         }
+    }
+
+    if( this->GetVerboseLevel() >= REST_Debug ) 
+    {
+        cout << "TRestG4toHitsProcess. Hits added : " << fHitsEvent->GetNumberOfHits() << endl;
+        cout << "TRestG4toHitsProcess. Hits total energy : " << fHitsEvent->GetEnergy() << endl;
     }
 
     return fHitsEvent;
 }
 
 //______________________________________________________________________________
-void TRestG4toHitsEventProcess::EndOfEventProcess() 
+void TRestG4toHitsProcess::EndOfEventProcess() 
 {
 
 }
 
 //______________________________________________________________________________
-void TRestG4toHitsEventProcess::EndProcess()
+void TRestG4toHitsProcess::EndProcess()
 {
     // Function to be executed once at the end of the process 
     // (after all events have been processed)
@@ -133,7 +139,7 @@ void TRestG4toHitsEventProcess::EndProcess()
 }
 
 //______________________________________________________________________________
-void TRestG4toHitsEventProcess::InitFromConfigFile( )
+void TRestG4toHitsProcess::InitFromConfigFile( )
 {
 
 }

@@ -50,7 +50,7 @@ void TRestHitsReductionProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestHitsReductionProcess::Initialize( )
 {
-    SetName("hitsReductionProcess");
+    SetSectionName( this->ClassName() );
 
     fInputHitsEvent = new TRestHitsEvent();
     fOutputHitsEvent = new TRestHitsEvent();
@@ -122,7 +122,11 @@ TRestEvent* TRestHitsReductionProcess::ProcessEvent( TRestEvent *evInput )
     Int_t initialHits = fInputHitsEvent->GetNumberOfHits();
     Int_t finalHits = fOutputHitsEvent->GetNumberOfHits();
 
-    cout << "Hits reduction : Initial hits : " << initialHits << " Final hits : " << finalHits << endl;
+    if( this->GetVerboseLevel() == REST_Debug )
+    {
+        cout << "TRestHitsReductionProcess : Initial number of hits : " << initialHits << endl;
+        cout << "TRestHitsReductionProcess : Final number of hits : " << finalHits << endl;
+    }
 
     /*
        cout << "output event" << endl;

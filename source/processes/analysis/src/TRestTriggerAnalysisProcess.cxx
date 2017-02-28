@@ -47,7 +47,7 @@ void TRestTriggerAnalysisProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestTriggerAnalysisProcess::Initialize()
 {
-    SetName( "triggerAnalysisProcess" );
+    SetSectionName( this->ClassName() );
 
     fSignalEvent = new TRestSignalEvent();
 

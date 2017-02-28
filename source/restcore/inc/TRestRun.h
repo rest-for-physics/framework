@@ -74,7 +74,10 @@ class TRestRun:public TRestMetadata {
         Bool_t fSkipEventTree;
         Bool_t fOverwrite;
 
-        Int_t inputRunNumber;
+        Int_t tmpInputRunNumber;
+        TString tmpOutputFileName;
+        TString tmpOutputDataPath;
+        TString tmpInputFileName;
 
         TTree *fInputEventTree;
         TTree *fOutputEventTree;
@@ -98,6 +101,7 @@ class TRestRun:public TRestMetadata {
         vector <TString> fSubEventTagList;
 
         void SetRunFilenameAndIndex();
+
         TKey *GetObjectKeyByClass( TString className );
         TKey *GetObjectKeyByName( TString name );
 
@@ -107,6 +111,16 @@ class TRestRun:public TRestMetadata {
         void ProcessEvents( Int_t firstEvent = 0, Int_t eventsToProcess = 0, Int_t lastEvent = 0 );
         
         Int_t GetNumberOfProcesses() { return fEventProcess.size(); }
+        Int_t GetNumberOfMetadataStructures() { return fMetadata.size(); }
+        
+        Int_t GetNumberOfHistoricProcesses() { return fHistoricEventProcess.size(); }
+        Int_t GetNumberOfHistoricMetadataStructures() { return fHistoricMetadata.size(); }
+
+        std::vector <std::string> GetMetadataStructureNames( );
+        std::vector <std::string> GetMetadataStructureTitles( );
+
+        std::vector <std::string> GetProcessNames( );
+        std::vector <std::string> GetProcessTitles( );
 
         // File input/output
         void OpenOutputFile( );
@@ -120,7 +134,7 @@ class TRestRun:public TRestMetadata {
 
         TRestEvent *GetEventInput() { return fInputEvent; }
 
-        Int_t GetEventWithID( Int_t eventID, Int_t subEventID = 0 );
+        Int_t GetEventWithID( Int_t eventID, Int_t subEventID = -1 );
         Int_t GetEventWithID( Int_t eventID, TString tag );
 
 
@@ -149,6 +163,10 @@ class TRestRun:public TRestMetadata {
         Int_t GetEventID( Int_t entry ) { return fEventIDs[entry]; }
         Int_t GetSubEventID( Int_t entry ) { return fSubEventIDs[entry]; }
         TString GetSubEventTag( Int_t entry ) { return fSubEventTags[entry]; }
+
+        TString GetInputEventName( );
+
+        void PrintEvent (  ) { fInputEvent->PrintEvent( ); }
 
         Int_t GetEntry( Int_t i )
         {
@@ -226,6 +244,18 @@ class TRestRun:public TRestMetadata {
             return -1;
         }
         Int_t GetNumberOfEvents( ) { return GetNumberOfInitialEvents(); }
+
+        TString GetInputEventType( )
+        {
+            if( fContainsEventTree )
+            {
+                TKey *key = GetObjectKeyByClass( "TTree" );
+                std::string name = key->GetName();
+                unsigned int pos = name.find( "Tree" );
+                return (TString) name.substr( 0, pos );
+            }
+            return "";
+        }
 
         TRestMetadata *GetMetadata( TString name );
         TRestMetadata *GetMetadataClass( TString className );

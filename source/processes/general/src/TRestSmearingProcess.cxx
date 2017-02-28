@@ -63,7 +63,7 @@ void TRestSmearingProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestSmearingProcess::Initialize()
 {
-    SetName( "smearingProcess" );
+    SetSectionName( this->ClassName() );
 
     fEnergyRef = 5.9;	
     fResolutionAtEref = 15.0; 

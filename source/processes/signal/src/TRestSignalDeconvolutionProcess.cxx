@@ -82,7 +82,7 @@ void TRestSignalDeconvolutionProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestSignalDeconvolutionProcess::Initialize()
 {
-    SetName( "signalDeconvolutionProcess" );
+    SetSectionName( this->ClassName() );
     fInputSignalEvent = new TRestSignalEvent();
 
     fOutputSignalEvent = new TRestSignalEvent();

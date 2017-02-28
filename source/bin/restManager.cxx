@@ -1,5 +1,8 @@
 #include <TSystem.h>
 #include <TApplication.h>
+
+#include <TRestTools.h>
+
 #include <TRestManager.h>
 
 char cfgFileName[256];
@@ -32,9 +35,15 @@ int main( int argc, char *argv[] )
     TApplication theApp("App", 0, 0 );
 
     gSystem->Load("libRestCore.so");
-    gSystem->Load("libRestMetadata.so");
-    gSystem->Load("libRestProcesses.so");
     gSystem->Load("libRestEvents.so");
+    gSystem->Load("libRestMetadata.so");
+    // Loading REST or Rest Libraries found in LD_LIBRARY_PATH
+    vector <TString> list = TRestTools::GetListOfRESTLibraries( );
+    for( unsigned int n = 0; n < list.size(); n++ )
+    {
+        cout << "Loading library : " << list[n] << endl;
+        gSystem->Load( list[n] );
+    }
 
 
     if( argc <= 1 ) { PrintHelp(); exit(1); }

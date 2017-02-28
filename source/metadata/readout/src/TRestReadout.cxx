@@ -42,6 +42,7 @@ TRestReadout::TRestReadout( const char *cfgFileName) : TRestMetadata (cfgFileNam
 
 TRestReadout::TRestReadout( const char *cfgFileName, string name) : TRestMetadata (cfgFileName)
 {
+    cout << "Loading readout. This might take few seconds" << endl;
     Initialize();
 
     LoadConfigFromFile( fConfigFileName, name );
@@ -57,7 +58,7 @@ TRestReadout::TRestReadout( const char *cfgFileName, string name) : TRestMetadat
 
 void TRestReadout::Initialize()
 {
-    SetName("readout");
+    SetSectionName( this->ClassName() );
 
     fDecoding = false;
 
@@ -69,7 +70,6 @@ void TRestReadout::Initialize()
 //______________________________________________________________________________
 TRestReadout::~TRestReadout()
 {
-    cout << "Deleting TRestReadout" << endl;
 }
 
 Int_t TRestReadout::GetNumberOfReadoutPlanes( ) 

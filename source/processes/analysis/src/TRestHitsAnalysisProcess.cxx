@@ -28,13 +28,14 @@ TRestHitsAnalysisProcess::TRestHitsAnalysisProcess( char *cfgFileName )
 {
     Initialize();
 
-    if( LoadConfigFromFile( cfgFileName ) ) LoadDefaultConfig( );
+    if( LoadConfigFromFile( cfgFileName ) == -1 ) LoadDefaultConfig( );
 }
 
 //______________________________________________________________________________
 TRestHitsAnalysisProcess::~TRestHitsAnalysisProcess()
 {
-    delete fHitsEvent;
+    delete fInputHitsEvent;
+    delete fOutputHitsEvent;
 }
 
 void TRestHitsAnalysisProcess::LoadDefaultConfig()
@@ -45,55 +46,45 @@ void TRestHitsAnalysisProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestHitsAnalysisProcess::Initialize()
 {
-    SetName( "hitsAnalysisProcess" );
+    SetSectionName( this->ClassName() );
 
-    fHitsEvent = new TRestHitsEvent();
+    fInputHitsEvent = new TRestHitsEvent();
+    fOutputHitsEvent = new TRestHitsEvent();
 
-    fOutputEvent = fHitsEvent;
-    fInputEvent = fHitsEvent;
+    fOutputEvent = fOutputHitsEvent;
+    fInputEvent = fInputHitsEvent;
 }
 
 void TRestHitsAnalysisProcess::LoadConfig( std::string cfgFilename, std::string name )
 {
-    if( LoadConfigFromFile( cfgFilename, name ) ) LoadDefaultConfig( );
+    if( LoadConfigFromFile( cfgFilename, name ) == -1 ) LoadDefaultConfig( );
 }
 
 //______________________________________________________________________________
 void TRestHitsAnalysisProcess::InitProcess()
 {
     TRestEventProcess::ReadObservables();
-
 }
 
 //______________________________________________________________________________
 void TRestHitsAnalysisProcess::BeginOfEventProcess() 
 {
-    fHitsEvent->Initialize();
+    fOutputHitsEvent->Initialize();
 }
 
 //______________________________________________________________________________
 TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 {
+    fInputHitsEvent = (TRestHitsEvent *) evInput;
     TString obsName;
 
-    TRestHitsEvent *fInputHitsEvent = (TRestHitsEvent *) evInput;
+    TransferEvent( fOutputHitsEvent, fInputHitsEvent );
 
-    /// Copying the signal event to the output event
+    Double_t energy = fOutputHitsEvent->GetEnergy( );
+    TVector3 meanPosition = fOutputHitsEvent->GetMeanPosition();
 
-    fHitsEvent->SetID( fInputHitsEvent->GetID() );
-    fHitsEvent->SetSubID( fInputHitsEvent->GetSubID() );
-    fHitsEvent->SetTimeStamp( fInputHitsEvent->GetTimeStamp() );
-    fHitsEvent->SetSubEventTag( fInputHitsEvent->GetSubEventTag() );
-
-    for( int hit = 0; hit < fInputHitsEvent->GetNumberOfHits(); hit++ )
-        fHitsEvent->AddHit( fInputHitsEvent->GetX(hit), fInputHitsEvent->GetY(hit), fInputHitsEvent->GetZ(hit), fInputHitsEvent->GetEnergy(hit)  );
-    /////////////////////////////////////////////////
-
-    Double_t electrons = fHitsEvent->GetEnergy( );
-    TVector3 meanPosition = fHitsEvent->GetMeanPosition();
-
-    obsName = this->GetName() + (TString) ".electrons";
-    fAnalysisTree->SetObservableValue( obsName, electrons );
+    obsName = this->GetName() + (TString) ".energy";
+    fAnalysisTree->SetObservableValue( obsName, energy );
 
     obsName = this->GetName() + (TString) ".xMean";
     fAnalysisTree->SetObservableValue( obsName, meanPosition.X() );
@@ -104,7 +95,13 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     obsName = this->GetName() + (TString) ".zMean";
     fAnalysisTree->SetObservableValue( obsName, meanPosition.Z() );
 
-    return fHitsEvent;
+    if( GetVerboseLevel() >= REST_Extreme )
+    {
+        fOutputHitsEvent->PrintEvent( 1000 );
+        GetChar();
+    }
+
+    return fOutputHitsEvent;
 }
 
 //______________________________________________________________________________

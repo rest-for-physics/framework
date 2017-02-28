@@ -1,15 +1,12 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///             
+//////////////////////////////////////////////////////////////////////////
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
 ///             TRestHitsShuffleProcess.cxx
 ///
 ///             Jan 2016:   First concept (Javier Galan)
-//
-///_______________________________________________________________________________
+///
+//////////////////////////////////////////////////////////////////////////
 
 #include "TRestHitsShuffleProcess.h"
 using namespace std;
@@ -47,7 +44,7 @@ void TRestHitsShuffleProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestHitsShuffleProcess::Initialize( )
 {
-    SetName("hitsShuffleProcess");
+    SetSectionName( this->ClassName() );
 
     fInputHitsEvent = new TRestHitsEvent();
     fOutputHitsEvent = new TRestHitsEvent();

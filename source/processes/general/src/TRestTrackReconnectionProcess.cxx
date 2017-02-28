@@ -1,6 +1,4 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
+//////////////////////////////////////////////////////////////////////////
 ///             
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
@@ -8,8 +6,8 @@
 ///             TRestTrackReconnectionProcess.cxx
 ///
 ///             Jan 2016:   First concept (Javier Galan)
-//
-///_______________________________________________________________________________
+///
+//////////////////////////////////////////////////////////////////////////
 
 #include "TRestTrackReconnectionProcess.h"
 using namespace std;
@@ -46,7 +44,7 @@ void TRestTrackReconnectionProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestTrackReconnectionProcess::Initialize( )
 {
-    SetName("trackReconnectionProcess");
+    SetSectionName( this->ClassName() );
 
     fInputTrackEvent = new TRestTrackEvent();
     fOutputTrackEvent = new TRestTrackEvent();
@@ -89,8 +87,6 @@ TRestEvent* TRestTrackReconnectionProcess::ProcessEvent( TRestEvent *evInput )
     for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
         fOutputTrackEvent->AddTrack( fInputTrackEvent->GetTrack(tck) ); 
 
-    cout << "Event ID : " << fInputTrackEvent->GetID() << endl;
-
     for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
     {
         if( !fInputTrackEvent->isTopLevel( tck ) ) continue;
@@ -100,13 +96,15 @@ TRestEvent* TRestTrackReconnectionProcess::ProcessEvent( TRestEvent *evInput )
         Int_t nHits = hits->GetNumberOfHits();
 
         /* {{{ Debug output */
-        cout << "Input hits" << endl;
-        Int_t pId = fInputTrackEvent->GetTrack( tck )->GetParentID();
-        cout << "Track : " << tck << " TrackID : " << tckId << " ParentID : " << pId << endl;
-        cout << "-----------------" << endl;
+        if( this->GetVerboseLevel() >= REST_Debug )
+        {
+            cout << "TRestTrackReconnectionProcess. Input hits" << endl;
+            Int_t pId = fInputTrackEvent->GetTrack( tck )->GetParentID();
+            cout << "Track : " << tck << " TrackID : " << tckId << " ParentID : " << pId << endl;
+            cout << "-----------------" << endl;
+        }
         /* }}} */
 
-        cout << endl;
         meanDistance = 0;
         for( int n = 1; n < nHits; n++ )
             meanDistance += hits->GetDistance( n-1, n );

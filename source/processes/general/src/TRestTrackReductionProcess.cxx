@@ -1,15 +1,12 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///             
+//////////////////////////////////////////////////////////////////////////
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
 ///             TRestTrackReductionProcess.cxx
 ///
 ///             Jan 2016:   First concept (Javier Galan)
-//
-///_______________________________________________________________________________
+///             
+//////////////////////////////////////////////////////////////////////////
 
 #include "TRestTrackReductionProcess.h"
 using namespace std;
@@ -50,7 +47,7 @@ void TRestTrackReductionProcess::LoadDefaultConfig( )
 //______________________________________________________________________________
 void TRestTrackReductionProcess::Initialize( )
 {
-    SetName("trackReductionProcess");
+    SetSectionName( this->ClassName() );
 
     fInputTrackEvent = new TRestTrackEvent();
     fOutputTrackEvent = new TRestTrackEvent();
@@ -86,18 +83,31 @@ TRestEvent* TRestTrackReductionProcess::ProcessEvent( TRestEvent *evInput )
     for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
         fOutputTrackEvent->AddTrack( fInputTrackEvent->GetTrack(tck) ); 
 
+    if( this->GetVerboseLevel() >= REST_Debug )
+        fInputTrackEvent->PrintOnlyTracks();
+
     // Reducing the hits inside each track
     for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
     {
-     //   fInputTrackEvent->PrintOnlyTracks();
         if( !fInputTrackEvent->isTopLevel( tck ) ) continue;
 
         TRestTrack *track = fInputTrackEvent->GetTrack( tck );
         TRestVolumeHits *hits = track->GetVolumeHits();
 
+        if( this->GetVerboseLevel() >= REST_Debug )
+              cout << "TRestTrackReductionProcess. Reducing hits in track id : " <<  track->GetTrackID() << endl;
+
         Double_t distance = fStartingDistance;
         while( distance < fMinimumDistance || hits->GetNumberOfHits() > fMaxNodes )
         {
+            if( this->GetVerboseLevel() >= REST_Debug )
+            {
+                cout << "TRestTrackReductionProcess. Merging track hits within a distance : " << distance << " mm" << endl;
+                cout << "TRestTrackReductionProcess. Hits now : " <<hits->GetNumberOfHits() << endl;
+            }
+
+            Int_t mergedHits = 0;
+
             Bool_t merged = true;
             while( merged )
             {
@@ -108,12 +118,21 @@ TRestEvent* TRestTrackReductionProcess::ProcessEvent( TRestEvent *evInput )
                     {
                         if( hits->GetDistance2( i, j ) < distance * distance )
                         {
+                            mergedHits++;
                             hits->MergeHits( i, j );
                             merged = true;
                         }
                     }
                 }
             }
+
+            if( this->GetVerboseLevel() >= REST_Debug )
+            {
+                cout << "TRestTrackReductionProcess. Number of hits merged : " << mergedHits << endl;
+            }
+
+            mergedHits = 0;
+
             distance *= fDistanceFactor;
         }
 

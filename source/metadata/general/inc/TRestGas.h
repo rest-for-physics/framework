@@ -1,37 +1,24 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///             
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestGas.h
-///
-///
-//		Class holding information of a given gas mixture regarding simulations 
-//		of the response of a TPC, like townsend coefficients, diffusion and 
-//		drift velocities. It interfaces with Magboltz output files (which are 
-//		supposed to have been created with Magboltz previously) to read the 
-//		values of all these parameters (based on old TMagboltzGas class)
-//
-//		history of corrections:
-//
-//		jan 2006:	first concept (as MagboltzGas)
-//					Igor G. Irastorza
-//		jul 2006:	minor improvements for inclusion in RESTSoft
-//					(renamed as TMagboltzGas)
-//					Igor G. Irastorza
-//		jul 2007:   added a 3-compounds gas mixture constructor
-//					A. Tomás	
-//
-//		apr 2012:   minimal modifications for inclusion in new RESTSoft scheme
-//			        A. Tomas
-//
-//		jun 2014:   change name to TRestGas and minimal modifications 
-//                  for inclusion in new RESTSoft scheme   
-//			        Igor G. Irastorza
-///_______________________________________________________________________________
-
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
 #ifndef RestCore_TRestGas
 #define RestCore_TRestGas
@@ -61,6 +48,7 @@ const int RESTGAS_INTITIALIZED = 0;
 const int RESTGAS_CFG_LOADED = 1;
 const int RESTGAS_GASFILE_LOADED = 2;
 
+//! A specific metadata class to generate and read gas files using Magboltz interface
 class TRestGas : public TRestMetadata
 {
 
@@ -68,51 +56,35 @@ private:
 
 
 #ifndef __CINT__
-    Garfield::MediumMagboltz *fGasMedium;
+    Garfield::MediumMagboltz *fGasMedium;   //!< Pointer to Garfield::MediumMagboltz class giving access to gas properties
 #endif
-
-
-	///////////////////////////////// base data
     
-    Int_t fStatus;
-    TString fGasFilename;
-    Int_t fNofGases;			// number of different species composing the gas mixture
+    Int_t fStatus;              //!< Used to define the status of the gas : RESTGAS_ERROR, RESTGAS_INTITIALIZED, RESTGAS_CFG_LOADED, RESTGAS_GASFILE_LOADED
+    TString fGasFilename;       //!< The filename of the Magboltz gas file.
+    Int_t fNofGases;			//!< Number of different elements composing the gas mixture
 
-    Int_t fNCollisions;
-    Double_t fMaxElectronEnergy;
-    Double_t fW;
+    Int_t fNCollisions;             //!< Number of collisions used in the Magboltz calculation.
+    Double_t fMaxElectronEnergy;    //!< Maximum electron energy, in eV, used in Magboltz gas calculation.
+    Double_t fW;                    //!< Work function for electron extraction. This is defined by REST.
 
-    std::vector <TString> fGasComponentName;
-    std::vector <Double_t> fGasComponentFraction;
+    std::vector <TString> fGasComponentName;        //!< A string vector storing the names of each of the gas components
+    std::vector <Double_t> fGasComponentFraction;   //!< A double vector storing the fraction values of each of the gas components
 
-    Double_t fPressureInAtm;		// pressure of the gas
-    Double_t fTemperatureInK;	// temperature of the gas
+    Double_t fPressureInAtm;		    //!< Pressure of the gas in atm.
+    Double_t fTemperatureInK;	        //!< Temperature of the gas in K.
 
-    Int_t fEnodes;
-    Double_t fEmax, fEmin; // In V/cm
+    Int_t fEnodes;                      //!< Number of electric field nodes used in the gas calculation.
+    Double_t fEmax;                     //!< Minimum value of the electric field used for the gas calculation.
+    Double_t fEmin;                     //!< Maximum value of the electric field used for the gas calculation.
 
-    std::vector <Double_t> fEFields,  fBFields, fAngles;
+    std::vector <Double_t> fEFields;    //!< The electric field nodes as calculated by Garfield::MediumMagboltz.
+    std::vector <Double_t> fBFields;    //!< The magnetic field nodes as calculated by Garfield::MediumMagboltz.
+    std::vector <Double_t> fAngles;     //!< The field angles as calculated by Garfield::MediumMagboltz.
 
-    bool fGasGeneration;
-
-	///////////////////////////////// Magboltz data
-	// graphs to store the information on the gas (in function of the electric field)
-    /*
-	TGraph*		fDriftVel;			// drift velocity 
-	TGraph*		fLonDiffusion;		// longitudinal diffusion
-	TGraph*		fTransDiffusion;	// trnasversal diffusion
-	TGraph*		fTownsend;			// townsend coefficient
-	TGraph*		fAttachment;		// attachment coefficient
-    */
-
-	
-	//Bool_t ReadFromFile(const char* filename);
-	//Bool_t Construct(Int_t ngases, TString gas[], Int_t ratio[], Double_t pressure);
-	//void BuildAxis();
+    bool fGasGeneration;                //!< If true, and the pre-generated Magboltz gas file is not found, it will allow to launch the gas generation.
 
     void InitFromConfigFile( );
     void ConstructFilename( );
-
 
     void AddGasComponent( std::string gasName, Double_t fraction );
 
@@ -124,48 +96,34 @@ public:
     TRestGas( const char *cfgFileName, string name = "", bool gasGeneration = false);
 	~TRestGas();
 
+    /// This enables the generation of the gas file if a non existing gas file is found.
     void EnableGasGeneration ( ) { fGasGeneration = true; }
+
+    /// Returns true if the file generation is enabled. False otherwise.
     bool GasFileGenerationEnabled() { return fGasGeneration; } 
 
     void Initialize();
-	// setters
-	void SetNofGases(Int_t ng) { fNofGases = ng; }
 
     void LoadGasFile();
-	// getters
-    /*
-	TString GetGasName();
 
-	TGraph* GetDriftVelGraph() { return fDriftVel; };
-	TGraph* GetLonDiffusionGraph() { return fLonDiffusion; };
-	TGraph* GetTransDiffusionGraph() { return fTransDiffusion; };
-	TGraph* GetTownsendGraph() { return fTownsend; };
-	TGraph* GetAttachmentGraph() { return fAttachment; };
-    */
+    /// Returns the maximum electron energy used by Magboltz for the gas properties calculation
+    Double_t GetMaxElectronEnergy() { return fMaxElectronEnergy; }
 
-    Double_t GetMaxElectronEnergy() { fMaxElectronEnergy = fGasMedium->GetMaxElectronEnergy(); return fMaxElectronEnergy; }
+    /// Returns the number of gas elements/compounds present in the gas mixture.
 	Int_t GetNofGases() { return fNofGases; }
-    TString GetGasComponentName( Int_t n ) { return fGasComponentName[n]; }
-    TString GetGasMixture() {
-        TString gasMixture;
-        char tmpStr[64];
-        for( int n = 0; n < fNofGases; n++ )
+
+    /// Returns the gas component *n*.
+    TString GetGasComponentName( Int_t n ) 
+    {
+        if( n >= GetNofGases() ) 
         {
-            if( n > 0 ) gasMixture += "-";
-            gasMixture += GetGasComponentName( n ) + "_";
-            sprintf( tmpStr, "%03.1lf", GetGasComponentFraction( n ) * 100. );
-            gasMixture += (TString) tmpStr;
+            cout << "REST WARNING. Gas name component n=" << n << " requested. But only " << GetNofGases() << " component(s) in the mixture." << endl;
+            return "";
         }
-        return gasMixture;
+        return fGasComponentName[n]; 
     }
 
-    Double_t GetGasComponentFraction( Int_t n ) { return fGasComponentFraction[n]; }
-    Double_t GetPressure() { return fPressureInAtm; }; 
-    Double_t GetTemperature() { return fTemperatureInK; }; 
-    Double_t GetWvalue() { return fW; }
-
-    TString GetGasDataPath() { return (TString ) getenv("REST_PATH") + "/inputData/gasFiles/"; }
-
+    TString GetGasMixture();
 
     Double_t GetDriftVelocity( Double_t E );
     Double_t GetLongitudinalDiffusion( Double_t E );
@@ -173,10 +131,34 @@ public:
     Double_t GetTownsendCoefficient( Double_t E );
     Double_t GetAttachmentCoefficient( Double_t E );
 
-    void SetPressure( Double_t pressure );
-    void SetMaxElectronEnergy( Double_t energy ) { fMaxElectronEnergy = energy; }
-    void SetWvalue( Double_t iP ) { fW = iP; }
+    /// Returns the gas fraction in volume for component *n*.
+    Double_t GetGasComponentFraction( Int_t n ) 
+    {
+        if( n >= GetNofGases() ) 
+        {
+            cout << "REST WARNING. Gas fraction for component n=" << n << " requested. But only " << GetNofGases() << " component(s) in the mixture." << endl;
+            return 0.;
+        }
 
+        return fGasComponentFraction[n]; 
+    }
+
+    /// Returns the gas pressure in atm.
+    Double_t GetPressure() { return fPressureInAtm; }; 
+    
+    /// Returns the gas temperature in K.
+    Double_t GetTemperature() { return fTemperatureInK; }; 
+
+    /// Returns the gas work function in eV.
+    Double_t GetWvalue() { return fW; }
+
+    void SetPressure( Double_t pressure );
+
+    /// Sets the maximum electron energy to be used in gas generation.
+    void SetMaxElectronEnergy( Double_t energy ) { fMaxElectronEnergy = energy; }
+
+    /// Sets the value of the work funtion for the gas mixture.
+    void SetWvalue( Double_t iP ) { fW = iP; }
 
     void PlotDriftVelocity( Double_t eMin, Double_t eMax, Int_t nSteps );
     void PlotLongitudinalDiffusion( Double_t eMin, Double_t eMax, Int_t nSteps );
@@ -184,6 +166,7 @@ public:
     void PlotTownsendCoefficient( Double_t eMin, Double_t eMax, Int_t nSteps );
 	void PrintGasInfo();
 
+    /// Prints the metadata information from the gas
 	void PrintMetadata() { PrintGasInfo(); }
 
 	

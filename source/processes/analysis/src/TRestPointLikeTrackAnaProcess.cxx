@@ -43,7 +43,7 @@ void TRestPointLikeTrackAnaProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestPointLikeTrackAnaProcess::Initialize()
 {
-    SetName( "pointLikeTrackAna" );
+    SetSectionName( this->ClassName() );
 
     fTrackEvent = new TRestTrackEvent();
 

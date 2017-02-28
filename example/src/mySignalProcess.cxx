@@ -5,81 +5,67 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             myProcess.cxx
+///             mySignalProcess.cxx
 ///
 ///_______________________________________________________________________________
 
 
-#include "myProcess.h"
+#include "mySignalProcess.h"
 using namespace std;
 
-ClassImp(myProcess)
+ClassImp(mySignalProcess)
     //______________________________________________________________________________
-myProcess::myProcess()
+mySignalProcess::mySignalProcess()
 {
     Initialize();
 }
 
 //______________________________________________________________________________
-/*
-myProcess::myProcess( char *cfgFileName )
-{
-    Initialize();
-
-    if( LoadConfigFromFile( cfgFileName ) == -1 ) LoadDefaultConfig( );
-}
-*/
-
-//______________________________________________________________________________
-myProcess::~myProcess()
+mySignalProcess::~mySignalProcess()
 {
     delete fOutputSignalEvent;
     delete fInputSignalEvent;
 }
 
-
-
-void myProcess::LoadDefaultConfig( )
-{
-    SetName( "myProcess-Default" );
-    SetTitle( "Default config" );
-}
-
 //______________________________________________________________________________
-void myProcess::Initialize()
+void mySignalProcess::Initialize()
 {
-    SetName( "myProcess" );
+    // We define the section name (by default we use the name of the class)
+    SetSectionName( this->ClassName() );
 
+    // We create the input/output specific event data
     fInputSignalEvent = new TRestSignalEvent();
     fOutputSignalEvent = new TRestSignalEvent();
 
+    // We connect the TRestEventProcess input/output event pointers
     fInputEvent = fInputSignalEvent;
     fOutputEvent = fOutputSignalEvent;
-
-}
-
-void myProcess::LoadConfig( string cfgFilename, string name )
-{
-    if( LoadConfigFromFile( cfgFilename, name ) == -1 ) LoadDefaultConfig( );
 }
 
 
 //______________________________________________________________________________
-TRestEvent* myProcess::ProcessEvent( TRestEvent *evInput )
+TRestEvent* mySignalProcess::ProcessEvent( TRestEvent *evInput )
 {
-
     fInputSignalEvent = (TRestSignalEvent *) evInput;
 
     if( fInputSignalEvent->GetNumberOfSignals() <= 0 ) return NULL;
 
-    if( fInputSignalEvent->GetID() % fMyProcessParameter == 0 ) 
-        cout << "My Process. Event ID : " << fInputSignalEvent->GetID() << endl;
+    if( GetVerboseLevel() >= REST_Debug ) {
+        cout << "This a debug message" << endl;
+        cout << "I am in event id : " << fInputSignalEvent->GetID() << endl;
+        cout << "I am a new signal process" << endl;
+    }
+
+    /* If you are not modifying the input signal event
+       You may just skip this loop and use
+
+       TransferEvent( fOutputSignalEvent, fInputSignalEvent ); */
 
     for( int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++ ) 
     {
         TRestSignal *outSignal = fInputSignalEvent->GetSignal( n );
 
-        // Do something with output signal signal
+        // Do something with output signal
 
         fOutputSignalEvent->AddSignal( *outSignal );
     }
@@ -87,8 +73,8 @@ TRestEvent* myProcess::ProcessEvent( TRestEvent *evInput )
     return fOutputSignalEvent;
 }
 
-void myProcess::InitFromConfigFile( )
+void mySignalProcess::InitFromConfigFile( )
 {
-    fMyProcessParameter = StringToInteger( GetParameter( "showEvery" ) );
+    fMyDummyParameter = StringToInteger( GetParameter( "aDummyParameter" ) );
 }
 

@@ -2,7 +2,7 @@
 
 <!-- This plot template shows an example of analysisPlot implementation.
      The file where we have applied a signalAnalysisProcess name sgnl.Ana -->
-<section analysisPlot name="Template" title="Basic Plots">
+<section TRestAnalysisPlot name="Template" title="Basic Plots">
 
     <!-- Here you can add as many files as you want through a config file using addFile -->
     <!--

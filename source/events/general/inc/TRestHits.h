@@ -1,6 +1,4 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
+//////////////////////////////////////////////////////////////////////////
 ///             
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
@@ -13,10 +11,12 @@
 ///                 Created as part of the conceptualization of existing REST 
 ///                 software.
 ///                 Javier Galan
-///		nov 2015:
-///		    Changed vectors fX fY fZ and fEnergy from <Int_t> to <Float_t>
-///	            JuanAn Garcia
-///_______________________________________________________________________________
+///
+///		        nov 2015:
+///		            Changed vectors fX fY fZ and fEnergy from <Int_t> to <Float_t>
+///	                JuanAn Garcia
+///
+//////////////////////////////////////////////////////////////////////////
 
 
 #ifndef TRestSoft_TRestHits
@@ -30,8 +30,6 @@
 #include "TArrayD.h"
 #include "TMatrixD.h"
 #include <TVector3.h>
-
-//! Storage class
 
 //! It let save an event as a set of punctual deposition.
 //! It saves a 3-coordinate position and an energy for each punctual deposition.
@@ -67,6 +65,8 @@ class TRestHits : public TObject
         Bool_t areXZ();
         Bool_t areYZ();
         Bool_t areXYZ();
+
+        Bool_t isNaN( Int_t n );
 
         void GetXArray( Float_t *x );
         void GetYArray( Float_t *y );
@@ -109,6 +109,10 @@ class TRestHits : public TObject
 
         Double_t GetEnergy( int n ) { return ( (Double_t) fEnergy[n]); } //return value in keV
 
+
+        Bool_t isHitNInsideCylinder( Int_t n, TVector3 x0, TVector3 x1, Double_t radius );
+        Int_t GetNumberOfHitsInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius );
+        Double_t GetEnergyInCylinder( TVector3 x0, TVector3 x1, Double_t radius );
         Double_t GetEnergyInSphere( Double_t x, Double_t y, Double_t z, Double_t radius );
 
         Double_t GetMaximumHitEnergy( );

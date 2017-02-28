@@ -48,14 +48,13 @@ TRestRawToSignalProcess::~TRestRawToSignalProcess()
 
 void TRestRawToSignalProcess::LoadConfig( string cfgFilename, string name )
 {
-    SetName( "daq" );
     if( LoadConfigFromFile( cfgFilename, name ) == -1 ) { cout << "Loading default" << endl; LoadDefaultConfig( ); }
 }
 
 //______________________________________________________________________________
 void TRestRawToSignalProcess::Initialize()
 {
-    SetName( "daq" );
+    SetSectionName( this->ClassName() );
     fSignalEvent = new TRestSignalEvent( );
 
     fInputEvent = NULL;
@@ -65,6 +64,8 @@ void TRestRawToSignalProcess::Initialize()
     fMinPoints = 512;
 
     fRejectNoise = false;
+
+    fIsExternal = true;
 }
 
 void TRestRawToSignalProcess::BeginOfEventProcess() 
@@ -75,7 +76,7 @@ void TRestRawToSignalProcess::BeginOfEventProcess()
 
 void TRestRawToSignalProcess::InitFromConfigFile(){
 
-   if( GetParameter( "rejectNoise", "OFF" ) == "ON" ) 
+   if( GetParameter( "rejectNoise", "OFF" ) == "ON" || GetParameter( "rejectNoise", "OFF" ) == "On" ||GetParameter( "rejectNoise", "OFF" ) == "on"  ) 
    {
 	cout << "RAWToSignalProcess : Activating noise rejection" << endl;
 	fRejectNoise = true;
