@@ -54,12 +54,13 @@ class TRestRawSignal: public TObject {
         std::vector <Int_t> GetPointsOverThreshold( ) { return fPointsOverThreshold; }
 
         Double_t GetMaxValue() { return GetMaxPeakValue(); }
+        Double_t GetMinValue() { return GetMinPeakValue(); }
 
         //Setters
         void SetSignalID( Int_t sID ) { fSignalID = sID; }
         void SetID( Int_t sID ) { fSignalID = sID; }
 
-        void Reset() { fSignalData.clear();}
+        void Reset(); 
 
         void Initialize();
 
@@ -71,8 +72,7 @@ class TRestRawSignal: public TObject {
 
         void IncreaseBinBy( Int_t bin, Double_t data );
 
-        Double_t GetIntegral( Int_t startBin, Int_t endBin );
-
+        Double_t GetIntegral( Int_t startBin = 0, Int_t endBin = 0 );
 
         Double_t GetIntegralWithThreshold( Int_t from, Int_t to, 
                 Int_t startBaseline, Int_t endBaseline, 
@@ -87,6 +87,9 @@ class TRestRawSignal: public TObject {
         Int_t GetMaxPeakWidth();
         Double_t GetMaxPeakValue();
         Int_t GetMaxPeakBin( );
+
+        Double_t GetMinPeakValue();
+        Int_t GetMinPeakBin( );
 
         void GetDifferentialSignal( TRestRawSignal *diffSgnl, Int_t smearPoints );
         void GetSignalSmoothed( TRestRawSignal *smthSignal, Int_t averagingPoints );
@@ -105,6 +108,7 @@ class TRestRawSignal: public TObject {
                 
         //Construtor
         TRestRawSignal();
+        TRestRawSignal( Int_t nBins );
         //Destructor
         ~TRestRawSignal();
         
