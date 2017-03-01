@@ -66,7 +66,7 @@ class TRestSignalZeroSuppresionProcess:public TRestEventProcess {
             EndPrintProcess();
         }
 
-        TString GetProcessName() { return (TString) "signalToHits"; }
+        TString GetProcessName() { return (TString) "signalZeroSuppresion"; }
 
         //Constructor
         TRestSignalZeroSuppresionProcess();
