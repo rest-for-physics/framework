@@ -83,6 +83,7 @@ void TRestSignalAnalysisProcess::InitProcess()
 
     if( GetVerboseLevel() >= REST_Debug && fCanvas == NULL && fDrawRefresh > 0 )
     {
+        cout << "Initializing canvas" << endl;
         fCanvas = new TCanvas( this->GetName(), "Signal analysis", 400, 300);
     }
 }
@@ -213,6 +214,10 @@ TRestEvent* TRestSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
             nGoodSignals++;
         }
     }
+
+    Double_t ampIntRatio = thrIntegral/maxValueIntegral;
+    obsName = this->GetName() + (TString) ".AmplitudeIntegralRatio";
+    fAnalysisTree->SetObservableValue( obsName, ampIntRatio );
 
     if( nGoodSignals > 0 ) peakTimeAverage /= nGoodSignals;
 
