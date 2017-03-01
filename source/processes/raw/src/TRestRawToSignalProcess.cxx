@@ -55,7 +55,7 @@ void TRestRawToSignalProcess::LoadConfig( string cfgFilename, string name )
 void TRestRawToSignalProcess::Initialize()
 {
     SetSectionName( this->ClassName() );
-    fSignalEvent = new TRestSignalEvent( );
+    fSignalEvent = new TRestRawSignalEvent( );
 
     fInputEvent = NULL;
     fOutputEvent = fSignalEvent;

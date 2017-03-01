@@ -43,3 +43,7 @@ target_link_libraries(restPrintFileContents ${target_libraries})
 add_executable(restPrintEvents restPrintEvents.cxx)
 install(TARGETS restPrintEvents RUNTIME DESTINATION bin)
 target_link_libraries(restPrintEvents ${target_libraries})
+
+add_executable(restDrawEvents restDrawEvents.cxx)
+install(TARGETS restDrawEvents RUNTIME DESTINATION bin)
+target_link_libraries(restDrawEvents ${target_libraries})

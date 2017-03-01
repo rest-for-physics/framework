@@ -23,7 +23,7 @@ void PrintHelp( )
     cout << "This program will integrate an existing variable inside TRestAnalysisTree" << endl;
     cout << "The integration range must be given by argument" << endl;
     cout << endl;
-    cout << "Usage : ./restPrintEvents --f INPUT_FILE" << endl;
+    cout << "Usage : ./restDrawEvents --f INPUT_FILE" << endl;
     cout << "-----------------------------------------------------------------------------------" << endl;
     cout << endl;
     cout << " INPUT_FILE : Input file name. " << endl;
@@ -37,8 +37,8 @@ int main( int argc, char *argv[] )
 	char *argVRint[3];
 
 	char batch[64], quit[64], appName[64];
-	sprintf ( appName, "restPrintEvent" );
-	sprintf( batch, "%s", "-b" );
+	sprintf ( appName, "restDrawEvents" );
+	sprintf( batch, "%s", "" );
 	sprintf( quit, "%s", "-q" );
 
 	argVRint[0] = appName;
@@ -82,6 +82,8 @@ int main( int argc, char *argv[] )
 			}
 	}
 
+    TCanvas *canvas = new TCanvas( "EventCanvas", "EventCanvas", 600, 400 );
+
     // We do only the first file in the list
     if( inputFiles.size() > 0 ) 
 	{
@@ -93,13 +95,13 @@ int main( int argc, char *argv[] )
         TRestEvent *ev = (TRestEvent *) cl->New();
         run->SetInputEvent( ev );
 
-        run->GetEntry(0);
-        ev->PrintEvent();
-
         for( int i = 0; i < run->GetEntries( ); i++ )
         {
             run->GetEntry(i);
             ev->PrintEvent();
+            canvas->cd();
+            ev->DrawEvent();
+            canvas->Update();
             cout << "Press a KEY to print next event ... " << endl;
             cout << "Press q to exit " << endl;
 

@@ -17,7 +17,7 @@ endforeach (CLASS)
 file(GLOB ProcessesAnalysis
         "analysis/src/*.cxx"
         )
-    set(CLASS_DICT TRestGeant4AnalysisProcess TRestSignalAnalysisProcess TRestFindG4BlobAnalysisProcess TRestTrackAnalysisProcess TRestTriggerAnalysisProcess TRestHitsAnalysisProcess TRestPointLikeAnaProcess TRestPointLikeTrackAnaProcess TRestFindTrackBlobsProcess)
+    set(CLASS_DICT TRestGeant4AnalysisProcess TRestRawSignalAnalysisProcess TRestSignalAnalysisProcess TRestFindG4BlobAnalysisProcess TRestTrackAnalysisProcess TRestTriggerAnalysisProcess TRestHitsAnalysisProcess TRestPointLikeAnaProcess TRestPointLikeTrackAnaProcess TRestFindTrackBlobsProcess)
 foreach (CLASS ${CLASS_DICT})
     set(ROOT_DICT_INCLUDE_DIRS ${REST_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
     set(ROOT_DICT_INPUT_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/analysis/inc/${CLASS}.h)

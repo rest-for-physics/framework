@@ -161,8 +161,12 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 
 	this->OpenOutputFile();
 
+    if( GetVerboseLevel() >= REST_Debug )
+        cout << "TRestRun::ProcessEvent: Setting input event" << endl;
 	this->SetInputEvent( fEventProcess.front()->GetInputEvent() );
 
+    if( GetVerboseLevel() >= REST_Debug )
+        cout << "TRestRun::ProcessEvent: Setting output event" << endl;
 	this->SetOutputEvent( fEventProcess.back()->GetOutputEvent() );
 
 	//////////////////
@@ -205,14 +209,14 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
         high_resolution_clock::time_point t1 = high_resolution_clock::now();
 #endif
 
-    if( this->GetVerboseLevel() >= REST_Debug )
+    if( fInputEvent != NULL && this->GetVerboseLevel() >= REST_Debug )
     {
         cout << "+------------------------------------------------------+" << endl;
         cout << "Starting to process event with ID : " << fInputEvent->GetID() << endl;
         cout << "+------------------------------------------------------+" << endl;
     }
 
-    if( this->GetVerboseLevel() >= REST_Info )
+    if( fInputEvent != NULL && this->GetVerboseLevel() >= REST_Info )
         fInputEvent->PrintEvent();
 
 	for( unsigned int j = 0; j < fEventProcess.size(); j++ )
