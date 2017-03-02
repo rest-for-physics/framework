@@ -394,11 +394,11 @@ TPad *TRestRawSignalAnalysisProcess::DrawSignal( Int_t signal )
     gr3[nGraphs]->SetLineColor( 3 );
     Int_t point = 0;
     Int_t nPoints = pOver.size();
-    for( int n = 0; n < nPoints-1; n++ )
+    for( int n = 0; n < nPoints; n++ )
     {
         gr3[nGraphs]->SetPoint( point, pOver[n], sgnl->GetData(pOver[n]) );
         point++;
-        if( pOver[n+1] - pOver[n] > 1 )
+        if( n+1 < nPoints && pOver[n+1] - pOver[n] > 1 )
         {
             gr3[nGraphs]->Draw("CP");
             nGraphs++;

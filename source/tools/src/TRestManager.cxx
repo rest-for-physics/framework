@@ -131,6 +131,9 @@ void TRestManager::InitFromConfigFile()
 
         TString processType = GetFieldValue( "type", addProcessString );
 
+	if( !fileExists( (string) processesCfgFile ) )
+		cout << "REST WARNING. TRestManager. Processes file does not exist : " << processesCfgFile << endl;
+
         fProcessType.push_back( processType );
         fProcessName.push_back( processName );
         fPcsConfigFile.push_back( processesCfgFile ); 
@@ -247,9 +250,7 @@ void TRestManager::LaunchTasks( )
             cout << "REST WARNING : TRestManager::LaunchTasks(). Task type : " << fTaskType[n] << " not recognized" << endl;
 
         }
-
     }
-
 }
 
 Int_t TRestManager::LoadProcesses( )
