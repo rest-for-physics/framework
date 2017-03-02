@@ -223,6 +223,10 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     if( nGoodSignals > 0 ) peakTimeAverage /= nGoodSignals;
 
+    Double_t ampIntRatio = thrIntegral/maxValueIntegral;
+    obsName = this->GetName() + (TString) ".AmplitudeIntegralRatio";
+    fAnalysisTree->SetObservableValue( obsName, ampIntRatio );
+
     obsName = this->GetName() + (TString) ".NumberOfGoodSignals";
     fAnalysisTree->SetObservableValue( obsName, nGoodSignals );
 
