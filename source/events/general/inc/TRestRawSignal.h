@@ -101,6 +101,8 @@ class TRestRawSignal: public TObject {
         void AddOffset( Short_t offset );
         void SignalAddition( TRestRawSignal *inSgnl );
 
+	void Scale( Double_t value );
+
         void WriteSignalToTextFile ( TString filename );
         void Print( );
 

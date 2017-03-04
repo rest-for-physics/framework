@@ -345,6 +345,15 @@ void TRestRawSignal::AddOffset( Short_t offset )
         fSignalData[i] = fSignalData[i] + offset;
 }
 
+void TRestRawSignal::Scale( Double_t value )
+{
+	for( int i = 0; i < GetNumberOfPoints(); i++ )
+	{
+		Double_t scaledValue = value * fSignalData[i];
+		fSignalData[i] = (Short_t) scaledValue;
+	}
+}
+
 void TRestRawSignal::SignalAddition( TRestRawSignal *inSgnl )
 {
     if( this->GetNumberOfPoints() != inSgnl->GetNumberOfPoints() )
