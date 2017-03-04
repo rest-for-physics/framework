@@ -55,6 +55,7 @@ class TRestFFT: public TObject {
             { fFrequencyReal.GetArray()[n] = real;  fFrequencyImg.GetArray()[n] = img; }
 
         void SetSecondOrderAnalyticalResponse( Double_t f1, Double_t f2, Double_t to );
+	void GaussianSecondOrderResponse( Double_t f1, Double_t f2, Double_t Ao, Double_t sigma );
 
         // FFT processing
         void ForwardSignalFFT( TRestSignal *sgnl, Int_t fNStart = 0, Int_t fNEnd = 0 );
@@ -68,9 +69,10 @@ class TRestFFT: public TObject {
 
         void RemoveBaseline( );
 
-        void DivideBy( TRestFFT *fftInput );
- //       void MultiplyBy( TRestFFT *fftInput );
-        void MultiplyBy( TRestFFT *fftInput, Int_t from, Int_t to );
+	void ProduceDelta( Int_t t_o, Int_t Nfft );
+
+        void DivideBy( TRestFFT *fftInput, Int_t from = 0, Int_t to = 0 );
+        void MultiplyBy( TRestFFT *fftInput, Int_t from = 0, Int_t to = 0 );
 
         void WriteFrequencyToTextFile ( TString filename );
         void WriteTimeSignalToTextFile ( TString filename );
