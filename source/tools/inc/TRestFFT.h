@@ -44,6 +44,8 @@ class TRestFFT: public TObject {
         Double_t GetFrequencyAmplitudeReal( Int_t n ) { return fFrequencyReal.GetArray()[n]; }
         Double_t GetFrequencyAmplitudeImg( Int_t n ) { return fFrequencyImg.GetArray()[n]; }
 
+	Double_t GetFrequencyNorm2( Int_t n );
+
         Int_t GetNfft( ) { return fNfft; }
         
         void GetSignal( TRestSignal *sgnl );
@@ -65,7 +67,7 @@ class TRestFFT: public TObject {
         void ApplyLowPassFilter( Int_t cutFrequency);
        // void NoiseReductionFilter( Int_t cutOff );
         void ButterWorthFilter( Int_t cutOff, Int_t order );
-        void KillFrequencies( Int_t from, Int_t to );
+        void KillFrequencies( Int_t cutOff );
 
         void RemoveBaseline( );
 
@@ -73,6 +75,8 @@ class TRestFFT: public TObject {
 
         void DivideBy( TRestFFT *fftInput, Int_t from = 0, Int_t to = 0 );
         void MultiplyBy( TRestFFT *fftInput, Int_t from = 0, Int_t to = 0 );
+
+	void ApplyResponse( TRestFFT *fftInput, Int_t cutOff );
 
         void WriteFrequencyToTextFile ( TString filename );
         void WriteTimeSignalToTextFile ( TString filename );
