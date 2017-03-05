@@ -52,6 +52,9 @@ class TRestDetectorSetup:public TRestMetadata {
         Int_t GetSubRunNumber() { return fSubRunNumber; }
         TString GetRunTag() { return fRunTag; }
 
+	void SetRunNumber( Int_t runNumber ) { fRunNumber = runNumber; }
+	void SetSubRunNumber( Int_t subRunNumber ) { fSubRunNumber = subRunNumber; }
+
 	Double_t GetSamplingInMicroSeconds( ) { return fSamplingInMicroSec; }
 
 	Double_t GetFieldInVPerCm( ) { return fDriftField * fDetectorPressure; }
