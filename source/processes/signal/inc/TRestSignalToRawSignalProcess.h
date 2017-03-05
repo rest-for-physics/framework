@@ -13,6 +13,7 @@
 #ifndef RestCore_TRestSignalToRawSignalProcess
 #define RestCore_TRestSignalToRawSignalProcess
 
+#include <TRestRawSignalEvent.h>
 #include <TRestSignalEvent.h>
 
 #include "TRestEventProcess.h"
@@ -21,7 +22,7 @@ class TRestSignalToRawSignalProcess:public TRestEventProcess {
 
     private:
         TRestSignalEvent *fInputSignalEvent;
-        TRestSignalEvent *fOutputSignalEvent;
+        TRestRawSignalEvent *fOutputSignalEvent;
 
         void InitFromConfigFile();
 
@@ -29,12 +30,10 @@ class TRestSignalToRawSignalProcess:public TRestEventProcess {
 
         void LoadDefaultConfig();
 
-        Double_t fTriggerTime;
-        Int_t fNBins;
-
     protected:
         //add here the members of your event process
 
+	// TODO Add trigger time
     public:
         void InitProcess();
         void BeginOfEventProcess(); 
@@ -47,9 +46,6 @@ class TRestSignalToRawSignalProcess:public TRestEventProcess {
         void PrintMetadata() 
         { 
             BeginPrintProcess();
-
-            cout << "Trigger time bin : " << fTriggerTime << endl;
-            cout << "Number of points : " << fNBins << endl;
 
             EndPrintProcess();
         }
