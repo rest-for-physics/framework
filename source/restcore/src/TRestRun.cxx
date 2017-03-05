@@ -34,8 +34,8 @@ high_resolution_clock::time_point tS, tE;
 const int debug = 0;
 
 ClassImp(TRestRun)
-//______________________________________________________________________________
-    TRestRun::TRestRun()
+    //______________________________________________________________________________
+TRestRun::TRestRun()
 {
     Initialize();
 
@@ -119,64 +119,65 @@ void TRestRun::Start(  )
 
 Int_t TRestRun::ValidateProcessChain ( )
 {
-	for( unsigned int i = 0; i < fEventProcess.size()-1; i++ )
+    for( unsigned int i = 0; i < fEventProcess.size()-1; i++ )
     {
-        TString outEventType = fEventProcess[i]->GetOutputEvent( )->ClassName();
-        TString inEventType = fEventProcess[i+1]->GetInputEvent( )->ClassName();
+	TString outEventType = fEventProcess[i]->GetOutputEvent( )->ClassName();
+	TString inEventType = fEventProcess[i+1]->GetInputEvent( )->ClassName();
 
-        if( outEventType != inEventType )
-        {
-            cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-            cout << "REST ERROR : Event process input/output does not match" << endl;
-            cout << "The event output for process " << fEventProcess[i]->GetName() << " is " << outEventType << endl;
-            cout << "The event input for process " << fEventProcess[i+1]->GetName() << " is " << inEventType << endl;
-            cout << "No events will be processed. Please correct event process input/output." << endl;
-            cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-            GetChar();
-            return 0;
-        }
+	if( outEventType != inEventType )
+	{
+	    cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	    cout << "REST ERROR : Event process input/output does not match" << endl;
+	    cout << "The event output for process " << fEventProcess[i]->GetName() << " is " << outEventType << endl;
+	    cout << "The event input for process " << fEventProcess[i+1]->GetName() << " is " << inEventType << endl;
+	    cout << "No events will be processed. Please correct event process input/output." << endl;
+	    cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	    GetChar();
+	    return 0;
+	}
     }
     return 1;
 }
 
 void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t lastEvent ) 
 {
-	if( fEventProcess.size() == 0 ) { cout << "REST WARNING. Run does not contain processes" << endl; return; }
+    if( fEventProcess.size() == 0 ) { cout << "REST WARNING. Run does not contain processes" << endl; return; }
 
     if( !fContainsEventTree )
     {
-        cout << "REST WARNING: This run does not contain an event tree." << endl;
-        if( fPureAnalysisOutput )
-            cout << "It is a pure analysis output file." << endl;
-        cout << "No event processing to be done" << endl;
-        GetChar();
-        return;
+	cout << "REST WARNING: This run does not contain an event tree." << endl;
+	if( fPureAnalysisOutput )
+	    cout << "It is a pure analysis output file." << endl;
+	cout << "No event processing to be done" << endl;
+	GetChar();
+	return;
     }
 
-	fCurrentEvent = firstEvent;
+    fCurrentEvent = firstEvent;
 
     if ( ValidateProcessChain( ) == 0 ) return;
 
-	this->SetRunType( fEventProcess[fEventProcess.size()-1]->GetProcessName() );
+    if ( GetRunType( ) == "[PROCESS]" || GetRunType( ) == "NotDefined" ) 
+	this->SetRunType( fEventProcess.back()->GetProcessName() );
 
-	this->OpenOutputFile();
-
-    if( GetVerboseLevel() >= REST_Debug )
-        cout << "TRestRun::ProcessEvent: Setting input event" << endl;
-	this->SetInputEvent( fEventProcess.front()->GetInputEvent() );
+    this->OpenOutputFile();
 
     if( GetVerboseLevel() >= REST_Debug )
-        cout << "TRestRun::ProcessEvent: Setting output event" << endl;
-	this->SetOutputEvent( fEventProcess.back()->GetOutputEvent() );
+	cout << "TRestRun::ProcessEvent: Setting input event" << endl;
+    this->SetInputEvent( fEventProcess.front()->GetInputEvent() );
 
-	//////////////////
-	
-	for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->SetAnalysisTree( fOutputAnalysisTree );
+    if( GetVerboseLevel() >= REST_Debug )
+	cout << "TRestRun::ProcessEvent: Setting output event" << endl;
+    this->SetOutputEvent( fEventProcess.back()->GetOutputEvent() );
 
-	for( unsigned int i = 0; i < fEventProcess.size(); i++ )
+    //////////////////
+
+    for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->SetAnalysisTree( fOutputAnalysisTree );
+
+    for( unsigned int i = 0; i < fEventProcess.size(); i++ )
     {
-        fEventProcess[i]->InitProcess();
-        fEventProcess[i]->PrintMetadata();
+	fEventProcess[i]->InitProcess();
+	fEventProcess[i]->PrintMetadata();
     }
 
     fOutputAnalysisTree->CreateObservableBranches( );
@@ -188,68 +189,68 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 
     if( eventsToProcess == 0 )
     {
-       if( fInputEventTree != NULL ) eventsToProcess = fInputEventTree->GetEntries();
-       else eventsToProcess = 2E9;
+	if( fInputEventTree != NULL ) eventsToProcess = fInputEventTree->GetEntries();
+	else eventsToProcess = 2E9;
     }
 
     if( lastEvent == 0 )
     {
-       if( fInputEventTree != NULL ) lastEvent = fInputEventTree->GetEntries();
-       else lastEvent = 2E9;
+	if( fInputEventTree != NULL ) lastEvent = fInputEventTree->GetEntries();
+	else lastEvent = 2E9;
     }
 
-	TRestEvent *processedEvent;
-	while( this->GetNextEvent() && eventsToProcess > fProcessedEvents && lastEvent >= fCurrentEvent )
-	{
-		PrintProcessedEvents(100);
+    TRestEvent *processedEvent;
+    while( this->GetNextEvent() && eventsToProcess > fProcessedEvents && lastEvent >= fCurrentEvent )
+    {
+	PrintProcessedEvents(100);
 
-		processedEvent = fInputEvent;
+	processedEvent = fInputEvent;
 
 #ifdef TIME_MEASUREMENT
-        high_resolution_clock::time_point t1 = high_resolution_clock::now();
+	high_resolution_clock::time_point t1 = high_resolution_clock::now();
 #endif
 
-    if( fInputEvent != NULL && this->GetVerboseLevel() >= REST_Debug )
-    {
-        cout << "+------------------------------------------------------+" << endl;
-        cout << "Starting to process event with ID : " << fInputEvent->GetID() << endl;
-        cout << "+------------------------------------------------------+" << endl;
-    }
+	if( fInputEvent != NULL && this->GetVerboseLevel() >= REST_Debug )
+	{
+	    cout << "+------------------------------------------------------+" << endl;
+	    cout << "Starting to process event with ID : " << fInputEvent->GetID() << endl;
+	    cout << "+------------------------------------------------------+" << endl;
+	}
 
-    if( fInputEvent != NULL && this->GetVerboseLevel() >= REST_Extreme )
-        fInputEvent->PrintEvent();
+	if( fInputEvent != NULL && this->GetVerboseLevel() >= REST_Extreme )
+	    fInputEvent->PrintEvent();
 
 	for( unsigned int j = 0; j < fEventProcess.size(); j++ )
 	{
-		fEventProcess[j]->BeginOfEventProcess();
+	    fEventProcess[j]->BeginOfEventProcess();
 
-        if( this->GetVerboseLevel() >= REST_Debug )
-        {
-            cout << "Starting process " << j << " : " << fEventProcess[j]->GetName() << endl;
-            cout << "+------------------------------------------------------+" << endl;
-            cout << "Process output level : " << fEventProcess[j]->GetVerboseLevelString() << endl;
+	    if( this->GetVerboseLevel() >= REST_Debug )
+	    {
+		cout << "Starting process " << j << " : " << fEventProcess[j]->GetName() << endl;
+		cout << "+------------------------------------------------------+" << endl;
+		cout << "Process output level : " << fEventProcess[j]->GetVerboseLevelString() << endl;
 #ifdef TIME_MEASUREMENT
-            tS = high_resolution_clock::now();
+		tS = high_resolution_clock::now();
 #endif
-        }
-		processedEvent = fEventProcess[j]->ProcessEvent( processedEvent );
+	    }
+	    processedEvent = fEventProcess[j]->ProcessEvent( processedEvent );
 
-		if( processedEvent == NULL ) break;
-		fEventProcess[j]->EndOfEventProcess();
+	    if( processedEvent == NULL ) break;
+	    fEventProcess[j]->EndOfEventProcess();
 
-        if( this->GetVerboseLevel() >= REST_Debug )
-        {
+	    if( this->GetVerboseLevel() >= REST_Debug )
+	    {
 #ifdef TIME_MEASUREMENT
-            tE = high_resolution_clock::now();
-            cout << "Process time in ms : " <<  (double) duration_cast<microseconds>( tE - tS ).count() / 1000. << endl;;
+		tE = high_resolution_clock::now();
+		cout << "Process time in ms : " <<  (double) duration_cast<microseconds>( tE - tS ).count() / 1000. << endl;;
 #endif
-            cout << "Ending process " << j << " : " << fEventProcess[j]->GetName() << endl;
-            cout << "+------------------------------------------------------+" << endl;
+		cout << "Ending process " << j << " : " << fEventProcess[j]->GetName() << endl;
+		cout << "+------------------------------------------------------+" << endl;
 
-            if( fEventProcess[j]->GetVerboseLevel() >= REST_Debug )
-                GetChar();
+		if( fEventProcess[j]->GetVerboseLevel() >= REST_Debug )
+		    GetChar();
 
-        }
+	    }
 	}
 
 #ifdef TIME_MEASUREMENT
@@ -262,38 +263,38 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 
 	if (fInputEventTree != NULL)
 	{
-		fOutputEvent->SetID( fInputEvent->GetID() );
-		fOutputEvent->SetTime( fInputEvent->GetTime() );
-		fOutputEvent->SetSubID( fInputEvent->GetSubID() );
-		fOutputEvent->SetSubEventTag( fInputEvent->GetSubEventTag() );
-		fOutputEvent->SetRunOrigin( fInputEvent->GetRunOrigin() );
-		fOutputEvent->SetSubRunOrigin( fInputEvent->GetSubRunOrigin() );
-		
+	    fOutputEvent->SetID( fInputEvent->GetID() );
+	    fOutputEvent->SetTime( fInputEvent->GetTime() );
+	    fOutputEvent->SetSubID( fInputEvent->GetSubID() );
+	    fOutputEvent->SetSubEventTag( fInputEvent->GetSubEventTag() );
+	    fOutputEvent->SetRunOrigin( fInputEvent->GetRunOrigin() );
+	    fOutputEvent->SetSubRunOrigin( fInputEvent->GetSubRunOrigin() );
+
 	}
 	else if ( fEventProcess.front()->isExternal() )
 	{
-		// If there is no input event then we are using a process filling an event from external data.
-		// Then the process must be responsible to define the event ID, its timestamp, event tag, etc
-		TRestEvent *frontEvt = fEventProcess.front()->GetOutputEvent();
-		fOutputEvent->SetID( frontEvt->GetID() );
-		fOutputEvent->SetTime( frontEvt->GetTime() );
-		fOutputEvent->SetSubID( frontEvt->GetSubID() );
-		fOutputEvent->SetRunOrigin( frontEvt->GetRunOrigin() );
-		fOutputEvent->SetSubRunOrigin( frontEvt->GetSubRunOrigin() );
+	    // If there is no input event then we are using a process filling an event from external data.
+	    // Then the process must be responsible to define the event ID, its timestamp, event tag, etc
+	    TRestEvent *frontEvt = fEventProcess.front()->GetOutputEvent();
+	    fOutputEvent->SetID( frontEvt->GetID() );
+	    fOutputEvent->SetTime( frontEvt->GetTime() );
+	    fOutputEvent->SetSubID( frontEvt->GetSubID() );
+	    fOutputEvent->SetRunOrigin( frontEvt->GetRunOrigin() );
+	    fOutputEvent->SetSubRunOrigin( frontEvt->GetSubRunOrigin() );
 	}
 
 #ifdef TIME_MEASUREMENT
-        high_resolution_clock::time_point t3 = high_resolution_clock::now();
+	high_resolution_clock::time_point t3 = high_resolution_clock::now();
 #endif
 
-        this->Fill();
+	this->Fill();
 
 #ifdef TIME_MEASUREMENT
-        high_resolution_clock::time_point t4 = high_resolution_clock::now();
-        writeTime += (int) duration_cast<microseconds>( t4 - t3 ).count();
+	high_resolution_clock::time_point t4 = high_resolution_clock::now();
+	writeTime += (int) duration_cast<microseconds>( t4 - t3 ).count();
 #endif
 
-	}
+    }
 
     cout << fOutputAnalysisTree->GetEntries() << " processed events" << endl;
 
@@ -303,12 +304,12 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
     cout << "Total read time from disk (per event) : " << ((Double_t) readTime)/fProcessedEvents/1000. << " ms" << endl;
 #endif
 
-	for( unsigned int i = 0; i < fEventProcess.size(); i++ )
-		fEventProcess[i]->EndProcess();
+    for( unsigned int i = 0; i < fEventProcess.size(); i++ )
+	fEventProcess[i]->EndProcess();
 
     if( fPureAnalysisOutput ) fContainsEventTree = false;
 
-   if( fEventProcess.front()->isExternal() ) 
+    if( fEventProcess.front()->isExternal() ) 
 	fInputFilename = fEventProcess.front()->GetInputFilename();
 }
 
@@ -320,23 +321,23 @@ void TRestRun::AddProcess( TRestEventProcess *process, string cfgFilename, strin
 
     vector <TRestMetadata*> metadata;
     for( size_t i = 0; i < fMetadata.size(); i++ )
-        metadata.push_back( fMetadata[i] );
+	metadata.push_back( fMetadata[i] );
     for( size_t i = 0; i < fHistoricMetadata.size(); i++ )
-        metadata.push_back( fHistoricMetadata[i] );
+	metadata.push_back( fHistoricMetadata[i] );
     for( size_t i = 0; i < fEventProcess.size(); i++ )
-        metadata.push_back( fEventProcess[i] );
+	metadata.push_back( fEventProcess[i] );
     for( size_t i = 0; i < fHistoricEventProcess.size(); i++ )
-        metadata.push_back( fHistoricEventProcess[i] );
+	metadata.push_back( fHistoricEventProcess[i] );
 
     process->SetMetadata( metadata );
 
     /*
-    cout << "Metadata given to process : " << process->GetName() << endl;
-    cout << "------------------------------------------------------" << endl;
-    for( size_t i = 0; i < metadata.size(); i++ )
-        cout << metadata[i]->ClassName() << endl;
-    cout << "---------------------------" << endl;
-    */
+       cout << "Metadata given to process : " << process->GetName() << endl;
+       cout << "------------------------------------------------------" << endl;
+       for( size_t i = 0; i < metadata.size(); i++ )
+       cout << metadata[i]->ClassName() << endl;
+       cout << "---------------------------" << endl;
+       */
 
     process->LoadConfig( cfgFilename, name );
 
@@ -346,11 +347,11 @@ void TRestRun::AddProcess( TRestEventProcess *process, string cfgFilename, strin
     TRestMetadata *meta = process->GetProcessMetadata();
     if( meta != NULL )
     {
-        meta->PrintMetadata();
-        this->AddMetadata( meta );
-        cout << "Process : " << process->GetName() << " is adding metadata!!" << endl;
-        cout << "This should not happen in this version.!!" << endl;
-        GetChar( );
+	meta->PrintMetadata();
+	this->AddMetadata( meta );
+	cout << "Process : " << process->GetName() << " is adding metadata!!" << endl;
+	cout << "This should not happen in this version.!!" << endl;
+	GetChar( );
     }
 
     fEventProcess.push_back( process ); 
@@ -363,24 +364,24 @@ void TRestRun::SetOutputEvent( TRestEvent *evt )
 
     if( !fPureAnalysisOutput && fOutputEventTree == NULL )
     {
-        TString treeName = (TString) evt->GetName() + "Tree";
-        fOutputEventTree  = new TTree( GetName(), GetTitle() );
-        if( GetVerboseLevel() == REST_Debug ) cout << "Creating tree : " << fOutputEventTree << endl;
-        fOutputEventTree->SetName( treeName );
-        fOutputEventTree->Branch("eventBranch", evt->GetName(), fOutputEvent);
+	TString treeName = (TString) evt->GetName() + "Tree";
+	fOutputEventTree  = new TTree( GetName(), GetTitle() );
+	if( GetVerboseLevel() == REST_Debug ) cout << "Creating tree : " << fOutputEventTree << endl;
+	fOutputEventTree->SetName( treeName );
+	fOutputEventTree->Branch("eventBranch", evt->GetName(), fOutputEvent);
     }
 
     if( fOutputAnalysisTree == NULL )
     {
-        fOutputAnalysisTree = new TRestAnalysisTree( "TRestAnalysisTree", GetTitle() );
-        fOutputAnalysisTree->CreateEventBranches( );
+	fOutputAnalysisTree = new TRestAnalysisTree( "TRestAnalysisTree", GetTitle() );
+	fOutputAnalysisTree->CreateEventBranches( );
 
-        if( fInputAnalysisTree != NULL )
-        {
-            Int_t nObs = fInputAnalysisTree->GetNumberOfObservables( );
-            for( int n = 0; n < nObs; n++ )
-                fOutputAnalysisTree->AddObservable( fInputAnalysisTree->GetObservableName( n ) );
-        }
+	if( fInputAnalysisTree != NULL )
+	{
+	    Int_t nObs = fInputAnalysisTree->GetNumberOfObservables( );
+	    for( int n = 0; n < nObs; n++ )
+		fOutputAnalysisTree->AddObservable( fInputAnalysisTree->GetObservableName( n ) );
+	}
     }
 
 }
@@ -393,44 +394,44 @@ void TRestRun::SetInputEvent( TRestEvent *evt )
 
     if( fContainsEventTree )
     {
-        TString treeName = (TString) evt->GetName() + "Tree";
+	TString treeName = (TString) evt->GetName() + "Tree";
 
-        if( GetObjectKeyByName( treeName ) == NULL )
-        {
-            cout << "REST ERROR (SetInputEvent) : " << treeName << " was not found" << endl;
-            cout << "Inside file : " << fInputFilename << endl;
-            exit(1);
-        }
+	if( GetObjectKeyByName( treeName ) == NULL )
+	{
+	    cout << "REST ERROR (SetInputEvent) : " << treeName << " was not found" << endl;
+	    cout << "Inside file : " << fInputFilename << endl;
+	    exit(1);
+	}
 
-        fInputEventTree = (TTree *) fInputFile->Get( treeName );
+	fInputEventTree = (TTree *) fInputFile->Get( treeName );
 
-        TBranch *br = fInputEventTree->GetBranch( "eventBranch" );
+	TBranch *br = fInputEventTree->GetBranch( "eventBranch" );
 
-        br->SetAddress( &fInputEvent );
+	br->SetAddress( &fInputEvent );
     }
 
 }
 
 Bool_t TRestRun::isClass( TString className )
 {
-	if( fInputFile == NULL ) { cout << "No input file" << endl; return kFALSE; }
+    if( fInputFile == NULL ) { cout << "No input file" << endl; return kFALSE; }
 
-	TIter nextkey( fInputFile->GetListOfKeys() );
-	TKey *key;
-	while ( (key = (TKey*) nextkey() ) ) 
+    TIter nextkey( fInputFile->GetListOfKeys() );
+    TKey *key;
+    while ( (key = (TKey*) nextkey() ) ) 
+    {
+	TString cName (key->GetName());
+
+	if ( cName.Contains(className.Data()) )
 	{
-		TString cName (key->GetName());
-
-		if ( cName.Contains(className.Data()) )
-		{
-			cout << "className : " << cName << " target "<< className << endl;
-			return kTRUE;
-		}
+	    cout << "className : " << cName << " target "<< className << endl;
+	    return kTRUE;
 	}
+    }
 
-	cout << "Class " << className << " not found" << endl;
+    cout << "Class " << className << " not found" << endl;
 
-	return kFALSE;
+    return kFALSE;
 }
 
 TKey *TRestRun::GetObjectKeyByClass( TString className )
@@ -441,9 +442,9 @@ TKey *TRestRun::GetObjectKeyByClass( TString className )
     TKey *key;
     while ( (key = (TKey*)nextkey() ) ) {
 
-        string cName = key->GetClassName();
+	string cName = key->GetClassName();
 
-        if ( cName == className ) return key;
+	if ( cName == className ) return key;
     }
     cout << "REST ERROR (GetObjectKey) : " << className << " was not found" << endl;
     return NULL;
@@ -457,9 +458,9 @@ TKey *TRestRun::GetObjectKeyByName( TString name )
     TKey *key;
     while ( (key = (TKey*)nextkey() ) ) {
 
-        string kName = key->GetName();
+	string kName = key->GetName();
 
-        if ( kName == name ) return key;
+	if ( kName == name ) return key;
     }
     cout << "REST ERROR (GetObjectKey) : " << name << " was not found" << endl;
     return NULL;
@@ -474,9 +475,9 @@ TString TRestRun::GetInputEventName( )
     TKey *key;
     while ( (key = (TKey*)nextkey() ) ) {
 
-        TString name = key->GetName();
-        if( name.EndsWith("EventTree") )
-            return name( 0, name.Length()-4 );
+	TString name = key->GetName();
+	if( name.EndsWith("EventTree") )
+	    return name( 0, name.Length()-4 );
     }
     cout << "REST ERROR (GetEventTreeName) : was not found" << endl;
     return "";
@@ -487,10 +488,10 @@ std::vector <std::string> TRestRun::GetMetadataStructureNames( )
     std::vector <std::string> strings;
 
     for( int n = 0; n < GetNumberOfMetadataStructures(); n++ )
-        strings.push_back( fMetadata[n]->GetName() );
+	strings.push_back( fMetadata[n]->GetName() );
 
     for( int n = 0; n < GetNumberOfHistoricMetadataStructures(); n++ )
-        strings.push_back( fHistoricMetadata[n]->GetName() );
+	strings.push_back( fHistoricMetadata[n]->GetName() );
 
     return strings;
 }
@@ -500,10 +501,10 @@ std::vector <std::string> TRestRun::GetMetadataStructureTitles( )
     std::vector <std::string> strings;
 
     for( int n = 0; n < GetNumberOfMetadataStructures(); n++ )
-        strings.push_back( fMetadata[n]->GetTitle() );
+	strings.push_back( fMetadata[n]->GetTitle() );
 
     for( int n = 0; n < GetNumberOfHistoricMetadataStructures(); n++ )
-        strings.push_back( fHistoricMetadata[n]->GetTitle() );
+	strings.push_back( fHistoricMetadata[n]->GetTitle() );
 
     return strings;
 }
@@ -513,10 +514,10 @@ std::vector <std::string> TRestRun::GetProcessNames( )
     std::vector <std::string> strings;
 
     for( int n = 0; n < GetNumberOfProcesses(); n++ )
-        strings.push_back( fEventProcess[n]->GetName() );
+	strings.push_back( fEventProcess[n]->GetName() );
 
     for( int n = 0; n < GetNumberOfHistoricProcesses(); n++ )
-        strings.push_back( fHistoricEventProcess[n]->GetName() );
+	strings.push_back( fHistoricEventProcess[n]->GetName() );
 
     return strings;
 }
@@ -526,10 +527,10 @@ std::vector <std::string> TRestRun::GetProcessTitles( )
     std::vector <std::string> strings;
 
     for( int n = 0; n < GetNumberOfProcesses(); n++ )
-        strings.push_back( fEventProcess[n]->GetTitle() );
+	strings.push_back( fEventProcess[n]->GetTitle() );
 
     for( int n = 0; n < GetNumberOfHistoricProcesses(); n++ )
-        strings.push_back( fHistoricEventProcess[n]->GetTitle() );
+	strings.push_back( fHistoricEventProcess[n]->GetTitle() );
 
     return strings;
 }
@@ -537,10 +538,10 @@ std::vector <std::string> TRestRun::GetProcessTitles( )
 TRestMetadata *TRestRun::GetMetadata( TString name )
 {
     for( unsigned int i = 0; i < fMetadata.size(); i++ )
-        if( fMetadata[i]->GetName() == name ) return fMetadata[i];
+	if( fMetadata[i]->GetName() == name ) return fMetadata[i];
 
     for( unsigned int i = 0; i < fHistoricMetadata.size(); i++ )
-        if( fHistoricMetadata[i]->GetName() == name ) return fHistoricMetadata[i];
+	if( fHistoricMetadata[i]->GetName() == name ) return fHistoricMetadata[i];
 
     return NULL;
 
@@ -549,12 +550,12 @@ TRestMetadata *TRestRun::GetMetadata( TString name )
 TRestMetadata *TRestRun::GetMetadataClass( TString className )
 {
     // This function returns the first occurence of className.
-    
+
     for( size_t i = 0; i < fMetadata.size(); i++ )
-        if ( fMetadata[i]->ClassName() == className ) return fMetadata[i];
+	if ( fMetadata[i]->ClassName() == className ) return fMetadata[i];
 
     for( unsigned int i = 0; i < fHistoricMetadata.size(); i++ )
-        if( fHistoricMetadata[i]->ClassName() == className ) return fHistoricMetadata[i];
+	if( fHistoricMetadata[i]->ClassName() == className ) return fHistoricMetadata[i];
 
     return NULL;
 }
@@ -563,8 +564,8 @@ void TRestRun::ImportMetadata( TString rootFile, TString name, Bool_t store )
 {
     if( !fileExists( rootFile.Data() ) )
     {
-        cout << "REST ERROR. The file " << rootFile << " does not exist" << endl;
-        exit(1);
+	cout << "REST ERROR. The file " << rootFile << " does not exist" << endl;
+	exit(1);
     }
 
     TFile *f = new TFile( rootFile );
@@ -573,11 +574,11 @@ void TRestRun::ImportMetadata( TString rootFile, TString name, Bool_t store )
 
     if( meta == NULL ) 
     {
-        cout << "REST ERROR : " << name << " does not exist." << endl; 
-        cout << "Inside root file : " << rootFile << endl;
-        GetChar();
-        f->Close();
-        exit(1);
+	cout << "REST ERROR : " << name << " does not exist." << endl; 
+	cout << "Inside root file : " << rootFile << endl;
+	GetChar();
+	f->Close();
+	exit(1);
     }
 
     if( !store ) meta->DoNotStore( );
@@ -591,8 +592,8 @@ void TRestRun::OpenInputFile( TString fName )
     if( fInputFile != NULL ) fInputFile->Close();
 
     if( !fileExists( fName.Data() ) ) {
-        cout << "TRestRun. WARNING. Input file does not exist" << endl;
-        return;
+	cout << "TRestRun. WARNING. Input file does not exist" << endl;
+	return;
     }
 
     fInputFile = new TFile( fName );
@@ -609,29 +610,29 @@ void TRestRun::OpenInputFile( TString fName )
     TIter nextkey( fInputFile->GetListOfKeys() );
     while ( (key = (TKey*) nextkey() ) )
     {
-        TString cName (key->GetClassName());
+	TString cName (key->GetClassName());
 
-        if( !fInputFile->Get( key->GetName() )) 
-        { 
-            if( GetVerboseLevel() >= REST_Debug ) 
-            {
-                cout << "REST warning : " << cName << " not initialized!!" << endl;
-                GetChar(); 
-            }
-            continue; 
-        }
+	if( !fInputFile->Get( key->GetName() )) 
+	{ 
+	    if( GetVerboseLevel() >= REST_Debug ) 
+	    {
+		cout << "REST warning : " << cName << " not initialized!!" << endl;
+		GetChar(); 
+	    }
+	    continue; 
+	}
 
-        if ( ((TObject *) fInputFile->Get( key->GetName() ))->InheritsFrom("TRestMetadata") )
-            fHistoricMetadata.push_back( (TRestMetadata *) fInputFile->Get( key->GetName() ) );
+	if ( ((TObject *) fInputFile->Get( key->GetName() ))->InheritsFrom("TRestMetadata") )
+	    fHistoricMetadata.push_back( (TRestMetadata *) fInputFile->Get( key->GetName() ) );
     }
     fMetadata.clear();
     fEventProcess.clear();
 
     if( GetObjectKeyByName( "TRestAnalysisTree" ) == NULL )
     {
-        cout << "REST ERROR (SetInputEvent) : TRestAnalysisTree was not found" << endl;
-        cout << "Inside file : " << fName << endl;
-        exit(1);
+	cout << "REST ERROR (SetInputEvent) : TRestAnalysisTree was not found" << endl;
+	cout << "Inside file : " << fName << endl;
+	exit(1);
     }
 
     fInputAnalysisTree = ( TRestAnalysisTree * ) fInputFile->Get( "TRestAnalysisTree" ); 
@@ -646,20 +647,20 @@ void TRestRun::OpenInputFile( TString fName, TString cName )
     cout << "OBSOLETE.........." << endl;
 
     /*
-    if( fInputFile != NULL ) fInputFile->Close();
+       if( fInputFile != NULL ) fInputFile->Close();
 
-    fInputFile = new TFile( fName );
-    TIter nextkey(fInputFile->GetListOfKeys());
-    TKey *key;
-    while ( (key = (TKey*)nextkey() ) ) {
-        string className = key->GetClassName();
+       fInputFile = new TFile( fName );
+       TIter nextkey(fInputFile->GetListOfKeys());
+       TKey *key;
+       while ( (key = (TKey*)nextkey() ) ) {
+       string className = key->GetClassName();
 
-        if ( className == cName )
-        {
-            this->Read( key->GetName() );
-        }
-    }
-    */
+       if ( className == cName )
+       {
+       this->Read( key->GetName() );
+       }
+       }
+       */
 }
 
 TString TRestRun::ConstructFilename( TString filenameIn )
@@ -695,15 +696,15 @@ void TRestRun::OpenOutputFile( )
 
     if( fInputFile != NULL )
     {
-        fOutputFilename = tmpOutputFileName;
-        SetDataPath( tmpOutputDataPath );
-        fInputFilename = tmpInputFileName;
+	fOutputFilename = tmpOutputFileName;
+	SetDataPath( tmpOutputDataPath );
+	fInputFilename = tmpInputFileName;
 
-        if( tmpInputRunNumber != -1 ) // Run number = -1 is runNumber="preserve" option
-        {
-            fParentRunNumber = fRunNumber;
-            fRunNumber = tmpInputRunNumber;
-        }
+	if( tmpInputRunNumber != -1 ) // Run number = -1 is runNumber="preserve" option
+	{
+	    fParentRunNumber = fRunNumber;
+	    fRunNumber = tmpInputRunNumber;
+	}
     }
 
     if( fOutputFilename == "default" ) SetRunFilenameAndIndex();
@@ -730,63 +731,63 @@ void TRestRun::CloseOutputFile( )
     char tmpString[256];
     if( fMetadata.size() > 0 )
     {
-        for( unsigned int i = 0; i < fMetadata.size(); i++ )
-        {
-            if( fMetadata[i]->Store() )
-            {
-                cout << "Writting metadata (" << fMetadata[i]->GetName() << ") : " << fMetadata[i]->GetTitle() << endl;
-                sprintf( tmpString, "M%d. %s", i,  fMetadata[i]->GetName() );
-                fMetadata[i]->Write( tmpString );
-            }
-        }
+	for( unsigned int i = 0; i < fMetadata.size(); i++ )
+	{
+	    if( fMetadata[i]->Store() )
+	    {
+		cout << "Writting metadata (" << fMetadata[i]->GetName() << ") : " << fMetadata[i]->GetTitle() << endl;
+		sprintf( tmpString, "M%d. %s", i,  fMetadata[i]->GetName() );
+		fMetadata[i]->Write( tmpString );
+	    }
+	}
     }
 
     if( fHistoricMetadata.size() > 0 )
     {
-        for( unsigned int i = 0; i < fHistoricMetadata.size(); i++ )
-        {
-            if( fHistoricMetadata[i]->Store() )
-            {
-                cout << "Writting historic metadata (" << fHistoricMetadata[i]->GetName() << ") : " << fHistoricMetadata[i]->GetTitle() << endl;
-                sprintf( tmpString, "HM%d. %s", i,  fHistoricMetadata[i]->GetName() );
-                fHistoricMetadata[i]->Write( tmpString );
-            }
-        }
+	for( unsigned int i = 0; i < fHistoricMetadata.size(); i++ )
+	{
+	    if( fHistoricMetadata[i]->Store() )
+	    {
+		cout << "Writting historic metadata (" << fHistoricMetadata[i]->GetName() << ") : " << fHistoricMetadata[i]->GetTitle() << endl;
+		sprintf( tmpString, "HM%d. %s", i,  fHistoricMetadata[i]->GetName() );
+		fHistoricMetadata[i]->Write( tmpString );
+	    }
+	}
     }
 
     if( fEventProcess.size() > 0 )
     {
-        for( unsigned int i = 0; i < fEventProcess.size(); i++ )
-        {
-            cout << "Writting process (" << fEventProcess[i]->GetName() << ") : " << fEventProcess[i]->GetTitle() << endl;
-            sprintf( tmpString, "P%d. %s", i,  fEventProcess[i]->GetName() );
-            fEventProcess[i]->Write( tmpString );
-        }
+	for( unsigned int i = 0; i < fEventProcess.size(); i++ )
+	{
+	    cout << "Writting process (" << fEventProcess[i]->GetName() << ") : " << fEventProcess[i]->GetTitle() << endl;
+	    sprintf( tmpString, "P%d. %s", i,  fEventProcess[i]->GetName() );
+	    fEventProcess[i]->Write( tmpString );
+	}
     }
 
     if( fHistoricEventProcess.size() > 0 )
     {
-        for( unsigned int i = 0; i < fHistoricEventProcess.size(); i++ )
-        {
-            cout << "Writting historic process (" << fHistoricEventProcess[i]->GetName() << ") : " << fHistoricEventProcess[i]->GetTitle() << endl;
-            sprintf( tmpString, "HP%d. %s", i,  fHistoricEventProcess[i]->GetName() );
-            fHistoricEventProcess[i]->Write( tmpString );
-        }
+	for( unsigned int i = 0; i < fHistoricEventProcess.size(); i++ )
+	{
+	    cout << "Writting historic process (" << fHistoricEventProcess[i]->GetName() << ") : " << fHistoricEventProcess[i]->GetTitle() << endl;
+	    sprintf( tmpString, "HP%d. %s", i,  fHistoricEventProcess[i]->GetName() );
+	    fHistoricEventProcess[i]->Write( tmpString );
+	}
     }
 
     if( !fPureAnalysisOutput && fOutputEventTree != NULL )
     {
-        cout << "Writting output tree" << endl;
-        fOutputEventTree->Write();
+	cout << "Writting output tree" << endl;
+	fOutputEventTree->Write();
     }
 
     if( fOutputAnalysisTree != NULL )
-        fOutputAnalysisTree->Write();
+	fOutputAnalysisTree->Write();
 
     if( fInputFile != NULL )
     {
-        TGeoManager *geo = (TGeoManager *) fInputFile->Get("Default");
-        if( geo != NULL ) geo->Write();
+	TGeoManager *geo = (TGeoManager *) fInputFile->Get("Default");
+	if( geo != NULL ) geo->Write();
 
 
     }
@@ -807,81 +808,81 @@ void TRestRun::SetVersion()
 
 TString TRestRun::GetTime( Double_t runTime )
 {
-       time_t tt = (time_t) runTime;
-       struct tm *tm = localtime( &tt);
+    time_t tt = (time_t) runTime;
+    struct tm *tm = localtime( &tt);
 
-       char time[256];
-       strftime(time, sizeof(time), "%H:%M:%S", tm);
+    char time[256];
+    strftime(time, sizeof(time), "%H:%M:%S", tm);
 
-       return time;
+    return time;
 }
 
 TString TRestRun::GetDateForFilename( Double_t runTime )
 {
-       time_t tt = (time_t) runTime;
-       struct tm *tm = localtime( &tt);
+    time_t tt = (time_t) runTime;
+    struct tm *tm = localtime( &tt);
 
-       char date[256];
-       strftime(date, sizeof(date), "%Y%m%d", tm);
+    char date[256];
+    strftime(date, sizeof(date), "%Y%m%d", tm);
 
-       return date;
+    return date;
 }
 
 TString TRestRun::GetDateFormatted( Double_t runTime )
 {
-       time_t tt = (time_t) runTime;
-       struct tm *tm = localtime( &tt);
+    time_t tt = (time_t) runTime;
+    struct tm *tm = localtime( &tt);
 
-       char date[256];
-       strftime(date, sizeof(date), "%Y-%B-%d", tm);
+    char date[256];
+    strftime(date, sizeof(date), "%Y-%B-%d", tm);
 
-       return date;
+    return date;
 }
 
 void TRestRun::PrintStartDate()
 {
-       cout.precision(10);
+    cout.precision(10);
 
-       cout << "------------------------" << endl;
-       cout << "---- Run start date ----" << endl;
-       cout << "------------------------" << endl;
-       cout << "Unix time : " << fStartTime << endl;
-       time_t tt = (time_t) fStartTime;
-       struct tm *tm = localtime( &tt);
+    cout << "------------------------" << endl;
+    cout << "---- Run start date ----" << endl;
+    cout << "------------------------" << endl;
+    cout << "Unix time : " << fStartTime << endl;
+    time_t tt = (time_t) fStartTime;
+    struct tm *tm = localtime( &tt);
 
-       char date[20];
-       strftime(date, sizeof(date), "%Y-%m-%d", tm);
-       cout << "Date : " << date << endl;
+    char date[20];
+    strftime(date, sizeof(date), "%Y-%m-%d", tm);
+    cout << "Date : " << date << endl;
 
-       char time[20];
-       strftime(time, sizeof(time), "%H:%M:%S", tm);
-       cout << "Time : " << time << endl;
-       cout << "++++++++++++++++++++++++" << endl;
+    char time[20];
+    strftime(time, sizeof(time), "%H:%M:%S", tm);
+    cout << "Time : " << time << endl;
+    cout << "++++++++++++++++++++++++" << endl;
 }
 
 void TRestRun::PrintEndDate()
 {
-       cout << "----------------------" << endl;
-       cout << "---- Run end date ----" << endl;
-       cout << "----------------------" << endl;
-       cout << "Unix time : " << fEndTime << endl;
-       time_t tt = (time_t) fEndTime;
-       struct tm *tm = localtime( &tt);
+    cout << "----------------------" << endl;
+    cout << "---- Run end date ----" << endl;
+    cout << "----------------------" << endl;
+    cout << "Unix time : " << fEndTime << endl;
+    time_t tt = (time_t) fEndTime;
+    struct tm *tm = localtime( &tt);
 
-       char date[20];
-       strftime(date, sizeof(date), "%Y-%m-%d", tm);
-       cout << "Date : " << date << endl;
+    char date[20];
+    strftime(date, sizeof(date), "%Y-%m-%d", tm);
+    cout << "Date : " << date << endl;
 
-       char time[20];
-       strftime(time, sizeof(time), "%H:%M:%S", tm);
-       cout << "Time : " << time << endl;
-       cout << "++++++++++++++++++++++++" << endl;
+    char time[20];
+    strftime(time, sizeof(time), "%H:%M:%S", tm);
+    cout << "Time : " << time << endl;
+    cout << "++++++++++++++++++++++++" << endl;
 }
 
 Double_t TRestRun::GetRunLength()
 {
     if( fEndTime-fStartTime == -1 )
-        cout << "Run time is not set" << endl;
+	cout << "Run time is not set" << endl;
     return fEndTime-fStartTime;
 }
 
@@ -890,60 +891,60 @@ void TRestRun::InitFromConfigFile()
 {
     cout << __PRETTY_FUNCTION__ << endl;
 
-   // Initialize the metadata members from a configfile
-   fRunUser = GetParameter( "user" );
+    // Initialize the metadata members from a configfile
+    fRunUser = GetParameter( "user" );
 
-   fRunType = GetParameter( "runType" );
+    fRunType = GetParameter( "runType", "NotDefined" );
 
-   fRunDescription = GetParameter( "runDescription" );
+    fRunDescription = GetParameter( "runDescription" );
 
-   TString rNumberStr = (TString) GetParameter( "runNumber" );
+    TString rNumberStr = (TString) GetParameter( "runNumber" );
 
-   fOutputFilename = GetParameter( "outputFile", "default" );
+    fOutputFilename = GetParameter( "outputFile", "default" );
 
-   if( GetParameter( "overwrite" ) == "on" ) { cout << "Overwrite : on" << endl; fOverwrite = true; }
+    if( GetParameter( "overwrite" ) == "on" ) { cout << "Overwrite : on" << endl; fOverwrite = true; }
 
-   if( rNumberStr == "auto" )
-   {
-       char runFilename[256];
-       sprintf( runFilename, "%s/runNumber", getenv("REST_PATH") );
-       if( !fileExists( (string) runFilename ) )
-       {
-           cout << "REST Warning : File " << runFilename << " does not exist" << endl;
-           cout << "Setting run number to 1" << endl;
-           fRunNumber = 1;
-       }
-       else
-       {
-           FILE *frun = fopen( runFilename, "r" );
-           if( fscanf( frun, "%d\n", &fRunNumber ) <= 0 )
-           {
-               cout << "REST ERROR. TRestRun::InitFromConfigFile. Internal error. Report a bug at rest-dev@cern.ch" << endl;
-               exit(1);
-           }
-           fclose( frun );
+    if( rNumberStr == "auto" )
+    {
+	char runFilename[256];
+	sprintf( runFilename, "%s/runNumber", getenv("REST_PATH") );
+	if( !fileExists( (string) runFilename ) )
+	{
+	    cout << "REST Warning : File " << runFilename << " does not exist" << endl;
+	    cout << "Setting run number to 1" << endl;
+	    fRunNumber = 1;
+	}
+	else
+	{
+	    FILE *frun = fopen( runFilename, "r" );
+	    if( fscanf( frun, "%d\n", &fRunNumber ) <= 0 )
+	    {
+		cout << "REST ERROR. TRestRun::InitFromConfigFile. Internal error. Report a bug at rest-dev@cern.ch" << endl;
+		exit(1);
+	    }
+	    fclose( frun );
 
-           if( fOverwrite )
-               fRunNumber -= 1;
-       }
+	    if( fOverwrite )
+		fRunNumber -= 1;
+	}
 
-       FILE *frun = fopen( runFilename, "w" );
-       fprintf( frun, "%d\n", fRunNumber+1 );
-       fclose( frun );
+	FILE *frun = fopen( runFilename, "w" );
+	fprintf( frun, "%d\n", fRunNumber+1 );
+	fclose( frun );
 
-   }
-   else if ( rNumberStr == "preserve" )
-   {
+    }
+    else if ( rNumberStr == "preserve" )
+    {
 	fRunNumber = -1;
-   }
-   else
-   {
-       fRunNumber = StringToInteger ( GetParameter( "runNumber" ) );
-   }
+    }
+    else
+    {
+	fRunNumber = StringToInteger ( GetParameter( "runNumber" ) );
+    }
 
-   fExperimentName = GetParameter( "experiment" );
+    fExperimentName = GetParameter( "experiment" );
 
-   fRunTag = GetParameter( "runTag" );
+    fRunTag = GetParameter( "runTag" );
 
 }
 
@@ -958,14 +959,14 @@ void TRestRun::SetRunFilenameAndIndex()
     sprintf( runNumberStr, "%05d", fRunNumber );
 
     fOutputFilename = GetDataPath() + "/Run_" + expName + "_"+ fRunUser + "_"  
-        + runType + "_" + fRunTag + "_" + (TString) runNumberStr + "_" + (TString) runParentStr + "_V" + fVersion + ".root";
+	+ runType + "_" + fRunTag + "_" + (TString) runNumberStr + "_" + (TString) runParentStr + "_V" + fVersion + ".root";
 
     while( !fOverwrite && fileExists( (string) fOutputFilename ) )
     {
-        fRunNumber++;
-        sprintf( runNumberStr, "%05d", fRunNumber );
-        fOutputFilename = GetDataPath() + "/Run_" + expName + "_"+ fRunUser + "_"  
-            + runType + "_" + fRunTag + "_" + (TString) runNumberStr + "_" + (TString) runParentStr + "_V" + fVersion + ".root";
+	fRunNumber++;
+	sprintf( runNumberStr, "%05d", fRunNumber );
+	fOutputFilename = GetDataPath() + "/Run_" + expName + "_"+ fRunUser + "_"  
+	    + runType + "_" + fRunTag + "_" + (TString) runNumberStr + "_" + (TString) runParentStr + "_V" + fVersion + ".root";
     }
 }
 
@@ -973,48 +974,48 @@ void TRestRun::SetRunFilenameAndIndex()
 void TRestRun::PrintInfo( )
 {
 
-        cout.precision(10);
-        cout << endl;
-        cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-        cout << "TRestRun content" << endl;
-        cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-        cout << "Config file : " << fConfigFileName << endl;
-        cout << "Section name : " << fSectionName << endl;        // section name given in the constructor of TRestSpecificMetadata
-        cout << "---------------------------------------" << endl;
-        cout << "Name : " << GetName() << endl;
-        cout << "Title : " << GetTitle() << endl;
-        cout << "---------------------------------------" << endl;
-        cout << "Parent run number : " << GetParentRunNumber() << endl; 
-        cout << "Number of initial events : " << GetNumberOfEvents() << endl;
-        cout << "Run number : " << GetRunNumber() << endl; 
-        cout << "Run type : " << GetRunType() << endl;
-        cout << "Run tag : " << GetRunTag() << endl;
-        cout << "Run user : " << GetRunUser() << endl;
-        cout << "Run description : " << GetRunDescription() << endl;
-        cout << "Start timestamp : " << GetStartTimestamp() << endl;
-        cout << "Date/Time : " << GetDateFormatted( GetStartTimestamp() ) << " / " << GetTime( GetStartTimestamp() ) << endl;
-        cout << "End timestamp : " << GetEndTimestamp() << endl;
-        cout << "Date/Time : " << GetDateFormatted( GetEndTimestamp() ) << " / " << GetTime( GetEndTimestamp() ) << endl;
-        cout << "Input filename : " << fInputFilename << endl;
-        cout << "Output filename : " << fOutputFilename << endl;
-        cout << "Number of processed events : " << fProcessedEvents << endl;
-        cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    cout.precision(10);
+    cout << endl;
+    cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    cout << "TRestRun content" << endl;
+    cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    cout << "Config file : " << fConfigFileName << endl;
+    cout << "Section name : " << fSectionName << endl;        // section name given in the constructor of TRestSpecificMetadata
+    cout << "---------------------------------------" << endl;
+    cout << "Name : " << GetName() << endl;
+    cout << "Title : " << GetTitle() << endl;
+    cout << "---------------------------------------" << endl;
+    cout << "Parent run number : " << GetParentRunNumber() << endl; 
+    cout << "Number of initial events : " << GetNumberOfEvents() << endl;
+    cout << "Run number : " << GetRunNumber() << endl; 
+    cout << "Run type : " << GetRunType() << endl;
+    cout << "Run tag : " << GetRunTag() << endl;
+    cout << "Run user : " << GetRunUser() << endl;
+    cout << "Run description : " << GetRunDescription() << endl;
+    cout << "Start timestamp : " << GetStartTimestamp() << endl;
+    cout << "Date/Time : " << GetDateFormatted( GetStartTimestamp() ) << " / " << GetTime( GetStartTimestamp() ) << endl;
+    cout << "End timestamp : " << GetEndTimestamp() << endl;
+    cout << "Date/Time : " << GetDateFormatted( GetEndTimestamp() ) << " / " << GetTime( GetEndTimestamp() ) << endl;
+    cout << "Input filename : " << fInputFilename << endl;
+    cout << "Output filename : " << fOutputFilename << endl;
+    cout << "Number of processed events : " << fProcessedEvents << endl;
+    cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
 }
 
 void TRestRun::PrintProcessedEvents( Int_t rateE)
 {
     if(fCurrentEvent%rateE ==0){
-        if(fInputEvent==NULL)
-        {
-            printf("%d processed events now...\r",fCurrentEvent);
-            fflush(stdout);
-        }
-        else
-        {
-            printf("Completed : %.2lf %%\r", ( 100.0 * (Double_t)fCurrentEvent )/fInputEventTree->GetEntries() );
-            fflush(stdout);
-        }
+	if(fInputEvent==NULL)
+	{
+	    printf("%d processed events now...\r",fCurrentEvent);
+	    fflush(stdout);
+	}
+	else
+	{
+	    printf("Completed : %.2lf %%\r", ( 100.0 * (Double_t)fCurrentEvent )/fInputEventTree->GetEntries() );
+	    fflush(stdout);
+	}
 
     }
 }
@@ -1028,20 +1029,20 @@ Int_t TRestRun::Fill( )
 
     Int_t found = 0;
     for( unsigned int i = 0; i < fSubEventTagList.size(); i++ )
-        if( fOutputEvent->GetSubEventTag() == fSubEventTagList[i] ) found = 1;
+	if( fOutputEvent->GetSubEventTag() == fSubEventTagList[i] ) found = 1;
 
     if( !found ) fSubEventTagList.push_back( fOutputEvent->GetSubEventTag() );
 
     if( fInputAnalysisTree != NULL )
     {
-        for( int n = 0; n < fInputAnalysisTree->GetNumberOfObservables(); n++ )
-            fOutputAnalysisTree->SetObservableValue( n, fInputAnalysisTree->GetObservableValue( n ) );
+	for( int n = 0; n < fInputAnalysisTree->GetNumberOfObservables(); n++ )
+	    fOutputAnalysisTree->SetObservableValue( n, fInputAnalysisTree->GetObservableValue( n ) );
     }
     fOutputAnalysisTree->FillEvent( fOutputEvent );
 
     Int_t treeFillOutput = 0;
     if( !fPureAnalysisOutput ) 
-       treeFillOutput = fOutputEventTree->Fill();
+	treeFillOutput = fOutputEventTree->Fill();
 
     return treeFillOutput;
 }
@@ -1058,16 +1059,16 @@ Int_t TRestRun::GetEventWithID( Int_t eventID, Int_t subEventID )
 
     do
     {
-        if( fEventIDs[currentEvent] == eventID && ( subEventID == -1 || fSubEventIDs[currentEvent] == subEventID ) )
-        {
-            fCurrentEvent = currentEvent;
-            if( !fSkipEventTree ) fInputEventTree->GetEntry( fCurrentEvent );
-            fInputAnalysisTree->GetEntry( fCurrentEvent );
-            return 1;
-        }
+	if( fEventIDs[currentEvent] == eventID && ( subEventID == -1 || fSubEventIDs[currentEvent] == subEventID ) )
+	{
+	    fCurrentEvent = currentEvent;
+	    if( !fSkipEventTree ) fInputEventTree->GetEntry( fCurrentEvent );
+	    fInputAnalysisTree->GetEntry( fCurrentEvent );
+	    return 1;
+	}
 
-        if( currentEvent == nEntries-1 ) currentEvent = 0;
-        else currentEvent++;
+	if( currentEvent == nEntries-1 ) currentEvent = 0;
+	else currentEvent++;
     }
     while( currentEvent != fCurrentEvent );
 
@@ -1086,16 +1087,16 @@ Int_t TRestRun::GetEventWithID( Int_t eventID, TString tag )
 
     do
     {
-        if( fEventIDs[currentEvent] == eventID && fSubEventTags[currentEvent] == tag )
-        {
-            fCurrentEvent = currentEvent;
-            if( !fSkipEventTree ) fInputEventTree->GetEntry( fCurrentEvent );
-            fInputAnalysisTree->GetEntry( fCurrentEvent );
-            return 1;
-        }
+	if( fEventIDs[currentEvent] == eventID && fSubEventTags[currentEvent] == tag )
+	{
+	    fCurrentEvent = currentEvent;
+	    if( !fSkipEventTree ) fInputEventTree->GetEntry( fCurrentEvent );
+	    fInputAnalysisTree->GetEntry( fCurrentEvent );
+	    return 1;
+	}
 
-        if( currentEvent == nEntries-1 ) currentEvent = 0;
-        else currentEvent++;
+	if( currentEvent == nEntries-1 ) currentEvent = 0;
+	else currentEvent++;
     }
     while( currentEvent != fCurrentEvent );
 
@@ -1107,30 +1108,30 @@ Bool_t TRestRun::GetNextEvent( )
 {
     if( fEventProcess.size() > 0 && fEventProcess.front()->isExternal() )
     {
-        if( fEventProcess.front()->GetOutputEvent() == NULL )
-        {
-            // TODO : This was done to set the number of events in TRestRun from the raw data
-            // In future : We will have to put this number in TRestRawToSignalProcess
-            //SetNumberOfEvents( fCurrentEvent );
-            return kFALSE;
-        }
-        fCurrentEvent++;
+	if( fEventProcess.front()->GetOutputEvent() == NULL )
+	{
+	    // TODO : This was done to set the number of events in TRestRun from the raw data
+	    // In future : We will have to put this number in TRestRawToSignalProcess
+	    //SetNumberOfEvents( fCurrentEvent );
+	    return kFALSE;
+	}
+	fCurrentEvent++;
     }
     else
     {
 #ifdef TIME_MEASUREMENT
-        high_resolution_clock::time_point t5 = high_resolution_clock::now();
+	high_resolution_clock::time_point t5 = high_resolution_clock::now();
 #endif
 
-        if( fInputEventTree->GetEntries() == fCurrentEvent-1 ) return kFALSE;
+	if( fInputEventTree->GetEntries() == fCurrentEvent-1 ) return kFALSE;
 
-        fInputEventTree->GetEntry( fCurrentEvent );
-        if( fInputAnalysisTree != NULL ) fInputAnalysisTree->GetEntry( fCurrentEvent );
+	fInputEventTree->GetEntry( fCurrentEvent );
+	if( fInputAnalysisTree != NULL ) fInputAnalysisTree->GetEntry( fCurrentEvent );
 
-        fCurrentEvent++;
+	fCurrentEvent++;
 #ifdef TIME_MEASUREMENT
-        high_resolution_clock::time_point t6 = high_resolution_clock::now();
-        readTime += (int) duration_cast<microseconds>( t6 - t5 ).count();
+	high_resolution_clock::time_point t6 = high_resolution_clock::now();
+	readTime += (int) duration_cast<microseconds>( t6 - t5 ).count();
 #endif
     }
 
