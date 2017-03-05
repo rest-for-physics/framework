@@ -45,8 +45,12 @@ class TRestEventProcess:public TRestMetadata {
 
 		TRestAnalysisTree *fAnalysisTree; ///< Pointer to analysis tree where to store the observables. 
 
-        Bool_t fIsExternal; ///< It defines if the process reads event data from an external source.
+ 	        Bool_t fIsExternal; ///< It defines if the process reads event data from an external source.
+
+  		TString fInputFileName;
+
 #endif
+
         template <typename eventType> 
         void TransferEvent ( eventType *evOutput, eventType *evInput )
         { 
@@ -63,6 +67,7 @@ class TRestEventProcess:public TRestMetadata {
             virtual TRestEvent *GetOutputEvent() { return fOutputEvent; } ///< Get pointer to output event
 
         virtual Bool_t OpenInputFile(TString fName);
+	   TString GetInputFilename( ) { return fInputFileName; }
 
 		virtual void InitProcess() { } ///< To be executed at the beginning of the run
 		virtual TRestEvent *ProcessEvent( TRestEvent *evInput ) = 0; ///< Process one event
