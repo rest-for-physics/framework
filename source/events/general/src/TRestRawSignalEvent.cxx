@@ -86,6 +86,64 @@ Double_t TRestRawSignalEvent::GetIntegralWithThreshold( Int_t from, Int_t to,
 
 }
 
+Double_t TRestRawSignalEvent::GetSlopeIntegral( )
+{
+    Double_t sum = 0;
+
+    for( int i = 0; i < GetNumberOfSignals(); i++ )
+        sum += fSignal[i].GetSlopeIntegral( );
+
+    return sum;
+}
+
+Double_t TRestRawSignalEvent::GetRiseSlope( )
+{
+    Double_t sum = 0;
+
+    Int_t n = 0;
+    for( int i = 0; i < GetNumberOfSignals(); i++ )
+    {
+	if( fSignal[i].GetThresholdIntegralValue() > 0 )
+	{
+		sum += fSignal[i].GetSlopeIntegral( );
+		n++;
+	}
+    }
+
+    if( n == 0 ) return 0;
+
+    return sum/n;
+}
+
+Double_t TRestRawSignalEvent::GetRiseTime( )
+{
+    Double_t sum = 0;
+
+    Int_t n = 0;
+    for( int i = 0; i < GetNumberOfSignals(); i++ )
+    {
+	if( fSignal[i].GetThresholdIntegralValue() > 0 )
+	{
+		sum += fSignal[i].GetRiseTime( );
+		n++;
+	}
+    }
+
+    if( n == 0 ) return 0;
+
+    return sum/n;
+}
+
+Double_t TRestRawSignalEvent::GetTripleMaxIntegral( )
+{
+    Double_t sum = 0;
+
+    for( int i = 0; i < GetNumberOfSignals(); i++ )
+        sum += fSignal[i].GetTripleMaxIntegral( );
+
+    return sum;
+}
+
 Double_t TRestRawSignalEvent::GetBaseLineAverage( Int_t startBin, Int_t endBin )
 {
     Double_t baseLineMean = 0;
