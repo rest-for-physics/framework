@@ -216,7 +216,7 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
         cout << "+------------------------------------------------------+" << endl;
     }
 
-    if( fInputEvent != NULL && this->GetVerboseLevel() >= REST_Info )
+    if( fInputEvent != NULL && this->GetVerboseLevel() >= REST_Extreme )
         fInputEvent->PrintEvent();
 
 	for( unsigned int j = 0; j < fEventProcess.size(); j++ )
@@ -307,6 +307,9 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 		fEventProcess[i]->EndProcess();
 
     if( fPureAnalysisOutput ) fContainsEventTree = false;
+
+   if( fEventProcess.front()->isExternal() ) 
+	fInputFilename = fEventProcess.front()->GetInputFilename();
 }
 
 void TRestRun::AddProcess( TRestEventProcess *process, string cfgFilename, string name ) 
