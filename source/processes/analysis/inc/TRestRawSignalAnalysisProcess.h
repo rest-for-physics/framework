@@ -116,7 +116,7 @@ class TRestRawSignalAnalysisProcess:public TRestEventProcess {
             EndPrintProcess();
         }
 
-        TString GetProcessName() { return (TString) "signalAnalysis"; }
+        TString GetProcessName() { return (TString) "rawSignalAnalysis"; }
 
         //Constructor
         TRestRawSignalAnalysisProcess();

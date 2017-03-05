@@ -110,16 +110,17 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     fSignalEvent->SetTimeStamp( fInputSignalEvent->GetTimeStamp() );
     fSignalEvent->SetSubEventTag( fInputSignalEvent->GetSubEventTag() );
 
-    for( int sgnl = 0; sgnl < fInputSignalEvent->GetNumberOfSignals(); sgnl++ )
-    {
+    //for( int sgnl = 0; sgnl < fInputSignalEvent->GetNumberOfSignals(); sgnl++ )
+    Int_t N = fInputSignalEvent->GetNumberOfSignals();
+    if( GetVerboseLevel() >= REST_Debug ) N = 1;
+    for( int sgnl = 0; sgnl < N; sgnl++ )
         fSignalEvent->AddSignal( *fInputSignalEvent->GetSignal( sgnl ) );
-    }
     /////////////////////////////////////////////////
 
     if( fFirstEventTime == -1 )
-        fFirstEventTime = fInputSignalEvent->GetTime( );
+        fFirstEventTime = fSignalEvent->GetTime( );
 
-    Double_t secondsFromStart = fInputSignalEvent->GetTime() - fFirstEventTime;
+    Double_t secondsFromStart = fSignalEvent->GetTime() - fFirstEventTime;
     obsName = this->GetName() + (TString) ".SecondsFromStart";
     fAnalysisTree->SetObservableValue( obsName, secondsFromStart );
 
@@ -185,6 +186,27 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     obsName = this->GetName() + (TString) ".ThresholdIntegral";
     fAnalysisTree->SetObservableValue( obsName, thrIntegral );
 
+    Double_t riseSlope = fSignalEvent->GetRiseSlope();
+    obsName = this->GetName() + (TString) ".RiseSlopeAvg";
+    fAnalysisTree->SetObservableValue( obsName, riseSlope );
+
+    Double_t slopeIntegral = fSignalEvent->GetSlopeIntegral();
+    obsName = this->GetName() + (TString) ".SlopeIntegral";
+    fAnalysisTree->SetObservableValue( obsName, slopeIntegral );
+
+    Double_t rateOfChange = riseSlope/slopeIntegral;
+    if( slopeIntegral == 0 ) rateOfChange = 0;
+    obsName = this->GetName() + (TString) ".RateOfChangeAvg";
+    fAnalysisTree->SetObservableValue( obsName, rateOfChange );
+
+    Double_t riseTime = fSignalEvent->GetRiseTime();
+    obsName = this->GetName() + (TString) ".RiseTimeAvg";
+    fAnalysisTree->SetObservableValue( obsName, riseTime );
+
+    Double_t tripleMaxIntegral = fSignalEvent->GetTripleMaxIntegral();
+    obsName = this->GetName() + (TString) ".TripleMaxIntegral";
+    fAnalysisTree->SetObservableValue( obsName, tripleMaxIntegral );
+
     Double_t integralRatio = (fullIntegral-thrIntegral)/(fullIntegral+thrIntegral);
     obsName = this->GetName() + (TString) ".IntegralBalance";
     fAnalysisTree->SetObservableValue( obsName, integralRatio );
@@ -219,6 +241,7 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     if( nGoodSignals > 0 ) peakTimeAverage /= nGoodSignals;
 
     Double_t ampIntRatio = thrIntegral/maxValueIntegral;
+    if( maxValueIntegral == 0 ) ampIntRatio = 0;
     obsName = this->GetName() + (TString) ".AmplitudeIntegralRatio";
     fAnalysisTree->SetObservableValue( obsName, ampIntRatio );
 
@@ -232,6 +255,7 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     fAnalysisTree->SetObservableValue( obsName, maxValueIntegral );
 
     Double_t amplitudeRatio = maxValueIntegral/maxValue;
+    if( maxValue == 0 ) amplitudeRatio = 0;
     obsName = this->GetName() + (TString) ".AmplitudeRatio";
     fAnalysisTree->SetObservableValue( obsName, amplitudeRatio );
 
@@ -275,10 +299,16 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 	}
 
 
+    if( GetVerboseLevel() >= REST_Debug ) 
+    {
+	fAnalysisTree->PrintObservables();
+	cout << "Place mouse cursor on top of canvas and press a KEY to continue ... " << endl;
+    }
+
     if( GetVerboseLevel() >= REST_Debug && fDrawRefresh > 0 )
     {
         rawCounter++;
-        if( rawCounter > fDrawRefresh )
+        if( rawCounter >= fDrawRefresh )
         {
             rawCounter = 0;
             for( unsigned int i = 0; i < fDrawingObjects.size(); i++ )
@@ -289,21 +319,13 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
             fCanvas->SetGrid();
             fCanvas->cd(); 
+
             pad2->Draw();
-
-            /*
-            fCanvas->cd(4); 
-            txt->Draw();
-            */
-
+            pad2->WaitPrimitive();
             fCanvas->Update();
-            if( GetVerboseLevel() >= REST_Debug ) 
-            {
-                fAnalysisTree->PrintObservables();
-                GetChar(); 
-            }
         }
     }
+
 
 
     return fSignalEvent;
