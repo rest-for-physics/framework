@@ -42,6 +42,8 @@ class TRestRawSignal: public TObject {
         TGraph *fGraph;
 
         std::vector <Int_t> fPointsOverThreshold;
+
+	Double_t fThresholdIntegral;
 #endif
 
         //Getters
@@ -81,6 +83,13 @@ class TRestRawSignal: public TObject {
         Double_t GetIntegralWithThreshold( Int_t from, Int_t to, 
                 Double_t baseline, Double_t pointThreshold,
                 Int_t nPointsOverThreshold, Double_t signalThreshold );
+
+	Double_t GetThresholdIntegralValue() { return fThresholdIntegral; }
+
+	Double_t GetSlopeIntegral( );
+	Double_t GetRiseSlope( );
+	Int_t GetRiseTime( );
+	Double_t GetTripleMaxIntegral( );
 
         Double_t GetAverage( Int_t startBin, Int_t endBin );
 

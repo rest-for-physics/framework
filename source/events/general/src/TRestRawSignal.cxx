@@ -32,6 +32,8 @@ TRestRawSignal::TRestRawSignal()
    fSignalData.clear();
 
    fPointsOverThreshold.clear();
+
+   fThresholdIntegral = -1;
 }
 
 TRestRawSignal::TRestRawSignal( Int_t nBins )
@@ -45,6 +47,8 @@ TRestRawSignal::TRestRawSignal( Int_t nBins )
 
    for( int n = 0; n < nBins; n++ )
        fSignalData.push_back( 0 );
+
+   fThresholdIntegral = -1;
 }
 
 //______________________________________________________________________________
@@ -58,6 +62,8 @@ void TRestRawSignal::Initialize()
     fSignalData.clear();
     fPointsOverThreshold.clear();
     fSignalID = -1;
+
+    fThresholdIntegral = -1;
 }
 
 void TRestRawSignal::Reset()
@@ -180,7 +186,81 @@ Double_t TRestRawSignal::GetIntegralWithThreshold( Int_t from, Int_t to,
         }
     }
 
+    fThresholdIntegral = sum;
     return sum;
+}
+
+Double_t TRestRawSignal::GetSlopeIntegral( )
+{
+	//cout << __PRETTY_FUNCTION__ << endl;
+	if( fThresholdIntegral == -1 )
+		cout << "REST Warning. TRestRawSignal::GetSlopeIntegral. GetIntegralWithThreshold should be called first." << endl;
+
+	Double_t sum = 0;
+	for( unsigned int n = 0; n < fPointsOverThreshold.size(); n++ )
+	{
+		if( n + 1 >= fPointsOverThreshold.size() ) return sum;
+
+		sum += GetData( fPointsOverThreshold[n] );
+
+		if( GetData( fPointsOverThreshold[n+1] ) - GetData( fPointsOverThreshold[n] ) < 0 )
+			break;
+			
+	}
+	return sum;
+}
+
+Double_t TRestRawSignal::GetRiseSlope( )
+{
+	//cout << __PRETTY_FUNCTION__ << endl;
+	if( fThresholdIntegral == -1 )
+		cout << "REST Warning. TRestRawSignal::GetRiseSlope. GetIntegralWithThreshold should be called first." << endl;
+
+	if( fPointsOverThreshold.size() < 2 )
+	{
+		cout << "REST Warning. TRestRawSignal::GetRiseSlope. Less than 2 points!." << endl;
+		return 0;
+	}
+
+	Int_t maxBin = GetMaxPeakBin()-1;
+
+	Double_t hP = GetData( maxBin );
+
+	Double_t lP = GetData( fPointsOverThreshold[0] );
+
+	return (hP-lP)/(maxBin-fPointsOverThreshold[0]);
+}
+
+Int_t TRestRawSignal::GetRiseTime( )
+{
+	//cout << __PRETTY_FUNCTION__ << endl;
+	if( fThresholdIntegral == -1 )
+		cout << "REST Warning. TRestRawSignal::GetRiseTime. GetIntegralWithThreshold should be called first." << endl;
+
+	if( fPointsOverThreshold.size() < 2 )
+	{
+		cout << "REST Warning. TRestRawSignal::GetRiseTime. Less than 2 points!." << endl;
+		return 0;
+	}
+
+	return GetMaxPeakBin() - fPointsOverThreshold[0];
+}
+
+Double_t TRestRawSignal::GetTripleMaxIntegral( )
+{
+	//cout << __PRETTY_FUNCTION__ << endl;
+	if( fThresholdIntegral == -1 )
+		cout << "REST Warning. TRestRawSignal::GetRiseTime. GetIntegralWithThreshold should be called first." << endl;
+
+	Int_t cBin = GetMaxPeakBin();
+
+	if( cBin+1 >= GetNumberOfPoints() ) return 0;
+
+	Double_t a1 = GetData( cBin );
+	Double_t a2 = GetData( cBin-1 );
+	Double_t a3 = GetData( cBin+1 );
+
+	return a1 + a2 + a3;
 }
 
 Double_t TRestRawSignal::GetAverage( Int_t startBin, Int_t endBin )
