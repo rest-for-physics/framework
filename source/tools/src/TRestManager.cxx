@@ -306,10 +306,6 @@ Int_t TRestManager::LoadProcesses( )
         else if( i == 0 && fProcessType[i] == "TRestCoBoAsAdToSignalProcess" )
         {
 
-            //TRestDetectorSetup *detSetup = new TRestDetectorSetup();
-            //detSetup->InitFromFileName( fInputFile );
-
-            //fRun->AddMetadata( detSetup );
 
             TRestCoBoAsAdToSignalProcess *coboPcs = new TRestCoBoAsAdToSignalProcess();
 
@@ -322,9 +318,38 @@ Int_t TRestManager::LoadProcesses( )
                 exit(1);
             }
 
-            //fRun->SetParentRunNumber( detSetup->GetSubRunNumber() );
-            //fRun->SetRunNumber( detSetup->GetRunNumber() );
-            //fRun->SetRunTag( detSetup->GetRunTag() );
+	    if ( coboPcs->GetFilenameFormat() == "SJTU" ) 
+	    {
+		    TRestDetectorSetup *detSetup = new TRestDetectorSetup();
+
+		    cout << fInputFile << endl;
+		    Int_t s = fInputFile.First('_');
+		    Int_t e = fInputFile.Last('_');
+		    TString beg = fInputFile(s+9,e-s-9);
+		    TString year = beg(0,2);
+		    TString month = beg(3,2);
+		    TString day = beg(6,2);
+		    TString hour = beg(9,2);
+		    TString minute = beg(12,2);
+
+		    TString sR = fInputFile( e+1, 4 );
+		    Int_t sRunN = sR.Atoi();
+
+		    cout.precision( 12 );
+		    Int_t rN = minute.Atoi() + hour.Atoi()*100 + day.Atoi()*10000 + month.Atoi()*1e6 + year.Atoi()*1e8;
+
+		    detSetup->SetRunNumber( rN );
+		    detSetup->SetSubRunNumber( sRunN );
+
+		    fRun->AddMetadata( detSetup );
+
+		    fRun->SetParentRunNumber( detSetup->GetSubRunNumber() );
+		    fRun->SetRunNumber( detSetup->GetRunNumber() );
+		    fRun->SetRunTag( "noTag" );
+	    }
+
+	    
+
         }
         else
         {

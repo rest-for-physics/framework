@@ -48,6 +48,8 @@ class TRestRawToSignalProcess:public TRestEventProcess {
 
    Int_t fRunOrigin;
    Int_t fSubRunOrigin;
+
+   TString fFilenameFormat;
    #endif
    
    void LoadDefaultConfig();
@@ -61,6 +63,8 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    virtual void EndOfEventProcess();
    virtual TString GetProcessName()=0;
    TRestMetadata *GetProcessMetadata() { return NULL; }
+
+   TString GetFilenameFormat() { return fFilenameFormat; }
 
    void LoadConfig( std::string cfgFilename, std::string name = "" );
 
