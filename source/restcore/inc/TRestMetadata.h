@@ -128,6 +128,7 @@ class TRestMetadata:public TNamed {
 
         std::string ExpandForLoops( std::string buffer );
         std::string ReplaceMathematicalExpressions( std::string buffer );
+	std::string ReplaceIncludeDefinitions( const string buffer );
         std::string ReplaceEnvironmentalVariables( const std::string buffer );
         std::string ExtractLoopStructure( std::string in, size_t pos );
         std::string RemoveComments( string in );

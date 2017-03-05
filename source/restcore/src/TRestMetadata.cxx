@@ -702,6 +702,7 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
     configBuffer = GetKEYStructure( "environment", p, temporalBuffer );
     if( configBuffer != "" )
     {
+	configBuffer = ReplaceIncludeDefinitions( configBuffer );
         p = 0;
         while( p != string::npos ) SetEnvVariable( p );
     }
@@ -714,6 +715,7 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
     if( configBuffer != "" )
     {
 
+	configBuffer = ReplaceIncludeDefinitions( configBuffer );
         // We extract the values from globals. 
         // Globals will not be stored but they will be used by the REST framework during execution
 
@@ -769,6 +771,8 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
     }
 
     configBuffer = GetKEYStructure( "section", sectionPosition, temporalBuffer );
+
+    configBuffer = ReplaceIncludeDefinitions( configBuffer );
 
     string sectionDefinition = GetKEYDefinition( "section", configBuffer );
 
@@ -1077,6 +1081,55 @@ string TRestMetadata::EvaluateExpression( string exp )
     string out = sss.str();
 
     return out;
+}
+
+///////////////////////////////////////////////
+/// \brief Identifies include definitions inside the RML, and replaces it by the content in the referenced file
+///
+/// RML definition : <include file="includeFile.xml" />
+///
+string TRestMetadata::ReplaceIncludeDefinitions( const string buffer )
+{
+    string outputBuffer = ReplaceEnvironmentalVariables( buffer );
+
+    size_t pos = 0;
+    string includeString;
+    do
+    {
+        includeString = GetKEYDefinition( "include", pos, outputBuffer );
+
+        string fileName = GetFieldValue( "file", includeString );
+
+	if( includeString.length() == 0 ) break;
+
+	if( includeString.length() > 0 )
+		includeString += ">";
+
+	if( fileName != "Not defined" )
+	{
+		if( !fileExists( fileName ) )
+		{
+			cout << "REST WARNING. TRestMetadata::ReplaceIncludeDefinitions." << endl;
+			cout << "File : " << fileName << " not found!" << endl;
+		}
+		else
+		{
+			string temporalBuffer;
+			string line;
+			ifstream file(fileName);
+			while(getline(file, line)) temporalBuffer += line;
+
+			string outputNow;
+			size_t pos2 = 0;
+			outputNow = Replace( outputBuffer, includeString, temporalBuffer, pos2 ); 
+			outputBuffer = outputNow;
+		}
+	}
+	
+    }
+    while( includeString.length() > 0 );
+
+    return outputBuffer;
 }
 
 ///////////////////////////////////////////////
