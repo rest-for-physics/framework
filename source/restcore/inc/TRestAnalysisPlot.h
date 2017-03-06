@@ -60,6 +60,9 @@ class TRestAnalysisPlot:public TRestMetadata {
 
         void PrintMetadata( ) { }
 
+	void SetOutputPlotsFilename( TString fname ) { fCanvasSave = fname; }
+	void SetOutputHistosFilename( TString fname ) { fHistoOutputFile = fname; }
+
         void AddFile( TString fileName ) { fFileNames.push_back( fileName ); fNFiles++; }
 
         void SavePlotToPDF( TString plotName, TString fileName );
