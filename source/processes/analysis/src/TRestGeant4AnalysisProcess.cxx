@@ -48,6 +48,7 @@ void TRestGeant4AnalysisProcess::LoadDefaultConfig()
 //______________________________________________________________________________
 void TRestGeant4AnalysisProcess::Initialize()
 {
+  
     SetSectionName( this->ClassName() );
 
     fInputG4Event = new TRestG4Event();
@@ -71,6 +72,7 @@ void TRestGeant4AnalysisProcess::InitProcess()
     fObservables = TRestEventProcess::ReadObservables();
 
     for( unsigned int i = 0; i < fObservables.size(); i++ )
+    {  
         if( fObservables[i].find( "EDep" ) != string::npos )
         {
             TString volName = fObservables[i].substr( 0, fObservables[i].length() - 4 ).c_str();
@@ -99,7 +101,56 @@ void TRestGeant4AnalysisProcess::InitProcess()
                 cout << "??????????????????????????????????????????????????" << endl;
                 cout << endl;
             }
+
         }
+        if( fObservables[i].find( "MeanPos" ) != string::npos )
+        {
+            TString volName2 = fObservables[i].substr( 0, fObservables[i].length() - 8 ).c_str();
+            std::string dirId = fObservables[i].substr( fObservables[i].length() - 1,1 ).c_str();
+
+            Int_t volId2 = fG4Metadata->GetActiveVolumeID( volName2 );
+            if( volId2 >= 0 )
+            {
+                fMeanPosObservables.push_back( fObservables[i] );
+                fVolumeID2.push_back( volId2 );
+                fDirID.push_back( dirId );
+            }
+
+            if( volId2 == -1 )
+            {
+                cout << endl;
+                cout << "??????????????????????????????????????????????????" << endl;
+                cout << "REST warning : TRestGeant4AnalysisProcess." << endl;
+                cout << "------------------------------------------" << endl;
+                cout << endl;
+                cout << " Volume " << volName2 << " is not an active volume" << endl;
+                cout << endl;
+                cout << "List of active volumes : " << endl;
+                cout << "------------------------ " << endl;
+
+                for( int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes( ); n++ )
+                    cout << "Volume " << n << " : " << fG4Metadata->GetActiveVolumeName( n ) << endl;
+                cout << "??????????????????????????????????????????????????" << endl;
+                cout << endl;
+            }
+
+            if( (dirId  !="X") && (dirId !="Y") && (dirId !="Z") )
+            {
+                cout << endl;
+                cout << "??????????????????????????????????????????????????" << endl;
+                cout << "REST warning : TRestGeant4AnalysisProcess." << endl;
+                cout << "------------------------------------------" << endl;
+                cout << endl;
+                cout << " Direction " << dirId << " is not valid" << endl;
+                cout << " Only X, Y or Z accepted" << endl;
+                cout << endl;
+
+            }
+
+        }
+
+    }
+
 }
 
 //______________________________________________________________________________
@@ -177,6 +228,24 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent( TRestEvent *evInput )
         TString obsName = fEnergyInObservables[n];
         obsName = this->GetName( ) + (TString) "." + obsName;
         fAnalysisTree->SetObservableValue( obsName, en );
+    }
+
+    for( unsigned int n = 0; n < fMeanPosObservables.size(); n++ )
+    {
+        TString obsName = fMeanPosObservables[n];
+        obsName = this->GetName( ) + (TString) "." + obsName;
+
+        Double_t mpos=0;
+        if(fDirID[n]==(TString)"X")
+            mpos = fOutputG4Event->GetMeanPositionInVolume(fVolumeID2[n]).X();  
+
+        else if(fDirID[n]==(TString)"Y")
+            mpos = fOutputG4Event->GetMeanPositionInVolume(fVolumeID2[n]).Y(); 
+
+        else if(fDirID[n]==(TString)"Z")
+            mpos = fOutputG4Event->GetMeanPositionInVolume(fVolumeID2[n]).Z(); 
+
+        fAnalysisTree->SetObservableValue( obsName, mpos );
     }
 
     //cout << "Event : " << fOutputG4Event->GetID() << " G4 Tracks : " << fOutputG4Event->GetNumberOfTracks() << endl;
