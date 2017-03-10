@@ -58,6 +58,7 @@ ClassImp(TRestEventProcess)
 TRestEventProcess::TRestEventProcess()
 {
     fIsExternal = false;
+    fCreateCanvas = false;
     fVerbose = -1;
 }
 

@@ -93,6 +93,8 @@ void TRestRun::Initialize()
     fContainsEventTree = true;
 
     fSkipEventTree = false;
+
+    fCanvas = NULL;
 }
 
 void TRestRun::ResetRunTimes()
@@ -157,7 +159,7 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 
     if ( ValidateProcessChain( ) == 0 ) return;
 
-    if ( GetRunType( ) == "[PROCESS]" || GetRunType( ) == "NotDefined" ) 
+    if ( GetRunType( ) == "[PROCESS]" ) 
 	this->SetRunType( fEventProcess.back()->GetProcessName() );
 
     this->OpenOutputFile();
@@ -179,6 +181,9 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 	fEventProcess[i]->InitProcess();
 	fEventProcess[i]->PrintMetadata();
     }
+
+    for( unsigned int i = 0; i < fEventProcess.size(); i++ ) 
+	if( fEventProcess[i]->CreateCanvas( ) ) this->CreateCanvas();
 
     fOutputAnalysisTree->CreateObservableBranches( );
 
@@ -238,6 +243,9 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 	    if( processedEvent == NULL ) break;
 	    fEventProcess[j]->EndOfEventProcess();
 
+	    if( fCanvas != NULL )
+		fCanvas->Update();
+
 	    if( this->GetVerboseLevel() >= REST_Debug )
 	    {
 #ifdef TIME_MEASUREMENT
@@ -249,7 +257,6 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 
 		if( fEventProcess[j]->GetVerboseLevel() >= REST_Debug )
 		    GetChar();
-
 	    }
 	}
 
@@ -602,6 +609,8 @@ void TRestRun::OpenInputFile( TString fName )
     tmpOutputFileName = GetOutputFilename();
     tmpInputFileName = fName;
     tmpOutputDataPath = GetMainDataPath();
+    tmpRunType = GetRunType();
+    tmpRunTag = GetRunTag();
 
     TKey *key = GetObjectKeyByClass( "TRestRun" );
     this->Read( key->GetName() );
@@ -627,6 +636,9 @@ void TRestRun::OpenInputFile( TString fName )
     }
     fMetadata.clear();
     fEventProcess.clear();
+
+    fRunType = tmpRunType;
+    fRunTag = tmpRunTag;
 
     if( GetObjectKeyByName( "TRestAnalysisTree" ) == NULL )
     {

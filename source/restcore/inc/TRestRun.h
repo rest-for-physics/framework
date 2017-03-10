@@ -28,6 +28,7 @@
 #include <string>
 #include "TString.h"
 #include <TKey.h>
+#include <TCanvas.h>
 
 #include "TRestEvent.h"
 #include "TRestMetadata.h"
@@ -78,6 +79,8 @@ class TRestRun:public TRestMetadata {
         TString tmpOutputFileName;
         TString tmpOutputDataPath;
         TString tmpInputFileName;
+	TString tmpRunType;
+	TString tmpRunTag;
 
         TTree *fInputEventTree;
         TTree *fOutputEventTree;
@@ -92,6 +95,8 @@ class TRestRun:public TRestMetadata {
         TFile *fOutputFile;
         
         Int_t fCurrentEvent;
+
+	TCanvas *fCanvas;
 #endif
 
         Int_t fProcessedEvents;
@@ -301,7 +306,6 @@ class TRestRun:public TRestMetadata {
 	
 	
         //Setters
-
         void AddMetadata( TRestMetadata *metadata ) { fMetadata.push_back( metadata ); metadata->PrintMetadata(); }
         void AddHistoricMetadata( TRestMetadata *metadata ) { fHistoricMetadata.push_back( metadata ); }
         void AddProcess( TRestEventProcess *process, std::string cfgFilename, std::string name = "" );
@@ -344,6 +348,20 @@ class TRestRun:public TRestMetadata {
         void PrintProcessedEvents( Int_t rateE);
 
         Double_t GetRunLength();
+
+	void CreateCanvas( Int_t xw = 800, Int_t yw = 600 )
+	{
+		if( fCanvas == NULL )
+			fCanvas = new TCanvas( "RunCanvas", "TRestRun canvas", xw, yw );
+	}
+
+	void DeleteCanvas(  )
+	{
+		if( fCanvas != NULL )
+			delete fCanvas;
+
+		fCanvas = NULL;
+	}
 
         //Construtor
         TRestRun();

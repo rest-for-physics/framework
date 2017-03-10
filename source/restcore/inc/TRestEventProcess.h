@@ -24,6 +24,7 @@
 #define RestCore_TRestEventProcess
 
 #include "TNamed.h"
+
 #include "TRestEvent.h"
 #include "TRestMetadata.h"
 #include "TRestAnalysisTree.h"
@@ -49,6 +50,7 @@ class TRestEventProcess:public TRestMetadata {
 
   		TString fInputFileName;
 
+		Bool_t fCreateCanvas;
 #endif
 
         template <typename eventType> 
@@ -82,6 +84,9 @@ class TRestEventProcess:public TRestMetadata {
         virtual void LoadConfig( std::string cfgFilename, std::string cfgName = "" );
 
         Bool_t isExternal( ) { return fIsExternal; } 
+
+		void EnableCanvas() { fCreateCanvas = true; }
+		Bool_t CreateCanvas() { return fCreateCanvas; }
 
 		vector <string> ReadObservables( );
 
