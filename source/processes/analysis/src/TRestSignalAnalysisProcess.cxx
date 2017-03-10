@@ -83,8 +83,8 @@ void TRestSignalAnalysisProcess::InitProcess()
 
     if( GetVerboseLevel() >= REST_Debug && fCanvas == NULL && fDrawRefresh > 0 )
     {
-        cout << "Initializing canvas" << endl;
-        fCanvas = new TCanvas( this->GetName(), "Signal analysis", 400, 300);
+        cout << "TRestSignalAnalysis-->Initializing canvas" << endl;
+        fCanvas = new TCanvas( this->GetName(), "Signal analysis", 800, 600);
     }
 }
 
@@ -114,6 +114,7 @@ TRestEvent* TRestSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         fSignalEvent->AddSignal( *fInputSignalEvent->GetSignal( sgnl ) );
     }
     /////////////////////////////////////////////////
+
 
     if( fFirstEventTime == -1 )
         fFirstEventTime = fInputSignalEvent->GetTime( );
@@ -289,17 +290,9 @@ TRestEvent* TRestSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
             fCanvas->cd(); 
             pad2->Draw();
 
-            /*
-            fCanvas->cd(4); 
-            txt->Draw();
-            */
-
             fCanvas->Update();
-            if( GetVerboseLevel() >= REST_Debug ) 
-            {
-                fAnalysisTree->PrintObservables();
-                GetChar(); 
-            }
+	    fAnalysisTree->PrintObservables();
+	    GetChar(); 
         }
     }
 
