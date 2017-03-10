@@ -94,7 +94,7 @@ void TRestRun::Initialize()
 
     fSkipEventTree = false;
 
-    fCanvas = NULL;
+    fReadOnly = true;
 }
 
 void TRestRun::ResetRunTimes()
@@ -162,7 +162,8 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
     if ( GetRunType( ) == "[PROCESS]" ) 
 	this->SetRunType( fEventProcess.back()->GetProcessName() );
 
-    this->OpenOutputFile();
+    if( !fReadOnly )
+	this->OpenOutputFile();
 
     if( GetVerboseLevel() >= REST_Debug )
 	cout << "TRestRun::ProcessEvent: Setting input event" << endl;
@@ -176,14 +177,14 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 
     for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->SetAnalysisTree( fOutputAnalysisTree );
 
+    for( unsigned int i = 0; i < fEventProcess.size(); i++ ) 
+		fEventProcess[i]->SetReadOnly( fReadOnly );
+
     for( unsigned int i = 0; i < fEventProcess.size(); i++ )
     {
 	fEventProcess[i]->InitProcess();
 	fEventProcess[i]->PrintMetadata();
     }
-
-    for( unsigned int i = 0; i < fEventProcess.size(); i++ ) 
-	if( fEventProcess[i]->CreateCanvas( ) ) this->CreateCanvas();
 
     fOutputAnalysisTree->CreateObservableBranches( );
 
@@ -242,9 +243,6 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 
 	    if( processedEvent == NULL ) break;
 	    fEventProcess[j]->EndOfEventProcess();
-
-	    if( fCanvas != NULL )
-		fCanvas->Update();
 
 	    if( this->GetVerboseLevel() >= REST_Debug )
 	    {
@@ -730,6 +728,7 @@ void TRestRun::OpenOutputFile( )
 
 void TRestRun::CloseOutputFile( )
 {
+    if( fOutputFile == NULL ) return;
     cout << __PRETTY_FUNCTION__ << endl;
     time_t  timev;
     time(&timev);
@@ -915,6 +914,8 @@ void TRestRun::InitFromConfigFile()
     fOutputFilename = GetParameter( "outputFile", "default" );
 
     if( GetParameter( "overwrite" ) == "on" ) { cout << "Overwrite : on" << endl; fOverwrite = true; }
+
+    if( GetParameter( "readOnly" ) == "false" ||  GetParameter( "readOnly" ) == "off" ) { fReadOnly = false; }
 
     if( rNumberStr == "auto" )
     {

@@ -28,7 +28,6 @@
 #include <string>
 #include "TString.h"
 #include <TKey.h>
-#include <TCanvas.h>
 
 #include "TRestEvent.h"
 #include "TRestMetadata.h"
@@ -96,7 +95,7 @@ class TRestRun:public TRestMetadata {
         
         Int_t fCurrentEvent;
 
-	TCanvas *fCanvas;
+	Bool_t fReadOnly;
 #endif
 
         Int_t fProcessedEvents;
@@ -348,20 +347,6 @@ class TRestRun:public TRestMetadata {
         void PrintProcessedEvents( Int_t rateE);
 
         Double_t GetRunLength();
-
-	void CreateCanvas( Int_t xw = 800, Int_t yw = 600 )
-	{
-		if( fCanvas == NULL )
-			fCanvas = new TCanvas( "RunCanvas", "TRestRun canvas", xw, yw );
-	}
-
-	void DeleteCanvas(  )
-	{
-		if( fCanvas != NULL )
-			delete fCanvas;
-
-		fCanvas = NULL;
-	}
 
         //Construtor
         TRestRun();
