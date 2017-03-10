@@ -63,7 +63,7 @@ void TRestRawSignalAnalysisProcess::Initialize()
     fPreviousEventTime.clear();
 
     fDrawRefresh = 0;
-    fCanvas = NULL;
+    //fCanvas = NULL;
 
     time(&timeStored);
 }
@@ -78,15 +78,10 @@ void TRestRawSignalAnalysisProcess::InitProcess()
 {
     fSignalAnalysisObservables = TRestEventProcess::ReadObservables();
 
-    fChannelsHisto = new TH1D( "readoutChannelActivity", "readoutChannelActivity", 128, 0, 128 );
+    if( !fReadOnly )
+	fChannelsHisto = new TH1D( "readoutChannelActivity", "readoutChannelActivity", 128, 0, 128 );
 
     fReadout = (TRestReadout*) GetReadoutMetadata();
-
-    if( GetVerboseLevel() >= REST_Debug && fCanvas == NULL && fDrawRefresh > 0 )
-    {
-        fCanvas = new TCanvas( this->GetName(), "Signal analysis", 800, 600);
-        fCanvas->SetGrid();
-    }
 }
 
 //______________________________________________________________________________
@@ -283,7 +278,7 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         if( peakTimeDelay < fPeakTimeDelayCut.X() || peakTimeDelay > fPeakTimeDelayCut.Y() ) return NULL;
     }
 
-    if( fReadout != NULL )
+    if( !fReadOnly && fReadout != NULL )
     {
         TRestReadoutModule *mod = fReadout->GetReadoutPlane(0)->GetModule(0);
         for( int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++ )
@@ -300,33 +295,7 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
 
     if( GetVerboseLevel() >= REST_Debug ) 
-    {
 	fAnalysisTree->PrintObservables();
-	cout << "Place mouse cursor on top of canvas and press a KEY to continue ... " << endl;
-    }
-
-    if( GetVerboseLevel() >= REST_Debug && fDrawRefresh > 0 )
-    {
-        rawCounter++;
-        if( rawCounter >= fDrawRefresh )
-        {
-            rawCounter = 0;
-            for( unsigned int i = 0; i < fDrawingObjects.size(); i++ )
-                delete fDrawingObjects[i];
-            fDrawingObjects.clear();
-
-            TPad *pad2 = DrawSignal(0);
-
-            fCanvas->SetGrid();
-            fCanvas->cd(); 
-
-            pad2->Draw();
-            pad2->WaitPrimitive();
-            fCanvas->Update();
-        }
-    }
-
-
 
     return fSignalEvent;
 }
@@ -347,10 +316,9 @@ void TRestRawSignalAnalysisProcess::EndProcess()
     //Start by calling the EndProcess function of the abstract class. 
     //Comment this if you don't want it.
     //TRestEventProcess::EndProcess();
-    fChannelsHisto->Write();
 
-    if( fCanvas != NULL )
-        delete fCanvas;
+    if( !fReadOnly )
+	fChannelsHisto->Write();
 }
 
 TPad *TRestRawSignalAnalysisProcess::DrawObservables( )

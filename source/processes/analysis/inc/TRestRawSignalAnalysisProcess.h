@@ -15,7 +15,7 @@
 
 #include <TH1D.h>
 
-#include <TCanvas.h>
+//#include <TCanvas.h>
 
 #include <TRestGas.h>
 #include <TRestReadout.h>
@@ -35,7 +35,7 @@ class TRestRawSignalAnalysisProcess:public TRestEventProcess {
         Double_t fFirstEventTime;
         vector <Double_t> fPreviousEventTime;
 
-        TCanvas *fCanvas;
+        //TCanvas *fCanvas;
         vector <TObject *> fDrawingObjects;
         Double_t fDrawRefresh;
 
