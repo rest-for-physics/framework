@@ -58,8 +58,12 @@ ClassImp(TRestEventProcess)
 TRestEventProcess::TRestEventProcess()
 {
     fIsExternal = false;
-    fCreateCanvas = false;
+    fCanvas = NULL;
+    fCanvasSize = TVector2( 800, 600 );
+    fCanvasTitle = "Canvas title";	
+    fCanvasName = "canvasName";
     fVerbose = -1;
+    fReadOnly = true;
 }
 
 //////////////////////////////////////////////////////////////////////////

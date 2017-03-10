@@ -29,6 +29,8 @@
 #include "TRestMetadata.h"
 #include "TRestAnalysisTree.h"
 
+#include "TCanvas.h"
+
 class TRestEventProcess:public TRestMetadata {
 	protected:
 		Int_t fStatusOfProcess;	///< integer to hold the status of task: 0 = successful >0 = some error happened
@@ -50,7 +52,12 @@ class TRestEventProcess:public TRestMetadata {
 
   		TString fInputFileName;
 
-		Bool_t fCreateCanvas;
+		TCanvas *fCanvas;
+		TVector2 fCanvasSize;
+		TString fCanvasName;
+		TString fCanvasTitle;
+
+		Bool_t fReadOnly;
 #endif
 
         template <typename eventType> 
@@ -85,8 +92,18 @@ class TRestEventProcess:public TRestMetadata {
 
         Bool_t isExternal( ) { return fIsExternal; } 
 
-		void EnableCanvas() { fCreateCanvas = true; }
-		Bool_t CreateCanvas() { return fCreateCanvas; }
+		void CreateCanvas() 
+		{ 
+			if( fCanvas != NULL ) return;
+			
+			fCanvas = new TCanvas( fCanvasName, fCanvasTitle, fCanvasSize.X(), fCanvasSize.Y() );
+		}
+
+		TCanvas *GetCanvas( ) { return fCanvas; }
+
+		void SetCanvasSize( Int_t x, Int_t y ) { fCanvasSize = TVector2( x, y ); }
+
+		void SetReadOnly( Bool_t rO ) { fReadOnly = rO; }
 
 		vector <string> ReadObservables( );
 
