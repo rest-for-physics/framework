@@ -252,9 +252,6 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 #endif
 		cout << "Ending process " << j << " : " << fEventProcess[j]->GetName() << endl;
 		cout << "+------------------------------------------------------+" << endl;
-
-		if( fEventProcess[j]->GetVerboseLevel() >= REST_Debug )
-		    GetChar();
 	    }
 	}
 
