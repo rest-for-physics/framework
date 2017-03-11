@@ -50,7 +50,6 @@ void TRestSignalToHitsProcess::LoadDefaultConfig( )
     cout << "Signal to hits metadata not found. Loading default values" << endl;
 
     fSampling = 1;
-    fThreshold = 400;
     fElectricField = 1000;
     fGasPressure = 10;
 
@@ -174,9 +173,6 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
 {
     fSignalEvent = (TRestSignalEvent *) evInput;
 
-    if( fSubstractBaseLine )
-        fSignalEvent->SubstractBaselines( fBaseLineRange.X(), fBaseLineRange.Y() );
-
     if( GetVerboseLevel() >= REST_Debug )
         fSignalEvent->PrintEvent();
 
@@ -187,13 +183,14 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
 
     Int_t numberOfSignals = fSignalEvent->GetNumberOfSignals();
 
-    Double_t energy, x, y, z;
     Int_t planeID, readoutChannel = -1, readoutModule;
     for( int i = 0; i < numberOfSignals; i++ )
     {
         TRestSignal *sgnl = fSignalEvent->GetSignal( i );
         Int_t signalID = sgnl->GetSignalID();
 
+	if( GetVerboseLevel() >= REST_Debug ) 
+		cout << "Searching readout coordinates for signal ID : " << signalID << endl;
         for( int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++ )
         {
             TRestReadoutPlane *plane = fReadout->GetReadoutPlane( p );
@@ -206,6 +203,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
                     planeID = p;
                     readoutChannel = mod->DaqToReadoutChannel( signalID );
                     readoutModule = mod->GetModuleID();
+
                     if( GetVerboseLevel() >= REST_Debug ) {
                     cout << "-------------------------------------------------------------------" << endl;
                     cout << "signal Id : " << signalID << endl;
@@ -215,7 +213,11 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
             }
         }
 
-        if ( readoutChannel == -1 ) continue;
+	if ( readoutChannel == -1 )
+	{
+	    cout << "REST Warning : Readout channel not found for daq ID : " << signalID << endl;
+	    continue;
+	}
         /////////////////////////////////////////////////////////////////////////
 
         TRestReadoutPlane *plane = fReadout->GetReadoutPlane( planeID );
@@ -224,34 +226,90 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
         Double_t fieldZDirection = plane->GetPlaneVector().Z();
         Double_t zPosition = plane->GetPosition().Z();
 
-        Double_t thr = GetThreshold( sgnl );
+	Double_t x = plane->GetX( readoutModule, readoutChannel );
+	Double_t y = plane->GetY( readoutModule, readoutChannel );
 
-        if( GetVerboseLevel() >= REST_Debug )
-            cout << "Signal Threshold : " << thr << endl;
+	if( fSignalToHitMethod == "onlyMax" )
+	{
+	    Double_t time = sgnl->GetMaxPeakTime();
+	    Double_t distanceToPlane = time * fSampling * fDriftVelocity;
 
-        for( int j = 0; j < sgnl->GetNumberOfPoints(); j++ )
-        {
-            energy = sgnl->GetData(j);
-            if( energy < thr ) continue;
+	    if( GetVerboseLevel() >= REST_Debug ) 
+		cout << "Distance to plane : " << distanceToPlane << endl;
 
-            Double_t distanceToPlane = ( sgnl->GetTime(j) * fSampling ) * fDriftVelocity;
+	    Double_t z = zPosition + fieldZDirection * distanceToPlane;
 
-            z = zPosition + fieldZDirection * distanceToPlane;
+	    Double_t energy = sgnl->GetMaxPeakValue();
 
-            x = plane->GetX( readoutModule, readoutChannel );
-            y = plane->GetY( readoutModule, readoutChannel );
-            if( GetVerboseLevel() >= REST_Debug )
-                cout << "Adding hit. Time : " << sgnl->GetTime(j) << " x : " << x << " y : " << y << " z : " << z << endl;
-            fHitsEvent->AddHit( x, y, z, energy );
+	    if( GetVerboseLevel() >= REST_Debug )
+		cout << "Adding hit. Time : " << time << " x : " << x << " y : " << y << " z : " << z << " Energy : " << energy << endl;
 
-        }
+	    fHitsEvent->AddHit( x, y, z, energy );
+	}
+	else if( fSignalToHitMethod == "tripleMax" )
+	{
+	    Int_t bin = sgnl->GetMaxIndex();
+
+	    Double_t time = sgnl->GetTime( bin );
+	    Double_t energy = sgnl->GetData(bin);
+
+	    Double_t distanceToPlane = time * fSampling * fDriftVelocity;
+	    Double_t z = zPosition + fieldZDirection * distanceToPlane;
+
+	    fHitsEvent->AddHit( x, y, z, energy );
+
+	    time = sgnl->GetTime( bin-1 );
+	    energy = sgnl->GetData( bin-1 );
+
+	    distanceToPlane = time * fSampling * fDriftVelocity;
+	    z = zPosition + fieldZDirection * distanceToPlane;
+
+	    fHitsEvent->AddHit( x, y, z, energy );
+
+	    time = sgnl->GetTime( bin+1 );
+	    energy = sgnl->GetData( bin+1 );
+
+	    distanceToPlane = time * fSampling * fDriftVelocity;
+	    z = zPosition + fieldZDirection * distanceToPlane;
+
+	    fHitsEvent->AddHit( x, y, z, energy );
+
+	    if( GetVerboseLevel() >= REST_Debug ) 
+	    {
+		cout << "Distance to plane : " << distanceToPlane << endl;
+		cout << "Adding hit. Time : " << time << " x : " << x << " y : " << y << " z : " << z << " Energy : " << energy << endl;
+	    }
+	}
+	else
+	{
+	    for( int j = 0; j < sgnl->GetNumberOfPoints(); j++ )
+	    {
+		Double_t energy = sgnl->GetData(j);
+
+		Double_t distanceToPlane = ( sgnl->GetTime(j) * fSampling ) * fDriftVelocity;
+
+		if( GetVerboseLevel() >= REST_Debug ) 
+		    cout << "Distance to plane : " << distanceToPlane << endl;
+
+		Double_t z = zPosition + fieldZDirection * distanceToPlane;
+
+		if( GetVerboseLevel() >= REST_Debug )
+		    cout << "Adding hit. Time : " << sgnl->GetTime(j) << " x : " << x << " y : " << y << " z : " << z << endl;
+
+		fHitsEvent->AddHit( x, y, z, energy );
+	    }
+	}
+    }
+
+    if( this->GetVerboseLevel() >= REST_Info ) 
+    {
+        cout << "TRestSignalToHitsProcess. Hits added : " << fHitsEvent->GetNumberOfHits() << endl;
+        cout << "TRestSignalToHitsProcess. Hits total energy : " << fHitsEvent->GetEnergy() << endl;
     }
 
     if( this->GetVerboseLevel() >= REST_Debug ) 
     {
         fHitsEvent->PrintEvent(300);
-        cout << "TRestSignalToHitsProcess. Hits added : " << fHitsEvent->GetNumberOfHits() << endl;
-        cout << "TRestSignalToHitsProcess. Hits total energy : " << fHitsEvent->GetEnergy() << endl;
         GetChar();
     }
 
@@ -283,37 +341,9 @@ void TRestSignalToHitsProcess::InitFromConfigFile( )
 
     fElectricField = GetDblParameterWithUnits( "electricField" );
     fSampling = GetDblParameterWithUnits( "sampling" );
-    fThreshold = StringToDouble( GetParameter( "threshold", "-1" ) );
     fGasPressure = StringToDouble( GetParameter( "gasPressure", "-1" ) );
     fDriftVelocity = StringToDouble( GetParameter( "driftVelocity" , "0") ) * cmTomm;
-
-    fBaseLineRange = StringTo2DVector( GetParameter( "baseLineRange", "(5,55)") );
-    fSubstractBaseLine = false;
-    if( GetParameter( "substractBaseLine", "false" ) == "true" ) fSubstractBaseLine = true;
-
-    TString thType = GetParameter( "thresholdType", "absolute" );
-
-    if( thType == "absolute" ) fThresholdType = 0;
-    else if( thType == "sigma" ) fThresholdType = 1;
-    else fThresholdType = -1;
+    fSignalToHitMethod =  GetParameter( "method", "onlyMax" );
 
 }
 
-Double_t TRestSignalToHitsProcess::GetThreshold( TRestSignal *sgnl )
-{
-    Double_t thr = 0;
-    if( fThresholdType == 1 )
-    {
-        thr = fThreshold * sgnl->GetBaseLineSigma( fBaseLineRange.X(), fBaseLineRange.Y() );
-    }
-    else if ( fThresholdType == 0 )
-    {
-        thr = fThreshold;
-    }
-    else
-    {
-        cout << "REST Warning. TRestSignalToHitsProcess. Unknown threshold type" << endl;
-    }
-
-    return thr;
-}
