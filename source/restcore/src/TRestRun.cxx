@@ -632,10 +632,10 @@ void TRestRun::OpenInputFile( TString fName )
     fMetadata.clear();
     fEventProcess.clear();
 
-    if( fRunType == "preserve" )
+    if( tmpRunType != "preserve" || tmpRunType == "[PROCESS]" )
 	fRunType = tmpRunType;
 
-    if( fRunTag == "preserve" )
+    if( tmpRunTag != "preserve" )
 	fRunTag = tmpRunTag;
 
     if( GetObjectKeyByName( "TRestAnalysisTree" ) == NULL )
