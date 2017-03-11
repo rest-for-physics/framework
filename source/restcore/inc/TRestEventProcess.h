@@ -54,8 +54,6 @@ class TRestEventProcess:public TRestMetadata {
 
 		TCanvas *fCanvas;
 		TVector2 fCanvasSize;
-		TString fCanvasName;
-		TString fCanvasTitle;
 
 		Bool_t fReadOnly;
 #endif
@@ -96,7 +94,7 @@ class TRestEventProcess:public TRestMetadata {
 		{ 
 			if( fCanvas != NULL ) return;
 			
-			fCanvas = new TCanvas( fCanvasName, fCanvasTitle, fCanvasSize.X(), fCanvasSize.Y() );
+			fCanvas = new TCanvas( this->GetName(), this->GetTitle(), fCanvasSize.X(), fCanvasSize.Y() );
 		}
 
 		TCanvas *GetCanvas( ) { return fCanvas; }
@@ -118,6 +116,7 @@ class TRestEventProcess:public TRestMetadata {
 		virtual TRestMetadata *GetProcessMetadata() { return NULL; }
 		void SetMetadata( std::vector <TRestMetadata*> meta ) { fRunMetadata = meta; }
 
+		TRestAnalysisTree *GetAnalysisTree( ) { return fAnalysisTree; }
 		void SetAnalysisTree( TRestAnalysisTree *tree ) { fAnalysisTree = tree; }
 
 		void BeginPrintProcess();
