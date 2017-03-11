@@ -99,6 +99,7 @@ TRestEvent* TRestRawSignalViewerProcess::ProcessEvent( TRestEvent *evInput )
 	fSignalEvent->AddSignal( *fInputSignalEvent->GetSignal( sgnl ) );
     /////////////////////////////////////////////////
 
+    GetCanvas()->cd();
     rawCounter2++;
     if( rawCounter2 >= fDrawRefresh )
     {
@@ -108,18 +109,20 @@ TRestEvent* TRestRawSignalViewerProcess::ProcessEvent( TRestEvent *evInput )
 	fDrawingObjects.clear();
 
 	TPad *pad2 = DrawSignal(0);
+	pad2->Draw();
+	pad2->cd();
 
 	fCanvas->SetGrid();
 	fCanvas->cd(); 
 
 	pad2->Draw();
+	GetCanvas()->Update();
 	if( GetVerboseLevel() >= REST_Debug ) 
 	{
-	    fAnalysisTree->PrintObservables();
-	    cout << "Place mouse cursor on top of canvas and press a KEY to continue ... " << endl;
+	    GetAnalysisTree()->PrintObservables();
+	    cout << "Place mouse cursor on top of canvas : " << this->GetTitle() << " and press a KEY to continue ... " << endl;
 	    pad2->WaitPrimitive();
 	}
-	fCanvas->Update();
     }
 
     return fSignalEvent;
@@ -144,7 +147,8 @@ void TRestRawSignalViewerProcess::EndProcess()
 
 TPad *TRestRawSignalViewerProcess::DrawSignal( Int_t signal )
 {
-    TPad *pad = new TPad( "Signal", " ", 0, 0, 1, 1 );
+    TPad *pad = new TPad( this->GetName(), this->GetTitle(), 0, 0, 1, 1 );
+
     pad->cd();
 
     fDrawingObjects.push_back( (TObject *) pad );
