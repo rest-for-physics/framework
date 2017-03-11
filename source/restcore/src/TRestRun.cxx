@@ -632,8 +632,11 @@ void TRestRun::OpenInputFile( TString fName )
     fMetadata.clear();
     fEventProcess.clear();
 
-    fRunType = tmpRunType;
-    fRunTag = tmpRunTag;
+    if( fRunType == "preserve" )
+	fRunType = tmpRunType;
+
+    if( fRunTag == "preserve" )
+	fRunTag = tmpRunTag;
 
     if( GetObjectKeyByName( "TRestAnalysisTree" ) == NULL )
     {
@@ -954,7 +957,7 @@ void TRestRun::InitFromConfigFile()
 
     fExperimentName = GetParameter( "experiment" );
 
-    fRunTag = GetParameter( "runTag" );
+    fRunTag = GetParameter( "runTag", "notDefined" );
 
 }
 
