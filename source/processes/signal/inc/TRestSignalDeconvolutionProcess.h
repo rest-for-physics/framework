@@ -26,6 +26,8 @@ class TRestSignalDeconvolutionProcess:public TRestEventProcess {
 #ifndef __CINT__
         TRestSignalEvent *fInputSignalEvent;
         TRestSignalEvent *fOutputSignalEvent;
+
+	TCanvas *canvas;
 #endif
 
         void InitFromConfigFile();
@@ -50,6 +52,7 @@ class TRestSignalDeconvolutionProcess:public TRestEventProcess {
 
         Int_t fFFTStart;
         Int_t fFFTEnd;
+
 
     public:
         void InitProcess();
