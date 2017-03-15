@@ -175,6 +175,9 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 
     //////////////////
 
+    if( !fReadOnly )
+	fOutputFile->cd();
+
     for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->SetAnalysisTree( fOutputAnalysisTree );
 
     for( unsigned int i = 0; i < fEventProcess.size(); i++ ) 
@@ -958,7 +961,6 @@ void TRestRun::InitFromConfigFile()
     fExperimentName = GetParameter( "experiment" );
 
     fRunTag = GetParameter( "runTag", "notDefined" );
-
 }
 
 void TRestRun::SetRunFilenameAndIndex()
