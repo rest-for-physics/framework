@@ -340,3 +340,16 @@
     <gasComponent name="iC4H10" fraction="0.05" />
     <gasComponent name="O2" fraction="0.02" />
 </section>
+
+// ----- 5.0% Iso 2.0% Oxygen ---------------------------------------------------------------------------------------------
+<section TRestGas name="Argon-Isobutane-Oxygen 5Pct-2Pct High field" title="Argon-Isobutane Mixture (5Pct Isobutane)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="W_value" value="26.145" />
+    <parameter name="nCollisions" value="10" />
+    <eField Emin="1000" Emax="10000." nodes="10" />
+    <gasComponent name="ar" fraction="0.93" />
+    <gasComponent name="iC4H10" fraction="0.05" />
+    <gasComponent name="O2" fraction="0.02" />
+</section>
