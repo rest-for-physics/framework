@@ -207,6 +207,7 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     fAnalysisTree->SetObservableValue( obsName, integralRatio );
 
     Double_t maxValue = 0;
+    Double_t minValue = 1.e6;
     Double_t maxValueIntegral = 0;
 
     Double_t minPeakTime = 1000; // TODO sustitute this for something better
@@ -221,6 +222,7 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         {
             Double_t value = fSignalEvent->GetSignal(s)->GetMaxValue();
             if( value > maxValue ) maxValue = value;
+            if( value < minValue ) minValue = value;
             maxValueIntegral += value;
 
             Double_t peakBin = sgnl->GetMaxPeakBin();
@@ -233,6 +235,9 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         }
     }
 
+    obsName = this->GetName() + (TString) ".MinPeakTime";
+    fAnalysisTree->SetObservableValue( obsName, minPeakTime );
+
     if( nGoodSignals > 0 ) peakTimeAverage /= nGoodSignals;
 
     Double_t ampIntRatio = thrIntegral/maxValueIntegral;
@@ -242,6 +247,9 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     obsName = this->GetName() + (TString) ".NumberOfGoodSignals";
     fAnalysisTree->SetObservableValue( obsName, nGoodSignals );
+
+    obsName = this->GetName() + (TString) ".MinPeakAmplitude";
+    fAnalysisTree->SetObservableValue( obsName, minValue );
 
     obsName = this->GetName() + (TString) ".MaxPeakAmplitude";
     fAnalysisTree->SetObservableValue( obsName, maxValue );
