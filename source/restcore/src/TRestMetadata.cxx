@@ -2087,6 +2087,23 @@ string TRestMetadata::GetKEYDefinition( string keyName, size_t &fromPosition, st
 
     fromPosition = endPos;
 
+    Int_t notDefinitionEnd = 1;
+
+    while( notDefinitionEnd )
+    {
+        // We might find a problem when we insert > symbol inside a field value.
+        // As for example: condition=">100" This patch checks if the definition 
+        // finishes in "= If it is the case it searches the next > symbol ending 
+        // the definition.
+
+        string def = RemoveWhiteSpaces ( buffer.substr( startPos, endPos-startPos ) );
+
+        if( (TString) def[def.length()-1] == "\"" && (TString) def[def.length()-2] == "=" ) 
+            endPos = configBuffer.find( ">", endPos+1 );
+        else
+            notDefinitionEnd = 0;
+    }
+
     return buffer.substr( startPos, endPos-startPos );
 
 }
