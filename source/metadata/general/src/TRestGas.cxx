@@ -663,7 +663,7 @@ Double_t TRestGas::GetTownsendCoefficient( Double_t E )
 Double_t TRestGas::GetAttachmentCoefficient( Double_t E )
 {
     Double_t eta;
-	fGasMedium->ElectronTownsend( 0., 0, -E, 0, 0, 0, eta );
+	fGasMedium->ElectronAttachment( 0., 0, -E, 0, 0, 0, eta );
     return eta;
 }
 
