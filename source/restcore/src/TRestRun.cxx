@@ -160,10 +160,10 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
     if ( ValidateProcessChain( ) == 0 ) return;
 
     if ( GetRunType( ) == "[PROCESS]" ) 
-	this->SetRunType( fEventProcess.back()->GetProcessName() );
+        this->SetRunType( fEventProcess.back()->GetProcessName() );
 
     if( !fReadOnly )
-	this->OpenOutputFile();
+        this->OpenOutputFile();
 
     if( GetVerboseLevel() >= REST_Debug )
 	cout << "TRestRun::ProcessEvent: Setting input event" << endl;
@@ -609,6 +609,7 @@ void TRestRun::OpenInputFile( TString fName )
     tmpOutputDataPath = GetMainDataPath();
     tmpRunType = GetRunType();
     tmpRunTag = GetRunTag();
+    tmpExperimentName = GetExperimentName();
 
     TKey *key = GetObjectKeyByClass( "TRestRun" );
     this->Read( key->GetName() );
@@ -617,35 +618,41 @@ void TRestRun::OpenInputFile( TString fName )
     TIter nextkey( fInputFile->GetListOfKeys() );
     while ( (key = (TKey*) nextkey() ) )
     {
-	TString cName (key->GetClassName());
+        TString cName (key->GetClassName());
 
-	if( !fInputFile->Get( key->GetName() )) 
-	{ 
-	    if( GetVerboseLevel() >= REST_Debug ) 
-	    {
-		cout << "REST warning : " << cName << " not initialized!!" << endl;
-		GetChar(); 
-	    }
-	    continue; 
-	}
+        if( !fInputFile->Get( key->GetName() )) 
+        { 
+            if( GetVerboseLevel() >= REST_Debug ) 
+            {
+                cout << "REST warning : " << cName << " not initialized!!" << endl;
+                GetChar(); 
+            }
+            continue; 
+        }
 
-	if ( ((TObject *) fInputFile->Get( key->GetName() ))->InheritsFrom("TRestMetadata") )
-	    fHistoricMetadata.push_back( (TRestMetadata *) fInputFile->Get( key->GetName() ) );
+        if( ( ((TObject *) fInputFile->Get( key->GetName() ))->InheritsFrom("TRestRun") ) )
+            continue; 
+
+        if ( ((TObject *) fInputFile->Get( key->GetName() ))->InheritsFrom("TRestMetadata") )
+            fHistoricMetadata.push_back( (TRestMetadata *) fInputFile->Get( key->GetName() ) );
     }
     fMetadata.clear();
     fEventProcess.clear();
 
-    if( tmpRunType != "preserve" || tmpRunType == "[PROCESS]" )
-	fRunType = tmpRunType;
+    if( tmpRunType != "Null" && tmpRunType != "preserve" )
+        fRunType = tmpRunType;
 
-    if( tmpRunTag != "preserve" )
-	fRunTag = tmpRunTag;
+    if( tmpRunTag != "Null" && tmpRunTag != "preserve" )
+        fRunTag = tmpRunTag;
+
+    if( tmpExperimentName != "Null" && tmpExperimentName != "preserve" )
+        fExperimentName = tmpExperimentName;
 
     if( GetObjectKeyByName( "TRestAnalysisTree" ) == NULL )
     {
-	cout << "REST ERROR (SetInputEvent) : TRestAnalysisTree was not found" << endl;
-	cout << "Inside file : " << fName << endl;
-	exit(1);
+        cout << "REST ERROR (SetInputEvent) : TRestAnalysisTree was not found" << endl;
+        cout << "Inside file : " << fName << endl;
+        exit(1);
     }
 
     fInputAnalysisTree = ( TRestAnalysisTree * ) fInputFile->Get( "TRestAnalysisTree" ); 
@@ -958,9 +965,9 @@ void TRestRun::InitFromConfigFile()
 	fRunNumber = StringToInteger ( GetParameter( "runNumber" ) );
     }
 
-    fExperimentName = GetParameter( "experiment" );
+    fExperimentName = GetParameter( "experiment", "preserve" );
 
-    fRunTag = GetParameter( "runTag", "notDefined" );
+    fRunTag = GetParameter( "runTag", "preserve" );
 }
 
 void TRestRun::SetRunFilenameAndIndex()
@@ -1001,8 +1008,8 @@ void TRestRun::PrintInfo( )
     cout << "Title : " << GetTitle() << endl;
     cout << "---------------------------------------" << endl;
     cout << "Parent run number : " << GetParentRunNumber() << endl; 
-    cout << "Number of initial events : " << GetNumberOfEvents() << endl;
     cout << "Run number : " << GetRunNumber() << endl; 
+    cout << "Experiment/project : " << GetExperimentName() << endl;
     cout << "Run type : " << GetRunType() << endl;
     cout << "Run tag : " << GetRunTag() << endl;
     cout << "Run user : " << GetRunUser() << endl;
@@ -1013,6 +1020,7 @@ void TRestRun::PrintInfo( )
     cout << "Date/Time : " << GetDateFormatted( GetEndTimestamp() ) << " / " << GetTime( GetEndTimestamp() ) << endl;
     cout << "Input filename : " << fInputFilename << endl;
     cout << "Output filename : " << fOutputFilename << endl;
+    cout << "Number of initial events : " << GetNumberOfEvents() << endl;
     cout << "Number of processed events : " << fProcessedEvents << endl;
     cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
 

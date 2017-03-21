@@ -78,8 +78,9 @@ class TRestRun:public TRestMetadata {
         TString tmpOutputFileName;
         TString tmpOutputDataPath;
         TString tmpInputFileName;
-	TString tmpRunType;
-	TString tmpRunTag;
+        TString tmpRunType;
+        TString tmpRunTag;
+        TString tmpExperimentName;
 
         TTree *fInputEventTree;
         TTree *fOutputEventTree;
