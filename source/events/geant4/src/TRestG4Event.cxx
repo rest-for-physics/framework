@@ -180,6 +180,15 @@ TRestHits TRestG4Event::GetHits( )
     return hits;
 }
 
+Int_t TRestG4Event::GetNumberOfTracksForParticle( TString parName )
+{
+    Int_t tcks = 0;
+    for( Int_t t = 0; t < GetNumberOfTracks(); t++ )
+        if( GetTrack( t )->GetParticleName() == parName ) tcks++;
+
+    return tcks;
+}
+
 void TRestG4Event::PrintEvent()
 {
     TRestEvent::PrintEvent();
