@@ -73,7 +73,7 @@ void TRestGeant4AnalysisProcess::InitProcess()
 
     for( unsigned int i = 0; i < fObservables.size(); i++ )
     {  
-        if( fObservables[i].find( "EDep" ) != string::npos )
+        if( fObservables[i].find( "VolumeEDep" ) != string::npos )
         {
             TString volName = fObservables[i].substr( 0, fObservables[i].length() - 4 ).c_str();
 
@@ -101,8 +101,8 @@ void TRestGeant4AnalysisProcess::InitProcess()
                 cout << "??????????????????????????????????????????????????" << endl;
                 cout << endl;
             }
-
         }
+
         if( fObservables[i].find( "MeanPos" ) != string::npos )
         {
             TString volName2 = fObservables[i].substr( 0, fObservables[i].length() - 8 ).c_str();
@@ -144,11 +144,24 @@ void TRestGeant4AnalysisProcess::InitProcess()
                 cout << " Direction " << dirId << " is not valid" << endl;
                 cout << " Only X, Y or Z accepted" << endl;
                 cout << endl;
-
             }
-
         }
 
+        if( fObservables[i].find( "TrackCounter" ) != string::npos )
+        {
+            TString partName = fObservables[i].substr( 0, fObservables[i].length() - 12 ).c_str();
+
+            fTrackCounterObservables.push_back( fObservables[i] );
+            fParticleTrackCounter.push_back( (string) partName );
+        }
+
+        if( fObservables[i].find( "TracksEDep" ) != string::npos )
+        {
+            TString partName = fObservables[i].substr( 0, fObservables[i].length() - 10 ).c_str();
+
+            fTracksEDepObservables.push_back( fObservables[i] );
+            fParticleTrackEdep.push_back( (string) partName );
+        }
     }
 
 }
@@ -202,25 +215,21 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent( TRestEvent *evInput )
     if ( fOutputG4Event->ishIoni( ) ) fAnalysisTree->SetObservableValue( obsName, 1 );
     else fAnalysisTree->SetObservableValue( obsName, 0 );
 
-    obsName = this->GetName() + (TString) ".alpha";
-    if ( fOutputG4Event->isAlpha( ) ) fAnalysisTree->SetObservableValue( obsName, 1 );
-    else fAnalysisTree->SetObservableValue( obsName, 0 );
+    for( unsigned int n = 0; n < fParticleTrackCounter.size(); n++ )
+    {
+        Int_t nT = fOutputG4Event->GetNumberOfTracksForParticle( fParticleTrackCounter[n] );
+        TString obsName = fTrackCounterObservables[n];
+        obsName = this->GetName( ) + (TString) "." + obsName;
+        fAnalysisTree->SetObservableValue( obsName, nT );
+    }
 
-    obsName = this->GetName() + (TString) ".neutron";
-    if ( fOutputG4Event->isNeutron( ) ) fAnalysisTree->SetObservableValue(obsName, 1 );
-    else fAnalysisTree->SetObservableValue( obsName, 0 );
-
-    obsName = this->GetName() + (TString) ".Ar";
-    if ( fOutputG4Event->isArgon( ) ) fAnalysisTree->SetObservableValue(obsName, 1 );
-    else fAnalysisTree->SetObservableValue( obsName, 0 );
-
-    obsName = this->GetName() + (TString) ".Xe";
-    if ( fOutputG4Event->isXenon( ) ) fAnalysisTree->SetObservableValue(obsName, 1 );
-    else fAnalysisTree->SetObservableValue( obsName, 0 );
-
-    obsName = this->GetName() + (TString) ".Ne";
-    if ( fOutputG4Event->isNeon( ) ) fAnalysisTree->SetObservableValue(obsName, 1 );
-    else fAnalysisTree->SetObservableValue( obsName, 0 );
+    for( unsigned int n = 0; n < fTracksEDepObservables.size(); n++ )
+    {
+        Double_t energy = fOutputG4Event->GetEnergyDepositedByParticle( fParticleTrackEdep[n] );
+        TString obsName = fTracksEDepObservables[n];
+        obsName = this->GetName( ) + (TString) "." + obsName;
+        fAnalysisTree->SetObservableValue( obsName, energy );
+    }
 
     for( unsigned int n = 0; n < fEnergyInObservables.size(); n++ )
     {
