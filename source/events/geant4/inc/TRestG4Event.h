@@ -78,6 +78,7 @@ class TRestG4Event: public TRestEvent {
         TRestHits GetHits( );
 
         Int_t GetNumberOfTracksForParticle( TString parName );
+        Int_t GetEnergyDepositedByParticle( TString parName );
 
         void SetPrimaryEventOrigin( TVector3 pos ) { fPrimaryEventOrigin = pos; }
         void SetPrimaryEventDirection( TVector3 dir ) { fPrimaryEventDirection.push_back( dir ); }

@@ -189,6 +189,21 @@ Int_t TRestG4Event::GetNumberOfTracksForParticle( TString parName )
     return tcks;
 }
 
+Int_t TRestG4Event::GetEnergyDepositedByParticle( TString parName )
+{
+    Double_t en = 0;
+    for( Int_t t = 0; t < GetNumberOfTracks(); t++ )
+    {
+        if( GetTrack( t )->GetParticleName() == parName )
+        {
+            GetTrack(t)->PrintTrack();
+            en += GetTrack( t )->GetEnergy();
+        }
+    }
+
+    return en;
+}
+
 void TRestG4Event::PrintEvent()
 {
     TRestEvent::PrintEvent();
