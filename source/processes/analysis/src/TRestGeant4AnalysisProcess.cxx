@@ -147,7 +147,7 @@ void TRestGeant4AnalysisProcess::InitProcess()
             }
         }
 
-        if( fObservables[i].find( "TrackCounter" ) != string::npos )
+        if( fObservables[i].find( "TracksCounter" ) != string::npos )
         {
             TString partName = fObservables[i].substr( 0, fObservables[i].length() - 12 ).c_str();
 
