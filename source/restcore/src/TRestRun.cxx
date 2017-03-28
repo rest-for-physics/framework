@@ -292,7 +292,8 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 	high_resolution_clock::time_point t3 = high_resolution_clock::now();
 #endif
 
-	this->Fill();
+    if( !fReadOnly )
+        this->Fill();
 
 #ifdef TIME_MEASUREMENT
 	high_resolution_clock::time_point t4 = high_resolution_clock::now();
