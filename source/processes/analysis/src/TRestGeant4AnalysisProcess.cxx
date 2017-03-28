@@ -149,7 +149,7 @@ void TRestGeant4AnalysisProcess::InitProcess()
 
         if( fObservables[i].find( "TracksCounter" ) != string::npos )
         {
-            TString partName = fObservables[i].substr( 0, fObservables[i].length() - 12 ).c_str();
+            TString partName = fObservables[i].substr( 0, fObservables[i].length() - 13 ).c_str();
 
             fTrackCounterObservables.push_back( fObservables[i] );
             fParticleTrackCounter.push_back( (string) partName );
