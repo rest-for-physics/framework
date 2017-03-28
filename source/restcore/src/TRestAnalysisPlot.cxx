@@ -130,8 +130,10 @@ void TRestAnalysisPlot::InitFromConfigFile()
             fPlotTitle.push_back( title );
 
             TString option = RemoveWhiteSpaces( GetFieldValue( "option", addPlotString ) );
-	    if( option == "Notdefined" )
-		option = "colz";
+
+            if( option == "Notdefined" )
+                option = "colz";
+
             fPlotOption.push_back( option );
 
             // scale to be implemented
@@ -157,55 +159,55 @@ void TRestAnalysisPlot::InitFromConfigFile()
                 if( i < varNames.size()-1 ) pltString += ":";
             }
 
-	    if( GetVerboseLevel() >= REST_Debug )
-	    {
-		for( unsigned int n = 0; n < bins.size(); n++ )
-		{
-			cout << "Variable " << varNames[n] << " range/bins " << endl;
-			cout << "------------------------------------------" << endl;
-			cout << "rX : " << ranges.back().X() << " rY : " << ranges.back().Y() << endl;
-			cout << "bins : " << bins.back() << endl;
-			cout << endl;
-		}
+            if( GetVerboseLevel() >= REST_Debug )
+            {
+                for( unsigned int n = 0; n < bins.size(); n++ )
+                {
+                    cout << "Variable " << varNames[n] << " range/bins " << endl;
+                    cout << "------------------------------------------" << endl;
+                    cout << "rX : " << ranges.back().X() << " rY : " << ranges.back().Y() << endl;
+                    cout << "bins : " << bins.back() << endl;
+                    cout << endl;
+                }
             }
 
-	    pltString += " >>" + plotName;
+            pltString += " >>" + plotName;
 
-	    // The range definitions are in reversed ordered. Compared to ROOT variable definitions
-	    for( int i = ((int) bins.size()) - 1; i >= 0; i-- )
-	    {
+            // The range definitions are in reversed ordered. Compared to ROOT variable definitions
+            for( int i = ((int) bins.size()) - 1; i >= 0; i-- )
+            {
 
-		    TString binsStr;
-		    binsStr.Form( "%d", bins[i] );
-		    if( bins[i] == -1 )
-			binsStr = " ";
+                TString binsStr;
+                binsStr.Form( "%d", bins[i] );
+                if( bins[i] == -1 )
+                    binsStr = " ";
 
-		    TString rXStr;
-		    rXStr.Form( "%f", ranges[i].X() );
-		    if( ranges[i].X() == -1 )
-			rXStr = " ";
+                TString rXStr;
+                rXStr.Form( "%f", ranges[i].X() );
+                if( ranges[i].X() == -1 )
+                    rXStr = " ";
 
-		    TString rYStr;
-		    rYStr.Form( "%f", ranges[i].Y() );
-		    if( ranges[i].Y() == -1 )
-			rYStr = " ";
+                TString rYStr;
+                rYStr.Form( "%f", ranges[i].Y() );
+                if( ranges[i].Y() == -1 )
+                    rYStr = " ";
 
-		    if( i == (int) bins.size()-1 ) pltString += "(";
+                if( i == (int) bins.size()-1 ) pltString += "(";
 
-		    pltString += binsStr + " , " + rXStr + " , " + rYStr;
-		    if( i > 0 ) pltString += ",";
-		    if( i == 0 ) pltString += ")";
-	    }
+                pltString += binsStr + " , " + rXStr + " , " + rYStr;
+                if( i > 0 ) pltString += ",";
+                if( i == 0 ) pltString += ")";
+            }
 
             fPlotString.push_back ( pltString );
 
             pos = 0;
             string addCutString;
 
-	    if( GetVerboseLevel() >= REST_Debug )
-	    {
-		cout << endl;
-		cout << "Plot string : " << pltString << endl;
+            if( GetVerboseLevel() >= REST_Debug )
+            {
+                cout << endl;
+                cout << "Plot string : " << pltString << endl;
             }
 
             TString cutString = "";
@@ -221,8 +223,8 @@ void TRestAnalysisPlot::InitFromConfigFile()
 
                     if( n > 0 ) cutString += " && ";
 
-		    if( GetVerboseLevel() >= REST_Debug )
-			    cout << "Adding local cut : " << cutVariable << cutCondition << endl;
+                    if( GetVerboseLevel() >= REST_Debug )
+                        cout << "Adding local cut : " << cutVariable << cutCondition << endl;
 
                     cutString += cutVariable + cutCondition;
                     n++;
@@ -232,16 +234,16 @@ void TRestAnalysisPlot::InitFromConfigFile()
             for( unsigned int i = 0; i < globalCuts.size(); i++ )
             {
                 if( i > 0 || cutString != "" ) cutString += " && ";
-	        if( GetVerboseLevel() >= REST_Debug )
-			cout << "Adding global cut : " << globalCuts[i] << endl;
+                if( GetVerboseLevel() >= REST_Debug )
+                    cout << "Adding global cut : " << globalCuts[i] << endl;
                 cutString += globalCuts[i];
             }
 
             fCutString.push_back( cutString );
 
-	    if( GetVerboseLevel() >= REST_Debug )
-	    {
-		cout << "-------------------------------" << endl;
+            if( GetVerboseLevel() >= REST_Debug )
+            {
+                cout << "-------------------------------" << endl;
             }
         }
     }
@@ -304,13 +306,13 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
         anT = r->GetAnalysisTree();
         trees.push_back( anT );
 
-	r->SkipEventTree();
+        r->SkipEventTree();
 
-	r->GetEntry(0);
-	if( fStartTime == 0 || anT->GetTimeStamp() < fStartTime ) fStartTime = anT->GetTimeStamp();
+        r->GetEntry(0);
+        if( fStartTime == 0 || anT->GetTimeStamp() < fStartTime ) fStartTime = anT->GetTimeStamp();
 
-	r->GetEntry( r->GetEntries() - 1);
-	if( fEndTime == 0 || anT->GetTimeStamp() > fEndTime ) fEndTime = anT->GetTimeStamp();
+        r->GetEntry( r->GetEntries() - 1);
+        if( fEndTime == 0 || anT->GetTimeStamp() > fEndTime ) fEndTime = anT->GetTimeStamp();
     }
 
     fCanvasSave = ReplaceFilenameTags( fCanvasSave, runs[0] );
@@ -338,7 +340,7 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
         fCombinedCanvas->cd(n+1);
         if( fLogScale[n] ) 
             fCombinedCanvas->cd(n+1)->SetLogy();
-        
+
         for( int m = 0; m < fNFiles; m++ )
         {
 
@@ -350,15 +352,15 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
                 plotString = plotString( 0, fPlotString[n].First(">>+") + 3 ) + fPlotNames[n];
             }
 
-	    if( GetVerboseLevel() >= REST_Debug )
-	    {
-		cout << endl;
-		cout << "Plot name : " << fPlotNames[n] << endl;
-		cout << "Plot string : " << plotString << endl;
-		cout << "Cut string : " << fCutString[n] << endl;
-		cout << "--------------------------------------" << endl;
+            if( GetVerboseLevel() >= REST_Debug )
+            {
+                cout << endl;
+                cout << "Plot name : " << fPlotNames[n] << endl;
+                cout << "Plot string : " << plotString << endl;
+                cout << "Cut string : " << fCutString[n] << endl;
+                cout << "--------------------------------------" << endl;
 
-	    }
+            }
             trees[m]->Draw( plotString, fCutString[n], fPlotOption[n] );
         }
 
@@ -367,18 +369,18 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
         htemp->GetXaxis()->SetTitle( fPlotXLabel[n] );
         htemp->GetYaxis()->SetTitle( fPlotYLabel[n] );
 
-/*
-	if( fPlotXLabel[n].Contains("Time") ||  fPlotXLabel[n].Contains("time") )
-	{
-		cout.precision(12);
-		cout << "Start : " << fStartTime << endl;
-		cout << "End : " << fEndTime << endl;
-		htemp->GetXaxis()->SetRangeUser( fStartTime, fEndTime );
-		htemp->GetXaxis()->SetLimits( fStartTime, fEndTime );
-		htemp->SetAxisRange( fStartTime, fEndTime,"X");
-		GetChar();
-	}
-*/
+        /*
+           if( fPlotXLabel[n].Contains("Time") ||  fPlotXLabel[n].Contains("time") )
+           {
+           cout.precision(12);
+           cout << "Start : " << fStartTime << endl;
+           cout << "End : " << fEndTime << endl;
+           htemp->GetXaxis()->SetRangeUser( fStartTime, fEndTime );
+           htemp->GetXaxis()->SetLimits( fStartTime, fEndTime );
+           htemp->SetAxisRange( fStartTime, fEndTime,"X");
+           GetChar();
+           }
+           */
 
 
         f->cd();
@@ -428,7 +430,7 @@ void TRestAnalysisPlot::PlotCombinedCanvasCompare( )
         fCombinedCanvas->cd(n+1);
         if( fLogScale[n] ) 
             fCombinedCanvas->cd(n+1)->SetLogy();
-        
+
         for( int m = 0; m < fNFiles; m++ )
         {
 
