@@ -47,3 +47,7 @@ target_link_libraries(restPrintEvents ${target_libraries})
 add_executable(restDrawEvents restDrawEvents.cxx)
 install(TARGETS restDrawEvents RUNTIME DESTINATION bin)
 target_link_libraries(restDrawEvents ${target_libraries})
+
+add_executable(restG4PrintParticles restG4PrintParticles.cxx)
+install(TARGETS restG4PrintParticles RUNTIME DESTINATION bin)
+target_link_libraries(restG4PrintParticles ${target_libraries})
