@@ -700,9 +700,10 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
     // We define environment variables that have validity only during execution
     size_t p = 0;
     configBuffer = GetKEYStructure( "environment", p, temporalBuffer );
+         
     if( configBuffer != "" )
     {
-	configBuffer = ReplaceIncludeDefinitions( configBuffer );
+        configBuffer = ReplaceIncludeDefinitions( configBuffer );
         p = 0;
         while( p != string::npos ) SetEnvVariable( p );
     }
@@ -1090,7 +1091,7 @@ string TRestMetadata::EvaluateExpression( string exp )
 ///
 string TRestMetadata::ReplaceIncludeDefinitions( const string buffer )
 {
-    string outputBuffer = ReplaceEnvironmentalVariables( buffer );
+    string outputBuffer = buffer;
 
     size_t pos = 0;
     string includeString;
@@ -1098,34 +1099,35 @@ string TRestMetadata::ReplaceIncludeDefinitions( const string buffer )
     {
         includeString = GetKEYDefinition( "include", pos, outputBuffer );
 
+        if( includeString.length() == 0 ) break;
+
+        if( includeString.length() > 0 )
+            includeString += ">";
+
         string fileName = GetFieldValue( "file", includeString );
+        fileName = ReplaceEnvironmentalVariables( fileName );
 
-	if( includeString.length() == 0 ) break;
+        if( fileName != "Not defined" )
+        {
+            if( !fileExists( fileName ) )
+            {
+                cout << "REST WARNING. TRestMetadata::ReplaceIncludeDefinitions." << endl;
+                cout << "File : " << fileName << " not found!" << endl;
+            }
+            else
+            {
+                string temporalBuffer;
+                string line;
+                ifstream file(fileName);
+                while(getline(file, line)) temporalBuffer += line;
 
-	if( includeString.length() > 0 )
-		includeString += ">";
+                string outputNow;
+                size_t pos2 = 0;
+                outputNow = Replace( outputBuffer, includeString, temporalBuffer, pos2 ); 
+                outputBuffer = outputNow;
+            }
+        }
 
-	if( fileName != "Not defined" )
-	{
-		if( !fileExists( fileName ) )
-		{
-			cout << "REST WARNING. TRestMetadata::ReplaceIncludeDefinitions." << endl;
-			cout << "File : " << fileName << " not found!" << endl;
-		}
-		else
-		{
-			string temporalBuffer;
-			string line;
-			ifstream file(fileName);
-			while(getline(file, line)) temporalBuffer += line;
-
-			string outputNow;
-			size_t pos2 = 0;
-			outputNow = Replace( outputBuffer, includeString, temporalBuffer, pos2 ); 
-			outputBuffer = outputNow;
-		}
-	}
-	
     }
     while( includeString.length() > 0 );
 
@@ -1355,7 +1357,7 @@ void TRestMetadata::SetEnvVariable( size_t &pos )
 
         if( oWrite == "true" ) oWriteInt = 1;
 
-        setenv( GetFieldValue( "name", envString).c_str() , GetFieldValue( "value", envString ).c_str(), oWriteInt );
+        setenv( GetFieldValue( "name", envString).c_str() , ReplaceEnvironmentalVariables( GetFieldValue( "value", envString ) ).c_str(), oWriteInt );
     }
 }
 
