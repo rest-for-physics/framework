@@ -75,7 +75,7 @@ void TRestGeant4AnalysisProcess::InitProcess()
     {  
         if( fObservables[i].find( "VolumeEDep" ) != string::npos )
         {
-            TString volName = fObservables[i].substr( 0, fObservables[i].length() - 4 ).c_str();
+            TString volName = fObservables[i].substr( 0, fObservables[i].length() - 10 ).c_str();
 
             Int_t volId = fG4Metadata->GetActiveVolumeID( volName );
             if( volId >= 0 )
