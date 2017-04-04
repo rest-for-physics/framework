@@ -1176,26 +1176,22 @@ string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
 
     while ( ( startPosition = outputBuffer.find( "{", endPosition ) ) != (int) string::npos )
     {
-        char envValue[256];
         endPosition = outputBuffer.find( "}", startPosition+1 );
         if( endPosition == (int) string::npos ) break;
 
         string expression = outputBuffer.substr( startPosition+1, endPosition-startPosition-1 );
 
-        if( getenv( expression.c_str() ) != NULL )
-        {
-            sprintf( envValue, "%s", getenv( expression.c_str() ) );
+        cout << "------------------------------------------------------------------------------" << endl;
+        cout << "REST Warning!!" << " Section name : " << fSectionName << endl;
+        cout << "Environment variables should be defined now using the following format ${VAR}" << endl;
+        cout << "Please, if the definition {" << expression << "} inside the RML, is an environment" << endl;
+        cout << "variable, replace it by ${" << expression << "}" << endl;
+        cout << "------------------------------------------------------------------------------" << endl;
 
-            outputBuffer.replace( startPosition, endPosition-startPosition+1,  envValue );
-
-            endPosition -= ( endPosition - startPosition + 1 );
-        }
-        else
+        if( GetVerboseLevel() >= REST_Warning )
         {
-            sprintf( envValue, " " );
-            cout << "REST ERROR :: In config file " << fConfigFilePath << fConfigFileName << endl;
-            cout << "Environmental variable " << expression << " is not defined" << endl; 
-            exit(1);
+            cout << "To avoid this issue requesting a key stroke you must define verboseLevel=silent" << endl;
+            GetChar();
         }
     }
 
