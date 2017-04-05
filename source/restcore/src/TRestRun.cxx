@@ -730,7 +730,7 @@ void TRestRun::OpenOutputFile( )
 
     if( !isPathWritable( (string) GetDataPath() ) )
     {
-        cout << "REST Error!! TRestRun.
+        cout << "REST Error!! TRestRun." << endl;
         cout << "Output path does not exist or it is not writtable." << endl;
         cout << "Path : " << GetDataPath() << endl;
         exit(1);
