@@ -49,10 +49,10 @@ void TRestSignalZeroSuppresionProcess::LoadDefaultConfig( )
 
     cout << "Signal to hits metadata not found. Loading default values" << endl;
 
-        TVector2 fBaseLineRange = TVector2( 10, 90);
-        fPointThreshold = 2.;
-        fSignalThreshold = 2.;
-        fNPointsOverThreshold = 10;
+    TVector2 fBaseLineRange = TVector2( 10, 90);
+    fPointThreshold = 2.;
+    fSignalThreshold = 2.;
+    fNPointsOverThreshold = 10;
 
 }
 
@@ -113,22 +113,22 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
         TRestRawSignal *sgnl = fRawSignalEvent->GetSignal( i );
         Int_t signalID = sgnl->GetSignalID();
 
-	Double_t integral = sgnl->GetIntegralWithThreshold( 0, sgnl->GetNumberOfPoints(),
-		fBaseLineRange.X(), fBaseLineRange.Y(), fPointThreshold, fNPointsOverThreshold, fSignalThreshold );
+        Double_t integral = sgnl->GetIntegralWithThreshold( 0, sgnl->GetNumberOfPoints(),
+                fBaseLineRange.X(), fBaseLineRange.Y(), fPointThreshold, fNPointsOverThreshold, fSignalThreshold );
 
-	if( integral > 0 )
-	{
-		totalIntegral += integral;
+        if( integral > 0 )
+        {
+            totalIntegral += integral;
 
-		vector <Int_t> poinsOver = sgnl->GetPointsOverThreshold();
+            vector <Int_t> poinsOver = sgnl->GetPointsOverThreshold();
 
-		TRestSignal outSignal;
-		outSignal.SetID( signalID );
-		for( unsigned int n = 0; n < poinsOver.size(); n++ )
-			outSignal.NewPoint( poinsOver[n], sgnl->GetData( poinsOver[n] ) );
+            TRestSignal outSignal;
+            outSignal.SetID( signalID );
+            for( unsigned int n = 0; n < poinsOver.size(); n++ )
+                outSignal.NewPoint( poinsOver[n], sgnl->GetData( poinsOver[n] ) );
 
-		fSignalEvent->AddSignal( outSignal );
-	}
+            fSignalEvent->AddSignal( outSignal );
+        }
     }
 
     if( this->GetVerboseLevel() >= REST_Debug ) 
