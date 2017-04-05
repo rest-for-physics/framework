@@ -176,7 +176,7 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
     //////////////////
 
     if( !fReadOnly )
-	fOutputFile->cd();
+        fOutputFile->cd();
 
     for( unsigned int i = 0; i < fEventProcess.size(); i++ ) fEventProcess[i]->SetAnalysisTree( fOutputAnalysisTree );
 
@@ -726,6 +726,14 @@ void TRestRun::OpenOutputFile( )
 	    fParentRunNumber = fRunNumber;
 	    fRunNumber = tmpInputRunNumber;
 	}
+    }
+
+    if( !isPathWritable( (string) GetDataPath() ) )
+    {
+        cout << "REST Error!! TRestRun.
+        cout << "Output path does not exist or it is not writtable." << endl;
+        cout << "Path : " << GetDataPath() << endl;
+        exit(1);
     }
 
     if( fOutputFilename == "default" ) SetRunFilenameAndIndex();
