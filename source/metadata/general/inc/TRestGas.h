@@ -89,7 +89,6 @@ private:
     void AddGasComponent( std::string gasName, Double_t fraction );
 
     void GenerateGasFile( );
-
 		
 public:
 	TRestGas();
@@ -105,6 +104,8 @@ public:
     void Initialize();
 
     void LoadGasFile();
+
+    Double_t GetW( ) { return fGasMedium->GetW(); }
 
     /// Returns the maximum electron energy used by Magboltz for the gas properties calculation
     Double_t GetMaxElectronEnergy() { return fMaxElectronEnergy; }
