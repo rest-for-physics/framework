@@ -289,7 +289,11 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
 		Double_t distanceToPlane = ( sgnl->GetTime(j) * fSampling ) * fDriftVelocity;
 
 		if( GetVerboseLevel() >= REST_Debug ) 
+        {
+            cout << "Sampling : " << fSampling << endl;
+            cout << "Time : " << sgnl->GetTime(j) << " Drift velocity : " << fDriftVelocity << endl;
 		    cout << "Distance to plane : " << distanceToPlane << endl;
+        }
 
 		Double_t z = zPosition + fieldZDirection * distanceToPlane;
 
@@ -343,7 +347,7 @@ void TRestSignalToHitsProcess::InitFromConfigFile( )
     fSampling = GetDblParameterWithUnits( "sampling" );
     fGasPressure = StringToDouble( GetParameter( "gasPressure", "-1" ) );
     fDriftVelocity = StringToDouble( GetParameter( "driftVelocity" , "0") ) * cmTomm;
-    fSignalToHitMethod =  GetParameter( "method", "onlyMax" );
+    fSignalToHitMethod =  GetParameter( "method", "all" );
 
 }
 
