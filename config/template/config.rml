@@ -137,6 +137,7 @@ By default REST units are mm, keV and degrees
     <parameter name="verboseLevel" value="3"/>
     <parameter name="overwrite" value="off" />
     <parameter name="outputFile" value="default" />
+    <parameter name="readOnly" value="false" />
 </section>
 
 <section TRestG4Metadata name="DBDsimulation" title="A dummy DBD simulation">
