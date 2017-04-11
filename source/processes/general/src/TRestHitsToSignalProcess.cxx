@@ -166,7 +166,9 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
         Double_t x = fHitsEvent->GetX( hit );
         Double_t y = fHitsEvent->GetY( hit );
         Double_t z = fHitsEvent->GetZ( hit );
-     //   cout << " x : " << x << " y : " << y << " z : " << z << endl;
+
+        if( GetVerboseLevel() >= REST_Debug )
+            cout << "Hit : " << hit << " x : " << x << " y : " << y << " z : " << z << endl;
 
         Int_t planeId = -1;
         Int_t moduleId = -1;
@@ -177,7 +179,9 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
             moduleId = fReadout->GetReadoutPlane(p)->isInsideDriftVolume( x, y, z );
             if( moduleId >= 0 )
             {
-     //           cout << "Plane : " << p << " Module : " << moduleId << endl;
+                if( GetVerboseLevel() >= REST_Debug )
+                    cout << "Plane : " << p << " Module : " << moduleId << endl;
+
                 planeId = p;
                 plane = fReadout->GetReadoutPlane( planeId );
                 module = plane->GetModule( moduleId );
@@ -191,27 +195,42 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
         {
             Int_t readoutChannel = plane->FindChannel( moduleId, x, y );
             Int_t daqId = module->GetChannel( readoutChannel )->GetDaqID( );
-   //         cout << "Channel : " << readoutChannel << " daq ID : " << daqId << endl;
+
+            if( GetVerboseLevel() >= REST_Debug )
+                cout << "Channel : " << readoutChannel << " daq ID : " << daqId << endl;
 
             Double_t energy = fHitsEvent->GetEnergy( hit );
 
             Double_t time = plane->GetDistanceTo( x, y, z ) / fDriftVelocity;
             time = ( (Int_t) (time/fSampling) );
 
- //           cout << "Energy : " << energy << " time : " << time << endl;
+            if( GetVerboseLevel() >= REST_Debug )
+                cout << "Drift velocity : " << fDriftVelocity << " mm/us" << endl;
+
+            if( GetVerboseLevel() >= REST_Debug )
+                cout << "Energy : " << energy << " time : " << time << endl;
+
             fSignalEvent->AddChargeToSignal( daqId, time, energy );
         }
 }
 
         fSignalEvent->SortSignals();
 
-        //fSignalEvent->PrintEvent();
+        if( GetVerboseLevel() >= REST_Debug )
+        {
+            fSignalEvent->PrintEvent();
+            cout << "TRestHitsToSignal in debug mode" << endl;
+            GetChar();
+        }
 
         if( this->GetVerboseLevel() >= REST_Debug )
         {
             cout << "TRestHitsToSignalProcess : Number of signals added : " << fSignalEvent->GetNumberOfSignals() << endl;
             cout << "TRestHitsToSignalProcess : Total signals integral : " << fSignalEvent->GetIntegral() << endl;
         }
+
+        if( GetVerboseLevel() >= REST_Debug )
+            GetChar();
 
         return fSignalEvent;
 }
