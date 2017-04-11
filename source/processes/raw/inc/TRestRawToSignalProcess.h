@@ -40,8 +40,6 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    Double_t tStart;
    int totalBytesReaded;
 
-   Bool_t fRejectNoise;
-   
    TRestRawSignalEvent *fSignalEvent;
    #ifndef __CINT__
    FILE *fInputBinFile;
