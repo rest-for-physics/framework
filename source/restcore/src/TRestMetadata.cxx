@@ -1137,7 +1137,7 @@ string TRestMetadata::ReplaceIncludeDefinitions( const string buffer )
 ///////////////////////////////////////////////
 /// \brief Identifies enviromental variable definitions inside the RML and substitutes them by their value.
 ///
-/// Enviromental variables inside RML can be used by placing the variable name between brackets {VARIABLE_NAME} or ${VARIABLE_NAME}
+/// Enviromental variables inside RML can be used by placing the variable name between brackets with the following nomenclature ${VARIABLE_NAME}
 ///
 string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
 {
@@ -1188,9 +1188,9 @@ string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
         cout << "variable, replace it by ${" << expression << "}" << endl;
         cout << "------------------------------------------------------------------------------" << endl;
 
-        if( GetVerboseLevel() >= REST_Warning )
+        if( GetVerboseLevel() >= REST_Extreme )
         {
-            cout << "To avoid this issue requesting a key stroke you must define verboseLevel=silent" << endl;
+            cout << "To avoid this issue requesting a key stroke you must define the verboseLevel below extreme." << endl;
             GetChar();
         }
     }
