@@ -24,9 +24,12 @@
 #define RestCore_TRestEventProcess
 
 #include "TNamed.h"
+
 #include "TRestEvent.h"
 #include "TRestMetadata.h"
 #include "TRestAnalysisTree.h"
+
+#include "TCanvas.h"
 
 class TRestEventProcess:public TRestMetadata {
 	protected:
@@ -45,16 +48,33 @@ class TRestEventProcess:public TRestMetadata {
 
 		TRestAnalysisTree *fAnalysisTree; ///< Pointer to analysis tree where to store the observables. 
 
-        Bool_t fIsExternal; ///< It defines if the process reads event data from an external source.
+ 	        Bool_t fIsExternal; ///< It defines if the process reads event data from an external source.
+
+  		TString fInputFileName;
+
+		TCanvas *fCanvas;
+		TVector2 fCanvasSize;
+
+		Bool_t fReadOnly;
 #endif
 
-	private:
+        template <typename eventType> 
+        void TransferEvent ( eventType *evOutput, eventType *evInput )
+        { 
+            if( evOutput != NULL ) 
+            {
+                delete evOutput;
+                evOutput = NULL;
+            }
+            evOutput = (eventType *) evInput->Clone();
+        } 
 
-	public:
-		virtual TRestEvent *GetInputEvent() { return fInputEvent; } ///< Get pointer to input event
-		virtual TRestEvent *GetOutputEvent() { return fOutputEvent; } ///< Get pointer to output event
+        public:
+            virtual TRestEvent *GetInputEvent() { return fInputEvent; } ///< Get pointer to input event
+            virtual TRestEvent *GetOutputEvent() { return fOutputEvent; } ///< Get pointer to output event
 
         virtual Bool_t OpenInputFile(TString fName);
+	   TString GetInputFilename( ) { return fInputFileName; }
 
 		virtual void InitProcess() { } ///< To be executed at the beginning of the run
 		virtual TRestEvent *ProcessEvent( TRestEvent *evInput ) = 0; ///< Process one event
@@ -70,6 +90,19 @@ class TRestEventProcess:public TRestMetadata {
 
         Bool_t isExternal( ) { return fIsExternal; } 
 
+		void CreateCanvas() 
+		{ 
+			if( fCanvas != NULL ) return;
+			
+			fCanvas = new TCanvas( this->GetName(), this->GetTitle(), fCanvasSize.X(), fCanvasSize.Y() );
+		}
+
+		TCanvas *GetCanvas( ) { return fCanvas; }
+
+		void SetCanvasSize( Int_t x, Int_t y ) { fCanvasSize = TVector2( x, y ); }
+
+		void SetReadOnly( Bool_t rO ) { fReadOnly = rO; }
+
 		vector <string> ReadObservables( );
 
 		TRestMetadata *GetGasMetadata( );
@@ -83,6 +116,7 @@ class TRestEventProcess:public TRestMetadata {
 		virtual TRestMetadata *GetProcessMetadata() { return NULL; }
 		void SetMetadata( std::vector <TRestMetadata*> meta ) { fRunMetadata = meta; }
 
+		TRestAnalysisTree *GetAnalysisTree( ) { return fAnalysisTree; }
 		void SetAnalysisTree( TRestAnalysisTree *tree ) { fAnalysisTree = tree; }
 
 		void BeginPrintProcess();

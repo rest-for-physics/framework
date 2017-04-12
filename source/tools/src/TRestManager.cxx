@@ -110,7 +110,6 @@ void TRestManager::InitFromConfigFile()
     TString inputFile = GetParameter("inputFile" );
  
     fInputFile = inputFile;
-    cout << "ifile: " << fInputFile << endl;
 
     char *cfgFile = (char *) fConfigFileName.c_str(); 
     fRun = new TRestRun( cfgFile );
@@ -132,6 +131,9 @@ void TRestManager::InitFromConfigFile()
 
         TString processType = GetFieldValue( "type", addProcessString );
 
+	if( !fileExists( (string) processesCfgFile ) )
+		cout << "REST WARNING. TRestManager. Processes file does not exist : " << processesCfgFile << endl;
+
         fProcessType.push_back( processType );
         fProcessName.push_back( processName );
         fPcsConfigFile.push_back( processesCfgFile ); 
@@ -140,6 +142,13 @@ void TRestManager::InitFromConfigFile()
     if( fProcessType.size() > 0 )
     {
         TClass *cl = TClass::GetClass( fProcessType[0] );
+        if( cl == NULL )
+        {
+            cout << "TRestManager. " << GetName() << " : ERROR" << endl;
+            cout << "Process : " << fProcessType[0] << " unknown!!" << endl;
+            exit(0);
+        }
+
         TRestEventProcess *pc = (TRestEventProcess *) cl->New();
         
         if( !pc->isExternal() ) fRun->OpenInputFile( inputFile );
@@ -179,19 +188,20 @@ void TRestManager::InitFromConfigFile()
 
         TRestReadout *readout = (TRestReadout *) fRun->GetMetadataClass( "TRestReadout" );
 
-        if( plPos != TVector3(0,0,0) )
-            readout->GetReadoutPlane( rId )->SetPosition( plPos );
+        // Removed condition when it was (0,0,0). Since it is a valid value.
+        // Some other value should be given as default value
+        readout->GetReadoutPlane( rId )->SetPosition( plPos );
 
-        if( cPos != TVector3(0,0,0) )
-            readout->GetReadoutPlane( rId )->SetCathodePosition( cPos );
+        readout->GetReadoutPlane( rId )->SetCathodePosition( cPos );
 
-        if( vPos != TVector3(0,0,0) )
+        if( vPos != TVector3(0, 0, 0) )
             readout->GetReadoutPlane( rId )->SetPlaneVector( vPos );
 
         readout->GetReadoutPlane( rId )->SetDriftDistance();
-
-        readout->PrintMetadata();
     }
+
+    TRestReadout *readout = (TRestReadout *) fRun->GetMetadataClass( "TRestReadout" );
+    if( readout != NULL ) readout->PrintMetadata();
 
     // Adding tasks
     position = 0;
@@ -240,9 +250,7 @@ void TRestManager::LaunchTasks( )
             cout << "REST WARNING : TRestManager::LaunchTasks(). Task type : " << fTaskType[n] << " not recognized" << endl;
 
         }
-
     }
-
 }
 
 Int_t TRestManager::LoadProcesses( )
@@ -271,16 +279,18 @@ Int_t TRestManager::LoadProcesses( )
 
         // TODO: Still we need to improve this so that is more generic.
         // I.e. OpenInputBinFile can be done in InitProcess
-        if( i == 0 && fProcessType[i] == "TRestFeminosToSignalProcess" )
+        if( i == 0 && fProcessType[i] == "TRestFEMINOSToSignalProcess" )
         {
             TRestDetectorSetup *detSetup = new TRestDetectorSetup();
+            detSetup->SetName("DetectorSetup" );
+            detSetup->SetTitle("FeminosSetup" );
             detSetup->InitFromFileName( fInputFile );
 
             fRun->AddMetadata( detSetup );
 
             TRestFEMINOSToSignalProcess *femPcs = new TRestFEMINOSToSignalProcess();
 
-            fRun->AddProcess( femPcs, (string) processesCfgFile, (string) processName );
+            fRun->AddProcess( femPcs, (string) fPcsConfigFile[i], (string) fProcessName[i] );
 
             if( !femPcs->OpenInputBinFile( fInputFile ) )
             {
@@ -293,17 +303,13 @@ Int_t TRestManager::LoadProcesses( )
             fRun->SetRunNumber( detSetup->GetRunNumber() );
             fRun->SetRunTag( detSetup->GetRunTag() );
         }
-        else if( i == 0 && fProcessType[i] == "TRestCoboAsadToSignalProcess" )
+        else if( i == 0 && fProcessType[i] == "TRestCoBoAsAdToSignalProcess" )
         {
 
-            //TRestDetectorSetup *detSetup = new TRestDetectorSetup();
-            //detSetup->InitFromFileName( fInputFile );
-
-            //fRun->AddMetadata( detSetup );
 
             TRestCoBoAsAdToSignalProcess *coboPcs = new TRestCoBoAsAdToSignalProcess();
 
-            fRun->AddProcess( coboPcs, (string) processesCfgFile, (string) processName );
+            fRun->AddProcess( coboPcs, (string) fPcsConfigFile[i], (string) fProcessName[i] );
 
             if( !coboPcs->OpenInputCoBoAsAdBinFile( fInputFile ) )
   //          if( !coboPcs->OpenInputBinFile( fInputFile ) )
@@ -312,9 +318,38 @@ Int_t TRestManager::LoadProcesses( )
                 exit(1);
             }
 
-            //fRun->SetParentRunNumber( detSetup->GetSubRunNumber() );
-            //fRun->SetRunNumber( detSetup->GetRunNumber() );
-            //fRun->SetRunTag( detSetup->GetRunTag() );
+	    if ( coboPcs->GetFilenameFormat() == "SJTU" ) 
+	    {
+		    TRestDetectorSetup *detSetup = new TRestDetectorSetup();
+
+		    cout << fInputFile << endl;
+		    Int_t s = fInputFile.First('_');
+		    Int_t e = fInputFile.Last('_');
+		    TString beg = fInputFile(s+9,e-s-9);
+		    TString year = beg(0,2);
+		    TString month = beg(3,2);
+		    TString day = beg(6,2);
+		    TString hour = beg(9,2);
+		    TString minute = beg(12,2);
+
+		    TString sR = fInputFile( e+1, 4 );
+		    Int_t sRunN = sR.Atoi();
+
+		    cout.precision( 12 );
+		    Int_t rN = minute.Atoi() + hour.Atoi()*100 + day.Atoi()*10000 + month.Atoi()*1e6 + year.Atoi()*1e8;
+
+		    detSetup->SetRunNumber( rN );
+		    detSetup->SetSubRunNumber( sRunN );
+
+		    fRun->AddMetadata( detSetup );
+
+		    fRun->SetParentRunNumber( detSetup->GetSubRunNumber() );
+		    fRun->SetRunNumber( detSetup->GetRunNumber() );
+		    fRun->SetRunTag( "noTag" );
+	    }
+
+	    
+
         }
         else
         {

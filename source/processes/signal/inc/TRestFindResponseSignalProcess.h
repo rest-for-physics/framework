@@ -5,32 +5,29 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestSignalToRawSignalProcess.h
+///             TRestFindResponseSignalProcess.h
 ///
 ///_______________________________________________________________________________
 
 
-#ifndef RestCore_TRestSignalToRawSignalProcess
-#define RestCore_TRestSignalToRawSignalProcess
+#ifndef RestCore_TRestFindResponseSignalProcess
+#define RestCore_TRestFindResponseSignalProcess
 
-#include <TRestSignalEvent.h>
+#include <TRestRawSignalEvent.h>
 
 #include "TRestEventProcess.h"
 
-class TRestSignalToRawSignalProcess:public TRestEventProcess {
+class TRestFindResponseSignalProcess:public TRestEventProcess {
 
     private:
-        TRestSignalEvent *fInputSignalEvent;
-        TRestSignalEvent *fOutputSignalEvent;
+        TRestRawSignalEvent *fInputSignalEvent;
+        TRestRawSignalEvent *fOutputSignalEvent;
 
         void InitFromConfigFile();
 
         void Initialize();
 
         void LoadDefaultConfig();
-
-        Double_t fTriggerTime;
-        Int_t fNBins;
 
     protected:
         //add here the members of your event process
@@ -48,23 +45,20 @@ class TRestSignalToRawSignalProcess:public TRestEventProcess {
         { 
             BeginPrintProcess();
 
-            cout << "Trigger time bin : " << fTriggerTime << endl;
-            cout << "Number of points : " << fNBins << endl;
-
             EndPrintProcess();
         }
 
         TRestMetadata *GetProcessMetadata( ) { return NULL; }
 
-        TString GetProcessName() { return (TString) "signalToRawSignal"; }
+        TString GetProcessName() { return (TString) "findResponseSignal"; }
 
         //Constructor
-        TRestSignalToRawSignalProcess();
-        TRestSignalToRawSignalProcess( char *cfgFileName );
+        TRestFindResponseSignalProcess();
+        TRestFindResponseSignalProcess( char *cfgFileName );
         //Destructor
-        ~TRestSignalToRawSignalProcess();
+        ~TRestFindResponseSignalProcess();
 
-        ClassDef(TRestSignalToRawSignalProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+        ClassDef(TRestFindResponseSignalProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
 };
 #endif
 

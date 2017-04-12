@@ -28,7 +28,21 @@ class TRestGeant4AnalysisProcess:public TRestEventProcess {
         TRestG4Metadata *fG4Metadata;
 
         std::vector <std::string> fEnergyInObservables;
+        std::vector <std::string> fMeanPosObservables;
+        std::vector <std::string>  fDirID;
+
+        std::vector <std::string> fTrackCounterObservables;
+        std::vector <std::string> fParticleTrackCounter;
+
+        std::vector <std::string> fTracksEDepObservables;
+        std::vector <std::string> fParticleTrackEdep;
+
+        std::vector <std::string> fTrackEnergyObservables;
+        std::vector <std::string> fParticleTrackEnergy;
+
         std::vector <Int_t> fVolumeID;
+        std::vector <Int_t> fVolumeID2;
+
 #endif
         Double_t fLowEnergyCut;
         Double_t fHighEnergyCut;

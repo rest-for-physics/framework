@@ -5,13 +5,13 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestSignalToRawSignalProcess.cxx
+///             TRestFindResponseSignalProcess.cxx
 ///
 ///             February 2016: Javier Gracia
 ///_______________________________________________________________________________
 
 
-#include "TRestSignalToRawSignalProcess.h"
+#include "TRestFindResponseSignalProcess.h"
 using namespace std;
 
 #include <TRestFFT.h>
@@ -19,62 +19,57 @@ using namespace std;
 #include <TFile.h>
 
 
-ClassImp(TRestSignalToRawSignalProcess)
+ClassImp(TRestFindResponseSignalProcess)
     //______________________________________________________________________________
-TRestSignalToRawSignalProcess::TRestSignalToRawSignalProcess()
+TRestFindResponseSignalProcess::TRestFindResponseSignalProcess()
 {
     Initialize();
 }
 
 //______________________________________________________________________________
-TRestSignalToRawSignalProcess::TRestSignalToRawSignalProcess( char *cfgFileName )
+TRestFindResponseSignalProcess::TRestFindResponseSignalProcess( char *cfgFileName )
 {
     Initialize();
 
     if( LoadConfigFromFile( cfgFileName ) == -1 ) LoadDefaultConfig( );
 
     PrintMetadata();
-    // TRestSignalToRawSignalProcess default constructor
+    // TRestFindResponseSignalProcess default constructor
 }
 
 //______________________________________________________________________________
-TRestSignalToRawSignalProcess::~TRestSignalToRawSignalProcess()
+TRestFindResponseSignalProcess::~TRestFindResponseSignalProcess()
 {
     delete fOutputSignalEvent;
     delete fInputSignalEvent;
-    // TRestSignalToRawSignalProcess destructor
-
+    // TRestFindResponseSignalProcess destructor
 }
 
-
-
-void TRestSignalToRawSignalProcess::LoadDefaultConfig( )
+void TRestFindResponseSignalProcess::LoadDefaultConfig( )
 {
-    SetName( "addSignalNoiseProcess-Default" );
+    SetName( "findResponseSignal-Default" );
     SetTitle( "Default config" );
-
 }
 
 //______________________________________________________________________________
-void TRestSignalToRawSignalProcess::Initialize()
+void TRestFindResponseSignalProcess::Initialize()
 {
     SetSectionName( this->ClassName() );
 
-    fInputSignalEvent = new TRestSignalEvent();
-    fOutputSignalEvent = new TRestSignalEvent();
+    fInputSignalEvent = new TRestRawSignalEvent();
+    fOutputSignalEvent = new TRestRawSignalEvent();
 
     fInputEvent = fInputSignalEvent;
     fOutputEvent = fOutputSignalEvent;
-
 }
 
-void TRestSignalToRawSignalProcess::LoadConfig( string cfgFilename, string name )
+void TRestFindResponseSignalProcess::LoadConfig( string cfgFilename, string name )
 {
     if( LoadConfigFromFile( cfgFilename, name ) == -1 ) LoadDefaultConfig( );
 }
 
 //______________________________________________________________________________
-void TRestSignalToRawSignalProcess::InitProcess()
+void TRestFindResponseSignalProcess::InitProcess()
 {
     // Function to be executed once at the beginning of process
     // (before starting the process of the events)
@@ -86,79 +81,62 @@ void TRestSignalToRawSignalProcess::InitProcess()
 }
 
 //______________________________________________________________________________
-void TRestSignalToRawSignalProcess::BeginOfEventProcess() 
+void TRestFindResponseSignalProcess::BeginOfEventProcess() 
 {
     fOutputSignalEvent->Initialize(); 
 }
 
 //______________________________________________________________________________
-TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent( TRestEvent *evInput )
+TRestEvent* TRestFindResponseSignalProcess::ProcessEvent( TRestEvent *evInput )
 {
-
-    fInputSignalEvent = (TRestSignalEvent *) evInput;
-
-	//cout << "Number of signals " << fInputSignalEvent->GetNumberOfSignals() << endl;
+    fInputSignalEvent = (TRestRawSignalEvent *) evInput;
 
     if( fInputSignalEvent->GetNumberOfSignals() <= 0 ) return NULL;
+    if( fInputSignalEvent->GetNumberOfSignals() > 8 ) return NULL;
 
     Int_t dominantSignal = -1;
     Double_t maxPeak = 0;
+ //   Double_t maxTime = 0;
     for( int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++ ) 
     {
         if ( fInputSignalEvent->GetSignal(n)->GetMaxPeakValue() > maxPeak )
         {
             maxPeak = fInputSignalEvent->GetSignal(n)->GetMaxPeakValue();
+	    //maxTime = fInputSignalEvent->GetSignal(n)->GetMaxPeakBin();
             dominantSignal = n;
         }
     }
 
-    Int_t startTime = 0;
+    if( maxPeak < 400 || maxPeak > 600 ) return NULL;
 
+    TRestRawSignal *sgnl = fInputSignalEvent->GetSignal( dominantSignal );
+    sgnl->Scale( 1000./maxPeak );
 
-    TRestSignal *sgnl = fInputSignalEvent->GetSignal( dominantSignal );
-    maxPeak /= 20.;
-    Int_t continueLoop = 1;
-    for( int n = 0; n < sgnl->GetNumberOfPoints() && continueLoop; n++ )
-    {
-        if( sgnl->GetData(n) > maxPeak )
-        {
-            startTime = sgnl->GetTime( n );
-            continueLoop = 0;
-        }
-    }
+    fOutputSignalEvent->AddSignal( *sgnl );
+    
+    /// Copying the signal event to the output event
+    /*
 
+    fOutputSignalEvent->SetID( fInputSignalEvent->GetID() );
+    fOutputSignalEvent->SetSubID( fInputSignalEvent->GetSubID() );
+    fOutputSignalEvent->SetTimeStamp( fInputSignalEvent->GetTimeStamp() );
+    fOutputSignalEvent->SetSubEventTag( fInputSignalEvent->GetSubEventTag() );
 
-    for( int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++ ) 
-    {
-        TRestSignal rawSignal;
-        rawSignal.Initialize();
-        for( int i = 0; i < fNBins; i++ )
-            rawSignal.NewPoint( i, 0 );
-
-        rawSignal.SetSignalID( fInputSignalEvent->GetSignal(n)->GetSignalID() );
-
-        TRestSignal *iSgl = fInputSignalEvent->GetSignal(n);
-        for( int i = 0; i < iSgl->GetNumberOfPoints(); i++ )
-        {
-            Double_t timeShifted = iSgl->GetTime(i) + fTriggerTime - startTime;
-            if( timeShifted >= 0 && timeShifted < fNBins )
-                rawSignal.IncreaseTimeBinBy( timeShifted, iSgl->GetData( i ) );
-        }
-
-        fOutputSignalEvent->AddSignal( rawSignal );
-    }
+    fOutputSignalEvent->AddSignal( *fInputSignalEvent->GetSignal( dominantSignal ) );
+    /////////////////////////////////////////////////
+    */
 
     return fOutputSignalEvent;
 }
 
 //______________________________________________________________________________
-void TRestSignalToRawSignalProcess::EndOfEventProcess() 
+void TRestFindResponseSignalProcess::EndOfEventProcess() 
 {
 
 }
 
 //______________________________________________________________________________
-void TRestSignalToRawSignalProcess::EndProcess()
+void TRestFindResponseSignalProcess::EndProcess()
 {
     // Function to be executed once at the end of the process 
     // (after all events have been processed)
@@ -169,9 +147,11 @@ void TRestSignalToRawSignalProcess::EndProcess()
 }
 
 //______________________________________________________________________________
-void TRestSignalToRawSignalProcess::InitFromConfigFile( )
+void TRestFindResponseSignalProcess::InitFromConfigFile( )
 {
+/*
     fTriggerTime = StringToInteger( GetParameter( "triggerTime" ) );
     fNBins = StringToInteger( GetParameter( "nBins" ) );
+*/
 }
 

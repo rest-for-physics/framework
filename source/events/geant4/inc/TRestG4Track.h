@@ -51,6 +51,8 @@ class TRestG4Track:public TObject {
 
         TRestG4Hits *GetHits( ) { return &fHits; }
 
+        Double_t GetEnergy( ) { return GetHits()->GetEnergy(); }
+
         Int_t GetNumberOfHits() { return fHits.GetNumberOfHits(); }
         Int_t GetTrackID() { return fTrack_ID; }
         Int_t GetParentID() { return fParent_ID; }

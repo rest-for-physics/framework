@@ -41,16 +41,11 @@ class TRestSignalToHitsProcess:public TRestEventProcess {
     protected:
 
         Double_t fSampling; // us
-        Double_t fThreshold;
         Double_t fElectricField; // V/cm
         Double_t fGasPressure; // atm
         Double_t fDriftVelocity; // mm/us
 
-        TVector2 fBaseLineRange;
-
-        Bool_t fSubstractBaseLine;
-
-        Int_t fThresholdType;
+	TString fSignalToHitMethod;
 
     public:
 
@@ -68,27 +63,13 @@ class TRestSignalToHitsProcess:public TRestEventProcess {
 
             std::cout << "Sampling rate : " << fSampling << " us" << std::endl;
             std::cout << "Electric field : " << fElectricField << " V/cm" << std::endl;
-            std::cout << "Threshold : " << fThreshold << std::endl;
             std::cout << "Gas pressure : " << fGasPressure << " atm" << std::endl;
             std::cout << "Drift velocity : " << fDriftVelocity << " mm/us" << std::endl;
-            std::cout << "Base line range definition : ( " << fBaseLineRange.X() << " , " << fBaseLineRange.Y() << " ) " << std::endl;
 
-            if( fSubstractBaseLine )
-                std::cout << "Substract baseline : true" << std::endl;
-            else
-                std::cout << "Substract baseline : false" << std::endl;
-
-            if( fThreshold == 0 )
-                std::cout << "Threshold type : absolute " << std::endl;
-            else if( fThreshold == 1 )
-                std::cout << "Threshold type : sigma " << std::endl;
-            else
-                std::cout << "Threshold type : unknown " << std::endl;
+	    std::cout << "Signal to hits method : " << fSignalToHitMethod << std::endl;
 
             EndPrintProcess();
         }
-
-        Double_t GetThreshold( TRestSignal *sgnl );
 
         TString GetProcessName() { return (TString) "signalToHits"; }
 

@@ -5,6 +5,8 @@
 
 char cfgFileName[256];
 char sectionName[256];
+TString saveToPDFFile = "";
+TString saveToROOTFile = "";
 char iFile[256];
 
 std::vector <TString> inputFiles;
@@ -12,8 +14,9 @@ std::vector <TString> inputFiles;
 void PrintHelp( )
 {
     cout << endl;
-    cout << "Usage : ./restPlots --c CONFIG_FILE --n SECTION_NAME --f INPUT_FILE" << endl;
+    cout << "Usage : ./restPlots --c CONFIG_FILE [--n SECTION_NAME] --f INPUT_FILE [--r HISTOS_FILE.root] [--p PDF_PLOTS.pdf]" << endl;
     cout << endl;
+    cout << " Fields between [] are optional. " << endl;
     cout << "-----------------------------------------------------------------------------------" << endl;
     cout << " CONFIG_FILE : RML configuration file containing at least one analysisPlot section." << endl;
     cout << " If config file is not provided the configuration file will be taken from " << endl;
@@ -25,6 +28,11 @@ void PrintHelp( )
     cout << "-----------------------------------------------------------------------------------" << endl;
     cout << " INPUT_FILE : Input file name. It can be also specified from the analysisPlot " << endl;
     cout << " section using addFile key. " << endl;
+    cout << "-----------------------------------------------------------------------------------" << endl;
+    cout << " HISTOS_FILE : The ROOT filename where histograms will be saved. " << endl;
+    cout << " Histograms are by default saved at /tmp/histos.root. " << endl;
+    cout << "-----------------------------------------------------------------------------------" << endl;
+    cout << " PDF_PLOTS : The PDF filename where the generated canvas will be saved. " << endl;
     cout << endl;
     cout << " You can also specify a file input range using the shell *,? characters as in ls." << endl;
     cout << " For example : \"Run_simulation_*.root\". " << endl;
@@ -75,6 +83,8 @@ int main( int argc, char *argv[] )
 					{
 						case 'c' : sprintf( cfgFileName, "%s", argv[i+1] ); break;
 						case 'n' : sprintf( sectionName, "%s", argv[i+1] ); break;
+						case 'p' : saveToPDFFile = argv[i+1]; break;
+						case 'r' : saveToROOTFile = argv[i+1]; break;
 						case 'f' : 
 							   {
 								   sprintf( iFile, "%s", argv[i+1] );
@@ -129,6 +139,12 @@ int main( int argc, char *argv[] )
 	}
 
 	TRestAnalysisPlot *anPlot = new TRestAnalysisPlot( cfgFileName, sectionName );
+
+	if( saveToPDFFile != "" )
+		anPlot->SetOutputPlotsFilename( saveToPDFFile );
+
+	if( saveToROOTFile  != "" )
+		anPlot->SetOutputHistosFilename( saveToROOTFile );
 
 	for( unsigned int n = 0; n < inputFilesNew.size(); n++ )
 	{

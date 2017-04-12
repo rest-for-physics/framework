@@ -169,6 +169,26 @@
 ///
 /// This link is made by definning the *nameref* and *file* fields in the section definition. It is
 /// still important to close the section definition using </section>.
+///
+/// ### Including an external text file inside an RML section
+///
+/// We can also include an external file content **inside** a section. The contents of the external
+/// file will be dumped inside the section and replace the <include statement used to include the file.
+///
+/// As in the following example:
+///
+/// \code
+/// <section TRestXX .... >
+///
+/// ...
+///
+/// <include file="/full/path/file.xml" />
+///
+/// ...
+///
+/// </section>
+///
+/// \endcode
 /// 
 /// ### The globals section
 ///
@@ -637,6 +657,16 @@ bool TRestMetadata::isRootFile( const std::string& filename )
 }
 
 ///////////////////////////////////////////////
+/// \brief Returns true if the **path** given by argument is writable 
+///
+bool TRestMetadata::isPathWritable( const std::string& path )
+{
+    int result = access(path.c_str(), W_OK);
+    if (result == 0) return true;
+    else return false;
+}
+
+///////////////////////////////////////////////
 /// \brief Sets the default configuration path. The default is empty. 
 ///
 /// If the default configuration path is set (by calling this method) the config file must 
@@ -690,8 +720,10 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
     // We define environment variables that have validity only during execution
     size_t p = 0;
     configBuffer = GetKEYStructure( "environment", p, temporalBuffer );
+         
     if( configBuffer != "" )
     {
+        configBuffer = ReplaceIncludeDefinitions( configBuffer );
         p = 0;
         while( p != string::npos ) SetEnvVariable( p );
     }
@@ -704,6 +736,7 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
     if( configBuffer != "" )
     {
 
+	configBuffer = ReplaceIncludeDefinitions( configBuffer );
         // We extract the values from globals. 
         // Globals will not be stored but they will be used by the REST framework during execution
 
@@ -736,6 +769,11 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
             fVerboseLevel = REST_Debug;
             cout << "Setting verbose level to debug : " << fVerboseLevel << endl;
         }
+        else if ( vLevelString == "extreme" )
+        {
+            fVerboseLevel = REST_Extreme;
+            cout << "Setting verbose level to extreme : " << fVerboseLevel << endl;
+        }
     }
 
     // Then we just extract the corresponding section defined in the derived class (fSectionName)
@@ -754,6 +792,8 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
     }
 
     configBuffer = GetKEYStructure( "section", sectionPosition, temporalBuffer );
+
+    configBuffer = ReplaceIncludeDefinitions( configBuffer );
 
     string sectionDefinition = GetKEYDefinition( "section", configBuffer );
 
@@ -792,6 +832,8 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
        fVerboseLevel = REST_Warning;
     if ( debugStr == "debug" )
        fVerboseLevel = REST_Debug;
+    if ( debugStr == "extreme" )
+       fVerboseLevel = REST_Extreme;
 
     if( configBuffer == "" )
     {
@@ -1063,9 +1105,59 @@ string TRestMetadata::EvaluateExpression( string exp )
 }
 
 ///////////////////////////////////////////////
+/// \brief Identifies include definitions inside the RML, and replaces it by the content in the referenced file
+///
+/// RML definition : <include file="includeFile.xml" />
+///
+string TRestMetadata::ReplaceIncludeDefinitions( const string buffer )
+{
+    string outputBuffer = buffer;
+
+    size_t pos = 0;
+    string includeString;
+    do
+    {
+        includeString = GetKEYDefinition( "include", pos, outputBuffer );
+
+        if( includeString.length() == 0 ) break;
+
+        if( includeString.length() > 0 )
+            includeString += ">";
+
+        string fileName = GetFieldValue( "file", includeString );
+        fileName = ReplaceEnvironmentalVariables( fileName );
+
+        if( fileName != "Not defined" )
+        {
+            if( !fileExists( fileName ) )
+            {
+                cout << "REST WARNING. TRestMetadata::ReplaceIncludeDefinitions." << endl;
+                cout << "File : " << fileName << " not found!" << endl;
+            }
+            else
+            {
+                string temporalBuffer;
+                string line;
+                ifstream file(fileName);
+                while(getline(file, line)) temporalBuffer += line;
+
+                string outputNow;
+                size_t pos2 = 0;
+                outputNow = Replace( outputBuffer, includeString, temporalBuffer, pos2 ); 
+                outputBuffer = outputNow;
+            }
+        }
+
+    }
+    while( includeString.length() > 0 );
+
+    return outputBuffer;
+}
+
+///////////////////////////////////////////////
 /// \brief Identifies enviromental variable definitions inside the RML and substitutes them by their value.
 ///
-/// Enviromental variables inside RML can be used by placing the variable name between brackets {VARIABLE_NAME} or ${VARIABLE_NAME}
+/// Enviromental variables inside RML can be used by placing the variable name between brackets with the following nomenclature ${VARIABLE_NAME}
 ///
 string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
 {
@@ -1104,26 +1196,22 @@ string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
 
     while ( ( startPosition = outputBuffer.find( "{", endPosition ) ) != (int) string::npos )
     {
-        char envValue[256];
         endPosition = outputBuffer.find( "}", startPosition+1 );
         if( endPosition == (int) string::npos ) break;
 
         string expression = outputBuffer.substr( startPosition+1, endPosition-startPosition-1 );
 
-        if( getenv( expression.c_str() ) != NULL )
-        {
-            sprintf( envValue, "%s", getenv( expression.c_str() ) );
+        cout << "------------------------------------------------------------------------------" << endl;
+        cout << "REST Warning!!" << " Section name : " << fSectionName << endl;
+        cout << "Environment variables should be defined now using the following format ${VAR}" << endl;
+        cout << "Please, if the definition {" << expression << "} inside the RML, is an environment" << endl;
+        cout << "variable, replace it by ${" << expression << "}" << endl;
+        cout << "------------------------------------------------------------------------------" << endl;
 
-            outputBuffer.replace( startPosition, endPosition-startPosition+1,  envValue );
-
-            endPosition -= ( endPosition - startPosition + 1 );
-        }
-        else
+        if( GetVerboseLevel() >= REST_Extreme )
         {
-            sprintf( envValue, " " );
-            cout << "REST ERROR :: In config file " << fConfigFilePath << fConfigFileName << endl;
-            cout << "Environmental variable " << expression << " is not defined" << endl; 
-            exit(1);
+            cout << "To avoid this issue requesting a key stroke you must define the verboseLevel below extreme." << endl;
+            GetChar();
         }
     }
 
@@ -1285,7 +1373,7 @@ void TRestMetadata::SetEnvVariable( size_t &pos )
 
         if( oWrite == "true" ) oWriteInt = 1;
 
-        setenv( GetFieldValue( "name", envString).c_str() , GetFieldValue( "value", envString ).c_str(), oWriteInt );
+        setenv( GetFieldValue( "name", envString).c_str() , ReplaceEnvironmentalVariables( GetFieldValue( "value", envString ) ).c_str(), oWriteInt );
     }
 }
 
@@ -2017,6 +2105,23 @@ string TRestMetadata::GetKEYDefinition( string keyName, size_t &fromPosition, st
 
     fromPosition = endPos;
 
+    Int_t notDefinitionEnd = 1;
+
+    while( notDefinitionEnd )
+    {
+        // We might find a problem when we insert > symbol inside a field value.
+        // As for example: condition=">100" This patch checks if the definition 
+        // finishes in "= If it is the case it searches the next > symbol ending 
+        // the definition.
+
+        string def = RemoveWhiteSpaces ( buffer.substr( startPos, endPos-startPos ) );
+
+        if( (TString) def[def.length()-1] == "\"" && (TString) def[def.length()-2] == "=" ) 
+            endPos = configBuffer.find( ">", endPos+1 );
+        else
+            notDefinitionEnd = 0;
+    }
+
     return buffer.substr( startPos, endPos-startPos );
 
 }
@@ -2107,7 +2212,7 @@ string TRestMetadata::GetKEYStructure( string keyName, size_t &fromPosition )
 
     if( initPos == string::npos ) { if( debug ) cout << "KEY not found!!" << endl; return "NotFound"; }
 
-    size_t endPos = configBuffer.find( endKEY, position );
+    size_t endPos = configBuffer.find( endKEY, initPos );
 
     if( endPos == string::npos  ) { if( debug ) cout << "END KEY not found!!" << endl; return "NotFound"; }
 

@@ -31,6 +31,7 @@ class TRestAnalysisPlot:public TRestMetadata {
         TCanvas *fCombinedCanvas;
 
         TString fPlotMode;
+        TString fHistoOutputFile;
         TVector2 fCanvasSize;
         TVector2 fCanvasDivisions;
         TString fCanvasSave;
@@ -40,8 +41,12 @@ class TRestAnalysisPlot:public TRestMetadata {
         std::vector <TString> fPlotYLabel;
         std::vector <Bool_t> fLogScale;
         std::vector <TString> fPlotTitle;
+        std::vector <TString> fPlotOption;
         std::vector <TString> fPlotString;
         std::vector <TString> fCutString;
+
+	Double_t fStartTime;
+	Double_t fEndTime;
 
 #endif
 
@@ -54,6 +59,9 @@ class TRestAnalysisPlot:public TRestMetadata {
         void Initialize( );
 
         void PrintMetadata( ) { }
+
+	void SetOutputPlotsFilename( TString fname ) { fCanvasSave = fname; }
+	void SetOutputHistosFilename( TString fname ) { fHistoOutputFile = fname; }
 
         void AddFile( TString fileName ) { fFileNames.push_back( fileName ); fNFiles++; }
 

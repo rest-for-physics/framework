@@ -65,6 +65,7 @@ class TRestHitsEvent : public TRestEvent
         Double_t GetTotalEnergy() { return fHits->fTotEnergy; }
         Double_t GetEnergy() { return fHits->fTotEnergy; }
 
+	TPad *DrawEvent( TString option = "" ) { std::cout << "TRestHitsEvent::DrawEvent not implemented. TODO" << std::endl; return NULL; }
 
         //Construtor
         TRestHitsEvent();

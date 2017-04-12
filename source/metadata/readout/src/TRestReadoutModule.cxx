@@ -86,8 +86,8 @@ void TRestReadoutModule::DoReadoutMapping( Int_t nodes )
         nodes = 2*nodes;
     }
 
-    cout << "Performing readout mapping optimization (This might take few seconds)" << endl;
-    cout << "---------------------------------------------------------------------" << endl;
+    cout << "Performing readout mapping optimization (This might require long computation time)" << endl;
+    cout << "----------------------------------------------------------------------------------" << endl;
     cout << "Total number of pixels : " << totalNumberOfPixels << endl;
     cout << "Nodes : " << nodes << endl;
 
@@ -109,8 +109,11 @@ void TRestReadoutModule::DoReadoutMapping( Int_t nodes )
     }
 
     for( int i = 0; i < nodes; i++ )
+    {
         for( int j = 0; j < nodes; j++ )
         {
+            printf("Completed : %.2lf %%\r", 100. * (i * (Double_t) nodes + j) / nodes/nodes );
+            fflush(stdout);
             Double_t x = fMapping.GetX( i );
             Double_t y = fMapping.GetY( j );
             Double_t xAbs = TransformToPhysicalCoordinates( x, y ).X();
@@ -130,6 +133,7 @@ void TRestReadoutModule::DoReadoutMapping( Int_t nodes )
                 }
             }
         }
+    }
 
     if( !fMapping.AllNodesSet( ) ) cout << "Not all nodes set" << endl;
     else cout << "All Nodes set" << endl;

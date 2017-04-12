@@ -89,7 +89,7 @@ class TRestSignalEvent: public TRestEvent {
         void Initialize();
         void PrintEvent();
 
-        TPad *DrawEvent();
+        TPad *DrawEvent( TString option = "" );
 
         //Construtor
         TRestSignalEvent();

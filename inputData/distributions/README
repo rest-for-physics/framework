@@ -4,6 +4,22 @@
 // Author : Gloria Luzon
 // Date : 2-Feb-2016
 /////////////////////////////////////////////////////////
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+File : NeutronSources.root
+Histograms : AmBe
+Description : It contains the energy distribution for Am241Be neutron emission (normalized) created using the ISO 8529-2 recommended 241Am-Be spectrum
+	-AmBe: Neutron spectrum in Mev
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+File : Tritium.root
+Histograms : h3
+Description : It contains the energy distribution for Tritium emission (normalized) created using the beta decay formula where nuclear effect have been neglected. N~ sqrte(E² +2*511*E)*(18.591-E)²*(E+511)
+	-h3 : Tritium decay spectrum in keV
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 File : CosmicGammas.root

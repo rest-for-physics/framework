@@ -78,6 +78,9 @@ class TRestRun:public TRestMetadata {
         TString tmpOutputFileName;
         TString tmpOutputDataPath;
         TString tmpInputFileName;
+        TString tmpRunType;
+        TString tmpRunTag;
+        TString tmpExperimentName;
 
         TTree *fInputEventTree;
         TTree *fOutputEventTree;
@@ -92,6 +95,8 @@ class TRestRun:public TRestMetadata {
         TFile *fOutputFile;
         
         Int_t fCurrentEvent;
+
+	Bool_t fReadOnly;
 #endif
 
         Int_t fProcessedEvents;
@@ -101,6 +106,7 @@ class TRestRun:public TRestMetadata {
         vector <TString> fSubEventTagList;
 
         void SetRunFilenameAndIndex();
+
         TKey *GetObjectKeyByClass( TString className );
         TKey *GetObjectKeyByName( TString name );
 
@@ -162,6 +168,10 @@ class TRestRun:public TRestMetadata {
         Int_t GetEventID( Int_t entry ) { return fEventIDs[entry]; }
         Int_t GetSubEventID( Int_t entry ) { return fSubEventIDs[entry]; }
         TString GetSubEventTag( Int_t entry ) { return fSubEventTags[entry]; }
+
+        TString GetInputEventName( );
+
+        void PrintEvent (  ) { fInputEvent->PrintEvent( ); }
 
         Int_t GetEntry( Int_t i )
         {
@@ -296,7 +306,6 @@ class TRestRun:public TRestMetadata {
 	
 	
         //Setters
-
         void AddMetadata( TRestMetadata *metadata ) { fMetadata.push_back( metadata ); metadata->PrintMetadata(); }
         void AddHistoricMetadata( TRestMetadata *metadata ) { fHistoricMetadata.push_back( metadata ); }
         void AddProcess( TRestEventProcess *process, std::string cfgFilename, std::string name = "" );

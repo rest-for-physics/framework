@@ -20,7 +20,8 @@
 class TRestFindTrackBlobsProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
-        TRestTrackEvent *fTrackEvent;
+        TRestTrackEvent *fInputTrackEvent;
+        TRestTrackEvent *fOutputTrackEvent;
 
         std::vector <std::string> fQ1_Observables;
         std::vector <double> fQ1_Radius;

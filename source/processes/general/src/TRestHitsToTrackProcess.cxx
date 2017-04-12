@@ -100,55 +100,41 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
 
     fHitsEvent = (TRestHitsEvent *) evInput;
 
+    if( GetVerboseLevel() >= REST_Debug )
+        cout << "TResHitsToTrackProcess : nHits "  << fHitsEvent->GetNumberOfHits() << endl;
 
-    cout << "----------------------" << endl;
-    cout << "Number of hits : " << fHitsEvent->GetNumberOfHits() << endl;
-
-
-    /* Debugging output
-    fHitsEvent->PrintEvent();
-    getchar();
-    */
 
     TRestHits *xzHits = fHitsEvent->GetXZHits();
-    cout << "Number of xzHits : " <<  xzHits->GetNumberOfHits() << endl;
+
+    if( GetVerboseLevel() >= REST_Debug )
+        cout << "TRestHitsToTrackProcess : Number of xzHits : " <<  xzHits->GetNumberOfHits() << endl;
     Int_t xTracks = FindTracks( xzHits );
 
     fTrackEvent->SetNumberOfXTracks( xTracks );
 
     TRestHits *yzHits = fHitsEvent->GetYZHits();
-    cout << "Number of yzHits : " <<  yzHits->GetNumberOfHits() << endl;
+    if( GetVerboseLevel() >= REST_Debug )
+        cout << "TRestHitsToTrackProcess : Number of yzHits : " <<  yzHits->GetNumberOfHits() << endl;
     Int_t yTracks = FindTracks( yzHits );
 
     fTrackEvent->SetNumberOfYTracks( yTracks );
 
     TRestHits *xyzHits = fHitsEvent->GetXYZHits();
-    cout << "Number of xyzHits : " <<  xyzHits->GetNumberOfHits() << endl;
+    if( GetVerboseLevel() >= REST_Debug )
+        cout << "TRestHitsToTrackProcess : Number of xyzHits : " <<  xyzHits->GetNumberOfHits() << endl;
 
     FindTracks( xyzHits );
 
-    cout << "X tracks : " << xTracks << "  Y tracks : " << yTracks << endl;
-    cout << "Total number of tracks : " << fTrackEvent->GetNumberOfTracks() << endl;
-
-
-    /* Debugging output
-    cout << "Tracks in X : " << fTrackEvent->GetNumberOfXTracks() << endl;
-    cout << "Tracks in Y : " << fTrackEvent->GetNumberOfYTracks() << endl;
-    cout <<  " Tracks : " << fTrackEvent->GetNumberOfTracks() << endl;
-
-    cout<<"***********************"<<endl;
-    */
-
-    /* Time measurement
-    high_resolution_clock::time_point t2 = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>( t2 - t1 ).count();
-    cout << duration << " us" << endl;
-    getchar();
-    */
+    if( GetVerboseLevel() >= REST_Debug )
+    {
+        cout << "TRestHitsToTrackProcess. X tracks : " << xTracks << "  Y tracks : " << yTracks << endl;
+        cout << "TRestHitsToTrackProcess. Total number of tracks : " << fTrackEvent->GetNumberOfTracks() << endl;
+    }
 
     if( fTrackEvent->GetNumberOfTracks() == 0 ) return NULL;
 
-    //fTrackEvent->PrintOnlyTracks();
+    if( GetVerboseLevel() >= REST_Debug )
+        fTrackEvent->PrintOnlyTracks();
 
     fTrackEvent->SetLevels();
 

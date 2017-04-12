@@ -176,7 +176,7 @@ Double_t TRestSignal::GetAverage( Int_t start, Int_t end )
     {
         sum += this->GetData(i);
     }
-    return sum/(end-start);
+    return sum/(end-start+1);
 }
 
 Int_t TRestSignal::GetMaxPeakWidth()

@@ -6,8 +6,8 @@
 
     <!-- Here you can add as many files as you want through a config file using addFile -->
     <!--
-    <addFile name="{REST_INPUT_FILE}" />
-    <addFile name="{REST_INPUT_FILE2}" />
+    <addFile name="${REST_INPUT_FILE}" />
+    <addFile name="${REST_INPUT_FILE2}" />
     -->
 
     <parameter name="plotMode" value="compare" > <!-- plotModes available : compare, add -->

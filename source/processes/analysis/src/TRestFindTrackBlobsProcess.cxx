@@ -36,7 +36,8 @@ TRestFindTrackBlobsProcess::TRestFindTrackBlobsProcess( char *cfgFileName )
 //______________________________________________________________________________
 TRestFindTrackBlobsProcess::~TRestFindTrackBlobsProcess()
 {
-    delete fTrackEvent;
+    delete fInputTrackEvent;
+    delete fOutputTrackEvent;
 }
 
 void TRestFindTrackBlobsProcess::LoadDefaultConfig()
@@ -49,10 +50,11 @@ void TRestFindTrackBlobsProcess::Initialize()
 {
     SetSectionName( this->ClassName() );
 
-    fTrackEvent = new TRestTrackEvent();
+    fInputTrackEvent = new TRestTrackEvent();
+    fOutputTrackEvent = new TRestTrackEvent();
 
-    fOutputEvent = fTrackEvent;
-    fInputEvent = fTrackEvent;
+    fOutputEvent = fOutputTrackEvent;
+    fInputEvent  = fInputTrackEvent;
 
     fHitsToCheckFraction = 0.2;
 }
@@ -92,19 +94,23 @@ void TRestFindTrackBlobsProcess::InitProcess()
 //______________________________________________________________________________
 void TRestFindTrackBlobsProcess::BeginOfEventProcess() 
 {
+    fOutputTrackEvent->Initialize();
 }
 
 //______________________________________________________________________________
 TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent( TRestEvent *evInput )
 {
-    *fTrackEvent =  *(( TRestTrackEvent *) evInput);
+    fInputTrackEvent = (TRestTrackEvent *) evInput;
 
-    TRestTrack *longTrack = fTrackEvent->GetLongestTopLevelTrack();
+    // Copying the input tracks to the output track
+    for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
+        fOutputTrackEvent->AddTrack( fInputTrackEvent->GetTrack(tck) ); 
+
+    TRestTrack *longTrack = fInputTrackEvent->GetLongestTopLevelTrack();
     if( longTrack == NULL ) 
     { 
         cout << "REST Warning. TRestFindTrackBlobsProcess. Long track not found." << endl;
-        fTrackEvent->PrintEvent();
- //       GetChar();
+        fInputTrackEvent->PrintEvent();
         return NULL;
     }
 
@@ -171,7 +177,7 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent( TRestEvent *evInput )
 
     // We get the hit blob energy from the origin track (not from the reduced track)
     Int_t longTrackId = longTrack->GetTrackID();
-    TRestTrack *originTrack = fTrackEvent->GetOriginTrackById( longTrackId );
+    TRestTrack *originTrack = fInputTrackEvent->GetOriginTrackById( longTrackId );
     TRestHits *originHits = (TRestHits *) ( originTrack->GetVolumeHits() );
     
     for( unsigned int n = 0; n < fQ1_Observables.size(); n++ )
@@ -190,7 +196,7 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent( TRestEvent *evInput )
         fAnalysisTree->SetObservableValue( obsName, q );
     }
 
-    return fTrackEvent;
+    return fOutputTrackEvent;
 }
 
 //______________________________________________________________________________

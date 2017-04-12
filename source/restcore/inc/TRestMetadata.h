@@ -46,7 +46,7 @@ const int PARAMETER_NOT_FOUND_INT = -99999999;
 const double PARAMETER_NOT_FOUND_DBL = -99999999;
 const TString PARAMETER_NOT_FOUND_STR = "-99999999";
 
-enum REST_Verbose_Level {REST_Silent, REST_Warning, REST_Info, REST_Debug };
+enum REST_Verbose_Level {REST_Silent, REST_Warning, REST_Info, REST_Debug, REST_Extreme };
 
 //! A base class for any REST metadata class
 class TRestMetadata:public TNamed {
@@ -128,6 +128,7 @@ class TRestMetadata:public TNamed {
 
         std::string ExpandForLoops( std::string buffer );
         std::string ReplaceMathematicalExpressions( std::string buffer );
+	std::string ReplaceIncludeDefinitions( const string buffer );
         std::string ReplaceEnvironmentalVariables( const std::string buffer );
         std::string ExtractLoopStructure( std::string in, size_t pos );
         std::string RemoveComments( string in );
@@ -184,6 +185,7 @@ class TRestMetadata:public TNamed {
         static Int_t Count( std::string s, std::string sbstring);
         static bool fileExists( const std::string& filename );
         static bool isRootFile( const std::string& filename ); 
+        static bool isPathWritable( const std::string& path );
 
         /// Calling this method will ask the user to press a key to continue
         static void GetChar(){ cout << "Press a KEY to continue ..." << endl; getchar(); }

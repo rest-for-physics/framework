@@ -5,29 +5,29 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestSignalAnalysisProcess.h
+///             TRestRawSignalAnalysisProcess.h
 ///
 ///_______________________________________________________________________________
 
 
-#ifndef RestCore_TRestSignalAnalysisProcess
-#define RestCore_TRestSignalAnalysisProcess
+#ifndef RestCore_TRestRawSignalAnalysisProcess
+#define RestCore_TRestRawSignalAnalysisProcess
 
 #include <TH1D.h>
 
-#include <TCanvas.h>
+//#include <TCanvas.h>
 
 #include <TRestGas.h>
 #include <TRestReadout.h>
-#include <TRestSignalEvent.h>
+#include <TRestRawSignalEvent.h>
 #include <TRestHitsEvent.h>
 
 #include "TRestEventProcess.h"
 
-class TRestSignalAnalysisProcess:public TRestEventProcess {
+class TRestRawSignalAnalysisProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
-        TRestSignalEvent *fSignalEvent;
+        TRestRawSignalEvent *fSignalEvent;
         // TODO We must get here a pointer to TRestDaqMetadata
         // In order to convert the parameters to time using the sampling time
         TRestReadout *fReadout;
@@ -35,7 +35,7 @@ class TRestSignalAnalysisProcess:public TRestEventProcess {
         Double_t fFirstEventTime;
         vector <Double_t> fPreviousEventTime;
 
-        TCanvas *fCanvas;
+        //TCanvas *fCanvas;
         vector <TObject *> fDrawingObjects;
         Double_t fDrawRefresh;
 
@@ -116,15 +116,15 @@ class TRestSignalAnalysisProcess:public TRestEventProcess {
             EndPrintProcess();
         }
 
-        TString GetProcessName() { return (TString) "signalAnalysis"; }
+        TString GetProcessName() { return (TString) "rawSignalAnalysis"; }
 
         //Constructor
-        TRestSignalAnalysisProcess();
-        TRestSignalAnalysisProcess( char *cfgFileName );
+        TRestRawSignalAnalysisProcess();
+        TRestRawSignalAnalysisProcess( char *cfgFileName );
         //Destructor
-        ~TRestSignalAnalysisProcess();
+        ~TRestRawSignalAnalysisProcess();
 
-        ClassDef(TRestSignalAnalysisProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+        ClassDef(TRestRawSignalAnalysisProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
 };
 #endif
 

@@ -103,9 +103,13 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     Double_t tckLenX = 0;
     Double_t tckLenY = 0;
+    Double_t tckLenXYZ=0;
+    Double_t tckMaxLenXYZ=0;
+    Double_t tckMaxEnXYZ=0;
     Int_t nTracksX = 0;
     Int_t nTracksY = 0;
     Int_t nTracksXYZ = 0;
+    Double_t maxX = 0, maxY = 0, maxZ = 0;;
 
     for( unsigned int n = 0; n < nTracks_HE.size(); n++ )
         nTracks_HE[n] = 0;
@@ -137,7 +141,20 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
             }
         }
 
-        if( t->isXYZ() ) nTracksXYZ++;
+        if( t->isXYZ() )
+        {
+            nTracksXYZ++;
+            tckLenXYZ += t->GetTrackLength();
+            if(en> tckMaxEnXYZ)  
+            {
+                tckMaxEnXYZ=en;
+                tckMaxLenXYZ= t->GetTrackLength();
+                maxX = t->GetMeanPosition().X();
+                maxY = t->GetMeanPosition().Y();
+                maxZ = t->GetMeanPosition().Z();
+            }
+        }
+
 
         for( unsigned int n = 0; n < fTrack_HE_EnergyObservables.size(); n++ )
             if( en > fTrack_HE_Threshold[n] )
@@ -166,19 +183,19 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     if( fCutsEnabled )
     {
-	    if( nTracksX < fNTracksXCut.X() || nTracksX > fNTracksXCut.Y() ) return NULL;
-	    if( nTracksY < fNTracksYCut.X() || nTracksY > fNTracksYCut.Y() ) return NULL;
+        if( nTracksX < fNTracksXCut.X() || nTracksX > fNTracksXCut.Y() ) return NULL;
+        if( nTracksY < fNTracksYCut.X() || nTracksY > fNTracksYCut.Y() ) return NULL;
     }
 
     Double_t x = 0, y = 0;
 
     TRestTrack *tX = fTrackEvent->GetMaxEnergyTrackInX();
     if( tX != NULL )
-	    x = tX->GetMeanPosition().X();
+        x = tX->GetMeanPosition().X();
 
     TRestTrack *tY = fTrackEvent->GetMaxEnergyTrackInY();
     if( tY != NULL )
-	    y = tY->GetMeanPosition().Y();
+        y = tY->GetMeanPosition().Y();
 
     obsName = this->GetName() + (TString) ".xMean";
     fAnalysisTree->SetObservableValue( obsName, x );
@@ -200,6 +217,20 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     obsName = this->GetName() + (TString) ".nTracksXYZ";
     fAnalysisTree->SetObservableValue( obsName, nTracksXYZ );
+    obsName = this->GetName() + (TString) ".LengthXYZ";
+    fAnalysisTree->SetObservableValue( obsName, nTracksXYZ );
+    obsName = this->GetName() + (TString) ".MaxLengthXYZ";
+    fAnalysisTree->SetObservableValue( obsName, tckMaxLenXYZ );
+    obsName = this->GetName() + (TString) ".MaxEnXYZ";
+    fAnalysisTree->SetObservableValue( obsName, tckMaxEnXYZ );
+
+    obsName = this->GetName() + (TString) ".maxXMean";
+    fAnalysisTree->SetObservableValue( obsName, maxX );
+
+    obsName = this->GetName() + (TString) ".maxYMean";
+    fAnalysisTree->SetObservableValue( obsName, maxY );
+    obsName = this->GetName() + (TString) ".maxZMean";
+    fAnalysisTree->SetObservableValue( obsName, maxZ );
 
     for( unsigned int n = 0; n < fTrack_LE_EnergyObservables.size(); n++ )
     {

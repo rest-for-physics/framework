@@ -24,7 +24,7 @@
 #define RestCore_TRestRawToSignalProcess
 
 #include "TRestEventProcess.h"
-#include "TRestSignalEvent.h"
+#include "TRestRawSignalEvent.h"
 #include <TRestDetectorSetup.h>
 
 class TRestRawToSignalProcess:public TRestEventProcess {
@@ -40,14 +40,14 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    Double_t tStart;
    int totalBytesReaded;
 
-   Bool_t fRejectNoise;
-   
-   TRestSignalEvent *fSignalEvent;
+   TRestRawSignalEvent *fSignalEvent;
    #ifndef __CINT__
    FILE *fInputBinFile;
 
    Int_t fRunOrigin;
    Int_t fSubRunOrigin;
+
+   TString fFilenameFormat;
    #endif
    
    void LoadDefaultConfig();
@@ -61,6 +61,8 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    virtual void EndOfEventProcess();
    virtual TString GetProcessName()=0;
    TRestMetadata *GetProcessMetadata() { return NULL; }
+
+   TString GetFilenameFormat() { return fFilenameFormat; }
 
    void LoadConfig( std::string cfgFilename, std::string name = "" );
 

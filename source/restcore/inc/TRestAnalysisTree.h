@@ -77,6 +77,8 @@ class TRestAnalysisTree:public TTree {
         TString GetObservableDescription( Int_t n ) { return fObservableDescriptions[n]; }
         Double_t GetObservableValue( Int_t n ) { return fObservableValues[n]; } // TODO implement error message in case n >= fNObservables
 
+	Double_t GetObservableValue ( TString obsName ) { return this->GetObservableValue( this->GetObservableID( obsName ) ); }
+
         void SetObservableValue( Int_t n, Double_t value ) {  fObservableValues[n] = value; }
 
         void SetObservableValue( TString obsName, Double_t value )

@@ -55,7 +55,7 @@ void TRestRawToSignalProcess::LoadConfig( string cfgFilename, string name )
 void TRestRawToSignalProcess::Initialize()
 {
     SetSectionName( this->ClassName() );
-    fSignalEvent = new TRestSignalEvent( );
+    fSignalEvent = new TRestRawSignalEvent( );
 
     fInputEvent = NULL;
     fOutputEvent = fSignalEvent;
@@ -63,9 +63,9 @@ void TRestRawToSignalProcess::Initialize()
 
     fMinPoints = 512;
 
-    fRejectNoise = false;
-
     fIsExternal = true;
+
+    fFilenameFormat = "";
 }
 
 void TRestRawToSignalProcess::BeginOfEventProcess() 
@@ -76,17 +76,14 @@ void TRestRawToSignalProcess::BeginOfEventProcess()
 
 void TRestRawToSignalProcess::InitFromConfigFile(){
 
-   if( GetParameter( "rejectNoise", "OFF" ) == "ON" ) 
+   fElectronicsType = GetParameter("electronics");
+   fMinPoints = StringToInteger( GetParameter("minPoints", "512" ) );
+   fFilenameFormat = GetParameter("fileFormat");
+   if(fElectronicsType=="")
    {
-	cout << "RAWToSignalProcess : Activating noise rejection" << endl;
-	fRejectNoise = true;
+       cout << "electronic type not found " << endl;
+       LoadDefaultConfig();
    }
-fElectronicsType = GetParameter("electronics");
- fMinPoints = StringToInteger( GetParameter("minPoints", "512" ) );
-  if(fElectronicsType==""){
-  cout<<"electronic type not found "<<endl;
-  LoadDefaultConfig();
-  }
 
   if(fElectronicsType=="AFTER"||fElectronicsType=="AGET")return;
   LoadDefaultConfig();

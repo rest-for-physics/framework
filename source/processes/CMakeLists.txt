@@ -2,7 +2,7 @@
 file(GLOB ProcessesGeneral
         "general/src/*.cxx"
         )
-    set(CLASS_DICT  TRestElectronDiffusionProcess TRestHitsReductionProcess TRestHitsShuffleProcess TRestHitsToSignalProcess TRestHitsToTrackProcess TRestFastHitsToTrackProcess TRestSignalToHitsProcess
+    set(CLASS_DICT  TRestElectronDiffusionProcess TRestFiducializationProcess TRestHitsReductionProcess TRestHitsShuffleProcess TRestHitsToSignalProcess TRestHitsToTrackProcess TRestFastHitsToTrackProcess TRestSignalToHitsProcess TRestSignalZeroSuppresionProcess
         TRestTrackReductionProcess TRestTrackPathMinimizationProcess TRestTrackReconnectionProcess TRestTrackLinearizationProcess
         TRestAvalancheProcess TRestHitsRotateAndTraslateProcess TRestSmearingProcess TRestHitsNormalizationProcess TRestG4toHitsProcess )
 foreach (CLASS ${CLASS_DICT})
@@ -17,7 +17,7 @@ endforeach (CLASS)
 file(GLOB ProcessesAnalysis
         "analysis/src/*.cxx"
         )
-    set(CLASS_DICT TRestGeant4AnalysisProcess TRestSignalAnalysisProcess TRestFindG4BlobAnalysisProcess TRestTrackAnalysisProcess TRestTriggerAnalysisProcess TRestHitsAnalysisProcess TRestPointLikeAnaProcess TRestPointLikeTrackAnaProcess TRestFindTrackBlobsProcess)
+    set(CLASS_DICT TRestGeant4AnalysisProcess TRestRawSignalAnalysisProcess TRestSignalViewerProcess TRestRawSignalViewerProcess TRestFindG4BlobAnalysisProcess TRestTrackAnalysisProcess TRestTriggerAnalysisProcess TRestHitsAnalysisProcess TRestPointLikeAnaProcess TRestPointLikeTrackAnaProcess TRestFindTrackBlobsProcess)
 foreach (CLASS ${CLASS_DICT})
     set(ROOT_DICT_INCLUDE_DIRS ${REST_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
     set(ROOT_DICT_INPUT_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/analysis/inc/${CLASS}.h)
@@ -43,7 +43,7 @@ endforeach (CLASS)
 file(GLOB ProcessesSignal
         "signal/src/*.cxx"
         )
-set(CLASS_DICT TRestSignalDeconvolutionProcess TRestAddSignalNoiseProcess TRestSignalGaussianConvolutionProcess TRestSignalShapingProcess TRestSignalToRawSignalProcess)
+set(CLASS_DICT TRestSignalDeconvolutionProcess TRestAddSignalNoiseProcess TRestSignalGaussianConvolutionProcess TRestSignalShapingProcess TRestFindResponseSignalProcess TRestRawSignalToSignalProcess)
 foreach (CLASS ${CLASS_DICT})
     set(ROOT_DICT_INCLUDE_DIRS ${REST_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
     set(ROOT_DICT_INPUT_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/signal/inc/${CLASS}.h)

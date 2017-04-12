@@ -127,6 +127,12 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 
     Int_t isAttached;
 
+    Int_t totalElectrons = inputHitsEvent->GetEnergy() * REST_Units::eV/fWvalue;
+
+    Double_t wValue = fWvalue;
+    if( fMaxHits > 0 && totalElectrons > fMaxHits ) 
+        wValue = inputHitsEvent->GetEnergy() * REST_Units::eV / fMaxHits;
+
     for( int n = 0; n < nHits; n++ )
     {
         TRestHits *hits = inputHitsEvent->GetHits();
@@ -149,7 +155,14 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 
                     Double_t driftDistance = plane->GetDistanceTo( x, y, z );
 
-                    Int_t numberOfElectrons = (Int_t) (eDep*1000./fWvalue);
+                    Int_t numberOfElectrons = (Int_t) (eDep*REST_Units::eV/wValue);
+
+                    if( numberOfElectrons == 0 && eDep > 0 )
+                        numberOfElectrons = 1;
+
+                    Double_t localWValue = eDep*REST_Units::eV/numberOfElectrons;
+                    Double_t localEnergy = 0;
+
                     while( numberOfElectrons > 0 )
                     {
                         numberOfElectrons--;
@@ -171,10 +184,12 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 
                             zDiff = z + fRandom->Gaus( 0, longHitDiffusion );
 
-                            fOutputHitsEvent->AddHit( xDiff, yDiff, zDiff, 1. );
+                            localEnergy +=  localWValue * REST_Units::keV / REST_Units::eV;
+                            if( GetVerboseLevel() >= REST_Extreme )
+                                cout << "Adding hit. x : " << xDiff << " y : " << yDiff << " z : " << zDiff << " en : " << localWValue * REST_Units::keV / REST_Units::eV << " keV" << endl;
+                            fOutputHitsEvent->AddHit( xDiff, yDiff, zDiff, localWValue * REST_Units::keV / REST_Units::eV );
                         }
                     }
-
                 }
             }
         }
@@ -182,10 +197,14 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 
     if( fOutputHitsEvent->GetNumberOfHits() == 0 ) return NULL;
 
+
     if( this->GetVerboseLevel() >= REST_Debug ) 
     {
+        cout << "TRestElectronDiffusionProcess. Input hits energy : " << inputHitsEvent->GetEnergy() << endl;
         cout << "TRestElectronDiffusionProcess. Hits added : " << fOutputHitsEvent->GetNumberOfHits() << endl;
         cout << "TRestElectronDiffusionProcess. Hits total energy : " << fOutputHitsEvent->GetEnergy() << endl;
+        if( GetVerboseLevel() >= REST_Extreme )
+            GetChar();
     }
 
     return fOutputHitsEvent;
@@ -218,4 +237,5 @@ void TRestElectronDiffusionProcess::InitFromConfigFile( )
     fLonglDiffCoeff = StringToDouble( GetParameter( "longitudinalDiffusionCoefficient" , "0") );
     fTransDiffCoeff = StringToDouble( GetParameter( "transversalDiffusionCoefficient" , "0") );
     fWvalue = GetDblParameterWithUnits( "Wvalue" , 0) * REST_Units::eV;
+    fMaxHits = StringToInteger( GetParameter( "maxHits", "0" ) );
 }

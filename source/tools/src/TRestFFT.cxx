@@ -46,6 +46,14 @@ void TRestFFT::SetNfft( Int_t n )
 
 }
 
+Double_t TRestFFT::GetFrequencyNorm2( Int_t n )
+{
+    Double_t norm2 = fFrequencyReal.GetArray()[n] * fFrequencyReal.GetArray()[n] 
+		   + fFrequencyImg.GetArray()[n] * fFrequencyImg.GetArray()[n];
+
+    return norm2;
+}
+
 void TRestFFT::ForwardSignalFFT( TRestSignal *sgnl, Int_t fNStart, Int_t fNEnd )
 {
     
@@ -56,6 +64,45 @@ void TRestFFT::ForwardSignalFFT( TRestSignal *sgnl, Int_t fNStart, Int_t fNEnd )
     {
         fTimeReal[i-fNStart] = sgnl->GetData(i);
         fTimeImg[i-fNStart] = 0;
+    }
+
+    TVirtualFFT *forward = TVirtualFFT::FFT(1, &fNfft, "R2C");
+    forward->SetPointsComplex( fTimeReal.GetArray(), fTimeImg.GetArray() );
+    forward->Transform();
+
+    for( int i = 0; i < fNfft; i++ )
+        forward->GetPointComplex( i, fFrequencyReal.GetArray()[i], fFrequencyImg.GetArray()[i] );
+
+    delete forward;
+}
+
+void TRestFFT::BackwardFFT( )
+{
+
+    TVirtualFFT *backward = TVirtualFFT::FFT(1, &fNfft, "C2R");
+    backward->SetPointsComplex( fFrequencyReal.GetArray(), fFrequencyImg.GetArray() );
+    backward->Transform();
+
+    for ( int i = 0; i < fNfft; i++ )
+    {
+        backward->GetPointComplex(i, fTimeReal.GetArray()[i], fTimeImg.GetArray()[i]);
+        fTimeReal.GetArray()[i] /= fNfft;
+        fTimeImg.GetArray()[i] /= fNfft;
+    }
+
+    delete backward;
+}
+
+void TRestFFT::ProduceDelta( Int_t t_o, Int_t Nfft )
+{
+    SetNfft( Nfft );
+
+    for( int i = 0; i < fNfft; i++ )
+    {
+        fTimeReal[i] = 0;
+        fTimeImg[i] = 0;
+
+	if( i == t_o ) fTimeReal[i] = 1;
     }
 
     TVirtualFFT *forward = TVirtualFFT::FFT(1, &fNfft, "R2C");
@@ -80,7 +127,9 @@ void TRestFFT::MultiplyBy( TRestFFT *fftInput, Int_t from, Int_t to )
 {
     if( fftInput->GetNfft() != this->GetNfft() ) { cout << "Not the same N FFT" << endl; return; }
 
-    for( int i = from; i < to; i++ )
+    if( to == 0 ) to = GetNfft()/2;
+
+    for( int i = from; i < GetNfft()/2; i++ )
     {
         TComplex top( this->GetFrequencyAmplitudeReal(i), this->GetFrequencyAmplitudeImg(i) );
         TComplex bottom( fftInput->GetFrequencyAmplitudeReal(i), fftInput->GetFrequencyAmplitudeImg(i) );
@@ -92,32 +141,50 @@ void TRestFFT::MultiplyBy( TRestFFT *fftInput, Int_t from, Int_t to )
     }
 }
 
-void TRestFFT::DivideBy( TRestFFT *fftInput )
+void TRestFFT::DivideBy( TRestFFT *fftInput, Int_t from, Int_t to )
 {
     if( fftInput->GetNfft() != this->GetNfft() ) { cout << "Not the same N FFT" << endl; return; }
 
-    for( int i = 0; i < fNfft; i++ )
+    if( to == 0 ) to = GetNfft()/2;
+
+    for( int i = from; i < to; i++ )
     {
         TComplex top( this->GetFrequencyAmplitudeReal(i), this->GetFrequencyAmplitudeImg(i) );
         TComplex bottom( fftInput->GetFrequencyAmplitudeReal(i), fftInput->GetFrequencyAmplitudeImg(i) );
         TComplex cocient = top/bottom;
         fFrequencyReal.GetArray()[i] = cocient.Re();
         fFrequencyImg.GetArray()[i] = cocient.Im();
-    }
-}
-
-void TRestFFT::KillFrequencies( Int_t from, Int_t to )
-{
-    for( int i = from; i < to; i++ )
-    {
-        fFrequencyReal.GetArray()[i] = 0.;
-        fFrequencyImg.GetArray()[i] = 0.;
-
         fFrequencyReal.GetArray()[fNfft-i-1] = fFrequencyReal.GetArray()[i];
         fFrequencyImg.GetArray()[fNfft-i-1] = fFrequencyImg.GetArray()[i];
     }
+}
 
+void TRestFFT::ApplyResponse( TRestFFT *fftInput, Int_t cutOff )
+{
+    if( cutOff <= 0 ) cout << "TRestFFT::ApplyResponse. cutOff <= 0!!!" << endl;
+    DivideBy( fftInput, 0, cutOff );
 
+    Double_t normCutOff = GetFrequencyNorm2( cutOff-1 );
+    Double_t scaleFactor = normCutOff/GetFrequencyNorm2(cutOff);
+    scaleFactor = TMath::Sqrt( scaleFactor );
+    for( int i = cutOff; i < GetNfft()/2; i++ )
+    {
+        fFrequencyReal.GetArray()[i] *= scaleFactor;
+        fFrequencyImg.GetArray()[i] *= scaleFactor;
+        fFrequencyReal.GetArray()[fNfft-i-1] = fFrequencyReal.GetArray()[i];
+        fFrequencyImg.GetArray()[fNfft-i-1] = fFrequencyImg.GetArray()[i];
+    }
+}
+
+void TRestFFT::KillFrequencies( Int_t cutOff )
+{
+    for( int i = cutOff; i < GetNfft()/2; i++ )
+    {
+	fFrequencyReal.GetArray()[i] = 0;
+	fFrequencyImg.GetArray()[i] = 0;
+	fFrequencyReal.GetArray()[fNfft-i-1] = fFrequencyReal.GetArray()[i];
+	fFrequencyImg.GetArray()[fNfft-i-1] = fFrequencyImg.GetArray()[i];
+    }
 }
 
 void TRestFFT::ButterWorthFilter( Int_t cutOff, Int_t order )//, Double_t amp, Double_t decay )
@@ -136,25 +203,7 @@ void TRestFFT::ButterWorthFilter( Int_t cutOff, Int_t order )//, Double_t amp, D
         fFrequencyImg.GetArray()[fNfft-i-1] = fFrequencyImg.GetArray()[i];
 
         }
-
     }
-}
-
-void TRestFFT::BackwardFFT( )
-{
-
-    TVirtualFFT *backward = TVirtualFFT::FFT(1, &fNfft, "C2R");
-    backward->SetPointsComplex( fFrequencyReal.GetArray(), fFrequencyImg.GetArray() );
-    backward->Transform();
-
-    for ( int i = 0; i < fNfft; i++ )
-    {
-        backward->GetPointComplex(i, fTimeReal.GetArray()[i], fTimeImg.GetArray()[i]);
-        fTimeReal.GetArray()[i] /= fNfft;
-        fTimeImg.GetArray()[i] /= fNfft;
-    }
-
-    delete backward;
 }
 
 void TRestFFT::ApplyLowPassFilter( Int_t cutFrequency )
@@ -167,6 +216,39 @@ void TRestFFT::ApplyLowPassFilter( Int_t cutFrequency )
             fFrequencyImg.GetArray()[i] = 0.;
         }
     }
+}
+
+void TRestFFT::GaussianSecondOrderResponse( Double_t f1, Double_t f2, Double_t Ao, Double_t sigma )
+{
+    Double_t a = TMath::Sqrt( Ao );
+    for( int i = 0; i < fNfft/2; i++ )
+    {
+
+        Double_t w = (double) 2. * i / 3;
+
+        TComplex *cmplx1 = new TComplex( (f1*f2-w*w), f1*w );
+
+        TComplex *cmplx2 = new TComplex( f1, 0);
+
+        *cmplx2 /= *cmplx1;
+
+	*cmplx2 *= a * TMath::Exp( -sigma * w * w );
+
+        fFrequencyReal.GetArray()[i] = cmplx2->Re();
+        fFrequencyImg.GetArray()[i] = cmplx2->Im();
+    }
+
+    for( int i = fNfft/2; i < fNfft; i++ )
+    {
+        fFrequencyReal.GetArray()[i] = fFrequencyReal.GetArray()[fNfft-i-1];
+        fFrequencyImg.GetArray()[i] = fFrequencyImg.GetArray()[fNfft-i-1];
+    }
+
+    //WriteFrequencyToTextFile( "frequencyResponse" );
+
+    BackwardFFT();
+
+    //WriteTimeSignalToTextFile ( "timeSignal" );
 
 }
 

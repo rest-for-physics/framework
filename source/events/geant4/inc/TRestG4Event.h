@@ -77,6 +77,9 @@ class TRestG4Event: public TRestEvent {
 
         TRestHits GetHits( );
 
+        Int_t GetNumberOfTracksForParticle( TString parName );
+        Int_t GetEnergyDepositedByParticle( TString parName );
+
         void SetPrimaryEventOrigin( TVector3 pos ) { fPrimaryEventOrigin = pos; }
         void SetPrimaryEventDirection( TVector3 dir ) { fPrimaryEventDirection.push_back( dir ); }
         void SetPrimaryEventEnergy( Double_t en ) { fPrimaryEventEnergy.push_back( en ); }
@@ -199,6 +202,7 @@ class TRestG4Event: public TRestEvent {
 
         void PrintEvent();
 
+	TPad *DrawEvent( TString option = "" ) { std::cout << "TRestG4Event::DrawEvent not implemented. TODO" << std::endl; return NULL; }
 
         //Construtor
         TRestG4Event();
