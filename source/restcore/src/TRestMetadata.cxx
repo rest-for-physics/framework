@@ -169,6 +169,26 @@
 ///
 /// This link is made by definning the *nameref* and *file* fields in the section definition. It is
 /// still important to close the section definition using </section>.
+///
+/// ### Including an external text file inside an RML section
+///
+/// We can also include an external file content **inside** a section. The contents of the external
+/// file will be dumped inside the section and replace the <include statement used to include the file.
+///
+/// As in the following example:
+///
+/// \code
+/// <section TRestXX .... >
+///
+/// ...
+///
+/// <include file="/full/path/file.xml" />
+///
+/// ...
+///
+/// </section>
+///
+/// \endcode
 /// 
 /// ### The globals section
 ///
