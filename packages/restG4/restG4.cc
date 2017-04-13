@@ -309,11 +309,16 @@ int main(int argc,char** argv) {
 
     else           // define visualization and UI terminal for interactive mode 
     { 
-        cout << "Entering vis mode" << endl;
-        cout << "Biasing : " << biasing << endl;
+        cout << "The number of events to be simulated is Zero!" << endl;
+        cout << "Make sure you did not forget the number of events entry in TRestG4Metadata." << endl;
+        cout << endl;
+        cout << "<parameter name=\"Nevents\" value=\"100\"/>" << endl;
+        cout << endl;
+        cout << "Trying to enter vis mode" << endl;
 #ifdef G4UI_USE
         G4UIExecutive * ui = new G4UIExecutive(argc,argv);      
 #ifdef G4VIS_USE
+        cout << "Executing G4 macro : /control/execute macros/vis.mac"  << endl;
         UI->ApplyCommand("/control/execute macros/vis.mac");          
 #endif
         ui->SessionStart();
