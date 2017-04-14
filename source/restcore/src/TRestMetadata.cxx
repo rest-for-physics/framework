@@ -1100,9 +1100,8 @@ string TRestMetadata::EvaluateExpression( string exp )
     if( number > 0 && number < 1.e-300 ) 
         { cout << "REST Warning! Expression not recognized --> " << exp << endl;  return exp; }
 
-    sss << fixed << std::setprecision(16)<< number;
+    sss << number;
     string out = sss.str();
-    std::setprecision(4);
 
     return out;
 }
