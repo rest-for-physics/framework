@@ -118,11 +118,10 @@ TString TRestPhysicsLists::GetPhysicsListOptionString( TString phName )
 
 TString TRestPhysicsLists::GetPhysicsListOptionValue( TString phName, TString option )
 {
-    
     vector <TString> optList = TRestTools::GetOptions( GetPhysicsListOptionString( phName ) );
 
     for( unsigned int n = 0; n < optList.size(); n = n + 2 )
-        if( optList[n] == phName ) return optList[n+1];
+        if( optList[n] == option ) return optList[n+1];
 
     return "NotDefined";
 }
