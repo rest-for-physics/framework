@@ -28,7 +28,7 @@ endforeach (CLASS)
 file(GLOB MetadataGeant4
         "geant4/src/*.cxx"
         )
-set(CLASS_DICT TRestG4Metadata TRestBiasingVolume TRestG4PrimaryGenerator TRestParticleCollection TRestParticle TRestParticleSource)
+set(CLASS_DICT TRestG4Metadata TRestPhysicsLists TRestBiasingVolume TRestG4PrimaryGenerator TRestParticleCollection TRestParticle TRestParticleSource)
 foreach (CLASS ${CLASS_DICT})
     set(ROOT_DICT_INCLUDE_DIRS ${REST_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
     set(ROOT_DICT_INPUT_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/geant4/inc/${CLASS}.h)
