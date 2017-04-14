@@ -372,6 +372,8 @@
 /// <hr>
 ///
 
+#include <iomanip>
+
 #include <TMath.h>
 #include <TSystem.h>
 #include "TRestMetadata.h"
@@ -467,7 +469,7 @@ Int_t TRestMetadata::isAExpression( string in )
     st2 = "0";
     in = Replace( in, st1, st2, pos );
 
-    return (in.find_first_not_of("-0123456789+*/.,)( ") == std::string::npos && in.length() != 0);
+    return (in.find_first_not_of("-0123456789e+*/.,)( ") == std::string::npos && in.length() != 0);
 }
 
 ///////////////////////////////////////////////
@@ -1098,8 +1100,9 @@ string TRestMetadata::EvaluateExpression( string exp )
     if( number > 0 && number < 1.e-300 ) 
         { cout << "REST Warning! Expression not recognized --> " << exp << endl;  return exp; }
 
-    sss << number;
+    sss << fixed << std::setprecision(16)<< number;
     string out = sss.str();
+    std::setprecision(4);
 
     return out;
 }
