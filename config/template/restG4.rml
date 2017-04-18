@@ -102,7 +102,7 @@ By default REST units are mm, keV and degrees
     <physicsList name="G4RadioactiveDecayPhysics"> </physicsList>
     <physicsList name="G4RadioactiveDecay"> 
         <option name="ICM" value="true" />
-        <option name="ARM" value="false" />
+        <option name="ARM" value="true" />
     </physicsList>
 
     <!-- Hadron physics lists -->
