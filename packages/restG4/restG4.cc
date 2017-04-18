@@ -97,6 +97,7 @@ int main(int argc,char** argv) {
     restRun->SetOutputEvent( subRestG4Event );
 
     restRun->AddMetadata( restG4Metadata );
+    restRun->AddMetadata( restPhysList );
     restRun->PrintInfo();
 
     restTrack = new TRestG4Track( );
