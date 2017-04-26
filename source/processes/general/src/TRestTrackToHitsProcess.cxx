@@ -4,7 +4,7 @@
 ///
 ///             TRestTrackToHitsProcess.cxx
 ///
-///             Jan 2016:   First concept (Javier Galan)
+///             Apr 2017:   First concept (Javier Galan)
 ///             
 //////////////////////////////////////////////////////////////////////////
 
