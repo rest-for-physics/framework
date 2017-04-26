@@ -223,6 +223,20 @@ Bool_t TRestEventProcess::OpenInputFile( TString fName )
     return false;
 }
 
+void TRestEventProcess::StampOutputEvent( TRestEvent *inEv )
+{
+    fOutputEvent->Initialize();
+
+    fOutputEvent->SetID( inEv->GetID() );
+    fOutputEvent->SetSubID( inEv->GetSubID() );
+    fOutputEvent->SetSubEventTag( inEv->GetSubEventTag() );
+
+    fOutputEvent->SetRunOrigin( inEv->GetRunOrigin()  );
+    fOutputEvent->SetSubRunOrigin( inEv->GetSubRunOrigin() );
+
+    fOutputEvent->SetTime( inEv->GetTime() );
+}
+
 /*
 //______________________________________________________________________________
 void TRestEventProcess::InitProcess()
