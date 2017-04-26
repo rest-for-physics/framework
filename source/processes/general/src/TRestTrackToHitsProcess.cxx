@@ -65,12 +65,6 @@ void TRestTrackToHitsProcess::InitProcess()
 }
 
 //______________________________________________________________________________
-void TRestTrackToHitsProcess::BeginOfEventProcess() 
-{
-    fOutputHitsEvent->Initialize(); 
-}
-
-//______________________________________________________________________________
 TRestEvent* TRestTrackToHitsProcess::ProcessEvent( TRestEvent *evInput )
 {
     fInputTrackEvent = (TRestTrackEvent *) evInput;
