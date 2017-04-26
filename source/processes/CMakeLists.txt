@@ -2,7 +2,7 @@
 file(GLOB ProcessesGeneral
         "general/src/*.cxx"
         )
-    set(CLASS_DICT  TRestElectronDiffusionProcess TRestFiducializationProcess TRestHitsReductionProcess TRestHitsShuffleProcess TRestHitsToSignalProcess TRestHitsToTrackProcess TRestFastHitsToTrackProcess TRestSignalToHitsProcess TRestSignalZeroSuppresionProcess
+    set(CLASS_DICT  TRestElectronDiffusionProcess TRestFiducializationProcess TRestHitsReductionProcess TRestHitsShuffleProcess TRestHitsToSignalProcess TRestHitsToTrackProcess TRestTrackToHitsProcess TRestFastHitsToTrackProcess TRestSignalToHitsProcess TRestSignalZeroSuppresionProcess
         TRestTrackReductionProcess TRestTrackPathMinimizationProcess TRestTrackReconnectionProcess TRestTrackLinearizationProcess
         TRestAvalancheProcess TRestHitsRotateAndTraslateProcess TRestSmearingProcess TRestHitsNormalizationProcess TRestG4toHitsProcess )
 foreach (CLASS ${CLASS_DICT})

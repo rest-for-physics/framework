@@ -63,6 +63,7 @@ class TRestTrack: public TObject {
         TVector3 GetMeanPosition() { return fVolumeHits.GetMeanPosition(); }
 
         TRestVolumeHits *GetVolumeHits() {return &fVolumeHits;}
+        TRestHits *GetHits() { return (TRestHits *) &fVolumeHits; }
         Int_t GetNumberOfHits() { return GetVolumeHits()->GetNumberOfHits(); }
 
         void PrintTrack( Bool_t fullInfo = true );
