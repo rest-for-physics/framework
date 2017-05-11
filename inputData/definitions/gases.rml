@@ -28,6 +28,20 @@
     <gasComponent name="he" fraction="1" />
 </section>
 
+// -----------------------------------
+// -------------- CF4 ---------------- 
+// -----------------------------------
+
+<section TRestGas name="CF4 10-10E3V/cm" title="CF4">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="W_value" value="" />
+    <parameter name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="CF4" fraction="1" />
+</section>
+
 // ---------------------------------------
 // -------------- XENON+TMA --------------
 // ---------------------------------------
@@ -353,3 +367,104 @@
     <gasComponent name="iC4H10" fraction="0.05" />
     <gasComponent name="O2" fraction="0.02" />
 </section>
+
+
+// ---------------------------------------------
+// -------------- ARGON+ISOBUTANE+OXYGEN ---------------
+// ---------------------------------------------
+/ ----- 5.0% Iso 2.0% Oxygen ---------------------------------------------------------------------------------------------
+<section TRestGas name="Argon-Isobutane-Oxygen 5Pct-2Pct 10-10E3V/cm" title="Argon-Isobutane Mixture (5Pct Isobutane)">
+       <parameter name="pressure" value="1" />
+     <parameter name="temperature" value="293.15" />
+     <parameter name="maxElectronEnergy" value="400" />
+      <parameter name="W_value" value="26.145" />
+      <parameter name="nCollisions" value="10" />
+      <eField Emin="10" Emax="1000." nodes="20" />
+       <gasComponent name="ar" fraction="0.93" />
+       <gasComponent name="iC4H10" fraction="0.05" />
+       <gasComponent name="O2" fraction="0.02" />
+      
+</section>
+
+// ----- 5.0% Iso 2.0% Oxygen --------------------------------------------------------------------------------------------- <section TRestGas name="Argon-Isobutane-Oxygen 5Pct-2Pct High field" title="Argon-Isobutane Mixture (5Pct Isobutane)">
+    <parameter name="pressure" value="1" />
+     <parameter name="temperature" value="293.15" />
+     <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="W_value" value="26.145" />
+    <parameter name="nCollisions" value="10" />
+     <eField Emin="1000" Emax="10000." nodes="20" />
+      <gasComponent name="ar" fraction="0.93" />
+      <gasComponent name="iC4H10" fraction="0.05" />
+      <gasComponent name="O2" fraction="0.02" />    
+</section>
+
+
+
+// ---------------------------------------------
+// -------------- NEON+ISOBUTANE ---------------
+// ---------------------------------------------
+
+// ----- 0.5% --------------------------------------------------------------------------------------------
+<section TRestGas name="Neon-Isobutane 0.5Pct 10-10E3V/cm" title="Neon-Isobutane Mixture (0.5Pct Isobutane)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="W_value" value="21.3485" />
+    <parameter name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="ne" fraction="0.995" />
+    <gasComponent name="iC4H10" fraction="0.005" />
+</section>
+
+// ----- 1% ---------------------------------------------------------------------------------------------
+<section TRestGas name="Neon-Isobutane 1Pct 10-10E3V/cm" title="Neon-Isobutane Mixture (1Pct Isobutane)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="W_value" value="21.3485" />
+    <parameter name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="ne" fraction="0.99" />
+    <gasComponent name="iC4H10" fraction="0.01" />
+</section>
+
+// ----- 2% ---------------------------------------------------------------------------------------------
+<section TRestGas name="Neon-Isobutane 2Pct 10-10E3V/cm" title="Neon-Isobutane Mixture (2Pct Isobutane)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="W_value" value="21.3485" />
+    <parameter name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="ne" fraction="0.98" />
+    <gasComponent name="iC4H10" fraction="0.02" />
+</section>
+
+// ----- 3% ---------------------------------------------------------------------------------------------
+<section TRestGas name="Neon-Isobutane 3Pct 10-10E3V/cm" title="Neon-Isobutane Mixture (3Pct Isobutane)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="W_value" value="21.3485" />
+    <parameter name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="ne" fraction="0.97" />
+    <gasComponent name="iC4H10" fraction="0.03" />
+</section>
+
+// ----- 5% ---------------------------------------------------------------------------------------------
+<section TRestGas name="Neon-Isobutane 5Pct 10-10E3V/cm" title="Neon-Isobutane Mixture (5Pct Isobutane)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="W_value" value="21.3485" />
+    <parameter name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="ne" fraction="0.95" />
+    <gasComponent name="iC4H10" fraction="0.05" />
+</section>
+
+
+
+
+
