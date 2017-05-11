@@ -56,6 +56,9 @@ class TRestHits : public TObject
         void RemoveHits( );
 
         Int_t GetMostEnergeticHitInRange( Int_t n, Int_t m );
+
+        Double_t GetMaximumHitDistance( );
+        Double_t GetMaximumHitDistance2( );
 	
         void MergeHits( int n, int m );
         void SwapHits( Int_t i, Int_t j );
