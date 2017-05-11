@@ -58,7 +58,11 @@ class TRestTrack: public TObject {
         Int_t GetParentID() { return fParentID; }
         Double_t GetEnergy() { return fTrackEnergy; }
         Double_t GetTrackEnergy() { return fTrackEnergy; }
-        Double_t GetTrackLength() { return fTrackLength; }
+        Double_t GetTrackLength( Bool_t update = true )
+        {
+            if( update ) fTrackLength = fVolumeHits.GetTotalDistance();
+            return fTrackLength;
+        }
 
         Double_t GetMaximumDistance() { return fVolumeHits.GetMaximumHitDistance(); }
         Double_t GetMaximumDistance2() { return fVolumeHits.GetMaximumHitDistance2(); }
