@@ -188,6 +188,12 @@ void TRestManager::InitFromConfigFile()
 
         TRestReadout *readout = (TRestReadout *) fRun->GetMetadataClass( "TRestReadout" );
 
+	if( readout == NULL ) 
+	{ 
+		cout << "REST WARNING. TRestManager. Readout plane definition found, but readout does not exist" << endl;
+		continue; 
+	}
+
         // Removed condition when it was (0,0,0). Since it is a valid value.
         // Some other value should be given as default value
         readout->GetReadoutPlane( rId )->SetPosition( plPos );
