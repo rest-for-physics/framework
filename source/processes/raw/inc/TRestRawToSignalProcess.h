@@ -62,6 +62,9 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    virtual TString GetProcessName()=0;
    TRestMetadata *GetProcessMetadata() { return NULL; }
 
+   void SetRunOrigin( Int_t runOrigin ) { fRunOrigin = runOrigin; }
+   void SetSubRunOrigin( Int_t subOrigin ) { fSubRunOrigin = subOrigin; }
+
    TString GetFilenameFormat() { return fFilenameFormat; }
 
    void LoadConfig( std::string cfgFilename, std::string name = "" );
