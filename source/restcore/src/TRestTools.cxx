@@ -108,3 +108,34 @@ vector <TString> TRestTools::GetRESTLibrariesInDirectory( TString path )
     return fileList;
 }
 
+
+vector <TString> TRestTools::GetFilesMatchingPattern( TString pattern )
+{
+	std::vector <TString> outputFileNames;
+
+	if( pattern.First( "*" ) >= 0 || pattern.First( "?" ) >= 0  )
+	{
+		char command[256];
+		sprintf( command, "find %s > /tmp/RESTTools_fileList.tmp", pattern.Data() );
+
+		system( command );
+
+		FILE *fin = fopen( "/tmp/RESTTools_fileList.tmp", "r" );
+		char str[256];
+		while ( fscanf ( fin, "%s\n", str ) != EOF )
+		{
+			TString newFile = str;
+			outputFileNames.push_back( newFile );
+		}
+		fclose( fin );
+
+		system ( "rm /tmp/RESTTools_fileList.tmp" );
+	}
+	else
+	{
+		outputFileNames.push_back( pattern );
+	}
+
+	return outputFileNames;
+}
+
