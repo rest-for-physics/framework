@@ -103,7 +103,7 @@ class TRestMetadata:public TNamed {
         ifstream configFile;        //!< Pointer to config file to load metadata
 
         std::string fConfigFilePath;	//!< Path to the config file associated with this metadata
-        
+
         TString fDataPath;              //!< REST Data path
         REST_Verbose_Level fVerboseLevel;   //!< Verbose level used to print debug info
 
@@ -112,7 +112,7 @@ class TRestMetadata:public TNamed {
 
         TString fGasDataPath; //!< The path where the gas pre-generated files are stored.
 #endif
-        
+
         void SetDefaultConfigFilePath();
 
         void SetConfigFile( std::string cfgFileName );
@@ -128,7 +128,7 @@ class TRestMetadata:public TNamed {
 
         std::string ExpandForLoops( std::string buffer );
         std::string ReplaceMathematicalExpressions( std::string buffer );
-	std::string ReplaceIncludeDefinitions( const string buffer );
+        std::string ReplaceIncludeDefinitions( const string buffer );
         std::string ReplaceEnvironmentalVariables( const std::string buffer );
         std::string ExtractLoopStructure( std::string in, size_t pos );
         std::string RemoveComments( string in );
@@ -139,19 +139,19 @@ class TRestMetadata:public TNamed {
     public:
         /// Returns a string with the path used for data storage
         TString GetDataPath( ) { return fDataPath; }
-        
+
         /// Returns a string with the path used for pre-generated gas files
         TString GetGasDataPath( ) { return fGasDataPath; }
 
         /// Sets the path that will be used for data storage
         void SetDataPath( TString path ) { fDataPath = path; }
-        
+
         /// Sets the path that will be used for pre-generated gas files
         void SetGasDataPath( TString path ) { fGasDataPath = path; }
 
         /// Gets the verbose level used to dump on screen different levels of information
         REST_Verbose_Level GetVerboseLevel( ) { return fVerboseLevel; }
-        
+
         TString GetVerboseLevelString( );
 
         /// Gets a string with the path used for data storage
@@ -170,7 +170,7 @@ class TRestMetadata:public TNamed {
 
         void PrintTimeStamp( Double_t timeStamp );
         void PrintConfigBuffer( );
-        
+
         // String helper classes. Declared static to be able to access them without having to instantiate TRestMetadata.
         // Probably they should be in a different class (i.e. TRestStrings)
         static Int_t isANumber( std::string in );
@@ -192,7 +192,7 @@ class TRestMetadata:public TNamed {
 
         /// If this method is called the metadata information will **not** be stored in disk. I/O is handled by TRestRun.
         void DoNotStore( ) { fStore = false; }
-        
+
         /// If this method is called the metadata information will be stored in disk. This is the default behaviour.
         Bool_t Store( ) { return fStore; }
 
