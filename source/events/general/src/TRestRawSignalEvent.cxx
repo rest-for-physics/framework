@@ -193,7 +193,7 @@ void TRestRawSignalEvent::AddChargeToSignal( Int_t sgnlID, Int_t bin, Short_t va
 
 void TRestRawSignalEvent::PrintEvent()
 {
-    //TRestEvent::PrintEvent();
+    TRestEvent::PrintEvent();
 
     for( int i = 0; i < GetNumberOfSignals(); i++ )
     {
