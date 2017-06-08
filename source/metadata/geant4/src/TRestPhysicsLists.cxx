@@ -59,10 +59,13 @@ void TRestPhysicsLists::InitFromConfigFile()
 {
     this->Initialize();
 
-    fCutForGamma = GetDblParameterWithUnits( "cutForGamma", 0.01  );
-    fCutForElectron = GetDblParameterWithUnits( "cutForElectron", 1  );
-    fCutForPositron = GetDblParameterWithUnits( "cutForPositron", 1  ); 
-
+    fCutForGamma = GetDblParameterWithUnits( "cutForGamma", 0.01 );
+    fCutForElectron = GetDblParameterWithUnits( "cutForElectron",1  );
+    fCutForPositron = GetDblParameterWithUnits( "cutForPositron",1 ); 
+    fCutForMuon = GetDblParameterWithUnits( "cutForMuon",1 );
+    fCutForNeutron = GetDblParameterWithUnits( "cutForNeutron",1 );
+    fMinEnergyRangeProductionCuts =GetDblParameterWithUnits("minEnergyRangeProductionCuts",1);
+    fMaxEnergyRangeProductionCuts =GetDblParameterWithUnits("maxEnergyRangeProductionCuts",1e6 );
     size_t position = 0;
     string physicsListString;
 
@@ -163,6 +166,10 @@ void TRestPhysicsLists::PrintMetadata( )
     cout << "Cut for electrons : " << fCutForElectron << " mm" << endl;
     cout << "Cut for positrons : " << fCutForPositron << " mm" << endl;
     cout << "Cut for gammas : " << fCutForGamma << " mm" << endl;
+    cout << "Cut for muons : " << fCutForMuon << " mm" << endl;
+    cout << "Cut for neutrons : " << fCutForNeutron << " mm" << endl;
+    cout << "Min Energy for particle production: " << fMinEnergyRangeProductionCuts << " keV" << endl;
+    cout << "Max Energy for particle production: " << fMaxEnergyRangeProductionCuts <<" keV" << endl;
     cout << "---------------------------------------" << endl;
     for( unsigned int n = 0; n < fPhysicsLists.size(); n++ )
     {

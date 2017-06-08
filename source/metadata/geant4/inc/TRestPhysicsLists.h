@@ -44,12 +44,21 @@ class TRestPhysicsLists:public TRestMetadata {
         Double_t fCutForElectron;
         Double_t fCutForGamma;
         Double_t fCutForPositron;
+        Double_t fCutForMuon;
+        Double_t fCutForNeutron;
+        Double_t fMinEnergyRangeProductionCuts;
+        Double_t fMaxEnergyRangeProductionCuts;
 
     public:
 
         Double_t GetCutForGamma( ) { return fCutForGamma; }
         Double_t GetCutForElectron( ) { return fCutForElectron; }
         Double_t GetCutForPositron( ) { return fCutForPositron; }
+        Double_t GetCutForMuon( ) { return fCutForMuon; }
+        Double_t GetCutForNeutron( ) { return fCutForNeutron; }
+
+        Double_t GetMinimumEnergyProductionCuts(){ return fMinEnergyRangeProductionCuts; }
+        Double_t GetMaximumEnergyProductionCuts(){ return fMaxEnergyRangeProductionCuts; }
 
         Int_t FindPhysicsList( TString phName );
         Bool_t PhysicsListExists( TString phName );
