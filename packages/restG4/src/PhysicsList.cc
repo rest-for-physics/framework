@@ -45,7 +45,8 @@
 #include "G4EmLivermorePhysics.hh"
 #include "G4EmPenelopePhysics.hh"
 #include "G4EmStandardPhysics_option3.hh"
-
+ #include "G4EmProcessOptions.hh"
+ #include "G4EmParameters.hh"
 //#include "PhysListEmStandard.hh"
 //#include "PhysListEmStandardSS.hh"
 //#include "PhysListEmStandardNR.hh"
@@ -98,7 +99,14 @@ PhysicsList::PhysicsList( TRestPhysicsLists *physicsLists ) : G4VModularPhysicsL
 
     defaultCutValue = 0.1 * mm;
 
+
+
     restPhysList = physicsLists;
+    G4LossTableManager::Instance();
+    // fix lower limit for cut
+    G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange( restPhysList->GetMinimumEnergyProductionCuts() * eV / keV,
+                                                                     restPhysList->GetMaximumEnergyProductionCuts() * GeV / keV );
+    defaultCutValue = 0.1 * mm;
 
     fEmPhysicsList = NULL;
     fDecPhysicsList = NULL;
@@ -115,8 +123,7 @@ PhysicsList::~PhysicsList()
 
     delete fDecPhysicsList;
     delete fRadDecPhysicsList;
-    for( size_t i = 0; i < fHadronPhys.size(); i++) {delete fHadronPhys[i];}
-
+    for( size_t i = 0; i < fHadronPhys.size(); i++) { delete fHadronPhys[i]; }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -219,6 +226,10 @@ void PhysicsList::ConstructProcess()
     {
         fEmPhysicsList->ConstructProcess();
         em_config.AddModels();
+        G4EmProcessOptions emOptions;
+        emOptions.SetFluo(true); // To activate deexcitation processes and fluorescence
+        emOptions.SetAuger(true); // To activate Auger effect if deexcitation is activated
+        emOptions.SetPIXE(true); // To activate Particle Induced X-Ray Emission (PIXE)
     }
 
     // Decay physics list
@@ -302,6 +313,9 @@ void PhysicsList::SetCuts()
     SetCutValue( restPhysList->GetCutForGamma() * mm, "gamma" );
     SetCutValue( restPhysList->GetCutForElectron() * mm, "e-" );
     SetCutValue( restPhysList->GetCutForPositron() * mm, "e+" );
+    SetCutValue( restPhysList->GetCutForMuon() * mm, "mu+" );
+    SetCutValue( restPhysList->GetCutForMuon() * mm, "mu-" );
+    SetCutValue( restPhysList->GetCutForNeutron() * mm, "neutron" );
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
