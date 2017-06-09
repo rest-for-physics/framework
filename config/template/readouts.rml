@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<environment>
+    <variable name="PIX_SIZE" value="5" overwrite="true" />
+    <variable name="CHANNELS" value="4" overwrite="true" />
+</environment>
+
+<section TRestReadout name="pixelReadout" title="A basic pixel readout. ${CHANNELS}x${CHANNELS} channels. Pixel size : ${PIX_SIZE} mm" >
+    <myParameter name="nChannels" value="${CHANNELS}" />
+    <myParameter name="pixelSize" value="${PIX_SIZE}" />
+
+    <parameter name="mappingNodes" value="0" />
+
+    <readoutModule name="pixelModule" size="(nChannels*pixelSize, nChannels*pixelSize)" tolerance="1.e-4" >
+
+        <for variable="nChX" from="0" to="nChannels-1" step="1" />
+            <for variable="nChY" from="0" to="nChannels-1" step="1" />
+                <readoutChannel id="[nChX]*nChannels+[nChY]" >
+                    <addPixel id="0" origin="([nChX]*pixelSize, [nChY]*pixelSize)" size="(${PIX_SIZE},${PIX_SIZE})" rotation="0" />
+                </readoutChannel>
+            </for>
+        </for>
+
+    </readoutModule>
+
+    <readoutPlane position="(0,0,-990)" units="mm" planeVector="(0,0,1)"
+        chargeCollection="1" 
+        cathodePosition="(0,0,0)" units="mm" >
+
+	    <addReadoutModule id="0" name="pixelModule"
+            origin="(-nChannels*pixelSize/2,-nChannels*pixelSize/2)" 
+            rotation="0" />
+    </readoutPlane>
+
+
+</section>
+
+
+<!--
+-->
