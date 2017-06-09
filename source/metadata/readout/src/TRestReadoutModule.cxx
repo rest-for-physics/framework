@@ -172,6 +172,14 @@ Int_t TRestReadoutModule::FindChannel( Double_t absX, Double_t absY )
     Double_t x = TransformToModuleCoordinates( absX, absY ).X();
     Double_t y = TransformToModuleCoordinates( absX, absY ).Y();
 
+    if(  !isInside( x, y ) )
+    {
+        cout << "REST WARNING. TRestReadoutModule::FindChannel." << endl;
+        cout << "The ( x , y ) = (" << x << " , " << y << " ) module" << endl;
+        cout << " coordinates are not inside the module size" << endl;
+        return -1;
+    }
+
     Int_t nodeX = fMapping.GetNodeX( x );
     Int_t nodeY = fMapping.GetNodeY( y );
 
