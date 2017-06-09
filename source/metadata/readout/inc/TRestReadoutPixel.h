@@ -1,20 +1,24 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///             
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestReadoutPixel.h
-///
-///             Base class from which to inherit all other event classes in REST 
-///
-///             apr 2015:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///                 Javier Galan
-///_______________________________________________________________________________
-
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
 #ifndef RestCore_TRestReadoutPixel
 #define RestCore_TRestReadoutPixel
@@ -25,46 +29,67 @@
 #include <TVector2.h>
 #include <TMath.h>
 
+//! A class to store the readout pixel definition used in TRestReadoutChannel. 
 class TRestReadoutPixel : public TObject {
     private:
-        Int_t fPixelID;
-        Double_t fPixelOriginX;
-        Double_t fPixelOriginY;
+        Int_t fPixelID; //!< The internal pixel id.
+        Double_t fPixelOriginX; //!< The pixel x-origin position, left-bottom corner.
+        Double_t fPixelOriginY; //!< The pixel y-origin position, left-bottom corner.
 
-        Double_t fPixelSizeX;
-        Double_t fPixelSizeY;
+        Double_t fPixelSizeX; //!< The pixel x size.
+        Double_t fPixelSizeY; //!< The pixel y size.
 
-        Double_t fRotation;
+        Double_t fRotation; //!< The pixel rotation angle in degrees, rotation with axis at the origin position.
 
         void Initialize();
 
     protected:
 
     public:
+        /// Returns the internal pixel id.
         Int_t GetID() { return fPixelID; }
 
+        /// Returns the x-coordinate pixel origin.
         Double_t GetOriginX( ) const { return fPixelOriginX; }
+        
+        /// Returns the y-coordinate pixel origin.
         Double_t GetOriginY( ) const { return fPixelOriginY; }
+
+        /// Returns a TVector2 with the pixel origin.
         TVector2 GetOrigin( ) const { return TVector2( fPixelOriginX, fPixelOriginY ); }
 
+        /// Returns the rotation angle in degrees
         Double_t GetRotation( ) const { return fRotation; }
 
+        /// Returns the pixel size in X
         Double_t GetSizeX( ) { return fPixelSizeX; }
+        
+        /// Returns the pixel size in Y
         Double_t GetSizeY( ) { return fPixelSizeY; }
+
+        /// Returns a TVector2 with the pixel size.
         TVector2 GetSize( )  { return TVector2( fPixelSizeX, fPixelSizeY ); }
 
         TVector2 GetCenter( ) const;
 
         TVector2 GetVertex( int n ) const;
 
+        /// Sets the internal pixel id.
         void SetID( Int_t id ) { fPixelID = id; }
 
+        /// Sets the origin of the pixel using the coordinate values *x*,*y*.
         void SetOrigin( Double_t x, Double_t y ) { fPixelOriginX = x; fPixelOriginY = y; }
+
+        /// Sets the origin of the pixel using a TVector2.
         void SetOrigin( TVector2 origin ) { fPixelOriginX = origin.X(); fPixelOriginY = origin.Y(); }
 
-        void SetSize( Double_t x, Double_t y ) { fPixelSizeX = x; fPixelSizeY = y; }
+        /// Sets the size of the pixel using the coordinate values *sx*,*sy*.
+        void SetSize( Double_t sx, Double_t sy ) { fPixelSizeX = sx; fPixelSizeY = sy; }
+
+        /// Sets the size of the pixel using a TVector2.
         void SetSize( TVector2 size ) { fPixelSizeX = size.X(); fPixelSizeY = size.Y(); }
 
+        /// Sets the rotation angle of the pixel in degrees
         void SetRotation( Double_t rot ) { fRotation = rot; }
         
         Bool_t isInside( TVector2 pos );
@@ -72,7 +97,6 @@ class TRestReadoutPixel : public TObject {
 
         TVector2 TransformToPixelCoordinates( TVector2 p );
 
-        
         void Print( );
 
         //Construtor
@@ -80,7 +104,6 @@ class TRestReadoutPixel : public TObject {
         //Destructor
         virtual ~ TRestReadoutPixel();
 
-
-        ClassDef(TRestReadoutPixel, 1);     // REST run class
+        ClassDef(TRestReadoutPixel, 1);
 };
 #endif

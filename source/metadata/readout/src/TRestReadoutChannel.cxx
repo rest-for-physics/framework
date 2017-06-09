@@ -1,45 +1,79 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///             
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
+
+
+//////////////////////////////////////////////////////////////////////////
 ///
-///             RESTSoft : Software for Rare Event Searches with TPCs
+/// This class stores the readout pixel geometrical description, origin  
+/// position, orientation, and size. A readout pixel is the most elementary
+/// component of a readout used to construct a readout channel.
+/// 
+///--------------------------------------------------------------------------
 ///
-///             TRestReadoutChannel.cxx
+/// RESTsoft - Software for Rare Event Searches with TPCs
 ///
-///             Base class for managing run data storage. It contains a TRestEvent and TRestMetadata array. 
+/// History of developments:
 ///
-///             apr 2015:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///             aug 2015    Javier Galan
-///_______________________________________________________________________________
+/// 2015-aug:  First concept.
+///            Javier Galan
+///
+/// \class      TRestReadoutPixel
+/// \author     Javier Galan
+///
+/// <hr>
+///
 
 
 #include "TRestReadoutChannel.h"
 using namespace std;
 
 ClassImp(TRestReadoutChannel)
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief TRestReadoutChannel default constructor
+///
     TRestReadoutChannel::TRestReadoutChannel()
 {
     Initialize();
 
 }
 
-
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief TRestReadoutChannel default destructor
+///
 TRestReadoutChannel::~TRestReadoutChannel()
 {
- //   cout << "Deleting TRestReadoutChannel" << endl;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Initializes the channel members
+/// 
 void TRestReadoutChannel::Initialize()
 {
     fChannelID = -1;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns a TRestReadoutPixel pointer using the internal pixel id.
+/// 
 TRestReadoutPixel *TRestReadoutChannel::GetPixelByID( int id )
 {
     Int_t pxNumber = -1;
@@ -57,6 +91,9 @@ TRestReadoutPixel *TRestReadoutChannel::GetPixelByID( int id )
     return NULL; 
 }
 
+///////////////////////////////////////////////
+/// \brief Prints the details of the readout channel including pixel coordinates.
+/// 
 void TRestReadoutChannel::Print( )
 {
         cout << "++++ Channel ID : " << GetID( ) << " Daq channel : " << GetDaqID() << " Total pixels : " << GetNumberOfPixels() << endl;

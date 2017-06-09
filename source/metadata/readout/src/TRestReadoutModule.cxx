@@ -1,39 +1,70 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///             
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
+
+
+//////////////////////////////////////////////////////////////////////////
 ///
-///             RESTSoft : Software for Rare Event Searches with TPCs
+/// This class stores the readout module geometrical description, module 
+/// position, orientation, and size. It contains a vector of 
+/// TRestReadoutChannel with the definition of the readout channels 
+/// existing in the readout module.
+/// 
+///--------------------------------------------------------------------------
 ///
-///             TRestReadoutModule.cxx
+/// RESTsoft - Software for Rare Event Searches with TPCs
 ///
-///             Base class for managing run data storage. It contains a TRestEvent and TRestMetadata array. 
+/// History of developments:
 ///
-///             apr 2015:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///             aug 2015    Javier Galan
-///_______________________________________________________________________________
+/// 2015-aug:  First concept.
+///            Javier Galan
+///
+/// \class      TRestReadoutModule
+/// \author     Javier Galan
+///
+/// <hr>
+///
 
 #include "TRestReadoutModule.h"
 using namespace std;
 
 ClassImp(TRestReadoutModule)
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Default TRestReadoutModule constructor
+/// 
     TRestReadoutModule::TRestReadoutModule()
 {
     Initialize();
-
 }
 
-
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Default TRestReadoutModule destructor
+/// 
 TRestReadoutModule::~TRestReadoutModule()
 {
- //   cout << "Deleting TRestReadoutModule" << endl;
 }
 
-
+///////////////////////////////////////////////
+/// \brief TRestReadoutModule initialization
+/// 
 void TRestReadoutModule::Initialize()
 {
     fReadoutChannel.clear();
@@ -53,6 +84,9 @@ void TRestReadoutModule::Initialize()
     fTolerance = 1.e-6;
 }
 
+///////////////////////////////////////////////
+/// \brief Initializes the max and min values for the daq channel number
+/// 
 void TRestReadoutModule::SetMinMaxDaqIDs( )
 {
     Int_t maxID = GetChannel(0)->GetDaqID();
@@ -70,6 +104,11 @@ void TRestReadoutModule::SetMinMaxDaqIDs( )
 
 }
 
+///////////////////////////////////////////////
+/// \brief Starts the readout mapping initialization. This process
+/// is computationally expensive but it greatly optimizes the FindChannel
+/// process later on.
+/// 
 void TRestReadoutModule::DoReadoutMapping( Int_t nodes )
 {
     ///////////////////////////////////////////////////////////////////////////////
@@ -166,6 +205,23 @@ void TRestReadoutModule::DoReadoutMapping( Int_t nodes )
 
 }
 
+///////////////////////////////////////////////
+/// \brief Determines if a given *daqID* number is in the range of the module
+/// 
+Bool_t TRestReadoutModule::isDaqIDInside( Int_t daqID )
+{
+    if( daqID >= fMininimumDaqId && daqID <= fMaximumDaqId )
+        return true;
+    return false;
+}
+
+///////////////////////////////////////////////
+/// \brief Returns the channel id corresponding to the absolute coordinates
+/// (absX, absY), but relative to the readout plane coordinate system.
+/// 
+/// The readout mapping (see TRestReadoutMapping) is used to help finding 
+/// the pixel where coordinates absX and absY fall in.
+/// 
 Int_t TRestReadoutModule::FindChannel( Double_t absX, Double_t absY )
 {
 
@@ -243,6 +299,9 @@ Int_t TRestReadoutModule::FindChannel( Double_t absX, Double_t absY )
     return channel;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns a pointer to a readout channel by channel id
+/// 
 TRestReadoutChannel *TRestReadoutModule::GetChannelByID( int id )
 {
     Int_t chNumber = -1;
@@ -260,12 +319,20 @@ TRestReadoutChannel *TRestReadoutModule::GetChannelByID( int id )
     return NULL; 
 }
  
+///////////////////////////////////////////////
+/// \brief Determines if the position *x,y* relative to the readout
+/// plane are inside this readout module.
+/// 
 Bool_t TRestReadoutModule::isInside( Double_t x, Double_t y )
 {
     TVector2 v(x,y);
     return isInside( v );
 }
 
+///////////////////////////////////////////////
+/// \brief Determines if the position TVector2 *pos* relative to the readout
+/// plane are inside this readout module.
+/// 
 Bool_t TRestReadoutModule::isInside( TVector2 pos )
 {
     TVector2 rotPos = TransformToModuleCoordinates( pos );
@@ -276,7 +343,11 @@ Bool_t TRestReadoutModule::isInside( TVector2 pos )
 
     return false;
 }
-
+ 
+///////////////////////////////////////////////
+/// \brief Determines if the position *x,y* is found in any of the pixels
+/// of the readout *channel* given.
+/// 
 Bool_t TRestReadoutModule::isInsideChannel( Int_t channel, Double_t x, Double_t y )
 {
     TVector2 pos(x,y);
@@ -284,6 +355,10 @@ Bool_t TRestReadoutModule::isInsideChannel( Int_t channel, Double_t x, Double_t 
     return isInsideChannel( channel, pos );
 }
 
+///////////////////////////////////////////////
+/// \brief Determines if the position TVector2 *pos* is found in any of the pixels
+/// of the readout *channel* given.
+/// 
 Bool_t TRestReadoutModule::isInsideChannel( Int_t channel, TVector2 pos )
 {
     pos = TransformToModuleCoordinates( pos );
@@ -292,6 +367,10 @@ Bool_t TRestReadoutModule::isInsideChannel( Int_t channel, TVector2 pos )
     return false;
 }
 
+///////////////////////////////////////////////
+/// \brief Determines if the position *x,y* is found at a specific *pixel* id
+/// inside the readout *channel* given.
+/// 
 Bool_t TRestReadoutModule::isInsidePixel( Int_t channel, Int_t pixel, Double_t x, Double_t y )
 {
     TVector2 pos(x,y);
@@ -301,6 +380,10 @@ Bool_t TRestReadoutModule::isInsidePixel( Int_t channel, Int_t pixel, Double_t x
     return isInsidePixel( channel, pixel, pos );
 }
 
+///////////////////////////////////////////////
+/// \brief Determines if the position TVector2 *pos* is found at a specific *pixel* id
+/// inside the readout *channel* given.
+/// 
 Bool_t TRestReadoutModule::isInsidePixel( Int_t channel, Int_t pixel, TVector2 pos )
 {
     if( channel < 0 || pixel < 0 ) return false;
@@ -310,6 +393,10 @@ Bool_t TRestReadoutModule::isInsidePixel( Int_t channel, Int_t pixel, TVector2 p
     return false;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns the pixel origin (left-bottom) position for a given *channel* and 
+/// *pixel* indexes.
+/// 
 TVector2 TRestReadoutModule::GetPixelOrigin( Int_t channel, Int_t pixel ) 
 {
     TVector2 pixPosition( GetChannel( channel )->GetPixel(pixel)->GetOrigin() );
@@ -317,6 +404,12 @@ TVector2 TRestReadoutModule::GetPixelOrigin( Int_t channel, Int_t pixel )
     return pixPosition;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns any of the pixel vertex position for a given *channel* and 
+/// *pixel* indexes.
+/// 
+/// \param vertex A value between 0-3 definning the vertex position to be returned
+///
 TVector2 TRestReadoutModule::GetPixelVertex( Int_t channel, Int_t pixel, Int_t vertex ) 
 {
     TVector2 pixPosition = GetChannel( channel )->GetPixel(pixel)->GetVertex( vertex );
@@ -326,6 +419,12 @@ TVector2 TRestReadoutModule::GetPixelVertex( Int_t channel, Int_t pixel, Int_t v
     return pixPosition;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns the center pixel position for a given *channel* and 
+/// *pixel* indexes.
+/// 
+/// \param vertex A value between 0-3 definning the vertex position to be returned
+///
 TVector2 TRestReadoutModule::GetPixelCenter( Int_t channel, Int_t pixel )
 {
     TVector2 corner1( GetPixelVertex( channel, pixel, 0 ) );
@@ -335,6 +434,12 @@ TVector2 TRestReadoutModule::GetPixelCenter( Int_t channel, Int_t pixel )
     return center;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns the coordinates of the specified vertex index *n*. The physical
+/// coordinates relative to the readout plane are returned, including rotation.
+/// 
+/// \param n A value between 0-3 definning the vertex position to be returned
+///
 TVector2 TRestReadoutModule::GetVertex( int n ) const 
 {
     TVector2 vertex( 0, 0 );
@@ -365,9 +470,9 @@ TVector2 TRestReadoutModule::GetVertex( int n ) const
     return vertex;
 }
 
-
-Int_t TRestReadoutModule::GetNumberOfChannels( ) { return fReadoutChannel.size(); }
-
+///////////////////////////////////////////////
+/// \brief Adds a new channel to the module
+/// 
 void TRestReadoutModule::AddChannel( TRestReadoutChannel &rChannel ) 
 {
     Int_t channelError = 0;
@@ -398,11 +503,17 @@ void TRestReadoutModule::AddChannel( TRestReadoutChannel &rChannel )
     }
 }
 
+///////////////////////////////////////////////
+/// \brief Not implemented
+/// 
 void TRestReadoutModule::Draw()
 {
 
 }
 
+///////////////////////////////////////////////
+/// \brief Prints the module details and channels if *fullDetail* is enabled.
+/// 
 void TRestReadoutModule::Print( Int_t fullDetail )
 {
         cout << "-- Readout module : " << GetModuleID( ) << endl;

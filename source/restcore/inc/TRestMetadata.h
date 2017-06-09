@@ -199,7 +199,7 @@ class TRestMetadata:public TNamed {
 
         //////////////////////////////////////////////////
 
-        /// Must be imlemented in the derived metadata class to print out specific metadata information.
+        /// It is implemented in the derived metadata class to print out specific metadata information.
         void virtual PrintMetadata() = 0;
 
         //Constructor
