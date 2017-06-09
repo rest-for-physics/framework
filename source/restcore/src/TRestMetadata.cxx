@@ -372,6 +372,8 @@
 /// <hr>
 ///
 
+#include <iomanip>
+
 #include <TMath.h>
 #include <TSystem.h>
 #include "TRestMetadata.h"
@@ -467,7 +469,7 @@ Int_t TRestMetadata::isAExpression( string in )
     st2 = "0";
     in = Replace( in, st1, st2, pos );
 
-    return (in.find_first_not_of("-0123456789+*/.,)( ") == std::string::npos && in.length() != 0);
+    return (in.find_first_not_of("-0123456789e+*/.,)( ") == std::string::npos && in.length() != 0);
 }
 
 ///////////////////////////////////////////////

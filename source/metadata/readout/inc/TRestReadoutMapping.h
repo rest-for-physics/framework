@@ -1,18 +1,24 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///             
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestReadoutMapping.cxx
-///
-///             Metadata readout class to map the readout using a uniform grid and optimize channel/pixel find function
-///
-///             Jan 2016:   First concept
-///                 Javier Galan
-///_______________________________________________________________________________
-
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
 #ifndef RestCore_TRestReadoutMapping
 #define RestCore_TRestReadoutMapping
@@ -22,81 +28,57 @@
 #include <TObject.h>
 #include <TMatrixD.h>
 
-
+//! This class defines a uniform 2-dimensional grid relating its nodes to the pixels of a readout.
 class TRestReadoutMapping: public TObject {
 
     private:
 
-        Int_t fNodesX;
-        Int_t fNodesY;
+        Int_t fNodesX;  //!< The number of nodes in the x-axis.
+        Int_t fNodesY;  //!< The number of nodes in the y-axis.
 
-        Double_t fNetSizeX;
-        Double_t fNetSizeY;
+        Double_t fNetSizeX; //!< The size of the net/grid in the x-axis.
+        Double_t fNetSizeY; //!< The size of the net/grid in the y-axis.
         
-        TMatrixD fChannel;
-        TMatrixD fPixel;
+        TMatrixD fChannel;  //!< A matrix containning the channel id for the corresponding XY-node.
+        TMatrixD fPixel;    //!< A matrix containning the pixel id of fChannel for the corresponding XY-node.
         
     public:
 	
-        Int_t GetNumberOfNodesX( ) { return fNodesX; }
-        Int_t GetNumberOfNodesY( ) { return fNodesY; }
         //Getters
-        Bool_t isNodeSet( Int_t i, Int_t j );
-        Bool_t AllNodesSet( );
-        Int_t GetNumberOfNodesNotSet( )
-        {
-            Int_t counter = 0;
-            for( int i = 0; i < fNodesX; i++ )
-                for( int j = 0; j < fNodesY; j++ )
-                {
-                    if( !isNodeSet( i, j ) ) counter++;
-                }
-            return counter;
-
-        }
-
-        Int_t GetNodeX_ForChannelAndPixel( Int_t ch, Int_t px )
-        {
-            for( int i = 0; i < fNodesX; i++ )
-                for( int j = 0; j < fNodesY; j++ )
-                {
-                    if( fChannel[i][j] == ch && fPixel[i][j] == px ) return i;
-                }
-            return -1;
-        }
-
-        Int_t GetNodeY_ForChannelAndPixel( Int_t ch, Int_t px )
-        {
-            for( int i = 0; i < fNodesX; i++ )
-                for( int j = 0; j < fNodesY; j++ )
-                {
-                    if( fChannel[i][j] == ch && fPixel[i][j] == px ) return j;
-                }
-            return -1;
-        }
+        /// Returns the number of nodes in X.
+        Int_t GetNumberOfNodesX( ) { return fNodesX; }
         
-        //! Gets the nodeX index corresponding to the x coordinate
+        /// Returns the number of nodes in Y.
+        Int_t GetNumberOfNodesY( ) { return fNodesY; }
+
+        /// Gets the channel id correspoding to a given node (i,j)
+        Int_t GetChannelByNode( Int_t i, Int_t j ) { return fChannel[i][j]; }
+        
+        /// Gets the pixel id correspoding to a given node (i,j)
+        Int_t GetPixelByNode( Int_t i, Int_t j ) { return fPixel[i][j]; }
+
+        Bool_t isNodeSet( Int_t i, Int_t j );
+
+        Bool_t AllNodesSet( );
+
+        Int_t GetNumberOfNodesNotSet( );
+
+        Int_t GetNodeX_ForChannelAndPixel( Int_t ch, Int_t px );
+
+        Int_t GetNodeY_ForChannelAndPixel( Int_t ch, Int_t px );
+        
         Int_t GetNodeX( Double_t x );
-        //! Gets the nodeY index corresponding to the y coordinate
+
         Int_t GetNodeY( Double_t y );
 
-        //! Gets the X position of node using nodeX index
         Double_t GetX( Int_t nodeX );
-        //! Gets the Y position of node using nodeY index
+
         Double_t GetY( Int_t nodeY );
         
-        //! Gets the readout channel number corresponding to coordinates (x,y) 
         Int_t GetChannel( Double_t x, Double_t y );
-
-        Int_t GetChannelByNode( Int_t i, Int_t j ) { return fChannel[i][j]; }
-        Int_t GetPixelByNode( Int_t i, Int_t j ) { return fPixel[i][j]; }
         
-        //! Gets the readout pixel number corresponding to coordinates (x,y) 
         Int_t GetPixel( Double_t x, Double_t y );
 
-        //Setters
-
-        //! Sets the readout channel and pixel corresponding to a mapping node
         void SetNode( Int_t i, Int_t j, Int_t ch, Int_t pix );
 
         void Initialize( Int_t nX, Int_t nY, Double_t sX, Double_t sY );

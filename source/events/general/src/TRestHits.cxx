@@ -471,6 +471,31 @@ TVector2 TRestHits::GetProjection( Int_t n, Int_t m, TVector3 position )
     return TVector2( longitudinal, transversal );
 }
 
+Double_t TRestHits::GetMaximumHitDistance( )
+{
+    Double_t maxDistance = 0;
+    for( int n = 0; n < this->GetNumberOfHits(); n++ )
+        for( int m = n+1; m < this->GetNumberOfHits(); m++ )
+        {
+            Double_t d = this->GetDistance(n, m);
+            if( d > maxDistance ) maxDistance = d;
+        }
+
+    return maxDistance;
+}
+
+Double_t TRestHits::GetMaximumHitDistance2( )
+{
+    Double_t maxDistance = 0;
+    for( int n = 0; n < this->GetNumberOfHits(); n++ )
+        for( int m = n+1; m < this->GetNumberOfHits(); m++ )
+        {
+            Double_t d = this->GetDistance2(n, m);
+            if( d > maxDistance ) maxDistance = d;
+        }
+
+    return maxDistance;
+}
 
 void TRestHits::PrintHits( Int_t nHits )
 {

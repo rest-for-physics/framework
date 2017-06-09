@@ -109,4 +109,5 @@ for tag in notInstalledTags:
 	os.system ('/usr/bin/make install' )
 	os.system ('git checkout master' )
 	os.system ('git branch -d ' + tag )
+	os.chdir( REST_Build_Path )
 

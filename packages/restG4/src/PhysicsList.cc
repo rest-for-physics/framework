@@ -74,11 +74,16 @@
 
 #include <G4StepLimiter.hh>
 
+Int_t emCounter = 0;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-PhysicsList::PhysicsList() : G4VModularPhysicsList(),
-    fCutForGamma( 10.*um), fCutForElectron(1*mm), fCutForPositron(1*mm)
+PhysicsList::PhysicsList() : G4VModularPhysicsList()
+{
+    cout << "restG4. PhysicsList. Wrong constructor!!" << endl;
+}
+
+PhysicsList::PhysicsList( TRestPhysicsLists *physicsLists ) : G4VModularPhysicsList()
 {
     //add new units for radioActive decays
     // 
@@ -91,12 +96,15 @@ PhysicsList::PhysicsList() : G4VModularPhysicsList(),
     new G4UnitDefinition("day",    "d",   "Time", day);
     new G4UnitDefinition("year",   "y",   "Time", year);        
 
-    //SetVerboseLevel(0);
-
     defaultCutValue = 0.1 * mm;
 
-    InitializePhysicsLists();
+    restPhysList = physicsLists;
 
+    fEmPhysicsList = NULL;
+    fDecPhysicsList = NULL;
+    fRadDecPhysicsList = NULL;
+
+    InitializePhysicsLists();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -116,24 +124,66 @@ void PhysicsList::InitializePhysicsLists()
 {
 
     // Decay physics and all particles
-    fDecPhysicsList = new G4DecayPhysics();
+    if( restPhysList->FindPhysicsList( "G4DecayPhysics" ) >= 0 )
+        fDecPhysicsList = new G4DecayPhysics();
+    else if ( restPhysList->GetVerboseLevel() >= REST_Debug )
+    {
+        G4cout << "restG4. PhysicsList. G4DecayPhysics is not enabled!!" << G4endl;
+    }
 
     // RadioactiveDecay physicsList
-    fRadDecPhysicsList = new G4RadioactiveDecayPhysics();
+    if( restPhysList->FindPhysicsList( "G4RadioactiveDecayPhysics" ) >= 0 )
+        fRadDecPhysicsList = new G4RadioactiveDecayPhysics();
+    else if ( restPhysList->GetVerboseLevel() >= REST_Debug )
+    {
+        G4cout << "restG4. PhysicsList. G4RadioactiveDecayPhysics is not enabled!!" << G4endl;
+    }
 
     // Electromagnetic physicsList
-    fEmPhysicsList = new G4EmLivermorePhysics();
-    // TODO: This should be added as an option through metadata
-    // fEmPhysicsList = new G4EmPenelopePhysics();
-    // fEmPhysicsList = new G4EmStandardPhysics_option3();
-    // fEmPhysicsList = new PhysListEmStandardNR();
+    if( restPhysList->FindPhysicsList( "G4EmLivermorePhysics" ) >= 0 )
+    {
+        if( fEmPhysicsList == NULL ) fEmPhysicsList = new G4EmLivermorePhysics();
+        emCounter++;
+    }
+
+    if( restPhysList->FindPhysicsList( "G4EmPenelopePhysics" ) >= 0 )
+    {
+        if( fEmPhysicsList == NULL ) fEmPhysicsList = new G4EmPenelopePhysics();
+        emCounter++;
+    }
+
+    if( restPhysList->FindPhysicsList( "G4EmStandardPhysics_option3" ) >= 0 )
+    {
+        if( fEmPhysicsList == NULL ) fEmPhysicsList = new G4EmStandardPhysics_option3();
+        emCounter++;
+    }
+
+    if( restPhysList->GetVerboseLevel() >= REST_Warning && emCounter == 0 )
+    {
+        G4cout << "REST WARNING : No electromagenetic physics list has been enabled!!" << G4endl;
+    }
+
+    if( emCounter > 1 )
+    {
+        G4cout << "REST ERROR: restG4. PhysicsList. More than 1 EM PhysicsList enabled." << G4endl;
+        exit(1);
+    }
 
     //Hadronic PhysicsList
-    fHadronPhys.push_back( new G4HadronElasticPhysicsHP());
-    fHadronPhys.push_back(new G4IonBinaryCascadePhysics());
-    fHadronPhys.push_back(new G4HadronPhysicsQGSP_BIC_HP());
-    fHadronPhys.push_back(new G4NeutronTrackingCut());
-    fHadronPhys.push_back(new G4EmExtraPhysics());
+    if( restPhysList->FindPhysicsList( "G4HadronPhysicsQGSP_BIC_HP" ) >= 0 )
+        fHadronPhys.push_back( new G4HadronElasticPhysicsHP() );
+
+    if( restPhysList->FindPhysicsList( "G4IonBinaryCascadePhysics" ) >= 0 )
+        fHadronPhys.push_back( new G4IonBinaryCascadePhysics() );
+
+    if( restPhysList->FindPhysicsList( "G4HadronElasticPhysicsHP" ) >= 0 )
+        fHadronPhys.push_back( new G4HadronPhysicsQGSP_BIC_HP() );
+
+    if( restPhysList->FindPhysicsList( "G4NeutronTrackingCut" ) >= 0 )
+        fHadronPhys.push_back( new G4NeutronTrackingCut() );
+
+    if( restPhysList->FindPhysicsList( "G4EmExtraPhysics" ) >= 0 )
+        fHadronPhys.push_back( new G4EmExtraPhysics() );
 
     G4cout << "Number of hadronic physics lists added "<< fHadronPhys.size() << G4endl;
 
@@ -145,9 +195,14 @@ void PhysicsList::ConstructParticle()
     G4Geantino::GeantinoDefinition();
 
     //particles defined in PhysicsLists
-    fDecPhysicsList->ConstructParticle();
-    fEmPhysicsList->ConstructParticle();
-    fRadDecPhysicsList->ConstructParticle();
+    if( fDecPhysicsList != NULL )
+        fDecPhysicsList->ConstructParticle();
+    
+    if( fEmPhysicsList != NULL )
+        fEmPhysicsList->ConstructParticle();
+
+    if( fRadDecPhysicsList != NULL )
+        fRadDecPhysicsList->ConstructParticle();
 
     for( size_t i = 0; i < fHadronPhys.size(); i++) 
         fHadronPhys[i]->ConstructParticle();
@@ -158,26 +213,48 @@ void PhysicsList::ConstructParticle()
 void PhysicsList::ConstructProcess()
 {
     AddTransportation();
-    // electromagnetic physics list
-    //
-    fEmPhysicsList->ConstructProcess();
-    em_config.AddModels();
 
-    // decay physics list
+    // Electromagnetic physics list
+    if( fEmPhysicsList != NULL )
+    {
+        fEmPhysicsList->ConstructProcess();
+        em_config.AddModels();
+    }
 
-    fDecPhysicsList->ConstructProcess();
+    // Decay physics list
+    if( fDecPhysicsList != NULL )
+        fDecPhysicsList->ConstructProcess();
+
     // Radioactive decay 
-    fRadDecPhysicsList->ConstructProcess();
+    if( fRadDecPhysicsList != NULL )
+        fRadDecPhysicsList->ConstructProcess();
+    
     // hadronic physics lists
     for( size_t i = 0; i < fHadronPhys.size(); i++) 
         fHadronPhys[i]->ConstructProcess();
 
-    G4RadioactiveDecay* radioactiveDecay = new G4RadioactiveDecay();
-    radioactiveDecay->SetHLThreshold(nanosecond);
-    radioactiveDecay->SetICM(true);                //Internal Conversion
+    if( restPhysList->FindPhysicsList( "G4RadioactiveDecay" ) )
+    {
+        G4RadioactiveDecay* radioactiveDecay = new G4RadioactiveDecay();
 
-    // When there is electronic capture X-rays cab be emitted
-    radioactiveDecay->SetARM(true);               //Atomic Rearangement
+        radioactiveDecay->SetHLThreshold(nanosecond);
+
+        // Setting Internal Conversion (ICM) option.
+        if( restPhysList->GetPhysicsListOptionValue( "G4RadioactiveDecay", "ICM" ) == "true" )
+            radioactiveDecay->SetICM(true);                //Internal Conversion
+        else if( restPhysList->GetPhysicsListOptionValue( "G4RadioactiveDecay", "ICM" ) == "false" )
+            radioactiveDecay->SetICM(false);                //Internal Conversion
+        else if( restPhysList->GetVerboseLevel( ) >= REST_Warning )
+                G4cout << "REST WARNING. restG4. PhysicsList. G4RadioactiveDecay. Option ICM not defined." << G4endl;
+
+        // Enabling electron re-arrangment (ARM) option.
+        if( restPhysList->GetPhysicsListOptionValue( "G4RadioactiveDecay", "ARM" ) == "true" )
+            radioactiveDecay->SetARM(true);                //Internal Conversion
+        else if( restPhysList->GetPhysicsListOptionValue( "G4RadioactiveDecay", "ARM" ) == "false" )
+            radioactiveDecay->SetARM(false);                //Internal Conversion
+        else if( restPhysList->GetVerboseLevel( ) >= REST_Warning )
+                G4cout << "REST WARNING. restG4. PhysicsList. G4RadioactiveDecay. Option ARM not defined." << G4endl;
+    }
 
     /*
        G4ScreenedNuclearRecoil* nucr = new G4ScreenedNuclearRecoil();
@@ -222,9 +299,9 @@ void PhysicsList::SetCuts()
 {
     SetCutsWithDefault();
 
-    SetCutValue( fCutForGamma, "gamma" );
-    SetCutValue( fCutForElectron, "e-" );
-    SetCutValue( fCutForPositron, "e+" );
+    SetCutValue( restPhysList->GetCutForGamma() * mm, "gamma" );
+    SetCutValue( restPhysList->GetCutForElectron() * mm, "e-" );
+    SetCutValue( restPhysList->GetCutForPositron() * mm, "e+" );
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

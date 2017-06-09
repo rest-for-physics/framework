@@ -11,6 +11,7 @@
 #include "TRestG4Event.h"
 #include "TRestGeometry.h"
 #include "TRestG4Metadata.h"
+#include "TRestPhysicsLists.h"
 
 #include "G4RunManager.hh"
 #include "G4UImanager.hh"
@@ -52,6 +53,7 @@ TRestRun *restRun;
 TRestG4Track *restTrack;
 TRestG4Event *restG4Event, *subRestG4Event;
 TRestG4Metadata *restG4Metadata;
+TRestPhysicsLists *restPhysList;
 
 #include <TGeoVolume.h>
 
@@ -69,6 +71,7 @@ TH1D initialAngularDistribution;
 Int_t N_events;
 char inputConfigFile[256];
 char restG4Name[256];
+char physListName[256];
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
 
 int main(int argc,char** argv) {
@@ -78,10 +81,12 @@ int main(int argc,char** argv) {
     if( argc >= 2 ) sprintf( inputConfigFile, "%s", argv[1] );
     if( argc >= 3 ) sprintf( restG4Name, "%s", argv[2] );
 
+    sprintf( physListName, "%s", "default" );
     // }}} 
 
     // {{{ Initializing REST classes
     restG4Metadata = new TRestG4Metadata( inputConfigFile, (string) restG4Name );
+    restPhysList = new TRestPhysicsLists( inputConfigFile, (string) physListName );
 
     restRun = new TRestRun( inputConfigFile );
     restRun->SetRunTag( restG4Metadata->GetTitle() );
@@ -92,6 +97,7 @@ int main(int argc,char** argv) {
     restRun->SetOutputEvent( subRestG4Event );
 
     restRun->AddMetadata( restG4Metadata );
+    restRun->AddMetadata( restPhysList );
     restRun->PrintInfo();
 
     restTrack = new TRestG4Track( );
@@ -138,7 +144,7 @@ int main(int argc,char** argv) {
     DetectorConstruction *det = new DetectorConstruction( );
 
     runManager->SetUserInitialization( det );
-    runManager->SetUserInitialization(new PhysicsList);
+    runManager->SetUserInitialization(new PhysicsList( restPhysList ) );
 
     // set user action classes
     PrimaryGeneratorAction* prim  = new PrimaryGeneratorAction( det );
@@ -309,11 +315,16 @@ int main(int argc,char** argv) {
 
     else           // define visualization and UI terminal for interactive mode 
     { 
-        cout << "Entering vis mode" << endl;
-        cout << "Biasing : " << biasing << endl;
+        cout << "The number of events to be simulated is Zero!" << endl;
+        cout << "Make sure you did not forget the number of events entry in TRestG4Metadata." << endl;
+        cout << endl;
+        cout << "<parameter name=\"Nevents\" value=\"100\"/>" << endl;
+        cout << endl;
+        cout << "Trying to enter vis mode" << endl;
 #ifdef G4UI_USE
         G4UIExecutive * ui = new G4UIExecutive(argc,argv);      
 #ifdef G4VIS_USE
+        cout << "Executing G4 macro : /control/execute macros/vis.mac"  << endl;
         UI->ApplyCommand("/control/execute macros/vis.mac");          
 #endif
         ui->SessionStart();

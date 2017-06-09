@@ -355,9 +355,11 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
             if( GetVerboseLevel() >= REST_Debug )
             {
                 cout << endl;
+                cout << "--------------------------------------" << endl;
                 cout << "Plot name : " << fPlotNames[n] << endl;
                 cout << "Plot string : " << plotString << endl;
                 cout << "Cut string : " << fCutString[n] << endl;
+                cout << "Plot option : " << fPlotOption[n] << endl;
                 cout << "--------------------------------------" << endl;
 
             }

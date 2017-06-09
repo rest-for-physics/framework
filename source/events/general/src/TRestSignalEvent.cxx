@@ -137,7 +137,7 @@ void TRestSignalEvent::AddChargeToSignal( Int_t sgnlID, Double_t tm, Double_t ch
 
 void TRestSignalEvent::PrintEvent()
 {
-    //TRestEvent::PrintEvent();
+    TRestEvent::PrintEvent();
 
     for( int i = 0; i < GetNumberOfSignals(); i++ )
     {

@@ -1,20 +1,24 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///             
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestReadout.h
-///
-///             Base class from which to inherit all other event classes in REST 
-///
-///             sep 2015:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///                 Javier Galan
-///_______________________________________________________________________________
-
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
 #ifndef RestCore_TRestReadout
 #define RestCore_TRestReadout
@@ -26,38 +30,29 @@
 #include "TRestMetadata.h"
 #include "TRestReadoutPlane.h"
 
+//! A metadata class to generate/store a readout description.
 class TRestReadout:public TRestMetadata {
     private:
         void InitFromConfigFile();
 
-        virtual void Initialize();
+        void Initialize();
 
-        Bool_t fDecoding;
+        Bool_t fDecoding;   //!< Defines if a decoding file was used to set the relation between a physical readout channel id and a signal daq id 
 
-        Int_t fNReadoutPlanes;
-        std::vector <TRestReadoutPlane> fReadoutPlanes;
+        Int_t fNReadoutPlanes;  //!< Number of readout planes present on the readout
+        std::vector <TRestReadoutPlane> fReadoutPlanes; ///< A vector storing the TRestReadoutPlane definitions.
 
 #ifndef __CINT__
-        Int_t fMappingNodes;
-        vector <TRestReadoutModule> fModuleDefinitions;
+        Int_t fMappingNodes;    //!< Number of nodes per axis used on the readout coordinate mapping. See also TRestReadoutMapping.
+        vector <TRestReadoutModule> fModuleDefinitions; //!< A vector storing the different TRestReadoutModule definitions.
 #endif
 
         void ValidateReadout( );
 
-
-    protected:
-
     public:
 
-        void Draw();
-
-        void PrintMetadata( ) { PrintMetadata( 0 ); }
-        void PrintMetadata( Int_t fullDetail );
-
-        TRestReadoutPlane *GetReadoutPlane( int p ) { return &fReadoutPlanes[p]; }
-
-        void AddReadoutPlane( TRestReadoutPlane plane ) { fReadoutPlanes.push_back( plane ); fNReadoutPlanes++; }
-
+        TRestReadoutPlane *GetReadoutPlane( int p );
+        void AddReadoutPlane( TRestReadoutPlane plane );
 
         Int_t GetNumberOfReadoutPlanes( );
         Int_t GetNumberOfModules( );
@@ -67,15 +62,19 @@ class TRestReadout:public TRestMetadata {
 
         Double_t GetX( Int_t plane, Int_t modID, Int_t chID );
         Double_t GetY( Int_t plane, Int_t modID, Int_t chID );
-        
+
+        void PrintMetadata( ) { PrintMetadata( 0 ); }
+        void PrintMetadata( Int_t fullDetail );
+
+        void Draw();
+
         //Construtor
         TRestReadout();
         TRestReadout( const char *cfgFileName);
         TRestReadout( const char *cfgFileName, std::string name);
         //Destructor
-        virtual ~ TRestReadout();
+        virtual ~TRestReadout();
 
-
-        ClassDef(TRestReadout, 1);     // REST readout class
+        ClassDef(TRestReadout, 1);
 };
 #endif

@@ -1,20 +1,47 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///             
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestReadoutPlane.cxx
-///
-///             Base class for managing run data storage. It contains a TRestEvent and TRestMetadata array. 
-///
-///             apr 2015:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///             aug 2015    Javier Galan
-///_______________________________________________________________________________
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
+
+//////////////////////////////////////////////////////////////////////////
+///
+/// This class stores the readout plane geometrical description, plane 
+/// position, orientation, and cathode position. It contains
+/// a vector of TRestReadoutModule with the readout modules that are
+/// implemented in the readout plane.
+/// 
+///--------------------------------------------------------------------------
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2016-mar:  First concept.
+///            Javier Galan
+///
+/// \class      TRestReadoutPlane
+/// \author     Javier Galan
+///
+/// <hr>
+///
 
 #include "TRestReadoutPlane.h"
 using namespace std;
@@ -22,18 +49,24 @@ using namespace std;
 const int debug = 0;
 
 ClassImp(TRestReadoutPlane)
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Default TRestReadoutPlane constructor
+/// 
 TRestReadoutPlane::TRestReadoutPlane()
 {
     Initialize();
 }
 
-
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Default TRestReadoutPlane destructor
+/// 
 TRestReadoutPlane::~TRestReadoutPlane()
 {
 }
 
+///////////////////////////////////////////////
+/// \brief TRestReadoutPlane initialization
+/// 
 void TRestReadoutPlane::Initialize()
 {
     fCathodePosition = TVector3( 0, 0, 0 );
@@ -44,7 +77,9 @@ void TRestReadoutPlane::Initialize()
     fReadoutModules.clear();
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Returns the total number of channels in the readout plane
+/// 
 Int_t TRestReadoutPlane::GetNumberOfChannels( ) 
 {
     Int_t nChannels = 0;
@@ -53,6 +88,18 @@ Int_t TRestReadoutPlane::GetNumberOfChannels( )
     return nChannels;
 }
 
+///////////////////////////////////////////////
+/// \brief Calculates the drift distance between readout plane and cathode
+/// 
+void TRestReadoutPlane::SetDriftDistance( )
+{
+    Double_t tDriftDistance = this->GetDistanceTo( this->GetCathodePosition() );
+    this->SetTotalDriftDistance( tDriftDistance );
+}
+
+///////////////////////////////////////////////
+/// \brief Returns a pointer to a module using its internal module id
+/// 
 TRestReadoutModule *TRestReadoutPlane::GetModuleByID( Int_t modID )
 {
 
@@ -64,6 +111,9 @@ TRestReadoutModule *TRestReadoutPlane::GetModuleByID( Int_t modID )
     return NULL;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns a pointer to a channel using its internal channel and module ids
+/// 
 TRestReadoutChannel *TRestReadoutPlane::GetChannelByID( Int_t modID, Int_t chID )
 {
     TRestReadoutModule *module = GetModuleByID( modID );
@@ -76,6 +126,17 @@ TRestReadoutChannel *TRestReadoutPlane::GetChannelByID( Int_t modID, Int_t chID 
     return NULL;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns the X coordinate of a given channel in a given module using
+/// their internal module and channel ids.
+/// 
+/// This method evaluates if the channel is a strip or a pixel. If it is a 
+/// strip and the X-axis is not localized, this function returns NaN.
+///
+/// \param modID Internal module id. As defined on the readout.
+/// \param chID Internal channel id. As defined on the readout.
+///
+/// \return The value of the X-coordinate relative to the readout position
 Double_t TRestReadoutPlane::GetX( Int_t modID, Int_t chID )
 {
     TRestReadoutModule *rModule = GetModuleByID( modID );
@@ -120,6 +181,17 @@ Double_t TRestReadoutPlane::GetX( Int_t modID, Int_t chID )
     return x;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns the Y coordinate of a given channel in a given module using
+/// their internal module and channel ids.
+/// 
+/// This method evaluates if the channel is a strip or a pixel. If it is a 
+/// strip and the Y-axis is not localized, this function returns NaN.
+///
+/// \param modID Internal module id. As defined on the readout.
+/// \param chID Internal channel id. As defined on the readout.
+///
+/// \return The value of the X-coordinate relative to the readout position
 Double_t TRestReadoutPlane::GetY( Int_t modID, Int_t chID )
 {
     TRestReadoutModule *rModule = GetModuleByID( modID );
@@ -165,11 +237,52 @@ Double_t TRestReadoutPlane::GetY( Int_t modID, Int_t chID )
     return y;
 }
 
+///////////////////////////////////////////////
+/// \brief Finds the readout channel for a given module stored in a given 
+/// module index stored in the readout plane (internal readout plane module id).
+/// 
+/// \param absX It is the x absolut physical position 
+/// \param absY It is the y absolut physical position 
+/// \return The corresponding channel id
+Int_t TRestReadoutPlane::FindChannel( Int_t module, Double_t absX, Double_t absY )
+{
+    Double_t modX = absX - fPosition.X();
+    Double_t modY = absY - fPosition.Y();
+
+    // TODO : check first if (modX,modY) is inside the module.
+    // If not return error.
+    // FindChannel will take a long time to search for the channel if it is not there.
+    // It will be faster
+    
+    return GetModule( module )->FindChannel( modX, modY );
+}
+
+///////////////////////////////////////////////
+/// \brief Returns the perpendicular distance to the readout plane of a given *x*, *y*, *z* position
+/// 
+Double_t TRestReadoutPlane::GetDistanceTo( Double_t x, Double_t y, Double_t z ) 
+{ 
+    return GetDistanceTo( TVector3( x, y, z ) ); 
+}
+
+
+///////////////////////////////////////////////
+/// \brief Returns the perpendicular distance to the readout plane of a given TVector3 position
+/// 
 Double_t TRestReadoutPlane::GetDistanceTo( TVector3 pos )
 {
         return ( pos - GetPosition() ).Dot( GetPlaneVector() );
 }
 
+///////////////////////////////////////////////
+/// \brief This method determines if a given *x*, *y*, *z* coordinates are inside the
+/// readout plane definition. The z-coordinate must be found in between the cathode
+/// and the readout plane. The *x* and *y* values must be found inside one of the
+/// readout modules defined inside the readout plane.
+///
+/// \return the module *id* where the hit is found. If no module *id* is found it
+/// returns -1.
+///
 Int_t TRestReadoutPlane::isInsideDriftVolume( Double_t x, Double_t y, Double_t z )
 {
     TVector3 pos = TVector3( x, y, z );
@@ -177,6 +290,17 @@ Int_t TRestReadoutPlane::isInsideDriftVolume( Double_t x, Double_t y, Double_t z
     return isInsideDriftVolume( pos );
 }
 
+///////////////////////////////////////////////
+/// \brief This method determines if a given position,
+/// is inside the readout plane definition. The z-coordinate must be found in between 
+/// the cathode and the readout plane. The *x* and *y* values must be found inside 
+/// one of the readout modules defined inside the readout plane.
+///
+/// \param pos A TVector3 definning the position.
+///
+/// \return the module *id* where the hit is found. If no module *id* is found it
+/// returns -1.
+///
 Int_t TRestReadoutPlane::isInsideDriftVolume( TVector3 pos )
 {
     TVector3 posNew = TVector3( pos.X()-fPosition.X(), pos.Y()-fPosition.Y(), pos.Z() );
@@ -192,7 +316,10 @@ Int_t TRestReadoutPlane::isInsideDriftVolume( TVector3 pos )
     return -1;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Prints information with details of the readout plane and modules 
+/// defined inside the readout plane.
+/// 
 void TRestReadoutPlane::Print( Int_t fullDetail )
 {
         cout << "-- Readout plane : " << GetID( ) << endl;
@@ -211,43 +338,18 @@ void TRestReadoutPlane::Print( Int_t fullDetail )
 
 }
 
+///////////////////////////////////////////////
+/// \brief Draws the readout plane using GetReadoutHistogram. 
+///
 void TRestReadoutPlane::Draw()
 {
-    /*
-    for( int modID = 0; modID < GetNumberOfModules(); modID++ )
-    {
-        TRestReadoutPlaneModule md = GetReadoutModule( modID );
-
-        Double_t x[5], y[5];
-        x[0] = md.GetModuleOriginX();
-        y[0] = md.GetModuleOriginY();
-
-        x[1] = x[0] + md.GetModuleSizeX();
-        y[1] = y[0];
-
-        x[2] = x[1];
-        y[2] = y[1] + md.GetModuleSizeY();
-
-        x[3] = x[2] - md.GetModuleSizeX();
-        y[3] = y[2];
-
-        x[4] = x[3];
-        y[4] = y[3] - md.GetModuleSizeY();
-
-
-        TGraph modGraph( 5, x, y );
-
-        drawingElement.push_back( modGraph );
-    }
-
-    for( unsigned int i = 0; i < drawingElement.size(); i++ )
-    {
-        drawingElement[i].Draw("same");
-    }
-    */
+    this->GetReadoutHistogram( )->Draw();
 }
 
-
+///////////////////////////////////////////////
+/// \brief Creates and resturns a TH2Poly object with the 
+/// readout pixel description.
+///
 TH2Poly *TRestReadoutPlane::GetReadoutHistogram( )
 {
 
@@ -288,6 +390,9 @@ TH2Poly *TRestReadoutPlane::GetReadoutHistogram( )
     return readoutHistogram;
 }
 
+///////////////////////////////////////////////
+/// \brief Finds the xy boundaries of the readout plane delimited by the modules
+///
 void TRestReadoutPlane::GetBoundaries( double &xmin, double &xmax, double &ymin, double &ymax )
 {
 

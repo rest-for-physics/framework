@@ -39,6 +39,8 @@
 #include "globals.hh"
 #include "G4EmConfigurator.hh"
 
+#include <TRestPhysicsLists.h>
+
 using namespace std;
 class G4VPhysicsConstructor;
 
@@ -48,6 +50,7 @@ class PhysicsList: public G4VModularPhysicsList
 {
   public:
     PhysicsList();
+    PhysicsList( TRestPhysicsLists *restPhysicsLists );
    ~PhysicsList();
 
   protected:
@@ -60,14 +63,12 @@ class PhysicsList: public G4VModularPhysicsList
   private:
       G4EmConfigurator em_config;
 
-      G4double fCutForGamma;
-      G4double fCutForElectron;
-      G4double fCutForPositron;
-
       G4VPhysicsConstructor*                   fEmPhysicsList;
       G4VPhysicsConstructor*                   fDecPhysicsList;
       G4VPhysicsConstructor*                   fRadDecPhysicsList;
       std::vector < G4VPhysicsConstructor* >   fHadronPhys;
+
+      TRestPhysicsLists *restPhysList;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

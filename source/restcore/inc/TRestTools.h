@@ -32,6 +32,8 @@ class TRestTools:public TObject {
 
         static TString GetFirstOption( TString &path );
 
+	static std::vector <TString> GetFilesMatchingPattern( TString pattern );
+
         ClassDef(TRestTools, 1); // Rest tools class 
 };
 #endif

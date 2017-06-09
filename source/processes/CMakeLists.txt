@@ -2,7 +2,7 @@
 file(GLOB ProcessesGeneral
         "general/src/*.cxx"
         )
-    set(CLASS_DICT  TRestElectronDiffusionProcess TRestFiducializationProcess TRestHitsReductionProcess TRestHitsShuffleProcess TRestHitsToSignalProcess TRestHitsToTrackProcess TRestFastHitsToTrackProcess TRestSignalToHitsProcess TRestSignalZeroSuppresionProcess
+    set(CLASS_DICT  TRestElectronDiffusionProcess TRestFiducializationProcess TRestHitsReductionProcess TRestHitsShuffleProcess TRestHitsToSignalProcess TRestHitsToTrackProcess TRestTrackToHitsProcess TRestFastHitsToTrackProcess TRestSignalToHitsProcess TRestSignalZeroSuppresionProcess
         TRestTrackReductionProcess TRestTrackPathMinimizationProcess TRestTrackReconnectionProcess TRestTrackLinearizationProcess
         TRestAvalancheProcess TRestHitsRotateAndTraslateProcess TRestSmearingProcess TRestHitsNormalizationProcess TRestG4toHitsProcess )
 foreach (CLASS ${CLASS_DICT})
@@ -30,7 +30,7 @@ endforeach (CLASS)
 file(GLOB ProcessesRaw
         "raw/src/*.cxx"
         )
-set(CLASS_DICT TRestRawToSignalProcess TRestFEMINOSToSignalProcess TRestCoBoAsAdToSignalProcess TRestAFTERToSignalProcess)
+set(CLASS_DICT TRestRawToSignalProcess TRestFEMINOSToSignalProcess TRestMultiCoBoAsAdToSignalProcess TRestCoBoAsAdToSignalProcess TRestAFTERToSignalProcess)
 foreach (CLASS ${CLASS_DICT})
     set(ROOT_DICT_INCLUDE_DIRS ${REST_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
     set(ROOT_DICT_INPUT_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/raw/inc/${CLASS}.h)

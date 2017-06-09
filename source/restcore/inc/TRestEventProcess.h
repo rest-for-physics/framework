@@ -32,55 +32,58 @@
 #include "TCanvas.h"
 
 class TRestEventProcess:public TRestMetadata {
-	protected:
-		Int_t fStatusOfProcess;	///< integer to hold the status of task: 0 = successful >0 = some error happened
-		Int_t fVerbose;              ///<! Verbose level of the process execution [0...3] OBSOLETE!!
+    protected:
+        Int_t fStatusOfProcess;	///< integer to hold the status of task: 0 = successful >0 = some error happened
+        Int_t fVerbose;              ///<! Verbose level of the process execution [0...3] OBSOLETE!!
 
-		virtual void InitFromConfigFile() = 0;
+        virtual void InitFromConfigFile() = 0;
 
 #ifndef __CINT__
-		TRestEvent *fInputEvent;	///< Pointer to input event
-		TRestEvent *fOutputEvent;    ///< Pointer to output event
+        TRestEvent *fInputEvent;	///< Pointer to input event
+        TRestEvent *fOutputEvent;    ///< Pointer to output event
 
-		std::vector <TRestMetadata*> fRunMetadata; ///< Array to other metadata classes needed by the process
+        std::vector <TRestMetadata*> fRunMetadata; ///< Array to other metadata classes needed by the process
 
-		std::vector <string> fObservableNames; ///< Array to observables names to be produced by the process
+        std::vector <string> fObservableNames; ///< Array to observables names to be produced by the process
 
-		TRestAnalysisTree *fAnalysisTree; ///< Pointer to analysis tree where to store the observables. 
+        TRestAnalysisTree *fAnalysisTree; ///< Pointer to analysis tree where to store the observables. 
 
- 	        Bool_t fIsExternal; ///< It defines if the process reads event data from an external source.
+        Bool_t fIsExternal; ///< It defines if the process reads event data from an external source.
 
-  		TString fInputFileName;
+        TString fInputFileName;
 
-		TCanvas *fCanvas;
-		TVector2 fCanvasSize;
+        TCanvas *fCanvas;
+        TVector2 fCanvasSize;
 
-		Bool_t fReadOnly;
+        Bool_t fReadOnly;
 #endif
 
         template <typename eventType> 
-        void TransferEvent ( eventType *evOutput, eventType *evInput )
-        { 
-            if( evOutput != NULL ) 
-            {
-                delete evOutput;
-                evOutput = NULL;
-            }
-            evOutput = (eventType *) evInput->Clone();
-        } 
+            void TransferEvent ( eventType *evOutput, eventType *evInput )
+            { 
+                if( evOutput != NULL ) 
+                {
+                    delete evOutput;
+                    evOutput = NULL;
+                }
+                evOutput = (eventType *) evInput->Clone();
+            } 
 
-        public:
-            virtual TRestEvent *GetInputEvent() { return fInputEvent; } ///< Get pointer to input event
-            virtual TRestEvent *GetOutputEvent() { return fOutputEvent; } ///< Get pointer to output event
+    public:
+        virtual TRestEvent *GetInputEvent() { return fInputEvent; } ///< Get pointer to input event
+        virtual TRestEvent *GetOutputEvent() { return fOutputEvent; } ///< Get pointer to output event
 
         virtual Bool_t OpenInputFile(TString fName);
-	   TString GetInputFilename( ) { return fInputFileName; }
+        TString GetInputFilename( ) { return fInputFileName; }
 
-		virtual void InitProcess() { } ///< To be executed at the beginning of the run
-		virtual TRestEvent *ProcessEvent( TRestEvent *evInput ) = 0; ///< Process one event
-		virtual void EndProcess() { } ///< To be executed at the end of the run
-		virtual void BeginOfEventProcess() { fOutputEvent->Initialize(); } ///< To be executed before processing event
-		virtual void EndOfEventProcess() { } ///< To be executed after processing event
+        virtual void InitProcess() { } ///< To be executed at the beginning of the run
+        virtual TRestEvent *ProcessEvent( TRestEvent *evInput ) = 0; ///< Process one event
+        virtual void EndProcess() { } ///< To be executed at the end of the run
+        virtual void BeginOfEventProcess() { }
+
+        void StampOutputEvent( TRestEvent *inEv );
+
+        virtual void EndOfEventProcess() { } ///< To be executed after processing event
 
         virtual TString GetProcessName();
 
@@ -90,49 +93,49 @@ class TRestEventProcess:public TRestMetadata {
 
         Bool_t isExternal( ) { return fIsExternal; } 
 
-		void CreateCanvas() 
-		{ 
-			if( fCanvas != NULL ) return;
-			
-			fCanvas = new TCanvas( this->GetName(), this->GetTitle(), fCanvasSize.X(), fCanvasSize.Y() );
-		}
+        void CreateCanvas() 
+        { 
+            if( fCanvas != NULL ) return;
 
-		TCanvas *GetCanvas( ) { return fCanvas; }
+            fCanvas = new TCanvas( this->GetName(), this->GetTitle(), fCanvasSize.X(), fCanvasSize.Y() );
+        }
 
-		void SetCanvasSize( Int_t x, Int_t y ) { fCanvasSize = TVector2( x, y ); }
+        TCanvas *GetCanvas( ) { return fCanvas; }
 
-		void SetReadOnly( Bool_t rO ) { fReadOnly = rO; }
+        void SetCanvasSize( Int_t x, Int_t y ) { fCanvasSize = TVector2( x, y ); }
 
-		vector <string> ReadObservables( );
+        void SetReadOnly( Bool_t rO ) { fReadOnly = rO; }
 
-		TRestMetadata *GetGasMetadata( );
-		TRestMetadata *GetReadoutMetadata( );
-		TRestMetadata *GetGeant4Metadata( );
-		TRestMetadata *GetDetectorSetup( );
+        vector <string> ReadObservables( );
 
-		Double_t GetDoubleParameterFromClass( TString className, TString parName );
-		Double_t GetDoubleParameterFromClassWithUnits( TString className, TString parName );
+        TRestMetadata *GetGasMetadata( );
+        TRestMetadata *GetReadoutMetadata( );
+        TRestMetadata *GetGeant4Metadata( );
+        TRestMetadata *GetDetectorSetup( );
 
-		virtual TRestMetadata *GetProcessMetadata() { return NULL; }
-		void SetMetadata( std::vector <TRestMetadata*> meta ) { fRunMetadata = meta; }
+        Double_t GetDoubleParameterFromClass( TString className, TString parName );
+        Double_t GetDoubleParameterFromClassWithUnits( TString className, TString parName );
 
-		TRestAnalysisTree *GetAnalysisTree( ) { return fAnalysisTree; }
-		void SetAnalysisTree( TRestAnalysisTree *tree ) { fAnalysisTree = tree; }
+        virtual TRestMetadata *GetProcessMetadata() { return NULL; }
+        void SetMetadata( std::vector <TRestMetadata*> meta ) { fRunMetadata = meta; }
 
-		void BeginPrintProcess();
-		void EndPrintProcess();
+        TRestAnalysisTree *GetAnalysisTree( ) { return fAnalysisTree; }
+        void SetAnalysisTree( TRestAnalysisTree *tree ) { fAnalysisTree = tree; }
 
-		//Getters
-		Int_t GetStatus() { return fStatusOfProcess; }
-	//	Int_t GetVerboseLevel() { return fVerbose; } 
-		//Setters
-		void SetVerboseLevel(Int_t verbose) { fVerbose = verbose; }
+        void BeginPrintProcess();
+        void EndPrintProcess();
 
-		//Constructor
-		TRestEventProcess();
-		//Destructor
-		~TRestEventProcess();
+        //Getters
+        Int_t GetStatus() { return fStatusOfProcess; }
+        //	Int_t GetVerboseLevel() { return fVerbose; } 
+        //Setters
+        void SetVerboseLevel(Int_t verbose) { fVerbose = verbose; }
 
-		ClassDef(TRestEventProcess, 1);      // Base class for a REST process
+        //Constructor
+        TRestEventProcess();
+        //Destructor
+        ~TRestEventProcess();
+
+        ClassDef(TRestEventProcess, 1);      // Base class for a REST process
 };
 #endif
