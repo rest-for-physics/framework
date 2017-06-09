@@ -34,20 +34,20 @@
 #include <TGraph.h>
 #include <TH2Poly.h>
 
-//! A class to store the readout plane definition used in TRestReadout. It allows to integrate any number of independent readout modules.
+/// A class to store the readout plane definition used in TRestReadout. It allows to integrate any number of independent readout modules.
 class TRestReadoutPlane: public TObject {
     private:
 
-        Int_t fPlaneID; //!< The readout plane id. The id number is imposed by the order of creation. Being the first id=0.
+        Int_t fPlaneID; ///< The readout plane id. The id number is imposed by the order of creation. Being the first id=0.
 
-        TVector3 fPosition; //!< The position of the readout plane. The relative position of the modules will be shifted by this value.
-        TVector3 fPlaneVector;  //!< The plane vector definning the plane orientation and the side of the active volume.
-        TVector3 fCathodePosition;  //!< The cathode position which delimites the active volume together with the readout plane.
-        Double_t fChargeCollection; //!< A parameter between 0 and 1 definning how much charge should be collected from a charge hit. It might be used to distribute the charge between different readout planes.
-        Double_t fTotalDriftDistance;   //!< A parameter storing the total drift distance, defined between cathode and readout plane.
+        TVector3 fPosition; ///< The position of the readout plane. The relative position of the modules will be shifted by this value.
+        TVector3 fPlaneVector;  ///< The plane vector definning the plane orientation and the side of the active volume.
+        TVector3 fCathodePosition;  ///< The cathode position which delimites the active volume together with the readout plane.
+        Double_t fChargeCollection; ///< A parameter between 0 and 1 definning how much charge should be collected from a charge hit. It might be used to distribute the charge between different readout planes.
+        Double_t fTotalDriftDistance;   ///< A parameter storing the total drift distance, defined between cathode and readout plane.
 
-        Int_t fNModules;    //!< The number of modules that have been added to the readout plane
-        std::vector <TRestReadoutModule> fReadoutModules;   //!< A vector of the instances of TRestReadoutModule containned in the readout plane.
+        Int_t fNModules;    ///< The number of modules that have been added to the readout plane
+        std::vector <TRestReadoutModule> fReadoutModules;   ///< A vector of the instances of TRestReadoutModule containned in the readout plane.
 
         void Initialize();
 

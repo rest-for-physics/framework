@@ -30,21 +30,21 @@
 #include "TRestMetadata.h"
 #include "TRestReadoutPlane.h"
 
-//! A metadata class to generate/store a readout description.
+/// A metadata class to generate/store a readout description.
 class TRestReadout:public TRestMetadata {
     private:
         void InitFromConfigFile();
 
         void Initialize();
 
-        Bool_t fDecoding;   //!< Defines if a decoding file was used to set the relation between a physical readout channel id and a signal daq id 
+        Bool_t fDecoding;   ///< Defines if a decoding file was used to set the relation between a physical readout channel id and a signal daq id 
 
-        Int_t fNReadoutPlanes;  //!< Number of readout planes present on the readout
+        Int_t fNReadoutPlanes;  ///< Number of readout planes present on the readout
         std::vector <TRestReadoutPlane> fReadoutPlanes; ///< A vector storing the TRestReadoutPlane definitions.
 
 #ifndef __CINT__
-        Int_t fMappingNodes;    //!< Number of nodes per axis used on the readout coordinate mapping. See also TRestReadoutMapping.
-        vector <TRestReadoutModule> fModuleDefinitions; //!< A vector storing the different TRestReadoutModule definitions.
+        Int_t fMappingNodes;    ///< Number of nodes per axis used on the readout coordinate mapping. See also TRestReadoutMapping.
+        vector <TRestReadoutModule> fModuleDefinitions; ///< A vector storing the different TRestReadoutModule definitions.
 #endif
 
         void ValidateReadout( );

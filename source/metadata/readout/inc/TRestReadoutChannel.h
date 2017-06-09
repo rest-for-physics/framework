@@ -29,12 +29,12 @@
 
 #include "TRestReadoutPixel.h"
 
-//! A class to store the readout channel definition used in TRestReadoutModule. It allows to integrate any number of independent readout pixels.
+/// A class to store the readout channel definition used in TRestReadoutModule. It allows to integrate any number of independent readout pixels.
 class TRestReadoutChannel : public TObject {
     private:
-        Int_t fChannelID; //!< Defines the physical readout channel id
-        Int_t fDaqID;     //!< Defines the corresponding daq channel id. See decoding details at TRestReadout.
-        std::vector <TRestReadoutPixel> fReadoutPixel;  //!< A vector storing the different TRestReadoutPixel definitions.
+        Int_t fChannelID; ///< Defines the physical readout channel id
+        Int_t fDaqID;     ///< Defines the corresponding daq channel id. See decoding details at TRestReadout.
+        std::vector <TRestReadoutPixel> fReadoutPixel;  ///< A vector storing the different TRestReadoutPixel definitions.
 
         void Initialize();
 

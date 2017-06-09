@@ -28,19 +28,19 @@
 #include <TObject.h>
 #include <TMatrixD.h>
 
-//! This class defines a uniform 2-dimensional grid relating its nodes to the pixels of a readout.
+/// This class defines a uniform 2-dimensional grid relating its nodes to the pixels of a readout.
 class TRestReadoutMapping: public TObject {
 
     private:
 
-        Int_t fNodesX;  //!< The number of nodes in the x-axis.
-        Int_t fNodesY;  //!< The number of nodes in the y-axis.
+        Int_t fNodesX;  ///< The number of nodes in the x-axis.
+        Int_t fNodesY;  ///< The number of nodes in the y-axis.
 
-        Double_t fNetSizeX; //!< The size of the net/grid in the x-axis.
-        Double_t fNetSizeY; //!< The size of the net/grid in the y-axis.
+        Double_t fNetSizeX; ///< The size of the net/grid in the x-axis.
+        Double_t fNetSizeY; ///< The size of the net/grid in the y-axis.
         
-        TMatrixD fChannel;  //!< A matrix containning the channel id for the corresponding XY-node.
-        TMatrixD fPixel;    //!< A matrix containning the pixel id of fChannel for the corresponding XY-node.
+        TMatrixD fChannel;  ///< A matrix containning the channel id for the corresponding XY-node.
+        TMatrixD fPixel;    ///< A matrix containning the pixel id of fChannel for the corresponding XY-node.
         
     public:
 	

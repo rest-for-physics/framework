@@ -36,7 +36,7 @@
 /// 2015-aug:  First concept.
 ///            Javier Galan
 ///
-/// \class      TRestReadoutPixel
+/// \class      TRestReadoutChannel
 /// \author     Javier Galan
 ///
 /// <hr>

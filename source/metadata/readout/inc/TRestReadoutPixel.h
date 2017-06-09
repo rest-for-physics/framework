@@ -29,17 +29,17 @@
 #include <TVector2.h>
 #include <TMath.h>
 
-//! A class to store the readout pixel definition used in TRestReadoutChannel. 
+/// A class to store the readout pixel definition used in TRestReadoutChannel. 
 class TRestReadoutPixel : public TObject {
     private:
-        Int_t fPixelID; //!< The internal pixel id.
-        Double_t fPixelOriginX; //!< The pixel x-origin position, left-bottom corner.
-        Double_t fPixelOriginY; //!< The pixel y-origin position, left-bottom corner.
+        Int_t fPixelID; ///< The internal pixel id.
+        Double_t fPixelOriginX; ///< The pixel x-origin position, left-bottom corner.
+        Double_t fPixelOriginY; ///< The pixel y-origin position, left-bottom corner.
 
-        Double_t fPixelSizeX; //!< The pixel x size.
-        Double_t fPixelSizeY; //!< The pixel y size.
+        Double_t fPixelSizeX; ///< The pixel x size.
+        Double_t fPixelSizeY; ///< The pixel y size.
 
-        Double_t fRotation; //!< The pixel rotation angle in degrees, rotation with axis at the origin position.
+        Double_t fRotation; ///< The pixel rotation angle in degrees, rotation with axis at the origin position.
 
         void Initialize();
 

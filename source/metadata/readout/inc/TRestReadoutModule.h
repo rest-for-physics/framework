@@ -32,39 +32,39 @@
 #include <TRestReadoutChannel.h>
 #include <TRestReadoutMapping.h>
 
-//! A class to store the readout module definition used in TRestReadoutPlane. It allows to integrate any number of independent readout channels.
+/// A class to store the readout module definition used in TRestReadoutPlane. It allows to integrate any number of independent readout channels.
 class TRestReadoutModule : public TObject {
     private:
-        Int_t fModuleID; //!< The module id given by the readout definition.
+        Int_t fModuleID; ///< The module id given by the readout definition.
 
-        TString fModuleName; //!< The assigned module name.
+        TString fModuleName; ///< The assigned module name.
 
-        Double_t fModuleOriginX;    //!< The module x-position (left-bottom corner) relative to the readout plane position.
-        Double_t fModuleOriginY;    //!< The module y-position (left-bottom corner) relative to the readout plane position.
+        Double_t fModuleOriginX;    ///< The module x-position (left-bottom corner) relative to the readout plane position.
+        Double_t fModuleOriginY;    ///< The module y-position (left-bottom corner) relative to the readout plane position.
 
-        Double_t fModuleSizeX;      //!< X-size of the module. All pixels should be containned within this size.
-        Double_t fModuleSizeY;      //!< Y-size of the module. All pixels should be containned within this size.  
+        Double_t fModuleSizeX;      ///< X-size of the module. All pixels should be containned within this size.
+        Double_t fModuleSizeY;      ///< Y-size of the module. All pixels should be containned within this size.  
 
-        Double_t fModuleRotation;   //!< The rotation of the module around the position=(fModuleOriginX, fModuleOriginY) in degrees.
+        Double_t fModuleRotation;   ///< The rotation of the module around the position=(fModuleOriginX, fModuleOriginY) in degrees.
 
-        Int_t fMininimumDaqId;  //!< The minimum daq channel id associated to the module.
-        Int_t fMaximumDaqId;    //!< The maximum daq channel id associated to the module.
+        Int_t fMininimumDaqId;  ///< The minimum daq channel id associated to the module.
+        Int_t fMaximumDaqId;    ///< The maximum daq channel id associated to the module.
 
-        std::vector <TRestReadoutChannel> fReadoutChannel;  //!< A vector of the instances of TRestReadoutChannel containned in the readout module.
+        std::vector <TRestReadoutChannel> fReadoutChannel;  ///< A vector of the instances of TRestReadoutChannel containned in the readout module.
 
-        TRestReadoutMapping fMapping;   //!< The readout module uniform grid mapping.
+        TRestReadoutMapping fMapping;   ///< The readout module uniform grid mapping.
 
-        Double_t fTolerance;    //!< Tolerance allowed in overlaps at the pixel boundaries in mm.
+        Double_t fTolerance;    ///< Tolerance allowed in overlaps at the pixel boundaries in mm.
 
         void Initialize();
 
-        /// Converts the coordinates given by TVector2 in the readout plane reference system to the readout module reference system.
+        // Converts the coordinates given by TVector2 in the readout plane reference system to the readout module reference system.
         TVector2 TransformToModuleCoordinates( TVector2 p )
         {
             return TransformToModuleCoordinates( p.X(), p.Y() );
         }
 
-        /// Converts the coordinates (xPhys,yPhys) in the readout plane reference system to the readout module reference system.
+        // Converts the coordinates (xPhys,yPhys) in the readout plane reference system to the readout module reference system.
         TVector2 TransformToModuleCoordinates( Double_t xPhys, Double_t yPhys )
         {
             TVector2 coords( xPhys - fModuleOriginX, yPhys - fModuleOriginY );
@@ -73,7 +73,7 @@ class TRestReadoutModule : public TObject {
             return rot;
         }
 
-        /// Converts the coordinates (xMod,yMod) in the readout module reference system to the readout plane reference system.
+        // Converts the coordinates (xMod,yMod) in the readout module reference system to the readout plane reference system.
         TVector2 TransformToPhysicalCoordinates( Double_t xMod, Double_t yMod )
         {
             TVector2 coords( xMod, yMod );
