@@ -93,7 +93,7 @@ class TRestReadoutPixel : public TObject {
         void SetRotation( Double_t rot ) { fRotation = rot; }
         
         Bool_t isInside( TVector2 pos );
-        Bool_t isInside( Int_t x, Int_t y );
+        Bool_t isInside( Double_t x, Double_t y );
 
         TVector2 TransformToPixelCoordinates( TVector2 p );
 

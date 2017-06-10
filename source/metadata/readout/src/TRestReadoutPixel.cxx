@@ -123,7 +123,7 @@ TVector2 TRestReadoutPixel::GetVertex( int n ) const
 /// \brief Determines if a given *x,y* coordinates are found inside the pixel.
 /// The coordinates are referenced to the readout module system.
 ///
-Bool_t TRestReadoutPixel::isInside( Int_t x, Int_t y ) 
+Bool_t TRestReadoutPixel::isInside( Double_t x, Double_t y ) 
 {
     TVector2 pos(x,y);
     return isInside( pos );
