@@ -387,6 +387,8 @@ TH2Poly *TRestReadoutPlane::GetReadoutHistogram( )
         }
     }
 
+    readoutHistogram->SetStats(0);
+
     return readoutHistogram;
 }
 
