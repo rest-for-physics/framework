@@ -64,6 +64,8 @@ class TRestReadoutChannel : public TObject {
         void AddPixel( TRestReadoutPixel pix ) { fReadoutPixel.push_back( pix ); }
 
         TRestReadoutPixel *GetPixelByID( int id );
+
+        Int_t isInside( Double_t x, Double_t y );
         
         void Print( );
 

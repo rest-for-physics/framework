@@ -72,6 +72,16 @@ void TRestReadoutChannel::Initialize()
 }
 
 ///////////////////////////////////////////////
+/// \brief Determines if (x,y) referenced to module coordinates is inside the channel
+///
+Int_t TRestReadoutChannel::isInside( Double_t x, Double_t y )
+{
+    for( unsigned int i = 0; i < fReadoutPixel.size(); i++ )
+        if( fReadoutPixel[i].isInside( x, y ) ) return true;
+    return false;
+}
+
+///////////////////////////////////////////////
 /// \brief Returns a TRestReadoutPixel pointer using the internal pixel id.
 /// 
 TRestReadoutPixel *TRestReadoutChannel::GetPixelByID( int id )
