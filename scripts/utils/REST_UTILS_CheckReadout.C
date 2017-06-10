@@ -101,7 +101,7 @@ int REST_UTILS_CheckReadout( TString rootFile, TString name, Double_t region[4],
     c->DrawFrame(xmin,ymin,xmax,ymax);
     c->SetTicks();
 
-    GetHittedStripMap( readoutPlane, stripsMask, region )->Draw("Psame");
+    GetHittedStripMap( readoutPlane, stripsMask, region, N )->Draw("Psame");
 
     for( int i = 0; i < modGraphID; i++ ) modGraph[i]->Draw("same");
 
@@ -110,7 +110,7 @@ int REST_UTILS_CheckReadout( TString rootFile, TString name, Double_t region[4],
 
 }
 
-TGraph *GetHittedStripMap( TRestReadoutPlane *p, Int_t mask[4], Double_t region[4] )
+TGraph *GetHittedStripMap( TRestReadoutPlane *p, Int_t mask[4], Double_t region[4], Int_t N )
 {
     Double_t xmin, xmax, ymin, ymax;
 
