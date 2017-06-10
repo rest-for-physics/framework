@@ -4,7 +4,7 @@
 using namespace std;
 
 
-int REST_TestBench_Readout( TString rootFile, TString name, Int_t plane = 0 )
+int REST_Readout_Viewer( TString rootFile, TString name, Int_t plane = 0 )
 {
 
     TFile *f = new TFile( rootFile );
