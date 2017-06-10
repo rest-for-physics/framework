@@ -410,6 +410,7 @@ void TRestReadout::InitFromConfigFile()
     while( ( moduleString = GetKEYStructure( "readoutModule", posSection ) ) != "NotFound" )
     {
         TRestReadoutModule module;
+        if( GetVerboseLevel() >= REST_Warning ) module.EnableWarnings();
 
         string moduleDefinition = GetKEYDefinition( "readoutModule", moduleString );
 

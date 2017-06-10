@@ -82,6 +82,8 @@ void TRestReadoutModule::Initialize()
     fMininimumDaqId = -1;
 
     fTolerance = 1.e-6;
+
+    showWarnings = false;
 }
 
 ///////////////////////////////////////////////
@@ -225,16 +227,11 @@ Bool_t TRestReadoutModule::isDaqIDInside( Int_t daqID )
 Int_t TRestReadoutModule::FindChannel( Double_t absX, Double_t absY )
 {
 
+    if(  !isInside( absX, absY ) )
+        return -1;
+
     Double_t x = TransformToModuleCoordinates( absX, absY ).X();
     Double_t y = TransformToModuleCoordinates( absX, absY ).Y();
-
-    if(  !isInside( x, y ) )
-    {
-        cout << "REST WARNING. TRestReadoutModule::FindChannel." << endl;
-        cout << "The ( x , y ) = (" << x << " , " << y << " ) module" << endl;
-        cout << " coordinates are not inside the module size" << endl;
-        return -1;
-    }
 
     Int_t nodeX = fMapping.GetNodeX( x );
     Int_t nodeY = fMapping.GetNodeY( y );
@@ -346,7 +343,7 @@ Bool_t TRestReadoutModule::isInside( TVector2 pos )
  
 ///////////////////////////////////////////////
 /// \brief Determines if the position *x,y* is found in any of the pixels
-/// of the readout *channel* given.
+/// of the readout *channel* index given.
 /// 
 Bool_t TRestReadoutModule::isInsideChannel( Int_t channel, Double_t x, Double_t y )
 {
@@ -357,13 +354,45 @@ Bool_t TRestReadoutModule::isInsideChannel( Int_t channel, Double_t x, Double_t 
 
 ///////////////////////////////////////////////
 /// \brief Determines if the position TVector2 *pos* is found in any of the pixels
-/// of the readout *channel* given.
+/// of the readout *channel* index given.
 /// 
 Bool_t TRestReadoutModule::isInsideChannel( Int_t channel, TVector2 pos )
 {
     pos = TransformToModuleCoordinates( pos );
     for( int idx = 0; idx < GetChannel(channel)->GetNumberOfPixels(); idx++ )
         if( GetChannel( channel )->GetPixel( idx )->isInside( pos ) ) return true;
+    return false;
+}
+ 
+///////////////////////////////////////////////
+/// \brief Determines if the position *x,y* is found in any of the pixels
+/// of the physical readout *channel* id given.
+/// 
+Bool_t TRestReadoutModule::isInsideChannelByID( Int_t channel, Double_t x, Double_t y )
+{
+    TVector2 pos(x,y);
+
+    return isInsideChannelByID( channel, pos );
+}
+
+///////////////////////////////////////////////
+/// \brief Determines if the position TVector2 *pos* is found in any of the pixels
+/// of the readout *channel* given.
+/// 
+Bool_t TRestReadoutModule::isInsideChannelByID( Int_t channel, TVector2 pos )
+{
+    /*
+    cout << "Readout plane coordinates" << endl;
+    pos.Print();
+    */
+    pos = TransformToModuleCoordinates( pos );
+    /*
+    cout << "Module coordinates" << endl;
+    pos.Print();
+    getchar();
+    */
+    for( int idx = 0; idx < GetChannelByID(channel)->GetNumberOfPixels(); idx++ )
+        if( GetChannelByID( channel )->GetPixel( idx )->isInside( pos ) ) return true;
     return false;
 }
 
@@ -488,19 +517,18 @@ void TRestReadoutModule::AddChannel( TRestReadoutChannel &rChannel )
 
         if( oX + fTolerance < 0 || oY + fTolerance < 0 || sX - fTolerance > fModuleSizeX || sY - fTolerance > fModuleSizeY )
         {
-            cout << "REST Warning (AddChannel) pixel outside the module boundaries" << endl;
-            cout << "Pixel " << i << " ID : " << rChannel.GetPixel(i)->GetID() << endl;
-            cout << "Pixel origin = (" << oX << " , " << oY << ")" << endl;
-            cout << "Pixel size = (" << sX << " , " << sY << ")" << endl;
-            cout << "Module size = (" << fModuleSizeX << " , " << fModuleSizeY << ")" << endl;
-            channelError++;
+            if( showWarnings )
+            {
+                cout << "REST Warning (AddChannel) pixel outside the module boundaries" << endl;
+                cout << "Pixel " << i << " ID : " << rChannel.GetPixel(i)->GetID() << endl;
+                cout << "Pixel origin = (" << oX << " , " << oY << ")" << endl;
+                cout << "Pixel size = (" << sX << " , " << sY << ")" << endl;
+                cout << "Module size = (" << fModuleSizeX << " , " << fModuleSizeY << ")" << endl;
+            }
         }
     }
 
-    if( channelError == 0 ) fReadoutChannel.push_back( rChannel ); 
-    else {
-        cout << "REST Warning (AddChannel) : Channel ID " << rChannel.GetID() << " not Added. Found " << channelError << " pixels outside the module boundaries" << endl;
-    }
+    fReadoutChannel.push_back( rChannel ); 
 }
 
 ///////////////////////////////////////////////

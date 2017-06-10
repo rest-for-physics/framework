@@ -56,15 +56,19 @@ class TRestReadoutModule : public TObject {
 
         Double_t fTolerance;    ///< Tolerance allowed in overlaps at the pixel boundaries in mm.
 
+#ifndef __CINT__
+        Bool_t showWarnings;    ///< Flag to enable/disable warning outputs. Disabled by default. REST_Warning in TRestReadout will enable it.
+#endif
+
         void Initialize();
 
-        // Converts the coordinates given by TVector2 in the readout plane reference system to the readout module reference system.
+        /// Converts the coordinates given by TVector2 in the readout plane reference system to the readout module reference system.
         TVector2 TransformToModuleCoordinates( TVector2 p )
         {
             return TransformToModuleCoordinates( p.X(), p.Y() );
         }
 
-        // Converts the coordinates (xPhys,yPhys) in the readout plane reference system to the readout module reference system.
+        /// Converts the coordinates (xPhys,yPhys) in the readout plane reference system to the readout module reference system.
         TVector2 TransformToModuleCoordinates( Double_t xPhys, Double_t yPhys )
         {
             TVector2 coords( xPhys - fModuleOriginX, yPhys - fModuleOriginY );
@@ -73,7 +77,7 @@ class TRestReadoutModule : public TObject {
             return rot;
         }
 
-        // Converts the coordinates (xMod,yMod) in the readout module reference system to the readout plane reference system.
+        /// Converts the coordinates (xMod,yMod) in the readout module reference system to the readout plane reference system.
         TVector2 TransformToPhysicalCoordinates( Double_t xMod, Double_t yMod )
         {
             TVector2 coords( xMod, yMod );
@@ -89,7 +93,7 @@ class TRestReadoutModule : public TObject {
     public:
         // Setters
         
-        /// Sets the module by id definition
+        ///  Sets the module by id definition
         void SetModuleID( Int_t modID ) { fModuleID = modID; }
 
         /// Sets the module size by definition using (sX, sY) coordinates
@@ -166,6 +170,12 @@ class TRestReadoutModule : public TObject {
         /// Returns the total number of channels defined inside the module
         Int_t GetNumberOfChannels( ) { return fReadoutChannel.size(); }
 
+        /// Enables warning output
+        void EnableWarnings() { showWarnings = true; }
+
+        /// Disables warning output
+        void DisableWarnings() { showWarnings = false; }
+
         TRestReadoutChannel *GetChannelByID( int id );
         
         void DoReadoutMapping( Int_t nodes = 0 );
@@ -175,6 +185,9 @@ class TRestReadoutModule : public TObject {
 
         Bool_t isInsideChannel( Int_t channel, Double_t x, Double_t y );
         Bool_t isInsideChannel( Int_t channel, TVector2 pos );
+
+        Bool_t isInsideChannelByID( Int_t channel, Double_t x, Double_t y );
+        Bool_t isInsideChannelByID( Int_t channel, TVector2 pos );
         
         Bool_t isInsidePixel( Int_t channel, Int_t pixel, Double_t x, Double_t y );
         Bool_t isInsidePixel( Int_t channel, Int_t pixel, TVector2 pos );
