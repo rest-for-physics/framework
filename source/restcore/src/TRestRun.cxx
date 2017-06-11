@@ -617,6 +617,16 @@ void TRestRun::OpenInputFile( TString fName )
     tmpExperimentName = GetExperimentName();
 
     TKey *key = GetObjectKeyByClass( "TRestRun" );
+
+    if( key == NULL )
+    {
+        cout << "TRestRun::OpenInputFile. REST Error. Could not find TRestRun class inside. " << endl;
+        cout << "File : " << fName << endl;
+        fInputFile->Close();
+        fInputFile = NULL;
+        return;
+    }
+
     this->Read( key->GetName() );
 
     // Transfering metadata to historic
