@@ -1,4 +1,4 @@
-\brief Instructions to setup your local environment, compile and install REST in your local system
+\brief Instructions to setup your environment, compile and install REST in your local system
 
 The following instructions assume you have a linux system with ubuntu or debian based distribution. This will basically affect only to the installation of required packages using apt-get command.
 
