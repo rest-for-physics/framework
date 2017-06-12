@@ -5,7 +5,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestLinearizedTrackEvent.h
+///             TRestLinearTrackEvent.h
 ///
 ///             Event class to store linearized track events
 ///
@@ -16,8 +16,8 @@
 ///_______________________________________________________________________________
 
 
-#ifndef RestDAQ_TRestLinearizedTrackEvent
-#define RestDAQ_TRestLinearizedTrackEvent
+#ifndef RestDAQ_TRestLinearTrackEvent
+#define RestDAQ_TRestLinearTrackEvent
 
 #include <iostream>
 
@@ -29,7 +29,7 @@
 #include <TRestEvent.h>
 #include <TRestLinearTrack.h>
 
-class TRestLinearizedTrackEvent: public TRestEvent {
+class TRestLinearTrackEvent: public TRestEvent {
 
     protected:
         Int_t fNTracks;
@@ -165,10 +165,10 @@ class TRestLinearizedTrackEvent: public TRestEvent {
         TPad *DrawEvent( TString option = "");
                 
         //Construtor
-        TRestLinearizedTrackEvent();
+        TRestLinearTrackEvent();
         //Destructor
-        virtual ~ TRestLinearizedTrackEvent();
+        virtual ~ TRestLinearTrackEvent();
 
-        ClassDef(TRestLinearizedTrackEvent, 1);     // REST event superclass
+        ClassDef(TRestLinearTrackEvent, 1);     // REST event superclass
 };
 #endif

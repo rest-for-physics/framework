@@ -14,7 +14,7 @@
 #define RestCore_TRestTrackLinearizationProcess
 
 #include <TRestTrackEvent.h>
-#include <TRestLinearizedTrackEvent.h>
+#include <TRestLinearTrackEvent.h>
 #include "TRestEventProcess.h"
 
 class TRestTrackLinearizationProcess:public TRestEventProcess {
@@ -25,7 +25,7 @@ class TRestTrackLinearizationProcess:public TRestEventProcess {
 
 #ifndef __CINT__
         TRestTrackEvent *fInputTrackEvent;
-        TRestLinearizedTrackEvent *fOutputLinearizedTrackEvent;
+        TRestLinearTrackEvent *fOutputLinearTrackEvent;
 #endif
 
         void InitFromConfigFile();

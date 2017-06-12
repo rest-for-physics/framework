@@ -28,7 +28,7 @@ endforeach (CLASS)
 file(GLOB EventsAnalysis
         "analysis/src/*.cxx"
         )
-set(CLASS_DICT TRestTrackEvent TRestTrack TRestLinearizedTrackEvent TRestLinearTrack)
+set(CLASS_DICT TRestTrackEvent TRestTrack TRestLinearTrackEvent TRestLinearTrack)
 foreach (CLASS ${CLASS_DICT})
     set(ROOT_DICT_INCLUDE_DIRS ${REST_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
     set(ROOT_DICT_INPUT_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/analysis/inc/${CLASS}.h)

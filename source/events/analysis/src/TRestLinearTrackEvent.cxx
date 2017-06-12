@@ -5,7 +5,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestLinearizedTrackEvent.h
+///             TRestLinearTrackEvent.h
 ///
 ///             Event class to store linearized track events
 ///
@@ -17,24 +17,24 @@
 ///_______________________________________________________________________________
 
 
-#include "TRestLinearizedTrackEvent.h"
+#include "TRestLinearTrackEvent.h"
 using namespace std;
 
-ClassImp(TRestLinearizedTrackEvent)
+ClassImp(TRestLinearTrackEvent)
 //______________________________________________________________________________
-    TRestLinearizedTrackEvent::TRestLinearizedTrackEvent()
+    TRestLinearTrackEvent::TRestLinearTrackEvent()
 {
-   // TRestLinearizedTrackEvent default constructor
+   // TRestLinearTrackEvent default constructor
    Initialize();
 }
 
 //______________________________________________________________________________
-TRestLinearizedTrackEvent::~TRestLinearizedTrackEvent()
+TRestLinearTrackEvent::~TRestLinearTrackEvent()
 {
-   // TRestLinearizedTrackEvent destructor
+   // TRestLinearTrackEvent destructor
 }
 
-void TRestLinearizedTrackEvent::Initialize()
+void TRestLinearTrackEvent::Initialize()
 {
     TRestEvent::Initialize();
 
@@ -55,7 +55,7 @@ void TRestLinearizedTrackEvent::Initialize()
 }
 
 
-void TRestLinearizedTrackEvent::PrintEvent( Bool_t fullInfo )
+void TRestLinearTrackEvent::PrintEvent( Bool_t fullInfo )
 {
     TRestEvent::PrintEvent();
 
@@ -68,7 +68,7 @@ void TRestLinearizedTrackEvent::PrintEvent( Bool_t fullInfo )
 }
 
 //Draw current event in a Tpad
-TPad *TRestLinearizedTrackEvent::DrawEvent( TString option )
+TPad *TRestLinearTrackEvent::DrawEvent( TString option )
 {
     if( fPad != NULL ) { delete fPad; fPad=NULL;}
 

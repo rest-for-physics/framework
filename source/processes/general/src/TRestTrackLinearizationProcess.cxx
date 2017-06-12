@@ -34,7 +34,7 @@ TRestTrackLinearizationProcess::TRestTrackLinearizationProcess( char *cfgFileNam
 TRestTrackLinearizationProcess::~TRestTrackLinearizationProcess( )
 {
     delete fInputTrackEvent;
-    delete fOutputLinearizedTrackEvent;
+    delete fOutputLinearTrackEvent;
 }
 
 void TRestTrackLinearizationProcess::LoadDefaultConfig( )
@@ -52,9 +52,9 @@ void TRestTrackLinearizationProcess::Initialize( )
     SetSectionName( this->ClassName() );
 
     fInputTrackEvent = new TRestTrackEvent();
-    fOutputLinearizedTrackEvent = new TRestLinearizedTrackEvent();
+    fOutputLinearTrackEvent = new TRestLinearTrackEvent();
 
-    fOutputEvent = fOutputLinearizedTrackEvent;
+    fOutputEvent = fOutputLinearTrackEvent;
     fInputEvent  = fInputTrackEvent;
 
     fTransversalResolution = .1;
@@ -79,7 +79,7 @@ void TRestTrackLinearizationProcess::InitProcess()
 //______________________________________________________________________________
 void TRestTrackLinearizationProcess::BeginOfEventProcess() 
 {
-    fOutputLinearizedTrackEvent->Initialize(); 
+    fOutputLinearTrackEvent->Initialize(); 
 }
 
 //______________________________________________________________________________
@@ -161,10 +161,10 @@ TRestEvent* TRestTrackLinearizationProcess::ProcessEvent( TRestEvent *evInput )
         linTrack.SetEnergy( parentTrack->GetEnergy() );
         linTrack.SetMeanPosition( parentTrack->GetMeanPosition() );
 
-        fOutputLinearizedTrackEvent->AddLinearTrack( linTrack );
+        fOutputLinearTrackEvent->AddLinearTrack( linTrack );
     }
 
-    return fOutputLinearizedTrackEvent;
+    return fOutputLinearTrackEvent;
 }
 
 TVector2 TRestTrackLinearizationProcess::FindProjection( TVector3 position, TRestHits *nodes )
