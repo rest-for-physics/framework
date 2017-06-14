@@ -20,8 +20,8 @@ std::vector <TString> inputFiles;
 void PrintHelp( )
 {
     cout << "-----------------------------------------------------------------------------------" << endl;
-    cout << "This program will integrate an existing variable inside TRestAnalysisTree" << endl;
-    cout << "The integration range must be given by argument" << endl;
+    cout << " This program will visualize the events inside a REST file using the TRestEvent::Draw" << endl;
+    cout << " method implemented in each specific event data type." << endl;
     cout << endl;
     cout << "Usage : ./restDrawEvents --f INPUT_FILE" << endl;
     cout << "-----------------------------------------------------------------------------------" << endl;

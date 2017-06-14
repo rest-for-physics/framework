@@ -13,11 +13,6 @@ void PrintHelp( )
     cout << endl;
     cout << "Usage : ./restG4PrintParticles --f INPUT_FILE" << endl;
     cout << endl;
-    cout << "-----------------------------------------------------------------------------------" << endl;
-    cout << " INPUT_FILE : Input file name. It can be also specified from the analysisPlot " << endl;
-    cout << " section using addFile key. " << endl;
-    cout << "-----------------------------------------------------------------------------------" << endl;
-    cout << endl;
     cout << " You can also specify a file input range using the shell *,? characters as in ls." << endl;
     cout << " For example : \"Run_simulation_*.root\". " << endl;
     cout << endl;
@@ -32,7 +27,7 @@ int main( int argc, char *argv[] )
 	char *argVRint[3];
 
 	char batch[64], quit[64], appName[64];
-	sprintf ( appName, "restPlots" );
+	sprintf ( appName, "restG4PrintParticles" );
 	sprintf( batch, "%s", "-b" );
 	sprintf( quit, "%s", "-q" );
 

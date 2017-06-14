@@ -17,9 +17,9 @@ std::vector <TString> inputFiles;
 void PrintHelp( )
 {
     cout << "-----------------------------------------------------------------------------------" << endl;
-    cout << "This program prints on screen the run info inside INPUT_FILE" << endl;
+    cout << "This program prints on screen the ROOT obejects inside INPUT_FILE" << endl;
     cout << endl;
-    cout << "Usage : ./restPrintRunInfo INPUT_FILE" << endl;
+    cout << "Usage : ./restPrintFileContents INPUT_FILE" << endl;
     cout << "-----------------------------------------------------------------------------------" << endl;
     cout << endl;
 }
@@ -30,7 +30,7 @@ int main( int argc, char *argv[] )
 	char *argVRint[3];
 
 	char batch[64], quit[64], appName[64];
-	sprintf ( appName, "restPrintRunInfo" );
+	sprintf ( appName, "restPrintFileContents" );
 	sprintf( batch, "%s", "-b" );
 	sprintf( quit, "%s", "-q" );
 
