@@ -44,7 +44,7 @@ myMetadata::~myMetadata()
 
 void myMetadata::Initialize()
 {
-	SetName( "myMetadataSection" );
+	SetSectionName( "myMetadataSection" );
 
     fDummy = -1;
 }
