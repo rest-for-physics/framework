@@ -550,8 +550,6 @@ void TRestReadout::InitFromConfigFile()
 
             for( int ch = 0; ch < fModuleDefinitions[mid].GetNumberOfChannels(); ch++ )
             {
-                cout << "Channel : " << ch << endl;
-
                 if( !fDecoding )
                 {
                     Int_t id = fModuleDefinitions[mid].GetChannel(ch)->GetID( );

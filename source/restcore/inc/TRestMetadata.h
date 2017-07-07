@@ -132,9 +132,9 @@ class TRestMetadata:public TNamed {
         std::string ReplaceEnvironmentalVariables( const std::string buffer );
         std::string ExtractLoopStructure( std::string in, size_t pos );
         std::string RemoveComments( string in );
+        std::string SectionsToXMLType( string in );
 
         std::string GetSectionByNameFromFile( std::string nref, std::string fref );
-        Int_t FindSection( std::string buffer, size_t startPos = 0 );
 
     public:
         /// Returns a string with the path used for data storage
@@ -181,7 +181,7 @@ class TRestMetadata:public TNamed {
         static TVector3 StringTo3DVector( std::string in );
         static TVector2 StringTo2DVector( std::string in );
         static std::string RemoveWhiteSpaces( std::string in );
-        static std::string Replace( std::string in, std::string thisString, std::string byThisString, size_t fromPosition );
+        static std::string Replace( std::string in, std::string thisString, std::string byThisString, size_t fromPosition = 0, Int_t N = 0 );
         static Int_t Count( std::string s, std::string sbstring);
         static bool fileExists( const std::string& filename );
         static bool isRootFile( const std::string& filename ); 

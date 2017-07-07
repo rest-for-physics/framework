@@ -63,6 +63,21 @@
 /// </section>
 ///
 /// \endcode
+/// 
+/// The section can be also defined skipped the **section** keyword,
+/// using the following convention.
+///
+/// \code
+///
+/// <sectionName name="userGivenName" title="User given title" >
+///
+///     <keyStructure field1="value1" field2="value2" ... >
+///
+///     ...
+///
+/// </sectionName>
+///
+/// \endcode
 ///
 /// The derived class from TRestMetadata is resposible to define the name of the
 /// section (*sectionName*) used to extract the corresponding metadata section 
@@ -462,12 +477,12 @@ Int_t TRestMetadata::isAExpression( string in )
     size_t pos = 0;
     string st1 = "sqrt";
     string st2 = "0";
-    in = Replace( in, st1, st2, pos );
+    in = Replace( in, st1, st2, pos, 0 );
 
     pos = 0;
     st1 = "log";
     st2 = "0";
-    in = Replace( in, st1, st2, pos );
+    in = Replace( in, st1, st2, pos, 0 );
 
     return (in.find_first_not_of("-0123456789e+*/.,)( ") == std::string::npos && in.length() != 0);
 }
@@ -491,6 +506,24 @@ string TRestMetadata::RemoveComments( string in )
     {
         int length = out.find("-->", pos) - pos;
         out.erase( pos, length+3 ); 
+    }
+    return out;
+}
+
+string TRestMetadata::SectionsToXMLType( string in )
+{
+    string out = in;
+    size_t pos = 0;
+    while( (pos = out.find("<section ", pos)) != string::npos )
+    {
+        // Removing <section keyword
+        out.replace( pos, 9, "<" ); 
+
+        size_t pos2 = out.find( " ", pos );
+
+        string sectionName = trim( in.substr( pos+9, pos2-pos ) );
+
+        out = this->Replace( out, (string) "</section>", (string) ("</" + (TString) sectionName + ">"), pos2, 1);
     }
     return out;
 }
@@ -528,17 +561,22 @@ Int_t TRestMetadata::Count( string in, string substring )
 }
 
 ///////////////////////////////////////////////
-/// \brief Replace every occurences of **thisSring** by **byThisString** inside string **in**.
+/// \brief Replace the first **N** occurences of **thisSring** by **byThisString** inside string **in**. 
+/// If **N=0** (which is the default) all occurences will be replaced.
 ///
-string TRestMetadata::Replace( string in, string thisString, string byThisString, size_t fromPosition = 0 )
+string TRestMetadata::Replace( string in, string thisString, string byThisString, size_t fromPosition, Int_t N )
 {
     string out = in;
     size_t pos = fromPosition;
+    Int_t cont = 0;
     while( (pos = out.find( thisString , pos)) != string::npos )
     {
         if( debug ) cout << "replacing (" << thisString << ") by (" << byThisString << ")" << endl;
         out.replace( pos, thisString.length(), byThisString ); 
         pos = pos + 1;
+        cont++;
+
+        if( N > 0 && cont == N ) return out;
     }
 
     return out;
@@ -717,6 +755,7 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
         temporalBuffer += line;
 
     temporalBuffer = RemoveComments( temporalBuffer );
+    temporalBuffer = SectionsToXMLType( temporalBuffer );
 
     // We temporally associate the environment to the configBuffer
     // We define environment variables that have validity only during execution
@@ -738,7 +777,7 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
     if( configBuffer != "" )
     {
 
-	configBuffer = ReplaceIncludeDefinitions( configBuffer );
+        configBuffer = ReplaceIncludeDefinitions( configBuffer );
         // We extract the values from globals. 
         // Globals will not be stored but they will be used by the REST framework during execution
 
@@ -778,53 +817,47 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
         }
     }
 
-    // Then we just extract the corresponding section defined in the derived class (fSectionName)
-    size_t sectionPosition = 0;
-    while( sectionPosition != (size_t) NOT_FOUND && sectionPosition != string::npos )
+    // We just extract the corresponding section name as defined in the derived class (fSectionName)
+    pos = 0;
+    while( ( configBuffer = GetKEYStructure( fSectionName, pos, temporalBuffer ) ) != "" )
     {
-        sectionPosition = FindSection( temporalBuffer, sectionPosition );
-        if( this->GetName() == name || name == "" ) break;
-        if( sectionPosition == (size_t) NOT_FOUND )
+        this->SetName( (TString) GetFieldValue( "name", configBuffer ) );
+        this->SetTitle( (TString) GetFieldValue( "title", configBuffer ) );
+
+        if( (TString) this->GetName() == "Not defined" ) 
         {
-            cout << "REST ERROR : Section " << fSectionName << " with name : " << name << " not found" << endl;
-            exit(-1);
+            string sectionDefinition = GetKEYDefinition( fSectionName, configBuffer );
+
+            string nameref = GetFieldValue( "nameref", sectionDefinition );
+            string fileref = GetFieldValue( "file", sectionDefinition );
+
+            if( nameref != "Not defined" && fileref != "Not defined" )
+            {
+                configBuffer = GetSectionByNameFromFile( nameref, fileref );
+                if( configBuffer == "" ) 
+                { 
+                    cout << "REST error : Could not find section " << fSectionName <<
+                        " with name : " << nameref <<
+                        " inside " << ReplaceEnvironmentalVariables( fileref ) << endl; 
+                    exit(1); 
+                    return -1; 
+                }
+            }
         }
 
-        sectionPosition++;
+        if( this->GetName() == name || name == "" ) break;
     }
 
-    configBuffer = GetKEYStructure( "section", sectionPosition, temporalBuffer );
+    if( configBuffer == "" )
+    {
+        cout << "REST ERROR : Section " << fSectionName << " with name : " << name << " not found" << endl;
+        exit(1);
+    }
 
     configBuffer = ReplaceIncludeDefinitions( configBuffer );
 
-    string sectionDefinition = GetKEYDefinition( "section", configBuffer );
+    string sectionDefinition = GetKEYDefinition( fSectionName, configBuffer );
 
-    if( (TString) this->GetName() == "Not defined" ) 
-    {
-        string nameref = GetFieldValue( "nameref", sectionDefinition );
-        string fileref = GetFieldValue( "file", sectionDefinition );
-
-        if( nameref != "Not defined" && fileref != "Not defined" )
-        {
-            configBuffer = GetSectionByNameFromFile( nameref, fileref );
-            if( configBuffer == "" ) 
-            { 
-                cout << "REST error : Could not find section " << fSectionName <<
-                    " with name : " << nameref <<
-                    " inside " << ReplaceEnvironmentalVariables( fileref ) << endl; 
-                exit(1); 
-                return -1; 
-            }
-        }
-        else
-        {
-            cout << "REST Error : Section : " << fSectionName << " --> name, nameref or file not found!!" << endl;
-
-            configBuffer = "";
-        }
-    }
-
-    sectionDefinition = GetKEYDefinition( "section", configBuffer );
     string debugStr = GetFieldValue( "verboseLevel", sectionDefinition );
     if ( debugStr == "silent" )
        fVerboseLevel = REST_Silent;
@@ -861,7 +894,7 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
         if( myParam != "\"\"" )
         {
             if( debug ) cout << myParam << " = " << value << endl;
-            configBuffer = Replace( configBuffer, myParam, value, position );
+            configBuffer = Replace( configBuffer, myParam, value, position, 0 );
         }
     }
 
@@ -879,7 +912,7 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
         if( myParam != "\"\"" )
         {
             if( debug ) cout << myParam << " = " << value << endl;
-            configBuffer = Replace( configBuffer, myParam, value, position );
+            configBuffer = Replace( configBuffer, myParam, value, position, 0 );
         }
     }
 
@@ -1145,7 +1178,7 @@ string TRestMetadata::ReplaceIncludeDefinitions( const string buffer )
 
                 string outputNow;
                 size_t pos2 = 0;
-                outputNow = Replace( outputBuffer, includeString, temporalBuffer, pos2 ); 
+                outputNow = Replace( outputBuffer, includeString, temporalBuffer, pos2, 0 ); 
                 outputBuffer = outputNow;
             }
         }
@@ -2288,66 +2321,10 @@ string TRestMetadata::GetSectionByNameFromFile( string nref, string fref )
 
     size_t position = 0;
     string sectionString;
-    while( ( sectionString = GetKEYStructure( "section", position, temporalBuffer ) ) != "" )
-    {
-
-        size_t pos = 0;
-        if( FindSection( sectionString, pos ) != -1 ) 
-            if ( GetFieldValue( "name", sectionString ) == nref ) {  return sectionString; }
-    }
+    while( ( sectionString = GetKEYStructure( fSectionName, position, temporalBuffer ) ) != "" )
+        if ( GetFieldValue( "name", sectionString ) == nref ) {  return sectionString; }
 
     return "";
-}
-
-///////////////////////////////////////////////
-/// \brief Finds the first occurence of the <section keyword inside **buffer** from **startPos**.
-///
-/// \param buffer A string containning the <section definition
-/// \param startPos The position inside **buffer** where we start searching for <section.
-///
-Int_t TRestMetadata::FindSection( string buffer, size_t startPos )
-{
-
-    size_t sectionPos, pos = startPos, pos2 = 0;
-    while ( (sectionPos = buffer.find( "<section", pos ) ) != string::npos )
-    {
-        /* TODO
-         *             This code can be simplified now by using GetKeyString
-         *                                     */
-
-        if( debug > 1 ) cout << "Start section pos : " << sectionPos << endl;
-
-        pos = buffer.find( " ", sectionPos+1 );
-
-        Int_t initPos = pos;
-
-        pos = buffer.find( " ", pos+1 );
-
-        string sectionName = trim( buffer.substr( initPos, pos-initPos ) );
-
-        pos2 = 0;
-        if( (pos2 = sectionName.find( "/>", pos2 )) != string::npos )
-            sectionName = sectionName.substr( 0, pos2 );
-        pos2 = 0;
-        if( (pos2 = sectionName.find( ">", pos2 )) != string::npos )
-            sectionName = sectionName.substr( 0, pos2 );
-
-        if ( fSectionName == sectionName )
-        {
-
-            size_t tag_end = buffer.find( ">", sectionPos );
-            string tmp = buffer.substr( sectionPos, tag_end-sectionPos  );
-            TString name = GetFieldValue( "name", tmp );
-            TString title = GetFieldValue( "title", tmp );
-
-            this->SetName ( name );
-            this->SetTitle( title );
-
-            return sectionPos;
-        }
-    }
-
-    return NOT_FOUND;
 }
 
 ///////////////////////////////////////////////
