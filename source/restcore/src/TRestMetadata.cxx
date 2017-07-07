@@ -64,7 +64,7 @@
 ///
 /// \endcode
 /// 
-/// The section can be also defined skipped the **section** keyword,
+/// The section can also be defined skipping the *section* keyword,
 /// using the following convention.
 ///
 /// \code
