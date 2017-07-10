@@ -271,7 +271,7 @@ The geometry and macros are copied to this directory every time you execute <cod
 Now execute <code>cmake</code> using the Geant4 installation path and the restG4 source path:
 
 \code
- cmake -DCMAKE_CXX_COMPILE=g++-4.8 -DGeant4_DIR="$G4_INSTALL_CMAKE" $REST_v2/packages/restG4
+ cmake -DCMAKE_CXX_COMPILER=g++-4.8 -DGeant4_DIR="$G4_INSTALL_CMAKE" $REST_v2/packages/restG4
 \endcode
 
 Where <code>$G4_INSTALL_CMAKE</code> is the path to the cmake package configuration file of Geant4 
@@ -279,7 +279,7 @@ Where <code>$G4_INSTALL_CMAKE</code> is the path to the cmake package configurat
 For example (if you used ./installGeant4.sh) you should do:
 
 \code
- cmake -DCMAKE_CXX_COMPILE=g++-4.8 -DGeant4_DIR=$HOME/apps/geant4_10_02_p02-install/lib/Geant4-10.2.0/ ../
+ cmake -DCMAKE_CXX_COMPILER=g++-4.8 -DGeant4_DIR=$HOME/apps/geant4_10_02_p02-install/lib/Geant4-10.2.0/ ../
 \endcode
 
 If <code>cmake</code> executed with no errors you should be able now to execute <code>make</code> to build the restG4 executable
