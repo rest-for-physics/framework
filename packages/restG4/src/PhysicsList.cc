@@ -104,8 +104,8 @@ PhysicsList::PhysicsList( TRestPhysicsLists *physicsLists ) : G4VModularPhysicsL
     restPhysList = physicsLists;
     G4LossTableManager::Instance();
     // fix lower limit for cut
-    G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange( restPhysList->GetMinimumEnergyProductionCuts() * eV / keV,
-                                                                     restPhysList->GetMaximumEnergyProductionCuts() * GeV / keV );
+    G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange( restPhysList->GetMinimumEnergyProductionCuts() * keV,
+                                                                     restPhysList->GetMaximumEnergyProductionCuts() * keV );
     defaultCutValue = 0.1 * mm;
 
     fEmPhysicsList = NULL;
