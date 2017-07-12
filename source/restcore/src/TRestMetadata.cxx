@@ -521,7 +521,7 @@ string TRestMetadata::SectionsToXMLType( string in )
 
         size_t pos2 = out.find( " ", pos );
 
-        string sectionName = trim( in.substr( pos+9, pos2-pos ) );
+        string sectionName = trim( out.substr( pos+1, pos2-pos ) );
 
         out = this->Replace( out, (string) "</section>", (string) ("</" + (TString) sectionName + ">"), pos2, 1);
     }
