@@ -20,7 +20,7 @@ include(MacroRootDict)
 include_directories(${ROOT_INCLUDE_DIRS})
 
 
-SET(CMAKE_CXX_FLAGS "-std=c++11 -Wall -march=native")
+SET(CMAKE_CXX_FLAGS "-std=c++11 -Wall -march=native -mno-bmi2")
 
 set(Garfield_FIND_REQUIRED TRUE)
 
