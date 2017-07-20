@@ -948,7 +948,7 @@ Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, st
         getchar();
     }
 
-    if( file != NULL ) file.close();
+    if( file ) file.close();
     return 0;
 }
 
@@ -1209,7 +1209,7 @@ string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
 
         string expression = outputBuffer.substr( startPosition+2, endPosition-startPosition-2 );
 
-        if( getenv( expression.c_str() ) != NULL )
+        if( getenv( expression.c_str() ) )
         {
             sprintf( envValue, "%s", getenv( expression.c_str() ) );
 
@@ -2313,7 +2313,7 @@ string TRestMetadata::GetSectionByNameFromFile( string nref, string fref )
 
     ifstream file(fileName);
 
-    if( file == NULL ) { cout << "REST Error : I could not open file : " << fileName << endl; exit(1); return ""; }
+    if( !file ) { cout << "REST Error : I could not open file : " << fileName << endl; exit(1); return ""; }
 
     string temporalBuffer;
     string line;
