@@ -100,7 +100,7 @@ TString fName;
 fName = folder + fNamePedScript;
 
 ifstream file(fName);
-if( file == NULL ) { cout<< __PRETTY_FUNCTION__ << " ERROR:FILE " << fName <<" not found " <<endl; return; }
+if( !file ) { cout<< __PRETTY_FUNCTION__ << " ERROR:FILE " << fName <<" not found " <<endl; return; }
 
 string line;
 while(getline(file, line)){fPedBuffer.push_back(line); }
@@ -110,7 +110,7 @@ file.close();
 fName = folder + fNameRunScript;
 
 ifstream file2(fName);
-if( file2 == NULL ) { cout<< __PRETTY_FUNCTION__ << " ERROR:FILE " << fName <<" not found " <<endl; return; }
+if( !file2 ) { cout<< __PRETTY_FUNCTION__ << " ERROR:FILE " << fName <<" not found " <<endl; return; }
 
 while(getline(file2, line)){fRunBuffer.push_back(line); }
 
