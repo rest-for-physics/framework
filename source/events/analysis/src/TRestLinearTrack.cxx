@@ -58,11 +58,11 @@ void TRestLinearTrack::Print( Bool_t fullInfo )
     if( fullInfo )
     {
         cout << "-------------------------------" << endl;
-        cout << "------ Longitudinal hits ------" << 
+        cout << "------ Longitudinal hits ------" << endl;
             cout << "-------------------------------" << endl;
         fLinearCharge.Print();
         cout << "-------------------------------" << endl;
-        cout << "------ Transversal hits ------" << 
+        cout << "------ Transversal hits ------" << endl;
             cout << "-------------------------------" << endl;
         fTransversalCharge.Print();
         cout << "-------------------------------" << endl;
