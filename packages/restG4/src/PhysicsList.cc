@@ -291,6 +291,7 @@ void PhysicsList::ConstructProcess()
         }
     } */
 
+    // to implement UserLimits to StepSize inside the gas
     theParticleIterator->reset();
     while((*theParticleIterator)()) 
     {
@@ -298,8 +299,11 @@ void PhysicsList::ConstructProcess()
         G4String partname = particle->GetParticleName();
         G4ProcessManager* processManager = particle->GetProcessManager();
 
-        if(partname =="e-") processManager->AddDiscreteProcess(new G4StepLimiter("e-Step")); 
-        else if(partname =="e+") processManager->AddDiscreteProcess(new G4StepLimiter("e+Step")); 
+        if(partname =="e-") processManager->AddDiscreteProcess(new G4StepLimiter("e-Step"));
+        else if(partname =="e+") processManager->AddDiscreteProcess(new G4StepLimiter("e+Step"));
+
+        if(partname =="mu-") processManager->AddDiscreteProcess(new G4StepLimiter("mu-Step"));
+        else if(partname =="mu+") processManager->AddDiscreteProcess(new G4StepLimiter("mu+Step"));
     }
 
 }
