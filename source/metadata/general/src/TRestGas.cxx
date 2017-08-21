@@ -292,6 +292,8 @@ void TRestGas::LoadGasFile( )
         cout << "node " << i << " Field : " << fEFields[i] << " V/cm" << endl;
         */
 
+    if (fGasMedium && fGasMedium->GetW() == 0.) fGasMedium->SetW(GetWvalue());  // as it is probably not computed by Magboltz
+
     this->SetPressure( pressure );
 
 }
@@ -328,6 +330,8 @@ void TRestGas::InitFromConfigFile( )
     fMaxElectronEnergy = StringToDouble( GetParameter( "maxElectronEnergy" ) );
     fW = StringToDouble( GetParameter( "W_value" ) );
 
+    fGDMLMaterialRef = GetParameter( "GDMLMaterialRef", "" );
+
     if( fMaxElectronEnergy == -1 ) { fMaxElectronEnergy = 40; cout << "Setting default maxElectronEnergy to : " << fMaxElectronEnergy << endl; }
     if( fW == -1 ) { fW = 21.9; cout << "Setting default W-value : " << fW << endl; }
 
@@ -358,6 +362,8 @@ void TRestGas::InitFromConfigFile( )
     ConstructFilename( );
 
     PrintGasInfo();
+
+    if (fGasMedium && fGasMedium->GetW() == 0.) fGasMedium->SetW(fW);  // as it is probably not computed by Magboltz
 
 }
 

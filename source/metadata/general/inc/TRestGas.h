@@ -81,6 +81,8 @@ private:
     std::vector <Double_t> fBFields;    //!< The magnetic field nodes as calculated by Garfield::MediumMagboltz.
     std::vector <Double_t> fAngles;     //!< The field angles as calculated by Garfield::MediumMagboltz.
 
+    TString fGDMLMaterialRef;       //!< The corresponding material reference name in GDML description
+
     bool fGasGeneration;                //!< If true, and the pre-generated Magboltz gas file is not found, it will allow to launch the gas generation.
 
     void InitFromConfigFile( );
@@ -153,6 +155,14 @@ public:
     /// Returns the gas work function in eV.
     Double_t GetWvalue() { return fW; }
 
+#ifndef __CINT__
+    /// Return pointer to Garfield::MediumGas for gas properties
+    Garfield::MediumGas* GetGasMedium()  { return fGasMedium; };
+#endif
+
+    /// Return reference name of the corresponding material in GDML file
+    TString GetGDMLMaterialRef()  { return fGDMLMaterialRef; };
+
     void SetPressure( Double_t pressure );
 
     /// Sets the maximum electron energy to be used in gas generation.
@@ -171,7 +181,7 @@ public:
 	void PrintMetadata() { PrintGasInfo(); }
 
 	
-	ClassDef(TRestGas,1);  // Gas Parameters
+	ClassDef(TRestGas,2);  // Gas Parameters
 };
 
 #endif
