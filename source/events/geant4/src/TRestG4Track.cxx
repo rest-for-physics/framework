@@ -153,7 +153,7 @@ TString TRestG4Track::GetProcessName( Int_t id )
     return "";
 }
 
-void TRestG4Track::PrintTrack( int N )
+void TRestG4Track::PrintTrack( int maxHits )
 {
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout.precision(10);
@@ -165,14 +165,14 @@ void TRestG4Track::PrintTrack( int N )
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
     register int nHits = GetNumberOfHits();
-    if (N > 0) 
+    if ( maxHits > 0) 
     {
-      nHits = min( N, GetNumberOfHits() );
+      nHits = min( maxHits, GetNumberOfHits() );
       cout << " Printing only the first " << nHits << " hits of the track" << endl;
     }
 
     TRestG4Hits *hits = GetHits();
-    for ( register int i = 0; i < nhits; i++ ) {
+    for ( register int i = 0; i < nHits; i++ ) {
         cout << "Hit " << i << " process : " << GetProcessName(hits->GetHitProcess(i))
             << " volume : " << hits->GetHitVolume(i) 
             << " X : " << hits->GetX(i) << " Y : " << hits->GetY(i) << " Z : " << hits->GetZ(i) << " mm" 

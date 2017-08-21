@@ -152,7 +152,7 @@ class TRestG4Track:public TObject {
         /////////////////////////////////
 
         /// Prints the track information. N number of hits to print, 0 = all
-        void PrintTrack( int N = 0 );
+        void PrintTrack( int maxHits = 0 );
 
         //    Int_t GetElement( Int_t n ) { return X.At(n); }
 

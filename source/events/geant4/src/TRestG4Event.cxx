@@ -201,7 +201,7 @@ Int_t TRestG4Event::GetEnergyDepositedByParticle( TString parName )
     return en;
 }
 
-void TRestG4Event::PrintEvent()
+void TRestG4Event::PrintEvent( int maxTracks, int maxHits )
 {
     TRestEvent::PrintEvent();
 
@@ -231,9 +231,14 @@ void TRestG4Event::PrintEvent()
 
     cout << "---------------------------------------------------------------------------" << endl;
     cout << "Total number of tracks : " << fNTracks << endl;
-    for( int n = 0; n < GetNumberOfTracks(); n++ )
+
+    register int ntracks = GetNumberOfTracks();
+    if ( maxTracks > 0 ) 
     {
-        GetTrack(n)->PrintTrack();
+      ntracks = min( maxTracks, GetNumberOfTracks() );
+      cout << " Printing only the first " << ntracks << " tracks" <<endl;
     }
 
+    for( int n = 0; n < ntracks; n++ )
+        GetTrack(n)->PrintTrack( maxHits );
 }
