@@ -153,7 +153,7 @@ TString TRestG4Track::GetProcessName( Int_t id )
     return "";
 }
 
-void TRestG4Track::PrintTrack()
+void TRestG4Track::PrintTrack( int N )
 {
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout.precision(10);
@@ -163,11 +163,20 @@ void TRestG4Track::PrintTrack()
     cout << " Particle : " << GetParticleName() << " Time track length : " << GetTrackTimeLength() << " us" << endl;
     cout << " Ekin : " << GetKineticEnergy() << " keV" << endl;
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-    TRestG4Hits *hits = GetHits();
-    for( int i = 0; i < GetNumberOfHits(); i++ )
-    {
-        cout << "Hit " << i << " process : " << GetProcessName(hits->GetHitProcess(i)) << " volume : " << hits->GetHitVolume(i) << " X : " << hits->GetX(i) << " Y : " << hits->GetY(i) << " Z : " << hits->GetZ(i) << " mm   Edep : " << hits->GetEnergy(i) << " keV" << endl;
 
+    register int nHits = GetNumberOfHits();
+    if (N > 0) 
+    {
+      nHits = min( N, GetNumberOfHits() );
+      cout << " Printing only the first " << nHits << " hits of the track" << endl;
+    }
+
+    TRestG4Hits *hits = GetHits();
+    for ( register int i = 0; i < nhits; i++ ) {
+        cout << "Hit " << i << " process : " << GetProcessName(hits->GetHitProcess(i))
+            << " volume : " << hits->GetHitVolume(i) 
+            << " X : " << hits->GetX(i) << " Y : " << hits->GetY(i) << " Z : " << hits->GetZ(i) << " mm" 
+            << " Edep : " << hits->GetEnergy(i) << " keV" << endl;
     }
 
 }

@@ -73,7 +73,7 @@ class TRestG4Track:public TObject {
 
         void SetTrackID( Int_t id ) { fTrack_ID = id; }
         void SetParentID ( Int_t id ) { fParent_ID = id; }
- //       void SetParticleID( Int_t id ) { fParticle_ID = id; }
+        //       void SetParticleID( Int_t id ) { fParticle_ID = id; }
         void SetParticleName( TString ptcleName ) { fParticleName = ptcleName; }
         void SetGlobalTrackTime( Double_t time ) { fGlobalTimestamp = time; }
         void SetTrackTimeLength( Double_t time ) { fTrackTimestamp = time; }
@@ -123,39 +123,37 @@ class TRestG4Track:public TObject {
             return false;
         }
 
-      Bool_t ishadElastic( )
+        Bool_t ishadElastic( )
         {
             for( int n = 0; n < GetHits()->GetNumberOfHits(); n++ )
                 if( GetHits()->GetHitProcess( n ) == 36 ) return true;
             return false;
         }
- 	Bool_t isneutronInelastic( )
+        Bool_t isneutronInelastic( )
         {
             for( int n = 0; n < GetHits()->GetNumberOfHits(); n++ )
                 if( GetHits()->GetHitProcess( n ) == 37 ) return true;
             return false;
         }
-       Bool_t isnCapture( )
+        Bool_t isnCapture( )
         {
             for( int n = 0; n < GetHits()->GetNumberOfHits(); n++ )
                 if( GetHits()->GetHitProcess( n ) == 38 ) return true;
             return false;
         }
 
-    Bool_t ishIoni( )
+        Bool_t ishIoni( )
         {
             for( int n = 0; n < GetHits()->GetNumberOfHits(); n++ )
                 if( GetHits()->GetHitProcess( n ) == 33 ) return true;
             return false;
         }
 
-
-   
-
-
         /////////////////////////////////
 
-        void PrintTrack();
+        /// Prints the track information. N number of hits to print, 0 = all
+        void PrintTrack( int N = 0 );
+
         //    Int_t GetElement( Int_t n ) { return X.At(n); }
 
         //    Int_t GetParticleID();
