@@ -101,12 +101,31 @@ namespace REST_Units
         return false;
     }
 
+    Double_t GetPotentialInRESTUnits( Double_t potential, TString unitsStr )
+    {
+        if( unitsStr == "mV" ) return potential/mV;
+        if( unitsStr == "V" )  return potential/V;
+        if( unitsStr == "kV" ) return potential/kV;
+
+        return potential;
+    }
+
+    Bool_t isPotential( TString unitsStr )
+    {
+        if( unitsStr == "mV" ) return true;
+        if( unitsStr == "V" ) return true;
+        if( unitsStr == "kV" ) return true;
+
+        return false;
+    }
+
     Double_t GetValueInRESTUnits( Double_t value, TString unitsStr )
     {
         if( isEnergy ( unitsStr ) ) return GetEnergyInRESTUnits( value, unitsStr );
         if( isDistance ( unitsStr ) ) return GetDistanceInRESTUnits( value, unitsStr );
         if( isField ( unitsStr ) ) return GetFieldInRESTUnits( value, unitsStr );
         if( isTime ( unitsStr ) ) return GetTimeInRESTUnits( value, unitsStr );
+        if( isPotential ( unitsStr ) ) return GetPotentialInRESTUnits( value, unitsStr );
 
         cout << endl;
         cout << "REST WARNING (REST_Units)  Unit=[" << unitsStr << "] not recognized" << endl;

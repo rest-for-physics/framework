@@ -64,6 +64,13 @@ namespace REST_Units {
     Double_t GetFieldInRESTUnits( Double_t field, TString unitsStr );
     Bool_t isField( TString unitsStr );
 
+    const double mV = 1.e3;
+    const double V  = 1.;
+    const double kV = 1.e-3;
+
+    Double_t GetPotentialInRESTUnits( Double_t potential, TString unitsStr );
+    Bool_t isPotential( TString unitsStr );
+
     Double_t GetValueInRESTUnits( Double_t value, TString unitsStr );
 }
 #endif
