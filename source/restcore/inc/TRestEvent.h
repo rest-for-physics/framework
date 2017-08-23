@@ -74,6 +74,7 @@ class TRestEvent:public TObject {
         virtual void Initialize() = 0; 
 
         virtual void PrintEvent( );
+        virtual void PrintEvent( int n )  { PrintEvent(); };
 
         virtual TPad *DrawEvent( TString option = "" ) = 0;
 
