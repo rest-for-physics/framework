@@ -17,14 +17,14 @@ TRestHitsEvent::~TRestHitsEvent()
 delete fHits;
 }
 
-void TRestHitsEvent::AddHit( Double_t x, Double_t y, Double_t z, Double_t en )
+void TRestHitsEvent::AddHit( Double_t x, Double_t y, Double_t z, Double_t en, Double_t t )
 {
-    fHits->AddHit(x,y,z,en);
+    fHits->AddHit(x, y, z, en, t);
 }
 
-void TRestHitsEvent::AddHit( TVector3 pos, Double_t en )
+void TRestHitsEvent::AddHit( TVector3 pos, Double_t en, Double_t t )
 {
-    fHits->AddHit(pos,en);
+    fHits->AddHit(pos, en, t );
 }
 
 void TRestHitsEvent::Initialize()

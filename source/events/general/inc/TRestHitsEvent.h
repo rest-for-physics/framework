@@ -25,8 +25,8 @@ class TRestHitsEvent : public TRestEvent
         //! Changes the orgin of the Cartesian coordinate system
         void ChangeOrigin(double origx, double origy, double origz);
 
-        void AddHit( Double_t x, Double_t y, Double_t z, Double_t en );
-        void AddHit( TVector3 pos, Double_t en );
+        void AddHit( Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0 );
+        void AddHit( TVector3 pos, Double_t en, Double_t t = 0 );
         void RemoveHits( );
 
         void MergeHits( int n, int m );
@@ -63,6 +63,7 @@ class TRestHitsEvent : public TRestEvent
         Double_t GetTotalDepositedEnergy() { return fHits->fTotEnergy; }
         Double_t GetTotalEnergy() { return fHits->fTotEnergy; }
         Double_t GetEnergy() { return fHits->fTotEnergy; }
+        Double_t GetTime( int n ) { return GetHits()->GetTime(n); } // return value in us
 
 
         // Inside Cylinder methods
