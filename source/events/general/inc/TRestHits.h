@@ -39,20 +39,23 @@ class TRestHits : public TObject
         Int_t     fNHits;	///< Number of punctual energy depositions, it is the lenght for all the array
         Double_t  fTotEnergy;	///< Event total energy
 
-        std::vector <Float_t>   fX;		// [fNHits] Position on X axis for each punctual deposition (units microms)
-        std::vector <Float_t>   fY;		// [fNHits] Position on Y axis for each punctual deposition (units microms)
-        std::vector <Float_t>   fZ;		// [fNHits] Position on Z axis for each punctual deposition (units microms)
-        std::vector <Float_t>   fEnergy;	// [fNHits] Energy deposited at each 3-coordinate position (units eV)
+        std::vector <Float_t>   fX;		// [fNHits] Position on X axis for each punctual deposition (units mm)
+        std::vector <Float_t>   fY;		// [fNHits] Position on Y axis for each punctual deposition (units mm)
+        std::vector <Float_t>   fZ;		// [fNHits] Position on Z axis for each punctual deposition (units mm)
+        std::vector <Float_t>   fT;		// [fNHits] Absolute time information for each punctual deposition (units us, 0 is time of decay)
+        std::vector <Float_t>   fEnergy;	// [fNHits] Energy deposited at each 3-coordinate position (units keV)
 
-        //! Changes the orgin of the Cartesian coordinate system
+        //! Changes the origin of the Cartesian coordinate system
         void Traslate( Int_t n, Double_t x, Double_t y, Double_t z);
-       /// Event is rotated in XYZ.
-       void RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, TVector3 vMean);  // vMean is the mean position of the event from GetMeanPosition()
-       /// Rotation around an arbitrary axis vAxis
-       void Rotate(Int_t n, Double_t alpha, TVector3 vAxis, TVector3 vMean);  // vMean is the mean position of the event from GetMeanPosition()
+        /// Event is rotated in XYZ.
+        void RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, TVector3 vMean);  // vMean is the mean position of the event from GetMeanPosition()
+        /// Rotation around an arbitrary axis vAxis
+        void Rotate(Int_t n, Double_t alpha, TVector3 vAxis, TVector3 vMean);  // vMean is the mean position of the event from GetMeanPosition()
 
-        void AddHit( Double_t x, Double_t y, Double_t z, Double_t en );
-        void AddHit( TVector3 pos, Double_t en );
+        void AddHit( Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0 );
+        void AddHit( TVector3 pos, Double_t en, Double_t t = 0 );
+        void AddHit( TRestHits &hits, Int_t n );
+
         void RemoveHits( );
 
         Int_t GetMostEnergeticHitInRange( Int_t n, Int_t m );
@@ -60,8 +63,8 @@ class TRestHits : public TObject
         Double_t GetMaximumHitDistance( );
         Double_t GetMaximumHitDistance2( );
 	
-        void MergeHits( int n, int m );
-        void SwapHits( Int_t i, Int_t j );
+        virtual void MergeHits( int n, int m );
+        virtual void SwapHits( Int_t i, Int_t j );
         virtual void RemoveHit( int n );
 
         Bool_t areXY();
@@ -84,6 +87,7 @@ class TRestHits : public TObject
         Double_t GetX( int n ) { return ( (Double_t) fX[n]); } // return value in mm
         Double_t GetY( int n ) { return ( (Double_t) fY[n]); } // return value in mm
         Double_t GetZ( int n ) { return ( (Double_t) fZ[n]); } // return value in mm
+        Double_t GetTime( int n ) {return ( (Double_t) fT[n]);  }  // return value in us
 
         TVector3 GetPosition( int n )
         {
@@ -138,13 +142,17 @@ class TRestHits : public TObject
 
         TVector2 GetProjection( Int_t n, Int_t m, TVector3 position );
 
-        void PrintHits( Int_t nHits = -1);
+        virtual void PrintHits( Int_t nHits = -1);
 	
         //Construtor
         TRestHits();
         //Destructor
         ~TRestHits();
 
+#ifdef TIMEINFOADDED
+        ClassDef(TRestHits, 2);
+#else
         ClassDef(TRestHits, 1);
+#endif
 };
 #endif
