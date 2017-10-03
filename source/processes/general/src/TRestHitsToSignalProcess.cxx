@@ -12,6 +12,7 @@
 
 
 #include "TRestHitsToSignalProcess.h"
+
 using namespace std;
 
 const double cmTomm = 10.;
@@ -155,20 +156,23 @@ Int_t TRestHitsToSignalProcess::FindModule( Int_t readoutPlane, Double_t x, Doub
 TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
 {
     fHitsEvent = (TRestHitsEvent *) evInput;
+//     fHitsEvent = dynamic_cast<TRestHitsEvent*>(evInput);
 
-    /*
-    cout << "Number of hits : " << fHitsEvent->GetNumberOfHits() << endl;
-    cout << "--------------------------" << endl;
-    */
+    if ( GetVerboseLevel() >= REST_Debug ) 
+    {
+        cout << "Number of hits : " << fHitsEvent->GetNumberOfHits() << endl;
+        cout << "--------------------------" << endl;
+    }
 
     for( int hit = 0; hit < fHitsEvent->GetNumberOfHits(); hit++ )
     {
         Double_t x = fHitsEvent->GetX( hit );
         Double_t y = fHitsEvent->GetY( hit );
         Double_t z = fHitsEvent->GetZ( hit );
+        Double_t t = fHitsEvent->GetTime( hit );
 
-        if( GetVerboseLevel() >= REST_Debug )
-            cout << "Hit : " << hit << " x : " << x << " y : " << y << " z : " << z << endl;
+        if( GetVerboseLevel() >= REST_Debug && hit < 20 )
+            cout << "Hit : " << hit << " x : " << x << " y : " << y << " z : " << z << " t : " << t << endl;
 
         Int_t planeId = -1;
         Int_t moduleId = -1;
@@ -201,7 +205,12 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
 
             Double_t energy = fHitsEvent->GetEnergy( hit );
 
-            Double_t time = plane->GetDistanceTo( x, y, z ) / fDriftVelocity;
+            Double_t time = plane->GetDistanceTo( x, y, z ) / fDriftVelocity + t;
+
+            if ( GetVerboseLevel() >= REST_Debug && hit < 20 ) 
+                printf(" TRestHitsToSignalProcess: x %lf y %lf z %lf energy %lf t %lf fDriftVelocity %lf fSampling %lf time %lf\n",
+                       x, y, z, energy, t, fDriftVelocity, fSampling, time);
+
             time = ( (Int_t) (time/fSampling) );
 
             if( GetVerboseLevel() >= REST_Debug )
@@ -216,14 +225,14 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
 
         fSignalEvent->SortSignals();
 
-        if( GetVerboseLevel() >= REST_Debug )
+        if( GetVerboseLevel() >= REST_Extreme )
         {
             fSignalEvent->PrintEvent();
-            cout << "TRestHitsToSignal in debug mode" << endl;
+            cout << "TRestHitsToSignal in extreme mode" << endl;
             GetChar();
         }
 
-        if( this->GetVerboseLevel() >= REST_Debug )
+        if ( GetVerboseLevel() >= REST_Debug ) 
         {
             cout << "TRestHitsToSignalProcess : Number of signals added : " << fSignalEvent->GetNumberOfSignals() << endl;
             cout << "TRestHitsToSignalProcess : Total signals integral : " << fSignalEvent->GetIntegral() << endl;
