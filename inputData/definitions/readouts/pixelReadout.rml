@@ -2,14 +2,13 @@
 
 <environment>
     <variable name="PITCH" value="3" /> <!-- The pitch value in mm -->
-    <variable name="
 </environment>
 
-<section readout name="Readout-Pixel_{PITCH}mm_mM_Module_20cm_8x8" title="PANDA readout definition" >
+<section readout name="Readout-Pixel_${PITCH}mm_mM_Module_20cm_8x8" title="PANDA readout definition" >
     <myParameter name="nModules" value="2" />
     <myParameter name="nChannels" value="64" />
-    <myParameter name="pitch" value="{PITCH}" />
-    <myParameter name="pixelSize" value="{PITCH}" />
+    <myParameter name="pitch" value="${PITCH}" />
+    <myParameter name="pixelSize" value="${PITCH}" />
 
     <readoutPlane position="(0,0,-1000)" units="mm" planeVector="(0,0,1)"
         chargeCollection="1" 
@@ -48,7 +47,7 @@
         <readoutModule id="1" 
             origin="(0,0)" rotation="0" 
             size="((nChannels+1)*pitch-1*pitch/2,(nChannels+1)*pitch-pitch/2-pitch/4)" 
-            decodingFile="{REST_PATH}/inputData/decoding/pandaX_3mm.dec"
+            decodingFile="${REST_PATH}/inputData/decoding/pandaX_3mm.dec"
             firstDaqChannel="0" >
 
             // Y-strips
