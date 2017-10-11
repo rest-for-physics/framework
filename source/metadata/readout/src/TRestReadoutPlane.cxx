@@ -160,12 +160,20 @@ Double_t TRestReadoutPlane::GetX( Int_t modID, Int_t chID )
 
     if( rChannel->GetNumberOfPixels() > 1 )
     {
+        // We check the origin of consecutive pixels to check if it goes X or Y direction.
+        // Perhaps more complex readouts need some changes here
+        Double_t x1 = rChannel->GetPixel(0)->GetOrigin().X();
+        Double_t x2 = rChannel->GetPixel(1)->GetOrigin().X();
 
-        Double_t x1 = rChannel->GetPixel(0)->GetCenter().X();
-        Double_t x2 = rChannel->GetPixel(1)->GetCenter().X();
+        Double_t y1 = rChannel->GetPixel(0)->GetOrigin().Y();
+        Double_t y2 = rChannel->GetPixel(1)->GetOrigin().Y();
 
-        Double_t y1 = rChannel->GetPixel(0)->GetCenter().Y();
-        Double_t y2 = rChannel->GetPixel(1)->GetCenter().Y();
+        /*
+        cout << "Pix id : " << rChannel->GetPixel(0)->GetID() << " X1 : " << x1 << endl;
+        cout << "Pix id : " << rChannel->GetPixel(1)->GetID() << " X2 : " << x2 << endl;
+        cout << "Pix id : " << rChannel->GetPixel(0)->GetID() << " Y1 : " << y1 << endl;
+        cout << "Pix id : " << rChannel->GetPixel(1)->GetID() << " Y2 : " << y2 << endl;
+        */
 
         Double_t deltaX, deltaY;
 
@@ -216,11 +224,20 @@ Double_t TRestReadoutPlane::GetY( Int_t modID, Int_t chID )
     if( rChannel->GetNumberOfPixels() > 1 )
     {
 
-        Double_t x1 = rChannel->GetPixel(0)->GetCenter().X();
-        Double_t x2 = rChannel->GetPixel(1)->GetCenter().X();
+        // We check the origin of consecutive pixels to check if it goes X or Y direction.
+        // Perhaps more complex readouts need some changes here
+        Double_t x1 = rChannel->GetPixel(0)->GetOrigin().X();
+        Double_t x2 = rChannel->GetPixel(1)->GetOrigin().X();
 
-        Double_t y1 = rChannel->GetPixel(0)->GetCenter().Y();
-        Double_t y2 = rChannel->GetPixel(1)->GetCenter().Y();
+        Double_t y1 = rChannel->GetPixel(0)->GetOrigin().Y();
+        Double_t y2 = rChannel->GetPixel(1)->GetOrigin().Y();
+
+        /*
+        cout << "Pix id : " << rChannel->GetPixel(0)->GetID() << " X1 : " << x1 << endl;
+        cout << "Pix id : " << rChannel->GetPixel(1)->GetID() << " X2 : " << x2 << endl;
+        cout << "Pix id : " << rChannel->GetPixel(0)->GetID() << " Y1 : " << y1 << endl;
+        cout << "Pix id : " << rChannel->GetPixel(1)->GetID() << " Y2 : " << y2 << endl;
+        */
 
         Double_t deltaX, deltaY;
 
