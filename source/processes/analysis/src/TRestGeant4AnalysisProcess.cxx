@@ -180,6 +180,14 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     Double_t energy = fOutputG4Event->GetSensitiveVolumeEnergy( );
 
+    if( GetVerboseLevel() >= REST_Debug )
+    {
+        cout << "----------------------------" << endl;
+        cout << "TRestG4Event : " << fOutputG4Event->GetID() << endl;
+        cout << "Sensitive volume Energy : " << energy << endl;
+        cout << "Total energy : " << fOutputG4Event->GetTotalDepositedEnergy() << endl;;
+    }
+
     if( energy < fLowEnergyCut ) return NULL;
     if( fHighEnergyCut > 0 && energy > fHighEnergyCut ) return NULL;
 
@@ -257,7 +265,11 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent( TRestEvent *evInput )
         fAnalysisTree->SetObservableValue( obsName, mpos );
     }
 
-    //cout << "Event : " << fOutputG4Event->GetID() << " G4 Tracks : " << fOutputG4Event->GetNumberOfTracks() << endl;
+    if( GetVerboseLevel() >= REST_Debug )
+    {
+        cout << "G4 Tracks : " << fOutputG4Event->GetNumberOfTracks() << endl;
+        cout << "----------------------------" << endl;
+    }
     return fOutputG4Event;
 }
 
