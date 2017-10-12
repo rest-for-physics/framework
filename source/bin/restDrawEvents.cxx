@@ -102,6 +102,7 @@ int main( int argc, char *argv[] )
             canvas->cd();
             ev->DrawEvent();
             canvas->Update();
+            run->GetAnalysisTree()->PrintObservables();
             cout << "Press a KEY to print next event ... " << endl;
             cout << "Press q to exit " << endl;
 
