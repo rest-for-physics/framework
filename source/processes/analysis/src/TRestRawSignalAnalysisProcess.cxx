@@ -232,6 +232,17 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
             if( maxPeakTime < peakBin ) maxPeakTime = peakBin;
 
             nGoodSignals++;
+
+            // Adding signal to the channel activity histogram
+            if( !fReadOnly && fReadout != NULL )
+            {
+                TRestReadoutModule *mod = fReadout->GetReadoutPlane(0)->GetModule(0);
+                for( int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++ )
+                {
+                    Int_t readoutChannel = mod->DaqToReadoutChannel( fSignalEvent->GetSignal(s)->GetID() );
+                    fChannelsHisto->Fill( readoutChannel );
+                }
+            }
         }
     }
 
@@ -285,21 +296,6 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         if( fullIntegral < fFullIntegralCut.X() || fullIntegral > fFullIntegralCut.Y() ) return NULL;
         if( peakTimeDelay < fPeakTimeDelayCut.X() || peakTimeDelay > fPeakTimeDelayCut.Y() ) return NULL;
     }
-
-    if( !fReadOnly && fReadout != NULL )
-    {
-        TRestReadoutModule *mod = fReadout->GetReadoutPlane(0)->GetModule(0);
-        for( int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++ )
-        {
-            Int_t readoutChannel = mod->DaqToReadoutChannel( fSignalEvent->GetSignal(s)->GetID() );
-            fChannelsHisto->Fill( readoutChannel );
-        }
-    }
-    else
-    {
-        if( GetVerboseLevel() >= REST_Warning )
-            cout << "TRestRawSignalAnalysisProcess. Readout not defined!" << endl;
-	}
 
 
     if( GetVerboseLevel() >= REST_Debug ) 
