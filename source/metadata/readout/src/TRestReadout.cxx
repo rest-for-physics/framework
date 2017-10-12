@@ -557,8 +557,8 @@ void TRestReadout::InitFromConfigFile()
                     dChannel.push_back( id + firstDaqChannel );
                 }
 
-                fModuleDefinitions[mid].GetChannel(ch)->SetID( rChannel[ch] );
-                fModuleDefinitions[mid].GetChannel(ch)->SetDaqID( dChannel[ch] );
+                // WRONG version before --> fModuleDefinitions[mid].GetChannel(ch)->SetID( rChannel[ch] );
+                fModuleDefinitions[mid].GetChannelByID( rChannel[ch] )->SetDaqID( dChannel[ch] );
 
                 addedChannels++;
 
