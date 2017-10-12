@@ -133,7 +133,12 @@
     <parameter name="maxNodes" value="50" />
 </section>
 
+<section TRestTrackReconnectionProcess name="trackReconnection" title="Track reconnection process." >
+</section>
 
+<section TRestHitsShuffleProcess name="shuffle" title="Hits shuffle process." verboseLevel="silent" >
+    <parameter name="iterations" value="100" >
+</section>
 
 <section TRestGeant4AnalysisProcess name="g4Ana" title="Geant4 analysis template" >
 
