@@ -90,6 +90,8 @@ TRestHits *TRestHitsEvent::GetXYZHits()
 }
 
 
+
+
 void TRestHitsEvent::ChangeOrigin(double origx, double origy, double origz)
 {
     /*
@@ -102,6 +104,12 @@ void TRestHitsEvent::ChangeOrigin(double origx, double origy, double origz)
     */
 }
 
+Bool_t TRestHitsEvent::isHitsEventInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius )
+{
+    if ( fHits->GetNumberOfHitsInsideCylinder(x0, x1, radius) == GetNumberOfHits() )
+        return true;
+    return false;
+}
 
 void TRestHitsEvent::PrintEvent( Int_t nHits )
 {

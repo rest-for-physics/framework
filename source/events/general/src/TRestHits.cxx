@@ -118,31 +118,31 @@ Double_t TRestHits::GetEnergyIntegral()
 
 Bool_t TRestHits::isHitNInsideCylinder( Int_t n, TVector3 x0, TVector3 x1, Double_t radius )
 {
-    cout << "TRestHits::isHitNInsideCylinder has not been validated." << endl;
-    cout << "After validation this output should be removed" << endl;
+   /* cout << "TRestHits::isHitNInsideCylinder has not been validated." << endl;
+    cout << "After validation this output should be removed" << endl;*/
 
     TVector3 axis = x1 - x0;
 
     Double_t cylLength = axis.Mag();
 
-    cout << "X0 : " << endl;
+   /* cout << "X0 : " << endl;
     x0.Print();
     cout << "Y0 : " << endl;
     x1.Print();
     cout << "Radius : " << radius << endl;
 
     cout << "Absolute position" << endl;
-    this->GetPosition( n ).Print();
+    this->GetPosition( n ).Print();*/
 
     TVector3 hitPos = this->GetPosition( n ) - x0;
-    cout << "HitPos" << endl;
-    hitPos.Print();
+   // cout << "HitPos" << endl;
+  //  hitPos.Print();
 
     Double_t l = axis.Dot( hitPos ) / cylLength;
 
     if( l > 0 && l < cylLength )
     {
-        cout << "Is inside length" << endl;
+       // cout << "Is inside length" << endl;
         Double_t hitPosNorm2 = hitPos.Mag2();
         Double_t r = TMath::Sqrt( hitPosNorm2 - l*l );
 

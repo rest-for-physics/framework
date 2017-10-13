@@ -36,7 +36,7 @@ class TRestHitsEvent : public TRestEvent
 
         TRestHits *GetHits( ) { return fHits; }
 
-
+       
         Double_t GetX( int n ) { return fHits->GetX(n); } // return value in mm
         Double_t GetY( int n ) { return fHits->GetY(n); } // return value in mm
         Double_t GetZ( int n ) { return fHits->GetZ(n); } // return value in mm
@@ -65,7 +65,16 @@ class TRestHitsEvent : public TRestEvent
         Double_t GetTotalEnergy() { return fHits->fTotEnergy; }
         Double_t GetEnergy() { return fHits->fTotEnergy; }
 
-	TPad *DrawEvent( TString option = "" ) { std::cout << "TRestHitsEvent::DrawEvent not implemented. TODO" << std::endl; return NULL; }
+        Bool_t isHitsEventInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius );
+
+        Int_t GetNumberOfHitsInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius )
+            { return fHits->GetNumberOfHitsInsideCylinder(x0, x1, radius); }
+
+        Bool_t areHitsFullyContainnedInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius )
+        { isHitsEventInsideCylinder( x0, x1, radius ); }
+
+
+        TPad *DrawEvent( TString option = "" ) { std::cout << "TRestHitsEvent::DrawEvent not implemented. TODO" << std::endl; return NULL; }
 
         //Construtor
         TRestHitsEvent();
