@@ -88,9 +88,14 @@ By default REST units are mm, keV and degrees
 
 <section TRestPhysicsLists name="default" title="First physics list implementation." verboseLevel="debug" >
 
-    <parameter name="cutForGamma" value="10" units="um" />
-    <parameter name="cutForElectron" value="1" units="mm" />
+    <parameter name="cutForGamma" value="1" units="um" />
+    <parameter name="cutForElectron" value="1" units="um" />
     <parameter name="cutForPositron" value="1" units="mm" />
+
+    <parameter name="cutForMuon" value="1" units="mm" />
+    <parameter name="cutForNeutron" value="1" units="mm" />
+    <parameter name="minEnergyRangeProductionCuts" value="1" units="keV" />
+    <parameter name="maxEnergyRangeProductionCuts" value="1" units="GeV" />
 
     <!-- EM Physics lists -->
     <physicsList name="G4EmLivermorePhysics"> </physicsList>

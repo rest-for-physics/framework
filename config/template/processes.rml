@@ -477,5 +477,11 @@
 </section>
 
 <section TRestG4toHitsProcess name="G4ToHits" title="G4Hits to Hits process" >
+    <!-- If no volumes are added "all" volumes will be active.
+         In this example only hits from the gas volume will be selected.
+    -->
+    
+    <addVolume name="gas" />
+
 </section>
 
