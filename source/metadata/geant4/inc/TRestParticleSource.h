@@ -42,6 +42,7 @@ class TRestParticleSource: public TRestParticle {
     public:
 
         TString GetParticle() { return fParticleName; }
+        Double_t GetExcitationLevel(){ return fExcitationLevel; }
         TString GetAngularDistType() { return fAngularDistType; }
         TVector3 GetDirection() { return fDirection; }
         TString GetEnergyDistType() { return fEnergyDistType; }

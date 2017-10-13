@@ -86,29 +86,34 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 //_____________________________________________________________________________
 G4ParticleDefinition *PrimaryGeneratorAction::SetParticleDefinition( int n )
 {
-        string particleName = (string) restG4Metadata->GetParticleSource(n).GetParticleName();
+    string particleName = (string) restG4Metadata->GetParticleSource(n).GetParticleName();
 
-        G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-        G4ParticleDefinition* particle = particleTable->FindParticle(particleName);
+    Double_t eenergy = (double) restG4Metadata->GetParticleSource(n).GetExcitationLevel();
 
-        if( particle == NULL ) 
-        {
-            // There might be a better way to do this
-            for( int Z = 1; Z <= 110; Z++ )
-                for( int A = 2*Z; A <= 3*Z; A++ )
-                {
- //                          cout << "Ion name : " << G4IonTable::GetIonTable()->GetIonName ( Z, A ) << endl;
-                       if( particleName == G4IonTable::GetIonTable()->GetIonName ( Z, A ) )
-                       {
-                           particle = G4IonTable::GetIonTable()->GetIon(Z,A,0);
-                       }
+    cout << "Searching for particle: " << particleName << " and excited energy: " << eenergy << endl;
+
+    G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+    G4ParticleDefinition* particle = particleTable->FindParticle(particleName);
+
+    if( ( particle == NULL ) )
+    {
+        // There might be a better way to do this
+        for( int Z = 1; Z <= 110; Z++ )
+            for( int A = 2*Z; A <= 3*Z; A++ )
+            {
+                //   cout << "Ion name : " << G4IonTable::GetIonTable()->GetIonName ( Z, A ) << endl;
+                if( particleName == G4IonTable::GetIonTable()->GetIonName ( Z, A ) )
+                {   
+                    particle = G4IonTable::GetIonTable()->GetIon(Z,A, eenergy );
+                    cout << "Found ion: " << particleName << " Z " << Z << " A " << A << " excited energy " << eenergy << endl;
                 }
 
-        }
+            }
+    }
 
-        fParticleGun->SetParticleDefinition(particle);
+    fParticleGun->SetParticleDefinition( particle );
 
-        return particle;
+    return particle;
 }
 
 void PrimaryGeneratorAction::SetParticleDirection( int n )

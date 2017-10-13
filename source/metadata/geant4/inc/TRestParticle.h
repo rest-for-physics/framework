@@ -25,23 +25,27 @@
 class TRestParticle:public TObject {
     protected:
         TString fParticleName;
+        Double_t fExcitationLevel;
         TVector3 fDirection;
         Double_t fEnergy;
 
     public:
 
         TString GetParticleName() { return fParticleName; }
+        Double_t GetExcitationLevel() { return fExcitationLevel; }
         Double_t GetEnergy() { return fEnergy; }
         TVector3 GetMomentumDirection() { return fDirection; }
 
         void SetParticle ( TRestParticle ptcle ) 
         { 
+            fExcitationLevel=ptcle.GetExcitationLevel();
             fParticleName = ptcle.GetParticleName();
             fEnergy = ptcle.GetEnergy() ;
             fDirection = ptcle.GetMomentumDirection();
         }
 
         void SetParticleName( TString ptcle ) { fParticleName = ptcle; }
+        void SetExcitationLevel( Double_t eenergy ) { fExcitationLevel= eenergy; }
         void SetDirection( TVector3 dir ) { fDirection = dir; }
         void SetEnergy( Double_t en ) { fEnergy = en; }
 
