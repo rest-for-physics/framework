@@ -69,9 +69,17 @@ void TRestG4toHitsProcess::LoadConfig( std::string cfgFilename, std::string name
 //______________________________________________________________________________
 void TRestG4toHitsProcess::InitProcess()
 {
-//    TRestEventProcess::ReadObservables();
+    //    TRestEventProcess::ReadObservables();
 
-//    fG4Metadata = (TRestG4Metadata *) GetGeant4Metadata( );
+    fG4Metadata = (TRestG4Metadata *) GetGeant4Metadata( );
+
+    for( unsigned int n = 0; n < fVolumeSelection.size(); n++ )
+    {
+        if( fG4Metadata->GetActiveVolumeID( fVolumeSelection[n] ) >= 0 ) 
+            fVolumeId.push_back( fG4Metadata->GetActiveVolumeID( fVolumeSelection[n] ) ); 
+        else if( GetVerboseLevel() >= REST_Warning )
+            cout << "TRestG4ToHitsProcess. volume name : " << fVolumeSelection[n] << " not found and will not be added." << endl;
+    }
 }
 
 //______________________________________________________________________________
@@ -84,7 +92,6 @@ void TRestG4toHitsProcess::BeginOfEventProcess()
 TRestEvent* TRestG4toHitsProcess::ProcessEvent( TRestEvent *evInput )
 {
     fG4Event = (TRestG4Event *) evInput;
-
 
     fHitsEvent->SetRunOrigin( fG4Event->GetRunOrigin() );
     fHitsEvent->SetSubRunOrigin( fG4Event->GetSubRunOrigin() );
@@ -107,8 +114,17 @@ TRestEvent* TRestG4toHitsProcess::ProcessEvent( TRestEvent *evInput )
             z = fG4Event->GetTrack(i)->GetHits()->fZ[j];
             E = fG4Event->GetTrack(i)->GetHits()->fEnergy[j];
 
+            Bool_t addHit = true;
+            if( fVolumeId.size() > 0 )
+            {
+                addHit = false;
+                for( unsigned int n = 0; n < fVolumeId.size(); n++ )
+                    if( fG4Event->GetTrack(i)->GetHits()->GetVolumeId(j) == fVolumeId[n] )
+                        addHit = true;
+            }
+
             // and write them in the output hits event:
-            if( E > 0 ) fHitsEvent->AddHit (x, y, z, E);
+            if( addHit && E > 0 ) fHitsEvent->AddHit (x, y, z, E);
         }
     }
 
@@ -141,6 +157,9 @@ void TRestG4toHitsProcess::EndProcess()
 //______________________________________________________________________________
 void TRestG4toHitsProcess::InitFromConfigFile( )
 {
+    size_t position = 0;
+    string addVolumeDefinition;
 
+    while( ( addVolumeDefinition = GetKEYDefinition( "addVolume", position ) ) != "" )
+        fVolumeSelection.push_back( GetFieldValue( "name", addVolumeDefinition ) );
 }
-

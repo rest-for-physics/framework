@@ -40,6 +40,7 @@ class TRestG4Hits:public TRestHits {
 
         Int_t GetHitProcess( int n ) { return fProcessID[n]; }
         Int_t GetHitVolume( int n ) { return fVolumeID[n]; }
+        Int_t GetVolumeId( int n ) { return fVolumeID[n]; }
 
         Double_t GetEnergyInVolume( Int_t volID );
 

@@ -21,7 +21,7 @@
 
 #include <TRestGas.h>
 #include <TRestG4Event.h>
-//#include <TRestG4Metadata.h>
+#include <TRestG4Metadata.h>
 #include <TRestHitsEvent.h>
 
 #include "TRestEventProcess.h"
@@ -30,9 +30,13 @@ class TRestG4toHitsProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
         TRestG4Event *fG4Event;
-//        TRestG4Metadata *fG4Metadata;
-	TRestHitsEvent *fHitsEvent;
+        TRestG4Metadata *fG4Metadata;
+        TRestHitsEvent *fHitsEvent;
+
+        vector <Int_t> fVolumeId;
 #endif
+
+        vector <TString> fVolumeSelection;
 
         void InitFromConfigFile();
 
@@ -41,7 +45,7 @@ class TRestG4toHitsProcess:public TRestEventProcess {
         void LoadDefaultConfig();
 
     protected:
-        
+
         //add here the members of your event process
 
 
@@ -57,6 +61,9 @@ class TRestG4toHitsProcess:public TRestEventProcess {
         void PrintMetadata() { 
 
             BeginPrintProcess();
+
+            for ( unsigned int n = 0; n < fVolumeSelection.size(); n++ )
+                std::cout << "Volume added : " << fVolumeSelection[n] << endl;
 
             EndPrintProcess();
 
