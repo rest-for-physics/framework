@@ -65,6 +65,17 @@
 
 </section>
 
+<section TRestHitsAnalysisProcess name="hitsAna" title="A hits analysis process" >
+    <observable name="energy" value="ON" />
+    <observable name="xMean" value="ON" />
+    <observable name="yMean" value="ON" />
+    <observable name="zMean" value="ON" />
+
+    <parameter name="fiducialCylinder_radius" value="10" units="mm" />
+    <parameter name="fiducialCylinder_x0" value="(0,0,100)" units="mm" />
+    <parameter name="fiducialCylinder_x1" value="(0,0,100)" units="mm" />
+</section>
+
 <section TRestGaussianConvolutionProcess name="gaussian-Convolution"  title="Gaussian convolution of signals" >
     <parameter name="sigma" value="0.01" units="us" /> 
     <parameter name="nSigmas" value="5" />  // Number of sigmas to perform the calculation

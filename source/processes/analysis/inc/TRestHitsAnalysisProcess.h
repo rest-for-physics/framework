@@ -38,9 +38,12 @@ class TRestHitsAnalysisProcess:public TRestEventProcess {
         void LoadDefaultConfig();
 
     protected:
-        
+
         //add here the members of your event process
         //
+        TVector3 fCyl_x0;
+        TVector3 fCyl_x1;
+        Double_t fCyl_R;
 
     public:
         void InitProcess();

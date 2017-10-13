@@ -165,6 +165,10 @@ class TRestMetadata:public TNamed {
 
         std::string GetParameter( std::string parName, TString defaultValue = PARAMETER_NOT_FOUND_STR );
         Double_t GetDblParameterWithUnits( std::string parName, Double_t defaultValue = PARAMETER_NOT_FOUND_DBL );
+
+        Double_t GetDoubleParameterWithUnits( std::string parName, Double_t defaultValue = PARAMETER_NOT_FOUND_DBL ) {
+            return GetDblParameterWithUnits( parName, defaultValue ); }
+
         TVector2 Get2DVectorParameterWithUnits( string parName, TVector2 defaultValue = TVector2(-1,-1) );
         TVector3 Get3DVectorParameterWithUnits( string parName, TVector3 defaultValue = TVector3( -1, -1, -1) );
 

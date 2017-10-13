@@ -71,7 +71,7 @@ class TRestHitsEvent : public TRestEvent
             { return fHits->GetNumberOfHitsInsideCylinder(x0, x1, radius); }
 
         Bool_t areHitsFullyContainnedInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius )
-        { isHitsEventInsideCylinder( x0, x1, radius ); }
+        { return isHitsEventInsideCylinder( x0, x1, radius ); }
 
 
         TPad *DrawEvent( TString option = "" ) { std::cout << "TRestHitsEvent::DrawEvent not implemented. TODO" << std::endl; return NULL; }

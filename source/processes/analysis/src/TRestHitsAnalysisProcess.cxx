@@ -76,12 +76,26 @@ void TRestHitsAnalysisProcess::BeginOfEventProcess()
 TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 {
     fInputHitsEvent = (TRestHitsEvent *) evInput;
+   
     TString obsName;
 
     TransferEvent( fOutputHitsEvent, fInputHitsEvent );
-
+    
+   
     Double_t energy = fOutputHitsEvent->GetEnergy( );
     TVector3 meanPosition = fOutputHitsEvent->GetMeanPosition();
+
+    Int_t isInsideCylindricalVolume=0;
+    if( fOutputHitsEvent->isHitsEventInsideCylinder( fCyl_x0, fCyl_x1, fCyl_R) )
+        isInsideCylindricalVolume = 1;
+
+    Int_t nInsideCylindricalVolume = fOutputHitsEvent->GetNumberOfHitsInsideCylinder( fCyl_x0, fCyl_x1, fCyl_R);
+
+    obsName = this->GetName() + (TString) ".isInsideCylindricalVolume";
+    fAnalysisTree->SetObservableValue( obsName, isInsideCylindricalVolume );
+
+    obsName = this->GetName() + (TString) ".nInsideCylindricalVolume";
+    fAnalysisTree->SetObservableValue( obsName, nInsideCylindricalVolume );
 
     obsName = this->GetName() + (TString) ".energy";
     fAnalysisTree->SetObservableValue( obsName, energy );
@@ -124,27 +138,10 @@ void TRestHitsAnalysisProcess::EndProcess()
 //______________________________________________________________________________
 void TRestHitsAnalysisProcess::InitFromConfigFile( )
 {
-    /*
-    fDrawRefresh = StringToDouble( GetParameter( "refreshEvery", "0" ) );
+   
+    fCyl_x0 = Get3DVectorParameterWithUnits( "fiducialCylinder_x0", TVector3(0,0,0) );
+    fCyl_x1 = Get3DVectorParameterWithUnits( "fiducialCylinder_x1", TVector3(0,0,0) );
 
-    fBaseLineRange = StringTo2DVector( GetParameter( "baseLineRange", "(5,55)") );
-    fIntegralRange = StringTo2DVector( GetParameter( "integralRange", "(10,500)") );
-    fPointThreshold = StringToDouble( GetParameter( "pointThreshold", 2 ) );
-    fNPointsOverThreshold = StringToInteger( GetParameter( "pointsOverThreshold", 5 ) );
-    fSignalThreshold = StringToDouble( GetParameter( "signalThreshold", 5 ) );
-
-    fMeanBaseLineCutRange = StringTo2DVector( GetParameter( "meanBaseLineCutRange", "(0,4096)") );
-    fMeanBaseLineSigmaCutRange = StringTo2DVector( GetParameter( "meanBaseLineSigmaCutRange", "(0,4096)") );
-    fMaxNumberOfSignalsCut = StringTo2DVector( GetParameter( "maxNumberOfSignalsCut", "(0,20)" ) );
-    fMaxNumberOfGoodSignalsCut = StringTo2DVector( GetParameter( "maxNumberOfGoodSignalsCut", "(0,20)" ) );
-
-    fFullIntegralCut  = StringTo2DVector( GetParameter( "fullIntegralCut", "(0,100000)" ) );
-    fThresholdIntegralCut  = StringTo2DVector( GetParameter( "thresholdIntegralCut", "(0,100000)" ) );
-
-    fPeakTimeDelayCut  = StringTo2DVector( GetParameter( "peakTimeDelayCut", "(0,20)" ) );
-    if( GetParameter( "cutsEnabled" ) == "true" ) fCutsEnabled = true;
-    */
-
-
+    fCyl_R = GetDblParameterWithUnits( "fiducialCylinder_radius", 1 );
 }
 
