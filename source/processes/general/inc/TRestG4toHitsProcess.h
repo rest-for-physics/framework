@@ -63,7 +63,7 @@ class TRestG4toHitsProcess:public TRestEventProcess {
             BeginPrintProcess();
 
             for ( unsigned int n = 0; n < fVolumeSelection.size(); n++ )
-                std::cout << "Volume added : " << fVolumeSelection[n] << endl;
+                std::cout << "Volume added : " << fVolumeSelection[n] << std::endl;
 
             EndPrintProcess();
 

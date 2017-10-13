@@ -66,18 +66,32 @@
 </section>
 
 <section TRestHitsAnalysisProcess name="hitsAna" title="A hits analysis process" >
+
     <observable name="energy" value="ON" />
     <observable name="xMean" value="ON" />
     <observable name="yMean" value="ON" />
     <observable name="zMean" value="ON" />
 
-    <!-- Observables and parameters to determine if hits are inside a certain fiducial volume. -->
+    <!-- Observables and parameters to determine if hits are 
+         inside a certain fiducial volume (cylinder or prism). -->
+
+    <parameter name="fiducial_x0" value="(0,0,-100)" units="mm" />
+    <parameter name="fiducial_x1" value="(0,0,100)" units="mm" />
+
+    <parameter name="fiducial_R" value="10" units="mm" />
+
     <observable name="isInsideCylindricalVolume" value="ON" />
     <observable name="nInsideCylindricalVolume" value="ON" />
+    <observable name="energyInsideCylindricalVolume" value="ON" />
 
-    <parameter name="fiducialCylinder_radius" value="10" units="mm" />
-    <parameter name="fiducialCylinder_x0" value="(0,0,-100)" units="mm" />
-    <parameter name="fiducialCylinder_x1" value="(0,0,100)" units="mm" />
+    <!-- x0 and y0 are common coordinates for prism and cylinder. -->
+
+    <parameter name="fiducial_sX" value="10" units="mm" />
+    <parameter name="fiducial_sY" value="10" units="mm" />
+
+    <observable name="isInsidePrismVolume" value="OFF" />
+    <observable name="nInsidePrismVolume" value="OFF" />
+    <observable name="energyInsidePrismVolume" value="OFF" />
 
 </section>
 

@@ -81,21 +81,48 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     TransferEvent( fOutputHitsEvent, fInputHitsEvent );
     
-   
     Double_t energy = fOutputHitsEvent->GetEnergy( );
     TVector3 meanPosition = fOutputHitsEvent->GetMeanPosition();
 
-    Int_t isInsideCylindricalVolume=0;
-    if( fOutputHitsEvent->isHitsEventInsideCylinder( fCyl_x0, fCyl_x1, fCyl_R) )
-        isInsideCylindricalVolume = 1;
+    // Checking hits inside fiducial cylinder
+    Int_t isInsideCylinder = 0;
+    if( fOutputHitsEvent->isHitsEventInsideCylinder( fFid_x0, fFid_x1, fFid_R ) )
+        isInsideCylinder = 1;
 
-    Int_t nInsideCylindricalVolume = fOutputHitsEvent->GetNumberOfHitsInsideCylinder( fCyl_x0, fCyl_x1, fCyl_R);
+    Int_t nCylVol = fOutputHitsEvent->GetNumberOfHitsInsideCylinder( fFid_x0, fFid_x1, fFid_R );
+
+    Double_t enCylVol = fOutputHitsEvent->GetEnergyInCylinder( fFid_x0, fFid_x1, fFid_R );
 
     obsName = this->GetName() + (TString) ".isInsideCylindricalVolume";
-    fAnalysisTree->SetObservableValue( obsName, isInsideCylindricalVolume );
+    fAnalysisTree->SetObservableValue( obsName, isInsideCylinder );
 
     obsName = this->GetName() + (TString) ".nInsideCylindricalVolume";
-    fAnalysisTree->SetObservableValue( obsName, nInsideCylindricalVolume );
+    fAnalysisTree->SetObservableValue( obsName, nCylVol );
+
+    obsName = this->GetName() + (TString) ".energyInsideCylindricalVolume";
+    fAnalysisTree->SetObservableValue( obsName, enCylVol );
+
+    // Checking hits inside fiducial prism 
+    
+    Int_t isInsidePrism = 0;
+    if ( fOutputHitsEvent->isHitsEventInsidePrism( fFid_x0,  fFid_x1, fFid_sX, fFid_sY ) )
+        isInsidePrism = 1;
+
+    Int_t nPrismVol = fOutputHitsEvent->GetNumberOfHitsInsidePrism( fFid_x0,  fFid_x1, fFid_sX, fFid_sY );
+
+    Double_t enPrismVol = fOutputHitsEvent->GetEnergyInPrism( fFid_x0,  fFid_x1, fFid_sX, fFid_sY );
+
+    obsName = this->GetName() + (TString) ".isInsidePrismVolume";
+    fAnalysisTree->SetObservableValue( obsName, isInsidePrism );
+
+    obsName = this->GetName() + (TString) ".nInsidePrismVolume";
+    fAnalysisTree->SetObservableValue( obsName, nPrismVol );
+
+    obsName = this->GetName() + (TString) ".energyInsidePrismVolume";
+    fAnalysisTree->SetObservableValue( obsName, enPrismVol );
+
+    ///////////////////////////////////////
+
 
     obsName = this->GetName() + (TString) ".energy";
     fAnalysisTree->SetObservableValue( obsName, energy );
@@ -139,9 +166,11 @@ void TRestHitsAnalysisProcess::EndProcess()
 void TRestHitsAnalysisProcess::InitFromConfigFile( )
 {
    
-    fCyl_x0 = Get3DVectorParameterWithUnits( "fiducialCylinder_x0", TVector3(0,0,0) );
-    fCyl_x1 = Get3DVectorParameterWithUnits( "fiducialCylinder_x1", TVector3(0,0,0) );
+    fFid_x0 = Get3DVectorParameterWithUnits( "fiducial_x0", TVector3(0,0,0) );
+    fFid_x1 = Get3DVectorParameterWithUnits( "fiducial_x1", TVector3(0,0,0) );
 
-    fCyl_R = GetDblParameterWithUnits( "fiducialCylinder_radius", 1 );
+    fFid_R = GetDblParameterWithUnits( "fiducial_R", 1 );
+    fFid_sX = GetDblParameterWithUnits( "fiducial_sX", 1 );
+    fFid_sY = GetDblParameterWithUnits( "fiducial_sY", 1 );
 }
 
