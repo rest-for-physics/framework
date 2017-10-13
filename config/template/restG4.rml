@@ -46,6 +46,7 @@ By default REST units are mm, keV and degrees
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
     <parameter name="runNumber" value="auto"/>
+   <parameter name="readOnly" value="false" />
     <parameter name="runTag" value="Template"/>
     <parameter name="runDescription" value="We launch just 100 events to check everything is ok."/>
     <parameter name="user" value="${USER}"/>
@@ -73,6 +74,15 @@ By default REST units are mm, keV and degrees
         <source fromFile="Xe136bb0n.dat">
         </source>
     </generator>
+
+    <!--
+    <generator type="volume" from="gas" >
+        <source particle="Na22" excitedLevel="0.0" fullChain="on">
+            <angularDist type="isotropic" >
+                <energyDist type="mono" energy="0.0" units="MeV" />
+            </source>
+    </generator>
+    -->
 
     <biasing value="off" type="virtualBox">
         <biasingVolume size="2850" units="mm" position="(0,0,0)" units="mm" factor="10" energyRange="(2.4,5)" units="MeV" />
