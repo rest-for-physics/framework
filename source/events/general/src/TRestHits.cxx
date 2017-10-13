@@ -116,6 +116,48 @@ Double_t TRestHits::GetEnergyIntegral()
     return sum;
 }
 
+
+Bool_t TRestHits::isHitNInsidePrism( Int_t n, TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY)
+{
+
+    TVector3 axis = x1 - x0;
+
+    Double_t prismLength = axis.Mag();
+
+    TVector3 hitPos = this->GetPosition( n ) - x0;
+
+    Double_t l = axis.Dot( hitPos )/prismLength;
+
+    if( ( l > 0 ) && ( l < prismLength ) )
+       if( ( TMath::Abs( hitPos.X() ) < sizeX ) && ( TMath::Abs( hitPos.Y( ) ) < sizeY ) )
+             return true;
+
+    return false;
+}
+
+
+Double_t TRestHits::GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY)
+{
+    Double_t energy = 0.;
+
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+        if( isHitNInsidePrism( n, x0, x1, sizeX, sizeY ) )
+            energy += this->GetEnergy( n );
+
+    return energy;
+}
+
+Int_t TRestHits::GetNumberOfHitsInsidePrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY)
+{
+    Int_t hits = 0;
+
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+        if( isHitNInsidePrism( n, x0, x1, sizeX,sizeY ) )
+            hits++;
+
+    return hits;
+}
+
 Bool_t TRestHits::isHitNInsideCylinder( Int_t n, TVector3 x0, TVector3 x1, Double_t radius )
 {
    /* cout << "TRestHits::isHitNInsideCylinder has not been validated." << endl;

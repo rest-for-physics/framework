@@ -60,18 +60,37 @@ class TRestHitsEvent : public TRestEvent
         Double_t GetMeanPositionY( ) { return fHits->GetMeanPositionY(); }
         Double_t GetMeanPositionZ( ) { return fHits->GetMeanPositionZ(); }
 
-
         Double_t GetTotalDepositedEnergy() { return fHits->fTotEnergy; }
         Double_t GetTotalEnergy() { return fHits->fTotEnergy; }
         Double_t GetEnergy() { return fHits->fTotEnergy; }
 
+
+        // Inside Cylinder methods
         Bool_t isHitsEventInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius );
+
+        Int_t  GetEnergyInCylinder( TVector3 x0, TVector3 x1, Double_t radius )
+            { return fHits-> GetEnergyInCylinder(x0, x1, radius); }
 
         Int_t GetNumberOfHitsInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius )
             { return fHits->GetNumberOfHitsInsideCylinder(x0, x1, radius); }
 
         Bool_t areHitsFullyContainnedInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius )
-        { return isHitsEventInsideCylinder( x0, x1, radius ); }
+            { return isHitsEventInsideCylinder( x0, x1, radius ); }
+
+
+        // Inside Prim methods
+        Bool_t isHitsEventInsidePrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY );
+
+        Int_t GetNumberOfHitsInsidePrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY)
+            { return fHits->GetNumberOfHitsInsidePrism(x0, x1, sizeX, sizeY); }
+
+        Int_t GetEnergyInPrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY)
+            { return fHits->GetEnergyInPrism(x0, x1, sizeX, sizeY); }
+
+
+
+        Bool_t areHitsFullyContainnedInsidePrism( TVector3 x0, TVector3 x1, Double_t sX, Double_t sY )
+            { return isHitsEventInsidePrism( x0, x1, sX, sY ); }
 
 
         TPad *DrawEvent( TString option = "" ) { std::cout << "TRestHitsEvent::DrawEvent not implemented. TODO" << std::endl; return NULL; }

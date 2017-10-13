@@ -71,9 +71,14 @@
     <observable name="yMean" value="ON" />
     <observable name="zMean" value="ON" />
 
+    <!-- Observables and parameters to determine if hits are inside a certain fiducial volume. -->
+    <observable name="isInsideCylindricalVolume" value="ON" />
+    <observable name="nInsideCylindricalVolume" value="ON" />
+
     <parameter name="fiducialCylinder_radius" value="10" units="mm" />
-    <parameter name="fiducialCylinder_x0" value="(0,0,100)" units="mm" />
+    <parameter name="fiducialCylinder_x0" value="(0,0,-100)" units="mm" />
     <parameter name="fiducialCylinder_x1" value="(0,0,100)" units="mm" />
+
 </section>
 
 <section TRestGaussianConvolutionProcess name="gaussian-Convolution"  title="Gaussian convolution of signals" >
