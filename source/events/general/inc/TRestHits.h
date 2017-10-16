@@ -89,30 +89,13 @@ class TRestHits : public TObject
         Double_t GetZ( int n ) { return ( (Double_t) fZ[n]); } // return value in mm
         Double_t GetTime( int n ) {return ( (Double_t) fT[n]);  }  // return value in us
 
-        TVector3 GetPosition( int n )
-        {
-            if( areXY() )  return TVector3 ( ( (Double_t) fX[n]), ((Double_t) fY[n]), 0 );
-            if( areXZ() )  return TVector3 ( ( (Double_t) fX[n]), 0, ((Double_t) fZ[n]) );
-            if( areYZ() )  return TVector3 ( 0, ((Double_t) fY[n]), ((Double_t) fZ[n]) );
-            return TVector3 ( ( (Double_t) fX[n]), ((Double_t) fY[n]), ((Double_t) fZ[n]) );
-        }
-
-        TVector3 GetVector( int i, int j )
-        {
-            TVector3 vector = GetPosition(i) - GetPosition(j);
-            return vector;
-        }
+        TVector3 GetPosition( int n );
+        TVector3 GetVector( int i, int j );
 
         Double_t GetMeanPositionX( );
         Double_t GetMeanPositionY( );
         Double_t GetMeanPositionZ( );
-
-        TVector3 GetMeanPosition( )
-        {
-            TVector3 mean( GetMeanPositionX(), GetMeanPositionY(), GetMeanPositionZ() );
-            return mean;
-        }
-
+        TVector3 GetMeanPosition( );
 
         Double_t GetEnergy( int n ) { return ( (Double_t) fEnergy[n]); } //return value in keV
 
