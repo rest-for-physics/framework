@@ -149,10 +149,6 @@ class TRestHits : public TObject
         //Destructor
         ~TRestHits();
 
-#ifdef TIMEINFOADDED
         ClassDef(TRestHits, 2);
-#else
-        ClassDef(TRestHits, 1);
-#endif
 };
 #endif
