@@ -1,6 +1,7 @@
 
 int LoadRESTScripts()
 {
+    gSystem->Load("libGdml.so");
     gSystem->Load("libRestCore.so");
     gSystem->Load("libRestEvents.so");
     gSystem->Load("libRestMetadata.so");
