@@ -52,6 +52,7 @@ using namespace std;
 */
 // external processes
 #include <TRestFEMINOSToSignalProcess.h>
+#include <TRestMultiFEMINOSToSignalProcess.h>
 #include <TRestCoBoAsAdToSignalProcess.h>
 #include <TRestMultiCoBoAsAdToSignalProcess.h>
 
@@ -288,6 +289,7 @@ Int_t TRestManager::LoadProcesses( )
 
         // TODO: Still we need to improve this so that is more generic.
         // I.e. OpenInputBinFile can be done in InitProcess
+        // TODO We should just check if the process is external
         if( i == 0 && fProcessType[i] == "TRestFEMINOSToSignalProcess" )
         {
             TRestDetectorSetup *detSetup = new TRestDetectorSetup();
@@ -298,6 +300,30 @@ Int_t TRestManager::LoadProcesses( )
             fRun->AddMetadata( detSetup );
 
             TRestFEMINOSToSignalProcess *femPcs = new TRestFEMINOSToSignalProcess();
+
+            fRun->AddProcess( femPcs, (string) fPcsConfigFile[i], (string) fProcessName[i] );
+
+            if( !femPcs->OpenInputBinFile( fInputFile ) )
+            {
+                cout << "Error file not found : " << fInputFile << endl;
+                GetChar();
+                continue;
+            }
+
+            fRun->SetParentRunNumber( detSetup->GetSubRunNumber() );
+            fRun->SetRunNumber( detSetup->GetRunNumber() );
+            fRun->SetRunTag( detSetup->GetRunTag() );
+        }
+        else if( i == 0 && fProcessType[i] == "TRestMultiFEMINOSToSignalProcess" )
+        {
+            TRestDetectorSetup *detSetup = new TRestDetectorSetup();
+            detSetup->SetName("DetectorSetup" );
+            detSetup->SetTitle("FeminosSetup" );
+            detSetup->InitFromFileName( fInputFile );
+
+            fRun->AddMetadata( detSetup );
+
+            TRestMultiFEMINOSToSignalProcess *femPcs = new TRestMultiFEMINOSToSignalProcess();
 
             fRun->AddProcess( femPcs, (string) fPcsConfigFile[i], (string) fProcessName[i] );
 
