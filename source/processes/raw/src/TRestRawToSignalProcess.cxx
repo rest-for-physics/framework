@@ -194,6 +194,7 @@ void TRestRawToSignalProcess::PrintMetadata(){
     cout << "====================================" << endl;
     cout << "DAQ : " << GetTitle() << endl;
     cout << "Electronics type : " << fElectronicsType.Data() << endl;
+    cout << "Minimum number of points : " << fMinPoints << endl;
     cout << "====================================" << endl;
     
     cout << endl;
