@@ -72,6 +72,10 @@
     <observable name="yMean" value="ON" />
     <observable name="zMean" value="ON" />
 
+    <observable name="nHits" value="ON" />
+    <observable name="nHitsX" value="ON" />
+    <observable name="nHitsY" value="ON" />
+
     <!-- Observables and parameters to determine if hits are 
          inside a certain fiducial volume (cylinder or prism). -->
 
@@ -84,6 +88,10 @@
     <observable name="nInsideCylindricalVolume" value="ON" />
     <observable name="energyInsideCylindricalVolume" value="ON" />
 
+    <observable name="distanceToCylinderWall" value="ON" />
+    <observable name="distanceToCylinderTop" value="ON" />
+    <observable name="distanceToCylinderBottom" value="ON" />
+
     <!-- x0 and y0 are common coordinates for prism and cylinder. -->
 
     <parameter name="fiducial_sX" value="10" units="mm" />
@@ -92,6 +100,10 @@
     <observable name="isInsidePrismVolume" value="OFF" />
     <observable name="nInsidePrismVolume" value="OFF" />
     <observable name="energyInsidePrismVolume" value="OFF" />
+
+    <observable name="distanceToPrismWall" value="OFF" />
+    <observable name="distanceToPrismTop" value="OFF" />
+    <observable name="distanceToPrismBottom" value="OFF" />
 
 </section>
 
