@@ -92,10 +92,19 @@ class TRestHitsEvent : public TRestEvent
         Int_t GetEnergyInPrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY)
             { return fHits->GetEnergyInPrism(x0, x1, sizeX, sizeY); }
 
-
-
         Bool_t areHitsFullyContainnedInsidePrism( TVector3 x0, TVector3 x1, Double_t sX, Double_t sY )
-            { return isHitsEventInsidePrism( x0, x1, sX, sY ); }
+        { return isHitsEventInsidePrism( x0, x1, sX, sY ); }
+
+
+        // Get closest distance to cylinder walls methods
+        Double_t GetClosestHitInsideDistanceToCylinderWall( TVector3 x0, TVector3 x1, Double_t radius );
+        Double_t GetClosestHitInsideDistanceToCylinderTop( TVector3 x0, TVector3 x1, Double_t radius );
+        Double_t GetClosestHitInsideDistanceToCylinderBottom( TVector3 x0, TVector3 x1, Double_t radius );
+
+        // Get closest distance to prism walls methods
+        Double_t GetClosestHitInsideDistanceToPrismWall( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY );
+        Double_t GetClosestHitInsideDistanceToPrismTop( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY );
+        Double_t GetClosestHitInsideDistanceToPrismBottom( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY );
 
 
         TPad *DrawEvent( TString option = "" ) { std::cout << "TRestHitsEvent::DrawEvent not implemented. TODO" << std::endl; return NULL; }
