@@ -57,6 +57,9 @@ class TRestHitsEvent : public TRestEvent
 
         TVector3 GetMeanPosition( ) { return fHits->GetMeanPosition(); }
 
+        Int_t GetNumberOfHitsX( ) { return fHits->GetNumberOfHitsX(); }
+        Int_t GetNumberOfHitsY( ) { return fHits->GetNumberOfHitsY(); }
+
         Double_t GetMeanPositionX( ) { return fHits->GetMeanPositionX(); }
         Double_t GetMeanPositionY( ) { return fHits->GetMeanPositionY(); }
         Double_t GetMeanPositionZ( ) { return fHits->GetMeanPositionZ(); }

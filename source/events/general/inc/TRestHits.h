@@ -92,6 +92,10 @@ class TRestHits : public TObject
         TVector3 GetPosition( int n );
         TVector3 GetVector( int i, int j );
 
+        Int_t GetNumberOfHitsX( );
+        Int_t GetNumberOfHitsY( );
+
+
         Double_t GetMeanPositionX( );
         Double_t GetMeanPositionY( );
         Double_t GetMeanPositionZ( );

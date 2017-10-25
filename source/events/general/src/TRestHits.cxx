@@ -406,6 +406,29 @@ TVector3 TRestHits::GetVector( int i, int j )
     return vector;
 }
 
+Int_t TRestHits::GetNumberOfHitsX( )
+{
+    Int_t nHitsX= 0;
+
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+        if( !IsNaN( fX[n] ) ) 
+            nHitsX++;
+
+    return nHitsX;
+}
+
+Int_t TRestHits::GetNumberOfHitsY( )
+{
+    Int_t nHitsY= 0;
+
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+        if( !IsNaN( fY[n] ) ) 
+            nHitsY++;
+
+    return nHitsY;
+}
+
+
 Double_t TRestHits::GetMeanPositionX( )
 {
     Double_t meanX = 0;
