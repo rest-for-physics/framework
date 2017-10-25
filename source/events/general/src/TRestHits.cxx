@@ -129,7 +129,7 @@ Bool_t TRestHits::isHitNInsidePrism( Int_t n, TVector3 x0, TVector3 x1, Double_t
     Double_t l = axis.Dot( hitPos )/prismLength;
 
     if( ( l > 0 ) && ( l < prismLength ) )
-       if( ( TMath::Abs( hitPos.X() ) < sizeX ) && ( TMath::Abs( hitPos.Y( ) ) < sizeY ) )
+       if( ( TMath::Abs( hitPos.X() ) < sizeX/2 ) && ( TMath::Abs( hitPos.Y( ) ) < sizeY/2 ) )
              return true;
 
     return false;
