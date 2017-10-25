@@ -67,6 +67,7 @@ TRestTrackLinearizationProcess              | TRestTrackEvent       | TRestLinea
 TRestTrackPathMinimizationProcess           | TRestTrackEvent       | TRestTrackEvent       | Finds the minimum path between hits inside each track.
 TRestTrackReconnectionProcess               | TRestTrackEvent       | TRestTrackEvent       | Improves physical track description after track minimization.
 TRestTrackReductionProcess                  | TRestTrackEvent       | TRestTrackEvent       | Reduces the number of hits inside a track by merging closer hits.
+TRestTrackToHitsProcess                     | TRestTrackEvent       | TRestHitsEvent        | It recovers back a track event into a hits event.
 
 ## Rawdata processes
 
@@ -79,6 +80,7 @@ TRestAFTERToSignalProcess                   | rawdata               | TRestRawSi
 TRestCoBoAsAdToSignalProcess                | rawdata               | TRestRawSignalEvent   | Transforms CoBoAsAd data into raw signal event.
 TRestMultiCoBoAsAdToSignalProcess           | rawdata               | TRestRawSignalEvent   | Transforms CoBoAsAd data into raw signal event. General version using several CoBoAsAd cards. Event data might be splitted between different data files. The process receives a list of all the files in a given run.
 TRestFEMINOSToSignalProcess                 | rawdata               | TRestRawSignalEvent        | Transforms FEMINOS data into SignalEvent.
+TRestMultiFEMINOSToSignalProcess            | rawdata               | TRestRawSignalEvent        | Transforms FEMINOS data into SignalEvent.  General version using several Feminos cards. Full event data is containned in one single file.
 
 ## Viewer processes
 
