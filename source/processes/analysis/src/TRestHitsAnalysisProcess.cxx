@@ -128,9 +128,9 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     ///////////////////////////////////////
 
     // Adding distances to cylinder wall
-    Double_t dToCylWall = fOutputHitsEvent->GetDistancetoCylinderWall( fFid_x0, fFid_x1, fFid_R );
-    Double_t dToCylTop  = fOutputHitsEvent->GetDistancetoCylinderTop( fFid_x0, fFid_x1, fFid_R );
-    Double_t dToCylBottom = fOutputHitsEvent->GetDistancetoCylinderBottom( fFid_x0, fFid_x1, fFid_R );
+    Double_t dToCylWall = fOutputHitsEvent->GetClosestHitInsideDistanceToCylinderWall( fFid_x0, fFid_x1, fFid_R );
+    Double_t dToCylTop  = fOutputHitsEvent->GetClosestHitInsideDistanceToCylinderTop( fFid_x0, fFid_x1, fFid_R );
+    Double_t dToCylBottom = fOutputHitsEvent->GetClosestHitInsideDistanceToCylinderBottom( fFid_x0, fFid_x1, fFid_R );
 
     obsName = this->GetName() + (TString) ".distanceToCylinderWall";
     fAnalysisTree->SetObservableValue( obsName, dToCylWall );
@@ -140,9 +140,9 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     fAnalysisTree->SetObservableValue( obsName, dToCylBottom );
     
     // Adding distances to prism wall
-    Double_t dToPrismWall = fOutputHitsEvent->GetDistancetoPrismWall( fFid_x0,  fFid_x1, fFid_sX, fFid_sY );
-    Double_t dToPrismTop = fOutputHitsEvent->GetDistancetoPrismTop( fFid_x0, fFid_x1, fFid_sX, fFid_sY );
-    Double_t dToPrismBottom = fOutputHitsEvent->GetDistancetoPrismBottom( fFid_x0, fFid_x1, fFid_sX, fFid_sY );
+    Double_t dToPrismWall = fOutputHitsEvent->GetClosestHitInsideDistanceToPrismWall( fFid_x0,  fFid_x1, fFid_sX, fFid_sY );
+    Double_t dToPrismTop = fOutputHitsEvent->GetClosestHitInsideDistanceToPrismTop( fFid_x0, fFid_x1, fFid_sX, fFid_sY );
+    Double_t dToPrismBottom = fOutputHitsEvent->GetClosestHitInsideDistanceToPrismBottom( fFid_x0, fFid_x1, fFid_sX, fFid_sY );
 
     obsName = this->GetName() + (TString) ".distanceToPrismWall";
     fAnalysisTree->SetObservableValue( obsName, dToPrismWall );
