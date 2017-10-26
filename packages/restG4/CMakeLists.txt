@@ -3,6 +3,8 @@
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 project(restG4)
 
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+
 IF(DEFINED ENV{REST_PATH})
     message("Using environment REST_PATH variable $ENV{REST_PATH}")
     set(REST_PATH $ENV{REST_PATH})
@@ -30,22 +32,29 @@ endif()
 include(${Geant4_USE_FILE})
 find_package(ROOT REQUIRED)
 
+set(Garfield_FIND_REQUIRED TRUE)
+
+include(FindGarfield)
+include_directories(${Garfield_INCLUDE_DIRS})
+message ("Garfield include directory : ${Garfield_INCLUDE_DIRS}\n" )
+
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
 #
 include_directories(${PROJECT_SOURCE_DIR}/include 
+    ${Garfield_INCLUDE_DIRS}
     ${Geant4_INCLUDE_DIR}
     ${ROOT_INCLUDE_DIR}
     ${REST_PATH}/include )
 
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
+file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${Garfield_INCLUDE_DIRS}/*.hh )
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
 add_executable(restG4 restG4.cc ${sources} ${headers})
-target_link_libraries(restG4 ${Geant4_LIBRARIES} -L${ROOT_LIBRARY_DIR} ${ROOT_LIBRARIES} -L${REST_PATH}/lib/ -lRestCore -lRestEvents -lRestMetadata -lEve -lGeom ${Garfield_LIBRARIES}) 
+target_link_libraries(restG4 ${Geant4_LIBRARIES} -L${ROOT_LIBRARY_DIR} ${ROOT_LIBRARIES} -L${REST_PATH}/lib/ -lRestCore -lRestEvents -lRestMetadata -lEve -lGeom -lGdml ${Garfield_LIBRARIES} -lgfortran )
 
 
 #----------------------------------------------------------------------------
