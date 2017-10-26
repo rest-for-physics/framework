@@ -79,6 +79,10 @@
     <!-- Observables and parameters to determine if hits are 
          inside a certain fiducial volume (cylinder or prism). -->
 
+    <!-- This parameter allows to enable/disable the cylinder fiducialization. -->
+    <parameter name="cylinderFiducialization" value="true" />
+
+    <!-- x0 and y0 are common coordinates for prism and cylinder. -->
     <parameter name="fiducial_x0" value="(0,0,-100)" units="mm" />
     <parameter name="fiducial_x1" value="(0,0,100)" units="mm" />
 
@@ -92,7 +96,8 @@
     <observable name="distanceToCylinderTop" value="ON" />
     <observable name="distanceToCylinderBottom" value="ON" />
 
-    <!-- x0 and y0 are common coordinates for prism and cylinder. -->
+    <!-- This parameter allows to enable/disable the prism fiducialization. -->
+    <parameter name="prismFiducialization" value="false" />
 
     <parameter name="fiducial_sX" value="10" units="mm" />
     <parameter name="fiducial_sY" value="10" units="mm" />
