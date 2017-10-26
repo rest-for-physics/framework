@@ -1,5 +1,5 @@
 set(contents)
-set(libname RestCore)
+set(libname RestUtil)
 
 
 

@@ -1,191 +1,99 @@
-cmake_minimum_required(VERSION 2.8)
+PROJECT(main)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-project(REST)
 
-IF(DEFINED INSTALL_PREFIX)
-    message("\noo Using user install path.")
-ELSE()
-    message("\noo Using default install path.")
-    set(INSTALL_PREFIX /usr/local/REST)
+IF(NOT DEFINED INSTALL_PREFIX)
+	IF(DEFINED ENV{REST_INSTALL_PATH})
+		set(INSTALL_PREFIX $ENV{REST_INSTALL_PATH})
+	else()
+		set(INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/install)
+	endif()
 ENDIF()
 
-
+#message($ENV{REST_INSTALL_PATH})
 set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
-message ("oo Install prefix : ${CMAKE_INSTALL_PREFIX}\n" )
+message ("oo REST will be installed in : ${CMAKE_INSTALL_PREFIX}\n" )
 
+SET(CMAKE_CXX_FLAGS "-std=c++1y -Werror")
+
+
+
+#find includes and libs
+set(external_include_dirs)
+set(external_libs)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+	include(FindROOT)
+	set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
+    #file(GLOB rootlibs ${ROOT_LIBRARY_DIR}/*.so)
+	set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui  -lEve -lGeom -lMathMore)
 
-include(FindROOT)
+	include(FindGarfield)
+	set(external_include_dirs ${external_include_dirs} ${Garfield_INCLUDE_DIRS})
+	set(external_libs ${external_libs} ${Garfield_LIBRARIES})
+
+	find_library(tiny libtinyxml.so)
+
+	if(NOT tiny)
+		message(FATAL_ERROR "library \"tinyxml\" is required, but not found!\ntype \"sudo apt-get install libtinyxml-dev\" to install it.")
+	else()
+		message("-- Found tinyxml library in ${tiny}")
+	endif(NOT tiny)
+	set(external_libs ${external_libs} ${tiny})
+
+
+	#Here Windows is just for test. It is for the convenience of vs to make gramma check
+ELSE (CMAKE_SYSTEM_NAME MATCHES "Windows")
+	set(ROOT_INCLUDE_DIR $ENV{ROOTSYS}/include)
+	set(ROOT_LIBRARY_DIR $ENV{ROOTSYS}/lib)
+	include_directories(${ROOT_INCLUDE_DIR})
+	find_program(ROOTCINT_EXECUTABLE rootcint PATHS $ENV{ROOTSYS}/bin)
+    file(GLOB rootlibs ${ROOT_LIBRARY_DIR}/*.lib)
+
+	set(Garfield_INCLUDE_DIRS $ENV{GARFIELD_HOME})
+	message(${Garfield_INCLUDE_DIRS})
+	include_directories(${Garfield_INCLUDE_DIRS})
+
+	set(USR_INCLUDE_DIRS $ENV{include})
+	message(${USR_INCLUDE_DIRS})
+	include_directories(${USR_INCLUDE_DIRS})
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 include(MacroRootDict)
-include_directories(${ROOT_INCLUDE_DIRS})
+include(CompileDir)
+include_directories(${external_include_dirs})
 
-
-SET(CMAKE_CXX_FLAGS "-std=c++11 -Wall -march=native -mno-bmi2")
-
-set(Garfield_FIND_REQUIRED TRUE)
-
-include(FindGarfield)
-include_directories(${Garfield_INCLUDE_DIRS})
-
-
+#start compile
 add_subdirectory(source)
-include_directories(${REST_INCLUDE_DIR})
-#add_subdirectory(example)
 
-#set ( SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
+message("rest Libraries : " ${rest_libraries_regular})
+message("rest executables: " ${rest_exes})
 
-########### TODO : THERE MUST BE A WAY IN CMAKE TO ENTER RECURSIVELY IN DIRECTORIES LOOKING FOR .h FILES
-########### excluding external directory would be necessary.
-#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/restcore/inc/*.h" )
-#set(HS ${HS} ${headers})
-#
-#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/general/inc/*.h" )
-#set(HS ${HS} ${headers})
-#
-#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/geant4/inc/*.h" )
-#set(HS ${HS} ${headers})
-#
-#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/daq/inc/*.h" )
-#set(HS ${HS} ${headers})
-#
-#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/readout/inc/*.h" )
-#set(HS ${HS} ${headers})
-#
-#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/events/analysis/inc/*.h" )
-#set(HS ${HS} ${headers})
-#
-#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/events/geant4/inc/*.h" )
-#set(HS ${HS} ${headers})
-#
-#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/events/general/inc/*.h" )
-#set(HS ${HS} ${headers})
-#
-#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/events/general/inc/*.h" )
-#set(HS ${HS} ${headers})
-#
-#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/processes/general/inc/*.h" )
-#set(HS ${HS} ${headers})
-#
-#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/processes/analysis/inc/*.h" )
-#set(HS ${HS} ${headers})
-#
-#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/processes/raw/inc/*.h" )
-#set(HS ${HS} ${headers})
-#
-#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/processes/signal/inc/*.h" )
-#set(HS ${HS} ${headers})
-#
-#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/viewers/general/inc/*.h" )
-#set(HS ${HS} ${headers})
-#
-#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/viewers/geant4/inc/*.h" )
-#set(HS ${HS} ${headers})
-#
-#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/tools/inc/*.h" )
-#set(HS ${HS} ${headers})
-#
-#file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/source/tools/inc/*.h" )
-#set(HS ${HS} ${headers})
+#begin installation
+file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h")
 
-file(GLOB_RECURSE HS "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h")
-
-INSTALL(FILES ${HS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
-
-#########################################################
-
-
-file(GLOB_RECURSE tsp_headers "${CMAKE_CURRENT_SOURCE_DIR}/source/external/tsp/inc/*.h" )
-set(TSP_HS ${tsp_headers})
-
-INSTALL(FILES ${TSP_HS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/tsp)
-
-install(
-    FILES ${CMAKE_CURRENT_SOURCE_DIR}/inputData/runNumber
-    PERMISSIONS OWNER_WRITE OWNER_READ GROUP_WRITE GROUP_READ WORLD_WRITE WORLD_READ
-    DESTINATION .
-    COMPONENT install
-   )
-
-install(
-    FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENCE
-    PERMISSIONS OWNER_WRITE OWNER_READ GROUP_WRITE GROUP_READ WORLD_WRITE WORLD_READ
-    DESTINATION .
-    COMPONENT install
-   )
+INSTALL(FILES ${Headers} DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
 
 install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/scripts
          DESTINATION .
          COMPONENT install
-       )
+                 )
 
-install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/inputData
+install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/restData
     DESTINATION .
-         COMPONENT install
-       )
+    COMPONENT install
+        )
 
-install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/config
-    DESTINATION .
-         COMPONENT install
-       )
+#copying pcm files
 
-get_filename_component(result ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_PREFIX} ABSOLUTE)
-set(FULL_PATH_INSTALL ${result})
-
-message( "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n
-          After \"make install\" REST will be installed in ${CMAKE_INSTALL_PREFIX}\n
-	  If you are installing to a system directory you will need administrative privileges\n
-	  Executing : sudo make install\n\n
-
-	  If you want to change the installation directory execute cmake as follows: \n
-	  cmake -DINSTALL_PREFIX=PATH_TO_INSTALL_DIRECTORY PATH_TO_RESTv2_DIRECTORY \n\n
-
-          IMPORTANT : include the following line in your .bashrc\n
-          source ${CMAKE_INSTALL_PREFIX}/thisREST.sh\n
-          \n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" )
-
-#### This code gets the commit number to be inserted in thisREST.sh
-set (git_cmd git)
-set (git_arg rev-parse --verify HEAD )
-
-install( CODE 
-                "
-execute_process(COMMAND ${git_cmd} ${git_arg}
-  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-  RESULT_VARIABLE git_result
-  OUTPUT_VARIABLE git_ver)
-
-string(SUBSTRING \${git_ver} 0 8 git_commit )
-message(STATUS \"REST commit : \${git_commit}\")
+install(CODE
+"
+file(GLOB PCMFiles \"\${CMAKE_CURRENT_SOURCE_DIR}/rootdict/*.pcm\")
+file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/lib)
 
 "
+
 )
-
-install( CODE 
-                "
-execute_process(COMMAND date 
-  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-  RESULT_VARIABLE git_result
-  OUTPUT_VARIABLE system_date)
-
-message(STATUS \"Date : \${system_date}\")
-
-"
-)
-
-#### This code gets the branch number to be inserted in thisREST.sh
-install( CODE 
-                "
-execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/cmake/printBranch.sh
-  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-  RESULT_VARIABLE git_result
-  OUTPUT_VARIABLE git_branch)
-
-message(STATUS \"REST branch : \${git_branch}\")
-"
-)
-
-
-#### This code generates thisREST.sh
 
 install( CODE
 "
@@ -204,30 +112,103 @@ export LIBRARY_PATH=\\\$LIBRARY_PATH:\\\$REST_PATH/lib
 alias restRoot=\\\"root -l \\\$REST_PATH/scripts/LoadRESTScripts.C\\\"
 
 
-echo \\\"*****************************************************************************\\\"
-echo \\\"  W E L C O M E   to  R E S T              \\\"
+\"
+)
+        "
+)
+
+execute_process(COMMAND date OUTPUT_VARIABLE d)
+
+
+install( CODE
+"
+
+
+file( WRITE \${CMAKE_INSTALL_PREFIX}/bin/rest-config
+
+\"
+
+if [ $# -ne 1 ] ; then 
+
+echo \\\"  *****************************************************************************\\\"
+echo \\\"  W E L C O M E   to  R E S T                                                  \\\"
 echo \\\"                                                                               \\\"
-echo \\\"  Last update : \${system_date}      \\\"
+echo \\\"  Commit : \${git_commit}                                                      \\\"
+echo \\\"  Branch : \${git_branch}                                                      \\\"
+echo \\\"								                                                \\\"
+echo \\\"  Installed In : $REST_PATH                                                    \\\"
+echo \\\"  At : ${d}                                                                    \\\"            
+echo \\\"  Use restRoot command to load REST libraries and scripts inside ROOT          \\\"
+echo \\\"  Use restManager command to manage the configurations and start REST          \\\"
+echo \\\"  -----------------------------------------------------------------------------\\\"
+echo \\\"  Usage :                                                                      \\\"
+echo \\\"  rest-config [--incdir]  : Show the directory of headers                      \\\"
+echo \\\"  rest-config [--libdir]  : Show the directory of library                      \\\"
+echo \\\"  rest-config [--libs]    : Print regular REST libraries                       \\\"
+echo \\\"  rest-config [--exes]    : Print a list of REST executables                   \\\"
+echo \\\"  rest-config [--methods] : Print a list of methods avaliable in restRoot      \\\"
+echo \\\"  rest-config [--version] : Print the version of REST                          \\\"
+echo \\\"  -----------------------------------------------------------------------------\\\"
+echo \\\"  REST Support mail-list : rest-support@cern.ch                                \\\"
+echo \\\"  REST Development mail-list : rest-dev@cern.ch                                \\\"
 echo \\\"                                                                               \\\"
-echo \\\"  Commit : \${git_commit} 		                        \\\"
-echo \\\"  Branch : \${git_branch}                                     \\\"
-echo \\\"  REST_INSTALL = $REST_PATH                                   \\\"
+echo \\\"  You can subscribe at egroups.cern.ch                                         \\\"
 echo \\\"                                                                               \\\"
-echo \\\"  Use restRoot command to load REST libraries and scripts inside ROOT     \\\"
+echo \\\"  If you have no CERN account you can get an account                           \\\"
+echo \\\"  linked to your usual mail address at this site:                              \\\"
 echo \\\"                                                                               \\\"
-echo \\\"  REST Support mail-list : rest-support@cern.ch               \\\"
-echo \\\"  REST Development mail-list : rest-dev@cern.ch               \\\"
-echo \\\"                                                                               \\\"
-echo \\\"  You can subscribe at egroups.cern.ch                    \\\"
-echo \\\"                                                                              \\\"
-echo \\\"  If you have no CERN account you can get an account            \\\"
-echo \\\"  linked to your usual mail address at this site:              \\\"
-echo \\\"                                                                               \\\"
-echo \\\"  https://account.cern.ch/account/Externals/                 \\\"
+echo \\\"  https://account.cern.ch/account/Externals/                                   \\\"
 echo \\\"  *****************************************************************************\\\"
 echo \\\"                                                                               \\\"
+
+else
+
+option=$1
+
+if [ $option = \\\"--incdir\\\" ] ; then
+echo ${CMAKE_INSTALL_PREFIX}/include
+
+fi
+
+if [ $option = \\\"--libdir\\\" ] ; then
+echo ${CMAKE_INSTALL_PREFIX}/lib
+
+fi
+
+if [ $option = \\\"--libs\\\" ] ; then
+echo ${rest_libraries_regular}
+
+fi
+
+if [ $option = \\\"--exes\\\" ] ; then
+echo ${rest_exes}
+
+fi
+
+if [ $option = \\\"--methods\\\" ] ; then
+echo 2333
+
+fi
+
+if [ $option = \\\"--version\\\" ] ; then
+echo 2333
+
+fi
+
+
+
+
+
+
+fi
+
+
+
+
 
 \"
 )
         "
 )
+
+execute_process(COMMAND "chmod 744 \${CMAKE_INSTALL_PREFIX}/bin/rest-config")

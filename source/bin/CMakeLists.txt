@@ -1,53 +1,26 @@
-set(target_libraries RestViewers RestTools RestEvents RestMetadata RestProcesses RestExternal RestCore ${target_libraries} -lGui ${ROOT_LIBRARIES} -lEve -lGeom -lGdml -lgfortran)
+#set(target_libraries ${rest_libraries} -lGui ${ROOT_LIBRARIES} -lEve -lGeom)
+include_directories(${rest_include_dirs})
+include_directories(${external_include_dirs})
 
-add_executable(restManager restManager.cxx)
-install(TARGETS restManager RUNTIME DESTINATION bin)
-target_link_libraries(restManager ${target_libraries})
+set(rest_libraries_regular "-L${CMAKE_INSTALL_PREFIX}/lib ")
+foreach(lib ${rest_libraries})
+set(rest_libraries_regular "${rest_libraries_regular}-l${lib} ")
+endforeach(lib)
 
-add_executable(restPlots restPlots.cxx)
-install(TARGETS restPlots RUNTIME DESTINATION bin)
-target_link_libraries(restPlots ${target_libraries})
+set(rest_exes)
 
-add_executable(restIntegrate restIntegrate.cxx)
-install(TARGETS restIntegrate RUNTIME DESTINATION bin)
-target_link_libraries(restIntegrate ${target_libraries})
+file(GLOB files *.cxx)
+foreach(file ${files})
+#get file name without extension
+string(REGEX MATCH "[^/\\]*cxx" temp ${file})
+string(REPLACE ".cxx" "" name ${temp})
 
-add_executable(restIntegrateSmearing restIntegrateSmearing.cxx)
-install(TARGETS restIntegrateSmearing RUNTIME DESTINATION bin)
-target_link_libraries(restIntegrateSmearing ${target_libraries})
+ADD_EXECUTABLE(${name} ${file} )
+TARGET_LINK_LIBRARIES(${name} ${rest_libraries} ${external_libs} )
+install(TARGETS ${name} RUNTIME DESTINATION bin)
+set(rest_exes "${rest_exes}${name} ")
 
-add_executable(restCreateHisto restCreateHisto.cxx)
-install(TARGETS restCreateHisto RUNTIME DESTINATION bin)
-target_link_libraries(restCreateHisto ${target_libraries})
+endforeach(file)
 
-add_executable(restPrintAnaTreeVariables restPrintAnaTreeVariables.cxx)
-install(TARGETS restPrintAnaTreeVariables RUNTIME DESTINATION bin)
-target_link_libraries(restPrintAnaTreeVariables ${target_libraries})
-
-add_executable(restFit restFit.cxx)
-install(TARGETS restFit RUNTIME DESTINATION bin)
-target_link_libraries(restFit ${target_libraries})
-
-add_executable(restPrintRunInfo restPrintRunInfo.cxx)
-install(TARGETS restPrintRunInfo RUNTIME DESTINATION bin)
-target_link_libraries(restPrintRunInfo ${target_libraries})
-
-add_executable(restPrintAllMetadata restPrintAllMetadata.cxx)
-install(TARGETS restPrintAllMetadata RUNTIME DESTINATION bin)
-target_link_libraries(restPrintAllMetadata ${target_libraries})
-
-add_executable(restPrintFileContents restPrintFileContents.cxx)
-install(TARGETS restPrintFileContents RUNTIME DESTINATION bin)
-target_link_libraries(restPrintFileContents ${target_libraries})
-
-add_executable(restPrintEvents restPrintEvents.cxx)
-install(TARGETS restPrintEvents RUNTIME DESTINATION bin)
-target_link_libraries(restPrintEvents ${target_libraries})
-
-add_executable(restDrawEvents restDrawEvents.cxx)
-install(TARGETS restDrawEvents RUNTIME DESTINATION bin)
-target_link_libraries(restDrawEvents ${target_libraries})
-
-add_executable(restG4PrintParticles restG4PrintParticles.cxx)
-install(TARGETS restG4PrintParticles RUNTIME DESTINATION bin)
-target_link_libraries(restG4PrintParticles ${target_libraries})
+set(rest_libraries_regular ${rest_libraries_regular} PARENT_SCOPE)
+set(rest_exes ${rest_exes} PARENT_SCOPE)

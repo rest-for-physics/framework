@@ -1,30 +1,22 @@
-set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/restcore/inc)
-set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/external/tsp/inc)
-set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/events/geant4/inc)
-set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/events/analysis/inc)
-set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/events/general/inc)
-set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/metadata/daq/inc)
-set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/metadata/general/inc)
-set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/metadata/geant4/inc)
-set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/metadata/readout/inc)
-set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/tools/inc)
-set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/processes/general/inc)
-set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/processes/analysis/inc)
-set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/processes/raw/inc)
-set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/processes/signal/inc)
-set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/viewers/general/inc)
-set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/viewers/geant4/inc)
 
-include_directories(${REST_INCLUDE_DIR})
 
-set(REST_INCLUDE_DIR ${REST_INCLUDE_DIR} PARENT_SCOPE)
 
+
+
+
+#Add General
+
+set(rest_include_dirs)
+set(rest_libraries)
+
+
+add_subdirectory(tools)
 add_subdirectory(restcore)
-add_subdirectory(external)
 add_subdirectory(events)
 add_subdirectory(metadata)
-add_subdirectory(tools)
 add_subdirectory(processes)
-add_subdirectory(viewers)
-
+add_subdirectory(utils)
 add_subdirectory(bin)
+
+set(rest_libraries_regular ${rest_libraries_regular} PARENT_SCOPE)
+set(rest_exes ${rest_exes} PARENT_SCOPE)
