@@ -90,7 +90,8 @@ G4ParticleDefinition *PrimaryGeneratorAction::SetParticleDefinition( int n )
 
     Double_t eenergy = (double) restG4Metadata->GetParticleSource(n).GetExcitationLevel();
 
-    cout << "Searching for particle: " << particleName << " and excited energy: " << eenergy << endl;
+    if( restG4Metadata->GetVerboseLevel() >= REST_Debug )
+        cout << "Searching for particle: " << particleName << " and excited energy: " << eenergy << endl;
 
     G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
     G4ParticleDefinition* particle = particleTable->FindParticle(particleName);
