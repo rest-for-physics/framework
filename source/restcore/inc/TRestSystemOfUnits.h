@@ -73,4 +73,7 @@ namespace REST_Units {
 
     Double_t GetValueInRESTUnits( Double_t value, TString unitsStr );
 }
+
+//dummy class
+class TRestSystemOfUnits {};
 #endif
