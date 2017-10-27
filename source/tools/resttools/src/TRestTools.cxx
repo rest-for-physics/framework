@@ -9,7 +9,8 @@ using namespace std;
 
 ClassImp(TRestTools)
 
-vector <TString> TRestTools::GetListOfRESTLibraries(  )
+
+std::vector <TString> TRestTools::GetListOfRESTLibraries(  )
 {
     vector <TString> libraryList;
 
@@ -27,7 +28,8 @@ vector <TString> TRestTools::GetListOfRESTLibraries(  )
     return libraryList;
 }
 
-vector <TString> TRestTools::GetListOfPathsInEnvVariable( TString envVariable  )
+
+std::vector <TString> TRestTools::GetListOfPathsInEnvVariable( TString envVariable  )
 {
     vector <TString> pathList;
 
@@ -43,7 +45,8 @@ vector <TString> TRestTools::GetListOfPathsInEnvVariable( TString envVariable  )
     return pathList;
 }
 
-vector <TString> TRestTools::GetOptions( TString optionsStr  )
+
+std::vector <TString> TRestTools::GetOptions(TString optionsStr)
 {
     vector <TString> optionsList;
 
@@ -59,10 +62,12 @@ vector <TString> TRestTools::GetOptions( TString optionsStr  )
     return optionsList;
 }
 
+
 TString TRestTools::GetFirstOption( TString &path )
 {
     return GetFirstPath( path );
 }
+
 
 TString TRestTools::GetFirstPath( TString &path )
 {
@@ -83,7 +88,8 @@ TString TRestTools::GetFirstPath( TString &path )
     return resultPath;
 }
 
-vector <TString> TRestTools::GetRESTLibrariesInDirectory( TString path )
+
+std::vector <TString> TRestTools::GetRESTLibrariesInDirectory( TString path )
 {
     vector <TString> fileList;
     DIR *dir;
@@ -109,33 +115,5 @@ vector <TString> TRestTools::GetRESTLibrariesInDirectory( TString path )
 }
 
 
-vector <TString> TRestTools::GetFilesMatchingPattern( TString pattern )
-{
-	std::vector <TString> outputFileNames;
 
-	if( pattern.First( "*" ) >= 0 || pattern.First( "?" ) >= 0  )
-	{
-		char command[256];
-		sprintf( command, "find %s > /tmp/RESTTools_fileList.tmp", pattern.Data() );
-
-		system( command );
-
-		FILE *fin = fopen( "/tmp/RESTTools_fileList.tmp", "r" );
-		char str[256];
-		while ( fscanf ( fin, "%s\n", str ) != EOF )
-		{
-			TString newFile = str;
-			outputFileNames.push_back( newFile );
-		}
-		fclose( fin );
-
-		system ( "rm /tmp/RESTTools_fileList.tmp" );
-	}
-	else
-	{
-		outputFileNames.push_back( pattern );
-	}
-
-	return outputFileNames;
-}
 
