@@ -14,7 +14,8 @@
 #include "TRestManager.h"
 using namespace std;
 
-#include <TRestTools.h>
+#include <TRestStringHelper.h>
+
 
 // specific metadata
 #include <TRestReadout.h>
@@ -396,7 +397,7 @@ Int_t TRestManager::LoadProcesses( )
             TRestMultiCoBoAsAdToSignalProcess *coboPcs = new TRestMultiCoBoAsAdToSignalProcess();
 
             fRun->AddProcess( coboPcs, (string) fPcsConfigFile[i], (string) fProcessName[i] );
-	    vector <TString> listFiles = TRestTools::GetFilesMatchingPattern( fInputFile );
+	    vector <TString> listFiles = TRestStringHelper::GetFilesMatchingPattern( fInputFile );
 
 	    for( unsigned int n = 0; n < listFiles.size(); n++ )
 		cout << "File : " << n << " --> " << listFiles[n] << endl;
