@@ -25,12 +25,12 @@
 #include "TGeoManager.h"
 #include "TGeoVolume.h"
 
-#ifndef __CINT__
-#include "GeometryRoot.hh"
-#include "ComponentBase.hh"
-#include "Sensor.hh"
-#include <TRestGas.h>
-#endif
+//#ifndef __CINT__
+//#include "GeometryRoot.hh"
+//#include "ComponentBase.hh"
+//#include "Sensor.hh"
+//#include <TRestGas.h>
+//#endif
 
 
 using namespace std;
@@ -38,14 +38,14 @@ using namespace std;
 
 class TRestGeometry:public TGeoManager {
  protected:
-#ifndef __CINT__
-   Garfield::GeometryRoot  *fGfGeometry;   //!< Pointer to Garfield::GeometryRoot object of the geometry
-   vector<Garfield::ComponentBase*> vGfComponent;   //!< Vector of pointers to Garfield Component object
-   vector<Garfield::Sensor*> vGfSensor;   //!< Vector of pointers to Garfield Sensor object
-#endif
+//#ifndef __CINT__
+//   Garfield::GeometryRoot  *fGfGeometry;   //!< Pointer to Garfield::GeometryRoot object of the geometry
+//   vector<Garfield::ComponentBase*> vGfComponent;   //!< Vector of pointers to Garfield Component object
+//   vector<Garfield::Sensor*> vGfSensor;   //!< Vector of pointers to Garfield Sensor object
+//#endif
 
-   TGeoNode* fDriftElec;  //!< pointer to drift electrode
-   vector<TGeoNode*> vReadoutElec;  //!< vector of pointers to readout planes
+//   TGeoNode* fDriftElec;  //!< pointer to drift electrode
+//   vector<TGeoNode*> vReadoutElec;  //!< vector of pointers to readout planes
 
  public:
 
@@ -54,6 +54,7 @@ class TRestGeometry:public TGeoManager {
    //Destructor
    virtual ~ TRestGeometry();
 
+   /*
 #ifndef __CINT__
    /// initialize Garfield::GeometryRoot geometry object
    void InitGfGeometry();
@@ -113,6 +114,7 @@ class TRestGeometry:public TGeoManager {
                         { FindNode(x/10.,y/10.,z/10.);  // needed due to a bug in TGeoNavigator
                           return fGfGeometry->GetMedium(x/10.,y/10.,z/10.); }  // mm to cm
 #endif
+*/
 
    void PrintGeometry();
 
