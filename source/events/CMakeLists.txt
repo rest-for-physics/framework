@@ -1,4 +1,4 @@
-set(contents general analysis geant4)
+set(contents general analysis geant4 addons)
 set(libname RestEvents)
 
 
