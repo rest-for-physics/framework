@@ -1,19 +1,60 @@
-
+﻿
 
 # ============================================================================
-# macro for compileing the whole directories into a single library
+# Macro for compileing the whole directories into a single library
 #
-# arguments:
-#   contents - name of the sub directories
+# The working directory of this macro should have regular form like:
+#	DIR
+#    ├── CMakeLists.txt
+#    ├── SUB-DIR-1
+#    │   ├── inc
+#    │   │   └── CLASS_A.h
+#    │   └── src
+#    │        └── CLASS_A.cxx
+#    └── SUB-DIR-2
+#         ├── inc
+#         │   ├── CLASS_B.h
+#         │   └── CLASS_C.h
+#         └── src
+#              ├── CLASS_B.cxx
+#              └── CLASS_C.cxx
+# Or:
+#   DIR                     
+#    ├── CMakeLists.txt              
+#    ├── inc                         
+#    │   ├── TRestAnalysisTree.h     
+#    │   └── TRestBrowser.h             
+#    └── src                         
+#         ├── TRestAnalysisTree.cxx      
+#         └── TRestSystemOfUnits.cxx  
 #
-# requires following variables:
-#       libname - the generated library name, in default it will use the name of CMAKE_CURRENT_SOURCE_DIR
-#       rest_include_dirs - 
-#		external_include_dirs - 
+# This macro will first set include directories of cmake to ${CMAKE_CURRENT_SOURCE_DIR},
+# ${CMAKE_CURRENT_SOURCE_DIR}/inc, sub-directories, and sub-directories/inc.
 #
-# returns:
-#		included header directories in the specified sub directories
-#		changed variable rest_libraries
+# Then it will find out all the cxx files and call CINT.
+#
+# Finally it will call cmake to add a library, using the found cxx files, CINT-wrappered 
+# cxx files, and other defined c++ scripts.
+#
+## Arguments:
+#       libname               - the generated library name
+#
+## Optional global variables(PARENT_SCOPE):
+#       rest_include_dirs     - the previous inc directories of REST. After this macro, 
+#								additional inc dirs from the current directory will be 
+#								attatched at the end of this variable.
+#
+#		external_include_dirs - the external inc dirs, for example from ROOT.
+#
+## Optional local variables:
+#		contents              - this variable defines needed sub-directories of current directory
+#
+#		addon_src             - if some of the scripts do not follow regular directory form,
+#								set them in this argument to compile them. CINT will not be 
+#								called for them.
+#
+#		addon_inc			  - if some of the header directories do not follow regular directory 
+#								form, set them in this argument to include them. 
 #
 # ----------------------------------------------------------------------------
 MACRO( COMPILEDIR libname )
@@ -66,9 +107,11 @@ MACRO( COMPILEDIR libname )
 	endif()
 
 
-	include_directories(${rest_include_dirs})
+	include_directories(${rest_include_dirs} ${addon_inc})
+	#include_directories(${rest_include_dirs})
 
-	add_library(${libname} SHARED ${contentfiles})
+	add_library(${libname} SHARED ${contentfiles} ${addon_src})
+	#add_library(${libname} SHARED ${contentfiles})
 	target_link_libraries(${libname} ${rest_libraries} ${external_libs})
 
 	install(TARGETS ${libname}
