@@ -22,11 +22,11 @@
 #   DIR                     
 #    ├── CMakeLists.txt              
 #    ├── inc                         
-#    │   ├── TRestAnalysisTree.h     
-#    │   └── TRestBrowser.h             
+#    │   ├── CLASS_A.h     
+#    │   └── CLASS_B.h             
 #    └── src                         
-#         ├── TRestAnalysisTree.cxx      
-#         └── TRestSystemOfUnits.cxx  
+#         ├── CLASS_A.cxx      
+#         └── CLASS_B.cxx  
 #
 # This macro will first set include directories of cmake to ${CMAKE_CURRENT_SOURCE_DIR},
 # ${CMAKE_CURRENT_SOURCE_DIR}/inc, sub-directories, and sub-directories/inc.
@@ -37,12 +37,12 @@
 # cxx files, and other defined c++ scripts.
 #
 ## Arguments:
-#       libname               - the generated library name
+#		libname               - the generated library name
 #
 ## Optional global variables(PARENT_SCOPE):
-#       rest_include_dirs     - the previous inc directories of REST. After this macro, 
-#								additional inc dirs from the current directory will be 
-#								attatched at the end of this variable.
+#		rest_include_dirs     - the previous inc directories of REST. After this macro, 
+#		                        additional inc dirs from the current directory will be 
+#		                        attatched at the end of this variable.
 #
 #		external_include_dirs - the external inc dirs, for example from ROOT.
 #
@@ -50,11 +50,11 @@
 #		contents              - this variable defines needed sub-directories of current directory
 #
 #		addon_src             - if some of the scripts do not follow regular directory form,
-#								set them in this argument to compile them. CINT will not be 
-#								called for them.
+#		                        set them in this argument to compile them. CINT will not be 
+#		                        called for them.
 #
 #		addon_inc			  - if some of the header directories do not follow regular directory 
-#								form, set them in this argument to include them. 
+#		                        form, set them in this argument to include them. 
 #
 # ----------------------------------------------------------------------------
 MACRO( COMPILEDIR libname )
