@@ -53,7 +53,7 @@
 #		                        set them in this argument to compile them. CINT will not be 
 #		                        called for them.
 #
-#		addon_inc			  - if some of the header directories do not follow regular directory 
+#		addon_inc             - if some of the header directories do not follow regular directory 
 #		                        form, set them in this argument to include them. 
 #
 # ----------------------------------------------------------------------------
