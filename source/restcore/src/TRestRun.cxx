@@ -846,7 +846,7 @@ void TRestRun::CloseOutputFile( )
 
 void TRestRun::SetVersion()
 {
-    fVersion = "2.2.0-dev";
+    fVersion = system("rest-config --version");
 }
 
 

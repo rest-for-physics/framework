@@ -1,6 +1,8 @@
 PROJECT(main)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
+set(REST_WELCOME)
+#set other flags here
 
 IF(NOT DEFINED INSTALL_PREFIX)
 	IF(DEFINED ENV{REST_INSTALL_PATH})
@@ -15,6 +17,7 @@ set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
 message ("oo REST will be installed in : ${CMAKE_INSTALL_PREFIX}\n" )
 
 SET(CMAKE_CXX_FLAGS "-std=c++1y -Werror")
+
 
 
 
@@ -73,6 +76,10 @@ file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h")
 
 INSTALL(FILES ${Headers} DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
 
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG DESTINATION ${CMAKE_INSTALL_PREFIX})
+
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENCE DESTINATION ${CMAKE_INSTALL_PREFIX})
+
 install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/scripts
          DESTINATION .
          COMPONENT install
@@ -95,6 +102,7 @@ file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/lib)
 
 )
 
+
 install( CODE
 "
 file( WRITE \${CMAKE_INSTALL_PREFIX}/thisREST.sh 
@@ -111,13 +119,24 @@ export LIBRARY_PATH=\\\$LIBRARY_PATH:\\\$REST_PATH/lib
 
 alias restRoot=\\\"root -l \\\$REST_PATH/scripts/LoadRESTScripts.C\\\"
 
-
+if [ \\\$(rest-config --flags | grep \\\"REST_WELCOME=ON\\\") ];then
+rest-config --welcome
+fi
 \"
 )
         "
 )
 
+
+
+
+
 execute_process(COMMAND date OUTPUT_VARIABLE d)
+string(REPLACE "\n" "" date ${d})
+file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG v 
+	LIMIT_COUNT 2
+)
+list(GET v 1 version)
 
 
 install( CODE
@@ -130,36 +149,9 @@ file( WRITE \${CMAKE_INSTALL_PREFIX}/bin/rest-config
 
 if [ $# -ne 1 ] ; then 
 
-echo \\\"  *****************************************************************************\\\"
-echo \\\"  W E L C O M E   to  R E S T                                                  \\\"
-echo \\\"                                                                               \\\"
-echo \\\"  Commit : \${git_commit}                                                      \\\"
-echo \\\"  Branch : \${git_branch}                                                      \\\"
-echo \\\"								                                                \\\"
-echo \\\"  Installed In : $REST_PATH                                                    \\\"
-echo \\\"  At : ${d}                                                                    \\\"            
 echo \\\"  Use restRoot command to load REST libraries and scripts inside ROOT          \\\"
 echo \\\"  Use restManager command to manage the configurations and start REST          \\\"
-echo \\\"  -----------------------------------------------------------------------------\\\"
-echo \\\"  Usage :                                                                      \\\"
-echo \\\"  rest-config [--incdir]  : Show the directory of headers                      \\\"
-echo \\\"  rest-config [--libdir]  : Show the directory of library                      \\\"
-echo \\\"  rest-config [--libs]    : Print regular REST libraries                       \\\"
-echo \\\"  rest-config [--exes]    : Print a list of REST executables                   \\\"
-echo \\\"  rest-config [--methods] : Print a list of methods avaliable in restRoot      \\\"
-echo \\\"  rest-config [--version] : Print the version of REST                          \\\"
-echo \\\"  -----------------------------------------------------------------------------\\\"
-echo \\\"  REST Support mail-list : rest-support@cern.ch                                \\\"
-echo \\\"  REST Development mail-list : rest-dev@cern.ch                                \\\"
-echo \\\"                                                                               \\\"
-echo \\\"  You can subscribe at egroups.cern.ch                                         \\\"
-echo \\\"                                                                               \\\"
-echo \\\"  If you have no CERN account you can get an account                           \\\"
-echo \\\"  linked to your usual mail address at this site:                              \\\"
-echo \\\"                                                                               \\\"
-echo \\\"  https://account.cern.ch/account/Externals/                                   \\\"
-echo \\\"  *****************************************************************************\\\"
-echo \\\"                                                                               \\\"
+echo \\\"  Type \\\\\\\"rest-config --help\\\\\\\" for more info                        \\\"    
 
 else
 
@@ -191,13 +183,55 @@ echo 2333
 fi
 
 if [ $option = \\\"--version\\\" ] ; then
-echo 2333
+echo ${version}
 
 fi
 
+if [ $option = \\\"--flags\\\" ] ; then
+echo REST_WELCOME=${REST_WELCOME}
+echo CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+echo CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
 
+fi
 
+if [ $option = \\\"--welcome\\\" ] ; then
 
+echo \\\"  *****************************************************************************\\\"
+echo \\\"  W E L C O M E   to  R E S T                                                  \\\"
+echo \\\"                                                                               \\\"
+echo \\\"  Commit : \${git_commit}                                                      \\\"
+echo \\\"  Branch : \${git_branch}                                                      \\\"
+echo \\\"  Version : ${version}                                                         \\\"
+echo \\\"								                                                \\\"
+echo \\\"  Installed In : $REST_PATH                                                    \\\"
+echo \\\"  At : ${date}                                                                 \\\"            
+echo \\\"  -----------------------------------------------------------------------------\\\"
+echo \\\"  REST Support mail-list : rest-support@cern.ch                                \\\"
+echo \\\"  REST Development mail-list : rest-dev@cern.ch                                \\\"
+echo \\\"                                                                               \\\"
+echo \\\"  You can subscribe at egroups.cern.ch                                         \\\"
+echo \\\"                                                                               \\\"
+echo \\\"  If you have no CERN account you can get an account                           \\\"
+echo \\\"  linked to your usual mail address at this site:                              \\\"
+echo \\\"                                                                               \\\"
+echo \\\"  https://account.cern.ch/account/Externals/                                   \\\"
+echo \\\"  *****************************************************************************\\\"
+echo \\\"                                                                               \\\" 
+
+fi
+
+if [ $option = \\\"--help\\\" ] ; then
+echo \\\"  Usage :                                                                      \\\"
+echo \\\"  rest-config [--incdir]  : Show the directory of headers                      \\\"
+echo \\\"  rest-config [--libdir]  : Show the directory of library                      \\\"
+echo \\\"  rest-config [--libs]    : Print regular REST libraries                       \\\"
+echo \\\"  rest-config [--exes]    : Print a list of REST executables                   \\\"
+echo \\\"  rest-config [--methods] : Print a list of methods avaliable in restRoot      \\\"
+echo \\\"  rest-config [--version] : Print the version of REST                          \\\"
+echo \\\"  rest-config [--welcome] : Print the welcome message                          \\\"
+echo \\\"  rest-config [--flags]   : Print cmake flags defined when installing          \\\"
+
+fi
 
 
 fi
@@ -211,4 +245,5 @@ fi
         "
 )
 
-execute_process(COMMAND "chmod 744 \${CMAKE_INSTALL_PREFIX}/bin/rest-config")
+#install(CODE "chmod 744 ${CMAKE_INSTALL_PREFIX}/bin/rest-config")
+install(CODE "execute_process(COMMAND chmod 744 ${CMAKE_INSTALL_PREFIX}/bin/rest-config)")
