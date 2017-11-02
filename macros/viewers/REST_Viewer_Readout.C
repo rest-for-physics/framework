@@ -1,10 +1,8 @@
-
 #include <vector>
 #include <iostream>
 using namespace std;
 
-
-int REST_Readout_Viewer( TString rootFile, TString name, Int_t plane = 0 )
+int REST_Viewer_Readout( TString rootFile, TString name, Int_t plane = 0 )
 {
 
     TFile *f = new TFile( rootFile );
@@ -149,7 +147,6 @@ int REST_Readout_Viewer( TString rootFile, TString name, Int_t plane = 0 )
 
     for( int i = 0; i < chGraph; i++ )channelGraph[i]->Draw("same");
     
-    
-    
+    return 0;
 }
 

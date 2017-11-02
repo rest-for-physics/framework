@@ -17,9 +17,6 @@ Int_t REST_PrintRunInfo( TString fName )
 
     cout << "Filename : " << fileName << endl;
 
-    gSystem->Load("librestcore.so");
-    gSystem->Load("librestsim.so");
-
     /////////////////////////////
     // Reading TRestRun metadata class
     TRestRun *run = new TRestRun();
@@ -32,7 +29,7 @@ Int_t REST_PrintRunInfo( TString fName )
 
     TIter nextkey(f->GetListOfKeys());
     TKey *key;
-    while (key = (TKey*)nextkey()) {
+    while ( (key = (TKey*) nextkey()) ) {
         string className = key->GetClassName();
         if ( className == "TRestRun" )
         {
@@ -48,4 +45,5 @@ Int_t REST_PrintRunInfo( TString fName )
     
     f->Close();
 
+    return 0;
 }

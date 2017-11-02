@@ -1,18 +1,15 @@
 
-
-REST_VIEWER_LinearTrackEvent(TString fName=" "){
-
+Int_t REST_Viewer_LinearTrackEvent(TString fName=" ")
+{
     TRestBrowser *browser = new TRestBrowser( );
 
     TRestGenericEventViewer *viewer = new TRestGenericEventViewer( );
-    TRestLinearizedTrackEvent *tEvent = new TRestLinearizedTrackEvent();
+    TRestLinearTrackEvent *tEvent = new TRestLinearTrackEvent();
     viewer->SetEvent(tEvent);
 
     browser->SetViewer( viewer );
 
     browser->OpenFile(fName);
 
+    return 0;
 }
-
-
-

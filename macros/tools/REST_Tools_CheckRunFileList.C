@@ -1,23 +1,16 @@
-//#include <TObject.h>
-//#include <TString.h>
-//#include <TFile.h>
-//#include <TTree.h>
-//#include <TBranch.h>
-
 #include <vector>
 #include <iostream>
 using namespace std;
 
-
 Int_t REST_CheckRunList( TString namePattern, Int_t N = 100000 )
 {
-
     TGeoManager::SetVerboseLevel( 0 );
 
     vector <TString> filesNotWellClosed;
 
     TString command = "ls -d -1 " + namePattern + " > /tmp/CheckRunListCommand_72nd72jdl";
-    char *cmd = command.Data();
+    char cmd[512];
+    sprintf( cmd, "%s", command.Data() );
     system( cmd );
 
     gSystem->Load("librestcore.so");
@@ -31,11 +24,8 @@ Int_t REST_CheckRunList( TString namePattern, Int_t N = 100000 )
         cout << filename << endl;
         cont++;
         TRestRun *run = new TRestRun();
- //       TRestGeometry *geo = new TRestGeometry();
 
         TFile *f = new TFile( filename );
-
- //       string fname = fileName.Data();
 
         if( !run->fileExists( filename ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
 
@@ -44,7 +34,7 @@ Int_t REST_CheckRunList( TString namePattern, Int_t N = 100000 )
 
         TIter nextkey(f->GetListOfKeys());
         TKey *key;
-        while (key = (TKey*)nextkey()) {
+        while ( ( key =  (TKey*)nextkey() ) ) {
             string className = key->GetClassName();
             if ( className == "TRestRun" )
             {
@@ -53,8 +43,6 @@ Int_t REST_CheckRunList( TString namePattern, Int_t N = 100000 )
             }
         }
 
- //       if( geo == NULL ) { cout << "WARNING no TGeoManager class was found" << endl; exit(1); }
-
         cout << "Run time (hours) : " << run->GetRunLength()/3600. << endl;
 
         if( run->GetRunLength() == -1 )
@@ -62,11 +50,6 @@ Int_t REST_CheckRunList( TString namePattern, Int_t N = 100000 )
             filesNotWellClosed.push_back( filename );
         }
 
- //       geo->PrintGeometry();
- //       geo->GetTopVolume()->Draw("ogl");
-        /////////////////////////////
-
- //       delete geo;
         delete run;
 
         f->Close();
@@ -79,4 +62,5 @@ Int_t REST_CheckRunList( TString namePattern, Int_t N = 100000 )
         cout << filesNotWellClosed[i] << endl;
     cout << "---------------------" << endl;
 
+    return 0;
 }

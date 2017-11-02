@@ -1,20 +1,12 @@
-//#include <TObject.h>
-//#include <TString.h>
-//#include <TFile.h>
-//#include <TTree.h>
-//#include <TBranch.h>
-
 #include <iostream>
 using namespace std;
 
-
-Int_t REST_VIEWER_Geometry( TString fName)
+Int_t REST_Viewer_Geometry( TString fName)
 {
 
     TEveManager::Create();
    
     cout << "Filename : " << fName << endl;
-
     
     TRestRun *run = new TRestRun( );
     run->OpenInputFile(fName);
@@ -41,7 +33,7 @@ Int_t REST_VIEWER_Geometry( TString fName)
     gEve->FullRedraw3D(kTRUE);
     
     TGLViewer *v = gEve->GetDefaultGLViewer();
-    v->GetClipSet()->SetClipType(1);
+    v->GetClipSet()->SetClipType( (TGLClip::EType) 1);
     v->SetGuideState(TGLUtil::kAxesEdge, kTRUE, kFALSE, 0);
     v->SetStyle(TGLRnrCtx::kOutline);
     v->RefreshPadEditor(v);
@@ -49,7 +41,7 @@ Int_t REST_VIEWER_Geometry( TString fName)
     //v->CurrentCamera().RotateRad(-.7, 0.5);
     v->DoDraw();
     
-    
     /////////////////////////////
 
+    return 0;
 }
