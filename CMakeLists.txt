@@ -45,6 +45,13 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	set(external_libs ${external_libs} ${tiny})
 
 
+	execute_process(COMMAND date OUTPUT_VARIABLE d)
+	string(REPLACE "\n" "" date ${d})
+	file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG v 
+		LIMIT_COUNT 2
+	)
+list(GET v 1 version)
+
 	#Here Windows is just for test. It is for the convenience of vs to make gramma check
 ELSE (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	set(ROOT_INCLUDE_DIR $ENV{ROOTSYS}/include)
@@ -117,7 +124,7 @@ export PATH=\\\$REST_PATH/bin:\\\$PATH
 export LD_LIBRARY_PATH=\\\$REST_PATH/lib:\\\$LD_LIBRARY_PATH
 export LIBRARY_PATH=\\\$LIBRARY_PATH:\\\$REST_PATH/lib
 
-alias restRoot=\\\"root -l \\\$REST_PATH/scripts/LoadRESTScripts.C\\\"
+\#alias restRoot=\\\"root -l \\\$REST_PATH/scripts/LoadRESTScripts.C\\\"
 
 if [ \\\$(rest-config --flags | grep \\\"REST_WELCOME=ON\\\") ];then
 rest-config --welcome
@@ -131,12 +138,7 @@ fi
 
 
 
-execute_process(COMMAND date OUTPUT_VARIABLE d)
-string(REPLACE "\n" "" date ${d})
-file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG v 
-	LIMIT_COUNT 2
-)
-list(GET v 1 version)
+
 
 
 install( CODE

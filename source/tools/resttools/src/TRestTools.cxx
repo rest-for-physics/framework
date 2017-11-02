@@ -100,7 +100,7 @@ std::vector <TString> TRestTools::GetRESTLibrariesInDirectory( TString path )
         while ((ent = readdir (dir)) != NULL) 
         {
             TString fName ( ent->d_name );
-            if( fName.Contains( "REST" ) || fName.Contains( "Rest" ) )
+            if( (fName.Contains( "REST" ) || fName.Contains( "Rest" ))&&fName.Contains(".so") )
                 fileList.push_back( fName );
         }
         closedir (dir);
