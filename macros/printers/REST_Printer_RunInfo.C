@@ -1,8 +1,3 @@
-//#include <TObject.h>
-//#include <TString.h>
-//#include <TFile.h>
-//#include <TTree.h>
-//#include <TBranch.h>
 
 #include <string>
 #include <iostream>
@@ -10,8 +5,7 @@ using namespace std;
 
 #include <TString.h>
 
-
-Int_t REST_PrintRunInfo( TString fName )
+Int_t REST_Printer_RunInfo( TString fName )
 {
     TString fileName = fName;
 

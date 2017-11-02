@@ -1,5 +1,5 @@
 
-Int_t REST_UTILS_PrintLinearLinearizedTrackEvent( TString fName, Int_t firstEvent = 0 )
+Int_t REST_Printer_HitsEvent( TString fName, Int_t firstEvent = 0 )
 {
     TRestRun *run = new TRestRun();
 
@@ -7,7 +7,7 @@ Int_t REST_UTILS_PrintLinearLinearizedTrackEvent( TString fName, Int_t firstEven
 
     run->PrintInfo();
 
-    TRestLinearizedTrackEvent *evt = new TRestLinearizedTrackEvent();
+    TRestHitsEvent *evt = new TRestHitsEvent();
 
     run->SetInputEvent( evt );
 
@@ -16,4 +16,6 @@ Int_t REST_UTILS_PrintLinearLinearizedTrackEvent( TString fName, Int_t firstEven
     evt->PrintEvent();
 
     delete run;
+
+    return 0;
 }

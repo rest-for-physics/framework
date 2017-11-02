@@ -1,5 +1,5 @@
 
-Int_t REST_Tools_Viewer_G4Event( TString fName = " " )
+Int_t REST_Viewer_G4Event( TString fName = " " )
 {
     TRestBrowser *browser = new TRestBrowser( );
 

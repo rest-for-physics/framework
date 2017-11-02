@@ -1,5 +1,5 @@
 
-Int_t REST_UTILS_PrintG4Event( TString fName, Int_t firstEvent = 0 )
+Int_t REST_Printer_G4Event( TString fName, Int_t firstEvent = 0 )
 {
     TRestRun *run = new TRestRun();
 
@@ -16,4 +16,6 @@ Int_t REST_UTILS_PrintG4Event( TString fName, Int_t firstEvent = 0 )
     evt->PrintEvent();
 
     delete run;
+
+    return 0;
 }

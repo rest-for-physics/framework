@@ -1,5 +1,5 @@
 
-Int_t REST_Tools_PrintHitsEvent( TString fName, Int_t firstEvent = 0 )
+Int_t REST_Printer_SignalEvent( TString fName, Int_t firstEvent = 0 )
 {
     TRestRun *run = new TRestRun();
 
@@ -7,7 +7,7 @@ Int_t REST_Tools_PrintHitsEvent( TString fName, Int_t firstEvent = 0 )
 
     run->PrintInfo();
 
-    TRestHitsEvent *evt = new TRestHitsEvent();
+    TRestSignalEvent *evt = new TRestSignalEvent();
 
     run->SetInputEvent( evt );
 

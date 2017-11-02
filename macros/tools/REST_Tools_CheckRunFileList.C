@@ -2,7 +2,7 @@
 #include <iostream>
 using namespace std;
 
-Int_t REST_CheckRunList( TString namePattern, Int_t N = 100000 )
+Int_t REST_Tools_CheckRunFileList( TString namePattern, Int_t N = 100000 )
 {
     TGeoManager::SetVerboseLevel( 0 );
 

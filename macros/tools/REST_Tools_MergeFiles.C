@@ -1,8 +1,6 @@
 
-Int_t REST_MergeFiles( TString pathAndPattern, TString outputFilename  )
+Int_t REST_Tools_MergeFiles( TString pathAndPattern, TString outputFilename  )
 {
- //   gSystem->Load("librestcore.so");
- //   gSystem->Load("librestsim.so");
 
     TRestRunMerger *runMerger = new TRestRunMerger( pathAndPattern );
 
