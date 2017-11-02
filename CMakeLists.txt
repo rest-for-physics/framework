@@ -79,7 +79,7 @@ install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/scripts
                  )
 
 install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/restData
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/inputData
     DESTINATION .
     COMPONENT install
         )
