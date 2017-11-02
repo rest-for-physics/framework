@@ -1,4 +1,4 @@
-if [ -n $(root-config --version | grep "6.") ];then
+if [ $(root-config --version | grep "6.") ];then
 
 echo Installing rest...
 mkdir -p ../build
