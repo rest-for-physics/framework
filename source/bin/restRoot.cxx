@@ -16,24 +16,24 @@ int main(int argc, char *argv[])
 		gSystem->Load(list[n]);
 	}
 
-	//char command[]= "find $REST_PATH/scripts/ |grep .C | grep -v \"LoadRESTScripts.C\" | grep -v \"swo\" | grep -v \"swp\"  | grep -v \"svn\"> /tmp/macros.list";
+	char command[]= "find $REST_PATH/macros |grep .C | grep -v \"swo\" | grep -v \"swp\"  | grep -v \"svn\"> /tmp/macros.list";
 
-	//system(command);
+	system(command);
 
-	//FILE *f = fopen("/tmp/macros.list", "r");
+	FILE *f = fopen("/tmp/macros.list", "r");
 
-	//char str[256];
-	//char cmd[256];
-	//while (fscanf(f, "%s\n", str) != EOF)
-	//{
-	//	sprintf(cmd, ".L %s", str);
-	//	gROOT->ProcessLine(cmd);
-	//}
+	char str[256];
+	char cmd[256];
+	while (fscanf(f, "%s\n", str) != EOF)
+	{
+        printf("Loading macro : %s\n", str );
+		sprintf(cmd, ".L %s", str);
+		gROOT->ProcessLine(cmd);
+	}
 
-	//fclose(f);
+	fclose(f);
 
-	//system("rm /tmp/macros.list");
-
+	system("rm /tmp/macros.list");
 
 	theApp.Run();
 }

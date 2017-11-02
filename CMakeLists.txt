@@ -92,6 +92,11 @@ install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/scripts
          COMPONENT install
                  )
 
+install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/macros
+         DESTINATION .
+         COMPONENT install
+                 )
+
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/inputData
     DESTINATION .
