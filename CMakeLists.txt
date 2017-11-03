@@ -1,7 +1,10 @@
 PROJECT(main)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-set(REST_WELCOME)
+IF( NOT DEFINED REST_WELCOME )
+    set(REST_WELCOME ON)
+ENDIF()
+
 #set other flags here
 
 IF(NOT DEFINED INSTALL_PREFIX)
@@ -68,13 +71,18 @@ include_directories(${external_include_dirs})
 
 #gether some infomation
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
-	#get time
-	execute_process(COMMAND date OUTPUT_VARIABLE d)
-	string(REPLACE "\n" "" date ${d})
-	file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG v 
-		LIMIT_COUNT 2
-	)
-	list(GET v 1 version)
+    #get time
+    execute_process(COMMAND date OUTPUT_VARIABLE d)
+    string(REPLACE "\n" "" date ${d})
+
+    file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/version version )
+
+	#get git branch
+    execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/cmake/printVersionDate.sh
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+	OUTPUT_VARIABLE d)
+	string(REPLACE "\n" "" git_date ${d})
+	message(STATUS "REST date : ${git_date}")
 
 	#get git number
 	set (git_cmd git)
@@ -230,15 +238,14 @@ if [ $option = \\\"--welcome\\\" ] ; then
 echo \\\"  *****************************************************************************\\\"
 echo \\\"  W E L C O M E   to  R E S T                                                  \\\"
 echo \\\"                                                                               \\\"
-echo \\\"  Commit  : ${git_commit}                                                      \\\"
-echo \\\"  Branch  : ${git_branch}                                                      \\\"
-echo \\\"  Version : ${version}                                                         \\\"
+echo \\\"  Commit  : ${git_commit} (${git_date})                                        \\\"
+echo \\\"  Last update  :  ${git_date}                                                  \\\"
+echo \\\"  Branch/Version : ${git_branch}/${version}                                    \\\"
+echo \\\"  Compilation date : ${date}                                                   \\\"
 echo \\\"								                                                \\\"
-echo \\\"  Installed In : $REST_PATH                                                    \\\"
-echo \\\"  At : ${date}                                                                 \\\"            
-echo \\\"  -----------------------------------------------------------------------------\\\"
-echo \\\"  REST Support mail-list : rest-support@cern.ch                                \\\"
-echo \\\"  REST Development mail-list : rest-dev@cern.ch                                \\\"
+echo \\\"  Installed at : $REST_PATH                                                    \\\"
+echo \\\"                                                                               \\\"
+echo \\\"  REST news/dev/support mail-list : rest-dev@cern.ch                           \\\"
 echo \\\"                                                                               \\\"
 echo \\\"  You can subscribe at egroups.cern.ch                                         \\\"
 echo \\\"                                                                               \\\"
