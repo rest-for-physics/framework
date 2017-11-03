@@ -45,13 +45,6 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	set(external_libs ${external_libs} ${tiny})
 
 
-	execute_process(COMMAND date OUTPUT_VARIABLE d)
-	string(REPLACE "\n" "" date ${d})
-	file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG v 
-		LIMIT_COUNT 2
-	)
-list(GET v 1 version)
-
 	#Here Windows is just for test. It is for the convenience of vs to make gramma check
 ELSE (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	set(ROOT_INCLUDE_DIR $ENV{ROOTSYS}/include)
@@ -71,6 +64,40 @@ ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 include(MacroRootDict)
 include(CompileDir)
 include_directories(${external_include_dirs})
+
+
+#gether some infomation
+IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+	#get time
+	execute_process(COMMAND date OUTPUT_VARIABLE d)
+	string(REPLACE "\n" "" date ${d})
+	file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG v 
+		LIMIT_COUNT 2
+	)
+	list(GET v 1 version)
+
+	#get git number
+	set (git_cmd git)
+	set (git_arg rev-parse --verify HEAD )
+	execute_process(COMMAND ${git_cmd} ${git_arg}
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+	OUTPUT_VARIABLE git_ver)
+	string(SUBSTRING ${git_ver} 0 8 git_commit )
+	message(STATUS "REST commit : ${git_commit}")
+
+	#get git branch
+	execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/cmake/printBranch.sh
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+	OUTPUT_VARIABLE b)
+	string(REPLACE "\n" "" git_branch ${b})
+	message(STATUS "REST branch : ${git_branch}")
+
+
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+
+
+
+
 
 #start compile
 add_subdirectory(source)
@@ -143,9 +170,6 @@ fi
 
 
 
-
-
-
 install( CODE
 "
 
@@ -206,8 +230,8 @@ if [ $option = \\\"--welcome\\\" ] ; then
 echo \\\"  *****************************************************************************\\\"
 echo \\\"  W E L C O M E   to  R E S T                                                  \\\"
 echo \\\"                                                                               \\\"
-echo \\\"  Commit : \${git_commit}                                                      \\\"
-echo \\\"  Branch : \${git_branch}                                                      \\\"
+echo \\\"  Commit  : ${git_commit}                                                      \\\"
+echo \\\"  Branch  : ${git_branch}                                                      \\\"
 echo \\\"  Version : ${version}                                                         \\\"
 echo \\\"								                                                \\\"
 echo \\\"  Installed In : $REST_PATH                                                    \\\"
