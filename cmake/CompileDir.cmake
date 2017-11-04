@@ -70,7 +70,8 @@ MACRO( COMPILEDIR libname )
 		endforeach(content)
 		set(rest_include_dirs ${rest_include_dirs} PARENT_SCOPE)
 
-		file(GLOB_RECURSE files *.cxx)
+		foreach(content ${contents})
+		file(GLOB_RECURSE files ${content}/*.cxx)
 		foreach (file ${files})
 
 			string(REGEX MATCH "[^/\\]*cxx" temp ${file})
@@ -84,6 +85,7 @@ MACRO( COMPILEDIR libname )
 			set(contentfiles ${contentfiles} ${file} ${ROOT_DICT_OUTPUT_SOURCES})
 
 		endforeach (file)
+		endforeach(content)
 	else()
 		message("using inc/src folders in root directory")
 		set(rest_include_dirs ${rest_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/inc)
