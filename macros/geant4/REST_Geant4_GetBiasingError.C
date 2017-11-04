@@ -1,5 +1,5 @@
 
-Double_t RESTG4_GetBiasingError( TString fName, Int_t finalEvents = 0 )
+Double_t REST_Geant4_GetBiasingError( TString fName, Int_t finalEvents = 0 )
 {
     cout << "Filename : " << fName << endl;
 
@@ -16,7 +16,7 @@ Double_t RESTG4_GetBiasingError( TString fName, Int_t finalEvents = 0 )
 
     TIter nextkey(f->GetListOfKeys());
     TKey *key;
-    while (key = (TKey*)nextkey()) {
+    while ( (key = (TKey*)nextkey()) ) {
         string className = key->GetClassName();
         if ( className == "TRestG4Metadata" )
         {
@@ -52,7 +52,7 @@ Double_t RESTG4_GetBiasingError( TString fName, Int_t finalEvents = 0 )
     {
 
         TString index;
-        index = index.Form("%d", i );
+        index.Form("%d", i );
 
         TString biasSpctName = "Bias_Spectrum_" + index;
         h = (TH1D *) f->Get( biasSpctName );

@@ -1,20 +1,13 @@
 
-TString dataPath = "/home/javier/restData/";
-
-const double eMin_ROI = 2458-25;
-//const double eMax_ROI = 2620;
-const double eMax_ROI = 2458+25;
-//
-//const double eMin_ROI = 2;
-//const double eMax_ROI = 12;
-
-const Double_t xMax = 4000;
-const Double_t yMax = 4000;
-const Double_t zMax = 4000;
-
-
-Int_t RESTG4_quickLookAnalysis( TString fName )
+Int_t REST_Geant4_QuickLookAnalysis( TString fName )
 {
+    const double eMin_ROI = 2458-25;
+    const double eMax_ROI = 2458+25;
+
+    const Double_t xMax = 4000;
+    const Double_t yMax = 4000;
+    const Double_t zMax = 4000;
+
     Int_t nbinsROI = (Int_t ) ( eMax_ROI - eMin_ROI);
 
     cout << "Filename : " << fName << endl;
@@ -31,7 +24,7 @@ Int_t RESTG4_quickLookAnalysis( TString fName )
     // Getting metadata
     TIter nextkey(f->GetListOfKeys());
     TKey *key;
-    while (key = (TKey*)nextkey()) {
+    while ( (key = (TKey*)nextkey()) ) {
         string className = key->GetClassName();
         if ( className == "TRestG4Metadata" )
         {
@@ -61,7 +54,7 @@ Int_t RESTG4_quickLookAnalysis( TString fName )
     cout << "Total number of entries : " << tr->GetEntries() << endl;
     Double_t eDepMax = 0;
     Double_t eDepMin = 1e10;
-    
+
     cout << "Obtainning max/min values" << endl;
     for( int evId = 0; evId < tr->GetEntries(); evId++ )
     {
@@ -71,9 +64,6 @@ Int_t RESTG4_quickLookAnalysis( TString fName )
         //cout << "Event : " << evID << " Energy : " << eDep << " keV" << endl;
         if( eDep > eDepMax ) eDepMax = eDep;
         if( eDep < eDepMin ) eDepMin = eDep;
-
-        Double_t eDep = ev->GetTotalDepositedEnergy();
-
     }
 
     Int_t nbins = (Int_t) (eDepMax-eDepMin);
@@ -135,8 +125,8 @@ Int_t RESTG4_quickLookAnalysis( TString fName )
     gStyle->SetPadLeftMargin( 0.15 );
     gStyle->SetPadBottomMargin( 0.15 );
 
- //   gPad->SetLeftMargin( 0.15 );
-    
+    //   gPad->SetLeftMargin( 0.15 );
+
 
     TCanvas* c1 = new TCanvas("Energy Deposited", "  ");
     c1->SetWindowPosition( 0, 0 );
@@ -181,4 +171,5 @@ Int_t RESTG4_quickLookAnalysis( TString fName )
 
     f->Close();
 
+    return 0;
 }

@@ -1,5 +1,5 @@
 
-Int_t RESTG4_CheckOverlaps( TString gdmlName )
+Int_t REST_Tools_ValidateGeometry( TString gdmlName )
 {
     TGeoManager *geo = new TGeoManager();
     geo->Import(gdmlName);
@@ -10,4 +10,5 @@ Int_t RESTG4_CheckOverlaps( TString gdmlName )
     //geo->GetTopVolume()->Draw("ogl");
     /////////////////////////////
 
+    return 0;
 }

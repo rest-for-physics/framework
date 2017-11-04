@@ -1,4 +1,4 @@
-Int_t RESTG4_findIsotopes( TString fName, TString fIsotope )
+Int_t REST_Geant4_FindIsotopes( TString fName, TString fIsotope )
 {
     cout << "Filename : " << fName <<" looking for "<<fIsotope<<endl;
 
@@ -70,5 +70,7 @@ Int_t RESTG4_findIsotopes( TString fName, TString fIsotope )
 
     delete run;
     delete ev;
+
+    return 0;
 }
 

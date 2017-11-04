@@ -1,12 +1,12 @@
 
-Double_t Qbb = 2457.83;
+//Double_t Qbb = 2457.83;
 
 Double_t zMin = 0;
 Double_t zMax = -1000;
 
 Double_t radius = 63.0;
 
-Double_t RESTG4_GetROIEvents( TString fName, Double_t mean=Qbb, Double_t fwhm=0.03 )
+Double_t REST_Geant4_GetROIEvents( TString fName, Double_t mean=2457.83, Double_t fwhm=0.03 )
 {
     Double_t sigma = mean * fwhm /  (2*TMath::Sqrt( 2 * TMath::Log(2.) )  );
 

@@ -1,5 +1,5 @@
 
-Int_t RESTG4_readNEvents( TString fName, int n1, int n2 )
+Int_t REST_Geant4_ReadNEvents( TString fName, int n1, int n2 )
 {
     TRestRun *run = new TRestRun();
 
@@ -12,27 +12,28 @@ Int_t RESTG4_readNEvents( TString fName, int n1, int n2 )
     run->PrintInfo();
 
     /////////////////////////////
-    
+
     /////////////////////////////
     // Reading events
 
-  
+
     TRestG4Event *ev = new TRestG4Event();
 
     run->SetInputEvent( ev );
-     for(int i=n1; i<n2+1;i++)
+    for(int i=n1; i<n2+1;i++)
     {
-    run->GetEntry ( i );
+        run->GetEntry ( i );
 
-    ev->PrintEvent();
-     }
-    
-     delete ev;
-    
-    // Do what ever you want with g4Event 
+        // Do what ever you want with g4Event 
+        ev->PrintEvent();
+    }
+
+    delete ev;
+
 
     /////////////////////////////
 
     delete run;
-    
+
+    return 0;
 }

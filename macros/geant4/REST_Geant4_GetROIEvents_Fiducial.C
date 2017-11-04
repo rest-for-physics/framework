@@ -1,7 +1,7 @@
 
-Double_t Qbb = 2458.;
+//Double_t Qbb = 2457.83;
 
-Double_t RESTG4_GetROIEvents_Fiducial( TString fName, Double_t zMin, Double_t zMax, Double_t radius, Double_t mean=2458, Double_t fwhm=25 )
+Double_t REST_Geant4_GetROIEvents_Fiducial( TString fName, Double_t zMin, Double_t zMax, Double_t radius, Double_t mean=2457.83, Double_t fwhm=25 )
 {
     cout << "Filename : " << fName << endl;
 
@@ -21,19 +21,17 @@ Double_t RESTG4_GetROIEvents_Fiducial( TString fName, Double_t zMin, Double_t zM
 
     run->SetInputEvent( ev );
 
-    TTree *tr = (TTree *) run->GetInputEventTree();
-
-    cout << "Total number of entries : " << tr->GetEntries() << endl;
+    cout << "Total number of entries : " << run->GetEntries() << endl;
 
     // Printing the first event
 
-    for ( int i = 0; i < tr->GetEntries(); i++ )
+    for ( int i = 0; i < run->GetEntries(); i++ )
     {
         Bool_t veto = false;
 
         if( i%10000 == 0 ) cout << "Event " << i << endl;
 
-        tr->GetEntry(i);
+        run->GetEntry(i);
 
         Double_t eDep = 0;
         for( int j = 0; j < ev->GetNumberOfTracks(); j++ )

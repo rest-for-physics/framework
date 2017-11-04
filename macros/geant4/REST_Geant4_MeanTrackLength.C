@@ -1,7 +1,16 @@
 
-
-Int_t RESTG4_FindGammasEmitted( TString fName )
+Int_t REST_Geant4_MeanTrackLength( TString fName )
 {
+
+    const double eMin_ROI = 2458-25;
+    const double eMax_ROI = 2458+25;
+
+    const Double_t xMax = 4000;
+    const Double_t yMax = 4000;
+    const Double_t zMax = 4000;
+
+    Int_t nbinsROI = (Int_t ) ( eMax_ROI - eMin_ROI);
+
     cout << "Filename : " << fName << endl;
 
     TRestRun *run = new TRestRun();
@@ -16,7 +25,7 @@ Int_t RESTG4_FindGammasEmitted( TString fName )
     // Getting metadata
     TIter nextkey(f->GetListOfKeys());
     TKey *key;
-    while (key = (TKey*)nextkey()) {
+    while ( (key = (TKey*)nextkey()) ) {
         string className = key->GetClassName();
         if ( className == "TRestG4Metadata" )
         {
@@ -43,31 +52,26 @@ Int_t RESTG4_FindGammasEmitted( TString fName )
 
     br->SetAddress( &ev );
 
-    TH1D *h = new TH1D("Gammas", "Gammas emitted", 500, 3000, 3500 );
-    Double_t Ek = 0;
-    TString pName;
+    Double_t meanLength = 0;
     Int_t tracks = 0;
     for( int evID = 0; evID < tr->GetEntries(); evID++ )
     {
         tr->GetEntry(evID);
-
-        if( evID%50000 == 0 ) cout << "Event : " << evID << endl;
+        if( evID%100000 == 0 ) cout << "Event : " << evID << endl;
 
         for( int i = 0; i < ev->GetNumberOfTracks(); i++ )
         {
             tracks++;
-            pName = ev->GetTrack(i).GetParticleName();
-            Ek = ev->GetTrack(i).GetKineticEnergy();
-            if( pName == "gamma" && Ek > 3000 && Ek < 3500 )
-            {
-                h->Fill(Ek);
- //               cout << "Is a gamma. Energy : " << Ek << " keV" << endl;
-            }
+            meanLength += ev->GetTrack(i)->GetTrackLength();
+
         }
     }
 
-    TCanvas *c = new TCanvas( "c", " " );
-    h->Draw("same");
-    c->Update();
+    cout << "Mean track length : " << meanLength/tracks << endl;
 
+    delete ev;
+
+    f->Close();
+
+    return 0;
 }
