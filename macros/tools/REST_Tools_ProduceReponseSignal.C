@@ -1,7 +1,7 @@
 Int_t minTime = 156;
 Int_t maxTime = 159;
 
-Int_t REST_UTILS_ProduceSignalResponse( TString inputFileName, TString outputFileName, Int_t nPoints = 512, Double_t threshold = 1 )
+Int_t REST_Tools_ProduceResponseSignal( TString inputFileName, TString outputFileName, Int_t nPoints = 512, Double_t threshold = 1 )
 {
     TRestRun *run = new TRestRun();
     run->OpenInputFile( inputFileName );
@@ -65,4 +65,6 @@ Int_t REST_UTILS_ProduceSignalResponse( TString inputFileName, TString outputFil
 
     cout << "Number of entries : " << run->GetEntries() << endl;
     cout << "Number of good signals : " << N << endl;
+
+    return 0;
 }

@@ -1,10 +1,7 @@
 
-
-int REST_UTILS_GenerateGasFile( char *cfgFile)
+Int_t REST_Tools_GenerateGasFile( char *cfgFile)
 {
-    gSystem->Load("librestcore.so");
-
-    TRestGas *gas = new TRestGas( cfgFile, true );
+    TRestGas *gas = new TRestGas( cfgFile, "", true );
 
  //   gas->SetGasPressure( 1. );
 
@@ -13,4 +10,5 @@ int REST_UTILS_GenerateGasFile( char *cfgFile)
     gas->PlotTransversalDiffusion(1, 5000, 50);
     gas->PlotTownsendCoefficient(1, 5000, 50);
 
+    return 0;
 }

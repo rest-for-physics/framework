@@ -8,22 +8,19 @@ Double_t maxDriftVel = 0;
 Double_t maxLDiff = 0;
 Double_t maxTDiff = 0;
 
-int REST_UTILS_DrawCombinedGasCurves( )
+int REST_Drawer_CombinedGasCurves( )
 {
-
-    gSystem->Load("librestsim.so");
-    gSystem->Load("librestcore.so");
 
     TRestGas *gas[nGases];
     TGraph *driftVelGraph[nGases], *diffLGraph[nGases], *diffTGraph[nGases];
 
-    TRestGas *gas[0] = new TRestGas( "GasDefinitionXeTMA1Pct.rml", true );
-    TRestGas *gas[1] = new TRestGas( "GasDefinitionXeTMA3Pct.rml", true );
-    TRestGas *gas[2] = new TRestGas( "GasDefinitionXeTMA7Pct.rml", true );
-    TRestGas *gas[3] = new TRestGas( "GasDefinitionXeTMA9Pct.rml", true );
+    gas[0] = new TRestGas( "GasDefinitionXeTMA1Pct.rml", "", true );
+    gas[1] = new TRestGas( "GasDefinitionXeTMA3Pct.rml", "", true );
+    gas[2] = new TRestGas( "GasDefinitionXeTMA7Pct.rml", "", true );
+    gas[3] = new TRestGas( "GasDefinitionXeTMA9Pct.rml", "", true );
 
     for( int i = 0; i < nGases; i++ )
-        gas[i]->SetGasPressure(10);
+        gas[i]->SetPressure(10);
 
 
     Double_t eField[nSteps], driftVel[nGases][nSteps], diffLong[nGases][nSteps], diffTrans[nGases][nSteps];
@@ -88,15 +85,14 @@ int REST_UTILS_DrawCombinedGasCurves( )
         diffLGraph[i]->SetMinimum( 0. );
     }
 
-    TString str;
     str.Form("Longitudinal diffusion");
     diffLGraph[0]->SetTitle(str);
     diffLGraph[0]->GetXaxis()->SetTitle("E [V/cm]");
     diffLGraph[0]->GetYaxis()->SetTitle("Diffusion [sqrt(cm)/cm]");
     diffLGraph[0]->GetYaxis()->SetTitleOffset(2);
 
-    Double_t xl1=.55, yl1=0.55, xl2=xl1+.3, yl2=yl1+.3;
-    TLegend *leg = new TLegend( xl1, yl1, xl2, yl2 );
+ //   Double_t xl1=.55, yl1=0.55, xl2=xl1+.3, yl2=yl1+.3;
+ //   TLegend *leg = new TLegend( xl1, yl1, xl2, yl2 );
 
     for( int i = 0; i < nGases; i++ )
         leg->AddEntry( diffLGraph[i], gas[i]->GetGasMixture(), "L" );   // h1 and h2 are histogram pointers
@@ -119,15 +115,14 @@ int REST_UTILS_DrawCombinedGasCurves( )
         diffTGraph[i]->SetMinimum( 0. );
     }
 
-    TString str;
     str.Form("Transversal diffusion");
     diffTGraph[0]->SetTitle(str);
     diffTGraph[0]->GetXaxis()->SetTitle("E [V/cm]");
     diffTGraph[0]->GetYaxis()->SetTitle("Diffusion [sqrt(cm)/cm]");
     diffTGraph[0]->GetYaxis()->SetTitleOffset(2);
 
-    Double_t xl1=.55, yl1=0.55, xl2=xl1+.3, yl2=yl1+.3;
-    TLegend *leg = new TLegend( xl1, yl1, xl2, yl2 );
+ //   Double_t xl1=.55, yl1=0.55, xl2=xl1+.3, yl2=yl1+.3;
+ //   TLegend *leg = new TLegend( xl1, yl1, xl2, yl2 );
 
     for( int i = 0; i < nGases; i++ )
         leg->AddEntry( diffTGraph[i], gas[i]->GetGasMixture(), "L" );   // h1 and h2 are histogram pointers
@@ -138,4 +133,6 @@ int REST_UTILS_DrawCombinedGasCurves( )
         diffTGraph[i]->Draw("same");
 
     leg->Draw("same");
+
+    return 0;
 }

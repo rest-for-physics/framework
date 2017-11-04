@@ -1,5 +1,5 @@
 
-Int_t REST_UTILS_DrawResponseSignal( TString fName )
+Int_t REST_Drawer_ResponseSignal( TString fName )
 {
     TFile *f = new TFile( fName );
 
@@ -11,4 +11,5 @@ Int_t REST_UTILS_DrawResponseSignal( TString fName )
 
     gr->Draw();
 
+    return 0;
 }

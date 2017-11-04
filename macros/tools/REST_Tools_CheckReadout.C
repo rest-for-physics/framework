@@ -5,7 +5,9 @@
 #include <iostream>
 using namespace std;
 
-int REST_UTILS_CheckReadout( TString rootFile, TString name, Double_t region[4], Int_t stripsMask[4], Int_t N = 1E4, Int_t plane = 0 )
+TGraph *GetHittedStripMap( TRestReadoutPlane *p, Int_t mask[4], Double_t region[4], Int_t N );
+
+Int_t REST_Tools_CheckReadout( TString rootFile, TString name, Double_t region[4], Int_t stripsMask[4], Int_t N = 1E4, Int_t plane = 0 )
 {
     TFile *f = new TFile( rootFile );
     TRestReadout *readout = (TRestReadout *) f->Get( name );
@@ -108,6 +110,7 @@ int REST_UTILS_CheckReadout( TString rootFile, TString name, Double_t region[4],
     for( int i = 0; i < graph; i++ )
         pixelGraph[i] ->Draw("same");
 
+    return 0;
 }
 
 TGraph *GetHittedStripMap( TRestReadoutPlane *p, Int_t mask[4], Double_t region[4], Int_t N )
