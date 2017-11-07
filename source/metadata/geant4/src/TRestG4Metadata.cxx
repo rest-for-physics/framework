@@ -454,7 +454,9 @@
 /// \endcode
 ///
 /// This energy range implies that only events that produced an energy
-/// deposit at the sensitive volume between Ei and Ef will be stored. 
+/// deposit at the sensitive volume, and produced a total energy
+/// deposit between Ei and Ef, integrated to all the active volumes, will
+/// be stored. 
 ///
 /// We should define inside the `<storage>` definition all the physical
 /// volumes where we want hits to be stored using `<activeVolume>`
@@ -466,11 +468,12 @@
 /// 
 /// In general, we will always want to store all the hits in the gas volume
 /// of the TPC. But the gas being the sensitive volume does not mean that
-/// hits on the gas volume will be stored. This, this activeVolume should
-/// be activated even if we defined the gas as sensitive volume. The user
+/// hits on the gas volume will be stored. This volume should be activated
+/// for storage even if we defined it as the sensitive volume. The user
 /// may decide to do not store the hits in the gas volume. For example, we
-/// may want to track events that deposit something on the gas volume but
-/// not be interested to study the hits inside the gas for a particular case.
+/// may want to track events that deposit something on the gas volume, 
+/// through the hits in another volume, but not be interested to study the
+/// hits inside the gas for a particular case.
 /// 
 /// Each active volume defines a chance parameter. This parameter gives the
 /// probability to store the hits of an event in a particular volume. For
