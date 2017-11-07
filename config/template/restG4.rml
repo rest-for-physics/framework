@@ -46,7 +46,7 @@ By default REST units are mm, keV and degrees
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
     <parameter name="runNumber" value="auto"/>
-   <parameter name="readOnly" value="false" />
+    <parameter name="readOnly" value="false" />
     <parameter name="runTag" value="Template"/>
     <parameter name="runDescription" value="We launch just 100 events to check everything is ok."/>
     <parameter name="user" value="${USER}"/>
@@ -58,17 +58,14 @@ By default REST units are mm, keV and degrees
 
 <section TRestG4Metadata name="DBDsimulation" title="A dummy DBD simulation">
 
-    <parameter name="geometryPath" value="${REST_PATH}/config/template/geometry/" />
-    <parameter name="gdml_file" value="mySetupTemplate.gdml"/>
-    <parameter name="maxTargetStepSize" value="200" units="um" />
-    <parameter name="subEventTimeDelay" value="100" units="us" />
-
-    <!-- A member to store the component activity (and mass) are now present in G4Metadata -->
-    <parameter name="activity" value="0.01" />
-    <parameter name="mass" value="3000" />
-
     <!-- The number of events to be simulated is now defined in TRestG4Metadata -->
     <parameter name="Nevents" value="100" />
+
+    <parameter name="geometryPath" value="${REST_PATH}/config/template/geometry/" />
+    <parameter name="gdml_file" value="mySetupTemplate.gdml"/>
+
+    <parameter name="maxTargetStepSize" value="200" units="um" />
+    <parameter name="subEventTimeDelay" value="100" units="us" />
 
     <generator type="volume" from="gas" >
         <source fromFile="Xe136bb0n.dat">
@@ -94,6 +91,7 @@ By default REST units are mm, keV and degrees
         <parameter name="energyRange" value="(0,5)" units="MeV" />
         <activeVolume name="gas" chance="1" />
     </storage>
+
 </section>
 
 <section TRestPhysicsLists name="default" title="First physics list implementation." verboseLevel="debug" >

@@ -504,8 +504,6 @@ TVector2 TRestReadoutModule::GetVertex( int n ) const
 /// 
 void TRestReadoutModule::AddChannel( TRestReadoutChannel &rChannel ) 
 {
-    Int_t channelError = 0;
-
     for( int i = 0; i < rChannel.GetNumberOfPixels(); i++ )
     {
         // TODO we expect here that the user will only do pixel rotations between 0 and 90 degrees,
