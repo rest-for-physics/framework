@@ -89,7 +89,7 @@ int main(int argc,char** argv) {
     restPhysList = new TRestPhysicsLists( inputConfigFile, (string) physListName );
 
     restRun = new TRestRun( inputConfigFile );
-    restRun->SetRunTag( restG4Metadata->GetTitle() );
+    restRun->SetRunTag( restG4Metadata->GetName() );
     restRun->OpenOutputFile();
 
     restG4Event = new TRestG4Event( );
