@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<multiCoBoToSignal>
+  <TRestManager name="CoBoToSignal" title="testing" verboseLevel="silent" >
+
+    <TRestRun name="SJTU-Proto" verboseLevel="silent">
+      <include file="{configPath}/runconfig.rml"/>
+    </TRestRun>
+
+    <TRestProcessRunner name="TemplateEventProcess" verboseLevel="silent">
+      <parameter name="firstEntry" value="0" />
+      <parameter name="lastEntry" value="0" />
+      <parameter name="eventsToProcess" value="10000" />
+      <parameter name="threadNumber" value="2"/>
+      <parameter name="saveMetadata" value="true"/>
+      <parameter name="treeBranches" value="inputevent:process:outputevent:observable"/>
+
+      <addProcess type="TRestMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON" />
+      <addProcess type="TRestRawSignalSelectorProcess" name="nkxtest" value="ON">
+        <parameter name="verboseLevel" value="silent"/>
+        <parameter name="outputLevel" value="full_output"/> definedonly, observable, internalval, full_output
+
+        <parameter name="integralthreshold" value="6"/>
+        <parameter name="decodingFile" value="MMstripsMap_M8.txt"/>
+
+        <addObservable type="triggerednum:firstX:firstY"/>
+      </addProcess>
+      <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="OFF" />
+      <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" />
+
+
+    </TRestProcessRunner>
+
+    <addTask type="processEvents" value="ON"/>
+    <addTask type="analysisPlot"  value="OFF" />
+
+
+  </TRestManager>
+
+
+  <!--paramater here is accessible to all the classes-->
+  <globals>
+    <parameter name="verboseLevel" value="info" /> %options are : silent, essential, info, debug
+    <parameter name="inputFile" value="${REST_INPUTFILE}"/>
+    <parameter name="inputFormat" value="run[RunNumber]_file[Fragment]_[Time-d]_[Time].graw"/>
+    <parameter name="outputFile" value="{outputPath}RUN[RunNumber]_[Time-d]_[LastProcess].root" />
+    <variable name="gasDataPath" value="${REST_PATH}/restData/gasFiles/" />
+    <variable name="configPath" value="${REST_PATH}/restData/config/"/>
+    <variable name="outputPath" value="./" />
+
+
+  </globals>
+
+
+</multiCoBoToSignal>
+
+
+
+<!--the new rml file is used to initialize the TRestMetaData-derived classes in sequence.
+    For example, when input restManager ——c multiCoBoToSignal.rml, the restManager program
+    will first initialize the TRestManager class. The constructor of TRestManager first calss a
+    public function named LoadSectionMetaData(). This function is inherted from the 
+    TRestMetaData class. It looks into this file and finds out the xml element with the class 
+    name (TRestManager). It then sends all of the child xml elements in sequence to the function 
+    LoadMataDataKey(), which is implemented by the derived class. This implemented function 
+    sets up the initial value of the class's variables according to the content of the given xml 
+    element. This process is repeated for the global element. Finally The two xml elements are saved
+    in the class for backup.
+    
+    Sometimes the received child elements has also its own child elements, for example here the 
+    TRestRun element. This is for initializing the variables which is of the corresponding class. 
+    Here the LoadMataDataKey() function initializes the embeded TRestRun variable when it receives
+    element with this keyword, sending its constructor this peice of element. Then the same thing 
+    above happens again and the new class is initialized.
+    
+    The keyword "include", "for", "variable", "myParameter" is reserved for the function LoadSectionMetaData().
+    The parameter value surrounded by "{}" will be replaced by the program automatically.
+    Elements with the reserved keywords will not be sent for initialization. One can link to another rml 
+    file through the keyword "include". For loop is reailzed by the keyword "for", where the 
+    LoadSectionMetaData() function repeatedly sends the in-loop xml element for initialization. 
+    The words surrounded by "{}" links to the environment variables and it will be replaced by 
+    corrosponding "variables". The words surrounded by "()" is regarded as mathematical expressions,
+    and will be replaced by the evalulated result.
+    
+    xml elements with same name will only be sent to the LoadMataDataKey() function once. The poirity is:
+    local>file>global, former>later. Elements without a name will always be sent to the funciton
+    
+    Useful public tools: GetParameter(), GetElement(), GetElementWithName(), GetFieldValue(), GetObservablesList();
+-->
