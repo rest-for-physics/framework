@@ -728,13 +728,14 @@ void TRestMetadata::LoadConfigInIncludeFile(TiXmlElement * e)
 /// \return A string of result
 string TRestMetadata::GetParameter(std::string parName, TString defaultValue)
 {
-	//先从系统环境变量里面找这个parameter
+	//first search the parameter in system env
 	char* val = getenv(parName.c_str());
 	if (val != NULL)
 	{
 		return val;
 	}
 
+	//then look within local xml element
 	return GetParameter(parName, fElement, defaultValue);
 
 }

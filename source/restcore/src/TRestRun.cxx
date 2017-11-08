@@ -244,7 +244,8 @@ void TRestRun::ReadFileInfo(string filename)
 		string FormatValue = "";
 		if (prefix == "")
 		{
-			//如果参数是最后一个，则直接对应inputfile的最后几个参数
+			//if formatsectionlist meets its end, while inputfilesectionlist does not,
+			//then the last place of the format is replaced by the remaining of inputfilesectionlist
 			if (i == formatsectionlist.size() - 1 && inputfilesectionlist.size() >= formatsectionlist.size())
 			{
 				for (int j = 0; j <= inputfilesectionlist.size() - formatsectionlist.size(); j++)
@@ -253,7 +254,7 @@ void TRestRun::ReadFileInfo(string filename)
 				}
 				FormatValue = FormatValue.substr(0, FormatValue.size() - 1);
 			}
-			//如果参数不是最后一个，则直接对应inputfile相应位置参数
+			//if not, replace just as the position indicate
 			else if (i < formatsectionlist.size() - 1 && inputfilesectionlist.size() >i)
 			{
 				FormatValue = inputfilesectionlist[i];
