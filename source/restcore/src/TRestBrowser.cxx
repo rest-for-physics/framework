@@ -163,36 +163,35 @@ Bool_t TRestBrowser::OpenFile( TString fName )
     
     if( fInputFile != NULL ) fInputFile->Close();
         
-    fInputFile = new TFile( fName );
+	OpenInputFile(fName);
+	if (fInputFile == NULL) {
+		error << "failed to open input file" << endl;
+		exit(0);
+	}
     TIter nextkey(fInputFile->GetListOfKeys());
     TKey *key;
     while ( (key = (TKey*)nextkey() ) ) {
 
         string className = key->GetClassName();
 	
-       if ( className == "TGeoManager" ) geometry = (TGeoManager *) fInputFile->Get( key->GetName() );
+       if ( className == "TGeoManager" ) 
+		   geometry = (TGeoManager *) fInputFile->Get( key->GetName() );
+	   if(className=="TRestAnalysisTree")
+		   fInputAnalysisTree= (TRestAnalysisTree *)fInputFile->Get(key->GetName());
     }
 
-    if( GetObjectKeyByName( "TRestAnalysisTree" ) == NULL )
+    if( fInputAnalysisTree == NULL )
     {
         cout << "REST ERROR (SetInputEvent) : TRestAnalysisTree was not found" << endl;
         cout << "Inside file : " << fInputFilename << endl;
         exit(1);
     }
-
-    fInputAnalysisTree = ( TRestAnalysisTree * ) fInputFile->Get( "TRestAnalysisTree" ); 
+ 
 
     fInputAnalysisTree->ConnectEventBranches( );
     fInputAnalysisTree->ConnectObservables( );
 
-    // Transfering metadata to historic
-    for( size_t i = 0; i < fMetadata.size(); i++ )
-        fHistoricMetadata.push_back( fMetadata[i] );
-    fMetadata.clear();
-    for( size_t i = 0; i < fEventProcess.size(); i++ )
-        fHistoricEventProcess.push_back( fEventProcess[i] );
-    fEventProcess.clear();
-                
+    // Transfering metadata to historic   
     SetInputEvent(fEventViewer->GetEvent());
     
     if( geometry != NULL )fEventViewer->SetGeometry( geometry );
@@ -209,8 +208,8 @@ Bool_t TRestBrowser::LoadEvent( Int_t n ){
 
 if(!isFile){cout<<"No file..."<<endl;return kFALSE;}
 
-if(n<fInputEventTree->GetEntries()&&n>=0){
-fInputEventTree->GetEntry(n);
+if(n<fInputAnalysisTree->GetEntries()&&n>=0){
+fInputAnalysisTree->GetEntry(n);
 
         this->GetEntry(fCurrentEvent);
         GetAnalysisTree()->PrintObservables();
