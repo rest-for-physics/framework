@@ -64,7 +64,10 @@
 /// </TRestPhysicsLists>
 ///
 /// \endcode
-/// 
+///
+/// \note Wherever 3 dots (`...`) are provided means a redundant code format, or
+/// that additional fields might be required. 
+///
 /// Few basic working examples can be found at REST_PATH/config/template/restG4.rml
 ///
 /// \note The runTag inside the TRestRun class will be overwritten by the name of
@@ -147,9 +150,6 @@
 ///
 /// The complete structure of the primary particle generator follows this 
 /// scheme.
-///
-/// \note Wherever 3 dots (`...`) are provided means a redundant code format, or
-/// that additional fields might be required. 
 ///
 /// \code
 /// <generator type="generatorType" ... >
