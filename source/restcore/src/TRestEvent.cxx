@@ -1,24 +1,24 @@
 /*************************************************************************
- * This file is part of the REST software framework.                     *
- *                                                                       *
- * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
- * For more information see http://gifna.unizar.es/trex                  *
- *                                                                       *
- * REST is free software: you can redistribute it and/or modify          *
- * it under the terms of the GNU General Public License as published by  *
- * the Free Software Foundation, either version 3 of the License, or     *
- * (at your option) any later version.                                   *
- *                                                                       *
- * REST is distributed in the hope that it will be useful,               *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
- * GNU General Public License for more details.                          *
- *                                                                       *
- * You should have a copy of the GNU General Public License along with   *
- * REST in $REST_PATH/LICENSE.                                           *
- * If not, see http://www.gnu.org/licenses/.                             *
- * For the list of contributors see $REST_PATH/CREDITS.                  *
- *************************************************************************/
+* This file is part of the REST software framework.                     *
+*                                                                       *
+* Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+* For more information see http://gifna.unizar.es/trex                  *
+*                                                                       *
+* REST is free software: you can redistribute it and/or modify          *
+* it under the terms of the GNU General Public License as published by  *
+* the Free Software Foundation, either version 3 of the License, or     *
+* (at your option) any later version.                                   *
+*                                                                       *
+* REST is distributed in the hope that it will be useful,               *
+* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+* GNU General Public License for more details.                          *
+*                                                                       *
+* You should have a copy of the GNU General Public License along with   *
+* REST in $REST_PATH/LICENSE.                                           *
+* If not, see http://www.gnu.org/licenses/.                             *
+* For the list of contributors see $REST_PATH/CREDITS.                  *
+*************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
 ///
@@ -72,32 +72,71 @@ TRestEvent::~TRestEvent()
 ///
 void TRestEvent::Initialize()
 {
-    fEventID = 0; 
-    fEventTime = 0; 
-    fSubEventID = 0;
-    fSubEventTag = "";
-    fOk = true;
+	fEventID = 0;
+	fEventTime = 0;
+	fSubEventID = 0;
+	fSubEventTag = "";
+	fOk = true;
 }
 
 //////////////////////////////////////////////////////////////////////////
 /// Set the time of the event
 ///
-void TRestEvent::SetTime( Double_t time )
-{ 
-    Int_t sec = (Int_t)time;
-    Int_t nsec = (Int_t) ((time-sec)*1E9);
-
-    fEventTime.SetSec(sec);
-    fEventTime.SetNanoSec(nsec);
-}
-
-//////////////////////////////////////////////////////////////////////////
-/// Set the time of the event
-///
-void TRestEvent::SetTime( Double_t seconds, Double_t nanoseconds )
+void TRestEvent::SetTime(Double_t time)
 {
-    fEventTime.SetSec( seconds );
-    fEventTime.SetNanoSec( nanoseconds );
+	Int_t sec = (Int_t)time;
+	Int_t nsec = (Int_t)((time - sec)*1E9);
+
+	fEventTime.SetSec(sec);
+	fEventTime.SetNanoSec(nsec);
+}
+
+//////////////////////////////////////////////////////////////////////////
+/// \brief Clone the content of this TRestEvent object to another
+///
+/// This method uses default root streamer to do the copying. The efficiency is low.
+/// Override recommanded.
+void TRestEvent::CloneTo(TRestEvent* target)
+{
+	if (this->ClassName() != target->ClassName()) {
+		cout << "In TRestEvent::CloneTo() : Event type doesn't match! (This :" << this->ClassName() << ", Target : " << target->ClassName() << ")" << endl;
+		return;
+	}
+
+
+	TBufferFile buffer(TBuffer::kWrite);
+	buffer.MapObject(this);  //register obj in map to handle self reference
+	{
+		Bool_t isRef = this->TestBit(kIsReferenced);
+		((TObject*)this)->ResetBit(kIsReferenced);
+
+		((TObject*)this)->Streamer(buffer);
+
+		if (isRef) ((TObject*)this)->SetBit(kIsReferenced);
+	}
+
+	// read new object from buffer
+	buffer.SetReadMode();
+	buffer.ResetMap();
+	buffer.SetBufferOffset(0);
+	buffer.MapObject(target);  //register obj in map to handle self reference
+	target->Streamer(buffer);
+	target->ResetBit(kIsReferenced);
+	target->ResetBit(kCanDelete);
+
+
+
+
+
+}
+
+//////////////////////////////////////////////////////////////////////////
+/// Set the time of the event
+///
+void TRestEvent::SetTime(Double_t seconds, Double_t nanoseconds)
+{
+	fEventTime.SetSec(seconds);
+	fEventTime.SetNanoSec(nanoseconds);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -108,14 +147,14 @@ void TRestEvent::SetTime( Double_t seconds, Double_t nanoseconds )
 ///
 void TRestEvent::PrintEvent()
 {
-    cout << "*******************************************************" << endl;
-    cout << " EVENT ID : " << GetID() << " TIME : " << GetTime() << endl;
-    cout << " SUB-EVENT ID : " << GetSubID();
-    if ( fSubEventTag != "" ) cout << "   SUB-EVENT TAG : \"" << fSubEventTag << "\""; 
-    cout << endl;
-    if( fOk ) cout << " Status : OK" << endl;
-    else cout << " Status : NOT OK" << endl;
-    cout << "*******************************************************" << endl;
+	cout << "*******************************************************" << endl;
+	cout << " EVENT ID : " << GetID() << " TIME : " << GetTime() << endl;
+	cout << " SUB-EVENT ID : " << GetSubID();
+	if (fSubEventTag != "") cout << "   SUB-EVENT TAG : \"" << fSubEventTag << "\"";
+	cout << endl;
+	if (fOk) cout << " Status : OK" << endl;
+	else cout << " Status : NOT OK" << endl;
+	cout << "*******************************************************" << endl;
 
 }
 
