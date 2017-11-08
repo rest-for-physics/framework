@@ -87,6 +87,16 @@ void TRestTrackAnalysisProcess::InitProcess()
             fTrack_HE_Threshold.push_back( energy );
             nTracks_HE.push_back(0);
         }
+
+        for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "nTracks_En_" ) != string::npos )
+        {
+            Double_t energy = StringToDouble ( fObservables[i].substr( 11, fObservables[i].length() ).c_str() );
+            fTrack_En_EnergyObservables.push_back( fObservables[i] );
+            fTrack_En_Threshold.push_back( energy );
+            nTracks_En.push_back(0);
+        }
+        
 }
 
 //______________________________________________________________________________
@@ -163,6 +173,10 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         for( unsigned int n = 0; n < fTrack_LE_EnergyObservables.size(); n++ )
             if( en < fTrack_LE_Threshold[n] )
                 nTracks_LE[n]++;
+
+           for( unsigned int n = 0; n < fTrack_En_EnergyObservables.size(); n++ )
+            if( en < fTrack_En_Threshold[n] + fDeltaEnergy && en > fTrack_En_Threshold[n] - fDeltaEnergy )
+                nTracks_En[n]++;
     }
 
     Double_t evTimeDelay = 0;
@@ -272,6 +286,7 @@ void TRestTrackAnalysisProcess::InitFromConfigFile( )
 {
     fNTracksXCut = StringTo2DVector( GetParameter( "nTracksXCut", "(1,10)") );
     fNTracksYCut = StringTo2DVector( GetParameter( "nTracksYCut", "(1,10)") );
+    fDeltaEnergy = GetDblParameterWithUnits( "deltaEnergy", 1 );
 
     if( GetParameter( "cutsEnabled", "false" ) == "true" ) fCutsEnabled = true;
 }
