@@ -173,33 +173,6 @@
 ///
 /// <hr>
 ///
-    obsName = this->GetName() + (TString) ".photoelectric";
-    if ( fOutputG4Event->isPhotoElectric( ) ) { fAnalysisTree->SetObservableValue( obsName, 1 ); }
-    else { fAnalysisTree->SetObservableValue( obsName, 0 ); }
-
-    obsName = this->GetName() + (TString) ".compton";
-    if ( fOutputG4Event->isCompton( ) ) fAnalysisTree->SetObservableValue( obsName, 1 );
-    else fAnalysisTree->SetObservableValue( obsName, 0 );
-
-    obsName = this->GetName() + (TString) ".bremstralung";
-    if ( fOutputG4Event->isBremstralung( ) ) fAnalysisTree->SetObservableValue( obsName, 1 );
-    else fAnalysisTree->SetObservableValue( obsName, 0 );
-
-    obsName = this->GetName() + (TString) ".hadElastic";
-    if ( fOutputG4Event->ishadElastic( ) ) fAnalysisTree->SetObservableValue( obsName, 1 );
-    else fAnalysisTree->SetObservableValue( obsName, 0 );
-
-    obsName = this->GetName() + (TString) ".neutronInelastic";
-    if ( fOutputG4Event->isneutronInelastic( ) ) fAnalysisTree->SetObservableValue( obsName, 1 );
-    else fAnalysisTree->SetObservableValue( obsName, 0 );
-
-    obsName = this->GetName() + (TString) ".nCapture";
-    if ( fOutputG4Event->isnCapture( ) ) fAnalysisTree->SetObservableValue( obsName, 1 );
-    else fAnalysisTree->SetObservableValue( obsName, 0 );
-
-    obsName = this->GetName() + (TString) ".hIoni";
-    if ( fOutputG4Event->ishIoni( ) ) fAnalysisTree->SetObservableValue( obsName, 1 );
-    else fAnalysisTree->SetObservableValue( obsName, 0 );
 #include "TRestGeant4AnalysisProcess.h"
 using namespace std;
 
