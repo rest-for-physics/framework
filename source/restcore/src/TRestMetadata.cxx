@@ -1,24 +1,24 @@
 /*************************************************************************
- * This file is part of the REST software framework.                     *
- *                                                                       *
- * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
- * For more information see http://gifna.unizar.es/trex                  *
- *                                                                       *
- * REST is free software: you can redistribute it and/or modify          *
- * it under the terms of the GNU General Public License as published by  *
- * the Free Software Foundation, either version 3 of the License, or     *
- * (at your option) any later version.                                   *
- *                                                                       *
- * REST is distributed in the hope that it will be useful,               *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
- * GNU General Public License for more details.                          *
- *                                                                       *
- * You should have a copy of the GNU General Public License along with   *
- * REST in $REST_PATH/LICENSE.                                           *
- * If not, see http://www.gnu.org/licenses/.                             *
- * For the list of contributors see $REST_PATH/CREDITS.                  *
- *************************************************************************/
+* This file is part of the REST software framework.                     *
+*                                                                       *
+* Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+* For more information see http://gifna.unizar.es/trex                  *
+*                                                                       *
+* REST is free software: you can redistribute it and/or modify          *
+* it under the terms of the GNU General Public License as published by  *
+* the Free Software Foundation, either version 3 of the License, or     *
+* (at your option) any later version.                                   *
+*                                                                       *
+* REST is distributed in the hope that it will be useful,               *
+* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+* GNU General Public License for more details.                          *
+*                                                                       *
+* You should have a copy of the GNU General Public License along with   *
+* REST in $REST_PATH/LICENSE.                                           *
+* If not, see http://www.gnu.org/licenses/.                             *
+* For the list of contributors see $REST_PATH/CREDITS.                  *
+*************************************************************************/
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -43,51 +43,51 @@
 ///
 /// A class deriving from TRestMetadata can retrieve information from a plain text
 /// configuration file (or RML file). The syntaxis in an RML file is imposed by
-/// TRestMetadata. The metadata information provided through an RML file to a class
-/// deriving from TRestMetadata corresponds to a *section* structure inside the file.
-/// The following piece of code shows the common structure of the metadata description 
-/// corresponding to a specific metadata class.
+/// TRestMetadata. The rml file is encoded in standard xml format and has a structure 
+/// similar to the real class structure. The following piece of code shows the common 
+/// structure of the metadata description corresponding to a specific metadata class.
 ///
 /// \code
 ///
-/// <section sectionName name="userGivenName" title="User given title" >
+/// <ClassName name="userGivenName" title="User given title" >
 ///
-///     <keyStructure field1="value1" field2="value2" ... >
+///     <SomeCommand field1="value1" field2="value2"> 
 ///
-///         <keyDefinition field1="value1" field2="value2">  
+///     <ContainedClassName field1="value1" field2="value2" ... >
+///
+///         <SomeCommand field1="value1" field2="value2">  
 ///         
 ///          ...
 ///
-///     </keyStructure>
+///     </ContainedClassName>
 ///
-/// </section>
+/// </ClassName>
 ///
 /// \endcode
+///
+/// In REST, the key word "ClassName", "SomeCommand", "ContainedClassName"
+/// shown above are all called **xml decalration**. The key words like
+/// "field1="value1"" or "name="userGivenName"" are called **fields** or **xml attributes**.
+/// All the sealed xml structure is called **xml element** or **xml section**. 
+///
+/// Note that the decalration
+/// "include", "for", "variable" and "myParameter" is reserved for the software.
+/// They works differently than others, which we will talk later.
 /// 
-/// The section can also be defined skipping the *section* keyword,
-/// using the following convention.
-///
+/// ### Sequencial start up procedure of a metadata class
+/// 
+/// The rml file is designed to start up/instruct all the metadata classes. The constructor first
+/// calls the method Initialize() to do some default settings. This method must be implemented in any
+/// non-abstract metadata class. In the Initialize() method, the class needs to define its section name
+/// (usually it is just the class name), which will be used to extract the corresponding rml section.
+/// 
+/// 
 /// \code
-///
-/// <sectionName name="userGivenName" title="User given title" >
-///
-///     <keyStructure field1="value1" field2="value2" ... >
-///
-///     ...
-///
-/// </sectionName>
-///
-/// \endcode
-///
-/// The derived class from TRestMetadata is resposible to define the name of the
-/// section (*sectionName*) used to extract the corresponding metadata section 
-/// and store it in TRestMetadata::configBuffer. The default behaviour in REST is
-/// that *sectionName* will be the name of the specific metadata class.
-///
-/// This must be implemented at each specific metadata class, at the construction 
-/// time, by implementing the TRestMetadata::Initialize method, as follows:
-///
-/// \code
+/// TRestSpecificMetadata::TRestSpecificMetadata()
+/// {
+/// 	Initialize();
+/// }
+/// 
 /// void TRestSpecificMetadata::Initialize( )
 /// {
 ///
@@ -97,125 +97,165 @@
 ///
 /// }
 /// \endcode
-///
-/// The methods defined inside TRestMetadata class allow to extract different metadata 
-/// structures with openning-closing tags (as the *keyStructure* shown in the previous 
-/// code), and definitions (as in the definition *keyDefinition* shown in the previous 
-/// code).
-///
-/// Each specific metadata class is responsible to extract the information found in its
-/// section. The initialization of a specific metadata class through a RML file should
-/// be implemented in TRestMetadata::InitFromConfigFile( ).
-///
-/// The derived metadata class can access to the different structures using the 
-/// different methods provided, as TRestMetadata::GetKEYStructure, 
-/// TRestMetadata::GetKEYDefinition, etc. If no string *buffer* is given as argument, 
-/// the specific *keyStructure* or *keyDefinition* we are looking for will be searched 
-/// in the entire metadata section found in TRestMetadata::configBuffer. The search will
-/// start from the beginning of the section, except that a position *fromPostion* is 
-/// specified by argument. The first match will be returned in a string.
-///
-/// In order to read several key definitions or structures with the same name we must
-/// to provide as argument a position (size_t &fromPosition) that it is updated with 
-/// the position where the end of the structure or definition read by the method is 
-/// found. This position value can be given to the next method call to read the next
-/// definition. You might find useful examples of use in the implementations of
-/// complex metadata structures as in TRestG4Metadata::InitFromConfigFile and 
-/// TRestReadout::InitFromConfigFile.
-///
-/// ### Using system environment variables in RML files
 /// 
-/// RML files allow to retrieve environment variables defined in our system. This feature
-/// may result specially useful to generate configuration templates that can be used for
-/// different purposes. The environment variables must be introduced by using curly 
-/// brackets (i.e. {USER}).
-///
-/// The RML file will be parsed and the words contained inside {} will be replaced by
-/// their corresponding system variable. 
-///
-/// We can define externally different variables in our environment (i.e. in bash we
-/// could use *export RUN_NUMBER="101"*). Then, define in our RML the field value 
-/// **runNumber** from TRestRun, using that value:
-///
+/// The starter is called by calling the method LoadConfigFromFile(). It is implemented in this base class, 
+/// with four overloads, as shown in the following. 
+/// 
 /// \code
 ///
-/// <parameter name="runNumber" value="{RUN_NUMBER}" />
+/// void LoadConfigFromFile();
+/// void LoadConfigFromFile(const char *cfgFileName);
+/// void LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal);
+/// void LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal, vector<TiXmlElement*> eEnv);
 ///
 /// \endcode
 /// 
-/// ### Defining local environment variables in RML files
-///
-/// If we write an RML file relying on many environmental variables, and some of those
-/// variables have not been defined in the system environment, REST will complain during
-/// exexution time of the undefined variable. A solution is to define inside the RML
-/// file default values for those variables by using the *environment* section.
+/// If no arguments are provided, the starter will only call the Initialize() method. If given the rml
+/// file name, it will find out its rml sections. We can also directly give the xml sections to it.
+/// Three xml sections are used to startup the class. The sectional section is the section with the
+/// same name as the class, which are providing the basic infomation. The global section is a special 
+/// xml section in the rml file, containing some global settings such as datapath or file format.
+/// The env section is optional, through which the host class inputs the variables into its resident class.
+/// 
+/// With the xml sections given, The starter first goes through all of them and find out the child sections
+/// with key word "variable" and "myParameter". These two are regarded as environmental variables. 
+/// The starter will do a check and save them if necessary. Then call the method BeginOfInit() which is 
+/// optionally implemented in the derived class. Then the starter loops all the child xml sections, and calls the 
+/// ReadConfig() method several times. In this method the pointer to each looped xml section is 
+/// given to the derived class, and the derived class choose what to do according to the given element.
+/// Finally the EndOfInit() method is called, after which the startup is complete.
+/// 
+/// The host class can also call the LoadConfigFromFile() method for starting up its resident class. For example, when 
+/// received an xml section declared "TRestRun", the "TRestManager" class will pass this section (together with 
+/// its global section) to its resident "TRestRun" class. The TRestRun class can therefor perform a startup
+/// using these sections. This is called *sequencial startup*.
 ///
 /// \code
-///   <environment>
-///       <variable name="ISOTOPE" value="Rn222" overwrite="false" />
-///       <variable name="FULLCHAIN" value="on" overwrite="true" />
-///   </environment>
 ///
+/// Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
+/// {
+/// 	if (keydeclare == "TRestRun") {
+/// 		fRunInfo = new TRestRun();
+/// 		fRunInfo->LoadConfigFromFile(e, fElementGlobal);
+/// 		return 0;
+/// 	}
+/// }
+/// 
 /// \endcode
 /// 
-/// This section allows to define those variables, that at the same time could allow
-/// us to identify the most important definitions in our RML file. Additionally, we 
-/// can protect the local variable we have defined from the system definition. Therefore,
-/// if the **overwrite** parameter is set as **false**, the external definition of the
-/// environment variable will not have effect on the RML, and the local definition will
-/// not be overwritten.
+/// 
+/// ### Preprocess xml sections and replace variables and expressions
+/// 
+/// By default, the starter will look into only the first-level child sections of both global 
+/// and sectional section. The value of them will be saved in the metadata. In this level the decalration
+/// "myParameter" and "variable" is the same. 
+/// 
+/// \code
+/// 
+///   <ClassName name="userGivenName" title="User given title" >
+///       <myParameter name="nChannels" value="{CHANNELS}" /> //this variable cannot be loaded by the class "ContainedClassName"
+///
+///       <ContainedClassName field1="value1" field2="value2"  >
+///           <variable .... / > //this variable cannot be loaded by the class "ClassName"
+///       </ContainedClassName>
+///       <parameter name="Ch" value="nChannels+{CHANNELS}-2" />
+///   </ClassName>
+/// 
+///   <global>
+///       <variable name = "CHANNELS" value = "64" overwrite = "false" / > //this variable can be loaded by both
+///   </global>
+///
+/// \endcode
+///
+///
+/// After this process, the starter will replace the field values of xml sections before they are used.
+/// This work is done by the method PreprocessElement(). The procedure of replacing is as following.
+/// 
+/// 1. recognize the strings surrounded by "${}". Seek in the system env and replace these strings.
+/// 2. recognize the strings surrounded by "{}". Seek in decalration type "variable" and replace these strings.
+/// 3. directly replace the strings matching the name of "myParameter" by its value.
+/// 4. Judge if the string is an expressions, if so, try evaluate it using TFormula. Replace it by the result.
+///
+/// The result string of the field value is either a number string or a string with concrete content.
+/// In the exapmle code above, the section declared with "parameter" is has its field value reset to string 126.
 ///
 /// ### Including external RML files in a main RML file
 ///
-/// We have the possibility to add several section definitions in an external file, and then include,
-/// or link, them in a main indexing file. We should define the name of the section we want to include,
-/// and the file where we can find the real complete metadata description.
-///
-/// For example, the following code lines would implement the readout and gas definitions found in 
-/// external files.
-///
+/// It is possible to link to other rml files in any section. The starter will open the linked file and searches 
+/// for the section with the same name of the current section. Then the child sections in that file will be 
+/// prepeocessed and sent to ReadConfig() method, just as normal sections. After the including, the main section will be expanded.
+/// To include an external rml file one should use xml declaration "include". Then followed by field "file="xxx"".
+/// 
 /// \code
 ///
-/// <section TRestReadout nameref="Readout-PANDA_3MM_Single" file="{REST_PATH}/inputData/definitions/readouts.rml"> </section>
-///
-/// <section TRestGas nameref="Xenon-TMA 3Pct 10-10E3V/cm" file="{REST_PATH}/inputData/definitions/gases.rml"> </section>
-///
-/// \endcode
-///
-/// This link is made by definning the *nameref* and *file* fields in the section definition. It is
-/// still important to close the section definition using </section>.
-///
-/// ### Including an external text file inside an RML section
-///
-/// We can also include an external file content **inside** a section. The contents of the external
-/// file will be dumped inside the section and replace the <include statement used to include the file.
-///
-/// As in the following example:
-///
-/// \code
-/// <section TRestXX .... >
-///
-/// ...
-///
-/// <include file="/full/path/file.xml" />
-///
-/// ...
-///
-/// </section>
-///
+///   <TRestRun name = "TemplateEventProcess" verboseLevel = "silent">
+///       <include file = "processes.rml" / >
+///       <addProcess type = "TRestMultiCoBoAsAdToSignalProcess" name = "virtualDAQ" value = "ON" / >
+///   </TRestRun>
 /// \endcode
 /// 
+/// 
+/// ### For loop definition
+///
+/// The definition of FOR loops is implemented in RML in order to allow extense
+/// definitions, where many elements may need to be added to an existing array in
+/// our metadata structure. The use of FOR loops allows to introduce more
+/// versatil and extense definitions. Its implementation was fundamentally triggered 
+/// by its use in the construction of complex, multi-channel generic readouts by
+/// TRestReadout.
+/// 
+/// The for loop definition is as follows, where *pitch* and *nChannels* are previously 
+/// defined myParameters, and *nCh* and *nPix* are the *for* loop iteration variables.
+///
+/// \code
+/// <for variable = "nCh" from = "0" to = "nChannels-2" step = "1" >
+///	<readoutChannel id = "{nCh}" >
+///		<for variable = "nPix" from = "0" to = "nChannels-1" step = "1" >
+///			<addPixel id = "{nPix}" origin = "((1+{nCh})*pitch,pitch/4+{nPix}*pitch)" size = "(pixelSize,pixelSize)" rotation = "45" / >
+///		</for>
+///		<addPixel id = "nChannels" origin = "({nCh}*pitch,pitch/4+(nChannels-1)*pitch+pitch/2)" size = "(pitch+pitch/2,pitch/2)" rotation = "0" / >
+///	</readoutChannel>
+/// </for>
+/// \endcode
+///
+/// The starter will recongize the fields "variable", "from", "to", "step" in the header of the 
+/// for loop definition. The variable "nCh", definded at the header of the for loop definition, 
+/// will be added to the environment variable list. The value of the variable will be updated in each loop
+/// The content of the loop will be normally prepeocessed, replacing the variables and expressions, 
+/// and then sent to ReadConfig() method. Unlike including, the original section will NOT be expanded.
+/// 
+/// To pass the loop infomarion into the resident class, one need to call the fourth overload
+/// of the LoadConfigFromFile() starter methods. The resident class can get access to its host's variable list in this overload.
+///
+///
 /// ### The globals section
 ///
 /// The *globals* section allows to specify few common definitions used in the REST 
-/// framework. As the output data path, the gas data path, verbose level, etc. An example
-/// of this section definition follows.
+/// framework. This section will maintain the same and will be passed though the whole sequencial 
+/// startup procedure. If a section is to be used many times by different classes, it is better 
+/// to put it in the global section. If necessary, one can even start up resident class by finding 
+/// sections inside this global section.
 ///
 /// \code
 /// <globals>
 ///    <parameter name="mainDataPath" value="{REST_DATAPATH}" />
-///    <parameter name="gasDataPath" value="{GAS_PATH}" /> // allows to modify the default gas path
-///    <parameter name="verboseLevel" value="debug" /> // options are : silent, warning, info, debug 
+///    <parameter name="gasDataPath" value="{GAS_PATH}" /> 
+///    <parameter name="verboseLevel" value="debug" /> 
+///	<parameter name = "inputFile" value = "${REST_INPUTFILE}" / >
+///	<parameter name = "inputFormat" value = "run[RunNumber]_file[Fragment]_[Time-d]_[Time].graw" / >
+///	<parameter name = "outputFormat" value = "RUN[RunNumber]_[Time-d]_[LastProcess].root" / >
+///	<parameter name = "outputPath" value = "./" / >
+///	<parameter name = "experiment" value = "PandaX-III" / >
+/// 
+///	<TRestDetectorSetup>
+///		<parameter name = "runNumber" value = "70" / >
+///		<parameter name = "runTag" value = "tagTemplate" / >
+///		<parameter name = "runDescription" value = "Run description template" / >
+///		<parameter name = "meshVoltage" value = "500000" / >
+///		<parameter name = "driftField" value = "500" / >
+///		<parameter name = "detectorPressure" value = "10" / >
+///	</TRestDetectorSetup>
+/// 
 /// </globals>
 /// \endcode
 ///
@@ -223,41 +263,33 @@
 /// defined in a same RML file. It does not affect to other possible linked sections defined by 
 /// reference using for example nameref.
 ///
-/// ### Definning the output level
+/// ### Default fields for a section
 ///
-/// We can change the amount of output REST will print on screen by definning different verbose
-/// levels. The *verboseLevel* defined inside the *globals* section will be the default output
-/// level for all the metadata sections defined in that RML file. 
-///
-/// However, we can define the verbose level for any particular metadata structure (including 
-/// processes, since they derive from TRestMetadata ). In order to change the output level for
-/// a particular section we must add the *verboseLevel* field in its definition.
-///
-/// The following line would print on screen any debug message implemented in 
-/// TRestSignalAnalysisProcess.
+/// Three fields in the first line of an xml section will be looked for before anything else. 
+/// They are: name, title, and verboseLevel. If not specified, the starter will find in the 
+/// *globals* section. If still not fond, it will use the default value.
+/// 
+/// Field "name" and "title" is needed by TNamed classes. The "verboseLevel" is used for 
+/// changing the amount of output infomation. The following line would print on screen any 
+/// debug message implemented in TRestSignalAnalysisProcess.
 ///
 /// \code
-/// <section TRestSignalAnalysisProcess name="sgnlAna" title="Data analysis" verboseLevel="debug" >
+/// <TRestSignalAnalysisProcess name="sgnlAna" title="Data analysis" verboseLevel="debug" >
+///     ...
+/// </TRestSignalAnalysisProcess>
 /// \endcode
 ///
 ///
 /// ### Using physical units in fields definitions 
 ///
-/// Some physical parameters need to specify the unit so that the provided value makes 
+/// Some physical parameters are need to specify the unit so that the provided value makes 
 /// sense. For example, when defining the electric field we must provide its units.
 ///
 /// \code
 /// <parameter name="electricField" value="1000" units="V/cm" />
 /// \endcode
-/// 
-/// The implementation inside TRestMetadata::InitFromConfigFile requires we 
-/// specify that we will read the field value with units, by using the method(s)
-/// TRestMetadata::GetDblParameterWithUnits. If we use this method, and no units
-/// are provided in the RML file REST will complain of the inexistence of the
-/// units field. We can also use fields with units in complex key multi-field 
-/// definitions by using the method(s) TRestMetadata::GetDblFieldValueWithUnits.
 ///
-/// The physical field values read in this way will be converted to the standard unit 
+/// The physical field values wrote in this way will be converted to the standard unit 
 /// system used by REST. REST_Units namespace provides details on the different existing 
 /// units, unit conversion and unit definition. 
 ///
@@ -269,102 +301,10 @@
 /// Double_t valueInMeV = value * REST_Units::MeV;
 /// \endcode
 ///
-/// ### Mathematical expression evaluation
 ///
-/// Any field value found inside the RML will be previously evaluated by the ROOT
-/// class TFormula. In case the field is a valid regular expression, the mathematical
-/// formula found in the field value will be substituted by the value returned by
-/// the TFormula::Eval method.
-/// 
-/// The evaluation of complex mathematical expression is done after the replacement
-/// of environment variables in the configuration buffer. Therefore, the use of 
-/// environment variables inside the field computation is allowed. As for example,
+/// ### Other usefule public tools
 ///
-/// \code
-/// <parameter name="circleArea" value="pi * {RADIUS} * {RADIUS}" />
-/// \endcode
-///
-/// where RADIUS would be an environment variable previously defined. Any 
-/// mathematical function allowed by TRestFormula (as sqrt, log) should be allowed 
-/// to be used here.
-/// 
-/// ### Defining internal parameters
-///
-/// Another option is to define an internal parameter by using the special key definition
-/// *myParameter*.
-///
-/// \code
-/// <myParameter name="pixelsPerDetector" value="100" />
-/// <myParameter name="detectors" value="5" />
-/// \endcode
-///
-/// The value of a parameter defined this way can be retrieved
-/// at any time, by using TRestMetadata::GetMyParameter method.
-/// This type of parameter will be pre-processed by the RML interpreter
-/// and it can be used later in the same way as environment variables are used.
-/// However, in the case of *myParameter* definition, no braces are necessary inside
-/// other field definitions, as for example:
-///
-/// \code
-/// <parameter name="totalChannels" value="pixelsPerDetector * detectors" />
-/// \endcode
-///
-/// ### FOR loops definition
-///
-/// The definition of FOR loops is implemented in RML in order to allow extense
-/// definitions, where many elements may need to be added to an existing array in
-/// our metadata structure. The use of FOR loops allows to introduce more
-/// versatil and extense definitions. Its implementation was fundamentally triggered 
-/// by its use in the construction of complex, multi-channel generic readouts by
-/// TRestReadout.
-/// 
-/// The start of the *for* loop definition is as follows
-///
-/// \code
-/// <for variable="n" from="1" to="5" step="1" > 
-/// \endcode
-///
-/// where we define the name of the *variable* that will be iterated ( *variable="n"* ),
-/// the initial value of the variable *n* ( *from="1"* ), the final value of *n*
-/// ( *to="5"* ), and the step value the variable will be increased in 
-/// each iteration ( *step="1"* ). The for loop continues its executing until the end
-/// condition defined by the *to="X"* statement is not valid anymore. Therefore, in the
-/// previous example the variable *n* will take values 1,2,3,4,5.
-///
-///
-/// All the key structures and parameter definitions found inside the for definition
-/// <code> <for ... >  </for> </code> will be replicated until the *for* loop conditions
-/// is not valid any more. The *variable name* defined can be used inside the field values 
-/// inside the *for* loop definition using square brackets []. Any other named variable
-/// (enviromental variable or internal parameter) will be evaluated as usual.
-///
-/// Nested loops are also possible, as it is shown in the following example
-///
-/// \code
-/// <for variable="nChX" from="1" to="nChannels" step="1" />
-///      <for variable="nChY" from="1" to="nChannels" step="1" />
-///           <readoutChannel id="([nChX]-1)+nChannels*([nChY]-1)" >
-///               <addPixel id="0" origin="(([nChX]-1)*pitch,([nChY]-1)*pitch)" size="(pixelSize,pixelSize)" rotation="0" />
-///           </readoutChannel>
-///      </for>
-///  </for>
-/// \endcode
-///
-/// where *pitch* and *nChannels* are previously defined internal parameters, and *nChX* 
-/// and *nChY* are the *for* loop iteration variables.
-///
-/// ### Comments support
-/// 
-/// Any not recognized statement written inside a RML file will be just ignored. However, 
-/// any information written in the RML will be stored inside the configuration buffer
-/// in TRestMetadata::configBuffer, anytime we save to disk a TRestMetadata structure
-/// this config buffer is stored and the "original" RML file (after loop expansion, and
-/// variable replacement) can be recovered.
-///
-/// Although we can just write text outside key definition without impact on the read
-/// of the RML key definition statements, we can use the XML-style comments to avoid
-/// some sentences (or sensitive data) to be stored in the config buffer. Therefore, 
-/// any text containned between <code> \<!-- --> </code> will be fully ignored.
+/// GetParameter(), GetElement(), GetElementWithName(). Details are shown in the function's document
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -379,10 +319,11 @@
 /// 2015-jul:  Re-implementation to read .rml files with xml-inspired 
 ///            syntax
 ///            Javier Galán
-///
+/// 
+/// 2017-Aug:  Major change to xml reading and class startup procedure
+///            Kaixiang Ni
+/// 
 /// \class      TRestMetadata
-/// \author     Igor G. Irastorza
-/// \author     Javier Galan
 ///
 /// <hr>
 ///
@@ -395,51 +336,37 @@
 using namespace std;
 using namespace REST_Units;
 
-int debug = 0;
-
 const int NAME_NOT_FOUND = -2;
 const int NOT_FOUND = -1;
 const int ERROR = -1;
 const int OK = 0;
 
 ClassImp(TRestMetadata)
-
+std::string loadedname;
 ///////////////////////////////////////////////
 /// \brief TRestMetadata default constructor
 ///
 TRestMetadata::TRestMetadata()
 {
-    fStore = true;
-
-    fGasDataPath = (TString) getenv("REST_PATH") + (TString) "/inputData/gasFiles/";
-
-    fVerboseLevel = REST_Silent;
+	fStore = true;
+	fElementGlobal = NULL;
+	fElement = NULL;
+	fVerboseLevel = REST_Silent;
+	//helper = new TRestStringHelper();
+	fElementEnv.clear();
 }
 
 ///////////////////////////////////////////////
-/// \brief TRestMetadata constructor loading data from a config file
-/// 
-/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
-/// the path to the config file must be specified using full path, absolute or relative.
+/// \brief constructor
 ///
-/// By default the config file must be specified with full path, absolute or relative.
-///
-/// \param cfgFileName A const char* giving the path to an RML file.
-///
-TRestMetadata::TRestMetadata( const char *cfgFileName)
+TRestMetadata::TRestMetadata(const char *cfgFileNamecfgFileName)
 {
-    SetConfigFile( cfgFileName );
-
-    SetTitle("Config");
-    SetSectionName("TRestMetadata");
-
-    CheckConfigFile( );
-
-    fStore = true;
-
-    fGasDataPath = (TString) getenv("REST_PATH") + (TString) "/inputData/gasFiles/";
-
-    fVerboseLevel = REST_Silent;
+	fStore = true;
+	fElementGlobal = NULL;
+	fElement = NULL;
+	fVerboseLevel = REST_Silent;
+	//helper = new TRestStringHelper();
+	fElementEnv.clear();
 }
 
 ///////////////////////////////////////////////
@@ -447,1930 +374,1083 @@ TRestMetadata::TRestMetadata( const char *cfgFileName)
 ///
 TRestMetadata::~TRestMetadata()
 {
+	//delete fElementGlobal;
+	//delete fElementSectional;
 }
 
 ///////////////////////////////////////////////
-/// \brief Sets the configfile path to be used.
-///
-/// If the path to configuration file is not specified the location of the configuration file is relative to the directory where we are launching REST.
-///
-void TRestMetadata::SetConfigFilePath(const char *configFilePath)
-{
-    fConfigFilePath = string(configFilePath);
-}
-
-///////////////////////////////////////////////
-/// \brief Returns the input string removing any starting and/or ending white spaces.
-///
-string TRestMetadata::trim(string str)
-{
-    size_t first = str.find_first_not_of(' ');
-    size_t last = str.find_last_not_of(' ');
-    return str.substr(first, (last-first+1));
-}
-
-///////////////////////////////////////////////
-/// \brief Returns 1 only if valid mathematical expression keywords (or numbers) are found in the string **in**. If not it returns 0.
-///
-Int_t TRestMetadata::isAExpression( string in )
-{
-    size_t pos = 0;
-    string st1 = "sqrt";
-    string st2 = "0";
-    in = Replace( in, st1, st2, pos, 0 );
-
-    pos = 0;
-    st1 = "log";
-    st2 = "0";
-    in = Replace( in, st1, st2, pos, 0 );
-
-    return (in.find_first_not_of("-0123456789e+*/.,)( ") == std::string::npos && in.length() != 0);
-}
-
-///////////////////////////////////////////////
-/// \brief Returns 1 only if a valid number is found in the string **in**. If not it returns 0.
-///
-Int_t TRestMetadata::isANumber( string in )
-{
-    return (in.find_first_not_of("-+0123456789.e") == std::string::npos && in.length() != 0);
-}
-
-///////////////////////////////////////////////
-/// \brief Returns the input string without comments. Comments are enclosed between \<!-- \-->.
-///
-string TRestMetadata::RemoveComments( string in )
-{
-    string out = in;
-    size_t pos = 0;
-    while( (pos = out.find("<!--", pos)) != string::npos )
-    {
-        int length = out.find("-->", pos) - pos;
-        out.erase( pos, length+3 ); 
-    }
-    return out;
-}
-
-string TRestMetadata::SectionsToXMLType( string in )
-{
-    string out = in;
-    size_t pos = 0;
-    while( (pos = out.find("<section ", pos)) != string::npos )
-    {
-        // Removing <section keyword
-        out.replace( pos, 9, "<" ); 
-
-        size_t pos2 = out.find( " ", pos );
-
-        string sectionName = trim( out.substr( pos+1, pos2-pos ) );
-
-        out = this->Replace( out, (string) "</section>", (string) ("</" + (TString) sectionName + ">"), pos2, 1);
-    }
-    return out;
-}
-
-///////////////////////////////////////////////
-/// \brief Returns the input string removing white spaces.
-///
-string TRestMetadata::RemoveWhiteSpaces( string in )
-{
-    string out = in;
-    size_t pos = 0;
-    while( (pos = out.find(" ", pos)) != string::npos )
-    {
-        out.erase( pos, 1 ); 
-        pos = pos + 1;
-    }
-
-    return out;
-}
-
-///////////////////////////////////////////////
-/// \brief Counts the number of occurences of **substring** inside the input string **in**. 
-///
-Int_t TRestMetadata::Count( string in, string substring )
-{
-    int count = 0;
-    size_t nPos = in.find(substring, 0); // First occurrence
-    while( nPos != string::npos )
-    {
-        count++;
-        nPos = in.find( substring, nPos+1);
-    }
-
-    return count;
-}
-
-///////////////////////////////////////////////
-/// \brief Replace the first **N** occurences of **thisSring** by **byThisString** inside string **in**. 
-/// If **N=0** (which is the default) all occurences will be replaced.
-///
-string TRestMetadata::Replace( string in, string thisString, string byThisString, size_t fromPosition, Int_t N )
-{
-    string out = in;
-    size_t pos = fromPosition;
-    Int_t cont = 0;
-    while( (pos = out.find( thisString , pos)) != string::npos )
-    {
-        if( debug ) cout << "replacing (" << thisString << ") by (" << byThisString << ")" << endl;
-        out.replace( pos, thisString.length(), byThisString ); 
-        pos = pos + 1;
-        cont++;
-
-        if( N > 0 && cont == N ) return out;
-    }
-
-    return out;
-}
-
-///////////////////////////////////////////////
-/// \brief Gets a double from a string.
-///
-Double_t TRestMetadata::StringToDouble( string in )
-{
-    if( isANumber ( in ) )
-    {
-        return stod ( in );
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-
-///////////////////////////////////////////////
-/// \brief Gets an integer from a string.
-///
-Int_t TRestMetadata::StringToInteger( string in )
-{
-    return (Int_t) StringToDouble( in );
-}
-
-
-///////////////////////////////////////////////
-/// \brief Gets a 3D-vector from a string. Format should be : (X,Y,Z).
-///
-/// TODO : Implement a warning when the format is not correct.
-///
-TVector3 TRestMetadata::StringTo3DVector( string in )
-{
-    TVector3 a;
-
-    size_t startVector = in.find_first_of("(");
-    if( startVector == string::npos ) return a;
-
-    size_t endVector = in.find_first_of(")");
-    if( endVector == string::npos ) return a;
-
-    size_t n = count(in.begin(), in.end(), ',');
-    if( n != 2 ) return a;
-
-    size_t firstComma = in.find_first_of(",");
-    size_t secondComma = in.find(",", firstComma+1);
-
-    if( firstComma >= endVector || firstComma <= startVector ) return a;
-    if( secondComma >= endVector || secondComma <= startVector ) return a;
-
-    string X = in.substr( startVector+1, firstComma-startVector-1 );
-    string Y = in.substr( firstComma+1, secondComma-firstComma-1 );
-    string Z = in.substr( secondComma+1, endVector-secondComma-1 );
-
-    a.SetXYZ( StringToDouble(X), StringToDouble(Y), StringToDouble(Z) );
-
-    return a;
-}
-
-
-///////////////////////////////////////////////
-/// \brief Gets a 2D-vector from a string.
-///
-/// TODO : Implement a warning when the format is not correct.
-///
-TVector2 TRestMetadata::StringTo2DVector( string in )
-{
-    TVector2 a(-1,-1);
-
-    size_t startVector = in.find_first_of("(");
-    if( startVector == string::npos ) return a;
-
-    size_t endVector = in.find_first_of(")");
-    if( endVector == string::npos ) return a;
-
-    size_t n = count(in.begin(), in.end(), ',');
-    if( n != 1 ) return a;
-
-    size_t firstComma = in.find_first_of(",");
-
-    if( firstComma >= endVector || firstComma <= startVector ) return a;
-
-    string X = in.substr( startVector+1, firstComma-startVector-1 );
-    string Y = in.substr( firstComma+1, endVector-firstComma-1 );
-
-
-    a.Set( StringToDouble(X), StringToDouble(Y)  );
-
-    return a;
-}
-
-
-///////////////////////////////////////////////
-/// \brief Returns true if the filename exists.
-///
-bool TRestMetadata::fileExists(const std::string& filename)
-{
-    struct stat buf;
-    if (stat(filename.c_str(), &buf) != -1)
-    {
-        return true;
-    }
-    return false;
-}
-
-///////////////////////////////////////////////
-/// \brief Returns true if the **filename** has *.root* extension.
-///
-bool TRestMetadata::isRootFile( const std::string& filename )
-{
-    if ( filename.find( ".root" ) == string::npos ) return false; 
-
-    return true;
-}
-
-///////////////////////////////////////////////
-/// \brief Returns true if the **path** given by argument is writable 
-///
-bool TRestMetadata::isPathWritable( const std::string& path )
-{
-    int result = access(path.c_str(), W_OK);
-    if (result == 0) return true;
-    else return false;
-}
-
-///////////////////////////////////////////////
-/// \brief Sets the default configuration path. The default is empty. 
-///
-/// If the default configuration path is set (by calling this method) the config file must 
-/// be provided with full path, or with path relative to the directory where REST is being executed.
-///
-/// This is the default behaviour in REST.
+/// \brief Default starter. Just call again the Initialize() method.
 /// 
-void TRestMetadata::SetDefaultConfigFilePath( )
+Int_t TRestMetadata::LoadConfigFromFile()
 {
-    SetConfigFilePath( "" );
+	Initialize();
+	return 0;
 }
 
 ///////////////////////////////////////////////
-/// \brief Assigns a config filename to the metadata object. When this is done the default empty path is defined.
-///
-void TRestMetadata::SetConfigFile( string cfgFileName )
+/// \brief Give the file name, find out the corresponding section. Then call the main starter.
+/// 
+Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName)
 {
-    fConfigFileName = cfgFileName;
-    SetDefaultConfigFilePath( );
+	if (ChecktheFile(cfgFileName) == OK) {
+		TiXmlElement* Sectional = GetElement(GetSectionName(), cfgFileName);
+		TiXmlElement* Global = GetElement("globals", cfgFileName);
+		vector<TiXmlElement*> a;
+		a.clear();
+		return LoadConfigFromFile(Sectional, Global, a);
+	}
+	else
+	{
+		GetChar();
+		exit(1);
+	}
 }
 
 ///////////////////////////////////////////////
-/// \brief Loads a **section** with a given **name** from a **cfgFileName** into the buffer.
-///
-/// This method loads a **section** with a given **name** into the buffer. 
-/// Only the section corresponding to the specific metadata (which defines the **section** keyword) is assigned to the TRestMetadata::configBuffer.
-/// If the name is not provided the first section will be extracted.
-///
-/// \param section The name that defines the section type (i.e. restG4, run, etc). This name is implemented in the derived class.
-/// \param cfgFileName The name of the config file from where the section will be extracted.
-/// \param name The specific name of the section to be loaded. Given by the user at the RML file.
-///
-Int_t TRestMetadata::LoadSectionMetadata( string section, string cfgFileName, string name )
+/// \brief Calling the main starter
+/// 
+Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal)
 {
-    fSectionName = section;
-
-    SetConfigFile( cfgFileName );
-    string fileName = fConfigFileName;
-
-    ifstream file(fileName);
-
-    // We load all the config file in a temporal buffer
-    string temporalBuffer;
-    string line;
-    while(getline(file, line))
-        temporalBuffer += line;
-
-    temporalBuffer = RemoveComments( temporalBuffer );
-    temporalBuffer = SectionsToXMLType( temporalBuffer );
-
-    // We temporally associate the environment to the configBuffer
-    // We define environment variables that have validity only during execution
-    size_t p = 0;
-    configBuffer = GetKEYStructure( "environment", p, temporalBuffer );
-         
-    if( configBuffer != "" )
-    {
-        configBuffer = ReplaceIncludeDefinitions( configBuffer );
-        p = 0;
-        while( p != string::npos ) SetEnvVariable( p );
-    }
-
-    temporalBuffer = ReplaceEnvironmentalVariables( temporalBuffer );
-
-    // We temporally associate the globals to the configBuffer
-    size_t pos = 0;
-    configBuffer = GetKEYStructure( "globals", pos, temporalBuffer );
-    if( configBuffer != "" )
-    {
-
-        configBuffer = ReplaceIncludeDefinitions( configBuffer );
-        // We extract the values from globals. 
-        // Globals will not be stored but they will be used by the REST framework during execution
-
-        pos = 0;
-        fDataPath = GetParameter( "mainDataPath", pos, configBuffer );
-        pos = 0;
-        fGasDataPath = GetParameter( "gasDataPath", pos, configBuffer );
-        pos = 0;
-        string vLevelString  = GetParameter( "verboseLevel", pos, configBuffer );
-
-        if( vLevelString == "silent" )
-        {
-            fVerboseLevel = REST_Silent;
-            cout << "Setting verbose level to silent : " << fVerboseLevel << endl;
-        }
-        else if ( vLevelString == "warning" )
-        {
-            fVerboseLevel = REST_Warning;
-            cout << "Setting verbose level to warning : " << fVerboseLevel <<  endl;
-
-        }
-        else if ( vLevelString == "info" )
-        {
-            fVerboseLevel = REST_Info;
-            cout << "Setting verbose level to info : " << fVerboseLevel << endl;
-
-        }
-        else if ( vLevelString == "debug" )
-        {
-            fVerboseLevel = REST_Debug;
-            cout << "Setting verbose level to debug : " << fVerboseLevel << endl;
-        }
-        else if ( vLevelString == "extreme" )
-        {
-            fVerboseLevel = REST_Extreme;
-            cout << "Setting verbose level to extreme : " << fVerboseLevel << endl;
-        }
-    }
-
-    // We just extract the corresponding section name as defined in the derived class (fSectionName)
-    pos = 0;
-    while( ( configBuffer = GetKEYStructure( fSectionName, pos, temporalBuffer ) ) != "" )
-    {
-        this->SetName( (TString) GetFieldValue( "name", configBuffer ) );
-        this->SetTitle( (TString) GetFieldValue( "title", configBuffer ) );
-
-        if( (TString) this->GetName() == "Not defined" ) 
-        {
-            string sectionDefinition = GetKEYDefinition( fSectionName, configBuffer );
-
-            string nameref = GetFieldValue( "nameref", sectionDefinition );
-            string fileref = GetFieldValue( "file", sectionDefinition );
-
-            if( nameref != "Not defined" && fileref != "Not defined" )
-            {
-                configBuffer = GetSectionByNameFromFile( nameref, fileref );
-                if( configBuffer == "" ) 
-                { 
-                    cout << "REST error : Could not find section " << fSectionName <<
-                        " with name : " << nameref <<
-                        " inside " << ReplaceEnvironmentalVariables( fileref ) << endl; 
-                    exit(1); 
-                    return -1; 
-                }
-            }
-        }
-
-        if( this->GetName() == name || name == "" ) break;
-    }
-
-    if( configBuffer == "" )
-    {
-        cout << "REST ERROR : Section " << fSectionName << " with name : " << name << " not found" << endl;
-        exit(1);
-    }
-
-    configBuffer = ReplaceIncludeDefinitions( configBuffer );
-
-    string sectionDefinition = GetKEYDefinition( fSectionName, configBuffer );
-
-    string debugStr = GetFieldValue( "verboseLevel", sectionDefinition );
-    if ( debugStr == "silent" )
-       fVerboseLevel = REST_Silent;
-    if ( debugStr == "info" )
-       fVerboseLevel = REST_Info;
-    if ( debugStr == "warning" )
-       fVerboseLevel = REST_Warning;
-    if ( debugStr == "debug" )
-       fVerboseLevel = REST_Debug;
-    if ( debugStr == "extreme" )
-       fVerboseLevel = REST_Extreme;
-
-    if( configBuffer == "" )
-    {
-        cout << "REST error reading section : " << section << " ( " << GetName() << " )." << endl;
-        cout << "Config buffer is EMPTY" << endl;
-        exit(1);
-        return -1;
-    }
-
-    configBuffer = ReplaceEnvironmentalVariables( configBuffer );
-
-    size_t position = 0;
-    string value, myParam;
-    while( position != string::npos )
-    {
-        myParam = GetMyParameter( value, position );
-
-        // We replace only the pure parameters that we find between quotes (not inside mathematical expressions)
-        /*
-        myParam  = "\"" + myParam + "\"";
-        value = "\"" + value + "\"";
-        */
-        if( myParam != "\"\"" )
-        {
-            if( debug ) cout << myParam << " = " << value << endl;
-            configBuffer = Replace( configBuffer, myParam, value, position, 0 );
-        }
-    }
-
-    configBuffer = ReplaceMathematicalExpressions( configBuffer );
-
-    while( Count ( configBuffer, "<for" ) > 0 )
-        configBuffer = ExpandForLoops( configBuffer );
-
-    configBuffer = ReplaceMathematicalExpressions( configBuffer );
-
-    position = 0;
-    while( position != string::npos )
-    {
-        myParam = GetMyParameter( value, position );
-        if( myParam != "\"\"" )
-        {
-            if( debug ) cout << myParam << " = " << value << endl;
-            configBuffer = Replace( configBuffer, myParam, value, position, 0 );
-        }
-    }
-
-    /*
-    cout << "===================================" << endl;
-    cout << configBuffer << endl;
-    cout << "===================================" << endl;
-    getchar();
-    */
-
-    if( debug > 0 )
-    {
-        cout << "=====config buffer===(before mathematical replacement)======" << endl;
-        cout << configBuffer << endl;
-        cout << endl << "======================" << endl;
-        getchar();
-    }
-
-    configBuffer = ReplaceMathematicalExpressions( configBuffer );
-
-    /*
-    cout << "===================================" << endl;
-    cout << configBuffer << endl;
-    cout << "===================================" << endl;
-    getchar();
-    */
-
-    if( debug > 0 )
-    {
-        cout << "=====config buffer=================" << endl;
-        cout << configBuffer << endl;
-        cout << endl << "======================" << endl;
-        getchar();
-    }
-
-    if( file ) file.close();
-    return 0;
+	vector<TiXmlElement*> a;
+	a.clear();
+	return LoadConfigFromFile(eSectional, eGlobal, a);
 }
 
 ///////////////////////////////////////////////
-/// \brief Loads the corresponding metadata section named by the user as **name**, and found inside the file **cfgFileName** into TRestMetadata::configBuffer.
+/// \brief Main starter. 
 ///
-/// In case of sucess TRestMetadata::InitFromConfigFile( ) is invoked, 
-/// and the specific members of the specific metadata structure are initialized using the values found in the RML file.
-///
-/// \param cfgFileName The RML filename where the section can be found with the given **name**.
-/// \param name The user defined name of the section.
-///
-Int_t TRestMetadata::LoadConfigFromFile( string cfgFileName, string name )
+///First combine the sectional and global sections together, then save the input env section.
+/// To make start up it calls the following methods in sequence: LoadSectionMetadata(), BeginOfInit(), LoopElements(), EndOfInit()
+/// 
+Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal, vector<TiXmlElement*> eEnv)
 {
-    std::string section = GetSectionName();
+	Initialize();
+	TiXmlElement* parentelement;
+	if (eSectional != NULL)
+	{
+		//Sectional and global elements are first combined.
+		parentelement = (TiXmlElement*)eSectional->Clone();
+		TiXmlElement* echild = eGlobal->FirstChildElement();
+		while (echild != NULL) {
+			parentelement->LinkEndChild(echild->Clone());
+			echild = echild->NextSiblingElement();
+		}
+		for (int i = 0; i < eEnv.size(); i++)
+		{
+			parentelement->LinkEndChild(eEnv[i]->Clone());
+		}
+	}
+	else if (eGlobal != NULL)
+	{
+		parentelement = eGlobal;
+	}
+	else
+	{
+		return 0;
+	}
+	fElement = parentelement;
+	fElementGlobal = eGlobal;
+	fElementEnv = eEnv;
 
-    Int_t result = LoadSectionMetadata( section, cfgFileName, name );
-    if( result == 0 ) InitFromConfigFile();
-    return result;
+	int result = LoadSectionMetadata();
+	if (result == 0)
+		InitFromConfigFile();
+	return result;
 }
 
 ///////////////////////////////////////////////
-/// \brief Loads the corresponding metadata section found inside the file **cfgFileName** into TRestMetadata::configBuffer.
+/// \brief Do some preparation.
 ///
-/// In case of sucess TRestMetadata::InitFromConfigFile( ) is invoked, 
-/// and the specific members of the specific metadata structure are initialized using the values found in the RML file.
-///
-Int_t TRestMetadata::LoadConfigFromFile( string cfgFileName )
+/// Preparation includes: seting the name, title and verbose level of the current class. 
+/// Finding out and saving the env sections. Self-replace the env and expressions to make them ready.
+Int_t TRestMetadata::LoadSectionMetadata()
 {
-    std::string section = GetSectionName();
+	//general metadata: name, title, verboselevel
+	this->SetName(GetParameter("name", "defaultName").c_str());
+	this->SetTitle(GetParameter("title", "defaultTitle").c_str());
+	this->SetSectionName(this->ClassName());
+	string debugStr = GetParameter("verboseLevel", "info");
+	if (debugStr == "silent")
+		fVerboseLevel = REST_Silent;
+	if (debugStr == "info")
+		fVerboseLevel = REST_Info;
+	if (debugStr == "essential")
+		fVerboseLevel = REST_Essential;
+	if (debugStr == "debug")
+		fVerboseLevel = REST_Debug;
+	if (debugStr == "extreme")
+		fVerboseLevel = REST_Extreme;
 
-    Int_t result = LoadSectionMetadata( section, cfgFileName );
-    if( result == 0 ) InitFromConfigFile();
-    return result;
+	debug << "Loading Config for : " << this->ClassName() << endl;
+
+	if (fElement != NULL) {
+		//look through the child elements and set env
+		TiXmlElement* e = fElement->FirstChildElement();
+		while (e != NULL)
+		{
+			ReplaceElementAttributes(e);
+			if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter")
+			{
+				SetEnvVariable(e);
+			}
+			e = e->NextSiblingElement();
+		}
+		//replace env value if possible
+		for (int i = 0; i < fElementEnv.size(); i++)
+		{
+			ReplaceElementAttributes(fElementEnv[i]);
+		}
+	}
+	return 0;
+}
+
+
+void TRestMetadata::InitFromConfigFile()
+{
+
+	BeginOfInit();
+	if (fElement != NULL)
+	{
+		TiXmlElement*e = fElement->FirstChildElement();
+		loadedname = "";
+		while (e != NULL)
+		{
+			ProcessElement(e);
+			e = e->NextSiblingElement();
+		}
+	}
+	EndOfInit();
+
+}
+
+
+
+///////////////////////////////////////////////
+/// \brief Look into an xml element and choose proper methods to load it.
+///
+/// This method will first call PreprocessElement() method to do a replacement for element field value.
+/// After this, it will process the element according to different types of the element declare.
+/// 1. variable and myParameter: do nothing
+/// 2. include: call LoadMetadataInIncludeFile() method
+/// 3. for: call ExecuteForLoops() method
+/// 4. other: send the element to the implemented ReadConfig() method
+/// The xml element with a same field value "name" will not be sent to the ReadConfig() method.
+void TRestMetadata::ProcessElement(TiXmlElement * e)
+{
+	e = ReplaceElementAttributes(e);
+
+	string value = e->Value();
+	string name = "";
+	const char* a = e->Attribute("name");
+	if (a != NULL) name = a;
+
+
+	if (value == "variable" || value == "myParameter") {}
+	else if (value == "for")
+	{
+		ExecuteForLoops(e);
+	}
+	else if (value == "include")
+	{
+		LoadConfigInIncludeFile(e);
+	}
+	else if (name == "" || loadedname.find(value + " " + name + "\r") == -1)
+	{
+		if (ReadConfig((string)e->Value(), e) == 0) {
+			if (name != "")
+			{
+				loadedname += (value + " " + name + "\r");
+
+			}
+			if (GetVerboseLevel() >= REST_Extreme)
+			{
+				cout << "rml Element \"" << e->Value() << "\" with name \"" << name << "\" has been loaded by: " << GetSectionName() << endl;
+			}
+		}
+	}
+
+}
+
+
+///////////////////////////////////////////////
+///\brief replace the field value(attribute) of the given xml element
+///
+///it will replace:
+///1.variables formatted like ${ABC} or {ABC} or ABC.
+///(system env, rml env, sectional para, respectivally)
+///3.math expressions
+TiXmlElement * TRestMetadata::ReplaceElementAttributes(TiXmlElement * e)
+{
+	if (e == NULL)return NULL;
+
+	TiXmlAttribute* attr = e->FirstAttribute();
+	while (attr != NULL)
+	{
+		const char* val = attr->Value();
+		const char* name = attr->Name();
+
+		string temp = ReplaceEnvironmentalVariables(val);
+		e->SetAttribute(name, ReplaceMathematicalExpressions(temp).c_str());
+
+		attr = attr->Next();
+	}
+
+	return e;
+}
+
+
+
+
+///////////////////////////////////////////////
+/// \brief Finds an environment variable definition inside the xml section and sets it.
+///
+/// The xml declaration "variable" and myParameter are both vaild. If the environment 
+/// variable exists already, its value can be overriden here. Using *overwrite="true"*.
+/// 
+/// Example of environmental variable definition : \code <variable name="TEST" value="VALUE" overwrite="true" /> \endcode
+///
+void TRestMetadata::SetEnvVariable(TiXmlElement* e)
+{
+	if (e == NULL)return;
+
+	//cout << this->ClassName() << " " << (string)e->Value()<< " " << e->Attribute("value") << endl;
+
+
+
+	const char* name = e->Attribute("name");
+	if (name == NULL)return;
+
+	for (int i = 0; i < fElementEnv.size(); i++)
+	{
+		string name2 = fElementEnv[i]->Attribute("name");
+
+		if ((string)e->Value() == (string)fElementEnv[i]->Value() && name2 == (string)name) //相同的定义（variable或者myPara）
+		{
+			const char* value = e->Attribute("value");
+			const char* overwrite = e->Attribute("overwrite");
+			if (overwrite == NULL)overwrite = "false";
+			if (value == NULL)return;
+			if (overwrite == "true" || overwrite == "True" || overwrite == "yes")fElementEnv[i]->SetAttribute("value", value);
+			return;
+		}
+
+	}
+	fElementEnv.push_back((TiXmlElement*)e->Clone());
 }
 
 ///////////////////////////////////////////////
-/// \brief Extracts the inner FOR structure in nested FOR loops.
+/// \brief Find out the field value "variable", "from", "to", "step" and execute for loop.
 ///
-string TRestMetadata::ExtractLoopStructure( string in, size_t pos )
+/// During the loop, it will call back the ProcessElement() method providing the content xml element.
+/// The loop-env, in the example "nCh", will be set as env variable and will replace the field values in the content element
+/// \code
+/// <for variable = "nCh" from = "0" to = "nChannels-2" step = "1" >
+///		<addPixel id = "{nPix}" origin = "((1+{nCh})*pitch,pitch/4+{nPix}*pitch)" size = "(pixelSize,pixelSize)" rotation = "45" / >
+/// </for>
+/// \endcode
+/// the content xml element, with loop-env replaved, will be inserted before the "for" structure.
+void TRestMetadata::ExecuteForLoops(TiXmlElement * e)
 {
-    // This might be an improved version of GetKEYStructure()
-    string startKey = "<for";
-    string endKey = "/for";
+	if ((string)e->Value() != "for")return;
 
-    string output = "";
+	const char* varname = e->Attribute("variable");
+	const char* varfrom = e->Attribute("from");
+	const char* varto = e->Attribute("to");
+	const char* varstep = e->Attribute("step");
 
-    int forDepth = 0;
-    size_t startPos = in.find( startKey );
-    if( pos == string::npos ) return output;
+	if (varname == NULL || varfrom == NULL || varto == NULL)return;
+	if (varstep == NULL)varstep == "1";
 
-    pos = startPos + 4;
-    forDepth++;
 
-    while( pos != string::npos && forDepth > 0 )
-    {
-        size_t nextForStart = in.find( startKey, pos );
-        size_t nextForEnd = in.find( endKey, pos );
-        if( nextForEnd == string::npos ) break;
+	double from = StringToDouble(ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varfrom)));
+	double to = StringToDouble(ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varto)));
+	double step = StringToDouble(ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varstep)));
 
-        if( nextForStart < nextForEnd ) 
-        {
-            forDepth++;
-            pos = nextForStart+4;
-        }
-        else
-        {
-            forDepth--;
-            pos = nextForEnd+4;
-        }
-    }
+	//cout << this->ClassName()<<" "<< from << " " << to << "  " << step << endl;
+	//cout << ReplaceEnvironmentalVariables(varto) << endl;
 
-    return in.substr( startPos, pos-startPos+1 );
+	for (double i = from; i <= to; i = i + step)
+	{
+		ostringstream ss;
+		ss << i;
+		SetEnv(varname, ss.str(), "true");
+
+		TiXmlElement* element = e->FirstChildElement();
+		while (element != NULL)
+		{
+			ProcessElement(element);
+			fElement->InsertBeforeChild(e, *element->Clone());
+			element = element->NextSiblingElement();
+		}
+	}
+
+
 
 }
 
 ///////////////////////////////////////////////
-/// \brief Expands the loop structures found in **buffer** by substituting the running indexes by their values.
-///
-string TRestMetadata::ExpandForLoops( const string buffer )
+/// \brief Open the given rml file and find the corresponding section. 
+/// 
+/// After finding the section, it will call back the ProcessElement() method,
+/// giving the child sections of that found section.
+void TRestMetadata::LoadConfigInIncludeFile(TiXmlElement * e)
 {
-    string outputBuffer = buffer;
-
-    // Searching the most internal for
-    if( debug > 2 ) 
-    {
-        cout << "------input for ExtractLoopStructure-------" << endl;
-        cout << outputBuffer << endl;
-    }
-    size_t pos = 0;
-    string forLoop = ExtractLoopStructure( outputBuffer, pos );
-
-    if( debug > 0 )
-    {
-        cout << " For loop to expand " << endl;
-        cout << " ----------- " << endl;
-        cout << forLoop << endl;
-        cout << " ----------- " << endl;
-        getchar();
-    }
-
-    // We replace the place loop content in output buffer by a TAG for later replacement
-    outputBuffer = Replace( outputBuffer, forLoop, "PLACE FOR LOOP EXPANSION" );
-
-    if( debug > 0 )
-    {
-        cout << "Input buffer modified" << endl;
-        cout << " ----------- " << endl;
-        cout << outputBuffer << endl;
-        cout << " ----------- " << endl;
-        getchar();
-    }
+	if ((string)e->Value() != "include")return;
+	const char* filename = e->Attribute("file");
+	if (filename == NULL)return;
+	if (ChecktheFile(filename) == -1) { GetChar(); exit(1); }
+	TiXmlElement* element = GetRootElementFromFile(filename);
+	if (element == NULL || (string)element->Value() != GetSectionName())return;
 
 
-    // We obtain the for loop parameters
-    string forDefinition = GetKEYDefinition( "for", forLoop );
+	TiXmlElement* ele = element->FirstChildElement();
+	while (ele != NULL)
+	{
+		ProcessElement(ele);
+		fElement->InsertAfterChild(e, *ele->Clone());
+		//fElement->LinkEndChild(ele->Clone());
+		ele = ele->NextSiblingElement();
+	}
 
-    forDefinition = ReplaceMathematicalExpressions( forDefinition );
-
-    string variable = GetFieldValue( "variable", forDefinition );
-    string varStr = "[" + variable + "]";
-    Double_t from = StringToDouble( GetFieldValue( "from", forDefinition ) );
-    Double_t to = StringToDouble ( GetFieldValue( "to", forDefinition ) );
-    Double_t step = StringToDouble ( GetFieldValue( "step", forDefinition ) );
-
-    // We obtain the for loop content to be repeated
-    string forContent = forLoop.substr( forDefinition.length(), forLoop.find_last_of( "</for" ) - forDefinition.length()-4 );
-    forContent = forContent.substr( forContent.find("<"), forContent.length()-forContent.find("<") );
-
-
-    if( debug > 1 )
-    {
-        cout << " For content " << endl;
-        cout << " ----------- " << endl;
-        cout << forContent << endl;
-    }
-
-    // We replace the variable by its loop value and to forReplacement
-    string forReplacement = "";
-    for( double n = from; n <= to; n = n + step )
-    {
-        ostringstream ss;
-        ss << n;
-        string nStr = ss.str();
-
-        forReplacement += Replace( forContent, varStr, nStr );
-    }
-
-    if( debug > 1 )
-    {
-        cout << " For replacement " << endl;
-        cout << "+++++++++++++++++" << endl;
-        cout << forReplacement << endl;
-        cout << "+++++++++++++++++" << endl;
-    }
-
-    // We replace the resulting repeated sentences in the previously defined TAG 
-    outputBuffer = Replace( outputBuffer, "PLACE FOR LOOP EXPANSION", forReplacement );
-
-    if( debug > 1 )
-    {
-        cout << " Final result " << endl;
-        cout << "+++++++++++++++++" << endl;
-        cout << outputBuffer << endl;
-        cout << "+++++++++++++++++" << endl;
-    }
-
-    return outputBuffer;
 }
+
+
+
+///////////////////////////////////////////////
+/// \brief Returns the value for the parameter name **parName** found in fElement(main data element)
+/// 
+/// It first finds the parameter from the system's env, if the name matches it will directly return the env.
+/// If no env is available, it calls GetParameter() method. See more detail there
+///
+/// \param parName The name of the parameter from which we want to obtain the value.
+/// \param defaultValue The default value if the paremeter is not found
+///
+/// \return A string of result
+string TRestMetadata::GetParameter(std::string parName, TString defaultValue)
+{
+	//先从系统环境变量里面找这个parameter
+	char* val = getenv(parName.c_str());
+	if (val != NULL)
+	{
+		return val;
+	}
+
+	return GetParameter(parName, fElement, defaultValue);
+
+}
+
+
+///////////////////////////////////////////////
+/// \brief Returns the value for the parameter name **parName** found in fElement(main data element)
+/// 
+/// There are two kinds of *parameter* in REST.
+/// 1. <parameter name="verboseLevel" value="silent" />
+/// 2. <addReadoutModule id="0" name="module" rotation = "0" firstDaqChannel = "272" / >
+///
+/// The first one is obviously a parameter. The xml element itself serves as a peice of parameter. The name
+/// and the value are given in its fields. This is classic because the element itself declares
+/// it is a prarmeter. We also generalize the concept of parameter to the elements' fields.
+/// All the fields in an element can be seen as parameter. So there are 4 parameters in the second example, 
+/// including: id, name, rotation and firstDaqChannel. This method first finds parameter in the
+/// fields of the given element. If not find, it searches its the child elements. If still not find, 
+/// it returns the default value. If not specified, the default value string is "NO_SUCH_PARA".
+///
+/// \param parName The name of the parameter from which we want to obtain the value.
+/// \param e The target eml element where the program is to search the parameter
+/// \param defaultValue The default value if the paremeter is not found
+///
+/// \return A string of result, with env and expressions replaced
+string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString defaultValue)
+{
+	if (e == NULL) {
+		if (GetVerboseLevel() > REST_Debug) { cout << "Element is null" << endl; }
+		return (string)defaultValue;
+	}
+	string result = (string)defaultValue;
+	//first find in attribute
+	if (e->Attribute(parName.c_str()) != NULL) {
+		result = e->Attribute(parName.c_str());
+	}
+	//then find in child sections/elements 
+	else
+	{
+		TiXmlElement* element = GetElementWithName("parameter", parName, e);
+		if (element != NULL&&element->Attribute("value") != NULL) {
+			result = element->Attribute("value");
+		}
+		else
+		{
+			if (GetVerboseLevel() > REST_Debug) { cout << "Parameter not found!" << endl; }
+		}
+	}
+
+	return ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(result));
+}
+
+///////////////////////////////////////////////
+/// \brief Returns the field value of an xml element which has the specified name. 
+///
+/// A version of GetParameter() but only find parameter in the fields of xml element.
+///
+std::string TRestMetadata::GetFieldValue(std::string parName, TiXmlElement* e)
+{
+	if (e == NULL) {
+		if (GetVerboseLevel() > REST_Debug) { cout << "Element is null" << endl; }
+		return "";
+	}
+	if (e->Attribute(parName.c_str()) != NULL) {
+		return	ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(e->Attribute(parName.c_str())));
+	}
+	else
+	{
+		return "";
+	}
+}
+
+
+///////////////////////////////////////////////
+/// \brief Gets the double value of the parameter name **parName**, after applying unit conversion.
+///
+/// Searches the parameter in fElement. The parameter must be defined providing the additional 
+/// field units just behind the parameter value. As in the following example :
+///
+/// \code <parameter name="electricField" value="1" units="kV/m" /> \endcode
+///
+/// \param parName The name of the parameter from which we want to obtain the value.
+///
+/// \return A double value in the default correspoding REST units (keV, us, mm, Vcm).
+///
+Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlElement* ele, Double_t defaultVal)
+{
+	TiXmlElement* e = GetElementWithName("parameter", parName, ele);
+	if (e == NULL)return defaultVal;
+
+	string val = GetParameter("value", e);
+	string unit = GetUnits(e);
+	if (unit == PARAMETER_NOT_FOUND_STR)
+	{
+		unit = GetUnits();
+		if (unit == PARAMETER_NOT_FOUND_STR) {
+			cout << "The unit is not defined!" << endl;
+			return defaultVal;
+		}
+	}
+
+	Double_t value = StringToDouble(val);
+	value = REST_Units::GetValueInRESTUnits(value, unit);
+
+	return value;
+}
+
+Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, Double_t defaultVal) {
+	return GetDblParameterWithUnits(parName, fElement, defaultVal);
+}
+
+///////////////////////////////////////////////
+/// \brief Returns a 2D vector value of the parameter name **parName**, after applying unit conversion.
+///
+/// Searches the parameter in fElement. The parameter must be defined providing the additional 
+/// field units just behind the parameter value. The vector should be surrounded by "()" and the two values 
+/// should be separated by a comma. As in the following example :
+///
+/// \code <parameter name="position" value="(10,0)" units="mm" > \endcode
+///
+/// \param parName The name of the parameter from which we want to obtain the value.
+///
+/// \return A 2D vector value in the default correspoding REST units (keV, us, mm, Vcm).
+///
+TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* ele, TVector2 defaultValue)
+{
+	TiXmlElement* e = GetElementWithName("parameter", parName, ele);
+	if (e == NULL)return defaultValue;
+
+	string val = GetParameter("value", e);
+	string unit = GetUnits(e);
+	if (unit == PARAMETER_NOT_FOUND_STR)
+	{
+		unit = GetUnits();
+		if (unit == PARAMETER_NOT_FOUND_STR) {
+			cout << "The unit is not defined!" << endl;
+			return defaultValue;
+		}
+	}
+
+	TVector2 value = StringTo2DVector(val);
+
+	Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unit);
+	Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unit);
+
+	return TVector2(valueX, valueY);
+
+}
+
+TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TVector2 defaultValue) {
+	return Get2DVectorParameterWithUnits(parName, fElement);
+}
+
+///////////////////////////////////////////////
+/// \brief Returns a 3D vector value of the parameter name **parName**, after applying unit conversion.
+///
+/// Searches the parameter in fElement. The parameter must be defined providing the additional 
+/// field units just behind the parameter value. The vector should be surrounded by "()" and the thress values 
+/// should be separated by two commas. As in the following example :
+///
+/// \code <parameter name="position" value="(10,0,-10)" units="mm" > \endcode
+///
+/// \param parName The name of the parameter from which we want to obtain the value.
+///
+/// \return A 3D vector value in the default correspoding REST units (keV, us, mm, Vcm).
+///
+TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* ele, TVector3 defaultValue)
+{
+	TiXmlElement* e = GetElementWithName("parameter", parName, ele);
+	if (e == NULL)return defaultValue;
+
+	string val = GetParameter("value", e);
+	string unit = GetUnits(e);
+	if (unit == PARAMETER_NOT_FOUND_STR)
+	{
+		unit = GetUnits();
+		if (unit == PARAMETER_NOT_FOUND_STR) {
+			cout << "The unit is not defined!" << endl;
+			return defaultValue;
+		}
+	}
+
+	TVector3 value = StringTo3DVector(val);
+
+	Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unit);
+	Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unit);
+	Double_t valueZ = REST_Units::GetValueInRESTUnits(value.Z(), unit);
+
+	return TVector3(valueX, valueY, valueZ);
+}
+
+TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVector3 defaultValue) {
+	return Get3DVectorParameterWithUnits(parName, fElement);
+}
+
+
+
+
+
+///////////////////////////////////////////////
+/// \brief Open an xml encoded file and get its root element. 
+///
+/// The root element is the parent of
+/// any other xml elements in the file. There is only one root element in each xml encoded file.
+///
+/// Exits the whole program if the xml file does not exist or is in wrong in syntax.
+///
+TiXmlElement* TRestMetadata::GetRootElementFromFile(std::string cfgFileName)
+{
+	TiXmlDocument* doc = new TiXmlDocument();
+
+	if (!doc->LoadFile(cfgFileName.c_str()))
+	{
+		cout << "Failed to load xml file, syntax maybe wrong. The file is: " << cfgFileName << endl;
+
+		GetChar();
+		exit(1);
+	}
+
+	TiXmlElement* root = doc->RootElement();
+	if (root != NULL) {
+		return root;
+	}
+	else
+	{
+		cout << "Succeeded to load xml file, but no element contained" << endl;
+		GetChar();
+		exit(1);
+	}
+
+}
+
+///////////////////////////////////////////////
+/// \brief Get an xml element from default location(TRestMetadata::fElement), according to its declaration
+///
+TiXmlElement * TRestMetadata::GetElement(std::string eleDeclare)
+{
+	return GetElement(eleDeclare, fElement);
+}
+
+///////////////////////////////////////////////
+/// \brief Get an xml element from a given parent element, according to its declaration
+///
+TiXmlElement * TRestMetadata::GetElement(std::string eleDeclare, TiXmlElement * e)
+{
+	TiXmlElement* ele = e->FirstChildElement();
+	while (ele != NULL)
+	{
+		string a = ele->Value();
+		if (a == eleDeclare)
+			break;
+		ele = ele->NextSiblingElement();
+	}
+	return ReplaceElementAttributes(ele);
+}
+
+///////////////////////////////////////////////
+/// \brief Get an xml element from the root element of a xml encoded file, according to its declaration
+///
+TiXmlElement * TRestMetadata::GetElement(std::string eleDeclare, std::string cfgFileName)
+{
+	TiXmlElement* root = GetRootElementFromFile(cfgFileName);
+
+	return GetElement(eleDeclare, root);
+}
+
+///////////////////////////////////////////////
+/// \brief Get an xml element from the default location, according to its declaration and its field "name"
+///
+TiXmlElement * TRestMetadata::GetElementWithName(std::string eleDeclare, std::string eleName)
+{
+	return GetElementWithName(eleDeclare, eleName, fElement);
+}
+
+///////////////////////////////////////////////
+/// \brief Get an xml element from a given parent element, according to its declaration and its field "name"
+///
+TiXmlElement * TRestMetadata::GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement * e)
+{
+	TiXmlElement* ele = e->FirstChildElement(eleDeclare.c_str());
+	while (ele != NULL)
+	{
+		if ((string)ele->Value() == eleDeclare)
+		{
+			if (ele->Attribute("name") != NULL && (string)ele->Attribute("name") == eleName)
+			{
+				return ele;
+			}
+		}
+		ele = ele->NextSiblingElement();
+	}
+	return ReplaceElementAttributes(ele);
+
+}
+
+
+
+///////////////////////////////////////////////
+/// \brief Returns a string with the unit name provided inside the given element.
+/// 
+/// The "units" is regarded as a parameter, and it calls the GetParameter() method.
+string TRestMetadata::GetUnits(TiXmlElement* e)
+{
+	return GetParameter("units", e);
+}
+
+///////////////////////////////////////////////
+/// \brief Returns a string with the unit name given in the default xml element
+/// 
+/// It calls the GetParameter() method directly.
+string TRestMetadata::GetUnits()
+{
+	return GetParameter("units", fElement);
+}
+
+
+
+
+
 
 ///////////////////////////////////////////////
 /// \brief Evaluates a complex numerical expression and returns the resulting value using TFormula.
 ///
-string TRestMetadata::EvaluateExpression( string exp )
+string TRestMetadata::EvaluateExpression(string exp)
 {
-    if( !isAExpression( exp ) ) { return exp; }
+	if (!isAExpression(exp)) { return exp; }
 
-    TFormula formula("tmp", exp.c_str());
+	TFormula formula("tmp", exp.c_str());
 
-    ostringstream sss;
-    Double_t number = formula.EvalPar(0);
-    if( number > 0 && number < 1.e-300 ) 
-        { cout << "REST Warning! Expression not recognized --> " << exp << endl;  return exp; }
+	ostringstream sss;
+	Double_t number = formula.EvalPar(0);
+	if (number > 0 && number < 1.e-300)
+	{
+		cout << "REST Warning! Expression not recognized --> " << exp << endl;  return exp;
+	}
 
-    sss << number;
-    string out = sss.str();
+	sss << number;
+	string out = sss.str();
 
-    return out;
+	return out;
+}
+
+
+///////////////////////////////////////////////
+/// \brief Identifies enviromental variable replacing marks in the input buffer, and replace them with corresponding value.
+///
+/// Replacing marks: 
+/// 1. ${VARIABLE_NAME} : search the system env and replace it if found.
+/// 2. {VARIABLE_NAME}  : search the program env and replace it if found.
+/// 3. [VARIABLE_NAME]  : search the program provided env and replace it if found.
+/// 4. VARIABLE_NAME    : try match the names of myParameter and replace it if matched.
+string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer)
+{
+	string outputBuffer = buffer;
+
+	int startPosition = 0;
+	int endPosition = 0;
+
+	//replace system env
+	while ((startPosition = outputBuffer.find("$ENV{", endPosition)) != (int)string::npos)
+	{
+		char envValue[256];
+		endPosition = outputBuffer.find("}", startPosition + 1);
+		if (endPosition == (int)string::npos) break;
+
+		string expression = outputBuffer.substr(startPosition + 2, endPosition - startPosition - 2);
+
+		if (getenv(expression.c_str()) != NULL)
+		{
+			sprintf(envValue, "%s", getenv(expression.c_str()));
+
+			outputBuffer.replace(startPosition, endPosition - startPosition + 1, envValue);
+
+			endPosition = startPosition;
+		}
+	}
+	startPosition = 0;
+	endPosition = 0;
+	while ((startPosition = outputBuffer.find("${", endPosition)) != (int)string::npos)
+	{
+		char envValue[256];
+		endPosition = outputBuffer.find("}", startPosition + 1);
+		if (endPosition == (int)string::npos) break;
+
+		string expression = outputBuffer.substr(startPosition + 2, endPosition - startPosition - 2);
+
+		if (getenv(expression.c_str()) != NULL)
+		{
+			sprintf(envValue, "%s", getenv(expression.c_str()));
+
+			outputBuffer.replace(startPosition, endPosition - startPosition + 1, envValue);
+
+			endPosition = startPosition;
+		}
+	}
+
+
+	//replace program env
+	if (fElementEnv.size() == 0) {
+		return outputBuffer;
+	}
+	startPosition = 0;
+	endPosition = 0;
+	while ((startPosition = outputBuffer.find("{", endPosition)) != (int)string::npos)
+	{
+		endPosition = outputBuffer.find("}", startPosition + 1);
+		if (endPosition == (int)string::npos) break;
+
+		string expression = outputBuffer.substr(startPosition + 1, endPosition - startPosition - 1);
+
+		for (int i = 0; i < fElementEnv.size(); i++) {
+			if ((string)fElementEnv[i]->Value() == "variable"&&expression == (string)fElementEnv[i]->Attribute("name"))
+			{
+				outputBuffer.replace(startPosition, endPosition - startPosition + 1, fElementEnv[i]->Attribute("value"));
+				endPosition = startPosition;
+				break;
+			}
+			else if (i == fElementEnv.size() - 1) {
+				//cout << "REST Warning :: Environmental variable " << expression << " is not defined in the config file, returning the expression" << endl;
+			}
+		}
+	}
+	startPosition = 0;
+	endPosition = 0;
+	while ((startPosition = outputBuffer.find("[", endPosition)) != (int)string::npos)
+	{
+		endPosition = outputBuffer.find("]", startPosition + 1);
+		if (endPosition == (int)string::npos) break;
+
+		string expression = outputBuffer.substr(startPosition + 1, endPosition - startPosition - 1);
+
+		for (int i = 0; i < fElementEnv.size(); i++) {
+			if ((string)fElementEnv[i]->Value() == "variable"&&expression == (string)fElementEnv[i]->Attribute("name"))
+			{
+				outputBuffer.replace(startPosition, endPosition - startPosition + 1, fElementEnv[i]->Attribute("value"));
+				endPosition = startPosition;
+				break;
+			}
+		}
+	}
+
+
+	//replace myParameter
+	startPosition = 0;
+	endPosition = 0;
+	for (int i = 0; i < fElementEnv.size(); i++) {
+		if ((string)fElementEnv[i]->Value() == "myParameter")
+		{
+			outputBuffer = Replace(outputBuffer, (string)fElementEnv[i]->Attribute("name"), fElementEnv[i]->Attribute("value"), 0);
+		}
+	}
+
+	return outputBuffer;
 }
 
 ///////////////////////////////////////////////
-/// \brief Identifies include definitions inside the RML, and replaces it by the content in the referenced file
+/// \brief Set the program env with given env name, value and overwrite permission.
 ///
-/// RML definition : <include file="includeFile.xml" />
-///
-string TRestMetadata::ReplaceIncludeDefinitions( const string buffer )
+/// It will change the value if the env already exists and the overwrite permission is true.
+/// Otherwise it will generate a new TiXmlElement object and save it at the end of the env list.
+void TRestMetadata::SetEnv(string name, string value, string overwrite)
 {
-    string outputBuffer = buffer;
+	for (int i = 0; i < fElementEnv.size(); i++) {
+		if ((string)fElementEnv[i]->Value() == "variable" && (string)fElementEnv[i]->Attribute("name") == name) {
+			if (overwrite == "true" || overwrite == "True" || overwrite == "1") {
+				fElementEnv[i]->SetAttribute("value", value.c_str());
+			}
+			return;
+		}
+	}
+	TiXmlElement* e = new TiXmlElement("variable");
+	e->SetAttribute("name", name.c_str());
+	e->SetAttribute("value", value.c_str());
+	fElementEnv.push_back(e);
 
-    size_t pos = 0;
-    string includeString;
-    do
-    {
-        includeString = GetKEYDefinition( "include", pos, outputBuffer );
 
-        if( includeString.length() == 0 ) break;
-
-        if( includeString.length() > 0 )
-            includeString += ">";
-
-        string fileName = GetFieldValue( "file", includeString );
-        fileName = ReplaceEnvironmentalVariables( fileName );
-
-        if( fileName != "Not defined" )
-        {
-            if( !fileExists( fileName ) )
-            {
-                cout << "REST WARNING. TRestMetadata::ReplaceIncludeDefinitions." << endl;
-                cout << "File : " << fileName << " not found!" << endl;
-            }
-            else
-            {
-                string temporalBuffer;
-                string line;
-                ifstream file(fileName);
-                while(getline(file, line)) temporalBuffer += line;
-
-                string outputNow;
-                size_t pos2 = 0;
-                outputNow = Replace( outputBuffer, includeString, temporalBuffer, pos2, 0 ); 
-                outputBuffer = outputNow;
-            }
-        }
-
-    }
-    while( includeString.length() > 0 );
-
-    return outputBuffer;
-}
-
-///////////////////////////////////////////////
-/// \brief Identifies enviromental variable definitions inside the RML and substitutes them by their value.
-///
-/// Enviromental variables inside RML can be used by placing the variable name between brackets with the following nomenclature ${VARIABLE_NAME}
-///
-string TRestMetadata::ReplaceEnvironmentalVariables( const string buffer )
-{
-    string outputBuffer = buffer;
-
-    int startPosition = 0;
-    int endPosition = 0;
-
-    while ( ( startPosition = outputBuffer.find( "${", endPosition ) ) != (int) string::npos )
-    {
-        char envValue[256];
-        endPosition = outputBuffer.find( "}", startPosition+1 );
-        if( endPosition == (int) string::npos ) break;
-
-        string expression = outputBuffer.substr( startPosition+2, endPosition-startPosition-2 );
-
-        if( getenv( expression.c_str() ) )
-        {
-            sprintf( envValue, "%s", getenv( expression.c_str() ) );
-
-            outputBuffer.replace( startPosition, endPosition-startPosition+1,  envValue );
-
-            endPosition -= ( endPosition - startPosition + 1 );
-        }
-        else
-        {
-            sprintf( envValue, " " );
-            cout << "REST ERROR :: In config file " << fConfigFilePath << fConfigFileName << endl;
-            cout << "Environmental variable " << expression << " is not defined" << endl; 
-            exit(1);
-        }
-    }
-
-    startPosition = 0;
-    endPosition = 0;
-
-    while ( ( startPosition = outputBuffer.find( "{", endPosition ) ) != (int) string::npos )
-    {
-        endPosition = outputBuffer.find( "}", startPosition+1 );
-        if( endPosition == (int) string::npos ) break;
-
-        string expression = outputBuffer.substr( startPosition+1, endPosition-startPosition-1 );
-
-        cout << "------------------------------------------------------------------------------" << endl;
-        cout << "REST Warning!!" << " Section name : " << fSectionName << endl;
-        cout << "Environment variables should be defined now using the following format ${VAR}" << endl;
-        cout << "Please, if the definition {" << expression << "} inside the RML, is an environment" << endl;
-        cout << "variable, replace it by ${" << expression << "}" << endl;
-        cout << "------------------------------------------------------------------------------" << endl;
-
-        if( GetVerboseLevel() >= REST_Extreme )
-        {
-            cout << "To avoid this issue requesting a key stroke you must define the verboseLevel below extreme." << endl;
-            GetChar();
-        }
-    }
-
-    return outputBuffer;
 }
 
 ///////////////////////////////////////////////
 /// \brief Evaluates and replaces valid mathematical expressions found in the input string **buffer**.
 ///
-string TRestMetadata::ReplaceMathematicalExpressions( const string buffer )
+string TRestMetadata::ReplaceMathematicalExpressions(const string buffer)
 {
-    string outputBuffer = buffer;
+	string temp = buffer;
+	string result = "";
 
+	if (buffer[0] == '(' && buffer[buffer.length() - 1] == ')')
+	{
+		temp.erase(temp.size() - 1, 1);
+		temp.erase(0, 1);
+	}
 
-    int startPosition = 0;
-    int endPosition = 0;
+	std::vector<std::string> Expressions;
+	temp += ",";
+	for (int i = 0; i < temp.size(); i++) {
+		int pos = temp.find(",", i);
+		if (pos < temp.size())
+		{
+			std::string s = temp.substr(i, pos - i);
+			Expressions.push_back(s);
+			i = pos;
+		}
+	}
 
-    // searching any fields within quotes ""
-    while ( ( startPosition = outputBuffer.find( "\"", endPosition ) ) != (int) string::npos )
-    {
-        endPosition = outputBuffer.find( "\"", startPosition+1 );
-        if( endPosition == (int) string::npos ) break;
+	for (int i = 0; i < Expressions.size(); i++)
+	{
+		if (!isAExpression(Expressions[i])) { result += Expressions[i] + ","; continue; }
+		result += EvaluateExpression(Expressions[i]) + ",";
+	}
 
-        string expression = outputBuffer.substr( startPosition+1, endPosition-startPosition-1 );
-        endPosition++;
+	result.erase(result.size() - 1, 1);
 
-        string replacement = "";
+	if (buffer[0] == '(' && buffer[buffer.length() - 1] == ')')
+	{
+		result = "(" + result + ")";
+	}
 
-        if( expression[0] == '(' && expression[expression.length()-1] == ')' && expression.find(",") != string::npos )
-        {
-            replacement += "(";
-            string firstComponent = expression.substr( 1, expression.find(",")-1 );
+	return result;
 
-            replacement += EvaluateExpression( firstComponent );
-            replacement += ",";
-
-            if ( Count( expression, "," ) == 2 )
-            {
-                string secondComponent = expression.substr( expression.find(",")+1, expression.find_last_of(",")-expression.find(",")-1 );
-                replacement += EvaluateExpression( secondComponent );
-                replacement += ",";
-
-            }
-
-            string lastComponent = expression.substr( expression.find_last_of(",")+1, expression.find_last_of(")")-expression.find_last_of(",")-1 );
-            replacement += EvaluateExpression( lastComponent );
-            replacement += ")";
-        }
-        else
-        {
-            replacement += EvaluateExpression( expression );
-        }
-
-        outputBuffer.replace( startPosition+1, endPosition-startPosition-2, replacement );
-
-
-        if( debug )
-        {
-        cout << "Expression : " << expression << " replacement : " << replacement << endl;
-        cout << "-----------------" << endl;
-        cout << "Remainning buffer" << endl;
-        cout << "-----------------" << endl;
-        }
-        endPosition = endPosition + replacement.length() - expression.length();
-        if( debug ) 
-            cout << outputBuffer.substr( endPosition ) << endl;
-
-    }
-
-    return outputBuffer;
 }
+
+
+
 
 ///////////////////////////////////////////////
-/// \brief Checks if the config file can be openned. It returns OK in case of success, ERROR otherwise.
+/// \brief Prints a UNIX timestamp in human readable format.
 ///
-Int_t TRestMetadata::CheckConfigFile( )
+void TRestMetadata::PrintTimeStamp(Double_t timeStamp)
 {
-    string fileName = fConfigFilePath + fConfigFileName;
+	cout.precision(10);
 
-    ifstream ifs;
-    ifs.open ( fileName, std::ifstream::in);
+	time_t tt = (time_t)timeStamp;
+	struct tm *tm = localtime(&tt);
 
-    if( !ifs ) 
-    {
-        cout << "Config filename : " << fileName << endl;
-        cout << "REST WARNING. TRestMetadata. Config file could not be opened. Right path/filename?" << endl; 
-        exit(1);
-    }
-    else ifs.close();
+	char date[20];
+	strftime(date, sizeof(date), "%Y-%m-%d", tm);
+	cout << "Date : " << date << endl;
 
-    return OK;
+	char time[20];
+	strftime(time, sizeof(time), "%H:%M:%S", tm);
+	cout << "Time : " << time << endl;
+	cout << "++++++++++++++++++++++++" << endl;
 }
 
-/////////////////////////////////////////////////////////////
-/// \brief Method not implemented!!
-///
-/// TODO : Check if the section defined in TRestSpecificMetadata is in the config file
-///
-void TRestMetadata::CheckSection( )
-{
-}
-
-///////////////////////////////////////////////
-/// \brief Gets the position for the first occurence of the keyword </section> inside **TRestMetadata::configBuffer** starting from **initPos**.
-///
-Int_t TRestMetadata::FindEndSection( Int_t initPos )
-{
-    Int_t endSectionPos = configBuffer.find("</section>", initPos );
-
-    if( (size_t) endSectionPos == string::npos ) return NOT_FOUND;
-    else return endSectionPos;
-}
-
-///////////////////////////////////////////////
-/// \brief Finds next *myParameter* definition found in **TRestMetadata::configBuffer** starting from **pos**.
-///
-/// This special parameter is intended to be used for personal and very particular cases.
-///
-/// \param value The value found inside myParameter definition is returned here.
-/// \param pos The position where we start to search inside TRestMetadata::configBuffer.
-/// \return It returns the name of the defined parameter. In case no myParameter definition is found an empty string is returned.
-/// 
-string TRestMetadata::GetMyParameter( string &value, size_t &pos )
-{
-    string parameterString = GetKEYDefinition( "myParameter", pos );
-
-    if( parameterString.find( "name" ) != string::npos && parameterString.find( "value" ) != string::npos )
-    {
-        value = GetFieldValue( "value", parameterString );
-        return GetFieldValue( "name", parameterString );
-    }
-
-    return "";
-}
-
-///////////////////////////////////////////////
-/// \brief Finds an environment variable definition inside the buffer and sets it.
-///
-/// The environment variables defined inside the buffer have validity in the context of a REST program execution.
-/// After the execution of a REST program the environment variables defined this way have not impact on the 
-/// system (as it is imposed by UNIX shell).
-/// 
-/// In any case, if the environment variable exists already, its value can be overriden here. In this case we define 
-/// *overwrite="true"*
-/// 
-/// Example of environmental variable definition : \code <variable name="TEST" value="VALUE" overwrite="true" > \endcode
-///
-void TRestMetadata::SetEnvVariable( size_t &pos )
-{
-    string envString = GetKEYDefinition( "variable", pos );
-
-    if( envString.find( "name" ) != string::npos && envString.find( "value" ) != string::npos )
-    {
-        string oWrite = GetFieldValue( "overwrite", envString );
-        if( oWrite == "Not defined" )
-            oWrite = "false";
-
-        Int_t oWriteInt = 0;
-
-        if( oWrite == "true" ) oWriteInt = 1;
-
-        setenv( GetFieldValue( "name", envString).c_str() , ReplaceEnvironmentalVariables( GetFieldValue( "value", envString ) ).c_str(), oWriteInt );
-    }
-}
-
-///////////////////////////////////////////////
-/// \brief Returns the value for the parameter name **parName** found in **inputString**. 
-/// 
-/// The methods starts searching in **inputString** after a given position **pos**.
-///
-string TRestMetadata::GetParameter( string parName, size_t &pos, string inputString )
-{
-    // TODO : this can be probably removed since now we store only the section on configBuffer
-    // TODO : It can be useful a GetParameter( string parName, string sectionBuffer )
-
-    /* TODO
-     *
-     *  Implement method FindAnySection 
-     *  if AnySection position is less than EndSection >> Then </section> has been forgotten.
-     *  Make WARNING
-     *
-     * */
-
-    /*
-     *  TODO To impose in this code that parameter must be preceded by parameter KEY word
-     *
-     *  This will not be a problem if the parameter name is not found anywhere else in the section.
-     *  But if the parameter name is written somewhere else it may cause problems.
-     *  We must find first the parameter KEY and then seach the name in the parameter substring.
-     *
-     * */
-
-    string parameterString;
-    do
-    {
-        parameterString = GetKEYDefinition( "parameter", pos, inputString );
-
-        if( GetFieldValue( "name", parameterString ) == parName )
-            return GetFieldValue( "value", parameterString );
-    }
-    while( parameterString.length() > 0 );
-
-    if( this->GetVerboseLevel() >= REST_Warning )
-        cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
-    return "";
-}
-
-///////////////////////////////////////////////
-/// \brief Gets the double value of the parameter name **parName**, found in **inputString**, after applying unit conversion.
-///
-/// The parameter must defined providing the additional field units just behind the parameter value. As in the following example :
-///
-/// \code <parameter name="electricField" value="1" units="kVm" > \endcode
-///
-/// \param parName The name of the parameter from which we want to obtain the value.
-/// \param pos Defines the position inside **inputString** where to start searching the definition of **parName**.
-///
-/// \return A double value in the default correspoding REST units (keV, us, mm, Vcm).
-///
-Double_t TRestMetadata::GetDblParameterWithUnits( std::string parName, size_t &pos, std::string inputString )
-{
-    while( 1 )
-    {
-        string parameterString = GetKEYDefinition( "parameter", pos, inputString );
-
-        if( parameterString.find( parName ) != string::npos )
-        {
-            return GetDblFieldValueWithUnits( "value", parameterString );
-        }
-        else
-        {
-            if( this->GetVerboseLevel() >= REST_Warning )
-                cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
-            return PARAMETER_NOT_FOUND_DBL;
-        }
-    }
-
-    if( this->GetVerboseLevel() >= REST_Warning )
-        cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
-    return PARAMETER_NOT_FOUND_DBL;
-}
-
-///////////////////////////////////////////////
-/// \brief Returns a 2D vector value of the parameter name **parName**, found in **inputString**, after applying unit conversion.
-///
-/// The parameter must defined providing the additional field units just behind the parameter value. As in the following example :
-///
-/// \code <parameter name="position" value="(10,0)" units="mm" > \endcode
-///
-/// \param parName The name of the parameter from which we want to obtain the value.
-/// \param pos Defines the position inside **inputString** where to start searching the definition of **parName**.
-///
-/// \return A 2D vector value in the default correspoding REST units (keV, us, mm, Vcm).
-///
-TVector2 TRestMetadata::Get2DVectorParameterWithUnits( std::string parName, size_t &pos, std::string inputString )
-{
-    while( 1 )
-    {
-        string parameterString = GetKEYDefinition( "parameter", pos, inputString );
-
-        if( parameterString.find( parName ) != string::npos )
-        {
-            return Get2DVectorFieldValueWithUnits( "value", parameterString );
-        }
-        else
-        {
-            if( this->GetVerboseLevel() >= REST_Warning )
-                cout << "Parameter (" << parName << ") NOT found" << endl;
-            return TVector2(-1,-1);
-        }
-    }
-
-    if( this->GetVerboseLevel() >= REST_Warning )
-        cout << "Parameter (" << parName << ") NOT found" << endl;
-
-    return TVector2(-1,-1);
-}
-
-///////////////////////////////////////////////
-/// \brief Returns a 3D vector value of the parameter name **parName**, found in **inputString**, after applying unit conversion.
-///
-/// The parameter must defined providing the additional field units just behind the parameter value. As in the following example :
-///
-/// \code <parameter name="position" value="(10,0,-10)" units="mm" > \endcode
-///
-/// \param parName The name of the parameter from which we want to obtain the value.
-/// \param pos Defines the position inside **inputString** where to start searching the definition of **parName**.
-///
-/// \return A 3D vector value in the default correspoding REST units (keV, us, mm, Vcm).
-///
-TVector3 TRestMetadata::Get3DVectorParameterWithUnits( std::string parName, size_t &pos, std::string inputString )
-{
-    while( 1 )
-    {
-        string parameterString = GetKEYDefinition( "parameter", pos, inputString );
-
-        if( parameterString.find( parName ) != string::npos )
-        {
-            return Get3DVectorFieldValueWithUnits( "value", parameterString );
-        }
-        else
-        {
-            if( this->GetVerboseLevel() >= REST_Warning )
-                cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
-            return TVector3( -1, -1, -1 );
-        }
-    }
-
-    if( this->GetVerboseLevel() >= REST_Warning )
-        cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
-    return TVector3( -1, -1, -1 );;
-}
-
-///////////////////////////////////////////////
-/// \brief Returns a string with the value of the parameter name **parName**, found in TRestMetadata::configBuffer.
-///
-/// The same parameter name should not be used in a given section. Only the first occurence of **parName** is given.
-///
-/// \param parName The name of the parameter from which we want to obtain the value.
-/// \param defaultValue An optional value that will be given in case the parameter is not found.
-///
-/// \return A string with the value of the parameter **parName**.
-///
-string TRestMetadata::GetParameter( string parName, TString defaultValue )
-{
-    // TODO : this can be probably removed since now we store only the section on configBuffer
-    // TODO : It can be useful a GetParameter( string parName, string sectionBuffer )
-    size_t position = 0;
-
-    /* TODO
-     *
-     *  Implement method FindAnySection 
-     *  if AnySection position is less than EndSection >> Then </section> has been forgotten.
-     *  Make WARNING
-     *
-     * */
-
-    /*
-     *  TODO To impose in this code that parameter must be preceded by parameter KEY word
-     *
-     *  This will not be a problem if the parameter name is not found anywhere else in the section.
-     *  But if the parameter name is written somewhere else it may cause problems.
-     *  We must find first the parameter KEY and then seach the name in the parameter substring.
-     *
-     * */
-
-    string parameterString;
-    while( position != string::npos )
-    {
-        parameterString = GetKEYDefinition( "parameter", position );
-        if( debug > 1 ) cout << "Parameter string : " << parameterString << endl;
-
-        if( GetFieldValue( "name", parameterString ) == parName )
-        {
-            string value = GetFieldValue( "value", parameterString );
-            if( value == "" ) return defaultValue.Data();
-            else return value;
-        }
-        else
-        {
-            if( debug > 1 ) cout << " I did not found" << endl;
-        }
-    }
-    debug = 0;
-
-    if( this->GetVerboseLevel() >= REST_Warning )
-    {
-        cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
-        cout << "Returning default value (" << defaultValue << ")" << endl;
-    }
-    return defaultValue.Data();
-}
-
-///////////////////////////////////////////////
-/// \brief Returns a list of observable names found inside TRestMetadata::configBuffer.
-///
-/// An observable can be defined as follows inside an RML file
-/// \code <observable name="OBS_NAME" value="ON" /> \endcode
-/// 
-/// The observable will be added to the list only in the case the value of the observable is ON.
-///
-vector <string> TRestMetadata::GetObservablesList( )
-{
-    size_t position = 0;
-
-    vector <string> output;
-    output.clear();
-
-    string observableString;
-    while( position != string::npos )
-    {
-        observableString = GetKEYDefinition( "observable", position );
-        if( debug > 1 ) cout << "Parameter string : " << observableString << endl;
-
-            string value = GetFieldValue( "value", observableString );
-            if( value == "ON" || value == "on" )
-            {
-                string observableName = GetFieldValue( "name", observableString );
-                output.push_back( observableName );
-            }
-    }
-
-    return output;
-}
-
-///////////////////////////////////////////////
-/// \brief Returns a list of observables description correspoding to the observable list retrieved using TRestMetadata::GetObservablesList.
-///
-/// Optionally we can add a description to the observable definition as follows inside an RML file
-/// \code <observable name="OBS_NAME" value="ON" description="A text description" /> \endcode
-///
-vector <string> TRestMetadata::GetObservableDescriptionsList( )
-{
-    size_t position = 0;
-
-    vector <string> output;
-    output.clear();
-
-    string observableString;
-    while( position != string::npos )
-    {
-        observableString = GetKEYDefinition( "observable", position );
-        if( debug > 1 ) cout << "Parameter string : " << observableString << endl;
-
-            string value = GetFieldValue( "value", observableString );
-            if( value == "ON" || value == "on" )
-            {
-                string observableDescription = GetFieldValue( "description", observableString );
-                cout << "Observable description : " << observableDescription << endl;
-                output.push_back( observableDescription );
-            }
-    }
-
-    return output;
-}
-
-///////////////////////////////////////////////
-/// \brief Gets the double value of the parameter name **parName**, defined inside TRestMetadata::configBuffer, after applying unit conversion.
-///
-/// The parameter must defined providing the additional field units just behind the parameter value. As in the following example :
-///
-/// \code <parameter name="electricField" value="1" units="kVm" > \endcode
-///
-/// \param parName The name of the parameter from which we want to obtain the value.
-/// \param defaultValue The value that will be returned in case the parameter is not found.
-///
-/// \return A double value in the default correspoding REST units (keV, us, mm, Vcm).
-///
-Double_t TRestMetadata::GetDblParameterWithUnits( string parName, Double_t defaultValue )
-{
-    size_t position = 0;
-
-    string parameterString;
-    while( position != string::npos )
-    {
-        parameterString = GetKEYDefinition( "parameter", position );
-        if( debug > 1 ) cout << "Parameter string : " << parameterString << endl;
-
-        if( parameterString.find( parName ) != string::npos )
-        {
-            if( GetFieldValue( "value", parameterString ) == "" )
-                return defaultValue;
-
-            Double_t value = GetDblFieldValueWithUnits( "value", parameterString );
-            if( value == PARAMETER_NOT_FOUND_DBL ) return defaultValue;
-            else return value;
-        }
-        else
-        {
-            if( debug > 1 ) cout << " I did not found" << endl;
-        }
-    }
-
-    if( this->GetVerboseLevel() >= REST_Warning )
-    {
-        cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
-        cout << "Returning default value (" << defaultValue << ")" << endl;
-    }
-    return defaultValue;
-}
-
-///////////////////////////////////////////////
-/// \brief Returns a 2D vector value of the parameter name **parName**, found in TRestMetadata::configBuffer, after applying unit conversion.
-///
-/// The parameter must defined providing the additional field units just behind the parameter value. As in the following example :
-///
-/// \code <parameter name="position" value="(10,0)" units="mm" > \endcode
-///
-/// \param parName The name of the parameter from which we want to obtain the value.
-/// \param defaultValue The value that will be returned in case the parameter is not found.
-///
-/// \return A 2D vector value in the default correspoding REST units (keV, us, mm, Vcm).
-///
-TVector2 TRestMetadata::Get2DVectorParameterWithUnits( string parName, TVector2 defaultValue )
-{
-    size_t position = 0;
-
-    string parameterString;
-    while( position != string::npos )
-    {
-        parameterString = GetKEYDefinition( "parameter", position );
-        if( debug > 1 ) cout << "Parameter string : " << parameterString << endl;
-
-        if( parameterString.find( parName ) != string::npos )
-        {
-            if( GetFieldValue( "value", parameterString ) == "" )
-                return defaultValue;
-
-            TVector2 value = Get2DVectorFieldValueWithUnits( "value", parameterString );
-
-            if( value.X() == -1 && value.Y() == -1 ) return defaultValue;
-            else return value;
-        }
-        else
-        {
-            if( debug > 1 ) cout << " I did not found" << endl;
-        }
-    }
-
-    if( this->GetVerboseLevel() >= REST_Warning )
-    {
-        cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
-        cout << "Returning default value (" << defaultValue.X() << " , " << defaultValue.Y() << ")" << endl;
-    }
-    return defaultValue;
-}
-
-///////////////////////////////////////////////
-/// \brief Returns a 3D vector value of the parameter name **parName**, found in TRestMetadata::configBuffer, after applying unit conversion.
-///
-/// The parameter must defined providing the additional field units just behind the parameter value. As in the following example :
-///
-/// \code <parameter name="position" value="(10,0)" units="mm" > \endcode
-///
-/// \param parName The name of the parameter from which we want to obtain the value.
-/// \param defaultValue The value that will be returned in case the parameter is not found.
-///
-/// \return A 3D vector value in the default correspoding REST units (keV, us, mm, Vcm).
-///
-TVector3 TRestMetadata::Get3DVectorParameterWithUnits( string parName, TVector3 defaultValue )
-{
-    size_t position = 0;
-
-    string parameterString;
-    while( position != string::npos )
-    {
-        parameterString = GetKEYDefinition( "parameter", position );
-        if( debug > 1 ) cout << "Parameter string : " << parameterString << endl;
-
-        if( parameterString.find( parName ) != string::npos )
-        {
-            if( GetFieldValue( "value", parameterString ) == "" )
-                return defaultValue;
-
-            TVector3 value = Get3DVectorFieldValueWithUnits( "value", parameterString );
-
-            if( value.X() == -1 && value.Y() == -1 && value.Z() == -1 ) return defaultValue;
-            else return value;
-        }
-        else
-        {
-            if( debug > 1 ) cout << " I did not found" << endl;
-        }
-    }
-
-    if( this->GetVerboseLevel() >= REST_Warning )
-    {
-        cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
-        cout << "Returning default value (" << defaultValue.X() << " , " << defaultValue.Y() << " , " << defaultValue.Z() << ")" << endl;
-    }
-    return defaultValue;
-}
-
-///////////////////////////////////////////////
-/// \brief Returns a string with the value of a field named **parName** found inside a definition tag **key**.
-///
-/// The basic structure of a **key** definition is as follows:
-/// \code <key parName="value" /> \endcode
-///
-/// \param parName The name of the field from which we want to get the value
-/// \param key The tag used in the definition where we want to look for **parName**.
-string TRestMetadata::GetFieldFromKEY( string parName, string key )
-{
-    size_t position = 0;
-
-    string parameterString;
-    while( position != string::npos )
-    {
-        parameterString = GetKEYDefinition( key, position );
-        if( debug ) cout << key << " string : " << parameterString << endl;
-        if( parameterString.find( parName ) != string::npos )
-            return GetFieldValue( parName, parameterString );
-    }
-
-    if( this->GetVerboseLevel() >= REST_Warning )
-        cout << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
-
-    return "";
-}
-
-///////////////////////////////////////////////
-/// \brief Returns a string with the value of a field named **fieldName** found inside the string **definition**.
-///
-/// \param fieldName The name of the field from which we want to get the value
-/// \param definition The string that contains the field name and value in the format field="value".
-/// \param fromPosition The position inside **definition** from where we start searching for the **fieldName**.
-///
-string TRestMetadata::GetFieldValue( string fieldName, string definition, size_t fromPosition )
-{
-    string fldName = fieldName + "=\"";
-
-    size_t pos, pos2;
-    pos = definition.find( fldName, fromPosition ); 
-
-    if( (pos = definition.find( fldName, fromPosition )) == string::npos ) {  return "Not defined"; }
-    else
-    {
-        pos = definition.find( "\"", pos );
-        pos++;
-        pos2 = definition.find( "\"", pos );
-        return definition.substr( pos, pos2-pos );
-    }
-}
-
-///////////////////////////////////////////////
-/// \brief Returns a string with the unit name provided inside **definition**.
-///
-/// The first occurence of units="" is given.
-/// 
-/// \param definition The string where we search for the units definition.
-/// \param fromPosition The position inside the string **definition** where we start looking for the units definition.
-///
-string TRestMetadata::GetUnits( string definition, size_t fromPosition )
-{
-    string fldName = "units=\"";
-
-    size_t pos, pos2;
-    pos = definition.find( fldName, fromPosition ); 
-
-    if( pos - fromPosition > 8 ) return "Not defined";
-
-
-    if( (pos = definition.find( fldName, fromPosition )) == string::npos ) {  return "Not defined"; }
-    else
-    {
-        pos = definition.find( "\"", pos );
-        pos++;
-        pos2 = definition.find( "\"", pos );
-        return definition.substr( pos, pos2-pos );
-    }
-}
-
-///////////////////////////////////////////////
-/// \brief Returns a double value of a field named **fieldName** found inside the string **definition**, after applying unit conversion.
-///
-/// \param fieldName The name of the field from which we want to get the value
-/// \param definition The string that contains the field name and value in the format field="value".
-/// \param fromPosition The position inside **definition** from where we start searching for the **fieldName**.
-///
-Double_t TRestMetadata::GetDblFieldValueWithUnits( string fieldName, string definition, size_t fromPosition )
-{
-    string fldName = fieldName + "=\"";
-
-    size_t pos, pos2;
-    pos = definition.find( fldName ); 
-
-    if( (pos = definition.find( fldName, fromPosition )) == string::npos ) {  return PARAMETER_NOT_FOUND_DBL; }
-    else
-    {
-        pos = definition.find( "\"", pos );
-        pos++;
-        pos2 = definition.find( "\"", pos );
-
-        TString unitsStr = GetUnits( definition, pos2 );
-
-        Double_t value = StringToDouble(  definition.substr( pos, pos2-pos ) );
-
-        value = REST_Units::GetValueInRESTUnits( value, unitsStr );
-
-        if( TMath::IsNaN( value ) )
-        {
-            cout << "REST ERROR : Check parameter \"" << fieldName << "\" units" << endl;
-            cout << "Inside definition : " << definition << endl;
-            getchar();
-        }
-
-
-        return value;
-    }
-}
-
-///////////////////////////////////////////////
-/// \brief Returns a 2D vector with the value of a field named **fieldName** found inside the string **definition**, after applying unit conversion.
-///
-/// \param fieldName The name of the field from which we want to get the value
-/// \param definition The string that contains the field name and value in the format fieldName="(value,value)".
-/// \param fromPosition The position inside **definition** from where we start searching for the **fieldName**.
-///
-TVector2 TRestMetadata::Get2DVectorFieldValueWithUnits( string fieldName, string definition, size_t fromPosition )
-{
-    string fldName = fieldName + "=\"";
-
-    size_t pos, pos2;
-    pos = definition.find( fldName ); 
-
-    if( (pos = definition.find( fldName, fromPosition )) == string::npos ) {  return TVector2(-1, -1); }
-    else
-    {
-        pos = definition.find( "\"", pos );
-        pos++;
-        pos2 = definition.find( "\"", pos );
-
-        TString unitsStr = GetUnits( definition, pos2 );
-
-        TVector2 value = StringTo2DVector( definition.substr( pos, pos2-pos ) );
-
-        Double_t valueX = REST_Units::GetValueInRESTUnits( value.X(), unitsStr );
-        Double_t valueY = REST_Units::GetValueInRESTUnits( value.Y(), unitsStr );
-
-        if( TMath::IsNaN( valueX ) || TMath::IsNaN( valueY ) )
-        {
-            cout << "REST ERROR : Check parameter \"" << fieldName << "\" units" << endl;
-            cout << "Inside definition : " << definition << endl;
-            getchar();
-        }
-
-        return TVector2( valueX, valueY );
-    }
-}
-
-///////////////////////////////////////////////
-/// \brief Returns a 3D vector with the value of a field named **fieldName** found inside the string **definition**, after applying unit conversion.
-///
-/// \param fieldName The name of the field from which we want to get the value
-/// \param definition The string that contains the field name and value in the format fieldName="(value,value,value)".
-/// \param fromPosition The position inside **definition** from where we start searching for the **fieldName**.
-///
-TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits( string fieldName, string definition, size_t fromPosition )
-{
-    string fldName = fieldName + "=\"";
-
-    size_t pos, pos2;
-    pos = definition.find( fldName ); 
-
-    if( (pos = definition.find( fldName, fromPosition )) == string::npos ) 
-    {
-        return TVector3(-1, -1, -1); 
-    }
-    else
-    {
-        pos = definition.find( "\"", pos );
-        pos++;
-        pos2 = definition.find( "\"", pos );
-
-        TString unitsStr = GetUnits( definition, pos2 );
-
-        TVector3 value = StringTo3DVector( definition.substr( pos, pos2-pos ) );
-
-        Double_t valueX = REST_Units::GetValueInRESTUnits( value.X(), unitsStr );
-        Double_t valueY = REST_Units::GetValueInRESTUnits( value.Y(), unitsStr );
-        Double_t valueZ = REST_Units::GetValueInRESTUnits( value.Z(), unitsStr );
-
-        if( TMath::IsNaN( valueX ) || TMath::IsNaN( valueY ) || TMath::IsNaN( valueZ ) )
-        {
-            cout << "REST ERROR : Check parameter \"" << fieldName << "\" units" << endl;
-            cout << "Inside definition : " << definition << endl;
-            getchar();
-        }
-
-        return TVector3( valueX, valueY, valueZ );
-    }
-}
-
-///////////////////////////////////////////////
-/// \brief Returns a string with the value of a field named **fieldName** found inside TRestMetadata::configBuffer.
-///
-/// \param fieldName The name of the field from which we want to get the value
-/// \param fromPosition The position inside TRestMetadata::configBuffer from where we start searching for the **fieldName**.
-///
-string TRestMetadata::GetFieldValue( string fieldName, size_t fromPosition )
-{
-    string fldName = fieldName + "=\"";
-
-    size_t pos = 0,pos2;
-    size_t endDefinition = configBuffer.find(">", fromPosition);
-    string definition = configBuffer.substr( fromPosition, endDefinition-fromPosition);
-    pos = definition.find( fldName ); 
-
-    if( (pos = definition.find( fldName )) == string::npos ) {  return "Not defined"; }
-    else
-    {
-        pos = definition.find( "\"", pos );
-        pos++;
-        pos2 = definition.find( "\"", pos );
-        return definition.substr( pos, pos2-pos );
-    }
-}
-
-///////////////////////////////////////////////
-/// \brief Gets the first key definition for **keyName** found inside TRestMetadata::configBuffer
-///
-/// A key definition is written as follows:
-/// \code <keyName field1="value1" field2="value2" > \endcode
-///
-string TRestMetadata::GetKEYDefinition( string keyName )
-{
-    Int_t fromPosition = 0;
-    string key = "<" + keyName;
-    size_t startPos = configBuffer.find( key, fromPosition );
-    size_t endPos = configBuffer.find( ">", startPos );
-
-    fromPosition = endPos;
-
-    if( startPos == string::npos ) return "";
-    else return configBuffer.substr( startPos, endPos-startPos );
-
-}
-
-///////////////////////////////////////////////
-/// \brief Gets the first key definition for **keyName** found inside TRestMetadata::configBuffer starting at **fromPosition**.
-///
-/// A key definition is written as follows:
-/// \code <keyName field1="value1" field2="value2" > \endcode
-///
-string TRestMetadata::GetKEYDefinition( string keyName, size_t &fromPosition )
-{
-    string key = "<" + keyName;
-    size_t startPos = configBuffer.find( key, fromPosition );
-    size_t endPos = configBuffer.find( ">", startPos );
-
-    fromPosition = endPos;
-
-    if( startPos == string::npos ) return "";
-    else
-    { 
-	    Int_t notDefinitionEnd = 1;
-
-	    while( notDefinitionEnd )
-	    {
-		    // We might find a problem when we insert > symbol inside a field value.
-		    // As for example: condition=">100" This patch checks if the definition 
-		    // finishes in "= If it is the case it searches the next > symbol ending 
-		    // the definition.
-
-		    string def = RemoveWhiteSpaces ( configBuffer.substr( startPos, endPos-startPos ) );
-
-		    if( (TString) def[def.length()-1] == "\"" && (TString) def[def.length()-2] == "=" ) 
-			    endPos = configBuffer.find( ">", endPos+1 );
-		    else
-			    notDefinitionEnd = 0;
-	    }
-
-	    return configBuffer.substr( startPos, endPos-startPos );
-    }
-
-}
-
-///////////////////////////////////////////////
-/// \brief Gets the first key definition for **keyName** found inside **buffer**.
-///
-/// A key definition is written as follows:
-/// \code <keyName field1="value1" field2="value2" > \endcode
-///
-string TRestMetadata::GetKEYDefinition( string keyName, string buffer )
-{
-    if( buffer == "" ) return "";
-
-    string key = "<" + keyName;
-
-    size_t startPos = buffer.find( key, 0 );
-    size_t endPos = buffer.find( ">", startPos );
-
-    return buffer.substr( startPos, endPos-startPos );
-
-}
-
-///////////////////////////////////////////////
-/// \brief Gets the first key definition for **keyName** found inside **buffer** starting at **fromPosition**.
-///
-/// A key definition is written as follows:
-/// \code <keyName field1="value1" field2="value2" > \endcode
-///
-string TRestMetadata::GetKEYDefinition( string keyName, size_t &fromPosition, string buffer )
-{
-    string key = "<" + keyName;
-
-    size_t startPos = buffer.find( key, fromPosition );
-    if ( startPos == string::npos ) return "";
-    size_t endPos = buffer.find( ">", startPos );
-    if ( endPos == string::npos ) return "";
-
-    fromPosition = endPos;
-
-    Int_t notDefinitionEnd = 1;
-
-    while( notDefinitionEnd )
-    {
-        // We might find a problem when we insert > symbol inside a field value.
-        // As for example: condition=">100" This patch checks if the definition 
-        // finishes in "= If it is the case it searches the next > symbol ending 
-        // the definition.
-
-        string def = RemoveWhiteSpaces ( buffer.substr( startPos, endPos-startPos ) );
-
-        if( (TString) def[def.length()-1] == "\"" && (TString) def[def.length()-2] == "=" ) 
-            endPos = configBuffer.find( ">", endPos+1 );
-        else
-            notDefinitionEnd = 0;
-    }
-
-    return buffer.substr( startPos, endPos-startPos );
-
-}
-
-///////////////////////////////////////////////
-/// \brief Gets the first key structure for **keyName** found inside TRestMetadata::configBuffer.
-///
-/// A key definition is written as follows:
-/// \code <keyName field1="value1" field2="value2" > 
-///
-///     ....
-///
-///  </keyName>
-/// \endcode
-///
-string TRestMetadata::GetKEYStructure( string keyName )
-{
-    string strNotFound = "NotFound";
-
-    size_t position = 0;
-
-    string startKEY = "<" + keyName;
-    string endKEY = "/" + keyName;
-
-    size_t initPos = configBuffer.find( startKEY, position );
-
-    if( initPos == string::npos ) { cout << "KEY (" << keyName << ") >> not found!!" << endl; return strNotFound; }
-
-    size_t endPos = configBuffer.find( endKEY, position );
-
-    if( endPos == string::npos ) { cout << "KEY (" << keyName << " << not found!!" << endl; return strNotFound; }
-
-    return configBuffer.substr( initPos, endPos-initPos + endKEY.length()+1 );
-
-}
-
-///////////////////////////////////////////////
-/// \brief Gets the first key structure for **keyName** found inside **buffer**.
-///
-/// A key definition is written as follows:
-/// \code <keyName field1="value1" field2="value2" > 
-///
-///     ....
-///
-///  </keyName>
-/// \endcode
-///
-string TRestMetadata::GetKEYStructure( string keyName, string buffer )
-{
-
-    size_t position = 0;
-
-    string startKEY = "<" + keyName;
-    string endKEY = "/" + keyName;
-
-    size_t initPos = buffer.find( startKEY, position );
-
-    if( initPos == string::npos ) { if( debug ) cout << "KEY not found!!" << endl; return "NotFound"; }
-
-    size_t endPos = buffer.find( endKEY, position );
-
-    if( endPos == string::npos ) { if( debug ) cout << "KEY not found!!" << endl; return "NotFound"; }
-
-
-    return buffer.substr( initPos, endPos-initPos + endKEY.length()+1 );
-
-}
-
-///////////////////////////////////////////////
-/// \brief Gets the first key structure for **keyName** found inside TRestMetadata::configBuffer after **fromPosition**.
-///
-/// A key definition is written as follows:
-/// \code <keyName field1="value1" field2="value2" > 
-///
-///     ....
-///
-///  </keyName>
-/// \endcode
-///
-string TRestMetadata::GetKEYStructure( string keyName, size_t &fromPosition )
-{
-    size_t position = fromPosition;
-
-    string startKEY = "<" + keyName;
-    string endKEY = "/" + keyName;
-
-    size_t initPos = configBuffer.find( startKEY, position );
-
-    if( initPos == string::npos ) { if( debug ) cout << "KEY not found!!" << endl; return "NotFound"; }
-
-    size_t endPos = configBuffer.find( endKEY, initPos );
-
-    if( endPos == string::npos  ) { if( debug ) cout << "END KEY not found!!" << endl; return "NotFound"; }
-
-    fromPosition = endPos+1;
-
-    return configBuffer.substr( initPos, endPos-initPos + endKEY.length()+1 );
-}
-
-///////////////////////////////////////////////
-/// \brief Gets the first key structure for **keyName** found inside **buffer** after **fromPosition**.
-///
-/// A key definition is written as follows:
-/// \code <keyName field1="value1" field2="value2" > 
-///
-///     ....
-///
-///  </keyName>
-/// \endcode
-///
-string TRestMetadata::GetKEYStructure( string keyName, size_t &fromPosition, string buffer )
-{
-    size_t position = fromPosition;
-
-    if( debug > 1 ) cout << "Buffer : " << buffer << endl;
-    if( debug > 1 ) cout << "Start position : " << position << endl;
-
-    string startKEY = "<" + keyName;
-    string endKEY = "/" + keyName;
-
-    if( debug > 1 ) cout << "Reduced buffer : " << buffer.substr( position ) << endl;
-
-    size_t initPos = buffer.find( startKEY, position );
-    if( debug > 1 ) cout << "initPos : " << initPos << endl;
-
-    if( initPos == string::npos ) { if( debug > 1 ) cout << "KEY not found!!" << endl; return ""; }
-
-    size_t endPos = buffer.find( endKEY, initPos );
-
-    if( debug > 1 ) cout << "End position : " << endPos << endl;
-
-    //TODO Check if a new section starts. If not it might get two complex strings if the KEY_Structure was not closed using /KEY
-
-    if( endPos == string::npos  ) { if( debug > 1 )  cout << "END KEY not found!!" << endl; return ""; }
-
-    fromPosition = endPos;
-
-    return buffer.substr( initPos, endPos-initPos + endKEY.length()+1 );
-}
-
-///////////////////////////////////////////////
-/// \brief Gets a string containning the section structure from a file **fref** by using the name **nref** as the user defined section name.
-///
-/// The section format searched inside **fref** is as follows :
-/// \code 
-///
-/// <section metadataName name="nref">
-///
-/// \endcode
-/// 
-string TRestMetadata::GetSectionByNameFromFile( string nref, string fref )
-{
-    string fileName = ReplaceEnvironmentalVariables( fref );
-
-    ifstream file(fileName);
-
-    if( !file ) { cout << "REST Error : I could not open file : " << fileName << endl; exit(1); return ""; }
-
-    string temporalBuffer;
-    string line;
-    while(getline(file, line)) temporalBuffer += line;
-
-    size_t position = 0;
-    string sectionString;
-    while( ( sectionString = GetKEYStructure( fSectionName, position, temporalBuffer ) ) != "" )
-        if ( GetFieldValue( "name", sectionString ) == nref ) {  return sectionString; }
-
-    return "";
-}
-
-///////////////////////////////////////////////
-/// \brief Prints a UNIX timestamp in human readable format
-///
-void TRestMetadata::PrintTimeStamp( Double_t timeStamp )
-{
-       cout.precision(10);
-
-       time_t tt = (time_t) timeStamp;
-       struct tm *tm = localtime( &tt);
-
-       char date[20];
-       strftime(date, sizeof(date), "%Y-%m-%d", tm);
-       cout << "Date : " << date << endl;
-
-       char time[20];
-       strftime(time, sizeof(time), "%H:%M:%S", tm);
-       cout << "Time : " << time << endl;
-       cout << "++++++++++++++++++++++++" << endl;
-}
-
-///////////////////////////////////////////////
-/// \brief Prints TRestMetadata::configBuffer in screen.
-///
-void TRestMetadata::PrintConfigBuffer( ) { cout << configBuffer << endl; }
 
 ///////////////////////////////////////////////
 /// \brief Prints metadata content on screen. Usually overloaded by the derived metadata class.
 ///
 void TRestMetadata::PrintMetadata()
 {
-        cout << "TRestMetadata content" << endl;
-        cout << "-----------------------" << endl;
-        cout << "Config file : " << fConfigFileName << endl;
-        cout << "Section name : " << fSectionName << endl;        // section name given in the constructor of TRestSpecificMetadata
+	cout << "TRestMetadata content" << endl;
+	cout << "-----------------------" << endl;
+	cout << "Section name : " << fSectionName << endl;        // section name given in the constructor of TRestSpecificMetadata
 }
 
-TString TRestMetadata::GetVerboseLevelString( )
+///////////////////////////////////////////////
+/// \brief Returns a string corresponding to current verbose level.
+///
+TString TRestMetadata::GetVerboseLevelString()
 {
-    TString level = "unknown";
-    if( this->GetVerboseLevel() == REST_Debug ) level = "debug";
-    if( this->GetVerboseLevel() == REST_Info ) level = "info";
-    if( this->GetVerboseLevel() == REST_Warning ) level = "warning";
-    if( this->GetVerboseLevel() == REST_Silent ) level = "silent";
+	TString level = "unknown";
+	if (this->GetVerboseLevel() == REST_Debug) level = "debug";
+	if (this->GetVerboseLevel() == REST_Info) level = "info";
+	if (this->GetVerboseLevel() == REST_Essential) level = "warning";
+	if (this->GetVerboseLevel() == REST_Silent) level = "silent";
 
-    return level;
+	return level;
 }
+
+
+
+TClass*c;
+TVirtualStreamerInfo *vs;
+TObjArray* ses;
+TStreamerElement* TRestMetadata::GetDataMemberWithName(string name)
+{
+	int n = GetNumberOfDataMember();
+	for (int i = 0; i <= n; i++) {
+		TStreamerElement *se = (TStreamerElement*)ses->At(i);
+		if ((string)se->GetFullName() == name)
+		{
+			return se;
+		}
+	}
+	return NULL;
+
+}
+
+TStreamerElement* TRestMetadata::GetDataMemberWithID(int ID)
+{
+	int n = GetNumberOfDataMember();
+	if (ID <= n)return (TStreamerElement*)ses->At(ID);
+	return NULL;
+}
+
+int TRestMetadata::GetNumberOfDataMember()
+{
+	c = this->IsA();
+	vs = c->GetStreamerInfo();
+	ses = vs->GetElements();
+	return ses->GetLast();
+}
+
+double* TRestMetadata::GetDblDataMemberRef(TStreamerElement*ele)
+{
+	if (ele != NULL&&ele->GetType() == 8)
+		return (double*)((char*)this + ele->GetOffset());
+	return NULL;
+}
+
+double TRestMetadata::GetDblDataMemberVal(TStreamerElement*ele)
+{
+	double* ref = GetDblDataMemberRef(ele);
+	if (ref != NULL)
+		return *ref;
+	return 0;
+}
+
+int* TRestMetadata::GetIntDataMemberRef(TStreamerElement*ele)
+{
+	if (ele != NULL&&ele->GetType() == 8)
+		return (int*)((char*)this + ele->GetOffset());
+	return NULL;
+}
+
+int TRestMetadata::GetIntDataMemberVal(TStreamerElement*ele)
+{
+	int* ref = GetIntDataMemberRef(ele);
+	if (ref != NULL)
+		return *ref;
+	return 0;
+}
+
+
+char* TRestMetadata::GetDataMemberRef(TStreamerElement*ele) {
+	return ((char*)this + ele->GetOffset());
+}
+
+
+void TRestMetadata::SetDataMemberVal(TStreamerElement*ele, char*ptr) {
+
+	if (ele != NULL&&ele->GetType() == 8)//double
+		*((double*)((char*)this + ele->GetOffset())) = *((double*)ptr);
+	if (ele != NULL&&ele->GetType() == 3)//int
+		*((int*)((char*)this + ele->GetOffset())) = *((int*)ptr);
+	if (ele != NULL&&ele->GetType() == 365)//string
+		*((string*)((char*)this + ele->GetOffset())) = *((string*)ptr);
+	if (ele != NULL&&ele->GetType() == 65)//TString
+		*((TString*)((char*)this + ele->GetOffset())) = *((TString*)ptr);
+	if (ele != NULL&&ele->GetType() == 8)//other
+		return;
+
+
+}
+
+
+void TRestMetadata::SetDataMemberValFromConfig(TStreamerElement*ele)
+{
+
+	if (ele != NULL&&ele->GetType() == 8)//double
+	{
+		if (GetParameter(ele->GetName()) != PARAMETER_NOT_FOUND_STR)
+		{
+			*((double*)((char*)this + ele->GetOffset())) = StringToDouble(GetParameter(ele->GetName()));
+		}
+	}
+	if (ele != NULL&&ele->GetType() == 3)//int
+	{
+		if (GetParameter(ele->GetName()) != PARAMETER_NOT_FOUND_STR)
+		{
+			*((int*)((char*)this + ele->GetOffset())) = StringToInteger(GetParameter(ele->GetName()));
+		}
+	}
+	if (ele != NULL&&ele->GetType() == 365)//string
+	{
+		if (GetParameter(ele->GetName()) != PARAMETER_NOT_FOUND_STR)
+		{
+			*((string*)((char*)this + ele->GetOffset())) = (GetParameter(ele->GetName()));
+		}
+	}
+	if (ele != NULL&&ele->GetType() == 65)//TString
+	{
+		if (GetParameter(ele->GetName()) != PARAMETER_NOT_FOUND_STR)
+		{
+			*((TString*)((char*)this + ele->GetOffset())) = (TString)(GetParameter(ele->GetName()));
+		}
+	}
+	if (ele != NULL&&ele->GetType() == 8)//other
+		return;
+
+
+}
+
+string TRestMetadata::GetDataMemberStr(TStreamerElement*ele)
+{
+	if (ele != NULL&&ele->GetType() == 8)//double
+		return ToString(*(double*)((char*)this + ele->GetOffset()));
+	if (ele != NULL&&ele->GetType() == 3)//int
+		return ToString(*(int*)((char*)this + ele->GetOffset()));
+	if (ele != NULL&&ele->GetType() == 365)//string
+		return ToString(*(string*)((char*)this + ele->GetOffset()));
+	if (ele != NULL&&ele->GetType() == 65)//TString
+		return ToString(*(TString*)((char*)this + ele->GetOffset()));
+	if (ele != NULL&&ele->GetType() == 8)//other
+		return ele->GetTypeName();
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
