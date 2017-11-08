@@ -365,7 +365,7 @@
 /// in the x-label, the default units considered will be keV.
 /// \code
 ///     // A TH1D input spectrum to produce underground muons in the range between 150 and 400 GeV
-///     <energyDist type="TH1D" file="Muons.root" histName="LSCMuon" range="(150,400)" units="GeV" >
+///     <energyDist type="TH1D" file="Muons.root" spctName="LSCMuon" range="(150,400)" units="GeV" >
 /// \endcode
 ///
 /// #### The source angular distribution
@@ -413,7 +413,7 @@
 /// name "histName".
 /// \code
 ///     // A TH1D input angular distribution used for cosmic rays
-///     <angularDist type="TH1D" file="CosmicAngles.root" histName="Theta2">
+///     <angularDist type="TH1D" file="CosmicAngles.root" spctName="Theta2">
 /// \endcode
 /// 
 /// ## 3. The storage section definition
