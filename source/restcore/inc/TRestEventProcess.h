@@ -1,141 +1,117 @@
 /*************************************************************************
- * This file is part of the REST software framework.                     *
- *                                                                       *
- * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *           
- * For more information see http://gifna.unizar.es/trex                  *
- *                                                                       *
- * REST is free software: you can redistribute it and/or modify          *
- * it under the terms of the GNU General Public License as published by  *
- * the Free Software Foundation, either version 3 of the License, or     *
- * (at your option) any later version.                                   *     
- *                                                                       *
- * REST is distributed in the hope that it will be useful,               *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
- * GNU General Public License for more details.                          *
- *                                                                       *
- * You should have a copy of the GNU General Public License along with   *
- * REST in $REST_PATH/LICENSE.                                           *
- * If not, see http://www.gnu.org/licenses/.                             *
- * For the list of contributors see $REST_PATH/CREDITS.                  *
- *************************************************************************/
+* This file is part of the REST software framework.                     *
+*                                                                       *
+* Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+* For more information see http://gifna.unizar.es/trex                  *
+*                                                                       *
+* REST is free software: you can redistribute it and/or modify          *
+* it under the terms of the GNU General Public License as published by  *
+* the Free Software Foundation, either version 3 of the License, or     *
+* (at your option) any later version.                                   *
+*                                                                       *
+* REST is distributed in the hope that it will be useful,               *
+* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+* GNU General Public License for more details.                          *
+*                                                                       *
+* You should have a copy of the GNU General Public License along with   *
+* REST in $REST_PATH/LICENSE.                                           *
+* If not, see http://www.gnu.org/licenses/.                             *
+* For the list of contributors see $REST_PATH/CREDITS.                  *
+*************************************************************************/
 
 #ifndef RestCore_TRestEventProcess
 #define RestCore_TRestEventProcess
 
 #include "TNamed.h"
+#include "TCanvas.h"
+
 
 #include "TRestEvent.h"
 #include "TRestMetadata.h"
 #include "TRestAnalysisTree.h"
+#include "TRestRun.h"
 
-#include "TCanvas.h"
 
-class TRestEventProcess:public TRestMetadata {
-    protected:
-        Int_t fStatusOfProcess;	///< integer to hold the status of task: 0 = successful >0 = some error happened
-        Int_t fVerbose;              ///<! Verbose level of the process execution [0...3] OBSOLETE!!
+class TRestGas;
+class TRestReadout;
+class TRestG4Metadata;
+class TRestDetectorSetup;
 
-        virtual void InitFromConfigFile() = 0;
+class TRestEventProcess :public TRestMetadata {
+public:
 
-#ifndef __CINT__
-        TRestEvent *fInputEvent;	///< Pointer to input event
-        TRestEvent *fOutputEvent;    ///< Pointer to output event
+	enum REST_Process_Output
+	{
+		No_Output,//!< no autosave for any variables, user can still manually save what he wants.
+		Observable,//!< +saving observables in the root directory of the tree
+		Internal_Var,//!< +saving internal variables as branches
+		Full_Output,//!< +saving output event together in the branch
+	};
 
-        std::vector <TRestMetadata*> fRunMetadata; ///< Array to other metadata classes needed by the process
+	//Constructor
+	TRestEventProcess();
+	//Destructor
+	~TRestEventProcess();
 
-        std::vector <string> fObservableNames; ///< Array to observables names to be produced by the process
+	ClassDef(TRestEventProcess, 1);      // Base class for a REST process
 
-        TRestAnalysisTree *fAnalysisTree; ///< Pointer to analysis tree where to store the observables. 
+	Int_t LoadSectionMetadata();
+	vector<string> ReadObservables();
 
-        Bool_t fIsExternal; ///< It defines if the process reads event data from an external source.
 
-        TString fInputFileName;
+	virtual void InitProcess() { } ///< To be executed at the beginning of the run
+	virtual void BeginOfEventProcess() { }
+	virtual TRestEvent *ProcessEvent(TRestEvent *evInput) = 0; ///< Process one event
+	virtual void EndOfEventProcess() { } ///< To be executed after processing event
+	virtual void EndProcess() { } ///< To be executed at the end of the run
+	
+								
+								  
+	//setters
+	void SetOutputLevel(REST_Process_Output lvl) { fOutputLevel = lvl; }
+	void SetAnalysisTree(TRestAnalysisTree *tree);
+	void SetRunInfo(TRestRun*r) { fRunInfo = r; }
 
-        TCanvas *fCanvas;
-        TVector2 fCanvasSize;
+	//getters
+	REST_Process_Output GetOutputLevel() { return fOutputLevel; }
+	virtual TRestEvent *GetInputEvent() { return fInputEvent; } ///< Get pointer to input event
+	virtual TRestEvent *GetOutputEvent() { return fOutputEvent; } ///< Get pointer to output event
+	Bool_t singleThreadOnly() { return fSingleThreadOnly; }
+	TRestRun* GetRunInfo() { return fRunInfo; }
+	vector<string> GetAvailableObservals();
 
-        Bool_t fReadOnly;
-#endif
+protected:
 
-        template <typename eventType> 
-            void TransferEvent ( eventType *evOutput, eventType *evInput )
-            { 
-                if( evOutput != NULL ) 
-                {
-                    delete evOutput;
-                    evOutput = NULL;
-                }
-                evOutput = (eventType *) evInput->Clone();
-            } 
+	TRestEvent *fInputEvent = NULL;	//!///< Pointer to input event
+	TRestEvent *fOutputEvent = NULL;    //!///< Pointer to output event
 
-    public:
-        virtual TRestEvent *GetInputEvent() { return fInputEvent; } ///< Get pointer to input event
-        virtual TRestEvent *GetOutputEvent() { return fOutputEvent; } ///< Get pointer to output event
+										//std::vector <TRestMetadata*> fRunMetadata; //!///< Array to other metadata classes needed by the process
 
-        virtual Bool_t OpenInputFile(TString fName);
-        TString GetInputFilename( ) { return fInputFileName; }
+	TRestAnalysisTree *fAnalysisTree = NULL; //!///< Pointer to analysis tree where to store the observables. 
 
-        virtual void InitProcess() { } ///< To be executed at the beginning of the run
-        virtual TRestEvent *ProcessEvent( TRestEvent *evInput ) = 0; ///< Process one event
-        virtual void EndProcess() { } ///< To be executed at the end of the run
-        virtual void BeginOfEventProcess() { }
+	Bool_t fSingleThreadOnly; //!///< It defines if the process reads event data from an external source.
 
-        void StampOutputEvent( TRestEvent *inEv );
+	REST_Process_Output fOutputLevel;//!
 
-        virtual void EndOfEventProcess() { } ///< To be executed after processing event
+	TRestRun* fRunInfo = NULL;//!
 
-        virtual TString GetProcessName();
+	std::vector <TString> fObservableNames;
+	//std::vector <Double_t*> fObservableRefs;//!
 
-        virtual void LoadDefaultConfig();
 
-        virtual void LoadConfig( std::string cfgFilename, std::string cfgName = "" );
 
-        Bool_t isExternal( ) { return fIsExternal; } 
+	//utils
+	void BeginPrintProcess();
+	void EndPrintProcess();
+	TRestMetadata *GetMetadata(string type);
+	TRestMetadata *GetGasMetadata() { return GetMetadata("TRestGas"); }
+	TRestMetadata *GetReadoutMetadata() { return GetMetadata("TRestReadout"); }
+	TRestMetadata *GetGeant4Metadata() { return GetMetadata("TRestG4Metadata"); }
+	TRestMetadata *GetDetectorSetup() { return GetMetadata("TRestDetectorSetup"); }
+	void StampOutputEvent(TRestEvent *inEv);
 
-        void CreateCanvas() 
-        { 
-            if( fCanvas != NULL ) return;
 
-            fCanvas = new TCanvas( this->GetName(), this->GetTitle(), fCanvasSize.X(), fCanvasSize.Y() );
-        }
 
-        TCanvas *GetCanvas( ) { return fCanvas; }
-
-        void SetCanvasSize( Int_t x, Int_t y ) { fCanvasSize = TVector2( x, y ); }
-
-        void SetReadOnly( Bool_t rO ) { fReadOnly = rO; }
-
-        vector <string> ReadObservables( );
-
-        TRestMetadata *GetGasMetadata( );
-        TRestMetadata *GetReadoutMetadata( );
-        TRestMetadata *GetGeant4Metadata( );
-        TRestMetadata *GetDetectorSetup( );
-
-        Double_t GetDoubleParameterFromClass( TString className, TString parName );
-        Double_t GetDoubleParameterFromClassWithUnits( TString className, TString parName );
-
-        virtual TRestMetadata *GetProcessMetadata() { return NULL; }
-        void SetMetadata( std::vector <TRestMetadata*> meta ) { fRunMetadata = meta; }
-
-        TRestAnalysisTree *GetAnalysisTree( ) { return fAnalysisTree; }
-        void SetAnalysisTree( TRestAnalysisTree *tree ) { fAnalysisTree = tree; }
-
-        void BeginPrintProcess();
-        void EndPrintProcess();
-
-        //Getters
-        Int_t GetStatus() { return fStatusOfProcess; }
-        //	Int_t GetVerboseLevel() { return fVerbose; } 
-        //Setters
-        void SetVerboseLevel(Int_t verbose) { fVerbose = verbose; }
-
-        //Constructor
-        TRestEventProcess();
-        //Destructor
-        ~TRestEventProcess();
-
-        ClassDef(TRestEventProcess, 1);      // Base class for a REST process
 };
 #endif

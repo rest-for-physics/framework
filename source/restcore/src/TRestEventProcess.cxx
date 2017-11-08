@@ -1,24 +1,24 @@
 /*************************************************************************
- * This file is part of the REST software framework.                     *
- *                                                                       *
- * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
- * For more information see http://gifna.unizar.es/trex                  *
- *                                                                       *
- * REST is free software: you can redistribute it and/or modify          *
- * it under the terms of the GNU General Public License as published by  *
- * the Free Software Foundation, either version 3 of the License, or     *
- * (at your option) any later version.                                   *
- *                                                                       *
- * REST is distributed in the hope that it will be useful,               *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
- * GNU General Public License for more details.                          *
- *                                                                       *
- * You should have a copy of the GNU General Public License along with   *
- * REST in $REST_PATH/LICENSE.                                           *
- * If not, see http://www.gnu.org/licenses/.                             *
- * For the list of contributors see $REST_PATH/CREDITS.                  *
- *************************************************************************/
+* This file is part of the REST software framework.                     *
+*                                                                       *
+* Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+* For more information see http://gifna.unizar.es/trex                  *
+*                                                                       *
+* REST is free software: you can redistribute it and/or modify          *
+* it under the terms of the GNU General Public License as published by  *
+* the Free Software Foundation, either version 3 of the License, or     *
+* (at your option) any later version.                                   *
+*                                                                       *
+* REST is distributed in the hope that it will be useful,               *
+* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+* GNU General Public License for more details.                          *
+*                                                                       *
+* You should have a copy of the GNU General Public License along with   *
+* REST in $REST_PATH/LICENSE.                                           *
+* If not, see http://www.gnu.org/licenses/.                             *
+* For the list of contributors see $REST_PATH/CREDITS.                  *
+*************************************************************************/
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,10 @@
 
 
 #include "TRestEventProcess.h"
+#include "TRestRun.h"
+#include "TClass.h"
+#include "TDataMember.h"
+#include "TBuffer.h"
 using namespace std;
 
 ClassImp(TRestEventProcess)
@@ -57,11 +61,8 @@ ClassImp(TRestEventProcess)
 
 TRestEventProcess::TRestEventProcess()
 {
-    fIsExternal = false;
-    fCanvas = NULL;
-    fCanvasSize = TVector2( 800, 600 );
-    fVerbose = -1;
-    fReadOnly = true;
+	fObservableNames.clear();
+	fSingleThreadOnly = false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -71,193 +72,132 @@ TRestEventProcess::~TRestEventProcess()
 {
 }
 
-void TRestEventProcess::LoadConfig( std::string cfgFilename, std::string cfgName )
+//______________________________________________________________________________
+vector<string> TRestEventProcess::ReadObservables()
 {
-    if( LoadConfigFromFile( cfgFilename, cfgName ) == -1 ) LoadDefaultConfig( );
+	TiXmlElement* e = GetElement("addObservable");
+	vector<string> obsnames;
+	while (e != NULL)
+	{
+		const char* obschr = e->Attribute("type");
+		if (obschr != NULL) {
+			string obsstring = (string)obschr;
+			debug << this->ClassName() << " : setting following observables " << obsstring << endl;
+			obsnames = Spilt(obsstring, ":");
+			for (int i = 0; i < obsnames.size(); i++) {
+				TStreamerElement* se = GetDataMemberWithName(obsnames[i]);
+				if (se != NULL)
+				{
+					if (fAnalysisTree->AddObservable((TString)GetName() + "_" + obsnames[i], GetDblDataMemberRef(se)) != -1)
+						fObservableNames.push_back((TString)GetName() + "_" + obsnames[i]);
+				}
+				else
+				{
+					warning << "In " << this->ClassName() << " : observal \"" << obsnames[i] << "\" is not defined as data member, skipping..." << endl;
+				}
+			}
+		}
+		e = e->NextSiblingElement("addObservable");
+	}
+	return obsnames;
 }
 
-void TRestEventProcess::LoadDefaultConfig() 
+void TRestEventProcess::SetAnalysisTree(TRestAnalysisTree *tree)
 {
-    SetName( "cfgDefault" ); 
-    SetTitle( "Default config" ); 
+	debug << "setting analysis tree for " << this->ClassName() << endl;
+	fAnalysisTree = tree;
+	if (fOutputLevel >= Observable)ReadObservables();
+	if (fOutputLevel >= Internal_Var)fAnalysisTree->Branch(this->GetName(), this);
+	if (fOutputLevel >= Full_Output)fAnalysisTree->Branch(((string)this->fOutputEvent->ClassName() + "Branch").c_str(), this->fOutputEvent);
 }
 
-vector <string> TRestEventProcess::ReadObservables( )
-{
-    vector <string> obsList = GetObservablesList( );
 
-    for( unsigned int n = 0; n < obsList.size(); n++ )
-    {
-        fAnalysisTree->AddObservable( this->GetName() + (TString) "." + (TString) obsList[n] );
-        fObservableNames.push_back ( this->GetName() + (string) "." + obsList[n] );
-    }
-    return obsList;
+Int_t TRestEventProcess::LoadSectionMetadata()
+{
+	TRestMetadata::LoadSectionMetadata();
+
+	string s = GetParameter("outputLevel", "full_output");
+	if (s == "no_output") {
+		fOutputLevel = No_Output;
+	}
+	else if (s == "observable")
+	{
+		fOutputLevel = Observable;
+	}
+	else if (s == "internalval")
+	{
+		fOutputLevel = Internal_Var;
+	}
+	else
+	{
+		fOutputLevel = Full_Output;
+	}
+	return 0;
 }
 
-TString TRestEventProcess::GetProcessName()
+TRestMetadata *TRestEventProcess::GetMetadata(string type)
 {
-    TString sectionName = this->GetSectionName();
-    TString processName = sectionName;
-    if( sectionName.Contains( "TRest" ) )
-    {
-        TString pcsName ( sectionName( 5, sectionName.Length() ) );
-        TString firstChar( sectionName( 0, 1 ) ); 
-        TString remainingString( sectionName( 1, sectionName.Length() ) ); 
+	return fRunInfo->GetMetadataInfo(type);
 
-        firstChar.ToLower();
-        processName = firstChar + remainingString;
-    }
-
-    return processName;
 }
 
-//////////////////////////////////////////////////////////////////////////
-/// Returns pointer to gas (TRestGas) metadata
-///
-/// TODO : For the moment this function will return the first occurence of TRestGas.
-/// What happens if there are several? And if I want to use one gas from the config file? 
-/// We need to introduce an option somewhere.
-/// For the moment I know there will be an existing gas file since the hits come from electronDiffusion.
 
-TRestMetadata *TRestEventProcess::GetGasMetadata( )
+vector<string> TRestEventProcess::GetAvailableObservals()
 {
-
-    for( size_t i = 0; i < fRunMetadata.size(); i++ )
-        if ( fRunMetadata[i]->ClassName() == (TString) "TRestGas" )
-            return fRunMetadata[i];
-
-    return NULL;
+	TClass*c;
+	TVirtualStreamerInfo *vs;
+	TObjArray* ses;
+	c = this->IsA();
+	vs = c->GetStreamerInfo();
+	ses = vs->GetElements();
+	vector<string> result;
+	result.clear();
+	for (int i = 1; i <= ses->GetLast(); i++) {
+		TStreamerElement *se = (TStreamerElement*)ses->At(i);
+		if (se->GetType() == 8)
+		{
+			result.push_back(se->GetFullName());
+		}
+	}
+	return result;
 }
 
-//////////////////////////////////////////////////////////////////////////
-/// Returns pointer to readout metadata
-///
-/// TODO : For the moment this function will return the first occurence of TRestReadout.
-/// What happens if there are several? And if I want to use one gas from the config file? 
-/// We need to introduce an option somewhere.
-/// For the moment I know there will be an existing gas file since the hits come from electronDiffusion.
 
-TRestMetadata *TRestEventProcess::GetReadoutMetadata( )
+void TRestEventProcess::StampOutputEvent(TRestEvent *inEv)
 {
-    for( size_t i = 0; i < fRunMetadata.size(); i++ )
-        if ( fRunMetadata[i]->ClassName() == (TString) "TRestReadout" )
-            return fRunMetadata[i];
+	fOutputEvent->Initialize();
 
-    return NULL;
-}
+	fOutputEvent->SetID(inEv->GetID());
+	fOutputEvent->SetSubID(inEv->GetSubID());
+	fOutputEvent->SetSubEventTag(inEv->GetSubEventTag());
 
-//////////////////////////////////////////////////////////////////////////
-/// Returns pointer to G4 metadata
-///
-/// TODO : For the moment this function will return the first occurence of TRestG4Metadata.
-/// What happens if there are several? And if I want to use one gas from the config file? 
-/// We need to introduce an option somewhere.
-/// For the moment I know there will be an existing gas file since the hits come from electronDiffusion.
+	fOutputEvent->SetRunOrigin(inEv->GetRunOrigin());
+	fOutputEvent->SetSubRunOrigin(inEv->GetSubRunOrigin());
 
-TRestMetadata *TRestEventProcess::GetGeant4Metadata( )
-{
-    for( size_t i = 0; i < fRunMetadata.size(); i++ )
-        if ( fRunMetadata[i]->ClassName() == (TString) "TRestG4Metadata" )
-            return fRunMetadata[i];
-
-    return NULL;
-}
-
-//////////////////////////////////////////////////////////////////////////
-/// Returns pointer to G4 metadata
-///
-/// TODO : For the moment this function will return the first occurence of TRestDetectorSetup.
-/// What happens if there are several? And if I want to use one gas from the config file? 
-/// We need to introduce an option somewhere.
-/// For the moment I know there will be an existing gas file since the hits come from electronDiffusion.
-
-TRestMetadata *TRestEventProcess::GetDetectorSetup( )
-{
-    for( size_t i = 0; i < fRunMetadata.size(); i++ )
-        if ( fRunMetadata[i]->ClassName() == (TString) "TRestDetectorSetup" )
-            return fRunMetadata[i];
-
-    return NULL;
-}
-
-//////////////////////////////////////////////////////////////////////////
-/// Retrieve parameter with name parName from metadata className
-///
-/// \param className string with name of metadata class to access
-/// \param parName  string with name of parameter to retrieve
-///
-
-Double_t TRestEventProcess::GetDoubleParameterFromClass( TString className, TString parName )
-{
-    for( size_t i = 0; i < fRunMetadata.size(); i++ )
-        if ( fRunMetadata[i]->ClassName() == className )
-            return StringToDouble( fRunMetadata[i]->GetParameter( (string) parName ) );
-
-    return PARAMETER_NOT_FOUND_DBL;
-}
-
-//////////////////////////////////////////////////////////////////////////
-/// Retrieve parameter with name parName from metadata className
-///
-/// \param className string with name of metadata class to access
-/// \param parName  string with name of parameter to retrieve
-///
-
-Double_t TRestEventProcess::GetDoubleParameterFromClassWithUnits( TString className, TString parName )
-{
-    for( size_t i = 0; i < fRunMetadata.size(); i++ )
-        if ( fRunMetadata[i]->ClassName() == className )
-            return fRunMetadata[i]->GetDblParameterWithUnits( (string) parName );
-
-    return PARAMETER_NOT_FOUND_DBL;
-}
-
-Bool_t TRestEventProcess::OpenInputFile( TString fName )
-{
-    if( this->isExternal( ) )
-    {
-        cout << "REST Warning: " << endl;
-        cout << "This method should be overloaded in the derived class." << endl;
-    }
-
-    return false;
-}
-
-void TRestEventProcess::StampOutputEvent( TRestEvent *inEv )
-{
-    fOutputEvent->Initialize();
-
-    fOutputEvent->SetID( inEv->GetID() );
-    fOutputEvent->SetSubID( inEv->GetSubID() );
-    fOutputEvent->SetSubEventTag( inEv->GetSubEventTag() );
-
-    fOutputEvent->SetRunOrigin( inEv->GetRunOrigin()  );
-    fOutputEvent->SetSubRunOrigin( inEv->GetSubRunOrigin() );
-
-    fOutputEvent->SetTime( inEv->GetTime() );
+	fOutputEvent->SetTime(inEv->GetTime());
 }
 
 /*
 //______________________________________________________________________________
 void TRestEventProcess::InitProcess()
 {
-   // virtual function to be executed once at the beginning of process
-   // (before starting the process of the events)
-   cout << GetName() << ": Process initialization..." << endl;
+// virtual function to be executed once at the beginning of process
+// (before starting the process of the events)
+cout << GetName() << ": Process initialization..." << endl;
 }
 
 //______________________________________________________________________________
 void TRestEventProcess::ProcessEvent( TRestEvent *eventInput )
 {
-   // virtual function to be executed for every event to be processed
+// virtual function to be executed for every event to be processed
 }
 
 //______________________________________________________________________________
 void TRestEventProcess::EndProcess()
 {
-   // virtual function to be executed once at the end of the process 
-   // (after all events have been processed)
-   cout << GetName() << ": Process ending..." << endl;
+// virtual function to be executed once at the end of the process
+// (after all events have been processed)
+cout << GetName() << ": Process ending..." << endl;
 }
 */
 
@@ -267,27 +207,34 @@ void TRestEventProcess::EndProcess()
 
 void TRestEventProcess::BeginPrintProcess()
 {
-	cout << endl;
-	cout << "--------------------------------------------------------------------------------------------------" << endl;
-	cout << "-- Process : " << GetProcessName() << " Name : " << GetName() << " Title : " << GetTitle() << endl;
-	cout << "--------------------------------------------------------------------------------------------------" << endl;
+	essential.setcolor(COLOR_BOLDGREEN);
+	essential << endl;
+	essential << "=" << endl;
+	essential << "Process : " << ClassName() << endl;
+	essential << "-" << endl;
+	essential << "Name: " << GetName() << "  Title: " << GetTitle() << "  VerboseLevel: " << GetVerboseLevelString() << endl;
+	essential << "-" << endl;
+	string inputeventstr = (fInputEvent == NULL) ? "" : fInputEvent->ClassName();
+	string outputeventstr = (fOutputEvent == NULL) ? "" : fOutputEvent->ClassName();
+	essential << "InputEvent: " << inputeventstr << "  OutputEvent: " << outputeventstr << endl;
+	essential << "=" << endl;
+	essential << " " << endl;
 
-	cout << endl;
-	if( fObservableNames.size() > 0 )
+	if (fObservableNames.size() > 0)
 	{
-		cout << " Analysis tree observables added by this process " << endl;
-		cout << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
+		essential << " Analysis tree observables added by this process " << endl;
+		essential << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
 	}
 
-	for( unsigned int i = 0; i < fObservableNames.size(); i++ )
+	for (unsigned int i = 0; i < fObservableNames.size(); i++)
 	{
-		cout << " ++ " << fObservableNames[i] << endl;
+		essential << " ++ " << fObservableNames[i] << endl;
 	}
 
-	if( fObservableNames.size() > 0 )
+	if (fObservableNames.size() > 0)
 	{
-		cout << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
-		cout << endl;
+		essential << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
+		essential << " " << endl;
 	}
 }
 
@@ -295,9 +242,15 @@ void TRestEventProcess::BeginPrintProcess()
 /// Show default console output at finish of process
 ///
 
+
+
 void TRestEventProcess::EndPrintProcess()
 {
-   cout << endl;
-   cout << "--------------------------------------------------------------------------------------------------" << endl;
-   cout << endl;
+	essential << " " << endl;
+	essential << "=" << endl;
+	essential << endl;
+	essential << endl;
+	essential.resetcolor();
 }
+
+
