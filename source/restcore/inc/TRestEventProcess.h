@@ -69,7 +69,7 @@ public:
 								
 								  
 	//setters
-	void SetOutputLevel(REST_Process_Output lvl) { fOutputLevel = lvl; }
+	void SetOutputLevel(REST_Process_Output lvl) { fOutputLevel = lvl; if (fOutputLevel < Observable)fReadOnly = true; }
 	void SetAnalysisTree(TRestAnalysisTree *tree);
 	void SetRunInfo(TRestRun*r) { fRunInfo = r; }
 
@@ -99,7 +99,7 @@ protected:
 	std::vector <TString> fObservableNames;
 	//std::vector <Double_t*> fObservableRefs;//!
 
-
+	bool fReadOnly=false;
 
 	//utils
 	void BeginPrintProcess();

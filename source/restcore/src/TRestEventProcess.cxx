@@ -115,23 +115,24 @@ void TRestEventProcess::SetAnalysisTree(TRestAnalysisTree *tree)
 Int_t TRestEventProcess::LoadSectionMetadata()
 {
 	TRestMetadata::LoadSectionMetadata();
-
+	REST_Process_Output lvl;
 	string s = GetParameter("outputLevel", "full_output");
 	if (s == "no_output") {
-		fOutputLevel = No_Output;
+		lvl = No_Output;
 	}
 	else if (s == "observable")
 	{
-		fOutputLevel = Observable;
+		lvl = Observable;
 	}
 	else if (s == "internalval")
 	{
-		fOutputLevel = Internal_Var;
+		lvl = Internal_Var;
 	}
 	else
 	{
-		fOutputLevel = Full_Output;
+		lvl = Full_Output;
 	}
+	SetOutputLevel(lvl);
 	return 0;
 }
 
