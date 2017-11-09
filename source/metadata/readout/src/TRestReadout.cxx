@@ -410,7 +410,7 @@ void TRestReadout::InitFromConfigFile()
     while( ( moduleString = GetKEYStructure( "readoutModule", posSection ) ) != "NotFound" )
     {
         TRestReadoutModule module;
-        if( GetVerboseLevel() >= REST_Warning ) module.EnableWarnings();
+        if( GetVerboseLevel() >= REST_Essential ) module.EnableWarnings();
 
         string moduleDefinition = GetKEYDefinition( "readoutModule", moduleString );
 
@@ -418,7 +418,7 @@ void TRestReadout::InitFromConfigFile()
         module.SetSize( StringTo2DVector( GetFieldValue( "size", moduleDefinition ) ) );
         module.SetTolerance( StringToDouble( GetFieldValue( "tolerance", moduleDefinition ) ) );
 
-        if( debug )
+        if(GetVerboseLevel() >= REST_Debug)
         {
             cout << "------module-----------------" << endl;
             cout << moduleString << endl;
@@ -531,7 +531,7 @@ void TRestReadout::InitFromConfigFile()
                 fclose(f);
             }
 
-            if( debug )
+            if(GetVerboseLevel() >= REST_Debug)
             {
                 cout << "------module-----------------" << endl;
                 cout << moduleString << endl;
