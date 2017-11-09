@@ -90,7 +90,9 @@ int main( int argc, char *argv[] )
 
     cout << "Input file : " << inputFile.Data() << endl;
 
-    TRestManager *manager = new TRestManager( cfgFile.Data(), sectionName );
+    TRestManager *manager = new TRestManager( );
+
+	manager->LoadConfigFromFile(cfgFile.Data());
 
     manager->LaunchTasks( );
 

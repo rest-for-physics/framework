@@ -82,7 +82,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 ///////////////////////////////////////////////
 /// \brief Launch all the tasks in the task list in sequence
 ///
-void TRestManager::RunTasks() 
+void TRestManager::LaunchTasks() 
 {
 	for (int i = 0; i < fTasks.size(); i++) {
 		fTasks[i]->RunTask(this);

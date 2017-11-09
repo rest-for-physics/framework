@@ -32,7 +32,7 @@ public:
 	void Initialize();
 	Int_t ReadConfig(string keydeclare, TiXmlElement* e);
 
-	void RunTasks();
+	void LaunchTasks();
 
 	void PrintMetadata();
 
