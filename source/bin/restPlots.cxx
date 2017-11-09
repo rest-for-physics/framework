@@ -138,8 +138,8 @@ int main( int argc, char *argv[] )
 		}
 	}
 
-	TRestAnalysisPlot *anPlot = new TRestAnalysisPlot( cfgFileName, sectionName );
-
+	TRestAnalysisPlot *anPlot = new TRestAnalysisPlot( );
+	anPlot->LoadConfigFromFile(cfgFileName);
 	if( saveToPDFFile != "" )
 		anPlot->SetOutputPlotsFilename( saveToPDFFile );
 
