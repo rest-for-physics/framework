@@ -110,7 +110,7 @@ int main( int argc, char *argv[] )
         TRestRun *run = new TRestRun();
 
         string fname = fName.Data();
-        if( !run->fileExists( fname ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
+        if( !fileExists( fname ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
         else run->OpenInputFile( fName );
 
         /////////////////////////////
