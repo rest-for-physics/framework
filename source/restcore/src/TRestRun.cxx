@@ -1,6 +1,6 @@
 #include "TRestRun.h"
 #include "TRestManager.h"
-#include "TRestExternalFileProcess.h"
+#include "TRestEventProcess.h"
 
 
 
@@ -297,7 +297,7 @@ void TRestRun::ReadFileInfo(string filename)
 void TRestRun::ResetEntry()
 {
 	fCurrentEvent = 0;
-	if (fFileProcess != NULL) { fFileProcess->OpenInputExtFiles(fInputFileNames); fFileProcess->InitProcess(); }
+	if (fFileProcess != NULL) { fFileProcess->OpenInputFiles(fInputFileNames); fFileProcess->InitProcess(); }
 }
 
 
@@ -419,12 +419,12 @@ void TRestRun::CloseFile()
 }
 
 
-void TRestRun::SetExtProcess(TRestExternalFileProcess* p)
+void TRestRun::SetExtProcess(TRestEventProcess* p)
 {
 	if (fFileProcess == NULL&&p != NULL) {
 		fFileProcess = p;
 
-		if (fFileProcess->OpenInputExtFiles(fInputFileNames) == 0) {
+		if (fFileProcess->OpenInputFiles(fInputFileNames) == 0) {
 			error << "no files has been loaded by the external process!" << endl;
 			exit(0);
 		}

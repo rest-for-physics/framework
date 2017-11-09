@@ -132,9 +132,10 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement * e)
 			TRestEventProcess* p=InstantiateProcess(processType, e);
 			if (p->singleThreadOnly()) 
 			{
-				//FIX ME: what if single thread process is not file process?
-				//eg. event-viewer process
-				fRunInfo->SetExtProcess((TRestExternalFileProcess*)p);
+				//If the process declared single thread only, then it will be 
+				//regarded as file process(external process), generating event from raw file.
+				//It will be sent to TRestRun.
+				fRunInfo->SetExtProcess(p);
 				break;
 			}
 			else

@@ -19,7 +19,6 @@
 #include "TRestEvent.h"
 #include "TRestMetadata.h"
 #include "TRestEventProcess.h"
-#include "TRestExternalFileProcess.h"
 
 #include "TRestAnalysisTree.h"
 #include "TRestProcessRunner.h"

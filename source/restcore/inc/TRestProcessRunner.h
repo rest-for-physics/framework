@@ -4,7 +4,6 @@
 #include "TRestEvent.h"
 #include "TRestMetadata.h"
 #include "TRestEventProcess.h"
-#include "TRestExternalFileProcess.h"
 #include "TRestRun.h"
 #include "TRestAnalysisTree.h"
 #include <mutex>

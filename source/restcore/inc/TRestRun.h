@@ -13,8 +13,7 @@
 //#include "TRestThread.h"
 
 class TRestManager;
-class TRestExternalFileProcess;
-
+class TRestEventProcess;
 
 
 class TRestRun : public TRestMetadata {
@@ -81,7 +80,7 @@ public:
 	int GetEntries() { return GetTotalEntries(); }
 	int GetTotalEntries() { if (fInputAnalysisTree != NULL) { return fInputAnalysisTree->GetEntries(); } return 2E9; }
 	TRestEvent* GetInputEvent() { return fInputEvent; }
-	TRestExternalFileProcess* GetFileProcess() { return fFileProcess; }
+	TRestEventProcess* GetFileProcess() { return fFileProcess; }
 	string GetFileInfo(string infoname) { return FileInfo[infoname] == "" ? infoname : FileInfo[infoname]; }
 	Int_t GetObservableID(TString name) { return fInputAnalysisTree->GetObservableID(name); }
 	Bool_t ObservableExists(TString name) { return fInputAnalysisTree->ObservableExists(name); }
@@ -94,7 +93,7 @@ public:
 	//Setters
 	void SetHostmgr(TRestManager*m) { fHostmgr = m; }
 	void SetInputFileName(string s) { fInputFileName = s; fInputFileNames = GetFilesMatchingPattern(fInputFileName); }
-	void SetExtProcess(TRestExternalFileProcess* p);
+	void SetExtProcess(TRestEventProcess* p);
 	void SetCurrentEntry(int i) { fCurrentEvent = i; }
 	//void AddFileTask(TRestFileTask* t) { fFileTasks.push_back(t); }
 	void SetInputEvent(TRestEvent* eve) { fInputEvent = eve; }
@@ -144,7 +143,7 @@ protected:
 	TRestEvent* fInputEvent;//!
 	TRestAnalysisTree *fInputAnalysisTree;//!
 
-	TRestExternalFileProcess* fFileProcess;//!
+	TRestEventProcess* fFileProcess;//!
 	int fCurrentEvent;
 
 	//vector<TRestFileTask*> fFileTasks;//!
