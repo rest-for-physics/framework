@@ -72,6 +72,8 @@ public:
 	void SetOutputLevel(REST_Process_Output lvl) { fOutputLevel = lvl; if (fOutputLevel < Observable)fReadOnly = true; }
 	void SetAnalysisTree(TRestAnalysisTree *tree);
 	void SetRunInfo(TRestRun*r) { fRunInfo = r; }
+	void SetCanvasSize(Int_t x, Int_t y) { fCanvasSize = TVector2(x, y); }
+
 
 	//getters
 	REST_Process_Output GetOutputLevel() { return fOutputLevel; }
@@ -80,13 +82,18 @@ public:
 	Bool_t singleThreadOnly() { return fSingleThreadOnly; }
 	TRestRun* GetRunInfo() { return fRunInfo; }
 	vector<string> GetAvailableObservals();
+	TRestAnalysisTree *GetAnalysisTree() { return fAnalysisTree; }
+	TCanvas *GetCanvas() { return fCanvas; }
+
+
 
 protected:
 
 	TRestEvent *fInputEvent = NULL;	//!///< Pointer to input event
 	TRestEvent *fOutputEvent = NULL;    //!///< Pointer to output event
 
-										//std::vector <TRestMetadata*> fRunMetadata; //!///< Array to other metadata classes needed by the process
+	TCanvas *fCanvas;//!
+	TVector2 fCanvasSize;//!
 
 	TRestAnalysisTree *fAnalysisTree = NULL; //!///< Pointer to analysis tree where to store the observables. 
 
@@ -99,7 +106,11 @@ protected:
 	std::vector <TString> fObservableNames;
 	//std::vector <Double_t*> fObservableRefs;//!
 
-	bool fReadOnly=false;
+	bool fReadOnly=false;//!
+
+
+
+
 
 	//utils
 	void BeginPrintProcess();
@@ -110,7 +121,12 @@ protected:
 	TRestMetadata *GetGeant4Metadata() { return GetMetadata("TRestG4Metadata"); }
 	TRestMetadata *GetDetectorSetup() { return GetMetadata("TRestDetectorSetup"); }
 	void StampOutputEvent(TRestEvent *inEv);
+	void CreateCanvas()
+	{
+		if (fCanvas != NULL) return;
 
+		fCanvas = new TCanvas(this->GetName(), this->GetTitle(), fCanvasSize.X(), fCanvasSize.Y());
+	}
 	
 	void TransferEvent(TRestEvent*evOutput, TRestEvent*evInput)
 	{
