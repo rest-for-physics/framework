@@ -236,6 +236,6 @@ void TRestElectronDiffusionProcess::InitFromConfigFile( )
     fAttachment = StringToDouble( GetParameter( "attachment", "0" ) );
     fLonglDiffCoeff = StringToDouble( GetParameter( "longitudinalDiffusionCoefficient" , "0") );
     fTransDiffCoeff = StringToDouble( GetParameter( "transversalDiffusionCoefficient" , "0") );
-    fWvalue = GetDblParameterWithUnits( "Wvalue" , 0) * REST_Units::eV;
+    fWvalue = GetDblParameterWithUnits( "Wvalue" , (double)0) * REST_Units::eV;
     fMaxHits = StringToInteger( GetParameter( "maxHits", "0" ) );
 }
