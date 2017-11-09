@@ -47,10 +47,14 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    Int_t fRunOrigin;
    Int_t fSubRunOrigin;
 
-   TString fFilenameFormat;
+   Int_t nFiles;//!
+   std::vector<FILE *> fInputFiles;//!
+   std::vector<TString> fInputFileNames;//!
    #endif
    
    void LoadDefaultConfig();
+
+
 
  public:
    virtual void Initialize();
@@ -65,13 +69,13 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    void SetRunOrigin( Int_t runOrigin ) { fRunOrigin = runOrigin; }
    void SetSubRunOrigin( Int_t subOrigin ) { fSubRunOrigin = subOrigin; }
 
-   TString GetFilenameFormat() { return fFilenameFormat; }
-
    void LoadConfig( std::string cfgFilename, std::string name = "" );
 
    void PrintMetadata();
    
    Bool_t OpenInputBinFile(TString fName);
+
+   Bool_t OpenInputFiles(vector<TString> files);
    
    void printBits(unsigned short num);
    void printBits(unsigned int num);

@@ -63,9 +63,8 @@ void TRestRawToSignalProcess::Initialize()
 
     fMinPoints = 512;
 
-    fIsExternal = true;
+	fSingleThreadOnly = true;
 
-    fFilenameFormat = "";
 }
 
 void TRestRawToSignalProcess::BeginOfEventProcess() 
@@ -78,7 +77,6 @@ void TRestRawToSignalProcess::InitFromConfigFile(){
 
    fElectronicsType = GetParameter("electronics");
    fMinPoints = StringToInteger( GetParameter("minPoints", "512" ) );
-   fFilenameFormat = GetParameter("fileFormat");
    if(fElectronicsType=="")
    {
        cout << "electronic type not found " << endl;
@@ -163,6 +161,41 @@ Bool_t TRestRawToSignalProcess::OpenInputBinFile ( TString fName )
 
 	return kTRUE;
 }
+
+
+Bool_t TRestRawToSignalProcess::OpenInputFiles(vector<TString> files)
+{
+
+	nFiles = 0;
+	fInputFiles.clear();
+	fInputFileNames.clear();
+
+	for (int i = 0; i < files.size(); i++) {
+
+		FILE *f = fopen(files[i].Data(), "rb");
+
+		if (f == NULL)
+		{
+			cout << "WARNING. Input file does not exist" << endl;
+			cout << "File : " << files[i] << endl;
+			continue;
+		}
+
+		fInputFiles.push_back(f);
+		fInputFileNames.push_back(files[i]);
+		nFiles++;
+	}
+
+	debug << this->GetName() << " : opened " << nFiles << " files" << endl;
+	return nFiles;
+}
+
+
+
+
+
+
+
 
 //For debugging
 void  TRestRawToSignalProcess::printBits(unsigned short num)
