@@ -34,7 +34,6 @@ class TRestTrackAnalysisProcess:public TRestEventProcess {
         std::vector <Double_t> fTrack_HE_Threshold;
         std::vector <Int_t> nTracks_HE;
 
-
         std::vector <std::string> fTrack_En_EnergyObservables;
         std::vector <Double_t> fTrack_En_Threshold;
         std::vector <Int_t> nTracks_En;
@@ -47,7 +46,7 @@ class TRestTrackAnalysisProcess:public TRestEventProcess {
         void LoadDefaultConfig();
 
     protected:
-        
+
         //add here the members of your event process
 
         TVector2 fNTracksXCut;
@@ -63,24 +62,24 @@ class TRestTrackAnalysisProcess:public TRestEventProcess {
 
         void LoadConfig( std::string cfgFilename, std::string name = "" );
 
-	void PrintMetadata() { 
+        void PrintMetadata() { 
 
-		BeginPrintProcess();
+            BeginPrintProcess();
 
-		if( fCutsEnabled )
-		{
-			cout << "Number of tracks in X cut : ( " << fNTracksXCut.X() << " , " << fNTracksXCut.Y() << " ) " << endl;
-			cout << "Number of tracks in Y cut : ( " << fNTracksYCut.X() << " , " << fNTracksYCut.Y() << " ) " << endl;
-		}
-		else
-		{
-			cout << endl;
-			cout << "No cuts have been enabled" << endl;
+            if( fCutsEnabled )
+            {
+                cout << "Number of tracks in X cut : ( " << fNTracksXCut.X() << " , " << fNTracksXCut.Y() << " ) " << endl;
+                cout << "Number of tracks in Y cut : ( " << fNTracksYCut.X() << " , " << fNTracksYCut.Y() << " ) " << endl;
+            }
+            else
+            {
+                cout << endl;
+                cout << "No cuts have been enabled" << endl;
 
-		}
+            }
 
-		EndPrintProcess();
-	}
+            EndPrintProcess();
+        }
 
         TString GetProcessName() { return (TString) "trackAnalysis"; }
 
