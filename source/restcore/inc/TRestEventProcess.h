@@ -111,6 +111,22 @@ protected:
 	TRestMetadata *GetDetectorSetup() { return GetMetadata("TRestDetectorSetup"); }
 	void StampOutputEvent(TRestEvent *inEv);
 
+	
+	void TransferEvent(TRestEvent*evOutput, TRestEvent*evInput)
+	{
+		if (evInput == NULL)return;
+		if (evOutput != NULL)
+		{
+			//copy without changing address
+			evInput->CloneTo(evOutput);
+		}
+		else
+		{
+			//clone and set the address of output event
+			evOutput = (TRestEvent*)evInput->Clone();
+		}
+		
+	}
 
 
 };
