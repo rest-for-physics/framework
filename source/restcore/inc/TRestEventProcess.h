@@ -103,6 +103,8 @@ protected:
 
 	TRestRun* fRunInfo = NULL;//!
 
+	vector<TRestEventProcess*> fFriendlyProcesses;
+
 	std::vector <TString> fObservableNames;
 	//std::vector <Double_t*> fObservableRefs;//!
 
@@ -120,6 +122,8 @@ protected:
 	TRestMetadata *GetReadoutMetadata() { return GetMetadata("TRestReadout"); }
 	TRestMetadata *GetGeant4Metadata() { return GetMetadata("TRestG4Metadata"); }
 	TRestMetadata *GetDetectorSetup() { return GetMetadata("TRestDetectorSetup"); }
+	Double_t GetDoubleParameterFromClass(TString className, TString parName);
+	Double_t GetDoubleParameterFromClassWithUnits(TString className, TString parName);
 	void StampOutputEvent(TRestEvent *inEv);
 	void CreateCanvas()
 	{

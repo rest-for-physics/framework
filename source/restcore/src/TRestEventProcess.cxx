@@ -254,4 +254,27 @@ void TRestEventProcess::EndPrintProcess()
 	essential.resetcolor();
 }
 
+Double_t TRestEventProcess::GetDoubleParameterFromClass(TString className, TString parName)
+{
+	for (size_t i = 0; i < fFriendlyProcesses.size(); i++)
+		if (fFriendlyProcesses[i]->ClassName() == className)
+			return StringToDouble(fFriendlyProcesses[i]->GetParameter((string)parName));
 
+	return PARAMETER_NOT_FOUND_DBL;
+}
+
+//////////////////////////////////////////////////////////////////////////
+/// Retrieve parameter with name parName from metadata className
+///
+/// \param className string with name of metadata class to access
+/// \param parName  string with name of parameter to retrieve
+///
+
+Double_t TRestEventProcess::GetDoubleParameterFromClassWithUnits(TString className, TString parName)
+{
+	for (size_t i = 0; i < fFriendlyProcesses.size(); i++)
+		if (fFriendlyProcesses[i]->ClassName() == className)
+			return fFriendlyProcesses[i]->GetDblParameterWithUnits((string)parName);
+
+	return PARAMETER_NOT_FOUND_DBL;
+}
