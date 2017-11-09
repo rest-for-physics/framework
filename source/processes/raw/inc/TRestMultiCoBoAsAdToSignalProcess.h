@@ -23,58 +23,109 @@
 #define RestCore_TRestMultiCoBoAsAdToSignalProcess
 
 #include "TRestRawToSignalProcess.h"
+#include "TRestRawSignalEvent.h"
 #include "TRestSignalEvent.h"
+#include <map>
 
 struct CoBoDataFrame {
-  TTimeStamp timeStamp;
-  Bool_t chHit[272];
-  Int_t data[272][512];
-  Int_t evId;
-  Int_t asadId;
+	CoBoDataFrame()
+	{
+		timeStamp = 0;
+		evId = -1;
+		asadId = -1;
+		for (int m = 0; m < 272; m++)
+			chHit[m] = kFALSE;
+
+		for (int m = 0; m < 272; m++)
+			for (int l = 0; l < 512; l++)
+				data[m][l] = 0;
+	}
+	TTimeStamp timeStamp;
+	Bool_t chHit[272];
+	Int_t data[272][512];
+	Int_t evId;//if equals -1, this data frame is used but have not been re-filled
+	Int_t asadId;
 };
 
-class TRestMultiCoBoAsAdToSignalProcess:public TRestRawToSignalProcess {
+struct CoBoHeaderFrame {
+	CoBoHeaderFrame() {
+		for (int m = 0; m < 256; m++)
+			frameHeader[m] = 0;
+	}
+	UChar_t frameHeader[256];//256: size of header of the cobo data frame
 
-	private:
+	unsigned int frameSize;
+	unsigned int frameType;
+	unsigned int revision;
+	unsigned int headerSize;
+	unsigned int itemSize;
+	unsigned int nItems;
+	unsigned int eventIdx;
+	unsigned int asadIdx;
+	unsigned int readOffset;
+	unsigned int status;
 
-		TTimeStamp fStartTimeStamp;
+	Long64_t eventTime;
+	//TTimeStamp fEveTimeStamp;
+	//int fEveTimeSec;
+	//int fEveTimeNanoSec;
+};
 
-		Int_t nFiles;
+class TRestMultiCoBoAsAdToSignalProcess :public TRestRawToSignalProcess {
+
+private:
+
+
 
 #ifndef __CINT__
+	TRestRawSignalEvent *fSignalEvent;//!
+	TRestRawSignal sgnl;//!
 
-		std::vector <FILE *> fInputMultiBinFiles;
+	UChar_t frameDataP[2048];//!///for partial readout data frame
+	UChar_t frameDataF[278528];//!///for full readout data frame
 
-		std::vector <CoBoDataFrame> fDataFrame;
 
-		TRestRawSignal sgnl;
+	TTimeStamp fStartTimeStamp;//!
+
+	std::map<int, CoBoDataFrame> fDataFrame;//!///asadId, dataframe
+
+	vector<CoBoHeaderFrame> fHeaderFrame;//!///reserves a header frame for each file
+
+	int fCurrentEvent = -1;//!
+	int fNextEvent = -1;//!
 #endif
 
-	public:
-		void InitProcess();
-		void Initialize();
+public:
+	void InitProcess();
+	void Initialize();
 
-		Bool_t OpenInputMultiCoBoAsAdBinFile( std::vector <TString> fNames );
+	Bool_t InitializeStartTimeStampFromFilename(TString fName);
 
-		Bool_t InitializeStartTimeStampFromFilename( TString fName );
+	TRestEvent *ProcessEvent(TRestEvent *evInput);
 
-		TRestEvent *ProcessEvent( TRestEvent *evInput );
+	Bool_t FillBuffer(Int_t n);
 
-		Bool_t FillBuffer( Int_t n );
-		void ClearBuffer( Int_t n );
+	bool fillbuffer();
 
-		Int_t GetLowestEventId(  );
+	bool ReadFrameHeader(CoBoHeaderFrame& Frame);
 
-		Bool_t EndReading( );
 
-		TString GetProcessName(){ return (TString) "MultiCoBoAsAdToSignal"; }
+	bool ReadFrameDataP(FILE*f, CoBoHeaderFrame& hdr);
+	bool ReadFrameDataF(CoBoHeaderFrame& hdr);
 
-		//Constructor
-		TRestMultiCoBoAsAdToSignalProcess();
-		TRestMultiCoBoAsAdToSignalProcess(char *cfgFileName);
-		//Destructor
-		~TRestMultiCoBoAsAdToSignalProcess();
 
-		ClassDef(TRestMultiCoBoAsAdToSignalProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+	void ClearBuffer(Int_t n);
+
+	Int_t GetLowestEventId();
+
+	Bool_t EndReading();
+
+	//Constructor
+	TRestMultiCoBoAsAdToSignalProcess();
+	TRestMultiCoBoAsAdToSignalProcess(char *cfgFileName);
+	//Destructor
+	~TRestMultiCoBoAsAdToSignalProcess();
+
+	ClassDef(TRestMultiCoBoAsAdToSignalProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
 };
 #endif

@@ -59,7 +59,7 @@ public:
 	Int_t LoadSectionMetadata();
 	vector<string> ReadObservables();
 
-	virtual Bool_t OpenInputFiles(vector<TString> files) {}
+	virtual Bool_t OpenInputFiles(vector<TString> files) { return false; }
 
 	virtual void InitProcess() { } ///< To be executed at the beginning of the run
 	virtual void BeginOfEventProcess() { }
