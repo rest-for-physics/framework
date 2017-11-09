@@ -293,7 +293,7 @@ void TRestGeant4AnalysisProcess::EndProcess()
 //______________________________________________________________________________
 void TRestGeant4AnalysisProcess::InitFromConfigFile( )
 {
-    fLowEnergyCut = GetDblParameterWithUnits ( "lowEnergyCut", 0 );
-    fHighEnergyCut = GetDblParameterWithUnits ( "highEnergyCut", 0 );
+    fLowEnergyCut = GetDblParameterWithUnits ( "lowEnergyCut", fLowEnergyCut=0 );
+    fHighEnergyCut = GetDblParameterWithUnits ( "highEnergyCut", fHighEnergyCut=0 );
 }
 
