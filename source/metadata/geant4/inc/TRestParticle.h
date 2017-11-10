@@ -45,7 +45,12 @@ class TRestParticle:public TObject {
         }
 
         void SetParticleName( TString ptcle ) { fParticleName = ptcle; }
-        void SetExcitationLevel( Double_t eenergy ) { fExcitationLevel= eenergy; }
+        void SetExcitationLevel( Double_t eenergy )
+        {
+            fExcitationLevel = eenergy;
+            if( fExcitationLevel < 0 ) fExcitationLevel = 0;
+        }
+
         void SetDirection( TVector3 dir ) { fDirection = dir; }
         void SetEnergy( Double_t en ) { fEnergy = en; }
 
