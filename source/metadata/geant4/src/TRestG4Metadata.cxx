@@ -802,7 +802,7 @@ void TRestG4Metadata::ReadGenerator()
 
         source.SetParticleName( GetFieldValue( "particle", sourceDefinition ) );
    
-        source.SetExcitationLevel(StringToDouble(GetFieldValue( "excitedLevel", sourceDefinition  )) );
+        source.SetExcitationLevel( StringToDouble(GetFieldValue( "excitedLevel", sourceDefinition  )) );
      
         TString fullChain = GetFieldValue( "fullChain", sourceDefinition );
 
