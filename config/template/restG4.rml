@@ -16,16 +16,7 @@ By default REST units are mm, keV and degrees
 
 <environment>
 
-    <!-- You may add local environment variables inside this special section.
-
-         If overwrite in false. An external environment definition will have priority over
-         this internal definition.
-
-            <variable name="DUMMY" value="dummyValue" overwrite="false" />
-
-         After this is defined you can use ${DUMMY} anywhere in the RML file.
-     -->
-
+    <variable name="NEVENTS" value="100" overwrite="false" />
 
     <!-- You may use
 
@@ -42,13 +33,13 @@ By default REST units are mm, keV and degrees
     <parameter name="verboseLevel" value="warning" /> %options are : silent, warning, info, debug
 </globals>
 
-<section TRestRun name="Run metadata" title="REST Metadata run info (template)">
+<section TRestRun name="Run metadata" title="REST Metadata run info (Example)" verboseLevel="debug">
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
     <parameter name="runNumber" value="auto"/>
     <parameter name="readOnly" value="false" />
     <parameter name="runTag" value="Template"/>
-    <parameter name="runDescription" value="We launch just 100 events to check everything is ok."/>
+    <parameter name="runDescription" value="We launch just ${NEVENTS} events."/>
     <parameter name="user" value="${USER}"/>
     <parameter name="verboseLevel" value="3"/>
     <parameter name="overwrite" value="off" />
@@ -56,9 +47,10 @@ By default REST units are mm, keV and degrees
     <parameter name="readOnly" value="false" />
 </section>
 
-<section TRestG4Metadata name="DBDsimulation" title="A dummy DBD simulation">
+<!-- Example 01: Simulation of neutrinoless double beta decay events in 136Xe.
+                 This example uses a Decay0 external file generator. -->
+<section TRestG4Metadata name="NLDBD" title="A NLDBD simulation">
 
-    <!-- The number of events to be simulated is now defined in TRestG4Metadata -->
     <parameter name="Nevents" value="100" />
 
     <parameter name="geometryPath" value="${REST_PATH}/config/template/geometry/" />
@@ -72,27 +64,63 @@ By default REST units are mm, keV and degrees
         </source>
     </generator>
 
-    <!--
-    <generator type="volume" from="gas" >
-        <source particle="Na22" excitedLevel="0.0" fullChain="on">
-            <angularDist type="isotropic" >
-                <energyDist type="mono" energy="0.0" units="MeV" />
-            </source>
-    </generator>
-    -->
-
-    <biasing value="off" type="virtualBox">
-        <biasingVolume size="2850" units="mm" position="(0,0,0)" units="mm" factor="10" energyRange="(2.4,5)" units="MeV" />
-        <biasingVolume size="2450" units="mm" position="(0,0,0)" units="mm" factor="10" energyRange="(2.4,5)" units="MeV" />
-        <biasingVolume size="2050" units="mm" position="(0,0,0)" units="mm" factor="10" energyRange="(2.4,5)" units="MeV" />
-    </biasing>
-
     <storage sensitiveVolume="gas">
         <parameter name="energyRange" value="(0,5)" units="MeV" />
         <activeVolume name="gas" chance="1" />
     </storage>
-
 </section>
+
+<!-- Example 02: Simulation of a cosmic muon shower above the detector.
+                 This example uses a Decay0 external file generator. -->
+<section TRestG4Metadata name="MuonShower" title="A muon shower at surface">
+
+    <parameter name="Nevents" value="${NEVENTS}" />
+
+    <parameter name="geometryPath" value="${REST_PATH}/config/template/geometry/" />
+    <parameter name="gdml_file" value="mySetupTemplate.gdml"/>
+
+    <parameter name="maxTargetStepSize" value="10" units="mm" />
+    <parameter name="subEventTimeDelay" value="100" units="us" />
+
+    <generator type="virtualWall" position="(0,200,0)" units="cm" size="200" units="cm" rotation="(90,0,0)" >
+        <source particle="mu-" >
+            <energyDist type="TH1D" file="${REST_PATH}/inputData/distributions/Muons.root" spctName="cosmicmuon" range="(150,400)" units="GeV" >
+            <angularDist type="TH1D" file="${REST_PATH}/inputData/distributions/CosmicAngles.root" spctName="Theta2">
+        </source>
+    </generator>
+
+    <storage sensitiveVolume="gas">
+        <parameter name="energyRange" value="(0,100)" units="GeV" />
+        <activeVolume name="gas" chance="1" />
+        <activeVolume name="vessel" chance="1" />
+    </storage>
+</section>
+
+<!-- Example 03: Simulation of a radiactive source 
+                 at a fixed detector position inside the active volume. -->
+<section TRestG4Metadata name="Cd109" title="A Cd109 radiative isotope simulation">
+
+    <parameter name="Nevents" value="${NEVENTS}" />
+
+    <parameter name="geometryPath" value="${REST_PATH}/config/template/geometry/" />
+    <parameter name="gdml_file" value="mySetupTemplate.gdml"/>
+
+    <parameter name="maxTargetStepSize" value="0.2" units="mm" />
+    <parameter name="subEventTimeDelay" value="100" units="us" />
+
+    <generator type="point" position="(0,0,0)" units="mm" >
+        <source particle="Cd109" fullChain="on">
+            <angularDist type="isotropic" />
+            <energyDist type="mono" energy="0" units="keV" />
+        </source>
+    </generator>
+
+    <storage sensitiveVolume="gas">
+        <parameter name="energyRange" value="(0,100)" units="keV" />
+        <activeVolume name="gas" chance="1" />
+    </storage>
+</section>
+
 
 <section TRestPhysicsLists name="default" title="First physics list implementation." verboseLevel="debug" >
 
@@ -126,11 +154,4 @@ By default REST units are mm, keV and degrees
     <physicsList name="G4EmExtraPhysics"> </physicsList>
 
 </section>
-
-
-<!-- If the manager is not used we can still use nameref to reference a external file where we have the real definition -->
-<section TRestReadout nameref="Readout-PANDA_3MM_Single" file="${REST_PATH}/inputData/definitions/readouts.rml"> </section>
-
-<section TRestGas nameref="Xenon-TMA 3Pct 10-10E3V/cm" file="${REST_PATH}/inputData/definitions/gases.rml"> </section>
-<!-- -->
 
