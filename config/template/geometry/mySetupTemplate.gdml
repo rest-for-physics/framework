@@ -31,9 +31,6 @@
 
         <!-- The vessel definitions -->
         <constant name="vesselThickness" value="50" />
-
-        <!-- The water tank -->
-        <constant name="waterTankSize" value="8000" />
     </define>
 
     &materials;
