@@ -88,17 +88,19 @@ int main(int argc,char** argv) {
     restG4Metadata = new TRestG4Metadata( inputConfigFile, (string) restG4Name );
     restPhysList = new TRestPhysicsLists( inputConfigFile, (string) physListName );
 
-    restRun = new TRestRun( inputConfigFile );
+    restRun = new TRestRun();
+	restRun->LoadConfigFromFile(inputConfigFile);
     restRun->SetRunTag( restG4Metadata->GetTitle() );
-    restRun->OpenOutputFile();
 
     restG4Event = new TRestG4Event( );
     subRestG4Event = new TRestG4Event( );
-    restRun->SetOutputEvent( subRestG4Event );
+    restRun->SetInputEvent( subRestG4Event );
 
     restRun->AddMetadata( restG4Metadata );
     restRun->AddMetadata( restPhysList );
     restRun->PrintInfo();
+
+	restRun->FormOutputFile();
 
     restTrack = new TRestG4Track( );
     // }}} 
@@ -352,9 +354,9 @@ int main(int argc,char** argv) {
     //
     delete runManager;
 
-    restRun->CloseOutputFile();
+    //restRun->CloseOutputFile();
 
-    TString Filename = restRun->GetOutputFilename();
+    TString Filename = restRun->GetOutputFileName();
 
     delete restRun;
 

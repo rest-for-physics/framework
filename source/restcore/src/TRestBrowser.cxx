@@ -177,19 +177,19 @@ Bool_t TRestBrowser::OpenFile( TString fName )
        if ( className == "TGeoManager" ) 
 		   geometry = (TGeoManager *) fInputFile->Get( key->GetName() );
 	   if(className=="TRestAnalysisTree")
-		   fInputAnalysisTree= (TRestAnalysisTree *)fInputFile->Get(key->GetName());
+		   fAnalysisTree= (TRestAnalysisTree *)fInputFile->Get(key->GetName());
     }
 
-    if( fInputAnalysisTree == NULL )
+    if( fAnalysisTree == NULL )
     {
         cout << "REST ERROR (SetInputEvent) : TRestAnalysisTree was not found" << endl;
-        cout << "Inside file : " << fInputFilename << endl;
+        cout << "Inside file : " << fInputFileName << endl;
         exit(1);
     }
  
 
-    fInputAnalysisTree->ConnectEventBranches( );
-    fInputAnalysisTree->ConnectObservables( );
+    fAnalysisTree->ConnectEventBranches( );
+    fAnalysisTree->ConnectObservables( );
 
     // Transfering metadata to historic   
     SetInputEvent(fEventViewer->GetEvent());
@@ -208,8 +208,8 @@ Bool_t TRestBrowser::LoadEvent( Int_t n ){
 
 if(!isFile){cout<<"No file..."<<endl;return kFALSE;}
 
-if(n<fInputAnalysisTree->GetEntries()&&n>=0){
-fInputAnalysisTree->GetEntry(n);
+if(n<fAnalysisTree->GetEntries()&&n>=0){
+fAnalysisTree->GetEntry(n);
 
         this->GetEntry(fCurrentEvent);
         GetAnalysisTree()->PrintObservables();

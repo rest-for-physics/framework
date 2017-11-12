@@ -62,11 +62,11 @@ int main( int argc, char *argv[] )
 
     sprintf( iFile, "%s", argv[1] );
 
-    TFile * fInputFile = new TFile( iFile );
+    TFile * fFile = new TFile( iFile );
 
-    if( fInputFile == NULL ) { cout << "I could not open file : " << iFile << endl; return 0; }
+    if( fFile == NULL ) { cout << "I could not open file : " << iFile << endl; return 0; }
 
-    TIter nextkey(fInputFile->GetListOfKeys());
+    TIter nextkey(fFile->GetListOfKeys());
     TKey *key;
     Int_t c = 0;
     cout << "==========================================" << endl;

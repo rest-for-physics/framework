@@ -165,7 +165,7 @@ void PhysicsList::InitializePhysicsLists()
         emCounter++;
     }
 
-    if( restPhysList->GetVerboseLevel() >= REST_Warning && emCounter == 0 )
+    if( restPhysList->GetVerboseLevel() >= REST_Essential && emCounter == 0 )
     {
         G4cout << "REST WARNING : No electromagenetic physics list has been enabled!!" << G4endl;
     }
@@ -255,7 +255,7 @@ void PhysicsList::ConstructProcess()
             radioactiveDecay->SetICM(true);                //Internal Conversion
         else if( restPhysList->GetPhysicsListOptionValue( "G4RadioactiveDecay", "ICM" ) == "false" )
             radioactiveDecay->SetICM(false);                //Internal Conversion
-        else if( restPhysList->GetVerboseLevel( ) >= REST_Warning )
+        else if( restPhysList->GetVerboseLevel( ) >= REST_Essential )
                 G4cout << "REST WARNING. restG4. PhysicsList. G4RadioactiveDecay. Option ICM not defined." << G4endl;
 
         // Enabling electron re-arrangment (ARM) option.
@@ -263,7 +263,7 @@ void PhysicsList::ConstructProcess()
             radioactiveDecay->SetARM(true);                //Internal Conversion
         else if( restPhysList->GetPhysicsListOptionValue( "G4RadioactiveDecay", "ARM" ) == "false" )
             radioactiveDecay->SetARM(false);                //Internal Conversion
-        else if( restPhysList->GetVerboseLevel( ) >= REST_Warning )
+        else if( restPhysList->GetVerboseLevel( ) >= REST_Essential )
                 G4cout << "REST WARNING. restG4. PhysicsList. G4RadioactiveDecay. Option ARM not defined." << G4endl;
     }
 

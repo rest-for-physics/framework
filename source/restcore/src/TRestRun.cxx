@@ -22,6 +22,9 @@ TRestRun::~TRestRun()
 	if (fInputFile != NULL) {
 		fInputFile->Close(); delete fInputFile;
 	}
+	if (fOutputFile != NULL) {
+		fOutputFile->Close(); delete fOutputFile;
+	}
 	//if (fOutputFile != NULL) CloseOutputFile();
 }
 
@@ -49,16 +52,17 @@ void TRestRun::Initialize()
 
 	//fOutputAnalysisTree = NULL;
 
-	fInputFilename = "null";
-	fOutputFilename = "default";
+	fInputFileName = "null";
+	fOutputFileName = "default";
 
 
 	fProcessedEvents = 0;
 
 	fInputFileNames.clear();
 	fInputFile = NULL;
+	fOutputFile = NULL;
 	fInputEvent = NULL;
-	fInputAnalysisTree = NULL;
+	fAnalysisTree = NULL;
 	fCurrentEvent = 0;
 	fFileProcess = NULL;
 	fOutputFileName = "";
@@ -117,8 +121,8 @@ void TRestRun::EndOfInit()
 	fRunUser = GetParameter("user").c_str();
 	fRunType = GetParameter("runType", "NotDefined").c_str();
 	fRunDescription = GetParameter("runDescription").c_str();
-	fInputFilename = GetParameter("inputFile", "default").c_str();
-	fOutputFilename = GetParameter("outputFormat", "default.root").c_str();
+	fInputFileName = GetParameter("inputFile", "default").c_str();
+	fOutputFileName = GetParameter("outputFormat", "default.root").c_str();
 	fExperimentName = GetParameter("experiment", "preserve").c_str();
 	fRunTag = GetParameter("runTag", "preserve").c_str();
 
@@ -166,11 +170,11 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 		TRestAnalysisTree * AnalysisTree = (TRestAnalysisTree *)fInputFile->Get("AnalysisTree");
 		if (AnalysisTree != NULL)
 		{
-			fInputAnalysisTree = AnalysisTree;
+			fAnalysisTree = AnalysisTree;
 
 
 			debug << "Finding event branch.." << endl;
-			TObjArray* branches = fInputAnalysisTree->GetListOfBranches();
+			TObjArray* branches = fAnalysisTree->GetListOfBranches();
 			TBranch *br = (TBranch*)branches->At(0);
 
 			if (Count(br->GetName(), "EventBranch") == 0)
@@ -199,7 +203,7 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 		if (fFileProcess == NULL)
 			info << "Input file is not root file, a TRestExtFileProcess is needed!" << endl;
 		fInputFile = NULL;
-		fInputAnalysisTree = NULL;
+		fAnalysisTree = NULL;
 	}
 
 
@@ -311,14 +315,14 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 	}
 	else
 	{
-		if (fInputAnalysisTree != NULL)
+		if (fAnalysisTree != NULL)
 		{
-			if (fInputAnalysisTree->GetEntries() <= fCurrentEvent - 1)fInputEvent = NULL;
+			if (fAnalysisTree->GetEntries() <= fCurrentEvent - 1)fInputEvent = NULL;
 
-			fInputAnalysisTree->GetEntry(fCurrentEvent);
+			fAnalysisTree->GetEntry(fCurrentEvent);
 			if (targettree != NULL) {
-				for (int n = 0; n < fInputAnalysisTree->GetNumberOfObservables(); n++)
-					targettree->SetObservableValue(n, fInputAnalysisTree->GetObservableValue(n));
+				for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
+					targettree->SetObservableValue(n, fAnalysisTree->GetObservableValue(n));
 			}
 			fCurrentEvent++;
 		}
@@ -402,21 +406,50 @@ void TRestRun::MergeProcessFile(vector<string> filenames)
 
 	delete m;
 
-
+	fOutputFile = new TFile(fOutputFileName, "UPDATE");
+	for (int i = 0; i < fMetadataInfo.size(); i++) {
+		fMetadataInfo[i]->Write();
+	}
 
 	fout << this->ClassName() << " Created: " << filename << endl;
 
 }
 
+
+TFile* TRestRun::FormOutputFile() 
+{
+	CloseFile();
+	string filename = GetParameter("outputFile", "output_[Time].root");
+	fOutputFileName = FormFormat(filename);
+	fOutputFile = new TFile(filename.c_str(), "recreate");
+	this->Write();
+	for (int i = 0; i < fMetadataInfo.size(); i++) {
+		fMetadataInfo[i]->Write();
+	}
+	if (fInputEvent != NULL) {
+		//in future we will add lines to create event tree
+	}
+	return fOutputFile;
+}
+
+
 void TRestRun::CloseFile()
 {
+	if (fOutputFile != NULL) {
+		fOutputFile->Close(); delete fOutputFile; fOutputFile = NULL;
+	}
 	if (fInputFile != NULL) {
 		fInputFile->Close(); delete fInputFile; fInputFile = NULL;
 	}
-	if (fInputAnalysisTree != NULL) {
-		delete fInputAnalysisTree; fInputAnalysisTree = NULL;
+	if (fAnalysisTree != NULL) {
+		delete fAnalysisTree; fAnalysisTree = NULL;
+	}
+	if (fEventTree != NULL) {
+		delete fEventTree; fEventTree = NULL;
 	}
 }
+
+
 
 
 void TRestRun::SetExtProcess(TRestEventProcess* p)
@@ -431,7 +464,7 @@ void TRestRun::SetExtProcess(TRestEventProcess* p)
 
 		fInputEvent = fFileProcess->GetOutputEvent();
 		fInputFile = NULL;
-		fInputAnalysisTree = NULL;
+		fAnalysisTree = NULL;
 		info << "The external file process has been set! Name : " << fFileProcess->GetName() << endl;
 	}
 	else
@@ -522,15 +555,15 @@ TString TRestRun::GetTime(Double_t runTime)
 }
 
 
-string TRestRun::Get(string target)
+char* TRestRun::Get(string target)
 {
 	auto a = GetDataMemberWithName(target);
 	if (a != NULL)
 	{
-		return GetDataMemberStr(a);
+		return GetDataMemberRef(a);
 	}
 
-	return "";
+	return NULL;
 }
 
 //Printers
@@ -564,8 +597,8 @@ void TRestRun::PrintInfo()
 	//cout << "Number of processed events : " << fProcessedEvents << endl;
 	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
-	if(fInputAnalysisTree!=NULL)
-		fInputAnalysisTree->Show(0);
+	if(fAnalysisTree!=NULL)
+		fAnalysisTree->Show(0);
 
 }
 
