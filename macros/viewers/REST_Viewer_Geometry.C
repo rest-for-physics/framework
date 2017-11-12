@@ -11,8 +11,8 @@ Int_t REST_Viewer_Geometry( TString fName)
     TRestRun *run = new TRestRun( );
     run->OpenInputFile(fName);
         
-    TFile *fInputFile = new TFile( fName );
-    TGeoManager *geo = (TGeoManager *) fInputFile->Get( "Default" );
+    TFile *fFile = new TFile( fName );
+    TGeoManager *geo = (TGeoManager *) fFile->Get( "Default" );
 
     TGeoNode* node = geo->GetTopNode();
 

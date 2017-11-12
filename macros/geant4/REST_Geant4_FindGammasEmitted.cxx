@@ -1,5 +1,8 @@
-
-
+#include "TRestRun.h"
+#include "TObject.h"
+#include "TRestG4Metadata.h"
+#include "TRestG4Event.h"
+#include "TCanvas.h"
 Int_t REST_Geant4_FindGammasEmitted( TString fName )
 {
     cout << "Filename : " << fName << endl;
@@ -7,7 +10,7 @@ Int_t REST_Geant4_FindGammasEmitted( TString fName )
     TRestRun *run = new TRestRun();
     string fname = fName.Data();
 
-    if( !run->fileExists( fname ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
+    if( !fileExists( fname ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
 
     TFile *f = new TFile( fName );
 
