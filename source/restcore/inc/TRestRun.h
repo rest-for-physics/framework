@@ -39,7 +39,10 @@ public:
 	void ResetEntry();
 
 	Int_t GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettree);
-	void GetEntry(int i) { if (fAnalysisTree != NULL) { fAnalysisTree->GetEntry(i); } }
+	void GetEntry(int i) { 
+		if (fAnalysisTree != NULL) { fAnalysisTree->GetEntry(i); } 
+		if (fEventTree != NULL) { fEventTree->GetEntry(i); }
+	}
 
 	TString FormFormat(TString FilenameFormat);
 	void MergeProcessFile(vector<string> filenames);

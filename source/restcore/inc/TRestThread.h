@@ -59,13 +59,15 @@ public:
 
 	//getter and setter
 	void SetThreadId(Int_t id) { fThreadId = id; }
-	void SetBranchConfig(vector<string> i) { fTreeBranches = i; }
-	void SetOutputTree(TRestAnalysisTree* t) { fTree = t; }
+	void SetBranchConfig(vector<string> i) { fTreeBranchDef = i; }
+	void SetOutputTree(TRestAnalysisTree* t) { fAnalysisTree = t; }
 	void SetTRestRunner(TRestProcessRunner* r) { fHostRunner = r; }
 	TFile* GetOutputFile() { return fOutputFile; };
+	TRestEvent* GetOutputEvent() { return fOutputEvent; }
 	Int_t GetProcessnum() { return fProcessChain.size(); }
 	TRestEventProcess* GetProcess(int i) { return fProcessChain[i]; }
-	TRestAnalysisTree* GetAnalysisTree() { return fTree; }
+	TRestAnalysisTree* GetAnalysisTree() { return fAnalysisTree; }
+	TRestAnalysisTree* GetEventTree() { return fEventTree; }
 	Bool_t Finished() { return isFinished; }
 
 private:
@@ -78,7 +80,8 @@ private:
 	TRestEvent* fInputEvent;//!
 	TRestEvent* fOutputEvent;//!
 
-	TRestAnalysisTree* fTree;//!
+	TRestAnalysisTree* fEventTree;//!
+	TRestAnalysisTree* fAnalysisTree;//!
 
 
 
@@ -86,7 +89,7 @@ private:
 	
 #ifndef __CINT__
 	TFile* fOutputFile;//!
-	vector<string> fTreeBranches;//!
+	vector<string> fTreeBranchDef;//!
 	std::thread t;//!
 #endif
 };

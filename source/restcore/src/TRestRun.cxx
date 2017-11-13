@@ -63,6 +63,7 @@ void TRestRun::Initialize()
 	fOutputFile = NULL;
 	fInputEvent = NULL;
 	fAnalysisTree = NULL;
+	fEventTree = NULL;
 	fCurrentEvent = 0;
 	fFileProcess = NULL;
 	fOutputFileName = "";
@@ -167,15 +168,24 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 		fInputFile = new TFile(filename, mode.c_str());
 
 		debug << "Finding TRestAnalysisTree.." << endl;
-		TRestAnalysisTree * AnalysisTree = (TRestAnalysisTree *)fInputFile->Get("AnalysisTree");
-		if (AnalysisTree != NULL)
+		TRestAnalysisTree * Tree = (TRestAnalysisTree *)fInputFile->Get("AnalysisTree");
+		if (Tree != NULL)
 		{
-			fAnalysisTree = AnalysisTree;
+			fAnalysisTree = Tree;
+			fAnalysisTree->ConnectObservables();
+			fAnalysisTree->ConnectEventBranches();
+		}
 
+		Tree = (TRestAnalysisTree *)fInputFile->Get("EventTree");
+		if (Tree != NULL)
+		{
+			fEventTree = Tree;
+			fEventTree->ConnectEventBranches();
 
 			debug << "Finding event branch.." << endl;
 			TObjArray* branches = fAnalysisTree->GetListOfBranches();
-			TBranch *br = (TBranch*)branches->At(0);
+			//get the last event branch as input event branch
+			TBranch *br = (TBranch*)branches->At(branches->GetSize()-1);
 
 			if (Count(br->GetName(), "EventBranch") == 0)
 			{

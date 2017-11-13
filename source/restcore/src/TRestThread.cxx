@@ -11,7 +11,8 @@ void TRestThread::Initialize()
 	fOutputEvent = NULL;
 	fInputEvent = NULL;
 
-	fTree = NULL;
+	fAnalysisTree = NULL;
+	fEventTree = NULL;
 
 	fOutputFile = NULL;
 
@@ -48,6 +49,8 @@ Int_t TRestThread::ValidateInput(TRestEventProcess* procinput)
 		GetChar();
 		return -1;
 	}
+	if (fProcessChain[0]->GetInputEvent()->ClassName() == "TRestEvent")
+		return 0;
 	if (inputevt->ClassName() != fProcessChain[0]->GetInputEvent()->ClassName())
 	{
 		cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
@@ -95,6 +98,7 @@ Int_t TRestThread::ValidateChain()
 		}
 		TString outEventType = outEvent->ClassName();
 		TString inEventType = inEvent->ClassName();
+		if(inEventType=="TRestEvent"||outEventType=="TRestEvent")
 		if (outEventType != inEventType)
 		{
 			cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
@@ -126,22 +130,23 @@ Int_t TRestThread::ValidateChain()
 /// Note: this methed runs under single thread node, so there is no conflict when creating files.
 void TRestThread::PrepareToProcess()
 {
-	//init and test run
+
 	if (fProcessChain.size() > 0)
 	{
 		debug << "Preparing Thread " << fThreadId << "..." << endl;
-		fTree = new TRestAnalysisTree("AnalysisTree_tmp", "anaTree_tmp");
+		TRestAnalysisTree* tempTree = new TRestAnalysisTree("AnalysisTree_tmp", "anaTree_tmp");
 		for (unsigned int i = 0; i < fProcessChain.size(); i++)
 		{
 			debug << fProcessChain[i]->ClassName() << endl;
-			fProcessChain[i]->SetAnalysisTree(fTree);
+			fProcessChain[i]->SetAnalysisTree(tempTree);
 			fProcessChain[i]->InitProcess();
 		}
 
+		//test run
 		debug << "Test Run..." << endl;
 
 		fInputEvent = fProcessChain[0]->GetInputEvent();
-		if (fHostRunner->GetNextevtFunc(fInputEvent, fTree) != 0)
+		if (fHostRunner->GetNextevtFunc(fInputEvent, tempTree) != 0)
 		{
 			cout << "REST ERROR(" << "In thread " << fThreadId << ")::Failed to get the first input event, process cannot start!" << endl;
 			GetChar();
@@ -160,42 +165,67 @@ void TRestThread::PrepareToProcess()
 			GetChar();
 			exit(1);
 		}
-		delete fTree;
+		delete tempTree;
 		debug << "Test Run success!" << endl;
 
 
+
+		//////////////////////////////////////////
 		//create dummy tree to store branch addresses.
 		debug << "Creating Analysis Tree..." << endl;
-		fTree = new TRestAnalysisTree("AnalysisTree_"+ToString(fThreadId), "dummyTree");
-		fTree->CreateEventBranches();
-		
-		for (int i = 0; i < fTreeBranches.size(); i++) 
+		fAnalysisTree = new TRestAnalysisTree("AnalysisTree_"+ToString(fThreadId), "dummyTree");
+		fAnalysisTree->CreateEventBranches();
+		fEventTree = new TRestAnalysisTree("EventTree_" + ToString(fThreadId), "dummyTree");
+		fEventTree->CreateEventBranches();
+
+		for (unsigned int i = 0; i < fProcessChain.size(); i++)
 		{
-			if (fTreeBranches[i] == "inputevent") 
+			fProcessChain[i]->SetAnalysisTree(fAnalysisTree);
+		}
+
+		for (int i = 0; i < fTreeBranchDef.size(); i++) 
+		{
+			if (fTreeBranchDef[i] == "inputevent") 
 			{
 				TString BranchName = (TString)fInputEvent->GetName() + "Branch";
-				fTree->Branch(BranchName, fInputEvent->ClassName(), fInputEvent);
+				fEventTree->Branch(BranchName, fInputEvent->ClassName(), fInputEvent);
 
 			}
-			if (fTreeBranches[i] == "process") 
+			if (fTreeBranchDef[i] == "processevent") 
 			{
 				for (unsigned int i = 0; i < fProcessChain.size(); i++)
 				{
-					fProcessChain[i]->SetAnalysisTree(fTree);
+					TRestEvent*processevent = fProcessChain[i]->GetOutputEvent();
+					TString BranchName = (TString)processevent->GetName() + "Branch";
+					fEventTree->Branch(BranchName, processevent->ClassName(), processevent);
 				}
 			}
-			if (fTreeBranches[i] == "outputevent")
+			if (fTreeBranchDef[i] == "outputevent")
 			{
 				TString BranchName = (TString)fOutputEvent->GetName() + "Branch";
-				fTree->Branch(BranchName, fOutputEvent->ClassName(), fOutputEvent);
+				fEventTree->Branch(BranchName, fOutputEvent->ClassName(), fOutputEvent);
 			}
-			if (fTreeBranches[i] == "observable")
+			if (fTreeBranchDef[i] == "outputanalysis")
 			{
-				fTree->ConnectObservables(fHostRunner->GetAnalysisTree());
-				fTree->CreateObservableBranches();
+				for (unsigned int i = 0; i < fProcessChain.size(); i++)
+				{
+					fProcessChain[i]->ConfigAnalysisTree();
+				}
 			}
+			if (fTreeBranchDef[i] == "inputanalysis")
+			{
+				if (fHostRunner->GetAnalysisTree() != NULL)
+					fAnalysisTree->ConnectObservables(fHostRunner->GetAnalysisTree());
+			}
+
 		}
 
+		if (fEventTree->GetListOfBranches()->GetSize() < 6)
+		{
+			delete fEventTree; fEventTree = NULL;
+		}
+		
+		fAnalysisTree->CreateObservableBranches();
 
 		//create output temp file for process-defined output object
 		stringstream Filename;
@@ -224,10 +254,10 @@ void TRestThread::PrepareToProcess()
 		fOutputFile->SetCompressionLevel(0);
 		fOutputFile->cd();
 		debug << "Creating Analysis Tree..." << endl;
-		fTree = new TRestAnalysisTree("AnalysisTree", "anaTree");
-		fTree->CreateEventBranches();
+		fAnalysisTree = new TRestAnalysisTree("AnalysisTree", "anaTree");
+		fAnalysisTree->CreateEventBranches();
 		TString BranchName = (TString)fInputEvent->GetName() + "Branch";
-		fTree->Branch(BranchName, fInputEvent->ClassName(), fInputEvent);
+		fAnalysisTree->Branch(BranchName, fInputEvent->ClassName(), fInputEvent);
 	}
 
 }
@@ -251,7 +281,7 @@ void TRestThread::StartProcess()
 	isFinished = false;
 
 
-	while (fHostRunner->GetNextevtFunc(fInputEvent, fTree) == 0)
+	while (fHostRunner->GetNextevtFunc(fInputEvent, fAnalysisTree) == 0)
 	{
 		ProcessEvent();
 		fHostRunner->FillThreadEventFunc(this);
@@ -317,7 +347,7 @@ void TRestThread::ProcessEvent()
 //	if (fOutputEvent == NULL)return;
 //
 //	fOutputFile->cd();
-//	fTree->FillEvent(fOutputEvent);
+//	fAnalysisTree->FillEvent(fOutputEvent);
 //
 //
 //}
@@ -338,7 +368,7 @@ void TRestThread::WriteFile()
 		fProcessChain[i]->EndProcess();//the processes must call "object->Write()" in this method
 
 
-	delete fTree;
+	delete fAnalysisTree;
 
 	fOutputFile->Close();
 

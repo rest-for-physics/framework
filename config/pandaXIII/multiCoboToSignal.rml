@@ -13,7 +13,7 @@
       <parameter name="eventsToProcess" value="10000" />
       <parameter name="threadNumber" value="2"/>
       <parameter name="saveMetadata" value="true"/>
-      <parameter name="treeBranches" value="inputevent:process:outputevent:observable"/>
+      <parameter name="treeBranches" value="inputevent:processevent:outputevent:inputanalysis:outputanalysis"/>
 
       <addProcess type="TRestMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON" />
       <addProcess type="TRestRawSignalSelectorProcess" name="nkxtest" value="ON">
