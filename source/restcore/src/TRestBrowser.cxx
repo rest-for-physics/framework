@@ -180,19 +180,33 @@ Bool_t TRestBrowser::OpenFile( TString fName )
 		   fAnalysisTree= (TRestAnalysisTree *)fInputFile->Get(key->GetName());
     }
 
-    if( fAnalysisTree == NULL )
+    if( fAnalysisTree == NULL && fEventTree == NULL)
     {
-        cout << "REST ERROR (SetInputEvent) : TRestAnalysisTree was not found" << endl;
+        cout << "REST ERROR (OpenFile) : No REST Tree was not found" << endl;
         cout << "Inside file : " << fInputFileName << endl;
         exit(1);
     }
  
+	if (fAnalysisTree != NULL) {
+		fAnalysisTree->ConnectEventBranches();
+		fAnalysisTree->ConnectObservables();
+	}
 
-    fAnalysisTree->ConnectEventBranches( );
-    fAnalysisTree->ConnectObservables( );
-
-    // Transfering metadata to historic   
-    SetInputEvent(fEventViewer->GetEvent());
+	if (fEventTree != NULL) {
+		fEventTree->ConnectEventBranches();
+		//init viewer
+		string name=fInputEvent->ClassName();
+		name += "Viewer";
+		TClass *cl = TClass::GetClass(name.c_str());
+		if (cl == NULL) {
+			warning << "unsupported event type: " << fInputEvent->ClassName() << endl;
+		}
+		else
+		{
+			fEventViewer = (TRestEventViewer*)cl->New();
+		}
+		
+	}
     
     if( geometry != NULL )fEventViewer->SetGeometry( geometry );
     
@@ -209,19 +223,17 @@ Bool_t TRestBrowser::LoadEvent( Int_t n ){
 if(!isFile){cout<<"No file..."<<endl;return kFALSE;}
 
 if(n<fAnalysisTree->GetEntries()&&n>=0){
-fAnalysisTree->GetEntry(n);
+        this->GetEntry(n);
 
-        this->GetEntry(fCurrentEvent);
-        GetAnalysisTree()->PrintObservables();
-fCurrentEvent=n;
 }
 else{cout<<"Event out of limits"<<endl; return kFALSE;}
    
-   if(fEventViewer==NULL)return kFALSE;
+if (fEventViewer != NULL) {
+	fEventViewer->AddEvent(fInputEvent);
+}
+if(fAnalysisTree!=NULL)
+	GetAnalysisTree()->PrintObservables();
    
-   SetInputEvent( fEventViewer->GetEvent() );
-
-   fEventViewer->AddEvent( fInputEvent );
    
     
 return kTRUE;    
