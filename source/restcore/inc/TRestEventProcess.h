@@ -67,7 +67,7 @@ public:
 	virtual void EndOfEventProcess() { } ///< To be executed after processing event
 	virtual void EndProcess() { } ///< To be executed at the end of the run
 	
-								
+	virtual void ConfigAnalysisTree();
 								  
 	//setters
 	void SetOutputLevel(REST_Process_Output lvl) { fOutputLevel = lvl; if (fOutputLevel < Observable)fReadOnly = true; }

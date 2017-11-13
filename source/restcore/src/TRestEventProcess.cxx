@@ -106,9 +106,16 @@ void TRestEventProcess::SetAnalysisTree(TRestAnalysisTree *tree)
 {
 	debug << "setting analysis tree for " << this->ClassName() << endl;
 	fAnalysisTree = tree;
+
+	
+}
+
+void TRestEventProcess::ConfigAnalysisTree() {
+	if (fAnalysisTree == NULL)return;
+
 	if (fOutputLevel >= Observable)ReadObservables();
 	if (fOutputLevel >= Internal_Var)fAnalysisTree->Branch(this->GetName(), this);
-	if (fOutputLevel >= Full_Output)fAnalysisTree->Branch(((string)this->fOutputEvent->ClassName() + "Branch").c_str(), this->fOutputEvent);
+
 }
 
 
