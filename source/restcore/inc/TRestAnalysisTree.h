@@ -122,8 +122,8 @@ public:
 	{
 		for (int i = 0; i < GetNumberOfObservables(); i++)
 		{
-			Double_t x = 0;
-			fObservableValues.push_back(&x);
+			double* x = new double(0);
+			fObservableValues.push_back(x);
 		}
 
 		for (int i = 0; i < GetNumberOfObservables(); i++)
