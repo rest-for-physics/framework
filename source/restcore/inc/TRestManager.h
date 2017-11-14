@@ -8,20 +8,19 @@
 #include "TRestMetadata.h"
 #include "TRestRun.h"
 #include "TRestProcessRunner.h"
-#include "TRestTask.h"
+#include "TRestAnalysisPlot.h"
 
+#include "TRestTask.h"
+#include <TROOT.h>
 
 //in future I think we should write a graphical interface for TRestManager
 class TRestManager : public TRestMetadata{
 
 private:
-	/// Pointer to TRestRun class.
-	TRestRun *fRunInfo;
-	
-	TRestProcessRunner* fProcessRunner;
+	///app-like metadata objects
+	vector<TRestMetadata*> fMetaObjects;//!
 
-	vector<TRestTask*> fTasks;
-	
+
 public:
 	/// Call CINT to generate streamers for this class
 	ClassDef(TRestManager, 1);
@@ -36,8 +35,13 @@ public:
 
 	void PrintMetadata();
 
-	TRestProcessRunner*GetProcessRunner() { return fProcessRunner; }
-	TRestRun *GetRunInfo(){ return fRunInfo; }
+	TRestProcessRunner*GetProcessRunner() { return (TRestProcessRunner*)GetMetadataClass("TRestProcessRunner"); }
+	TRestRun *GetRunInfo() { return (TRestRun*)GetMetadataClass("TRestRun"); }
+	TRestRun *GetAnaPlot() { return (TRestRun*)GetMetadataClass("TRestAnalysisPlot"); }
+
+	TRestMetadata* GetMetadataInfo(string type);
+	TRestMetadata* GetMetadataClass(string type) { return GetMetadataInfo(type); }
+
 };
 
 

@@ -38,7 +38,7 @@ const int PARAMETER_NOT_FOUND_INT = -99999999;
 const double PARAMETER_NOT_FOUND_DBL = -99999999;
 const std::string PARAMETER_NOT_FOUND_STR = "NO_SUCH_PARA";
 
-
+class TRestManager;
 
 //! A base class for any REST metadata class
 class TRestMetadata :public TNamed {
@@ -114,6 +114,8 @@ public:
 	void SetSectionName(std::string sName) { fSectionName = sName; }
 	/// set config file path from external
 	void SetConfigFile(std::string cfgFileName) { fConfigFileName = cfgFileName; }
+	/// Set the hoster manager for this class.
+	void SetHostmgr(TRestManager*m) { fHostmgr = m; }
 	/// Returns a string with the path used for data storage
 	TString GetDataPath() { return GetParameter("gasDataPath"); }
 	/// Returns a string with the path used for pre-generated gas files
@@ -270,23 +272,23 @@ protected:
 	std::string fConfigFileName;
 	///Section name given in the constructor of the derived metadata class
 	std::string fSectionName;
-
 	///Verbose level used to print debug info
 	REST_Verbose_Level fVerboseLevel;   //! 
-
-										///This variable is used to determine if the metadata structure should be stored in the ROOT file.
+	///All metadata classes can be initialized and managed by TRestManager
+	TRestManager* fHostmgr;//!
+	///This variable is used to determine if the metadata structure should be stored in the ROOT file.
 	Bool_t fStore;  //! 
-
-					///Saving the sectional element together with global element
+	///Saving the sectional element together with global element
 	TiXmlElement* fElement;//!
-
-						   ///Saving the global element, to be passed to the resident class, if necessary.
+	///Saving the global element, to be passed to the resident class, if necessary.
 	TiXmlElement* fElementGlobal;//! 
-
-								 ///Saving a list of environmental variables
+	///Saving a list of environmental variables
 	vector<TiXmlElement*> fElementEnv;//! 
 
-									  ///formatted message output, used for print metadata
+
+
+
+	///formatted message output, used for print metadata
 	TRestLeveledOutput<REST_Silent> fout = TRestLeveledOutput<REST_Silent>(fVerboseLevel, COLOR_BOLDBLUE, "==");//! 
 	TRestLeveledOutput<REST_Silent> error = TRestLeveledOutput<REST_Silent>(fVerboseLevel, COLOR_BOLDRED, "", 1);//! 
 	TRestLeveledOutput<REST_Essential> warning = TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDYELLOW, "", 1);//! 

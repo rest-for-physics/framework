@@ -19,10 +19,8 @@ TRestManager::~TRestManager()
 void TRestManager::Initialize()
 {
 	SetSectionName(this->ClassName());
-	fRunInfo = new TRestRun();
-	fProcessRunner = new TRestProcessRunner();
-	fRunInfo->SetHostmgr(this);
-	fProcessRunner->SetHostmgr(this);
+
+	fMetaObjects.clear();
 }
 
 ///////////////////////////////////////////////
@@ -39,54 +37,78 @@ void TRestManager::Initialize()
 Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 {
 	if (keydeclare == "TRestRun") {
-
+		TRestRun* fRunInfo = new TRestRun();
+		fRunInfo->SetHostmgr(this);
 		fRunInfo->LoadConfigFromFile(e, fElementGlobal);
-
+		fMetaObjects.push_back(fRunInfo);
 		return 0;
 	}
 
-	if (keydeclare == "TRestProcessRunner") {
-
+	else if (keydeclare == "TRestProcessRunner") {
+		TRestProcessRunner* fProcessRunner = new TRestProcessRunner();
+		fProcessRunner->SetHostmgr(this);
 		fProcessRunner->LoadConfigFromFile(e, fElementGlobal);
-
+		fMetaObjects.push_back(fProcessRunner);
 		return 0;
 	}
 
-	if (keydeclare == "addTask") {
+	else if(Count(keydeclare,"TRest")>0)
+	{
+		TClass*c = TClass::GetClass(keydeclare.c_str());
+		if (c == NULL) {
+			cout << " " << endl;
+			cout << "REST ERROR. Class : " << keydeclare << " not found!!" << endl;
+			cout << "This class will be skipped." << endl;
+			return -1;
+		}
+		TRestMetadata*meta = (TRestMetadata*)c->New();
+		meta->SetHostmgr(this);
+		meta->LoadConfigFromFile(e, fElementGlobal);
+		fMetaObjects.push_back(meta);
+	}
+
+	else if (keydeclare == "addTask") {
 		string active = GetParameter("value", e, "");
 		if (active != "ON" && active != "On" && active != "on") return 0;
 
 		const char* type = e->Attribute("type");
-		if (type == NULL) {
-			cout << "Task type is not given in the addTask section!" << endl;
+		const char* cmd = e->Attribute("command");
+		if (type == NULL && cmd == NULL) {
+			cout << "command or type should be given!" << endl;
 			return -1;
 		}
-		TClass*c = TClass::GetClass(type);
-		if (c == NULL) {
-			cout << " " << endl;
-			cout << "REST ERROR. Task : " << type << " not found!!" << endl;
-			cout << "This process will be skipped." << endl;
-			return -1;
+		if (type != NULL) {
+			TClass*c = TClass::GetClass(type);
+			if (c == NULL) {
+				cout << " " << endl;
+				cout << "REST ERROR. Task : " << type << " not found!!" << endl;
+				cout << "This process will be skipped." << endl;
+				return -1;
+			}
+			TRestTask*tsk = (TRestTask*)c->New();
+			tsk->LoadConfigFromFile(e, fElementGlobal);
+			tsk->InitTask();
+			tsk->RunTask(this);
 		}
-		TRestTask*tsk = (TRestTask*)c->New();
-		tsk->LoadConfigFromFile(e, fElementGlobal);
-		tsk->InitTask();
-		fTasks.push_back(tsk);
+		else if (cmd != NULL) {
+			gROOT->ProcessLine(cmd);
+		}
 	}
-
 
 	return -1;
 }
 
 
-///////////////////////////////////////////////
-/// \brief Launch all the tasks in the task list in sequence
-///
-void TRestManager::LaunchTasks() 
+TRestMetadata* TRestManager::GetMetadataInfo(string type)
 {
-	for (int i = 0; i < fTasks.size(); i++) {
-		fTasks[i]->RunTask(this);
+	for (int i = 0; i < fMetaObjects.size(); i++)
+	{
+		if (fMetaObjects[i]->ClassName() == type)
+		{
+			return fMetaObjects[i];
+		}
 	}
+	return NULL;
 }
 
 

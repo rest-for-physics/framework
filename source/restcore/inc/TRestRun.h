@@ -12,7 +12,6 @@
 
 //#include "TRestThread.h"
 
-class TRestManager;
 class TRestEventProcess;
 
 
@@ -100,7 +99,6 @@ public:
 	TRestMetadata* GetMetadataClass(string type) { return GetMetadataInfo(type); }
 
 	//Setters
-	void SetHostmgr(TRestManager*m) { fHostmgr = m; }
 	void SetInputFileName(string s) { fInputFileName = s; fInputFileNames = GetFilesMatchingPattern(fInputFileName); }
 	void SetExtProcess(TRestEventProcess* p);
 	void SetCurrentEntry(int i) { fCurrentEvent = i; }
@@ -159,13 +157,11 @@ protected:
 	Double_t fEndTime;              ///< Event absolute starting time/date (unix timestamp)
 	Int_t fProcessedEvents;
 
+	//data-like metadata objects
 	vector<TRestMetadata*> fMetadataInfo;//!
 	map<string, string> FileInfo;
 
 	//temp data member
-	TRestManager* fHostmgr;//!
-
-
 	vector<TString> fInputFileNames;//!
 	TFile *fInputFile;//!
 	TFile *fOutputFile;//!

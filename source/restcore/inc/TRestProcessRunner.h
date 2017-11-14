@@ -39,14 +39,12 @@ public:
 
 
 	//getters and setters
-	void SetHostmgr(TRestManager*m) { fHostmgr = m; }
 	TRestEvent* GetInputEvent();
 	TFile* GetTempOutputDataFile() { return fTempOutputDataFile; }
 	string GetProcInfo(string infoname) { return ProcessInfo[infoname] == "" ? infoname : ProcessInfo[infoname]; }
 	TRestAnalysisTree* GetAnalysisTree();
 private:
 	//global variable
-	TRestManager *fHostmgr;//!
 	TRestRun *fRunInfo;//!
 
 
