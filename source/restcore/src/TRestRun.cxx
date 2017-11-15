@@ -150,6 +150,7 @@ void TRestRun::OpenInputFile(int i)
 	{
 
 		TString Filename = fInputFileNames[i];
+		info << "opening... " << Filename << endl;
 		OpenInputFile((string)Filename);
 	}
 

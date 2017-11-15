@@ -9,6 +9,7 @@ TRestManager::TRestManager()
 	Initialize();
 }
 
+
 TRestManager::~TRestManager()
 {
 }
@@ -36,23 +37,25 @@ void TRestManager::Initialize()
 ///
 Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 {
-	if (keydeclare == "TRestRun") {
-		TRestRun* fRunInfo = new TRestRun();
-		fRunInfo->SetHostmgr(this);
-		fRunInfo->LoadConfigFromFile(e, fElementGlobal);
-		fMetaObjects.push_back(fRunInfo);
-		return 0;
-	}
+	//if (keydeclare == "TRestRun") {
+	//	TRestRun* fRunInfo = new TRestRun();
+	//	fRunInfo->SetHostmgr(this);
+	//	fRunInfo->LoadConfigFromFile(e, fElementGlobal);
+	//	fMetaObjects.push_back(fRunInfo);
+	//	gROOT->Add(fRunInfo);
+	//	return 0;
+	//}
 
-	else if (keydeclare == "TRestProcessRunner") {
-		TRestProcessRunner* fProcessRunner = new TRestProcessRunner();
-		fProcessRunner->SetHostmgr(this);
-		fProcessRunner->LoadConfigFromFile(e, fElementGlobal);
-		fMetaObjects.push_back(fProcessRunner);
-		return 0;
-	}
+	//else if (keydeclare == "TRestProcessRunner") {
+	//	TRestProcessRunner* fProcessRunner = new TRestProcessRunner();
+	//	fProcessRunner->SetHostmgr(this);
+	//	fProcessRunner->LoadConfigFromFile(e, fElementGlobal);
+	//	fMetaObjects.push_back(fProcessRunner);
+	//	gROOT->Add(fProcessRunner);
+	//	return 0;
+	//}
 
-	else if(Count(keydeclare,"TRest")>0)
+	if(Count(keydeclare,"TRest")>0)
 	{
 		TClass*c = TClass::GetClass(keydeclare.c_str());
 		if (c == NULL) {
@@ -65,11 +68,17 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 		meta->SetHostmgr(this);
 		meta->LoadConfigFromFile(e, fElementGlobal);
 		fMetaObjects.push_back(meta);
+		gROOT->Add(meta);
+		return 0;
 	}
 
 	else if (keydeclare == "addTask") {
 		string active = GetParameter("value", e, "");
-		if (active != "ON" && active != "On" && active != "on") return 0;
+		if (active != "ON" && active != "On" && active != "on") {
+			debug << "skipping task... " << endl;
+			return 0;
+		}
+		debug << "Loading Task..." << endl;
 
 		const char* type = e->Attribute("type");
 		const char* cmd = e->Attribute("command");
@@ -91,6 +100,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 			tsk->RunTask(this);
 		}
 		else if (cmd != NULL) {
+			
 			gROOT->ProcessLine(cmd);
 		}
 	}

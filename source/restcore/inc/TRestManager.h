@@ -9,17 +9,17 @@
 #include "TRestRun.h"
 #include "TRestProcessRunner.h"
 #include "TRestAnalysisPlot.h"
+#include "TApplication.h"
 
 #include "TRestTask.h"
 #include <TROOT.h>
 
 //in future I think we should write a graphical interface for TRestManager
-class TRestManager : public TRestMetadata{
+class TRestManager : public TRestMetadata {
 
 private:
 	///app-like metadata objects
 	vector<TRestMetadata*> fMetaObjects;//!
-
 
 public:
 	/// Call CINT to generate streamers for this class
@@ -31,7 +31,7 @@ public:
 	void Initialize();
 	Int_t ReadConfig(string keydeclare, TiXmlElement* e);
 
-	void LaunchTasks();
+	//void LaunchTasks();
 
 	void PrintMetadata();
 

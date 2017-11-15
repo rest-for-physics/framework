@@ -94,7 +94,7 @@ int main( int argc, char *argv[] )
 
 	manager->LoadConfigFromFile(cfgFile.Data());
 
-    manager->LaunchTasks( );
+    //manager->LaunchTasks( );
 
     delete manager;
 

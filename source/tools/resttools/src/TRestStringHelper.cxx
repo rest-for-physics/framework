@@ -354,7 +354,8 @@ vector <TString> TRestStringHelper::GetFilesMatchingPattern(TString pattern)
 	}
 	else
 	{
-		outputFileNames.push_back(pattern);
+		if(fileExists((string)pattern))
+			outputFileNames.push_back(pattern);
 	}
 
 	return outputFileNames;
