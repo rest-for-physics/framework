@@ -91,7 +91,7 @@ MACRO( COMPILEDIR libname )
 		set(rest_include_dirs ${rest_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/inc)
 		set(rest_include_dirs ${rest_include_dirs} PARENT_SCOPE)
 
-		file(GLOB_RECURSE files *.cxx)
+		file(GLOB_RECURSE files src/*.cxx)
 		foreach (file ${files})
 
 			string(REGEX MATCH "[^/\\]*cxx" temp ${file})
