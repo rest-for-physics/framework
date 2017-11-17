@@ -1,4 +1,5 @@
-
+#include "TRestTask.h"
+#include "TRestHitsEvent.h"
 Int_t REST_Printer_HitsEvent( TString fName, Int_t firstEvent = 0 )
 {
     TRestRun *run = new TRestRun();

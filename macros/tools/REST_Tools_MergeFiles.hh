@@ -1,4 +1,5 @@
-
+#include "TRestTask.h"
+#include "TRestRunMerger.h"
 Int_t REST_Tools_MergeFiles( TString pathAndPattern, TString outputFilename  )
 {
 

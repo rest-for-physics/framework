@@ -1,4 +1,4 @@
-
+#include "TRestTask.h"
 Int_t REST_Tools_ValidateGeometry( TString gdmlName )
 {
     TGeoManager *geo = new TGeoManager();

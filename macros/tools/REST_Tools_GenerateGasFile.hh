@@ -1,4 +1,5 @@
-
+#include "TRestTask.h"
+#include "TRestGas.h"
 Int_t REST_Tools_GenerateGasFile( char *cfgFile)
 {
     TRestGas *gas = new TRestGas( cfgFile, "", true );

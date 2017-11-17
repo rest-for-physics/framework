@@ -1,5 +1,8 @@
 #include <vector>
 #include <iostream>
+#include "TRestTask.h"
+#include "TSystem.h"
+#include "TGeoManager.h"
 using namespace std;
 
 Int_t REST_Tools_CheckRunFileList( TString namePattern, Int_t N = 100000 )
@@ -27,7 +30,7 @@ Int_t REST_Tools_CheckRunFileList( TString namePattern, Int_t N = 100000 )
 
         TFile *f = new TFile( filename );
 
-        if( !run->fileExists( filename ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
+        if( !fileExists( filename ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
 
         /////////////////////////////
         // Reading metadata classes

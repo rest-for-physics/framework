@@ -10,7 +10,9 @@
 #include "TF1.h"
 #include "TH2D.h"
 #include "TStyle.h"
-
+#include "TLatex.h"
+#include "TRandom.h"
+#include "TGeoManager.h"
 class TRestManager;
 
 using namespace std;

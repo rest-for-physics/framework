@@ -1,4 +1,5 @@
-
+#include "TRestTask.h"
+#include "TRestReadout.h"
 #include <vector>
 #include <algorithm>
 

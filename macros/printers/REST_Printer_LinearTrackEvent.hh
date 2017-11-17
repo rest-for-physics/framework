@@ -1,4 +1,5 @@
-
+#include "TRestTask.h"
+#include "TRestLinearTrackEvent.h"
 Int_t REST_Printer_LinearTrackEvent( TString fName, Int_t firstEvent = 0 )
 {
     TRestRun *run = new TRestRun();
