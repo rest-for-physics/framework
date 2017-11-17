@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 		gSystem->Load(list[n]);
 	}
 
-	char command[]= "find $REST_PATH/macros |grep .C | grep -v \"swo\" | grep -v \"swp\"  | grep -v \"svn\"> /tmp/macros.list";
+	char command[]= "find $REST_PATH/macros |grep .hh | grep -v \"swo\" | grep -v \"swp\"  | grep -v \"svn\"> /tmp/macros.list";
 
 	system(command);
 
