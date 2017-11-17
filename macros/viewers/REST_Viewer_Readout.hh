@@ -1,3 +1,6 @@
+#include "TRestTask.h"
+#include "TRestReadout.h"
+#include "TRestBrowser.h"
 #include <vector>
 #include <iostream>
 using namespace std;

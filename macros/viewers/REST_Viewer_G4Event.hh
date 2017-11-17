@@ -1,3 +1,6 @@
+#include "TRestTask.h"
+#include "TRestG4EventViewer.h"
+#include "TRestBrowser.h"
 
 Int_t REST_Viewer_G4Event( TString fName = " " )
 {

@@ -1,4 +1,6 @@
-
+#include "TRestTask.h"
+#include "TRestHitsEventViewer.h"
+#include "TRestBrowser.h"
 Int_t REST_Viewer_HitsEvent( TString fName=" " )
 {
     TRestBrowser *browser = new TRestBrowser( );

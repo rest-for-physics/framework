@@ -1,4 +1,7 @@
-
+#include "TRestTask.h"
+#include "TRestGenericEventViewer.h"
+#include "TRestRawSignalEvent.h"
+#include "TRestBrowser.h"
 Int_t REST_Viewer_RawSignalEvent( TString fName = " " )
 {
     TRestBrowser *browser = new TRestBrowser( );

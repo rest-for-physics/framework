@@ -1,4 +1,7 @@
 #include <iostream>
+#include "TRestTask.h"
+#include "TRestG4EventViewer.h"
+#include "TRestBrowser.h"
 using namespace std;
 
 Int_t REST_Viewer_Geometry( TString fName)
