@@ -26,11 +26,14 @@ class TRestTrackReconnectionProcess:public TRestEventProcess {
 
         Double_t meanDistance;
         Double_t sigma;
+        Bool_t fSplitTrack;
 #endif
 
         void InitFromConfigFile();
 
         void Initialize();
+
+        void SetDistanceMeanAndSigma( TRestHits *h );
 
 
     protected:
