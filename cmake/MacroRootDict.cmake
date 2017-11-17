@@ -121,13 +121,14 @@ MACRO( GEN_ROOT_DICT_SOURCE _dict_src_filename )
     STRING( REPLACE "/" "_" _dict_src_filename_nosc ${_dict_src_filename} )
     SET( _dict_src_file ${ROOT_DICT_OUTPUT_DIR}/${_dict_src_filename_nosc} )
     STRING( REGEX REPLACE "^(.*)\\.(.*)$" "\\1.h" _dict_hdr_file "${_dict_src_file}" )
+	#message(${ROOT_CINT_WRAPPER} -f "${_dict_src_file}" -c ${ROOT_DICT_CINT_DEFINITIONS} ${_dict_includes} ${ROOT_DICT_INPUT_HEADERS})
     ADD_CUSTOM_COMMAND(
         OUTPUT  ${_dict_src_file}
         COMMAND mkdir -p ${ROOT_DICT_OUTPUT_DIR}
         COMMAND ${ROOT_CINT_WRAPPER} -f "${_dict_src_file}" -c ${ROOT_DICT_CINT_DEFINITIONS} ${_dict_includes} ${ROOT_DICT_INPUT_HEADERS}
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         DEPENDS ${ROOT_DICT_INPUT_HEADERS}
-        COMMENT "generating: ${_dict_src_file} ${_dict_hdr_file}"
+        COMMENT "generating: ${_dict_src_file} with ${ROOT_DICT_CINT_DEFINITIONS} ${ROOT_DICT_INPUT_HEADERS}"
     )
     LIST( APPEND ROOT_DICT_OUTPUT_SOURCES ${_dict_src_file} )
 

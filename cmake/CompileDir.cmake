@@ -53,6 +53,9 @@
 #		                        set them in this argument to compile them. CINT will not be 
 #		                        called for them.
 #
+#		addon_CINT            - if some of the scripts do not follow regular directory form,
+#		                        set them in this argument to compile them with CINT
+#
 #		addon_inc             - if some of the header directories do not follow regular directory 
 #		                        form, set them in this argument to include them. 
 #
@@ -85,6 +88,7 @@ MACRO( COMPILEDIR libname )
 			set(contentfiles ${contentfiles} ${file} ${ROOT_DICT_OUTPUT_SOURCES})
 
 		endforeach (file)
+
 		endforeach(content)
 	else()
 		message("using inc/src folders in root directory")
@@ -106,14 +110,24 @@ MACRO( COMPILEDIR libname )
 
 		endforeach (file)
 
+
+
 	endif()
 
 
+	foreach(src ${addon_CINT})
+		string(REGEX MATCH "[^/\\]+$" filename ${src})
+		set(ROOT_DICT_INCLUDE_DIRS ${rest_include_dirs} ${external_include_dirs})
+		set(ROOT_DICT_INPUT_HEADERS ${src})
+		GEN_ROOT_DICT_SOURCES(CINT_${filename}.cxx)
+		set(contentfiles ${contentfiles} ${src} ${ROOT_DICT_OUTPUT_SOURCES})
+	endforeach(src)
+
 	include_directories(${rest_include_dirs} ${addon_inc})
-	#include_directories(${rest_include_dirs})
+
+	#message(${libname} " will be compiled with: " ${contentfiles} ${addon_src})
 
 	add_library(${libname} SHARED ${contentfiles} ${addon_src})
-	#add_library(${libname} SHARED ${contentfiles})
 	target_link_libraries(${libname} ${rest_libraries} ${external_libs})
 
 	install(TARGETS ${libname}
