@@ -1,4 +1,4 @@
-
+#include "TRestTask.h"
 //Double_t Qbb = 2457.83;
 
 Double_t REST_Geant4_GetROIEvents_Fiducial( TString fName, Double_t zMin, Double_t zMax, Double_t radius, Double_t mean=2457.83, Double_t fwhm=25 )
@@ -8,7 +8,7 @@ Double_t REST_Geant4_GetROIEvents_Fiducial( TString fName, Double_t zMin, Double
     TRestRun *run = new TRestRun();
     cout << "x" << endl;
     string fname = fName.Data();
-    if( !run->fileExists( fname ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
+    if( !fileExists( fname ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
     else run->OpenInputFile( fName );
 
     TH1D *h =  new TH1D( "Spectrum", "Spectrum", 5000, 0, 5000 );

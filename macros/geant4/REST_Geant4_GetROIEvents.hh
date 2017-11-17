@@ -1,4 +1,4 @@
-
+#include "TRestTask.h"
 //Double_t Qbb = 2457.83;
 
 Double_t zMin = 0;
@@ -14,7 +14,7 @@ Double_t REST_Geant4_GetROIEvents( TString fName, Double_t mean=2457.83, Double_
 
     TRestRun *run = new TRestRun();
     string fname = fName.Data();
-    if( !run->fileExists( fname ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
+    if( !fileExists( fname ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
 
     TFile *f = new TFile( fName );
 

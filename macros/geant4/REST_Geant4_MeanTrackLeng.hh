@@ -1,3 +1,5 @@
+#include "TRestTask.h"
+
 
 Int_t REST_Geant4_MeanTrackLength( TString fName )
 {
@@ -16,7 +18,7 @@ Int_t REST_Geant4_MeanTrackLength( TString fName )
     TRestRun *run = new TRestRun();
     string fname = fName.Data();
 
-    if( !run->fileExists( fname ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
+    if( !fileExists( fname ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
 
     TFile *f = new TFile( fName );
 

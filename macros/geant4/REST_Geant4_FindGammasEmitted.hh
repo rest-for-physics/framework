@@ -1,8 +1,5 @@
-#include "TRestRun.h"
-#include "TObject.h"
-#include "TRestG4Metadata.h"
-#include "TRestG4Event.h"
-#include "TCanvas.h"
+#include "TRestTask.h"
+
 Int_t REST_Geant4_FindGammasEmitted( TString fName )
 {
     cout << "Filename : " << fName << endl;

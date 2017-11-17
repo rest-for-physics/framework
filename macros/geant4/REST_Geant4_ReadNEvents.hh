@@ -1,10 +1,12 @@
+#include "TRestTask.h"
+
 
 Int_t REST_Geant4_ReadNEvents( TString fName, int n1, int n2 )
 {
     TRestRun *run = new TRestRun();
 
     string fname = fName.Data();
-    if( !run->fileExists( fname ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
+    if( !fileExists( fname ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
     else run->OpenInputFile( fName );
 
     run->OpenInputFile( fName );

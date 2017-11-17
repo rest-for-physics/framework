@@ -1,3 +1,4 @@
+#include "TRestTask.h"
 
 Int_t REST_Drawer_ResponseSignal( TString fName )
 {

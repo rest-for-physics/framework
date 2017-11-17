@@ -1,3 +1,5 @@
+#include "TRestTask.h"
+
 Int_t REST_Geant4_FindIsotopes( TString fName, TString fIsotope )
 {
     cout << "Filename : " << fName <<" looking for "<<fIsotope<<endl;
@@ -8,7 +10,7 @@ Int_t REST_Geant4_FindIsotopes( TString fName, TString fIsotope )
     TRestRun *run = new TRestRun();
 
     string fname = fName.Data();
-    if( !run->fileExists( fname ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
+    if( !fileExists( fname ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
     else run->OpenInputFile( fName );
 
     if( run == NULL ) { cout << "WARNING no TRestG4Run class was found" << endl; exit(1); }

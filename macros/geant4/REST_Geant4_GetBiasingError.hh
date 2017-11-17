@@ -1,3 +1,5 @@
+#include "TRestTask.h"
+
 
 Double_t REST_Geant4_GetBiasingError( TString fName, Int_t finalEvents = 0 )
 {
@@ -7,7 +9,7 @@ Double_t REST_Geant4_GetBiasingError( TString fName, Int_t finalEvents = 0 )
     TRestG4Metadata *metadata = new TRestG4Metadata();
 
     string fname = fName.Data();
-    if( !run->fileExists( fname ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
+    if( !fileExists( fname ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
 
     TFile *f = new TFile( fName );
 

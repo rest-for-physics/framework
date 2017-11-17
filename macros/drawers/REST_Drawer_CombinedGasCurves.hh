@@ -1,3 +1,5 @@
+#include "TRestTask.h"
+
 const Int_t nGases = 4;
 const Int_t nSteps = 50;
 
