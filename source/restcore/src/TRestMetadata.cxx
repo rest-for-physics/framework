@@ -615,26 +615,35 @@ void TRestMetadata::SetEnvVariable(TiXmlElement* e)
 
 	//cout << this->ClassName() << " " << (string)e->Value()<< " " << e->Attribute("value") << endl;
 
-
-
 	const char* name = e->Attribute("name");
 	if (name == NULL)return;
+	const char* value = e->Attribute("value");
+	if (value == NULL)return;
 
+	//if overwrite is false, try to replace the value from system env.
+	const char* overwrite = e->Attribute("overwrite");
+	if (overwrite == NULL)overwrite = "false";
+	if (overwrite == "true" || overwrite == "True" || overwrite == "yes") {
+		setenv(name, value,1);
+	}
+	else
+	{
+		char* sysenv = getenv(name);
+		if (sysenv != NULL)e->SetAttribute("value", sysenv);
+	}
+
+	//find the existing and set it value
 	for (int i = 0; i < fElementEnv.size(); i++)
 	{
 		string name2 = fElementEnv[i]->Attribute("name");
-
-		if ((string)e->Value() == (string)fElementEnv[i]->Value() && name2 == (string)name) //相同的定义（variable或者myPara）
+		if ((string)e->Value() == (string)fElementEnv[i]->Value() && name2 == (string)name) 
 		{
-			const char* value = e->Attribute("value");
-			const char* overwrite = e->Attribute("overwrite");
-			if (overwrite == NULL)overwrite = "false";
-			if (value == NULL)return;
-			if (overwrite == "true" || overwrite == "True" || overwrite == "yes")fElementEnv[i]->SetAttribute("value", value);
+			fElementEnv[i]->SetAttribute("value", value);
 			return;
 		}
-
 	}
+
+	//if not find, add it directly.
 	fElementEnv.push_back((TiXmlElement*)e->Clone());
 }
 
