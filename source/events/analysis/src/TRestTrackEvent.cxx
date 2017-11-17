@@ -206,6 +206,20 @@ Int_t TRestTrackEvent::GetOriginTrackID( Int_t tck )
     return originTrackID;
 }
 
+TRestTrack *TRestTrackEvent::GetOriginTrack( Int_t tck )
+{
+    Int_t originTrackID = GetTrack( tck )->GetTrackID();
+    Int_t pID = GetTrackById( originTrackID )->GetParentID();
+
+    while( pID != 0 )
+    {
+        originTrackID = pID;
+        pID = GetTrackById(originTrackID)->GetParentID();
+    }
+
+    return GetTrackById( originTrackID );
+}
+
 TRestTrack *TRestTrackEvent::GetOriginTrackById( Int_t tckId )
 {
     Int_t originTrackID = tckId;
