@@ -1,5 +1,6 @@
 #include "TRestTask.h"
-
+#include "TRestG4Metadata.h"
+#include "TRestG4Event.h"
 
 Int_t REST_Geant4_ReadNEvents( TString fName, int n1, int n2 )
 {

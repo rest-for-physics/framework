@@ -1,5 +1,6 @@
 #include "TRestTask.h"
-
+#include "TRestG4Metadata.h"
+#include "TRestG4Event.h"
 
 Double_t REST_Geant4_GetBiasingError( TString fName, Int_t finalEvents = 0 )
 {

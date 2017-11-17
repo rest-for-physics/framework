@@ -1,4 +1,6 @@
 #include "TRestTask.h"
+#include "TRestG4Metadata.h"
+#include "TRestG4Event.h"
 //Double_t Qbb = 2457.83;
 
 Double_t zMin = 0;

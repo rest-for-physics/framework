@@ -1,4 +1,6 @@
 #include "TRestTask.h"
+#include "TRestG4Metadata.h"
+#include "TRestG4Event.h"
 Int_t REST_Geant4_ListIsotopes( TString fName, TString fOutName )
 {
     cout << "Filename : " << fName <<", storing info in "<<fOutName<<endl;

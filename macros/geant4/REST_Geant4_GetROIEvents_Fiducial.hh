@@ -1,4 +1,6 @@
 #include "TRestTask.h"
+#include "TRestG4Metadata.h"
+#include "TRestG4Event.h"
 //Double_t Qbb = 2457.83;
 
 Double_t REST_Geant4_GetROIEvents_Fiducial( TString fName, Double_t zMin, Double_t zMax, Double_t radius, Double_t mean=2457.83, Double_t fwhm=25 )
