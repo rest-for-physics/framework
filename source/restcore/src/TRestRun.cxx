@@ -540,6 +540,13 @@ void TRestRun::ImportMetadata(TString rootFile, TString name, Bool_t store)
 }
 
 
+Double_t TRestRun::GetRunLength()
+{
+	if (fEndTime - fStartTime == -1)
+		cout << "Run time is not set" << endl;
+	return fEndTime - fStartTime;
+}
+
 
 
 //Getters

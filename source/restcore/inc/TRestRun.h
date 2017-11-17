@@ -70,6 +70,7 @@ public:
 	TString GetRunUser() { return fRunUser; }
 	TString GetRunTag() { return fRunTag; }
 	TString GetRunDescription() { return fRunDescription; }
+	Double_t GetRunLength();
 	Double_t GetStartTimestamp() { return fStartTime; }
 	Double_t GetEndTimestamp() { return fEndTime; }
 	TString GetExperimentName() { return fExperimentName; }
