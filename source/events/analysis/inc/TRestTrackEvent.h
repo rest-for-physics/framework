@@ -65,6 +65,8 @@ class TRestTrackEvent: public TRestEvent {
         TRestTrack *GetMaxEnergyTrackInX( );
         TRestTrack *GetMaxEnergyTrackInY( );
 
+        TRestTrack *GetMaxEnergyTrack( );
+
         TRestTrack *GetLongestTopLevelTrack();
 
 

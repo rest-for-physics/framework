@@ -110,6 +110,29 @@ TRestTrack *TRestTrackEvent::GetMaxEnergyTrackInY( )
     return GetTrack( track );
 }
 
+TRestTrack *TRestTrackEvent::GetMaxEnergyTrack( )
+{
+    Int_t track = -1;
+    Double_t maxEnergy = 0;
+    for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
+    {
+        TRestTrack *t = GetTrack( tck );
+        if( t->isXYZ() )
+        {
+            if ( t->GetEnergy() > maxEnergy )
+            {
+                maxEnergy = t->GetEnergy();
+                track = tck;
+            }
+        }
+    }
+
+    if ( track == -1 ) return NULL;
+
+    return GetTrack( track );
+
+}
+
 TRestTrack *TRestTrackEvent::GetLongestTopLevelTrack()
 {
     Int_t found = 0;
