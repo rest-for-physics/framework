@@ -152,16 +152,11 @@ TRestMetadata *TRestEventProcess::GetMetadata(string type)
 
 vector<string> TRestEventProcess::GetAvailableObservals()
 {
-	TClass*c;
-	TVirtualStreamerInfo *vs;
-	TObjArray* ses;
-	c = this->IsA();
-	vs = c->GetStreamerInfo();
-	ses = vs->GetElements();
 	vector<string> result;
 	result.clear();
-	for (int i = 1; i <= ses->GetLast(); i++) {
-		TStreamerElement *se = (TStreamerElement*)ses->At(i);
+	int n = GetNumberOfDataMember();
+	for (int i = 1; i < n; i++) {
+		TStreamerElement *se = GetDataMemberWithID(i);
 		if (se->GetType() == 8)
 		{
 			result.push_back(se->GetFullName());

@@ -1322,7 +1322,7 @@ TObjArray* ses;
 TStreamerElement* TRestMetadata::GetDataMemberWithName(string name)
 {
 	int n = GetNumberOfDataMember();
-	for (int i = 0; i <= n; i++) {
+	for (int i = 0; i < n; i++) {
 		TStreamerElement *se = (TStreamerElement*)ses->At(i);
 		if ((string)se->GetFullName() == name)
 		{
@@ -1336,16 +1336,18 @@ TStreamerElement* TRestMetadata::GetDataMemberWithName(string name)
 TStreamerElement* TRestMetadata::GetDataMemberWithID(int ID)
 {
 	int n = GetNumberOfDataMember();
-	if (ID <= n)return (TStreamerElement*)ses->At(ID);
+	if (ID < n)return (TStreamerElement*)ses->At(ID);
 	return NULL;
 }
 
 int TRestMetadata::GetNumberOfDataMember()
 {
-	c = this->IsA();
-	vs = c->GetStreamerInfo();
-	ses = vs->GetElements();
-	return ses->GetLast();
+	if (ses == NULL) {
+		c = this->IsA();
+		vs = c->GetStreamerInfo();
+		ses = vs->GetElements();
+	}
+	return ses->GetSize();
 }
 
 
