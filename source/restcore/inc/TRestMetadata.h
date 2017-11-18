@@ -249,14 +249,14 @@ protected:
 	TStreamerElement* GetDataMemberWithName(string name);
 	TStreamerElement* GetDataMemberWithID(int ID);
 	int GetNumberOfDataMember();
-	double* GetDblDataMemberRef(TStreamerElement*);
 	double GetDblDataMemberVal(TStreamerElement*);
-	int* GetIntDataMemberRef(TStreamerElement*);
 	int GetIntDataMemberVal(TStreamerElement*);
 	char* GetDataMemberRef(TStreamerElement*);
+	string GetDataMemberValString(TStreamerElement*);
 	void SetDataMemberVal(TStreamerElement*, char*);
+	void SetDataMemberVal(TStreamerElement*, string);
 	void SetDataMemberValFromConfig(TStreamerElement*);
-	string GetDataMemberStr(TStreamerElement*);
+
 
 
 	//////////////////////////////////////////////////

@@ -1348,33 +1348,19 @@ int TRestMetadata::GetNumberOfDataMember()
 	return ses->GetLast();
 }
 
-double* TRestMetadata::GetDblDataMemberRef(TStreamerElement*ele)
-{
-	if (ele != NULL&&ele->GetType() == 8)
-		return (double*)((char*)this + ele->GetOffset());
-	return NULL;
-}
 
 double TRestMetadata::GetDblDataMemberVal(TStreamerElement*ele)
 {
-	double* ref = GetDblDataMemberRef(ele);
-	if (ref != NULL)
-		return *ref;
+	if (ele != NULL&&ele->GetType() == 8)
+		return *(double*)((char*)this + ele->GetOffset());
 	return 0;
 }
 
-int* TRestMetadata::GetIntDataMemberRef(TStreamerElement*ele)
-{
-	if (ele != NULL&&ele->GetType() == 8)
-		return (int*)((char*)this + ele->GetOffset());
-	return NULL;
-}
 
 int TRestMetadata::GetIntDataMemberVal(TStreamerElement*ele)
 {
-	int* ref = GetIntDataMemberRef(ele);
-	if (ref != NULL)
-		return *ref;
+	if (ele != NULL&&ele->GetType() == 3)
+		return *(int*)((char*)this + ele->GetOffset());
 	return 0;
 }
 
@@ -1396,49 +1382,40 @@ void TRestMetadata::SetDataMemberVal(TStreamerElement*ele, char*ptr) {
 		*((TString*)((char*)this + ele->GetOffset())) = *((TString*)ptr);
 	if (ele != NULL&&ele->GetType() == 8)//other
 		return;
+}
 
+void TRestMetadata::SetDataMemberVal(TStreamerElement*ele, string valdef)
+{
+	if (ele != NULL&&ele->GetType() == 8)//double
+	{
+		*((double*)((char*)this + ele->GetOffset())) = StringToDouble(valdef);
+	}
+	if (ele != NULL&&ele->GetType() == 3)//int
+	{
+		*((int*)((char*)this + ele->GetOffset())) = StringToInteger(valdef);
 
+	}
+	if (ele != NULL&&ele->GetType() == 365)//string
+	{
+		*((string*)((char*)this + ele->GetOffset())) = valdef;
+
+	}
+	if (ele != NULL&&ele->GetType() == 65)//TString
+	{
+		*((TString*)((char*)this + ele->GetOffset())) = (TString)(valdef);
+	}
 }
 
 
 void TRestMetadata::SetDataMemberValFromConfig(TStreamerElement*ele)
 {
-
-	if (ele != NULL&&ele->GetType() == 8)//double
+	if (GetParameter(ele->GetName()) != PARAMETER_NOT_FOUND_STR)
 	{
-		if (GetParameter(ele->GetName()) != PARAMETER_NOT_FOUND_STR)
-		{
-			*((double*)((char*)this + ele->GetOffset())) = StringToDouble(GetParameter(ele->GetName()));
-		}
+		SetDataMemberVal(ele, GetParameter(ele->GetName()));
 	}
-	if (ele != NULL&&ele->GetType() == 3)//int
-	{
-		if (GetParameter(ele->GetName()) != PARAMETER_NOT_FOUND_STR)
-		{
-			*((int*)((char*)this + ele->GetOffset())) = StringToInteger(GetParameter(ele->GetName()));
-		}
-	}
-	if (ele != NULL&&ele->GetType() == 365)//string
-	{
-		if (GetParameter(ele->GetName()) != PARAMETER_NOT_FOUND_STR)
-		{
-			*((string*)((char*)this + ele->GetOffset())) = (GetParameter(ele->GetName()));
-		}
-	}
-	if (ele != NULL&&ele->GetType() == 65)//TString
-	{
-		if (GetParameter(ele->GetName()) != PARAMETER_NOT_FOUND_STR)
-		{
-			*((TString*)((char*)this + ele->GetOffset())) = (TString)(GetParameter(ele->GetName()));
-		}
-	}
-	if (ele != NULL&&ele->GetType() == 8)//other
-		return;
-
-
 }
 
-string TRestMetadata::GetDataMemberStr(TStreamerElement*ele)
+string TRestMetadata::GetDataMemberValString(TStreamerElement*ele)
 {
 	if (ele != NULL&&ele->GetType() == 8)//double
 		return ToString(*(double*)((char*)this + ele->GetOffset()));
