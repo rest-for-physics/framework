@@ -44,15 +44,15 @@ class TRestTrackEvent: public TRestEvent {
         #ifndef __CINT__
         // TODO These graphs should be placed in TRestTrack?
         // (following GetGraph implementation in TRestSignal)
-        TGraph *fXYHit;
-        TGraph *fXZHit;
-        TGraph *fYZHit;
-        TGraph2D *fXYZHit;
-        TGraph *fXYTrack;
-        TGraph *fXZTrack;
-        TGraph *fYZTrack;
-        TGraph2D *fXYZTrack;
-        TPad *fPad; 
+        TGraph *fXYHit;//!
+        TGraph *fXZHit;//!
+        TGraph *fYZHit;//!
+        TGraph2D *fXYZHit;//!
+        TGraph *fXYTrack;//!
+        TGraph *fXZTrack;//!
+        TGraph *fYZTrack;//!
+        TGraph2D *fXYZTrack;//!
+        TPad *fPad; //!
         #endif 
 
     public:

@@ -49,9 +49,9 @@ class TRestSignal: public TObject {
 
 #ifndef __CINT__
 
-        TGraph *fGraph;
+        TGraph *fGraph;//!
 
-        std::vector <Int_t> fPointsOverThreshold;
+        std::vector <Int_t> fPointsOverThreshold;//!
 #endif
 
         void Initialize()

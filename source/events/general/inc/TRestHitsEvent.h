@@ -20,7 +20,7 @@ class TRestHitsEvent : public TRestEvent
 {
     public:
         
-        TRestHits *fHits;	// 
+        TRestHits *fHits;	//->
 
         //! Changes the orgin of the Cartesian coordinate system
         void ChangeOrigin(double origx, double origy, double origz);

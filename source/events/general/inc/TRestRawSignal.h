@@ -39,11 +39,11 @@ class TRestRawSignal: public TObject {
 
 #ifndef __CINT__
 
-        TGraph *fGraph;
+        TGraph *fGraph;//!
 
-        std::vector <Int_t> fPointsOverThreshold;
+        std::vector <Int_t> fPointsOverThreshold;//!
 
-	Double_t fThresholdIntegral;
+	Double_t fThresholdIntegral;//!
 #endif
 
         //Getters

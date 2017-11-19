@@ -36,11 +36,11 @@ class TRestRawSignalEvent: public TRestEvent {
     protected:
 
 #ifndef __CINT__
-        TPad *fPad;
-        Double_t fMinTime;
-        Double_t fMaxTime;
-        Double_t fMinValue;
-        Double_t fMaxValue;
+        TPad *fPad;//!
+        Double_t fMinTime;//!
+        Double_t fMaxTime;//!
+        Double_t fMinValue;//!
+        Double_t fMaxValue;//!
 #endif
 
         std::vector <TRestRawSignal> fSignal; //Collection of signals that define the event
