@@ -176,6 +176,12 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 			fAnalysisTree->ConnectObservables();
 			fAnalysisTree->ConnectEventBranches();
 		}
+		else
+		{
+			error << "REST ERROR (OpenInputFile) : AnalysisTree was not found" << endl;
+			error << "Inside file : " << filename << endl;
+			exit(1);
+		}
 
 		Tree = (TRestAnalysisTree *)fInputFile->Get("EventTree");
 		if (Tree != NULL)
@@ -184,28 +190,29 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 			fEventTree->ConnectEventBranches();
 
 			debug << "Finding event branch.." << endl;
-			TObjArray* branches = fAnalysisTree->GetListOfBranches();
+			TObjArray* branches = fEventTree->GetListOfBranches();
 			//get the last event branch as input event branch
 			TBranch *br = (TBranch*)branches->At(branches->GetLast());
 
 			if (Count(br->GetName(), "EventBranch") == 0)
 			{
 				warning << "REST WARNING (OpenInputFile) : No event branch inside file : " << filename << endl;
-				cout << "This file may be a pure analysis file" << endl;
+				warning << "This file may be a pure analysis file" << endl;
 			}
 			else
 			{
-				fInputEvent = (TRestEvent*)br->GetAddress();
+				string type = Replace(br->GetName(), "Branch", "",0);
+				fInputEvent = (TRestEvent*)TClass::GetClass(type.c_str())->New();
+				br->SetAddress(&fInputEvent);
 				debug << "found event branch of event type: " << fInputEvent->ClassName() << endl;
 			}
 
 		}
-
 		else
 		{
-			error << "REST ERROR (OpenInputFile) : AnalysisTree was not found" << endl;
-			error << "Inside file : " << filename << endl;
-			exit(1);
+			warning << "REST WARNING (OpenInputFile) : EventTree was not found" << endl;
+			warning << "This is a pure analysis file!"<< endl;
+			fInputEvent = NULL;
 		}
 
 	}
@@ -320,12 +327,13 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 {
 	if (fFileProcess != NULL)
 	{
-		extreme << "getting next event from external process" << endl;
+		debug << "TRestRun: getting next event from external process" << endl;
 		fInputEvent = fFileProcess->ProcessEvent(NULL);
 		fCurrentEvent++;
 	}
 	else
 	{
+		debug << "TRestRun: getting next event from root file" << endl;
 		if (fAnalysisTree != NULL)
 		{
 			if (fAnalysisTree->GetEntries() <= fCurrentEvent - 1)fInputEvent = NULL;
@@ -335,8 +343,12 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 				for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
 					targettree->SetObservableValue(n, fAnalysisTree->GetObservableValue(n));
 			}
+			if (fEventTree != NULL) {
+				fEventTree->GetEntry(fCurrentEvent);
+			}
 			fCurrentEvent++;
 		}
+
 		else
 		{
 			warning << "error to get event from input file, missing file process or analysis tree" << endl;
@@ -372,12 +384,10 @@ TString TRestRun::FormFormat(TString FilenameFormat)
 
 		string targetstr = inString.substr(pos1, pos2 - pos1 + 1);//with []
 		string target = inString.substr(pos1 + 1, pos2 - pos1 - 1);//without []
-
 		string replacestr = GetFileInfo(target);
 		if (replacestr == target)replacestr = fHostmgr->GetProcessRunner()->GetProcInfo(target);
-		if (replacestr == target)replacestr = fHostmgr->GetRunInfo()->Get(target);
+		if (replacestr == target)replacestr = this->Get(target) == "" ? targetstr : this->Get(target);
 		outString = Replace(outString, targetstr, replacestr, 0);
-
 		pos = pos2 + 1;
 
 	}
@@ -573,15 +583,15 @@ TString TRestRun::GetTime(Double_t runTime)
 }
 
 
-char* TRestRun::Get(string target)
+string TRestRun::Get(string target)
 {
 	auto a = GetDataMemberWithName(target);
 	if (a != NULL)
 	{
-		return GetDataMemberRef(a);
+		return GetDataMemberValString(a);
 	}
 
-	return NULL;
+	return "";
 }
 
 //Printers

@@ -23,40 +23,35 @@ void TRestThread::Initialize()
 
 
 ///////////////////////////////////////////////
-/// \brief Check if the output of **procinput** matches the input event of process chain.
+/// \brief Check if the output of **input** matches the input event of process chain.
 ///
 /// Sometimes there is an external process ahead of the threaded processes. We need to check 
 /// if the event type matches. 
 ///
-Int_t TRestThread::ValidateInput(TRestEventProcess* procinput)
+Int_t TRestThread::ValidateInput(TRestEvent* input)
 {
-	if (procinput == NULL)
+
+	if (input == NULL&&fProcessChain[0]->GetInputEvent() != NULL)
 	{
 		cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-		cout << "REST ERROR : The Process " << procinput->GetName() << " is null!" << endl;
-		cout << "Maybe you should instantiate it first" << endl;
+		cout << "REST ERROR (ValidateInput): Given input event is null!" << endl;
+		cout << "If you have a external process, make sure its output event is instantiated" << endl;
+		cout << "in the Initialize() function." << endl;
+		cout << "If you are using rest file as imput, make sure its contains event tree." << endl;
 		cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 		GetChar();
 		return -1;
 	}
-	TRestEvent* inputevt = procinput->GetOutputEvent();
-	if (inputevt == NULL&&fProcessChain[0]->GetInputEvent() != NULL)
-	{
-		cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-		cout << "REST ERROR : output Event of " << procinput->GetName() << " is null!" << endl;
-		cout << "Maybe you should instantiate the i-o event into type of TRestEvent in the Initialize() function" << endl;
-		cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-		GetChar();
-		return -1;
-	}
+	//general event input is accepted
 	if (fProcessChain[0]->GetInputEvent()->ClassName() == "TRestEvent")
 		return 0;
-	if (inputevt->ClassName() != fProcessChain[0]->GetInputEvent()->ClassName())
+	if (input->ClassName() != fProcessChain[0]->GetInputEvent()->ClassName())
 	{
 		cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-		cout << "REST ERROR : Event process input/output does not match" << endl;
-		cout << "The event output for process " << procinput->GetName() << " is " << inputevt->ClassName() << endl;
-		cout << "The event input for process " << fProcessChain[0]->GetInputEvent()->GetName() << " is " << fProcessChain[0]->GetInputEvent()->ClassName() << endl;
+		cout << "REST ERROR (ValidateInput): Input event type does not match the input of the " << endl;
+		cout << "first non-external process in the chain!" << endl;
+		cout << "The gievn input type: " <<input->ClassName() << endl;
+		cout << "Input of the first non-external process in the chain: " << fProcessChain[0]->GetInputEvent()->ClassName() << endl;
 		cout << "No events will be processed. Please correct event process input/output." << endl;
 		cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 		GetChar();
@@ -78,6 +73,7 @@ Int_t TRestThread::ValidateChain()
 	{
 		TRestEvent* outEvent = fProcessChain[i]->GetOutputEvent();
 		TRestEvent* inEvent = fProcessChain[i + 1]->GetInputEvent();
+
 		if (outEvent == NULL)
 		{
 			cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
@@ -98,7 +94,9 @@ Int_t TRestThread::ValidateChain()
 		}
 		TString outEventType = outEvent->ClassName();
 		TString inEventType = inEvent->ClassName();
-		if(inEventType=="TRestEvent"||outEventType=="TRestEvent")
+		//general input type
+		if (inEventType == "TRestEvent" || outEventType == "TRestEvent")
+			return 0;
 		if (outEventType != inEventType)
 		{
 			cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
@@ -226,12 +224,15 @@ void TRestThread::PrepareToProcess()
 
 		}
 
-		if (fEventTree->GetListOfBranches()->GetLast()+1 < 6)
+		if (fEventTree->GetListOfBranches()->GetLast() < 6)
 		{
 			delete fEventTree; fEventTree = NULL;
 		}
-		
+
 		fAnalysisTree->CreateObservableBranches();
+
+
+
 
 		//create output temp file for process-defined output object
 		stringstream Filename;
@@ -259,11 +260,31 @@ void TRestThread::PrepareToProcess()
 		fOutputFile = new TFile(Filename.str().c_str(), "recreate");
 		fOutputFile->SetCompressionLevel(0);
 		fOutputFile->cd();
+
+
 		debug << "Creating Analysis Tree..." << endl;
-		fAnalysisTree = new TRestAnalysisTree("AnalysisTree", "anaTree");
+		fAnalysisTree = new TRestAnalysisTree("AnalysisTree_" + ToString(fThreadId), "dummyTree");
 		fAnalysisTree->CreateEventBranches();
-		TString BranchName = (TString)fInputEvent->GetName() + "Branch";
-		fAnalysisTree->Branch(BranchName, fInputEvent->ClassName(), fInputEvent);
+		fEventTree = new TRestAnalysisTree("EventTree_" + ToString(fThreadId), "dummyTree");
+		fEventTree->CreateEventBranches();
+
+		for (int i = 0; i < fTreeBranchDef.size(); i++)
+		{
+			if (fTreeBranchDef[i] == "outputevent")
+			{
+				TString BranchName = (TString)fInputEvent->GetName() + "Branch";
+				fEventTree->Branch(BranchName, fInputEvent->ClassName(), fInputEvent);
+
+			}
+			//currently external process analysis is not supported!
+		}
+		if (fEventTree->GetListOfBranches()->GetLast() < 6)
+		{
+			delete fEventTree; fEventTree = NULL;
+		}
+		fAnalysisTree->CreateObservableBranches();
+
+
 	}
 
 }
@@ -291,7 +312,6 @@ void TRestThread::StartProcess()
 	{
 		ProcessEvent();
 		fHostRunner->FillThreadEventFunc(this);
-
 	}
 
 

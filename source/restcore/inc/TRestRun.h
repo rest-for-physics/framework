@@ -77,7 +77,7 @@ public:
 	TString GetTime(Double_t runTime);
 	TString GetDateFormatted(Double_t runTime);
 
-	char* Get(string target);
+	string Get(string target);
 
 	vector<TString> GetInputFileNames() { return fInputFileNames; }
 	string GetInputFileName(int i) { return (string)fInputFileNames[i]; }

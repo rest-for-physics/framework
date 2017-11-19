@@ -53,7 +53,7 @@ public:
 
 	void AddProcess(TRestEventProcess *process) { fProcessChain.push_back(process); }
 
-	Int_t ValidateInput(TRestEventProcess* procinput);
+	Int_t ValidateInput(TRestEvent* input);
 	Int_t ValidateChain();
 
 

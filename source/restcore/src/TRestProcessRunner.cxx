@@ -160,10 +160,17 @@ void TRestProcessRunner::EndOfInit()
 	debug << "Validating process chain..." << endl;
 	if (fThreads[0]->GetProcessnum() > 0)
 	{
-		if (fThreads[0]->ValidateInput(fRunInfo->GetFileProcess()) == -1) exit(1);
+		if (fRunInfo->GetFileProcess() != NULL)
+		{
+			fInputEvent = fRunInfo->GetFileProcess()->GetOutputEvent();
+		}
+		else
+		{
+			fInputEvent = fRunInfo->GetInputEvent();
+		}
+		if (fThreads[0]->ValidateInput(fInputEvent) == -1) exit(1);
 		if (fThreads[0]->ValidateChain() == -1)exit(1);
 	}
-	fInputEvent = fRunInfo->GetInputEvent();
 
 	ReadProcInfo();
 
@@ -219,7 +226,10 @@ void TRestProcessRunner::RunProcess()
 			fEventTree->SetName("EventTree");
 			fEventTree->SetTitle("EventTree");
 			fEventTree->SetDirectory(fTempOutputDataFile);
-			
+		}
+		else
+		{
+			fEventTree = NULL;
 		}
 
 		tree = (TRestAnalysisTree*)fThreads[0]->GetAnalysisTree();
@@ -228,6 +238,10 @@ void TRestProcessRunner::RunProcess()
 			fAnalysisTree->SetName("AnalysisTree");
 			fAnalysisTree->SetTitle("AnalysisTree");
 			fAnalysisTree->SetDirectory(fTempOutputDataFile);
+		}
+		else
+		{
+			fAnalysisTree = NULL;
 		}
 
 		nBranches = fAnalysisTree->GetListOfBranches()->GetEntriesFast();
@@ -363,45 +377,47 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t)
 #ifdef TIME_MEASUREMENT
 	high_resolution_clock::time_point t5 = high_resolution_clock::now();
 #endif
-	//copy address of analysis tree of the given thread 
-	//to the local tree, then fill the local tree
-	TObjArray* branchesT;
-	TObjArray* branchesL;
+	if (t->GetOutputEvent() != NULL) {
+		//copy address of analysis tree of the given thread 
+		//to the local tree, then fill the local tree
+		TObjArray* branchesT;
+		TObjArray* branchesL;
 
-	if (fAnalysisTree != NULL) {
-		t->GetAnalysisTree()->FillEvent(t->GetOutputEvent());
-		branchesT = t->GetAnalysisTree()->GetListOfBranches();
-		branchesL = fAnalysisTree->GetListOfBranches();
-		for (int i = 0; i < nBranches; i++)
-		{
-			TBranch* branchT = (TBranch*)branchesT->UncheckedAt(i);
-			TBranch* branchL = (TBranch*)branchesL->UncheckedAt(i);
-			branchL->SetAddress(branchT->GetAddress());
+		if (fAnalysisTree != NULL) {
+			t->GetAnalysisTree()->FillEvent(t->GetOutputEvent());
+			branchesT = t->GetAnalysisTree()->GetListOfBranches();
+			branchesL = fAnalysisTree->GetListOfBranches();
+			for (int i = 0; i < nBranches; i++)
+			{
+				TBranch* branchT = (TBranch*)branchesT->UncheckedAt(i);
+				TBranch* branchL = (TBranch*)branchesL->UncheckedAt(i);
+				branchL->SetAddress(branchT->GetAddress());
+			}
+			fAnalysisTree->Fill();
 		}
-		fAnalysisTree->Fill();
-	}
 
-	if (fEventTree != NULL) {
+		if (fEventTree != NULL) {
 
-		t->GetEventTree()->FillEvent(t->GetOutputEvent());
-		branchesT = t->GetEventTree()->GetListOfBranches();
-		branchesL = fEventTree->GetListOfBranches();
-		for (int i = 0; i < branchesT->GetLast()+1; i++)
-		{
-			TBranch* branchT = (TBranch*)branchesT->UncheckedAt(i);
-			TBranch* branchL = (TBranch*)branchesL->UncheckedAt(i);
-			branchL->SetAddress(branchT->GetAddress());
+			t->GetEventTree()->FillEvent(t->GetOutputEvent());
+			branchesT = t->GetEventTree()->GetListOfBranches();
+			branchesL = fEventTree->GetListOfBranches();
+			for (int i = 0; i < branchesT->GetLast() + 1; i++)
+			{
+				TBranch* branchT = (TBranch*)branchesT->UncheckedAt(i);
+				TBranch* branchL = (TBranch*)branchesL->UncheckedAt(i);
+				branchL->SetAddress(branchT->GetAddress());
+			}
+			fEventTree->Fill();
+
+			//cout << t->GetOutputEvent()->GetID() << endl;
 		}
-		fEventTree->Fill();
-
-		//cout << t->GetOutputEvent()->GetID() << endl;
-	}
 
 
 #ifdef TIME_MEASUREMENT
-	high_resolution_clock::time_point t6 = high_resolution_clock::now();
-	writeTime += (int)duration_cast<microseconds>(t6 - t5).count();
+		high_resolution_clock::time_point t6 = high_resolution_clock::now();
+		writeTime += (int)duration_cast<microseconds>(t6 - t5).count();
 #endif
+	}
 	mutexx.unlock();
 
 }
@@ -465,8 +481,8 @@ void TRestProcessRunner::ConfigOutputFile()
 			}
 
 		}
-		fEventTree->Write();
-		fAnalysisTree->Write();
+		if(fEventTree!=NULL)fEventTree->Write();
+		if(fAnalysisTree!=NULL)fAnalysisTree->Write();
 		fTempOutputDataFile->Close();
 		files_to_merge.push_back(fTempOutputDataFile->GetName());
 
