@@ -21,14 +21,14 @@
 class TRestFindG4BlobAnalysisProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
-        TRestG4Event *fG4Event;
-        TRestG4Metadata *fG4Metadata;
+        TRestG4Event *fG4Event;//!
+        TRestG4Metadata *fG4Metadata;//!
 
-        std::vector <std::string> fQ1_Observables;
-        std::vector <double> fQ1_Radius;
+        std::vector <std::string> fQ1_Observables;//!
+        std::vector <double> fQ1_Radius;//!
 
-        std::vector <std::string> fQ2_Observables;
-        std::vector <double> fQ2_Radius;
+        std::vector <std::string> fQ2_Observables;//!
+        std::vector <double> fQ2_Radius;//!
 #endif
 
         void InitFromConfigFile();

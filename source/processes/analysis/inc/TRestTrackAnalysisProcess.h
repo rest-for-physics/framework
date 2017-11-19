@@ -20,19 +20,19 @@
 class TRestTrackAnalysisProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
-        TRestTrackEvent *fTrackEvent;
+        TRestTrackEvent *fTrackEvent;//!
 
-        vector <Double_t> fPreviousEventTime;
+        vector <Double_t> fPreviousEventTime;//!
 
-        Bool_t fCutsEnabled;
+        Bool_t fCutsEnabled;//!
 
-        std::vector <std::string> fTrack_LE_EnergyObservables;
-        std::vector <Double_t> fTrack_LE_Threshold;
-        std::vector <Int_t> nTracks_LE;
+        std::vector <std::string> fTrack_LE_EnergyObservables;//!
+        std::vector <Double_t> fTrack_LE_Threshold;//!
+        std::vector <Int_t> nTracks_LE;//!
 
-        std::vector <std::string> fTrack_HE_EnergyObservables;
-        std::vector <Double_t> fTrack_HE_Threshold;
-        std::vector <Int_t> nTracks_HE;
+        std::vector <std::string> fTrack_HE_EnergyObservables;//!
+        std::vector <Double_t> fTrack_HE_Threshold;//!
+        std::vector <Int_t> nTracks_HE;//!
 #endif
 
         void InitFromConfigFile();

@@ -20,7 +20,7 @@
 class TRestPointLikeTrackAnaProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
-        TRestTrackEvent *fTrackEvent;
+        TRestTrackEvent *fTrackEvent;//!
         // TODO We must get here a pointer to TRestDaqMetadata
         // In order to convert the parameters to time using the sampling time
 #endif

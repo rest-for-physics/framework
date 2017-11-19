@@ -25,12 +25,12 @@
 class TRestTriggerAnalysisProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
-        TRestSignalEvent *fSignalEvent;
+        TRestSignalEvent *fSignalEvent;//!
         // TODO We must get here a pointer to TRestDaqMetadata
         // In order to convert the parameters to time using the sampling time
 
-        std::vector <std::string> fIntegralObservables;
-        std::vector <double> fThreshold;
+        std::vector <std::string> fIntegralObservables;//!
+        std::vector <double> fThreshold;//!
 #endif
 
         void InitFromConfigFile();

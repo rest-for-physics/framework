@@ -27,11 +27,11 @@
 class TRestHitsAnalysisProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
-        TRestHitsEvent *fInputHitsEvent;
-        TRestHitsEvent *fOutputHitsEvent;
+        TRestHitsEvent *fInputHitsEvent;//!
+        TRestHitsEvent *fOutputHitsEvent;//!
 
-        Bool_t fCylinderFiducial;
-        Bool_t fPrismFiducial;
+        Bool_t fCylinderFiducial;//!
+        Bool_t fPrismFiducial;//!
 #endif
 
         void InitFromConfigFile();

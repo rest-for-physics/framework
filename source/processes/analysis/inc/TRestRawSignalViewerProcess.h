@@ -27,15 +27,15 @@
 class TRestRawSignalViewerProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
-        TRestRawSignalEvent *fSignalEvent;
+        TRestRawSignalEvent *fSignalEvent;//!
         // TODO We must get here a pointer to TRestDaqMetadata
         // In order to convert the parameters to time using the sampling time
 
         //TCanvas *fCanvas;
-        vector <TObject *> fDrawingObjects;
-        Double_t fDrawRefresh;
+        vector <TObject *> fDrawingObjects;//!
+        Double_t fDrawRefresh;//!
 
-        TVector2 fBaseLineRange;
+        TVector2 fBaseLineRange;//!
 #endif
 
         TPad *DrawSignal( Int_t signal );

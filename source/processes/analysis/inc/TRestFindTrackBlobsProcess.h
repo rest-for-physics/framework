@@ -20,14 +20,14 @@
 class TRestFindTrackBlobsProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
-        TRestTrackEvent *fInputTrackEvent;
-        TRestTrackEvent *fOutputTrackEvent;
+        TRestTrackEvent *fInputTrackEvent;//!
+        TRestTrackEvent *fOutputTrackEvent;//!
 
-        std::vector <std::string> fQ1_Observables;
-        std::vector <double> fQ1_Radius;
+        std::vector <std::string> fQ1_Observables;//!
+        std::vector <double> fQ1_Radius;//!
 
-        std::vector <std::string> fQ2_Observables;
-        std::vector <double> fQ2_Radius;
+        std::vector <std::string> fQ2_Observables;//!
+        std::vector <double> fQ2_Radius;//!
 #endif
 
         Double_t fHitsToCheckFraction;

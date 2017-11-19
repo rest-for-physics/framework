@@ -27,21 +27,21 @@
 class TRestRawSignalAnalysisProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
-        TRestRawSignalEvent *fSignalEvent;
+        TRestRawSignalEvent *fSignalEvent;//!
         // TODO We must get here a pointer to TRestDaqMetadata
         // In order to convert the parameters to time using the sampling time
-        TRestReadout *fReadout;
+        TRestReadout *fReadout;//!
 
-        Double_t fFirstEventTime;
-        vector <Double_t> fPreviousEventTime;
+        Double_t fFirstEventTime;//!
+        vector <Double_t> fPreviousEventTime;//!
 
         //TCanvas *fCanvas;
-        vector <TObject *> fDrawingObjects;
-        Double_t fDrawRefresh;
+        vector <TObject *> fDrawingObjects;//!
+        Double_t fDrawRefresh;//!
 
-        time_t timeStored;
+        time_t timeStored;//!
 
-        std::vector <std::string> fSignalAnalysisObservables;
+        std::vector <std::string> fSignalAnalysisObservables;//!
 #endif
 
         TPad *DrawSignal( Int_t signal );
