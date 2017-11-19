@@ -1,6 +1,6 @@
 #include "TRestManager.h"
 
-
+#include "TInterpreter.h"
 ClassImp(TRestManager);
 
 
@@ -22,6 +22,7 @@ void TRestManager::Initialize()
 	SetSectionName(this->ClassName());
 
 	fMetaObjects.clear();
+
 }
 
 ///////////////////////////////////////////////
@@ -55,6 +56,8 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 	//	return 0;
 	//}
 
+	//cout << "----------- " << gROOT->FindObject("SJTU_Proto") << endl;
+
 	if(Count(keydeclare,"TRest")>0)
 	{
 		TClass*c = TClass::GetClass(keydeclare.c_str());
@@ -68,14 +71,14 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 		meta->SetHostmgr(this);
 		meta->LoadConfigFromFile(e, fElementGlobal);
 		fMetaObjects.push_back(meta);
-		gROOT->Add(meta);
+
 		return 0;
 	}
 
 	else if (keydeclare == "addTask") {
 		string active = GetParameter("value", e, "");
 		if (active != "ON" && active != "On" && active != "on") {
-			debug << "skipping task... " << endl;
+			warning << "skipping task... " << endl;
 			return 0;
 		}
 		debug << "Loading Task...";
@@ -83,7 +86,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 		const char* type = e->Attribute("type");
 		const char* cmd = e->Attribute("command");
 		if (type == NULL && cmd == NULL) {
-			cout << "command or type should be given!" << endl;
+			warning << "command or type should be given!" << endl;
 			return -1;
 		}
 		if (type != NULL) {
@@ -92,9 +95,9 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 			if (c == NULL) {
 				c= TClass::GetClass(("REST_"+(string)type).c_str());
 				if (c == NULL) {
-					cout << " " << endl;
-					cout << "REST ERROR. Task : " << type << " not found!!" << endl;
-					cout << "This process will be skipped." << endl;
+					warning << " " << endl;
+					warning << "REST ERROR. Task : " << type << " not found!!" << endl;
+					warning << "This process will be skipped." << endl;
 					return -1;
 				}
 
@@ -104,12 +107,65 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 			tsk->InitTask(vector<string>());
 			
 			tsk->RunTask(this);
+			return 0;
 		}
 		else if (cmd != NULL) {
 			debug << " \""<<cmd<<"\" " << endl;
-			gROOT->ProcessLine(cmd);
+
+			string name;
+			string call;
+			string method;
+			string arg;
+			if (Spilt(cmd, "->").size() != 2) {
+				if (Spilt(cmd, ".").size() != 2) {
+					warning << "command" << " \"" << cmd << "\" " << "is illegal!" << endl;
+					return -1;
+				}
+				else
+				{
+					name = Spilt(cmd, ".")[0];
+					call = Spilt(cmd, ".")[1];
+				}
+			}
+			else
+			{
+				name = Spilt(cmd, "->")[0];
+				call = Spilt(cmd, "->")[1];
+			}
+			if (Count(call, "(") != 1||Count(call, ")")!=1) //we can only use one bracket
+			{
+				warning << "command" << " \"" << cmd << "\" " << "is illegal!" << endl;
+				return -1;
+			}
+			method = Spilt(call, "(")[0];
+			arg = Spilt(Spilt(call, "(")[1], ")").size() == 0 ? "" : Spilt(Spilt(call, "(")[1], ")")[0];
+
+			for (int i = 0; i < fMetaObjects.size(); i++) 
+			{
+				if (fMetaObjects[i]->GetName() == name) {
+					debug << "processing..." << endl;
+					gInterpreter->Execute(fMetaObjects[i], fMetaObjects[i]->IsA(), method.c_str(),arg.c_str());
+					//((TRestProcessRunner*)fMetaObjects[i])->RunProcess();
+				}
+				else if(i== fMetaObjects.size()-1)
+				{
+					warning << "Object \""<<name<<"\" "<<" is not defined in current scope!" << endl;
+					return -1;
+				}
+			}
+			
+
+
+
+
+
+
+
+			return 0;
 		}
 	}
+
+
 
 	return -1;
 }
