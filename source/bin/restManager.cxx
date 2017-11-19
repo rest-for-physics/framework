@@ -2,42 +2,43 @@
 #include <TApplication.h>
 
 #include <TRestTools.h>
-
+#include "TRestStringOutput.h"
 #include <TRestManager.h>
+//#include <REST_General_CreateHisto.hh>
 
 char cfgFileName[256];
-char sectionName[256];
 char iFile[256];
+TRestStringOutput fout;
 
-void PrintHelp( )
+void PrintHelp()
 {
-    cout << endl;
-    cout << "Usage : ./restManager --c CONFIG_FILE --n SECTION_NAME --f INPUT_FILE" << endl;
-    cout << endl;
-    cout << "-----------------------------------------------------------------------------------" << endl;
-    cout << " CONFIG_FILE : RML configuration file containing at least one manager section." << endl;
-    cout << " If config file is not provided the configuration file will be taken from " << endl;
-    cout << " the environment variable REST_CONFIGFILE. If this last is not defined " << endl;
-    cout << " the config file will be taken from REST_PATH/config/template/config.rml" << endl;
-    cout << "-----------------------------------------------------------------------------------" << endl;
-    cout << " SECTION_NAME : Name of the manager section. If not defined, the first " << endl;
-    cout << " section inside the config file will be taken. " << endl;
-    cout << "-----------------------------------------------------------------------------------" << endl;
-    cout << " INPUT_FILE : Input file name. It can be also specified from the manager " << endl;
-    cout << " section using inputFile parameter. In order to give as argument here the input " << endl;
-    cout << " filename it is necessary to define the parameter inputData to REST_INPUTFILE  " << endl;
-    cout << " ==================================================================================" << endl;
+	fout.resetcolor();
+	fout << " " << endl;
+	fout << "Usage1 : ./restManager --c CONFIG_FILE --i INPUT_FILE --o OUTPUT_FILE --j THREADS    " << endl;
+	fout << "Usage2 : ./restManager TASK_NAME ARG1 ARG2 ARG3                                      " << endl;
+	fout << " " << endl;
+	fout << "-" << endl;
+	fout << "CONFIG_FILE: The rml configuration file. It should contain a TRestManager section.   " << endl;
+	fout << "This argument MUST be provided. The others can be also specified in the rml file.    " << endl;
+	fout << "-" << endl;
+	fout << "INPUT_FILE : Input file name. If not given it will be acquired from the rml file.    " << endl;
+	fout << "If you want to use multiple input file, you can either specify the string of matching" << endl;
+	fout << "pattern with quotation marks surrounding it, or put the file names in a .list file   " << endl;
+	fout << "-" << endl;
+	fout << "OUTPUT_FILE: Output file name. It can be given as a name string (abc.root), or as an " << endl;
+	fout << "expression for the program to replace parameters in it.                              " << endl;
+	fout << "-" << endl;
+	fout << "THREADS    : Request specific number of threads to run the jobs. In most time 3~6    " << endl;
+	fout << "threads can squeeze out the full potential of the computer. More may be negative     " << endl;
+	fout << " " << endl;
+	fout << "=" << endl;
 }
+
+
 
 int main( int argc, char *argv[] )
 {
 
-    TApplication theApp("App", 0, 0 );
-
-    gSystem->Load("libRestCore.so");
-    gSystem->Load("libRestEvents.so");
-    gSystem->Load("libRestMetadata.so");
-    // Loading REST or Rest Libraries found in LD_LIBRARY_PATH
     vector <TString> list = TRestTools::GetListOfRESTLibraries( );
     for( unsigned int n = 0; n < list.size(); n++ )
     {
@@ -45,59 +46,105 @@ int main( int argc, char *argv[] )
         gSystem->Load( list[n] );
     }
 
+	//char command[] = "find $REST_PATH/macros |grep .hh | grep -v \"swo\" | grep -v \"swp\"  | grep -v \"svn\"> /tmp/macros.list";
+
+	//system(command);
+
+	//FILE *f = fopen("/tmp/macros.list", "r");
+
+	//char str[256];
+	//char cmd[256];
+	//while (fscanf(f, "%s\n", str) != EOF)
+	//{
+	//	//printf("Loading macro : %s\n", str);
+	//	sprintf(cmd, ".L %s", str);
+	//	gROOT->ProcessLine(cmd);
+	//}
+
+	//fclose(f);
+
+	//system("rm /tmp/macros.list");
+
 
     if( argc <= 1 ) { PrintHelp(); exit(1); }
 
-    if( argc >= 2 )
-    {
-        for(int i = 1; i < argc; i++)
-            if( *argv[i] == '-')
-            {
-                argv[i]++;
-                if( *argv[i] == '-') argv[i]++;
-                {
-                    switch ( *argv[i] )
-                    {
-                        case 'c' : sprintf( cfgFileName, "%s", argv[i+1] ); break;
-                        case 'n' : sprintf( sectionName, "%s", argv[i+1] ); break;
-                        case 'f' : sprintf( iFile, "%s", argv[i+1] ); break;
-                        case 'h' : PrintHelp(); exit(1);
-                        default : 
-                                   cout << endl;
-                                   cout << "REST ERROR: Please verify the arguments given to restManager" << endl;
-                                   PrintHelp(); 
-                                   return 0;
-                    }
-                }
-            }
-    }
+	if (argc >= 2)
+	{
+		if (*argv[1] == '-') {//usage1
+			for (int i = 1; i < argc; i++)
+			{
+				if (*argv[i] == '-')
+				{
+					argv[i]++;
+					if (*argv[i] == '-') argv[i]++;
+					{
+						switch (*argv[i])
+						{
+						case 'c': sprintf(cfgFileName, "%s", argv[i + 1]); break;
+						case 'i': setenv("inputFile", argv[i + 1], 1); break;
+						case 'o': setenv("outputFormat", argv[i + 1], 1); break;
+						case 'j': setenv("threadNumber", argv[i + 1], 1); break;
+						case 'h': PrintHelp(); exit(1);
+						default:
+							fout << endl;
+							PrintHelp();
+							return 0;
+						}
+					}
+				}
+			}
 
-    TString cfgFile = cfgFileName;
-    if( cfgFile == "" )
-    {
-        cfgFile = getenv( "REST_CONFIGFILE" );
+			fout << endl;
+			fout.setcolor(COLOR_BOLDBLUE);
+			fout << "Launching TRestManager..." << endl;
+			fout << endl;
+			TRestManager* a = new TRestManager();
 
-        if( cfgFile == "" )
-        {
-            TString restPath = getenv( "REST_PATH" );
-            cfgFile = restPath + "/config/template/config.rml";
-        }
-    }
+			a->LoadConfigFromFile(cfgFileName);
 
-    TString inputFile = iFile;
-    if( inputFile != "" )
-        gSystem->Setenv( "REST_INPUTFILE", inputFile.Data() );
+			fout << "Done!" << endl;
+			a->GetChar();
 
-    cout << "Input file : " << inputFile.Data() << endl;
+			delete a;
 
-    TRestManager *manager = new TRestManager( );
+			return 0;
 
-	manager->LoadConfigFromFile(cfgFile.Data());
 
-    //manager->LaunchTasks( );
+		}
+		else//usage2
+		{
 
-    delete manager;
 
-    return 0;
+			string type = (argv[1]);
+			fout <<"Initializing "<< type << endl;
+			TClass* c= TClass::GetClass(type.c_str());
+			if (c == NULL) {
+				fout.setcolor(COLOR_BOLDRED);
+				fout << "ERROR: Task \""<<type<<"\" is not defined !" << endl;
+				fout << endl;
+				PrintHelp();
+				exit(0);
+			}
+			if (!c->InheritsFrom("TRestTask")) {
+				fout.setcolor(COLOR_BOLDRED);
+				fout << "This class is not inherted from TRestTask!" << endl;
+				fout << endl;
+				PrintHelp();
+				exit(0);
+			}
+			TRestTask* tsk = (TRestTask*)c->New();
+			vector<string> argumentlist;
+			for (int i = 2; i < argc; i++)
+			{
+				string a = argv[i];
+				argumentlist.push_back(a);
+			}
+			tsk->InitTask(argumentlist);
+			tsk->RunTask(NULL);
+
+		}
+	}
+
+
 }
 
