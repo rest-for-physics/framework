@@ -56,34 +56,34 @@ private:
 
 
 #ifndef __CINT__
-    Garfield::MediumMagboltz *fGasMedium;   //!< Pointer to Garfield::MediumMagboltz class giving access to gas properties
+    Garfield::MediumMagboltz *fGasMedium;   //! Pointer to Garfield::MediumMagboltz class giving access to gas properties
 #endif
     
-    Int_t fStatus;              //!< Used to define the status of the gas : RESTGAS_ERROR, RESTGAS_INTITIALIZED, RESTGAS_CFG_LOADED, RESTGAS_GASFILE_LOADED
-    TString fGasFilename;       //!< The filename of the Magboltz gas file.
-    Int_t fNofGases;			//!< Number of different elements composing the gas mixture
+    Int_t fStatus;              // Used to define the status of the gas : RESTGAS_ERROR, RESTGAS_INTITIALIZED, RESTGAS_CFG_LOADED, RESTGAS_GASFILE_LOADED
+    TString fGasFilename;       // The filename of the Magboltz gas file.
+    Int_t fNofGases;			// Number of different elements composing the gas mixture
 
-    Int_t fNCollisions;             //!< Number of collisions used in the Magboltz calculation.
-    Double_t fMaxElectronEnergy;    //!< Maximum electron energy, in eV, used in Magboltz gas calculation.
-    Double_t fW;                    //!< Work function for electron extraction. This is defined by REST.
+    Int_t fNCollisions;             // Number of collisions used in the Magboltz calculation.
+    Double_t fMaxElectronEnergy;    // Maximum electron energy, in eV, used in Magboltz gas calculation.
+    Double_t fW;                    // Work function for electron extraction. This is defined by REST.
 
-    std::vector <TString> fGasComponentName;        //!< A string vector storing the names of each of the gas components
-    std::vector <Double_t> fGasComponentFraction;   //!< A double vector storing the fraction values of each of the gas components
+    std::vector <TString> fGasComponentName;        // A string vector storing the names of each of the gas components
+    std::vector <Double_t> fGasComponentFraction;   // A double vector storing the fraction values of each of the gas components
 
-    Double_t fPressureInAtm;		    //!< Pressure of the gas in atm.
-    Double_t fTemperatureInK;	        //!< Temperature of the gas in K.
+    Double_t fPressureInAtm;		    // Pressure of the gas in atm.
+    Double_t fTemperatureInK;	        // Temperature of the gas in K.
 
-    Int_t fEnodes;                      //!< Number of electric field nodes used in the gas calculation.
-    Double_t fEmax;                     //!< Minimum value of the electric field used for the gas calculation.
-    Double_t fEmin;                     //!< Maximum value of the electric field used for the gas calculation.
+    Int_t fEnodes;                      // Number of electric field nodes used in the gas calculation.
+    Double_t fEmax;                     // Minimum value of the electric field used for the gas calculation.
+    Double_t fEmin;                     // Maximum value of the electric field used for the gas calculation.
 
-    std::vector <Double_t> fEFields;    //!< The electric field nodes as calculated by Garfield::MediumMagboltz.
-    std::vector <Double_t> fBFields;    //!< The magnetic field nodes as calculated by Garfield::MediumMagboltz.
-    std::vector <Double_t> fAngles;     //!< The field angles as calculated by Garfield::MediumMagboltz.
+    std::vector <Double_t> fEFields;    // The electric field nodes as calculated by Garfield::MediumMagboltz.
+    std::vector <Double_t> fBFields;    // The magnetic field nodes as calculated by Garfield::MediumMagboltz.
+    std::vector <Double_t> fAngles;     // The field angles as calculated by Garfield::MediumMagboltz.
 
-    TString fGDMLMaterialRef;       //!< The corresponding material reference name in GDML description
+    TString fGDMLMaterialRef;       // The corresponding material reference name in GDML description
 
-    bool fGasGeneration;                //!< If true, and the pre-generated Magboltz gas file is not found, it will allow to launch the gas generation.
+    bool fGasGeneration;                // If true, and the pre-generated Magboltz gas file is not found, it will allow to launch the gas generation.
 
     void InitFromConfigFile( );
     void ConstructFilename( );

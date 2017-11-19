@@ -43,8 +43,8 @@ class TRestReadout:public TRestMetadata {
         std::vector <TRestReadoutPlane> fReadoutPlanes; ///< A vector storing the TRestReadoutPlane definitions.
 
 #ifndef __CINT__
-        Int_t fMappingNodes;    ///< Number of nodes per axis used on the readout coordinate mapping. See also TRestReadoutMapping.
-        vector <TRestReadoutModule> fModuleDefinitions; ///< A vector storing the different TRestReadoutModule definitions.
+        Int_t fMappingNodes;    //!///< Number of nodes per axis used on the readout coordinate mapping. See also TRestReadoutMapping.
+        vector <TRestReadoutModule> fModuleDefinitions; //!///< A vector storing the different TRestReadoutModule definitions.
 #endif
 
         void ValidateReadout( );
