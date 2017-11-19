@@ -91,14 +91,14 @@ void TRestRawToSignalProcess::InitFromConfigFile(){
 
 void TRestRawToSignalProcess::LoadDefaultConfig(){
 
-cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
-cout<<"WARNING "<<endl;
-cout<<"Error Loading config file "<<endl;
-cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
-
-cout<<"Press a key to continue..."<<endl;
-
-getchar();
+//cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+//cout<<"WARNING "<<endl;
+//cout<<"Error Loading config file "<<endl;
+//cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+//
+//cout<<"Press a key to continue..."<<endl;
+//
+//getchar();
 
 fElectronicsType = "AGET";
 fMinPoints = 512;

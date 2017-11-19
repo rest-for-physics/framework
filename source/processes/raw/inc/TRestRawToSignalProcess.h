@@ -63,7 +63,7 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    virtual void EndProcess();
    virtual void BeginOfEventProcess();
    virtual void EndOfEventProcess();
-   virtual TString GetProcessName()=0;
+   //virtual TString GetProcessName()=0;
    TRestMetadata *GetProcessMetadata() { return NULL; }
 
    void SetRunOrigin( Int_t runOrigin ) { fRunOrigin = runOrigin; }
