@@ -11,7 +11,6 @@
 #define RestTask_CreateHisto
 
 
-
 Int_t REST_General_CreateHisto(char varName[],
 	char rootFileName[],
 	char histoName[],
@@ -23,6 +22,11 @@ Int_t REST_General_CreateHisto(char varName[],
 	std::vector <TString> inputFilesNew = GetFilesMatchingPattern(rootFileName);
 
 	TH1D *h = new TH1D(histoName, histoName, bins, startVal, endVal);
+
+	if (inputFilesNew.size() == 0) {
+		cout << "Files not found!" << endl;
+		return -1;
+	}
 
 	for (unsigned int n = 0; n < inputFilesNew.size(); n++)
 	{
@@ -60,10 +64,44 @@ Int_t REST_General_CreateHisto(char varName[],
 
 
 
-class CreateHisto :public TRestTask {
+class REST_CreateHisto :public TRestTask {
 public:
-	ClassDef(CreateHisto, 1);
+	ClassDef(REST_CreateHisto, 1);
+
+	REST_CreateHisto() {}
+	~REST_CreateHisto() {}
+
+	char* varName;
+	char* rootFileName;
+	char* histoName;
+	int startVal = 0;
+	int endVal = 1000;
+	int bins = 1000;
+	Double_t normFactor = 1;
+
+	void RunTask(TRestManager*mgr) 
+	{
+		if (mgr == NULL) {
+			if (varName == NULL||rootFileName == NULL || histoName == NULL) {
+				PrintHelp(); return;
+			}
+			int result= REST_General_CreateHisto(varName,
+				rootFileName,
+				histoName,
+				startVal,
+				endVal,
+				bins,
+				normFactor);
+			if (result == -1) { error << "error occurred!" << endl; }
+		}
+		else
+		{
+		
+		}
+	}
+
 };
+
 
 #endif
 
