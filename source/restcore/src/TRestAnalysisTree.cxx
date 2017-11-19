@@ -108,7 +108,8 @@ Int_t TRestAnalysisTree::FillEvent(TRestEvent *evt)
 	fRunOrigin = evt->GetRunOrigin();
 	fSubRunOrigin = evt->GetSubRunOrigin();
 
-	return this->Fill();
+	//return this->Fill();
+	return 0;
 }
 
 void TRestAnalysisTree::CreateEventBranches()

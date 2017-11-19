@@ -342,6 +342,7 @@ Int_t TRestProcessRunner::GetNextevtFunc(TRestEvent* targetevt, TRestAnalysisTre
 		n = fRunInfo->GetNextEvent(targetevt, targettree);
 	}
 
+
 #ifdef TIME_MEASUREMENT
 	high_resolution_clock::time_point t2 = high_resolution_clock::now();
 	readTime += (int)duration_cast<microseconds>(t2 - t1).count();
@@ -368,6 +369,7 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t)
 	TObjArray* branchesL;
 
 	if (fAnalysisTree != NULL) {
+		t->GetAnalysisTree()->FillEvent(t->GetOutputEvent());
 		branchesT = t->GetAnalysisTree()->GetListOfBranches();
 		branchesL = fAnalysisTree->GetListOfBranches();
 		for (int i = 0; i < nBranches; i++)
@@ -376,10 +378,12 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t)
 			TBranch* branchL = (TBranch*)branchesL->UncheckedAt(i);
 			branchL->SetAddress(branchT->GetAddress());
 		}
-		fAnalysisTree->FillEvent(t->GetOutputEvent());
+		fAnalysisTree->Fill();
 	}
 
 	if (fEventTree != NULL) {
+
+		t->GetEventTree()->FillEvent(t->GetOutputEvent());
 		branchesT = t->GetEventTree()->GetListOfBranches();
 		branchesL = fEventTree->GetListOfBranches();
 		for (int i = 0; i < branchesT->GetLast()+1; i++)
@@ -388,7 +392,9 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t)
 			TBranch* branchL = (TBranch*)branchesL->UncheckedAt(i);
 			branchL->SetAddress(branchT->GetAddress());
 		}
-		fEventTree->FillEvent(t->GetOutputEvent());
+		fEventTree->Fill();
+
+		//cout << t->GetOutputEvent()->GetID() << endl;
 	}
 
 
@@ -469,7 +475,8 @@ void TRestProcessRunner::ConfigOutputFile()
 		//these files are mush smaller that data file, so they are merged to the data file.
 		for (int i = 0; i < fThreadNumber; i++) {
 			TFile*f = fThreads[i]->GetOutputFile();
-			if(f!=NULL)
+			if (f != NULL)
+				f->Close();
 				files_to_merge.push_back(f->GetName());
 		}
 

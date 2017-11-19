@@ -145,7 +145,7 @@ void TRestThread::PrepareToProcess()
 		//test run
 		debug << "Test Run..." << endl;
 
-		fInputEvent = fProcessChain[0]->GetInputEvent();
+		fInputEvent = (TRestEvent*)fProcessChain[0]->GetInputEvent()->Clone();
 		if (fHostRunner->GetNextevtFunc(fInputEvent, tempTree) != 0)
 		{
 			cout << "REST ERROR(" << "In thread " << fThreadId << ")::Failed to get the first input event, process cannot start!" << endl;
@@ -155,13 +155,15 @@ void TRestThread::PrepareToProcess()
 		debug << "Processing Test Event" << endl;
 		for (int i = 0; i < 5; i++) {
 			ProcessEvent();
+			fHostRunner->GetNextevtFunc(fInputEvent, tempTree);
 			if (fOutputEvent != NULL) {
 				break;
 			}
 		}
 		if (fOutputEvent == NULL)
 		{
-			error << "REST ERROR(" << "In thread " << fThreadId << ")::Process result is null after 5 times of retry. REST cannot determing the output event!" << endl;
+			error << "REST ERROR(" << "In thread " << fThreadId << ")::Process result is null after 5 times of retry." << endl;
+			error << "REST cannot determing the output event!" << endl;
 			GetChar();
 			exit(1);
 		}
@@ -359,6 +361,8 @@ void TRestThread::ProcessEvent()
 /// This method is called back by WriteThreadFileFunc() in TRestProcessRunner. 
 void TRestThread::WriteFile()
 {
+	debug << "Thread " << fThreadId << " : Writting temp file" << endl;
+
 	if (fOutputFile == NULL) return;
 
 	fOutputFile->cd();
@@ -367,9 +371,6 @@ void TRestThread::WriteFile()
 	for (unsigned int i = 0; i < fProcessChain.size(); i++)
 		fProcessChain[i]->EndProcess();//the processes must call "object->Write()" in this method
 
-
 	delete fAnalysisTree;
-
-	fOutputFile->Close();
-
+	//fOutputFile->Close();
 }
