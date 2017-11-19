@@ -40,16 +40,16 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    Double_t tStart;
    int totalBytesReaded;
 
-   TRestRawSignalEvent *fSignalEvent;
+   TRestRawSignalEvent *fSignalEvent;//!
    #ifndef __CINT__
-   FILE *fInputBinFile;
+   FILE *fInputBinFile;//!
 
-   Int_t fRunOrigin;
-   Int_t fSubRunOrigin;
+   Int_t fRunOrigin;//!
+   Int_t fSubRunOrigin;//!
 
    Int_t nFiles;//!
    std::vector<FILE *> fInputFiles;//!
-   std::vector<TString> fInputFileNames;//!
+   std::vector<TString> fInputFileNames;
    #endif
    
    void LoadDefaultConfig();

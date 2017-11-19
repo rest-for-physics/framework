@@ -24,10 +24,10 @@ class TRestSignalDeconvolutionProcess:public TRestEventProcess {
     private:
 
 #ifndef __CINT__
-        TRestSignalEvent *fInputSignalEvent;
-        TRestSignalEvent *fOutputSignalEvent;
+        TRestSignalEvent *fInputSignalEvent;//!
+        TRestSignalEvent *fOutputSignalEvent;//!
 
-	TCanvas *canvas;
+	TCanvas *canvas;//!
 #endif
 
         void InitFromConfigFile();

@@ -21,8 +21,8 @@
 class TRestRawSignalToSignalProcess:public TRestEventProcess {
 
     private:
-        TRestRawSignalEvent *fInputSignalEvent;
-        TRestSignalEvent *fOutputSignalEvent;
+        TRestRawSignalEvent *fInputSignalEvent;//!
+        TRestSignalEvent *fOutputSignalEvent;//!
 
         void InitFromConfigFile();
 

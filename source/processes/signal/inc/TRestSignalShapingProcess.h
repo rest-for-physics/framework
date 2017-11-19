@@ -21,9 +21,9 @@
 class TRestSignalShapingProcess:public TRestEventProcess {
 
     private:
-        TRestSignalEvent *fInputSignalEvent;
-        TRestSignalEvent *fOutputSignalEvent;
-        TRestSignal *responseSignal;
+        TRestSignalEvent *fInputSignalEvent;//!
+        TRestSignalEvent *fOutputSignalEvent;//!
+        TRestSignal *responseSignal;//!
 
         void InitFromConfigFile();
 

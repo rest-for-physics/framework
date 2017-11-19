@@ -20,8 +20,8 @@
 class TRestFindResponseSignalProcess:public TRestEventProcess {
 
     private:
-        TRestRawSignalEvent *fInputSignalEvent;
-        TRestRawSignalEvent *fOutputSignalEvent;
+        TRestRawSignalEvent *fInputSignalEvent;//!
+        TRestRawSignalEvent *fOutputSignalEvent;//!
 
         void InitFromConfigFile();
 

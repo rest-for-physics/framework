@@ -21,8 +21,8 @@
 class TRestSignalGaussianConvolutionProcess:public TRestEventProcess {
 
     private:
-        TRestSignalEvent *fInputSignalEvent;
-        TRestSignalEvent *fOutputSignalEvent;
+        TRestSignalEvent *fInputSignalEvent;//!
+        TRestSignalEvent *fOutputSignalEvent;//!
 
         void InitFromConfigFile();
 
