@@ -74,7 +74,7 @@ public:
 	void SetAnalysisTree(TRestAnalysisTree *tree);
 	void SetRunInfo(TRestRun*r) { fRunInfo = r; }
 	void SetCanvasSize(Int_t x, Int_t y) { fCanvasSize = TVector2(x, y); }
-
+	void SetFriendProcess(TRestEventProcess*p);
 
 	//getters
 	REST_Process_Output GetOutputLevel() { return fOutputLevel; }
@@ -104,7 +104,7 @@ protected:
 
 	TRestRun* fRunInfo = NULL;//!
 
-	vector<TRestEventProcess*> fFriendlyProcesses;
+	vector<TRestEventProcess*> fFriendlyProcesses;//!
 
 	std::vector <TString> fObservableNames;
 	//std::vector <Double_t*> fObservableRefs;//!

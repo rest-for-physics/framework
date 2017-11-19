@@ -176,6 +176,23 @@ fi
 )
 
 
+foreach(mac ${rest_macros})
+
+string(REPLACE " " "" mac ${mac})
+string(REPLACE "rest" "" m ${mac})
+
+install( CODE
+"
+file( APPEND \${CMAKE_INSTALL_PREFIX}/thisREST.sh 
+
+\"
+alias ${mac}=\\\"restManager ${m}\\\"
+\"
+)
+        "
+)
+
+endforeach(mac ${rest_macros})
 
 
 

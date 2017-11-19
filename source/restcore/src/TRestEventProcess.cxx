@@ -110,6 +110,18 @@ void TRestEventProcess::SetAnalysisTree(TRestAnalysisTree *tree)
 	
 }
 
+
+void TRestEventProcess::SetFriendProcess(TRestEventProcess*p) 
+{
+	if (p == NULL)
+		return;
+	for (int i = 0; i < fFriendlyProcesses.size(); i++) {
+		if (fFriendlyProcesses[i]->GetName() == p->GetName())
+			return;
+	}
+	fFriendlyProcesses.push_back(p);
+}
+
 void TRestEventProcess::ConfigAnalysisTree() {
 	if (fAnalysisTree == NULL)return;
 

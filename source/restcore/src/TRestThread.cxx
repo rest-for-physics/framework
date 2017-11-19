@@ -139,6 +139,10 @@ void TRestThread::PrepareToProcess()
 		{
 			debug << fProcessChain[i]->ClassName() << endl;
 			fProcessChain[i]->SetAnalysisTree(tempTree);
+			for (unsigned int j = 0; j < fProcessChain.size(); j++)
+			{
+				fProcessChain[i]->SetFriendProcess(fProcessChain[j]);
+			}
 			fProcessChain[i]->InitProcess();
 		}
 
