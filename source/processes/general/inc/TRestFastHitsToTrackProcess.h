@@ -23,8 +23,8 @@ class TRestFastHitsToTrackProcess:public TRestEventProcess {
     private:
 
 #ifndef __CINT__
-        TRestHitsEvent *fHitsEvent;
-        TRestTrackEvent *fTrackEvent;
+        TRestHitsEvent *fHitsEvent;//!
+        TRestTrackEvent *fTrackEvent;//!
 #endif
 
         void InitFromConfigFile();

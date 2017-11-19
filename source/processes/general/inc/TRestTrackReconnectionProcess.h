@@ -21,11 +21,11 @@ class TRestTrackReconnectionProcess:public TRestEventProcess {
     private:
 
 #ifndef __CINT__
-        TRestTrackEvent *fInputTrackEvent;
-        TRestTrackEvent *fOutputTrackEvent;
+        TRestTrackEvent *fInputTrackEvent;//!
+        TRestTrackEvent *fOutputTrackEvent;//!
 
-        Double_t meanDistance;
-        Double_t sigma;
+        Double_t meanDistance;//!
+        Double_t sigma;//!
 #endif
 
         void InitFromConfigFile();

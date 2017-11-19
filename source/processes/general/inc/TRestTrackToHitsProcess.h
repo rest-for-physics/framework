@@ -22,8 +22,8 @@ class TRestTrackToHitsProcess:public TRestEventProcess {
     private:
 
 #ifndef __CINT__
-        TRestTrackEvent *fInputTrackEvent;
-        TRestHitsEvent *fOutputHitsEvent;
+        TRestTrackEvent *fInputTrackEvent;//!
+        TRestHitsEvent *fOutputHitsEvent;//!
 #endif
 
         void InitFromConfigFile();

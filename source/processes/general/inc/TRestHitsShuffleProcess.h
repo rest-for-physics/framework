@@ -23,10 +23,10 @@ class TRestHitsShuffleProcess:public TRestEventProcess {
     private:
 
 #ifndef __CINT__
-        TRestHitsEvent *fInputHitsEvent;
-        TRestHitsEvent *fOutputHitsEvent;
+        TRestHitsEvent *fInputHitsEvent;//!
+        TRestHitsEvent *fOutputHitsEvent;//!
 
-        TRandom3 *fRandom;
+        TRandom3 *fRandom;//!
 #endif
 
         void InitFromConfigFile();

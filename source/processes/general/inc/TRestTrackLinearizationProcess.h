@@ -24,8 +24,8 @@ class TRestTrackLinearizationProcess:public TRestEventProcess {
         Double_t fTransversalResolution;
 
 #ifndef __CINT__
-        TRestTrackEvent *fInputTrackEvent;
-        TRestLinearTrackEvent *fOutputLinearTrackEvent;
+        TRestTrackEvent *fInputTrackEvent;//!
+        TRestLinearTrackEvent *fOutputLinearTrackEvent;//!
 #endif
 
         void InitFromConfigFile();

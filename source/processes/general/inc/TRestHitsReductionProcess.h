@@ -20,8 +20,8 @@ class TRestHitsReductionProcess:public TRestEventProcess {
     private:
 
 #ifndef __CINT__
-        TRestHitsEvent *fInputHitsEvent;
-        TRestHitsEvent *fOutputHitsEvent;
+        TRestHitsEvent *fInputHitsEvent;//!
+        TRestHitsEvent *fOutputHitsEvent;//!
 #endif
 
         void InitFromConfigFile();

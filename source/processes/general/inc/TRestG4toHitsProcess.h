@@ -29,11 +29,11 @@
 class TRestG4toHitsProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
-        TRestG4Event *fG4Event;
-        TRestG4Metadata *fG4Metadata;
-        TRestHitsEvent *fHitsEvent;
+        TRestG4Event *fG4Event;//!
+        TRestG4Metadata *fG4Metadata;//!
+        TRestHitsEvent *fHitsEvent;//!
 
-        vector <Int_t> fVolumeId;
+        vector <Int_t> fVolumeId;//!
 #endif
 
         vector <TString> fVolumeSelection;

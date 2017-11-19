@@ -26,8 +26,8 @@ class TRestHitsNormalizationProcess:public TRestEventProcess {
 
 #ifndef __CINT__
 
-        TRestHitsEvent *fHitsInputEvent;
-        TRestHitsEvent *fHitsOutputEvent;
+        TRestHitsEvent *fHitsInputEvent;//!
+        TRestHitsEvent *fHitsOutputEvent;//!
 
 #endif
 

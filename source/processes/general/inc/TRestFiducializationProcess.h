@@ -21,10 +21,10 @@
 class TRestFiducializationProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
-        TRestHitsEvent *fInputHitsEvent;
-        TRestHitsEvent *fOutputHitsEvent;
+        TRestHitsEvent *fInputHitsEvent;//!
+        TRestHitsEvent *fOutputHitsEvent;//!
 
-        TRestReadout *fReadout;
+        TRestReadout *fReadout;//!
 
 #endif
 

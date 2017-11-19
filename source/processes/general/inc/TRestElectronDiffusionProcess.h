@@ -24,13 +24,13 @@
 class TRestElectronDiffusionProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
-        TRestHitsEvent *fInputHitsEvent;
-        TRestHitsEvent *fOutputHitsEvent;
+        TRestHitsEvent *fInputHitsEvent;//!
+        TRestHitsEvent *fOutputHitsEvent;//!
 
-        TRestGas *fGas;
-        TRestReadout *fReadout;
+        TRestGas *fGas;//!
+        TRestReadout *fReadout;//!
 
-        TRandom3 *fRandom;
+        TRandom3 *fRandom;//!
 #endif
 
         void InitFromConfigFile();

@@ -25,8 +25,8 @@ class TRestSignalZeroSuppresionProcess:public TRestEventProcess {
     private:
 
 #ifndef __CINT__
-        TRestRawSignalEvent *fRawSignalEvent;
-        TRestSignalEvent *fSignalEvent;
+        TRestRawSignalEvent *fRawSignalEvent;//!
+        TRestSignalEvent *fSignalEvent;//!
 
 #endif
 

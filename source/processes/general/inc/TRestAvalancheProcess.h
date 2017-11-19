@@ -24,8 +24,8 @@
 
 class TRestAvalancheProcess:public TRestEventProcess {
     private:
-        TRestHitsEvent *fHitsInputEvent;
-        TRestHitsEvent *fHitsOutputEvent;
+        TRestHitsEvent *fHitsInputEvent;//!
+        TRestHitsEvent *fHitsOutputEvent;//!
 
         Double_t fEnergyRef;	///< reference energy for the FWHM
         Double_t fResolutionAtEref; ///< FWHM at Energy of reference
@@ -37,7 +37,7 @@ class TRestAvalancheProcess:public TRestEventProcess {
 
     protected:
         //add here the members of your event process
-        TRestGas *fGas;
+        TRestGas *fGas;//!
 
 
     public:

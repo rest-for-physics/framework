@@ -25,11 +25,11 @@ class TRestSignalToHitsProcess:public TRestEventProcess {
     private:
 
 #ifndef __CINT__
-        TRestHitsEvent *fHitsEvent;
-        TRestSignalEvent *fSignalEvent;
+        TRestHitsEvent *fHitsEvent;//!
+        TRestSignalEvent *fSignalEvent;//!
 
-        TRestReadout *fReadout;
-        TRestGas *fGas;
+        TRestReadout *fReadout;//!
+        TRestGas *fGas;//!
 #endif
 
         void InitFromConfigFile();

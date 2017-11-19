@@ -29,10 +29,10 @@ class TRestSmearingProcess:public TRestEventProcess {
 
 #ifndef __CINT__
 
-        TRestHitsEvent *fHitsInputEvent;
-        TRestHitsEvent *fHitsOutputEvent;
+        TRestHitsEvent *fHitsInputEvent;//!
+        TRestHitsEvent *fHitsOutputEvent;//!
 
-        TRandom3 *fRandom;
+        TRandom3 *fRandom;//!
 #endif
 
         void InitFromConfigFile();

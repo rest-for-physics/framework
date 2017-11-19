@@ -24,8 +24,8 @@
 
 class TRestHitsRotateAndTraslateProcess:public TRestEventProcess {
     private:
-        TRestHitsEvent *fHitsInputEvent;
-        TRestHitsEvent *fHitsOutputEvent;
+        TRestHitsEvent *fHitsInputEvent;//!
+        TRestHitsEvent *fHitsOutputEvent;//!
 
         Double_t fDeltaX;	///< shift in X-axis
         Double_t fDeltaY;	///< shift in X-axis
