@@ -186,7 +186,7 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 			debug << "Finding event branch.." << endl;
 			TObjArray* branches = fAnalysisTree->GetListOfBranches();
 			//get the last event branch as input event branch
-			TBranch *br = (TBranch*)branches->At(branches->GetSize()-1);
+			TBranch *br = (TBranch*)branches->At(branches->GetLast());
 
 			if (Count(br->GetName(), "EventBranch") == 0)
 			{

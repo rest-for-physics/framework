@@ -25,11 +25,16 @@ public:
 	
 	ClassDef(TRestTask, 1);
 	
+	//define default values here
+	void Initialize() {}
+	//automatic setup values with rml config section
 	void BeginOfInit();
+	//automatic set values with input argument
+	void InitTask(vector<string>argument);
 
-	virtual void InitTask() {}
-	virtual void RunTask(TRestManager*mgr)=0;
 
+	virtual void RunTask(TRestManager*)=0;
+	virtual void PrintHelp() {};
 
 };
 

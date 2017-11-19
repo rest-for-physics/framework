@@ -382,7 +382,7 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t)
 	if (fEventTree != NULL) {
 		branchesT = t->GetEventTree()->GetListOfBranches();
 		branchesL = fEventTree->GetListOfBranches();
-		for (int i = 0; i < branchesT->GetSize(); i++)
+		for (int i = 0; i < branchesT->GetLast()+1; i++)
 		{
 			TBranch* branchT = (TBranch*)branchesT->UncheckedAt(i);
 			TBranch* branchL = (TBranch*)branchesL->UncheckedAt(i);

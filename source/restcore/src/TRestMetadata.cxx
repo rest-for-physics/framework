@@ -1347,7 +1347,7 @@ int TRestMetadata::GetNumberOfDataMember()
 		vs = c->GetStreamerInfo();
 		ses = vs->GetElements();
 	}
-	return ses->GetSize();
+	return ses->GetLast() + 1;
 }
 
 

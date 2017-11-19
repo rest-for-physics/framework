@@ -78,7 +78,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 			debug << "skipping task... " << endl;
 			return 0;
 		}
-		debug << "Loading Task..." << endl;
+		debug << "Loading Task...";
 
 		const char* type = e->Attribute("type");
 		const char* cmd = e->Attribute("command");
@@ -87,6 +87,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 			return -1;
 		}
 		if (type != NULL) {
+			debug << " \""<<type<<"\" " << endl;
 			TClass*c = TClass::GetClass(type);
 			if (c == NULL) {
 				cout << " " << endl;
@@ -96,11 +97,12 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 			}
 			TRestTask*tsk = (TRestTask*)c->New();
 			tsk->LoadConfigFromFile(e, fElementGlobal);
-			tsk->InitTask();
+			tsk->InitTask(vector<string>());
+			
 			tsk->RunTask(this);
 		}
 		else if (cmd != NULL) {
-			
+			debug << " \""<<cmd<<"\" " << endl;
 			gROOT->ProcessLine(cmd);
 		}
 	}

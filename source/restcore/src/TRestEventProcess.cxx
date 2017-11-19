@@ -88,7 +88,7 @@ vector<string> TRestEventProcess::ReadObservables()
 				TStreamerElement* se = GetDataMemberWithName(obsnames[i]);
 				if (se != NULL)
 				{
-					if (fAnalysisTree->AddObservable((TString)GetName() + "_" + obsnames[i], GetDblDataMemberRef(se)) != -1)
+					if (fAnalysisTree->AddObservable((TString)GetName() + "_" + obsnames[i], (double*)GetDataMemberRef(se)))
 						fObservableNames.push_back((TString)GetName() + "_" + obsnames[i]);
 				}
 				else

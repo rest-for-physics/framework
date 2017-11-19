@@ -220,7 +220,7 @@ void TRestThread::PrepareToProcess()
 
 		}
 
-		if (fEventTree->GetListOfBranches()->GetSize() < 6)
+		if (fEventTree->GetListOfBranches()->GetLast()+1 < 6)
 		{
 			delete fEventTree; fEventTree = NULL;
 		}
