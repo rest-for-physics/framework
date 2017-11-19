@@ -8,6 +8,7 @@
 
 set(rest_include_dirs)
 set(rest_libraries)
+set(rest_macros)
 
 
 add_subdirectory(tools)
@@ -21,3 +22,4 @@ add_subdirectory(bin)
 
 set(rest_libraries_regular ${rest_libraries_regular} PARENT_SCOPE)
 set(rest_exes ${rest_exes} PARENT_SCOPE)
+set(rest_macros ${rest_macros} PARENT_SCOPE)

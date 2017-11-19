@@ -112,6 +112,7 @@ add_subdirectory(source)
 
 message("rest Libraries : " ${rest_libraries_regular})
 message("rest executables: " ${rest_exes})
+message("rest macros: " ${rest_macros})
 
 #begin installation
 file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h")

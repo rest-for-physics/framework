@@ -119,11 +119,14 @@ int main( int argc, char *argv[] )
 			fout <<"Initializing "<< type << endl;
 			TClass* c= TClass::GetClass(type.c_str());
 			if (c == NULL) {
-				fout.setcolor(COLOR_BOLDRED);
-				fout << "ERROR: Task \""<<type<<"\" is not defined !" << endl;
-				fout << endl;
-				PrintHelp();
-				exit(0);
+				c= TClass::GetClass(("REST_"+type).c_str());
+				if (c == NULL) {
+					fout.setcolor(COLOR_BOLDRED);
+					fout << "ERROR: Task \"" << type << "\" is not defined !" << endl;
+					fout << endl;
+					PrintHelp();
+					exit(0);
+				}
 			}
 			if (!c->InheritsFrom("TRestTask")) {
 				fout.setcolor(COLOR_BOLDRED);

@@ -9,7 +9,7 @@ endforeach(lib)
 
 set(rest_exes)
 
-file(GLOB files *.cxx)
+set(files restManager.cxx restRoot.cxx)
 foreach(file ${files})
 #get file name without extension
 string(REGEX MATCH "[^/\\]*cxx" temp ${file})

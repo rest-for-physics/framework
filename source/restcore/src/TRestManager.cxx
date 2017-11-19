@@ -90,10 +90,14 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 			debug << " \""<<type<<"\" " << endl;
 			TClass*c = TClass::GetClass(type);
 			if (c == NULL) {
-				cout << " " << endl;
-				cout << "REST ERROR. Task : " << type << " not found!!" << endl;
-				cout << "This process will be skipped." << endl;
-				return -1;
+				c= TClass::GetClass(("REST_"+(string)type).c_str());
+				if (c == NULL) {
+					cout << " " << endl;
+					cout << "REST ERROR. Task : " << type << " not found!!" << endl;
+					cout << "This process will be skipped." << endl;
+					return -1;
+				}
+
 			}
 			TRestTask*tsk = (TRestTask*)c->New();
 			tsk->LoadConfigFromFile(e, fElementGlobal);
