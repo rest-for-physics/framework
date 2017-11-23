@@ -1,0 +1,304 @@
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
+
+
+//////////////////////////////////////////////////////////////////////////
+/// The TRestSignalToRawSignalProcess transforms a
+/// TRestSignalEvent into a TRestRawSignalEvent. The TRestSignalEvent
+/// contains signal data built with arbitrary times and their corresponding
+/// data value (time, data). The data inside a TRestRawSignal losses the 
+/// time definition, and it is just a data array with fixed number of 
+/// points, assuming that the time between two consecutive data points 
+/// remains constant.
+///
+/// This process produces the binning of the signal data into the raw signal
+/// data. The TRestSignal contains Float_t data values, while TResRawSignal
+/// contains Short_t values. Thats why there might be some information
+/// loss when transferring the signal data to the raw-signal data. To 
+/// minimize the impact, the maximum data value of the output signals should
+/// be high enough. The *gain* parameter may serve to re-adjust the 
+/// amplitude of the output data array.
+/// 
+/// The input signal contains arbitrary times expressed in microseconds.
+/// In order to produce the binning, a time window must be defined. The 
+/// parameter *triggerMode* will allow to define how we choose the time 
+/// start (corresponding to the bin 0 in the raw signal), and time end
+/// (corresponding to the last bin in the raw signal).
+/// The trigger mode will fix the time the signal starts, while the
+/// *sampling* time parameter (in microseconds) and the number of points 
+/// per signal, *Npoints*, will fix the time end. A *triggerDelay* 
+/// parameter allows to shift the time measured in number of bins from 
+/// the definition obtained using the *triggerMode* parameter.
+///
+/// The following list describes the different parameters that can be 
+/// used in this process.
+/// * **sampling**: It is the sampling time of the resulting raw signal
+/// output data. Time units must be specified (ns, us, ms)".
+/// * **Npoints**: The number of points of the resulting raw signals.
+/// * **triggerMode**: It defines how the start time is fixed. The 
+/// different options are:
+///   - *firstDeposit*: The first time deposit found in the event
+///     will correspond to the bin 0.
+/// * **triggerDelay**: The time start obtained by the trigger mode
+/// definition can be shifted using this parameter. The shift is 
+/// measured in number of bins from the output signal.
+/// * **gain**: Each data point from the resulting raw signal will be
+/// multiplied by this factor before performing the conversion to 
+/// Short_t. Each value in the raw output signal should be between
+/// -32768 and 32768, resulting event data will be corrupted otherwise.
+/// The state of the event will be set to false fOk=false.
+///
+///
+///--------------------------------------------------------------------------
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2017-November: First implementation of signal to rawsignal conversion.
+///             Javier Galan
+///
+/// \class      TRestSignalToRawSignalProcess
+/// \author     Javier Galan
+///
+/// <hr>
+///
+#include "TRestSignalToRawSignalProcess.h"
+using namespace std;
+
+ClassImp(TRestSignalToRawSignalProcess)
+
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestSignalToRawSignalProcess::TRestSignalToRawSignalProcess()
+{
+    Initialize();
+}
+
+///////////////////////////////////////////////
+/// \brief Constructor loading data from a config file
+/// 
+/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or relative.
+///
+/// The default behaviour is that the config file must be specified with 
+/// full path, absolute or relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+///
+TRestSignalToRawSignalProcess::TRestSignalToRawSignalProcess( char *cfgFileName )
+{
+    Initialize();
+
+    LoadConfig( cfgFileName );
+}
+
+///////////////////////////////////////////////
+/// \brief Default destructor 
+/// 
+TRestSignalToRawSignalProcess::~TRestSignalToRawSignalProcess()
+{
+    delete fInputSignalEvent;
+    delete fOutputRawSignalEvent;
+}
+
+///////////////////////////////////////////////
+/// \brief Function to load the default config in absence of RML input
+/// 
+void TRestSignalToRawSignalProcess::LoadDefaultConfig( )
+{
+    SetName( "signalToRawSignalProcess-Default" );
+    SetTitle( "Default config" );
+
+    cout << "Signal to hits metadata not found. Loading default values" << endl;
+
+    fSampling = 1;
+    fNPoints = 512;
+    fTriggerMode = "firstDeposit";
+    fTriggerDelay = 50;
+}
+
+///////////////////////////////////////////////
+/// \brief Function to load the configuration from an external configuration file.
+/// 
+/// If no configuration path is defined in TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param name The name of the specific metadata. It will be used to find the 
+/// correspondig TRestGeant4AnalysisProcess section inside the RML.
+///
+void TRestSignalToRawSignalProcess::LoadConfig( std::string cfgFilename, std::string name )
+{
+    if( LoadConfigFromFile( cfgFilename, name ) ) LoadDefaultConfig( );
+}
+
+///////////////////////////////////////////////
+/// \brief Function to initialize input/output event members and define the section name
+/// 
+void TRestSignalToRawSignalProcess::Initialize()
+{
+    SetSectionName( this->ClassName() );
+
+    fInputSignalEvent = new TRestSignalEvent();
+    fOutputRawSignalEvent = new TRestRawSignalEvent();
+
+    fInputEvent = fInputSignalEvent;
+    fOutputEvent = fOutputRawSignalEvent;
+}
+
+///////////////////////////////////////////////
+/// \brief Process initialization. Observable names are interpreted and auxiliar observable
+/// members, related to VolumeEdep, MeanPos, TracksCounter, TrackEDep observables 
+/// defined in TRestGeant4AnalysisProcess are filled at this stage.
+/// 
+void TRestSignalToRawSignalProcess::InitProcess()
+{
+    // Function to be executed once at the beginning of process
+    // (before starting the process of the events)
+
+    //Start by calling the InitProcess function of the abstract class. 
+    //Comment this if you don't want it.
+    //TRestEventProcess::InitProcess();
+
+}
+
+///////////////////////////////////////////////
+/// \brief Function to include required initialization before each event starts to process.
+/// 
+void TRestSignalToRawSignalProcess::BeginOfEventProcess() 
+{
+    fOutputRawSignalEvent->Initialize(); 
+}
+
+///////////////////////////////////////////////
+/// \brief The main processing event function
+/// 
+TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent( TRestEvent *evInput )
+{
+    fInputSignalEvent = (TRestSignalEvent *) evInput;
+
+    if( GetVerboseLevel() >= REST_Debug )
+        fOutputRawSignalEvent->PrintEvent();
+
+    fOutputRawSignalEvent->SetID( fInputSignalEvent->GetID() );
+    fOutputRawSignalEvent->SetSubID( fInputSignalEvent->GetSubID() );
+    fOutputRawSignalEvent->SetTimeStamp( fInputSignalEvent->GetTimeStamp() );
+    fOutputRawSignalEvent->SetSubEventTag( fInputSignalEvent->GetSubEventTag() );
+
+    // The time event window is defined (tStart, tEnd)
+    Double_t tStart = 0;
+    Double_t tEnd = 10000;
+    if( fTriggerMode == "firstDeposit" )
+    {
+        tStart = fInputSignalEvent->GetMinTime() - fTriggerDelay * fSampling;
+        tEnd = fInputSignalEvent->GetMinTime() + (fNPoints - fTriggerDelay) * fSampling;
+    }
+
+    Int_t numberOfSignals = fInputSignalEvent->GetNumberOfSignals();
+
+    for( int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++ )
+    {
+        Double_t sData[fNPoints];
+        for( int i = 0; i < fNPoints; i++ )
+            sData[i]  = 0;
+
+        TRestSignal *sgnl = fInputSignalEvent->GetSignal( n );
+        Int_t signalID = sgnl->GetSignalID();
+
+        for( int m = 0; m < sgnl->GetNumberOfPoints(); m++ )
+        {
+            Double_t t = sgnl->GetTime( m );
+            Double_t d = sgnl->GetData( m );
+
+            if( GetVerboseLevel() >= REST_Debug )
+                cout << "Sample : " << m << " T : " << t << " D : " << d << endl;
+
+            if( t > tStart && t < tEnd )
+            {
+                Int_t timeBin = (Int_t) ( (t - tStart)/fSampling );
+
+                if( GetVerboseLevel() >= REST_Warning )
+                    if( timeBin < 0 || timeBin > fNPoints )
+                    {
+                        cout << "Time bin out of range!!! bin value : " << timeBin << endl;
+                        timeBin = 0;
+                    }
+
+                sData[timeBin] += fGain * sgnl->GetData( m );
+            }
+        }
+
+        if( GetVerboseLevel() >= REST_Warning )
+            for( int x = 0; x < fNPoints; x++ )
+                if( sData[x] < -32768. || sData[x] > 32768. )
+                    cout << "REST Warning : data is outside short range : " << sData[x] << endl;
+
+        TRestRawSignal rSgnl;
+        rSgnl.SetSignalID( signalID );
+        for( int x = 0; x < fNPoints; x++ )
+        {
+            if( sData[x] < -32768. || sData[x] > 32768. )
+                fOutputRawSignalEvent->SetOK( false );
+
+            Short_t value =  (Short_t) sData[x];
+            if( value > 0 ) value += x%2;
+            rSgnl.AddPoint( value ); // signalID%2 in order to reduce Double_t to Short_t precision loss
+        }
+
+        fOutputRawSignalEvent->AddSignal( rSgnl );
+    }
+
+    return fOutputRawSignalEvent;
+}
+
+void TRestSignalToRawSignalProcess::EndOfEventProcess() 
+{
+
+}
+
+///////////////////////////////////////////////
+/// \brief Function to include required actions after each event has been processed.
+/// 
+void TRestSignalToRawSignalProcess::EndProcess()
+{
+    // Function to be executed once at the end of the process 
+    // (after all events have been processed)
+
+    //Start by calling the EndProcess function of the abstract class. 
+    //Comment this if you don't want it.
+    //TRestEventProcess::EndProcess();
+}
+
+///////////////////////////////////////////////
+/// \brief Function to read input parameters from the RML TRestSignalToRawSignalProcess metadata section
+/// 
+void TRestSignalToRawSignalProcess::InitFromConfigFile( )
+{
+    fSampling = GetDblParameterWithUnits( "sampling" );
+    fNPoints = StringToInteger( GetParameter( "Npoints", "512" ) );
+    fTriggerMode = GetParameter( "triggerMode", "firstDeposit" );
+    fTriggerDelay = StringToInteger( GetParameter( "triggerDelay", 100 ) );
+    fGain = StringToDouble( GetParameter( "gain", "100" ) );
+}
+
