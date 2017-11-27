@@ -63,6 +63,15 @@ class TRestSignalEvent: public TRestEvent {
         //Getters
         Int_t GetNumberOfSignals() { return fSignal.size(); }
         TRestSignal *GetSignal(Int_t n ) { return &fSignal[n]; }
+
+        TRestSignal *GetSignalById( Int_t sid ) 
+        { 
+            Int_t index = GetSignalIndex( sid );
+            if( index < 0 ) return NULL;
+
+            return &fSignal[index]; 
+        }
+
         Int_t GetSignalIndex( Int_t signalID );
 
         Double_t GetBaseLineAverage( Int_t startBin, Int_t endBin );
