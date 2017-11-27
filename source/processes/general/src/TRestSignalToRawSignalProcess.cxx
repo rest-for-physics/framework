@@ -199,8 +199,6 @@ TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent( TRestEvent *evInput )
         tEnd = fInputSignalEvent->GetMinTime() + (fNPoints - fTriggerDelay) * fSampling;
     }
 
-    Int_t numberOfSignals = fInputSignalEvent->GetNumberOfSignals();
-
     for( int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++ )
     {
         Double_t sData[fNPoints];
