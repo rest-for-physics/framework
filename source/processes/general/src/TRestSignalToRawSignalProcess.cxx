@@ -20,23 +20,28 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-
 //////////////////////////////////////////////////////////////////////////
-/// The TRestSignalToRawSignalProcess transforms a
+/// TRestSignalToRawSignalProcess transforms a
 /// TRestSignalEvent into a TRestRawSignalEvent. The TRestSignalEvent
 /// contains signal data built with arbitrary times and their corresponding
-/// data value (time, data). The data inside a TRestRawSignal losses the 
-/// time definition, and it is just a data array with fixed number of 
-/// points, assuming that the time between two consecutive data points 
-/// remains constant.
+/// data values (time, data). The data inside a TRestRawSignal losses
+/// precision on the time definition, and it is just a data array with a
+/// fixed number of data points. Therefore, the time between two consecutive
+/// data points in a raw signal event must be kept constant.
 ///
 /// This process produces the binning of the signal data into the raw signal
-/// data. The TRestSignal contains Float_t data values, while TResRawSignal
+/// data. TRestSignal contains Float_t data values, while TResRawSignal
 /// contains Short_t values. Thats why there might be some information
 /// loss when transferring the signal data to the raw-signal data. To 
 /// minimize the impact, the maximum data value of the output signals should
-/// be high enough. The *gain* parameter may serve to re-adjust the 
+/// be high enough, and adjusted to the maximum value of a Float_t, being
+/// this value 32768. The *gain* parameter may serve to re-adjust the 
 /// amplitude of the output data array.
+///
+/// \warning If the value assigned to a data point in the output rawsignal
+/// event exceeds 32768 it will cause an overflow, and the event data will
+/// be corrupted. If the verboseLevel of the process is warning, an output
+/// message will prevent the user. The event status will be invalid.
 /// 
 /// The input signal contains arbitrary times expressed in microseconds.
 /// In order to produce the binning, a time window must be defined. The 

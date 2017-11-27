@@ -29,13 +29,31 @@
 /// through the process RML section.
 /// 
 /// All the data points will be transferred to the output signal event.
+///
+/// The following list describes the different parameters that can be 
+/// used in this process.
+/// * **sampling**: It is the sampling time of input raw signal data.
+/// Time units must be specified (ns, us, ms).
+/// * **triggerStarts**: It defines the absolute time value for the first
+/// raw data bin.
+/// * **gain**: Each data point from the resulting output signal will be
+/// multiplied by this factor.
+///
 /// The following lines of code show how the process metadata should be
 /// defined.
+///
+/// \code
+///
+/// // A raw signal with 200ns binning will be translated to a 
+/// // TRestSignalEvent. The new signal will start at time=20us, and its
+/// // amplitude will be reduced a factor 50.
 ///
 /// <TRestRawSignalToSignalProcess name="rsTos" title"Raw signal to signal">
 ///     <parameter name="sampling" value="0.2" units="us" />
 ///     <parameter name="triggerStarts" value="20" units="us" />
+///     <parameter name="gain" value="1/50." />
 /// </TRestRawSignalToSignalProcess>
+/// \endcode
 ///
 ///--------------------------------------------------------------------------
 ///

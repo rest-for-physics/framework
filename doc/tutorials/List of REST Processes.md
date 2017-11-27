@@ -8,12 +8,13 @@ As soon as we transform one data type to another we can make use of the dedicate
 
 REST process | Input type | Output type | Description
 -------------|------------|-------------|------------
-TRestRawSignalToSignalProcess               | TRestRawSignal    | TRestSignalEvent  | Transforms a rawsignal into a signal event.
-TRestSignalToHitsProcess                    | TRestSignalEvent  | TRestHitsEvent    | Converts a signal event into a hits event using TRestReadout.
-TRestHitsToSignalProcess                    | TRestHitsEvent    | TRestSignalEvent  | Transforms a HitsEvent into SignalEvent using TRestReadout.
-TRestHitsToTrackProcess                     | TRestHitsEvent    | TRestTrackEvent   | Hit clusterization into tracks by proximity (Accurate).
-TRestFastHitsToTrackProcess                 | TRestHitsEvent    | TRestTrackEvent   | Hit clusterization into tracks by proximity (Aproximation).
-TRestG4toHitsProcess                        | TRestG4Event      | TRestHitsEvent    | Transforms a geant4 event into a hits event.
+TRestRawSignalToSignalProcess               | TRestRawSignal    | TRestSignalEvent      | Transforms a rawsignal into a signal event.
+TRestSignalToRawSignalProcess               | TRestSignal       | TRestRawSignalEvent   | Transforms a signal into a raw signal event.
+TRestSignalToHitsProcess                    | TRestSignalEvent  | TRestHitsEvent        | Converts a signal event into a hits event using TRestReadout.
+TRestHitsToSignalProcess                    | TRestHitsEvent    | TRestSignalEvent      | Transforms a HitsEvent into SignalEvent using TRestReadout.
+TRestHitsToTrackProcess                     | TRestHitsEvent    | TRestTrackEvent       | Hit clusterization into tracks by proximity (Accurate).
+TRestFastHitsToTrackProcess                 | TRestHitsEvent    | TRestTrackEvent       | Hit clusterization into tracks by proximity (Aproximation).
+TRestG4toHitsProcess                        | TRestG4Event      | TRestHitsEvent        | Transforms a geant4 event into a hits event.
 
 ## Analysis processes
 
@@ -39,7 +40,8 @@ TRestSignalDeconvolutionProcess             | TRestSignalEvent      | TRestSigna
 TRestSignalGaussianConvolutionProcess       | TRestSignalEvent      | TRestSignalEvent  | Convolutes the input signal with a gaussian.
 TRestSignalShapingProcess                   | TRestSignalEvent      | TRestSignalEvent  | Shapes the input signal with a given input response signal.
 TRestFindResponseSignalProcess              | TRestSignalEvent      | TRestSignalEvent  | Selects clean signals from input to be used as response for deconvolution.
-TRestSignalZeroSuppresionProcess            | TRestRawSignalEvent   | TRestSignalEvent  | Keeps only points which are found over threshold.
+TRestSignalZeroSuppresionProcess            | TRestRawSignalEvent   | TRestSignalEvent      | Keeps only points which are found over threshold.
+TRestRawSignalRemoveChannelsProcess         | TRestRawSignalEvent   | TRestRawSignalEvent   | Removes a number of selected channel ids from the input signal event.
 
 ## Hit processes
 
