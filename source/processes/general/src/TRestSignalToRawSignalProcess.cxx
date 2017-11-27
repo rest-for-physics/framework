@@ -168,23 +168,7 @@ void TRestSignalToRawSignalProcess::Initialize()
 }
 
 ///////////////////////////////////////////////
-/// \brief Process initialization. Observable names are interpreted and auxiliar observable
-/// members, related to VolumeEdep, MeanPos, TracksCounter, TrackEDep observables 
-/// defined in TRestGeant4AnalysisProcess are filled at this stage.
-/// 
-void TRestSignalToRawSignalProcess::InitProcess()
-{
-    // Function to be executed once at the beginning of process
-    // (before starting the process of the events)
-
-    //Start by calling the InitProcess function of the abstract class. 
-    //Comment this if you don't want it.
-    //TRestEventProcess::InitProcess();
-
-}
-
-///////////////////////////////////////////////
-/// \brief Function to include required initialization before each event starts to process.
+/// \brief Function including required initialization before each event starts to process.
 /// 
 void TRestSignalToRawSignalProcess::BeginOfEventProcess() 
 {
@@ -272,26 +256,8 @@ TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent( TRestEvent *evInput )
     return fOutputRawSignalEvent;
 }
 
-void TRestSignalToRawSignalProcess::EndOfEventProcess() 
-{
-
-}
-
 ///////////////////////////////////////////////
-/// \brief Function to include required actions after each event has been processed.
-/// 
-void TRestSignalToRawSignalProcess::EndProcess()
-{
-    // Function to be executed once at the end of the process 
-    // (after all events have been processed)
-
-    //Start by calling the EndProcess function of the abstract class. 
-    //Comment this if you don't want it.
-    //TRestEventProcess::EndProcess();
-}
-
-///////////////////////////////////////////////
-/// \brief Function to read input parameters from the RML TRestSignalToRawSignalProcess metadata section
+/// \brief Function reading input parameters from the RML TRestSignalToRawSignalProcess metadata section
 /// 
 void TRestSignalToRawSignalProcess::InitFromConfigFile( )
 {
