@@ -41,7 +41,7 @@ endforeach (CLASS)
 file(GLOB ProcessesSignal
         "signal/src/*.cxx"
         )
-    set(CLASS_DICT TRestSignalDeconvolutionProcess TRestAddSignalNoiseProcess TRestSignalGaussianConvolutionProcess TRestSignalShapingProcess TRestFindResponseSignalProcess TRestRawSignalRemoveChannelsProcess)
+    set(CLASS_DICT TRestSignalDeconvolutionProcess TRestAddSignalNoiseProcess TRestSignalGaussianConvolutionProcess TRestSignalShapingProcess TRestFindResponseSignalProcess TRestRawSignalRemoveChannelsProcess TRestRawSignalRecoverChannelsProcess)
 foreach (CLASS ${CLASS_DICT})
     set(ROOT_DICT_INCLUDE_DIRS ${REST_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
     set(ROOT_DICT_INPUT_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/signal/inc/${CLASS}.h)
