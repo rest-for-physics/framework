@@ -35,8 +35,11 @@ class TRestEventViewer {
     TGeoManager *fGeometry;
     TRestEvent *fEvent;
         
+    TString fOption;
+
     public:
 
+    void SetOption( TString opt ) { fOption = opt; }
 
     virtual void Initialize();
 
