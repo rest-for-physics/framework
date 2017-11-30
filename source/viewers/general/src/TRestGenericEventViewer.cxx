@@ -21,6 +21,8 @@ ClassImp(TRestGenericEventViewer)
 TRestGenericEventViewer::TRestGenericEventViewer()
 {
   Initialize();
+
+  fOption = "";
 }
 
 
@@ -47,7 +49,7 @@ void TRestGenericEventViewer::AddEvent( TRestEvent *ev ){
 
 //fEvent=(TRestSignalEvent *)ev;
 
-fPad = ev->DrawEvent();
+fPad = ev->DrawEvent( fOption );
 
 if(fPad==NULL)return;
 
