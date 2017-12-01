@@ -7,10 +7,16 @@
 #include "TObject.h"
 #include "TMath.h"
 #include "TArrayI.h"
-#include <TVector3.h>
+#include "TAxis.h"
 
-#include <TRestEvent.h>
-#include <TRestHits.h>
+#include <TGraph.h>
+#include "TH2F.h"
+
+#include "TVector3.h"
+
+#include "TRestEvent.h"
+#include "TRestHits.h"
+
 
 // Storage class
 
@@ -18,6 +24,33 @@
 // It saves a 3-coordinate position and an energy for each punctual deposition.
 class TRestHitsEvent : public TRestEvent
 {
+    private:
+        #ifndef __CINT__
+        TRestHits *fXZHits;
+        TRestHits *fYZHits;
+
+        TRestHits *fXYZHits;
+
+        Double_t fMinX, fMaxX;
+        Double_t fMinY, fMaxY;
+        Double_t fMinZ, fMaxZ;
+        #endif
+
+    protected:
+        #ifndef __CINT__
+        // TODO These graphs should be placed in TRestTrack?
+        // (following GetGraph implementation in TRestSignal)
+        TGraph *fXYHitGraph;
+        TGraph *fXZHitGraph;
+        TGraph *fYZHitGraph;
+
+        TH2F *fXYHisto;
+        TH2F *fYZHisto;
+        TH2F *fXZHisto;
+
+        TPad *fPad;
+        #endif
+
     public:
         
         TRestHits *fHits;	// 
@@ -31,6 +64,8 @@ class TRestHitsEvent : public TRestEvent
 
         void MergeHits( int n, int m );
         void RemoveHit( int n );
+
+        void SetBoundaries( );
 
         Int_t GetNumberOfHits( ) { return fHits->fNHits; }
 
@@ -107,7 +142,9 @@ class TRestHitsEvent : public TRestEvent
         Double_t GetClosestHitInsideDistanceToPrismBottom( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY );
 
 
-        TPad *DrawEvent( TString option = "" ) { std::cout << "TRestHitsEvent::DrawEvent not implemented. TODO" << std::endl; return NULL; }
+        TPad *DrawEvent( TString option = "" );
+        void DrawHistograms( Int_t &column, Double_t pitch = 3, TString histOption = "" );
+        void DrawGraphs( Int_t &column );
 
         //Construtor
         TRestHitsEvent();
