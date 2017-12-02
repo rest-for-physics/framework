@@ -68,7 +68,6 @@ include(MacroRootDict)
 include(CompileDir)
 include_directories(${external_include_dirs})
 
-
 #gether some infomation
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
     #get time
@@ -80,8 +79,10 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	#get git branch
     execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/cmake/printVersionDate.sh
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-	OUTPUT_VARIABLE d)
-	string(REPLACE "\n" "" git_date ${d})
+	OUTPUT_VARIABLE git_date)
+
+	if(DEFINED git_date)#git is available
+	string(REPLACE "\n" "" git_date ${git_date})
 	message(STATUS "REST date : ${git_date}")
 
 	#get git number
@@ -99,7 +100,8 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	OUTPUT_VARIABLE b)
 	string(REPLACE "\n" "" git_branch ${b})
 	message(STATUS "REST branch : ${git_branch}")
-
+	
+	endif(DEFINED git_date)
 
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
