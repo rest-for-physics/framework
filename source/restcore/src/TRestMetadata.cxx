@@ -526,17 +526,18 @@ void TRestMetadata::InitFromConfigFile()
 		TiXmlElement*e = fElement->FirstChildElement();
 		while (e != NULL)
 		{
+			//cout << 111111111111 << endl;
 			string value = e->Value();
 			string name = "";
 			const char* a = e->Attribute("name");
 			if (a != NULL) name = a;
-
-			if (value == "variable" || value == "myParameter") { continue; }
+			if (value == "variable" || value == "myParameter") { e = e->NextSiblingElement(); continue; }
 
 			if (ReadConfig((string)e->Value(), e) == 0) {
 				debug << "rml Element \"" << e->Value() << "\" with name \"" << name << "\" has been loaded by: " << GetSectionName() << endl;
 			}
 			e = e->NextSiblingElement();
+
 		}
 	}
 	EndOfInit();
@@ -1751,11 +1752,8 @@ void TRestMetadata::PrintTimeStamp(Double_t timeStamp)
 
 void TRestMetadata::PrintConfigBuffer()
 {
-	TiXmlDocument *doc = new TiXmlDocument();
-	doc->LinkEndChild(fElement->Clone());
-	//doc->Print();
-	cout << *doc << endl;
-	delete doc;
+	fElement->Print(stdout, 0);
+	cout << "\n" << endl;
 }
 
 
