@@ -23,6 +23,8 @@ void TRestManager::Initialize()
 
 	fMetaObjects.clear();
 
+	fMetaObjects.push_back(this);
+
 }
 
 ///////////////////////////////////////////////
@@ -146,6 +148,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 					debug << "processing..." << endl;
 					gInterpreter->Execute(fMetaObjects[i], fMetaObjects[i]->IsA(), method.c_str(),arg.c_str());
 					//((TRestProcessRunner*)fMetaObjects[i])->RunProcess();
+					break;
 				}
 				else if(i== fMetaObjects.size()-1)
 				{
