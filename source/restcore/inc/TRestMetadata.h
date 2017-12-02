@@ -27,6 +27,7 @@
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
 #include "TRestTools.h"
+#define TIXML_USE_STL
 #include "tinyxml.h"
 
 #include "TRestSystemOfUnits.h"
@@ -96,12 +97,8 @@ public:
 
 	void PrintTimeStamp(Double_t timeStamp);
 	/// This is a dummy function
-	void PrintConfigBuffer()
-	{
-		TiXmlDocument *doc = new TiXmlDocument();
-		doc->LinkEndChild(fElement);
-		doc->Print();
-	}
+	void PrintConfigBuffer();
+
 	/// helps to pause the program, printing a message before pausing
 	void GetChar() { cout << "Press a KEY to continue ..." << endl; getchar(); }
 
@@ -150,6 +147,8 @@ protected:
 	TVector2 Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* e, TVector2 defaultValue = TVector2(-1, -1));
 	TVector3 Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* e, TVector3 defaultValue = TVector3(-1, -1, -1));
 
+
+
 	TiXmlElement* GetRootElementFromFile(std::string cfgFileName);
 
 	TiXmlElement* GetElement(std::string eleDeclare);
@@ -165,74 +164,28 @@ protected:
 	TiXmlElement* ReplaceElementAttributes(TiXmlElement* e);
 
 
-	//tricks to adapt to old xml parser.
-	std::string GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition = 0)
-	{
-		return GetFieldValue(fieldName, (TiXmlElement*)definition.c_str());
-	}
+	//adapting to old xml parser.
+	//the following merthods are re-written, converting internal xml elements to string
+	TiXmlElement* StringToElement(string definition);
+	string ElementToString(TiXmlElement*ele);
+	string GetKEYStructure(std::string keyName);
+	string GetKEYStructure(std::string keyName, size_t &Position);
+	string GetKEYDefinition(std::string keyName);
+	string GetKEYDefinition(std::string keyName, size_t &Position);
+	std::string GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition = 0);
+	Double_t GetDblFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
+	TVector2 Get2DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
+	TVector3 Get3DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
 
-	Double_t GetDblFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0)
-	{
-		return GetDblParameterWithUnits(fieldName, (TiXmlElement*)definition.c_str());
-	}
-	TVector2 Get2DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0)
-	{
-		return Get2DVectorParameterWithUnits(fieldName, (TiXmlElement*)definition.c_str());
-	}
-	TVector3 Get3DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0)
-	{
-		return Get3DVectorParameterWithUnits(fieldName, (TiXmlElement*)definition.c_str());
-	}
-
-	char* GetKEYStructure(std::string keyName) { return (char*)GetElement(keyName); }
-	char* GetKEYStructure(std::string keyName, string buffer)
-	{
-		if ((string)((TiXmlElement*)buffer.c_str())->Value() == keyName) {
-			return (char*)buffer.c_str();
-		}
-		else
-		{
-			return (char*)GetElement(keyName, (TiXmlElement*)buffer.c_str());
-		}
-		return 0;
-	}
-	char* GetKEYStructure(std::string keyName, size_t &Position)
-	{
-		TiXmlElement*ele = fElement->FirstChildElement(keyName.c_str());
-		for (int i = 0; i < Position; i++)
-		{
-			ele = ele->NextSiblingElement(keyName.c_str());
-		}
-
-		if (ele != NULL) {
-			Position++;
-			return (char*)ele;
-		}
-		return 0;
-	}
-	char* GetKEYStructure(std::string keyName, size_t &Position, string buffer) {
-		TiXmlElement*ele = ((TiXmlElement*)buffer.c_str())->FirstChildElement(keyName.c_str());
-		for (int i = 0; i < Position; i++)
-		{
-			ele = ele->NextSiblingElement(keyName.c_str());
-		}
-
-		if (ele != NULL) {
-			Position++;
-			return (char*)ele;
-		}
-		return 0;
-	}
-
-	char* GetKEYDefinition(std::string keyName) { return GetKEYStructure(keyName); }
-	char* GetKEYDefinition(std::string keyName, string buffer) { return GetKEYStructure(keyName, buffer); }
-	char* GetKEYDefinition(std::string keyName, size_t &Position) { return GetKEYStructure(keyName, Position); }
-	char* GetKEYDefinition(std::string keyName, size_t &Position, string buffer) { return GetKEYStructure(keyName, Position, buffer); }
-
-	std::string GetParameter(std::string parName, size_t &pos, std::string inputString) { return GetParameter(parName, ((TiXmlElement*)inputString.c_str())); }
-	Double_t GetDblParameterWithUnits(std::string parName, size_t &pos, std::string inputString) { return GetDblParameterWithUnits(parName, ((TiXmlElement*)inputString.c_str())); }
-	TVector2 Get2DVectorParameterWithUnits(std::string parName, size_t &pos, std::string inputString) { return Get2DVectorParameterWithUnits(parName, ((TiXmlElement*)inputString.c_str())); }
-	TVector3 Get3DVectorParameterWithUnits(std::string parName, size_t &pos, std::string inputString) { return Get3DVectorParameterWithUnits(parName, ((TiXmlElement*)inputString.c_str())); }
+	//the following methods require string xml element, and is directly copied form the old code
+	string GetKEYStructure(std::string keyName, string buffer);
+	string GetKEYStructure(std::string keyName, size_t &Position, string buffer);
+	string GetKEYDefinition(std::string keyName, string buffer);
+	string GetKEYDefinition(std::string keyName, size_t &Position, string buffer);
+	std::string GetParameter(std::string parName, size_t &pos, std::string inputString);
+	Double_t GetDblParameterWithUnits(std::string parName, size_t &pos, std::string inputString);
+	TVector2 Get2DVectorParameterWithUnits(std::string parName, size_t &pos, std::string inputString);
+	TVector3 Get3DVectorParameterWithUnits(std::string parName, size_t &pos, std::string inputString);
 
 
 	//string utils
@@ -306,8 +259,11 @@ private:
 
 	void ProcessElement(TiXmlElement* e);
 	void SetEnvVariable(TiXmlElement* e);
-	void ExecuteForLoops(TiXmlElement* e);
-	void LoadConfigInIncludeFile(TiXmlElement* e);
+	//void ExecuteForLoops(TiXmlElement* e);
+	//void LoadConfigInIncludeFile(TiXmlElement* e);
+	void ExpandElement(TiXmlElement*e);
+	void ExpandForLoops(TiXmlElement*e);
+	void ExpandIncludeFile(TiXmlElement* e);
 
 
 
