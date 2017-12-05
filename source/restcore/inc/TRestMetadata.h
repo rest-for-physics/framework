@@ -159,6 +159,7 @@ protected:
 	std::string GetElementDeclare(TiXmlElement* e) { return e->Value(); }
 	std::string GetUnits();
 	std::string GetUnits(TiXmlElement* e);
+	string GetUnits(string definition, size_t fromPosition);
 	//replace mathematical expressions and env variables in the element attribute
 	//all the elements will get proprocessed before the real operation.
 	TiXmlElement* ReplaceElementAttributes(TiXmlElement* e);
@@ -172,10 +173,6 @@ protected:
 	string GetKEYStructure(std::string keyName, size_t &Position);
 	string GetKEYDefinition(std::string keyName);
 	string GetKEYDefinition(std::string keyName, size_t &Position);
-	std::string GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition = 0);
-	Double_t GetDblFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
-	TVector2 Get2DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
-	TVector3 Get3DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
 
 	//the following methods require string xml element, and is directly copied form the old code
 	string GetKEYStructure(std::string keyName, string buffer);
@@ -186,6 +183,10 @@ protected:
 	Double_t GetDblParameterWithUnits(std::string parName, size_t &pos, std::string inputString);
 	TVector2 Get2DVectorParameterWithUnits(std::string parName, size_t &pos, std::string inputString);
 	TVector3 Get3DVectorParameterWithUnits(std::string parName, size_t &pos, std::string inputString);
+	std::string GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition = 0);
+	Double_t GetDblFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
+	TVector2 Get2DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
+	TVector3 Get3DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
 
 
 	//string utils

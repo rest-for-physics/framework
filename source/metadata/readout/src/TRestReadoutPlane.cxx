@@ -44,6 +44,7 @@
 ///
 
 #include "TRestReadoutPlane.h"
+#include "TCanvas.h"
 using namespace std;
 
 const int debug = 0;
@@ -360,7 +361,13 @@ void TRestReadoutPlane::Print( Int_t fullDetail )
 ///
 void TRestReadoutPlane::Draw()
 {
+	TCanvas*c1 = new TCanvas();
+
     this->GetReadoutHistogram( )->Draw();
+	c1->Print("/tmp/readout.png");
+	//this->GetReadoutHistogram()->Print();
+	getchar();
+	delete c1;
 }
 
 ///////////////////////////////////////////////

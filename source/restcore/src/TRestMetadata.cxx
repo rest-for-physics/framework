@@ -512,6 +512,7 @@ Int_t TRestMetadata::LoadSectionMetadata()
 
 	//finally do this replacement for all child elements and expand for/include definitions
 	ExpandElement(fElement);
+	debug << ClassName() << " has finished preparing config data" << endl;
 
 	return 0;
 }
@@ -607,22 +608,22 @@ void TRestMetadata::SetEnvWithElement(TiXmlElement* e, bool overwriteexisting)
 		if (sysenv != NULL)value = sysenv;
 	}
 
-	SetEnv(name, value, overwriteexisting);
+	//SetEnv(name, value, overwriteexisting);
 
 	//find the existing and set its value
-	//for (int i = 0; i < fElementEnv.size(); i++)
-	//{
-	//	string name2 = fElementEnv[i]->Attribute("name");
-	//	if ((string)e->Value() == (string)fElementEnv[i]->Value() && name2 == (string)name) 
-	//	{
-	//		if(overwriteexisting)
-	//			fElementEnv[i]->SetAttribute("value", value);
-	//		return;
-	//	}
-	//}
+	for (int i = 0; i < fElementEnv.size(); i++)
+	{
+		string name2 = fElementEnv[i]->Attribute("name");
+		if ((string)e->Value() == (string)fElementEnv[i]->Value() && name2 == (string)name) 
+		{
+			if(overwriteexisting)
+				fElementEnv[i]->SetAttribute("value", value);
+			return;
+		}
+	}
 
-	////if not find, add it directly.
-	//fElementEnv.push_back((TiXmlElement*)e->Clone());
+	//if not find, add it directly.
+	fElementEnv.push_back((TiXmlElement*)e->Clone());
 }
 
 ///////////////////////////////////////////////
@@ -635,21 +636,20 @@ void TRestMetadata::ExpandElement(TiXmlElement*e)
 	while (contentelement != NULL) 
 	{
 		TiXmlElement*nxt= contentelement->NextSiblingElement();
-		//cout << *contentelement << endl;
+		//cout << contentelement->Value() << endl;
 		if ((string)contentelement->Value() == "for") 
 		{
-			debug << "expanding for loop" << endl;
+			//debug << "expanding for loop" << endl;
 			ExpandForLoops(contentelement);
-		}
-		else if (contentelement->FirstChildElement() != NULL)
-		{
-			debug << "into child element" << endl;
-			ExpandElement(contentelement);
 		}
 		else if(contentelement->Attribute("file")!=NULL)
 		{
-			debug << "expanding include file" << endl;
 			ExpandIncludeFile(contentelement);
+		}
+		else if (contentelement->FirstChildElement() != NULL)
+		{
+			debug << "into child element of "<< contentelement->Value() << endl;
+			ExpandElement(contentelement);
 		}
 		else
 		{
@@ -676,44 +676,54 @@ void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 	if (varstep == NULL)varstep == "1";
 	TiXmlElement*parele = (TiXmlElement*)e->Parent();
 	if (parele == NULL)return;
-	double from = StringToDouble(ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varfrom)));
-	double to = StringToDouble(ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varto)));
-	double step = StringToDouble(ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varstep)));
 
-	debug << "----expanding for loop----" << endl;
-	double i = 0;
-	for (i = from; i <= to; i = i + step)
-	{
-		ostringstream ss;
-		ss << i;
-		SetEnv(varname, ss.str(), true);
-		TiXmlElement* contentelement = e->FirstChildElement();
-		while (contentelement != NULL)
+	string _from = ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varfrom));
+	string _to = ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varto));
+	string _step = ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varstep));
+	if (isANumber(_from) && isANumber(_to)&&isANumber(_step)) {
+		double from = StringToDouble(_from);
+		double to = StringToDouble(_to);
+		double step = StringToDouble(_step);
+
+		debug << "----expanding for loop----" << endl;
+		double i = 0;
+		for (i = from; i <= to; i = i + step)
 		{
-			if ((string)contentelement->Value() == "for") {
-				TiXmlElement*newforloop = (TiXmlElement*)contentelement->Clone();
-				//ReplaceElementAttributes(newforloop);
-				TiXmlElement*tempnew=(TiXmlElement*)parele->InsertBeforeChild(e, *newforloop);
-				delete newforloop;
-				newforloop = tempnew;
-				ExpandForLoops(newforloop);
-				contentelement = contentelement->NextSiblingElement();
-			}
-			else
+			ostringstream ss;
+			ss << i;
+			SetEnv(varname, ss.str(), true);
+			TiXmlElement* contentelement = e->FirstChildElement();
+			while (contentelement != NULL)
 			{
-				TiXmlElement*attatchedalament = (TiXmlElement*)contentelement->Clone();
-				ExpandElement(attatchedalament);
-				debug << *attatchedalament << endl;
-				parele->InsertBeforeChild(e, *attatchedalament);
-				delete attatchedalament;
-				contentelement = contentelement->NextSiblingElement();
-			}
+				if ((string)contentelement->Value() == "for") {
+					TiXmlElement*newforloop = (TiXmlElement*)contentelement->Clone();
+					//ReplaceElementAttributes(newforloop);
+					TiXmlElement*tempnew = (TiXmlElement*)parele->InsertBeforeChild(e, *newforloop);
+					delete newforloop;
+					newforloop = tempnew;
+					ExpandForLoops(newforloop);
+					contentelement = contentelement->NextSiblingElement();
+				}
+				else
+				{
+					TiXmlElement*attatchedalament = (TiXmlElement*)contentelement->Clone();
+					ExpandElement(attatchedalament);
+					//debug << *attatchedalament << endl;
+					parele->InsertBeforeChild(e, *attatchedalament);
+					delete attatchedalament;
+					contentelement = contentelement->NextSiblingElement();
+				}
 
+			}
 		}
-	}
-	debug << "----end of expansion----" << endl;
-	if(i>0)
+
 		parele->RemoveChild(e);
+
+		if (fVerboseLevel >=REST_Extreme)
+			parele->Print(stdout, 0);
+		debug << "----end of for loop----" << endl;
+	}
+	
 
 }
 
@@ -737,27 +747,77 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 		warning << "Include file " << filename << " is of wrong xml format!" << endl;
 		return;
 	}
+
+
+	string type;
+	string name;
+	if ((string)e->Value() == "include")
+	{
+		TiXmlElement*parele = (TiXmlElement*)e->Parent();
+		if (parele == NULL)return;
+
+		type = parele->Value();
+		name = e->Attribute("name") == NULL ? "" : e->Attribute("name");
+
+	}
+	else
+	{
+		type = e->Value();
+		name = e->Attribute("name") == NULL ? "" : e->Attribute("name");
+	}
+
+	debug << "----expanding include file----" << endl;
+
 	TiXmlElement*configele;
-	//1. root element in the included file is the current class
-	if ((string)rootele->Value() != GetSectionName()) {
+	//1. root element in the included file is of given type
+	if ((string)rootele->Value() == type) {
 		configele = rootele;
 	}
-	//2. child element in the root element if the current class, with the same name
-	else if(GetElementWithName(GetSectionName(), GetName(), rootele) != NULL)
+	//2. name is not specified
+	else if (name == ""&&GetElement(type, rootele) != NULL)
 	{
-		if (GetElement("globals", rootele) != NULL) {
+		if (type!="globals"&&GetElement("globals", rootele) != NULL) {
 			TiXmlElement*globaldef = GetElement("globals", rootele)->FirstChildElement();
-			while(globaldef!=NULL)
+			while (globaldef != NULL)
 			{
-				if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter")
+				if ((string)globaldef->Value() == "variable" || (string)globaldef->Value() == "myParameter")
 				{
-					SetEnvWithElement(e,false);
+					SetEnvWithElement(globaldef, false);
 				}
 				globaldef = globaldef->NextSiblingElement();
 			}
 		}
-		configele = GetElementWithName(GetSectionName(), GetName(), rootele);
+
+		configele = GetElement(type, rootele);
 	}
+	//3. child element in the root element is of given type/name, we need to import env
+	else if(GetElementWithName(type, name, rootele) != NULL)
+	{
+		if (type != "globals"&&GetElement("globals", rootele) != NULL) {
+			TiXmlElement*globaldef = GetElement("globals", rootele)->FirstChildElement();
+			while(globaldef!=NULL)
+			{
+				if ((string)globaldef->Value() == "variable" || (string)globaldef->Value() == "myParameter")
+				{
+					SetEnvWithElement(globaldef,false);
+				}
+				globaldef = globaldef->NextSiblingElement();
+			}
+		}
+
+		configele = GetElementWithName(type, name, rootele);
+
+	}
+
+	else
+	{
+		warning << "Cannot get corresponding xml section(class name: "<< type <<" , name: "<<name<<" ). Skipping" << endl;
+		return;
+	}
+
+	
+
+	ExpandElement(configele);
 
 	//expand the included file content into the parent element
 	//this is called when the xml is like
@@ -773,28 +833,45 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 		TiXmlElement* ele = configele->FirstChildElement();
 		while (ele != NULL)
 		{
-			ExpandElement(ele);
-			parele->InsertBeforeChild(e, *ele->Clone());
+			//ExpandElement(ele);
+			if ((string)ele->Value() != "for")
+				parele->InsertBeforeChild(e, *ele->Clone());
 			ele = ele->NextSiblingElement();
 		}
 
 		parele->RemoveChild(e);
+
+		if (fVerboseLevel >= REST_Debug) {
+			parele->Print(stdout, 0);
+		}
 
 	}
 	else//expand the included file content into itself
 		//this is called when the element is like
 		//<a name="" ... file="aaa.rml" .../>
 	{
+		TiXmlAttribute*attr = configele->FirstAttribute();
+		while (attr != NULL) {
+			e->SetAttribute(attr->Name(), attr->Value());
+			attr = attr->Next();
+		}
 		TiXmlElement* ele = configele->FirstChildElement();
 		while (ele != NULL)
 		{
-			ExpandElement(ele);
-			e->InsertEndChild(*ele->Clone());
+			//ExpandElement(ele);
+			if ((string)ele->Value() != "for")
+			{
+				e->InsertEndChild(*ele->Clone());
+			}
 			ele = ele->NextSiblingElement();
+		}
+
+		if (fVerboseLevel >= REST_Debug) {
+			e->Print(stdout, 0);
 		}
 	}
 	
-
+	debug << "----end of include file----" << endl;
 }
 
 
@@ -1096,34 +1173,142 @@ string TRestMetadata::GetKEYDefinition(std::string keyName) { return GetKEYStruc
 string TRestMetadata::GetKEYDefinition(std::string keyName, size_t &Position) { return GetKEYStructure(keyName, Position); }
 std::string TRestMetadata::GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition)
 {
-	TiXmlElement*a = StringToElement(definition);
-	string result = GetFieldValue(fieldName, a);
-	delete a;
-	return result;
+	string fldName = fieldName + "=\"";
+
+	size_t pos, pos2;
+	pos = definition.find(fldName, fromPosition);
+
+	if ((pos = definition.find(fldName, fromPosition)) == string::npos) { return "Not defined"; }
+	else
+	{
+		pos = definition.find("\"", pos);
+		pos++;
+		pos2 = definition.find("\"", pos);
+		return definition.substr(pos, pos2 - pos);
+	}
 }
 
 Double_t TRestMetadata::GetDblFieldValueWithUnits(string fieldName, string definition, size_t fromPosition)
 {
-	TiXmlElement*a = StringToElement(definition);
-	double result = GetDblParameterWithUnits(fieldName, a);
-	delete a;
-	return result;
+	string fldName = fieldName + "=\"";
+
+	size_t pos, pos2;
+	pos = definition.find(fldName);
+
+	if ((pos = definition.find(fldName, fromPosition)) == string::npos) { return PARAMETER_NOT_FOUND_DBL; }
+	else
+	{
+		pos = definition.find("\"", pos);
+		pos++;
+		pos2 = definition.find("\"", pos);
+
+		TString unitsStr = GetUnits(definition, 0);
+
+		Double_t value = StringToDouble(definition.substr(pos, pos2 - pos));
+
+		value = REST_Units::GetValueInRESTUnits(value, unitsStr);
+
+		if (TMath::IsNaN(value))
+		{
+			cout << "REST ERROR : Check parameter \"" << fieldName << "\" units" << endl;
+			cout << "Inside definition : " << definition << endl;
+			getchar();
+		}
+
+
+		return value;
+	}
 }
 TVector2 TRestMetadata::Get2DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition)
 {
-	TiXmlElement*a = StringToElement(definition);
-	TVector2 result = Get2DVectorParameterWithUnits(fieldName, a);
-	delete a;
-	return result;
+	string fldName = fieldName + "=\"";
+
+	size_t pos, pos2;
+	pos = definition.find(fldName);
+
+	if ((pos = definition.find(fldName, fromPosition)) == string::npos) { return TVector2(-1, -1); }
+	else
+	{
+		pos = definition.find("\"", pos);
+		pos++;
+		pos2 = definition.find("\"", pos);
+
+		TString unitsStr = GetUnits(definition, 0);
+
+		TVector2 value = StringTo2DVector(definition.substr(pos, pos2 - pos));
+
+		Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unitsStr);
+		Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unitsStr);
+
+		if (TMath::IsNaN(valueX) || TMath::IsNaN(valueY))
+		{
+			cout << "REST ERROR : Check parameter \"" << fieldName << "\" units" << endl;
+			cout << "Inside definition : " << definition << endl;
+			getchar();
+		}
+
+		return TVector2(valueX, valueY);
+	}
 }
 TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition)
 {
-	TiXmlElement*a = StringToElement(definition);
-	TVector3 result = Get3DVectorParameterWithUnits(fieldName, a);
-	delete a;
-	return result;
+	string fldName = fieldName + "=\"";
+
+	size_t pos, pos2;
+	pos = definition.find(fldName);
+
+	if ((pos = definition.find(fldName, fromPosition)) == string::npos)
+	{
+		return TVector3(-1, -1, -1);
+	}
+	else
+	{
+		pos = definition.find("\"", pos);
+		pos++;
+		pos2 = definition.find("\"", pos);
+
+		TString unitsStr = GetUnits(definition, 0);
+
+		TVector3 value = StringTo3DVector(definition.substr(pos, pos2 - pos));
+
+		Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unitsStr);
+		Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unitsStr);
+		Double_t valueZ = REST_Units::GetValueInRESTUnits(value.Z(), unitsStr);
+
+		if (TMath::IsNaN(valueX) || TMath::IsNaN(valueY) || TMath::IsNaN(valueZ))
+		{
+			cout << "REST ERROR : Check parameter \"" << fieldName << "\" units" << endl;
+			cout << "Inside definition : " << definition << endl;
+			getchar();
+		}
+
+		return TVector3(valueX, valueY, valueZ);
+	}
 }
 
+
+///////////////////////////////////////////////
+/// \brief Returns a string with the unit name provided inside **definition**.
+///
+/// The first occurence of units="" is given.
+/// 
+/// \param definition The string where we search for the units definition.
+/// \param fromPosition The position inside the string **definition** where we start looking for the units definition.
+///
+string TRestMetadata::GetUnits(string definition, size_t fromPosition)
+{
+	string fldName = "units=\"";
+
+	size_t pos, pos2;
+
+	if ((pos = definition.find(fldName, fromPosition)) == string::npos) { return "Not defined"; }
+	else
+	{
+		pos = pos + 7;
+		pos2 = definition.find("\"", pos);
+		return definition.substr(pos, pos2 - pos);
+	}
+}
 
 ///////////////////////////////////////////////
 /// \brief Gets the first key structure for **keyName** found inside **buffer**.

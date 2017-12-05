@@ -423,7 +423,10 @@ void TRestReadout::InitFromConfigFile()
             cout << "------module-----------------" << endl;
             cout << moduleString << endl;
             cout << "---------------------------" << endl;
-            cout << "position : " << posSection << endl;
+			cout << "name : " << module.GetName() << endl;
+			cout << "position : " << posSection << endl;
+			cout << "size : " << module.GetModuleSizeX()<<","<<module.GetModuleSizeY() << endl;
+			cout << "tolotance : " << module.GetTolerance() << endl;
             GetChar();
         }
 
@@ -534,7 +537,7 @@ void TRestReadout::InitFromConfigFile()
             if(GetVerboseLevel() >= REST_Debug)
             {
                 cout << "------module-----------------" << endl;
-                cout << moduleString << endl;
+                cout << moduleDefinition << endl;
                 cout << "---------------------------" << endl;
                 cout << "position : " << posPlane << endl;
                 getchar();
@@ -570,6 +573,11 @@ void TRestReadout::InitFromConfigFile()
         }
 
         this->AddReadoutPlane( plane );
+		if (fVerboseLevel >= REST_Debug) {
+			cout << "Drawing readoutplane " << plane.GetID() << endl;
+			plane.Draw();
+		}
+
 
         position++;
     }

@@ -144,7 +144,7 @@ void TRestReadoutModule::DoReadoutMapping( Int_t nodes )
             Int_t nodeX = fMapping.GetNodeX( xPix );
             Int_t nodeY = fMapping.GetNodeY( yPix );
 
-            if( fMapping.isNodeSet( nodeX, nodeY ) ) { cout << "ERROR. Node is already SET!!" << endl; getchar(); }
+            if( fMapping.isNodeSet( nodeX, nodeY ) ) { cout << "ERROR. Node: ("<<nodeX<<","<<nodeY<<") is already SET!!" << endl; getchar(); }
             fMapping.SetNode( nodeX, nodeY, ch, px );
         }
     }
@@ -524,6 +524,7 @@ void TRestReadoutModule::AddChannel( TRestReadoutChannel &rChannel )
                 cout << "Pixel origin = (" << oX << " , " << oY << ")" << endl;
                 cout << "Pixel size = (" << sX << " , " << sY << ")" << endl;
                 cout << "Module size = (" << fModuleSizeX << " , " << fModuleSizeY << ")" << endl;
+				cout << "Tolerance : " << fTolerance << endl;
             }
         }
     }
