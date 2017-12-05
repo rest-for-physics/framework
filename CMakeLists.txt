@@ -85,7 +85,7 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	string(REPLACE "\n" "" git_date ${git_date})
 	message(STATUS "REST date : ${git_date}")
 
-	#get git number
+	#get git number	
 	set (git_cmd git)
 	set (git_arg rev-parse --verify HEAD )
 	execute_process(COMMAND ${git_cmd} ${git_arg}

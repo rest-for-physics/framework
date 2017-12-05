@@ -491,7 +491,7 @@ Int_t TRestMetadata::LoadSectionMetadata()
 			if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter")
 			{
 				ReplaceElementAttributes(e);
-				SetEnvVariable(e);
+				SetEnvWithElement(e);
 			}
 			e = e->NextSiblingElement();
 		}
@@ -504,7 +504,7 @@ Int_t TRestMetadata::LoadSectionMetadata()
 		if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter")
 		{
 			ReplaceElementAttributes(e);
-			SetEnvVariable(e);
+			SetEnvWithElement(e);
 		}
 		e = e->NextSiblingElement();
 	}
@@ -546,22 +546,6 @@ void TRestMetadata::InitFromConfigFile()
 
 
 
-///////////////////////////////////////////////
-/// \brief Look into an xml element and choose proper methods to load it.
-///
-/// This method will first call PreprocessElement() method to do a replacement for element field value.
-/// After this, it will process the element according to different types of the element declare.
-/// 1. variable and myParameter: do nothing
-/// 2. include: call LoadMetadataInIncludeFile() method
-/// 3. for: call ExecuteForLoops() method
-/// 4. other: send the element to the implemented ReadConfig() method
-/// The xml element with a same field value "name" will not be sent to the ReadConfig() method.
-void TRestMetadata::ProcessElement(TiXmlElement * e)
-{
-
-
-}
-
 
 ///////////////////////////////////////////////
 ///\brief replace the field value(attribute) of the given xml element
@@ -600,7 +584,7 @@ TiXmlElement * TRestMetadata::ReplaceElementAttributes(TiXmlElement * e)
 /// 
 /// Example of environmental variable definition : \code <variable name="TEST" value="VALUE" overwrite="true" /> \endcode
 ///
-void TRestMetadata::SetEnvVariable(TiXmlElement* e)
+void TRestMetadata::SetEnvWithElement(TiXmlElement* e, bool overwriteexisting)
 {
 	if (e == NULL)return;
 
@@ -614,28 +598,31 @@ void TRestMetadata::SetEnvVariable(TiXmlElement* e)
 	//if overwrite is false, try to replace the value from system env.
 	const char* overwrite = e->Attribute("overwrite");
 	if (overwrite == NULL)overwrite = "false";
-	if (overwrite == "true" || overwrite == "True" || overwrite == "yes") {
+	if ((string)overwrite == "true" || (string)overwrite == "True" || (string)overwrite == "yes") {
 		//setenv(name, value,1);
 	}
 	else
 	{
 		char* sysenv = getenv(name);
-		if (sysenv != NULL)e->SetAttribute("value", sysenv);
+		if (sysenv != NULL)value = sysenv;
 	}
 
-	//find the existing and set it value
-	for (int i = 0; i < fElementEnv.size(); i++)
-	{
-		string name2 = fElementEnv[i]->Attribute("name");
-		if ((string)e->Value() == (string)fElementEnv[i]->Value() && name2 == (string)name) 
-		{
-			fElementEnv[i]->SetAttribute("value", value);
-			return;
-		}
-	}
+	SetEnv(name, value, overwriteexisting);
 
-	//if not find, add it directly.
-	fElementEnv.push_back((TiXmlElement*)e->Clone());
+	//find the existing and set its value
+	//for (int i = 0; i < fElementEnv.size(); i++)
+	//{
+	//	string name2 = fElementEnv[i]->Attribute("name");
+	//	if ((string)e->Value() == (string)fElementEnv[i]->Value() && name2 == (string)name) 
+	//	{
+	//		if(overwriteexisting)
+	//			fElementEnv[i]->SetAttribute("value", value);
+	//		return;
+	//	}
+	//}
+
+	////if not find, add it directly.
+	//fElementEnv.push_back((TiXmlElement*)e->Clone());
 }
 
 ///////////////////////////////////////////////
@@ -699,7 +686,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 	{
 		ostringstream ss;
 		ss << i;
-		SetEnv(varname, ss.str(), "true");
+		SetEnv(varname, ss.str(), true);
 		TiXmlElement* contentelement = e->FirstChildElement();
 		while (contentelement != NULL)
 		{
@@ -734,41 +721,79 @@ void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 ///////////////////////////////////////////////
 /// \brief Open the given rml file and find the corresponding section. 
 /// 
-/// After finding the section, it will call back the ProcessElement() method,
-/// giving the child sections of that found section.
+/// After finding the section, it will insert its child into the given given
+/// xml element. 
 void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 {
-	TiXmlElement*parele = (TiXmlElement*)e->Parent();
-	if (parele == NULL)return;
 	const char* filename = e->Attribute("file");
 	if (filename == NULL)return;
-	if (ChecktheFile(filename) == -1) { GetChar(); exit(1); }
+	if (ChecktheFile(filename) == -1) { 
+		warning << "Include file "<<filename<<" does not exist!" << endl; 
+		return;
+	}
 	//get the root element
 	TiXmlElement* rootele = GetRootElementFromFile(filename);
-	if (rootele == NULL)return;
-	//1. root element is the current class
+	if (rootele == NULL) {
+		warning << "Include file " << filename << " is of wrong xml format!" << endl;
+		return;
+	}
+	TiXmlElement*configele;
+	//1. root element in the included file is the current class
 	if ((string)rootele->Value() != GetSectionName()) {
-		TiXmlElement*configele = rootele;
+		configele = rootele;
+	}
+	//2. child element in the root element if the current class, with the same name
+	else if(GetElementWithName(GetSectionName(), GetName(), rootele) != NULL)
+	{
+		if (GetElement("globals", rootele) != NULL) {
+			TiXmlElement*globaldef = GetElement("globals", rootele)->FirstChildElement();
+			while(globaldef!=NULL)
+			{
+				if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter")
+				{
+					SetEnvWithElement(e,false);
+				}
+				globaldef = globaldef->NextSiblingElement();
+			}
+		}
+		configele = GetElementWithName(GetSectionName(), GetName(), rootele);
+	}
+
+	//expand the included file content into the parent element
+	//this is called when the xml is like
+	//   <a name="" .....>
+	//     <include file="aaa.rml"/>
+	//     ....
+	//   </a>
+	if ((string)e->Value() == "include") 
+	{
+		TiXmlElement*parele = (TiXmlElement*)e->Parent();
+		if (parele == NULL)return;
+
 		TiXmlElement* ele = configele->FirstChildElement();
 		while (ele != NULL)
 		{
-			//ProcessElement(ele);
-			parele->InsertAfterChild(e, *ele->Clone());
+			ExpandElement(ele);
+			parele->InsertBeforeChild(e, *ele->Clone());
 			ele = ele->NextSiblingElement();
 		}
+
+		parele->RemoveChild(e);
+
 	}
-	//2. current class(same class name, same name) is contained in the root element
-	else if ((GetElementWithName(GetSectionName(), GetName(), rootele)) != NULL) {
-		TiXmlElement*configele = GetElementWithName(GetSectionName(), GetName(), rootele);
+	else//expand the included file content into itself
+		//this is called when the element is like
+		//<a name="" ... file="aaa.rml" .../>
+	{
 		TiXmlElement* ele = configele->FirstChildElement();
 		while (ele != NULL)
 		{
-			//ProcessElement(ele);
-			parele->InsertAfterChild(e, *ele->Clone());
+			ExpandElement(ele);
+			e->InsertEndChild(*ele->Clone());
 			ele = ele->NextSiblingElement();
 		}
 	}
-	parele->RemoveChild(e);
+	
 
 }
 
@@ -1665,11 +1690,11 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer)
 ///
 /// It will change the value if the env already exists and the overwrite permission is true.
 /// Otherwise it will generate a new TiXmlElement object and save it at the end of the env list.
-void TRestMetadata::SetEnv(string name, string value, string overwrite)
+void TRestMetadata::SetEnv(string name, string value, bool overwriteexisting)
 {
 	for (int i = 0; i < fElementEnv.size(); i++) {
 		if ((string)fElementEnv[i]->Value() == "variable" && (string)fElementEnv[i]->Attribute("name") == name) {
-			if (overwrite == "true" || overwrite == "True" || overwrite == "1") {
+			if (overwriteexisting) {
 				fElementEnv[i]->SetAttribute("value", value.c_str());
 			}
 			return;

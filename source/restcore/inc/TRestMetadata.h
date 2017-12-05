@@ -193,7 +193,7 @@ protected:
 	std::string ReplaceMathematicalExpressions(std::string buffer);
 	std::string ReplaceEnvironmentalVariables(const std::string buffer);
 
-	void SetEnv(string name, string value, string overwrite);
+	void SetEnv(string name, string value, bool overwriteexisting);
 	/// clear the env sections list
 	void ClearEnv() { fElementEnv.clear(); }
 
@@ -257,8 +257,8 @@ protected:
 
 private:
 
-	void ProcessElement(TiXmlElement* e);
-	void SetEnvVariable(TiXmlElement* e);
+	//void ProcessElement(TiXmlElement* e);
+	void SetEnvWithElement(TiXmlElement* e,bool overwriteexisting=true);
 	//void ExecuteForLoops(TiXmlElement* e);
 	//void LoadConfigInIncludeFile(TiXmlElement* e);
 	void ExpandElement(TiXmlElement*e);
