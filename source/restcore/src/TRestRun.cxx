@@ -97,7 +97,42 @@ void TRestRun::BeginOfInit()
 ///
 Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e)
 {
+	if (e->Attribute("file") != NULL&&isRootFile(e->Attribute("file")))
+	{
+		//import metadata in root file 
+		TFile*f = new TFile(e->Attribute("file"));
+		if (e->Attribute("name") != NULL) {
+			TRestMetadata*m=(TRestMetadata*)f->Get(e->Attribute("name"));
+			fMetadataInfo.push_back(m);
+		}
+		//we shouldn't include root file directly
+		//what metadata objects are inside the root 
+		//file should be declared explicitly(one by one)
+		else if((string)e->Value() != "include")
+		{
+			TRestMetadata*m = (TRestMetadata*)f->Get(e->Value());
+			fMetadataInfo.push_back(m);
+		}
 
+		f->Close();
+		delete f;
+	}
+	else if (Count(keydeclare, "TRest")>0)
+	{
+		TClass*c = TClass::GetClass(keydeclare.c_str());
+		if (c == NULL) {
+			cout << " " << endl;
+			cout << "REST ERROR. Class : " << keydeclare << " not found!!" << endl;
+			cout << "This class will be skipped." << endl;
+			return -1;
+		}
+		TRestMetadata*meta = (TRestMetadata*)c->New();
+		meta->SetHostmgr(NULL);
+		meta->LoadConfigFromFile(e, fElementGlobal);
+		fMetadataInfo.push_back(meta);
+
+		return 0;
+	}
 
 	return -1;
 }
@@ -385,7 +420,7 @@ TString TRestRun::FormFormat(TString FilenameFormat)
 		string targetstr = inString.substr(pos1, pos2 - pos1 + 1);//with []
 		string target = inString.substr(pos1 + 1, pos2 - pos1 - 1);//without []
 		string replacestr = GetFileInfo(target);
-		if (replacestr == target)replacestr = fHostmgr->GetProcessRunner()->GetProcInfo(target);
+		if (replacestr == target)replacestr = fHostmgr->GetProcessRunner()==NULL?replacestr: fHostmgr->GetProcessRunner()->GetProcInfo(target);
 		if (replacestr == target)replacestr = this->Get(target) == "" ? targetstr : this->Get(target);
 		outString = Replace(outString, targetstr, replacestr, 0);
 		pos = pos2 + 1;
@@ -399,7 +434,7 @@ TString TRestRun::FormFormat(TString FilenameFormat)
 //will be merged into the first file.
 void TRestRun::MergeProcessFile(vector<string> filenames)
 {
-	string filename = GetParameter("outputFile", "output_[Time].root");
+	string filename = GetParameter("outputFile", "output.root");
 	filename = FormFormat(filename);
 	info << "Creating file : " << filename << endl;
 
@@ -440,7 +475,7 @@ void TRestRun::MergeProcessFile(vector<string> filenames)
 TFile* TRestRun::FormOutputFile() 
 {
 	CloseFile();
-	string filename = GetParameter("outputFile", "output_[Time].root");
+	string filename = GetParameter("outputFile", "output.root");
 	fOutputFileName = FormFormat(filename);
 	fOutputFile = new TFile(filename.c_str(), "recreate");
 	this->Write();
