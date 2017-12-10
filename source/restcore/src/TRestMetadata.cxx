@@ -973,609 +973,92 @@ std::string TRestMetadata::GetFieldValue(std::string parName, TiXmlElement* e)
 
 
 ///////////////////////////////////////////////
-/// \brief Gets the double value of the parameter name **parName**, after applying unit conversion.
+/// \brief Gets the value of the parameter name **parName**, after applying unit conversion.
 ///
 /// Searches the parameter in given element. The parameter must be defined providing the additional 
-/// field units just behind the parameter value. As in the following example :
+/// units, in the same field value or some where in the element. As in the following example :
 ///
+/// \code <parameter name="electricField" value="1kV/m"/> \endcode
+/// \code <parameter name="electricField" value="1,kV/m"/> \endcode
+/// \code <parameter name="electricField" value="1,units=kV/m"/> \endcode
 /// \code <parameter name="electricField" value="1" units="kV/m" /> \endcode
-///
 /// Or
+/// \code <TRestDetectorSetup electricField="1kV/m"/> \endcode
+/// \code <TRestDetectorSetup electricField="1,kV/m"/> \endcode
+/// \code <TRestDetectorSetup electricField="1,units=kV/m"/> \endcode
+/// \code <TRestDetectorSetup electricField="1" units="kV/m"/> \endcode
 ///
-/// \code <TRestDetectorSetup name="testSetup" electricField="1" units="kV/m" /> \endcode
+/// We recomment defining units in the same field value, which makes things clear.
 ///
 /// \param parName The name of the parameter from which we want to obtain the value.
 /// \param ele The target element in which we are going to search.
 /// \param defaultVal The default return value if it fails to find such parameter with unit.
 ///
-/// \return A double value in the default correspoding REST units (keV, us, mm, Vcm).
+/// \return A double/2DVector/3DVector value in the default correspoding REST units (keV, us, mm, Vcm).
 ///
 Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlElement* ele, Double_t defaultVal)
 {
-	string val;
-	string unit;
-
-	//first search in field value
-	if (GetFieldValue(parName, ele) != "") {
-		if (GetUnits(ele) != PARAMETER_NOT_FOUND_STR) {
-			val = GetFieldValue(parName, ele);
-			unit = GetUnits(ele);
-			Double_t value = StringToDouble(val);
-			value = REST_Units::GetValueInRESTUnits(value, unit);
-			return value;
-		}
-	}
-	//then search in child elements
-	TiXmlElement* e = GetElementWithName("parameter", parName, ele);
-	if (e != NULL) 
+	string a = GetParameter(parName, ele);
+	if (a == PARAMETER_NOT_FOUND_STR)
 	{
-		if (GetUnits(e) != PARAMETER_NOT_FOUND_STR)
-		{
-			val = GetParameter("value", e);
-			unit = GetUnits(e);
-			Double_t value = StringToDouble(val);
-			value = REST_Units::GetValueInRESTUnits(value, unit);
-			return value;
-		}
+		return defaultVal;
 	}
+	else
+	{
+		string units = GetUnits(ele, parName);
+		double val = StringToDouble(a.substr(0, a.find_last_of("1234567890()") + 1));
+		return REST_Units::GetValueInRESTUnits(val, units);
+	}
+
 	return defaultVal;
 }
-
 Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, Double_t defaultVal) {
 	return GetDblParameterWithUnits(parName, fElement, defaultVal);
 }
-
-///////////////////////////////////////////////
-/// \brief Returns a 2D vector value of the parameter name **parName**, after applying unit conversion.
-///
-/// Searches the parameter in fElement. The parameter must be defined providing the additional 
-/// field units just behind the parameter value. The vector should be surrounded by "()" and the two values 
-/// should be separated by a comma. As in the following example :
-///
-/// \code <parameter name="position" value="(10,0)" units="mm" > \endcode
-///
-/// \param parName The name of the parameter from which we want to obtain the value.
-///
-/// \return A 2D vector value in the default correspoding REST units (keV, us, mm, Vcm).
-///
-TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* ele, TVector2 defaultValue)
+TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* ele, TVector2 defaultVal)
 {
-
-	string val;
-	string unit;
-
-	//first search in field value
-	if (GetFieldValue(parName, ele) != "") {
-		if (GetUnits(ele) != PARAMETER_NOT_FOUND_STR) {
-			val = GetFieldValue(parName, ele);
-			unit = GetUnits(ele);
-			TVector2 value = StringTo2DVector(val);
-			Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unit);
-			Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unit);
-			return TVector2(valueX, valueY);
-		}
-	}
-	//then search in child elements
-	TiXmlElement* e = GetElementWithName("parameter", parName, ele);
-	if (e != NULL)
+	string a = GetParameter(parName, ele);
+	if (a == PARAMETER_NOT_FOUND_STR)
 	{
-		if (GetUnits(e) != PARAMETER_NOT_FOUND_STR)
-		{
-			val = GetParameter("value", e);
-			unit = GetUnits(e);
-			TVector2 value = StringTo2DVector(val);
-			Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unit);
-			Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unit);
-			return TVector2(valueX, valueY);
-		}
+		return defaultVal;
 	}
-	return defaultValue;
-
-
-
-}
-
-TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TVector2 defaultValue) {
-	return Get2DVectorParameterWithUnits(parName, fElement);
-}
-
-///////////////////////////////////////////////
-/// \brief Returns a 3D vector value of the parameter name **parName**, after applying unit conversion.
-///
-/// Searches the parameter in fElement. The parameter must be defined providing the additional 
-/// field units just behind the parameter value. The vector should be surrounded by "()" and the thress values 
-/// should be separated by two commas. As in the following example :
-///
-/// \code <parameter name="position" value="(10,0,-10)" units="mm" > \endcode
-///
-/// \param parName The name of the parameter from which we want to obtain the value.
-///
-/// \return A 3D vector value in the default correspoding REST units (keV, us, mm, Vcm).
-///
-TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* ele, TVector3 defaultValue)
-{
-	string val;
-	string unit;
-
-	//first search in field value
-	if (GetFieldValue(parName, ele) != "") {
-		if (GetUnits(ele) != PARAMETER_NOT_FOUND_STR) {
-			val = GetFieldValue(parName, ele);
-			unit = GetUnits(ele);
-			TVector3 value = StringTo3DVector(val);
-			Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unit);
-			Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unit);
-			Double_t valueZ = REST_Units::GetValueInRESTUnits(value.Z(), unit);
-			return TVector3(valueX, valueY, valueZ);
-		}
-	}
-	//then search in child elements
-	TiXmlElement* e = GetElementWithName("parameter", parName, ele);
-	if (e != NULL)
-	{
-		if (GetUnits(e) != PARAMETER_NOT_FOUND_STR)
-		{
-			val = GetParameter("value", e);
-			unit = GetUnits(e);
-			TVector3 value = StringTo3DVector(val);
-			Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unit);
-			Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unit);
-			Double_t valueZ = REST_Units::GetValueInRESTUnits(value.Z(), unit);
-			return TVector3(valueX, valueY, valueZ);
-		}
-	}
-	return defaultValue;
-
-}
-
-TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVector3 defaultValue) {
-	return Get3DVectorParameterWithUnits(parName, fElement);
-}
-
-
-
-
-TiXmlElement* TRestMetadata::StringToElement(string definition) 
-{
-	TiXmlElement*ele = new TiXmlElement("temp");
-	//TiXmlDocument*doc = new TiXmlDocument();
-	ele->Parse(definition.c_str(), NULL, TIXML_ENCODING_UTF8);
-	return ele;
-}
-string TRestMetadata::ElementToString(TiXmlElement*ele) 
-{
-	if (ele != NULL) {
-		stringstream ss;
-		ss << (*ele);
-		return ss.str();
-	}
-	return " ";
-}
-string TRestMetadata::GetKEYStructure(std::string keyName)
-{
-	if(GetElement(keyName)!=NULL)
-		return ElementToString(GetElement(keyName));
-	return "NotFound";
-}
-string TRestMetadata::GetKEYStructure(std::string keyName, size_t &Position)
-{
-	TiXmlElement*ele = fElement->FirstChildElement(keyName.c_str());
-
-	for (int i = 0; i < Position&&ele!=NULL; i++)
-	{
-		ele = ele->NextSiblingElement(keyName.c_str());
-	}
-
-	if (ele != NULL) {
-		Position++;
-		return ElementToString(ele);
-	}
-	return "NotFound";
-}
-string TRestMetadata::GetKEYDefinition(std::string keyName) { return GetKEYStructure(keyName); }
-string TRestMetadata::GetKEYDefinition(std::string keyName, size_t &Position) { return GetKEYStructure(keyName, Position); }
-std::string TRestMetadata::GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition)
-{
-	string fldName = fieldName + "=\"";
-
-	size_t pos, pos2;
-	pos = definition.find(fldName, fromPosition);
-
-	if ((pos = definition.find(fldName, fromPosition)) == string::npos) { return "Not defined"; }
 	else
 	{
-		pos = definition.find("\"", pos);
-		pos++;
-		pos2 = definition.find("\"", pos);
-		return definition.substr(pos, pos2 - pos);
-	}
-}
-
-Double_t TRestMetadata::GetDblFieldValueWithUnits(string fieldName, string definition, size_t fromPosition)
-{
-	string fldName = fieldName + "=\"";
-
-	size_t pos, pos2;
-	pos = definition.find(fldName);
-
-	if ((pos = definition.find(fldName, fromPosition)) == string::npos) { return PARAMETER_NOT_FOUND_DBL; }
-	else
-	{
-		pos = definition.find("\"", pos);
-		pos++;
-		pos2 = definition.find("\"", pos);
-
-		TString unitsStr = GetUnits(definition, 0);
-
-		Double_t value = StringToDouble(definition.substr(pos, pos2 - pos));
-
-		value = REST_Units::GetValueInRESTUnits(value, unitsStr);
-
-		if (TMath::IsNaN(value))
-		{
-			cout << "REST ERROR : Check parameter \"" << fieldName << "\" units" << endl;
-			cout << "Inside definition : " << definition << endl;
-			getchar();
-		}
-
-
-		return value;
-	}
-}
-TVector2 TRestMetadata::Get2DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition)
-{
-	string fldName = fieldName + "=\"";
-
-	size_t pos, pos2;
-	pos = definition.find(fldName);
-
-	if ((pos = definition.find(fldName, fromPosition)) == string::npos) { return TVector2(-1, -1); }
-	else
-	{
-		pos = definition.find("\"", pos);
-		pos++;
-		pos2 = definition.find("\"", pos);
-
-		TString unitsStr = GetUnits(definition, 0);
-
-		TVector2 value = StringTo2DVector(definition.substr(pos, pos2 - pos));
-
-		Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unitsStr);
-		Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unitsStr);
-
-		if (TMath::IsNaN(valueX) || TMath::IsNaN(valueY))
-		{
-			cout << "REST ERROR : Check parameter \"" << fieldName << "\" units" << endl;
-			cout << "Inside definition : " << definition << endl;
-			getchar();
-		}
-
+		string unit = GetUnits(ele, parName);
+		TVector2 value = StringTo2DVector(a.substr(0, a.find_last_of("1234567890()") + 1));
+		Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unit);
+		Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unit);
 		return TVector2(valueX, valueY);
 	}
+
+	return defaultVal;
+
 }
-TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition)
+TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TVector2 defaultVal) {
+	return Get2DVectorParameterWithUnits(parName, fElement,defaultVal);
+}
+TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* ele, TVector3 defaultVal)
 {
-	string fldName = fieldName + "=\"";
-
-	size_t pos, pos2;
-	pos = definition.find(fldName);
-
-	if ((pos = definition.find(fldName, fromPosition)) == string::npos)
+	string a = GetParameter(parName, ele);
+	if (a == PARAMETER_NOT_FOUND_STR)
 	{
-		return TVector3(-1, -1, -1);
+		return defaultVal;
 	}
 	else
 	{
-		pos = definition.find("\"", pos);
-		pos++;
-		pos2 = definition.find("\"", pos);
-
-		TString unitsStr = GetUnits(definition, 0);
-
-		TVector3 value = StringTo3DVector(definition.substr(pos, pos2 - pos));
-
-		Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unitsStr);
-		Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unitsStr);
-		Double_t valueZ = REST_Units::GetValueInRESTUnits(value.Z(), unitsStr);
-
-		if (TMath::IsNaN(valueX) || TMath::IsNaN(valueY) || TMath::IsNaN(valueZ))
-		{
-			cout << "REST ERROR : Check parameter \"" << fieldName << "\" units" << endl;
-			cout << "Inside definition : " << definition << endl;
-			getchar();
-		}
-
-		return TVector3(valueX, valueY, valueZ);
-	}
-}
-
-
-///////////////////////////////////////////////
-/// \brief Returns a string with the unit name provided inside **definition**.
-///
-/// The first occurence of units="" is given.
-/// 
-/// \param definition The string where we search for the units definition.
-/// \param fromPosition The position inside the string **definition** where we start looking for the units definition.
-///
-string TRestMetadata::GetUnits(string definition, size_t fromPosition)
-{
-	string fldName = "units=\"";
-
-	size_t pos, pos2;
-
-	if ((pos = definition.find(fldName, fromPosition)) == string::npos) { return "Not defined"; }
-	else
-	{
-		pos = pos + 7;
-		pos2 = definition.find("\"", pos);
-		return definition.substr(pos, pos2 - pos);
-	}
-}
-
-///////////////////////////////////////////////
-/// \brief Gets the first key structure for **keyName** found inside **buffer**.
-///
-/// A key definition is written as follows:
-/// \code <keyName field1="value1" field2="value2" > 
-///
-///     ....
-///
-///  </keyName>
-/// \endcode
-///
-string TRestMetadata::GetKEYStructure(std::string keyName, string buffer)
-{
-	size_t position = 0;
-
-	string startKEY = "<" + keyName;
-	string endKEY = "/" + keyName;
-
-	size_t initPos = buffer.find(startKEY, position);
-
-	if (initPos == string::npos) { debug << "KEY not found!!" << endl; return "NotFound"; }
-
-	size_t endPos = buffer.find(endKEY, position);
-
-	if (endPos == string::npos) { debug << "KEY not found!!" << endl; return "NotFound"; }
-
-
-	return buffer.substr(initPos, endPos - initPos + endKEY.length() + 1);
-}
-///////////////////////////////////////////////
-/// \brief Gets the first key structure for **keyName** found inside **buffer** after **fromPosition**.
-///
-/// A key definition is written as follows:
-/// \code <keyName field1="value1" field2="value2" > 
-///
-///     ....
-///
-///  </keyName>
-/// \endcode
-///
-string TRestMetadata::GetKEYStructure(std::string keyName, size_t &fromPosition, string buffer) {
-	size_t position = fromPosition;
-
-	debug << "Finding KEY Structure " << keyName << endl;
-	debug << "Buffer : " << buffer << endl;
-	debug << "Start position : " << position << endl;
-
-	string startKEY = "<" + keyName;
-	string endKEY = "/" + keyName;
-
-	cout << "Reduced buffer : " << buffer.substr(position) << endl;
-
-	size_t initPos = buffer.find(startKEY, position);
-	debug << "initPos : " << initPos << endl;
-
-	if (initPos == string::npos) { debug << "KEY not found!!" << endl; return ""; }
-
-	size_t endPos = buffer.find(endKEY, initPos);
-
-	debug << "End position : " << endPos << endl;
-
-	//TODO Check if a new section starts. If not it might get two complex strings if the KEY_Structure was not closed using /KEY
-
-	if (endPos == string::npos) { debug << "END KEY not found!!" << endl; return ""; }
-
-	debug << endl;
-
-	fromPosition = endPos;
-
-	return buffer.substr(initPos, endPos - initPos + endKEY.length() + 1);
-}
-///////////////////////////////////////////////
-/// \brief Gets the first key definition for **keyName** found inside **buffer**.
-///
-/// A key definition is written as follows:
-/// \code <keyName field1="value1" field2="value2" > \endcode
-///
-string TRestMetadata::GetKEYDefinition(string keyName, string buffer)
-{
-	if (buffer == "") return "";
-
-	string key = "<" + keyName;
-
-	size_t startPos = buffer.find(key, 0);
-	size_t endPos = buffer.find(">", startPos);
-
-	return buffer.substr(startPos, endPos - startPos);
-
-}
-///////////////////////////////////////////////
-/// \brief Gets the first key definition for **keyName** found inside **buffer** starting at **fromPosition**.
-///
-/// A key definition is written as follows:
-/// \code <keyName field1="value1" field2="value2" > \endcode
-///
-string TRestMetadata::GetKEYDefinition(string keyName, size_t &fromPosition, string buffer)
-{
-	string key = "<" + keyName;
-
-	size_t startPos = buffer.find(key, fromPosition);
-	if (startPos == string::npos) return "";
-	size_t endPos = buffer.find(">", startPos);
-	if (endPos == string::npos) return "";
-
-	fromPosition = endPos;
-
-	Int_t notDefinitionEnd = 1;
-
-	while (notDefinitionEnd)
-	{
-		// We might find a problem when we insert > symbol inside a field value.
-		// As for example: condition=">100" This patch checks if the definition 
-		// finishes in "= If it is the case it searches the next > symbol ending 
-		// the definition.
-
-		string def = RemoveWhiteSpaces(buffer.substr(startPos, endPos - startPos));
-
-		if ((TString)def[def.length() - 1] == "\"" && (TString)def[def.length() - 2] == "=")
-			endPos = buffer.find(">", endPos + 1);
-		else
-			notDefinitionEnd = 0;
+		string unit = GetUnits(ele, parName);
+		TVector3 value = StringTo3DVector(a.substr(0, a.find_last_of("1234567890()") + 1));
+		Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unit);
+		Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unit);
+		Double_t valueZ = REST_Units::GetValueInRESTUnits(value.Z(), unit);
+		return TVector3(valueX, valueY,valueZ);
 	}
 
-	return buffer.substr(startPos, endPos - startPos);
+	return defaultVal;
 
 }
-
-
-///////////////////////////////////////////////
-/// \brief Returns the value for the parameter name **parName** found in **inputString**. 
-/// 
-/// The methods starts searching in **inputString** after a given position **pos**.
-///
-string TRestMetadata::GetParameter(string parName, size_t &pos, string inputString)
-{
-	// TODO : this can be probably removed since now we store only the section on configBuffer
-	// TODO : It can be useful a GetParameter( string parName, string sectionBuffer )
-
-	/* TODO
-	*
-	*  Implement method FindAnySection
-	*  if AnySection position is less than EndSection >> Then </section> has been forgotten.
-	*  Make WARNING
-	*
-	* */
-
-	/*
-	*  TODO To impose in this code that parameter must be preceded by parameter KEY word
-	*
-	*  This will not be a problem if the parameter name is not found anywhere else in the section.
-	*  But if the parameter name is written somewhere else it may cause problems.
-	*  We must find first the parameter KEY and then seach the name in the parameter substring.
-	*
-	* */
-
-	string parameterString;
-	do
-	{
-		parameterString = GetKEYDefinition("parameter", pos, inputString);
-
-		if (GetFieldValue("name", parameterString) == parName)
-			return GetFieldValue("value", parameterString);
-	} while (parameterString.length() > 0);
-
-	debug << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
-	return "";
-}
-///////////////////////////////////////////////
-/// \brief Gets the double value of the parameter name **parName**, found in **inputString**, after applying unit conversion.
-///
-/// The parameter must defined providing the additional field units just behind the parameter value. As in the following example :
-///
-/// \code <parameter name="electricField" value="1" units="kVm" > \endcode
-///
-/// \param parName The name of the parameter from which we want to obtain the value.
-/// \param pos Defines the position inside **inputString** where to start searching the definition of **parName**.
-///
-/// \return A double value in the default correspoding REST units (keV, us, mm, Vcm).
-///
-Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, size_t &pos, std::string inputString)
-{
-	while (1)
-	{
-		string parameterString = GetKEYDefinition("parameter", pos, inputString);
-
-		if (parameterString.find(parName) != string::npos)
-		{
-			return GetDblFieldValueWithUnits("value", parameterString);
-		}
-		else
-		{
-			debug << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
-			return PARAMETER_NOT_FOUND_DBL;
-		}
-	}
-
-	debug << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
-	return PARAMETER_NOT_FOUND_DBL;
-}
-///////////////////////////////////////////////
-/// \brief Returns a 2D vector value of the parameter name **parName**, found in **inputString**, after applying unit conversion.
-///
-/// The parameter must defined providing the additional field units just behind the parameter value. As in the following example :
-///
-/// \code <parameter name="position" value="(10,0)" units="mm" > \endcode
-///
-/// \param parName The name of the parameter from which we want to obtain the value.
-/// \param pos Defines the position inside **inputString** where to start searching the definition of **parName**.
-///
-/// \return A 2D vector value in the default correspoding REST units (keV, us, mm, Vcm).
-///
-TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, size_t &pos, std::string inputString)
-{
-	while (1)
-	{
-		string parameterString = GetKEYDefinition("parameter", pos, inputString);
-
-		if (parameterString.find(parName) != string::npos)
-		{
-			return Get2DVectorFieldValueWithUnits("value", parameterString);
-		}
-		else
-		{
-			debug << "Parameter (" << parName << ") NOT found" << endl;
-			return TVector2(-1, -1);
-		}
-	}
-
-	debug << "Parameter (" << parName << ") NOT found" << endl;
-
-	return TVector2(-1, -1);
-}
-///////////////////////////////////////////////
-/// \brief Returns a 3D vector value of the parameter name **parName**, found in **inputString**, after applying unit conversion.
-///
-/// The parameter must defined providing the additional field units just behind the parameter value. As in the following example :
-///
-/// \code <parameter name="position" value="(10,0,-10)" units="mm" > \endcode
-///
-/// \param parName The name of the parameter from which we want to obtain the value.
-/// \param pos Defines the position inside **inputString** where to start searching the definition of **parName**.
-///
-/// \return A 3D vector value in the default correspoding REST units (keV, us, mm, Vcm).
-///
-TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, size_t &pos, std::string inputString)
-{
-	while (1)
-	{
-		string parameterString = GetKEYDefinition("parameter", pos, inputString);
-
-		if (parameterString.find(parName) != string::npos)
-		{
-			return Get3DVectorFieldValueWithUnits("value", parameterString);
-		}
-		else
-		{
-			debug << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
-			return TVector3(-1, -1, -1);
-		}
-	}
-
-	debug << "Section " << fSectionName << ". Parameter (" << parName << ") NOT found" << endl;
-	return TVector3(-1, -1, -1);;
+TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVector3 defaultVal) {
+	return Get3DVectorParameterWithUnits(parName, fElement,defaultVal);
 }
 
 
@@ -1683,20 +1166,380 @@ TiXmlElement * TRestMetadata::GetElementWithName(std::string eleDeclare, std::st
 ///////////////////////////////////////////////
 /// \brief Returns a string with the unit name provided inside the given element.
 /// 
-/// The "units" is regarded as a parameter, and it calls the GetParameter() method.
-string TRestMetadata::GetUnits(TiXmlElement* e)
+/// It calls the method GetUnits(TiXmlElement,string) with the current elemnet.
+string TRestMetadata::GetUnits(string whoseunits)
 {
-	return GetParameter("units", e);
+	return GetUnits(fElement, whoseunits);
 }
 
 ///////////////////////////////////////////////
-/// \brief Returns a string with the unit name given in the default xml element
+/// \brief Returns a string with the unit name given in the given xml element
 /// 
-/// It calls the GetParameter() method directly.
-string TRestMetadata::GetUnits()
+/// if given the target attribute, it will find the unit for this.
+/// e.g. value="(1,-13)mm"  "-3mm"  "50,units=mm"  can both be recoginzed.
+/// if not given, it will find the unit as a parameter of the element.
+///	e.g. <... value="3" units="mm" .../>
+string TRestMetadata::GetUnits(TiXmlElement* e, string whoseunits)
 {
-	return GetParameter("units", fElement);
+	string unitstring = "";
+	if (whoseunits == "") {
+		unitstring = GetParameter("units", e);
+		if (IsUnit(unitstring)) {
+			debug << "Found unit definition \"" << unitstring << "\" in element " << e->Value() << endl;
+			debug << "This way of definition of units is not recommended, use <... value=\"3mm\" .../> instead" << endl << endl;
+			return unitstring;
+		}
+		else
+		{
+			debug << "No units are defined in element "<<e->Value()<<" , returning default unit (mm)" << endl;
+			return unitstring;
+		}
+	}
+	else
+	{
+		string a = GetParameter(whoseunits,e);
+		unitstring = REST_Units::GetRESTUnitsInString(a);
+
+		if (IsUnit(unitstring)) {
+			return unitstring;
+		}
+		else
+		{
+			debug << "REST WARNING : Parameter \"" << whoseunits << " = " << s << "\" dose not contain any units" << endl;
+			debug << "Trying to find unit in element..." << endl;
+			return GetUnits(e, "");
+		}
+	}
+
+	return unitstring;
 }
+
+
+
+
+
+
+
+
+
+
+TiXmlElement* TRestMetadata::StringToElement(string definition)
+{
+	TiXmlElement*ele = new TiXmlElement("temp");
+	//TiXmlDocument*doc = new TiXmlDocument();
+	ele->Parse(definition.c_str(), NULL, TIXML_ENCODING_UTF8);
+	return ele;
+}
+
+
+string TRestMetadata::ElementToString(TiXmlElement*ele)
+{
+	if (ele != NULL) {
+		stringstream ss;
+		ss << (*ele);
+		string s = ss.str();
+
+		//remove comments
+		int pos = 0;
+		int pos2 = 0;
+		while ((pos = s.find("<!--", pos)) != -1 && (pos2 = s.find("-->", pos)) != -1)
+		{
+			s.replace(pos, pos2 - pos + 3, "");//3 is the length of "-->"
+			pos = pos + 1;
+		}
+
+		return s;
+	}
+
+
+	return " ";
+}
+
+
+///////////////////////////////////////////////
+/// \brief Gets the first key structure for **keyName** found inside **buffer** after **fromPosition**.
+///
+/// A key definition is written as follows:
+/// \code <keyName field1="value1" field2="value2" > 
+///
+///     ....
+///
+///  </keyName>
+/// \endcode
+///
+string TRestMetadata::GetKEYStructure(std::string keyName)
+{
+	string buffer = ElementToString(fElement);
+	size_t Position = 0;
+	string result = GetKEYStructure(keyName, Position, buffer);
+	if (result == "") result = "NotFound";
+	return result;
+}
+string TRestMetadata::GetKEYStructure(std::string keyName, size_t &Position)
+{
+	string buffer = ElementToString(fElement);
+	string result = GetKEYStructure(keyName, Position, buffer);
+	if (result == "") result = "NotFound";
+	return result;
+}
+string TRestMetadata::GetKEYStructure(std::string keyName, string buffer)
+{
+	size_t Position = 0;
+	string result = GetKEYStructure(keyName, Position, buffer);
+	if (result == "") result = "NotFound";
+	return result;
+}
+string TRestMetadata::GetKEYStructure(std::string keyName, size_t &fromPosition, string buffer) {
+	size_t position = fromPosition;
+
+	debug << "Finding KEY Structure " << keyName << endl;
+	debug << "Buffer : " << buffer << endl;
+	debug << "Start position : " << position << endl;
+
+	string startKEY = "<" + keyName;
+	string endKEY = "/" + keyName;
+
+	cout << "Reduced buffer : " << buffer.substr(position) << endl;
+
+	size_t initPos = buffer.find(startKEY, position);
+	debug << "initPos : " << initPos << endl;
+
+	if (initPos == string::npos) { debug << "KEY not found!!" << endl; return ""; }
+
+	size_t endPos = buffer.find(endKEY, initPos);
+
+	debug << "End position : " << endPos << endl;
+
+	//TODO Check if a new section starts. If not it might get two complex strings if the KEY_Structure was not closed using /KEY
+
+	if (endPos == string::npos) { debug << "END KEY not found!!" << endl; return ""; }
+
+	debug << endl;
+
+	fromPosition = endPos;
+
+	return buffer.substr(initPos, endPos - initPos + endKEY.length() + 1);
+}
+
+///////////////////////////////////////////////
+/// \brief Gets the first key definition for **keyName** found inside **buffer** starting at **fromPosition**.
+///
+/// A key definition is written as follows:
+/// \code <keyName field1="value1" field2="value2" > \endcode
+/// 
+/// The returned key definition will be fixed to:
+/// \code <keyName field1="value1" field2="value2" /> \endcode
+/// which is in standard xml form
+string TRestMetadata::GetKEYDefinition(string keyName)
+{
+	string buffer = ElementToString(fElement);
+	size_t Position = 0;
+	return GetKEYDefinition(keyName, Position, buffer);
+}
+string TRestMetadata::GetKEYDefinition(string keyName, size_t &fromPosition)
+{
+	string buffer = ElementToString(fElement);
+	return GetKEYDefinition(keyName, fromPosition, buffer);
+}
+string TRestMetadata::GetKEYDefinition(string keyName, string buffer)
+{
+	size_t Position = 0;
+	return GetKEYDefinition(keyName, Position, buffer);
+}
+string TRestMetadata::GetKEYDefinition(string keyName, size_t &fromPosition, string buffer)
+{
+	string key = "<" + keyName;
+	size_t startPos = buffer.find(key, fromPosition);
+	if (startPos == string::npos) return "";
+	size_t endPos = buffer.find(">", startPos);
+	if (endPos == string::npos) return "";
+
+	fromPosition = endPos;
+
+	Int_t notDefinitionEnd = 1;
+
+	while (notDefinitionEnd)
+	{
+		// We might find a problem when we insert > symbol inside a field value.
+		// As for example: condition=">100" This patch checks if the definition 
+		// finishes in "= If it is the case it searches the next > symbol ending 
+		// the definition.
+
+		string def = RemoveWhiteSpaces(buffer.substr(startPos, endPos - startPos));
+
+		if ((TString)def[def.length() - 1] == "\"" && (TString)def[def.length() - 2] == "=")
+			endPos = buffer.find(">", endPos + 1);
+		else
+			notDefinitionEnd = 0;
+	}
+
+	string result= buffer.substr(startPos, endPos - startPos+1);
+	if(result[result.size()-2]!='/')
+		result.insert(result.size() - 1, 1, '/');
+	//cout << result << endl << endl;
+	//getchar();
+	return result;
+}
+
+
+std::string TRestMetadata::GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition)
+{
+	TiXmlElement*ele = StringToElement(definition);
+	string value = GetFieldValue(fieldName, ele);
+	delete ele;
+	return value;
+}
+
+Double_t TRestMetadata::GetDblFieldValueWithUnits(string fieldName, string definition, size_t fromPosition)
+{
+	TiXmlElement*ele = StringToElement(definition);
+	TiXmlElement*e = ele->FirstChildElement();
+	while (e != NULL) {
+		TiXmlElement*tmp = e;
+		e = e->NextSiblingElement();
+		ele->RemoveChild(tmp);
+	}
+	return GetDblParameterWithUnits(fieldName,ele);
+}
+TVector2 TRestMetadata::Get2DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition)
+{
+	TiXmlElement*ele = StringToElement(definition);
+	TiXmlElement*e = ele->FirstChildElement();
+	while (e != NULL) {
+		TiXmlElement*tmp = e;
+		e = e->NextSiblingElement();
+		ele->RemoveChild(tmp);
+	}
+	return Get2DVectorParameterWithUnits(fieldName, ele);
+}
+TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition)
+{
+	TiXmlElement*ele = StringToElement(definition);
+	TiXmlElement*e = ele->FirstChildElement();
+	while (e != NULL) {
+		TiXmlElement*tmp = e;
+		e = e->NextSiblingElement();
+		ele->RemoveChild(tmp);
+	}
+	return Get3DVectorParameterWithUnits(fieldName, ele);
+}
+
+
+
+
+///////////////////////////////////////////////
+/// \brief Returns the value for the parameter name **parName** found in **inputString**. 
+/// 
+/// The methods starts searching in **inputString** after a given position **pos**.
+///
+string TRestMetadata::GetParameter(string parName, size_t &pos, string inputString)
+{
+	pos = inputString.find(parName, pos);
+
+	TiXmlElement*ele = StringToElement(inputString);
+
+	string value = GetParameter(parName, ele);
+
+	delete ele;
+
+	return value;
+}
+///////////////////////////////////////////////
+/// \brief Gets the double value of the parameter name **parName**, found in **inputString**, after applying unit conversion.
+///
+/// The parameter must defined providing the additional field units just behind the parameter value. As in the following example :
+///
+/// \code <parameter name="electricField" value="1" units="kVm" > \endcode
+///
+/// \param parName The name of the parameter from which we want to obtain the value.
+/// \param pos Defines the position inside **inputString** where to start searching the definition of **parName**.
+///
+/// \return A double value in the default correspoding REST units (keV, us, mm, Vcm).
+///
+Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, size_t &pos, std::string inputString)
+{
+	pos = inputString.find(parName, pos);
+
+	TiXmlElement*ele = StringToElement(inputString);
+
+	double value = GetDblParameterWithUnits(parName, ele);
+
+	delete ele;
+
+	return value;
+}
+///////////////////////////////////////////////
+/// \brief Returns a 2D vector value of the parameter name **parName**, found in **inputString**, after applying unit conversion.
+///
+/// The parameter must defined providing the additional field units just behind the parameter value. As in the following example :
+///
+/// \code <parameter name="position" value="(10,0)" units="mm" > \endcode
+///
+/// \param parName The name of the parameter from which we want to obtain the value.
+/// \param pos Defines the position inside **inputString** where to start searching the definition of **parName**.
+///
+/// \return A 2D vector value in the default correspoding REST units (keV, us, mm, Vcm).
+///
+TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, size_t &pos, std::string inputString)
+{
+	pos = inputString.find(parName, pos);
+
+	TiXmlElement*ele = StringToElement(inputString);
+
+	TVector2 value = Get2DVectorParameterWithUnits(parName, ele);
+
+	delete ele;
+
+	return value;
+}
+///////////////////////////////////////////////
+/// \brief Returns a 3D vector value of the parameter name **parName**, found in **inputString**, after applying unit conversion.
+///
+/// The parameter must defined providing the additional field units just behind the parameter value. As in the following example :
+///
+/// \code <parameter name="position" value="(10,0,-10)" units="mm" > \endcode
+///
+/// \param parName The name of the parameter from which we want to obtain the value.
+/// \param pos Defines the position inside **inputString** where to start searching the definition of **parName**.
+///
+/// \return A 3D vector value in the default correspoding REST units (keV, us, mm, Vcm).
+///
+TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, size_t &pos, std::string inputString)
+{
+	pos = inputString.find(parName, pos);
+
+	TiXmlElement*ele = StringToElement(inputString);
+
+	TVector3 value = Get3DVectorParameterWithUnits(parName, ele);
+
+	delete ele;
+
+	return value;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

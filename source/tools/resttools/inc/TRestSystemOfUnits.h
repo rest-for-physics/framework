@@ -71,6 +71,8 @@ namespace REST_Units {
     Double_t GetPotentialInRESTUnits( Double_t potential, TString unitsStr );
     Bool_t isPotential( TString unitsStr );
 
+	bool IsUnit(string in);
+	string GetRESTUnitsInString(string InString);
     Double_t GetValueInRESTUnits( Double_t value, TString unitsStr );
 }
 

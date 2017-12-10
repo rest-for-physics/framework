@@ -119,8 +119,54 @@ namespace REST_Units
         return false;
     }
 
+	bool IsUnit(string unitsStr) 
+	{
+		if (isEnergy(unitsStr) || isDistance(unitsStr) || isField(unitsStr) || isTime(unitsStr) || isPotential(unitsStr))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	string GetRESTUnitsInString(string s) 
+	{
+		string unitsStr = "";
+		{
+			//the last of a number must be "1234567890(),"
+			//we use this prepority to spilt the input string
+			//into value part and unit part
+			//e.g. (1,-13)mm	-3mm	50,units=mm
+			//can both be recoginzed
+			string unitDef = s.substr(s.find_last_of("1234567890(),") + 1, -1);
+
+			if (unitDef.find("=") != -1) {
+				string def = unitDef.substr(0, unitDef.find("="));
+				if (def == "units" || def == "unit")
+				{
+					unitsStr = unitDef.substr(unitDef.find("=") + 1, -1);
+				}
+			}
+			else
+			{
+				unitsStr = unitDef;
+			}
+		}
+		if (IsUnit(unitsStr)) 
+		{
+			return unitsStr;
+		}
+		return "";
+	}
+
     Double_t GetValueInRESTUnits( Double_t value, TString unitsStr )
     {
+		if (unitsStr == "") {
+			cout << endl;
+			cout << "REST WARNING (REST_Units) : Blank units string received!" << endl;
+			cout << "This will be recognized as a default unit, input number \""<<value<< "\""<<endl;
+			cout << "will be directly returned." << endl;
+			return value;
+		}
         if( isEnergy ( unitsStr ) ) return GetEnergyInRESTUnits( value, unitsStr );
         if( isDistance ( unitsStr ) ) return GetDistanceInRESTUnits( value, unitsStr );
         if( isField ( unitsStr ) ) return GetFieldInRESTUnits( value, unitsStr );
@@ -128,8 +174,8 @@ namespace REST_Units
         if( isPotential ( unitsStr ) ) return GetPotentialInRESTUnits( value, unitsStr );
 
         cout << endl;
-        cout << "REST WARNING (REST_Units)  Unit=[" << unitsStr << "] not recognized" << endl;
-
+        cout << "REST WARNING (REST_Units)  Unit=[" << unitsStr << "] is not recognized" << endl;
+		cout << "returning NaN value" << endl;
         return (Double_t ) numeric_limits<Double_t>::quiet_NaN();
     }
 }

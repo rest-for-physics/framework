@@ -142,12 +142,9 @@ protected:
 	//new xml utilities
 	std::string GetFieldValue(std::string parName, TiXmlElement* e);
 	string GetParameter(std::string parName, TiXmlElement* e, TString defaultValue = PARAMETER_NOT_FOUND_STR);
-
 	Double_t GetDblParameterWithUnits(std::string parName, TiXmlElement* e, Double_t defaultVal = PARAMETER_NOT_FOUND_DBL);
 	TVector2 Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* e, TVector2 defaultValue = TVector2(-1, -1));
 	TVector3 Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* e, TVector3 defaultValue = TVector3(-1, -1, -1));
-
-
 
 	TiXmlElement* GetRootElementFromFile(std::string cfgFileName);
 
@@ -157,33 +154,29 @@ protected:
 	TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement* e);
 	TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName);
 	std::string GetElementDeclare(TiXmlElement* e) { return e->Value(); }
-	std::string GetUnits();
-	std::string GetUnits(TiXmlElement* e);
-	string GetUnits(string definition, size_t fromPosition);
+	std::string GetUnits(string whoseunits = "");
+	string GetUnits(TiXmlElement* e,string whoseunits="");
 	//replace mathematical expressions and env variables in the element attribute
 	//all the elements will get proprocessed before the real operation.
 	TiXmlElement* ReplaceElementAttributes(TiXmlElement* e);
 
 
 	//adapting to old xml parser.
-	//the following merthods are re-written, converting internal xml elements to string
 	TiXmlElement* StringToElement(string definition);
 	string ElementToString(TiXmlElement*ele);
 	string GetKEYStructure(std::string keyName);
 	string GetKEYStructure(std::string keyName, size_t &Position);
-	string GetKEYDefinition(std::string keyName);
-	string GetKEYDefinition(std::string keyName, size_t &Position);
-
-	//the following methods require string xml element, and is directly copied form the old code
 	string GetKEYStructure(std::string keyName, string buffer);
 	string GetKEYStructure(std::string keyName, size_t &Position, string buffer);
+	string GetKEYDefinition(std::string keyName);
+	string GetKEYDefinition(std::string keyName, size_t &Position);
 	string GetKEYDefinition(std::string keyName, string buffer);
 	string GetKEYDefinition(std::string keyName, size_t &Position, string buffer);
-	std::string GetParameter(std::string parName, size_t &pos, std::string inputString);
+	string GetParameter(std::string parName, size_t &pos, std::string inputString);
 	Double_t GetDblParameterWithUnits(std::string parName, size_t &pos, std::string inputString);
 	TVector2 Get2DVectorParameterWithUnits(std::string parName, size_t &pos, std::string inputString);
 	TVector3 Get3DVectorParameterWithUnits(std::string parName, size_t &pos, std::string inputString);
-	std::string GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition = 0);
+	string GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition = 0);
 	Double_t GetDblFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
 	TVector2 Get2DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
 	TVector3 Get3DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
