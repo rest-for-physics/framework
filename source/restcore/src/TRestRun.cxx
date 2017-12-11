@@ -561,6 +561,7 @@ void TRestRun::ImportMetadata(TString rootFile, TString name, Bool_t store)
 		cout << "Inside root file : " << rootFile << endl;
 		GetChar();
 		f->Close();
+		delete f;
 		return;
 	}
 
@@ -569,6 +570,7 @@ void TRestRun::ImportMetadata(TString rootFile, TString name, Bool_t store)
 
 	this->AddMetadata(meta);
 	f->Close();
+	delete f;
 }
 
 
