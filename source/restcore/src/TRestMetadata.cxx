@@ -750,20 +750,21 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 			return;
 		}
 
-
+		TiXmlElement*targetele;
 		string type;
 		string name;
 		if ((string)e->Value() == "include")
 		{
-			TiXmlElement*parele = (TiXmlElement*)e->Parent();
-			if (parele == NULL)return;
+			targetele = (TiXmlElement*)e->Parent();
+			if (targetele == NULL)return;
 
-			type = parele->Value();
+			type = targetele->Value();
 			name = e->Attribute("name") == NULL ? "" : e->Attribute("name");
 
 		}
 		else
 		{
+			targetele = e;
 			type = e->Value();
 			name = e->Attribute("name") == NULL ? "" : e->Attribute("name");
 		}
@@ -796,11 +797,14 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 		else if (GetElementWithName(type, name, rootele) != NULL)
 		{
 			if (type != "globals"&&GetElement("globals", rootele) != NULL) {
-				TiXmlElement*globaldef = GetElement("globals", rootele)->FirstChildElement();
+				TiXmlElement*global = GetElement("globals", rootele);
+				TiXmlElement*globaldef = global->FirstChildElement();
 				while (globaldef != NULL)
 				{
 					if ((string)globaldef->Value() == "variable" || (string)globaldef->Value() == "myParameter")
 					{
+						ReplaceElementAttributes(globaldef);
+						debug << "setting env" << globaldef->Value() << globaldef->Attribute("name") << endl;
 						SetEnvWithElement(globaldef, false);
 					}
 					globaldef = globaldef->NextSiblingElement();
@@ -829,51 +833,49 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 		//   </a>
 		if ((string)e->Value() == "include")
 		{
-			TiXmlElement*parele = (TiXmlElement*)e->Parent();
-			if (parele == NULL)return;
+			if (targetele->Attribute("expanded") == NULL ? true : ((string)targetele->Attribute("expanded") != "true")) {
+				TiXmlElement* ele = configele->FirstChildElement();
+				while (ele != NULL)
+				{
+					//ExpandElement(ele);
+					if ((string)ele->Value() != "for")
+						targetele->InsertBeforeChild(e, *ele->Clone());
+					ele = ele->NextSiblingElement();
+				}
 
-			TiXmlElement* ele = configele->FirstChildElement();
-			while (ele != NULL)
-			{
-				//ExpandElement(ele);
-				if ((string)ele->Value() != "for")
-					parele->InsertBeforeChild(e, *ele->Clone());
-				ele = ele->NextSiblingElement();
+				targetele->RemoveChild(e);
 			}
-
-			parele->RemoveChild(e);
-
-			if (fVerboseLevel >= REST_Debug) {
-				parele->Print(stdout, 0);
-			}
-
 		}
 		else//expand the included file content into itself
 			//this is called when the element is like
 			//<a name="" ... file="aaa.rml" .../>
 		{
-			TiXmlAttribute*attr = configele->FirstAttribute();
-			while (attr != NULL) {
-				e->SetAttribute(attr->Name(), attr->Value());
-				attr = attr->Next();
-			}
-			TiXmlElement* ele = configele->FirstChildElement();
-			while (ele != NULL)
-			{
-				//ExpandElement(ele);
-				if ((string)ele->Value() != "for")
-				{
-					e->InsertEndChild(*ele->Clone());
+			if (targetele->Attribute("expanded") == NULL ? true : ((string)targetele->Attribute("expanded") != "true")) {
+				TiXmlAttribute*attr = configele->FirstAttribute();
+				while (attr != NULL) {
+					targetele->SetAttribute(attr->Name(), attr->Value());
+					attr = attr->Next();
 				}
-				ele = ele->NextSiblingElement();
-			}
-
-			if (fVerboseLevel >= REST_Debug) {
-				e->Print(stdout, 0);
+				TiXmlElement* ele = configele->FirstChildElement();
+				while (ele != NULL)
+				{
+					//ExpandElement(ele);
+					if ((string)ele->Value() != "for")
+					{
+						targetele->InsertEndChild(*ele->Clone());
+					}
+					ele = ele->NextSiblingElement();
+				}
 			}
 		}
 
-		debug << "----end of include file----" << endl;
+		targetele->SetAttribute("expanded", "true");
+		if (fVerboseLevel >= REST_Debug) {
+			targetele->Print(stdout, 0);
+			cout << endl;
+		}
+
+		debug << "----end of expansion file----" << endl;
 	}
 }
 
@@ -1110,7 +1112,7 @@ TiXmlElement * TRestMetadata::GetElement(std::string eleDeclare)
 ///
 TiXmlElement * TRestMetadata::GetElement(std::string eleDeclare, TiXmlElement * e)
 {
-	cout << eleDeclare << " " << e << endl;
+	//cout << eleDeclare << " " << e << endl;
 	TiXmlElement* ele = e->FirstChildElement(eleDeclare.c_str());
 	while (ele != NULL)
 	{
@@ -1809,7 +1811,7 @@ void TRestMetadata::PrintTimeStamp(Double_t timeStamp)
 void TRestMetadata::PrintConfigBuffer()
 {
 	fElement->Print(stdout, 0);
-	cout << "\n" << endl;
+	cout << endl;
 }
 
 

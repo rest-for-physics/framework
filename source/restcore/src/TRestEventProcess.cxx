@@ -75,30 +75,58 @@ TRestEventProcess::~TRestEventProcess()
 //______________________________________________________________________________
 vector<string> TRestEventProcess::ReadObservables()
 {
-	TiXmlElement* e = GetElement("addObservable");
+	TiXmlElement* e = GetElement("observable");
 	vector<string> obsnames;
 	while (e != NULL)
 	{
-		const char* obschr = e->Attribute("type");
-		if (obschr != NULL) {
-			string obsstring = (string)obschr;
-			debug << this->ClassName() << " : setting following observables " << obsstring << endl;
-			obsnames = Spilt(obsstring, ":");
-			for (int i = 0; i < obsnames.size(); i++) {
-				TStreamerElement* se = GetDataMemberWithName(obsnames[i]);
-				if (se != NULL)
-				{
-					if (fAnalysisTree->AddObservable((TString)GetName() + "_" + obsnames[i], (double*)GetDataMemberRef(se)))
-						fObservableNames.push_back((TString)GetName() + "_" + obsnames[i]);
-				}
-				else
-				{
-					warning << "In " << this->ClassName() << " : observal \"" << obsnames[i] << "\" is not defined as data member, skipping..." << endl;
-				}
+		const char* obschr = e->Attribute("name");
+		const char* _value = e->Attribute("value");
+		string value;
+		if (_value == NULL)value = "ON";
+		else { value = _value; }
+		if (value == "ON" || value == "On" || value == "on") {
+			if (obschr != NULL) {
+				string obsstring = (string)obschr;
+				debug << this->ClassName() << " : setting following observables " << obsstring << endl;
+				vector<string> tmp = Spilt(obsstring, ":");
+				obsnames.insert(obsnames.end(), tmp.begin(), tmp.end());
 			}
 		}
-		e = e->NextSiblingElement("addObservable");
+
+		e = e->NextSiblingElement("observable");
+	}//now we get a list of all observal names
+
+	//add observables.
+	//1. observable is datamember of the process class
+	//then the address of this datamember is found, and associated to a branch
+	//it will be automatically saved at the end of each process loop
+	//2. observable is not datamember of the process class
+	//then REST will create a new double value as observable.
+	//the user needs to call fAnalysisTree->SetObservableValue( obsName, obsValue ) during each process
+	for (int i = 0; i < obsnames.size(); i++) {
+		TStreamerElement* se = GetDataMemberWithName(obsnames[i]);
+		if (se != NULL)
+		{
+			if (fAnalysisTree->AddObservable((TString)GetName() + "_" + obsnames[i], (double*)GetDataMemberRef(se)))
+				fObservableNames.push_back((TString)GetName() + "_" + obsnames[i]);
+		}
+		else
+		{
+			warning << "In " << this->ClassName() << " : observable \"" << obsnames[i] << "\" is not defined as data member." << endl;
+			warning << "REST will still try to add this observable, user should manualy call" << endl;
+			warning << "fAnalysisTree->SetObservableValue( obsName, obsValue ) during the process" << endl << endl;
+			double*d = new double();
+			if (fAnalysisTree->AddObservable((TString)GetName() + "_" + obsnames[i], d))
+			{
+				fObservableNames.push_back((TString)GetName() + "_" + obsnames[i]);
+			}
+			else
+			{
+				delete d;
+			}
+		}
 	}
+
 	return obsnames;
 }
 
