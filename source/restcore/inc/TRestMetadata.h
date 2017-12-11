@@ -135,8 +135,9 @@ public:
 	/// If this method is called the metadata information will **not** be stored in disk. I/O is handled by TRestRun.
 	void DoNotStore() { fStore = false; }
 	/// If this method is called the metadata information will be stored in disk. This is the default behaviour.
-	Bool_t Store() { return fStore; }
-
+	void Store() { fStore = true; }
+	/// overwriting the write() method with fStore considered
+	void Write() { if (fStore) { TNamed::Write(); } }
 
 protected:
 	//new xml utilities

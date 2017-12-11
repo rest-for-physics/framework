@@ -155,10 +155,11 @@ Int_t TRestEventProcess::LoadSectionMetadata()
 	return 0;
 }
 
-TRestMetadata *TRestEventProcess::GetMetadata(string type)
+TRestMetadata *TRestEventProcess::GetMetadata(string name)
 {
-	return fRunInfo->GetMetadataInfo(type);
-
+	TRestMetadata*m= fRunInfo->GetMetadata(name);
+	if (m == NULL)m = fRunInfo->GetMetadataClass(name);
+	return m;
 }
 
 

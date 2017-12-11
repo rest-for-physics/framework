@@ -129,8 +129,9 @@ void TRestReadoutModule::DoReadoutMapping( Int_t nodes )
 
     cout << "Performing readout mapping optimization (This might require long computation time)" << endl;
     cout << "----------------------------------------------------------------------------------" << endl;
-    cout << "Total number of pixels : " << totalNumberOfPixels << endl;
-    cout << "Nodes : " << nodes << endl;
+	cout << "Module Size: " << GetModuleSizeX() << " , " << GetModuleSizeY() << endl;
+	cout << "Total number of pixels : " << totalNumberOfPixels << endl;
+	cout << "Planning to use " << nodes << " * " << nodes << " of mapping nodes."<< endl;
 
     fMapping.Initialize( nodes, nodes, GetModuleSizeX(), GetModuleSizeY() );
 
@@ -144,7 +145,11 @@ void TRestReadoutModule::DoReadoutMapping( Int_t nodes )
             Int_t nodeX = fMapping.GetNodeX( xPix );
             Int_t nodeY = fMapping.GetNodeY( yPix );
 
-            if( fMapping.isNodeSet( nodeX, nodeY ) ) { cout << "ERROR. Node: ("<<nodeX<<","<<nodeY<<") is already SET!!" << endl; getchar(); }
+            if( fMapping.isNodeSet( nodeX, nodeY ) ) { 
+				cout << "ERROR. Node: (" << nodeX << "," << nodeY << ") is already SET!!" << endl;
+				cout << "ch : " << ch << ", px : " << px << ", in position : " << xPix << "," << yPix << endl;
+				getchar();
+			}
             fMapping.SetNode( nodeX, nodeY, ch, px );
         }
     }

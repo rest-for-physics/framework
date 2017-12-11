@@ -507,7 +507,6 @@ void TRestRun::CloseFile()
 
 
 
-
 void TRestRun::SetExtProcess(TRestEventProcess* p)
 {
 	if (fFileProcess == NULL&&p != NULL) {
@@ -539,49 +538,37 @@ void TRestRun::SetExtProcess(TRestEventProcess* p)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ///////////////////////////////////////////////
 /// \brief Open the root file and import the metadata of this class.
 ///
 /// The class should be recovered to the same condition of the saved one.
 ///
-/// Not implemented.
 void TRestRun::ImportMetadata(TString rootFile, TString name, Bool_t store)
 {
-	if (isRootFile((string)rootFile))
+	if (!fileExists(rootFile.Data()))
 	{
-		TFile*f = new TFile(rootFile);
-		TRestMetadata* data = (TRestMetadata*)f->Get(name);
-		if (data != NULL&&store) {
-			fMetadataInfo.push_back(data);
-		}
+		cout << "REST ERROR (ImportMetadata) : The file " << rootFile << " does not exist" << endl;
+		exit(1);
 	}
+
+	TFile *f = new TFile(rootFile);
+	// TODO give error in case we try to obtain a class that is not TRestMetadata
+	TRestMetadata *meta = (TRestMetadata *)f->Get(name);
+
+	if (meta == NULL)
+	{
+		cout << "REST ERROR (ImportMetadata) : " << name << " does not exist." << endl;
+		cout << "Inside root file : " << rootFile << endl;
+		GetChar();
+		f->Close();
+		return;
+	}
+
+	if (store) meta->Store();
+	else meta->DoNotStore();
+
+	this->AddMetadata(meta);
+	f->Close();
 }
 
 
@@ -628,6 +615,53 @@ string TRestRun::Get(string target)
 
 	return "";
 }
+
+
+TRestMetadata* TRestRun::GetMetadataClass(string type)
+{
+	for (int i = 0; i < fMetadataInfo.size(); i++)
+	{
+		if (fMetadataInfo[i]->ClassName() == type)
+		{
+			return fMetadataInfo[i];
+		}
+	}
+	return NULL;
+}
+
+TRestMetadata *TRestRun::GetMetadata(TString name)
+{
+	for (unsigned int i = 0; i < fMetadataInfo.size(); i++)
+		if (fMetadataInfo[i]->GetName() == name) return fMetadataInfo[i];
+
+	return NULL;
+
+}
+
+
+std::vector <std::string> TRestRun::GetMetadataStructureNames()
+{
+	std::vector <std::string> strings;
+
+	for (int n = 0; n < GetNumberOfMetadataStructures(); n++)
+		strings.push_back(fMetadataInfo[n]->GetName());
+
+	return strings;
+}
+
+
+std::vector <std::string> TRestRun::GetMetadataStructureTitles()
+{
+	std::vector <std::string> strings;
+
+	for (int n = 0; n < GetNumberOfMetadataStructures(); n++)
+		strings.push_back(fMetadataInfo[n]->GetTitle());
+
+	return strings;
+}
+
+
+
 
 //Printers
 void TRestRun::PrintInfo()
@@ -706,15 +740,4 @@ void TRestRun::PrintEndDate()
 	cout << "++++++++++++++++++++++++" << endl;
 }
 
-TRestMetadata* TRestRun::GetMetadataInfo(string type)
-{
-	for (int i = 0; i < fMetadataInfo.size(); i++)
-	{
-		if (fMetadataInfo[i]->ClassName() == type)
-		{
-			return fMetadataInfo[i];
-		}
-	}
-	return NULL;
-}
 

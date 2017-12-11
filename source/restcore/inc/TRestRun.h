@@ -54,7 +54,9 @@ public:
 
 	void ImportMetadata(TString rootFile, TString name, Bool_t store);
 
-	void AddMetadata(TRestMetadata* meta) { fMetadataInfo.push_back(meta);; meta->PrintMetadata();
+	void AddMetadata(TRestMetadata* meta) {
+		fMetadataInfo.push_back(meta); 
+		meta->PrintMetadata();
 	}
 
 	void SkipEventTree() {}
@@ -96,8 +98,11 @@ public:
 	TString GetInputEventName() { return fInputEvent->ClassName(); }
 	TRestAnalysisTree* GetAnalysisTree() { return fAnalysisTree; }
 	Int_t GetInputFileNumber() { return fFileProcess == NULL ? fInputFileNames.size() : 1; }
-	TRestMetadata* GetMetadataInfo(string type);
-	TRestMetadata* GetMetadataClass(string type) { return GetMetadataInfo(type); }
+	TRestMetadata* GetMetadata(TString name);
+	TRestMetadata* GetMetadataClass(string type);
+	std::vector <std::string> GetMetadataStructureNames();
+	std::vector <std::string> GetMetadataStructureTitles();
+	int GetNumberOfMetadataStructures() { return fMetadataInfo.size(); }
 
 	//Setters
 	void SetInputFileName(string s) { fInputFileName = s; fInputFileNames = GetFilesMatchingPattern(fInputFileName); }
