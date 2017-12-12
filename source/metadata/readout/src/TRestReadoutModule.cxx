@@ -146,8 +146,9 @@ void TRestReadoutModule::DoReadoutMapping( Int_t nodes )
             Int_t nodeY = fMapping.GetNodeY( yPix );
 
             if( fMapping.isNodeSet( nodeX, nodeY ) ) { 
-				cout << "ERROR. Node: (" << nodeX << "," << nodeY << ") is already SET!!" << endl;
-				cout << "ch : " << ch << ", px : " << px << ", in position : " << xPix << "," << yPix << endl;
+				cout << "ERROR (setting node for ch : " << ch << ", px : " << px << ", in position : " << xPix << "," << yPix <<" )"<< endl;
+				cout << "Node: (" << nodeX << "," << nodeY << ") is already set By : ch : " << fMapping.GetChannelByNode(nodeX, nodeY) << ", px : " << fMapping.GetPixelByNode(nodeX, nodeY) << endl;
+
 				getchar();
 			}
             fMapping.SetNode( nodeX, nodeY, ch, px );

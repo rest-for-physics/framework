@@ -50,15 +50,15 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 	#Here Windows is just for test. It is for the convenience of vs to make gramma check
 ELSE (CMAKE_SYSTEM_NAME MATCHES "Windows")
-	set(ROOT_INCLUDE_DIR $ENV{ROOTSYS}/include)
-	set(ROOT_LIBRARY_DIR $ENV{ROOTSYS}/lib)
-	include_directories(${ROOT_INCLUDE_DIR})
-	find_program(ROOTCINT_EXECUTABLE rootcint PATHS $ENV{ROOTSYS}/bin)
-    file(GLOB rootlibs ${ROOT_LIBRARY_DIR}/*.lib)
+	#set(ROOT_INCLUDE_DIR $ENV{ROOTSYS}/include)
+	#set(ROOT_LIBRARY_DIR $ENV{ROOTSYS}/lib)
+	#include_directories(${ROOT_INCLUDE_DIR})
+	#find_program(ROOTCINT_EXECUTABLE rootcint PATHS $ENV{ROOTSYS}/bin)
+    #file(GLOB rootlibs ${ROOT_LIBRARY_DIR}/*.lib)
 
-	set(Garfield_INCLUDE_DIRS $ENV{GARFIELD_HOME})
-	message(${Garfield_INCLUDE_DIRS})
-	include_directories(${Garfield_INCLUDE_DIRS})
+	#set(Garfield_INCLUDE_DIRS $ENV{GARFIELD_HOME})
+	#message(${Garfield_INCLUDE_DIRS})
+	#include_directories(${Garfield_INCLUDE_DIRS})
 
 	set(USR_INCLUDE_DIRS $ENV{include})
 	message(${USR_INCLUDE_DIRS})

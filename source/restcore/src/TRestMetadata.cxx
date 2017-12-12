@@ -333,6 +333,7 @@
 #include <TMath.h>
 #include <TSystem.h>
 #include "TRestMetadata.h"
+#include "v5/TFormula.h"
 using namespace std;
 using namespace REST_Units;
 
@@ -1301,7 +1302,7 @@ string TRestMetadata::GetKEYStructure(std::string keyName, size_t &fromPosition,
 	string startKEY = "<" + keyName;
 	string endKEY = "/" + keyName;
 
-	cout << "Reduced buffer : " << buffer.substr(position) << endl;
+	debug << "Reduced buffer : " << buffer.substr(position) << endl;
 
 	size_t initPos = buffer.find(startKEY, position);
 	debug << "initPos : " << initPos << endl;
@@ -1555,7 +1556,10 @@ string TRestMetadata::EvaluateExpression(string exp)
 {
 	if (!isAExpression(exp)) { return exp; }
 
-	TFormula formula("tmp", exp.c_str());
+	//NOTE!!! In root6 the expression like "1/2" will be computed using the input as int number,
+	//which will return 0, and cause problem.
+	//we roll back to TFormula of version 5
+	ROOT::v5::TFormula formula("tmp", exp.c_str());
 
 	ostringstream sss;
 	Double_t number = formula.EvalPar(0);
