@@ -1,6 +1,6 @@
 
 #include "TRestSystemOfUnits.h"
-
+#include "TRestStringHelper.h"
 #include <iostream>
 #include <limits> 
 using namespace std;
@@ -135,7 +135,11 @@ namespace REST_Units
 			//the last of a number must be "1234567890(),"
 			//we use this prepority to spilt the input string
 			//into value part and unit part
-			//e.g. (1,-13)mm	-3mm	50,units=mm
+			//e.g. 
+			//value="(1,-13)mm"
+			//value="-3mm"
+			//value="50,units=mm"
+			//value="20 mm"
 			//can both be recoginzed
 			string unitDef = s.substr(s.find_last_of("1234567890(),") + 1, -1);
 
@@ -148,7 +152,7 @@ namespace REST_Units
 			}
 			else
 			{
-				unitsStr = unitDef;
+				unitsStr = Replace(unitDef, " ", "", 0);
 			}
 		}
 		if (IsUnit(unitsStr)) 

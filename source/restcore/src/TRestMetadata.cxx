@@ -1028,7 +1028,7 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXml
 	else
 	{
 		string unit = GetUnits(ele, parName);
-		TVector2 value = StringTo2DVector(a.substr(0, a.find_last_of("1234567890()") + 1));
+		TVector2 value = StringTo2DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
 		Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unit);
 		Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unit);
 		return TVector2(valueX, valueY);
@@ -1050,7 +1050,7 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXml
 	else
 	{
 		string unit = GetUnits(ele, parName);
-		TVector3 value = StringTo3DVector(a.substr(0, a.find_last_of("1234567890()") + 1));
+		TVector3 value = StringTo3DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
 		Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unit);
 		Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unit);
 		Double_t valueZ = REST_Units::GetValueInRESTUnits(value.Z(), unit);
@@ -1188,14 +1188,14 @@ string TRestMetadata::GetUnits(TiXmlElement* e, string whoseunits)
 	if (whoseunits == "") {
 		unitstring = GetParameter("units", e);
 		if (IsUnit(unitstring)) {
-			debug << "Found unit definition \"" << unitstring << "\" in element " << e->Value() << endl;
-			debug << "This way of definition of units is not recommended, use <... value=\"3mm\" .../> instead" << endl << endl;
+			warning << "Found unit definition \"" << unitstring << "\" in element " << e->Value() << endl;
+			warning << "This way of definition of units is not recommended, use <... value=\"3mm\" .../> instead" << endl << endl;
 			return unitstring;
 		}
 		else
 		{
-			debug << "No units are defined in element "<<e->Value()<<" , returning default unit (mm)" << endl;
-			return unitstring;
+			warning << "No units are defined in element "<<e->Value()<<" , returning default unit" << endl;
+			return "";
 		}
 	}
 	else
@@ -1208,8 +1208,8 @@ string TRestMetadata::GetUnits(TiXmlElement* e, string whoseunits)
 		}
 		else
 		{
-			debug << "REST WARNING : Parameter \"" << whoseunits << " = " << s << "\" dose not contain any units" << endl;
-			debug << "Trying to find unit in element..." << endl;
+			warning << "REST WARNING : Parameter \"" << whoseunits << " = " << a << "\" dose not contain any units" << endl;
+			warning << "Trying to find unit in element..." << endl;
 			return GetUnits(e, "");
 		}
 	}
@@ -1565,7 +1565,7 @@ string TRestMetadata::EvaluateExpression(string exp)
 	Double_t number = formula.EvalPar(0);
 	if (number > 0 && number < 1.e-300)
 	{
-		cout << "REST Warning! Expression not recognized --> " << exp << endl;  return exp;
+		warning << "REST Warning! Expression not recognized --> " << exp << endl;  return exp;
 	}
 
 	sss << number;
@@ -1750,13 +1750,19 @@ void TRestMetadata::SetEnv(string name, string value, bool overwriteexisting)
 ///
 string TRestMetadata::ReplaceMathematicalExpressions(const string buffer)
 {
-	string temp = buffer;
+	//we spilt the unit part and the expresstion part
+	int pos = buffer.find_last_of("1234567890().");
+
+	string unit = buffer.substr(pos + 1, -1);
+	string temp = buffer.substr(0, pos + 1);
 	string result = "";
 
-	if (buffer[0] == '(' && buffer[buffer.length() - 1] == ')')
+	bool erased = false;
+	if (temp[0] == '(' && temp[temp.length() - 1] == ')')
 	{
 		temp.erase(temp.size() - 1, 1);
 		temp.erase(0, 1);
+		erased = true;
 	}
 
 	std::vector<std::string> Expressions;
@@ -1779,12 +1785,12 @@ string TRestMetadata::ReplaceMathematicalExpressions(const string buffer)
 
 	result.erase(result.size() - 1, 1);
 
-	if (buffer[0] == '(' && buffer[buffer.length() - 1] == ')')
+	if (erased)
 	{
 		result = "(" + result + ")";
 	}
 
-	return result;
+	return result+unit;
 
 }
 
