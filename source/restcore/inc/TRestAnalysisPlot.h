@@ -13,41 +13,40 @@
 #ifndef RestCore_TRestAnalysisPlot
 #define RestCore_TRestAnalysisPlot
 
-#include "TRestRun.h"
+#include <TRestRun.h>
 #include "TRestAnalysisTree.h"
-#include "TRestMetadata.h"
 #include "TCanvas.h"
 #include "TH3D.h"
 
 class TRestAnalysisPlot :public TRestMetadata {
 private:
-
+	void InitFromConfigFile();
 
 	Int_t fNFiles;
 	std::vector <TString> fFileNames;
 
 #ifndef __CINT__
-	TRestRun *fRun;//!
+	TRestRun *fRun;
 
-	TCanvas *fCombinedCanvas;//!
+	TCanvas *fCombinedCanvas;
 
-	TString fPlotMode;//!
-	TString fHistoOutputFile;//!
-	TVector2 fCanvasSize;//!
-	TVector2 fCanvasDivisions;//!
-	TString fCanvasSave;//!
-	std::vector <TString> fPlotNames;//!
-	std::vector <TString> fPlotSaveToFile;//!
-	std::vector <TString> fPlotXLabel;//!
-	std::vector <TString> fPlotYLabel;//!
-	std::vector <Bool_t> fLogScale;//!
-	std::vector <TString> fPlotTitle;//!
-	std::vector <TString> fPlotOption;//!
-	std::vector <TString> fPlotString;//!
-	std::vector <TString> fCutString;//!
+	TString fPlotMode;
+	TString fHistoOutputFile;
+	TVector2 fCanvasSize;
+	TVector2 fCanvasDivisions;
+	TString fCanvasSave;
+	std::vector <TString> fPlotNames;
+	std::vector <TString> fPlotSaveToFile;
+	std::vector <TString> fPlotXLabel;
+	std::vector <TString> fPlotYLabel;
+	std::vector <Bool_t> fLogScale;
+	std::vector <TString> fPlotTitle;
+	std::vector <TString> fPlotOption;
+	std::vector <TString> fPlotString;
+	std::vector <TString> fCutString;
 
-	Double_t fStartTime;//!
-	Double_t fEndTime;//!
+	Double_t fStartTime;
+	Double_t fEndTime;
 
 #endif
 
@@ -56,9 +55,8 @@ private:
 protected:
 
 public:
-	void Initialize();
-	void EndOfInit();
 
+	void Initialize();
 
 	void PrintMetadata() { }
 
@@ -78,6 +76,7 @@ public:
 
 	//Construtor
 	TRestAnalysisPlot();
+	TRestAnalysisPlot(const char *cfgFileName, const char *name = "");
 	//Destructor
 	virtual ~TRestAnalysisPlot();
 
