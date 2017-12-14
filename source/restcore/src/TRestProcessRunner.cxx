@@ -94,7 +94,7 @@ void TRestProcessRunner::BeginOfInit()
 	fOutputItem = Spilt(GetParameter("treeBranches", ""),":");
 	if (fThreadNumber < 1)fThreadNumber = 1;
 
-	fTempOutputDataFile = new TFile("rest_anaTree_tmp.root","recreate");
+	fTempOutputDataFile = new TFile(fRunInfo->GetOutputFileName() , "recreate");
 	for (int i = 0; i < fThreadNumber; i++)
 	{
 		TRestThread* t = new TRestThread();
@@ -484,7 +484,7 @@ void TRestProcessRunner::ConfigOutputFile()
 		if(fEventTree!=NULL)fEventTree->Write();
 		if(fAnalysisTree!=NULL)fAnalysisTree->Write();
 		fTempOutputDataFile->Close();
-		files_to_merge.push_back(fTempOutputDataFile->GetName());
+		//files_to_merge.push_back(fTempOutputDataFile->GetName());
 
 		//add threads file
 		//processes may have their own TObject output. They are stored in the threads file
@@ -496,7 +496,7 @@ void TRestProcessRunner::ConfigOutputFile()
 				files_to_merge.push_back(f->GetName());
 		}
 
-		fRunInfo->MergeProcessFile(files_to_merge);
+		fRunInfo->MergeProcessFile(files_to_merge, fTempOutputDataFile->GetName());
 	}
 	else
 	{

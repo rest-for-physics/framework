@@ -82,7 +82,7 @@ int main( int argc, char *argv[] )
 						{
 						case 'c': sprintf(cfgFileName, "%s", argv[i + 1]); break;
 						case 'i': setenv("inputFile", argv[i + 1], 1); break;
-						case 'o': setenv("outputFormat", argv[i + 1], 1); break;
+						case 'o': setenv("outputFile", argv[i + 1], 1); break;
 						case 'j': setenv("threadNumber", argv[i + 1], 1); break;
 						case 'h': PrintHelp(); exit(1);
 						default:

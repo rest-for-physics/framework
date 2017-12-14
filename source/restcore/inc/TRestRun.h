@@ -44,7 +44,7 @@ public:
 	}
 
 	TString FormFormat(TString FilenameFormat);
-	void MergeProcessFile(vector<string> filenames);
+	void MergeProcessFile(vector<string> filefullnames,string targetfilename="");
 	void PassOutputFile() { fOutputFile = fInputFile; fOutputFileName = fOutputFile->GetName(); }
 	TFile* FormOutputFile();
 

@@ -158,7 +158,7 @@ void TRestRun::EndOfInit()
 	fRunType = GetParameter("runType", "NotDefined").c_str();
 	fRunDescription = GetParameter("runDescription").c_str();
 	fInputFileName = GetParameter("inputFile", "default").c_str();
-	fOutputFileName = GetParameter("outputFormat", "default.root").c_str();
+	fOutputFileName = GetParameter("outputFile", "default.root").c_str();
 	fExperimentName = GetParameter("experiment", "preserve").c_str();
 	fRunTag = GetParameter("runTag", "preserve").c_str();
 
@@ -172,8 +172,7 @@ void TRestRun::EndOfInit()
 			info << endl;
 		}
 	}
-	string filename = GetParameter("outputFile", "");
-	info << this->ClassName() << " : OutputFile : " << filename << endl;
+	info << this->ClassName() << " : OutputFile : " << fOutputFileName << endl;
 }
 
 
@@ -430,26 +429,36 @@ TString TRestRun::FormFormat(TString FilenameFormat)
 	return outString;
 }
 
-//Merge an input string of file names together. All other files
-//will be merged into the first file.
-void TRestRun::MergeProcessFile(vector<string> filenames)
+//Merge a list of string of file names together. 
+//if target file name is given, then all other files
+//in the file name list will be merged into it.
+//otherwise files will be merged to a new file defined in parameter: outputfile
+void TRestRun::MergeProcessFile(vector<string> filenames, string targetfilename)
 {
-	string filename = GetParameter("outputFile", "output.root");
-	filename = FormFormat(filename);
-	info << "Creating file : " << filename << endl;
-
+	string filename;
 	TFileMerger* m = new TFileMerger();
-	for (int i = 1; i < filenames.size(); i++)
+	if (targetfilename == "") 
+	{
+		filename = fOutputFileName;
+		info << "Creating file : " << filename << endl;
+		m->OutputFile(filename.c_str(), "RECREATE");
+	}
+	else
+	{
+		filename = targetfilename;
+		info << "Creating file : " << filename << endl;
+		m->OutputFile(filename.c_str(), "UPDATE");
+	}
+
+
+	for (int i = 0; i < filenames.size(); i++)
 	{
 		m->AddFile(filenames[i].c_str(), false);
 	}
 
-	m->OutputFile(filenames[0].c_str(), "UPDATE");
-
 	if (m->Merge())
 	{
-		rename(filenames[0].c_str(), filename.c_str());
-		for (int i = 1; i < filenames.size(); i++)
+		for (int i = 0; i < filenames.size(); i++)
 		{
 			remove(filenames[i].c_str());
 		}
@@ -461,6 +470,8 @@ void TRestRun::MergeProcessFile(vector<string> filenames)
 	}
 
 	delete m;
+
+	rename(filename.c_str(), FormFormat(filename));
 
 	fOutputFile = new TFile(fOutputFileName, "UPDATE");
 	for (int i = 0; i < fMetadataInfo.size(); i++) {
