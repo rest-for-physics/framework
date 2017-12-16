@@ -165,8 +165,8 @@ void TRestSignalZeroSuppresionProcess::EndProcess()
 void TRestSignalZeroSuppresionProcess::InitFromConfigFile( )
 {
     fBaseLineRange = StringTo2DVector( GetParameter( "baseLineRange", "(5,55)") );
-    fPointThreshold = StringToDouble( GetParameter( "pointThreshold", 2 ) );
-    fNPointsOverThreshold = StringToInteger( GetParameter( "pointsOverThreshold", 5 ) );
-    fSignalThreshold = StringToDouble( GetParameter( "signalThreshold", 5 ) );
+    fPointThreshold = StringToDouble( GetParameter( "pointThreshold", "2" ) );
+    fNPointsOverThreshold = StringToInteger( GetParameter( "pointsOverThreshold", "5" ) );
+    fSignalThreshold = StringToDouble( GetParameter( "signalThreshold", "5" ) );
 }
 

@@ -426,9 +426,9 @@ void TRestRawSignalAnalysisProcess::InitFromConfigFile( )
 
     fBaseLineRange = StringTo2DVector( GetParameter( "baseLineRange", "(5,55)") );
     fIntegralRange = StringTo2DVector( GetParameter( "integralRange", "(10,500)") );
-    fPointThreshold = StringToDouble( GetParameter( "pointThreshold", 2 ) );
-    fNPointsOverThreshold = StringToInteger( GetParameter( "pointsOverThreshold", 5 ) );
-    fSignalThreshold = StringToDouble( GetParameter( "signalThreshold", 5 ) );
+    fPointThreshold = StringToDouble( GetParameter( "pointThreshold", "2" ) );
+    fNPointsOverThreshold = StringToInteger( GetParameter( "pointsOverThreshold", "5" ) );
+    fSignalThreshold = StringToDouble( GetParameter( "signalThreshold", "5" ) );
 
     fMeanBaseLineCutRange = StringTo2DVector( GetParameter( "meanBaseLineCutRange", "(0,4096)") );
     fMeanBaseLineSigmaCutRange = StringTo2DVector( GetParameter( "meanBaseLineSigmaCutRange", "(0,4096)") );
