@@ -772,7 +772,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 
 		debug << "----expanding include file----" << endl;
 
-		TiXmlElement*configele;
+		TiXmlElement*configele = NULL;
 		//1. root element in the included file is of given type
 		if ((string)rootele->Value() == type) {
 			configele = rootele;
@@ -816,7 +816,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 
 		}
 
-		else
+		if(configele==NULL)
 		{
 			warning << "Cannot get corresponding xml section(class name: " << type << " , name: " << name << " ). Skipping" << endl;
 			return;

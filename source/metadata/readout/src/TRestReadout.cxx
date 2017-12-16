@@ -490,6 +490,14 @@ void TRestReadout::InitFromConfigFile()
             TString modName = GetFieldValue( "name", moduleDefinition );
             Int_t mid = GetModuleDefinitionId( modName );
 
+			if (mid == -1) 
+			{
+				warning << "Readout module with name \"" << modName << "\" not found! Skipping this definition..." << endl;
+				warning << "In addReadoutModule definition: " << moduleDefinition << endl;
+				warning << endl;
+				continue;
+			}
+
             fModuleDefinitions[mid].SetModuleID( StringToInteger( GetFieldValue( "id", moduleDefinition ) ) );
             fModuleDefinitions[mid].SetOrigin( StringTo2DVector( GetFieldValue( "origin", moduleDefinition ) ) );
             fModuleDefinitions[mid].SetRotation( StringToDouble( GetFieldValue( "rotation", moduleDefinition ) ) );
@@ -573,7 +581,7 @@ void TRestReadout::InitFromConfigFile()
         }
 
         this->AddReadoutPlane( plane );
-		if (fVerboseLevel >= REST_Debug) {
+		if (fVerboseLevel >= REST_Info) {
 			cout << "Drawing readoutplane " << plane.GetID() << endl;
 			plane.Draw();
 		}
