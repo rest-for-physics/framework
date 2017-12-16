@@ -222,8 +222,9 @@ void  TRestRawToSignalProcess::printBits(unsigned int num)
 }
 
 void TRestRawToSignalProcess::PrintMetadata(){
+	BeginPrintProcess();
 
-     cout << endl;
+    cout << endl;
     cout << "====================================" << endl;
     cout << "DAQ : " << GetTitle() << endl;
     cout << "Electronics type : " << fElectronicsType.Data() << endl;
@@ -232,5 +233,6 @@ void TRestRawToSignalProcess::PrintMetadata(){
     
     cout << endl;
 
+	EndPrintProcess();
 }
 

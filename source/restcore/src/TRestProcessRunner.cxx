@@ -174,6 +174,15 @@ void TRestProcessRunner::EndOfInit()
 
 	ReadProcInfo();
 
+	if (fProcessNumber > 0) {
+		debug << "Initializing processes in threads. " << fThreadNumber << " threads are requested" << endl;
+		fRunInfo->ResetEntry();
+		for (int i = 0; i < fThreadNumber; i++)
+		{
+			fThreads[i]->PrepareToProcess();
+		}
+	}
+
 	//print metadata
 	if (fVerboseLevel >= REST_Essential) {
 		if (fRunInfo->GetFileProcess() != NULL)fRunInfo->GetFileProcess()->PrintMetadata();
@@ -212,12 +221,7 @@ void TRestProcessRunner::ReadProcInfo()
 void TRestProcessRunner::RunProcess()
 {
 	if (fProcessNumber > 0) {
-		debug << "Initializing processes in threads. " << fThreadNumber << " threads are requested" << endl;
-		fRunInfo->ResetEntry();
-		for (int i = 0; i < fThreadNumber; i++)
-		{
-			fThreads[i]->PrepareToProcess();
-		}
+
 		//copy thread tree to local
 		fTempOutputDataFile->cd();
 		TRestAnalysisTree* tree = fThreads[0]->GetEventTree();

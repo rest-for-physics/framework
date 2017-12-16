@@ -110,6 +110,12 @@ Int_t TRestAnalysisTree::FillEvent(TRestEvent *evt)
 	return 0;
 }
 
+void TRestAnalysisTree::SetObservableValue(TString obsName, Double_t value)
+{
+	Int_t id = GetObservableID(obsName);
+	if (id >= 0) SetObservableValue(id, value);
+}
+
 void TRestAnalysisTree::CreateEventBranches()
 {
 	Branch("runOrigin", &fRunOrigin);

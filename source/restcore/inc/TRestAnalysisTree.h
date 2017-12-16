@@ -86,11 +86,7 @@ public:
 
 	void SetObservableValue(Int_t n, Double_t value) { *fObservableValues[n] = value; }
 
-	void SetObservableValue(TString obsName, Double_t value)
-	{
-		Int_t id = GetObservableID(obsName);
-		if (id >= 0) SetObservableValue(id, value);
-	}
+	void SetObservableValue(TString obsName, Double_t value);
 
 	void CreateEventBranches();
 	void CreateObservableBranches();
