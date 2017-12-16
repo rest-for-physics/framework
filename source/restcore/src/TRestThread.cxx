@@ -115,6 +115,65 @@ Int_t TRestThread::ValidateChain()
 
 }
 
+
+TRestAnalysisTree* tempTree;
+bool TRestThread::TestRun() 
+{
+	debug << "Processing ..." << endl;
+	for (int i = 0; i < 5; i++) {
+		TRestEvent* ProcessedEvent = fInputEvent;
+		debug << "Test run " << i << " : Input Event ---- " << fInputEvent->ClassName() << "(" << fInputEvent << ")" << endl;
+		for (unsigned int j = 0; j < fProcessChain.size(); j++)
+		{
+			debug << j << " " << fProcessChain[j]->GetName() << "(" << fProcessChain[j]->ClassName() << ")";
+			fProcessChain[j]->BeginOfEventProcess();
+			ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
+			if (ProcessedEvent == NULL) {
+				debug << "  ----  NULL" << endl;
+				break;
+			}
+			fProcessChain[j]->EndOfEventProcess();
+			debug << " ....  " << ProcessedEvent->ClassName() << "(" << ProcessedEvent << ")" << endl;
+		}
+
+		fOutputEvent = ProcessedEvent;
+		fHostRunner->GetNextevtFunc(fInputEvent, tempTree);
+		if (fOutputEvent != NULL) {
+			debug << "Output Event ---- " << fOutputEvent->ClassName() << "(" << fOutputEvent << ")" << endl;
+			break;
+		}
+		else
+		{
+			debug << "Null output, trying again" << endl;
+		}
+	}
+	if (fOutputEvent == NULL)
+	{
+		error << "REST ERROR(" << "In thread " << fThreadId << ")::Process result is null after 5 times of retry." << endl;
+		error << "REST cannot determing the address of output event!" << endl;
+		error << "continue with default address of try again? (a)gain/(d)efault/(c)ancell" << endl;
+		while (1) {
+			char o;
+			cin >> o;
+			if (o == 'a') {
+				if (TestRun())
+					return true;
+			}
+			else if (o == 'd') {
+				fOutputEvent = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent();
+				return true;
+			}
+			else if (o == 'c') {
+				return false;
+			}
+		}
+
+		return false;
+	}
+	return true;
+}
+
+
 ///////////////////////////////////////////////
 /// \brief Propare some thing before we can satrt process
 ///
@@ -131,8 +190,8 @@ void TRestThread::PrepareToProcess()
 
 	if (fProcessChain.size() > 0)
 	{
-		debug << "Preparing Thread " << fThreadId << "..." << endl;
-		TRestAnalysisTree* tempTree = new TRestAnalysisTree("AnalysisTree_tmp", "anaTree_tmp");
+		info << "Preparing Thread " << fThreadId << "..." << endl;
+		tempTree = new TRestAnalysisTree("AnalysisTree_tmp", "anaTree_tmp");
 		for (unsigned int i = 0; i < fProcessChain.size(); i++)
 		{
 			debug << fProcessChain[i]->ClassName() << endl;
@@ -147,28 +206,26 @@ void TRestThread::PrepareToProcess()
 		//test run
 		debug << "Test Run..." << endl;
 
-		fInputEvent = (TRestEvent*)fProcessChain[0]->GetInputEvent()->Clone();
+		fInputEvent = (TRestEvent*)fProcessChain[0]->GetInputEvent();
+		if (fInputEvent == NULL) {
+			error << "REST ERROR(" << "In thread " << fThreadId << ")::Input event of the first process is not specified!" << endl;
+			GetChar();
+			exit(1);
+		}
+		else
+			fInputEvent = (TRestEvent*)fInputEvent->Clone();
+
 		if (fHostRunner->GetNextevtFunc(fInputEvent, tempTree) != 0)
 		{
-			cout << "REST ERROR(" << "In thread " << fThreadId << ")::Failed to get the first input event, process cannot start!" << endl;
+			error << "REST ERROR(" << "In thread " << fThreadId << ")::Failed to get the first input event, process cannot start!" << endl;
 			GetChar();
 			exit(1);
 		}
-		debug << "Processing Test Event" << endl;
-		for (int i = 0; i < 5; i++) {
-			ProcessEvent();
-			fHostRunner->GetNextevtFunc(fInputEvent, tempTree);
-			if (fOutputEvent != NULL) {
-				break;
-			}
-		}
-		if (fOutputEvent == NULL)
-		{
-			error << "REST ERROR(" << "In thread " << fThreadId << ")::Process result is null after 5 times of retry." << endl;
-			error << "REST cannot determing the output event!" << endl;
-			GetChar();
+		
+		if (!TestRun()) {
 			exit(1);
 		}
+		
 		delete tempTree;
 		debug << "Test Run success!" << endl;
 
