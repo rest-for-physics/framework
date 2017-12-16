@@ -149,30 +149,30 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent( TRestEvent *evInput )
 
     TString obsName;
 
-    obsName = this->GetName() + (TString) ".x1";
+    obsName = this->GetName() + (TString) "_x1";
     fAnalysisTree->SetObservableValue( obsName, x1 );
 
-    obsName = this->GetName() + (TString) ".y1";
+    obsName = this->GetName() + (TString) "_y1";
     fAnalysisTree->SetObservableValue( obsName, y1 );
 
-    obsName = this->GetName() + (TString) ".z1";
+    obsName = this->GetName() + (TString) "_z1";
     fAnalysisTree->SetObservableValue( obsName, z1 );
 
     /////
 
-    obsName = this->GetName() + (TString) ".x2";
+    obsName = this->GetName() + (TString) "_x2";
     fAnalysisTree->SetObservableValue( obsName, x2 );
 
-    obsName = this->GetName() + (TString) ".y2";
+    obsName = this->GetName() + (TString) "_y2";
     fAnalysisTree->SetObservableValue( obsName, y2 );
 
-    obsName = this->GetName() + (TString) ".z2";
+    obsName = this->GetName() + (TString) "_z2";
     fAnalysisTree->SetObservableValue( obsName, z2 );
 
     Double_t dist = (x1-x2) * (x1-x2) + (y1-y2) * (y1-y2) + (z1-z2) * (z1-z2);
     dist = TMath::Sqrt( dist );
 
-    obsName = this->GetName() + (TString) ".distance";
+    obsName = this->GetName() + (TString) "_distance";
     fAnalysisTree->SetObservableValue( obsName, dist );
 
     // We get the hit blob energy from the origin track (not from the reduced track)
@@ -184,7 +184,7 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent( TRestEvent *evInput )
     {
         Double_t q = originHits->GetEnergyInSphere( x1, y1, z1, fQ1_Radius[n] );
 
-        obsName = this->GetName() + (TString) "." + (TString) fQ1_Observables[n];
+        obsName = this->GetName() + (TString) "_" + (TString) fQ1_Observables[n];
         fAnalysisTree->SetObservableValue( obsName, q );
     }
 
@@ -192,7 +192,7 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent( TRestEvent *evInput )
     {
         Double_t q = originHits->GetEnergyInSphere( x2, y2, z2, fQ2_Radius[n] );
 
-        obsName = this->GetName() + (TString) "." + (TString) fQ2_Observables[n];
+        obsName = this->GetName() + (TString) "_" + (TString) fQ2_Observables[n];
         fAnalysisTree->SetObservableValue( obsName, q );
     }
 

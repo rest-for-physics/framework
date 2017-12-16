@@ -168,14 +168,14 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     Double_t evTimeDelay = 0;
     if( fPreviousEventTime.size() > 0 )
         evTimeDelay = fTrackEvent->GetTime() - fPreviousEventTime.back();
-    obsName = this->GetName() + (TString) ".EventTimeDelay";
+    obsName = this->GetName() + (TString) "_EventTimeDelay";
     fAnalysisTree->SetObservableValue( obsName, evTimeDelay );
 
     Double_t meanRate = 0;
     if( fPreviousEventTime.size() == 100 )
         meanRate = 100. / (fTrackEvent->GetTime()-fPreviousEventTime.front());
 
-    obsName = this->GetName() + (TString) ".MeanRate_InHz";
+    obsName = this->GetName() + (TString) "_MeanRate_InHz";
     fAnalysisTree->SetObservableValue( obsName, meanRate );
 
     fTrackEvent->SetNumberOfXTracks( nTracksX );
@@ -197,52 +197,52 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     if( tY != NULL )
         y = tY->GetMeanPosition().Y();
 
-    obsName = this->GetName() + (TString) ".xMean";
+    obsName = this->GetName() + (TString) "_xMean";
     fAnalysisTree->SetObservableValue( obsName, x );
 
-    obsName = this->GetName() + (TString) ".yMean";
+    obsName = this->GetName() + (TString) "_yMean";
     fAnalysisTree->SetObservableValue( obsName, y );
 
-    obsName = this->GetName() + (TString) ".LengthX";
+    obsName = this->GetName() + (TString) "_LengthX";
     fAnalysisTree->SetObservableValue( obsName, tckLenX );
 
-    obsName = this->GetName() + (TString) ".LengthY";
+    obsName = this->GetName() + (TString) "_LengthY";
     fAnalysisTree->SetObservableValue( obsName, tckLenY );
 
-    obsName = this->GetName() + (TString) ".nTracksX";
+    obsName = this->GetName() + (TString) "_nTracksX";
     fAnalysisTree->SetObservableValue( obsName, nTracksX );
 
-    obsName = this->GetName() + (TString) ".nTracksY";
+    obsName = this->GetName() + (TString) "_nTracksY";
     fAnalysisTree->SetObservableValue( obsName, nTracksY );
 
-    obsName = this->GetName() + (TString) ".nTracksXYZ";
+    obsName = this->GetName() + (TString) "_nTracksXYZ";
     fAnalysisTree->SetObservableValue( obsName, nTracksXYZ );
-    obsName = this->GetName() + (TString) ".LengthXYZ";
+    obsName = this->GetName() + (TString) "_LengthXYZ";
     fAnalysisTree->SetObservableValue( obsName, nTracksXYZ );
-    obsName = this->GetName() + (TString) ".MaxLengthXYZ";
+    obsName = this->GetName() + (TString) "_MaxLengthXYZ";
     fAnalysisTree->SetObservableValue( obsName, tckMaxLenXYZ );
-    obsName = this->GetName() + (TString) ".MaxEnXYZ";
+    obsName = this->GetName() + (TString) "_MaxEnXYZ";
     fAnalysisTree->SetObservableValue( obsName, tckMaxEnXYZ );
 
-    obsName = this->GetName() + (TString) ".maxXMean";
+    obsName = this->GetName() + (TString) "_maxXMean";
     fAnalysisTree->SetObservableValue( obsName, maxX );
 
-    obsName = this->GetName() + (TString) ".maxYMean";
+    obsName = this->GetName() + (TString) "_maxYMean";
     fAnalysisTree->SetObservableValue( obsName, maxY );
-    obsName = this->GetName() + (TString) ".maxZMean";
+    obsName = this->GetName() + (TString) "_maxZMean";
     fAnalysisTree->SetObservableValue( obsName, maxZ );
 
     for( unsigned int n = 0; n < fTrack_LE_EnergyObservables.size(); n++ )
     {
         TString obsName = fTrack_LE_EnergyObservables[n];
-        obsName = this->GetName( ) + (TString) "." + obsName;
+        obsName = this->GetName( ) + (TString) "_" + obsName;
         fAnalysisTree->SetObservableValue( obsName, nTracks_LE[n] );
     }
 
     for( unsigned int n = 0; n < fTrack_HE_EnergyObservables.size(); n++ )
     {
         TString obsName = fTrack_HE_EnergyObservables[n];
-        obsName = this->GetName( ) + (TString) "." + obsName;
+        obsName = this->GetName( ) + (TString) "_" + obsName;
         fAnalysisTree->SetObservableValue( obsName, nTracks_HE[n] );
     }
 

@@ -141,7 +141,7 @@ TRestEvent* TRestTrackReconnectionProcess::ProcessEvent( TRestEvent *evInput )
         fOutputTrackEvent->AddTrack( &bestTrack );
     }
 
-    TString obsName = this->GetName() + (TString) ".branches";
+    TString obsName = this->GetName() + (TString) "_branches";
     fAnalysisTree->SetObservableValue( obsName, trackBranches );
     //cout << "Track branches : " << trackBranches << endl;
 
