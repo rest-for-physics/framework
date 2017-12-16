@@ -78,8 +78,6 @@ Int_t TRestAnalysisTree::AddObservable(TString observableName, Double_t* observa
 {
 	if (fBranchesCreated)
 	{
-		cout << "REST ERROR : Branches have been already created" << endl;
-		cout << "No more observables can be added" << endl;
 		return -1;
 	}
 	Double_t x = 0;

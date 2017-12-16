@@ -103,20 +103,18 @@ vector<string> TRestEventProcess::ReadObservables()
 	//2. observable is not datamember of the process class
 	//then REST will create a new double value as observable.
 	//the user needs to call fAnalysisTree->SetObservableValue( obsName, obsValue ) during each process
+	
 	for (int i = 0; i < obsnames.size(); i++) {
 		TStreamerElement* se = GetDataMemberWithName(obsnames[i]);
 		if (se != NULL)
 		{
-			if (fAnalysisTree->AddObservable((TString)GetName() + "_" + obsnames[i], (double*)GetDataMemberRef(se)))
+			if (fAnalysisTree->AddObservable((TString)GetName() + "_" + obsnames[i], (double*)GetDataMemberRef(se))!=-1)
 				fObservableNames.push_back((TString)GetName() + "_" + obsnames[i]);
 		}
 		else
 		{
-			warning << "In " << this->ClassName() << " : observable \"" << obsnames[i] << "\" is not defined as data member." << endl;
-			warning << "REST will still try to add this observable, user should manualy call" << endl;
-			warning << "fAnalysisTree->SetObservableValue( obsName, obsValue ) during the process" << endl << endl;
 			double*d = new double();
-			if (fAnalysisTree->AddObservable((TString)GetName() + "_" + obsnames[i], d))
+			if (fAnalysisTree->AddObservable((TString)GetName() + "_" + obsnames[i], d)!=-1)
 			{
 				fObservableNames.push_back((TString)GetName() + "_" + obsnames[i]);
 			}
