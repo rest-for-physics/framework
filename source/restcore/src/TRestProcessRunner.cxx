@@ -287,9 +287,11 @@ void TRestProcessRunner::RunProcess()
 		fout << this->ClassName() << ": " << fProcessedEvents << " processed events" << endl;
 
 #ifdef TIME_MEASUREMENT
-		info << "Total processing time (read&process): " << ((Double_t)(deltaTime - writeTime)) / 1000. << " ms" << endl;
-		info << "Total write time to disk (per event) : " << ((Double_t)writeTime) / fProcessedEvents / 1000. << " ms" << endl;
-		info << "Average read time from disk : " << ((Double_t)readTime) / fProcessedEvents / 1000. << " ms" << endl;
+		info << "Total processing time : " << ((Double_t)deltaTime) / 1000. << " ms" << endl;
+		info << "Average read time from disk (per event) : " << ((Double_t)readTime) / fProcessedEvents / 1000. << " ms" << endl;
+		info << "Average process time (per event) : " << ((Double_t)(deltaTime-readTime-writeTime)) / fProcessedEvents / 1000. << " ms" << endl;
+		info << "Average write time to disk (per event) : " << ((Double_t)writeTime) / fProcessedEvents / 1000. << " ms" << endl;
+
 #endif
 
 

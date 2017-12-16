@@ -80,8 +80,7 @@ void TRestRun::BeginOfInit()
 		exit(0);
 	}
 
-	fInputFileName = GetParameter("inputFile");
-	fInputFileNames = GetFilesMatchingPattern(fInputFileName);
+
 }
 
 
@@ -97,26 +96,20 @@ void TRestRun::BeginOfInit()
 ///
 Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e)
 {
-	if (e->Attribute("file") != NULL&&isRootFile(e->Attribute("file")))
+	if (keydeclare == "addMetadata") 
 	{
-		//import metadata in root file 
-		TFile*f = new TFile(e->Attribute("file"));
-		if (e->Attribute("name") != NULL) {
-			TRestMetadata*m=(TRestMetadata*)f->Get(e->Attribute("name"));
-			fMetadataInfo.push_back(m);
-		}
-		//we shouldn't include root file directly
-		//what metadata objects are inside the root 
-		//file should be declared explicitly(one by one)
-		else if((string)e->Value() != "include")
+		if (e->Attribute("name") != NULL&&e->Attribute("file")!=NULL)
 		{
-			TRestMetadata*m = (TRestMetadata*)f->Get(e->Value());
-			fMetadataInfo.push_back(m);
+			ImportMetadata(e->Attribute("file"), e->Attribute("name"), true);
+			return 0;
 		}
-
-		f->Close();
-		delete f;
+		else
+		{
+			warning << "Wrong definition of addMetadata! Metadata name or file name is not given!" << endl;
+			return -1;
+		}
 	}
+	
 	else if (Count(keydeclare, "TRest")>0)
 	{
 		TClass*c = TClass::GetClass(keydeclare.c_str());
@@ -157,21 +150,27 @@ void TRestRun::EndOfInit()
 	fRunUser = GetParameter("user").c_str();
 	fRunType = GetParameter("runType", "NotDefined").c_str();
 	fRunDescription = GetParameter("runDescription").c_str();
-	fInputFileName = GetParameter("inputFile", "default").c_str();
+	fInputFileName = GetParameter("inputFile").c_str();
+	fInputFileNames = GetFilesMatchingPattern(fInputFileName);
 	fOutputFileName = GetParameter("outputFile", "default.root").c_str();
 	fExperimentName = GetParameter("experiment", "preserve").c_str();
 	fRunTag = GetParameter("runTag", "preserve").c_str();
 
 	OpenInputFile(0);
 	info << this->ClassName() << " : InputFile : " << fInputFileName << endl;
-	if (fInputFileNames.size() > 1 && isRootFile((string)fInputFileNames[0]))
+	if (fInputFileNames.size() > 1)
 	{
 		info << "which matches :" << endl;
 		for (int i = 0; i < fInputFileNames.size(); i++) {
-			info << fInputFileNames[0] << endl;
-			info << endl;
+			info << fInputFileNames[i] << endl;
 		}
+		cout << endl;
 	}
+	else if (fInputFileNames.size() == 0) {
+		error << "Error: Input File does not match anything!" << endl;
+		exit(0);
+	}
+
 	info << this->ClassName() << " : OutputFile : " << fOutputFileName << endl;
 }
 
@@ -462,17 +461,22 @@ void TRestRun::MergeProcessFile(vector<string> filenames, string targetfilename)
 		{
 			remove(filenames[i].c_str());
 		}
-		fOutputFileName = filename;
+
 	}
 	else
 	{
 		fOutputFileName = "";
+		error << "REST ERROR: (Merge files) failed to merge process files." << endl;
+		exit(0);
 	}
 
 	delete m;
 
-	rename(filename.c_str(), FormFormat(filename));
+	//we rename the created output file
+	fOutputFileName = FormFormat(filename);
+	rename(filename.c_str(), fOutputFileName);
 
+	//write metadata into the output file
 	fOutputFile = new TFile(fOutputFileName, "UPDATE");
 	for (int i = 0; i < fMetadataInfo.size(); i++) {
 		fMetadataInfo[i]->Write();
@@ -554,22 +558,28 @@ void TRestRun::SetExtProcess(TRestEventProcess* p)
 ///
 /// The class should be recovered to the same condition of the saved one.
 ///
-void TRestRun::ImportMetadata(TString rootFile, TString name, Bool_t store)
+void TRestRun::ImportMetadata(TString File, TString name, Bool_t store)
 {
-	if (!fileExists(rootFile.Data()))
+	if (!fileExists(File.Data()))
 	{
-		cout << "REST ERROR (ImportMetadata) : The file " << rootFile << " does not exist" << endl;
-		exit(1);
+		error << "REST ERROR (ImportMetadata) : The file " << File << " does not exist" << endl;
+		return;
+	}
+	if (isRootFile(File.Data())) 
+	{
+		error << "REST ERROR (ImportMetadata) : The file " << File << " is not root file!" << endl;
+		return;
 	}
 
-	TFile *f = new TFile(rootFile);
+
+	TFile *f = new TFile(File);
 	// TODO give error in case we try to obtain a class that is not TRestMetadata
 	TRestMetadata *meta = (TRestMetadata *)f->Get(name);
 
 	if (meta == NULL)
 	{
 		cout << "REST ERROR (ImportMetadata) : " << name << " does not exist." << endl;
-		cout << "Inside root file : " << rootFile << endl;
+		cout << "Inside root file : " << File << endl;
 		GetChar();
 		f->Close();
 		delete f;
