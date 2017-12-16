@@ -100,8 +100,8 @@ void TRestProcessRunner::BeginOfInit()
 		TRestThread* t = new TRestThread();
 		t->SetTRestRunner(this);
 		t->SetBranchConfig(fOutputItem);
-		t->SetThreadId(i);
 		t->SetVerboseLevel(fVerboseLevel);
+		t->SetThreadId(i);
 		fThreads.push_back(t);
 	}
 

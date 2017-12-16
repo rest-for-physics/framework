@@ -751,9 +751,17 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 			return;
 		}
 
+		//we find the target element(the element to receive content) 
+		//and the config element(the element to provide content)
 		TiXmlElement*targetele;
 		string type;
 		string name;
+		//condition 1: 
+		//   <a name="" .....>
+		//     <include file="aaa.rml"/>
+		//     ....
+		//   </a>
+		//element "a" is the target element
 		if ((string)e->Value() == "include")
 		{
 			targetele = (TiXmlElement*)e->Parent();
@@ -763,15 +771,25 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 			name = e->Attribute("name") == NULL ? "" : e->Attribute("name");
 
 		}
+		//condition 2: 
+		//   <a name="" ... file="aaa.rml" .../>
+		//element "a" is the target element
 		else
 		{
 			targetele = e;
-			type = e->Value();
+			if (e->Attribute("type") != NULL) {
+				type = e->Attribute("type");
+			}
+			else
+			{
+				type = e->Value();
+			}
 			name = e->Attribute("name") == NULL ? "" : e->Attribute("name");
 		}
 
 		debug << "----expanding include file----" << endl;
 
+		//find config elemnt according to type and name
 		TiXmlElement*configele = NULL;
 		//1. root element in the included file is of given type
 		if ((string)rootele->Value() == type) {
@@ -854,7 +872,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 			if (targetele->Attribute("expanded") == NULL ? true : ((string)targetele->Attribute("expanded") != "true")) {
 				TiXmlAttribute*attr = configele->FirstAttribute();
 				while (attr != NULL) {
-					targetele->SetAttribute(attr->Name(), attr->Value());
+					if(targetele->Attribute(attr->Name())==NULL)
+						targetele->SetAttribute(attr->Name(), attr->Value());
 					attr = attr->Next();
 				}
 				TiXmlElement* ele = configele->FirstChildElement();

@@ -565,7 +565,7 @@ void TRestRun::ImportMetadata(TString File, TString name, Bool_t store)
 		error << "REST ERROR (ImportMetadata) : The file " << File << " does not exist" << endl;
 		return;
 	}
-	if (isRootFile(File.Data())) 
+	if (!isRootFile(File.Data())) 
 	{
 		error << "REST ERROR (ImportMetadata) : The file " << File << " is not root file!" << endl;
 		return;
