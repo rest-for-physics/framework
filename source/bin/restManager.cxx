@@ -14,7 +14,8 @@ void PrintHelp()
 {
 	fout.resetcolor();
 	fout << " " << endl;
-	fout << "Usage1 : ./restManager --c CONFIG_FILE --i INPUT_FILE --o OUTPUT_FILE --j THREADS    " << endl;
+	fout << "Usage1 : ./restManager --c CONFIG_FILE [--i INPUT_FILE] [--o OUTPUT_FILE]            " << endl;
+	fout << "                       [--j THREADS] [--e EVENTS_TO_PROCESS] [--v VERBOSELEVEL]      " << endl;
 	fout << "Usage2 : ./restManager TASK_NAME ARG1 ARG2 ARG3                                      " << endl;
 	fout << " " << endl;
 	fout << "-" << endl;
@@ -84,6 +85,8 @@ int main( int argc, char *argv[] )
 						case 'i': setenv("inputFile", argv[i + 1], 1); break;
 						case 'o': setenv("outputFile", argv[i + 1], 1); break;
 						case 'j': setenv("threadNumber", argv[i + 1], 1); break;
+						case 'e': setenv("eventsToProcess", argv[i + 1], 1); break;
+						case 'v': setenv("verboseLevel", argv[i + 1], 1); break;
 						case 'h': PrintHelp(); exit(1);
 						default:
 							fout << endl;
