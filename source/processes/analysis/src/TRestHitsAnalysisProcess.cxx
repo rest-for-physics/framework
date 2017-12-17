@@ -100,8 +100,64 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     obsName = this->GetName() + (TString) "_nHitsY";
     fAnalysisTree->SetObservableValue( obsName, nHitsY );
 
+	double firstx=numeric_limits<Double_t>::quiet_NaN(), firsty = numeric_limits<Double_t>::quiet_NaN()
+		, lastx = numeric_limits<Double_t>::quiet_NaN(), lasty = numeric_limits<Double_t>::quiet_NaN();
+	
+	for (int i = 0; i < nHits; i++) {
+		if (TMath::IsNaN(firstx))
+		{
+			firstx = fOutputHitsEvent->GetX(i);
+		}
+		if (TMath::IsNaN(firsty))
+		{
+			firsty = fOutputHitsEvent->GetY(i);
+		}
+		if (!TMath::IsNaN(firstx) && !TMath::IsNaN(firsty)) {
+			break;
+		}
+	}
 
-    // Checking hits inside fiducial cylinder
+	for (int i = nHits-1; i >=0; i--) {
+		if (TMath::IsNaN(lastx))
+		{
+			lastx = fOutputHitsEvent->GetX(i);
+		}
+		if (TMath::IsNaN(lasty))
+		{
+			lasty = fOutputHitsEvent->GetY(i);
+		}
+		if (!TMath::IsNaN(lastx) && !TMath::IsNaN(lasty)) {
+			break;
+		}
+	}
+
+	obsName = this->GetName() + (TString) "_FirstX";
+	fAnalysisTree->SetObservableValue(obsName, firstx);
+
+	obsName = this->GetName() + (TString) "_FirstY";
+	fAnalysisTree->SetObservableValue(obsName, firsty);
+
+	obsName = this->GetName() + (TString) "_LastX";
+	fAnalysisTree->SetObservableValue(obsName, lastx);
+
+	obsName = this->GetName() + (TString) "_LastY";
+	fAnalysisTree->SetObservableValue(obsName, lasty);
+
+	obsName = this->GetName() + (TString) "_energy";
+	fAnalysisTree->SetObservableValue(obsName, fOutputHitsEvent->GetEnergy());
+
+	obsName = this->GetName() + (TString) "_xMean";
+	fAnalysisTree->SetObservableValue(obsName, fOutputHitsEvent->GetMeanPositionX());
+
+	obsName = this->GetName() + (TString) "_yMean";
+	fAnalysisTree->SetObservableValue(obsName, fOutputHitsEvent->GetMeanPositionY());
+
+	obsName = this->GetName() + (TString) "_zMean";
+	fAnalysisTree->SetObservableValue(obsName, fOutputHitsEvent->GetMeanPositionZ());
+
+
+
+	// Checking hits inside fiducial cylinder
     if( fCylinderFiducial )
     {
         Int_t isInsideCylinder = 0;
@@ -179,17 +235,7 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     ///////////////////////////////////////
 
-    obsName = this->GetName() + (TString) "_energy";
-    fAnalysisTree->SetObservableValue( obsName, energy );
 
-    obsName = this->GetName() + (TString) "_xMean";
-    fAnalysisTree->SetObservableValue( obsName, meanPosition.X() );
-
-    obsName = this->GetName() + (TString) "_yMean";
-    fAnalysisTree->SetObservableValue( obsName, meanPosition.Y() );
-
-    obsName = this->GetName() + (TString) "_zMean";
-    fAnalysisTree->SetObservableValue( obsName, meanPosition.Z() );
 
 
     if( GetVerboseLevel() >= REST_Extreme )
