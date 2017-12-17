@@ -152,7 +152,7 @@ void TRestRun::EndOfInit()
 	fRunDescription = GetParameter("runDescription").c_str();
 	fInputFileName = GetParameter("inputFile").c_str();
 	fInputFileNames = GetFilesMatchingPattern(fInputFileName);
-	fOutputFileName = GetParameter("outputFile", "default.root").c_str();
+	fOutputFileName = GetParameter("outputFile", "rest_default.root").c_str();
 	fExperimentName = GetParameter("experiment", "preserve").c_str();
 	fRunTag = GetParameter("runTag", "preserve").c_str();
 
@@ -167,8 +167,8 @@ void TRestRun::EndOfInit()
 		cout << endl;
 	}
 	else if (fInputFileNames.size() == 0) {
-		error << "Error: Input File does not match anything!" << endl;
-		exit(0);
+		warning << "REST WARNING(TRestRun): Input File does not match anything!" << endl;
+		GetChar();
 	}
 
 	info << this->ClassName() << " : OutputFile : " << fOutputFileName << endl;
@@ -490,9 +490,8 @@ void TRestRun::MergeProcessFile(vector<string> filenames, string targetfilename)
 TFile* TRestRun::FormOutputFile() 
 {
 	CloseFile();
-	string filename = GetParameter("outputFile", "output.root");
-	fOutputFileName = FormFormat(filename);
-	fOutputFile = new TFile(filename.c_str(), "recreate");
+	fOutputFileName = FormFormat(fOutputFileName);
+	fOutputFile = new TFile(fOutputFileName, "recreate");
 	this->Write();
 	for (int i = 0; i < fMetadataInfo.size(); i++) {
 		fMetadataInfo[i]->Write();
