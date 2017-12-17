@@ -536,8 +536,13 @@ void TRestReadout::InitFromConfigFile()
                         cout << "REST Error!!. TRestReadout::InitFromConfigFile. Contact rest-dev@cern.ch" << endl;
                         exit(-1);
                     }
-                    rChannel.push_back( readout );
-                    dChannel.push_back( daq + firstDaqChannel );
+					//we skip blank daq channels if readout id is <0
+					//e.g. daq id: 22, readout id: -1
+					if (readout >=0) {
+						rChannel.push_back(readout);
+						dChannel.push_back(daq + firstDaqChannel);
+					}
+
                 }
                 fclose(f);
             }

@@ -154,7 +154,7 @@ Double_t TRestReadoutPlane::GetX( Int_t modID, Int_t chID )
 
          if ( sX > 2 * sY ) return x;
 
-         x = xOrigin + rChannel->GetPixel(0)->GetCenter().X();
+         x = rModule->GetPixelCenter(chID, 0).X();
 
          return x;
     }
@@ -163,11 +163,11 @@ Double_t TRestReadoutPlane::GetX( Int_t modID, Int_t chID )
     {
         // We check the origin of consecutive pixels to check if it goes X or Y direction.
         // Perhaps more complex readouts need some changes here
-        Double_t x1 = rChannel->GetPixel(0)->GetOrigin().X();
-        Double_t x2 = rChannel->GetPixel(1)->GetOrigin().X();
+        Double_t x1 = rModule->GetPixelCenter(chID, 0).X();
+        Double_t x2 = rModule->GetPixelCenter(chID, 1).X();
 
-        Double_t y1 = rChannel->GetPixel(0)->GetOrigin().Y();
-        Double_t y2 = rChannel->GetPixel(1)->GetOrigin().Y();
+        Double_t y1 = rModule->GetPixelCenter(chID, 0).Y();
+        Double_t y2 = rModule->GetPixelCenter(chID, 1).Y();
 
         /*
         cout << "Pix id : " << rChannel->GetPixel(0)->GetID() << " X1 : " << x1 << endl;
@@ -184,7 +184,7 @@ Double_t TRestReadoutPlane::GetX( Int_t modID, Int_t chID )
         if( y2 - y1 > 0 ) deltaY = y2 - y1;
         else deltaY = y1 - y2;
         
-        if( deltaY > deltaX ) x = xOrigin + rChannel->GetPixel(0)->GetCenter().X();
+		if (deltaY > deltaX) x = rModule->GetPixelCenter(chID, 0).X();
     }
 
     return x;
@@ -217,7 +217,7 @@ Double_t TRestReadoutPlane::GetY( Int_t modID, Int_t chID )
 
          if ( sY > 2 * sX ) return y;
 
-         y = yOrigin + rChannel->GetPixel(0)->GetCenter().Y();
+		 y = rModule->GetPixelCenter(chID, 0).Y();
 
          return y;
     }
@@ -227,11 +227,11 @@ Double_t TRestReadoutPlane::GetY( Int_t modID, Int_t chID )
 
         // We check the origin of consecutive pixels to check if it goes X or Y direction.
         // Perhaps more complex readouts need some changes here
-        Double_t x1 = rChannel->GetPixel(0)->GetOrigin().X();
-        Double_t x2 = rChannel->GetPixel(1)->GetOrigin().X();
+        Double_t x1 = rModule->GetPixelCenter(chID, 0).X();
+        Double_t x2 = rModule->GetPixelCenter(chID, 1).X();
 
-        Double_t y1 = rChannel->GetPixel(0)->GetOrigin().Y();
-        Double_t y2 = rChannel->GetPixel(1)->GetOrigin().Y();
+        Double_t y1 = rModule->GetPixelCenter(chID, 0).Y();
+        Double_t y2 = rModule->GetPixelCenter(chID, 1).Y();
 
         /*
         cout << "Pix id : " << rChannel->GetPixel(0)->GetID() << " X1 : " << x1 << endl;
@@ -248,7 +248,7 @@ Double_t TRestReadoutPlane::GetY( Int_t modID, Int_t chID )
         if( y2 - y1 > 0 ) deltaY = y2 - y1;
         else deltaY = y1 - y2;
         
-        if( deltaY < deltaX ) y = yOrigin + rChannel->GetPixel(0)->GetCenter().Y();
+        if( deltaY < deltaX ) y = rModule->GetPixelCenter(chID,0).Y();
     }
 
 
