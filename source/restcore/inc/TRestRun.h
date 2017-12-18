@@ -56,7 +56,13 @@ public:
 
 	void AddMetadata(TRestMetadata* meta) {
 		fMetadataInfo.push_back(meta); 
-		meta->PrintMetadata();
+		if (fVerboseLevel >= REST_Info)
+		{
+			fout << "=added metadata=" << endl;
+			meta->PrintMetadata();
+			fout << "=" << endl;
+			fout << endl;
+		}
 	}
 
 	void SkipEventTree() {}

@@ -165,10 +165,6 @@ namespace REST_Units
     Double_t GetValueInRESTUnits( Double_t value, TString unitsStr )
     {
 		if (unitsStr == "") {
-			cout << endl;
-			cout << "REST WARNING (REST_Units) : Blank units string received!" << endl;
-			cout << "This will be recognized as a default unit, input number \""<<value<< "\""<<endl;
-			cout << "will be directly returned." << endl;
 			return value;
 		}
         if( isEnergy ( unitsStr ) ) return GetEnergyInRESTUnits( value, unitsStr );
@@ -177,9 +173,9 @@ namespace REST_Units
         if( isTime ( unitsStr ) ) return GetTimeInRESTUnits( value, unitsStr );
         if( isPotential ( unitsStr ) ) return GetPotentialInRESTUnits( value, unitsStr );
 
-        cout << endl;
         cout << "REST WARNING (REST_Units)  Unit=[" << unitsStr << "] is not recognized" << endl;
 		cout << "returning NaN value" << endl;
+		cout << endl;
         return (Double_t ) numeric_limits<Double_t>::quiet_NaN();
     }
 }

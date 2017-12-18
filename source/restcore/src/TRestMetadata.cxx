@@ -469,7 +469,7 @@ Int_t TRestMetadata::LoadSectionMetadata()
 	this->SetName(GetParameter("name", "defaultName").c_str());
 	this->SetTitle(GetParameter("title", "defaultTitle").c_str());
 	this->SetSectionName(this->ClassName());
-	string debugStr = GetParameter("verboseLevel", "info");
+	string debugStr = GetParameter("verboseLevel", "essential");
 	if (debugStr == "silent")
 		fVerboseLevel = REST_Silent;
 	if (debugStr == "info")
@@ -739,7 +739,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 	const char* filename = e->Attribute("file");
 	if (filename == NULL)return;
 	if (ChecktheFile(filename) == -1) { 
-		warning << "Include file "<<filename<<" does not exist!" << endl; 
+		warning << "REST WARNING(expand include file): Include file "<<filename<<" does not exist!" << endl; 
+		warning << endl;
 		return;
 	}
 	if (!isRootFile(filename)) //root file inclusion should be implemented in the derived class
@@ -747,7 +748,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 		//get the root element
 		TiXmlElement* rootele = GetRootElementFromFile(filename);
 		if (rootele == NULL) {
-			warning << "Include file " << filename << " is of wrong xml format!" << endl;
+			warning << "REST WARNING(expand include file): Include file " << filename << " is of wrong xml format!" << endl;
+			warning << endl;
 			return;
 		}
 
@@ -836,7 +838,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 
 		if(configele==NULL)
 		{
-			warning << "Cannot get corresponding xml section(class name: " << type << " , name: " << name << " ). Skipping" << endl;
+			warning << "REST WARNING(expand include file): Cannot get corresponding xml section!" << endl;
+			warning << "type: " << type << " , name: " << name << " . Skipping" << endl;
+			warning << endl;
 			return;
 		}
 
@@ -1211,11 +1215,14 @@ string TRestMetadata::GetUnits(TiXmlElement* e, string whoseunits)
 		if (IsUnit(unitstring)) {
 			warning << "Found unit definition \"" << unitstring << "\" in element " << e->Value() << endl;
 			warning << "This way of definition of units is not recommended, use <... value=\"3mm\" .../> instead" << endl << endl;
+			warning << endl;
 			return unitstring;
 		}
 		else
 		{
-			warning << "No units are defined in element "<<e->Value()<<" , returning default unit" << endl;
+			warning << "No units are defined in element "<<e->Value()<<" , returning blank unit" << endl;
+			warning << "The field value will be directly returned with blank unit." << endl;
+			warning << endl;
 			return "";
 		}
 	}
@@ -1587,6 +1594,7 @@ string TRestMetadata::EvaluateExpression(string exp)
 	if (number > 0 && number < 1.e-300)
 	{
 		warning << "REST Warning! Expression not recognized --> " << exp << endl;  return exp;
+		warning << endl;
 	}
 
 	sss << number;

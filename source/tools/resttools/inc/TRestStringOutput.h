@@ -88,10 +88,21 @@ public:
 		}
 		else
 		{
-			for (int i = border.size(); i < length - border.size(); i++)
+			if (input[0] == input[input.size() - 1]&&(input[0] == '=' || input[0] == '-' || input[0] == '*' || input[0] == '+'))
 			{
-				output[i] = ' ';
+				for (int i = border.size(); i < length - border.size(); i++)
+				{
+					output[i] = input[0];
+				}
 			}
+			else
+			{
+				for (int i = border.size(); i < length - border.size(); i++)
+				{
+					output[i] = ' ';
+				}
+			}
+
 			int l = input.size();
 			if (l <= length - border.size() * 2)
 			{
