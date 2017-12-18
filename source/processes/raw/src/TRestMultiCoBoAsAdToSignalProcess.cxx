@@ -122,7 +122,7 @@ TRestEvent* TRestMultiCoBoAsAdToSignalProcess::ProcessEvent(TRestEvent *evInput)
 
 	if (!fillbuffer()) {
 		cout << "error when reading files!" << endl;
-		return NULL;
+		return fSignalEvent;
 	}
 	//Int_t nextId = GetLowestEventId();
 
