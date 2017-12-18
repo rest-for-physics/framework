@@ -1150,7 +1150,9 @@ TiXmlElement * TRestMetadata::GetElement(std::string eleDeclare, TiXmlElement * 
 TiXmlElement * TRestMetadata::GetElement(std::string eleDeclare, std::string cfgFileName)
 {
 	TiXmlElement* root = GetRootElementFromFile(cfgFileName);
-
+	if ((string)root->Value() == eleDeclare) {
+		return root;
+	}
 	return GetElement(eleDeclare, root);
 }
 
