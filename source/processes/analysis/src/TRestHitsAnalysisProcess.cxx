@@ -103,14 +103,37 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 	double firstx=numeric_limits<Double_t>::quiet_NaN(), firsty = numeric_limits<Double_t>::quiet_NaN()
 		, lastx = numeric_limits<Double_t>::quiet_NaN(), lasty = numeric_limits<Double_t>::quiet_NaN();
 	
+	TRestHits*h = fOutputHitsEvent->GetHits();
+	
+	vector<int> myvector(nHits);
+	auto zs = h->fZ;
+	for (int i = 0; i < nHits; i++) 
+	{
+		int min = zs[0];
+		int minpos = 0;
+		for (int j = 1; j < nHits; j++) 
+		{
+			if (zs[j] < min)
+			{
+				min = zs[j];
+				minpos = j;
+			}
+		}
+		zs[minpos] = numeric_limits<Float_t>::quiet_NaN();
+		myvector[minpos] = i;
+	}
+	
+
+
+
 	for (int i = 0; i < nHits; i++) {
 		if (TMath::IsNaN(firstx))
 		{
-			firstx = fOutputHitsEvent->GetX(i);
+			firstx = fOutputHitsEvent->GetX(myvector[i]);
 		}
 		if (TMath::IsNaN(firsty))
 		{
-			firsty = fOutputHitsEvent->GetY(i);
+			firsty = fOutputHitsEvent->GetY(myvector[i]);
 		}
 		if (!TMath::IsNaN(firstx) && !TMath::IsNaN(firsty)) {
 			break;
@@ -120,16 +143,18 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 	for (int i = nHits-1; i >=0; i--) {
 		if (TMath::IsNaN(lastx))
 		{
-			lastx = fOutputHitsEvent->GetX(i);
+			lastx = fOutputHitsEvent->GetX(myvector[i]);
 		}
 		if (TMath::IsNaN(lasty))
 		{
-			lasty = fOutputHitsEvent->GetY(i);
+			lasty = fOutputHitsEvent->GetY(myvector[i]);
 		}
 		if (!TMath::IsNaN(lastx) && !TMath::IsNaN(lasty)) {
 			break;
 		}
 	}
+
+	//cout << firstx << " " << firsty << endl;
 
 	obsName = this->GetName() + (TString) "_FirstX";
 	fAnalysisTree->SetObservableValue(obsName, firstx);
