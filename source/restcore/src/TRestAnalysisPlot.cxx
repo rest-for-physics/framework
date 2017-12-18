@@ -12,6 +12,7 @@
 
 
 #include "TRestAnalysisPlot.h"
+#include "TRestManager.h"
 using namespace std;
 
 #include <TStyle.h>
@@ -64,8 +65,18 @@ void TRestAnalysisPlot::InitFromConfigFile()
 	while ((addFileString = GetKEYDefinition("addFile", position)) != "")
 	{
 		TString inputfile = GetFieldValue("name", addFileString);
-
-		this->AddFile(inputfile);
+		auto names = GetFilesMatchingPattern(inputfile);
+		for (int i = 0; i < names.size(); i++) {
+			this->AddFile(inputfile);
+		}
+	}
+	if (fFileNames.size() == 0) 
+	{
+		if(fHostmgr->GetRunInfo()!=NULL)
+			this->AddFile(fHostmgr->GetRunInfo()->GetOutputFileName());
+	}
+	if (fFileNames.size() == 0) {
+		warning << "REST WARNING(TRestAnalysisPlot): " <<"No input file is given!"<< endl;
 	}
 
 	fPlotMode = GetParameter("plotMode", "compare");
