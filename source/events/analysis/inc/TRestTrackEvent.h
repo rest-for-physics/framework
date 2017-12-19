@@ -70,6 +70,18 @@ class TRestTrackEvent: public TRestEvent {
 
         TRestTrack *GetLongestTopLevelTrack();
 
+        Double_t GetEnergy()
+        {
+            Double_t en = 0;
+            for( int tck = 0; tck < this->GetNumberOfTracks(); tck++ )
+            {
+                if( !this->isTopLevel( tck ) ) continue;
+                en += GetTrack( tck )->GetEnergy();
+            }
+
+            return en;
+        }
+
 
         Int_t GetLevel( Int_t tck );
         void SetLevels();
