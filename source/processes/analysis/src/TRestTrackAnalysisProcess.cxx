@@ -36,7 +36,8 @@ TRestTrackAnalysisProcess::TRestTrackAnalysisProcess( char *cfgFileName )
 //______________________________________________________________________________
 TRestTrackAnalysisProcess::~TRestTrackAnalysisProcess()
 {
-    delete fTrackEvent;
+    delete fInputTrackEvent;
+    delete fOutputTrackEvent;
 }
 
 void TRestTrackAnalysisProcess::LoadDefaultConfig()
@@ -49,10 +50,11 @@ void TRestTrackAnalysisProcess::Initialize()
 {
     SetSectionName( this->ClassName() );
 
-    fTrackEvent = new TRestTrackEvent();
+    fInputTrackEvent = new TRestTrackEvent();
+    fOutputTrackEvent = new TRestTrackEvent();
 
-    fOutputEvent = fTrackEvent;
-    fInputEvent = fTrackEvent;
+    fInputEvent = fInputTrackEvent;
+    fOutputEvent = fOutputTrackEvent;
 
     fCutsEnabled = false;
 }
@@ -104,12 +106,20 @@ void TRestTrackAnalysisProcess::InitProcess()
 //______________________________________________________________________________
 void TRestTrackAnalysisProcess::BeginOfEventProcess() 
 {
+    fOutputTrackEvent->Initialize();
 }
 
 //______________________________________________________________________________
 TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 {
-    *fTrackEvent =  *(( TRestTrackEvent *) evInput);
+    TRestTrackEvent *fInputTrackEvent =  (TRestTrackEvent *) evInput;
+
+    // Copying the input tracks to the output track
+    for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
+        fOutputTrackEvent->AddTrack( fInputTrackEvent->GetTrack(tck) ); 
+
+    if( this->GetVerboseLevel() >= REST_Debug )
+        fInputTrackEvent->PrintOnlyTracks();
 
     TString obsName;
 
@@ -128,16 +138,14 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     for( unsigned int n = 0; n < nTracks_LE.size(); n++ )
         nTracks_LE[n] = 0;
 
-    for( int tck = 0; tck < fTrackEvent->GetNumberOfTracks(); tck++ )
+    Double_t totalEnergy = 0;
+    for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
     {
-        if( !fTrackEvent->isTopLevel( tck ) ) continue;
+        if( !fInputTrackEvent->isTopLevel( tck ) ) continue;
 
-        TRestTrack *t = fTrackEvent->GetTrack( tck );
+        TRestTrack *t = fInputTrackEvent->GetTrack( tck );
         Double_t en = t->GetEnergy( );
-       
-         obsName = this->GetName() + (TString) ".TracksEnergy";
-         fAnalysisTree->SetObservableValue( obsName, en );
-
+        totalEnergy += en;
 
         if( t->isXZ() )
         {
@@ -161,10 +169,10 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         {
             nTracksXYZ++;
             tckLenXYZ += t->GetTrackLength();
-            if(en> tckMaxEnXYZ)  
+            if(en > tckMaxEnXYZ)  
             {
-                tckMaxEnXYZ=en;
-                tckMaxLenXYZ= t->GetTrackLength();
+                tckMaxEnXYZ = en;
+                tckMaxLenXYZ = t->GetTrackLength();
                 maxX = t->GetMeanPosition().X();
                 maxY = t->GetMeanPosition().Y();
                 maxZ = t->GetMeanPosition().Z();
@@ -185,21 +193,28 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
                 nTracks_En[n]++;
     }
 
+    Double_t trackEnergyRatioXYZ = 0;
+    if( nTracksXYZ > 1 )
+        trackEnergyRatioXYZ = (totalEnergy - tckMaxEnXYZ) / totalEnergy;
+
+    obsName = this->GetName() + (TString) ".nTrackEnergyRatioXYZ";
+    fAnalysisTree->SetObservableValue( obsName, trackEnergyRatioXYZ );
+
     Double_t evTimeDelay = 0;
     if( fPreviousEventTime.size() > 0 )
-        evTimeDelay = fTrackEvent->GetTime() - fPreviousEventTime.back();
+        evTimeDelay = fInputTrackEvent->GetTime() - fPreviousEventTime.back();
     obsName = this->GetName() + (TString) ".EventTimeDelay";
     fAnalysisTree->SetObservableValue( obsName, evTimeDelay );
 
     Double_t meanRate = 0;
     if( fPreviousEventTime.size() == 100 )
-        meanRate = 100. / (fTrackEvent->GetTime()-fPreviousEventTime.front());
+        meanRate = 100. / (fInputTrackEvent->GetTime()-fPreviousEventTime.front());
 
     obsName = this->GetName() + (TString) ".MeanRate_InHz";
     fAnalysisTree->SetObservableValue( obsName, meanRate );
 
-    fTrackEvent->SetNumberOfXTracks( nTracksX );
-    fTrackEvent->SetNumberOfYTracks( nTracksY );
+    fInputTrackEvent->SetNumberOfXTracks( nTracksX );
+    fInputTrackEvent->SetNumberOfYTracks( nTracksY );
 
     if( fCutsEnabled )
     {
@@ -209,11 +224,11 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     Double_t x = 0, y = 0;
 
-    TRestTrack *tX = fTrackEvent->GetMaxEnergyTrackInX();
+    TRestTrack *tX = fInputTrackEvent->GetMaxEnergyTrackInX();
     if( tX != NULL )
         x = tX->GetMeanPosition().X();
 
-    TRestTrack *tY = fTrackEvent->GetMaxEnergyTrackInY();
+    TRestTrack *tY = fInputTrackEvent->GetMaxEnergyTrackInY();
     if( tY != NULL )
         y = tY->GetMeanPosition().Y();
 
@@ -239,16 +254,15 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     obsName = this->GetName() + (TString) ".nTracksXYZ";
     fAnalysisTree->SetObservableValue( obsName, nTracksXYZ );
-    obsName = this->GetName() + (TString) ".LengthXYZ";
-    fAnalysisTree->SetObservableValue( obsName, nTracksXYZ );
+
     obsName = this->GetName() + (TString) ".MaxLengthXYZ";
     fAnalysisTree->SetObservableValue( obsName, tckMaxLenXYZ );
+
     obsName = this->GetName() + (TString) ".MaxEnXYZ";
     fAnalysisTree->SetObservableValue( obsName, tckMaxEnXYZ );
 
     obsName = this->GetName() + (TString) ".maxXMean";
     fAnalysisTree->SetObservableValue( obsName, maxX );
-
     obsName = this->GetName() + (TString) ".maxYMean";
     fAnalysisTree->SetObservableValue( obsName, maxY );
     obsName = this->GetName() + (TString) ".maxZMean";
@@ -275,13 +289,13 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         fAnalysisTree->SetObservableValue( obsName, nTracks_En[n] );
     }
 
-    return fTrackEvent;
+    return fOutputTrackEvent;
 }
 
 //______________________________________________________________________________
 void TRestTrackAnalysisProcess::EndOfEventProcess() 
 {
-    fPreviousEventTime.push_back( fTrackEvent->GetTimeStamp() );
+    fPreviousEventTime.push_back( fInputTrackEvent->GetTimeStamp() );
     if( fPreviousEventTime.size() > 100 ) fPreviousEventTime.erase( fPreviousEventTime.begin() );
 }
 

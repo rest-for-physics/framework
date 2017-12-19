@@ -20,7 +20,8 @@
 class TRestTrackAnalysisProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
-        TRestTrackEvent *fTrackEvent;
+        TRestTrackEvent *fInputTrackEvent;
+        TRestTrackEvent *fOutputTrackEvent;
 
         vector <Double_t> fPreviousEventTime;
 
