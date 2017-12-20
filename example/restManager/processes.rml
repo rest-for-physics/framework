@@ -1,8 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
-<section TRestElectronDiffusionProcess name="electronDiffusion-1kVcm-1atm" title="A first template for electron diffusion process." >
+<processes>
+
+  <globals>
+    <variable name="NPOINTS" value="7" overwrite="false" />
+    <variable name="POINT_TH" value="3.2" overwrite="false" />
+    <variable name="SGNL_TH" value="2.8" overwrite="false" />
+    <variable name="BL_MIN" value="50" overwrite="false" />
+    <variable name="BL_MAX" value="100" overwrite="false" />
+  </globals>
+
+  <TRestElectronDiffusionProcess name="electronDiffusion-1kVcm-1atm" title="A first template for electron diffusion process." >
     <parameter name="electricField" value="1" units="kV/cm" />
-    <parameter name="attachment" value="0" /> <!-- units?? -->
+    <parameter name="attachment" value="0" />
+    <!-- units?? -->
 
     <!-- We can re-define the value of the pressure inside TRestGas using this parameter -->
     <parameter name="gasPressure" value="1" />
@@ -12,7 +23,7 @@
          If all these parameters are provided with a value, there is no need for the electron diffusion process to use the gas definition. Thus, it should not complain in case there is no existing TRestGas definition inside TRestRun.
          -->
 
-    <parameter name="longitudinalDiffusionCoefficient" value="" /> 
+    <parameter name="longitudinalDiffusionCoefficient" value="" />
     <!-- diffusion coefficient units are in cm^1/2 (this must be added to TRestSystemOfUnits.h -->
 
     <parameter name="transversalDiffusionCoefficient" value="" />
@@ -20,392 +31,422 @@
 
     <parameter name="Wvalue" value="" units="eV" />
 
-</section>
+  </TRestElectronDiffusionProcess>
 
-<section TRestElectronDiffusionProcess name="electronDiffusion-1kVcm-10atm" title="A second template for electron diffusion process." >
+  <TRestElectronDiffusionProcess name="electronDiffusion-150Vcm-1.5atm" title="A first template for electron diffusion process."  >
+    <parameter name="electricField" value="150" units="V/cm" />
+    <parameter name="attachment" value="0" />
+    <!-- units?? -->
+
+    <!-- We can re-define the value of the pressure inside TRestGas using this parameter -->
+    <parameter name="gasPressure" value="1.5" />
+
+    <!-- The following parameters will override the values given by the defined gas properties in TRestGas stored in TRestRun.
+         As soon as the parameter is not defined, the value will be obtained from TRestGas metadata.
+         If all these parameters are provided with a value, there is no need for the electron diffusion process to use the gas definition. Thus, it should not complain in case there is no existing TRestGas definition inside TRestRun.
+         -->
+
+    <parameter name="longitudinalDiffusionCoefficient" value="" />
+    <!-- diffusion coefficient units are in cm^1/2 (this must be added to TRestSystemOfUnits.h -->
+
+    <parameter name="transversalDiffusionCoefficient" value="" />
+    <!-- diffusion coefficient units are in cm^1/2 (this must be added to TRestSystemOfUnits.h -->
+
+    <parameter name="Wvalue" value="" units="eV" />
+
+    <parameter name="maxHits" value="1000" />
+
+  </TRestElectronDiffusionProcess>
+
+  <TRestElectronDiffusionProcess name="eDiff_1kVcm_10atm" title="eDiff" >
     <parameter name="electricField" value="1" units="kV/cm" />
-    <parameter name="attachment" value="0" /> <!-- units?? -->
+    <parameter name="attachment" value="0" />
+    <!-- units?? -->
 
     <parameter name="gasPressure" value="10" />
 
     <parameter name="Wvalue" value="" units="eV" />
 
+    <observable name="readoutPlaneEnergy_0" value="ON" />
+    <observable name="readoutPlaneEnergy_1" value="ON" />
+
     <!-- There is no need to specify additional parameters if all values will be taken from the gas properties (TRestGas). -->
-</section>
+  </TRestElectronDiffusionProcess>
 
-
-<section TRestAvalancheProcess name="avalancheProcess"  title="IAXOD0 chamber" >
-    <parameter name="energyReference" value="5.9" units="keV" /> 
+  <TRestAvalancheProcess name="avalancheProcess"  title="IAXOD0 chamber" >
+    <parameter name="energyReference" value="5.9" units="keV" />
     <parameter name="resolutionReference" value="13" /> // fwhm
-    <parameter name="detectorGain" value="8000" /> // absolute gain 
-  // parameter name="electronicsGain" value="671744"  // electrons for 4096 ADC units
-</section>
+    <parameter name="detectorGain" value="8000" /> // absolute gain
+    // parameter name="electronicsGain" value="671744"  // electrons for 4096 ADC units
+  </TRestAvalancheProcess>
 
-<section TRestSignalDeconvolutionProcess name="deconvolution-Template" title="Deconvolution of AGET signals" >
-    <parameter name="frequency1" value="2.35683005928202273e-02" />
-    <parameter name="frequency2" value="3.14067876433914706e-02" />
+  <TRestSignalDeconvolutionProcess name="deconv" title="Deconvolution of AGET signals"  >
+    <parameter name="frequency1" value="2.71383005928202273" />
+    <parameter name="frequency2" value="18.6067876433914706e" />
     <parameter name="smoothingPoints" value="3" />
     <parameter name="smearingPoints" value="5" />
     <parameter name="baselineStart" value="32" />
     <parameter name="baselineEnd" value="64" />
-    <parameter name="nFFTStart" value="32" />
-    <parameter name="nFFTEnd" value="32" />
-    <parameter name="cutFrequency" value="12" />
-    <parameter name="responseFile" value="AGET_Response_100MHz_Gain0x2_Shaping0x7.root" />
-</section>
+    <parameter name="nFFTStart" value="0" />
+    <parameter name="nFFTEnd" value="0" />
+    <parameter name="cutFrequency" value="6" />
+    <parameter name="responseFile" value="AGET_Response_SJTU_2017Feb22.root" />
+  </TRestSignalDeconvolutionProcess>
 
-<section TRestHitsToSignalProcess name="hitsToSignal-Template" title="A hits to signal template" >
+  <TRestSignalGaussianConvolutionProcess name="gConv"  title="Gaussian convolution of signals" >
+    <parameter name="sigma" value=".1" units="us" />
+    <parameter name="nSigmas" value="2" />  // Number of sigmas to perform the calculation
+  </TRestSignalGaussianConvolutionProcess>
 
-    <parameter name="sampling" value="0.2" units="us" />
-    <parameter name="electricField" value="1000" units="V/cm" />
+  <TRestAddSignalNoiseProcess name="addSignalNoiseProcess" title="Test AddNoise to Signal" >
+    <parameter name="noiseLevel" value="5" /> // // electrons in each time bin
+  </TRestAddSignalNoiseProcess>
+
+  <TRestSignalToHitsProcess name="signalToHits" title="A Signal To Hits reconstruction template."  >
+
+    <parameter name="sampling" value="100" units="ns" />
+    <parameter name="electricField" value="100" units="V/cm" />
+
+    <!-- If not specified, the following values will be taken from TRestGas properties -->
+    <parameter name="gasPressure" value="1.5" />
+    <!-- in atm -->
+    <parameter name="driftVelocity" value="" />
+    <!-- in cm/us -->
+
+    <parameter name="method" value="tripleMax" />
+  </TRestSignalToHitsProcess>
+
+  <TRestHitsToSignalProcess name="hitsToSignal" title="A hits to signal template" >
+
+    <parameter name="sampling" value="50" units="ns" />
+    <parameter name="electricField" value="150" units="V/cm" />
 
     <!-- If specified, the following parameters will modify the properties of the gas found in TRestGas -->
     <parameter name="gasPressure" value="" />
     <parameter name="driftVelocity" value="" />
 
-</section>
+  </TRestHitsToSignalProcess>
 
-<section TRestHitsAnalysisProcess name="hitsAna" title="A hits analysis process" >
-
-    <observable name="energy" value="ON" />
-    <observable name="xMean" value="ON" />
-    <observable name="yMean" value="ON" />
-    <observable name="zMean" value="ON" />
-
-    <observable name="nHits" value="ON" />
-    <observable name="nHitsX" value="ON" />
-    <observable name="nHitsY" value="ON" />
-
-    <!-- Observables and parameters to determine if hits are 
-         inside a certain fiducial volume (cylinder or prism). -->
-
-    <!-- This parameter allows to enable/disable the cylinder fiducialization. -->
-    <parameter name="cylinderFiducialization" value="true" />
-
-    <!-- x0 and y0 are common coordinates for prism and cylinder. -->
-    <parameter name="fiducial_x0" value="(0,0,-100)" units="mm" />
-    <parameter name="fiducial_x1" value="(0,0,100)" units="mm" />
-
-    <parameter name="fiducial_R" value="10" units="mm" />
-
-    <observable name="isInsideCylindricalVolume" value="ON" />
-    <observable name="nInsideCylindricalVolume" value="ON" />
-    <observable name="energyInsideCylindricalVolume" value="ON" />
-
-    <observable name="distanceToCylinderWall" value="ON" />
-    <observable name="distanceToCylinderTop" value="ON" />
-    <observable name="distanceToCylinderBottom" value="ON" />
-
-    <!-- This parameter allows to enable/disable the prism fiducialization. -->
-    <parameter name="prismFiducialization" value="false" />
-
-    <parameter name="fiducial_sX" value="10" units="mm" />
-    <parameter name="fiducial_sY" value="10" units="mm" />
-
-    <observable name="isInsidePrismVolume" value="OFF" />
-    <observable name="nInsidePrismVolume" value="OFF" />
-    <observable name="energyInsidePrismVolume" value="OFF" />
-
-    <observable name="distanceToPrismWall" value="OFF" />
-    <observable name="distanceToPrismTop" value="OFF" />
-    <observable name="distanceToPrismBottom" value="OFF" />
-
-</section>
-
-<section TRestGaussianConvolutionProcess name="gaussian-Convolution"  title="Gaussian convolution of signals" >
-    <parameter name="sigma" value="0.01" units="us" /> 
-    <parameter name="nSigmas" value="5" />  // Number of sigmas to perform the calculation
-</section>
-
-<section TRestAddSignalNoiseProcess name="addSignalNoiseProcess" title="Test AddNoise to Signal" >
-    <parameter name="noiseLevel" value="5" /> // // electrons in each time bin
-</section>
-
-<section TRestSignalToHitsProcess name="signalToHits_Template" title="A hit reconstruction template." >
-
-    <parameter name="substractBaseLine" value="false" />
-    <parameter name="baseLineRange" value="(5,11)" />
-
-    <parameter name="thresholdType" value="absolute" />
-    <parameter name="threshold" value="0" />
-
-    <parameter name="sampling" value="80" units="ns" />
-    <parameter name="threshold" value="5" />
-    <parameter name="electricField" value="100" units="V/cm" />
-
-    <!-- If not specified, the following values will be taken from TRestGas properties -->
-    <parameter name="gasPressure" value="1" /> <!-- in atm -->
-    <parameter name="driftVelocity" value="" /> <!-- in cm/us -->
-
-</section>
-
-<section TRestSignalToHitsProcess name="simulation" title="A hit reconstruction template." >
+  <TRestSignalToHitsProcess name="simulation" title="A hit reconstruction template." >
 
     <parameter name="sampling" value="1" units="us" />
     <parameter name="threshold" value="0" />
     <parameter name="electricField" value="1000" units="V/cm" />
 
     <!-- If not specified, the following values will be taken from TRestGas properties -->
-    <parameter name="gasPressure" value="" /> <!-- in atm -->
-    <parameter name="driftVelocity" value="" /> <!-- in cm/us -->
+    <parameter name="gasPressure" value="" />
+    <!-- in atm -->
+    <parameter name="driftVelocity" value="" />
+    <!-- in cm/us -->
 
-</section>
+  </TRestSignalToHitsProcess>
 
-<section TRestHitsToTrackProcess name="hitsToTrack-Template" title="Half Template X-III Vessel (Bottom)" >
-    <parameter name="clusterDistance" value="15" units="mm" />
-</section>
+  <TRestHitsToTrackProcess name="hitsToTrack" title="" >
+    <parameter name="clusterDistance" value="6" units="mm" />
+  </TRestHitsToTrackProcess>
 
-<section TRestFastHitsToTrackProcess name="fastHitsToTrack-Template" title="Half Template X-III Vessel (Bottom)" >
-    <parameter name="cellResolution" value="5" units="mm" />
+  <TRestFastHitsToTrackProcess name="hitsToTrack" title="" >
+    <parameter name="cellResolution" value="10" units="mm" />
     <parameter name="netSize" value="2000" units="mm" />
     <parameter name="netOrigin" value="(-1000,-1000,-1000)" units="mm" />
-</section>
+  </TRestFastHitsToTrackProcess>
 
-<section TRestTrackReductionProcess name="trackReduction-Template" title="Half Template X-III Vessel (Bottom)" >
+  <TRestHitsShuffleProcess name="hitsShuffle" title="Shuffles the hits" >
+    <parameter name="iterations" value="100" />
+  </TRestHitsShuffleProcess>
+
+  <TRestHitsReductionProcess name="hitsReduction" title="Merges the closest hits in a HitsEvent" >
     <parameter name="startingDistance" value="0.25" units="mm" />
-    <parameter name="minimumDistance" value="3" units="mm" />
+    <parameter name="minimumDistance" value="0.5" units="mm" />
     <parameter name="distanceStepFactor" value="1.25" />
-    <parameter name="maxNodes" value="15" />
-</section>
+    <parameter name="maxNodes" value="45" />
+  </TRestHitsReductionProcess>
 
-<section TRestTrackReductionProcess name="simulation" title="Half PANDA X-III Vessel (Bottom)" >
-    <parameter name="startingDistance" value="0.5" units="mm" />
-    <parameter name="minimumDistance" value="3" units="mm" />
-    <parameter name="distanceStepFactor" value="1.5" />
-    <parameter name="maxNodes" value="25" />
-</section>
+  <TRestTrackReductionProcess name="trackReduction" title="Merges the closer hits in a TrackEvent" >
+    <parameter name="startingDistance" value="0.25" units="mm" />
+    <parameter name="minimumDistance" value="0.5" units="mm" />
+    <parameter name="distanceStepFactor" value="1.25" />
+    <parameter name="maxNodes" value="30" />
+  </TRestTrackReductionProcess>
 
-<section TRestTrackPathMinimizationProcess name="trackPathMinimization-Template" title="Half Template X-III Vessel (Bottom)" >
+  <TRestTrackPathMinimizationProcess name="trackPathMinimization" title="" >
     <parameter name="energyThreshold" value="0.8" />
     <parameter name="maxNodes" value="50" />
-</section>
+  </TRestTrackPathMinimizationProcess>
 
-<section TRestTrackReconnectionProcess name="trackReconnection" title="Track reconnection process." >
-</section>
+  <TRestTrackReconnectionProcess name="trackReconnection" title="" >
+    <observable name="branches" value="ON" />
+  </TRestTrackReconnectionProcess>
 
-<section TRestHitsShuffleProcess name="shuffle" title="Hits shuffle process." verboseLevel="silent" >
-    <parameter name="iterations" value="100" >
-</section>
 
-<section TRestGeant4AnalysisProcess name="g4Ana" title="Geant4 analysis template" >
+  <TRestGeant4AnalysisProcess name="g4Ana" title="Geant4 analysis template" >
 
-    <!-- Volume observables
-         You may define an observable with the energy deposited in any active volume in the restG4 simulation.
+    <observable name="gasEDep" value="ON"
+                description="Energy deposited in the gas volume in keV" />
 
-         This observable must be defined as : [VOL_NAME]VolumeEDep (i.e. gasVolumeEDep, vesselVolumeEDep )
+    <observable name="vesselEDep" value="OFF"
+                description="Energy deposited in the vessel volume in keV" />
 
-         Here -VolumeEDep- is a key word, and it is recommended not to use it in the definition of other observables
-
-         ====================================================
-         Check documentation at https://sultan.unizar.es/rest to check details on other available Geant4 observables
-         ====================================================
-    -->
-
-    <observable name="gasVolumeEDep" value="ON"
-        description="Energy deposited in the gas volume in keV" />
-
-    <observable name="vesselVolumeEDep" value="ON"
-        description="Energy deposited in the vessel volume in keV" />
-
-    <!-- totalEdep is a reserved analysis branch name to integrate the energy deposits in all volumes -->
     <observable name="totalEdep" value="ON"
-        description="Total energy deposited in all the volumes in keV" />
+                description="Total energy deposited in all the volumes in keV" />
 
     <observable name="photoelectric" value="ON"
-        description="Its value will be 1 if the event contains a photoelectric interaction." />
+                description="Its value will be 1 if the event contains a photoelectric interaction." />
 
     <observable name="compton" value="ON"
-        description="Its value will be 1 if the event contains a compton scattering process." />
+                description="Its value will be 1 if the event contains a compton scattering process." />
 
     <observable name="bremstralung" value="ON"
-        description="Its value will be 1 if the event contains a bremstralung physics process." />
+                description="Its value will be 1 if the event contains a bremstralung physics process." />
 
-    <!-- These parameters define an energy cut. Only events within the range will be processed.  
-         If these are defined as 0 all events will be accepted. -->
+    <parameter name="lowEnergyCut" value="0" units="keV" />
+    <parameter name="highEnergyCut" value="10" units="MeV" />
+  </TRestGeant4AnalysisProcess>
 
-    <parameter name="lowEnergyCut" value="2350" units="keV" />
-    <parameter name="highEnergyCut" value="0" units="keV" />
+  <TRestHitsAnalysisProcess name="hitsAna" title="Hits analysis template"  >
+    <observable name="energy" value="ON" />
+    <observable name="xMean" value="ON" />
+    <observable name="yMean" value="ON" />
+    <observable name="zMean" value="ON" />
+  </TRestHitsAnalysisProcess>
 
-</section>
+  <TRestHitsAnalysisProcess name="noSmear" title="Hits analysis template"  >
+    <observable name="energy" value="ON" />
+  </TRestHitsAnalysisProcess>
 
-<section TRestTrackAnalysisProcess name="tckAna" title="Track analysis template" >
-    
-    <parameter name="nTracksXCut" value="(1,1)" />
-    <parameter name="nTracksYCut" value="(1,1)" />
+  <TRestSmearingProcess name="smear" title="Smearing template" >
+    <parameter name="energyReference" value="2457.83" units="keV" />
+    <parameter name="resolutionReference" value="4.5" />
+  </TRestSmearingProcess>
 
-    <observable name="MeanRate_InHz" value="ON" />
-    <observable name="EventTimeDelay" value="ON" />
+  <TRestSmearingProcess name="smear_1FWHM" title="Smearing template" >
+    <parameter name="energyReference" value="2457.83" units="keV" />
+    <parameter name="resolutionReference" value="1.0" />
+  </TRestSmearingProcess>
 
-    <observable name="xMean" value="ON"
-        description="The mean X-position of the highest energy track." />
+  <TRestSmearingProcess name="smear_3FWHM" title="Smearing template" >
+    <parameter name="energyReference" value="2457.83" units="keV" />
+    <parameter name="resolutionReference" value="3.0" />
+  </TRestSmearingProcess>
 
-    <observable name="yMean" value="ON" 
-        description="The mean Y-position of the highest energy track." />
+  <TRestHitsNormalizationProcess name="hitsNorm" title="Hits normalization template" >
+    <parameter name="normFactor" value="0.021917" />
+  </TRestHitsNormalizationProcess>
 
-    <observable name="LengthX" value="ON"
-        description="Integrated length of tracks in the XZ-plane." />
-    <observable name="LengthY" value="ON"
-        description="Integrated length of tracks in the YZ-plane." />
+  <TRestTrackAnalysisProcess name="tckAna" title="Track analysis template" >
 
-    <observable name="nTracksX" value="ON"
-        description="Number of tracks defined in plane XZ (where Y-positions are not defined)." />
+    <parameter name="cutsEnabled" value="false" />
 
-    <observable name="nTracksY" value="ON"
-        description="Number of tracks defined in plane YZ (where X-positions are not defined)." />
+    <parameter name="nTracksXCut" value="(1,10)" />
+    <parameter name="nTracksYCut" value="(1,10)" />
+
+    <observable name="MeanRate_InHz" value="OFF" />
+    <observable name="EventTimeDelay" value="OFF" />
+
+    <observable name="LengthX" value="ON" />
+    <observable name="nTracksX" value="ON" />
+    <observable name="LengthY" value="ON" />
+    <observable name="nTracksY" value="ON" />
 
     <observable name="nTracksXYZ" value="ON"
         description="Number of pure 3D-tracks (with valid XYZ-hits)." />
 
-    <!-- 
-         The keywords nTracks_HE_ and nTracks_LE_ are used to define observables with the number 
-         of tracks above or below a given EnergyThreshold. 
-
-         Any EnergyThreshold can be defined as : nTracks_HE_[EnergyThreshold]. 
-    -->
-
-    <observable name="nTracks_HE_400" value="ON"
+    <observable name="nTracks_HE_100" value="ON"
         description="Number of tracks with energy higher than 400 keV." />
 
     <observable name="nTracks_LE_100" value="ON"
         description="Number of tracks with energy lower than 100 keV." />
 
-</section>
+    <observable name="xMean" value="ON" />
+    <observable name="yMean" value="ON" />
+  </TRestTrackAnalysisProcess>
 
-<section TRestTriggerAnalysisProcess name="trigger" title="Trigger analysis template" >
-    <observable name="Integral_Eth500" value="ON" />
-    <observable name="Integral_Eth600" value="ON" />
-    <observable name="Integral_Eth700" value="ON" />
-    <observable name="Integral_Eth800" value="ON" />
-    <observable name="Integral_Eth900" value="ON" />
-    <observable name="Integral_Eth1000" value="ON" />
-    <observable name="Integral_Eth1100" value="ON" />
-    <observable name="Integral_Eth1200" value="ON" />
-    <observable name="Integral_Eth1300" value="ON" />
-    <observable name="Integral_Eth1400" value="ON" />
-    <observable name="Integral_Eth1500" value="ON" />
-    <observable name="Integral_Eth1600" value="ON" />
-    <observable name="Integral_Eth1700" value="ON" />
-    <observable name="Integral_Eth1800" value="ON" />
+  <TRestTriggerAnalysisProcess name="trigger_1FWHM" title="Trigger analysis template" >
+    <observable name="Integral_Eth300" value="ON" />
+    <observable name="Integral_Eth1229" value="ON" />
     <observable name="Integral_Eth1900" value="ON" />
     <observable name="RawIntegral" value="ON" />
-</section>
+    <observable name="TriggerStarts" value="ON" />
+  </TRestTriggerAnalysisProcess>
 
-<section TRestFindG4BlobAnalysisProcess name="g4Blob" title="Find blobs in a Geant4 event for DBD">
+  <TRestTriggerAnalysisProcess name="trigger_3FWHM" title="Trigger analysis template" >
+    <observable name="Integral_Eth300" value="ON" />
+    <observable name="Integral_Eth1229" value="ON" />
+    <observable name="Integral_Eth1900" value="ON" />
+    <observable name="RawIntegral" value="ON" />
+    <observable name="TriggerStarts" value="ON" />
+  </TRestTriggerAnalysisProcess>
 
-    <!-- The first blob is the one with z-coordinate closer to z=0 -->
-    <observable name="x1" value="ON" 
-        description="First blob x-coordinate."/>
+  <TRestFindG4BlobAnalysisProcess name="g4Blob" title="Find blobs in DBD. G4 event">
+    <observable name="x1" value="ON" />
+    <observable name="y1" value="ON" />
+    <observable name="z1" value="ON" />
+    <observable name="x2" value="ON" />
+    <observable name="y2" value="ON" />
+    <observable name="z2" value="ON" />
+    <observable name="distance" value="ON" />
 
-    <observable name="y1" value="ON" 
-        description="First blob y-coordinate."/>
+    <observable name="Q1_R5" value="ON" />
+    <observable name="Q1_R10" value="ON" />
+    <observable name="Q1_R15" value="ON" />
+    <observable name="Q1_R20" value="ON" />
 
-    <observable name="z1" value="ON" 
-        description="First blob z-coordinate."/>
+    <observable name="Q2_R5" value="ON" />
+    <observable name="Q2_R10" value="ON" />
+    <observable name="Q2_R15" value="ON" />
+    <observable name="Q2_R20" value="ON" />
+  </TRestFindG4BlobAnalysisProcess>
 
-    <observable name="x2" value="ON" 
-        description="First blob x-coordinate."/>
+  <TRestFindTrackBlobsProcess name="tckBlob" title="Find blobs in the longest track">
+    <observable name="x1" value="ON" />
+    <observable name="y1" value="ON" />
+    <observable name="z1" value="ON" />
+    <observable name="x2" value="ON" />
+    <observable name="y2" value="ON" />
+    <observable name="z2" value="ON" />
+    <observable name="distance" value="ON" />
 
-    <observable name="y2" value="ON" 
-        description="First blob y-coordinate."/>
+    <observable name="Q1_R5" value="ON" />
+    <observable name="Q1_R10" value="ON" />
+    <observable name="Q1_R15" value="ON" />
+    <observable name="Q1_R20" value="ON" />
 
-    <observable name="z2" value="ON" 
-        description="First blob z-coordinate."/>
+    <observable name="Q2_R5" value="ON" />
+    <observable name="Q2_R10" value="ON" />
+    <observable name="Q2_R15" value="ON" />
+    <observable name="Q2_R20" value="ON" />
 
-    <observable name="distance" value="ON" 
-        description="Euclidean distance between the two blobs."/>
-
-    <observable name="Q1_R5" value="ON" 
-        description="Charge in the first blob. Integrated to R=5mm."/>
-
-    <observable name="Q1_R10" value="ON" 
-        description="Charge in the first blob. Integrated to R=10mm."/>
-
-    <observable name="Q1_R15" value="ON" 
-        description="Charge in the first blob. Integrated to R=15mm."/>
-
-    <observable name="Q1_R20" value="ON" 
-        description="Charge in the first blob. Integrated to R=20mm."/>
-
-    
-    <observable name="Q2_R5" value="ON"
-        description="Charge in the second blob. Integrated to R=5mm."/>
-
-    <observable name="Q2_R10" value="ON" 
-        description="Charge in the second blob. Integrated to R=10mm."/>
-
-    <observable name="Q2_R15" value="ON" 
-        description="Charge in the second blob. Integrated to R=15mm."/>
-
-    <observable name="Q2_R20" value="ON" 
-        description="Charge in the second blob. Integrated to R=20mm."/>
-</section>
-
-<section TRestFindTrackBlobsProcess name="tckBlob" title="Find blobs in a track event for any event">
-
-    <!-- The first blob is the one with z-coordinate closer to z=0 -->
-    <observable name="x1" value="ON" 
-        description="First blob x-coordinate."/>
-
-    <observable name="y1" value="ON" 
-        description="First blob y-coordinate."/>
-
-    <observable name="z1" value="ON" 
-        description="First blob z-coordinate."/>
-
-    <observable name="x2" value="ON" 
-        description="First blob x-coordinate."/>
-
-    <observable name="y2" value="ON" 
-        description="First blob y-coordinate."/>
-
-    <observable name="z2" value="ON" 
-        description="First blob z-coordinate."/>
-
-    <observable name="distance" value="ON" 
-        description="Euclidean distance between the two blobs."/>
-
-    <observable name="Q1_R5" value="ON" 
-        description="Charge in the first blob. Integrated to R=5mm."/>
-
-    <observable name="Q1_R10" value="ON" 
-        description="Charge in the first blob. Integrated to R=10mm."/>
-
-    <observable name="Q1_R15" value="ON" 
-        description="Charge in the first blob. Integrated to R=15mm."/>
-
-    <observable name="Q1_R20" value="ON" 
-        description="Charge in the first blob. Integrated to R=20mm."/>
-
-    
-    <observable name="Q2_R5" value="ON"
-        description="Charge in the second blob. Integrated to R=5mm."/>
-
-    <observable name="Q2_R10" value="ON" 
-        description="Charge in the second blob. Integrated to R=10mm."/>
-
-    <observable name="Q2_R15" value="ON" 
-        description="Charge in the second blob. Integrated to R=15mm."/>
-
-    <observable name="Q2_R20" value="ON" 
-        description="Charge in the second blob. Integrated to R=20mm."/>
-
-    <!-- parameter hitsToCheckFraction :
-         is the fraction of hits to be checked at the extremes of the track. 
-         The one with the highest deposit will be selected as the center of the blob.
-         I.e. for a track with a total number of hits, N=16, 4-hits at the beginning
-         and 4-hits at the end of the track will be considered as possible blob centers. -->
     <parameter name="hitsToCheckFraction" value="0.25" />
+  </TRestFindTrackBlobsProcess>
 
-</section>
+  <TRestSignalZeroSuppresionProcess name="zS" title=""  >
 
-<section TRestSignalAnalysisProcess name="sgnlAna" title="Half Template X-III Vessel (Bottom)" >
+    <!-- This parameter is used to define the baseline calculation -->
+    <parameter name="baseLineRange" value="({BL_MIN},{BL_MAX})" />
+
+    <!-- These parameters define the integral with threshold. 
+         threshold : number of baseline noise sigmas to consider a point for integration.
+         pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
+         minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
+        -->
+    <parameter name="pointThreshold" value="{POINT_TH}" />
+    <parameter name="pointsOverThreshold" value="{NPOINTS}" />
+    <parameter name="signalThreshold" value="{SGNL_TH}" />
+  </TRestSignalZeroSuppresionProcess>
+
+  <TRestRawSignalAnalysisProcess name="sAna" title=""  >
 
     <!-- This parameter defines every how many seconds a signal will be drawn.
          In case the value is zero. There will not be any drawing. -->
-    <parameter name="refreshEvery" value="1000" />
+    <parameter name="refreshEvery" value="1" />
 
     <!-- This parameter is used to define the baseline calculation -->
-    <parameter name="baseLineRange" value="(10,90)" />
+    <parameter name="baseLineRange" value="({BL_MIN},{BL_MAX})" />
+
+    <!-- This parameter is used to define the signal integration window -->
+    <parameter name="integralRange" value="(40,472)" />
+
+    <!-- These parameters define the integral with threshold. 
+         threshold : number of baseline noise sigmas to consider a point for integration.
+         pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
+         minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
+        -->
+    <parameter name="pointThreshold" value="{POINT_TH}" />
+    <parameter name="pointsOverThreshold" value="{NPOINTS}" />
+    <parameter name="signalThreshold" value="{SGNL_TH}" />
+
+    <!-- ++++++++++++++++++++++
+         Observable definitions
+         ++++++++++++++++++++++ -->
+
+    <!-- This observable needs to be refined 
+    <observable name="TimeBinsLength" value="ON" />
+-->
+
+    <!-- Event time observables -->
+    <observable name="SecondsFromStart" value="ON" />
+    <observable name="HoursFromStart" value="ON" />
+    <observable name="MeanRate_InHz" value="ON" />
+    <observable name="EventTimeDelay" value="ON" />
+
+    <!-- The numbers of signals that are found inside the event -->
+    <observable name="NumberOfSignals" value="ON" />
+
+    <!-- Number of signals after noisy signals reduction -->
+    <observable name="NumberOfGoodSignals" value="ON" />
+
+    <!-- The baseline average of the signals -->
+    <observable name="BaseLineMean" value="ON" />
+
+    <!-- The baseline sigma average of each independent signal -->
+    <observable name="BaseLineSigmaMean" value="ON" />
+
+    <!-- The full signal integral in the integralRange -->
+    <observable name="FullIntegral" value="ON" />
+
+    <!-- The signal integral in the integralRange using threshold -->
+    <observable name="ThresholdIntegral" value="ON" />
+
+    <observable name="TripleMaxIntegral" value="ON" />
+    <observable name="SlopeIntegral" value="ON" />
+    <observable name="RateOfChangeAvg" value="ON" />
+    <observable name="RiseTimeAvg" value="ON" />
+    <observable name="RiseSlopeAvg" value="ON" />
+
+
+    <!-- The energy balance between full integral and threshold integral -->
+    <observable name="IntegralBalance" value="ON" />
+
+    <!-- Ratio between threshold and amplitude integrals -->
+    <observable name="AmplitudeIntegralRatio" value="ON" />
+
+    <!-- Maximum peak amplitude found in the signal event -->
+    <observable name="MaxPeakAmplitude" value="ON" />
+
+    <!-- Integral of all the signals maximum amplitude -->
+    <observable name="PeakAmplitudeIntegral" value="ON" />
+
+    <!-- Ratio between peak amplitude integral and maximum signal amplitude -->
+    <observable name="AmplitudeRatio" value="ON" />
+
+    <!-- Maximum time at which a maximum peak amplitude is found -->
+    <observable name="MaxPeakTime" value="ON" />
+
+    <!-- Minimum time at which a maximum peak amplitude is found -->
+    <observable name="MinPeakTime" value="ON" />
+
+    <!-- Time difference between MaxPeakTime and MinPeakTime -->
+    <observable name="MaxPeakTimeDelay" value="ON" />
+
+    <!-- Max peak time average -->
+    <observable name="AveragePeakTime" value="ON" />
+
+    <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+         Cut/event selection definition
+         This are the cut range definition on the observables 
+         Events that are not in those ranges will be rejected if cutsEnables is true.
+         ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+    <parameter name="cutsEnabled" value="false" />
+
+    <parameter name="meanBaseLineCutRange" value="(200,800)" />
+    <parameter name="meanBaseLineSigmaCutRange" value="(0,6)" />
+    <parameter name="maxNumberOfSignalsCut" value="(1,20)" />
+    <parameter name="maxNumberOfGoodSignalsCut" value="(4,10)" />
+    <parameter name="fullIntegralCut" value="(1,500000)" />
+    <parameter name="thresholdIntegralCut" value="(1,150000)" />
+    <parameter name="peakTimeDelayCut" value="(0,10)" />
+
+  </TRestRawSignalAnalysisProcess>
+
+  <TRestSignalAnalysisProcess name="decAna" title=""  >
+
+    <!-- This parameter defines every how many seconds a signal will be drawn.
+         In case the value is zero. There will not be any drawing. -->
+    <parameter name="refreshEvery" value="1" />
+
+    <!-- This parameter is used to define the baseline calculation -->
+    <parameter name="baseLineRange" value="({BL_MIN},{BL_MAX})" />
 
     <!-- This parameter is used to define the signal integration window -->
     <parameter name="integralRange" value="(20,492)" />
@@ -415,9 +456,84 @@
          pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
          minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
         -->
-    <parameter name="pointThreshold" value="3." />
-    <parameter name="pointsOverThreshold" value="18" />
-    <parameter name="signalThreshold" value="4.5" />
+
+    <parameter name="pointThreshold" value="{POINT_TH}" />
+    <parameter name="pointsOverThreshold" value="{NPOINTS}" />
+    <parameter name="signalThreshold" value="{SGNL_TH}" />
+
+    <!-- ++++++++++++++++++++++
+         Observable definitions
+         ++++++++++++++++++++++ -->
+
+    <!-- This observable needs to be refined 
+    <observable name="TimeBinsLength" value="ON" />
+-->
+
+    <!-- The baseline average of the signals -->
+    <observable name="BaseLineMean" value="ON" />
+
+    <!-- The baseline sigma average of each independent signal -->
+    <observable name="BaseLineSigmaMean" value="ON" />
+
+    <!-- The signal integral in the integralRange using threshold -->
+    <observable name="ThresholdIntegral" value="ON" />
+
+    <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+         Cut/event selection definition
+         This are the cut range definition on the observables 
+         Events that are not in those ranges will be rejected if cutsEnables is true.
+         ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+    <!-- The full signal integral in the integralRange -->
+    <observable name="FullIntegral" value="ON" />
+
+    <!-- The signal integral in the integralRange using threshold -->
+    <observable name="ThresholdIntegral" value="ON" />
+
+    <observable name="TripleMaxIntegral" value="ON" />
+
+    <!-- The energy balance between full integral and threshold integral -->
+    <observable name="IntegralBalance" value="ON" />
+
+    <!-- Ratio between threshold and amplitude integrals -->
+    <observable name="AmplitudeIntegralRatio" value="ON" />
+
+    <!-- Maximum peak amplitude found in the signal event -->
+    <observable name="MaxPeakAmplitude" value="ON" />
+
+    <!-- Integral of all the signals maximum amplitude -->
+    <observable name="PeakAmplitudeIntegral" value="ON" />
+
+    <parameter name="cutsEnabled" value="false" />
+    <parameter name="meanBaseLineCutRange" value="(0,900)" />
+    <parameter name="meanBaseLineSigmaCutRange" value="(0,20)" />
+    <parameter name="maxNumberOfSignalsCut" value="(1,30)" />
+    <parameter name="maxNumberOfGoodSignalsCut" value="(1,10)" />
+    <parameter name="fullIntegralCut" value="(1,5000000000)" />
+    <parameter name="thresholdIntegralCut" value="(1,100000000)" />
+    <parameter name="peakTimeDelayCut" value="(0,400)" />
+  </TRestSignalAnalysisProcess>
+
+  <TRestSignalAnalysisProcess name="sgnlAna2" title="" >
+
+    <!-- This parameter defines every how many seconds a signal will be drawn.
+         In case the value is zero. There will not be any drawing. -->
+    <parameter name="refreshEvery" value="1000" />
+
+    <!-- This parameter is used to define the baseline calculation -->
+    <parameter name="baseLineRange" value="({BL_MIN},{BL_MAX})" />
+
+    <!-- This parameter is used to define the signal integration window -->
+    <parameter name="integralRange" value="(20,492)" />
+
+    <!-- These parameters define the integral with threshold. 
+         threshold : number of baseline noise sigmas to consider a point for integration.
+         pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
+         minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
+        -->
+    <parameter name="pointThreshold" value="{POINT_TH}" />
+    <parameter name="pointsOverThreshold" value="{NPOINTS}" />
+    <parameter name="signalThreshold" value="{SGNL_TH}" />
 
     <!-- ++++++++++++++++++++++
          Observable definitions
@@ -456,7 +572,7 @@
 
     <!-- Maximum peak amplitude found in the signal event -->
     <observable name="MaxPeakAmplitude" value="ON" />
-   
+
     <!-- Integral of all the signals maximum amplitude -->
     <observable name="PeakAmplitudeIntegral" value="ON" />
 
@@ -481,7 +597,7 @@
          Events that are not in those ranges will be rejected if cutsEnables is true.
          ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 
-    <parameter name="cutsEnabled" value="true" />
+    <parameter name="cutsEnabled" value="false" />
 
     <parameter name="meanBaseLineCutRange" value="(0,300)" />
     <parameter name="meanBaseLineSigmaCutRange" value="(0,20)" />
@@ -491,44 +607,114 @@
     <parameter name="thresholdIntegralCut" value="(1,150000)" />
     <parameter name="peakTimeDelayCut" value="(0,40)" />
 
-</section>
+  </TRestSignalAnalysisProcess>
 
-<section TRestTrackLinearizationProcess name="trackLinearization-Template" title="Half Template X-III Vessel (Bottom)" >
+  <TRestTrackLinearizationProcess name="trackLinearization-Template" title="" >
     <parameter name="lengthResolution" value="2" units="mm" />
     <parameter name="transversalResolution" value="1" units="mm" />
-</section>
+  </TRestTrackLinearizationProcess>
 
-<section TRestRotateAndTraslate name="rotateAndTraslate" title="IAXOD0 TPC" >
-    <parameter name="deltaX" value="0." units="mm" />	
+  <TRestRotateAndTraslate name="rotateAndTraslate" title="IAXOD0 TPC" >
+    <parameter name="deltaX" value="0." units="mm" />
     <parameter name="deltaY" value="0" units="mm" />
     <parameter name="deltaZ" value="0" units="mm" />
     <parameter name="alpha" value="90" />	// rotation angle around Z in degrees
     <parameter name="beta" value="90"  />	// rotation angle around Y in degrees
     <parameter name="gamma" value="90" />	// rotation angle around X in degrees
-</section>
+  </TRestRotateAndTraslate>
 
-<section TRestRawToSignalProcess name="virtualDAQ" title="TEST">
+  <TRestRawToSignalProcess name="virtualDAQ" title="TEST">
     <parameter name="pedScript" value="ped"/>
     <parameter name="runScript" value="run"/>
     <parameter name="electronics" value="AGET"/>
-</section>
+    <parameter name="fileFormat" value="SJTU" />
+  </TRestRawToSignalProcess>
 
-<section TRestAvalancheProcess name="NLDBD" title="1PctGain" >
+  <TRestAvalancheProcess name="NLDBD" title="1PctGain" >
     <parameter name="energyReference" value="2458" units="keV" />
     <parameter name="resolutionReference" value="1" />
     <parameter name="detectorGain" value="1" />
-</section>
+  </TRestAvalancheProcess>
 
-<section TRestSignalShapingProcess name="signalShapingProcess" title="Test SignalShaping" >
+  <TRestSignalShapingProcess name="signalShapingProcess" title="Test SignalShaping" >
     <parameter name="responseFile" value="AGET_Response_12.5MHz_Gain0x1_Shaping0x4.root" /> //response file to be used to shape the signal
-</section>
+  </TRestSignalShapingProcess>
 
-<section TRestG4toHitsProcess name="G4ToHits" title="G4Hits to Hits process" >
-    <!-- If no volumes are added "all" volumes will be active.
-         In this example only hits from the gas volume will be selected.
-    -->
-    
-    <addVolume name="gas" />
+  <TRestG4toHitsProcess name="G4ToHits" title="G4Hits to Hits process" >
+  </TRestG4toHitsProcess>
 
-</section>
+  <bambooToRESTProcess name="bambooToREST" title="A process reading bamboo files" >
 
+    <!-- Rotation parameter in degrees. It will rotate the original coordinates 
+         in the following order RotateX -> RotateY -> RotateZ -->
+
+    <parameter name="rotation" value="(90,0,0)" />
+
+  </bambooToRESTProcess>
+
+  <TRestHitsAnalysisProcess name="bambooAna" title="A Hits analysis from bamboo data." >
+    <observable name="energy" value="ON" />
+    <observable name="xMean" value="ON" />
+    <observable name="yMean" value="ON" />
+    <observable name="zMean" value="ON" />
+  </TRestHitsAnalysisProcess>
+
+  <TRestTrackDrawMarkersProcess name="draw" title="A track drawing process." >
+    <parameter name="canvasSizeX" value="1000" />
+    <parameter name="canvasSizeY" value="800" />
+    <addMarker x="g4Blob.x1" y="g4Blob.z1" style="4" size="2" color="1" pad="1" />
+    <addMarker x="g4Blob.x2" y="g4Blob.z2" style="4" size="2" color="1" pad="1" />
+    <addMarker x="g4Blob.x1" y="g4Blob.z1" style="28" size="1" color="1" pad="1" />
+    <addMarker x="g4Blob.x2" y="g4Blob.z2" style="28" size="1" color="1" pad="1" />
+
+    <addMarker x="g4Blob.y1" y="g4Blob.z1" style="4" size="2" color="1" pad="2" />
+    <addMarker x="g4Blob.y2" y="g4Blob.z2" style="4" size="2" color="1" pad="2" />
+    <addMarker x="g4Blob.y1" y="g4Blob.z1" style="28" size="1" color="1" pad="2" />
+    <addMarker x="g4Blob.y2" y="g4Blob.z2" style="28" size="1" color="1" pad="2" />
+
+    <addMarker x="g4Blob.x1" y="g4Blob.y1" style="4" size="2" color="1" pad="3" />
+    <addMarker x="g4Blob.x2" y="g4Blob.y2" style="4" size="2" color="1" pad="3" />
+    <addMarker x="g4Blob.x1" y="g4Blob.y1" style="28" size="1" color="1" pad="3" />
+    <addMarker x="g4Blob.x2" y="g4Blob.y2" style="28" size="1" color="1" pad="3" />
+
+    <addMarker x="tckBlob.x1" y="tckBlob.z1" style="25" size="2" color="4" pad="1" />
+    <addMarker x="tckBlob.x2" y="tckBlob.z2" style="25" size="2" color="4" pad="1" />
+    <addMarker x="tckBlob.x1" y="tckBlob.z1" style="30" size="1" color="4" pad="1" />
+    <addMarker x="tckBlob.x2" y="tckBlob.z2" style="30" size="1" color="4" pad="1" />
+
+    <addMarker x="tckBlob.y1" y="tckBlob.z1" style="25" size="2" color="4" pad="2" />
+    <addMarker x="tckBlob.y2" y="tckBlob.z2" style="25" size="2" color="4" pad="2" />
+    <addMarker x="tckBlob.y1" y="tckBlob.z1" style="30" size="1" color="4" pad="2" />
+    <addMarker x="tckBlob.y2" y="tckBlob.z2" style="30" size="1" color="4" pad="2" />
+
+    <addMarker x="tckBlob.x1" y="tckBlob.y1" style="25" size="2" color="4" pad="3" />
+    <addMarker x="tckBlob.x2" y="tckBlob.y2" style="25" size="2" color="4" pad="3" />
+    <addMarker x="tckBlob.x1" y="tckBlob.y1" style="30" size="1" color="4" pad="3" />
+    <addMarker x="tckBlob.x2" y="tckBlob.y2" style="30" size="1" color="4" pad="3" />
+  </TRestTrackDrawMarkersProcess>
+
+  <TRestRawSignalToSignalProcess name="rawToS" title="rawToSignalProcess." >
+  </TRestRawSignalToSignalProcess>
+
+  <TRestRawSignalViewerProcess name="rsViewer" title="Signal viewer."  >
+
+    <parameter name="refreshEvery" value="1" />
+
+    <parameter name="baseLineRange" value="(50,120)" />
+  </TRestRawSignalViewerProcess>
+
+  <TRestSignalViewerProcess name="sViewer" title="Signal viewer."  >
+
+    <parameter name="refreshEvery" value="1" />
+
+    <parameter name="baseLineRange" value="(50,120)" />
+  </TRestSignalViewerProcess>
+
+  <TRestMySignalAnalysisProcess name="myAna" title=""  >
+
+    <parameter name="myVar" value="10" />
+
+    <observable name="myObservable" value="ON" />
+
+  </TRestMySignalAnalysisProcess>
+</processes>

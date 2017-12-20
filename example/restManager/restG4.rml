@@ -14,39 +14,19 @@ We can comment out pieces of configuration using XML commenting style.
 By default REST units are mm, keV and degrees
 -->
 
-<environment>
+<restG4>
 
-    <!-- You may add local environment variables inside this special section.
-
-         If overwrite in false. An external environment definition will have priority over
-         this internal definition.
-
-            <variable name="DUMMY" value="dummyValue" overwrite="false" />
-
-         After this is defined you can use ${DUMMY} anywhere in the RML file.
-     -->
-
-
-    <!-- You may use
-
-        <include file="otherDefinitions.xml"/>
-
-        to include definitions found in an external file to be included INSIDE any section.
-    -->
-
-</environment>
-
-<globals>
+  <globals>
     <parameter name="mainDataPath" value="${REST_DATAPATH}" />
     <parameter name="gasDataPath" value="${REST_PATH}/inputData/gasFiles/" />
     <parameter name="verboseLevel" value="warning" /> %options are : silent, warning, info, debug
-</globals>
+  </globals>
 
-<section TRestRun name="Run metadata" title="REST Metadata run info (template)">
+  <TRestRun name="Run metadata" title="REST Metadata run info (template)">
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
     <parameter name="runNumber" value="auto"/>
-   <parameter name="readOnly" value="false" />
+    <parameter name="readOnly" value="false" />
     <parameter name="runTag" value="Template"/>
     <parameter name="runDescription" value="We launch just 100 events to check everything is ok."/>
     <parameter name="user" value="${USER}"/>
@@ -54,9 +34,9 @@ By default REST units are mm, keV and degrees
     <parameter name="overwrite" value="off" />
     <parameter name="outputFile" value="default" />
     <parameter name="readOnly" value="false" />
-</section>
+  </TRestRun>
 
-<section TRestG4Metadata name="DBDsimulation" title="A dummy DBD simulation">
+  <TRestG4Metadata name="DBDsimulation" title="A dummy DBD simulation">
 
     <parameter name="geometryPath" value="${REST_PATH}/config/template/geometry/" />
     <parameter name="gdml_file" value="mySetupTemplate.gdml"/>
@@ -71,8 +51,8 @@ By default REST units are mm, keV and degrees
     <parameter name="Nevents" value="100" />
 
     <generator type="volume" from="gas" >
-        <source fromFile="Xe136bb0n.dat">
-        </source>
+      <source fromFile="Xe136bb0n.dat">
+      </source>
     </generator>
 
     <!--
@@ -85,18 +65,18 @@ By default REST units are mm, keV and degrees
     -->
 
     <biasing value="off" type="virtualBox">
-        <biasingVolume size="2850" units="mm" position="(0,0,0)" units="mm" factor="10" energyRange="(2.4,5)" units="MeV" />
-        <biasingVolume size="2450" units="mm" position="(0,0,0)" units="mm" factor="10" energyRange="(2.4,5)" units="MeV" />
-        <biasingVolume size="2050" units="mm" position="(0,0,0)" units="mm" factor="10" energyRange="(2.4,5)" units="MeV" />
+      <biasingVolume size="2850mm" position="(0,0,0)mm" factor="10" energyRange="(2.4,5)MeV" />
+      <biasingVolume size="2450mm" position="(0,0,0)mm" factor="10" energyRange="(2.4,5)MeV" />
+      <biasingVolume size="2050mm" position="(0,0,0)mm" factor="10" energyRange="(2.4,5)MeV" />
     </biasing>
 
     <storage sensitiveVolume="gas">
-        <parameter name="energyRange" value="(0,5)" units="MeV" />
-        <activeVolume name="gas" chance="1" />
+      <parameter name="energyRange" value="(0,5)" units="MeV" />
+      <activeVolume name="gas" chance="1" />
     </storage>
-</section>
+  </TRestG4Metadata>
 
-<section TRestPhysicsLists name="default" title="First physics list implementation." verboseLevel="debug" >
+  <TRestPhysicsLists name="default" title="First physics list implementation." verboseLevel="debug" >
 
     <parameter name="cutForGamma" value="1" units="um" />
     <parameter name="cutForElectron" value="1" units="um" />
@@ -115,9 +95,9 @@ By default REST units are mm, keV and degrees
     <!-- Decay physics lists -->
     <physicsList name="G4DecayPhysics"> </physicsList>
     <physicsList name="G4RadioactiveDecayPhysics"> </physicsList>
-    <physicsList name="G4RadioactiveDecay"> 
-        <option name="ICM" value="true" />
-        <option name="ARM" value="true" />
+    <physicsList name="G4RadioactiveDecay">
+      <option name="ICM" value="true" />
+      <option name="ARM" value="true" />
     </physicsList>
 
     <!-- Hadron physics lists -->
@@ -127,12 +107,13 @@ By default REST units are mm, keV and degrees
     <physicsList name="G4NeutronTrackingCut"> </physicsList>
     <physicsList name="G4EmExtraPhysics"> </physicsList>
 
-</section>
+  </TRestPhysicsLists>
 
 
-<!-- If the manager is not used we can still use nameref to reference a external file where we have the real definition -->
-<section TRestReadout nameref="Readout-PANDA_3MM_Single" file="${REST_PATH}/inputData/definitions/readouts.rml"> </section>
+  <!-- If the manager is not used we can still use nameref to reference a external file where we have the real definition -->
+  <TRestReadout nameref="Readout-PANDA_3MM_Single" file="${REST_PATH}/inputData/definitions/readouts.rml"/>
 
-<section TRestGas nameref="Xenon-TMA 3Pct 10-10E3V/cm" file="${REST_PATH}/inputData/definitions/gases.rml"> </section>
-<!-- -->
+  <TRestGas nameref="Xenon-TMA 3Pct 10-10E3V/cm" file="${REST_PATH}/inputData/definitions/gases.rml"/>
+  <!-- -->
 
+</restG4>

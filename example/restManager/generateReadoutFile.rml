@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<TRestManager verboseLevel="silent">
+  <globals>
+    <variable name="PITCH" value="3" overwrite="false" />
+    <!-- The pitch value in mm -->
+    <variable name="MODULES" value="10" overwrite="false" />
+    <!-- The number of modules per axis MxM -->
+    <variable name="CHANNELS" value="64" overwrite="false" />
+    <!-- The number of pixels per side PxP -->
+  </globals>
+
+  <TRestRun name="readoutrun">
+    <TRestReadout name="PandaReadout_MxM" title="PANDA readout 7MM" >
+      <parameter name="verboseLevel" value="info"/>
+      <parameter name="mappingNodes" value="0" />
+      <myParameter name="nChannels" value="{CHANNELS}" />
+      <myParameter name="nModules" value="{MODULES}" />
+      <myParameter name="pitch" value="{PITCH}" />
+      <myParameter name="pixelSize" value="{PITCH}/sqrt(2.)" />
+
+      <readoutModule name="MM" file="${REST_PATH}/inputData/definitions/MicroMegas.rml"/>
+
+      <readoutPlane position="(0,0,990)mm" planeVector="(0,0,-1)mm"
+          chargeCollection="1"
+          cathodePosition="(0,0,0)mm" >
+
+        see the readout plane configuration here : https://pandax.physics.sjtu.edu.cn/docdb3/0004/000496/005/Data_taking_prototype%20_1130.pdf
+
+        <addReadoutModule id="0" name="MM" origin="(300,-200)" rotation="90" decodingFile="MM_On_AGET0-1.txt" firstDaqChannel="136*5" />
+        <addReadoutModule id="2" name="MM" origin="(-300,200)" rotation="-90" decodingFile="MM_On_AGET0-1.txt" firstDaqChannel="136*3"/>
+        <addReadoutModule id="3" name="MM" origin="(300,0)" rotation="90"  decodingFile="MM_On_AGET0-1.txt" firstDaqChannel="136*4"/>
+        <addReadoutModule id="4" name="MM" origin="(-300,0)" rotation="-90"  decodingFile="MM_On_AGET0-1.txt" firstDaqChannel="136*2"/>
+        <addReadoutModule id="6" name="MM" origin="(-100,-100)" rotation="0"  decodingFile="MM_On_AGET0-1.txt" firstDaqChannel="136*1"/>
+        <addReadoutModule id="8" name="MM" origin="(100,300)" rotation="180" decodingFile="MM_On_AGET0-1.txt" firstDaqChannel="136*6+68"/>
+        <addReadoutModule id="9" name="MM" origin="(-100,-300)" rotation="0" decodingFile="MM_On_AGET0-1.txt" firstDaqChannel="136*0"/>
+
+      </readoutPlane>
+    </TRestReadout>
+  </TRestRun>
+
+  <addTask command="readoutrun->FormOutputFile()" value="ON"/>
+  <addTask command="readoutrun->CloseFile()" value="ON"/>
+
+</TRestManager>
+

@@ -2,7 +2,7 @@
 
 <!-- This plot template shows an example of analysisPlot implementation.
      The file where we have applied a signalAnalysisProcess name sgnl.Ana -->
-<section TRestAnalysisPlot name="Template" title="Basic Plots">
+<TRestAnalysisPlot name="Template" title="Basic Plots">
 
     <!-- Here you can add as many files as you want through a config file using addFile -->
     <!--
@@ -10,11 +10,11 @@
     <addFile name="${REST_INPUT_FILE2}" />
     -->
 
-    <parameter name="plotMode" value="compare" > <!-- plotModes available : compare, add -->
+    <parameter name="plotMode" value="compare" /> <!-- plotModes available : compare, add -->
 
     <canvas size="(1000,800)" divide="(2,2)" save="/tmp/R[RUN]_S[SUBRUN].pdf" />
 
-    <globalCut name="analysisVariable" condition="<50" value="OFF" /> 
+    <globalCut name="analysisVariable" condition="&lt;50" value="OFF" /> 
 
     <plot name="Baseline" title="Baseline average" xlabel="Baseline [ADC units]" ylabel="Counts" 
             logscale="false" save="" value="ON" >
@@ -36,8 +36,8 @@
           logscale="true" save=""  value="ON" >
           <variable name="sgnlAna.ThresholdIntegral" range="(0,100000)" nbins="1000" />
 
-          <cut variable="tckAna.nTracksX" condition="==1" value="ON" >
-          <cut variable="tckAna.nTracksY" condition="==1" value="ON" >
+          <cut variable="tckAna.nTracksX" condition="==1" value="ON" />
+          <cut variable="tckAna.nTracksY" condition="==1" value="ON" />
     </plot>
 
-</section>  
+</TRestAnalysisPlot>  

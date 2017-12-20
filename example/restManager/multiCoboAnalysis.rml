@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<TRestManager name="CoBoDataAnalysis" title="testing" verboseLevel="info" >
+
+  <TRestRun name="SJTU_Proto" >
+    <addMetadata name="PandaReadout_MxM" file="readouts.root"/>
+  </TRestRun>
+
+  <TRestProcessRunner name="TemplateEventProcess" verboseLevel="info">
+    <parameter name="firstEntry" value="0" />
+    <parameter name="lastEntry" value="0" />
+    <parameter name="eventsToProcess" value="10000" />
+    <parameter name="threadNumber" value="2"/>
+    <parameter name="saveMetadata" value="true"/>
+    <parameter name="treeBranches" value="inputevent:processevent:outputevent:inputanalysis:outputanalysis"/>
+
+    <addProcess type="TRestMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON" file="processes.rml"/>
+    <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON" file="processes.rml"/>
+    <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" file="processes.rml"/>
+    <addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="ON" file="processes.rml"/>
+    <addProcess type="TRestHitsAnalysisProcess" name="hitsAna" value="ON" file="processes.rml" >
+      <observable name="FirstX" value="ON" />
+      <observable name="FirstY" value="ON" />
+    </addProcess>
+    <addProcess type="TRestHitsToTrackProcess" name="hitsToTrack" value="OFF"/>
+    <addProcess type="TRestTrackAnalysisProcess" name="tckAna" value="OFF" />
+
+  </TRestProcessRunner>
+
+  <TRestAnalysisPlot name="SpectrumAndHitmaps" title="Spectrum Plots" file="plots.rml"/>
+
+
+  <!---  <addTask command="SJTU_Proto->PrintMetadata()" value="ON"/>  -->
+  <addTask command="TemplateEventProcess->RunProcess()" value="ON"/>
+
+
+  <globals>
+    <parameter name="verboseLevel" value="essential" /> %options are : silent, essential, info, debug
+    <parameter name="inputFile" value="${REST_INPUTFILE}"/>
+    <parameter name="inputFormat" value="run[RunNumber]_file[Fragment]_[Time-d]_[Time].graw"/>
+    <parameter name="outputFile" value="RUN[RunNumber]_[Time]_[LastProcess].root" />
+    <variable name="gasDataPath" value="${REST_PATH}/restData/gasFiles/" />
+    <variable name="configPath" value="${REST_PATH}/restData/config/"/>
+
+  </globals>
+
+</TRestManager>
+
+
+<!--paramater here is accessible to all the classes-->
+
+
