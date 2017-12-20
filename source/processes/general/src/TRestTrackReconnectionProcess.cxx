@@ -108,25 +108,26 @@ TRestEvent* TRestTrackReconnectionProcess::ProcessEvent( TRestEvent *evInput )
 
         SetDistanceMeanAndSigma( (TRestHits *) hits );
 
-        if( meanDistance == 0 ) continue; // We have just 1-hit
+        if( fMeanDistance == 0 ) continue; // We have just 1-hit
 
         TRestVolumeHits initialHits = *hits;
         vector <TRestVolumeHits> subHitSets;
         Int_t tBranches;
 
-        // We do twice the break and re-connect process
+        // We do 3 times the break and re-connect process
         // Although another option would be to do it until we observe no change
         // Most of the times even 1-round is more than enough.
-        for( int n = 0; n < 2; n++ )
+        for( int n = 0; n < 3; n++ )
         {
-            BreakTracks( &initialHits, subHitSets );
+            // The required distance between hits to break a track is increased in each iteration
+            BreakTracks( &initialHits, subHitSets, 1.5 * (n + 1) );
             ReconnectTracks( subHitSets );
 
             TRestVolumeHits resultHits = subHitSets[0];
             SetDistanceMeanAndSigma( &resultHits );
-            tBranches = GetTrackBranches( resultHits, meanDistance, sigma );
+            tBranches = GetTrackBranches( resultHits, fNSigmas );
 
-            if( GetVerboseLevel() >= 0 )
+            if( GetVerboseLevel() >= REST_Debug )
             {
                 cout << "Break and reconnect finished" << endl;
                 cout << "Branches : " << tBranches << endl;
@@ -142,7 +143,7 @@ TRestEvent* TRestTrackReconnectionProcess::ProcessEvent( TRestEvent *evInput )
 
         if( fSplitTrack )
         {
-            BreakTracks( &initialHits, subHitSets );
+            BreakTracks( &initialHits, subHitSets, fNSigmas );
 
             if( GetVerboseLevel() >= REST_Debug )
             {
@@ -185,8 +186,8 @@ TRestEvent* TRestTrackReconnectionProcess::ProcessEvent( TRestEvent *evInput )
 }
 
 /// BreakTracks and ReconnectTracks should be moved to libRestEvents in events/tools at RESTv2.2
-/// For the moment these methods will be replicated in other TrackProcesses
-void TRestTrackReconnectionProcess::BreakTracks( TRestVolumeHits *hits, vector <TRestVolumeHits>& hitSets )
+/// For the moment these methods might be replicated in other TrackProcesses
+void TRestTrackReconnectionProcess::BreakTracks( TRestVolumeHits *hits, vector <TRestVolumeHits>& hitSets, Double_t nSigma )
 {
         hitSets.clear();
         if( GetVerboseLevel() >= REST_Debug )
@@ -209,11 +210,11 @@ void TRestTrackReconnectionProcess::BreakTracks( TRestVolumeHits *hits, vector <
             if( GetVerboseLevel() >= REST_Debug && n > 0 )
             {
                 cout << "Distance : " << hits->GetDistance( n-1, n );
-                if ( hits->GetDistance( n-1, n ) > meanDistance + 0.5 * sigma ) cout << " BREAKKKK";
+                if ( hits->GetDistance( n-1, n ) > fMeanDistance + nSigma * fSigma ) cout << " BREAKKKK";
                 cout << endl;
             }
 
-            if( n > 0 && hits->GetDistance( n-1, n ) > meanDistance + 0.5 * sigma ) 
+            if( n > 0 && hits->GetDistance( n-1, n ) > fMeanDistance + nSigma * fSigma ) 
             {
                 hitSets.push_back( subHits );
                 subHits.RemoveHits();
@@ -424,13 +425,13 @@ void TRestTrackReconnectionProcess::ReconnectTracks( vector <TRestVolumeHits>& h
         cout << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" << endl;
 }
 
-Int_t TRestTrackReconnectionProcess::GetTrackBranches( TRestHits &h, Double_t mean, Double_t sigma )
+Int_t TRestTrackReconnectionProcess::GetTrackBranches( TRestHits &h, Double_t nSigma )
 {
     Int_t breaks = 0;
     Int_t nHits = h.GetNumberOfHits();
 
     for( int n = 1; n < nHits; n++ )
-        if(  h.GetDistance( n-1, n ) > mean + 2*sigma ) 
+        if(  h.GetDistance( n-1, n ) > fMeanDistance + nSigma * fSigma ) 
                 breaks++;
     return breaks;
 }
@@ -453,6 +454,8 @@ void TRestTrackReconnectionProcess::InitFromConfigFile( )
         fSplitTrack = true;
     else
         fSplitTrack = false;
+
+    fNSigmas = StringToDouble( GetParameter( "nSigmas", "5" ) );
 }
 
 void TRestTrackReconnectionProcess::SetDistanceMeanAndSigma( TRestHits *h )
@@ -460,17 +463,17 @@ void TRestTrackReconnectionProcess::SetDistanceMeanAndSigma( TRestHits *h )
 
     Int_t nHits = h->GetNumberOfHits();
 
-    meanDistance = 0;
+    fMeanDistance = 0;
     for( int n = 1; n < nHits; n++ )
-        meanDistance += h->GetDistance( n-1, n );
-    meanDistance /= nHits;
+        fMeanDistance += h->GetDistance( n-1, n );
+    fMeanDistance /= nHits;
 
-    sigma = TMath::Sqrt( meanDistance );
+    fSigma = TMath::Sqrt( fMeanDistance );
 
     if( GetVerboseLevel() >= REST_Debug )
     {
-        cout << "-----> Node distance average ; " << meanDistance << endl;
-        cout << "-----> Node distance sigma : " << sigma << endl;
+        cout << "-----> Node distance average ; " << fMeanDistance << endl;
+        cout << "-----> Node distance sigma : " << fSigma << endl;
         cout << endl;
     }
 }
