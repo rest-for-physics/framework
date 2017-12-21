@@ -1,4 +1,4 @@
-﻿
+
 
 # ============================================================================
 # Macro for compileing the whole directories into a single library

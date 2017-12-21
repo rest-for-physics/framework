@@ -29,7 +29,7 @@ if [[ $LD_LIBRARY_PATH =~ "$GARFIELD_HOME/lib" ]]; then
 else
     echo Adding garifeld lib path into env
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GARFIELD_HOME/lib
-    echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$GARFIELD_HOME/lib" >> ~/.bashrc
+    echo "export LD_LIBRARY_PATH=\$GARFIELD_HOME/lib:\$LD_LIBRARY_PATH" >> ~/.bashrc
 fi
 
 

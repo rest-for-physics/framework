@@ -46,7 +46,8 @@ if (Garfield_FOUND)
     endif (NOT Garfield_FIND_QUIETLY)
 else(Garfield_FOUND)
     if (Garfield_FIND_REQUIRED)
-        message(FATAL_ERROR "Garfield required, but not found")
+        message(FATAL_ERROR "Garfield required, but not found!\ntry to run \"./scripts/installation/v2.2/installGarfield.sh\" to install it.
+		")
     endif (Garfield_FIND_REQUIRED)
 endif(Garfield_FOUND)
 
