@@ -108,6 +108,10 @@ vector<string> TRestEventProcess::ReadObservables()
 		TStreamerElement* se = GetDataMemberWithName(obsnames[i]);
 		if (se != NULL)
 		{
+			if (se->GetType() != 8) {
+				warning << "Only double type datamember can be used as observable, \""<<obsnames[i]<<"\" will be skipped" << endl;
+				continue;
+			}
 			if (fAnalysisTree->AddObservable((TString)GetName() + "_" + obsnames[i], (double*)GetDataMemberRef(se))!=-1)
 				fObservableNames.push_back((TString)GetName() + "_" + obsnames[i]);
 		}
