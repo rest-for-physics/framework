@@ -482,7 +482,7 @@ void TRestRun::MergeProcessFile(vector<string> filenames, string targetfilename)
 		fMetadataInfo[i]->Write();
 	}
 
-	fout << this->ClassName() << " Created: " << filename << endl;
+	fout << this->ClassName() << " Created: " << fOutputFileName << endl;
 
 }
 
