@@ -361,7 +361,9 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 	if (fFileProcess != NULL)
 	{
 		debug << "TRestRun: getting next event from external process" << endl;
+		fFileProcess->BeginOfEventProcess();
 		fInputEvent = fFileProcess->ProcessEvent(NULL);
+		fFileProcess->EndOfEventProcess();
 		fCurrentEvent++;
 	}
 	else
@@ -391,6 +393,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 
 	if (fInputEvent == NULL)
 	{
+		fFileProcess->EndProcess();
 		return -1;
 	}
 
@@ -530,7 +533,7 @@ void TRestRun::SetExtProcess(TRestEventProcess* p)
 			error << "no files has been loaded by the external process!" << endl;
 			exit(0);
 		}
-
+		fFileProcess->InitProcess();
 		fInputEvent = fFileProcess->GetOutputEvent();
 		fInputFile = NULL;
 		fAnalysisTree = NULL;
