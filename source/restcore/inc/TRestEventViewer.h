@@ -27,13 +27,14 @@
 #include <TGLViewer.h>
 
 #include "TRestEvent.h"
-
+class TRestBrowser;
 class TRestEventViewer {
 
     protected:
      
-    TGeoManager *fGeometry;
-    TRestEvent *fEvent;
+    TGeoManager *fGeometry=0;//!
+    TRestEvent *fEvent=0;//!
+	TRestBrowser *fController=0;//!
         
     public:
 
@@ -46,6 +47,7 @@ class TRestEventViewer {
     //Setters
     virtual void SetGeometry( TGeoManager *geo){ fGeometry=geo;}
     void SetEvent( TRestEvent *ev){fEvent=ev;}
+	void SetController(TRestBrowser* b) { fController = b; }
     //Getters
     TGeoManager *GetGeometry( ){return fGeometry;}
     TRestEvent *GetEvent( ){return fEvent;}

@@ -18,6 +18,7 @@
 
 
 #include "TRestEventViewer.h"
+#include "TRestBrowser.h"
 
 
 ClassImp(TRestEventViewer)
