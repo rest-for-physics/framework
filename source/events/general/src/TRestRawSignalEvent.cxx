@@ -17,6 +17,7 @@
 #include <TMath.h>
 
 #include "TRestRawSignalEvent.h"
+#include "TRestStringHelper.h"
 using namespace std;
 
 ClassImp(TRestRawSignalEvent)
@@ -277,25 +278,52 @@ TPad *TRestRawSignalEvent::DrawEvent( TString option )
     fPad->DrawFrame( 0, GetMinValue()-1 , GetMaxTime()+1, GetMaxValue()+1);
 
     char title[256];
-    sprintf(title, "Event ID %d", this->GetID());
 
 
-    TMultiGraph *mg = new TMultiGraph();
-    mg->SetTitle(title);
-    mg->GetXaxis()->SetTitle("time bins");
-    mg->GetYaxis()->SetTitleOffset(1.4);
-    mg->GetYaxis()->SetTitle("Energy");
+	if (option == "") 
+	{
+		sprintf(title, "Event ID %d", this->GetID());
+
+		TMultiGraph *mg = new TMultiGraph();
+		mg->SetTitle(title);
+		mg->GetXaxis()->SetTitle("time bins");
+		mg->GetYaxis()->SetTitleOffset(1.4);
+		mg->GetYaxis()->SetTitle("Voltage");
 
 
-    for( int n = 0; n < nSignals; n++ )
-    {
-        TGraph *gr = fSignal[n].GetGraph( n + 1 );
+		for (int n = 0; n < nSignals; n++)
+		{
+			TGraph *gr = fSignal[n].GetGraph(n + 1);
 
-        mg->Add(gr);
-    }
+			mg->Add(gr);
+		}
 
-     fPad->cd();
-     mg->Draw("");
+		fPad->cd();
+		mg->Draw("");
+	}
+	else if(isANumber((string)option))
+	{
+		int signalid = StringToInteger((string)option);
+		if (signalid >= fSignal.size())
+		{
+			fPad->SetTitle("No Such Signal");
+			return fPad;
+		}
+
+
+		sprintf(title, "Event ID %d, Signal No. %d", this->GetID(),signalid);
+
+		TGraph *gr=fSignal[signalid].GetGraph(1);
+		gr->SetTitle(title);
+		gr->GetXaxis()->SetTitle("time bins");
+		gr->GetYaxis()->SetTitleOffset(1.4);
+		gr->GetYaxis()->SetTitle("Voltage");
+
+		fPad->cd();
+		gr->Draw();
+
+	}
+
 
     return fPad;
 }
