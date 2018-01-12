@@ -22,19 +22,34 @@
 
 #include "TRestEventViewer.h"
 
+#include "TGButton.h"
+#include "TGTextEntry.h"
+#include "TGLabel.h"
 class TRestGenericEventViewer:public TRestEventViewer {
 
  protected:
    
-    TPad *fPad;
-    TCanvas *fCanvas;
-    
-            
+    TPad *fPad=0;
+    TCanvas *fCanvas=0;
+	TRestEvent* fEvent=0;
+	
+	TGTextButton	*fButNext=0;  	//! Next signal.
+	TGTextButton	*fButPrev=0;  	//! Previous signal.
+	TGLabel			*fLabel=0;		//! label(content"plot options:")
+	TGTextEntry		*fOptwindow=0;	//! option input window.
+	TGTextButton	*fButOpt=0;   	//! draw with option.
+           
  public:
  
    virtual void Initialize();
          
    virtual void AddEvent( TRestEvent *ev );
+
+   void NextOption();
+
+   void PreviousOption();
+
+   void OptionPlot();
          
    //Constructor
    TRestGenericEventViewer();
