@@ -94,6 +94,16 @@ frmMain->AddFrame(fVFrame,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
 }
 
+void TRestBrowser::addFrame(TGFrame*f) 
+{ 
+	frmMain->AddFrame(f, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+	frmMain->DontCallClose();
+	frmMain->MapSubwindows();
+	//frmMain->Resize();
+	frmMain->Layout();
+	frmMain->MapWindow();
+}
+
 
 void TRestBrowser::LoadEventAction( ){
 
@@ -176,8 +186,8 @@ Bool_t TRestBrowser::OpenFile( TString fName )
 	
        if ( className == "TGeoManager" ) 
 		   geometry = (TGeoManager *) fInputFile->Get( key->GetName() );
-	   if(className=="TRestAnalysisTree")
-		   fAnalysisTree= (TRestAnalysisTree *)fInputFile->Get(key->GetName());
+	   //if(className=="TRestAnalysisTree")
+		  // fAnalysisTree= (TRestAnalysisTree *)fInputFile->Get(key->GetName());
     }
 
     if( fAnalysisTree == NULL && fEventTree == NULL)
@@ -195,17 +205,16 @@ Bool_t TRestBrowser::OpenFile( TString fName )
 	if (fEventTree != NULL) {
 		fEventTree->ConnectEventBranches();
 		//init viewer
-		string name=fInputEvent->ClassName();
-		name += "Viewer";
-		TClass *cl = TClass::GetClass(name.c_str());
-		if (cl == NULL) {
-			warning << "unsupported event type: " << fInputEvent->ClassName() << endl;
+		if (fEventViewer == NULL) {
+			TClass *cl = TClass::GetClass("TRestGenericEventViewer");
+			if (cl == NULL) {
+				warning << "cannot find TRestGenericEventViewer!" << endl;
+			}
+			else
+			{
+				fEventViewer = (TRestEventViewer*)cl->New();
+			}
 		}
-		else
-		{
-			fEventViewer = (TRestEventViewer*)cl->New();
-		}
-		
 	}
     
     if( geometry != NULL )fEventViewer->SetGeometry( geometry );

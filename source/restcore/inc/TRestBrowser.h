@@ -37,7 +37,7 @@ class TRestBrowser: public TRestRun {
     protected:
 	
     #ifndef __CINT__
-        TGMainFrame* frmMain;
+        TGMainFrame* frmMain;//!
 
         //Frames and buttons
         TGVerticalFrame *fVFrame;   	//! < Vertical frame.
@@ -54,7 +54,7 @@ private:
     #ifndef __CINT__
 	Bool_t isFile;
 	
-	TRestEventViewer *fEventViewer;
+	TRestEventViewer *fEventViewer;//!
    #endif
 	
     public:
@@ -67,12 +67,17 @@ private:
         void Initialize();                
 	void InitFromConfigFile();
 	
-	void SetViewer(TRestEventViewer *eV){fEventViewer=eV;}
+	void SetViewer(TRestEventViewer *eV) { fEventViewer = eV; eV->SetController(this); eV->Initialize(); }
 	
         void setWindowName(TString wName ){frmMain->SetWindowName(wName.Data());}
 
         void setButtons( );    
-	
+
+		TGHorizontalFrame *generateNewFrame() { return new TGHorizontalFrame(frmMain); }
+
+		void addFrame(TGFrame*f); 
+
+
         void LoadEventAction();
         void LoadNextEventAction();
         void LoadPrevEventAction();
