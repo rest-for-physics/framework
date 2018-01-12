@@ -151,7 +151,7 @@ bool TRestThread::TestRun()
 	{
 		error << "REST ERROR(" << "In thread " << fThreadId << ")::Process result is null after 5 times of retry." << endl;
 		error << "REST cannot determing the address of output event!" << endl;
-		error << "continue with default address of try again? (a)gain/(d)efault/(c)ancell" << endl;
+		error << "continue with default address or try again? (a)gain/(d)efault/(c)ancell" << endl;
 		while (1) {
 			char o;
 			cin >> o;

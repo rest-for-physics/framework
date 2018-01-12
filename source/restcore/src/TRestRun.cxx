@@ -374,7 +374,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 			if (fAnalysisTree->GetEntries() <= fCurrentEvent - 1)fInputEvent = NULL;
 
 			fAnalysisTree->GetEntry(fCurrentEvent);
-			if (targettree != NULL) {
+			if (targettree != NULL && targettree->isConnected()) {
 				for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
 					targettree->SetObservableValue(n, fAnalysisTree->GetObservableValue(n));
 			}
