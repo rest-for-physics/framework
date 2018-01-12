@@ -320,7 +320,7 @@ TPad *TRestRawSignalEvent::DrawEvent( TString option )
 		gr->GetYaxis()->SetTitle("Voltage");
 
 		fPad->cd();
-		gr->Draw();
+		gr->Draw("ALP");
 
 	}
 
