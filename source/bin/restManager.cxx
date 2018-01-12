@@ -106,7 +106,7 @@ int main( int argc, char *argv[] )
 			a->LoadConfigFromFile(cfgFileName);
 
 			fout << "Done!" << endl;
-			a->GetChar();
+			//a->GetChar();
 
 			delete a;
 
