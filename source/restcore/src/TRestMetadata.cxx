@@ -630,7 +630,7 @@ void TRestMetadata::SetEnvWithElement(TiXmlElement* e, bool overwriteexisting)
 ///////////////////////////////////////////////
 /// \brief Expand for loop and include definition for all the child elements.
 ///
-void TRestMetadata::ExpandElement(TiXmlElement*e) 
+void TRestMetadata::ExpandElement(TiXmlElement*e, bool recursive)
 {
 	ReplaceElementAttributes(e);
 	TiXmlElement* contentelement = e->FirstChildElement();
@@ -647,10 +647,11 @@ void TRestMetadata::ExpandElement(TiXmlElement*e)
 		{
 			ExpandIncludeFile(contentelement);
 		}
-		else if (contentelement->FirstChildElement() != NULL)
+		//if the child element contains its own child element, and is not a 
+		else if (contentelement->FirstChildElement() != NULL&&(recursive|| ((string)contentelement->Value()).find("TRest")==-1))
 		{
 			debug << "into child element of "<< contentelement->Value() << endl;
-			ExpandElement(contentelement);
+			ExpandElement(contentelement,recursive);
 		}
 		else
 		{
@@ -708,7 +709,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 				else
 				{
 					TiXmlElement*attatchedalament = (TiXmlElement*)contentelement->Clone();
-					ExpandElement(attatchedalament);
+					ExpandElement(attatchedalament,true);
 					//debug << *attatchedalament << endl;
 					parele->InsertBeforeChild(e, *attatchedalament);
 					delete attatchedalament;
@@ -846,7 +847,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 
 
 
-		ExpandElement(configele);
+		ExpandElement(configele,true);
 
 		//expand the included file content into the parent element
 		//this is called when the xml is like

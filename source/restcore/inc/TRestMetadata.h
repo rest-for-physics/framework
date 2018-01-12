@@ -256,7 +256,7 @@ private:
 	void SetEnvWithElement(TiXmlElement* e,bool overwriteexisting=true);
 	//void ExecuteForLoops(TiXmlElement* e);
 	//void LoadConfigInIncludeFile(TiXmlElement* e);
-	void ExpandElement(TiXmlElement*e);
+	void ExpandElement(TiXmlElement*e,bool recursive=false);
 	void ExpandForLoops(TiXmlElement*e);
 	void ExpandIncludeFile(TiXmlElement* e);
 
