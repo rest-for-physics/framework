@@ -109,7 +109,10 @@ class TRestHits : public TObject
 
         Bool_t isHitNInsideCylinder( Int_t n, TVector3 x0, TVector3 x1, Double_t radius );
         Int_t GetNumberOfHitsInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius );
+        Int_t GetNumberOfHitsInsideCylinder( Int_t i, Int_t j, Double_t radius );
+
         Double_t GetEnergyInCylinder( TVector3 x0, TVector3 x1, Double_t radius );
+        Double_t GetEnergyInCylinder( Int_t i, Int_t j, Double_t radius );
 
         Double_t GetEnergyInSphere( Double_t x, Double_t y, Double_t z, Double_t radius );
 

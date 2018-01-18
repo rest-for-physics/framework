@@ -194,6 +194,11 @@ Bool_t TRestHits::isHitNInsideCylinder( Int_t n, TVector3 x0, TVector3 x1, Doubl
     return false;
 }
 
+Double_t TRestHits::GetEnergyInCylinder( Int_t i, Int_t j, Double_t radius )
+{
+    return GetEnergyInCylinder( this->GetPosition(i), this->GetPosition(j), radius );
+}
+
 Double_t TRestHits::GetEnergyInCylinder( TVector3 x0, TVector3 x1, Double_t radius )
 {
     Double_t energy = 0.;
@@ -204,6 +209,11 @@ Double_t TRestHits::GetEnergyInCylinder( TVector3 x0, TVector3 x1, Double_t radi
     }
 
     return energy;
+}
+
+Int_t TRestHits::GetNumberOfHitsInsideCylinder( Int_t i, Int_t j, Double_t radius )
+{
+    return GetNumberOfHitsInsideCylinder( this->GetPosition(i), this->GetPosition(j), radius );
 }
 
 Int_t TRestHits::GetNumberOfHitsInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius )
