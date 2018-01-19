@@ -115,7 +115,7 @@ public:
 	void SetExtProcess(TRestEventProcess* p);
 	void SetCurrentEntry(int i) { fCurrentEvent = i; }
 	//void AddFileTask(TRestFileTask* t) { fFileTasks.push_back(t); }
-	void SetInputEvent(TRestEvent* eve) { fInputEvent = eve; }
+	void SetInputEvent(TRestEvent* eve);
 	void SetRunNumber(Int_t number) { fRunNumber = number; }
 	void SetParentRunNumber(Int_t number) { fParentRunNumber = number; }
 	void SetRunType(TString type)

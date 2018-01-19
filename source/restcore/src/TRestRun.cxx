@@ -222,23 +222,42 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 			fEventTree = Tree;
 			fEventTree->ConnectEventBranches();
 
-			debug << "Finding event branch.." << endl;
-			TObjArray* branches = fEventTree->GetListOfBranches();
-			//get the last event branch as input event branch
-			TBranch *br = (TBranch*)branches->At(branches->GetLast());
 
-			if (Count(br->GetName(), "EventBranch") == 0)
+			debug << "Finding event branch.." << endl;
+			if (fInputEvent == NULL) 
 			{
-				warning << "REST WARNING (OpenInputFile) : No event branch inside file : " << filename << endl;
-				warning << "This file may be a pure analysis file" << endl;
+				TObjArray* branches = fEventTree->GetListOfBranches();
+				//get the last event branch as input event branch
+				TBranch *br = (TBranch*)branches->At(branches->GetLast());
+
+				if (Count(br->GetName(), "EventBranch") == 0)
+				{
+					warning << "REST WARNING (OpenInputFile) : No event branch inside file : " << filename << endl;
+					warning << "This file may be a pure analysis file" << endl;
+				}
+				else
+				{
+					string type = Replace(br->GetName(), "Branch", "", 0);
+					fInputEvent = (TRestEvent*)TClass::GetClass(type.c_str())->New();
+					br->SetAddress(&fInputEvent);
+					debug << "found event branch of event type: " << fInputEvent->ClassName() << endl;
+				}
 			}
 			else
 			{
-				string type = Replace(br->GetName(), "Branch", "",0);
-				fInputEvent = (TRestEvent*)TClass::GetClass(type.c_str())->New();
-				br->SetAddress(&fInputEvent);
-				debug << "found event branch of event type: " << fInputEvent->ClassName() << endl;
+				string brname = (string)fInputEvent->ClassName()+"Branch";
+				if (fEventTree->GetBranch(brname.c_str()) == NULL) {
+					warning << "REST WARNING (OpenInputFile) : No matched event branch inside file : " << filename << endl;
+					warning << "Branch required: "<< brname << endl;
+				}
+				else
+				{
+					fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
+					debug << brname << " is found and set!" << endl;
+				}
+	
 			}
+
 
 		}
 		else
@@ -549,8 +568,18 @@ void TRestRun::SetExtProcess(TRestEventProcess* p)
 		}
 	}
 
+}
 
 
+void TRestRun::SetInputEvent(TRestEvent* eve)
+{
+	fInputEvent = eve;
+	if (fEventTree != NULL) {
+		string brname = (string)fInputEvent->ClassName() + "Branch";
+		if (fEventTree->GetBranch(brname.c_str()) != NULL) {
+			fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
+		}
+	}
 }
 
 
