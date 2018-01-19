@@ -39,7 +39,7 @@ void PrintHelp()
 
 int main( int argc, char *argv[] )
 {
-
+	TApplication app("app", NULL, NULL);
     vector <TString> list = TRestTools::GetListOfRESTLibraries( );
     for( unsigned int n = 0; n < list.size(); n++ )
     {
