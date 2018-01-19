@@ -1,6 +1,6 @@
 #include "TRestTask.h"
 #include "TRestSignal.h"
-Int_t REST_Drawer_ResponseSignal( TString fName )
+Int_t REST_Tools_DrawResponseSignal( TString fName )
 {
     TFile *f = new TFile( fName );
 

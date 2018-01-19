@@ -11,7 +11,7 @@ Double_t maxDriftVel = 0;
 Double_t maxLDiff = 0;
 Double_t maxTDiff = 0;
 
-int REST_Drawer_CombinedGasCurves( )
+int REST_Tools_DrawCombinedGasCurves( )
 {
 
     TRestGas *gas[nGases];
