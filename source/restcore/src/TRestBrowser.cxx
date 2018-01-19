@@ -48,7 +48,7 @@ fCurrentEvent=0;
 
 setButtons( );
 
-frmMain->DontCallClose();
+//frmMain->DontCallClose();
 frmMain->MapSubwindows();
 //frmMain->Resize();
 frmMain->Layout();
@@ -97,7 +97,7 @@ frmMain->AddFrame(fVFrame,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 void TRestBrowser::addFrame(TGFrame*f) 
 { 
 	frmMain->AddFrame(f, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
-	frmMain->DontCallClose();
+	//frmMain->DontCallClose();
 	frmMain->MapSubwindows();
 	//frmMain->Resize();
 	frmMain->Layout();
@@ -167,7 +167,7 @@ Bool_t TRestBrowser::OpenFile( TString fName )
 
     string fname = fName.Data();
     if( !fileExists( fname ) ) {
-        cout << "WARNING. Input file does not exist" << endl;
+        cout << "WARNING. Input file "<<fname<<" does not exist" << endl;
         return kFALSE; 
     }
     
@@ -250,7 +250,7 @@ return kTRUE;
 
 
 void TRestBrowser::ExitAction( ){
- 
+
 gApplication->Terminate(0);
 
 }
