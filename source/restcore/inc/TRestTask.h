@@ -25,6 +25,8 @@ public:
 	
 	ClassDef(TRestTask, 1);
 	
+	int fNRequiredArgument;
+
 	//define default values here
 	void Initialize() {}
 	//automatic setup values with rml config section
@@ -34,7 +36,7 @@ public:
 
 
 	virtual void RunTask(TRestManager*)=0;
-	virtual void PrintHelp() {};
+	virtual void PrintHelp();
 
 };
 

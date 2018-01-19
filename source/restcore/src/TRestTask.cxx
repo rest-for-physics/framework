@@ -3,6 +3,7 @@ ClassImp(TRestTask);
 
 TRestTask::TRestTask() {
 	Initialize();
+	fNRequiredArgument = 0;
 }
 
 void TRestTask::BeginOfInit()
@@ -19,10 +20,28 @@ void TRestTask::BeginOfInit()
 void TRestTask::InitTask(vector<string>argument)
 {
 	int n = GetNumberOfDataMember();
-	for (int i = 1; (i < argument.size()+1 && i < n); i++)
+	if (argument.size() < fNRequiredArgument) {
+		PrintHelp();
+		exit(0);
+	}
+	else
 	{
-		TStreamerElement* e = GetDataMemberWithID(i);
-		SetDataMemberVal(e,argument[i]);
-		debug<<"data member "<<e->GetName()<< " has been set to " << GetDataMemberValString(e);
+		for (int i = 1; (i < argument.size() + 1 && i < n); i++)
+		{
+			TStreamerElement* e = GetDataMemberWithID(i);
+			SetDataMemberVal(e, argument[i-1]);
+			debug << "data member " << e->GetName() << " has been set to " << GetDataMemberValString(e);
+		}
+	}
+
+}
+
+void TRestTask::PrintHelp() 
+{
+	error << this->ClassName() << " Gets invailed number of input argument!" << endl;
+	error << "You should give the following argument :" << endl;
+	int n = GetNumberOfDataMember();
+	for (int i = 1; (i < fNRequiredArgument + 1 && i < n); i++){
+		error << GetDataMemberWithID(i)->GetName() << endl;
 	}
 }
