@@ -171,28 +171,6 @@ Int_t REST_Printer_TrackEvent(TString fName, Int_t firstEvent = 0)
 }
 
 
-class REST_PrintEvents :public TRestTask {
-public:
-	ClassDef(REST_PrintEvents, 1);
-
-	REST_PrintEvents() { fNRequiredArgument = 2; }
-	~REST_PrintEvents() {}
-
-	TString filename = " ";
-	TString eventype = "";
-	int firsteve = 0;
-
-	void RunTask(TRestManager*mgr)
-	{
-		REST_Printer(filename, eventype, firsteve);
-	}
-
-};
-
-
-
-
-
 
 
 
