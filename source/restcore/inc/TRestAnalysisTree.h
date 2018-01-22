@@ -139,7 +139,7 @@ public:
 		std::cout << "Event Time : " << GetTimeStamp() << std::endl;
 		std::cout << "-----------------------------------------" << std::endl;
 		for (int n = 0; n < GetNumberOfObservables(); n++)
-			std::cout << "Observable Name : " << fObservableNames[n] << "    Value : " << fObservableValues[n] << std::endl;
+			std::cout << "Observable Name : " << fObservableNames[n] << "    Value : " << *fObservableValues[n] << std::endl;
 		std::cout << std::endl;
 
 	}
