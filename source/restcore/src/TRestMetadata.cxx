@@ -1939,38 +1939,23 @@ char* TRestMetadata::GetDataMemberRef(TStreamerElement*ele) {
 
 void TRestMetadata::SetDataMemberVal(TStreamerElement*ele, char*ptr) {
 
-	if (ele != NULL&&ele->GetType() == 8)//double
+	if (ele != NULL && ele->GetType() == 8)//double
 		*((double*)((char*)this + ele->GetOffset())) = *((double*)ptr);
-	if (ele != NULL&&ele->GetType() == 3)//int
+	if (ele != NULL && ele->GetType() == 3)//int
 		*((int*)((char*)this + ele->GetOffset())) = *((int*)ptr);
-	if (ele != NULL&&ele->GetType() == 365)//string
-		*((string*)((char*)this + ele->GetOffset())) = *((string*)ptr);
-	if (ele != NULL&&ele->GetType() == 65)//TString
+	if (ele != NULL && ele->GetType() == 65)//TString
 		*((TString*)((char*)this + ele->GetOffset())) = *((TString*)ptr);
-	if (ele != NULL&&ele->GetType() == 8)//other
-		return;
+
 }
 
 void TRestMetadata::SetDataMemberVal(TStreamerElement*ele, string valdef)
 {
-	if (ele != NULL&&ele->GetType() == 8)//double
-	{
+	if (ele != NULL && ele->GetType() == 8)//double
 		*((double*)((char*)this + ele->GetOffset())) = StringToDouble(valdef);
-	}
-	if (ele != NULL&&ele->GetType() == 3)//int
-	{
+	if (ele != NULL && ele->GetType() == 3)//int
 		*((int*)((char*)this + ele->GetOffset())) = StringToInteger(valdef);
-
-	}
-	if (ele != NULL&&ele->GetType() == 365)//string
-	{
-		*((string*)((char*)this + ele->GetOffset())) = valdef;
-
-	}
-	if (ele != NULL&&ele->GetType() == 65)//TString
-	{
+	if (ele != NULL && ele->GetType() == 65)//TString
 		*((TString*)((char*)this + ele->GetOffset())) = (TString)(valdef);
-	}
 }
 
 
@@ -1984,16 +1969,13 @@ void TRestMetadata::SetDataMemberValFromConfig(TStreamerElement*ele)
 
 string TRestMetadata::GetDataMemberValString(TStreamerElement*ele)
 {
-	if (ele != NULL&&ele->GetType() == 8)//double
+	if (ele != NULL && ele->GetType() == 8)//double
 		return ToString(*(double*)((char*)this + ele->GetOffset()));
-	if (ele != NULL&&ele->GetType() == 3)//int
+	if (ele != NULL && ele->GetType() == 3)//int
 		return ToString(*(int*)((char*)this + ele->GetOffset()));
-	if (ele != NULL&&ele->GetType() == 365)//string
-		return ToString(*(string*)((char*)this + ele->GetOffset()));
-	if (ele != NULL&&ele->GetType() == 65)//TString
+	if (ele != NULL && ele->GetType() == 65)//TString
 		return ToString(*(TString*)((char*)this + ele->GetOffset()));
-	if (ele != NULL&&ele->GetType() == 8)//other
-		return ele->GetTypeName();
+	return ele->GetTypeName();
 }
 
 
