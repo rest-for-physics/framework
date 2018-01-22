@@ -13,6 +13,8 @@
 #include "TLatex.h"
 #include "TRandom.h"
 #include "TGeoManager.h"
+#include "TROOT.h"
+#include "TInterpreter.h"
 class TRestManager;
 
 using namespace std;
@@ -21,23 +23,34 @@ class TRestTask :public TRestMetadata {
 
 public:
 	TRestTask();
+	TRestTask(TString MacroFileName);
 	~TRestTask() {};
 	
 	ClassDef(TRestTask, 1);
 	
-	int fNRequiredArgument;
+	int fNRequiredArgument;//!
 
 	//define default values here
 	void Initialize() {}
 	//automatic setup values with rml config section
 	void BeginOfInit();
+
+	void SetArgumentValue(string name, string value);
 	//automatic set values with input argument
-	void InitTask(vector<string>argument);
+	static TRestTask* GetTask(TString Name);
+
+	bool InitTask(vector<string>arg);
 
 
-	virtual void RunTask(TRestManager*)=0;
+	virtual void RunTask(TRestManager*);
 	virtual void PrintHelp();
 
+private:
+	string methodname;
+	vector<int>argumenttype;
+	vector<string>argumentname;
+	vector<string>argument;//!
+	TString cmdstr="";//!
 };
 
 
