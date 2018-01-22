@@ -98,15 +98,14 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 				c= TClass::GetClass(("REST_"+(string)type).c_str());
 				if (c == NULL) {
 					warning << " " << endl;
-					warning << "REST ERROR. Task : " << type << " not found!!" << endl;
-					warning << "This process will be skipped." << endl;
+					warning << "REST ERROR. Metadata Task : " << type << " not found!!" << endl;
+					warning << "This task will be skipped." << endl;
 					return -1;
 				}
 
 			}
 			TRestTask*tsk = (TRestTask*)c->New();
 			tsk->LoadConfigFromFile(e, fElementGlobal);
-			tsk->InitTask(vector<string>());
 			
 			tsk->RunTask(this);
 			return 0;

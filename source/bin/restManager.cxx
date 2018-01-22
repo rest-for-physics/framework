@@ -116,14 +116,23 @@ int main( int argc, char *argv[] )
 		}
 		else//usage2
 		{
-
-
+			TRestTask*tsk;
+			vector<string> argumentlist;
+			for (int i = 2; i < argc; i++)
+			{
+				string a = argv[i];
+				argumentlist.push_back(a);
+			}
 			string type = (argv[1]);
 			fout <<"Initializing "<< type << endl;
 			TClass* c= TClass::GetClass(type.c_str());
 			if (c == NULL) {
 				c= TClass::GetClass(("REST_"+type).c_str());
-				if (c == NULL) {
+
+			}
+			if (c == NULL) {
+				tsk = TRestTask::GetTask(type);
+				if (tsk == NULL) {
 					fout.setcolor(COLOR_BOLDRED);
 					fout << "ERROR: Task \"" << type << "\" is not defined !" << endl;
 					fout << endl;
@@ -131,23 +140,22 @@ int main( int argc, char *argv[] )
 					exit(0);
 				}
 			}
-			if (!c->InheritsFrom("TRestTask")) {
-				fout.setcolor(COLOR_BOLDRED);
-				fout << "This class is not inherted from TRestTask!" << endl;
-				fout << endl;
-				PrintHelp();
-				exit(0);
+			if (c != NULL) {
+				if (!c->InheritsFrom("TRestTask")) {
+					fout.setcolor(COLOR_BOLDRED);
+					fout << "This class is not inherted from TRestTask!" << endl;
+					fout << endl;
+					PrintHelp();
+					exit(0);
+				}
+				else
+				{
+					tsk = (TRestTask*)c->New();
+				}
 			}
-			TRestTask* tsk = (TRestTask*)c->New();
-			vector<string> argumentlist;
-			for (int i = 2; i < argc; i++)
-			{
-				string a = argv[i];
-				argumentlist.push_back(a);
-			}
+			
 			tsk->InitTask(argumentlist);
 			tsk->RunTask(NULL);
-
 		}
 	}
 
