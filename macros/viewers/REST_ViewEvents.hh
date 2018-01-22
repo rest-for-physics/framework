@@ -7,11 +7,11 @@
 #include "TRestSignalEvent.h"
 #include "TRestTrackEvent.h"
 
-#ifndef RESTTask_ViewEvents
-#define RESTTask_ViewEvents
+#ifndef RestTask_ViewEvents
+#define RestTask_ViewEvents
 
 
-Int_t REST_Viewer(TString fName = " ", TString EventType = "")
+Int_t REST_Viewer(TString fName , TString EventType = "")
 {
 	TRestBrowser *browser = new TRestBrowser();
 	TRestGenericEventViewer *viewer = new TRestGenericEventViewer();
@@ -43,7 +43,7 @@ Int_t REST_Viewer(TString fName = " ", TString EventType = "")
 	return 0;
 }
 
-Int_t REST_Viewer_LinearTrackEvent(TString fName = " ")
+Int_t REST_Viewer_LinearTrackEvent(TString fName)
 {
 	TRestBrowser *browser = new TRestBrowser();
 
@@ -58,7 +58,7 @@ Int_t REST_Viewer_LinearTrackEvent(TString fName = " ")
 	return 0;
 }
 
-Int_t REST_Viewer_RawSignalEvent(TString fName = " ")
+Int_t REST_Viewer_RawSignalEvent(TString fName)
 {
 	TRestBrowser *browser = new TRestBrowser();
 
@@ -74,7 +74,7 @@ Int_t REST_Viewer_RawSignalEvent(TString fName = " ")
 }
 
 
-Int_t REST_Viewer_SignalEvent(TString fName = " ")
+Int_t REST_Viewer_SignalEvent(TString fName)
 {
 	TRestBrowser *browser = new TRestBrowser();
 
@@ -89,7 +89,7 @@ Int_t REST_Viewer_SignalEvent(TString fName = " ")
 	return 0;
 }
 
-Int_t REST_Viewer_TrackEvent(TString fName = " ")
+Int_t REST_Viewer_TrackEvent(TString fName)
 {
 	TRestBrowser *browser = new TRestBrowser();
 
@@ -110,7 +110,7 @@ class REST_ViewEvents :public TRestTask {
 public:
 	ClassDef(REST_ViewEvents, 1);
 
-	REST_ViewEvents() { fNRequiredArgument = 0; }
+	REST_ViewEvents() { fNRequiredArgument = 1; }
 	~REST_ViewEvents() {}
 
 	TString filename = " ";

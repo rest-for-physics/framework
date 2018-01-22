@@ -4,6 +4,9 @@
 #include "TRestBrowser.h"
 using namespace std;
 
+#ifndef RestTask_ViewGeometry
+#define RestTask_ViewGeometry
+
 Int_t REST_Viewer_Geometry( TString fName)
 {
 
@@ -48,3 +51,23 @@ Int_t REST_Viewer_Geometry( TString fName)
 
     return 0;
 }
+
+
+class REST_ViewGeometry :public TRestTask {
+public:
+	ClassDef(REST_ViewGeometry, 1);
+
+	REST_ViewGeometry() { fNRequiredArgument = 1; }
+	~REST_ViewGeometry() {}
+
+	TString filename = " ";
+
+	void RunTask(TRestManager*mgr)
+	{
+		REST_Viewer_Geometry(filename);
+		gApplication->Run();
+	}
+
+};
+
+#endif

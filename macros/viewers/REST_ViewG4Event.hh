@@ -2,7 +2,10 @@
 #include "TRestG4EventViewer.h"
 #include "TRestBrowser.h"
 
-Int_t REST_Viewer_G4Event( TString fName = " " )
+#ifndef RestTask_ViewG4Events
+#define RestTask_ViewG4Events
+
+Int_t REST_Viewer_G4Event( TString fName)
 {
     TRestBrowser *browser = new TRestBrowser( );
 
@@ -10,7 +13,26 @@ Int_t REST_Viewer_G4Event( TString fName = " " )
     browser->SetViewer( viewer );
 
     browser->OpenFile(fName);
-
+	
     return 0;
 }
 
+
+class REST_ViewG4Events :public TRestTask {
+public:
+	ClassDef(REST_ViewG4Events, 1);
+
+	REST_ViewG4Events() { fNRequiredArgument = 1; }
+	~REST_ViewG4Events() {}
+
+	TString filename = " ";
+
+	void RunTask(TRestManager*mgr)
+	{
+		REST_Viewer_G4Event(filename);
+		gApplication->Run();
+	}
+
+};
+
+#endif

@@ -5,6 +5,9 @@
 #include <iostream>
 using namespace std;
 
+#ifndef RestTask_ViewReadout
+#define RestTask_ViewReadout
+
 int REST_Viewer_Readout( TString rootFile, TString name, Int_t plane = 0 )
 {
 
@@ -152,4 +155,26 @@ int REST_Viewer_Readout( TString rootFile, TString name, Int_t plane = 0 )
     
     return 0;
 }
+
+
+class REST_ViewReadout :public TRestTask {
+public:
+	ClassDef(REST_ViewReadout, 1);
+
+	REST_ViewReadout() { fNRequiredArgument = 2; }
+	~REST_ViewReadout() {}
+
+	TString filename = " ";
+	TString eventype = "";
+	int planeId = 0;
+
+	void RunTask(TRestManager*mgr)
+	{
+		REST_Viewer_Readout(filename, eventype,planeId);
+		gApplication->Run();
+	}
+
+};
+
+#endif
 
