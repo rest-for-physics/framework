@@ -11,9 +11,9 @@
 #define RestTask_CreateHisto
 
 
-Int_t REST_General_CreateHisto(char varName[],
-	char rootFileName[],
-	char histoName[],
+Int_t REST_General_CreateHisto(TString varName,
+	TString rootFileName,
+	TString histoName,
 	int startVal = 0,
 	int endVal = 1000,
 	int bins = 1000,
@@ -68,12 +68,12 @@ class REST_CreateHisto :public TRestTask {
 public:
 	ClassDef(REST_CreateHisto, 1);
 
-	REST_CreateHisto() {}
+	REST_CreateHisto() { fNRequiredArgument = 3; }
 	~REST_CreateHisto() {}
 
-	char* varName;
-	char* rootFileName;
-	char* histoName;
+	TString varName="";
+	TString rootFileName="";
+	TString histoName="";
 	int startVal = 0;
 	int endVal = 1000;
 	int bins = 1000;
@@ -81,23 +81,13 @@ public:
 
 	void RunTask(TRestManager*mgr) 
 	{
-		if (mgr == NULL) {
-			if (varName == NULL||rootFileName == NULL || histoName == NULL) {
-				PrintHelp(); return;
-			}
-			int result= REST_General_CreateHisto(varName,
+		REST_General_CreateHisto(varName,
 				rootFileName,
 				histoName,
 				startVal,
 				endVal,
 				bins,
 				normFactor);
-			if (result == -1) { error << "error occurred!" << endl; }
-		}
-		else
-		{
-		
-		}
 	}
 
 };
