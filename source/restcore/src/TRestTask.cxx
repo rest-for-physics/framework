@@ -6,7 +6,7 @@ TRestTask::TRestTask() {
 	fNRequiredArgument = 0;
 }
 
-TRestTask::TRestTask(TString MacroFileName) 
+TRestTask::TRestTask(TString MacroFileName)
 {
 	Initialize();
 	fNRequiredArgument = 0;
@@ -22,7 +22,7 @@ TRestTask::TRestTask(TString MacroFileName)
 
 		if (line.find('(') != -1 && line.find(' ') > 0) {
 			//this line in a definition the macro method
-			methodname = line.substr(line.find(' '), line.find('(') - line.find(' '));
+			methodname = line.substr(line.find(' ') + 1, line.find('(') - line.find(' ') - 1);
 			SetName(methodname.c_str());
 
 
@@ -30,10 +30,10 @@ TRestTask::TRestTask(TString MacroFileName)
 			auto list = Spilt(args, ",");
 			argumentname.clear();
 			argumenttype.clear();
-			for (int i = 0; i < list.size(); i++) 
+			for (int i = 0; i < list.size(); i++)
 			{
 				auto tmp = Spilt(list[i], " ");
-				if (tmp[0] == "TString") 
+				if (tmp[0] == "TString")
 				{
 					argumenttype.push_back(65);
 				}
@@ -49,8 +49,16 @@ TRestTask::TRestTask(TString MacroFileName)
 				{
 					argumenttype.push_back(-1);
 				}
-				argumentname.push_back(tmp[1]);
-				argument.push_back("");
+				argumentname.push_back(Spilt(tmp[1], "=")[0]);
+				if (Spilt(list[i], "=").size() > 1) {
+					argument.push_back(Spilt(list[i], "=")[1]);
+				}
+				else
+				{
+					argument.push_back("");
+					fNRequiredArgument++;
+				}
+
 			}
 
 			break;
@@ -75,7 +83,7 @@ void TRestTask::BeginOfInit()
 	}
 }
 
-void TRestTask::SetArgumentValue(string name, string value) 
+void TRestTask::SetArgumentValue(string name, string value)
 {
 	for (int i = 0; i < argumentname.size(); i++) {
 		if (name == argumentname[i]) {
@@ -92,7 +100,7 @@ TRestTask* TRestTask::GetTask(TString MacroName)
 	FILE *f = fopen("/tmp/macros.list", "r");
 	char str[256];
 	fscanf(f, "%s\n", str);
-	if (feof(f) == 0) 
+	if (feof(f) == 0)
 	{
 		cout << "REST ERROR : multi matching of macro \"" << MacroName << "\" found!" << endl;
 		fclose(f);
@@ -106,8 +114,8 @@ TRestTask* TRestTask::GetTask(TString MacroName)
 	{
 		return NULL;
 	}
-	cout << "Found MacroFile "<<(string)str << endl;
-	if (gInterpreter->LoadFile(str)!=0)
+	cout << "Found MacroFile " << (string)str << endl;
+	if (gInterpreter->LoadFile(str) != 0)
 	{
 		return NULL;
 	}
@@ -117,15 +125,20 @@ TRestTask* TRestTask::GetTask(TString MacroName)
 
 bool TRestTask::InitTask(vector<string>arg)
 {
+	if (arg.size() < fNRequiredArgument) {
+		PrintHelp();
+		exit(0);
+	}
 	argument = arg;
 	if (this->ClassName() == (string)"TRestTask") //this class
 	{
+
 		string methodname = GetName();
 		cmdstr = methodname + "(";
 		for (int i = 0; i < argument.size(); i++)
 		{
 			if (argumenttype[i] == 65) {
-				cmdstr += "\""+argument[i]+"\"";
+				cmdstr += "\"" + argument[i] + "\"";
 			}
 			else
 			{
@@ -137,24 +150,18 @@ bool TRestTask::InitTask(vector<string>arg)
 		}
 		cmdstr += ")";
 
-		cout << "Command : " <<cmdstr << endl;
+		cout << "Command : " << cmdstr << endl;
 	}
 	else//call from inherted class
 	{
 		int n = GetNumberOfDataMember();
-		if (argument.size() < fNRequiredArgument) {
-			PrintHelp();
-			exit(0);
-		}
-		else
+		for (int i = 1; (i < argument.size() + 1 && i < n); i++)
 		{
-			for (int i = 1; (i < argument.size() + 1 && i < n); i++)
-			{
-				TStreamerElement* e = GetDataMemberWithID(i);
-				SetDataMemberVal(e, argument[i - 1]);
-				debug << "data member " << e->GetName() << " has been set to " << GetDataMemberValString(e);
-			}
+			TStreamerElement* e = GetDataMemberWithID(i);
+			SetDataMemberVal(e, argument[i - 1]);
+			debug << "data member " << e->GetName() << " has been set to " << GetDataMemberValString(e);
 		}
+
 	}
 
 	return true;
@@ -163,18 +170,35 @@ bool TRestTask::InitTask(vector<string>arg)
 
 void TRestTask::RunTask(TRestManager*a)
 {
-	if (a == NULL&&cmdstr!="") {
+	if (a == NULL && cmdstr != "") {
 		gInterpreter->ProcessLine(cmdstr);
 	}
 }
 
 
-void TRestTask::PrintHelp() 
+void TRestTask::PrintHelp()
 {
-	error << this->ClassName() << " Gets invailed number of input argument!" << endl;
-	error << "You should give the following argument :" << endl;
-	int n = GetNumberOfDataMember();
-	for (int i = 1; (i < fNRequiredArgument + 1 && i < n); i++){
-		error << GetDataMemberWithID(i)->GetName() << endl;
+	if (this->ClassName() == (string)"TRestTask")
+	{
+		error << GetName() << "() Gets invailed input!" << endl;
+		error << "You should give the following arguments ( * : necessary input):" << endl;
+		int n = argument.size();
+		for (int i = 0; i < n; i++) {
+			if (i < fNRequiredArgument)
+				error << "*";
+			error << argumentname[i] << endl;
+		}
 	}
+	else
+	{
+		error << "Macro class \"" << this->ClassName() << "\" gets invailed input!" << endl;
+		error << "You should give the following arguments ( * : necessary input):" << endl;
+		int n = GetNumberOfDataMember();
+		for (int i = 1; i < n; i++) {
+			if (i < fNRequiredArgument + 1)
+				error << "*";
+			error << GetDataMemberWithID(i)->GetName() << endl;
+		}
+	}
+
 }
