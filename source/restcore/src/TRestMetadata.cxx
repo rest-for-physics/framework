@@ -668,6 +668,7 @@ void TRestMetadata::ExpandElement(TiXmlElement*e, bool recursive)
 void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 {
 	if ((string)e->Value() != "for")return;
+	ReplaceElementAttributes(e);
 
 	const char* varname = e->Attribute("variable");
 	const char* varfrom = e->Attribute("from");
@@ -737,6 +738,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 /// xml element. 
 void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 {
+	ReplaceElementAttributes(e);
 	const char* filename = e->Attribute("file");
 	if (filename == NULL)return;
 	if (ChecktheFile(filename) == -1) { 
