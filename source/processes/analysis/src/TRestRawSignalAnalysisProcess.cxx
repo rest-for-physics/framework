@@ -138,11 +138,11 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 		Double_t _ampint = sgnl->GetIntegralWithThreshold((Int_t)fIntegralRange.X(), (Int_t)fIntegralRange.Y(), fBaseLineRange.X(), fBaseLineRange.Y(), fPointThreshold, fNPointsOverThreshold, fSignalThreshold);
 		Double_t _risetime = (sgnl->GetPointsOverThreshold().size() < 2) ? 0 : sgnl->GetRiseTime();
 
-		baseline.push_back(_bslval);
-		baselinesigma.push_back(_bslsigma);
-		ampsgn_intmethod.push_back(_ampint);
-		ampsgn_maxmethod.push_back(_ampmax);
-		risetime.push_back(_risetime);
+		baseline[sgnl->GetID()] = (_bslval);
+		baselinesigma[sgnl->GetID()] = (_bslsigma);
+		ampsgn_intmethod[sgnl->GetID()] = (_ampint);
+		ampsgn_maxmethod[sgnl->GetID()] = (_ampmax);
+		risetime[sgnl->GetID()] = (_risetime);
 
 		baselinemean += _bslval;
 		baselinesigmamean += _bslsigma;

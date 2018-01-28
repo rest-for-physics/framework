@@ -74,15 +74,15 @@ private:
 	TH1D *fChannelsHisto;//!
 
 	// analysis result(saved in its branch in the analysis tree, in sequence)
-	vector<Double_t> baseline;
+	map<int,Double_t> baseline;
 	Double_t baselinemean;
-	vector<Double_t> baselinesigma;
+	map<int, Double_t> baselinesigma;
 	Double_t baselinesigmamean;
-	vector<Double_t> ampsgn_maxmethod;
+	map<int, Double_t> ampsgn_maxmethod;
 	Double_t ampeve_maxmethod;
-	vector<Double_t> ampsgn_intmethod;
+	map<int, Double_t> ampsgn_intmethod;
 	Double_t ampeve_intmethod;
-	vector<Double_t> risetime;
+	map<int, Double_t> risetime;
 	Double_t risetimemean;
 
 
