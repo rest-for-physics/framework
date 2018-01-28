@@ -1,3 +1,0 @@
-Rint.Logon: ${REST_PATH}/install/config/root/rootlogon.C
-Rint.Load:  ${REST_PATH}/install/config/root/rootalias.C
-
