@@ -62,6 +62,7 @@ def main():
     if checkoutgit()==True:
         vars.opt["Check_Installed"]="False"
         if installation.checkinstalled("REST"):
+            vars.opt["Install_Path"]=os.environ["REST_PATH"]
             installation.install("REST")
         else :
             print "REST has not been installed!"

@@ -25,7 +25,12 @@ def checkinstalled(name):
         if "2." in out and err == "":
             return True
     elif "restG4" in name:
+        p = subprocess.Popen(["which restG4"], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
+        out, err = p.communicate()
+        if "no restG4 in" in out:
             return False
+        else:
+            return True
     elif "tinyxml" in name:
         out1,err1 = subprocess.Popen(['find', '/usr/lib64', '-name', '*libtinyxml*'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
         out2,err2 = subprocess.Popen(['find', '/usr/lib', '-name', '*libtinyxml*'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
@@ -69,7 +74,7 @@ def install(name):
             print "installing restG4...\n\n"            
             os.system("mkdir -p "+vars.opt["Build_Path"]+"/restG4" )
             os.chdir(vars.opt["Build_Path"]+"/restG4")
-            os.system("cmake "+vars.opt["Source_Path"]+"/packages/restG4/" +" -DINSTALL_PREFIX=" +vars.opt["Install_Path"]+"/libs/")
+            os.system("cmake "+vars.opt["Source_Path"]+"/packages/restG4/")
             os.system("make -j"+vars.opt["Make_Threads"] )
             os.system("make install")
         else:
