@@ -9,6 +9,7 @@ print "checking if root is installed...", installation.checkinstalled("root6")
 print "checking if geant4 is installed...", installation.checkinstalled("geant4")
 print "checking if garfield is installed...", installation.checkinstalled("garfield")
 print "checking if REST is installed...", installation.checkinstalled("REST")
+print "checking if restG4 is installed...", installation.checkinstalled("restG4")
 print "checking if tinyxml is installed...", installation.checkinstalled("tinyxml")
 
 root = Tk()

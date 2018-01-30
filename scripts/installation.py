@@ -27,7 +27,7 @@ def checkinstalled(name):
     elif "restG4" in name:
         p = subprocess.Popen(["which restG4"], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
         out, err = p.communicate()
-        if "no restG4 in" in out:
+        if "no restG4 in" in out or out == "":
             return False
         else:
             return True
