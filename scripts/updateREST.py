@@ -63,6 +63,9 @@ def main():
         vars.opt["Check_Installed"]="False"
         if installation.checkinstalled("REST"):
             installation.install("REST")
+        else :
+            print "REST has not been installed!"
+            return "not updated"
         if installation.checkinstalled("restG4"):
             installation.install("restG4")
         print "installed new version : ",commitid()
