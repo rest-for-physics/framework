@@ -359,12 +359,13 @@ TRestMetadata::TRestMetadata()
 ///////////////////////////////////////////////
 /// \brief constructor
 ///
-TRestMetadata::TRestMetadata(const char *cfgFileNamecfgFileName)
+TRestMetadata::TRestMetadata(const char *cfgFileName)
 {
 	fStore = true;
 	fElementGlobal = NULL;
 	fElement = NULL;
 	fVerboseLevel = REST_Silent;
+	fConfigFileName = cfgFileName;
 	//helper = new TRestStringHelper();
 	fElementEnv.clear();
 }
@@ -1241,7 +1242,13 @@ string TRestMetadata::GetUnits(TiXmlElement* e, string whoseunits)
 		{
 			warning << "REST WARNING : Parameter \"" << whoseunits << " = " << a << "\" dose not contain any units" << endl;
 			warning << "Trying to find unit in element..." << endl;
-			return GetUnits(e, "");
+			if (GetElementWithName("parameter", whoseunits, e) != NULL) {
+				return GetUnits(GetElementWithName("parameter", whoseunits, e), "");
+			}
+			else
+			{
+				return GetUnits(e, "");
+			}
 		}
 	}
 
@@ -1269,18 +1276,31 @@ TiXmlElement* TRestMetadata::StringToElement(string definition)
 string TRestMetadata::ElementToString(TiXmlElement*ele)
 {
 	if (ele != NULL) {
+
+		//remove comments
+		TiXmlNode*n = ele->FirstChild();
+		while (n != NULL) {
+			TiXmlComment*cmt = n->ToComment();
+			if (cmt != NULL) {
+				TiXmlNode*nn = n;
+				n = n->NextSibling();
+				ele->RemoveChild(nn);
+				continue;
+			}
+			n = n->NextSibling();
+		}
+
 		stringstream ss;
 		ss << (*ele);
 		string s = ss.str();
 
-		//remove comments
-		int pos = 0;
-		int pos2 = 0;
-		while ((pos = s.find("<!--", pos)) != -1 && (pos2 = s.find("-->", pos)) != -1)
-		{
-			s.replace(pos, pos2 - pos + 3, "");//3 is the length of "-->"
-			pos = pos + 1;
-		}
+		//int pos = 0;
+		//int pos2 = 0;
+		//while ((pos = s.find("<!--", pos)) != -1 && (pos2 = s.find("-->", pos)) != -1)
+		//{
+		//	s.replace(pos, pos2 - pos + 3, "");//3 is the length of "-->"
+		//	pos = pos + 1;
+		//}
 
 		return s;
 	}
@@ -1331,7 +1351,8 @@ string TRestMetadata::GetKEYStructure(std::string keyName, size_t &fromPosition,
 	debug << "Start position : " << position << endl;
 
 	string startKEY = "<" + keyName;
-	string endKEY = "/" + keyName;
+	string endKEY1 = "/>";
+	string endKEY2 = "/" + keyName;
 
 	debug << "Reduced buffer : " << buffer.substr(position) << endl;
 
@@ -1340,7 +1361,10 @@ string TRestMetadata::GetKEYStructure(std::string keyName, size_t &fromPosition,
 
 	if (initPos == string::npos) { debug << "KEY not found!!" << endl; return ""; }
 
-	size_t endPos = buffer.find(endKEY, initPos);
+	size_t endPos1 = buffer.find(endKEY1, initPos);
+	size_t endPos2 = buffer.find(endKEY2, initPos);
+	size_t endPos = endPos1 < endPos2 ? endPos1 : endPos2;
+	size_t len= endPos1 < endPos2 ? endKEY1.length() : endKEY2.length();
 
 	debug << "End position : " << endPos << endl;
 
@@ -1352,7 +1376,7 @@ string TRestMetadata::GetKEYStructure(std::string keyName, size_t &fromPosition,
 
 	fromPosition = endPos;
 
-	return buffer.substr(initPos, endPos - initPos + endKEY.length() + 1);
+	return buffer.substr(initPos, endPos - initPos + len + 1);
 }
 
 ///////////////////////////////////////////////
@@ -1433,7 +1457,9 @@ Double_t TRestMetadata::GetDblFieldValueWithUnits(string fieldName, string defin
 		e = e->NextSiblingElement();
 		ele->RemoveChild(tmp);
 	}
-	return GetDblParameterWithUnits(fieldName,ele);
+	auto value= GetDblParameterWithUnits(fieldName,ele);
+	delete ele;
+	return value;
 }
 TVector2 TRestMetadata::Get2DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition)
 {
@@ -1444,7 +1470,9 @@ TVector2 TRestMetadata::Get2DVectorFieldValueWithUnits(string fieldName, string 
 		e = e->NextSiblingElement();
 		ele->RemoveChild(tmp);
 	}
-	return Get2DVectorParameterWithUnits(fieldName, ele);
+	auto value= Get2DVectorParameterWithUnits(fieldName, ele);
+	delete ele;
+	return value;
 }
 TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition)
 {
@@ -1455,7 +1483,9 @@ TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits(string fieldName, string 
 		e = e->NextSiblingElement();
 		ele->RemoveChild(tmp);
 	}
-	return Get3DVectorParameterWithUnits(fieldName, ele);
+	auto value = Get3DVectorParameterWithUnits(fieldName, ele);
+	delete ele;
+	return value;
 }
 
 
