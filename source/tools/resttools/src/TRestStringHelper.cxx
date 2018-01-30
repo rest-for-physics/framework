@@ -317,8 +317,8 @@ Int_t TRestStringHelper::ChecktheFile(std::string FileName)
 
 	if (!ifs)
 	{
-		cout << "Config filename : " << FileName << endl;
-		cout << "REST WARNING. TRestMetadata. Config file could not be opened. Right path/filename?" << endl;
+		cout << "Filename : " << FileName << endl;
+		cout << "REST WARNING. File could not be opened. Right path/filename?" << endl;
 		return -1;
 	}
 	else ifs.close();
