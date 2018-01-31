@@ -4,6 +4,7 @@ import time
 import updateREST
 import installation
 import vars
+import subprocess
 
 print "checking if root is installed...", installation.checkinstalled("root6")
 print "checking if geant4 is installed...", installation.checkinstalled("geant4")
@@ -64,22 +65,22 @@ class Application(Frame):
 
 
     var = StringVar()
-    step = 0
-    #(0~9 REST, 10~19 restG4, <0 : install completed, 0\10\20...  : begin of
-    #wizard)
+
 
     def installrestbtn(self):
         self.step = 0
-        self.stepplus()
+        self.refreshdisplay()
 
     def installrestG4btn(self):
         self.step = 10
-        self.stepplus()
+        self.refreshdisplay()
 
     def updaterestbtn(self):
         self.step = 20
-        self.stepplus()
+        self.refreshdisplay()
 
+
+#define button actions
     def stepplus(self):
         self.applyopt()
         self.step = self.step + 1
@@ -88,24 +89,44 @@ class Application(Frame):
     def stepminus(self):
         self.step = self.step - 1
         self.refreshdisplay()
-    
+
+
+
+#define step actions
+    step = 0
+#(0~9 REST, 10~19 restG4, <0 : install completed, 0\10\20...  : begin of the wizard)
+
     def refreshdisplay(self):
-        if self.step == 1:
-            self.t.delete("1.0",END)
-            self.btn5.config(state='disabled')
-            self.btn6.config(state='normal',text='next')
-            if(installation.checkinstalled("REST")):
-                self.var.set("REST has already been installed, update it?(yes/no)")
-                vars.opt["Install_Path"] = os.environ["REST_PATH"]
-                self.t.insert("1.0","yes")
-            else:
-                self.step = 2
-                self.refreshdisplay()
-        elif self.step == 2:
+        if self.step == 0:
             self.t.delete("1.0",END)
             self.btn5.config(state='disabled')
             self.btn6.config(state='normal',text='next')
             self.var.set("Installing REST... Please follow this wizard")
+        elif self.step == 1:
+            self.t.delete("1.0",END)
+            self.btn5.config(state='disabled')
+            self.btn6.config(state='normal',text='next')
+            if(installation.checkinstalled("REST")):
+                self.var.set("REST has already been installed!\nupdate it or install again?(update/install)")
+                vars.opt["Install_Path"] = os.environ["REST_PATH"]
+                out, err = subprocess.Popen(['rest-config --flags | grep REST_WELCOME'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True).communicate()
+                vars.cmakeflags[0]="-D"+out
+                out, err = subprocess.Popen(['rest-config --flags | grep REST_GARFIELD'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True).communicate()
+                vars.cmakeflags[1]="-D"+out
+                self.t.insert("1.0","install")
+            else:
+                self.step = 2
+                self.refreshdisplay()
+        if self.step == 2:
+            self.t.delete("1.0",END)
+            self.btn5.config(state='disabled')
+            self.btn6.config(state='normal',text='next')
+            if(installation.checkinstalled("garfield")):
+                self.var.set("Enable REST to use garfield library?(ON/OFF)")
+                self.t.insert("1.0",vars.cmakeflags[1].split("=")[1])
+            else:
+                self.var.set("Garfield has not been installed, install REST anyway?(yes/no)")
+                self.t.insert("1.0","yes")
         elif self.step == 3:
             self.t.delete("1.0",END)
             self.t.insert("1.0",vars.opt["Install_Path"])
@@ -114,7 +135,7 @@ class Application(Frame):
             self.var.set("Choose an installation Path:")
         elif self.step == 4:
             self.t.delete("1.0",END)
-            self.t.insert("1.0",vars.opt["DREST_WELCOME"])
+            self.t.insert("1.0",vars.cmakeflags[0].split("=")[1])
             self.btn5.config(state='normal')
             self.btn6.config(state='normal',text='next')
             self.var.set("Enable welcome message in when logging in? (ON/OFF)")
@@ -123,7 +144,7 @@ class Application(Frame):
             self.btn5.config(state='normal')
             self.btn6.config(state='normal',text='install')
             self.var.set("Confirm install")
-        elif self.step == 11:
+        elif self.step == 10:
             self.t.delete("1.0",END)
             if(installation.checkinstalled("REST")):
                 self.btn5.config(state='disabled')
@@ -133,13 +154,13 @@ class Application(Frame):
                 self.btn5.config(state='disabled')
                 self.btn6.config(state='disabled',text='install')
                 self.var.set("REST mainbody has not been installed!")
-        elif self.step == 21:
+        elif self.step == 20:
             self.t.delete("1.0",END)
             self.t.insert("1.0",vars.opt["Branch"])
             self.var.set("Updating REST, choose a branch to update")
             self.btn5.config(state='disabled')
             self.btn6.config(state='normal',text='next')
-        elif self.step == 22:
+        elif self.step == 21:
             self.t.delete("1.0",END)
             self.var.set("Any local changes will be overwritten! \n Confirm update")
             self.btn5.config(state='normal')
@@ -152,27 +173,39 @@ class Application(Frame):
     def applyopt(self):
         if self.step == 1:
             if(installation.checkinstalled("REST")):
-                if "Y" in self.t.get("1.0",END).strip('\n').upper():
-                    self.step = 10
+                if "UPDATE" in self.t.get("1.0",END).strip('\n').upper():
+                    self.step = 19
                     return
-                elif "N" in self.t.get("1.0",END).strip('\n').upper():
+                elif "INSTALL" in self.t.get("1.0",END).strip('\n').upper():
                     self.step = 1
+        elif self.step == 2:
+            if(installation.checkinstalled("garfield")):
+                if "ON" in self.t.get("1.0",END).strip('\n').upper():
+                    vars.cmakeflags[1]="-DREST_GARFIELD=ON"
+                elif "OFF" in self.t.get("1.0",END).strip('\n').upper():
+                    vars.cmakeflags[1]="-DREST_GARFIELD=OFF"
+            else:
+                if "Y" in self.t.get("1.0",END).strip('\n').upper():
+                    vars.cmakeflags[1]="-DREST_GARFIELD=OFF"
+                elif "N" in self.t.get("1.0",END).strip('\n').upper():
+                    self.step=-10
+                    self.var.set("Ended")
         elif self.step == 3:
             vars.opt["Install_Path"] = self.t.get("1.0",END).strip('\n')
         elif self.step == 4:
-            vars.opt["DREST_WELCOME"] = self.t.get("1.0",END).strip('\n')
+            vars.cmakeflags[0]="-DREST_WELCOME="+ self.t.get("1.0",END).strip('\n')
         elif self.step == 5:
             installation.install("REST")
             self.step = -10
             self.var.set("Completed! \n You need to source " + vars.opt["Install_Path"] + "/thisREST.sh before using it!")
-        elif self.step == 11:
+        elif self.step == 10:
             if(installation.checkinstalled("REST")):
                 installation.install("restG4")
                 self.step = -10
                 self.var.set("Completed!")
-        elif self.step == 21:
+        elif self.step == 20:
             vars.opt["Branch"] = self.t.get("1.0",END).strip('\n')
-        elif self.step == 22:
+        elif self.step == 21:
             vars.opt["Warning"] = "False"
             result = updateREST.main()
             self.step = -10

@@ -1,9 +1,7 @@
 PROJECT(main)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-IF( NOT DEFINED REST_WELCOME )
-    set(REST_WELCOME ON)
-ENDIF()
+
 
 #set other flags here
 
@@ -21,6 +19,14 @@ message ("oo REST will be installed in : ${CMAKE_INSTALL_PREFIX}\n" )
 
 SET(CMAKE_CXX_FLAGS "-std=c++1y -Werror")
 
+#define c++ pragmas
+IF( NOT DEFINED REST_WELCOME )
+    set(REST_WELCOME ON)
+ENDIF()
+
+if(${REST_GARFIELD} MATCHES "ON")
+	add_definitions(-DUSE_Garfield)
+endif(${REST_GARFIELD} MATCHES "ON")
 
 
 
@@ -34,10 +40,11 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
     #file(GLOB rootlibs ${ROOT_LIBRARY_DIR}/*.so)
 	set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui  -lEve -lGeom -lMathMore)
 
-	set(Garfield_FIND_REQUIRED 1)
+	if(${REST_GARFIELD} MATCHES "ON")
 	include(FindGarfield)
 	set(external_include_dirs ${external_include_dirs} ${Garfield_INCLUDE_DIRS})
 	set(external_libs ${external_libs} ${Garfield_LIBRARIES})
+	endif(${REST_GARFIELD} MATCHES "ON")
 
 	find_library(tiny libtinyxml.so)
 
@@ -249,6 +256,7 @@ fi
 
 if [ $option = \\\"--flags\\\" ] ; then
 echo REST_WELCOME=${REST_WELCOME}
+echo REST_GARFIELD=${REST_GARFIELD}
 echo CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
 echo CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
 

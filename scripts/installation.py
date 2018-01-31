@@ -61,7 +61,11 @@ def install(name):
             print "installing REST...\n\n"
             os.system("mkdir -p "+vars.opt["Build_Path"] )
             os.chdir(vars.opt["Build_Path"])
-            os.system("cmake "+vars.opt["Source_Path"] +" -DINSTALL_PREFIX=" +vars.opt["Install_Path"] + " -DREST_WELCOME="+vars.opt["DREST_WELCOME"])
+            cmakecmd="cmake "+vars.opt["Source_Path"]
+            for flag in vars.cmakeflags:
+                cmakecmd=cmakecmd+" "+flag
+            print cmakecmd
+            os.system(cmakecmd)
             os.system("make -j"+vars.opt["Make_Threads"] )
             os.system("make install")
         elif "restG4" in name:
@@ -88,13 +92,17 @@ def install(name):
 
 def main():
     if len(sys.argv)<2:
-        print "Usage: ",argv[0]," software_name(REST or restG4) [opt1=aaa] [opt2=bbb] ..."
-        print "options: Check_Installed(True or False), Install_Path, Build_Path, Make_Threads(a number, 1~8)"
+        print "Usage: python installation.py Name(REST or restG4) [opt1=aaa] [opt2=bbb] ..."
+        print "options: \nCheck_Installed=(True or False)\nInstall_Path=(a path)\nBuild_Path=(a path)\nMake_Threads=(a number, 1~8)"
+        print "flags: \n-DREST_WELCOME=(ON or OFF)\n-DREST_GARFIELD=(ON or OFF)"
     else :
         if len(sys.argv)>2:
             for i in range(2, len(sys.argv)):
-                vars.opt[str(sys.argv[i]).split('=')[0]]=sys.argv[i].split('=')[1]
-                print vars.opt[sys.argv[i].split('=')[0]]
+                if str(sys.argv[i])[0]=="-":
+                    vars.cmakeflags.append(sys.argv[i])
+                elif len(str(sys.argv[i]).split('='))==2:
+                    vars.opt[str(sys.argv[i]).split('=')[0]]=sys.argv[i].split('=')[1]
+                    print vars.opt[sys.argv[i].split('=')[0]]
         name=sys.argv[1]
         install(name)
 

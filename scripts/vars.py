@@ -8,8 +8,12 @@ opt = {
     'Source_Path': os.path.abspath('.') + "/../",
     'Build_Path' : os.path.abspath('.') + "/../build/",
     'Make_Threads':"4",
-    'DREST_WELCOME':"ON"
       }
+
+cmakeflags=[
+    '-DREST_WELCOME=ON',
+    '-DREST_GARFIELD=ON'
+    ]
 
 var = {
     'REST_Repository': "http://pandax.physics.sjtu.edu.cn:8699/pandax-iii/REST_v2.git",
