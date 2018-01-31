@@ -220,7 +220,9 @@ TRestGas::TRestGas( const char *cfgFileName, string name, bool gasGeneration) : 
 ///
 TRestGas::~TRestGas()
 {
+#if defined USE_Garfield
     delete fGasMedium;
+#endif
 }
 
 /////////////////////////////////////////////
@@ -242,7 +244,11 @@ void TRestGas::Initialize()
 
     fGasFilename = "";
 
+#if defined USE_Garfield
     fGasMedium = new Garfield::MediumMagboltz();
+#else
+	fGasMedium = NULL;
+#endif
 
     fGasGeneration = false;
 }
@@ -256,6 +262,7 @@ void TRestGas::Initialize()
 ///
 void TRestGas::LoadGasFile( )
 {
+#if defined USE_Garfield
     Double_t pressure = fPressureInAtm;
     fPressureInAtm = 1;
     ConstructFilename( );
@@ -295,7 +302,9 @@ void TRestGas::LoadGasFile( )
     if (fGasMedium && fGasMedium->GetW() == 0.) fGasMedium->SetW(GetWvalue());  // as it is probably not computed by Magboltz
 
     this->SetPressure( pressure );
-
+#else
+	cout << "This REST is not complied with garfield, it cannot load any gas file!" << endl;
+#endif
 }
 
 /////////////////////////////////////////////
@@ -363,8 +372,9 @@ void TRestGas::InitFromConfigFile( )
 
     PrintGasInfo();
 
+#if defined USE_Garfield
     if (fGasMedium && fGasMedium->GetW() == 0.) fGasMedium->SetW(fW);  // as it is probably not computed by Magboltz
-
+#endif
 }
 
 /////////////////////////////////////////////
@@ -431,6 +441,7 @@ void TRestGas::ConstructFilename( )
 /// 
 void TRestGas::GenerateGasFile( )
 {
+#if defined USE_Garfield
     if ( !isPathWritable( (string) GetGasDataPath() ) )
     {
         cout << endl;
@@ -482,6 +493,9 @@ void TRestGas::GenerateGasFile( )
     cout << "Path : " << GetGasDataPath() << endl;
     cout << "Filename : " << fGasFilename << endl;
     fGasMedium->WriteGasFile ( (string) (GetGasDataPath() + fGasFilename) );
+#else
+	cout << "This REST is not complied with garfield, it cannot save any gas file!" << endl;
+#endif
 }
 
 /////////////////////////////////////////////
@@ -496,7 +510,9 @@ void TRestGas::GenerateGasFile( )
 void TRestGas::SetPressure( Double_t pressure )
 {
     fPressureInAtm = pressure;
+#if defined USE_Garfield
     fGasMedium->SetPressure( fPressureInAtm * 760. );
+#endif
 }
 
 /////////////////////////////////////////////
@@ -628,9 +644,15 @@ void TRestGas::PlotTownsendCoefficient( Double_t eMin, Double_t eMax, Int_t nSte
 ///
 Double_t TRestGas::GetDriftVelocity( Double_t E )
 {
+#if defined USE_Garfield
     Double_t vx, vy, vz;
 	fGasMedium->ElectronVelocity( 0., 0, -E, 0, 0, 0, vx, vy, vz);
     return vz * 1000.;
+#else
+	cout << "This REST is not complied with garfield, Do not use Drift Velocity from TRestGas!" << endl;
+	cout << "Please define the Drift Velocity in each process!" << endl;
+	return 0.001;
+#endif
 }
 
 /////////////////////////////////////////////
@@ -638,9 +660,15 @@ Double_t TRestGas::GetDriftVelocity( Double_t E )
 ///
 Double_t TRestGas::GetLongitudinalDiffusion( Double_t E )
 {
+#if defined USE_Garfield
     Double_t dl, dt;
 	fGasMedium->ElectronDiffusion( 0., 0, -E, 0, 0, 0, dl, dt);
     return dl;
+#else
+	cout << "This REST is not complied with garfield, Do not use Longitudinal Diffusion from TRestGas!" << endl;
+	cout << "Please define the Longitudinal Diffusion in each process!" << endl;
+	return 0;
+#endif
 }
 
 /////////////////////////////////////////////
@@ -648,9 +676,15 @@ Double_t TRestGas::GetLongitudinalDiffusion( Double_t E )
 ///
 Double_t TRestGas::GetTransversalDiffusion( Double_t E )
 {
+#if defined USE_Garfield
     Double_t dl, dt;
 	fGasMedium->ElectronDiffusion( 0., 0, -E, 0, 0, 0, dl, dt);
     return dt;
+#else
+	cout << "This REST is not complied with garfield, Do not use Transversal Diffusion from TRestGas!" << endl;
+	cout << "Please define the Transversal Diffusion in each process!" << endl;
+	return 0;
+#endif
 }
 
 /////////////////////////////////////////////
@@ -658,9 +692,15 @@ Double_t TRestGas::GetTransversalDiffusion( Double_t E )
 ///
 Double_t TRestGas::GetTownsendCoefficient( Double_t E )
 {
+#if defined USE_Garfield
     Double_t alpha;
 	fGasMedium->ElectronTownsend( 0., 0, -E, 0, 0, 0, alpha );
     return alpha;
+#else
+	cout << "This REST is not complied with garfield, Do not use Townsend Coefficient from TRestGas!" << endl;
+	cout << "Please define the Townsend Coefficient in each process!" << endl;
+	return 0;
+#endif
 }
 
 /////////////////////////////////////////////
@@ -668,9 +708,15 @@ Double_t TRestGas::GetTownsendCoefficient( Double_t E )
 ///
 Double_t TRestGas::GetAttachmentCoefficient( Double_t E )
 {
+#if defined USE_Garfield
     Double_t eta;
 	fGasMedium->ElectronAttachment( 0., 0, -E, 0, 0, 0, eta );
     return eta;
+#else
+	cout << "This REST is not complied with garfield, Do not use Attachment Coefficient from TRestGas!" << endl;
+	cout << "Please define the Attachment Coefficient in each process!" << endl;
+	return 0;
+#endif
 }
 
 /////////////////////////////////////////////

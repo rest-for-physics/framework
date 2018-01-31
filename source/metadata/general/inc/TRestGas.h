@@ -39,8 +39,12 @@
 
 #include "TRestMetadata.h"
 
-#ifndef __CINT__
+//#define USE_Garfield
+#if defined USE_Garfield
 #include "MediumMagboltz.hh"
+using namespace Garfield;
+#else
+class MediumMagboltz;
 #endif
 
 const int RESTGAS_ERROR = -1;
@@ -54,10 +58,8 @@ class TRestGas : public TRestMetadata
 
 private:
 
+    MediumMagboltz *fGasMedium;//! Pointer to Garfield::MediumMagboltz class giving access to gas properties
 
-#ifndef __CINT__
-    Garfield::MediumMagboltz *fGasMedium;   //! Pointer to Garfield::MediumMagboltz class giving access to gas properties
-#endif
     
     Int_t fStatus;              // Used to define the status of the gas : RESTGAS_ERROR, RESTGAS_INTITIALIZED, RESTGAS_CFG_LOADED, RESTGAS_GASFILE_LOADED
     TString fGasFilename;       // The filename of the Magboltz gas file.
@@ -107,7 +109,7 @@ public:
 
     void LoadGasFile();
 
-    Double_t GetW( ) { return fGasMedium->GetW(); }
+	Double_t GetW() { return fW; }
 
     /// Returns the maximum electron energy used by Magboltz for the gas properties calculation
     Double_t GetMaxElectronEnergy() { return fMaxElectronEnergy; }
@@ -157,7 +159,7 @@ public:
 
 #ifndef __CINT__
     /// Return pointer to Garfield::MediumGas for gas properties
-    Garfield::MediumGas* GetGasMedium()  { return fGasMedium; };
+    MediumMagboltz* GetGasMedium()  { return fGasMedium; };
 #endif
 
     /// Return reference name of the corresponding material in GDML file
