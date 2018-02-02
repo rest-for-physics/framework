@@ -23,7 +23,7 @@ TRestProcessRunner::TRestProcessRunner()
 
 
 TRestProcessRunner::~TRestProcessRunner()
-{
+{	
 }
 
 
@@ -94,7 +94,7 @@ void TRestProcessRunner::BeginOfInit()
 	fOutputItem = Spilt(GetParameter("treeBranches", ""),":");
 	if (fThreadNumber < 1)fThreadNumber = 1;
 
-	fTempOutputDataFile = new TFile(fRunInfo->GetOutputFileName() , "recreate");
+
 	for (int i = 0; i < fThreadNumber; i++)
 	{
 		TRestThread* t = new TRestThread();
@@ -174,25 +174,6 @@ void TRestProcessRunner::EndOfInit()
 
 	ReadProcInfo();
 
-	if (fProcessNumber > 0) {
-		debug << "Initializing processes in threads. " << fThreadNumber << " threads are requested" << endl;
-		fRunInfo->ResetEntry();
-		for (int i = 0; i < fThreadNumber; i++)
-		{
-			fThreads[i]->PrepareToProcess();
-		}
-	}
-
-	//print metadata
-	if (fVerboseLevel >= REST_Essential) {
-		if (fRunInfo->GetFileProcess() != NULL)fRunInfo->GetFileProcess()->PrintMetadata();
-
-		for (int i = 0; i < fThreads[0]->GetProcessnum(); i++)
-		{
-			fThreads[0]->GetProcess(i)->PrintMetadata();
-		}
-	}
-	info << this->ClassName() << ": " << fThreads[0]->GetProcessnum() << " Processes Loaded, " << fThreadNumber << " Threads Requested." << endl;
 
 }
 
@@ -221,6 +202,28 @@ void TRestProcessRunner::ReadProcInfo()
 void TRestProcessRunner::RunProcess()
 {
 	if (fProcessNumber > 0) {
+
+		fTempOutputDataFile = new TFile(fRunInfo->GetOutputFileName(), "recreate");
+		if (fProcessNumber > 0) {
+			debug << "Initializing processes in threads. " << fThreadNumber << " threads are requested" << endl;
+			fRunInfo->ResetEntry();
+			for (int i = 0; i < fThreadNumber; i++)
+			{
+				fThreads[i]->PrepareToProcess();
+			}
+		}
+
+		//print metadata
+		if (fVerboseLevel >= REST_Essential) {
+			if (fRunInfo->GetFileProcess() != NULL)fRunInfo->GetFileProcess()->PrintMetadata();
+
+			for (int i = 0; i < fThreads[0]->GetProcessnum(); i++)
+			{
+				fThreads[0]->GetProcess(i)->PrintMetadata();
+			}
+		}
+		info << this->ClassName() << ": " << fThreads[0]->GetProcessnum() << " Processes Loaded, " << fThreadNumber << " Threads Requested." << endl;
+
 
 		//copy thread tree to local
 		fTempOutputDataFile->cd();
