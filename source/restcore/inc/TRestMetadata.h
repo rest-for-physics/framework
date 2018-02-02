@@ -169,6 +169,7 @@ protected:
 	string GetKEYStructure(std::string keyName, size_t &Position);
 	string GetKEYStructure(std::string keyName, string buffer);
 	string GetKEYStructure(std::string keyName, size_t &Position, string buffer);
+	string GetKEYStructure(std::string keyName, size_t &Position, TiXmlElement*ele);
 	string GetKEYDefinition(std::string keyName);
 	string GetKEYDefinition(std::string keyName, size_t &Position);
 	string GetKEYDefinition(std::string keyName, string buffer);
