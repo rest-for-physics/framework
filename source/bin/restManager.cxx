@@ -109,7 +109,7 @@ int main( int argc, char *argv[] )
 			//a->GetChar();
 
 			delete a;
-
+			gSystem->Exit(0);
 			return 0;
 
 
@@ -156,6 +156,7 @@ int main( int argc, char *argv[] )
 			
 			tsk->InitTask(argumentlist);
 			tsk->RunTask(NULL);
+			gSystem->Exit(0);
 		}
 	}
 

@@ -30,7 +30,7 @@ public:
 	void RunTask(TRestManager*mgr)
 	{
 		REST_Viewer_G4Event(filename);
-		gApplication->Run();
+		GetChar("Running...\nPress a key to exit");
 	}
 
 };

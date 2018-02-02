@@ -354,6 +354,7 @@ TRestMetadata::TRestMetadata()
 	fVerboseLevel = REST_Silent;
 	//helper = new TRestStringHelper();
 	fElementEnv.clear();
+	fHostmgr = NULL;
 }
 
 ///////////////////////////////////////////////
@@ -368,6 +369,7 @@ TRestMetadata::TRestMetadata(const char *cfgFileName)
 	fConfigFileName = cfgFileName;
 	//helper = new TRestStringHelper();
 	fElementEnv.clear();
+	fHostmgr = NULL;
 }
 
 ///////////////////////////////////////////////
@@ -1323,16 +1325,14 @@ string TRestMetadata::ElementToString(TiXmlElement*ele)
 ///
 string TRestMetadata::GetKEYStructure(std::string keyName)
 {
-	string buffer = ElementToString(fElement);
 	size_t Position = 0;
-	string result = GetKEYStructure(keyName, Position, buffer);
+	string result = GetKEYStructure(keyName, Position, fElement);
 	if (result == "") result = "NotFound";
 	return result;
 }
 string TRestMetadata::GetKEYStructure(std::string keyName, size_t &Position)
 {
-	string buffer = ElementToString(fElement);
-	string result = GetKEYStructure(keyName, Position, buffer);
+	string result = GetKEYStructure(keyName, Position, fElement);
 	if (result == "") result = "NotFound";
 	return result;
 }
@@ -1344,39 +1344,38 @@ string TRestMetadata::GetKEYStructure(std::string keyName, string buffer)
 	return result;
 }
 string TRestMetadata::GetKEYStructure(std::string keyName, size_t &fromPosition, string buffer) {
+
+	TiXmlElement*ele = StringToElement(buffer);
+	return GetKEYStructure(keyName, fromPosition, ele);
+	
+}
+
+string TRestMetadata::GetKEYStructure(std::string keyName, size_t &fromPosition, TiXmlElement*ele) {
 	size_t position = fromPosition;
 
-	debug << "Finding KEY Structure " << keyName << endl;
-	debug << "Buffer : " << buffer << endl;
+	debug << "Finding KEY Structure \"" << keyName <<"\""<< endl;
 	debug << "Start position : " << position << endl;
 
-	string startKEY = "<" + keyName;
-	string endKEY1 = "/>";
-	string endKEY2 = "/" + keyName;
+	TiXmlElement*childele = ele->FirstChildElement();
+	for (int i = 0; childele != NULL && i<fromPosition; i++)
+	{
+		childele = childele->NextSiblingElement();
+	}
+	for (int i = 0; childele != NULL; i++)
+	{
+		if ((string)childele->Value() == keyName)
+		{
+			string result = ElementToString(childele);
+			fromPosition = fromPosition + i + 1;
+			debug << "Found Key : "<< result << endl;
+			debug << "New position : " << fromPosition << endl;
+			return result;
+		}
+		childele = childele->NextSiblingElement();
+	}
 
-	debug << "Reduced buffer : " << buffer.substr(position) << endl;
-
-	size_t initPos = buffer.find(startKEY, position);
-	debug << "initPos : " << initPos << endl;
-
-	if (initPos == string::npos) { debug << "KEY not found!!" << endl; return ""; }
-
-	size_t endPos1 = buffer.find(endKEY1, initPos);
-	size_t endPos2 = buffer.find(endKEY2, initPos);
-	size_t endPos = endPos1 < endPos2 ? endPos1 : endPos2;
-	size_t len= endPos1 < endPos2 ? endKEY1.length() : endKEY2.length();
-
-	debug << "End position : " << endPos << endl;
-
-	//TODO Check if a new section starts. If not it might get two complex strings if the KEY_Structure was not closed using /KEY
-
-	if (endPos == string::npos) { debug << "END KEY not found!!" << endl; return ""; }
-
-	debug << endl;
-
-	fromPosition = endPos;
-
-	return buffer.substr(initPos, endPos - initPos + len + 1);
+	debug << "END KEY not found!!" << endl;
+	return "";
 }
 
 ///////////////////////////////////////////////
@@ -1886,6 +1885,16 @@ void TRestMetadata::PrintConfigBuffer()
 	cout << endl;
 }
 
+
+int TRestMetadata::GetChar(string hint) 
+{ 
+	thread t = thread(&TRestMetadata::Hold_On, this);
+	t.detach();
+	cout << hint << endl;
+	int result = getchar();
+	gApplication->Terminate(0);
+	return result;
+}
 
 ///////////////////////////////////////////////
 /// \brief Prints metadata content on screen. Usually overloaded by the derived metadata class.

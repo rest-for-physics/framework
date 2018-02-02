@@ -30,10 +30,14 @@
 #define TIXML_USE_STL
 #include "tinyxml.h"
 
+#include <mutex>
+#include <thread>
+
 #include "TRestSystemOfUnits.h"
 #include "TVirtualStreamerInfo.h"
 #include "TClass.h"
 #include "TStreamerElement.h"
+#include "TApplication.h"
 
 const int PARAMETER_NOT_FOUND_INT = -99999999;
 const double PARAMETER_NOT_FOUND_DBL = -99999999;
@@ -99,8 +103,9 @@ public:
 	/// This is a dummy function
 	void PrintConfigBuffer();
 
-	/// helps to pause the program, printing a message before pausing
-	void GetChar() { cout << "Press a KEY to continue ..." << endl; getchar(); }
+	/// helps to pause the program, printing a message before pausing. 
+	/// ROOT GUI won't be jammed during this pause
+	int GetChar(string hint="Press a KEY to continue ...");
 
 
 
@@ -169,6 +174,7 @@ protected:
 	string GetKEYStructure(std::string keyName, size_t &Position);
 	string GetKEYStructure(std::string keyName, string buffer);
 	string GetKEYStructure(std::string keyName, size_t &Position, string buffer);
+	string GetKEYStructure(std::string keyName, size_t &Position, TiXmlElement*ele);
 	string GetKEYDefinition(std::string keyName);
 	string GetKEYDefinition(std::string keyName, size_t &Position);
 	string GetKEYDefinition(std::string keyName, string buffer);
@@ -260,7 +266,7 @@ private:
 	void ExpandForLoops(TiXmlElement*e);
 	void ExpandIncludeFile(TiXmlElement* e);
 
-
+	void Hold_On() { gApplication->Run(true); }
 
 
 };
