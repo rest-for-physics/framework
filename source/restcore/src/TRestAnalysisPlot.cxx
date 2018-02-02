@@ -13,6 +13,8 @@
 
 #include "TRestAnalysisPlot.h"
 #include "TRestManager.h"
+#include <mutex>
+#include <thread>
 using namespace std;
 
 #include <TStyle.h>
@@ -93,21 +95,20 @@ void TRestAnalysisPlot::InitFromConfigFile()
 
 	vector <TString> globalCuts;
 
-	position = 0;
-	string globalCutString;
-	while ((globalCutString = GetKEYDefinition("globalCut", position)) != "") //general cuts 
+	TiXmlElement*globalCutele = fElement->FirstChildElement("globalCut");
+	while (globalCutele != NULL)
 	{
-		TString cutActive = GetFieldValue("value", globalCutString);
-
+		TString cutActive = GetParameter("value", globalCutele);
 		if (cutActive == "on" || cutActive == "ON" || cutActive == "On" || cutActive == "oN")
 		{
-			TString obsName = GetFieldValue("name", globalCutString);
+			TString obsName = GetFieldValue("name", globalCutele);
 
-			TString cutCondition = GetFieldValue("condition", globalCutString);
+			TString cutCondition = GetFieldValue("condition", globalCutele);
 			TString cutString = obsName + cutCondition;
 
 			globalCuts.push_back(cutString);
 		}
+		globalCutele = globalCutele->NextSiblingElement("globalCut");
 	}
 
 	position = 0;
@@ -178,7 +179,6 @@ void TRestAnalysisPlot::InitFromConfigFile()
 					cout << "------------------------------------------" << endl;
 					cout << "rX : " << ranges.back().X() << " rY : " << ranges.back().Y() << endl;
 					cout << "bins : " << bins.back() << endl;
-					cout << endl;
 				}
 			}
 
@@ -217,8 +217,8 @@ void TRestAnalysisPlot::InitFromConfigFile()
 
 			if (GetVerboseLevel() >= REST_Debug)
 			{
-				cout << endl;
 				cout << "Plot string : " << pltString << endl;
+				cout << endl;
 			}
 
 			TString cutString = "";
@@ -378,6 +378,12 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd()
 		}
 
 		TH3F *htemp = (TH3F*)gPad->GetPrimitive(fPlotNames[n]);
+		if (htemp == NULL) {
+			warning << "Failed to make plot " << n << " : " << endl;
+			warning << "expression : \"" << fPlotString[n] << "\"" << endl;
+			warning << "cut : \"" << fCutString[n] << "\"" << endl;
+			continue;
+		}
 		htemp->SetTitle(fPlotTitle[n]);
 		htemp->GetXaxis()->SetTitle(fPlotXLabel[n]);
 		htemp->GetYaxis()->SetTitle(fPlotYLabel[n]);
@@ -402,6 +408,10 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd()
 		if (fPlotSaveToFile[n] != "Notdefined" && fPlotSaveToFile[n] != "")
 			SavePlotToPDF(fPlotNames[n], fPlotSaveToFile[n]);
 		fCombinedCanvas->Update();
+	}
+
+	if (fVerboseLevel > REST_Silent) {
+		GetChar();
 	}
 
 	if (fCanvasSave != "")
@@ -454,36 +464,49 @@ void TRestAnalysisPlot::PlotCombinedCanvasCompare()
 
 			trees[m]->SetLineColor(1 + m);
 			if (m == 0)
-				trees[m]->Draw(plotString, fCutString[n], "");
+				trees[m]->Draw(plotString, fCutString[n], fPlotOption[n]);
 			else
-				trees[m]->Draw(plotString, fCutString[n], "same");
+				trees[m]->Draw(plotString, fCutString[n], fPlotOption[n]+"same");
 		}
 
 		TH3F *htemp = (TH3F*)gPad->GetPrimitive(fPlotNames[n]);
+		if (htemp == NULL) {
+			warning << "Failed to make plot " << n <<" : "<< endl;
+			warning << "expression : \"" << fPlotString[n] << "\"" << endl;
+			warning << "cut : \"" << fCutString[n] << "\"" << endl;
+			continue;
+		}
+
 		htemp->SetTitle(fPlotTitle[n]);
 		htemp->GetXaxis()->SetTitle(fPlotXLabel[n]);
 		htemp->GetYaxis()->SetTitle(fPlotYLabel[n]);
 
 		if (fPlotSaveToFile[n] != "Notdefined" && fPlotSaveToFile[n] != "")
 			SavePlotToPDF(fPlotNames[n], fPlotSaveToFile[n]);
+
 		fCombinedCanvas->Update();
+
+	}
+
+	if (fVerboseLevel > REST_Silent) {
+		GetChar();
 	}
 
 	if (fCanvasSave != "")
 		fCombinedCanvas->Print(fCanvasSave);
 }
 
-void TRestAnalysisPlot::SavePlotToPDF(TString plotName, TString fileName)
+void TRestAnalysisPlot::SavePlotToPDF(TString plotName, TString outputfileName)
 {
 	Int_t index = GetPlotIndex(plotName);
 	if (index >= 0)
-		SavePlotToPDF(index, fileName);
+		SavePlotToPDF(index, outputfileName);
 	else
 		cout << "Save to plot failed. Plot name " << plotName << " not found" << endl;
 
 }
 
-void TRestAnalysisPlot::SavePlotToPDF(Int_t n, TString fileName)
+void TRestAnalysisPlot::SavePlotToPDF(Int_t n, TString outputfileName)
 {
 	gErrorIgnoreLevel = 10;
 
@@ -500,7 +523,7 @@ void TRestAnalysisPlot::SavePlotToPDF(Int_t n, TString fileName)
 	htemp->GetXaxis()->SetTitle(fPlotXLabel[n]);
 	htemp->GetYaxis()->SetTitle(fPlotYLabel[n]);
 
-	c->Print(fileName);
+	c->Print(outputfileName);
 
 	delete c;
 }
