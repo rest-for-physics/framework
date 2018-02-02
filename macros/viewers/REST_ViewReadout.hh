@@ -171,7 +171,7 @@ public:
 	void RunTask(TRestManager*mgr)
 	{
 		REST_Viewer_Readout(filename, eventype,planeId);
-		gApplication->Run();
+		GetChar("Running...\nPress a key to exit");
 	}
 
 };
