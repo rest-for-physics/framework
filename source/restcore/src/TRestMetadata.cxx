@@ -1886,6 +1886,16 @@ void TRestMetadata::PrintConfigBuffer()
 }
 
 
+int TRestMetadata::GetChar(string hint) 
+{ 
+	thread t = thread(&TRestMetadata::Hold_On, this);
+	t.detach();
+	cout << hint << endl;
+	int result = getchar();
+	gApplication->Terminate(0);
+	return result;
+}
+
 ///////////////////////////////////////////////
 /// \brief Prints metadata content on screen. Usually overloaded by the derived metadata class.
 ///
