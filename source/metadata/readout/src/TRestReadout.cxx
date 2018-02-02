@@ -455,17 +455,12 @@ void TRestReadout::InitFromConfigFile()
 
                 channel.AddPixel( pixel );
             }
-
             module.AddChannel( channel );
-
-            position2++;
         }
 
         module.DoReadoutMapping( fMappingNodes );
 
         fModuleDefinitions.push_back( module );
-
-        posSection++;
     }
 
     Int_t addedChannels = 0;
@@ -582,7 +577,6 @@ void TRestReadout::InitFromConfigFile()
             fModuleDefinitions[mid].SetMinMaxDaqIDs();
             plane.AddModule( fModuleDefinitions[mid] );
 
-            posPlane++;
         }
 
         this->AddReadoutPlane( plane );
@@ -591,8 +585,6 @@ void TRestReadout::InitFromConfigFile()
 			plane.Draw();
 		}
 
-
-        position++;
     }
 
     ValidateReadout( );
