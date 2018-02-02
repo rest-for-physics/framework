@@ -305,7 +305,7 @@ void TRestRun::ReadFileInfo(string filename)
 
 	vector<string> formatsectionlist = Spilt(format, "_");
 	vector<string> inputfilesectionlist = Spilt(name, "_");
-	if (formatsectionlist.size() == 0)return;
+
 	debug << "begin matching file names" << endl;
 	for (int i = 0; i < formatsectionlist.size(); i++)
 	{
@@ -440,7 +440,7 @@ TString TRestRun::FormFormat(TString FilenameFormat)
 		string targetstr = inString.substr(pos1, pos2 - pos1 + 1);//with []
 		string target = inString.substr(pos1 + 1, pos2 - pos1 - 1);//without []
 		string replacestr = GetFileInfo(target);
-		if (replacestr == target)replacestr = fHostmgr->GetProcessRunner()==NULL?replacestr: fHostmgr->GetProcessRunner()->GetProcInfo(target);
+		if (replacestr == target && fHostmgr != NULL)replacestr = fHostmgr->GetProcessRunner()==NULL?replacestr: fHostmgr->GetProcessRunner()->GetProcInfo(target);
 		if (replacestr == target)replacestr = this->Get(target) == "" ? targetstr : this->Get(target);
 		outString = Replace(outString, targetstr, replacestr, 0);
 		pos = pos2 + 1;
