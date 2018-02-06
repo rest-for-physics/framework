@@ -266,7 +266,7 @@ private:
 	void ExpandForLoops(TiXmlElement*e);
 	void ExpandIncludeFile(TiXmlElement* e);
 
-	void Hold_On() { gApplication->Run(true); }
+	void Hold_On();
 
 
 };
