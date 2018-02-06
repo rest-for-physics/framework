@@ -25,10 +25,12 @@ ClassImp(TRestGeometry)
 
 TRestGeometry::TRestGeometry() : TGeoManager()//, fGfGeometry(0), fDriftElec(0) 
 {
+#if defined USE_Garfield
    // TRestGeometry default constructor
- //  vReadoutElec.clear();
- //  vGfComponent.clear();
- //  vGfSensor.clear();
+   vReadoutElec.clear();
+   vGfComponent.clear();
+   vGfSensor.clear();
+#endif
 }
 
 
@@ -36,22 +38,26 @@ TRestGeometry::TRestGeometry() : TGeoManager()//, fGfGeometry(0), fDriftElec(0)
 
 TRestGeometry::~TRestGeometry()
 {
+#if defined USE_Garfield
    // TRestGeometry destructor
-   //vReadoutElec.clear();
-   //vGfSensor.clear();
-   //vGfComponent.clear();
+   vReadoutElec.clear();
+   vGfSensor.clear();
+   vGfComponent.clear();
+#endif
 }
 
 
 //------------------------------------------------------------------------------
 
-/*
+
 void TRestGeometry::InitGfGeometry()  
 {
-  //fGfGeometry = new Garfield::GeometryRoot();
-  //fGfGeometry->SetGeometry(this);
+#if defined USE_Garfield
+  fGfGeometry = new Garfield::GeometryRoot();
+  fGfGeometry->SetGeometry(this);
+#endif
 }
-*/
+
 
 
 //------------------------------------------------------------------------------

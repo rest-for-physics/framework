@@ -32,7 +32,7 @@ const double cmTomm = 10.;
 ClassImp(TRestGarfieldDriftProcess)
 
     //______________________________________________________________________________
-
+#if defined USE_Garfield
     TRestGarfieldDriftProcess::TRestGarfieldDriftProcess() : fRandom(0), fGfSensor(0)  {
 
         Initialize();
@@ -96,29 +96,34 @@ void TRestGarfieldDriftProcess::LoadConfig( string cfgFilename, string name )
 }
 
 //______________________________________________________________________________
+#endif
+
 
 void TRestGarfieldDriftProcess::Initialize() 
 {
     SetSectionName( ClassName() );
 
     fRandom = new TRandom3(0);
+	fInputHitsEvent = new TRestHitsEvent();
+	fOutputHitsEvent = new TRestHitsEvent();
+
+#if defined USE_Garfield
     fReadout = NULL;
     fGas = NULL;
     fGeometry= NULL;
     fPEReduction = 1.;
     fStopDistance = 2; // default distance from readout to stop drift set to 2mm
 
-    fInputHitsEvent = new TRestHitsEvent();
 
-    fOutputHitsEvent = new TRestHitsEvent();
 
     fInputEvent = fInputHitsEvent;
     fOutputEvent = fOutputHitsEvent;
+#endif
 }
 
 
 //______________________________________________________________________________
-
+#if defined USE_Garfield
 void TRestGarfieldDriftProcess::InitProcess() {
     // Function to be executed once at the beginning of process
     // (before starting the process of the events)
@@ -343,8 +348,12 @@ Int_t TRestGarfieldDriftProcess::FindModule( Int_t readoutPlane, Double_t x, Dou
 
 
 //______________________________________________________________________________
+#endif
+
 
 TRestEvent* TRestGarfieldDriftProcess::ProcessEvent( TRestEvent *evInput ) {
+
+#if defined USE_Garfield
     fInputHitsEvent = (TRestHitsEvent *) evInput;
 
     double x, y, z, energy;
@@ -419,9 +428,16 @@ TRestEvent* TRestGarfieldDriftProcess::ProcessEvent( TRestEvent *evInput ) {
     }
 
     return fOutputHitsEvent;
+#else
+	fInputHitsEvent = (TRestHitsEvent *)evInput;
+	debug << "null process" << endl;
+	return evInput;
+
+#endif
 }
 
 //______________________________________________________________________________
+#if defined USE_Garfield
 
 void TRestGarfieldDriftProcess::EndOfEventProcess()  {
 
@@ -453,6 +469,4 @@ void TRestGarfieldDriftProcess::InitFromConfigFile( ) {
     fGDML_Filename = GetParameter( "geometryPath", "" ) + GetParameter( "gdml_file", "" );
 }
 
-
-
-
+#endif

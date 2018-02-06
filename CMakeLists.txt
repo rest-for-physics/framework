@@ -38,7 +38,7 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	include(FindROOT)
 	set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
     #file(GLOB rootlibs ${ROOT_LIBRARY_DIR}/*.so)
-	set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui  -lEve -lGeom -lMathMore)
+	set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui  -lEve -lGeom -lMathMore -lGdml)
 
 	if(${REST_GARFIELD} MATCHES "ON")
 	include(FindGarfield)
