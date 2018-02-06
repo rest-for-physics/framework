@@ -25,12 +25,14 @@
 #include "TGeoManager.h"
 #include "TGeoVolume.h"
 
-//#ifndef __CINT__
-//#include "GeometryRoot.hh"
-//#include "ComponentBase.hh"
-//#include "Sensor.hh"
-//#include <TRestGas.h>
-//#endif
+
+#include <TRestGas.h>
+
+#if defined USE_Garfield
+#include "GeometryRoot.hh"
+#include "ComponentBase.hh"
+#include "Sensor.hh"
+#endif
 
 
 using namespace std;
@@ -38,14 +40,13 @@ using namespace std;
 
 class TRestGeometry:public TGeoManager {
  protected:
-//#ifndef __CINT__
-//   Garfield::GeometryRoot  *fGfGeometry;   //!< Pointer to Garfield::GeometryRoot object of the geometry
-//   vector<Garfield::ComponentBase*> vGfComponent;   //!< Vector of pointers to Garfield Component object
-//   vector<Garfield::Sensor*> vGfSensor;   //!< Vector of pointers to Garfield Sensor object
-//#endif
-
-//   TGeoNode* fDriftElec;  //!< pointer to drift electrode
-//   vector<TGeoNode*> vReadoutElec;  //!< vector of pointers to readout planes
+#if defined USE_Garfield
+   Garfield::GeometryRoot  *fGfGeometry;   //!///< Pointer to Garfield::GeometryRoot object of the geometry
+   vector<Garfield::ComponentBase*> vGfComponent;   //!///< Vector of pointers to Garfield Component object
+   vector<Garfield::Sensor*> vGfSensor;   //!///< Vector of pointers to Garfield Sensor object
+   TGeoNode* fDriftElec;  //!///< pointer to drift electrode
+   vector<TGeoNode*> vReadoutElec;  //!///< vector of pointers to readout planes
+#endif
 
  public:
 
@@ -54,11 +55,11 @@ class TRestGeometry:public TGeoManager {
    //Destructor
    virtual ~ TRestGeometry();
 
-   /*
-#ifndef __CINT__
+
    /// initialize Garfield::GeometryRoot geometry object
    void InitGfGeometry();
 
+#if defined USE_Garfield
    /// Return pointer to Garfield::GeometryRoot geometry object
    Garfield::GeometryRoot*  GetGfGeometry()  { return fGfGeometry; }
 
@@ -73,7 +74,6 @@ class TRestGeometry:public TGeoManager {
    /// Set Garfield field component
    void  AddGfSensor(Garfield::Sensor* s)
            { vGfSensor.push_back(s); }
-#endif
 
    /// Set drift electrode node
    void  SetDriftElecNode(TGeoNode* n)  { fDriftElec = n; }
@@ -92,7 +92,6 @@ class TRestGeometry:public TGeoManager {
                { if (i<vReadoutElec.size()) return vReadoutElec[i];
                  else return 0; }
 
-#ifndef __CINT__
    /// Get i^th Gf component
    Garfield::ComponentBase*  GetGfComponent(unsigned int i)
                               { if (i<vGfComponent.size()) return vGfComponent[i];
@@ -114,11 +113,11 @@ class TRestGeometry:public TGeoManager {
                         { FindNode(x/10.,y/10.,z/10.);  // needed due to a bug in TGeoNavigator
                           return fGfGeometry->GetMedium(x/10.,y/10.,z/10.); }  // mm to cm
 #endif
-*/
+
 
    void PrintGeometry();
 
    ClassDef(TRestGeometry, 1);     // REST event superclass
 };
-#endif
 
+#endif

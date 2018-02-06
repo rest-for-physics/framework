@@ -16,7 +16,9 @@
 #ifndef RestCore_TRestGarfieldDriftProcess
 #define RestCore_TRestGarfieldDriftProcess
 
-#ifndef __CINT__
+#include <TRestGas.h>
+
+#if defined USE_Garfield
 #include "Sensor.hh"
 #include "ComponentBase.hh"
 #include "AvalancheMC.hh"
@@ -26,7 +28,7 @@
 
 #include <TRandom3.h>
 
-#include <TRestGas.h>
+
 #include <TRestReadout.h>
 #include <TRestGeometry.h>
 #include <TRestSignalEvent.h>
@@ -36,32 +38,33 @@
 
 class TRestGarfieldDriftProcess : public TRestEventProcess {
     private:
+		void Initialize();
 
         TRandom3 *fRandom;
 
-#ifndef __CINT__
-        TRestHitsEvent *fInputHitsEvent;
-        TRestHitsEvent *fOutputHitsEvent;
+        TRestHitsEvent *fInputHitsEvent;//!
+        TRestHitsEvent *fOutputHitsEvent;//!
 
-        TRestReadout *fReadout;
-        TRestGas *fGas;
-        TRestGeometry *fGeometry;
+#if defined USE_Garfield
+        TRestReadout *fReadout;//!
+        TRestGas *fGas;//!
+        TRestGeometry *fGeometry;//!
 
-        Garfield::Sensor *fGfSensor;
-        Garfield::DRIFT_METHOD *fGfDriftMethod;
-#endif
+        Garfield::Sensor *fGfSensor;//!
+        Garfield::DRIFT_METHOD *fGfDriftMethod;//!
+
 
         void InitFromConfigFile();
 
-        void Initialize();
+
 
         void LoadDefaultConfig();
 
         Int_t FindModule( Int_t readoutPlane, Double_t x, Double_t y );
         Int_t FindChannel( Int_t module, Double_t x, Double_t y );
-
+#endif
     protected:
-
+#if defined USE_Garfield
         Double_t fGasPressure; // atm
 //         Double_t fElectricField; // V/cm
         Double_t fDriftPotential; // V
@@ -70,11 +73,16 @@ class TRestGarfieldDriftProcess : public TRestEventProcess {
 
         TString fGDML_Filename;
 
-
+#endif
     public:
+
+		TRestEvent * ProcessEvent(TRestEvent *eventInput);
+
+
+#if defined USE_Garfield
         void InitProcess();
         void BeginOfEventProcess(); 
-        TRestEvent *ProcessEvent( TRestEvent *eventInput );
+
         void EndOfEventProcess(); 
         void EndProcess();
 
@@ -96,16 +104,15 @@ class TRestGarfieldDriftProcess : public TRestEventProcess {
 
         TString GetProcessName() { return (TString) "garfieldDrift"; }
 
-#ifndef __CINT__
         Garfield::Sensor* GetGfSensor() { return fGfSensor; }
-#endif
+
 
         //Constructor
         TRestGarfieldDriftProcess();
         TRestGarfieldDriftProcess( char *cfgFileName );
         //Destructor
         ~TRestGarfieldDriftProcess();
-
+#endif
         ClassDef(TRestGarfieldDriftProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
 };
 #endif

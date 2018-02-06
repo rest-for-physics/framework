@@ -1885,7 +1885,6 @@ void TRestMetadata::PrintConfigBuffer()
 	cout << endl;
 }
 
-
 int TRestMetadata::GetChar(string hint) 
 { 
 	thread t = thread(&TRestMetadata::Hold_On, this);
@@ -1894,6 +1893,12 @@ int TRestMetadata::GetChar(string hint)
 	int result = getchar();
 	gApplication->Terminate(0);
 	return result;
+}
+
+
+void TRestMetadata::Hold_On() 
+{ 
+	gApplication->Run(true);
 }
 
 ///////////////////////////////////////////////
