@@ -243,6 +243,14 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
                     fChannelsHisto->Fill( readoutChannel );
                 }
             }
+            else if( !fReadOnly && fReadout == NULL )
+            {
+                for( int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++ )
+                {
+                    Int_t daqChannel = fSignalEvent->GetSignal(s)->GetID();
+                    fChannelsHisto->Fill( daqChannel );
+                }
+            }
         }
     }
 
