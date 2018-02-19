@@ -11,7 +11,7 @@
 #define RestTask_ViewEvents
 
 
-Int_t REST_Viewer(TString fName , TString EventType = "")
+Int_t REST_Viewer_GenericEvents(TString fName , TString EventType = "")
 {
 	TRestBrowser *browser = new TRestBrowser();
 	TRestGenericEventViewer *viewer = new TRestGenericEventViewer();
@@ -118,7 +118,7 @@ public:
 
 	void RunTask(TRestManager*mgr)
 	{
-		REST_Viewer(filename, eventype);
+		REST_Viewer_GenericEvents(filename, eventype);
 		GetChar("Running...\nPress a key to exit");
 	}
 
