@@ -23,7 +23,7 @@ TRestProcessRunner::TRestProcessRunner()
 
 
 TRestProcessRunner::~TRestProcessRunner()
-{	
+{
 }
 
 
@@ -42,15 +42,15 @@ void TRestProcessRunner::Initialize()
 	eventsToProcess = 0;
 	fProcessedEvents = 0;
 	fProcessNumber = 0;
-	
+
 }
 
-void TRestProcessRunner::BeginOfInit() 
+void TRestProcessRunner::BeginOfInit()
 {
 	if (fHostmgr != NULL)
 	{
 		fRunInfo = fHostmgr->GetRunInfo();
-		if (fRunInfo== NULL) {
+		if (fRunInfo == NULL) {
 			error << "File IO has not been specified, " << endl;
 			error << "please make sure the \"TRestFiles\" section is ahead of the \"TRestProcessRunner\" section" << endl;
 			exit(0);
@@ -69,20 +69,20 @@ void TRestProcessRunner::BeginOfInit()
 	if (lastEntry - firstEntry > 0 && eventsToProcess == 0) {
 		eventsToProcess = lastEntry - firstEntry;
 	}
-	else if (eventsToProcess > 0&& lastEntry - firstEntry > 0&&lastEntry - firstEntry !=eventsToProcess) {
+	else if (eventsToProcess > 0 && lastEntry - firstEntry > 0 && lastEntry - firstEntry != eventsToProcess) {
 		warning << "Conflict number of events to process!" << endl;
 	}
 	else if (eventsToProcess > 0 && lastEntry - firstEntry == 0) {
 		lastEntry = firstEntry + eventsToProcess;
 	}
-	else if (eventsToProcess == 0 && firstEntry == 0 && lastEntry == 0) 
+	else if (eventsToProcess == 0 && firstEntry == 0 && lastEntry == 0)
 	{
 		eventsToProcess = fRunInfo->GetTotalEntries();
 		lastEntry = fRunInfo->GetTotalEntries();
 	}
-	else 
-	{ 
-		warning << "error setting of event number" << endl; 
+	else
+	{
+		warning << "error setting of event number" << endl;
 		eventsToProcess = eventsToProcess > 0 ? eventsToProcess : fRunInfo->GetTotalEntries();
 		firstEntry = firstEntry > 0 ? firstEntry : 0;
 		lastEntry = lastEntry == firstEntry + eventsToProcess ? lastEntry : fRunInfo->GetTotalEntries();
@@ -91,7 +91,7 @@ void TRestProcessRunner::BeginOfInit()
 
 
 	fThreadNumber = StringToDouble(GetParameter("threadNumber", "1"));
-	fOutputItem = Spilt(GetParameter("treeBranches", ""),":");
+	fOutputItem = Spilt(GetParameter("treeBranches", "inputevent:processevent:outputevent:inputanalysis:outputanalysis"), ":");
 	if (fThreadNumber < 1)fThreadNumber = 1;
 
 
@@ -126,20 +126,28 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement * e)
 			return 0;
 		}
 
-		info << "adding process " << processType << " \"" << processName <<"\""<< endl;
-		for (int i = 0; i < fThreadNumber; i++) 
+		info << "adding process " << processType << " \"" << processName << "\"" << endl;
+		for (int i = 0; i < fThreadNumber; i++)
 		{
-			TRestEventProcess* p=InstantiateProcess(processType, e);
-			if (p->singleThreadOnly()) 
+			TRestEventProcess* p = InstantiateProcess(processType, e);
+			if (p->InheritsFrom("TRestRawToSignalProcess"))
 			{
-				//If the process declared single thread only, then it will be 
-				//regarded as file process(external process), generating event from raw file.
-				//It will be sent to TRestRun.
 				fRunInfo->SetExtProcess(p);
-				break;
+				return 0;
 			}
 			else
 			{
+				if (p->singleThreadOnly() && fThreadNumber > 1)
+				{
+					//If the process declared single thread only, then the whole process will be 
+					//in single thread mode
+					warning << "process: " << p->ClassName() << " can only run under single thread mode" << endl;
+					warning << "the analysis run will be performed with single thread!" << endl;
+					for (i = fThreadNumber; i > 1; i--) {
+						fThreads.erase(fThreads.end());
+						fThreadNumber--;
+					}
+				}
 				fThreads[i]->AddProcess(p);
 			}
 		}
@@ -155,10 +163,10 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement * e)
 }
 
 
-void TRestProcessRunner::EndOfInit() 
+void TRestProcessRunner::EndOfInit()
 {
 	debug << "Validating process chain..." << endl;
-	if (fThreads[0]->GetProcessnum() > 0)
+	if (fProcessNumber > 0)
 	{
 		if (fRunInfo->GetFileProcess() != NULL)
 		{
@@ -177,11 +185,11 @@ void TRestProcessRunner::EndOfInit()
 
 }
 
-void TRestProcessRunner::ReadProcInfo() 
+void TRestProcessRunner::ReadProcInfo()
 {
 	if (fRunInfo->GetFileProcess() != NULL)
 		ProcessInfo["FirstProcess"] = fRunInfo->GetFileProcess()->GetName();
-	int n = fThreads[0]->GetProcessnum();
+	int n = fProcessNumber;
 	ProcessInfo["LastProcess"] = (n == 0 ? ProcessInfo["FirstProcess"] : fThreads[0]->GetProcess(n - 1)->GetName());
 	ProcessInfo["ProcNumber"] = ToString(n);
 
@@ -201,132 +209,129 @@ void TRestProcessRunner::ReadProcInfo()
 ///
 void TRestProcessRunner::RunProcess()
 {
-	if (fProcessNumber > 0) {
 
-		fTempOutputDataFile = new TFile(fRunInfo->GetOutputFileName(), "recreate");
-		if (fProcessNumber > 0) {
-			debug << "Initializing processes in threads. " << fThreadNumber << " threads are requested" << endl;
-			fRunInfo->ResetEntry();
-			for (int i = 0; i < fThreadNumber; i++)
-			{
-				fThreads[i]->PrepareToProcess();
-			}
-		}
+	fTempOutputDataFile = new TFile(fRunInfo->GetOutputFileName(), "recreate");
 
-		//print metadata
-		if (fVerboseLevel >= REST_Essential) {
-			if (fRunInfo->GetFileProcess() != NULL)fRunInfo->GetFileProcess()->PrintMetadata();
-
-			for (int i = 0; i < fThreads[0]->GetProcessnum(); i++)
-			{
-				fThreads[0]->GetProcess(i)->PrintMetadata();
-			}
-		}
-		info << this->ClassName() << ": " << fThreads[0]->GetProcessnum() << " Processes Loaded, " << fThreadNumber << " Threads Requested." << endl;
+	debug << "Initializing processes in threads. " << fThreadNumber << " threads are requested" << endl;
+	fRunInfo->ResetEntry();
+	fRunInfo->SetCurrentEntry(firstEntry);
+	for (int i = 0; i < fThreadNumber; i++)
+	{
+		fThreads[i]->PrepareToProcess();
+	}
 
 
-		//copy thread tree to local
-		fTempOutputDataFile->cd();
-		TRestAnalysisTree* tree = fThreads[0]->GetEventTree();
-		if (tree != NULL) {
-			fEventTree = (TRestAnalysisTree*)tree->Clone();
-			fEventTree->SetName("EventTree");
-			fEventTree->SetTitle("EventTree");
-			fEventTree->SetDirectory(fTempOutputDataFile);
-		}
-		else
+	//print metadata
+	if (fVerboseLevel >= REST_Essential) {
+		if (fRunInfo->GetFileProcess() != NULL)fRunInfo->GetFileProcess()->PrintMetadata();
+
+		for (int i = 0; i < fProcessNumber; i++)
 		{
-			fEventTree = NULL;
+			fThreads[0]->GetProcess(i)->PrintMetadata();
 		}
+	}
 
-		tree = (TRestAnalysisTree*)fThreads[0]->GetAnalysisTree();
-		if (tree != NULL) {
-			fAnalysisTree = (TRestAnalysisTree*)tree->Clone();
-			fAnalysisTree->SetName("AnalysisTree");
-			fAnalysisTree->SetTitle("AnalysisTree");
-			fAnalysisTree->SetDirectory(fTempOutputDataFile);
-		}
-		else
-		{
-			fAnalysisTree = NULL;
-		}
-
-		nBranches = fAnalysisTree->GetListOfBranches()->GetEntriesFast();
-
-		//reset runner
-		this->ResetRunTimes();
-		fProcessedEvents = 0;
-		fRunInfo->ResetEntry();
-
-#ifdef TIME_MEASUREMENT
-		high_resolution_clock::time_point t3 = high_resolution_clock::now();
-#endif
-
-		//start the thread!
-		fout << this->ClassName() << ": Starting the Process.." << endl;
-		for (int i = 0; i < fThreadNumber; i++)
-		{
-			fThreads[i]->StartThread();
-		}
-
-		while (fRunInfo->GetInputEvent() != NULL&&eventsToProcess > fProcessedEvents)
-		{
-
-#ifdef WIN32
-			_sleep(50);
-#else
-			usleep(100000);
-#endif
-
-			//cout << eventsToProcess << " " << fProcessedEvents << " " << lastEntry << " " << fCurrentEvent << endl;
-			//cout << fProcessedEvents << "\r";
-			//printf("%d processed events now...\r", fProcessedEvents);
-			//fflush(stdout);
-			PrintProcessedEvents(100);
-		}
+	info << this->ClassName() << ": " << fProcessNumber << " Processes Loaded, " << fThreadNumber << " Threads Requested." << endl;
 
 
-#ifdef TIME_MEASUREMENT
-		high_resolution_clock::time_point t4 = high_resolution_clock::now();
-		deltaTime = (int)duration_cast<microseconds>(t4 - t3).count();
-#endif
-
-		fout << this->ClassName() << ": " << fProcessedEvents << " processed events" << endl;
-
-#ifdef TIME_MEASUREMENT
-		info << "Total processing time : " << ((Double_t)deltaTime) / 1000. << " ms" << endl;
-		info << "Average read time from disk (per event) : " << ((Double_t)readTime) / fProcessedEvents / 1000. << " ms" << endl;
-		info << "Average process time (per event) : " << ((Double_t)(deltaTime-readTime-writeTime)) / fProcessedEvents / 1000. << " ms" << endl;
-		info << "Average write time to disk (per event) : " << ((Double_t)writeTime) / fProcessedEvents / 1000. << " ms" << endl;
-
-#endif
-
-
-		while (1)
-		{
-#ifdef WIN32
-			_sleep(50);
-#else
-			usleep(100000);
-#endif
-			bool finish = fThreads[0]->Finished();
-			for (int i = 1; i < fThreadNumber; i++)
-			{
-				finish = finish&&fThreads[i]->Finished();
-			}
-			if (finish)break;
-		}
-
+	//copy thread tree to local
+	fTempOutputDataFile->cd();
+	TRestAnalysisTree* tree = fThreads[0]->GetEventTree();
+	if (tree != NULL) {
+		fEventTree = (TRestAnalysisTree*)tree->Clone();
+		fEventTree->SetName("EventTree");
+		fEventTree->SetTitle("EventTree");
+		fEventTree->SetDirectory(fTempOutputDataFile);
 	}
 	else
 	{
-		info << "skipping null process chain..." << endl;
+		fEventTree = NULL;
 	}
+
+	tree = (TRestAnalysisTree*)fThreads[0]->GetAnalysisTree();
+	if (tree != NULL) {
+		fAnalysisTree = (TRestAnalysisTree*)tree->Clone();
+		fAnalysisTree->SetName("AnalysisTree");
+		fAnalysisTree->SetTitle("AnalysisTree");
+		fAnalysisTree->SetDirectory(fTempOutputDataFile);
+	}
+	else
+	{
+		fAnalysisTree = NULL;
+	}
+
+	nBranches = fAnalysisTree->GetListOfBranches()->GetEntriesFast();
+
+	//reset runner
+	this->ResetRunTimes();
+	fProcessedEvents = 0;
+	fRunInfo->ResetEntry();
+	fRunInfo->SetCurrentEntry(firstEntry);
+
+#ifdef TIME_MEASUREMENT
+	high_resolution_clock::time_point t3 = high_resolution_clock::now();
+#endif
+
+	//start the thread!
+	fout << this->ClassName() << ": Starting the Process.." << endl;
+	for (int i = 0; i < fThreadNumber; i++)
+	{
+		fThreads[i]->StartThread();
+	}
+
+	while (fRunInfo->GetInputEvent() != NULL && eventsToProcess > fProcessedEvents)
+	{
+
+#ifdef WIN32
+		_sleep(50);
+#else
+		usleep(100000);
+#endif
+
+		//cout << eventsToProcess << " " << fProcessedEvents << " " << lastEntry << " " << fCurrentEvent << endl;
+		//cout << fProcessedEvents << "\r";
+		//printf("%d processed events now...\r", fProcessedEvents);
+		//fflush(stdout);
+		PrintProcessedEvents(100);
+	}
+
+
+#ifdef TIME_MEASUREMENT
+	high_resolution_clock::time_point t4 = high_resolution_clock::now();
+	deltaTime = (int)duration_cast<microseconds>(t4 - t3).count();
+#endif
+
+	fout << this->ClassName() << ": " << fProcessedEvents << " processed events" << endl;
+
+#ifdef TIME_MEASUREMENT
+	info << "Total processing time : " << ((Double_t)deltaTime) / 1000. << " ms" << endl;
+	info << "Average read time from disk (per event) : " << ((Double_t)readTime) / fProcessedEvents / 1000. << " ms" << endl;
+	info << "Average process time (per event) : " << ((Double_t)(deltaTime - readTime - writeTime)) / fProcessedEvents / 1000. << " ms" << endl;
+	info << "Average write time to disk (per event) : " << ((Double_t)writeTime) / fProcessedEvents / 1000. << " ms" << endl;
+
+#endif
+
+
+	while (1)
+	{
+#ifdef WIN32
+		_sleep(50);
+#else
+		usleep(100000);
+#endif
+		bool finish = fThreads[0]->Finished();
+		for (int i = 1; i < fThreadNumber; i++)
+		{
+			finish = finish && fThreads[i]->Finished();
+		}
+		if (finish)break;
+	}
+
 
 
 	ConfigOutputFile();
 
-	
+
 }
 
 ///////////////////////////////////////////////
@@ -357,7 +362,7 @@ Int_t TRestProcessRunner::GetNextevtFunc(TRestEvent* targetevt, TRestAnalysisTre
 	int n;
 	if (fProcessedEvents >= eventsToProcess || targetevt == NULL)
 	{
-		n= -1;
+		n = -1;
 	}
 	else
 	{
@@ -454,63 +459,52 @@ void TRestProcessRunner::WriteThreadFileFunc(TRestThread* t)
 }
 
 
-void TRestProcessRunner::ConfigOutputFile() 
+void TRestProcessRunner::ConfigOutputFile()
 {
 	debug << "Configuring output file, merging thread files together" << endl;
 #ifdef TIME_MEASUREMENT
 	ProcessInfo["ProcessTime"] = ToString(deltaTime) + "ms";
 #endif
 
-	if (fProcessNumber > 0) {
-		vector<string> files_to_merge;
 
-		//add data file
-		string savemetadata = GetParameter("saveMetadata", "true");
-		if (savemetadata == "true" || savemetadata == "True" || savemetadata == "yes" || savemetadata == "ON") 
-		{
-			fTempOutputDataFile->cd();
-			fRunInfo->Write();
-			this->Write();
-			char tmpString[256];
-			if (fRunInfo->GetFileProcess() != NULL) 
-			{
-				sprintf(tmpString, "Process-%d. %s", 0, fRunInfo->GetFileProcess()->GetName());
-				fRunInfo->GetFileProcess()->Write();
-				for (int i = 0; i < fProcessNumber-1; i++) {
-					sprintf(tmpString, "Process-%d. %s", i + 1, fThreads[0]->GetProcess(i)->GetName());
-					fThreads[0]->GetProcess(i)->Write();
-				}
-			}
-			else
-			{
-				for (int i = 0; i < fProcessNumber; i++) {
-					sprintf(tmpString, "Process-%d. %s", i + 1, fThreads[0]->GetProcess(i)->GetName());
-					fThreads[0]->GetProcess(i)->Write();
-				}
-			}
+	vector<string> files_to_merge;
 
-		}
-		if(fEventTree!=NULL)fEventTree->Write();
-		if(fAnalysisTree!=NULL)fAnalysisTree->Write();
-		fTempOutputDataFile->Close();
-		//files_to_merge.push_back(fTempOutputDataFile->GetName());
-
-		//add threads file
-		//processes may have their own TObject output. They are stored in the threads file
-		//these files are mush smaller that data file, so they are merged to the data file.
-		for (int i = 0; i < fThreadNumber; i++) {
-			TFile*f = fThreads[i]->GetOutputFile();
-			if (f != NULL)
-				f->Close();
-				files_to_merge.push_back(f->GetName());
-		}
-
-		fRunInfo->MergeProcessFile(files_to_merge, fTempOutputDataFile->GetName());
-	}
-	else
+	//add data file
+	string savemetadata = GetParameter("saveMetadata", "true");
+	if (savemetadata == "true" || savemetadata == "True" || savemetadata == "yes" || savemetadata == "ON")
 	{
-		fRunInfo->PassOutputFile();
+		fTempOutputDataFile->cd();
+		fRunInfo->Write();
+		this->Write();
+		char tmpString[256];
+		if (fRunInfo->GetFileProcess() != NULL)
+		{
+			sprintf(tmpString, "Process-%d. %s", 0, fRunInfo->GetFileProcess()->GetName());
+			fRunInfo->GetFileProcess()->Write();
+		}
+		for (int i = 0; i < fProcessNumber; i++) {
+			sprintf(tmpString, "Process-%d. %s", i + 1, fThreads[0]->GetProcess(i)->GetName());
+			fThreads[0]->GetProcess(i)->Write();
+		}
+
 	}
+	if (fEventTree != NULL)fEventTree->Write();
+	if (fAnalysisTree != NULL)fAnalysisTree->Write();
+	fTempOutputDataFile->Close();
+	//files_to_merge.push_back(fTempOutputDataFile->GetName());
+
+	//add threads file
+	//processes may have their own TObject output. They are stored in the threads file
+	//these files are mush smaller that data file, so they are merged to the data file.
+	for (int i = 0; i < fThreadNumber; i++) {
+		TFile*f = fThreads[i]->GetOutputFile();
+		if (f != NULL)
+			f->Close();
+		files_to_merge.push_back(f->GetName());
+	}
+
+	fRunInfo->MergeProcessFile(files_to_merge, fTempOutputDataFile->GetName());
+
 }
 
 
@@ -528,7 +522,7 @@ void TRestProcessRunner::ResetRunTimes()
 }
 
 
-TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type,TiXmlElement* ele)
+TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type, TiXmlElement* ele)
 {
 	TClass *cl = TClass::GetClass(type);
 	if (cl == NULL)
@@ -548,7 +542,7 @@ TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type,TiXmlElem
 	pc->LoadConfigFromFile(ele, fElementGlobal);
 
 	pc->SetRunInfo(this->fRunInfo);
-	
+
 	return pc;
 }
 
@@ -556,7 +550,7 @@ TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type,TiXmlElem
 void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 {
 
-	if (eventsToProcess==2E9)
+	if (eventsToProcess == 2E9)
 	{
 		printf("%d processed events now...\r", (fProcessedEvents / rateE)*rateE);
 		fflush(stdout);

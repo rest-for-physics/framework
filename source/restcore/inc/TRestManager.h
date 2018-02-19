@@ -35,12 +35,12 @@ public:
 
 	void PrintMetadata();
 
-	TRestProcessRunner*GetProcessRunner() { return (TRestProcessRunner*)GetMetadataClass("TRestProcessRunner"); }
-	TRestRun *GetRunInfo() { return (TRestRun*)GetMetadataClass("TRestRun"); }
-	TRestRun *GetAnaPlot() { return (TRestRun*)GetMetadataClass("TRestAnalysisPlot"); }
+	TRestProcessRunner*GetProcessRunner() { return (TRestProcessRunner*)GetApplication("TRestProcessRunner"); }
+	TRestRun *GetRunInfo() { return (TRestRun*)GetApplication("TRestRun"); }
+	TRestAnalysisPlot *GetAnaPlot() { return (TRestAnalysisPlot*)GetApplication("TRestAnalysisPlot"); }
 
-	TRestMetadata* GetMetadataInfo(string type);
-	TRestMetadata* GetMetadataClass(string type) { return GetMetadataInfo(type); }
+	TRestMetadata* GetApplicationWithName(string name);
+	TRestMetadata* GetApplication(string type);
 
 };
 

@@ -16,9 +16,9 @@
 
     <addProcess type="TRestMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON" file="processes.rml"/>
     <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON" file="processes.rml"/>
-    <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" file="processes.rml"/>
-    <addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="ON" file="processes.rml"/>
-    <addProcess type="TRestHitsAnalysisProcess" name="hitsAna" value="ON" file="processes.rml" >
+    <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="OFF" file="processes.rml"/>
+    <addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="OFF" file="processes.rml"/>
+    <addProcess type="TRestHitsAnalysisProcess" name="hitsAna" value="OFF" file="processes.rml" >
       <observable name="FirstX" value="ON" />
       <observable name="FirstY" value="ON" />
     </addProcess>
@@ -27,11 +27,12 @@
 
   </TRestProcessRunner>
 
-  <TRestAnalysisPlot name="SpectrumAndHitmaps" title="Spectrum Plots" file="plots.rml"/>
+  <TRestAnalysisPlot name="plot" title="Spectrum Plots" file="plots.rml"/>
 
 
-  <!---  <addTask command="SJTU_Proto->PrintMetadata()" value="ON"/>  -->
+  <addTask command="SJTU_Proto->PrintMetadata()" value="OFF"/>  
   <addTask command="TemplateEventProcess->RunProcess()" value="ON"/>
+  <addTask command="plot->PlotCombinedCanvas()" value="OFF"/>
 
 
   <globals>
@@ -39,8 +40,7 @@
     <parameter name="inputFile" value="${REST_INPUTFILE}"/>
     <parameter name="inputFormat" value="run[RunNumber]_file[Fragment]_[Time-d]_[Time].graw"/>
     <parameter name="outputFile" value="RUN[RunNumber]_[Time]_[LastProcess].root" />
-    <variable name="gasDataPath" value="${REST_PATH}/restData/gasFiles/" />
-    <variable name="configPath" value="${REST_PATH}/restData/config/"/>
+    <parameter name="addonFilePath" value="$ENV{REST_PATH}/inputData/definitions/:$ENV{REST_PATH}/inputData/gasFiles/"/>
 
   </globals>
 

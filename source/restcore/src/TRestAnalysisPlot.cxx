@@ -156,7 +156,7 @@ void TRestAnalysisPlot::InitFromConfigFile()
 
 			string variableDefinition;
 			size_t pos = 0;
-			while ((variableDefinition = GetKEYDefinition("variable", pos, addPlotString)) != "")
+			while ((variableDefinition = GetKEYDefinition("source", pos, addPlotString)) != "")
 			{
 
 				varNames.push_back(GetFieldValue("name", (string)variableDefinition));
@@ -229,7 +229,7 @@ void TRestAnalysisPlot::InitFromConfigFile()
 
 				if (cutActive == "on" || cutActive == "ON" || cutActive == "On" || cutActive == "oN")
 				{
-					TString cutVariable = GetFieldValue("variable", addCutString);
+					TString cutVariable = GetFieldValue("source", addCutString);
 					TString cutCondition = GetFieldValue("condition", addCutString);
 
 					if (n > 0) cutString += " && ";
@@ -382,6 +382,7 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd()
 			warning << "Failed to make plot " << n << " : " << endl;
 			warning << "expression : \"" << fPlotString[n] << "\"" << endl;
 			warning << "cut : \"" << fCutString[n] << "\"" << endl;
+			warning << "option : \"" << fPlotOption[n] << "\"" << endl;
 			continue;
 		}
 		htemp->SetTitle(fPlotTitle[n]);
@@ -474,6 +475,7 @@ void TRestAnalysisPlot::PlotCombinedCanvasCompare()
 			warning << "Failed to make plot " << n <<" : "<< endl;
 			warning << "expression : \"" << fPlotString[n] << "\"" << endl;
 			warning << "cut : \"" << fCutString[n] << "\"" << endl;
+			warning << "option : \"" << fPlotOption[n] << "\"" << endl;
 			continue;
 		}
 

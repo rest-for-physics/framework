@@ -317,8 +317,6 @@ Int_t TRestStringHelper::ChecktheFile(std::string FileName)
 
 	if (!ifs)
 	{
-		cout << "Filename : " << FileName << endl;
-		cout << "REST WARNING. File could not be opened. Right path/filename?" << endl;
 		return -1;
 	}
 	else ifs.close();
@@ -359,5 +357,11 @@ vector <TString> TRestStringHelper::GetFilesMatchingPattern(TString pattern)
 	}
 
 	return outputFileNames;
+}
+
+std::string TRestStringHelper::ToUpper(std::string str)
+{
+	transform(str.begin(), str.end(), str.begin(), (int(*)(int))toupper);
+	return str;
 }
 

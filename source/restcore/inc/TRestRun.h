@@ -48,8 +48,6 @@ public:
 	void PassOutputFile() { fOutputFile = fInputFile; fOutputFileName = fOutputFile->GetName(); }
 	TFile* FormOutputFile();
 
-	void RunTasks();
-
 	void CloseFile();
 
 	void ImportMetadata(TString rootFile, TString name, Bool_t store);
@@ -152,19 +150,20 @@ public:
 
 
 protected:
-	//data for saving
+	//runinfo
 	Int_t fRunNumber;                 //< first identificative number
 	Int_t fParentRunNumber;
 	TString fRunClassName;
-	TString fRunType;             //< Stores bit by bit the type of run. 0: Calibration 1: Background 2: Pedestal 3: Simulation 4: DataTaking 
+	TString fRunType;             //< Stores bit by bit the type of run. e.g. calibration, background, pedestal, simulation, datataking 
 	TString fRunUser;	          //< To identify the author it has created the run. It might be also a word describing the origin of the run (I.e. REST_Prototype, T-REX, etc)
 	TString fRunTag;            //< A tag to be written to the output file
 	TString fRunDescription;	  //< A word or sentence describing the run (I.e. Fe55 calibration, cosmics, etc)
 	TString fExperimentName;
+
+	//program data
 	TString fInputFileName;
 	TString fOutputFileName;
 	TString fVersion;
-
 	Double_t fStartTime;            ///< Event absolute starting time/date (unix timestamp)
 	Double_t fEndTime;              ///< Event absolute starting time/date (unix timestamp)
 	Int_t fProcessedEvents;

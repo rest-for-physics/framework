@@ -54,6 +54,7 @@ public:
 	static  std::string typeidToClassName(std::string typeidstr);
 	static  Int_t ChecktheFile(std::string cfgFileName);
 	static std::vector <TString> GetFilesMatchingPattern(TString pattern);
+	static std::string ToUpper(std::string in);
 
 };
 
@@ -84,7 +85,7 @@ inline bool isAbsolutePath(const std::string& path) { return TRestStringHelper::
 inline std::string typeidToClassName(std::string typeidstr) { return TRestStringHelper::typeidToClassName(typeidstr); }
 inline Int_t ChecktheFile(std::string cfgFileName) { return TRestStringHelper::ChecktheFile(cfgFileName); }
 inline std::vector <TString> GetFilesMatchingPattern(TString pattern) { return TRestStringHelper::GetFilesMatchingPattern(pattern); }
-
+inline std::string ToUpper(std::string in) { return TRestStringHelper::ToUpper(in); }
 
 
 

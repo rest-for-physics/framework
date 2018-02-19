@@ -60,7 +60,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 
 	//cout << "----------- " << gROOT->FindObject("SJTU_Proto") << endl;
 
-	if(Count(keydeclare,"TRest")>0)
+	if (Count(keydeclare, "TRest") > 0)
 	{
 		TClass*c = TClass::GetClass(keydeclare.c_str());
 		if (c == NULL) {
@@ -92,26 +92,49 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 			return -1;
 		}
 		if (type != NULL) {
-			debug << " \""<<type<<"\" " << endl;
-			TClass*c = TClass::GetClass(type);
-			if (c == NULL) {
-				c= TClass::GetClass(("REST_"+(string)type).c_str());
-				if (c == NULL) {
-					warning << " " << endl;
-					warning << "REST ERROR. Metadata Task : " << type << " not found!!" << endl;
-					warning << "This task will be skipped." << endl;
-					return -1;
-				}
-
+			debug << " \"" << type << "\" " << endl;
+			if (type == "processEvents")
+			{
+				auto pr = GetProcessRunner();
+				if (pr != NULL)
+					pr->RunProcess();
 			}
-			TRestTask*tsk = (TRestTask*)c->New();
-			tsk->LoadConfigFromFile(e, fElementGlobal);
-			
-			tsk->RunTask(this);
-			return 0;
+			else if (type == "analysisPlot")
+			{
+				auto ap = GetAnaPlot();
+				if (ap != NULL)
+					ap->PlotCombinedCanvas();
+			}
+			else if (type == "saveMetadata")
+			{
+				auto ri = GetRunInfo();
+				if (ri != NULL) {
+					ri->FormOutputFile();
+					ri->CloseFile();
+				}
+			}
+			else
+			{
+				TClass*c = TClass::GetClass(type);
+				if (c == NULL) {
+					c = TClass::GetClass(("REST_" + (string)type).c_str());
+					if (c == NULL) {
+						warning << " " << endl;
+						warning << "REST ERROR. Metadata Task : " << type << " not found!!" << endl;
+						warning << "This task will be skipped." << endl;
+						return -1;
+					}
+
+				}
+				TRestTask*tsk = (TRestTask*)c->New();
+				tsk->LoadConfigFromFile(e, fElementGlobal);
+
+				tsk->RunTask(this);
+				return 0;
+			}
 		}
 		else if (cmd != NULL) {
-			debug << " \""<<cmd<<"\" " << endl;
+			debug << " \"" << cmd << "\" " << endl;
 
 			string name;
 			string call;
@@ -133,7 +156,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 				name = Spilt(cmd, "->")[0];
 				call = Spilt(cmd, "->")[1];
 			}
-			if (Count(call, "(") != 1||Count(call, ")")!=1) //we can only use one bracket
+			if (Count(call, "(") != 1 || Count(call, ")") != 1) //we can only use one bracket
 			{
 				warning << "command" << " \"" << cmd << "\" " << "is illegal!" << endl;
 				return -1;
@@ -141,21 +164,21 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 			method = Spilt(call, "(")[0];
 			arg = Spilt(Spilt(call, "(")[1], ")").size() == 0 ? "" : Spilt(Spilt(call, "(")[1], ")")[0];
 
-			for (int i = 0; i < fMetaObjects.size(); i++) 
+			for (int i = 0; i < fMetaObjects.size(); i++)
 			{
 				if (fMetaObjects[i]->GetName() == name) {
 					debug << "processing..." << endl;
-					gInterpreter->Execute(fMetaObjects[i], fMetaObjects[i]->IsA(), method.c_str(),arg.c_str());
+					gInterpreter->Execute(fMetaObjects[i], fMetaObjects[i]->IsA(), method.c_str(), arg.c_str());
 					//((TRestProcessRunner*)fMetaObjects[i])->RunProcess();
 					break;
 				}
-				else if(i== fMetaObjects.size()-1)
+				else if (i == fMetaObjects.size() - 1)
 				{
-					warning << "Object \""<<name<<"\" "<<" is not defined in current scope!" << endl;
+					warning << "Object \"" << name << "\" " << " is not defined in current scope!" << endl;
 					return -1;
 				}
 			}
-			
+
 
 
 
@@ -173,11 +196,23 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 }
 
 
-TRestMetadata* TRestManager::GetMetadataInfo(string type)
+TRestMetadata* TRestManager::GetApplication(string type)
 {
 	for (int i = 0; i < fMetaObjects.size(); i++)
 	{
 		if (fMetaObjects[i]->ClassName() == type)
+		{
+			return fMetaObjects[i];
+		}
+	}
+	return NULL;
+}
+
+TRestMetadata* TRestManager::GetApplicationWithName(string name)
+{
+	for (int i = 0; i < fMetaObjects.size(); i++)
+	{
+		if (fMetaObjects[i]->GetName() == name)
 		{
 			return fMetaObjects[i];
 		}
@@ -193,7 +228,7 @@ TRestMetadata* TRestManager::GetMetadataInfo(string type)
 ///
 void TRestManager::PrintMetadata()
 {
-	return; 
+	return;
 }
 
 

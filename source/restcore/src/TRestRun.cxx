@@ -80,6 +80,9 @@ void TRestRun::BeginOfInit()
 		exit(0);
 	}
 
+	fInputFileName = GetParameter("inputFile").c_str();
+	fInputFileNames = GetFilesMatchingPattern(fInputFileName);
+	fOutputFileName = GetParameter("outputFile", "rest_default.root").c_str();
 
 }
 
@@ -108,6 +111,46 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e)
 			warning << "Wrong definition of addMetadata! Metadata name or file name is not given!" << endl;
 			return -1;
 		}
+	}
+	else if (keydeclare == "addProcess") 
+	{
+		string active = GetParameter("value", e, "");
+		if (active != "ON" && active != "On" && active != "on") return 0;
+		string processName = GetParameter("name", e, "");
+		string processType = GetParameter("type", e, "");
+		if (processType == "") { warning << "Bad expression of addProcess" << endl; return 0; }
+		else if (processName == "") {
+			warning << "Event process " << processType << " has no name, it will be skipped" << endl;
+			return -1;
+		}
+		TClass *cl = TClass::GetClass(processType.c_str());
+		if (cl == NULL)
+		{
+			cout << " " << endl;
+			cout << "REST ERROR. Process : " << processType << " not found!!" << endl;
+			cout << "Please verify the process type and launch again." << endl;
+			cout << "If you are not willing to use this process you can deactivate using value=\"off\"" << endl;
+			cout << " " << endl;
+			cout << "This process will be skipped." << endl;
+			GetChar();
+			return -1;
+		}
+		TRestEventProcess *pc = (TRestEventProcess *)cl->New();
+
+		pc->LoadConfigFromFile(e, fElementGlobal);
+
+		pc->SetRunInfo(this);
+
+		if (pc->InheritsFrom("TRestRawToSignalProcess"))
+		{
+			SetExtProcess(pc);
+			return 0;
+		}
+		else
+		{
+			warning << "This is not an external file process!" << endl;
+		}
+
 	}
 	
 	else if (Count(keydeclare, "TRest")>0)
@@ -147,12 +190,10 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e)
 void TRestRun::EndOfInit()
 {
 	//Get some infomation
+	fRunNumber = StringToInteger(GetParameter("runNumber", "0"));
 	fRunUser = GetParameter("user").c_str();
 	fRunType = GetParameter("runType", "NotDefined").c_str();
 	fRunDescription = GetParameter("runDescription").c_str();
-	fInputFileName = GetParameter("inputFile").c_str();
-	fInputFileNames = GetFilesMatchingPattern(fInputFileName);
-	fOutputFileName = GetParameter("outputFile", "rest_default.root").c_str();
 	fExperimentName = GetParameter("experiment", "preserve").c_str();
 	fRunTag = GetParameter("runTag", "preserve").c_str();
 
@@ -591,10 +632,23 @@ void TRestRun::SetInputEvent(TRestEvent* eve)
 ///
 void TRestRun::ImportMetadata(TString File, TString name, Bool_t store)
 {
-	if (!fileExists(File.Data()))
-	{
-		error << "REST ERROR (ImportMetadata) : The file " << File << " does not exist" << endl;
-		return;
+
+	if (!fileExists(File.Data())) {
+
+		vector<string> paths = Spilt(GetParameter("addonFilePath", ""), ":");
+		for (int i = 0; i < paths.size(); i++)
+		{
+			if (fileExists(paths[i] + File.Data())) {
+				File = paths[i] + File;
+				break;
+			}
+			else if (i == paths.size() - 1)
+			{
+				error << "REST ERROR (ImportMetadata): The file " << File << " does not exist!" << endl;
+				error << endl;
+				return;
+			}
+		}
 	}
 	if (!isRootFile(File.Data())) 
 	{
