@@ -395,7 +395,7 @@ Int_t TRestMetadata::LoadConfigFromFile()
 /// 
 Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName)
 {
-	if (ChecktheFile(cfgFileName) == OK) {
+	if (fileExists(cfgFileName)) {
 		TiXmlElement* Sectional = GetElement(GetSectionName(), cfgFileName);
 		TiXmlElement* Global = GetElement("globals", cfgFileName);
 		vector<TiXmlElement*> a;
@@ -404,6 +404,8 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName)
 	}
 	else
 	{
+		cout << "Filename : " << cfgFileName << endl;
+		cout << "REST WARNING. Config File could not be opened. Right path/filename?" << endl;
 		GetChar();
 		exit(1);
 	}
@@ -473,15 +475,15 @@ Int_t TRestMetadata::LoadSectionMetadata()
 	this->SetTitle(GetParameter("title", "defaultTitle").c_str());
 	this->SetSectionName(this->ClassName());
 	string debugStr = GetParameter("verboseLevel", "essential");
-	if (debugStr == "silent")
+	if (debugStr == "silent" || debugStr == "1")
 		fVerboseLevel = REST_Silent;
-	if (debugStr == "info")
-		fVerboseLevel = REST_Info;
-	if (debugStr == "essential")
+	if (debugStr == "essential" || debugStr == "2")
 		fVerboseLevel = REST_Essential;
-	if (debugStr == "debug")
+	if (debugStr == "info" || debugStr == "3")
+		fVerboseLevel = REST_Info;
+	if (debugStr == "debug" || debugStr == "4")
 		fVerboseLevel = REST_Debug;
-	if (debugStr == "extreme")
+	if (debugStr == "extreme" || debugStr == "5")
 		fVerboseLevel = REST_Extreme;
 
 	debug << "Loading Config for : " << this->ClassName() << endl;
@@ -744,10 +746,23 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 	ReplaceElementAttributes(e);
 	const char* filename = e->Attribute("file");
 	if (filename == NULL)return;
-	if (ChecktheFile(filename) == -1) { 
-		warning << "REST WARNING(expand include file): Include file "<<filename<<" does not exist!" << endl; 
-		warning << endl;
-		return;
+	
+	if (!fileExists(filename)) { 
+
+		vector<string> paths = Spilt(GetParameter("addonFilePath", ""), ":");
+		for (int i = 0; i < paths.size(); i++) 
+		{
+			if (fileExists(paths[i] + filename)) {
+				filename = (paths[i] + (string)filename).c_str();
+				break;
+			}
+			else if (i == paths.size() - 1)
+			{
+				warning << "REST WARNING(expand include file): Include file " << filename << " does not exist!" << endl;
+				warning << endl;
+				return;
+			}
+		}
 	}
 	if (!isRootFile(filename)) //root file inclusion should be implemented in the derived class
 	{
@@ -990,17 +1005,7 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
 ///
 std::string TRestMetadata::GetFieldValue(std::string parName, TiXmlElement* e)
 {
-	if (e == NULL) {
-		if (GetVerboseLevel() > REST_Debug) { cout << "Element is null" << endl; }
-		return "";
-	}
-	if (e->Attribute(parName.c_str()) != NULL) {
-		return	ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(e->Attribute(parName.c_str())));
-	}
-	else
-	{
-		return "";
-	}
+	return GetParameter(parName, e);
 }
 
 
