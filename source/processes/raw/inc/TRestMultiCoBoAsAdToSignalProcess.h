@@ -69,6 +69,27 @@ struct CoBoHeaderFrame {
 	//TTimeStamp fEveTimeStamp;
 	//int fEveTimeSec;
 	//int fEveTimeNanoSec;
+
+	void Show()
+	{
+		cout << "------ Frame Header ------" << endl;
+		cout << "frameSize " << frameSize << endl;
+
+		cout << "frameType " << frameType << endl;
+		cout << "revision " << revision << endl;
+		cout << "headerSize " << headerSize << endl;
+		cout << "itemSize " << itemSize << endl;
+		cout << "nItems " << nItems << endl;
+		cout << "eventTime " << eventTime << endl;
+		cout << "eventIdx " << eventIdx << endl;
+
+		cout << "asadIdx " << asadIdx << endl;
+		cout << "readOffset " << readOffset << endl;
+		cout << "status " << status << endl;
+
+	}
+
+
 };
 
 class TRestMultiCoBoAsAdToSignalProcess :public TRestRawToSignalProcess {
@@ -102,6 +123,8 @@ public:
 	Bool_t InitializeStartTimeStampFromFilename(TString fName);
 
 	TRestEvent *ProcessEvent(TRestEvent *evInput);
+
+	void EndProcess();
 
 	Bool_t FillBuffer(Int_t n);
 
