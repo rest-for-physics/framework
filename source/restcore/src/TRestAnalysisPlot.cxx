@@ -382,6 +382,7 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd()
 			warning << "Failed to make plot " << n << " : " << endl;
 			warning << "expression : \"" << fPlotString[n] << "\"" << endl;
 			warning << "cut : \"" << fCutString[n] << "\"" << endl;
+			warning << "option : \"" << fPlotOption[n] << "\"" << endl;
 			continue;
 		}
 		htemp->SetTitle(fPlotTitle[n]);
@@ -474,6 +475,7 @@ void TRestAnalysisPlot::PlotCombinedCanvasCompare()
 			warning << "Failed to make plot " << n <<" : "<< endl;
 			warning << "expression : \"" << fPlotString[n] << "\"" << endl;
 			warning << "cut : \"" << fCutString[n] << "\"" << endl;
+			warning << "option : \"" << fPlotOption[n] << "\"" << endl;
 			continue;
 		}
 
