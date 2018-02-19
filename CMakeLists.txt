@@ -122,7 +122,7 @@ add_subdirectory(source)
 
 message("rest Libraries : " ${rest_libraries_regular})
 message("rest executables: " ${rest_exes})
-message("rest macros: " ${rest_macros})
+message("rest macros: " ${rest_macros_str})
 
 #begin installation
 file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h")
@@ -240,12 +240,9 @@ echo ${rest_libraries_regular}
 fi
 
 if [ $option = \\\"--exes\\\" ] ; then
-echo ${rest_exes}
-
-fi
-
-if [ $option = \\\"--methods\\\" ] ; then
-echo 2333
+echo ${rest_exes} 
+echo -------------------------------------------
+echo ${rest_macros_str}
 
 fi
 
@@ -292,8 +289,7 @@ echo \\\"  Usage :                                                              
 echo \\\"  rest-config [--incdir]  : Show the directory of headers                      \\\"
 echo \\\"  rest-config [--libdir]  : Show the directory of library                      \\\"
 echo \\\"  rest-config [--libs]    : Print regular REST libraries                       \\\"
-echo \\\"  rest-config [--exes]    : Print a list of REST executables                   \\\"
-echo \\\"  rest-config [--methods] : Print a list of methods avaliable in restRoot      \\\"
+echo \\\"  rest-config [--exes]    : Print a list of REST executables with alias        \\\"
 echo \\\"  rest-config [--version] : Print the version of REST                          \\\"
 echo \\\"  rest-config [--welcome] : Print the welcome message                          \\\"
 echo \\\"  rest-config [--flags]   : Print cmake flags defined when installing          \\\"
