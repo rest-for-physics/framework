@@ -14,30 +14,30 @@
 
     <canvas size="(1000,800)" divide="(2,2)" save="/tmp/R[RUN]_S[SUBRUN].pdf" />
 
-    <globalCut name="analysisVariable" condition="&lt;50" value="OFF" /> 
+    <globalCut name="Some_Analysis_Variable" condition="&lt;50" value="OFF" /> 
 
     <plot name="Baseline" title="Baseline average" xlabel="Baseline [ADC units]" ylabel="Counts" 
-            logscale="false" save="" value="ON" >
-        <variable name="sgnlAna.BaseLineMean" range="(0,1000)" nbins="100" />
+            logscale="false" value="ON" >
+        <source name="sAna_BaseLineMean" range="(0,1000)" nbins="100" />
     </plot>
 
     <plot name="Spectrum" title="ADC energy spectrum" xlabel="Threshold integral energy [ADC units]" ylabel="Counts" 
-            logscale="true" save="" value="ON" >
-        <variable name="sgnlAna.ThresholdIntegral" range="(10,100000)" nbins="1000" />
+            logscale="true" value="ON" >
+        <source name="sAna_ThresholdIntegral" range="(10,100000)" nbins="1000" />
     </plot>
 
     <plot name="Hitmap" title="Hitmap (from hitsAnalysis)" xlabel="X [mm]" ylabel="Y [mm]"
-          logscale="false" save=""  value="ON" >
-          <variable name="hitsAna.yMean" range="(0,200)" nbins="1000" />
-          <variable name="hitsAna.xMean" range="(0,200)" nbins="1000" />
+          logscale="false"  value="OFF" >
+          <source name="hitsAna_yMean" range="(0,200)" nbins="1000" />
+          <source name="hitsAna_xMean" range="(0,200)" nbins="1000" />
     </plot>
 
     <plot name="Spectrum2" title="Spectrum (single tracks)" xlabel="Threshold integral energy [ADC units]" ylabel="Counts" 
-          logscale="true" save=""  value="ON" >
-          <variable name="sgnlAna.ThresholdIntegral" range="(0,100000)" nbins="1000" />
+          logscale="true"  value="OFF" >
+          <source name="sgnlAna.ThresholdIntegral" range="(0,100000)" nbins="1000" />
 
-          <cut variable="tckAna.nTracksX" condition="==1" value="ON" />
-          <cut variable="tckAna.nTracksY" condition="==1" value="ON" />
+          <cut source="tckAna_nTracksX" condition="==1" value="ON" />
+          <cut source="tckAna_nTracksY" condition="==1" value="ON" />
     </plot>
 
 </TRestAnalysisPlot>  

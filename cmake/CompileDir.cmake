@@ -4,29 +4,29 @@
 # Macro for compileing the whole directories into a single library
 #
 # The working directory of this macro should have regular form like:
-#	DIR
+#   DIR
 #    ├── CMakeLists.txt
 #    ├── SUB-DIR-1
-#    │   ├── inc
-#    │   │   └── CLASS_A.h
-#    │   └── src
-#    │        └── CLASS_A.cxx
+#    │    ├── inc
+#    │    │    └── CLASS_A.h
+#    │    └── src
+#    │          └── CLASS_A.cxx
 #    └── SUB-DIR-2
-#         ├── inc
-#         │   ├── CLASS_B.h
-#         │   └── CLASS_C.h
-#         └── src
-#              ├── CLASS_B.cxx
-#              └── CLASS_C.cxx
+#          ├── inc
+#          │    ├── CLASS_B.h
+#          │    └── CLASS_C.h
+#          └── src
+#                ├── CLASS_B.cxx
+#                └── CLASS_C.cxx
 # Or:
 #   DIR                     
 #    ├── CMakeLists.txt              
 #    ├── inc                         
-#    │   ├── CLASS_A.h     
-#    │   └── CLASS_B.h             
+#    │    ├── CLASS_A.h     
+#    │    └── CLASS_B.h             
 #    └── src                         
-#         ├── CLASS_A.cxx      
-#         └── CLASS_B.cxx  
+#          ├── CLASS_A.cxx      
+#          └── CLASS_B.cxx  
 #
 # This macro will first set include directories of cmake to ${CMAKE_CURRENT_SOURCE_DIR},
 # ${CMAKE_CURRENT_SOURCE_DIR}/inc, sub-directories, and sub-directories/inc.
