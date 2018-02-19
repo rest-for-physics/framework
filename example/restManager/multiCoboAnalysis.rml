@@ -27,11 +27,12 @@
 
   </TRestProcessRunner>
 
-  <TRestAnalysisPlot name="SpectrumAndHitmaps" title="Spectrum Plots" file="plots.rml"/>
+  <TRestAnalysisPlot name="plot" title="Spectrum Plots" file="plots.rml"/>
 
 
-  <!---  <addTask command="SJTU_Proto->PrintMetadata()" value="ON"/>  -->
+  <addTask command="SJTU_Proto->PrintMetadata()" value="OFF"/>  
   <addTask command="TemplateEventProcess->RunProcess()" value="ON"/>
+  <addTask command="plot->PlotCombinedCanvas()" value="OFF"/>
 
 
   <globals>
