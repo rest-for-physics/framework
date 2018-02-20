@@ -393,10 +393,29 @@ Int_t TRestMetadata::LoadConfigFromFile()
 ///////////////////////////////////////////////
 /// \brief Give the file name, find out the corresponding section. Then call the main starter.
 /// 
-Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName)
+Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName,string sectionName)
 {
 	if (fileExists(cfgFileName)) {
-		TiXmlElement* Sectional = GetElement(GetSectionName(), cfgFileName);
+		TiXmlElement* Sectional;
+		if (sectionName == "")
+		{
+			Sectional = GetElement(ClassName(), cfgFileName);
+			if (Sectional == NULL) {
+				warning << "cannot find xml section \"" << ClassName() << "\" in config file: " << cfgFileName << endl;
+				return -1;
+			}
+		}
+		else
+		{
+			TiXmlElement*ele = GetRootElementFromFile(cfgFileName);
+			if (ele->Value() == ClassName()) { Sectional = ele; }
+			else { Sectional = GetElementWithName(ClassName(), sectionName, ele); }
+			if (Sectional == NULL) {
+				warning << "cannot find xml section \"" << ClassName() << "\" with name \""<< sectionName <<"\""<<endl; 
+				warning << "in config file: " << cfgFileName << endl;
+				return -1;
+			}
+		}
 		TiXmlElement* Global = GetElement("globals", cfgFileName);
 		vector<TiXmlElement*> a;
 		a.clear();
@@ -405,9 +424,9 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName)
 	else
 	{
 		cout << "Filename : " << cfgFileName << endl;
-		cout << "REST WARNING. Config File could not be opened. Right path/filename?" << endl;
+		cout << "REST WARNING. Config File does not exist. Right path/filename?" << endl;
 		GetChar();
-		exit(1);
+		return -1;
 	}
 }
 

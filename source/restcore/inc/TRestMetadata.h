@@ -66,10 +66,9 @@ public:
 
 
 	Int_t LoadConfigFromFile();
-	Int_t LoadConfigFromFile(string fgFileName);
 	Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal);
 	Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal, vector<TiXmlElement*> eEnv);
-	Int_t LoadConfigFromFile(string cfgFileName, string name) { LoadConfigFromFile(cfgFileName.c_str()); return 0; };
+	Int_t LoadConfigFromFile(string cfgFileName, string sectionName = "");
 	virtual Int_t LoadSectionMetadata(string section, string cfgFileName, string name) { LoadSectionMetadata(); return 0; }
 	virtual Int_t LoadSectionMetadata();
 	virtual void InitFromConfigFile();
