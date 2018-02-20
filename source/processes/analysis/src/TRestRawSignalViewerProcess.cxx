@@ -59,6 +59,8 @@ void TRestRawSignalViewerProcess::Initialize()
     fInputEvent = fSignalEvent;
 
     fDrawRefresh = 0;
+
+	fSingleThreadOnly = true;
 }
 
 void TRestRawSignalViewerProcess::LoadConfig( std::string cfgFilename, std::string name )

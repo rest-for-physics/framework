@@ -164,6 +164,15 @@ void TRestAnalysisPlot::InitFromConfigFile()
 				bins.push_back(StringToInteger(GetFieldValue("nbins", variableDefinition)));
 			}
 
+			//old
+			while ((variableDefinition = GetKEYDefinition("variable", pos, addPlotString)) != "")
+			{
+
+				varNames.push_back(GetFieldValue("name", (string)variableDefinition));
+				ranges.push_back(StringTo2DVector(GetFieldValue("range", variableDefinition)));
+				bins.push_back(StringToInteger(GetFieldValue("nbins", variableDefinition)));
+			}
+
 			TString pltString = "";
 			for (unsigned int i = 0; i < varNames.size(); i++)
 			{
@@ -230,6 +239,8 @@ void TRestAnalysisPlot::InitFromConfigFile()
 				if (cutActive == "on" || cutActive == "ON" || cutActive == "On" || cutActive == "oN")
 				{
 					TString cutVariable = GetFieldValue("source", addCutString);
+					if(cutVariable=="")
+						TString cutVariable = GetFieldValue("variable", addCutString);
 					TString cutCondition = GetFieldValue("condition", addCutString);
 
 					if (n > 0) cutString += " && ";

@@ -144,9 +144,11 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement * e)
 					warning << "process: " << p->ClassName() << " can only run under single thread mode" << endl;
 					warning << "the analysis run will be performed with single thread!" << endl;
 					for (i = fThreadNumber; i > 1; i--) {
-						fThreads.erase(fThreads.end());
+						fThreads.erase(fThreads.end() - 1);
 						fThreadNumber--;
 					}
+					fThreads[0]->AddProcess(p);
+					break;
 				}
 				fThreads[i]->AddProcess(p);
 			}
