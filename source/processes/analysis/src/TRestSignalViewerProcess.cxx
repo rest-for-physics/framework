@@ -59,6 +59,8 @@ void TRestSignalViewerProcess::Initialize()
     fInputEvent = fSignalEvent;
 
     fDrawRefresh = 0;
+
+	fSingleThreadOnly = true;
 }
 
 void TRestSignalViewerProcess::LoadConfig( std::string cfgFilename, std::string name )
