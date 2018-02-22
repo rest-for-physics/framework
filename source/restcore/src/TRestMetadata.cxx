@@ -505,6 +505,8 @@ Int_t TRestMetadata::LoadSectionMetadata()
 	if (debugStr == "extreme" || debugStr == "5")
 		fVerboseLevel = REST_Extreme;
 
+	fStore = ToUpper(GetParameter("store", "true")) == "TRUE" || ToUpper(GetParameter("store", "true")) == "ON";
+
 	debug << "Loading Config for : " << this->ClassName() << endl;
 
 
