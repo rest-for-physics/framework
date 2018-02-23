@@ -95,32 +95,43 @@ void TRestTask::SetArgumentValue(string name, string value)
 
 TRestTask* TRestTask::GetTask(TString MacroName)
 {
-	string command = (string)"find $REST_PATH/macros -name *" + (string)MacroName + (string)"* > /tmp/macros.list";
-	system(command.c_str());
-	FILE *f = fopen("/tmp/macros.list", "r");
-	char str[256];
-	fscanf(f, "%s\n", str);
-	if (feof(f) == 0)
-	{
-		cout << "REST ERROR : multi matching of macro \"" << MacroName << "\" found!" << endl;
+	TClass*c = TClass::GetClass(MacroName);
+	if (c == NULL) 
+		c = TClass::GetClass("REST_" + MacroName);
+	
+	if(c==NULL){
+		string command = (string)"find $REST_PATH/macros -name *" + (string)MacroName + (string)"* > /tmp/macros.list";
+		system(command.c_str());
+		FILE *f = fopen("/tmp/macros.list", "r");
+		char str[256];
+		fscanf(f, "%s\n", str);
+		if (feof(f) == 0)
+		{
+			cout << "REST ERROR : multi matching of macro \"" << MacroName << "\" found!" << endl;
+			fclose(f);
+			system("rm /tmp/macros.list");
+			return NULL;
+		}
 		fclose(f);
 		system("rm /tmp/macros.list");
-		return NULL;
-	}
-	fclose(f);
-	system("rm /tmp/macros.list");
 
-	if ((string)str == "")
-	{
-		return NULL;
-	}
-	cout << "Found MacroFile " << (string)str << endl;
-	if (gInterpreter->LoadFile(str) != 0)
-	{
-		return NULL;
-	}
+		if ((string)str == "")
+		{
+			return NULL;
+		}
+		cout << "Found MacroFile " << (string)str << endl;
+		if (gInterpreter->LoadFile(str) != 0)
+		{
+			return NULL;
+		}
 
-	return new TRestTask(str);
+		return new TRestTask(str);
+	}
+	else if(c->InheritsFrom("TRestTask"))
+	{
+		return (TRestTask * )c->New();
+	}
+	return NULL;
 }
 
 bool TRestTask::InitTask(vector<string>arg)
