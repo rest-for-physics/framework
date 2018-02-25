@@ -211,7 +211,7 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     fAnalysisTree->SetObservableValue( obsName, nSignals );
 
     // Signals are zero-ed
-    fSignalEvent->SubstractBaselines( fBaseLineRange.X(), fBaseLineRange.Y() );
+    //fSignalEvent->SubstractBaselines( fBaseLineRange.X(), fBaseLineRange.Y() );
 
     Int_t from = (Int_t) fIntegralRange.X();
     Int_t to = (Int_t) fIntegralRange.Y();
