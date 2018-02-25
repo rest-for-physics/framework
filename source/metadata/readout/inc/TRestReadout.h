@@ -60,6 +60,11 @@ class TRestReadout:public TRestMetadata {
 
         Int_t GetModuleDefinitionId( TString name );
 
+		void GetPlaneModuleChannel(Int_t signalID, Int_t& planeID, Int_t& moduleID, Int_t& channelID);
+
+		Double_t GetX(Int_t signalID);
+		Double_t GetY(Int_t signalID);
+
         Double_t GetX( Int_t plane, Int_t modID, Int_t chID );
         Double_t GetY( Int_t plane, Int_t modID, Int_t chID );
 

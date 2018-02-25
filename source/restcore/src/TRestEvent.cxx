@@ -139,6 +139,18 @@ void TRestEvent::SetTime(Double_t seconds, Double_t nanoseconds)
 	fEventTime.SetNanoSec(nanoseconds);
 }
 
+
+void TRestEvent::SetEventInfo(TRestEvent*eve)
+{
+	if (eve != NULL) {
+		SetID(eve->GetID());
+		SetSubID(eve->GetSubID());
+		SetTimeStamp(eve->GetTimeStamp());
+		SetSubEventTag(eve->GetSubEventTag());
+		SetOK(eve->isOk());
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 /// Run to print event data info on console
 /// To be re-implemented in derived class.

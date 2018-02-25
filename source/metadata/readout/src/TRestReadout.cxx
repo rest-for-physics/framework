@@ -606,6 +606,51 @@ void TRestReadout::ValidateReadout( )
 }
 
 
+void TRestReadout::GetPlaneModuleChannel(Int_t signalID, Int_t& planeID, Int_t& moduleID, Int_t& channelID)
+{
+	for (int p = 0; p < GetNumberOfReadoutPlanes(); p++)
+	{
+		TRestReadoutPlane *plane = GetReadoutPlane(p);
+		for (int m = 0; m < plane->GetNumberOfModules(); m++)
+		{
+			TRestReadoutModule *mod = plane->GetModule(m);
+
+			if (mod->isDaqIDInside(signalID))
+			{
+				planeID = p;
+				moduleID = mod->GetModuleID();
+				channelID = mod->DaqToReadoutChannel(signalID);
+			}
+		}
+	}
+}
+
+
+Double_t TRestReadout::GetX(Int_t signalID) 
+{
+	Int_t planeID, readoutChannel = -1, readoutModule;
+	GetPlaneModuleChannel(signalID, planeID, readoutModule, readoutChannel);
+	if (readoutChannel == -1)
+	{
+		cout << "REST Warning : Readout channel not found for daq ID : " << signalID << endl;
+		return numeric_limits<Double_t>::quiet_NaN();
+	}
+	return GetX(planeID, readoutModule,readoutChannel);
+}
+
+Double_t TRestReadout::GetY(Int_t signalID) 
+{
+	Int_t planeID, readoutChannel = -1, readoutModule;
+	GetPlaneModuleChannel(signalID, planeID, readoutModule, readoutChannel);
+	if (readoutChannel == -1)
+	{
+		cout << "REST Warning : Readout channel not found for daq ID : " << signalID << endl;
+		return numeric_limits<Double_t>::quiet_NaN();
+	}
+	return GetY(planeID, readoutModule, readoutChannel);
+}
+
+
 ///////////////////////////////////////////////
 /// \brief It returns the x-coordinate for the given readout 
 /// plane, *plane*, a given module, *modID*, and a given
