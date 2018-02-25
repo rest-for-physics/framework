@@ -71,6 +71,8 @@ public:
 	void SetState(Bool_t state) { fOk = state; }
 	void SetOK(Bool_t state) { fOk = state; }
 
+	void SetEventInfo(TRestEvent*eve);
+
 	//Getters
 	Int_t GetID() { return fEventID; }
 	Int_t GetSubID() { return fSubEventID; }
