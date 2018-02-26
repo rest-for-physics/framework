@@ -34,8 +34,15 @@ class TRestRawSignalTo2DHitsProcess:public TRestEventProcess {
 
         // add here the metadata members of your event process
         // You can just remove fMyProcessParameter
-        Int_t fMyDummyParameter;
+		int fNoiseReductionLevel;//0: no reduction, 1: subtract baseline, 2: subtract baseline plus threshold
 
+		int fEnergyCalculation;//0: no calculation(use raw pause), 1: only peak, 2: integration, 3: threshold integration
+
+		TVector2 fBaseLineRange;//!
+		TVector2 fIntegralRange;//!
+		Double_t fPointThreshold;//!
+		Double_t fSignalThreshold;//!
+		Int_t fNPointsOverThreshold;//!
     protected:
 
     public:
@@ -47,7 +54,8 @@ class TRestRawSignalTo2DHitsProcess:public TRestEventProcess {
         { 
             BeginPrintProcess();
 
-            std::cout << "A dummy Process parameter : " << fMyDummyParameter << std::endl;
+            std::cout << "Noise Reduction Level : " << fNoiseReductionLevel << std::endl;
+			std::cout << "Energy Calculation Method: " << fEnergyCalculation << std::endl;
 
             EndPrintProcess();
         }

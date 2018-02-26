@@ -66,19 +66,105 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent( TRestEvent *evInput )
 		fOutputSignalEvent->Initialize();
 		fOutputSignalEvent->SetEventInfo(fInputSignalEvent);
 
-		for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++) 
-		{
-			TRestRawSignal*s = fInputSignalEvent->GetSignal(n);
-			fOutputSignalEvent->AddSignal(s);
+
+
+
+
+
+
+		if (fNoiseReductionLevel == 0) {
+			for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++)
+			{
+				TRestRawSignal*s = fInputSignalEvent->GetSignal(n);
+				fOutputSignalEvent->AddSignal(s);
+			}
 		}
+		else if (fNoiseReductionLevel == 1)
+		{
+			for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++)
+			{
+				TRestRawSignal*s = fInputSignalEvent->GetSignal(n);
+				s->SubstractBaseline(fBaseLineRange.X(),fBaseLineRange.Y());
+				if (fEnergyCalculation == 0) {
+					fOutputSignalEvent->AddSignal(s);
+				}
+				else if(fEnergyCalculation==1)
+				{
+					double time = s->GetMaxPeakBin();
+					double energy = s->GetMaxPeakValue();
+					fOutputSignalEvent->SetSignal(time, s->GetID(), energy);
+				}
+				else if (fEnergyCalculation == 2) {
+					double time = s->GetMaxPeakBin();
+					double energy = s->GetIntegral((Int_t)fIntegralRange.X(), (Int_t)fIntegralRange.Y());
+					fOutputSignalEvent->SetSignal(time, s->GetID(), energy);
+				}
+				else
+				{
+					double time = s->GetMaxPeakBin();
+					double energy = s->GetIntegralWithThreshold((Int_t)fIntegralRange.X(), (Int_t)fIntegralRange.Y(), fBaseLineRange.X(), fBaseLineRange.Y(), fPointThreshold, fNPointsOverThreshold, fSignalThreshold);
+					fOutputSignalEvent->SetSignal(time, s->GetID(), energy);
+				}
+			}
+		}
+		else
+		{
+			for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++)
+			{
+				TRestRawSignal*s = fInputSignalEvent->GetSignal(n);
+				s->SubstractBaseline(fBaseLineRange.X(), fBaseLineRange.Y());
+				if (fEnergyCalculation == 0) {
+					vector <Int_t> poinsOver = s->GetPointsOverThreshold();
+					TRestSignal outSignal;
+					outSignal.SetID(s->GetID());
+					for (unsigned int n = 0; n < poinsOver.size(); n++)
+						outSignal.NewPoint(poinsOver[n], s->GetData(poinsOver[n]));
+					fOutputSignalEvent->AddSignal(&outSignal);
+				}
+				else if (fEnergyCalculation == 1)
+				{
+					double time = s->GetMaxPeakBin();
+					double energy = s->GetMaxPeakValue();
+					fOutputSignalEvent->SetSignal(time, s->GetID(), energy);
+					//cout << fInputSignalEvent->GetID() <<"  "<<time << "  " << energy << endl;
+				}
+				else if (fEnergyCalculation == 2) {
+					double time = s->GetMaxPeakBin();
+					double energy = s->GetIntegral((Int_t)fIntegralRange.X(), (Int_t)fIntegralRange.Y());
+					fOutputSignalEvent->SetSignal(time, s->GetID(), energy);
+				}
+				else
+				{
+					double time = s->GetMaxPeakBin();
+					double energy = s->GetIntegralWithThreshold((Int_t)fIntegralRange.X(), (Int_t)fIntegralRange.Y(), fBaseLineRange.X(), fBaseLineRange.Y(), fPointThreshold, fNPointsOverThreshold, fSignalThreshold);
+					fOutputSignalEvent->SetSignal(time, s->GetID(), energy);
+				}
+			}
+
+			//cout << fOutputSignalEvent->GetNumberOfSignals() << endl;
+
+		}
+
+
+
+
+
+
 		//cout << fOutputSignalEvent->GetNumberOfSignals() << endl;
 	}
 
-    return fOutputSignalEvent;
+	return fOutputSignalEvent;
 }
 
-void TRestRawSignalTo2DHitsProcess::InitFromConfigFile( )
+void TRestRawSignalTo2DHitsProcess::InitFromConfigFile()
 {
-    fMyDummyParameter = StringToInteger( GetParameter( "aDummyParameter" ) );
+	fNoiseReductionLevel = StringToInteger(GetParameter("noiseReduction", "0"));
+	fEnergyCalculation = StringToInteger(GetParameter("energyCalculation", "0"));
+
+	fBaseLineRange = StringTo2DVector(GetParameter("baseLineRange", "(5,55)"));
+	fIntegralRange = StringTo2DVector(GetParameter("integralRange", "(10,500)"));
+	fPointThreshold = StringToDouble(GetParameter("pointThreshold", "2"));
+	fNPointsOverThreshold = StringToInteger(GetParameter("pointsOverThreshold", "5"));
+	fSignalThreshold = StringToDouble(GetParameter("signalThreshold", "5"));
 }
 
