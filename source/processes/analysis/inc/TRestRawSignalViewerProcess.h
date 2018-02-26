@@ -36,6 +36,8 @@ class TRestRawSignalViewerProcess:public TRestEventProcess {
         Double_t fDrawRefresh;//!
 
         TVector2 fBaseLineRange;//!
+		int eveCounter = 0;//!
+		int sgnCounter = 0;//!
 #endif
 
         TPad *DrawSignal( Int_t signal );

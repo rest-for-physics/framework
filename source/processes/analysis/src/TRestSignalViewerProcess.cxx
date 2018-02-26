@@ -77,7 +77,7 @@ void TRestSignalViewerProcess::InitProcess()
 //______________________________________________________________________________
 void TRestSignalViewerProcess::BeginOfEventProcess() 
 {
-    fSignalEvent->Initialize();
+    //fSignalEvent->Initialize();
 }
 
 //______________________________________________________________________________
@@ -88,48 +88,89 @@ TRestEvent* TRestSignalViewerProcess::ProcessEvent( TRestEvent *evInput )
     TRestSignalEvent *fInputSignalEvent = (TRestSignalEvent *) evInput;
 
     /// Copying the signal event to the output event
+	fSignalEvent = fInputSignalEvent;
+ //   fSignalEvent->SetID( fInputSignalEvent->GetID() );
+ //   fSignalEvent->SetSubID( fInputSignalEvent->GetSubID() );
+ //   fSignalEvent->SetTimeStamp( fInputSignalEvent->GetTimeStamp() );
+ //   fSignalEvent->SetSubEventTag( fInputSignalEvent->GetSubEventTag() );
 
-    fSignalEvent->SetID( fInputSignalEvent->GetID() );
-    fSignalEvent->SetSubID( fInputSignalEvent->GetSubID() );
-    fSignalEvent->SetTimeStamp( fInputSignalEvent->GetTimeStamp() );
-    fSignalEvent->SetSubEventTag( fInputSignalEvent->GetSubEventTag() );
-
-    //for( int sgnl = 0; sgnl < fInputSignalEvent->GetNumberOfSignals(); sgnl++ )
-    Int_t N = fInputSignalEvent->GetNumberOfSignals();
-   // if( GetVerboseLevel() >= REST_Debug ) N = 1;
-    for( int sgnl = 0; sgnl < N; sgnl++ )
-	fSignalEvent->AddSignal( *fInputSignalEvent->GetSignal( sgnl ) );
+ //   //for( int sgnl = 0; sgnl < fInputSignalEvent->GetNumberOfSignals(); sgnl++ )
+ //   Int_t N = fInputSignalEvent->GetNumberOfSignals();
+ //  // if( GetVerboseLevel() >= REST_Debug ) N = 1;
+ //   for( int sgnl = 0; sgnl < N; sgnl++ )
+	//fSignalEvent->AddSignal( *fInputSignalEvent->GetSignal( sgnl ) );
     /////////////////////////////////////////////////
 
     GetCanvas()->cd(); 
     GetCanvas()->SetGrid();
-    rawCounter3++;
-    if( rawCounter3 >= fDrawRefresh )
-    {
-	rawCounter3 = 0;
-	for( unsigned int i = 0; i < fDrawingObjects.size(); i++ )
-	    delete fDrawingObjects[i];
-	fDrawingObjects.clear();
-
-	//TPad *pad2 = fSignalEvent->DrawEvent();
-
-	TPad *pad2 = DrawSignal(0);
-
-	GetCanvas()->cd(); 
-	GetCanvas()->SetGrid();
-
-	pad2->Draw();
-	pad2->cd();
-
-	GetCanvas()->Update();
-
-	if( GetVerboseLevel() >= REST_Debug )
+	fCanvas->cd();
+	eveCounter++;
+	if (eveCounter >= fDrawRefresh)
 	{
-	    GetAnalysisTree()->PrintObservables();
-	    cout << "TRestSignalViewerProcess. Place mouse cursor on top of canvas : " << this->GetTitle() << " and press a KEY to continue ... " << endl;
-	    pad2->WaitPrimitive();
+		eveCounter = 0;
+		sgnCounter = 0;
+		if (GetVerboseLevel() >= REST_Debug)
+		{
+			GetAnalysisTree()->PrintObservables();
+		}
+		for (unsigned int i = 0; i < fDrawingObjects.size(); i++)
+			delete fDrawingObjects[i];
+		fDrawingObjects.clear();
+
+		TPad *pad2 = DrawSignal(sgnCounter);
+
+		fCanvas->cd();
+		pad2->Draw();
+		fCanvas->Update();
+
+		fout.setborder("");
+		fout.setorientation(1);
+		fout << "Press Enter to continue\nPress Esc to stop viewing\nPress n/p to switch signals" << endl;
+
+		while (1)
+		{
+			int a = GetChar("");
+			if (a == 10)//enter
+			{
+				break;
+			}
+			else if (a == 27)//esc
+			{
+				fDrawRefresh = 1e99;
+				while (getchar() != '\n');
+				break;
+			}
+			else if (a == 110 || a == 78)//n
+			{
+				sgnCounter++;
+				if (sgnCounter >= 0 && sgnCounter < fInputSignalEvent->GetNumberOfSignals()) {
+					TPad *pad2 = DrawSignal(sgnCounter);
+					fCanvas->cd();
+					pad2->Draw();
+					fCanvas->Update();
+				}
+				else
+				{
+					warning << "cannot plot signal with id " << sgnCounter << endl;
+				}
+			}
+			else if (a == 112 || a == 80)//p
+			{
+				sgnCounter--;
+				if (sgnCounter >= 0 && sgnCounter < fInputSignalEvent->GetNumberOfSignals()) {
+					TPad *pad2 = DrawSignal(sgnCounter);
+					fCanvas->cd();
+					pad2->Draw();
+					fCanvas->Update();
+				}
+				else
+				{
+					warning << "cannot plot signal with id " << sgnCounter << endl;
+				}
+			}
+			while (getchar() != '\n');
+		}
 	}
-    }
 
     return fSignalEvent;
 }
@@ -158,6 +199,8 @@ void TRestSignalViewerProcess::InitFromConfigFile( )
     fDrawRefresh = StringToDouble( GetParameter( "refreshEvery", "0" ) );
 
     fBaseLineRange = StringTo2DVector( GetParameter( "baseLineRange", "(5,55)") );
+
+	fCanvasSize = StringTo2DVector(GetParameter("canvasSize", "(800,600)"));
 }
 
 TPad *TRestSignalViewerProcess::DrawSignal( Int_t signal )
