@@ -93,7 +93,7 @@ protected:
 	TRestEvent *fInputEvent = NULL;	//!///< Pointer to input event
 	TRestEvent *fOutputEvent = NULL;    //!///< Pointer to output event
 
-	TCanvas *fCanvas;//!
+	TCanvas *fCanvas=NULL;//!
 	TVector2 fCanvasSize;//!
 
 	TRestAnalysisTree *fAnalysisTree = NULL; //!///< Pointer to analysis tree where to store the observables. 
