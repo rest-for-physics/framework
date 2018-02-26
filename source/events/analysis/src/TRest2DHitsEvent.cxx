@@ -20,7 +20,7 @@
 
 #include "TRest2DHitsEvent.h"
 #include "TRestTools.h"
-
+#include "TRandom.h"
 using namespace std;
 
 ClassImp(TRest2DHitsEvent)
@@ -70,7 +70,7 @@ void TRest2DHitsEvent::AddSignal(TRestRawSignal *s)
 				for (int i = 0; i < s->GetNumberOfPoints(); i++) {
 					fYZHits[i][y] = s->GetData(i);
 				}
-				fXZIdPos[fNSignaly] = y;
+				fYZIdPos[fNSignaly] = y;
 				fNSignaly++;
 			}
 		}
@@ -99,7 +99,7 @@ void TRest2DHitsEvent::AddSignal(TRestSignal *s)
 				for (int i = 0; i < s->GetNumberOfPoints(); i++) {
 					fYZHits[s->GetTime(i)][y] = s->GetData(i);
 				}
-				fXZIdPos[fNSignaly] = y;
+				fYZIdPos[fNSignaly] = y;
 				fNSignaly++;
 			}
 		}
@@ -136,13 +136,34 @@ void TRest2DHitsEvent::SetYZSignal(int zIndex, double yPosition, double energy)
 	}
 	if (sum == 0 && energy > 0) {
 		fYZHits[zIndex][yPosition] = energy;
-		fXZIdPos[fNSignaly] = yPosition;
+		fYZIdPos[fNSignaly] = yPosition;
 		fNSignaly++;
 	}
 	else
 	{
 		fYZHits[zIndex][yPosition] = energy;
 	}
+}
+
+void TRest2DHitsEvent::SetSignal(int zIndex, int signalID, double energy)
+{
+	if (fReadout != NULL) {
+		double x = fReadout->GetX(signalID);
+		double y = fReadout->GetY(signalID);
+		if (TMath::IsNaN(x) || TMath::IsNaN(y)) {
+			if (!TMath::IsNaN(x)) {
+				SetXZSignal(zIndex, x, energy);
+			}
+			else if (!TMath::IsNaN(y)) {
+				SetYZSignal(zIndex, y, energy);
+			}
+		}
+		else
+		{
+			cout << "This cannot happen!" << endl;
+		}
+	}
+
 }
 
 void TRest2DHitsEvent::ResetHits()
@@ -208,6 +229,88 @@ vector<double> TRest2DHitsEvent::GetYZSignal(int n) {
 	return result;
 }
 
+double TRest2DHitsEvent::GetSumEnergy(map<double, double> hits)
+{
+	map<double, double>::iterator iter;
+	double result = 0;
+	for (int i = 0; i < hits.size(); i++) {
+		iter = hits.begin();
+		int sum = 0;
+		while (iter != hits.end()) {
+			result += iter->second;
+			iter++;
+		}
+	}
+	return result;
+}
+
+double TRest2DHitsEvent::GetSumEnergy(map<int, double> hits)
+{
+	map<int, double>::iterator iter;
+	double result = 0;
+	for (int i = 0; i < hits.size(); i++) {
+		iter = hits.begin();
+		int sum = 0;
+		while (iter != hits.end()) {
+			result += iter->second;
+			iter++;
+		}
+	}
+	return result;
+}
+
+TVector2 TRest2DHitsEvent::GetZRange() {
+	int low1 = 0, low2 = 0, up1 = fNz - 1, up2 = fNz - 1;
+	map<double, double>::iterator iter;
+	for (int i = 0; i < fXZHits.size(); i++) {
+		if (GetSumEnergy(fXZHits[i]) > 0) {
+			low1 = i;
+			break;
+		}
+	}
+	for (int i = 0; i < fYZHits.size(); i++) {
+		if (GetSumEnergy(fYZHits[i]) > 0) {
+			low2 = i;
+			break;
+		}
+	}
+	for (int i = fXZHits.size() - 1; i > -1; i--) {
+		if (GetSumEnergy(fXZHits[i]) > 0) {
+			up1 = i;
+			break;
+		}
+	}
+	for (int i = fYZHits.size() - 1; i > -1; i--) {
+		if (GetSumEnergy(fYZHits[i]) > 0) {
+			up2 = i;
+			break;
+		}
+	}
+	return TVector2(low1 < low2 ? low1 : low2, up1 < up2 ? up2 : up1);
+}
+
+TVector2 TRest2DHitsEvent::GetXRange() {
+	double lower = 9999, upper = -9999;
+	for (int i = 0; i < GetNumberOfXZSignals(); i++) {
+		if (GetX(i) < lower)
+			lower = GetX(i);
+		if (GetX(i) > upper)
+			upper = GetX(i);
+	}
+	return TVector2(lower, upper);
+}
+
+TVector2 TRest2DHitsEvent::GetYRange() {
+	double lower = 9999, upper = -9999;
+	for (int i = 0; i < GetNumberOfXZSignals(); i++) {
+		if (GetY(i) < lower)
+			lower = GetY(i);
+		if (GetY(i) > upper)
+			upper = GetY(i);
+	}
+	return TVector2(lower, upper);
+}
+
 
 void TRest2DHitsEvent::PrintEvent(Bool_t fullInfo)
 {
@@ -241,74 +344,109 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 	vector<double> yzy;
 	vector<double> yzz;
 	vector<double> yze;
-	for (int i = 0; i < fNz; i++)
-	{
-		map<double, double>::iterator iter;
 
-		iter = fXZHits[i].begin();
-		while (iter != fXZHits[i].end()) {
-			if (iter->second > 0) {
-				xzx.push_back(iter->first);
-				xze.push_back(iter->second);
-				xzz.push_back(i);
-			}
-			//cout << iter->first << " : " << iter->second << endl;
-			iter++;
+	//TH2D*txz = new TH2D("XZ plot", (TString)"XZ plot, " + ToString(GetNumberOfXZSignals()) + " Signals"
+	//	, (double)fNz, 0, (double)fNz,
+	//	50, GetXRange().X(), GetXRange().Y());
+
+	//TH2D*tyz = new TH2D("YZ plot", (TString)"YZ plot, " + ToString(GetNumberOfXZSignals()) + " Signals"
+	//	, (double)fNz, 0, (double)fNz,
+	//	50, GetYRange().X(), GetYRange().Y());
+
+	for (int i = 0; i < GetNumberOfXZSignals(); i++) {
+		auto signal = GetXZSignal(i);
+		auto x = GetX(i);
+		for (int j = 0;j<fNz; j++) {
+			xzx.push_back(x);
+			xze.push_back(signal[j]);
+			xzz.push_back(j);
+			//if (signal[j] != 0) {
+			//	txz->SetBinContent(txz->FindBin(j, x), signal[j]);
+			//}
 		}
-
-		iter = fYZHits[i].begin();
-		while (iter != fYZHits[i].end()) {
-			if (iter->second > 0) {
-				yzy.push_back(iter->first);
-				yze.push_back(iter->second);
-				yzz.push_back(i);
-			}
-			//cout << iter->first << " : " << iter->second << endl;
-			iter++;
+	}
+	for (int i = 0; i < GetNumberOfYZSignals(); i++) {
+		auto signal = GetYZSignal(i);
+		auto y = GetY(i);
+		for (int j = 0; j<fNz; j++) {
+			yzy.push_back(y);
+			yze.push_back(signal[j]);
+			yzz.push_back(j);
+			//if (signal[j] != 0) {
+			//	tyz->SetBinContent(tyz->FindBin(j, y), signal[j]);
+			//}
 		}
 	}
 
+
+
+	//for (int i = 0; i <fNz; i++)
+	//{
+	//	map<double, double>::iterator iter;
+
+
+	//	iter = fXZHits[i].begin();
+	//	while (iter != fXZHits[i].end()) {
+	//		if (iter->second != 0) {
+	//			xzx.push_back(iter->first);
+	//			xze.push_back(iter->second);
+	//			xzz.push_back(i);
+	//			txz->SetBinContent(txz->FindBin(i, iter->first), iter->second);
+	//		}
+	//		//cout << iter->first << " : " << iter->second << endl;
+	//		iter++;
+	//	}
+
+	//	iter = fYZHits[i].begin();
+	//	while (iter != fYZHits[i].end()) {
+	//		if (iter->second != 0) {
+	//			yzy.push_back(iter->first);
+	//			yze.push_back(gRandom->Gaus());
+	//			yzz.push_back(i);
+	//			tyz->SetBinContent(tyz->FindBin(i, iter->first), iter->second);
+	//		}
+	//		//cout << iter->first << " : " << iter->second << endl;
+	//		iter++;
+	//	}
+	//}
+
+	//fPad->cd(1);
+	//txz->Draw("colz");
+	//fPad->cd(2);
+	//tyz->Draw("colz");
+
+	cout << xzz.size() << " " <<yzz.size() << endl;
 	fPad->cd(1);
-	if (xzz.size() > 0) {
+	if ((GetZRange().Y() - GetZRange().X()) > 0) {
 		TGraph2D*gxz = new TGraph2D(xzz.size(), &xzz[0], &xzx[0], &xze[0]);
-		gxz->SetTitle((TString)"XZ plot, " + ToString(xzz.size()) + " Points");
+		gxz->SetTitle((TString)"XZ plot, " + ToString(GetNumberOfXZSignals()) + " Signals");
 		gxz->GetXaxis()->SetTitle("Z");
 		gxz->GetYaxis()->SetTitle("X");
 		gxz->SetNpx(fNz);
-		gxz->SetNpy(fNx);
+		gxz->SetNpy(100);
 		gxz->Draw("colz");
+
 	}
-	else
-	{
-		TGraph2D*gxz = new TGraph2D();
-		gxz->SetTitle((TString)"XZ plot, " + ToString(xzz.size()) + " Points");
-		gxz->GetXaxis()->SetTitle("Z");
-		gxz->GetYaxis()->SetTitle("X");
-		gxz->SetNpx(fNz);
-		gxz->SetNpy(fNx);
-		gxz->Draw("colz");
-	}
+	//else
+	//{
+	//	txz->Draw("colz");
+	//}
 
 	fPad->cd(2);
-	if (yzz.size() > 0) {
+	if ((GetZRange().Y() - GetZRange().X()) > 0) {
 		TGraph2D*gyz = new TGraph2D(yzz.size(), &yzz[0], &yzy[0], &yze[0]);
-		gyz->SetTitle((TString)"YZ plot, " + ToString(yzz.size()) + " Points");
+		gyz->SetTitle((TString)"YZ plot, " + ToString(GetNumberOfXZSignals()) + " Signals");
 		gyz->GetXaxis()->SetTitle("Z");
 		gyz->GetYaxis()->SetTitle("Y");
-		gyz->SetNpx(fNz);
-		gyz->SetNpy(fNy);
+		gyz->SetNpx(fNz);		
+		gyz->SetNpy(100);
 		gyz->Draw("colz");
+
 	}
-	else
-	{
-		TGraph2D*gyz = new TGraph2D();
-		gyz->SetTitle((TString)"XZ plot, " + ToString(yzz.size()) + " Points");
-		gyz->GetXaxis()->SetTitle("Z");
-		gyz->GetYaxis()->SetTitle("Y");
-		gyz->SetNpx(fNz);
-		gyz->SetNpy(fNy);
-		gyz->Draw("colz");
-	}
+	//else
+	//{
+	//	tyz->Draw("colz");
+	//}
 
 	return fPad;
 }

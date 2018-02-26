@@ -64,6 +64,8 @@ public:
 	void SetXZSignal(int zIndex, double xPosition, double energy);
 
 	void SetYZSignal(int zIndex, double yPosition, double energy);
+
+	void SetSignal(int zIndex, int signalID, double energy);
 	
 	void ResetHits();
 
@@ -84,6 +86,14 @@ public:
 	//signals are one dementional vector
 	vector<double> GetXZSignal(int n);
 	vector<double> GetYZSignal(int n);
+
+	double GetSumEnergy(map<double, double> hits);
+
+	double GetSumEnergy(map<int, double> hits);
+
+	TVector2 GetZRange();
+	TVector2 GetXRange();
+	TVector2 GetYRange();
 
 	double GetX(int n) { return n < fNSignalx ? fXZIdPos[n] : numeric_limits<Double_t>::quiet_NaN(); }
 	double GetY(int n) { return n < fNSignaly ? fYZIdPos[n] : numeric_limits<Double_t>::quiet_NaN(); }
