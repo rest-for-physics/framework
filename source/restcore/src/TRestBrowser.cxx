@@ -42,6 +42,8 @@ void TRestBrowser::Initialize() {
 	isFile = kFALSE;
 	fCurrentEvent = 0;
 
+	fImp->GetMainFrame()->DontCallClose();
+
 	StartEmbedding(0, -1);
 	frmMain = new TGMainFrame(gClient->GetRoot(), 300);
 	frmMain->SetCleanup(kDeepCleanup);
