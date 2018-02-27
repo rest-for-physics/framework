@@ -38,7 +38,7 @@
 
 #include <iostream>
 
-class TRestBrowser : public TBrowser, public TRestRun {
+class TRestBrowser : public TRestRun {
 
 protected:
 
@@ -57,6 +57,8 @@ protected:
 	TGTextButton	*fExit = 0;		//! Load Event button
 
 	TCanvas*fCanDefault = 0;//!
+
+	TBrowser*b = 0;//!
 #endif     
 
 

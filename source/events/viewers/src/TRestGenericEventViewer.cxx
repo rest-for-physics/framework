@@ -123,7 +123,6 @@ void TRestGenericEventViewer::PreviousOption()
 
 void TRestGenericEventViewer::OptionPlot()
 {
-	cout << fEvent << endl;
 	auto pad = fEvent->DrawEvent(fOptwindow->GetText());
 	if (pad == NULL)
 		pad = new TPad();
