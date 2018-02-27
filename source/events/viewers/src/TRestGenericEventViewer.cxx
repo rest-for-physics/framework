@@ -40,40 +40,38 @@ void TRestGenericEventViewer::Initialize()
 
 	fCanvas = new TCanvas("Event Viewer", "Event Viewer");
 
+	fCanvas->SetWindowPosition(350, 10);
+
 	if (fController == NULL) {
 		return;
 	}
 
-
-
-
-
 	auto frame = fController->generateNewFrame();
 
-	auto frame1 = new TGVerticalFrame(frame);
-	{
-		fLabel = new TGLabel(frame1, "Plot Options:");
-		frame1->AddFrame(fLabel, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
-		fOptwindow = new TGTextEntry(frame1, "");
-		fOptwindow->SetText("");
-		frame1->AddFrame(fOptwindow, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+	fLabel = new TGLabel(frame, "Plot Options:");
+	frame->AddFrame(fLabel, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+
+	fOptwindow = new TGTextEntry(frame, "");
+	fOptwindow->SetText("");
+	frame->AddFrame(fOptwindow, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+
+	auto frame1 = new TGHorizontalFrame(frame);
+	{
+		fButPrev = new  TGTextButton(frame1, "<<Previous");///< Load Event button
+		fButPrev->Connect("Clicked()", "TRestGenericEventViewer", this, "PreviousOption()");
+		frame1->AddFrame(fButPrev, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
 		fButOpt = new  TGTextButton(frame1, "Plot");///< Load Event button
 		fButOpt->Connect("Clicked()", "TRestGenericEventViewer", this, "OptionPlot()");
 		frame1->AddFrame(fButOpt, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+
+		fButNext = new  TGTextButton(frame1, "Next>>");///< Load Event button
+		fButNext->Connect("Clicked()", "TRestGenericEventViewer", this, "NextOption()");
+		frame1->AddFrame(fButNext, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+
 	}
 	frame->AddFrame(frame1, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
-
-
-	fButPrev = new  TGTextButton(frame, "<<Previous");///< Load Event button
-	fButPrev->Connect("Clicked()", "TRestGenericEventViewer", this, "PreviousOption()");
-	frame->AddFrame(fButPrev, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
-
-	fButNext = new  TGTextButton(frame, "Next>>");///< Load Event button
-	fButNext->Connect("Clicked()", "TRestGenericEventViewer", this, "NextOption()");
-	frame->AddFrame(fButNext, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
-
 
 	fController->addFrame(frame);
 	//fEvent = new TRestSignalEvent();
@@ -125,14 +123,15 @@ void TRestGenericEventViewer::PreviousOption()
 
 void TRestGenericEventViewer::OptionPlot()
 {
-
-	fPad = fEvent->DrawEvent(fOptwindow->GetText());
-	if (fPad == NULL)fPad = new TPad();
+	cout << fEvent << endl;
+	auto pad = fEvent->DrawEvent(fOptwindow->GetText());
+	if (pad == NULL)fPad = new TPad();
 
 	fCanvas->cd();
-	fPad->Draw();
-	fPad->Update();
+	pad->Draw();
+	pad->Update();
 	fCanvas->Update();
+
 }
 
 
