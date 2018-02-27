@@ -37,6 +37,8 @@ class TRestRawSignalEvent: public TRestEvent {
 
 #ifndef __CINT__
         TPad *fPad;//!
+		TMultiGraph*mg;//!
+		TGraph*gr;//!
         Double_t fMinTime;//!
         Double_t fMaxTime;//!
         Double_t fMinValue;//!

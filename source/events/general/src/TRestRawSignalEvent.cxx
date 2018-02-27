@@ -39,6 +39,8 @@ void TRestRawSignalEvent::Initialize()
     TRestEvent::Initialize();
     fSignal.clear();
     fPad = NULL;
+	gr = NULL;
+	mg = NULL;
     fMinValue = 1E10;
     fMaxValue = -1E10;
     fMinTime = 1E10;
@@ -284,7 +286,9 @@ TPad *TRestRawSignalEvent::DrawEvent( TString option )
 	{
 		sprintf(title, "Event ID %d", this->GetID());
 
-		TMultiGraph *mg = new TMultiGraph();
+		if (mg != NULL)
+			delete mg;
+		mg = new TMultiGraph();
 		mg->SetTitle(title);
 		mg->GetXaxis()->SetTitle("time bins");
 		mg->GetYaxis()->SetTitleOffset(1.4);
@@ -313,7 +317,7 @@ TPad *TRestRawSignalEvent::DrawEvent( TString option )
 
 		sprintf(title, "Event ID %d, Signal No. %d", this->GetID(),signalid);
 
-		TGraph *gr=fSignal[signalid].GetGraph(1);
+		gr=fSignal[signalid].GetGraph(1);
 		gr->SetTitle(title);
 		gr->GetXaxis()->SetTitle("time bins");
 		gr->GetYaxis()->SetTitleOffset(1.4);
