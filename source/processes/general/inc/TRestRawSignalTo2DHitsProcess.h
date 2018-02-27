@@ -26,7 +26,7 @@ class TRestRawSignalTo2DHitsProcess:public TRestEventProcess {
         TRestRawSignalEvent *fInputSignalEvent;//!
 		TRest2DHitsEvent *fOutputSignalEvent;//!
 
-		TRestReadout* fReadout;
+		TRestReadout* fReadout;//!
 
         void InitFromConfigFile();
 

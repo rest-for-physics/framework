@@ -48,6 +48,9 @@ protected:
 	int fNSignalx;
 	int fNSignaly;
 
+	TGraph2D* gxz=NULL;//!
+	TGraph2D* gyz=NULL;//!
+
 	TRestReadout* fReadout;//!
 
 	TPad *fPad;//!

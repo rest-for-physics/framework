@@ -418,7 +418,11 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 	cout << xzz.size() << " " <<yzz.size() << endl;
 	fPad->cd(1);
 	if ((GetZRange().Y() - GetZRange().X()) > 0) {
-		TGraph2D*gxz = new TGraph2D(xzz.size(), &xzz[0], &xzx[0], &xze[0]);
+		if (gxz != NULL)
+		{
+			delete gxz;
+		}
+		gxz = new TGraph2D(xzz.size(), &xzz[0], &xzx[0], &xze[0]);
 		gxz->SetTitle((TString)"XZ plot, " + ToString(GetNumberOfXZSignals()) + " Signals");
 		gxz->GetXaxis()->SetTitle("Z");
 		gxz->GetYaxis()->SetTitle("X");
@@ -434,7 +438,10 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 
 	fPad->cd(2);
 	if ((GetZRange().Y() - GetZRange().X()) > 0) {
-		TGraph2D*gyz = new TGraph2D(yzz.size(), &yzz[0], &yzy[0], &yze[0]);
+		if (gyz != NULL) {
+			delete gyz;
+		}
+		gyz = new TGraph2D(yzz.size(), &yzz[0], &yzy[0], &yze[0]);
 		gyz->SetTitle((TString)"YZ plot, " + ToString(GetNumberOfXZSignals()) + " Signals");
 		gyz->GetXaxis()->SetTitle("Z");
 		gyz->GetYaxis()->SetTitle("Y");
