@@ -42,6 +42,7 @@ void TRestSignalEvent::Initialize()
     TRestEvent::Initialize();
     fSignal.clear();
     fPad = NULL;
+	mg = NULL;
     fMinValue = 1E10;
     fMaxValue = -1E10;
     fMinTime = 1E10;
@@ -223,8 +224,9 @@ TPad *TRestSignalEvent::DrawEvent( TString option )
     char title[256];
     sprintf(title, "Event ID %d", this->GetID());
 
-
-    TMultiGraph *mg = new TMultiGraph();
+	if (mg != NULL)
+		delete mg;
+	mg = new TMultiGraph();
     mg->SetTitle(title);
     mg->GetXaxis()->SetTitle("time bins");
     mg->GetYaxis()->SetTitleOffset(1.4);

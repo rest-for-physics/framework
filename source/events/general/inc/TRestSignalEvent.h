@@ -37,6 +37,7 @@ class TRestSignalEvent: public TRestEvent {
 
 #ifndef __CINT__
         TPad *fPad;//!
+		TMultiGraph*mg;//!
         Double_t fMinTime;//!
         Double_t fMaxTime;//!
         Double_t fMinValue;//!
