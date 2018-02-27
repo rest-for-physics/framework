@@ -23,8 +23,9 @@ using namespace std;
 
 ClassImp(TRestBrowser)
 //______________________________________________________________________________
-TRestBrowser::TRestBrowser():TBrowser("Browser",0,"REST Browser","FI")
+TRestBrowser::TRestBrowser()
 {
+	b = new TBrowser("Browser", 0, "REST Browser", "FI");
 	Initialize();
 }
 
@@ -42,18 +43,18 @@ void TRestBrowser::Initialize() {
 	isFile = kFALSE;
 	fCurrentEvent = 0;
 
-	fImp->GetMainFrame()->DontCallClose();
+	//b->GetBrowserImp()->GetMainFrame()->DontCallClose();
 
-	StartEmbedding(0, -1);
+	b->StartEmbedding(0, -1);
 	frmMain = new TGMainFrame(gClient->GetRoot(), 300);
 	frmMain->SetCleanup(kDeepCleanup);
 	frmMain->SetWindowName("Controller");
 	setButtons();
-	StopEmbedding();
+	b->StopEmbedding();
 
-	StartEmbedding(1, -1);
+	b->StartEmbedding(1, -1);
 	fCanDefault = new TCanvas();
-	StopEmbedding();
+	b->StopEmbedding();
 	//frmMain->DontCallClose();
 	frmMain->MapSubwindows();
 	//frmMain->Resize();
@@ -73,9 +74,9 @@ void TRestBrowser::SetViewer(TRestEventViewer *eV)
 {
 	fEventViewer = eV;
 	eV->SetController(this);
-	StartEmbedding(1, -1);
+	b->StartEmbedding(1, -1);
 	eV->Initialize();
-	StopEmbedding();
+	b->StopEmbedding();
 }
 
 void TRestBrowser::setButtons() {
