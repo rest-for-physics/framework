@@ -802,9 +802,6 @@ void TRestRun::PrintInfo()
 	//cout << "Number of processed events : " << fProcessedEvents << endl;
 	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
-	if(fAnalysisTree!=NULL)
-		fAnalysisTree->Show(0);
-
 }
 
 
