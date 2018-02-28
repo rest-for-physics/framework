@@ -76,34 +76,30 @@ void TRestRawToSignalProcess::BeginOfEventProcess()
 
 void TRestRawToSignalProcess::InitFromConfigFile(){
 
-   fElectronicsType = GetParameter("electronics");
-   fMinPoints = StringToInteger( GetParameter("minPoints", "512" ) );
-   fFilenameFormat = GetParameter("fileFormat");
-   if(fElectronicsType=="")
-   {
-       cout << "electronic type not found " << endl;
-       LoadDefaultConfig();
-   }
+    fElectronicsType = GetParameter("electronics");
+    fShowSamples = StringToInteger( GetParameter("showSamples", "10") );
+    fMinPoints = StringToInteger( GetParameter("minPoints", "512" ) );
+    fFilenameFormat = GetParameter("fileFormat");
 
-  if(fElectronicsType=="AFTER"||fElectronicsType=="AGET")return;
-  LoadDefaultConfig();
+    if( fElectronicsType == "SingleFeminos" || fElectronicsType == "TCMFeminos" ) return;
+
+    cout << "Electronic type not found " << endl;
+    LoadDefaultConfig();
 
 }
 
 
 void TRestRawToSignalProcess::LoadDefaultConfig(){
 
-cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
-cout<<"WARNING "<<endl;
-cout<<"Error Loading config file "<<endl;
-cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+    cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+    cout<<"WARNING "<<endl;
+    cout<<"Error Loading config file "<<endl;
+    cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
 
-cout<<"Press a key to continue..."<<endl;
+    GetChar();
 
-getchar();
-
-fElectronicsType = "AGET";
-fMinPoints = 512;
+    fElectronicsType = "SingleFeminos";
+    fMinPoints = 512;
 
 }
 
@@ -112,8 +108,6 @@ fMinPoints = 512;
 
 void TRestRawToSignalProcess::EndOfEventProcess() 
 {
-
-//cout << __PRETTY_FUNCTION__ << endl;
 
 }
 

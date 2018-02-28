@@ -37,9 +37,8 @@ class TRestMultiFEMINOSToSignalProcess:public TRestRawToSignalProcess {
    void Initialize();
    TRestEvent *ProcessEvent( TRestEvent *evInput );
    TString GetProcessName(){ return (TString) "MultiFEMINOSToSignal"; }
-   Int_t GetPhysChannel(int channel);
 
-	void ReadFrame( void *fr, int fr_sz );
+   Bool_t ReadFrame( void *fr, int fr_sz );
    
    //Constructor
    TRestMultiFEMINOSToSignalProcess();

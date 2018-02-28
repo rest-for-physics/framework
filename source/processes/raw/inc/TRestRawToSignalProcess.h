@@ -34,7 +34,7 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    void InitFromConfigFile();
    unsigned int payload;
    unsigned int frameBits;
-   TString fElectronicsType; //AFTER or AGET
+   TString fElectronicsType;
    Int_t fMinPoints;
    
    Double_t tStart;
@@ -48,6 +48,8 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    Int_t fSubRunOrigin;
 
    TString fFilenameFormat;
+
+   Int_t fShowSamples;
    #endif
    
    void LoadDefaultConfig();

@@ -176,7 +176,7 @@ void TRestMultiFEMINOSToSignalProcess::Initialize()
 //______________________________________________________________________________
 void TRestMultiFEMINOSToSignalProcess::InitProcess()
 {
-	cout << "TRestNewFeminos::InitProcess" << endl;
+	cout << "TRestMultiFeminos::InitProcess" << endl;
 	// Reading binary file header
 
 	unsigned short sh;
@@ -247,11 +247,15 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput 
 			{
 				if( GetVerboseLevel() >= REST_Debug )
 					printf("***** Start of Built Event *****\n");
+				if( GetVerboseLevel() >= REST_Debug )
+                    GetChar();
 			}
 			else if ((*sh & PFX_0_BIT_CONTENT_MASK) == PFX_END_OF_BUILT_EVENT)
 			{
 				if( GetVerboseLevel() >= REST_Debug )
 					printf("***** End of Built Event *****\n\n");
+				if( GetVerboseLevel() >= REST_Debug )
+                    GetChar();
 				endOfEvent = true;
 				done = 1;
 			}
@@ -317,7 +321,7 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput 
 			cur_fr[0] = 0x00;
 			cur_fr[1] = 0x00;
 
-			ReadFrame( (void*) &(cur_fr[2]), fr_sz);
+			endOfEvent = ReadFrame( (void*) &(cur_fr[2]), fr_sz);
 		}
 	}
 
@@ -339,61 +343,17 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput 
 
 }
 
-// OBSOLETE : Decoding file should provide directly the DAQ channel provided inside
-// the raw binary file
-int TRestMultiFEMINOSToSignalProcess::GetPhysChannel(int channel){
-
-    int physChannel=-10;
-    return channel;
-
-    //AFTER
-    if(GetElectronicsType( )=="AFTER"){
-        if (channel> 2 && channel < 15 ) {
-            physChannel= channel -3; 
-        } else if (channel> 15 && channel < 28 ) {
-            physChannel= channel -4; 
-        } else if (channel> 28 && channel < 53 ) {
-            physChannel= channel -5; 
-        } else if (channel> 53 && channel < 66 ) {
-            physChannel= channel -6; 
-        } else if (channel> 66  ) {
-            physChannel= channel -7; 
-        }
-    }
-    //AGET Short seq
-    else if(GetElectronicsType( )=="AGET"){
-        if (channel> 1 && channel < 13 ) {
-            physChannel= channel -2; 
-        } else if (channel> 13 && channel < 24 ) {
-            physChannel= channel -3; 
-        } else if (channel> 24 && channel < 47 ) {
-            physChannel= channel -4; 
-        } else if (channel> 47 && channel < 58 ) {
-            physChannel= channel -5; 
-        } else if (channel> 58 ) {
-            physChannel= channel -6; 
-        }
-    }
-
-    else return -1;
-
-    cout << "Channel : " << channel << " Channel conv : " << physChannel << endl;
-
-    return physChannel;
-
-}
-
-void TRestMultiFEMINOSToSignalProcess::ReadFrame( void *fr, int fr_sz )
+Bool_t TRestMultiFEMINOSToSignalProcess::ReadFrame( void *fr, int fr_sz )
 {
+    Bool_t endOfEvent = false;
+
 	unsigned short *p;
 	int done = 0;
-	unsigned short r0, r1, r2;
+    unsigned short r0, r1, r2;
+	unsigned short cardNumber, chipNumber, daqChannel;
 	unsigned int tmp;
 	int tmp_i[10];
 	int si;
-
-	Int_t physChannel;
-	Int_t showSamples = 512;
 
 	p = (unsigned short *) fr;
 
@@ -403,6 +363,8 @@ void TRestMultiFEMINOSToSignalProcess::ReadFrame( void *fr, int fr_sz )
 	if( GetVerboseLevel() >= REST_Debug )
 		printf( "ReadFrame: Frame payload: %d bytes\n", fr_sz);
 
+    Int_t showSamples = fShowSamples;
+
 	TRestRawSignal sgnl;
 	sgnl.SetSignalID( -1 );
 	while (!done)
@@ -410,36 +372,33 @@ void TRestMultiFEMINOSToSignalProcess::ReadFrame( void *fr, int fr_sz )
 		// Is it a prefix for 14-bit content?
 		if ((*p & PFX_14_BIT_CONTENT_MASK) == PFX_CARD_CHIP_CHAN_HIT_IX)
 		{
-	//		if( physChannel <= 72 )
-				if( sgnl.GetSignalID() >= 0 && sgnl.GetNumberOfPoints() >= 0 )
+				if( sgnl.GetSignalID() >= 0 && sgnl.GetNumberOfPoints() >= fMinPoints )
 					fSignalEvent->AddSignal( sgnl );
 
-			r0 = GET_CARD_IX(*p);
-			r1 = GET_CHIP_IX(*p);
-			r2 = GET_CHAN_IX(*p);
-			physChannel = GetPhysChannel(r2);
+			cardNumber = GET_CARD_IX(*p);
+			chipNumber = GET_CHIP_IX(*p);
+			daqChannel = GET_CHAN_IX(*p);
 
-			if( physChannel >= 0 )
-				physChannel += r0 * 4 * 72 + r1 * 72;
-			if( physChannel >= 0 )
-			{
+			if( daqChannel >= 0 )
+            {
+				daqChannel += cardNumber * 4 * 72 + chipNumber * 72;
 				nChannels++;
-			}
+            }
 
 			if( GetVerboseLevel() >= REST_Debug )
-				printf( "ReadFrame: Card %02d Chip %01d Channel %02d PhysChannel : %02d\n", r0, r1, r2, physChannel);
+				printf( "ReadFrame: Card %02d Chip %01d Daq Channel %02d\n", cardNumber, chipNumber, daqChannel);
 			p++;
 			si = 0;
 
 			sgnl.Initialize();
-			sgnl.SetSignalID( physChannel );
+			sgnl.SetSignalID( daqChannel );
 
 		}
 		// Is it a prefix for 12-bit content?
 		else if ((*p & PFX_12_BIT_CONTENT_MASK) == PFX_ADC_SAMPLE)
 		{
 			r0 = GET_ADC_DATA(*p);
-			if( GetVerboseLevel() >= REST_Extreme )
+			if( GetVerboseLevel() >= REST_Debug )
 			{
 				if( showSamples > 0 )
 					printf( "ReadFrame: %03d 0x%04x (%4d)\n", si, r0, r0);
@@ -489,7 +448,7 @@ void TRestMultiFEMINOSToSignalProcess::ReadFrame( void *fr, int fr_sz )
 			p++;
 
 			tmp = (((unsigned int) r1) << 16) | ((unsigned int) r0);
-			if( GetVerboseLevel() >= REST_Debug )
+			if( GetVerboseLevel() >= REST_Extreme )
 				printf( "ReadFrame: Event_Count 0x%08x (%d)\n", tmp, tmp);
 
 			fSignalEvent->SetID( tmp );
@@ -505,19 +464,18 @@ void TRestMultiFEMINOSToSignalProcess::ReadFrame( void *fr, int fr_sz )
 			p++;
 			if( GetVerboseLevel() >= REST_Debug )
 				printf( "ReadFrame: ----- End of Event ----- (size %d bytes)\n", tmp);
-			
+			if( GetVerboseLevel() >= REST_Debug )
+                GetChar();
+
+            if( fElectronicsType == "SingleFeminos" )
+				endOfEvent = true;
 		}
 
 		// Is it a prefix for 0-bit content?
 		else if ((*p & PFX_0_BIT_CONTENT_MASK) == PFX_END_OF_FRAME)
 		{
-			//cout << "Adding signal : " << sgnl.GetSignalID() << endl;
 			if( sgnl.GetSignalID() >= 0 && sgnl.GetNumberOfPoints() >= fMinPoints )
-			{
-				//cout << "Signal added. Points : " << sgnl.GetNumberOfPoints() << endl;
-			//	if( physChannel <= 72 )
 					fSignalEvent->AddSignal( sgnl );
-			}
 
 			if( GetVerboseLevel() >= REST_Debug )
 				printf( "ReadFrame: ----- End of Frame -----\n");
@@ -557,5 +515,7 @@ void TRestMultiFEMINOSToSignalProcess::ReadFrame( void *fr, int fr_sz )
 			p++;
 		}
 	}
+
+    return endOfEvent;
 }
 
