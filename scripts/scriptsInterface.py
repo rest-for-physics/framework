@@ -221,7 +221,7 @@ class Application(Frame):
                 vars.opt["Clean_Up"]="True"
             elif "N" in self.t.get("1.0",END).strip('\n').upper():
                 vars.opt["Clean_Up"]="False"
-        elif self.step == 21:
+        elif self.step == 22:
             vars.opt["Warning"] = "False"
             result = updateREST.main()
             self.step = -10
