@@ -155,14 +155,25 @@ class Application(Frame):
                 self.btn6.config(state='disabled',text='install')
                 self.var.set("REST mainbody has not been installed!")
         elif self.step == 20:
-            self.t.delete("1.0",END)
-            self.t.insert("1.0",vars.opt["Branch"])
-            self.var.set("Updating REST, choose a branch to update")
-            self.btn5.config(state='disabled')
-            self.btn6.config(state='normal',text='next')
+            if(installation.checkinstalled("REST")):
+                self.t.delete("1.0",END)
+                self.t.insert("1.0",vars.opt["Branch"])
+                self.var.set("Updating REST, choose a branch to update")
+                self.btn5.config(state='disabled')
+                self.btn6.config(state='normal',text='next')
+            else:
+                self.btn5.config(state='disabled')
+                self.btn6.config(state='disabled',text='install')
+                self.var.set("REST has not been installed!")
         elif self.step == 21:
             self.t.delete("1.0",END)
-            self.var.set("Any local changes will be overwritten! \n Confirm update")
+            self.var.set("Clean up installation?(yes/no)")
+            self.t.insert("1.0","no")
+            self.btn5.config(state='normal')
+            self.btn6.config(state='normal',text='next')
+        elif self.step == 22:
+            self.t.delete("1.0",END)
+            self.var.set("Local changes to source files will be overwritten! \n Confirm update")
             self.btn5.config(state='normal')
             self.btn6.config(state='normal',text='update')
         elif self.step < 0:
@@ -205,6 +216,11 @@ class Application(Frame):
                 self.var.set("Completed!")
         elif self.step == 20:
             vars.opt["Branch"] = self.t.get("1.0",END).strip('\n')
+        elif self.step == 21:
+            if "Y" in self.t.get("1.0",END).strip('\n').upper():
+                vars.opt["Clean_Up"]="True"
+            elif "N" in self.t.get("1.0",END).strip('\n').upper():
+                vars.opt["Clean_Up"]="False"
         elif self.step == 21:
             vars.opt["Warning"] = "False"
             result = updateREST.main()
