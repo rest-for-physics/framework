@@ -1,13 +1,31 @@
 #include "TRestTask.h"
 Int_t REST_Printer_Metadata( TString fName )
 {
-    TRestRun *run = new TRestRun( );
 
-    run->OpenInputFile( fName );
+	TString fileName = fName;
 
-    run->PrintAllMetadata();
+	cout << "Filename : " << fileName << endl;
 
-    delete run;
+	string fname = fileName.Data();
 
-    return 0;
+	if (!fileExists(fname)) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
+
+	TFile *f = new TFile(fileName);
+
+	TIter nextkey(f->GetListOfKeys());
+	TKey *key;
+	while ((key = (TKey*)nextkey()))
+	{
+		TObject*obj = f->Get(key->GetName());
+		if (obj->InheritsFrom("TRestMetadata"))
+		{
+			((TRestMetadata*)obj)->PrintMetadata();
+		}
+	}
+	/////////////////////////////
+
+	f->Close();
+
+	return 0;
+
 }
