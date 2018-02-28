@@ -8,6 +8,7 @@ opt = {
     'Source_Path': os.path.abspath('.') + "/../",
     'Build_Path' : os.path.abspath('.') + "/../build/",
     'Make_Threads':"4",
+    'Clean_Up':"False",
       }
 
 cmakeflags=[

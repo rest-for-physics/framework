@@ -59,6 +59,8 @@ def install(name):
                 print "Tinyxml is not installed!"
                 return
             print "installing REST...\n\n"
+            if vars.opt["Clean_Up"]=="True":
+                os.system("rm -rf "+vars.opt["Build_Path"] )
             os.system("mkdir -p "+vars.opt["Build_Path"] )
             os.chdir(vars.opt["Build_Path"])
             cmakecmd="cmake "+vars.opt["Source_Path"]
@@ -76,6 +78,8 @@ def install(name):
                 print "geant4 is not installed!"
                 return
             print "installing restG4...\n\n"            
+            if vars.opt["Clean_Up"]=="True":
+                os.system("rm -rf "+vars.opt["Build_Path"]+"/restG4" )
             os.system("mkdir -p "+vars.opt["Build_Path"]+"/restG4" )
             os.chdir(vars.opt["Build_Path"]+"/restG4")
             os.system("cmake "+vars.opt["Source_Path"]+"/packages/restG4/")

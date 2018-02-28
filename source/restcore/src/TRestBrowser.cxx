@@ -43,7 +43,7 @@ void TRestBrowser::Initialize() {
 	isFile = kFALSE;
 	fCurrentEvent = 0;
 
-	//b->GetBrowserImp()->GetMainFrame()->DontCallClose();
+	b->GetBrowserImp()->GetMainFrame()->DontCallClose();
 
 	b->StartEmbedding(0, -1);
 	frmMain = new TGMainFrame(gClient->GetRoot(), 300);

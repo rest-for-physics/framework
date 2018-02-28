@@ -63,6 +63,8 @@ def main():
         vars.opt["Check_Installed"]="False"
         if installation.checkinstalled("REST"):
             vars.opt["Install_Path"]=os.environ["REST_PATH"]
+            if vars.opt["Clean_Up"]=="True":
+                os.system("rm -rf "+vars.opt["Install_Path"])
             installation.install("REST")
         else :
             print "REST has not been installed!"
