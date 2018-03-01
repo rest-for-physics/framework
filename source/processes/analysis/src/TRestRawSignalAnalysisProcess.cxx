@@ -87,7 +87,7 @@ void TRestRawSignalAnalysisProcess::InitProcess()
 //______________________________________________________________________________
 void TRestRawSignalAnalysisProcess::BeginOfEventProcess() 
 {
-    fSignalEvent->Initialize();
+
 
 }
 
@@ -96,21 +96,64 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 {
     TString obsName;
 
-    TRestRawSignalEvent *fInputSignalEvent = (TRestRawSignalEvent *) evInput;
+	//no need for verbose copy now
+	fSignalEvent = (TRestRawSignalEvent *)evInput;
+	fOutputEvent = fSignalEvent;
 
-    /// Copying the signal event to the output event
 
-    fSignalEvent->SetID( fInputSignalEvent->GetID() );
-    fSignalEvent->SetSubID( fInputSignalEvent->GetSubID() );
-    fSignalEvent->SetTimeStamp( fInputSignalEvent->GetTimeStamp() );
-    fSignalEvent->SetSubEventTag( fInputSignalEvent->GetSubEventTag() );
+	///////////////////previous usage/////////////////////////
+	//fSignalEvent->Initialize();
+	//TRestRawSignalEvent *fInputSignalEvent = (TRestRawSignalEvent *)evInput;
+	//fSignalEvent->SetID(fInputSignalEvent->GetID());
+	//fSignalEvent->SetSubID(fInputSignalEvent->GetSubID());
+	//fSignalEvent->SetTimeStamp(fInputSignalEvent->GetTimeStamp());
+	//fSignalEvent->SetSubEventTag(fInputSignalEvent->GetSubEventTag());
 
-    //for( int sgnl = 0; sgnl < fInputSignalEvent->GetNumberOfSignals(); sgnl++ )
-    Int_t N = fInputSignalEvent->GetNumberOfSignals();
-    if( GetVerboseLevel() >= REST_Debug ) N = 1;
-    for( int sgnl = 0; sgnl < N; sgnl++ )
-        fSignalEvent->AddSignal( *fInputSignalEvent->GetSignal( sgnl ) );
-    /////////////////////////////////////////////////
+	////for( int sgnl = 0; sgnl < fInputSignalEvent->GetNumberOfSignals(); sgnl++ )
+	//Int_t N = fInputSignalEvent->GetNumberOfSignals();
+	//if (GetVerboseLevel() >= REST_Debug) N = 1;
+	//for (int sgnl = 0; sgnl < N; sgnl++)
+	//	fSignalEvent->AddSignal(*fInputSignalEvent->GetSignal(sgnl));
+	////////////////////////////////////////////
+
+	//we save some analysis result to class's datamember
+	baseline.clear();
+	baselinesigma.clear();
+	ampsgn_maxmethod.clear();
+	ampsgn_intmethod.clear();
+	risetime.clear();
+
+	baselinemean = 0;
+	baselinesigmamean = 0;
+	ampeve_intmethod = 0;
+	ampeve_maxmethod = 0;
+	risetimemean = 0;
+	for (int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++)
+	{
+		TRestRawSignal *sgnl = fSignalEvent->GetSignal(s);
+
+		Double_t _bslval = sgnl->GetBaseLine(fBaseLineRange.X(), fBaseLineRange.Y());
+		Double_t _bslsigma = sgnl->GetBaseLineSigma(fBaseLineRange.X(), fBaseLineRange.Y(), _bslval);
+		Double_t _ampmax = sgnl->GetMaxPeakValue() - _bslval;
+		Double_t _ampint = sgnl->GetIntegralWithThreshold((Int_t)fIntegralRange.X(), (Int_t)fIntegralRange.Y(), fBaseLineRange.X(), fBaseLineRange.Y(), fPointThreshold, fNPointsOverThreshold, fSignalThreshold);
+		Double_t _risetime = (sgnl->GetPointsOverThreshold().size() < 2) ? 0 : sgnl->GetRiseTime();
+
+		baseline[sgnl->GetID()] = (_bslval);
+		baselinesigma[sgnl->GetID()] = (_bslsigma);
+		ampsgn_intmethod[sgnl->GetID()] = (_ampint);
+		ampsgn_maxmethod[sgnl->GetID()] = (_ampmax);
+		risetime[sgnl->GetID()] = (_risetime);
+
+		baselinemean += _bslval;
+		baselinesigmamean += _bslsigma;
+		ampeve_intmethod += _ampint;
+		ampeve_maxmethod += _ampmax;
+		risetimemean += _risetime;
+	}
+	baselinemean /= fSignalEvent->GetNumberOfSignals();
+	baselinesigmamean /= fSignalEvent->GetNumberOfSignals();
+	risetimemean /= fSignalEvent->GetNumberOfSignals();
+
 
     if( fFirstEventTime == -1 )
         fFirstEventTime = fSignalEvent->GetTime( );
@@ -168,7 +211,7 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     fAnalysisTree->SetObservableValue( obsName, nSignals );
 
     // Signals are zero-ed
-    fSignalEvent->SubstractBaselines( fBaseLineRange.X(), fBaseLineRange.Y() );
+    //fSignalEvent->SubstractBaselines( fBaseLineRange.X(), fBaseLineRange.Y() );
 
     Int_t from = (Int_t) fIntegralRange.X();
     Int_t to = (Int_t) fIntegralRange.Y();

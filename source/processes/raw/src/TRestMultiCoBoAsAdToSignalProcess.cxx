@@ -97,16 +97,18 @@ Bool_t TRestMultiCoBoAsAdToSignalProcess::InitializeStartTimeStampFromFilename(T
 }
 
 
-
+vector<int> fileerrors;
 void TRestMultiCoBoAsAdToSignalProcess::InitProcess()
 {
-
 	fDataFrame.clear();
 	fHeaderFrame.clear();
+	fileerrors.clear();
+
 	for (int n = 0; n < fInputFiles.size(); n++)
 	{
 		CoBoHeaderFrame hdrtmp;
 		fHeaderFrame.push_back(hdrtmp);
+		fileerrors.push_back(0);
 	}
 
 	fRunOrigin = fRunInfo->GetRunNumber();
@@ -121,7 +123,7 @@ TRestEvent* TRestMultiCoBoAsAdToSignalProcess::ProcessEvent(TRestEvent *evInput)
 	if (EndReading()) { fOutputEvent = NULL; return NULL; }
 
 	if (!fillbuffer()) {
-		cout << "error when reading files!" << endl;
+		fSignalEvent->SetOK(false);
 		return fSignalEvent;
 	}
 	//Int_t nextId = GetLowestEventId();
@@ -191,6 +193,23 @@ TRestEvent* TRestMultiCoBoAsAdToSignalProcess::ProcessEvent(TRestEvent *evInput)
 }
 
 
+void TRestMultiCoBoAsAdToSignalProcess::EndProcess() 
+{
+
+	for (int i = 0; i < fileerrors.size(); i++) {
+		if (fileerrors[i] > 0) {
+			warning << "Found " << fileerrors[i] << " error frame headers in file " << i << endl;
+			warning<< "\"" << fInputFileNames[i] << "\"" << endl;
+		}
+	}
+
+	fileerrors.clear();
+}
+
+
+
+
+
 //true: finish filling
 //false: error when filling
 bool TRestMultiCoBoAsAdToSignalProcess::fillbuffer()
@@ -203,7 +222,16 @@ bool TRestMultiCoBoAsAdToSignalProcess::fillbuffer()
 				fInputFiles[i] = NULL;
 				return kFALSE;
 			}
-			if (!ReadFrameHeader(fHeaderFrame[i])) return false;
+			if (!ReadFrameHeader(fHeaderFrame[i])) {
+				cout << "error when reading frame header in file " << i << " \"" << fInputFileNames[i] << "\"" << endl;
+				cout << "event id " << fCurrentEvent + 1 << ". The file will be closed" << endl;
+				fHeaderFrame[i].Show();
+				cout << endl;
+				GetChar();
+				fclose(fInputFiles[i]);
+				fInputFiles[i] = NULL;
+				return false;
+			}
 		}
 	}
 
@@ -229,12 +257,16 @@ bool TRestMultiCoBoAsAdToSignalProcess::fillbuffer()
 		//c. if eventid is the same as current, return to a, otherwise break.
 		while (fHeaderFrame[i].eventIdx == fCurrentEvent) {
 
+			if (GetVerboseLevel() >= REST_Debug) {
+				cout << "file " << i << " (" << fInputFileNames[i] << ")" << " frame header:" << endl;
+				fHeaderFrame[i].Show();
+			}
 
-
+			//reading data according to the header
 			unsigned int type = fHeaderFrame[i].frameType;
 			if (fHeaderFrame[i].frameHeader[0] == 0x08 && type == 1) //partial readout
 			{
-				if (!ReadFrameDataP(fInputFiles[i], fHeaderFrame[i])) { return false; }
+				ReadFrameDataP(fInputFiles[i], fHeaderFrame[i]);
 			}
 			else if (fHeaderFrame[i].frameHeader[0] == 0x08 && type == 2) //full readout
 			{
@@ -245,8 +277,7 @@ bool TRestMultiCoBoAsAdToSignalProcess::fillbuffer()
 					fHeaderFrame[i].eventIdx = (unsigned int)4294967295;
 					break;
 				}
-				if (!ReadFrameDataF(fHeaderFrame[i])) { return false; }
-
+				ReadFrameDataF(fHeaderFrame[i]);
 			}
 			else
 			{
@@ -256,13 +287,50 @@ bool TRestMultiCoBoAsAdToSignalProcess::fillbuffer()
 			}
 
 
+			//reading next header
 			if (fread(fHeaderFrame[i].frameHeader, 256, 1, fInputFiles[i]) != 1 || feof(fInputFiles[i])) {
 				fclose(fInputFiles[i]);
 				fInputFiles[i] = NULL;
-				fHeaderFrame[i].eventIdx = (unsigned int)4294967295;
+				fHeaderFrame[i].eventIdx = (unsigned int)4294967295;//maximum of unsigned int
 				break;
 			}
-			if (!ReadFrameHeader(fHeaderFrame[i])) return false;
+			if (!ReadFrameHeader(fHeaderFrame[i])) { 
+				warning << "Event " << fCurrentEvent << " : error when reading next frame header" << endl;
+				warning << "in file " << i << " \"" << fInputFileNames[i] << "\"" << endl;
+				if (fVerboseLevel>REST_Info)
+					fHeaderFrame[i].Show();
+				warning << "trying to skip this event and find next header..." << endl;
+				fileerrors[i] += 1;
+				REST_Verbose_Level tmp = fVerboseLevel;
+				bool found = false;
+				fVerboseLevel = REST_Silent;
+				for (int k = 0; k < 1088; k++) //fullreadoutsize(278528)/headersize(256)=1088
+				{
+					if (fread(fHeaderFrame[i].frameHeader, 256, 1, fInputFiles[i]) != 1 || feof(fInputFiles[i])) {
+						break;
+					}
+					if (ReadFrameHeader(fHeaderFrame[i]))
+					{
+						fVerboseLevel = tmp;
+						warning << "Successfully found next header (EventId : " << fHeaderFrame[i].eventIdx<<")" << endl;
+						if(fVerboseLevel>REST_Info)
+							fHeaderFrame[i].Show();
+						cout << endl;
+						//GetChar();
+						found = true;
+						fSignalEvent->SetOK(false);
+						break;
+					}
+				}
+				if (!found) {
+					fclose(fInputFiles[i]);
+					fInputFiles[i] = NULL;
+					fHeaderFrame[i].eventIdx = (unsigned int)4294967295;//maximum of unsigned int
+				}
+
+			}
+
+
 
 
 		}
@@ -272,6 +340,7 @@ bool TRestMultiCoBoAsAdToSignalProcess::fillbuffer()
 	return true;
 
 }
+
 
 bool TRestMultiCoBoAsAdToSignalProcess::ReadFrameHeader(CoBoHeaderFrame& HdrFrame)
 {
@@ -294,27 +363,6 @@ bool TRestMultiCoBoAsAdToSignalProcess::ReadFrameHeader(CoBoHeaderFrame& HdrFram
 	HdrFrame.status = (unsigned int)Header[30];
 
 
-
-
-	if (GetVerboseLevel() >= REST_Debug) {
-		cout << endl;
-		cout << "------ Frame Header ------" << endl;
-		cout << "frameSize " << HdrFrame.frameSize << endl;
-
-		cout << "frameType " << HdrFrame.frameType << endl;
-		cout << "revision " << HdrFrame.revision << endl;
-		cout << "headerSize " << HdrFrame.headerSize << endl;
-		cout << "itemSize " << HdrFrame.itemSize << endl;
-		cout << "nItems " << HdrFrame.nItems << endl;
-		cout << "eventTime " << HdrFrame.eventTime << endl;
-		cout << "eventIdx " << HdrFrame.eventIdx << endl;
-
-		cout << "asadIdx " << HdrFrame.asadIdx << endl;
-		cout << "readOffset " << HdrFrame.readOffset << endl;
-		cout << "status " << HdrFrame.status << endl;
-
-	}
-
 	//if (fCurrentEvent == -1) { fCurrentEvent = HdrFrame.eventIdx; }
 	//if (fCurrentEvent != HdrFrame.eventIdx) { fNextEvent = HdrFrame.eventIdx; return 1; }
 
@@ -329,7 +377,7 @@ bool TRestMultiCoBoAsAdToSignalProcess::ReadFrameHeader(CoBoHeaderFrame& HdrFram
 	if (HdrFrame.frameType == 1) {
 		if (HdrFrame.itemSize != 4)
 		{
-			cout << "unsupported item size!" << endl;
+			warning << "unsupported item size!" << endl;
 			return false;
 		}
 
@@ -338,46 +386,77 @@ bool TRestMultiCoBoAsAdToSignalProcess::ReadFrameHeader(CoBoHeaderFrame& HdrFram
 	{
 		if (HdrFrame.itemSize != 2)
 		{
-			cout << "unsupported item size!" << endl;
+			warning << "unsupported item size!" << endl;
 			return false;
 		}
 		if (HdrFrame.nItems != 139264)
 		{
-			cout << "unsupported nItems!" << endl;
+			warning << "unsupported nItems!" << endl;
 			return false;
 		}
 	}
 	else
 	{
-		cout << "unknown frame type" << endl;
+		warning << "unknown frame type" << endl;
 		return false;
 	}
 
-	//cout<<"revision: "<<revision<<endl;
+	//warning<<"revision: "<<revision<<endl;
 	if (HdrFrame.revision != 5)
 	{
-		cout << "unsupported revision!" << endl;
+		warning << "unsupported revision!" << endl;
 		return false;
 	}
 
-	//cout<<"frameHeaderSize: "<<frameHeaderSize<<endl;
+	//warning<<"frameHeaderSize: "<<frameHeaderSize<<endl;
 	if (HdrFrame.headerSize != 1)
 	{
-		cout << "unsupported frameHeader size!" << endl;
+		warning << "unsupported frameHeader size!" << endl;
 		return false;
 	}
 
-	//cout<<"readOffset: "<<readOffset<<endl;
+	//warning<<"readOffset: "<<readOffset<<endl;
 	if (HdrFrame.readOffset != 0)
 	{
-		cout << "unsupported readOffset!" << endl;
+		warning << "unsupported readOffset!" << endl;
 		return false;
 	}
 
 	if (HdrFrame.status)
 	{
-		cout << "bad frame!" << endl;
+		warning << "bad frame!" << endl;
 		return false;
+	}
+
+	if (HdrFrame.nItems * HdrFrame.itemSize+256!= HdrFrame.frameSize) {
+		warning << "Event "<<fCurrentEvent<<" : item number and frame size unmatch!" << endl;
+		
+		//sometimes there is a itemnumber-framesize unmatch problem
+		//nItems*itemSize(=4)+256=frameSize
+		//because nitems/512 should be a integer(signal number), we can make a fix
+		if (HdrFrame.nItems % 512 == 0) {
+			warning << "...frameSize (" << HdrFrame.frameSize;
+			HdrFrame.frameSize = HdrFrame.nItems * HdrFrame.itemSize + 256;
+			warning << ") fixed to " << HdrFrame.frameSize << "..." << endl;
+			warning << endl;
+		}
+		else
+		{
+			if(fVerboseLevel>=REST_Info)
+				HdrFrame.Show();
+			if (((HdrFrame.frameSize - 256) / HdrFrame.itemSize) % 512 == 0) 
+			{
+				HdrFrame.nItems = (HdrFrame.frameSize - 256) / HdrFrame.itemSize;
+				warning << "...nItems fixed to " << HdrFrame.nItems << "..." << endl;
+				warning << endl;
+			}
+			else
+			{
+				warning << "frame unfixed" << endl;
+				warning << endl;
+			}
+		}
+
 	}
 
 	return true;
@@ -400,10 +479,11 @@ bool TRestMultiCoBoAsAdToSignalProcess::ReadFrameDataP(FILE*f, CoBoHeaderFrame& 
 	CoBoDataFrame& dataf = fDataFrame[asadid];
 
 
-	//------------read frame data-----------
-	if (size > 256 && items * 4 == size - 256)
-	{
 
+	//------------read frame data-----------
+	if (size > 256)
+	{
+		
 		for (i = 0; i * 512 < items; i++)
 		{
 			if ((fread(frameDataP, 2048, 1, f)) != 1 || feof(f))
@@ -420,13 +500,17 @@ bool TRestMultiCoBoAsAdToSignalProcess::ReadFrameDataP(FILE*f, CoBoHeaderFrame& 
 				buckIdx = ((unsigned int)(frameDataP[j + 1] & 0x7f) * 4 + (frameDataP[j + 2] >> 6));
 				sample = ((unsigned int)(frameDataP[j + 2] & 0x0f) * 0x100 + frameDataP[j + 3]);
 
-				if (buckIdx >= 512 || chTmp >= 272) { cout << "buck or channel id error!" << endl; return NULL; }
+				if (chTmp >= 272) { cout << "channel id error!" << endl; continue; }
 
 				dataf.chHit[chTmp] = kTRUE;
 				dataf.data[chTmp][buckIdx] = sample;
+
 			}
+
 		}
 	}
+
+
 
 	eveTimeStamp.SetNanoSec(time % ((Long64_t)1e9));
 	eveTimeStamp.SetSec(time / ((Long64_t)1e9));
@@ -507,8 +591,6 @@ bool TRestMultiCoBoAsAdToSignalProcess::ReadFrameDataF(CoBoHeaderFrame& hdr)
 	return true;
 
 }
-
-
 
 void TRestMultiCoBoAsAdToSignalProcess::ClearBuffer(Int_t n)
 {

@@ -24,107 +24,118 @@
 
 #include "TRestEventProcess.h"
 
-class TRestRawSignalAnalysisProcess:public TRestEventProcess {
-    private:
+class TRestRawSignalAnalysisProcess :public TRestEventProcess {
+private:
 #ifndef __CINT__
-        TRestRawSignalEvent *fSignalEvent;//!
-        // TODO We must get here a pointer to TRestDaqMetadata
-        // In order to convert the parameters to time using the sampling time
-        TRestReadout *fReadout;//!
+	TRestRawSignalEvent *fSignalEvent;//!
+									  // TODO We must get here a pointer to TRestDaqMetadata
+									  // In order to convert the parameters to time using the sampling time
+	TRestReadout *fReadout;//!
 
-        Double_t fFirstEventTime;//!
-        vector <Double_t> fPreviousEventTime;//!
+	Double_t fFirstEventTime;//!
+	vector <Double_t> fPreviousEventTime;//!
 
-        //TCanvas *fCanvas;
-        vector <TObject *> fDrawingObjects;//!
-        Double_t fDrawRefresh;//!
+										 //TCanvas *fCanvas;
+	vector <TObject *> fDrawingObjects;//!
+	Double_t fDrawRefresh;//!
 
-        time_t timeStored;//!
+	time_t timeStored;//!
 
-        std::vector <std::string> fSignalAnalysisObservables;//!
+	std::vector <std::string> fSignalAnalysisObservables;//!
 #endif
 
-        TPad *DrawSignal( Int_t signal );
-        TPad *DrawObservables( );
+	TPad *DrawSignal(Int_t signal);
+	TPad *DrawObservables();
 
-        void InitFromConfigFile();
+	void InitFromConfigFile();
 
-        void Initialize();
+	void Initialize();
 
-        void LoadDefaultConfig();
-
-    protected:
-        
-        //add here the members of your event process
-        //
-        TVector2 fBaseLineRange;
-        TVector2 fIntegralRange;
-        Double_t fPointThreshold;
-        Double_t fSignalThreshold;
-        Int_t fNPointsOverThreshold;
-
-        Bool_t fCutsEnabled;
-        // cut parameters
-        TVector2 fMeanBaseLineCutRange;
-        TVector2 fMeanBaseLineSigmaCutRange;
-        TVector2 fMaxNumberOfSignalsCut;
-        TVector2 fMaxNumberOfGoodSignalsCut;
-        TVector2 fFullIntegralCut;
-        TVector2 fThresholdIntegralCut;
-        TVector2 fPeakTimeDelayCut;
-
-        TH1D *fChannelsHisto;
+	void LoadDefaultConfig();
 
 
-    public:
-        void InitProcess();
-        void BeginOfEventProcess(); 
-        TRestEvent *ProcessEvent( TRestEvent *eventInput );
-        void EndOfEventProcess(); 
-        void EndProcess();
+	// parameters
+	TVector2 fBaseLineRange;//!
+	TVector2 fIntegralRange;//!
+	Double_t fPointThreshold;//!
+	Double_t fSignalThreshold;//!
+	Int_t fNPointsOverThreshold;//!
+	Bool_t fCutsEnabled;//!
+	TVector2 fMeanBaseLineCutRange;//!
+	TVector2 fMeanBaseLineSigmaCutRange;//!
+	TVector2 fMaxNumberOfSignalsCut;//!
+	TVector2 fMaxNumberOfGoodSignalsCut;//!
+	TVector2 fFullIntegralCut;//!
+	TVector2 fThresholdIntegralCut;//!
+	TVector2 fPeakTimeDelayCut;//!
 
-        void LoadConfig( std::string cfgFilename, std::string name = "" );
 
-        void PrintMetadata() { 
+    // analysis result(saved directly in root file)
+	TH1D *fChannelsHisto;//!
 
-            BeginPrintProcess();
+	// analysis result(saved in its branch in the analysis tree, in sequence)
+	map<int,Double_t> baseline;
+	Double_t baselinemean;
+	map<int, Double_t> baselinesigma;
+	Double_t baselinesigmamean;
+	map<int, Double_t> ampsgn_maxmethod;
+	Double_t ampeve_maxmethod;
+	map<int, Double_t> ampsgn_intmethod;
+	Double_t ampeve_intmethod;
+	map<int, Double_t> risetime;
+	Double_t risetimemean;
 
-            cout << "Baseline range : ( " << fBaseLineRange.X() << " , " << fBaseLineRange.Y() << " ) " << endl;
-            cout << "Integral range : ( " << fIntegralRange.X() << " , " << fIntegralRange.Y() << " ) " << endl;
-            cout << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
-            cout << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
-            cout << "Number of points over threshold : " << fNPointsOverThreshold << endl;
-            cout << endl;
-            if( fCutsEnabled )
-            {
-                cout << "Cuts enabled" << endl;
-                cout << "------------" << endl;
-                cout << "Mean base line cut range : ( " << fMeanBaseLineCutRange.X() << " , " << fMeanBaseLineCutRange.Y() << " ) " << endl;
-                cout << "Mean base line sigma cut range : ( " << fMeanBaseLineSigmaCutRange.X() << " , " << fMeanBaseLineSigmaCutRange.Y() << " ) " << endl;
-                cout << "Max number of signals cut range : ( " << fMaxNumberOfSignalsCut.X() << " , " << fMaxNumberOfSignalsCut.Y() << " ) " << endl;
-                cout << "Max number of good signals cut range : ( " << fMaxNumberOfGoodSignalsCut.X() << " , " << fMaxNumberOfGoodSignalsCut.Y() << " ) " << endl;
-                cout << "Full integral cut range : ( " << fFullIntegralCut.X() << " , " << fFullIntegralCut.Y() << " ) " << endl;
-                cout << "Threshold integral cut range : ( " << fThresholdIntegralCut.X() << " , " << fThresholdIntegralCut.Y() << " ) " << endl;
-                cout << "Peak time delay cut range : ( " << fPeakTimeDelayCut.X() << " , " << fPeakTimeDelayCut.Y() << " )" << endl;
-            }
-            else
-            {
-                cout << "No cuts have been enabled" << endl;
 
-            }
 
-            EndPrintProcess();
-        }
+public:
+	void InitProcess();
+	void BeginOfEventProcess();
+	TRestEvent *ProcessEvent(TRestEvent *eventInput);
+	void EndOfEventProcess();
+	void EndProcess();
 
-        TString GetProcessName() { return (TString) "rawSignalAnalysis"; }
+	void LoadConfig(std::string cfgFilename, std::string name = "");
 
-        //Constructor
-        TRestRawSignalAnalysisProcess();
-        TRestRawSignalAnalysisProcess( char *cfgFileName );
-        //Destructor
-        ~TRestRawSignalAnalysisProcess();
+	void PrintMetadata() {
 
-        ClassDef(TRestRawSignalAnalysisProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+		BeginPrintProcess();
+
+		cout << "Baseline range : ( " << fBaseLineRange.X() << " , " << fBaseLineRange.Y() << " ) " << endl;
+		cout << "Integral range : ( " << fIntegralRange.X() << " , " << fIntegralRange.Y() << " ) " << endl;
+		cout << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
+		cout << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
+		cout << "Number of points over threshold : " << fNPointsOverThreshold << endl;
+		cout << endl;
+		if (fCutsEnabled)
+		{
+			cout << "Cuts enabled" << endl;
+			cout << "------------" << endl;
+			cout << "Mean base line cut range : ( " << fMeanBaseLineCutRange.X() << " , " << fMeanBaseLineCutRange.Y() << " ) " << endl;
+			cout << "Mean base line sigma cut range : ( " << fMeanBaseLineSigmaCutRange.X() << " , " << fMeanBaseLineSigmaCutRange.Y() << " ) " << endl;
+			cout << "Max number of signals cut range : ( " << fMaxNumberOfSignalsCut.X() << " , " << fMaxNumberOfSignalsCut.Y() << " ) " << endl;
+			cout << "Max number of good signals cut range : ( " << fMaxNumberOfGoodSignalsCut.X() << " , " << fMaxNumberOfGoodSignalsCut.Y() << " ) " << endl;
+			cout << "Full integral cut range : ( " << fFullIntegralCut.X() << " , " << fFullIntegralCut.Y() << " ) " << endl;
+			cout << "Threshold integral cut range : ( " << fThresholdIntegralCut.X() << " , " << fThresholdIntegralCut.Y() << " ) " << endl;
+			cout << "Peak time delay cut range : ( " << fPeakTimeDelayCut.X() << " , " << fPeakTimeDelayCut.Y() << " )" << endl;
+		}
+		else
+		{
+			cout << "No cuts have been enabled" << endl;
+
+		}
+
+		EndPrintProcess();
+	}
+
+	TString GetProcessName() { return (TString) "rawSignalAnalysis"; }
+
+	//Constructor
+	TRestRawSignalAnalysisProcess();
+	TRestRawSignalAnalysisProcess(char *cfgFileName);
+	//Destructor
+	~TRestRawSignalAnalysisProcess();
+
+	ClassDef(TRestRawSignalAnalysisProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
 };
 #endif
 
