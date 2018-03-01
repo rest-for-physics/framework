@@ -22,7 +22,7 @@ Int_t REST_Viewer_GenericEvents(TString fName , TString EventType = "")
 		browser->OpenFile(fName);
 		TRestEvent*eve = browser->GetInputEvent();
 		if (eve != NULL) {
-			cout << "setting viewer with event : " << eve->ClassName() << endl;
+			cout << "Setting viewer with event : " << eve->ClassName() << endl;
 			viewer->SetEvent(eve);
 		}
 		else
