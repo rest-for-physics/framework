@@ -72,6 +72,7 @@ private:
 public:
 	//Constructors
 	TRestBrowser();
+	TRestBrowser(TString viewerName);
 
 	//Destructor
 	~TRestBrowser();
@@ -80,6 +81,7 @@ public:
 	void InitFromConfigFile();
 
 	void SetViewer(TRestEventViewer *eV);
+	void SetViewer(TString viewerName);
 
 	void setWindowName(TString wName) { frmMain->SetWindowName(wName.Data()); }
 

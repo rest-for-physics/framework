@@ -25,8 +25,22 @@ ClassImp(TRestBrowser)
 //______________________________________________________________________________
 TRestBrowser::TRestBrowser()
 {
-	b = new TBrowser("Browser", 0, "REST Browser", "FI");
 	Initialize();
+	SetViewer("TRestGenericEventViewer");
+	if (gDirectory->GetFile() != NULL) {
+		OpenFile(gDirectory->GetFile()->GetName());
+		cout << "Loaded File : " << fInputFileName << endl;
+	}
+}
+
+TRestBrowser::TRestBrowser(TString viewerName) 
+{
+	Initialize();
+	SetViewer(viewerName);
+	if (gDirectory->GetFile() != NULL) {
+		OpenFile(gDirectory->GetFile()->GetName());
+		cout << "Loaded File : " << fInputFileName << endl;
+	}
 }
 
 //______________________________________________________________________________
@@ -43,6 +57,7 @@ void TRestBrowser::Initialize() {
 	isFile = kFALSE;
 	fCurrentEvent = 0;
 
+	b = new TBrowser("Browser", 0, "REST Browser", "FI");
 	b->GetBrowserImp()->GetMainFrame()->DontCallClose();
 
 	b->StartEmbedding(0, -1);
@@ -61,22 +76,41 @@ void TRestBrowser::Initialize() {
 	frmMain->Layout();
 	frmMain->MapWindow();
 
-	fEventViewer = NULL;
-
-	if (gDirectory->GetFile() != NULL) {
-		OpenFile(gDirectory->GetFile()->GetName());
-		cout << "Loaded File : " << fInputFileName << endl;
-	}
-
 }
 
 void TRestBrowser::SetViewer(TRestEventViewer *eV)
 {
-	fEventViewer = eV;
-	eV->SetController(this);
-	b->StartEmbedding(1, -1);
-	eV->Initialize();
-	b->StopEmbedding();
+	if (fEventViewer != NULL) {
+		warning << "Event viewer has already been set!" << endl;
+		return;
+	}
+	if (eV != NULL) {
+		fEventViewer = eV;
+		eV->SetController(this);
+		b->StartEmbedding(1, -1);
+		eV->Initialize();
+		b->StopEmbedding();
+	}
+}
+
+
+void TRestBrowser::SetViewer(TString viewerName) {
+	TClass *cl = TClass::GetClass(viewerName);
+	if (cl == NULL) {
+		warning << "cannot find viewer: " << viewerName << " !" << endl;
+	}
+	else
+	{
+		TObject*obj = (TObject*)cl->New();
+		if (obj->InheritsFrom("TRestEventViewer"))
+		{
+			SetViewer((TRestEventViewer*)obj);
+		}
+		else
+		{
+			warning << viewerName << " is not a viewer!" << endl;
+		}
+	}
 }
 
 void TRestBrowser::setButtons() {
@@ -212,10 +246,8 @@ Bool_t TRestBrowser::OpenFile(TString fName)
 	}
 
 	if (fInputFile != NULL) fInputFile->Close();
-
 	OpenInputFile(fName);
 	fInputFileName = fname;
-
 	if (fInputFile == NULL) {
 		error << "failed to open input file" << endl;
 		exit(0);
@@ -231,7 +263,6 @@ Bool_t TRestBrowser::OpenFile(TString fName)
 		//if(className=="TRestAnalysisTree")
 		   // fAnalysisTree= (TRestAnalysisTree *)fInputFile->Get(key->GetName());
 	}
-
 	if (fAnalysisTree == NULL && fEventTree == NULL)
 	{
 		cout << "REST ERROR (OpenFile) : No REST Tree was not found" << endl;
@@ -248,14 +279,7 @@ Bool_t TRestBrowser::OpenFile(TString fName)
 		fEventTree->ConnectEventBranches();
 		//init viewer
 		if (fEventViewer == NULL) {
-			TClass *cl = TClass::GetClass("TRestGenericEventViewer");
-			if (cl == NULL) {
-				warning << "cannot find TRestGenericEventViewer!" << endl;
-			}
-			else
-			{
-				SetViewer((TRestEventViewer*)cl->New());
-			}
+			SetViewer("TRestGenericEventViewer");
 		}
 	}
 
