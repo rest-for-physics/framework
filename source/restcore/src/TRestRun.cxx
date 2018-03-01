@@ -572,13 +572,13 @@ void TRestRun::CloseFile()
 		fOutputFile->Close(); delete fOutputFile; fOutputFile = NULL;
 	}
 	if (fInputFile != NULL) {
-		fInputFile->Close(); delete fInputFile; fInputFile = NULL;
+		fInputFile->Close(); delete fOutputFile; fInputFile = NULL;
 	}
 	if (fAnalysisTree != NULL) {
-		delete fAnalysisTree; fAnalysisTree = NULL;
+		fAnalysisTree = NULL;
 	}
 	if (fEventTree != NULL) {
-		delete fEventTree; fEventTree = NULL;
+		fEventTree = NULL;
 	}
 }
 
@@ -614,11 +614,13 @@ void TRestRun::SetExtProcess(TRestEventProcess* p)
 
 void TRestRun::SetInputEvent(TRestEvent* eve)
 {
-	fInputEvent = eve;
-	if (fEventTree != NULL) {
-		string brname = (string)fInputEvent->ClassName() + "Branch";
-		if (fEventTree->GetBranch(brname.c_str()) != NULL) {
-			fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
+	if (eve != NULL) {
+		fInputEvent = eve;
+		if (fEventTree != NULL) {
+			string brname = (string)fInputEvent->ClassName() + "Branch";
+			if (fEventTree->GetBranch(brname.c_str()) != NULL) {
+				fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
+			}
 		}
 	}
 }
@@ -801,9 +803,6 @@ void TRestRun::PrintInfo()
 	//cout << "Number of initial events : " << GetNumberOfEvents() << endl;
 	//cout << "Number of processed events : " << fProcessedEvents << endl;
 	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-
-	if(fAnalysisTree!=NULL)
-		fAnalysisTree->Show(0);
 
 }
 
