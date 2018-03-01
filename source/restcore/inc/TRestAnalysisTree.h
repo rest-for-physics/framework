@@ -138,10 +138,17 @@ public:
 		std::cout << "Event ID : " << GetEventID() << std::endl;
 		std::cout << "Event Time : " << GetTimeStamp() << std::endl;
 		std::cout << "-----------------------------------------" << std::endl;
-		for (int n = 0; n < GetNumberOfObservables(); n++)
-			std::cout << "Observable Name : " << fObservableNames[n] << "    Value : " << *fObservableValues[n] << std::endl;
-		std::cout << std::endl;
-
+		if (isConnected()) {
+			for (int n = 0; n < GetNumberOfObservables(); n++)
+				std::cout << "Observable Name : " << fObservableNames[n] << "    Value : " << *fObservableValues[n] << std::endl;
+			std::cout << std::endl;
+		}
+		else
+		{
+			for (int n = 0; n < GetNumberOfObservables(); n++)
+				std::cout << "Observable Name : " << fObservableNames[n] << "    Value : ..." << std::endl;
+			std::cout << std::endl;
+		}
 	}
 
 	Int_t FillEvent(TRestEvent *evt);

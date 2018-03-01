@@ -141,13 +141,26 @@ public:
 
 	void PrintInfo();
 	void PrintMetadata() { PrintInfo(); }
-	void PrintAllMetadata() { PrintInfo(); }
+	void PrintAllMetadata() { 
+		PrintInfo();
+		for (int i = 0; i < fMetadataInfo.size(); i++)
+			fMetadataInfo[i]->PrintMetadata();
+	}
+	void PrintTrees() {
+		if (fEventTree != NULL)
+			fEventTree->Print();
+		if (fAnalysisTree != NULL)
+		{
+			fout << "=" << endl;
+			fAnalysisTree->Print();
+		}
+	}
+	void PrintObservables() {
+		if (fAnalysisTree != NULL)
+			fAnalysisTree->PrintObservables();
+	}
 
 	void PrintEvent() { fInputEvent->PrintEvent(); }
-
-	void PrintProcessedEvents(Int_t rateE);
-
-
 
 protected:
 	//runinfo
