@@ -42,17 +42,18 @@ Int_t REST_General_Fit(TString varName,
 	{
 		run->OpenInputFile(inputFilesNew[n]);
 
-		run->SkipEventTree();
 		run->PrintInfo();
 
 		Int_t obsID = run->GetAnalysisTree()->GetObservableID(varName);
 		if (obsID == -1) {
+			cout << endl;
+			cout.setcolor(COLOR_BOLDRED);
 			cout << "No observable \"" << varName << "\" in file " << inputFilesNew[n] << endl;
 			continue;
 		}
 		for (int i = 0; i < run->GetEntries(); i++)
 		{
-			run->GetEntry(i);
+			run->GetAnalysisTree()->GetBranch(varName)->GetEntry(i);
 			Double_t value = run->GetAnalysisTree()->GetObservableValue(obsID);
 			if (value >= startVal && value < endVal)
 			{

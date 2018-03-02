@@ -36,16 +36,21 @@ Int_t REST_General_IntegrateSmearing(TString varName,
 
 		run->OpenInputFile(inputFilesNew[n]);
 
-		run->SkipEventTree();
 		run->PrintInfo();
 
 		Int_t obsID = run->GetAnalysisTree()->GetObservableID(varName);
+		if (obsID == -1) {
+			cout << endl;
+			cout.setcolor(COLOR_BOLDRED);
+			cout << "No observable \"" << varName << "\" in file " << inputFilesNew[n] << endl;
+			continue;
+		}
 		cout << "Entries : " << run->GetEntries() << endl;
 		TH1D *h = new TH1D("histo", "histo", 180, Qbb - 90, Qbb + 90);
 		Int_t peak = 0;
 		for (int i = 0; i < run->GetEntries(); i++)
 		{
-			run->GetEntry(i);
+			run->GetAnalysisTree()->GetBranch(varName)->GetEntry(i);
 			Double_t en = run->GetAnalysisTree()->GetObservableValue(obsID);
 			if (en > Qbb - 5 && en < Qbb + 5)
 				peak++;

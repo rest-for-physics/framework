@@ -20,6 +20,8 @@ Int_t REST_General_CreateHisto(
 	int bins = 1000,
 	Double_t normFactor = 1)
 {
+	TRestStringOutput cout;
+
 	std::vector <TString> inputFilesNew = GetFilesMatchingPattern(rootFileName);
 
 	TH1D *h = new TH1D(histoName, histoName, bins, startVal, endVal);
@@ -35,14 +37,18 @@ Int_t REST_General_CreateHisto(
 
 		run->OpenInputFile(inputFilesNew[n]);
 
-		run->SkipEventTree();
 		run->PrintInfo();
 
 		Int_t obsID = run->GetAnalysisTree()->GetObservableID(varName);
-
+		if (obsID == -1) {
+			cout << endl;
+			cout.setcolor(COLOR_BOLDRED);
+			cout << "No observable \"" << varName << "\" in file " << inputFilesNew[n] << endl;
+			continue;
+		}
 		for (int i = 0; i < run->GetEntries(); i++)
 		{
-			run->GetEntry(i);
+			run->GetAnalysisTree()->GetBranch(varName)->GetEntry(i);
 			Double_t val = run->GetAnalysisTree()->GetObservableValue(obsID);
 			if (val >= startVal && val <= endVal)
 				h->Fill(val);

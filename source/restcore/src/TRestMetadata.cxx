@@ -1913,12 +1913,15 @@ void TRestMetadata::PrintConfigBuffer()
 
 int TRestMetadata::GetChar(string hint) 
 { 
-	thread t = thread(&TRestMetadata::Hold_On, this);
-	t.detach();
-	cout << hint << endl;
-	int result = getchar();
-	gApplication->Terminate(0);
-	return result;
+	if (!gApplication->IsRunning()) {
+		thread t = thread(&TRestMetadata::Hold_On, this);
+		t.detach();
+		cout << hint << endl;
+		int result = getchar();
+		gApplication->Terminate(0);
+		return result;
+	}
+	return -1;
 }
 
 
