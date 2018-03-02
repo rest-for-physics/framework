@@ -112,6 +112,12 @@ G4ParticleDefinition *PrimaryGeneratorAction::SetParticleDefinition( int n )
             }
     }
 
+    if( particle == NULL )
+    {
+        cout << "REST Error. PrimaryGenerator. Particle with name : " << particleName << " not FOUND!!" << endl;
+        exit(1);
+    }
+
     fParticleGun->SetParticleDefinition( particle );
 
     return particle;
