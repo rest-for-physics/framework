@@ -21,10 +21,18 @@ TRestTask::TRestTask(TString MacroFileName)
 		string line = buffer;
 
 		if (line.find('(') != -1 && line.find(' ') > 0) {
-			//this line in a definition the macro method
+			//this line is a definition of the macro method
 			methodname = line.substr(line.find(' ') + 1, line.find('(') - line.find(' ') - 1);
 			SetName(methodname.c_str());
 
+			while (line.find(')') == -1) {
+				if (in.eof()) {
+					error << "invaild macro file!" << endl;
+					exit(1);
+				}
+				in.getline(buffer, 256);
+				line = line + (string)buffer;
+			}
 
 			string args = line.substr(line.find('(') + 1, line.find(')') - line.find('(') - 1);
 			auto list = Spilt(args, ",");
@@ -33,15 +41,15 @@ TRestTask::TRestTask(TString MacroFileName)
 			for (int i = 0; i < list.size(); i++)
 			{
 				auto tmp = Spilt(list[i], " ");
-				if (tmp[0] == "TString")
+				if (Count(tmp[0], "TString") > 0)
 				{
 					argumenttype.push_back(65);
 				}
-				else if (tmp[0] == "int" || tmp[0] == "Int_t")
+				else if (Count(ToUpper(tmp[0]), "INT") > 0)
 				{
 					argumenttype.push_back(3);
 				}
-				else if (tmp[0] == "double" || tmp[0] == "Double_t")
+				else if (Count(ToUpper(tmp[0]), "DOUBLE") > 0)
 				{
 					argumenttype.push_back(8);
 				}
@@ -49,6 +57,7 @@ TRestTask::TRestTask(TString MacroFileName)
 				{
 					argumenttype.push_back(-1);
 				}
+
 				argumentname.push_back(Spilt(tmp[1], "=")[0]);
 				if (Spilt(list[i], "=").size() > 1) {
 					argument.push_back(Spilt(list[i], "=")[1]);
@@ -107,10 +116,7 @@ TRestTask* TRestTask::GetTask(TString MacroName)
 		fscanf(f, "%s\n", str);
 		if (feof(f) == 0)
 		{
-			cout << "REST ERROR : multi matching of macro \"" << MacroName << "\" found!" << endl;
-			fclose(f);
-			system("rm /tmp/macros.list");
-			return NULL;
+			cout << "REST Warning : multi matching of macro \"" << MacroName << "\" found!" << endl;
 		}
 		fclose(f);
 		system("rm /tmp/macros.list");
