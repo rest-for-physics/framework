@@ -442,7 +442,7 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 			delete gyz;
 		}
 		gyz = new TGraph2D(yzz.size(), &yzz[0], &yzy[0], &yze[0]);
-		gyz->SetTitle((TString)"YZ plot, " + ToString(GetNumberOfXZSignals()) + " Signals");
+		gyz->SetTitle((TString)"YZ plot, " + ToString(GetNumberOfYZSignals()) + " Signals");
 		gyz->GetXaxis()->SetTitle("Z");
 		gyz->GetYaxis()->SetTitle("Y");
 		gyz->SetNpx(fNz);		
