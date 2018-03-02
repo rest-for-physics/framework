@@ -145,11 +145,9 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent( TRestEvent *evInput )
 
 		}
 
-
-
-
-
-
+		if (fOutputSignalEvent->GetNumberOfXZSignals() < 2 || fOutputSignalEvent->GetNumberOfYZSignals() < 2) {
+			return NULL;
+		}
 		//cout << fOutputSignalEvent->GetNumberOfSignals() << endl;
 	}
 
