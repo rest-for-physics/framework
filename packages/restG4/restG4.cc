@@ -81,6 +81,7 @@ int main(int argc,char** argv) {
 	if (argc < 2) {
 		cout << "no input config file" << endl;
 		cout << "usage : " << argv[0] << " config_file [section_name]" << endl;
+		return -1;
 	}
     if( argc >= 2 ) sprintf( inputConfigFile, "%s", argv[1] );
     if( argc >= 3 ) sprintf( restG4Name, "%s", argv[2] );
