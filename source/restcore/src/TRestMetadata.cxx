@@ -1245,9 +1245,9 @@ string TRestMetadata::GetUnits(TiXmlElement* e, string whoseunits)
 	if (whoseunits == "") {
 		unitstring = GetParameter("units", e);
 		if (IsUnit(unitstring)) {
-			warning << "Found unit definition \"" << unitstring << "\" in element " << e->Value() << endl;
-			warning << "This way of definition of units is not recommended, use <... value=\"3mm\" .../> instead" << endl << endl;
-			warning << endl;
+			debug << "Found unit definition \"" << unitstring << "\" in element " << e->Value() << endl;
+			debug << "This way of definition of units is not recommended, use <... value=\"3mm\" .../> instead" << endl << endl;
+			debug << endl;
 			return unitstring;
 		}
 		else
@@ -1268,8 +1268,8 @@ string TRestMetadata::GetUnits(TiXmlElement* e, string whoseunits)
 		}
 		else
 		{
-			warning << "REST WARNING : Parameter \"" << whoseunits << " = " << a << "\" dose not contain any units" << endl;
-			warning << "Trying to find unit in element..." << endl;
+			debug << "REST WARNING : Parameter \"" << whoseunits << " = " << a << "\" dose not contain any units" << endl;
+			debug << "Trying to find unit in element..." << endl;
 			if (GetElementWithName("parameter", whoseunits, e) != NULL) {
 				return GetUnits(GetElementWithName("parameter", whoseunits, e), "");
 			}
