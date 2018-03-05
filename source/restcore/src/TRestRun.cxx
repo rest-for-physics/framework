@@ -74,11 +74,11 @@ void TRestRun::Initialize()
 
 void TRestRun::BeginOfInit()
 {
-	if (fHostmgr == NULL)
-	{
-		error << "manager not initialized!" << endl;
-		exit(0);
-	}
+	//if (fHostmgr == NULL)
+	//{
+	//	error << "manager not initialized!" << endl;
+	//	exit(0);
+	//}
 
 	fInputFileName = GetParameter("inputFile").c_str();
 	fInputFileNames = GetFilesMatchingPattern(fInputFileName);

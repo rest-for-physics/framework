@@ -1,6 +1,7 @@
 #include "TRestTask.h"
 Int_t REST_Printer_Metadata( TString fName )
 {
+	TRestStringOutput cout;
 
 	TString fileName = fName;
 

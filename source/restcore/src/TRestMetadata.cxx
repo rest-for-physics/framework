@@ -423,8 +423,8 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName,string sectionName)
 	}
 	else
 	{
-		cout << "Filename : " << cfgFileName << endl;
-		cout << "REST WARNING. Config File does not exist. Right path/filename?" << endl;
+		error << "Filename : " << cfgFileName << endl;
+		error << "REST ERROR. Config File does not exist. Right path/filename?" << endl;
 		GetChar();
 		return -1;
 	}
@@ -1913,7 +1913,7 @@ void TRestMetadata::PrintConfigBuffer()
 
 int TRestMetadata::GetChar(string hint) 
 { 
-	if (!gApplication->IsRunning()) {
+	if (gApplication!=NULL&&!gApplication->IsRunning()) {
 		thread t = thread(&TRestMetadata::Hold_On, this);
 		t.detach();
 		cout << hint << endl;
