@@ -17,7 +17,7 @@ ENDIF()
 set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
 message ("oo REST will be installed in : ${CMAKE_INSTALL_PREFIX}\n" )
 
-SET(CMAKE_CXX_FLAGS "-std=c++1y -Werror")
+SET(CMAKE_CXX_FLAGS "-std=c++1y")
 
 #define c++ pragmas
 IF( NOT DEFINED REST_WELCOME )

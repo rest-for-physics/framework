@@ -13,6 +13,7 @@ ELSE()
     return()
 ENDIF()
 
+SET(CMAKE_CXX_FLAGS "-std=c++1y -w")
 
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
