@@ -332,11 +332,7 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 		return NULL;
 	}
 
-	fPad = new TPad(this->GetName(), " ", 0, 0, 1, 1);
 
-	fPad->Divide(1, 2);
-
-	fPad->SetTitle((TString)"Event ID " + ToString(this->GetID()));
 
 	vector<double> xzx;
 	vector<double> xzz;
@@ -344,14 +340,6 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 	vector<double> yzy;
 	vector<double> yzz;
 	vector<double> yze;
-
-	//TH2D*txz = new TH2D("XZ plot", (TString)"XZ plot, " + ToString(GetNumberOfXZSignals()) + " Signals"
-	//	, (double)fNz, 0, (double)fNz,
-	//	50, GetXRange().X(), GetXRange().Y());
-
-	//TH2D*tyz = new TH2D("YZ plot", (TString)"YZ plot, " + ToString(GetNumberOfXZSignals()) + " Signals"
-	//	, (double)fNz, 0, (double)fNz,
-	//	50, GetYRange().X(), GetYRange().Y());
 
 	for (int i = 0; i < GetNumberOfXZSignals(); i++) {
 		auto signal = GetXZSignal(i);
@@ -378,45 +366,9 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 		}
 	}
 
-
-
-	//for (int i = 0; i <fNz; i++)
-	//{
-	//	map<double, double>::iterator iter;
-
-
-	//	iter = fXZHits[i].begin();
-	//	while (iter != fXZHits[i].end()) {
-	//		if (iter->second != 0) {
-	//			xzx.push_back(iter->first);
-	//			xze.push_back(iter->second);
-	//			xzz.push_back(i);
-	//			txz->SetBinContent(txz->FindBin(i, iter->first), iter->second);
-	//		}
-	//		//cout << iter->first << " : " << iter->second << endl;
-	//		iter++;
-	//	}
-
-	//	iter = fYZHits[i].begin();
-	//	while (iter != fYZHits[i].end()) {
-	//		if (iter->second != 0) {
-	//			yzy.push_back(iter->first);
-	//			yze.push_back(gRandom->Gaus());
-	//			yzz.push_back(i);
-	//			tyz->SetBinContent(tyz->FindBin(i, iter->first), iter->second);
-	//		}
-	//		//cout << iter->first << " : " << iter->second << endl;
-	//		iter++;
-	//	}
-	//}
-
-	//fPad->cd(1);
-	//txz->Draw("colz");
-	//fPad->cd(2);
-	//tyz->Draw("colz");
-
-	cout << xzz.size() << " " <<yzz.size() << endl;
-	fPad->cd(1);
+	fPad = new TPad(this->GetName(), " ", 0, 0, 1, 1);
+	fPad->SetTitle((TString)"Event ID " + ToString(this->GetID()));
+	cout << xzz.size() << " " << yzz.size() << endl;
 	if ((GetZRange().Y() - GetZRange().X()) > 0) {
 		if (gxz != NULL)
 		{
@@ -428,15 +380,7 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 		gxz->GetYaxis()->SetTitle("X");
 		gxz->SetNpx(fNz);
 		gxz->SetNpy(100);
-		gxz->Draw("colz");
-
 	}
-	//else
-	//{
-	//	txz->Draw("colz");
-	//}
-
-	fPad->cd(2);
 	if ((GetZRange().Y() - GetZRange().X()) > 0) {
 		if (gyz != NULL) {
 			delete gyz;
@@ -445,15 +389,36 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 		gyz->SetTitle((TString)"YZ plot, " + ToString(GetNumberOfYZSignals()) + " Signals");
 		gyz->GetXaxis()->SetTitle("Z");
 		gyz->GetYaxis()->SetTitle("Y");
-		gyz->SetNpx(fNz);		
+		gyz->SetNpx(fNz);
 		gyz->SetNpy(100);
+	}
+
+
+	if (option == "") {
+		fPad->Divide(1, 2);
+
+		fPad->cd(1);
+		gxz->Draw("colz");
+
+		fPad->cd(2);
+		gyz->Draw("colz");
+	}
+	if (ToUpper(option) == "ENERGYZ") 
+	{
+		fPad->Divide(2, 2);
+
+		fPad->cd(1);
+		gxz->Draw("colz");
+
+		fPad->cd(2);
 		gyz->Draw("colz");
 
+		fPad->cd(3);
+		gxz->Project()->Draw("colz");
+
+		fPad->cd(4);
+		gyz->Project()->Draw("colz");
 	}
-	//else
-	//{
-	//	tyz->Draw("colz");
-	//}
 
 	return fPad;
 }

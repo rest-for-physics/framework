@@ -50,6 +50,8 @@ protected:
 
 	TGraph2D* gxz=NULL;//!
 	TGraph2D* gyz=NULL;//!
+	TGraph* exz = NULL;//!
+	TGraph* eyz = NULL;//!
 
 	TRestReadout* fReadout;//!
 
