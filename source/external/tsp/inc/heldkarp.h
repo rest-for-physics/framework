@@ -31,5 +31,10 @@ int
              double *upbound, double *optval, int *foundtour, int anytour,
              int *tour_elist, int nodelimit, int silent);
 
+// Added to introduce user-defined distance matrix (through *elen)
+int CCheldkarp_small_segment (int ncount, int *elen, double *upbound,
+        double *optval, int *foundtour, int anytour, int *tour_elist,
+        int nodelimit, int silent );
+
 
 #endif  /* __HELDKARP_H */
