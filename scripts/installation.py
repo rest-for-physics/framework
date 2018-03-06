@@ -1,6 +1,7 @@
 import os,sys, time, commands
 import subprocess, StringIO
 import vars
+import updateREST
 
 def checkinstalled(name):
     if "root" in name:
@@ -44,6 +45,7 @@ def checkinstalled(name):
 
 
 
+
 def install(name):
     flag=True
     if vars.opt["Check_Installed"]=="True" or vars.opt["Check_Installed"]=="true" or vars.opt["Check_Installed"]=="1":
@@ -59,6 +61,7 @@ def install(name):
                 print "Tinyxml is not installed!"
                 return
             print "installing REST...\n\n"
+            updateREST.repairgit()
             if vars.opt["Clean_Up"]=="True":
                 os.system("rm -rf "+vars.opt["Build_Path"] )
             os.system("mkdir -p "+vars.opt["Build_Path"] )
@@ -72,7 +75,7 @@ def install(name):
             os.system("make install")
         elif "restG4" in name:
             if checkinstalled("REST")==False :
-                print "you must install rest mainbody first!"
+                print "you must install REST mainbody first!"
                 return
             if checkinstalled("geant4")==False :
                 print "geant4 is not installed!"

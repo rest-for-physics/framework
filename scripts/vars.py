@@ -3,13 +3,14 @@ import os,sys
 opt = {
     'Warning': "True",
     'Check_Installed':'False',
-    'Branch': 'V2.2_updating',
     'Install_Path': os.environ['HOME']+"/REST_Install",
     'Source_Path': os.path.abspath('.') + "/../",
     'Build_Path' : os.path.abspath('.') + "/../build/",
     'Make_Threads':"4",
     'Clean_Up':"False",
+    'Branch':"V2.2_processes",
       }
+#change the Branch key to the actual branch name in each branch
 
 cmakeflags=[
     '-DREST_WELCOME=ON',

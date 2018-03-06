@@ -107,7 +107,7 @@ class Application(Frame):
             self.btn5.config(state='disabled')
             self.btn6.config(state='normal',text='next')
             if(installation.checkinstalled("REST")):
-                self.var.set("REST has already been installed!\nupdate it or install again?(update/install)")
+                self.var.set("REST has already been installed!\nBranch : "+updateREST.branchname()+"\nCommit : "+updateREST.commitid()+"update it or install again?(update/install)")
                 vars.opt["Install_Path"] = os.environ["REST_PATH"]
                 out, err = subprocess.Popen(['rest-config --flags | grep REST_WELCOME'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True).communicate()
                 vars.cmakeflags[0]="-D"+out
@@ -157,25 +157,13 @@ class Application(Frame):
         elif self.step == 20:
             if(installation.checkinstalled("REST")):
                 self.t.delete("1.0",END)
-                self.t.insert("1.0",vars.opt["Branch"])
-                self.var.set("Updating REST, choose a branch to update")
+                self.var.set("Local changes to project files will be overwritten!(except additions) \n Confirm update")
                 self.btn5.config(state='disabled')
-                self.btn6.config(state='normal',text='next')
+                self.btn6.config(state='normal',text='update')
             else:
                 self.btn5.config(state='disabled')
                 self.btn6.config(state='disabled',text='install')
                 self.var.set("REST has not been installed!")
-        elif self.step == 21:
-            self.t.delete("1.0",END)
-            self.var.set("Clean up installation?(yes/no)")
-            self.t.insert("1.0","no")
-            self.btn5.config(state='normal')
-            self.btn6.config(state='normal',text='next')
-        elif self.step == 22:
-            self.t.delete("1.0",END)
-            self.var.set("Local changes to source files will be overwritten! \n Confirm update")
-            self.btn5.config(state='normal')
-            self.btn6.config(state='normal',text='update')
         elif self.step < 0:
             self.t.delete("1.0",END)
             self.btn5.config(state='disabled')
@@ -215,17 +203,10 @@ class Application(Frame):
                 self.step = -10
                 self.var.set("Completed!")
         elif self.step == 20:
-            vars.opt["Branch"] = self.t.get("1.0",END).strip('\n')
-        elif self.step == 21:
-            if "Y" in self.t.get("1.0",END).strip('\n').upper():
-                vars.opt["Clean_Up"]="True"
-            elif "N" in self.t.get("1.0",END).strip('\n').upper():
-                vars.opt["Clean_Up"]="False"
-        elif self.step == 22:
-            vars.opt["Warning"] = "False"
-            result = updateREST.main()
-            self.step = -10
-            self.var.set(result)
+            vars.opt["Warning"]="False"
+            updateREST.main()
+            self.step = 0
+
 
 
 

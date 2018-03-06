@@ -11,32 +11,11 @@
 import os,sys, time, commands
 import subprocess, StringIO
 import vars
-import installation
 
-def checkoutgit():
-    print "Branch : ", vars.opt["Branch"]
-    if vars.opt["Warning"]=="True":
-        print "Any local changes will be overwritten! Make backup and do it carefully!"
-        print "Press a key to continue"
-        raw_input()
+def repairgit():
     if os.path.exists(vars.opt["Source_Path"] + "/.git/"):
-        print "checking out local git repository of REST"
-        os.chdir(vars.opt["Source_Path"])
-        p = subprocess.Popen(["git checkout "+vars.opt["Branch"] ], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
-        out, err = p.communicate()
-        p = subprocess.Popen(['git', 'pull'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = p.communicate()
-        #print out
-        #print err
-        if "up-to-date" in out:
-            print "REST is already up-to-date"
-            return False
-        elif "fatal:" in err:
-            print err
-            return False
-        os.system("git reset --hard origin/"+vars.opt["Branch"])
-        return True
-    else:#repair git
+        print "git repository is ready!"
+    else :
         print "setting git repository for the source files"
         os.chdir(vars.opt["Source_Path"])
         os.system("git init")
@@ -44,36 +23,51 @@ def checkoutgit():
         os.system("git fetch --depth 1")
         os.system("git reset --hard origin/"+vars.opt["Branch"])
         print "current REST directory has been linked to gitlab...."
-        return True
 
 def commitid():
     if os.path.exists(vars.opt["Source_Path"] + "/.git/"):
         os.chdir(vars.opt["Source_Path"])
         out, err = subprocess.Popen(["git rev-parse --short HEAD"], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True).communicate()
-        return out
+        return str(out)
+    return ""
+
+def branchname():
+    if os.path.exists(vars.opt["Source_Path"] + "/.git/"):
+        os.chdir(vars.opt["Source_Path"])
+        out, err = subprocess.Popen(["git branch"], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True).communicate()
+        n1=str(out).find("*")
+        s=str(out)[n1:-1]
+        n2=s.find("\n")
+        return str(out)[n1+2:n2+n1]
     return ""
 
 
 def main():
-    if len(sys.argv)>1 :
-        vars.opt["Branch"]=sys.argv[1]
-    elif vars.opt["Branch"]=="":
-        vars.opt["Branch"]="master"
-    if checkoutgit()==True:
-        vars.opt["Check_Installed"]="False"
-        if installation.checkinstalled("REST"):
-            vars.opt["Install_Path"]=os.environ["REST_PATH"]
-            if vars.opt["Clean_Up"]=="True":
-                os.system("rm -rf "+vars.opt["Install_Path"])
-            installation.install("REST")
-        else :
-            print "REST has not been installed!"
-            return "not updated"
-        if installation.checkinstalled("restG4"):
-            installation.install("restG4")
-        print "installed new version : ",commitid()
-        return "installed new version : ",commitid()
-    return "not updated"
+    repairgit()
+    if vars.opt["Warning"]=="True":
+        print "Local changes will be overwritten! (except additions)"
+        print "Make backup and do it carefully!"
+        print "Press a key to continue"
+        raw_input()
+    if os.path.exists(vars.opt["Source_Path"] + "/.git/"):
+        print "updating local git repository of REST"
+        os.chdir(vars.opt["Source_Path"])
+        p = subprocess.Popen(['git', 'pull'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = p.communicate()
+        if "up-to-date" in out:
+            print "REST is already up-to-date"
+            return False
+        elif "fatal:" in err:
+            print err
+            return False
+        os.system("git reset --hard")
+        return True
+    print "Project files has been updated!"
+    print commitid()
+    print branchname()
+    return True
+
+
         
 if __name__ == '__main__':
 	main()
