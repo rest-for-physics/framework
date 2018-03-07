@@ -368,7 +368,6 @@ Int_t TRestProcessRunner::GetNextevtFunc(TRestEvent* targetevt, TRestAnalysisTre
 	}
 	else
 	{
-		fProcessedEvents++;
 		n = fRunInfo->GetNextEvent(targetevt, targettree);
 	}
 
@@ -427,7 +426,7 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t)
 
 			//cout << t->GetOutputEvent()->GetID() << endl;
 		}
-
+		fProcessedEvents++;
 
 #ifdef TIME_MEASUREMENT
 		high_resolution_clock::time_point t6 = high_resolution_clock::now();
