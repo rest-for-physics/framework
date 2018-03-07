@@ -484,6 +484,8 @@ Int_t TRestMetadata::isAExpression( string in )
     st2 = "0";
     in = Replace( in, st1, st2, pos, 0 );
 
+    if ( in == "e-" || in == "e+" ) return 0;
+
     return (in.find_first_not_of("-0123456789e+*/.,)( ") == std::string::npos && in.length() != 0);
 }
 
