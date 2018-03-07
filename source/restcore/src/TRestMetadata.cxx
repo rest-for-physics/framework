@@ -494,15 +494,15 @@ Int_t TRestMetadata::LoadSectionMetadata()
 	this->SetTitle(GetParameter("title", "defaultTitle").c_str());
 	this->SetSectionName(this->ClassName());
 	string debugStr = GetParameter("verboseLevel", "essential");
-	if (debugStr == "silent" || debugStr == "1")
+	if (debugStr == "silent" || debugStr == "0")
 		fVerboseLevel = REST_Silent;
-	if (debugStr == "essential" || debugStr == "2")
+	if (debugStr == "essential" || debugStr == "1")
 		fVerboseLevel = REST_Essential;
-	if (debugStr == "info" || debugStr == "3")
+	if (debugStr == "info" || debugStr == "2")
 		fVerboseLevel = REST_Info;
-	if (debugStr == "debug" || debugStr == "4")
+	if (debugStr == "debug" || debugStr == "3")
 		fVerboseLevel = REST_Debug;
-	if (debugStr == "extreme" || debugStr == "5")
+	if (debugStr == "extreme" || debugStr == "4")
 		fVerboseLevel = REST_Extreme;
 
 	fStore = ToUpper(GetParameter("store", "true")) == "TRUE" || ToUpper(GetParameter("store", "true")) == "ON";
