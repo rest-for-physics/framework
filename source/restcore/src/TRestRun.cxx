@@ -555,6 +555,8 @@ TFile* TRestRun::FormOutputFile()
 	CloseFile();
 	fOutputFileName = FormFormat(fOutputFileName);
 	fOutputFile = new TFile(fOutputFileName, "recreate");
+	fAnalysisTree = new TRestAnalysisTree();
+	fEventTree = new TRestAnalysisTree();
 	this->Write();
 	for (int i = 0; i < fMetadataInfo.size(); i++) {
 		fMetadataInfo[i]->Write();

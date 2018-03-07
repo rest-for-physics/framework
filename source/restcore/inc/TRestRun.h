@@ -101,6 +101,7 @@ public:
 	Bool_t ObservableExists(TString name) { return fAnalysisTree->ObservableExists(name); }
 	TString GetInputEventName() { return fInputEvent->ClassName(); }
 	TRestAnalysisTree* GetAnalysisTree() { return fAnalysisTree; }
+	TRestAnalysisTree* GetEventTree() { return fEventTree; }
 	Int_t GetInputFileNumber() { return fFileProcess == NULL ? fInputFileNames.size() : 1; }
 	TRestMetadata* GetMetadata(TString name);
 	TRestMetadata* GetMetadataClass(string type);
