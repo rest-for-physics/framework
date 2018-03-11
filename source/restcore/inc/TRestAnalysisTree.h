@@ -128,28 +128,9 @@ public:
 			branch->SetAddress(fObservableValues[i]);
 		}
 		fConnected = true;
-
 	}
 
-	void PrintObservables()
-	{
-		std::cout << "Run origin : " << GetRunOrigin() << std::endl;
-		std::cout << "Sub run origin : " << GetSubRunOrigin() << std::endl;
-		std::cout << "Event ID : " << GetEventID() << std::endl;
-		std::cout << "Event Time : " << GetTimeStamp() << std::endl;
-		std::cout << "-----------------------------------------" << std::endl;
-		if (isConnected()) {
-			for (int n = 0; n < GetNumberOfObservables(); n++)
-				std::cout << "Observable Name : " << fObservableNames[n] << "    Value : " << *fObservableValues[n] << std::endl;
-			std::cout << std::endl;
-		}
-		else
-		{
-			for (int n = 0; n < GetNumberOfObservables(); n++)
-				std::cout << "Observable Name : " << fObservableNames[n] << "    Value : ..." << std::endl;
-			std::cout << std::endl;
-		}
-	}
+	void PrintObservables();
 
 	Int_t FillEvent(TRestEvent *evt);
 

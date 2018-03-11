@@ -17,11 +17,12 @@
 #include "TRestAnalysisTree.h"
 
 #include "TObjArray.h"
+
 using namespace std;
 
 
 ClassImp(TRestAnalysisTree)
-
+using namespace std;
 //______________________________________________________________________________
 TRestAnalysisTree::TRestAnalysisTree() : TTree()
 {
@@ -102,6 +103,29 @@ Int_t TRestAnalysisTree::AddObservable(TString observableName, Double_t* observa
 
 	return fNObservables - 1;
 }
+
+void TRestAnalysisTree::PrintObservables()
+{
+	cout.precision(15);
+	std::cout << "Run origin : " << GetRunOrigin() << std::endl;
+	std::cout << "Event ID : " << GetEventID() << std::endl;
+	std::cout << "Event Time : " << GetTimeStamp() << std::endl;
+	std::cout << "Event Tag : " << GetSubEventTag() << std::endl;
+	std::cout << "-----------------------------------------" << std::endl;
+	if (isConnected()) {
+		for (int n = 0; n < GetNumberOfObservables(); n++)
+			std::cout << "Observable Name : " << fObservableNames[n] << "    Value : " << *fObservableValues[n] << std::endl;
+		std::cout << std::endl;
+	}
+	else
+	{
+		for (int n = 0; n < GetNumberOfObservables(); n++)
+			std::cout << "Observable Name : " << fObservableNames[n] << "    Value : ..." << std::endl;
+		std::cout << std::endl;
+	}
+	cout.precision(6);
+}
+
 
 Int_t TRestAnalysisTree::FillEvent(TRestEvent *evt)
 {
