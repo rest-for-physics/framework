@@ -24,7 +24,7 @@ class TRestRawSignalTo2DHitsProcess:public TRestEventProcess {
 
         // We define specific input/output event data holders
         TRestRawSignalEvent *fInputSignalEvent;//!
-		TRest2DHitsEvent *fOutputSignalEvent;//!
+		TRest2DHitsEvent *fOutput2DHitsEvent;//!
 
 		TRestReadout* fReadout;//!
 
@@ -36,13 +36,17 @@ class TRestRawSignalTo2DHitsProcess:public TRestEventProcess {
         // You can just remove fMyProcessParameter
 		int fNoiseReductionLevel;//0: no reduction, 1: subtract baseline, 2: subtract baseline plus threshold
 
-		int fEnergyCalculation;//0: no calculation(use raw pause), 1: only peak, 2: integration, 3: threshold integration
+		string fSelection;//0: uses all, 1: muon, 2: electron, 3: weak source, 4: firing, 5: other
 
 		TVector2 fBaseLineRange;//!
 		TVector2 fIntegralRange;//!
 		Double_t fPointThreshold;//!
 		Double_t fSignalThreshold;//!
 		Int_t fNPointsOverThreshold;//!
+
+		vector<TVector3> fHough_XZ; //y=ax+b, vertical line angle 牟, length 老, [id][老,牟,weight]
+		vector<TVector3> fHough_YZ; //y=ax+b, vertical line angle 牟, length 老, [id][老,牟,weight]
+
     protected:
 
     public:
@@ -55,7 +59,7 @@ class TRestRawSignalTo2DHitsProcess:public TRestEventProcess {
             BeginPrintProcess();
 
             std::cout << "Noise Reduction Level : " << fNoiseReductionLevel << std::endl;
-			std::cout << "Energy Calculation Method: " << fEnergyCalculation << std::endl;
+			std::cout << "Event selection: " << fSelection << std::endl;
 
             EndPrintProcess();
         }
