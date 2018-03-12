@@ -97,7 +97,7 @@
     <observable name="distanceToCylinderBottom" value="ON" />
 
     <!-- This parameter allows to enable/disable the prism fiducialization. -->
-    <parameter name="prismFiducialization" value="false" />
+    <parameter name="prismFiducialization" value="true" />
 
     <parameter name="fiducial_sX" value="10" units="mm" />
     <parameter name="fiducial_sY" value="10" units="mm" />
@@ -110,11 +110,6 @@
     <observable name="distanceToPrismTop" value="OFF" />
     <observable name="distanceToPrismBottom" value="OFF" />
 
-</section>
-
-<section TRestGaussianConvolutionProcess name="gaussian-Convolution"  title="Gaussian convolution of signals" >
-    <parameter name="sigma" value="0.01" units="us" /> 
-    <parameter name="nSigmas" value="5" />  // Number of sigmas to perform the calculation
 </section>
 
 <section TRestAddSignalNoiseProcess name="addSignalNoiseProcess" title="Test AddNoise to Signal" >
@@ -530,5 +525,12 @@
     
     <addVolume name="gas" />
 
+</section>
+
+<section TRestRawSignalShapingProcess name="signalShapingProcess" title="Test SignalShaping" verboseLevel="debug" >
+    <parameter name="responseFile" value="AGET_Response_12.5MHz_Gain0x1_Shaping0x4.root" /> //response file to be used to shape the signal
+    <parameter name="shapingType" value="gaus" />
+    <parameter name="sigma" value="40" />
+    <parameter name="gain" value="1" />
 </section>
 
