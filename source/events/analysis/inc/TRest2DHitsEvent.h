@@ -48,19 +48,30 @@ protected:
 	int fNSignalx;
 	int fNSignaly;
 
-	TGraph2D* gxz=NULL;//!
-	TGraph2D* gyz=NULL;//!
-	TGraph* exz = NULL;//!
-	TGraph* eyz = NULL;//!
+	TGraph2D* gxz = NULL;//!
+	TGraph2D* gyz = NULL;//!
+	TH2D* pointxz = NULL;//!
+	TH2D* pointyz = NULL;//!
 
 	TRestReadout* fReadout;//!
 
 	TPad *fPad;//!
 
+	vector<double> xzz;
+	vector<double> xzx;
+	vector<double> xze;
+	vector<double> yzz;
+	vector<double> yzy;
+	vector<double> yze;
+
+	vector<TVector3> fHough_XZ; //!  y=ax+b, vertical line angle 牟, length 老, [id][老,牟,weight]
+	vector<TVector3> fHough_YZ; //!  y=ax+b, vertical line angle 牟, length 老, [id][老,牟,weight]
+
 public:
 
 	TPad *DrawEvent(TString option = "");
 
+	void DoHough();
 	//Setters
 	void AddSignal(TRestRawSignal *s);
 
@@ -77,6 +88,10 @@ public:
 	void SetReadout(TRestReadout*r) { if (r != NULL)fReadout = r; }
 
 	void SetZLength(int l) { fNz = l; }
+
+	void AddXZCluster(double x, double z, double e) { xzx.push_back(x); xzz.push_back(z); xze.push_back(e); }
+
+	void AddYZCluster(double y, double z, double e) { yzy.push_back(y); yzz.push_back(z); yze.push_back(e); }
 
 	//Getters
 	Int_t GetNumberOfSignals() { return GetNumberOfXZSignals()+GetNumberOfYZSignals(); }
@@ -103,6 +118,8 @@ public:
 	double GetX(int n) { return n < fNSignalx ? fXZIdPos[n] : numeric_limits<Double_t>::quiet_NaN(); }
 	double GetY(int n) { return n < fNSignaly ? fYZIdPos[n] : numeric_limits<Double_t>::quiet_NaN(); }
 
+	vector<TVector3> GetHoughXZ() { return fHough_XZ; }
+	vector<TVector3> GetHoughYZ() { return fHough_YZ; }
 
 	void Initialize();
 

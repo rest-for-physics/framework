@@ -71,7 +71,7 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent *evInput)
 		for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++)
 		{
 			TRestRawSignal*s = fInputSignalEvent->GetSignal(n);
-			if(s->GetMaxValue()>=3700)fOutput2DHitsEvent->SetSubEventTag("firing");
+			if (s->GetMaxValue() >= 3700)fOutput2DHitsEvent->SetSubEventTag("firing");
 			//s->GetIntegralWithThreshold((Int_t)fIntegralRange.X(), (Int_t)fIntegralRange.Y(), fBaseLineRange.X(), fBaseLineRange.Y(), fPointThreshold, fNPointsOverThreshold, fSignalThreshold);
 			if (fNoiseReductionLevel == 0) {
 				fOutput2DHitsEvent->AddSignal(s);
@@ -89,7 +89,7 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent *evInput)
 				double baselinerms = s->GetBaseLineSigma(fBaseLineRange.X(), fBaseLineRange.Y());
 				for (int i = fBaseLineRange.Y(); i < s->GetNumberOfPoints(); i++)
 				{
-					if (s->GetData(i) > baseline + fPointThreshold*baselinerms) {
+					if (s->GetData(i) > baseline + fPointThreshold * baselinerms) {
 						int pos = i;
 						vector<double> pulse;
 						pulse.push_back(s->GetData(i));
@@ -103,7 +103,7 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent *evInput)
 							if (*_e > fSignalThreshold*baselinerms) {
 								for (int j = pos; j < i; j++)
 									sgn.NewPoint(j, s->GetData(j));
-								}
+							}
 						}
 					}
 				}
@@ -147,32 +147,35 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent *evInput)
 	vector<double> xzz;
 	vector<double> xzx;
 	vector<double> xze;
-	fHough_XZ.clear();
 
 	if (fOutput2DHitsEvent->GetNumberOfXZSignals() > 10) {
-		double baselinemean = 0;;
+		double baselinemean = 0;
+		double baselinermsmean = 0;
 		// we first make cluster along z(same x)
 		for (int i = 0; i < fOutput2DHitsEvent->GetNumberOfXZSignals(); i++)
 		{
 			auto s = fOutput2DHitsEvent->GetXZSignal(i);
 			auto x = fOutput2DHitsEvent->GetX(i);
-			double baseline = TMath::Mean(s.begin()+ fBaseLineRange.X(), s.begin()+ fBaseLineRange.Y());
+			double baseline = TMath::Mean(s.begin() + fBaseLineRange.X(), s.begin() + fBaseLineRange.Y());
+			double baselinerms = TMath::StdDev(s.begin() + fBaseLineRange.X(), s.begin() + fBaseLineRange.Y());
 			baselinemean += baseline / fOutput2DHitsEvent->GetNumberOfXZSignals();
-			for (int j= fBaseLineRange.Y(); j< s.size(); j++)
+			baselinermsmean += baselinerms / fOutput2DHitsEvent->GetNumberOfYZSignals();
+
+			for (int j = fBaseLineRange.Y(); j < s.size(); j++)
 			{
-				if (s[j] > baseline + fPointThreshold) {
+				if (s[j] > baseline + fSignalThreshold * baselinerms) {
 					int pos = j;
 					vector<double> pulse;
 					pulse.push_back(s[j]);
 					j++;
-					while (j<s.size()&&s[j] > baseline + fPointThreshold) {
+					while (j<s.size() && s[j] > baseline + fSignalThreshold * baselinerms) {
 						pulse.push_back(s[j]);
 						j++;
 					}
 					if (pulse.size() > fNPointsOverThreshold) {
 						auto _e = max_element(begin(pulse), end(pulse));
-						if (*_e > fSignalThreshold) {
-							xzz.push_back(distance(std::begin(pulse), _e) + pos);
+						if (*_e > fSignalThreshold*baselinerms) {
+							xzz.push_back((double)(distance(std::begin(pulse), _e) + pos));
 							xzx.push_back(x);
 							xze.push_back(*_e);
 						}
@@ -191,13 +194,13 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent *evInput)
 			double last_x = iter->first;
 			while (iter != hits.end()) {
 
-				if (iter->second > baselinemean + fSignalThreshold) {
-					int pos = iter->first;
-					int ene = iter->second;
+				if (iter->second > baselinemean + fSignalThreshold * baselinermsmean) {
+					double pos = iter->first;
+					double ene = iter->second;
 					vector<double> pulse;
 					pulse.push_back(iter->second);
 					iter++;
-					while (iter != hits.end()&&iter->second > baselinemean + fPointThreshold){
+					while (iter != hits.end() && iter->second > baselinemean + fSignalThreshold * baselinermsmean) {
 						pulse.push_back(iter->second);
 						if (iter->second > ene) {
 							ene = iter->second;
@@ -206,44 +209,23 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent *evInput)
 						iter++;
 					}
 					iter--;
-
-					xzz.push_back(i);
-					xzx.push_back(pos);
-					xze.push_back(ene);
+					if (!TMath::IsNaN(pos)) {
+						xzz.push_back((double)i);
+						xzx.push_back(pos);
+						xze.push_back(ene);
+					}
 				}
 				iter++;
 			}
 		}
 
+		for (int i = 0; i < xzz.size(); i++) {
+			fOutput2DHitsEvent->AddXZCluster(xzx[i], xzz[i], xze[i]);
+		}
 
-		//hough transform
+		//tag firing event
 		if (xzz.size() > 10 && (*max_element(begin(xzz), end(xzz)) - *min_element(begin(xzz), end(xzz))) / (*max_element(begin(xzx), end(xzx)) - *min_element(begin(xzx), end(xzx))) < 0.1) {
 			fOutput2DHitsEvent->SetSubEventTag("firing");
-		}
-		else
-		{
-
-
-			for (int i = 0; i < xzz.size(); i++) {
-				for (int j = i + 1; j < xzz.size(); j++) {
-					double x1 = xzz[i]; double x2 = xzz[j];
-					double y1 = xzx[i]; double y2 = xzx[j];
-					double weight = log10(xze[i] + xze[j]);
-
-					if (y1 == y2 && TMath::Abs(x1 - x2) < 40)continue;
-					if (x1 == x2)continue;
-
-					double a = (y2 - y1) / (x2 - x1);
-					double b = (y1*x2 - y2 * x1) / (x2 - x1);
-
-					double r = TMath::Abs(-b / sqrt(a*a + 1));
-					double t = -TMath::ACos(a / sqrt(a*a + 1))+TMath::Pi();
-
-					fHough_XZ.push_back(TVector3(r, t, weight));
-				}
-			}
-
-
 		}
 	}
 
@@ -253,33 +235,36 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent *evInput)
 	vector<double> yzz;
 	vector<double> yzy;
 	vector<double> yze;
-	fHough_YZ.clear();
 
 	if (fOutput2DHitsEvent->GetNumberOfYZSignals() > 10) {
-		double baselinemean = 0;;
-		// we first make cluster along z(same x)
+		double baselinemean = 0;
+		double baselinermsmean = 0;
+		// we first make cluster along z(same y)
 		for (int i = 0; i < fOutput2DHitsEvent->GetNumberOfYZSignals(); i++)
 		{
 			auto s = fOutput2DHitsEvent->GetYZSignal(i);
-			auto x = fOutput2DHitsEvent->GetX(i);
+			auto y = fOutput2DHitsEvent->GetY(i);
 			double baseline = TMath::Mean(s.begin() + fBaseLineRange.X(), s.begin() + fBaseLineRange.Y());
+			double baselinerms = TMath::StdDev(s.begin() + fBaseLineRange.X(), s.begin() + fBaseLineRange.Y());
 			baselinemean += baseline / fOutput2DHitsEvent->GetNumberOfYZSignals();
-			for (int j = fBaseLineRange.Y(); j< s.size(); j++)
+			baselinermsmean += baselinerms / fOutput2DHitsEvent->GetNumberOfYZSignals();
+
+			for (int j = fBaseLineRange.Y(); j < s.size(); j++)
 			{
-				if (s[j] > baseline + fPointThreshold) {
+				if (s[j] > baseline + fSignalThreshold * baselinerms) {
 					int pos = j;
 					vector<double> pulse;
 					pulse.push_back(s[j]);
 					j++;
-					while (j<s.size()&&s[j] > baseline + fPointThreshold ) {
+					while (j<s.size() && s[j] > baseline + fSignalThreshold * baselinerms) {
 						pulse.push_back(s[j]);
 						j++;
 					}
 					if (pulse.size() > fNPointsOverThreshold) {
 						auto _e = max_element(begin(pulse), end(pulse));
-						if (*_e > fSignalThreshold) {
-							yzz.push_back(distance(std::begin(pulse), _e) + pos);
-							yzy.push_back(x);
+						if (*_e > fSignalThreshold*baselinerms) {
+							yzz.push_back((double)(distance(std::begin(pulse), _e) + pos));
+							yzy.push_back(y);
 							yze.push_back(*_e);
 						}
 					}
@@ -297,13 +282,13 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent *evInput)
 			double last_x = iter->first;
 			while (iter != hits.end()) {
 
-				if (iter->second > baselinemean + fSignalThreshold) {
-					int pos = iter->first;
-					int ene = iter->second;
+				if (iter->second > baselinemean + fSignalThreshold * baselinermsmean) {
+					double pos = iter->first;
+					double ene = iter->second;
 					vector<double> pulse;
 					pulse.push_back(iter->second);
 					iter++;
-					while (iter != hits.end()&&iter->second > baselinemean + fPointThreshold) {
+					while (iter != hits.end() && iter->second > baselinemean + fSignalThreshold * baselinermsmean) {
 						pulse.push_back(iter->second);
 						if (iter->second > ene) {
 							ene = iter->second;
@@ -312,43 +297,23 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent *evInput)
 						iter++;
 					}
 					iter--;
-
-					yzz.push_back(i);
-					yzy.push_back(pos);
-					yze.push_back(ene);
+					if (!TMath::IsNaN(pos)) {
+						yzz.push_back((double)i);
+						yzy.push_back(pos);
+						yze.push_back(ene);
+					}
 				}
 				iter++;
 			}
 		}
 
+		for (int i = 0; i < yzz.size(); i++) {
+			fOutput2DHitsEvent->AddYZCluster(yzy[i], yzz[i], yze[i]);
+		}
 
-		//hough transform
+		//tag firing event
 		if (yzz.size() > 10 && (*max_element(begin(yzz), end(yzz)) - *min_element(begin(yzz), end(yzz))) / (*max_element(begin(yzy), end(yzy)) - *min_element(begin(yzy), end(yzy))) < 0.1) {
 			fOutput2DHitsEvent->SetSubEventTag("firing");
-		}
-		else
-		{
-
-
-			for (int i = 0; i < yzz.size(); i++) {
-				for (int j = i + 1; j < yzz.size(); j++) {
-					double x1 = yzz[i]; double x2 = yzz[j];
-					double y1 = yzy[i]; double y2 = yzy[j];
-					double weight = log10(yze[i] + yze[j]);
-
-					if (y1 == y2 && TMath::Abs(x1 - x2) < 40)continue;
-					if (x1 == x2)continue;
-
-					double a = (y2 - y1) / (x2 - x1);
-					double b = (y1*x2 - y2 * x1) / (x2 - x1);
-
-					double r = TMath::Abs(-b / sqrt(a*a + 1));
-					double t = -TMath::ACos(a / sqrt(a*a + 1)) + TMath::Pi();
-
-					fHough_YZ.push_back(TVector3(r, t, weight));
-				}
-			}
-
 		}
 
 	}
@@ -367,9 +332,20 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent *evInput)
 			}
 		}
 
-		if (fOutput2DHitsEvent->GetNumberOfXZSignals() > 10 && fHough_XZ.size() > 10 && fOutput2DHitsEvent->GetSubEventTag() == "general")//3. tag muon event
+		fHough_XZ.clear();
+		fHough_YZ.clear();
+		if (fOutput2DHitsEvent->GetSubEventTag() == "general")
 		{
-			TH1D*xz = new TH1D((TString)"hh" + ToString(this), "hh", 50, 0, 3.14);
+			fOutput2DHitsEvent->DoHough();
+			fHough_XZ = fOutput2DHitsEvent->GetHoughXZ();
+			fHough_YZ = fOutput2DHitsEvent->GetHoughYZ();
+		}
+
+		if (fOutput2DHitsEvent->GetSubEventTag() == "general"&&fOutput2DHitsEvent->GetNumberOfXZSignals() > 10 && fHough_XZ.size() > 10)//3. tag muon event
+		{
+
+
+			TH1D*xz = new TH1D((TString)"hh" + ToString(this), "hh", 120, 0, 3.14);
 			TF1*f = new TF1("aa", "gaus");
 			for (int i = 0; i < fHough_XZ.size(); i++) {
 				xz->Fill(fHough_XZ[i].y(), fHough_XZ[i].z());
@@ -402,7 +378,7 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent *evInput)
 		}
 		if (fOutput2DHitsEvent->GetNumberOfYZSignals() > 10 && fHough_YZ.size() > 10 && fOutput2DHitsEvent->GetSubEventTag() == "general")//3. tag muon event
 		{
-			TH1D*yz = new TH1D((TString)"hh" + ToString(this), "hh", 50, 0, 3.14);
+			TH1D*yz = new TH1D((TString)"hh" + ToString(this), "hh", 120, 0, 3.14);
 			TF1*f = new TF1("aa", "gaus");
 			for (int i = 0; i < fHough_YZ.size(); i++) {
 				yz->Fill(fHough_YZ[i].y(), fHough_YZ[i].z());
@@ -487,6 +463,6 @@ void TRestRawSignalTo2DHitsProcess::InitFromConfigFile()
 	fIntegralRange = StringTo2DVector(GetParameter("integralRange", "(10,500)"));
 	fPointThreshold = StringToDouble(GetParameter("pointThreshold", "2"));
 	fNPointsOverThreshold = StringToInteger(GetParameter("pointsOverThreshold", "5"));
-	fSignalThreshold = StringToDouble(GetParameter("signalThreshold", "50"));
+	fSignalThreshold = StringToDouble(GetParameter("signalThreshold", "2.5"));
 }
 

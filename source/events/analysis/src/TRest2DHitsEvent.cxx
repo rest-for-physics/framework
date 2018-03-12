@@ -21,6 +21,7 @@
 #include "TRest2DHitsEvent.h"
 #include "TRestTools.h"
 #include "TRandom.h"
+#include "TStyle.h"
 using namespace std;
 
 ClassImp(TRest2DHitsEvent)
@@ -51,6 +52,9 @@ void TRest2DHitsEvent::Initialize()
 	fYZIdPos.clear();
 	fNSignalx = 0;
 	fNSignaly = 0;
+	xzz.clear(); xzx.clear(); xze.clear();
+	yzz.clear(); yzy.clear(); yze.clear();
+	fHough_XZ.clear(); fHough_YZ.clear();
 }
 
 void TRest2DHitsEvent::AddSignal(TRestRawSignal *s)
@@ -320,6 +324,52 @@ void TRest2DHitsEvent::PrintEvent(Bool_t fullInfo)
 
 }
 
+
+void TRest2DHitsEvent::DoHough() 
+{
+	if (GetNumberOfXZSignals() > 10) {
+		for (int i = 0; i < xzz.size(); i++) {
+			for (int j = i + 1; j < xzz.size(); j++) {
+				double x1 = xzz[i]; double x2 = xzz[j];
+				double y1 = xzx[i]; double y2 = xzx[j];
+				double weight = log10(xze[i] + xze[j]);
+
+				if (y1 == y2 && TMath::Abs(x1 - x2) < 40)continue;
+				if (x1 == x2)continue;
+
+				double a = (y2 - y1) / (x2 - x1);
+				double b = (y1*x2 - y2 * x1) / (x2 - x1);
+
+				double r = TMath::Abs(-b / sqrt(a*a + 1));
+				double t = -TMath::ACos(a / sqrt(a*a + 1)) + TMath::Pi();
+
+				fHough_XZ.push_back(TVector3(r, t, weight));
+			}
+		}
+	}
+
+	if (GetNumberOfYZSignals() > 10) {
+		for (int i = 0; i < yzz.size(); i++) {
+			for (int j = i + 1; j < yzz.size(); j++) {
+				double x1 = yzz[i]; double x2 = yzz[j];
+				double y1 = yzy[i]; double y2 = yzy[j];
+				double weight = log10(yze[i] + yze[j]);
+
+				if (y1 == y2 && TMath::Abs(x1 - x2) < 40)continue;
+				if (x1 == x2)continue;
+
+				double a = (y2 - y1) / (x2 - x1);
+				double b = (y1*x2 - y2 * x1) / (x2 - x1);
+
+				double r = TMath::Abs(-b / sqrt(a*a + 1));
+				double t = -TMath::ACos(a / sqrt(a*a + 1)) + TMath::Pi();
+
+				fHough_YZ.push_back(TVector3(r, t, weight));
+			}
+		}
+	}
+}
+
 //Draw current event in a Tpad
 TPad *TRest2DHitsEvent::DrawEvent(TString option)
 {
@@ -332,20 +382,20 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 
 
 
-	vector<double> xzx;
-	vector<double> xzz;
-	vector<double> xze;
-	vector<double> yzy;
-	vector<double> yzz;
-	vector<double> yze;
+	vector<double> _xzx;
+	vector<double> _xzz;
+	vector<double> _xze;
+	vector<double> _yzy;
+	vector<double> _yzz;
+	vector<double> _yze;
 
 	for (int i = 0; i < GetNumberOfXZSignals(); i++) {
 		auto signal = GetXZSignal(i);
 		auto x = GetX(i);
 		for (int j = 0;j<fNz; j++) {
-			xzx.push_back(x);
-			xze.push_back(signal[j]);
-			xzz.push_back(j);
+			_xzx.push_back(x);
+			_xze.push_back(signal[j]);
+			_xzz.push_back(j);
 			//if (signal[j] != 0) {
 			//	txz->SetBinContent(txz->FindBin(j, x), signal[j]);
 			//}
@@ -355,39 +405,39 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 		auto signal = GetYZSignal(i);
 		auto y = GetY(i);
 		for (int j = 0; j<fNz; j++) {
-			yzy.push_back(y);
-			yze.push_back(signal[j]);
-			yzz.push_back(j);
+			_yzy.push_back(y);
+			_yze.push_back(signal[j]);
+			_yzz.push_back(j);
 			//if (signal[j] != 0) {
 			//	tyz->SetBinContent(tyz->FindBin(j, y), signal[j]);
 			//}
 		}
 	}
 
-	cout << xzz.size() << " " << yzz.size() << endl;
+	cout << _xzz.size() << " " << _yzz.size() << endl;
 
-	double max = xzx.size() > 0 ? *max_element(begin(xzx), end(xzx)) + 3 : 3;
-	double min = xzx.size() > 0 ? *min_element(begin(xzx), end(xzx)) - 3 : -3;
+	double max = _xzx.size() > 0 ? *max_element(begin(_xzx), end(_xzx)) + 3 : 3;
+	double min = _xzx.size() > 0 ? *min_element(begin(_xzx), end(_xzx)) - 3 : -3;
 	for (int j = 0; j<fNz; j++) {
 
-		xzx.push_back(max);
-		xze.push_back(0);
-		xzz.push_back(j);
-		xzx.push_back(min);
-		xze.push_back(0);
-		xzz.push_back(j);
+		_xzx.push_back(max);
+		_xze.push_back(0);
+		_xzz.push_back(j);
+		_xzx.push_back(min);
+		_xze.push_back(0);
+		_xzz.push_back(j);
 	}
 
-	max = yzy.size() > 0 ? *max_element(begin(yzy), end(yzy)) + 3 : 3;
-	min = yzy.size() > 0 ? *min_element(begin(yzy), end(yzy)) - 3 : -3;
+	max = _yzy.size() > 0 ? *max_element(begin(_yzy), end(_yzy)) + 3 : 3;
+	min = _yzy.size() > 0 ? *min_element(begin(_yzy), end(_yzy)) - 3 : -3;
 	for (int j = 0; j<fNz; j++) {
 
-		yzy.push_back(max);
-		yze.push_back(0);
-		yzz.push_back(j);
-		yzy.push_back(min);
-		yze.push_back(0);
-		yzz.push_back(j);
+		_yzy.push_back(max);
+		_yze.push_back(0);
+		_yzz.push_back(j);
+		_yzy.push_back(min);
+		_yze.push_back(0);
+		_yzz.push_back(j);
 	}
 
 	fPad = new TPad(this->GetName(), " ", 0, 0, 1, 1);
@@ -401,31 +451,58 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 		delete gyz;
 		gyz = NULL;
 	}
+	if (pointxz != NULL) {
+		delete pointxz;
+		pointxz = NULL;
+	}
+	if (pointyz != NULL) {
+		delete pointyz;
+		pointyz = NULL;
+	}
 
 
 
 	if ((GetZRange().Y() - GetZRange().X()) > 0 ) {
-		gxz = new TGraph2D(xzz.size(), &xzz[0], &xzx[0], &xze[0]);
+		gxz = new TGraph2D(_xzz.size(), &_xzz[0], &_xzx[0], &_xze[0]);
+		if (xzz.size() > 0) {
+			pointxz = new TH2D("hxz", "hxz", 100, gxz->GetXmin(), gxz->GetXmax(), 100, gxz->GetYmin(), gxz->GetYmax());
+			for (int i = 0; i < xzz.size(); i++) {
+				pointxz->Fill(xzz[i], xzx[i]);
+			}
+			pointxz->SetLineColor(kRed);
+			pointxz->SetFillColor(kRed);
+			pointxz->SetMarkerColor(kRed);
+		}
 		gxz->SetTitle((TString)"XZ plot, " + ToString(GetNumberOfXZSignals()) + " Signals");
 		gxz->GetXaxis()->SetTitle("Z");
 		gxz->GetYaxis()->SetTitle("X");
 		{
-			gxz->SetPoint(xzz.size(), 0, -100, 0);
-			gxz->SetPoint(xzz.size() + 1, 512, 100, 0);
+			gxz->SetPoint(_xzz.size(), 0, -100, 0);
+			gxz->SetPoint(_xzz.size() + 1, 512, 100, 0);
 		}
-		gxz->SetNpx(fNz);
+		gxz->SetNpx(500);
 		gxz->SetNpy(100);
 	}
 	if ((GetZRange().Y() - GetZRange().X()) > 0 ) {
-		gyz = new TGraph2D(yzz.size(), &yzz[0], &yzy[0], &yze[0]);
+		gyz = new TGraph2D(_yzz.size(), &_yzz[0], &_yzy[0], &_yze[0]);
+		if (yzz.size() > 0) {
+			pointyz = new TH2D("hxz", "hxz", 100, gyz->GetXmin(), gyz->GetXmax(), 100, gyz->GetYmin(), gyz->GetYmax());
+			for (int i = 0; i < yzz.size(); i++) {
+				pointyz->Fill(yzz[i], yzy[i]);
+				cout << yzz[i] << " " << yzy[i] << endl;
+			}
+			pointyz->SetLineColor(kRed);
+			pointyz->SetFillColor(kRed);
+			pointyz->SetMarkerColor(kRed);
+		}
 		gyz->SetTitle((TString)"YZ plot, " + ToString(GetNumberOfYZSignals()) + " Signals");
 		gyz->GetXaxis()->SetTitle("Z");
-		gyz->GetYaxis()->SetTitle("Y"); 
+		gyz->GetYaxis()->SetTitle("Y");
 		{
-			gyz->SetPoint(yzz.size(), 0, 100, 0);
-			gyz->SetPoint(yzz.size() + 1, 512, 300, 0); 
+			gyz->SetPoint(_yzz.size(), 0, 100, 0);
+			gyz->SetPoint(_yzz.size() + 1, 512, 300, 0);
 		}
-		gyz->SetNpx(fNz);
+		gyz->SetNpx(500);
 		gyz->SetNpy(100);
 	}
 
@@ -437,11 +514,17 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 		if (gxz != NULL)
 			gxz->Draw("colz");
 
+		if (pointxz != NULL)
+			pointxz->Draw("boxsame");
+
 		fPad->cd(2);
 		if (gyz != NULL)
 			gyz->Draw("colz");
+
+		if (pointyz != NULL)
+			pointyz->Draw("boxsame");
 	}
-	if (ToUpper(option) == "ENERGYZ")
+	else if (ToUpper(option) == "ENERGYZ")
 	{
 		fPad->Divide(2, 2);
 
@@ -449,9 +532,15 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 		if (gxz != NULL)
 			gxz->Draw("colz");
 
+		if (pointxz != NULL)
+			pointxz->Draw("boxsame");
+
 		fPad->cd(2);
 		if (gyz != NULL)
 			gyz->Draw("colz");
+
+		if (pointyz != NULL)
+			pointyz->Draw("boxsame");
 
 		fPad->cd(3);
 		if (gxz != NULL)
