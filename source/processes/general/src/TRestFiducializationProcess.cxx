@@ -89,23 +89,23 @@ TRestEvent* TRestFiducializationProcess::ProcessEvent( TRestEvent *evInput )
     Int_t nHits = inputHitsEvent->GetNumberOfHits();
     if( nHits <= 0 ) return NULL;
 
+    TRestHits *hits = inputHitsEvent->GetHits();
     for( int n = 0; n < nHits; n++ )
     {
-	TRestHits *hits = inputHitsEvent->GetHits();
 
-	Double_t eDep = hits->GetEnergy(n);
+        Double_t eDep = hits->GetEnergy(n);
 
-	const Double_t x = hits->GetX(n);
-	const Double_t y = hits->GetY(n);
-	const Double_t z = hits->GetZ(n);
+        const Double_t x = hits->GetX(n);
+        const Double_t y = hits->GetY(n);
+        const Double_t z = hits->GetZ(n);
 
-	for( int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++ )
-	{
-	    TRestReadoutPlane *plane = fReadout->GetReadoutPlane( p );
+        for( int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++ )
+        {
+            TRestReadoutPlane *plane = fReadout->GetReadoutPlane( p );
 
-	    if ( plane->isInsideDriftVolume( x, y, z ) >= 0 )
-		fOutputHitsEvent->AddHit( x, y, z, eDep );
-	}
+            if ( plane->isInsideDriftVolume( x, y, z ) >= 0 )
+                fOutputHitsEvent->AddHit( x, y, z, eDep );
+        }
     }
 
     if( fOutputHitsEvent->GetNumberOfHits() == 0 ) return NULL;
