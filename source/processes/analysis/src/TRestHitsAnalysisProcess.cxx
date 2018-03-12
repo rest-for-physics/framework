@@ -82,8 +82,21 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
    
     TString obsName;
 
-    TransferEvent( fOutputHitsEvent, fInputHitsEvent );
-    
+	TRestHits *hits = fInputHitsEvent->GetHits();
+    for( int n = 0; n < hits->GetNumberOfHits(); n++ )
+    {
+        Double_t eDep = hits->GetEnergy(n);
+
+        Double_t x = hits->GetX(n);
+        Double_t y = hits->GetY(n);
+        Double_t z = hits->GetZ(n);
+
+        fOutputHitsEvent->AddHit( x, y, z, eDep );
+    }
+
+    if( fOutputHitsEvent->GetNumberOfHits() == 0 ) return NULL;
+
+
     Double_t energy = fOutputHitsEvent->GetEnergy( );
     TVector3 meanPosition = fOutputHitsEvent->GetMeanPosition();
 
