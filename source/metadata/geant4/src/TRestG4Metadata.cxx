@@ -801,6 +801,9 @@ void TRestG4Metadata::ReadGenerator()
         }
 
         source.SetParticleName( GetFieldValue( "particle", sourceDefinition ) );
+
+        if( GetVerboseLevel() >= REST_Debug )
+            cout << "Particle name : " << source.GetParticle() << endl;
    
         source.SetExcitationLevel( StringToDouble(GetFieldValue( "excitedLevel", sourceDefinition  )) );
      
