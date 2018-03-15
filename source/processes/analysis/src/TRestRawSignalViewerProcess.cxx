@@ -94,9 +94,16 @@ TRestEvent* TRestRawSignalViewerProcess::ProcessEvent( TRestEvent *evInput )
 
     //for( int sgnl = 0; sgnl < fInputSignalEvent->GetNumberOfSignals(); sgnl++ )
     Int_t N = fInputSignalEvent->GetNumberOfSignals();
-    if( GetVerboseLevel() >= REST_Debug ) N = 1;
-    for( int sgnl = 0; sgnl < N; sgnl++ )
-	fSignalEvent->AddSignal( *fInputSignalEvent->GetSignal( sgnl ) );
+
+    if( GetVerboseLevel() >= REST_Debug ) 
+    {
+	    fSignalEvent->AddSignal( *fInputSignalEvent->GetMaxSignal( ) );
+    }
+    else
+    {
+	    for( int sgnl = 0; sgnl < N; sgnl++ )
+		    fSignalEvent->AddSignal( *fInputSignalEvent->GetSignal( sgnl ) );
+    }
     /////////////////////////////////////////////////
 
     GetCanvas()->cd();
