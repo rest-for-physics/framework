@@ -70,6 +70,8 @@ class TRestRawSignalEvent: public TRestEvent {
             return &fSignal[index]; 
         }
 
+	TRestRawSignal* GetMaxSignal( );
+
         Int_t GetSignalIndex( Int_t signalID );
 
         Double_t GetBaseLineAverage( Int_t startBin, Int_t endBin );

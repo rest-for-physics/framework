@@ -86,6 +86,24 @@ Double_t TRestRawSignalEvent::GetIntegralWithThreshold( Int_t from, Int_t to,
 
 }
 
+TRestRawSignal* TRestRawSignalEvent::GetMaxSignal( )
+{
+	Double_t max = 0;
+
+	Int_t sId;
+	for( int i = 0; i < GetNumberOfSignals(); i++ )
+	{
+		Int_t integ = fSignal[i].GetIntegral( 0, fSignal[i].GetNumberOfPoints() );
+		if( max < integ ) 
+		{ 
+			max = integ; 
+			sId = i;
+		}
+	}
+
+	return &fSignal[sId];
+}
+
 Double_t TRestRawSignalEvent::GetSlopeIntegral( )
 {
     Double_t sum = 0;
