@@ -355,6 +355,9 @@ TRestMetadata::TRestMetadata()
 	//helper = new TRestStringHelper();
 	fElementEnv.clear();
 	fHostmgr = NULL;
+	c = NULL;
+	vs = NULL;
+	ses = NULL;
 }
 
 ///////////////////////////////////////////////
@@ -370,6 +373,9 @@ TRestMetadata::TRestMetadata(const char *cfgFileName)
 	//helper = new TRestStringHelper();
 	fElementEnv.clear();
 	fHostmgr = NULL;
+	c = NULL;
+	vs = NULL;
+	ses = NULL;
 }
 
 ///////////////////////////////////////////////
@@ -1954,10 +1960,6 @@ TString TRestMetadata::GetVerboseLevelString()
 }
 
 
-
-TClass*c;
-TVirtualStreamerInfo *vs;
-TObjArray* ses;
 TStreamerElement* TRestMetadata::GetDataMemberWithName(string name)
 {
 	int n = GetNumberOfDataMember();

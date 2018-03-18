@@ -238,6 +238,11 @@ protected:
 	///Saving a list of environmental variables
 	vector<TiXmlElement*> fElementEnv;//! 
 
+	///Reflection
+	TClass*c;//!
+	TVirtualStreamerInfo *vs;//!
+	TObjArray* ses;//!
+
 
 
 
