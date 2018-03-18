@@ -368,7 +368,8 @@ void TRestThread::StartProcess()
 	while (fHostRunner->GetNextevtFunc(fInputEvent, fAnalysisTree) == 0)
 	{
 		ProcessEvent();
-		fHostRunner->FillThreadEventFunc(this);
+		if(fOutputEvent!=NULL)
+			fHostRunner->FillThreadEventFunc(this);
 	}
 
 
@@ -409,11 +410,10 @@ void TRestThread::ProcessEvent()
 
 		ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
 
-		if (ProcessedEvent == NULL) break;
 
 		fProcessChain[j]->EndOfEventProcess();
 
-
+		if (ProcessedEvent == NULL) break;
 
 	}
 
