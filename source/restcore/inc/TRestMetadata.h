@@ -239,9 +239,7 @@ protected:
 	vector<TiXmlElement*> fElementEnv;//! 
 
 	///Reflection
-	TClass*c;//!
-	TVirtualStreamerInfo *vs;//!
-	TObjArray* ses;//!
+
 
 
 

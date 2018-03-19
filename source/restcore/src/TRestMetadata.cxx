@@ -355,9 +355,6 @@ TRestMetadata::TRestMetadata()
 	//helper = new TRestStringHelper();
 	fElementEnv.clear();
 	fHostmgr = NULL;
-	c = NULL;
-	vs = NULL;
-	ses = NULL;
 }
 
 ///////////////////////////////////////////////
@@ -373,9 +370,6 @@ TRestMetadata::TRestMetadata(const char *cfgFileName)
 	//helper = new TRestStringHelper();
 	fElementEnv.clear();
 	fHostmgr = NULL;
-	c = NULL;
-	vs = NULL;
-	ses = NULL;
 }
 
 ///////////////////////////////////////////////
@@ -1960,6 +1954,10 @@ TString TRestMetadata::GetVerboseLevelString()
 }
 
 
+
+TClass*c;//!
+TVirtualStreamerInfo *vs;//!
+TObjArray* ses;//!
 TStreamerElement* TRestMetadata::GetDataMemberWithName(string name)
 {
 	int n = GetNumberOfDataMember();
@@ -1983,7 +1981,7 @@ TStreamerElement* TRestMetadata::GetDataMemberWithID(int ID)
 
 int TRestMetadata::GetNumberOfDataMember()
 {
-	if (ses == NULL) {
+	if (c==NULL||(c!=NULL&&c->GetName()!=this->ClassName())) {
 		c = this->IsA();
 		vs = c->GetStreamerInfo();
 		ses = vs->GetElements();
