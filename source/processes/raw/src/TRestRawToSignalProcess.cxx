@@ -85,7 +85,7 @@ void TRestRawToSignalProcess::InitFromConfigFile(){
 
     if( GetVerboseLevel() >= REST_Warning )
     {
-        cout << "REST WARNING: TRestRawToSignalProcess::InitFromConfigFile:" << endl;
+        cout << "REST WARNING: TRestRawToSignalProcess::InitFromConfigFile" << endl;
         cout << "Electronic type " << fElectronicsType << " not found " << endl;
         cout << "Loading default config" << endl;
     }
@@ -103,7 +103,7 @@ void TRestRawToSignalProcess::LoadDefaultConfig()
         cout<<"Error Loading config file "<<endl;
     }
 
-    if( GetVerboseLevel() <= REST_Debug )
+    if( GetVerboseLevel() >= REST_Debug )
         GetChar();
 
     fElectronicsType = "SingleFeminos";
