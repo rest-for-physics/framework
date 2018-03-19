@@ -413,7 +413,7 @@ TRestMetadata::TRestMetadata()
 
     fGasDataPath = (TString) getenv("REST_PATH") + (TString) "/inputData/gasFiles/";
 
-    fVerboseLevel = REST_Silent;
+    fVerboseLevel = REST_Warning;
 }
 
 ///////////////////////////////////////////////
@@ -439,7 +439,7 @@ TRestMetadata::TRestMetadata( const char *cfgFileName)
 
     fGasDataPath = (TString) getenv("REST_PATH") + (TString) "/inputData/gasFiles/";
 
-    fVerboseLevel = REST_Silent;
+    fVerboseLevel = REST_Warning;
 }
 
 ///////////////////////////////////////////////
