@@ -83,7 +83,13 @@ void TRestRawToSignalProcess::InitFromConfigFile(){
 
     if( fElectronicsType == "SingleFeminos" || fElectronicsType == "TCMFeminos" ) return;
 
-    cout << "Electronic type not found " << endl;
+    if( GetVerboseLevel() >= REST_Warning )
+    {
+        cout << "REST WARNING: TRestRawToSignalProcess::InitFromConfigFile:" << endl;
+        cout << "Electronic type " << fElectronicsType << " not found " << endl;
+        cout << "Loading default config" << endl;
+    }
+
     LoadDefaultConfig();
 
 }
