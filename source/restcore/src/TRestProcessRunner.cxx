@@ -1,5 +1,9 @@
 #include "TRestManager.h"
 #include "TRestThread.h"
+#include "Math/MinimizerOptions.h"
+#include "TMinuitMinimizer.h"
+#include "TMutex.h"
+#include "TROOT.h"
 
 std::mutex mutexx;
 
@@ -269,6 +273,16 @@ void TRestProcessRunner::RunProcess()
 	fProcessedEvents = 0;
 	fRunInfo->ResetEntry();
 	fRunInfo->SetCurrentEntry(firstEntry);
+
+	//set root mutex
+	//!!!!!!!!!!!!Important!!!!!!!!!!!!
+	ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit");
+	TMinuitMinimizer::UseStaticMinuit(false);
+	if (gGlobalMutex == NULL) {
+		gGlobalMutex = new TMutex(true);
+		gROOTMutex = gGlobalMutex;
+	}
+
 
 #ifdef TIME_MEASUREMENT
 	high_resolution_clock::time_point t3 = high_resolution_clock::now();
