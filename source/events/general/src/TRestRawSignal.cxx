@@ -471,7 +471,7 @@ TGraph *TRestRawSignal::GetGraph( Int_t color )
     fGraph = new TGraph();
 
     fGraph->SetLineWidth( 2 );
-    fGraph->SetLineColor( color );
+    fGraph->SetLineColor( color%8 + 1 );
     fGraph->SetMarkerStyle( 7 );
 
     int points = 0;
