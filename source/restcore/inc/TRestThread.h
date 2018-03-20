@@ -40,7 +40,7 @@ public:
 	void Initialize();
 
 	bool TestRun();
-	void PrepareToProcess();
+	void PrepareToProcess(bool testrun=true);
 
 	void StartProcess();
 
@@ -59,7 +59,7 @@ public:
 
 
 	//getter and setter
-	void SetThreadId(Int_t id) { fThreadId = id; if (fThreadId != 0&&fVerboseLevel>REST_Info)fVerboseLevel = REST_Info; }
+	void SetThreadId(Int_t id);
 	void SetBranchConfig(vector<string> i) { fTreeBranchDef = i; }
 	void SetOutputTree(TRestAnalysisTree* t) { fAnalysisTree = t; }
 	void SetTRestRunner(TRestProcessRunner* r) { fHostRunner = r; }

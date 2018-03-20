@@ -221,9 +221,10 @@ void TRestProcessRunner::RunProcess()
 	debug << "Initializing processes in threads. " << fThreadNumber << " threads are requested" << endl;
 	fRunInfo->ResetEntry();
 	fRunInfo->SetCurrentEntry(firstEntry);
+	bool testrun = ToUpper(GetParameter("testRun", "ON")) == "ON"|| ToUpper(GetParameter("testRun", "ON")) == "TRUE";
 	for (int i = 0; i < fThreadNumber; i++)
 	{
-		fThreads[i]->PrepareToProcess();
+		fThreads[i]->PrepareToProcess(testrun);
 	}
 
 
@@ -311,22 +312,7 @@ void TRestProcessRunner::RunProcess()
 		PrintProcessedEvents(100);
 	}
 
-
-#ifdef TIME_MEASUREMENT
-	high_resolution_clock::time_point t4 = high_resolution_clock::now();
-	deltaTime = (int)duration_cast<microseconds>(t4 - t3).count();
-#endif
-
-	fout << this->ClassName() << ": " << fProcessedEvents << " processed events" << endl;
-
-#ifdef TIME_MEASUREMENT
-	info << "Total processing time : " << ((Double_t)deltaTime) / 1000. << " ms" << endl;
-	info << "Average read time from disk (per event) : " << ((Double_t)readTime) / fProcessedEvents / 1000. << " ms" << endl;
-	info << "Average process time (per event) : " << ((Double_t)(deltaTime - readTime - writeTime)) / fProcessedEvents / 1000. << " ms" << endl;
-	info << "Average write time to disk (per event) : " << ((Double_t)writeTime) / fProcessedEvents / 1000. << " ms" << endl;
-
-#endif
-
+	essential << "Waiting for processes to finish ..." << endl;
 
 	while (1)
 	{
@@ -343,7 +329,25 @@ void TRestProcessRunner::RunProcess()
 		if (finish)break;
 	}
 
+	for (int i = 0; i < fThreadNumber; i++)
+	{
+		fThreads[i]->WriteFile();
+	}
 
+#ifdef TIME_MEASUREMENT
+	high_resolution_clock::time_point t4 = high_resolution_clock::now();
+	deltaTime = (int)duration_cast<microseconds>(t4 - t3).count();
+#endif
+
+	fout << this->ClassName() << ": " << fProcessedEvents << " processed events" << endl;
+
+#ifdef TIME_MEASUREMENT
+	info << "Total processing time : " << ((Double_t)deltaTime) / 1000. << " ms" << endl;
+	info << "Average read time from disk (per event) : " << ((Double_t)readTime) / fProcessedEvents / 1000. << " ms" << endl;
+	info << "Average process time (per event) : " << ((Double_t)(deltaTime - readTime - writeTime)) / fProcessedEvents / 1000. << " ms" << endl;
+	info << "Average write time to disk (per event) : " << ((Double_t)writeTime) / fProcessedEvents / 1000. << " ms" << endl;
+	info << "=" << endl;
+#endif
 
 	ConfigOutputFile();
 
@@ -459,6 +463,7 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t)
 /// As a result threads will not write their files together, thus preventing segmentaion violation.
 void TRestProcessRunner::WriteThreadFileFunc(TRestThread* t)
 {
+	cout << "writting files" << endl;
 	mutexx.lock();
 #ifdef TIME_MEASUREMENT
 	high_resolution_clock::time_point t5 = high_resolution_clock::now();
@@ -476,7 +481,7 @@ void TRestProcessRunner::WriteThreadFileFunc(TRestThread* t)
 
 void TRestProcessRunner::ConfigOutputFile()
 {
-	debug << "Configuring output file, merging thread files together" << endl;
+	essential << "Configuring output file, merging thread files together" << endl;
 #ifdef TIME_MEASUREMENT
 	ProcessInfo["ProcessTime"] = ToString(deltaTime) + "ms";
 #endif

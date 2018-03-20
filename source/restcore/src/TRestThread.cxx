@@ -116,6 +116,14 @@ Int_t TRestThread::ValidateChain()
 }
 
 
+void TRestThread::SetThreadId(Int_t id)
+{
+	fThreadId = id;
+	if (fThreadId != 0 && fVerboseLevel > REST_Essential)
+		fVerboseLevel = REST_Essential;
+}
+
+
 TRestAnalysisTree* tempTree;
 bool TRestThread::TestRun() 
 {
@@ -185,7 +193,7 @@ bool TRestThread::TestRun()
 /// 4. Reset the processes by calling InitProcess() again
 ///
 /// Note: this methed runs under single thread node, so there is no conflict when creating files.
-void TRestThread::PrepareToProcess()
+void TRestThread::PrepareToProcess(bool testrun)
 {
 
 	if (fProcessChain.size() > 0)
@@ -203,8 +211,6 @@ void TRestThread::PrepareToProcess()
 			fProcessChain[i]->InitProcess();
 		}
 
-		//test run
-		debug << "Test Run..." << endl;
 
 		fInputEvent = (TRestEvent*)fProcessChain[0]->GetInputEvent();
 		if (fInputEvent == NULL) {
@@ -212,24 +218,28 @@ void TRestThread::PrepareToProcess()
 			GetChar();
 			exit(1);
 		}
-		else
-			fInputEvent = (TRestEvent*)fInputEvent->Clone();
-
+		fInputEvent = (TRestEvent*)fInputEvent->Clone();
 		if (fHostRunner->GetNextevtFunc(fInputEvent, tempTree) != 0)
 		{
 			error << "REST ERROR(" << "In thread " << fThreadId << ")::Failed to get the first input event, process cannot start!" << endl;
 			GetChar();
 			exit(1);
 		}
-		
-		if (!TestRun()) {
-			exit(1);
+
+		//test run
+		if (testrun) {
+			debug << "Test Run..." << endl;
+			if (!TestRun()) {
+				exit(1);
+			}
+			debug << "Test Run success!" << endl;
 		}
-		
+		else
+		{
+			debug << "Setting output event address by default..." << endl;
+			fOutputEvent = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent();
+		}
 		delete tempTree;
-		debug << "Test Run success!" << endl;
-
-
 
 		//////////////////////////////////////////
 		//create dummy tree to store branch addresses.
@@ -238,12 +248,10 @@ void TRestThread::PrepareToProcess()
 		fAnalysisTree->CreateEventBranches();
 		fEventTree = new TRestAnalysisTree("EventTree_" + ToString(fThreadId), "dummyTree");
 		fEventTree->CreateEventBranches();
-
 		for (unsigned int i = 0; i < fProcessChain.size(); i++)
 		{
 			fProcessChain[i]->SetAnalysisTree(fAnalysisTree);
 		}
-
 		for (int i = 0; i < fTreeBranchDef.size(); i++) 
 		{
 			if (fTreeBranchDef[i] == "inputevent") 
@@ -280,15 +288,12 @@ void TRestThread::PrepareToProcess()
 			}
 
 		}
-
 		if (fEventTree->GetListOfBranches()->GetLast() < 6)
 		{
 			delete fEventTree; fEventTree = NULL;
 		}
 
 		fAnalysisTree->CreateObservableBranches();
-
-
 
 
 		//create output temp file for process-defined output object
@@ -374,7 +379,7 @@ void TRestThread::StartProcess()
 
 
 
-	fHostRunner->WriteThreadFileFunc(this);
+	//fHostRunner->WriteThreadFileFunc(this);
 	isFinished = true;
 }
 
@@ -442,15 +447,15 @@ void TRestThread::ProcessEvent()
 /// This method is called back by WriteThreadFileFunc() in TRestProcessRunner. 
 void TRestThread::WriteFile()
 {
-	debug << "Thread " << fThreadId << " : Writting temp file" << endl;
+	info << "TRestThread : Writting temp file" << endl;
 
 	if (fOutputFile == NULL) return;
 
 	fOutputFile->cd();
-
-
 	for (unsigned int i = 0; i < fProcessChain.size(); i++)
+	{
 		fProcessChain[i]->EndProcess();//the processes must call "object->Write()" in this method
+	}
 
 	delete fAnalysisTree;
 	//fOutputFile->Close();
