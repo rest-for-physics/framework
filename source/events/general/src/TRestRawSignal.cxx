@@ -34,6 +34,8 @@ TRestRawSignal::TRestRawSignal()
    fPointsOverThreshold.clear();
 
    fThresholdIntegral = -1;
+
+   fTailPoints = 0;
 }
 
 TRestRawSignal::TRestRawSignal( Int_t nBins )
@@ -49,6 +51,8 @@ TRestRawSignal::TRestRawSignal( Int_t nBins )
        fSignalData.push_back( 0 );
 
    fThresholdIntegral = -1;
+
+   fTailPoints = 0;
 }
 
 //______________________________________________________________________________
@@ -64,6 +68,8 @@ void TRestRawSignal::Initialize()
     fSignalID = -1;
 
     fThresholdIntegral = -1;
+
+    fTailPoints = 0;
 }
 
 void TRestRawSignal::Reset()
@@ -161,8 +167,9 @@ Double_t TRestRawSignal::GetIntegralWithThreshold( Int_t from, Int_t to,
                 // we will add them to the integral
                 if( sig > signalThreshold )
                 {
-                    for( int j = i - nPoints; j < i; j++ )
+                    for( int j = i - nPoints - fTailPoints; j < i + fTailPoints && i + j < GetNumberOfPoints(); j++ )
                     {
+			if( j < 0 ) j = 0;
                         sum += this->GetData( j );
                         fPointsOverThreshold.push_back( j );
                     }

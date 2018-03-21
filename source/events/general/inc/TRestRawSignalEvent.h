@@ -58,6 +58,8 @@ class TRestRawSignalEvent: public TRestEvent {
 
         void AddChargeToSignal( Int_t sgnlID, Int_t bin, Short_t value );
 
+	void SetTailPoints( Int_t p ) { for ( int n = 0; n < GetNumberOfSignals(); n++ ) fSignal[n].SetTailPoints(p); }
+
         //Getters
         Int_t GetNumberOfSignals() { return fSignal.size(); }
         TRestRawSignal *GetSignal(Int_t n ) { return &fSignal[n]; }

@@ -44,6 +44,8 @@ class TRestRawSignal: public TObject {
         std::vector <Int_t> fPointsOverThreshold;
 
 	Double_t fThresholdIntegral;
+
+	Int_t fTailPoints;
 #endif
 
         //Getters
@@ -75,6 +77,8 @@ class TRestRawSignal: public TObject {
         void IncreaseBinBy( Int_t bin, Double_t data );
 
         Double_t GetIntegral( Int_t startBin = 0, Int_t endBin = 0 );
+
+	void SetTailPoints( Int_t p ) { fTailPoints = p; }
 
         Double_t GetIntegralWithThreshold( Int_t from, Int_t to, 
                 Int_t startBaseline, Int_t endBaseline, 
