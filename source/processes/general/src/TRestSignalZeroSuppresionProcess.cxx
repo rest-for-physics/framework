@@ -113,6 +113,8 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
         TRestRawSignal *sgnl = fRawSignalEvent->GetSignal( i );
         Int_t signalID = sgnl->GetSignalID();
 
+	sgnl->SetTailPoints( fTailPoints );
+
         Double_t integral = sgnl->GetIntegralWithThreshold( 0, sgnl->GetNumberOfPoints(),
                 fBaseLineRange.X(), fBaseLineRange.Y(), fPointThreshold, fNPointsOverThreshold, fSignalThreshold );
 
@@ -168,5 +170,6 @@ void TRestSignalZeroSuppresionProcess::InitFromConfigFile( )
     fPointThreshold = StringToDouble( GetParameter( "pointThreshold", 2 ) );
     fNPointsOverThreshold = StringToInteger( GetParameter( "pointsOverThreshold", 5 ) );
     fSignalThreshold = StringToDouble( GetParameter( "signalThreshold", 5 ) );
+    fTailPoints = StringToInteger( GetParameter( "tailPoints", 15 ) );
 }
 
