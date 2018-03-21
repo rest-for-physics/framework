@@ -84,7 +84,7 @@ Double_t TRestSignalEvent::GetIntegralWithThreshold( Int_t from, Int_t to, Int_t
     for( int i = 0; i < GetNumberOfSignals(); i++ )
         sum += fSignal[i].GetIntegralWithThreshold( from, to, startBaseline, endBaseline, nSigmas, nPointsOverThreshold, minPeakAmplitude );
 
-    return sum;
+	    return sum;
 
 }
 

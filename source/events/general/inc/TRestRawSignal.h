@@ -98,8 +98,8 @@ class TRestRawSignal: public TObject {
         Double_t GetAverage( Int_t startBin, Int_t endBin );
 
         Int_t GetMaxPeakWidth();
-        Double_t GetMaxPeakValue();
-        Int_t GetMaxPeakBin( );
+        Double_t GetMaxPeakValue( Int_t start = 0, Int_t end = 0 );
+        Int_t GetMaxPeakBin( Int_t start = 0, Int_t end = 0 );
 
         Double_t GetMinPeakValue();
         Int_t GetMinPeakBin( );

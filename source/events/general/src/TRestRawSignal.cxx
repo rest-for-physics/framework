@@ -122,7 +122,6 @@ Double_t TRestRawSignal::GetIntegral( Int_t startBin, Int_t endBin )
     return sum;
 }
 
-
 Double_t TRestRawSignal::GetIntegralWithThreshold( Int_t from, Int_t to, 
         Int_t startBaseline, Int_t endBaseline, 
         Double_t nSigmas, Int_t nPointsOverThreshold, Double_t nMinSigmas ) 
@@ -142,59 +141,70 @@ Double_t TRestRawSignal::GetIntegralWithThreshold( Int_t from, Int_t to,
         Double_t baseline, Double_t pointThreshold,
         Int_t nPointsOverThreshold, Double_t signalThreshold ) 
 {
-    Double_t sum = 0;
-    Int_t nPoints = 0;
-    fPointsOverThreshold.clear();
+	Double_t sum = 0;
+	Int_t nPoints = 0;
+	fPointsOverThreshold.clear();
 
-    if( to > GetNumberOfPoints() ) to = GetNumberOfPoints();
+	if( to > GetNumberOfPoints() ) to = GetNumberOfPoints();
 
-    Float_t maxValue = 0;
-    for( int i = from; i < to; i++ )
-    {
-        if( GetData(i) > baseline + pointThreshold )
-        {
-            if( GetData( i ) > maxValue ) maxValue = GetData( i );
-            nPoints++;
-        }
-        else
-        {
-            if( nPoints >= nPointsOverThreshold )
-            {
-                Double_t sig = GetStandardDeviation( i - nPoints, i );
+	//int debug = 0;
+	//if ( GetMaxPeakValue( 150, 250 ) > 20 ) debug = 1;
 
-                // Only if the sigma of points found over threshold 
-                // are found above the signal threshold defined 
-                // we will add them to the integral
-                if( sig > signalThreshold )
-                {
-                    for( int j = i - nPoints - fTailPoints; j < i + fTailPoints && i + j < GetNumberOfPoints(); j++ )
-                    {
-			if( j < 0 ) j = 0;
-                        sum += this->GetData( j );
-                        fPointsOverThreshold.push_back( j );
-                    }
-                }
-            }
-            nPoints = 0;
-            maxValue = 0;
-        }
-    }
+	Float_t maxValue = 0;
+	for( int i = from; i < to; i++ )
+	{
+		//if( debug )
+		//	cout << "point : " << i << " data : " << GetData(i) << " baseline : " << baseline << " threshold : " << pointThreshold << endl;
+		if( GetData(i) > baseline + pointThreshold )
+		{
+		//	if( debug )
+		//		cout << "Point over threshold" << endl;
+			if( GetData( i ) > maxValue ) maxValue = GetData( i );
+			nPoints++;
+		}
+		else
+		{
+			if( nPoints >= nPointsOverThreshold )
+			{
+				Double_t sig = GetStandardDeviation( i - nPoints, i );
 
-    if( nPoints >= nPointsOverThreshold )
-    {
-        Double_t sig = GetStandardDeviation( to - nPoints, to );
-        if( sig > signalThreshold )
-        {
-            for( int j = to - nPoints; j < to; j++ )
-            {
-                sum += this->GetData( j );
-                fPointsOverThreshold.push_back( j );
-            }
-        }
-    }
+				// Only if the sigma of points found over threshold 
+				// are found above the signal threshold defined 
+				// we will add them to the integral
+		//		if( debug )
+		//			cout << "Signal : " << sig << " signal Threshold : " << signalThreshold << endl;
+				if( sig > signalThreshold )
+				{
+					for( int j = i - nPoints - fTailPoints; j < i + fTailPoints && i + j < GetNumberOfPoints(); j++ )
+					{
+						if( j < 0 ) j = 0;
+		//				if( debug )
+		//					cout << "Adding point : " <<  j << " data : " << GetData( j ) << endl;
+						sum += this->GetData( j );
+						fPointsOverThreshold.push_back( j );
+					}
+				}
+			}
+			nPoints = 0;
+			maxValue = 0;
+		}
+	}
 
-    fThresholdIntegral = sum;
-    return sum;
+	if( nPoints >= nPointsOverThreshold )
+	{
+		Double_t sig = GetStandardDeviation( to - nPoints, to );
+		if( sig > signalThreshold )
+		{
+			for( int j = to - nPoints; j < to; j++ )
+			{
+				sum += this->GetData( j );
+				fPointsOverThreshold.push_back( j );
+			}
+		}
+	}
+
+	fThresholdIntegral = sum;
+	return sum;
 }
 
 Double_t TRestRawSignal::GetSlopeIntegral( )
@@ -305,17 +315,20 @@ Int_t TRestRawSignal::GetMaxPeakWidth()
     return rightIndex-leftIndex;
 }
 
-Double_t TRestRawSignal::GetMaxPeakValue() 
+Double_t TRestRawSignal::GetMaxPeakValue( Int_t start, Int_t end) 
 {
-    return GetData( GetMaxPeakBin() ); 
+    return GetData( GetMaxPeakBin( start, end ) ); 
 }
 
-Int_t TRestRawSignal::GetMaxPeakBin( )
+Int_t TRestRawSignal::GetMaxPeakBin( Int_t start, Int_t end )
 {
     Double_t max = -1E10;
     Int_t index = 0;
 
-    for( int i = 0; i < GetNumberOfPoints(); i++ )
+    if( end == 0 || end > GetNumberOfPoints() ) end = GetNumberOfPoints();
+    if( start < 0 ) start = 0;
+
+    for( int i = start; i < end; i++ )
     {
         if( this->GetData(i) > max) 
         {
