@@ -73,6 +73,8 @@ class TRestRawSignalAnalysisProcess:public TRestEventProcess {
         TVector2 fThresholdIntegralCut;
         TVector2 fPeakTimeDelayCut;
 
+        Int_t fTailPoints;
+
         TH1D *fChannelsHisto;
 
 
@@ -94,6 +96,7 @@ class TRestRawSignalAnalysisProcess:public TRestEventProcess {
             cout << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
             cout << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
             cout << "Number of points over threshold : " << fNPointsOverThreshold << endl;
+            cout << "Number of tail points for threshold integral : " << fTailPoints << endl;
             cout << endl;
             if( fCutsEnabled )
             {

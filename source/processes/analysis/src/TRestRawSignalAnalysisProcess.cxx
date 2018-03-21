@@ -177,6 +177,8 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     fAnalysisTree->SetObservableValue( obsName, fullIntegral );
 
 
+    fSignalEvent->SetTailPoints( fTailPoints );
+
     Double_t thrIntegral = fSignalEvent->GetIntegralWithThreshold( from, to, fBaseLineRange.X(), fBaseLineRange.Y(), fPointThreshold, fNPointsOverThreshold, fSignalThreshold );
     obsName = this->GetName() + (TString) ".ThresholdIntegral";
     fAnalysisTree->SetObservableValue( obsName, thrIntegral );
@@ -448,6 +450,8 @@ void TRestRawSignalAnalysisProcess::InitFromConfigFile( )
 
     fPeakTimeDelayCut  = StringTo2DVector( GetParameter( "peakTimeDelayCut", "(0,20)" ) );
     if( GetParameter( "cutsEnabled", "false" ) == "true" ) fCutsEnabled = true;
+
+    fTailPoints = StringToInteger( GetParameter( "tailPoints", "0" ) );
 
 
 }
