@@ -92,18 +92,29 @@ TRestEvent* TRestRawSignalViewerProcess::ProcessEvent( TRestEvent *evInput )
     fSignalEvent->SetTimeStamp( fInputSignalEvent->GetTimeStamp() );
     fSignalEvent->SetSubEventTag( fInputSignalEvent->GetSubEventTag() );
 
-    //for( int sgnl = 0; sgnl < fInputSignalEvent->GetNumberOfSignals(); sgnl++ )
     Int_t N = fInputSignalEvent->GetNumberOfSignals();
-
     if( GetVerboseLevel() >= REST_Debug ) 
     {
+	    Int_t signalsAdded = 0;
 	    fSignalEvent->AddSignal( *fInputSignalEvent->GetMaxSignal( ) );
+	    signalsAdded++;
+
+	    for( int n = 0; n < N; n++ )
+	    {
+		    if( fInputSignalEvent->GetSignal(n)->GetMaxPeakValue( fThresholdRange.X(), fThresholdRange.Y() ) > fPeakThreshold && signalsAdded < fNSignalsThreshold )
+		    {
+			    fSignalEvent->AddSignal( *fInputSignalEvent->GetSignal( n ) );
+			    signalsAdded++;
+		    }
+	    }
     }
     else
     {
 	    for( int sgnl = 0; sgnl < N; sgnl++ )
 		    fSignalEvent->AddSignal( *fInputSignalEvent->GetSignal( sgnl ) );
     }
+
+    if( fSignalEvent->GetNumberOfSignals() == 0 ) return NULL;
     /////////////////////////////////////////////////
 
     GetCanvas()->cd();
@@ -160,57 +171,63 @@ TPad *TRestRawSignalViewerProcess::DrawSignal( Int_t signal )
 
     fDrawingObjects.push_back( (TObject *) pad );
 
-    TGraph *gr = new TGraph();
-    fDrawingObjects.push_back( (TObject *) gr );
-
-    TRestRawSignal *sgnl = fSignalEvent->GetSignal( signal );
-
-    for( int n = 0; n < sgnl->GetNumberOfPoints(); n++ )
-        gr->SetPoint( n, n, sgnl->GetData(n) );
-
-    gr->Draw( "AC*" );
-
-    TGraph *gr2 = new TGraph();
-    fDrawingObjects.push_back( (TObject *) gr2 );
-
-    gr2->SetLineWidth( 2 );
-    gr2->SetLineColor( 2 );
-
-    for( int n = fBaseLineRange.X(); n < fBaseLineRange.Y(); n++ )
-        gr2->SetPoint( n - fBaseLineRange.X(), n, sgnl->GetData(n) );
-
-    gr2->Draw("CP");
-
-    vector <Int_t> pOver = sgnl->GetPointsOverThreshold( );
-
-    TGraph *gr3[5];
-    Int_t nGraphs = 0;
-    gr3[nGraphs] = new TGraph();
-    fDrawingObjects.push_back( (TObject *) gr3[nGraphs] );
-    gr3[nGraphs]->SetLineWidth( 2 );
-    gr3[nGraphs]->SetLineColor( 3 );
-    Int_t point = 0;
-    Int_t nPoints = pOver.size();
-    for( int n = 0; n < nPoints; n++ )
+    for( int m = 0; m < fSignalEvent->GetNumberOfSignals(); m++ )
     {
-        gr3[nGraphs]->SetPoint( point, pOver[n], sgnl->GetData(pOver[n]) );
-        point++;
-        if( n+1 < nPoints && pOver[n+1] - pOver[n] > 1 )
-        {
-            gr3[nGraphs]->Draw("CP");
-            nGraphs++;
-            if( nGraphs > 4 ) cout << "Ngraphs : " << nGraphs << endl;
-            point = 0;
-            gr3[nGraphs] = new TGraph();
-            fDrawingObjects.push_back( (TObject *) gr3[nGraphs] );
-            gr3[nGraphs]->SetLineWidth( 2 );
-            gr3[nGraphs]->SetLineColor( 3 );
-        }
-    }
+	    TGraph *gr = new TGraph();
+	    fDrawingObjects.push_back( (TObject *) gr );
 
-    
-    if( nPoints > 0 )
-        gr3[nGraphs]->Draw("CP");
+	    TRestRawSignal *sgnl = fSignalEvent->GetSignal( m );
+
+	    for( int n = 0; n < sgnl->GetNumberOfPoints(); n++ )
+		    gr->SetPoint( n, n, sgnl->GetData(n) );
+
+	    if( m == 0 )
+		    gr->Draw( "AC*" );
+	    else
+		    gr->Draw( "CP*" );
+
+	    TGraph *gr2 = new TGraph();
+	    fDrawingObjects.push_back( (TObject *) gr2 );
+
+	    gr2->SetLineWidth( 2 );
+	    gr2->SetLineColor( 2 );
+
+	    for( int n = fBaseLineRange.X(); n < fBaseLineRange.Y(); n++ )
+		    gr2->SetPoint( n - fBaseLineRange.X(), n, sgnl->GetData(n) );
+
+	    gr2->Draw("CP");
+
+	    vector <Int_t> pOver = sgnl->GetPointsOverThreshold( );
+
+	    TGraph *gr3[5];
+	    Int_t nGraphs = 0;
+	    gr3[nGraphs] = new TGraph();
+	    fDrawingObjects.push_back( (TObject *) gr3[nGraphs] );
+	    gr3[nGraphs]->SetLineWidth( 2 );
+	    gr3[nGraphs]->SetLineColor( 3 );
+	    Int_t point = 0;
+	    Int_t nPoints = pOver.size();
+	    for( int n = 0; n < nPoints; n++ )
+	    {
+		    gr3[nGraphs]->SetPoint( point, pOver[n], sgnl->GetData(pOver[n]) );
+		    point++;
+		    if( n+1 < nPoints && pOver[n+1] - pOver[n] > 1 )
+		    {
+			    gr3[nGraphs]->Draw("CP");
+			    nGraphs++;
+			    if( nGraphs > 4 ) cout << "Ngraphs : " << nGraphs << endl;
+			    point = 0;
+			    gr3[nGraphs] = new TGraph();
+			    fDrawingObjects.push_back( (TObject *) gr3[nGraphs] );
+			    gr3[nGraphs]->SetLineWidth( 2 );
+			    gr3[nGraphs]->SetLineColor( 3 );
+		    }
+	    }
+
+
+	    if( nPoints > 0 )
+		    gr3[nGraphs]->Draw("CP");
+    }
 
     return pad;
 }
@@ -221,5 +238,9 @@ void TRestRawSignalViewerProcess::InitFromConfigFile( )
     fDrawRefresh = StringToDouble( GetParameter( "refreshEvery", "0" ) );
 
     fBaseLineRange = StringTo2DVector( GetParameter( "baseLineRange", "(5,55)") );
+
+    fThresholdRange = StringTo2DVector( GetParameter( "thresholdRange", "(180,240)") );
+    fPeakThreshold = StringToDouble( GetParameter( "peakThreshold", "25" ) );
+    fNSignalsThreshold = StringToInteger( GetParameter( "nSignalsThreshold", "6" ) );
 }
 
