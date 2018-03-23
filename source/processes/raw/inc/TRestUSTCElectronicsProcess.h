@@ -26,7 +26,7 @@
 #include <map>
 
 #define Long_Readout_Format
-#define Incoherent_Event_Generation
+//#define Incoherent_Event_Generation
 
 #ifdef Long_Readout_Format
 #define N 1048

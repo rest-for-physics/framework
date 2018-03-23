@@ -67,6 +67,7 @@ void TRestUSTCElectronicsProcess::InitProcess()
 	fEventBuffer.clear();
 	errorevents.clear();
 	unknownerrors = 0;
+	fLastBufferedId = 0;
 
 #ifndef Incoherent_Event_Generation
 	nBufferedEvent = StringToInteger(GetParameter("BufferNumber", "2"));
@@ -238,6 +239,8 @@ bool TRestUSTCElectronicsProcess::FillBuffer()
 		if (!ReadFrameData(frame)) {
 			warning << "error reading frame data in file "<< fCurrentFile << endl;
 			FixToNextFrame(fInputFiles[fCurrentFile]);
+			GetNextFrame(frame);
+			ReadFrameData(frame);
 			errortag = true;
 		}
 #ifdef Incoherent_Event_Generation
