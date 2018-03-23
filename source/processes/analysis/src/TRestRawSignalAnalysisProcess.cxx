@@ -222,12 +222,12 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         TRestRawSignal *sgnl = fSignalEvent->GetSignal( s );
         if( sgnl->GetIntegralWithThreshold( from, to, fBaseLineRange.X(), fBaseLineRange.Y(), fPointThreshold, fNPointsOverThreshold, fSignalThreshold ) > 0 )
         {
-            Double_t value = fSignalEvent->GetSignal(s)->GetMaxValue();
+            Double_t value = fSignalEvent->GetSignal(s)->GetMaxValue( from, to );
             if( value > maxValue ) maxValue = value;
             if( value < minValue ) minValue = value;
             maxValueIntegral += value;
 
-            Double_t peakBin = sgnl->GetMaxPeakBin();
+            Double_t peakBin = sgnl->GetMaxPeakBin( from, to );
             peakTimeAverage += peakBin;
 
             if( minPeakTime > peakBin ) minPeakTime = peakBin;
@@ -435,7 +435,7 @@ void TRestRawSignalAnalysisProcess::InitFromConfigFile( )
     fDrawRefresh = StringToDouble( GetParameter( "refreshEvery", "0" ) );
 
     fBaseLineRange = StringTo2DVector( GetParameter( "baseLineRange", "(5,55)") );
-    fIntegralRange = StringTo2DVector( GetParameter( "integralRange", "(10,500)") );
+    fAnalysisRange = StringTo2DVector( GetParameter( "analysisRange", "(10,500)") );
     fPointThreshold = StringToDouble( GetParameter( "pointThreshold", 2 ) );
     fNPointsOverThreshold = StringToInteger( GetParameter( "pointsOverThreshold", 5 ) );
     fSignalThreshold = StringToDouble( GetParameter( "signalThreshold", 5 ) );
