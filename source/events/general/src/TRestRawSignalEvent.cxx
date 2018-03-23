@@ -86,14 +86,14 @@ Double_t TRestRawSignalEvent::GetIntegralWithThreshold( Int_t from, Int_t to,
 
 }
 
-TRestRawSignal* TRestRawSignalEvent::GetMaxSignal( )
+TRestRawSignal* TRestRawSignalEvent::GetMaxSignal( Int_t startBin, Int_t endBin )
 {
 	Double_t max = 0;
 
 	Int_t sId;
 	for( int i = 0; i < GetNumberOfSignals(); i++ )
 	{
-		Int_t integ = fSignal[i].GetIntegral( 0, fSignal[i].GetNumberOfPoints() );
+		Int_t integ = fSignal[i].GetIntegral( startBin, endBin );
 		if( max < integ ) 
 		{ 
 			max = integ; 
@@ -152,12 +152,12 @@ Double_t TRestRawSignalEvent::GetRiseTime( )
     return sum/n;
 }
 
-Double_t TRestRawSignalEvent::GetTripleMaxIntegral( )
+Double_t TRestRawSignalEvent::GetTripleMaxIntegral( Int_t startBin, Int_t endBin )
 {
     Double_t sum = 0;
 
     for( int i = 0; i < GetNumberOfSignals(); i++ )
-        sum += fSignal[i].GetTripleMaxIntegral( );
+        sum += fSignal[i].GetTripleMaxIntegral( startBin, endBin );
 
     return sum;
 }
@@ -225,7 +225,7 @@ void TRestRawSignalEvent::PrintEvent()
 }
 
 // TODO: GetMaxTimeFast, GetMinTimeFast, GetMaxValueFast that return the value of fMinTime, fMaxTime, etc
-void TRestRawSignalEvent::SetMaxAndMin()
+void TRestRawSignalEvent::SetMaxAndMin( Int_t startBin, Int_t endBin )
 {
     fMinValue = 1E10;
     fMaxValue = -1E10;
@@ -235,23 +235,23 @@ void TRestRawSignalEvent::SetMaxAndMin()
     for( int s = 0; s < GetNumberOfSignals(); s++ )
     {
 
-        if( fMinValue > fSignal[s].GetMinValue() ) fMinValue = fSignal[s].GetMinValue();
-        if( fMaxValue < fSignal[s].GetMaxValue() ) fMaxValue = fSignal[s].GetMaxValue();
+        if( fMinValue > fSignal[s].GetMinValue( startBin, endBin ) ) fMinValue = fSignal[s].GetMinValue( startBin, endBin );
+        if( fMaxValue < fSignal[s].GetMaxValue( startBin, endBin ) ) fMaxValue = fSignal[s].GetMaxValue( startBin, endBin );
     }
 
     if( GetNumberOfSignals() > 0 )
         fMaxTime = fSignal[0].GetNumberOfPoints();
 }
 
-Double_t TRestRawSignalEvent::GetMaxValue( )
+Double_t TRestRawSignalEvent::GetMaxValue( Int_t startBin, Int_t endBin )
 {
-    SetMaxAndMin();
+    SetMaxAndMin( startBin, endBin );
     return fMaxValue;
 }
 
-Double_t TRestRawSignalEvent::GetMinValue( )
+Double_t TRestRawSignalEvent::GetMinValue( Int_t startBin, Int_t endBin )
 {
-    SetMaxAndMin();
+    SetMaxAndMin( startBin, endBin );
     return fMinValue;
 }
 

@@ -47,7 +47,7 @@ class TRestRawSignalEvent: public TRestEvent {
 
     private:
 
-        void SetMaxAndMin();
+        void SetMaxAndMin( Int_t startBin = 0, Int_t endBin = 0 );
 
     public:
 
@@ -58,7 +58,7 @@ class TRestRawSignalEvent: public TRestEvent {
 
         void AddChargeToSignal( Int_t sgnlID, Int_t bin, Short_t value );
 
-	void SetTailPoints( Int_t p ) { for ( int n = 0; n < GetNumberOfSignals(); n++ ) fSignal[n].SetTailPoints(p); }
+        void SetTailPoints( Int_t p ) { for ( int n = 0; n < GetNumberOfSignals(); n++ ) fSignal[n].SetTailPoints(p); }
 
         //Getters
         Int_t GetNumberOfSignals() { return fSignal.size(); }
@@ -72,7 +72,7 @@ class TRestRawSignalEvent: public TRestEvent {
             return &fSignal[index]; 
         }
 
-	TRestRawSignal* GetMaxSignal( );
+        TRestRawSignal* GetMaxSignal( Int_t startBin = 0, Int_t endBin = 0 );
 
         Int_t GetSignalIndex( Int_t signalID );
 
@@ -82,13 +82,13 @@ class TRestRawSignalEvent: public TRestEvent {
         Double_t GetIntegral( Int_t startBin = 0, Int_t endBin = 0 );
         Double_t GetIntegralWithThreshold( Int_t from, Int_t to, Int_t startBaseline, Int_t endBaseline, Double_t nSigmas, Int_t nPointsOverThreshold, Double_t minPeakAmplitude );
 
-	Double_t GetSlopeIntegral( );
-	Double_t GetRiseSlope( );
-	Double_t GetRiseTime( );
-	Double_t GetTripleMaxIntegral( );
+        Double_t GetSlopeIntegral( );
+        Double_t GetRiseSlope( );
+        Double_t GetRiseTime( );
+        Double_t GetTripleMaxIntegral( Int_t startBin = 0, Int_t endBin = 0 );
 
-        Double_t GetMaxValue( );
-        Double_t GetMinValue( );
+        Double_t GetMaxValue( Int_t startBin = 0, Int_t endBin = 0 );
+        Double_t GetMinValue( Int_t startBin = 0, Int_t endBin = 0 );
         Double_t GetMinTime( );
         Double_t GetMaxTime( );
 

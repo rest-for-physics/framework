@@ -263,13 +263,15 @@ Int_t TRestRawSignal::GetRiseTime( )
 	return GetMaxPeakBin() - fPointsOverThreshold[0];
 }
 
-Double_t TRestRawSignal::GetTripleMaxIntegral( )
+Double_t TRestRawSignal::GetTripleMaxIntegral( Int_t startBin, Int_t endBin )
 {
-	//cout << __PRETTY_FUNCTION__ << endl;
+	if( startBin < 0 ) startBin = 0;
+	if( endBin <= 0 || endBin > GetNumberOfPoints() ) endBin = GetNumberOfPoints();
+
 	if( fThresholdIntegral == -1 )
 		cout << "REST Warning. TRestRawSignal::GetRiseTime. GetIntegralWithThreshold should be called first." << endl;
 
-	Int_t cBin = GetMaxPeakBin();
+	Int_t cBin = GetMaxPeakBin( startBin, endBin );
 
 	if( cBin+1 >= GetNumberOfPoints() ) return 0;
 
@@ -292,9 +294,9 @@ Double_t TRestRawSignal::GetAverage( Int_t startBin, Int_t endBin )
     return sum/(endBin-startBin+1);
 }
 
-Int_t TRestRawSignal::GetMaxPeakWidth()
+Int_t TRestRawSignal::GetMaxPeakWidth( Int_t startBin, Int_t endBin )
 {
-    Int_t mIndex = this->GetMaxPeakBin();
+    Int_t mIndex = this->GetMaxPeakBin( startBin, endBin );
     Double_t maxValue = this->GetData(mIndex);
 
     Double_t value = maxValue;
@@ -315,20 +317,20 @@ Int_t TRestRawSignal::GetMaxPeakWidth()
     return rightIndex-leftIndex;
 }
 
-Double_t TRestRawSignal::GetMaxPeakValue( Int_t start, Int_t end) 
+Double_t TRestRawSignal::GetMaxPeakValue( Int_t startBin, Int_t endBin ) 
 {
-    return GetData( GetMaxPeakBin( start, end ) ); 
+    return GetData( GetMaxPeakBin( startBin, endBin ) ); 
 }
 
-Int_t TRestRawSignal::GetMaxPeakBin( Int_t start, Int_t end )
+Int_t TRestRawSignal::GetMaxPeakBin( Int_t startBin, Int_t endBin )
 {
     Double_t max = -1E10;
     Int_t index = 0;
 
-    if( end == 0 || end > GetNumberOfPoints() ) end = GetNumberOfPoints();
-    if( start < 0 ) start = 0;
+    if( endBin == 0 || endBin > GetNumberOfPoints() ) endBin = GetNumberOfPoints();
+    if( startBin < 0 ) startBin = 0;
 
-    for( int i = start; i < end; i++ )
+    for( int i = startBin; i < endBin; i++ )
     {
         if( this->GetData(i) > max) 
         {
@@ -340,17 +342,20 @@ Int_t TRestRawSignal::GetMaxPeakBin( Int_t start, Int_t end )
     return index;
 }
 
-Double_t TRestRawSignal::GetMinPeakValue() 
+Double_t TRestRawSignal::GetMinPeakValue( Int_t startBin, Int_t endBin ) 
 {
-    return GetData( GetMinPeakBin() ); 
+    return GetData( GetMinPeakBin( startBin, endBin ) ); 
 }
 
-Int_t TRestRawSignal::GetMinPeakBin( )
+Int_t TRestRawSignal::GetMinPeakBin( Int_t startBin, Int_t endBin )
 {
     Double_t min = 1E10;
     Int_t index = 0;
 
-    for( int i = 0; i < GetNumberOfPoints(); i++ )
+    if( endBin == 0 || endBin > GetNumberOfPoints() ) endBin = GetNumberOfPoints();
+    if( startBin < 0 ) startBin = 0;
+
+    for( int i = startBin; i < endBin; i++ )
     {
         if( this->GetData(i) < min) 
         {
