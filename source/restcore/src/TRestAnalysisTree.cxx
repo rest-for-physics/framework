@@ -112,7 +112,7 @@ void TRestAnalysisTree::PrintObservables()
 	std::cout << "Event Time : " << GetTimeStamp() << std::endl;
 	std::cout << "Event Tag : " << GetSubEventTag() << std::endl;
 	std::cout << "-----------------------------------------" << std::endl;
-	if (isConnected()) {
+	if (isConnected()||fBranchesCreated) {
 		for (int n = 0; n < GetNumberOfObservables(); n++)
 			std::cout << "Observable Name : " << fObservableNames[n] << "    Value : " << *fObservableValues[n] << std::endl;
 		std::cout << std::endl;
