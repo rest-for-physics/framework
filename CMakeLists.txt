@@ -68,7 +68,7 @@ ELSE (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	#message(${Garfield_INCLUDE_DIRS})
 	#include_directories(${Garfield_INCLUDE_DIRS})
 
-	set(USR_INCLUDE_DIRS $ENV{include})
+	set(USR_INCLUDE_DIRS $ENV{usrinclude})
 	message(${USR_INCLUDE_DIRS})
 	include_directories(${USR_INCLUDE_DIRS})
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
