@@ -351,7 +351,7 @@ TRestMetadata::TRestMetadata()
 	fStore = true;
 	fElementGlobal = NULL;
 	fElement = NULL;
-	fVerboseLevel = REST_Silent;
+	fVerboseLevel = REST_Essential;
 	//helper = new TRestStringHelper();
 	fElementEnv.clear();
 	fHostmgr = NULL;
@@ -365,7 +365,7 @@ TRestMetadata::TRestMetadata(const char *cfgFileName)
 	fStore = true;
 	fElementGlobal = NULL;
 	fElement = NULL;
-	fVerboseLevel = REST_Silent;
+	fVerboseLevel = REST_Essential;
 	fConfigFileName = cfgFileName;
 	//helper = new TRestStringHelper();
 	fElementEnv.clear();
