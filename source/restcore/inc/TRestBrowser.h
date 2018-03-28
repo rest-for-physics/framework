@@ -77,7 +77,7 @@ public:
 	//Destructor
 	~TRestBrowser();
 
-	void Initialize();
+	void Initialize(TString opt="FI");
 	void InitFromConfigFile();
 
 	void SetViewer(TRestEventViewer *eV);

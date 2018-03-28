@@ -26,8 +26,8 @@ ClassImp(TRestBrowser)
 TRestBrowser::TRestBrowser()
 {
 	Initialize();
-	SetViewer("TRestGenericEventViewer");
 	if (gDirectory->GetFile() != NULL) {
+		SetViewer("TRestGenericEventViewer");
 		OpenFile(gDirectory->GetFile()->GetName());
 		cout << "Loaded File : " << fInputFileName << endl;
 	}
@@ -35,12 +35,8 @@ TRestBrowser::TRestBrowser()
 
 TRestBrowser::TRestBrowser(TString viewerName) 
 {
-	Initialize();
+	Initialize("I");
 	SetViewer(viewerName);
-	if (gDirectory->GetFile() != NULL) {
-		OpenFile(gDirectory->GetFile()->GetName());
-		cout << "Loaded File : " << fInputFileName << endl;
-	}
 }
 
 //______________________________________________________________________________
@@ -52,12 +48,12 @@ TRestBrowser::~TRestBrowser()
 
 }
 
-void TRestBrowser::Initialize() {
+void TRestBrowser::Initialize(TString opt) {
 
 	isFile = kFALSE;
 	fCurrentEvent = 0;
 
-	b = new TBrowser("Browser", 0, "REST Browser", "FI");
+	b = new TBrowser("Browser", 0, "REST Browser", opt);
 	b->GetBrowserImp()->GetMainFrame()->DontCallClose();
 
 	b->StartEmbedding(0, -1);
@@ -95,21 +91,22 @@ void TRestBrowser::SetViewer(TRestEventViewer *eV)
 
 
 void TRestBrowser::SetViewer(TString viewerName) {
-	TClass *cl = TClass::GetClass(viewerName);
-	if (cl == NULL) {
-		warning << "cannot find viewer: " << viewerName << " !" << endl;
-	}
-	else
-	{
-		TObject*obj = (TObject*)cl->New();
-		if (obj->InheritsFrom("TRestEventViewer"))
-		{
-			SetViewer((TRestEventViewer*)obj);
+	if (Count((string)viewerName, "Viewer") > 0) {
+		TClass *cl = TClass::GetClass(viewerName);
+		if (cl == NULL) {
+			warning << "cannot find viewer: " << viewerName << " !" << endl;
 		}
 		else
 		{
-			warning << viewerName << " is not a viewer!" << endl;
+			TObject*obj = (TObject*)cl->New();
+
+			SetViewer((TRestEventViewer*)obj);
+
 		}
+	}
+	else
+	{
+		warning << "illegal viewer : " << viewerName << endl;
 	}
 }
 
