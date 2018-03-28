@@ -27,7 +27,6 @@ class TRestSignalZeroSuppresionProcess:public TRestEventProcess {
 #ifndef __CINT__
         TRestRawSignalEvent *fRawSignalEvent;
         TRestSignalEvent *fSignalEvent;
-
 #endif
 
         void InitFromConfigFile();
@@ -39,11 +38,15 @@ class TRestSignalZeroSuppresionProcess:public TRestEventProcess {
     protected:
 
         TVector2 fBaseLineRange;
+        TVector2 fAnalysisRange;
         Double_t fPointThreshold;
         Double_t fSignalThreshold;
         Int_t fNPointsOverThreshold;
+
         Int_t fHeadPoints;
         Int_t fTailPoints;
+
+        Int_t fMinimumAmplitude;
 
 
     public:
@@ -66,6 +69,7 @@ class TRestSignalZeroSuppresionProcess:public TRestEventProcess {
             std::cout << "Number of points over threshold : " << fNPointsOverThreshold << std::endl;
             std::cout << "Number of head points : " << fHeadPoints << std::endl;
             std::cout << "Number of tail points : " << fTailPoints << std::endl;
+            std::cout << "Minimum max-peak amplitude : " << fMinimumAmplitude << std::endl;
 
             EndPrintProcess();
         }

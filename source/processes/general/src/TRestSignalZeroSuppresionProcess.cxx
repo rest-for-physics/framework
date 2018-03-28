@@ -15,8 +15,6 @@
 #include "TRestSignalZeroSuppresionProcess.h"
 using namespace std;
 
-const double cmTomm = 10.;
-
 ClassImp(TRestSignalZeroSuppresionProcess)
     //______________________________________________________________________________
 TRestSignalZeroSuppresionProcess::TRestSignalZeroSuppresionProcess()
@@ -50,6 +48,7 @@ void TRestSignalZeroSuppresionProcess::LoadDefaultConfig( )
     cout << "Signal to hits metadata not found. Loading default values" << endl;
 
     TVector2 fBaseLineRange = TVector2( 10, 90);
+    TVector2 fAnalysisRange = TVector2( 10, 500);
     fPointThreshold = 2.;
     fSignalThreshold = 2.;
     fNPointsOverThreshold = 10;
@@ -116,10 +115,10 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
         sgnl->SetHeadPoints( fHeadPoints );
         sgnl->SetTailPoints( fTailPoints );
 
-        Double_t integral = sgnl->GetIntegralWithThreshold( 0, sgnl->GetNumberOfPoints(),
+        Double_t integral = sgnl->GetIntegralWithThreshold( fAnalysisRange.X(), fAnalysisRange.Y(),
                 fBaseLineRange.X(), fBaseLineRange.Y(), fPointThreshold, fNPointsOverThreshold, fSignalThreshold );
 
-        if( integral > 0 )
+        if( integral > 0 && sgnl->GetMaxValue( fAnalysisRange.X(), fAnalysisRange.Y() ) > fMinimumAmplitude  )
         {
             totalIntegral += integral;
 
@@ -168,10 +167,14 @@ void TRestSignalZeroSuppresionProcess::EndProcess()
 void TRestSignalZeroSuppresionProcess::InitFromConfigFile( )
 {
     fBaseLineRange = StringTo2DVector( GetParameter( "baseLineRange", "(5,55)") );
+    fAnalysisRange = StringTo2DVector( GetParameter( "analysisRange", "(10,500)") );
     fPointThreshold = StringToDouble( GetParameter( "pointThreshold", "2" ) );
     fNPointsOverThreshold = StringToInteger( GetParameter( "pointsOverThreshold", "5" ) );
     fSignalThreshold = StringToDouble( GetParameter( "signalThreshold", "5" ) );
     fHeadPoints = StringToInteger( GetParameter( "headPoints", "15" ) );
     fTailPoints = StringToInteger( GetParameter( "tailPoints", "15" ) );
+
+    fMinimumAmplitude = StringToInteger( GetParameter( "minimumAmplitude", "15" ) );
+
 }
 
