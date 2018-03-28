@@ -142,11 +142,11 @@ Double_t TRestRawSignalEvent::GetRiseTime( )
     Int_t n = 0;
     for( int i = 0; i < GetNumberOfSignals(); i++ )
     {
-	if( fSignal[i].GetThresholdIntegralValue() > 0 )
-	{
-		sum += fSignal[i].GetRiseTime( );
-		n++;
-	}
+        if( fSignal[i].GetThresholdIntegralValue() > 0 )
+        {
+            sum += fSignal[i].GetRiseTime( );
+            n++;
+        }
     }
 
     if( n == 0 ) return 0;
@@ -159,7 +159,8 @@ Double_t TRestRawSignalEvent::GetTripleMaxIntegral( Int_t startBin, Int_t endBin
     Double_t sum = 0;
 
     for( int i = 0; i < GetNumberOfSignals(); i++ )
-        sum += fSignal[i].GetTripleMaxIntegral( startBin, endBin );
+        if( fSignal[i].GetThresholdIntegralValue() > 0 )
+            sum += fSignal[i].GetTripleMaxIntegral( startBin, endBin );
 
     return sum;
 }
