@@ -42,6 +42,7 @@ class TRestSignalZeroSuppresionProcess:public TRestEventProcess {
         Double_t fPointThreshold;
         Double_t fSignalThreshold;
         Int_t fNPointsOverThreshold;
+        Int_t fHeadPoints;
         Int_t fTailPoints;
 
 
@@ -63,6 +64,7 @@ class TRestSignalZeroSuppresionProcess:public TRestEventProcess {
             std::cout << "Point Threshold : " << fPointThreshold << " sigmas" << std::endl;
             std::cout << "Signal threshold : " << fSignalThreshold << " sigmas" << std::endl;
             std::cout << "Number of points over threshold : " << fNPointsOverThreshold << std::endl;
+            std::cout << "Number of head points : " << fHeadPoints << std::endl;
             std::cout << "Number of tail points : " << fTailPoints << std::endl;
 
             EndPrintProcess();
