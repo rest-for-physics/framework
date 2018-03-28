@@ -269,7 +269,11 @@ Double_t TRestRawSignal::GetTripleMaxIntegral( Int_t startBin, Int_t endBin )
 	if( endBin <= 0 || endBin > GetNumberOfPoints() ) endBin = GetNumberOfPoints();
 
 	if( fThresholdIntegral == -1 )
-		cout << "REST Warning. TRestRawSignal::GetRiseTime. GetIntegralWithThreshold should be called first." << endl;
+		cout << "REST Warning. TRestRawSignal::GetTripleMaxIntegral. GetIntegralWithThreshold should be called first." << endl;
+
+	if( fPointsOverThreshold.size() < 2 )
+		cout << "REST Warning. TRestRawSignal::GetTripleMaxIntegral. Points over threshold = " << fPointsOverThreshold.size() << endl;
+        return 0;
 
 	Int_t cBin = GetMaxPeakBin( startBin, endBin );
 
