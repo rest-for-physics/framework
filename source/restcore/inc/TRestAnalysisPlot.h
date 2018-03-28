@@ -45,8 +45,11 @@ class TRestAnalysisPlot:public TRestMetadata {
         std::vector <TString> fPlotString;
         std::vector <TString> fCutString;
 
-	Double_t fStartTime;
-	Double_t fEndTime;
+        Double_t fStartTime;
+        Double_t fEndTime;
+
+        Bool_t fStats;
+
 
 #endif
 
@@ -60,8 +63,8 @@ class TRestAnalysisPlot:public TRestMetadata {
 
         void PrintMetadata( ) { }
 
-	void SetOutputPlotsFilename( TString fname ) { fCanvasSave = fname; }
-	void SetOutputHistosFilename( TString fname ) { fHistoOutputFile = fname; }
+        void SetOutputPlotsFilename( TString fname ) { fCanvasSave = fname; }
+        void SetOutputHistosFilename( TString fname ) { fHistoOutputFile = fname; }
 
         void AddFile( TString fileName ) { fFileNames.push_back( fileName ); fNFiles++; }
 

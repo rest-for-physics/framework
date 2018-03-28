@@ -47,6 +47,8 @@ void TRestAnalysisPlot::Initialize()
 
     fStartTime = 0;
     fEndTime = 0;
+
+    fStats = kTRUE;
 }
 
 
@@ -130,6 +132,9 @@ void TRestAnalysisPlot::InitFromConfigFile()
             fPlotTitle.push_back( title );
 
             TString option = RemoveWhiteSpaces( GetFieldValue( "option", addPlotString ) );
+
+            if( RemoveWhiteSpaces( GetFieldValue( "stats", addPlotString ) ) == "OFF" )
+                fStats = kFALSE;
 
             if( option == "Notdefined" )
                 option = "colz";
@@ -367,6 +372,8 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
         }
 
         TH3F *htemp = (TH3F*)gPad->GetPrimitive( fPlotNames[n] );
+        if( fStats == kFALSE )
+            htemp->SetStats(kFALSE);
         htemp->SetTitle( fPlotTitle[n] );
         htemp->GetXaxis()->SetTitle( fPlotXLabel[n] );
         htemp->GetYaxis()->SetTitle( fPlotYLabel[n] );
@@ -449,6 +456,8 @@ void TRestAnalysisPlot::PlotCombinedCanvasCompare( )
         }
 
         TH3F *htemp = (TH3F*)gPad->GetPrimitive( fPlotNames[n] );
+        if( fStats == kFALSE )
+            htemp->SetStats(kFALSE);
         htemp->SetTitle( fPlotTitle[n] );
         htemp->GetXaxis()->SetTitle( fPlotXLabel[n] );
         htemp->GetYaxis()->SetTitle( fPlotYLabel[n] );
