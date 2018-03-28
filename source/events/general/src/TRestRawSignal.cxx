@@ -35,6 +35,7 @@ TRestRawSignal::TRestRawSignal()
 
    fThresholdIntegral = -1;
 
+   fHeadPoints = 0;
    fTailPoints = 0;
 }
 
@@ -52,6 +53,7 @@ TRestRawSignal::TRestRawSignal( Int_t nBins )
 
    fThresholdIntegral = -1;
 
+   fHeadPoints = 0;
    fTailPoints = 0;
 }
 
@@ -69,6 +71,7 @@ void TRestRawSignal::Initialize()
 
     fThresholdIntegral = -1;
 
+    fHeadPoints = 0;
     fTailPoints = 0;
 }
 
@@ -175,7 +178,7 @@ Double_t TRestRawSignal::GetIntegralWithThreshold( Int_t from, Int_t to,
 		//			cout << "Signal : " << sig << " signal Threshold : " << signalThreshold << endl;
 				if( sig > signalThreshold )
 				{
-					for( int j = i - nPoints - fTailPoints; j < i + fTailPoints && i + j < GetNumberOfPoints(); j++ )
+					for( int j = i - nPoints - fHeadPoints; j < i + fTailPoints && i + j < GetNumberOfPoints(); j++ )
 					{
 						if( j < 0 ) j = 0;
 		//				if( debug )

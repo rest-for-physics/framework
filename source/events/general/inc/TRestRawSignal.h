@@ -45,6 +45,7 @@ class TRestRawSignal: public TObject {
 
         Double_t fThresholdIntegral;
 
+        Int_t fHeadPoints;
         Int_t fTailPoints;
 #endif
 
@@ -78,6 +79,7 @@ class TRestRawSignal: public TObject {
 
         Double_t GetIntegral( Int_t startBin = 0, Int_t endBin = 0 );
 
+        void SetHeadPoints( Int_t p ) { fHeadPoints = p; }
         void SetTailPoints( Int_t p ) { fTailPoints = p; }
 
         Double_t GetIntegralWithThreshold( Int_t from, Int_t to, 
