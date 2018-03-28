@@ -35,7 +35,6 @@ class TRestRawSignalAnalysisProcess:public TRestEventProcess {
         Double_t fFirstEventTime;
         vector <Double_t> fPreviousEventTime;
 
-        //TCanvas *fCanvas;
         vector <TObject *> fDrawingObjects;
         Double_t fDrawRefresh;
 
@@ -44,9 +43,6 @@ class TRestRawSignalAnalysisProcess:public TRestEventProcess {
         std::vector <std::string> fSignalAnalysisObservables;
 #endif
 
-        TPad *DrawSignal( Int_t signal );
-        TPad *DrawObservables( );
-
         void InitFromConfigFile();
 
         void Initialize();
@@ -54,11 +50,12 @@ class TRestRawSignalAnalysisProcess:public TRestEventProcess {
         void LoadDefaultConfig();
 
     protected:
-        
+
         //add here the members of your event process
         //
         TVector2 fBaseLineRange;
-        TVector2 fIntegralRange;
+        TVector2 fTailLineRange;
+        TVector2 fAnalysisRange;
         Double_t fPointThreshold;
         Double_t fSignalThreshold;
         Int_t fNPointsOverThreshold;
@@ -73,9 +70,9 @@ class TRestRawSignalAnalysisProcess:public TRestEventProcess {
         TVector2 fThresholdIntegralCut;
         TVector2 fPeakTimeDelayCut;
 
-        Int_t fTailPoints;
+        Int_t fPeakMaxAmplitudeCut;
 
-        TH1D *fChannelsHisto;
+        Int_t fTailPoints;
 
 
     public:
@@ -92,7 +89,8 @@ class TRestRawSignalAnalysisProcess:public TRestEventProcess {
             BeginPrintProcess();
 
             cout << "Baseline range : ( " << fBaseLineRange.X() << " , " << fBaseLineRange.Y() << " ) " << endl;
-            cout << "Integral range : ( " << fIntegralRange.X() << " , " << fIntegralRange.Y() << " ) " << endl;
+            cout << "Tailline range : ( " << fTailLineRange.X() << " , " << fTailLineRange.Y() << " ) " << endl;
+            cout << "Analysis range : ( " << fAnalysisRange.X() << " , " << fAnalysisRange.Y() << " ) " << endl;
             cout << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
             cout << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
             cout << "Number of points over threshold : " << fNPointsOverThreshold << endl;
@@ -109,6 +107,7 @@ class TRestRawSignalAnalysisProcess:public TRestEventProcess {
                 cout << "Full integral cut range : ( " << fFullIntegralCut.X() << " , " << fFullIntegralCut.Y() << " ) " << endl;
                 cout << "Threshold integral cut range : ( " << fThresholdIntegralCut.X() << " , " << fThresholdIntegralCut.Y() << " ) " << endl;
                 cout << "Peak time delay cut range : ( " << fPeakTimeDelayCut.X() << " , " << fPeakTimeDelayCut.Y() << " )" << endl;
+                cout << "Minimum max-peak amplitude required : " << fPeakMaxAmplitudeCut << endl;
             }
             else
             {
