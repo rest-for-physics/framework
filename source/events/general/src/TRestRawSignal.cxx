@@ -178,7 +178,7 @@ Double_t TRestRawSignal::GetIntegralWithThreshold( Int_t from, Int_t to,
 		//			cout << "Signal : " << sig << " signal Threshold : " << signalThreshold << endl;
 				if( sig > signalThreshold )
 				{
-					for( int j = i - nPoints - fHeadPoints; j < i + fTailPoints && i + j < GetNumberOfPoints(); j++ )
+					for( int j = i - nPoints - fHeadPoints; j < i + fTailPoints && j < GetNumberOfPoints(); j++ )
 					{
 						if( j < 0 ) j = 0;
 		//				if( debug )
