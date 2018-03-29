@@ -72,8 +72,6 @@ class TRestRawSignalAnalysisProcess:public TRestEventProcess {
 
         Int_t fPeakMaxAmplitudeCut;
 
-        Int_t fTailPoints;
-
 
     public:
         void InitProcess();
@@ -94,7 +92,6 @@ class TRestRawSignalAnalysisProcess:public TRestEventProcess {
             cout << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
             cout << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
             cout << "Number of points over threshold : " << fNPointsOverThreshold << endl;
-            cout << "Number of tail points for threshold integral : " << fTailPoints << endl;
             cout << endl;
             if( fCutsEnabled )
             {

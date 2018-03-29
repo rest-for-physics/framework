@@ -173,8 +173,6 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     obsName = this->GetName() + (TString) ".FullIntegral";
     fAnalysisTree->SetObservableValue( obsName, fullIntegral );
 
-    fSignalEvent->SetTailPoints( fTailPoints );
-
     Double_t thrIntegral = fSignalEvent->GetIntegralWithThreshold( from, to, fBaseLineRange.X(), fBaseLineRange.Y(), fPointThreshold, fNPointsOverThreshold, fSignalThreshold );
     obsName = this->GetName() + (TString) ".ThresholdIntegral";
     fAnalysisTree->SetObservableValue( obsName, thrIntegral );
@@ -329,12 +327,10 @@ void TRestRawSignalAnalysisProcess::InitFromConfigFile( )
     fFullIntegralCut  = StringTo2DVector( GetParameter( "fullIntegralCut", "(0,100000)" ) );
     fThresholdIntegralCut  = StringTo2DVector( GetParameter( "thresholdIntegralCut", "(0,100000)" ) );
 
-    fPeakMaxAmplitudeCut  = StringToInteger( GetParameter( "maxAmplitudeCut", "50)" ) );
+    fPeakMaxAmplitudeCut  = StringToInteger( GetParameter( "maxAmplitudeCut", "50" ) );
 
     fPeakTimeDelayCut  = StringTo2DVector( GetParameter( "peakTimeDelayCut", "(0,20)" ) );
     if( GetParameter( "cutsEnabled", "false" ) == "true" ) fCutsEnabled = true;
-
-    fTailPoints = StringToInteger( GetParameter( "tailPoints", "0" ) );
 
 }
 
