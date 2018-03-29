@@ -37,13 +37,13 @@ class TRestRawSignalViewerProcess:public TRestEventProcess {
 
         TVector2 fBaseLineRange;
         TVector2 fThresholdRange;
+        TVector2 fYRange;
 
         Double_t fPeakThreshold;
         Int_t fNSignalsThreshold;
 #endif
 
-        TPad *DrawSignal( Int_t signal );
-        TPad *DrawObservables( );
+        TPad *DrawSignals( );
 
         void InitFromConfigFile();
 
@@ -70,6 +70,7 @@ class TRestRawSignalViewerProcess:public TRestEventProcess {
 
             cout << "Refresh value : " << fDrawRefresh << endl;
             cout << "Baseline range : ( " << fBaseLineRange.X() << " , " << fBaseLineRange.Y() << " ) " << endl;
+            cout << "Drawing Y-range : ( " << fYRange.X() << " , " << fYRange.Y() << " ) " << endl;
             cout << "Threshold range: ( " << fThresholdRange.X() << " , " << fThresholdRange.Y() << " ) " << endl;
             cout << "Max peak amplitude threshold : " << fPeakThreshold << endl;
             cout << "Max number of signals : " << fNSignalsThreshold << endl;

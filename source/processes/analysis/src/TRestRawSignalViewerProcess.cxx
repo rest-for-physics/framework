@@ -96,7 +96,7 @@ TRestEvent* TRestRawSignalViewerProcess::ProcessEvent( TRestEvent *evInput )
     if( GetVerboseLevel() >= REST_Debug ) 
     {
 	    Int_t signalsAdded = 0;
-	    fSignalEvent->AddSignal( *fInputSignalEvent->GetMaxSignal( ) );
+	    fSignalEvent->AddSignal( *fInputSignalEvent->GetMaxSignal( fThresholdRange.X(), fThresholdRange.Y() ) );
 	    signalsAdded++;
 
 	    for( int n = 0; n < N; n++ )
@@ -126,7 +126,7 @@ TRestEvent* TRestRawSignalViewerProcess::ProcessEvent( TRestEvent *evInput )
 	    delete fDrawingObjects[i];
 	fDrawingObjects.clear();
 
-	TPad *pad2 = DrawSignal(0);
+	TPad *pad2 = DrawSignals();
 	pad2->Draw();
 	pad2->cd();
 
@@ -163,7 +163,7 @@ void TRestRawSignalViewerProcess::EndProcess()
 
 }
 
-TPad *TRestRawSignalViewerProcess::DrawSignal( Int_t signal )
+TPad *TRestRawSignalViewerProcess::DrawSignals( )
 {
     TPad *pad = new TPad( this->GetName(), this->GetTitle(), 0, 0, 1, 1 );
 
@@ -182,7 +182,19 @@ TPad *TRestRawSignalViewerProcess::DrawSignal( Int_t signal )
 		    gr->SetPoint( n, n, sgnl->GetData(n) );
 
 	    if( m == 0 )
+        {
 		    gr->Draw( "AC*" );
+            Double_t rX = fYRange.X(), rY = fYRange.Y();
+            if( rX == 0 && rY == 0 )
+            {
+                 rX = sgnl->GetMinPeakValue( fThresholdRange.X(), fThresholdRange.Y() ) - 20;
+                 rY = sgnl->GetMaxPeakValue( fThresholdRange.X(), fThresholdRange.Y() ) + 20;
+            }
+
+            gr->GetYaxis()->SetRangeUser( rX, rY );
+		    gr->Draw( "AC*" );
+            pad->Update();
+        }
 	    else
 		    gr->Draw( "CP*" );
 
@@ -238,6 +250,11 @@ void TRestRawSignalViewerProcess::InitFromConfigFile( )
     fDrawRefresh = StringToDouble( GetParameter( "refreshEvery", "0" ) );
 
     fBaseLineRange = StringTo2DVector( GetParameter( "baseLineRange", "(5,55)") );
+
+    if( GetParameter( "yRange", "auto") == "auto" ) 
+        fYRange = TVector2( 0, 0 );
+    else
+        fYRange = StringTo2DVector( GetParameter( "yRange", "auto") );
 
     fThresholdRange = StringTo2DVector( GetParameter( "thresholdRange", "(180,240)") );
     fPeakThreshold = StringToDouble( GetParameter( "peakThreshold", "25" ) );
