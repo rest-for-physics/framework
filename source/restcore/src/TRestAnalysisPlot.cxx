@@ -253,9 +253,33 @@ void TRestAnalysisPlot::InitFromConfigFile()
         }
     }
 
+    position = 0;
+    while( ( addPlotString = GetKEYStructure( "histo", position ) ) != "NotFound" ) //general cuts 
+    {
+        TString histoActive = GetFieldValue( "value", addPlotString );
+
+        if( histoActive == "on" || histoActive == "ON" || histoActive == "On" || histoActive == "oN" )
+        {     
+            TString histoName = RemoveWhiteSpaces( GetFieldValue( "name", addPlotString ) );
+            fHistoNames.push_back( histoName );
+
+            TString xLabel = GetFieldValue( "xlabel", addPlotString );
+            fHistoXLabel.push_back( xLabel );
+
+            TString yLabel = GetFieldValue( "ylabel", addPlotString );
+            fHistoYLabel.push_back( yLabel );
+
+            TString title = GetFieldValue( "title", addPlotString );
+            fHistoTitle.push_back( title );
+
+            TString saveName = RemoveWhiteSpaces( GetFieldValue( "save", addPlotString ) );
+            fHistoSaveToFile.push_back( saveName );
+        }
+    }
+
     Int_t maxPlots = (Int_t) fCanvasDivisions.X() * (Int_t) fCanvasDivisions.Y();
 
-    Int_t nPlots = (Int_t) fPlotString.size();
+    Int_t nPlots = (Int_t) fPlotString.size() + (Int_t) fHistoNames.size();
 
     if( nPlots > maxPlots ) 
     {
@@ -400,6 +424,43 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
         fCombinedCanvas->Update();
     }
 
+    for( unsigned int n = 0; n < fHistoNames.size(); n++ )
+    {
+        cout << "Histo names : " << fHistoNames[n] << endl;
+        fCombinedCanvas->cd( (Int_t) fPlotString.size() + n + 1 );
+
+        runs[0]->GetInputFile()->cd();
+
+        TH1D *h = (TH1D *) runs[0]->GetInputFile()->Get( fHistoNames[n] );
+        Int_t nB = h->GetNbinsX();
+        Int_t bX = h->GetXaxis()->GetBinCenter( 1 ) - 0.5;
+        Int_t bY = h->GetXaxis()->GetBinCenter( h->GetNbinsX() ) + 0.5;
+
+        TH1D *hNew = new TH1D( "New_" + (TString) fHistoNames[n], fHistoNames[n], nB, bX, bY );
+
+        for( int m = 0; m < fNFiles; m++ )
+        {
+            TH1D *aHist = (TH1D *) runs[m]->GetInputFile()->Get( fHistoNames[n] );
+            runs[m]->GetInputFile()->cd();
+            hNew->Add( aHist );
+        }
+
+        if( fStats == kFALSE )
+            hNew->SetStats(kFALSE);
+        hNew->SetTitle( fHistoTitle[n] );
+        hNew->GetXaxis()->SetTitle( fHistoXLabel[n] );
+        hNew->GetYaxis()->SetTitle( fHistoYLabel[n] );
+
+        hNew->Draw();
+
+        f->cd();
+        hNew->Write( fHistoNames[n] );
+
+        if( fHistoSaveToFile[n] != "Notdefined" && fHistoSaveToFile[n] != "" )
+            SaveHistoToPDF( hNew, n, fHistoSaveToFile[n] );
+        fCombinedCanvas->Update();
+    }
+
     if( fCanvasSave != "" )
         fCombinedCanvas->Print( fCanvasSave );
 
@@ -497,6 +558,23 @@ void TRestAnalysisPlot::SavePlotToPDF( Int_t n, TString fileName )
     htemp->SetTitle( fPlotTitle[n] );
     htemp->GetXaxis()->SetTitle( fPlotXLabel[n] );
     htemp->GetYaxis()->SetTitle( fPlotYLabel[n] );
+
+    c->Print( fileName );
+
+    delete c;
+}
+
+void TRestAnalysisPlot::SaveHistoToPDF( TH1D *h, Int_t n, TString fileName )
+{
+    gErrorIgnoreLevel=10;
+
+    TCanvas *c = new TCanvas( h->GetName(), h->GetTitle(), 800, 600 );
+
+    h->Draw( );
+
+    h->SetTitle( fHistoTitle[n] );
+    h->GetXaxis()->SetTitle( fHistoXLabel[n] );
+    h->GetYaxis()->SetTitle( fHistoYLabel[n] );
 
     c->Print( fileName );
 

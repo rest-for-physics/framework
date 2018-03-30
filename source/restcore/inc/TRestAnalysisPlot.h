@@ -36,6 +36,11 @@ class TRestAnalysisPlot:public TRestMetadata {
         TVector2 fCanvasDivisions;
         TString fCanvasSave;
         std::vector <TString> fPlotNames;
+        std::vector <TString> fHistoNames;
+        std::vector <TString> fHistoXLabel;
+        std::vector <TString> fHistoYLabel;
+        std::vector <TString> fHistoTitle;
+        std::vector <TString> fHistoSaveToFile;
         std::vector <TString> fPlotSaveToFile;
         std::vector <TString> fPlotXLabel;
         std::vector <TString> fPlotYLabel;
@@ -70,6 +75,7 @@ class TRestAnalysisPlot:public TRestMetadata {
 
         void SavePlotToPDF( TString plotName, TString fileName );
         void SavePlotToPDF( Int_t n, TString fileName );
+        void SaveHistoToPDF( TH1D *h, Int_t n, TString fileName );
 
         Int_t GetPlotIndex( TString plotName );
 
