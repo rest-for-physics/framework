@@ -131,6 +131,8 @@ class TRestRun:public TRestMetadata {
         void OpenOutputFile( );
         void CloseOutputFile( );
 
+        TFile *GetInputFile( ) { return fInputFile; }
+
         void EnableOverWrite( ) { fOverwrite = true; }
         void DisableOverWrite( ) { fOverwrite = false; }
 
