@@ -53,7 +53,8 @@ def main():
     if os.path.exists(vars.opt["Source_Path"] + "/.git/"):
         print "updating local git repository of REST"
         os.chdir(vars.opt["Source_Path"])
-        p = subprocess.Popen(['git pull remote '+vars.opt["Branch"]], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
+        os.system("git stash")
+        p = subprocess.Popen(['git pull origin '+vars.opt["Branch"]], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
         out, err = p.communicate()
         if "up-to-date" in out:
             print "REST is already up-to-date"
