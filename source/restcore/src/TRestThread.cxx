@@ -198,7 +198,12 @@ void TRestThread::PrepareToProcess(bool testrun)
 
 	if (fProcessChain.size() > 0)
 	{
-		info << "Preparing Thread " << fThreadId << "..." << endl;
+		stringstream Filename;
+		Filename << "rest_thread_tmp" << fThreadId << ".root";
+		debug << "Creating file : " << Filename.str() << endl;
+		fOutputFile = new TFile(Filename.str().c_str(), "recreate");
+		fOutputFile->SetCompressionLevel(0);
+
 		tempTree = new TRestAnalysisTree("AnalysisTree_tmp", "anaTree_tmp");
 		for (unsigned int i = 0; i < fProcessChain.size(); i++)
 		{
@@ -297,13 +302,9 @@ void TRestThread::PrepareToProcess(bool testrun)
 
 
 		//create output temp file for process-defined output object
-		stringstream Filename;
-		Filename << "rest_thread_tmp" << fThreadId << ".root";
-		debug << "Creating file : " << Filename.str() << endl;
-		fOutputFile = new TFile(Filename.str().c_str(), "recreate");
-		fOutputFile->SetCompressionLevel(0);
-		fOutputFile->cd();
 
+		fOutputFile->cd();
+		fOutputFile->Clear();
 		for (unsigned int i = 0; i < fProcessChain.size(); i++)
 		{
 			fProcessChain[i]->InitProcess();

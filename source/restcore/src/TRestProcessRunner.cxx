@@ -53,6 +53,7 @@ void TRestProcessRunner::Initialize()
 
 void TRestProcessRunner::BeginOfInit()
 {
+	info << endl;
 	if (fHostmgr != NULL)
 	{
 		fRunInfo = fHostmgr->GetRunInfo();
@@ -223,8 +224,8 @@ void TRestProcessRunner::RunProcess()
 {
 
 	fTempOutputDataFile = new TFile(fRunInfo->GetOutputFileName(), "recreate");
-
-	debug << "Initializing processes in threads. " << fThreadNumber << " threads are requested" << endl;
+	info << endl;
+	info << "TRestProcessRunner : perparing threads..." << endl;
 	fRunInfo->ResetEntry();
 	fRunInfo->SetCurrentEntry(firstEntry);
 	bool testrun = ToUpper(GetParameter("testRun", "ON")) == "ON"|| ToUpper(GetParameter("testRun", "ON")) == "TRUE";
@@ -235,7 +236,14 @@ void TRestProcessRunner::RunProcess()
 
 
 	//print metadata
-	if (fVerboseLevel >= REST_Essential) {
+	if (fRunInfo->GetFileProcess() != NULL) {
+		essential << this->ClassName() << ": 1 + " << fProcessNumber << " processes loaded, " << fThreadNumber << " threads prepared!" << endl;
+	}
+	else
+	{
+		essential << this->ClassName() << ": " << fProcessNumber << " processes loaded, " << fThreadNumber << " threads prepared!" << endl;
+	}
+	if (fVerboseLevel >= REST_Info) {
 		if (fRunInfo->GetFileProcess() != NULL)fRunInfo->GetFileProcess()->PrintMetadata();
 
 		for (int i = 0; i < fProcessNumber; i++)
@@ -243,8 +251,18 @@ void TRestProcessRunner::RunProcess()
 			fThreads[0]->GetProcess(i)->PrintMetadata();
 		}
 	}
-
-	info << this->ClassName() << ": " << fProcessNumber << " Processes Loaded, " << fThreadNumber << " Threads Requested." << endl;
+	else if(fVerboseLevel >= REST_Essential)
+	{
+		if (fRunInfo->GetFileProcess() != NULL)
+		{
+			essential << "(external) " << fRunInfo->GetFileProcess()->ClassName() << " : " << fRunInfo->GetFileProcess()->GetName()<< endl;
+		}
+		for (int i = 0; i < fProcessNumber; i++)
+		{
+			essential << "++ " << fThreads[0]->GetProcess(i)->ClassName() << " : " << fThreads[0]->GetProcess(i)->GetName() << endl;
+		}
+	}
+	fout << "=" << endl;
 
 
 	//copy thread tree to local

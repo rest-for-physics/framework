@@ -198,21 +198,21 @@ void TRestRun::EndOfInit()
 	fRunTag = GetParameter("runTag", "preserve").c_str();
 
 	OpenInputFile(0);
-	info << this->ClassName() << " : InputFile : " << fInputFileName << endl;
+	essential << this->ClassName() << " : InputFile : " << fInputFileName << endl;
 	if (fInputFileNames.size() > 1)
 	{
 		info << "which matches :" << endl;
 		for (int i = 0; i < fInputFileNames.size(); i++) {
 			info << fInputFileNames[i] << endl;
 		}
-		cout << endl;
+		info << endl;
 	}
 	else if (fInputFileNames.size() == 0) {
 		warning << "REST WARNING(TRestRun): Input File does not match anything!" << endl;
 		GetChar();
 	}
 
-	info << this->ClassName() << " : OutputFile : " << fOutputFileName << endl;
+	essential << this->ClassName() << " : OutputFile : " << fOutputFileName << endl;
 }
 
 
