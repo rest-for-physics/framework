@@ -33,6 +33,11 @@
 #include <TRestSignal.h>
 #include "TRestReadout.h"
 
+#define X1 -100 
+#define X2 100
+#define Y1 100 
+#define Y2 300
+
 class TRest2DHitsEvent : public TRestEvent {
 
 protected:
@@ -85,6 +90,8 @@ public:
 	
 	void ResetHits();
 
+	void RemoveSeparateZ();
+
 	void SetReadout(TRestReadout*r) { if (r != NULL)fReadout = r; }
 
 	void SetZLength(int l) { fNz = l; }
@@ -111,7 +118,16 @@ public:
 
 	double GetSumEnergy(map<int, double> hits);
 
+	double GetFirstX();
+	double GetFirstY();
+
+	double GetLastX();
+	double GetLastY();
+
+
 	TVector2 GetZRange();
+	TVector2 GetZRangeInXZ();
+	TVector2 GetZRangeInYZ();
 	TVector2 GetXRange();
 	TVector2 GetYRange();
 

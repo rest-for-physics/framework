@@ -175,14 +175,174 @@ void TRest2DHitsEvent::ResetHits()
 	Initialize();
 }
 
+void TRest2DHitsEvent::RemoveSeparateZ() 
+{
+	if (GetNumberOfXZSignals() > 4) {
+		vector<double> xzsumz;
+		double iup = GetZRange().Y();
+		double idn = GetZRange().X();
+		double maxpos = idn;
+		if (TMath::IsNaN(maxpos))
+			return;
+		double max = GetSumEnergy(GetXZHitsWithZ(maxpos));
+		for (int i = idn; i <= iup; i++) {
+			double sum = GetSumEnergy(GetXZHitsWithZ(i));
+			if (sum > max) {
+				max = sum;
+				maxpos = i;
+			}
+			xzsumz.push_back(sum);
+		}
+
+		int removepos = -1;
+		for (int i = maxpos - idn; i <= iup - idn; i++) {
+			if (xzsumz[i] <1) {
+				for (int j = i; j < i + 40 && j <= iup - idn; j++) {
+					if (xzsumz[j] > 1)
+					{
+						break;
+					}
+					else if(j==i+39)
+					{
+						removepos = i;
+						break;
+					}
+				}
+			}
+			if (removepos != -1) {
+				//cout << fEventID << " " << idn << " " << iup << " " << maxpos << " " << removepos + idn << endl;
+
+				for (int j = removepos+idn; j <= iup; j++) {
+					auto iter = fXZIdPos.begin();
+					while (iter != fXZIdPos.end()) {
+						fXZHits[j][iter->second] = 0;
+						iter++;
+					}
+				}
+				break;
+			}
+		}
+
+
+		removepos = -1;
+		for (int i = maxpos - idn; i >= 0; i--) {
+			if (xzsumz[i] <1) {
+				for (int j = i; j > i - 40 && j >= 0; j--) {
+					if (xzsumz[j] > 1)
+					{
+						break;
+					}
+					else if (j == i - 39)
+					{
+						removepos = i;
+						break;
+					}
+				}
+			}
+			if (removepos != -1) {
+				for (int j = removepos + idn; j >=idn; j--) {
+					auto iter = fXZIdPos.begin();
+					while (iter != fXZIdPos.end()) {
+						fXZHits[j][iter->second] = 0;
+						iter++;
+					}
+				}
+				break;
+			}
+		}
+
+	}
+
+
+	if (GetNumberOfYZSignals() > 4) {
+		vector<double> yzsumz;
+		double iup = GetZRange().Y();
+		double idn = GetZRange().X();
+		double maxpos = idn;
+		if (TMath::IsNaN(maxpos))
+			return;
+		double max = GetSumEnergy(GetYZHitsWithZ(maxpos));
+		for (int i = idn; i <= iup; i++) {
+			double sum = GetSumEnergy(GetYZHitsWithZ(i));
+			if (sum > max) {
+				max = sum;
+				maxpos = i;
+			}
+			yzsumz.push_back(sum);
+		}
+
+		int removepos = -1;
+		for (int i = maxpos - idn; i <= iup - idn; i++) {
+			if (yzsumz[i] <1) {
+				for (int j = i; j < i + 40 && j <= iup - idn; j++) {
+					if (yzsumz[j] > 1)
+					{
+						break;
+					}
+					else if (j == i + 39)
+					{
+						removepos = i;
+						break;
+					}
+				}
+			}
+			if (removepos != -1) {
+				for (int j = removepos + idn; j <= iup; j++) {
+					auto iter = fYZIdPos.begin();
+					while (iter != fYZIdPos.end()) {
+						fYZHits[j][iter->second] = 0;
+						iter++;
+					}
+				}
+				break;
+			}
+		}
+
+
+		removepos = -1;
+		for (int i = maxpos - idn; i >= 0; i--) {
+			if (yzsumz[i] <1) {
+				for (int j = i; j > i - 40 && j >= 0; j--) {
+					if (yzsumz[j] > 1)
+					{
+						break;
+					}
+					else if (j == i - 39)
+					{
+						removepos = i;
+						break;
+					}
+				}
+			}
+			if (removepos != -1) {
+				for (int j = removepos + idn; j >= idn; j--) {
+					auto iter = fYZIdPos.begin();
+					while (iter != fYZIdPos.end()) {
+						fYZHits[j][iter->second] = 0;
+						iter++;
+					}
+				}
+				break;
+			}
+		}
+
+	}
+
+
+}
+
 
 map<double, double> TRest2DHitsEvent::GetXZHitsWithZ(int z) {
-	return fXZHits[z];
+	if (z < fNz)
+		return fXZHits[z];
+	return fXZHits[fNz - 1];
 }
 
 
 map<double, double> TRest2DHitsEvent::GetYZHitsWithZ(int z) {
-	return fYZHits[z];
+	if (z < fNz)
+		return fYZHits[z];
+	return fYZHits[fNz - 1];
 }
 
 
@@ -235,14 +395,12 @@ double TRest2DHitsEvent::GetSumEnergy(map<double, double> hits)
 {
 	map<double, double>::iterator iter;
 	double result = 0;
-	for (int i = 0; i < hits.size(); i++) {
-		iter = hits.begin();
-		int sum = 0;
-		while (iter != hits.end()) {
-			result += iter->second;
-			iter++;
-		}
+	iter = hits.begin();
+	while (iter != hits.end()) {
+		result += iter->second;
+		iter++;
 	}
+
 	return result;
 }
 
@@ -250,20 +408,147 @@ double TRest2DHitsEvent::GetSumEnergy(map<int, double> hits)
 {
 	map<int, double>::iterator iter;
 	double result = 0;
-	for (int i = 0; i < hits.size(); i++) {
-		iter = hits.begin();
-		int sum = 0;
-		while (iter != hits.end()) {
-			result += iter->second;
-			iter++;
-		}
+	iter = hits.begin();
+	while (iter != hits.end()) {
+		result += iter->second;
+		iter++;
 	}
+
 	return result;
 }
 
+
+double TRest2DHitsEvent::GetFirstX() {
+	double max = numeric_limits<double>::quiet_NaN();
+	double maxpos = numeric_limits<double>::quiet_NaN();
+	int i = GetZRange().X();
+	int max_i = GetZRange().Y();
+	if (!TMath::IsNaN(GetZRange().X())) {
+		while (1) {
+			auto hits = GetXZHitsWithZ(i);
+			map<double, double>::iterator iter = hits.begin();
+			maxpos = iter->first;
+			max = iter->second;
+			while (iter != hits.end()) {
+
+				if (iter->second > max) {
+					max = iter->second;
+					maxpos = iter->first;
+				}
+				iter++;
+			}
+			i++;
+			if (i > max_i) {
+				return numeric_limits<double>::quiet_NaN();
+			}
+			if (max > 1) {
+				return maxpos;
+			}
+		}
+	}
+	return numeric_limits<double>::quiet_NaN();
+}
+
+
+double TRest2DHitsEvent::GetFirstY() {
+
+	double max = numeric_limits<double>::quiet_NaN();
+	double maxpos = numeric_limits<double>::quiet_NaN();
+	int i = GetZRange().X();
+	int max_i = GetZRange().Y();
+	if (!TMath::IsNaN(GetZRange().X())) {
+		while (1) {
+			auto hits = GetYZHitsWithZ(i);
+			map<double, double>::iterator iter = hits.begin();
+			maxpos = iter->first;
+			max = iter->second;
+			while (iter != hits.end()) {
+
+				if (iter->second > max) {
+					max = iter->second;
+					maxpos = iter->first;
+				}
+				iter++;
+			}
+			i++;
+			if (i > max_i) {
+				return numeric_limits<double>::quiet_NaN();
+			}
+			if (max > 1) {
+				return maxpos;
+			}
+		}
+	}
+	return numeric_limits<double>::quiet_NaN();
+
+
+}
+
+double TRest2DHitsEvent::GetLastX() {
+	double max = numeric_limits<double>::quiet_NaN();
+	double maxpos = numeric_limits<double>::quiet_NaN();
+	int i = GetZRange().Y();
+	int min_i = GetZRange().X();
+	if (!TMath::IsNaN(GetZRange().X())) {
+		while (1) {
+			auto hits = GetXZHitsWithZ(i);
+			map<double, double>::iterator iter = hits.begin();
+			maxpos = iter->first;
+			max = iter->second;
+			while (iter != hits.end()) {
+
+				if (iter->second > max) {
+					max = iter->second;
+					maxpos = iter->first;
+				}
+				iter++;
+			}
+			i--;
+			if (i < min_i) {
+				return numeric_limits<double>::quiet_NaN();
+			}
+			if (max > 1) {
+				return maxpos;
+			}
+		}
+	}
+	return numeric_limits<double>::quiet_NaN();
+}
+
+
+double TRest2DHitsEvent::GetLastY() {
+	double max = numeric_limits<double>::quiet_NaN();
+	double maxpos = numeric_limits<double>::quiet_NaN();
+	int i = GetZRange().Y();
+	int min_i = GetZRange().X();
+	if (!TMath::IsNaN(GetZRange().X())) {
+		while (1) {
+			auto hits = GetYZHitsWithZ(i);
+			map<double, double>::iterator iter = hits.begin();
+			maxpos = iter->first;
+			max = iter->second;
+			while (iter != hits.end()) {
+
+				if (iter->second > max) {
+					max = iter->second;
+					maxpos = iter->first;
+				}
+				iter++;
+			}
+			i--;
+			if (i < min_i) {
+				return numeric_limits<double>::quiet_NaN();
+			}
+			if (max > 1) {
+				return maxpos;
+			}
+		}
+	}
+	return numeric_limits<double>::quiet_NaN();
+}
+
 TVector2 TRest2DHitsEvent::GetZRange() {
-	int low1 = 0, low2 = 0, up1 = fNz - 1, up2 = fNz - 1;
-	map<double, double>::iterator iter;
+	int low1 = fNz - 1, low2 = fNz - 1, up1 = 0, up2 = 0;
 	for (int i = 0; i < fXZHits.size(); i++) {
 		if (GetSumEnergy(fXZHits[i]) > 0) {
 			low1 = i;
@@ -288,27 +573,81 @@ TVector2 TRest2DHitsEvent::GetZRange() {
 			break;
 		}
 	}
-	return TVector2(low1 < low2 ? low1 : low2, up1 < up2 ? up2 : up1);
+	int low = low1 < low2 ? low1 : low2;
+	int up = up1 < up2 ? up2 : up1;
+	if (low > up) {
+		return TVector2(numeric_limits<double>::quiet_NaN(), numeric_limits<double>::quiet_NaN());
+	}
+	return TVector2(low, up);
+}
+
+
+
+TVector2 TRest2DHitsEvent::GetZRangeInXZ() {
+	int low = fNz - 1, up = 0;
+	for (int i = 0; i < fXZHits.size(); i++) {
+		if (GetSumEnergy(fXZHits[i]) > 0) {
+			low = i;
+			break;
+		}
+	}
+	for (int i = fXZHits.size() - 1; i > -1; i--) {
+		if (GetSumEnergy(fXZHits[i]) > 0) {
+			up = i;
+			break;
+		}
+	}
+	if (low > up) {
+		return TVector2(numeric_limits<double>::quiet_NaN(), numeric_limits<double>::quiet_NaN());
+	}
+	return TVector2(low, up);
+}
+
+
+TVector2 TRest2DHitsEvent::GetZRangeInYZ() {
+	int low = fNz - 1, up = 0;
+	for (int i = 0; i < fYZHits.size(); i++) {
+		if (GetSumEnergy(fYZHits[i]) > 0) {
+			low = i;
+			break;
+		}
+	}
+	for (int i = fYZHits.size() - 1; i > -1; i--) {
+		if (GetSumEnergy(fYZHits[i]) > 0) {
+			up = i;
+			break;
+		}
+	}
+	if (low > up) {
+		return TVector2(numeric_limits<double>::quiet_NaN(), numeric_limits<double>::quiet_NaN());
+	}
+	return TVector2(low, up);
 }
 
 TVector2 TRest2DHitsEvent::GetXRange() {
 	double lower = 9999, upper = -9999;
 	for (int i = 0; i < GetNumberOfXZSignals(); i++) {
-		if (GetX(i) < lower)
-			lower = GetX(i);
-		if (GetX(i) > upper)
-			upper = GetX(i);
+		double x = GetX(i);
+		if (GetSumEnergy(GetXZHitsWithX(x)) > 1) {
+			if (x < lower)
+				lower = x;
+			if (x > upper)
+				upper = x;
+		}
 	}
 	return TVector2(lower, upper);
 }
 
 TVector2 TRest2DHitsEvent::GetYRange() {
 	double lower = 9999, upper = -9999;
-	for (int i = 0; i < GetNumberOfXZSignals(); i++) {
-		if (GetY(i) < lower)
-			lower = GetY(i);
-		if (GetY(i) > upper)
-			upper = GetY(i);
+	for (int i = 0; i < GetNumberOfYZSignals(); i++) {
+		double y = GetY(i);
+		if (GetSumEnergy(GetYZHitsWithY(y)) > 1) {
+			if (y < lower)
+				lower = y;
+			if (y > upper)
+				upper = y;
+		}
 	}
 	return TVector2(lower, upper);
 }
@@ -325,44 +664,52 @@ void TRest2DHitsEvent::PrintEvent(Bool_t fullInfo)
 }
 
 
-void TRest2DHitsEvent::DoHough() 
+void TRest2DHitsEvent::DoHough()
 {
-	if (GetNumberOfXZSignals() > 10) {
+	TVector3 center(X1 + X2 / 2, Y1 + Y2 / 2, 256);
+	if (GetNumberOfXZSignals() > 10 && xzz.size() > 10) {
 		for (int i = 0; i < xzz.size(); i++) {
 			for (int j = i + 1; j < xzz.size(); j++) {
 				double x1 = xzz[i]; double x2 = xzz[j];
 				double y1 = xzx[i]; double y2 = xzx[j];
 				double weight = log10(xze[i] + xze[j]);
 
-				if (y1 == y2 && TMath::Abs(x1 - x2) < 40)continue;
+				if (y1 == y2 && TMath::Abs(x1 - x2) < 100)continue;
 				if (x1 == x2)continue;
+				if (sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2)) > 200 || sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2)) < 10)continue;
 
 				double a = (y2 - y1) / (x2 - x1);
 				double b = (y1*x2 - y2 * x1) / (x2 - x1);
+				b = b - center.X() + center.Z()*a;
 
 				double r = TMath::Abs(-b / sqrt(a*a + 1));
 				double t = -TMath::ACos(a / sqrt(a*a + 1)) + TMath::Pi();
+				if (b < 0)r=-r;
 
 				fHough_XZ.push_back(TVector3(r, t, weight));
 			}
 		}
 	}
 
-	if (GetNumberOfYZSignals() > 10) {
+	if (GetNumberOfYZSignals() > 10 && yzz.size() > 10) {
 		for (int i = 0; i < yzz.size(); i++) {
 			for (int j = i + 1; j < yzz.size(); j++) {
 				double x1 = yzz[i]; double x2 = yzz[j];
 				double y1 = yzy[i]; double y2 = yzy[j];
 				double weight = log10(yze[i] + yze[j]);
 
-				if (y1 == y2 && TMath::Abs(x1 - x2) < 40)continue;
+				if (y1 == y2 && TMath::Abs(x1 - x2) < 100)continue;
 				if (x1 == x2)continue;
+				if (sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2)) > 200 || sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2)) < 10)continue;
+
 
 				double a = (y2 - y1) / (x2 - x1);
 				double b = (y1*x2 - y2 * x1) / (x2 - x1);
+				b = b - center.Y() + center.Z()*a;
 
 				double r = TMath::Abs(-b / sqrt(a*a + 1));
 				double t = -TMath::ACos(a / sqrt(a*a + 1)) + TMath::Pi();
+				if (b < 0)r = -r;
 
 				fHough_YZ.push_back(TVector3(r, t, weight));
 			}
@@ -392,7 +739,7 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 	for (int i = 0; i < GetNumberOfXZSignals(); i++) {
 		auto signal = GetXZSignal(i);
 		auto x = GetX(i);
-		for (int j = 0;j<fNz; j++) {
+		for (int j = 0; j < fNz; j++) {
 			_xzx.push_back(x);
 			_xze.push_back(signal[j]);
 			_xzz.push_back(j);
@@ -404,7 +751,7 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 	for (int i = 0; i < GetNumberOfYZSignals(); i++) {
 		auto signal = GetYZSignal(i);
 		auto y = GetY(i);
-		for (int j = 0; j<fNz; j++) {
+		for (int j = 0; j < fNz; j++) {
 			_yzy.push_back(y);
 			_yze.push_back(signal[j]);
 			_yzz.push_back(j);
@@ -418,7 +765,7 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 
 	double max = _xzx.size() > 0 ? *max_element(begin(_xzx), end(_xzx)) + 3 : 3;
 	double min = _xzx.size() > 0 ? *min_element(begin(_xzx), end(_xzx)) - 3 : -3;
-	for (int j = 0; j<fNz; j++) {
+	for (int j = 0; j < fNz; j++) {
 
 		_xzx.push_back(max);
 		_xze.push_back(0);
@@ -430,7 +777,7 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 
 	max = _yzy.size() > 0 ? *max_element(begin(_yzy), end(_yzy)) + 3 : 3;
 	min = _yzy.size() > 0 ? *min_element(begin(_yzy), end(_yzy)) - 3 : -3;
-	for (int j = 0; j<fNz; j++) {
+	for (int j = 0; j < fNz; j++) {
 
 		_yzy.push_back(max);
 		_yze.push_back(0);
@@ -462,7 +809,7 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 
 
 
-	if ((GetZRange().Y() - GetZRange().X()) > 0 ) {
+	if ((GetZRange().Y() - GetZRange().X()) > 0) {
 		gxz = new TGraph2D(_xzz.size(), &_xzz[0], &_xzx[0], &_xze[0]);
 		if (xzz.size() > 0) {
 			pointxz = new TH2D("hxz", "hxz", 100, gxz->GetXmin(), gxz->GetXmax(), 100, gxz->GetYmin(), gxz->GetYmax());
@@ -477,19 +824,18 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 		gxz->GetXaxis()->SetTitle("Z");
 		gxz->GetYaxis()->SetTitle("X");
 		{
-			gxz->SetPoint(_xzz.size(), 0, -100, 0);
-			gxz->SetPoint(_xzz.size() + 1, 512, 100, 0);
+			gxz->SetPoint(_xzz.size(), 0, X1, 0);
+			gxz->SetPoint(_xzz.size() + 1, 512, X2, 0);
 		}
 		gxz->SetNpx(500);
 		gxz->SetNpy(100);
 	}
-	if ((GetZRange().Y() - GetZRange().X()) > 0 ) {
+	if ((GetZRange().Y() - GetZRange().X()) > 0) {
 		gyz = new TGraph2D(_yzz.size(), &_yzz[0], &_yzy[0], &_yze[0]);
 		if (yzz.size() > 0) {
 			pointyz = new TH2D("hxz", "hxz", 100, gyz->GetXmin(), gyz->GetXmax(), 100, gyz->GetYmin(), gyz->GetYmax());
 			for (int i = 0; i < yzz.size(); i++) {
 				pointyz->Fill(yzz[i], yzy[i]);
-				cout << yzz[i] << " " << yzy[i] << endl;
 			}
 			pointyz->SetLineColor(kRed);
 			pointyz->SetFillColor(kRed);
@@ -499,8 +845,8 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 		gyz->GetXaxis()->SetTitle("Z");
 		gyz->GetYaxis()->SetTitle("Y");
 		{
-			gyz->SetPoint(_yzz.size(), 0, 100, 0);
-			gyz->SetPoint(_yzz.size() + 1, 512, 300, 0);
+			gyz->SetPoint(_yzz.size(), 0, Y1, 0);
+			gyz->SetPoint(_yzz.size() + 1, 512, Y2, 0);
 		}
 		gyz->SetNpx(500);
 		gyz->SetNpy(100);

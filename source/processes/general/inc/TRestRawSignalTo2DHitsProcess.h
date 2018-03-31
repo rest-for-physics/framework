@@ -34,9 +34,9 @@ class TRestRawSignalTo2DHitsProcess:public TRestEventProcess {
 
         // add here the metadata members of your event process
         // You can just remove fMyProcessParameter
-		int fNoiseReductionLevel;//0: no reduction, 1: subtract baseline, 2: subtract baseline plus threshold
+		//int fNoiseReductionLevel;//0: no reduction, 1: subtract baseline, 2: subtract baseline plus threshold
 
-		string fSelection;//0: uses all, 1: muon, 2: electron, 3: weak source, 4: firing, 5: other
+		string fSelection;//0: uses all, 1: muon, 2: strong electron, 3: weak electron, 4: firing, 5: abnormal, 6: pile up, 9: other
 
 		TVector2 fBaseLineRange;//!
 		TVector2 fIntegralRange;//!
@@ -47,6 +47,28 @@ class TRestRawSignalTo2DHitsProcess:public TRestEventProcess {
 		vector<TVector3> fHough_XZ; //y=ax+b, vertical line angle 牟, length 老, [id][老,牟,weight]
 		vector<TVector3> fHough_YZ; //y=ax+b, vertical line angle 牟, length 老, [id][老,牟,weight]
 
+		int munumup;//!
+		TH1D* mudeposxz;//!
+		TH1D* mudeposyz;//!
+
+		TH1D*hxzt;//!
+		TH1D*hyzt;//!
+		TH1D*hxzr;//!
+		TH1D*hyzr;//!
+		TF1*fxz;//!
+		TF1*fyz;//!
+
+		//observables
+		double zlen;
+		double xlen;
+		double ylen;
+		double firstx;
+		double firsty;
+		double firstz;
+		double lastz;
+
+		double mutanthe;
+
     protected:
 
     public:
@@ -54,14 +76,28 @@ class TRestRawSignalTo2DHitsProcess:public TRestEventProcess {
 
         TRestEvent *ProcessEvent( TRestEvent *eventInput );
 
+		void MakeCluster();
+
+		TRest2DHitsEvent* SelectTag();
+
+		void MuDepos(TRest2DHitsEvent*eve);
+
+		void EndProcess();
+
         void PrintMetadata() 
         { 
             BeginPrintProcess();
 
-            std::cout << "Noise Reduction Level : " << fNoiseReductionLevel << std::endl;
-			std::cout << "Event selection: " << fSelection << std::endl;
+			essential << "Baseline range : ( " << fBaseLineRange.X() << " , " << fBaseLineRange.Y() << " ) " << endl;
+			essential << "Integral range : ( " << fIntegralRange.X() << " , " << fIntegralRange.Y() << " ) " << endl;
+			essential << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
+			essential << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
+			essential << "Number of points over threshold : " << fNPointsOverThreshold << endl;
+			essential << endl;
+			essential << "Event selection: " << fSelection << endl;
+			essential << "0: uses all, 1: muon, 2: strong electron, 3: weak electron, 4: firing, 5: abnormal, 9: other" << endl;
 
-            EndPrintProcess();
+			EndPrintProcess();
         }
 
         //Constructor
