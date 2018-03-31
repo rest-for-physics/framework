@@ -16,6 +16,7 @@ void PrintHelp()
 	fout << " " << endl;
 	fout << "Usage1 : ./restManager --c CONFIG_FILE [--i INPUT_FILE] [--o OUTPUT_FILE]            " << endl;
 	fout << "                       [--j THREADS] [--e EVENTS_TO_PROCESS] [--v VERBOSELEVEL]      " << endl;
+	fout << "                       [--r HISTOS_FILE.root] [--p PDF_PLOTS.pdf]                    " << endl;
 	fout << "Usage2 : ./restManager TASK_NAME ARG1 ARG2 ARG3                                      " << endl;
 	fout << " " << endl;
 	fout << "-" << endl;
@@ -87,6 +88,8 @@ int main( int argc, char *argv[] )
 						case 'j': setenv("threadNumber", argv[i + 1], 1); break;
 						case 'e': setenv("eventsToProcess", argv[i + 1], 1); break;
 						case 'v': setenv("verboseLevel", argv[i + 1], 1); break;
+						case 'p': setenv("pdfFilename", argv[i + 1], 1); break;
+						case 'r': setenv("histoFilename", argv[i + 1], 1); break;
 						case 'h': PrintHelp(); exit(1);
 						default:
 							fout << endl;

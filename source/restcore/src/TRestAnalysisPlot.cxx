@@ -64,6 +64,7 @@ void TRestAnalysisPlot::InitFromConfigFile()
 {
 	size_t position = 0;
 	string addFileString;
+	info << endl;
 	while ((addFileString = GetKEYDefinition("addFile", position)) != "")
 	{
 		TString inputfile = GetFieldValue("name", addFileString);
@@ -77,12 +78,29 @@ void TRestAnalysisPlot::InitFromConfigFile()
 		if(fHostmgr->GetRunInfo()!=NULL)
 			this->AddFile(fHostmgr->GetRunInfo()->GetOutputFileName());
 	}
+	if (fFileNames.size() == 0)
+	{
+		if (fHostmgr->GetRunInfo() != NULL) {
+			auto names = fHostmgr->GetRunInfo()->GetInputFileNames();
+			for (int i = 0; i < names.size(); i++) {
+				this->AddFile(names[i]);
+			}
+		}
+	}
 	if (fFileNames.size() == 0) {
-		warning << "REST WARNING(TRestAnalysisPlot): " <<"No input file is given!"<< endl;
+		warning << "REST WARNING(TRestAnalysisPlot): " << "No input file is given!" << endl;
+	}
+	else {
+		info << "TRestAnalysisPlot : files added for plot : " << endl;
+		for (int i = 0; i<fFileNames.size(); i++) {
+			info << fFileNames[i] << endl;
+		}
+
 	}
 
 	fPlotMode = GetParameter("plotMode", "compare");
 	fHistoOutputFile = GetParameter("histoFilename", "/tmp/histos.root");
+	fCanvasSave = GetParameter("pdfFilename", "");
 
 	position = 0;
 	string canvasDefinition;
@@ -90,7 +108,8 @@ void TRestAnalysisPlot::InitFromConfigFile()
 	{
 		fCanvasSize = StringTo2DVector(GetFieldValue("size", canvasDefinition));
 		fCanvasDivisions = StringTo2DVector(GetFieldValue("divide", canvasDefinition));
-		fCanvasSave = GetFieldValue("save", canvasDefinition);
+		if(fCanvasSave=="")
+			fCanvasSave = GetFieldValue("save", canvasDefinition);
 	}
 
 	vector <TString> globalCuts;
@@ -280,6 +299,9 @@ void TRestAnalysisPlot::InitFromConfigFile()
 		cout << ") are not enough to show " << nPlots << " plots" << endl;
 		exit(1);
 	}
+
+	essential << "TRestAnalysisPlot: initialization complete, " << nPlots << " plots added!" << endl;
+
 }
 
 Int_t TRestAnalysisPlot::GetPlotIndex(TString plotName)

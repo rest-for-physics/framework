@@ -63,7 +63,7 @@ public:
 	void SetOutputPlotsFilename(TString fname) { fCanvasSave = fname; }
 	void SetOutputHistosFilename(TString fname) { fHistoOutputFile = fname; }
 
-	void AddFile(TString fileName) { fFileNames.push_back(fileName); fNFiles++; }
+	void AddFile(TString fileName) { if (fileExists((string)fileName)) { fFileNames.push_back(fileName); fNFiles++; } }
 
 	void SavePlotToPDF(TString plotName, TString fileName);
 	void SavePlotToPDF(Int_t n, TString fileName);
