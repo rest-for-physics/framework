@@ -20,6 +20,7 @@ def repairgit():
         os.chdir(vars.opt["Source_Path"])
         os.system("git init")
         os.system("git remote add origin "+vars.var["REST_Repository"])
+        os.system("git checkout -b "+vars.opt["Branch"])
         os.system("git fetch --depth 1")
         os.system("git reset --hard origin/"+vars.opt["Branch"])
         print "current REST directory has been linked to gitlab...."
@@ -52,7 +53,7 @@ def main():
     if os.path.exists(vars.opt["Source_Path"] + "/.git/"):
         print "updating local git repository of REST"
         os.chdir(vars.opt["Source_Path"])
-        p = subprocess.Popen(['git', 'pull'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(['git pull remote '+vars.opt["Branch"]], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
         out, err = p.communicate()
         if "up-to-date" in out:
             print "REST is already up-to-date"
