@@ -18,13 +18,17 @@
 #include <TGeoBBox.h>
 
 #include "TRestGarfieldDriftProcess.h"
+
+#if defined USE_Garfield
 #include "TGDMLParse.h"
 #include "ComponentConstant.hh"
+using namespace Garfield;
+#endif
 
 #include <stdio.h>
 
 using namespace std;
-using namespace Garfield;
+
 
 
 const double cmTomm = 10.;
