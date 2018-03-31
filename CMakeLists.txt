@@ -90,6 +90,7 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	OUTPUT_VARIABLE git_date)
 
 	if(DEFINED git_date)#git is available
+	if(${git_date})
 	string(REPLACE "\n" "" git_date ${git_date})
 	message(STATUS "REST date : ${git_date}")
 
@@ -108,7 +109,7 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	OUTPUT_VARIABLE b)
 	string(REPLACE "\n" "" git_branch ${b})
 	message(STATUS "REST branch : ${git_branch}")
-	
+	endif(${git_date})
 	endif(DEFINED git_date)
 
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
