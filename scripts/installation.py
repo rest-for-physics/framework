@@ -15,11 +15,14 @@ def checkinstalled(name):
         if ("10." in out or "9." in out) and err == "":
             return True
     elif "garfield" in name:
-        dir1 = os.environ["GARFIELD_HOME"]
-        dir2 = os.environ["HEED_DATABASE"]
-        dir3 = os.environ["LD_LIBRARY_PATH"]
-        if dir1 != "" and dir2 != "":
-            return True
+        try:
+            dir1 = os.environ["GARFIELD_HOME"]
+            dir2 = os.environ["HEED_DATABASE"]
+            dir3 = os.environ["LD_LIBRARY_PATH"]
+            if dir1 != "" and dir2 != "":
+                return True
+        except:
+            return False
     elif "REST" in name:
         p = subprocess.Popen(['rest-config --version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
         out, err = p.communicate()
