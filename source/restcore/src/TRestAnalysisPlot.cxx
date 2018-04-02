@@ -16,6 +16,7 @@ using namespace std;
 
 #include <TStyle.h>
 
+#include <ctime>
 
 const int debug = 0;
 
@@ -151,9 +152,13 @@ void TRestAnalysisPlot::InitFromConfigFile()
             size_t pos = 0;
             while( (variableDefinition = GetKEYDefinition( "variable", pos, addPlotString ) ) != "" )
             {            
-
                 varNames.push_back( GetFieldValue( "name", (string) variableDefinition ) );
-                ranges.push_back( StringTo2DVector( GetFieldValue( "range", variableDefinition ) ) );
+
+                string rangeStr = GetFieldValue( "range", variableDefinition );
+                rangeStr = Replace( rangeStr, "unixTime", std::to_string( std::time(nullptr) ) );
+                rangeStr = Replace( rangeStr, "days", "24*3600" );
+
+                ranges.push_back( StringTo2DVector( rangeStr ) );
                 bins.push_back( StringToInteger( GetFieldValue( "nbins", variableDefinition ) ) );
             }
 
@@ -325,6 +330,9 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
     vector <TRestRun *> runs;
     vector <TRestAnalysisTree *> trees;
 
+    fStartTime = 0;
+    fEndTime = 0;
+
     TRestRun *r;
     TRestAnalysisTree *anT;
     for( int n = 0; n < fNFiles; n++ )
@@ -337,7 +345,10 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
 
         r->SkipEventTree();
 
-        r->GetEntry(0);
+        if( r->GetEntries() < 3 )
+            continue;
+
+        r->GetEntry(1);
         if( fStartTime == 0 || anT->GetTimeStamp() < fStartTime ) fStartTime = anT->GetTimeStamp();
 
         r->GetEntry( r->GetEntries() - 1);
@@ -375,10 +386,36 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
 
             TString plotString = fPlotString[n];
 
+            if( fPlotXLabel[n].Contains("Time") ||  fPlotXLabel[n].Contains("time") )
+            {
+                size_t first = FindNthStringPosition( (string) fPlotString[n], 0, ",", 0 );
+                size_t second = FindNthStringPosition( (string) fPlotString[n], 0, ",", 1 );
+                size_t third = FindNthStringPosition( (string) fPlotString[n], 0, ",", 2 );
+
+                TString xStr = fPlotString[n]( first + 1 ,second - first - 1 );
+                string xstr = trim( (string) xStr );
+
+                if( xstr == "" )
+                {
+                    string startTimeStr = std::to_string( fStartTime);
+                    plotString.Insert( second -1, startTimeStr );
+                }
+
+                TString yStr = fPlotString[n]( second + 1 ,third- second - 1 );
+                string ystr = trim( (string) yStr );
+
+                if( ystr == "" )
+                {
+                    string endTimeStr = std::to_string( fEndTime);
+                    third = FindNthStringPosition( (string) plotString, 0, ",", 2 );
+                    plotString.Insert( third -1, endTimeStr );
+                }
+            }
+
             if( m > 0 )
             {
-                plotString = Replace( (string) fPlotString[n], ">>", ">>+", 0 );
-                plotString = plotString( 0, fPlotString[n].First(">>+") + 3 ) + fPlotNames[n];
+                plotString = Replace( (string) plotString, ">>", ">>+", 0 );
+                plotString = plotString( 0, plotString.First(">>+") + 3 ) + fPlotNames[n];
             }
 
             if( GetVerboseLevel() >= REST_Debug )
@@ -392,6 +429,7 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
                 cout << "--------------------------------------" << endl;
 
             }
+
             trees[m]->Draw( plotString, fCutString[n], fPlotOption[n] );
         }
 
@@ -401,20 +439,6 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
         htemp->SetTitle( fPlotTitle[n] );
         htemp->GetXaxis()->SetTitle( fPlotXLabel[n] );
         htemp->GetYaxis()->SetTitle( fPlotYLabel[n] );
-
-        /*
-           if( fPlotXLabel[n].Contains("Time") ||  fPlotXLabel[n].Contains("time") )
-           {
-           cout.precision(12);
-           cout << "Start : " << fStartTime << endl;
-           cout << "End : " << fEndTime << endl;
-           htemp->GetXaxis()->SetRangeUser( fStartTime, fEndTime );
-           htemp->GetXaxis()->SetLimits( fStartTime, fEndTime );
-           htemp->SetAxisRange( fStartTime, fEndTime,"X");
-           GetChar();
-           }
-           */
-
 
         f->cd();
         htemp->Write( fPlotNames[n] );
@@ -503,7 +527,6 @@ void TRestAnalysisPlot::PlotCombinedCanvasCompare( )
 
         for( int m = 0; m < fNFiles; m++ )
         {
-
             TString plotString = fPlotString[n];
 
             if( m > 0 )
