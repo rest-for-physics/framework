@@ -1026,7 +1026,7 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
 ///
 std::string TRestMetadata::GetFieldValue(std::string parName, TiXmlElement* e)
 {
-	return GetParameter(parName, e, "");
+	return GetParameter(parName, e, "Not defined");
 }
 
 
