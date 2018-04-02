@@ -180,16 +180,17 @@ class TRestMetadata:public TNamed {
         static Int_t isANumber( std::string in );
         Int_t isAExpression( std::string in );
         static std::string trim(std::string str);
-        static Double_t StringToDouble( std::string in );
-        static Int_t StringToInteger( std::string in );
-        static TVector3 StringTo3DVector( std::string in );
-        static TVector2 StringTo2DVector( std::string in );
+        Double_t StringToDouble( std::string in );
+        Int_t StringToInteger( std::string in );
+        TVector3 StringTo3DVector( std::string in );
+        TVector2 StringTo2DVector( std::string in );
         static std::string RemoveWhiteSpaces( std::string in );
         static std::string Replace( std::string in, std::string thisString, std::string byThisString, size_t fromPosition = 0, Int_t N = 0 );
         static Int_t Count( std::string s, std::string sbstring);
         static bool fileExists( const std::string& filename );
         static bool isRootFile( const std::string& filename ); 
         static bool isPathWritable( const std::string& path );
+        static size_t FindNthStringPosition( const string& in, size_t pos, const string& strToFind, size_t nth);
 
         /// Calling this method will ask the user to press a key to continue
         static void GetChar(){ cout << "Press a KEY to continue ..." << endl; getchar(); }

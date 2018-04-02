@@ -637,6 +637,10 @@ TVector3 TRestMetadata::StringTo3DVector( string in )
     string Y = in.substr( firstComma+1, secondComma-firstComma-1 );
     string Z = in.substr( secondComma+1, endVector-secondComma-1 );
 
+    X = EvaluateExpression( X );
+    Y = EvaluateExpression( Y );
+    Z = EvaluateExpression( Z );
+
     a.SetXYZ( StringToDouble(X), StringToDouble(Y), StringToDouble(Z) );
 
     return a;
@@ -668,6 +672,8 @@ TVector2 TRestMetadata::StringTo2DVector( string in )
     string X = in.substr( startVector+1, firstComma-startVector-1 );
     string Y = in.substr( firstComma+1, endVector-firstComma-1 );
 
+    X = EvaluateExpression( X );
+    Y = EvaluateExpression( Y );
 
     a.Set( StringToDouble(X), StringToDouble(Y)  );
 
@@ -706,6 +712,16 @@ bool TRestMetadata::isPathWritable( const std::string& path )
     int result = access(path.c_str(), W_OK);
     if (result == 0) return true;
     else return false;
+}
+
+///////////////////////////////////////////////
+/// \brief Returns the position of the **nth** occurence of the string **strToFind** inside the string **in**.
+///
+size_t TRestMetadata::FindNthStringPosition( const string& in, size_t pos, const string& strToFind, size_t nth)
+{
+    size_t found_pos = in.find( strToFind, pos);
+    if( nth == 0 || string::npos == found_pos ) return found_pos;
+    return FindNthStringPosition( in, found_pos+1, strToFind, nth-1);
 }
 
 ///////////////////////////////////////////////
