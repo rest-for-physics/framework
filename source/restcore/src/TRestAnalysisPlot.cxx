@@ -440,6 +440,17 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
         htemp->GetXaxis()->SetTitle( fPlotXLabel[n] );
         htemp->GetYaxis()->SetTitle( fPlotYLabel[n] );
 
+        if( fPlotXLabel[n].Contains("Time") ||  fPlotXLabel[n].Contains("time") )
+        {
+            Double_t hours = (fEndTime-fStartTime)/3600.;
+            htemp->GetXaxis()->SetTimeOffset( 0, "gmt" );
+            if( hours < 24 )
+                htemp->GetXaxis()->SetTimeFormat("%Hh %Mm");
+            else
+                htemp->GetXaxis()->SetTimeFormat("%Hh %d/%b");
+            htemp->GetXaxis()->SetTimeDisplay(1);
+        }
+
         f->cd();
         htemp->Write( fPlotNames[n] );
 
