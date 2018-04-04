@@ -80,7 +80,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 	else if (keydeclare == "addTask") {
 		string active = GetParameter("value", e, "");
 		if (active != "ON" && active != "On" && active != "on") {
-			warning << "skipping task... " << endl;
+			warning << "Inactived task : \""<< ElementToString(e)<<"\"" << endl;
 			return 0;
 		}
 		debug << "Loading Task...";
