@@ -31,7 +31,7 @@ public:
 	int fNRequiredArgument;//!
 
 	//define default values here
-	void Initialize() {}
+	void InitFromConfigFile() { TRestMetadata::InitFromConfigFile(); }
 	//automatic setup values with rml config section
 	void BeginOfInit();
 

@@ -38,6 +38,7 @@ public:
 	~TRestThread() {};
 
 	void Initialize();
+	void InitFromConfigFile() { TRestMetadata::InitFromConfigFile(); }
 
 	bool TestRun();
 	void PrepareToProcess(bool testrun=true);

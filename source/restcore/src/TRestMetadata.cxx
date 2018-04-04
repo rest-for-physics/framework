@@ -1913,21 +1913,22 @@ void TRestMetadata::PrintConfigBuffer()
 int TRestMetadata::GetChar(string hint) 
 { 
 	if (gApplication!=NULL&&!gApplication->IsRunning()) {
-		thread t = thread(&TRestMetadata::Hold_On, this);
+		thread t = thread(&TApplication::Run, gApplication, true);
 		t.detach();
+		
 		cout << hint << endl;
 		int result = getchar();
-		gApplication->Terminate(0);
+		gSystem->ExitLoop();
 		return result;
+	}
+	else
+	{
+		cout << hint << endl;
+		return getchar();
 	}
 	return -1;
 }
 
-
-void TRestMetadata::Hold_On() 
-{ 
-	gApplication->Run(true);
-}
 
 ///////////////////////////////////////////////
 /// \brief Prints metadata content on screen. Usually overloaded by the derived metadata class.

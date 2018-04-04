@@ -39,6 +39,67 @@
 #include "TStreamerElement.h"
 #include "TApplication.h"
 
+#ifdef WIN32
+#include <conio.h>
+#else
+
+#include <stdio.h>  
+#include <termios.h>  
+#include <unistd.h>  
+#include <fcntl.h> 
+#include <termio.h>
+
+inline int kbhit(void)
+{
+	struct termios oldt, newt;
+	int ch;
+	int oldf;
+	tcgetattr(STDIN_FILENO, &oldt);
+	newt = oldt;
+	newt.c_lflag &= ~(ICANON | ECHO);
+	tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+	oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+	fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+	ch = getchar();
+	tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+	fcntl(STDIN_FILENO, F_SETFL, oldf);
+	if (ch != EOF)
+	{
+		ungetc(ch, stdin);
+		return 1;
+	}
+	return 0;
+}
+
+inline int getch(void)
+{
+	struct termios tm, tm_old;
+	int fd = 0, ch;
+
+	if (tcgetattr(fd, &tm) < 0)
+	{
+		return -1;
+	}
+
+	tm_old = tm;
+	cfmakeraw(&tm);
+	if (tcsetattr(fd, TCSANOW, &tm) < 0)
+	{
+		return -1;
+	}
+
+	ch = getchar();
+	if (tcsetattr(fd, TCSANOW, &tm_old) < 0)
+	{
+		return -1;
+	}
+
+	return ch;
+}
+
+#endif // WIN32
+
+
 const int PARAMETER_NOT_FOUND_INT = -99999999;
 const double PARAMETER_NOT_FOUND_DBL = -99999999;
 const std::string PARAMETER_NOT_FOUND_STR = "NO_SUCH_PARA";
@@ -71,14 +132,14 @@ public:
 	Int_t LoadConfigFromFile(string cfgFileName, string sectionName = "");
 	virtual Int_t LoadSectionMetadata(string section, string cfgFileName, string name) { LoadSectionMetadata(); return 0; }
 	virtual Int_t LoadSectionMetadata();
-	virtual void InitFromConfigFile();
+	virtual void InitFromConfigFile() = 0;
 
 
 
 
 	///////////////////////////////////////////////////////////////
 	/// Making default settings. This method must be implemented in the derived class.
-	virtual void Initialize() = 0;
+	virtual void Initialize() {}
 
 	/// These methods can be overridden in the child class.
 	/// During initialization, the three methods will be called in sequence. 
@@ -267,8 +328,6 @@ private:
 	void ExpandElement(TiXmlElement*e,bool recursive=false);
 	void ExpandForLoops(TiXmlElement*e);
 	void ExpandIncludeFile(TiXmlElement* e);
-
-	void Hold_On();
 
 
 };

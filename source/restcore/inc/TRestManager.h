@@ -29,6 +29,7 @@ public:
 	~TRestManager();
 
 	void Initialize();
+	void InitFromConfigFile() { TRestMetadata::InitFromConfigFile(); }
 	Int_t ReadConfig(string keydeclare, TiXmlElement* e);
 
 	//void LaunchTasks();
