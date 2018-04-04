@@ -47,7 +47,8 @@ class TRestRawSignalTo2DHitsProcess:public TRestEventProcess {
 		vector<TVector3> fHough_XZ; //y=ax+b, vertical line angle 牟, length 老, [id][老,牟,weight]
 		vector<TVector3> fHough_YZ; //y=ax+b, vertical line angle 牟, length 老, [id][老,牟,weight]
 
-		int munumup;//!
+		int longmunumxz;//!
+		int longmunumyz;//!
 		TH1D* mudeposxz;//!
 		TH1D* mudeposyz;//!
 

@@ -74,7 +74,8 @@ void TRestRawSignalTo2DHitsProcess::InitProcess()
 	if (fReadout != NULL)
 		fOutput2DHitsEvent->SetReadout(fReadout);
 
-	munumup = 0;
+	longmunumxz = 0;
+	longmunumyz = 0;
 	mudeposxz = new TH1D("mudeposxzup", "muonXZenergydepos", 512, 0., 512.);
 	mudeposyz = new TH1D("mudeposyzup", "muonYZenergydepos", 512, 0., 512.);
 
@@ -1026,40 +1027,48 @@ void TRestRawSignalTo2DHitsProcess::MuDepos(TRest2DHitsEvent*eve)
 			firstx = eve->GetFirstX() - tan(fxz->GetParameter(1) - 1.5708)*(eve->GetZRangeInXZ().X() - eve->GetZRange().X());
 			firsty = eve->GetFirstY() - tan(fyz->GetParameter(1) - 1.5708)*(eve->GetZRangeInYZ().X() - eve->GetZRange().X());
 
+
+
+
+			if (eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X() > 345 && eve->GetZRangeInXZ().X()>140 && fxz->GetParameter(1) != 1.5708) {
+				for (int i = 0; i < 512; i++) {
+					auto hitsz = eve->GetXZHitsWithZ(i);
+					map<double, double>::iterator iter = hitsz.begin();
+					double sum = 0;
+					while (iter != hitsz.end()) {
+						sum += iter->second;
+						iter++;
+					}
+					//cout << i << " " << sum << endl;
+					if (sum < 1e5)
+						mudeposxz->SetBinContent(mudeposxz->FindBin(i), mudeposxz->GetBinContent(mudeposxz->FindBin(i)) + sum);
+				}
+				longmunumxz++;
+			}
+			if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X() > 345 && eve->GetZRangeInYZ().X()>140 && fyz->GetParameter(1) != 1.5708) {
+				for (int i = 0; i < 512; i++) {
+					auto hitsz = eve->GetYZHitsWithZ(i);
+					map<double, double>::iterator iter = hitsz.begin();
+					double sum = 0;
+					while (iter != hitsz.end()) {
+						sum += iter->second;
+						iter++;
+					}
+					if (sum < 1e5)
+						mudeposyz->SetBinContent(mudeposyz->FindBin(i), mudeposyz->GetBinContent(mudeposyz->FindBin(i)) + sum);
+				}
+				longmunumyz++;
+			}
+
+
+
 			if (firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 && firsty < Y2 - 30)
 				//the MM pentrating muon
 			{
 
 				info << "MM pentrating muon" << endl;
 
-				if (zlen > 345)
-				{
-					//cout << "top" << endl;
-					for (int i = 0; i < 512; i++) {
-						auto hitsz = eve->GetXZHitsWithZ(i);
-						map<double, double>::iterator iter = hitsz.begin();
-						double sum = 0;
-						while (iter != hitsz.end()) {
-							sum += iter->second;
-							iter++;
-						}
-						//cout << i << " " << sum << endl;
-						if (sum < 1e5)
-							mudeposxz->SetBinContent(mudeposxz->FindBin(i), mudeposxz->GetBinContent(mudeposxz->FindBin(i)) + sum);
-					}
-					for (int i = 0; i < 512; i++) {
-						auto hitsz = eve->GetYZHitsWithZ(i);
-						map<double, double>::iterator iter = hitsz.begin();
-						double sum = 0;
-						while (iter != hitsz.end()) {
-							sum += iter->second;
-							iter++;
-						}
-						if (sum < 1e5)
-							mudeposyz->SetBinContent(mudeposyz->FindBin(i), mudeposyz->GetBinContent(mudeposyz->FindBin(i)) + sum);
-					}
-					munumup++;
-				}
+				
 
 				//if (eve->GetNumberOfXZSignals()>7 && xlen<15)
 				//	return;
@@ -1085,10 +1094,10 @@ void TRestRawSignalTo2DHitsProcess::MuDepos(TRest2DHitsEvent*eve)
 void TRestRawSignalTo2DHitsProcess::EndProcess()
 {
 
-	mudeposxz->Scale(1 / (double)munumup);
-	mudeposxz->SetEntries(munumup);
-	mudeposyz->Scale(1 / (double)munumup);
-	mudeposyz->SetEntries(munumup);
+	mudeposxz->Scale(1 / (double)longmunumxz);
+	mudeposxz->SetEntries(longmunumxz);
+	mudeposyz->Scale(1 / (double)longmunumyz);
+	mudeposyz->SetEntries(longmunumyz);
 
 	mudeposxz->Write();
 	mudeposyz->Write();
