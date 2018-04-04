@@ -2,6 +2,7 @@
 #include "TRestThread.h"
 #include "Math/MinimizerOptions.h"
 #include "TMinuitMinimizer.h"
+#include "TInterpreter.h"
 #include "TMutex.h"
 #include "TROOT.h"
 
@@ -144,19 +145,22 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement * e)
 			}
 			else
 			{
-				if (p->singleThreadOnly() && fThreadNumber > 1)
-				{
-					//If the process declared single thread only, then the whole process will be 
-					//in single thread mode
-					warning << "process: " << p->ClassName() << " can only run under single thread mode" << endl;
-					warning << "the analysis run will be performed with single thread!" << endl;
-					for (i = fThreadNumber; i > 1; i--) {
-						fThreads.erase(fThreads.end() - 1);
-						fThreadNumber--;
-					}
-					fThreads[0]->AddProcess(p);
+				if (p->singleThreadOnly()) {
 					fProcStatus = kIgnore;
-					break;
+					if (fThreadNumber > 1)
+					{
+						//If the process declared single thread only, then the whole process will be 
+						//in single thread mode
+						warning << "process: " << p->ClassName() << " can only run under single thread mode" << endl;
+						warning << "the analysis run will be performed with single thread!" << endl;
+						for (i = fThreadNumber; i > 1; i--) {
+							fThreads.erase(fThreads.end() - 1);
+							fThreadNumber--;
+						}
+						fThreads[0]->AddProcess(p);
+
+						break;
+					}
 				}
 				fThreads[i]->AddProcess(p);
 			}
@@ -306,6 +310,7 @@ void TRestProcessRunner::RunProcess()
 	if (gGlobalMutex == NULL) {
 		gGlobalMutex = new TMutex(true);
 		gROOTMutex = gGlobalMutex;
+		gInterpreterMutex = gGlobalMutex;
 	}
 
 
@@ -358,6 +363,9 @@ void TRestProcessRunner::RunProcess()
 		PrintProcessedEvents(100);
 	}
 
+	if(kbhit())
+		while (getchar() != '\n');//clear buffer
+
 	essential << "Waiting for processes to finish ..." << endl;
 
 	while (1)
@@ -384,6 +392,12 @@ void TRestProcessRunner::RunProcess()
 	high_resolution_clock::time_point t4 = high_resolution_clock::now();
 	deltaTime = (int)duration_cast<microseconds>(t4 - t3).count();
 #endif
+
+	//reset the mutex to null
+	delete gGlobalMutex;
+	gGlobalMutex = NULL;
+	gROOTMutex = NULL;
+	gInterpreterMutex = NULL;
 
 	fout << this->ClassName() << ": " << fProcessedEvents << " processed events" << endl;
 
