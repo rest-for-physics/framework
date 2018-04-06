@@ -775,7 +775,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 		}
 		else
 		{
-			printf("Completed : %.2lf %%(Press \"q\" to stop, Press \"p\" to pause)\r", (100.0 * (Double_t)fProcessedEvents) / eventsToProcess);
+			printf("Completed : %d / %d ...(Press \"q\" to stop, Press \"p\" to pause)\r",fRunInfo->GetCurrentEntry(), fRunInfo->GetTotalEntries());
 			fflush(stdout);
 		}
 	}
@@ -787,7 +787,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 		}
 		else
 		{
-			printf("Completed : %.2lf %%\r", (100.0 * (Double_t)fProcessedEvents) / eventsToProcess);
+			printf("Completed : %d / %d ...\r", fRunInfo->GetCurrentEntry(), fRunInfo->GetTotalEntries());
 			fflush(stdout);
 		}
 	}
