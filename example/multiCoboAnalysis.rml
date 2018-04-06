@@ -14,7 +14,7 @@
     <parameter name="saveMetadata" value="true"/>
     <parameter name="treeBranches" value="inputevent:processevent:outputevent:inputanalysis:outputanalysis"/>
 
-    <addProcess type="TRestMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON" file="processes.rml"/>
+    <addProcess type="TRestMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON"/>
     <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON" file="processes.rml"/>
     <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="OFF" file="processes.rml"/>
     <addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="OFF" file="processes.rml"/>
