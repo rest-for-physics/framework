@@ -132,35 +132,28 @@ public:
 	Int_t LoadConfigFromFile(string cfgFileName, string sectionName = "");
 	virtual Int_t LoadSectionMetadata(string section, string cfgFileName, string name) { LoadSectionMetadata(); return 0; }
 	virtual Int_t LoadSectionMetadata();
+	///  To make settings from rml file. This method must be implemented in the derived class.
 	virtual void InitFromConfigFile() = 0;
 
 
 
 
 	///////////////////////////////////////////////////////////////
-	/// Making default settings. This method must be implemented in the derived class.
+	/// Making default settings.
 	virtual void Initialize() {}
 
 	/// These methods can be overridden in the child class.
-	/// During initialization, the three methods will be called in sequence. 
-	/// A single method is enough to make a complete initialization,
 	virtual void BeginOfInit() { return; };
-
 	/// These methods can be overridden in the child class.
-	/// During initialization, the three methods will be called in sequence. 
-	/// A single method is enough to make a complete initialization,
 	virtual Int_t ReadConfig(string keydeclare, TiXmlElement* e) { return -1; };
-
 	/// These methods can be overridden in the child class.
-	/// During initialization, the three methods will be called in sequence. 
-	/// A single method is enough to make a complete initialization,
 	virtual void EndOfInit() { return; };
 
-	/// It is implemented in the derived metadata class to print out specific metadata information.
+	/// Implemented it in the derived metadata class to print out specific metadata information.
 	virtual void PrintMetadata();
-
+	/// Print the current time on local machine.
 	void PrintTimeStamp(Double_t timeStamp);
-	/// This is a dummy function
+	/// Print the config xml section stored in the class
 	void PrintConfigBuffer();
 
 	/// helps to pause the program, printing a message before pausing. 
@@ -184,7 +177,7 @@ public:
 	TString GetGasDataPath() { return GetParameter("dataPath"); }
 	/// returns the verboselevel in type of REST_Verbose_Level enumerator
 	REST_Verbose_Level GetVerboseLevel() { return fVerboseLevel; }
-
+	/// returns the verboselevel in type of TString
 	TString GetVerboseLevelString();
 	/// Gets a string with the path used for data storage
 	TString GetMainDataPath() { return GetDataPath(); }
@@ -227,7 +220,7 @@ protected:
 	TiXmlElement* ReplaceElementAttributes(TiXmlElement* e);
 
 
-	//adapting to old xml parser.
+	//old xml parser interface.
 	TiXmlElement* StringToElement(string definition);
 	string ElementToString(TiXmlElement*ele);
 	string GetKEYStructure(std::string keyName);
