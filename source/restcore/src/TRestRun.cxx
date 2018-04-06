@@ -65,6 +65,7 @@ void TRestRun::Initialize()
 	fAnalysisTree = NULL;
 	fEventTree = NULL;
 	fCurrentEvent = 0;
+	fEventBranchLoc = -1;
 	fFileProcess = NULL;
 	fOutputFileName = "";
 
@@ -281,23 +282,24 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 					string type = Replace(br->GetName(), "Branch", "", 0);
 					fInputEvent = (TRestEvent*)TClass::GetClass(type.c_str())->New();
 					br->SetAddress(&fInputEvent);
+					fEventBranchLoc = branches->GetLast();
 					debug << "found event branch of event type: " << fInputEvent->ClassName() << endl;
 				}
 			}
-			else
-			{
-				string brname = (string)fInputEvent->ClassName()+"Branch";
-				if (fEventTree->GetBranch(brname.c_str()) == NULL) {
-					warning << "REST WARNING (OpenInputFile) : No matched event branch inside file : " << filename << endl;
-					warning << "Branch required: "<< brname << endl;
-				}
-				else
-				{
-					fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
-					debug << brname << " is found and set!" << endl;
-				}
+			//else
+			//{
+			//	string brname = (string)fInputEvent->ClassName()+"Branch";
+			//	if (fEventTree->GetBranch(brname.c_str()) == NULL) {
+			//		warning << "REST WARNING (OpenInputFile) : No matched event branch inside file : " << filename << endl;
+			//		warning << "Branch required: "<< brname << endl;
+			//	}
+			//	else
+			//	{
+			//		fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
+			//		debug << brname << " is found and set!" << endl;
+			//	}
 	
-			}
+			//}
 
 
 		}
@@ -617,11 +619,34 @@ void TRestRun::SetExtProcess(TRestEventProcess* p)
 void TRestRun::SetInputEvent(TRestEvent* eve)
 {
 	if (eve != NULL) {
-		fInputEvent = eve;
+
 		if (fEventTree != NULL) {
-			string brname = (string)fInputEvent->ClassName() + "Branch";
-			if (fEventTree->GetBranch(brname.c_str()) != NULL) {
-				fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
+
+			TObjArray* branches = fEventTree->GetListOfBranches();
+			if (fEventBranchLoc != -1) {
+				TBranch *br = (TBranch*)branches->At(fEventBranchLoc);
+				br->SetAddress(0);
+			}
+			string brname = (string)eve->ClassName() + "Branch";
+			for (int i = 0; i <= branches->GetLast(); i++) {
+				TBranch *br = (TBranch*)branches->At(i);
+				if ((string)br->GetName() == brname) {
+					debug << "Setting input event.. Type: " << eve->ClassName() << " Address: " << eve << endl;
+					if (fInputEvent != NULL && (char*)fInputEvent != (char*)eve){
+						delete fInputEvent;
+					}
+					fInputEvent = eve;
+					fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
+					fEventBranchLoc = i;
+					break;
+				}
+				else if(i == branches->GetLast())
+				{
+					warning << "REST Warning : (TRestRun) cannot find corresponding branch in event tree!" << endl;
+					warning << "Event Type : " << eve->ClassName() << endl;
+					warning << "Input event not set!" << endl;
+				}
+
 			}
 		}
 	}
@@ -788,6 +813,7 @@ void TRestRun::PrintInfo()
 	cout << "---------------------------------------" << endl;
 	cout << "Name : " << GetName() << endl;
 	cout << "Title : " << GetTitle() << endl;
+	cout << "Version : " << GetVersion() << endl;
 	cout << "---------------------------------------" << endl;
 	cout << "Parent run number : " << GetParentRunNumber() << endl;
 	cout << "Run number : " << GetRunNumber() << endl;
@@ -800,6 +826,8 @@ void TRestRun::PrintInfo()
 	cout << "Date/Time : " << GetDateFormatted(GetStartTimestamp()) << " / " << GetTime(GetStartTimestamp()) << endl;
 	cout << "End timestamp : " << GetEndTimestamp() << endl;
 	cout << "Date/Time : " << GetDateFormatted(GetEndTimestamp()) << " / " << GetTime(GetEndTimestamp()) << endl;
+	cout << "Input file : " << GetInputFileNamepattern() << endl;
+	cout << "Output file : " << GetOutputFileName() << endl;
 	//cout << "Input filename : " << fInputFilename << endl;
 	//cout << "Output filename : " << fOutputFilename << endl;
 	//cout << "Number of initial events : " << GetNumberOfEvents() << endl;

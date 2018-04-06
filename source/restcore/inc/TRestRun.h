@@ -197,6 +197,7 @@ protected:
 
 	TRestEventProcess* fFileProcess;//!
 	int fCurrentEvent;//!
+	int fEventBranchLoc;//!
 
 	//vector<TRestFileTask*> fFileTasks;//!
 

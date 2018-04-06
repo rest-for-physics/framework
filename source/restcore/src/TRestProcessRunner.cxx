@@ -188,6 +188,13 @@ void TRestProcessRunner::EndOfInit()
 		}
 		else
 		{
+			if (fThreads[0]->GetProcessnum() > 0 && fThreads[0]->GetProcess(0)->GetInputEvent() != NULL)
+			{
+				string name = fThreads[0]->GetProcess(0)->GetInputEvent()->ClassName();
+				auto a = (TRestEvent*)TClass::GetClass(name.c_str())->New();
+				a->Initialize();
+				fRunInfo->SetInputEvent(a);
+			}
 			fInputEvent = fRunInfo->GetInputEvent();
 		}
 		if (fThreads[0]->ValidateInput(fInputEvent) == -1) exit(1);
