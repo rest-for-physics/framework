@@ -433,17 +433,19 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 		debug << "TRestRun: getting next event from root file" << endl;
 		if (fAnalysisTree != NULL)
 		{
-			if (fAnalysisTree->GetEntries() <= fCurrentEvent - 1)fInputEvent = NULL;
-
-			fAnalysisTree->GetEntry(fCurrentEvent);
-			if (targettree != NULL && targettree->isConnected()) {
-				for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
-					targettree->SetObservableValue(n, fAnalysisTree->GetObservableValue(n));
+			if (fCurrentEvent > fAnalysisTree->GetEntries()) { fInputEvent = NULL; }
+			else
+			{
+				fAnalysisTree->GetEntry(fCurrentEvent);
+				if (targettree != NULL && targettree->isConnected()) {
+					for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
+						targettree->SetObservableValue(n, fAnalysisTree->GetObservableValue(n));
+				}
+				if (fEventTree != NULL) {
+					fEventTree->GetEntry(fCurrentEvent);
+				}
+				fCurrentEvent++;
 			}
-			if (fEventTree != NULL) {
-				fEventTree->GetEntry(fCurrentEvent);
-			}
-			fCurrentEvent++;
 		}
 
 		else
@@ -455,7 +457,8 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 
 	if (fInputEvent == NULL)
 	{
-		fFileProcess->EndProcess();
+		if(fFileProcess!=NULL)
+			fFileProcess->EndProcess();
 		return -1;
 	}
 
