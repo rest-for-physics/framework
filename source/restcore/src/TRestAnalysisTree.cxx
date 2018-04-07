@@ -15,8 +15,10 @@
 
 
 #include "TRestAnalysisTree.h"
+#include "TRestEventProcess.h"
 
 #include "TObjArray.h"
+
 
 using namespace std;
 
@@ -140,10 +142,16 @@ Int_t TRestAnalysisTree::FillEvent(TRestEvent *evt)
 	return 0;
 }
 
-void TRestAnalysisTree::SetObservableValue(TString obsName, Double_t value)
+void TRestAnalysisTree::SetObservableValue(TString ProcName_ObsName, Double_t value)
 {
-	Int_t id = GetObservableID(obsName);
+	Int_t id = GetObservableID(ProcName_ObsName);
 	if (id >= 0) SetObservableValue(id, value);
+}
+
+void TRestAnalysisTree::SetObservableValue(TRestEventProcess* proc, TString obsName, Double_t value) 
+{
+	TString name = proc->GetName() + (TString)"_" + obsName;
+	SetObservableValue(name, value);
 }
 
 void TRestAnalysisTree::CreateEventBranches()

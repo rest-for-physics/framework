@@ -22,6 +22,7 @@
 #include "TRestEvent.h"
 
 #include "TTree.h"
+class TRestEventProcess;
 class TRestBranch :public TBranch {
 public:
 	void SetBranchAddressQuick(char* addr) {
@@ -86,7 +87,8 @@ public:
 
 	void SetObservableValue(Int_t n, Double_t value) { *fObservableValues[n] = value; }
 
-	void SetObservableValue(TString obsName, Double_t value);
+	void SetObservableValue(TString ProcName_ObsName, Double_t value);
+	void SetObservableValue(TRestEventProcess* proc, TString obsName, Double_t value);
 
 	void CreateEventBranches();
 	void CreateObservableBranches();
