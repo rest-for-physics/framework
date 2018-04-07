@@ -6,3 +6,7 @@ tags
 .vs
 Debug
 *.pyc
+*.tmp
+*.zip
+*.tgz
+*.tar.gz

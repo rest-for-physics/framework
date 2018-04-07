@@ -1,6 +1,8 @@
 ---------------------------------------------------------------
 -- File : README.md
--- Description : Guidelines on REST_v2 content and installation
--- Last update : 21-Oct-2015
+-- Description : Rare Event Searches with TPCs  
+-- Last update : 7-Apr-2018  
+
+Visit our user guide [here](https://pandax.physics.sjtu.edu.cn/docdb3/ShowDocument?docid=543)  
 ---------------------------------------------------------------
 
