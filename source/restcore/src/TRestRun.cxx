@@ -229,13 +229,12 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 	if( fInputEvent != NULL && this->GetVerboseLevel() >= REST_Extreme )
 	    fInputEvent->PrintEvent();
 
-	if( fInputEvent != NULL )
-		for( unsigned int j = 0; j < fEventProcess.size(); j++ )
-			fEventProcess[j]->StampOutputEvent( fInputEvent );
-
 	for( unsigned int j = 0; j < fEventProcess.size(); j++ )
 	{
+
 	    fEventProcess[j]->BeginOfEventProcess();
+
+        fEventProcess[j]->StampOutputEvent( fInputEvent );
 
 	    if( this->GetVerboseLevel() >= REST_Debug )
 	    {
