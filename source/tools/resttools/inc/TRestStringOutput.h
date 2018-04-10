@@ -9,9 +9,6 @@
 #include <fstream>
 #include <sstream> 
 
-
-
-
 #define COLOR_RESET   "\033[0m"
 #define COLOR_BLACK   "\033[30m"      /* Black */
 #define COLOR_RED     "\033[31m"      /* Red */
@@ -37,8 +34,8 @@
 #define COLOR_BACKGROUNDMAGENTA "\033[1m\033[45m"      /* BACKGROUND Magenta */
 #define COLOR_BACKGROUNDCYAN    "\033[1m\033[46m"      /* BACKGROUND Cyan */
 #define COLOR_BACKGROUNDWHITE   "\033[1m\033[47m"      /* BACKGROUND White */
-using namespace std;
 
+using namespace std;
 
 enum REST_Verbose_Level
 {
@@ -50,20 +47,20 @@ enum REST_Verbose_Level
 };
 //////////////////////////////////////////////////////////////////////////
 ///
-/// This class serves as an universal string output tool, aiming at controling, 
-/// organizing, and auto saving of output message. 
+/// This class serves as an universal string output tool, aiming at leveling, 
+/// arranging, and auto saving for the output message. 
 ///
 /// Features of this class:
 /// 1. overloaded operator "<<"
 /// 2. inline method endl()
 /// 3. pre-defined color constants
-/// 4. output formatting method()
+/// 4. output formatting methods
 /// 
 /// To use this tool class in the other classes, include its header file and instantiate
 /// a TRestStringOutput object(suggested name: "fout"). The fout can therefore replace the
-/// functionality of cout. Setting output color or frontsize is supported currently.
-/// changing output border, length or filling is not implemented. In future it is also 
-/// possible to save every output message in a log file.
+/// functionality of cout. The usage is the same: "fout<<"hello world"<<endl;". 
+/// Setting output color, changing output border, length or orientation are all supported.
+/// In future it is also possible to save output message in a log file.
 
 class TRestStringOutput
 {
