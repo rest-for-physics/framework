@@ -33,10 +33,10 @@
 #include <TRestSignal.h>
 #include "TRestReadout.h"
 
-#define X1 -100 
-#define X2 100
-#define Y1 100 
-#define Y2 300
+//#define X1 -100 
+//#define X2 100
+//#define Y1 100 
+//#define Y2 300
 
 class TRest2DHitsEvent : public TRestEvent {
 
@@ -72,6 +72,11 @@ protected:
 	vector<TVector3> fHough_XZ; //!  y=ax+b, vertical line angle 牟, length 老, [id][老,牟,weight]
 	vector<TVector3> fHough_YZ; //!  y=ax+b, vertical line angle 牟, length 老, [id][老,牟,weight]
 
+	int X1;
+	int X2;
+	int Y1;
+	int Y2;
+
 public:
 
 	TPad *DrawEvent(TString option = "");
@@ -87,6 +92,10 @@ public:
 	void SetYZSignal(int zIndex, double yPosition, double energy);
 
 	void SetSignal(int zIndex, int signalID, double energy);
+
+	void SetROIX(TVector2 x) { X1 = x.X(); X2 = x.Y(); }
+
+	void SetROIY(TVector2 y) { Y1 = y.X(); Y2 = y.Y(); }
 	
 	void ResetHits();
 
@@ -123,7 +132,6 @@ public:
 
 	double GetLastX();
 	double GetLastY();
-
 
 	TVector2 GetZRange();
 	TVector2 GetZRangeInXZ();

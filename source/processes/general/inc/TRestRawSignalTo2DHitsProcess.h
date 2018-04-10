@@ -59,6 +59,11 @@ class TRestRawSignalTo2DHitsProcess:public TRestEventProcess {
 		TF1*fxz;//!
 		TF1*fyz;//!
 
+		int X1;//!
+		int X2;//!
+		int Y1;//!
+		int Y2;//!
+
 		//observables
 		double zlen;
 		double xlen;
@@ -69,6 +74,10 @@ class TRestRawSignalTo2DHitsProcess:public TRestEventProcess {
 		double lastz;
 
 		double mutanthe;
+
+		double ene;
+
+
 
     protected:
 

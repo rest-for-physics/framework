@@ -74,6 +74,9 @@ void TRestRawSignalTo2DHitsProcess::InitProcess()
 	if (fReadout != NULL)
 		fOutput2DHitsEvent->SetReadout(fReadout);
 
+	fOutput2DHitsEvent->SetROIX(TVector2(X1, X2));
+	fOutput2DHitsEvent->SetROIY(TVector2(Y1, Y2));
+
 	longmunumxz = 0;
 	longmunumyz = 0;
 	mudeposxz = new TH1D("mudeposxzup", "muonXZenergydepos", 512, 0., 512.);
@@ -103,6 +106,7 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent *evInput)
 		fOutput2DHitsEvent->Initialize();
 		fOutput2DHitsEvent->SetEventInfo(fInputSignalEvent);
 		fOutput2DHitsEvent->SetSubEventTag("general");
+		ene = 0;
 
 		int firingN = 0;
 		for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++)
@@ -153,7 +157,10 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent *evInput)
 						auto _e = max_element(begin(pulse), end(pulse));
 						if (*_e > fSignalThreshold*baselinerms) {
 							for (int j = pos; j < i; j++)
+							{
 								sgn.NewPoint(j, s->GetData(j));
+								ene += s->GetData(j);
+							}
 						}
 					}
 				}
@@ -198,6 +205,7 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent *evInput)
 
 	fOutput2DHitsEvent->RemoveSeparateZ();
 
+	//the analysis
 	zlen = fOutput2DHitsEvent->GetZRange().Y() - fOutput2DHitsEvent->GetZRange().X();
 	xlen = fOutput2DHitsEvent->GetXRange().Y() - fOutput2DHitsEvent->GetXRange().X();
 	ylen = fOutput2DHitsEvent->GetYRange().Y() - fOutput2DHitsEvent->GetYRange().X();
@@ -206,7 +214,6 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent *evInput)
 	firstz = fOutput2DHitsEvent->GetZRange().X();
 	lastz = fOutput2DHitsEvent->GetZRange().Y();
 	mutanthe = numeric_limits<double>::quiet_NaN();
-
 
 
 	TRest2DHitsEvent* eve = SelectTag();
@@ -1114,5 +1121,10 @@ void TRestRawSignalTo2DHitsProcess::InitFromConfigFile()
 	fPointThreshold = StringToDouble(GetParameter("pointThreshold", "2"));
 	fNPointsOverThreshold = StringToInteger(GetParameter("pointsOverThreshold", "5"));
 	fSignalThreshold = StringToDouble(GetParameter("signalThreshold", "2.5"));
+
+	TVector2 XROI = StringTo2DVector(GetParameter("XROI", "(-100,100)"));
+	TVector2 YROI = StringTo2DVector(GetParameter("YROI", "(-100,100)"));
+
+	X1 = XROI.X(); X2 = XROI.Y(); Y1 = YROI.X(); Y2 = YROI.Y();
 }
 
