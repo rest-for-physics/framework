@@ -768,7 +768,7 @@ TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type, TiXmlEle
 void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 {
 	if (fProcStatus == kNormal) {
-		if (eventsToProcess == 2E9)
+		if (eventsToProcess == 2E9 || fRunInfo->GetFileProcess() != NULL)
 		{
 			printf("%d processed events now...(Press \"q\" to stop, Press \"p\" to pause)\r", (fProcessedEvents));
 			fflush(stdout);
@@ -780,10 +780,14 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 		}
 	}
 	if (fProcStatus == kIgnore) {
-		if (eventsToProcess == 2E9)
+		if (eventsToProcess == 2E9 || fRunInfo->GetFileProcess() != NULL)
 		{
 			printf("%d processed events now...\r", (fProcessedEvents));
 			fflush(stdout);
+		}
+		else if (fRunInfo->GetFileProcess() != NULL)
+		{
+
 		}
 		else
 		{
