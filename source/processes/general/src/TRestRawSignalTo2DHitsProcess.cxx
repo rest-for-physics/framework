@@ -77,10 +77,10 @@ void TRestRawSignalTo2DHitsProcess::InitProcess()
 	fOutput2DHitsEvent->SetROIX(TVector2(X1, X2));
 	fOutput2DHitsEvent->SetROIY(TVector2(Y1, Y2));
 
-	longmunumxz = 0;
-	longmunumyz = 0;
-	mudeposxz = new TH1D("mudeposxzup", "muonXZenergydepos", 512, 0., 512.);
-	mudeposyz = new TH1D("mudeposyzup", "muonYZenergydepos", 512, 0., 512.);
+	//longmunumxz = 0;
+	//longmunumyz = 0;
+	//mudeposxz = new TH1D("mudeposxzup", "muonXZenergydepos", 512, 0., 512.);
+	//mudeposyz = new TH1D("mudeposyzup", "muonYZenergydepos", 512, 0., 512.);
 
 	hxzt = new TH1D((TString)"hxzt" + ToString(this), "hh", 200, 0, 3.14);
 	hxzr = new TH1D((TString)"hxzr" + ToString(this), "hh", 200, -(X2 - X1), (X2 - X1));
@@ -213,7 +213,7 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent *evInput)
 	firsty = fOutput2DHitsEvent->GetFirstY();
 	firstz = fOutput2DHitsEvent->GetZRange().X();
 	lastz = fOutput2DHitsEvent->GetZRange().Y();
-	mutanthe = numeric_limits<double>::quiet_NaN();
+	//mutanthe = numeric_limits<double>::quiet_NaN();
 
 
 	TRest2DHitsEvent* eve = SelectTag();
@@ -991,108 +991,108 @@ TRest2DHitsEvent* TRestRawSignalTo2DHitsProcess::SelectTag() {
 
 void TRestRawSignalTo2DHitsProcess::MuDepos(TRest2DHitsEvent*eve)
 {
-	if (eve->GetSubEventTag() == "muon")
-	{
-		double firstx = 9999;
-		double firsty = 9999;
+	//if (eve->GetSubEventTag() == "muon")
+	//{
+	//	double firstx = 9999;
+	//	double firsty = 9999;
 
-		if (eve->GetZRangeInYZ().X() < eve->GetZRangeInXZ().Y() || eve->GetZRangeInXZ().X() < eve->GetZRangeInYZ().Y()) {
+	//	if (eve->GetZRangeInYZ().X() < eve->GetZRangeInXZ().Y() || eve->GetZRangeInXZ().X() < eve->GetZRangeInYZ().Y()) {
 
-			if (fxz->GetParameter(1) == -1 && fyz->GetParameter(1) != -1)
-			{
-				if (xlen > 20) 
-				{
-					double t = (xlen) / (eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X());
-					fxz->SetParameter(1, atan(t) + 1.5708);
-				}
-				else if(eve->GetZRangeInXZ().Y()-eve->GetZRangeInXZ().X()>100)
-				{
-					fxz->SetParameter(1, 1.5708);
-				}
-				else
-				{
-					return;
-				}
-			}
-			else if (fxz->GetParameter(1) != -1 && fyz->GetParameter(1) == -1)
-			{
-				if (ylen > 20)
-				{
-					double t = (ylen) / (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X());
-					fyz->SetParameter(1, atan(t) + 1.5708);
-				}
-				else if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X()>100)
-				{
-					fyz->SetParameter(1, 1.5708);
-				}
-				else
-				{
-					return;
-				}
-			}
+	//		if (fxz->GetParameter(1) == -1 && fyz->GetParameter(1) != -1)
+	//		{
+	//			if (xlen > 20) 
+	//			{
+	//				double t = (xlen) / (eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X());
+	//				fxz->SetParameter(1, atan(t) + 1.5708);
+	//			}
+	//			else if(eve->GetZRangeInXZ().Y()-eve->GetZRangeInXZ().X()>100)
+	//			{
+	//				fxz->SetParameter(1, 1.5708);
+	//			}
+	//			else
+	//			{
+	//				return;
+	//			}
+	//		}
+	//		else if (fxz->GetParameter(1) != -1 && fyz->GetParameter(1) == -1)
+	//		{
+	//			if (ylen > 20)
+	//			{
+	//				double t = (ylen) / (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X());
+	//				fyz->SetParameter(1, atan(t) + 1.5708);
+	//			}
+	//			else if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X()>100)
+	//			{
+	//				fyz->SetParameter(1, 1.5708);
+	//			}
+	//			else
+	//			{
+	//				return;
+	//			}
+	//		}
 
-			firstx = eve->GetFirstX() - tan(fxz->GetParameter(1) - 1.5708)*(eve->GetZRangeInXZ().X() - eve->GetZRange().X());
-			firsty = eve->GetFirstY() - tan(fyz->GetParameter(1) - 1.5708)*(eve->GetZRangeInYZ().X() - eve->GetZRange().X());
-
-
-
-
-			if (eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X() > 345 && eve->GetZRangeInXZ().X()>140 && fxz->GetParameter(1) != 1.5708) {
-				for (int i = 0; i < 512; i++) {
-					auto hitsz = eve->GetXZHitsWithZ(i);
-					map<double, double>::iterator iter = hitsz.begin();
-					double sum = 0;
-					while (iter != hitsz.end()) {
-						sum += iter->second;
-						iter++;
-					}
-					//cout << i << " " << sum << endl;
-					if (sum < 1e5)
-						mudeposxz->SetBinContent(mudeposxz->FindBin(i), mudeposxz->GetBinContent(mudeposxz->FindBin(i)) + sum);
-				}
-				longmunumxz++;
-			}
-			if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X() > 345 && eve->GetZRangeInYZ().X()>140 && fyz->GetParameter(1) != 1.5708) {
-				for (int i = 0; i < 512; i++) {
-					auto hitsz = eve->GetYZHitsWithZ(i);
-					map<double, double>::iterator iter = hitsz.begin();
-					double sum = 0;
-					while (iter != hitsz.end()) {
-						sum += iter->second;
-						iter++;
-					}
-					if (sum < 1e5)
-						mudeposyz->SetBinContent(mudeposyz->FindBin(i), mudeposyz->GetBinContent(mudeposyz->FindBin(i)) + sum);
-				}
-				longmunumyz++;
-			}
+	//		firstx = eve->GetFirstX() - tan(fxz->GetParameter(1) - 1.5708)*(eve->GetZRangeInXZ().X() - eve->GetZRange().X());
+	//		firsty = eve->GetFirstY() - tan(fyz->GetParameter(1) - 1.5708)*(eve->GetZRangeInYZ().X() - eve->GetZRange().X());
 
 
 
-			if (firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 && firsty < Y2 - 30)
-				//the MM pentrating muon
-			{
 
-				info << "MM pentrating muon" << endl;
+	//		if (eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X() > 345 && eve->GetZRangeInXZ().X()>140 && fxz->GetParameter(1) != 1.5708) {
+	//			for (int i = 0; i < 512; i++) {
+	//				auto hitsz = eve->GetXZHitsWithZ(i);
+	//				map<double, double>::iterator iter = hitsz.begin();
+	//				double sum = 0;
+	//				while (iter != hitsz.end()) {
+	//					sum += iter->second;
+	//					iter++;
+	//				}
+	//				//cout << i << " " << sum << endl;
+	//				if (sum < 1e5)
+	//					mudeposxz->SetBinContent(mudeposxz->FindBin(i), mudeposxz->GetBinContent(mudeposxz->FindBin(i)) + sum);
+	//			}
+	//			longmunumxz++;
+	//		}
+	//		if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X() > 345 && eve->GetZRangeInYZ().X()>140 && fyz->GetParameter(1) != 1.5708) {
+	//			for (int i = 0; i < 512; i++) {
+	//				auto hitsz = eve->GetYZHitsWithZ(i);
+	//				map<double, double>::iterator iter = hitsz.begin();
+	//				double sum = 0;
+	//				while (iter != hitsz.end()) {
+	//					sum += iter->second;
+	//					iter++;
+	//				}
+	//				if (sum < 1e5)
+	//					mudeposyz->SetBinContent(mudeposyz->FindBin(i), mudeposyz->GetBinContent(mudeposyz->FindBin(i)) + sum);
+	//			}
+	//			longmunumyz++;
+	//		}
 
-				
-
-				//if (eve->GetNumberOfXZSignals()>7 && xlen<15)
-				//	return;
-				//if (eve->GetNumberOfYZSignals()>7 && ylen<15)
-				//	return;
-				//if (eve->GetZRangeInXZ().X() > 450 || eve->GetZRangeInYZ().X() > 450)
-				//	return;
-				double tan1 = tan(abs(fxz->GetParameter(1) - 1.5708));
-				double tan2 = tan(abs(fyz->GetParameter(1) - 1.5708));
-				mutanthe = sqrt(tan1*tan1 + tan2 * tan2);
-
-			}
 
 
-		}
+	//		if (firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 && firsty < Y2 - 30)
+	//			//the MM pentrating muon
+	//		{
 
-	}
+	//			info << "MM pentrating muon" << endl;
+
+	//			
+
+	//			//if (eve->GetNumberOfXZSignals()>7 && xlen<15)
+	//			//	return;
+	//			//if (eve->GetNumberOfYZSignals()>7 && ylen<15)
+	//			//	return;
+	//			//if (eve->GetZRangeInXZ().X() > 450 || eve->GetZRangeInYZ().X() > 450)
+	//			//	return;
+	//			double tan1 = tan(abs(fxz->GetParameter(1) - 1.5708));
+	//			double tan2 = tan(abs(fyz->GetParameter(1) - 1.5708));
+	//			mutanthe = sqrt(tan1*tan1 + tan2 * tan2);
+
+	//		}
+
+
+	//	}
+
+	//}
 
 
 
@@ -1101,13 +1101,13 @@ void TRestRawSignalTo2DHitsProcess::MuDepos(TRest2DHitsEvent*eve)
 void TRestRawSignalTo2DHitsProcess::EndProcess()
 {
 
-	mudeposxz->Scale(1 / (double)longmunumxz);
-	mudeposxz->SetEntries(longmunumxz);
-	mudeposyz->Scale(1 / (double)longmunumyz);
-	mudeposyz->SetEntries(longmunumyz);
+	//mudeposxz->Scale(1 / (double)longmunumxz);
+	//mudeposxz->SetEntries(longmunumxz);
+	//mudeposyz->Scale(1 / (double)longmunumyz);
+	//mudeposyz->SetEntries(longmunumyz);
 
-	mudeposxz->Write();
-	mudeposyz->Write();
+	//mudeposxz->Write();
+	//mudeposyz->Write();
 
 }
 
