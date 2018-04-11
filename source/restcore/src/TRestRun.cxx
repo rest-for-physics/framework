@@ -431,6 +431,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 	else
 	{
 		debug << "TRestRun: getting next event from root file" << endl;
+		fInputEvent->Initialize();
 		if (fAnalysisTree != NULL)
 		{
 			if (fCurrentEvent > fAnalysisTree->GetEntries()) { fInputEvent = NULL; }
@@ -462,6 +463,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 		return -1;
 	}
 
+	targetevt->Initialize();
 	fInputEvent->CloneTo(targetevt);
 
 
