@@ -77,7 +77,6 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 			hxzt->Reset();
 			hxzr->Reset();
 			for (int i = 0; i < fHough_XZ.size(); i++) {
-				//cout << fHough_XZ[i].y() << endl;
 				hxzt->Fill(fHough_XZ[i].y(), fHough_XZ[i].z());
 				hxzr->Fill(fHough_XZ[i].x(), fHough_XZ[i].z());
 			}
@@ -103,6 +102,30 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				theyz = hyzt->GetBinCenter(hyzt->GetMaximumBin()) - 1.5708;
 			}
 
+			if (thexz == 0) {
+				double xlen = eve->GetXRange().Y() - eve->GetXRange().X();
+				if (xlen > 20)
+				{
+					double t = (xlen) / (eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X());
+					thexz = tan(t);
+				}
+				else if (eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X() > 100) {
+					return fOutputEvent;
+				}
+			}
+
+			if (theyz == 0) {
+				double xlen = eve->GetXRange().Y() - eve->GetXRange().X();
+				if (xlen > 20)
+				{
+					double t = (xlen) / (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X());
+					theyz = tan(t);
+				}
+				else if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X() > 100) {
+					return fOutputEvent;
+				}
+			}
+
 			info << "Track feature: ";
 			//cout << thexz << " " << theyz << endl;
 
@@ -125,6 +148,10 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				double tan2 = tan(abs(theyz));
 				mutanthe->Fill(sqrt(tan1*tan1 + tan2 * tan2));
 			}
+			else
+			{
+				info << "Side injection muon,";
+			}
 
 			vector<int> xzwidths(512);
 			vector<int> yzwidths(512);
@@ -139,10 +166,12 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 					int n = 0;
 					while (iter != hitsz.end()) {
 						if (iter->second>0)
-						n++;
+							n++;
 						sum += iter->second;
 						iter++;
 					}
+					if (n == 0 && i - shift > 0)
+						n = xzwidths[i - shift - 1];
 					xzwidths[i-shift] = n;
 					//cout << i << " " << sum << endl;
 					//if (sum < 1e5)
@@ -162,10 +191,12 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 					int n = 0;
 					while (iter != hitsz.end()) {
 						if(iter->second>0)
-						n++;
+							n++;
 						sum += iter->second;
 						iter++;
 					}
+					if (n == 0 && i - shift > 0)
+						n = yzwidths[i - shift - 1];
 					yzwidths[i-shift] = n;
 					//cout << i << " " << sum << endl;
 					//if (sum < 1e5)
