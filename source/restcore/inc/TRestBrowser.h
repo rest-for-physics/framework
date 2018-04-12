@@ -64,7 +64,7 @@ protected:
 
 private:
 #ifndef __CINT__
-	Bool_t isFile;
+	Bool_t pureAnalysis;
 
 	TRestEventViewer *fEventViewer = 0;//!
 #endif
