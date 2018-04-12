@@ -33,7 +33,7 @@ TRestBrowser::TRestBrowser()
 	}
 }
 
-TRestBrowser::TRestBrowser(TString viewerName) 
+TRestBrowser::TRestBrowser(TString viewerName)
 {
 	Initialize("I");
 	SetViewer(viewerName);
@@ -258,7 +258,7 @@ Bool_t TRestBrowser::OpenFile(TString fName)
 		if (className == "TGeoManager")
 			geometry = (TGeoManager *)fInputFile->Get(key->GetName());
 		//if(className=="TRestAnalysisTree")
-		   // fAnalysisTree= (TRestAnalysisTree *)fInputFile->Get(key->GetName());
+		// fAnalysisTree= (TRestAnalysisTree *)fInputFile->Get(key->GetName());
 	}
 	if (fAnalysisTree == NULL && fEventTree == NULL)
 	{
@@ -283,8 +283,11 @@ Bool_t TRestBrowser::OpenFile(TString fName)
 		if (geometry != NULL && fEventViewer != NULL)fEventViewer->SetGeometry(geometry);
 
 		//PrintAllMetadata();
-		pureAnalysis = kTRUE;
 		LoadEventAction();
+	}
+	else
+	{
+		pureAnalysis = kTRUE;
 	}
 
 	return kTRUE;
@@ -292,8 +295,8 @@ Bool_t TRestBrowser::OpenFile(TString fName)
 }
 
 Bool_t TRestBrowser::LoadEvent(Int_t n) {
-	if(fInputFile==NULL||fInputFile->IsZombie()){ cout << "No File..." << endl; return kFALSE; }
-	if (!pureAnalysis) { cout << "This is a pure analysis file..." << endl; return kFALSE; }
+	if (fInputFile == NULL || fInputFile->IsZombie()) { cout << "No File..." << endl; return kFALSE; }
+	if (pureAnalysis) { cout << "This is a pure analysis file..." << endl; return kFALSE; }
 	if (fAnalysisTree != NULL && n < fAnalysisTree->GetEntries() && n >= 0) {
 		this->GetEntry(n);
 	}
