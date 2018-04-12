@@ -101,6 +101,7 @@ void TRestProcessRunner::BeginOfInit()
 	fThreadNumber = StringToDouble(GetParameter("threadNumber", "1"));
 	fOutputItem = Spilt(GetParameter("treeBranches", "inputevent:processevent:outputevent:inputanalysis:outputanalysis"), ":");
 	if (fThreadNumber < 1)fThreadNumber = 1;
+	if (fThreadNumber > 15)fThreadNumber = 15;
 
 
 	for (int i = 0; i < fThreadNumber; i++)
