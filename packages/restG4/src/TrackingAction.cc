@@ -79,7 +79,9 @@ TrackingAction::~TrackingAction()
 void TrackingAction::PreUserTrackingAction(const G4Track* track)
 {
 
-    if( restG4Metadata->GetVerboseLevel() >= REST_Debug )G4cout << "Track Starts" << endl;
+	if (restG4Metadata->GetVerboseLevel() >= REST_Debug) 
+		if(track->GetTrackID() % 10 == 0)
+			G4cout << "Processing track "<< track->GetTrackID() << endl; 
     G4ParticleDefinition* particle = track->GetDefinition();
     G4String name   = particle->GetParticleName();
     fCharge = particle->GetPDGCharge();
@@ -122,7 +124,6 @@ void TrackingAction::PreUserTrackingAction(const G4Track* track)
 
 void TrackingAction::PostUserTrackingAction(const G4Track* track)
 {
-    if( restG4Metadata->GetVerboseLevel() >= REST_Debug ) G4cout << "Track Ends" << endl;
 
     restTrack->SetTrackTimeLength( track->GetLocalTime()/microsecond );
 

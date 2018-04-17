@@ -47,7 +47,7 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-    if( restG4Metadata->GetVerboseLevel() >= REST_Debug ) cout << "Primary generation" << endl;
+    if( restG4Metadata->GetVerboseLevel() >= REST_Info ) cout << "Primary generation..." << endl;
     // We have to initialize here and not in start of the event because GeneratePrimaries is called first, 
     // and we want to store event origin and position inside
     //we should have already written the information from previous event to disk (in endOfEventAction)
@@ -255,7 +255,7 @@ void PrimaryGeneratorAction::SetParticleDirection( int n )
     if( restG4Metadata->GetVerboseLevel() >= REST_Debug )
     {
         cout << "Event direction has been set : " << endl;
-        cout << restG4Event->GetPrimaryEventDirection(0).X() << " " << restG4Event->GetPrimaryEventDirection(0).Y() << " " << restG4Event->GetPrimaryEventDirection(0).Z() << " " << endl;
+        cout << "("<<restG4Event->GetPrimaryEventDirection(0).X() << ", " << restG4Event->GetPrimaryEventDirection(0).Y() << ", " << restG4Event->GetPrimaryEventDirection(0).Z() << ")" << endl;
     }
     
     // setting particle direction
@@ -517,7 +517,7 @@ void PrimaryGeneratorAction::SetParticlePosition( )
     if( restG4Metadata->GetVerboseLevel() >= REST_Debug )
     {
         cout << "Event origin has been set : " << endl;
-        cout << restG4Event->GetPrimaryEventOrigin().X() << " " << restG4Event->GetPrimaryEventOrigin().Y() << " " << restG4Event->GetPrimaryEventOrigin().Z() << " " << endl;
+        cout << "("<<restG4Event->GetPrimaryEventOrigin().X() << ", " << restG4Event->GetPrimaryEventOrigin().Y() << ", " << restG4Event->GetPrimaryEventOrigin().Z() << ")" << endl;
     }
 
     // setting particle position

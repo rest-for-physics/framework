@@ -68,7 +68,7 @@ EventAction::~EventAction()
 void EventAction::BeginOfEventAction(const G4Event* evt)
 {
     if( evt->GetEventID() % 10000 == 0 ) cout << "Starting event : " << evt->GetEventID() << endl;
-
+	if (restG4Metadata->GetVerboseLevel() >= REST_Debug) cout << "Start of event " << evt->GetEventID() << endl;
     restTrack->Initialize();
 
     restG4Event->SetID( evt->GetEventID() );
@@ -96,11 +96,10 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 {
 
     G4int evtNb = evt->GetEventID(); 
-    if ( restG4Metadata->GetVerboseLevel() >= REST_Info ) cout << "End of event " << evtNb << endl;
-    if( restG4Metadata->GetVerboseLevel() >= REST_Info ) 
+
+    if( restG4Metadata->GetVerboseLevel() >= REST_Extreme ) 
     {
         restG4Event->PrintEvent();
-        cout << "End of event : " << evtNb << endl;
     }
 
     Double_t minEnergy = restG4Metadata->GetMinimumEnergyStored();
@@ -116,6 +115,8 @@ void EventAction::EndOfEventAction(const G4Event* evt)
         if( minEnergy < 0 ) minEnergy = 0;
         if( maxEnergy == 0 ) maxEnergy = en + 1.;
 
+		if (restG4Metadata->GetVerboseLevel() >= REST_Info) cout << "Event Deposited energy in sensitive volume:  " << en << endl;
+
 		if (subRestG4Event->GetSensitiveVolumeEnergy() > 0 && en > minEnergy && en < maxEnergy)
 		{
 			if(restRun->GetAnalysisTree() != NULL)
@@ -124,6 +125,12 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 				restRun->GetEventTree()->Fill();
 		}
     }
+
+	if (restG4Metadata->GetVerboseLevel() >= REST_Info) 
+	{ 
+		cout << "End of event " << evtNb << endl; 
+		cout << endl;
+	}
 }
 
 void EventAction::FillSubEvent( Int_t subId )
