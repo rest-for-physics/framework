@@ -350,15 +350,22 @@ void TRestG4Metadata::PrintMetadata( )
 
 void TRestG4Metadata::ReadGeneratorFile( TString fName )
 {
-    TString fullFilename = (TString) getenv("REST_PATH") +  "/inputData/generator/" + fName;
+	if (!fileExists((string)fName)) {
+		fName= (TString)getenv("REST_PATH") + "/inputData/generator/" + fName;
+		if (!fileExists((string)fName)) {
+			warning << "REST WARNING (TRestG4Metadata): generatot file does not exist!" << endl;
+			GetChar();
+		}
+	}
+    //TString fullFilename = (TString) getenv("REST_PATH") +  "/inputData/generator/" + fName;
 
     char cadena[256];
     int tmpInt;
 
     FILE *fFileIn;
 
-    if ( (fFileIn = fopen(fullFilename.Data(),"rt") ) == NULL ) {
-        printf("Error en el archivo %s\n", fullFilename.Data());
+    if ( (fFileIn = fopen(fName.Data(),"rt") ) == NULL ) {
+        printf("Error en el archivo %s\n", fName.Data());
         return;
     }
 
