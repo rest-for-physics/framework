@@ -139,31 +139,41 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement * e)
 		for (int i = 0; i < fThreadNumber; i++)
 		{
 			TRestEventProcess* p = InstantiateProcess(processType, e);
-			if (p->InheritsFrom("TRestRawToSignalProcess"))
-			{
-				fRunInfo->SetExtProcess(p);
-				return 0;
+			if (p != NULL) {
+				if (p->InheritsFrom("TRestRawToSignalProcess"))
+				{
+					fRunInfo->SetExtProcess(p);
+					return 0;
+				}
+				else
+				{
+					if (p->GetVerboseLevel() >= REST_Debug) {
+						fProcStatus = kIgnore;
+						debug << "a process is in debug mode, pause menu disabled." << endl;
+					}
+					if (p->singleThreadOnly()) {
+						fProcStatus = kIgnore;
+						if (fThreadNumber > 1)
+						{
+							//If the process declared single thread only, then the whole process will be 
+							//in single thread mode
+							warning << "process: " << p->ClassName() << " can only run under single thread mode" << endl;
+							warning << "the analysis run will be performed with single thread!" << endl;
+							for (i = fThreadNumber; i > 1; i--) {
+								fThreads.erase(fThreads.end() - 1);
+								fThreadNumber--;
+							}
+							fThreads[0]->AddProcess(p);
+
+							break;
+						}
+					}
+					fThreads[i]->AddProcess(p);
+				}
 			}
 			else
 			{
-				if (p->singleThreadOnly()) {
-					fProcStatus = kIgnore;
-					if (fThreadNumber > 1)
-					{
-						//If the process declared single thread only, then the whole process will be 
-						//in single thread mode
-						warning << "process: " << p->ClassName() << " can only run under single thread mode" << endl;
-						warning << "the analysis run will be performed with single thread!" << endl;
-						for (i = fThreadNumber; i > 1; i--) {
-							fThreads.erase(fThreads.end() - 1);
-							fThreadNumber--;
-						}
-						fThreads[0]->AddProcess(p);
-
-						break;
-					}
-				}
-				fThreads[i]->AddProcess(p);
+				return 0;
 			}
 		}
 
