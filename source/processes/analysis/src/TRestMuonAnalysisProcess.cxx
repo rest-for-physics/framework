@@ -66,6 +66,10 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 	fAnaEvent = (TRest2DHitsEvent*)evInput;
 	fOutputEvent = evInput;
 
+
+	fAnalysisTree->SetObservableValue(this, "mutanthe", numeric_limits<double>::quiet_NaN());
+	fAnalysisTree->SetObservableValue(this, "adjustedfirstX", numeric_limits<double>::quiet_NaN());
+	fAnalysisTree->SetObservableValue(this, "adjustedfirstY", numeric_limits<double>::quiet_NaN());
 	if (fAnaEvent->GetSubEventTag() == "muon") {
 		if(fAnaEvent->GetHoughXZ().size()==0 && fAnaEvent->GetHoughYZ().size()==0)
 			fAnaEvent->DoHough();
@@ -90,8 +94,18 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 			}
 		}
 
+		hxzt->SetBinContent(101, 0);
+		hyzt->SetBinContent(101, 0);
+
 		TRest2DHitsEvent*eve = fAnaEvent;
-		if (eve->GetZRangeInYZ().X() < eve->GetZRangeInXZ().Y() || eve->GetZRangeInXZ().X() < eve->GetZRangeInYZ().Y()) {
+
+
+		double a = eve->GetZRangeInXZ().X();
+		double b = eve->GetZRangeInXZ().Y();
+		double c = eve->GetZRangeInYZ().X();
+		double d = eve->GetZRangeInYZ().Y();
+
+		if ((a<c&&c<b)||(c<a&&a<d)) {
 
 			double firstx, firsty, firstz;
 			double thexz = 0, theyz = 0;
@@ -107,7 +121,7 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				if (xlen > 20)
 				{
 					double t = (xlen) / (eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X());
-					thexz = tan(t);
+					thexz = atan(t);
 				}
 				else if (eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X() > 100) {
 					return fOutputEvent;
@@ -119,7 +133,7 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				if (xlen > 20)
 				{
 					double t = (xlen) / (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X());
-					theyz = tan(t);
+					theyz = atan(t);
 				}
 				else if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X() > 100) {
 					return fOutputEvent;
@@ -133,7 +147,11 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 			firstx = eve->GetFirstX() - tan(thexz)*(eve->GetZRangeInXZ().X() - firstz);
 			firsty = eve->GetFirstY() - tan(theyz)*(eve->GetZRangeInYZ().X() - firstz);
 
-			if (firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 && firsty < Y2 - 30)
+			fAnalysisTree->SetObservableValue(this, "adjustedfirstX", firstx);
+			fAnalysisTree->SetObservableValue(this, "adjustedfirstY", firsty);
+			//if (firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 && firsty < Y2 - 30)
+			//if (firstx > X1 && firstx < X2 && firsty > Y1 && firsty < Y2)
+			if (1)
 				//the MM pentrating muon
 			{
 				info << "MM pentrating muon,";
@@ -147,6 +165,14 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				double tan1 = tan(abs(thexz));
 				double tan2 = tan(abs(theyz));
 				mutanthe->Fill(sqrt(tan1*tan1 + tan2 * tan2));
+				if (GetVerboseLevel() >= REST_Debug) {
+					debug << eve->GetZRangeInXZ().X() << ", " << eve->GetZRangeInXZ().Y() << "   " << eve->GetZRangeInYZ().X() << ", " << eve->GetZRangeInYZ().Y() << endl;
+					debug << eve->GetID() << " " << tan1 << " " << tan2 << endl;
+					getchar();
+				}
+				//if((firstx < X1 + 30 || firstx > X2 - 30) && (firsty < Y1 + 30 || firsty > Y2 - 30))
+				//	mutanthe->Fill(sqrt(tan1*tan1 + tan2 * tan2));//at edge, fill again
+				fAnalysisTree->SetObservableValue(this, "mutanthe", sqrt(tan1*tan1 + tan2 * tan2));
 			}
 			else
 			{

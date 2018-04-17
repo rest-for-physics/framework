@@ -6,13 +6,13 @@
      Date   :  9th-Apr-2016
      Description : Template configuration file to launch radioactive ${REST_ISOTOPE} decays from a given point ${REST_X},${REST_Y},${REST_Z} in the geometry.
  -->
-
-<globals>
+<restG4>
+  <globals>
     <parameter name="mainDataPath" value="${REST_DATAPATH}" />
     <parameter name="verboseLevel" value="warning" /> %options are : silent, warning, info, debug
-</globals>
+  </globals>
 
-<section run name="PANDA-X III run" title="Simulations v2.0">
+  <TRestRun name="PANDA-X III run" title="Simulations v2.0">
     <parameter name="Nevents" value="${REST_NEVENTS}"/>
     <parameter name="experiment" value="PANDAXIII"/>
     <parameter name="runType" value="simulation"/>
@@ -23,9 +23,9 @@
     <parameter name="verboseLevel" value="3"/>
     <parameter name="overwrite" value="on" />
     <parameter name="outputFile" value="default" />
-</section>
+  </TRestRun>
 
-<section restG4 name="restG4 Simulation run" title="Simulation of ${REST_ISOTOPE} decay from rings.">
+  <TRestG4Metadata name="restG4 Simulation run" title="Simulation of ${REST_ISOTOPE} decay from rings.">
 
     <parameter name="geometryPath" value="${REST_PATH}/config/pandaXIII/geometry/${REST_GEOMETRY_TYPE}/" />
     <parameter name="gdml_file" value="${REST_GEOMETRY_SETUP}"/>
@@ -33,16 +33,17 @@
     <parameter name="subEventTimeDelay" value="${REST_EVENTDELAY}" units="us" />
 
     <generator type="point" position="(${REST_X},${REST_Y},${REST_Z})" units="mm" >
-        <source particle="${REST_ISOTOPE}" fullChain="${REST_FULLCHAIN}">
-            <angularDist type="isotropic" />
-            <energyDist type="mono" energy="0" units="keV" />
-        </source>
+      <source particle="${REST_ISOTOPE}" fullChain="${REST_FULLCHAIN}">
+        <angularDist type="isotropic" />
+        <energyDist type="mono" energy="0" units="keV" />
+      </source>
     </generator>
 
     <storage sensitiveVolume="gas">
-        <parameter name="energyRange" value="(${REST_EMIN},${REST_EMAX})" units="MeV" />
-        <activeVolume name="gas" chance="1" />
+      <parameter name="energyRange" value="(${REST_EMIN},${REST_EMAX})" units="MeV" />
+      <activeVolume name="gas" chance="1" />
     </storage>
 
-</section>
+  </TRestG4Metadata>
 
+</restG4>

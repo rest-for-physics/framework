@@ -6,13 +6,13 @@
      Date   :  17th-March-2016
      Description : Configuration file to launch biased concrete ${REST_ISOTOPE} decays from a virtualBox 2.5m size.
  -->
-
-<globals>
+<restG4>
+  <globals>
     <parameter name="mainDataPath" value="${REST_DATAPATH}" />
     <parameter name="verboseLevel" value="warning" /> %options are : silent, warning, info, debug
-</globals>
+  </globals>
 
-<section run name="PANDA-X III run" title="Simulations v2.0">
+  <TRestRun name="PANDA-X III run" title="Simulations v2.0">
     <parameter name="Nevents" value="${REST_NEVENTS}"/>
     <parameter name="experiment" value="PANDAXIII"/>
     <parameter name="runType" value="simulation"/>
@@ -22,9 +22,9 @@
     <parameter name="user" value="${USER}"/>
     <parameter name="verboseLevel" value="3"/>
     <parameter name="overwrite" value="on" />
-</section>
+  </TRestRun>
 
-<section restG4 name="restG4 Simulation run" title="Simulation of ${REST_ISOTOPE} decay from inner virtual box.">
+  <TRestG4Metadata name="restG4 Simulation run" title="Simulation of ${REST_ISOTOPE} decay from inner virtual box.">
 
     <parameter name="geometryPath" value="${REST_PATH}/config/pandaXIII/geometry/traditional/" />
     <parameter name="gdml_file" value="pandaXIII_Setup_WT12m.gdml"/>
@@ -32,16 +32,17 @@
     <parameter name="subEventTimeDelay" value="${REST_EVENTDELAY}" units="us" />
 
     <generator type="virtualBox" size="${REST_BOXSIZE}" units="mm" >
-        <source particle="gamma" fullChain="off">
-            <angularDist type="TH1D" file="${REST_PATH}/inputData/distributions/HighEnergyGammaBiasing.root" spctName="${REST_ISOTOPE}_Angular_${REST_BOXSIZE}"/>
-            <energyDist type="TH1D" file="${REST_PATH}/inputData/distributions/HighEnergyGammaBiasing.root" spctName="${REST_ISOTOPE}_Spectrum_${REST_BOXSIZE}" range="(2.4,15.0)" units="MeV"/>
-        </source>
+      <source particle="gamma" fullChain="off">
+        <angularDist type="TH1D" file="${REST_PATH}/inputData/distributions/HighEnergyGammaBiasing.root" spctName="${REST_ISOTOPE}_Angular_${REST_BOXSIZE}"/>
+        <energyDist type="TH1D" file="${REST_PATH}/inputData/distributions/HighEnergyGammaBiasing.root" spctName="${REST_ISOTOPE}_Spectrum_${REST_BOXSIZE}" range="(2.4,15.0)" units="MeV"/>
+      </source>
     </generator>
 
     <storage sensitiveVolume="gas">
-        <parameter name="energyRange" value="(${REST_EMIN},${REST_EMAX})" units="MeV" />
-        <activeVolume name="gas" chance="1" />
+      <parameter name="energyRange" value="(${REST_EMIN},${REST_EMAX})" units="MeV" />
+      <activeVolume name="gas" chance="1" />
     </storage>
 
-</section>
+  </TRestG4Metadata>
 
+</restG4>
