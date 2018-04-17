@@ -253,10 +253,7 @@ int main(int argc,char** argv) {
         sprintf( tmp, "/run/beamOn %d", N_events );
 
         command = tmp;
-		cout << 111111111 << command << endl;
-		getchar();
         UI->ApplyCommand(command);  
-
 
         //TH1D *spt = step->GetBiasingSpectrum();
         /*
@@ -319,12 +316,7 @@ int main(int argc,char** argv) {
                 step->SetBiasingSpectrum( biasingSpectrum[biasing-1]  ); 
                 step->SetAngularDistribution( angularDistribution[biasing-1] );  
                 step->SetSpatialDistribution( spatialDistribution[biasing-1] );  }
-
-			cout << 111111111 << command << endl;
-			getchar();
             UI->ApplyCommand(command);  
-
-
         }
     }
 
