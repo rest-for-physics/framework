@@ -25,7 +25,7 @@ TRestRun::~TRestRun()
 	if (fOutputFile != NULL) {
 		fOutputFile->Close(); delete fOutputFile;
 	}
-	//if (fOutputFile != NULL) CloseOutputFile();
+	//CloseFile();
 }
 
 
@@ -53,7 +53,7 @@ void TRestRun::Initialize()
 	//fOutputAnalysisTree = NULL;
 
 	fInputFileName = "null";
-	fOutputFileName = "default";
+	fOutputFileName = "rest_default.root";
 
 
 	fProcessedEvents = 0;
@@ -67,7 +67,6 @@ void TRestRun::Initialize()
 	fCurrentEvent = 0;
 	fEventBranchLoc = -1;
 	fFileProcess = NULL;
-	fOutputFileName = "";
 
 	return;
 }
@@ -209,8 +208,7 @@ void TRestRun::EndOfInit()
 		info << endl;
 	}
 	else if (fInputFileNames.size() == 0) {
-		warning << "REST WARNING(TRestRun): Input File does not match anything!" << endl;
-		GetChar();
+		warning << "TRestRun : no input file added!" << endl;
 	}
 
 	essential << this->ClassName() << " : OutputFile : " << fOutputFileName << endl;
@@ -562,8 +560,10 @@ TFile* TRestRun::FormOutputFile()
 	CloseFile();
 	fOutputFileName = FormFormat(fOutputFileName);
 	fOutputFile = new TFile(fOutputFileName, "recreate");
-	fAnalysisTree = new TRestAnalysisTree();
-	fEventTree = new TRestAnalysisTree();
+	fAnalysisTree = new TRestAnalysisTree("AnalysisTree","AnalysisTree");
+	fEventTree = new TRestAnalysisTree("EventTree", "EventTree");
+	fAnalysisTree->CreateEventBranches();
+	fEventTree->CreateEventBranches();
 	this->Write();
 	for (int i = 0; i < fMetadataInfo.size(); i++) {
 		fMetadataInfo[i]->Write();
@@ -577,18 +577,26 @@ TFile* TRestRun::FormOutputFile()
 
 void TRestRun::CloseFile()
 {
+	if (fAnalysisTree != NULL) {
+		if (fAnalysisTree->GetEntries() > 0 && fInputFile == NULL)
+			fAnalysisTree->Write();
+		fAnalysisTree = NULL;
+	}
+
+	if (fEventTree != NULL) {
+		if (fEventTree->GetEntries() > 0 && fInputFile == NULL)
+			fEventTree->Write();
+		fEventTree = NULL;
+	}
+
 	if (fOutputFile != NULL) {
 		fOutputFile->Close(); delete fOutputFile; fOutputFile = NULL;
 	}
 	if (fInputFile != NULL) {
 		fInputFile->Close(); delete fOutputFile; fInputFile = NULL;
 	}
-	if (fAnalysisTree != NULL) {
-		fAnalysisTree = NULL;
-	}
-	if (fEventTree != NULL) {
-		fEventTree = NULL;
-	}
+
+
 }
 
 
@@ -655,6 +663,19 @@ void TRestRun::SetInputEvent(TRestEvent* eve)
 			}
 		}
 	}
+}
+
+
+void TRestRun::SetOutputEvent(TRestEvent* eve) 
+{
+	if (eve != NULL) {
+
+		if (fEventTree != NULL) {
+			string brname = (string)eve->ClassName() + "Branch";
+			fEventTree->Branch(brname.c_str(), eve);
+		}
+	}
+
 }
 
 
