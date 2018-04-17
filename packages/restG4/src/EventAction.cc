@@ -120,6 +120,8 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 		{
 			if(restRun->GetAnalysisTree() != NULL)
 				restRun->GetAnalysisTree()->Fill();
+			if (restRun->GetEventTree() != NULL)
+				restRun->GetEventTree()->Fill();
 		}
     }
 }

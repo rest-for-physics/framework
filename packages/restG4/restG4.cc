@@ -97,15 +97,15 @@ int main(int argc,char** argv) {
 	restRun->LoadConfigFromFile(inputConfigFile);
     restRun->SetRunTag( restG4Metadata->GetTitle() );
 
-    restG4Event = new TRestG4Event( );
-    subRestG4Event = new TRestG4Event( );
-    restRun->SetInputEvent( subRestG4Event );
-
     restRun->AddMetadata( restG4Metadata );
     restRun->AddMetadata( restPhysList );
     restRun->PrintInfo();
 
 	restRun->FormOutputFile();
+
+	restG4Event = new TRestG4Event();
+	subRestG4Event = new TRestG4Event();
+	restRun->SetOutputEvent(subRestG4Event);
 
     restTrack = new TRestG4Track( );
     // }}} 
@@ -253,7 +253,10 @@ int main(int argc,char** argv) {
         sprintf( tmp, "/run/beamOn %d", N_events );
 
         command = tmp;
+		cout << 111111111 << command << endl;
+		getchar();
         UI->ApplyCommand(command);  
+
 
         //TH1D *spt = step->GetBiasingSpectrum();
         /*
@@ -316,7 +319,12 @@ int main(int argc,char** argv) {
                 step->SetBiasingSpectrum( biasingSpectrum[biasing-1]  ); 
                 step->SetAngularDistribution( angularDistribution[biasing-1] );  
                 step->SetSpatialDistribution( spatialDistribution[biasing-1] );  }
+
+			cout << 111111111 << command << endl;
+			getchar();
             UI->ApplyCommand(command);  
+
+
         }
     }
 
@@ -363,6 +371,7 @@ int main(int argc,char** argv) {
 
     TString Filename = restRun->GetOutputFileName();
 
+	restRun->CloseFile();
     delete restRun;
 
     delete restG4Event;
@@ -387,7 +396,7 @@ int main(int argc,char** argv) {
     cout << "Writting geometry" << endl;
     f1->cd();
     geo2->Write();
-    cout << "Closing file" << endl;
+    cout << "Closing file : "<< Filename << endl;
     f1->Close();
 
     return 0;
