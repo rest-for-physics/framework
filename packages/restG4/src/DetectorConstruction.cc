@@ -34,14 +34,18 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     // Reading the geometry
     TString geometryFile = restG4Metadata->Get_GDML_Filename();
 
-    char originDirectory[255];
-    sprintf( originDirectory, "%s", get_current_dir_name() );
+    //char originDirectory[255];
+    //sprintf( originDirectory, "%s", get_current_dir_name() );
 
-    char buffer[255];
-    sprintf( buffer, "%s", (char *) restG4Metadata->GetGeometryPath().Data() );
-    chdir( buffer );
+    //char buffer[255];
+    //sprintf( buffer, "%s", (char *) restG4Metadata->GetGeometryPath().Data() );
+    //chdir( buffer );
+	char originDirectory[256];
+	sprintf(originDirectory, "%s", get_current_dir_name());
+	vector<string> pathandname = SeparatePathAndName((string)restG4Metadata->Get_GDML_Filename());
+	chdir(pathandname[0].c_str());
 
-    parser->Read( (string) geometryFile, false );
+    parser->Read(pathandname[1], false );
 
     chdir( originDirectory );
 
