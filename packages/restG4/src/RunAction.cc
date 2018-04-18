@@ -80,12 +80,12 @@ void RunAction::EndOfRunAction(const G4Run* run)
     G4String partName = particle->GetParticleName();
     //G4double eprimary = fPrimary->GetParticleGun()->GetParticleEnergy();
 
-    G4cout << "\n ======================== run summary ======================";  
-    G4cout << "\n The run was " << nbEvents << " \n";
-    G4cout << "\n ===========================================================\n";
+    G4cout << "======================== run summary ======================";  
+	G4cout << "\n" << nbEvents << " Events simulated\n";
+    G4cout << "===========================================================";
     G4cout << G4endl;
 
-    restG4Metadata->PrintMetadata();
+    //restG4Metadata->PrintMetadata();
 
 
 
