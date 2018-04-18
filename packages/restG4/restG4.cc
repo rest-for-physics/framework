@@ -387,6 +387,10 @@ int main(int argc,char** argv) {
 
      //Writting the geometry in TGeoManager format to the ROOT file
 	{
+		//writting the geometry object
+		TFile *f1 = new TFile(Filename, "update");
+		cout << "Writting geometry..." << endl;
+
 		//making a temporary file for ROOT to load. ROOT6 has a bug loading math expressions in gdml file
 		system(("cp " + (string)restG4Metadata->Get_GDML_Filename() + " " + (string)restG4Metadata->Get_GDML_Filename() + "_").c_str());
 		GdmlPreprocessor* p = new GdmlPreprocessor();
@@ -404,9 +408,6 @@ int main(int argc,char** argv) {
 		//remove the temporary file
 		system(("rm " + (string)restG4Metadata->Get_GDML_Filename() + "_").c_str());
 
-		//writting the geometry object
-		TFile *f1 = new TFile(Filename, "update");
-		cout << "Writting geometry" << endl;
 		f1->cd();
 		geo2->Write();
 		cout << "Closing file : " << Filename << endl;
