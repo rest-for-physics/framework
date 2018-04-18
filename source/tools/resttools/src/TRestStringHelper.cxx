@@ -1,4 +1,5 @@
 #include "TRestStringHelper.h"
+#include "v5/TFormula.h"
 
 using namespace std;
 TRestStringHelper::TRestStringHelper()
@@ -18,8 +19,8 @@ TRestStringHelper::~TRestStringHelper()
 Int_t TRestStringHelper::isAExpression(string in)
 {
 	string temp = in;
-	string replace[] = { "sqrt","log","exp","gaus" };
-	for (int i = 0; i < replace->size(); i++)
+	vector<string> replace{ "sqrt","log","exp","gaus","cos","sin","tan","atan","acos","asin" };
+	for (int i = 0; i < replace.size(); i++)
 	{
 		temp = Replace(temp, replace[i], "0", 0);
 	}
@@ -36,6 +37,71 @@ Int_t TRestStringHelper::isAExpression(string in)
 
 	return 0;
 }
+
+///////////////////////////////////////////////
+/// \brief Evaluates and replaces valid mathematical expressions found in the input string **buffer**.
+///
+std::string TRestStringHelper::ReplaceMathematicalExpressions(std::string buffer) {
+
+	//we spilt the unit part and the expresstion part
+	int pos = buffer.find_last_of("1234567890().");
+
+	string unit = buffer.substr(pos + 1, -1);
+	string temp = buffer.substr(0, pos + 1);
+	string result = "";
+
+	bool erased = false;
+
+	std::vector<std::string> Expressions=Spilt(temp,",");
+
+	if (Expressions.size() > 1 && Expressions[0][0] == '(' && Expressions[Expressions.size()-1][Expressions[Expressions.size() - 1].size()-1] == ')') {
+		Expressions[0].erase(0, 1);
+		Expressions[Expressions.size() - 1].erase(Expressions[Expressions.size() - 1].size() - 1, 1);
+		erased = true;
+	}
+
+	for (int i = 0; i < Expressions.size(); i++)
+	{
+		if (!isAExpression(Expressions[i])) { result += Expressions[i] + ","; continue; }
+		result += EvaluateExpression(Expressions[i]) + ",";
+	}
+	if(Expressions.size()>0)
+		result.erase(result.size() - 1, 1);
+
+	if (erased)
+	{
+		result = "(" + result + ")";
+	}
+
+	return result + unit;
+
+}
+
+///////////////////////////////////////////////
+/// \brief Evaluates a complex numerical expression and returns the resulting value using TFormula.
+///
+std::string TRestStringHelper::EvaluateExpression(std::string exp) {
+	if (!isAExpression(exp)) { return exp; }
+
+	//NOTE!!! In root6 the expression like "1/2" will be computed using the input as int number,
+	//which will return 0, and cause problem.
+	//we roll back to TFormula of version 5
+	ROOT::v5::TFormula formula("tmp", exp.c_str());
+
+	ostringstream sss;
+	Double_t number = formula.EvalPar(0);
+	if (number > 0 && number < 1.e-300)
+	{
+		cout << "REST Warning! Expression not recognized --> " << exp << endl;  
+
+	}
+
+	sss << number;
+	string out = sss.str();
+
+	return out;
+}
+
 
 ///////////////////////////////////////////////
 /// \brief Returns 1 only if a valid number is found in the string **in**. If not it returns 0.
@@ -289,6 +355,33 @@ bool TRestStringHelper::isAbsolutePath(const std::string & path)
 {
 	if (path[0] == '/' ||path[0]=='~'|| path.find(':') != -1) { return true; }
 	return false;
+}
+
+std::vector <string> TRestStringHelper::SeparatePathAndName(const std::string fullname)
+{
+	vector <string>result;
+	int pos = fullname.find_last_of('/', -1);
+
+	if (pos == -1) {
+		result.push_back(".");
+		result.push_back(fullname);
+	}
+	else if(pos==0)
+	{
+		result.push_back("/");
+		result.push_back(fullname.substr(1,fullname.size()-1));
+	}
+	else if(pos==fullname.size())
+	{
+		result.push_back(fullname);
+		result.push_back("");
+	}
+	else
+	{
+		result.push_back(fullname.substr(0, pos));
+		result.push_back(fullname.substr(pos + 1, fullname.size() - pos - 1));
+	}
+	return result;
 }
 
 

@@ -515,7 +515,7 @@ Int_t TRestMetadata::LoadSectionMetadata()
 		TiXmlElement* e = fElementGlobal->FirstChildElement();
 		while (e != NULL)
 		{
-			if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter")
+			if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter" || (string)e->Value() == "constant")
 			{
 				ReplaceElementAttributes(e);
 				SetEnvWithElement(e);
@@ -528,7 +528,7 @@ Int_t TRestMetadata::LoadSectionMetadata()
 	TiXmlElement* e = fElement->FirstChildElement();
 	while (e != NULL)
 	{
-		if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter")
+		if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter" || (string)e->Value() == "constant")
 		{
 			ReplaceElementAttributes(e);
 			SetEnvWithElement(e);
@@ -559,7 +559,7 @@ void TRestMetadata::InitFromConfigFile()
 			string name = "";
 			const char* a = e->Attribute("name");
 			if (a != NULL) name = a;
-			if (value == "variable" || value == "myParameter") { e = e->NextSiblingElement(); continue; }
+			if (value == "variable" || value == "myParameter" || value == "constant") { e = e->NextSiblingElement(); continue; }
 
 			if (ReadConfig((string)e->Value(), e) == 0) {
 				debug << "rml Element \"" << e->Value() << "\" with name \"" << name << "\" has been loaded by: " << GetSectionName() << endl;
@@ -592,8 +592,11 @@ TiXmlElement * TRestMetadata::ReplaceElementAttributes(TiXmlElement * e)
 		const char* val = attr->Value();
 		const char* name = attr->Name();
 
-		string temp = ReplaceEnvironmentalVariables(val);
-		e->SetAttribute(name, ReplaceMathematicalExpressions(temp).c_str());
+		//set attribute except the item : name="" 
+		if (name != "name") {
+			string temp = ReplaceEnvironmentalVariables(val);
+			e->SetAttribute(name, ReplaceMathematicalExpressions(temp).c_str());
+		}
 
 		attr = attr->Next();
 	}
@@ -846,7 +849,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 				TiXmlElement*globaldef = GetElement("globals", rootele)->FirstChildElement();
 				while (globaldef != NULL)
 				{
-					if ((string)globaldef->Value() == "variable" || (string)globaldef->Value() == "myParameter")
+					if ((string)globaldef->Value() == "variable" || (string)globaldef->Value() == "myParameter" || (string)globaldef->Value() == "constant")
 					{
 						SetEnvWithElement(globaldef, false);
 					}
@@ -864,7 +867,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 				TiXmlElement*globaldef = global->FirstChildElement();
 				while (globaldef != NULL)
 				{
-					if ((string)globaldef->Value() == "variable" || (string)globaldef->Value() == "myParameter")
+					if ((string)globaldef->Value() == "variable" || (string)globaldef->Value() == "myParameter" || (string)globaldef->Value() == "constant")
 					{
 						ReplaceElementAttributes(globaldef);
 						debug << "setting env" << globaldef->Value() << globaldef->Attribute("name") << endl;
@@ -1634,31 +1637,29 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, size_
 
 
 
-///////////////////////////////////////////////
-/// \brief Evaluates a complex numerical expression and returns the resulting value using TFormula.
-///
-string TRestMetadata::EvaluateExpression(string exp)
-{
-	if (!isAExpression(exp)) { return exp; }
 
-	//NOTE!!! In root6 the expression like "1/2" will be computed using the input as int number,
-	//which will return 0, and cause problem.
-	//we roll back to TFormula of version 5
-	ROOT::v5::TFormula formula("tmp", exp.c_str());
-
-	ostringstream sss;
-	Double_t number = formula.EvalPar(0);
-	if (number > 0 && number < 1.e-300)
-	{
-		warning << "REST Warning! Expression not recognized --> " << exp << endl;  return exp;
-		warning << endl;
-	}
-
-	sss << number;
-	string out = sss.str();
-
-	return out;
-}
+//string TRestMetadata::EvaluateExpression(string exp)
+//{
+//	if (!isAExpression(exp)) { return exp; }
+//
+//	//NOTE!!! In root6 the expression like "1/2" will be computed using the input as int number,
+//	//which will return 0, and cause problem.
+//	//we roll back to TFormula of version 5
+//	ROOT::v5::TFormula formula("tmp", exp.c_str());
+//
+//	ostringstream sss;
+//	Double_t number = formula.EvalPar(0);
+//	if (number > 0 && number < 1.e-300)
+//	{
+//		warning << "REST Warning! Expression not recognized --> " << exp << endl;  return exp;
+//		warning << endl;
+//	}
+//
+//	sss << number;
+//	string out = sss.str();
+//
+//	return out;
+//}
 
 
 ///////////////////////////////////////////////
@@ -1799,7 +1800,7 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer)
 	startPosition = 0;
 	endPosition = 0;
 	for (int i = 0; i < fElementEnv.size(); i++) {
-		if ((string)fElementEnv[i]->Value() == "myParameter")
+		if ((string)fElementEnv[i]->Value() == "myParameter"|| (string)fElementEnv[i]->Value() == "constant")
 		{
 			outputBuffer = Replace(outputBuffer, (string)fElementEnv[i]->Attribute("name"), fElementEnv[i]->Attribute("value"), 0);
 		}
@@ -1831,55 +1832,53 @@ void TRestMetadata::SetEnv(string name, string value, bool overwriteexisting)
 
 }
 
-///////////////////////////////////////////////
-/// \brief Evaluates and replaces valid mathematical expressions found in the input string **buffer**.
-///
-string TRestMetadata::ReplaceMathematicalExpressions(const string buffer)
-{
-	//we spilt the unit part and the expresstion part
-	int pos = buffer.find_last_of("1234567890().");
-
-	string unit = buffer.substr(pos + 1, -1);
-	string temp = buffer.substr(0, pos + 1);
-	string result = "";
-
-	bool erased = false;
-	if (temp[0] == '(' && temp[temp.length() - 1] == ')')
-	{
-		temp.erase(temp.size() - 1, 1);
-		temp.erase(0, 1);
-		erased = true;
-	}
-
-	std::vector<std::string> Expressions;
-	temp += ",";
-	for (int i = 0; i < temp.size(); i++) {
-		int pos = temp.find(",", i);
-		if (pos < temp.size())
-		{
-			std::string s = temp.substr(i, pos - i);
-			Expressions.push_back(s);
-			i = pos;
-		}
-	}
-
-	for (int i = 0; i < Expressions.size(); i++)
-	{
-		if (!isAExpression(Expressions[i])) { result += Expressions[i] + ","; continue; }
-		result += EvaluateExpression(Expressions[i]) + ",";
-	}
-
-	result.erase(result.size() - 1, 1);
-
-	if (erased)
-	{
-		result = "(" + result + ")";
-	}
-
-	return result+unit;
-
-}
-
+//
+//string TRestMetadata::ReplaceMathematicalExpressions(const string buffer)
+//{
+//	//we spilt the unit part and the expresstion part
+//	int pos = buffer.find_last_of("1234567890().");
+//
+//	string unit = buffer.substr(pos + 1, -1);
+//	string temp = buffer.substr(0, pos + 1);
+//	string result = "";
+//
+//	bool erased = false;
+//	if (temp[0] == '(' && temp[temp.length() - 1] == ')')
+//	{
+//		temp.erase(temp.size() - 1, 1);
+//		temp.erase(0, 1);
+//		erased = true;
+//	}
+//
+//	std::vector<std::string> Expressions;
+//	temp += ",";
+//	for (int i = 0; i < temp.size(); i++) {
+//		int pos = temp.find(",", i);
+//		if (pos < temp.size())
+//		{
+//			std::string s = temp.substr(i, pos - i);
+//			Expressions.push_back(s);
+//			i = pos;
+//		}
+//	}
+//
+//	for (int i = 0; i < Expressions.size(); i++)
+//	{
+//		if (!isAExpression(Expressions[i])) { result += Expressions[i] + ","; continue; }
+//		result += EvaluateExpression(Expressions[i]) + ",";
+//	}
+//
+//	result.erase(result.size() - 1, 1);
+//
+//	if (erased)
+//	{
+//		result = "(" + result + ")";
+//	}
+//
+//	return result+unit;
+//
+//}
+//
 
 
 

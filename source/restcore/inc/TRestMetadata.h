@@ -243,8 +243,8 @@ protected:
 
 
 	//string utils
-	std::string EvaluateExpression(std::string exp);
-	std::string ReplaceMathematicalExpressions(std::string buffer);
+	//std::string EvaluateExpression(std::string exp);
+	//std::string ReplaceMathematicalExpressions(std::string buffer);
 	std::string ReplaceEnvironmentalVariables(const std::string buffer);
 
 	void SetEnv(string name, string value, bool overwriteexisting);

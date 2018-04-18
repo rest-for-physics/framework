@@ -37,6 +37,8 @@ public:
 
 	static Int_t isANumber(std::string in);
 	static Int_t isAExpression(std::string in);
+	static std::string ReplaceMathematicalExpressions(std::string buffer);
+	static std::string EvaluateExpression(std::string exp);
 	static Double_t StringToDouble(std::string in);
 	static Int_t StringToInteger(std::string in);
 	static  TVector3 StringTo3DVector(std::string in);
@@ -51,6 +53,7 @@ public:
 	static  bool isRootFile(const std::string& filename);
 	static bool isPathWritable(const std::string& path);
 	static  bool isAbsolutePath(const std::string& path);
+	static std::vector <string> SeparatePathAndName(const std::string fullname);
 	static  std::string typeidToClassName(std::string typeidstr);
 	static  Int_t ChecktheFile(std::string cfgFileName);
 	static std::vector <TString> GetFilesMatchingPattern(TString pattern);
@@ -60,6 +63,8 @@ public:
 
 inline Int_t isANumber(std::string in) { return TRestStringHelper::isANumber(in); }
 inline Int_t isAExpression(std::string in) { return TRestStringHelper::isAExpression(in); }
+inline std::string ReplaceMathematicalExpressions(std::string buffer) { return TRestStringHelper::ReplaceMathematicalExpressions(buffer); }
+inline std::string EvaluateExpression(std::string exp) { return TRestStringHelper::EvaluateExpression(exp); }
 inline Double_t StringToDouble(std::string in) { return TRestStringHelper::StringToDouble(in); }
 inline Int_t StringToInteger(std::string in) { return TRestStringHelper::StringToInteger(in); }
 inline TVector3 StringTo3DVector(std::string in) { return TRestStringHelper::StringTo3DVector(in); }
@@ -82,6 +87,7 @@ inline bool fileExists(const std::string& filename) { return TRestStringHelper::
 inline bool isRootFile(const std::string& filename) { return TRestStringHelper::isRootFile(filename); }
 inline bool isPathWritable(const std::string& path) { return TRestStringHelper::isPathWritable(path); }
 inline bool isAbsolutePath(const std::string& path) { return TRestStringHelper::isAbsolutePath(path); }
+inline std::vector <string> SeparatePathAndName(const std::string fullname) { return TRestStringHelper::SeparatePathAndName(fullname); }
 inline std::string typeidToClassName(std::string typeidstr) { return TRestStringHelper::typeidToClassName(typeidstr); }
 inline Int_t ChecktheFile(std::string cfgFileName) { return TRestStringHelper::ChecktheFile(cfgFileName); }
 inline std::vector <TString> GetFilesMatchingPattern(TString pattern) { return TRestStringHelper::GetFilesMatchingPattern(pattern); }
