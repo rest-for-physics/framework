@@ -26,6 +26,7 @@ class SteppingAction : public G4UserSteppingAction
         void SetSpatialDistribution ( TH2D *sDist ) { fSpatialDistribution = sDist; }
         void UserSteppingAction(const G4Step*);
 
+		TRestBiasingVolume GetBiasingVolume() { return restBiasingVolume; }
         TH1D *GetBiasingSpectrum() { return fBiasingSpectrum; }
         TH1D *GetAngularDistribution() { return fAngularDistribution; }
         TH2D *GetSpatialDistribution() { return fSpatialDistribution; }
