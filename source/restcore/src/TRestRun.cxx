@@ -634,12 +634,13 @@ void TRestRun::SetInputEvent(TRestEvent* eve)
 	if (eve != NULL) {
 
 		if (fEventTree != NULL) {
-
+			//if (fEventBranchLoc != -1) {
+			//	TBranch *br = (TBranch*)branches->At(fEventBranchLoc);
+			//	br->SetAddress(0);
+			//}
+			if(fInputEvent!=NULL)
+				fEventTree->SetBranchAddress((TString)fInputEvent->ClassName()+"Branch", 0);
 			TObjArray* branches = fEventTree->GetListOfBranches();
-			if (fEventBranchLoc != -1) {
-				TBranch *br = (TBranch*)branches->At(fEventBranchLoc);
-				br->SetAddress(0);
-			}
 			string brname = (string)eve->ClassName() + "Branch";
 			for (int i = 0; i <= branches->GetLast(); i++) {
 				TBranch *br = (TBranch*)branches->At(i);
