@@ -26,6 +26,8 @@
 #include "TrackingAction.hh"
 #include "SteppingAction.hh"
 
+#include "GdmlPreprocessor.hh"
+
 #ifdef G4VIS_USE
 #include "G4VisExecutive.hh"
 #endif
@@ -270,6 +272,14 @@ int main(int argc,char** argv) {
 
         restRun->GetOutputFile()->cd();
 
+		if (biasing) {
+			cout << "Biasing id: " << biasing - 1 << endl;
+			step->GetBiasingVolume().PrintBiasingVolume();
+			cout << "Number of events that reached the biasing volume : " << (Int_t)(biasingSpectrum[biasing - 1]->Integral()) << endl;
+			cout << endl;
+			cout << endl;
+			biasing--;
+		}
         while( biasing )
         {
             // Definning isotropic gammas using the spectrum and angular distribution previously obtained
@@ -282,33 +292,33 @@ int main(int argc,char** argv) {
             restG4Metadata->AddSource( src );
             
             // We set the spectrum from previous biasing volume inside the primary generator
-            prim->SetSpectrum( biasingSpectrum[biasing-1] );
+            prim->SetSpectrum( biasingSpectrum[biasing] );
             // And we set the angular distribution
-            prim->SetAngularDistribution( angularDistribution[biasing-1] );
+            prim->SetAngularDistribution( angularDistribution[biasing] );
 
             //src.SetAngularDistType( "distribution" );
 
             // We re-define the generator inside restG4Metadata to be launched from the biasing volume
-            restG4Metadata->SetGeneratorType( restG4Metadata->GetBiasingVolume( biasing-1 ).GetBiasingVolumeType() );
-            restG4Metadata->SetGeneratorSize( restG4Metadata->GetBiasingVolume( biasing-1 ).GetBiasingVolumeSize() );
-            restG4Metadata->GetBiasingVolume( biasing-1 ).PrintBiasingVolume();
+            restG4Metadata->SetGeneratorType( restG4Metadata->GetBiasingVolume( biasing ).GetBiasingVolumeType() );
+            restG4Metadata->SetGeneratorSize( restG4Metadata->GetBiasingVolume( biasing).GetBiasingVolumeSize() );
+            //restG4Metadata->GetBiasingVolume( biasing-1 ).PrintBiasingVolume();
 
             // Definning biasing the number of event to be re-launched
             Double_t biasingFactor = restG4Metadata->GetBiasingVolume( biasing-1 ).GetBiasingFactor();
-            cout << "Number of events that reached the biasing volume : " <<  (Int_t) ( biasingSpectrum[biasing-1]->Integral() ) << endl;
-            cout << "Number of events to be launched : " <<  (Int_t) ( biasingSpectrum[biasing-1]->Integral() * biasingFactor ) << endl;
+            cout << "Biasing id: "<< biasing -1 <<", Events to be launched : " <<  (Int_t) ( biasingSpectrum[biasing]->Integral() * biasingFactor ) << endl;
 
-            sprintf( tmp, "/run/beamOn %d", (Int_t) ( biasingSpectrum[biasing-1]->Integral() * biasingFactor )  );
+            sprintf( tmp, "/run/beamOn %d", (Int_t) ( biasingSpectrum[biasing]->Integral() * biasingFactor )  );
+			command = tmp;
 
             restRun->GetOutputFile()->cd();
     
-            biasingSpectrum[biasing-1]->Write();
-            angularDistribution[biasing-1]->Write();
-            spatialDistribution[biasing-1]->Write();
+            biasingSpectrum[biasing]->Write();
+            angularDistribution[biasing]->Write();
+            spatialDistribution[biasing]->Write();
 
-            command = tmp;
 
-            biasing--;
+
+
             // We pass the volume definition to Stepping action so that it records gammas entering in
             // We pass also the biasing spectrum so that gammas energies entering the volume are recorded
             if( biasing )
@@ -317,17 +327,22 @@ int main(int argc,char** argv) {
                 step->SetAngularDistribution( angularDistribution[biasing-1] );  
                 step->SetSpatialDistribution( spatialDistribution[biasing-1] );  }
             UI->ApplyCommand(command);  
+			step->GetBiasingVolume().PrintBiasingVolume();
+			cout << "Number of events that reached the biasing volume : " << (Int_t)(biasingSpectrum[biasing - 1]->Integral()) << endl;
+			cout << endl;
+			cout << endl;
+			biasing--;
         }
     }
 
     else           // define visualization and UI terminal for interactive mode 
     { 
-        cout << "The number of events to be simulated is Zero!" << endl;
-        cout << "Make sure you did not forget the number of events entry in TRestG4Metadata." << endl;
-        cout << endl;
-        cout << "<parameter name=\"Nevents\" value=\"100\"/>" << endl;
-        cout << endl;
-        cout << "Trying to enter vis mode" << endl;
+        //cout << "The number of events to be simulated is Zero!" << endl;
+        //cout << "Make sure you did not forget the number of events entry in TRestG4Metadata." << endl;
+        //cout << endl;
+        //cout << "<parameter name=\"Nevents\" value=\"100\"/>" << endl;
+        //cout << endl;
+        cout << "Entering vis mode.." << endl;
 #ifdef G4UI_USE
         G4UIExecutive * ui = new G4UIExecutive(argc,argv);      
 #ifdef G4VIS_USE
@@ -370,27 +385,33 @@ int main(int argc,char** argv) {
     delete subRestG4Event;
     delete restTrack;
 
-    // Writting the geometry in TGeoManager format to the ROOT file
-    char originDirectory[256];
-    sprintf( originDirectory, "%s", get_current_dir_name() );
+     //Writting the geometry in TGeoManager format to the ROOT file
+	{
+		//making a temporary file for ROOT to load. ROOT6 has a bug loading math expressions in gdml file
+		system(("cp " + (string)restG4Metadata->Get_GDML_Filename() + " " + (string)restG4Metadata->Get_GDML_Filename() + "_").c_str());
+		GdmlPreprocessor* p = new GdmlPreprocessor();
+		p->Load((string)restG4Metadata->Get_GDML_Filename() + "_");
 
-    char buffer[256];
-    sprintf( buffer, "%s", (char *) restG4Metadata->GetGeometryPath().Data() );
-    chdir( buffer );
+		//We must change to the gdml file directory, otherwise ROOT cannot load.
+		char originDirectory[256];
+		sprintf(originDirectory, "%s", get_current_dir_name());
+		vector<string> pathandname = SeparatePathAndName((string)restG4Metadata->Get_GDML_Filename());
+		chdir(pathandname[0].c_str());
+		TGeoManager *geo2 = new TGeoManager();
+		geo2->Import((pathandname[1] + "_").c_str());
+		chdir(originDirectory);
 
-    TGeoManager *geo2 = new TGeoManager( );
-    geo2->Import( restG4Metadata->Get_GDML_Filename() );
-    
-    // And coming back to origin directory
-    chdir( originDirectory );
+		//remove the temporary file
+		system(("rm " + (string)restG4Metadata->Get_GDML_Filename() + "_").c_str());
 
-    TFile *f1 = new TFile( Filename, "update" );
-    cout << "Writting geometry" << endl;
-    f1->cd();
-    geo2->Write();
-    cout << "Closing file : "<< Filename << endl;
-    f1->Close();
-
+		//writting the geometry object
+		TFile *f1 = new TFile(Filename, "update");
+		cout << "Writting geometry" << endl;
+		f1->cd();
+		geo2->Write();
+		cout << "Closing file : " << Filename << endl;
+		f1->Close();
+	}
     return 0;
 }
 
