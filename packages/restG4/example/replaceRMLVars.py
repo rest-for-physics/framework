@@ -48,8 +48,9 @@ def parseArg():
         split_pair = pair.split('=')
         if len(split_pair) != 2: wrong("use = please")
 
-        froms.append('{'+split_pair[0]+'}')
+        froms.append('${'+split_pair[0]+'}')
         tos.append(split_pair[1])
+    
 
 
     return inp, out, froms, tos

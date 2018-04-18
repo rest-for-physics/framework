@@ -49,18 +49,18 @@ By default REST units are mm, keV and degrees
     <!-- The number of events to be simulated is now defined in TRestG4Metadata -->
     <parameter name="Nevents" value="100" />
 
-    <generator type="volume" from="gas" >
+    <!--<generator type="volume" from="gas" >
       <source fromFile="Xe136bb0n.dat">
       </source>
-    </generator>
+    </generator>-->
 
 
-    <!--<generator type="volume" from="gas" >
+    <generator type="volume" from="gas" >
       <source particle="Na22" excitedLevel="0.0" fullChain="on">
         <angularDist type="isotropic" />
         <energyDist type="mono" energy="0.0" units="MeV" />
       </source>
-    </generator>-->
+    </generator>
 
 
     <biasing value="off" type="virtualBox">

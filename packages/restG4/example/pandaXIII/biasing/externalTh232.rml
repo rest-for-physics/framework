@@ -11,12 +11,11 @@
 
   <globals>
     <parameter name="mainDataPath" value="${REST_PATH}/inputData" />
-    <parameter name="verboseLevel" value="warning" /> %options are : silent, warning, info, debug
+    <parameter name="verboseLevel" value="essential" />
     <variable name="DFilePath" value="${REST_PATH}/inputData/distributions" />
   </globals>
 
   <TRestRun name="PANDA-X III run" title="Simulations v2.0">
-    <parameter name="Nevents" value="${REST_NEVENTS}"/>
     <parameter name="experiment" value="PANDAXIII"/>
     <parameter name="runType" value="simulation"/>
     <parameter name="runNumber" value="${REST_RUN}"/>
@@ -30,8 +29,12 @@
 
   <TRestG4Metadata name="restG4 Simulation run" title="Biasing simulation of Th232 gammas from a external concrete wall.">
 
-    <parameter name="geometryPath" value="../geometry/resistive" />
-    <parameter name="gdml_file" value="pandaXIII_Setup.gdml"/>
+    <parameter name="verboseLevel" value="1"/>
+
+    <parameter name="Nevents" value="100"/>
+    change the value to -1 to enter vis mode for more opeartions
+
+    <parameter name="gdml_file" value="../geometry/resistive/pandaXIII_Setup.gdml"/>
     <parameter name="maxTargetStepSize" value="10" units="mm" />
 
     <generator type="virtualBox" size="12" units="m" >
@@ -55,10 +58,43 @@
     </biasing>
 
     <storage sensitiveVolume="gas">
-      <parameter name="energyRange" value="(2.4,4.8)MeV" />
+      <parameter name="energyRange" value="(0,4.8)MeV" />
       <activeVolume name="gas" chance="1" />
     </storage>
 
   </TRestG4Metadata>
+
+  <TRestPhysicsLists name="default" title="First physics list implementation." >
+
+    <parameter name="cutForGamma" value="1" units="um" />
+    <parameter name="cutForElectron" value="1" units="um" />
+    <parameter name="cutForPositron" value="1" units="mm" />
+
+    <parameter name="cutForMuon" value="1" units="mm" />
+    <parameter name="cutForNeutron" value="1" units="mm" />
+    <parameter name="minEnergyRangeProductionCuts" value="1" units="keV" />
+    <parameter name="maxEnergyRangeProductionCuts" value="1" units="GeV" />
+
+    <!-- EM Physics lists -->
+    <physicsList name="G4EmLivermorePhysics"> </physicsList>
+    <!-- <physicsList name="G4EmPenelopePhysics"> </physicsList> -->
+    <!-- <physicsList name="G4EmStandardPhysics_option3"> </physicsList> -->
+
+    <!-- Decay physics lists -->
+    <physicsList name="G4DecayPhysics"> </physicsList>
+    <physicsList name="G4RadioactiveDecayPhysics"> </physicsList>
+    <physicsList name="G4RadioactiveDecay">
+      <option name="ICM" value="true" />
+      <option name="ARM" value="true" />
+    </physicsList>
+
+    <!-- Hadron physics lists -->
+    <physicsList name="G4HadronElasticPhysicsHP"> </physicsList>
+    <physicsList name="G4IonBinaryCascadePhysics"> </physicsList>
+    <physicsList name="G4HadronPhysicsQGSP_BIC_HP"> </physicsList>
+    <physicsList name="G4NeutronTrackingCut"> </physicsList>
+    <physicsList name="G4EmExtraPhysics"> </physicsList>
+
+  </TRestPhysicsLists>
 
 </restG4>
