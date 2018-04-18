@@ -429,12 +429,12 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 	else
 	{
 		debug << "TRestRun: getting next event from root file" << endl;
-		fInputEvent->Initialize();
 		if (fAnalysisTree != NULL)
 		{
 			if (fCurrentEvent > fAnalysisTree->GetEntries()) { fInputEvent = NULL; }
 			else
 			{
+				fInputEvent->Initialize();
 				fAnalysisTree->GetEntry(fCurrentEvent);
 				if (targettree != NULL && targettree->isConnected()) {
 					for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
