@@ -63,34 +63,25 @@ target_link_libraries(restG4 ${Geant4_LIBRARIES} -L${ROOT_LIBRARY_DIR} ${ROOT_LI
 # build sphereSimLab. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 
-file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/macros)
+install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/example
+         DESTINATION ${REST_PATH}
+         COMPONENT install
+                 )
 
-set(G4Rest_MACROS
-    visualtrack.mac 
-    visualizacion.mac 
-    vis.mac
-    )
-
-
-#
-
-foreach(_script ${G4Rest_MACROS})
-    configure_file(
-        ${PROJECT_SOURCE_DIR}/macros/${_script}
-        ${PROJECT_BINARY_DIR}/macros/${_script}
-        COPYONLY
-        )
-endforeach()
+install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/mac
+         DESTINATION ${REST_PATH}/macros
+         COMPONENT install
+                 )
 
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
 install(TARGETS restG4 DESTINATION ${REST_PATH}/bin)
 
+install(CODE "execute_process(COMMAND chmod 744 ${REST_PATH}/example/replaceRMLVars.py)")
+
 string(FIND ${Geant4_DIR} "/Geant4" cutStr REVERSE)
-
 string(SUBSTRING ${Geant4_DIR} 0 ${cutStr} G4_LIBDIR)
-
 message( "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n
           After \"make install\" restG4 will be installed in ${REST_PATH}/bin\n\n
           IMPORTANT : You might need to include the following line in your .bashrc\n\n
