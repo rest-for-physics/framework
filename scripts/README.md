@@ -16,8 +16,9 @@ apt-get install python-tk
 
 **Then type `python scriptsInterface.py` and just follow the wizard!**
 
-REST resuied package: ROOT6, tinyxml  
+REST required packages: ROOT6, tinyxml  
 Optional: geant4, garfield  
+You must run the python scripts in this dicectory!  
 
 >Last update : 18-Apr-2018  
 
