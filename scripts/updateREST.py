@@ -13,17 +13,21 @@ import subprocess, StringIO
 import vars
 
 def repairgit():
-    if os.path.exists(vars.opt["Source_Path"] + "/.git/"):
-        print "git repository is ready!"
-    else :
-        print "setting git repository for the source files"
+    out, err = subprocess.Popen(["git rev-parse --short HEAD"], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True).communicate()
+    if "fatal" in err:
+        print "linking remote git repository to local"
         os.chdir(vars.opt["Source_Path"])
+        os.system("rm -rf .git")
         os.system("git init")
         os.system("git remote add origin "+vars.var["REST_Repository"])
         os.system("git checkout -b "+vars.opt["Branch"])
         os.system("git fetch --depth 1")
         os.system("git reset --hard origin/"+vars.opt["Branch"])
-        print "current REST directory has been linked to gitlab...."
+        print "git repository is ready!"
+        return True
+    else :
+        print "git repository is ready!"
+        return False
 
 def commitid():
     if os.path.exists(vars.opt["Source_Path"] + "/.git/"):
@@ -44,13 +48,13 @@ def branchname():
 
 
 def main():
-    repairgit()
+    newgit=repairgit()
     if vars.opt["Warning"]=="True":
         print "Local changes will be overwritten! (except additions)"
         print "Make backup and do it carefully!"
         print "Press a key to continue"
         raw_input()
-    if os.path.exists(vars.opt["Source_Path"] + "/.git/"):
+    if newgit==False:
         print "updating local git repository of REST"
         os.chdir(vars.opt["Source_Path"])
         os.system("git stash")
