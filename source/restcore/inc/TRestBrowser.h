@@ -87,6 +87,8 @@ public:
 
 	void setButtons();
 
+	TRestEventViewer * GetViewer() { return fEventViewer; }
+
 	TGVerticalFrame *generateNewFrame();
 
 	void addFrame(TGFrame*f);

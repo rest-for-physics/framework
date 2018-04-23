@@ -25,11 +25,16 @@ ClassImp(TRestBrowser)
 //______________________________________________________________________________
 TRestBrowser::TRestBrowser()
 {
-	Initialize();
+
 	if (gDirectory->GetFile() != NULL) {
+		Initialize();
 		SetViewer("TRestGenericEventViewer");
 		OpenFile(gDirectory->GetFile()->GetName());
 		cout << "Loaded File : " << fInputFileName << endl;
+	}
+	else
+	{
+		b = new TBrowser("Browser", 0, "REST Browser");
 	}
 }
 
@@ -107,6 +112,7 @@ void TRestBrowser::SetViewer(TString viewerName) {
 	else
 	{
 		warning << "illegal viewer : " << viewerName << endl;
+		exit(0);
 	}
 }
 
