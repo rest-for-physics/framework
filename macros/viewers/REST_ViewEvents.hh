@@ -13,29 +13,23 @@
 
 Int_t REST_Viewer_GenericEvents(TString fName , TString EventType = "")
 {
-	TRestBrowser *browser = new TRestBrowser();
-	TRestGenericEventViewer *viewer = new TRestGenericEventViewer();
-	browser->SetViewer(viewer);
+	TRestBrowser *browser = new TRestBrowser("TRestGenericEventViewer");
+	//TRestGenericEventViewer *viewer = (TRestGenericEventViewer*)browser->GetViewer();
 
 	TClass*cl = TClass::GetClass(EventType);
 	if (cl == NULL||EventType=="") {
+		if (cl == NULL) {
+			cout << "REST WARNING : unknown event type \"" << EventType << "\"" << endl;
+			cout << "Using default event in file..." << endl;
+			cout << endl;
+		}
 		browser->OpenFile(fName);
-		TRestEvent*eve = browser->GetInputEvent();
-		if (eve != NULL) {
-			cout << "Setting viewer with event : " << eve->ClassName() << endl;
-			viewer->SetEvent(eve);
-		}
-		else
-		{
-			cout << "Failed to launch viewer!" << endl;
-			return 0;
-		}
 	}
 	else
 	{
 		TRestEvent*eve = (TRestEvent*)cl->New();
 		browser->SetInputEvent(eve);
-		viewer->SetEvent(eve);
+		//viewer->SetEvent(eve);
 		browser->OpenFile(fName);
 
 	}
@@ -45,62 +39,26 @@ Int_t REST_Viewer_GenericEvents(TString fName , TString EventType = "")
 
 Int_t REST_Viewer_LinearTrackEvent(TString fName)
 {
-	TRestBrowser *browser = new TRestBrowser();
-
-	TRestGenericEventViewer *viewer = new TRestGenericEventViewer();
-	TRestLinearTrackEvent *tEvent = new TRestLinearTrackEvent();
-	viewer->SetEvent(tEvent);
-
-	browser->SetViewer(viewer);
-
-	browser->OpenFile(fName);
-
+	REST_Viewer_GenericEvents(fName, "TRestLinearTrackEvent");
 	return 0;
 }
 
 Int_t REST_Viewer_RawSignalEvent(TString fName)
 {
-	TRestBrowser *browser = new TRestBrowser();
-
-	TRestGenericEventViewer *viewer = new TRestGenericEventViewer();
-	TRestRawSignalEvent *sEvent = new TRestRawSignalEvent();
-	viewer->SetEvent(sEvent);
-
-	browser->SetViewer(viewer);
-
-	browser->OpenFile(fName);
-
+	REST_Viewer_GenericEvents(fName, "TRestRawSignalEvent");
 	return 0;
 }
 
 
 Int_t REST_Viewer_SignalEvent(TString fName)
 {
-	TRestBrowser *browser = new TRestBrowser();
-
-	TRestGenericEventViewer *viewer = new TRestGenericEventViewer();
-	TRestSignalEvent *sEvent = new TRestSignalEvent();
-	viewer->SetEvent(sEvent);
-
-	browser->SetViewer(viewer);
-
-	browser->OpenFile(fName);
-
+	REST_Viewer_GenericEvents(fName, "TRestSignalEvent");
 	return 0;
 }
 
 Int_t REST_Viewer_TrackEvent(TString fName)
 {
-	TRestBrowser *browser = new TRestBrowser();
-
-	TRestGenericEventViewer *viewer = new TRestGenericEventViewer();
-	TRestTrackEvent *tEvent = new TRestTrackEvent();
-	viewer->SetEvent(tEvent);
-
-	browser->SetViewer(viewer);
-
-	browser->OpenFile(fName);
-
+	REST_Viewer_GenericEvents(fName, "TRestTrackEvent");
 	return 0;
 }
 

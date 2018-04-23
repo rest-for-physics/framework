@@ -7,10 +7,7 @@
 
 Int_t REST_Viewer_HitsEvent( TString fName)
 {
-    TRestBrowser *browser = new TRestBrowser( );
-
-    TRestHitsEventViewer *viewer = new TRestHitsEventViewer( );
-    browser->SetViewer( viewer );
+    TRestBrowser *browser = new TRestBrowser("TRestHitsEventViewer" );
 
     browser->OpenFile(fName);
 
