@@ -284,20 +284,20 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 					debug << "found event branch of event type: " << fInputEvent->ClassName() << endl;
 				}
 			}
-			//else
-			//{
-			//	string brname = (string)fInputEvent->ClassName()+"Branch";
-			//	if (fEventTree->GetBranch(brname.c_str()) == NULL) {
-			//		warning << "REST WARNING (OpenInputFile) : No matched event branch inside file : " << filename << endl;
-			//		warning << "Branch required: "<< brname << endl;
-			//	}
-			//	else
-			//	{
-			//		fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
-			//		debug << brname << " is found and set!" << endl;
-			//	}
+			else
+			{
+				string brname = (string)fInputEvent->ClassName()+"Branch";
+				if (fEventTree->GetBranch(brname.c_str()) == NULL) {
+					warning << "REST WARNING (OpenInputFile) : No matched event branch inside file : " << filename << endl;
+					warning << "Branch required: "<< brname << endl;
+				}
+				else
+				{
+					fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
+					debug << brname << " is found and set!" << endl;
+				}
 	
-			//}
+			}
 
 
 		}
@@ -662,6 +662,10 @@ void TRestRun::SetInputEvent(TRestEvent* eve)
 				}
 
 			}
+		}
+		else
+		{
+			fInputEvent = eve;
 		}
 	}
 }
