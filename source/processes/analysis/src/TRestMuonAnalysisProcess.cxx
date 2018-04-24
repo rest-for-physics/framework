@@ -58,6 +58,8 @@ void TRestMuonAnalysisProcess::InitProcess()
 	musmear = new TH1D("musme", "muonSmearingStat", 512, 0., 512.);
 	mutanthe = new TH1D("mutanthe", "muAngularDistribution tanTheta", 50, 0, 2.5);
 
+	muhitmap = new TH2D("muhitmap", "muon hitmap on micromegas", (X2 - X1) / 3, X1, X2, (Y2 - Y1) / 3, Y1, Y2);
+	muhitdir = new TH2D("muhitdir", "muon hit direction towards center", (X2 - X1) / 3, X1, X2, (Y2 - Y1) / 3, Y1, Y2);
 }
 
 //______________________________________________________________________________
@@ -68,10 +70,17 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 
 
 	fAnalysisTree->SetObservableValue(this, "mutanthe", numeric_limits<double>::quiet_NaN());
+	fAnalysisTree->SetObservableValue(this, "muproj", numeric_limits<double>::quiet_NaN());
+	fAnalysisTree->SetObservableValue(this, "rawtantheXZ", numeric_limits<double>::quiet_NaN());
+	fAnalysisTree->SetObservableValue(this, "rawtantheYZ", numeric_limits<double>::quiet_NaN());
+	fAnalysisTree->SetObservableValue(this, "tantheXZ", numeric_limits<double>::quiet_NaN());
+	fAnalysisTree->SetObservableValue(this, "tantheYZ", numeric_limits<double>::quiet_NaN());
+	fAnalysisTree->SetObservableValue(this, "evefirstX", numeric_limits<double>::quiet_NaN());
+	fAnalysisTree->SetObservableValue(this, "evefirstY", numeric_limits<double>::quiet_NaN());
 	fAnalysisTree->SetObservableValue(this, "adjustedfirstX", numeric_limits<double>::quiet_NaN());
 	fAnalysisTree->SetObservableValue(this, "adjustedfirstY", numeric_limits<double>::quiet_NaN());
 	if (fAnaEvent->GetSubEventTag() == "muon") {
-		if(fAnaEvent->GetHoughXZ().size()==0 && fAnaEvent->GetHoughYZ().size()==0)
+		if (fAnaEvent->GetHoughXZ().size() == 0 && fAnaEvent->GetHoughYZ().size() == 0)
 			fAnaEvent->DoHough();
 		vector<TVector3> fHough_XZ = fAnaEvent->GetHoughXZ();
 		vector<TVector3> fHough_YZ = fAnaEvent->GetHoughYZ();
@@ -105,7 +114,7 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 		double c = eve->GetZRangeInYZ().X();
 		double d = eve->GetZRangeInYZ().Y();
 
-		if ((a<c&&c<b)||(c<a&&a<d)) {
+		if ((a <= c && c <= b) || (c <= a && a <= d)) {
 
 			double firstx, firsty, firstz;
 			double thexz = 0, theyz = 0;
@@ -116,43 +125,74 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				theyz = hyzt->GetBinCenter(hyzt->GetMaximumBin()) - 1.5708;
 			}
 
+			fAnalysisTree->SetObservableValue(this, "rawtantheXZ", tan(thexz));
+			fAnalysisTree->SetObservableValue(this, "rawtantheYZ", tan(theyz));
+
+			//readjusting thetas in the plot(when hough is not available)
 			if (thexz == 0) {
-				double xlen = eve->GetXRange().Y() - eve->GetXRange().X();
-				if (xlen > 20)
+				double xlen1 = eve->GetXRange().Y() - eve->GetXRange().X();
+				double xlen2 = eve->GetNumberOfXZSignals() * stripWidth;
+				double zlen1 = eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X();
+				double zlen2 = eve->GetZRange().Y() - eve->GetZRange().X();
+
+				double xlen = xlen1 > xlen2 ? xlen1 : xlen2;
+				double zlen = zlen1 > 80 ? zlen1 : zlen2;
+				if (xlen > 3)
 				{
-					double t = (xlen) / (eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X());
+					double t = xlen / zlen;
 					thexz = atan(t);
 				}
-				else if (eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X() > 100) {
+				else if (zlen < 80) {
 					return fOutputEvent;
 				}
 			}
 
 			if (theyz == 0) {
-				double xlen = eve->GetXRange().Y() - eve->GetXRange().X();
-				if (xlen > 20)
+				double ylen1 = eve->GetYRange().Y() - eve->GetYRange().X();
+				double ylen2 = eve->GetNumberOfYZSignals() * stripWidth;
+				double zlen1 = eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X();
+				double zlen2 = eve->GetZRange().Y() - eve->GetZRange().X();
+
+				double ylen = ylen1 > ylen2 ? ylen1 : ylen2;
+				double zlen = zlen1 > 80 ? zlen1 : zlen2;
+				if (ylen > 3)
 				{
-					double t = (xlen) / (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X());
+					double t = ylen / zlen;
 					theyz = atan(t);
 				}
-				else if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X() > 100) {
+				else if (zlen < 80) {
 					return fOutputEvent;
 				}
 			}
 
 			info << "Track feature: ";
-			//cout << thexz << " " << theyz << endl;
 
 			firstz = eve->GetZRange().X();
 			firstx = eve->GetFirstX() - tan(thexz)*(eve->GetZRangeInXZ().X() - firstz);
 			firsty = eve->GetFirstY() - tan(theyz)*(eve->GetZRangeInYZ().X() - firstz);
 
+			fAnalysisTree->SetObservableValue(this, "tantheXZ", tan(thexz));
+			fAnalysisTree->SetObservableValue(this, "tantheYZ", tan(theyz));
+
+			fAnalysisTree->SetObservableValue(this, "evefirstX", eve->GetFirstX());
+			fAnalysisTree->SetObservableValue(this, "evefirstY", eve->GetFirstY());
+
 			fAnalysisTree->SetObservableValue(this, "adjustedfirstX", firstx);
 			fAnalysisTree->SetObservableValue(this, "adjustedfirstY", firsty);
-			//if (firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 && firsty < Y2 - 30)
-			//if (firstx > X1 && firstx < X2 && firsty > Y1 && firsty < Y2)
-			if (1)
-				//the MM pentrating muon
+
+			fAnalysisTree->SetObservableValue(this, "mutanthe", sqrt(tan(thexz)*tan(thexz) + tan(theyz) * tan(theyz)));
+
+			muhitmap->Fill(firstx, firsty);
+
+			//calculate projection
+			int bin = muhitdir->FindBin(firstx, firsty);
+			double p = ProjectionToCenter(firstx, firsty, thexz, theyz);
+			muhitdir->SetBinContent(bin, muhitdir->GetBinContent(bin) + p);
+			fAnalysisTree->SetObservableValue(this, "muproj", p);
+
+
+			//the MM pentrating muon
+			if (firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 && firsty < Y2 - 30)
 			{
 				info << "MM pentrating muon,";
 
@@ -164,7 +204,8 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				//	return;
 				double tan1 = tan(abs(thexz));
 				double tan2 = tan(abs(theyz));
-				mutanthe->Fill(sqrt(tan1*tan1 + tan2 * tan2));
+				if (abs((abs(thexz)) - abs(theyz)) / (abs(thexz) + abs(theyz)) < 0.2)
+					mutanthe->Fill(sqrt(tan1*tan1 + tan2 * tan2));
 				if (GetVerboseLevel() >= REST_Debug) {
 					debug << eve->GetZRangeInXZ().X() << ", " << eve->GetZRangeInXZ().Y() << "   " << eve->GetZRangeInYZ().X() << ", " << eve->GetZRangeInYZ().Y() << endl;
 					debug << eve->GetID() << " " << tan1 << " " << tan2 << endl;
@@ -172,7 +213,6 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				}
 				//if((firstx < X1 + 30 || firstx > X2 - 30) && (firsty < Y1 + 30 || firsty > Y2 - 30))
 				//	mutanthe->Fill(sqrt(tan1*tan1 + tan2 * tan2));//at edge, fill again
-				fAnalysisTree->SetObservableValue(this, "mutanthe", sqrt(tan1*tan1 + tan2 * tan2));
 			}
 			else
 			{
@@ -181,61 +221,75 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 
 			vector<int> xzwidths(512);
 			vector<int> yzwidths(512);
+
+			vector<int> xzdepos(512);
+			bool xzflag = false;
+			vector<int> yzdepos(512);
+			bool yzflag = false;
 			//XZ depos
-			if (eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X() > 345 && thexz != 0) {
+			if (eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X() > 345 && thexz != 0 && tan(thexz) * 350 < (X2 - X1)) {
 				info << " Long track XZ,";
-				int shift = 150 - eve->GetZRangeInXZ().X();
-				for (int i = shift; i < 512 + shift; i++) {
-					auto hitsz = eve->GetXZHitsWithZ(i - shift);
+				xzflag = true;
+				for (int i = 0; i < 512; i++) {
+					auto hitsz = eve->GetXZHitsWithZ(i);
 					map<double, double>::iterator iter = hitsz.begin();
 					double sum = 0;
 					int n = 0;
 					while (iter != hitsz.end()) {
-						if (iter->second>0)
+						if (iter->second > 0)
 							n++;
 						sum += iter->second;
 						iter++;
 					}
-					if (n == 0 && i - shift > 0)
-						n = xzwidths[i - shift - 1];
-					xzwidths[i-shift] = n;
-					//cout << i << " " << sum << endl;
-					//if (sum < 1e5)
-					mudeposxz->SetBinContent(mudeposxz->FindBin(i), mudeposxz->GetBinContent(mudeposxz->FindBin(i)) + sum);
+					if (n == 0 && i > 0)
+						n = xzwidths[i - 1];
+					xzwidths[i] = n;
+					xzdepos[i] = sum;
 				}
-				nummudeposxz++;
+
+
 			}
 
 			//YZ depos
-			if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X() > 345 && theyz != 0) {
+			if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X() > 345 && theyz != 0 && tan(theyz) * 350<(Y2 - Y1)) {
 				info << " Long track YZ,";
-				int shift = 150 - eve->GetZRangeInYZ().X();
-				for (int i = shift; i < 512 + shift; i++) {
-					auto hitsz = eve->GetYZHitsWithZ(i - shift);
+				yzflag = true;
+				for (int i = 0; i < 512; i++) {
+					auto hitsz = eve->GetYZHitsWithZ(i);
 					map<double, double>::iterator iter = hitsz.begin();
 					double sum = 0;
 					int n = 0;
 					while (iter != hitsz.end()) {
-						if(iter->second>0)
+						if (iter->second > 0)
 							n++;
 						sum += iter->second;
 						iter++;
 					}
-					if (n == 0 && i - shift > 0)
-						n = yzwidths[i - shift - 1];
-					yzwidths[i-shift] = n;
-					//cout << i << " " << sum << endl;
-					//if (sum < 1e5)
-					mudeposyz->SetBinContent(mudeposyz->FindBin(i), mudeposyz->GetBinContent(mudeposyz->FindBin(i)) + sum);
+					if (n == 0 && i > 0)
+						n = yzwidths[i - 1];
+					yzwidths[i] = n;
+					yzdepos[i] = sum;
+				}
+			}
+
+			if (xzflag&&yzflag) {
+				int shift = 150 - eve->GetZRangeInXZ().X();
+				for (int i = shift; i < 512 + shift; i++) {
+					mudeposxz->SetBinContent(mudeposxz->FindBin(i), mudeposxz->GetBinContent(mudeposxz->FindBin(i)) + xzdepos[i - shift]);
+				}
+				shift = 150 - eve->GetZRangeInYZ().X();
+				for (int i = shift; i < 512 + shift; i++) {
+					mudeposyz->SetBinContent(mudeposyz->FindBin(i), mudeposyz->GetBinContent(mudeposyz->FindBin(i)) + yzdepos[i - shift]);
 				}
 				nummudeposyz++;
+				nummudeposxz++;
 			}
 
 
 			//smearing
-			if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X() > 345 && theyz != 0 
+			if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X() > 345 && theyz != 0
 				&& eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X() > 345 && thexz != 0
-				&& abs(eve->GetZRangeInXZ().X()- eve->GetZRangeInYZ().X())<10
+				&& abs(eve->GetZRangeInXZ().X() - eve->GetZRangeInYZ().X()) < 10
 				&& firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 && firsty < Y2 - 30)
 			{
 				int shift = 150 - firstz;
@@ -270,7 +324,7 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 }
 
 
-void TRestMuonAnalysisProcess::EndProcess() 
+void TRestMuonAnalysisProcess::EndProcess()
 {
 	mutanthe->Write();
 
@@ -297,6 +351,18 @@ void TRestMuonAnalysisProcess::EndProcess()
 	mudepos->Write();
 
 	musmear->Write();
+
+	muhitmap->Write();
+	muhitdir->Divide(muhitmap);
+	muhitdir->Write();
+}
+
+double TRestMuonAnalysisProcess::ProjectionToCenter(double x, double y, double xzthe, double yzthe)
+{
+	TVector2 angle = TVector2(tan(xzthe), tan(yzthe));
+	TVector2 pos = TVector2((X1 + X2) / 2 - x, (Y1 + Y2) / 2 - y);
+
+	return angle.Proj(pos)*pos / pos.Mod();
 }
 
 void TRestMuonAnalysisProcess::InitFromConfigFile()

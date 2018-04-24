@@ -45,6 +45,9 @@ class TRestMuonAnalysisProcess:public TRestEventProcess {
 		TH1D* musmear;//!
 		TH1D* mutanthe;//!
 
+		TH2D* muhitmap;//!
+		TH2D* muhitdir;//!
+
 
         void InitFromConfigFile();
 
@@ -71,6 +74,8 @@ class TRestMuonAnalysisProcess:public TRestEventProcess {
 
             EndPrintProcess();
         }
+
+		double ProjectionToCenter(double x, double y, double xzthe, double yzthe);
 
         //Constructor
         TRestMuonAnalysisProcess();
