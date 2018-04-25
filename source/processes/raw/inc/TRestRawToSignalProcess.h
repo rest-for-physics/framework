@@ -38,7 +38,8 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    Int_t fMinPoints;
    
    Double_t tStart;
-   int totalBytesReaded;
+   Long64_t totalBytesReaded;
+   Long64_t totalBytes;
 
    TRestRawSignalEvent *fSignalEvent;//!
    #ifndef __CINT__
@@ -71,20 +72,21 @@ class TRestRawToSignalProcess:public TRestEventProcess {
 
    void LoadConfig( std::string cfgFilename, std::string name = "" );
 
-   void PrintMetadata();
+   virtual void PrintMetadata();
    
-   Bool_t OpenInputBinFile(TString fName);
+   //Bool_t OpenInputBinFile(TString fName);
 
-   Bool_t OpenInputFiles(vector<TString> files);
-   
-   void printBits(unsigned short num);
-   void printBits(unsigned int num);
-   
-   Int_t GetTotalBytesReaded( ){return totalBytesReaded;}
- //  Int_t GetRunNumber(){return fRunNumber;}
- //  Int_t GetRunIndex(){return fRunIndex;}
-   TString GetElectronicsType( ){return fElectronicsType;}
-   
+   virtual Bool_t OpenInputFiles(vector<TString> files);
+
+   virtual void printBits(unsigned short num);
+   virtual void printBits(unsigned int num);
+
+   virtual Long64_t GetTotalBytesReaded() { return totalBytesReaded; }
+   virtual Long64_t GetTotalBytes() { return totalBytes; }
+   //  Int_t GetRunNumber(){return fRunNumber;}
+   //  Int_t GetRunIndex(){return fRunIndex;}
+   virtual TString GetElectronicsType() { return fElectronicsType; }
+
    //Constructor
    TRestRawToSignalProcess();
    TRestRawToSignalProcess(char *cfgFileName);

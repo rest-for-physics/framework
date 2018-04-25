@@ -80,6 +80,8 @@ public:
 	REST_Process_Output GetOutputLevel() { return fOutputLevel; }
 	virtual TRestEvent *GetInputEvent() { return fInputEvent; } ///< Get pointer to input event
 	virtual TRestEvent *GetOutputEvent() { return fOutputEvent; } ///< Get pointer to output event
+	virtual Long64_t GetTotalBytes() { return -1; }
+	virtual Long64_t GetTotalBytesReaded() { return 0; }
 	Bool_t singleThreadOnly() { return fSingleThreadOnly; }
 	TRestRun* GetRunInfo() { return fRunInfo; }
 	vector<string> GetAvailableObservals();

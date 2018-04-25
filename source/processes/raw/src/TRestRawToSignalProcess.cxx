@@ -19,7 +19,7 @@
 ///                 Igor G. Irastorza
 ///_______________________________________________________________________________
 
-
+#include <sys/stat.h>  
 #include "TRestRawToSignalProcess.h"
 using namespace std;
 #include "TTimeStamp.h"
@@ -64,6 +64,9 @@ void TRestRawToSignalProcess::Initialize()
     fMinPoints = 512;
 
 	fSingleThreadOnly = true;
+
+	totalBytes = 0;
+	totalBytesReaded = 0;
 
 }
 
@@ -125,42 +128,43 @@ void TRestRawToSignalProcess::EndProcess()
  cout << __PRETTY_FUNCTION__ << endl;
  
 }
-//______________________________________________________________________________
-Bool_t TRestRawToSignalProcess::OpenInputBinFile ( TString fName )
-{
-	TRestDetectorSetup *det = (TRestDetectorSetup *) this->GetDetectorSetup();
 
-	if( det != NULL )
-	{
-		fRunOrigin = det->GetRunNumber();
-		fSubRunOrigin = det->GetSubRunNumber();
-	}
-	else
-	{
-		cout << "REST WARNING : Detector setup has not been defined. Run and subRunNumber will not be defined!" << endl;
-
-	}
-
-	if(fInputBinFile!= NULL)fclose(fInputBinFile);
-
-	if( (fInputBinFile = fopen(fName.Data(),"rb") )==NULL ) {
-		cout << "WARNING. Input file does not exist" << endl;
-		return kFALSE;
-	}
-
-    struct tm* clock;
-    struct stat st;
-    stat ( fName.Data(), &st);
-
-    clock = gmtime( &( st.st_mtime ) );
-
-    time_t tstamp = mktime ( clock );
-
-    tStart = (Double_t ) tstamp;
-    
-
-	return kTRUE;
-}
+////______________________________________________________________________________
+//Bool_t TRestRawToSignalProcess::OpenInputBinFile ( TString fName )
+//{
+//	//TRestDetectorSetup *det = (TRestDetectorSetup *) this->GetDetectorSetup();
+//
+//	//if( det != NULL )
+//	//{
+//	//	fRunOrigin = det->GetRunNumber();
+//	//	fSubRunOrigin = det->GetSubRunNumber();
+//	//}
+//	//else
+//	//{
+//	//	cout << "REST WARNING : Detector setup has not been defined. Run and subRunNumber will not be defined!" << endl;
+//
+//	//}
+//
+//	if(fInputBinFile!= NULL)fclose(fInputBinFile);
+//
+//	if( (fInputBinFile = fopen(fName.Data(),"rb") )==NULL ) {
+//		cout << "WARNING. Input file does not exist" << endl;
+//		return kFALSE;
+//	}
+//
+//    struct tm* clock;
+//    struct stat st;
+//    stat ( fName.Data(), &st);
+//
+//    clock = gmtime( &( st.st_mtime ) );
+//
+//    time_t tstamp = mktime ( clock );
+//
+//    tStart = (Double_t ) tstamp;
+//    
+//
+//	return kTRUE;
+//}
 
 
 Bool_t TRestRawToSignalProcess::OpenInputFiles(vector<TString> files)
@@ -169,6 +173,8 @@ Bool_t TRestRawToSignalProcess::OpenInputFiles(vector<TString> files)
 	nFiles = 0;
 	fInputFiles.clear();
 	fInputFileNames.clear();
+	totalBytes = 0;
+	totalBytesReaded = 0;
 
 	for (int i = 0; i < files.size(); i++) {
 
@@ -183,8 +189,17 @@ Bool_t TRestRawToSignalProcess::OpenInputFiles(vector<TString> files)
 
 		fInputFiles.push_back(f);
 		fInputFileNames.push_back(files[i]);
+
+		struct stat statbuf;
+		stat(files[i].Data(), &statbuf);
+		totalBytes += statbuf.st_size;
+
+
 		nFiles++;
 	}
+
+	if (fRunInfo != NULL)
+		fRunInfo->SetTotalBytes(totalBytes);
 
 	debug << this->GetName() << " : opened " << nFiles << " files" << endl;
 	return nFiles;
