@@ -114,6 +114,8 @@ void TRestMultiCoBoAsAdToSignalProcess::InitProcess()
 	fRunOrigin = fRunInfo->GetRunNumber();
 	fOutputEvent = fSignalEvent;
 	fCurrentEvent = -1;
+
+	totalBytesReaded = 0;
 }
 
 
@@ -222,6 +224,7 @@ bool TRestMultiCoBoAsAdToSignalProcess::fillbuffer()
 				fInputFiles[i] = NULL;
 				return kFALSE;
 			}
+			totalBytesReaded+=256;
 			if (!ReadFrameHeader(fHeaderFrame[i])) {
 				cout << "error when reading frame header in file " << i << " \"" << fInputFileNames[i] << "\"" << endl;
 				cout << "event id " << fCurrentEvent + 1 << ". The file will be closed" << endl;
@@ -277,6 +280,7 @@ bool TRestMultiCoBoAsAdToSignalProcess::fillbuffer()
 					fHeaderFrame[i].eventIdx = (unsigned int)4294967295;
 					break;
 				}
+				totalBytesReaded += 278528;
 				ReadFrameDataF(fHeaderFrame[i]);
 			}
 			else
@@ -294,6 +298,7 @@ bool TRestMultiCoBoAsAdToSignalProcess::fillbuffer()
 				fHeaderFrame[i].eventIdx = (unsigned int)4294967295;//maximum of unsigned int
 				break;
 			}
+			totalBytesReaded += 256;
 			if (!ReadFrameHeader(fHeaderFrame[i])) { 
 				warning << "Event " << fCurrentEvent << " : error when reading next frame header" << endl;
 				warning << "in file " << i << " \"" << fInputFileNames[i] << "\"" << endl;
@@ -309,6 +314,7 @@ bool TRestMultiCoBoAsAdToSignalProcess::fillbuffer()
 					if (fread(fHeaderFrame[i].frameHeader, 256, 1, fInputFiles[i]) != 1 || feof(fInputFiles[i])) {
 						break;
 					}
+					totalBytesReaded += 256;
 					if (ReadFrameHeader(fHeaderFrame[i]))
 					{
 						fVerboseLevel = tmp;
@@ -492,6 +498,7 @@ bool TRestMultiCoBoAsAdToSignalProcess::ReadFrameDataP(FILE*f, CoBoHeaderFrame& 
 				f = NULL;
 				return kFALSE;
 			}
+			totalBytesReaded += 2048;
 			for (j = 0; j < 2048; j += 4)
 			{
 				agetIdx = (frameDataP[j] >> 6);
