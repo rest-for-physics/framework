@@ -19,6 +19,9 @@ int writeTime;
 int readTime;
 high_resolution_clock::time_point tS, tE;
 #endif
+int bytesReaded_last = 0;
+int eventProcessed_last = 0;
+int printInterval = 200000;//0.2s
 
 ClassImp(TRestProcessRunner);
 
@@ -85,15 +88,15 @@ void TRestProcessRunner::BeginOfInit()
 	}
 	else if (eventsToProcess == 0 && firstEntry == 0 && lastEntry == 0)
 	{
-		eventsToProcess = fRunInfo->GetTotalEntries();
-		lastEntry = fRunInfo->GetTotalEntries();
+		eventsToProcess = fRunInfo->GetEntries();
+		lastEntry = fRunInfo->GetEntries();
 	}
 	else
 	{
 		warning << "error setting of event number" << endl;
-		eventsToProcess = eventsToProcess > 0 ? eventsToProcess : fRunInfo->GetTotalEntries();
+		eventsToProcess = eventsToProcess > 0 ? eventsToProcess : fRunInfo->GetEntries();
 		firstEntry = firstEntry > 0 ? firstEntry : 0;
-		lastEntry = lastEntry == firstEntry + eventsToProcess ? lastEntry : fRunInfo->GetTotalEntries();
+		lastEntry = lastEntry == firstEntry + eventsToProcess ? lastEntry : fRunInfo->GetEntries();
 	}
 	fRunInfo->SetCurrentEntry(firstEntry);
 
@@ -220,7 +223,14 @@ void TRestProcessRunner::EndOfInit()
 void TRestProcessRunner::ReadProcInfo()
 {
 	if (fRunInfo->GetFileProcess() != NULL)
+	{
 		ProcessInfo["FirstProcess"] = fRunInfo->GetFileProcess()->GetName();
+	}
+	else
+	{
+		if(fProcessNumber>0)
+			ProcessInfo["FirstProcess"] = fThreads[0]->GetProcess(0)->GetName();
+	}
 	int n = fProcessNumber;
 	ProcessInfo["LastProcess"] = (n == 0 ? ProcessInfo["FirstProcess"] : fThreads[0]->GetProcess(n - 1)->GetName());
 	ProcessInfo["ProcNumber"] = ToString(n);
@@ -343,7 +353,8 @@ void TRestProcessRunner::RunProcess()
 		fThreads[i]->StartThread();
 	}
 
-	while (fRunInfo->GetInputEvent() != NULL && eventsToProcess > fProcessedEvents)
+	cout << endl << endl;
+	while (fProcStatus == kPause||(fRunInfo->GetInputEvent() != NULL && eventsToProcess > fProcessedEvents))
 	{
 		if (fProcStatus != kIgnore && kbhit())//if keyboard inputs
 		{
@@ -352,12 +363,17 @@ void TRestProcessRunner::RunProcess()
 				while (getchar() != '\n');//clear buffer
 			if (a == 'p') {
 				fProcStatus = kPause;
+				clearLinesAfterCursor();
+				TRestStringOutput cout;
+				cout.setcolor(COLOR_BOLDWHITE);
+				cout.setorientation(0);
+				cout.setborder("|");
 				cout << endl;
+				cout << "-" << endl;
 				cout << "process paused!" << endl;
-				cout << "you can change some settings here" << endl;
-			}
-			else if(a=='q'){
-				fProcStatus = kStop;
+				cout << "-" << endl;
+				cout << " " <<endl;
+				cout << "--------------menu--------------" << endl;
 			}
 		}
 
@@ -371,7 +387,7 @@ void TRestProcessRunner::RunProcess()
 #ifdef WIN32
 		_sleep(50);
 #else
-		usleep(200000);
+		usleep(printInterval);
 #endif
 
 		//cout << eventsToProcess << " " << fProcessedEvents << " " << lastEntry << " " << fCurrentEvent << endl;
@@ -383,6 +399,8 @@ void TRestProcessRunner::RunProcess()
 
 	if(kbhit())
 		while (getchar() != '\n');//clear buffer
+
+	cursorDown(3);
 
 	essential << "Waiting for processes to finish ..." << endl;
 
@@ -434,33 +452,46 @@ void TRestProcessRunner::RunProcess()
 
 
 void TRestProcessRunner::PauseMenu() {
-
-	cout << "--------------menu--------------" << endl;
+	TRestStringOutput cout;
+	cout.setcolor(COLOR_BOLDWHITE);
+	cout.setorientation(0);
+	cout.setborder("|");
+	clearLinesAfterCursor();
 	cout << "\"v\" : change the verbose level" << endl;
 	cout << "\"e\" : change the number of events to process" << endl;
 	cout << "\"n\" : push foward one event, then pause" << endl;
 	cout << "\"l\" : print the latest processed event" << endl;
 	cout << "\"q\" : stop and quit the process" << endl;
 	cout << "press \"p\" to continue process..." << endl;
+	cout << "-" <<endl;
+	cout << endl;
 	cout << endl;
 	while (1) {
+		cursorUp(1);
 		int b = getchar();
-		while (getchar() != '\n');
+		if(b!='\n')
+			while (getchar() != '\n');
 
 		if (b == 'v')
 		{
-			cout << endl;
+			cursorUp(11);
 			cout << "changing verbose level for all the processes..." << endl;
+			cursorDown(1);
+			clearLinesAfterCursor();
 			cout << "type \"0\"/\"s\" to set level silent" << endl;
 			cout << "type \"1\"/\"e\" to set level essential" << endl;
 			cout << "type \"2\"/\"i\" to set level info" << endl;
 			cout << "type \"3\"/\"d\" to set level debug" << endl;
 			cout << "type \"4\"/\"x\" to set level extreme" << endl;
 			cout << "type other to return the pause menu" << endl;
+			cout << "-" <<endl;
 			cout << endl;
+
 			while (1) {
+				cursorUp(1);
 				int c = getchar();
-				while (getchar() != '\n');
+				if (c != '\n')
+					while (getchar() != '\n');
 				REST_Verbose_Level l;
 				if (c == '0' || c == 's') {
 					l = REST_Silent;
@@ -479,9 +510,12 @@ void TRestProcessRunner::PauseMenu() {
 				}
 				else
 				{
+					cursorUp(10);
+					cout << " " << endl;
+					cursorDown(1);
 					break;
 				}
-
+				
 				this->SetVerboseLevel(l);
 				for (int i = 0; i < fProcessNumber; i++) {
 					fThreads[i]->SetVerboseLevel(l);
@@ -489,30 +523,44 @@ void TRestProcessRunner::PauseMenu() {
 						fThreads[i]->GetProcess(j)->SetVerboseLevel(l);
 					}
 				}
-				fout << "verbose level has been set to " << ToString(l) << endl;
-				cout << endl;
+				cursorUp(10);
+				cout << "verbose level has been set to " << ToString(l) << "!" << endl;
+				cursorDown(1);
 				break;
 			}
+			clearLinesAfterCursor();
 			break;
 		}
 		else if (b == 'e')
 		{
-			cout << endl;
+			cursorUp(11);
 			cout << "changing number of events to process..." << endl;
+			cursorDown(1);
+			clearLinesAfterCursor();
 			cout << "type the number you want" << endl;
 			cout << "type other to return the pause menu" << endl;
+			cout << "-" << endl;
 			cout << endl;
 
 			string s;
 
 			cin >> s;
 			cin.ignore();
-			
+			cursorUp(1);
 			if (isANumber(s)) {
 				eventsToProcess = StringToInteger(s);
-				fout << "maximum number of events to process has been set to " << eventsToProcess << endl;
-				cout << endl;
+				cursorUp(6);
+				cout << "maximum number of events to process has been set to " << eventsToProcess << endl;
+				cursorDown(1);
 			}
+			else
+			{
+				cursorUp(6);
+				cout << " " << endl;
+				cursorDown(1);
+			}
+
+			clearLinesAfterCursor();
 			break;
 		}
 		else if (b == 'n')
@@ -522,8 +570,13 @@ void TRestProcessRunner::PauseMenu() {
 		}
 		else if (b == 'l')
 		{
+			clearScreen();
 			fOutputEvent->PrintEvent();
-			cout << endl;
+			cout <<"press a key to continue..."<< endl;
+			int b = getchar();
+			if (b != '\n')
+				while (getchar() != '\n');
+			clearScreen();
 			break;
 		}
 		else if (b == 'q')
@@ -533,6 +586,8 @@ void TRestProcessRunner::PauseMenu() {
 		}
 		else if (b == 'p')
 		{
+			cursorUp(16);
+			clearLinesAfterCursor();
 			fProcStatus = kNormal;
 			break;
 		}
@@ -778,44 +833,73 @@ TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type, TiXmlEle
 
 void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 {
-	if (fProcStatus == kNormal) {
+	double bytesadded = fRunInfo->GetBytesReaded() - bytesReaded_last;
+	bytesReaded_last = fRunInfo->GetBytesReaded();
+
+	double eventsadded = fProcessedEvents - eventProcessed_last;
+	eventProcessed_last = fProcessedEvents;
+
+	double speedbyte = (bytesadded) / (double)printInterval*(double)1000000;
+	double speedeve = eventsadded / (double)printInterval*(double)1000000;
+
+	int prog = 0;
+	int tolprog = 50;
+
+	clearLinesAfterCursor();
+
+	if (fProcStatus == kNormal || fProcStatus == kIgnore) {
 		if (eventsToProcess == 2E9 &&fRunInfo->GetFileProcess() != NULL)
+			//Nevents is unknown
 		{
-			printf("%d processed events now...(Press \"q\" to stop, Press \"p\" to pause)\r", (fProcessedEvents));
-			fflush(stdout);
+			printf("Processing : %ldB / %ldB (%.2f MB/s), ", (long int)fRunInfo->GetBytesReaded(), (long int)fRunInfo->GetTotalBytes(), speedbyte / 1024 / 1024);
+
+			printf("%d Processed Events Now...\n", (fProcessedEvents));
+
+			printf("ETA: %.1f Minutes...", (fRunInfo->GetTotalBytes()-fRunInfo->GetBytesReaded()) / speedbyte / 60);
+
+			prog = fRunInfo->GetBytesReaded() / (double)fRunInfo->GetTotalBytes() * 100;
 		}
-		else if(fRunInfo->GetFileProcess() != NULL)
+		else
+		//Nevents is known
 		{
-			printf("Completed : %d / %d ...(Press \"q\" to stop, Press \"p\" to pause)\r", fProcessedEvents, eventsToProcess);
-			fflush(stdout);
+			printf("Completed Events: %d / %d (%.3f MB/s)...\n", fProcessedEvents, eventsToProcess, speedbyte / 1024 / 1024);
+		
+			printf("ETA: %.1f Minutes...", (eventsToProcess-fProcessedEvents) / speedeve / 60);
+
+			prog = fProcessedEvents / (double)eventsToProcess * 100;
+		}
+
+
+
+
+		if (fProcStatus == kNormal)
+		{
+			printf("(Press \"p\" to enter pause menu)\n");
 		}
 		else
 		{
-			printf("Completed : %d / %d ...(Press \"q\" to stop, Press \"p\" to pause)\r",fRunInfo->GetCurrentEntry(), fRunInfo->GetTotalEntries());
-			fflush(stdout);
+			printf("(Pause menu disabled)\n");
 		}
-	}
-	if (fProcStatus == kIgnore) {
-		if (eventsToProcess == 2E9 && fRunInfo->GetFileProcess() != NULL)
-		{
-			printf("%d processed events now...\r", (fProcessedEvents));
-			fflush(stdout);
-		}
-		else if (fRunInfo->GetFileProcess() != NULL)
-		{
-			printf("Completed : %d / %d ...(Press \"q\" to stop, Press \"p\" to pause)\r", fProcessedEvents, eventsToProcess);
-			fflush(stdout);
-		}
-		else
-		{
-			printf("Completed : %d / %d ...\r", fRunInfo->GetCurrentEntry(), fRunInfo->GetTotalEntries());
-			fflush(stdout);
-		}
+
+		printf(("%d% [" + MakeProgressBar((double)prog/100*tolprog,tolprog) + "]\n").c_str(), prog);
+
+		cursorUp(3);
 	}
 
 }
 
+string TRestProcessRunner::MakeProgressBar(int n,int length) 
+{
+	string progressbar(length, '-');
 
+	if (n < 0)n = 0;
+	if (n > length+1)n = length + 1;
+	for (int i = 0; i < n; i++) {
+		progressbar[i] = '=';
+	}
+	if (n < length + 1)progressbar[n] = '>';
+	return progressbar;
+}
 
 
 
