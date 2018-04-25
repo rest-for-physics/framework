@@ -517,7 +517,7 @@ void TRestProcessRunner::PauseMenu() {
 				}
 				
 				this->SetVerboseLevel(l);
-				for (int i = 0; i < fProcessNumber; i++) {
+				for (int i = 0; i < fThreadNumber; i++) {
 					fThreads[i]->SetVerboseLevel(l);
 					for (int j = 0; j < fThreads[i]->GetProcessnum(); j++) {
 						fThreads[i]->GetProcess(j)->SetVerboseLevel(l);
