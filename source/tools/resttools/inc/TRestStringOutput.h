@@ -78,14 +78,14 @@ public:
 
 		if (input == "=" || input == "-" || input == "*" || input == "+")
 		{
-			for (int i = border.size(); i < length-border.size(); i++)
+			for (int i = border.size(); i < length - border.size(); i++)
 			{
 				output[i] = input[0];
 			}
 		}
 		else
 		{
-			if (input[0] == input[input.size() - 1]&&(input[0] == '=' || input[0] == '-' || input[0] == '*' || input[0] == '+'))
+			if (input[0] == input[input.size() - 1] && (input[0] == '=' || input[0] == '-' || input[0] == '*' || input[0] == '+'))
 			{
 				for (int i = border.size(); i < length - border.size(); i++)
 				{
@@ -118,7 +118,7 @@ public:
 			}
 			else
 			{
-				for (int i = 0; i < length-3; i++)
+				for (int i = 0; i < length - 3; i++)
 				{
 					output[i] = input[i];
 				}
@@ -163,7 +163,7 @@ public:
 	}
 
 	void insertback(string s) {
-		tmpstring = tmpstring+s;
+		tmpstring = tmpstring + s;
 	}
 
 	void setcolor(string colordef)
@@ -204,7 +204,7 @@ protected:
 	int length = 100;
 	int orientation = 0;//0->middle, else->left
 	string border = "";
-	string tmpstring="";
+	string tmpstring = "";
 	string color = COLOR_RESET;
 
 	//stringstream tmpstring;
@@ -213,7 +213,7 @@ protected:
 template<REST_Verbose_Level v> class TRestLeveledOutput :public TRestStringOutput {
 public:
 	TRestLeveledOutput() {};
-	TRestLeveledOutput(REST_Verbose_Level& vref, string c = COLOR_RESET, string b = "", int orientation=0)
+	TRestLeveledOutput(REST_Verbose_Level& vref, string c = COLOR_RESET, string b = "", int orientation = 0)
 		:verboselvlref(vref)
 	{
 		this->orientation = orientation;
@@ -242,6 +242,55 @@ public:
 };
 
 
+inline void cursorUp(int n) {
+	printf("\033[%dA",n);
+	fflush(stdout);
+}
+
+inline void cursorDown(int n) {
+	printf("\033[%dB", n);
+	fflush(stdout);
+}
+
+inline void cursorRight(int n) {
+	printf("\033[%dC", n);
+	fflush(stdout);
+}
+
+inline void cursorLeft(int n) {
+	printf("\033[%dD", n);
+	fflush(stdout);
+}
+
+inline void cursorToXY(int x, int y) {
+	printf("\033[%d%dH", x,y);
+	fflush(stdout);
+}
+
+inline void clearScreen() {
+	printf("\033[2J");
+	fflush(stdout);
+}
+
+inline void clearCurrentLine() {
+
+	printf("\033[K");
+
+	fflush(stdout);
+}
+
+inline void clearLinesAfterCursor() {
+	printf("\033[s");
+
+	for (int i = 0; i < 50; i++) {
+		printf("\033[K");
+		cursorDown(1);
+	}
+
+	printf("\033[u");
+
+	fflush(stdout);
+}
 
 inline void endl(TRestStringOutput& input)
 {
@@ -250,7 +299,7 @@ inline void endl(TRestStringOutput& input)
 
 template<REST_Verbose_Level v> inline void endl(TRestLeveledOutput<v>& input)
 {
-	if(input.verboselvlref>=input.verbose)
+	if (input.verboselvlref >= input.verbose)
 		input.flushstring();
 	else
 		input.resetstring();
@@ -258,19 +307,7 @@ template<REST_Verbose_Level v> inline void endl(TRestLeveledOutput<v>& input)
 
 inline void PrintWelcome()
 {
-	TRestStringOutput fout;
-	fout.setcolor(COLOR_BOLDWHITE);
-	fout.setborder("||");
-	fout << "=" << endl;
-	fout << " " << endl;
-	fout << "Welcome to REST!" << endl;
-	fout << " " << endl;
-	fout << "---restManager---" << endl;
-	fout << "---Branch: nkx---" << endl;
-	fout << "---Update 13---" << endl;
-	fout << "---Path: " << getenv("REST_PATH") << "---" << endl;
-	fout << " " << endl;
-	fout << "=" << endl;
+	system("rest-config --welcome");
 }
 
 #endif
