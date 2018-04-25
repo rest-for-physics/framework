@@ -83,7 +83,6 @@ public:
 	TString GetExperimentName() { return fExperimentName; }
 	TString GetTime(Double_t runTime);
 	TString GetDateFormatted(Double_t runTime);
-
 	string Get(string target);
 
 	vector<TString> GetInputFileNames() { return fInputFileNames; }
@@ -93,8 +92,10 @@ public:
 	TFile* GetInputFile() { return fInputFile; }
 	TFile* GetOutputFile() { return fOutputFile; }
 	int GetCurrentEntry() { return fCurrentEvent; }
-	int GetEntries() { return GetTotalEntries(); }
-	int GetTotalEntries() { if (fAnalysisTree != NULL) { return fAnalysisTree->GetEntries(); } return 2E9; }
+	Long64_t GetBytesReaded() { return fBytesReaded; }
+	Long64_t GetTotalBytes() { return fTotalBytes; }
+	int GetEntries() { if (fAnalysisTree != NULL) { return fAnalysisTree->GetEntries(); } return 2E9; }
+
 	TRestEvent* GetInputEvent() { return fInputEvent; }
 	TRestEventProcess* GetFileProcess() { return fFileProcess; }
 	string GetFileInfo(string infoname) { return FileInfo[infoname] == "" ? infoname : FileInfo[infoname]; }
@@ -104,6 +105,7 @@ public:
 	TRestAnalysisTree* GetAnalysisTree() { return fAnalysisTree; }
 	TRestAnalysisTree* GetEventTree() { return fEventTree; }
 	Int_t GetInputFileNumber() { return fFileProcess == NULL ? fInputFileNames.size() : 1; }
+
 	TRestMetadata* GetMetadata(TString name);
 	TRestMetadata* GetMetadataClass(string type);
 	std::vector <std::string> GetMetadataStructureNames();
@@ -136,7 +138,7 @@ public:
 	}
 	void SetRunDescription(TString description) { fRunDescription = description; }
 	void SetEndTimeStamp(Double_t tStamp) { fEndTime = tStamp; }
-
+	void SetTotalBytes(Long64_t b) { fTotalBytes = b; }
 
 	// Printers
 	void PrintStartDate();
@@ -182,7 +184,6 @@ protected:
 	TString fVersion;
 	Double_t fStartTime;            ///< Event absolute starting time/date (unix timestamp)
 	Double_t fEndTime;              ///< Event absolute starting time/date (unix timestamp)
-	Int_t fProcessedEvents;
 
 	//data-like metadata objects
 	vector<TRestMetadata*> fMetadataInfo;//!
@@ -196,19 +197,12 @@ protected:
 	TRestAnalysisTree *fEventTree;//!
 	TRestAnalysisTree *fAnalysisTree;//!
 
+	//input infomation
 	TRestEventProcess* fFileProcess;//!
 	int fCurrentEvent;//!
+	Long64_t fBytesReaded;//!
+	Long64_t fTotalBytes;//!
 	int fEventBranchLoc;//!
-
-	//vector<TRestFileTask*> fFileTasks;//!
-
-
-
-
-
-
-
-
 
 
 };

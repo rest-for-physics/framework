@@ -56,7 +56,8 @@ void TRestRun::Initialize()
 	fOutputFileName = "rest_default.root";
 
 
-	fProcessedEvents = 0;
+	fBytesReaded = 0;
+	fTotalBytes = -1;
 
 	fInputFileNames.clear();
 	fInputFile = NULL;
@@ -403,8 +404,12 @@ void TRestRun::ReadFileInfo(string filename)
 	FileInfo["Time"] = Spilt(datetime, " ")[1];
 	FileInfo["Date"] = Spilt(datetime, " ")[0];
 	FileInfo["Size"] = ToString(buf.st_size) + "B";
-	FileInfo["Entries"] = ToString(GetTotalEntries());
+	FileInfo["Entries"] = ToString(GetEntries());
 
+	if (isRootFile((string)filename))
+	{
+		fTotalBytes = buf.st_size;
+	}
 }
 
 
@@ -424,6 +429,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 		fFileProcess->BeginOfEventProcess();
 		fInputEvent = fFileProcess->ProcessEvent(NULL);
 		fFileProcess->EndOfEventProcess();
+		fBytesReaded = fFileProcess->GetTotalBytesReaded();
 		fCurrentEvent++;
 	}
 	else
@@ -435,13 +441,14 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 			else
 			{
 				fInputEvent->Initialize();
-				fAnalysisTree->GetEntry(fCurrentEvent);
+				fBytesReaded += fAnalysisTree->GetEntry(fCurrentEvent);
 				if (targettree != NULL && targettree->isConnected()) {
 					for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
 						targettree->SetObservableValue(n, fAnalysisTree->GetObservableValue(n));
 				}
 				if (fEventTree != NULL) {
-					fEventTree->GetEntry(fCurrentEvent);
+					fBytesReaded += ((TBranch*)fEventTree->GetListOfBranches()->UncheckedAt(fEventBranchLoc))->GetEntry(fCurrentEvent);
+					//fBytesReaded += fEventTree->GetEntry(fCurrentEvent);
 				}
 				fCurrentEvent++;
 			}
