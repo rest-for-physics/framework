@@ -19,13 +19,17 @@ int writeTime;
 int readTime;
 high_resolution_clock::time_point tS, tE;
 #endif
+
 int ncalculated = 10;
-int bytesReaded_last = 0;
-int eventProcessed_last = 0;
-vector<int> bytesAdded(ncalculated, 0);
-vector<int> eventsAdded(ncalculated, 0);
+Long64_t bytesReaded_last = 0;
+Double_t prog_last = 0;
+vector<Long64_t> bytesAdded(ncalculated, 0);
+vector<Double_t> progAdded(ncalculated, 0);
 int poscalculated = 0;
 int printInterval = 200000;//0.2s
+int inputtreeentries = 0;
+int barlength = 50;
+
 
 ClassImp(TRestProcessRunner);
 
@@ -92,15 +96,15 @@ void TRestProcessRunner::BeginOfInit()
 	}
 	else if (eventsToProcess == 0 && firstEntry == 0 && lastEntry == 0)
 	{
-		eventsToProcess = fRunInfo->GetEntries();
-		lastEntry = fRunInfo->GetEntries();
+		eventsToProcess = REST_MAXIMUM_EVENTS;
+		lastEntry = REST_MAXIMUM_EVENTS;
 	}
 	else
 	{
 		warning << "error setting of event number" << endl;
-		eventsToProcess = eventsToProcess > 0 ? eventsToProcess : fRunInfo->GetEntries();
+		eventsToProcess = eventsToProcess > 0 ? eventsToProcess : REST_MAXIMUM_EVENTS;
 		firstEntry = firstEntry > 0 ? firstEntry : 0;
-		lastEntry = lastEntry == firstEntry + eventsToProcess ? lastEntry : fRunInfo->GetEntries();
+		lastEntry = lastEntry == firstEntry + eventsToProcess ? lastEntry : REST_MAXIMUM_EVENTS;
 	}
 	fRunInfo->SetCurrentEntry(firstEntry);
 
@@ -334,6 +338,7 @@ void TRestProcessRunner::RunProcess()
 	fProcessedEvents = 0;
 	fRunInfo->ResetEntry();
 	fRunInfo->SetCurrentEntry(firstEntry);
+	inputtreeentries = fRunInfo->GetEntries();
 
 	//set root mutex
 	//!!!!!!!!!!!!Important!!!!!!!!!!!!
@@ -375,11 +380,12 @@ void TRestProcessRunner::RunProcess()
 				cout.setborder("|");
 				cout << endl;
 				cout << "-" << endl;
-				cout << "process paused!" << endl;
+				cout << "PROCESS PAUSED!" << endl;
 				cout << "-" << endl;
 				cout << " " << endl;
-				cout << "--------------menu--------------" << endl;
+				cout << "--------------MENU--------------" << endl;
 			}
+
 		}
 
 		if (fProcStatus == kPause) {
@@ -388,6 +394,8 @@ void TRestProcessRunner::RunProcess()
 		if (fProcStatus == kStop) {
 			break;
 		}
+
+		PrintProcessedEvents(100);
 
 #ifdef WIN32
 		_sleep(50);
@@ -399,13 +407,13 @@ void TRestProcessRunner::RunProcess()
 		//cout << fProcessedEvents << "\r";
 		//printf("%d processed events now...\r", fProcessedEvents);
 		//fflush(stdout);
-		PrintProcessedEvents(100);
+
 	}
 
 	if (kbhit())
 		while (getchar() != '\n');//clear buffer
 
-	cursorDown(3);
+	cursorDown(4);
 
 	essential << "Waiting for processes to finish ..." << endl;
 
@@ -474,6 +482,7 @@ void TRestProcessRunner::PauseMenu() {
 	int mainmenuleng = 9;
 	while (1) {
 		cursorUp(1);
+		clearCurrentLine();
 		int b = getchar();
 		if (b != '\n')
 			while (getchar() != '\n');
@@ -481,7 +490,9 @@ void TRestProcessRunner::PauseMenu() {
 		if (b == 'v')
 		{
 			cursorUp(mainmenuleng + 2);
-			cout << "changing verbose level for all the processes..." << endl;
+			cout.setcolor(COLOR_BOLDGREEN);
+			cout << "Changing verbose level for all the processes..." << endl;
+			cout.setcolor(COLOR_BOLDWHITE);
 			cursorDown(1);
 			clearLinesAfterCursor();
 			cout << "type \"0\"/\"s\" to set level silent" << endl;
@@ -517,7 +528,9 @@ void TRestProcessRunner::PauseMenu() {
 				else
 				{
 					cursorUp(submenuleng + 2);
-					cout << "verbose level not set!" << endl;
+					cout.setcolor(COLOR_BOLDYELLOW);
+					cout << "Verbose level not set!" << endl;
+					cout.setcolor(COLOR_BOLDWHITE);
 					cursorDown(1);
 					break;
 				}
@@ -530,7 +543,9 @@ void TRestProcessRunner::PauseMenu() {
 					}
 				}
 				cursorUp(submenuleng + 2);
-				cout << "verbose level has been set to " << ToString(l) << "!" << endl;
+				cout.setcolor(COLOR_BOLDGREEN);
+				cout << "Verbose level has been set to " << ToString(l) << "!" << endl;
+				cout.setcolor(COLOR_BOLDWHITE);
 				cursorDown(1);
 				break;
 			}
@@ -540,7 +555,9 @@ void TRestProcessRunner::PauseMenu() {
 		else if (b == 'e')
 		{
 			cursorUp(mainmenuleng + 2);
-			cout << "changing number of events to process..." << endl;
+			cout.setcolor(COLOR_BOLDGREEN);
+			cout << "Changing number of events to process..." << endl;
+			cout.setcolor(COLOR_BOLDWHITE);
 			cursorDown(1);
 			clearLinesAfterCursor();
 			cout << "type the number you want" << endl;
@@ -572,7 +589,9 @@ void TRestProcessRunner::PauseMenu() {
 					if (neve > 0) {
 						eventsToProcess = neve;
 						cursorUp(submenuleng + 2);
-						cout << "maximum number of events to process has been set to " << eventsToProcess << endl;
+						cout.setcolor(COLOR_BOLDGREEN);
+						cout << "Maximum number of events to process has been set to " << eventsToProcess << endl;
+						cout.setcolor(COLOR_BOLDWHITE);
 						cursorDown(1);
 						break;
 					}
@@ -581,9 +600,11 @@ void TRestProcessRunner::PauseMenu() {
 						if (lastEntry - firstEntry > 0)
 							eventsToProcess = lastEntry - firstEntry;
 						else
-							eventsToProcess = fRunInfo->GetEntries();
+							eventsToProcess = REST_MAXIMUM_EVENTS;
 						cursorUp(submenuleng + 2);
-						cout << "maximum number of events to process has been set to " << eventsToProcess << endl;
+						cout.setcolor(COLOR_BOLDGREEN);
+						cout << "Maximum number of events to process has been set to default (" << eventsToProcess <<")"<< endl;
+						cout.setcolor(COLOR_BOLDWHITE);
 						cursorDown(1);
 						break;
 					}
@@ -591,7 +612,9 @@ void TRestProcessRunner::PauseMenu() {
 				}
 
 				cursorUp(submenuleng + 2);
-				cout << "Nevents not set!" << endl;
+				cout.setcolor(COLOR_BOLDYELLOW);
+				cout << "N events not set!" << endl;
+				cout.setcolor(COLOR_BOLDWHITE);
 				cursorDown(1);
 				break;
 
@@ -622,10 +645,18 @@ void TRestProcessRunner::PauseMenu() {
 		}
 		else if (b == 'p')
 		{
-			cursorUp(16);
+			cursorUp(mainmenuleng + 6);
 			clearLinesAfterCursor();
 			fProcStatus = kNormal;
 			break;
+		}
+		else
+		{
+			cursorUp(mainmenuleng + 2);
+			cout.setcolor(COLOR_BOLDYELLOW);
+			cout <<"Invailed option \"" << (char)b << "\" !" << endl;
+			cout.setcolor(COLOR_BOLDWHITE);
+			cursorDown(mainmenuleng + 1);
 		}
 
 	}
@@ -871,71 +902,55 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 {
 
 	if (fProcStatus == kNormal || fProcStatus == kIgnore) {
-
-		double bytesadded = fRunInfo->GetBytesReaded() - bytesReaded_last;
-		bytesReaded_last = fRunInfo->GetBytesReaded();
-
-		double eventsadded = fProcessedEvents - eventProcessed_last;
-		eventProcessed_last = fProcessedEvents;
-
-		bytesAdded[poscalculated] = bytesadded;
-		eventsAdded[poscalculated] = eventsadded;
-		poscalculated++;
-		if (poscalculated >= ncalculated)
-			poscalculated -= ncalculated;
-
-		int bytes = 0;
-		for (auto& n : bytesAdded)
-			bytes += n;
-
-		int eve = 0;
-		for (auto& n : eventsAdded)
-			eve += n;
-
-		double speedbyte = bytes / (double)printInterval*(double)1000000 / ncalculated;
-		double speedeve = eve / (double)printInterval*(double)1000000 / ncalculated;
-
-		int prog = 0;
-		int tolprog = 50;
-
 		clearLinesAfterCursor();
-
-
 
 		TRestStringOutput cout;
 		cout.setcolor(COLOR_BOLDWHITE);
 		cout.setorientation(0);
 		cout.setborder("|");
-		if (eventsToProcess == 2E9 &&fRunInfo->GetFileProcess() != NULL)
-			//Nevents is unknown
+		cursorDown(1);
+
+		Long64_t bytes = 0;
+		for (auto& n : bytesAdded)
+			bytes += n;
+		double speedbyte = bytes / (double)printInterval*(double)1000000 / ncalculated;
+
+		double prog = 0;
+		double progsum = 0;
+		for (auto& n : progAdded)
+			progsum += n;
+		double progspeed = progsum / ncalculated / printInterval * 1000000;
+
+		if (eventsToProcess == REST_MAXIMUM_EVENTS && fRunInfo->GetFileProcess() != NULL)
+			//Nevents is unknown, reading external data file
 		{
-			cout << "Processing : "<< fRunInfo->GetBytesReaded() <<"B / "<< fRunInfo->GetTotalBytes() <<"B ("<< speedbyte / 1024 / 1024 <<" MB/s), ";
-			cout << fProcessedEvents<< " Processed Events Now..." << endl;
-			cout << "ETA: "<< (fRunInfo->GetTotalBytes() - fRunInfo->GetBytesReaded()) / speedbyte / 60 <<" Minutes...";
-			//printf("Processing : %ldB / %ldB (%.2f MB/s), ", (long int)fRunInfo->GetBytesReaded(), (long int)fRunInfo->GetTotalBytes(), speedbyte / 1024 / 1024);
-
-			//printf("%d Processed Events Now...\n", (fProcessedEvents));
-
-			//printf("ETA: %.1f Minutes...", (fRunInfo->GetTotalBytes() - fRunInfo->GetBytesReaded()) / speedbyte / 60);
-
+			cout << "Reading : " << fRunInfo->GetBytesReaded() << "B / " << fRunInfo->GetTotalBytes() << "B (" << speedbyte / 1024 / 1024 << " MB/s), ";
+			cout << fProcessedEvents << " Processed Events Now..." << endl;
 			prog = fRunInfo->GetBytesReaded() / (double)fRunInfo->GetTotalBytes() * 100;
 		}
-		else
-			//Nevents is known
+		else if (fRunInfo->GetFileProcess() != NULL)
+			//Nevents is known, reading external data file
 		{
+			cout << "Reading : " << fRunInfo->GetBytesReaded() << "B / " << fRunInfo->GetTotalBytes() << "B (" << speedbyte / 1024 / 1024 << " MB/s), ";
+			cout << fProcessedEvents << " / " << eventsToProcess << " Processed Events Now..." << endl;
+			prog = fProcessedEvents / (double)eventsToProcess * 100;
+		}
+		else if (eventsToProcess == REST_MAXIMUM_EVENTS)
+			//Nevents is unknown, reading root file
+		{
+			cout << "Entry : " << fRunInfo->GetCurrentEntry() << " / " << inputtreeentries << " (" << speedbyte / 1024 / 1024 << " MB/s), ";
+			cout << fProcessedEvents << " Processed Events Now..." << endl;
+			prog = fRunInfo->GetCurrentEntry() / (double)inputtreeentries * 100;
+		}
 
-			cout << "Completed Events: "<< fProcessedEvents <<" / "<< eventsToProcess <<" ("<< speedbyte / 1024 / 1024 <<" MB/s)..." << endl;
-			cout << "ETA: " << (eventsToProcess - fProcessedEvents) / speedeve / 60 << " Minutes...";
-
-			//printf("Completed Events: %d / %d (%.3f MB/s)...\n", fProcessedEvents, fProcessedEvents, speedbyte / 1024 / 1024);
-
-			//printf("ETA: %.1f Minutes...", (eventsToProcess - fProcessedEvents) / speedeve / 60);
-
+		else
+		{
+			cout << "Entry : " << fRunInfo->GetCurrentEntry() << " / " << inputtreeentries << " (" << speedbyte / 1024 / 1024 << " MB/s), ";
+			cout << fProcessedEvents << " / " << eventsToProcess << " Processed Events Now..." << endl;
 			prog = fProcessedEvents / (double)eventsToProcess * 100;
 		}
 
-
-
+		cout << "ETA: " << (100-prog_last) / progspeed / 60 << " Minutes...";
 
 		if (fProcStatus == kNormal)
 		{
@@ -946,17 +961,26 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 			cout << "(Pause menu disabled)" << endl;;
 		}
 
-		cout << prog <<"% [" + MakeProgressBar((double)prog / 100 * tolprog, tolprog) + "]" << endl;
+		cout << prog <<"% [" + MakeProgressBar(prog, barlength) + "]" << endl;
 
-		cursorUp(3);
+		cursorUp(4);
+
+		bytesAdded[poscalculated] = fRunInfo->GetBytesReaded() - bytesReaded_last;
+		bytesReaded_last = fRunInfo->GetBytesReaded();
+		progAdded[poscalculated] = prog - prog_last;
+		prog_last = prog;
+
+		poscalculated++;
+		if (poscalculated >= ncalculated)
+			poscalculated -= ncalculated;
 	}
 
 }
 
-string TRestProcessRunner::MakeProgressBar(int n, int length)
+string TRestProcessRunner::MakeProgressBar(int progress100, int length)
 {
 	string progressbar(length, '-');
-
+	int n = (double)progress100 / 100 * length;
 	if (n < 0)n = 0;
 	if (n > length + 1)n = length + 1;
 	for (int i = 0; i < n; i++) {

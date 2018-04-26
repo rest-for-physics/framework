@@ -2,6 +2,7 @@
 #ifndef RestCore_TRestRun
 #define RestCore_TRestRun
 
+#define REST_MAXIMUM_EVENTS 2E9
 
 #include "TRestEvent.h"
 #include "TRestMetadata.h"
@@ -94,7 +95,7 @@ public:
 	int GetCurrentEntry() { return fCurrentEvent; }
 	Long64_t GetBytesReaded() { return fBytesReaded; }
 	Long64_t GetTotalBytes() { return fTotalBytes; }
-	int GetEntries() { if (fAnalysisTree != NULL) { return fAnalysisTree->GetEntries(); } return 2E9; }
+	int GetEntries() { if (fAnalysisTree != NULL) { return fAnalysisTree->GetEntries(); } return REST_MAXIMUM_EVENTS; }
 
 	TRestEvent* GetInputEvent() { return fInputEvent; }
 	TRestEventProcess* GetFileProcess() { return fFileProcess; }

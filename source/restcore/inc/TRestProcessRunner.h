@@ -48,7 +48,7 @@ public:
 	void ResetRunTimes();
 	TRestEventProcess* InstantiateProcess(TString type, TiXmlElement* ele);
 	void PrintProcessedEvents(Int_t rateE);
-	string MakeProgressBar(int n,int length=100);
+	string MakeProgressBar(int progress100,int length=100);
 	void SetProcStatus(ProcStatus s) { fProcStatus = s; }
 
 
