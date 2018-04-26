@@ -153,6 +153,7 @@ public:
 
 	void flushstring()
 	{
+		printf("\033[K");
 		cout << color << FormattingPrintString(tmpstring) << COLOR_RESET << endl;
 		tmpstring = "";
 	}
