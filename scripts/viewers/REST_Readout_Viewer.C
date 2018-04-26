@@ -87,18 +87,59 @@ int REST_Readout_Viewer( TString rootFile, TString name, Int_t plane = 0 )
 		xCH[px] = module->GetPixelCenter( ch, px ).X();
 		yCH[px] = module->GetPixelCenter( ch, px ).Y();
 
-                for( int v = 0; v < 5; v++ )
-                {
-                    x[v] = module->GetPixelVertex( ch, px, v ).X();
-                    y[v] = module->GetPixelVertex( ch, px, v ).Y();
-                }
-                pixelGraph[graph] = new TGraph( 5, x, y );
+/**/		///////////////AJOUT TRIANGLE/////////////
+		int part = module->GetPixelPart( ch, px);
 
-                pixelGraph[graph]->SetLineColor( kRed );
-                pixelGraph[graph]->SetLineWidth(2);
-                //pixelGraph[graph]->SetMaximum( 200 );
-                //pixelGraph[graph]->SetMinimum( -200 );
-                //pixelGraph[graph]->GetXaxis()->SetLimits(-200,200);
+		if(part>0)
+		{
+                    for( int v = 1; v < 4; v++ )
+                    {
+                        x[v-1] = module->GetPixelVertex( ch, px, v ).X();
+                        y[v-1] = module->GetPixelVertex( ch, px, v ).Y();
+                    }
+	            x[3] = module->GetPixelVertex( ch, px, 1 ).X();
+                    y[3] = module->GetPixelVertex( ch, px, 1 ).Y();
+		    pixelGraph[graph] = new TGraph( 4, x, y );
+
+                    pixelGraph[graph]->SetLineColor( kRed );
+                    pixelGraph[graph]->SetLineWidth(2);
+                    //pixelGraph[graph]->SetMaximum( 200 );
+                    //pixelGraph[graph]->SetMinimum( -200 );
+                    //pixelGraph[graph]->GetXaxis()->SetLimits(-200,200);
+		}
+		else if(part<0)
+		{
+                    for( int v = 3; v < 6; v++ )
+                    {
+                        x[v-3] = module->GetPixelVertex( ch, px, v ).X();
+                        y[v-3] = module->GetPixelVertex( ch, px, v ).Y();
+                    }
+	            x[3] = module->GetPixelVertex( ch, px, 3 ).X();
+                    y[3] = module->GetPixelVertex( ch, px, 3 ).Y();
+		    pixelGraph[graph] = new TGraph( 4, x, y );
+
+                    pixelGraph[graph]->SetLineColor( kRed );
+                    pixelGraph[graph]->SetLineWidth(2);
+                    //pixelGraph[graph]->SetMaximum( 200 );
+                    //pixelGraph[graph]->SetMinimum( -200 );
+                    //pixelGraph[graph]->GetXaxis()->SetLimits(-200,200);
+		}
+//*/		///////////////AJOUT TRIANGLE/////////////
+		else if(part==0)
+		{
+                   for( int v = 0; v < 5; v++ )
+                    {
+                        x[v] = module->GetPixelVertex( ch, px, v ).X();
+                        y[v] = module->GetPixelVertex( ch, px, v ).Y();
+                    }
+                    pixelGraph[graph] = new TGraph( 5, x, y );
+    
+                    pixelGraph[graph]->SetLineColor( kRed );
+                    pixelGraph[graph]->SetLineWidth(2);
+                    //pixelGraph[graph]->SetMaximum( 200 );
+                    //pixelGraph[graph]->SetMinimum( -200 );
+                    //pixelGraph[graph]->GetXaxis()->SetLimits(-200,200);
+		}
 
                 Double_t xMin = 1e10;
                 Double_t yMin = 1e10;

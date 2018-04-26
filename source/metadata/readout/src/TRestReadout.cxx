@@ -449,7 +449,10 @@ void TRestReadout::InitFromConfigFile()
                 pixel.SetOrigin( StringTo2DVector( GetFieldValue( "origin", pixelString ) ) );
                 pixel.SetSize( StringTo2DVector( GetFieldValue( "size", pixelString ) ) );
                 pixel.SetRotation( StringToDouble( GetFieldValue( "rotation", pixelString ) ) );
-
+/**/		//AJOUT TRIANGLE
+		// Rajout d'un champ "part" dans le RML de configuration 
+		pixel.SetPart( StringToInteger( GetFieldValue( "part", pixelString ) ) );
+//*/
                 channel.AddPixel( pixel );
             }
 

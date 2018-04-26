@@ -198,6 +198,9 @@ class TRestReadoutModule : public TObject {
         TVector2 GetPixelOrigin( Int_t channel, Int_t pixel );
         TVector2 GetPixelVertex( Int_t channel, Int_t pixel, Int_t vertex );
         TVector2 GetPixelCenter( Int_t channel, Int_t pixel );
+/**/	//AJOUT TRIANGLE
+        Int_t GetPixelPart( Int_t channel, Int_t pixel );
+//*/
         TVector2 GetVertex( int n ) const;
 
         void AddChannel( TRestReadoutChannel &rChannel );

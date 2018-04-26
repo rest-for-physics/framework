@@ -463,6 +463,21 @@ TVector2 TRestReadoutModule::GetPixelCenter( Int_t channel, Int_t pixel )
     return center;
 }
 
+/**/	//AJOUT TRIANGLE
+///////////////////////////////////////////////
+/// \brief Returns the pixel part for a given *channel* and 
+/// *pixel* indexes.
+/// 
+/// \param vertex A value between -1 , 0 and 1 definning the pixel part to be returned
+///
+Int_t TRestReadoutModule::GetPixelPart( Int_t channel, Int_t pixel )
+{
+    Int_t part = GetChannel( channel )->GetPixel( pixel )->GetPart();
+
+    return part;
+}
+//*/
+
 ///////////////////////////////////////////////
 /// \brief Returns the coordinates of the specified vertex index *n*. The physical
 /// coordinates relative to the readout plane are returned, including rotation.

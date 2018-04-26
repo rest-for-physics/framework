@@ -194,6 +194,18 @@
     <gasComponent name="iC4H10" fraction="0.05" />
 </section>
 
+// ----- 10.0% ---------------------------------------------------------------------------------------------
+<section TRestGas name="Xenon-Isobutane 10Pct 10-10E3V/cm" title="Xenon-Isobutane Mixture (10Pct Isobutane)">
+    <parameter name="pressure" value="1" />  
+    <parameter name="temperature" value="293.15" />
+    <parameter name="maxElectronEnergy" value="400" />
+    <parameter name="W_value" value="21.965" />/à changer
+    <parameter name="nCollisions" value="10" />
+    <eField Emin="10" Emax="1000." nodes="20" />
+    <gasComponent name="xe" fraction="0.90" />
+    <gasComponent name="iC4H10" fraction="0.10" />
+</section>
+
 // ---------------------------------------
 // -------------- XENON+CF4 --------------
 // ---------------------------------------

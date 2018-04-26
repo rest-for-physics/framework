@@ -4,6 +4,7 @@
 #include <TMath.h>
 
 #include <TRestRun.h>
+#include <TRestG4Event.h>
 
 
 char varName[256];
@@ -67,6 +68,11 @@ int main( int argc, char *argv[] )
     cout << "++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout << endl;
 
+ //   run->SkipEventTree();
+
+   TRestG4Event *ev = new TRestG4Event();
+
+	run->SetInputEvent( ev );
     for( int i = 0; i < anaTree->GetNumberOfObservables( ); i++ )
     {
         if( anaTree->GetObservableDescription( i ) != "Not defined" && anaTree->GetObservableDescription( i ) != "" )
@@ -77,6 +83,16 @@ int main( int argc, char *argv[] )
             cout << endl;
         }
     }
+
+	Int_t id = anaTree->GetObservableID( "g4Ana.photoelectric" );
+/*
+	for( int n = 0; run->GetEntries(); n++ )
+	{
+		//run->GetEntry(n);
+		cout << "Event id : " << anaTree->GetEventID() << " value : " << anaTree->GetObservableValue( id ) << endl;
+	}
+*/
+
     cout << endl;
 
     cout << endl;
@@ -97,4 +113,3 @@ int main( int argc, char *argv[] )
 
 	return 0;
 }
-
