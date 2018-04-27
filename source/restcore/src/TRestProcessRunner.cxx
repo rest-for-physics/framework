@@ -924,44 +924,70 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 		if (eventsToProcess == REST_MAXIMUM_EVENTS && fRunInfo->GetFileProcess() != NULL)
 			//Nevents is unknown, reading external data file
 		{
-			cout << "Reading : " << fRunInfo->GetBytesReaded() << "B / " << fRunInfo->GetTotalBytes() << "B (" << speedbyte / 1024 / 1024 << " MB/s), ";
-			cout << fProcessedEvents << " Processed Events Now..." << endl;
+			char* buffer=new char[100]();
+			sprintf(buffer, "Reading : %ldB / %ldB (%.1fMB/s), %d Processed Events Now...", fRunInfo->GetBytesReaded(), fRunInfo->GetTotalBytes(), speedbyte / 1024 / 1024, fProcessedEvents);
+			cout << buffer << endl;
+			delete buffer;
+			//cout << "Reading : " << fRunInfo->GetBytesReaded() << "B / " << fRunInfo->GetTotalBytes() << "B (" <<  speedbyte / 1024 / 1024 << " MB/s), ";
+			//cout << fProcessedEvents << " Processed Events Now..." << endl;
 			prog = fRunInfo->GetBytesReaded() / (double)fRunInfo->GetTotalBytes() * 100;
 		}
 		else if (fRunInfo->GetFileProcess() != NULL)
 			//Nevents is known, reading external data file
 		{
-			cout << "Reading : " << fRunInfo->GetBytesReaded() << "B / " << fRunInfo->GetTotalBytes() << "B (" << speedbyte / 1024 / 1024 << " MB/s), ";
-			cout << fProcessedEvents << " / " << eventsToProcess << " Processed Events Now..." << endl;
+			char* buffer = new char[100]();
+			sprintf(buffer, "Reading : %ldB / %ldB (%.1fMB/s), %d / %d Processed Events Now...", fRunInfo->GetBytesReaded(), fRunInfo->GetTotalBytes(), speedbyte / 1024 / 1024, fProcessedEvents, eventsToProcess);
+			cout << buffer << endl;
+			delete buffer;
+
+
+			//cout << "Reading : " << fRunInfo->GetBytesReaded() << "B / " << fRunInfo->GetTotalBytes() << "B (" <<  speedbyte / 1024 / 1024 << " MB/s), ";
+			//cout << fProcessedEvents << " / " << eventsToProcess << " Processed Events Now..." << endl;
 			prog = fProcessedEvents / (double)eventsToProcess * 100;
 		}
 		else if (eventsToProcess == REST_MAXIMUM_EVENTS)
 			//Nevents is unknown, reading root file
 		{
-			cout << "Entry : " << fRunInfo->GetCurrentEntry() << " / " << inputtreeentries << " (" << speedbyte / 1024 / 1024 << " MB/s), ";
-			cout << fProcessedEvents << " Processed Events Now..." << endl;
+			char* buffer = new char[100]();
+			sprintf(buffer, "Entry : %d / %d (%.1fMB/s), %d Processed Events Now...", fRunInfo->GetCurrentEntry(), inputtreeentries, speedbyte / 1024 / 1024, fProcessedEvents);
+			cout << buffer << endl;
+			delete buffer;
+
+
+			//cout << "Entry : " << fRunInfo->GetCurrentEntry() << " / " << inputtreeentries << " (" <<  speedbyte / 1024 / 1024 << " MB/s), ";
+			//cout << fProcessedEvents << " Processed Events Now..." << endl;
 			prog = fRunInfo->GetCurrentEntry() / (double)inputtreeentries * 100;
 		}
 
 		else
 		{
-			cout << "Entry : " << fRunInfo->GetCurrentEntry() << " / " << inputtreeentries << " (" << speedbyte / 1024 / 1024 << " MB/s), ";
-			cout << fProcessedEvents << " / " << eventsToProcess << " Processed Events Now..." << endl;
+			char* buffer = new char[100]();
+			sprintf(buffer, "Entry : %d / %d (%.1fMB/s), %d / %d Processed Events Now...", fRunInfo->GetCurrentEntry(), inputtreeentries, speedbyte / 1024 / 1024, fProcessedEvents, eventsToProcess);
+			cout << buffer << endl;
+			delete buffer;
+
+
+			//cout << "Entry : " << fRunInfo->GetCurrentEntry() << " / " << inputtreeentries << " (" <<  speedbyte / 1024 / 1024 << " MB/s), ";
+			//cout << fProcessedEvents << " / " << eventsToProcess << " Processed Events Now..." << endl;
 			prog = fProcessedEvents / (double)eventsToProcess * 100;
 		}
 
-		cout << "ETA: " << (100-prog_last) / progspeed / 60 << " Minutes...";
 
+		char* buffer = new char[100]();
 		if (fProcStatus == kNormal)
 		{
-			cout << "(Press \"p\" to enter pause menu)" << endl;
+			sprintf(buffer, "ETA : %.1f Minuits... (Press \"p\" to enter pause menu)", (100 - prog_last) / progspeed / 60);
 		}
 		else
 		{
-			cout << "(Pause menu disabled)" << endl;;
+			sprintf(buffer, "ETA : %.1f Minuits... (Pause menu disabled)", (100 - prog_last) / progspeed / 60);
 		}
+		cout << buffer << endl;
 
-		cout << prog <<"% [" + MakeProgressBar(prog, barlength) + "]" << endl;
+		sprintf(buffer, ("%.1f% [" + MakeProgressBar(prog, barlength) + "]").c_str(), prog);
+		cout << buffer << endl;
+
+		delete buffer;
 
 		cursorUp(4);
 
