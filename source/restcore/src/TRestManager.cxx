@@ -93,19 +93,19 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 		}
 		if (type != NULL) {
 			debug << " \"" << type << "\" " << endl;
-			if (type == "processEvents")
+			if ((string)type == "processEvents")
 			{
 				auto pr = GetProcessRunner();
 				if (pr != NULL)
 					pr->RunProcess();
 			}
-			else if (type == "analysisPlot")
+			else if ((string)type == "analysisPlot")
 			{
 				auto ap = GetAnaPlot();
 				if (ap != NULL)
 					ap->PlotCombinedCanvas();
 			}
-			else if (type == "saveMetadata")
+			else if ((string)type == "saveMetadata")
 			{
 				auto ri = GetRunInfo();
 				if (ri != NULL) {
