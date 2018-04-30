@@ -421,31 +421,39 @@ Int_t TRestStringHelper::ChecktheFile(std::string FileName)
 ///////////////////////////////////////////////
 /// \brief Returns a list of files whose name match the pattern string. Key word is "*". e.g. abc00*.root
 ///
-vector <TString> TRestStringHelper::GetFilesMatchingPattern(TString pattern)
+vector <string> TRestStringHelper::GetFilesMatchingPattern(string pattern)
 {
-	std::vector <TString> outputFileNames;
+	std::vector <string> outputFileNames;
 
-	if (pattern.First("*") >= 0 || pattern.First("?") >= 0)
+	if (pattern.find_first_of("*") >= 0 || pattern.find_first_of("?") >= 0)
 	{
-		char command[256];
-		sprintf(command, "find %s > /tmp/RESTTools_fileList.tmp", pattern.Data());
+		string a = ExecuteShellCommand("find " + pattern);
 
-		system(command);
+		auto b = Spilt(a, "\n");
 
-		FILE *fin = fopen("/tmp/RESTTools_fileList.tmp", "r");
-		char str[256];
-		while (fscanf(fin, "%s\n", str) != EOF)
-		{
-			TString newFile = str;
-			outputFileNames.push_back(newFile);
+		for (int i = 0; i < b.size(); i++) {
+			outputFileNames.push_back(b[i]);
 		}
-		fclose(fin);
 
-		system("rm /tmp/RESTTools_fileList.tmp");
+		//char command[256];
+		//sprintf(command, "find %s > /tmp/RESTTools_fileList.tmp", pattern.Data());
+
+		//system(command);
+
+		//FILE *fin = fopen("/tmp/RESTTools_fileList.tmp", "r");
+		//char str[256];
+		//while (fscanf(fin, "%s\n", str) != EOF)
+		//{
+		//	TString newFile = str;
+		//	outputFileNames.push_back(newFile);
+		//}
+		//fclose(fin);
+
+		//system("rm /tmp/RESTTools_fileList.tmp");
 	}
 	else
 	{
-		if(fileExists((string)pattern))
+		if(fileExists(pattern))
 			outputFileNames.push_back(pattern);
 	}
 
@@ -458,3 +466,24 @@ std::string TRestStringHelper::ToUpper(std::string str)
 	return str;
 }
 
+
+std::string TRestStringHelper::ExecuteShellCommand(string cmd)
+{
+	char buf[1024];
+	string result="";
+	FILE *ptr;
+	if ((ptr = popen(cmd.c_str(), "r")) != NULL)
+	{
+		while(fgets(buf, 1024, ptr) != NULL)
+		{
+			result += (string)buf;
+		}
+		pclose(ptr);
+		ptr = NULL;
+		return result;
+	}
+	else
+	{
+		printf("popen %s error\n", cmd.c_str());
+	}
+}

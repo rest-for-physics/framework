@@ -11,52 +11,97 @@ Int_t REST_Tools_CheckRunFileList( TString namePattern, Int_t N = 100000 )
 
     vector <TString> filesNotWellClosed;
 
-    TString command = "ls -d -1 " + namePattern + " > /tmp/CheckRunListCommand_72nd72jdl";
-    char cmd[512];
-    sprintf( cmd, "%s", command.Data() );
-    system( cmd );
+    //TString command = "ls -d -1 " + namePattern + " > /tmp/CheckRunListCommand_72nd72jdl";
+    //char cmd[512];
+    //sprintf( cmd, "%s", command.Data() );
+    //system( cmd );
 
-    gSystem->Load("librestcore.so");
+    //gSystem->Load("librestcore.so");
 
-    int cont = 0;
+    //int cont = 0;
 
-    char filename[256];
-    FILE *flist = fopen( "/tmp/CheckRunListCommand_72nd72jdl", "rt" ); 
-    while ( fscanf( flist, "%s\n", filename ) != EOF && cont < N )
-    {
-        cout << filename << endl;
-        cont++;
-        TRestRun *run = new TRestRun();
+    //char filename[256];
+    //FILE *flist = fopen( "/tmp/CheckRunListCommand_72nd72jdl", "rt" ); 
+	TRestStringOutput cout;
 
-        TFile *f = new TFile( filename );
+	string a = ExecuteShellCommand((string)("ls -d -1 " + namePattern));
+	vector<string> b = Spilt(a, "\n");
 
-        if( !fileExists( filename ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
+	int cont = 0;
+	for (int i = 0; i < b.size(); i++) {
+		string filename = b[i];
+		cout << filename << endl;
+		cont++;
+		TRestRun *run = new TRestRun();
 
-        /////////////////////////////
-        // Reading metadata classes
+		TFile *f = new TFile(filename.c_str());
 
-        TIter nextkey(f->GetListOfKeys());
-        TKey *key;
-        while ( ( key =  (TKey*)nextkey() ) ) {
-            string className = key->GetClassName();
-            if ( className == "TRestRun" )
-            {
-                cout << key->GetName() << endl;
-                run = (TRestRun *) f->Get( key->GetName() );
-            }
-        }
+		if (!fileExists(filename)) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
 
-        cout << "Run time (hours) : " << run->GetRunLength()/3600. << endl;
+		/////////////////////////////
+		// Reading metadata classes
 
-        if( run->GetRunLength() == -1 )
-        {
-            filesNotWellClosed.push_back( filename );
-        }
+		TIter nextkey(f->GetListOfKeys());
+		TKey *key;
+		while ((key = (TKey*)nextkey())) {
+			string className = key->GetClassName();
+			if (className == "TRestRun")
+			{
+				cout << key->GetName() << endl;
+				run = (TRestRun *)f->Get(key->GetName());
+			}
+		}
 
-        delete run;
+		cout << "Run time (hours) : " << run->GetRunLength() / 3600. << endl;
 
-        f->Close();
-    }
+		if (run->GetRunLength() == -1)
+		{
+			filesNotWellClosed.push_back(filename);
+		}
+
+		delete run;
+
+		f->Close();
+
+	}
+
+
+
+    //while ( fscanf( flist, "%s\n", filename ) != EOF && cont < N )
+    //{
+    //    cout << filename << endl;
+    //    cont++;
+    //    TRestRun *run = new TRestRun();
+
+    //    TFile *f = new TFile( filename );
+
+    //    if( !fileExists( filename ) ) { cout << "WARNING. Input file does not exist" << endl; exit(1); }
+
+    //    /////////////////////////////
+    //    // Reading metadata classes
+
+    //    TIter nextkey(f->GetListOfKeys());
+    //    TKey *key;
+    //    while ( ( key =  (TKey*)nextkey() ) ) {
+    //        string className = key->GetClassName();
+    //        if ( className == "TRestRun" )
+    //        {
+    //            cout << key->GetName() << endl;
+    //            run = (TRestRun *) f->Get( key->GetName() );
+    //        }
+    //    }
+
+    //    cout << "Run time (hours) : " << run->GetRunLength()/3600. << endl;
+
+    //    if( run->GetRunLength() == -1 )
+    //    {
+    //        filesNotWellClosed.push_back( filename );
+    //    }
+
+    //    delete run;
+
+    //    f->Close();
+    //}
 
     cout << "---------------------" << endl;
     cout << "Files not well closed" << endl;

@@ -56,8 +56,10 @@ public:
 	static std::vector <string> SeparatePathAndName(const std::string fullname);
 	static  std::string typeidToClassName(std::string typeidstr);
 	static  Int_t ChecktheFile(std::string cfgFileName);
-	static std::vector <TString> GetFilesMatchingPattern(TString pattern);
+	static std::vector <string> GetFilesMatchingPattern(string pattern);
 	static std::string ToUpper(std::string in);
+	static std::string ExecuteShellCommand(string cmd);
+
 
 };
 
@@ -90,9 +92,16 @@ inline bool isAbsolutePath(const std::string& path) { return TRestStringHelper::
 inline std::vector <string> SeparatePathAndName(const std::string fullname) { return TRestStringHelper::SeparatePathAndName(fullname); }
 inline std::string typeidToClassName(std::string typeidstr) { return TRestStringHelper::typeidToClassName(typeidstr); }
 inline Int_t ChecktheFile(std::string cfgFileName) { return TRestStringHelper::ChecktheFile(cfgFileName); }
-inline std::vector <TString> GetFilesMatchingPattern(TString pattern) { return TRestStringHelper::GetFilesMatchingPattern(pattern); }
+inline std::vector <string> GetFilesMatchingPattern(string pattern) { return TRestStringHelper::GetFilesMatchingPattern(pattern); }
+inline std::vector <TString> GetFilesMatchingPattern(TString pattern) { 
+	vector<TString> result;
+	auto a = TRestStringHelper::GetFilesMatchingPattern((string)pattern); 
+	for (auto b : a)
+		result.push_back((TString)b);
+	return result;
+}
 inline std::string ToUpper(std::string in) { return TRestStringHelper::ToUpper(in); }
-
+inline std::string ExecuteShellCommand(string cmd) {return TRestStringHelper::ExecuteShellCommand(cmd); }
 
 
 

@@ -109,29 +109,30 @@ TRestTask* TRestTask::GetTask(TString MacroName)
 		c = TClass::GetClass("REST_" + MacroName);
 	
 	if(c==NULL){
-		string command = (string)"find $REST_PATH/macros -name *" + (string)MacroName + (string)"* > /tmp/macros.list";
-		system(command.c_str());
-		FILE *f = fopen("/tmp/macros.list", "r");
-		char str[256];
-		fscanf(f, "%s\n", str);
-		if (feof(f) == 0)
-		{
-			cout << "REST Warning : multi matching of macro \"" << MacroName << "\" found!" << endl;
-		}
-		fclose(f);
-		system("rm /tmp/macros.list");
-
-		if ((string)str == "")
-		{
-			return NULL;
-		}
-		cout << "Found MacroFile " << (string)str << endl;
-		if (gInterpreter->LoadFile(str) != 0)
+		string macfilelists = ExecuteShellCommand("find $REST_PATH/macros -name *" + (string)MacroName + (string)"*");
+		auto macfiles = Spilt(macfilelists, "\n");
+		//string command = (string)"find $REST_PATH/macros -name *" + (string)MacroName + (string)"* > /tmp/macros.list";
+		//system(command.c_str());
+		//FILE *f = fopen("/tmp/macros.list", "r");
+		//char str[256];
+		//fscanf(f, "%s\n", str);
+		//if (feof(f) == 0)
+		//{
+		//	cout << "REST Warning : multi matching of macro \"" << MacroName << "\" found!" << endl;
+		//}
+		//fclose(f);
+		//system("rm /tmp/macros.list");
+		if (macfiles.size()==0|| macfiles[0]=="")
 		{
 			return NULL;
 		}
+		cout << "Found MacroFile " << macfiles[0] << endl;
+		if (gInterpreter->LoadFile(macfiles[0].c_str()) != 0)
+		{
+			return NULL;
+		}
 
-		return new TRestTask(str);
+		return new TRestTask(macfiles[0].c_str());
 	}
 	else if(c->InheritsFrom("TRestTask"))
 	{
