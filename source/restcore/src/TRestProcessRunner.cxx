@@ -925,7 +925,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 			//Nevents is unknown, reading external data file
 		{
 			char* buffer=new char[100]();
-			sprintf(buffer, "Reading : %ldB / %ldB (%.1fMB/s), %d Processed Events Now...", fRunInfo->GetBytesReaded(), fRunInfo->GetTotalBytes(), speedbyte / 1024 / 1024, fProcessedEvents);
+			sprintf(buffer, "Reading : %ldB / %ldB (%.1fMB/s), %d Processed Events Now...", (long int)fRunInfo->GetBytesReaded(), (long int)fRunInfo->GetTotalBytes(), speedbyte / 1024 / 1024, fProcessedEvents);
 			cout << buffer << endl;
 			delete buffer;
 			//cout << "Reading : " << fRunInfo->GetBytesReaded() << "B / " << fRunInfo->GetTotalBytes() << "B (" <<  speedbyte / 1024 / 1024 << " MB/s), ";
@@ -936,7 +936,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 			//Nevents is known, reading external data file
 		{
 			char* buffer = new char[100]();
-			sprintf(buffer, "Reading : %ldB / %ldB (%.1fMB/s), %d / %d Processed Events Now...", fRunInfo->GetBytesReaded(), fRunInfo->GetTotalBytes(), speedbyte / 1024 / 1024, fProcessedEvents, eventsToProcess);
+			sprintf(buffer, "Reading : %ldB / %ldB (%.1fMB/s), %d / %d Processed Events Now...", (long int)fRunInfo->GetBytesReaded(), (long int)fRunInfo->GetTotalBytes(), speedbyte / 1024 / 1024, fProcessedEvents, eventsToProcess);
 			cout << buffer << endl;
 			delete buffer;
 
