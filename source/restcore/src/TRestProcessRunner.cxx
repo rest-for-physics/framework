@@ -28,7 +28,6 @@ vector<Double_t> progAdded(ncalculated, 0);
 int poscalculated = 0;
 int printInterval = 200000;//0.2s
 int inputtreeentries = 0;
-int barlength = 50;
 
 
 ClassImp(TRestProcessRunner);
@@ -413,7 +412,7 @@ void TRestProcessRunner::RunProcess()
 	if (kbhit())
 		while (getchar() != '\n');//clear buffer
 
-	cursorDown(4);
+	//cursorDown(4);
 
 	essential << "Waiting for processes to finish ..." << endl;
 
@@ -902,94 +901,79 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 {
 
 	if (fProcStatus == kNormal || fProcStatus == kIgnore) {
-		clearLinesAfterCursor();
+		//clearLinesAfterCursor();
 
-		TRestStringOutput cout;
-		cout.setcolor(COLOR_BOLDWHITE);
-		cout.setorientation(0);
-		cout.setborder("|");
-		cursorDown(1);
+		//TRestStringOutput cout;
+		//cout.setcolor(COLOR_BOLDWHITE);
+		//cout.setorientation(0);
+		//cout.setborder("|");
+		//cursorDown(1);
 
 		Long64_t bytes = 0;
 		for (auto& n : bytesAdded)
 			bytes += n;
 		double speedbyte = bytes / (double)printInterval*(double)1000000 / ncalculated;
 
-		double prog = 0;
 		double progsum = 0;
 		for (auto& n : progAdded)
 			progsum += n;
 		double progspeed = progsum / ncalculated / printInterval * 1000000;
 
+		double prog = 0;
 		if (eventsToProcess == REST_MAXIMUM_EVENTS && fRunInfo->GetFileProcess() != NULL)
 			//Nevents is unknown, reading external data file
 		{
-			char* buffer=new char[100]();
-			sprintf(buffer, "Reading : %ldB / %ldB (%.1fMB/s), %d Processed Events Now...", (long int)fRunInfo->GetBytesReaded(), (long int)fRunInfo->GetTotalBytes(), speedbyte / 1024 / 1024, fProcessedEvents);
-			cout << buffer << endl;
-			delete buffer;
-			//cout << "Reading : " << fRunInfo->GetBytesReaded() << "B / " << fRunInfo->GetTotalBytes() << "B (" <<  speedbyte / 1024 / 1024 << " MB/s), ";
-			//cout << fProcessedEvents << " Processed Events Now..." << endl;
 			prog = fRunInfo->GetBytesReaded() / (double)fRunInfo->GetTotalBytes() * 100;
 		}
 		else if (fRunInfo->GetFileProcess() != NULL)
 			//Nevents is known, reading external data file
 		{
-			char* buffer = new char[100]();
-			sprintf(buffer, "Reading : %ldB / %ldB (%.1fMB/s), %d / %d Processed Events Now...", (long int)fRunInfo->GetBytesReaded(), (long int)fRunInfo->GetTotalBytes(), speedbyte / 1024 / 1024, fProcessedEvents, eventsToProcess);
-			cout << buffer << endl;
-			delete buffer;
-
-
-			//cout << "Reading : " << fRunInfo->GetBytesReaded() << "B / " << fRunInfo->GetTotalBytes() << "B (" <<  speedbyte / 1024 / 1024 << " MB/s), ";
-			//cout << fProcessedEvents << " / " << eventsToProcess << " Processed Events Now..." << endl;
 			prog = fProcessedEvents / (double)eventsToProcess * 100;
 		}
 		else if (eventsToProcess == REST_MAXIMUM_EVENTS)
 			//Nevents is unknown, reading root file
 		{
-			char* buffer = new char[100]();
-			sprintf(buffer, "Entry : %d / %d (%.1fMB/s), %d Processed Events Now...", fRunInfo->GetCurrentEntry(), inputtreeentries, speedbyte / 1024 / 1024, fProcessedEvents);
-			cout << buffer << endl;
-			delete buffer;
-
-
-			//cout << "Entry : " << fRunInfo->GetCurrentEntry() << " / " << inputtreeentries << " (" <<  speedbyte / 1024 / 1024 << " MB/s), ";
-			//cout << fProcessedEvents << " Processed Events Now..." << endl;
 			prog = fRunInfo->GetCurrentEntry() / (double)inputtreeentries * 100;
 		}
 
 		else
 		{
-			char* buffer = new char[100]();
-			sprintf(buffer, "Entry : %d / %d (%.1fMB/s), %d / %d Processed Events Now...", fRunInfo->GetCurrentEntry(), inputtreeentries, speedbyte / 1024 / 1024, fProcessedEvents, eventsToProcess);
-			cout << buffer << endl;
-			delete buffer;
-
-
-			//cout << "Entry : " << fRunInfo->GetCurrentEntry() << " / " << inputtreeentries << " (" <<  speedbyte / 1024 / 1024 << " MB/s), ";
-			//cout << fProcessedEvents << " / " << eventsToProcess << " Processed Events Now..." << endl;
 			prog = fProcessedEvents / (double)eventsToProcess * 100;
 		}
 
 
-		char* buffer = new char[100]();
-		if (fProcStatus == kNormal)
+		char* buffer = new char[500]();
+		if (fRunInfo->GetFileProcess() != NULL)
 		{
-			sprintf(buffer, "ETA : %.1f Minuits... (Press \"p\" to enter pause menu)", (100 - prog_last) / progspeed / 60);
+			sprintf(buffer, "%d Events (%.1fMB/s), ", fProcessedEvents, speedbyte / 1024 / 1024);
 		}
 		else
 		{
-			sprintf(buffer, "ETA : %.1f Minuits... (Pause menu disabled)", (100 - prog_last) / progspeed / 60);
+			sprintf(buffer, "%d Events, ", fProcessedEvents);
 		}
-		cout << buffer << endl;
 
-		sprintf(buffer, ("%.1f% [" + MakeProgressBar(prog, barlength) + "]").c_str(), prog);
-		cout << buffer << endl;
+		string s1(buffer);
+
+		if (fProcStatus == kNormal)
+		{
+			sprintf(buffer, "%.1f min ETA, (Pause: \"p\") ", (100 - prog_last) / progspeed / 60);
+		}
+		else
+		{
+			sprintf(buffer, "%.1f min ETA, (Pause Disabled) ", (100 - prog_last) / progspeed / 60);
+		}
+		string s2(buffer);
+
+		int barlength = ConsoleHelper::GetWidth() - s1.size() - s2.size() - 9;
+		sprintf(buffer, ("%.1f%[" + MakeProgressBar(prog, barlength) + "]").c_str(), prog);
+		string s3(buffer);
 
 		delete buffer;
 
-		cursorUp(4);
+		printf((s1 + s2 + s3 + "\r").c_str());
+		fflush(stdout);
+
+		//cursorUp(4);
 
 		bytesAdded[poscalculated] = fRunInfo->GetBytesReaded() - bytesReaded_last;
 		bytesReaded_last = fRunInfo->GetBytesReaded();

@@ -8,6 +8,12 @@
 #include <iostream>
 #include <fstream>
 #include <sstream> 
+#include <RConfig.h>
+#ifdef WIN32
+#else
+#include <unistd.h>
+#include <sys/ioctl.h>
+#endif
 
 #define COLOR_RESET   "\033[0m"
 #define COLOR_BLACK   "\033[30m"      /* Black */
@@ -44,6 +50,28 @@ enum REST_Verbose_Level
 	REST_Info, //!< +show most of the infomation for each steps
 	REST_Debug, //!< +show the defined debug messages
 	REST_Extreme //!< show everything
+};
+class ConsoleHelper {
+public:
+	static int GetWidth() {
+#ifdef WIN32
+		return 100;
+#else
+		struct winsize w;
+		ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+		return w.ws_col;
+#endif // WIN32
+	}
+
+	static int GetHeight() {
+#ifdef WIN32
+		return 100;
+#else
+		struct winsize w;
+		ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+		return w.ws_row;
+#endif // WIN32
+	}
 };
 //////////////////////////////////////////////////////////////////////////
 ///
@@ -153,6 +181,7 @@ public:
 
 	void flushstring()
 	{
+		length = ConsoleHelper::GetWidth()/(double)5*4;
 		printf("\033[K");
 		cout << color << FormattingPrintString(tmpstring) << COLOR_RESET << endl;
 		tmpstring = "";
@@ -185,13 +214,13 @@ public:
 		border = "";
 	}
 
-	void setlength(int n) {
-		length = n;
-	}
+	//static void setlength(int n) {
+	//	length = n;
+	//}
 
-	void resetlength() {
-		length = 100;
-	}
+	//static void resetlength() {
+	//	length = ConsoleHelper::GetWidth();
+	//}
 
 	void setorientation(int o) {
 		orientation = o;
@@ -202,11 +231,11 @@ public:
 	}
 
 protected:
-	int length = 100;
 	int orientation = 0;//0->middle, else->left
 	string border = "";
 	string tmpstring = "";
 	string color = COLOR_RESET;
+	int length;
 
 	//stringstream tmpstring;
 };
