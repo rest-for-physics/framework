@@ -7,7 +7,8 @@
 ///
 ///             TRestMuonAnalysisProcess.cxx
 ///
-///             This process adds several histograms to output root file
+///             This process adds several observables and histograms to output 
+///             root file, if input event has tag "muon"
 ///_______________________________________________________________________________
 
 
@@ -68,7 +69,7 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 	fAnaEvent = (TRest2DHitsEvent*)evInput;
 	fOutputEvent = evInput;
 
-
+	fAnalysisTree->SetObservableValue(this, "muphi", numeric_limits<double>::quiet_NaN());
 	fAnalysisTree->SetObservableValue(this, "mutanthe", numeric_limits<double>::quiet_NaN());
 	fAnalysisTree->SetObservableValue(this, "muproj", numeric_limits<double>::quiet_NaN());
 	fAnalysisTree->SetObservableValue(this, "rawtantheXZ", numeric_limits<double>::quiet_NaN());
@@ -130,14 +131,17 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 
 			//readjusting thetas in the plot(when hough is not available)
 			if (thexz == 0) {
-				double xlen1 = eve->GetXRange().Y() - eve->GetXRange().X();
-				double xlen2 = eve->GetNumberOfXZSignals() * stripWidth;
+				double xlen1 = eve->GetLastX() - eve->GetFirstX();
+				//double xlen1 = eve->GetXRange().Y() - eve->GetXRange().X();
+				if (xlen1 == 0)
+					xlen1 = (rand() % 2 > 0) ? 1 : -1;
+				double xlen2 = eve->GetNumberOfXZSignals() * stripWidth * (xlen1 > 0 ? 1 : -1);
 				double zlen1 = eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X();
 				double zlen2 = eve->GetZRange().Y() - eve->GetZRange().X();
 
-				double xlen = xlen1 > xlen2 ? xlen1 : xlen2;
+				double xlen = abs(xlen1) > abs(xlen2) ? xlen1 : xlen2;
 				double zlen = zlen1 > 80 ? zlen1 : zlen2;
-				if (xlen > 3)
+				if (abs(xlen) > 3)
 				{
 					double t = xlen / zlen;
 					thexz = atan(t);
@@ -148,14 +152,17 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 			}
 
 			if (theyz == 0) {
-				double ylen1 = eve->GetYRange().Y() - eve->GetYRange().X();
-				double ylen2 = eve->GetNumberOfYZSignals() * stripWidth;
+				double ylen1 = eve->GetLastY() - eve->GetFirstY();
+				//double ylen1 = eve->GetYRange().Y() - eve->GetYRange().X();
+				if (ylen1 == 0)
+					ylen1 = (rand() % 2 > 0) ? 1 : -1;
+				double ylen2 = eve->GetNumberOfYZSignals() * stripWidth * (ylen1 > 0 ? 1 : -1);
 				double zlen1 = eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X();
 				double zlen2 = eve->GetZRange().Y() - eve->GetZRange().X();
 
-				double ylen = ylen1 > ylen2 ? ylen1 : ylen2;
+				double ylen = abs(ylen1) > abs(ylen2) ? ylen1 : ylen2;
 				double zlen = zlen1 > 80 ? zlen1 : zlen2;
-				if (ylen > 3)
+				if (abs(ylen) > 3)
 				{
 					double t = ylen / zlen;
 					theyz = atan(t);
@@ -181,6 +188,22 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 			fAnalysisTree->SetObservableValue(this, "adjustedfirstY", firsty);
 
 			fAnalysisTree->SetObservableValue(this, "mutanthe", sqrt(tan(thexz)*tan(thexz) + tan(theyz) * tan(theyz)));
+			
+			double muphi = 0;
+			if (tan(thexz) >= 0 ) 
+			{
+				muphi = atan(tan(theyz) / tan(thexz));
+			}
+			else if(tan(theyz)>0)
+			{
+				muphi = 3.1416 + atan(tan(theyz) / tan(thexz));
+			}
+			else
+			{
+				muphi = atan(tan(theyz) / tan(thexz)) - 3.1416;
+			}
+			fAnalysisTree->SetObservableValue(this, "muphi",muphi);
+			
 
 			muhitmap->Fill(firstx, firsty);
 
