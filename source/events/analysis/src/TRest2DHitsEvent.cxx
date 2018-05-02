@@ -7,12 +7,14 @@
 ///
 ///             TRest2DHitsEvent.h
 ///
-///             Event class to store DAQ events either from simulation and acquisition 
+///             Storing events which contains lists of XZ and YZ signal points, 
+///             by default, Z=0~512, in daq unit, X/Y=-100~100, in unit mm.
+///             Implemented hough transformation and 2D event drawing
 ///
 ///             oct 2015:   First concept
 ///                 Created as part of the conceptualization of existing REST 
 ///                 software.
-///                 Javier Gracia
+///                 Ni Kaixiang
 ///
 ///	       
 ///_______________________________________________________________________________
@@ -33,6 +35,7 @@ TRest2DHitsEvent::TRest2DHitsEvent()
 	fReadout = NULL;
 	fNSignalx = 0; fNSignaly = 0;
 	fNz = 512; fNx = 192; fNy = 192;
+	X1 = -100; X2 = 100; Y1 = -100; Y2 = 100;
 	fXZHits = vector<map<double, double>>(fNz);
 	fYZHits = vector<map<double, double>>(fNz);
 	fXZIdPos.clear();
@@ -860,6 +863,18 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 		if (gxz != NULL)
 			gxz->Draw("colz");
 
+		fPad->cd(2);
+		if (gyz != NULL)
+			gyz->Draw("colz");
+	}
+	else if (ToUpper(option) == "CLUSTER") 
+	{
+		fPad->Divide(1, 2);
+
+		fPad->cd(1);
+		if (gxz != NULL)
+			gxz->Draw("colz");
+
 		if (pointxz != NULL)
 			pointxz->Draw("boxsame");
 
@@ -878,15 +893,9 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 		if (gxz != NULL)
 			gxz->Draw("colz");
 
-		if (pointxz != NULL)
-			pointxz->Draw("boxsame");
-
 		fPad->cd(2);
 		if (gyz != NULL)
 			gyz->Draw("colz");
-
-		if (pointyz != NULL)
-			pointyz->Draw("boxsame");
 
 		fPad->cd(3);
 		if (gxz != NULL)

@@ -7,12 +7,16 @@
 ///
 ///             TRest2DHitsEvent.h
 ///
-///             Event class to store DAQ events either from simulation and acquisition 
+///             Storing events which contains lists of XZ and YZ signal points, 
+///             by default, Z=0~512, in daq unit, X/Y=-100~100, in unit mm.
+///             Implemented hough transformation and 2D event drawing
 ///
 ///             oct 2015:   First concept
 ///                 Created as part of the conceptualization of existing REST 
 ///                 software.
-///                 Javier Gracia
+///                 Ni Kaixiang
+///
+///	       
 ///_______________________________________________________________________________
 
 
