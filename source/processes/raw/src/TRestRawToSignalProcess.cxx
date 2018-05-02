@@ -66,6 +66,8 @@ void TRestRawToSignalProcess::Initialize()
     fIsExternal = true;
 
     fFilenameFormat = "";
+
+    tStart = 0;
 }
 
 void TRestRawToSignalProcess::BeginOfEventProcess() 
@@ -151,17 +153,6 @@ Bool_t TRestRawToSignalProcess::OpenInputBinFile ( TString fName )
 		cout << "WARNING. Input file does not exist" << endl;
 		return kFALSE;
 	}
-
-    struct tm* clock;
-    struct stat st;
-    stat ( fName.Data(), &st);
-
-    clock = gmtime( &( st.st_mtime ) );
-
-    time_t tstamp = mktime ( clock );
-
-    tStart = (Double_t ) tstamp;
-    
 
 	return kTRUE;
 }

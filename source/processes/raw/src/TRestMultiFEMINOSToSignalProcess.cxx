@@ -199,6 +199,12 @@ void TRestMultiFEMINOSToSignalProcess::InitProcess()
 	}
 	al = GET_ASCII_LEN(sh);
 
+    int tt;
+    if( fread( &tt, sizeof( int ), 1, fInputBinFile ) != 1 );
+
+    tStart = tt;
+    printf( "Timestamp : %d - %lf\n", tt, tStart );
+
 	if( ORIGINAL_MCLIENT ) 
 	{
 		char run_str[256];
