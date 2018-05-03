@@ -227,8 +227,7 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				//	return;
 				double tan1 = tan(abs(thexz));
 				double tan2 = tan(abs(theyz));
-				if (abs((abs(thexz)) - abs(theyz)) / (abs(thexz) + abs(theyz)) < 0.2)
-					mutanthe->Fill(sqrt(tan1*tan1 + tan2 * tan2));
+				mutanthe->Fill(sqrt(tan1*tan1 + tan2 * tan2));
 				if (GetVerboseLevel() >= REST_Debug) {
 					debug << eve->GetZRangeInXZ().X() << ", " << eve->GetZRangeInXZ().Y() << "   " << eve->GetZRangeInYZ().X() << ", " << eve->GetZRangeInYZ().Y() << endl;
 					debug << eve->GetID() << " " << tan1 << " " << tan2 << endl;
