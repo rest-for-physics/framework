@@ -366,6 +366,7 @@ void TRestReadoutPlane::Draw()
     this->GetReadoutHistogram( )->Draw();
 	c1->Print("/tmp/readout.png");
 	//this->GetReadoutHistogram()->Print();
+	cout << "Press a key to continue..." << endl;
 	getchar();
 	delete c1;
 }
