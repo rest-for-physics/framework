@@ -425,38 +425,39 @@ vector <string> TRestStringHelper::GetFilesMatchingPattern(string pattern)
 {
 	std::vector <string> outputFileNames;
 
-	if (pattern.find_first_of("*") >= 0 || pattern.find_first_of("?") >= 0)
-	{
-		string a = ExecuteShellCommand("find " + pattern);
+	if (pattern != "") {
+		if (pattern.find_first_of("*") >= 0 || pattern.find_first_of("?") >= 0)
+		{
+			string a = ExecuteShellCommand("find " + pattern);
 
-		auto b = Spilt(a, "\n");
+			auto b = Spilt(a, "\n");
 
-		for (int i = 0; i < b.size(); i++) {
-			outputFileNames.push_back(b[i]);
+			for (int i = 0; i < b.size(); i++) {
+				outputFileNames.push_back(b[i]);
+			}
+
+			//char command[256];
+			//sprintf(command, "find %s > /tmp/RESTTools_fileList.tmp", pattern.Data());
+
+			//system(command);
+
+			//FILE *fin = fopen("/tmp/RESTTools_fileList.tmp", "r");
+			//char str[256];
+			//while (fscanf(fin, "%s\n", str) != EOF)
+			//{
+			//	TString newFile = str;
+			//	outputFileNames.push_back(newFile);
+			//}
+			//fclose(fin);
+
+			//system("rm /tmp/RESTTools_fileList.tmp");
 		}
-
-		//char command[256];
-		//sprintf(command, "find %s > /tmp/RESTTools_fileList.tmp", pattern.Data());
-
-		//system(command);
-
-		//FILE *fin = fopen("/tmp/RESTTools_fileList.tmp", "r");
-		//char str[256];
-		//while (fscanf(fin, "%s\n", str) != EOF)
-		//{
-		//	TString newFile = str;
-		//	outputFileNames.push_back(newFile);
-		//}
-		//fclose(fin);
-
-		//system("rm /tmp/RESTTools_fileList.tmp");
+		else
+		{
+			if (fileExists(pattern))
+				outputFileNames.push_back(pattern);
+		}
 	}
-	else
-	{
-		if(fileExists(pattern))
-			outputFileNames.push_back(pattern);
-	}
-
 	return outputFileNames;
 }
 
@@ -469,12 +470,15 @@ std::string TRestStringHelper::ToUpper(std::string str)
 
 std::string TRestStringHelper::ExecuteShellCommand(string cmd)
 {
+#ifdef WIN32
+	system(cmd.c_str());
+#else
 	char buf[1024];
-	string result="";
+	string result = "";
 	FILE *ptr;
 	if ((ptr = popen(cmd.c_str(), "r")) != NULL)
 	{
-		while(fgets(buf, 1024, ptr) != NULL)
+		while (fgets(buf, 1024, ptr) != NULL)
 		{
 			result += (string)buf;
 		}
@@ -486,4 +490,7 @@ std::string TRestStringHelper::ExecuteShellCommand(string cmd)
 	{
 		printf("popen %s error\n", cmd.c_str());
 	}
+#endif // WIN32
+	return "";
+
 }
