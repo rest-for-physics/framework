@@ -449,30 +449,34 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
 Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal, vector<TiXmlElement*> eEnv)
 {
 	Initialize();
-	TiXmlElement* parentelement;
-	if (eSectional != NULL)
+	TiXmlElement* theElement;
+	if (eSectional != NULL && eGlobal != NULL)
 	{
 		//Sectional and global elements are first combined.
-		parentelement = (TiXmlElement*)eSectional->Clone();
+		theElement = (TiXmlElement*)eSectional->Clone();
 		TiXmlElement* echild = eGlobal->FirstChildElement();
 		while (echild != NULL) {
-			parentelement->LinkEndChild(echild->Clone());
+			theElement->LinkEndChild(echild->Clone());
 			echild = echild->NextSiblingElement();
 		}
 		for (int i = 0; i < eEnv.size(); i++)
 		{
-			parentelement->LinkEndChild(eEnv[i]->Clone());
+			theElement->LinkEndChild(eEnv[i]->Clone());
 		}
+	}
+	else if (eSectional != NULL)
+	{
+		theElement = eSectional;
 	}
 	else if (eGlobal != NULL)
 	{
-		parentelement = eGlobal;
+		theElement = eGlobal;
 	}
 	else
 	{
 		return 0;
 	}
-	fElement = parentelement;
+	fElement = theElement;
 	fElementGlobal = eGlobal;
 	fElementEnv = eEnv;
 
