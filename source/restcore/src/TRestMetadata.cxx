@@ -603,6 +603,15 @@ Double_t TRestMetadata::StringToDouble( string in )
     }
 }
 
+/**/	//AJOUT TRIANGLE
+///////////////////////////////////////////////
+/// \brief Gets a boolean from a string.
+///
+Bool_t TRestMetadata::StringToBool( string in )
+{
+    return ( in == "true" || in == "True" || in == "TRUE" );
+}
+//*/
 
 ///////////////////////////////////////////////
 /// \brief Gets an integer from a string.

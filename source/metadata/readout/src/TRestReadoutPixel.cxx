@@ -136,24 +136,17 @@ Bool_t TRestReadoutPixel::isInside( Double_t x, Double_t y )
 Bool_t TRestReadoutPixel::isInside( TVector2 pos )
 {
     pos = TransformToPixelCoordinates( pos );
-/*
+	Double_t const x = pos.X();
+/**/
 //AJOUT TRIANGLE
 	if( pos.X() >= -delta && pos.X() <= fPixelSizeX+delta )//Condition on X untouched 
 	{
-		Double_t x=pos.X;
-        if(fPart<0 && pos.Y() >= -delta && pos.Y() <= fPixelSizeY+delta-x*(fPixelSizeY/fPixelSizeX) )//if upper triangle, third condition depends on x
+        if(fTriangle && pos.Y() >= -delta && pos.Y() <= fPixelSizeY+delta - x*(fPixelSizeY/fPixelSizeX) )//if triangle, third condition depends on x
             return true;
-        if(fPart>0 && pos.Y() <= fPixelSizeY+delta && pos.Y() >= fPixelSizeY-delta-x*(fPixelSizeY/fPixelSizeX) )//if lower triangle, same conditions but inverted (excepted for delta)
-            return true;
-        if( pos.Y() >= -delta && pos.Y() <= fPixelSizeY+delta )//for a normal rectangular pixel, same simple conditions
+        if( !fTriangle && pos.Y() >= -delta && pos.Y() <= fPixelSizeY+delta )//for a normal rectangular pixel, same simple conditions
 			return true;
 	}
-//AJOUT TRIANGLE
-*/
-    if( pos.X() >= -delta && pos.X() <= fPixelSizeX+delta )
-        if( pos.Y() >= -delta && pos.Y() <= fPixelSizeY+delta )
-            return true;
-
+//*/
     return false;
 }
 
@@ -176,8 +169,7 @@ void TRestReadoutPixel::Print( )
 {
     cout << "      ## Pixel ID : " << GetID() << " position : (" << GetOriginX() << "," << GetOriginY() << ") mm size : (" << GetSizeX() << "," << GetSizeY() << ") mm rotation : " << fRotation << " degrees" << " type : ";
 /**/	//AJOUT TRIANGLE
-	if (fPart>0) cout << "upper triangle" << endl;
-	if (fPart<0) cout << "lower triangle" << endl;
-	if (fPart==0) cout << "rectangle" << endl;
+	if (fTriangle) cout << "triangle" << endl;
+	else cout << "rectangle" << endl;
 //*/
 }

@@ -465,16 +465,16 @@ TVector2 TRestReadoutModule::GetPixelCenter( Int_t channel, Int_t pixel )
 
 /**/	//AJOUT TRIANGLE
 ///////////////////////////////////////////////
-/// \brief Returns the pixel part for a given *channel* and 
+/// \brief Returns the pixel type for a given *channel* and 
 /// *pixel* indexes.
 /// 
-/// \param vertex A value between -1 , 0 and 1 definning the pixel part to be returned
+/// \param vertex A boolean that is true if the pixel is triangular, false otherwise
 ///
-Int_t TRestReadoutModule::GetPixelPart( Int_t channel, Int_t pixel )
+Bool_t TRestReadoutModule::GetPixelTriangle( Int_t channel, Int_t pixel )
 {
-    Int_t part = GetChannel( channel )->GetPixel( pixel )->GetPart();
+    Bool_t type = GetChannel( channel )->GetPixel( pixel )->GetTriangle();
 
-    return part;
+    return type;
 }
 //*/
 

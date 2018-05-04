@@ -42,8 +42,7 @@ class TRestReadoutPixel : public TObject {
         Double_t fRotation; ///< The pixel rotation angle in degrees, rotation with axis at the origin position.
 
 /**/	//AJOUT TRIANGLE
-	Int_t fPart; //< The pixel part really used (pixel divided by one diagonal from upper-left vertex to lower right vertex): 
-		     //<  0 = whole rectangular pixel ; +1 = upper-right triangle ; -1 = lower-left triangle
+		Bool_t fTriangle; ///< The type of the pixel : false is rectangular, true is triangle 
 //*/
         void Initialize();
 
@@ -75,8 +74,8 @@ class TRestReadoutPixel : public TObject {
         TVector2 GetSize( )  { return TVector2( fPixelSizeX, fPixelSizeY ); }
 
 /**/	//AJOUT TRIANGLE
-	/// Returns the pixel part (+1 , -1 , or 0).
-        Int_t GetPart( ) const{ return fPart; } 
+		/// Returns true if the pixel is a triangle.
+        Bool_t GetTriangle( ) const{ return fTriangle; } 
 //*/
 
         TVector2 GetCenter( ) const;
@@ -102,8 +101,8 @@ class TRestReadoutPixel : public TObject {
         void SetRotation( Double_t rot ) { fRotation = rot; }
         
 /**/	//AJOUT TRIANGLE
-	/// Sets the part of the pixel
-        void SetPart( Int_t part) { fPart = part; }
+		/// Sets the type of the pixel
+        void SetTriangle( Bool_t type ) { fTriangle = type; }
 //*/
 
         Bool_t isInside( TVector2 pos );
