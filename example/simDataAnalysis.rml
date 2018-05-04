@@ -10,20 +10,13 @@
     <parameter name="runDescription" value="We launch just 100 events to check everything is ok."/>
     <parameter name="user" value="${USER}"/>
     <parameter name="verboseLevel" value="3"/>
-    <parameter name="overwrite" value="off" />
-    <parameter name="outputFile" value="default" />
-    <parameter name="readOnly" value="false" />
+    <parameter name="outputFile" value="default.root" />
 
-    <addMetadata type="TRestReadout" name="Readout-PANDA_3MM_Jinping"
-                 file="${REST_PATH}/inputData/definitions/readouts_PandaXIII.root"
-                 value="ON" overwrite="false" />
+    <addMetadata type="TRestReadout" name="Readout-PANDA_3MM_Jinping" file="readouts.root"/>
 
-    
     <TRestGas name="Xenon-TMA 3Pct 10-10E3V/cm"
-              file="${REST_PATH}/inputData/definitions/gases.rml"
+              file="${REST_DATAPATH}/definitions/gases.rml"
               pressure="1" value="ON" overwrite="false" />
-    <TRestG4Metadata file="restG4.rml"/>
-    <TRestPhysicsLists file="restG4.rml"/>
     
   </TRestRun>
 
@@ -38,7 +31,8 @@
 
     <addProcess type="TRestGeant4AnalysisProcess" name="g4Ana" value="ON" />
     <addProcess type="TRestFindG4BlobAnalysisProcess" name="g4Blob" value="OFF" />
-    <addProcess type="TRestElectronDiffusionProcess" name="electronDiffusion-1kVcm-10atm" value="OFF" />
+    <addProcess type="TRestG4toHitsProcess" name="g4ToHits" value="ON" />
+    <addProcess type="TRestElectronDiffusionProcess" name="electronDiffusion-1kVcm-10atm" value="ON" />
     <addProcess type="TRestHitsToSignalProcess" name="hitsToSignal-Template" value="OFF" />
     <addProcess type="TRestSignalShapingProcess" name="signalShapingProcess" value="OFF" />
     <addProcess type="TRestSignalGaussianConvolutionProcess" name="gaussian-Convolution" value="OFF" />
