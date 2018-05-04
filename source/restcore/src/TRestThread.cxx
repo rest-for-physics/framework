@@ -256,6 +256,7 @@ void TRestThread::PrepareToProcess(bool testrun)
 		for (unsigned int i = 0; i < fProcessChain.size(); i++)
 		{
 			fProcessChain[i]->SetAnalysisTree(fAnalysisTree);
+			fProcessChain[i]->ConfigAnalysisTree();
 		}
 		for (int i = 0; i < fTreeBranchDef.size(); i++) 
 		{
@@ -263,10 +264,6 @@ void TRestThread::PrepareToProcess(bool testrun)
 			{
 				TString BranchName = (TString)fInputEvent->GetName() + "Branch";
 				fEventTree->Branch(BranchName, fInputEvent->ClassName(), fInputEvent);
-
-			}
-			if (fTreeBranchDef[i] == "processevent") 
-			{
 				for (unsigned int i = 0; i < fProcessChain.size(); i++)
 				{
 					TRestEvent*processevent = fProcessChain[i]->GetOutputEvent();
@@ -278,13 +275,6 @@ void TRestThread::PrepareToProcess(bool testrun)
 			{
 				TString BranchName = (TString)fOutputEvent->GetName() + "Branch";
 				fEventTree->Branch(BranchName, fOutputEvent->ClassName(), fOutputEvent);
-			}
-			if (fTreeBranchDef[i] == "outputanalysis")
-			{
-				for (unsigned int i = 0; i < fProcessChain.size(); i++)
-				{
-					fProcessChain[i]->ConfigAnalysisTree();
-				}
 			}
 			if (fTreeBranchDef[i] == "inputanalysis")
 			{

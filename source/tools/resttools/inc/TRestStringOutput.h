@@ -181,7 +181,7 @@ public:
 
 	void flushstring()
 	{
-		length = ConsoleHelper::GetWidth()/(double)5*4;
+		length = ConsoleHelper::GetWidth() - 2;
 		printf("\033[K");
 		cout << color << FormattingPrintString(tmpstring) << COLOR_RESET << endl;
 		tmpstring = "";

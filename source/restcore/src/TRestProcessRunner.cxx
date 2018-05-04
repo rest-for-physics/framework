@@ -109,7 +109,15 @@ void TRestProcessRunner::BeginOfInit()
 
 
 	fThreadNumber = StringToDouble(GetParameter("threadNumber", "1"));
-	fOutputItem = Spilt(GetParameter("treeBranches", "inputevent:processevent:outputevent:inputanalysis:outputanalysis"), ":");
+	fOutputItem = vector<string>();
+	if (ToUpper(GetParameter("inputAnalysis", "ON")) == "ON")
+		fOutputItem.push_back("inputanalysis");
+	if (ToUpper(GetParameter("inputEvent", "ON")) == "ON")
+		fOutputItem.push_back("inputevent");
+	if (ToUpper(GetParameter("outputEvent", "ON")) == "ON")
+		fOutputItem.push_back("outputevent");
+
+	//fOutputItem = Spilt(GetParameter("treeBranches", "inputevent:outputevent:inputanalysis"), ":");
 	if (fThreadNumber < 1)fThreadNumber = 1;
 	if (fThreadNumber > 15)fThreadNumber = 15;
 
@@ -133,7 +141,7 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement * e)
 	if (keydeclare == "addProcess")
 	{
 		string active = GetParameter("value", e, "");
-		if (active != "ON" && active != "On" && active != "on") return 0;
+		if (ToUpper(active) != "ON") return 0;
 
 		string processName = GetParameter("name", e, "");
 
@@ -820,9 +828,9 @@ void TRestProcessRunner::ConfigOutputFile()
 	vector<string> files_to_merge;
 
 	//add data file
-	string savemetadata = GetParameter("saveMetadata", "true");
-	if (savemetadata == "true" || savemetadata == "True" || savemetadata == "yes" || savemetadata == "ON")
-	{
+	//string savemetadata = GetParameter("saveMetadata", "true");
+	//if (savemetadata == "true" || savemetadata == "True" || savemetadata == "yes" || savemetadata == "ON")
+	//{
 		fTempOutputDataFile->cd();
 		fRunInfo->Write();
 		this->Write();
@@ -837,7 +845,7 @@ void TRestProcessRunner::ConfigOutputFile()
 			fThreads[0]->GetProcess(i)->Write();
 		}
 
-	}
+	//}
 	if (fEventTree != NULL)fEventTree->Write();
 	if (fAnalysisTree != NULL)fAnalysisTree->Write();
 	fTempOutputDataFile->Close();

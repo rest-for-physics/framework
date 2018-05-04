@@ -7,12 +7,13 @@
   </TRestRun>
 
   <TRestProcessRunner name="TemplateEventProcess" verboseLevel="info">
-    <parameter name="firstEntry" value="0" />
-    <parameter name="lastEntry" value="0" />
+    <parameter name="testRun" value="ON" />
     <parameter name="eventsToProcess" value="10000" />
     <parameter name="threadNumber" value="2"/>
-    <parameter name="saveMetadata" value="true"/>
-    <parameter name="treeBranches" value="inputevent:processevent:outputevent:inputanalysis:outputanalysis"/>
+    
+    <parameter name="inputAnalysis" value="on"/>
+    <parameter name="inputEvent" value="on"/>
+    <parameter name="outputEvent" value="on"/>
 
     <addProcess type="TRestMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON"/>
     <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON" file="processes.rml"/>
@@ -36,7 +37,8 @@
 
 
   <globals>
-    <parameter name="verboseLevel" value="essential" /> %options are : silent, essential, info, debug
+    <parameter name="outputLevel" value="internalvar" /> %options are : nooutput(0), observable(1), internalvar(2), fulloutput(3)
+    <parameter name="verboseLevel" value="essential" /> %options are : silent(0), essential(1), info(2), debug(3), extreme(4)
     <parameter name="inputFile" value="${REST_INPUTFILE}"/>
     <parameter name="inputFormat" value="run[RunNumber]_file[Fragment]_[Time-d]_[Time].graw"/>
     <parameter name="outputFile" value="RUN[RunNumber]_[Time]_[LastProcess].root" />

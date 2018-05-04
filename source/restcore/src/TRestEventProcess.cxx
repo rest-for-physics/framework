@@ -157,7 +157,8 @@ void TRestEventProcess::ConfigAnalysisTree() {
 
 	if (fOutputLevel >= Observable)ReadObservables();
 	if (fOutputLevel >= Internal_Var)fAnalysisTree->Branch(this->GetName(), this);
-
+	if (fOutputLevel >= Full_Output) fAnalysisTree->Branch(this->GetName() + (TString)"_evtBranch", GetOutputEvent());
+	
 }
 
 
@@ -165,19 +166,19 @@ Int_t TRestEventProcess::LoadSectionMetadata()
 {
 	TRestMetadata::LoadSectionMetadata();
 	REST_Process_Output lvl;
-	string s = GetParameter("outputLevel", "full_output");
-	if (s == "no_output") {
+	string s = GetParameter("outputLevel", "internalval");
+	if (s == "nooutput" || s == "0") {
 		lvl = No_Output;
 	}
-	else if (s == "observable")
+	else if (s == "observable" || s == "1")
 	{
 		lvl = Observable;
 	}
-	else if (s == "internalval")
+	else if (s == "internalval" || s == "2")
 	{
 		lvl = Internal_Var;
 	}
-	else
+	else if (s == "fulloutput" || s == "3")
 	{
 		lvl = Full_Output;
 	}
