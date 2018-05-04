@@ -199,7 +199,7 @@ void TRestRun::EndOfInit()
 	fRunTag = GetParameter("runTag", "preserve").c_str();
 
 	OpenInputFile(0);
-	essential << this->ClassName() << " : InputFile : " << fInputFileName << endl;
+	essential << this->ClassName() << " : InputFile : \"" << fInputFileName <<"\", ";
 	if (fInputFileNames.size() > 1)
 	{
 		info << "which matches :" << endl;
@@ -209,10 +209,14 @@ void TRestRun::EndOfInit()
 		info << endl;
 	}
 	else if (fInputFileNames.size() == 0) {
-		warning << "TRestRun : no input file added!" << endl;
+		essential << "(no input file added)" << endl;
+	}
+	else
+	{
+		essential << endl;
 	}
 
-	essential << this->ClassName() << " : OutputFile : " << fOutputFileName << endl;
+	essential << this->ClassName() << " : OutputFile : \"" << fOutputFileName <<"\""<< endl;
 }
 
 
