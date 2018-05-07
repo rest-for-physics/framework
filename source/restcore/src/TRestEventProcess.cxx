@@ -166,7 +166,7 @@ Int_t TRestEventProcess::LoadSectionMetadata()
 {
 	TRestMetadata::LoadSectionMetadata();
 	REST_Process_Output lvl;
-	string s = GetParameter("outputLevel", "internalval");
+	string s = GetParameter("outputLevel", "internalvar");
 	if (s == "nooutput" || s == "0") {
 		lvl = No_Output;
 	}
@@ -174,13 +174,17 @@ Int_t TRestEventProcess::LoadSectionMetadata()
 	{
 		lvl = Observable;
 	}
-	else if (s == "internalval" || s == "2")
+	else if (s == "internalvar" || s == "2")
 	{
 		lvl = Internal_Var;
 	}
 	else if (s == "fulloutput" || s == "3")
 	{
 		lvl = Full_Output;
+	}
+	else
+	{
+		warning << this->ClassName()<<" : invailed output level! use default(Internal_Var)" << endl;
 	}
 	SetOutputLevel(lvl);
 	return 0;
