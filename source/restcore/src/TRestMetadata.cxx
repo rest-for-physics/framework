@@ -171,10 +171,10 @@
 /// After this process, the starter will replace the field values of xml sections before they are used.
 /// This work is done by the method PreprocessElement(). The procedure of replacing is as following.
 /// 
-/// 1. recognize the strings surrounded by "${}". Seek in the system env and replace these strings.
-/// 2. recognize the strings surrounded by "{}". Seek in decalration type "variable" and replace these strings.
-/// 3. directly replace the strings matching the name of "myParameter" by its value.
-/// 4. Judge if the string is an expressions, if so, try evaluate it using TFormula. Replace it by the result.
+/// 1. recognize the strings surrounded by "$ENV{}". Seek in system env and replace these strings.
+/// 1. recognize the strings surrounded by "${}". Seek in system env as well as variable" and replace these strings.
+/// 2. directly replace the strings matching the name of "myParameter" and "constant" by its value.
+/// 3. Judge if the string is an expressions, if so, try evaluate it using TFormula. Replace it by the result.
 ///
 /// The result string of the field value is either a number string or a string with concrete content.
 /// In the exapmle code above, the section declared with "parameter" is has its field value reset to string 126.
@@ -209,11 +209,11 @@
 ///
 /// \code
 /// <for variable = "nCh" from = "0" to = "nChannels-2" step = "1" >
-///	<readoutChannel id = "{nCh}" >
+///	<readoutChannel id = "${nCh}" >
 ///		<for variable = "nPix" from = "0" to = "nChannels-1" step = "1" >
-///			<addPixel id = "{nPix}" origin = "((1+{nCh})*pitch,pitch/4+{nPix}*pitch)" size = "(pixelSize,pixelSize)" rotation = "45" / >
+///			<addPixel id = "${nPix}" origin = "((1+${nCh})*pitch,pitch/4+${nPix}*pitch)" size = "(pixelSize,pixelSize)" rotation = "45" / >
 ///		</for>
-///		<addPixel id = "nChannels" origin = "({nCh}*pitch,pitch/4+(nChannels-1)*pitch+pitch/2)" size = "(pitch+pitch/2,pitch/2)" rotation = "0" / >
+///		<addPixel id = "nChannels" origin = "(${nCh}*pitch,pitch/4+(nChannels-1)*pitch+pitch/2)" size = "(pitch+pitch/2,pitch/2)" rotation = "0" / >
 ///	</readoutChannel>
 /// </for>
 /// \endcode
@@ -1670,10 +1670,9 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, size_
 /// \brief Identifies enviromental variable replacing marks in the input buffer, and replace them with corresponding value.
 ///
 /// Replacing marks: 
-/// 1. ${VARIABLE_NAME} : search the system env and replace it if found.
-/// 2. {VARIABLE_NAME}  : search the program env and replace it if found.
-/// 3. [VARIABLE_NAME]  : search the program provided env and replace it if found.
-/// 4. VARIABLE_NAME    : try match the names of myParameter and replace it if matched.
+/// 1. $ENV{VARIABLE_NAME} : search the system env and replace it if found.
+/// 2. ${VARIABLE_NAME} : search both system env and program env and replace it if found.
+/// 3. VARIABLE_NAME    : try match the names of myParameter or constant and replace it if matched.
 string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer)
 {
 	string outputBuffer = buffer;
@@ -1706,19 +1705,19 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer)
 	//replace env
 	startPosition = 0;
 	endPosition = 0;
-	while ((startPosition = outputBuffer.find("{", endPosition)) != (int)string::npos)
+	while ((startPosition = outputBuffer.find("${", endPosition)) != (int)string::npos)
 	{
-		endPosition = outputBuffer.find("}", startPosition + 1);
+		endPosition = outputBuffer.find("}", startPosition + 2);
 		if (endPosition == (int)string::npos) break;
 
-		string expression = outputBuffer.substr(startPosition + 1, endPosition - startPosition - 1);
+		string expression = outputBuffer.substr(startPosition + 2, endPosition - startPosition - 2);
 
 		int replacePos=startPosition;
 		int replaceLen=endPosition-startPosition+1;
-		if (startPosition!=0&&outputBuffer[startPosition - 1] == '$') {
-			replacePos = startPosition - 1;
-			replaceLen = endPosition - startPosition + 2;
-		}
+		//if (startPosition!=0&&outputBuffer[startPosition - 1] == '$') {
+		//	replacePos = startPosition - 1;
+		//	replaceLen = endPosition - startPosition + 2;
+		//}
 
 		//search for both system env and program env
 		char* sysenv = getenv(expression.c_str());
@@ -1751,53 +1750,53 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer)
 			debug << "replace env " << startPosition << ": cannot find \"" << expression << "\", returning raw expression " << outputBuffer.substr(replacePos, replaceLen) << endl;
 		}
 	}
-	startPosition = 0;
-	endPosition = 0;
-	while ((startPosition = outputBuffer.find("[", endPosition)) != (int)string::npos)
-	{
-		endPosition = outputBuffer.find("]", startPosition + 1);
-		if (endPosition == (int)string::npos) break;
+	//startPosition = 0;
+	//endPosition = 0;
+	//while ((startPosition = outputBuffer.find("[", endPosition)) != (int)string::npos)
+	//{
+	//	endPosition = outputBuffer.find("]", startPosition + 1);
+	//	if (endPosition == (int)string::npos) break;
 
-		string expression = outputBuffer.substr(startPosition + 1, endPosition - startPosition - 1);
+	//	string expression = outputBuffer.substr(startPosition + 1, endPosition - startPosition - 1);
 
-		int replacePos = startPosition;
-		int replaceLen = endPosition - startPosition + 1;
-		if (startPosition != 0 && outputBuffer[startPosition - 1] == '$') {
-			replacePos = startPosition - 1;
-			replaceLen = endPosition - startPosition + 2;
-		}
+	//	int replacePos = startPosition;
+	//	int replaceLen = endPosition - startPosition + 1;
+	//	if (startPosition != 0 && outputBuffer[startPosition - 1] == '$') {
+	//		replacePos = startPosition - 1;
+	//		replaceLen = endPosition - startPosition + 2;
+	//	}
 
-		//search for both system env and program env
-		char* sysenv = getenv(expression.c_str());
-		char* proenv = NULL;
-		int envindex = 0;
-		for (int i = 0; i < fElementEnv.size(); i++) {
-			if ((string)fElementEnv[i]->Value() == "variable"&&expression == (string)fElementEnv[i]->Attribute("name"))
-			{
-				if (fElementEnv[i]->Attribute("value") != NULL)
-				{
-					proenv = const_cast<char*>(fElementEnv[i]->Attribute("value"));
-					envindex = i;
-					break;
-				}
-			}
-		}
+	//	//search for both system env and program env
+	//	char* sysenv = getenv(expression.c_str());
+	//	char* proenv = NULL;
+	//	int envindex = 0;
+	//	for (int i = 0; i < fElementEnv.size(); i++) {
+	//		if ((string)fElementEnv[i]->Value() == "variable"&&expression == (string)fElementEnv[i]->Attribute("name"))
+	//		{
+	//			if (fElementEnv[i]->Attribute("value") != NULL)
+	//			{
+	//				proenv = const_cast<char*>(fElementEnv[i]->Attribute("value"));
+	//				envindex = i;
+	//				break;
+	//			}
+	//		}
+	//	}
 
-		if (proenv != NULL)
-		{
-			outputBuffer.replace(replacePos, replaceLen, proenv);
-			endPosition = 0;
-		}
-		else if (sysenv != NULL)
-		{
-			outputBuffer.replace(replacePos, replaceLen, sysenv);
-			endPosition = 0;
-		}
-		else
-		{
-			debug << "replace env " << startPosition << ": cannot find \"" << expression << "\", returning raw expression " << outputBuffer.substr(replacePos, replaceLen) << endl;
-		}
-	}
+	//	if (proenv != NULL)
+	//	{
+	//		outputBuffer.replace(replacePos, replaceLen, proenv);
+	//		endPosition = 0;
+	//	}
+	//	else if (sysenv != NULL)
+	//	{
+	//		outputBuffer.replace(replacePos, replaceLen, sysenv);
+	//		endPosition = 0;
+	//	}
+	//	else
+	//	{
+	//		debug << "replace env " << startPosition << ": cannot find \"" << expression << "\", returning raw expression " << outputBuffer.substr(replacePos, replaceLen) << endl;
+	//	}
+	//}
 
 
 	//replace myParameter
