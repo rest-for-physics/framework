@@ -95,7 +95,16 @@ public:
 	/// \brief Draw the event
 	///
 	/// To be implemented in the derived class
-	virtual TPad *DrawEvent(TString option = "") { return new TPad(); }
+	virtual TPad *DrawEvent( TString option = "" )
+    { 
+        if( option != "" )
+        {
+            std::cout << "TRestEvent::DrawEvent. Option = " << option << std::endl;
+            std::cout << "REST_Warning. DrawEvent has not been implemented." << std::endl;
+        }
+
+        return new TPad(); 
+    }
 
 
 	virtual void CloneTo(TRestEvent* target);
