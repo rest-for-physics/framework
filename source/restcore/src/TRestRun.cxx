@@ -83,7 +83,7 @@ void TRestRun::BeginOfInit()
 
 	fInputFileName = GetParameter("inputFile","").c_str();
 	fInputFileNames = GetFilesMatchingPattern(fInputFileName);
-	fOutputFileName = GetParameter("outputFile", "rest_default.root").c_str();
+	fOutputFileName = GetDataPath()+GetParameter("outputFile", "rest_default.root").c_str();
 
 }
 

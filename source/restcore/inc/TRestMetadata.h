@@ -172,9 +172,9 @@ public:
 	/// Set the hoster manager for this class.
 	void SetHostmgr(TRestManager*m) { fHostmgr = m; }
 	/// Returns a string with the path used for data storage
-	TString GetDataPath() { return GetParameter("gasDataPath"); }
+	TString GetDataPath() { return GetParameter("mainDataPath",""); }
 	/// Returns a string with the path used for pre-generated gas files
-	TString GetGasDataPath() { return GetParameter("dataPath"); }
+	TString GetGasDataPath() { return GetParameter("gasDataPath",""); }
 	/// returns the verboselevel in type of REST_Verbose_Level enumerator
 	REST_Verbose_Level GetVerboseLevel() { return fVerboseLevel; }
 	/// returns the verboselevel in type of TString
