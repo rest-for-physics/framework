@@ -49,21 +49,9 @@
 
 
   <globals>
-    <parameter name="verboseLevel" value="essential" /> %options are : silent, essential, info, debug
+    <parameter name="outputLevel" value="internalvar" /> %options are : nooutput(0), observable(1), internalvar(2), fulloutput(3)
+    <parameter name="verboseLevel" value="essential" /> %options are : silent(0), essential(1), info(2), debug(3), extreme(4)
     <parameter name="inputFile" value="${REST_INPUTFILE}"/>
-    <parameter name="inputFormat" value="run[RunNumber]_file[Fragment]_[Time-d]_[Time].graw"/>
-    <parameter name="outputFile" value="RUN[RunNumber]_[Time]_[LastProcess].root" />
-    <variable name="gasDataPath" value="${REST_PATH}/restData/gasFiles/" />
-    <variable name="configPath" value="${REST_PATH}/restData/config/"/>
-
-    <!-- +++++++++++++++++++++++++++
-     Setting source config files
-     +++++++++++++++++++++++++++ -->
-    <parameter name="gasFile" value="${REST_PATH}/inputData/definitions/gases.rml" />
-    <parameter name="readoutFile" value="${REST_PATH}/inputData/definitions/readouts_PandaXIII.root" />
-    <parameter name="processesFile" value="${REST_PATH}/config/template/processes.rml"/>
-    <parameter name="tasksFile" value="${REST_PATH}/config/template/plots.rml" />
-
   </globals>
 
 
