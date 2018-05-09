@@ -30,7 +30,7 @@
 #include <TTimeStamp.h>
 #include <TPad.h>
 #include "TBufferFile.h"
-
+#include "TRestTools.h"
 
 class TRestEvent :public TObject {
 
@@ -95,7 +95,7 @@ public:
 	/// \brief Draw the event
 	///
 	/// To be implemented in the derived class
-	virtual TPad *DrawEvent(TString option = "") { return new TPad(); }
+	virtual TPad *DrawEvent(TString option = "") { UNUSED(option); return new TPad(); }
 
 
 	virtual void CloneTo(TRestEvent* target);

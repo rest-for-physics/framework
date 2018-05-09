@@ -99,7 +99,6 @@ inline int getch(void)
 
 #endif // WIN32
 
-
 const int PARAMETER_NOT_FOUND_INT = -99999999;
 const double PARAMETER_NOT_FOUND_DBL = -99999999;
 const std::string PARAMETER_NOT_FOUND_STR = "NO_SUCH_PARA";
@@ -145,7 +144,7 @@ public:
 	/// These methods can be overridden in the child class.
 	virtual void BeginOfInit() { return; };
 	/// These methods can be overridden in the child class.
-	virtual Int_t ReadConfig(string keydeclare, TiXmlElement* e) { return -1; };
+	virtual Int_t ReadConfig(string keydeclare, TiXmlElement* e) { UNUSED(keydeclare); UNUSED(e); return -1; };
 	/// These methods can be overridden in the child class.
 	virtual void EndOfInit() { return; };
 

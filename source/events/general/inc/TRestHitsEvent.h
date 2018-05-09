@@ -107,7 +107,7 @@ class TRestHitsEvent : public TRestEvent
         Double_t GetClosestHitInsideDistanceToPrismBottom( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY );
 
 
-        TPad *DrawEvent( TString option = "" ) { std::cout << "TRestHitsEvent::DrawEvent not implemented. TODO" << std::endl; return NULL; }
+        TPad *DrawEvent( TString option = "" ) { UNUSED(option); std::cout << "TRestHitsEvent::DrawEvent not implemented. TODO" << std::endl; return NULL; }
 
         //Construtor
         TRestHitsEvent();

@@ -203,7 +203,7 @@ class TRestG4Event: public TRestEvent {
         /// maxTracks : number of tracks to print, 0 = all
         void PrintEvent( int maxTracks = 0, int maxHits = 0 );
 
-	TPad *DrawEvent( TString option = "" ) { std::cout << "TRestG4Event::DrawEvent not implemented. TODO" << std::endl; return NULL; }
+	TPad *DrawEvent( TString option = "" ) { UNUSED(option); std::cout << "TRestG4Event::DrawEvent not implemented. TODO" << std::endl; return NULL; }
 
         //Construtor
         TRestG4Event();
