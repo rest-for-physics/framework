@@ -66,7 +66,7 @@ public:
 		int n;
 		while ((n = elementstr.find(keyword, 0)) != -1)
 		{
-			int pos1, pos2;
+			int pos1 = 0, pos2 = 0;
 			for (int i = n; i >= 0; i--) {
 				if (elementstr[i] == '"') {
 					pos1 = i + 1;
