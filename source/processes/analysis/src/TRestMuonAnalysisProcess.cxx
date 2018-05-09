@@ -126,10 +126,31 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				theyz = hyzt->GetBinCenter(hyzt->GetMaximumBin()) - 1.5708;
 			}
 
+
+			//writing raw values(before adjustment)
 			fAnalysisTree->SetObservableValue(this, "rawtantheXZ", tan(thexz));
 			fAnalysisTree->SetObservableValue(this, "rawtantheYZ", tan(theyz));
+			fAnalysisTree->SetObservableValue(this, "rawmutanthe", sqrt(tan(thexz)*tan(thexz) + tan(theyz) * tan(theyz)));
+			double muphi = 0;
+			if (tan(thexz) >= 0)
+			{
+				muphi = atan(tan(theyz) / tan(thexz));
+			}
+			else if (tan(theyz)>0)
+			{
+				muphi = 3.1416 + atan(tan(theyz) / tan(thexz));
+			}
+			else
+			{
+				muphi = atan(tan(theyz) / tan(thexz)) - 3.1416;
+			}
+			fAnalysisTree->SetObservableValue(this, "rawmuphi", muphi);
+			fAnalysisTree->SetObservableValue(this, "evefirstX", eve->GetFirstX());
+			fAnalysisTree->SetObservableValue(this, "evefirstY", eve->GetFirstY());
 
-			//readjusting thetas in the plot(when hough is not available)
+
+
+			//adjusting thetas in the plot(when hough is not available)
 			if (thexz == 0) {
 				double xlen1 = eve->GetLastX() - eve->GetFirstX();
 				//double xlen1 = eve->GetXRange().Y() - eve->GetXRange().X();
@@ -172,24 +193,20 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				}
 			}
 
-			info << "Track feature: ";
 
+			//adjusting firstx and firsty
 			firstz = eve->GetZRange().X();
 			firstx = eve->GetFirstX() - tan(thexz)*(eve->GetZRangeInXZ().X() - firstz);
 			firsty = eve->GetFirstY() - tan(theyz)*(eve->GetZRangeInYZ().X() - firstz);
 
+
+			//writing adjusted values
 			fAnalysisTree->SetObservableValue(this, "tantheXZ", tan(thexz));
 			fAnalysisTree->SetObservableValue(this, "tantheYZ", tan(theyz));
-
-			fAnalysisTree->SetObservableValue(this, "evefirstX", eve->GetFirstX());
-			fAnalysisTree->SetObservableValue(this, "evefirstY", eve->GetFirstY());
-
 			fAnalysisTree->SetObservableValue(this, "adjustedfirstX", firstx);
 			fAnalysisTree->SetObservableValue(this, "adjustedfirstY", firsty);
-
 			fAnalysisTree->SetObservableValue(this, "mutanthe", sqrt(tan(thexz)*tan(thexz) + tan(theyz) * tan(theyz)));
-			
-			double muphi = 0;
+			muphi = 0;
 			if (tan(thexz) >= 0 ) 
 			{
 				muphi = atan(tan(theyz) / tan(thexz));
@@ -203,8 +220,6 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				muphi = atan(tan(theyz) / tan(thexz)) - 3.1416;
 			}
 			fAnalysisTree->SetObservableValue(this, "muphi",muphi);
-			
-
 			muhitmap->Fill(firstx, firsty);
 
 			//calculate projection
