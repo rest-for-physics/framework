@@ -826,6 +826,7 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 		gxz->SetTitle((TString)"XZ plot, " + ToString(GetNumberOfXZSignals()) + " Signals");
 		gxz->GetXaxis()->SetTitle("Z");
 		gxz->GetYaxis()->SetTitle("X");
+		if(ToUpper(option) != "STRETCH")
 		{
 			gxz->SetPoint(_xzz.size(), 0, X1, 0);
 			gxz->SetPoint(_xzz.size() + 1, 512, X2, 0);
@@ -847,6 +848,7 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 		gyz->SetTitle((TString)"YZ plot, " + ToString(GetNumberOfYZSignals()) + " Signals");
 		gyz->GetXaxis()->SetTitle("Z");
 		gyz->GetYaxis()->SetTitle("Y");
+		if (ToUpper(option) != "STRETCH")
 		{
 			gyz->SetPoint(_yzz.size(), 0, Y1, 0);
 			gyz->SetPoint(_yzz.size() + 1, 512, Y2, 0);
@@ -856,18 +858,8 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 	}
 
 
-	if (option == "") {
-		fPad->Divide(1, 2);
 
-		fPad->cd(1);
-		if (gxz != NULL)
-			gxz->Draw("colz");
-
-		fPad->cd(2);
-		if (gyz != NULL)
-			gyz->Draw("colz");
-	}
-	else if (ToUpper(option) == "CLUSTER") 
+	if (ToUpper(option) == "CLUSTER") 
 	{
 		fPad->Divide(1, 2);
 
@@ -904,6 +896,18 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 		fPad->cd(4);
 		if (gyz != NULL)
 			gyz->Project()->Draw("colz");
+	}
+	else
+	{
+		fPad->Divide(1, 2);
+
+		fPad->cd(1);
+		if (gxz != NULL)
+			gxz->Draw("colz");
+
+		fPad->cd(2);
+		if (gyz != NULL)
+			gyz->Draw("colz");
 	}
 
 	return fPad;
