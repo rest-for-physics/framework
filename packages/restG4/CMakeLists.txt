@@ -31,7 +31,11 @@ endif()
 # Setup Geant4 include directories and compile definitions
 #
 include(${Geant4_USE_FILE})
-find_package(ROOT REQUIRED)
+
+include(FindROOT)
+set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
+#file(GLOB rootlibs ${ROOT_LIBRARY_DIR}/*.so)
+set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui  -lEve -lGeom -lMathMore -lGdml -lMinuit)
 
 set(Garfield_FIND_REQUIRED TRUE)
 
