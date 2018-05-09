@@ -6,20 +6,24 @@ if [ $(root-config --version | grep "6.") ];then
 
 
 if [ $GARFIELD_HOME ]; then
-    echo Find defined garifeld env: $GARFIELD_HOME
+    echo Found defined garfield env: $GARFIELD_HOME
 else
-    echo Creating garfield env: GARFIELD_HOME=~/garfield6
-    export GARFIELD_HOME=~/garfield6
-    echo "export GARFIELD_HOME=~/garfield6" >> ~/.bashrc
+    echo Creating garfield env: GARFIELD_HOME=~/apps/garfield6
+    export GARFIELD_HOME=~/apps/garfield6
+    echo " ++++ GARFIELD_HOME has been added to your .bashrc"
+    echo " " >> ~/.bashrc
+    echo "#Added by REST installGarfield.sh script to setup garfield++ environment" >> ~/.bashrc
+    echo "export GARFIELD_HOME=~/apps/garfield6" >> ~/.bashrc
 fi
 
 
 
 if [ $HEED_DATABASE ]; then
-    echo Find defined garifeld env: $HEED_DATABASE
+    echo Find defined garfield env: $HEED_DATABASE
 else
     echo Creating garfield env: HEED_DATABASE=$GARFIELD_HOME/Heed/heed++/database
     export HEED_DATABASE=$GARFIELD_HOME/Heed/heed++/database
+    echo " ++++ HEED_DATABASE has been added to your .bashrc"
     echo "export HEED_DATABASE=\$GARFIELD_HOME/Heed/heed++/database" >> ~/.bashrc
 fi
 
@@ -29,8 +33,10 @@ if [[ $LD_LIBRARY_PATH =~ "$GARFIELD_HOME/lib" ]]; then
 else
     echo Adding garifeld lib path into env
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GARFIELD_HOME/lib
+    echo " ++++ LD_LIBRARY_PATH has been added to your .bashrc"
     echo "export LD_LIBRARY_PATH=\$GARFIELD_HOME/lib:\$LD_LIBRARY_PATH" >> ~/.bashrc
 fi
+echo " " >> ~/.bashrc
 
 
 rm -rf $GARFIELD_HOME/build
@@ -46,7 +52,7 @@ echo building...
 mkdir build -p
 cd build
 
-cmake -DCMAKE_INSTALL_PREFIX=$GARFIELD_HOME -DWITH_EXAMPLES=OFF ../
+cmake -DCMAKE_INSTALL_PREFIX=$GARFIELD_HOME ../
 make -j2
 mkdir ../lib -p
 
@@ -58,13 +64,10 @@ cd $WP
 echo ""
 echo "----------------------------------------------------------------------"
 echo ""
-echo "DONE!"
+echo "Garfield has been installed at $GARFIELD_HOME"
 echo ""
 echo "----------------------------------------------------------------------"
 echo ""
-
-
-
 
 else
 	echo ROOT6 required, but not found!
