@@ -157,7 +157,7 @@ void TRestEvent::SetEventInfo(TRestEvent*eve)
 /// You may want to call the base class inside the re-implemented one,
 /// by calling TRestEvent::PrintEvent();
 ///
-void TRestEvent::PrintEvent()
+void TRestEvent::PrintEvent( int maxTracks, int maxHits )
 {
 	cout << "*******************************************************" << endl;
 	cout << " EVENT ID : " << GetID() << " TIME : " << GetTime() << endl;

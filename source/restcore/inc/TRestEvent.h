@@ -89,7 +89,7 @@ public:
 
 	virtual void Initialize() = 0;
 
-	virtual void PrintEvent();
+	virtual void PrintEvent( int maxTracks = 0, int maxHits = 0);
 
 	//////////////////////////////////////////////////////////////////////////
 	/// \brief Draw the event
