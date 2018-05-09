@@ -279,7 +279,7 @@ Bool_t TRestBrowser::OpenFile(TString fName)
 	}
 
 	if (fEventTree != NULL) {
-		fEventTree->ConnectEventBranches();
+		//fEventTree->ConnectEventBranches();
 		//init viewer
 		if (fEventViewer == NULL) {
 			SetViewer("TRestGenericEventViewer");

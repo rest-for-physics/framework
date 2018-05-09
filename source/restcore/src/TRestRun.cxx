@@ -244,10 +244,10 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 		fInputFile = new TFile(filename, mode.c_str());
 
 		debug << "Finding TRestAnalysisTree.." << endl;
-		TRestAnalysisTree * Tree = (TRestAnalysisTree *)fInputFile->Get("AnalysisTree");
-		if (Tree != NULL)
+		TRestAnalysisTree * Tree1 = (TRestAnalysisTree *)fInputFile->Get("AnalysisTree");
+		if (Tree1 != NULL)
 		{
-			fAnalysisTree = Tree;
+			fAnalysisTree = Tree1;
 			fAnalysisTree->ConnectObservables();
 			fAnalysisTree->ConnectEventBranches();
 		}
@@ -258,11 +258,11 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 			exit(1);
 		}
 
-		Tree = (TRestAnalysisTree *)fInputFile->Get("EventTree");
-		if (Tree != NULL)
+		TTree* Tree2 = (TTree *)fInputFile->Get("EventTree");
+		if (Tree2 != NULL)
 		{
-			fEventTree = Tree;
-			fEventTree->ConnectEventBranches();
+			fEventTree = Tree2;
+			//fEventTree->ConnectEventBranches();
 
 
 			debug << "Finding event branch.." << endl;
@@ -569,9 +569,9 @@ TFile* TRestRun::FormOutputFile()
 	fOutputFileName = FormFormat(fOutputFileName);
 	fOutputFile = new TFile(fOutputFileName, "recreate");
 	fAnalysisTree = new TRestAnalysisTree("AnalysisTree","AnalysisTree");
-	fEventTree = new TRestAnalysisTree("EventTree", "EventTree");
+	fEventTree = new TTree("EventTree", "EventTree");
 	fAnalysisTree->CreateEventBranches();
-	fEventTree->CreateEventBranches();
+	//fEventTree->CreateEventBranches();
 	this->Write();
 	for (int i = 0; i < fMetadataInfo.size(); i++) {
 		fMetadataInfo[i]->Write();
