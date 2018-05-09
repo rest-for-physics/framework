@@ -34,189 +34,187 @@
 
 /// A class to store the readout module definition used in TRestReadoutPlane. It allows to integrate any number of independent readout channels.
 class TRestReadoutModule : public TObject {
-    private:
-        Int_t fModuleID; ///< The module id given by the readout definition.
+	private:
+		Int_t fModuleID; ///< The module id given by the readout definition.
 
-        TString fModuleName; ///< The assigned module name.
+		TString fModuleName; ///< The assigned module name.
 
-        Double_t fModuleOriginX;    ///< The module x-position (left-bottom corner) relative to the readout plane position.
-        Double_t fModuleOriginY;    ///< The module y-position (left-bottom corner) relative to the readout plane position.
+		Double_t fModuleOriginX;    ///< The module x-position (left-bottom corner) relative to the readout plane position.
+		Double_t fModuleOriginY;    ///< The module y-position (left-bottom corner) relative to the readout plane position.
 
-        Double_t fModuleSizeX;      ///< X-size of the module. All pixels should be containned within this size.
-        Double_t fModuleSizeY;      ///< Y-size of the module. All pixels should be containned within this size.  
+		Double_t fModuleSizeX;      ///< X-size of the module. All pixels should be containned within this size.
+		Double_t fModuleSizeY;      ///< Y-size of the module. All pixels should be containned within this size.
 
-        Double_t fModuleRotation;   ///< The rotation of the module around the position=(fModuleOriginX, fModuleOriginY) in degrees.
+		Double_t fModuleRotation;   ///< The rotation of the module around the position=(fModuleOriginX, fModuleOriginY) in degrees.
 
-        Int_t fMininimumDaqId;  ///< The minimum daq channel id associated to the module.
-        Int_t fMaximumDaqId;    ///< The maximum daq channel id associated to the module.
+		Int_t fMininimumDaqId;  ///< The minimum daq channel id associated to the module.
+		Int_t fMaximumDaqId;    ///< The maximum daq channel id associated to the module.
 
-        std::vector <TRestReadoutChannel> fReadoutChannel;  ///< A vector of the instances of TRestReadoutChannel containned in the readout module.
+		std::vector <TRestReadoutChannel> fReadoutChannel;  ///< A vector of the instances of TRestReadoutChannel containned in the readout module.
 
-        TRestReadoutMapping fMapping;   ///< The readout module uniform grid mapping.
+		TRestReadoutMapping fMapping;   ///< The readout module uniform grid mapping.
 
-        Double_t fTolerance;    ///< Tolerance allowed in overlaps at the pixel boundaries in mm.
+		Double_t fTolerance;    ///< Tolerance allowed in overlaps at the pixel boundaries in mm.
 
 #ifndef __CINT__
-        Bool_t showWarnings;    ///< Flag to enable/disable warning outputs. Disabled by default. REST_Warning in TRestReadout will enable it.
+		Bool_t showWarnings;    ///< Flag to enable/disable warning outputs. Disabled by default. REST_Warning in TRestReadout will enable it.
 #endif
 
-        void Initialize();
+		void Initialize();
 
-        /// Converts the coordinates given by TVector2 in the readout plane reference system to the readout module reference system.
-        TVector2 TransformToModuleCoordinates( TVector2 p )
-        {
-            return TransformToModuleCoordinates( p.X(), p.Y() );
-        }
+		/// Converts the coordinates given by TVector2 in the readout plane reference system to the readout module reference system.
+		TVector2 TransformToModuleCoordinates( TVector2 p )
+		{
+			return TransformToModuleCoordinates( p.X(), p.Y() );
+		}
 
-        /// Converts the coordinates (xPhys,yPhys) in the readout plane reference system to the readout module reference system.
-        TVector2 TransformToModuleCoordinates( Double_t xPhys, Double_t yPhys )
-        {
-            TVector2 coords( xPhys - fModuleOriginX, yPhys - fModuleOriginY );
-            TVector2 rot = coords.Rotate( -fModuleRotation * TMath::Pi()/ 180. );
+		/// Converts the coordinates (xPhys,yPhys) in the readout plane reference system to the readout module reference system.
+		TVector2 TransformToModuleCoordinates( Double_t xPhys, Double_t yPhys )
+		{
+			TVector2 coords( xPhys - fModuleOriginX, yPhys - fModuleOriginY );
+			TVector2 rot = coords.Rotate( -fModuleRotation * TMath::Pi()/ 180. );
 
-            return rot;
-        }
+			return rot;
+		}
 
-        /// Converts the coordinates (xMod,yMod) in the readout module reference system to the readout plane reference system.
-        TVector2 TransformToPhysicalCoordinates( Double_t xMod, Double_t yMod )
-        {
-            TVector2 coords( xMod, yMod );
+		/// Converts the coordinates (xMod,yMod) in the readout module reference system to the readout plane reference system.
+		TVector2 TransformToPhysicalCoordinates( Double_t xMod, Double_t yMod )
+		{
+			TVector2 coords( xMod, yMod );
 
-            coords = coords.Rotate( fModuleRotation * TMath::Pi()/ 180. );
-            coords = coords + TVector2 ( fModuleOriginX, fModuleOriginY );
+			coords = coords.Rotate( fModuleRotation * TMath::Pi()/ 180. );
+			coords = coords + TVector2 ( fModuleOriginX, fModuleOriginY );
 
-            return coords;
-        }
+			return coords;
+		}
 
-    protected:
+	protected:
 
-    public:
-        // Setters
-        
-        ///  Sets the module by id definition
-        void SetModuleID( Int_t modID ) { fModuleID = modID; }
+	public:
+		// Setters
 
-        /// Sets the module size by definition using (sX, sY) coordinates
-        void SetSize( Double_t sX, Double_t sY ) { fModuleSizeX = sX; fModuleSizeY = sY; }
+		///  Sets the module by id definition
+		void SetModuleID( Int_t modID ) { fModuleID = modID; }
 
-        /// Sets the module size by definition using TVector2 input
-        void SetSize( TVector2 s ) { fModuleSizeX = s.X(); fModuleSizeY = s.Y(); }
+		/// Sets the module size by definition using (sX, sY) coordinates
+		void SetSize( Double_t sX, Double_t sY ) { fModuleSizeX = sX; fModuleSizeY = sY; }
 
-        /// Sets the module origin by definition using (x,y) coordinates
-        void SetOrigin( Double_t x, Double_t y ) { fModuleOriginX = x; fModuleOriginY = y; }
+		/// Sets the module size by definition using TVector2 input
+		void SetSize( TVector2 s ) { fModuleSizeX = s.X(); fModuleSizeY = s.Y(); }
 
-        /// Sets the module origin by definition using TVector2 input
-        void SetOrigin( TVector2 c ) { fModuleOriginX = c.X(); fModuleOriginY = c.Y(); }
+		/// Sets the module origin by definition using (x,y) coordinates
+		void SetOrigin( Double_t x, Double_t y ) { fModuleOriginX = x; fModuleOriginY = y; }
 
-        /// Sets the module rotation in degrees
-        void SetRotation( Double_t rot ) { fModuleRotation = rot; }
+		/// Sets the module origin by definition using TVector2 input
+		void SetOrigin( TVector2 c ) { fModuleOriginX = c.X(); fModuleOriginY = c.Y(); }
 
-        /// Sets the name of the readout module
-        void SetName( TString name ) { fModuleName = name; }
+		/// Sets the module rotation in degrees
+		void SetRotation( Double_t rot ) { fModuleRotation = rot; }
 
-        /// Sets the tolerance for independent pixel overlaps
-        void SetTolerance( Double_t tol ) { fTolerance = tol; }
+		/// Sets the name of the readout module
+		void SetName( TString name ) { fModuleName = name; }
 
-        /// Gets the tolerance for independent pixel overlaps
-        Double_t GetTolerance( ) { return fTolerance; }
+		/// Sets the tolerance for independent pixel overlaps
+		void SetTolerance( Double_t tol ) { fTolerance = tol; }
 
-        /// Returns the minimum daq id number
-        Int_t GetMinDaqID( ) { return fMininimumDaqId; }
+		/// Gets the tolerance for independent pixel overlaps
+		Double_t GetTolerance( ) { return fTolerance; }
 
-        /// Returns the maximum daq id number
-        Int_t GetMaxDaqID( ) { return fMaximumDaqId; }
+		/// Returns the minimum daq id number
+		Int_t GetMinDaqID( ) { return fMininimumDaqId; }
 
-        /// Returns the physical readout channel id for a given daq id channel number
-        Int_t DaqToReadoutChannel( Int_t daqChannel )
-        {
-            for( int n = 0; n < GetNumberOfChannels(); n++ )
-                if( GetChannel( n )->GetDaqID() == daqChannel ) return GetChannel( n )->GetID();
-            return -1;
-        }
+		/// Returns the maximum daq id number
+		Int_t GetMaxDaqID( ) { return fMaximumDaqId; }
 
-        /// Returns the module id
-        Int_t GetModuleID( ) { return fModuleID; }
+		/// Returns the physical readout channel id for a given daq id channel number
+		Int_t DaqToReadoutChannel( Int_t daqChannel )
+		{
+			for( int n = 0; n < GetNumberOfChannels(); n++ )
+				if( GetChannel( n )->GetDaqID() == daqChannel ) return GetChannel( n )->GetID();
+			return -1;
+		}
 
-        /// Returns the module x-coordinate origin
-        Double_t GetModuleOriginX() { return fModuleOriginX; }
-        
-        /// Returns the module y-coordinate origin
-        Double_t GetModuleOriginY() { return fModuleOriginY; }
+		/// Returns the module id
+		Int_t GetModuleID( ) { return fModuleID; }
 
-        /// Returns the module x-coordinate origin
-        Double_t GetOriginX() { return fModuleOriginX; }
+		/// Returns the module x-coordinate origin
+		Double_t GetModuleOriginX() { return fModuleOriginX; }
 
-        /// Returns the module y-coordinate origin
-        Double_t GetOriginY() { return fModuleOriginY; }
+		/// Returns the module y-coordinate origin
+		Double_t GetModuleOriginY() { return fModuleOriginY; }
 
-        /// Returns the module size x-coordinate
-        Double_t GetModuleSizeX() { return fModuleSizeX; }
-        
-        /// Returns the module size y-coordinate
-        Double_t GetModuleSizeY() { return fModuleSizeY; }
+		/// Returns the module x-coordinate origin
+		Double_t GetOriginX() { return fModuleOriginX; }
 
-        /// Returns the module rotation in degrees
-        Double_t GetModuleRotation() { return fModuleRotation; }
+		/// Returns the module y-coordinate origin
+		Double_t GetOriginY() { return fModuleOriginY; }
 
-        /// Returns the module name
-        TString GetName( ) { return fModuleName; }
+		/// Returns the module size x-coordinate
+		Double_t GetModuleSizeX() { return fModuleSizeX; }
 
-        /// Returns a pointer to the readout mapping
-        TRestReadoutMapping *GetMapping( ) { return &fMapping; }
+		/// Returns the module size y-coordinate
+		Double_t GetModuleSizeY() { return fModuleSizeY; }
 
-        /// Returns a pointer to a readout channel by index
-        TRestReadoutChannel *GetChannel( int n ) { return &fReadoutChannel[n]; }
+		/// Returns the module rotation in degrees
+		Double_t GetModuleRotation() { return fModuleRotation; }
 
-        /// Returns the total number of channels defined inside the module
-        Int_t GetNumberOfChannels( ) { return fReadoutChannel.size(); }
+		/// Returns the module name
+		TString GetName( ) { return fModuleName; }
 
-        /// Enables warning output
-        void EnableWarnings() { showWarnings = true; }
+		/// Returns a pointer to the readout mapping
+		TRestReadoutMapping *GetMapping( ) { return &fMapping; }
 
-        /// Disables warning output
-        void DisableWarnings() { showWarnings = false; }
+		/// Returns a pointer to a readout channel by index
+		TRestReadoutChannel *GetChannel( int n ) { return &fReadoutChannel[n]; }
 
-        TRestReadoutChannel *GetChannelByID( int id );
-        
-        void DoReadoutMapping( Int_t nodes = 0 );
+		/// Returns the total number of channels defined inside the module
+		Int_t GetNumberOfChannels( ) { return fReadoutChannel.size(); }
 
-        Bool_t isInside( Double_t x, Double_t y );
-        Bool_t isInside( TVector2 pos );
+		/// Enables warning output
+		void EnableWarnings() { showWarnings = true; }
 
-        Bool_t isInsideChannel( Int_t channel, Double_t x, Double_t y );
-        Bool_t isInsideChannel( Int_t channel, TVector2 pos );
+		/// Disables warning output
+		void DisableWarnings() { showWarnings = false; }
 
-        Bool_t isInsideChannelByID( Int_t channel, Double_t x, Double_t y );
-        Bool_t isInsideChannelByID( Int_t channel, TVector2 pos );
-        
-        Bool_t isInsidePixel( Int_t channel, Int_t pixel, Double_t x, Double_t y );
-        Bool_t isInsidePixel( Int_t channel, Int_t pixel, TVector2 pos );
+		TRestReadoutChannel *GetChannelByID( int id );
 
-        Bool_t isDaqIDInside( Int_t daqID );
-        Int_t FindChannel( Double_t x, Double_t y );
+		void DoReadoutMapping( Int_t nodes = 0 );
 
-        TVector2 GetPixelOrigin( Int_t channel, Int_t pixel );
-        TVector2 GetPixelVertex( Int_t channel, Int_t pixel, Int_t vertex );
-        TVector2 GetPixelCenter( Int_t channel, Int_t pixel );
-/**/	//AJOUT TRIANGLE
-        Bool_t GetPixelTriangle( Int_t channel, Int_t pixel );
-//*/
-        TVector2 GetVertex( int n ) const;
+		Bool_t isInside( Double_t x, Double_t y );
+		Bool_t isInside( TVector2 pos );
 
-        void AddChannel( TRestReadoutChannel &rChannel );
+		Bool_t isInsideChannel( Int_t channel, Double_t x, Double_t y );
+		Bool_t isInsideChannel( Int_t channel, TVector2 pos );
 
-        void SetMinMaxDaqIDs( );
+		Bool_t isInsideChannelByID( Int_t channel, Double_t x, Double_t y );
+		Bool_t isInsideChannelByID( Int_t channel, TVector2 pos );
 
-        void Draw();
+		Bool_t isInsidePixel( Int_t channel, Int_t pixel, Double_t x, Double_t y );
+		Bool_t isInsidePixel( Int_t channel, Int_t pixel, TVector2 pos );
 
-        void Print( Int_t fullDetail = 0 );
+		Bool_t isDaqIDInside( Int_t daqID );
+		Int_t FindChannel( Double_t x, Double_t y );
 
-        //Construtor
-        TRestReadoutModule();
-        //Destructor
-        virtual ~ TRestReadoutModule();
+		TVector2 GetPixelOrigin( Int_t channel, Int_t pixel );
+		TVector2 GetPixelVertex( Int_t channel, Int_t pixel, Int_t vertex );
+		TVector2 GetPixelCenter( Int_t channel, Int_t pixel );
+		Bool_t GetPixelTriangle( Int_t channel, Int_t pixel );
+		TVector2 GetVertex( int n ) const;
+
+		void AddChannel( TRestReadoutChannel &rChannel );
+
+		void SetMinMaxDaqIDs( );
+
+		void Draw();
+
+		void Print( Int_t fullDetail = 0 );
+
+		//Construtor
+		TRestReadoutModule();
+		//Destructor
+		virtual ~ TRestReadoutModule();
 
 
-        ClassDef(TRestReadoutModule, 1);
+		ClassDef(TRestReadoutModule, 1);
 };
 #endif

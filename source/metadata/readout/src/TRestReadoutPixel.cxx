@@ -51,9 +51,9 @@ ClassImp(TRestReadoutPixel)
 ///////////////////////////////////////////////
 /// \brief TRestReadoutPixel default constructor
 ///
-    TRestReadoutPixel::TRestReadoutPixel()
+TRestReadoutPixel::TRestReadoutPixel()
 {
-    Initialize();
+	Initialize();
 }
 
 ///////////////////////////////////////////////
@@ -75,13 +75,17 @@ void TRestReadoutPixel::Initialize()
 /// 
 TVector2 TRestReadoutPixel::GetCenter( ) const
 { 
-    TVector2 center( 0, 0 );
-    TVector2 origin( fPixelOriginX, fPixelOriginY );
-    TVector2 opositeVertex = GetVertex( 2 );
+	TVector2 center( 0, 0 );
+	TVector2 origin( fPixelOriginX, fPixelOriginY );
+	TVector2 opositeVertex = GetVertex( 2 );
 
-    center = (origin + opositeVertex)/2;
+	if (fTriangle)
+		center = (origin + opositeVertex)/4.;
+	else
+		center = (origin + opositeVertex)/2.;
 
-    return center;
+	return center;
+//*/
 }
 
 ///////////////////////////////////////////////
@@ -91,32 +95,32 @@ TVector2 TRestReadoutPixel::GetCenter( ) const
 ///
 TVector2 TRestReadoutPixel::GetVertex( int n ) const 
 {
-    TVector2 vertex( 0, 0 );
-    TVector2 origin( fPixelOriginX, fPixelOriginY );
+	TVector2 vertex( 0, 0 );
+	TVector2 origin( fPixelOriginX, fPixelOriginY );
 
-    if( n%4 == 0 ) return origin;
-    else if( n%4 == 1 )
-    {
-        vertex.Set( fPixelSizeX, 0 );
-        vertex = vertex.Rotate( fRotation * TMath::Pi()/180. ); 
+	if( n%4 == 0 ) return origin;
+	else if( n%4 == 1 )
+	{
+		vertex.Set( fPixelSizeX, 0 );
+		vertex = vertex.Rotate( fRotation * TMath::Pi()/180. );
 
-        vertex = vertex + origin;
-    }
-    else if( n%4 == 2 )
-    {
-        vertex.Set( fPixelSizeX, fPixelSizeY );
-        vertex = vertex.Rotate( fRotation * TMath::Pi()/180. ); 
+		vertex = vertex + origin;
+	}
+	else if( n%4 == 2 )
+	{
+		vertex.Set( fPixelSizeX, fPixelSizeY );
+		vertex = vertex.Rotate( fRotation * TMath::Pi()/180. );
 
-        vertex = vertex + origin;
-    }
-    else if( n%4 == 3 )
-    {
-        vertex.Set( 0, fPixelSizeY );
-        vertex = vertex.Rotate( fRotation * TMath::Pi()/180. ); 
+		vertex = vertex + origin;
+	}
+	else if( n%4 == 3 )
+	{
+		vertex.Set( 0, fPixelSizeY );
+		vertex = vertex.Rotate( fRotation * TMath::Pi()/180. );
 
-        vertex = vertex + origin;
-    }
-    return vertex;
+		vertex = vertex + origin;
+	}
+	return vertex;
 }
 
 ///////////////////////////////////////////////
@@ -125,8 +129,8 @@ TVector2 TRestReadoutPixel::GetVertex( int n ) const
 ///
 Bool_t TRestReadoutPixel::isInside( Double_t x, Double_t y ) 
 {
-    TVector2 pos(x,y);
-    return isInside( pos );
+	TVector2 pos(x,y);
+	return isInside( pos );
 }
 
 ///////////////////////////////////////////////
@@ -135,19 +139,16 @@ Bool_t TRestReadoutPixel::isInside( Double_t x, Double_t y )
 ///
 Bool_t TRestReadoutPixel::isInside( TVector2 pos )
 {
-    pos = TransformToPixelCoordinates( pos );
+	pos = TransformToPixelCoordinates( pos );
 	Double_t const x = pos.X();
-/**/
-//AJOUT TRIANGLE
 	if( pos.X() >= -delta && pos.X() <= fPixelSizeX+delta )//Condition on X untouched 
 	{
-        if(fTriangle && pos.Y() >= -delta && pos.Y() <= fPixelSizeY+delta - x*(fPixelSizeY/fPixelSizeX) )//if triangle, third condition depends on x
-            return true;
-        if( !fTriangle && pos.Y() >= -delta && pos.Y() <= fPixelSizeY+delta )//for a normal rectangular pixel, same simple conditions
+		if(fTriangle && pos.Y() >= -delta && pos.Y() <= fPixelSizeY+delta - x*(fPixelSizeY/fPixelSizeX) )//if triangle, third condition depends on x
+			return true;
+		if( !fTriangle && pos.Y() >= -delta && pos.Y() <= fPixelSizeY+delta )//for a normal rectangular pixel, same simple conditions
 			return true;
 	}
-//*/
-    return false;
+	return false;
 }
 
 ///////////////////////////////////////////////
@@ -157,9 +158,9 @@ Bool_t TRestReadoutPixel::isInside( TVector2 pos )
 ///
 TVector2 TRestReadoutPixel::TransformToPixelCoordinates( TVector2 p )
 {
-    TVector2 pos( p.X() - fPixelOriginX, p.Y() - fPixelOriginY );
-    pos = pos.Rotate( -fRotation * TMath::Pi()/ 180. );
-    return pos;
+	TVector2 pos( p.X() - fPixelOriginX, p.Y() - fPixelOriginY );
+	pos = pos.Rotate( -fRotation * TMath::Pi()/ 180. );
+	return pos;
 }
 
 ///////////////////////////////////////////////
@@ -167,9 +168,7 @@ TVector2 TRestReadoutPixel::TransformToPixelCoordinates( TVector2 p )
 ///
 void TRestReadoutPixel::Print( )
 {
-    cout << "      ## Pixel ID : " << GetID() << " position : (" << GetOriginX() << "," << GetOriginY() << ") mm size : (" << GetSizeX() << "," << GetSizeY() << ") mm rotation : " << fRotation << " degrees" << " type : ";
-/**/	//AJOUT TRIANGLE
+	cout << "      ## Pixel ID : " << GetID() << " position : (" << GetOriginX() << "," << GetOriginY() << ") mm size : (" << GetSizeX() << "," << GetSizeY() << ") mm rotation : " << fRotation << " degrees" << " type : ";
 	if (fTriangle) cout << "triangle" << endl;
 	else cout << "rectangle" << endl;
-//*/
 }

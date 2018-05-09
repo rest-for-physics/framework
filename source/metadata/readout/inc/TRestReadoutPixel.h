@@ -31,92 +31,86 @@
 
 /// A class to store the readout pixel definition used in TRestReadoutChannel. 
 class TRestReadoutPixel : public TObject {
-    private:
-        Int_t fPixelID; ///< The internal pixel id.
-        Double_t fPixelOriginX; ///< The pixel x-origin position, left-bottom corner.
-        Double_t fPixelOriginY; ///< The pixel y-origin position, left-bottom corner.
+	private:
+		Int_t fPixelID; ///< The internal pixel id.
+		Double_t fPixelOriginX; ///< The pixel x-origin position, left-bottom corner.
+		Double_t fPixelOriginY; ///< The pixel y-origin position, left-bottom corner.
 
-        Double_t fPixelSizeX; ///< The pixel x size.
-        Double_t fPixelSizeY; ///< The pixel y size.
+		Double_t fPixelSizeX; ///< The pixel x size.
+		Double_t fPixelSizeY; ///< The pixel y size.
 
-        Double_t fRotation; ///< The pixel rotation angle in degrees, rotation with axis at the origin position.
+		Double_t fRotation; ///< The pixel rotation angle in degrees, rotation with axis at the origin position.
 
-/**/	//AJOUT TRIANGLE
 		Bool_t fTriangle; ///< The type of the pixel : false is rectangular, true is triangle 
-//*/
-        void Initialize();
+		void Initialize();
 
-    protected:
+	protected:
 
-    public:
-        /// Returns the internal pixel id.
-        Int_t GetID() { return fPixelID; }
+	public:
+		/// Returns the internal pixel id.
+		Int_t GetID() { return fPixelID; }
 
-        /// Returns the x-coordinate pixel origin.
-        Double_t GetOriginX( ) const { return fPixelOriginX; }
-        
-        /// Returns the y-coordinate pixel origin.
-        Double_t GetOriginY( ) const { return fPixelOriginY; }
+		/// Returns the x-coordinate pixel origin.
+		Double_t GetOriginX( ) const { return fPixelOriginX; }
 
-        /// Returns a TVector2 with the pixel origin.
-        TVector2 GetOrigin( ) const { return TVector2( fPixelOriginX, fPixelOriginY ); }
+		/// Returns the y-coordinate pixel origin.
+		Double_t GetOriginY( ) const { return fPixelOriginY; }
 
-        /// Returns the rotation angle in degrees
-        Double_t GetRotation( ) const { return fRotation; }
+		/// Returns a TVector2 with the pixel origin.
+		TVector2 GetOrigin( ) const { return TVector2( fPixelOriginX, fPixelOriginY ); }
 
-        /// Returns the pixel size in X
-        Double_t GetSizeX( ) { return fPixelSizeX; }
-        
-        /// Returns the pixel size in Y
-        Double_t GetSizeY( ) { return fPixelSizeY; }
+		/// Returns the rotation angle in degrees
+		Double_t GetRotation( ) const { return fRotation; }
 
-        /// Returns a TVector2 with the pixel size.
-        TVector2 GetSize( )  { return TVector2( fPixelSizeX, fPixelSizeY ); }
+		/// Returns the pixel size in X
+		Double_t GetSizeX( ) { return fPixelSizeX; }
 
-/**/	//AJOUT TRIANGLE
+		/// Returns the pixel size in Y
+		Double_t GetSizeY( ) { return fPixelSizeY; }
+
+		/// Returns a TVector2 with the pixel size.
+		TVector2 GetSize( )  { return TVector2( fPixelSizeX, fPixelSizeY ); }
+
 		/// Returns true if the pixel is a triangle.
-        Bool_t GetTriangle( ) const{ return fTriangle; } 
-//*/
+		Bool_t GetTriangle( ) const { return fTriangle; }
 
-        TVector2 GetCenter( ) const;
+		TVector2 GetCenter( ) const;
 
-        TVector2 GetVertex( int n ) const;
+		TVector2 GetVertex( int n ) const;
 
-        /// Sets the internal pixel id.
-        void SetID( Int_t id ) { fPixelID = id; }
+		/// Sets the internal pixel id.
+		void SetID( Int_t id ) { fPixelID = id; }
 
-        /// Sets the origin of the pixel using the coordinate values *x*,*y*.
-        void SetOrigin( Double_t x, Double_t y ) { fPixelOriginX = x; fPixelOriginY = y; }
+		/// Sets the origin of the pixel using the coordinate values *x*,*y*.
+		void SetOrigin( Double_t x, Double_t y ) { fPixelOriginX = x; fPixelOriginY = y; }
 
-        /// Sets the origin of the pixel using a TVector2.
-        void SetOrigin( TVector2 origin ) { fPixelOriginX = origin.X(); fPixelOriginY = origin.Y(); }
+		/// Sets the origin of the pixel using a TVector2.
+		void SetOrigin( TVector2 origin ) { fPixelOriginX = origin.X(); fPixelOriginY = origin.Y(); }
 
-        /// Sets the size of the pixel using the coordinate values *sx*,*sy*.
-        void SetSize( Double_t sx, Double_t sy ) { fPixelSizeX = sx; fPixelSizeY = sy; }
+		/// Sets the size of the pixel using the coordinate values *sx*,*sy*.
+		void SetSize( Double_t sx, Double_t sy ) { fPixelSizeX = sx; fPixelSizeY = sy; }
 
-        /// Sets the size of the pixel using a TVector2.
-        void SetSize( TVector2 size ) { fPixelSizeX = size.X(); fPixelSizeY = size.Y(); }
+		/// Sets the size of the pixel using a TVector2.
+		void SetSize( TVector2 size ) { fPixelSizeX = size.X(); fPixelSizeY = size.Y(); }
 
-        /// Sets the rotation angle of the pixel in degrees
-        void SetRotation( Double_t rot ) { fRotation = rot; }
-        
-/**/	//AJOUT TRIANGLE
+		/// Sets the rotation angle of the pixel in degrees
+		void SetRotation( Double_t rot ) { fRotation = rot; }
+
 		/// Sets the type of the pixel
-        void SetTriangle( Bool_t type ) { fTriangle = type; }
-//*/
+		void SetTriangle( Bool_t type ) { fTriangle = type; }
 
-        Bool_t isInside( TVector2 pos );
-        Bool_t isInside( Double_t x, Double_t y );
+		Bool_t isInside( TVector2 pos );
+		Bool_t isInside( Double_t x, Double_t y );
 
-        TVector2 TransformToPixelCoordinates( TVector2 p );
+		TVector2 TransformToPixelCoordinates( TVector2 p );
 
-        void Print( );
+		void Print( );
 
-        //Construtor
-        TRestReadoutPixel();
-        //Destructor
-        virtual ~ TRestReadoutPixel();
+		//Construtor
+		TRestReadoutPixel();
+		//Destructor
+		virtual ~ TRestReadoutPixel();
 
-        ClassDef(TRestReadoutPixel, 1);
+		ClassDef(TRestReadoutPixel, 1);
 };
 #endif

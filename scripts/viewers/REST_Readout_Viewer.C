@@ -87,7 +87,6 @@ int REST_Readout_Viewer( TString rootFile, TString name, Int_t plane = 0 )
 		xCH[px] = module->GetPixelCenter( ch, px ).X();
 		yCH[px] = module->GetPixelCenter( ch, px ).Y();
 
-/**/		///////////////AJOUT TRIANGLE/////////////
 		 bool isTriangle = module->GetPixelTriangle( ch, px);
 
 		if(isTriangle)
@@ -107,7 +106,6 @@ int REST_Readout_Viewer( TString rootFile, TString name, Int_t plane = 0 )
             //pixelGraph[graph]->SetMinimum( -200 );
             //pixelGraph[graph]->GetXaxis()->SetLimits(-200,200);
 		}
-//*/		///////////////AJOUT TRIANGLE/////////////
 		else
 		{
         	for( int v = 0; v < 5; v++ )
