@@ -30,7 +30,7 @@ Int_t TRestStringHelper::isAExpression(string in)
 	{
 		if (temp.find_first_not_of("-0123456789e+*/.,)( ^") == std::string::npos)
 		{
-			if (temp.find("./") == 0 || temp.find("/") == 0) return 0;
+			if (temp.find("/") == 0 || temp.find("./") == 0 || temp.find("../")) return 0;//identify path 
 			return 1;
 		}
 	}
