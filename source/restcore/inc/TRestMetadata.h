@@ -130,7 +130,7 @@ public:
 	Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal);
 	Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal, vector<TiXmlElement*> eEnv);
 	Int_t LoadConfigFromFile(string cfgFileName, string sectionName = "");
-	virtual Int_t LoadSectionMetadata(string section, string cfgFileName, string name) { LoadSectionMetadata(); return 0; }
+	//virtual Int_t LoadSectionMetadata(string section, string cfgFileName, string name) { LoadSectionMetadata(); return 0; }
 	virtual Int_t LoadSectionMetadata();
 	///  To make settings from rml file. This method must be implemented in the derived class.
 	virtual void InitFromConfigFile() = 0;
@@ -195,7 +195,8 @@ public:
 	/// If this method is called the metadata information will be stored in disk. This is the default behaviour.
 	void Store() { fStore = true; }
 	/// overwriting the write() method with fStore considered
-	void Write() { if (fStore) { TNamed::Write(); } }
+	Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0) const { if (fStore) { return TNamed::Write(name, option, bufsize); } return -1; }
+	Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0) { if (fStore) { return TNamed::Write(name, option, bufsize); } return -1; }
 
 protected:
 	//new xml utilities

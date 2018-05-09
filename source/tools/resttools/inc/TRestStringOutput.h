@@ -99,14 +99,14 @@ public:
 		if (input == "")return "";
 
 		string output = string(length, ' ');
-		for (int i = 0; i < border.size(); i++) {
+		for (unsigned int i = 0; i < border.size(); i++) {
 			output[i] = border[i];
 			output[length - i - 1] = border[border.size() - i - 1];
 		}
 
 		if (input == "=" || input == "-" || input == "*" || input == "+")
 		{
-			for (int i = border.size(); i < length - border.size(); i++)
+			for (unsigned int i = border.size(); i < length - border.size(); i++)
 			{
 				output[i] = input[0];
 			}
@@ -115,21 +115,21 @@ public:
 		{
 			if (input[0] == input[input.size() - 1] && (input[0] == '=' || input[0] == '-' || input[0] == '*' || input[0] == '+'))
 			{
-				for (int i = border.size(); i < length - border.size(); i++)
+				for (unsigned int i = border.size(); i < length - border.size(); i++)
 				{
 					output[i] = input[0];
 				}
 			}
 			else
 			{
-				for (int i = border.size(); i < length - border.size(); i++)
+				for (unsigned int i = border.size(); i < length - border.size(); i++)
 				{
 					output[i] = ' ';
 				}
 			}
 
 			int l = input.size();
-			if (l <= length - border.size() * 2)
+			if (l <= length - (int)border.size() * 2)
 			{
 				int startblank;
 				if (orientation == 0) {
@@ -243,12 +243,12 @@ protected:
 template<REST_Verbose_Level v> class TRestLeveledOutput :public TRestStringOutput {
 public:
 	TRestLeveledOutput() {};
-	TRestLeveledOutput(REST_Verbose_Level& vref, string c = COLOR_RESET, string b = "", int orientation = 0)
+	TRestLeveledOutput(REST_Verbose_Level& vref, string _color = COLOR_RESET, string _border = "", int _orientation = 0)
 		:verboselvlref(vref)
 	{
-		this->orientation = orientation;
-		color = c;
-		border = b;
+		this->orientation = _orientation;
+		color = _color;
+		border = _border;
 	}
 
 	REST_Verbose_Level verbose = v;

@@ -56,15 +56,15 @@ public:
 	}
 	void InitFromConfigFile() {}
 
-	void Print() {
+	void PrintContent() {
 
 		cout << elementstr << endl;
 	}
 
-	void ReplaceAttributeWithKeyWord(string s) 
+	void ReplaceAttributeWithKeyWord(string keyword) 
 	{
 		int n;
-		while ((n = elementstr.find(s, 0)) != -1)
+		while ((n = elementstr.find(keyword, 0)) != -1)
 		{
 			int pos1, pos2;
 			for (int i = n; i >= 0; i--) {
@@ -74,7 +74,7 @@ public:
 				}
 			}
 
-			for (int i = n; i < elementstr.size(); i++) {
+			for (unsigned int i = n; i < elementstr.size(); i++) {
 				if (elementstr[i] == '"') {
 					pos2 = i;
 					break;

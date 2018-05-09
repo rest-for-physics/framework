@@ -149,7 +149,7 @@ public:
 	void PrintMetadata() { PrintInfo(); }
 	void PrintAllMetadata() { 
 		PrintInfo();
-		for (int i = 0; i < fMetadataInfo.size(); i++)
+		for (unsigned int i = 0; i < fMetadataInfo.size(); i++)
 			fMetadataInfo[i]->PrintMetadata();
 	}
 	void PrintTrees() {
