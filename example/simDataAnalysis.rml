@@ -15,7 +15,7 @@
     <addMetadata type="TRestReadout" name="Readout-PANDA_3MM_Jinping" file="readouts.root"/>
 
     <TRestGas name="Xenon-TMA 3Pct 10-10E3V/cm"
-              file="${REST_DATAPATH}/definitions/gases.rml"
+              file="${REST_INPUTDATA}/definitions/gases.rml"
               pressure="1" value="ON" overwrite="false" />
     
   </TRestRun>

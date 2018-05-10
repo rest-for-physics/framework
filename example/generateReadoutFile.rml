@@ -10,7 +10,7 @@
   </globals>
 
   <TRestRun name="readoutrun">
-    <TRestReadout name="Panda-Jinping" file="${REST_DATAPATH}/definitions/readouts.rml"/>
+    <TRestReadout name="Panda-Jinping" file="${REST_INPUTDATA}/definitions/readouts.rml"/>
 
     <TRestReadout name="PandaReadout_MxM" title="PANDA readout 7MM" >
       <parameter name="verboseLevel" value="info"/>
@@ -19,9 +19,9 @@
       <myParameter name="nModules" value="{MODULES}" />
       <myParameter name="pitch" value="{PITCH}" />
       <myParameter name="pixelSize" value="{PITCH}/sqrt(2.)" />
-      <myParameter name="myDecodingFile" value="${REST_DATAPATH}/decoding/MM_On_AGET0-1.dec"/>
+      <myParameter name="myDecodingFile" value="${REST_INPUTDATA}/decoding/MM_On_AGET0-1.dec"/>
       
-      <readoutModule name="MM" file="${REST_DATAPATH}/definitions/readouts.rml"/>
+      <readoutModule name="MM" file="${REST_INPUTDATA}/definitions/readouts.rml"/>
 
       <readoutPlane position="(0,0,990)mm" planeVector="(0,0,-1)mm"
           chargeCollection="1"
