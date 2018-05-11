@@ -258,23 +258,25 @@ void TRestThread::PrepareToProcess(bool testrun)
 			fProcessChain[i]->SetAnalysisTree(fAnalysisTree);
 			fProcessChain[i]->ConfigAnalysisTree();
 		}
+		map<TString, TRestEvent*> branchesToAdd;//avoid duplicated branch
+		//if event type is same, we only create branch for the last of this type event
 		for (int i = 0; i < fTreeBranchDef.size(); i++) 
 		{
 			if (fTreeBranchDef[i] == "inputevent") 
 			{
 				TString BranchName = (TString)fInputEvent->GetName() + "Branch";
-				fEventTree->Branch(BranchName, fInputEvent->ClassName(), fInputEvent);
+				branchesToAdd[BranchName] = fInputEvent;
 				for (unsigned int i = 0; i < fProcessChain.size(); i++)
 				{
 					TRestEvent*processevent = fProcessChain[i]->GetOutputEvent();
 					TString BranchName = (TString)processevent->GetName() + "Branch";
-					fEventTree->Branch(BranchName, processevent->ClassName(), processevent);
+					branchesToAdd[BranchName] = processevent;
 				}
 			}
 			if (fTreeBranchDef[i] == "outputevent")
 			{
 				TString BranchName = (TString)fOutputEvent->GetName() + "Branch";
-				fEventTree->Branch(BranchName, fOutputEvent->ClassName(), fOutputEvent);
+				branchesToAdd[BranchName] = fOutputEvent;
 			}
 			if (fTreeBranchDef[i] == "inputanalysis")
 			{
@@ -283,6 +285,12 @@ void TRestThread::PrepareToProcess(bool testrun)
 			}
 
 		}
+		auto iter = branchesToAdd.begin();
+		while (iter != branchesToAdd.end()) {
+			fEventTree->Branch(iter->first, iter->second->ClassName(), iter->second);
+			iter++;
+		}
+
 		if (fEventTree->GetListOfBranches()->GetLast() < 6)
 		{
 			delete fEventTree; fEventTree = NULL;
@@ -326,8 +334,8 @@ void TRestThread::PrepareToProcess(bool testrun)
 			if (fTreeBranchDef[i] == "outputevent")
 			{
 				TString BranchName = (TString)fInputEvent->GetName() + "Branch";
-				fEventTree->Branch(BranchName, fInputEvent->ClassName(), fInputEvent);
-
+				if (fEventTree->GetBranch(BranchName) == NULL)//avoid duplicated branch
+					fEventTree->Branch(BranchName, fInputEvent->ClassName(), fInputEvent);
 			}
 			//currently external process analysis is not supported!
 		}
