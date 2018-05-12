@@ -27,6 +27,10 @@ else()
   find_package(Geant4 REQUIRED)
 endif()
 
+if(${Geant4_VERSION} MATCHES "10.4")
+	add_definitions(-DG4104)
+endif(${Geant4_VERSION} MATCHES "10.4")
+
 #----------------------------------------------------------------------------
 # Setup Geant4 include directories and compile definitions
 #
