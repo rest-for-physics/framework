@@ -157,25 +157,7 @@ bool TRestThread::TestRun()
 	}
 	if (fOutputEvent == NULL)
 	{
-		error << "REST ERROR(" << "In thread " << fThreadId << ")::Process result is null after 5 times of retry." << endl;
-		error << "REST cannot determing the address of output event!" << endl;
-		error << "continue with default address or try again? (a)gain/(d)efault/(c)ancell" << endl;
-		while (1) {
-			char o;
-			cin >> o;
-			if (o == 'a') {
-				if (TestRun())
-					return true;
-			}
-			else if (o == 'd') {
-				fOutputEvent = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent();
-				return true;
-			}
-			else if (o == 'c') {
-				return false;
-			}
-		}
-
+		fOutputEvent = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent();
 		return false;
 	}
 	return true;
@@ -235,13 +217,14 @@ void TRestThread::PrepareToProcess(bool testrun)
 		if (testrun) {
 			debug << "Test Run..." << endl;
 			if (!TestRun()) {
-				exit(1);
+				warning << "REST WARNING(" << "In thread " << fThreadId << ")::Large cut detected!" << endl;
+				warning << "Process result is null after 5 times of retry. " << endl;
 			}
-			debug << "Test Run success!" << endl;
+			debug << "Test Run complete!" << endl;
 		}
 		else
 		{
-			debug << "Setting output event address by default..." << endl;
+			debug << "Setting output event address with out test run... This may cause empty event problem!" << endl;
 			fOutputEvent = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent();
 		}
 		delete tempTree;
@@ -258,25 +241,58 @@ void TRestThread::PrepareToProcess(bool testrun)
 			fProcessChain[i]->SetAnalysisTree(fAnalysisTree);
 			fProcessChain[i]->ConfigAnalysisTree();
 		}
-		map<TString, TRestEvent*> branchesToAdd;//avoid duplicated branch
+		vector<pair<TString, TRestEvent*>> branchesToAdd;
+		//avoid duplicated branch
 		//if event type is same, we only create branch for the last of this type event
 		for (int i = 0; i < fTreeBranchDef.size(); i++) 
 		{
-			if (fTreeBranchDef[i] == "inputevent") 
+			if (fTreeBranchDef[i] == "inputevent")
 			{
-				TString BranchName = (TString)fInputEvent->GetName() + "Branch";
-				branchesToAdd[BranchName] = fInputEvent;
+				TRestEvent*evt = fInputEvent;
+				{
+					TString BranchName = (TString)evt->GetName() + "Branch";
+					if (branchesToAdd.size() == 0)
+						branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
+					else
+						for (int j = 0; j < branchesToAdd.size(); j++) {
+							if (branchesToAdd[j].first == BranchName)
+								branchesToAdd[j].second = evt;
+							else if (j == branchesToAdd.size() - 1)
+								branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
+						}
+				}
 				for (unsigned int i = 0; i < fProcessChain.size(); i++)
 				{
-					TRestEvent*processevent = fProcessChain[i]->GetOutputEvent();
-					TString BranchName = (TString)processevent->GetName() + "Branch";
-					branchesToAdd[BranchName] = processevent;
+					TRestEvent*evt = fProcessChain[i]->GetOutputEvent();
+					{
+						TString BranchName = (TString)evt->GetName() + "Branch";
+						if (branchesToAdd.size() == 0)
+							branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
+						else
+							for (int j = 0; j < branchesToAdd.size(); j++) {
+								if (branchesToAdd[j].first == BranchName)
+									branchesToAdd[j].second = evt;
+								else if (j == branchesToAdd.size() - 1)
+									branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
+							}
+					}
 				}
 			}
 			if (fTreeBranchDef[i] == "outputevent")
 			{
-				TString BranchName = (TString)fOutputEvent->GetName() + "Branch";
-				branchesToAdd[BranchName] = fOutputEvent;
+				TRestEvent*evt = fOutputEvent;
+				{
+					TString BranchName = (TString)evt->GetName() + "Branch";
+					if (branchesToAdd.size() == 0)
+						branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
+					else
+						for (int j = 0; j < branchesToAdd.size(); j++) {
+							if (branchesToAdd[j].first == BranchName)
+								branchesToAdd[j].second = evt;
+							else if (j == branchesToAdd.size() - 1)
+								branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
+						}
+				}
 			}
 			if (fTreeBranchDef[i] == "inputanalysis")
 			{
