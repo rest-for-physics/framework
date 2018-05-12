@@ -657,6 +657,9 @@ void TRestProcessRunner::PauseMenu() {
 			fProcStatus = kNormal;
 			break;
 		}
+		else if (b == '\n') {
+			//cursorUp(1);
+		}
 		else
 		{
 			cursorUp(mainmenuleng + 2);
