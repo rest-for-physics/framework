@@ -42,7 +42,7 @@
     <parameter name="inputFile" value="${REST_INPUTFILE}"/>
     <parameter name="inputFormat" value="run[RunNumber]_file[Fragment]_[Time-d]_[Time].graw"/>
     <parameter name="outputFile" value="RUN[RunNumber]_[Time]_[LastProcess].root" />
-    <parameter name="addonFilePath" value="$ENV{REST_PATH}/inputData/definitions/:$ENV{REST_PATH}/inputData/gasFiles/"/>
+    <parameter name="addonFilePath" value="$ENV{REST_INPUTDATA}/definitions/"/>
     <parameter name="mainDataPath" value="" />
   </globals>
 
