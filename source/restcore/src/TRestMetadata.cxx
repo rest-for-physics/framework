@@ -779,7 +779,6 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 	if (!fileExists(filename)) { 
 
 		vector<string> paths = Spilt(GetParameter("addonFilePath", ""), ":");
-		cout << paths.size() << endl;
 		for (int i = 0; i < paths.size(); i++) 
 		{
 			if (fileExists(paths[i] + filename)) {
