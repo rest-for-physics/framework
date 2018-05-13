@@ -7,7 +7,7 @@
   </globals>
 
   // ----- 0.75% ---------------------------------------------------------------------------------------------
-  <TRestGas name="mixtureProto" title="Xenon-TMA Mixture during March~April 2018 in SJTU Proto" generate="off">
+  <TRestGas name="mixtureProto" title="Xenon-TMA Mixture during March~April 2018 in SJTU Proto" generate="on">
     <parameter name="pressure" value="10" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -16,10 +16,6 @@
     <eField Emin="10" Emax="1000." nodes="20" />
     <gasComponent name="xe" fraction="0.9925" />
     <gasComponent name="n(ch3)3" fraction="0.0075" />
-  </TRestGas>
-
-  <TRestGas name="Xenon-TMA 1Pct 10-10E3V/cm" generate="off">
-    <include file="gases.rml"/>
   </TRestGas>
 
 </TRestManager>
