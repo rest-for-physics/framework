@@ -78,6 +78,7 @@ private:
     Int_t fEnodes;                      // Number of electric field nodes used in the gas calculation.
     Double_t fEmax;                     // Minimum value of the electric field used for the gas calculation.
     Double_t fEmin;                     // Maximum value of the electric field used for the gas calculation.
+	Double_t fLast_E;//!                Last calculated E field. Used in no-gas-file mode.
 
     std::vector <Double_t> fEFields;    // The electric field nodes as calculated by Garfield::MediumMagboltz.
     std::vector <Double_t> fBFields;    // The magnetic field nodes as calculated by Garfield::MediumMagboltz.
@@ -86,6 +87,8 @@ private:
     TString fGDMLMaterialRef;       // The corresponding material reference name in GDML description
 
     bool fGasGeneration;                // If true, and the pre-generated Magboltz gas file is not found, it will allow to launch the gas generation.
+	bool fGasFileLoaded;//!              If true, REST uses directly MediumMagboltz::ElectronDiffusion, etc, in GetXXX, otherwise it calculates E first
+	bool InitComplete;//!                If false, REST gas is doing initialization. ConditionChanged won't work
 
     void InitFromConfigFile( );
     void ConstructFilename( );
@@ -104,18 +107,25 @@ public:
 
     /// Returns true if the file generation is enabled. False otherwise.
     bool GasFileGenerationEnabled() { return fGasGeneration; } 
+	bool GasFileLoaded() { return fGasFileLoaded; }
 
     void Initialize();
 
-    void LoadGasFile();
+	void LoadGasFile();
+
+	void CalcGarField(double Emin, double Emax, int n);
+
+	void ConditionChanged();
 
 	Double_t GetW() { return fW; }
 
-    /// Returns the maximum electron energy used by Magboltz for the gas properties calculation
-    Double_t GetMaxElectronEnergy() { return fMaxElectronEnergy; }
+	/// Returns the maximum electron energy used by Magboltz for the gas properties calculation
+	Double_t GetMaxElectronEnergy() { return fMaxElectronEnergy; }
 
-    /// Returns the number of gas elements/compounds present in the gas mixture.
+	/// Returns the number of gas elements/compounds present in the gas mixture.
 	Int_t GetNofGases() { return fNofGases; }
+
+	Int_t GetLastCalculatedE() { return fLast_E; }
 
     /// Returns the gas component *n*.
     TString GetGasComponentName( Int_t n ) 
@@ -152,7 +162,7 @@ public:
     Double_t GetPressure() { return fPressureInAtm; }; 
     
     /// Returns the gas temperature in K.
-    Double_t GetTemperature() { return fTemperatureInK; }; 
+    Double_t GetTemperature() { return fTemperatureInK;	ConditionChanged();};
 
     /// Returns the gas work function in eV.
     Double_t GetWvalue() { return fW; }
@@ -168,10 +178,10 @@ public:
     void SetPressure( Double_t pressure );
 
     /// Sets the maximum electron energy to be used in gas generation.
-    void SetMaxElectronEnergy( Double_t energy ) { fMaxElectronEnergy = energy; }
+    void SetMaxElectronEnergy( Double_t energy ) { fMaxElectronEnergy = energy; ConditionChanged();}
 
     /// Sets the value of the work funtion for the gas mixture.
-    void SetWvalue( Double_t iP ) { fW = iP; }
+    void SetWvalue( Double_t iP ) { fW = iP; ConditionChanged();}
 
     void PlotDriftVelocity( Double_t eMin, Double_t eMax, Int_t nSteps );
     void PlotLongitudinalDiffusion( Double_t eMin, Double_t eMax, Int_t nSteps );
