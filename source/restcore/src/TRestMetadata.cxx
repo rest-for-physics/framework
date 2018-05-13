@@ -1141,10 +1141,14 @@ TiXmlElement* TRestMetadata::GetRootElementFromFile(std::string cfgFileName)
 {
 	TiXmlDocument* doc = new TiXmlDocument();
 
+	if (!fileExists(cfgFileName)) {
+		cout << "Config file does not exist. The file is: " << cfgFileName << endl;
+		GetChar();
+		exit(1);
+	}
 	if (!doc->LoadFile(cfgFileName.c_str()))
 	{
 		cout << "Failed to load xml file, syntax maybe wrong. The file is: " << cfgFileName << endl;
-
 		GetChar();
 		exit(1);
 	}
