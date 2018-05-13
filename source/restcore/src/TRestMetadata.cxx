@@ -772,16 +772,18 @@ void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 {
 	ReplaceElementAttributes(e);
-	const char* filename = e->Attribute("file");
-	if (filename == NULL)return;
-	
+	const char* _filename = e->Attribute("file");
+	if (_filename == NULL)return;
+
+	string filename = _filename;
 	if (!fileExists(filename)) { 
 
 		vector<string> paths = Spilt(GetParameter("addonFilePath", ""), ":");
+		cout << paths.size() << endl;
 		for (int i = 0; i < paths.size(); i++) 
 		{
 			if (fileExists(paths[i] + filename)) {
-				filename = (paths[i] + (string)filename).c_str();
+				filename = paths[i] + filename;
 				break;
 			}
 			else if (i == paths.size() - 1)
