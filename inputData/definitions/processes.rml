@@ -329,9 +329,9 @@
          pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
          minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
         -->
-    <parameter name="pointThreshold" value="{POINT_TH}" />
-    <parameter name="pointsOverThreshold" value="{NPOINTS}" />
-    <parameter name="signalThreshold" value="{SGNL_TH}" />
+    <parameter name="pointThreshold" value="${POINT_TH}" />
+    <parameter name="pointsOverThreshold" value="${NPOINTS}" />
+    <parameter name="signalThreshold" value="${SGNL_TH}" />
   </TRestSignalZeroSuppresionProcess>
 
   <TRestRawSignalAnalysisProcess name="sAna" title=""  >
@@ -351,9 +351,9 @@
          pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
          minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
         -->
-    <parameter name="pointThreshold" value="{POINT_TH}" />
-    <parameter name="pointsOverThreshold" value="{NPOINTS}" />
-    <parameter name="signalThreshold" value="{SGNL_TH}" />
+    <parameter name="pointThreshold" value="${POINT_TH}" />
+    <parameter name="pointsOverThreshold" value="${NPOINTS}" />
+    <parameter name="signalThreshold" value="${SGNL_TH}" />
 
     <!-- ++++++++++++++++++++++
          Observable definitions
@@ -457,9 +457,9 @@
          minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
         -->
 
-    <parameter name="pointThreshold" value="{POINT_TH}" />
-    <parameter name="pointsOverThreshold" value="{NPOINTS}" />
-    <parameter name="signalThreshold" value="{SGNL_TH}" />
+    <parameter name="pointThreshold" value="${POINT_TH}" />
+    <parameter name="pointsOverThreshold" value="${NPOINTS}" />
+    <parameter name="signalThreshold" value="${SGNL_TH}" />
 
     <!-- ++++++++++++++++++++++
          Observable definitions
@@ -531,9 +531,9 @@
          pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
          minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
         -->
-    <parameter name="pointThreshold" value="{POINT_TH}" />
-    <parameter name="pointsOverThreshold" value="{NPOINTS}" />
-    <parameter name="signalThreshold" value="{SGNL_TH}" />
+    <parameter name="pointThreshold" value="${POINT_TH}" />
+    <parameter name="pointsOverThreshold" value="${NPOINTS}" />
+    <parameter name="signalThreshold" value="${SGNL_TH}" />
 
     <!-- ++++++++++++++++++++++
          Observable definitions

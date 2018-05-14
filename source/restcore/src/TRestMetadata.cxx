@@ -153,7 +153,7 @@
 /// \code
 /// 
 ///   <ClassName name="userGivenName" title="User given title" >
-///       <myParameter name="nChannels" value="{CHANNELS}" /> //this variable cannot be loaded by the class "ContainedClassName"
+///       <myParameter name="nChannels" value="${CHANNELS}" /> //this variable cannot be loaded by the class "ContainedClassName"
 ///
 ///       <ContainedClassName field1="value1" field2="value2"  >
 ///           <variable .... / > //this variable cannot be loaded by the class "ClassName"
@@ -238,8 +238,8 @@
 ///
 /// \code
 /// <globals>
-///    <parameter name="mainDataPath" value="{REST_DATAPATH}" />
-///    <parameter name="gasDataPath" value="{GAS_PATH}" /> 
+///    <parameter name="mainDataPath" value="${REST_DATAPATH}" />
+///    <parameter name="gasDataPath" value="${GAS_PATH}" /> 
 ///    <parameter name="verboseLevel" value="debug" /> 
 ///	<parameter name = "inputFile" value = "${REST_INPUTFILE}" / >
 ///	<parameter name = "inputFormat" value = "run[RunNumber]_file[Fragment]_[Time-d]_[Time].graw" / >

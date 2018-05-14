@@ -15,10 +15,10 @@
     <TRestReadout name="PandaReadout_MxM" title="PANDA readout 7MM" >
       <parameter name="verboseLevel" value="info"/>
       <parameter name="mappingNodes" value="0" />
-      <myParameter name="nChannels" value="{CHANNELS}" />
-      <myParameter name="nModules" value="{MODULES}" />
-      <myParameter name="pitch" value="{PITCH}" />
-      <myParameter name="pixelSize" value="{PITCH}/sqrt(2.)" />
+      <myParameter name="nChannels" value="${CHANNELS}" />
+      <myParameter name="nModules" value="${MODULES}" />
+      <myParameter name="pitch" value="${PITCH}" />
+      <myParameter name="pixelSize" value="${PITCH}/sqrt(2.)" />
       <myParameter name="myDecodingFile" value="${REST_INPUTDATA}/decoding/MM_On_AGET0-1.dec"/>
       
       <readoutModule name="MM" file="${REST_INPUTDATA}/definitions/readouts.rml"/>
