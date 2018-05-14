@@ -322,7 +322,7 @@
   <TRestSignalZeroSuppresionProcess name="zS" title=""  >
 
     <!-- This parameter is used to define the baseline calculation -->
-    <parameter name="baseLineRange" value="({BL_MIN},{BL_MAX})" />
+    <parameter name="baseLineRange" value="(${BL_MIN},${BL_MAX})" />
 
     <!-- These parameters define the integral with threshold. 
          threshold : number of baseline noise sigmas to consider a point for integration.
@@ -341,7 +341,7 @@
     <parameter name="refreshEvery" value="1" />
 
     <!-- This parameter is used to define the baseline calculation -->
-    <parameter name="baseLineRange" value="({BL_MIN},{BL_MAX})" />
+    <parameter name="baseLineRange" value="(${BL_MIN},${BL_MAX})" />
 
     <!-- This parameter is used to define the signal integration window -->
     <parameter name="integralRange" value="(40,472)" />
@@ -446,7 +446,7 @@
     <parameter name="refreshEvery" value="1" />
 
     <!-- This parameter is used to define the baseline calculation -->
-    <parameter name="baseLineRange" value="({BL_MIN},{BL_MAX})" />
+    <parameter name="baseLineRange" value="(${BL_MIN},${BL_MAX})" />
 
     <!-- This parameter is used to define the signal integration window -->
     <parameter name="integralRange" value="(20,492)" />
@@ -521,7 +521,7 @@
     <parameter name="refreshEvery" value="1000" />
 
     <!-- This parameter is used to define the baseline calculation -->
-    <parameter name="baseLineRange" value="({BL_MIN},{BL_MAX})" />
+    <parameter name="baseLineRange" value="(${BL_MIN},${BL_MAX})" />
 
     <!-- This parameter is used to define the signal integration window -->
     <parameter name="integralRange" value="(20,492)" />
