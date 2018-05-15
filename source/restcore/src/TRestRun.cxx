@@ -229,38 +229,38 @@ void TRestRun::ProcessEvents( Int_t firstEvent, Int_t eventsToProcess, Int_t las
 	if( fInputEvent != NULL && this->GetVerboseLevel() >= REST_Extreme )
 	    fInputEvent->PrintEvent();
 
-	if( fInputEvent != NULL )
-		for( unsigned int j = 0; j < fEventProcess.size(); j++ )
-			fEventProcess[j]->StampOutputEvent( fInputEvent );
-
 	for( unsigned int j = 0; j < fEventProcess.size(); j++ )
-	{
-	    fEventProcess[j]->BeginOfEventProcess();
+    {
 
-	    if( this->GetVerboseLevel() >= REST_Debug )
-	    {
-		cout << "Starting process " << j << " : " << fEventProcess[j]->GetName() << endl;
-		cout << "+------------------------------------------------------+" << endl;
-		cout << "Process output level : " << fEventProcess[j]->GetVerboseLevelString() << endl;
+        fEventProcess[j]->BeginOfEventProcess();
+
+        if( fInputEvent != NULL )
+            fEventProcess[j]->StampOutputEvent( fInputEvent );
+
+        if( this->GetVerboseLevel() >= REST_Debug )
+        {
+            cout << "Starting process " << j << " : " << fEventProcess[j]->GetName() << endl;
+            cout << "+------------------------------------------------------+" << endl;
+            cout << "Process output level : " << fEventProcess[j]->GetVerboseLevelString() << endl;
 #ifdef TIME_MEASUREMENT
-		tS = high_resolution_clock::now();
+            tS = high_resolution_clock::now();
 #endif
-	    }
-	    processedEvent = fEventProcess[j]->ProcessEvent( processedEvent );
+        }
+        processedEvent = fEventProcess[j]->ProcessEvent( processedEvent );
 
-	    if( processedEvent == NULL ) break;
-	    fEventProcess[j]->EndOfEventProcess();
+        if( processedEvent == NULL ) break;
+        fEventProcess[j]->EndOfEventProcess();
 
-	    if( this->GetVerboseLevel() >= REST_Debug )
-	    {
+        if( this->GetVerboseLevel() >= REST_Debug )
+        {
 #ifdef TIME_MEASUREMENT
-		tE = high_resolution_clock::now();
-		cout << "Process time in ms : " <<  (double) duration_cast<microseconds>( tE - tS ).count() / 1000. << endl;;
+            tE = high_resolution_clock::now();
+            cout << "Process time in ms : " <<  (double) duration_cast<microseconds>( tE - tS ).count() / 1000. << endl;;
 #endif
-		cout << "Ending process " << j << " : " << fEventProcess[j]->GetName() << endl;
-		cout << "+------------------------------------------------------+" << endl;
-	    }
-	}
+            cout << "Ending process " << j << " : " << fEventProcess[j]->GetName() << endl;
+            cout << "+------------------------------------------------------+" << endl;
+        }
+    }
 
 #ifdef TIME_MEASUREMENT
 	high_resolution_clock::time_point t2 = high_resolution_clock::now();
