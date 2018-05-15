@@ -69,7 +69,7 @@ private:
 	//self variables for processing
 	vector<TRestThread*> fThreads;//!
 	TFile* fTempOutputDataFile;//!
-	TRestAnalysisTree* fEventTree;//!
+	TTree* fEventTree;//!
 	TRestAnalysisTree* fAnalysisTree;//!
 	ProcStatus fProcStatus;
 	Int_t nBranches;

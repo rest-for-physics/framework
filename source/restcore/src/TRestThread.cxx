@@ -238,8 +238,8 @@ void TRestThread::PrepareToProcess(bool testrun)
 		debug << "Creating Analysis Tree..." << endl;
 		fAnalysisTree = new TRestAnalysisTree("AnalysisTree_"+ToString(fThreadId), "dummyTree");
 		fAnalysisTree->CreateEventBranches();
-		fEventTree = new TRestAnalysisTree("EventTree_" + ToString(fThreadId), "dummyTree");
-		fEventTree->CreateEventBranches();
+		fEventTree = new TTree((TString)"EventTree_" + ToString(fThreadId), "dummyTree");
+		//fEventTree->CreateEventBranches();
 		for (unsigned int i = 0; i < fProcessChain.size(); i++)
 		{
 			fProcessChain[i]->SetAnalysisTree(fAnalysisTree);
@@ -311,7 +311,7 @@ void TRestThread::PrepareToProcess(bool testrun)
 			iter++;
 		}
 
-		if (fEventTree->GetListOfBranches()->GetLast() < 6)
+		if (fEventTree->GetListOfBranches()->GetLast() < 1)//if no event branches are created
 		{
 			delete fEventTree; fEventTree = NULL;
 		}
@@ -346,8 +346,8 @@ void TRestThread::PrepareToProcess(bool testrun)
 		debug << "Creating Analysis Tree..." << endl;
 		fAnalysisTree = new TRestAnalysisTree("AnalysisTree_" + ToString(fThreadId), "dummyTree");
 		fAnalysisTree->CreateEventBranches();
-		fEventTree = new TRestAnalysisTree("EventTree_" + ToString(fThreadId), "dummyTree");
-		fEventTree->CreateEventBranches();
+		fEventTree = new TTree((TString)"EventTree_" + ToString(fThreadId), "dummyTree");
+		//fEventTree->CreateEventBranches();
 
 		for (int i = 0; i < fTreeBranchDef.size(); i++)
 		{
@@ -359,7 +359,7 @@ void TRestThread::PrepareToProcess(bool testrun)
 			}
 			//currently external process analysis is not supported!
 		}
-		if (fEventTree->GetListOfBranches()->GetLast() < 6)
+		if (fEventTree->GetListOfBranches()->GetLast() < 1)
 		{
 			delete fEventTree; fEventTree = NULL;
 		}

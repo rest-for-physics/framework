@@ -69,7 +69,7 @@ public:
 	Int_t GetProcessnum() { return fProcessChain.size(); }
 	TRestEventProcess* GetProcess(int i) { return fProcessChain[i]; }
 	TRestAnalysisTree* GetAnalysisTree() { return fAnalysisTree; }
-	TRestAnalysisTree* GetEventTree() { return fEventTree; }
+	TTree* GetEventTree() { return fEventTree; }
 	Bool_t Finished() { return isFinished; }
 
 private:
@@ -82,7 +82,7 @@ private:
 	TRestEvent* fInputEvent;//!
 	TRestEvent* fOutputEvent;//!
 
-	TRestAnalysisTree* fEventTree;//!
+	TTree* fEventTree;//!
 	TRestAnalysisTree* fAnalysisTree;//!
 
 

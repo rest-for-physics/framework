@@ -314,7 +314,7 @@ void TRestProcessRunner::RunProcess()
 
 	//copy thread tree to local
 	fTempOutputDataFile->cd();
-	TRestAnalysisTree* tree = fThreads[0]->GetEventTree();
+	TTree* tree = fThreads[0]->GetEventTree();
 	if (tree != NULL) {
 		fEventTree = (TRestAnalysisTree*)tree->Clone();
 		fEventTree->SetName("EventTree");
@@ -762,7 +762,7 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t)
 
 		if (fEventTree != NULL) {
 
-			t->GetEventTree()->FillEvent(t->GetOutputEvent());
+			//t->GetEventTree()->FillEvent(t->GetOutputEvent());
 			branchesT = t->GetEventTree()->GetListOfBranches();
 			branchesL = fEventTree->GetListOfBranches();
 			for (int i = 0; i < branchesT->GetLast() + 1; i++)
