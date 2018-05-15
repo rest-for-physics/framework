@@ -666,31 +666,26 @@ void TRestMetadata::SetEnvWithElement(TiXmlElement* e, bool overwriteexisting)
 void TRestMetadata::ExpandElement(TiXmlElement*e, bool recursive)
 {
 	ReplaceElementAttributes(e);
-	TiXmlElement* contentelement = e->FirstChildElement();
-	while (contentelement != NULL) 
+	if ((string)e->Value() == "for") {
+		ExpandForLoops(e);
+	}
+	else if (e->Attribute("file") != NULL)
 	{
-		TiXmlElement*nxt= contentelement->NextSiblingElement();
-		//cout << contentelement->Value() << endl;
-		if ((string)contentelement->Value() == "for") 
-		{
-			//debug << "expanding for loop" << endl;
-			ExpandForLoops(contentelement);
+		ExpandIncludeFile(e);
+	}
+	else if (e->FirstChildElement() != NULL) {
+		TiXmlElement* contentelement = e->FirstChildElement();
+		//we won't expand child section unless forced recursive. The expansion of this 
+		//section will be executed by the resident TRestXXX class
+		if (contentelement != NULL && (recursive || ((string)contentelement->Value()).find("TRest") == -1)) {
+			debug << "into child elements of: " << e->Value() << endl;
 		}
-		else if(contentelement->Attribute("file")!=NULL)
+		while (contentelement != NULL && (recursive || ((string)contentelement->Value()).find("TRest") == -1))
 		{
-			ExpandIncludeFile(contentelement);
+			TiXmlElement*nxt = contentelement->NextSiblingElement();
+			ExpandElement(contentelement, recursive);
+			contentelement = nxt;
 		}
-		//if the child element contains its own child element, and is not a 
-		else if (contentelement->FirstChildElement() != NULL&&(recursive|| ((string)contentelement->Value()).find("TRest")==-1))
-		{
-			debug << "into child element of "<< contentelement->Value() << endl;
-			ExpandElement(contentelement,recursive);
-		}
-		else
-		{
-			ReplaceElementAttributes(contentelement);
-		}
-		contentelement = nxt;
 	}
 }
 
@@ -793,153 +788,124 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 			}
 		}
 	}
-	if (!isRootFile(filename)) //root file inclusion should be implemented in the derived class
+	if (!isRootFile(filename)) //root file inclusion is implemented in TRestRun
 	{
-		//get the root element
-		TiXmlElement* rootele = GetRootElementFromFile(filename);
-		if (rootele == NULL) {
-			warning << "REST WARNING(expand include file): Include file " << filename << " is of wrong xml format!" << endl;
-			warning << endl;
-			return;
-		}
-
+		debug << "----expanding include file----" << endl;
 		//we find the target element(the element to receive content) 
 		//and the config element(the element to provide content)
-		TiXmlElement*targetele;
+		TiXmlElement* configele;
+		TiXmlElement* targetele;
 		string type;
 		string name;
-		//condition 1: 
-		//   <a name="" .....>
+		//condition 1(raw file include): 
+		//   <TRestXXX name="" .....>
 		//     <include file="aaa.rml"/>
 		//     ....
-		//   </a>
-		//element "a" is the target element
+		//   </TRestXXX>
 		if ((string)e->Value() == "include")
 		{
 			targetele = (TiXmlElement*)e->Parent();
 			if (targetele == NULL)return;
-
 			type = targetele->Value();
-			name = e->Attribute("name") == NULL ? "" : e->Attribute("name");
+			name = targetele->Attribute("name") == NULL ? "" : targetele->Attribute("name");
+
+			configele = new TiXmlElement("Config");
+			ifstream infile;
+			infile.open(filename);
+			string str;
+			int t1;
+			while(getline(infile,str))
+			{
+				TiXmlElement*ele = StringToElement(str);
+				if (ele != NULL) {
+					configele->InsertEndChild(*ele);
+				}
+				else {
+					debug << "skipping non-xml line \"" << str <<"\""<< endl;
+				}
+			}
 
 		}
-		//condition 2: 
-		//   <a name="" ... file="aaa.rml" .../>
-		//element "a" is the target element
+		//condition 2(auto insert): 
+		//   <TRestXXX file=""/>
+		//or
+		//   <TRestXXX name="" ... file="aaa.rml" .../>
+		//or
+		//   <addXXX type="" name="" ... file="aaa.rml" .../>
 		else
 		{
 			targetele = e;
-			if (e->Attribute("type") != NULL) {
-				type = e->Attribute("type");
+			type = e->Attribute("type") != NULL ? e->Attribute("type") : e->Value();
+			name = targetele->Attribute("name") == NULL ? "" : targetele->Attribute("name");
+
+
+			//get the root element
+			TiXmlElement* rootele = GetRootElementFromFile(filename);
+			if (rootele == NULL) {
+				warning << "REST WARNING(expand include file): Include file " << filename << " is of wrong xml format!" << endl;
+				warning << endl;
+				return;
 			}
-			else
+			if ((string)rootele->Value() == type) {
+				//if root element in the included file is of given type, directly use it
+				configele = rootele;
+			}
+			else {
+				//import env first
+				if (type != "globals"&&GetElement("globals", rootele) != NULL) {
+					TiXmlElement*globaldef = GetElement("globals", rootele)->FirstChildElement();
+					while (globaldef != NULL)
+					{
+						if ((string)globaldef->Value() == "variable" || (string)globaldef->Value() == "myParameter" || (string)globaldef->Value() == "constant")
+						{
+							SetEnvWithElement(globaldef, false);
+						}
+						globaldef = globaldef->NextSiblingElement();
+					}
+				}
+				//find its child section according to type and name
+				if (name == ""&&GetElement(type, rootele) != NULL)
+					configele = GetElement(type, rootele);
+				else if (GetElementWithName(type, name, rootele) != NULL)
+					configele = GetElementWithName(type, name, rootele);
+
+				if (configele == NULL)
+				{
+					warning << "REST WARNING(expand include file): Cannot get corresponding xml section!" << endl;
+					warning << "type: " << type << " , name: " << name << " . Skipping" << endl;
+					warning << endl;
+					return;
+				}
+			}
+		}
+
+
+
+		debug << "Expand element constructed" << endl;
+
+		ExpandElement(configele, true);
+		int nattr = 0;
+		int nele = 0;
+		if (targetele->Attribute("expanded") == NULL ? true : ((string)targetele->Attribute("expanded") != "true")) {
+			TiXmlAttribute*attr = configele->FirstAttribute();
+			while (attr != NULL) {
+				if (targetele->Attribute(attr->Name()) == NULL)
+				{
+					targetele->SetAttribute(attr->Name(), attr->Value());
+					nattr++;
+				}
+				attr = attr->Next();
+			}
+			TiXmlElement* ele = configele->FirstChildElement();
+			while (ele != NULL)
 			{
-				type = e->Value();
-			}
-			name = e->Attribute("name") == NULL ? "" : e->Attribute("name");
-		}
-
-		debug << "----expanding include file----" << endl;
-
-		//find config elemnt according to type and name
-		TiXmlElement*configele = NULL;
-		//1. root element in the included file is of given type
-		if ((string)rootele->Value() == type) {
-			configele = rootele;
-		}
-		//2. name is not specified
-		else if (name == ""&&GetElement(type, rootele) != NULL)
-		{
-			if (type != "globals"&&GetElement("globals", rootele) != NULL) {
-				TiXmlElement*globaldef = GetElement("globals", rootele)->FirstChildElement();
-				while (globaldef != NULL)
+				//ExpandElement(ele);
+				if ((string)ele->Value() != "for")
 				{
-					if ((string)globaldef->Value() == "variable" || (string)globaldef->Value() == "myParameter" || (string)globaldef->Value() == "constant")
-					{
-						SetEnvWithElement(globaldef, false);
-					}
-					globaldef = globaldef->NextSiblingElement();
+					targetele->InsertEndChild(*ele);
+					nele++;
 				}
-			}
-
-			configele = GetElement(type, rootele);
-		}
-		//3. child element in the root element is of given type/name, we need to import env
-		else if (GetElementWithName(type, name, rootele) != NULL)
-		{
-			if (type != "globals"&&GetElement("globals", rootele) != NULL) {
-				TiXmlElement*global = GetElement("globals", rootele);
-				TiXmlElement*globaldef = global->FirstChildElement();
-				while (globaldef != NULL)
-				{
-					if ((string)globaldef->Value() == "variable" || (string)globaldef->Value() == "myParameter" || (string)globaldef->Value() == "constant")
-					{
-						ReplaceElementAttributes(globaldef);
-						debug << "setting env" << globaldef->Value() << globaldef->Attribute("name") << endl;
-						SetEnvWithElement(globaldef, false);
-					}
-					globaldef = globaldef->NextSiblingElement();
-				}
-			}
-
-			configele = GetElementWithName(type, name, rootele);
-
-		}
-
-		if(configele==NULL)
-		{
-			warning << "REST WARNING(expand include file): Cannot get corresponding xml section!" << endl;
-			warning << "type: " << type << " , name: " << name << " . Skipping" << endl;
-			warning << endl;
-			return;
-		}
-
-
-
-		ExpandElement(configele,true);
-
-		//expand the included file content into the parent element
-		//this is called when the xml is like
-		//   <a name="" .....>
-		//     <include file="aaa.rml"/>
-		//     ....
-		//   </a>
-		if ((string)e->Value() == "include")
-		{
-			if (targetele->Attribute("expanded") == NULL ? true : ((string)targetele->Attribute("expanded") != "true")) {
-				TiXmlElement* ele = configele->FirstChildElement();
-				while (ele != NULL)
-				{
-					//ExpandElement(ele);
-					if ((string)ele->Value() != "for")
-						targetele->InsertBeforeChild(e, *ele->Clone());
-					ele = ele->NextSiblingElement();
-				}
-
-				targetele->RemoveChild(e);
-			}
-		}
-		else//expand the included file content into itself
-			//this is called when the element is like
-			//<a name="" ... file="aaa.rml" .../>
-		{
-			if (targetele->Attribute("expanded") == NULL ? true : ((string)targetele->Attribute("expanded") != "true")) {
-				TiXmlAttribute*attr = configele->FirstAttribute();
-				while (attr != NULL) {
-					if(targetele->Attribute(attr->Name())==NULL)
-						targetele->SetAttribute(attr->Name(), attr->Value());
-					attr = attr->Next();
-				}
-				TiXmlElement* ele = configele->FirstChildElement();
-				while (ele != NULL)
-				{
-					//ExpandElement(ele);
-					if ((string)ele->Value() != "for")
-					{
-						targetele->InsertEndChild(*ele->Clone());
-					}
-					ele = ele->NextSiblingElement();
-				}
+				ele = ele->NextSiblingElement();
 			}
 		}
 
@@ -948,7 +914,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 			targetele->Print(stdout, 0);
 			cout << endl;
 		}
-
+		debug << nattr << " attributes and " << nele << " xml elements added by inclusion" << endl;
 		debug << "----end of expansion file----" << endl;
 	}
 }
