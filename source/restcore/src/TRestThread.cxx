@@ -135,7 +135,8 @@ bool TRestThread::TestRun()
 		{
 			debug << j << " " << fProcessChain[j]->GetName() << "(" << fProcessChain[j]->ClassName() << ")";
 			fProcessChain[j]->BeginOfEventProcess();
-			ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
+			fProcessChain[j]->ProcessEvent(ProcessedEvent);
+			ProcessedEvent = fProcessChain[j]->GetOutputEvent();
 			if (ProcessedEvent == NULL) {
 				debug << "  ----  NULL" << endl;
 				break;
@@ -157,7 +158,7 @@ bool TRestThread::TestRun()
 	}
 	if (fOutputEvent == NULL)
 	{
-		fOutputEvent = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent();
+		//fOutputEvent = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent();
 		return false;
 	}
 	return true;
@@ -217,8 +218,11 @@ void TRestThread::PrepareToProcess(bool testrun)
 		if (testrun) {
 			debug << "Test Run..." << endl;
 			if (!TestRun()) {
-				warning << "REST WARNING(" << "In thread " << fThreadId << ")::Large cut detected!" << endl;
-				warning << "Process result is null after 5 times of retry. " << endl;
+				error << "REST WARNING(" << "In thread " << fThreadId << ")::test run failed!" << endl;
+				error << "One of the processes has NULL pointer fOutputEvent!" << endl;
+				if(fVerboseLevel<REST_Debug)
+					error << "To see more detail, turn on debug mode for TRestProcessRunner!" << endl;
+				exit(0);
 			}
 			debug << "Test Run complete!" << endl;
 		}
