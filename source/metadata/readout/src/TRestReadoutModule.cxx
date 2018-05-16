@@ -144,7 +144,27 @@ void TRestReadoutModule::DoReadoutMapping( Int_t nodes )
 			Int_t nodeX = fMapping.GetNodeX( xPix );
 			Int_t nodeY = fMapping.GetNodeY( yPix );
 
-			if( fMapping.isNodeSet( nodeX, nodeY ) ) { cout << "ERROR. Node is already SET!!" << endl << ch  << " ; " << px << endl; getchar(); }
+			// This means that two pixels in the readout are associated to the same node.
+            // If the granularity of the readout is not high enough this may happen often.
+            // This should be just a warning I guess.
+            if( showWarnings && fMapping.isNodeSet( nodeX, nodeY ) ) 
+            { 
+                cout << endl;
+                cout << "TRestReadoutModule. WARNING. Node is already SET!!" << endl;
+                cout << "Trying to associate channel : " << ch  << " Pixel : " << px << endl; 
+                cout << "Pixel coordinates : ( " << xPix << " , " << yPix << " ) " << endl;
+
+                Int_t tempCh = fMapping.GetChannelByNode( nodeX, nodeY );
+                Int_t tempPix = fMapping.GetPixelByNode( nodeX, nodeY );
+                cout << "Already associated channel : " << tempCh << " pixel : " << tempPix << endl;
+                Double_t xP = this->GetChannel(tempCh)->GetPixel(tempPix)->GetCenter().X();
+                Double_t yP = this->GetChannel(tempCh)->GetPixel(tempPix)->GetCenter().Y();
+                cout << "Pixel coordinates : ( " << xP << " , " << yP << " ) " << endl;
+                cout << endl;
+
+                cout << "Increasing the number of mapping of nodes may solve this issue." << endl;
+                cout << endl;
+            }
 			fMapping.SetNode( nodeX, nodeY, ch, px );
 		}
 	}
