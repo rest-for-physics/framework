@@ -50,9 +50,9 @@ ClassImp(TRestReadoutChannel)
 ///////////////////////////////////////////////
 /// \brief TRestReadoutChannel default constructor
 ///
-    TRestReadoutChannel::TRestReadoutChannel()
+TRestReadoutChannel::TRestReadoutChannel()
 {
-    Initialize();
+	Initialize();
 
 }
 
@@ -68,7 +68,7 @@ TRestReadoutChannel::~TRestReadoutChannel()
 /// 
 void TRestReadoutChannel::Initialize()
 {
-    fChannelID = -1;
+	fChannelID = -1;
 }
 
 ///////////////////////////////////////////////
@@ -76,9 +76,9 @@ void TRestReadoutChannel::Initialize()
 ///
 Int_t TRestReadoutChannel::isInside( Double_t x, Double_t y )
 {
-    for( unsigned int i = 0; i < fReadoutPixel.size(); i++ )
-        if( fReadoutPixel[i].isInside( x, y ) ) return true;
-    return false;
+	for( unsigned int i = 0; i < fReadoutPixel.size(); i++ )
+		if( fReadoutPixel[i].isInside( x, y ) ) return true;
+	return false;
 }
 
 ///////////////////////////////////////////////
@@ -86,19 +86,19 @@ Int_t TRestReadoutChannel::isInside( Double_t x, Double_t y )
 /// 
 TRestReadoutPixel *TRestReadoutChannel::GetPixelByID( int id )
 {
-    Int_t pxNumber = -1;
-    for( unsigned int i = 0; i < fReadoutPixel.size(); i++ )
-        if( fReadoutPixel[i].GetID() == id )
-        {
-            if( pxNumber != -1 ) cout << "REST Warning : Found several pixels with the same ID" << endl;
-            pxNumber = i;
-        }
-    if( pxNumber != -1 )
-        return &fReadoutPixel[pxNumber];
+	Int_t pxNumber = -1;
+	for( unsigned int i = 0; i < fReadoutPixel.size(); i++ )
+		if( fReadoutPixel[i].GetID() == id )
+		{
+			if( pxNumber != -1 ) cout << "REST Warning : Found several pixels with the same ID" << endl;
+			pxNumber = i;
+		}
+	if( pxNumber != -1 )
+		return &fReadoutPixel[pxNumber];
 
-    cout << "REST Warning : Readout pixel with ID : " << id << " not found in channel : " << fChannelID << endl;
+	cout << "REST Warning : Readout pixel with ID : " << id << " not found in channel : " << fChannelID << endl;
 
-    return NULL; 
+	return NULL;
 }
 
 ///////////////////////////////////////////////
@@ -106,11 +106,11 @@ TRestReadoutPixel *TRestReadoutChannel::GetPixelByID( int id )
 /// 
 void TRestReadoutChannel::Print( )
 {
-        cout << "++++ Channel ID : " << GetID( ) << " Daq channel : " << GetDaqID() << " Total pixels : " << GetNumberOfPixels() << endl;
-        cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	cout << "++++ Channel ID : " << GetID( ) << " Daq channel : " << GetDaqID() << " Total pixels : " << GetNumberOfPixels() << endl;
+	cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
-        for( int n = 0; n < GetNumberOfPixels(); n++ )
-        {
-            GetPixel(n)->Print();
-        }
+	for( int n = 0; n < GetNumberOfPixels(); n++ )
+	{
+		GetPixel(n)->Print();
+	}
 }

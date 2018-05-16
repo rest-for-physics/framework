@@ -184,6 +184,7 @@ class TRestMetadata:public TNamed {
         Int_t StringToInteger( std::string in );
         TVector3 StringTo3DVector( std::string in );
         TVector2 StringTo2DVector( std::string in );
+		Bool_t StringToBool( std::string in ); //AJOUT TRIANGLE
         static std::string RemoveWhiteSpaces( std::string in );
         static std::string Replace( std::string in, std::string thisString, std::string byThisString, size_t fromPosition = 0, Int_t N = 0 );
         static Int_t Count( std::string s, std::string sbstring);

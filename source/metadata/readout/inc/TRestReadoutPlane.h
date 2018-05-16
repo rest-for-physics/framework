@@ -36,120 +36,120 @@
 
 /// A class to store the readout plane definition used in TRestReadout. It allows to integrate any number of independent readout modules.
 class TRestReadoutPlane: public TObject {
-    private:
+	private:
 
-        Int_t fPlaneID; ///< The readout plane id. The id number is imposed by the order of creation. Being the first id=0.
+		Int_t fPlaneID; ///< The readout plane id. The id number is imposed by the order of creation. Being the first id=0.
 
-        TVector3 fPosition; ///< The position of the readout plane. The relative position of the modules will be shifted by this value.
-        TVector3 fPlaneVector;  ///< The plane vector definning the plane orientation and the side of the active volume.
-        TVector3 fCathodePosition;  ///< The cathode position which delimites the active volume together with the readout plane.
-        Double_t fChargeCollection; ///< A parameter between 0 and 1 definning how much charge should be collected from a charge hit. It might be used to distribute the charge between different readout planes.
-        Double_t fTotalDriftDistance;   ///< A parameter storing the total drift distance, defined between cathode and readout plane.
+		TVector3 fPosition; ///< The position of the readout plane. The relative position of the modules will be shifted by this value.
+		TVector3 fPlaneVector;  ///< The plane vector definning the plane orientation and the side of the active volume.
+		TVector3 fCathodePosition;  ///< The cathode position which delimites the active volume together with the readout plane.
+		Double_t fChargeCollection; ///< A parameter between 0 and 1 definning how much charge should be collected from a charge hit. It might be used to distribute the charge between different readout planes.
+		Double_t fTotalDriftDistance;   ///< A parameter storing the total drift distance, defined between cathode and readout plane.
 
-        Int_t fNModules;    ///< The number of modules that have been added to the readout plane
-        std::vector <TRestReadoutModule> fReadoutModules;   ///< A vector of the instances of TRestReadoutModule containned in the readout plane.
+		Int_t fNModules;    ///< The number of modules that have been added to the readout plane
+		std::vector <TRestReadoutModule> fReadoutModules;   ///< A vector of the instances of TRestReadoutModule containned in the readout plane.
 
-        void Initialize();
+		void Initialize();
 
-    protected:
+	protected:
 
-    public:
-        
-        // Setters
-        /// Sets the planeId. This is done by TRestReadout during initialization
-        void SetID( int id ) { fPlaneID = id; }
+	public:
 
-        /// Sets the readout plane position
-        void SetPosition( TVector3 pos ) { fPosition = pos; }
-        
-        /// Sets the cathode plane position. By default is parallel to the readout plane.
-        void SetCathodePosition( TVector3 pos ) { fCathodePosition = pos; }
+		// Setters
+		/// Sets the planeId. This is done by TRestReadout during initialization
+		void SetID( int id ) { fPlaneID = id; }
 
-        /// Sets the orientation of the readout plane, and defines the side of the active volume.
-        void SetPlaneVector( TVector3 vect ) { fPlaneVector = vect.Unit(); }
+		/// Sets the readout plane position
+		void SetPosition( TVector3 pos ) { fPosition = pos; }
 
-        /// Sets the value for the charge collection.
-        void SetChargeCollection( Double_t charge ) { fChargeCollection = charge; }
+		/// Sets the cathode plane position. By default is parallel to the readout plane.
+		void SetCathodePosition( TVector3 pos ) { fCathodePosition = pos; }
 
-        /// Sets the value for the total drift distance
-        void SetTotalDriftDistance( Double_t d ) { fTotalDriftDistance = d; }
+		/// Sets the orientation of the readout plane, and defines the side of the active volume.
+		void SetPlaneVector( TVector3 vect ) { fPlaneVector = vect.Unit(); }
 
-        // Getters
-        /// Returns an integer with the plane id number.
-        Int_t GetID ( ) { return fPlaneID; }
+		/// Sets the value for the charge collection.
+		void SetChargeCollection( Double_t charge ) { fChargeCollection = charge; }
 
-        /// Returns a TVector3 with the readout plane position
-        TVector3 GetPosition( ) { return fPosition; }
+		/// Sets the value for the total drift distance
+		void SetTotalDriftDistance( Double_t d ) { fTotalDriftDistance = d; }
 
-        /// Returns a TVector3 with the cathode position
-        TVector3 GetCathodePosition( ) { return fCathodePosition; }
+		// Getters
+		/// Returns an integer with the plane id number.
+		Int_t GetID ( ) { return fPlaneID; }
 
-        /// Returns a TVector3 with a vector normal to the readout plane
-        TVector3 GetPlaneVector( ) { return fPlaneVector; }
+		/// Returns a TVector3 with the readout plane position
+		TVector3 GetPosition( ) { return fPosition; }
 
-        /// Returns the charge collection ratio at this readout plane
-        Double_t GetChargeCollection( ) { return fChargeCollection; }
+		/// Returns a TVector3 with the cathode position
+		TVector3 GetCathodePosition( ) { return fCathodePosition; }
 
-        /// Returns the total drift distance
-        Double_t GetTotalDriftDistance( ) { return fTotalDriftDistance; }
+		/// Returns a TVector3 with a vector normal to the readout plane
+		TVector3 GetPlaneVector( ) { return fPlaneVector; }
 
-        /// Returns the perpendicular distance to the readout plane from a given position *pos*.
-        Double_t GetDistanceTo( TVector3 pos );
-        
-        /// Returns the perpendicular distance to the readout plane from a given position *x*, *y*, *z*.
-        Double_t GetDistanceTo( Double_t x, Double_t y, Double_t z );
+		/// Returns the charge collection ratio at this readout plane
+		Double_t GetChargeCollection( ) { return fChargeCollection; }
 
-        /// Returns a pointer to a readout module using its vector index
-        TRestReadoutModule *GetModule( int mod ) { return &fReadoutModules[mod]; }
+		/// Returns the total drift distance
+		Double_t GetTotalDriftDistance( ) { return fTotalDriftDistance; }
 
-        /// Returns a pointer to a readout channel at a given module and channel indexes.
-        TRestReadoutChannel *GetChannel( Int_t mod, Int_t ch ) { return fReadoutModules[mod].GetChannel( ch ); }
+		/// Returns the perpendicular distance to the readout plane from a given position *pos*.
+		Double_t GetDistanceTo( TVector3 pos );
 
-        /// Returns a pointer to a readout module using its vector index
-        TRestReadoutModule *GetReadoutModule( int mod ) { return GetModule( mod ); }
+		/// Returns the perpendicular distance to the readout plane from a given position *x*, *y*, *z*.
+		Double_t GetDistanceTo( Double_t x, Double_t y, Double_t z );
 
-        /// Returns a pointer to a readout channel at a given module and channel indexes.
-        TRestReadoutChannel *GetReadoutChannel( Int_t mod, Int_t ch ) { return GetChannel( mod, ch ); }
+		/// Returns a pointer to a readout module using its vector index
+		TRestReadoutModule *GetModule( int mod ) { return &fReadoutModules[mod]; }
 
-        /// Returns the total number of modules in the readout plane
-        Int_t GetNumberOfModules( ) { return fReadoutModules.size(); }
+		/// Returns a pointer to a readout channel at a given module and channel indexes.
+		TRestReadoutChannel *GetChannel( Int_t mod, Int_t ch ) { return fReadoutModules[mod].GetChannel( ch ); }
 
-        /// Adds a new module to the readout plane
-        void AddModule( TRestReadoutModule &rModule ) { fReadoutModules.push_back( rModule ); fNModules++; }
+		/// Returns a pointer to a readout module using its vector index
+		TRestReadoutModule *GetReadoutModule( int mod ) { return GetModule( mod ); }
 
-        /// Prints the readout plane description
-        void PrintMetadata( ) { Print( ); }
+		/// Returns a pointer to a readout channel at a given module and channel indexes.
+		TRestReadoutChannel *GetReadoutChannel( Int_t mod, Int_t ch ) { return GetChannel( mod, ch ); }
 
-        Int_t GetNumberOfChannels( );
+		/// Returns the total number of modules in the readout plane
+		Int_t GetNumberOfModules( ) { return fReadoutModules.size(); }
 
-        TRestReadoutModule *GetModuleByID( Int_t modID );
+		/// Adds a new module to the readout plane
+		void AddModule( TRestReadoutModule &rModule ) { fReadoutModules.push_back( rModule ); fNModules++; }
 
-        TRestReadoutChannel *GetChannelByID( Int_t modID, Int_t chID );
+		/// Prints the readout plane description
+		void PrintMetadata( ) { Print( ); }
 
-        Int_t isInsideDriftVolume( Double_t x, Double_t y, Double_t z  );
-        
-        Int_t isInsideDriftVolume( TVector3 pos );
+		Int_t GetNumberOfChannels( );
 
-        void SetDriftDistance( );
+		TRestReadoutModule *GetModuleByID( Int_t modID );
 
-        void Draw();
+		TRestReadoutChannel *GetChannelByID( Int_t modID, Int_t chID );
 
-        void Print( Int_t fullDetail = 0 );
+		Int_t isInsideDriftVolume( Double_t x, Double_t y, Double_t z  );
 
-        Int_t FindChannel( Int_t module, Double_t absX, Double_t absY );
+		Int_t isInsideDriftVolume( TVector3 pos );
 
-        Double_t GetX( Int_t modID, Int_t chID );
-        Double_t GetY( Int_t modID, Int_t chID );
-        
-        TH2Poly *GetReadoutHistogram( );
-        void GetBoundaries(double &xmin,double &xmax,double &ymin,double &ymax);
-        
-        //Construtor
-        TRestReadoutPlane();
-        //Destructor
-        virtual ~ TRestReadoutPlane();
+		void SetDriftDistance( );
+
+		void Draw();
+
+		void Print( Int_t fullDetail = 0 );
+
+		Int_t FindChannel( Int_t module, Double_t absX, Double_t absY );
+
+		Double_t GetX( Int_t modID, Int_t chID );
+		Double_t GetY( Int_t modID, Int_t chID );
+
+		TH2Poly *GetReadoutHistogram( );
+		void GetBoundaries(double &xmin,double &xmax,double &ymin,double &ymax);
+
+		//Construtor
+		TRestReadoutPlane();
+		//Destructor
+		virtual ~ TRestReadoutPlane();
 
 
-        ClassDef(TRestReadoutPlane, 1);
+		ClassDef(TRestReadoutPlane, 1);
 };
 #endif

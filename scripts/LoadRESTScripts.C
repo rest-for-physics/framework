@@ -14,7 +14,6 @@ int LoadRESTScripts()
 
     char command[256];
     sprintf( command, "find \$REST_PATH/scripts/ |grep .C | grep -v \"LoadRESTScripts.C\" | grep -v \"swo\" | grep -v \"swp\"  | grep -v \"svn\"> /tmp/macros.list" );
-
     system( command );
 
     FILE *f = fopen( "/tmp/macros.list", "r" );
