@@ -180,7 +180,7 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
         TRestReadoutPlane *plane;
         for( int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++ )
         {
-            moduleId = fReadout->GetReadoutPlane(p)->isInsideDriftVolume( x, y, z );
+            moduleId = fReadout->GetReadoutPlane(p)->GetReadoutModule( TVector3(x, y, z) );
             if( moduleId >= 0 )
             {
                 if( GetVerboseLevel() >= REST_Debug )
