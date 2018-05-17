@@ -37,17 +37,19 @@ class TRestMuonAnalysisProcess:public TRestEventProcess {
 
 		int nummudeposxz;//!
 		int nummudeposyz;//!
-		int numsmear;//!
+		//int numsmearxy;//!
+		//int numsmearz;//!
 		TH1D* mudeposxz;//!
 		TH1D* mudeposyz;//!
 
 		TH1D* mudepos;//!
-		TH1D* musmear;//!
 		TH1D* mutanthe;//!
 
 		TH2D* muhitmap;//!
 		TH2D* muhitdir;//!
 
+		map<int,vector<double>> musmearxy;
+		map<int,vector<double>> musmearz;
 
         void InitFromConfigFile();
 
@@ -76,6 +78,8 @@ class TRestMuonAnalysisProcess:public TRestEventProcess {
         }
 
 		double ProjectionToCenter(double x, double y, double xzthe, double yzthe);
+
+		double DistanceToTrack(double x, double z, double x0, double z0, double theta);
 
         //Constructor
         TRestMuonAnalysisProcess();

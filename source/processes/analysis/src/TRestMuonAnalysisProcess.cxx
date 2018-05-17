@@ -13,6 +13,7 @@
 
 
 #include "TRestMuonAnalysisProcess.h"
+#include <numeric>
 using namespace std;
 
 ClassImp(TRestMuonAnalysisProcess)
@@ -46,7 +47,8 @@ void TRestMuonAnalysisProcess::InitProcess()
 {
 	nummudeposxz = 0;
 	nummudeposyz = 0;
-	numsmear = 0;
+	//numsmearxy = 0;
+	//numsmearz = 0;
 	mudeposxz = new TH1D("mudeposxz", "muonXZenergydepos", 512, 0., 512.);
 	mudeposyz = new TH1D("mudeposyz", "muonYZenergydepos", 512, 0., 512.);
 
@@ -56,7 +58,8 @@ void TRestMuonAnalysisProcess::InitProcess()
 	hyzr = new TH1D((TString)"hyzr" + ToString(this), "hh", 200, -(Y2 - Y1), (Y2 - Y1));
 
 	mudepos = new TH1D("mudepos", "muonTotalenergydepos", 512, 0., 512.);
-	musmear = new TH1D("musme", "muonSmearingStat", 512, 0., 512.);
+	musmearxy.clear();
+	musmearz.clear();
 	mutanthe = new TH1D("mutanthe", "muAngularDistribution tanTheta", 50, 0, 2.5);
 
 	muhitmap = new TH2D("muhitmap", "muon hitmap on micromegas", (X2 - X1) / 3, X1, X2, (Y2 - Y1) / 3, Y1, Y2);
@@ -256,8 +259,10 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				info << "Side injection muon,";
 			}
 
-			vector<int> xzwidths(512);
-			vector<int> yzwidths(512);
+			//vector<int> xzwidths(512);
+			//vector<int> yzwidths(512);
+			//vector<int> xzFWHMs(512);
+			//vector<int> yzFWHMs(512);
 
 			vector<int> xzdepos(512);
 			bool xzflag = false;
@@ -268,23 +273,54 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				info << " Long track XZ,";
 				xzflag = true;
 				for (int i = 0; i < 512; i++) {
+					//cout << i << endl;
 					auto hitsz = eve->GetXZHitsWithZ(i);
+					double sumall = 0;
 					map<double, double>::iterator iter = hitsz.begin();
-					double sum = 0;
-					int n = 0;
+					vector<vector<double>> energys;
+					vector<double> energy;
 					while (iter != hitsz.end()) {
-						if (iter->second > 0)
-							n++;
-						sum += iter->second;
+						sumall += iter->second;
+						if (iter->second > 0) {
+							energy.push_back(iter->second);
+						}
+						else
+						{
+							if (energy.size() > 0) {
+								energys.push_back(energy);
+								energy.clear();
+							}
+						}
 						iter++;
+						if (iter == hitsz.end()) {
+							energys.push_back(energy);
+							energy.clear();
+						}
 					}
-					if (n == 0 && i > 0)
-						n = xzwidths[i - 1];
-					xzwidths[i] = n;
+					double sum = 0;
+
+					double width = 0;
+					int n = 0;
+					int pos = 0;
+					for (int j = 0; j < energys.size(); j++) {
+						if (energys[j].size() > n) //pulse with maximun signal number
+						{
+							pos = j;
+							n = energys[j].size();
+						}
+					}
+					if (energys.size() > 0) {
+						for (int j = 0; j < energys[pos].size(); j++) {
+							//cout << energys[pos][j] << " ";
+							sum += energys[pos][j];
+						}
+					}
+					//if (n == 0 && i > 0) {
+					//	n = xzwidths[i - 1];
+					//}
+					//xzwidths[i] = n;
 					xzdepos[i] = sum;
 				}
-
-
 			}
 
 			//YZ depos
@@ -293,55 +329,152 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				yzflag = true;
 				for (int i = 0; i < 512; i++) {
 					auto hitsz = eve->GetYZHitsWithZ(i);
+					double sumall = 0;
 					map<double, double>::iterator iter = hitsz.begin();
-					double sum = 0;
-					int n = 0;
+					vector<vector<double>> energys;
+					vector<double> energy;
 					while (iter != hitsz.end()) {
-						if (iter->second > 0)
-							n++;
-						sum += iter->second;
+						sumall += iter->second;
+						if (iter->second > 0) {
+							energy.push_back(iter->second);
+						}
+						else
+						{
+							if (energy.size() > 0) {
+								energys.push_back(energy);
+								energy.clear();
+							}
+						}
 						iter++;
+						if (iter == hitsz.end()) {
+							energys.push_back(energy);
+							energy.clear();
+						}
 					}
-					if (n == 0 && i > 0)
-						n = yzwidths[i - 1];
-					yzwidths[i] = n;
+
+					double sum = 0;
+
+					double width = 0;
+					int n = 0;
+					int pos = 0;
+					for (int j = 0; j < energys.size(); j++) {
+						if (energys[j].size() > n) //pulse with maximun signal number
+						{
+							pos = j;
+							n = energys[j].size();
+						}
+					}
+					if (energys.size() > 0) {
+						for (int j = 0; j < energys[pos].size(); j++) {
+							sum += energys[pos][j];
+						}
+					}
+					//if (n == 0 && i > 0) {
+					//	n = yzwidths[i - 1];
+					//}
+					//yzwidths[i] = n;
 					yzdepos[i] = sum;
 				}
 			}
 
-			if (xzflag&&yzflag) {
+			if (xzflag) {
 				int shift = 150 - eve->GetZRangeInXZ().X();
 				for (int i = shift; i < 512 + shift; i++) {
 					mudeposxz->SetBinContent(mudeposxz->FindBin(i), mudeposxz->GetBinContent(mudeposxz->FindBin(i)) + xzdepos[i - shift]);
 				}
-				shift = 150 - eve->GetZRangeInYZ().X();
+				nummudeposxz++;
+			}
+			if(yzflag){
+				int shift = 150 - eve->GetZRangeInYZ().X();
 				for (int i = shift; i < 512 + shift; i++) {
 					mudeposyz->SetBinContent(mudeposyz->FindBin(i), mudeposyz->GetBinContent(mudeposyz->FindBin(i)) + yzdepos[i - shift]);
 				}
 				nummudeposyz++;
-				nummudeposxz++;
 			}
 
 
-			//smearing
-			if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X() > 345 && theyz != 0
-				&& eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X() > 345 && thexz != 0
-				&& abs(eve->GetZRangeInXZ().X() - eve->GetZRangeInYZ().X()) < 10
-				&& firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 && firsty < Y2 - 30)
+			//diffusion
+			if (xzflag&& firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 && firsty < Y2 - 30) 
 			{
-				int shift = 150 - firstz;
-				for (int i = shift; i < 512 + shift; i++) {
-					int j = i - shift;
-					if (j >= 0 && j < 512) {
-						double xwidth = (double)xzwidths[j] * stripWidth*cos(thexz);
-						double ywidth = (double)yzwidths[j] * stripWidth*cos(theyz);
+				for (int i = 0; i < eve->GetNumberOfXZSignals(); i++) {
+					double x = eve->GetX(i);
+					auto sgn = eve->GetXZSignal(i);
+					double z = max_element(sgn.begin(), sgn.end()) - sgn.begin();
+					if (DistanceToTrack(x, z, firstx, 150, thexz) < 20 && z > 10 && z < 500) {
+						TH1D*h = new TH1D((TString)"hxzdiffz" + ToString(this), "hzxdiffz", 20, 0, 20);
+						TF1*f = new TF1((TString)"fxzdiffz" + ToString(this),"gaus");
+						for (int j = 0; j < 10; j++) {
+							h->SetBinContent(10 - j, sgn[z - j]);
+							h->SetBinContent(10 + j, sgn[z + j]);
+						}
+						int fitstatus = h->Fit(f, "QN");
+						if (fitstatus == 0) {
+							double sigma = f->GetParameter(2);
+							musmearz[z].push_back(sigma);
+						}
 
-						musmear->SetBinContent(musmear->FindBin(i), musmear->GetBinContent(musmear->FindBin(i)) + xwidth + ywidth);
+						delete f;
+						delete h;
 
+						musmearxy[z].push_back(sgn[z] / xzdepos[z]);
 					}
+
+
 				}
-				numsmear++;
+
 			}
+
+			if (yzflag&& firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 && firsty < Y2 - 30)
+			{
+				for (int i = 0; i < eve->GetNumberOfYZSignals(); i++) {
+
+					double y = eve->GetY(i);
+					auto sgn = eve->GetYZSignal(i);
+					double z = max_element(sgn.begin(), sgn.end()) - sgn.begin();
+					if (DistanceToTrack(y, z, firsty, 150, theyz) < 20 && z > 10 && z < 500) {
+						TH1D*h = new TH1D((TString)"hyzdiffz" + ToString(this), "hzydiffz", 20, 0, 20);
+						TF1*f = new TF1((TString)"fyzdiffz" + ToString(this), "gaus");
+						for (int j = 0; j < 10; j++) {
+							h->SetBinContent(10 - j, sgn[z - j]);
+							h->SetBinContent(10 + j, sgn[z + j]);
+						}
+						int fitstatus = h->Fit(f, "QN");
+						if (fitstatus == 0) {
+							double sigma = f->GetParameter(2);
+							musmearz[z].push_back(sigma);
+						}
+
+						delete f;
+						delete h;
+
+						musmearxy[z].push_back(sgn[z] / yzdepos[z]);
+					}
+
+				}
+
+			}
+
+
+
+			//if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X() > 345 && theyz != 0
+			//	&& eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X() > 345 && thexz != 0
+			//	&& abs(eve->GetZRangeInXZ().X() - eve->GetZRangeInYZ().X()) < 10
+			//	&& firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 && firsty < Y2 - 30)
+			//{
+
+			//	int shift = 150 - firstz;
+			//	for (int i = shift; i < 512 + shift; i++) {
+			//		int j = i - shift;
+			//		if (j >= 0 && j < 512) {
+			//			double xwidth = (double)xzwidths[j] * stripWidth;
+			//			double ywidth = (double)yzwidths[j] * stripWidth;
+
+			//			musmearxy->SetBinContent(musmearxy->FindBin(i), musmearxy->GetBinContent(musmearxy->FindBin(i)) + xwidth + ywidth);
+
+			//		}
+			//	}
+			//	numsmearxy++;
+			//}
 
 
 
@@ -375,10 +508,10 @@ void TRestMuonAnalysisProcess::EndProcess()
 		mudeposyz->Scale(1 / (double)nummudeposyz);
 		mudeposyz->SetEntries(nummudeposyz);
 	}
-	if (numsmear > 0) {
-		musmear->Scale(1 / (double)numsmear);
-		musmear->SetEntries(numsmear);
-	}
+	//if (numsmearxy > 0) {
+	//	musmearxy->Scale(1 / (double)numsmearxy);
+	//	musmearxy->SetEntries(numsmearxy);
+	//}
 
 	mudeposxz->Write();
 	mudeposyz->Write();
@@ -387,11 +520,35 @@ void TRestMuonAnalysisProcess::EndProcess()
 	mudepos->Add(mudeposyz);
 	mudepos->Write();
 
-	musmear->Write();
+	//musmearxy->Write();
 
 	muhitmap->Write();
 	muhitdir->Divide(muhitmap);
 	muhitdir->Write();
+
+	auto mudiffz = new TH1D("mudiffz", "muon diffsion in z direction",50,150,500 );
+	auto mudiffxy = new TH1D("mudiffxy", "muon diffsion in x/y direction", 50, 150, 500);
+
+	auto iter = musmearz.begin();
+	while (iter != musmearz.end()) {
+		auto vec = iter->second;
+		double sum = accumulate(vec.begin(), vec.end(), 0.0);
+		double mean = sum / vec.size();
+		mudiffz->SetBinContent(mudiffz->FindBin(iter->first), mean);
+		iter++;
+	}
+
+	iter = musmearxy.begin();
+	while (iter != musmearxy.end()) {
+		auto vec = iter->second;
+		double sum = accumulate(vec.begin(), vec.end(), 0.0);
+		double mean = sum / vec.size();
+		mudiffxy->SetBinContent(mudiffxy->FindBin(iter->first), mean);
+		iter++;
+	}
+
+	mudiffz->Write();
+	mudiffxy->Write();
 }
 
 double TRestMuonAnalysisProcess::ProjectionToCenter(double x, double y, double xzthe, double yzthe)
@@ -400,6 +557,14 @@ double TRestMuonAnalysisProcess::ProjectionToCenter(double x, double y, double x
 	TVector2 pos = TVector2((X1 + X2) / 2 - x, (Y1 + Y2) / 2 - y);
 
 	return angle.Proj(pos)*pos / pos.Mod();
+}
+
+
+double TRestMuonAnalysisProcess::DistanceToTrack(double x, double z, double x0, double z0, double theta) {
+	double px = (tan(theta)*(z - z0) + tan(theta)*tan(theta)*x + x0) / (tan(theta)*tan(theta) + 1);
+	double pz = (tan(theta)*z0 + 1 / tan(theta)*z - x0 + x) / (1 / tan(theta) + tan(theta));
+
+	return sqrt((px - x)*(px - x) + (pz - z)*(pz - z));
 }
 
 void TRestMuonAnalysisProcess::InitFromConfigFile()
