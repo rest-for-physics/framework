@@ -700,25 +700,13 @@ void TRestRun::SetOutputEvent(TRestEvent* eve)
 ///
 void TRestRun::ImportMetadata(TString File, TString name, Bool_t store)
 {
-
-	if (!fileExists(File.Data())) {
-
-		vector<string> paths = Spilt(GetParameter("addonFilePath", ""), ":");
-		for (int i = 0; i < paths.size(); i++)
-		{
-			if (fileExists(paths[i] + File.Data())) {
-				File = paths[i] + File;
-				break;
-			}
-			else if (i == paths.size() - 1)
-			{
-				error << "REST ERROR (ImportMetadata): The file " << File << " does not exist!" << endl;
-				error << endl;
-				return;
-			}
-		}
+	File = SearchFile(File.Data());
+	if (File == "") {
+		error << "REST ERROR (ImportMetadata): The file " << File << " does not exist!" << endl;
+		error << endl;
+		return;
 	}
-	if (!isRootFile(File.Data())) 
+	if (!isRootFile(File.Data()))
 	{
 		error << "REST ERROR (ImportMetadata) : The file " << File << " is not root file!" << endl;
 		return;
@@ -742,6 +730,7 @@ void TRestRun::ImportMetadata(TString File, TString name, Bool_t store)
 	if (store) meta->Store();
 	else meta->DoNotStore();
 
+	meta->InitFromRootFile();
 	this->AddMetadata(meta);
 	f->Close();
 	delete f;
