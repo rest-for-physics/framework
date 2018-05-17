@@ -46,6 +46,8 @@
 #include "TRestReadoutModule.h"
 using namespace std;
 
+#include <unistd.h>
+
 ClassImp(TRestReadoutModule)
 ///////////////////////////////////////////////
 /// \brief Default TRestReadoutModule constructor
@@ -294,7 +296,6 @@ Int_t TRestReadoutModule::FindChannel( Double_t absX, Double_t absY )
                         cout << "Channel : " << ch << " Pixel : " << px << endl;
                         cout << "Pix X : " << GetChannel(ch)->GetPixel(px)->GetCenter().X() << " Pix Y : " <<  GetChannel(ch)->GetPixel(px)->GetCenter().Y() << endl; }
             sleep(5);
-         //   getchar();
             return -1; 
         }
     }

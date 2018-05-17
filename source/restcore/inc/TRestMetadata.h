@@ -47,7 +47,9 @@
 #include <termios.h>  
 #include <unistd.h>  
 #include <fcntl.h> 
+#ifndef __APPLE__
 #include <termio.h>
+#endif
 
 inline int kbhit(void)
 {
