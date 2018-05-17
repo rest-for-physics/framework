@@ -90,8 +90,10 @@ private:
 	bool fGasFileLoaded;//!              If true, REST uses directly MediumMagboltz::ElectronDiffusion, etc, in GetXXX, otherwise it calculates E first
 	bool InitComplete;//!                If false, REST gas is doing initialization. ConditionChanged won't work
 
+	TString fGasFileContent;          //used for saving into root file
+
     void InitFromConfigFile( );
-    void ConstructFilename( );
+    void ConstructFilename( string path="" );
 
     void AddGasComponent( std::string gasName, Double_t fraction );
 
@@ -116,6 +118,10 @@ public:
 	void CalcGarField(double Emin, double Emax, int n);
 
 	void ConditionChanged();
+
+	Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0);
+
+	void InitFromRootFile();
 
 	Double_t GetW() { return fW; }
 

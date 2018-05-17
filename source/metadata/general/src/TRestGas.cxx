@@ -67,7 +67,7 @@
  /// Magboltz gas file, containning the summary of the gas properties, will be generated and 
  /// automatically re-used by TRestGas later on.
  /// 
- /// These files will be searched by TRestGas at TRestMetadata::GetGasDataPath that can be
+ /// These files will be searched by TRestGas at addonFilePath that can be
  /// defined inside our main RML file through the parameter *gasDataPath* at the
  /// *globals* section (see TRestMetadata description for additional details).
  ///
@@ -243,6 +243,7 @@ void TRestGas::Initialize()
 	fStatus = RESTGAS_INTITIALIZED;
 
 	fGasFilename = "";
+	fGasFileContent = "";
 
 #if defined USE_Garfield
 	fGasMedium = new Garfield::MediumMagboltz();
@@ -274,7 +275,7 @@ void TRestGas::LoadGasFile()
 	//fPressureInAtm = 1;
 	//ConstructFilename( );
 
-	if (!fileExists((string)(GetGasDataPath() + fGasFilename)))
+	if (!fileExists((string)(fGasFilename)))
 	{
 		error << __PRETTY_FUNCTION__ << endl;
 		error << "The gas file does not exist. (name:"<<fGasFilename<<")" << endl;
@@ -286,7 +287,7 @@ void TRestGas::LoadGasFile()
 	// We might print this in debug mode
 	debug << "Loading gas file : " << fGasFilename << endl;
 
-	fGasMedium->LoadGasFile((string)(GetGasDataPath() + fGasFilename));
+	fGasMedium->LoadGasFile((string)(fGasFilename));
 
 	fEFields.clear(); fBFields.clear(); fAngles.clear();
 	fGasMedium->GetFieldGrid(fEFields, fBFields, fAngles);
@@ -425,8 +426,16 @@ void TRestGas::InitFromConfigFile()
 	InitComplete = true;
 	if (GetParameter("gasFile") != PARAMETER_NOT_FOUND_STR)
 	{
-		fGasFilename = GetParameter("gasFile");
-		LoadGasFile();
+		fGasFilename = SearchFile(GetParameter("gasFile"));
+		if (fGasFilename!="") {
+			LoadGasFile();
+		}
+		else
+		{
+			warning << "TRestGas: gas file does not exist!" << endl;
+			fGasFileLoaded = false;
+		}
+
 	}
 	else if (fGasGeneration)
 	{
@@ -447,17 +456,36 @@ void TRestGas::InitFromConfigFile()
 
 }
 
+void TRestGas::InitFromRootFile() {
+
+	if(fGasFileContent!="")//use gas file content by default
+	{
+		fGasFilename = "/tmp/restGasFile.gas";
+		ofstream outf;
+		outf.open(fGasFilename,ios::ate);
+		outf << fGasFileContent << endl;
+		outf.close();
+		LoadGasFile();
+		system("rm " + fGasFilename);
+	}
+	else if (fileExists((string)(fGasFilename)))
+	{
+		LoadGasFile();
+	}
+}
+
 void TRestGas::ConditionChanged() {
 	if (InitComplete) {
 		ConstructFilename();
-		if (fileExists((string)(GetGasDataPath() + fGasFilename)))
+		fGasFilename = SearchFile(fGasFilename.Data());
+		if (fGasFilename!="")
 		{
 			LoadGasFile();
 		}
 		else
 		{
 			warning << "TRestGas : gas file not found for current condition!" << endl;
-			warning << "REST will perform single-E-calculation in next Get()" << endl;
+			warning << "REST will perform single-E calculation in next Get()" << endl;
 			warning << "To generate a gas file, turn on the parameter \"generate\"" << endl;
 			fGasFileLoaded = false;
 			fLast_E = numeric_limits<double>::quiet_NaN();
@@ -485,7 +513,8 @@ TString TRestGas::GetGasMixture()
 /////////////////////////////////////////////
 /// \brief Constructs the filename of the pre-generated gas file using the members defined in the RML file.
 /// 
-void TRestGas::ConstructFilename()
+/// The filename is a full name, containing path and name. The path is by default current directory.
+void TRestGas::ConstructFilename(string path)
 {
 	fGasFilename = "";
 	char tmpStr[256];
@@ -518,23 +547,26 @@ void TRestGas::ConstructFilename()
 	fGasFilename += (TString)tmpStr;
 
 	fGasFilename += ".gas";
+
+	fGasFilename = path + fGasFilename;
 }
 
 /////////////////////////////////////////////
-/// \brief Launches the gas file generation.
-///
-/// Gas parameters for generation should have been defined: temperature, pressure, gas composition,
-/// electric field range, etc. The gas file will be written to TRestMetadata::GetGasDataPath() that
-/// can be defined in the globals section (see details in TRestMetadata).
-/// 
+/// \brief Save a gas file with a structured file name
 void TRestGas::GenerateGasFile()
 {
 #if defined USE_Garfield
-	if (!isPathWritable((string)GetGasDataPath()))
+
+	ConstructFilename();
+
+	string path = SeparatePathAndName((string)fGasFilename)[0];
+	string name = SeparatePathAndName((string)fGasFilename)[1];
+
+	if (!isPathWritable(path))
 	{
 		cout << endl;
 		cout << "REST ERROR. TRestGas. GasDataPath is not writtable." << endl;
-		cout << "Path : " << GetGasDataPath() << endl;
+		cout << "Path : " << path << endl;
 		cout << "Make sure the final data path is writtable before proceed to gas generation." << endl;
 		cout << "or change the gas data path ... " << endl;
 		cout << endl;
@@ -542,13 +574,11 @@ void TRestGas::GenerateGasFile()
 		return;
 	}
 
-
-	ConstructFilename();
 	cout << "Writting gas file" << endl;
 	cout << "-----------------" << endl;
-	cout << "Path : " << GetGasDataPath() << endl;
-	cout << "Filename : " << fGasFilename << endl;
-	fGasMedium->WriteGasFile((string)(GetGasDataPath() + fGasFilename));
+	cout << "Path : " << path << endl;
+	cout << "Filename : " << name << endl;
+	fGasMedium->WriteGasFile((string)fGasFilename);
 #else
 	cout << "This REST is not complied with garfield, it cannot save any gas file!" << endl;
 #endif
@@ -829,3 +859,24 @@ void TRestGas::PrintGasInfo()
 	cout << "******************************************" << endl;
 }
 
+Int_t TRestGas::Write(const char *name, Int_t option, Int_t bufsize) {
+	fGasFileContent = "";
+	if (fGasFileLoaded) {
+		ifstream infile;
+		infile.open(fGasFilename);
+		if (!infile)
+		{
+			cout << "TRestGas: error reading gas file, gas file content won't be saved!" << endl;
+		}
+		else
+		{
+			string str;
+			while (getline(infile, str)) {
+				fGasFileContent += str + "\n";
+			}
+			//cout << fGasFileContent << endl;
+		}
+	}
+
+	TRestMetadata::Write();
+}
