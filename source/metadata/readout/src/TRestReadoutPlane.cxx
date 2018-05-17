@@ -292,24 +292,42 @@ Double_t TRestReadoutPlane::GetDistanceTo( TVector3 pos )
 }
 
 ///////////////////////////////////////////////
-/// \brief This method determines if a given *x*, *y*, *z* coordinates are inside the
-/// readout plane definition. The z-coordinate must be found in between the cathode
-/// and the readout plane. The *x* and *y* values must be found inside one of the
-/// readout modules defined inside the readout plane.
+/// \brief This method determines if a given position in *z* is inside the drift volume
+/// drifting distance for this readout plane.
 ///
-/// \return the module *id* where the hit is found. If no module *id* is found it
+/// \return 1 if the Z-position is found inside the drift volume definition. 0 otherwise
 /// returns -1.
 ///
-Int_t TRestReadoutPlane::isInsideDriftVolume( Double_t x, Double_t y, Double_t z )
+Int_t TRestReadoutPlane::isZInsideDriftVolume( Double_t z )
 {
-	TVector3 pos = TVector3( x, y, z );
+	TVector3 pos = TVector3( 0, 0, z );
 
-	return isInsideDriftVolume( pos );
+	return isZInsideDriftVolume( pos );
 }
 
 ///////////////////////////////////////////////
-/// \brief This method determines if a given position,
-/// is inside the readout plane definition. The z-coordinate must be found in between 
+/// \brief This method determines if the z-coordinate is inside the drift volume
+/// for this readout plane.
+///
+/// \param pos A TVector3 definning the position.
+///
+/// \return 1 if the Z-position is found inside the drift volume definition. 0 otherwise
+///
+Int_t TRestReadoutPlane::isZInsideDriftVolume( TVector3 pos )
+{
+	TVector3 posNew = TVector3( pos.X()-fPosition.X(), pos.Y()-fPosition.Y(), pos.Z() );
+
+	Double_t distance = GetDistanceTo( posNew );
+
+	if( distance > 0 && distance < fTotalDriftDistance )
+		return 1;
+
+	return 0;
+}
+
+///////////////////////////////////////////////
+/// \brief This method returns the module id where *pos* is found.
+/// The z-coordinate must be found in between 
 /// the cathode and the readout plane. The *x* and *y* values must be found inside 
 /// one of the readout modules defined inside the readout plane.
 ///
@@ -318,7 +336,7 @@ Int_t TRestReadoutPlane::isInsideDriftVolume( Double_t x, Double_t y, Double_t z
 /// \return the module *id* where the hit is found. If no module *id* is found it
 /// returns -1.
 ///
-Int_t TRestReadoutPlane::isInsideDriftVolume( TVector3 pos )
+Int_t TRestReadoutPlane::GetReadoutModule( TVector3 pos )
 {
 	TVector3 posNew = TVector3( pos.X()-fPosition.X(), pos.Y()-fPosition.Y(), pos.Z() );
 

@@ -126,9 +126,11 @@ class TRestReadoutPlane: public TObject {
 
 		TRestReadoutChannel *GetChannelByID( Int_t modID, Int_t chID );
 
-		Int_t isInsideDriftVolume( Double_t x, Double_t y, Double_t z  );
+		Int_t isZInsideDriftVolume( Double_t z  );
 
-		Int_t isInsideDriftVolume( TVector3 pos );
+		Int_t isZInsideDriftVolume( TVector3 pos );
+
+		Int_t GetReadoutModule( TVector3 pos );
 
 		void SetDriftDistance( );
 
