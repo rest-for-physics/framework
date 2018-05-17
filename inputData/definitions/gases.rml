@@ -9,7 +9,7 @@
   // -------------- XENON --------------
   // -----------------------------------
 
-  <TRestGas name="Xenon 10-10E3V/cm" title="Xenon">
+  <TRestGas name="Xenon 10-10E3Vcm" title="Xenon">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -23,7 +23,7 @@
   // -------------- HELIUM -------------
   // -----------------------------------
 
-  <TRestGas name="Helium 10-10E3V/cm" title="Helium">
+  <TRestGas name="Helium 10-10E3Vcm" title="Helium">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -37,7 +37,7 @@
   // -------------- CF4 ----------------
   // -----------------------------------
 
-  <TRestGas name="CF4 10-10E3V/cm" title="CF4">
+  <TRestGas name="CF4 10-10E3Vcm" title="CF4">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -52,7 +52,7 @@
   // ---------------------------------------
 
   // ----- 0.1% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Xenon-TMA 0.1Pct 10-10E3V/cm" title="Xenon-TMA Mixture (0.1Pct TMA)">
+  <TRestGas name="Xenon-TMA 0.1Pct 10-10E3Vcm" title="Xenon-TMA Mixture (0.1Pct TMA)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -64,7 +64,7 @@
   </TRestGas>
 
   // ----- 0.5% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Xenon-TMA 0.5Pct 10-10E3V/cm" title="Xenon-TMA Mixture (0.5Pct TMA)">
+  <TRestGas name="Xenon-TMA 0.5Pct 10-10E3Vcm" title="Xenon-TMA Mixture (0.5Pct TMA)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -76,7 +76,7 @@
   </TRestGas>
 
   // ----- 1.0% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Xenon-TMA 1Pct 10-10E3V/cm" title="Xenon-TMA Mixture (1Pct TMA)">
+  <TRestGas name="Xenon-TMA 1Pct 10-10E3Vcm" title="Xenon-TMA Mixture (1Pct TMA)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -88,7 +88,7 @@
   </TRestGas>
 
   // ----- 2.0% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Xenon-TMA 2Pct 10-10E3V/cm" title="Xenon-TMA Mixture (2Pct TMA)">
+  <TRestGas name="Xenon-TMA 2Pct 10-10E3Vcm" title="Xenon-TMA Mixture (2Pct TMA)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -100,7 +100,7 @@
   </TRestGas>
 
   // ----- 2.2% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Xenon-TMA 2.2Pct 10-10E3V/cm" title="Xenon-TMA Mixture (2.2Pct TMA)">
+  <TRestGas name="Xenon-TMA 2.2Pct 10-10E3Vcm" title="Xenon-TMA Mixture (2.2Pct TMA)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -112,7 +112,7 @@
   </TRestGas>
 
   // ----- 3.0% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Xenon-TMA 3Pct 10-10E3V/cm" title="Xenon-TMA Mixture (3Pct TMA)">
+  <TRestGas name="Xenon-TMA 3Pct 10-10E3Vcm" title="Xenon-TMA Mixture (3Pct TMA)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -124,7 +124,7 @@
   </TRestGas>
 
   // ----- 5.0% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Xenon-TMA 5Pct 10-10E3V/cm" title="Xenon-TMA Mixture (5Pct TMA)">
+  <TRestGas name="Xenon-TMA 5Pct 10-10E3Vcm" title="Xenon-TMA Mixture (5Pct TMA)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -140,7 +140,7 @@
   // ---------------------------------------------
 
   // ----- 0.5% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Xenon-Isobutane 0.5Pct 20-10E3V/cm" title="Xenon-Isobutane Mixture (0.5Pct Isobutane)">
+  <TRestGas name="Xenon-Isobutane 0.5Pct 20-10E3Vcm" title="Xenon-Isobutane Mixture (0.5Pct Isobutane)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -152,7 +152,7 @@
   </TRestGas>
 
   // ----- 1.0% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Xenon-Isobutane 1Pct 20-10E3V/cm" title="Xenon-Isobutane Mixture (1Pct Isobutane)">
+  <TRestGas name="Xenon-Isobutane 1Pct 20-10E3Vcm" title="Xenon-Isobutane Mixture (1Pct Isobutane)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -164,7 +164,7 @@
   </TRestGas>
 
   // ----- 2.0% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Xenon-Isobutane 2Pct 10-10E3V/cm" title="Xenon-Isobutane Mixture (2Pct Isobutane)">
+  <TRestGas name="Xenon-Isobutane 2Pct 10-10E3Vcm" title="Xenon-Isobutane Mixture (2Pct Isobutane)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -176,7 +176,7 @@
   </TRestGas>
 
   // ----- 3.0% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Xenon-Isobutane 3Pct 10-10E3V/cm" title="Xenon-Isobutane Mixture (3Pct Isobutane)">
+  <TRestGas name="Xenon-Isobutane 3Pct 10-10E3Vcm" title="Xenon-Isobutane Mixture (3Pct Isobutane)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -188,7 +188,7 @@
   </TRestGas>
 
   // ----- 5.0% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Xenon-Isobutane 5Pct 10-10E3V/cm" title="Xenon-Isobutane Mixture (5Pct Isobutane)">
+  <TRestGas name="Xenon-Isobutane 5Pct 10-10E3Vcm" title="Xenon-Isobutane Mixture (5Pct Isobutane)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -204,7 +204,7 @@
   // ---------------------------------------
 
   // ----- 0.5% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Xenon-CF4 0.5Pct 20-10E3V/cm" title="Xenon-CF4 Mixture (0.5Pct CF4)">
+  <TRestGas name="Xenon-CF4 0.5Pct 20-10E3Vcm" title="Xenon-CF4 Mixture (0.5Pct CF4)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -216,7 +216,7 @@
   </TRestGas>
 
   // ----- 1.0% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Xenon-CF4 1Pct 10-10E3V/cm" title="Xenon-CF4 Mixture (1Pct CF4)">
+  <TRestGas name="Xenon-CF4 1Pct 10-10E3Vcm" title="Xenon-CF4 Mixture (1Pct CF4)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -228,7 +228,7 @@
   </TRestGas>
 
   // ----- 2.0% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Xenon-CF4 2Pct 20-10E3V/cm" title="Xenon-CF4 Mixture (2Pct CF4)">
+  <TRestGas name="Xenon-CF4 2Pct 20-10E3Vcm" title="Xenon-CF4 Mixture (2Pct CF4)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -240,7 +240,7 @@
   </TRestGas>
 
   // ----- 3.0% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Xenon-CF4 3Pct 20-10E3V/cm" title="Xenon-CF4 Mixture (3Pct CF4)">
+  <TRestGas name="Xenon-CF4 3Pct 20-10E3Vcm" title="Xenon-CF4 Mixture (3Pct CF4)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -252,7 +252,7 @@
   </TRestGas>
 
   // ----- 5.0% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Xenon-CF4 5Pct 20-10E3V/cm" title="Xenon-CF4 Mixture (5Pct CF4)">
+  <TRestGas name="Xenon-CF4 5Pct 20-10E3Vcm" title="Xenon-CF4 Mixture (5Pct CF4)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -268,7 +268,7 @@
   // ---------------------------------------------
 
   // ----- 0.5% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Argon-Methane 1Pct 0.1-10E3V/cm" title="Argon-Isobutane Mixture (1Pct Methane)">
+  <TRestGas name="Argon-Methane 1Pct 0.1-10E3Vcm" title="Argon-Isobutane Mixture (1Pct Methane)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -284,7 +284,7 @@
   // ---------------------------------------------
 
   // ----- 0.5% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Argon-Isobutane 0.5Pct 20-10E3V/cm" title="Argon-Isobutane Mixture (0.5ct Isobutane)">
+  <TRestGas name="Argon-Isobutane 0.5Pct 20-10E3Vcm" title="Argon-Isobutane Mixture (0.5ct Isobutane)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -296,7 +296,7 @@
   </TRestGas>
 
   // ----- 1.0% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Argon-Isobutane 1Pct 10-10E3V/cm" title="Argon-Isobutane Mixture (1Pct Isobutane)">
+  <TRestGas name="Argon-Isobutane 1Pct 10-10E3Vcm" title="Argon-Isobutane Mixture (1Pct Isobutane)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -308,7 +308,7 @@
   </TRestGas>
 
   // ----- 2.0% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Argon-Isobutane 2Pct 10-10E3V/cm" title="Argon-Isobutane Mixture (2Pct Isobutane)">
+  <TRestGas name="Argon-Isobutane 2Pct 10-10E3Vcm" title="Argon-Isobutane Mixture (2Pct Isobutane)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -320,7 +320,7 @@
   </TRestGas>
 
   // ----- 3.0% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Argon-Isobutane 3Pct 10-10E3V/cm" title="Argon-Isobutane Mixture (3Pct Isobutane)">
+  <TRestGas name="Argon-Isobutane 3Pct 10-10E3Vcm" title="Argon-Isobutane Mixture (3Pct Isobutane)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -332,7 +332,7 @@
   </TRestGas>
 
   // ----- 5.0% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Argon-Isobutane 5Pct 10-10E3V/cm" title="Argon-Isobutane Mixture (5Pct Isobutane)">
+  <TRestGas name="Argon-Isobutane 5Pct 10-10E3Vcm" title="Argon-Isobutane Mixture (5Pct Isobutane)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -348,7 +348,7 @@
   // ---------------------------------------------
 
   // ----- 5.0% Iso 2.0% Oxygen ---------------------------------------------------------------------------------------------
-  <TRestGas name="Argon-Isobutane-Oxygen 5Pct-2Pct 10-10E3V/cm" title="Argon-Isobutane Mixture (5Pct Isobutane)">
+  <TRestGas name="Argon-Isobutane-Oxygen 5Pct-2Pct 10-10E3Vcm" title="Argon-Isobutane Mixture (5Pct Isobutane)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -378,7 +378,7 @@
   // -------------- ARGON+ISOBUTANE+OXYGEN ---------------
   // ---------------------------------------------
   / ----- 5.0% Iso 2.0% Oxygen ---------------------------------------------------------------------------------------------
-  <TRestGas name="Argon-Isobutane-Oxygen 5Pct-2Pct 10-10E3V/cm" title="Argon-Isobutane Mixture (5Pct Isobutane)">
+  <TRestGas name="Argon-Isobutane-Oxygen 5Pct-2Pct 10-10E3Vcm" title="Argon-Isobutane Mixture (5Pct Isobutane)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -410,7 +410,7 @@
   // ---------------------------------------------
 
   // ----- 0.5% --------------------------------------------------------------------------------------------
-  <TRestGas name="Neon-Isobutane 0.5Pct 10-10E3V/cm" title="Neon-Isobutane Mixture (0.5Pct Isobutane)">
+  <TRestGas name="Neon-Isobutane 0.5Pct 10-10E3Vcm" title="Neon-Isobutane Mixture (0.5Pct Isobutane)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -422,7 +422,7 @@
   </TRestGas>
 
   // ----- 1% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Neon-Isobutane 1Pct 10-10E3V/cm" title="Neon-Isobutane Mixture (1Pct Isobutane)">
+  <TRestGas name="Neon-Isobutane 1Pct 10-10E3Vcm" title="Neon-Isobutane Mixture (1Pct Isobutane)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -434,7 +434,7 @@
   </TRestGas>
 
   // ----- 2% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Neon-Isobutane 2Pct 10-10E3V/cm" title="Neon-Isobutane Mixture (2Pct Isobutane)">
+  <TRestGas name="Neon-Isobutane 2Pct 10-10E3Vcm" title="Neon-Isobutane Mixture (2Pct Isobutane)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -446,7 +446,7 @@
   </TRestGas>
 
   // ----- 3% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Neon-Isobutane 3Pct 10-10E3V/cm" title="Neon-Isobutane Mixture (3Pct Isobutane)">
+  <TRestGas name="Neon-Isobutane 3Pct 10-10E3Vcm" title="Neon-Isobutane Mixture (3Pct Isobutane)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
@@ -458,7 +458,7 @@
   </TRestGas>
 
   // ----- 5% ---------------------------------------------------------------------------------------------
-  <TRestGas name="Neon-Isobutane 5Pct 10-10E3V/cm" title="Neon-Isobutane Mixture (5Pct Isobutane)">
+  <TRestGas name="Neon-Isobutane 5Pct 10-10E3Vcm" title="Neon-Isobutane Mixture (5Pct Isobutane)">
     <parameter name="pressure" value="1" />
     <parameter name="temperature" value="293.15" />
     <parameter name="maxElectronEnergy" value="400" />
