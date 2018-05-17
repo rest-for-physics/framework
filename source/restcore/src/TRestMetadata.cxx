@@ -770,31 +770,19 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 	const char* _filename = e->Attribute("file");
 	if (_filename == NULL)return;
 
-	string filename = _filename;
-	if (!fileExists(filename)) { 
-
-		vector<string> paths = Spilt(GetParameter("addonFilePath", ""), ":");
-		for (int i = 0; i < paths.size(); i++) 
-		{
-			if (fileExists(paths[i] + filename)) {
-				filename = paths[i] + filename;
-				break;
-			}
-			else if (i == paths.size() - 1)
-			{
-				warning << "REST WARNING(expand include file): Include file " << filename << " does not exist!" << endl;
-				warning << endl;
-				return;
-			}
-		}
+	string filename = SearchFile(_filename);
+	if (filename == "") {
+		warning << "REST WARNING(expand include file): Include file " << filename << " does not exist!" << endl;
+		warning << endl;
+		return;
 	}
 	if (!isRootFile(filename)) //root file inclusion is implemented in TRestRun
 	{
 		debug << "----expanding include file----" << endl;
 		//we find the target element(the element to receive content) 
 		//and the config element(the element to provide content)
-		TiXmlElement* configele;
-		TiXmlElement* targetele;
+		TiXmlElement* configele = NULL;
+		TiXmlElement* targetele = NULL;
 		string type;
 		string name;
 		//condition 1(raw file include): 
@@ -1806,55 +1794,23 @@ void TRestMetadata::SetEnv(string name, string value, bool overwriteexisting)
 
 }
 
-//
-//string TRestMetadata::ReplaceMathematicalExpressions(const string buffer)
-//{
-//	//we spilt the unit part and the expresstion part
-//	int pos = buffer.find_last_of("1234567890().");
-//
-//	string unit = buffer.substr(pos + 1, -1);
-//	string temp = buffer.substr(0, pos + 1);
-//	string result = "";
-//
-//	bool erased = false;
-//	if (temp[0] == '(' && temp[temp.length() - 1] == ')')
-//	{
-//		temp.erase(temp.size() - 1, 1);
-//		temp.erase(0, 1);
-//		erased = true;
-//	}
-//
-//	std::vector<std::string> Expressions;
-//	temp += ",";
-//	for (int i = 0; i < temp.size(); i++) {
-//		int pos = temp.find(",", i);
-//		if (pos < temp.size())
-//		{
-//			std::string s = temp.substr(i, pos - i);
-//			Expressions.push_back(s);
-//			i = pos;
-//		}
-//	}
-//
-//	for (int i = 0; i < Expressions.size(); i++)
-//	{
-//		if (!isAExpression(Expressions[i])) { result += Expressions[i] + ","; continue; }
-//		result += EvaluateExpression(Expressions[i]) + ",";
-//	}
-//
-//	result.erase(result.size() - 1, 1);
-//
-//	if (erased)
-//	{
-//		result = "(" + result + ")";
-//	}
-//
-//	return result+unit;
-//
-//}
-//
-
-
+///////////////////////////////////////////////
+/// \brief Search files in current directory and directories specified in "addonFilePath"
+///
+/// Return blank string if file not found, return directly filename if found in current 
+/// directory, return full name (path+name) if found in "addonFilePath"
+string TRestMetadata::SearchFile(string filename) {
+	if (fileExists(filename)) {
+		return filename;
+	}
+	else
+	{
+		auto pathstring = GetParameter("addonFilePath","");
+		auto paths = Spilt(pathstring, ":");
+		string File;
+		return SearchFileInPath(paths, filename);
+	}
+}
 
 ///////////////////////////////////////////////
 /// \brief Prints a UNIX timestamp in human readable format.

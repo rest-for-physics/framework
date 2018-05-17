@@ -134,6 +134,8 @@ public:
 	///  To make settings from rml file. This method must be implemented in the derived class.
 	virtual void InitFromConfigFile() = 0;
 
+	virtual void InitFromRootFile(){}
+
 
 
 
@@ -250,6 +252,8 @@ protected:
 	void SetEnv(string name, string value, bool overwriteexisting);
 	/// clear the env sections list
 	void ClearEnv() { fElementEnv.clear(); }
+
+	string SearchFile(string filename);
 
 
 	//data tools
