@@ -384,6 +384,24 @@ std::vector <string> TRestStringHelper::SeparatePathAndName(const std::string fu
 	return result;
 }
 
+std::string TRestStringHelper::SearchFileInPath(vector<string> paths, string filename) {
+	if (fileExists(filename)) {
+		return filename;
+	}
+	else
+	{
+		for (int i = 0; i < paths.size(); i++)
+		{
+			if (fileExists(paths[i] + filename)) {
+				return paths[i] + filename;
+				break;
+			}
+		}
+	}
+	return "";
+
+}
+
 
 ///////////////////////////////////////////////
 /// \brief Windows returns the class name in format of typeid. This method extracts the real class name from that.

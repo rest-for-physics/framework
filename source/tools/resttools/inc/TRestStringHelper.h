@@ -54,6 +54,7 @@ public:
 	static bool isPathWritable(const std::string& path);
 	static  bool isAbsolutePath(const std::string& path);
 	static std::vector <string> SeparatePathAndName(const std::string fullname);
+	static std::string SearchFileInPath(vector<string> path, string filename);
 	static  std::string typeidToClassName(std::string typeidstr);
 	static  Int_t ChecktheFile(std::string cfgFileName);
 	static std::vector <string> GetFilesMatchingPattern(string pattern);
@@ -90,6 +91,8 @@ inline bool isRootFile(const std::string& filename) { return TRestStringHelper::
 inline bool isPathWritable(const std::string& path) { return TRestStringHelper::isPathWritable(path); }
 inline bool isAbsolutePath(const std::string& path) { return TRestStringHelper::isAbsolutePath(path); }
 inline std::vector <string> SeparatePathAndName(const std::string fullname) { return TRestStringHelper::SeparatePathAndName(fullname); }
+inline std::string SearchFileInPath(vector<string> path, string filename) { return TRestStringHelper::SearchFileInPath(path, filename); }
+inline std::string SearchFileInPath(string paths, string filename) { return TRestStringHelper::SearchFileInPath(TRestStringHelper::Spilt(paths,":"), filename); }
 inline std::string typeidToClassName(std::string typeidstr) { return TRestStringHelper::typeidToClassName(typeidstr); }
 inline Int_t ChecktheFile(std::string cfgFileName) { return TRestStringHelper::ChecktheFile(cfgFileName); }
 inline std::vector <string> GetFilesMatchingPattern(string pattern) { return TRestStringHelper::GetFilesMatchingPattern(pattern); }
