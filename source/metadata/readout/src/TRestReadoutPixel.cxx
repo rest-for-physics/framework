@@ -80,7 +80,7 @@ TVector2 TRestReadoutPixel::GetCenter( ) const
 	TVector2 opositeVertex = GetVertex( 2 );
 
 	if (fTriangle)
-		center = (origin + opositeVertex)/4.;
+		center = (opositeVertex - origin)/4. + origin ;
 	else
 		center = (origin + opositeVertex)/2.;
 

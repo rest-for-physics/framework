@@ -476,16 +476,11 @@ TVector2 TRestReadoutModule::GetPixelVertex( Int_t channel, Int_t pixel, Int_t v
 ///
 TVector2 TRestReadoutModule::GetPixelCenter( Int_t channel, Int_t pixel )
 {
-	TVector2 corner1( GetPixelVertex( channel, pixel, 0 ) );
-	TVector2 corner2( GetPixelVertex( channel, pixel, 2 ) );
-	TVector2 center ( 0,0 );
+	TVector2 pixCenter = GetChannel( channel )->GetPixel(pixel)->GetCenter(  );
 
-	if ( GetPixelTriangle( channel , pixel ) )
-		center = (corner2-corner1)/4 + corner1;
-	else
-		center = (corner1+corner2)/2.;
-
-	return center;
+	pixCenter = pixCenter.Rotate( fModuleRotation * TMath::Pi()/ 180. );
+	pixCenter = pixCenter + TVector2( fModuleOriginX, fModuleOriginY );
+	return pixCenter;
 }
 
 ///////////////////////////////////////////////
