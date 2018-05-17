@@ -103,7 +103,7 @@ TRestEvent* TRestFiducializationProcess::ProcessEvent( TRestEvent *evInput )
         {
             TRestReadoutPlane *plane = fReadout->GetReadoutPlane( p );
 
-            if ( plane->isInsideDriftVolume( x, y, z ) >= 0 )
+            if ( plane->GetReadoutModule( TVector3 (x, y, z) ) >= 0 )
                 fOutputHitsEvent->AddHit( x, y, z, eDep );
         }
     }
