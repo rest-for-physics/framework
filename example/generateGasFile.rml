@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
+<!--TRestGas runs with Garfield. For one condition of gas, it does simulation for different E field 
+and gets a table of gas property. The table will be saved as "gas file" for the next load. Gas file 
+name is orgainzed according to the gas condition. In REST, TRestGas starts up with the following 
+rml section describing gas condition. If the option "generate" is "off", It will search for gas files,
+both in current path and "searchPath". If there is no file matching the target name, It will perform 
+a single E calculation in the next GetDriftVelocity()/GetLongitudinalDiffusion(), etc. If the option 
+"generate" is "on", it will directly calculate across the "eField" region and save a gas file in current
+directory-->
+
 <TRestManager verboseLevel="silent">
   <globals>
-    <parameter name="gasDataPath" value="${REST_INPUTDATA}/gasFiles/"/>
-    <parameter name="addonFilePath" value="${REST_INPUTDATA}/definitions/"/>
+    <searchPath value="${REST_INPUTDATA}/definitions/"/>
   </globals>
-
   // ----- 0.75% ---------------------------------------------------------------------------------------------
   <TRestGas name="mixtureProto" title="Xenon-TMA Mixture during March~April 2018 in SJTU Proto" generate="on">
     <parameter name="pressure" value="10" />

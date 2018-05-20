@@ -2,7 +2,7 @@
 
 <gases>
   <globals>
-    <parameter name="gasDataPath" value="${REST_INPUTDATA}/gasFiles/"/>
+    <searchPath value="${REST_INPUTDATA}/gasFiles/"/>
   </globals>
   
   // -----------------------------------
