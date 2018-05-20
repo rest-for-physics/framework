@@ -76,11 +76,8 @@
 /// 
 /// ### Sequencial start up procedure of a metadata class
 /// 
-/// The rml file is designed to start up/instruct all the metadata classes. The constructor first
-/// calls the method Initialize() to do some default settings. This method must be implemented in any
-/// non-abstract metadata class. In the Initialize() method, the class needs to define its section name
-/// (usually it is just the class name), which will be used to extract the corresponding rml section.
-/// 
+/// The rml file is designed to start up/instruct all the metadata classes. Usually we implement 
+/// the method Initialize() and calls it in the constructor to do some default settings.
 /// 
 /// \code
 /// TRestSpecificMetadata::TRestSpecificMetadata()
@@ -98,8 +95,8 @@
 /// }
 /// \endcode
 /// 
-/// The starter is called by calling the method LoadConfigFromFile(). It is implemented in this base class, 
-/// with four overloads, as shown in the following. 
+/// The starter method LoadConfigFromFile() is implemented in this class, with four overloads, as shown
+/// in the following. 
 /// 
 /// \code
 ///
@@ -117,20 +114,54 @@
 /// xml section in the rml file, containing some global settings such as datapath or file format.
 /// The env section is optional, through which the host class inputs the variables into its resident class.
 /// 
-/// With the xml sections given, The starter first goes through all of them and find out the child sections
-/// with key word "variable" and "myParameter". These two are regarded as environmental variables. 
-/// The starter will do a check and save them if necessary. Then call the method BeginOfInit() which is 
-/// optionally implemented in the derived class. Then the starter loops all the child xml sections, and calls the 
-/// ReadConfig() method several times. In this method the pointer to each looped xml section is 
-/// given to the derived class, and the derived class choose what to do according to the given element.
-/// Finally the EndOfInit() method is called, after which the startup is complete.
+/// With the xml sections given, The starter first merge them together. Then it calls LoadSectionMetadata(),
+/// which loads some universal parameters like name, title and verbose level. This method also preprocesses 
+/// the config sections, expanding the include/for decinition and replacing the variables. After this, 
+/// the starter calls the method InitFromConfigFile().
+///
+/// InitFromConfigFile() is a pure virtual method and every child classes has to implement it. This method 
+/// defines how the metadata class loads its xml config section in rml file. REST has implemented this method
+/// in base class, iterating all the child sections in the config section. If the user just want a simple 
+/// startup logic, he can implement it with few line of GetParameter().
+
+
+/// \code
+///
+/// <TRestMuonAnalysisProcess name = "muAna" title = "Example" verboseLevel = "info" >
+/// 	<parameter name="XROI" value="(100,300)"/>
+/// 	<parameter name="YROI" value="(0,-200)"/>
+/// </TRestMuonAnalysisProcess>
+///
+/// void TRestMuonAnalysisProcess::InitFromConfigFile()
+/// {
+/// 	TVector2 XROI = StringTo2DVector(GetParameter("XROI", "(-100,100)"));
+/// 	TVector2 YROI = StringTo2DVector(GetParameter("YROI", "(-100,100)"));
 /// 
-/// The host class can also call the LoadConfigFromFile() method for starting up its resident class. For example, when 
-/// received an xml section declared "TRestRun", the "TRestManager" class will pass this section (together with 
-/// its global section) to its resident "TRestRun" class. The TRestRun class can therefor perform a startup
-/// using these sections. This is called *sequencial startup*.
+/// 	X1 = XROI.X(), X2 = XROI.Y(), Y1 = YROI.X(), Y2 = YROI.Y();
+/// }
+///
+/// \endcode
+
+
+/// The pre-defined elememt iteration is like following: first call the method BeginOfInit(). Then the 
+/// loop all the child xml sections, and call the ReadConfig() method for each. The each xml section, wrapped
+/// as TiXmlElement, is given to the method. Finally the EndOfInit() method is called.
+/// 
+/// The sequential startup trick lies in that, when we want to initialize another TRestMetadata class
+/// (resident) in our main class(host), we can add the residient's config section as a child section of 
+/// host's section. And we then sent the resident's config section to its LoadConfigFromFile() method.
+/// For example, when received an xml section declared "TRestRun", the host "TRestManager" will pass 
+/// this section (together with its global section) to its resident "TRestRun". The TRestRun class can 
+/// therefor perform a startup using these sections.
 ///
 /// \code
+///
+/// <TRestManager name = "CoBoDataAnalysis" title = "Example" verboseLevel = "info" >
+/// 	<TRestRun name = "SJTU_Proto" >
+/// 		<addMetadata name = "PandaReadout_MxM" file = "readouts.root" />
+/// 	</TRestRun>
+///		...
+/// </TRestManager>
 ///
 /// Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 /// {
@@ -144,7 +175,7 @@
 /// \endcode
 /// 
 /// 
-/// ### Preprocess xml sections and replace variables and expressions
+/// ### Replacement of variables and expressions
 /// 
 /// By default, the starter will look into only the first-level child sections of both global 
 /// and sectional section. The value of them will be saved in the metadata. In this level the decalration
@@ -172,7 +203,7 @@
 /// This work is done by the method PreprocessElement(). The procedure of replacing is as following.
 /// 
 /// 1. recognize the strings surrounded by "$ENV{}". Seek in system env and replace these strings.
-/// 1. recognize the strings surrounded by "${}". Seek in system env as well as variable" and replace these strings.
+/// 1. recognize the strings surrounded by "${}". Seek in system env as well as "variable" and replace these strings.
 /// 2. directly replace the strings matching the name of "myParameter" and "constant" by its value.
 /// 3. Judge if the string is an expressions, if so, try evaluate it using TFormula. Replace it by the result.
 ///
@@ -181,19 +212,32 @@
 ///
 /// ### Including external RML files in a main RML file
 ///
-/// It is possible to link to other rml files in any section. The starter will open the linked file and searches 
-/// for the section with the same name of the current section. Then the child sections in that file will be 
-/// prepeocessed and sent to ReadConfig() method, just as normal sections. After the including, the main section will be expanded.
-/// To include an external rml file one should use xml declaration "include". Then followed by field "file="xxx"".
-/// 
+/// It is possible to link to other files in any section.
+/// There are two include modes: 
+/// 1. raw include. the starter will parse all the lines in the file as xml element 
+/// and insert them inside the local section.
 /// \code
-///
-///   <TRestRun name = "TemplateEventProcess" verboseLevel = "silent">
-///       <include file = "processes.rml" / >
-///       <addProcess type = "TRestMultiCoBoAsAdToSignalProcess" name = "virtualDAQ" value = "ON" / >
-///   </TRestRun>
+/// <TRestXXX>
+///		<include file="abc.txt"/>
+/// </TRestXXX>
 /// \endcode
-/// 
+/// 2. auto insert. the starter will automatically find corresponding section in the file. 
+/// If the file can be parsed by tinyxml, it will first import its globals section.
+/// When searching the section, the starter searches according to the name and type. Here "type"
+/// can either be the element declare or attribute "type". After finding the section, 
+/// its child sections as well as attributes will be inserted into the local element. 
+/// \code
+/// <TRestXXX name="sAna" file="abc.rml"/>
+/// \endcode
+/// Or
+/// \code
+/// <doXXX type="TRestXXX" name="sAna" file="abc.rml"/>
+/// \endcode
+///
+/// After the expansion is done, variable replacement is also performed.
+///
+/// If the target file is a root file, there will be a different way to load, see 
+/// TRestRun::ImportMetadata()
 /// 
 /// ### For loop definition
 ///
@@ -222,10 +266,11 @@
 /// for loop definition. The variable "nCh", definded at the header of the for loop definition, 
 /// will be added to the environment variable list. The value of the variable will be updated in each loop
 /// The content of the loop will be normally prepeocessed, replacing the variables and expressions, 
-/// and then sent to ReadConfig() method. Unlike including, the original section will NOT be expanded.
+/// and then expanded in the local section.
 /// 
-/// To pass the loop infomarion into the resident class, one need to call the fourth overload
-/// of the LoadConfigFromFile() starter methods. The resident class can get access to its host's variable list in this overload.
+/// To pass the loop infomarion into the resident TRestMetadata class, one needs to call the fourth 
+/// overload of the LoadConfigFromFile() starter methods. The resident class can get access to its host's
+/// variable list in this overload.
 ///
 ///
 /// ### The globals section
@@ -233,35 +278,40 @@
 /// The *globals* section allows to specify few common definitions used in the REST 
 /// framework. This section will maintain the same and will be passed though the whole sequencial 
 /// startup procedure. If a section is to be used many times by different classes, it is better 
-/// to put it in the global section. If necessary, one can even start up resident class by finding 
-/// sections inside this global section.
+/// to put it in the global section.
 ///
 /// \code
-/// <globals>
-///    <parameter name="mainDataPath" value="${REST_DATAPATH}" />
-///    <parameter name="gasDataPath" value="${GAS_PATH}" /> 
-///    <parameter name="verboseLevel" value="debug" /> 
-///	<parameter name = "inputFile" value = "${REST_INPUTFILE}" / >
-///	<parameter name = "inputFormat" value = "run[RunNumber]_file[Fragment]_[Time-d]_[Time].graw" / >
-///	<parameter name = "outputFormat" value = "RUN[RunNumber]_[Time-d]_[LastProcess].root" / >
-///	<parameter name = "outputPath" value = "./" / >
-///	<parameter name = "experiment" value = "PandaX-III" / >
-/// 
-///	<TRestDetectorSetup>
-///		<parameter name = "runNumber" value = "70" / >
-///		<parameter name = "runTag" value = "tagTemplate" / >
-///		<parameter name = "runDescription" value = "Run description template" / >
-///		<parameter name = "meshVoltage" value = "500000" / >
-///		<parameter name = "driftField" value = "500" / >
-///		<parameter name = "detectorPressure" value = "10" / >
-///	</TRestDetectorSetup>
-/// 
-/// </globals>
+///	<globals>
+///		<searchPath value = "$ENV{REST_INPUTDATA}/definitions/" />
+///		<parameter name = "outputLevel" value = "internalvar" />
+///		<parameter name = "verboseLevel" value = "essential" />
+///		<parameter name = "inputFile" value = "${REST_INPUTFILE}" />
+///		<parameter name = "inputFormat" value = "run[RunNumber]_file[Fragment]_[Time-d]_[Time].graw" />
+///		<parameter name = "outputFile" value = "RUN[RunNumber]_[Time]_[LastProcess].root" />
+///		<parameter name = "mainDataPath" value = "" />
+///	</globals>
 /// \endcode
 ///
 /// The global section will have effect on *all the metadata structures* (or sections) that are
 /// defined in a same RML file. It does not affect to other possible linked sections defined by 
 /// reference using for example nameref.
+///
+/// ### Universal file search path
+///
+/// Some times we don't want to write a long full path to specify files, especially when 
+/// multiple files are in a same remote directory. REST provides a universal file path definition
+/// in rml. 
+///
+/// \code
+///	<globals>
+///		<searchPath value = "$ENV{REST_INPUTDATA}/definitions/" />
+///		<searchPath value = "$ENV{REST_INPUTDATA}/gasFiles/" />
+///	</globals>
+/// \endcode
+///
+/// When calling TRestMetadata::SearchFile(), REST will search the file in all the paths defined
+/// in section "searchPath", and return a full name if found. Include definition has already adopted 
+/// this search strategy. Child classes can also take advantage of it.
 ///
 /// ### Default fields for a section
 ///
@@ -304,7 +354,7 @@
 ///
 /// ### Other usefule public tools
 ///
-/// GetParameter(), GetElement(), GetElementWithName(). Details are shown in the function's document
+/// GetParameter(), GetElement(), GetElementWithName(), SearchFile(). Details are shown in the function's document
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -762,8 +812,28 @@ void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 ///////////////////////////////////////////////
 /// \brief Open the given rml file and find the corresponding section. 
 /// 
-/// After finding the section, it will insert its child into the given given
-/// xml element. 
+/// It will search rml file in both current directory and "searchPath". 
+/// Two include modes: 
+/// 1. raw include. It will parse all the lines in the file as xml element 
+/// and insert them inside the local section.
+/// \code
+/// <TRestXXX>
+///		<include file="abc.txt"/>
+/// </TRestXXX>
+/// \endcode
+/// 2. auto insert. It will automatically find corresponding section in the file. 
+/// The section should have the same name and type. Here "type" can either be the
+/// element declare or attribute. After finding the section, this method will insert 
+/// its child as well as attribute into the local xml element. 
+/// \code
+/// <TRestXXX name="sAna" file="abc.rml"/>
+/// \endcode
+/// Or
+/// \code
+/// <doXXX type="TRestXXX" name="sAna" file="abc.rml"/>
+/// \endcode
+/// If the target file is a root file, there will be a different way to load, see 
+/// TRestRun::ImportMetadata()
 void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 {
 	ReplaceElementAttributes(e);
@@ -1795,19 +1865,19 @@ void TRestMetadata::SetEnv(string name, string value, bool overwriteexisting)
 }
 
 ///////////////////////////////////////////////
-/// \brief Search files in current directory and directories specified in "addonFilePath"
+/// \brief Search files in current directory and directories specified in "searchPath" section
 ///
 /// Return blank string if file not found, return directly filename if found in current 
-/// directory, return full name (path+name) if found in "addonFilePath"
+/// directory, return full name (path+name) if found in "searchPath". 
 string TRestMetadata::SearchFile(string filename) {
 	if (fileExists(filename)) {
 		return filename;
 	}
 	else
 	{
-		auto pathstring = GetParameter("addonFilePath","");
-		auto paths = Spilt(pathstring, ":");
-		string File;
+		
+		auto pathstring = GetSearchPath();
+		auto paths = Spilt((string)pathstring, ":");
 		return SearchFileInPath(paths, filename);
 	}
 }
@@ -1883,6 +1953,40 @@ TString TRestMetadata::GetVerboseLevelString()
 	return level;
 }
 
+
+
+///////////////////////////////////////////////
+/// Returns a string with the path defined in sections "searchPath". 
+/// 
+/// To add a searchPath, use:
+/// \code
+/// <searchPath value="$ENV{REST_INPUTDATA}/definitions/"/>
+/// \endcode
+/// Or
+/// \code
+/// <searchPath value="$ENV{REST_INPUTDATA}/definitions/:$ENV{REST_INPUTDATA}/gasFiles/"/>
+/// \endcode
+/// "searchPath" can also be added multiple times. Both of them will be added into the output string.
+/// A separator ":" is inserted between each defined paths. To separate them, use inline method
+/// Spilt() provided by TRestStringHelper. Uniformed search path definition provides us uniformed 
+/// file search tool, see TRestMetadata::SearchFile().
+TString TRestMetadata::GetSearchPath() {
+	TiXmlElement*e = fElement;
+	string result = "";
+	TiXmlElement* ele = e->FirstChildElement("searchPath");
+	while (ele != NULL)
+	{
+		if (ele->Attribute("value") != NULL) {
+			result += (string)ele->Attribute("value") + ":";
+		}
+		ele = ele->NextSiblingElement("searchPath");
+	}
+	if (result[result.size() - 1] == ':') {
+		result.erase(result.size() - 1);
+	}
+
+	return ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(result));
+}
 
 
 TClass*c;//!

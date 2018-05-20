@@ -41,7 +41,7 @@
  ///
  /// \code
  ///
- ///  <section TRestGas name="Xenon 10-10E3V/cm" title="Xenon">
+ ///  <TRestGas name="Xenon 10-10E3Vcm" title="Xenon">
  ///     <parameter name="pressure" value="1" />
  ///     <parameter name="temperature" value="293.15" />
  ///     <parameter name="maxElectronEnergy" value="400" />
@@ -49,7 +49,7 @@
  ///     <parameter name="nCollisions" value="10" />
  ///     <eField Emin="10" Emax="1000." nodes="20" />
  ///     <gasComponent name="xe" fraction="1" />
- ///  </section>
+ ///  </TRestGas>
  ///
  /// \endcode
  ///
@@ -63,33 +63,62 @@
  /// ### Pre-generated gas files
  ///
  /// The calculation of the gas properties is computationally expensive and time consuming.
- /// In order to avoid this calculation each time a new instance of TRestGas is created, a
- /// Magboltz gas file, containning the summary of the gas properties, will be generated and 
- /// automatically re-used by TRestGas later on.
- /// 
- /// These files will be searched by TRestGas at addonFilePath that can be
- /// defined inside our main RML file through the parameter *gasDataPath* at the
+ /// In order to avoid this calculation, we keep some gas files containning the summary of
+ /// the gas properties inside the directory inputdata/gasFiles. These files cover different 
+ /// conditions of gas and can be used if a new TRestGas object meets the condition among 
+ /// one of them. The TRestGas sections that were used to
+ /// generate those gas files can be found at $REST_PATH/inputData/definitions/gases.rml.
+ ///
+ /// Gas files will be searched by TRestGas in the paths that can be
+ /// defined inside our main RML file through the section "searchPath" at the
  /// *globals* section (see TRestMetadata description for additional details).
  ///
  /// \code
  ///
- /// <section globals>
+ /// <globals>
  ///
- ///     <parameter name="gasDataPath" value="userPathToGasFiles" />
+ ///     <searchPath value="${REST_INPUTDATA}/definitions/"/>
  ///
  ///      ...
  ///
- /// </section>
+ /// </globals>
  ///
  /// \endcode
  ///
- /// If no gas data path is specified the following route $REST_PATH/inputData/gases will
- /// be used as default. Therefore, if we want to produce additional gas files we must 
- /// assure that we have write access rights at that location.
+ /// If no gas files are found meets the current gas conditon, TRestGas will perform a single 
+ /// E calculation in the next Get() method, including GetDriftVelocity()/GetLongitudinalDiffusion(), etc.
+ /// This usually takes several minutes. After the calculation, Get() methods can quickly 
+ /// return the result if input drift field doesn't change.
  ///
- /// Few pre-generated gas files, with extension .gas, can be found inside the REST repository
- /// at the directory $REST_PATH/inputData/gases/. The TRestGas sections that were used to
- /// generate those gas files can be found at $REST_PATH/inputData/definitions/gases.rml.
+ /// ### Better saving in root file
+ ///
+ /// In the new verison, we save TRestGas together with the gas file(as a TString). So when retrieved 
+ /// from a root file, TRestGas is immediately ready after calling the method InitFromRootFile(). This
+ /// makes "importMetadata" much easier in TRestRun. So we recommend to migrate gasFiles to root files. 
+ /// 
+ /// \code
+ ///
+ /// <TRestRun>
+ ///
+ ///  <TRestGas name="Xenon 10-10E3Vcm" title="Xenon">
+ ///     <parameter name="pressure" value="1" />
+ ///     <parameter name="temperature" value="293.15" />
+ ///     <parameter name="maxElectronEnergy" value="400" />
+ ///     <parameter name="W_value" value="21.9" />
+ ///     <parameter name="nCollisions" value="10" />
+ ///     <eField Emin="10" Emax="1000." nodes="20" />
+ ///     <gasComponent name="xe" fraction="1" />
+ ///  </TRestGas> //may be slow if gas file does not exist
+ ///
+ ///  <addMetadata name="Xenon 10-10E3Vcm" file="gases.root"/> //better to use in future
+ ///
+ ///      ...
+ ///
+ /// </TRestRun>
+ ///
+ /// \endcode
+ ///
+ /// ### Instantiating TRestGas
  ///
  /// The most common use of TRestGas starts by creating an instance of TRestGas giving as
  /// argument the RML configuration file and the name of the TRestGas section describing the 
@@ -102,7 +131,7 @@
  /// \endcode
  ///
  /// where *GasName* must be an existing TRestGas section with that name, *GasName* could 
- /// be for example *Xenon 10-10E3V/cm*, found at *gases.rml*.
+ /// be for example *Xenon 10-10E3Vcm*, found at *gases.rml*.
  ///
  /// By default, the gas generation is disabled. So that we are warned by default of the 
  /// inexistence of a pre-generated gas file. To force the generation of a gas file (requiring 
@@ -197,7 +226,7 @@ TRestGas::TRestGas() : TRestMetadata()
 ///
 /// This constructor will load the gas with properties defined inside the correspoding
 /// TRestGas section in an RML file. A pre-generated gas file will be loaded if found 
-/// in TRestMetadata::gasDataPath which can be defined as an input parameter in the 
+/// in TRestMetadata::GetSearchPath() which can be defined as an input parameter in the 
 /// globals metadata section.
 /// 
 /// \param cfgFileName It defines the path to an RML file containning a TRestGas section.
@@ -565,7 +594,7 @@ void TRestGas::GenerateGasFile()
 	if (!isPathWritable(path))
 	{
 		cout << endl;
-		cout << "REST ERROR. TRestGas. GasDataPath is not writtable." << endl;
+		cout << "REST ERROR. TRestGas. Path is not writtable." << endl;
 		cout << "Path : " << path << endl;
 		cout << "Make sure the final data path is writtable before proceed to gas generation." << endl;
 		cout << "or change the gas data path ... " << endl;
