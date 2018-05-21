@@ -864,7 +864,7 @@ void TRestProcessRunner::ConfigOutputFile()
 		files_to_merge.push_back(f->GetName());
 	}
 
-	fRunInfo->MergeProcessFile(files_to_merge, fTempOutputDataFile->GetName());
+	fRunInfo->FormOutputFile(files_to_merge, fTempOutputDataFile->GetName());
 
 }
 

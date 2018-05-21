@@ -73,7 +73,7 @@ public:
 	virtual Int_t LoadSectionMetadata();
 	///  To make settings from rml file. This method must be implemented in the derived class.
 	virtual void InitFromConfigFile() = 0;
-
+	/// Method called after the object is retrieved from root file. 
 	virtual void InitFromRootFile(){}
 
 

@@ -46,7 +46,7 @@ public:
 	}
 
 	TString FormFormat(TString FilenameFormat);
-	void MergeProcessFile(vector<string> filefullnames,string targetfilename="");
+	TFile* FormOutputFile(vector<string> filefullnames,string targetfilename="");
 	void PassOutputFile() { fOutputFile = fInputFile; fOutputFileName = fOutputFile->GetName(); }
 	TFile* FormOutputFile();
 
@@ -54,6 +54,7 @@ public:
 
 	void ImportMetadata(TString rootFile, TString name, Bool_t store);
 
+	/// add metadata object to the metadata list
 	void AddMetadata(TRestMetadata* meta) {
 		fMetadataInfo.push_back(meta); 
 		if (fVerboseLevel >= REST_Info)
@@ -64,7 +65,7 @@ public:
 			fout << endl;
 		}
 	}
-
+	void AddEventBranch(TRestEvent* eve);
 	void SkipEventTree() {}
 
 	
@@ -119,7 +120,6 @@ public:
 	void SetCurrentEntry(int i) { fCurrentEvent = i; }
 	//void AddFileTask(TRestFileTask* t) { fFileTasks.push_back(t); }
 	void SetInputEvent(TRestEvent* eve);
-	void SetOutputEvent(TRestEvent* eve);
 	void SetRunNumber(Int_t number) { fRunNumber = number; }
 	void SetParentRunNumber(Int_t number) { fParentRunNumber = number; }
 	void SetRunType(TString type)

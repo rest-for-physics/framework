@@ -28,8 +28,6 @@ TRestRun::~TRestRun()
 	//CloseFile();
 }
 
-
-
 ///////////////////////////////////////////////
 /// \brief Set variables by default during initialization.
 ///
@@ -72,7 +70,13 @@ void TRestRun::Initialize()
 	return;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Begin of startup
+///
+/// Things doing in this method:
+/// 1. Load from rml the input file name pattern, and search all the files matching pattern.
+/// 2. Load from rml the output file name
+///
 void TRestRun::BeginOfInit()
 {
 	//if (fHostmgr == NULL)
@@ -87,14 +91,15 @@ void TRestRun::BeginOfInit()
 
 }
 
-
 ///////////////////////////////////////////////
 /// \brief Respond to the input xml element.
 ///
 /// If the declaration of the input element is:
-/// 1. addProcess: Add the name and type of this element into the process list, ready 
-/// for the method InitThreads() to use. If the field value is not "on", the process will be omitted.
-/// 2. TRest***Process: Add this element to config list, ready for the method InitThreads() to use.
+/// 1. addMetadata: Instantiate the metadata by reading the root file, and add it to the 
+/// handled metadata list. Calling the method ImportMetadata().
+/// 2. TRestXXX: Instantiate the metadata by using sequential startup, and add it to the 
+/// handled metadata list.
+/// 3. addProcess: Add an external process, which reads the input file and forms events
 ///
 /// Other types of declarations will be omitted.
 ///
@@ -179,14 +184,9 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e)
 ///
 /// Things doing in this method:
 /// 1. Get some run information from the main config element(fElement).
-/// 2. Initialize the processes and threads. Calling the method InitThreads(). TRestThread 
-/// objects are not following sequencial startup procedure, as they are not thoroughly resident classes.
-/// 3. Initialize input event. If the first process is external, then the input event is set to 
-/// the process's output event. If not, the input event is instantiated by calling the method
-/// TClass::GetClass()->New(). The address of input event is fixed since now. 
-/// 4. Open the input file and find the tree. Then link the input event to the input tree. This is done
-/// with in method OpenInputFile().
-/// 5. Print some message.
+/// 2. Open the first input file and find the tree. Then link the input event/analysis
+/// to the input tree. This is done within method OpenInputFile().
+/// 3. Print some message.
 ///
 void TRestRun::EndOfInit()
 {
@@ -216,9 +216,9 @@ void TRestRun::EndOfInit()
 	essential << this->ClassName() << " : OutputFile : \"" << fOutputFileName <<"\""<< endl;
 }
 
-
-
-
+///////////////////////////////////////////////
+/// \brief Open the i th file in the file list
+///
 void TRestRun::OpenInputFile(int i)
 {
 	if (fInputFileNames.size() > i)
@@ -231,7 +231,9 @@ void TRestRun::OpenInputFile(int i)
 
 }
 
-
+///////////////////////////////////////////////
+/// \brief Open the file. If is root file, link the input event/analysis with input tree
+///
 void TRestRun::OpenInputFile(TString filename, string mode)
 {
 	CloseFile();
@@ -324,8 +326,13 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 
 }
 
-
-
+///////////////////////////////////////////////
+/// \brief Extract file info from a file, and save it in the file info list
+///
+/// Items:
+/// 1. matched file name formats
+/// 2. Created time and date
+/// 3. File size and entries
 void TRestRun::ReadFileInfo(string filename)
 {
 	//format example:
@@ -413,15 +420,23 @@ void TRestRun::ReadFileInfo(string filename)
 	}
 }
 
-
-
+///////////////////////////////////////////////
+/// \brief Reset file reading progress. 
+///
+/// if input file is root file, just set current entry to be 0
+/// if input file is external file, handled by external process, It will force the process
+/// to reload the file.
 void TRestRun::ResetEntry()
 {
 	fCurrentEvent = 0;
 	if (fFileProcess != NULL) { fFileProcess->OpenInputFiles(fInputFileNames); fFileProcess->InitProcess(); }
 }
 
-
+///////////////////////////////////////////////
+/// \brief Get next event by writting event data into target event and target tree
+///
+/// returns 0 if success, returns -1 if failed, e.g. end of file
+/// writting event data into target event calls the method TRestEvent::CloneTo()
 Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettree)
 {
 	if (fFileProcess != NULL)
@@ -476,9 +491,17 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 	return 0;
 }
 
-
-
-
+///////////////////////////////////////////////
+/// \brief Form output file name according to file info list, proc info list and run data.
+///
+/// It will replace the fields in output file name surrounded by "[]".
+/// The file info list is created by TRestRun::ReadFileInfo(), the 
+/// proc info list is created by TRestProcessRunner::ReadProcInfo(),
+/// the run data is from TRestRun's datamember(fRunNumber,fRunType, etc)
+/// e.g. we can set output file name like:
+/// \code Run[fRunNumber]_T[Date]_[Time]_Proc_[LastProcess].root \endcode
+/// and generates:
+/// \code Run00000_T2018-01-01_08:00:00_Proc_sAna.root \endcode
 TString TRestRun::FormFormat(TString FilenameFormat)
 {
 	string inString = (string)FilenameFormat;
@@ -504,11 +527,14 @@ TString TRestRun::FormFormat(TString FilenameFormat)
 	return outString;
 }
 
-//Merge a list of string of file names together. 
-//if target file name is given, then all other files
-//in the file name list will be merged into it.
-//otherwise files will be merged to a new file defined in parameter: outputfile
-void TRestRun::MergeProcessFile(vector<string> filenames, string targetfilename)
+///////////////////////////////////////////////
+/// \brief Form REST output file by merging a list of files together
+///
+/// if target file name is given, then all other files in the file name list will be merged into it.
+/// otherwise files will be merged to a new file defined in parameter: outputfile.
+/// This method is used to create output file after TRestProcessRunner is finished.
+/// The metadata objects will also be written into the file.
+TFile* TRestRun::FormOutputFile(vector<string> filenames, string targetfilename)
 {
 	string filename;
 	TFileMerger* m = new TFileMerger();
@@ -559,10 +585,12 @@ void TRestRun::MergeProcessFile(vector<string> filenames, string targetfilename)
 	}
 
 	fout << this->ClassName() << " Created: " << fOutputFileName << endl;
-
+	return fOutputFile;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Create a new TFile as REST output file. Writting metadata objects into it.
+///
 TFile* TRestRun::FormOutputFile() 
 {
 	CloseFile();
@@ -582,7 +610,9 @@ TFile* TRestRun::FormOutputFile()
 	return fOutputFile;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Close both input file and output file, setting trees to NULL also.
+///
 void TRestRun::CloseFile()
 {
 	if (fAnalysisTree != NULL) {
@@ -607,8 +637,9 @@ void TRestRun::CloseFile()
 
 }
 
-
-
+///////////////////////////////////////////////
+/// \brief Set external file process
+///
 void TRestRun::SetExtProcess(TRestEventProcess* p)
 {
 	if (fFileProcess == NULL&&p != NULL) {
@@ -636,7 +667,12 @@ void TRestRun::SetExtProcess(TRestEventProcess* p)
 
 }
 
-
+///////////////////////////////////////////////
+/// \brief Retarget input event in the tree
+///
+/// The input event is by default the last branch in EventTree, by calling 
+/// this method, it can be retargeted to other branches corresponding to the 
+/// given event.
 void TRestRun::SetInputEvent(TRestEvent* eve)
 {
 	if (eve != NULL) {
@@ -678,11 +714,13 @@ void TRestRun::SetInputEvent(TRestEvent* eve)
 	}
 }
 
-
-void TRestRun::SetOutputEvent(TRestEvent* eve) 
+///////////////////////////////////////////////
+/// \brief Add an event branch in output EventTree
+///
+void TRestRun::AddEventBranch(TRestEvent* eve)
 {
 	if (eve != NULL) {
-
+		
 		if (fEventTree != NULL) {
 			string brname = (string)eve->ClassName() + "Branch";
 			fEventTree->Branch(brname.c_str(), eve);
@@ -694,10 +732,9 @@ void TRestRun::SetOutputEvent(TRestEvent* eve)
 
 
 ///////////////////////////////////////////////
-/// \brief Open the root file and import the metadata of this class.
+/// \brief Open the root file and import the metadata of the given name.
 ///
-/// The class should be recovered to the same condition of the saved one.
-///
+/// The metadata class can be recovered to the same condition as when it is saved.
 void TRestRun::ImportMetadata(TString File, TString name, Bool_t store)
 {
 	File = SearchFile(File.Data());
@@ -769,7 +806,10 @@ TString TRestRun::GetTime(Double_t runTime)
 	return time;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Get a string of data member value according to its defined name
+///
+/// It uses reflection method GetDataMemberWithName() and GetDataMemberValString()
 string TRestRun::Get(string target)
 {
 	auto a = GetDataMemberWithName(target);

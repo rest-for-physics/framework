@@ -107,7 +107,7 @@ int main(int argc,char** argv) {
 
 	restG4Event = new TRestG4Event();
 	subRestG4Event = new TRestG4Event();
-	restRun->SetOutputEvent(subRestG4Event);
+	restRun->AddEventBranch(subRestG4Event);
 
     restTrack = new TRestG4Track( );
     // }}} 
