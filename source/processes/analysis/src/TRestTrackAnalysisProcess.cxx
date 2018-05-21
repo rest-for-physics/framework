@@ -193,12 +193,81 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
                 nTracks_En[n]++;
     }
 
+
+    TRestVolumeHits *hits = fInputTrackEvent->GetMaxEnergyTrack()->GetVolumeHits();
+
+    Int_t Nhits = hits->GetNumberOfHits();
+
+    Double_t twist = hits->GetHitsTwist( 0, 0 );
+    Double_t twistWeighted = hits->GetHitsTwistWeighted( 0, 0 );
+
+    Double_t twist50_low = hits->GetHitsTwist( 0, Nhits/2 ); 
+    Double_t twist50_high = hits->GetHitsTwist( Nhits/2, Nhits ); 
+
+    Double_t twist20_low = hits->GetHitsTwist( 0, Nhits/5 ); 
+    Double_t twist20_high = hits->GetHitsTwist( 4*Nhits/5, Nhits ); 
+    Double_t twist20Weighted_low = hits->GetHitsTwistWeighted( 0, Nhits/5 ); 
+    Double_t twist20Weighted_high = hits->GetHitsTwistWeighted( 4*Nhits/5, Nhits ); 
+
+    if( twist20_low > twist20_high )
+    {
+        Double_t temp = twist20_low;
+        twist20_low = twist20_high;
+        twist20_high = temp;
+    }
+
+    if( twist20Weighted_low > twist20Weighted_high )
+    {
+        Double_t temp = twist20Weighted_low;
+        twist20Weighted_low = twist20Weighted_high;
+        twist20Weighted_high = temp;
+    }
+
+    if( twist50_low > twist50_high )
+    {
+        Double_t temp = twist50_low;
+        twist50_low = twist50_high;
+        twist50_high = temp;
+    }
+
+    obsName = this->GetName() + (TString) ".twist";
+    fAnalysisTree->SetObservableValue( obsName, twist );
+
+    obsName = this->GetName() + (TString) ".twistWeighted";
+    fAnalysisTree->SetObservableValue( obsName, twistWeighted );
+
+    obsName = this->GetName() + (TString) ".twist20_low";
+    fAnalysisTree->SetObservableValue( obsName, twist20_low );
+
+    obsName = this->GetName() + (TString) ".twist20_high";
+    fAnalysisTree->SetObservableValue( obsName, twist20_high );
+
+    obsName = this->GetName() + (TString) ".twistWeighted20_low";
+    fAnalysisTree->SetObservableValue( obsName, twist20Weighted_low );
+
+    obsName = this->GetName() + (TString) ".twistWeighted20_high";
+    fAnalysisTree->SetObservableValue( obsName, twist20Weighted_high );
+
+    obsName = this->GetName() + (TString) ".twist50_low";
+    fAnalysisTree->SetObservableValue( obsName, twist50_low );
+
+    obsName = this->GetName() + (TString) ".twist50_high";
+    fAnalysisTree->SetObservableValue( obsName, twist50_high );
+
     Double_t trackEnergyRatioXYZ = 0;
     if( nTracksXYZ > 1 )
         trackEnergyRatioXYZ = (totalEnergy - tckMaxEnXYZ) / totalEnergy;
 
     obsName = this->GetName() + (TString) ".nTrackEnergyRatioXYZ";
     fAnalysisTree->SetObservableValue( obsName, trackEnergyRatioXYZ );
+
+    Double_t maxSecondTrackEnergy = 0;
+    if( fInputTrackEvent->GetSecondMaxEnergyTrack() != NULL )
+        maxSecondTrackEnergy = fInputTrackEvent->GetSecondMaxEnergyTrack( )->GetEnergy( );
+
+    obsName = this->GetName() + (TString) ".secondTrackMaxEnergy";
+    fAnalysisTree->SetObservableValue( obsName, maxSecondTrackEnergy );
+
 
     Double_t evTimeDelay = 0;
     if( fPreviousEventTime.size() > 0 )
