@@ -372,7 +372,7 @@ void TRestProcessRunner::RunProcess()
 	cout << endl << endl;
 	while (fProcStatus == kPause || (fRunInfo->GetInputEvent() != NULL && eventsToProcess > fProcessedEvents))
 	{
-		if (fProcStatus != kIgnore && kbhit())//if keyboard inputs
+		if (fProcStatus != kIgnore && ConsoleHelper::kbhit())//if keyboard inputs
 		{
 			cursorUp(1);
 			int a = getchar();//get char
@@ -417,7 +417,7 @@ void TRestProcessRunner::RunProcess()
 
 	}
 
-	if (kbhit())
+	if (ConsoleHelper::kbhit())
 		while (getchar() != '\n');//clear buffer
 
 	//cursorDown(4);
