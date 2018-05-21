@@ -1,5 +1,30 @@
-#include "TRestThread.h"
+//////////////////////////////////////////////////////////////////////////
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// \class      TRestThread
+/// Threaded worker of a process chain
+///
+/// Multiple instances of TRestThread is created inside TRestProcessRunner. 
+/// Each of them can detach a thread containing a process chain, which 
+/// implements multi thread functionality. Preparation of process chain  
+/// is also done inside this class.
+///
+/// History of developments:
+///
+/// 2014-june: First concept. As part of conceptualization of previous REST
+///            code (REST v2)
+///            Igor G. Irastorza
+/// 
+/// 2017-Aug:  Major change: added for multi-thread capability
+///            Kaixiang Ni
+///
+//////////////////////////////////////////////////////////////////////////
 
+
+
+
+#include "TRestThread.h"
 
 ClassImp(TRestThread);
 
@@ -125,6 +150,28 @@ void TRestThread::SetThreadId(Int_t id)
 
 
 TRestAnalysisTree* tempTree;
+///////////////////////////////////////////////
+/// \brief Make a test run of our process chain
+///
+/// The reason we use test run is that we need to determine the real output event 
+/// address of a process chain. This is because when we write our code like this:
+/// \code
+/// TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
+/// {
+/// 	fSignalEvent = (TRestRawSignalEvent *)evInput;
+/// 	fOutputEvent = fSignalEvent;
+///		...
+/// }
+/// \endcode
+/// The output event address can be changed after running. 
+/// 
+/// Test run calls TRestEventProcess::ProcessEvent() first, and uses the output of
+/// TRestEventProcess::GetOutputEvent() as the next process's input event. This avoids
+/// NULL returned events from ProcessEvent due to cut. In debug mode, we can also 
+/// observe a process sequence printed by this method
+///
+/// returns false when fOutputEvent is null after 5 times of retry, returns true
+/// when fOutputEvent address is determined.
 bool TRestThread::TestRun() 
 {
 	debug << "Processing ..." << endl;
@@ -170,8 +217,8 @@ bool TRestThread::TestRun()
 ///
 /// This method will:
 /// 1. Setup the processes in process chain:(set analysis tree, set readonly, call the method InitProcess())
-/// 2. Instantiate the input event and make a test run, calling GetNextevtFunc() and ProcessEvent()
-/// in sequence. The address of output event is fixed after the test run.
+/// 2. Instantiate the input event and make a test run, calling TestRun(). The address of output event 
+/// is fixed after the test run.
 /// 3. Open the output file and create output tree inside it. Creating branches according to the output level.
 /// 4. Reset the processes by calling InitProcess() again
 ///
@@ -379,11 +426,10 @@ void TRestThread::PrepareToProcess(bool testrun)
 /// Before return it will call WriteThreadFileFunc().
 ///
 /// Note: The methods GetNextevtFunc(), FillThreadEventFunc() and WriteThreadFileFunc() are all from 
-/// TRestRun. The later two will call back the method FillEvent(), WriteFile() in this class. The idea to do so is 
-/// to make these i-o related methods managed by the host run, preventing segmentation violation. All the three
-/// method are mutex locked, which makes them running individualy. In other words, these methods
-/// will be paused until the host run allows it to run. It avoids the threads writing a same file
-/// (or memory) at the same time.
+/// TRestRun. The later two will call back the method FillEvent(), WriteFile() in this class. The idea 
+/// to do so is to make a unified managemenet of these i-o related methods. In TRestRun the three
+/// methods are mutex locked. They will be paused until the host run allows it to run. This prevents
+/// segmentation violation due to simultaneously read/write. 
 void TRestThread::StartProcess()
 {
 	isFinished = false;
@@ -444,20 +490,6 @@ void TRestThread::ProcessEvent()
 	fOutputEvent = ProcessedEvent;
 
 }
-
-/////////////////////////////////////////////////
-///// \brief Call the output tree to fill. 
-/////
-///// This method is called back by FillThreadEventFunc() in TRestRun. 
-//void TRestThread::FillEvent()
-//{
-//	if (fOutputEvent == NULL)return;
-//
-//	fOutputFile->cd();
-//	fAnalysisTree->FillEvent(fOutputEvent);
-//
-//
-//}
 
 
 ///////////////////////////////////////////////

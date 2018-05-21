@@ -43,6 +43,9 @@
 /// 2014-june: First concept. As part of conceptualization of previous REST
 ///       code (REST v2) 
 ///       Igor G. Irastorza
+/// 
+/// 2017-Aug:  Major change: added for multi-thread capability
+///            Kaixiang Ni
 ///
 //////////////////////////////////////////////////////////////////////////
 

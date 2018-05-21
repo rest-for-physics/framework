@@ -1,3 +1,31 @@
+//////////////////////////////////////////////////////////////////////////
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// \class      TRestProcessRunner
+/// Running the processes efficiently with fantastic display.
+///
+/// This class implements REST's main functionality - process running. multi-
+/// thread is enabled here which improves efficiency. Pause menu and progress 
+/// bar is also provided which makes the work easier!
+///
+///
+/// History of developments:
+///
+/// 2014-june: First concept. As part of conceptualization of previous REST
+///            code (REST v2)
+///            Igor G. Irastorza
+/// 
+/// 2017-Aug:  Major change: added for multi-thread capability
+///            Kaixiang Ni
+///
+//////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
 #include "TRestManager.h"
 #include "TRestThread.h"
 #include "Math/MinimizerOptions.h"
@@ -44,7 +72,9 @@ TRestProcessRunner::~TRestProcessRunner()
 
 
 
-
+///////////////////////////////////////////////
+/// \brief Setting default values of class' data member
+///
 void TRestProcessRunner::Initialize()
 {
 	fInputEvent = NULL;
@@ -62,6 +92,15 @@ void TRestProcessRunner::Initialize()
 
 }
 
+///////////////////////////////////////////////
+/// \brief Reads information from rml config file
+///
+/// It first checks if a friendly TRestRun object is initialized in TRestManager, 
+/// if so, it reads the following configuration items:
+/// 1. firstEntry, lastEntry, eventsToProcess. These indicates how many events we need to
+/// process.
+/// 2. Tree branch list. can be inputAnalysis, inputEvent, outputEvent.
+/// 3. Number of thread needed. A list TRestThread will then be instantiated.
 void TRestProcessRunner::BeginOfInit()
 {
 	info << endl;
@@ -134,7 +173,13 @@ void TRestProcessRunner::BeginOfInit()
 
 }
 
-
+///////////////////////////////////////////////
+/// \brief method to deal with iterated child elements
+/// 
+/// If child element is declared as "addProcess", then multiple new process will be 
+/// instantiated using sequential startup method, by calling InstantiateProcess()
+/// The processes will be added into each TRestThread instance.
+/// If the process is external process, then it will be sent to TRestRun.
 Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement * e)
 {
 
@@ -205,7 +250,12 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement * e)
 	return 0;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Ending of the startup procedure.
+///
+/// It first sets input event as the first event in process chain, and then do a
+/// Validation of the process chain. Finally it calls ReadProcInfo() and create a
+/// process info list
 void TRestProcessRunner::EndOfInit()
 {
 	debug << "Validating process chain..." << endl;
@@ -235,6 +285,10 @@ void TRestProcessRunner::EndOfInit()
 
 }
 
+///////////////////////////////////////////////
+/// \brief Create a process info list which used called by TRestRun::FormFormat().
+///
+/// Items: FirstProcess, LastProcess, ProcNumber
 void TRestProcessRunner::ReadProcInfo()
 {
 	if (fRunInfo->GetFileProcess() != NULL)
@@ -249,23 +303,20 @@ void TRestProcessRunner::ReadProcInfo()
 	int n = fProcessNumber;
 	ProcessInfo["LastProcess"] = (n == 0 ? ProcessInfo["FirstProcess"] : fThreads[0]->GetProcess(n - 1)->GetName());
 	ProcessInfo["ProcNumber"] = ToString(n);
-
-
 }
-
-
-
-
 
 ///////////////////////////////////////////////
 /// \brief The main executer of event process
 ///
 /// Things doing in this method:
 /// 1. Call each thread to prepare their process chain, output tree and output file. The method is PrepareToProcess().
-/// 2. Set some parameters, initialize the single thread process if it exists.
-/// 3. Call each thread to start. The threads running the processes are detatched after this calling.
-/// 4. The main thread becomes idle waiting for the child threads to finish.
-/// 5. Call the	ConfigOutputFile() method to merge output files of each threads together.
+/// 2. Print metadata for each process
+/// 3. Set output tree by cloning the TRestThread output tree 
+/// 4. Reset run count, modify ROOT mutex to make it support multi-thread.
+/// 5. Call each thread to start. The threads running the processes are detatched after this calling.
+/// 6. The main thread loops for progress bar while waiting the child threads to finish.
+/// 7. After finished, print some information, reset ROOT mutes.
+/// 8. Call ConfigOutputFile() method to save the output file
 ///
 void TRestProcessRunner::RunProcess()
 {
@@ -470,7 +521,15 @@ void TRestProcessRunner::RunProcess()
 
 }
 
-
+///////////////////////////////////////////////
+/// \brief A pause menu providing some functions during the process
+///
+/// It can:
+/// 1. Change verbose level
+/// 2. Change number of events to process
+/// 3. Push forward event by event
+/// 4. Print the latest processed event
+/// 5. Quit the process directly with file saved
 void TRestProcessRunner::PauseMenu() {
 	TRestStringOutput cout;
 	cout.setcolor(COLOR_BOLDWHITE);
@@ -819,7 +878,11 @@ void TRestProcessRunner::WriteThreadFileFunc(TRestThread* t)
 
 }
 
-
+///////////////////////////////////////////////
+/// \brief Forming an output file
+///
+/// It first saves process metadata in to the main output file, then calls
+/// TRestRun::FormOutputFile() to merge the main file with process's tmp file.
 void TRestProcessRunner::ConfigOutputFile()
 {
 	essential << "Configuring output file, merging thread files together" << endl;
@@ -872,6 +935,9 @@ void TRestProcessRunner::ConfigOutputFile()
 
 
 //tools
+///////////////////////////////////////////////
+/// \brief Reset running time count to 0
+///
 void TRestProcessRunner::ResetRunTimes()
 {
 #ifdef TIME_MEASUREMENT
@@ -882,7 +948,11 @@ void TRestProcessRunner::ResetRunTimes()
 
 }
 
-
+///////////////////////////////////////////////
+/// \brief InstantiateProcess in sequential start up
+///
+/// It instantiates a the object by the method TClass::GetClass(), giving it 
+/// type name. Then it asks the process object to LoadConfigFromFile() with an xml section.
 TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type, TiXmlElement* ele)
 {
 	TClass *cl = TClass::GetClass(type);
@@ -907,7 +977,9 @@ TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type, TiXmlEle
 	return pc;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Print number of events processed, file read speed, ETA and a progress bar.
+///
 void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 {
 
@@ -998,6 +1070,9 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 
 }
 
+///////////////////////////////////////////////
+/// \brief Make a string of progress bar with given length and percentage
+///
 string TRestProcessRunner::MakeProgressBar(int progress100, int length)
 {
 	string progressbar(length, '-');

@@ -42,6 +42,9 @@
 /// 2014-june: First concept. As part of conceptualization of previous REST
 ///            code (REST v2)
 ///            Igor G. Irastorza
+/// 
+/// 2017-Aug:  Major change to xml reading and class startup procedure
+///            Kaixiang Ni
 ///
 //////////////////////////////////////////////////////////////////////////
 
@@ -139,7 +142,9 @@ void TRestEvent::SetTime(Double_t seconds, Double_t nanoseconds)
 	fEventTime.SetNanoSec(nanoseconds);
 }
 
-
+//////////////////////////////////////////////////////////////////////////
+/// Copy the six univeral information in TRestEvent from another TRestEvent
+///
 void TRestEvent::SetEventInfo(TRestEvent*eve)
 {
 	if (eve != NULL) {
