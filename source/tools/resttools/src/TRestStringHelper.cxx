@@ -114,6 +114,12 @@ Int_t TRestStringHelper::isANumber(string in)
 ///////////////////////////////////////////////
 /// \brief Spilt the input string according to the given separator. Returning a vector of fragments
 ///
+/// e.g.
+/// Input: "" and "", Output: {}
+/// Input: ":" and ":", Output: {}
+/// Input: "abc" and "", Output: { "a", "b", "c" }
+/// Input: "abc:def" and ":", Output: { "abc", "def" }
+/// Input: "abc:def" and ":def", Output: { "abc" }
 std::vector<string> TRestStringHelper::Spilt(std::string in, string separator)
 {
 	std::vector<string> result;
@@ -185,39 +191,50 @@ string TRestStringHelper::Replace(string in, string thisString, string byThisStr
 	return out;
 }
 
+
+///////////////////////////////////////////////
+/// \brief Format time_t into string
+/// 
+/// The output datatime format is "Y-M-D H:M:S". e.g. 
+/// \code
+/// TRestStringHelper::ToDateTimeString(0)
+/// (return) 1970-1-1 8:00:00
+/// \endcode
+/// here the type "time_t" is actually the type "long long", which indicates the elapsed 
+/// time in second from 1970-1-1 8:00:00
 string TRestStringHelper::ToDateTimeString(time_t time)
 {
-	tm *tm_ = localtime(&time);                // 将time_t格式转换为tm结构体
-	int year, month, day, hour, minute, second;// 定义时间的各个int临时变量。
-	year = tm_->tm_year + 1900;                // 临时变量，年，由于tm结构体存储的是从1900年开始的时间，所以临时变量int为tm_year加上1900。
-	month = tm_->tm_mon + 1;                   // 临时变量，月，由于tm结构体的月份存储范围为0-11，所以临时变量int为tm_mon加上1。
-	day = tm_->tm_mday;                        // 临时变量，日。
-	hour = tm_->tm_hour;                       // 临时变量，时。
-	minute = tm_->tm_min;                      // 临时变量，分。
-	second = tm_->tm_sec;                      // 临时变量，秒。
-	char yearStr[5], monthStr[3], dayStr[3], hourStr[3], minuteStr[3], secondStr[3];// 定义时间的各个char*变量。
-	sprintf(yearStr, "%d", year);              // 年。
-	sprintf(monthStr, "%d", month);            // 月。
-	sprintf(dayStr, "%d", day);                // 日。
-	sprintf(hourStr, "%d", hour);              // 时。
-	sprintf(minuteStr, "%d", minute);          // 分。
-	if (minuteStr[1] == '\0')                  // 如果分为一位，如5，则需要转换字符串为两位，如05。
+	tm *tm_ = localtime(&time);                
+	int year, month, day, hour, minute, second;
+	year = tm_->tm_year + 1900;                
+	month = tm_->tm_mon + 1;                   
+	day = tm_->tm_mday;                        
+	hour = tm_->tm_hour;                       
+	minute = tm_->tm_min;                      
+	second = tm_->tm_sec;                      
+	char yearStr[5], monthStr[3], dayStr[3], hourStr[3], minuteStr[3], secondStr[3];
+	sprintf(yearStr, "%d", year);              
+	sprintf(monthStr, "%d", month);            
+	sprintf(dayStr, "%d", day);                
+	sprintf(hourStr, "%d", hour);              
+	sprintf(minuteStr, "%d", minute);          
+	if (minuteStr[1] == '\0')                  
 	{
 		minuteStr[2] = '\0';
 		minuteStr[1] = minuteStr[0];
 		minuteStr[0] = '0';
 	}
-	sprintf(secondStr, "%d", second);          // 秒。
-	if (secondStr[1] == '\0')                  // 如果秒为一位，如5，则需要转换字符串为两位，如05。
+	sprintf(secondStr, "%d", second);          
+	if (secondStr[1] == '\0')                  
 	{
 		secondStr[2] = '\0';
 		secondStr[1] = secondStr[0];
 		secondStr[0] = '0';
 	}
-	char s[20];                                // 定义总日期时间char*变量。
-	sprintf(s, "%s-%s-%s %s:%s:%s", yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr);// 将年月日时分秒合并。
-	string str(s);                             // 定义string变量，并将总日期时间char*变量作为构造函数的参数传入。
-	return str;                                // 返回转换日期时间后的string变量。
+	char s[20];                                
+	sprintf(s, "%s-%s-%s %s:%s:%s", yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr);
+	string str(s);                             
+	return str;                                
 }
 
 
@@ -357,33 +374,46 @@ bool TRestStringHelper::isAbsolutePath(const std::string & path)
 	return false;
 }
 
-std::vector <string> TRestStringHelper::SeparatePathAndName(const std::string fullname)
+///////////////////////////////////////////////
+/// \brief Separate path and fila name in a full name, returns a pair of string
+///
+/// if input file name contains no directory, the directory is convinced to be "."
+/// if input file name contains no file, the file is convinced to be ""
+/// e.g.
+/// Input: "/home/nkx/abc.txt" and ":def", Output: { "/home/nkx/", "abc.txt" }
+/// Input: "abc.txt" and ":", Output: { ".", "abc.txt" }
+/// Input: "/home/nkx/" and ":", Output: { "/home/nkx/", "" }
+std::pair<string, string> TRestStringHelper::SeparatePathAndName(const std::string fullname)
 {
-	vector <string>result;
+	pair<string, string> result;
 	int pos = fullname.find_last_of('/', -1);
 
 	if (pos == -1) {
-		result.push_back(".");
-		result.push_back(fullname);
+		result.first=".";
+		result.second=fullname;
 	}
 	else if(pos==0)
 	{
-		result.push_back("/");
-		result.push_back(fullname.substr(1,fullname.size()-1));
+		result.first="/";
+		result.second =fullname.substr(1,fullname.size()-1);
 	}
-	else if(pos==fullname.size())
+	else if(pos==fullname.size()-1)
 	{
-		result.push_back(fullname);
-		result.push_back("");
+		result.first=fullname;
+		result.second ="";
 	}
 	else
 	{
-		result.push_back(fullname.substr(0, pos));
-		result.push_back(fullname.substr(pos + 1, fullname.size() - pos - 1));
+		result.first = fullname.substr(0, pos + 1);
+		result.second =fullname.substr(pos + 1, fullname.size() - pos - 1);
 	}
 	return result;
 }
 
+
+///////////////////////////////////////////////
+/// \brief Search file in the given vector of path strings, return a full name if found, return "" if not
+///
 std::string TRestStringHelper::SearchFileInPath(vector<string> paths, string filename) {
 	if (fileExists(filename)) {
 		return filename;
@@ -401,21 +431,6 @@ std::string TRestStringHelper::SearchFileInPath(vector<string> paths, string fil
 	return "";
 
 }
-
-
-///////////////////////////////////////////////
-/// \brief Windows returns the class name in format of typeid. This method extracts the real class name from that.
-///
-std::string TRestStringHelper::typeidToClassName(std::string typeidstr)
-{
-	cout << typeidstr << endl;
-	string temp = Replace(typeidstr, "class", "");
-	temp = Replace(temp, "*", "");
-	temp = Replace(temp, " ", "");
-	return temp;
-
-}
-
 
 ///////////////////////////////////////////////
 /// \brief Checks if the config file can be openned. It returns OK in case of success, ERROR otherwise.
@@ -479,13 +494,18 @@ vector <string> TRestStringHelper::GetFilesMatchingPattern(string pattern)
 	return outputFileNames;
 }
 
+///////////////////////////////////////////////
+/// \brief Convert string to its upper case. Alternative of TString::ToUpper
+///
 std::string TRestStringHelper::ToUpper(std::string str)
 {
 	transform(str.begin(), str.end(), str.begin(), (int(*)(int))toupper);
 	return str;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Execute shell command and returns a string containing the result
+///
 std::string TRestStringHelper::ExecuteShellCommand(string cmd)
 {
 #ifdef WIN32

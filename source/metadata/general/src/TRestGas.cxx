@@ -588,8 +588,8 @@ void TRestGas::GenerateGasFile()
 
 	ConstructFilename();
 
-	string path = SeparatePathAndName((string)fGasFilename)[0];
-	string name = SeparatePathAndName((string)fGasFilename)[1];
+	string path = SeparatePathAndName((string)fGasFilename).first;
+	string name = SeparatePathAndName((string)fGasFilename).second;
 
 	if (!isPathWritable(path))
 	{
