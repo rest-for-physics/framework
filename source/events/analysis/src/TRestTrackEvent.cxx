@@ -72,6 +72,8 @@ TRestTrack *TRestTrackEvent::GetMaxEnergyTrackInX( )
     Double_t maxEnergy = 0;
     for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
     {
+        if( !this->isTopLevel( tck ) ) continue;
+
         TRestTrack *t = GetTrack( tck );
         if( t->isXZ() )
         {
@@ -94,6 +96,8 @@ TRestTrack *TRestTrackEvent::GetMaxEnergyTrackInY( )
     Double_t maxEnergy = 0;
     for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
     {
+        if( !this->isTopLevel( tck ) ) continue;
+
         TRestTrack *t = GetTrack( tck );
         if( t->isYZ() )
         {
@@ -116,6 +120,8 @@ TRestTrack *TRestTrackEvent::GetMaxEnergyTrack( )
     Double_t maxEnergy = 0;
     for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
     {
+        if( !this->isTopLevel( tck ) ) continue;
+
         TRestTrack *t = GetTrack( tck );
         if( t->isXYZ() )
         {
@@ -141,6 +147,8 @@ TRestTrack *TRestTrackEvent::GetSecondMaxEnergyTrack( )
     Double_t maxEnergy = 0;
     for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
     {
+        if( !this->isTopLevel( tck ) ) continue;
+
         TRestTrack *t = GetTrack( tck );
         if( t->GetTrackID() == id ) continue;
 
