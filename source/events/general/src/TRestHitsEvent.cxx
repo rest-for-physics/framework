@@ -327,7 +327,7 @@ TPad *TRestHitsEvent::DrawEvent( TString option )
     if( fPad != NULL ) { delete fPad; fPad = NULL; }
 
     if( optList.size() == 0 )
-        optList.push_back( "hist(Cont1,col)" );
+        optList.push_back( "hist(colz)" );
 
 
     fPad = new TPad(this->GetName(), " ", 0, 0, 1, 1 );
