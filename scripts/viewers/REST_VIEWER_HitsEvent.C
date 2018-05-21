@@ -1,5 +1,5 @@
 
-REST_VIEWER_HitsEvent( TString fName=" ",  TString option = " " )
+REST_VIEWER_HitsEvent( TString fName=" ",  TString option = "" )
 {
     TRestBrowser *browser = new TRestBrowser( );
 
