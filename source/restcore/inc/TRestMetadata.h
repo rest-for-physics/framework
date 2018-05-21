@@ -139,6 +139,19 @@ public:
 	Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0) const { if (fStore) { return TNamed::Write(name, option, bufsize); } return -1; }
 	Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0) { if (fStore) { return TNamed::Write(name, option, bufsize); } return -1; }
 
+
+	//data tools
+	TStreamerElement* GetDataMemberWithName(string name);
+	TStreamerElement* GetDataMemberWithID(int ID);
+	int GetNumberOfDataMember();
+	double GetDblDataMemberVal(TStreamerElement*);
+	int GetIntDataMemberVal(TStreamerElement*);
+	char* GetDataMemberRef(TStreamerElement*);
+	string GetDataMemberValString(TStreamerElement*);
+	void SetDataMemberVal(TStreamerElement*, char*);
+	void SetDataMemberVal(TStreamerElement*, string);
+	void SetDataMemberValFromConfig(TStreamerElement*);
+
 protected:
 	//new xml utilities
 	std::string GetFieldValue(std::string parName, TiXmlElement* e);
@@ -183,7 +196,6 @@ protected:
 	TVector2 Get2DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
 	TVector3 Get3DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
 
-
 	//string utils
 	//std::string EvaluateExpression(std::string exp);
 	//std::string ReplaceMathematicalExpressions(std::string buffer);
@@ -194,21 +206,6 @@ protected:
 	void ClearEnv() { fElementEnv.clear(); }
 
 	string SearchFile(string filename);
-
-
-	//data tools
-	TStreamerElement* GetDataMemberWithName(string name);
-	TStreamerElement* GetDataMemberWithID(int ID);
-	int GetNumberOfDataMember();
-	double GetDblDataMemberVal(TStreamerElement*);
-	int GetIntDataMemberVal(TStreamerElement*);
-	char* GetDataMemberRef(TStreamerElement*);
-	string GetDataMemberValString(TStreamerElement*);
-	void SetDataMemberVal(TStreamerElement*, char*);
-	void SetDataMemberVal(TStreamerElement*, string);
-	void SetDataMemberValFromConfig(TStreamerElement*);
-
-
 
 	//////////////////////////////////////////////////
 	///Data members
@@ -259,7 +256,7 @@ protected:
 private:
 
 	//void ProcessElement(TiXmlElement* e);
-	void SetEnvWithElement(TiXmlElement* e,bool overwriteexisting=true);
+	void SetEnvWithElement(TiXmlElement* e,bool updateexisting =true);
 	//void ExecuteForLoops(TiXmlElement* e);
 	//void LoadConfigInIncludeFile(TiXmlElement* e);
 	void ExpandElement(TiXmlElement*e,bool recursive=false);

@@ -493,8 +493,8 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
 ///////////////////////////////////////////////
 /// \brief Main starter. 
 ///
-///First combine the sectional and global sections together, then save the input env section.
-/// To make start up it calls the following methods in sequence: LoadSectionMetadata(), BeginOfInit(), LoopElements(), EndOfInit()
+/// First merge the sectional and global sections together, then save the input env section.
+/// To make start up it calls the following methods in sequence: LoadSectionMetadata(), InitFromConfigFile()
 /// 
 Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal, vector<TiXmlElement*> eEnv)
 {
@@ -537,10 +537,14 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
 }
 
 ///////////////////////////////////////////////
-/// \brief Do some preparation.
+/// \brief This method does some preparation for the starter.
 ///
 /// Preparation includes: seting the name, title and verbose level of the current class. 
-/// Finding out and saving the env sections. Self-replace the env and expressions to make them ready.
+/// Finding out and saving the env sections. 
+/// 
+/// By calling TRestMetadata::ExpandElement(), is also expands for loops and include definitions, 
+/// and replaces env and expressions in rml config section.
+/// 
 Int_t TRestMetadata::LoadSectionMetadata()
 {
 	//general metadata: name, title, verboselevel
@@ -598,7 +602,13 @@ Int_t TRestMetadata::LoadSectionMetadata()
 	return 0;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Pure virtual method defining the real action of reading rml config
+///
+/// By default it iterates all the child xml sections in the config section.
+/// Method calling sequence: BeginOfInit(), (loop)ReadConfig(), EndOfInit()
+/// 
+/// This method must be implemeneted in the derived class
 void TRestMetadata::InitFromConfigFile()
 {
 
@@ -626,16 +636,11 @@ void TRestMetadata::InitFromConfigFile()
 
 }
 
-
-
-
 ///////////////////////////////////////////////
-///\brief replace the field value(attribute) of the given xml element
+/// \brief replace the field value(attribute) of the given xml element
 ///
-///it will replace:
-///1.variables formatted like ${ABC} or {ABC} or ABC.
-///(system env, rml env, sectional para, respectivally)
-///3.math expressions
+/// it calls ReplaceEnvironmentalVariables() and ReplaceMathematicalExpressions() 
+/// in sequence. "name" attribute won't be replaced
 TiXmlElement * TRestMetadata::ReplaceElementAttributes(TiXmlElement * e)
 {
 	if (e == NULL)return NULL;
@@ -658,18 +663,20 @@ TiXmlElement * TRestMetadata::ReplaceElementAttributes(TiXmlElement * e)
 	return e;
 }
 
-
-
-
 ///////////////////////////////////////////////
-/// \brief Finds an environment variable definition inside the xml section and sets it.
+/// \brief Identify an environmental variable section and add it into env section list
 ///
-/// The xml declaration "variable" and myParameter are both vaild. If the environment 
-/// variable exists already, its value can be overriden here. Using *overwrite="true"*.
+/// Vaild section declaration: "variable", "myParameter", "constant". If the section 
+/// exists already, its value will be updated if "updateexisting" is true. If a system
+/// env with the same name has been defined already, then the system env will be used, 
+/// unless the attribute "overwrite" is true.
 /// 
-/// Example of environmental variable definition : \code <variable name="TEST" value="VALUE" overwrite="true" /> \endcode
+/// Example of environmental variable section: 
+/// \code 
+/// <variable name="TEST" value="VALUE" overwrite="true" /> 
+/// \endcode
 ///
-void TRestMetadata::SetEnvWithElement(TiXmlElement* e, bool overwriteexisting)
+void TRestMetadata::SetEnvWithElement(TiXmlElement* e, bool updateexisting)
 {
 	if (e == NULL)return;
 
@@ -700,7 +707,7 @@ void TRestMetadata::SetEnvWithElement(TiXmlElement* e, bool overwriteexisting)
 		string name2 = fElementEnv[i]->Attribute("name");
 		if ((string)e->Value() == (string)fElementEnv[i]->Value() && name2 == (string)name) 
 		{
-			if(overwriteexisting)
+			if(updateexisting)
 				fElementEnv[i]->SetAttribute("value", value);
 			return;
 		}
@@ -711,8 +718,12 @@ void TRestMetadata::SetEnvWithElement(TiXmlElement* e, bool overwriteexisting)
 }
 
 ///////////////////////////////////////////////
-/// \brief Expand for loop and include definition for all the child elements.
+/// \brief Expand for loop and include definitions in the given xml section
 ///
+/// The expansion is done recursively except for child sections declared after "TRest".
+/// They are supposed to be a metadata class and to be doing the expansion themselves. 
+/// If the argument "recursive" is true, these child sections will also be processed.
+/// Before expansion, ReplaceElementAttributes() will first be called.
 void TRestMetadata::ExpandElement(TiXmlElement*e, bool recursive)
 {
 	ReplaceElementAttributes(e);
@@ -739,9 +750,11 @@ void TRestMetadata::ExpandElement(TiXmlElement*e, bool recursive)
 	}
 }
 
-
 ///////////////////////////////////////////////
-/// \brief Expands the loop structures found in **buffer** by substituting the running indexes by their values.
+/// \brief Expands the loop structures found in the given xml section.
+/// 
+/// The expansion is done by creating new TiXmlElement objects and inserting them in the 
+/// given xml section. Loop variable is treated samely as REST "variable"
 ///
 void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 {
@@ -807,7 +820,6 @@ void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 	
 
 }
-
 
 ///////////////////////////////////////////////
 /// \brief Open the given rml file and find the corresponding section. 
@@ -977,13 +989,12 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 	}
 }
 
-
-
 ///////////////////////////////////////////////
 /// \brief Returns the value for the parameter name **parName** found in fElement(main data element)
 /// 
 /// It first finds the parameter from the system's env, if the name matches it will directly return the env.
-/// If no env is available, it calls GetParameter() method. See more detail there
+/// If no env is available, it calls GetParameter() method, specifying the search element
+/// TRestMetadata::fElement. See more detail there.
 ///
 /// \param parName The name of the parameter from which we want to obtain the value.
 /// \param defaultValue The default value if the paremeter is not found
@@ -1012,8 +1023,8 @@ string TRestMetadata::GetParameter(std::string parName, TString defaultValue)
 /// 2. <addReadoutModule id="0" name="module" rotation = "0" firstDaqChannel = "272" / >
 ///
 /// The first one is obviously a parameter. The xml element itself serves as a peice of parameter. The name
-/// and the value are given in its fields. This is classic because the element itself declares
-/// it is a prarmeter. We also generalize the concept of parameter to the elements' fields.
+/// and the value are given in its fields. This is the classic definition.
+/// We also generalize the concept of parameter to the elements' fields.
 /// All the fields in an element can be seen as parameter. So there are 4 parameters in the second example, 
 /// including: id, name, rotation and firstDaqChannel. This method first finds parameter in the
 /// fields of the given element. If not find, it searches its the child elements. If still not find, 
@@ -1151,14 +1162,11 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVect
 	return Get3DVectorParameterWithUnits(parName, fElement,defaultVal);
 }
 
-
-
-
 ///////////////////////////////////////////////
 /// \brief Open an xml encoded file and get its root element. 
 ///
-/// The root element is the parent of
-/// any other xml elements in the file. There is only one root element in each xml encoded file.
+/// The root element is the parent of any other xml elements in the file. 
+/// There could be only one root element in each xml encoded file.
 ///
 /// Exits the whole program if the xml file does not exist or is in wrong in syntax.
 ///
@@ -1257,8 +1265,6 @@ TiXmlElement * TRestMetadata::GetElementWithName(std::string eleDeclare, std::st
 
 }
 
-
-
 ///////////////////////////////////////////////
 /// \brief Returns a string with the unit name provided inside the given element.
 /// 
@@ -1319,14 +1325,11 @@ string TRestMetadata::GetUnits(TiXmlElement* e, string whoseunits)
 }
 
 
-
-
-
-
-
-
-
-
+///////////////////////////////////////////////
+/// \brief Parsing a string into TiXmlElement object
+/// 
+/// This method creates TiXmlElement object with the alloator "new". 
+/// Be advised to delete the object after using it!
 TiXmlElement* TRestMetadata::StringToElement(string definition)
 {
 	TiXmlElement*ele = new TiXmlElement("temp");
@@ -1335,7 +1338,10 @@ TiXmlElement* TRestMetadata::StringToElement(string definition)
 	return ele;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Convert an TiXmlElement object to string
+/// 
+/// This method does't arrange the output. All the contents are written in one line.
 string TRestMetadata::ElementToString(TiXmlElement*ele)
 {
 	if (ele != NULL) {
@@ -1372,7 +1378,6 @@ string TRestMetadata::ElementToString(TiXmlElement*ele)
 	return " ";
 }
 
-
 ///////////////////////////////////////////////
 /// \brief Gets the first key structure for **keyName** found inside **buffer** after **fromPosition**.
 ///
@@ -1405,12 +1410,11 @@ string TRestMetadata::GetKEYStructure(std::string keyName, string buffer)
 	return result;
 }
 string TRestMetadata::GetKEYStructure(std::string keyName, size_t &fromPosition, string buffer) {
-
 	TiXmlElement*ele = StringToElement(buffer);
-	return GetKEYStructure(keyName, fromPosition, ele);
-	
+	string result= GetKEYStructure(keyName, fromPosition, ele);
+	delete ele;
+	return result;
 }
-
 string TRestMetadata::GetKEYStructure(std::string keyName, size_t &fromPosition, TiXmlElement*ele) {
 	size_t position = fromPosition;
 
@@ -1499,7 +1503,9 @@ string TRestMetadata::GetKEYDefinition(string keyName, size_t &fromPosition, str
 	return result;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Gets field value in an xml element string by parsing it as TiXmlElement
+///
 std::string TRestMetadata::GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition)
 {
 	TiXmlElement*ele = StringToElement(definition);
@@ -1507,7 +1513,6 @@ std::string TRestMetadata::GetFieldValue(std::string fieldName, std::string defi
 	delete ele;
 	return value;
 }
-
 Double_t TRestMetadata::GetDblFieldValueWithUnits(string fieldName, string definition, size_t fromPosition)
 {
 	TiXmlElement*ele = StringToElement(definition);
@@ -1548,9 +1553,6 @@ TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits(string fieldName, string 
 	return value;
 }
 
-
-
-
 ///////////////////////////////////////////////
 /// \brief Returns the value for the parameter name **parName** found in **inputString**. 
 /// 
@@ -1568,6 +1570,7 @@ string TRestMetadata::GetParameter(string parName, size_t &pos, string inputStri
 
 	return value;
 }
+
 ///////////////////////////////////////////////
 /// \brief Gets the double value of the parameter name **parName**, found in **inputString**, after applying unit conversion.
 ///
@@ -1592,6 +1595,7 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, size_t &po
 
 	return value;
 }
+
 ///////////////////////////////////////////////
 /// \brief Returns a 2D vector value of the parameter name **parName**, found in **inputString**, after applying unit conversion.
 ///
@@ -1616,6 +1620,7 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, size_
 
 	return value;
 }
+
 ///////////////////////////////////////////////
 /// \brief Returns a 3D vector value of the parameter name **parName**, found in **inputString**, after applying unit conversion.
 ///
@@ -1640,59 +1645,6 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, size_
 
 	return value;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//string TRestMetadata::EvaluateExpression(string exp)
-//{
-//	if (!isAExpression(exp)) { return exp; }
-//
-//	//NOTE!!! In root6 the expression like "1/2" will be computed using the input as int number,
-//	//which will return 0, and cause problem.
-//	//we roll back to TFormula of version 5
-//	ROOT::v5::TFormula formula("tmp", exp.c_str());
-//
-//	ostringstream sss;
-//	Double_t number = formula.EvalPar(0);
-//	if (number > 0 && number < 1.e-300)
-//	{
-//		warning << "REST Warning! Expression not recognized --> " << exp << endl;  return exp;
-//		warning << endl;
-//	}
-//
-//	sss << number;
-//	string out = sss.str();
-//
-//	return out;
-//}
 
 
 ///////////////////////////////////////////////
@@ -1902,7 +1854,9 @@ void TRestMetadata::PrintTimeStamp(Double_t timeStamp)
 	cout << "++++++++++++++++++++++++" << endl;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Prints current config buffer on screen
+///
 void TRestMetadata::PrintConfigBuffer()
 {
 	fElement->Print(stdout, 0);
@@ -1928,7 +1882,6 @@ int TRestMetadata::GetChar(string hint)
 	return -1;
 }
 
-
 ///////////////////////////////////////////////
 /// \brief Prints metadata content on screen. Usually overloaded by the derived metadata class.
 ///
@@ -1952,8 +1905,6 @@ TString TRestMetadata::GetVerboseLevelString()
 
 	return level;
 }
-
-
 
 ///////////////////////////////////////////////
 /// Returns a string with the path defined in sections "searchPath". 
@@ -1989,9 +1940,13 @@ TString TRestMetadata::GetSearchPath() {
 }
 
 
-TClass*c;//!
-TVirtualStreamerInfo *vs;//!
-TObjArray* ses;//!
+TClass*c;
+TVirtualStreamerInfo *vs;
+TObjArray* ses;
+///////////////////////////////////////////////
+/// \brief Reflection methods, Get the class's datamember info according to its name. 
+///
+/// The info returned is wrapped in TStreamerElement
 TStreamerElement* TRestMetadata::GetDataMemberWithName(string name)
 {
 	int n = GetNumberOfDataMember();
@@ -2006,6 +1961,9 @@ TStreamerElement* TRestMetadata::GetDataMemberWithName(string name)
 
 }
 
+///////////////////////////////////////////////
+/// \brief Reflection methods, Get the class's datamember info according to its id. 
+///
 TStreamerElement* TRestMetadata::GetDataMemberWithID(int ID)
 {
 	int n = GetNumberOfDataMember();
@@ -2013,6 +1971,9 @@ TStreamerElement* TRestMetadata::GetDataMemberWithID(int ID)
 	return NULL;
 }
 
+///////////////////////////////////////////////
+/// \brief Reflection methods, Get the number of the class's datamembers
+///
 int TRestMetadata::GetNumberOfDataMember()
 {
 	if (c==NULL||(c!=NULL&&c->GetName()!=this->ClassName())) {
@@ -2023,7 +1984,9 @@ int TRestMetadata::GetNumberOfDataMember()
 	return ses->GetLast() + 1;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Reflection methods, Get the value of a datamember assuming it is double type
+///
 double TRestMetadata::GetDblDataMemberVal(TStreamerElement*ele)
 {
 	if (ele != NULL&&ele->GetType() == 8)
@@ -2031,7 +1994,9 @@ double TRestMetadata::GetDblDataMemberVal(TStreamerElement*ele)
 	return 0;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Reflection methods, Get the value of a datamember assuming it is int type
+///
 int TRestMetadata::GetIntDataMemberVal(TStreamerElement*ele)
 {
 	if (ele != NULL&&ele->GetType() == 3)
@@ -2039,12 +2004,37 @@ int TRestMetadata::GetIntDataMemberVal(TStreamerElement*ele)
 	return 0;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Reflection methods, Get the address of a datamember(class address+offset)
+///
 char* TRestMetadata::GetDataMemberRef(TStreamerElement*ele) {
+	if (ele == NULL)return 0;
 	return ((char*)this + ele->GetOffset());
 }
 
+///////////////////////////////////////////////
+/// \brief Reflection methods, Returns a string of the value of a datamember, if supported
+///
+/// Supported type: double, int, TString. If not supported, returns the type name.
+/// This method can be used as a real time inspector of TRestMetadata objects.
+string TRestMetadata::GetDataMemberValString(TStreamerElement*ele)
+{
+	if (ele == NULL)
+		return "";
+	if (ele != NULL && ele->GetType() == 8)//double
+		return ToString(*(double*)((char*)this + ele->GetOffset()));
+	if (ele != NULL && ele->GetType() == 3)//int
+		return ToString(*(int*)((char*)this + ele->GetOffset()));
+	if (ele != NULL && ele->GetType() == 65)//TString
+		return ToString(*(TString*)((char*)this + ele->GetOffset()));
+	return ele->GetTypeName();
+}
 
+///////////////////////////////////////////////
+/// \brief Reflection methods, Set the value of a datamember if the type is supported
+///
+/// Supported type: double, int, TString. The address of target value variable needs 
+/// to be given.
 void TRestMetadata::SetDataMemberVal(TStreamerElement*ele, char*ptr) {
 
 	if (ele != NULL && ele->GetType() == 8)//double
@@ -2056,6 +2046,10 @@ void TRestMetadata::SetDataMemberVal(TStreamerElement*ele, char*ptr) {
 
 }
 
+///////////////////////////////////////////////
+/// \brief Reflection methods, Set the value of a datamember if the type is supported
+///
+/// Supported type: double, int, TString. A string of value needs to be given.
 void TRestMetadata::SetDataMemberVal(TStreamerElement*ele, string valdef)
 {
 	if (ele != NULL && ele->GetType() == 8)//double
@@ -2066,35 +2060,29 @@ void TRestMetadata::SetDataMemberVal(TStreamerElement*ele, string valdef)
 		*((TString*)((char*)this + ele->GetOffset())) = (TString)(valdef);
 }
 
-
+///////////////////////////////////////////////
+/// \brief Reflection methods, Set value of a datamember in class according to TRestMetadata::fElement
+///
+/// It will search for "parameter" section with the same name of the datamember, and set it's value.
+/// For example
+/// \code
+/// class TRestXXX: public TRestMetadata{
+/// int par0;
+/// }
+/// 
+/// <TRestXXX name="..." par0="10"/>
+/// \endcode
+/// After loading the rml file and calling this method, the value of "par0" will be set to 10
+/// 
 void TRestMetadata::SetDataMemberValFromConfig(TStreamerElement*ele)
 {
-	if (GetParameter(ele->GetName()) != PARAMETER_NOT_FOUND_STR)
-	{
-		SetDataMemberVal(ele, GetParameter(ele->GetName()));
+	if (ele != NULL) {
+		if (GetParameter(ele->GetName()) != PARAMETER_NOT_FOUND_STR)
+		{
+			SetDataMemberVal(ele, GetParameter(ele->GetName()));
+		}
 	}
 }
-
-string TRestMetadata::GetDataMemberValString(TStreamerElement*ele)
-{
-	if (ele != NULL && ele->GetType() == 8)//double
-		return ToString(*(double*)((char*)this + ele->GetOffset()));
-	if (ele != NULL && ele->GetType() == 3)//int
-		return ToString(*(int*)((char*)this + ele->GetOffset()));
-	if (ele != NULL && ele->GetType() == 65)//TString
-		return ToString(*(TString*)((char*)this + ele->GetOffset()));
-	return ele->GetTypeName();
-}
-
-
-
-
-
-
-
-
-
-
 
 
 
