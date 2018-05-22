@@ -1,19 +1,25 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///             
+//////////////////////////////////////////////////////////////////////////
 ///
-///             RESTSoft : Software for Rare Event Searches with TPCs
+/// RESTsoft - Software for Rare Event Searches with TPCs
 ///
-///             TRestBrowser.cxx
+/// \class      TRestBrowser
+/// Event browser for different input file
 ///
-///             G4 class description
+/// This class is inherted from TRestRun. It opens input file as TRestRun
+/// defined, and shows a plot of the event contained in the file. The plot
+/// is shown in a TBrowser embeded window, providing a customizable controller
+/// on the side.
 ///
-///             sept 2015:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///                 JuanAn Garcia
-///_______________________________________________________________________________
+/// History of developments:
+///
+/// 2014-june: First concept. As part of conceptualization of previous REST
+///            code (REST v2)
+///            Igor G. Irastorza
+/// 
+/// 2017-Aug:  Major change: added for multi-thread capability
+///            Kaixiang Ni
+///
+//////////////////////////////////////////////////////////////////////////
 
 
 #include "TRestBrowser.h"
@@ -239,32 +245,19 @@ void TRestBrowser::LoadFileAction() {
 
 Bool_t TRestBrowser::OpenFile(TString fName)
 {
-
-	TGeoManager *geometry = NULL;
-
-	string fname = fName.Data();
-	if (!fileExists(fname)) {
-		cout << "WARNING. Input file " << fname << " does not exist" << endl;
+	if (!fileExists((string)fName)) {
+		cout << "WARNING. Input file " << fName << " does not exist" << endl;
 		return kFALSE;
 	}
 
 	if (fInputFile != NULL) fInputFile->Close();
-	OpenInputFile(fName);
-	fInputFileName = fname;
+	fInputFileName = fName;
+	TRestRun::OpenInputFile(fName);
+
+
 	if (fInputFile == NULL || fInputFile->IsZombie()) {
-		error << "failed to open input file" << endl;
+		error << "TRestBrowser : failed to open input file" << endl;
 		exit(0);
-	}
-	TIter nextkey(fInputFile->GetListOfKeys());
-	TKey *key;
-	while ((key = (TKey*)nextkey())) {
-
-		string className = key->GetClassName();
-
-		if (className == "TGeoManager")
-			geometry = (TGeoManager *)fInputFile->Get(key->GetName());
-		//if(className=="TRestAnalysisTree")
-		// fAnalysisTree= (TRestAnalysisTree *)fInputFile->Get(key->GetName());
 	}
 	if (fAnalysisTree == NULL && fEventTree == NULL)
 	{
@@ -273,22 +266,19 @@ Bool_t TRestBrowser::OpenFile(TString fName)
 		exit(1);
 	}
 
-	if (fAnalysisTree != NULL) {
-		fAnalysisTree->ConnectEventBranches();
-		fAnalysisTree->ConnectObservables();
+	TGeoManager *geometry = NULL;
+	TIter nextkey(fInputFile->GetListOfKeys());
+	TKey *key;
+	while ((key = (TKey*)nextkey())) {
+		string className = key->GetClassName();
+		if (className == "TGeoManager")
+			geometry = (TGeoManager *)fInputFile->Get(key->GetName());
 	}
 
 	if (fEventTree != NULL) {
-		//fEventTree->ConnectEventBranches();
 		//init viewer
-		if (fEventViewer == NULL) {
-			SetViewer("TRestGenericEventViewer");
-		}
-
-
+		if (fEventViewer == NULL) SetViewer("TRestGenericEventViewer");
 		if (geometry != NULL && fEventViewer != NULL)fEventViewer->SetGeometry(geometry);
-
-		//PrintAllMetadata();
 		LoadEventAction();
 	}
 	else
@@ -297,7 +287,6 @@ Bool_t TRestBrowser::OpenFile(TString fName)
 	}
 
 	return kTRUE;
-
 }
 
 Bool_t TRestBrowser::LoadEvent(Int_t n) {
