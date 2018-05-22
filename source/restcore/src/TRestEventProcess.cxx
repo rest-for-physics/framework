@@ -75,7 +75,22 @@ TRestEventProcess::~TRestEventProcess()
 {
 }
 
-//______________________________________________________________________________
+//////////////////////////////////////////////////////////////////////////
+/// \brief Loop child sections declared as "observable" and set them in the analysis tree
+///
+/// \code <observable name="abc" value="ON"/>
+/// There are two types of observables: datamember observable and realtime observable
+/// datamember observable has the same name with a class-defined data member. The address
+/// of this data member will be found and be used to crate the tree branch. On the other hand,
+/// realtime observable is only defined during the analysis process. We need to call the 
+/// method TRestAnalysisTree::SetObservableValue() after the value is calculated.
+///
+/// After all the processes have finished the event, observable branches will automatically
+/// be filled.
+///
+/// Note that observables can only be double type. If one wants to save other types of 
+/// analysis result, e.g. vector or map, he can only define them as process's data member 
+/// and save the wholel process in analysis tree.
 vector<string> TRestEventProcess::ReadObservables()
 {
 	TiXmlElement* e = GetElement("observable");
@@ -135,6 +150,9 @@ vector<string> TRestEventProcess::ReadObservables()
 	return obsnames;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// \brief Set analysis tree of this process
+///
 void TRestEventProcess::SetAnalysisTree(TRestAnalysisTree *tree)
 {
 	debug << "setting analysis tree for " << this->ClassName() << endl;
@@ -143,7 +161,10 @@ void TRestEventProcess::SetAnalysisTree(TRestAnalysisTree *tree)
 	
 }
 
-
+//////////////////////////////////////////////////////////////////////////
+/// \brief Add a process to the friendly process list.
+///
+/// Processes can get access to each other's parameter and observable
 void TRestEventProcess::SetFriendProcess(TRestEventProcess*p) 
 {
 	if (p == NULL)
@@ -155,6 +176,9 @@ void TRestEventProcess::SetFriendProcess(TRestEventProcess*p)
 	fFriendlyProcesses.push_back(p);
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// \brief Set branches for analysis tree according to the output level
+///
 void TRestEventProcess::ConfigAnalysisTree() {
 	if (fAnalysisTree == NULL)return;
 
@@ -164,7 +188,9 @@ void TRestEventProcess::ConfigAnalysisTree() {
 	
 }
 
-
+//////////////////////////////////////////////////////////////////////////
+/// \brief Load extra section metadata: outputlevel after calling TRestMetadata::LoadSectionMetadata()
+///
 Int_t TRestEventProcess::LoadSectionMetadata()
 {
 	TRestMetadata::LoadSectionMetadata();
@@ -193,6 +219,9 @@ Int_t TRestEventProcess::LoadSectionMetadata()
 	return 0;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// \brief Get a metadata object from friendly TRestRun object
+///
 TRestMetadata *TRestEventProcess::GetMetadata(string name)
 {
 	TRestMetadata*m= fRunInfo->GetMetadata(name);
@@ -200,7 +229,10 @@ TRestMetadata *TRestEventProcess::GetMetadata(string name)
 	return m;
 }
 
-
+//////////////////////////////////////////////////////////////////////////
+/// \brief Get a list of available datamember-observables in the class
+///
+/// This method uses GetDataMemberWithID() from TRestMetadata.
 vector<string> TRestEventProcess::GetAvailableObservals()
 {
 	vector<string> result;
@@ -216,7 +248,9 @@ vector<string> TRestEventProcess::GetAvailableObservals()
 	return result;
 }
 
-
+//////////////////////////////////////////////////////////////////////////
+/// \brief Copy six basic event information items to fOutputEvent from "inEv"
+///
 void TRestEventProcess::StampOutputEvent(TRestEvent *inEv)
 {
 	fOutputEvent->Initialize();
@@ -256,9 +290,10 @@ cout << GetName() << ": Process ending..." << endl;
 */
 
 //////////////////////////////////////////////////////////////////////////
-/// Show default console output at starting of process
+/// \brief Pre-defined printer, can be used at the beginning in the implementation of PrintMetadata()
 ///
-
+/// Prints process type, name, title, verboselevel, outputlevel, input/output 
+/// event type, and several separators
 void TRestEventProcess::BeginPrintProcess()
 {
 	essential.setcolor(COLOR_BOLDGREEN);
@@ -293,11 +328,9 @@ void TRestEventProcess::BeginPrintProcess()
 }
 
 //////////////////////////////////////////////////////////////////////////
-/// Show default console output at finish of process
+/// \brief Pre-defined printer, can be used at the ending in the implementation of PrintMetadata()
 ///
-
-
-
+/// Prints several separators
 void TRestEventProcess::EndPrintProcess()
 {
 	essential << " " << endl;
@@ -307,6 +340,12 @@ void TRestEventProcess::EndPrintProcess()
 	essential.resetcolor();
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// \brief Retrieve parameter with name "parName" from friendly process "className"
+///
+/// \param className string with name of metadata class to access
+/// \param parName  string with name of parameter to retrieve
+///
 Double_t TRestEventProcess::GetDoubleParameterFromClass(TString className, TString parName)
 {
 	for (size_t i = 0; i < fFriendlyProcesses.size(); i++)
@@ -317,12 +356,11 @@ Double_t TRestEventProcess::GetDoubleParameterFromClass(TString className, TStri
 }
 
 //////////////////////////////////////////////////////////////////////////
-/// Retrieve parameter with name parName from metadata className
+/// \brief Retrieve parameter with name "parName" from friendly process "className", with units
 ///
 /// \param className string with name of metadata class to access
 /// \param parName  string with name of parameter to retrieve
 ///
-
 Double_t TRestEventProcess::GetDoubleParameterFromClassWithUnits(TString className, TString parName)
 {
 	for (size_t i = 0; i < fFriendlyProcesses.size(); i++)
