@@ -333,7 +333,6 @@ TPad *TRestHitsEvent::DrawEvent( TString option )
     if( optList.size() == 0 )
         optList.push_back( "hist(Cont1,col)" );
 
-
     fPad = new TPad(this->GetName(), " ", 0, 0, 1, 1 );
     fPad->Divide( 3 ,2*optList.size() );
     fPad->Draw( );
