@@ -59,6 +59,31 @@ void TRestTrackEvent::Initialize()
 
 }
 
+Int_t TRestTrackEvent::GetNumberOfTracks( TString option )
+{
+    if( option == "" )
+        return fNtracks;
+    else
+    {
+        Int_t nT = 0;
+        for( int n = 0; n < GetNumberOfTracks(); n++ )
+        {
+            if( !this->isTopLevel( n ) ) continue;
+
+            if( option == "X" && GetTrack( n )->isXZ() )
+                nT++;
+            else if( option == "Y" && GetTrack( n )->isYZ() )
+                nT++;
+            else if( option == "XYZ" && GetTrack( n )->isXYZ() )
+                nT++;
+        }
+
+        return nT;
+    }
+
+    return -1;
+}
+
 TRestTrack *TRestTrackEvent::GetTrackById( Int_t id )
 {
     for( int i = 0; i < GetNumberOfTracks(); i++ )
@@ -114,8 +139,11 @@ TRestTrack *TRestTrackEvent::GetMaxEnergyTrackInY( )
     return GetTrack( track );
 }
 
-TRestTrack *TRestTrackEvent::GetMaxEnergyTrack( )
+TRestTrack *TRestTrackEvent::GetMaxEnergyTrack( TString option )
 {
+    if( option == "X" ) return GetMaxEnergyTrackInX();
+    if( option == "Y" ) return GetMaxEnergyTrackInY();
+
     Int_t track = -1;
     Double_t maxEnergy = 0;
     for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
@@ -139,9 +167,11 @@ TRestTrack *TRestTrackEvent::GetMaxEnergyTrack( )
 
 }
 
-TRestTrack *TRestTrackEvent::GetSecondMaxEnergyTrack( )
+TRestTrack *TRestTrackEvent::GetSecondMaxEnergyTrack( TString option )
 {
-    Int_t id = GetMaxEnergyTrack()->GetTrackID();
+    if( GetMaxEnergyTrack( option ) == NULL ) return NULL;
+
+    Int_t id = GetMaxEnergyTrack( option )->GetTrackID();
 
     Int_t track = -1;
     Double_t maxEnergy = 0;
@@ -152,7 +182,25 @@ TRestTrack *TRestTrackEvent::GetSecondMaxEnergyTrack( )
         TRestTrack *t = GetTrack( tck );
         if( t->GetTrackID() == id ) continue;
 
-        if( t->isXYZ() )
+        Double_t en = t->GetEnergy();
+
+        if( option == "X" && t->isXZ() )
+        {
+            if ( en > maxEnergy )
+            {
+                maxEnergy = t->GetEnergy();
+                track = tck;
+            }
+        }
+        else if( option == "Y" && t->isYZ() )
+        {
+            if ( t->GetEnergy() > maxEnergy )
+            {
+                maxEnergy = t->GetEnergy();
+                track = tck;
+            }
+        }
+        else if ( t->isXYZ() )
         {
             if ( t->GetEnergy() > maxEnergy )
             {
@@ -167,34 +215,36 @@ TRestTrack *TRestTrackEvent::GetSecondMaxEnergyTrack( )
     return GetTrack( track );
 }
 
-TRestTrack *TRestTrackEvent::GetLongestTopLevelTrack()
+Double_t TRestTrackEvent::GetMaxEnergyTrackLength( TString option )
 {
-    Int_t found = 0;
-    Double_t len = 0;
-    Int_t theTrack = 0;
+    if( this->GetMaxEnergyTrack( option ) )
+        return this->GetMaxEnergyTrack( option )->GetLength( );
+    return 0;
+}
 
-    for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
+Double_t TRestTrackEvent::GetEnergy( TString option )
+{
+    Double_t en = 0;
+    for( int tck = 0; tck < this->GetNumberOfTracks(); tck++ )
     {
-        if( this->isTopLevel( tck ) )
-        {
-            Double_t l = this->GetTrack(tck)->GetTrackLength();
+        if( !this->isTopLevel( tck ) ) continue;
 
-            if( l > len )
-            {
-                len = l;
-                theTrack = tck;
-                found = 1;
-            }
-        }
+        TRestTrack *t = GetTrack( tck );
+
+        if( option == "" )
+            en += t->GetEnergy();
+
+        else if( option == "X" && t->isXZ() )
+            en += t->GetEnergy();
+
+        else if( option == "Y" && t->isYZ() )
+            en += t->GetEnergy();
+
+        else if( option == "XYZ" && t->isXYZ() )
+            en += t->GetEnergy();
     }
 
-    if( found == 0 )
-    {
-        cout << "REST warning! TRestTrackEvent. GetLongestTopLevelTrack. A track was not found!" << endl;
-        return NULL;
-    }
-    return GetTrack( theTrack );
-
+    return en;
 }
 
 

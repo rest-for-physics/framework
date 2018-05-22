@@ -106,7 +106,7 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent( TRestEvent *evInput )
     for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
         fOutputTrackEvent->AddTrack( fInputTrackEvent->GetTrack(tck) ); 
 
-    TRestTrack *longTrack = fInputTrackEvent->GetLongestTopLevelTrack();
+    TRestTrack *longTrack = fInputTrackEvent->GetMaxEnergyTrack();
     if( longTrack == NULL ) 
     { 
         cout << "REST Warning. TRestFindTrackBlobsProcess. Long track not found." << endl;

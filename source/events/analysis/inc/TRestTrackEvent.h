@@ -66,23 +66,11 @@ class TRestTrackEvent: public TRestEvent {
         TRestTrack *GetMaxEnergyTrackInX( );
         TRestTrack *GetMaxEnergyTrackInY( );
 
-        TRestTrack *GetMaxEnergyTrack( );
-        TRestTrack *GetSecondMaxEnergyTrack( );
+        TRestTrack *GetMaxEnergyTrack( TString option = "" );
+        TRestTrack *GetSecondMaxEnergyTrack( TString option = "" );
 
-        TRestTrack *GetLongestTopLevelTrack();
-
-        Double_t GetEnergy()
-        {
-            Double_t en = 0;
-            for( int tck = 0; tck < this->GetNumberOfTracks(); tck++ )
-            {
-                if( !this->isTopLevel( tck ) ) continue;
-                en += GetTrack( tck )->GetEnergy();
-            }
-
-            return en;
-        }
-
+        Double_t GetMaxEnergyTrackLength( TString option = "" );
+        Double_t GetEnergy( TString option = "" );
 
         Int_t GetLevel( Int_t tck );
         void SetLevels();
@@ -103,6 +91,7 @@ class TRestTrackEvent: public TRestEvent {
 
             SetLevels(); 
         }
+
         void RemoveTrack( int n )
         {
             if ( fTrack[n].isXZ() ) fNtracksX--;
@@ -131,9 +120,7 @@ class TRestTrackEvent: public TRestEvent {
         void SetNumberOfYTracks( Int_t y ) { fNtracksY = y; }
 
         //Getters
-        Int_t GetNumberOfTracks() { return fNtracks; }
-        Int_t GetNumberOfXTracks() { return fNtracksX; }
-        Int_t GetNumberOfYTracks() { return fNtracksY; }
+        Int_t GetNumberOfTracks( TString option = "" );
 
         Int_t GetTotalHits( );
       
