@@ -1,10 +1,5 @@
 //////////////////////////////////////////////////////////////////////////
 ///
-/// RESTsoft - Software for Rare Event Searches with TPCs
-///
-/// \class      TRestTask
-/// Wrapping REST macros into tasks
-///
 /// REST macros are actually ROOT scripts written in C++. TRestTask wraps
 /// them and turns them into application mateadata class. This is done by 
 /// calling method TInterpreter::LoadFile() and TInterpreter::ProcessLine().
@@ -15,6 +10,11 @@
 /// in bash we can run the macros like executables. We also allow users to 
 /// write TRestTask inherted class in REST macros. This can enable more functionalities.
 ///
+/// \class TRestTask
+///
+///--------------------------------------------------------------------------
+/// 
+/// RESTsoft - Software for Rare Event Searches with TPCs
 ///
 /// History of developments:
 ///
@@ -25,6 +25,7 @@
 /// 2017-Aug:  Major change to xml reading and class startup procedure
 ///            Kaixiang Ni
 ///
+/// <hr>
 //////////////////////////////////////////////////////////////////////////
 
 

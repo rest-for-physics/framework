@@ -18,7 +18,8 @@
 class TRestManager;
 
 using namespace std;
-//this is only a macro file for running tasks
+
+/// Wrapping REST macros into tasks
 class TRestTask :public TRestMetadata {
 
 public:

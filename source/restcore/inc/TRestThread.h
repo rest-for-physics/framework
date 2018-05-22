@@ -27,7 +27,7 @@
 //enum REST_Process_Output;
 //class TRestThread;
 
-
+/// Threaded worker of a process chain
 class TRestThread : public TRestMetadata
 {
 public:

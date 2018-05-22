@@ -1,14 +1,17 @@
 //////////////////////////////////////////////////////////////////////////
 ///
-/// RESTsoft - Software for Rare Event Searches with TPCs
-///
-/// \class      TRestBrowser
-/// Event browser for different input file
+
 ///
 /// This class is inherted from TRestRun. It opens input file as TRestRun
 /// defined, and shows a plot of the event contained in the file. The plot
 /// is shown in a TBrowser embeded window, providing a customizable controller
 /// on the side.
+///
+/// \class TRestBrowser
+///
+///--------------------------------------------------------------------------
+/// 
+/// RESTsoft - Software for Rare Event Searches with TPCs
 ///
 /// History of developments:
 ///
@@ -19,6 +22,7 @@
 /// 2017-Aug:  Major change: added for multi-thread capability
 ///            Kaixiang Ni
 ///
+/// <hr>
 //////////////////////////////////////////////////////////////////////////
 
 

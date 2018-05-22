@@ -22,11 +22,6 @@
 
 //////////////////////////////////////////////////////////////////////////
 ///
-/// RESTsoft - Software for Rare Event Searches with TPCs
-///
-/// \class      TRestEvent
-/// A base class for any REST event 
-///
 /// One of the core classes of REST. Absract class
 /// from which all REST "event classes" must derive.
 /// REST event classes represent the different holders to store 
@@ -36,6 +31,11 @@
 /// virtual functions that must be implemented in derived classes
 /// like Initialize(), PrintEvent() or DrawEvent().
 ///
+/// \class TRestEvent
+///
+///--------------------------------------------------------------------------
+/// 
+/// RESTsoft - Software for Rare Event Searches with TPCs
 ///
 /// History of developments:
 ///
@@ -46,6 +46,7 @@
 /// 2017-Aug:  Major change to xml reading and class startup procedure
 ///            Kaixiang Ni
 ///
+/// <hr>
 //////////////////////////////////////////////////////////////////////////
 
 

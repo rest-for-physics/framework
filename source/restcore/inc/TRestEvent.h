@@ -32,6 +32,8 @@
 #include "TBufferFile.h"
 #include "TRestTools.h"
 
+
+/// A base class for any REST event 
 class TRestEvent :public TObject {
 
 protected:

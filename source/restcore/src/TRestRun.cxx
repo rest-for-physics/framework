@@ -1,16 +1,17 @@
 //////////////////////////////////////////////////////////////////////////
 ///
-/// RESTsoft - Software for Rare Event Searches with TPCs
-///
-/// \class      TRestRun
-/// Data provider and manager in REST
-///
 /// REST data, including metadata and event data, are all handled by this class
 /// A series of metadata objects is saved here after being loaded from rml/root 
 /// file with sequential startup. Input file is also opened here, either being
 /// raw data file(opened with external process) or root file(opened with built-
 /// in reader). TRestRun extracts event data in the input file and wraps it 
 /// into TRestEvent class, which is queried by other classes.
+///
+/// \class TRestRun
+///
+///--------------------------------------------------------------------------
+/// 
+/// RESTsoft - Software for Rare Event Searches with TPCs
 ///
 /// History of developments:
 ///
@@ -21,6 +22,7 @@
 /// 2017-Aug:  Major change: added for multi-thread capability
 ///            Kaixiang Ni
 ///
+/// <hr>
 //////////////////////////////////////////////////////////////////////////
 
 

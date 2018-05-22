@@ -38,6 +38,8 @@ class TRestReadout;
 class TRestG4Metadata;
 class TRestDetectorSetup;
 
+
+/// A base class for any REST event process
 class TRestEventProcess :public TRestMetadata {
 public:
 

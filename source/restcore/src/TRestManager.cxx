@@ -1,10 +1,5 @@
 //////////////////////////////////////////////////////////////////////////
 ///
-/// RESTsoft - Software for Rare Event Searches with TPCs
-///
-/// \class      TRestManager
-/// Managing applications and executing tasks
-///
 /// This class provides a runtime for other REST application class. Its
 /// rml element is usually the root element in the file, inside which 
 /// other REST application class elements are defined. TRestManager 
@@ -13,6 +8,11 @@
 /// also defined following the applications, to do the jobs. The tasks
 /// are handled by class TRestTask.
 ///
+/// \class TRestManager
+///
+///--------------------------------------------------------------------------
+/// 
+/// RESTsoft - Software for Rare Event Searches with TPCs
 ///
 /// History of developments:
 ///
@@ -23,6 +23,7 @@
 /// 2017-Aug:  Major change to xml reading and class startup procedure
 ///            Kaixiang Ni
 ///
+/// <hr>
 //////////////////////////////////////////////////////////////////////////
 
 #include "TRestManager.h"

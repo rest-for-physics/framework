@@ -1,14 +1,14 @@
 //////////////////////////////////////////////////////////////////////////
 ///
-/// RESTsoft - Software for Rare Event Searches with TPCs
-///
-/// \class      TRestProcessRunner
-/// Running the processes efficiently with fantastic display.
-///
 /// This class implements REST's main functionality - process running. multi-
 /// thread is enabled here which improves efficiency. Pause menu and progress 
 /// bar is also provided which makes the work easier!
 ///
+/// \class TRestProcessRunner
+///
+///--------------------------------------------------------------------------
+/// 
+/// RESTsoft - Software for Rare Event Searches with TPCs
 ///
 /// History of developments:
 ///
@@ -19,6 +19,7 @@
 /// 2017-Aug:  Major change: added for multi-thread capability
 ///            Kaixiang Ni
 ///
+/// <hr>
 //////////////////////////////////////////////////////////////////////////
 
 

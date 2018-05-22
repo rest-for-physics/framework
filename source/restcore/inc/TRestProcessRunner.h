@@ -21,6 +21,7 @@ enum ProcStatus {
 	kIgnore,//!< do not response to keyboard orders
 };
 
+/// Running the processes efficiently with fantastic display.
 class TRestProcessRunner :public TRestMetadata {
 public:
 	/// REST run class

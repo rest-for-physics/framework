@@ -15,7 +15,7 @@
 
 class TRestEventProcess;
 
-
+/// Data provider and manager in REST
 class TRestRun : public TRestMetadata {
 public:
 	/// REST run class

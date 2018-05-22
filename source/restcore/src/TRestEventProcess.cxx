@@ -23,10 +23,6 @@
 
 //////////////////////////////////////////////////////////////////////////
 ///
-/// RESTsoft - Software for Rare Event Searches with TPCs
-///
-/// \class      TRestEventProcess
-/// A base class for any REST event process
 ///
 /// One of the core classes of REST. Absract class
 /// from which all REST "event process classes" must derive.
@@ -37,6 +33,11 @@
 /// All this needs to be defined in the inherited class.
 /// TRestEventProcess provides the basic structure (virtual functions)
 ///
+/// \class TRestEventProcess
+///
+///--------------------------------------------------------------------------
+/// 
+/// RESTsoft - Software for Rare Event Searches with TPCs
 ///
 /// History of developments:
 ///
@@ -47,6 +48,7 @@
 /// 2017-Aug:  Major change: added for multi-thread capability
 ///            Kaixiang Ni
 ///
+/// <hr>
 //////////////////////////////////////////////////////////////////////////
 
 

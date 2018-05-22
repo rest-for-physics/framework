@@ -1,14 +1,15 @@
 //////////////////////////////////////////////////////////////////////////
 ///
-/// RESTsoft - Software for Rare Event Searches with TPCs
-///
-/// \class      TRestThread
-/// Threaded worker of a process chain
-///
 /// Multiple instances of TRestThread is created inside TRestProcessRunner. 
 /// Each of them can detach a thread containing a process chain, which 
 /// implements multi thread functionality. Preparation of process chain  
 /// is also done inside this class.
+///
+/// \class TRestThread
+///
+///--------------------------------------------------------------------------
+/// 
+/// RESTsoft - Software for Rare Event Searches with TPCs
 ///
 /// History of developments:
 ///
@@ -19,6 +20,7 @@
 /// 2017-Aug:  Major change: added for multi-thread capability
 ///            Kaixiang Ni
 ///
+/// <hr>
 //////////////////////////////////////////////////////////////////////////
 
 
