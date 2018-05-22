@@ -23,6 +23,10 @@ TRestHitsEvent::TRestHitsEvent()
     fXZHisto = NULL;
     fYZHisto = NULL;
 
+    fXHisto = NULL;
+    fYHisto = NULL;
+    fZHisto = NULL;
+
     fMinX = -10;
     fMaxX = 10;
 
@@ -331,7 +335,7 @@ TPad *TRestHitsEvent::DrawEvent( TString option )
 
 
     fPad = new TPad(this->GetName(), " ", 0, 0, 1, 1 );
-    fPad->Divide( 3 , optList.size() );
+    fPad->Divide( 3 ,2*optList.size() );
     fPad->Draw( );
 
     Int_t column = 0;
@@ -513,6 +517,10 @@ void TRestHitsEvent::DrawHistograms( Int_t &column, Double_t pitch, TString hist
     if( fXZHisto != NULL ) { delete fXZHisto; fXZHisto = NULL; }
     if( fYZHisto != NULL ) { delete fYZHisto; fYZHisto = NULL; }
 
+    if( fXHisto != NULL ) { delete fXHisto; fXHisto = NULL; }
+    if( fYHisto != NULL ) { delete fYHisto; fYHisto = NULL; }
+    if( fZHisto != NULL ) { delete fZHisto; fZHisto = NULL; }
+
     Int_t nBinsX = (fMaxX-fMinX+20)/pitch;
     Int_t nBinsY = (fMaxY-fMinY+20)/pitch;
     Int_t nBinsZ = (fMaxZ-fMinZ+20)*3/pitch;
@@ -521,7 +529,13 @@ void TRestHitsEvent::DrawHistograms( Int_t &column, Double_t pitch, TString hist
     fXZHisto = new TH2F( "XZ", "", nBinsX, fMinX-10, fMinX + pitch*nBinsX, nBinsZ, fMinZ-10, fMinZ + (pitch/3)*nBinsZ );
     fYZHisto = new TH2F( "YZ", "", nBinsY, fMinY-10, fMinY + pitch*nBinsY, nBinsZ, fMinZ-10, fMinZ + (pitch/3)*nBinsZ );
 
+    fXHisto = new TH1F( "X", "", nBinsX, fMinX-10, fMinX + pitch*nBinsX);
+    fYHisto = new TH1F( "Y", "", nBinsY, fMinY-10, fMinY + pitch*nBinsY);
+    fZHisto = new TH1F( "Z", "", nBinsZ, fMinZ-10, fMinZ + pitch*nBinsZ);
+
     Int_t nYZ = 0, nXZ = 0, nXY = 0;
+	Int_t nX = 0, nY = 0, nZ = 0;
+
     for( int nhit = 0; nhit < this->GetNumberOfHits( ); nhit++ )
     {
         Double_t x = fHits->GetX( nhit );
@@ -545,6 +559,24 @@ void TRestHitsEvent::DrawHistograms( Int_t &column, Double_t pitch, TString hist
             fXYHisto->Fill( x, y );
             nXY++;
         }
+
+        if( !IsNaN ( x ) )
+        {
+            fXHisto->Fill( x );
+            nX++;
+        }
+
+        if( !IsNaN ( y ) )
+        {
+            fYHisto->Fill( y );
+            nY++;
+        }
+
+        if( !IsNaN ( z ) )
+        {
+            fZHisto->Fill( z );
+            nZ++;
+        }
     }
 
     TStyle style;
@@ -552,7 +584,7 @@ void TRestHitsEvent::DrawHistograms( Int_t &column, Double_t pitch, TString hist
 
     if( nXZ > 0 )
     {
-        fPad->cd(1 + 3 * column ); 
+        fPad->cd(1 + 3 * column );
         fXZHisto->Draw( histOption );
         fXZHisto->GetXaxis()->SetTitle("X-axis (mm)");
         fXZHisto->GetYaxis()->SetTitle("Z-axis (mm)");
@@ -560,7 +592,7 @@ void TRestHitsEvent::DrawHistograms( Int_t &column, Double_t pitch, TString hist
 
     if( nYZ > 0 )
     {
-        fPad->cd(2 + 3 * column ); 
+        fPad->cd(2 + 3 * column );
         fYZHisto->Draw( histOption );
         fYZHisto->GetXaxis()->SetTitle("Y-axis (mm)");
         fYZHisto->GetYaxis()->SetTitle("Z-axis (mm)");
@@ -568,13 +600,39 @@ void TRestHitsEvent::DrawHistograms( Int_t &column, Double_t pitch, TString hist
 
     if( nXY > 0 )
     {
-        fPad->cd(3 + 3 * column ); 
+        fPad->cd(3 + 3 * column );
         fXYHisto->Draw( histOption );
         fXYHisto->GetXaxis()->SetTitle("X-axis (mm)");
         fXYHisto->GetYaxis()->SetTitle("Y-axis (mm)");
     }
 
     column++;
+
+    if( nX > 0 )
+    {
+        fPad->cd(1 + 3 * column );
+        fXHisto->Draw( histOption );
+        fXHisto->GetXaxis()->SetTitle("X-axis (mm)");
+        fXHisto->GetYaxis()->SetTitle("Number of events");
+    }
+
+    if( nY > 0 )
+    {
+        fPad->cd(2 + 3 * column );
+        fYHisto->Draw( histOption );
+        fYHisto->GetYaxis()->SetTitle("Y-axis (mm)");
+        fYHisto->GetYaxis()->SetTitle("Number of events");
+    }
+
+    if( nZ > 0 )
+    {
+        fPad->cd(3 + 3 * column );
+        fZHisto->Draw( histOption );
+        fZHisto->GetZaxis()->SetTitle("Z-axis (mm)");
+        fZHisto->GetYaxis()->SetTitle("Number of events");
+    }
+
+	column++;
 }
 
 void TRestHitsEvent::PrintEvent( Int_t nHits )
