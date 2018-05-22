@@ -132,7 +132,8 @@ int main( int argc, char *argv[] )
 				cout << "REST ERROR. Task : " << type << " not found!!" << endl;
 				return -1;
 			}
-			tsk->InitTask(argumentlist);
+			tsk->SetArgumentValue(argumentlist);
+			tsk->ConstructCommand();
 			tsk->RunTask(NULL);
 			gSystem->Exit(0);
 		}

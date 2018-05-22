@@ -1,11 +1,50 @@
+//////////////////////////////////////////////////////////////////////////
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// \class      TRestTask
+/// Wrapping REST macros into tasks
+///
+/// REST macros are actually ROOT scripts written in C++. TRestTask wraps
+/// them and turns them into application mateadata class. This is done by 
+/// calling method TInterpreter::LoadFile() and TInterpreter::ProcessLine().
+/// Turning REST-macro-defined functions into classes means that we
+/// are able to run the macros from rml file, by adding a section under the 
+/// section "TRestManager". Another way to launch TRestTask is through 
+/// restManager executable. By directly typing "restManager TASKNAME [ARG]"
+/// in bash we can run the macros like executables. We also allow users to 
+/// write TRestTask inherted class in REST macros. This can enable more functionalities.
+///
+///
+/// History of developments:
+///
+/// 2014-june: First concept. As part of conceptualization of previous REST
+///            code (REST v2)
+///            Igor G. Irastorza
+/// 
+/// 2017-Aug:  Major change to xml reading and class startup procedure
+///            Kaixiang Ni
+///
+//////////////////////////////////////////////////////////////////////////
+
+
 #include "TRestTask.h"
 ClassImp(TRestTask);
 
+///////////////////////////////////////////////
+/// \brief TRestTask default constructor
+///
 TRestTask::TRestTask() {
 	Initialize();
 	fNRequiredArgument = 0;
 }
 
+///////////////////////////////////////////////
+/// \brief TRestTask constructor with macro file name
+///
+/// The first method in the file is identified with its name and require
+/// arguments saved in the class. They will be used in forming the command 
+/// line in the method TRestTask::InitTask()
 TRestTask::TRestTask(TString MacroFileName)
 {
 	Initialize();
@@ -64,7 +103,7 @@ TRestTask::TRestTask(TString MacroFileName)
 				}
 				else
 				{
-					argument.push_back("");
+					argument.push_back("NOT SET");
 					fNRequiredArgument++;
 				}
 
@@ -76,11 +115,21 @@ TRestTask::TRestTask(TString MacroFileName)
 	}
 }
 
-
-void TRestTask::BeginOfInit()
+///////////////////////////////////////////////
+/// \brief Starter method. Looks through the rml sections and set argument/datamenber value
+///
+void TRestTask::InitFromConfigFile()
 {
 	if (this->ClassName() == (string)"TRestTask")
 	{
+		TiXmlElement*ele = fElement->FirstChildElement("parameter");
+		while (ele != NULL) {
+			if (ele->Attribute("name") == NULL || ele->Attribute("value") == NULL)
+				continue;
+			SetArgumentValue(ele->Attribute("name"), ele->Attribute("value"));
+			ele = ele->NextSiblingElement("parameter");
+		}
+
 	}
 	else
 	{
@@ -90,8 +139,12 @@ void TRestTask::BeginOfInit()
 			SetDataMemberValFromConfig(e);
 		}
 	}
+	ConstructCommand();
 }
 
+///////////////////////////////////////////////
+/// \brief Set argument value with name and value. 
+///
 void TRestTask::SetArgumentValue(string name, string value)
 {
 	for (int i = 0; i < argumentname.size(); i++) {
@@ -101,7 +154,44 @@ void TRestTask::SetArgumentValue(string name, string value)
 	}
 }
 
+///////////////////////////////////////////////
+/// \brief Set argument directly with a list of string
+///
+/// Argument list will be overwritten by the input list. It will also set the
+/// data member value for derived class
+void TRestTask::SetArgumentValue(vector<string>arg)
+{
+	if (arg.size() < fNRequiredArgument) {
+		PrintHelp();
+		exit(0);
+	}
+	argument = arg;
+	if (this->ClassName() != (string)"TRestTask")
+	{
+		int n = GetNumberOfDataMember();
+		for (int i = 1; (i < argument.size() + 1 && i < n); i++)
+		{
+			TStreamerElement* e = GetDataMemberWithID(i);
+			SetDataMemberVal(e, argument[i - 1]);
+			debug << "data member " << e->GetName() << " has been set to " << GetDataMemberValString(e);
+		}
 
+	}
+}
+
+///////////////////////////////////////////////
+/// \brief Static method to instantiate a TRestTask object with "MacroName"
+///
+/// REST macros are saved in the directory ./macros. They follow a naming 
+/// logic, the naming style is like following:
+/// REST_[MacroName].hh
+/// 
+/// e.g. REST_ViewEvents.hh. Here we must add a prefix "REST_" with a macro name
+/// usually in verb form. When given the macro name, this method first calls
+/// TClass::GetClass() to find if there is a TRestTask-inherted class which has
+/// this name. If so, it returns the found class, if not, it finds a corresponding
+/// macro file and calls gInterpreter to load it, and then instaintiates a 
+/// TRestTask class wrapping this file.
 TRestTask* TRestTask::GetTask(TString MacroName)
 {
 	TClass*c = TClass::GetClass(MacroName);
@@ -141,16 +231,19 @@ TRestTask* TRestTask::GetTask(TString MacroName)
 	return NULL;
 }
 
-bool TRestTask::InitTask(vector<string>arg)
-{
-	if (arg.size() < fNRequiredArgument) {
-		PrintHelp();
-		exit(0);
+///////////////////////////////////////////////
+/// \brief Forms the command string
+///
+void TRestTask::ConstructCommand() {
+
+	for (int i = 0; i < argument.size(); i++) {
+		if (argument[i] == "NOT SET") {
+			error << "TRestTask : argument " << i << " not set! Task will not run!" << endl;
+		}
 	}
-	argument = arg;
+
 	if (this->ClassName() == (string)"TRestTask") //this class
 	{
-
 		string methodname = GetName();
 		cmdstr = methodname + "(";
 		for (int i = 0; i < argument.size(); i++)
@@ -170,22 +263,14 @@ bool TRestTask::InitTask(vector<string>arg)
 
 		cout << "Command : " << cmdstr << endl;
 	}
-	else//call from inherted class
-	{
-		int n = GetNumberOfDataMember();
-		for (int i = 1; (i < argument.size() + 1 && i < n); i++)
-		{
-			TStreamerElement* e = GetDataMemberWithID(i);
-			SetDataMemberVal(e, argument[i - 1]);
-			debug << "data member " << e->GetName() << " has been set to " << GetDataMemberValString(e);
-		}
 
-	}
-
-	return true;
 }
 
 
+
+///////////////////////////////////////////////
+/// \brief Run the task with command line
+///
 void TRestTask::RunTask(TRestManager*a)
 {
 	if (a == NULL && cmdstr != "") {
@@ -193,7 +278,9 @@ void TRestTask::RunTask(TRestManager*a)
 	}
 }
 
-
+///////////////////////////////////////////////
+/// \brief Defalut helper method both for TRestTask and any TRestTask-inherted class
+///
 void TRestTask::PrintHelp()
 {
 	if (this->ClassName() == (string)"TRestTask")
