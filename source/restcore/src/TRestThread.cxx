@@ -423,12 +423,11 @@ void TRestThread::PrepareToProcess(bool testrun)
 /// \brief The main function of this class. Thread will run this function until the end.
 ///
 /// It will start a loop, calling GetNextevtFunc(), ProcessEvent(), and FillThreadEventFunc() repeatedly.
-/// If the function GetNextEvent() returns false, the loop will break.
+/// If the function GetNextEvent() returns false, the loop will break, meaning that we are at the
+/// end of the process. Before return it will set "isFinished" to true.
 ///
-/// Before return it will call WriteThreadFileFunc().
-///
-/// Note: The methods GetNextevtFunc(), FillThreadEventFunc() and WriteThreadFileFunc() are all from 
-/// TRestRun. The later two will call back the method FillEvent(), WriteFile() in this class. The idea 
+/// Note: The methods GetNextevtFunc() and FillThreadEventFunc() are all from  TRestProcessRunner. 
+/// The later two will call back the method FillEvent(), WriteFile() in this class. The idea 
 /// to do so is to make a unified managemenet of these i-o related methods. In TRestRun the three
 /// methods are mutex locked. They will be paused until the host run allows it to run. This prevents
 /// segmentation violation due to simultaneously read/write. 
@@ -497,7 +496,7 @@ void TRestThread::ProcessEvent()
 ///////////////////////////////////////////////
 /// \brief Write and close the output file
 ///
-/// This method is called back by WriteThreadFileFunc() in TRestProcessRunner. 
+/// This method is called back at the end of TRestProcessRunner::RunProcess() in TRestProcessRunner. 
 void TRestThread::WriteFile()
 {
 	info << "TRestThread : Writting temp file" << endl;

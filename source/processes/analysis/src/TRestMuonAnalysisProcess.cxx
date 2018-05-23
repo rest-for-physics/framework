@@ -58,8 +58,6 @@ void TRestMuonAnalysisProcess::InitProcess()
 	hyzr = new TH1D((TString)"hyzr" + ToString(this), "hh", 200, -(Y2 - Y1), (Y2 - Y1));
 
 	mudepos = new TH1D("mudepos", "muonTotalenergydepos", 512, 0., 512.);
-	musmearxy.clear();
-	musmearz.clear();
 	mutanthe = new TH1D("mutanthe", "muAngularDistribution tanTheta", 50, 0, 2.5);
 
 	muhitmap = new TH2D("muhitmap", "muon hitmap on micromegas", (X2 - X1) / 3, X1, X2, (Y2 - Y1) / 3, Y1, Y2);
@@ -394,31 +392,35 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 
 
 			//diffusion
+			musmearxy.clear();
+			musmearz.clear();
 			if (xzflag&& firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 && firsty < Y2 - 30) 
 			{
 				for (int i = 0; i < eve->GetNumberOfXZSignals(); i++) {
 					double x = eve->GetX(i);
 					auto sgn = eve->GetXZSignal(i);
 					double z = max_element(sgn.begin(), sgn.end()) - sgn.begin();
-					if (DistanceToTrack(x, z, firstx, 150, thexz) < 20 && z > 10 && z < 500) {
-						TH1D*h = new TH1D((TString)"hxzdiffz" + ToString(this), "hzxdiffz", 20, 0, 20);
-						TF1*f = new TF1((TString)"fxzdiffz" + ToString(this),"gaus");
-						for (int j = 0; j < 10; j++) {
-							h->SetBinContent(10 - j, sgn[z - j]);
-							h->SetBinContent(10 + j, sgn[z + j]);
-						}
-						int fitstatus = h->Fit(f, "QN");
-						if (fitstatus == 0) {
-							double sigma = f->GetParameter(2);
-							musmearz[z].push_back(sigma);
-						}
+					double pos = z - eve->GetZRangeInXZ().X() + 150;
+					if (pos >= 0 && pos < 512) {
+						if (DistanceToTrack(x, z, firstx, 150, thexz) < 20 && z > 10 && z < 500) {
+							TH1D*h = new TH1D((TString)"hxzdiffz" + ToString(this), "hzxdiffz", 20, 0, 20);
+							TF1*f = new TF1((TString)"fxzdiffz" + ToString(this), "gaus");
+							for (int j = 0; j < 10; j++) {
+								h->SetBinContent(10 - j, sgn[z - j]);
+								h->SetBinContent(10 + j, sgn[z + j]);
+							}
+							int fitstatus = h->Fit(f, "QN");
+							if (fitstatus == 0) {
+								double sigma = f->GetParameter(2);
+								musmearz[pos].push_back(sigma);
+							}
 
-						delete f;
-						delete h;
+							delete f;
+							delete h;
 
-						musmearxy[z].push_back(sgn[z] / xzdepos[z]);
+							musmearxy[pos].push_back(sgn[z] / xzdepos[z]);
+						}
 					}
-
 
 				}
 
@@ -431,25 +433,27 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 					double y = eve->GetY(i);
 					auto sgn = eve->GetYZSignal(i);
 					double z = max_element(sgn.begin(), sgn.end()) - sgn.begin();
-					if (DistanceToTrack(y, z, firsty, 150, theyz) < 20 && z > 10 && z < 500) {
-						TH1D*h = new TH1D((TString)"hyzdiffz" + ToString(this), "hzydiffz", 20, 0, 20);
-						TF1*f = new TF1((TString)"fyzdiffz" + ToString(this), "gaus");
-						for (int j = 0; j < 10; j++) {
-							h->SetBinContent(10 - j, sgn[z - j]);
-							h->SetBinContent(10 + j, sgn[z + j]);
-						}
-						int fitstatus = h->Fit(f, "QN");
-						if (fitstatus == 0) {
-							double sigma = f->GetParameter(2);
-							musmearz[z].push_back(sigma);
-						}
+					double pos = z - eve->GetZRangeInYZ().X() + 150;
+					if (pos >= 0 && pos < 512) {
+						if (DistanceToTrack(y, z, firsty, 150, theyz) < 20 && z > 10 && z < 500) {
+							TH1D*h = new TH1D((TString)"hyzdiffz" + ToString(this), "hzydiffz", 20, 0, 20);
+							TF1*f = new TF1((TString)"fyzdiffz" + ToString(this), "gaus");
+							for (int j = 0; j < 10; j++) {
+								h->SetBinContent(10 - j, sgn[z - j]);
+								h->SetBinContent(10 + j, sgn[z + j]);
+							}
+							int fitstatus = h->Fit(f, "QN");
+							if (fitstatus == 0) {
+								double sigma = f->GetParameter(2);
+								musmearz[pos].push_back(sigma);
+							}
 
-						delete f;
-						delete h;
+							delete f;
+							delete h;
 
-						musmearxy[z].push_back(sgn[z] / yzdepos[z]);
+							musmearxy[pos].push_back(sgn[z] / yzdepos[z]);
+						}
 					}
-
 				}
 
 			}
@@ -525,30 +529,6 @@ void TRestMuonAnalysisProcess::EndProcess()
 	muhitmap->Write();
 	muhitdir->Divide(muhitmap);
 	muhitdir->Write();
-
-	auto mudiffz = new TH1D("mudiffz", "muon diffsion in z direction",50,150,500 );
-	auto mudiffxy = new TH1D("mudiffxy", "muon diffsion in x/y direction", 50, 150, 500);
-
-	auto iter = musmearz.begin();
-	while (iter != musmearz.end()) {
-		auto vec = iter->second;
-		double sum = accumulate(vec.begin(), vec.end(), 0.0);
-		double mean = sum / vec.size();
-		mudiffz->SetBinContent(mudiffz->FindBin(iter->first), mean);
-		iter++;
-	}
-
-	iter = musmearxy.begin();
-	while (iter != musmearxy.end()) {
-		auto vec = iter->second;
-		double sum = accumulate(vec.begin(), vec.end(), 0.0);
-		double mean = sum / vec.size();
-		mudiffxy->SetBinContent(mudiffxy->FindBin(iter->first), mean);
-		iter++;
-	}
-
-	mudiffz->Write();
-	mudiffxy->Write();
 }
 
 double TRestMuonAnalysisProcess::ProjectionToCenter(double x, double y, double xzthe, double yzthe)
