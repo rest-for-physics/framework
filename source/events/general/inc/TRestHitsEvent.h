@@ -47,6 +47,9 @@ class TRestHitsEvent : public TRestEvent
         TH2F *fXYHisto;
         TH2F *fYZHisto;
         TH2F *fXZHisto;
+        TH1F *fXHisto;
+        TH1F *fYHisto;
+        TH1F *fZHisto;
 
         TPad *fPad;
         #endif

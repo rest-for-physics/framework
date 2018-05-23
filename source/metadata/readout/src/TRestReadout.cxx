@@ -439,6 +439,8 @@ void TRestReadout::InitFromConfigFile()
 			channel.SetID( id );
 			channel.SetDaqID( -1 );
 
+
+			vector <TRestReadoutPixel> pixelVector;
 			string pixelString;
 			while( ( pixelString = GetKEYDefinition( "addPixel", position3, channelString ) ) != "" )
 			{
@@ -449,8 +451,24 @@ void TRestReadout::InitFromConfigFile()
 				pixel.SetSize( StringTo2DVector( GetFieldValue( "size", pixelString ) ) );
 				pixel.SetRotation( StringToDouble( GetFieldValue( "rotation", pixelString ) ) );
 				pixel.SetTriangle( StringToBool( GetFieldValue( "triangle", pixelString ) ) );
-				channel.AddPixel( pixel );
+
+				pixelVector.push_back( pixel );
+				//channel.AddPixel( pixel );
 			}
+
+			//Creating the vector fReadoutPixel in the channel with pixels added in the order of their ID.
+			for ( Int_t i(0); i< (Int_t) pixelVector.size(); i++)
+			{
+				for ( Int_t j(0); j< (Int_t) pixelVector.size(); j++)
+				{
+					if ( pixelVector[j].GetID() == i )
+					{
+					channel.AddPixel( pixelVector[j] );
+						break;
+					}
+				}
+			}
+
 
 			channelVector.push_back( channel );
 
@@ -477,6 +495,8 @@ void TRestReadout::InitFromConfigFile()
 		posSection++;
 	}
 
+
+	vector <TRestReadoutModule> moduleVector;
 	Int_t addedChannels = 0;
 	while( ( planeString = GetKEYStructure( "readoutPlane", position ) ) != "NotFound" )
 	{
@@ -576,9 +596,24 @@ void TRestReadout::InitFromConfigFile()
 
 			}
 			fModuleDefinitions[mid].SetMinMaxDaqIDs();
-			plane.AddModule( fModuleDefinitions[mid] );
+
+			moduleVector.push_back( fModuleDefinitions[mid] );
+			//plane.AddModule( fModuleDefinitions[mid] );
 
 			posPlane++;
+		}
+
+		//Creating the vector fReadoutModule in the plane with modules added in the order of their ID.
+		for ( Int_t i(0); i< (Int_t) moduleVector.size(); i++)
+		{
+			for ( Int_t j(0); j< (Int_t) moduleVector.size(); j++)
+			{
+				if ( moduleVector[j].GetModuleID() == i )
+				{
+					plane.AddModule( moduleVector[j] );
+					break;
+				}
+			}
 		}
 
 		this->AddReadoutPlane( plane );
