@@ -163,7 +163,7 @@ Double_t TRestRawSignal::GetIntegralWithThreshold( Int_t from, Int_t to,
                 {
                     for( int j = i - nPoints; j < i; j++ )
                     {
-                        sum += this->GetData( j );
+						sum += this->GetData(j) - baseline;
                         fPointsOverThreshold.push_back( j );
                     }
                 }
@@ -180,12 +180,11 @@ Double_t TRestRawSignal::GetIntegralWithThreshold( Int_t from, Int_t to,
         {
             for( int j = to - nPoints; j < to; j++ )
             {
-                sum += this->GetData( j );
+				sum += this->GetData(j) - baseline;
                 fPointsOverThreshold.push_back( j );
             }
         }
     }
-
     fThresholdIntegral = sum;
     return sum;
 }
