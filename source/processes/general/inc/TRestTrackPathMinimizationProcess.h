@@ -36,7 +36,7 @@ class TRestTrackPathMinimizationProcess:public TRestEventProcess {
 
     protected:
 
-        Int_t fMaxNodes;
+        //Int_t fMaxNodes;
 
         Bool_t fWeightHits;
 
@@ -56,7 +56,7 @@ class TRestTrackPathMinimizationProcess:public TRestEventProcess {
         { 
             BeginPrintProcess();
 
-            cout << "Maximum number of nodes (hits) allowed : " << fMaxNodes << endl;
+ //           cout << "Maximum number of nodes (hits) allowed : " << fMaxNodes << endl;
 
             if ( fWeightHits )
                 std::cout << "Weight hits : enabled" << std::endl;

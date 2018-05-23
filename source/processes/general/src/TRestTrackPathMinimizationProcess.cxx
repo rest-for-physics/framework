@@ -207,8 +207,16 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
                 }
             }
 
-            for( int n = 0; n < segment_count; n++ )
-                cout << "n : " << n << " elen : " << elen[n] << endl;
+            if( GetVerboseLevel() >= REST_Extreme )
+                GetChar();
+
+            if( GetVerboseLevel() >= REST_Extreme )
+            {
+                for( int n = 0; n < segment_count; n++ )
+                    cout << "n : " << n << " elen : " << elen[n] << endl;
+                GetChar();
+            }
+
 
             rval = TrackMinimization_3D_segment( nHits, elen, bestPath );
 
