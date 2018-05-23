@@ -349,9 +349,9 @@ void TRestTrackEvent::PrintEvent( Bool_t fullInfo )
 {
     TRestEvent::PrintEvent();
 
-    cout << "Number of tracks : " << GetNumberOfTracks() << endl;
-    cout << "Number of tracks XZ " << fNtracksX << endl;
-    cout << "Number of tracks YZ " << fNtracksY << endl;
+    cout << "Number of tracks : " << GetNumberOfTracks("XYZ") + GetNumberOfTracks("X") + GetNumberOfTracks("Y") << endl;
+    cout << "Number of tracks XZ " << GetNumberOfTracks("X") << endl;
+    cout << "Number of tracks YZ " << GetNumberOfTracks("Y") << endl;
     cout << "Track levels : " << GetLevels() << endl;
     cout << "+++++++++++++++++++++++++++++++++++" << endl;
     for( int i = 0; i < GetNumberOfTracks(); i++ )
