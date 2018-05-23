@@ -27,9 +27,14 @@ else()
   find_package(Geant4 REQUIRED)
 endif()
 
+message ("-- Found Geant4 in version : ${Geant4_VERSION}" )
+
 if(${Geant4_VERSION} MATCHES "10.4")
 	add_definitions(-DG4104)
+elseif(${Geant4_VERSION} MATCHES "10.3.3")
+	add_definitions(-DG4104)
 endif(${Geant4_VERSION} MATCHES "10.4")
+
 
 #----------------------------------------------------------------------------
 # Setup Geant4 include directories and compile definitions
@@ -45,7 +50,6 @@ set(Garfield_FIND_REQUIRED TRUE)
 
 include(FindGarfield)
 include_directories(${Garfield_INCLUDE_DIRS})
-message ("Garfield include directory : ${Garfield_INCLUDE_DIRS}\n" )
 
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
