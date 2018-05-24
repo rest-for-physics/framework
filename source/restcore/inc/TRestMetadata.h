@@ -163,6 +163,8 @@ class TRestMetadata:public TNamed {
 
         void SetConfigFilePath(const char *configFilePath);
 
+        string GetMyParameterValue( string parname  );
+
         std::string GetParameter( std::string parName, TString defaultValue = PARAMETER_NOT_FOUND_STR );
         Double_t GetDblParameterWithUnits( std::string parName, Double_t defaultValue = PARAMETER_NOT_FOUND_DBL );
 

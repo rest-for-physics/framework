@@ -1414,6 +1414,35 @@ string TRestMetadata::GetMyParameter( string &value, size_t &pos )
 }
 
 ///////////////////////////////////////////////
+/// \brief Returns the value inside *myParameter* definition matching the name *parname*.
+///
+/// \param parname The name of the parameter inside myParameter definition.
+/// \return It returns the value found in the myParameter definition with name *parname*.
+///
+string TRestMetadata::GetMyParameterValue( string parname  )
+{
+    size_t pos = 0;
+
+    string value;
+    do
+    {
+        if( GetMyParameter( value, pos ) == parname )
+            return value;
+    }
+    while( pos != string::npos );
+
+        /*
+    if( parameterString.find( "name" ) != string::npos && parameterString.find( "value" ) != string::npos )
+    {
+        value = GetFieldValue( "value", parameterString );
+        return GetFieldValue( "name", parameterString );
+    }
+    */
+
+    return "";
+}
+
+///////////////////////////////////////////////
 /// \brief Finds an environment variable definition inside the buffer and sets it.
 ///
 /// The environment variables defined inside the buffer have validity in the context of a REST program execution.
