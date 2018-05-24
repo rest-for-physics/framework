@@ -128,6 +128,8 @@ class TRestHits : public TObject
         Double_t GetDistance( int N, int M ) { return TMath::Sqrt( GetDistance2( N, M ) ); }
         Double_t GetTotalDistance();
 
+        Double_t GetHitsPathLength ( Int_t n = 0, Int_t m = 0 );
+
         Double_t GetHitsTwist( Int_t n, Int_t m );
         Double_t GetHitsTwistWeighted( Int_t n, Int_t m );
 

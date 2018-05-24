@@ -499,6 +499,17 @@ Double_t TRestHits::GetMeanPositionZ( )
     return meanZ;
 }
 
+Double_t TRestHits::GetHitsPathLength ( Int_t n, Int_t m )
+{
+    if( n < 0 ) n = 0;
+    if( m > GetNumberOfHits() - 1 ) m = GetNumberOfHits() - 1;
+
+    Double_t distance = 0;
+    for( int i = n; i < m; i++ )
+        distance += TMath::Sqrt( GetDistance2( i, i+1 ) );
+    return distance;
+}
+
 Double_t TRestHits::GetTotalDistance()
 {
     Double_t distance = 0;
