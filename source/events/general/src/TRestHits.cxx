@@ -80,6 +80,24 @@ void TRestHits::GetXArray( Float_t *x )
     }
 }
 
+void TRestHits::InitializeXArray( Float_t x )
+{
+        for( int i = 0; i < GetNumberOfHits(); i++ )
+            fX[i] = x;
+}
+
+void TRestHits::InitializeYArray( Float_t y )
+{
+        for( int i = 0; i < GetNumberOfHits(); i++ )
+            fY[i] = y;
+}
+
+void TRestHits::InitializeZArray( Float_t z )
+{
+        for( int i = 0; i < GetNumberOfHits(); i++ )
+            fZ[i] = z;
+}
+
 void TRestHits::GetYArray( Float_t *y )
 {
     if( areXZ() )

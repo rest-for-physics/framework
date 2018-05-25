@@ -78,6 +78,10 @@ class TRestHits : public TObject
         void GetYArray( Float_t *y );
         void GetZArray( Float_t *z );
 
+        void InitializeXArray( Float_t x = 0 );
+        void InitializeYArray( Float_t y = 0 );
+        void InitializeZArray( Float_t z = 0 );
+
         Double_t GetDistanceToNode( Int_t n );
 
         Bool_t isSortedByEnergy( );
