@@ -59,6 +59,77 @@ void TRestTrackEvent::Initialize()
 
 }
 
+void TRestTrackEvent::AddTrack( TRestTrack *c )
+{
+    if( c->GetParentID() > 0 )
+    {
+        TRestTrack *pTrack = GetTrackById( c->GetParentID() );
+
+        if( pTrack->isXZ() )
+        {
+            TRestVolumeHits *vHits = c->GetVolumeHits();
+
+            Float_t NaN = std::numeric_limits<Float_t>::quiet_NaN();
+
+            vHits->InitializeYArray( NaN );
+        }
+
+        if( pTrack->isYZ() )
+        {
+            TRestVolumeHits *vHits = c->GetVolumeHits();
+
+            Float_t NaN = std::numeric_limits<Float_t>::quiet_NaN();
+
+            vHits->InitializeXArray( NaN );
+        }
+    }
+
+    if( c->isXZ() ) fNtracksX++;
+    if( c->isYZ() ) fNtracksY++;
+    fNtracks++;
+
+    fTrack.push_back(*c);
+
+    SetLevels(); 
+}
+
+void TRestTrackEvent::RemoveTrack( int n )
+{
+    if ( fTrack[n].isXZ() ) fNtracksX--;
+    if ( fTrack[n].isYZ() ) fNtracksY--;
+    fNtracks--;
+
+    fTrack.erase(fTrack.begin()+n);
+
+    SetLevels();
+}  
+
+
+Int_t TRestTrackEvent::GetNumberOfTracks( TString option )
+{
+    if( option == "" )
+        return fNtracks;
+    else
+    {
+        Int_t nT = 0;
+        for( int n = 0; n < GetNumberOfTracks(); n++ )
+        {
+            if( !this->isTopLevel( n ) ) continue;
+
+            if( option == "X" && GetTrack( n )->isXZ() )
+                nT++;
+            else if( option == "Y" && GetTrack( n )->isYZ() )
+                nT++;
+            else if( option == "XYZ" && GetTrack( n )->isXYZ() )
+                nT++;
+        }
+
+        return nT;
+    }
+
+    return -1;
+}
+
 TRestTrack *TRestTrackEvent::GetTrackById( Int_t id )
 {
     for( int i = 0; i < GetNumberOfTracks(); i++ )
@@ -72,6 +143,8 @@ TRestTrack *TRestTrackEvent::GetMaxEnergyTrackInX( )
     Double_t maxEnergy = 0;
     for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
     {
+        if( !this->isTopLevel( tck ) ) continue;
+
         TRestTrack *t = GetTrack( tck );
         if( t->isXZ() )
         {
@@ -94,6 +167,8 @@ TRestTrack *TRestTrackEvent::GetMaxEnergyTrackInY( )
     Double_t maxEnergy = 0;
     for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
     {
+        if( !this->isTopLevel( tck ) ) continue;
+
         TRestTrack *t = GetTrack( tck );
         if( t->isYZ() )
         {
@@ -110,12 +185,17 @@ TRestTrack *TRestTrackEvent::GetMaxEnergyTrackInY( )
     return GetTrack( track );
 }
 
-TRestTrack *TRestTrackEvent::GetMaxEnergyTrack( )
+TRestTrack *TRestTrackEvent::GetMaxEnergyTrack( TString option )
 {
+    if( option == "X" ) return GetMaxEnergyTrackInX();
+    if( option == "Y" ) return GetMaxEnergyTrackInY();
+
     Int_t track = -1;
     Double_t maxEnergy = 0;
     for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
     {
+        if( !this->isTopLevel( tck ) ) continue;
+
         TRestTrack *t = GetTrack( tck );
         if( t->isXYZ() )
         {
@@ -133,18 +213,40 @@ TRestTrack *TRestTrackEvent::GetMaxEnergyTrack( )
 
 }
 
-TRestTrack *TRestTrackEvent::GetSecondMaxEnergyTrack( )
+TRestTrack *TRestTrackEvent::GetSecondMaxEnergyTrack( TString option )
 {
-    Int_t id = GetMaxEnergyTrack()->GetTrackID();
+    if( GetMaxEnergyTrack( option ) == NULL ) return NULL;
+
+    Int_t id = GetMaxEnergyTrack( option )->GetTrackID();
 
     Int_t track = -1;
     Double_t maxEnergy = 0;
     for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
     {
+        if( !this->isTopLevel( tck ) ) continue;
+
         TRestTrack *t = GetTrack( tck );
         if( t->GetTrackID() == id ) continue;
 
-        if( t->isXYZ() )
+        Double_t en = t->GetEnergy();
+
+        if( option == "X" && t->isXZ() )
+        {
+            if ( en > maxEnergy )
+            {
+                maxEnergy = t->GetEnergy();
+                track = tck;
+            }
+        }
+        else if( option == "Y" && t->isYZ() )
+        {
+            if ( t->GetEnergy() > maxEnergy )
+            {
+                maxEnergy = t->GetEnergy();
+                track = tck;
+            }
+        }
+        else if ( t->isXYZ() )
         {
             if ( t->GetEnergy() > maxEnergy )
             {
@@ -159,34 +261,43 @@ TRestTrack *TRestTrackEvent::GetSecondMaxEnergyTrack( )
     return GetTrack( track );
 }
 
-TRestTrack *TRestTrackEvent::GetLongestTopLevelTrack()
+Double_t TRestTrackEvent::GetMaxEnergyTrackLength( TString option )
 {
-    Int_t found = 0;
-    Double_t len = 0;
-    Int_t theTrack = 0;
+    if( this->GetMaxEnergyTrack( option ) )
+        return this->GetMaxEnergyTrack( option )->GetLength( );
+    return 0;
+}
 
+Double_t TRestTrackEvent::GetEnergy( TString option )
+{
+    Double_t en = 0;
+    for( int tck = 0; tck < this->GetNumberOfTracks(); tck++ )
+    {
+        if( !this->isTopLevel( tck ) ) continue;
+
+        TRestTrack *t = GetTrack( tck );
+
+        if( option == "" )
+            en += t->GetEnergy();
+
+        else if( option == "X" && t->isXZ() )
+            en += t->GetEnergy();
+
+        else if( option == "Y" && t->isYZ() )
+            en += t->GetEnergy();
+
+        else if( option == "XYZ" && t->isXYZ() )
+            en += t->GetEnergy();
+    }
+
+    return en;
+}
+
+Bool_t TRestTrackEvent::isXYZ( )
+{
     for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
-    {
-        if( this->isTopLevel( tck ) )
-        {
-            Double_t l = this->GetTrack(tck)->GetTrackLength();
-
-            if( l > len )
-            {
-                len = l;
-                theTrack = tck;
-                found = 1;
-            }
-        }
-    }
-
-    if( found == 0 )
-    {
-        cout << "REST warning! TRestTrackEvent. GetLongestTopLevelTrack. A track was not found!" << endl;
-        return NULL;
-    }
-    return GetTrack( theTrack );
-
+        if ( !fTrack[tck].isXYZ() ) return false;
+    return true;
 }
 
 
@@ -291,9 +402,9 @@ void TRestTrackEvent::PrintEvent( Bool_t fullInfo )
 {
     TRestEvent::PrintEvent();
 
-    cout << "Number of tracks : " << GetNumberOfTracks() << endl;
-    cout << "Number of tracks XZ " << fNtracksX << endl;
-    cout << "Number of tracks YZ " << fNtracksY << endl;
+    cout << "Number of tracks : " << GetNumberOfTracks("XYZ") + GetNumberOfTracks("X") + GetNumberOfTracks("Y") << endl;
+    cout << "Number of tracks XZ " << GetNumberOfTracks("X") << endl;
+    cout << "Number of tracks YZ " << GetNumberOfTracks("Y") << endl;
     cout << "Track levels : " << GetLevels() << endl;
     cout << "+++++++++++++++++++++++++++++++++++" << endl;
     for( int i = 0; i < GetNumberOfTracks(); i++ )

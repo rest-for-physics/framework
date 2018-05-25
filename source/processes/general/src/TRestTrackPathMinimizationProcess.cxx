@@ -80,8 +80,6 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
 {
     fInputTrackEvent = (TRestTrackEvent *) evInput;
 
-    cout << "Event id : " << evInput->GetID() << endl;
-
     if( this->GetVerboseLevel() >= REST_Debug )
         cout << "TRestTrackPathMinimizationProcess. Number of tracks : " << fInputTrackEvent->GetNumberOfTracks() << endl;
 
@@ -133,6 +131,7 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
         }
 
 
+        /* OBSOLETE :: We now produce the segments inside the process.
         if( !fWeightHits && nHits > 3 )
         {
             int xInt[nHits], yInt[nHits], zInt[nHits];
@@ -165,13 +164,23 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
                 rval = TrackMinimization_3D( xInt, yInt, zInt, nHits, bestPath );
             }
         }
-        else if( nHits > 3 )
+        else 
+        */
+
+        if( nHits > 3 )
         {
             Int_t segment_count = nHits * ( nHits - 1 ) / 2;
             int *elen = (int *) malloc( segment_count * sizeof( int ) );
 
+            /*
+            double *enBetween = (double *) malloc( segment_count * sizeof( double ) );
+
             Double_t lenghtReduction = 0.25;
-            Double_t fTubeRadius = 2.5;
+            Double_t fTubeRadius = 1.;
+
+            Double_t energyIntegral = 0;
+            Int_t integratedSegments = 0;
+            */
 
             int k = 0;
             for ( int i = 0; i < nHits; i++ )
@@ -184,10 +193,13 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
                     x0 = hits->GetPosition( i );
                     x1 = hits->GetPosition( j );
 
+                    Double_t distance = (x1-x0).Mag();
+
+                    /* This can be used to weight the segments with the number of hits between nodes 
+                     *
                     pos0 = lenghtReduction * ( x1-x0 ) + x0;
                     pos1 = (1-lenghtReduction) * ( x1-x0 ) + x0;
 
-                    Double_t distance = (x1-x0).Mag();
                     Double_t energyBetween = originHits->GetEnergyInCylinder( pos0, pos1, fTubeRadius );
 
                     if( GetVerboseLevel() >= REST_Extreme )
@@ -196,23 +208,74 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
                         cout << "Segment energy (" << i << " , " << j << " ) : " << energyBetween << endl;
                     }
 
-                    if( energyBetween > 0 )
-                        elen[k] = (int) (100. * distance/energyBetween);
-                    else
-                        elen[k] = 10000;
-                    if( elen[k] > 10000 ) elen[k] = 10001;
+                    if( energyBetween > 0 ) 
+                    {
+                        energyIntegral += energyBetween;
+                        integratedSegments++;
+                    }
 
-                    //elen[k] = (int) ( 10. * distance );
+                    */
+
+
+                    elen[k] = (int) ( 100. * distance );
+
+                    //enBetween[k] = energyBetween;
                     k++;
                 }
             }
 
-            for( int n = 0; n < segment_count; n++ )
-                cout << "n : " << n << " elen : " << elen[n] << endl;
+            /* For the weighting of segments
+             *
+            Double_t meanHitsConnection = energyIntegral/integratedSegments;
+            if( GetVerboseLevel() >= REST_Debug )
+                cout << "energyIntegral : " << energyIntegral << " integratedSegments : " << integratedSegments << endl;
 
-            rval = TrackMinimization_3D_segment( nHits, elen, bestPath );
+            for( int n = 0; n < k; n++ )
+            {
+                if( enBetween[n] > meanHitsConnection )
+                    elen[n] = elen[n] / 1.5;  
+
+                if( enBetween[n] < meanHitsConnection/3 )
+                    elen[n] = elen[n] * 2.5;  
+            }
+
+            cout << "Mean hits : " << meanHitsConnection << endl;
+
+            if( GetVerboseLevel() >= REST_Extreme )
+                GetChar();
+            */
+
+            if( GetVerboseLevel() >= REST_Extreme )
+            {
+                for( int n = 0; n < segment_count; n++ )
+                    cout << "n : " << n << " elen : " << elen[n] << endl;
+                GetChar();
+            }
+
+            rval = TrackMinimization_segment( nHits, elen, bestPath );
+
+            /**** Just Printing 
+            for( int i = 0; i < hits->GetNumberOfHits()-1; i++ )
+            {
+                TVector3 x0, x1, pos0, pos1;
+
+                x0 = hits->GetPosition( i );
+                x1 = hits->GetPosition( i+1 );
+
+                pos0 = lenghtReduction * ( x1-x0 ) + x0;
+                pos1 = (1-lenghtReduction) * ( x1-x0 ) + x0;
+
+                Double_t distance = (x1-x0).Mag();
+                Double_t energyBetween = originHits->GetEnergyInCylinder( pos0, pos1, fTubeRadius );
+
+                cout << "Hit : " << i << " x : " << hits->GetX(i) <<  " y : " << hits->GetY(i) <<  " z : " << hits->GetZ(i) << endl;
+                cout << "Distance : " << distance << " Energy between : " << energyBetween << endl;
+            }
+            cout << "Hit : " << nHits-1 << " x : " << hits->GetX(nHits-1) <<  " y : " << hits->GetY(nHits-1) <<  " z : " << hits->GetZ(nHits-1) << endl;
+            ***** */
 
             free( elen );
+            //free( enBetween );
 
             if( GetVerboseLevel() >= REST_Extreme )
                 GetChar();

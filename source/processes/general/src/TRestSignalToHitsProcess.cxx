@@ -232,7 +232,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
         if( fSignalToHitMethod == "onlyMax" )
         {
             Double_t time = sgnl->GetMaxPeakTime();
-            Double_t distanceToPlane = time * fSampling * fDriftVelocity;
+            Double_t distanceToPlane = time * fDriftVelocity;
 
             if( GetVerboseLevel() >= REST_Debug ) 
                 cout << "Distance to plane : " << distanceToPlane << endl;
@@ -253,7 +253,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
             Double_t time = sgnl->GetTime( bin );
             Double_t energy = sgnl->GetData(bin);
 
-            Double_t distanceToPlane = time * fSampling * fDriftVelocity;
+            Double_t distanceToPlane = time * fDriftVelocity;
             Double_t z = zPosition + fieldZDirection * distanceToPlane;
 
             fHitsEvent->AddHit( x, y, z, energy );
@@ -261,7 +261,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
             time = sgnl->GetTime( bin-1 );
             energy = sgnl->GetData( bin-1 );
 
-            distanceToPlane = time * fSampling * fDriftVelocity;
+            distanceToPlane = time * fDriftVelocity;
             z = zPosition + fieldZDirection * distanceToPlane;
 
             fHitsEvent->AddHit( x, y, z, energy );
@@ -269,7 +269,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
             time = sgnl->GetTime( bin+1 );
             energy = sgnl->GetData( bin+1 );
 
-            distanceToPlane = time * fSampling * fDriftVelocity;
+            distanceToPlane = time * fDriftVelocity;
             z = zPosition + fieldZDirection * distanceToPlane;
 
             fHitsEvent->AddHit( x, y, z, energy );
@@ -288,7 +288,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
 
                 if( energy <= 0 ) continue;
 
-                Double_t distanceToPlane = ( sgnl->GetTime(j) * fSampling ) * fDriftVelocity;
+                Double_t distanceToPlane = sgnl->GetTime(j) * fDriftVelocity;
 
                 if( GetVerboseLevel() >= REST_Debug ) 
                 {

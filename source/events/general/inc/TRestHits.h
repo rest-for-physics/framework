@@ -78,6 +78,10 @@ class TRestHits : public TObject
         void GetYArray( Float_t *y );
         void GetZArray( Float_t *z );
 
+        void InitializeXArray( Float_t x = 0 );
+        void InitializeYArray( Float_t y = 0 );
+        void InitializeZArray( Float_t z = 0 );
+
         Double_t GetDistanceToNode( Int_t n );
 
         Bool_t isSortedByEnergy( );
@@ -127,6 +131,11 @@ class TRestHits : public TObject
         Double_t GetDistance2( int n, int m );
         Double_t GetDistance( int N, int M ) { return TMath::Sqrt( GetDistance2( N, M ) ); }
         Double_t GetTotalDistance();
+
+        Double_t GetHitsPathLength ( Int_t n = 0, Int_t m = 0 );
+
+        Double_t GetHitsTwist( Int_t n, Int_t m );
+        Double_t GetHitsTwistWeighted( Int_t n, Int_t m );
 
         Int_t GetClosestHit( TVector3 position );
 

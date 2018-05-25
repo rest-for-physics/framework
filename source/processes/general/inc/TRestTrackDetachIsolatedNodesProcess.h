@@ -3,24 +3,20 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestTrackPathMinimizationProcess.h
+///             TRestTrackDetachIsolatedNodesProcess.h
 ///
 ///              Jan 2016 : Javier Galan
 ///
 //////////////////////////////////////////////////////////////////////////
 
 
-#ifndef RestCore_TRestTrackPathMinimizationProcess
-#define RestCore_TRestTrackPathMinimizationProcess
+#ifndef RestCore_TRestTrackDetachIsolatedNodesProcess
+#define RestCore_TRestTrackDetachIsolatedNodesProcess
 
 #include <TRestTrackEvent.h>
 #include "TRestEventProcess.h"
 
-#ifndef __CINT__
-#include <trackMinimization.h>
-#endif
-
-class TRestTrackPathMinimizationProcess:public TRestEventProcess {
+class TRestTrackDetachIsolatedNodesProcess:public TRestEventProcess {
 
     private:
 
@@ -33,12 +29,13 @@ class TRestTrackPathMinimizationProcess:public TRestEventProcess {
 
         void Initialize();
 
+        Double_t fThresholdDistance;
+        Double_t fConnectivityThreshold;
+
+        Double_t fTubeLengthReduction;
+        Double_t fTubeRadius;
 
     protected:
-
-        //Int_t fMaxNodes;
-
-        Bool_t fWeightHits;
 
 
     public:
@@ -56,25 +53,18 @@ class TRestTrackPathMinimizationProcess:public TRestEventProcess {
         { 
             BeginPrintProcess();
 
- //           cout << "Maximum number of nodes (hits) allowed : " << fMaxNodes << endl;
-
-            if ( fWeightHits )
-                std::cout << "Weight hits : enabled" << std::endl;
-            else
-                std::cout << "Weight hits : disabled" << std::endl;
-
             EndPrintProcess();
         }
 
-        TString GetProcessName() { return (TString) "trackPathMinimization"; }
+        TString GetProcessName() { return (TString) "trackDetachIsolatedNode"; }
 
         //Constructor
-        TRestTrackPathMinimizationProcess();
-        TRestTrackPathMinimizationProcess( char *cfgFileName );
+        TRestTrackDetachIsolatedNodesProcess();
+        TRestTrackDetachIsolatedNodesProcess( char *cfgFileName );
         //Destructor
-        ~TRestTrackPathMinimizationProcess();
+        ~TRestTrackDetachIsolatedNodesProcess();
 
-        ClassDef( TRestTrackPathMinimizationProcess, 1);
+        ClassDef( TRestTrackDetachIsolatedNodesProcess, 1);
 };
 #endif
 

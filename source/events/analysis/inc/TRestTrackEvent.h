@@ -66,23 +66,11 @@ class TRestTrackEvent: public TRestEvent {
         TRestTrack *GetMaxEnergyTrackInX( );
         TRestTrack *GetMaxEnergyTrackInY( );
 
-        TRestTrack *GetMaxEnergyTrack( );
-        TRestTrack *GetSecondMaxEnergyTrack( );
+        TRestTrack *GetMaxEnergyTrack( TString option = "" );
+        TRestTrack *GetSecondMaxEnergyTrack( TString option = "" );
 
-        TRestTrack *GetLongestTopLevelTrack();
-
-        Double_t GetEnergy()
-        {
-            Double_t en = 0;
-            for( int tck = 0; tck < this->GetNumberOfTracks(); tck++ )
-            {
-                if( !this->isTopLevel( tck ) ) continue;
-                en += GetTrack( tck )->GetEnergy();
-            }
-
-            return en;
-        }
-
+        Double_t GetMaxEnergyTrackLength( TString option = "" );
+        Double_t GetEnergy( TString option = "" );
 
         Int_t GetLevel( Int_t tck );
         void SetLevels();
@@ -93,47 +81,21 @@ class TRestTrackEvent: public TRestEvent {
         TPad *GetPad() { return fPad; }
 
         //Setters
-        void AddTrack( TRestTrack *c )
-        {
-            if( c->isXZ() ) fNtracksX++;
-            if( c->isYZ() ) fNtracksY++;
-            fNtracks++;
-
-            fTrack.push_back(*c);
-
-            SetLevels(); 
-        }
-        void RemoveTrack( int n )
-        {
-            if ( fTrack[n].isXZ() ) fNtracksX--;
-            if ( fTrack[n].isYZ() ) fNtracksY--;
-            fNtracks--;
-
-            fTrack.erase(fTrack.begin()+n);
-
-            SetLevels();
-        }  
-
-        Bool_t isXYZ( )
-        {
-            for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
-                if ( !fTrack[tck].isXYZ() ) return false;
-            return true;
-        }
-
+        void AddTrack( TRestTrack *c );
+        void RemoveTrack( int n );
 
         void RemoveTracks( ){fTrack.clear();}  
 
+        Bool_t isXYZ( );
         Bool_t isTopLevel( Int_t tck );
+
         Int_t GetOriginTrackID( Int_t tck );
 
         void SetNumberOfXTracks( Int_t x ) { fNtracksX = x; }
         void SetNumberOfYTracks( Int_t y ) { fNtracksY = y; }
 
         //Getters
-        Int_t GetNumberOfTracks() { return fNtracks; }
-        Int_t GetNumberOfXTracks() { return fNtracksX; }
-        Int_t GetNumberOfYTracks() { return fNtracksY; }
+        Int_t GetNumberOfTracks( TString option = "" );
 
         Int_t GetTotalHits( );
       

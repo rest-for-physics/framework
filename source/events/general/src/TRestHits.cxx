@@ -80,6 +80,24 @@ void TRestHits::GetXArray( Float_t *x )
     }
 }
 
+void TRestHits::InitializeXArray( Float_t x )
+{
+        for( int i = 0; i < GetNumberOfHits(); i++ )
+            fX[i] = x;
+}
+
+void TRestHits::InitializeYArray( Float_t y )
+{
+        for( int i = 0; i < GetNumberOfHits(); i++ )
+            fY[i] = y;
+}
+
+void TRestHits::InitializeZArray( Float_t z )
+{
+        for( int i = 0; i < GetNumberOfHits(); i++ )
+            fZ[i] = z;
+}
+
 void TRestHits::GetYArray( Float_t *y )
 {
     if( areXZ() )
@@ -499,6 +517,17 @@ Double_t TRestHits::GetMeanPositionZ( )
     return meanZ;
 }
 
+Double_t TRestHits::GetHitsPathLength ( Int_t n, Int_t m )
+{
+    if( n < 0 ) n = 0;
+    if( m > GetNumberOfHits() - 1 ) m = GetNumberOfHits() - 1;
+
+    Double_t distance = 0;
+    for( int i = n; i < m; i++ )
+        distance += TMath::Sqrt( GetDistance2( i, i+1 ) );
+    return distance;
+}
+
 Double_t TRestHits::GetTotalDistance()
 {
     Double_t distance = 0;
@@ -582,6 +611,51 @@ TVector2 TRestHits::GetProjection( Int_t n, Int_t m, TVector3 position )
     Double_t transversal = TMath::Sqrt( origin.Mag2() - longitudinal*longitudinal );
 
     return TVector2( longitudinal, transversal );
+}
+
+Double_t TRestHits::GetHitsTwist( Int_t n, Int_t m )
+{
+    if( n < 0 ) n = 0;
+    if( m == 0 ) m = this->GetNumberOfHits();
+
+    if( m - n < 2 ) return 0;
+
+    Double_t sum = 0;
+    Int_t cont = 0;
+    for( int N = n; N < m -1; N++ )
+    {
+        TVector3 a = ( this->GetPosition(N) - this->GetPosition(N+1) ).Unit();
+        TVector3 b = ( this->GetPosition(N+1) - this->GetPosition(N+2) ).Unit();
+
+        sum += (1 - a.Dot(b))/2.;
+        cont++;
+    }
+
+    return sum/cont;
+}
+
+Double_t TRestHits::GetHitsTwistWeighted( Int_t n, Int_t m )
+{
+    if( n < 0 ) n = 0;
+    if( m == 0 ) m = this->GetNumberOfHits();
+
+    if( m - n < 2 ) return 0;
+
+    Double_t sum = 0;
+    Int_t cont = 0;
+    for( int N = n; N < m -1; N++ )
+    {
+        TVector3 a = (this->GetPosition(N) - this->GetPosition(N+1) ).Unit();
+        TVector3 b = (this->GetPosition(N+1) - this->GetPosition(N+2) ).Unit();
+
+        Double_t weight = TMath::Abs (this->GetEnergy(N) - this->GetEnergy(N+1) );
+        weight += TMath::Abs (this->GetEnergy(N+1) - this->GetEnergy(N+2) );
+
+        sum += weight * (1 - a.Dot(b))/2.;
+        cont++;
+    }
+
+    return sum/cont;
 }
 
 Double_t TRestHits::GetMaximumHitDistance( )

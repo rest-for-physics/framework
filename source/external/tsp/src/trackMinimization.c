@@ -92,7 +92,7 @@ CLEANUP:
     return rval;
 }
 
-int TrackMinimization_3D_segment ( int ncount, int *elen, int *mytour )
+int TrackMinimization_segment ( int ncount, int *elen, int *mytour )
 {
     int rval = 0;
     int i;
