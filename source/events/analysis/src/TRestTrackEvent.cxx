@@ -414,21 +414,35 @@ void TRestTrackEvent::PrintEvent( Bool_t fullInfo )
 //Draw current event in a Tpad
 TPad *TRestTrackEvent::DrawEvent( TString option )
 {
+    /* Not used for the moment
     Bool_t drawXZ = false;
     Bool_t drawYZ = false;
     Bool_t drawXY = false;
     Bool_t drawXYZ = false;
     Bool_t drawLines = false;
+    */
+
+    Int_t maxLevel = 0;
+    Int_t minLevel = 0;
 
     vector <TString> optList = TRestTools::GetOptions( option );
 
     for( unsigned int n = 0; n < optList.size(); n++ )
     {
+        /* Not used for the moment
         if( optList[n] == "XZ" ) drawXZ = true;
         if( optList[n] == "YZ" ) drawYZ = true;
         if( optList[n] == "XY" ) drawXY = true;
         if( optList[n] == "XYZ" ) drawXYZ = true;
         if( optList[n] == "L" || optList[n] == "lines"  ) drawLines = true;
+        */
+        string opt = (string) optList[n].Data();
+
+        if( opt.find( "maxLevel=" ) != string::npos )
+            maxLevel = stoi ( opt.substr( 9, opt.length() ).c_str() );
+
+        if( opt.find( "minLevel=" ) != string::npos )
+            minLevel = stoi ( opt.substr( 9, opt.length() ).c_str() );
     }
 
     if( fXYHit != NULL ) { delete[] fXYHit; fXYHit=NULL;}
@@ -502,6 +516,12 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
         if( isTopLevel ) tckColor++;
         Int_t level = this->GetLevel( tck );
 
+        if( !isTopLevel && maxLevel > 0 && level > maxLevel )
+            continue;
+
+        if( !isTopLevel && minLevel > 0 && level < minLevel )
+            continue;
+
         int tckXY = 0, tckYZ = 0, tckXZ = 0, tckXYZ = 0;
         Double_t radius;
 
@@ -552,8 +572,7 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
                     // If there is only one-point the TGraph2D does NOT draw the point!
                     fXYZHit[countXYZ].SetPoint( 1, x+0.001, y+0.001, z+0.001 );
 
-                    if( !isTopLevel ) fXYZHit[countXYZ].SetMarkerColor( level + 11 );
-                    else fXYZHit[countXYZ].SetMarkerColor( tckColor );
+                    fXYZHit[countXYZ].SetMarkerColor( level + 11 );
 
                     fXYZHit[countXYZ].SetMarkerSize(radius);
                     fXYZHit[countXYZ].SetMarkerStyle(20);
