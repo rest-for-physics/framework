@@ -59,6 +59,52 @@ void TRestTrackEvent::Initialize()
 
 }
 
+void TRestTrackEvent::AddTrack( TRestTrack *c )
+{
+    if( c->GetParentID() > 0 )
+    {
+        TRestTrack *pTrack = GetTrackById( c->GetParentID() );
+
+        if( pTrack->isXZ() )
+        {
+            TRestVolumeHits *vHits = c->GetVolumeHits();
+
+            Float_t NaN = std::numeric_limits<Float_t>::quiet_NaN();
+
+            vHits->InitializeYArray( NaN );
+        }
+
+        if( pTrack->isYZ() )
+        {
+            TRestVolumeHits *vHits = c->GetVolumeHits();
+
+            Float_t NaN = std::numeric_limits<Float_t>::quiet_NaN();
+
+            vHits->InitializeXArray( NaN );
+        }
+    }
+
+    if( c->isXZ() ) fNtracksX++;
+    if( c->isYZ() ) fNtracksY++;
+    fNtracks++;
+
+    fTrack.push_back(*c);
+
+    SetLevels(); 
+}
+
+void TRestTrackEvent::RemoveTrack( int n )
+{
+    if ( fTrack[n].isXZ() ) fNtracksX--;
+    if ( fTrack[n].isYZ() ) fNtracksY--;
+    fNtracks--;
+
+    fTrack.erase(fTrack.begin()+n);
+
+    SetLevels();
+}  
+
+
 Int_t TRestTrackEvent::GetNumberOfTracks( TString option )
 {
     if( option == "" )
@@ -245,6 +291,13 @@ Double_t TRestTrackEvent::GetEnergy( TString option )
     }
 
     return en;
+}
+
+Bool_t TRestTrackEvent::isXYZ( )
+{
+    for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
+        if ( !fTrack[tck].isXYZ() ) return false;
+    return true;
 }
 
 
