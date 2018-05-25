@@ -64,6 +64,8 @@ class TRestVolumeHits: public TRestHits {
         Double_t GetSigmaY( int n ) { return  fSigmaY[n]; } // return value in mm
         Double_t GetSigmaZ( int n ) { return  fSigmaZ[n]; } // return value in mm
 
+        TVector3 GetSigma( int n );
+
         void PrintHits();
 
         Double_t GetClusterSize( int n) { return TMath::Sqrt( fSigmaX[n] * fSigmaX[n] + fSigmaY[n]*fSigmaY[n] + fSigmaZ[n]*fSigmaZ[n]); }

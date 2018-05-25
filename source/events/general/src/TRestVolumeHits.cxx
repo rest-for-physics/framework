@@ -111,6 +111,11 @@ void TRestVolumeHits::SwapHits( Int_t i, Int_t j )
     TRestHits::SwapHits( i, j );
 }
 
+TVector3 TRestVolumeHits::GetSigma( int n )
+{
+    return TVector3 ( ( (Double_t) fSigmaX[n]), ((Double_t) fSigmaY[n]), ((Double_t) fSigmaZ[n]) );
+}
+
 void TRestVolumeHits::PrintHits( )
 {
 	for( int n = 0; n < GetNumberOfHits(); n++ )
