@@ -438,16 +438,16 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
         Double_t twist_X = -1, twistWeighted_X = -1;
 
-        for( unsigned int n = 0; n < fTwistWeightedHighValue.size(); n++ )
+        for( unsigned int n = 0; n < fTwistWeightedHighValue_X.size(); n++ )
             fTwistWeightedHighValue_X[n] = -1;
 
-        for( unsigned int n = 0; n < fTwistWeightedLowValue.size(); n++ )
+        for( unsigned int n = 0; n < fTwistWeightedLowValue_X.size(); n++ )
             fTwistWeightedLowValue_X[n] = -1;
 
-        for( unsigned int n = 0; n < fTwistLowValue.size(); n++ )
+        for( unsigned int n = 0; n < fTwistLowValue_X.size(); n++ )
             fTwistLowValue_X[n] = -1;
 
-        for( unsigned int n = 0; n < fTwistHighValue.size(); n++ )
+        for( unsigned int n = 0; n < fTwistHighValue_X.size(); n++ )
             fTwistHighValue_X[n] = -1;
 
         if( tX )
@@ -547,16 +547,16 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
         Double_t twist_Y = -1, twistWeighted_Y = -1;
 
-        for( unsigned int n = 0; n < fTwistWeightedHighValue.size(); n++ )
+        for( unsigned int n = 0; n < fTwistWeightedHighValue_Y.size(); n++ )
             fTwistWeightedHighValue_Y[n] = -1;
 
-        for( unsigned int n = 0; n < fTwistWeightedLowValue.size(); n++ )
+        for( unsigned int n = 0; n < fTwistWeightedLowValue_Y.size(); n++ )
             fTwistWeightedLowValue_Y[n] = -1;
 
-        for( unsigned int n = 0; n < fTwistLowValue.size(); n++ )
+        for( unsigned int n = 0; n < fTwistLowValue_Y.size(); n++ )
             fTwistLowValue_Y[n] = -1;
 
-        for( unsigned int n = 0; n < fTwistHighValue.size(); n++ )
+        for( unsigned int n = 0; n < fTwistHighValue_Y.size(); n++ )
             fTwistHighValue_Y[n] = -1;
 
         if( tY )
