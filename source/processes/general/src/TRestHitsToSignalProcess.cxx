@@ -183,7 +183,7 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
             moduleId = fReadout->GetReadoutPlane(p)->GetReadoutModule( TVector3(x, y, z) );
             if( moduleId >= 0 )
             {
-                if( GetVerboseLevel() >= REST_Debug )
+                if( GetVerboseLevel() >= REST_Debug && hit < 20 )
                     cout << "Plane : " << p << " Module : " << moduleId << endl;
 
                 planeId = p;
@@ -200,7 +200,7 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
             Int_t readoutChannel = plane->FindChannel( moduleId, x, y );
             Int_t daqId = module->GetChannel( readoutChannel )->GetDaqID( );
 
-            if( GetVerboseLevel() >= REST_Debug )
+            if( GetVerboseLevel() >= REST_Debug && hit < 20 )
                 cout << "Channel : " << readoutChannel << " daq ID : " << daqId << endl;
 
             Double_t energy = fHitsEvent->GetEnergy( hit );
@@ -213,10 +213,10 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
 
             time = ( (Int_t) (time/fSampling) ) * fSampling;
 
-            if( GetVerboseLevel() >= REST_Debug )
+            if( GetVerboseLevel() >= REST_Debug && hit < 20 )
                 cout << "Drift velocity : " << fDriftVelocity << " mm/us" << endl;
 
-            if( GetVerboseLevel() >= REST_Debug )
+            if( GetVerboseLevel() >= REST_Debug && hit < 20 )
                 cout << "Energy : " << energy << " time : " << time << endl;
 
             fSignalEvent->AddChargeToSignal( daqId, time, energy );
