@@ -329,6 +329,23 @@ Int_t TRestReadoutPlane::isZInsideDriftVolume( TVector3 pos )
 }
 
 ///////////////////////////////////////////////
+/// \brief This method returns the module id where the hits with coordinates (x,y,z) is found.
+/// The z-coordinate must be found in between
+/// the cathode and the readout plane. The *x* and *y* values must be found inside
+/// one of the readout modules defined inside the readout plane.
+///
+/// \param x,y,z Three Double_t definning the position.
+///
+/// \return the module *id* where the hit is found. If no module *id* is found it
+/// returns -1.
+///
+Int_t TRestReadoutPlane::isInsideModuleByID( Double_t x, Double_t y, Double_t z)
+{
+	TVector3 pos = TVector3( x, y, z );
+
+	return isInsideModuleByID( pos );
+}
+///////////////////////////////////////////////
 /// \brief This method returns the module id where *pos* is found.
 /// The z-coordinate must be found in between 
 /// the cathode and the readout plane. The *x* and *y* values must be found inside 
@@ -339,7 +356,7 @@ Int_t TRestReadoutPlane::isZInsideDriftVolume( TVector3 pos )
 /// \return the module *id* where the hit is found. If no module *id* is found it
 /// returns -1.
 ///
-Int_t TRestReadoutPlane::GetReadoutModule( TVector3 pos )
+Int_t TRestReadoutPlane::isInsideModuleByID( TVector3 pos )
 {
 	TVector3 posNew = TVector3( pos.X()-fPosition.X(), pos.Y()-fPosition.Y(), pos.Z() );
 

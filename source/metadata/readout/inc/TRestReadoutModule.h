@@ -194,6 +194,7 @@ class TRestReadoutModule : public TObject {
 
 		Bool_t isDaqIDInside( Int_t daqID );
 		Int_t FindChannel( Double_t x, Double_t y );
+		TVector2 GetDistanceToModule( TVector2 pos );
 
 		TVector2 GetPixelOrigin( Int_t channel, Int_t pixel );
 		TVector2 GetPixelVertex( Int_t channel, Int_t pixel, Int_t vertex );

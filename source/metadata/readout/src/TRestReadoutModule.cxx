@@ -443,6 +443,28 @@ Bool_t TRestReadoutModule::isInsidePixel( Int_t channel, Int_t pixel, TVector2 p
 }
 
 ///////////////////////////////////////////////
+/// \brief Creates a TVector2 with shortest norm going from the given position *pos* to the module.
+///  It can be seen as the vector to add to move from the position to the closest border of the module.
+///
+TVector2 TRestReadoutModule::GetDistanceToModule( TVector2 pos )
+{
+	TVector2 newPos = TransformToModuleCoordinates( pos );
+
+	Double_t dx = 0 , dy = 0;
+	if ( newPos.X() < 0 )
+		dx = -newPos.X();
+	else if ( fModuleSizeX - newPos.X() < 0 )
+		dx = fModuleSizeX - newPos.X();
+
+	if ( newPos.Y() < 0 )
+		dy = -newPos.Y();
+	else if ( fModuleSizeY - newPos.Y() < 0 )
+		dy = fModuleSizeY - newPos.Y();
+
+	TVector2 dist = TVector2( dx, dy );
+	return dist;
+}
+///////////////////////////////////////////////
 /// \brief Returns the pixel origin (left-bottom) position for a given *channel* and 
 /// *pixel* indexes.
 /// 

@@ -99,6 +99,9 @@ class TRestReadoutPlane: public TObject {
 		/// Returns the perpendicular distance to the readout plane from a given position *x*, *y*, *z*.
 		Double_t GetDistanceTo( Double_t x, Double_t y, Double_t z );
 
+		/// Returns a TVector2 oriented as the shortest distance of a given position *pos* on the plane to a specific module with id *mod*
+		TVector2 GetDistanceToModule( Int_t mod, TVector2 pos ) { return GetModule( mod )->GetDistanceToModule( pos ); }
+
 		/// Returns a pointer to a readout module using its vector index
 		TRestReadoutModule *GetModule( int mod ) { return &fReadoutModules[mod]; }
 
@@ -130,7 +133,9 @@ class TRestReadoutPlane: public TObject {
 
 		Int_t isZInsideDriftVolume( TVector3 pos );
 
-		Int_t GetReadoutModule( TVector3 pos );
+		Int_t isInsideModuleByID( TVector3 pos );
+
+		Int_t isInsideModuleByID( Double_t x, Double_t y, Double_t z );
 
 		void SetDriftDistance( );
 
