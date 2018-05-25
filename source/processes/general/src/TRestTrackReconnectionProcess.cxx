@@ -117,7 +117,7 @@ TRestEvent* TRestTrackReconnectionProcess::ProcessEvent( TRestEvent *evInput )
         // We do 3 times the break and re-connect process
         // Although another option would be to do it until we observe no change
         // Most of the times even 1-round is more than enough.
-        for( int n = 0; n < 3; n++ )
+        for( int n = 0; n < 1; n++ )
         {
             // The required distance between hits to break a track is increased in each iteration
             BreakTracks( &initialHits, subHitSets, 1.5 * (n + 1) );
@@ -141,6 +141,23 @@ TRestEvent* TRestTrackReconnectionProcess::ProcessEvent( TRestEvent *evInput )
         // For the observable We just take the value for the track with more number of branches
         if( tBranches > trackBranches ) trackBranches = tBranches;
 
+        // A fine tunning applied to consecutive hits
+        for( int n = 0; n < subHitSets[0].GetNumberOfHits(); n++ )
+        {
+            if( n > 0 && n < subHitSets[0].GetNumberOfHits()-1 )
+            {
+                Double_t distance = subHitSets[0].GetHitsPathLength( n - 2, n + 2 ); 
+
+                subHitSets[0].SwapHits( n - 1, n );
+
+                Double_t distanceAfter = subHitSets[0].GetHitsPathLength( n - 2, n + 2 ); 
+
+                if( distanceAfter < distance ) continue;
+
+                subHitSets[0].SwapHits( n - 1, n );
+            }
+        }
+
         if( fSplitTrack )
         {
             BreakTracks( &initialHits, subHitSets, fNSigmas );
@@ -163,7 +180,6 @@ TRestEvent* TRestTrackReconnectionProcess::ProcessEvent( TRestEvent *evInput )
             aTrack.SetParentID( tckId );
 
             aTrack.SetVolumeHits( subHitSets[n] );
-
 
             fOutputTrackEvent->AddTrack( &aTrack );
         }
