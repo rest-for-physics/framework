@@ -265,6 +265,25 @@ Double_t TRestHits::GetEnergyInSphere( Double_t x0, Double_t y0, Double_t z0, Do
     return sum;
 }
 
+Bool_t TRestHits::isHitNInsideSphere( Int_t n, TVector3 pos0, Double_t radius )
+{
+    return isHitNInsideSphere( n, pos0.X(), pos0.Y(), pos0.Z(), radius );
+}
+
+Bool_t TRestHits::isHitNInsideSphere( Int_t n, Double_t x0, Double_t y0, Double_t z0, Double_t radius )
+{
+    Double_t x = this->GetPosition( n ).X();
+    Double_t y = this->GetPosition( n ).Y();
+    Double_t z = this->GetPosition( n ).Z();
+
+    Double_t dist = (x-x0) * (x-x0) + (y-y0) * (y-y0) + (z-z0) * (z-z0);
+
+    if( dist < radius * radius )
+        return kTRUE;
+
+    return kFALSE;
+}
+
 void TRestHits::AddHit( Double_t x, Double_t y, Double_t z, Double_t en, Double_t t )
 {
     fNHits++;
@@ -638,14 +657,17 @@ Double_t TRestHits::GetHitsTwist( Int_t n, Int_t m )
 
     Double_t sum = 0;
     Int_t cont = 0;
-    for( int N = n; N < m -1; N++ )
+    for( int N = n + 1; N < m - 1; N++ )
     {
-        TVector3 a = ( this->GetPosition(N) - this->GetPosition(N+1) ).Unit();
-        TVector3 b = ( this->GetPosition(N+1) - this->GetPosition(N+2) ).Unit();
+        TVector3 a = ( this->GetPosition( N - 1 ) - this->GetPosition( N + 1 ) ).Unit();
+        TVector3 b = ( this->GetPosition( N ) - this->GetPosition( N + 1 ) ).Unit();
 
         sum += (1 - a.Dot(b))/2.;
         cont++;
     }
+
+    if( cont == 0 )
+       return -1;
 
     return sum/cont;
 }
@@ -659,17 +681,19 @@ Double_t TRestHits::GetHitsTwistWeighted( Int_t n, Int_t m )
 
     Double_t sum = 0;
     Int_t cont = 0;
-    for( int N = n; N < m -1; N++ )
+    for( int N = n + 1; N < m - 1; N++ )
     {
-        TVector3 a = (this->GetPosition(N) - this->GetPosition(N+1) ).Unit();
-        TVector3 b = (this->GetPosition(N+1) - this->GetPosition(N+2) ).Unit();
+        TVector3 a = ( this->GetPosition( N - 1 ) - this->GetPosition( N ) ).Unit();
+        TVector3 b = ( this->GetPosition( N ) - this->GetPosition( N + 1 ) ).Unit();
 
-        Double_t weight = TMath::Abs (this->GetEnergy(N) - this->GetEnergy(N+1) );
-        weight += TMath::Abs (this->GetEnergy(N+1) - this->GetEnergy(N+2) );
+        Double_t weight = TMath::Abs ( this->GetEnergy( N - 1 ) - this->GetEnergy( N ) );
+        weight += TMath::Abs ( this->GetEnergy( N ) - this->GetEnergy( N + 1 ) );
 
-        sum += weight * (1 - a.Dot(b))/2.;
+        sum += weight * ( 1 - a.Dot(b) )/2.;
         cont++;
     }
+
+    if( cont == 0 ) return -1;
 
     return sum/cont;
 }
