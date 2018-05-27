@@ -804,7 +804,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     fAnalysisTree->SetObservableValue( obsName, y );
 
     obsName = this->GetName() + (TString) ".zMean";
-    fAnalysisTree->SetObservableValue( obsName, y );
+    fAnalysisTree->SetObservableValue( obsName, z );
     /* }}} */
 
     /// This kind of observables would be better in a separate process that measures the trigger rate
@@ -820,6 +820,14 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     obsName = this->GetName() + (TString) ".MeanRate_InHz";
     fAnalysisTree->SetObservableValue( obsName, meanRate );
+
+    if( GetVerboseLevel() >= REST_Debug )
+    {
+        cout << "TRestTrackAnalysisProcess : " << GetName() << endl;
+        cout << "----------------------------------------------" << endl;
+        fAnalysisTree->PrintObservables();
+        GetChar();
+    }
 
     return fOutputTrackEvent;
 }
