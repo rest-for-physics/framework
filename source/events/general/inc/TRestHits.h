@@ -118,6 +118,7 @@ class TRestHits : public TObject
         Double_t GetEnergyInCylinder( TVector3 x0, TVector3 x1, Double_t radius );
         Double_t GetEnergyInCylinder( Int_t i, Int_t j, Double_t radius );
 
+        Double_t GetEnergyInSphere( TVector3 pos0, Double_t radius );
         Double_t GetEnergyInSphere( Double_t x, Double_t y, Double_t z, Double_t radius );
 
         Double_t GetMaximumHitEnergy( );
@@ -140,6 +141,8 @@ class TRestHits : public TObject
         Int_t GetClosestHit( TVector3 position );
 
         TVector2 GetProjection( Int_t n, Int_t m, TVector3 position );
+
+        Double_t GetTransversalProjection( TVector3 p0, TVector3 direction, TVector3 position );
 
         virtual void PrintHits( Int_t nHits = -1);
 	

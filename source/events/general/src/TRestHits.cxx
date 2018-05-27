@@ -243,14 +243,19 @@ Int_t TRestHits::GetNumberOfHitsInsideCylinder( TVector3 x0, TVector3 x1, Double
     return hits;
 }
 
+Double_t TRestHits::GetEnergyInSphere( TVector3 pos0, Double_t radius )
+{
+    return GetEnergyInSphere( pos0.X(), pos0.Y(), pos0.Z(), radius );
+}
+
 Double_t TRestHits::GetEnergyInSphere( Double_t x0, Double_t y0, Double_t z0, Double_t radius )
 {
     Double_t sum = 0;
     for( int i = 0; i < GetNumberOfHits(); i++ )
     {
-        Double_t x = this->GetX(i);
-        Double_t y = this->GetY(i);
-        Double_t z = this->GetZ(i);
+        Double_t x = this->GetPosition(i).X();
+        Double_t y = this->GetPosition(i).Y();
+        Double_t z = this->GetPosition(i).Z();
 
         Double_t dist = (x-x0) * (x-x0) + (y-y0) * (y-y0) + (z-z0) * (z-z0);
 
@@ -611,6 +616,17 @@ TVector2 TRestHits::GetProjection( Int_t n, Int_t m, TVector3 position )
     Double_t transversal = TMath::Sqrt( origin.Mag2() - longitudinal*longitudinal );
 
     return TVector2( longitudinal, transversal );
+}
+
+Double_t TRestHits::GetTransversalProjection( TVector3 p0, TVector3 direction, TVector3 position )
+{
+    TVector3 oX = position - p0;
+
+    if( oX == TVector3( 0,0,0 ) ) return 0;
+
+    Double_t longitudinal = direction.Unit().Dot( oX );
+
+    return TMath::Sqrt( oX.Mag2() - longitudinal*longitudinal );
 }
 
 Double_t TRestHits::GetHitsTwist( Int_t n, Int_t m )
