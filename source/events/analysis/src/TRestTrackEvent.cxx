@@ -664,6 +664,7 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
     fPad->cd(1); 
     mgXZ->GetXaxis()->SetTitle("X-axis (mm)");
     mgXZ->GetYaxis()->SetTitle("Z-axis (mm)");
+    mgXZ->GetYaxis()->SetTitleOffset(2.);
     mgXZ->Draw("P");
 
 
@@ -673,6 +674,7 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
     fPad->cd(2); 
     mgYZ->GetXaxis()->SetTitle("Y-axis (mm)");
     mgYZ->GetYaxis()->SetTitle("Z-axis (mm)");
+    mgYZ->GetYaxis()->SetTitleOffset(2.);
     mgYZ->Draw("P");
 
     if( this->isXYZ() )
