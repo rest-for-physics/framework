@@ -777,23 +777,33 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     obsName = this->GetName() + (TString) ".MaxTrack_Zmean_Y";
     fAnalysisTree->SetObservableValue( obsName, maxZ );
 
-    /////////////////// xMean and yMean //////////////////////////
-    Double_t x = 0, y = 0;
+    /////////////////// xMean, yMean and zMean //////////////////////////
+    Double_t x = 0, y = 0, z = 0;
 
     if( tXYZ != NULL )
     {
         x = tXYZ->GetMeanPosition().X();
         y = tXYZ->GetMeanPosition().Y();
+        z = tXYZ->GetMeanPosition().Y();
     }
     else if( tX != NULL )
+    {
         x = tX->GetMeanPosition().X();
+        z = tX->GetMeanPosition().Y();
+    }
     else if( tY != NULL )
+    {
         y = tY->GetMeanPosition().Y();
+        z = tY->GetMeanPosition().Y();
+    }
 
     obsName = this->GetName() + (TString) ".xMean";
     fAnalysisTree->SetObservableValue( obsName, x );
 
     obsName = this->GetName() + (TString) ".yMean";
+    fAnalysisTree->SetObservableValue( obsName, y );
+
+    obsName = this->GetName() + (TString) ".zMean";
     fAnalysisTree->SetObservableValue( obsName, y );
     /* }}} */
 
