@@ -368,7 +368,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
                 Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
                 Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
 
-                if( twistStart < twistEnd ) 
+                if( twistStart > twistEnd ) 
                     fTwistHighValue[n] = twistStart;
                 else
                     fTwistHighValue[n] = twistEnd;
@@ -392,7 +392,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
                 Double_t twistStart = hits->GetHitsTwistWeighted( 0, Nend ); 
                 Double_t twistEnd = hits->GetHitsTwistWeighted( Nhits-Nend, Nhits ); 
 
-                if( twistStart < twistEnd ) 
+                if( twistStart > twistEnd ) 
                     fTwistWeightedHighValue[n] = twistStart;
                 else
                     fTwistWeightedHighValue[n] = twistEnd;
@@ -476,7 +476,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
                 Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
                 Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
 
-                if( twistStart < twistEnd ) 
+                if( twistStart > twistEnd ) 
                     fTwistHighValue_X[n] = twistStart;
                 else
                     fTwistHighValue_X[n] = twistEnd;
@@ -500,7 +500,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
                 Double_t twistStart = hits->GetHitsTwistWeighted( 0, Nend ); 
                 Double_t twistEnd = hits->GetHitsTwistWeighted( Nhits-Nend, Nhits ); 
 
-                if( twistStart < twistEnd ) 
+                if( twistStart > twistEnd ) 
                     fTwistWeightedHighValue_X[n] = twistStart;
                 else
                     fTwistWeightedHighValue_X[n] = twistEnd;
@@ -585,7 +585,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
                 Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
                 Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
 
-                if( twistStart < twistEnd ) 
+                if( twistStart > twistEnd ) 
                     fTwistHighValue_Y[n] = twistStart;
                 else
                     fTwistHighValue_Y[n] = twistEnd;
@@ -609,7 +609,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
                 Double_t twistStart = hits->GetHitsTwistWeighted( 0, Nend ); 
                 Double_t twistEnd = hits->GetHitsTwistWeighted( Nhits-Nend, Nhits ); 
 
-                if( twistStart < twistEnd ) 
+                if( twistStart > twistEnd ) 
                     fTwistWeightedHighValue_Y[n] = twistStart;
                 else
                     fTwistWeightedHighValue_Y[n] = twistEnd;
