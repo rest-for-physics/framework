@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<!--This example shows the least required components for running a process.
+Additional arguments of input file and output file needs to be specified 
+during the calling of restManager.
+
+least required components: 
+1. TRestRun section. Add metadata in it
+2. TRestProcessRunner section. Add processes in it
+
+There are more settings the can be written in the file. Find them in 
+other examples. 
+-->
+
+<TRestManager name="CoBoDataAnalysis" title="Example" verboseLevel="info" >
+
+  <TRestRun name="SJTU_Proto" >
+    <addMetadata name="PandaReadout_MxM" file="readouts.root"/>
+  </TRestRun>
+
+  <TRestProcessRunner name="Processor" verboseLevel="info">
+    <addProcess type="TRestMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON"/>
+    <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON" />
+  </TRestProcessRunner>
+
+  <addTask type="processEvents" value="ON"/>
+
+</TRestManager>
+
+
+<!--paramater here is accessible to all the classes-->
+
+

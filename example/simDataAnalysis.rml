@@ -22,12 +22,12 @@
 
 
   <TRestProcessRunner name="TemplateEventProcess" verboseLevel="info">
-    <parameter name="firstEntry" value="0" />
-    <parameter name="lastEntry" value="0" />
-    <parameter name="eventsToProcess" value="0" />
+    <parameter name="eventsToProcess" value="10000" />
     <parameter name="threadNumber" value="2"/>
-    <parameter name="saveMetadata" value="true"/>
-    <parameter name="treeBranches" value="inputevent:processevent:outputevent:inputanalysis:outputanalysis"/>
+
+    <parameter name="inputAnalysis" value="on"/>
+    <parameter name="inputEvent" value="on"/>
+    <parameter name="outputEvent" value="on"/>
 
     <addProcess type="TRestGeant4AnalysisProcess" name="g4Ana" value="ON" />
     <addProcess type="TRestFindG4BlobAnalysisProcess" name="g4Blob" value="OFF" />
