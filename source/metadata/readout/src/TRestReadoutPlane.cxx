@@ -339,11 +339,11 @@ Int_t TRestReadoutPlane::isZInsideDriftVolume( TVector3 pos )
 /// \return the module *id* where the hit is found. If no module *id* is found it
 /// returns -1.
 ///
-Int_t TRestReadoutPlane::isInsideModuleByID( Double_t x, Double_t y, Double_t z)
+Int_t TRestReadoutPlane::GetModuleIDFromPosition( Double_t x, Double_t y, Double_t z)
 {
 	TVector3 pos = TVector3( x, y, z );
 
-	return isInsideModuleByID( pos );
+	return GetModuleIDFromPosition( pos );
 }
 ///////////////////////////////////////////////
 /// \brief This method returns the module id where *pos* is found.
@@ -356,7 +356,7 @@ Int_t TRestReadoutPlane::isInsideModuleByID( Double_t x, Double_t y, Double_t z)
 /// \return the module *id* where the hit is found. If no module *id* is found it
 /// returns -1.
 ///
-Int_t TRestReadoutPlane::isInsideModuleByID( TVector3 pos )
+Int_t TRestReadoutPlane::GetModuleIDFromPosition( TVector3 pos )
 {
 	TVector3 posNew = TVector3( pos.X()-fPosition.X(), pos.Y()-fPosition.Y(), pos.Z() );
 

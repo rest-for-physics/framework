@@ -354,8 +354,8 @@ Bool_t TRestReadoutModule::isInside( TVector2 pos )
 {
 	TVector2 rotPos = TransformToModuleCoordinates( pos );
 
-	if( rotPos.X() >= 0 && rotPos.X() <= fModuleSizeX )
-		if( rotPos.Y() >= 0 && rotPos.Y() <= fModuleSizeY )
+	if( rotPos.X() >= 0 && rotPos.X() < fModuleSizeX )
+		if( rotPos.Y() >= 0 && rotPos.Y() < fModuleSizeY )
 			return true;
 
 	return false;
