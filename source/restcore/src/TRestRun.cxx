@@ -372,15 +372,8 @@ void TRestRun::ReadFileInfo(string filename)
 	FileInfo.clear();
 
 	string format = GetParameter("inputFormat", "");
-	string name = (string)filename;
+	string name = SeparatePathAndName(filename).second;
 
-	//remove extension
-	if (format.find(".") != -1) { format = Spilt(format, ".")[0]; }
-	if (name.find(".") != -1) { name = Spilt(name, ".")[0]; }
-
-	//remove path name
-	if (format.find("/") != -1) { format = Spilt(format, "/")[Spilt(format, "/").size() - 1]; }
-	if (name.find("/") != -1) { name = Spilt(name, "/")[Spilt(name, "/").size() - 1]; }
 
 	vector<string> formatsectionlist = Spilt(format, "_");
 	vector<string> inputfilesectionlist = Spilt(name, "_");

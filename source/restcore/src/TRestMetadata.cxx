@@ -727,14 +727,20 @@ void TRestMetadata::SetEnvWithElement(TiXmlElement* e, bool updateexisting)
 void TRestMetadata::ExpandElement(TiXmlElement*e, bool recursive)
 {
 	ReplaceElementAttributes(e);
-	if ((string)e->Value() == "for") {
+	if ((string)e->Value() == "for") 
+	{
 		ExpandForLoops(e);
 	}
 	else if (e->Attribute("file") != NULL)
 	{
 		ExpandIncludeFile(e);
 	}
-	else if (e->FirstChildElement() != NULL) {
+	else if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter" || (string)e->Value() == "constant")
+	{
+		SetEnvWithElement(e);
+	}
+	else if (e->FirstChildElement() != NULL) 
+	{
 		TiXmlElement* contentelement = e->FirstChildElement();
 		//we won't expand child section unless forced recursive. The expansion of this 
 		//section will be executed by the resident TRestXXX class
