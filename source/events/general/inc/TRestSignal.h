@@ -97,14 +97,14 @@ class TRestSignal: public TObject {
         Double_t GetIntegral( Int_t startBin = 0, Int_t endBin = 0 );
         Double_t GetIntegralWithThreshold( Int_t from, Int_t to, Int_t startBaseline, Int_t endBaseline, Double_t threshold = 2, Int_t nPointsOverThreshold = 5, Double_t nMinSigmas = 5 );
         Double_t GetIntegralWithThreshold( Int_t from, Int_t to, Double_t baseline, Double_t pointThreshold, Int_t nPointsOverThreshold, Double_t signalThreshold );
- //       Double_t GetIntegralWithThreshold( Int_t from, Int_t to, Double_t baseline, Double_t threshold = 5, Int_t nPointsOverThreshold = 5, Double_t nMinSigmas = 5 );
 
         void Normalize( Double_t scale = 1. );
 
         std::vector <Int_t> GetPointsOverThreshold( ) { return fPointsOverThreshold; }
 
-        Double_t GetAverage( Int_t start, Int_t end );
+        Double_t GetAverage( Int_t start = 0, Int_t end = 0 );
         Int_t GetMaxPeakWidth();
+        Double_t GetMaxPeakWithTime( Double_t startTime, Double_t endTime );
 
         Double_t GetMaxPeakValue();
         Double_t GetMinPeakValue();
