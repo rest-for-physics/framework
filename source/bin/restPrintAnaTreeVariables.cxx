@@ -68,11 +68,11 @@ int main( int argc, char *argv[] )
     cout << "++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout << endl;
 
- //   run->SkipEventTree();
+    run->SkipEventTree();
 
-   TRestG4Event *ev = new TRestG4Event();
+   //TRestG4Event *ev = new TRestG4Event();
 
-	run->SetInputEvent( ev );
+	//run->SetInputEvent( ev );
     for( int i = 0; i < anaTree->GetNumberOfObservables( ); i++ )
     {
         if( anaTree->GetObservableDescription( i ) != "Not defined" && anaTree->GetObservableDescription( i ) != "" )
@@ -84,8 +84,8 @@ int main( int argc, char *argv[] )
         }
     }
 
-	Int_t id = anaTree->GetObservableID( "g4Ana.photoelectric" );
 /*
+	Int_t id = anaTree->GetObservableID( "g4Ana.photoelectric" );
 	for( int n = 0; run->GetEntries(); n++ )
 	{
 		//run->GetEntry(n);
