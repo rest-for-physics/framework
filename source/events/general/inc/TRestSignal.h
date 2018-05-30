@@ -62,7 +62,7 @@ class TRestSignal: public TObject {
         }
 
         // TODO other objects should probably skip using GetMaxIndex direclty
-        Int_t GetMaxIndex();
+        Int_t GetMaxIndex( Int_t from = 0, Int_t to = 0 );
 
         //Getters
         TVector2 GetPoint( Int_t n )
@@ -93,11 +93,13 @@ class TRestSignal: public TObject {
             return fSignalTime.size(); 
         }
 
-        Double_t GetIntegralWithTime( Int_t startTime, Int_t endTime );
+        Double_t GetIntegralWithTime( Double_t startTime, Double_t endTime );
         Double_t GetIntegral( Int_t startBin = 0, Int_t endBin = 0 );
         Double_t GetIntegralWithThreshold( Int_t from, Int_t to, Int_t startBaseline, Int_t endBaseline, Double_t threshold = 2, Int_t nPointsOverThreshold = 5, Double_t nMinSigmas = 5 );
         Double_t GetIntegralWithThreshold( Int_t from, Int_t to, Double_t baseline, Double_t pointThreshold, Int_t nPointsOverThreshold, Double_t signalThreshold );
  //       Double_t GetIntegralWithThreshold( Int_t from, Int_t to, Double_t baseline, Double_t threshold = 5, Int_t nPointsOverThreshold = 5, Double_t nMinSigmas = 5 );
+
+        void Normalize( Double_t scale = 1. );
 
         std::vector <Int_t> GetPointsOverThreshold( ) { return fPointsOverThreshold; }
 
@@ -107,7 +109,7 @@ class TRestSignal: public TObject {
         Double_t GetMaxPeakValue();
         Double_t GetMinPeakValue();
 
-        Double_t GetMaxPeakTime();
+        Double_t GetMaxPeakTime( Int_t from = 0, Int_t to = 0 );
 
         Double_t GetMaxValue() { return GetMaxPeakValue(); }
         Double_t GetMinValue() { return GetMinPeakValue(); }
