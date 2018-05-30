@@ -77,6 +77,15 @@ Double_t TRestSignalEvent::GetIntegral( Int_t startBin, Int_t endBin )
     return sum;
 }
 
+Double_t TRestSignalEvent::GetIntegralWithTime( Double_t startTime, Double_t endTime )
+{
+    Double_t sum = 0;
+    for( int n = 0; n < GetNumberOfSignals(); n++ )
+        sum += fSignal[n].GetIntegralWithTime( startTime, endTime );
+
+    return sum;
+}
+
 Double_t TRestSignalEvent::GetIntegralWithThreshold( Int_t from, Int_t to, Int_t startBaseline, Int_t endBaseline, Double_t nSigmas, Int_t nPointsOverThreshold, Double_t minPeakAmplitude ) 
 {
     Double_t sum = 0;
