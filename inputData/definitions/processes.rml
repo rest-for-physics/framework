@@ -108,7 +108,7 @@
     <parameter name="electricField" value="100" units="V/cm" />
 
     <!-- If not specified, the following values will be taken from TRestGas properties -->
-    <parameter name="gasPressure" value="1.5" />
+    <parameter name="gasPressure" value="" />
     <!-- in atm -->
     <parameter name="driftVelocity" value="" />
     <!-- in cm/us -->
