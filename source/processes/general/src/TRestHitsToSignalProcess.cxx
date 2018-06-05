@@ -112,11 +112,12 @@ void TRestHitsToSignalProcess::InitProcess()
     fGas = (TRestGas *) this->GetGasMetadata( );
     if( fGas != NULL )
     {
-        if( fGasPressure == -1 ) 
+        if( fGasPressure <=0 ) 
             fGasPressure = fGas->GetPressure();
-        fGas->SetPressure( fGasPressure );
+		else
+			fGas->SetPressure( fGasPressure );
 
-        if( fDriftVelocity == 0 )
+        if( fDriftVelocity <= 0 )
             fDriftVelocity = fGas->GetDriftVelocity( fElectricField ) * cmTomm;
     }
     else

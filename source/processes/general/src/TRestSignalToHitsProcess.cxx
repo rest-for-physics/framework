@@ -81,17 +81,17 @@ void TRestSignalToHitsProcess::LoadConfig( std::string cfgFilename, std::string 
 	    }
     }
 
-    if( fGasPressure == -1 )
-    {
-	    TRestDetectorSetup *detSetup = (TRestDetectorSetup *) this->GetDetectorSetup();
-	    if ( detSetup != NULL )
-	    {
-		    fGasPressure = detSetup->GetPressureInBar( );
-		    cout << "SignalToHitsProcess : Obtainning gas pressure from detector setup : " << fGasPressure << " bar" << endl;
-	    }
+    //if( fGasPressure <= 0 )
+    //{
+	   // TRestDetectorSetup *detSetup = (TRestDetectorSetup *) this->GetDetectorSetup();
+	   // if ( detSetup != NULL )
+	   // {
+		  //  fGasPressure = detSetup->GetPressureInBar( );
+		  //  cout << "SignalToHitsProcess : Obtainning gas pressure from detector setup : " << fGasPressure << " bar" << endl;
+	   // }
 
 
-    }
+    //}
 
 /* THIS IS OBSOLETE ( NOW WE SHOULD DEFINE TRestDetectorSetup inside TRestRun, TRestDetectorSetup defines field, pressure, sampling, etc )
     if ( fElectricField == PARAMETER_NOT_FOUND_DBL )
@@ -140,11 +140,12 @@ void TRestSignalToHitsProcess::InitProcess()
     fGas = (TRestGas *) this->GetGasMetadata( );
     if( fGas != NULL )
     {
-        if( fGasPressure == -1 ) 
+        if( fGasPressure <= 0 ) 
             fGasPressure = fGas->GetPressure();
-        fGas->SetPressure( fGasPressure );
+		else
+			fGas->SetPressure( fGasPressure );
 
-        if( fDriftVelocity == 0 )
+        if( fDriftVelocity <= 0 )
             fDriftVelocity = fGas->GetDriftVelocity( fElectricField ) * cmTomm;
     }
     else
