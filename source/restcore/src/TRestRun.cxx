@@ -856,11 +856,24 @@ TRestMetadata* TRestRun::GetMetadataClass(string type)
 {
 	for (int i = 0; i < fMetadataInfo.size(); i++)
 	{
-		if (fMetadataInfo[i]->ClassName() == type)
+		if ((string)fMetadataInfo[i]->ClassName() == type)
 		{
 			return fMetadataInfo[i];
 		}
 	}
+
+	if (fInputFile != NULL) {
+		TIter nextkey(fInputFile->GetListOfKeys());
+		TKey *key;
+		while ((key = (TKey*)nextkey()))
+		{
+			auto a = (TRestMetadata*)fInputFile->Get(key->GetName());
+			if ((string)a->ClassName()==type)
+				if (a->InheritsFrom("TRestMetadata"))
+					return a;
+		}
+	}
+
 	return NULL;
 }
 
@@ -868,6 +881,23 @@ TRestMetadata *TRestRun::GetMetadata(TString name)
 {
 	for (unsigned int i = 0; i < fMetadataInfo.size(); i++)
 		if (fMetadataInfo[i]->GetName() == name) return fMetadataInfo[i];
+
+	if (fInputFile != NULL) {
+		TIter nextkey(fInputFile->GetListOfKeys());
+		TKey *key;
+		while ((key = (TKey*)nextkey()))
+		{
+			string kName = key->GetName();
+
+			if (kName == name)
+			{
+				auto a = (TRestMetadata*)fInputFile->Get(key->GetName());
+				if (a->InheritsFrom("TRestMetadata"))
+					return a;
+			}
+
+		}
+	}
 
 	return NULL;
 
