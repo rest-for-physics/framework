@@ -281,6 +281,14 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 			fAnalysisTree = Tree1;
 			fAnalysisTree->ConnectObservables();
 			fAnalysisTree->ConnectEventBranches();
+			TObjArray* branches = fAnalysisTree->GetListOfBranches();//we skip process branches
+			for (int i = 0; i <= branches->GetLast(); i++) {
+				TBranch *br = (TBranch*)branches->At(i);
+				if ((string)br->ClassName() == "TBranchElement")
+				{
+					br->SetStatus(false);
+				}
+			}
 		}
 		else
 		{
