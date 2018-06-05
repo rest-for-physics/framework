@@ -360,7 +360,7 @@ void TRestThread::PrepareToProcess(bool testrun)
 			iter++;
 		}
 
-		if (fEventTree->GetListOfBranches()->GetLast() < 1)//if no event branches are created
+		if (fEventTree->GetListOfBranches()->GetLast() < 0)//if no event branches are created
 		{
 			delete fEventTree; fEventTree = NULL;
 		}
