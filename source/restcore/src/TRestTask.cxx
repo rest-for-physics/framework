@@ -121,7 +121,7 @@ TRestTask::TRestTask(TString MacroFileName)
 ///
 void TRestTask::InitFromConfigFile()
 {
-	if (this->ClassName() == (string)"TRestTask")
+	if ((string)this->ClassName() == (string)"TRestTask")
 	{
 		TiXmlElement*ele = fElement->FirstChildElement("parameter");
 		while (ele != NULL) {
@@ -243,7 +243,7 @@ void TRestTask::ConstructCommand() {
 		}
 	}
 
-	if (this->ClassName() == (string)"TRestTask") //this class
+	if ((string)this->ClassName() == (string)"TRestTask") //this class
 	{
 		string methodname = GetName();
 		cmdstr = methodname + "(";
@@ -284,7 +284,7 @@ void TRestTask::RunTask(TRestManager*a)
 ///
 void TRestTask::PrintHelp()
 {
-	if (this->ClassName() == (string)"TRestTask")
+	if ((string)this->ClassName() == (string)"TRestTask")
 	{
 		error << GetName() << "() Gets invailed input!" << endl;
 		error << "You should give the following arguments ( * : necessary input):" << endl;

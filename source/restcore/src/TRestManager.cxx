@@ -225,7 +225,7 @@ TRestMetadata* TRestManager::GetApplication(string type)
 {
 	for (int i = 0; i < fMetaObjects.size(); i++)
 	{
-		if (fMetaObjects[i]->ClassName() == type)
+		if ((string)fMetaObjects[i]->ClassName() == type)
 		{
 			return fMetaObjects[i];
 		}

@@ -70,7 +70,7 @@ Int_t TRestThread::ValidateInput(TRestEvent* input)
 		return -1;
 	}
 	//general event input is accepted
-	if (fProcessChain[0]->GetInputEvent()->ClassName() == "TRestEvent")
+	if ((string)fProcessChain[0]->GetInputEvent()->ClassName() == "TRestEvent")
 		return 0;
 	if (input->ClassName() != fProcessChain[0]->GetInputEvent()->ClassName())
 	{

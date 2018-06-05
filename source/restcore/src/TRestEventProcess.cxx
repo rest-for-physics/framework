@@ -351,7 +351,7 @@ void TRestEventProcess::EndPrintProcess()
 Double_t TRestEventProcess::GetDoubleParameterFromClass(TString className, TString parName)
 {
 	for (size_t i = 0; i < fFriendlyProcesses.size(); i++)
-		if (fFriendlyProcesses[i]->ClassName() == className)
+		if ((string)fFriendlyProcesses[i]->ClassName() == (string)className)
 			return StringToDouble(fFriendlyProcesses[i]->GetParameter((string)parName));
 
 	return PARAMETER_NOT_FOUND_DBL;
@@ -366,7 +366,7 @@ Double_t TRestEventProcess::GetDoubleParameterFromClass(TString className, TStri
 Double_t TRestEventProcess::GetDoubleParameterFromClassWithUnits(TString className, TString parName)
 {
 	for (size_t i = 0; i < fFriendlyProcesses.size(); i++)
-		if (fFriendlyProcesses[i]->ClassName() == className)
+		if ((string)fFriendlyProcesses[i]->ClassName() == (string)className)
 			return fFriendlyProcesses[i]->GetDblParameterWithUnits((string)parName);
 
 	return PARAMETER_NOT_FOUND_DBL;
