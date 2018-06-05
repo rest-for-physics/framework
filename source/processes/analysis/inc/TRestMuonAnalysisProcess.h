@@ -48,8 +48,8 @@ class TRestMuonAnalysisProcess:public TRestEventProcess {
 		TH2D* muhitmap;//!
 		TH2D* muhitdir;//!
 
-		map<int,vector<double>> musmearxy;
-		map<int,vector<double>> musmearz;
+		map<int, vector<double>> musmearxy;
+		map<int, pair<double, double>> musmearz;
 
         void InitFromConfigFile();
 
@@ -80,6 +80,9 @@ class TRestMuonAnalysisProcess:public TRestEventProcess {
 		double ProjectionToCenter(double x, double y, double xzthe, double yzthe);
 
 		double DistanceToTrack(double x, double z, double x0, double z0, double theta);
+
+		map<int, vector<double>> GetdiffXY() { return musmearxy; }
+		map<int, pair<double, double>> GetdiffZ() { return musmearz; }
 
         //Constructor
         TRestMuonAnalysisProcess();
