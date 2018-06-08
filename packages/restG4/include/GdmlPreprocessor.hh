@@ -5,7 +5,7 @@
 #include "TRestMetadata.h"
 
 ///////////////////////////////////////////
-//we must preprocess gdml file because of a bug in TGDMLParse in ROOT6
+//we must preprocess gdml file because of a bug in TGDMLParse::Value() in ROOT6
 //
 
 class GdmlPreprocessor :public TRestMetadata {

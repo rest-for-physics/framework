@@ -231,7 +231,7 @@ void TRestThread::PrepareToProcess(bool testrun)
 	if (fProcessChain.size() > 0)
 	{
 		stringstream Filename;
-		Filename << "rest_thread_tmp" << fThreadId << ".root";
+		Filename << "/tmp/rest_thread_tmp" << ToString(this) << ".root";
 		debug << "Creating file : " << Filename.str() << endl;
 		fOutputFile = new TFile(Filename.str().c_str(), "recreate");
 		fOutputFile->SetCompressionLevel(0);
@@ -386,7 +386,7 @@ void TRestThread::PrepareToProcess(bool testrun)
 		fInputEvent = (TRestEvent*)TClass::GetClass(tmp.c_str())->New();
 		fOutputEvent = fInputEvent;
 		stringstream Filename;
-		Filename << "rest_thread_tmp" << fThreadId << ".root";
+		Filename << "/tmp/rest_thread_tmp" << ToString(this) << ".root";
 		fOutputFile = new TFile(Filename.str().c_str(), "recreate");
 		fOutputFile->SetCompressionLevel(0);
 		fOutputFile->cd();
