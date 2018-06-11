@@ -13,11 +13,11 @@ IF(NOT DEFINED INSTALL_PREFIX)
 	endif()
 ENDIF()
 
-#message($ENV{REST_INSTALL_PATH})
 set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
-message ("oo REST will be installed in : ${CMAKE_INSTALL_PREFIX}\n" )
+message ("\noo REST will be installed in : ${CMAKE_INSTALL_PREFIX}" )
+message ("oo System is : ${CMAKE_SYSTEM_NAME}\n" )
 
-SET(CMAKE_CXX_FLAGS "-std=c++1y")
+SET(CMAKE_CXX_FLAGS "-stdlib=libc++ -std=c++11")
 
 #define c++ pragmas
 IF( NOT DEFINED REST_WELCOME )
@@ -29,21 +29,43 @@ if(${REST_GARFIELD} MATCHES "ON")
 endif(${REST_GARFIELD} MATCHES "ON")
 
 
-
 #find includes and libs
 set(external_include_dirs)
 set(external_libs)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
-IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+	set(CMAKE_MACOSX_RPATH 1)
 	include(FindROOT)
 	set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
-    #file(GLOB rootlibs ${ROOT_LIBRARY_DIR}/*.so)
-	set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui  -lEve -lGeom -lMathMore -lGdml -lMinuit)
+
+	set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit)
 
 	if(${REST_GARFIELD} MATCHES "ON")
-	include(FindGarfield)
-	set(external_include_dirs ${external_include_dirs} ${Garfield_INCLUDE_DIRS})
-	set(external_libs ${external_libs} ${Garfield_LIBRARIES})
+		include(FindGarfield)
+		set(external_include_dirs ${external_include_dirs} ${Garfield_INCLUDE_DIRS})
+		set(external_libs ${external_libs} ${Garfield_LIBRARIES})
+	endif(${REST_GARFIELD} MATCHES "ON")
+
+	find_library(tiny libtinyxml.dylib)
+
+	if(NOT tiny)
+		message(FATAL_ERROR "library \"tinyxml\" is required, but not found!\nPlease, install libtinyxml in your system to continue.")
+	else()
+		message("-- Found tinyxml library in ${tiny}")
+	endif(NOT tiny)
+	set(external_libs ${external_libs} -ltinyxml)
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+
+IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+	include(FindROOT)
+	set(external_include_dirs -I /usr/local/include ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
+    #file(GLOB rootlibs ${ROOT_LIBRARY_DIR}/*.so)
+	set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit)
+
+	if(${REST_GARFIELD} MATCHES "ON")
+		include(FindGarfield)
+		set(external_include_dirs ${external_include_dirs} ${Garfield_INCLUDE_DIRS})
+		set(external_libs ${external_libs} ${Garfield_LIBRARIES})
 	endif(${REST_GARFIELD} MATCHES "ON")
 
 	find_library(tiny libtinyxml.so)
@@ -53,11 +75,12 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	else()
 		message("-- Found tinyxml library in ${tiny}")
 	endif(NOT tiny)
-	set(external_libs ${external_libs} ${tiny})
+	set(external_libs ${external_libs} -ltinyxml)
 
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 	#Here Windows is just for test. It is for the convenience of vs to make gramma check
-ELSE (CMAKE_SYSTEM_NAME MATCHES "Windows")
+IF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	#set(ROOT_INCLUDE_DIR $ENV{ROOTSYS}/include)
 	#set(ROOT_LIBRARY_DIR $ENV{ROOTSYS}/lib)
 	#include_directories(${ROOT_INCLUDE_DIR})
@@ -71,7 +94,8 @@ ELSE (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	set(USR_INCLUDE_DIRS $ENV{usrinclude})
 	message(${USR_INCLUDE_DIRS})
 	include_directories(${USR_INCLUDE_DIRS})
-ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
+
 include(MacroRootDict)
 include(CompileDir)
 include_directories(${external_include_dirs})
