@@ -30,6 +30,9 @@ class TRestMuonAnalysisProcess:public TRestEventProcess {
 		TH1D*hxzr;//!
 		TH1D*hyzr;//!
 
+		TH1D*hdiffz;//!
+		TF1*fdiffz;//!
+
 		int X1;//!
 		int X2;//!
 		int Y1;//!
@@ -48,8 +51,8 @@ class TRestMuonAnalysisProcess:public TRestEventProcess {
 		TH2D* muhitmap;//!
 		TH2D* muhitdir;//!
 
-		map<int, vector<double>> musmearxy;
-		map<int, pair<double, double>> musmearz;
+		map<int, vector<double>> musmearxy;// [z index][single strip ene]
+		map<int, pair<double, double>> musmearz;// [z index][sigma, chi2]
 
         void InitFromConfigFile();
 

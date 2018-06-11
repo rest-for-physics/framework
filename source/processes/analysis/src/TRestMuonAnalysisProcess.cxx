@@ -57,6 +57,10 @@ void TRestMuonAnalysisProcess::InitProcess()
 	hyzt = new TH1D((TString)"hyzt" + ToString(this), "hh", 200, 0, 3.14);
 	hyzr = new TH1D((TString)"hyzr" + ToString(this), "hh", 200, -(Y2 - Y1), (Y2 - Y1));
 
+	hdiffz = new TH1D((TString)"hdiffz" + ToString(this), "hzxdiffz", 20, 0, 20);
+	fdiffz = new TF1((TString)"fdiffz" + ToString(this), "gaus");
+
+
 	mudepos = new TH1D("mudepos", "muonTotalenergydepos", 512, 0., 512.);
 	mutanthe = new TH1D("mutanthe", "muAngularDistribution tanTheta", 50, 0, 2.5);
 
@@ -395,8 +399,7 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 			//diffusion
 			musmearxy.clear();
 			musmearz.clear();
-			TH1D*h = new TH1D((TString)"hxzdiffz" + ToString(this), "hzxdiffz", 20, 0, 20);
-			TF1*f = new TF1((TString)"fxzdiffz" + ToString(this), "gaus");
+			hdiffz->Reset();
 			if (xzflag&& firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 && firsty < Y2 - 30)
 			{
 				map<int, pair<double, double>> musmearz0;
@@ -408,25 +411,25 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 					double z = max_element(sgn.begin(), sgn.end()) - sgn.begin();
 					if (DistanceToTrack(x, z, firstx, 150, thexz) < 20 && z > 10 && z < 500) {
 						for (int j = 0; j < 10; j++) {
-							h->SetBinContent(10 - j, sgn[z - j]);
-							h->SetBinContent(10 + j, sgn[z + j]);
+							hdiffz->SetBinContent(10 - j, sgn[z - j]);
+							hdiffz->SetBinContent(10 + j, sgn[z + j]);
 						}
 						int fitstatus;
 						if (GetVerboseLevel() >= REST_Debug) {
-							h->SetTitle((TString)"Z index: "+ToString(z));
-							h->Draw();
+							hdiffz->SetTitle((TString)"Z index: "+ToString(z));
+							hdiffz->Draw();
 							
-							fitstatus = h->Fit(f, "");
+							fitstatus = hdiffz->Fit(fdiffz, "");
 							GetChar();
 						}
 						else
 						{
-							fitstatus = h->Fit(f, "QN");
+							fitstatus = hdiffz->Fit(fdiffz, "QN");
 						}
 
 						if (fitstatus == 0) {
-							double sigma = f->GetParameter(2);
-							double chi2 = f->GetChisquare();
+							double sigma = fdiffz->GetParameter(2);
+							double chi2 = fdiffz->GetChisquare();
 							musmearz0[z].first = sigma;
 							musmearz0[z].second = chi2;
 							n++;
@@ -461,13 +464,13 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 					double z = max_element(sgn.begin(), sgn.end()) - sgn.begin();
 					if (DistanceToTrack(y, z, firsty, 150, theyz) < 20 && z > 10 && z < 500) {
 						for (int j = 0; j < 10; j++) {
-							h->SetBinContent(10 - j, sgn[z - j]);
-							h->SetBinContent(10 + j, sgn[z + j]);
+							hdiffz->SetBinContent(10 - j, sgn[z - j]);
+							hdiffz->SetBinContent(10 + j, sgn[z + j]);
 						}
-						int fitstatus = h->Fit(f, "QN");
+						int fitstatus = hdiffz->Fit(fdiffz, "QN");
 						if (fitstatus == 0) {
-							double sigma = f->GetParameter(2);
-							double chi2 = f->GetChisquare();
+							double sigma = fdiffz->GetParameter(2);
+							double chi2 = fdiffz->GetChisquare();
 							musmearz0[z].first = sigma;
 							musmearz0[z].second = chi2;
 							n++;
@@ -487,9 +490,6 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				}
 
 			}
-
-			delete f;
-			delete h;
 
 			info << endl;
 
