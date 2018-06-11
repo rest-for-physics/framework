@@ -14,7 +14,7 @@
 #include "TRestTask.h"
 #include <TROOT.h>
 
-//in future I think we should write a graphical interface for TRestManager
+/// Managing applications and executing tasks
 class TRestManager : public TRestMetadata {
 
 private:

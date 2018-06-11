@@ -1,21 +1,3 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///             
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestBrowser.h : public TRestRun
-///
-///             G4 class description
-///
-///             sept 2015:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///                 JuanAn Garcia
-///_______________________________________________________________________________
-
-
 #ifndef RestCore_TRestBrowser
 #define RestCore_TRestBrowser
 
@@ -38,6 +20,7 @@
 
 #include <iostream>
 
+/// Event browser for different input file
 class TRestBrowser : public TRestRun {
 
 protected:

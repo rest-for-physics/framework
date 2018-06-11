@@ -88,19 +88,20 @@ void TRestElectronDiffusionProcess::InitProcess()
     }
     else
     {
-        if( fGasPressure == -1 ) 
-            fGasPressure = fGas->GetPressure();
-        fGas->SetPressure( fGasPressure );
+		if (fGasPressure <= 0)
+			fGasPressure = fGas->GetPressure();
+		else
+			fGas->SetPressure(fGasPressure);
 
-        if( fWvalue == 0 )
-            fWvalue = fGas->GetWvalue();
+		if (fWvalue <= 0)
+			fWvalue = fGas->GetWvalue();
 
-        if( fLonglDiffCoeff == 0 )
-            fLonglDiffCoeff = fGas->GetLongitudinalDiffusion( fElectricField ); // (cm)^1/2
+		if (fLonglDiffCoeff <= 0)
+			fLonglDiffCoeff = fGas->GetLongitudinalDiffusion(fElectricField); // (cm)^1/2
 
-        if( fTransDiffCoeff == 0 )
-            fTransDiffCoeff = fGas->GetTransversalDiffusion( fElectricField ); // (cm)^1/2
-    }
+		if (fTransDiffCoeff <= 0)
+			fTransDiffCoeff = fGas->GetTransversalDiffusion(fElectricField); // (cm)^1/2
+	}
 
     fReadout = (TRestReadout *) GetReadoutMetadata();
     if( fReadout == NULL )

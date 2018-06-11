@@ -18,7 +18,8 @@
 class TRestManager;
 
 using namespace std;
-//this is only a macro file for running tasks
+
+/// Wrapping REST macros into tasks
 class TRestTask :public TRestMetadata {
 
 public:
@@ -31,15 +32,14 @@ public:
 	int fNRequiredArgument;//!
 
 	//define default values here
-	void InitFromConfigFile() { TRestMetadata::InitFromConfigFile(); }
-	//automatic setup values with rml config section
-	void BeginOfInit();
+	void InitFromConfigFile();
 
 	void SetArgumentValue(string name, string value);
-	//automatic set values with input argument
+	void SetArgumentValue(vector<string>arg);
+
 	static TRestTask* GetTask(TString Name);
 
-	bool InitTask(vector<string>arg);
+	void ConstructCommand();
 
 
 	virtual void RunTask(TRestManager*);

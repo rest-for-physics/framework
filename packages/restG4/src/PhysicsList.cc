@@ -291,7 +291,9 @@ void PhysicsList::ConstructProcess()
         }
     } */
 
-    auto theParticleIterator = GetParticleIterator();
+#ifdef G4104
+	auto theParticleIterator = GetParticleIterator();
+#endif // G4104
 
     // to implement UserLimits to StepSize inside the gas
     theParticleIterator->reset();

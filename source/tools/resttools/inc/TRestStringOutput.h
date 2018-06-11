@@ -9,11 +9,21 @@
 #include <fstream>
 #include <sstream> 
 #include <RConfig.h>
+
 #ifdef WIN32
+#include <conio.h>
 #else
 #include <unistd.h>
 #include <sys/ioctl.h>
+#include <termios.h>  
+#include <unistd.h>  
+#include <fcntl.h> 
+#ifndef __APPLE__
+#include <termio.h>
 #endif
+
+#endif // WIN32
+
 
 #define COLOR_RESET   "\033[0m"
 #define COLOR_BLACK   "\033[30m"      /* Black */
@@ -43,6 +53,8 @@
 
 using namespace std;
 
+//////////////////////////////////////////////////////////////////////////
+/// Enumerate of verbose level, containing five levels
 enum REST_Verbose_Level
 {
 	REST_Silent, //!< show minimum information of the software, as well as error messages
@@ -51,6 +63,17 @@ enum REST_Verbose_Level
 	REST_Debug, //!< +show the defined debug messages
 	REST_Extreme //!< show everything
 };
+
+//////////////////////////////////////////////////////////////////////////
+/// ConsoleHelper class, providing several static methods dealing with terminal
+/// 
+/// GetWidth: returns the width of the current treminal(how many characterics can be contained in one line)
+/// 
+/// GetHeight: returns the height of the current treminal(how many lines)
+/// 
+/// kbhit: return true if a key is pressed. won't jam the program like getchar()
+/// 
+/// getch: return the keyvalue if a key is pressed. won't jam the program like getchar()
 class ConsoleHelper {
 public:
 	static int GetWidth() {
@@ -72,6 +95,65 @@ public:
 		return w.ws_row;
 #endif // WIN32
 	}
+
+#ifdef WIN32
+	static int kbhit(void) {
+		return kbhit();
+	}
+	static int getch(void) {
+		return getch();
+	}
+#else
+	static int kbhit(void)
+	{
+		struct termios oldt, newt;
+		int ch;
+		int oldf;
+		tcgetattr(STDIN_FILENO, &oldt);
+		newt = oldt;
+		newt.c_lflag &= ~(ICANON | ECHO);
+		tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+		oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+		fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+		ch = getchar();
+		tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+		fcntl(STDIN_FILENO, F_SETFL, oldf);
+		if (ch != EOF)
+		{
+			ungetc(ch, stdin);
+			return 1;
+		}
+		return 0;
+	}
+
+	static int getch(void)
+	{
+		struct termios tm, tm_old;
+		int fd = 0, ch;
+
+		if (tcgetattr(fd, &tm) < 0)
+		{
+			return -1;
+		}
+
+		tm_old = tm;
+		cfmakeraw(&tm);
+		if (tcsetattr(fd, TCSANOW, &tm) < 0)
+		{
+			return -1;
+		}
+
+		ch = getchar();
+		if (tcsetattr(fd, TCSANOW, &tm_old) < 0)
+		{
+			return -1;
+		}
+
+		return ch;
+	}
+
+#endif // WIN32
+
 };
 //////////////////////////////////////////////////////////////////////////
 ///
@@ -99,14 +181,14 @@ public:
 		if (input == "")return "";
 
 		string output = string(length, ' ');
-		for (int i = 0; i < border.size(); i++) {
+		for (unsigned int i = 0; i < border.size(); i++) {
 			output[i] = border[i];
 			output[length - i - 1] = border[border.size() - i - 1];
 		}
 
 		if (input == "=" || input == "-" || input == "*" || input == "+")
 		{
-			for (int i = border.size(); i < length - border.size(); i++)
+			for (unsigned int i = border.size(); i < length - border.size(); i++)
 			{
 				output[i] = input[0];
 			}
@@ -115,21 +197,21 @@ public:
 		{
 			if (input[0] == input[input.size() - 1] && (input[0] == '=' || input[0] == '-' || input[0] == '*' || input[0] == '+'))
 			{
-				for (int i = border.size(); i < length - border.size(); i++)
+				for (unsigned int i = border.size(); i < length - border.size(); i++)
 				{
 					output[i] = input[0];
 				}
 			}
 			else
 			{
-				for (int i = border.size(); i < length - border.size(); i++)
+				for (unsigned int i = border.size(); i < length - border.size(); i++)
 				{
 					output[i] = ' ';
 				}
 			}
 
 			int l = input.size();
-			if (l <= length - border.size() * 2)
+			if (l <= length - (int)border.size() * 2)
 			{
 				int startblank;
 				if (orientation == 0) {
@@ -240,15 +322,22 @@ protected:
 	//stringstream tmpstring;
 };
 
+//////////////////////////////////////////////////////////////////////////
+/// Leveled string output class, won't print message if verbose level is smaller than required.
+/// 
+/// Usage: 
+/// \code
+/// TRestLeveledOutput<REST_Debug> debug = TRestLeveledOutput<REST_Debug>(fVerboseLevel, COLOR_RESET, "", 1);
+/// \endcode
 template<REST_Verbose_Level v> class TRestLeveledOutput :public TRestStringOutput {
 public:
 	TRestLeveledOutput() {};
-	TRestLeveledOutput(REST_Verbose_Level& vref, string c = COLOR_RESET, string b = "", int orientation = 0)
+	TRestLeveledOutput(REST_Verbose_Level& vref, string _color = COLOR_RESET, string _border = "", int _orientation = 0)
 		:verboselvlref(vref)
 	{
-		this->orientation = orientation;
-		color = c;
-		border = b;
+		this->orientation = _orientation;
+		color = _color;
+		border = _border;
 	}
 
 	REST_Verbose_Level verbose = v;
@@ -271,37 +360,54 @@ public:
 
 };
 
-
+/// \relates ConsoleHelper
+/// move up cursor by n lines. take effect immediately.
 inline void cursorUp(int n) {
 	printf("\033[%dA",n);
 	fflush(stdout);
 }
 
+/// \relates ConsoleHelper
+/// move down cursor by n lines. take effect immediately.
+/// 
+/// If hits buttom of the console, it won't keep moving
 inline void cursorDown(int n) {
 	printf("\033[%dB", n);
 	fflush(stdout);
 }
 
+/// \relates ConsoleHelper
+/// move right cursor by n characters. take effect immediately.
 inline void cursorRight(int n) {
 	printf("\033[%dC", n);
 	fflush(stdout);
 }
 
+/// \relates ConsoleHelper
+/// move left cursor by n characters. take effect immediately.
 inline void cursorLeft(int n) {
 	printf("\033[%dD", n);
 	fflush(stdout);
 }
 
+/// \relates ConsoleHelper
+/// move cursor to coordinate x,y. take effect immediately.
+/// 
+/// the origin in at topleft of the console
 inline void cursorToXY(int x, int y) {
 	printf("\033[%d%dH", x,y);
 	fflush(stdout);
 }
 
+/// \relates ConsoleHelper
+/// clear screen, and move cursor to the topleft of the console. take effect immediately.
 inline void clearScreen() {
 	printf("\033[2J");
 	fflush(stdout);
 }
 
+/// \relates ConsoleHelper
+/// clear current line. take effect immediately.
 inline void clearCurrentLine() {
 
 	printf("\033[K");
@@ -309,6 +415,8 @@ inline void clearCurrentLine() {
 	fflush(stdout);
 }
 
+/// \relates ConsoleHelper
+/// clear lines after the cursor. take effect immediately.
 inline void clearLinesAfterCursor() {
 	printf("\033[s");
 
@@ -322,11 +430,15 @@ inline void clearLinesAfterCursor() {
 	fflush(stdout);
 }
 
+/// \relates TRestStringOutput
+/// calls TRestStringOutput to flush string
 inline void endl(TRestStringOutput& input)
 {
 	input.flushstring();
 }
 
+/// \relates TRestLeveledOutput
+/// calls TRestLeveledOutput to flush string when the refered verbose level meets the required
 template<REST_Verbose_Level v> inline void endl(TRestLeveledOutput<v>& input)
 {
 	if (input.verboselvlref >= input.verbose)
@@ -335,6 +447,8 @@ template<REST_Verbose_Level v> inline void endl(TRestLeveledOutput<v>& input)
 		input.resetstring();
 }
 
+/// \relates TRestStringOutput
+/// print a welcome message by calling shell script "rest-config"
 inline void PrintWelcome()
 {
 	system("rest-config --welcome");

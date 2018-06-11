@@ -76,11 +76,8 @@
 /// 
 /// ### Sequencial start up procedure of a metadata class
 /// 
-/// The rml file is designed to start up/instruct all the metadata classes. The constructor first
-/// calls the method Initialize() to do some default settings. This method must be implemented in any
-/// non-abstract metadata class. In the Initialize() method, the class needs to define its section name
-/// (usually it is just the class name), which will be used to extract the corresponding rml section.
-/// 
+/// The rml file is designed to start up/instruct all the metadata classes. Usually we implement 
+/// the method Initialize() and calls it in the constructor to do some default settings.
 /// 
 /// \code
 /// TRestSpecificMetadata::TRestSpecificMetadata()
@@ -98,8 +95,8 @@
 /// }
 /// \endcode
 /// 
-/// The starter is called by calling the method LoadConfigFromFile(). It is implemented in this base class, 
-/// with four overloads, as shown in the following. 
+/// The starter method LoadConfigFromFile() is implemented in this class, with four overloads, as shown
+/// in the following. 
 /// 
 /// \code
 ///
@@ -117,20 +114,54 @@
 /// xml section in the rml file, containing some global settings such as datapath or file format.
 /// The env section is optional, through which the host class inputs the variables into its resident class.
 /// 
-/// With the xml sections given, The starter first goes through all of them and find out the child sections
-/// with key word "variable" and "myParameter". These two are regarded as environmental variables. 
-/// The starter will do a check and save them if necessary. Then call the method BeginOfInit() which is 
-/// optionally implemented in the derived class. Then the starter loops all the child xml sections, and calls the 
-/// ReadConfig() method several times. In this method the pointer to each looped xml section is 
-/// given to the derived class, and the derived class choose what to do according to the given element.
-/// Finally the EndOfInit() method is called, after which the startup is complete.
+/// With the xml sections given, The starter first merge them together. Then it calls LoadSectionMetadata(),
+/// which loads some universal parameters like name, title and verbose level. This method also preprocesses 
+/// the config sections, expanding the include/for decinition and replacing the variables. After this, 
+/// the starter calls the method InitFromConfigFile().
+///
+/// InitFromConfigFile() is a pure virtual method and every child classes has to implement it. This method 
+/// defines how the metadata class loads its xml config section in rml file. REST has implemented this method
+/// in base class, iterating all the child sections in the config section. If the user just want a simple 
+/// startup logic, he can implement it with few line of GetParameter().
+
+
+/// \code
+///
+/// <TRestMuonAnalysisProcess name = "muAna" title = "Example" verboseLevel = "info" >
+/// 	<parameter name="XROI" value="(100,300)"/>
+/// 	<parameter name="YROI" value="(0,-200)"/>
+/// </TRestMuonAnalysisProcess>
+///
+/// void TRestMuonAnalysisProcess::InitFromConfigFile()
+/// {
+/// 	TVector2 XROI = StringTo2DVector(GetParameter("XROI", "(-100,100)"));
+/// 	TVector2 YROI = StringTo2DVector(GetParameter("YROI", "(-100,100)"));
 /// 
-/// The host class can also call the LoadConfigFromFile() method for starting up its resident class. For example, when 
-/// received an xml section declared "TRestRun", the "TRestManager" class will pass this section (together with 
-/// its global section) to its resident "TRestRun" class. The TRestRun class can therefor perform a startup
-/// using these sections. This is called *sequencial startup*.
+/// 	X1 = XROI.X(), X2 = XROI.Y(), Y1 = YROI.X(), Y2 = YROI.Y();
+/// }
+///
+/// \endcode
+
+
+/// The pre-defined elememt iteration is like following: first call the method BeginOfInit(). Then the 
+/// loop all the child xml sections, and call the ReadConfig() method for each. The each xml section, wrapped
+/// as TiXmlElement, is given to the method. Finally the EndOfInit() method is called.
+/// 
+/// The sequential startup trick lies in that, when we want to initialize another TRestMetadata class
+/// (resident) in our main class(host), we can add the residient's config section as a child section of 
+/// host's section. And we then sent the resident's config section to its LoadConfigFromFile() method.
+/// For example, when received an xml section declared "TRestRun", the host "TRestManager" will pass 
+/// this section (together with its global section) to its resident "TRestRun". The TRestRun class can 
+/// therefor perform a startup using these sections.
 ///
 /// \code
+///
+/// <TRestManager name = "CoBoDataAnalysis" title = "Example" verboseLevel = "info" >
+/// 	<TRestRun name = "SJTU_Proto" >
+/// 		<addMetadata name = "PandaReadout_MxM" file = "readouts.root" />
+/// 	</TRestRun>
+///		...
+/// </TRestManager>
 ///
 /// Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 /// {
@@ -144,7 +175,7 @@
 /// \endcode
 /// 
 /// 
-/// ### Preprocess xml sections and replace variables and expressions
+/// ### Replacement of variables and expressions
 /// 
 /// By default, the starter will look into only the first-level child sections of both global 
 /// and sectional section. The value of them will be saved in the metadata. In this level the decalration
@@ -153,7 +184,7 @@
 /// \code
 /// 
 ///   <ClassName name="userGivenName" title="User given title" >
-///       <myParameter name="nChannels" value="{CHANNELS}" /> //this variable cannot be loaded by the class "ContainedClassName"
+///       <myParameter name="nChannels" value="${CHANNELS}" /> //this variable cannot be loaded by the class "ContainedClassName"
 ///
 ///       <ContainedClassName field1="value1" field2="value2"  >
 ///           <variable .... / > //this variable cannot be loaded by the class "ClassName"
@@ -171,29 +202,42 @@
 /// After this process, the starter will replace the field values of xml sections before they are used.
 /// This work is done by the method PreprocessElement(). The procedure of replacing is as following.
 /// 
-/// 1. recognize the strings surrounded by "${}". Seek in the system env and replace these strings.
-/// 2. recognize the strings surrounded by "{}". Seek in decalration type "variable" and replace these strings.
-/// 3. directly replace the strings matching the name of "myParameter" by its value.
-/// 4. Judge if the string is an expressions, if so, try evaluate it using TFormula. Replace it by the result.
+/// 1. recognize the strings surrounded by "$ENV{}". Seek in system env and replace these strings.
+/// 1. recognize the strings surrounded by "${}". Seek in system env as well as "variable" and replace these strings.
+/// 2. directly replace the strings matching the name of "myParameter" and "constant" by its value.
+/// 3. Judge if the string is an expressions, if so, try evaluate it using TFormula. Replace it by the result.
 ///
 /// The result string of the field value is either a number string or a string with concrete content.
 /// In the exapmle code above, the section declared with "parameter" is has its field value reset to string 126.
 ///
 /// ### Including external RML files in a main RML file
 ///
-/// It is possible to link to other rml files in any section. The starter will open the linked file and searches 
-/// for the section with the same name of the current section. Then the child sections in that file will be 
-/// prepeocessed and sent to ReadConfig() method, just as normal sections. After the including, the main section will be expanded.
-/// To include an external rml file one should use xml declaration "include". Then followed by field "file="xxx"".
-/// 
+/// It is possible to link to other files in any section.
+/// There are two include modes: 
+/// 1. raw include. the starter will parse all the lines in the file as xml element 
+/// and insert them inside the local section.
 /// \code
-///
-///   <TRestRun name = "TemplateEventProcess" verboseLevel = "silent">
-///       <include file = "processes.rml" / >
-///       <addProcess type = "TRestMultiCoBoAsAdToSignalProcess" name = "virtualDAQ" value = "ON" / >
-///   </TRestRun>
+/// <TRestXXX>
+///		<include file="abc.txt"/>
+/// </TRestXXX>
 /// \endcode
-/// 
+/// 2. auto insert. the starter will automatically find corresponding section in the file. 
+/// If the file can be parsed by tinyxml, it will first import its globals section.
+/// When searching the section, the starter searches according to the name and type. Here "type"
+/// can either be the element declare or attribute "type". After finding the section, 
+/// its child sections as well as attributes will be inserted into the local element. 
+/// \code
+/// <TRestXXX name="sAna" file="abc.rml"/>
+/// \endcode
+/// Or
+/// \code
+/// <doXXX type="TRestXXX" name="sAna" file="abc.rml"/>
+/// \endcode
+///
+/// After the expansion is done, variable replacement is also performed.
+///
+/// If the target file is a root file, there will be a different way to load, see 
+/// TRestRun::ImportMetadata()
 /// 
 /// ### For loop definition
 ///
@@ -209,11 +253,11 @@
 ///
 /// \code
 /// <for variable = "nCh" from = "0" to = "nChannels-2" step = "1" >
-///	<readoutChannel id = "{nCh}" >
+///	<readoutChannel id = "${nCh}" >
 ///		<for variable = "nPix" from = "0" to = "nChannels-1" step = "1" >
-///			<addPixel id = "{nPix}" origin = "((1+{nCh})*pitch,pitch/4+{nPix}*pitch)" size = "(pixelSize,pixelSize)" rotation = "45" / >
+///			<addPixel id = "${nPix}" origin = "((1+${nCh})*pitch,pitch/4+${nPix}*pitch)" size = "(pixelSize,pixelSize)" rotation = "45" / >
 ///		</for>
-///		<addPixel id = "nChannels" origin = "({nCh}*pitch,pitch/4+(nChannels-1)*pitch+pitch/2)" size = "(pitch+pitch/2,pitch/2)" rotation = "0" / >
+///		<addPixel id = "nChannels" origin = "(${nCh}*pitch,pitch/4+(nChannels-1)*pitch+pitch/2)" size = "(pitch+pitch/2,pitch/2)" rotation = "0" / >
 ///	</readoutChannel>
 /// </for>
 /// \endcode
@@ -222,10 +266,11 @@
 /// for loop definition. The variable "nCh", definded at the header of the for loop definition, 
 /// will be added to the environment variable list. The value of the variable will be updated in each loop
 /// The content of the loop will be normally prepeocessed, replacing the variables and expressions, 
-/// and then sent to ReadConfig() method. Unlike including, the original section will NOT be expanded.
+/// and then expanded in the local section.
 /// 
-/// To pass the loop infomarion into the resident class, one need to call the fourth overload
-/// of the LoadConfigFromFile() starter methods. The resident class can get access to its host's variable list in this overload.
+/// To pass the loop infomarion into the resident TRestMetadata class, one needs to call the fourth 
+/// overload of the LoadConfigFromFile() starter methods. The resident class can get access to its host's
+/// variable list in this overload.
 ///
 ///
 /// ### The globals section
@@ -233,35 +278,40 @@
 /// The *globals* section allows to specify few common definitions used in the REST 
 /// framework. This section will maintain the same and will be passed though the whole sequencial 
 /// startup procedure. If a section is to be used many times by different classes, it is better 
-/// to put it in the global section. If necessary, one can even start up resident class by finding 
-/// sections inside this global section.
+/// to put it in the global section.
 ///
 /// \code
-/// <globals>
-///    <parameter name="mainDataPath" value="{REST_DATAPATH}" />
-///    <parameter name="gasDataPath" value="{GAS_PATH}" /> 
-///    <parameter name="verboseLevel" value="debug" /> 
-///	<parameter name = "inputFile" value = "${REST_INPUTFILE}" / >
-///	<parameter name = "inputFormat" value = "run[RunNumber]_file[Fragment]_[Time-d]_[Time].graw" / >
-///	<parameter name = "outputFormat" value = "RUN[RunNumber]_[Time-d]_[LastProcess].root" / >
-///	<parameter name = "outputPath" value = "./" / >
-///	<parameter name = "experiment" value = "PandaX-III" / >
-/// 
-///	<TRestDetectorSetup>
-///		<parameter name = "runNumber" value = "70" / >
-///		<parameter name = "runTag" value = "tagTemplate" / >
-///		<parameter name = "runDescription" value = "Run description template" / >
-///		<parameter name = "meshVoltage" value = "500000" / >
-///		<parameter name = "driftField" value = "500" / >
-///		<parameter name = "detectorPressure" value = "10" / >
-///	</TRestDetectorSetup>
-/// 
-/// </globals>
+///	<globals>
+///		<searchPath value = "$ENV{REST_INPUTDATA}/definitions/" />
+///		<parameter name = "outputLevel" value = "internalvar" />
+///		<parameter name = "verboseLevel" value = "essential" />
+///		<parameter name = "inputFile" value = "${REST_INPUTFILE}" />
+///		<parameter name = "inputFormat" value = "run[RunNumber]_file[Fragment]_[Time-d]_[Time].graw" />
+///		<parameter name = "outputFile" value = "RUN[RunNumber]_[Time]_[LastProcess].root" />
+///		<parameter name = "mainDataPath" value = "" />
+///	</globals>
 /// \endcode
 ///
 /// The global section will have effect on *all the metadata structures* (or sections) that are
 /// defined in a same RML file. It does not affect to other possible linked sections defined by 
 /// reference using for example nameref.
+///
+/// ### Universal file search path
+///
+/// Some times we don't want to write a long full path to specify files, especially when 
+/// multiple files are in a same remote directory. REST provides a universal file path definition
+/// in rml. 
+///
+/// \code
+///	<globals>
+///		<searchPath value = "$ENV{REST_INPUTDATA}/definitions/" />
+///		<searchPath value = "$ENV{REST_INPUTDATA}/gasFiles/" />
+///	</globals>
+/// \endcode
+///
+/// When calling TRestMetadata::SearchFile(), REST will search the file in all the paths defined
+/// in section "searchPath", and return a full name if found. Include definition has already adopted 
+/// this search strategy. Child classes can also take advantage of it.
 ///
 /// ### Default fields for a section
 ///
@@ -304,7 +354,7 @@
 ///
 /// ### Other usefule public tools
 ///
-/// GetParameter(), GetElement(), GetElementWithName(). Details are shown in the function's document
+/// GetParameter(), GetElement(), GetElementWithName(), SearchFile(). Details are shown in the function's document
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -443,8 +493,8 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
 ///////////////////////////////////////////////
 /// \brief Main starter. 
 ///
-///First combine the sectional and global sections together, then save the input env section.
-/// To make start up it calls the following methods in sequence: LoadSectionMetadata(), BeginOfInit(), LoopElements(), EndOfInit()
+/// First merge the sectional and global sections together, then save the input env section.
+/// To make start up it calls the following methods in sequence: LoadSectionMetadata(), InitFromConfigFile()
 /// 
 Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal, vector<TiXmlElement*> eEnv)
 {
@@ -487,10 +537,14 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
 }
 
 ///////////////////////////////////////////////
-/// \brief Do some preparation.
+/// \brief This method does some preparation for the starter.
 ///
 /// Preparation includes: seting the name, title and verbose level of the current class. 
-/// Finding out and saving the env sections. Self-replace the env and expressions to make them ready.
+/// Finding out and saving the env sections. 
+/// 
+/// By calling TRestMetadata::ExpandElement(), is also expands for loops and include definitions, 
+/// and replaces env and expressions in rml config section.
+/// 
 Int_t TRestMetadata::LoadSectionMetadata()
 {
 	//general metadata: name, title, verboselevel
@@ -548,7 +602,13 @@ Int_t TRestMetadata::LoadSectionMetadata()
 	return 0;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Pure virtual method defining the real action of reading rml config
+///
+/// By default it iterates all the child xml sections in the config section.
+/// Method calling sequence: BeginOfInit(), (loop)ReadConfig(), EndOfInit()
+/// 
+/// This method must be implemeneted in the derived class
 void TRestMetadata::InitFromConfigFile()
 {
 
@@ -576,16 +636,11 @@ void TRestMetadata::InitFromConfigFile()
 
 }
 
-
-
-
 ///////////////////////////////////////////////
-///\brief replace the field value(attribute) of the given xml element
+/// \brief replace the field value(attribute) of the given xml element
 ///
-///it will replace:
-///1.variables formatted like ${ABC} or {ABC} or ABC.
-///(system env, rml env, sectional para, respectivally)
-///3.math expressions
+/// it calls ReplaceEnvironmentalVariables() and ReplaceMathematicalExpressions() 
+/// in sequence. "name" attribute won't be replaced
 TiXmlElement * TRestMetadata::ReplaceElementAttributes(TiXmlElement * e)
 {
 	if (e == NULL)return NULL;
@@ -608,18 +663,20 @@ TiXmlElement * TRestMetadata::ReplaceElementAttributes(TiXmlElement * e)
 	return e;
 }
 
-
-
-
 ///////////////////////////////////////////////
-/// \brief Finds an environment variable definition inside the xml section and sets it.
+/// \brief Identify an environmental variable section and add it into env section list
 ///
-/// The xml declaration "variable" and myParameter are both vaild. If the environment 
-/// variable exists already, its value can be overriden here. Using *overwrite="true"*.
+/// Vaild section declaration: "variable", "myParameter", "constant". If the section 
+/// exists already, its value will be updated if "updateexisting" is true. If a system
+/// env with the same name has been defined already, then the system env will be used, 
+/// unless the attribute "overwrite" is true.
 /// 
-/// Example of environmental variable definition : \code <variable name="TEST" value="VALUE" overwrite="true" /> \endcode
+/// Example of environmental variable section: 
+/// \code 
+/// <variable name="TEST" value="VALUE" overwrite="true" /> 
+/// \endcode
 ///
-void TRestMetadata::SetEnvWithElement(TiXmlElement* e, bool overwriteexisting)
+void TRestMetadata::SetEnvWithElement(TiXmlElement* e, bool updateexisting)
 {
 	if (e == NULL)return;
 
@@ -650,7 +707,7 @@ void TRestMetadata::SetEnvWithElement(TiXmlElement* e, bool overwriteexisting)
 		string name2 = fElementEnv[i]->Attribute("name");
 		if ((string)e->Value() == (string)fElementEnv[i]->Value() && name2 == (string)name) 
 		{
-			if(overwriteexisting)
+			if(updateexisting)
 				fElementEnv[i]->SetAttribute("value", value);
 			return;
 		}
@@ -661,42 +718,49 @@ void TRestMetadata::SetEnvWithElement(TiXmlElement* e, bool overwriteexisting)
 }
 
 ///////////////////////////////////////////////
-/// \brief Expand for loop and include definition for all the child elements.
+/// \brief Expand for loop and include definitions in the given xml section
 ///
+/// The expansion is done recursively except for child sections declared after "TRest".
+/// They are supposed to be a metadata class and to be doing the expansion themselves. 
+/// If the argument "recursive" is true, these child sections will also be processed.
+/// Before expansion, ReplaceElementAttributes() will first be called.
 void TRestMetadata::ExpandElement(TiXmlElement*e, bool recursive)
 {
 	ReplaceElementAttributes(e);
-	TiXmlElement* contentelement = e->FirstChildElement();
-	while (contentelement != NULL) 
+	if ((string)e->Value() == "for") 
 	{
-		TiXmlElement*nxt= contentelement->NextSiblingElement();
-		//cout << contentelement->Value() << endl;
-		if ((string)contentelement->Value() == "for") 
-		{
-			//debug << "expanding for loop" << endl;
-			ExpandForLoops(contentelement);
+		ExpandForLoops(e);
+	}
+	else if (e->Attribute("file") != NULL)
+	{
+		ExpandIncludeFile(e);
+	}
+	else if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter" || (string)e->Value() == "constant")
+	{
+		SetEnvWithElement(e);
+	}
+	else if (e->FirstChildElement() != NULL) 
+	{
+		TiXmlElement* contentelement = e->FirstChildElement();
+		//we won't expand child section unless forced recursive. The expansion of this 
+		//section will be executed by the resident TRestXXX class
+		if (contentelement != NULL && (recursive || ((string)contentelement->Value()).find("TRest") == -1)) {
+			debug << "into child elements of: " << e->Value() << endl;
 		}
-		else if(contentelement->Attribute("file")!=NULL)
+		while (contentelement != NULL && (recursive || ((string)contentelement->Value()).find("TRest") == -1))
 		{
-			ExpandIncludeFile(contentelement);
+			TiXmlElement*nxt = contentelement->NextSiblingElement();
+			ExpandElement(contentelement, recursive);
+			contentelement = nxt;
 		}
-		//if the child element contains its own child element, and is not a 
-		else if (contentelement->FirstChildElement() != NULL&&(recursive|| ((string)contentelement->Value()).find("TRest")==-1))
-		{
-			debug << "into child element of "<< contentelement->Value() << endl;
-			ExpandElement(contentelement,recursive);
-		}
-		else
-		{
-			ReplaceElementAttributes(contentelement);
-		}
-		contentelement = nxt;
 	}
 }
 
-
 ///////////////////////////////////////////////
-/// \brief Expands the loop structures found in **buffer** by substituting the running indexes by their values.
+/// \brief Expands the loop structures found in the given xml section.
+/// 
+/// The expansion is done by creating new TiXmlElement objects and inserting them in the 
+/// given xml section. Loop variable is treated samely as REST "variable"
 ///
 void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 {
@@ -763,182 +827,161 @@ void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 
 }
 
-
 ///////////////////////////////////////////////
 /// \brief Open the given rml file and find the corresponding section. 
 /// 
-/// After finding the section, it will insert its child into the given given
-/// xml element. 
+/// It will search rml file in both current directory and "searchPath". 
+/// Two include modes: 
+/// 1. raw include. It will parse all the lines in the file as xml element 
+/// and insert them inside the local section.
+/// \code
+/// <TRestXXX>
+///		<include file="abc.txt"/>
+/// </TRestXXX>
+/// \endcode
+/// 2. auto insert. It will automatically find corresponding section in the file. 
+/// The section should have the same name and type. Here "type" can either be the
+/// element declare or attribute. After finding the section, this method will insert 
+/// its child as well as attribute into the local xml element. 
+/// \code
+/// <TRestXXX name="sAna" file="abc.rml"/>
+/// \endcode
+/// Or
+/// \code
+/// <doXXX type="TRestXXX" name="sAna" file="abc.rml"/>
+/// \endcode
+/// If the target file is a root file, there will be a different way to load, see 
+/// TRestRun::ImportMetadata()
 void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 {
 	ReplaceElementAttributes(e);
-	const char* filename = e->Attribute("file");
-	if (filename == NULL)return;
-	
-	if (!fileExists(filename)) { 
+	const char* _filename = e->Attribute("file");
+	if (_filename == NULL)return;
 
-		vector<string> paths = Spilt(GetParameter("addonFilePath", ""), ":");
-		for (int i = 0; i < paths.size(); i++) 
-		{
-			if (fileExists(paths[i] + filename)) {
-				filename = (paths[i] + (string)filename).c_str();
-				break;
-			}
-			else if (i == paths.size() - 1)
-			{
-				warning << "REST WARNING(expand include file): Include file " << filename << " does not exist!" << endl;
-				warning << endl;
-				return;
-			}
-		}
+	string filename = SearchFile(_filename);
+	if (filename == "") {
+		warning << "REST WARNING(expand include file): Include file " << filename << " does not exist!" << endl;
+		warning << endl;
+		return;
 	}
-	if (!isRootFile(filename)) //root file inclusion should be implemented in the derived class
+	if (!isRootFile(filename)) //root file inclusion is implemented in TRestRun
 	{
-		//get the root element
-		TiXmlElement* rootele = GetRootElementFromFile(filename);
-		if (rootele == NULL) {
-			warning << "REST WARNING(expand include file): Include file " << filename << " is of wrong xml format!" << endl;
-			warning << endl;
-			return;
-		}
-
+		debug << "----expanding include file----" << endl;
 		//we find the target element(the element to receive content) 
 		//and the config element(the element to provide content)
-		TiXmlElement*targetele;
+		TiXmlElement* configele = NULL;
+		TiXmlElement* targetele = NULL;
 		string type;
 		string name;
-		//condition 1: 
-		//   <a name="" .....>
+		//condition 1(raw file include): 
+		//   <TRestXXX name="" .....>
 		//     <include file="aaa.rml"/>
 		//     ....
-		//   </a>
-		//element "a" is the target element
+		//   </TRestXXX>
 		if ((string)e->Value() == "include")
 		{
 			targetele = (TiXmlElement*)e->Parent();
 			if (targetele == NULL)return;
-
 			type = targetele->Value();
-			name = e->Attribute("name") == NULL ? "" : e->Attribute("name");
+			name = targetele->Attribute("name") == NULL ? "" : targetele->Attribute("name");
+
+			configele = new TiXmlElement("Config");
+			ifstream infile;
+			infile.open(filename);
+			string str;
+			int t1;
+			while(getline(infile,str))
+			{
+				TiXmlElement*ele = StringToElement(str);
+				if (ele != NULL) {
+					configele->InsertEndChild(*ele);
+				}
+				else {
+					debug << "skipping non-xml line \"" << str <<"\""<< endl;
+				}
+			}
 
 		}
-		//condition 2: 
-		//   <a name="" ... file="aaa.rml" .../>
-		//element "a" is the target element
+		//condition 2(auto insert): 
+		//   <TRestXXX file=""/>
+		//or
+		//   <TRestXXX name="" ... file="aaa.rml" .../>
+		//or
+		//   <addXXX type="" name="" ... file="aaa.rml" .../>
 		else
 		{
 			targetele = e;
-			if (e->Attribute("type") != NULL) {
-				type = e->Attribute("type");
+			type = e->Attribute("type") != NULL ? e->Attribute("type") : e->Value();
+			name = targetele->Attribute("name") == NULL ? "" : targetele->Attribute("name");
+
+
+			//get the root element
+			TiXmlElement* rootele = GetRootElementFromFile(filename);
+			if (rootele == NULL) {
+				warning << "REST WARNING(expand include file): Include file " << filename << " is of wrong xml format!" << endl;
+				warning << endl;
+				return;
 			}
-			else
+			if ((string)rootele->Value() == type) {
+				//if root element in the included file is of given type, directly use it
+				configele = rootele;
+			}
+			else {
+				//import env first
+				if (type != "globals"&&GetElement("globals", rootele) != NULL) {
+					TiXmlElement*globaldef = GetElement("globals", rootele)->FirstChildElement();
+					while (globaldef != NULL)
+					{
+						if ((string)globaldef->Value() == "variable" || (string)globaldef->Value() == "myParameter" || (string)globaldef->Value() == "constant")
+						{
+							SetEnvWithElement(globaldef, false);
+						}
+						globaldef = globaldef->NextSiblingElement();
+					}
+				}
+				//find its child section according to type and name
+				if (name == ""&&GetElement(type, rootele) != NULL)
+					configele = GetElement(type, rootele);
+				else if (GetElementWithName(type, name, rootele) != NULL)
+					configele = GetElementWithName(type, name, rootele);
+
+				if (configele == NULL)
+				{
+					warning << "REST WARNING(expand include file): Cannot get corresponding xml section!" << endl;
+					warning << "type: " << type << " , name: " << name << " . Skipping" << endl;
+					warning << endl;
+					return;
+				}
+			}
+		}
+
+
+
+		debug << "Expand element constructed" << endl;
+
+		ExpandElement(configele, true);
+		int nattr = 0;
+		int nele = 0;
+		if (targetele->Attribute("expanded") == NULL ? true : ((string)targetele->Attribute("expanded") != "true")) {
+			TiXmlAttribute*attr = configele->FirstAttribute();
+			while (attr != NULL) {
+				if (targetele->Attribute(attr->Name()) == NULL)
+				{
+					targetele->SetAttribute(attr->Name(), attr->Value());
+					nattr++;
+				}
+				attr = attr->Next();
+			}
+			TiXmlElement* ele = configele->FirstChildElement();
+			while (ele != NULL)
 			{
-				type = e->Value();
-			}
-			name = e->Attribute("name") == NULL ? "" : e->Attribute("name");
-		}
-
-		debug << "----expanding include file----" << endl;
-
-		//find config elemnt according to type and name
-		TiXmlElement*configele = NULL;
-		//1. root element in the included file is of given type
-		if ((string)rootele->Value() == type) {
-			configele = rootele;
-		}
-		//2. name is not specified
-		else if (name == ""&&GetElement(type, rootele) != NULL)
-		{
-			if (type != "globals"&&GetElement("globals", rootele) != NULL) {
-				TiXmlElement*globaldef = GetElement("globals", rootele)->FirstChildElement();
-				while (globaldef != NULL)
+				//ExpandElement(ele);
+				if ((string)ele->Value() != "for")
 				{
-					if ((string)globaldef->Value() == "variable" || (string)globaldef->Value() == "myParameter" || (string)globaldef->Value() == "constant")
-					{
-						SetEnvWithElement(globaldef, false);
-					}
-					globaldef = globaldef->NextSiblingElement();
+					targetele->InsertEndChild(*ele);
+					nele++;
 				}
-			}
-
-			configele = GetElement(type, rootele);
-		}
-		//3. child element in the root element is of given type/name, we need to import env
-		else if (GetElementWithName(type, name, rootele) != NULL)
-		{
-			if (type != "globals"&&GetElement("globals", rootele) != NULL) {
-				TiXmlElement*global = GetElement("globals", rootele);
-				TiXmlElement*globaldef = global->FirstChildElement();
-				while (globaldef != NULL)
-				{
-					if ((string)globaldef->Value() == "variable" || (string)globaldef->Value() == "myParameter" || (string)globaldef->Value() == "constant")
-					{
-						ReplaceElementAttributes(globaldef);
-						debug << "setting env" << globaldef->Value() << globaldef->Attribute("name") << endl;
-						SetEnvWithElement(globaldef, false);
-					}
-					globaldef = globaldef->NextSiblingElement();
-				}
-			}
-
-			configele = GetElementWithName(type, name, rootele);
-
-		}
-
-		if(configele==NULL)
-		{
-			warning << "REST WARNING(expand include file): Cannot get corresponding xml section!" << endl;
-			warning << "type: " << type << " , name: " << name << " . Skipping" << endl;
-			warning << endl;
-			return;
-		}
-
-
-
-		ExpandElement(configele,true);
-
-		//expand the included file content into the parent element
-		//this is called when the xml is like
-		//   <a name="" .....>
-		//     <include file="aaa.rml"/>
-		//     ....
-		//   </a>
-		if ((string)e->Value() == "include")
-		{
-			if (targetele->Attribute("expanded") == NULL ? true : ((string)targetele->Attribute("expanded") != "true")) {
-				TiXmlElement* ele = configele->FirstChildElement();
-				while (ele != NULL)
-				{
-					//ExpandElement(ele);
-					if ((string)ele->Value() != "for")
-						targetele->InsertBeforeChild(e, *ele->Clone());
-					ele = ele->NextSiblingElement();
-				}
-
-				targetele->RemoveChild(e);
-			}
-		}
-		else//expand the included file content into itself
-			//this is called when the element is like
-			//<a name="" ... file="aaa.rml" .../>
-		{
-			if (targetele->Attribute("expanded") == NULL ? true : ((string)targetele->Attribute("expanded") != "true")) {
-				TiXmlAttribute*attr = configele->FirstAttribute();
-				while (attr != NULL) {
-					if(targetele->Attribute(attr->Name())==NULL)
-						targetele->SetAttribute(attr->Name(), attr->Value());
-					attr = attr->Next();
-				}
-				TiXmlElement* ele = configele->FirstChildElement();
-				while (ele != NULL)
-				{
-					//ExpandElement(ele);
-					if ((string)ele->Value() != "for")
-					{
-						targetele->InsertEndChild(*ele->Clone());
-					}
-					ele = ele->NextSiblingElement();
-				}
+				ele = ele->NextSiblingElement();
 			}
 		}
 
@@ -947,18 +990,17 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 			targetele->Print(stdout, 0);
 			cout << endl;
 		}
-
+		debug << nattr << " attributes and " << nele << " xml elements added by inclusion" << endl;
 		debug << "----end of expansion file----" << endl;
 	}
 }
-
-
 
 ///////////////////////////////////////////////
 /// \brief Returns the value for the parameter name **parName** found in fElement(main data element)
 /// 
 /// It first finds the parameter from the system's env, if the name matches it will directly return the env.
-/// If no env is available, it calls GetParameter() method. See more detail there
+/// If no env is available, it calls GetParameter() method, specifying the search element
+/// TRestMetadata::fElement. See more detail there.
 ///
 /// \param parName The name of the parameter from which we want to obtain the value.
 /// \param defaultValue The default value if the paremeter is not found
@@ -987,8 +1029,8 @@ string TRestMetadata::GetParameter(std::string parName, TString defaultValue)
 /// 2. <addReadoutModule id="0" name="module" rotation = "0" firstDaqChannel = "272" / >
 ///
 /// The first one is obviously a parameter. The xml element itself serves as a peice of parameter. The name
-/// and the value are given in its fields. This is classic because the element itself declares
-/// it is a prarmeter. We also generalize the concept of parameter to the elements' fields.
+/// and the value are given in its fields. This is the classic definition.
+/// We also generalize the concept of parameter to the elements' fields.
 /// All the fields in an element can be seen as parameter. So there are 4 parameters in the second example, 
 /// including: id, name, rotation and firstDaqChannel. This method first finds parameter in the
 /// fields of the given element. If not find, it searches its the child elements. If still not find, 
@@ -1126,14 +1168,11 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVect
 	return Get3DVectorParameterWithUnits(parName, fElement,defaultVal);
 }
 
-
-
-
 ///////////////////////////////////////////////
 /// \brief Open an xml encoded file and get its root element. 
 ///
-/// The root element is the parent of
-/// any other xml elements in the file. There is only one root element in each xml encoded file.
+/// The root element is the parent of any other xml elements in the file. 
+/// There could be only one root element in each xml encoded file.
 ///
 /// Exits the whole program if the xml file does not exist or is in wrong in syntax.
 ///
@@ -1141,10 +1180,14 @@ TiXmlElement* TRestMetadata::GetRootElementFromFile(std::string cfgFileName)
 {
 	TiXmlDocument* doc = new TiXmlDocument();
 
+	if (!fileExists(cfgFileName)) {
+		cout << "Config file does not exist. The file is: " << cfgFileName << endl;
+		GetChar();
+		exit(1);
+	}
 	if (!doc->LoadFile(cfgFileName.c_str()))
 	{
 		cout << "Failed to load xml file, syntax maybe wrong. The file is: " << cfgFileName << endl;
-
 		GetChar();
 		exit(1);
 	}
@@ -1228,8 +1271,6 @@ TiXmlElement * TRestMetadata::GetElementWithName(std::string eleDeclare, std::st
 
 }
 
-
-
 ///////////////////////////////////////////////
 /// \brief Returns a string with the unit name provided inside the given element.
 /// 
@@ -1290,14 +1331,11 @@ string TRestMetadata::GetUnits(TiXmlElement* e, string whoseunits)
 }
 
 
-
-
-
-
-
-
-
-
+///////////////////////////////////////////////
+/// \brief Parsing a string into TiXmlElement object
+/// 
+/// This method creates TiXmlElement object with the alloator "new". 
+/// Be advised to delete the object after using it!
 TiXmlElement* TRestMetadata::StringToElement(string definition)
 {
 	TiXmlElement*ele = new TiXmlElement("temp");
@@ -1306,7 +1344,10 @@ TiXmlElement* TRestMetadata::StringToElement(string definition)
 	return ele;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Convert an TiXmlElement object to string
+/// 
+/// This method does't arrange the output. All the contents are written in one line.
 string TRestMetadata::ElementToString(TiXmlElement*ele)
 {
 	if (ele != NULL) {
@@ -1343,7 +1384,6 @@ string TRestMetadata::ElementToString(TiXmlElement*ele)
 	return " ";
 }
 
-
 ///////////////////////////////////////////////
 /// \brief Gets the first key structure for **keyName** found inside **buffer** after **fromPosition**.
 ///
@@ -1376,12 +1416,11 @@ string TRestMetadata::GetKEYStructure(std::string keyName, string buffer)
 	return result;
 }
 string TRestMetadata::GetKEYStructure(std::string keyName, size_t &fromPosition, string buffer) {
-
 	TiXmlElement*ele = StringToElement(buffer);
-	return GetKEYStructure(keyName, fromPosition, ele);
-	
+	string result= GetKEYStructure(keyName, fromPosition, ele);
+	delete ele;
+	return result;
 }
-
 string TRestMetadata::GetKEYStructure(std::string keyName, size_t &fromPosition, TiXmlElement*ele) {
 	size_t position = fromPosition;
 
@@ -1470,7 +1509,9 @@ string TRestMetadata::GetKEYDefinition(string keyName, size_t &fromPosition, str
 	return result;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Gets field value in an xml element string by parsing it as TiXmlElement
+///
 std::string TRestMetadata::GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition)
 {
 	TiXmlElement*ele = StringToElement(definition);
@@ -1478,7 +1519,6 @@ std::string TRestMetadata::GetFieldValue(std::string fieldName, std::string defi
 	delete ele;
 	return value;
 }
-
 Double_t TRestMetadata::GetDblFieldValueWithUnits(string fieldName, string definition, size_t fromPosition)
 {
 	TiXmlElement*ele = StringToElement(definition);
@@ -1519,9 +1559,6 @@ TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits(string fieldName, string 
 	return value;
 }
 
-
-
-
 ///////////////////////////////////////////////
 /// \brief Returns the value for the parameter name **parName** found in **inputString**. 
 /// 
@@ -1539,6 +1576,7 @@ string TRestMetadata::GetParameter(string parName, size_t &pos, string inputStri
 
 	return value;
 }
+
 ///////////////////////////////////////////////
 /// \brief Gets the double value of the parameter name **parName**, found in **inputString**, after applying unit conversion.
 ///
@@ -1563,6 +1601,7 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, size_t &po
 
 	return value;
 }
+
 ///////////////////////////////////////////////
 /// \brief Returns a 2D vector value of the parameter name **parName**, found in **inputString**, after applying unit conversion.
 ///
@@ -1587,6 +1626,7 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, size_
 
 	return value;
 }
+
 ///////////////////////////////////////////////
 /// \brief Returns a 3D vector value of the parameter name **parName**, found in **inputString**, after applying unit conversion.
 ///
@@ -1613,67 +1653,13 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, size_
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//string TRestMetadata::EvaluateExpression(string exp)
-//{
-//	if (!isAExpression(exp)) { return exp; }
-//
-//	//NOTE!!! In root6 the expression like "1/2" will be computed using the input as int number,
-//	//which will return 0, and cause problem.
-//	//we roll back to TFormula of version 5
-//	ROOT::v5::TFormula formula("tmp", exp.c_str());
-//
-//	ostringstream sss;
-//	Double_t number = formula.EvalPar(0);
-//	if (number > 0 && number < 1.e-300)
-//	{
-//		warning << "REST Warning! Expression not recognized --> " << exp << endl;  return exp;
-//		warning << endl;
-//	}
-//
-//	sss << number;
-//	string out = sss.str();
-//
-//	return out;
-//}
-
-
 ///////////////////////////////////////////////
 /// \brief Identifies enviromental variable replacing marks in the input buffer, and replace them with corresponding value.
 ///
 /// Replacing marks: 
-/// 1. ${VARIABLE_NAME} : search the system env and replace it if found.
-/// 2. {VARIABLE_NAME}  : search the program env and replace it if found.
-/// 3. [VARIABLE_NAME]  : search the program provided env and replace it if found.
-/// 4. VARIABLE_NAME    : try match the names of myParameter and replace it if matched.
+/// 1. $ENV{VARIABLE_NAME} : search the system env and replace it if found.
+/// 2. ${VARIABLE_NAME} : search both system env and program env and replace it if found.
+/// 3. VARIABLE_NAME    : try match the names of myParameter or constant and replace it if matched.
 string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer)
 {
 	string outputBuffer = buffer;
@@ -1706,19 +1692,19 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer)
 	//replace env
 	startPosition = 0;
 	endPosition = 0;
-	while ((startPosition = outputBuffer.find("{", endPosition)) != (int)string::npos)
+	while ((startPosition = outputBuffer.find("${", endPosition)) != (int)string::npos)
 	{
-		endPosition = outputBuffer.find("}", startPosition + 1);
+		endPosition = outputBuffer.find("}", startPosition + 2);
 		if (endPosition == (int)string::npos) break;
 
-		string expression = outputBuffer.substr(startPosition + 1, endPosition - startPosition - 1);
+		string expression = outputBuffer.substr(startPosition + 2, endPosition - startPosition - 2);
 
 		int replacePos=startPosition;
 		int replaceLen=endPosition-startPosition+1;
-		if (startPosition!=0&&outputBuffer[startPosition - 1] == '$') {
-			replacePos = startPosition - 1;
-			replaceLen = endPosition - startPosition + 2;
-		}
+		//if (startPosition!=0&&outputBuffer[startPosition - 1] == '$') {
+		//	replacePos = startPosition - 1;
+		//	replaceLen = endPosition - startPosition + 2;
+		//}
 
 		//search for both system env and program env
 		char* sysenv = getenv(expression.c_str());
@@ -1751,53 +1737,53 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer)
 			debug << "replace env " << startPosition << ": cannot find \"" << expression << "\", returning raw expression " << outputBuffer.substr(replacePos, replaceLen) << endl;
 		}
 	}
-	startPosition = 0;
-	endPosition = 0;
-	while ((startPosition = outputBuffer.find("[", endPosition)) != (int)string::npos)
-	{
-		endPosition = outputBuffer.find("]", startPosition + 1);
-		if (endPosition == (int)string::npos) break;
+	//startPosition = 0;
+	//endPosition = 0;
+	//while ((startPosition = outputBuffer.find("[", endPosition)) != (int)string::npos)
+	//{
+	//	endPosition = outputBuffer.find("]", startPosition + 1);
+	//	if (endPosition == (int)string::npos) break;
 
-		string expression = outputBuffer.substr(startPosition + 1, endPosition - startPosition - 1);
+	//	string expression = outputBuffer.substr(startPosition + 1, endPosition - startPosition - 1);
 
-		int replacePos = startPosition;
-		int replaceLen = endPosition - startPosition + 1;
-		if (startPosition != 0 && outputBuffer[startPosition - 1] == '$') {
-			replacePos = startPosition - 1;
-			replaceLen = endPosition - startPosition + 2;
-		}
+	//	int replacePos = startPosition;
+	//	int replaceLen = endPosition - startPosition + 1;
+	//	if (startPosition != 0 && outputBuffer[startPosition - 1] == '$') {
+	//		replacePos = startPosition - 1;
+	//		replaceLen = endPosition - startPosition + 2;
+	//	}
 
-		//search for both system env and program env
-		char* sysenv = getenv(expression.c_str());
-		char* proenv = NULL;
-		int envindex = 0;
-		for (int i = 0; i < fElementEnv.size(); i++) {
-			if ((string)fElementEnv[i]->Value() == "variable"&&expression == (string)fElementEnv[i]->Attribute("name"))
-			{
-				if (fElementEnv[i]->Attribute("value") != NULL)
-				{
-					proenv = const_cast<char*>(fElementEnv[i]->Attribute("value"));
-					envindex = i;
-					break;
-				}
-			}
-		}
+	//	//search for both system env and program env
+	//	char* sysenv = getenv(expression.c_str());
+	//	char* proenv = NULL;
+	//	int envindex = 0;
+	//	for (int i = 0; i < fElementEnv.size(); i++) {
+	//		if ((string)fElementEnv[i]->Value() == "variable"&&expression == (string)fElementEnv[i]->Attribute("name"))
+	//		{
+	//			if (fElementEnv[i]->Attribute("value") != NULL)
+	//			{
+	//				proenv = const_cast<char*>(fElementEnv[i]->Attribute("value"));
+	//				envindex = i;
+	//				break;
+	//			}
+	//		}
+	//	}
 
-		if (proenv != NULL)
-		{
-			outputBuffer.replace(replacePos, replaceLen, proenv);
-			endPosition = 0;
-		}
-		else if (sysenv != NULL)
-		{
-			outputBuffer.replace(replacePos, replaceLen, sysenv);
-			endPosition = 0;
-		}
-		else
-		{
-			debug << "replace env " << startPosition << ": cannot find \"" << expression << "\", returning raw expression " << outputBuffer.substr(replacePos, replaceLen) << endl;
-		}
-	}
+	//	if (proenv != NULL)
+	//	{
+	//		outputBuffer.replace(replacePos, replaceLen, proenv);
+	//		endPosition = 0;
+	//	}
+	//	else if (sysenv != NULL)
+	//	{
+	//		outputBuffer.replace(replacePos, replaceLen, sysenv);
+	//		endPosition = 0;
+	//	}
+	//	else
+	//	{
+	//		debug << "replace env " << startPosition << ": cannot find \"" << expression << "\", returning raw expression " << outputBuffer.substr(replacePos, replaceLen) << endl;
+	//	}
+	//}
 
 
 	//replace myParameter
@@ -1836,55 +1822,23 @@ void TRestMetadata::SetEnv(string name, string value, bool overwriteexisting)
 
 }
 
-//
-//string TRestMetadata::ReplaceMathematicalExpressions(const string buffer)
-//{
-//	//we spilt the unit part and the expresstion part
-//	int pos = buffer.find_last_of("1234567890().");
-//
-//	string unit = buffer.substr(pos + 1, -1);
-//	string temp = buffer.substr(0, pos + 1);
-//	string result = "";
-//
-//	bool erased = false;
-//	if (temp[0] == '(' && temp[temp.length() - 1] == ')')
-//	{
-//		temp.erase(temp.size() - 1, 1);
-//		temp.erase(0, 1);
-//		erased = true;
-//	}
-//
-//	std::vector<std::string> Expressions;
-//	temp += ",";
-//	for (int i = 0; i < temp.size(); i++) {
-//		int pos = temp.find(",", i);
-//		if (pos < temp.size())
-//		{
-//			std::string s = temp.substr(i, pos - i);
-//			Expressions.push_back(s);
-//			i = pos;
-//		}
-//	}
-//
-//	for (int i = 0; i < Expressions.size(); i++)
-//	{
-//		if (!isAExpression(Expressions[i])) { result += Expressions[i] + ","; continue; }
-//		result += EvaluateExpression(Expressions[i]) + ",";
-//	}
-//
-//	result.erase(result.size() - 1, 1);
-//
-//	if (erased)
-//	{
-//		result = "(" + result + ")";
-//	}
-//
-//	return result+unit;
-//
-//}
-//
-
-
+///////////////////////////////////////////////
+/// \brief Search files in current directory and directories specified in "searchPath" section
+///
+/// Return blank string if file not found, return directly filename if found in current 
+/// directory, return full name (path+name) if found in "searchPath". 
+string TRestMetadata::SearchFile(string filename) {
+	if (fileExists(filename)) {
+		return filename;
+	}
+	else
+	{
+		
+		auto pathstring = GetSearchPath();
+		auto paths = Spilt((string)pathstring, ":");
+		return SearchFileInPath(paths, filename);
+	}
+}
 
 ///////////////////////////////////////////////
 /// \brief Prints a UNIX timestamp in human readable format.
@@ -1906,7 +1860,9 @@ void TRestMetadata::PrintTimeStamp(Double_t timeStamp)
 	cout << "++++++++++++++++++++++++" << endl;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Prints current config buffer on screen
+///
 void TRestMetadata::PrintConfigBuffer()
 {
 	fElement->Print(stdout, 0);
@@ -1932,7 +1888,6 @@ int TRestMetadata::GetChar(string hint)
 	return -1;
 }
 
-
 ///////////////////////////////////////////////
 /// \brief Prints metadata content on screen. Usually overloaded by the derived metadata class.
 ///
@@ -1957,11 +1912,47 @@ TString TRestMetadata::GetVerboseLevelString()
 	return level;
 }
 
+///////////////////////////////////////////////
+/// Returns a string with the path defined in sections "searchPath". 
+/// 
+/// To add a searchPath, use:
+/// \code
+/// <searchPath value="$ENV{REST_INPUTDATA}/definitions/"/>
+/// \endcode
+/// Or
+/// \code
+/// <searchPath value="$ENV{REST_INPUTDATA}/definitions/:$ENV{REST_INPUTDATA}/gasFiles/"/>
+/// \endcode
+/// "searchPath" can also be added multiple times. Both of them will be added into the output string.
+/// A separator ":" is inserted between each defined paths. To separate them, use inline method
+/// Spilt() provided by TRestStringHelper. Uniformed search path definition provides us uniformed 
+/// file search tool, see TRestMetadata::SearchFile().
+TString TRestMetadata::GetSearchPath() {
+	TiXmlElement*e = fElement;
+	string result = "";
+	TiXmlElement* ele = e->FirstChildElement("searchPath");
+	while (ele != NULL)
+	{
+		if (ele->Attribute("value") != NULL) {
+			result += (string)ele->Attribute("value") + ":";
+		}
+		ele = ele->NextSiblingElement("searchPath");
+	}
+	if (result[result.size() - 1] == ':') {
+		result.erase(result.size() - 1);
+	}
+
+	return ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(result));
+}
 
 
-TClass*c;//!
-TVirtualStreamerInfo *vs;//!
-TObjArray* ses;//!
+TClass*c;
+TVirtualStreamerInfo *vs;
+TObjArray* ses;
+///////////////////////////////////////////////
+/// \brief Reflection methods, Get the class's datamember info according to its name. 
+///
+/// The info returned is wrapped in TStreamerElement
 TStreamerElement* TRestMetadata::GetDataMemberWithName(string name)
 {
 	int n = GetNumberOfDataMember();
@@ -1976,6 +1967,9 @@ TStreamerElement* TRestMetadata::GetDataMemberWithName(string name)
 
 }
 
+///////////////////////////////////////////////
+/// \brief Reflection methods, Get the class's datamember info according to its id. 
+///
 TStreamerElement* TRestMetadata::GetDataMemberWithID(int ID)
 {
 	int n = GetNumberOfDataMember();
@@ -1983,6 +1977,9 @@ TStreamerElement* TRestMetadata::GetDataMemberWithID(int ID)
 	return NULL;
 }
 
+///////////////////////////////////////////////
+/// \brief Reflection methods, Get the number of the class's datamembers
+///
 int TRestMetadata::GetNumberOfDataMember()
 {
 	if (c==NULL||(c!=NULL&&c->GetName()!=this->ClassName())) {
@@ -1993,7 +1990,9 @@ int TRestMetadata::GetNumberOfDataMember()
 	return ses->GetLast() + 1;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Reflection methods, Get the value of a datamember assuming it is double type
+///
 double TRestMetadata::GetDblDataMemberVal(TStreamerElement*ele)
 {
 	if (ele != NULL&&ele->GetType() == 8)
@@ -2001,7 +2000,9 @@ double TRestMetadata::GetDblDataMemberVal(TStreamerElement*ele)
 	return 0;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Reflection methods, Get the value of a datamember assuming it is int type
+///
 int TRestMetadata::GetIntDataMemberVal(TStreamerElement*ele)
 {
 	if (ele != NULL&&ele->GetType() == 3)
@@ -2009,12 +2010,37 @@ int TRestMetadata::GetIntDataMemberVal(TStreamerElement*ele)
 	return 0;
 }
 
-
+///////////////////////////////////////////////
+/// \brief Reflection methods, Get the address of a datamember(class address+offset)
+///
 char* TRestMetadata::GetDataMemberRef(TStreamerElement*ele) {
+	if (ele == NULL)return 0;
 	return ((char*)this + ele->GetOffset());
 }
 
+///////////////////////////////////////////////
+/// \brief Reflection methods, Returns a string of the value of a datamember, if supported
+///
+/// Supported type: double, int, TString. If not supported, returns the type name.
+/// This method can be used as a real time inspector of TRestMetadata objects.
+string TRestMetadata::GetDataMemberValString(TStreamerElement*ele)
+{
+	if (ele == NULL)
+		return "";
+	if (ele != NULL && ele->GetType() == 8)//double
+		return ToString(*(double*)((char*)this + ele->GetOffset()));
+	if (ele != NULL && ele->GetType() == 3)//int
+		return ToString(*(int*)((char*)this + ele->GetOffset()));
+	if (ele != NULL && ele->GetType() == 65)//TString
+		return ToString(*(TString*)((char*)this + ele->GetOffset()));
+	return ele->GetTypeName();
+}
 
+///////////////////////////////////////////////
+/// \brief Reflection methods, Set the value of a datamember if the type is supported
+///
+/// Supported type: double, int, TString. The address of target value variable needs 
+/// to be given.
 void TRestMetadata::SetDataMemberVal(TStreamerElement*ele, char*ptr) {
 
 	if (ele != NULL && ele->GetType() == 8)//double
@@ -2026,6 +2052,10 @@ void TRestMetadata::SetDataMemberVal(TStreamerElement*ele, char*ptr) {
 
 }
 
+///////////////////////////////////////////////
+/// \brief Reflection methods, Set the value of a datamember if the type is supported
+///
+/// Supported type: double, int, TString. A string of value needs to be given.
 void TRestMetadata::SetDataMemberVal(TStreamerElement*ele, string valdef)
 {
 	if (ele != NULL && ele->GetType() == 8)//double
@@ -2036,35 +2066,29 @@ void TRestMetadata::SetDataMemberVal(TStreamerElement*ele, string valdef)
 		*((TString*)((char*)this + ele->GetOffset())) = (TString)(valdef);
 }
 
-
+///////////////////////////////////////////////
+/// \brief Reflection methods, Set value of a datamember in class according to TRestMetadata::fElement
+///
+/// It will search for "parameter" section with the same name of the datamember, and set it's value.
+/// For example
+/// \code
+/// class TRestXXX: public TRestMetadata{
+/// int par0;
+/// }
+/// 
+/// <TRestXXX name="..." par0="10"/>
+/// \endcode
+/// After loading the rml file and calling this method, the value of "par0" will be set to 10
+/// 
 void TRestMetadata::SetDataMemberValFromConfig(TStreamerElement*ele)
 {
-	if (GetParameter(ele->GetName()) != PARAMETER_NOT_FOUND_STR)
-	{
-		SetDataMemberVal(ele, GetParameter(ele->GetName()));
+	if (ele != NULL) {
+		if (GetParameter(ele->GetName()) != PARAMETER_NOT_FOUND_STR)
+		{
+			SetDataMemberVal(ele, GetParameter(ele->GetName()));
+		}
 	}
 }
-
-string TRestMetadata::GetDataMemberValString(TStreamerElement*ele)
-{
-	if (ele != NULL && ele->GetType() == 8)//double
-		return ToString(*(double*)((char*)this + ele->GetOffset()));
-	if (ele != NULL && ele->GetType() == 3)//int
-		return ToString(*(int*)((char*)this + ele->GetOffset()));
-	if (ele != NULL && ele->GetType() == 65)//TString
-		return ToString(*(TString*)((char*)this + ele->GetOffset()));
-	return ele->GetTypeName();
-}
-
-
-
-
-
-
-
-
-
-
 
 
 

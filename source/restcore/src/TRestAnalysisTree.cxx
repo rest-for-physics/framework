@@ -58,14 +58,12 @@ void TRestAnalysisTree::Initialize()
 void TRestAnalysisTree::ConnectObservables(TRestAnalysisTree * from)
 {
 	if (from != NULL&&!fConnected) {
-		fNObservables += from->GetNumberOfObservables();
-
 
 		vector<double*> tmpobsval;
 		vector<TString> tmpobsname;
 		vector<TString> tmpobsdes;
 
-		for (int i = 0; i < GetNumberOfObservables(); i++)
+		for (int i = 0; i < from->GetNumberOfObservables(); i++)
 		{
 			tmpobsval.push_back(new double(0));
 			tmpobsname.push_back("old_" + from->GetObservableName(i));
@@ -75,7 +73,7 @@ void TRestAnalysisTree::ConnectObservables(TRestAnalysisTree * from)
 		fObservableValues.insert(fObservableValues.begin(),tmpobsval.begin(),tmpobsval.end());
 		fObservableNames.insert(fObservableNames.begin(), tmpobsname.begin(), tmpobsname.end());
 		fObservableDescriptions.insert(fObservableDescriptions.begin(), tmpobsdes.begin(), tmpobsdes.end());
-
+		fNObservables += from->GetNumberOfObservables();
 
 		fConnected = true;
 	}

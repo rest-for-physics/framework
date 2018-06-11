@@ -1,5 +1,32 @@
-#include "TRestThread.h"
+//////////////////////////////////////////////////////////////////////////
+///
+/// Multiple instances of TRestThread is created inside TRestProcessRunner. 
+/// Each of them can detach a thread containing a process chain, which 
+/// implements multi thread functionality. Preparation of process chain  
+/// is also done inside this class.
+///
+/// \class TRestThread
+///
+///--------------------------------------------------------------------------
+/// 
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2014-june: First concept. As part of conceptualization of previous REST
+///            code (REST v2)
+///            Igor G. Irastorza
+/// 
+/// 2017-Aug:  Major change: added for multi-thread capability
+///            Kaixiang Ni
+///
+/// <hr>
+//////////////////////////////////////////////////////////////////////////
 
+
+
+
+#include "TRestThread.h"
 
 ClassImp(TRestThread);
 
@@ -43,7 +70,7 @@ Int_t TRestThread::ValidateInput(TRestEvent* input)
 		return -1;
 	}
 	//general event input is accepted
-	if (fProcessChain[0]->GetInputEvent()->ClassName() == "TRestEvent")
+	if ((string)fProcessChain[0]->GetInputEvent()->ClassName() == "TRestEvent")
 		return 0;
 	if (input->ClassName() != fProcessChain[0]->GetInputEvent()->ClassName())
 	{
@@ -125,6 +152,28 @@ void TRestThread::SetThreadId(Int_t id)
 
 
 TRestAnalysisTree* tempTree;
+///////////////////////////////////////////////
+/// \brief Make a test run of our process chain
+///
+/// The reason we use test run is that we need to determine the real output event 
+/// address of a process chain. This is because when we write our code like this:
+/// \code
+/// TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
+/// {
+/// 	fSignalEvent = (TRestRawSignalEvent *)evInput;
+/// 	fOutputEvent = fSignalEvent;
+///		...
+/// }
+/// \endcode
+/// The output event address can be changed after running. 
+/// 
+/// Test run calls TRestEventProcess::ProcessEvent() first, and uses the output of
+/// TRestEventProcess::GetOutputEvent() as the next process's input event. This avoids
+/// NULL returned events from ProcessEvent due to cut. In debug mode, we can also 
+/// observe a process sequence printed by this method
+///
+/// returns false when fOutputEvent is null after 5 times of retry, returns true
+/// when fOutputEvent address is determined.
 bool TRestThread::TestRun() 
 {
 	debug << "Processing ..." << endl;
@@ -135,7 +184,8 @@ bool TRestThread::TestRun()
 		{
 			debug << j << " " << fProcessChain[j]->GetName() << "(" << fProcessChain[j]->ClassName() << ")";
 			fProcessChain[j]->BeginOfEventProcess();
-			ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
+			fProcessChain[j]->ProcessEvent(ProcessedEvent);
+			ProcessedEvent = fProcessChain[j]->GetOutputEvent();
 			if (ProcessedEvent == NULL) {
 				debug << "  ----  NULL" << endl;
 				break;
@@ -157,25 +207,7 @@ bool TRestThread::TestRun()
 	}
 	if (fOutputEvent == NULL)
 	{
-		error << "REST ERROR(" << "In thread " << fThreadId << ")::Process result is null after 5 times of retry." << endl;
-		error << "REST cannot determing the address of output event!" << endl;
-		error << "continue with default address or try again? (a)gain/(d)efault/(c)ancell" << endl;
-		while (1) {
-			char o;
-			cin >> o;
-			if (o == 'a') {
-				if (TestRun())
-					return true;
-			}
-			else if (o == 'd') {
-				fOutputEvent = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent();
-				return true;
-			}
-			else if (o == 'c') {
-				return false;
-			}
-		}
-
+		//fOutputEvent = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent();
 		return false;
 	}
 	return true;
@@ -187,8 +219,8 @@ bool TRestThread::TestRun()
 ///
 /// This method will:
 /// 1. Setup the processes in process chain:(set analysis tree, set readonly, call the method InitProcess())
-/// 2. Instantiate the input event and make a test run, calling GetNextevtFunc() and ProcessEvent()
-/// in sequence. The address of output event is fixed after the test run.
+/// 2. Instantiate the input event and make a test run, calling TestRun(). The address of output event 
+/// is fixed after the test run.
 /// 3. Open the output file and create output tree inside it. Creating branches according to the output level.
 /// 4. Reset the processes by calling InitProcess() again
 ///
@@ -199,7 +231,7 @@ void TRestThread::PrepareToProcess(bool testrun)
 	if (fProcessChain.size() > 0)
 	{
 		stringstream Filename;
-		Filename << "rest_thread_tmp" << fThreadId << ".root";
+		Filename << "/tmp/rest_thread_tmp" << ToString(this) << ".root";
 		debug << "Creating file : " << Filename.str() << endl;
 		fOutputFile = new TFile(Filename.str().c_str(), "recreate");
 		fOutputFile->SetCompressionLevel(0);
@@ -235,13 +267,17 @@ void TRestThread::PrepareToProcess(bool testrun)
 		if (testrun) {
 			debug << "Test Run..." << endl;
 			if (!TestRun()) {
-				exit(1);
+				error << "REST WARNING(" << "In thread " << fThreadId << ")::test run failed!" << endl;
+				error << "One of the processes has NULL pointer fOutputEvent!" << endl;
+				if(fVerboseLevel<REST_Debug)
+					error << "To see more detail, turn on debug mode for TRestProcessRunner!" << endl;
+				exit(0);
 			}
-			debug << "Test Run success!" << endl;
+			debug << "Test Run complete!" << endl;
 		}
 		else
 		{
-			debug << "Setting output event address by default..." << endl;
+			debug << "Setting output event address with out test run... This may cause empty event problem!" << endl;
 			fOutputEvent = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent();
 		}
 		delete tempTree;
@@ -251,30 +287,65 @@ void TRestThread::PrepareToProcess(bool testrun)
 		debug << "Creating Analysis Tree..." << endl;
 		fAnalysisTree = new TRestAnalysisTree("AnalysisTree_"+ToString(fThreadId), "dummyTree");
 		fAnalysisTree->CreateEventBranches();
-		fEventTree = new TRestAnalysisTree("EventTree_" + ToString(fThreadId), "dummyTree");
-		fEventTree->CreateEventBranches();
+		fEventTree = new TTree((TString)"EventTree_" + ToString(fThreadId), "dummyTree");
+		//fEventTree->CreateEventBranches();
 		for (unsigned int i = 0; i < fProcessChain.size(); i++)
 		{
 			fProcessChain[i]->SetAnalysisTree(fAnalysisTree);
 			fProcessChain[i]->ConfigAnalysisTree();
 		}
+		vector<pair<TString, TRestEvent*>> branchesToAdd;
+		//avoid duplicated branch
+		//if event type is same, we only create branch for the last of this type event
 		for (int i = 0; i < fTreeBranchDef.size(); i++) 
 		{
-			if (fTreeBranchDef[i] == "inputevent") 
+			if (fTreeBranchDef[i] == "inputevent")
 			{
-				TString BranchName = (TString)fInputEvent->GetName() + "Branch";
-				fEventTree->Branch(BranchName, fInputEvent->ClassName(), fInputEvent);
+				TRestEvent*evt = fInputEvent;
+				{
+					TString BranchName = (TString)evt->GetName() + "Branch";
+					if (branchesToAdd.size() == 0)
+						branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
+					else
+						for (int j = 0; j < branchesToAdd.size(); j++) {
+							if (branchesToAdd[j].first == BranchName)
+								branchesToAdd[j].second = evt;
+							else if (j == branchesToAdd.size() - 1)
+								branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
+						}
+				}
 				for (unsigned int i = 0; i < fProcessChain.size(); i++)
 				{
-					TRestEvent*processevent = fProcessChain[i]->GetOutputEvent();
-					TString BranchName = (TString)processevent->GetName() + "Branch";
-					fEventTree->Branch(BranchName, processevent->ClassName(), processevent);
+					TRestEvent*evt = fProcessChain[i]->GetOutputEvent();
+					{
+						TString BranchName = (TString)evt->GetName() + "Branch";
+						if (branchesToAdd.size() == 0)
+							branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
+						else
+							for (int j = 0; j < branchesToAdd.size(); j++) {
+								if (branchesToAdd[j].first == BranchName)
+									branchesToAdd[j].second = evt;
+								else if (j == branchesToAdd.size() - 1)
+									branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
+							}
+					}
 				}
 			}
 			if (fTreeBranchDef[i] == "outputevent")
 			{
-				TString BranchName = (TString)fOutputEvent->GetName() + "Branch";
-				fEventTree->Branch(BranchName, fOutputEvent->ClassName(), fOutputEvent);
+				TRestEvent*evt = fOutputEvent;
+				{
+					TString BranchName = (TString)evt->GetName() + "Branch";
+					if (branchesToAdd.size() == 0)
+						branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
+					else
+						for (int j = 0; j < branchesToAdd.size(); j++) {
+							if (branchesToAdd[j].first == BranchName)
+								branchesToAdd[j].second = evt;
+							else if (j == branchesToAdd.size() - 1)
+								branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
+						}
+				}
 			}
 			if (fTreeBranchDef[i] == "inputanalysis")
 			{
@@ -283,7 +354,13 @@ void TRestThread::PrepareToProcess(bool testrun)
 			}
 
 		}
-		if (fEventTree->GetListOfBranches()->GetLast() < 6)
+		auto iter = branchesToAdd.begin();
+		while (iter != branchesToAdd.end()) {
+			fEventTree->Branch(iter->first, iter->second->ClassName(), iter->second);
+			iter++;
+		}
+
+		if (fEventTree->GetListOfBranches()->GetLast() < 0)//if no event branches are created
 		{
 			delete fEventTree; fEventTree = NULL;
 		}
@@ -309,7 +386,7 @@ void TRestThread::PrepareToProcess(bool testrun)
 		fInputEvent = (TRestEvent*)TClass::GetClass(tmp.c_str())->New();
 		fOutputEvent = fInputEvent;
 		stringstream Filename;
-		Filename << "rest_thread_tmp" << fThreadId << ".root";
+		Filename << "/tmp/rest_thread_tmp" << ToString(this) << ".root";
 		fOutputFile = new TFile(Filename.str().c_str(), "recreate");
 		fOutputFile->SetCompressionLevel(0);
 		fOutputFile->cd();
@@ -318,20 +395,20 @@ void TRestThread::PrepareToProcess(bool testrun)
 		debug << "Creating Analysis Tree..." << endl;
 		fAnalysisTree = new TRestAnalysisTree("AnalysisTree_" + ToString(fThreadId), "dummyTree");
 		fAnalysisTree->CreateEventBranches();
-		fEventTree = new TRestAnalysisTree("EventTree_" + ToString(fThreadId), "dummyTree");
-		fEventTree->CreateEventBranches();
+		fEventTree = new TTree((TString)"EventTree_" + ToString(fThreadId), "dummyTree");
+		//fEventTree->CreateEventBranches();
 
 		for (int i = 0; i < fTreeBranchDef.size(); i++)
 		{
 			if (fTreeBranchDef[i] == "outputevent")
 			{
 				TString BranchName = (TString)fInputEvent->GetName() + "Branch";
-				fEventTree->Branch(BranchName, fInputEvent->ClassName(), fInputEvent);
-
+				if (fEventTree->GetBranch(BranchName) == NULL)//avoid duplicated branch
+					fEventTree->Branch(BranchName, fInputEvent->ClassName(), fInputEvent);
 			}
 			//currently external process analysis is not supported!
 		}
-		if (fEventTree->GetListOfBranches()->GetLast() < 6)
+		if (fEventTree->GetListOfBranches()->GetLast() < 1)
 		{
 			delete fEventTree; fEventTree = NULL;
 		}
@@ -346,16 +423,14 @@ void TRestThread::PrepareToProcess(bool testrun)
 /// \brief The main function of this class. Thread will run this function until the end.
 ///
 /// It will start a loop, calling GetNextevtFunc(), ProcessEvent(), and FillThreadEventFunc() repeatedly.
-/// If the function GetNextEvent() returns false, the loop will break.
+/// If the function GetNextEvent() returns false, the loop will break, meaning that we are at the
+/// end of the process. Before return it will set "isFinished" to true.
 ///
-/// Before return it will call WriteThreadFileFunc().
-///
-/// Note: The methods GetNextevtFunc(), FillThreadEventFunc() and WriteThreadFileFunc() are all from 
-/// TRestRun. The later two will call back the method FillEvent(), WriteFile() in this class. The idea to do so is 
-/// to make these i-o related methods managed by the host run, preventing segmentation violation. All the three
-/// method are mutex locked, which makes them running individualy. In other words, these methods
-/// will be paused until the host run allows it to run. It avoids the threads writing a same file
-/// (or memory) at the same time.
+/// Note: The methods GetNextevtFunc() and FillThreadEventFunc() are all from  TRestProcessRunner. 
+/// The later two will call back the method FillEvent(), WriteFile() in this class. The idea 
+/// to do so is to make a unified managemenet of these i-o related methods. In TRestRun the three
+/// methods are mutex locked. They will be paused until the host run allows it to run. This prevents
+/// segmentation violation due to simultaneously read/write. 
 void TRestThread::StartProcess()
 {
 	isFinished = false;
@@ -417,25 +492,11 @@ void TRestThread::ProcessEvent()
 
 }
 
-/////////////////////////////////////////////////
-///// \brief Call the output tree to fill. 
-/////
-///// This method is called back by FillThreadEventFunc() in TRestRun. 
-//void TRestThread::FillEvent()
-//{
-//	if (fOutputEvent == NULL)return;
-//
-//	fOutputFile->cd();
-//	fAnalysisTree->FillEvent(fOutputEvent);
-//
-//
-//}
-
 
 ///////////////////////////////////////////////
 /// \brief Write and close the output file
 ///
-/// This method is called back by WriteThreadFileFunc() in TRestProcessRunner. 
+/// This method is called back at the end of TRestProcessRunner::RunProcess() in TRestProcessRunner. 
 void TRestThread::WriteFile()
 {
 	info << "TRestThread : Writting temp file" << endl;

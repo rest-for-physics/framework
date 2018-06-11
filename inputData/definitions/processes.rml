@@ -108,7 +108,7 @@
     <parameter name="electricField" value="100" units="V/cm" />
 
     <!-- If not specified, the following values will be taken from TRestGas properties -->
-    <parameter name="gasPressure" value="1.5" />
+    <parameter name="gasPressure" value="" />
     <!-- in atm -->
     <parameter name="driftVelocity" value="" />
     <!-- in cm/us -->
@@ -322,16 +322,16 @@
   <TRestSignalZeroSuppresionProcess name="zS" title=""  >
 
     <!-- This parameter is used to define the baseline calculation -->
-    <parameter name="baseLineRange" value="({BL_MIN},{BL_MAX})" />
+    <parameter name="baseLineRange" value="(${BL_MIN},${BL_MAX})" />
 
     <!-- These parameters define the integral with threshold. 
          threshold : number of baseline noise sigmas to consider a point for integration.
          pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
          minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
         -->
-    <parameter name="pointThreshold" value="{POINT_TH}" />
-    <parameter name="pointsOverThreshold" value="{NPOINTS}" />
-    <parameter name="signalThreshold" value="{SGNL_TH}" />
+    <parameter name="pointThreshold" value="${POINT_TH}" />
+    <parameter name="pointsOverThreshold" value="${NPOINTS}" />
+    <parameter name="signalThreshold" value="${SGNL_TH}" />
   </TRestSignalZeroSuppresionProcess>
 
   <TRestRawSignalAnalysisProcess name="sAna" title=""  >
@@ -341,7 +341,7 @@
     <parameter name="refreshEvery" value="1" />
 
     <!-- This parameter is used to define the baseline calculation -->
-    <parameter name="baseLineRange" value="({BL_MIN},{BL_MAX})" />
+    <parameter name="baseLineRange" value="(${BL_MIN},${BL_MAX})" />
 
     <!-- This parameter is used to define the signal integration window -->
     <parameter name="integralRange" value="(40,472)" />
@@ -351,9 +351,9 @@
          pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
          minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
         -->
-    <parameter name="pointThreshold" value="{POINT_TH}" />
-    <parameter name="pointsOverThreshold" value="{NPOINTS}" />
-    <parameter name="signalThreshold" value="{SGNL_TH}" />
+    <parameter name="pointThreshold" value="${POINT_TH}" />
+    <parameter name="pointsOverThreshold" value="${NPOINTS}" />
+    <parameter name="signalThreshold" value="${SGNL_TH}" />
 
     <!-- ++++++++++++++++++++++
          Observable definitions
@@ -446,7 +446,7 @@
     <parameter name="refreshEvery" value="1" />
 
     <!-- This parameter is used to define the baseline calculation -->
-    <parameter name="baseLineRange" value="({BL_MIN},{BL_MAX})" />
+    <parameter name="baseLineRange" value="(${BL_MIN},${BL_MAX})" />
 
     <!-- This parameter is used to define the signal integration window -->
     <parameter name="integralRange" value="(20,492)" />
@@ -457,9 +457,9 @@
          minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
         -->
 
-    <parameter name="pointThreshold" value="{POINT_TH}" />
-    <parameter name="pointsOverThreshold" value="{NPOINTS}" />
-    <parameter name="signalThreshold" value="{SGNL_TH}" />
+    <parameter name="pointThreshold" value="${POINT_TH}" />
+    <parameter name="pointsOverThreshold" value="${NPOINTS}" />
+    <parameter name="signalThreshold" value="${SGNL_TH}" />
 
     <!-- ++++++++++++++++++++++
          Observable definitions
@@ -521,7 +521,7 @@
     <parameter name="refreshEvery" value="1000" />
 
     <!-- This parameter is used to define the baseline calculation -->
-    <parameter name="baseLineRange" value="({BL_MIN},{BL_MAX})" />
+    <parameter name="baseLineRange" value="(${BL_MIN},${BL_MAX})" />
 
     <!-- This parameter is used to define the signal integration window -->
     <parameter name="integralRange" value="(20,492)" />
@@ -531,9 +531,9 @@
          pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.
          minPeakAmplitude : Minimum peak signal amplitude to be considered at all.
         -->
-    <parameter name="pointThreshold" value="{POINT_TH}" />
-    <parameter name="pointsOverThreshold" value="{NPOINTS}" />
-    <parameter name="signalThreshold" value="{SGNL_TH}" />
+    <parameter name="pointThreshold" value="${POINT_TH}" />
+    <parameter name="pointsOverThreshold" value="${NPOINTS}" />
+    <parameter name="signalThreshold" value="${SGNL_TH}" />
 
     <!-- ++++++++++++++++++++++
          Observable definitions

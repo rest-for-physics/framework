@@ -30,6 +30,9 @@ class TRestMuonAnalysisProcess:public TRestEventProcess {
 		TH1D*hxzr;//!
 		TH1D*hyzr;//!
 
+		TH1D*hdiffz;//!
+		TF1*fdiffz;//!
+
 		int X1;//!
 		int X2;//!
 		int Y1;//!
@@ -37,17 +40,19 @@ class TRestMuonAnalysisProcess:public TRestEventProcess {
 
 		int nummudeposxz;//!
 		int nummudeposyz;//!
-		int numsmear;//!
+		//int numsmearxy;//!
+		//int numsmearz;//!
 		TH1D* mudeposxz;//!
 		TH1D* mudeposyz;//!
 
 		TH1D* mudepos;//!
-		TH1D* musmear;//!
 		TH1D* mutanthe;//!
 
 		TH2D* muhitmap;//!
 		TH2D* muhitdir;//!
 
+		map<int, vector<double>> musmearxy;// [z index][single strip ene]
+		map<int, pair<double, double>> musmearz;// [z index][sigma, chi2]
 
         void InitFromConfigFile();
 
@@ -76,6 +81,11 @@ class TRestMuonAnalysisProcess:public TRestEventProcess {
         }
 
 		double ProjectionToCenter(double x, double y, double xzthe, double yzthe);
+
+		double DistanceToTrack(double x, double z, double x0, double z0, double theta);
+
+		map<int, vector<double>> GetdiffXY() { return musmearxy; }
+		map<int, pair<double, double>> GetdiffZ() { return musmearz; }
 
         //Constructor
         TRestMuonAnalysisProcess();

@@ -21,6 +21,7 @@ enum ProcStatus {
 	kIgnore,//!< do not response to keyboard orders
 };
 
+/// Running the processes efficiently with fantastic display.
 class TRestProcessRunner :public TRestMetadata {
 public:
 	/// REST run class
@@ -69,7 +70,7 @@ private:
 	//self variables for processing
 	vector<TRestThread*> fThreads;//!
 	TFile* fTempOutputDataFile;//!
-	TRestAnalysisTree* fEventTree;//!
+	TTree* fEventTree;//!
 	TRestAnalysisTree* fAnalysisTree;//!
 	ProcStatus fProcStatus;
 	Int_t nBranches;

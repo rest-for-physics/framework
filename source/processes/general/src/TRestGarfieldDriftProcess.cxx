@@ -141,9 +141,10 @@ void TRestGarfieldDriftProcess::InitProcess() {
     fGas = (TRestGas *) this->GetGasMetadata( );
     if ( fGas != NULL )  
     {
-        if ( fGasPressure == -1 ) 
+        if ( fGasPressure <=0 ) 
             fGasPressure = fGas->GetPressure();
-        fGas->SetPressure( fGasPressure );
+		else
+			fGas->SetPressure( fGasPressure );
 
     } 
     else 

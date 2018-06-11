@@ -15,7 +15,7 @@
 
 class TRestEventProcess;
 
-
+/// Data provider and manager in REST
 class TRestRun : public TRestMetadata {
 public:
 	/// REST run class
@@ -46,7 +46,7 @@ public:
 	}
 
 	TString FormFormat(TString FilenameFormat);
-	void MergeProcessFile(vector<string> filefullnames,string targetfilename="");
+	TFile* FormOutputFile(vector<string> filefullnames,string targetfilename="");
 	void PassOutputFile() { fOutputFile = fInputFile; fOutputFileName = fOutputFile->GetName(); }
 	TFile* FormOutputFile();
 
@@ -54,6 +54,7 @@ public:
 
 	void ImportMetadata(TString rootFile, TString name, Bool_t store);
 
+	/// add metadata object to the metadata list
 	void AddMetadata(TRestMetadata* meta) {
 		fMetadataInfo.push_back(meta); 
 		if (fVerboseLevel >= REST_Info)
@@ -64,7 +65,7 @@ public:
 			fout << endl;
 		}
 	}
-
+	void AddEventBranch(TRestEvent* eve);
 	void SkipEventTree() {}
 
 	
@@ -104,7 +105,7 @@ public:
 	Bool_t ObservableExists(TString name) { return fAnalysisTree->ObservableExists(name); }
 	TString GetInputEventName() { return fInputEvent->ClassName(); }
 	TRestAnalysisTree* GetAnalysisTree() { return fAnalysisTree; }
-	TRestAnalysisTree* GetEventTree() { return fEventTree; }
+	TTree* GetEventTree() { return fEventTree; }
 	Int_t GetInputFileNumber() { return fFileProcess == NULL ? fInputFileNames.size() : 1; }
 
 	TRestMetadata* GetMetadata(TString name);
@@ -119,7 +120,6 @@ public:
 	void SetCurrentEntry(int i) { fCurrentEvent = i; }
 	//void AddFileTask(TRestFileTask* t) { fFileTasks.push_back(t); }
 	void SetInputEvent(TRestEvent* eve);
-	void SetOutputEvent(TRestEvent* eve);
 	void SetRunNumber(Int_t number) { fRunNumber = number; }
 	void SetParentRunNumber(Int_t number) { fParentRunNumber = number; }
 	void SetRunType(TString type)
@@ -149,7 +149,7 @@ public:
 	void PrintMetadata() { PrintInfo(); }
 	void PrintAllMetadata() { 
 		PrintInfo();
-		for (int i = 0; i < fMetadataInfo.size(); i++)
+		for (unsigned int i = 0; i < fMetadataInfo.size(); i++)
 			fMetadataInfo[i]->PrintMetadata();
 	}
 	void PrintTrees() {
@@ -195,7 +195,7 @@ protected:
 	TFile *fInputFile;//!
 	TFile *fOutputFile;//!
 	TRestEvent* fInputEvent;//!
-	TRestAnalysisTree *fEventTree;//!
+	TTree *fEventTree;//!
 	TRestAnalysisTree *fAnalysisTree;//!
 
 	//input infomation

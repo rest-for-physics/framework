@@ -43,6 +43,7 @@ class TRestRawSignalTo2DHitsProcess:public TRestEventProcess {
 		Double_t fPointThreshold;//!
 		Double_t fSignalThreshold;//!
 		Int_t fNPointsOverThreshold;//!
+		Double_t fHoughSigmaLimit;//!
 
 		vector<TVector3> fHough_XZ; //y=ax+b, vertical line angle 牟, length 老, [id][老,牟,weight]
 		vector<TVector3> fHough_YZ; //y=ax+b, vertical line angle 牟, length 老, [id][老,牟,weight]
@@ -104,6 +105,7 @@ class TRestRawSignalTo2DHitsProcess:public TRestEventProcess {
 			essential << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
 			essential << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
 			essential << "Number of points over threshold : " << fNPointsOverThreshold << endl;
+			essential << "Hough sigma threshold for muon tracks: " << fHoughSigmaLimit << endl;
 			essential << endl;
 			essential << "Event selection: " << fSelection << endl;
 			essential << "0: uses all, 1: muon, 2: strong electron, 3: weak electron, 4: firing, 5: abnormal, 9: other" << endl;

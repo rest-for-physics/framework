@@ -10,7 +10,7 @@
 <restG4>
 
   <globals>
-    <parameter name="mainDataPath" value="${REST_PATH}/inputData" />
+    <parameter name="mainDataPath" value="" />
     <parameter name="verboseLevel" value="essential" />
     <variable name="DFilePath" value="${REST_PATH}/inputData/distributions" />
   </globals>

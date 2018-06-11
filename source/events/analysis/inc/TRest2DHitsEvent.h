@@ -61,6 +61,8 @@ protected:
 	TGraph2D* gyz = NULL;//!
 	TH2D* pointxz = NULL;//!
 	TH2D* pointyz = NULL;//!
+	TH1D* houghxz = NULL;//!
+	TH1D* houghyz = NULL;//!
 
 	TRestReadout* fReadout;//!
 
