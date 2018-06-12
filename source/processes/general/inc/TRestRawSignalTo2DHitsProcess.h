@@ -44,6 +44,7 @@ class TRestRawSignalTo2DHitsProcess:public TRestEventProcess {
 		Double_t fSignalThreshold;//!
 		Int_t fNPointsOverThreshold;//!
 		Double_t fHoughSigmaLimit;//!
+		Double_t fPeakPointRateLimit;//!
 
 		vector<TVector3> fHough_XZ; //y=ax+b, vertical line angle 牟, length 老, [id][老,牟,weight]
 		vector<TVector3> fHough_YZ; //y=ax+b, vertical line angle 牟, length 老, [id][老,牟,weight]
