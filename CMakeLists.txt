@@ -17,7 +17,13 @@ set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
 message ("\noo REST will be installed in : ${CMAKE_INSTALL_PREFIX}" )
 message ("oo System is : ${CMAKE_SYSTEM_NAME}\n" )
 
-SET(CMAKE_CXX_FLAGS "-stdlib=libc++ -std=c++11")
+IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+    SET(CMAKE_CXX_FLAGS "-std=c++1y")
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+
+IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    SET(CMAKE_CXX_FLAGS "-stdlib=libc++ -std=c++11")
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
 #define c++ pragmas
 IF( NOT DEFINED REST_WELCOME )
