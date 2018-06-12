@@ -8,7 +8,7 @@ opt = {
     'Build_Path' : os.path.abspath('.') + "/../build/",
     'Make_Threads':"4",
     'Clean_Up':"False",
-    'Branch':"V2.2_processes",
+    'Branch':"master",
       }
 #change the Branch key to the actual branch name in each branch
 
