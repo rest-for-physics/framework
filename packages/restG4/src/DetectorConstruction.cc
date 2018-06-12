@@ -42,10 +42,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     //chdir( buffer );
 	char originDirectory[256];
 	sprintf(originDirectory, "%s", get_current_dir_name());
-	vector<string> pathandname = SeparatePathAndName((string)restG4Metadata->Get_GDML_Filename());
-	chdir(pathandname[0].c_str());
+	auto pathandname = SeparatePathAndName((string)restG4Metadata->Get_GDML_Filename());
+	chdir(pathandname.first.c_str());
 
-    parser->Read(pathandname[1], false );
+    parser->Read(pathandname.second, false );
 
     chdir( originDirectory );
 

@@ -17,8 +17,7 @@ By default REST units are mm, keV and degrees
 <restG4>
 
   <globals>
-    <parameter name="mainDataPath" value="${REST_PATH}/inputData/" />
-    <parameter name="gasDataPath" value="${REST_PATH}/inputData/gasFiles/" />
+    <parameter name="mainDataPath" value="" />
     <parameter name="verboseLevel" value="essential" />
   </globals>
 

@@ -128,7 +128,7 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent *evInput)
 			sgn.SetID(s->GetID());
 			double baseline = s->GetBaseLine(fBaseLineRange.X(), fBaseLineRange.Y());
 			double baselinerms = s->GetBaseLineSigma(fBaseLineRange.X(), fBaseLineRange.Y());
-			for (int i = fBaseLineRange.Y(); i < s->GetNumberOfPoints()-5; i++)
+			for (int i = fBaseLineRange.Y(); i < s->GetNumberOfPoints() - 5; i++)
 			{
 				if (s->GetData(i) > baseline + fPointThreshold * baselinerms) {
 					int pos = i;
@@ -136,7 +136,7 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent *evInput)
 					pulse.push_back(s->GetData(i));
 					i++;
 					int flatN = 0;
-					while (i < s->GetNumberOfPoints()-5 && s->GetData(i) > baseline + fPointThreshold * baselinerms) {
+					while (i < s->GetNumberOfPoints() - 5 && s->GetData(i) > baseline + fPointThreshold * baselinerms) {
 						if (TMath::Abs(s->GetData(i) - s->GetData(i - 1)) > fPointThreshold * baselinerms) {
 							flatN = 0;
 						}
@@ -835,7 +835,7 @@ TRest2DHitsEvent* TRestRawSignalTo2DHitsProcess::SelectTag() {
 			fxz->SetParameter(1, hxzt->GetBinCenter(hxzt->GetMaximumBin()));
 			int fitStatus;
 			if (fVerboseLevel >= REST_Debug) {
-				debug << fOutput2DHitsEvent->GetID() << " xz " << hxzt->GetBinCenter(hxzt->GetMaximumBin()) << endl;
+				debug << "ID: "<< fOutput2DHitsEvent->GetID() << ", hxzt points: "<< fHough_XZ.size() <<", center: " << hxzt->GetBinCenter(hxzt->GetMaximumBin()) << endl;
 				fitStatus = hxzt->Fit(fxz, "N", "", hxzt->GetBinCenter(hxzt->GetMaximumBin()) - 0.2, hxzt->GetBinCenter(hxzt->GetMaximumBin()) + 0.2);
 			}
 			else
@@ -846,19 +846,15 @@ TRest2DHitsEvent* TRestRawSignalTo2DHitsProcess::SelectTag() {
 
 			if (fitStatus == 0)
 			{
-				if (fxz->GetParameter(2) < 0.05)
+				if (fxz->GetParameter(2) < fHoughSigmaLimit)
 				{
-					int c = hxzt->GetMaximumBin();
-					int sum = 0;
-					for (int i = c + 4; i <= 200; i++) //muon can have only one peak
-					{
-						sum += hxzt->GetBinContent(i);
-					}
-					for (int j = c - 4; j >= 1; j--) {
-						sum += hxzt->GetBinContent(j);
-					}
+					double c = fxz->GetParameter(1);
+					int from = hxzt->FindBin(c - fxz->GetParameter(2) * 2);//2 sigma
+					int to = hxzt->FindBin(c + fxz->GetParameter(2));
 
-					if (sum < fHough_XZ.size() / 4)
+					int sum = hxzt->Integral(from, to);
+
+					if (sum > (double)hxzt->Integral() / 5*4 )
 						fOutput2DHitsEvent->SetSubEventTag("muon");
 				}
 				else if (fxz->GetParameter(2) > 0.8&& zlen > 250)
@@ -883,7 +879,7 @@ TRest2DHitsEvent* TRestRawSignalTo2DHitsProcess::SelectTag() {
 			fyz->SetParameter(1, hyzt->GetBinCenter(hyzt->GetMaximumBin()));
 			int fitStatus;
 			if (fVerboseLevel >= REST_Debug) {
-				debug << fOutput2DHitsEvent->GetID() << " hyzt " << hyzt->GetBinCenter(hyzt->GetMaximumBin()) << endl;
+				debug << "ID: " << fOutput2DHitsEvent->GetID() << ", hyzt points: " << fHough_YZ.size() << ", center: " << hyzt->GetBinCenter(hyzt->GetMaximumBin()) << endl;
 				fitStatus = hyzt->Fit(fyz, "N", "", hyzt->GetBinCenter(hyzt->GetMaximumBin()) - 0.2, hyzt->GetBinCenter(hyzt->GetMaximumBin()) + 0.2);
 			}
 			else
@@ -893,18 +889,16 @@ TRest2DHitsEvent* TRestRawSignalTo2DHitsProcess::SelectTag() {
 
 			if (fitStatus == 0)
 			{
-				if (fyz->GetParameter(2) < 0.05)
+				if (fyz->GetParameter(2) < fHoughSigmaLimit)
 				{
-					int c = hyzt->GetMaximumBin();
-					int sum = 0;
-					for (int i = c + 4; i <= 200; i++) //muon can have only one peak
+					double c = fyz->GetParameter(1);
+					int from = hyzt->FindBin(c - fyz->GetParameter(2)*2);//2 sigma
+					int to = hyzt->FindBin(c + fyz->GetParameter(2));
+
+					int sum = hyzt->Integral(from, to);
+
+					if (sum > (double)hyzt->Integral() / 5 * 4)
 					{
-						sum += hyzt->GetBinContent(i);
-					}
-					for (int j = c - 4; j >= 1; j--) {
-						sum += hyzt->GetBinContent(j);
-					}
-					if (sum < fHough_YZ.size() / 4) {
 						if (fOutput2DHitsEvent->GetSubEventTag() == "electron")
 							fOutput2DHitsEvent->SetSubEventTag("general");
 						else
@@ -1121,6 +1115,7 @@ void TRestRawSignalTo2DHitsProcess::InitFromConfigFile()
 	fPointThreshold = StringToDouble(GetParameter("pointThreshold", "2"));
 	fNPointsOverThreshold = StringToInteger(GetParameter("pointsOverThreshold", "5"));
 	fSignalThreshold = StringToDouble(GetParameter("signalThreshold", "2.5"));
+	fHoughSigmaLimit = StringToDouble(GetParameter("houghSigmaLimit", "0.1"));
 
 	TVector2 XROI = StringTo2DVector(GetParameter("XROI", "(-100,100)"));
 	TVector2 YROI = StringTo2DVector(GetParameter("YROI", "(-100,100)"));

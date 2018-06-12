@@ -269,7 +269,7 @@ void PrimaryGeneratorAction::SetParticleEnergy( int n )
 {
     string type = (string) restG4Metadata->GetParticleSource(n).GetEnergyDistType();
 
-    Double_t energy;
+    Double_t energy = 0;
 
     if( type == "mono" )
     {

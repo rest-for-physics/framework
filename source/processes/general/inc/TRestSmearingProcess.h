@@ -33,6 +33,8 @@ class TRestSmearingProcess:public TRestEventProcess {
         TRestHitsEvent *fHitsOutputEvent;//!
 
         TRandom3 *fRandom;//!
+
+		TRestGas *fGas;//!
 #endif
 
         void InitFromConfigFile();
@@ -41,7 +43,7 @@ class TRestSmearingProcess:public TRestEventProcess {
 
     protected:
         //add here the members of your event process
-        TRestGas *fGas;
+
 
         Double_t fEnergyRef;	///< reference energy for the FWHM
         Double_t fResolutionAtEref; ///< FWHM at Energy of reference

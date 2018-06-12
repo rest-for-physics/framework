@@ -258,6 +258,8 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     Double_t peakTimeAverage = 0;
 
     Int_t nGoodSignals = 0;
+	int xsum = 0;
+	int ysum = 0;
     for( int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++ )
     {
         TRestRawSignal *sgnl = fSignalEvent->GetSignal( s );
@@ -285,9 +287,25 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
                     Int_t readoutChannel = mod->DaqToReadoutChannel( fSignalEvent->GetSignal(s)->GetID() );
                     fChannelsHisto->Fill( readoutChannel );
                 }
+
+
+				auto x = fReadout->GetX(sgnl->GetID());
+				auto y = fReadout->GetY(sgnl->GetID());
+
+				if (TMath::IsNaN(x) || TMath::IsNaN(y)) {
+					if (!TMath::IsNaN(x)) {
+						xsum += sgnl->fThresholdIntegral;
+					}
+					else if (!TMath::IsNaN(y)) {
+						ysum += sgnl->fThresholdIntegral;
+					}
+				}
             }
         }
     }
+
+	fAnalysisTree->SetObservableValue(this, "xEnergySum", xsum);
+	fAnalysisTree->SetObservableValue(this, "yEnergySum", ysum);
 
     obsName = this->GetName() + (TString) "_MinPeakTime";
     fAnalysisTree->SetObservableValue( obsName, minPeakTime );

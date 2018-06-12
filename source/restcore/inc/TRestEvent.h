@@ -30,8 +30,10 @@
 #include <TTimeStamp.h>
 #include <TPad.h>
 #include "TBufferFile.h"
+#include "TRestTools.h"
 
 
+/// A base class for any REST event 
 class TRestEvent :public TObject {
 
 protected:
@@ -95,7 +97,7 @@ public:
 	/// \brief Draw the event
 	///
 	/// To be implemented in the derived class
-	virtual TPad *DrawEvent(TString option = "") { return new TPad(); }
+	virtual TPad *DrawEvent(TString option = "") { UNUSED(option); return new TPad(); }
 
 
 	virtual void CloneTo(TRestEvent* target);

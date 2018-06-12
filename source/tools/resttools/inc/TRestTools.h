@@ -14,6 +14,7 @@
 #include <iostream>
 #include <TString.h>
 #include <TList.h>
+#define UNUSED(x) (void)x 
 
 class TRestTools:public TObject {
 

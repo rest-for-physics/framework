@@ -39,69 +39,6 @@
 #include "TStreamerElement.h"
 #include "TApplication.h"
 
-#ifdef WIN32
-#include <conio.h>
-#else
-
-#include <stdio.h>  
-#include <termios.h>  
-#include <unistd.h>  
-#include <fcntl.h> 
-#ifndef __APPLE__
-#include <termio.h>
-#endif
-
-inline int kbhit(void)
-{
-	struct termios oldt, newt;
-	int ch;
-	int oldf;
-	tcgetattr(STDIN_FILENO, &oldt);
-	newt = oldt;
-	newt.c_lflag &= ~(ICANON | ECHO);
-	tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-	oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-	fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
-	ch = getchar();
-	tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-	fcntl(STDIN_FILENO, F_SETFL, oldf);
-	if (ch != EOF)
-	{
-		ungetc(ch, stdin);
-		return 1;
-	}
-	return 0;
-}
-
-inline int getch(void)
-{
-	struct termios tm, tm_old;
-	int fd = 0, ch;
-
-	if (tcgetattr(fd, &tm) < 0)
-	{
-		return -1;
-	}
-
-	tm_old = tm;
-	cfmakeraw(&tm);
-	if (tcsetattr(fd, TCSANOW, &tm) < 0)
-	{
-		return -1;
-	}
-
-	ch = getchar();
-	if (tcsetattr(fd, TCSANOW, &tm_old) < 0)
-	{
-		return -1;
-	}
-
-	return ch;
-}
-
-#endif // WIN32
-
-
 const int PARAMETER_NOT_FOUND_INT = -99999999;
 const double PARAMETER_NOT_FOUND_DBL = -99999999;
 const std::string PARAMETER_NOT_FOUND_STR = "NO_SUCH_PARA";
@@ -132,10 +69,12 @@ public:
 	Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal);
 	Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal, vector<TiXmlElement*> eEnv);
 	Int_t LoadConfigFromFile(string cfgFileName, string sectionName = "");
-	virtual Int_t LoadSectionMetadata(string section, string cfgFileName, string name) { LoadSectionMetadata(); return 0; }
+	//virtual Int_t LoadSectionMetadata(string section, string cfgFileName, string name) { LoadSectionMetadata(); return 0; }
 	virtual Int_t LoadSectionMetadata();
 	///  To make settings from rml file. This method must be implemented in the derived class.
 	virtual void InitFromConfigFile() = 0;
+	/// Method called after the object is retrieved from root file. 
+	virtual void InitFromRootFile(){}
 
 
 
@@ -147,7 +86,7 @@ public:
 	/// These methods can be overridden in the child class.
 	virtual void BeginOfInit() { return; };
 	/// These methods can be overridden in the child class.
-	virtual Int_t ReadConfig(string keydeclare, TiXmlElement* e) { return -1; };
+	virtual Int_t ReadConfig(string keydeclare, TiXmlElement* e) { UNUSED(keydeclare); UNUSED(e); return -1; };
 	/// These methods can be overridden in the child class.
 	virtual void EndOfInit() { return; };
 
@@ -174,9 +113,9 @@ public:
 	/// Set the hoster manager for this class.
 	void SetHostmgr(TRestManager*m) { fHostmgr = m; }
 	/// Returns a string with the path used for data storage
-	TString GetDataPath() { return GetParameter("gasDataPath"); }
-	/// Returns a string with the path used for pre-generated gas files
-	TString GetGasDataPath() { return GetParameter("dataPath"); }
+	TString GetDataPath() { return GetParameter("mainDataPath",""); }
+	/// Returns a string with the path defined in sections "searchPath". 
+	TString GetSearchPath();
 	/// returns the verboselevel in type of REST_Verbose_Level enumerator
 	REST_Verbose_Level GetVerboseLevel() { return fVerboseLevel; }
 	/// returns the verboselevel in type of TString
@@ -197,7 +136,21 @@ public:
 	/// If this method is called the metadata information will be stored in disk. This is the default behaviour.
 	void Store() { fStore = true; }
 	/// overwriting the write() method with fStore considered
-	void Write() { if (fStore) { TNamed::Write(); } }
+	Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0) const { if (fStore) { return TNamed::Write(name, option, bufsize); } return -1; }
+	Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0) { if (fStore) { return TNamed::Write(name, option, bufsize); } return -1; }
+
+
+	//data tools
+	TStreamerElement* GetDataMemberWithName(string name);
+	TStreamerElement* GetDataMemberWithID(int ID);
+	int GetNumberOfDataMember();
+	double GetDblDataMemberVal(TStreamerElement*);
+	int GetIntDataMemberVal(TStreamerElement*);
+	char* GetDataMemberRef(TStreamerElement*);
+	string GetDataMemberValString(TStreamerElement*);
+	void SetDataMemberVal(TStreamerElement*, char*);
+	void SetDataMemberVal(TStreamerElement*, string);
+	void SetDataMemberValFromConfig(TStreamerElement*);
 
 protected:
 	//new xml utilities
@@ -243,7 +196,6 @@ protected:
 	TVector2 Get2DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
 	TVector3 Get3DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
 
-
 	//string utils
 	//std::string EvaluateExpression(std::string exp);
 	//std::string ReplaceMathematicalExpressions(std::string buffer);
@@ -253,20 +205,7 @@ protected:
 	/// clear the env sections list
 	void ClearEnv() { fElementEnv.clear(); }
 
-
-	//data tools
-	TStreamerElement* GetDataMemberWithName(string name);
-	TStreamerElement* GetDataMemberWithID(int ID);
-	int GetNumberOfDataMember();
-	double GetDblDataMemberVal(TStreamerElement*);
-	int GetIntDataMemberVal(TStreamerElement*);
-	char* GetDataMemberRef(TStreamerElement*);
-	string GetDataMemberValString(TStreamerElement*);
-	void SetDataMemberVal(TStreamerElement*, char*);
-	void SetDataMemberVal(TStreamerElement*, string);
-	void SetDataMemberValFromConfig(TStreamerElement*);
-
-
+	string SearchFile(string filename);
 
 	//////////////////////////////////////////////////
 	///Data members
@@ -317,7 +256,7 @@ protected:
 private:
 
 	//void ProcessElement(TiXmlElement* e);
-	void SetEnvWithElement(TiXmlElement* e,bool overwriteexisting=true);
+	void SetEnvWithElement(TiXmlElement* e,bool updateexisting =true);
 	//void ExecuteForLoops(TiXmlElement* e);
 	//void LoadConfigInIncludeFile(TiXmlElement* e);
 	void ExpandElement(TiXmlElement*e,bool recursive=false);

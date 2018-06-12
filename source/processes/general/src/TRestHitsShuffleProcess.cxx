@@ -91,15 +91,15 @@ TRestEvent* TRestHitsShuffleProcess::ProcessEvent( TRestEvent *evInput )
     TRestHits *hits = fOutputHitsEvent->GetHits();
 
     Int_t nHits = hits->GetNumberOfHits();
+	if (nHits >= 2) {
+		for (int n = 0; n < fIterations; n++)
+		{
+			Int_t hit1 = (Int_t)(nHits * fRandom->Uniform(0, 1));
+			Int_t hit2 = (Int_t)(nHits * fRandom->Uniform(0, 1));
 
-    for( int n = 0; n < fIterations; n++ )
-    {
-        Int_t hit1 = (Int_t) (nHits * fRandom->Uniform(0,1) );
-        Int_t hit2 = (Int_t) (nHits * fRandom->Uniform(0,1) );
-
-        hits->SwapHits( hit1, hit2 );
-    }
-
+			hits->SwapHits(hit1, hit2);
+		}
+	}
     return fOutputHitsEvent;
 }
 

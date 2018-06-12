@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from Tkinter import *
 import os
 import time

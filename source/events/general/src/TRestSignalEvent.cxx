@@ -200,6 +200,8 @@ Double_t TRestSignalEvent::GetMaxTime( )
 //Draw current event in a Tpad
 TPad *TRestSignalEvent::DrawEvent( TString option )
 {
+	UNUSED(option);
+
     if(fPad != NULL) { delete fPad; fPad=NULL; }
 
     int nSignals = this->GetNumberOfSignals();

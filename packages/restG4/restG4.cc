@@ -107,7 +107,7 @@ int main(int argc,char** argv) {
 
 	restG4Event = new TRestG4Event();
 	subRestG4Event = new TRestG4Event();
-	restRun->SetOutputEvent(subRestG4Event);
+	restRun->AddEventBranch(subRestG4Event);
 
     restTrack = new TRestG4Track( );
     // }}} 
@@ -399,10 +399,10 @@ int main(int argc,char** argv) {
 		//We must change to the gdml file directory, otherwise ROOT cannot load.
 		char originDirectory[256];
 		sprintf(originDirectory, "%s", get_current_dir_name());
-		vector<string> pathandname = SeparatePathAndName((string)restG4Metadata->Get_GDML_Filename());
-		chdir(pathandname[0].c_str());
+		auto pathandname = SeparatePathAndName((string)restG4Metadata->Get_GDML_Filename());
+		chdir(pathandname.first.c_str());
 		TGeoManager *geo2 = new TGeoManager();
-		geo2->Import((pathandname[1] + "_").c_str());
+		geo2->Import((pathandname.second + "_").c_str());
 		chdir(originDirectory);
 
 		//remove the temporary file

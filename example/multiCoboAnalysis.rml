@@ -1,13 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
-<TRestManager name="CoBoDataAnalysis" title="testing" verboseLevel="info" >
+<!--In this example, when launching the analysis, we are doing following operations inside TRestManager:
+1. Initialize TRestRun
+1.1 set input and output file for TRestRun(here input and output is in "globals")
+1.2 addMetadata to TRestRun
+2. Initialize TRestProcessRunner
+2.1 set number of events to process
+2.2 set thread number
+2.3 set output tree branches
+2.4 add multiple processes
+2.4.1 override some parameters in the process
+2.4.1 add additional observables in the process
+3. Add a task to call TRestProcessRunner to run
+-->
+
+<TRestManager name="CoBoDataAnalysis" title="Example" verboseLevel="info" >
 
   <TRestRun name="SJTU_Proto" >
     <addMetadata name="PandaReadout_MxM" file="readouts.root"/>
   </TRestRun>
 
-  <TRestProcessRunner name="TemplateEventProcess" verboseLevel="info">
-    <parameter name="testRun" value="ON" />
+  <TRestProcessRunner name="Processor" verboseLevel="info">
     <parameter name="eventsToProcess" value="10000" />
     <parameter name="threadNumber" value="2"/>
     
@@ -16,7 +29,10 @@
     <parameter name="outputEvent" value="on"/>
 
     <addProcess type="TRestMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON"/>
-    <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON" file="processes.rml"/>
+    <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON" file="processes.rml">
+      <parameter name="pointThreshold" value="3" />
+      <parameter name="pointsOverThreshold" value="3" />
+    </addProcess>
     <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="OFF" file="processes.rml"/>
     <addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="OFF" file="processes.rml"/>
     <addProcess type="TRestHitsAnalysisProcess" name="hitsAna" value="OFF" file="processes.rml" >
@@ -28,22 +44,17 @@
 
   </TRestProcessRunner>
 
-  <TRestAnalysisPlot name="plot" title="Spectrum Plots" file="plots.rml"/>
-
-
   <addTask command="SJTU_Proto->PrintMetadata()" value="OFF"/>  
-  <addTask command="TemplateEventProcess->RunProcess()" value="ON"/>
-  <addTask command="plot->PlotCombinedCanvas()" value="OFF"/>
-
+  <addTask command="Processor->RunProcess()" value="ON"/>
 
   <globals>
+    <searchPath value="$ENV{REST_INPUTDATA}/definitions/"/>
     <parameter name="outputLevel" value="internalvar" /> %options are : nooutput(0), observable(1), internalvar(2), fulloutput(3)
     <parameter name="verboseLevel" value="essential" /> %options are : silent(0), essential(1), info(2), debug(3), extreme(4)
     <parameter name="inputFile" value="${REST_INPUTFILE}"/>
     <parameter name="inputFormat" value="run[RunNumber]_file[Fragment]_[Time-d]_[Time].graw"/>
     <parameter name="outputFile" value="RUN[RunNumber]_[Time]_[LastProcess].root" />
-    <parameter name="addonFilePath" value="$ENV{REST_PATH}/inputData/definitions/:$ENV{REST_PATH}/inputData/gasFiles/"/>
-
+    <parameter name="mainDataPath" value="" />
   </globals>
 
 </TRestManager>

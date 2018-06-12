@@ -5,7 +5,7 @@
 #include "TRestMetadata.h"
 
 ///////////////////////////////////////////
-//we must preprocess gdml file because of a bug in TGDMLParse in ROOT6
+//we must preprocess gdml file because of a bug in TGDMLParse::Value() in ROOT6
 //
 
 class GdmlPreprocessor :public TRestMetadata {
@@ -56,17 +56,17 @@ public:
 	}
 	void InitFromConfigFile() {}
 
-	void Print() {
+	void PrintContent() {
 
 		cout << elementstr << endl;
 	}
 
-	void ReplaceAttributeWithKeyWord(string s) 
+	void ReplaceAttributeWithKeyWord(string keyword) 
 	{
 		int n;
-		while ((n = elementstr.find(s, 0)) != -1)
+		while ((n = elementstr.find(keyword, 0)) != -1)
 		{
-			int pos1, pos2;
+			int pos1 = 0, pos2 = 0;
 			for (int i = n; i >= 0; i--) {
 				if (elementstr[i] == '"') {
 					pos1 = i + 1;
@@ -74,7 +74,7 @@ public:
 				}
 			}
 
-			for (int i = n; i < elementstr.size(); i++) {
+			for (unsigned int i = n; i < elementstr.size(); i++) {
 				if (elementstr[i] == '"') {
 					pos2 = i;
 					break;

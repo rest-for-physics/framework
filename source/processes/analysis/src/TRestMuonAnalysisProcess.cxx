@@ -13,6 +13,7 @@
 
 
 #include "TRestMuonAnalysisProcess.h"
+#include <numeric>
 using namespace std;
 
 ClassImp(TRestMuonAnalysisProcess)
@@ -46,7 +47,8 @@ void TRestMuonAnalysisProcess::InitProcess()
 {
 	nummudeposxz = 0;
 	nummudeposyz = 0;
-	numsmear = 0;
+	//numsmearxy = 0;
+	//numsmearz = 0;
 	mudeposxz = new TH1D("mudeposxz", "muonXZenergydepos", 512, 0., 512.);
 	mudeposyz = new TH1D("mudeposyz", "muonYZenergydepos", 512, 0., 512.);
 
@@ -55,8 +57,11 @@ void TRestMuonAnalysisProcess::InitProcess()
 	hyzt = new TH1D((TString)"hyzt" + ToString(this), "hh", 200, 0, 3.14);
 	hyzr = new TH1D((TString)"hyzr" + ToString(this), "hh", 200, -(Y2 - Y1), (Y2 - Y1));
 
+	hdiffz = new TH1D((TString)"hdiffz" + ToString(this), "hzxdiffz", 20, 0, 20);
+	fdiffz = new TF1((TString)"fdiffz" + ToString(this), "gaus");
+
+
 	mudepos = new TH1D("mudepos", "muonTotalenergydepos", 512, 0., 512.);
-	musmear = new TH1D("musme", "muonSmearingStat", 512, 0., 512.);
 	mutanthe = new TH1D("mutanthe", "muAngularDistribution tanTheta", 50, 0, 2.5);
 
 	muhitmap = new TH2D("muhitmap", "muon hitmap on micromegas", (X2 - X1) / 3, X1, X2, (Y2 - Y1) / 3, Y1, Y2);
@@ -80,6 +85,9 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 	fAnalysisTree->SetObservableValue(this, "evefirstY", numeric_limits<double>::quiet_NaN());
 	fAnalysisTree->SetObservableValue(this, "adjustedfirstX", numeric_limits<double>::quiet_NaN());
 	fAnalysisTree->SetObservableValue(this, "adjustedfirstY", numeric_limits<double>::quiet_NaN());
+	fAnalysisTree->SetObservableValue(this, "MMpenet", 0);
+	fAnalysisTree->SetObservableValue(this, "longTrackX", 0);
+	fAnalysisTree->SetObservableValue(this, "longTrackY", 0);
 	if (fAnaEvent->GetSubEventTag() == "muon") {
 		if (fAnaEvent->GetHoughXZ().size() == 0 && fAnaEvent->GetHoughYZ().size() == 0)
 			fAnaEvent->DoHough();
@@ -126,10 +134,31 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				theyz = hyzt->GetBinCenter(hyzt->GetMaximumBin()) - 1.5708;
 			}
 
+
+			//writing raw values(before adjustment)
 			fAnalysisTree->SetObservableValue(this, "rawtantheXZ", tan(thexz));
 			fAnalysisTree->SetObservableValue(this, "rawtantheYZ", tan(theyz));
+			fAnalysisTree->SetObservableValue(this, "rawmutanthe", sqrt(tan(thexz)*tan(thexz) + tan(theyz) * tan(theyz)));
+			double muphi = 0;
+			if (tan(thexz) >= 0)
+			{
+				muphi = atan(tan(theyz) / tan(thexz));
+			}
+			else if (tan(theyz) > 0)
+			{
+				muphi = 3.1416 + atan(tan(theyz) / tan(thexz));
+			}
+			else
+			{
+				muphi = atan(tan(theyz) / tan(thexz)) - 3.1416;
+			}
+			fAnalysisTree->SetObservableValue(this, "rawmuphi", muphi);
+			fAnalysisTree->SetObservableValue(this, "evefirstX", eve->GetFirstX());
+			fAnalysisTree->SetObservableValue(this, "evefirstY", eve->GetFirstY());
 
-			//readjusting thetas in the plot(when hough is not available)
+
+
+			//adjusting thetas in the plot(when hough is not available)
 			if (thexz == 0) {
 				double xlen1 = eve->GetLastX() - eve->GetFirstX();
 				//double xlen1 = eve->GetXRange().Y() - eve->GetXRange().X();
@@ -172,29 +201,25 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				}
 			}
 
-			info << "Track feature: ";
 
+			//adjusting firstx and firsty
 			firstz = eve->GetZRange().X();
 			firstx = eve->GetFirstX() - tan(thexz)*(eve->GetZRangeInXZ().X() - firstz);
 			firsty = eve->GetFirstY() - tan(theyz)*(eve->GetZRangeInYZ().X() - firstz);
 
+
+			//writing adjusted values
 			fAnalysisTree->SetObservableValue(this, "tantheXZ", tan(thexz));
 			fAnalysisTree->SetObservableValue(this, "tantheYZ", tan(theyz));
-
-			fAnalysisTree->SetObservableValue(this, "evefirstX", eve->GetFirstX());
-			fAnalysisTree->SetObservableValue(this, "evefirstY", eve->GetFirstY());
-
 			fAnalysisTree->SetObservableValue(this, "adjustedfirstX", firstx);
 			fAnalysisTree->SetObservableValue(this, "adjustedfirstY", firsty);
-
 			fAnalysisTree->SetObservableValue(this, "mutanthe", sqrt(tan(thexz)*tan(thexz) + tan(theyz) * tan(theyz)));
-			
-			double muphi = 0;
-			if (tan(thexz) >= 0 ) 
+			muphi = 0;
+			if (tan(thexz) >= 0)
 			{
 				muphi = atan(tan(theyz) / tan(thexz));
 			}
-			else if(tan(theyz)>0)
+			else if (tan(theyz) > 0)
 			{
 				muphi = 3.1416 + atan(tan(theyz) / tan(thexz));
 			}
@@ -202,9 +227,7 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 			{
 				muphi = atan(tan(theyz) / tan(thexz)) - 3.1416;
 			}
-			fAnalysisTree->SetObservableValue(this, "muphi",muphi);
-			
-
+			fAnalysisTree->SetObservableValue(this, "muphi", muphi);
 			muhitmap->Fill(firstx, firsty);
 
 			//calculate projection
@@ -217,8 +240,8 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 			//the MM pentrating muon
 			if (firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 && firsty < Y2 - 30)
 			{
-				info << "MM pentrating muon,";
-
+				info << "MM penetration muon,";
+				fAnalysisTree->SetObservableValue(this, "MMpenet", 1);
 				//if (eve->GetNumberOfXZSignals()>7 && xlen<15)
 				//	return;
 				//if (eve->GetNumberOfYZSignals()>7 && ylen<15)
@@ -231,7 +254,7 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				if (GetVerboseLevel() >= REST_Debug) {
 					debug << eve->GetZRangeInXZ().X() << ", " << eve->GetZRangeInXZ().Y() << "   " << eve->GetZRangeInYZ().X() << ", " << eve->GetZRangeInYZ().Y() << endl;
 					debug << eve->GetID() << " " << tan1 << " " << tan2 << endl;
-					getchar();
+					//getchar();
 				}
 				//if((firstx < X1 + 30 || firstx > X2 - 30) && (firsty < Y1 + 30 || firsty > Y2 - 30))
 				//	mutanthe->Fill(sqrt(tan1*tan1 + tan2 * tan2));//at edge, fill again
@@ -241,8 +264,10 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				info << "Side injection muon,";
 			}
 
-			vector<int> xzwidths(512);
-			vector<int> yzwidths(512);
+			//vector<int> xzwidths(512);
+			//vector<int> yzwidths(512);
+			//vector<int> xzFWHMs(512);
+			//vector<int> yzFWHMs(512);
 
 			vector<int> xzdepos(512);
 			bool xzflag = false;
@@ -251,88 +276,220 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 			//XZ depos
 			if (eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X() > 345 && thexz != 0 && tan(thexz) * 350 < (X2 - X1)) {
 				info << " Long track XZ,";
+				fAnalysisTree->SetObservableValue(this, "longTrackX", 1);
 				xzflag = true;
 				for (int i = 0; i < 512; i++) {
+					//cout << i << endl;
 					auto hitsz = eve->GetXZHitsWithZ(i);
+					double sumall = 0;
 					map<double, double>::iterator iter = hitsz.begin();
-					double sum = 0;
-					int n = 0;
+					vector<vector<double>> energys;
+					vector<double> energy;
 					while (iter != hitsz.end()) {
-						if (iter->second > 0)
-							n++;
-						sum += iter->second;
+						sumall += iter->second;
+						if (iter->second > 0) {
+							energy.push_back(iter->second);
+						}
+						else
+						{
+							if (energy.size() > 0) {
+								energys.push_back(energy);
+								energy.clear();
+							}
+						}
 						iter++;
+						if (iter == hitsz.end()) {
+							energys.push_back(energy);
+							energy.clear();
+						}
 					}
-					if (n == 0 && i > 0)
-						n = xzwidths[i - 1];
-					xzwidths[i] = n;
+					double sum = 0;
+
+					double width = 0;
+					int n = 0;
+					int pos = 0;
+					for (int j = 0; j < energys.size(); j++) {
+						if (energys[j].size() > n) //pulse with maximun signal number
+						{
+							pos = j;
+							n = energys[j].size();
+						}
+					}
+					if (energys.size() > 0) {
+						for (int j = 0; j < energys[pos].size(); j++) {
+							//cout << energys[pos][j] << " ";
+							sum += energys[pos][j];
+						}
+					}
 					xzdepos[i] = sum;
 				}
-
-
 			}
 
 			//YZ depos
-			if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X() > 345 && theyz != 0 && tan(theyz) * 350<(Y2 - Y1)) {
+			if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X() > 345 && theyz != 0 && tan(theyz) * 350 < (Y2 - Y1)) {
 				info << " Long track YZ,";
+				fAnalysisTree->SetObservableValue(this, "longTrackY", 1);
 				yzflag = true;
 				for (int i = 0; i < 512; i++) {
 					auto hitsz = eve->GetYZHitsWithZ(i);
+					double sumall = 0;
 					map<double, double>::iterator iter = hitsz.begin();
-					double sum = 0;
-					int n = 0;
+					vector<vector<double>> energys;
+					vector<double> energy;
 					while (iter != hitsz.end()) {
-						if (iter->second > 0)
-							n++;
-						sum += iter->second;
+						sumall += iter->second;
+						if (iter->second > 0) {
+							energy.push_back(iter->second);
+						}
+						else
+						{
+							if (energy.size() > 0) {
+								energys.push_back(energy);
+								energy.clear();
+							}
+						}
 						iter++;
+						if (iter == hitsz.end()) {
+							energys.push_back(energy);
+							energy.clear();
+						}
 					}
-					if (n == 0 && i > 0)
-						n = yzwidths[i - 1];
-					yzwidths[i] = n;
+
+					double sum = 0;
+
+					double width = 0;
+					int n = 0;
+					int pos = 0;
+					for (int j = 0; j < energys.size(); j++) {
+						if (energys[j].size() > n) //pulse with maximun signal number
+						{
+							pos = j;
+							n = energys[j].size();
+						}
+					}
+					if (energys.size() > 0) {
+						for (int j = 0; j < energys[pos].size(); j++) {
+							sum += energys[pos][j];
+						}
+					}
+					//if (n == 0 && i > 0) {
+					//	n = yzwidths[i - 1];
+					//}
+					//yzwidths[i] = n;
 					yzdepos[i] = sum;
 				}
 			}
 
-			if (xzflag&&yzflag) {
+			if (xzflag) {
 				int shift = 150 - eve->GetZRangeInXZ().X();
 				for (int i = shift; i < 512 + shift; i++) {
 					mudeposxz->SetBinContent(mudeposxz->FindBin(i), mudeposxz->GetBinContent(mudeposxz->FindBin(i)) + xzdepos[i - shift]);
 				}
-				shift = 150 - eve->GetZRangeInYZ().X();
+				nummudeposxz++;
+			}
+			if (yzflag) {
+				int shift = 150 - eve->GetZRangeInYZ().X();
 				for (int i = shift; i < 512 + shift; i++) {
 					mudeposyz->SetBinContent(mudeposyz->FindBin(i), mudeposyz->GetBinContent(mudeposyz->FindBin(i)) + yzdepos[i - shift]);
 				}
 				nummudeposyz++;
-				nummudeposxz++;
 			}
 
 
-			//smearing
-			if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X() > 345 && theyz != 0
-				&& eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X() > 345 && thexz != 0
-				&& abs(eve->GetZRangeInXZ().X() - eve->GetZRangeInYZ().X()) < 10
-				&& firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 && firsty < Y2 - 30)
+			//diffusion
+			musmearxy.clear();
+			musmearz.clear();
+			hdiffz->Reset();
+			if (xzflag&& firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 && firsty < Y2 - 30)
 			{
-				int shift = 150 - firstz;
-				for (int i = shift; i < 512 + shift; i++) {
-					int j = i - shift;
-					if (j >= 0 && j < 512) {
-						double xwidth = (double)xzwidths[j] * stripWidth*cos(thexz);
-						double ywidth = (double)yzwidths[j] * stripWidth*cos(theyz);
+				map<int, pair<double, double>> musmearz0;
+				double n = 0;
+				double sum = 0;
+				for (int i = 0; i < eve->GetNumberOfXZSignals(); i++) {
+					double x = eve->GetX(i);
+					auto sgn = eve->GetXZSignal(i);
+					double z = max_element(sgn.begin(), sgn.end()) - sgn.begin();
+					if (DistanceToTrack(x, z, firstx, 150, thexz) < 20 && z > 10 && z < 500) {
+						for (int j = 0; j < 10; j++) {
+							hdiffz->SetBinContent(10 - j, sgn[z - j]);
+							hdiffz->SetBinContent(10 + j, sgn[z + j]);
+						}
+						int fitstatus;
+						if (GetVerboseLevel() >= REST_Debug) {
+							hdiffz->SetTitle((TString)"Z index: "+ToString(z));
+							hdiffz->Draw();
+							
+							fitstatus = hdiffz->Fit(fdiffz, "");
+							GetChar();
+						}
+						else
+						{
+							fitstatus = hdiffz->Fit(fdiffz, "QN");
+						}
 
-						musmear->SetBinContent(musmear->FindBin(i), musmear->GetBinContent(musmear->FindBin(i)) + xwidth + ywidth);
+						if (fitstatus == 0) {
+							double sigma = fdiffz->GetParameter(2);
+							double chi2 = fdiffz->GetChisquare();
+							musmearz0[z].first = sigma;
+							musmearz0[z].second = chi2;
+							n++;
+							sum += sigma;
+						}
 
+
+						//if (tan(thexz) > 0.15)
+							musmearxy[z].push_back(sgn[z] / (xzdepos[z] + yzdepos[z]));
 					}
 				}
-				numsmear++;
+
+
+				auto iter = musmearz0.begin();
+				while (iter != musmearz0.end()) {
+					musmearz[iter->first].first = iter->second.first - sum / n;
+					musmearz[iter->first].second = iter->second.second;
+					iter++;
+				}
+
+
 			}
 
+			if (yzflag&& firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 && firsty < Y2 - 30)
+			{
+				map<int, pair<double, double>> musmearz0;
+				double n = 0;
+				double sum = 0;
+				for (int i = 0; i < eve->GetNumberOfYZSignals(); i++) {
+					double y = eve->GetY(i);
+					auto sgn = eve->GetYZSignal(i);
+					double z = max_element(sgn.begin(), sgn.end()) - sgn.begin();
+					if (DistanceToTrack(y, z, firsty, 150, theyz) < 20 && z > 10 && z < 500) {
+						for (int j = 0; j < 10; j++) {
+							hdiffz->SetBinContent(10 - j, sgn[z - j]);
+							hdiffz->SetBinContent(10 + j, sgn[z + j]);
+						}
+						int fitstatus = hdiffz->Fit(fdiffz, "QN");
+						if (fitstatus == 0) {
+							double sigma = fdiffz->GetParameter(2);
+							double chi2 = fdiffz->GetChisquare();
+							musmearz0[z].first = sigma;
+							musmearz0[z].second = chi2;
+							n++;
+							sum += sigma;
+						}
 
+						//if (tan(theyz) > 0.15)
+							musmearxy[z].push_back(sgn[z] / (xzdepos[z] + yzdepos[z]));
+					}
+				}
 
+				auto iter = musmearz0.begin();
+				while (iter != musmearz0.end()) {
+					musmearz[iter->first].first = iter->second.first - sum / n;
+					musmearz[iter->first].second = iter->second.second;
+					iter++;
+				}
 
-
-
+			}
 
 			info << endl;
 
@@ -360,10 +517,10 @@ void TRestMuonAnalysisProcess::EndProcess()
 		mudeposyz->Scale(1 / (double)nummudeposyz);
 		mudeposyz->SetEntries(nummudeposyz);
 	}
-	if (numsmear > 0) {
-		musmear->Scale(1 / (double)numsmear);
-		musmear->SetEntries(numsmear);
-	}
+	//if (numsmearxy > 0) {
+	//	musmearxy->Scale(1 / (double)numsmearxy);
+	//	musmearxy->SetEntries(numsmearxy);
+	//}
 
 	mudeposxz->Write();
 	mudeposyz->Write();
@@ -372,7 +529,7 @@ void TRestMuonAnalysisProcess::EndProcess()
 	mudepos->Add(mudeposyz);
 	mudepos->Write();
 
-	musmear->Write();
+	//musmearxy->Write();
 
 	muhitmap->Write();
 	muhitdir->Divide(muhitmap);
@@ -385,6 +542,14 @@ double TRestMuonAnalysisProcess::ProjectionToCenter(double x, double y, double x
 	TVector2 pos = TVector2((X1 + X2) / 2 - x, (Y1 + Y2) / 2 - y);
 
 	return angle.Proj(pos)*pos / pos.Mod();
+}
+
+
+double TRestMuonAnalysisProcess::DistanceToTrack(double x, double z, double x0, double z0, double theta) {
+	double px = (tan(theta)*(z - z0) + tan(theta)*tan(theta)*x + x0) / (tan(theta)*tan(theta) + 1);
+	double pz = (tan(theta)*z0 + 1 / tan(theta)*z - x0 + x) / (1 / tan(theta) + tan(theta));
+
+	return sqrt((px - x)*(px - x) + (pz - z)*(pz - z));
 }
 
 void TRestMuonAnalysisProcess::InitFromConfigFile()

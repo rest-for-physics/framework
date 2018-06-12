@@ -38,15 +38,17 @@ class TRestReadout;
 class TRestG4Metadata;
 class TRestDetectorSetup;
 
+
+/// A base class for any REST event process
 class TRestEventProcess :public TRestMetadata {
 public:
 
 	enum REST_Process_Output
 	{
-		No_Output,//!< no autosave for any variables, user can still manually save what he wants.
-		Observable,//!< +saving observables in the root directory of the tree
-		Internal_Var,//!< +saving internal variables as branches
-		Full_Output,//!< +saving output event together in the branch
+		No_Output,//!< creates no branch in analysis tree, user can still manually save what he wants.
+		Observable,//!< +saving observables as branches in root directory of the tree
+		Internal_Var,//!< +saving the process itself as a branch. branch name is the process name. Internal variables can be found as leaf of the branch
+		Full_Output,//!< +saving output event as another branch. branch name is process name+"_evtBranch"
 	};
 
 	//Constructor

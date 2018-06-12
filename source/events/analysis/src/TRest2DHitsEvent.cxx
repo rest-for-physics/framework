@@ -41,6 +41,12 @@ TRest2DHitsEvent::TRest2DHitsEvent()
 	fXZIdPos.clear();
 	fYZIdPos.clear();
 	fPad = NULL;
+	gxz = NULL;
+	gyz = NULL;
+	pointxz = NULL;
+	pointyz = NULL;
+	houghxz = new TH1D((TString)"hxzt" + ToString(this), "hxz", 200, 0, 3.14);
+	houghyz = new TH1D((TString)"hyzt" + ToString(this), "hyz", 200, 0, 3.14);
 }
 
 //______________________________________________________________________________
@@ -669,8 +675,9 @@ void TRest2DHitsEvent::PrintEvent(Bool_t fullInfo)
 
 void TRest2DHitsEvent::DoHough()
 {
+	fHough_XZ.clear(); fHough_YZ.clear();
 	TVector3 center(X1 + X2 / 2, Y1 + Y2 / 2, 256);
-	if (GetNumberOfXZSignals() > 10 && xzz.size() > 10) {
+	if (xzz.size() > 10) {
 		for (int i = 0; i < xzz.size(); i++) {
 			for (int j = i + 1; j < xzz.size(); j++) {
 				double x1 = xzz[i]; double x2 = xzz[j];
@@ -694,7 +701,7 @@ void TRest2DHitsEvent::DoHough()
 		}
 	}
 
-	if (GetNumberOfYZSignals() > 10 && yzz.size() > 10) {
+	if (yzz.size() > 10) {
 		for (int i = 0; i < yzz.size(); i++) {
 			for (int j = i + 1; j < yzz.size(); j++) {
 				double x1 = yzz[i]; double x2 = yzz[j];
@@ -826,6 +833,7 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 		gxz->SetTitle((TString)"XZ plot, " + ToString(GetNumberOfXZSignals()) + " Signals");
 		gxz->GetXaxis()->SetTitle("Z");
 		gxz->GetYaxis()->SetTitle("X");
+		if(ToUpper(option) != "STRETCH")
 		{
 			gxz->SetPoint(_xzz.size(), 0, X1, 0);
 			gxz->SetPoint(_xzz.size() + 1, 512, X2, 0);
@@ -847,6 +855,7 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 		gyz->SetTitle((TString)"YZ plot, " + ToString(GetNumberOfYZSignals()) + " Signals");
 		gyz->GetXaxis()->SetTitle("Z");
 		gyz->GetYaxis()->SetTitle("Y");
+		if (ToUpper(option) != "STRETCH")
 		{
 			gyz->SetPoint(_yzz.size(), 0, Y1, 0);
 			gyz->SetPoint(_yzz.size() + 1, 512, Y2, 0);
@@ -856,18 +865,8 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 	}
 
 
-	if (option == "") {
-		fPad->Divide(1, 2);
 
-		fPad->cd(1);
-		if (gxz != NULL)
-			gxz->Draw("colz");
-
-		fPad->cd(2);
-		if (gyz != NULL)
-			gyz->Draw("colz");
-	}
-	else if (ToUpper(option) == "CLUSTER") 
+	if (ToUpper(option) == "CLUSTER") 
 	{
 		fPad->Divide(1, 2);
 
@@ -884,6 +883,40 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 
 		if (pointyz != NULL)
 			pointyz->Draw("boxsame");
+	}
+	else if (ToUpper(option) == "HOUGHTHE")
+	{
+		fPad->Divide(2, 2);
+
+		fPad->cd(1);
+		if (gxz != NULL)
+			gxz->Draw("colz");
+
+		if (pointxz != NULL)
+			pointxz->Draw("boxsame");
+
+		fPad->cd(3);
+		if (gyz != NULL)
+			gyz->Draw("colz");
+
+		if (pointyz != NULL)
+			pointyz->Draw("boxsame");
+
+		// draw hough transform figure
+
+		DoHough();
+
+		fPad->cd(2);
+		houghxz->Reset();
+		for (int i = 0; i < fHough_XZ.size(); i++)
+			houghxz->Fill(fHough_XZ[i].Y());
+		houghxz->Fit("gaus");
+
+		fPad->cd(4);
+		houghyz->Reset();
+		for (int i = 0; i < fHough_YZ.size(); i++)
+			houghyz->Fill(fHough_YZ[i].Y());
+		houghyz->Fit("gaus");
 	}
 	else if (ToUpper(option) == "ENERGYZ")
 	{
@@ -904,6 +937,18 @@ TPad *TRest2DHitsEvent::DrawEvent(TString option)
 		fPad->cd(4);
 		if (gyz != NULL)
 			gyz->Project()->Draw("colz");
+	}
+	else
+	{
+		fPad->Divide(1, 2);
+
+		fPad->cd(1);
+		if (gxz != NULL)
+			gxz->Draw("colz");
+
+		fPad->cd(2);
+		if (gyz != NULL)
+			gyz->Draw("colz");
 	}
 
 	return fPad;
