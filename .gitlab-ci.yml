@@ -1,0 +1,13 @@
+image: nkx1231/root6-geant4-garfield
+
+types:
+  - build
+
+build:
+  type: build
+  script:
+    - mkdir /tmp/build
+    - cd /tmp/build
+    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON
+    - make
+    - make install
