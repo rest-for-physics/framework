@@ -250,6 +250,8 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
 	else if( fSignalToHitMethod == "tripleMax" )
 	{
 	    Int_t bin = sgnl->GetMaxIndex();
+		int binprev = (bin - 1) < 0 ? bin : bin - 1;
+		int binnext = (bin + 1) > sgnl->GetNumberOfPoints() - 1 ? bin : bin + 1;
 
 	    Double_t time = sgnl->GetTime( bin );
 	    Double_t energy = sgnl->GetData(bin);
@@ -259,16 +261,16 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
 
 	    fHitsEvent->AddHit( x, y, z, energy );
 
-	    time = sgnl->GetTime( bin-1 );
-	    energy = sgnl->GetData( bin-1 );
+		time = sgnl->GetTime(binprev);
+	    energy = sgnl->GetData(binprev);
 
 	    distanceToPlane = time * fSampling * fDriftVelocity;
 	    z = zPosition + fieldZDirection * distanceToPlane;
 
 	    fHitsEvent->AddHit( x, y, z, energy );
 
-	    time = sgnl->GetTime( bin+1 );
-	    energy = sgnl->GetData( bin+1 );
+	    time = sgnl->GetTime(binnext);
+	    energy = sgnl->GetData(binnext);
 
 	    distanceToPlane = time * fSampling * fDriftVelocity;
 	    z = zPosition + fieldZDirection * distanceToPlane;
