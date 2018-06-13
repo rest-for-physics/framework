@@ -40,6 +40,12 @@ void TRestLinearTrack::Initialize()
     fTrackEnergy = 0;
 }
 
+void TRestLinearTrack::Normalize( Double_t scaleLong, Double_t scaleTrans )
+{
+    fLinearCharge.Normalize( scaleLong );
+    fTransversalCharge.Normalize( scaleTrans );
+}
+
 void TRestLinearTrack::Print( Bool_t fullInfo )
 {
     Double_t x = fMeanPosition.X();
