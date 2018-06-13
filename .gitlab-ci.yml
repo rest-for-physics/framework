@@ -1,4 +1,4 @@
-image: nkx1231/root6-geant4-garfield
+image: nkx1231/root6-geant4-garfield:0.1
 
 types:
   - build
