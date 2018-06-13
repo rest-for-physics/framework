@@ -6,6 +6,7 @@ types:
 build:
   type: build
   script:
+    - . /root/installgarfield.sh
     - mkdir /tmp/build
     - cd /tmp/build
     - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON
