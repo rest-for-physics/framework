@@ -224,6 +224,15 @@ Double_t TRestHits::GetEnergyInSphere( Double_t x0, Double_t y0, Double_t z0, Do
         Double_t y = this->GetY(i);
         Double_t z = this->GetZ(i);
 
+		if (TMath::IsNaN(x) + TMath::IsNaN(y) + TMath::IsNaN(z) > 1) {
+			cout << "REST Warning (TRestHits::GetEnergyInSphere) : more than two coordinates missing in the hit!" << endl;
+			return 0;
+		}
+
+		x = TMath::IsNaN(x) ? 0 : x;
+		y = TMath::IsNaN(y) ? 0 : y;
+		z = TMath::IsNaN(z) ? 0 : z;
+
         Double_t dist = (x-x0) * (x-x0) + (y-y0) * (y-y0) + (z-z0) * (z-z0);
 
         if( dist < radius * radius )
