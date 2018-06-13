@@ -158,6 +158,18 @@ class TRestReadoutModule : public TObject {
 		/// Returns the module rotation in degrees
 		Double_t GetModuleRotation() { return fModuleRotation; }
 
+		/// Converts the coordinates given by TVector2 in the readout plane reference system to the readout module reference system.
+		TVector2 GetModuleCoordinates( TVector2 p )
+		{
+			return TransformToModuleCoordinates( p );
+		}
+
+		/// Converts the coordinates given by TVector2 in the readout module reference system to the readout plane reference system.
+		TVector2 GetPhysicalCoordinates( TVector2 p )
+		{
+			return TransformToPhysicalCoordinates( p.X(), p.Y() );
+		}
+
 		/// Returns the module name
 		TString GetName( ) { return fModuleName; }
 
