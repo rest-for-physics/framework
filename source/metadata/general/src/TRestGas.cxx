@@ -327,14 +327,14 @@ void TRestGas::LoadGasFile()
 		cout << "node " << i << " Field : " << fEFields[i] << " V/cm" << endl;
 		*/
 
-	if (fGasMedium && fGasMedium->GetW() == 0.) {
-		fW = StringToDouble(GetParameter("W_value","0"));
-		fGasMedium->SetW(GetWvalue());
-	} // as it is probably not computed by Magboltz
-	else
-	{
-		fW = fGasMedium->GetW();
-	}
+	//if (fGasMedium && fGasMedium->GetW() == 0.) {
+	//	fW = StringToDouble(GetParameter("W_value","0"));
+	//	fGasMedium->SetW(GetWvalue());
+	//} // as it is probably not computed by Magboltz
+	//else
+	//{
+	//	fW = fGasMedium->GetW();
+	//}
 	fGasFileLoaded = true;
 	//in future we need to import fPressure, fTemperature from fGasMedium
 	//this->SetPressure(pressure);
@@ -420,7 +420,7 @@ void TRestGas::InitFromConfigFile()
 	fTemperatureInK = StringToDouble(GetParameter("temperature"));
 	fNCollisions = StringToInteger(GetParameter("nCollisions"));
 	fMaxElectronEnergy = StringToDouble(GetParameter("maxElectronEnergy"));
-	fW = StringToDouble(GetParameter("W_value"));
+	fW = StringToDouble(GetParameter("W_value","-1"));
 
 	fGDMLMaterialRef = GetParameter("GDMLMaterialRef", "");
 
