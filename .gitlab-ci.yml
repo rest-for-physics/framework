@@ -1,20 +1,14 @@
 image: nkx1231/root6-geant4-garfield:0.1
 
-buildgarfield:
-  type: build
-  script:
-    - . /root/installgarfield.sh
+before_script:
+  - . /root/installgarfield.sh
 
-buildrest:
+build:
   type: build
   script:
     - mkdir /tmp/rest && cd /tmp/rest
     - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON
     - make install
-
-buildrestG4:
-  type: build
-  script:
     - mkdir /tmp/restg4 && cd /tmp/restg4
     - cmake ${CI_PROJECT_DIR}/packages/restG4
     - make install
