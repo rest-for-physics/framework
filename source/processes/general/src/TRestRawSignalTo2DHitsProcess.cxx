@@ -854,7 +854,7 @@ TRest2DHitsEvent* TRestRawSignalTo2DHitsProcess::SelectTag() {
 
 					int sum = hxzt->Integral(from, to);
 
-					if (sum > (double)hxzt->Integral() / 5*4 )
+					if (sum > (double)hxzt->Integral() *fPeakPointRateLimit)
 						fOutput2DHitsEvent->SetSubEventTag("muon");
 				}
 				else if (fxz->GetParameter(2) > 0.8&& zlen > 250)
@@ -897,7 +897,7 @@ TRest2DHitsEvent* TRestRawSignalTo2DHitsProcess::SelectTag() {
 
 					int sum = hyzt->Integral(from, to);
 
-					if (sum > (double)hyzt->Integral() / 5 * 4)
+					if (sum > (double)hyzt->Integral() *fPeakPointRateLimit)
 					{
 						if (fOutput2DHitsEvent->GetSubEventTag() == "electron")
 							fOutput2DHitsEvent->SetSubEventTag("general");
@@ -1115,7 +1115,8 @@ void TRestRawSignalTo2DHitsProcess::InitFromConfigFile()
 	fPointThreshold = StringToDouble(GetParameter("pointThreshold", "2"));
 	fNPointsOverThreshold = StringToInteger(GetParameter("pointsOverThreshold", "5"));
 	fSignalThreshold = StringToDouble(GetParameter("signalThreshold", "2.5"));
-	fHoughSigmaLimit = StringToDouble(GetParameter("houghSigmaLimit", "0.1"));
+	fHoughSigmaLimit = StringToDouble(GetParameter("houghSigmaLimit", "0.05"));
+	fPeakPointRateLimit = StringToDouble(GetParameter("peakPointRateLimit", "0.9"));
 
 	TVector2 XROI = StringTo2DVector(GetParameter("XROI", "(-100,100)"));
 	TVector2 YROI = StringTo2DVector(GetParameter("YROI", "(-100,100)"));

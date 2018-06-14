@@ -882,23 +882,15 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 		{
 			targetele = (TiXmlElement*)e->Parent();
 			if (targetele == NULL)return;
-			type = targetele->Value();
-			name = targetele->Attribute("name") == NULL ? "" : targetele->Attribute("name");
-
+			type = "";
+			name = "";
 			configele = new TiXmlElement("Config");
-			ifstream infile;
-			infile.open(filename);
-			string str;
-			int t1;
-			while(getline(infile,str))
-			{
-				TiXmlElement*ele = StringToElement(str);
-				if (ele != NULL) {
-					configele->InsertEndChild(*ele);
-				}
-				else {
-					debug << "skipping non-xml line \"" << str <<"\""<< endl;
-				}
+
+			TiXmlElement*ele = GetRootElementFromFile(filename);
+			if (ele == NULL)warning << "REST Waring: no xml elements contained in the include file \"" << filename << "\"" << endl;
+			while (ele != NULL) {
+				configele->InsertEndChild(*ele);
+				ele = ele->NextSiblingElement();
 			}
 
 		}

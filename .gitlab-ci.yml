@@ -1,0 +1,16 @@
+image: nkx1231/root6-geant4-garfield:0.1
+
+before_script:
+  - apt-get install -y libglu1-mesa
+  - . /root/installgarfield.sh
+
+build:
+  type: build
+  script:
+    - mkdir /tmp/rest && cd /tmp/rest
+    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DINSTALL_PREFIX=/root/rest
+    - make install
+    - . /root/rest/thisREST.sh
+    - mkdir /tmp/restg4 && cd /tmp/restg4
+    - cmake ${CI_PROJECT_DIR}/packages/restG4
+    - make install
