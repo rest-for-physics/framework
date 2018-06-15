@@ -72,11 +72,11 @@ class TRestG4Metadata:public TRestMetadata {
         /// This rotation is used by virtualWall, virtualCircleWall and virtualCylinder generators.
         TVector3 fGenRotation;
 
-        /// The size of the virtual generator. I.e. the radius of a virtual sphere, or the side size of a wall.
-        Double_t fGenSize;
+        /// The primary length of the virtual generator. I.e. the radius of a virtual sphere, or the X-side size of a virtual wall.
+        Double_t fGenDimension1;
 
-        /// An additional dimension required by some virtual generators. I.e. the lenght of a virtual cylinder.
-        Double_t fGenLength;
+        /// An additional dimension required by some virtual generators. I.e. the lenght of a virtual cylinder or the Y-side size of a virtual wall.
+        Double_t fGenDimension2;
 
         /// The name of a Decay0 generated file used to produce a collection of primary sources, definning energy, momentum, particle type.
         TString fGeneratorFile;
@@ -144,11 +144,14 @@ class TRestG4Metadata:public TRestMetadata {
         /// \brief Returns the size of virtual generator.
         /// It is the radius for virtualSphere, virtualCylinder and virtualCircleWall.
         /// It is the size of a regular virtualWall and virtualBox.
-        Double_t GetGeneratorSize() { return fGenSize; }
+        Double_t GetGeneratorSize() { return fGenDimension1; }
+        Double_t GetGeneratorDX() { return fGenDimension1; }
+        Double_t GetGeneratorRadius() { return fGenDimension1; }
 
         /// \brief The lenght of a virtual volume generator.
         /// It is used to define the length of virtualCylinder generator.
-        Double_t GetGeneratorLength() { return fGenLength; }
+        Double_t GetGeneratorLength() { return fGenDimension2; }
+        Double_t GetGeneratorDY() { return fGenDimension2; }
 
         /// \brief Returns true in case full decay chain simulation is enabled.
         Bool_t isFullChainActivated() { return fFullChain; }
@@ -168,7 +171,7 @@ class TRestG4Metadata:public TRestMetadata {
         void SetGeneratorType( TString type ) { fGenType = type; } 
 
         ///  Sets the generator size. In a virtual generator is the radius of cylinder, size of wall, etc.
-        void SetGeneratorSize( Double_t size ) { fGenSize = size; }
+        void SetGeneratorSize( Double_t size ) { fGenDimension1 = size; }
 
         ///  Enables/disables the full chain decay generation.
         void SetFullChain( Bool_t fullChain ) { fFullChain = fullChain; }

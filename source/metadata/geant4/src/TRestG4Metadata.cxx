@@ -757,30 +757,39 @@ void TRestG4Metadata::ReadBiasing()
 void TRestG4Metadata::ReadGenerator()
 {
 
-    // TODO if some fields are defined in the generator but not finally used
-    // i.e. <generator type="volume" from="gasTarget" position="(100,0,-100)
-    // here position is irrelevant since the event will be generated from the volume defined in the geometry
-    // we should take care of these values so they are not stored in metadata (to avoid future confusion)
-    // In the particular case of position, the value is overwritten in DetectorConstruction by the center of the volume (i.e. gasTarget)
-    // but if i.e rotation or side are defined and not relevant we should set it to -1
+	// TODO if some fields are defined in the generator but not finally used
+	// i.e. <generator type="volume" from="gasTarget" position="(100,0,-100)
+	// here position is irrelevant since the event will be generated from the volume defined in the geometry
+	// we should take care of these values so they are not stored in metadata (to avoid future confusion)
+	// In the particular case of position, the value is overwritten in DetectorConstruction by the center of the volume (i.e. gasTarget)
+	// but if i.e rotation or side are defined and not relevant we should set it to -1
 
-    string generatorString = GetKEYStructure( "generator" );
+	string generatorString = GetKEYStructure( "generator" );
 
-    string generatorDefinition = GetKEYDefinition( "generator", generatorString );
+	string generatorDefinition = GetKEYDefinition( "generator", generatorString );
 
-    fGenType = GetFieldValue( "type", generatorDefinition );
-    fGenFrom = GetFieldValue( "from", generatorDefinition );
-    fGenSize = GetDblFieldValueWithUnits( "size", generatorDefinition );
+	fGenType = GetFieldValue( "type", generatorDefinition );
+	fGenFrom = GetFieldValue( "from", generatorDefinition );
 
-    // TODO : If not defined (and required to be) it just returns (0,0,0) we should make a WARNING. Inside StringToVector probably
-    fGenPosition = Get3DVectorFieldValueWithUnits( "position", generatorDefinition );
+	string dimension1 [3]{"size","dX","radius"}; Int_t i=0;
+	do {
+		fGenDimension1 = GetDblFieldValueWithUnits( dimension1[i], generatorDefinition );
+		i++;
+	} while (fGenDimension1 == PARAMETER_NOT_FOUND_DBL );
 
-    fGenRotation = StringTo3DVector ( GetFieldValue( "rotation", generatorDefinition ) );
+	// TODO : If not defined (and required to be) it just returns (0,0,0) we should make a WARNING. Inside StringToVector probably
+	fGenPosition = Get3DVectorFieldValueWithUnits( "position", generatorDefinition );
 
-    fGenLength = GetDblFieldValueWithUnits ( "length", generatorDefinition );
+	fGenRotation = StringTo3DVector ( GetFieldValue( "rotation", generatorDefinition ) );
 
-    size_t position = 0;
-    string sourceString;
+	string dimension2 [2]{"length","dY"}; i=0;
+	do {
+		fGenDimension2 = GetDblFieldValueWithUnits( dimension2[i], generatorDefinition );
+		i++;
+	} while (fGenDimension2 == PARAMETER_NOT_FOUND_DBL );
+
+	size_t position = 0;
+	string sourceString;
 
     Int_t n = 0;
     while( ( sourceString = GetKEYStructure( "source", position, generatorString ) ) != "" )
