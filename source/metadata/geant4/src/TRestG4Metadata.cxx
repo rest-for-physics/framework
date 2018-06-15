@@ -175,11 +175,11 @@
 ///
 /// We can define any number of primary particles (sources) that will be used
 /// to construct an initial event. All primary particles that build an
-/// event will have a common position. The spatial origin of these sources, or 
-/// primaries, is specified in the definition of the generator, through the 
+/// event will have a common position. The spatial origin of these sources, or
+/// primaries, is specified in the definition of the generator, through the
 /// generator *type* field.
 ///
-/// We must define the *generatorType* inside the generator tag description as 
+/// We must define the *generatorType* inside the generator tag description as
 /// follows.
 /// \code
 /// <generator type="generatorType" ... />
@@ -192,29 +192,29 @@
 /// detailed in the following list:
 ///
 /// * **volume**: This generator will launch the events from random positions inside
-/// a volume defined in the geometry. It requires to define the parameter 
-/// `from="physVolume"`, where `physVolume` is a physical volume name defined in our 
-/// GDML geometry description. This generator will launch homogeneously events from 
-/// the internal volume of `physVolume`. If there are empty holes in this physical 
-/// volumes we should take care to substract the different internal empty volumes in 
+/// a volume defined in the geometry. It requires to define the parameter
+/// `from="physVolume"`, where `physVolume` is a physical volume name defined in our
+/// GDML geometry description. This generator will launch homogeneously events from
+/// the internal volume of `physVolume`. If there are empty holes in this physical
+/// volumes we should take care to substract the different internal empty volumes in
 /// the geometry definition, for this generator to work properly.
 /// \code
-///     // We launch particles from random positions inside the vessel 
+///     // We launch particles from random positions inside the vessel
 ///     // volume defined in our GDML geometry
 ///     <generator type="volume" from="vessel" >
 /// \endcode
 ///
 /// * **surface**: This generator will launch homogeneously events from the surface
 /// of a volume defined in the geometry. It also requires to define the additional
-/// parameter `from="physVolume"`, using a physical volume name defined in our 
+/// parameter `from="physVolume"`, using a physical volume name defined in our
 /// GDML geometry description.
 /// \code
-///     // We launch particles from random positions at the surface of the cathode 
+///     // We launch particles from random positions at the surface of the cathode
 ///     // volume defined in our GDML geometry
 ///     <generator type="surface" from="cathode" >
 /// \endcode
 ///
-/// * **point**: All the particles will be launched from the same position. It 
+/// * **point**: All the particles will be launched from the same position. It
 /// requires to define the additional parameter `position="(X,Y,Z)"` together with the
 /// unit values.
 /// \code
@@ -222,9 +222,9 @@
 ///     <generator type="point" position="(0,0,-150)" units="mm" >
 /// \endcode
 ///
-/// * **virtualSphere**: It generates the events from the surface of a virtual (not 
-/// defined in the GDML geometry) sphere. It requires to define the parameters to place 
-/// and dimension the sphere, `position="(X,Y,Z)"` and `radius="R"`. Where `X,Y,Z` are 
+/// * **virtualSphere**: It generates the events from the surface of a virtual (not
+/// defined in the GDML geometry) sphere. It requires to define the parameters to place
+/// and dimension the sphere, `position="(X,Y,Z)"` and `radius="R"`. Where `X,Y,Z` are
 /// the coordinates of the center of the sphere and `R` is the radius of the sphere. If
 /// the angular distribution is defined as `isotropic` the events will be launched only
 /// towards the inside.
@@ -237,7 +237,7 @@
 ///
 /// * **virtualWall**: It generates the events from a finite rectangular plane of a given length and width.
 /// It requires to define the additional parameters `position="(X,Y,Z)"`,
-/// `lenX="lX"`,`lenY="lY"` and `rotation="(rX,rY,rZ)"`. Where `X,Y,Z` is the center position of 
+/// `lenX="lX"`,`lenY="lY"` and `rotation="(rX,rY,rZ)"`. Where `X,Y,Z` is the center position of
 /// the wall, `lX` and `lY` are respectively the size of the wall along th x-axis and the y-axis, and `rX`, `rY`, `rZ` are the rotation
 /// angles applied to the wall. The wall is originally generated on the `XY` plane and
 /// then rotated by the axis angles `rX`, `rY`, `rZ`, following that order.
@@ -248,10 +248,10 @@
 ///    <generator type="virtualWall" position="(0,0,-100)" units="mm" lenX="100" units="mm" lenY="150" units="mm" rotation="(45,0,0)" >
 /// \endcode
 ///
-/// * **virtualCylinder**: It generates the events from the surface of a virtual (not 
-/// defined in the GDML geometry) cylinder. It requires to define the additional 
-/// parameters `position="(X,Y,Z)"`, `radius="R"`, `length="L"` and 
-/// `rotation="(rX,rY,rZ)"`, where `X`, `Y`, `Z` is the center position of the 
+/// * **virtualCylinder**: It generates the events from the surface of a virtual (not
+/// defined in the GDML geometry) cylinder. It requires to define the additional
+/// parameters `position="(X,Y,Z)"`, `radius="R"`, `length="L"` and
+/// `rotation="(rX,rY,rZ)"`, where `X`, `Y`, `Z` is the center position of the
 /// cylinder, `R` is the radius of the cylinder, `L` is the length of the cylinder,
 /// and `rX`, `rY`, `rZ` are the rotation angles applied to the cylinder. The cylinder
 /// is originally generated with its axis along the z-axis. In the cylinder case,
@@ -265,10 +265,10 @@
 /// \endcode
 ///
 /// * **virtualBox**: It generates the events from a surface of a virtual (not defined
-/// in the GDML geometry) box, a cube of size L. It requires to define the additional parameters 
+/// in the GDML geometry) box, a cube of size L. It requires to define the additional parameters
 /// `position="(X,Y,Z)"`, `size="L"`, where `X`, `Y`, `Z` is the center of the box, and
 /// `L` is the length of the box side. The virtualBox does not implement rotation yet.
-/// And if isotropic angular distribution is used events will be launched towards 
+/// And if isotropic angular distribution is used events will be launched towards
 /// the inside.
 /// \code
 ///     // We launch particles from the surface of a virtual box,
@@ -597,12 +597,12 @@
 using namespace std;
 
 ClassImp(TRestG4Metadata)
-///////////////////////////////////////////////
-/// \brief Default constructor
-///
+	///////////////////////////////////////////////
+	/// \brief Default constructor
+	///
 TRestG4Metadata::TRestG4Metadata() : TRestMetadata()
 {
-   Initialize();
+	Initialize();
 }
 
 ///////////////////////////////////////////////
@@ -620,11 +620,11 @@ TRestG4Metadata::TRestG4Metadata() : TRestMetadata()
 TRestG4Metadata::TRestG4Metadata( char *cfgFileName, string name ) : TRestMetadata (cfgFileName)
 {
 
-    Initialize();
+	Initialize();
 
-    LoadConfigFromFile( fConfigFileName, name );
+	LoadConfigFromFile( fConfigFileName, name );
 
-    PrintMetadata();
+	PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -639,21 +639,21 @@ TRestG4Metadata::~TRestG4Metadata()
 /// 
 void TRestG4Metadata::Initialize()
 {
-    SetSectionName( this->ClassName() );
+	SetSectionName( this->ClassName() );
 
-    fChance.clear();
-    fActiveVolumes.clear();
-    fBiasingVolumes.clear();
+	fChance.clear();
+	fActiveVolumes.clear();
+	fBiasingVolumes.clear();
 
-    fNBiasingVolumes = 0;
+	fNBiasingVolumes = 0;
 
-    fGeneratorFile = "";
+	fGeneratorFile = "";
 
-    fPrimaryGenerator.Reset();
+	fPrimaryGenerator.Reset();
 
-    fSensitiveVolume = "gas";
+	fSensitiveVolume = "gas";
 
-    fEnergyRangeStored.Set( 0, 1.E20 );
+	fEnergyRangeStored.Set( 0, 1.E20 );
 }
 
 ///////////////////////////////////////////////
@@ -661,30 +661,30 @@ void TRestG4Metadata::Initialize()
 /// 
 void TRestG4Metadata::InitFromConfigFile()
 {
-    this->Initialize();
+	this->Initialize();
 
-    // Initialize the metadata members from a configfile
-    fGDML_Filename = GetParameter( "gdml_file" );
+	// Initialize the metadata members from a configfile
+	fGDML_Filename = GetParameter( "gdml_file" );
 
-    fGeometryPath = GetParameter( "geometryPath" );
+	fGeometryPath = GetParameter( "geometryPath" );
 
-    Double_t defaultStep = 100 * REST_Units::um;
-    fMaxTargetStepSize = GetDblParameterWithUnits( "maxTargetStepSize", defaultStep );
+	Double_t defaultStep = 100 * REST_Units::um;
+	fMaxTargetStepSize = GetDblParameterWithUnits( "maxTargetStepSize", defaultStep );
 
-    Double_t defaultTime = 1. / REST_Units::s;
-    fSubEventTimeDelay = GetDblParameterWithUnits( "subEventTimeDelay", defaultTime );
+	Double_t defaultTime = 1. / REST_Units::s;
+	fSubEventTimeDelay = GetDblParameterWithUnits( "subEventTimeDelay", defaultTime );
 
-    fNEvents = StringToInteger( GetParameter( "Nevents" ) );
-    //fActivity = StringToDouble( GetParameter( "activity" ) );
-    //fMass = StringToDouble( GetParameter( "mass" ) );
+	fNEvents = StringToInteger( GetParameter( "Nevents" ) );
+	//fActivity = StringToDouble( GetParameter( "activity" ) );
+	//fMass = StringToDouble( GetParameter( "mass" ) );
 
-    ReadGenerator();
+	ReadGenerator();
 
-    ReadStorage();
+	ReadStorage();
 
-    ReadBiasing();
+	ReadBiasing();
 
-    // should return sucess or fail
+	// should return sucess or fail
 
 }
 
@@ -699,52 +699,52 @@ void TRestG4Metadata::InitFromConfigFile()
 /// 
 void TRestG4Metadata::ReadBiasing()
 {
-    string biasingString = GetKEYStructure( "biasing" );
+	string biasingString = GetKEYStructure( "biasing" );
 
-    if ( biasingString == "NotFound" )
-    {
-        fNBiasingVolumes = 0;
-        return;
-    }
+	if ( biasingString == "NotFound" )
+	{
+		fNBiasingVolumes = 0;
+		return;
+	}
 
-    string biasingDefinition = GetKEYDefinition( "biasing", biasingString );
+	string biasingDefinition = GetKEYDefinition( "biasing", biasingString );
 
-    TString biasEnabled = GetFieldValue( "value", biasingDefinition );
-    TString biasType =  GetFieldValue( "type", biasingDefinition );
+	TString biasEnabled = GetFieldValue( "value", biasingDefinition );
+	TString biasType =  GetFieldValue( "type", biasingDefinition );
 
-    cout << "Bias : " << biasEnabled << endl;
+	cout << "Bias : " << biasEnabled << endl;
 
-    if( biasEnabled == "on" || biasEnabled == "ON" || biasEnabled == "On" || biasEnabled == "oN" )
-    {
-        cout << "Biasing is enabled" << endl;
+	if( biasEnabled == "on" || biasEnabled == "ON" || biasEnabled == "On" || biasEnabled == "oN" )
+	{
+		cout << "Biasing is enabled" << endl;
 
-        size_t position = 0;
-        string biasVolumeDefinition;
+		size_t position = 0;
+		string biasVolumeDefinition;
 
-        Int_t n = 0;
-        while( ( biasVolumeDefinition = GetKEYDefinition( "biasingVolume", position, biasingString ) ) != "" )
-        {
-            TRestBiasingVolume biasVolume;
+		Int_t n = 0;
+		while( ( biasVolumeDefinition = GetKEYDefinition( "biasingVolume", position, biasingString ) ) != "" )
+		{
+			TRestBiasingVolume biasVolume;
 
-            cout << "Def : " << biasVolumeDefinition << endl;
-            
-            biasVolume.SetBiasingVolumePosition( Get3DVectorFieldValueWithUnits( "position", biasVolumeDefinition ) );
-            biasVolume.SetBiasingFactor( StringToDouble( GetFieldValue( "factor", biasVolumeDefinition ) ) );
-            biasVolume.SetBiasingVolumeSize( GetDblFieldValueWithUnits( "size", biasVolumeDefinition ) );
-            biasVolume.SetEnergyRange( Get2DVectorFieldValueWithUnits( "energyRange", biasVolumeDefinition ) );
-            biasVolume.SetBiasingVolumeType( biasType ); // For the moment all the volumes should be same type
+			cout << "Def : " << biasVolumeDefinition << endl;
 
-            /* TODO check that values are right if not printBiasingVolume with getchar() 
-            biasVolume.PrintBiasingVolume();
-            getchar();
-            */
+			biasVolume.SetBiasingVolumePosition( Get3DVectorFieldValueWithUnits( "position", biasVolumeDefinition ) );
+			biasVolume.SetBiasingFactor( StringToDouble( GetFieldValue( "factor", biasVolumeDefinition ) ) );
+			biasVolume.SetBiasingVolumeSize( GetDblFieldValueWithUnits( "size", biasVolumeDefinition ) );
+			biasVolume.SetEnergyRange( Get2DVectorFieldValueWithUnits( "energyRange", biasVolumeDefinition ) );
+			biasVolume.SetBiasingVolumeType( biasType ); // For the moment all the volumes should be same type
 
-            fBiasingVolumes.push_back( biasVolume );
+			/* TODO check that values are right if not printBiasingVolume with getchar()
+			   biasVolume.PrintBiasingVolume();
+			   getchar();
+			   */
 
-            n++;
-        }
-        fNBiasingVolumes = n;
-    }
+			fBiasingVolumes.push_back( biasVolume );
+
+			n++;
+		}
+		fNBiasingVolumes = n;
+	}
 
 
 }
@@ -802,88 +802,88 @@ void TRestG4Metadata::ReadGenerator()
 	size_t position = 0;
 	string sourceString;
 
-    Int_t n = 0;
-    while( ( sourceString = GetKEYStructure( "source", position, generatorString ) ) != "" )
-    {
-        TRestParticleSource source;
+	Int_t n = 0;
+	while( ( sourceString = GetKEYStructure( "source", position, generatorString ) ) != "" )
+	{
+		TRestParticleSource source;
 
-        // Source parameters
-        string sourceDefinition = GetKEYDefinition( "source", sourceString );
+		// Source parameters
+		string sourceDefinition = GetKEYDefinition( "source", sourceString );
 
-        fGeneratorFile = GetFieldValue( "fromFile", sourceDefinition );
+		fGeneratorFile = GetFieldValue( "fromFile", sourceDefinition );
 
-        if( fGeneratorFile != "Not defined" )
-        {
-            cout << "Reading sources from generator file : " << fGeneratorFile << endl;
-            ReadGeneratorFile( fGeneratorFile );
+		if( fGeneratorFile != "Not defined" )
+		{
+			cout << "Reading sources from generator file : " << fGeneratorFile << endl;
+			ReadGeneratorFile( fGeneratorFile );
 
-            break;
-        }
+			break;
+		}
 
-        source.SetParticleName( GetFieldValue( "particle", sourceDefinition ) );
+		source.SetParticleName( GetFieldValue( "particle", sourceDefinition ) );
 
-        if( GetVerboseLevel() >= REST_Debug )
-            cout << "Particle name : " << source.GetParticle() << endl;
-   
-        source.SetExcitationLevel( StringToDouble(GetFieldValue( "excitedLevel", sourceDefinition  )) );
-     
-        TString fullChain = GetFieldValue( "fullChain", sourceDefinition );
+		if( GetVerboseLevel() >= REST_Debug )
+			cout << "Particle name : " << source.GetParticle() << endl;
 
-        if( fullChain == "on" || fullChain == "ON" || fullChain == "On" || fullChain == "oN" )
-        {
-            SetFullChain( true );
-        }
-        else
-        {
-            SetFullChain( false );
-        }
+		source.SetExcitationLevel( StringToDouble(GetFieldValue( "excitedLevel", sourceDefinition  )) );
 
-        // Angular distribution parameters
-        string angularDefinition = GetKEYDefinition( "angularDist", sourceString );
+		TString fullChain = GetFieldValue( "fullChain", sourceDefinition );
 
-        source.SetAngularDistType( GetFieldValue( "type", angularDefinition ) );
+		if( fullChain == "on" || fullChain == "ON" || fullChain == "On" || fullChain == "oN" )
+		{
+			SetFullChain( true );
+		}
+		else
+		{
+			SetFullChain( false );
+		}
 
-        if( source.GetAngularDistType() == "TH1D" )
-        {
+		// Angular distribution parameters
+		string angularDefinition = GetKEYDefinition( "angularDist", sourceString );
 
-            source.SetAngularFilename( GetFieldValue( "file", angularDefinition ) ); 
-            source.SetAngularName( GetFieldValue( "spctName", angularDefinition ) ); 
-        }
+		source.SetAngularDistType( GetFieldValue( "type", angularDefinition ) );
 
-        if( n == 0 && source.GetAngularDistType() == "backtoback" ) 
-        {
-            cout << "WARNING: First source cannot be backtoback. Setting it to isotropic" << endl;
-            source.SetAngularDistType( "isotropic");
+		if( source.GetAngularDistType() == "TH1D" )
+		{
 
-        }
+			source.SetAngularFilename( GetFieldValue( "file", angularDefinition ) );
+			source.SetAngularName( GetFieldValue( "spctName", angularDefinition ) );
+		}
 
-        source.SetDirection( StringTo3DVector( GetFieldValue( "direction", angularDefinition ) ) );
+		if( n == 0 && source.GetAngularDistType() == "backtoback" )
+		{
+			cout << "WARNING: First source cannot be backtoback. Setting it to isotropic" << endl;
+			source.SetAngularDistType( "isotropic");
 
-        // Energy distribution parameters
-        string energyDefinition = GetKEYDefinition( "energyDist", sourceString );
+		}
 
-        source.SetEnergyDistType( GetFieldValue( "type", energyDefinition ) );
+		source.SetDirection( StringTo3DVector( GetFieldValue( "direction", angularDefinition ) ) );
 
-        if( source.GetEnergyDistType() == "TH1D" )
-        {
-            source.SetSpectrumFilename ( GetFieldValue( "file", energyDefinition ) );
-            source.SetSpectrumName ( GetFieldValue( "spctName", energyDefinition ) );
-        }
+		// Energy distribution parameters
+		string energyDefinition = GetKEYDefinition( "energyDist", sourceString );
 
-        source.SetEnergyRange( Get2DVectorFieldValueWithUnits ( "range", energyDefinition ) );
+		source.SetEnergyDistType( GetFieldValue( "type", energyDefinition ) );
 
-        if( source.GetEnergyDistType() == "mono" )
-        {
-            Double_t en;
-            en = GetDblFieldValueWithUnits( "energy", energyDefinition );
-            source.SetEnergyRange ( TVector2 (en,en) ); 
-            source.SetEnergy( en );
-        }
+		if( source.GetEnergyDistType() == "TH1D" )
+		{
+			source.SetSpectrumFilename ( GetFieldValue( "file", energyDefinition ) );
+			source.SetSpectrumName ( GetFieldValue( "spctName", energyDefinition ) );
+		}
 
-        fPrimaryGenerator.AddSource( source );
+		source.SetEnergyRange( Get2DVectorFieldValueWithUnits ( "range", energyDefinition ) );
 
-        n++;
-    }
+		if( source.GetEnergyDistType() == "mono" )
+		{
+			Double_t en;
+			en = GetDblFieldValueWithUnits( "energy", energyDefinition );
+			source.SetEnergyRange ( TVector2 (en,en) );
+			source.SetEnergy( en );
+		}
+
+		fPrimaryGenerator.AddSource( source );
+
+		n++;
+	}
 
 }
 
@@ -896,29 +896,29 @@ void TRestG4Metadata::ReadGenerator()
 void TRestG4Metadata::ReadStorage( )
 {
 
-    string storageString = GetKEYStructure( "storage" );
-    fSensitiveVolume = GetFieldValue( "sensitiveVolume", storageString  );
-    cout << "Sensitive volume : " << fSensitiveVolume << endl;
-    if( fSensitiveVolume == "Not defined" ) 
-    {
-        cout << "REST WARNNING : Sensitive volume not defined. Setting it to gas!!!!" << endl;
-        fSensitiveVolume = "gas";
-    }
+	string storageString = GetKEYStructure( "storage" );
+	fSensitiveVolume = GetFieldValue( "sensitiveVolume", storageString  );
+	cout << "Sensitive volume : " << fSensitiveVolume << endl;
+	if( fSensitiveVolume == "Not defined" )
+	{
+		cout << "REST WARNNING : Sensitive volume not defined. Setting it to gas!!!!" << endl;
+		fSensitiveVolume = "gas";
+	}
 
-    cout << fSensitiveVolume << endl;
-    
-    size_t pos = 0;
-    fEnergyRangeStored = Get2DVectorParameterWithUnits( "energyRange", pos, storageString  );
+	cout << fSensitiveVolume << endl;
 
-    pos = 0;
-    string volumeDefinition;
-    while( (volumeDefinition = GetKEYDefinition( "activeVolume", pos, storageString )) != "" )
-    {
-            Double_t chance = StringToDouble( GetFieldValue( "chance", volumeDefinition ) );
-            TString name = GetFieldValue( "name", volumeDefinition );
-            SetActiveVolume( name, chance );
-            cout << "Adding active volume" << endl;
-    }
+	size_t pos = 0;
+	fEnergyRangeStored = Get2DVectorParameterWithUnits( "energyRange", pos, storageString  );
+
+	pos = 0;
+	string volumeDefinition;
+	while( (volumeDefinition = GetKEYDefinition( "activeVolume", pos, storageString )) != "" )
+	{
+		Double_t chance = StringToDouble( GetFieldValue( "chance", volumeDefinition ) );
+		TString name = GetFieldValue( "name", volumeDefinition );
+		SetActiveVolume( name, chance );
+		cout << "Adding active volume" << endl;
+	}
 
 }
 
@@ -929,58 +929,58 @@ void TRestG4Metadata::ReadStorage( )
 void TRestG4Metadata::PrintMetadata( )
 {
 
-        cout << endl;
-        cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-        cout << "TRestG4Metadata content" << endl;
-        cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-        cout << "Config file : " << fConfigFileName << endl;
-        cout << "Section name : " << fSectionName << endl;        // section name given in the constructor of TRestSpecificMetadata
-        cout << "---------------------------------------" << endl;
-        cout << "Name : " << GetName() << endl;
-        cout << "Title : " << GetTitle() << endl;
-        cout << "---------------------------------------" << endl;
-        cout << "Geometry File : " << Get_GDML_Filename() << endl;
-        cout << "Geometry Path : " << GetGeometryPath() << endl;
-        cout << "Max. Step size : " << GetMaxTargetStepSize() << " mm" << endl;
-        cout << "Sub-event time delay : " << GetSubEventTimeDelay() << " us" << endl;
-        cout << "---------------------------------------" << endl;
-        cout << "Generator type : " << GetGeneratorType() << endl;
-        cout << "Generated from : " << GetGeneratedFrom() << endl;
-        TVector3 a = GetGeneratorPosition();
-        cout << "Generator center : (" << a.X() << "," << a.Y() << "," << a.Z() << ") mm" << endl; 
-        TVector3 b = GetGeneratorRotation();
-        cout << "Generator rotation : (" << b.X() << "," << b.Y() << "," << b.Z() << ") mm" << endl; 
-        cout << "Generator size : " << GetGeneratorSize() << " mm" << endl; 
-        cout << "Generator length : " << GetGeneratorLength() << " mm" << endl; 
-        cout << "---------------------------------------" << endl;
-        cout << "Number of primary particles : " << GetNumberOfPrimaries() << endl;
-        cout << "Generator file : " << GetGeneratorFile() << endl;
-        cout << "***************************************" << endl;
+	cout << endl;
+	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	cout << "TRestG4Metadata content" << endl;
+	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	cout << "Config file : " << fConfigFileName << endl;
+	cout << "Section name : " << fSectionName << endl;        // section name given in the constructor of TRestSpecificMetadata
+	cout << "---------------------------------------" << endl;
+	cout << "Name : " << GetName() << endl;
+	cout << "Title : " << GetTitle() << endl;
+	cout << "---------------------------------------" << endl;
+	cout << "Geometry File : " << Get_GDML_Filename() << endl;
+	cout << "Geometry Path : " << GetGeometryPath() << endl;
+	cout << "Max. Step size : " << GetMaxTargetStepSize() << " mm" << endl;
+	cout << "Sub-event time delay : " << GetSubEventTimeDelay() << " us" << endl;
+	cout << "---------------------------------------" << endl;
+	cout << "Generator type : " << GetGeneratorType() << endl;
+	cout << "Generated from : " << GetGeneratedFrom() << endl;
+	TVector3 a = GetGeneratorPosition();
+	cout << "Generator center : (" << a.X() << "," << a.Y() << "," << a.Z() << ") mm" << endl;
+	TVector3 b = GetGeneratorRotation();
+	cout << "Generator rotation : (" << b.X() << "," << b.Y() << "," << b.Z() << ") mm" << endl;
+	cout << "Generator size : " << GetGeneratorSize() << " mm" << endl;
+	cout << "Generator length : " << GetGeneratorLength() << " mm" << endl;
+	cout << "---------------------------------------" << endl;
+	cout << "Number of primary particles : " << GetNumberOfPrimaries() << endl;
+	cout << "Generator file : " << GetGeneratorFile() << endl;
+	cout << "***************************************" << endl;
 
-        for( int n = 0; n < GetNumberOfPrimaries(); n++ )
-        {
-            TRestParticleSource src = GetParticleSource(n);
-            src.PrintParticleSource();
-        }
-        
-        cout << "Storage." << endl;
-        cout << "***************************************" << endl;
-        cout << "Energy range : Emin = " << GetMinimumEnergyStored() << " Emax : " << GetMaximumEnergyStored() << endl;
-        cout << "Sensitive volume : " << GetSensitiveVolume() << endl;
-        cout << "Active volumes : " << GetNumberOfActiveVolumes() << endl;
-        cout << "---------------------------------------" << endl;
-        for( int n = 0; n < GetNumberOfActiveVolumes(); n++ )
-        {
-            cout << "Name : " << GetActiveVolumeName(n) << " ID : " << GetActiveVolumeID( GetActiveVolumeName(n) ) << " chance : " << GetStorageChance( GetActiveVolumeName(n) ) << endl;
+	for( int n = 0; n < GetNumberOfPrimaries(); n++ )
+	{
+		TRestParticleSource src = GetParticleSource(n);
+		src.PrintParticleSource();
+	}
 
-        }
-        cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-        cout << "List of biasing volumes" << endl;
-        cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-        for( int n = 0; n < GetNumberOfBiasingVolumes(); n++ )
-        {
-            GetBiasingVolume( n ).PrintBiasingVolume();
-        }
+	cout << "Storage." << endl;
+	cout << "***************************************" << endl;
+	cout << "Energy range : Emin = " << GetMinimumEnergyStored() << " Emax : " << GetMaximumEnergyStored() << endl;
+	cout << "Sensitive volume : " << GetSensitiveVolume() << endl;
+	cout << "Active volumes : " << GetNumberOfActiveVolumes() << endl;
+	cout << "---------------------------------------" << endl;
+	for( int n = 0; n < GetNumberOfActiveVolumes(); n++ )
+	{
+		cout << "Name : " << GetActiveVolumeName(n) << " ID : " << GetActiveVolumeID( GetActiveVolumeName(n) ) << " chance : " << GetStorageChance( GetActiveVolumeName(n) ) << endl;
+
+	}
+	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	cout << "List of biasing volumes" << endl;
+	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	for( int n = 0; n < GetNumberOfBiasingVolumes(); n++ )
+	{
+		GetBiasingVolume( n ).PrintBiasingVolume();
+	}
 
 }
 
@@ -999,101 +999,101 @@ void TRestG4Metadata::PrintMetadata( )
 ///
 void TRestG4Metadata::ReadGeneratorFile( TString fName )
 {
-    TString fullFilename = (TString) getenv("REST_PATH") +  "/inputData/generator/" + fName;
+	TString fullFilename = (TString) getenv("REST_PATH") +  "/inputData/generator/" + fName;
 
-    char cadena[256];
-    int tmpInt;
+	char cadena[256];
+	int tmpInt;
 
-    FILE *fFileIn;
+	FILE *fFileIn;
 
-    if ( (fFileIn = fopen(fullFilename.Data(),"rt") ) == NULL ) {
-        printf("Error en el archivo %s\n", fullFilename.Data());
-        return;
-    }
+	if ( (fFileIn = fopen(fullFilename.Data(),"rt") ) == NULL ) {
+		printf("Error en el archivo %s\n", fullFilename.Data());
+		return;
+	}
 
-    // First lines are discarded.
-    for( int i = 0 ; i < 20 ; i++)
-    {
-        if( fscanf( fFileIn, "%[^\n]\n", cadena) <= 0 )
-        {
-            cout << "REST Error!!. TRestG4Metadata::ReadGeneratorFile. Contact rest-dev@cern.ch" << endl;
-            exit(-1);
-        }
-        if( strcmp( cadena, "First event and full number of events:" ) == 0 ) break;
-    }
+	// First lines are discarded.
+	for( int i = 0 ; i < 20 ; i++)
+	{
+		if( fscanf( fFileIn, "%[^\n]\n", cadena) <= 0 )
+		{
+			cout << "REST Error!!. TRestG4Metadata::ReadGeneratorFile. Contact rest-dev@cern.ch" << endl;
+			exit(-1);
+		}
+		if( strcmp( cadena, "First event and full number of events:" ) == 0 ) break;
+	}
 
-    Int_t fGeneratorEvents;
-    if( fscanf( fFileIn, "%d %d\n", &tmpInt, &fGeneratorEvents) <= 0 ) // The number of events.
-    {
-        cout << "REST Error!!. TRestG4Metadata::ReadGeneratorFile. Contact rest-dev@cern.ch" << endl;
-        exit(-1);
-    }
+	Int_t fGeneratorEvents;
+	if( fscanf( fFileIn, "%d %d\n", &tmpInt, &fGeneratorEvents) <= 0 ) // The number of events.
+	{
+		cout << "REST Error!!. TRestG4Metadata::ReadGeneratorFile. Contact rest-dev@cern.ch" << endl;
+		exit(-1);
+	}
 
-   // cout << "i : " << tmpInt << " fN : " << fGeneratorEvents << endl;
+	// cout << "i : " << tmpInt << " fN : " << fGeneratorEvents << endl;
 
-    TRestParticleCollection particleCollection;
+	TRestParticleCollection particleCollection;
 
-    TRestParticle particle;
-
-
-    cout << "Reading generator file : " << fName << endl;
-    cout << "Total number of events : " << fGeneratorEvents << endl;
-
-    for( int n = 0; n < fGeneratorEvents; n++ )
-    {
-        particleCollection.RemoveParticles();
-
-        Int_t nParticles;
-        Int_t evID;
-        Double_t time;
+	TRestParticle particle;
 
 
-        if( fscanf(fFileIn,"%d %lf %d\n", &evID, &time, &nParticles) <= 0 )
-        {
-            cout << "REST Error!!. TRestG4Metadata::ReadGeneratorFile. Contact rest-dev@cern.ch" << endl;
-            exit(-1);
-        }
+	cout << "Reading generator file : " << fName << endl;
+	cout << "Total number of events : " << fGeneratorEvents << endl;
 
-        for( int i = 0; i < nParticles; i++)
-        {
-            Int_t pID;
-            Double_t momx, momy, momz, mass;
-            Double_t energy = -1, momentum2;
+	for( int n = 0; n < fGeneratorEvents; n++ )
+	{
+		particleCollection.RemoveParticles();
 
-            if ( fscanf( fFileIn, "%d %lf %lf %lf %lf\n", &pID, &momx, &momy, &momz, &time) <= 0 )
-            {
-                cout << "REST Error!!. TRestG4Metadata::ReadGeneratorFile. Contact rest-dev@cern.ch" << endl;
-                exit(-1);
-            }
+		Int_t nParticles;
+		Int_t evID;
+		Double_t time;
 
-            if( pID == 3)
-            {
-                momentum2 = (momx * momx) + (momy * momy) + (momz * momz);
-                mass = 0.511;
 
-                energy = TMath::Sqrt( momentum2 + mass*mass ) - mass;
-                particle.SetParticleName( "e-" );
+		if( fscanf(fFileIn,"%d %lf %d\n", &evID, &time, &nParticles) <= 0 )
+		{
+			cout << "REST Error!!. TRestG4Metadata::ReadGeneratorFile. Contact rest-dev@cern.ch" << endl;
+			exit(-1);
+		}
 
-            }
-            else
-            {
-                cout << "Particle id " << pID << " not recognized" << endl;
+		for( int i = 0; i < nParticles; i++)
+		{
+			Int_t pID;
+			Double_t momx, momy, momz, mass;
+			Double_t energy = -1, momentum2;
 
-            }
+			if ( fscanf( fFileIn, "%d %lf %lf %lf %lf\n", &pID, &momx, &momy, &momz, &time) <= 0 )
+			{
+				cout << "REST Error!!. TRestG4Metadata::ReadGeneratorFile. Contact rest-dev@cern.ch" << endl;
+				exit(-1);
+			}
 
-            TVector3 momDirection( momx, momy, momz );
-            momDirection = momDirection.Unit();
+			if( pID == 3)
+			{
+				momentum2 = (momx * momx) + (momy * momy) + (momz * momz);
+				mass = 0.511;
 
-            particle.SetEnergy( 1000. * energy );
-            particle.SetDirection( momDirection );
+				energy = TMath::Sqrt( momentum2 + mass*mass ) - mass;
+				particle.SetParticleName( "e-" );
 
-            particleCollection.AddParticle( particle );
-        }
+			}
+			else
+			{
+				cout << "Particle id " << pID << " not recognized" << endl;
 
-        fPrimaryGenerator.AddParticleCollection( particleCollection );
-    }
+			}
 
-    fPrimaryGenerator.SetSourcesFromParticleCollection( 0 );
+			TVector3 momDirection( momx, momy, momz );
+			momDirection = momDirection.Unit();
+
+			particle.SetEnergy( 1000. * energy );
+			particle.SetDirection( momDirection );
+
+			particleCollection.AddParticle( particle );
+		}
+
+		fPrimaryGenerator.AddParticleCollection( particleCollection );
+	}
+
+	fPrimaryGenerator.SetSourcesFromParticleCollection( 0 );
 
 }
 
@@ -1101,12 +1101,12 @@ void TRestG4Metadata::ReadGeneratorFile( TString fName )
 /// \brief Returns the id of an active volume giving as parameter its name.
 Int_t TRestG4Metadata::GetActiveVolumeID( TString name )
 {
-    Int_t id;
-    for( id = 0; id < (Int_t) fActiveVolumes.size(); id++ )
-    {
-        if( fActiveVolumes[id] == name ) return id;
-    }
-    return -1;
+	Int_t id;
+	for( id = 0; id < (Int_t) fActiveVolumes.size(); id++ )
+	{
+		if( fActiveVolumes[id] == name ) return id;
+	}
+	return -1;
 }
 
 ///////////////////////////////////////////////
@@ -1120,8 +1120,8 @@ Int_t TRestG4Metadata::GetActiveVolumeID( TString name )
 ///
 void TRestG4Metadata::SetActiveVolume( TString name, Double_t chance )
 {
-    fActiveVolumes.push_back( name );
-    fChance.push_back( chance );
+	fActiveVolumes.push_back( name );
+	fChance.push_back( chance );
 }
 
 ///////////////////////////////////////////////
@@ -1129,11 +1129,11 @@ void TRestG4Metadata::SetActiveVolume( TString name, Double_t chance )
 ///
 Bool_t TRestG4Metadata::isVolumeStored( TString volName )
 {
-    for( int n = 0; n < GetNumberOfActiveVolumes(); n++ )
-        if( GetActiveVolumeName( n ) == volName ) 
-            return true;
+	for( int n = 0; n < GetNumberOfActiveVolumes(); n++ )
+		if( GetActiveVolumeName( n ) == volName )
+			return true;
 
-    return false;
+	return false;
 }
 
 ///////////////////////////////////////////////
@@ -1141,12 +1141,12 @@ Bool_t TRestG4Metadata::isVolumeStored( TString volName )
 ///
 Double_t TRestG4Metadata::GetStorageChance( TString vol )
 {
-    Int_t id;
-    for( id = 0; id < (Int_t) fActiveVolumes.size(); id++ )
-    {
-        if( fActiveVolumes[id] == vol ) return fChance[id];
-    }
-    cout << "STORAGE VOLUME NOT FOUND" << endl;
+	Int_t id;
+	for( id = 0; id < (Int_t) fActiveVolumes.size(); id++ )
+	{
+		if( fActiveVolumes[id] == vol ) return fChance[id];
+	}
+	cout << "STORAGE VOLUME NOT FOUND" << endl;
 
-    return 0;
+	return 0;
 }
