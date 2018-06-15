@@ -944,14 +944,27 @@ void TRestG4Metadata::PrintMetadata( )
 	cout << "Max. Step size : " << GetMaxTargetStepSize() << " mm" << endl;
 	cout << "Sub-event time delay : " << GetSubEventTimeDelay() << " us" << endl;
 	cout << "---------------------------------------" << endl;
-	cout << "Generator type : " << GetGeneratorType() << endl;
+	TString generatorType = GetGeneratorType();
+	cout << "Generator type : " << generatorType << endl;
 	cout << "Generated from : " << GetGeneratedFrom() << endl;
 	TVector3 a = GetGeneratorPosition();
 	cout << "Generator center : (" << a.X() << "," << a.Y() << "," << a.Z() << ") mm" << endl;
 	TVector3 b = GetGeneratorRotation();
 	cout << "Generator rotation : (" << b.X() << "," << b.Y() << "," << b.Z() << ") mm" << endl;
-	cout << "Generator size : " << GetGeneratorSize() << " mm" << endl;
-	cout << "Generator length : " << GetGeneratorLength() << " mm" << endl;
+	if ( generatorType == "virtualSphere" )
+		cout << "Generator radius : " << GetGeneratorRadius() << " mm" << endl;
+	else if ( generatorType ==  "virtualWall" )
+	{
+		cout << "Generator lenX : " << GetGeneratorLenX() << " mm" << endl;
+		cout << "Generator lenY : " << GetGeneratorLenY() << " mm" << endl;
+	}
+	else if ( generatorType ==  "virtualCylinder" )
+	{
+		cout << "Generator radius : " << GetGeneratorRadius() << " mm" << endl;
+		cout << "Generator length : " << GetGeneratorLength() << " mm" << endl;
+	}
+	else if ( generatorType ==  "virtualBox" )
+		cout << "Generator size : " << GetGeneratorSize() << " mm" << endl;
 	cout << "---------------------------------------" << endl;
 	cout << "Number of primary particles : " << GetNumberOfPrimaries() << endl;
 	cout << "Generator file : " << GetGeneratorFile() << endl;
