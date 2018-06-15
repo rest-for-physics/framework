@@ -370,10 +370,8 @@ void PrimaryGeneratorAction::SetParticlePosition( )
 	}
 	else if ( type == "virtualWall" )
 	{
-		Double_t dX = restG4Metadata->GetGeneratorDX( );
-		Double_t dY = restG4Metadata->GetGeneratorDY( );
-		if ( dY == PARAMETER_NOT_FOUND_DBL )
-			dY = dX;
+		Double_t dX = restG4Metadata->GetGeneratorLenX( );
+		Double_t dY = restG4Metadata->GetGeneratorLenY( );
 
 		x = dX * (G4UniformRand()-0.5);
 		y = dY * (G4UniformRand()-0.5);

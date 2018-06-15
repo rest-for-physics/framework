@@ -224,45 +224,48 @@
 ///
 /// * **virtualSphere**: It generates the events from the surface of a virtual (not 
 /// defined in the GDML geometry) sphere. It requires to define the parameters to place 
-/// and dimension the sphere, `position="(X,Y,Z)"` and `size="R"`. Where `X,Y,Z` are 
+/// and dimension the sphere, `position="(X,Y,Z)"` and `radius="R"`. Where `X,Y,Z` are 
 /// the coordinates of the center of the sphere and `R` is the radius of the sphere. If
 /// the angular distribution is defined as `isotropic` the events will be launched only
 /// towards the inside.
+/// NB: the generic word "size" can replace "radius".
 /// \code
 ///     // We launch particles from the surface of a virtual sphere,
 ///     // with center at (0,0,-100)mm, and radius 10cm.
-///     <generator type="virtualSphere" position="(0,0,-100)" units="mm" size="100" units="mm" >
+///     <generator type="virtualSphere" position="(0,0,-100)" units="mm" radius="100" units="mm" >
 /// \endcode
 ///
-/// * **virtualWall**: It generates the events from a finite plane of a given size, 
-/// `sL`. It requires to define the additional parameters `position="(X,Y,Z)"`,
-/// `size="sL"` and `rotation="(rX,rY,rZ)"`. Where `X,Y,Z` is the center position of 
-/// the wall, `sL` is the size of the side wall, and `rX`, `rY`, `rZ` are the rotation
+/// * **virtualWall**: It generates the events from a finite rectangular plane of a given length and width.
+/// It requires to define the additional parameters `position="(X,Y,Z)"`,
+/// `lenX="lX"`,`lenY="lY"` and `rotation="(rX,rY,rZ)"`. Where `X,Y,Z` is the center position of 
+/// the wall, `lX` and `lY` are respectively the size of the wall along th x-axis and the y-axis, and `rX`, `rY`, `rZ` are the rotation
 /// angles applied to the wall. The wall is originally generated on the `XY` plane and
 /// then rotated by the axis angles `rX`, `rY`, `rZ`, following that order.
+/// NB: the generic word "size" an be used instead of "lenX" and "lenY", producing a square of the specified size.
 /// \code
 ///     // We launch particles from the surface of a virtual wall,
-///     // with center at (0,0,-100)mm, size 10cm, and rotate 45 degrees along x-axis.
-///    <generator type="virtualWall" position="(0,0,-100)" units="mm" size="100" units="mm" rotation="(45,0,0)" >
+///     // with center at (0,0,-100)mm, size of 10cm by 15cm, and rotate 45 degrees along x-axis.
+///    <generator type="virtualWall" position="(0,0,-100)" units="mm" lenX="100" units="mm" lenY="150" units="mm" rotation="(45,0,0)" >
 /// \endcode
 ///
 /// * **virtualCylinder**: It generates the events from the surface of a virtual (not 
 /// defined in the GDML geometry) cylinder. It requires to define the additional 
-/// parameters `position="(X,Y,Z)"`, `size="R"`, `length="L"` and 
+/// parameters `position="(X,Y,Z)"`, `radius="R"`, `length="L"` and 
 /// `rotation="(rX,rY,rZ)"`, where `X`, `Y`, `Z` is the center position of the 
 /// cylinder, `R` is the radius of the cylinder, `L` is the length of the cylinder,
 /// and `rX`, `rY`, `rZ` are the rotation angles applied to the cylinder. The cylinder
 /// is originally generated with its axis along the z-axis. In the cylinder case,
 /// isotropic generator will launch events both sides, towards the inside and the
 /// outside.
+/// NB: the generic word "size" can replace "radius".
 /// \code
 ///     // We launch particles from the surface of a virtual cylinder,
-///     // with center at (0,0,-100)mm, size 10cm, and rotated 90 degrees along y-axis.
-///     <generator type="virtualCylinder" position="(0,0,-100)" units="mm" size="100" units="mm" length="100" units="cm" rotation="(0,90,0)" >
+///     // with center at (0,0,-100)mm, radius 10cm, length 100cm and rotated 90 degrees along y-axis.
+///     <generator type="virtualCylinder" position="(0,0,-100)" units="mm" radius="100" units="mm" length="100" units="cm" rotation="(0,90,0)" >
 /// \endcode
 ///
 /// * **virtualBox**: It generates the events from a surface of a virtual (not defined
-/// in the GDML geometry) box. It requires to define the additional parameters 
+/// in the GDML geometry) box, a cube of size L. It requires to define the additional parameters 
 /// `position="(X,Y,Z)"`, `size="L"`, where `X`, `Y`, `Z` is the center of the box, and
 /// `L` is the length of the box side. The virtualBox does not implement rotation yet.
 /// And if isotropic angular distribution is used events will be launched towards 
@@ -771,22 +774,30 @@ void TRestG4Metadata::ReadGenerator()
 	fGenType = GetFieldValue( "type", generatorDefinition );
 	fGenFrom = GetFieldValue( "from", generatorDefinition );
 
-	string dimension1 [3]{"size","dX","radius"}; Int_t i=0;
-	do {
+	string dimension1 [3]{"size","lenX","radius"};
+	for (int i = 0; i < 3; i++)
+	{
 		fGenDimension1 = GetDblFieldValueWithUnits( dimension1[i], generatorDefinition );
-		i++;
-	} while (fGenDimension1 == PARAMETER_NOT_FOUND_DBL );
+		if ( fGenDimension1 != PARAMETER_NOT_FOUND_DBL )
+		{
+			if ( dimension1[i] == "size" )
+				fGenDimension2 = fGenDimension1;
+			break;
+		}
+	}
 
 	// TODO : If not defined (and required to be) it just returns (0,0,0) we should make a WARNING. Inside StringToVector probably
 	fGenPosition = Get3DVectorFieldValueWithUnits( "position", generatorDefinition );
 
 	fGenRotation = StringTo3DVector ( GetFieldValue( "rotation", generatorDefinition ) );
 
-	string dimension2 [2]{"length","dY"}; i=0;
-	do {
+	string dimension2 [2]{"length","lenY"};
+	for (int i = 0; i < 2; i++)
+	{
 		fGenDimension2 = GetDblFieldValueWithUnits( dimension2[i], generatorDefinition );
-		i++;
-	} while (fGenDimension2 == PARAMETER_NOT_FOUND_DBL );
+		if (fGenDimension2 != PARAMETER_NOT_FOUND_DBL )
+			break;
+	}
 
 	size_t position = 0;
 	string sourceString;
