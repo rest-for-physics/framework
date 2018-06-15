@@ -370,10 +370,13 @@ void PrimaryGeneratorAction::SetParticlePosition( )
     }
     else if ( type == "virtualWall" )
     {
-        Double_t side = restG4Metadata->GetGeneratorSize( );
+        Double_t dX = restG4Metadata->GetGeneratorDX( );
+        Double_t dY = restG4Metadata->GetGeneratorDY( );
+		if ( dY == PARAMETER_NOT_FOUND_DBL )
+			dY = dX;
 
-        x = side * (G4UniformRand()-0.5);
-        y = side * (G4UniformRand()-0.5);
+        x = dX * (G4UniformRand()-0.5);
+        y = dY * (G4UniformRand()-0.5);
 
         G4ThreeVector rndPos = G4ThreeVector( x, y, 0 );
         rndPos.rotateX( M_PI * restG4Metadata->GetGeneratorRotation().X() / 180. );
@@ -388,15 +391,15 @@ void PrimaryGeneratorAction::SetParticlePosition( )
     }
     else if ( type == "virtualCircleWall" )
     {
-        Double_t radius = restG4Metadata->GetGeneratorSize( );
+        Double_t radius = restG4Metadata->GetGeneratorRadius( );
 
-	do
-	{
-        x = 2*radius * (G4UniformRand()-0.5);
-        y = 2*radius * (G4UniformRand()-0.5);
- //       cout << "x : " << x << " y : " << y << endl;
-	}
-	while( x*x + y*y > radius*radius );
+		do
+		{
+			x = 2*radius * (G4UniformRand()-0.5);
+			y = 2*radius * (G4UniformRand()-0.5);
+			//       cout << "x : " << x << " y : " << y << endl;
+		}
+		while( x*x + y*y > radius*radius );
 
 
         G4ThreeVector rndPos = G4ThreeVector( x, y, 0 );
@@ -414,7 +417,7 @@ void PrimaryGeneratorAction::SetParticlePosition( )
     {
         G4ThreeVector rndPos = GetIsotropicVector( );
 
-        Double_t radius = restG4Metadata->GetGeneratorSize( );
+        Double_t radius = restG4Metadata->GetGeneratorRadius( );
 
         TVector3 center = restG4Metadata->GetGeneratorPosition( );
 
@@ -426,7 +429,7 @@ void PrimaryGeneratorAction::SetParticlePosition( )
     {
         Double_t angle = 2*M_PI*G4UniformRand();
 
-        Double_t radius = restG4Metadata->GetGeneratorSize( );
+        Double_t radius = restG4Metadata->GetGeneratorRadius( );
         Double_t length = restG4Metadata->GetGeneratorLength( );
 
         x = radius * cos( angle );
