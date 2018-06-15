@@ -95,6 +95,8 @@ void TRestRun::Initialize()
     fSkipEventTree = false;
 
     fReadOnly = true;
+
+    TGeoManager::SetVerboseLevel(0);
 }
 
 void TRestRun::ResetRunTimes()
@@ -602,8 +604,8 @@ void TRestRun::OpenInputFile( TString fName )
     if( fInputFile != NULL ) fInputFile->Close();
 
     if( !fileExists( fName.Data() ) ) {
-	cout << "TRestRun. WARNING. Input file does not exist" << endl;
-	return;
+        cout << "TRestRun. WARNING. Input file does not exist" << endl;
+        return;
     }
 
     fInputFile = new TFile( fName );
@@ -634,6 +636,9 @@ void TRestRun::OpenInputFile( TString fName )
     while ( (key = (TKey*) nextkey() ) )
     {
         TString cName (key->GetClassName());
+
+        if( cName == "TGeoManager" ) 
+            continue;
 
         if( !fInputFile->Get( key->GetName() )) 
         { 
