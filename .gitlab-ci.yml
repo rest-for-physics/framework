@@ -1,7 +1,6 @@
 image: nkx1231/root6-geant4-garfield:0.1
 
 before_script:
-  - apt-get install -y libglu1-mesa
   - . /root/installgarfield.sh
 
 build:
