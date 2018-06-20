@@ -1,16 +1,15 @@
 
-REST_VIEWER_TrackEvent(TString fName=" ", TString option = "" ){
+REST_VIEWER_TrackEvent(TString fName=" ", TString option = "", Int_t canvasWidth = 800, Int_t canvasHeight = 600 )
+{
+    TRestBrowser *browser = new TRestBrowser( );
 
-TRestBrowser *browser = new TRestBrowser( );
+    TRestGenericEventViewer *viewer = new TRestGenericEventViewer( canvasWidth, canvasHeight );
+    TRestTrackEvent *tEvent = new TRestTrackEvent();
+    viewer->SetEvent(tEvent);
 
-TRestGenericEventViewer *viewer = new TRestGenericEventViewer( );
-TRestTrackEvent *tEvent = new TRestTrackEvent();
-viewer->SetEvent(tEvent);
+    viewer->SetOption( option );
 
-viewer->SetOption( option );
+    browser->SetViewer( viewer );
 
-browser->SetViewer( viewer );
-
-browser->OpenFile(fName);
-
+    browser->OpenFile(fName);
 }
