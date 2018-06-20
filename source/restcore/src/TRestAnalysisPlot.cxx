@@ -505,10 +505,14 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
 
         }
 
+        Double_t maxValue = 0;
         for( unsigned int i = 0; i < fLegendName.size(); i++ )
         {
-            cout << "hName : " << hName[i] << endl;
-            cout << histCollection[i] << endl;
+
+            Double_t value = histCollection[i]->GetBinContent( histCollection[i]->GetMaximumBin() );
+            if( i == 0 ) maxValue = value;
+            else if( value > maxValue )
+                maxValue = value;
 
             /*
             if( fStats == kFALSE )
@@ -540,9 +544,11 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
             }
             */
 
-            cout << " htemp : " << histCollection[i] << endl;
-            
-            cout << "Entries : " << histCollection[i]->GetEntries() << endl;
+        }
+
+        for( unsigned int i = 0; i < fLegendName.size(); i++ )
+        {
+            histCollection[i]->GetYaxis()->SetRangeUser(0, 1.1 * maxValue );
             if( i == 0 )
                 histCollection[i]->Draw();
             else
