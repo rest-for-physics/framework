@@ -139,6 +139,8 @@ class TRestRun:public TRestMetadata {
         void OpenInputFile( TString fName );
         void OpenInputFile( TString fName, TString cName );
 
+        void CloseInputFile( ) { fInputFile->Close(); }
+
         TRestEvent *GetEventInput() { return fInputEvent; }
 
         Int_t GetEventWithID( Int_t eventID, Int_t subEventID = -1 );
