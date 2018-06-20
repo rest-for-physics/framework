@@ -136,11 +136,11 @@ void TRestAnalysisPlot::InitFromConfigFile()
 
             TString option = RemoveWhiteSpaces( GetFieldValue( "option", addPlotString ) );
 
-            if( RemoveWhiteSpaces( GetFieldValue( "stats", addPlotString ) ) == "OFF" )
-                fStats = kFALSE;
-
             if( option == "Notdefined" )
                 option = "colz";
+
+            if( RemoveWhiteSpaces( GetFieldValue( "stats", addPlotString ) ) == "OFF" )
+                fStats = kFALSE;
 
             fPlotOption.push_back( option );
 
@@ -548,6 +548,8 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
 
         for( unsigned int i = 0; i < fLegendName.size(); i++ )
         {
+            histCollection[i]->SetStats( fStats );
+
             histCollection[i]->GetYaxis()->SetRangeUser(0, 1.1 * maxValue );
             if( i == 0 )
                 histCollection[i]->Draw();
@@ -564,7 +566,7 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
     }
 
     /* {{{ Acumulating and plotting histograms present in the file */
-    ////// TODO : Needs to be reviewed to WORK with the new version of runTag classification
+    ////// TODO : Needs to be reviewed to WORK with the new version of runTag classification (20180620).
     for( unsigned int n = 0; n < fHistoNames.size(); n++ )
     {
         cout << "Histo names : " << fHistoNames[n] << endl;
