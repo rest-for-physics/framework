@@ -32,12 +32,12 @@ class TRestGenericEventViewer:public TRestEventViewer {
             
  public:
  
-   virtual void Initialize();
+   virtual void Initialize( Int_t fW = 1024, Int_t fH = 768 );
          
    virtual void AddEvent( TRestEvent *ev );
          
    //Constructor
-   TRestGenericEventViewer();
+   TRestGenericEventViewer( Int_t fW = 1024, Int_t fH = 768 );
    //Destructor
    ~TRestGenericEventViewer();
 

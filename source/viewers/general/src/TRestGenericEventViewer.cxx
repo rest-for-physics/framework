@@ -18,9 +18,9 @@ using namespace std;
 
 ClassImp(TRestGenericEventViewer)
 //______________________________________________________________________________
-TRestGenericEventViewer::TRestGenericEventViewer()
+TRestGenericEventViewer::TRestGenericEventViewer( Int_t fW, Int_t fH )
 {
-  Initialize();
+  Initialize( fW, fH );
 
   fOption = "";
 }
@@ -33,21 +33,17 @@ TRestGenericEventViewer::~TRestGenericEventViewer()
 }
 
 //______________________________________________________________________________
-void TRestGenericEventViewer::Initialize()
+void TRestGenericEventViewer::Initialize( Int_t fW, Int_t fH )
 {
-       
-fPad = NULL;
 
-fCanvas = new TCanvas("Event Viewer","Event Viewer");
+    fPad = NULL;
 
-//fEvent = new TRestSignalEvent();
+    fCanvas = new TCanvas("Event Viewer","Event Viewer", fW, fH );
 
 }
 
 void TRestGenericEventViewer::AddEvent( TRestEvent *ev ){
 
-
-//fEvent=(TRestSignalEvent *)ev;
 
 fPad = ev->DrawEvent( fOption );
 
