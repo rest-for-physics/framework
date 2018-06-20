@@ -36,7 +36,6 @@ class TRestSignalEvent: public TRestEvent {
     protected:
 
 #ifndef __CINT__
-        TPad *fPad;
         Double_t fMinTime;
         Double_t fMaxTime;
         Double_t fMinValue;

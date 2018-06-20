@@ -41,6 +41,14 @@ class TRestEvent:public TObject {
         TTimeStamp fEventTime;      ///< Absolute event time
         Bool_t fOk;                 ///< Flag to be used by processes to define an event status. fOk=true is the default.
 
+        #ifndef __CINT__
+
+        TPad *fPad;
+        #endif
+
+        void RestartPad( Int_t nElements );
+
+
     public:
         //Setters
         void SetRunOrigin( Int_t id ) { fRunOrigin = id; }
