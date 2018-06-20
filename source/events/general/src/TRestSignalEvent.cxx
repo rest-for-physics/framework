@@ -227,7 +227,7 @@ TPad *TRestSignalEvent::DrawEvent( TString option )
     fPad = new TPad( this->GetName(), " ", 0, 0, 1, 1 );
     fPad->Draw();
     fPad->cd();
-    fPad->DrawFrame( GetMinTime()-1, GetMinValue()-1 , GetMaxTime()+1, GetMaxValue()+1);
+    fPad->DrawFrame( GetMinTime(), 0 , GetMaxTime(), GetMaxValue());
 
     char title[256];
     sprintf(title, "Event ID %d", this->GetID());
@@ -235,9 +235,15 @@ TPad *TRestSignalEvent::DrawEvent( TString option )
 
     TMultiGraph *mg = new TMultiGraph();
     mg->SetTitle(title);
-    mg->GetXaxis()->SetTitle("time bins");
-    mg->GetYaxis()->SetTitleOffset(1.4);
-    mg->GetYaxis()->SetTitle("Energy");
+    mg->GetXaxis()->SetTitle("Drift time [us]");
+    mg->GetXaxis()->SetTitleOffset(1.1);
+    mg->GetYaxis()->SetTitle("Energy [keV]");
+    mg->GetYaxis()->SetTitleOffset(0.8);
+
+    mg->GetYaxis()->SetTitleSize( 1.4 * mg->GetYaxis()->GetTitleSize() );
+    mg->GetXaxis()->SetTitleSize( 1.4 * mg->GetXaxis()->GetTitleSize() );
+    mg->GetYaxis()->SetLabelSize( 1.25 * mg->GetYaxis()->GetLabelSize() );
+    mg->GetXaxis()->SetLabelSize( 1.25 * mg->GetXaxis()->GetLabelSize() );
 
 
     for( int n = 0; n < nSignals; n++ )
