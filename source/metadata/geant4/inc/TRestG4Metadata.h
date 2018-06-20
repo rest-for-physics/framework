@@ -42,230 +42,241 @@
 
 //! The main class to store the *Geant4* simulation conditions that will be used by *restG4*.
 class TRestG4Metadata:public TRestMetadata {
-    private:
-        void Initialize();
+	private:
+		void Initialize();
 
-        void InitFromConfigFile();
+		void InitFromConfigFile();
 
-        void ReadGenerator();
-        void ReadStorage();
-        void ReadBiasing();
+		void ReadGenerator();
+		void ReadStorage();
+		void ReadBiasing();
 
-        void ReadGeneratorFile( TString fName );
+		void ReadGeneratorFile( TString fName );
 
-        /// The local path to the GDML geometry
-        TString fGeometryPath;
+		/// The local path to the GDML geometry
+		TString fGeometryPath;
 
-        /// The filename of the GDML geometry
-        TString fGDML_Filename;
+		/// The filename of the GDML geometry
+		TString fGDML_Filename;
 
-        /// Type of spatial generator (surface, volume, point, virtualWall, etc)
-        TString fGenType;  
+		/// Type of spatial generator (surface, volume, point, virtualWall, etc)
+		TString fGenType;  
 
-        /// The volume name where the events are generated, in case of volume or surface generator types.
-        TString fGenFrom;
-        
-        /// The position of the generator for virtual, and point, generator types.
-        TVector3 fGenPosition;
-        
-        /// \brief A 3d-vector with the angles, measured in degrees, of a XYZ rotation applied to the virtual generator.
-        /// This rotation is used by virtualWall, virtualCircleWall and virtualCylinder generators.
-        TVector3 fGenRotation;
+		/// The volume name where the events are generated, in case of volume or surface generator types.
+		TString fGenFrom;
 
-        /// The size of the virtual generator. I.e. the radius of a virtual sphere, or the side size of a wall.
-        Double_t fGenSize;
+		/// The position of the generator for virtual, and point, generator types.
+		TVector3 fGenPosition;
 
-        /// An additional dimension required by some virtual generators. I.e. the lenght of a virtual cylinder.
-        Double_t fGenLength;
+		/// \brief A 3d-vector with the angles, measured in degrees, of a XYZ rotation applied to the virtual generator.
+		/// This rotation is used by virtualWall, virtualCircleWall and virtualCylinder generators.
+		TVector3 fGenRotation;
 
-        /// The name of a Decay0 generated file used to produce a collection of primary sources, definning energy, momentum, particle type.
-        TString fGeneratorFile;
+		/// The primary length of the virtual generator. I.e. the radius of a virtual sphere, or the X-side size of a virtual wall.
+		Double_t fGenDimension1;
 
-        /// A 2d-vector storing the energy range, in keV, to decide if a particular event should be written to disk or not. 
-        TVector2 fEnergyRangeStored;
+		/// An additional dimension required by some virtual generators. I.e. the lenght of a virtual cylinder or the Y-side size of a virtual wall.
+		Double_t fGenDimension2;
 
-        /// A vector to store the names of the active volumes.
-        std::vector <TString> fActiveVolumes;
+		/// The name of a Decay0 generated file used to produce a collection of primary sources, definning energy, momentum, particle type.
+		TString fGeneratorFile;
 
-        /// A vector to store the probability value to write to disk the hits in a particular event.
-        std::vector <Double_t> fChance;
+		/// A 2d-vector storing the energy range, in keV, to decide if a particular event should be written to disk or not. 
+		TVector2 fEnergyRangeStored;
 
-        /// It the defines the primary source properties, particle type, momentum, energy, etc.
-        TRestG4PrimaryGenerator fPrimaryGenerator;
+		/// A vector to store the names of the active volumes.
+		std::vector <TString> fActiveVolumes;
 
-        /// The number of biasing volumes used in the simulation. If zero, no biasing technique is used.
-        Int_t fNBiasingVolumes;
+		/// A vector to store the probability value to write to disk the hits in a particular event.
+		std::vector <Double_t> fChance;
 
-        /// A vector containning the biasing volume properties.
-        std::vector <TRestBiasingVolume> fBiasingVolumes;
-        
-        /// The maximum target step size, in mm, allowed in Geant4 for the target volume (usually the gas volume).
-        Double_t fMaxTargetStepSize;
+		/// It the defines the primary source properties, particle type, momentum, energy, etc.
+		TRestG4PrimaryGenerator fPrimaryGenerator;
 
-        /// A time gap, in us, determinning if an energy hit should be considered (and stored) as an independent event.
-        Double_t fSubEventTimeDelay;
+		/// The number of biasing volumes used in the simulation. If zero, no biasing technique is used.
+		Int_t fNBiasingVolumes;
 
-        /// Defines if a radioactive isotope decay is simulated in full chain (fFullChain=true), or just a single decay (fFullChain=false).
-        Bool_t fFullChain;
+		/// A vector containning the biasing volume properties.
+		std::vector <TRestBiasingVolume> fBiasingVolumes;
 
-        /// The volume that serves as trigger for data storage. Only events that deposit a non-zero energy on this volume will be registered.
-        TString fSensitiveVolume;
+		/// The maximum target step size, in mm, allowed in Geant4 for the target volume (usually the gas volume).
+		Double_t fMaxTargetStepSize;
 
-        /// The number of events simulated, or to be simulated.
-        Int_t fNEvents;
+		/// A time gap, in us, determinning if an energy hit should be considered (and stored) as an independent event.
+		Double_t fSubEventTimeDelay;
 
-    public:
+		/// Defines if a radioactive isotope decay is simulated in full chain (fFullChain=true), or just a single decay (fFullChain=false).
+		Bool_t fFullChain;
 
-        /// Returns the local path to the GDML geometry
-        TString GetGeometryPath() { return fGeometryPath; }
+		/// The volume that serves as trigger for data storage. Only events that deposit a non-zero energy on this volume will be registered.
+		TString fSensitiveVolume;
 
-        /// Returns the main filename of the GDML geometry
-        TString Get_GDML_Filename() { return fGDML_Filename; }
+		/// The number of events simulated, or to be simulated.
+		Int_t fNEvents;
 
-        /// Returns a string specifying the generator type (volume, surface, point, virtualWall, etc )
-        TString GetGeneratorType() { return fGenType; }
+	public:
 
-        /// \brief Returns the name of the GDML volume where primary events are produced. 
-        /// This value has meaning only when using volume or surface generator types.
-        TString GetGeneratedFrom() { return fGenFrom; }
+		/// Returns the local path to the GDML geometry
+		TString GetGeometryPath() { return fGeometryPath; }
 
-        /// \brief Returns the name of the GDML volume where primary events are produced.
-        /// This value has meaning only when using volume or surface generator types.
-        TString GetGDMLGeneratorVolume() { return fGenFrom; }
+		/// Returns the main filename of the GDML geometry
+		TString Get_GDML_Filename() { return fGDML_Filename; }
 
-        /// \brief Returns a 3d-vector with the position of the primary event generator.
-        /// This value has meaning only when using point and virtual generator types.
-        TVector3 GetGeneratorPosition() { return fGenPosition; }
+		/// Returns a string specifying the generator type (volume, surface, point, virtualWall, etc )
+		TString GetGeneratorType() { return fGenType; }
 
-        /// \brief Returns a 3d-vector, fGenRotation, with the XYZ rotation angle values in degrees.
-        /// This value is used by virtualWall, virtualCircleWall and virtualCylinder generator types.
-        TVector3 GetGeneratorRotation() { return fGenRotation; }
+		/// \brief Returns the name of the GDML volume where primary events are produced. 
+		/// This value has meaning only when using volume or surface generator types.
+		TString GetGeneratedFrom() { return fGenFrom; }
 
-        /// \brief Returns the size of virtual generator.
-        /// It is the radius for virtualSphere, virtualCylinder and virtualCircleWall.
-        /// It is the size of a regular virtualWall and virtualBox.
-        Double_t GetGeneratorSize() { return fGenSize; }
+		/// \brief Returns the name of the GDML volume where primary events are produced.
+		/// This value has meaning only when using volume or surface generator types.
+		TString GetGDMLGeneratorVolume() { return fGenFrom; }
 
-        /// \brief The lenght of a virtual volume generator.
-        /// It is used to define the length of virtualCylinder generator.
-        Double_t GetGeneratorLength() { return fGenLength; }
+		/// \brief Returns a 3d-vector with the position of the primary event generator.
+		/// This value has meaning only when using point and virtual generator types.
+		TVector3 GetGeneratorPosition() { return fGenPosition; }
 
-        /// \brief Returns true in case full decay chain simulation is enabled.
-        Bool_t isFullChainActivated() { return fFullChain; }
+		/// \brief Returns a 3d-vector, fGenRotation, with the XYZ rotation angle values in degrees.
+		/// This value is used by virtualWall, virtualCircleWall and virtualCylinder generator types.
+		TVector3 GetGeneratorRotation() { return fGenRotation; }
 
-        /// \brief Returns the filename used as manual generator. Decay0 files are can be understood by restG4.
-        TString GetGeneratorFile() { return fGeneratorFile; }
+		/// \brief Returns the main spatial dimension of virtual generator.
+		/// It is the size of a  virtualBox.
+		Double_t GetGeneratorSize() { return fGenDimension1; }
 
-        /// \brief Returns the value of the maximum Geant4 step size in mm for the target volume.
-        Double_t GetMaxTargetStepSize() { return fMaxTargetStepSize; }
+		/// \brief Returns the main spatial dimension of virtual generator.
+		/// It is the length along the x-axis of a virtualWall.
+		Double_t GetGeneratorLenX() { return fGenDimension1; }
 
-        /// \brief Returns the time gap, in us, required to consider a Geant4 hit as a new independent event.
-        /// It is used to separate simulated events that in practice will appear as such in our detector.
-        /// I.e. to separate multiple decay products (sometimes with years time delays) into independent events.
-        Double_t GetSubEventTimeDelay() { return fSubEventTimeDelay; }
- 
-        ///  Sets the generator type. I.e. volume, surface, point, virtualWall, virtualCylinder, etc.
-        void SetGeneratorType( TString type ) { fGenType = type; } 
+		/// \brief Returns the main spatial dimension of virtual generator.
+		/// It is the radius for virtualSphere, virtualCylinder and virtualCircleWall.
+		Double_t GetGeneratorRadius() { return fGenDimension1; }
 
-        ///  Sets the generator size. In a virtual generator is the radius of cylinder, size of wall, etc.
-        void SetGeneratorSize( Double_t size ) { fGenSize = size; }
+		/// \brief Returns the secondary spatial dimension of a virtual volume generator.
+		/// It is used to define the length of virtualCylinder generator.
+		Double_t GetGeneratorLength() { return fGenDimension2; }
 
-        ///  Enables/disables the full chain decay generation.
-        void SetFullChain( Bool_t fullChain ) { fFullChain = fullChain; }
+		/// \brief Returns the secondary spatial dimension of a virtual volume generator.
+		/// It is the length along the y-axis of a virtualWall.
+		Double_t GetGeneratorLenY() { return fGenDimension2; }
 
-        ///  Sets the position of the virtual generator using a TVector3.
-        void SetGeneratorPosition( TVector3 pos ) { fGenPosition = pos; }
+		/// \brief Returns true in case full decay chain simulation is enabled.
+		Bool_t isFullChainActivated() { return fFullChain; }
 
-        ///  Sets the position of the virtual generator using x,y,z coordinates.
-        void SetGeneratorPosition( double x, double y, double z ) { fGenPosition = TVector3( x, y, z ); }
+		/// \brief Returns the filename used as manual generator. Decay0 files are can be understood by restG4.
+		TString GetGeneratorFile() { return fGeneratorFile; }
 
-        /// Sets the number of events to be simulated.
-        void SetNEvents( Int_t n ) { fNEvents = n; }
+		/// \brief Returns the value of the maximum Geant4 step size in mm for the target volume.
+		Double_t GetMaxTargetStepSize() { return fMaxTargetStepSize; }
 
-        /// Returns the number of events simulated.
-        Int_t GetNumberOfEvents( ) { return fNEvents; }
-        ///////////////////////////////////////////////////////////
+		/// \brief Returns the time gap, in us, required to consider a Geant4 hit as a new independent event.
+		/// It is used to separate simulated events that in practice will appear as such in our detector.
+		/// I.e. to separate multiple decay products (sometimes with years time delays) into independent events.
+		Double_t GetSubEventTimeDelay() { return fSubEventTimeDelay; }
 
+		///  Sets the generator type. I.e. volume, surface, point, virtualWall, virtualCylinder, etc.
+		void SetGeneratorType( TString type ) { fGenType = type; } 
 
-        // Direct access to sources definition in primary generator
-        ///////////////////////////////////////////////////////////
-        /// Returns the number of primary event sources defined in the generator.
-        Int_t GetNumberOfSources() { return fPrimaryGenerator.GetNumberOfSources(); }
- 
-        /// Returns the number of primary event sources defined in the generator.
-        Int_t GetNumberOfPrimaries() { return GetNumberOfSources(); }
+		///  Sets the generator main spatial dimension. In a virtual generator is the radius of cylinder, size of wall, etc.
+		void SetGeneratorSize( Double_t size ) { fGenDimension1 = size; }
 
-        /// Returns the particle source specified with index n.
-        TRestParticleSource GetSource( int n ) { return fPrimaryGenerator.GetParticleSource(n); }
+		///  Enables/disables the full chain decay generation.
+		void SetFullChain( Bool_t fullChain ) { fFullChain = fullChain; }
 
-        /// Returns the name of the particle source with index n (Geant4 based names).
-        TRestParticleSource GetParticleSource( int n ) { return fPrimaryGenerator.GetParticleSource( n ); }
+		///  Sets the position of the virtual generator using a TVector3.
+		void SetGeneratorPosition( TVector3 pos ) { fGenPosition = pos; }
 
-        /// Returns the primary generator object containning information about particle sources.
-        TRestG4PrimaryGenerator GetPrimaryGenerator() { return fPrimaryGenerator; }
+		///  Sets the position of the virtual generator using x,y,z coordinates.
+		void SetGeneratorPosition( double x, double y, double z ) { fGenPosition = TVector3( x, y, z ); }
 
-        /// \brief Places in fPrimaryGenerator the source definition, with index n, from a TRestParticleCollection.
-        /// This will be used by restG4 to pick up randomly a primary source definition from a pre-generated sources collection.
-        /// The particle collection needs to be previously populated using i.e. an input Decay0 file.
-        void SetParticleCollection ( Int_t n ) { fPrimaryGenerator.SetSourcesFromParticleCollection( n ); }
+		/// Sets the number of events to be simulated.
+		void SetNEvents( Int_t n ) { fNEvents = n; }
 
-        /// Removes all the sources from fPrimaryGenerator.
-        void RemoveSources() { fPrimaryGenerator.RemoveSources(); }
+		/// Returns the number of events simulated.
+		Int_t GetNumberOfEvents( ) { return fNEvents; }
+		///////////////////////////////////////////////////////////
 
-        /// Adds a new source to fPrimaryGenerator.
-        void AddSource( TRestParticleSource src ) { fPrimaryGenerator.AddSource( src ); }
-        ///////////////////////////////////////////////////////////
 
-        // Direct access to biasing volumes definition
-        //////////////////////////////////////////////
-        /// Returns the number of biasing volumes defined
-        Int_t GetNumberOfBiasingVolumes() { return fBiasingVolumes.size(); }
+		// Direct access to sources definition in primary generator
+		///////////////////////////////////////////////////////////
+		/// Returns the number of primary event sources defined in the generator.
+		Int_t GetNumberOfSources() { return fPrimaryGenerator.GetNumberOfSources(); }
 
-        /// Return the biasing volume with index n
-        TRestBiasingVolume GetBiasingVolume( int n ) { return fBiasingVolumes[n]; }
+		/// Returns the number of primary event sources defined in the generator.
+		Int_t GetNumberOfPrimaries() { return GetNumberOfSources(); }
 
-        /// Returns the number of biasing volumes defined. If 0 the biasing technique is not being used.
-        Int_t isBiasingActive() { return fBiasingVolumes.size(); }
+		/// Returns the particle source specified with index n.
+		TRestParticleSource GetSource( int n ) { return fPrimaryGenerator.GetParticleSource(n); }
 
-        /// Returns a string with the name of the sensitive volume.
-        TString GetSensitiveVolume() { return fSensitiveVolume; }
+		/// Returns the name of the particle source with index n (Geant4 based names).
+		TRestParticleSource GetParticleSource( int n ) { return fPrimaryGenerator.GetParticleSource( n ); }
 
-        /// Sets the name of the sensitive volume
-        void SetSensitiveVolume( TString sensVol ) { fSensitiveVolume = sensVol; }
-        ///////////////////////////////////////////////////////////
+		/// Returns the primary generator object containning information about particle sources.
+		TRestG4PrimaryGenerator GetPrimaryGenerator() { return fPrimaryGenerator; }
 
-        /// Returns the probability per event to register (write to disk) hits in the storage volume with index n.
-        Double_t GetStorageChance( Int_t n ) { return fChance[n]; }
+		/// \brief Places in fPrimaryGenerator the source definition, with index n, from a TRestParticleCollection.
+		/// This will be used by restG4 to pick up randomly a primary source definition from a pre-generated sources collection.
+		/// The particle collection needs to be previously populated using i.e. an input Decay0 file.
+		void SetParticleCollection ( Int_t n ) { fPrimaryGenerator.SetSourcesFromParticleCollection( n ); }
 
-        /// Returns the probability per event to register (write to disk) hits in a GDML volume given its geometry name.
-        Double_t GetStorageChance( TString vol );
+		/// Removes all the sources from fPrimaryGenerator.
+		void RemoveSources() { fPrimaryGenerator.RemoveSources(); }
 
-        /// Returns the minimum event energy required for an event to be stored.
-        Double_t GetMinimumEnergyStored() { return fEnergyRangeStored.X(); }
+		/// Adds a new source to fPrimaryGenerator.
+		void AddSource( TRestParticleSource src ) { fPrimaryGenerator.AddSource( src ); }
+		///////////////////////////////////////////////////////////
 
-        /// Returns the maximum event energy required for an event to be stored.
-        Double_t GetMaximumEnergyStored() { return fEnergyRangeStored.Y(); }
+		// Direct access to biasing volumes definition
+		//////////////////////////////////////////////
+		/// Returns the number of biasing volumes defined
+		Int_t GetNumberOfBiasingVolumes() { return fBiasingVolumes.size(); }
 
-        /// Returns the number of active volumes, or geometry volumes that have been selected for data storage.
-        Int_t GetNumberOfActiveVolumes( ) { return fActiveVolumes.size(); }
+		/// Return the biasing volume with index n
+		TRestBiasingVolume GetBiasingVolume( int n ) { return fBiasingVolumes[n]; }
 
-        /// Returns a string with the name of the active volume with index n
-        TString GetActiveVolumeName( Int_t n ) { return fActiveVolumes[n]; }
+		/// Returns the number of biasing volumes defined. If 0 the biasing technique is not being used.
+		Int_t isBiasingActive() { return fBiasingVolumes.size(); }
 
-        Int_t GetActiveVolumeID( TString name );
+		/// Returns a string with the name of the sensitive volume.
+		TString GetSensitiveVolume() { return fSensitiveVolume; }
 
-        Bool_t isVolumeStored( TString volName );
+		/// Sets the name of the sensitive volume
+		void SetSensitiveVolume( TString sensVol ) { fSensitiveVolume = sensVol; }
+		///////////////////////////////////////////////////////////
 
-        void SetActiveVolume( TString name, Double_t chance );
+		/// Returns the probability per event to register (write to disk) hits in the storage volume with index n.
+		Double_t GetStorageChance( Int_t n ) { return fChance[n]; }
 
-        void PrintMetadata( );
+		/// Returns the probability per event to register (write to disk) hits in a GDML volume given its geometry name.
+		Double_t GetStorageChance( TString vol );
 
-        TRestG4Metadata();
-        TRestG4Metadata( char *cfgFileName, std::string name = "");
+		/// Returns the minimum event energy required for an event to be stored.
+		Double_t GetMinimumEnergyStored() { return fEnergyRangeStored.X(); }
 
-        ~TRestG4Metadata();
+		/// Returns the maximum event energy required for an event to be stored.
+		Double_t GetMaximumEnergyStored() { return fEnergyRangeStored.Y(); }
 
+		/// Returns the number of active volumes, or geometry volumes that have been selected for data storage.
+		Int_t GetNumberOfActiveVolumes( ) { return fActiveVolumes.size(); }
 
-        ClassDef(TRestG4Metadata, 1); 
+		/// Returns a string with the name of the active volume with index n
+		TString GetActiveVolumeName( Int_t n ) { return fActiveVolumes[n]; }
+
+		Int_t GetActiveVolumeID( TString name );
+
+		Bool_t isVolumeStored( TString volName );
+
+		void SetActiveVolume( TString name, Double_t chance );
+
+		void PrintMetadata( );
+
+		TRestG4Metadata();
+		TRestG4Metadata( char *cfgFileName, std::string name = "");
+
+		~TRestG4Metadata();
+
+
+		ClassDef(TRestG4Metadata, 1);
 };
 #endif
