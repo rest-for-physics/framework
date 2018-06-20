@@ -91,6 +91,26 @@ Int_t TRestG4Track::GetProcessID( TString pcsName )
     return id;
 }
 
+EColor TRestG4Track::GetParticleColor( )
+{
+        EColor color = kGray;
+
+        if( GetParticleName() == "e-" )
+            color = kRed;
+        else if( GetParticleName() == "e+" )
+            color = kBlue;
+        else if( GetParticleName() == "alpha" )
+            color = kOrange;
+        else if( GetParticleName() == "mu-" )
+            color = kViolet;
+        else if( GetParticleName() == "gamma" )
+            color = kGreen;
+        else
+            cout << "TRestG4Track::GetParticleColor. Particle NOT found! Returning gray color." << endl;
+
+        return color;
+}
+
 Double_t TRestG4Track::GetTrackLength( )
 {
     Double_t length = 0;
