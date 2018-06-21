@@ -86,6 +86,21 @@ void TRestFindTrackBlobsProcess::InitProcess()
             fQ1_Y_Observables.push_back( fObservables[i] );
         if( fObservables[i].find( "Q2_Y_R") != string::npos )
             fQ2_Y_Observables.push_back( fObservables[i] );
+
+        if( fObservables[i].find( "Qhigh_R") != string::npos )
+            fQhigh_Observables.push_back( fObservables[i] );
+        if( fObservables[i].find( "Qlow_R") != string::npos )
+            fQlow_Observables.push_back( fObservables[i] );
+
+        if( fObservables[i].find( "Qhigh_X_R") != string::npos )
+            fQhigh_X_Observables.push_back( fObservables[i] );
+        if( fObservables[i].find( "Qlow_X_R") != string::npos )
+            fQlow_X_Observables.push_back( fObservables[i] );
+
+        if( fObservables[i].find( "Qhigh_Y_R") != string::npos )
+            fQhigh_Y_Observables.push_back( fObservables[i] );
+        if( fObservables[i].find( "Qlow_Y_R") != string::npos )
+            fQlow_Y_Observables.push_back( fObservables[i] );
     }
 
     for( unsigned int i = 0; i < fQ1_Observables.size(); i++ )
@@ -122,6 +137,42 @@ void TRestFindTrackBlobsProcess::InitProcess()
     {
         Double_t r2 = atof ( fQ2_Y_Observables[i].substr( 6, fQ2_Y_Observables[i].length() - 6 ).c_str() );
         fQ2_Y_Radius.push_back( r2 );
+    }
+
+    for( unsigned int i = 0; i < fQhigh_Observables.size(); i++ )
+    {
+        Double_t r1 = atof ( fQhigh_Observables[i].substr( 7, fQhigh_Observables[i].length() - 7 ).c_str() );
+        fQhigh_Radius.push_back( r1 );
+    }
+
+    for( unsigned int i = 0; i < fQlow_Observables.size(); i++ )
+    {
+        Double_t r2 = atof ( fQlow_Observables[i].substr( 6, fQlow_Observables[i].length() - 6 ).c_str() );
+        fQlow_Radius.push_back( r2 );
+    }
+
+    for( unsigned int i = 0; i < fQhigh_X_Observables.size(); i++ )
+    {
+        Double_t r1 = atof ( fQhigh_X_Observables[i].substr( 9, fQhigh_X_Observables[i].length() - 9 ).c_str() );
+        fQhigh_X_Radius.push_back( r1 );
+    }
+
+    for( unsigned int i = 0; i < fQlow_X_Observables.size(); i++ )
+    {
+        Double_t r2 = atof ( fQlow_X_Observables[i].substr( 8, fQlow_X_Observables[i].length() - 8 ).c_str() );
+        fQlow_X_Radius.push_back( r2 );
+    }
+
+    for( unsigned int i = 0; i < fQhigh_Y_Observables.size(); i++ )
+    {
+        Double_t r1 = atof ( fQhigh_Y_Observables[i].substr( 9, fQhigh_Y_Observables[i].length() - 9 ).c_str() );
+        fQhigh_Y_Radius.push_back( r1 );
+    }
+
+    for( unsigned int i = 0; i < fQlow_Y_Observables.size(); i++ )
+    {
+        Double_t r2 = atof ( fQlow_Y_Observables[i].substr( 8, fQlow_Y_Observables[i].length() - 8 ).c_str() );
+        fQlow_Y_Radius.push_back( r2 );
     }
 }
 
@@ -329,6 +380,30 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent( TRestEvent *evInput )
                 obsName = this->GetName() + (TString) "." + (TString) fQ2_Observables[n];
                 fAnalysisTree->SetObservableValue( obsName, q );
             }
+
+            for( unsigned int n = 0; n < fQhigh_Observables.size(); n++ )
+            {
+                Double_t q1 = originHits->GetEnergyInSphere( x1, y1, z1, fQhigh_Radius[n] );
+                Double_t q2 = originHits->GetEnergyInSphere( x2, y2, z2, fQhigh_Radius[n] );
+
+                Double_t q = q2;
+                if( q1 > q2 ) q = q1;
+
+                obsName = this->GetName() + (TString) "." + (TString) fQhigh_Observables[n];
+                fAnalysisTree->SetObservableValue( obsName, q );
+            }
+
+            for( unsigned int n = 0; n < fQlow_Observables.size(); n++ )
+            {
+                Double_t q1 = originHits->GetEnergyInSphere( x1, y1, z1, fQlow_Radius[n] );
+                Double_t q2 = originHits->GetEnergyInSphere( x2, y2, z2, fQlow_Radius[n] );
+
+                Double_t q = q2;
+                if( q1 < q2 ) q = q1;
+
+                obsName = this->GetName() + (TString) "." + (TString) fQlow_Observables[n];
+                fAnalysisTree->SetObservableValue( obsName, q );
+            }
         }
 
         if( tracks[t]->isXZ() )
@@ -348,6 +423,30 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent( TRestEvent *evInput )
                 obsName = this->GetName() + (TString) "." + (TString) fQ2_X_Observables[n];
                 fAnalysisTree->SetObservableValue( obsName, q );
             }
+
+            for( unsigned int n = 0; n < fQhigh_X_Observables.size(); n++ )
+            {
+                Double_t q1 = originHits->GetEnergyInSphere( x1_X, 0, z1_X, fQhigh_X_Radius[n] );
+                Double_t q2 = originHits->GetEnergyInSphere( x2_X, 0, z2_X, fQhigh_X_Radius[n] );
+
+                Double_t q = q2;
+                if( q1 > q2 ) q = q1;
+
+                obsName = this->GetName() + (TString) "." + (TString) fQhigh_X_Observables[n];
+                fAnalysisTree->SetObservableValue( obsName, q );
+            }
+
+            for( unsigned int n = 0; n < fQlow_X_Observables.size(); n++ )
+            {
+                Double_t q1 = originHits->GetEnergyInSphere( x1_X, 0, z1_X, fQlow_X_Radius[n] );
+                Double_t q2 = originHits->GetEnergyInSphere( x2_X, 0, z2_X, fQlow_X_Radius[n] );
+
+                Double_t q = q2;
+                if( q1 < q2 ) q = q1;
+
+                obsName = this->GetName() + (TString) "." + (TString) fQlow_X_Observables[n];
+                fAnalysisTree->SetObservableValue( obsName, q );
+            }
         }
 
         if( tracks[t]->isYZ() )
@@ -365,6 +464,30 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent( TRestEvent *evInput )
                 Double_t q = originHits->GetEnergyInSphere( 0, y2_Y, z2_Y, fQ2_Y_Radius[n] );
 
                 obsName = this->GetName() + (TString) "." + (TString) fQ2_Y_Observables[n];
+                fAnalysisTree->SetObservableValue( obsName, q );
+            }
+
+            for( unsigned int n = 0; n < fQhigh_Y_Observables.size(); n++ )
+            {
+                Double_t q1 = originHits->GetEnergyInSphere( 0, y1_Y, z1_Y, fQhigh_Y_Radius[n] );
+                Double_t q2 = originHits->GetEnergyInSphere( 0, y2_Y, z2_Y, fQhigh_Y_Radius[n] );
+
+                Double_t q = q2;
+                if( q1 > q2 ) q = q1;
+
+                obsName = this->GetName() + (TString) "." + (TString) fQhigh_Y_Observables[n];
+                fAnalysisTree->SetObservableValue( obsName, q );
+            }
+
+            for( unsigned int n = 0; n < fQlow_Y_Observables.size(); n++ )
+            {
+                Double_t q1 = originHits->GetEnergyInSphere( 0, y1_Y, z1_Y, fQlow_Y_Radius[n] );
+                Double_t q2 = originHits->GetEnergyInSphere( 0, y2_Y, z2_Y, fQlow_Y_Radius[n] );
+
+                Double_t q = q2;
+                if( q1 < q2 ) q = q1;
+
+                obsName = this->GetName() + (TString) "." + (TString) fQlow_Y_Observables[n];
                 fAnalysisTree->SetObservableValue( obsName, q );
             }
         }
