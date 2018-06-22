@@ -168,6 +168,8 @@ TRestMultiFEMINOSToSignalProcess::~TRestMultiFEMINOSToSignalProcess()
 //______________________________________________________________________________
 void TRestMultiFEMINOSToSignalProcess::Initialize()
 {
+    fLastEventId = 0;
+    fLastTimeStamp = 0;
 
     //this->SetVerboseLevel(REST_Debug);
 
@@ -334,6 +336,13 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput 
         }
     }
 
+    if( fSignalEvent->GetID() == 0 && fLastEventId != 0 )
+    {
+        fSignalEvent->SetID( fLastEventId );
+        fSignalEvent->SetTime( fLastTimeStamp );
+        fLastEventId = 0;
+    }
+
     if( GetVerboseLevel() >= REST_Info )
     {
         cout << "------------------------------------------" <<endl;
@@ -341,10 +350,14 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput 
         cout << "Time stamp : " << fSignalEvent->GetTimeStamp() << endl;
         cout << "Number of Signals : " << fSignalEvent->GetNumberOfSignals() << endl;
         cout << "------------------------------------------" <<endl;
-    }
 
-    if( GetVerboseLevel() >= REST_Debug )
-        GetChar();
+        if( GetVerboseLevel() >= REST_Debug )
+        {
+            for( Int_t n = 0; n < fSignalEvent->GetNumberOfSignals(); n++ )
+                cout << "Signal N : " << n << " daq id : " << fSignalEvent->GetSignal(n)->GetID() << endl;
+            GetChar();
+        }
+    }
 
     if( fSignalEvent->GetNumberOfSignals() == 0 ) return NULL;
 
@@ -446,7 +459,6 @@ Bool_t TRestMultiFEMINOSToSignalProcess::ReadFrame( void *fr, int fr_sz )
 
 
             //Set timestamp and event ID
-            fSignalEvent->SetTime( tStart + ( 2147483648*r2 + 32768*r1 + r0) * 2e-8 );
 
             // Event Count lower 16-bit
             r0 = *p;
@@ -457,10 +469,28 @@ Bool_t TRestMultiFEMINOSToSignalProcess::ReadFrame( void *fr, int fr_sz )
             p++;
 
             tmp = (((unsigned int) r1) << 16) | ((unsigned int) r0);
-            if( GetVerboseLevel() >= REST_Extreme )
+            if( GetVerboseLevel() >= REST_Info )
                 printf( "ReadFrame: Event_Count 0x%08x (%d)\n", tmp, tmp);
 
-            fSignalEvent->SetID( tmp );
+            // Some times the end of the frame contains the header of the next event.
+            // Then, in the attempt to read the header of next event, we must avoid that it overwrites the already assigned id. 
+            // In that case (id != 0), we do nothing, and we store the values at fLastXX variables, that we will use that for next event.
+            if( fSignalEvent->GetID() == 0 )
+            {
+                if( fLastEventId == 0 )
+                {
+                    fSignalEvent->SetID( tmp );
+                    fSignalEvent->SetTime( tStart + ( 2147483648*r2 + 32768*r1 + r0) * 2e-8 );
+                }
+                else
+                {
+                    fSignalEvent->SetID( fLastEventId );
+                    fSignalEvent->SetTime( fLastTimeStamp );
+                }
+            }
+
+            fLastEventId = tmp;
+            fLastTimeStamp =  tStart + ( 2147483648*r2 + 32768*r1 + r0) * 2e-8;
 
             fSignalEvent->SetRunOrigin( fRunOrigin );
             fSignalEvent->SetSubRunOrigin( fSubRunOrigin );
