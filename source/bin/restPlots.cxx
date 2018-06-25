@@ -44,118 +44,118 @@ void PrintHelp( )
 
 int main( int argc, char *argv[] )
 {
-	int argRint = 1;
-	char *argVRint[3];
+    int argRint = 1;
+    char *argVRint[3];
 
-	char batch[64], quit[64], appName[64];
-	sprintf ( appName, "restPlots" );
-	sprintf( batch, "%s", "-b" );
-	sprintf( quit, "%s", "-q" );
+    char batch[64], quit[64], appName[64];
+    sprintf ( appName, "restPlots" );
+    sprintf( batch, "%s", "-b" );
+    sprintf( quit, "%s", "-q" );
 
-	argVRint[0] = appName;
-	argVRint[1] = batch;
-	argVRint[2] = quit;
+    argVRint[0] = appName;
+    argVRint[1] = batch;
+    argVRint[2] = quit;
 
-	for( int i = 1; i < argc; i++ )
-		if ( strstr( argv[i], "--batch") != NULL  )
-			argRint = 3;
+    for( int i = 1; i < argc; i++ )
+        if ( strstr( argv[i], "--batch") != NULL  )
+            argRint = 3;
 
-	TRint theApp("App", &argRint, argVRint );
+    TRint theApp("App", &argRint, argVRint );
 
-	gSystem->Load("libRestCore.so");
-	gSystem->Load("libRestMetadata.so");
-	gSystem->Load("libRestEvents.so");
-	gSystem->Load("libRestProcesses.so");
+    gSystem->Load("libGdml.so");
+    gSystem->Load("libRestCore.so");
+    gSystem->Load("libRestMetadata.so");
+    gSystem->Load("libRestEvents.so");
+    gSystem->Load("libRestProcesses.so");
 
-	if( argc <= 1 ) { PrintHelp(); exit(1); }
+    if( argc <= 1 ) { PrintHelp(); exit(1); }
 
-	if( argc >= 2 )
-	{
-		for(int i = 1; i < argc; i++)
-			if( *argv[i] == '-')
-			{
-				argv[i]++;
-				if( *argv[i] == '-')
-				{
-					argv[i]++;
-	//				printf( "arg : %s\n", argv[i+1] );
-					switch ( *argv[i] )
-					{
-						case 'c' : sprintf( cfgFileName, "%s", argv[i+1] ); break;
-						case 'n' : sprintf( sectionName, "%s", argv[i+1] ); break;
-						case 'p' : saveToPDFFile = argv[i+1]; break;
-						case 'r' : saveToROOTFile = argv[i+1]; break;
-						case 'f' : 
-							   {
-								   sprintf( iFile, "%s", argv[i+1] );
-								   TString iFileStr = iFile;
-								   inputFiles.push_back( iFileStr );
-								   break;
-							   }
-						case 'h' : PrintHelp(); exit(1);
-						default : ;
-					}
-				}
-			}
-	}
+    if( argc >= 2 )
+    {
+        for(int i = 1; i < argc; i++)
+            if( *argv[i] == '-')
+            {
+                argv[i]++;
+                if( *argv[i] == '-')
+                {
+                    argv[i]++;
+                    //				printf( "arg : %s\n", argv[i+1] );
+                    switch ( *argv[i] )
+                    {
+                        case 'c' : sprintf( cfgFileName, "%s", argv[i+1] ); break;
+                        case 'n' : sprintf( sectionName, "%s", argv[i+1] ); break;
+                        case 'p' : saveToPDFFile = argv[i+1]; break;
+                        case 'r' : saveToROOTFile = argv[i+1]; break;
+                        case 'f' : 
+                                   {
+                                       sprintf( iFile, "%s", argv[i+1] );
+                                       TString iFileStr = iFile;
+                                       inputFiles.push_back( iFileStr );
+                                       break;
+                                   }
+                        case 'h' : PrintHelp(); exit(1);
+                        default : ;
+                    }
+                }
+            }
+    }
 
-	TString cfgFile = cfgFileName;
-	if( cfgFile == "" )
-	{
-		cfgFile = getenv( "REST_CONFIGFILE" );
+    TString cfgFile = cfgFileName;
+    if( cfgFile == "" )
+    {
+        cfgFile = getenv( "REST_CONFIGFILE" );
 
-		if( cfgFile == "" )
-		{
-			TString restPath = getenv( "REST_PATH" );
-			cfgFile = restPath + "/config/template/plots.rml";
-		}
-	}
+        if( cfgFile == "" )
+        {
+            TString restPath = getenv( "REST_PATH" );
+            cfgFile = restPath + "/config/template/plots.rml";
+        }
+    }
 
-	std::vector <TString> inputFilesNew;
-	for( unsigned int n = 0; n < inputFiles.size(); n++ )
-	{
-		if( inputFiles[n].First( "*" ) >= 0 || inputFiles[n].First( "?" ) >= 0  )
-		{
-			char command[256];
-			sprintf( command, "find %s > /tmp/fileList.tmp", inputFiles[n].Data() );
+    std::vector <TString> inputFilesNew;
+    for( unsigned int n = 0; n < inputFiles.size(); n++ )
+    {
+        if( inputFiles[n].First( "*" ) >= 0 || inputFiles[n].First( "?" ) >= 0  )
+        {
+            char command[256];
+            sprintf( command, "find %s > /tmp/fileList.tmp", inputFiles[n].Data() );
 
-			system( command );
+            system( command );
 
-			FILE *fin = fopen( "/tmp/fileList.tmp", "r" );
-			char str[256];
-			while ( fscanf ( fin, "%s\n", str ) != EOF )
-			{
-				TString newFile = str;
-				inputFilesNew.push_back( newFile );
-			}
-			fclose( fin );
+            FILE *fin = fopen( "/tmp/fileList.tmp", "r" );
+            char str[256];
+            while ( fscanf ( fin, "%s\n", str ) != EOF )
+            {
+                TString newFile = str;
+                inputFilesNew.push_back( newFile );
+            }
+            fclose( fin );
 
-			system ( "rm /tmp/fileList.tmp" );
-		}
-		else
-		{
-			inputFilesNew.push_back( inputFiles[n] );
-		}
-	}
+            system ( "rm /tmp/fileList.tmp" );
+        }
+        else
+        {
+            inputFilesNew.push_back( inputFiles[n] );
+        }
+    }
 
-	TRestAnalysisPlot *anPlot = new TRestAnalysisPlot( cfgFileName, sectionName );
+    TRestAnalysisPlot *anPlot = new TRestAnalysisPlot( cfgFileName, sectionName );
 
-	if( saveToPDFFile != "" )
-		anPlot->SetOutputPlotsFilename( saveToPDFFile );
+    if( saveToPDFFile != "" )
+        anPlot->SetOutputPlotsFilename( saveToPDFFile );
 
-	if( saveToROOTFile  != "" )
-		anPlot->SetOutputHistosFilename( saveToROOTFile );
+    if( saveToROOTFile  != "" )
+        anPlot->SetOutputHistosFilename( saveToROOTFile );
 
-	for( unsigned int n = 0; n < inputFilesNew.size(); n++ )
-	{
-		cout << "Adding file : " << inputFilesNew[n] << endl;
-		anPlot->AddFile( inputFilesNew[n] );
-	}
+    for( unsigned int n = 0; n < inputFilesNew.size(); n++ )
+        anPlot->AddFile( inputFilesNew[n] );
 
-	anPlot->PlotCombinedCanvas( );
+    anPlot->PrintFiles();
 
-	theApp.Run();
+    anPlot->PlotCombinedCanvas( );
 
-	return 0;
+    theApp.Run();
+
+    return 0;
 }
 

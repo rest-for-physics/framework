@@ -36,14 +36,12 @@ TRestEventViewer::~TRestEventViewer()
     
 }
 
-void TRestEventViewer::Initialize()
+void TRestEventViewer::Initialize( Int_t fW, Int_t fH )
 {
     fGeometry=NULL;
     fEvent=NULL;
     
     DeleteCurrentEvent(  );
-    
-       
 }
 
 void TRestEventViewer::DeleteCurrentEvent(  ){

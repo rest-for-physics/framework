@@ -429,6 +429,14 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
 
     for( unsigned int n = 0; n < optList.size(); n++ )
     {
+        if( optList[n] == "print" )
+            this->PrintEvent();
+    }
+
+    optList.erase( std::remove( optList.begin(), optList.end(), "print"), optList.end() );
+
+    for( unsigned int n = 0; n < optList.size(); n++ )
+    {
         /* Not used for the moment
         if( optList[n] == "XZ" ) drawXZ = true;
         if( optList[n] == "YZ" ) drawYZ = true;
@@ -500,7 +508,6 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
     for (int tck = 0; tck < nTracks; tck++)
     {
         TRestVolumeHits *hits = fTrack[tck].GetVolumeHits( );
-
 
         Double_t maxHitEnergy = hits->GetMaximumHitEnergy();
         Double_t meanHitEnergy = hits->GetMeanHitEnergy();
@@ -664,7 +671,11 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
     fPad->cd(1); 
     mgXZ->GetXaxis()->SetTitle("X-axis (mm)");
     mgXZ->GetYaxis()->SetTitle("Z-axis (mm)");
-    mgXZ->GetYaxis()->SetTitleOffset(2.);
+    mgXZ->GetYaxis()->SetTitleOffset(1.75);
+    mgXZ->GetYaxis()->SetTitleSize( 1.4 * mgXZ->GetYaxis()->GetTitleSize() );
+    mgXZ->GetXaxis()->SetTitleSize( 1.4 * mgXZ->GetXaxis()->GetTitleSize() );
+    mgXZ->GetYaxis()->SetLabelSize( 1.25 * mgXZ->GetYaxis()->GetLabelSize() );
+    mgXZ->GetXaxis()->SetLabelSize( 1.25 * mgXZ->GetXaxis()->GetLabelSize() );
     mgXZ->Draw("P");
 
 
@@ -674,7 +685,11 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
     fPad->cd(2); 
     mgYZ->GetXaxis()->SetTitle("Y-axis (mm)");
     mgYZ->GetYaxis()->SetTitle("Z-axis (mm)");
-    mgYZ->GetYaxis()->SetTitleOffset(2.);
+    mgYZ->GetYaxis()->SetTitleOffset(1.75);
+    mgYZ->GetYaxis()->SetTitleSize( 1.4 * mgYZ->GetYaxis()->GetTitleSize() );
+    mgYZ->GetXaxis()->SetTitleSize( 1.4 * mgYZ->GetXaxis()->GetTitleSize() );
+    mgYZ->GetYaxis()->SetLabelSize( 1.25 * mgYZ->GetYaxis()->GetLabelSize() );
+    mgYZ->GetXaxis()->SetLabelSize( 1.25 * mgYZ->GetXaxis()->GetLabelSize() );
     mgYZ->Draw("P");
 
     if( this->isXYZ() )
@@ -685,7 +700,12 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
         fPad->cd(3); 
         mgXY->GetXaxis()->SetTitle("X-axis (mm)");
         mgXY->GetYaxis()->SetTitle("Y-axis (mm)");
+        mgXY->GetYaxis()->SetTitleOffset(1.75);
         mgXY->Draw("P");
+        mgXY->GetYaxis()->SetTitleSize( 1.4 * mgXY->GetYaxis()->GetTitleSize() );
+        mgXY->GetXaxis()->SetTitleSize( 1.4 * mgXY->GetXaxis()->GetTitleSize() );
+        mgXY->GetYaxis()->SetLabelSize( 1.25 * mgXY->GetYaxis()->GetLabelSize() );
+        mgXY->GetXaxis()->SetLabelSize( 1.25 * mgXY->GetXaxis()->GetLabelSize() );
     }
 
     for( int tck = 0; tck < nTckXZ; tck++ )

@@ -18,12 +18,20 @@
 #include "TCanvas.h"
 #include "TH3D.h"
 
+const int REST_MAX_TAGS = 6;
+
 class TRestAnalysisPlot:public TRestMetadata {
     private:
         void InitFromConfigFile( );
 
+        Int_t GetRunTagIndex( TString tag );
+
         Int_t fNFiles;
-        std::vector <TString> fFileNames;
+        std::vector <TString> fFileNames[REST_MAX_TAGS];
+
+        TString fClasifyBy;
+
+        std::vector <TString> fLegendName;
 
 #ifndef __CINT__
         TRestRun *fRun;
@@ -71,7 +79,26 @@ class TRestAnalysisPlot:public TRestMetadata {
         void SetOutputPlotsFilename( TString fname ) { fCanvasSave = fname; }
         void SetOutputHistosFilename( TString fname ) { fHistoOutputFile = fname; }
 
-        void AddFile( TString fileName ) { fFileNames.push_back( fileName ); fNFiles++; }
+        void AddFile( TString fileName );
+
+        void PrintFiles( )
+        {
+            cout << "++++++++++++++++++++++++++++++++++++++" << endl;
+            cout << "Relation of files included in the plot" << endl;
+            cout << "++++++++++++++++++++++++++++++++++++++" << endl;
+            for( unsigned int i = 0; i < fLegendName.size(); i++ )
+            {
+                cout << "Legend : " << fLegendName[i] << endl;
+                cout << "---------------------------" << endl;
+                for( unsigned int n = 0; n < fFileNames[i].size(); n++ )
+                {
+                    cout << fFileNames[i][n] << endl;
+
+                }
+            }
+
+            cout << "++++++++++++++++++++++++++++++++++++++" << endl;
+        }
 
         void SavePlotToPDF( TString plotName, TString fileName );
         void SavePlotToPDF( Int_t n, TString fileName );
@@ -88,7 +115,6 @@ class TRestAnalysisPlot:public TRestMetadata {
         TRestAnalysisPlot( const char *cfgFileName, const char *name = "" );
         //Destructor
         virtual ~ TRestAnalysisPlot();
-
 
         ClassDef(TRestAnalysisPlot, 1);     
 };

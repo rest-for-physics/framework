@@ -23,6 +23,11 @@
 
 #include <TObject.h>
 #include <TH1D.h>
+#include <TH2F.h>
+#include <TGraph.h>
+#include <TGraph2D.h>
+#include <TLegend.h>
+#include <TMultiGraph.h>
 #include <TRestEvent.h>
 #include <TVector3.h>
 #include <TRestG4Track.h>
@@ -30,9 +35,68 @@
 class TRestG4Event: public TRestEvent {
 
     private:
+
+        #ifndef __CINT__
+        Double_t fMinX, fMaxX;
+        Double_t fMinY, fMaxY;
+        Double_t fMinZ, fMaxZ;
+        Double_t fMinEnergy, fMaxEnergy;
+        #endif
+
+        void SetBoundaries( );
+
         void AddEnergyDepositToVolume( Int_t volID, Double_t eDep );
 
     protected:
+
+        #ifndef __CINT__
+        
+        // TODO These graphs should be placed in TRestTrack?
+        // (following GetGraph implementation in TRestSignal)
+        TGraph *fXZHitGraph;
+        TGraph *fYZHitGraph;
+        TGraph *fXYHitGraph;
+        //TGraph2D *fXYZHitGraph; (TODO to implement XYZ visualization)
+
+        std::vector <TGraph *> fXYPcsMarker;
+        std::vector <TGraph *> fYZPcsMarker;
+        std::vector <TGraph *> fXZPcsMarker;
+
+        TMultiGraph *fXZMultiGraph;
+        TMultiGraph *fYZMultiGraph;
+        TMultiGraph *fXYMultiGraph;
+        //TMultiGraph *fXYZMultiGraph; (TODO to implement XYZ visualization)
+ 
+        TH2F *fXYHisto;
+        TH2F *fXZHisto;
+        TH2F *fYZHisto;
+
+        TH1D *fXHisto;
+        TH1D *fYHisto;
+        TH1D *fZHisto;
+
+        TLegend *fLegend_XY;
+        TLegend *fLegend_XZ;
+        TLegend *fLegend_YZ;
+
+        std::vector <Int_t> legendAdded;
+
+        Int_t fTotalHits;
+
+        TMultiGraph *GetXZMultiGraph( Int_t gridElement, std::vector <TString> pcsList, Double_t minPointSize = 0.4, Double_t maxPointSize = 4 );
+        TMultiGraph *GetYZMultiGraph( Int_t gridElement, std::vector <TString> pcsList, Double_t minPointSize = 0.4, Double_t maxPointSize = 4 );
+        TMultiGraph *GetXYMultiGraph( Int_t gridElement, std::vector <TString> pcsList, Double_t minPointSize = 0.4, Double_t maxPointSize = 4 );
+
+        TH2F *GetXYHistogram( Int_t gridElement, std::vector <TString> optList );
+        TH2F *GetXZHistogram( Int_t gridElement, std::vector <TString> optList );
+        TH2F *GetYZHistogram( Int_t gridElement, std::vector <TString> optList );
+
+        TH1D *GetXHistogram( Int_t gridElement, std::vector <TString> optList );
+        TH1D *GetYHistogram( Int_t gridElement, std::vector <TString> optList );
+        TH1D *GetZHistogram( Int_t gridElement, std::vector <TString> optList );
+        #endif
+
+        
         TVector3 fPrimaryEventOrigin;
 
         std::vector <TVector3> fPrimaryEventDirection;
@@ -203,7 +267,7 @@ class TRestG4Event: public TRestEvent {
         /// maxTracks : number of tracks to print, 0 = all
         void PrintEvent( int maxTracks = 0, int maxHits = 0 );
 
-	TPad *DrawEvent( TString option = "" ) { std::cout << "TRestG4Event::DrawEvent not implemented. TODO" << std::endl; return NULL; }
+        TPad *DrawEvent( TString option = "" );
 
         //Construtor
         TRestG4Event();

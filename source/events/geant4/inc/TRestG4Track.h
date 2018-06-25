@@ -21,6 +21,7 @@
 #include <iostream>
 
 #include "TObject.h"
+#include <TColor.h>
 #include <TString.h>
 #include <TArrayI.h>
 #include <TVector3.h>
@@ -56,7 +57,10 @@ class TRestG4Track:public TObject {
         Int_t GetNumberOfHits() { return fHits.GetNumberOfHits(); }
         Int_t GetTrackID() { return fTrack_ID; }
         Int_t GetParentID() { return fParent_ID; }
+
         TString GetParticleName() { return fParticleName; }
+        EColor GetParticleColor();
+
         Double_t GetGlobalTime() { return fGlobalTimestamp; }
         Double_t GetTrackTimeLength() { return fTrackTimestamp; }
         Double_t GetKineticEnergy() { return fKineticEnergy; }

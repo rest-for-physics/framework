@@ -41,7 +41,7 @@ class TRestEventViewer {
 
     void SetOption( TString opt ) { fOption = opt; }
 
-    virtual void Initialize();
+    virtual void Initialize( Int_t fW = 1024, Int_t fH = 768 );
 
     virtual void AddEvent( TRestEvent *ev ) = 0;
             

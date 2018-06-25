@@ -328,10 +328,18 @@ TPad *TRestHitsEvent::DrawEvent( TString option )
 
     SetBoundaries( );
 
-    if( fPad != NULL ) { delete fPad; fPad = NULL; }
+    for( unsigned int n = 0; n < optList.size(); n++ )
+    {
+        if( optList[n] == "print" )
+            this->PrintEvent();
+    }
+
+    optList.erase( std::remove( optList.begin(), optList.end(), "print"), optList.end() );
 
     if( optList.size() == 0 )
         optList.push_back( "hist(Cont1,col)" );
+
+    if( fPad != NULL ) { delete fPad; fPad = NULL; }
 
     fPad = new TPad(this->GetName(), " ", 0, 0, 1, 1 );
     fPad->Divide( 3 ,2*optList.size() );
@@ -581,19 +589,20 @@ void TRestHitsEvent::DrawHistograms( Int_t &column, Double_t pitch, TString hist
 	TStyle style;
 	style.SetPalette(1);
 
-	if( nXZ > 0 )
-	{
-		fPad->cd(1 + 3 * column );
-		fXZHisto->Draw( histOption );
-		fXZHisto->GetXaxis()->SetTitle("X-axis (mm)");
-		fXZHisto->GetYaxis()->SetTitle("Z-axis (mm)");
-		fXZHisto->GetXaxis()->SetTitleOffset(1.);
-		fXZHisto->GetXaxis()->SetLabelSize(0.02);
-		fXZHisto->GetXaxis()->CenterTitle();
-		fXZHisto->GetYaxis()->SetTitleOffset(1.5);
-		fXZHisto->GetYaxis()->SetLabelSize(0.02);
-		fXZHisto->GetYaxis()->CenterTitle();
-	}
+<<<<<<< HEAD
+    if( nXZ > 0 )
+    {
+        fPad->cd(1 + 3 * column );
+        fXZHisto->Draw( histOption );
+        fXZHisto->GetXaxis()->SetTitle("X-axis (mm)");
+        fXZHisto->GetYaxis()->SetTitle("Z-axis (mm)");
+        fXZHisto->GetYaxis()->SetTitleSize( 1.4 * fXZHisto->GetYaxis()->GetTitleSize() );
+        fXZHisto->GetXaxis()->SetTitleSize( 1.4 * fXZHisto->GetXaxis()->GetTitleSize() );
+        fXZHisto->GetYaxis()->SetLabelSize( 1.25 * fXZHisto->GetYaxis()->GetLabelSize() );
+        fXZHisto->GetXaxis()->SetLabelSize( 1.25 * fXZHisto->GetXaxis()->GetLabelSize() );
+        fXZHisto->GetYaxis()->SetTitleOffset(1.75);
+    }
+>>>>>>> 6a16c7be252cb2150324ad659b6e0e5517c9f204
 
 	if( nYZ > 0 )
 	{
@@ -601,12 +610,13 @@ void TRestHitsEvent::DrawHistograms( Int_t &column, Double_t pitch, TString hist
 		fYZHisto->Draw( histOption );
 		fYZHisto->GetXaxis()->SetTitle("Y-axis (mm)");
         fYZHisto->GetYaxis()->SetTitle("Z-axis (mm)");
-		fYZHisto->GetXaxis()->SetTitleOffset(1.);
-		fYZHisto->GetXaxis()->SetLabelSize(0.02);
-		fYZHisto->GetXaxis()->CenterTitle();
-		fYZHisto->GetYaxis()->SetTitleOffset(1.5);
-		fYZHisto->GetYaxis()->SetLabelSize(0.02);
-		fYZHisto->GetYaxis()->CenterTitle();
+<<<<<<< HEAD
+        fYZHisto->GetYaxis()->SetTitleSize( 1.4 * fYZHisto->GetYaxis()->GetTitleSize() );
+        fYZHisto->GetXaxis()->SetTitleSize( 1.4 * fYZHisto->GetXaxis()->GetTitleSize() );
+        fYZHisto->GetYaxis()->SetLabelSize( 1.25 * fYZHisto->GetYaxis()->GetLabelSize() );
+        fYZHisto->GetXaxis()->SetLabelSize( 1.25 * fYZHisto->GetXaxis()->GetLabelSize() );
+        fYZHisto->GetYaxis()->SetTitleOffset(1.75);
+>>>>>>> 6a16c7be252cb2150324ad659b6e0e5517c9f204
     }
 
     if( nXY > 0 )

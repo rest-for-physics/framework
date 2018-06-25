@@ -31,6 +31,9 @@ class TRestMultiFEMINOSToSignalProcess:public TRestRawToSignalProcess {
  private:
  
  unsigned short pay;
+
+ unsigned int fLastEventId;
+ Double_t fLastTimeStamp;
  
  public:
    void InitProcess();

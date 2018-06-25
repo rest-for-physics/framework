@@ -40,6 +40,24 @@ class TRestFindTrackBlobsProcess:public TRestEventProcess {
 
         std::vector <std::string> fQ2_Y_Observables;
         std::vector <double> fQ2_Y_Radius;
+
+        std::vector <std::string> fQhigh_Observables;
+        std::vector <double> fQhigh_Radius;
+
+        std::vector <std::string> fQlow_Observables;
+        std::vector <double> fQlow_Radius;
+
+        std::vector <std::string> fQhigh_X_Observables;
+        std::vector <double> fQhigh_X_Radius;
+
+        std::vector <std::string> fQlow_X_Observables;
+        std::vector <double> fQlow_X_Radius;
+
+        std::vector <std::string> fQhigh_Y_Observables;
+        std::vector <double> fQhigh_Y_Radius;
+
+        std::vector <std::string> fQlow_Y_Observables;
+        std::vector <double> fQlow_Y_Radius;
 #endif
 
         Double_t fHitsToCheckFraction;

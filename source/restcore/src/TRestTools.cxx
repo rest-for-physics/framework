@@ -43,7 +43,7 @@ vector <TString> TRestTools::GetListOfPathsInEnvVariable( TString envVariable  )
     return pathList;
 }
 
-vector <TString> TRestTools::GetOptions( TString optionsStr  )
+vector <TString> TRestTools::GetOptions( TString optionsStr, TString separator  )
 {
     vector <TString> optionsList;
 
@@ -51,7 +51,7 @@ vector <TString> TRestTools::GetOptions( TString optionsStr  )
 
     while( p.Length() > 0 )
     {
-        TString option = GetFirstOption( p );
+        TString option = PopFirstOption( p, separator );
 
         if ( option.Length() > 0 ) optionsList.push_back( option );
     }
@@ -59,9 +59,23 @@ vector <TString> TRestTools::GetOptions( TString optionsStr  )
     return optionsList;
 }
 
-TString TRestTools::GetFirstOption( TString &path )
+TString TRestTools::PopFirstOption( TString &options, TString sep )
 {
-    return GetFirstPath( path );
+    TString resultString;
+
+    if ( options.First( sep ) >= 0 )
+    {
+        resultString = options( 0, options.First( sep ) );
+
+        options = options( options.First( sep )+1, options.Length() );
+    }
+    else
+    {
+        resultString = options;
+        options = "";
+    }
+
+    return resultString;
 }
 
 TString TRestTools::GetFirstPath( TString &path )

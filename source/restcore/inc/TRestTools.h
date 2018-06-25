@@ -28,11 +28,11 @@ class TRestTools:public TObject {
 
         static std::vector <TString> GetRESTLibrariesInDirectory( TString path );
 
-        static std::vector <TString> GetOptions( TString optionsStr  );
+        static std::vector <TString> GetOptions( TString optionsStr, TString separator = ":" );
 
-        static TString GetFirstOption( TString &path );
+        static TString PopFirstOption( TString &options, TString sep );
 
-	static std::vector <TString> GetFilesMatchingPattern( TString pattern );
+        static std::vector <TString> GetFilesMatchingPattern( TString pattern );
 
         ClassDef(TRestTools, 1); // Rest tools class 
 };

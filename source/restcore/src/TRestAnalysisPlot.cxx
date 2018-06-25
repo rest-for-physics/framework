@@ -50,6 +50,8 @@ void TRestAnalysisPlot::Initialize()
     fEndTime = 0;
 
     fStats = kTRUE;
+
+    fClasifyBy = "runTag";
 }
 
 
@@ -134,11 +136,11 @@ void TRestAnalysisPlot::InitFromConfigFile()
 
             TString option = RemoveWhiteSpaces( GetFieldValue( "option", addPlotString ) );
 
-            if( RemoveWhiteSpaces( GetFieldValue( "stats", addPlotString ) ) == "OFF" )
-                fStats = kFALSE;
-
             if( option == "Notdefined" )
                 option = "colz";
+
+            if( RemoveWhiteSpaces( GetFieldValue( "stats", addPlotString ) ) == "OFF" )
+                fStats = kFALSE;
 
             fPlotOption.push_back( option );
 
@@ -294,6 +296,52 @@ void TRestAnalysisPlot::InitFromConfigFile()
     }
 }
 
+void TRestAnalysisPlot::AddFile( TString fileName ) 
+{ 
+    TRestRun *run = new TRestRun();
+    run->OpenInputFile( fileName );
+
+    if( fClasifyBy == "runTag" )
+    {
+        TString rTag = run->GetRunTag();
+
+        Int_t index = GetRunTagIndex( run->GetRunTag() );
+
+        fFileNames[index].push_back( fileName ); 
+        fNFiles++; 
+    }
+    else if( fClasifyBy == "combineAll" )
+    {
+        fFileNames[0].push_back( fileName ); 
+        fNFiles++;
+    }
+    else
+    {
+        cout << "REST Warning. TRestAnalysisPlot : fClasifyBy not recognized" << endl;
+
+        fFileNames[0].push_back( fileName ); 
+        fNFiles++;
+    }
+
+    run->CloseInputFile();
+    delete run;
+}
+
+Int_t TRestAnalysisPlot::GetRunTagIndex( TString tag )
+{
+    Int_t index = 0;
+    for( unsigned int n = 0; n < fLegendName.size(); n++ )
+    {
+        if( fLegendName[n] == tag )
+            return index;
+        index++;
+    }
+
+    fLegendName.push_back( tag );
+
+    return index;
+}
+
 Int_t TRestAnalysisPlot::GetPlotIndex( TString plotName )
 {
 
@@ -327,41 +375,45 @@ void TRestAnalysisPlot::PlotCombinedCanvas( )
 void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
 {
 
-    vector <TRestRun *> runs;
-    vector <TRestAnalysisTree *> trees;
+    vector <TRestRun *> runs[REST_MAX_TAGS];
+    vector <TRestAnalysisTree *> trees[REST_MAX_TAGS];
+    vector <TH3F *> histCollection;
 
     fStartTime = 0;
     fEndTime = 0;
 
+    /* {{{ We create a list of analysis trees in each run, and define start/end times */
     TRestRun *r;
     TRestAnalysisTree *anT;
-    for( int n = 0; n < fNFiles; n++ )
-    {
-        r = new TRestRun();
-        runs.push_back( r );
-        r->OpenInputFile( fFileNames[n] );
-        anT = r->GetAnalysisTree();
-        trees.push_back( anT );
+    for( unsigned int i = 0; i < fLegendName.size(); i++ )
+        for( unsigned int n = 0; n < fFileNames[i].size(); n++ )
+        {
+            r = new TRestRun();
+            runs[i].push_back( r );
+            r->OpenInputFile( fFileNames[i][n] );
+            anT = r->GetAnalysisTree();
 
-        r->SkipEventTree();
+            trees[i].push_back( anT );
 
-        if( r->GetEntries() < 3 )
-            continue;
+            r->SkipEventTree();
 
-        r->GetEntry(1);
-        if( fStartTime == 0 || anT->GetTimeStamp() < fStartTime ) fStartTime = anT->GetTimeStamp();
+            if( r->GetEntries() < 3 )
+                continue;
 
-        r->GetEntry( r->GetEntries() - 1);
-        if( fEndTime == 0 || anT->GetTimeStamp() > fEndTime ) fEndTime = anT->GetTimeStamp();
-    }
+            r->GetEntry(1);
+            if( fStartTime == 0 || anT->GetTimeStamp() < fStartTime ) fStartTime = anT->GetTimeStamp();
 
-    fCanvasSave = ReplaceFilenameTags( fCanvasSave, runs[0] );
+            r->GetEntry( r->GetEntries() - 1);
+            if( fEndTime == 0 || anT->GetTimeStamp() > fEndTime ) fEndTime = anT->GetTimeStamp();
+        }
+    /* }}} */
 
-    fHistoOutputFile = ReplaceFilenameTags( fHistoOutputFile, runs[0] );
+    fHistoOutputFile = ReplaceFilenameTags( fHistoOutputFile, runs[0][0] );
     TFile *f = new TFile( fHistoOutputFile, "RECREATE");
 
     cout << "Saving histograms to ROOT file : " << fHistoOutputFile << endl;
 
+    /* {{{ Initializing canvas window */
     if( fCombinedCanvas != NULL ) 
     {
         delete fCombinedCanvas;
@@ -371,6 +423,7 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
     fCombinedCanvas = new TCanvas( "combined", "combined", 0, 0, fCanvasSize.X(), fCanvasSize.Y() );
 
     fCombinedCanvas->Divide( (Int_t) fCanvasDivisions.X(), (Int_t) fCanvasDivisions.Y() );
+    /* }}} */
 
     TStyle *st = new TStyle();
     st->SetPalette(1);
@@ -381,102 +434,157 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
         if( fLogScale[n] ) 
             fCombinedCanvas->cd(n+1)->SetLogy();
 
-        for( int m = 0; m < fNFiles; m++ )
+        histCollection.clear();
+
+        std::vector <TString> hName;
+        for( unsigned int i = 0; i < fLegendName.size(); i++ )
+        {
+            TString plotString = fPlotString[n];
+
+            size_t varStart = FindNthStringPosition( (string) fPlotString[n], 0, ">>", 0 );
+            size_t varEnd = FindNthStringPosition( (string) fPlotString[n], 0, "(", 0 );
+
+            TString varName = fPlotString[n]( varStart , varEnd - varStart );
+
+            hName.push_back( varName + "_" + fLegendName[i] );
+            plotString = Replace( (string) plotString, (string) varName, (string) hName[i], 0 , 1 );
+            hName[i].Remove(0,2);
+
+            for( unsigned int m = 0; m < fFileNames[i].size(); m++ )
+            {
+                /* {{{ Constructing plotString for time plots */
+                if( fPlotXLabel[n].Contains("Time") ||  fPlotXLabel[n].Contains("time") )
+                {
+                    size_t first = FindNthStringPosition( (string) fPlotString[n], 0, ",", 0 );
+                    size_t second = FindNthStringPosition( (string) fPlotString[n], 0, ",", 1 );
+                    size_t third = FindNthStringPosition( (string) fPlotString[n], 0, ",", 2 );
+
+                    TString xStr = fPlotString[n]( first + 1 ,second - first - 1 );
+                    string xstr = trim( (string) xStr );
+
+                    if( xstr == "" )
+                    {
+                        string startTimeStr = std::to_string( fStartTime);
+                        plotString.Insert( second -1, startTimeStr );
+                    }
+
+                    TString yStr = fPlotString[n]( second + 1 ,third- second - 1 );
+                    string ystr = trim( (string) yStr );
+
+                    if( ystr == "" )
+                    {
+                        string endTimeStr = std::to_string( fEndTime);
+                        third = FindNthStringPosition( (string) plotString, 0, ",", 2 );
+                        plotString.Insert( third -1, endTimeStr );
+                    }
+                }
+                /* }}} */
+
+                if( m == 1 )
+                {
+                    plotString = Replace( (string) plotString, ">>", ">>+", 0 , 1 );
+                    plotString = plotString ( 0, FindNthStringPosition( (string) plotString, 0, "(", 0 ) );
+                }
+
+                if( GetVerboseLevel() >= REST_Debug )
+                {
+                    cout << endl;
+                    cout << "--------------------------------------" << endl;
+                    cout << "Plot name : " << fPlotNames[n] << endl;
+                    cout << "Plot string : " << plotString << endl;
+                    cout << "Cut string : " << fCutString[n] << endl;
+                    cout << "Plot option : " << fPlotOption[n] << endl;
+                    cout << "++++++++++++++++++++++++++++++++++++++" << endl;
+
+                }
+
+                trees[i][m]->Draw( plotString, fCutString[n], fPlotOption[n] );
+            }
+
+            histCollection.push_back ( ( TH3F* ) gPad->GetPrimitive( hName[i] ) );
+
+        }
+
+        Double_t maxValue = 0;
+        for( unsigned int i = 0; i < fLegendName.size(); i++ )
         {
 
-            TString plotString = fPlotString[n];
+            Double_t value = histCollection[i]->GetBinContent( histCollection[i]->GetMaximumBin() );
+            if( i == 0 ) maxValue = value;
+            else if( value > maxValue )
+                maxValue = value;
+
+            /*
+            if( fStats == kFALSE )
+                htemp->SetStats(kFALSE);
+
+            htemp->SetTitle( fPlotTitle[n] );
+            htemp->GetXaxis()->SetTitle( fPlotXLabel[n] );
+            htemp->GetYaxis()->SetTitle( fPlotYLabel[n] );
+
+            htemp->GetXaxis()->SetLabelSize( 1.5 * htemp->GetXaxis()->GetLabelSize( ) );
+            htemp->GetYaxis()->SetLabelSize( 1.5 * htemp->GetYaxis()->GetLabelSize( ) );
+
+            htemp->GetXaxis()->SetTitleSize( 1.3 * htemp->GetXaxis()->GetTitleSize( ) );
+            htemp->GetYaxis()->SetTitleSize( 1.3 * htemp->GetYaxis()->GetTitleSize( ) );
+
+            htemp->GetXaxis()->SetTitleOffset( 1.1 * htemp->GetXaxis()->GetTitleOffset( ) );
+            htemp->GetYaxis()->SetTitleOffset( 1.1 * htemp->GetYaxis()->GetTitleOffset( ) );
+
 
             if( fPlotXLabel[n].Contains("Time") ||  fPlotXLabel[n].Contains("time") )
             {
-                size_t first = FindNthStringPosition( (string) fPlotString[n], 0, ",", 0 );
-                size_t second = FindNthStringPosition( (string) fPlotString[n], 0, ",", 1 );
-                size_t third = FindNthStringPosition( (string) fPlotString[n], 0, ",", 2 );
-
-                TString xStr = fPlotString[n]( first + 1 ,second - first - 1 );
-                string xstr = trim( (string) xStr );
-
-                if( xstr == "" )
-                {
-                    string startTimeStr = std::to_string( fStartTime);
-                    plotString.Insert( second -1, startTimeStr );
-                }
-
-                TString yStr = fPlotString[n]( second + 1 ,third- second - 1 );
-                string ystr = trim( (string) yStr );
-
-                if( ystr == "" )
-                {
-                    string endTimeStr = std::to_string( fEndTime);
-                    third = FindNthStringPosition( (string) plotString, 0, ",", 2 );
-                    plotString.Insert( third -1, endTimeStr );
-                }
+                Double_t hours = (fEndTime-fStartTime)/3600.;
+                htemp->GetXaxis()->SetTimeOffset( 0, "gmt" );
+                if( hours < 24 )
+                    htemp->GetXaxis()->SetTimeFormat("%Hh %Mm");
+                else
+                    htemp->GetXaxis()->SetTimeFormat("%Hh %d/%b");
+                htemp->GetXaxis()->SetTimeDisplay(1);
             }
+            */
 
-            if( m > 0 )
-            {
-                plotString = Replace( (string) plotString, ">>", ">>+", 0 );
-                plotString = plotString( 0, plotString.First(">>+") + 3 ) + fPlotNames[n];
-            }
-
-            if( GetVerboseLevel() >= REST_Debug )
-            {
-                cout << endl;
-                cout << "--------------------------------------" << endl;
-                cout << "Plot name : " << fPlotNames[n] << endl;
-                cout << "Plot string : " << plotString << endl;
-                cout << "Cut string : " << fCutString[n] << endl;
-                cout << "Plot option : " << fPlotOption[n] << endl;
-                cout << "--------------------------------------" << endl;
-
-            }
-
-            trees[m]->Draw( plotString, fCutString[n], fPlotOption[n] );
         }
 
-        TH3F *htemp = (TH3F*)gPad->GetPrimitive( fPlotNames[n] );
-        if( fStats == kFALSE )
-            htemp->SetStats(kFALSE);
-        htemp->SetTitle( fPlotTitle[n] );
-        htemp->GetXaxis()->SetTitle( fPlotXLabel[n] );
-        htemp->GetYaxis()->SetTitle( fPlotYLabel[n] );
-
-        if( fPlotXLabel[n].Contains("Time") ||  fPlotXLabel[n].Contains("time") )
+        for( unsigned int i = 0; i < fLegendName.size(); i++ )
         {
-            Double_t hours = (fEndTime-fStartTime)/3600.;
-            htemp->GetXaxis()->SetTimeOffset( 0, "gmt" );
-            if( hours < 24 )
-                htemp->GetXaxis()->SetTimeFormat("%Hh %Mm");
-            else
-                htemp->GetXaxis()->SetTimeFormat("%Hh %d/%b");
-            htemp->GetXaxis()->SetTimeDisplay(1);
-        }
+            histCollection[i]->SetStats( fStats );
 
-        f->cd();
-        htemp->Write( fPlotNames[n] );
+            histCollection[i]->GetYaxis()->SetRangeUser(0, 1.1 * maxValue );
+            if( i == 0 )
+                histCollection[i]->Draw();
+            else
+                histCollection[i]->Draw("same");
+
+            f->cd();
+            histCollection[i]->Write( hName[i] );
+        }
 
         if( fPlotSaveToFile[n] != "Notdefined" && fPlotSaveToFile[n] != "" )
             SavePlotToPDF( fPlotNames[n], fPlotSaveToFile[n] );
         fCombinedCanvas->Update();
     }
 
+    /* {{{ Acumulating and plotting histograms present in the file */
+    ////// TODO : Needs to be reviewed to WORK with the new version of runTag classification (20180620).
     for( unsigned int n = 0; n < fHistoNames.size(); n++ )
     {
         cout << "Histo names : " << fHistoNames[n] << endl;
         fCombinedCanvas->cd( (Int_t) fPlotString.size() + n + 1 );
 
-        runs[0]->GetInputFile()->cd();
+        runs[0][0]->GetInputFile()->cd();
 
-        TH1D *h = (TH1D *) runs[0]->GetInputFile()->Get( fHistoNames[n] );
+        TH1D *h = (TH1D *) runs[0][0]->GetInputFile()->Get( fHistoNames[n] );
         Int_t nB = h->GetNbinsX();
         Int_t bX = h->GetXaxis()->GetBinCenter( 1 ) - 0.5;
         Int_t bY = h->GetXaxis()->GetBinCenter( h->GetNbinsX() ) + 0.5;
 
         TH1D *hNew = new TH1D( "New_" + (TString) fHistoNames[n], fHistoNames[n], nB, bX, bY );
 
-        for( int m = 0; m < fNFiles; m++ )
+        for( unsigned int m = 0; m < fFileNames[0].size(); m++ )
         {
-            TH1D *aHist = (TH1D *) runs[m]->GetInputFile()->Get( fHistoNames[n] );
-            runs[m]->GetInputFile()->cd();
+            TH1D *aHist = (TH1D *) runs[0][m]->GetInputFile()->Get( fHistoNames[n] );
+            runs[0][m]->GetInputFile()->cd();
             hNew->Add( aHist );
         }
 
@@ -495,7 +603,10 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
             SaveHistoToPDF( hNew, n, fHistoSaveToFile[n] );
         fCombinedCanvas->Update();
     }
+    /* }}} */
 
+    // Saving to a PDF file
+    fCanvasSave = ReplaceFilenameTags( fCanvasSave, runs[0][0] );
     if( fCanvasSave != "" )
         fCombinedCanvas->Print( fCanvasSave );
 
@@ -509,16 +620,14 @@ void TRestAnalysisPlot::PlotCombinedCanvasCompare( )
 
     TRestRun *r;
     TRestAnalysisTree *anT;
-    for( int n = 0; n < fNFiles; n++ )
+    for( unsigned int n = 0; n < fFileNames[0].size(); n++ )
     {
         r = new TRestRun();
         runs.push_back( r );
-        r->OpenInputFile( fFileNames[n] );
+        r->OpenInputFile( fFileNames[0][n] );
         anT = r->GetAnalysisTree();
         trees.push_back( anT );
     }
-
-    fCanvasSave = ReplaceFilenameTags( fCanvasSave, runs[0] );
 
     if( fCombinedCanvas != NULL ) 
     {
@@ -536,7 +645,7 @@ void TRestAnalysisPlot::PlotCombinedCanvasCompare( )
         if( fLogScale[n] ) 
             fCombinedCanvas->cd(n+1)->SetLogy();
 
-        for( int m = 0; m < fNFiles; m++ )
+        for( unsigned int m = 0; m < fFileNames[0].size(); m++ )
         {
             TString plotString = fPlotString[n];
 
@@ -550,7 +659,7 @@ void TRestAnalysisPlot::PlotCombinedCanvasCompare( )
                 trees[m]->Draw( plotString, fCutString[n], "same" );
         }
 
-        TH3F *htemp = (TH3F*)gPad->GetPrimitive( fPlotNames[n] );
+        TH3F *htemp = ( TH3F* ) gPad->GetPrimitive( fPlotNames[n] );
         if( fStats == kFALSE )
             htemp->SetStats(kFALSE);
         htemp->SetTitle( fPlotTitle[n] );
@@ -562,6 +671,7 @@ void TRestAnalysisPlot::PlotCombinedCanvasCompare( )
         fCombinedCanvas->Update();
     }
 
+    fCanvasSave = ReplaceFilenameTags( fCanvasSave, runs[0] );
     if( fCanvasSave != "" )
         fCombinedCanvas->Print( fCanvasSave );
 }
@@ -583,7 +693,7 @@ void TRestAnalysisPlot::SavePlotToPDF( Int_t n, TString fileName )
     TCanvas *c = new TCanvas( fPlotNames[n], fPlotNames[n], 800, 600 );
 
     TRestRun *run = new TRestRun();
-    run->OpenInputFile( fFileNames[0] );
+    run->OpenInputFile( fFileNames[0][0] );
 
     TRestAnalysisTree *anTree = run->GetAnalysisTree();
     anTree->Draw( fPlotString[n], fCutString[n], "", anTree->GetEntries(), 0 );
