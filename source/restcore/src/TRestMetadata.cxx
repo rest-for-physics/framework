@@ -597,6 +597,12 @@ Int_t TRestMetadata::LoadSectionMetadata()
 
 	//finally do this replacement for all child elements and expand for/include definitions
 	ExpandElement(fElement);
+
+	if (GetSectionName() == "")
+		SetSectionName(this->ClassName());
+	if (GetSectionContent() == "")
+		fSectionName += "\n" + ElementToString(fElement);
+
 	debug << ClassName() << " has finished preparing config data" << endl;
 
 	return 0;
@@ -626,7 +632,7 @@ void TRestMetadata::InitFromConfigFile()
 			if (value == "variable" || value == "myParameter" || value == "constant") { e = e->NextSiblingElement(); continue; }
 
 			if (ReadConfig((string)e->Value(), e) == 0) {
-				debug << "rml Element \"" << e->Value() << "\" with name \"" << name << "\" has been loaded by: " << GetSectionName() << endl;
+				debug << "rml Element \"" << e->Value() << "\" with name \"" << name << "\" has been loaded by: " << this->ClassName() << endl;
 			}
 			e = e->NextSiblingElement();
 
@@ -634,6 +640,14 @@ void TRestMetadata::InitFromConfigFile()
 	}
 	EndOfInit();
 
+}
+
+void TRestMetadata::InitFromRootFile() {
+
+	if (GetSectionContent() != "") {
+		fElement = StringToElement(GetSectionContent());
+		this->InitFromConfigFile();
+	}
 }
 
 ///////////////////////////////////////////////
@@ -1887,7 +1901,27 @@ void TRestMetadata::PrintMetadata()
 {
 	cout << "TRestMetadata content" << endl;
 	cout << "-----------------------" << endl;
-	cout << "Section name : " << fSectionName << endl;        // section name given in the constructor of TRestSpecificMetadata
+	cout << "Section name : " << this->ClassName() << endl;        // section name given in the constructor of TRestSpecificMetadata
+}
+
+///////////////////////////////////////////////
+/// \brief Returns the section name of this class, defined at the beginning of fSectionName
+std::string TRestMetadata::GetSectionName()
+{
+	auto a = fSectionName.find('\n', 0);
+	if (a != -1)
+		return fSectionName.substr(0, a);
+	return fSectionName;
+}
+
+///////////////////////////////////////////////
+/// \brief Returns the config section of this class, defined after section name in fSectionName
+std::string TRestMetadata::GetSectionContent()
+{
+	auto a = fSectionName.find('\n', 0);
+	if (a != -1)
+		return fSectionName.substr(a + 1, -1);
+	return "";
 }
 
 ///////////////////////////////////////////////

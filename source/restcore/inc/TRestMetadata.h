@@ -74,7 +74,7 @@ public:
 	///  To make settings from rml file. This method must be implemented in the derived class.
 	virtual void InitFromConfigFile() = 0;
 	/// Method called after the object is retrieved from root file. 
-	virtual void InitFromRootFile(){}
+	virtual void InitFromRootFile();
 
 
 
@@ -104,9 +104,9 @@ public:
 
 
 	//getters and setters
-	/// returns the name of this section, usuall the name of the derived class
-	std::string GetSectionName() { return fSectionName; }
-	/// set the section name
+	std::string GetSectionName();
+	std::string GetSectionContent();
+	/// set the section name, clear the section content
 	void SetSectionName(std::string sName) { fSectionName = sName; }
 	/// set config file path from external
 	void SetConfigFile(std::string cfgFileName) { fConfigFileName = cfgFileName; }

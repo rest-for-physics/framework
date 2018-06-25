@@ -298,7 +298,7 @@ void TRestG4Metadata::PrintMetadata( )
         cout << "TRestG4Metadata content" << endl;
         cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
         cout << "Config file : " << fConfigFileName << endl;
-        cout << "Section name : " << fSectionName << endl;        // section name given in the constructor of TRestSpecificMetadata
+        cout << "Section name : " << this->ClassName() << endl;        // section name given in the constructor of TRestSpecificMetadata
         cout << "---------------------------------------" << endl;
         cout << "Name : " << GetName() << endl;
         cout << "Title : " << GetTitle() << endl;
