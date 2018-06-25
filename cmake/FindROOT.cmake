@@ -1,4 +1,4 @@
-﻿# - Finds ROOT instalation
+# - Finds ROOT instalation
 # This module sets up ROOT information 
 # It defines:
 # ROOT_FOUND          If the ROOT is found

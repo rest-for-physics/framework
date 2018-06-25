@@ -1,4 +1,4 @@
-﻿
+
 # - Try to find Garfield++ instalation
 # This module sets up Garfield information
 # It defines:
