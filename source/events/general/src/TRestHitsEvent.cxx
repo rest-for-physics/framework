@@ -589,7 +589,6 @@ void TRestHitsEvent::DrawHistograms( Int_t &column, Double_t pitch, TString hist
 	TStyle style;
 	style.SetPalette(1);
 
-<<<<<<< HEAD
     if( nXZ > 0 )
     {
         fPad->cd(1 + 3 * column );
@@ -602,7 +601,6 @@ void TRestHitsEvent::DrawHistograms( Int_t &column, Double_t pitch, TString hist
         fXZHisto->GetXaxis()->SetLabelSize( 1.25 * fXZHisto->GetXaxis()->GetLabelSize() );
         fXZHisto->GetYaxis()->SetTitleOffset(1.75);
     }
->>>>>>> 6a16c7be252cb2150324ad659b6e0e5517c9f204
 
 	if( nYZ > 0 )
 	{
@@ -610,13 +608,11 @@ void TRestHitsEvent::DrawHistograms( Int_t &column, Double_t pitch, TString hist
 		fYZHisto->Draw( histOption );
 		fYZHisto->GetXaxis()->SetTitle("Y-axis (mm)");
         fYZHisto->GetYaxis()->SetTitle("Z-axis (mm)");
-<<<<<<< HEAD
         fYZHisto->GetYaxis()->SetTitleSize( 1.4 * fYZHisto->GetYaxis()->GetTitleSize() );
         fYZHisto->GetXaxis()->SetTitleSize( 1.4 * fYZHisto->GetXaxis()->GetTitleSize() );
         fYZHisto->GetYaxis()->SetLabelSize( 1.25 * fYZHisto->GetYaxis()->GetLabelSize() );
         fYZHisto->GetXaxis()->SetLabelSize( 1.25 * fYZHisto->GetXaxis()->GetLabelSize() );
         fYZHisto->GetYaxis()->SetTitleOffset(1.75);
->>>>>>> 6a16c7be252cb2150324ad659b6e0e5517c9f204
     }
 
     if( nXY > 0 )
