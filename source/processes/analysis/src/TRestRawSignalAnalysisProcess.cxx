@@ -40,7 +40,6 @@ TRestRawSignalAnalysisProcess::TRestRawSignalAnalysisProcess( char *cfgFileName 
 //______________________________________________________________________________
 TRestRawSignalAnalysisProcess::~TRestRawSignalAnalysisProcess()
 {
-    delete fSignalEvent;
 }
 
 void TRestRawSignalAnalysisProcess::LoadDefaultConfig()
