@@ -384,6 +384,21 @@ TRestReadoutPlane *TRestReadout::GetReadoutPlane( int p )
     return NULL;
 }
 
+
+TRestReadoutModule*TRestReadout::GetReadoutModule(int id) {
+	for (int i = 0; i < this->GetNumberOfReadoutPlanes(); i++) {
+		auto plane = this->GetReadoutPlane(i);
+
+		for (int j = 0; j < plane->GetNumberOfModules(); j++) {
+			if (plane->GetReadoutModule(j)->GetModuleID()) {
+				return plane->GetReadoutModule(j);
+			}
+		}
+	}
+	return NULL;
+}
+
+
 ///////////////////////////////////////////////
 /// \brief Adds a readout plane to the readout
 ///

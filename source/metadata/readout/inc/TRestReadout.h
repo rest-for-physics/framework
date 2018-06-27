@@ -54,6 +54,8 @@ class TRestReadout:public TRestMetadata {
         TRestReadoutPlane *GetReadoutPlane( int p );
         void AddReadoutPlane( TRestReadoutPlane plane );
 
+		TRestReadoutModule*GetReadoutModule(int id);
+
         Int_t GetNumberOfReadoutPlanes( );
         Int_t GetNumberOfModules( );
         Int_t GetNumberOfChannels( );
