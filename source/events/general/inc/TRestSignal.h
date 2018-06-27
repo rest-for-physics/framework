@@ -44,7 +44,8 @@ class TRestSignal: public TObject {
         std::vector <Float_t> fSignalCharge; //Vector with the charge of the signal
         
         void AddPoint(TVector2 p);
-        
+		void SetPoint(TVector2 p);
+
     public:
 
 #ifndef __CINT__
@@ -126,6 +127,9 @@ class TRestSignal: public TObject {
         void AddPoint( Double_t t, Double_t d );
         void AddCharge( Double_t t, Double_t d );
         void AddDeposit( Double_t t, Double_t d );
+
+		void SetPoint(Double_t t, Double_t d);
+		void SetPoint(Int_t index, Double_t t, Double_t d);
 
         Double_t GetStandardDeviation( Int_t startBin, Int_t endBin );
         Double_t GetBaseLine( Int_t startBin, Int_t endBin );
