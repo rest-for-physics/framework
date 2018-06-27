@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------------
 # Setup the project
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
-project(restDataBaseIO)
+project(RestDataBaseImpl)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
@@ -34,14 +34,14 @@ endforeach (header ${headers})
 
 file(GLOB sources ${PROJECT_SOURCE_DIR}/source/*cc)
 
-add_library(restDataBaseIO SHARED ${sources} ${newsources})
-target_link_libraries(restDataBaseIO ${PostgreSQL_LIBRARIES} -L${REST_PATH}/lib/ -lRestTools -lRestCore -lRestEvents -lRestMetadata ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit)
+add_library(RestDataBaseImpl SHARED ${sources} ${newsources})
+target_link_libraries(RestDataBaseImpl ${PostgreSQL_LIBRARIES} -L${REST_PATH}/lib/ -lRestTools -lRestCore -lRestEvents -lRestMetadata ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit)
 
 
 #----------------------------------------------------------------------------
 # Install the executable to 'lib' directory under REST_PATH
 #
-install(TARGETS restDataBaseIO DESTINATION ${REST_PATH}/lib)
+install(TARGETS RestDataBaseImpl DESTINATION ${REST_PATH}/lib)
 
 install(CODE
 "
