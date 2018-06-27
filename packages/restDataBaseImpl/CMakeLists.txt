@@ -23,7 +23,7 @@ include(MacroRootDict)
 
 include_directories(${PROJECT_SOURCE_DIR}/source ${ROOT_INCLUDE_DIRS} ${REST_PATH}/include ${PostgreSQL_INCLUDE_DIRS})
 
-file(GLOB headers ${PROJECT_SOURCE_DIR}/source/TRestDataBase.hh)
+file(GLOB headers ${PROJECT_SOURCE_DIR}/source/TRestDataBaseImpl.hh)
 
 foreach (header ${headers})
 set(ROOT_DICT_INPUT_HEADERS ${header})
