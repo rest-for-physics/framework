@@ -27,7 +27,7 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/source/TRestDataBaseImpl.hh)
 
 foreach (header ${headers})
 set(ROOT_DICT_INPUT_HEADERS ${header})
-set(ROOT_DICT_INCLUDE_DIRS ${PostgreSQL_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/source/)
+set(ROOT_DICT_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/source ${ROOT_INCLUDE_DIRS} ${REST_PATH}/include ${PostgreSQL_INCLUDE_DIRS})
 GEN_ROOT_DICT_SOURCES(CINT_${header}.cxx)
 set(newsources ${newsources} ${ROOT_DICT_OUTPUT_SOURCES})
 endforeach (header ${headers})
@@ -46,7 +46,7 @@ install(TARGETS RestDataBaseImpl DESTINATION ${REST_PATH}/lib)
 install(CODE
 "
 file(GLOB PCMFiles \"\${CMAKE_CURRENT_SOURCE_DIR}/rootdict/*.pcm\")
-file(COPY \${PCMFiles} DESTINATION \${REST_PATH}/lib)
+file(COPY \${PCMFiles} DESTINATION \$ENV{REST_PATH}/lib)
 
 "
 
