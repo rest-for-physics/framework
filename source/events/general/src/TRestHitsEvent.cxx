@@ -528,17 +528,17 @@ void TRestHitsEvent::DrawHistograms( Int_t &column, Double_t pitch, TString hist
     if( fYHisto != NULL ) { delete fYHisto; fYHisto = NULL; }
     if( fZHisto != NULL ) { delete fZHisto; fZHisto = NULL; }
 
-    Int_t nBinsX = (fMaxX-fMinX+20)/pitch;
-    Int_t nBinsY = (fMaxY-fMinY+20)/pitch;
+    Int_t nBinsX = (fMaxX-fMinX+20)*10/pitch;
+    Int_t nBinsY = (fMaxY-fMinY+20)*10/pitch;
     Int_t nBinsZ = (fMaxZ-fMinZ+20)*3/pitch;
 
-    fXYHisto = new TH2F( "XY", "", nBinsX, fMinX-10, fMinX + pitch*nBinsX, nBinsY, fMinY-10, fMinY + pitch*nBinsY );
-    fXZHisto = new TH2F( "XZ", "", nBinsX, fMinX-10, fMinX + pitch*nBinsX, nBinsZ, fMinZ-10, fMinZ + (pitch/3)*nBinsZ );
-    fYZHisto = new TH2F( "YZ", "", nBinsY, fMinY-10, fMinY + pitch*nBinsY, nBinsZ, fMinZ-10, fMinZ + (pitch/3)*nBinsZ );
+    fXYHisto = new TH2F( "XY", "", nBinsX, fMinX-10, fMinX + (pitch/10)*nBinsX, nBinsY, fMinY-10, fMinY + (pitch/10)*nBinsY );
+    fXZHisto = new TH2F( "XZ", "", nBinsX, fMinX-10, fMinX + (pitch/10)*nBinsX, nBinsZ, fMinZ-10, fMinZ + (pitch/3)*nBinsZ );
+    fYZHisto = new TH2F( "YZ", "", nBinsY, fMinY-10, fMinY + (pitch/10)*nBinsY, nBinsZ, fMinZ-10, fMinZ + (pitch/3)*nBinsZ );
 
-    fXHisto = new TH1F( "X", "", nBinsX, fMinX-10, fMinX + pitch*nBinsX);
-    fYHisto = new TH1F( "Y", "", nBinsY, fMinY-10, fMinY + pitch*nBinsY);
-    fZHisto = new TH1F( "Z", "", nBinsZ, fMinZ-10, fMinZ + pitch*nBinsZ);
+    fXHisto = new TH1F( "X", "", nBinsX, fMinX-10, fMinX + (pitch/10)*nBinsX);
+    fYHisto = new TH1F( "Y", "", nBinsY, fMinY-10, fMinY + (pitch/10)*nBinsY);
+    fZHisto = new TH1F( "Z", "", nBinsZ, fMinZ-10, fMinZ + (pitch/3)*nBinsZ);
 
     Int_t nYZ = 0, nXZ = 0, nXY = 0;
 	Int_t nX = 0, nY = 0, nZ = 0;
@@ -584,10 +584,10 @@ void TRestHitsEvent::DrawHistograms( Int_t &column, Double_t pitch, TString hist
             fZHisto->Fill( z );
             nZ++;
         }
-    }
+	}
 
-    TStyle style;
-    style.SetPalette(1);
+	TStyle style;
+	style.SetPalette(1);
 
     if( nXZ > 0 )
     {
@@ -602,11 +602,11 @@ void TRestHitsEvent::DrawHistograms( Int_t &column, Double_t pitch, TString hist
         fXZHisto->GetYaxis()->SetTitleOffset(1.75);
     }
 
-    if( nYZ > 0 )
-    {
-        fPad->cd(2 + 3 * column );
-        fYZHisto->Draw( histOption );
-        fYZHisto->GetXaxis()->SetTitle("Y-axis (mm)");
+	if( nYZ > 0 )
+	{
+		fPad->cd(2 + 3 * column );
+		fYZHisto->Draw( histOption );
+		fYZHisto->GetXaxis()->SetTitle("Y-axis (mm)");
         fYZHisto->GetYaxis()->SetTitle("Z-axis (mm)");
         fYZHisto->GetYaxis()->SetTitleSize( 1.4 * fYZHisto->GetYaxis()->GetTitleSize() );
         fYZHisto->GetXaxis()->SetTitleSize( 1.4 * fYZHisto->GetXaxis()->GetTitleSize() );
@@ -621,6 +621,12 @@ void TRestHitsEvent::DrawHistograms( Int_t &column, Double_t pitch, TString hist
         fXYHisto->Draw( histOption );
         fXYHisto->GetXaxis()->SetTitle("X-axis (mm)");
         fXYHisto->GetYaxis()->SetTitle("Y-axis (mm)");
+		fXYHisto->GetXaxis()->SetTitleOffset(1.);
+		fXYHisto->GetXaxis()->SetLabelSize(0.02);
+		fXYHisto->GetXaxis()->CenterTitle();
+		fXYHisto->GetYaxis()->SetTitleOffset(1.5);
+		fXYHisto->GetYaxis()->SetLabelSize(0.02);
+		fXYHisto->GetYaxis()->CenterTitle();
     }
 
     column++;
@@ -631,6 +637,12 @@ void TRestHitsEvent::DrawHistograms( Int_t &column, Double_t pitch, TString hist
         fXHisto->Draw( histOption );
         fXHisto->GetXaxis()->SetTitle("X-axis (mm)");
         fXHisto->GetYaxis()->SetTitle("Number of events");
+		fXHisto->GetXaxis()->SetTitleOffset(1.);
+		fXHisto->GetXaxis()->SetLabelSize(0.02);
+		fXHisto->GetXaxis()->CenterTitle();
+		fXHisto->GetYaxis()->SetTitleOffset(1.5);
+		fXHisto->GetYaxis()->SetLabelSize(0.02);
+		fXHisto->GetYaxis()->CenterTitle();
     }
 
     if( nY > 0 )
@@ -639,6 +651,12 @@ void TRestHitsEvent::DrawHistograms( Int_t &column, Double_t pitch, TString hist
         fYHisto->Draw( histOption );
         fYHisto->GetYaxis()->SetTitle("Y-axis (mm)");
         fYHisto->GetYaxis()->SetTitle("Number of events");
+		fYHisto->GetXaxis()->SetTitleOffset(1.);
+		fYHisto->GetXaxis()->SetLabelSize(0.02);
+		fYHisto->GetXaxis()->CenterTitle();
+		fYHisto->GetYaxis()->SetTitleOffset(1.5);
+		fYHisto->GetYaxis()->SetLabelSize(0.02);
+		fYHisto->GetYaxis()->CenterTitle();
     }
 
     if( nZ > 0 )
@@ -647,6 +665,12 @@ void TRestHitsEvent::DrawHistograms( Int_t &column, Double_t pitch, TString hist
         fZHisto->Draw( histOption );
         fZHisto->GetZaxis()->SetTitle("Z-axis (mm)");
         fZHisto->GetYaxis()->SetTitle("Number of events");
+		fZHisto->GetXaxis()->SetTitleOffset(1.);
+		fZHisto->GetXaxis()->SetLabelSize(0.02);
+		fZHisto->GetXaxis()->CenterTitle();
+		fZHisto->GetYaxis()->SetTitleOffset(1.5);
+		fZHisto->GetYaxis()->SetLabelSize(0.02);
+		fZHisto->GetYaxis()->CenterTitle();
     }
 
 	column++;
