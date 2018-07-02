@@ -239,6 +239,37 @@ string TRestStringHelper::ToDateTimeString(time_t time)
 
 
 ///////////////////////////////////////////////
+/// \brief Parse string to time_t
+/// 
+/// The input datatime format should be "Y-M-D H:M:S". e.g.
+/// \code
+/// TRestStringHelper::ToTime("2018-1-1 8:00:00")
+/// (return) 1514764800
+/// \endcode
+/// here the type "time_t" is actually the type "long long", which indicates the elapsed 
+/// time in second from 1970-1-1 8:00:00
+time_t TRestStringHelper::ToTime(string time) {
+	struct tm tm1;
+	time_t time1;
+	int i = sscanf(time.c_str(), "%d-%d-%d %d:%d:%d",
+		&(tm1.tm_year),
+		&(tm1.tm_mon),
+		&(tm1.tm_mday),
+		&(tm1.tm_hour),
+		&(tm1.tm_min),
+		&(tm1.tm_sec));
+
+	tm1.tm_year -= 1900;
+	tm1.tm_mon--;
+	tm1.tm_isdst = -1;
+	time1 = mktime(&tm1);
+
+	return time1;
+
+}
+
+
+///////////////////////////////////////////////
 /// \brief Gets a double from a string.
 ///
 Double_t TRestStringHelper::StringToDouble(string in)

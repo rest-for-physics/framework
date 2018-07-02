@@ -47,6 +47,7 @@ public:
 	static std::string RemoveWhiteSpaces(std::string in);
 	static  std::string Replace(std::string in, std::string thisString, std::string byThisString, size_t fromPosition);
 	static string ToDateTimeString(time_t time);
+	static time_t ToTime(string time);
 	//template<class T> static string ToString(T source);
 	static Int_t Count(std::string s, std::string sbstring);
 	static bool fileExists(const std::string& filename);
@@ -79,6 +80,7 @@ inline std::string Replace(std::string in, std::string thisString, std::string b
 inline vector<string> Spilt(std::string in, string separator) { return TRestStringHelper::Spilt(in, separator); }
 inline Int_t Count(std::string s, std::string sbstring) { return TRestStringHelper::Count(s, sbstring); }
 inline string ToDateTimeString(time_t time) { return TRestStringHelper::ToDateTimeString(time); }
+inline time_t ToTime(string time) { return TRestStringHelper::ToTime(time); }
 template<class T> inline string ToString(T source) 
 {
 	stringstream s;
