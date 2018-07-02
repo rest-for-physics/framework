@@ -814,27 +814,6 @@ Double_t TRestRun::GetRunLength()
 
 
 //Getters
-TString TRestRun::GetDateFormatted(Double_t runTime)
-{
-	time_t tt = (time_t)runTime;
-	struct tm *tm = localtime(&tt);
-
-	char date[256];
-	strftime(date, sizeof(date), "%Y-%B-%d", tm);
-
-	return date;
-}
-
-TString TRestRun::GetTime(Double_t runTime)
-{
-	time_t tt = (time_t)runTime;
-	struct tm *tm = localtime(&tt);
-
-	char time[256];
-	strftime(time, sizeof(time), "%H:%M:%S", tm);
-
-	return time;
-}
 
 ///////////////////////////////////////////////
 /// \brief Get a string of data member value according to its defined name
@@ -951,9 +930,9 @@ void TRestRun::PrintInfo()
 	cout << "Run user : " << GetRunUser() << endl;
 	cout << "Run description : " << GetRunDescription() << endl;
 	cout << "Start timestamp : " << GetStartTimestamp() << endl;
-	cout << "Date/Time : " << GetDateFormatted(GetStartTimestamp()) << " / " << GetTime(GetStartTimestamp()) << endl;
+	cout << "Date/Time : " << ToDateTimeString(GetStartTimestamp()) << endl;
 	cout << "End timestamp : " << GetEndTimestamp() << endl;
-	cout << "Date/Time : " << GetDateFormatted(GetEndTimestamp()) << " / " << GetTime(GetEndTimestamp()) << endl;
+	cout << "Date/Time : " << ToDateTimeString(GetEndTimestamp()) << endl;
 	cout << "Input file : " << GetInputFileNamepattern() << endl;
 	cout << "Output file : " << GetOutputFileName() << endl;
 	//cout << "Input filename : " << fInputFilename << endl;

@@ -83,8 +83,6 @@ public:
 	Double_t GetStartTimestamp() { return fStartTime; }
 	Double_t GetEndTimestamp() { return fEndTime; }
 	TString GetExperimentName() { return fExperimentName; }
-	TString GetTime(Double_t runTime);
-	TString GetDateFormatted(Double_t runTime);
 	string Get(string target);
 
 	vector<TString> GetInputFileNames() { return fInputFileNames; }
