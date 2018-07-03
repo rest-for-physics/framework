@@ -294,6 +294,13 @@ Int_t TRestStringHelper::StringToInteger(string in)
 	return (Int_t)StringToDouble(in);
 }
 
+Long64_t TRestStringHelper::StringToLong(std::string in) {
+	stringstream strIn;
+	strIn << in;
+	long long llNum;
+	strIn >> llNum;
+	return llNum;
+}
 
 ///////////////////////////////////////////////
 /// \brief Gets a 3D-vector from a string. Format should be : (X,Y,Z).
