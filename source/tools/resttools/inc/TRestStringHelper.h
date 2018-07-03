@@ -54,6 +54,7 @@ public:
 	static  bool isRootFile(const std::string& filename);
 	static bool isPathWritable(const std::string& path);
 	static  bool isAbsolutePath(const std::string& path);
+	static string ToAbsoluteName(string filename);
 	static std::pair<string,string> SeparatePathAndName(const std::string fullname);
 	static std::string SearchFileInPath(vector<string> path, string filename);
 	static  Int_t ChecktheFile(std::string cfgFileName);
@@ -92,6 +93,7 @@ inline bool isRootFile(const std::string& filename) { return TRestStringHelper::
 inline bool isPathWritable(const std::string& path) { return TRestStringHelper::isPathWritable(path); }
 inline bool isAbsolutePath(const std::string& path) { return TRestStringHelper::isAbsolutePath(path); }
 inline std::pair<string, string> SeparatePathAndName(const std::string fullname) { return TRestStringHelper::SeparatePathAndName(fullname); }
+inline string ToAbsoluteName(string filename) { return TRestStringHelper::ToAbsoluteName(filename); }
 inline std::string SearchFileInPath(vector<string> path, string filename) { return TRestStringHelper::SearchFileInPath(path, filename); }
 inline std::string SearchFileInPath(string paths, string filename) { return TRestStringHelper::SearchFileInPath(TRestStringHelper::Spilt(paths,":"), filename); }
 inline Int_t ChecktheFile(std::string cfgFileName) { return TRestStringHelper::ChecktheFile(cfgFileName); }

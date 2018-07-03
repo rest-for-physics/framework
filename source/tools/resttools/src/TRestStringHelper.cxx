@@ -1,5 +1,6 @@
 #include "TRestStringHelper.h"
 #include "v5/TFormula.h"
+#include <unistd.h>
 
 using namespace std;
 TRestStringHelper::TRestStringHelper()
@@ -439,6 +440,16 @@ std::pair<string, string> TRestStringHelper::SeparatePathAndName(const std::stri
 		result.second =fullname.substr(pos + 1, fullname.size() - pos - 1);
 	}
 	return result;
+}
+
+string TRestStringHelper::ToAbsoluteName(string filename) {
+	if (filename[0] == '~') {
+		return (string)getenv("HOME") + filename.substr(1, -1);
+	}
+	else if (filename[0] != '/') {
+		return (string)get_current_dir_name() + "/" + filename;
+	}
+	return filename;
 }
 
 
