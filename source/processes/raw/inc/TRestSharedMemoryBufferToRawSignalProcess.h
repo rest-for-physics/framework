@@ -1,24 +1,30 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///             
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestSharedMemoryBufferToRawSignalProcess.h
-///
-///             jun 2018:   First concept
-///                 Created as part of the conceptualization of existing REST 
-///                 software.
-///                 Javier Galan
-///_______________________________________________________________________________
-
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
 #ifndef RestCore_TRestSharedMemoryBufferToRawSignalProcess
 #define RestCore_TRestSharedMemoryBufferToRawSignalProcess
 
-#include "TRestEventProcess.h"
 #include "TRestRawSignalEvent.h"
+#include "TRestEventProcess.h"
 
 typedef struct {
     unsigned int dataReady;
@@ -30,39 +36,81 @@ typedef struct {
     unsigned int bufferSize;
 } daqInfo;
 
-
-class TRestSharedMemoryBufferToRawSignalProcess : public TRestEventProcess {
-
+//! A process to read a shared buffer created by another external process and create a TRestRawSignalEvent
+class TRestSharedMemoryBufferToRawSignalProcess:public TRestEventProcess {
     private:
+
 #ifndef __CINT__
-        TRestRawSignalEvent *fSignalEvent;
 
-        Int_t fMaxSignals;
-        Int_t fMaxPointsPerSignal;
+        /// A pointer to the specific TRestRawSignalEvent input
+        TRestRawSignalEvent *fOutputRawSignalEvent;
 
-        Int_t fNdata;
-
+	/// A pointer to the daqInfo data structure containning relevant information shared by the daq
         daqInfo *fShMem_daqInfo;
 
+	/// It is used internally to control the semaphore
         int fSemaphoreId;
+
+	/// A pointer to a shared buffer previously created by an external process (i.e. the daq).
         unsigned short int *fShMem_Buffer;
+
+	/// A value used to generate a unique key to access the shared daqInfo structure, created by a external process (i.e. the daq).
+	Int_t fKeyDaqInfo;
+
+	/// A value used to generate a unique key to control the semaphore and manage access to shared resources.
+	Int_t fKeySemaphore;
+
+	/// A value used to generate a unique key to access the shared buffer, created by a external process (i.e. the daq).
+	Int_t fKeyBuffer;
+
+	/// The value in microseconds used in the main event process loop to allow the daq access the shared resources.
+	Int_t fTimeDelay;
+
+	/// If true the shared buffer will be re-set to zero once TRestRawSignal has been loaded.
+	Bool_t fReset;
 #endif
+
+	void SemaphoreGreen( int id );
+	void SemaphoreRed( int id );
 
         void InitFromConfigFile();
 
-    public:
-        void InitProcess();
         void Initialize();
 
-        TRestEvent *ProcessEvent( TRestEvent *evInput );
-        TString GetProcessName(){ return (TString) "TRestSharedMemoryBufferToRawSignal"; }
+        void LoadDefaultConfig();
+
+    protected:
+
+    public:
+        void InitProcess();
+
+        void BeginOfEventProcess(); 
+        TRestEvent *ProcessEvent( TRestEvent *eventInput );
+
+        void LoadConfig( std::string cfgFilename, std::string name = "" );
+
+        /// It prints out the process parameters stored in the metadata structure
+        void PrintMetadata() 
+        {
+            BeginPrintProcess();
+
+            EndPrintProcess();
+        }
+        
+        /// Returns a new instance of this class
+        TRestEventProcess *Maker() { return new TRestSharedMemoryBufferToRawSignalProcess; }
+
+        /// Returns the name of this process
+        TString GetProcessName() { return (TString) "sharedMemoryBufferToRawSignalEvent"; }
 
         //Constructor
         TRestSharedMemoryBufferToRawSignalProcess();
-        TRestSharedMemoryBufferToRawSignalProcess(char *cfgFileName);
+        TRestSharedMemoryBufferToRawSignalProcess( char *cfgFileName );
+
         //Destructor
         ~TRestSharedMemoryBufferToRawSignalProcess();
 
-        ClassDef(TRestSharedMemoryBufferToRawSignalProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+        ClassDef(TRestSharedMemoryBufferToRawSignalProcess, 1);
 };
 #endif
+
