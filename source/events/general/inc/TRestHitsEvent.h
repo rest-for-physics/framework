@@ -106,6 +106,7 @@ class TRestHitsEvent : public TRestEvent
         Double_t GetEnergy() { return fHits->fTotEnergy; }
         Double_t GetTime( int n ) { return GetHits()->GetTime(n); } // return value in us
 
+        Int_t GetClosestHit( TVector3 position ) { return fHits->GetClosestHit( position ); }
 
         // Inside Cylinder methods
         Bool_t isHitsEventInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius );
