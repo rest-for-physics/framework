@@ -452,7 +452,7 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
 
             for( unsigned int m = 0; m < fFileNames[i].size(); m++ )
             {
-                /* {{{ Constructing plotString for time plots */
+                /* {{{ Constructing plotString for time plots (TO BE REIMPLEMENTED!!)
                 if( fPlotXLabel[n].Contains("Time") ||  fPlotXLabel[n].Contains("time") )
                 {
                     size_t first = FindNthStringPosition( (string) fPlotString[n], 0, ",", 0 );
@@ -478,7 +478,7 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
                         plotString.Insert( third -1, endTimeStr );
                     }
                 }
-                /* }}} */
+                 }}} */
 
                 if( m == 1 )
                 {
@@ -502,7 +502,6 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
             }
 
             histCollection.push_back ( ( TH3F* ) gPad->GetPrimitive( hName[i] ) );
-
         }
 
         Double_t maxValue = 0;
@@ -550,7 +549,7 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
         {
             histCollection[i]->SetStats( fStats );
 
-            histCollection[i]->GetYaxis()->SetRangeUser(0, 1.1 * maxValue );
+            histCollection[i]->GetYaxis()->SetRangeUser(0.1, 1.1 * maxValue );
             if( i == 0 )
                 histCollection[i]->Draw();
             else
@@ -575,6 +574,13 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
         runs[0][0]->GetInputFile()->cd();
 
         TH1D *h = (TH1D *) runs[0][0]->GetInputFile()->Get( fHistoNames[n] );
+
+        if( !h )
+        {
+            cout << "REST ERROR. TRestAnalysisPlot. A histogram with name : " << fHistoNames[n] << " does not exist in input file" << endl;
+            exit(1);
+        }
+
         Int_t nB = h->GetNbinsX();
         Int_t bX = h->GetXaxis()->GetBinCenter( 1 ) - 0.5;
         Int_t bY = h->GetXaxis()->GetBinCenter( h->GetNbinsX() ) + 0.5;

@@ -794,9 +794,12 @@ void TRestG4Metadata::ReadGenerator()
 	string dimension2 [2]{"length","lenY"};
 	for (int i = 0; i < 2; i++)
 	{
-		fGenDimension2 = GetDblFieldValueWithUnits( dimension2[i], generatorDefinition );
-		if (fGenDimension2 != PARAMETER_NOT_FOUND_DBL )
+		Double_t tmpDim2 = GetDblFieldValueWithUnits( dimension2[i], generatorDefinition );
+		if (tmpDim2 != PARAMETER_NOT_FOUND_DBL )
+		{
+			fGenDimension2 = tmpDim2;
 			break;
+		}
 	}
 
 	size_t position = 0;
