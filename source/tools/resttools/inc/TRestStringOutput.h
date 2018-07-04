@@ -186,6 +186,7 @@ public:
 			output[length - i - 1] = border[border.size() - i - 1];
 		}
 
+		// input: "=", output "=========================="(length)
 		if (input == "=" || input == "-" || input == "*" || input == "+")
 		{
 			for (unsigned int i = border.size(); i < length - border.size(); i++)
@@ -195,6 +196,7 @@ public:
 		}
 		else
 		{
+			// input: "=abc=", output "=============abc============="(length)
 			if (input[0] == input[input.size() - 1] && (input[0] == '=' || input[0] == '-' || input[0] == '*' || input[0] == '+'))
 			{
 				for (unsigned int i = border.size(); i < length - border.size(); i++)
@@ -202,24 +204,17 @@ public:
 					output[i] = input[0];
 				}
 			}
-			else
-			{
-				for (unsigned int i = border.size(); i < length - border.size(); i++)
-				{
-					output[i] = ' ';
-				}
-			}
 
 			int l = input.size();
 			if (l <= length - (int)border.size() * 2)
 			{
 				int startblank;
-				if (orientation == 0) {
+				if (orientation == 0 || border.size() > 0) {
 					startblank = (length - border.size() * 2 - l) / 2;
 				}
 				else
 				{
-					startblank = border.size();
+					startblank = 0;
 				}
 				for (int i = 0; i < l; i++)
 				{
@@ -245,7 +240,7 @@ public:
 	{
 		stringstream tmp;
 		tmp << content;
-		tmpstring += tmp.str();
+		stringbuf += tmp.str();
 		return*this;
 	}
 
@@ -258,24 +253,32 @@ public:
 
 	void resetstring()
 	{
-		tmpstring = "";
+		stringbuf = "";
 	}
 
 	void flushstring()
 	{
-		length = ConsoleHelper::GetWidth() - 2;
+		int consolewidth = ConsoleHelper::GetWidth() - 2;
 		printf("\033[K");
-		cout << color << FormattingPrintString(tmpstring) << COLOR_RESET << endl;
-		tmpstring = "";
+		if (orientation == 0) {
+			cout << color << string((consolewidth - length) / 2, ' ')
+				<< FormattingPrintString(stringbuf)
+				<< string((consolewidth - length) / 2, ' ') << COLOR_RESET << endl;
+		}
+		else
+		{
+			cout << color << FormattingPrintString(stringbuf) << COLOR_RESET << endl;
+		}
+		stringbuf = "";
 	}
 
 
 	void insertfront(string s) {
-		tmpstring = s + tmpstring;
+		stringbuf = s + stringbuf;
 	}
 
 	void insertback(string s) {
-		tmpstring = tmpstring + s;
+		stringbuf = stringbuf + s;
 	}
 
 	void setcolor(string colordef)
@@ -296,9 +299,12 @@ public:
 		border = "";
 	}
 
-	//static void setlength(int n) {
-	//	length = n;
-	//}
+	void setlength(int n) {
+		if (n < ConsoleHelper::GetWidth() - 2)
+			length = n;
+		else
+			length = ConsoleHelper::GetWidth() - 2;
+	}
 
 	//static void resetlength() {
 	//	length = ConsoleHelper::GetWidth();
@@ -312,14 +318,20 @@ public:
 		orientation = 0;
 	}
 
-protected:
-	int orientation = 0;//0->middle, else->left
-	string border = "";
-	string tmpstring = "";
-	string color = COLOR_RESET;
-	int length;
+	TRestStringOutput() {
+		orientation = 0;
+		border = "";
+		color = COLOR_RESET;
+		length = ConsoleHelper::GetWidth() - 2;
+		stringbuf = "";
+	}
 
-	//stringstream tmpstring;
+protected:
+	int orientation;//0->middle, else->left
+	string border;
+	string stringbuf;
+	string color;
+	int length;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -347,7 +359,7 @@ public:
 	{
 		stringstream tmp;
 		tmp << content;
-		tmpstring += tmp.str();
+		stringbuf += tmp.str();
 		return*this;
 	}
 
