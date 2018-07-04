@@ -92,29 +92,21 @@ TRestEvent* TRestRawSignalViewerProcess::ProcessEvent( TRestEvent *evInput )
     fSignalEvent->SetTimeStamp( fInputSignalEvent->GetTimeStamp() );
     fSignalEvent->SetSubEventTag( fInputSignalEvent->GetSubEventTag() );
 
-    Int_t N = fInputSignalEvent->GetNumberOfSignals();
-    if( GetVerboseLevel() >= REST_Debug ) 
-    {
-	    Int_t signalsAdded = 0;
-	    fSignalEvent->AddSignal( *fInputSignalEvent->GetMaxSignal( fThresholdRange.X(), fThresholdRange.Y() ) );
-	    signalsAdded++;
+    if( fSignalEvent->GetNumberOfSignals() == 0 ) return NULL;
 
-	    for( int n = 0; n < N; n++ )
+    Int_t N = fInputSignalEvent->GetNumberOfSignals();
+    Int_t signalsAdded = 0;
+    fSignalEvent->AddSignal( *fInputSignalEvent->GetMaxSignal( fThresholdRange.X(), fThresholdRange.Y() ) );
+    signalsAdded++;
+
+    for( int n = 0; n < N; n++ )
+    {
+	    if( fInputSignalEvent->GetSignal(n)->GetMaxPeakValue( fThresholdRange.X(), fThresholdRange.Y() ) > fPeakThreshold && signalsAdded < fNSignalsThreshold )
 	    {
-		    if( fInputSignalEvent->GetSignal(n)->GetMaxPeakValue( fThresholdRange.X(), fThresholdRange.Y() ) > fPeakThreshold && signalsAdded < fNSignalsThreshold )
-		    {
-			    fSignalEvent->AddSignal( *fInputSignalEvent->GetSignal( n ) );
-			    signalsAdded++;
-		    }
+		    fSignalEvent->AddSignal( *fInputSignalEvent->GetSignal( n ) );
+		    signalsAdded++;
 	    }
     }
-    else
-    {
-	    for( int sgnl = 0; sgnl < N; sgnl++ )
-		    fSignalEvent->AddSignal( *fInputSignalEvent->GetSignal( sgnl ) );
-    }
-
-    if( fSignalEvent->GetNumberOfSignals() == 0 ) return NULL;
     /////////////////////////////////////////////////
 
     GetCanvas()->cd();
