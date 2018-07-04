@@ -6,7 +6,7 @@ Description : Implementation of REST database accessor: TRestDataBase.
 
 ===================================
 
-#Introduction
+# Introduction
 
 REST classes will try to access certain database through the interface class TRestDataBase. 
 Such database accessibility is disabled when we install REST, since the interface lacks implementation.
@@ -28,7 +28,7 @@ simulation run. run_id is 0 for analysis run when input file is not recorded in 
 
 It is better to set a unique file name in the table. 
 
-#How to use
+# How to use
 
 First switch to root directory of this package. Then type:
 
