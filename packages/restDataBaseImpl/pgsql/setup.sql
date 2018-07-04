@@ -10,9 +10,11 @@ drop type if exists run_type cascade;
 create type run_type as enum (
          'SW_DEBUG',
          'HW_DEBUG',
+		 'SIMULATION',
          'CALIBRATION',
-         'OTHER',
-         'PHYSICS_DBD'
+		 'PHYSICS_DBD',
+		 'ANALYSIS',
+         'OTHER'
 );
 
 create table rest_runs (
@@ -43,5 +45,8 @@ create table rest_files (
        quality bool
 );
 
+-- migrate from pandax database
 
+-- insert into rest_runs (run_id, subrun_id, version, type, description, run_start, run_end) select runs.run_id, 0, 'OLD_Version', 'OTHER', runs.description, files.start_time, files.stop_time from (files RIGHT JOIN runs ON (files.run_id=runs.run_id and files.file_id=0));
 
+-- insert into rest_files (run_id, subrun_id, file_id, file_name,file_size, start_time, stop_time) select run_id, 0, file_id, file_name,file_size, start_time, stop_time from files;
