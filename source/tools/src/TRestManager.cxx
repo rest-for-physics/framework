@@ -112,6 +112,7 @@ void TRestManager::InitFromConfigFile()
 {
     TString inputFile = GetParameter("inputFile" );
  
+	cout << "InitFromConfigFile" << endl;
     fInputFile = inputFile;
 
     char *cfgFile = (char *) fConfigFileName.c_str(); 
@@ -153,7 +154,7 @@ void TRestManager::InitFromConfigFile()
         }
 
         TRestEventProcess *pc = (TRestEventProcess *) cl->New();
-        
+
         if( !pc->isExternal() ) fRun->OpenInputFile( inputFile );
     }
 
@@ -427,7 +428,8 @@ Int_t TRestManager::LoadProcesses( )
                 exit(1);
             }
 
-            if( pc->isExternal() ) pc->OpenInputFile( fInputFile );
+	    // Not every external process will attempt to open a file ...
+            //if( pc->isExternal() ) pc->OpenInputFile( fInputFile );
 
             fRun->AddProcess( pc, (string) fPcsConfigFile[i], (string) fProcessName[i] );
         }
