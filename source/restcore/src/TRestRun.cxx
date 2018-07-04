@@ -114,7 +114,7 @@ void TRestRun::BeginOfInit()
 	//	error << "manager not initialized!" << endl;
 	//	exit(0);
 	//}
-	fRunNumber = 0;
+	fRunNumber = -1;
 	fParentRunNumber = 0;
 
 	string runNstr = GetParameter("runNumber", "");
@@ -721,57 +721,58 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
 	this->Write();
 
 	//write to database
-	auto db = TRestDataBase::instantiate();
-	if (db != NULL) {
-		if (level == 0)
-		{
-			db->new_run();
-		}
-		else if (level == 1)
-		{
-			if (db->query_run(fRunNumber) == -1)
-				if (force)
-					db->new_run(fRunNumber);
+	if (fRunNumber != -1) {
+		auto db = TRestDataBase::instantiate();
+		if (db != NULL) {
+			if (level == 0)
+			{
+				db->new_run();
+			}
+			else if (level == 1)
+			{
+				if (db->query_run(fRunNumber) == -1)
+					if (force)
+						db->new_run(fRunNumber);
+					else
+						return;
 				else
-					return;
-			else
-				db->new_run(fRunNumber);
-		}
-		else {
-			if (db->query_subrun(fRunNumber, 0) == -1)
-				if (force)
 					db->new_run(fRunNumber);
+			}
+			else {
+				if (db->query_subrun(fRunNumber, 0) == -1)
+					if (force)
+						db->new_run(fRunNumber);
+					else
+						return;
 				else
-					return;
+					db->set_runnumber(fRunNumber);
+			}
+
+
+			auto info = DataBaseFileInfo((string)fOutputFileName);
+			info.start = fStartTime;
+			info.stop = fEndTime;
+			if (fAnalysisTree != NULL) {
+				info.evtRate = fAnalysisTree->GetEntries();
+			}
+			db->new_runfile((string)fOutputFileName, info);
+
+			if (level <= 1)
+			{
+				db->set_description((string)fRunDescription);
+				db->set_runend(fEndTime);
+				db->set_runstart(fStartTime);
+				db->set_tag((string)fRunTag);
+				db->set_type((string)fRunType);
+			}
 			else
-				db->set_runnumber(fRunNumber);
-		}
+			{
+				db->set_runend(fEndTime);
+			}
 
-
-		auto info = DataBaseFileInfo((string)fOutputFileName);
-		info.start = fStartTime;
-		info.stop = fEndTime;
-		if (fAnalysisTree != NULL) {
-			info.evtRate = fAnalysisTree->GetEntries();
+			delete db;
 		}
-		db->new_runfile((string)fOutputFileName, info);
-
-		if (level <= 1) 
-		{
-			db->set_description((string)fRunDescription);
-			db->set_runend(fEndTime);
-			db->set_runstart(fStartTime);
-			db->set_tag((string)fRunTag);
-			db->set_type((string)fRunType);
-		}
-		else
-		{
-			db->set_runend(fEndTime);
-		}
-
-		delete db;
 	}
-
 }
 
 ///////////////////////////////////////////////
