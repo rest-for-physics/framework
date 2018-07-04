@@ -58,10 +58,10 @@ class TRestSignalZeroSuppresionProcess:public TRestEventProcess {
         {
             BeginPrintProcess();
 
-            std::cout << "Base line range definition : ( " << fBaseLineRange.X() << " , " << fBaseLineRange.Y() << " ) " << std::endl;
-            cout << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
-            cout << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
-            cout << "Number of points over threshold : " << fNPointsOverThreshold << endl;
+            essential << "Base line range definition : ( " << fBaseLineRange.X() << " , " << fBaseLineRange.Y() << " ) " << endl;
+            essential << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
+            essential << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
+            essential << "Number of points over threshold : " << fNPointsOverThreshold << endl;
 
             EndPrintProcess();
         }

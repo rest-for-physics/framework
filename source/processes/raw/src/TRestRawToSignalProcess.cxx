@@ -239,14 +239,14 @@ void  TRestRawToSignalProcess::printBits(unsigned int num)
 void TRestRawToSignalProcess::PrintMetadata(){
 	BeginPrintProcess();
 
-    cout << endl;
-    cout << "====================================" << endl;
-    cout << "DAQ : " << GetTitle() << endl;
-    cout << "Electronics type : " << fElectronicsType.Data() << endl;
-    cout << "Minimum number of points : " << fMinPoints << endl;
-    cout << "====================================" << endl;
+    essential <<" "<< endl;
+    essential << " ==================================== " << endl;
+    essential << "DAQ : " << GetTitle() << endl;
+    essential << "Electronics type : " << fElectronicsType.Data() << endl;
+    essential << "Minimum number of points : " << fMinPoints << endl;
+    essential << " ==================================== " << endl;
     
-    cout << endl;
+	essential << " " << endl;
 
 	EndPrintProcess();
 }

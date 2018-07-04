@@ -299,16 +299,13 @@ cout << GetName() << ": Process ending..." << endl;
 void TRestEventProcess::BeginPrintProcess()
 {
 	essential.setcolor(COLOR_BOLDGREEN);
+	essential.setborder("||");
+	essential.setlength(100);
 	essential << endl;
 	essential << "=" << endl;
 	essential << "Process : " << ClassName() << endl;
-	essential << "-" << endl;
 	essential << "Name: " << GetName() << "  Title: " << GetTitle() << "  VerboseLevel: " << GetVerboseLevelString() << endl;
-	essential << "-" << endl;
-	string inputeventstr = (fInputEvent == NULL) ? "" : fInputEvent->ClassName();
-	string outputeventstr = (fOutputEvent == NULL) ? "" : fOutputEvent->ClassName();
-	essential << "InputEvent: " << inputeventstr << "  OutputEvent: " << outputeventstr << endl;
-	essential << "=" << endl;
+	essential << " ----------------------------------------------- " << endl;
 	essential << " " << endl;
 
 	if (fObservableNames.size() > 0)
@@ -340,6 +337,8 @@ void TRestEventProcess::EndPrintProcess()
 	essential << endl;
 	essential << endl;
 	essential.resetcolor();
+	essential.setborder("");
+	essential.setlength(10000);
 }
 
 //////////////////////////////////////////////////////////////////////////
