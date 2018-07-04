@@ -1,8 +1,8 @@
 ====================================
 
-Author : Ni Kaixiang
-Date : 27-June-2018
-Description : Implementation of REST database accessor: TRestDataBase. 
+Author : Ni Kaixiang  
+Date : 27-June-2018  
+Description : Implementation of REST database accessor: TRestDataBase.  
 
 ===================================
 
