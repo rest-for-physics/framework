@@ -124,7 +124,8 @@ void TRestRun::BeginOfInit()
 		fInputFileNames = GetFilesMatchingPattern(fInputFileName);
 		auto db = TRestDataBase::instantiate();
 		if (db != NULL) {
-			if (fInputFileNames.size() > 0) {
+			if (fInputFileNames.size() > 0) //the user wants REST to define run number
+			{
 				auto runN = db->getrunwithfilename((string)fInputFileNames[0]);
 				fRunNumber = runN.first;
 				fParentRunNumber = runN.second;
@@ -140,8 +141,7 @@ void TRestRun::BeginOfInit()
 			fParentRunNumber = StringToInteger(runN[1]);
 		}
 
-		if (GetParameter("inputFile", "") == "" || ToUpper(GetParameter("inputFile", "")) == "AUTO") 
-		//the user wants REST to find input file
+		if (GetParameter("inputFile", "") == "" || ToUpper(GetParameter("inputFile", "")) == "AUTO") //the user wants REST to find input file
 		{
 			auto db = TRestDataBase::instantiate();
 			if (db != NULL) {
@@ -153,7 +153,7 @@ void TRestRun::BeginOfInit()
 			}
 			else
 			{
-				error << "REST ERROR : this REST has no access to sql database!"<<endl;
+				error << "REST ERROR : this REST has no access to sql database!" << endl;
 				error << "Please install the package \"restDataBaseImpl\"" << endl;
 				exit(1);
 			}
@@ -276,9 +276,9 @@ void TRestRun::EndOfInit()
 {
 	//Get some infomation
 
-	fRunUser = GetParameter("user").c_str();
+	fRunUser = getenv("USER") == NULL ? "" : getenv("USER");
 	fRunType = GetParameter("runType", "SW_DEBUG").c_str();
-	fRunDescription = GetParameter("runDescription","").c_str();
+	fRunDescription = GetParameter("runDescription", "").c_str();
 	fExperimentName = GetParameter("experiment", "preserve").c_str();
 	fRunTag = GetParameter("runTag", "noTag").c_str();
 
@@ -606,9 +606,15 @@ TString TRestRun::FormFormat(TString FilenameFormat)
 		string targetstr = inString.substr(pos1, pos2 - pos1 + 1);//with []
 		string target = inString.substr(pos1 + 1, pos2 - pos1 - 1);//without []
 		string replacestr = GetFileInfo(target);
-		if (replacestr == target && fHostmgr != NULL)replacestr = fHostmgr->GetProcessRunner() == NULL ? replacestr : fHostmgr->GetProcessRunner()->GetProcInfo(target);
-		if (replacestr == target)replacestr = this->Get(target) == "" ? targetstr : this->Get(target);
-		outString = Replace(outString, targetstr, replacestr, 0);
+		if (replacestr == target && fHostmgr != NULL && fHostmgr->GetProcessRunner() != NULL)
+			replacestr = fHostmgr->GetProcessRunner()->GetProcInfo(target);
+		if (replacestr == target && this->Get(target) != "")
+			replacestr = this->Get(target);
+		if (replacestr == target && this->Get("f" + target) != "")
+			replacestr = this->Get("f" + target);
+
+		if (replacestr != target)
+			outString = Replace(outString, targetstr, replacestr, 0);
 		pos = pos2 + 1;
 	}
 
