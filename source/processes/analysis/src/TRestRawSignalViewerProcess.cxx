@@ -54,8 +54,9 @@ void TRestRawSignalViewerProcess::Initialize()
     SetSectionName( this->ClassName() );
 
     fSignalEvent = new TRestRawSignalEvent();
+    fOutputSignalEvent = new TRestRawSignalEvent();
 
-    fOutputEvent = fSignalEvent;
+    fOutputEvent = fOutputSignalEvent;
     fInputEvent = fSignalEvent;
 
     fDrawRefresh = 0;
@@ -135,7 +136,16 @@ TRestEvent* TRestRawSignalViewerProcess::ProcessEvent( TRestEvent *evInput )
 	}
     }
 
-    return fSignalEvent;
+    fOutputSignalEvent->Initialize();
+
+    fOutputSignalEvent->SetID( fInputSignalEvent->GetID() );
+    fOutputSignalEvent->SetSubID( fInputSignalEvent->GetSubID() );
+    fOutputSignalEvent->SetTimeStamp( fInputSignalEvent->GetTimeStamp() );
+    fOutputSignalEvent->SetSubEventTag( fInputSignalEvent->GetSubEventTag() );
+    for( int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++ )
+	    fOutputSignalEvent->AddSignal( *fInputSignalEvent->GetSignal( n ) );
+
+    return fOutputSignalEvent;
 }
 
 //______________________________________________________________________________

@@ -28,6 +28,7 @@ class TRestRawSignalViewerProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
         TRestRawSignalEvent *fSignalEvent;
+        TRestRawSignalEvent *fOutputSignalEvent;
         // TODO We must get here a pointer to TRestDaqMetadata
         // In order to convert the parameters to time using the sampling time
 
