@@ -10,11 +10,11 @@ internal values are saved.
   <TRestRun name="Run metadata" title="REST Metadata run info (template)">
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
-    <parameter name="runNumber" value="auto"/>
+    <parameter name="runNumber" value="auto"/> //it will find next run number from database when we use "auto"
     <parameter name="runTag" value="Template"/>
     <parameter name="runDescription" value="We launch just 100 events to check everything is ok."/>
     <parameter name="user" value="${USER}"/>
-    <parameter name="verboseLevel" value="3"/>
+    <parameter name="verboseLevel" value="2"/>
     <parameter name="outputFile" value="default.root" />
 
     /// from the previously saved metadata file("restManager --c saveMetadataFile.rml --o meta.root")

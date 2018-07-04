@@ -15,7 +15,8 @@ other examples.
 <TRestManager name="CoBoDataAnalysis" title="Example" verboseLevel="info" >
 
   <TRestRun name="SJTU_Proto" >
-    <addMetadata name="PandaReadout_MxM" file="readouts.root"/>
+    /// from the previously saved metadata file("restManager --c saveMetadataFile.rml --o meta.root")
+    <addMetadata name="PandaReadout_MxM" file="meta.root"/>
   </TRestRun>
 
   <TRestProcessRunner name="Processor" verboseLevel="info">

@@ -17,7 +17,11 @@
 <TRestManager name="CoBoDataAnalysis" title="Example" verboseLevel="info" >
 
   <TRestRun name="SJTU_Proto" >
-    <addMetadata name="PandaReadout_MxM" file="readouts.root"/>
+    <parameter name="runNumber" value="auto"/>
+    <parameter name="outputFile" value="RUN[RunNumber]_[Time]_[LastProcess].root" />
+
+    /// from the previously saved metadata file("restManager --c saveMetadataFile.rml --o meta.root")
+    <addMetadata name="PandaReadout_MxM" file="meta.root"/>
   </TRestRun>
 
   <TRestProcessRunner name="Processor" verboseLevel="info">
@@ -51,9 +55,6 @@
     <searchPath value="$ENV{REST_INPUTDATA}/definitions/"/>
     <parameter name="outputLevel" value="internalvar" /> %options are : nooutput(0), observable(1), internalvar(2), fulloutput(3)
     <parameter name="verboseLevel" value="essential" /> %options are : silent(0), essential(1), info(2), debug(3), extreme(4)
-    <parameter name="inputFile" value="${REST_INPUTFILE}"/>
-    <parameter name="inputFormat" value="run[RunNumber]_file[Fragment]_[Time-d]_[Time].graw"/>
-    <parameter name="outputFile" value="RUN[RunNumber]_[Time]_[LastProcess].root" />
     <parameter name="mainDataPath" value="" />
   </globals>
 
