@@ -497,8 +497,12 @@ void TRestRawSignal::WriteSignalToTextFile ( TString filename )
 
 void TRestRawSignal::Print( )
 {
+    cout << "---------------------" << endl;
+    cout << "Signal id : " << this->GetSignalID() << endl;
+    cout << "+++++++++++++++++++++" << endl;
     for( int i = 0; i < GetNumberOfPoints(); i++ )
         cout << "Bin : " << i << " Charge : " << GetData(i) << endl;
+    cout << "---------------------" << endl;
 }
 
 TGraph *TRestRawSignal::GetGraph( Int_t color )
