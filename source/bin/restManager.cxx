@@ -14,20 +14,24 @@ void PrintHelp()
 {
 	fout.resetcolor();
 	fout << " " << endl;
-	fout << "Usage1 : ./restManager --c CONFIG_FILE [--i INPUT_FILE] [--o OUTPUT_FILE]            " << endl;
+	fout << "Usage1 : ./restManager --c CONFIG_FILE [--r RUNID] [--i INPUT] [--o OUTPUT]          " << endl;
 	fout << "                       [--j THREADS] [--e EVENTS_TO_PROCESS] [--v VERBOSELEVEL]      " << endl;
-	fout << "                       [--r HISTOS_FILE.root] [--p PDF_PLOTS.pdf]                    " << endl;
+	fout << "                       [--h HISTOS_FILE.root] [--p PDF_PLOTS.pdf]                    " << endl;
 	fout << "Usage2 : ./restManager TASK_NAME ARG1 ARG2 ARG3                                      " << endl;
 	fout << " " << endl;
 	fout << "-" << endl;
 	fout << "CONFIG_FILE: The rml configuration file. It should contain a TRestManager section.   " << endl;
 	fout << "This argument MUST be provided. The others can be also specified in the rml file.    " << endl;
 	fout << "-" << endl;
-	fout << "INPUT_FILE : Input file name. If not given it will be acquired from the rml file.    " << endl;
+	fout << "RUNID      : Input run number. REST will automatically find the input file with run  " << endl;
+	fout << "number given and INPUT_FILE not specified. Subrun number can also be specified with  " << endl;
+	fout << "a dot after runnumber ,e.g. \"--r 910.3\". It is by default 0 meaning data takaing run " << endl;
+	fout << "-" << endl;
+	fout << "INPUT      : Input file name. If not given it will be acquired from the rml file.    " << endl;
 	fout << "If you want to use multiple input file, you can either specify the string of matching" << endl;
 	fout << "pattern with quotation marks surrounding it, or put the file names in a .list file   " << endl;
 	fout << "-" << endl;
-	fout << "OUTPUT_FILE: Output file name. It can be given as a name string (abc.root), or as an " << endl;
+	fout << "OUTPUT     : Output file name. It can be given as a name string (abc.root), or as an " << endl;
 	fout << "expression for the program to replace parameters in it.                              " << endl;
 	fout << "-" << endl;
 	fout << "THREADS    : Request specific number of threads to run the jobs. In most time 3~6    " << endl;
@@ -83,14 +87,15 @@ int main( int argc, char *argv[] )
 						switch (*argv[i])
 						{
 						case 'c': sprintf(cfgFileName, "%s", argv[i + 1]); break;
+						case 'r': setenv("runNumber", argv[i + 1], 1); break;
 						case 'i': setenv("inputFile", argv[i + 1], 1); break;
 						case 'o': setenv("outputFile", argv[i + 1], 1); break;
 						case 'j': setenv("threadNumber", argv[i + 1], 1); break;
 						case 'e': setenv("eventsToProcess", argv[i + 1], 1); break;
 						case 'v': setenv("verboseLevel", argv[i + 1], 1); break;
 						case 'p': setenv("pdfFilename", argv[i + 1], 1); break;
-						case 'r': setenv("histoFilename", argv[i + 1], 1); break;
-						case 'h': PrintHelp(); exit(1);
+						case 'h': setenv("histoFilename", argv[i + 1], 1); break;
+						case 'help': PrintHelp(); exit(0);
 						default:
 							fout << endl;
 							PrintHelp();

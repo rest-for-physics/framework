@@ -43,7 +43,6 @@ DataBaseFileInfo::DataBaseFileInfo(string filename) {
 		for (int i = 0; i < 41; i++) {
 			sha1sum[i] = 0;
 		}
-
 	}
 	else
 	{
@@ -51,7 +50,7 @@ DataBaseFileInfo::DataBaseFileInfo(string filename) {
 		evtRate = 0;
 		quality = true;
 		start = buf.st_ctime;
-		stop = buf.st_atime;
+		stop = buf.st_mtime;
 		string sha1result = ExecuteShellCommand("sha1sum " + _fullname);
 		string sha1 = Spilt(sha1result, " ")[0];
 		if (sha1.size() == 40) {

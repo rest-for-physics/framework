@@ -354,7 +354,7 @@ int main(int argc,char** argv) {
 #endif
     }
     restRun->GetOutputFile()->cd();
-
+	restRun->WriteWithDataBase(true);
     /*
     initialEnergySpectrum.SetName("initialEnergySpectrum");
     initialAngularDistribution.SetName("initialAngularDistribution");
