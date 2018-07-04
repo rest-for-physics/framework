@@ -85,7 +85,7 @@ int main( int argc, char *argv[] )
     }
 
     TString inputFile = iFile;
-    if( inputFile != "" )
+  //  if( inputFile != "" )
         gSystem->Setenv( "REST_INPUTFILE", inputFile.Data() );
 
     cout << "Input file : " << inputFile.Data() << endl;
