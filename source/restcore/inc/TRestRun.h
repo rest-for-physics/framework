@@ -49,6 +49,8 @@ public:
 	TFile* FormOutputFile(vector<string> filefullnames,string targetfilename="");
 	void PassOutputFile() { fOutputFile = fInputFile; fOutputFileName = fOutputFile->GetName(); }
 	TFile* FormOutputFile();
+	
+	void WriteWithDataBase(bool newrun = false);
 
 	void CloseFile();
 
