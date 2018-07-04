@@ -85,7 +85,25 @@ void TRestRawSignalAnalysisProcess::BeginOfEventProcess()
 //______________________________________________________________________________
 TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 {
+    if( GetVerboseLevel() >= REST_Debug )
+	cout << "TRestRawSignalAnalysisProcess::ProcessEvent. START" << endl;
     TRestRawSignalEvent *fInputSignalEvent = (TRestRawSignalEvent *) evInput;
+
+    if( GetVerboseLevel() >= REST_Info )
+    {
+        cout << "------------------------------------------" <<endl;
+        cout << "Event ID : " << fInputSignalEvent->GetID() << endl;
+        cout << "Time stamp : " << fInputSignalEvent->GetTimeStamp() << endl;
+        cout << "Number of Signals : " << fInputSignalEvent->GetNumberOfSignals() << endl;
+        cout << "------------------------------------------" <<endl;
+
+        if( GetVerboseLevel() >= REST_Debug )
+        {
+            for( Int_t n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++ )
+                cout << "Signal N : " << n << " daq id : " << fInputSignalEvent->GetSignal(n)->GetID() << endl;
+            GetChar();
+        }
+    }
 
     /// Copying the signal event to the output event
 
@@ -286,6 +304,7 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     if( GetVerboseLevel() >= REST_Debug ) 
         fAnalysisTree->PrintObservables();
 
+
     return fSignalEvent;
 }
 
@@ -314,7 +333,7 @@ void TRestRawSignalAnalysisProcess::InitFromConfigFile( )
 
     fBaseLineRange = StringTo2DVector( GetParameter( "baseLineRange", "(5,55)") );
     fTailLineRange = StringTo2DVector( GetParameter( "tailLineRange", "(450,500)") );
-    fAnalysisRange = StringTo2DVector( GetParameter( "analysisRange", "(10,500)") );
+    fAnalysisRange = StringTo2DVector( GetParameter( "analysisRange", "(60,450)") );
     fPointThreshold = StringToDouble( GetParameter( "pointThreshold", 2 ) );
     fNPointsOverThreshold = StringToInteger( GetParameter( "pointsOverThreshold", 5 ) );
     fSignalThreshold = StringToDouble( GetParameter( "signalThreshold", 5 ) );
