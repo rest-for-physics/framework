@@ -26,8 +26,7 @@ is specified in column "run_id". Based on this run, multiple analysis could be c
 are also unique and are specified in column "subrun_id". subrun_id is 0 for data taking run and 
 simulation run. run_id is 0 for analysis run when input file is not recorded in database. 
 
-Note that file name must be unique in the table. REST will remove same items before adding file 
-entries in the table.
+It is better to set a unique file name in the table. 
 
 #How to use
 

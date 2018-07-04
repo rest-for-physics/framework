@@ -214,9 +214,9 @@ pair<int, int> TRestDataBaseImpl::getrunwithfilename(string filename) {
 		return pair<int, int>(0, 0);
 	}
 	if (a.size() > 1) {
-		cout << "REST_WARNING : find multiple runs with file \"" << filename << "\", returning the first one" << endl;
+		cout << "REST_WARNING : find multiple runs with file \"" << filename << "\", returning the last one" << endl;
 	}
-	return a[0];
+	return a[a.size()-1];
 }
 int TRestDataBaseImpl::getlastrun() {
 	auto a = query(conn, "select MAX(run_id) from rest_runs");
