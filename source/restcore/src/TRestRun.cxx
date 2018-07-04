@@ -71,8 +71,8 @@ void TRestRun::Initialize()
 	fEndTime = fStartTime - 1; // So that run length will be -1 if fEndTime is not set
 
 	fRunUser = getenv("USER") == NULL ? "" : getenv("USER");
-	fRunNumber = 0;
-	fParentRunNumber = 0;
+	fRunNumber = 0;       // run number where input file is from and where output file will be saved
+	fParentRunNumber = 0; // subrun number where input file is from
 	fRunType = "Null";
 	fExperimentName = "Null";
 	fRunTag = "Null";
@@ -114,6 +114,8 @@ void TRestRun::BeginOfInit()
 	//	error << "manager not initialized!" << endl;
 	//	exit(0);
 	//}
+	fRunNumber = 0;
+	fParentRunNumber = 0;
 
 	string runNstr = GetParameter("runNumber", "");
 	if (ToUpper(runNstr) == "AUTO")
@@ -127,17 +129,7 @@ void TRestRun::BeginOfInit()
 				fRunNumber = runN.first;
 				fParentRunNumber = runN.second;
 			}
-			else
-			{
-				fRunNumber = 0;
-				fParentRunNumber = 0;
-			}
 			delete db;
-		}
-		else
-		{
-			fRunNumber = 0;
-			fParentRunNumber = 0;
 		}
 	}
 	else if (isANumber(runNstr))
@@ -146,10 +138,6 @@ void TRestRun::BeginOfInit()
 		fRunNumber = StringToInteger(runN[0]);
 		if (runN.size() > 1) {
 			fParentRunNumber = StringToInteger(runN[1]);
-		}
-		else
-		{
-			fParentRunNumber = 0;
 		}
 
 		if (GetParameter("inputFile", "") == "" || ToUpper(GetParameter("inputFile", "")) == "AUTO") 
@@ -178,11 +166,8 @@ void TRestRun::BeginOfInit()
 	}
 	else
 	{
-		fRunNumber = 0;
-		fParentRunNumber = 0;
 		fInputFileName = GetParameter("inputFile", "").c_str();
 		fInputFileNames = GetFilesMatchingPattern(fInputFileName);
-
 	}
 
 
