@@ -50,7 +50,7 @@ public:
 	void PassOutputFile() { fOutputFile = fInputFile; fOutputFileName = fOutputFile->GetName(); }
 	TFile* FormOutputFile();
 	
-	void WriteWithDataBase(bool newrun = false);
+	void WriteWithDataBase(int level = 1, bool force = false);
 
 	void CloseFile();
 

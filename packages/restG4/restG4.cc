@@ -12,6 +12,7 @@
 #include "TRestGeometry.h"
 #include "TRestG4Metadata.h"
 #include "TRestPhysicsLists.h"
+#include "TRestDataBase.h"
 
 #include "G4RunManager.hh"
 #include "G4UImanager.hh"
@@ -354,7 +355,8 @@ int main(int argc,char** argv) {
 #endif
     }
     restRun->GetOutputFile()->cd();
-	restRun->WriteWithDataBase(true);
+
+	restRun->WriteWithDataBase(2, true);
     /*
     initialEnergySpectrum.SetName("initialEnergySpectrum");
     initialAngularDistribution.SetName("initialAngularDistribution");

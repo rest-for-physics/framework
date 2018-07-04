@@ -124,11 +124,15 @@ void TRestRun::BeginOfInit()
 		fInputFileNames = GetFilesMatchingPattern(fInputFileName);
 		auto db = TRestDataBase::instantiate();
 		if (db != NULL) {
-			if (fInputFileNames.size() > 0) //the user wants REST to define run number
+			if (fInputFileNames.size() > 0) //the user wants REST to find run number
 			{
 				auto runN = db->getrunwithfilename((string)fInputFileNames[0]);
 				fRunNumber = runN.first;
 				fParentRunNumber = runN.second;
+			}
+			else //the user wants REST to define run number
+			{
+				fRunNumber = db->getlastrun() + 1;
 			}
 			delete db;
 		}
@@ -277,7 +281,7 @@ void TRestRun::EndOfInit()
 	//Get some infomation
 
 	fRunUser = getenv("USER") == NULL ? "" : getenv("USER");
-	fRunType = GetParameter("runType", "SW_DEBUG").c_str();
+	fRunType = ToUpper(GetParameter("runType", "ANALYSIS")).c_str();
 	fRunDescription = GetParameter("runDescription", "").c_str();
 	fExperimentName = GetParameter("experiment", "preserve").c_str();
 	fRunTag = GetParameter("runTag", "noTag").c_str();
@@ -703,17 +707,46 @@ TFile* TRestRun::FormOutputFile()
 	return fOutputFile;
 }
 
-void TRestRun::WriteWithDataBase(bool newrun) {
+///////////////////////////////////////////////
+/// \brief Write this object into TFile and add a new entry in database
+///
+/// level=0 : add a new run in database. run number is the next number, subrun number is 0.
+/// level=1 (default) : add a new subrun in database. run number is determined in BeginOfInit(). 
+/// subrun number is the next number. if run does not exist, it will create new if "force" is true.  
+/// level>=2 : add a new file in database. run number is determined in BeginOfInit(). subrun number is 0. 
+/// if not exist, it will create new if "force" is true.  
+void TRestRun::WriteWithDataBase(int level, bool force) {
 	time_t  timev; time(&timev);
 	fEndTime = (Double_t)timev;
+	this->Write();
 
 	//write to database
 	auto db = TRestDataBase::instantiate();
 	if (db != NULL) {
-		if (newrun)
+		if (level == 0)
+		{
 			db->new_run();
-		else
-			db->new_run(fRunNumber);
+		}
+		else if (level == 1)
+		{
+			if (db->query_run(fRunNumber) == -1)
+				if (force)
+					db->new_run(fRunNumber);
+				else
+					return;
+			else
+				db->new_run(fRunNumber);
+		}
+		else {
+			if (db->query_subrun(fRunNumber, 0) == -1)
+				if (force)
+					db->new_run(fRunNumber);
+				else
+					return;
+			else
+				db->set_runnumber(fRunNumber);
+		}
+
 
 		auto info = DataBaseFileInfo((string)fOutputFileName);
 		info.start = fStartTime;
@@ -723,15 +756,22 @@ void TRestRun::WriteWithDataBase(bool newrun) {
 		}
 		db->new_runfile((string)fOutputFileName, info);
 
-		db->set_description((string)fRunDescription);
-		db->set_runend(fEndTime);
-		db->set_runstart(fStartTime);
-		db->set_tag((string)fRunTag);
-		db->set_type((string)fRunType);
+		if (level <= 1) 
+		{
+			db->set_description((string)fRunDescription);
+			db->set_runend(fEndTime);
+			db->set_runstart(fStartTime);
+			db->set_tag((string)fRunTag);
+			db->set_type((string)fRunType);
+		}
+		else
+		{
+			db->set_runend(fEndTime);
+		}
 
 		delete db;
 	}
-	this->Write();
+
 }
 
 ///////////////////////////////////////////////
