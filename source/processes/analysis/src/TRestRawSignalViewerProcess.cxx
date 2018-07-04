@@ -92,7 +92,7 @@ TRestEvent* TRestRawSignalViewerProcess::ProcessEvent( TRestEvent *evInput )
     fSignalEvent->SetTimeStamp( fInputSignalEvent->GetTimeStamp() );
     fSignalEvent->SetSubEventTag( fInputSignalEvent->GetSubEventTag() );
 
-    if( fSignalEvent->GetNumberOfSignals() == 0 ) return NULL;
+    if( fInputSignalEvent->GetNumberOfSignals() == 0 ) return NULL;
 
     Int_t N = fInputSignalEvent->GetNumberOfSignals();
     Int_t signalsAdded = 0;
