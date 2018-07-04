@@ -12,7 +12,6 @@
 #include "TRestGeometry.h"
 #include "TRestG4Metadata.h"
 #include "TRestPhysicsLists.h"
-#include "TRestDataBase.h"
 
 #include "G4RunManager.hh"
 #include "G4UImanager.hh"

@@ -287,21 +287,21 @@ void TRestRun::EndOfInit()
 	fRunTag = GetParameter("runTag", "noTag").c_str();
 
 	OpenInputFile(0);
-	essential << this->ClassName() << " : InputFile : \"" << fInputFileName << "\", " << endl;
+	essential << "InputFile pattern : \"" << fInputFileName << "\", " << endl;
 	if (fInputFileNames.size() > 1)
 	{
 		info << "which matches :" << endl;
 		for (int i = 0; i < fInputFileNames.size(); i++) {
 			info << fInputFileNames[i] << endl;
 		}
-		info << endl;
+		essential << "(" <<fInputFileNames.size() << " added files)" << endl;
 	}
 	else if (fInputFileNames.size() == 0) {
-		info << "(no input file added)";
+		essential << "(no input file added)" << endl;
 	}
 
 
-	essential << this->ClassName() << " : OutputFile : \"" << fOutputFileName << "\"" << endl;
+	essential <<" OutputFile pattern : \"" << fOutputFileName << "\"" << endl;
 }
 
 ///////////////////////////////////////////////
@@ -752,10 +752,20 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
 			auto info = DataBaseFileInfo((string)fOutputFileName);
 			info.start = fStartTime;
 			info.stop = fEndTime;
-			if (fAnalysisTree != NULL) {
-				info.evtRate = fAnalysisTree->GetEntries();
+			if (fOutputFile != NULL) {
+				TRestAnalysisTree*tree = (TRestAnalysisTree*)fOutputFile->Get("AnalysisTree");
+				if (tree != NULL && tree->GetEntries()>1)
+				{
+					int n = tree->GetEntries();
+					tree->ConnectEventBranches();
+					tree->GetEntry(0);
+					double t1 = tree->GetTimeStamp();
+					tree->GetEntry(n - 1);
+					double t2 = tree->GetTimeStamp();
+					info.evtRate = n / (t2 - t1);
+				}
 			}
-			db->new_runfile((string)fOutputFileName, info);
+			int fileid = db->new_runfile((string)fOutputFileName, info);
 
 			if (level <= 1)
 			{
@@ -769,6 +779,8 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
 			{
 				db->set_runend(fEndTime);
 			}
+
+			fout << "DataBase Entry Added! Run Number: " << db->getcurrentrun() << "." << db->getcurrentsubrun() << ", File ID: " << fileid << endl;
 
 			delete db;
 		}
