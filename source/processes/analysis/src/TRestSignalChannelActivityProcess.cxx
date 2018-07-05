@@ -71,15 +71,15 @@ void TRestSignalChannelActivityProcess::InitProcess()
 {
     if( !fReadOnly )
     {
-        fDaqChannelsHisto = new TH1D( "daqChannelActivity", "daqChannelActivity", 144, 0, 144 );
-        fReadoutChannelsHisto_OneSignal = new TH1D( "rChannelActivity_1", "readoutChannelActivity", 128, 0, 128 );
-        fReadoutChannelsHisto_OneSignal_High = new TH1D( "rChannelActivity_1H", "readoutChannelActivity", 128, 0, 128 );
-        fReadoutChannelsHisto_TwoSignals = new TH1D( "rChannelActivity_2", "readoutChannelActivity", 128, 0, 128 );
-        fReadoutChannelsHisto_TwoSignals_High = new TH1D( "rChannelActivity_2H", "readoutChannelActivity", 128, 0, 128 );
-        fReadoutChannelsHisto_ThreeSignals = new TH1D( "rChannelActivity_3", "readoutChannelActivity", 128, 0, 128 );
-        fReadoutChannelsHisto_ThreeSignals_High = new TH1D( "rChannelActivity_3H", "readoutChannelActivity", 128, 0, 128 );
-        fReadoutChannelsHisto_MultiSignals = new TH1D( "rChannelActivity_M", "readoutChannelActivity", 128, 0, 128 );
-        fReadoutChannelsHisto_MultiSignals_High = new TH1D( "rChannelActivity_MH", "readoutChannelActivity", 128, 0, 128 );
+        fDaqChannelsHisto = new TH1D( "daqChannelActivity", "daqChannelActivity", fDaqHistogramChannels, 0, fDaqHistogramChannels);
+        fReadoutChannelsHisto_OneSignal = new TH1D( "rChannelActivity_1", "readoutChannelActivity", fReadoutHistogramChannels, 0, fReadoutHistogramChannels );
+        fReadoutChannelsHisto_OneSignal_High = new TH1D( "rChannelActivity_1H", "readoutChannelActivity", fReadoutHistogramChannels, 0, fReadoutHistogramChannels );
+        fReadoutChannelsHisto_TwoSignals = new TH1D( "rChannelActivity_2", "readoutChannelActivity", fReadoutHistogramChannels, 0, fReadoutHistogramChannels );
+        fReadoutChannelsHisto_TwoSignals_High = new TH1D( "rChannelActivity_2H", "readoutChannelActivity", fReadoutHistogramChannels, 0, fReadoutHistogramChannels );
+        fReadoutChannelsHisto_ThreeSignals = new TH1D( "rChannelActivity_3", "readoutChannelActivity", fReadoutHistogramChannels, 0, fReadoutHistogramChannels );
+        fReadoutChannelsHisto_ThreeSignals_High = new TH1D( "rChannelActivity_3H", "readoutChannelActivity", fReadoutHistogramChannels, 0, fReadoutHistogramChannels );
+        fReadoutChannelsHisto_MultiSignals = new TH1D( "rChannelActivity_M", "readoutChannelActivity", fReadoutHistogramChannels, 0, fReadoutHistogramChannels );
+        fReadoutChannelsHisto_MultiSignals_High = new TH1D( "rChannelActivity_MH", "readoutChannelActivity", fReadoutHistogramChannels, 0, fReadoutHistogramChannels );
     }
 
     fReadout = (TRestReadout*) GetReadoutMetadata();
@@ -204,5 +204,8 @@ void TRestSignalChannelActivityProcess::InitFromConfigFile( )
 {
     fLowThreshold = StringToDouble( GetParameter( "lowThreshold", "25" ) );
     fHighThreshold = StringToDouble( GetParameter( "highThreshold", "50" ) );
+
+    fDaqHistogramChannels = StringToInteger( GetParameter( "daqChannels", "144" ) );
+    fReadoutHistogramChannels = StringToInteger( GetParameter( "readoutChannels", "128" ) );
 }
 
