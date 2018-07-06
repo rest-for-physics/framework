@@ -27,13 +27,27 @@
 #include "TRestEventProcess.h"
 
 typedef struct {
+    /// It allows interaction with the buffer generating process
     unsigned int dataReady;
+
+    /// It stores the number of signals that have been registered in the buffer
     unsigned int nSignals;
+    
+    /// It stores the event id for the corresponding buffer
     unsigned int eventId;
+
+    /// It stores the unix timestamp for the corresponding buffer
     double timeStamp;
+    
+    /// It defines the maximum number of signals used to determine the maximum size of the buffer
     unsigned int maxSignals;
+
+    /// It defines the maximum number of samples per signal used to determine the maximum size of the buffer
     unsigned int maxSamples;
+    
+    /// It stores the size of the buffer, which should be maxSignals * ( maxSamples + 1 )
     unsigned int bufferSize;
+
 } daqInfo;
 
 //! A process to read a shared buffer created by another external process and create a TRestRawSignalEvent
