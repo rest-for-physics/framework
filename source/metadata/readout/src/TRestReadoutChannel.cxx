@@ -104,13 +104,12 @@ TRestReadoutPixel *TRestReadoutChannel::GetPixelByID( int id )
 ///////////////////////////////////////////////
 /// \brief Prints the details of the readout channel including pixel coordinates.
 /// 
-void TRestReadoutChannel::Print( )
+void TRestReadoutChannel::Print( Int_t detailLevel )
 {
 	cout << "++++ Channel ID : " << GetID( ) << " Daq channel : " << GetDaqID() << " Total pixels : " << GetNumberOfPixels() << endl;
 	cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
-	for( int n = 0; n < GetNumberOfPixels(); n++ )
-	{
-		GetPixel(n)->Print();
-	}
+	if( detailLevel > 1 )
+		for( int n = 0; n < GetNumberOfPixels(); n++ )
+			GetPixel(n)->Print();
 }
