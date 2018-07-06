@@ -67,7 +67,7 @@ class TRestReadoutChannel : public TObject {
 
         Int_t isInside( Double_t x, Double_t y );
         
-        void Print( );
+        void Print( Int_t detailLevel );
 
         //Construtor
         TRestReadoutChannel();
