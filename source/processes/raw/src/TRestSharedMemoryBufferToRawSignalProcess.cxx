@@ -267,6 +267,10 @@ TRestEvent* TRestSharedMemoryBufferToRawSignalProcess::ProcessEvent( TRestEvent 
 	    {
 		TRestRawSignal sgnl;
 		sgnl.SetSignalID( fShMem_Buffer[ s * (maxSamples+1) ] );
+
+		if( GetVerboseLevel() >= REST_Debug )
+			cout << "s : " << s << " id : " << sgnl.GetSignalID() << endl;
+
 		for( int n = 0; n < maxSamples; n++ )
 			sgnl.AddPoint( fShMem_Buffer[ s * (maxSamples+1) + 1 + n] );
 		fOutputRawSignalEvent->AddSignal( sgnl );
