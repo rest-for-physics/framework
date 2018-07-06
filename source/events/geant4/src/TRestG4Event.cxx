@@ -936,8 +936,8 @@ TPad *TRestG4Event::DrawEvent( TString option )
     // If no option is given. This is the default
     if( optList.size() == 0 )
     {
-        optList.push_back( "graph(xz)" );
-        optList.push_back( "graph(yz)" );
+        optList.push_back( "graphXZ" );
+        optList.push_back( "graphYZ" );
         optList.push_back( "histXZ(Cont0,colz)" );
         optList.push_back( "histYZ(Cont0,colz)" );
     }
