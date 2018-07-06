@@ -18,13 +18,7 @@ int main(int argc, char *argv[])
 	}
 	TRint theApp("App",&argc,argv);
 
-	vector <TString> list = TRestTools::GetListOfRESTLibraries();
-	for (unsigned int n = 0; n < list.size(); n++)
-	{
-		if(verbose)
-			cout << "Loading library : " << list[n] << endl;
-		gSystem->Load(list[n]);
-	}
+	TRestTools::LoadRESTLibrary(verbose);
 
 	auto a = ExecuteShellCommand("find $REST_PATH/macros |grep .hh | grep -v \"swo\" | grep -v \"swp\"  | grep -v \"svn\"");
 	auto b = Spilt(a, "\n");

@@ -64,6 +64,13 @@ class TRestTools:public TObject {
 		///
         static TString GetFirstOption( TString &path );
 
+		///////////////////////////////////////////////
+		/// \brief Calls gSystem to load REST library. 
+		///
+		/// After this we can use reflection methods TClass::GetClass() and 
+		/// TRestMetadata::GetDataMemberRef()
+		///
+		static void LoadRESTLibrary(bool verbose = false);
 
 		/// Rest tools class 
         ClassDef(TRestTools, 1); 

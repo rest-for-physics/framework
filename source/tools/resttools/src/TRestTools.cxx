@@ -1,5 +1,6 @@
 
 #include "TRestTools.h"
+#include <TSystem.h>
 
 #include <iostream>
 #include <limits> 
@@ -114,6 +115,17 @@ std::vector <TString> TRestTools::GetRESTLibrariesInDirectory( TString path )
     return fileList;
 }
 
+
+void TRestTools::LoadRESTLibrary(bool verbose)
+{
+	vector <TString> list = TRestTools::GetListOfRESTLibraries();
+	for (unsigned int n = 0; n < list.size(); n++)
+	{
+		if(verbose)
+			cout << "Loading library : " << list[n] << endl;
+		gSystem->Load(list[n]);
+	}
+}
 
 
 

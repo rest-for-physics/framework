@@ -45,12 +45,8 @@ void PrintHelp()
 int main( int argc, char *argv[] )
 {
 	TApplication app("app", NULL, NULL);
-    vector <TString> list = TRestTools::GetListOfRESTLibraries( );
-    for( unsigned int n = 0; n < list.size(); n++ )
-    {
-        cout << "Loading library : " << list[n] << endl;
-        gSystem->Load( list[n] );
-    }
+    
+	TRestTools::LoadRESTLibrary(true);
 
 	//char command[] = "find $REST_PATH/macros |grep .hh | grep -v \"swo\" | grep -v \"swp\"  | grep -v \"svn\"> /tmp/macros.list";
 
