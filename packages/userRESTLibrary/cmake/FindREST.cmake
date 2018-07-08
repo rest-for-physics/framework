@@ -1,11 +1,11 @@
-set(REST_DIR ${REST_INSTALL})
+set(REST_DIR ${REST_PATH})
 
 find_path(REST_INCLUDE_DIRS TRestEvent.h
-        HINTS ${REST_DIR}/include $ENV{REST_INSTALL}/include)
+        HINTS ${REST_DIR}/include $ENV{REST_PATH}/include)
 
 
 find_path(REST_LIBRARIES_DIRS NAMES libRestCore.so
-        HINTS ${REST_DIR}/lib $ENV{REST_INSTALL}/lib)
+        HINTS ${REST_DIR}/lib $ENV{REST_PATH}/lib)
 
 if (REST_INCLUDE_DIRS AND REST_LIBRARIES_DIRS)
     set(REST_FOUND TRUE)
