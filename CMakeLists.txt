@@ -346,4 +346,4 @@ fi
 )
 
 #install(CODE "chmod 744 ${CMAKE_INSTALL_PREFIX}/bin/rest-config")
-install(CODE "execute_process(COMMAND chmod 744 ${CMAKE_INSTALL_PREFIX}/bin/rest-config)")
+install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/bin/rest-config)")
