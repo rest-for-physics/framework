@@ -11,7 +11,7 @@ if (REST_INCLUDE_DIRS AND REST_LIBRARIES_DIRS)
     set(REST_FOUND TRUE)
     set(REST_GARFIELD_LIB $ENV{REST_GARFIELD_LIB})
     set(REST_GARFIELD_INCLUDE $ENV{REST_GARFIELD_INCLUDE})
-    set(REST_LIBRARIES -L${REST_LIBRARIES_DIRS} -lRestViewers -lRestTools -lRestEvents -lRestMetadata -lRestProcesses -lRestExternal -lRestCore ${REST_GARFIELD_LIB})
+    set(REST_LIBRARIES -L${REST_LIBRARIES_DIRS} -lRestTools -lRestEvents -lRestMetadata -lRestProcesses -lRestCore ${REST_GARFIELD_LIB})
     set(REST_INSTLL_PATH ${REST_INCLUDE_DIRS}/../)
 
 endif ()
