@@ -55,7 +55,7 @@ def checkinstalled(name):
             out1,err1 = subprocess.Popen(['yum list installed | grep tinyxml'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True).communicate()
         elif vars.var["OS"] == "Ubuntu":
             out1,err1 = subprocess.Popen(['dpkg -l | grep tinyxml'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True).communicate()
-        if ("tiny" in out1 and err1 == "") :
+        if ("tiny" in out1) :
             vars.software["tinyxml"] = True
             return True
         else:
@@ -66,7 +66,7 @@ def checkinstalled(name):
             out1,err1 = subprocess.Popen(['yum list installed | grep postgresql'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True).communicate()
         elif vars.var["OS"] == "Ubuntu":
             out1,err1 = subprocess.Popen(['dpkg -l | grep postgresql'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True).communicate()
-        if ("post" in out1 and err1 == "") :
+        if ("post" in out1) :
             vars.software["pgsql"] = True
             return True
         else:
