@@ -2,7 +2,6 @@
 #define RestCore_TRestDataBase
 
 #include <iostream>
-#include "TClass.h"
 #include <map>
 #include <vector>
 #include <time.h>  

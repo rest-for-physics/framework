@@ -6,6 +6,7 @@
 #include <stdio.h>  
 #include <errno.h>  
 #include "TRestStringHelper.h"
+#include "TClass.h"
 
 
 TRestDataBase* TRestDataBase::instantiate() {
