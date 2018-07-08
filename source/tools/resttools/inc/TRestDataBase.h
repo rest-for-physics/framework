@@ -25,7 +25,7 @@ public:
 
 	void Print();
 
-	Long64_t fileSize;
+	long fileSize;
 	double evtRate;
 	char sha1sum[41];//last bit is \0
 	bool quality;
