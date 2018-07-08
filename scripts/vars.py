@@ -1,13 +1,10 @@
 import os,sys
 
 opt = {
-    'Warning': "True",
-    'Check_Installed':'False',
     'Install_Path': os.environ['HOME']+"/REST_Install",
     'Source_Path': os.path.abspath('.') + "/../",
     'Build_Path' : os.path.abspath('.') + "/../build/",
     'Make_Threads':"4",
-    'Clean_Up':"False",
     'Branch':"V2.2_processes",
       }
 #change the Branch key to the actual branch name in each branch
@@ -17,7 +14,17 @@ cmakeflags=[
     '-DREST_GARFIELD=ON'
     ]
 
+software = {
+    'REST': False,
+    'geant4': False,
+    'root': False,
+    'tinyxml': False,
+    'garfiled': False,
+    'pgsql': False
+    }
+
 var = {
+    'OS': "unknown",
     'REST_Repository': "http://pandax.physics.sjtu.edu.cn:8699/pandax-iii/REST_v2.git",
     'GARFIELD_Repository': "http://svn.cern.ch/guest/garfield/tags/v1r0",
     'Geant4_Version':"geant4_10_02_p02",

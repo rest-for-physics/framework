@@ -46,10 +46,13 @@ def branchname():
         return str(out)[n1+2:n2+n1]
     return ""
 
+global Warning
+Warning=True
 
 def main():
+    global Warning
     newgit=repairgit()
-    if vars.opt["Warning"]=="True":
+    if Warning:
         print "Local changes will be overwritten! (except additions)"
         print "Make backup and do it carefully!"
         print "Press a key to continue"

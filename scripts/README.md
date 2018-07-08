@@ -14,7 +14,7 @@ yum install tkinter
 apt-get update python  
 apt-get install python-tk  
 
-**Then type `python scriptsInterface.py` and just follow the wizard!**
+**Then type `python scriptsGUI.py` and just follow the wizard!**
 
 REST required packages: ROOT6, tinyxml  
 Optional: geant4, garfield  
