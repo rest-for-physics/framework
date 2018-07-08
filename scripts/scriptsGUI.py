@@ -200,6 +200,7 @@ def nextstep():
             rest.install()
             os.environ["REST_PATH"] = vars.opt["Install_Path"]
             os.environ["LD_LIBRARY_PATH"] = vars.opt["Install_Path"]+"/lib:"+os.environ["LD_LIBRARY_PATH"]
+            vars.software["REST"] = True
         if chVarDis2.get() == 1:
             restG4.install()
         if chVarDis3.get() == 1:
