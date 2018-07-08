@@ -58,14 +58,14 @@ public:
 	virtual string query_description(int runnumber, int subrun = 0) { return ""; }
 	virtual string query_version(int runnumber, int subrun = 0) { return ""; }
 
-	virtual vector<pair<int, int>> search_filepattern(string filepattern) { return vector<pair<int, int>>(0); }
-	virtual vector<pair<int, int>> search_withintime(time_t t1, time_t t2) { return vector<pair<int, int>>(0); }
-	virtual vector<pair<int, int>> search_tag(string tag) { return vector<pair<int, int>>(0); }
-	virtual vector<pair<int, int>> search_user(string user) { return vector<pair<int, int>>(0); }
-	virtual vector<pair<int, int>> search_type(string type) { return vector<pair<int, int>>(0); }
-	virtual vector<pair<int, int>> search_description(string description) { return vector<pair<int, int>>(0); }
-	virtual vector<pair<int, int>> search_version(string version) { return vector<pair<int, int>>(0); }
-	virtual vector<pair<int, int>> searchexp(string expresstion) { return vector<pair<int, int>>(0); }
+	virtual vector<pair<int, int> > search_filepattern(string filepattern) { return vector<pair<int, int> >(0); }
+	virtual vector<pair<int, int> > search_withintime(time_t t1, time_t t2) { return vector<pair<int, int> >(0); }
+	virtual vector<pair<int, int> > search_tag(string tag) { return vector<pair<int, int> >(0); }
+	virtual vector<pair<int, int> > search_user(string user) { return vector<pair<int, int> >(0); }
+	virtual vector<pair<int, int> > search_type(string type) { return vector<pair<int, int> >(0); }
+	virtual vector<pair<int, int> > search_description(string description) { return vector<pair<int, int> >(0); }
+	virtual vector<pair<int, int> > search_version(string version) { return vector<pair<int, int> >(0); }
+	virtual vector<pair<int, int> > searchexp(string expresstion) { return vector<pair<int, int> >(0); }
 
 	virtual pair<int, int> getrunwithfilename(string filename) { return pair<int, int>(); }
 	virtual int getlastrun() { return 0; }
