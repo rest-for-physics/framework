@@ -323,6 +323,10 @@ void TRestProcessRunner::RunProcess()
 {
 
 	fTempOutputDataFile = new TFile(fRunInfo->GetOutputFileName(), "recreate");
+	if (!fTempOutputDataFile->IsOpen()) {
+		error << "Failed to create output file: " << fTempOutputDataFile << endl;
+		exit(1);
+	}
 	info << endl;
 	info << "TRestProcessRunner : perparing threads..." << endl;
 	fRunInfo->ResetEntry();
