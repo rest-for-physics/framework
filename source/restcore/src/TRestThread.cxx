@@ -408,10 +408,10 @@ void TRestThread::PrepareToProcess(bool testrun)
 			}
 			//currently external process analysis is not supported!
 		}
-		if (fEventTree->GetListOfBranches()->GetLast() < 1)
-		{
-			delete fEventTree; fEventTree = NULL;
-		}
+		//if (fEventTree->GetListOfBranches()->GetLast() < 1)
+		//{
+		//	delete fEventTree; fEventTree = NULL;
+		//}
 		fAnalysisTree->CreateObservableBranches();
 
 
