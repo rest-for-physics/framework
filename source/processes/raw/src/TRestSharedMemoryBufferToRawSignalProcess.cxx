@@ -22,18 +22,55 @@
 
 //////////////////////////////////////////////////////////////////////////
 /// TRestSharedMemoryBufferToRawSignalProcess gets access to an existing
-/// buffer in XXXXX
+/// buffer as a shared resource that should have been previously created
+/// by an external process.
 ///
-/// daqInfo structure
-/// 
-/// \warning If the value assigned to a data point in the output rawsignal
-/// event exceeds 32768 it will cause an overflow, and the event data will
-/// be corrupted. If the verboseLevel of the process is warning, an output
-/// message will prevent the user. The event status will be invalid.
-/// 
-/// The following list describes the different parameters that can be 
-/// used in this process.
+/// The daq system generating/filling the data frames must create and fill
+/// two shared resources.
 ///
+/// -# A *daqInfo* structure defining basic metadata information related to
+/// the status and limits of the buffer and the event info corresponding to
+/// the buffer. The members of daqInfo are described in the structure
+/// documentation. One of this members is particularly relevant for the
+/// interaction of the daq and this process.
+///
+///    - \b *dataReady* : It allows to interact with the daq filling the 
+///                  buffer. When the daq sets dataReady=2, this process 
+///                  knows that all data has been filled and we can extract 
+///                  the information in order to fill the 
+///                  TRestRawSignalEvent.
+///                  Once this process has finished extracting the event
+///                  data, it will re-set dataReady=0.
+///
+/// -# A \b *buffer* that contains the data frame information required to fill a
+/// TRestRawSignalEvent. Each signal should contain (*maxSamples* + 1) values 
+/// per signal, the first sample corresponding with the daq channel number
+/// produced by the daq or electronic cards, to identify the channel. The
+/// next samples are the ones corresponding to the sampled detector data.
+/// The information inside daqInfo allows to determine the number of valid 
+/// signals, *nSignals*, that were written to the buffer.
+///
+/// The metadata parameters this process accepts allow to obtain access to the
+/// shared resources created by the daq. The same numbers will be used by the
+/// daq to create the resource. The resources are two pointers to the shared 
+/// memory regions, and a semaphore id to control unique access to these 
+/// resources.
+///
+/// * \b *daqInfoKey* : An integer number used to generate a unique key to access
+///                daqInfo structure.
+///
+/// * \b *bufferKey* : An integer number used to generate a unique key to access
+///               the buffer containning the signals filled by the daq.
+///
+/// * \b *semaphoreKey* : An integer number used to generate a unique key to 
+///                  access the semaphore controlling access to the data.
+///
+/// * \b *timeDelay* : The time in microseconds that this process will be waiting
+///               in the main loop to avoid continues request of shared
+///               resources, and therefore collision with the daq access.
+///
+/// \todo We could have two semaphores, one to access the buffer and one to
+/// access the daqInfo structure.
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -267,6 +304,10 @@ TRestEvent* TRestSharedMemoryBufferToRawSignalProcess::ProcessEvent( TRestEvent 
 	    {
 		TRestRawSignal sgnl;
 		sgnl.SetSignalID( fShMem_Buffer[ s * (maxSamples+1) ] );
+
+		if( GetVerboseLevel() >= REST_Debug )
+			cout << "s : " << s << " id : " << sgnl.GetSignalID() << endl;
+
 		for( int n = 0; n < maxSamples; n++ )
 			sgnl.AddPoint( fShMem_Buffer[ s * (maxSamples+1) + 1 + n] );
 		fOutputRawSignalEvent->AddSignal( sgnl );

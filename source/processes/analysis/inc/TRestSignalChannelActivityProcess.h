@@ -26,6 +26,8 @@ class TRestSignalChannelActivityProcess:public TRestEventProcess {
         TRestSignalEvent *fSignalEvent;
         TRestReadout *fReadout;
 
+	Int_t fDaqHistogramChannels;
+	Int_t fReadoutHistogramChannels;
 #endif
         void InitFromConfigFile();
 
@@ -66,6 +68,9 @@ class TRestSignalChannelActivityProcess:public TRestEventProcess {
 
             cout << "Low signal threshold activity : " << fLowThreshold << endl;
             cout << "High signal threshold activity : " << fHighThreshold << endl;
+
+	    cout << "Number of daq histogram channels : " << fDaqHistogramChannels << endl;
+	    cout << "Number of readout histogram channels : " << fReadoutHistogramChannels << endl;
 
             EndPrintProcess();
         }

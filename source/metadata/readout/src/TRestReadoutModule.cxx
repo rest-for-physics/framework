@@ -607,6 +607,6 @@ void TRestReadoutModule::Print( Int_t fullDetail )
 
 	if( fullDetail )
 		for( int n = 0; n < GetNumberOfChannels(); n++ )
-			fReadoutChannel[n].Print();
+			fReadoutChannel[n].Print( fullDetail );
 
 }
