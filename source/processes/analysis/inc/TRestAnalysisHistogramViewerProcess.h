@@ -29,9 +29,7 @@ class TRestAnalysisHistogramViewerProcess:public TRestEventProcess {
 	TCanvas *fAnaHistoCanvas;
 	TVector2 fHistoCanvasSize;
 
-	TH1D *hAnalysis;
-
-	Int_t fObsId;
+	TString fPlotString;
 #endif
 
         void InitFromConfigFile();
