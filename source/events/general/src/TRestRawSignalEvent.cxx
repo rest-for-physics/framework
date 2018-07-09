@@ -313,11 +313,11 @@ TPad *TRestRawSignalEvent::DrawEvent( TString option )
 			fPad->SetTitle("No Such Signal");
 			return fPad;
 		}
+		TRestRawSignal& sgn = fSignal[signalid];
 
+		sprintf(title, "Event ID %d, Signal ID. %d", this->GetID(),sgn.GetID());
 
-		sprintf(title, "Event ID %d, Signal No. %d", this->GetID(),signalid);
-
-		gr=fSignal[signalid].GetGraph(1);
+		gr=sgn.GetGraph(1);
 		gr->SetTitle(title);
 		gr->GetXaxis()->SetTitle("time bins");
 		gr->GetYaxis()->SetTitleOffset(1.4);
