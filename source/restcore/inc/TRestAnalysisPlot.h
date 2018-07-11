@@ -67,7 +67,9 @@ class TRestAnalysisPlot:public TRestMetadata {
         Double_t fStartTime;
         Double_t fEndTime;
 
-        Bool_t fStats;
+        std::vector <Bool_t> fStats;
+        std::vector <Bool_t> fLegend;
+
 #endif
 
         TString ReplaceFilenameTags( TString filename, TRestRun *run );

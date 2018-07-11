@@ -15,6 +15,7 @@
 using namespace std;
 
 #include <TStyle.h>
+#include <TLegend.h>
 
 #include <ctime>
 
@@ -48,8 +49,6 @@ void TRestAnalysisPlot::Initialize()
 
     fStartTime = 0;
     fEndTime = 0;
-
-    fStats = kTRUE;
 
     fClasifyBy = "runTag";
 }
@@ -167,7 +166,14 @@ void TRestAnalysisPlot::InitFromConfigFile()
                 option = "colz";
 
             if( RemoveWhiteSpaces( GetFieldValue( "stats", addPlotString ) ) == "OFF" )
-                fStats = kFALSE;
+                fStats.push_back( kFALSE );
+            else
+                fStats.push_back( kTRUE );
+
+            if( RemoveWhiteSpaces( GetFieldValue( "legend", addPlotString ) ) == "OFF" )
+                fLegend.push_back( kFALSE );
+            else
+                fLegend.push_back( kTRUE );
 
             fPlotOption.push_back( option );
 
@@ -587,8 +593,7 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
                 maxValue = value;
 
             TH3F *htemp = histCollection[i];
-            if( fStats == kFALSE )
-                htemp->SetStats(kFALSE);
+            htemp->SetStats( fStats[n] );
 
             htemp->SetTitle( fPlotTitle[n] );
             htemp->GetXaxis()->SetTitle( fPlotXLabel[n] );
@@ -625,9 +630,12 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
 
         }
 
+        TLegend *legend = new TLegend( .7, .75, .88, .88 );
         for( unsigned int i = 0; i < fLegendName.size(); i++ )
         {
-            histCollection[i]->SetStats( fStats );
+            legend->AddEntry( histCollection[i], fLegendName[i], "lf" );
+
+            histCollection[i]->SetStats( fStats[n] );
 
             histCollection[i]->GetYaxis()->SetRangeUser(0.1, 1.1 * maxValue );
             if( i == 0 )
@@ -638,6 +646,8 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
             f->cd();
             histCollection[i]->Write( hName[i] );
         }
+        if( fLegend[n] )
+            legend->Draw("same");
 
         if( fPlotSaveToFile[n] != "Notdefined" && fPlotSaveToFile[n] != "" )
             SavePlotToPDF( fPlotNames[n], fPlotSaveToFile[n] );
@@ -674,8 +684,9 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
             hNew->Add( aHist );
         }
 
-        if( fStats == kFALSE )
+        if( fStats[n] == kFALSE )
             hNew->SetStats(kFALSE);
+
         hNew->SetTitle( fHistoTitle[n] );
         hNew->GetXaxis()->SetTitle( fHistoXLabel[n] );
         hNew->GetYaxis()->SetTitle( fHistoYLabel[n] );
@@ -746,8 +757,9 @@ void TRestAnalysisPlot::PlotCombinedCanvasCompare( )
         }
 
         TH3F *htemp = ( TH3F* ) gPad->GetPrimitive( fPlotNames[n] );
-        if( fStats == kFALSE )
+        if( fStats[n] == kFALSE )
             htemp->SetStats(kFALSE);
+
         htemp->SetTitle( fPlotTitle[n] );
         htemp->GetXaxis()->SetTitle( fPlotXLabel[n] );
         htemp->GetYaxis()->SetTitle( fPlotYLabel[n] );
