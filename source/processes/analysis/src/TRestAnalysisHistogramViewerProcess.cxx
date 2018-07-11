@@ -72,12 +72,7 @@ void TRestAnalysisHistogramViewerProcess::InitProcess()
 
     fAnaHistoCanvas = new TCanvas( this->GetName(), this->GetTitle(), fHistoCanvasSize.X(), fHistoCanvasSize.Y() );
 
-    hAnalysis = new TH1D( "TripleMaxIntegral", "tripleMaxIntegral", 500, 0, 2500 );
-    hAnalysis->GetYaxis()->SetRangeUser(0.1, 1000 );
-
-    fObsId = GetAnalysisTree()->GetObservableID( "sAna.TripleMaxIntegral" );
-
-    cout << "Triple max id : " << fObsId << endl;
+    fPlotString = "sAna.TripleMaxIntegral>>(1000,0,1000)";
 }
 
 //______________________________________________________________________________
@@ -103,21 +98,15 @@ TRestEvent* TRestAnalysisHistogramViewerProcess::ProcessEvent( TRestEvent *evInp
         cout << "TRestAnalysisHistogramViewerProcess : " << GetName() << endl;
         cout << "----------------------------------------------" << endl;
         fAnalysisTree->PrintObservables();
-	GetChar();
 	if( GetVerboseLevel() >= REST_Extreme )
 		GetChar();
     }
 
-    cout << "Filling : " << GetAnalysisTree()->GetObservableValue( fObsId ) << endl;
-
     rawCounter4++;
 
-    hAnalysis->Fill( GetAnalysisTree()->GetObservableValue( fObsId ) );
-
-    if( rawCounter4 % 100 == 0 )
+    if( rawCounter4 % 10 == 0 )
     {
-	    fAnaHistoCanvas->cd();
-	    hAnalysis->Draw();
+	    GetAnalysisTree()->Draw( fPlotString , "", "" );
     }
 
     return fOutputTrackEvent;
@@ -144,6 +133,9 @@ void TRestAnalysisHistogramViewerProcess::EndProcess()
 //______________________________________________________________________________
 void TRestAnalysisHistogramViewerProcess::InitFromConfigFile( )
 {
+
     fHistoCanvasSize = StringTo2DVector( GetParameter( "canvasSize", "(800,600)") );
+
+    fPlotString = GetParameter( "plotString", "sAna.TripleMaxIntegral>>(1000,0,1000)" );
 }
 
