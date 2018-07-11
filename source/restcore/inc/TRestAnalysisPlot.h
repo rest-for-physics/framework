@@ -114,8 +114,6 @@ class TRestAnalysisPlot:public TRestMetadata {
         Int_t GetPlotIndex( TString plotName );
 
         void PlotCombinedCanvas( );
-        void PlotCombinedCanvasCompare( );
-        void PlotCombinedCanvasAdd( );
 
         //Construtor
         TRestAnalysisPlot();

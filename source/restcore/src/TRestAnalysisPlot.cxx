@@ -385,28 +385,6 @@ Int_t TRestAnalysisPlot::GetPlotIndex( TString plotName )
     return -1;
 }
 
-void TRestAnalysisPlot::PlotCombinedCanvas( )
-{
-    AddMissingStyles();
-
-    // We should check that all the variables defined in the plots exist in our files
-    // TOBE implemented and return a REST error in case
-    if( fPlotMode == "compare" )
-    {
-        PlotCombinedCanvasCompare();
-        return;
-    }
-
-    if( fPlotMode == "add" )
-    {
-        PlotCombinedCanvasAdd();
-        return;
-    }
-
-    cout << "REST WARNING: TRestAnalysisPlot::PlotCombinedCanvas(). Plot mode (" << fPlotMode << ") not found" << endl;
-
-}
-
 void TRestAnalysisPlot::AddMissingStyles( )
 {
     if( fLegendName.size() > fLineStyle.size() )
@@ -440,8 +418,9 @@ void TRestAnalysisPlot::AddMissingStyles( )
     }
 }
 
-void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
+void TRestAnalysisPlot::PlotCombinedCanvas( )
 {
+    AddMissingStyles();
 
     vector <TRestRun *> runs[REST_MAX_TAGS];
     vector <TRestAnalysisTree *> trees[REST_MAX_TAGS];
@@ -708,70 +687,6 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
         fCombinedCanvas->Print( fCanvasSave );
 
     f->Close();
-}
-
-void TRestAnalysisPlot::PlotCombinedCanvasCompare( )
-{
-    vector <TRestRun *> runs;
-    vector <TRestAnalysisTree *> trees;
-
-    TRestRun *r;
-    TRestAnalysisTree *anT;
-    for( unsigned int n = 0; n < fFileNames[0].size(); n++ )
-    {
-        r = new TRestRun();
-        runs.push_back( r );
-        r->OpenInputFile( fFileNames[0][n] );
-        anT = r->GetAnalysisTree();
-        trees.push_back( anT );
-    }
-
-    if( fCombinedCanvas != NULL ) 
-    {
-        delete fCombinedCanvas;
-        fCombinedCanvas = NULL;
-    }
-
-    fCombinedCanvas = new TCanvas( "combined", "combined", 0, 0, fCanvasSize.X(), fCanvasSize.Y() );
-
-    fCombinedCanvas->Divide( (Int_t) fCanvasDivisions.X(), (Int_t) fCanvasDivisions.Y() );
-
-    for( unsigned int n = 0; n < fPlotString.size(); n++ )
-    {
-        fCombinedCanvas->cd(n+1);
-        if( fLogScale[n] ) 
-            fCombinedCanvas->cd(n+1)->SetLogy();
-
-        for( unsigned int m = 0; m < fFileNames[0].size(); m++ )
-        {
-            TString plotString = fPlotString[n];
-
-            if( m > 0 )
-                plotString = fPlotString[n]( 0, fPlotString[n].First(">>") );
-
-            trees[m]->SetLineColor(1+m);
-            if( m == 0 )
-                trees[m]->Draw( plotString, fCutString[n], "" );
-            else 
-                trees[m]->Draw( plotString, fCutString[n], "same" );
-        }
-
-        TH3F *htemp = ( TH3F* ) gPad->GetPrimitive( fPlotNames[n] );
-        if( fStats[n] == kFALSE )
-            htemp->SetStats(kFALSE);
-
-        htemp->SetTitle( fPlotTitle[n] );
-        htemp->GetXaxis()->SetTitle( fPlotXLabel[n] );
-        htemp->GetYaxis()->SetTitle( fPlotYLabel[n] );
-
-        if( fPlotSaveToFile[n] != "Notdefined" && fPlotSaveToFile[n] != "" )
-            SavePlotToPDF( fPlotNames[n], fPlotSaveToFile[n] );
-        fCombinedCanvas->Update();
-    }
-
-    fCanvasSave = ReplaceFilenameTags( fCanvasSave, runs[0] );
-    if( fCanvasSave != "" )
-        fCombinedCanvas->Print( fCanvasSave );
 }
 
 void TRestAnalysisPlot::SavePlotToPDF( TString plotName, TString fileName )
