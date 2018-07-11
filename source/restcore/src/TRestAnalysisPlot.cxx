@@ -65,6 +65,33 @@ TRestAnalysisPlot::~TRestAnalysisPlot()
 void TRestAnalysisPlot::InitFromConfigFile()
 {
     size_t position = 0;
+
+    position = 0;
+    string styleString;
+    while( ( styleString = GetKEYDefinition( "style", position ) ) != "" )
+    {
+        Int_t lineColor = StringToInteger ( GetFieldValue( "lineColor", styleString ) );
+        if( lineColor != -1 )
+            fLineColor.push_back( lineColor );
+
+        Int_t lineWidth = StringToInteger ( GetFieldValue( "lineWidth", styleString ) );
+        if( lineWidth != -1 )
+            fLineWidth.push_back( lineWidth );
+
+        Int_t lineStyle = StringToInteger ( GetFieldValue( "lineStyle", styleString ) );
+        if( lineStyle != -1 )
+            fLineStyle.push_back( lineStyle );
+
+        Int_t fillStyle = StringToInteger ( GetFieldValue( "fillStyle", styleString ) );
+        if( fillStyle != -1 )
+            fFillStyle.push_back( fillStyle );
+
+        Int_t fillColor = StringToInteger ( GetFieldValue( "fillColor", styleString ) );
+        if( fillColor != -1 )
+            fFillColor.push_back( fillColor );
+    }
+
+    position = 0;
     string addFileString;
     while( ( addFileString = GetKEYDefinition( "addFile", position ) ) != "" )
     {
@@ -175,9 +202,9 @@ void TRestAnalysisPlot::InitFromConfigFile()
             {
                 for( unsigned int n = 0; n < bins.size(); n++ )
                 {
-                    cout << "Variable " << varNames[n] << " range/bins " << endl;
+                    cout << "Variable " << varNames[n] << endl;
                     cout << "------------------------------------------" << endl;
-                    cout << "rX : " << ranges.back().X() << " rY : " << ranges.back().Y() << endl;
+                    cout << "Plot range : ( " << ranges.back().X() << " , " << ranges.back().Y() << " ) " << endl;
                     cout << "bins : " << bins.back() << endl;
                     cout << endl;
                 }
@@ -354,6 +381,8 @@ Int_t TRestAnalysisPlot::GetPlotIndex( TString plotName )
 
 void TRestAnalysisPlot::PlotCombinedCanvas( )
 {
+    AddMissingStyles();
+
     // We should check that all the variables defined in the plots exist in our files
     // TOBE implemented and return a REST error in case
     if( fPlotMode == "compare" )
@@ -370,6 +399,39 @@ void TRestAnalysisPlot::PlotCombinedCanvas( )
 
     cout << "REST WARNING: TRestAnalysisPlot::PlotCombinedCanvas(). Plot mode (" << fPlotMode << ") not found" << endl;
 
+}
+
+void TRestAnalysisPlot::AddMissingStyles( )
+{
+    if( fLegendName.size() > fLineStyle.size() )
+    {
+        for( unsigned int n = fLineStyle.size(); n < fLegendName.size(); n++ )
+            fLineStyle.push_back( 1 );
+    }
+
+    if( fLegendName.size() > fLineColor.size() )
+    {
+        for( unsigned int n = fLineColor.size(); n < fLegendName.size(); n++ )
+            fLineColor.push_back( 1 );
+    }
+
+    if( fLegendName.size() > fLineWidth.size() )
+    {
+        for( unsigned int n = fLineWidth.size(); n < fLegendName.size(); n++ )
+            fLineWidth.push_back( 1 );
+    }
+
+    if( fLegendName.size() > fFillColor.size() )
+    {
+        for( unsigned int n = fFillColor.size(); n < fLegendName.size(); n++ )
+            fFillColor.push_back( 1 );
+    }
+
+    if( fLegendName.size() > fFillStyle.size() )
+    {
+        for( unsigned int n = fFillStyle.size(); n < fLegendName.size(); n++ )
+            fFillStyle.push_back( 0 );
+    }
 }
 
 void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
@@ -433,6 +495,9 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
         fCombinedCanvas->cd(n+1);
         if( fLogScale[n] ) 
             fCombinedCanvas->cd(n+1)->SetLogy();
+
+        fCombinedCanvas->cd(n+1)->SetLeftMargin(0.15);
+        fCombinedCanvas->cd(n+1)->SetBottomMargin(0.15);
 
         histCollection.clear();
 
@@ -521,7 +586,7 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
             else if( value > maxValue )
                 maxValue = value;
 
-            /*
+            TH3F *htemp = histCollection[i];
             if( fStats == kFALSE )
                 htemp->SetStats(kFALSE);
 
@@ -529,6 +594,7 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
             htemp->GetXaxis()->SetTitle( fPlotXLabel[n] );
             htemp->GetYaxis()->SetTitle( fPlotYLabel[n] );
 
+            // TODO Should we be able to modify offsets and font size from metadata parameters?
             htemp->GetXaxis()->SetLabelSize( 1.5 * htemp->GetXaxis()->GetLabelSize( ) );
             htemp->GetYaxis()->SetLabelSize( 1.5 * htemp->GetYaxis()->GetLabelSize( ) );
 
@@ -536,9 +602,15 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
             htemp->GetYaxis()->SetTitleSize( 1.3 * htemp->GetYaxis()->GetTitleSize( ) );
 
             htemp->GetXaxis()->SetTitleOffset( 1.1 * htemp->GetXaxis()->GetTitleOffset( ) );
-            htemp->GetYaxis()->SetTitleOffset( 1.1 * htemp->GetYaxis()->GetTitleOffset( ) );
+            htemp->GetYaxis()->SetTitleOffset( 1.3 * htemp->GetYaxis()->GetTitleOffset( ) );
 
+            htemp->SetLineColor( fLineColor[i] );
+            htemp->SetLineWidth( fLineWidth[i] );
+            htemp->SetLineStyle( fLineStyle[i] );
+            htemp->SetFillColor( fFillColor[i] );
+            htemp->SetFillStyle( fFillStyle[i] );
 
+            /*
             if( fPlotXLabel[n].Contains("Time") ||  fPlotXLabel[n].Contains("time") )
             {
                 Double_t hours = (fEndTime-fStartTime)/3600.;

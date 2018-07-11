@@ -58,15 +58,20 @@ class TRestAnalysisPlot:public TRestMetadata {
         std::vector <TString> fPlotString;
         std::vector <TString> fCutString;
 
+        std::vector <Int_t> fLineColor;
+        std::vector <Int_t> fLineWidth;
+        std::vector <Int_t> fLineStyle;
+        std::vector <Int_t> fFillColor;
+        std::vector <Int_t> fFillStyle;
+
         Double_t fStartTime;
         Double_t fEndTime;
 
         Bool_t fStats;
-
-
 #endif
 
         TString ReplaceFilenameTags( TString filename, TRestRun *run );
+        void AddMissingStyles( );
 
     protected:
 
