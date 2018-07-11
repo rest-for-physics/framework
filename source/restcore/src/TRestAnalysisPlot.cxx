@@ -498,7 +498,15 @@ void TRestAnalysisPlot::PlotCombinedCanvasAdd( )
 
                 }
 
-                trees[i][m]->Draw( plotString, fCutString[n], fPlotOption[n] );
+                if ( trees[i][m]->Draw( plotString, fCutString[n], fPlotOption[n] ) == -1 )
+                {
+                    cout << endl;
+                    cout << "REST ERROR. TRestAnalysisPlot::PlotCombinedCanvas." << endl;
+                    cout << "Plot string not properly constructed. Does the analysis observable exist inside the file?" << endl;
+                    cout << "Use \"restPrintAnaTreeVariables FILE.ROOT\" to get a list of existing observables." << endl;
+                    cout << endl;
+                    exit(1);
+                }
             }
 
             histCollection.push_back ( ( TH3F* ) gPad->GetPrimitive( hName[i] ) );
