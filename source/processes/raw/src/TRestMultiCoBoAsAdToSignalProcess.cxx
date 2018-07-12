@@ -166,7 +166,7 @@ TRestEvent* TRestMultiCoBoAsAdToSignalProcess::ProcessEvent(TRestEvent *evInput)
 
 					if (GetVerboseLevel() >= REST_Debug)
 					{
-						cout << "AgetId, chnId, max value: " << m / 68 << ", " << m % 68 << ", " << sgnl.GetMaxValue() << endl;
+						cout << "AgetId, chnId, first value, max value: " << m / 68 << ", " << m % 68 << ", " << sgnl.GetData(0) << ", " << sgnl.GetMaxValue() << endl;
 					}
 				}
 			}
@@ -501,7 +501,10 @@ bool TRestMultiCoBoAsAdToSignalProcess::ReadFrameDataP(FILE*f, CoBoHeaderFrame& 
 			totalBytesReaded += 2048;
 			for (j = 0; j < 2048; j += 4)
 			{
-				agetIdx = (frameDataP[j] >> 6);
+				//total 8*4= 32 bits 
+				//11         111111|1     1111111|11   11        1111|11111111
+				//agetIdx    chanIdx      buckIdx      unused    samplepoint
+				agetIdx = (frameDataP[j] >> 6);//first 2 bits of the byte
 				chanIdx = ((unsigned int)(frameDataP[j] & 0x3f) * 2 + (frameDataP[j + 1] >> 7));
 				chTmp = agetIdx * 68 + chanIdx;
 				buckIdx = ((unsigned int)(frameDataP[j + 1] & 0x7f) * 4 + (frameDataP[j + 2] >> 6));
@@ -553,6 +556,10 @@ bool TRestMultiCoBoAsAdToSignalProcess::ReadFrameDataF(CoBoHeaderFrame& hdr)
 		chanIdx3 = 0;
 		for (j = 0; j < 272; j++)
 		{
+			//total 8*2= 16 bits 
+			//11         11        1111|11111111
+			//agetIdx    unused    samplepoint
+
 			tmpP = (i * 272 + j) * 2;
 			agetIdx = (frameDataF[tmpP] >> 6);
 			sample = ((unsigned int)(frameDataF[tmpP] & 0x0f) * 0x100 + frameDataF[tmpP + 1]);
