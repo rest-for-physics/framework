@@ -309,6 +309,21 @@ Int_t TRestReadoutPlane::isZInsideDriftVolume( Double_t z )
 }
 
 ///////////////////////////////////////////////
+/// \brief This method determines if the daqId given is associated to any of the readout
+/// readout channels in any readout modules. 
+///
+/// \return true if daqId is found
+/// returns false if daqId is not found
+///
+Bool_t TRestReadoutPlane::isDaqIDInside( Int_t daqId )
+{
+		for( int m = 0; m < GetNumberOfModules( ); m++ )
+            if( GetModule( m )->isDaqIDInside( daqId ) ) return true;
+
+        return false;
+}
+
+///////////////////////////////////////////////
 /// \brief This method determines if the z-coordinate is inside the drift volume
 /// for this readout plane.
 ///

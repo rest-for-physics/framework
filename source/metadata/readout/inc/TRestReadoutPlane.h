@@ -133,6 +133,8 @@ class TRestReadoutPlane: public TObject {
 
 		Int_t isZInsideDriftVolume( TVector3 pos );
 
+        Bool_t isDaqIdInside( );
+
 		Int_t GetModuleIDFromPosition( TVector3 pos );
 
 		Int_t GetModuleIDFromPosition( Double_t x, Double_t y, Double_t z );
