@@ -34,7 +34,6 @@ if(${REST_GARFIELD} MATCHES "ON")
 	add_definitions(-DUSE_Garfield)
 endif(${REST_GARFIELD} MATCHES "ON")
 
-
 #find includes and libs
 set(external_include_dirs)
 set(external_libs)
@@ -66,7 +65,7 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	include(FindROOT)
 	set(external_include_dirs -I /usr/local/include ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
     #file(GLOB rootlibs ${ROOT_LIBRARY_DIR}/*.so)
-	set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit)
+	set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit -lImt)
 
 	if(${REST_GARFIELD} MATCHES "ON")
 		include(FindGarfield)

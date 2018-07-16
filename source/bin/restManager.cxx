@@ -91,7 +91,7 @@ int main( int argc, char *argv[] )
 						case 'v': setenv("verboseLevel", argv[i + 1], 1); break;
 						case 'p': setenv("pdfFilename", argv[i + 1], 1); break;
 						case 'h': setenv("histoFilename", argv[i + 1], 1); break;
-						case 'help': PrintHelp(); exit(0);
+						//case 'help': PrintHelp(); exit(0);
 						default:
 							fout << endl;
 							PrintHelp();
@@ -101,7 +101,7 @@ int main( int argc, char *argv[] )
 				}
 			}
 
-			fout << endl;
+			fout << 111 << endl;
 			fout.setcolor(COLOR_BOLDBLUE);
 			fout << "Launching TRestManager..." << endl;
 			fout << endl;
