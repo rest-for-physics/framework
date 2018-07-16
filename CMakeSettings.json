@@ -45,6 +45,40 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": ""
+    },
+    {
+      "name": "Linux-Debug-local",
+      "generator": "Unix Makefiles",
+      "remoteMachineName": "localhost",
+      "configurationType": "Debug",
+      "remoteCMakeListsRoot": "/var/tmp/src/rest/${name}",
+      "cmakeExecutable": "/usr/local/bin/cmake",
+      "buildRoot": "${env.LOCALAPPDATA}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
+      "remoteBuildRoot": "/var/tmp/build/rest/",
+      "remoteCopySources": true,
+      "remoteCopySourcesOutputVerbosity": "Normal",
+      "remoteCopySourcesConcurrentCopies": "10",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-j2",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "linux-x64" ]
+    },
+    {
+      "name": "Linux-Debug-server",
+      "generator": "Unix Makefiles",
+      "remoteMachineName": "202.120.55.140",
+      "configurationType": "Debug",
+      "remoteCMakeListsRoot": "/var/tmp/src/rest/${name}",
+      "cmakeExecutable": "/usr/local/bin/cmake",
+      "buildRoot": "${env.LOCALAPPDATA}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
+      "remoteBuildRoot": "/var/tmp/build/rest/",
+      "remoteCopySources": true,
+      "remoteCopySourcesOutputVerbosity": "Normal",
+      "remoteCopySourcesConcurrentCopies": "10",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-j8",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "linux-x64" ]
     }
   ]
 }

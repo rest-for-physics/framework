@@ -3,7 +3,7 @@ install
 storage
 tags
 .idea
-.vs
+.vs*
 Debug
 *.pyc
 *.tmp
