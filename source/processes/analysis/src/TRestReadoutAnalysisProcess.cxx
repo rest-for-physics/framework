@@ -95,21 +95,29 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 			TRestSignal*sgnl = fSignalEvent->GetSignal(i);
 
 			if (sgnl->GetMaxPeakTime() < firstX_t) {
-				firstX_id = sgnl->GetID();
-				firstX_t = sgnl->GetMaxPeakTime();
+				if (!TMath::IsNaN(fReadout->GetX(sgnl->GetID()))) {
+					firstX_id = sgnl->GetID();
+					firstX_t = sgnl->GetMaxPeakTime();
+				}
 			}
 			if (sgnl->GetMaxPeakTime() < firstY_t) {
-				firstY_id = sgnl->GetID();
-				firstY_t = sgnl->GetMaxPeakTime();
+				if (!TMath::IsNaN(fReadout->GetY(sgnl->GetID()))) {
+					firstY_id = sgnl->GetID();
+					firstY_t = sgnl->GetMaxPeakTime();
+				}
 			}
 
 			if (sgnl->GetMaxPeakTime() > lastX_t) {
-				lastX_id = sgnl->GetID();
-				lastX_t = sgnl->GetMaxPeakTime();
+				if (!TMath::IsNaN(fReadout->GetX(sgnl->GetID()))) {
+					lastX_id = sgnl->GetID();
+					lastX_t = sgnl->GetMaxPeakTime();
+				}
 			}
 			if (sgnl->GetMaxPeakTime() > lastY_t) {
-				lastY_id = sgnl->GetID();
-				lastY_t = sgnl->GetMaxPeakTime();
+				if (!TMath::IsNaN(fReadout->GetY(sgnl->GetID()))) {
+					lastY_id = sgnl->GetID();
+					lastY_t = sgnl->GetMaxPeakTime();
+				}
 			}
 		}
 		double firstx = fReadout->GetX(firstX_id);
