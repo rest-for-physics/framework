@@ -1,45 +1,17 @@
 {
   // this file is the settings for generating cmake caches with visual studio
-  // it won't be used in any actual compilation
+  // x86-Debug: execute cmake for this project under windows environment. Intellisence will use
+  // local cpp headers in the directory C:\\Users\include
+  // Linux-Debug-local/server: copy this project to local windows subsystem linux(wsl) or remote linux machine,
+  // and execute cmake with server mode. cmake 3.8 or higher needs to be installed. After cmake, compilation
+  // and debugging is also enabled
+  // see more at https://docs.microsoft.com/en-us/cpp/linux/cmake-linux-project
   "configurations": [
     {
       "name": "x86-Debug",
       "generator": "Visual Studio 15 2017",
       "configurationType": "Debug",
       "inheritEnvironments": [ "msvc_x86" ],
-      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "-v",
-      "ctestCommandArgs": ""
-    },
-    {
-      "name": "x86-Release",
-      "generator": "Visual Studio 15 2017",
-      "configurationType": "RelWithDebInfo",
-      "inheritEnvironments": [ "msvc_x86" ],
-      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "-v",
-      "ctestCommandArgs": ""
-    },
-    {
-      "name": "x64-Debug",
-      "generator": "Visual Studio 15 2017",
-      "configurationType": "Debug",
-      "inheritEnvironments": [ "msvc_x64" ],
-      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "-v",
-      "ctestCommandArgs": ""
-    },
-    {
-      "name": "x64-Release",
-      "generator": "Visual Studio 15 2017",
-      "configurationType": "RelWithDebInfo",
-      "inheritEnvironments": [ "msvc_x64" ],
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "cmakeCommandArgs": "",
@@ -58,7 +30,7 @@
       "remoteCopySources": true,
       "remoteCopySourcesOutputVerbosity": "Normal",
       "remoteCopySourcesConcurrentCopies": "10",
-      "cmakeCommandArgs": "",
+      "cmakeCommandArgs": "-DREST_GARFIELD=ON -DREST_WELCOME=OFF",
       "buildCommandArgs": "-j2",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "linux-x64" ]
@@ -66,7 +38,7 @@
     {
       "name": "Linux-Debug-server",
       "generator": "Unix Makefiles",
-      "remoteMachineName": "202.120.55.140",
+      "remoteMachineName": "192.168.2.210",
       "configurationType": "Debug",
       "remoteCMakeListsRoot": "/var/tmp/src/rest/${name}",
       "cmakeExecutable": "/usr/local/bin/cmake",
@@ -75,10 +47,11 @@
       "remoteCopySources": true,
       "remoteCopySourcesOutputVerbosity": "Normal",
       "remoteCopySourcesConcurrentCopies": "10",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "-j8",
+      "cmakeCommandArgs": "-DREST_GARFIELD=ON -DREST_WELCOME=OFF",
+      "buildCommandArgs": "install -j8",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "linux-x64" ]
+      "inheritEnvironments": [ "linux-x64" ],
+      "intelliSenseMode": "linux-gcc-x64"
     }
   ]
 }

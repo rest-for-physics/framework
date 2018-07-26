@@ -48,26 +48,6 @@ int main( int argc, char *argv[] )
     
 	TRestTools::LoadRESTLibrary(true);
 
-	//char command[] = "find $REST_PATH/macros |grep .hh | grep -v \"swo\" | grep -v \"swp\"  | grep -v \"svn\"> /tmp/macros.list";
-
-	//system(command);
-
-	//FILE *f = fopen("/tmp/macros.list", "r");
-
-	//char str[256];
-	//char cmd[256];
-	//while (fscanf(f, "%s\n", str) != EOF)
-	//{
-	//	//printf("Loading macro : %s\n", str);
-	//	sprintf(cmd, ".L %s", str);
-	//	gROOT->ProcessLine(cmd);
-	//}
-
-	//fclose(f);
-
-	//system("rm /tmp/macros.list");
-
-
     if( argc <= 1 ) { PrintHelp(); exit(1); }
 
 	if (argc >= 2)
@@ -101,7 +81,7 @@ int main( int argc, char *argv[] )
 				}
 			}
 
-			fout << 111 << endl;
+			fout << endl;
 			fout.setcolor(COLOR_BOLDBLUE);
 			fout << "Launching TRestManager..." << endl;
 			fout << endl;
