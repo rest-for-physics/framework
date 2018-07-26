@@ -81,8 +81,51 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 	if (fReadout != NULL) {
 		double integral = 0;
 
+		Double_t firstX_id = -1.;
+		Double_t firstY_id = -1.;
+		Double_t firstX_t = 512.0;
+		Double_t firstY_t = 512.0;
+
+		Double_t lastX_id = -1.;
+		Double_t lastY_id = -1.;
+		Double_t lastX_t = 0.0;
+		Double_t lastY_t = 0.0;
+
+		for (int i = 0; i < fSignalEvent->GetNumberOfSignals(); i++) {
+			TRestSignal*sgnl = fSignalEvent->GetSignal(i);
+
+			if (sgnl->GetMaxPeakTime() < firstX_t) {
+				firstX_id = sgnl->GetID();
+				firstX_t = sgnl->GetMaxPeakTime();
+			}
+			if (sgnl->GetMaxPeakTime() < firstY_t) {
+				firstY_id = sgnl->GetID();
+				firstY_t = sgnl->GetMaxPeakTime();
+			}
+
+			if (sgnl->GetMaxPeakTime() > lastX_t) {
+				lastX_id = sgnl->GetID();
+				lastX_t = sgnl->GetMaxPeakTime();
+			}
+			if (sgnl->GetMaxPeakTime() > lastY_t) {
+				lastY_id = sgnl->GetID();
+				lastY_t = sgnl->GetMaxPeakTime();
+			}
+		}
+		double firstx = fReadout->GetX(firstX_id);
+		double firsty = fReadout->GetX(firstY_id);
+		double lastx = fReadout->GetX(lastX_id);
+		double lasty = fReadout->GetX(lastY_id);
+		fAnalysisTree->SetObservableValue(this, "firstx", firstx);
+		fAnalysisTree->SetObservableValue(this, "firsty", firsty);
+		fAnalysisTree->SetObservableValue(this, "lastx", lastx);
+		fAnalysisTree->SetObservableValue(this, "lasty", lasty);
+
+
+
 		for (int i = 0; i < fSignalEvent->GetNumberOfSignals(); i++) {
 			TRestSignal*sgn = fSignalEvent->GetSignal(i);
+
 			// channel histo
 			int plane = -1, mod = -1, channel = -1;
 			fReadout->GetPlaneModuleChannel(sgn->GetID(), plane, mod, channel);
