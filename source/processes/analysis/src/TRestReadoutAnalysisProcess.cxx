@@ -121,9 +121,9 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 			}
 		}
 		double firstx = fReadout->GetX(firstX_id);
-		double firsty = fReadout->GetX(firstY_id);
+		double firsty = fReadout->GetY(firstY_id);
 		double lastx = fReadout->GetX(lastX_id);
-		double lasty = fReadout->GetX(lastY_id);
+		double lasty = fReadout->GetY(lastY_id);
 		fAnalysisTree->SetObservableValue(this, "firstx", firstx);
 		fAnalysisTree->SetObservableValue(this, "firsty", firsty);
 		fAnalysisTree->SetObservableValue(this, "lastx", lastx);
