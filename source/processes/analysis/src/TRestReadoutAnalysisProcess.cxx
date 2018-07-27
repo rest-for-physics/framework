@@ -58,8 +58,8 @@ void TRestReadoutAnalysisProcess::InitProcess()
 				}
 				else
 				{
-					iter->second = new TH1D((TString)"module" + ToString(iter->first),
-						(TString)"moduleChannelActivity" + ToString(iter->first),
+					iter->second = new TH1D((TString)"channelHisto" + ToString(iter->first),
+						(TString)"Readout Channel Activity of Module " + ToString(iter->first),
 						mod->GetNumberOfChannels(), 0, mod->GetNumberOfChannels() - 1);
 				}
 				iter++;
@@ -75,9 +75,9 @@ void TRestReadoutAnalysisProcess::InitProcess()
 				}
 				else
 				{
-					iter->second = new TH2D((TString)"module" + ToString(iter->first),
-						(TString)"moduleChannelHisto" + ToString(iter->first),
-						mod->GetNumberOfChannels(), 0, mod->GetNumberOfChannels() - 1, mod->GetNumberOfChannels(), 0, mod->GetNumberOfChannels() - 1);
+					iter->second = new TH2D((TString)"channelHitmap" + ToString(iter->first),
+						(TString)"FirstX/Y Hitmap of Module " + ToString(iter->first),
+						mod->GetNumberOfChannels() / 2, 0, mod->GetNumberOfChannels() / 2 - 1, mod->GetNumberOfChannels() / 2, 0, mod->GetNumberOfChannels() / 2 - 1);
 				}
 				iter++;
 			}
@@ -108,6 +108,12 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 		Double_t lastX_t = 0.0;
 		Double_t lastY_t = 0.0;
 
+		double nan = numeric_limits<double>::quiet_NaN();
+		fAnalysisTree->SetObservableValue(this, "FirstX", nan);
+		fAnalysisTree->SetObservableValue(this, "FirstY", nan);
+		fAnalysisTree->SetObservableValue(this, "LastX", nan);
+		fAnalysisTree->SetObservableValue(this, "LastY", nan);
+
 		for (int i = 0; i < fSignalEvent->GetNumberOfSignals(); i++) {
 			TRestSignal*sgnl = fSignalEvent->GetSignal(i);
 
@@ -137,24 +143,42 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				}
 			}
 		}
-		double firstx = fReadout->GetX(firstX_id);
-		double firsty = fReadout->GetY(firstY_id);
-		double lastx = fReadout->GetX(lastX_id);
-		double lasty = fReadout->GetY(lastY_id);
-		fAnalysisTree->SetObservableValue(this, "FirstX", firstx);
-		fAnalysisTree->SetObservableValue(this, "FirstY", firsty);
-		fAnalysisTree->SetObservableValue(this, "LastX", lastx);
-		fAnalysisTree->SetObservableValue(this, "LastY", lasty);
 
-		int mod1 = -1, mod2 = -1;
-		int channel1 = -1, channel2 = -1;
-		int plane = -1;
-		fReadout->GetPlaneModuleChannel(firstX_id, plane, mod1, channel1);
-		fReadout->GetPlaneModuleChannel(firstY_id, plane, mod2, channel2);
-		if (mod1 == mod2 && mod1 > -1 ) {
-			fChannelsHitMaps[mod1]->Fill(channel1, channel2 - fReadout->GetReadoutModule(mod1)->GetNumberOfChannels());
+		if (firstX_id > -1 && firstY_id > -1) {
+			double firstx = fReadout->GetX(firstX_id);
+			double firsty = fReadout->GetY(firstY_id);
+			double lastx = fReadout->GetX(lastX_id);
+			double lasty = fReadout->GetY(lastY_id);
+			fAnalysisTree->SetObservableValue(this, "FirstX", firstx);
+			fAnalysisTree->SetObservableValue(this, "FirstY", firsty);
+			fAnalysisTree->SetObservableValue(this, "LastX", lastx);
+			fAnalysisTree->SetObservableValue(this, "LastY", lasty);
+
+			int mod1 = -1, mod2 = -1;
+			int channel1 = -1, channel2 = -1;
+			int plane = -1;
+			fReadout->GetPlaneModuleChannel(firstX_id, plane, mod1, channel1);
+			fReadout->GetPlaneModuleChannel(firstY_id, plane, mod2, channel2);
+			if (mod1 == mod2 && mod1 > -1) {
+				int x=-1, y=-1;
+				int n = fReadout->GetReadoutModule(mod1)->GetNumberOfChannels() / 2;
+				if (channel1 >= n && channel2 < n)
+				{
+					x = channel2;
+					y = channel1 - n;
+				}
+				else if (channel2 >= n && channel1 < n)
+				{
+					x = channel1;
+					y = channel2 - n;
+				}
+				fChannelsHitMaps[mod1]->Fill(x,y);
+				//cout << n<<" "<<channel1 <<" "<< channel2 << endl;
+				//cout << x << " " << y << endl;
+				//cout << fReadout->GetX(firstX_id) << " " << fReadout->GetY(firstY_id) << endl;
+				//cout << endl;
+			}
 		}
-
 		double integral = 0;
 		for (int i = 0; i < fSignalEvent->GetNumberOfSignals(); i++) {
 			TRestSignal*sgn = fSignalEvent->GetSignal(i);
