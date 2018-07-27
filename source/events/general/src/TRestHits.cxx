@@ -481,6 +481,38 @@ Int_t TRestHits::GetNumberOfHitsY( )
 }
 
 
+Double_t TRestHits::GetEnergyX( )
+{
+ 
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+	if( !IsNaN( fX[n] ))
+	{
+		totalEnergy += fEnergy[n];
+	}
+    }
+
+
+    return totalEnergy;
+}
+
+
+Double_t TRestHits::GetEnergyY( )
+{
+ 
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+	if( !IsNaN( fY[n] ))
+	{
+		totalEnergy += fEnergy[n];
+	}
+    }
+
+
+    return totalEnergy;
+}
 Double_t TRestHits::GetMeanPositionX( )
 {
     Double_t meanX = 0;
@@ -540,6 +572,97 @@ Double_t TRestHits::GetMeanPositionZ( )
 
     return meanZ;
 }
+
+
+
+Double_t TRestHits::GetSigmaXY2()
+{
+	Double_t sigmaXY2=0;
+	Double_t totalEnergy = this->GetTotalEnergy();
+        Double_t meanX=this->GetMeanPositionX();
+	Double_t meanY=this->GetMeanPositionY();
+        for( int n = 0; n < GetNumberOfHits(); n++ )
+    {    if( !IsNaN( fY[n] ) ) sigmaXY2+=fEnergy[n]*(meanY-fY[n])*(meanY-fY[n]);
+          if( !IsNaN( fX[n] ) ) sigmaXY2+=fEnergy[n]*(meanX-fX[n])*(meanX-fX[n]);    
+      }
+   return  sigmaXY2/=totalEnergy;
+}
+
+Double_t TRestHits::GetSigmaX()
+{
+	Double_t sigmaX2=0;
+        Double_t sigmaX=0;
+	Double_t totalEnergy = this->GetTotalEnergy();
+        Double_t meanX=this->GetMeanPositionX();
+	
+        for( int n = 0; n < GetNumberOfHits(); n++ )
+    {    
+          if( !IsNaN( fX[n] ) ) sigmaX2+=fEnergy[n]*(meanX-fX[n])*(meanX-fX[n]);    
+      }
+   sigmaX2/=totalEnergy;
+   
+   return  sigmaX=TMath::Sqrt(sigmaX2);
+}
+
+Double_t TRestHits::GetSigmaY()
+{
+	Double_t sigmaY2=0;
+        Double_t sigmaY=0;
+	Double_t totalEnergy = this->GetTotalEnergy();
+        Double_t meanY=this->GetMeanPositionY();
+	
+        for( int n = 0; n < GetNumberOfHits(); n++ )
+    {    
+          if( !IsNaN( fY[n] ) ) sigmaY2+=fEnergy[n]*(meanY-fY[n])*(meanY-fY[n]);    
+      }
+   sigmaY2/=totalEnergy;
+   
+   return  sigmaY=TMath::Sqrt(sigmaY2);
+}
+
+
+Double_t TRestHits::GetSkewXY()
+{
+	Double_t skewXY=0;
+	Double_t totalEnergy = 0;
+        Double_t sigmaXY=TMath::Sqrt(this->GetSigmaXY2());
+         Double_t meanX=this->GetMeanPositionX();
+	Double_t meanY=this->GetMeanPositionY();
+        for( int n = 0; n < GetNumberOfHits(); n++ )
+    {    if( !IsNaN( fY[n] ) ) skewXY+=fEnergy[n]*(meanY-fY[n])*(meanY-fY[n])*(meanY-fY[n]);
+          if( !IsNaN( fX[n] ) ) skewXY+=fEnergy[n]*(meanX-fX[n])*(meanX-fX[n])*(meanX-fX[n]);    
+      }
+   return  skewXY/=(totalEnergy*sigmaXY*sigmaXY*sigmaXY);
+}
+
+Double_t TRestHits::GetSigmaZ2()
+{
+	Double_t sigmaZ2=0;
+	Double_t totalEnergy = this->GetTotalEnergy();
+        Double_t meanZ=this->GetMeanPositionZ();
+	
+        for( int n = 0; n < GetNumberOfHits(); n++ )
+    {    if( !IsNaN( fZ[n] ) ) sigmaZ2+=fEnergy[n]*(meanZ-fZ[n])*(meanZ-fZ[n]);
+         
+      }
+   return  sigmaZ2/=totalEnergy ;
+}
+
+
+
+Double_t TRestHits::GetSkewZ()
+{
+	Double_t skewZ=0;
+	Double_t totalEnergy = 0;
+        Double_t sigmaZ=TMath::Sqrt(this->GetSigmaZ2());
+         Double_t meanZ=this->GetMeanPositionZ();
+	
+        for( int n = 0; n < GetNumberOfHits(); n++ )
+    {    if( !IsNaN( fZ[n] ) ) skewZ+=fEnergy[n]*(meanZ-fZ[n])*(meanZ-fZ[n])*(meanZ-fZ[n]); 
+      }
+  return   skewZ/=(totalEnergy*sigmaZ*sigmaZ*sigmaZ);
+}
+
 
 Double_t TRestHits::GetHitsPathLength ( Int_t n, Int_t m )
 {

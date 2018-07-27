@@ -100,7 +100,19 @@ class TRestHitsEvent : public TRestEvent
         Double_t GetMeanPositionX( ) { return fHits->GetMeanPositionX(); }
         Double_t GetMeanPositionY( ) { return fHits->GetMeanPositionY(); }
         Double_t GetMeanPositionZ( ) { return fHits->GetMeanPositionZ(); }
+	Double_t GetSigmaXY2(){return fHits->GetSigmaXY2();}
+	Double_t GetSigmaX(){return fHits->GetSigmaX();}
+	Double_t GetSigmaY(){return fHits->GetSigmaY();}
+	Double_t GetSigmaZ2(){return fHits->GetSigmaZ2();}
+	Double_t GetSkewXY(){return fHits->GetSkewXY();}
+	Double_t GetSkewZ(){return fHits->GetSkewZ();}
 
+	Double_t GetMaximumHitEnergy(){return fHits->GetMaximumHitEnergy( );}
+	Double_t GetMinimumHitEnergy(){return fHits->GetMinimumHitEnergy( );}
+	Double_t GetMeanHitEnergy(){return fHits->GetMeanHitEnergy( );}
+       
+        Double_t GetEnergyX( ) { return fHits->GetEnergyX(); }
+        Double_t GetEnergyY( ) { return fHits->GetEnergyY(); }
         Double_t GetTotalDepositedEnergy() { return fHits->fTotEnergy; }
         Double_t GetTotalEnergy() { return fHits->fTotEnergy; }
         Double_t GetEnergy() { return fHits->fTotEnergy; }

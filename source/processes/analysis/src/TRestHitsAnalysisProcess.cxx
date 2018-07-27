@@ -99,7 +99,17 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     Double_t energy = fOutputHitsEvent->GetEnergy( );
     TVector3 meanPosition = fOutputHitsEvent->GetMeanPosition();
-
+	Double_t sigmaX= fOutputHitsEvent->GetSigmaX();
+	Double_t sigmaY= fOutputHitsEvent->GetSigmaY();
+	Double_t sigmaXY2= fOutputHitsEvent->GetSigmaXY2();
+     Double_t sigmaZ2= fOutputHitsEvent->GetSigmaZ2();
+      Double_t skewXY= fOutputHitsEvent->GetSkewXY();
+     Double_t skewZ= fOutputHitsEvent->GetSkewZ();
+     Double_t energyX = fOutputHitsEvent->GetEnergyX( );
+      Double_t energyY = fOutputHitsEvent->GetEnergyY( );
+	Double_t maxEnergy = fOutputHitsEvent->GetMaximumHitEnergy( );
+	Double_t minEnergy = fOutputHitsEvent->GetMinimumHitEnergy( );
+	Double_t meanEnergy = fOutputHitsEvent->GetMeanHitEnergy( );
     Int_t nHits = fOutputHitsEvent->GetNumberOfHits( );
     Int_t nHitsX = fOutputHitsEvent->GetNumberOfHitsX( );
     Int_t nHitsY = fOutputHitsEvent->GetNumberOfHitsY( );
@@ -113,6 +123,12 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     obsName = this->GetName() + (TString) ".nHitsY";
     fAnalysisTree->SetObservableValue( obsName, nHitsY );
 
+	 obsName = this->GetName() + (TString) ".ratioXYnHits";
+    fAnalysisTree->SetObservableValue( obsName, nHitsX/nHitsY );
+
+    obsName = this->GetName() + (TString) ".nHitsSizeXY";
+     if((nHits==nHitsX)||(nHits==nHitsX)) fAnalysisTree->SetObservableValue( obsName, nHits);
+       else fAnalysisTree->SetObservableValue( obsName, TMath::Sqrt(nHitsX*nHitsX+nHitsY*nHitsY));
 
     // Checking hits inside fiducial cylinder
     if( fCylinderFiducial )
@@ -194,6 +210,23 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     obsName = this->GetName() + (TString) ".energy";
     fAnalysisTree->SetObservableValue( obsName, energy );
+	obsName = this->GetName() + (TString) ".energyX";
+    fAnalysisTree->SetObservableValue( obsName, energyX);
+     obsName = this->GetName() + (TString) ".energyY";
+    fAnalysisTree->SetObservableValue( obsName, energyY ); 
+     obsName = this->GetName() + (TString) ".ratioXYenergy";
+    fAnalysisTree->SetObservableValue( obsName, energyX/energyY );
+    obsName = this->GetName() + (TString) ".balanceXYenergy";
+    fAnalysisTree->SetObservableValue( obsName, (energyX-energyY)/(energyX+energyY));
+
+       obsName = this->GetName() + (TString) ".maxHitEnergy";
+    fAnalysisTree->SetObservableValue( obsName, maxEnergy);
+      obsName = this->GetName() + (TString) ".minHitEnergy";
+    fAnalysisTree->SetObservableValue( obsName, minEnergy);
+      obsName = this->GetName() + (TString) ".meanHitEnergy";
+    fAnalysisTree->SetObservableValue( obsName, meanEnergy);
+     obsName = this->GetName() + (TString) ".meanHitEnergyBalance";
+    fAnalysisTree->SetObservableValue( obsName, meanEnergy/energy);
 
     obsName = this->GetName() + (TString) ".xMean";
     fAnalysisTree->SetObservableValue( obsName, meanPosition.X() );
@@ -203,6 +236,18 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     obsName = this->GetName() + (TString) ".zMean";
     fAnalysisTree->SetObservableValue( obsName, meanPosition.Z() );
+	 obsName = this->GetName() + (TString) ".xy2Sigma";
+    fAnalysisTree->SetObservableValue( obsName, sigmaXY2 );
+	obsName = this->GetName() + (TString) ".xySigmaBalance";
+    fAnalysisTree->SetObservableValue( obsName, (sigmaX-sigmaY)/(sigmaX+sigmaY) );
+
+   obsName = this->GetName() + (TString) ".z2Sigma";
+    fAnalysisTree->SetObservableValue( obsName, sigmaZ2 );
+
+     obsName = this->GetName() + (TString) ".xySkew";
+    fAnalysisTree->SetObservableValue( obsName, skewXY);
+   obsName = this->GetName() + (TString) ".zSkew";
+    fAnalysisTree->SetObservableValue( obsName, skewZ );
 
 
     if( GetVerboseLevel() >= REST_Extreme )

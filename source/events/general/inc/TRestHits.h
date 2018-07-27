@@ -105,6 +105,16 @@ class TRestHits : public TObject
         Double_t GetMeanPositionZ( );
         TVector3 GetMeanPosition( );
 
+	Double_t GetSigmaXY2();
+	 Double_t GetSigmaX();
+	 Double_t GetSigmaY();
+	Double_t GetSigmaZ2();
+	 Double_t GetSkewXY();
+	Double_t GetSkewZ();
+
+        Double_t GetEnergyX( );
+         Double_t GetEnergyY( );
+
         Double_t GetEnergy( int n ) { return ( (Double_t) fEnergy[n]); } //return value in keV
 
         Bool_t isHitNInsidePrism( Int_t n, TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY );
