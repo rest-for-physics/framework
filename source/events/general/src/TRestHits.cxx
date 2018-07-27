@@ -664,6 +664,132 @@ Double_t TRestHits::GetSkewZ()
 }
 
 
+Double_t TRestHits::GetMeanPositionXInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta)
+{
+    Double_t meanX = 0;
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+	if( (!IsNaN( fX[n] )&&(isHitNInsidePrism( n, x0, x1, sizeX, sizeY, theta))))
+	{
+		meanX += fX[n] * fEnergy[n];
+		totalEnergy += fEnergy[n];
+	}
+    }
+
+    meanX /= totalEnergy;
+
+    return meanX;
+}
+
+Double_t TRestHits::GetMeanPositionYInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta)
+{
+    Double_t meanY = 0;
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+	if( (!IsNaN( fY[n] )&&(isHitNInsidePrism( n,  x0, x1, sizeX, sizeY, theta))))
+	{
+		meanY += fY[n] * fEnergy[n];
+		totalEnergy += fEnergy[n];
+	}
+    }
+
+    meanY /= totalEnergy;
+
+    return meanY;
+}
+Double_t TRestHits::GetMeanPositionZInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta)
+{
+    Double_t meanZ = 0;
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+	if( (!IsNaN( fZ[n] )&&(isHitNInsidePrism(  n, x0, x1, sizeX, sizeY,  theta))))
+	{
+		meanZ += fZ[n] * fEnergy[n];
+		totalEnergy += fEnergy[n];
+	}
+    }
+
+    meanZ /= totalEnergy;
+
+    return meanZ;
+}
+
+
+
+TVector3 TRestHits::GetMeanPositionInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta)
+{
+ TVector3 mean( GetMeanPositionXInPrism(x0,x1,sizeX,sizeY, theta), GetMeanPositionYInPrism(x0,x1,sizeX,sizeY,theta), GetMeanPositionZInPrism(x0,x1,sizeX, sizeY,theta) );
+    return mean;
+}
+
+
+
+Double_t TRestHits::GetMeanPositionXInCylinder( TVector3 x0, TVector3 x1, Double_t radius )
+{
+    Double_t meanX = 0;
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+	if( (!IsNaN( fX[n] )&&(isHitNInsideCylinder(  n, x0, x1,  radius ))))
+	{
+		meanX += fX[n] * fEnergy[n];
+		totalEnergy += fEnergy[n];
+	}
+    }
+
+    meanX /= totalEnergy;
+
+    return meanX;
+}
+
+Double_t TRestHits::GetMeanPositionYInCylinder( TVector3 x0, TVector3 x1, Double_t radius )
+{
+    Double_t meanY = 0;
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+	if( (!IsNaN( fY[n] )&&(isHitNInsideCylinder( n, x0, x1, radius ))))
+	{
+		meanY += fY[n] * fEnergy[n];
+		totalEnergy += fEnergy[n];
+	}
+    }
+
+    meanY /= totalEnergy;
+
+    return meanY;
+}
+
+Double_t TRestHits::GetMeanPositionZInCylinder( TVector3 x0, TVector3 x1, Double_t radius )
+{
+    Double_t meanZ = 0;
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+	if( (!IsNaN( fZ[n] )&&(isHitNInsideCylinder( n, x0, x1, radius ))))
+	{
+		meanZ += fZ[n] * fEnergy[n];
+		totalEnergy += fEnergy[n];
+	}
+    }
+
+    meanZ /= totalEnergy;
+
+    return meanZ;
+}
+
+
+
+TVector3 TRestHits::GetMeanPositionInCylinder( TVector3 x0, TVector3 x1, Double_t radius )
+{
+ TVector3 mean(GetMeanPositionXInCylinder(x0,x1,radius ), GetMeanPositionYInCylinder( x0, x1,radius ), GetMeanPositionZInCylinder(x0, x1,radius ) );
+    return mean;
+}
+
+
 Double_t TRestHits::GetHitsPathLength ( Int_t n, Int_t m )
 {
     if( n < 0 ) n = 0;

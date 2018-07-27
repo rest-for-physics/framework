@@ -131,6 +131,7 @@ class TRestHitsEvent : public TRestEvent
             { return fHits->GetNumberOfHitsInsideCylinder(x0, x1, radius); }
 
         Bool_t areHitsFullyContainnedInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius );
+          TVector3 GetMeanPositionInCylinder( TVector3 x0, TVector3 x1, Double_t radius ) { return fHits->GetMeanPositionInCylinder(x0, x1, radius); }
 
 
         // Inside Prim methods
@@ -144,7 +145,8 @@ class TRestHitsEvent : public TRestEvent
         Int_t GetEnergyInPrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta)
             { return fHits->GetEnergyInPrism(x0, x1, sizeX, sizeY,theta); }
 
-       
+            TVector3 GetMeanPositionInPrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta) { return fHits->GetMeanPositionInPrism(x0, x1, sizeX, sizeY,theta); }
+
 
 
         // Get closest distance to cylinder walls methods

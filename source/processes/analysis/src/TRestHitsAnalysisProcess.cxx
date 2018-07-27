@@ -132,7 +132,8 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     // Checking hits inside fiducial cylinder
     if( fCylinderFiducial )
-    {
+    {   TVector3 meanPositionInCylinder = fOutputHitsEvent->GetMeanPositionInCylinder( fFid_x0, fFid_x1, fFid_R );
+       
         Int_t isInsideCylinder = 0;
         if( fOutputHitsEvent->isHitsEventInsideCylinder( fFid_x0, fFid_x1, fFid_R ) )
             isInsideCylinder = 1;
@@ -149,11 +150,23 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
         obsName = this->GetName() + (TString) ".energyInsideCylindricalVolume";
         fAnalysisTree->SetObservableValue( obsName, enCylVol );
+
+         
+       //mean positions
+       obsName = this->GetName() + (TString) ".xMeanInCylinder";
+          fAnalysisTree->SetObservableValue( obsName, meanPositionInCylinder.X( ) );
+
+        obsName = this->GetName() + (TString) ".yMeanInCylinder";
+         fAnalysisTree->SetObservableValue( obsName, meanPositionInCylinder.Y( ) );
+
+          obsName = this->GetName() + (TString) ".zMeanInCylinder";
+            fAnalysisTree->SetObservableValue( obsName, meanPositionInCylinder.Z() );
     }
 
     // Checking hits inside fiducial prism 
     if( fPrismFiducial )
-    {
+    {    TVector3 meanPositionInPrism = fOutputHitsEvent->GetMeanPositionInPrism( fFid_x0,  fFid_x1, fFid_sX, fFid_sY, fFid_theta);
+       
         Int_t isInsidePrism = 0;
         if ( fOutputHitsEvent->isHitsEventInsidePrism( fFid_x0,  fFid_x1, fFid_sX, fFid_sY,fFid_theta  ) )
             isInsidePrism = 1;
@@ -170,6 +183,17 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
         obsName = this->GetName() + (TString) ".energyInsidePrismVolume";
         fAnalysisTree->SetObservableValue( obsName, enPrismVol );
+
+      //Mean Positions
+
+       obsName = this->GetName() + (TString) ".xMeanInPrism";
+    fAnalysisTree->SetObservableValue( obsName, meanPositionInPrism.X() );
+
+    obsName = this->GetName() + (TString) ".yMeanInPrism";
+    fAnalysisTree->SetObservableValue( obsName, meanPositionInPrism.Y( ) );
+
+    obsName = this->GetName() + (TString) ".zMeanInPrism";
+    fAnalysisTree->SetObservableValue( obsName, meanPositionInPrism.Z( ) );
     }
 
     ///////////////////////////////////////
