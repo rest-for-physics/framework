@@ -40,8 +40,8 @@
     <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="OFF" file="processes.rml"/>
     <addProcess type="TRestReadoutAnalysisProcess" name="rA" value="ON">
       <parameter name="modulesHist" value="3:5:6:8"/>
-      <observable name="firstx" value="ON" />
-      <observable name="firsty" value="ON" />
+      <observable name="FirstX" value="ON" />
+      <observable name="FirstY" value="ON" />
     </addProcess>
     <addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="OFF" file="processes.rml"/>
     <addProcess type="TRestHitsAnalysisProcess" name="hitsAna" value="OFF" file="processes.rml" />

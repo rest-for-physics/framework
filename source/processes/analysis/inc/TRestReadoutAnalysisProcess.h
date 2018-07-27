@@ -44,6 +44,7 @@ private:
     // analysis result(saved directly in root file)
 	map<int, TH1D*> fChannelsHistos;//! [MM id, channel activity]
 
+	map<int, TH2D*> fChannelsHitMaps;//! [MM id, channel activity]
 
 
 

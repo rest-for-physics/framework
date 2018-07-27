@@ -49,19 +49,38 @@ void TRestReadoutAnalysisProcess::InitProcess()
 {
 	fReadout = (TRestReadout*)GetReadoutMetadata();
 	if (fReadout != NULL) {
-		auto iter = fChannelsHistos.begin();
-		while (iter != fChannelsHistos.end()) {
-			TRestReadoutModule*mod = fReadout->GetReadoutModule(iter->first);
-			if (mod == NULL) {
-				warning << "REST Warning(TRestReadoutAnalysisProcess): readout module with id " << iter->first << " not found!" << endl;
+		{
+			auto iter = fChannelsHistos.begin();
+			while (iter != fChannelsHistos.end()) {
+				TRestReadoutModule*mod = fReadout->GetReadoutModule(iter->first);
+				if (mod == NULL) {
+					warning << "REST Warning(TRestReadoutAnalysisProcess): readout module with id " << iter->first << " not found!" << endl;
+				}
+				else
+				{
+					iter->second = new TH1D((TString)"module" + ToString(iter->first),
+						(TString)"moduleChannelActivity" + ToString(iter->first),
+						mod->GetNumberOfChannels(), 0, mod->GetNumberOfChannels() - 1);
+				}
+				iter++;
 			}
-			else
-			{
-				iter->second = new TH1D((TString)"module" + ToString(iter->first),
-					(TString)"moduleChannelActivity" + ToString(iter->first),
-					mod->GetNumberOfChannels(), 0, mod->GetNumberOfChannels());
+		}
+
+		{
+			auto iter = fChannelsHitMaps.begin();
+			while (iter != fChannelsHitMaps.end()) {
+				TRestReadoutModule*mod = fReadout->GetReadoutModule(iter->first);
+				if (mod == NULL) {
+					warning << "REST Warning(TRestReadoutAnalysisProcess): readout module with id " << iter->first << " not found!" << endl;
+				}
+				else
+				{
+					iter->second = new TH2D((TString)"module" + ToString(iter->first),
+						(TString)"moduleChannelHisto" + ToString(iter->first),
+						mod->GetNumberOfChannels(), 0, mod->GetNumberOfChannels() - 1, mod->GetNumberOfChannels(), 0, mod->GetNumberOfChannels() - 1);
+				}
+				iter++;
 			}
-			iter++;
 		}
 	}
 }
@@ -79,8 +98,6 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 	fSignalEvent = (TRestSignalEvent *)evInput;
 	fOutputEvent = fSignalEvent;
 	if (fReadout != NULL) {
-		double integral = 0;
-
 		Double_t firstX_id = -1.;
 		Double_t firstY_id = -1.;
 		Double_t firstX_t = 512.0;
@@ -124,13 +141,21 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 		double firsty = fReadout->GetY(firstY_id);
 		double lastx = fReadout->GetX(lastX_id);
 		double lasty = fReadout->GetY(lastY_id);
-		fAnalysisTree->SetObservableValue(this, "firstx", firstx);
-		fAnalysisTree->SetObservableValue(this, "firsty", firsty);
-		fAnalysisTree->SetObservableValue(this, "lastx", lastx);
-		fAnalysisTree->SetObservableValue(this, "lasty", lasty);
+		fAnalysisTree->SetObservableValue(this, "FirstX", firstx);
+		fAnalysisTree->SetObservableValue(this, "FirstY", firsty);
+		fAnalysisTree->SetObservableValue(this, "LastX", lastx);
+		fAnalysisTree->SetObservableValue(this, "LastY", lasty);
 
+		int mod1 = -1, mod2 = -1;
+		int channel1 = -1, channel2 = -1;
+		int plane = -1;
+		fReadout->GetPlaneModuleChannel(firstX_id, plane, mod1, channel1);
+		fReadout->GetPlaneModuleChannel(firstY_id, plane, mod2, channel2);
+		if (mod1 == mod2 && mod1 > -1 ) {
+			fChannelsHitMaps[mod1]->Fill(channel1, channel2 - fReadout->GetReadoutModule(mod1)->GetNumberOfChannels());
+		}
 
-
+		double integral = 0;
 		for (int i = 0; i < fSignalEvent->GetNumberOfSignals(); i++) {
 			TRestSignal*sgn = fSignalEvent->GetSignal(i);
 
@@ -166,11 +191,21 @@ void TRestReadoutAnalysisProcess::EndOfEventProcess()
 void TRestReadoutAnalysisProcess::EndProcess()
 {
 	if (fReadout != NULL) {
-		auto iter = fChannelsHistos.begin();
-		while (iter != fChannelsHistos.end()) {
-			if (iter->second != NULL)
-				iter->second->Write();
-			iter++;
+		{
+			auto iter = fChannelsHistos.begin();
+			while (iter != fChannelsHistos.end()) {
+				if (iter->second != NULL)
+					iter->second->Write();
+				iter++;
+			}
+		}
+		{
+			auto iter = fChannelsHitMaps.begin();
+			while (iter != fChannelsHitMaps.end()) {
+				if (iter->second != NULL)
+					iter->second->Write();
+				iter++;
+			}
 		}
 	}
 }
@@ -195,6 +230,8 @@ void TRestReadoutAnalysisProcess::InitFromConfigFile()
 	auto histdef = Spilt(moduleHist, ":");
 	for (int i = 0; i < histdef.size(); i++) {
 		fChannelsHistos[StringToInteger(histdef[i])] = NULL;
+		fChannelsHitMaps[StringToInteger(histdef[i])] = NULL;
 	}
+
 }
 
