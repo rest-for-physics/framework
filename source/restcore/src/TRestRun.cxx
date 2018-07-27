@@ -442,14 +442,34 @@ void TRestRun::ReadFileInfo(string filename)
 
 	FileInfo.clear();
 
+
+
+	debug << "begin collecting file info: " << filename << endl;
+	struct stat buf;
+	int fd = fileno(fopen(filename.c_str(), "rb"));
+	fstat(fd, &buf);
+
+	string datetime = ToDateTimeString(buf.st_mtime);
+	FileInfo["Time"] = Spilt(datetime, " ")[1];
+	FileInfo["Date"] = Spilt(datetime, " ")[0];
+	FileInfo["Size"] = ToString(buf.st_size) + "B";
+	FileInfo["Entries"] = ToString(GetEntries());
+
+	if (isRootFile((string)filename))
+	{
+		fTotalBytes = buf.st_size;
+	}
+
+
+
+	debug << "begin matching file names" << endl;
+
 	string format = GetParameter("inputFormat", "");
 	string name = SeparatePathAndName(filename).second;
-
 
 	vector<string> formatsectionlist = Spilt(format, "_");
 	vector<string> inputfilesectionlist = Spilt(name, "_");
 
-	debug << "begin matching file names" << endl;
 	for (int i = 0; i < formatsectionlist.size(); i++)
 	{
 		int pos1 = formatsectionlist[i].find("[");
@@ -494,22 +514,6 @@ void TRestRun::ReadFileInfo(string filename)
 			if (find == false) continue;
 		}
 		FileInfo[FormatName] = FormatValue;
-	}
-
-	debug << "begin collecting file info: " << filename << endl;
-	struct stat buf;
-	int fd = fileno(fopen(filename.c_str(), "rb"));
-	fstat(fd, &buf);
-
-	string datetime = ToDateTimeString(buf.st_mtime);
-	FileInfo["Time"] = Spilt(datetime, " ")[1];
-	FileInfo["Date"] = Spilt(datetime, " ")[0];
-	FileInfo["Size"] = ToString(buf.st_size) + "B";
-	FileInfo["Entries"] = ToString(GetEntries());
-
-	if (isRootFile((string)filename))
-	{
-		fTotalBytes = buf.st_size;
 	}
 }
 
