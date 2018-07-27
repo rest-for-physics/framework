@@ -77,7 +77,7 @@ void TRestReadoutAnalysisProcess::InitProcess()
 				{
 					iter->second = new TH2D((TString)"channelHitmap" + ToString(iter->first),
 						(TString)"FirstX/Y Hitmap of Module " + ToString(iter->first),
-						mod->GetNumberOfChannels() / 2, 0, mod->GetNumberOfChannels() / 2, mod->GetNumberOfChannels() / 2, 0, mod->GetNumberOfChannels() / 2);
+						mod->GetNumberOfChannels() / 2, 0, mod->GetNumberOfChannels() / 2, mod->GetNumberOfChannels() / 2, mod->GetNumberOfChannels() / 2, mod->GetNumberOfChannels());
 				}
 				iter++;
 			}
@@ -165,12 +165,12 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				if (channel1 >= n && channel2 < n)
 				{
 					x = channel2;
-					y = channel1 - n;
+					y = channel1;
 				}
 				else if (channel2 >= n && channel1 < n)
 				{
 					x = channel1;
-					y = channel2 - n;
+					y = channel2;
 				}
 				fChannelsHitMaps[mod1]->Fill(x,y);
 				//cout << n<<" "<<channel1 <<" "<< channel2 << endl;
