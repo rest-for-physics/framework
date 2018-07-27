@@ -60,7 +60,7 @@ void TRestReadoutAnalysisProcess::InitProcess()
 				{
 					iter->second = new TH1D((TString)"channelHisto" + ToString(iter->first),
 						(TString)"Readout Channel Activity of Module " + ToString(iter->first),
-						mod->GetNumberOfChannels(), 0, mod->GetNumberOfChannels() - 1);
+						mod->GetNumberOfChannels(), 0, mod->GetNumberOfChannels());
 				}
 				iter++;
 			}
@@ -77,7 +77,7 @@ void TRestReadoutAnalysisProcess::InitProcess()
 				{
 					iter->second = new TH2D((TString)"channelHitmap" + ToString(iter->first),
 						(TString)"FirstX/Y Hitmap of Module " + ToString(iter->first),
-						mod->GetNumberOfChannels() / 2, 0, mod->GetNumberOfChannels() / 2 - 1, mod->GetNumberOfChannels() / 2, 0, mod->GetNumberOfChannels() / 2 - 1);
+						mod->GetNumberOfChannels() / 2, 0, mod->GetNumberOfChannels() / 2, mod->GetNumberOfChannels() / 2, 0, mod->GetNumberOfChannels() / 2);
 				}
 				iter++;
 			}
