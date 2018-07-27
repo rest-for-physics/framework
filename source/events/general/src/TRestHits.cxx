@@ -135,7 +135,7 @@ Double_t TRestHits::GetEnergyIntegral()
 }
 
 
-Bool_t TRestHits::isHitNInsidePrism( Int_t n, TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY)
+Bool_t TRestHits::isHitNInsidePrism( Int_t n, TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta)
 {
 
     TVector3 axis = x1 - x0;
@@ -143,7 +143,7 @@ Bool_t TRestHits::isHitNInsidePrism( Int_t n, TVector3 x0, TVector3 x1, Double_t
     Double_t prismLength = axis.Mag();
 
     TVector3 hitPos = this->GetPosition( n ) - x0;
-
+     hitPos.RotateZ(theta);
     Double_t l = axis.Dot( hitPos )/prismLength;
 
     if( ( l > 0 ) && ( l < prismLength ) )
@@ -154,23 +154,23 @@ Bool_t TRestHits::isHitNInsidePrism( Int_t n, TVector3 x0, TVector3 x1, Double_t
 }
 
 
-Double_t TRestHits::GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY)
+Double_t TRestHits::GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,Double_t theta)
 {
     Double_t energy = 0.;
 
     for( int n = 0; n < GetNumberOfHits(); n++ )
-        if( isHitNInsidePrism( n, x0, x1, sizeX, sizeY ) )
+        if( isHitNInsidePrism( n, x0, x1, sizeX, sizeY, theta ) )
             energy += this->GetEnergy( n );
 
     return energy;
 }
 
-Int_t TRestHits::GetNumberOfHitsInsidePrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY)
+Int_t TRestHits::GetNumberOfHitsInsidePrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta)
 {
     Int_t hits = 0;
 
     for( int n = 0; n < GetNumberOfHits(); n++ )
-        if( isHitNInsidePrism( n, x0, x1, sizeX,sizeY ) )
+        if( isHitNInsidePrism( n, x0, x1, sizeX,sizeY, theta ) )
             hits++;
 
     return hits;

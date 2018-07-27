@@ -155,12 +155,12 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     if( fPrismFiducial )
     {
         Int_t isInsidePrism = 0;
-        if ( fOutputHitsEvent->isHitsEventInsidePrism( fFid_x0,  fFid_x1, fFid_sX, fFid_sY ) )
+        if ( fOutputHitsEvent->isHitsEventInsidePrism( fFid_x0,  fFid_x1, fFid_sX, fFid_sY,fFid_theta  ) )
             isInsidePrism = 1;
 
-        Int_t nPrismVol = fOutputHitsEvent->GetNumberOfHitsInsidePrism( fFid_x0,  fFid_x1, fFid_sX, fFid_sY );
+        Int_t nPrismVol = fOutputHitsEvent->GetNumberOfHitsInsidePrism( fFid_x0,  fFid_x1, fFid_sX, fFid_sY,fFid_theta  );
 
-        Double_t enPrismVol = fOutputHitsEvent->GetEnergyInPrism( fFid_x0,  fFid_x1, fFid_sX, fFid_sY );
+        Double_t enPrismVol = fOutputHitsEvent->GetEnergyInPrism( fFid_x0,  fFid_x1, fFid_sX, fFid_sY ,fFid_theta );
 
         obsName = this->GetName() + (TString) ".isInsidePrismVolume";
         fAnalysisTree->SetObservableValue( obsName, isInsidePrism );
@@ -192,9 +192,9 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     if( fPrismFiducial )
     {
         // Adding distances to prism wall
-        Double_t dToPrismWall = fOutputHitsEvent->GetClosestHitInsideDistanceToPrismWall( fFid_x0,  fFid_x1, fFid_sX, fFid_sY );
-        Double_t dToPrismTop = fOutputHitsEvent->GetClosestHitInsideDistanceToPrismTop( fFid_x0, fFid_x1, fFid_sX, fFid_sY );
-        Double_t dToPrismBottom = fOutputHitsEvent->GetClosestHitInsideDistanceToPrismBottom( fFid_x0, fFid_x1, fFid_sX, fFid_sY );
+        Double_t dToPrismWall = fOutputHitsEvent->GetClosestHitInsideDistanceToPrismWall( fFid_x0,  fFid_x1, fFid_sX, fFid_sY ,fFid_theta  );
+        Double_t dToPrismTop = fOutputHitsEvent->GetClosestHitInsideDistanceToPrismTop( fFid_x0, fFid_x1, fFid_sX, fFid_sY,fFid_theta  );
+        Double_t dToPrismBottom = fOutputHitsEvent->GetClosestHitInsideDistanceToPrismBottom( fFid_x0, fFid_x1, fFid_sX, fFid_sY ,fFid_theta );
 
         obsName = this->GetName() + (TString) ".distanceToPrismWall";
         fAnalysisTree->SetObservableValue( obsName, dToPrismWall );
@@ -286,6 +286,7 @@ void TRestHitsAnalysisProcess::InitFromConfigFile( )
     fFid_R = GetDblParameterWithUnits( "fiducial_R", 1 );
     fFid_sX = GetDblParameterWithUnits( "fiducial_sX", 1 );
     fFid_sY = GetDblParameterWithUnits( "fiducial_sY", 1 );
+    fFid_theta=StringToDouble( GetParameter( "fiducial_theta" ) );
 
     if( GetParameter( "cylinderFiducialization", "false" ) == "true" )
         fCylinderFiducial = true;

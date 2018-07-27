@@ -117,11 +117,12 @@ class TRestHits : public TObject
 
         Double_t GetEnergy( int n ) { return ( (Double_t) fEnergy[n]); } //return value in keV
 
-        Bool_t isHitNInsidePrism( Int_t n, TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY );
-        Int_t GetNumberOfHitsInsidePrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY );
-        Double_t GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY);
+        Bool_t isHitNInsidePrism( Int_t n, TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta );
+        Int_t GetNumberOfHitsInsidePrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta );
+        Double_t GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta);
 
         Bool_t isHitNInsideCylinder( Int_t n, TVector3 x0, TVector3 x1, Double_t radius );
+        
         Int_t GetNumberOfHitsInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius );
         Int_t GetNumberOfHitsInsideCylinder( Int_t i, Int_t j, Double_t radius );
 

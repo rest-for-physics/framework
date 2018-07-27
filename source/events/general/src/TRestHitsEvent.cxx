@@ -126,15 +126,32 @@ void TRestHitsEvent::ChangeOrigin(double origx, double origy, double origz)
 
 Bool_t TRestHitsEvent::isHitsEventInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius )
 {
-    if ( fHits->GetNumberOfHitsInsideCylinder(x0, x1, radius) == GetNumberOfHits( ) )
+    if ( fHits->GetNumberOfHitsInsideCylinder(x0, x1, radius)>0 )
         return true;
 
     return false;
 }
 
-Bool_t TRestHitsEvent::isHitsEventInsidePrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY )
+Bool_t TRestHitsEvent::isHitsEventInsidePrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta )
 {
-    if ( fHits->GetNumberOfHitsInsidePrism(x0, x1, sizeX, sizeY) == GetNumberOfHits( ) ) 
+    if ( fHits->GetNumberOfHitsInsidePrism(x0, x1, sizeX, sizeY,theta)>0 ) 
+        return true;
+
+    return false;
+}
+
+
+Bool_t TRestHitsEvent::areHitsFullyContainnedInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius )
+{
+    if ( fHits->GetNumberOfHitsInsideCylinder(x0, x1, radius) == GetNumberOfHits( ))
+        return true;
+
+    return false;
+}
+
+Bool_t TRestHitsEvent::areHitsFullyContainnedInsidePrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY ,Double_t theta)
+{
+    if ( fHits->GetNumberOfHitsInsidePrism(x0, x1, sizeX, sizeY,theta) == GetNumberOfHits( ) ) 
         return true;
 
     return false;
@@ -230,7 +247,7 @@ Double_t TRestHitsEvent::GetClosestHitInsideDistanceToCylinderBottom( TVector3 x
     return hitDistance;
 }
 
-Double_t TRestHitsEvent::GetClosestHitInsideDistanceToPrismWall( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY )
+Double_t TRestHitsEvent::GetClosestHitInsideDistanceToPrismWall( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta )
 {
 
     Double_t dX = sizeX / 2;
@@ -242,7 +259,7 @@ Double_t TRestHitsEvent::GetClosestHitInsideDistanceToPrismWall( TVector3 x0, TV
     Int_t nhits = 0;
     for( int n = 0; n < GetNumberOfHits(); n++ )
     { 
-        if( fHits->isHitNInsidePrism( n, x0, x1, sizeX, sizeY ) )
+        if( fHits->isHitNInsidePrism( n, x0, x1, sizeX, sizeY,theta ) )
         {   
             dX = sizeX / 2 - TMath::Abs( ( this->GetPosition( n ) - x0 ).X() );
             dY = sizeY / 2 - TMath::Abs( ( this->GetPosition( n ) - x0 ).Y() ) ;
@@ -262,7 +279,7 @@ Double_t TRestHitsEvent::GetClosestHitInsideDistanceToPrismWall( TVector3 x0, TV
     return hitDistance;
 }
 
-Double_t TRestHitsEvent::GetClosestHitInsideDistanceToPrismTop( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY )
+Double_t TRestHitsEvent::GetClosestHitInsideDistanceToPrismTop( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta )
 {
 
     TVector3 axis = x1 - x0;
@@ -274,7 +291,7 @@ Double_t TRestHitsEvent::GetClosestHitInsideDistanceToPrismTop( TVector3 x0, TVe
     Int_t nhits = 0;
     for( int n = 0; n < GetNumberOfHits(); n++ )
     {
-        if( fHits->isHitNInsidePrism( n, x0, x1, sizeX,sizeY ) )
+        if( fHits->isHitNInsidePrism( n, x0, x1, sizeX,sizeY,theta ) )
         {  
 
             d = prismLength - axis.Dot( this->GetPosition( n ) - x0 ) / prismLength;
@@ -292,7 +309,7 @@ Double_t TRestHitsEvent::GetClosestHitInsideDistanceToPrismTop( TVector3 x0, TVe
     return hitDistance;
 }
 
-Double_t TRestHitsEvent::GetClosestHitInsideDistanceToPrismBottom( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY )
+Double_t TRestHitsEvent::GetClosestHitInsideDistanceToPrismBottom( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta )
 {
 
     TVector3 axis = x1 - x0;
@@ -304,7 +321,7 @@ Double_t TRestHitsEvent::GetClosestHitInsideDistanceToPrismBottom( TVector3 x0, 
     Int_t nhits = 0;
     for( int n = 0; n < GetNumberOfHits(); n++ )
     {
-        if( fHits->isHitNInsidePrism( n, x0, x1, sizeX,sizeY ) )
+        if( fHits->isHitNInsidePrism( n, x0, x1, sizeX,sizeY,theta ) )
         {  
 
             d = axis.Dot( this->GetPosition( n ) - x0 ) / prismLength;
