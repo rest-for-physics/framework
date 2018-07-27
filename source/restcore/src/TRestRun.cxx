@@ -912,9 +912,10 @@ void TRestRun::AddEventBranch(TRestEvent* eve)
 /// The metadata class can be recovered to the same condition as when it is saved.
 void TRestRun::ImportMetadata(TString File, TString name, Bool_t store)
 {
+    auto fileold = File;
 	File = SearchFile(File.Data());
 	if (File == "") {
-		error << "REST ERROR (ImportMetadata): The file " << File << " does not exist!" << endl;
+		error << "REST ERROR (ImportMetadata): The file " << fileold << " does not exist!" << endl;
 		error << endl;
 		return;
 	}
