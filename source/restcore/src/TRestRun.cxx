@@ -467,53 +467,47 @@ void TRestRun::ReadFileInfo(string filename)
 	string format = GetParameter("inputFormat", "");
 	string name = SeparatePathAndName(filename).second;
 
-	vector<string> formatsectionlist = Spilt(format, "_");
-	vector<string> inputfilesectionlist = Spilt(name, "_");
+	vector<string> formatsectionlist;
+	vector<string> formatprefixlist;
 
+	int pos = -1;
+	int pos1 = 0;
+	int pos2 = 0;
+	while (1) {
+		pos1 = format.find("[", pos + 1);
+		pos2 = format.find("]", pos1);
+		if (pos1 == -1 || pos2 == -1) {
+			formatprefixlist.push_back(format.substr(pos + 1, -1));
+			break;
+		}
+
+		formatsectionlist.push_back(format.substr(pos1 + 1, pos2 - pos1 - 1));
+		formatprefixlist.push_back(format.substr(pos + 1, pos1 - pos - 1));
+
+		pos = pos2;
+	}
+
+	pos = -1;
 	for (int i = 0; i < formatsectionlist.size(); i++)
 	{
-		int pos1 = formatsectionlist[i].find("[");
-		int pos2 = formatsectionlist[i].find("]");
-		if (pos1 == -1 || pos2 == -1) { continue; }
+		if (i != 0 && formatprefixlist[i] == "") {
+			warning << "file format reference contains error!" << endl;
+			return;
+		}
+		int pos1 = name.find(formatprefixlist[i], pos + 1) + formatprefixlist[i].size() - 1;
+		if (formatprefixlist[i] == "")pos1 = 0;
+		int pos2 = name.find(formatprefixlist[i + 1], pos1);
+		if (pos1 == -1 || pos2 == -1) {
+			warning << "file format mismatch!" << endl;
+			return;
+		}
 
-		string prefix = formatsectionlist[i].substr(0, pos1 - 0);
-		string FormatName = formatsectionlist[i].substr(pos1 + 1, pos2 - pos1 - 1);
-		string FormatValue = "";
-		if (prefix == "")
-		{
-			//if formatsectionlist meets its end, while inputfilesectionlist does not,
-			//then the last place of the format is replaced by the remaining of inputfilesectionlist
-			if (i == formatsectionlist.size() - 1 && inputfilesectionlist.size() >= formatsectionlist.size())
-			{
-				for (int j = 0; j <= inputfilesectionlist.size() - formatsectionlist.size(); j++)
-				{
-					FormatValue += inputfilesectionlist[j + i] + "_";
-				}
-				FormatValue = FormatValue.substr(0, FormatValue.size() - 1);
-			}
-			//if not, replace just as the position indicate
-			else if (i < formatsectionlist.size() - 1 && inputfilesectionlist.size() >i)
-			{
-				FormatValue = inputfilesectionlist[i];
-			}
-			else continue;
-		}
-		else
-		{
-			bool find;
-			for (int j = 0; j < inputfilesectionlist.size(); j++)
-			{
-				if (inputfilesectionlist[j].find(prefix) == 0)
-				{
-					FormatValue = inputfilesectionlist[j].substr(prefix.size(), -1);
-					find = true;
-					break;
-				}
-				else if (j == inputfilesectionlist.size() - 1) find = false;
-			}
-			if (find == false) continue;
-		}
-		FileInfo[FormatName] = FormatValue;
+		//cout << formatsectionlist[i] << " " << name.substr(pos1 + 1, pos2 - pos1 - 1) << endl;
+
+		FileInfo[formatsectionlist[i]] = name.substr(pos1 + 1, pos2 - pos1 - 1);
+
+		pos = pos2 - 1;
+
 	}
 }
 
