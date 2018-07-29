@@ -458,7 +458,7 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName,string sectionName)
 		else
 		{
 			TiXmlElement*ele = GetRootElementFromFile(cfgFileName);
-			if (ele->Value() == ClassName()) { Sectional = ele; }
+			if (ele->Value() == (string)ClassName()) { Sectional = ele; }
 			else { Sectional = GetElementWithName(ClassName(), sectionName, ele); }
 			if (Sectional == NULL) {
 				warning << "cannot find xml section \"" << ClassName() << "\" with name \""<< sectionName <<"\""<<endl; 
