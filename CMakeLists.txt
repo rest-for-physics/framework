@@ -1,10 +1,21 @@
 PROJECT(REST)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
+#minimum compiler version
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # require at least gcc 4.8
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8)
+        message(FATAL_ERROR "GCC version must be at least 4.8!")
+    endif()
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    # require at least clang 3.2
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.2)
+        message(FATAL_ERROR "Clang version must be at least 3.2!")
+    endif()
+endif()
 
 
-#set other flags here
-
+#install path
 IF(NOT DEFINED INSTALL_PREFIX)
 	IF(DEFINED ENV{REST_PATH})
 		set(INSTALL_PREFIX $ENV{REST_PATH})
@@ -17,6 +28,7 @@ set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
 message ("\noo REST will be installed in : ${CMAKE_INSTALL_PREFIX}" )
 message ("oo System is : ${CMAKE_SYSTEM_NAME}\n" )
 
+#gcc flags
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
     SET(CMAKE_CXX_FLAGS "-std=c++1y")
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -25,16 +37,17 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(CMAKE_CXX_FLAGS "-stdlib=libc++ -std=c++11")
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
-#define c++ pragmas
+#welcome message
 IF( NOT DEFINED REST_WELCOME )
     set(REST_WELCOME ON)
 ENDIF()
 
+#define c++ pragmas
 if(${REST_GARFIELD} MATCHES "ON")
 	add_definitions(-DUSE_Garfield)
 endif(${REST_GARFIELD} MATCHES "ON")
 
-#find includes and libs
+#find includes and libs for dependence package
 set(ROOT_FIND_REQUIRED true)
 set(external_include_dirs)
 set(external_libs)
@@ -82,10 +95,9 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 		message("-- Found tinyxml library in ${tiny}")
 	endif(NOT tiny)
 	set(external_libs ${external_libs} -ltinyxml)
-
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
-	#Here Windows is just for test. It is for the convenience of vs to make gramma check
+#Here Windows is just for test. It is for the convenience of vs to make gramma check
 IF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	#set(ROOT_INCLUDE_DIR $ENV{ROOTSYS}/include)
 	#set(ROOT_LIBRARY_DIR $ENV{ROOTSYS}/lib)
@@ -141,7 +153,6 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	message(STATUS "REST branch : ${git_branch}")
 	endif(git_date MATCHES " ")
 	endif(DEFINED git_date)
-
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 
