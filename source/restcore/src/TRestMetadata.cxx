@@ -874,7 +874,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 
 	string filename = SearchFile(_filename);
 	if (filename == "") {
-		warning << "REST WARNING(expand include file): Include file " << filename << " does not exist!" << endl;
+		warning << "REST WARNING(expand include file): Include file \"" << _filename << "\" does not exist!" << endl;
 		warning << endl;
 		return;
 	}
@@ -1955,7 +1955,8 @@ TString TRestMetadata::GetVerboseLevelString()
 /// file search tool, see TRestMetadata::SearchFile().
 TString TRestMetadata::GetSearchPath() {
 	TiXmlElement*e = fElement;
-	string result = "";
+	//string result = "";
+	string result = getenv("configPath") + (string)":";
 	TiXmlElement* ele = e->FirstChildElement("searchPath");
 	while (ele != NULL)
 	{

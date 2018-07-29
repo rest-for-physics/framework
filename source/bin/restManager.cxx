@@ -87,6 +87,9 @@ int main( int argc, char *argv[] )
 			fout << endl;
 			TRestManager* a = new TRestManager();
 
+			auto path = SeparatePathAndName(cfgFileName).first;
+			setenv("configPath", path.c_str(), 1);
+
 			a->LoadConfigFromFile(cfgFileName);
 
 			fout << "Done!" << endl;
