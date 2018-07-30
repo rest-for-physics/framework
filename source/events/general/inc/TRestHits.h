@@ -158,6 +158,6 @@ class TRestHits : public TObject
         //Destructor
         ~TRestHits();
 
-        ClassDef(TRestHits, 2);
+        ClassDef(TRestHits, 3);
 };
 #endif
