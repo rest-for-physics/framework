@@ -675,9 +675,9 @@ TFile* TRestRun::FormOutputFile(vector<string> filenames, string targetfilename)
 	//write metadata into the output file
 	fOutputFile = new TFile(fOutputFileName, "UPDATE");
 	this->WriteWithDataBase();
-	for (int i = 0; i < fMetadataInfo.size(); i++) {
-		fMetadataInfo[i]->Write();
-	}
+	//for (int i = 0; i < fMetadataInfo.size(); i++) {
+	//	fMetadataInfo[i]->Write();
+	//}
 
 	fout << this->ClassName() << " Created: " << fOutputFileName << endl;
 	return fOutputFile;
@@ -716,7 +716,10 @@ TFile* TRestRun::FormOutputFile()
 void TRestRun::WriteWithDataBase(int level, bool force) {
 	time_t  timev; time(&timev);
 	fEndTime = (Double_t)timev;
-	this->Write();
+	this->Write(0, kOverwrite);
+	for (int i = 0; i < fMetadataInfo.size(); i++) {
+		fMetadataInfo[i]->Write(0, kOverwrite);
+	}
 
 	//write to database
 	if (fRunNumber != -1) {

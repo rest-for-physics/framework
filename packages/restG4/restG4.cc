@@ -410,6 +410,7 @@ int main(int argc,char** argv) {
 		system(("rm " + (string)restG4Metadata->Get_GDML_Filename() + "_").c_str());
 
 		f1->cd();
+		geo2->SetName("Geometry");
 		geo2->Write();
 		cout << "Closing file : " << Filename << endl;
 		f1->Close();
