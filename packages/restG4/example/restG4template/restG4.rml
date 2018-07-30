@@ -5,11 +5,6 @@
      First concept author J. Galan (26-Apr-2015)
  -->
 
-<!--
-Any commented text will just not end up in the configBuffer inside TRestMetadata 
-We can comment out pieces of configuration using XML commenting style.
--->
-
 <!-- 
 By default REST units are mm, keV and degrees
 -->
@@ -24,7 +19,7 @@ By default REST units are mm, keV and degrees
   <TRestRun name="Run metadata" title="REST Metadata run info (template)">
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
-    <parameter name="runNumber" value="auto"/>
+    <parameter name="runNumber" value="-1"/>  //set value to "auto" can add simulation run into database
     <parameter name="readOnly" value="false" />
     <parameter name="runTag" value="Template"/>
     <parameter name="runDescription" value="We launch just 100 events to check everything is ok."/>
@@ -48,19 +43,17 @@ By default REST units are mm, keV and degrees
     <!-- The number of events to be simulated is now defined in TRestG4Metadata -->
     <parameter name="Nevents" value="100" />
 
-    <!--<generator type="volume" from="gas" >
-      <source fromFile="Xe136bb0n.dat">
-      </source>
-    </generator>-->
-
-
     <generator type="volume" from="gas" >
+      <source fromFile="Xe136bb0n.dat"/>
+    </generator>
+
+    
+    <!--<generator type="volume" from="gas" >
       <source particle="Na22" excitedLevel="0.0" fullChain="on">
         <angularDist type="isotropic" />
         <energyDist type="mono" energy="0.0" units="MeV" />
       </source>
-    </generator>
-
+    </generator>-->
 
     <biasing value="off" type="virtualBox">
       <biasingVolume size="2850mm" position="(0,0,0)mm" factor="2" energyRange="(0,5)MeV" />
@@ -75,7 +68,7 @@ By default REST units are mm, keV and degrees
   </TRestG4Metadata>
 
   <TRestPhysicsLists name="default" title="First physics list implementation." >
-
+    
     <parameter name="cutForGamma" value="1" units="um" />
     <parameter name="cutForElectron" value="1" units="um" />
     <parameter name="cutForPositron" value="1" units="mm" />
@@ -84,7 +77,7 @@ By default REST units are mm, keV and degrees
     <parameter name="cutForNeutron" value="1" units="mm" />
     <parameter name="minEnergyRangeProductionCuts" value="1" units="keV" />
     <parameter name="maxEnergyRangeProductionCuts" value="1" units="GeV" />
-
+    
     <!-- EM Physics lists -->
     <physicsList name="G4EmLivermorePhysics"> </physicsList>
     <!-- <physicsList name="G4EmPenelopePhysics"> </physicsList> -->
@@ -104,7 +97,7 @@ By default REST units are mm, keV and degrees
     <physicsList name="G4HadronPhysicsQGSP_BIC_HP"> </physicsList>
     <physicsList name="G4NeutronTrackingCut"> </physicsList>
     <physicsList name="G4EmExtraPhysics"> </physicsList>
-
+    
   </TRestPhysicsLists>
 
 
