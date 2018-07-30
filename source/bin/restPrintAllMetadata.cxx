@@ -41,6 +41,7 @@ int main( int argc, char *argv[] )
 
 	TRint theApp("App", &argRint, argVRint );
 
+    gSystem->Load("libGdml.so");
 	gSystem->Load("libRestCore.so");
 	gSystem->Load("libRestMetadata.so");
 	gSystem->Load("libRestEvents.so");
