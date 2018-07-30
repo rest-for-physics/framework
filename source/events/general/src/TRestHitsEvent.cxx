@@ -43,14 +43,14 @@ TRestHitsEvent::~TRestHitsEvent()
     delete fHits;
 }
 
-void TRestHitsEvent::AddHit( Double_t x, Double_t y, Double_t z, Double_t en, Double_t t )
+void TRestHitsEvent::AddHit( Double_t x, Double_t y, Double_t z, Double_t en, Double_t t, Short_t mod, Short_t ch )
 {
-    fHits->AddHit(x, y, z, en, t);
+    fHits->AddHit(x, y, z, en, t, mod, ch );
 }
 
-void TRestHitsEvent::AddHit( TVector3 pos, Double_t en, Double_t t )
+void TRestHitsEvent::AddHit( TVector3 pos, Double_t en, Double_t t, Short_t mod, Short_t ch )
 {
-    fHits->AddHit(pos, en, t );
+    fHits->AddHit(pos, en, t, mod, ch );
 }
 
 void TRestHitsEvent::Initialize()
@@ -85,7 +85,7 @@ TRestHits *TRestHitsEvent::GetXZHits()
 
     for( int i = 0; i < this->GetNumberOfHits(); i++ )
         if( IsNaN ( this->GetY(i) ) )
-            fXZHits->AddHit( this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i) );
+            fXZHits->AddHit( this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i), 0, this->GetModule(i), this->GetChannel(i) );
 
     return fXZHits;
 }
@@ -96,7 +96,7 @@ TRestHits *TRestHitsEvent::GetYZHits()
 
     for( int i = 0; i < this->GetNumberOfHits(); i++ )
         if( IsNaN ( this->GetX(i) ) )
-            fYZHits->AddHit( this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i) );
+            fYZHits->AddHit( this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i), 0, this->GetModule(i), this->GetChannel(i) );
 
     return fYZHits;
 }
@@ -107,7 +107,8 @@ TRestHits *TRestHitsEvent::GetXYZHits()
 
     for( int i = 0; i < this->GetNumberOfHits(); i++ )
         if( !IsNaN( this->GetX(i) ) && !IsNaN( this->GetY(i) ) && !IsNaN( this->GetZ(i) ) )
-            fXYZHits->AddHit( this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i) );
+            fXYZHits->AddHit( this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i), 0, this->GetModule(i), this->GetChannel(i) );
+
 
     return fXYZHits;
 }

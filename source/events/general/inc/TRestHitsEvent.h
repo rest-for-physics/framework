@@ -60,8 +60,8 @@ class TRestHitsEvent : public TRestEvent
         //! Changes the orgin of the Cartesian coordinate system
         void ChangeOrigin(double origx, double origy, double origz);
 
-        void AddHit( Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0 );
-        void AddHit( TVector3 pos, Double_t en, Double_t t = 0 );
+        void AddHit( Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0, Short_t mod = -1, Short_t ch = -1 );
+        void AddHit( TVector3 pos, Double_t en, Double_t t = 0, Short_t mod = -1, Short_t ch = -1 );
         void RemoveHits( );
 
         void MergeHits( int n, int m );
@@ -69,7 +69,7 @@ class TRestHitsEvent : public TRestEvent
 
         void SetBoundaries( );
 
-        Int_t GetNumberOfHits( ) { return fHits->fNHits; }
+        Int_t GetNumberOfHits( ) { return fHits->GetNumberOfHits(); }
 
         TRestHits *GetHits( ) { return fHits; }
 
@@ -78,6 +78,8 @@ class TRestHitsEvent : public TRestEvent
         Double_t GetY( int n ) { return fHits->GetY(n); } // return value in mm
         Double_t GetZ( int n ) { return fHits->GetZ(n); } // return value in mm
         Double_t GetEnergy( int n ) { return fHits->GetEnergy(n); } //return value in keV
+        Short_t GetModule( int n ) { return fHits->GetModule(n); } //return module ID
+        Short_t GetChannel( int n ) { return fHits->GetChannel(n); } //return channel ID
 
         Double_t GetDistance2( int n, int m ) { return fHits->GetDistance2( n, m ); }
 
