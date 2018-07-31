@@ -259,17 +259,25 @@ public:
 	void flushstring()
 	{
 		int consolewidth = ConsoleHelper::GetWidth() - 2;
-		printf("\033[K");
-		if (orientation == 0) {
-			cout << color << string((consolewidth - length) / 2, ' ')
-				<< FormattingPrintString(stringbuf)
-				<< string((consolewidth - length) / 2, ' ') << COLOR_RESET << endl;
+		if (consolewidth > 500 || consolewidth < 10)//this means we are using condor
+		{
+			cout << stringbuf << endl;
+			stringbuf = "";
 		}
 		else
 		{
-			cout << color << FormattingPrintString(stringbuf) << COLOR_RESET << endl;
+			printf("\033[K");
+			if (orientation == 0) {
+				cout << color << string((consolewidth - length) / 2, ' ')
+					<< FormattingPrintString(stringbuf)
+					<< string((consolewidth - length) / 2, ' ') << COLOR_RESET << endl;
+			}
+			else
+			{
+				cout << color << FormattingPrintString(stringbuf) << COLOR_RESET << endl;
+			}
+			stringbuf = "";
 		}
-		stringbuf = "";
 	}
 
 
