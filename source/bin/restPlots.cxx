@@ -148,7 +148,10 @@ int main( int argc, char *argv[] )
         anPlot->SetOutputHistosFilename( saveToROOTFile );
 
     for( unsigned int n = 0; n < inputFilesNew.size(); n++ )
+    {
+        cout << "Adding file : " << inputFilesNew[n] << endl;
         anPlot->AddFile( inputFilesNew[n] );
+    }
 
     anPlot->PrintFiles();
 

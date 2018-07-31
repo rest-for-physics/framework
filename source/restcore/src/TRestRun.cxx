@@ -640,6 +640,12 @@ void TRestRun::OpenInputFile( TString fName )
         if( cName == "TGeoManager" ) 
             continue;
 
+        if( cName == "TRestReadout" ) 
+            continue;
+
+        if( cName == "TRestGas" ) 
+            continue;
+
         if( !fInputFile->Get( key->GetName() )) 
         { 
             if( GetVerboseLevel() >= REST_Debug ) 
@@ -679,6 +685,7 @@ void TRestRun::OpenInputFile( TString fName )
 
     fInputAnalysisTree->ConnectEventBranches( );
     fInputAnalysisTree->ConnectObservables( );
+
 }
 
 void TRestRun::OpenInputFile( TString fName, TString cName )
