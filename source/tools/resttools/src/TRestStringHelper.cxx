@@ -571,6 +571,7 @@ std::string TRestStringHelper::ExecuteShellCommand(string cmd)
 		}
 		pclose(ptr);
 		ptr = NULL;
+		result = result.substr(0, result.size() - 1);//remove last "\n"
 		return result;
 	}
 	else
