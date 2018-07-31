@@ -601,7 +601,12 @@ void TRestRun::ImportMetadata( TString rootFile, TString name, Bool_t store )
 
 void TRestRun::OpenInputFile( TString fName )
 {
-    if( fInputFile != NULL ) fInputFile->Close();
+    if( fInputFile != NULL ) 
+    {
+        fInputFile->Close();
+        fInputFile = NULL;
+        Initialize();
+    }
 
     if( !fileExists( fName.Data() ) ) {
         cout << "TRestRun. WARNING. Input file does not exist" << endl;
@@ -626,6 +631,7 @@ void TRestRun::OpenInputFile( TString fName )
         cout << "File : " << fName << endl;
         fInputFile->Close();
         fInputFile = NULL;
+        Initialize();
         return;
     }
 

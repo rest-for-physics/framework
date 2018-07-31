@@ -139,7 +139,7 @@ class TRestRun:public TRestMetadata {
         void OpenInputFile( TString fName );
         void OpenInputFile( TString fName, TString cName );
 
-        void CloseInputFile( ) { fInputFile->Close(); }
+        void CloseInputFile( ) { fInputFile->Close(); Initialize() }
 
         TRestEvent *GetEventInput() { return fInputEvent; }
 
