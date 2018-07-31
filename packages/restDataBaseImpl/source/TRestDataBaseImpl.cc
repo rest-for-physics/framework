@@ -426,6 +426,27 @@ void TRestDataBaseImpl::print(int runnumber, int subrun) {
 }
 void TRestDataBaseImpl::exec(string cmd) {
 
+	if (ToUpper(cmd).find("DROP") != -1) {
+		cout << "ERROR!!!FORBIDDEN OPERATION!!!" << endl;
+		return;
+	}
+
+	if (cmd.find("select") == -1 && cmd.find(" ") != -1) {
+		cout << "WARNING!!!CRITICAL OPERATION!!!" << endl;
+		cout << "Type \"continue\" to continue if you are sure!" << endl;
+		string str;
+		cin >> str;
+		if (str != "continue") {
+			cout << "(aborted)" << endl;
+			return;
+		}
+		else 
+		{
+			cout << "(confirmed)" << endl;
+		}
+	}
+
+
 	auto result = query(conn, cmd);
 
 	if (result[-1].size() > 0) {
