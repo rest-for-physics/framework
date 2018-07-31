@@ -425,5 +425,37 @@ void TRestDataBaseImpl::print(int runnumber, int subrun) {
 	}
 }
 void TRestDataBaseImpl::exec(string cmd) {
-	query(conn, cmd);
+
+	auto result = query(conn, cmd);
+
+	if (result[-1].size() > 0) {
+
+		vector<int> maxlength(result[-1].size());
+
+		for (int row = -1; row < result.size(); row++) {
+			for (int column = 0; column < result[row].size(); column++) {
+				if (result[row][column].size() > maxlength[column])
+					maxlength[column] = result[row][column].size();
+			}
+		}
+
+		for (int row = -1; row < result.size(); row++) {
+			for (int column = 0; column < result[row].size(); column++) {
+
+				string item = result[row][column];
+				int n = (maxlength[column] - item.size());
+
+				cout <<result[row][column]<< string(n, ' ');
+				if (column == result[row].size() - 1) {
+					cout << endl;
+				}
+				else
+				{
+					cout << " | ";
+				}
+			}
+
+		}
+	}
+
 }

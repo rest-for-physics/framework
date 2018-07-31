@@ -22,32 +22,40 @@ struct result_accessor {
 };
 
 struct untyped_tuple : result_accessor {
-  size_t row;
+  int row;//row < 0 returns field names
 
-  untyped_tuple(std::shared_ptr<PGresult> res, size_t i)
+  untyped_tuple(std::shared_ptr<PGresult> res, int i)
     : result_accessor(res), row(i)
   {}
 
-  bool isnull(size_t col) const
+  bool isnull(int col) const
   {
-    return PQgetisnull(result.get(), row, col);
+	if (row < 0) return false;
+	return PQgetisnull(result.get(), row, col);
   }
 
-  size_t size() const
+  int size() const
   {
     return columns();
   }
 
-  size_t columns() const
+  int columns() const
   {
     return PQnfields(result.get());
   }
 
-  std::string operator[](size_t col) const
+  std::string operator[](int col) const
   {
-    char* begin = PQgetvalue(result.get(), row, col);
-    char* end = begin + PQgetlength(result.get(), row, col);
-    return std::string(begin, end);
+	  if (row < 0) {
+		  return std::string(PQfname(result.get(), col));
+	  }
+	  else
+	  {
+		  char* begin = PQgetvalue(result.get(), row, col);
+		  char* end = begin + PQgetlength(result.get(), row, col);
+		  return std::string(begin, end);
+	  }
+	  return "";
   }
 
   std::string operator[](std::string name) const
@@ -61,22 +69,22 @@ struct untyped_result_set : result_accessor {
     : result_accessor(res)
   {}
 
-  size_t size() const
+  int size() const
   {
     return rows();
   }
 
-  size_t rows() const
+  int rows() const
   {
     return PQntuples(result.get());
   }
 
-  size_t columns() const
+  int columns() const
   {
     return PQnfields(result.get());
   }
 
-  untyped_tuple operator[](size_t i) const
+  untyped_tuple operator[](int i) const
   {
     return untyped_tuple(result, i);
   }
