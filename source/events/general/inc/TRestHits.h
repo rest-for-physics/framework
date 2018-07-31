@@ -44,6 +44,8 @@ class TRestHits : public TObject
         std::vector <Float_t>   fZ;		// [fNHits] Position on Z axis for each punctual deposition (units mm)
         std::vector <Float_t>   fT;		// [fNHits] Absolute time information for each punctual deposition (units us, 0 is time of decay)
         std::vector <Float_t>   fEnergy;	// [fNHits] Energy deposited at each 3-coordinate position (units keV)
+        std::vector <Short_t>   fMod;		// [fNHits] Module ID on which each punctual deposition was detected (units us, 0 is time of decay)
+        std::vector <Short_t>   fCh;		// [fNHits] Channel ID on which each punctual deposition was detected (units us, 0 is time of decay)
 
         //! Changes the origin of the Cartesian coordinate system
         void Traslate( Int_t n, Double_t x, Double_t y, Double_t z);
@@ -52,8 +54,8 @@ class TRestHits : public TObject
         /// Rotation around an arbitrary axis vAxis
         void Rotate(Int_t n, Double_t alpha, TVector3 vAxis, TVector3 vMean);  // vMean is the mean position of the event from GetMeanPosition()
 
-        void AddHit( Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0 );
-        void AddHit( TVector3 pos, Double_t en, Double_t t = 0 );
+        void AddHit( Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0, Short_t mod = -1, Short_t ch = -1 );
+        void AddHit( TVector3 pos, Double_t en, Double_t t = 0, Short_t mod = -1, Short_t ch = -1 );
         void AddHit( TRestHits &hits, Int_t n );
 
         void RemoveHits( );
@@ -92,6 +94,8 @@ class TRestHits : public TObject
         Double_t GetY( int n ) { return ( (Double_t) fY[n]); } // return value in mm
         Double_t GetZ( int n ) { return ( (Double_t) fZ[n]); } // return value in mm
         Double_t GetTime( int n ) {return ( (Double_t) fT[n]);  }  // return value in us
+        Short_t GetModule( int n ) {return ( (Short_t) fMod[n]);  }  // return module ID
+        Short_t GetChannel( int n ) {return ( (Short_t) fCh[n]);  }  // return channel ID
 
         TVector3 GetPosition( int n );
         TVector3 GetVector( int i, int j );
@@ -154,6 +158,6 @@ class TRestHits : public TObject
         //Destructor
         ~TRestHits();
 
-        ClassDef(TRestHits, 2);
+        ClassDef(TRestHits, 3);
 };
 #endif

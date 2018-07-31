@@ -189,7 +189,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
         TRestSignal *sgnl = fSignalEvent->GetSignal( i );
         Int_t signalID = sgnl->GetSignalID();
 
-        if( GetVerboseLevel() >= REST_Debug ) 
+        if( GetVerboseLevel() >= REST_Debug )
             cout << "Searching readout coordinates for signal ID : " << signalID << endl;
         for( int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++ )
         {
@@ -215,96 +215,96 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
 
         if ( readoutChannel == -1 )
         {
-            cout << "REST Warning : Readout channel not found for daq ID : " << signalID << endl;
-            continue;
-        }
-        /////////////////////////////////////////////////////////////////////////
+			cout << "REST Warning : Readout channel not found for daq ID : " << signalID << endl;
+			continue;
+		}
+		/////////////////////////////////////////////////////////////////////////
 
-        TRestReadoutPlane *plane = fReadout->GetReadoutPlane( planeID );
+		TRestReadoutPlane *plane = fReadout->GetReadoutPlane( planeID );
 
-        // For the moment this will only be valid for a TPC with its axis (field direction) being in z
-        Double_t fieldZDirection = plane->GetPlaneVector().Z();
-        Double_t zPosition = plane->GetPosition().Z();
+		// For the moment this will only be valid for a TPC with its axis (field direction) being in z
+		Double_t fieldZDirection = plane->GetPlaneVector().Z();
+		Double_t zPosition = plane->GetPosition().Z();
 
-        Double_t x = plane->GetX( readoutModule, readoutChannel );
-        Double_t y = plane->GetY( readoutModule, readoutChannel );
+		Double_t x = plane->GetX( readoutModule, readoutChannel );
+		Double_t y = plane->GetY( readoutModule, readoutChannel );
 
-        if( fSignalToHitMethod == "onlyMax" )
-        {
-            Double_t time = sgnl->GetMaxPeakTime();
-            Double_t distanceToPlane = time * fDriftVelocity;
+		if( fSignalToHitMethod == "onlyMax" )
+		{
+			Double_t time = sgnl->GetMaxPeakTime();
+			Double_t distanceToPlane = time * fDriftVelocity;
 
-            if( GetVerboseLevel() >= REST_Debug ) 
-                cout << "Distance to plane : " << distanceToPlane << endl;
+			if( GetVerboseLevel() >= REST_Debug )
+				cout << "Distance to plane : " << distanceToPlane << endl;
 
-            Double_t z = zPosition + fieldZDirection * distanceToPlane;
+			Double_t z = zPosition + fieldZDirection * distanceToPlane;
 
-            Double_t energy = sgnl->GetMaxPeakValue();
+			Double_t energy = sgnl->GetMaxPeakValue();
 
-            if( GetVerboseLevel() >= REST_Debug )
-                cout << "Adding hit. Time : " << time << " x : " << x << " y : " << y << " z : " << z << " Energy : " << energy << endl;
+			if( GetVerboseLevel() >= REST_Debug )
+				cout << "Adding hit. Time : " << time << " x : " << x << " y : " << y << " z : " << z << " Energy : " << energy << endl;
 
-            fHitsEvent->AddHit( x, y, z, energy );
-        }
-        else if( fSignalToHitMethod == "tripleMax" )
-        {
-            Int_t bin = sgnl->GetMaxIndex();
+			fHitsEvent->AddHit( x, y, z, energy, 0, (Short_t) readoutModule, (Short_t) readoutChannel );
+		}
+		else if( fSignalToHitMethod == "tripleMax" )
+		{
+			Int_t bin = sgnl->GetMaxIndex();
 
-            Double_t time = sgnl->GetTime( bin );
-            Double_t energy = sgnl->GetData(bin);
+			Double_t time = sgnl->GetTime( bin );
+			Double_t energy = sgnl->GetData(bin);
 
-            Double_t distanceToPlane = time * fDriftVelocity;
-            Double_t z = zPosition + fieldZDirection * distanceToPlane;
+			Double_t distanceToPlane = time * fDriftVelocity;
+			Double_t z = zPosition + fieldZDirection * distanceToPlane;
 
-            fHitsEvent->AddHit( x, y, z, energy );
+			fHitsEvent->AddHit( x, y, z, energy, 0, (Short_t) readoutModule, (Short_t) readoutChannel );
 
-            time = sgnl->GetTime( bin-1 );
-            energy = sgnl->GetData( bin-1 );
+			time = sgnl->GetTime( bin-1 );
+			energy = sgnl->GetData( bin-1 );
 
-            distanceToPlane = time * fDriftVelocity;
-            z = zPosition + fieldZDirection * distanceToPlane;
+			distanceToPlane = time * fDriftVelocity;
+			z = zPosition + fieldZDirection * distanceToPlane;
 
-            fHitsEvent->AddHit( x, y, z, energy );
+			fHitsEvent->AddHit( x, y, z, energy, 0, (Short_t) readoutModule, (Short_t) readoutChannel );
 
-            time = sgnl->GetTime( bin+1 );
-            energy = sgnl->GetData( bin+1 );
+			time = sgnl->GetTime( bin+1 );
+			energy = sgnl->GetData( bin+1 );
 
-            distanceToPlane = time * fDriftVelocity;
-            z = zPosition + fieldZDirection * distanceToPlane;
+			distanceToPlane = time * fDriftVelocity;
+			z = zPosition + fieldZDirection * distanceToPlane;
 
-            fHitsEvent->AddHit( x, y, z, energy );
+			fHitsEvent->AddHit( x, y, z, energy, 0, (Short_t) readoutModule, (Short_t) readoutChannel );
 
-            if( GetVerboseLevel() >= REST_Debug ) 
-            {
-                cout << "Distance to plane : " << distanceToPlane << endl;
-                cout << "Adding hit. Time : " << time << " x : " << x << " y : " << y << " z : " << z << " Energy : " << energy << endl;
-            }
-        }
-        else
-        {
-            for( int j = 0; j < sgnl->GetNumberOfPoints(); j++ )
-            {
-                Double_t energy = sgnl->GetData(j);
+			if( GetVerboseLevel() >= REST_Debug )
+			{
+				cout << "Distance to plane : " << distanceToPlane << endl;
+				cout << "Adding hit. Time : " << time << " x : " << x << " y : " << y << " z : " << z << " Energy : " << energy << endl;
+			}
+		}
+		else
+		{
+			for( int j = 0; j < sgnl->GetNumberOfPoints(); j++ )
+			{
+				Double_t energy = sgnl->GetData(j);
 
-                if( energy <= 0 ) continue;
+				if( energy <= 0 ) continue;
 
-                Double_t distanceToPlane = sgnl->GetTime(j) * fDriftVelocity;
+				Double_t distanceToPlane = sgnl->GetTime(j) * fDriftVelocity;
 
-                if( GetVerboseLevel() >= REST_Debug ) 
-                {
-                    cout << "Sampling : " << fSampling << endl;
-                    cout << "Time : " << sgnl->GetTime(j) << " Drift velocity : " << fDriftVelocity << endl;
-                    cout << "Distance to plane : " << distanceToPlane << endl;
-                }
+				if( GetVerboseLevel() >= REST_Debug )
+				{
+					cout << "Sampling : " << fSampling << endl;
+					cout << "Time : " << sgnl->GetTime(j) << " Drift velocity : " << fDriftVelocity << endl;
+					cout << "Distance to plane : " << distanceToPlane << endl;
+				}
 
-                Double_t z = zPosition + fieldZDirection * distanceToPlane;
+				Double_t z = zPosition + fieldZDirection * distanceToPlane;
 
-                if( GetVerboseLevel() >= REST_Debug )
-                    cout << "Adding hit. Time : " << sgnl->GetTime(j) << " x : " << x << " y : " << y << " z : " << z << endl;
+				if( GetVerboseLevel() >= REST_Debug )
+					cout << "Adding hit. Time : " << sgnl->GetTime(j) << " x : " << x << " y : " << y << " z : " << z << endl;
 
-                fHitsEvent->AddHit( x, y, z, energy );
-            }
-        }
+				fHitsEvent->AddHit( x, y, z, energy, 0, (Short_t) readoutModule, (Short_t) readoutChannel );
+			}
+		}
     }
 
     if( this->GetVerboseLevel() >= REST_Info ) 
@@ -313,7 +313,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
         cout << "TRestSignalToHitsProcess. Hits total energy : " << fHitsEvent->GetEnergy() << endl;
     }
 
-    if( this->GetVerboseLevel() >= REST_Debug ) 
+    if( this->GetVerboseLevel() >= REST_Debug )
     {
         fHitsEvent->PrintEvent(300);
         GetChar();

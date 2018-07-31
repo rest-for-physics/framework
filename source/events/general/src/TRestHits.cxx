@@ -284,20 +284,21 @@ Bool_t TRestHits::isHitNInsideSphere( Int_t n, Double_t x0, Double_t y0, Double_
     return kFALSE;
 }
 
-void TRestHits::AddHit( Double_t x, Double_t y, Double_t z, Double_t en, Double_t t )
+void TRestHits::AddHit( Double_t x, Double_t y, Double_t z, Double_t en, Double_t t, Short_t mod, Short_t ch )
 {
     fNHits++;
     fX.push_back( (Float_t) (x) );
     fY.push_back( (Float_t) (y ));
     fZ.push_back( (Float_t) ( z));
     fT.push_back( (Float_t) t );
+    fMod.push_back( (Short_t) mod );
+    fCh.push_back( (Short_t) ch );
     fEnergy.push_back( (Float_t) ( en ) );
 
     fTotEnergy += en;
 }
 
-
-void TRestHits::AddHit( TVector3 pos, Double_t en, Double_t t )
+void TRestHits::AddHit( TVector3 pos, Double_t en, Double_t t, Short_t mod, Short_t ch )
 {
     fNHits++;
 
@@ -305,6 +306,8 @@ void TRestHits::AddHit( TVector3 pos, Double_t en, Double_t t )
     fY.push_back( (Float_t) (pos.Y() ));
     fZ.push_back( (Float_t) ( pos.Z()  ));
     fT.push_back( (Float_t) t );
+    fMod.push_back( (Short_t) mod );
+    fCh.push_back( (Short_t) ch );
     fEnergy.push_back( (Float_t) ( en ) );
 
     fTotEnergy += en;
@@ -317,8 +320,10 @@ void TRestHits::AddHit( TRestHits &hits, Int_t n )
     Double_t z =  hits.GetZ( n );
     Double_t en = hits.GetEnergy( n );
     Double_t t =  hits.GetTime( n );
+    Short_t mod =  hits.GetModule( n );
+    Short_t ch =  hits.GetChannel( n );
 
-    AddHit( x, y, z, en, t );
+    AddHit( x, y, z, en, t, mod, ch );
 }
 
 
@@ -329,6 +334,8 @@ void TRestHits::RemoveHits( )
     fY.clear();
     fZ.clear();
     fT.clear();
+    fMod.clear();
+    fCh.clear();
     fEnergy.clear();
     fTotEnergy = 0;
 }
@@ -406,12 +413,16 @@ void TRestHits::MergeHits( int n, int m )
     fY[n] = (fY[n]*fEnergy[n] + fY[m]*fEnergy[m])/totalEnergy;
     fZ[n] = (fZ[n]*fEnergy[n] + fZ[m]*fEnergy[m])/totalEnergy;
     fT[n] = ( fT[n]*fEnergy[n] + fT[m]*fEnergy[m] )/totalEnergy;
+	if( fMod[n] != fMod[m] ) fMod[n] = -1;
+	if( fCh[n] != fCh[m] ) fCh[n] = -1;
     fEnergy[n] += fEnergy[m];
 
     fX.erase( fX.begin() + m);
     fY.erase( fY.begin() + m);
     fZ.erase( fZ.begin() + m);
     fT.erase( fT.begin() + m );
+    fMod.erase( fMod.begin() + m );
+    fCh.erase( fCh.begin() + m );
     fEnergy.erase( fEnergy.begin() + m );
     fNHits--;
 }
@@ -423,6 +434,8 @@ void TRestHits::SwapHits( Int_t i, Int_t j )
     iter_swap(fZ.begin() + i, fZ.begin() + j);
     iter_swap(fEnergy.begin() + i, fEnergy.begin() + j);
     iter_swap(fT.begin() + i, fT.begin() + j);
+    iter_swap(fMod.begin() + i, fMod.begin() + j);
+    iter_swap(fCh.begin() + i, fCh.begin() + j);
 }
 
 Bool_t TRestHits::isSortedByEnergy( )
@@ -440,6 +453,8 @@ void TRestHits::RemoveHit( int n )
     fY.erase(fY.begin()+n);
     fZ.erase(fZ.begin()+n);
     fT.erase(fT.begin()+n);
+    fMod.erase(fMod.begin()+n);
+    fCh.erase(fCh.begin()+n);
     fEnergy.erase(fEnergy.begin()+n);
     fNHits--;
 }
@@ -731,8 +746,12 @@ void TRestHits::PrintHits( Int_t nHits )
     if( N == -1 ) N = GetNumberOfHits();
     if( N > GetNumberOfHits() ) N = GetNumberOfHits();
 
-    for( int n = 0; n < N; n++ )
-      cout << "Hit " << n << " X: " << GetX(n) << " Y: " << GetY(n) << " Z: " << GetZ(n) 
-          <<  " Energy: " << GetEnergy(n) << " T: " << GetTime(n) << endl;
+	for( int n = 0; n < N; n++ )
+	{
+		cout << "Hit " << n << " X: " << GetX(n) << " Y: " << GetY(n) << " Z: " << GetZ(n)
+			<<  " Energy: " << GetEnergy(n) << " T: " << GetTime(n);
+		if( GetModule(n) != -1 ) cout << " Module: " << GetModule(n);
+		if( GetChannel(n) != -1 ) cout << " Channel: " << GetChannel(n);
+		cout << endl;
+	}
 }
-
