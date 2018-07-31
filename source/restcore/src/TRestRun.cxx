@@ -691,7 +691,12 @@ void TRestRun::OpenInputFile( TString fName )
 
     fInputAnalysisTree->ConnectEventBranches( );
     fInputAnalysisTree->ConnectObservables( );
+}
 
+void TRestRun::CloseInputFile( )
+{
+   fInputFile->Close();
+   Initialize();
 }
 
 void TRestRun::OpenInputFile( TString fName, TString cName )
