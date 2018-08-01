@@ -218,12 +218,16 @@ TRestTask* TRestTask::GetTask(TString MacroName)
 			return NULL;
 		}
 		cout << "Found MacroFile " << macfiles[0] << endl;
-		if (gInterpreter->LoadFile(macfiles[0].c_str()) != 0)
+		system("echo \"#define REST_MANAGER\" >> /tmp/tmpMacro.c");
+		system(("cat " + macfiles[0] + " >> /tmp/tmpMacro.c").c_str());
+		if (gInterpreter->LoadFile("/tmp/tmpMacro.c") != 0)
 		{
 			return NULL;
 		}
 
-		return new TRestTask(macfiles[0].c_str());
+		auto tsk = new TRestTask(macfiles[0].c_str());
+		system("rm /tmp/tmpMacro.c");
+		return tsk;
 	}
 	else if(c->InheritsFrom("TRestTask"))
 	{
