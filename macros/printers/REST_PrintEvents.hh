@@ -10,7 +10,7 @@
 #ifndef RESTTask_PrintEvents
 #define RESTTask_PrintEvents
 
-Int_t REST_Printer_GenericEvents(TString fName, TString EventType="", Int_t firstEvent = 0)
+Int_t REST_Printer_GenericEvents(TString fName, TString EventType="", Int_t Entry = 0)
 {
 	TRestRun *run = new TRestRun();
 	TClass*cl = TClass::GetClass(EventType);
@@ -34,7 +34,7 @@ Int_t REST_Printer_GenericEvents(TString fName, TString EventType="", Int_t firs
 
 	run->PrintInfo();
 
-	run->GetEntry(firstEvent);
+	run->GetEntry(Entry);
 
 	evt->PrintEvent();
 

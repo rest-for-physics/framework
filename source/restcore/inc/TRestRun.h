@@ -154,10 +154,15 @@ public:
 	}
 	void PrintTrees() {
 		if (fEventTree != NULL)
+		{
+			fout << endl;
+			fout << "=====EventTree=====" << endl;
 			fEventTree->Print();
+		}
 		if (fAnalysisTree != NULL)
 		{
-			fout << "=" << endl;
+			fout << endl;
+			fout << "=====AnalysisTree=====" << endl;
 			fAnalysisTree->Print();
 		}
 	}

@@ -1,5 +1,5 @@
 #include "TRestTask.h"
-Int_t REST_Printer_Metadata( TString fName )
+Int_t REST_Printer_Metadata(TString fName, TString objName = "")
 {
 	TRestStringOutput cout;
 
@@ -20,7 +20,8 @@ Int_t REST_Printer_Metadata( TString fName )
 		TObject*obj = f->Get(key->GetName());
 		if (obj->InheritsFrom("TRestMetadata"))
 		{
-			((TRestMetadata*)obj)->PrintMetadata();
+			if (objName == "" || objName == obj->ClassName() || objName == obj->GetName())
+				((TRestMetadata*)obj)->PrintMetadata();
 		}
 	}
 	/////////////////////////////
