@@ -18,12 +18,12 @@ Int_t REST_Viewer_G4Event( TString fName)
 }
 
 
-class REST_ViewG4Events :public TRestTask {
+class REST_ViewG4Event :public TRestTask {
 public:
-	ClassDef(REST_ViewG4Events, 1);
+	ClassDef(REST_ViewG4Event, 1);
 
-	REST_ViewG4Events() { fNRequiredArgument = 1; }
-	~REST_ViewG4Events() {}
+	REST_ViewG4Event() { fNRequiredArgument = 1; }
+	~REST_ViewG4Event() {}
 
 	TString filename = " ";
 
