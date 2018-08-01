@@ -9,6 +9,9 @@ Int_t REST_Viewer_G4Event( TString fName)
 {
     TRestBrowser *browser = new TRestBrowser( "TRestG4EventViewer");
 
+	TRestEvent*eve = new TRestG4Event();
+	browser->SetInputEvent(eve);
+
     browser->OpenFile(fName);
 	
     return 0;

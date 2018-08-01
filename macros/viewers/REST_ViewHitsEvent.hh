@@ -9,6 +9,9 @@ Int_t REST_Viewer_HitsEvent( TString fName)
 {
     TRestBrowser *browser = new TRestBrowser("TRestHitsEventViewer" );
 
+	TRestEvent*eve = new TRestHitsEvent();
+	browser->SetInputEvent(eve);
+
     browser->OpenFile(fName);
 
     return 0;
