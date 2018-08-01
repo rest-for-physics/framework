@@ -12,13 +12,25 @@ Int_t REST_Viewer_Geometry( TString fName)
 
     TEveManager::Create();
    
+	TRestStringOutput cout;
     cout << "Filename : " << fName << endl;
     
     TRestRun *run = new TRestRun( );
     run->OpenInputFile(fName);
         
     TFile *fFile = new TFile( fName );
-    TGeoManager *geo = (TGeoManager *) fFile->Get( "Default" );
+	TGeoManager *geo = NULL;
+
+	TIter nextkey(fFile->GetListOfKeys());
+	TKey *key;
+	while ((key = (TKey*)nextkey()) != NULL) {
+		if (key->GetClassName() == (TString)"TGeoManager") {
+			if (geo == NULL)
+				geo = (TGeoManager*)fFile->Get(key->GetName());
+			else if (key->GetName() == (TString)"Geometry")
+				geo = (TGeoManager*)fFile->Get(key->GetName());
+		}
+	}
 
     TGeoNode* node = geo->GetTopNode();
 
@@ -47,27 +59,15 @@ Int_t REST_Viewer_Geometry( TString fName)
     //v->CurrentCamera().RotateRad(-.7, 0.5);
     v->DoDraw();
     
-    /////////////////////////////
+	//when we run this macro from restManager from bash,
+	//we need to call TRestMetadata::GetChar() to prevent returning,
+	//while keeping GUI alive.
+#ifdef REST_MANAGER
+	run->GetChar("Running...\nPress a key to exit");
+#endif
+
 
     return 0;
 }
-
-
-class REST_ViewGeometry :public TRestTask {
-public:
-	ClassDef(REST_ViewGeometry, 1);
-
-	REST_ViewGeometry() { fNRequiredArgument = 1; }
-	~REST_ViewGeometry() {}
-
-	TString filename = " ";
-
-	void RunTask(TRestManager*mgr)
-	{
-		REST_Viewer_Geometry(filename);
-		GetChar("Running...\nPress a key to exit");
-	}
-
-};
 
 #endif

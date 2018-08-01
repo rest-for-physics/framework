@@ -14,24 +14,14 @@ Int_t REST_Viewer_HitsEvent( TString fName)
 
     browser->OpenFile(fName);
 
+	//when we run this macro from restManager from bash,
+	//we need to call TRestMetadata::GetChar() to prevent returning,
+	//while keeping GUI alive.
+#ifdef REST_MANAGER
+	browser->GetChar("Running...\nPress a key to exit");
+#endif
+
     return 0;
 }
-
-class REST_ViewHitsEvent :public TRestTask {
-public:
-	ClassDef(REST_ViewHitsEvent, 1);
-
-	REST_ViewHitsEvent() { fNRequiredArgument = 1; }
-	~REST_ViewHitsEvent() {}
-
-	TString filename = " ";
-
-	void RunTask(TRestManager*mgr)
-	{
-		REST_Viewer_HitsEvent(filename);
-		GetChar("Running...\nPress a key to exit");
-	}
-
-};
 
 #endif

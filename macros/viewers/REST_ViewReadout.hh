@@ -8,11 +8,25 @@ using namespace std;
 #ifndef RestTask_ViewReadout
 #define RestTask_ViewReadout
 
-int REST_Viewer_Readout( TString rootFile, TString name, Int_t plane = 0 )
+int REST_Viewer_Readout( TString rootFile, TString name="", Int_t plane = 0 )
 {
 
-    TFile *f = new TFile( rootFile );
-    TRestReadout *readout = (TRestReadout *) f->Get( name );
+    TFile *fFile = new TFile( rootFile );
+
+	TRestReadout *readout=NULL;
+	TIter nextkey(fFile->GetListOfKeys());
+	TKey *key;
+	while ((key = (TKey*)nextkey()) != NULL) {
+		if (key->GetClassName() == (TString)"TRestReadout") {
+			if (readout == NULL)
+				readout = (TRestReadout *)fFile->Get(key->GetName());
+			else if (key->GetName() == name)
+				readout = (TRestReadout *)fFile->Get(key->GetName());
+		}
+	}
+
+	delete key;
+
     readout->PrintMetadata();
 
     TRestReadoutPlane *readoutPlane = readout->GetReadoutPlane( plane );
@@ -152,29 +166,17 @@ int REST_Viewer_Readout( TString rootFile, TString name, Int_t plane = 0 )
     }
 
     for( int i = 0; i < chGraph; i++ )channelGraph[i]->Draw("same");
-    
+
+	//when we run this macro from restManager from bash,
+	//we need to call TRestMetadata::GetChar() to prevent returning,
+	//while keeping GUI alive.
+#ifdef REST_MANAGER
+	readout->GetChar("Running...\nPress a key to exit");
+#endif
+
     return 0;
 }
 
-
-class REST_ViewReadout :public TRestTask {
-public:
-	ClassDef(REST_ViewReadout, 1);
-
-	REST_ViewReadout() { fNRequiredArgument = 2; }
-	~REST_ViewReadout() {}
-
-	TString filename = " ";
-	TString eventype = "";
-	int planeId = 0;
-
-	void RunTask(TRestManager*mgr)
-	{
-		REST_Viewer_Readout(filename, eventype,planeId);
-		GetChar("Running...\nPress a key to exit");
-	}
-
-};
 
 #endif
 
