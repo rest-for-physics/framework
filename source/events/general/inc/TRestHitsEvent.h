@@ -102,7 +102,19 @@ class TRestHitsEvent : public TRestEvent
         Double_t GetMeanPositionX( ) { return fHits->GetMeanPositionX(); }
         Double_t GetMeanPositionY( ) { return fHits->GetMeanPositionY(); }
         Double_t GetMeanPositionZ( ) { return fHits->GetMeanPositionZ(); }
+	Double_t GetSigmaXY2(){return fHits->GetSigmaXY2();}
+	Double_t GetSigmaX(){return fHits->GetSigmaX();}
+	Double_t GetSigmaY(){return fHits->GetSigmaY();}
+	Double_t GetSigmaZ2(){return fHits->GetSigmaZ2();}
+	Double_t GetSkewXY(){return fHits->GetSkewXY();}
+	Double_t GetSkewZ(){return fHits->GetSkewZ();}
 
+	Double_t GetMaximumHitEnergy(){return fHits->GetMaximumHitEnergy( );}
+	Double_t GetMinimumHitEnergy(){return fHits->GetMinimumHitEnergy( );}
+	Double_t GetMeanHitEnergy(){return fHits->GetMeanHitEnergy( );}
+       
+        Double_t GetEnergyX( ) { return fHits->GetEnergyX(); }
+        Double_t GetEnergyY( ) { return fHits->GetEnergyY(); }
         Double_t GetTotalDepositedEnergy() { return fHits->fTotEnergy; }
         Double_t GetTotalEnergy() { return fHits->fTotEnergy; }
         Double_t GetEnergy() { return fHits->fTotEnergy; }
@@ -112,6 +124,7 @@ class TRestHitsEvent : public TRestEvent
 
         // Inside Cylinder methods
         Bool_t isHitsEventInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius );
+	
 
         Int_t  GetEnergyInCylinder( TVector3 x0, TVector3 x1, Double_t radius )
             { return fHits-> GetEnergyInCylinder(x0, x1, radius); }
@@ -119,21 +132,23 @@ class TRestHitsEvent : public TRestEvent
         Int_t GetNumberOfHitsInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius )
             { return fHits->GetNumberOfHitsInsideCylinder(x0, x1, radius); }
 
-        Bool_t areHitsFullyContainnedInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius )
-            { return isHitsEventInsideCylinder( x0, x1, radius ); }
+        Bool_t areHitsFullyContainnedInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius );
+          TVector3 GetMeanPositionInCylinder( TVector3 x0, TVector3 x1, Double_t radius ) { return fHits->GetMeanPositionInCylinder(x0, x1, radius); }
 
 
         // Inside Prim methods
-        Bool_t isHitsEventInsidePrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY );
+        Bool_t isHitsEventInsidePrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta  );
+	Bool_t areHitsFullyContainnedInsidePrism( TVector3 x0, TVector3 x1, Double_t sX, Double_t sY, Double_t theta );
+     
 
-        Int_t GetNumberOfHitsInsidePrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY)
-            { return fHits->GetNumberOfHitsInsidePrism(x0, x1, sizeX, sizeY); }
+        Int_t GetNumberOfHitsInsidePrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta)
+            { return fHits->GetNumberOfHitsInsidePrism(x0, x1, sizeX, sizeY,theta); }
 
-        Int_t GetEnergyInPrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY)
-            { return fHits->GetEnergyInPrism(x0, x1, sizeX, sizeY); }
+        Int_t GetEnergyInPrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta)
+            { return fHits->GetEnergyInPrism(x0, x1, sizeX, sizeY,theta); }
 
-        Bool_t areHitsFullyContainnedInsidePrism( TVector3 x0, TVector3 x1, Double_t sX, Double_t sY )
-        { return isHitsEventInsidePrism( x0, x1, sX, sY ); }
+            TVector3 GetMeanPositionInPrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta) { return fHits->GetMeanPositionInPrism(x0, x1, sizeX, sizeY,theta); }
+
 
 
         // Get closest distance to cylinder walls methods
@@ -142,9 +157,9 @@ class TRestHitsEvent : public TRestEvent
         Double_t GetClosestHitInsideDistanceToCylinderBottom( TVector3 x0, TVector3 x1, Double_t radius );
 
         // Get closest distance to prism walls methods
-        Double_t GetClosestHitInsideDistanceToPrismWall( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY );
-        Double_t GetClosestHitInsideDistanceToPrismTop( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY );
-        Double_t GetClosestHitInsideDistanceToPrismBottom( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY );
+        Double_t GetClosestHitInsideDistanceToPrismWall( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta );
+        Double_t GetClosestHitInsideDistanceToPrismTop( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta );
+        Double_t GetClosestHitInsideDistanceToPrismBottom( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta );
 
 
         TPad *DrawEvent( TString option = "" );

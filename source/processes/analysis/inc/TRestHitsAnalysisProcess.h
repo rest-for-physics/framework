@@ -49,6 +49,7 @@ class TRestHitsAnalysisProcess:public TRestEventProcess {
         Double_t fFid_R;
         Double_t fFid_sX;
         Double_t fFid_sY;
+	 Double_t fFid_theta;
 
 
     public:

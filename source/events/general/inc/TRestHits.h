@@ -109,18 +109,37 @@ class TRestHits : public TObject
         Double_t GetMeanPositionZ( );
         TVector3 GetMeanPosition( );
 
+	Double_t GetSigmaXY2();
+	 Double_t GetSigmaX();
+	 Double_t GetSigmaY();
+	Double_t GetSigmaZ2();
+	 Double_t GetSkewXY();
+	Double_t GetSkewZ();
+
+        Double_t GetEnergyX( );
+         Double_t GetEnergyY( );
+
         Double_t GetEnergy( int n ) { return ( (Double_t) fEnergy[n]); } //return value in keV
 
-        Bool_t isHitNInsidePrism( Int_t n, TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY );
-        Int_t GetNumberOfHitsInsidePrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY );
-        Double_t GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY);
+        Bool_t isHitNInsidePrism( Int_t n, TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta );
+        Int_t GetNumberOfHitsInsidePrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta );
+        Double_t GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta);
+        Double_t GetMeanPositionXInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta);
+        Double_t GetMeanPositionYInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta);
+        Double_t GetMeanPositionZInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta);
+        TVector3 GetMeanPositionInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta);
 
         Bool_t isHitNInsideCylinder( Int_t n, TVector3 x0, TVector3 x1, Double_t radius );
+        
         Int_t GetNumberOfHitsInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius );
         Int_t GetNumberOfHitsInsideCylinder( Int_t i, Int_t j, Double_t radius );
 
         Double_t GetEnergyInCylinder( TVector3 x0, TVector3 x1, Double_t radius );
         Double_t GetEnergyInCylinder( Int_t i, Int_t j, Double_t radius );
+         Double_t GetMeanPositionXInCylinder( TVector3 x0, TVector3 x1, Double_t radius );
+        Double_t GetMeanPositionYInCylinder( TVector3 x0, TVector3 x1, Double_t radius );
+        Double_t GetMeanPositionZInCylinder( TVector3 x0, TVector3 x1, Double_t radius );
+        TVector3 GetMeanPositionInCylinder( TVector3 x0, TVector3 x1, Double_t radius );
 
         Bool_t isHitNInsideSphere( Int_t n, TVector3 pos0, Double_t radius );
         Bool_t isHitNInsideSphere( Int_t n, Double_t x0, Double_t y0, Double_t z0, Double_t radius );
