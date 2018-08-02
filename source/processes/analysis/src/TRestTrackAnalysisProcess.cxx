@@ -68,25 +68,57 @@ void TRestTrackAnalysisProcess::InitProcess()
     std::vector <string> fObservables;
     fObservables = TRestEventProcess::ReadObservables();
 
-    for( unsigned int i = 0; i < fObservables.size(); i++ )
-        if( fObservables[i].find( "nTracks_LE_" ) != string::npos )
-        {
-            Double_t energy = StringToDouble ( fObservables[i].substr( 11, fObservables[i].length() ).c_str() );
+	for (unsigned int i = 0; i < fObservables.size(); i++)
+	{
+		if (fObservables[i].find("nTracks_LE_") != string::npos)
+		{
+			Double_t energy = StringToDouble(fObservables[i].substr(11, fObservables[i].length()).c_str());
 
-            fTrack_LE_EnergyObservables.push_back( fObservables[i] );
-            fTrack_LE_Threshold.push_back( energy );
-            nTracks_LE.push_back(0);
-        }
+			fTrack_LE_EnergyObservables.push_back(fObservables[i]);
+			fTrack_LE_Threshold.push_back(energy);
+			nTracks_LE.push_back(0);
+		}
+		if (fObservables[i].find("nTracks_HE_") != string::npos)
+		{
+			Double_t energy = StringToDouble(fObservables[i].substr(11, fObservables[i].length()).c_str());
 
-    for( unsigned int i = 0; i < fObservables.size(); i++ )
-        if( fObservables[i].find( "nTracks_HE_" ) != string::npos )
-        {
-            Double_t energy = StringToDouble ( fObservables[i].substr( 11, fObservables[i].length() ).c_str() );
+			fTrack_HE_EnergyObservables.push_back(fObservables[i]);
+			fTrack_HE_Threshold.push_back(energy);
+			nTracks_HE.push_back(0);
+		}
+		if (fObservables[i].find("nTracks_LE_Y_") != string::npos)
+		{
+			Double_t energy = StringToDouble(fObservables[i].substr(13, fObservables[i].length()).c_str());
 
-            fTrack_HE_EnergyObservables.push_back( fObservables[i] );
-            fTrack_HE_Threshold.push_back( energy );
-            nTracks_HE.push_back(0);
-        }
+			fTrack_LE_Y_EnergyObservables.push_back(fObservables[i]);
+			fTrack_LE_Y_Threshold.push_back(energy);
+			nTracks_LE_Y.push_back(0);
+		}
+		if (fObservables[i].find("nTracks_HE_Y_") != string::npos)
+		{
+			Double_t energy = StringToDouble(fObservables[i].substr(13, fObservables[i].length()).c_str());
+
+			fTrack_HE_Y_EnergyObservables.push_back(fObservables[i]);
+			fTrack_HE_Y_Threshold.push_back(energy);
+			nTracks_HE_Y.push_back(0);
+		}
+		if (fObservables[i].find("nTracks_LE_X_") != string::npos)
+		{
+			Double_t energy = StringToDouble(fObservables[i].substr(13, fObservables[i].length()).c_str());
+
+			fTrack_LE_X_EnergyObservables.push_back(fObservables[i]);
+			fTrack_LE_X_Threshold.push_back(energy);
+			nTracks_LE_X.push_back(0);
+		}
+		if (fObservables[i].find("nTracks_HE_X_") != string::npos)
+		{
+			Double_t energy = StringToDouble(fObservables[i].substr(13, fObservables[i].length()).c_str());
+
+			fTrack_HE_X_EnergyObservables.push_back(fObservables[i]);
+			fTrack_HE_X_Threshold.push_back(energy);
+			nTracks_HE_X.push_back(0);
+		}
+	}
 }
 
 //______________________________________________________________________________
@@ -115,6 +147,14 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         nTracks_HE[n] = 0;
     for( unsigned int n = 0; n < nTracks_LE.size(); n++ )
         nTracks_LE[n] = 0;
+    for( unsigned int n = 0; n < nTracks_HE_Y.size(); n++ )
+        nTracks_HE_Y[n] = 0;
+    for( unsigned int n = 0; n < nTracks_LE_Y.size(); n++ )
+        nTracks_LE_Y[n] = 0;
+	for (unsigned int n = 0; n < nTracks_HE_X.size(); n++)
+		nTracks_HE_X[n] = 0;
+	for (unsigned int n = 0; n < nTracks_LE_X.size(); n++)
+		nTracks_LE_X[n] = 0;
 
     for( int tck = 0; tck < fTrackEvent->GetNumberOfTracks(); tck++ )
     {
@@ -159,10 +199,23 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         for( unsigned int n = 0; n < fTrack_HE_EnergyObservables.size(); n++ )
             if( en > fTrack_HE_Threshold[n] )
                 nTracks_HE[n]++;
-
         for( unsigned int n = 0; n < fTrack_LE_EnergyObservables.size(); n++ )
             if( en < fTrack_LE_Threshold[n] )
                 nTracks_LE[n]++;
+
+        for( unsigned int n = 0; n < fTrack_HE_Y_EnergyObservables.size(); n++ )
+            if( en > fTrack_HE_Y_Threshold[n] && t->isYZ() )
+                nTracks_HE_Y[n]++;
+        for( unsigned int n = 0; n < fTrack_LE_Y_EnergyObservables.size(); n++ )
+            if( en < fTrack_LE_Y_Threshold[n] && t->isYZ() )
+                nTracks_LE_Y[n]++;
+
+		for (unsigned int n = 0; n < fTrack_HE_X_EnergyObservables.size(); n++)
+			if (en > fTrack_HE_X_Threshold[n] && t->isXZ())
+				nTracks_HE_X[n]++;
+		for (unsigned int n = 0; n < fTrack_LE_X_EnergyObservables.size(); n++)
+			if (en < fTrack_LE_X_Threshold[n] && t->isXZ())
+				nTracks_LE_X[n]++;
     }
 
     Double_t evTimeDelay = 0;
@@ -238,13 +291,38 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         obsName = this->GetName( ) + (TString) "_" + obsName;
         fAnalysisTree->SetObservableValue( obsName, nTracks_LE[n] );
     }
-
     for( unsigned int n = 0; n < fTrack_HE_EnergyObservables.size(); n++ )
     {
         TString obsName = fTrack_HE_EnergyObservables[n];
         obsName = this->GetName( ) + (TString) "_" + obsName;
         fAnalysisTree->SetObservableValue( obsName, nTracks_HE[n] );
     }
+
+    for( unsigned int n = 0; n < fTrack_LE_Y_EnergyObservables.size(); n++ )
+    {
+        TString obsName = fTrack_LE_Y_EnergyObservables[n];
+        obsName = this->GetName( ) + (TString) "_" + obsName;
+        fAnalysisTree->SetObservableValue( obsName, nTracks_LE_Y[n] );
+    }
+    for( unsigned int n = 0; n < fTrack_HE_Y_EnergyObservables.size(); n++ )
+    {
+        TString obsName = fTrack_HE_Y_EnergyObservables[n];
+        obsName = this->GetName( ) + (TString) "_" + obsName;
+        fAnalysisTree->SetObservableValue( obsName, nTracks_HE_Y[n] );
+    }
+
+	for (unsigned int n = 0; n < fTrack_LE_X_EnergyObservables.size(); n++)
+	{
+		TString obsName = fTrack_LE_X_EnergyObservables[n];
+		obsName = this->GetName() + (TString) "_" + obsName;
+		fAnalysisTree->SetObservableValue(obsName, nTracks_LE_X[n]);
+	}
+	for (unsigned int n = 0; n < fTrack_HE_X_EnergyObservables.size(); n++)
+	{
+		TString obsName = fTrack_HE_X_EnergyObservables[n];
+		obsName = this->GetName() + (TString) "_" + obsName;
+		fAnalysisTree->SetObservableValue(obsName, nTracks_HE_X[n]);
+	}
 
     return fTrackEvent;
 }

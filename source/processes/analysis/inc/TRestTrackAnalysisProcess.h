@@ -33,6 +33,22 @@ class TRestTrackAnalysisProcess:public TRestEventProcess {
         std::vector <std::string> fTrack_HE_EnergyObservables;//!
         std::vector <Double_t> fTrack_HE_Threshold;//!
         std::vector <Int_t> nTracks_HE;//!
+        
+        std::vector <std::string> fTrack_LE_Y_EnergyObservables;//!
+        std::vector <Double_t> fTrack_LE_Y_Threshold;//!
+        std::vector <Int_t> nTracks_LE_Y;//!
+
+        std::vector <std::string> fTrack_HE_Y_EnergyObservables;//!
+        std::vector <Double_t> fTrack_HE_Y_Threshold;//!
+        std::vector <Int_t> nTracks_HE_Y;//!
+
+		std::vector <std::string> fTrack_LE_X_EnergyObservables;//!
+		std::vector <Double_t> fTrack_LE_X_Threshold;//!
+		std::vector <Int_t> nTracks_LE_X;//!
+
+		std::vector <std::string> fTrack_HE_X_EnergyObservables;//!
+		std::vector <Double_t> fTrack_HE_X_Threshold;//!
+		std::vector <Int_t> nTracks_HE_X;//!
 #endif
 
         void InitFromConfigFile();
