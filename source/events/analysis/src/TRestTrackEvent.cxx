@@ -41,6 +41,8 @@ ClassImp(TRestTrackEvent)
     fPad = NULL;
     fLevels = -1;
 
+    fPrintHitsWarning = true;
+
 }
 
 //______________________________________________________________________________
@@ -431,9 +433,12 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
     {
         if( optList[n] == "print" )
             this->PrintEvent();
+        if( optList[n] == "noWarning" )
+            fPrintHitsWarning = false;
     }
 
     optList.erase( std::remove( optList.begin(), optList.end(), "print"), optList.end() );
+    optList.erase( std::remove( optList.begin(), optList.end(), "noWarning"), optList.end() );
 
     for( unsigned int n = 0; n < optList.size(); n++ )
     {
@@ -456,9 +461,11 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
     if( fXYHit != NULL ) { delete[] fXYHit; fXYHit=NULL;}
     if( fXZHit != NULL ) { delete[] fXZHit; fXZHit=NULL;}
     if( fYZHit != NULL ) { delete[] fYZHit; fYZHit=NULL;}
+    if( fXYZHit != NULL ) { delete [] fXYZHit; fXYZHit = NULL; }
     if( fXYTrack != NULL ) { delete[] fXYTrack; fXYTrack=NULL;}
     if( fXZTrack != NULL ) { delete[] fXZTrack; fXZTrack=NULL;}
     if( fYZTrack != NULL ) { delete[] fYZTrack; fYZTrack=NULL;}
+    if( fXYZTrack != NULL ) { delete [] fXYZTrack; fXYZTrack = NULL; }
     if( fPad != NULL ) { delete fPad; fPad=NULL;}
 
     int nTracks = this->GetNumberOfTracks();
@@ -474,6 +481,18 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
     double maxX = -1e10, minX = 1e10, maxZ = -1e10, minZ = 1e10, maxY = -1e10, minY = 1e10;
 
     Int_t nTotHits = GetTotalHits( );
+
+    if( fPrintHitsWarning && nTotHits > 5000 )
+    {
+        cout << endl;
+        cout << " REST WARNING. TRestTrackEvent::DrawEvent. Number of hits is too high." << endl;
+        cout << " This drawing method is not properly optimized to draw events with a high number of hits." << endl;
+        cout << " To remove this warning you may use the DrawEvent method option : noWarning " << endl;
+        cout << endl;
+
+        fPrintHitsWarning = false;
+    }
+
     fXYHit = new TGraph[nTotHits];
     fXZHit = new TGraph[nTotHits];
     fYZHit = new TGraph[nTotHits];

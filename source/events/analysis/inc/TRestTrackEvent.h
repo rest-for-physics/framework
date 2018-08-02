@@ -52,6 +52,8 @@ class TRestTrackEvent: public TRestEvent {
         TGraph *fXZTrack;
         TGraph *fYZTrack;
         TGraph2D *fXYZTrack;
+
+        Bool_t fPrintHitsWarning;
         #endif 
 
     public:
