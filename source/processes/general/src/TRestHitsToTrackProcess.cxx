@@ -143,6 +143,8 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
 
 Int_t TRestHitsToTrackProcess::FindTracks( TRestHits *hits )
 {
+	if (GetVerboseLevel() >= REST_Extreme)
+		hits->PrintHits();
     Int_t nTracksFound = 0;
     vector <Int_t> Q; //list of points (hits) that need to be checked
     vector <Int_t> P; //list of neighbours within a radious fClusterDistance
