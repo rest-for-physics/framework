@@ -96,7 +96,7 @@ TRestReadoutPixel *TRestReadoutChannel::GetPixelByID( int id )
     if( pxNumber != -1 )
         return &fReadoutPixel[pxNumber];
 
-    cout << "REST Warning : Readout pixel with ID : " << id << " not found in channel : " << fChannelID << endl;
+    cout << "REST Warning : Readout pixel with ID : " << id << " not found in channel : " << GetID() << endl;
 
     return NULL; 
 }
@@ -111,6 +111,6 @@ void TRestReadoutChannel::Print( )
 
         for( int n = 0; n < GetNumberOfPixels(); n++ )
         {
-            GetPixel(n)->Print();
+            fReadoutPixel[n].Print();
         }
 }

@@ -51,10 +51,13 @@ class TRestReadout:public TRestMetadata {
 
     public:
 
-        TRestReadoutPlane *GetReadoutPlane( int p );
+		TRestReadoutPlane & operator[] (int p) { return fReadoutPlanes[p]; }
+
         void AddReadoutPlane( TRestReadoutPlane plane );
 
+		TRestReadoutPlane *GetReadoutPlane(int id);
 		TRestReadoutModule*GetReadoutModule(int id);
+		TRestReadoutChannel*GetReadoutChannel(int daqId);
 
         Int_t GetNumberOfReadoutPlanes( );
         Int_t GetNumberOfModules( );
@@ -62,13 +65,15 @@ class TRestReadout:public TRestMetadata {
 
         Int_t GetModuleDefinitionId( TString name );
 
-		void GetPlaneModuleChannel(Int_t signalID, Int_t& planeID, Int_t& moduleID, Int_t& channelID);
+		void GetPlaneModuleChannel(Int_t daqID, Int_t& planeID, Int_t& moduleID, Int_t& channelID);
+
+		Int_t GetHitsDaqChannel(TVector3 hitpos, Int_t& planeID, Int_t& moduleID, Int_t& channelID);
 
 		Double_t GetX(Int_t signalID);
 		Double_t GetY(Int_t signalID);
 
-        Double_t GetX( Int_t plane, Int_t modID, Int_t chID );
-        Double_t GetY( Int_t plane, Int_t modID, Int_t chID );
+        Double_t GetX( Int_t planeID, Int_t modID, Int_t chID );
+        Double_t GetY( Int_t planeID, Int_t modID, Int_t chID );
 
         void PrintMetadata( ) { PrintMetadata( 0 ); }
         void PrintMetadata( Int_t fullDetail );

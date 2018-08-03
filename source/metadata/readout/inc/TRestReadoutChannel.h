@@ -29,9 +29,25 @@
 
 #include "TRestReadoutPixel.h"
 
+enum TRestReadoutChannelType {
+	Channel_NoType=0,
+	Channel_Pixel=1,
+	Channel_X=2,
+	Channel_Y=3,
+	Channel_U=4,
+	Channel_V=5,
+	Channel_W=6,
+};
+
 /// A class to store the readout channel definition used in TRestReadoutModule. It allows to integrate any number of independent readout pixels.
 class TRestReadoutChannel : public TObject {
     private:
+		//channelID: 
+		//-1: initial state
+		//0~9999: undefined type
+		//10000~19999: pixel channel(one pixel)
+		//20000~29999: x channel(pixels have fixed y coordinate)
+		//30000~39999: y channel(pixels have fixed x coordinate)
         Int_t fChannelID; ///< Defines the physical readout channel id
         Int_t fDaqID;     ///< Defines the corresponding daq channel id. See decoding details at TRestReadout.
         std::vector <TRestReadoutPixel> fReadoutPixel;  ///< A vector storing the different TRestReadoutPixel definitions.
@@ -43,7 +59,7 @@ class TRestReadoutChannel : public TObject {
     public:
 
         /// Returns the physical readout channel id
-        Int_t GetID() { return fChannelID; }
+		Int_t GetID() { return fChannelID % 10000; }
 
         /// Returns the corresponding daq channel id
         Int_t GetDaqID() { return fDaqID; }
@@ -51,11 +67,29 @@ class TRestReadoutChannel : public TObject {
         /// Returns the total number of pixels inside the readout channel
         Int_t GetNumberOfPixels( ) { return fReadoutPixel.size(); }
 
+		TRestReadoutPixel& operator[] (int n) { return fReadoutPixel[n]; }
         /// Returns a pointer to the pixel *n* by index.
-        TRestReadoutPixel *GetPixel( int n ) { return &fReadoutPixel[n]; }
+        //TRestReadoutPixel *GetPixel( int n ) { return &fReadoutPixel[n]; }
 
         /// Sets the physical channel id
-        void SetID( Int_t id ) { fChannelID = id; }
+        void SetID( Int_t id ) { 
+			int type = fChannelID / 10000;
+			fChannelID = id + type * 10000;
+		}
+
+		void SetType(TRestReadoutChannelType type) {
+			if (fChannelID >= 0) {
+				fChannelID = type * 10000 + fChannelID % 10000;
+			}
+			else
+			{
+				std::cout << "REST WARNING: cannot set channel type before channel id!" << std::endl;
+			}
+		}
+
+		TRestReadoutChannelType GetType() {
+			return TRestReadoutChannelType(fChannelID / 10000);
+		}
 
         /// Sets the daq channel number id
         void SetDaqID( Int_t id ) { fDaqID = id; }

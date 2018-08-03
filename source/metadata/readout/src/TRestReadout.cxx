@@ -187,7 +187,7 @@
 ///                planeId = p;
 ///
 ///                // Then we obtain the readoutChannel *id* as defined in the readout.
-///                Int_t chanId = fReadout->GetReadoutPlane( p )->FindChannel( modId, x, y );
+///                Int_t chanId = (*fReadout)[p].FindChannel( modId, x, y );
 ///
 ///                break;
 ///            }
@@ -337,7 +337,7 @@ Int_t TRestReadout::GetNumberOfModules( )
 {
     Int_t modules = 0;
     for( int p = 0; p < GetNumberOfReadoutPlanes( ); p++ )
-        modules += GetReadoutPlane( p )->GetNumberOfModules( );
+        modules += fReadoutPlanes[p].GetNumberOfModules( );
     return modules;
 }
 
@@ -349,8 +349,8 @@ Int_t TRestReadout::GetNumberOfChannels( )
 {
     Int_t channels = 0;
     for( int p = 0; p < GetNumberOfReadoutPlanes( ); p++ )
-        for( int m = 0; m < GetReadoutPlane( p )->GetNumberOfModules( ); m++ )
-            channels += GetReadoutPlane( p )->GetModule( m )->GetNumberOfChannels( );
+        for( int m = 0; m < fReadoutPlanes[p].GetNumberOfModules( ); m++ )
+            channels += fReadoutPlanes[p][m].GetNumberOfChannels( );
     return channels;
 }
 
@@ -362,24 +362,20 @@ Int_t TRestReadout::GetModuleDefinitionId( TString name )
 {
     for( unsigned int i = 0; i < fModuleDefinitions.size(); i++ )
         if( fModuleDefinitions[i].GetName() == name )
-            return i;
+            return fModuleDefinitions[i].GetModuleID();
     return -1;
 }
 
 ///////////////////////////////////////////////
 /// \brief Returns a pointer to the readout plane by index
 ///
-TRestReadoutPlane *TRestReadout::GetReadoutPlane( int p ) 
+TRestReadoutPlane *TRestReadout::GetReadoutPlane( int id ) 
 { 
-    if( p < fNReadoutPlanes) 
-        return &fReadoutPlanes[p]; 
-    else
-    {
-       cout << "REST WARNING. TRestReadout::GetReadoutPlane." << endl;
-       cout << "Readout plane index exceeded." << endl;
-       cout << "Index requested : " << p << endl; 
-       cout << "Number of readout planes defined : " << fNReadoutPlanes << endl;
-    }
+	for (int i = 0; i < this->GetNumberOfReadoutPlanes(); i++) {
+		if (fReadoutPlanes[i].GetID()==id) {
+			return &fReadoutPlanes[i];
+		}
+	}
 
     return NULL;
 }
@@ -387,17 +383,28 @@ TRestReadoutPlane *TRestReadout::GetReadoutPlane( int p )
 
 TRestReadoutModule*TRestReadout::GetReadoutModule(int id) {
 	for (int i = 0; i < this->GetNumberOfReadoutPlanes(); i++) {
-		auto plane = this->GetReadoutPlane(i);
+		auto plane = fReadoutPlanes[i];
 
-		for (int j = 0; j < plane->GetNumberOfModules(); j++) {
-			if (plane->GetReadoutModule(j)->GetModuleID()) {
-				return plane->GetReadoutModule(j);
+		for (int j = 0; j < plane.GetNumberOfModules(); j++) {
+			if (plane[j].GetModuleID()==id) {
+				return &plane[j];
 			}
 		}
 	}
 	return NULL;
 }
 
+
+TRestReadoutChannel*TRestReadout::GetReadoutChannel(int daqId) {
+	int planeID = -1, moduleID = -1, channelID = -1;
+
+	GetPlaneModuleChannel(daqId, planeID, moduleID, channelID);
+	if (channelID >= 0) {
+		return &fReadoutPlanes[planeID][moduleID][channelID];
+	}
+
+	return NULL;
+}
 
 ///////////////////////////////////////////////
 /// \brief Adds a readout plane to the readout
@@ -455,7 +462,14 @@ void TRestReadout::InitFromConfigFile()
             TRestReadoutChannel channel;
 
             Int_t id = StringToInteger( GetFieldValue( "id", channelDefinition ) );
+			string typestring = GetFieldValue("type", channelDefinition);
+			TRestReadoutChannelType type = Channel_NoType;
+			if (typestring == "Not defined") type = Channel_NoType;
+			else if (ToUpper(typestring) == "X") type = Channel_X;
+			else if (ToUpper(typestring) == "Y") type = Channel_Y;
+			else if (ToUpper(typestring).find("P") != -1) type = Channel_Pixel;
             channel.SetID( id );
+			channel.SetType(type);
             channel.SetDaqID( -1 );
 
             string pixelString;
@@ -578,7 +592,7 @@ void TRestReadout::InitFromConfigFile()
             {
                 if( !fDecoding )
                 {
-                    Int_t id = fModuleDefinitions[mid].GetChannel(ch)->GetID( );
+                    Int_t id = fModuleDefinitions[mid][ch].GetID( );
                     rChannel.push_back( id );
                     dChannel.push_back( id + firstDaqChannel );
                 }
@@ -625,19 +639,44 @@ void TRestReadout::GetPlaneModuleChannel(Int_t signalID, Int_t& planeID, Int_t& 
 {
 	for (int p = 0; p < GetNumberOfReadoutPlanes(); p++)
 	{
-		TRestReadoutPlane *plane = GetReadoutPlane(p);
+		TRestReadoutPlane *plane = &fReadoutPlanes[p];
 		for (int m = 0; m < plane->GetNumberOfModules(); m++)
 		{
-			TRestReadoutModule *mod = plane->GetModule(m);
+			TRestReadoutModule *mod = &(*plane)[m];
 
 			if (mod->isDaqIDInside(signalID))
 			{
-				planeID = p;
+				planeID = plane->GetID();
 				moduleID = mod->GetModuleID();
 				channelID = mod->DaqToReadoutChannel(signalID);
 			}
 		}
 	}
+}
+
+Int_t TRestReadout::GetHitsDaqChannel(TVector3 hitpos, Int_t& planeID, Int_t& moduleID, Int_t& channelID){
+	double x = hitpos.X();
+	double y = hitpos.Y();
+	double z = hitpos.Z();
+	
+	for (int p = 0; p < GetNumberOfReadoutPlanes(); p++)
+	{
+		TRestReadoutPlane* plane = &fReadoutPlanes[p];
+		int m = plane->isInsideDriftVolume(x, y, z);
+		if (m >= 0)
+		{
+			TRestReadoutModule* mod= plane->GetModuleByID(m);
+			Int_t readoutChannel = plane->FindChannel(m, x, y);
+			if (readoutChannel >= 0) {
+				planeID = plane->GetID();
+				moduleID = mod->GetModuleID();
+				channelID = readoutChannel;
+				return mod->GetChannelByID(readoutChannel)->GetDaqID();
+			}
+
+		}
+	}
+	return -1;
 }
 
 
@@ -671,9 +710,9 @@ Double_t TRestReadout::GetY(Int_t signalID)
 /// plane, *plane*, a given module, *modID*, and a given
 /// channel, *chID*.
 ///
-Double_t TRestReadout::GetX( Int_t plane, Int_t modID, Int_t chID )
+Double_t TRestReadout::GetX( Int_t planeID, Int_t modID, Int_t chID )
 {
-    return GetReadoutPlane( plane )->GetX( modID, chID );
+    return GetReadoutPlane(planeID)->GetX( modID, chID );
 }
 
 ///////////////////////////////////////////////
@@ -681,9 +720,9 @@ Double_t TRestReadout::GetX( Int_t plane, Int_t modID, Int_t chID )
 /// plane, *plane*, a given module, *modID*, and a given
 /// channel, *chID*.
 ///
-Double_t TRestReadout::GetY( Int_t plane, Int_t modID, Int_t chID )
+Double_t TRestReadout::GetY( Int_t planeID, Int_t modID, Int_t chID )
 {
-    return GetReadoutPlane( plane )->GetY( modID, chID );
+    return GetReadoutPlane(planeID)->GetY( modID, chID );
 }
 
 ///////////////////////////////////////////////
@@ -703,7 +742,7 @@ void TRestReadout::PrintMetadata( Int_t fullDetail )
     cout << "====================================" << endl;
     cout << endl;
     for( int p = 0; p < GetNumberOfReadoutPlanes(); p++ )
-        this->GetReadoutPlane( p )->Print( fullDetail );
+        fReadoutPlanes[p].Print( fullDetail );
     cout << "====================================" << endl;
 
 }

@@ -85,7 +85,7 @@ Int_t TRestReadoutPlane::GetNumberOfChannels( )
 {
     Int_t nChannels = 0;
     for( int md = 0; md < GetNumberOfModules(); md++ )
-        nChannels += GetReadoutModule(md)->GetNumberOfChannels();
+        nChannels += fReadoutModules[md].GetNumberOfChannels();
     return nChannels;
 }
 
@@ -105,8 +105,8 @@ TRestReadoutModule *TRestReadoutPlane::GetModuleByID( Int_t modID )
 {
 
     for( int md = 0; md < GetNumberOfModules(); md++ )
-        if( this->GetModule( md )->GetModuleID() == modID )
-            return this->GetModule( md );
+        if( fReadoutModules[md].GetModuleID() == modID )
+            return &fReadoutModules[md];
 
     cout << "REST ERROR (GetReadoutModuleByID) : Module ID : " << modID << " was not found" << endl;
     return NULL;
@@ -119,12 +119,13 @@ TRestReadoutChannel *TRestReadoutPlane::GetChannelByID( Int_t modID, Int_t chID 
 {
     TRestReadoutModule *module = GetModuleByID( modID );
 
-    for( int ch = 0; ch < module->GetNumberOfChannels(); ch++ )
-        if( module->GetChannel( ch )->GetID() == chID )
-            return module->GetChannel( ch );
+	return module->GetChannelByID(chID);
+    //for( int ch = 0; ch < module->GetNumberOfChannels(); ch++ )
+    //    if( module->GetChannel( ch )->GetID() == chID )
+    //        return module->GetChannel( ch );
 
-    cout << "REST ERROR (GetReadoutChannelByID) : Channel ID " << chID << " Module ID : " << modID << " was not found" << endl;
-    return NULL;
+    //cout << "REST ERROR (GetReadoutChannelByID) : Channel ID " << chID << " Module ID : " << modID << " was not found" << endl;
+    //return NULL;
 }
 
 ///////////////////////////////////////////////
@@ -147,46 +148,54 @@ Double_t TRestReadoutPlane::GetX( Int_t modID, Int_t chID )
 
     Double_t x = numeric_limits<Double_t>::quiet_NaN();
 
-    if( rChannel->GetNumberOfPixels() == 1 )
-    {
-         Double_t sX = rChannel->GetPixel(0)->GetSize().X();
-         Double_t sY = rChannel->GetPixel(0)->GetSize().Y();
+	if (rChannel->GetType() == Channel_NoType) {
 
-         if ( sX > 2 * sY ) return x;
+		if (rChannel->GetNumberOfPixels() == 1)
+		{
+			Double_t sX = (*rChannel)[0].GetSize().X();
+			Double_t sY = (*rChannel)[0].GetSize().Y();
 
-         x = rModule->GetPixelCenter(chID, 0).X();
+			if (sX > 2 * sY) return x;
 
-         return x;
-    }
+			x = rModule->GetPixelCenter(chID, 0).X();
 
-    if( rChannel->GetNumberOfPixels() > 1 )
-    {
-        // We check the origin of consecutive pixels to check if it goes X or Y direction.
-        // Perhaps more complex readouts need some changes here
-        Double_t x1 = rModule->GetPixelCenter(chID, 0).X();
-        Double_t x2 = rModule->GetPixelCenter(chID, 1).X();
+			return x;
+		}
 
-        Double_t y1 = rModule->GetPixelCenter(chID, 0).Y();
-        Double_t y2 = rModule->GetPixelCenter(chID, 1).Y();
+		if (rChannel->GetNumberOfPixels() > 1)
+		{
+			// We check the origin of consecutive pixels to check if it goes X or Y direction.
+			// Perhaps more complex readouts need some changes here
+			Double_t x1 = rModule->GetPixelCenter(chID, 0).X();
+			Double_t x2 = rModule->GetPixelCenter(chID, 1).X();
 
-        /*
-        cout << "Pix id : " << rChannel->GetPixel(0)->GetID() << " X1 : " << x1 << endl;
-        cout << "Pix id : " << rChannel->GetPixel(1)->GetID() << " X2 : " << x2 << endl;
-        cout << "Pix id : " << rChannel->GetPixel(0)->GetID() << " Y1 : " << y1 << endl;
-        cout << "Pix id : " << rChannel->GetPixel(1)->GetID() << " Y2 : " << y2 << endl;
-        */
+			Double_t y1 = rModule->GetPixelCenter(chID, 0).Y();
+			Double_t y2 = rModule->GetPixelCenter(chID, 1).Y();
 
-        Double_t deltaX, deltaY;
+			/*
+			cout << "Pix id : " << (*rChannel)[0]->GetID() << " X1 : " << x1 << endl;
+			cout << "Pix id : " << rChannel->GetPixel(1)->GetID() << " X2 : " << x2 << endl;
+			cout << "Pix id : " << (*rChannel)[0]->GetID() << " Y1 : " << y1 << endl;
+			cout << "Pix id : " << rChannel->GetPixel(1)->GetID() << " Y2 : " << y2 << endl;
+			*/
 
-        if( x2 - x1 > 0 ) deltaX = x2 - x1;
-        else deltaX = x1 - x2;
+			Double_t deltaX, deltaY;
 
-        if( y2 - y1 > 0 ) deltaY = y2 - y1;
-        else deltaY = y1 - y2;
-        
-		if (deltaY > deltaX) x = rModule->GetPixelCenter(chID, 0).X();
-    }
+			if (x2 - x1 > 0) deltaX = x2 - x1;
+			else deltaX = x1 - x2;
 
+			if (y2 - y1 > 0) deltaY = y2 - y1;
+			else deltaY = y1 - y2;
+
+			if (deltaY > deltaX) x = rModule->GetPixelCenter(chID, 0).X();
+		}
+	}
+	else if (rChannel->GetType() == Channel_Pixel) {
+		x = rModule->GetPixelCenter(chID, 0).X();
+	}
+	else if (rChannel->GetType() == Channel_Y) {
+		x = rModule->GetPixelCenter(chID, 0).X();
+	}
     return x;
 }
 
@@ -210,47 +219,54 @@ Double_t TRestReadoutPlane::GetY( Int_t modID, Int_t chID )
 
     Double_t y = numeric_limits<Double_t>::quiet_NaN();
 
-    if( rChannel->GetNumberOfPixels() == 1 )
-    {
-         Double_t sX = rChannel->GetPixel(0)->GetSize().X();
-         Double_t sY = rChannel->GetPixel(0)->GetSize().Y();
+	if (rChannel->GetType() == Channel_NoType) {
+		if (rChannel->GetNumberOfPixels() == 1)
+		{
+			Double_t sX = (*rChannel)[0].GetSize().X();
+			Double_t sY = (*rChannel)[0].GetSize().Y();
 
-         if ( sY > 2 * sX ) return y;
+			if (sY > 2 * sX) return y;
 
-		 y = rModule->GetPixelCenter(chID, 0).Y();
+			y = rModule->GetPixelCenter(chID, 0).Y();
 
-         return y;
-    }
+			return y;
+		}
 
-    if( rChannel->GetNumberOfPixels() > 1 )
-    {
+		if (rChannel->GetNumberOfPixels() > 1)
+		{
 
-        // We check the origin of consecutive pixels to check if it goes X or Y direction.
-        // Perhaps more complex readouts need some changes here
-        Double_t x1 = rModule->GetPixelCenter(chID, 0).X();
-        Double_t x2 = rModule->GetPixelCenter(chID, 1).X();
+			// We check the origin of consecutive pixels to check if it goes X or Y direction.
+			// Perhaps more complex readouts need some changes here
+			Double_t x1 = rModule->GetPixelCenter(chID, 0).X();
+			Double_t x2 = rModule->GetPixelCenter(chID, 1).X();
 
-        Double_t y1 = rModule->GetPixelCenter(chID, 0).Y();
-        Double_t y2 = rModule->GetPixelCenter(chID, 1).Y();
+			Double_t y1 = rModule->GetPixelCenter(chID, 0).Y();
+			Double_t y2 = rModule->GetPixelCenter(chID, 1).Y();
 
-        /*
-        cout << "Pix id : " << rChannel->GetPixel(0)->GetID() << " X1 : " << x1 << endl;
-        cout << "Pix id : " << rChannel->GetPixel(1)->GetID() << " X2 : " << x2 << endl;
-        cout << "Pix id : " << rChannel->GetPixel(0)->GetID() << " Y1 : " << y1 << endl;
-        cout << "Pix id : " << rChannel->GetPixel(1)->GetID() << " Y2 : " << y2 << endl;
-        */
+			/*
+			cout << "Pix id : " << (*rChannel)[0]->GetID() << " X1 : " << x1 << endl;
+			cout << "Pix id : " << rChannel->GetPixel(1)->GetID() << " X2 : " << x2 << endl;
+			cout << "Pix id : " << (*rChannel)[0]->GetID() << " Y1 : " << y1 << endl;
+			cout << "Pix id : " << rChannel->GetPixel(1)->GetID() << " Y2 : " << y2 << endl;
+			*/
 
-        Double_t deltaX, deltaY;
+			Double_t deltaX, deltaY;
 
-        if( x2 - x1 > 0 ) deltaX = x2 - x1;
-        else deltaX = x1 - x2;
+			if (x2 - x1 > 0) deltaX = x2 - x1;
+			else deltaX = x1 - x2;
 
-        if( y2 - y1 > 0 ) deltaY = y2 - y1;
-        else deltaY = y1 - y2;
-        
-        if( deltaY < deltaX ) y = rModule->GetPixelCenter(chID,0).Y();
-    }
+			if (y2 - y1 > 0) deltaY = y2 - y1;
+			else deltaY = y1 - y2;
 
+			if (deltaY < deltaX) y = rModule->GetPixelCenter(chID, 0).Y();
+		}
+	}
+	else if (rChannel->GetType() == Channel_Pixel) {
+		y = rModule->GetPixelCenter(chID, 0).Y();
+	}
+	else if (rChannel->GetType() == Channel_X) {
+		y = rModule->GetPixelCenter(chID, 0).Y();
+	}
 
     return y;
 }
@@ -272,7 +288,7 @@ Int_t TRestReadoutPlane::FindChannel( Int_t module, Double_t absX, Double_t absY
     // FindChannel will take a long time to search for the channel if it is not there.
     // It will be faster
     
-    return GetModule( module )->FindChannel( modX, modY );
+    return GetModuleByID(module)->FindChannel( modX, modY );
 }
 
 ///////////////////////////////////////////////
@@ -328,7 +344,7 @@ Int_t TRestReadoutPlane::isInsideDriftVolume( TVector3 pos )
     if( distance > 0 && distance < fTotalDriftDistance )
     {
         for( int m = 0; m < GetNumberOfModules( ); m++ )
-            if( GetModule( m )->isInside( posNew.X(), posNew.Y() ) ) return m;
+            if( fReadoutModules[m].isInside( posNew.X(), posNew.Y() ) ) return fReadoutModules[m].GetModuleID();
     }
 
     return -1;
@@ -352,7 +368,7 @@ void TRestReadoutPlane::Print( Int_t fullDetail )
         cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
     for( int i = 0; i < GetNumberOfModules(); i++ )
-        this->GetReadoutModule(i)->Print( fullDetail );
+		fReadoutModules[i].Print( fullDetail );
 
 }
 
@@ -389,13 +405,13 @@ TH2Poly *TRestReadoutPlane::GetReadoutHistogram( )
 
     for( int mdID = 0; mdID < this->GetNumberOfModules( ); mdID++ )
     {
-        TRestReadoutModule *module = this->GetReadoutModule( mdID );
+        TRestReadoutModule *module = &fReadoutModules[mdID];
 
         int nChannels = module->GetNumberOfChannels();
 
         for( int ch = 0; ch < nChannels; ch++ )
         {
-            TRestReadoutChannel *channel = module->GetChannel( ch );
+            TRestReadoutChannel *channel = &(*module)[ch];
             Int_t nPixels = channel->GetNumberOfPixels();
 
             for( int px = 0; px < nPixels; px++ )
@@ -430,7 +446,7 @@ void TRestReadoutPlane::GetBoundaries( double &xmin, double &xmax, double &ymin,
 
     for( int mdID = 0; mdID < this->GetNumberOfModules( ); mdID++ )
     {
-        TRestReadoutModule *module = this->GetReadoutModule( mdID );
+        TRestReadoutModule *module = &fReadoutModules[mdID];
 
         for( int v = 0; v < 4; v++ )
         {
