@@ -70,22 +70,6 @@ void TRestTrackAnalysisProcess::InitProcess()
 
 	for (unsigned int i = 0; i < fObservables.size(); i++)
 	{
-		if (fObservables[i].find("nTracks_LE_") != string::npos)
-		{
-			Double_t energy = StringToDouble(fObservables[i].substr(11, fObservables[i].length()).c_str());
-
-			fTrack_LE_EnergyObservables.push_back(fObservables[i]);
-			fTrack_LE_Threshold.push_back(energy);
-			nTracks_LE.push_back(0);
-		}
-		if (fObservables[i].find("nTracks_HE_") != string::npos)
-		{
-			Double_t energy = StringToDouble(fObservables[i].substr(11, fObservables[i].length()).c_str());
-
-			fTrack_HE_EnergyObservables.push_back(fObservables[i]);
-			fTrack_HE_Threshold.push_back(energy);
-			nTracks_HE.push_back(0);
-		}
 		if (fObservables[i].find("nTracks_LE_Y_") != string::npos)
 		{
 			Double_t energy = StringToDouble(fObservables[i].substr(13, fObservables[i].length()).c_str());
@@ -94,7 +78,7 @@ void TRestTrackAnalysisProcess::InitProcess()
 			fTrack_LE_Y_Threshold.push_back(energy);
 			nTracks_LE_Y.push_back(0);
 		}
-		if (fObservables[i].find("nTracks_HE_Y_") != string::npos)
+		else if (fObservables[i].find("nTracks_HE_Y_") != string::npos)
 		{
 			Double_t energy = StringToDouble(fObservables[i].substr(13, fObservables[i].length()).c_str());
 
@@ -102,7 +86,7 @@ void TRestTrackAnalysisProcess::InitProcess()
 			fTrack_HE_Y_Threshold.push_back(energy);
 			nTracks_HE_Y.push_back(0);
 		}
-		if (fObservables[i].find("nTracks_LE_X_") != string::npos)
+		else if (fObservables[i].find("nTracks_LE_X_") != string::npos)
 		{
 			Double_t energy = StringToDouble(fObservables[i].substr(13, fObservables[i].length()).c_str());
 
@@ -110,13 +94,29 @@ void TRestTrackAnalysisProcess::InitProcess()
 			fTrack_LE_X_Threshold.push_back(energy);
 			nTracks_LE_X.push_back(0);
 		}
-		if (fObservables[i].find("nTracks_HE_X_") != string::npos)
+		else if (fObservables[i].find("nTracks_HE_X_") != string::npos)
 		{
 			Double_t energy = StringToDouble(fObservables[i].substr(13, fObservables[i].length()).c_str());
 
 			fTrack_HE_X_EnergyObservables.push_back(fObservables[i]);
 			fTrack_HE_X_Threshold.push_back(energy);
 			nTracks_HE_X.push_back(0);
+		}
+		else if (fObservables[i].find("nTracks_LE_") != string::npos)
+		{
+			Double_t energy = StringToDouble(fObservables[i].substr(11, fObservables[i].length()).c_str());
+
+			fTrack_LE_EnergyObservables.push_back(fObservables[i]);
+			fTrack_LE_Threshold.push_back(energy);
+			nTracks_LE.push_back(0);
+		}
+		else if (fObservables[i].find("nTracks_HE_") != string::npos)
+		{
+			Double_t energy = StringToDouble(fObservables[i].substr(11, fObservables[i].length()).c_str());
+
+			fTrack_HE_EnergyObservables.push_back(fObservables[i]);
+			fTrack_HE_Threshold.push_back(energy);
+			nTracks_HE.push_back(0);
 		}
 	}
 }
