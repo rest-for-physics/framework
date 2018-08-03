@@ -646,7 +646,7 @@ void TRestMetadata::InitFromRootFile() {
 
 	if (GetSectionContent() != "") {
 		fElement = StringToElement(GetSectionContent());
-		this->InitFromConfigFile();
+		//this->InitFromConfigFile();
 	}
 }
 
