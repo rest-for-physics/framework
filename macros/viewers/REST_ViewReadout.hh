@@ -101,7 +101,7 @@ int REST_Viewer_Readout(TString rootFile, TString name = "", Int_t plane = 0)
 			Double_t xCH[1000], yCH[1000];
 			for (int px = 0; px < nPixels; px++)
 			{
-				cout << 111 << endl;
+
 				xCH[px] = module->GetPixelCenter(&(*module)[ch][px]).X();
 				yCH[px] = module->GetPixelCenter(&(*module)[ch][px]).Y();
 
