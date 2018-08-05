@@ -200,7 +200,7 @@ TRestTask* TRestTask::GetTask(TString MacroName)
 		c = TClass::GetClass("REST_" + MacroName);
 	
 	if(c==NULL){
-		string macfilelists = ExecuteShellCommand("find $REST_PATH/macros -name *" + (string)MacroName + (string)"*");
+		string macfilelists = ExecuteShellCommand("find $REST_PATH/macros -name *" + (string)MacroName + (string)".*");
 		auto macfiles = Spilt(macfilelists, "\n");
 		//string command = (string)"find $REST_PATH/macros -name *" + (string)MacroName + (string)"* > /tmp/macros.list";
 		//system(command.c_str());
