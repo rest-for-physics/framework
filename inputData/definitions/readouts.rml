@@ -12,7 +12,8 @@
     <!-- The number of pixels per side PxP -->
   </globals>
 
-  <readoutModule name="MM" size="((nChannels+1)*pitch-1*pitch/2,(nChannels+1)*pitch-pitch/2-pitch/4)" tolerance="1.e-4" >
+  //The Microbulk MicroMegas
+  <readoutModule name="module" size="((nChannels+1)*pitch-1*pitch/2,(nChannels+1)*pitch-pitch/2-pitch/4)" tolerance="1.e-4" >
 
     // Y-strips
     <for variable="nCh" from="0" to="nChannels-2" step="1" >
@@ -107,45 +108,7 @@
 
     <parameter name="mappingNodes" value="0" />
 
-    <readoutModule name="module" size="((nChannels+1)*pitch-1*pitch/2,(nChannels+1)*pitch-pitch/2-pitch/4)" tolerance="1.e-4" >
-
-      // Y-strips
-      <for variable="nCh" from="0" to="nChannels-2" step="1" >
-        <readoutChannel id="${nCh}" >
-          <for variable="nPix" from="0" to="nChannels-1" step="1" >
-            <addPixel id="${nPix}" origin="((1+${nCh})*pitch,pitch/4+${nPix}*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
-          </for>
-          <addPixel id="nChannels" origin="(${nCh}*pitch,pitch/4+(nChannels-1)*pitch+pitch/2)" size="(pitch+pitch/2,pitch/2)" rotation="0" />
-        </readoutChannel>
-      </for>
-
-      // Last strip is special
-      <readoutChannel id="nChannels-1" >
-        <for variable="nPix" from="0" to="nChannels-1" step="1" >
-          <addPixel id="${nPix}" origin="(nChannels*pitch,pitch/4+${nPix}*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
-          <addPixel id="nChannels+${nPix}" origin="(nChannels*pitch,pitch/4+${nPix}*pitch)" size="(pitch/2,pitch)" rotation="0" />
-        </for>
-        <addPixel id="2*nChannels" origin="(nChannels*pitch-pitch/2,pitch/4+(nChannels-1)*pitch+pitch/2)" size="(pitch,pitch/2)" rotation="0" />
-      </readoutChannel>
-
-      // X-strips
-
-      // First strip is special
-      <readoutChannel id="nChannels" >
-        <addPixel id="0" origin="(0,0)" size="(nChannels*pitch+pitch/2,3*pitch/4)" rotation="0" />
-      </readoutChannel>
-
-      <for variable="nCh" from="1" to="nChannels-1" step="1" >
-        <readoutChannel id="nChannels+${nCh}" >
-          <addPixel id="0" origin="(0,${nCh}*pitch-pitch/4)" size="(pitch/2,pitch)" rotation="0" />
-          <for variable="nPix" from="0" to="nChannels-1" step="1" >
-            <addPixel id="${nPix}+1" origin="((0.5+${nPix})*pitch,${nCh}*pitch-pitch/4)" size="(pixelSize,pixelSize)" rotation="45" />
-          </for>
-        </readoutChannel>
-      </for>
-
-    </readoutModule>
-
+    <readoutModule name="module" file="readouts.rml"/>
 
     <readoutPlane position="(0,0,-990)mm" planeVector="(0,0,1)"
         chargeCollection="1"
@@ -182,44 +145,7 @@
 
     <parameter name="mappingNodes" value="0" />
 
-    <readoutModule name="module" size="((nChannels+1)*pitch-1*pitch/2,(nChannels+1)*pitch-pitch/2-pitch/4)" tolerance="1.e-4" >
-
-      // Y-strips
-      <for variable="nCh" from="0" to="nChannels-2" step="1" >
-        <readoutChannel id="${nCh}" >
-          <for variable="nPix" from="0" to="nChannels-1" step="1" >
-            <addPixel id="${nPix}" origin="((1+${nCh})*pitch,pitch/4+${nPix}*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
-          </for>
-          <addPixel id="nChannels" origin="(${nCh}*pitch,pitch/4+(nChannels-1)*pitch+pitch/2)" size="(pitch+pitch/2,pitch/2)" rotation="0" />
-        </readoutChannel>
-      </for>
-
-      // Last strip is special
-      <readoutChannel id="nChannels-1" >
-        <for variable="nPix" from="0" to="nChannels-1" step="1" >
-          <addPixel id="${nPix}" origin="(nChannels*pitch,pitch/4+${nPix}*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
-          <addPixel id="nChannels+${nPix}" origin="(nChannels*pitch,pitch/4+${nPix}*pitch)" size="(pitch/2,pitch)" rotation="0" />
-        </for>
-        <addPixel id="2*nChannels" origin="(nChannels*pitch-pitch/2,pitch/4+(nChannels-1)*pitch+pitch/2)" size="(pitch,pitch/2)" rotation="0" />
-      </readoutChannel>
-
-      // X-strips
-
-      // First strip is special
-      <readoutChannel id="nChannels" >
-        <addPixel id="0" origin="(0,0)" size="(nChannels*pitch+pitch/2,3*pitch/4)" rotation="0" />
-      </readoutChannel>
-
-      <for variable="nCh" from="1" to="nChannels-1" step="1" >
-        <readoutChannel id="nChannels+${nCh}" >
-          <addPixel id="0" origin="(0,${nCh}*pitch-pitch/4)" size="(pitch/2,pitch)" rotation="0" />
-          <for variable="nPix" from="0" to="nChannels-1" step="1" >
-            <addPixel id="${nPix}+1" origin="((0.5+${nPix})*pitch,${nCh}*pitch-pitch/4)" size="(pixelSize,pixelSize)" rotation="45" />
-          </for>
-        </readoutChannel>
-      </for>
-
-    </readoutModule>
+    <readoutModule name="module" file="readouts.rml"/>
 
     <readoutPlane position="(0,0,-170)mm" planeVector="(0,0,1)"
         chargeCollection="1"
@@ -271,44 +197,7 @@
 
     <parameter name="mappingNodes" value="0" />
 
-    <readoutModule name="module" size="((nChannels+1)*pitch-1*pitch/2,(nChannels+1)*pitch-pitch/2-pitch/4)" tolerance="1.e-4" >
-
-      // Y-strips
-      <for variable="nCh" from="0" to="nChannels-2" step="1" >
-        <readoutChannel id="${nCh}" >
-          <for variable="nPix" from="0" to="nChannels-1" step="1">
-            <addPixel id="${nPix}" origin="((1+${nCh})*pitch,pitch/4+${nPix}*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
-          </for>
-          <addPixel id="nChannels" origin="(${nCh}*pitch,pitch/4+(nChannels-1)*pitch+pitch/2)" size="(pitch+pitch/2,pitch/2)" rotation="0" />
-        </readoutChannel>
-      </for>
-
-      // Last strip is special
-      <readoutChannel id="nChannels-1" >
-        <for variable="nPix" from="0" to="nChannels-1" step="1" >
-          <addPixel id="${nPix}" origin="(nChannels*pitch,pitch/4+${nPix}*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
-          <addPixel id="nChannels+${nPix}" origin="(nChannels*pitch,pitch/4+${nPix}*pitch)" size="(pitch/2,pitch)" rotation="0" />
-        </for>
-        <addPixel id="2*nChannels" origin="(nChannels*pitch-pitch/2,pitch/4+(nChannels-1)*pitch+pitch/2)" size="(pitch,pitch/2)" rotation="0" />
-      </readoutChannel>
-
-      // X-strips
-
-      // First strip is special
-      <readoutChannel id="nChannels" >
-        <addPixel id="0" origin="(0,0)" size="(nChannels*pitch+pitch/2,3*pitch/4)" rotation="0" />
-      </readoutChannel>
-
-      <for variable="nCh" from="1" to="nChannels-1" step="1" >
-        <readoutChannel id="nChannels+${nCh}" >
-          <addPixel id="0" origin="(0,${nCh}*pitch-pitch/4)" size="(pitch/2,pitch)" rotation="0" />
-          <for variable="nPix" from="0" to="nChannels-1" step="1" >
-            <addPixel id="${nPix}+1" origin="((0.5+${nPix})*pitch,${nCh}*pitch-pitch/4)" size="(pixelSize,pixelSize)" rotation="45" />
-          </for>
-        </readoutChannel>
-      </for>
-
-    </readoutModule>
+    <readoutModule name="module" file="readouts.rml"/>
 
     <for variable="plane" from="-1" to="2" step="2" >
       <readoutPlane position="(0,0,955*${plane})mm" planeVector="(0,0,-1*${plane})"
@@ -379,44 +268,7 @@
 
     <parameter name="mappingNodes" value="0" />
 
-    <readoutModule name="module" size="((nChannels+1)*pitch-1*pitch/2,(nChannels+1)*pitch-pitch/2-pitch/4)" tolerance="1.e-4" >
-
-      // Y-strips
-      <for variable="nCh" from="0" to="nChannels-2" step="1" >
-        <readoutChannel id="${nCh}" >
-          <for variable="nPix" from="0" to="nChannels-1" step="1" >
-            <addPixel id="${nPix}" origin="((1+${nCh})*pitch,pitch/4+${nPix}*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
-          </for>
-          <addPixel id="nChannels" origin="(${nCh}*pitch,pitch/4+(nChannels-1)*pitch+pitch/2)" size="(pitch+pitch/2,pitch/2)" rotation="0" />
-        </readoutChannel>
-      </for>
-
-      // Last strip is special
-      <readoutChannel id="nChannels-1" >
-        <for variable="nPix" from="0" to="nChannels-1" step="1" >
-          <addPixel id="${nPix}" origin="(nChannels*pitch,pitch/4+${nPix}*pitch)" size="(pixelSize,pixelSize)" rotation="45" />
-          <addPixel id="nChannels+${nPix}" origin="(nChannels*pitch,pitch/4+${nPix}*pitch)" size="(pitch/2,pitch)" rotation="0" />
-        </for>
-        <addPixel id="2*nChannels" origin="(nChannels*pitch-pitch/2,pitch/4+(nChannels-1)*pitch+pitch/2)" size="(pitch,pitch/2)" rotation="0" />
-      </readoutChannel>
-
-      // X-strips
-
-      // First strip is special
-      <readoutChannel id="nChannels" >
-        <addPixel id="0" origin="(0,0)" size="(nChannels*pitch+pitch/2,3*pitch/4)" rotation="0" />
-      </readoutChannel>
-
-      <for variable="nCh" from="1" to="nChannels-1" step="1" >
-        <readoutChannel id="nChannels+${nCh}" >
-          <addPixel id="0" origin="(0,${nCh}*pitch-pitch/4)" size="(pitch/2,pitch)" rotation="0" />
-          <for variable="nPix" from="0" to="nChannels-1" step="1" >
-            <addPixel id="${nPix}+1" origin="((0.5+${nPix})*pitch,${nCh}*pitch-pitch/4)" size="(pixelSize,pixelSize)" rotation="45" />
-          </for>
-        </readoutChannel>
-      </for>
-
-    </readoutModule>
+    <readoutModule name="module" file="readouts.rml"/>
 
     <for variable="plane" from="-1" to="2" step="2" >
       <readoutPlane position="(0,0,955*${plane})mm" planeVector="(0,0,-1*${plane})"

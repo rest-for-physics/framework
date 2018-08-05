@@ -963,7 +963,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 
 
 
-		debug << "Expand element constructed" << endl;
+		debug << "Target element spotted" << endl;
 
 		ExpandElement(configele, true);
 		int nattr = 0;
