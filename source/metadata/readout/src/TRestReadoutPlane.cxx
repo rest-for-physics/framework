@@ -418,8 +418,8 @@ TH2Poly *TRestReadoutPlane::GetReadoutHistogram( )
             {
                 for( int v = 0; v < 4; v++ )
                 {
-                    x[v] = module->GetPixelVertex( ch, px, v ).X();
-                    y[v] = module->GetPixelVertex( ch, px, v ).Y();
+                    x[v] = module->GetPixelVertex(&(*module)[ch][px], v ).X();
+                    y[v] = module->GetPixelVertex(&(*module)[ch][px], v ).Y();
                 }
 
                 readoutHistogram->AddBin(4,x,y);

@@ -165,6 +165,7 @@ class TRestReadoutModule : public TObject {
         TRestReadoutMapping *GetMapping( ) { return &fMapping; }
 
 		TRestReadoutChannel& operator[] (int n) { return fReadoutChannel[n]; }
+
         /// Returns a pointer to a readout channel by index
         //TRestReadoutChannel *GetChannel( int n ) { return &fReadoutChannel[n]; }
 
@@ -196,6 +197,11 @@ class TRestReadoutModule : public TObject {
         TVector2 GetPixelOrigin( Int_t channel, Int_t pixel );
         TVector2 GetPixelVertex( Int_t channel, Int_t pixel, Int_t vertex );
         TVector2 GetPixelCenter( Int_t channel, Int_t pixel );
+
+		TVector2 GetPixelOrigin(TRestReadoutPixel*pix);
+		TVector2 GetPixelVertex(TRestReadoutPixel*pix, Int_t vertex);
+		TVector2 GetPixelCenter(TRestReadoutPixel*pix);
+
         TVector2 GetVertex( int n ) const;
 
         void AddChannel( TRestReadoutChannel &rChannel );

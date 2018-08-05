@@ -412,9 +412,8 @@ Bool_t TRestReadoutModule::isInsidePixel( Int_t channel, Int_t pixel, TVector2 p
 /// 
 TVector2 TRestReadoutModule::GetPixelOrigin( Int_t channel, Int_t pixel ) 
 {
-    TVector2 pixPosition(GetChannelByID(channel)->GetPixelByID(pixel)->GetOrigin() );
-    pixPosition = pixPosition.Rotate( fModuleRotation * TMath::Pi()/ 180. );
-    return pixPosition;
+	TRestReadoutPixel*pix = GetChannelByID(channel)->GetPixelByID(pixel);
+	return GetPixelOrigin(pix);
 }
 
 ///////////////////////////////////////////////
@@ -425,11 +424,8 @@ TVector2 TRestReadoutModule::GetPixelOrigin( Int_t channel, Int_t pixel )
 ///
 TVector2 TRestReadoutModule::GetPixelVertex( Int_t channel, Int_t pixel, Int_t vertex ) 
 {
-    TVector2 pixPosition = GetChannelByID(channel)->GetPixelByID(pixel)->GetVertex( vertex );
-
-    pixPosition = pixPosition.Rotate( fModuleRotation * TMath::Pi()/ 180. );
-    pixPosition = pixPosition + TVector2( fModuleOriginX, fModuleOriginY );
-    return pixPosition;
+	TRestReadoutPixel*pix = GetChannelByID(channel)->GetPixelByID(pixel);
+	return GetPixelVertex(pix, vertex);
 }
 
 ///////////////////////////////////////////////
@@ -442,10 +438,31 @@ TVector2 TRestReadoutModule::GetPixelCenter( Int_t channel, Int_t pixel )
 {
     TVector2 corner1( GetPixelVertex( channel, pixel, 0 ) );
     TVector2 corner2( GetPixelVertex( channel, pixel, 2 ) );
-
     TVector2 center = (corner1+corner2)/2.;
     return center;
 }
+
+TVector2 TRestReadoutModule::GetPixelOrigin(TRestReadoutPixel*pix) {
+	TVector2 pixPosition(pix->GetOrigin());
+	pixPosition = pixPosition.Rotate(fModuleRotation * TMath::Pi() / 180.);
+	return pixPosition;
+}
+
+TVector2 TRestReadoutModule::GetPixelVertex(TRestReadoutPixel*pix, Int_t vertex) {
+	TVector2 pixPosition = pix->GetVertex(vertex);
+	pixPosition = pixPosition.Rotate(fModuleRotation * TMath::Pi() / 180.);
+	pixPosition = pixPosition + TVector2(fModuleOriginX, fModuleOriginY);
+	return pixPosition;
+}
+
+TVector2 TRestReadoutModule::GetPixelCenter(TRestReadoutPixel*pix) {
+	TVector2 corner1(GetPixelVertex(pix, 0));
+	TVector2 corner2(GetPixelVertex(pix, 2));
+	TVector2 center = (corner1 + corner2) / 2.;
+	return center;
+}
+
+
 
 ///////////////////////////////////////////////
 /// \brief Returns the coordinates of the specified vertex index *n*. The physical
