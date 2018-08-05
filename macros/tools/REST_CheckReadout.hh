@@ -14,7 +14,7 @@ Int_t REST_Tools_CheckReadout( TString rootFile, TString name, Double_t region[4
     TRestReadout *readout = (TRestReadout *) f->Get( name );
     readout->PrintMetadata();
 
-    TRestReadoutPlane *readoutPlane = readout->GetReadoutPlane( plane );
+    TRestReadoutPlane *readoutPlane = &(*readout)[plane];
 
     Int_t nModules = readoutPlane->GetNumberOfModules( );
 
@@ -22,13 +22,13 @@ Int_t REST_Tools_CheckReadout( TString rootFile, TString name, Double_t region[4
     Int_t totalChannels = 0;
     for( int mdID = 0; mdID < nModules; mdID++ )
     {
-        TRestReadoutModule *module = readoutPlane->GetReadoutModule( mdID );
+        TRestReadoutModule *module = &(*readoutPlane)[mdID];
         Int_t nChannels = module->GetNumberOfChannels();
         totalChannels += nChannels;
 
         for( int ch = 0; ch < nChannels; ch++ )
         {
-            TRestReadoutChannel *channel = module->GetChannel( ch );
+            TRestReadoutChannel *channel = &(*module)[ch];
             Int_t nPixels = channel->GetNumberOfPixels();
             totalPixels += nPixels;
         }
@@ -50,7 +50,7 @@ Int_t REST_Tools_CheckReadout( TString rootFile, TString name, Double_t region[4
     Int_t chGraph = 0;
     for( int mdID = 0; mdID < nModules; mdID++ )
     {
-        TRestReadoutModule *module = readoutPlane->GetReadoutModule( mdID );
+        TRestReadoutModule *module = &(*readoutPlane)[mdID];
         Int_t nChannels = module->GetNumberOfChannels();
 
         Double_t x[5];
@@ -76,7 +76,7 @@ Int_t REST_Tools_CheckReadout( TString rootFile, TString name, Double_t region[4
 
         for( int ch = 0; ch < nChannels; ch++ )
         {
-            TRestReadoutChannel *channel = module->GetChannel( ch );
+            TRestReadoutChannel *channel = &(*module)[ch];
 
             Int_t nPixels = channel->GetNumberOfPixels();
 
