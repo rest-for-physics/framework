@@ -7,16 +7,28 @@ COMPILEDIR(${libname})
 
 
 set(rest_macros)
-foreach(mac ${addon_CINT})
-	string(REGEX MATCH "[^/\\]*hh" filename ${mac})
-	string(REPLACE ".hh" "" filename_noext ${filename})
-	string(REPLACE "REST_" "" macname ${filename_noext})
 
-set(rest_macros ${rest_macros} "rest${macname} ")
-endforeach(mac ${addon_CINT})
+
+
+set(rest_macros ${rest_macros} "restFit")
+set(rest_macros ${rest_macros} "restCreateHisto")
+set(rest_macros ${rest_macros} "restIntegrate")
+set(rest_macros ${rest_macros} "restIntegrateSmeearing")
+set(rest_macros ${rest_macros} "restViewEvents")
+set(rest_macros ${rest_macros} "restViewG4Event")
+set(rest_macros ${rest_macros} "restViewHitsEvent")
+set(rest_macros ${rest_macros} "restViewReadout")
+set(rest_macros ${rest_macros} "restViewGasCurve")
+set(rest_macros ${rest_macros} "restMergeFiles")
+set(rest_macros ${rest_macros} "restPrintMetadata")
+set(rest_macros ${rest_macros} "restPrintFileContents")
+set(rest_macros ${rest_macros} "restPrintDataBase")
+
+
+
 set(rest_macros ${rest_macros} PARENT_SCOPE)
 
-
+#REST macros string(separate with blank)
 set(rest_macros_str)
 foreach(mac ${rest_macros})
 set(rest_macros_str "${rest_macros_str}${mac} ")
