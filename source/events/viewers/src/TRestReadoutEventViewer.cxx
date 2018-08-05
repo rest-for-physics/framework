@@ -50,7 +50,7 @@ SetEvent( fSignalEvent);
 
 cout << "WARNING : Only plane 0 is drawn. Implementation to draw several planes or to choose the plane must be implemented." << endl;
 fReadout->PrintMetadata();
-TRestReadoutPlane *plane = fReadout->GetReadoutPlane( planeId );
+TRestReadoutPlane *plane = &(*fReadout)[planeId];
 fHistoXY= plane->GetReadoutHistogram();
 plane->GetBoundaries(xmin,xmax,ymin,ymax);
 
@@ -113,10 +113,10 @@ fHistoYZ = new TH2D("YZ","YZ",100,ymin,ymax,100,zmin,zmax);
 
         daqChannel=fSignalEvent->GetSignal(i)->GetSignalID();
 
-        TRestReadoutPlane *plane = fReadout->GetReadoutPlane( planeId );
+        TRestReadoutPlane *plane = &(*fReadout)[planeId];
         for( int m = 0; m < plane->GetNumberOfModules(); m++ )
         {
-            module = plane->GetModule( m );
+            module = &(*plane)[ m ];
 
             if( module->isDaqIDInside( daqChannel ) ) break;
         }
@@ -179,11 +179,11 @@ fHistoYZ = new TH2D("YZ","YZ",100,ymin,ymax,100,zmin,zmax);
 TRestReadoutChannel *TRestReadoutEventViewer::GetChannel( int readoutChannel){
 
 
-TRestReadoutPlane *plane = fReadout->GetReadoutPlane( 0 );
+TRestReadoutPlane *plane = &(*fReadout)[0];
 	    for( int n = 0; n < plane->GetNumberOfModules( ); n++ ){
             
-            if (plane->GetReadoutModule(n)->GetChannelByID(readoutChannel)==NULL)continue;
-            return plane->GetReadoutModule(n)->GetChannelByID(readoutChannel);
+            if ((*plane)[n].GetChannelByID(readoutChannel)==NULL)continue;
+            return (*plane)[n].GetChannelByID(readoutChannel);
             	    	    
 	    }
 
@@ -194,11 +194,11 @@ return NULL;
 
 TRestReadoutModule *TRestReadoutEventViewer::GetModule( int readoutChannel){
 
-TRestReadoutPlane *plane = fReadout->GetReadoutPlane( 0 );
+TRestReadoutPlane *plane = &(*fReadout)[0];
 	    for( int n = 0; n < fReadout->GetNumberOfModules( ); n++ ){
             
-            if (plane->GetReadoutModule(n)->GetChannelByID(readoutChannel)==NULL)continue;
-            return plane->GetReadoutModule(n);
+            if ((*plane)[n].GetChannelByID(readoutChannel)==NULL)continue;
+            return &(*plane)[n];
             	    	    
 	    }
 

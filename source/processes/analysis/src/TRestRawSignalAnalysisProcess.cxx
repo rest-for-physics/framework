@@ -280,7 +280,7 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
             // Adding signal to the channel activity histogram
             if( !fReadOnly && fReadout != NULL )
             {
-                TRestReadoutModule *mod = fReadout->GetReadoutPlane(0)->GetModule(0);
+                TRestReadoutModule *mod = &(*fReadout)[0][0];
                 for( int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++ )
                 {
                     Int_t readoutChannel = mod->DaqToReadoutChannel( fSignalEvent->GetSignal(s)->GetID() );

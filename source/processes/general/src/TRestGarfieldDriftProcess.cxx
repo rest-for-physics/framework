@@ -346,7 +346,7 @@ Int_t TRestGarfieldDriftProcess::FindModule( Int_t readoutPlane, Double_t x, Dou
     // TODO verify this
     TRestReadoutPlane *plane = fReadout->GetReadoutPlane( readoutPlane );
     for ( int md = 0; md < plane->GetNumberOfModules(); md++ )
-        if( plane->GetReadoutModule( md )->isInside( x, y ) ) return md;
+        if( (*plane)[md].isInside( x, y ) ) return md;
 
     return -1;
 }

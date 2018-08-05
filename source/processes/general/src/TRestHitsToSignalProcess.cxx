@@ -145,9 +145,9 @@ void TRestHitsToSignalProcess::BeginOfEventProcess()
 Int_t TRestHitsToSignalProcess::FindModule( Int_t readoutPlane, Double_t x, Double_t y )
 {
     // TODO verify this
-        TRestReadoutPlane *plane = fReadout->GetReadoutPlane( readoutPlane );
+        TRestReadoutPlane *plane = &(*fReadout)[readoutPlane ];
         for ( int md = 0; md < plane->GetNumberOfModules(); md++ )
-            if( plane->GetReadoutModule( md )->isInside( x, y ) ) return md;
+            if( (*plane)[md].isInside( x, y ) ) return md;
 
     return -1;
 }
@@ -172,77 +172,57 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
         Double_t z = fHitsEvent->GetZ( hit );
         Double_t t = fHitsEvent->GetTime( hit );
 
-        if( GetVerboseLevel() >= REST_Debug && hit < 20 )
+        if( GetVerboseLevel() >= REST_Extreme && hit < 20 )
             cout << "Hit : " << hit << " x : " << x << " y : " << y << " z : " << z << " t : " << t << endl;
 
         Int_t planeId = -1;
         Int_t moduleId = -1;
-        TRestReadoutModule *module;
-        TRestReadoutPlane *plane;
-        for( int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++ )
+		Int_t channelId = -1;
+
+		Int_t daqId = fReadout->GetHitsDaqChannel(TVector3(x, y, z), planeId, moduleId, channelId);
+
+        if(daqId >= 0 )
         {
-            moduleId = fReadout->GetReadoutPlane(p)->isInsideDriftVolume( x, y, z );
-            if( moduleId >= 0 )
-            {
-                if( GetVerboseLevel() >= REST_Debug )
-                    cout << "Plane : " << p << " Module : " << moduleId << endl;
-
-                planeId = p;
-                plane = fReadout->GetReadoutPlane( planeId );
-                module = plane->GetModule( moduleId );
-                break;
-            }
-        }
-
-        if( moduleId == -1 || planeId == -1 ) continue;
-
-        if( moduleId >= 0 )
-        {
-            Int_t readoutChannel = plane->FindChannel( moduleId, x, y );
-            Int_t daqId = module->GetChannel( readoutChannel )->GetDaqID( );
-
-            if( GetVerboseLevel() >= REST_Debug )
-                cout << "Channel : " << readoutChannel << " daq ID : " << daqId << endl;
+			TRestReadoutPlane *plane = fReadout->GetReadoutPlane(planeId);
 
             Double_t energy = fHitsEvent->GetEnergy( hit );
 
             Double_t time = plane->GetDistanceTo( x, y, z ) / fDriftVelocity + t;
 
-            if ( GetVerboseLevel() >= REST_Debug && hit < 20 ) 
+			if (GetVerboseLevel() >= REST_Debug && hit < 20)
+				cout << "Module : "<< moduleId <<" Channel : " << channelId << " daq ID : " << daqId << endl;
+
+			if (GetVerboseLevel() >= REST_Debug && hit < 20)
+				cout << "Energy : " << energy << " time : " << time << endl;
+
+            if ( GetVerboseLevel() >= REST_Extreme && hit < 20 ) 
                 printf(" TRestHitsToSignalProcess: x %lf y %lf z %lf energy %lf t %lf fDriftVelocity %lf fSampling %lf time %lf\n",
                        x, y, z, energy, t, fDriftVelocity, fSampling, time);
 
+			if (GetVerboseLevel() >= REST_Extreme)
+				cout << "Drift velocity : " << fDriftVelocity << " mm/us" << endl;
+
+
             time = ( (Int_t) (time/fSampling) );
 
-            if( GetVerboseLevel() >= REST_Debug )
-                cout << "Drift velocity : " << fDriftVelocity << " mm/us" << endl;
+			fSignalEvent->AddChargeToSignal(daqId, time, energy);
+		}
+		else
+		{
+			if (GetVerboseLevel() >= REST_Debug)
+				cout << "readout channel not find for position (" << x << ", " << y << ", " << z << ")!" << endl;
+		}
+	}
 
-            if( GetVerboseLevel() >= REST_Debug )
-                cout << "Energy : " << energy << " time : " << time << endl;
+	fSignalEvent->SortSignals();
 
-            fSignalEvent->AddChargeToSignal( daqId, time, energy );
-        }
-}
+	if (GetVerboseLevel() >= REST_Debug)
+	{
+		cout << "TRestHitsToSignalProcess : Number of signals added : " << fSignalEvent->GetNumberOfSignals() << endl;
+		cout << "TRestHitsToSignalProcess : Total signals integral : " << fSignalEvent->GetIntegral() << endl;
+	}
 
-        fSignalEvent->SortSignals();
-
-        if( GetVerboseLevel() >= REST_Extreme )
-        {
-            fSignalEvent->PrintEvent();
-            cout << "TRestHitsToSignal in extreme mode" << endl;
-            GetChar();
-        }
-
-        if ( GetVerboseLevel() >= REST_Debug ) 
-        {
-            cout << "TRestHitsToSignalProcess : Number of signals added : " << fSignalEvent->GetNumberOfSignals() << endl;
-            cout << "TRestHitsToSignalProcess : Total signals integral : " << fSignalEvent->GetIntegral() << endl;
-        }
-
-        if( GetVerboseLevel() >= REST_Debug )
-            GetChar();
-
-        return fSignalEvent;
+	return fSignalEvent;
 }
 
 //______________________________________________________________________________
