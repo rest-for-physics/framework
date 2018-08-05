@@ -358,12 +358,12 @@ Int_t TRestReadout::GetNumberOfChannels( )
 ///////////////////////////////////////////////
 /// \brief Returns the *id* of the readout module with a given *name*.
 ///
-Int_t TRestReadout::GetModuleDefinitionId( TString name )
+TRestReadoutModule* TRestReadout::GetModuleDefinition( TString name )
 {
     for( unsigned int i = 0; i < fModuleDefinitions.size(); i++ )
         if( fModuleDefinitions[i].GetName() == name )
-            return fModuleDefinitions[i].GetModuleID();
-    return -1;
+            return &fModuleDefinitions[i];
+    return NULL;
 }
 
 ///////////////////////////////////////////////
@@ -512,9 +512,9 @@ void TRestReadout::InitFromConfigFile()
         while( ( moduleDefinition = GetKEYDefinition( "addReadoutModule", posPlane, planeString ) ) != "" )
         {
             TString modName = GetFieldValue( "name", moduleDefinition );
-            Int_t mid = GetModuleDefinitionId( modName );
+            TRestReadoutModule* m = GetModuleDefinition( modName );
 
-			if (mid == -1) 
+			if (m == NULL) 
 			{
 				warning << "Readout module with name \"" << modName << "\" not found! Skipping this definition..." << endl;
 				warning << "In addReadoutModule definition: " << moduleDefinition << endl;
@@ -522,9 +522,11 @@ void TRestReadout::InitFromConfigFile()
 				continue;
 			}
 
-            fModuleDefinitions[mid].SetModuleID( StringToInteger( GetFieldValue( "id", moduleDefinition ) ) );
-            fModuleDefinitions[mid].SetOrigin( StringTo2DVector( GetFieldValue( "origin", moduleDefinition ) ) );
-            fModuleDefinitions[mid].SetRotation( StringToDouble( GetFieldValue( "rotation", moduleDefinition ) ) );
+			TRestReadoutModule mod = *m;
+
+            mod.SetModuleID( StringToInteger( GetFieldValue( "id", moduleDefinition ) ) );
+            mod.SetOrigin( StringTo2DVector( GetFieldValue( "origin", moduleDefinition ) ) );
+            mod.SetRotation( StringToDouble( GetFieldValue( "rotation", moduleDefinition ) ) );
 
             Int_t firstDaqChannel = StringToInteger( GetFieldValue( "firstDaqChannel", moduleDefinition ) );
             if( firstDaqChannel == -1 ) firstDaqChannel = addedChannels;
@@ -580,7 +582,7 @@ void TRestReadout::InitFromConfigFile()
                 getchar();
             }
 
-            if( fDecoding && (unsigned int) fModuleDefinitions[mid].GetNumberOfChannels() != rChannel.size() )
+            if( fDecoding && (unsigned int) mod.GetNumberOfChannels() != rChannel.size() )
             {
                 cout << "REST ERROR : TRestReadout."
                     << " The number of channels defined in the readout is not the same" 
@@ -588,23 +590,23 @@ void TRestReadout::InitFromConfigFile()
                 exit(1);
             }
 
-            for( int ch = 0; ch < fModuleDefinitions[mid].GetNumberOfChannels(); ch++ )
+            for( int ch = 0; ch < mod.GetNumberOfChannels(); ch++ )
             {
                 if( !fDecoding )
                 {
-                    Int_t id = fModuleDefinitions[mid][ch].GetID( );
+                    Int_t id = mod[ch].GetID( );
                     rChannel.push_back( id );
                     dChannel.push_back( id + firstDaqChannel );
                 }
 
-                // WRONG version before --> fModuleDefinitions[mid].GetChannel(ch)->SetID( rChannel[ch] );
-                fModuleDefinitions[mid].GetChannelByID( rChannel[ch] )->SetDaqID( dChannel[ch] );
+                // WRONG version before --> mod.GetChannel(ch)->SetID( rChannel[ch] );
+                mod.GetChannelByID( rChannel[ch] )->SetDaqID( dChannel[ch] );
 
                 addedChannels++;
 
             }
-            fModuleDefinitions[mid].SetMinMaxDaqIDs();
-            plane.AddModule( fModuleDefinitions[mid] );
+            mod.SetMinMaxDaqIDs();
+            plane.AddModule( mod );
 
         }
 

@@ -63,7 +63,7 @@ class TRestReadout:public TRestMetadata {
         Int_t GetNumberOfModules( );
         Int_t GetNumberOfChannels( );
 
-        Int_t GetModuleDefinitionId( TString name );
+		TRestReadoutModule* GetModuleDefinition( TString name );
 
 		void GetPlaneModuleChannel(Int_t daqID, Int_t& planeID, Int_t& moduleID, Int_t& channelID);
 
