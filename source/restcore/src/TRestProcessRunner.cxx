@@ -1052,14 +1052,28 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 		}
 		string s2(buffer);
 
-		int barlength = ConsoleHelper::GetWidth() - s1.size() - s2.size() - 9;
+		int barlength = 0;
+		if (fout.CompatibilityMode()) {
+			barlength = 50;
+		}
+		else
+		{
+			barlength = ConsoleHelper::GetWidth() - s1.size() - s2.size() - 9;
+		}
 		sprintf(buffer, ("%.1f%[" + MakeProgressBar(prog, barlength) + "]").c_str(), prog);
 		string s3(buffer);
 
 		delete buffer;
 
-		printf((s1 + s2 + s3 + "\r").c_str());
-		fflush(stdout);
+		if (fout.CompatibilityMode()) {
+			cout << s1 << s2 << s3 << endl;
+		}
+		else
+		{
+			printf((s1 + s2 + s3 + "\r").c_str());
+			fflush(stdout);
+		}
+
 
 		//cursorUp(4);
 
