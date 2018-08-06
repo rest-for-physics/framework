@@ -46,17 +46,9 @@ def branchname():
         return str(out)[n1+2:n2+n1]
     return ""
 
-global Warning
-Warning=True
 
 def main():
-    global Warning
     newgit=repairgit()
-    if Warning:
-        print "Local changes will be overwritten! (except additions)"
-        print "Make backup and do it carefully!"
-        print "Press a key to continue"
-        raw_input()
     if newgit==False:
         print "updating local git repository of REST"
         os.chdir(vars.opt["Source_Path"])
@@ -79,7 +71,11 @@ def main():
 
         
 if __name__ == '__main__':
-	main()
+    print "Local changes will be overwritten! (except additions)"
+    print "Make backup and do it carefully!"
+    print "Press a key to continue"
+    raw_input()
+    main()
 
 
 ##===================================================

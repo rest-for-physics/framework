@@ -212,7 +212,6 @@ def nextstep():
         print "You can't hit this!"
     elif step == update_confirm:
         vars.opt['Branch']=text.get("1.0", tk.END).strip('\n')
-        updateREST.Warning=False
         updateREST.main()
         step =install_begin;
     previoussteps.append(step)
