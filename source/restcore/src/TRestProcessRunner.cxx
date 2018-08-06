@@ -52,6 +52,7 @@ high_resolution_clock::time_point tS, tE;
 int ncalculated = 10;
 Long64_t bytesReaded_last = 0;
 Double_t prog_last = 0;
+Int_t prog_last_printed = 0;
 vector<Long64_t> bytesAdded(ncalculated, 0);
 vector<Double_t> progAdded(ncalculated, 0);
 int poscalculated = 0;
@@ -1066,7 +1067,11 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 		delete buffer;
 
 		if (fout.CompatibilityMode()) {
-			cout << s1 << s2 << s3 << endl;
+			if (((int)prog) != prog_last_printed)
+			{
+				cout << s1 << s2 << s3 << endl;
+				prog_last_printed = (int)prog;
+			}
 		}
 		else
 		{
