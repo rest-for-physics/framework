@@ -258,14 +258,14 @@ public:
 
 	void flushstring()
 	{
-		int consolewidth = ConsoleHelper::GetWidth() - 2;
-		if (consolewidth > 500 || consolewidth < 10)//this means we are using condor
+		if (length == -1)//this means we are using condor
 		{
 			cout << stringbuf << endl;
 			stringbuf = "";
 		}
 		else
 		{
+			int consolewidth = ConsoleHelper::GetWidth() - 2;
 			printf("\033[K");
 			if (orientation == 0) {
 				cout << color << string((consolewidth - length) / 2, ' ')
@@ -308,10 +308,12 @@ public:
 	}
 
 	void setlength(int n) {
-		if (n < ConsoleHelper::GetWidth() - 2)
-			length = n;
-		else
-			length = ConsoleHelper::GetWidth() - 2;
+		if (length != -1) {
+			if (n < ConsoleHelper::GetWidth() - 2)
+				length = n;
+			else
+				length = ConsoleHelper::GetWidth() - 2;
+		}
 	}
 
 	//static void resetlength() {
@@ -326,12 +328,18 @@ public:
 		orientation = 0;
 	}
 
+	bool CompatibilityMode() { return length == -1; }
+
 	TRestStringOutput() {
 		orientation = 0;
 		border = "";
 		color = COLOR_RESET;
 		length = ConsoleHelper::GetWidth() - 2;
 		stringbuf = "";
+		if (length > 500 || length < 20)//unsorpped console, we will fall back to compatibility modes
+		{
+			length = -1;
+		}
 	}
 
 protected:
