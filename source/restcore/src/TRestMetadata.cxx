@@ -881,10 +881,10 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 	if (!isRootFile(filename)) //root file inclusion is implemented in TRestRun
 	{
 		debug << "----expanding include file----" << endl;
-		//we find the target element(the element to receive content) 
-		//and the config element(the element to provide content)
-		TiXmlElement* configele = NULL;
-		TiXmlElement* targetele = NULL;
+		//we find the local element(the element to receive content) 
+		//and the remote element(the element to provide content)
+		TiXmlElement* remoteele = NULL;
+		TiXmlElement* localele = NULL;
 		string type;
 		string name;
 		//condition 1(raw file include): 
@@ -894,16 +894,22 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 		//   </TRestXXX>
 		if ((string)e->Value() == "include")
 		{
-			targetele = (TiXmlElement*)e->Parent();
-			if (targetele == NULL)return;
+			localele = (TiXmlElement*)e->Parent();
+			if (localele == NULL)return;
+			if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") == "true"))
+			{
+				debug << "----already expanded----" << endl;
+				return;
+			}
+
 			type = "";
 			name = "";
-			configele = new TiXmlElement("Config");
+			remoteele = new TiXmlElement("Config");
 
 			TiXmlElement*ele = GetRootElementFromFile(filename);
 			if (ele == NULL)warning << "REST Waring: no xml elements contained in the include file \"" << filename << "\"" << endl;
 			while (ele != NULL) {
-				configele->InsertEndChild(*ele);
+				remoteele->InsertEndChild(*ele);
 				ele = ele->NextSiblingElement();
 			}
 
@@ -916,10 +922,15 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 		//   <addXXX type="" name="" ... file="aaa.rml" .../>
 		else
 		{
-			targetele = e;
-			type = e->Attribute("type") != NULL ? e->Attribute("type") : e->Value();
-			name = targetele->Attribute("name") == NULL ? "" : targetele->Attribute("name");
+			localele = e;
+			if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") == "true"))
+			{
+				debug << "----already expanded----" << endl;
+				return;
+			}
 
+			type = e->Attribute("type") != NULL ? e->Attribute("type") : e->Value();
+			name = localele->Attribute("name") == NULL ? "" : localele->Attribute("name");
 
 			//get the root element
 			TiXmlElement* rootele = GetRootElementFromFile(filename);
@@ -930,7 +941,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 			}
 			if ((string)rootele->Value() == type) {
 				//if root element in the included file is of given type, directly use it
-				configele = rootele;
+				remoteele = rootele;
 			}
 			else {
 				//import env first
@@ -947,11 +958,11 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 				}
 				//find its child section according to type and name
 				if (name == ""&&GetElement(type, rootele) != NULL)
-					configele = GetElement(type, rootele);
+					remoteele = GetElement(type, rootele);
 				else if (GetElementWithName(type, name, rootele) != NULL)
-					configele = GetElementWithName(type, name, rootele);
+					remoteele = GetElementWithName(type, name, rootele);
 
-				if (configele == NULL)
+				if (remoteele == NULL)
 				{
 					warning << "REST WARNING(expand include file): Cannot get corresponding xml section!" << endl;
 					warning << "type: " << type << " , name: " << name << " . Skipping" << endl;
@@ -965,35 +976,33 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 
 		debug << "Target element spotted" << endl;
 
-		ExpandElement(configele, true);
+		ExpandElement(remoteele, true);
 		int nattr = 0;
 		int nele = 0;
-		if (targetele->Attribute("expanded") == NULL ? true : ((string)targetele->Attribute("expanded") != "true")) {
-			TiXmlAttribute*attr = configele->FirstAttribute();
-			while (attr != NULL) {
-				if (targetele->Attribute(attr->Name()) == NULL)
-				{
-					targetele->SetAttribute(attr->Name(), attr->Value());
-					nattr++;
-				}
-				attr = attr->Next();
-			}
-			TiXmlElement* ele = configele->FirstChildElement();
-			while (ele != NULL)
+		TiXmlAttribute*attr = remoteele->FirstAttribute();
+		while (attr != NULL) {
+			if (localele->Attribute(attr->Name()) == NULL)
 			{
-				//ExpandElement(ele);
-				if ((string)ele->Value() != "for")
-				{
-					targetele->InsertEndChild(*ele);
-					nele++;
-				}
-				ele = ele->NextSiblingElement();
+				localele->SetAttribute(attr->Name(), attr->Value());
+				nattr++;
 			}
+			attr = attr->Next();
+		}
+		TiXmlElement* ele = remoteele->FirstChildElement();
+		while (ele != NULL)
+		{
+			//ExpandElement(ele);
+			if ((string)ele->Value() != "for")
+			{
+				localele->InsertEndChild(*ele);
+				nele++;
+			}
+			ele = ele->NextSiblingElement();
 		}
 
-		targetele->SetAttribute("expanded", "true");
+		localele->SetAttribute("expanded", "true");
 		if (fVerboseLevel >= REST_Debug) {
-			targetele->Print(stdout, 0);
+			localele->Print(stdout, 0);
 			cout << endl;
 		}
 		debug << nattr << " attributes and " << nele << " xml elements added by inclusion" << endl;
@@ -1969,7 +1978,7 @@ TString TRestMetadata::GetSearchPath() {
 		result.erase(result.size() - 1);
 	}
 
-	return ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(result));
+	return ReplaceEnvironmentalVariables(result);
 }
 
 
