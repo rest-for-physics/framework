@@ -714,7 +714,11 @@ Double_t TRestReadout::GetY(Int_t signalID)
 ///
 Double_t TRestReadout::GetX( Int_t planeID, Int_t modID, Int_t chID )
 {
-    return GetReadoutPlane(planeID)->GetX( modID, chID );
+	TRestReadoutPlane*plane = GetReadoutPlane(planeID);
+	if (plane == NULL) {
+		return numeric_limits<Double_t>::quiet_NaN();
+	}
+    return plane->GetX( modID, chID );
 }
 
 ///////////////////////////////////////////////
@@ -724,7 +728,11 @@ Double_t TRestReadout::GetX( Int_t planeID, Int_t modID, Int_t chID )
 ///
 Double_t TRestReadout::GetY( Int_t planeID, Int_t modID, Int_t chID )
 {
-    return GetReadoutPlane(planeID)->GetY( modID, chID );
+	TRestReadoutPlane*plane = GetReadoutPlane(planeID);
+	if (plane == NULL) {
+		return numeric_limits<Double_t>::quiet_NaN();
+	}
+	return plane->GetY(modID, chID);
 }
 
 ///////////////////////////////////////////////
