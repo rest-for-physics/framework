@@ -220,6 +220,8 @@ protected:
 	std::string fConfigFileName;
 	///Section name given in the constructor of the derived metadata class
 	std::string fSectionName;
+	///The buffer where the corresponding metadata section is stored. Filled only during Write()
+	std::string configBuffer;
 	///Verbose level used to print debug info
 	REST_Verbose_Level fVerboseLevel;   //! 
 	///All metadata classes can be initialized and managed by TRestManager
@@ -232,11 +234,6 @@ protected:
 	TiXmlElement* fElementGlobal;//! 
 	///Saving a list of environmental variables
 	vector<TiXmlElement*> fElementEnv;//! 
-
-	///Reflection
-
-
-
 
 
 	///formatted message output, used for print metadata

@@ -110,7 +110,7 @@ protected:
 
 	vector<TRestEventProcess*> fFriendlyProcesses;//!
 
-	std::vector <TString> fObservableNames;
+	std::vector <TString> fObservableNames;//!
 	//std::vector <Double_t*> fObservableRefs;//!
 
 	bool fReadOnly=false;//!

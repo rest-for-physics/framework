@@ -598,10 +598,7 @@ Int_t TRestMetadata::LoadSectionMetadata()
 	//finally do this replacement for all child elements and expand for/include definitions
 	ExpandElement(fElement);
 
-	if (GetSectionName() == "")
-		SetSectionName(this->ClassName());
-	if (GetSectionContent() == "")
-		fSectionName += "\n" + ElementToString(fElement);
+	configBuffer = ElementToString(fElement);
 
 	debug << ClassName() << " has finished preparing config data" << endl;
 
@@ -1880,8 +1877,17 @@ void TRestMetadata::PrintTimeStamp(Double_t timeStamp)
 ///
 void TRestMetadata::PrintConfigBuffer()
 {
-	fElement->Print(stdout, 0);
-	cout << endl;
+	if (fElement != NULL)
+	{
+		fElement->Print(stdout, 0);
+		cout << endl;
+	}
+	else
+	{
+		cout << GetSectionContent() << endl;
+	}
+
+
 }
 
 int TRestMetadata::GetChar(string hint) 
@@ -1930,7 +1936,7 @@ std::string TRestMetadata::GetSectionContent()
 	auto a = fSectionName.find('\n', 0);
 	if (a != -1)
 		return fSectionName.substr(a + 1, -1);
-	return "";
+	return configBuffer;
 }
 
 ///////////////////////////////////////////////

@@ -193,7 +193,7 @@ protected:
 
 	//data-like metadata objects
 	vector<TRestMetadata*> fMetadataInfo;//!
-	map<string, string> FileInfo;
+	map<string, string> FileInfo;//!
 
 	//temp data member
 	vector<TString> fInputFileNames;//!
