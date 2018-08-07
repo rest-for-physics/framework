@@ -21,26 +21,26 @@
  *************************************************************************/
 
 
-//////////////////////////////////////////////////////////////////////////
-///
-/// This class stores the readout pixel geometrical description, origin  
-/// position, orientation, and size. A readout pixel is the most elementary
-/// component of a readout used to construct a readout channel.
-/// 
-///--------------------------------------------------------------------------
-///
-/// RESTsoft - Software for Rare Event Searches with TPCs
-///
-/// History of developments:
-///
-/// 2015-aug:  First concept.
-///            Javier Galan
-///
-/// \class      TRestReadoutChannel
-/// \author     Javier Galan
-///
-/// <hr>
-///
+ //////////////////////////////////////////////////////////////////////////
+ ///
+ /// This class stores the readout pixel geometrical description, origin  
+ /// position, orientation, and size. A readout pixel is the most elementary
+ /// component of a readout used to construct a readout channel.
+ /// 
+ ///--------------------------------------------------------------------------
+ ///
+ /// RESTsoft - Software for Rare Event Searches with TPCs
+ ///
+ /// History of developments:
+ ///
+ /// 2015-aug:  First concept.
+ ///            Javier Galan
+ ///
+ /// \class      TRestReadoutChannel
+ /// \author     Javier Galan
+ ///
+ /// <hr>
+ ///
 
 
 #include "TRestReadoutChannel.h"
@@ -50,9 +50,9 @@ ClassImp(TRestReadoutChannel)
 ///////////////////////////////////////////////
 /// \brief TRestReadoutChannel default constructor
 ///
-    TRestReadoutChannel::TRestReadoutChannel()
+TRestReadoutChannel::TRestReadoutChannel()
 {
-    Initialize();
+	Initialize();
 
 }
 
@@ -68,49 +68,60 @@ TRestReadoutChannel::~TRestReadoutChannel()
 /// 
 void TRestReadoutChannel::Initialize()
 {
-    fChannelID = -1;
+	fChannelID = -1;
 }
 
 ///////////////////////////////////////////////
 /// \brief Determines if (x,y) referenced to module coordinates is inside the channel
 ///
-Int_t TRestReadoutChannel::isInside( Double_t x, Double_t y )
+Int_t TRestReadoutChannel::isInside(Double_t x, Double_t y)
 {
-    for( unsigned int i = 0; i < fReadoutPixel.size(); i++ )
-        if( fReadoutPixel[i].isInside( x, y ) ) return true;
-    return false;
+	for (unsigned int i = 0; i < fReadoutPixel.size(); i++)
+		if (fReadoutPixel[i].isInside(x, y)) return true;
+	return false;
 }
 
 ///////////////////////////////////////////////
 /// \brief Returns a TRestReadoutPixel pointer using the internal pixel id.
 /// 
-TRestReadoutPixel *TRestReadoutChannel::GetPixelByID( int id )
+TRestReadoutPixel *TRestReadoutChannel::GetPixelByID(int id)
 {
-    Int_t pxNumber = -1;
-    for( unsigned int i = 0; i < fReadoutPixel.size(); i++ )
-        if( fReadoutPixel[i].GetID() == id )
-        {
-            if( pxNumber != -1 ) cout << "REST Warning : Found several pixels with the same ID" << endl;
-            pxNumber = i;
-        }
-    if( pxNumber != -1 )
-        return &fReadoutPixel[pxNumber];
+	Int_t pxNumber = -1;
+	for (unsigned int i = 0; i < fReadoutPixel.size(); i++)
+		if (fReadoutPixel[i].GetID() == id)
+		{
+			if (pxNumber != -1) cout << "REST Warning : Found several pixels with the same ID" << endl;
+			pxNumber = i;
+		}
+	if (pxNumber != -1)
+		return &fReadoutPixel[pxNumber];
 
-    cout << "REST Warning : Readout pixel with ID : " << id << " not found in channel : " << GetID() << endl;
+	cout << "REST Warning : Readout pixel with ID : " << id << " not found in channel : " << GetID() << endl;
 
-    return NULL; 
+	return NULL;
 }
 
 ///////////////////////////////////////////////
 /// \brief Prints the details of the readout channel including pixel coordinates.
 /// 
-void TRestReadoutChannel::Print( )
+void TRestReadoutChannel::Print()
 {
-        cout << "++++ Channel ID : " << GetID( ) << " Daq channel : " << GetDaqID() << " Total pixels : " << GetNumberOfPixels() << endl;
-        cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	cout << "++++ Channel ID : " << GetID() << " Daq channel : " << GetDaqID() << endl;
 
-        for( int n = 0; n < GetNumberOfPixels(); n++ )
-        {
-            fReadoutPixel[n].Print();
-        }
+	string typestr;
+	if (GetType() == Channel_NoType)typestr = "NoType";
+	else if (GetType() == Channel_Pixel)typestr = "Pixel";
+	else if (GetType() == Channel_X)typestr = "X";
+	else if (GetType() == Channel_Y)typestr = "Y";
+	else if (GetType() == Channel_U)typestr = "U";
+	else if (GetType() == Channel_V)typestr = "V";
+	else if (GetType() == Channel_W)typestr = "W";
+
+	cout << " Total pixels : " << GetNumberOfPixels() << " Channel type : " << typestr << endl;
+	cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+
+	for (int n = 0; n < GetNumberOfPixels(); n++)
+	{
+		fReadoutPixel[n].Print();
+	}
 }
