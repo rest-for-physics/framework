@@ -333,15 +333,16 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 	if (isRootFile((string)filename))
 	{
 		debug << "Initializing input file" << endl;
-
-
 		fInputFile = new TFile(filename, mode.c_str());
 
 		debug << "Finding TRestAnalysisTree.." << endl;
-		TRestAnalysisTree * Tree1 = (TRestAnalysisTree *)fInputFile->Get("AnalysisTree");
+		TTree* Tree1 = NULL;
+		TTree* Tree2 = NULL;
+
+		Tree1 = (TTree*)fInputFile->Get("AnalysisTree");
 		if (Tree1 != NULL)
 		{
-			fAnalysisTree = Tree1;
+			fAnalysisTree = (TRestAnalysisTree *)Tree1;
 			fAnalysisTree->ConnectObservables();
 			fAnalysisTree->ConnectEventBranches();
 			TObjArray* branches = fAnalysisTree->GetListOfBranches();//we skip process branches
@@ -352,20 +353,47 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 					br->SetStatus(false);
 				}
 			}
+
+			Tree2 = (TTree *)fInputFile->Get("EventTree");
+		}
+		else if (fInputFile->FindKey("TRestAnalysisTree") != NULL)
+		{
+			//This is v2.1.6- version of input file, we directly find EventTree. 
+			//The old name pattern is "TRestXXXEventTree-eventBranch"
+			warning << "Loading root file from old version REST!" << endl;
+			fAnalysisTree = new TRestAnalysisTree("AnalysisTree", "AnalysisTree");
+			//fAnalysisTree->ConnectObservables();
+			fAnalysisTree->CreateEventBranches();
+
+			TIter nextkey(fInputFile->GetListOfKeys());
+			TKey *key;
+			Tree2 = NULL;
+			while ((key = (TKey*)nextkey()))
+			{
+				cout << key->GetName() << endl;
+				if (((string)key->GetName()).find("EventTree") != -1) {
+					Tree2 = (TTree *)fInputFile->Get(key->GetName());
+					string eventname = Replace(key->GetName(), "Tree", "", 0);
+					TBranch* br = Tree2->GetBranch("eventBranch");
+					br->SetName((eventname + "Branch").c_str());
+					br->SetTitle((eventname + "Branch").c_str());
+					break;
+				}
+			}
+			fAnalysisTree->SetEntries(Tree2->GetEntries());
+			debug << "Old REST file successfully recovered!" << endl;
 		}
 		else
 		{
 			error << "REST ERROR (OpenInputFile) : AnalysisTree was not found" << endl;
 			error << "Inside file : " << filename << endl;
+			error << "This may be not REST output file!" << endl;
 			exit(1);
 		}
 
-		TTree* Tree2 = (TTree *)fInputFile->Get("EventTree");
-		if (Tree2 != NULL)
+		if (Tree2 != NULL) 
 		{
 			fEventTree = Tree2;
-			//fEventTree->ConnectEventBranches();
-
 
 			debug << "Finding event branch.." << endl;
 			if (fInputEvent == NULL)
@@ -400,10 +428,7 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 					fEventTree->SetBranchAddress(brname.c_str(), &fInputEvent);
 					debug << brname << " is found and set!" << endl;
 				}
-
 			}
-
-
 		}
 		else
 		{
@@ -411,7 +436,6 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 			warning << "This is a pure analysis file!" << endl;
 			fInputEvent = NULL;
 		}
-
 	}
 	else
 	{
