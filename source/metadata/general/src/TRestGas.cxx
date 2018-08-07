@@ -889,8 +889,7 @@ void TRestGas::PrintGasInfo()
 }
 
 Int_t TRestGas::Write(const char *name, Int_t option, Int_t bufsize) {
-	fGasFileContent = "";
-	if (fGasFileLoaded) {
+	if (fGasFileContent = "" && fGasFileLoaded) {
 		ifstream infile;
 		infile.open(fGasFilename);
 		if (!infile)
@@ -906,6 +905,5 @@ Int_t TRestGas::Write(const char *name, Int_t option, Int_t bufsize) {
 			//cout << fGasFileContent << endl;
 		}
 	}
-
 	TRestMetadata::Write();
 }
