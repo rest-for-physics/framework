@@ -1914,9 +1914,17 @@ int TRestMetadata::GetChar(string hint)
 ///
 void TRestMetadata::PrintMetadata()
 {
-	cout << "TRestMetadata content" << endl;
-	cout << "-----------------------" << endl;
-	cout << "Section name : " << this->ClassName() << endl;        // section name given in the constructor of TRestSpecificMetadata
+	TRestStringOutput cout;
+	cout.setborder("||");
+	cout.setorientation(1);
+	cout.setlength(100);
+	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	cout << this->ClassName() << " content" << endl;
+	cout << "Config file : " << fConfigFileName << endl;
+	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	cout << "Name : " << GetName() << endl;
+	cout << "Title : " << GetTitle() << endl;
+	cout << "---------------------------------------" << endl;
 }
 
 ///////////////////////////////////////////////

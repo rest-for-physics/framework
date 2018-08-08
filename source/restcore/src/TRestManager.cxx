@@ -101,6 +101,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 		}
 		TRestMetadata*meta = (TRestMetadata*)c->New();
 		meta->SetHostmgr(this);
+		meta->SetConfigFile(fConfigFileName);
 		meta->LoadConfigFromFile(e, fElementGlobal);
 		fMetaObjects.push_back(meta);
 

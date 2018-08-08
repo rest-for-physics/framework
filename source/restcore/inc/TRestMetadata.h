@@ -89,7 +89,8 @@ public:
 	virtual Int_t ReadConfig(string keydeclare, TiXmlElement* e) { UNUSED(keydeclare); UNUSED(e); return -1; };
 	/// These methods can be overridden in the child class.
 	virtual void EndOfInit() { return; };
-
+	/// Implementing TObject::Print() method
+	void Print() { PrintMetadata(); }
 	/// Implemented it in the derived metadata class to print out specific metadata information.
 	virtual void PrintMetadata();
 	/// Print the current time on local machine.
