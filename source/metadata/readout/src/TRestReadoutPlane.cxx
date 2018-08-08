@@ -367,22 +367,27 @@ Int_t TRestReadoutPlane::isInsideDriftVolume(TVector3 pos)
 /// \brief Prints information with details of the readout plane and modules 
 /// defined inside the readout plane.
 /// 
-void TRestReadoutPlane::Print(Int_t fullDetail)
+void TRestReadoutPlane::Print(Int_t DetailLevel)
 {
-	cout << "-- Readout plane : " << GetID() << endl;
-	cout << "----------------------------------------------------------------" << endl;
-	cout << "-- Position : X = " << fPosition.X() << " mm, " << " Y : " << fPosition.Y() << " mm, Z : " << fPosition.Z() << " mm" << endl;
-	cout << "-- Vector : X = " << fPlaneVector.X() << " mm, " << " Y : " << fPlaneVector.Y() << " mm, Z : " << fPlaneVector.Z() << " mm" << endl;
-	cout << "-- Cathode Position : X = " << fCathodePosition.X() << " mm, " << " Y : " << fCathodePosition.Y() << " mm, Z : " << fCathodePosition.Z() << " mm" << endl;
-	cout << "-- Total drift distance : " << fTotalDriftDistance << " mm" << endl;
-	cout << "-- Charge collection : " << fChargeCollection << endl;
-	cout << "-- Total modules : " << GetNumberOfModules() << endl;
-	cout << "-- Total channels : " << GetNumberOfChannels() << endl;
-	cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	if (DetailLevel >= 0) {
+		TRestStringOutput cout;
+		cout.setborder("||");
+		cout.setorientation(1);
+		cout.setlength(100);
+		cout << "-- Readout plane : " << GetID() << endl;
+		cout << "----------------------------------------------------------------" << endl;
+		cout << "-- Position : X = " << fPosition.X() << " mm, " << " Y : " << fPosition.Y() << " mm, Z : " << fPosition.Z() << " mm" << endl;
+		cout << "-- Vector : X = " << fPlaneVector.X() << " mm, " << " Y : " << fPlaneVector.Y() << " mm, Z : " << fPlaneVector.Z() << " mm" << endl;
+		cout << "-- Cathode Position : X = " << fCathodePosition.X() << " mm, " << " Y : " << fCathodePosition.Y() << " mm, Z : " << fCathodePosition.Z() << " mm" << endl;
+		cout << "-- Total drift distance : " << fTotalDriftDistance << " mm" << endl;
+		cout << "-- Charge collection : " << fChargeCollection << endl;
+		cout << "-- Total modules : " << GetNumberOfModules() << endl;
+		cout << "-- Total channels : " << GetNumberOfChannels() << endl;
+		cout << "----------------------------------------------------------------" << endl;
 
-	for (int i = 0; i < GetNumberOfModules(); i++)
-		fReadoutModules[i].Print(fullDetail);
-
+		for (int i = 0; i < GetNumberOfModules(); i++)
+			fReadoutModules[i].Print(DetailLevel - 1);
+	}
 }
 
 ///////////////////////////////////////////////

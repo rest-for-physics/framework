@@ -101,7 +101,7 @@ public:
 
 	Int_t isInside(Double_t x, Double_t y);
 
-	void Print();
+	void Print(int DetailLevel = 0);
 
 	//Construtor
 	TRestReadoutChannel();

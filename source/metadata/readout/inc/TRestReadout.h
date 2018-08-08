@@ -75,8 +75,13 @@ class TRestReadout:public TRestMetadata {
         Double_t GetX( Int_t planeID, Int_t modID, Int_t chID );
         Double_t GetY( Int_t planeID, Int_t modID, Int_t chID );
 
-        void PrintMetadata( ) { PrintMetadata( 0 ); }
-        void PrintMetadata( Int_t fullDetail );
+		//Detal Level: 
+		//0->this readout
+		//1->+all readout plane
+		//2->+all readout module
+		//3->+all readout channel
+		//4->+all readout pixel
+		void PrintMetadata(Int_t DetailLevel = 1);
 
         void Draw();
 

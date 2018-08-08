@@ -544,18 +544,18 @@ void TRestReadoutModule::Draw()
 ///////////////////////////////////////////////
 /// \brief Prints the module details and channels if *fullDetail* is enabled.
 /// 
-void TRestReadoutModule::Print( Int_t fullDetail )
+void TRestReadoutModule::Print(Int_t DetailLevel)
 {
-        cout << "-- Readout module : " << GetModuleID( ) << endl;
-        cout << "----------------------------------------------------------------" << endl;
-        cout << "-- Origin position : X = " << fModuleOriginX << " mm " << " Y : " << fModuleOriginY << " mm" << endl;
-        cout << "-- Size : X = " << fModuleSizeX << " Y : " << fModuleSizeY << endl;
-        cout << "-- Rotation : " << fModuleRotation << " degrees" << endl;
-        cout << "-- Total channels : " << GetNumberOfChannels() << endl;
-        cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	if (DetailLevel >= 0) {
+		cout << "-- Readout module : " << GetModuleID() << endl;
+		cout << "----------------------------------------------------------------" << endl;
+		cout << "-- Origin position : X = " << fModuleOriginX << " mm " << " Y : " << fModuleOriginY << " mm" << endl;
+		cout << "-- Size : X = " << fModuleSizeX << " Y : " << fModuleSizeY << endl;
+		cout << "-- Rotation : " << fModuleRotation << " degrees" << endl;
+		cout << "-- Total channels : " << GetNumberOfChannels() << endl;
+		cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
-        if( fullDetail )
-            for( int n = 0; n < GetNumberOfChannels(); n++ )
-                fReadoutChannel[n].Print();
-
+		for (int n = 0; n < GetNumberOfChannels(); n++)
+			fReadoutChannel[n].Print(DetailLevel - 1);
+	}
 }

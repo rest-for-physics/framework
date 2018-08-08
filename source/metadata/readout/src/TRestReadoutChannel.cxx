@@ -104,24 +104,27 @@ TRestReadoutPixel *TRestReadoutChannel::GetPixelByID(int id)
 ///////////////////////////////////////////////
 /// \brief Prints the details of the readout channel including pixel coordinates.
 /// 
-void TRestReadoutChannel::Print()
+void TRestReadoutChannel::Print(int DetailLevel)
 {
-	cout << "++++ Channel ID : " << GetID() << " Daq channel : " << GetDaqID() << endl;
+	if (DetailLevel >= 0) {
+		cout << "++++ Channel ID : " << GetID() << " Daq channel : " << GetDaqID() << endl;
 
-	string typestr;
-	if (GetType() == Channel_NoType)typestr = "NoType";
-	else if (GetType() == Channel_Pixel)typestr = "Pixel";
-	else if (GetType() == Channel_X)typestr = "X";
-	else if (GetType() == Channel_Y)typestr = "Y";
-	else if (GetType() == Channel_U)typestr = "U";
-	else if (GetType() == Channel_V)typestr = "V";
-	else if (GetType() == Channel_W)typestr = "W";
+		string typestr;
+		if (GetType() == Channel_NoType)typestr = "NoType";
+		else if (GetType() == Channel_Pixel)typestr = "Pixel";
+		else if (GetType() == Channel_X)typestr = "X";
+		else if (GetType() == Channel_Y)typestr = "Y";
+		else if (GetType() == Channel_U)typestr = "U";
+		else if (GetType() == Channel_V)typestr = "V";
+		else if (GetType() == Channel_W)typestr = "W";
 
-	cout << " Total pixels : " << GetNumberOfPixels() << " Channel type : " << typestr << endl;
-	cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+		cout << " Total pixels : " << GetNumberOfPixels() << " Channel type : " << typestr << endl;
+		cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
-	for (int n = 0; n < GetNumberOfPixels(); n++)
-	{
-		fReadoutPixel[n].Print();
+		if (DetailLevel - 1 >= 0)
+			for (int n = 0; n < GetNumberOfPixels(); n++)
+			{
+				fReadoutPixel[n].Print();
+			}
 	}
 }

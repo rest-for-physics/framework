@@ -136,7 +136,7 @@ class TRestReadoutPlane: public TObject {
 
         void Draw();
 
-        void Print( Int_t fullDetail = 0 );
+        void Print( Int_t DetailLevel = 0 );
 
         Int_t FindChannel( Int_t module, Double_t absX, Double_t absY );
 

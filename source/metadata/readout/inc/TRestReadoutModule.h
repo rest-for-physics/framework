@@ -210,7 +210,7 @@ class TRestReadoutModule : public TObject {
 
         void Draw();
 
-        void Print( Int_t fullDetail = 0 );
+        void Print( Int_t DetailLevel = 0 );
 
         //Construtor
         TRestReadoutModule();

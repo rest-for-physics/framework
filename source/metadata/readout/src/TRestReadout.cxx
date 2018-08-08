@@ -741,20 +741,25 @@ Double_t TRestReadout::GetY( Int_t planeID, Int_t modID, Int_t chID )
 ///
 /// \param fullDetail Prints all modules, channels and pixels info.
 ///
-void TRestReadout::PrintMetadata( Int_t fullDetail )
+void TRestReadout::PrintMetadata( Int_t DetailLevel)
 {
-    cout << endl;
-    cout << "====================================" << endl;
-    cout << "Readout : " << GetTitle() << endl;
-    cout << "Number of readout planes : " << fNReadoutPlanes << endl;
-    cout << "Decoding was defined : ";
-    if( fDecoding ) cout << "YES" << endl; else cout << "NO" << endl;
-    cout << "====================================" << endl;
-    cout << endl;
-    for( int p = 0; p < GetNumberOfReadoutPlanes(); p++ )
-        fReadoutPlanes[p].Print( fullDetail );
-    cout << "====================================" << endl;
+	if (DetailLevel >= 0) {
+		TRestMetadata::PrintMetadata();
 
+		TRestStringOutput cout;
+		cout.setborder("||");
+		cout.setorientation(1);
+		cout.setlength(100);
+		cout << "Number of readout planes : " << fNReadoutPlanes << endl;
+		cout << "Decoding was defined : ";
+		if (fDecoding) cout << "YES" << endl; else cout << "NO" << endl;
+		cout << "-----------------------------------" << endl;
+		for (int p = 0; p < GetNumberOfReadoutPlanes(); p++)
+			fReadoutPlanes[p].Print(DetailLevel - 1);
+		cout << "****************************************" << endl;
+		cout << endl;
+		cout << endl;
+	}
 }
 
 ///////////////////////////////////////////////
