@@ -18,6 +18,7 @@
 //#include "TFile.h"
 
 #include "TRestParticleSource.h"
+#include "TRestStringOutput.h"
 using namespace std;
 
 ClassImp(TRestParticleSource)
@@ -35,6 +36,12 @@ TRestParticleSource::~TRestParticleSource()
 
 void TRestParticleSource::PrintParticleSource()
 {
+	TRestStringOutput cout;
+	cout.setborder("||");
+	cout.setorientation(1);
+	cout.setlength(100);
+
+	cout << "---------------------------------------" << endl;
     cout << "Particle : " << GetParticle() << endl;
     cout << "Angular distribution type : " << GetAngularDistType() << endl;
     if (GetAngularDistType() == "TH1D" )
@@ -53,7 +60,7 @@ void TRestParticleSource::PrintParticleSource()
         cout << "Energy : " << GetEnergy() << " keV" << endl;
     else
         cout << "Energy range : (" << GetEnergyRange().X() << "," << GetEnergyRange().Y() << ") keV" << endl;
-    cout << "---------------------------------------" << endl;
+
 
 }
 

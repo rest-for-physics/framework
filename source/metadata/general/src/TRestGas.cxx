@@ -865,16 +865,13 @@ Double_t TRestGas::GetAttachmentCoefficient(Double_t E)
 ///
 void TRestGas::PrintGasInfo()
 {
-	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-	cout << "TRestGas content" << endl;
-	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-	cout << "Config file : " << fConfigFileName << endl;
-	cout << "Section name : " << this->ClassName() << endl;        // section name given in the constructor of TRestSpecificMetadata
-	cout << "---------------------------------------" << endl;
-	cout << "Name : " << GetName() << endl;
-	cout << "Title : " << GetTitle() << endl;
+	TRestMetadata::PrintMetadata();
+
+	TRestStringOutput cout;
+	cout.setborder("||");
+	cout.setorientation(1);
+	cout.setlength(100);
 	cout << "Status : " << fStatus << endl;
-	cout << "---------------------------------------" << endl;
 	cout << "Gas filename : " << fGasFilename << endl;
 	cout << "Pressure : " << fPressureInAtm << " atm" << endl;
 	cout << "Temperature : " << fTemperatureInK << " K" << endl;
@@ -886,6 +883,8 @@ void TRestGas::PrintGasInfo()
 	for (int i = 0; i < fNofGases; i++)
 		cout << "Gas id : " << i << " Name : " << fGasComponentName[i] << " Fraction : " << fGasComponentFraction[i] << endl;
 	cout << "******************************************" << endl;
+	cout << endl;
+	cout << endl;
 }
 
 Int_t TRestGas::Write(const char *name, Int_t option, Int_t bufsize) {

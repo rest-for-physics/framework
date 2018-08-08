@@ -292,22 +292,18 @@ void TRestG4Metadata::ReadStorage( )
 
 void TRestG4Metadata::PrintMetadata( )
 {
+		TRestMetadata::PrintMetadata();
 
-        cout << endl;
-        cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-        cout << "TRestG4Metadata content" << endl;
-        cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-        cout << "Config file : " << fConfigFileName << endl;
-        cout << "Section name : " << this->ClassName() << endl;        // section name given in the constructor of TRestSpecificMetadata
-        cout << "---------------------------------------" << endl;
-        cout << "Name : " << GetName() << endl;
-        cout << "Title : " << GetTitle() << endl;
-        cout << "---------------------------------------" << endl;
+		TRestStringOutput cout;
+		cout.setborder("||");
+		cout.setorientation(1);
+		cout.setlength(100);
+
         cout << "Geometry File : " << Get_GDML_Filename() << endl;
         cout << "Geometry Path : " << GetGeometryPath() << endl;
         cout << "Max. Step size : " << GetMaxTargetStepSize() << " mm" << endl;
         cout << "Sub-event time delay : " << GetSubEventTimeDelay() << " us" << endl;
-        cout << "---------------------------------------" << endl;
+        cout << "**********Generator**********" << endl;
         cout << "Generator type : " << GetGeneratorType() << endl;
         cout << "Generated from : " << GetGeneratedFrom() << endl;
         TVector3 a = GetGeneratorPosition();
@@ -316,10 +312,9 @@ void TRestG4Metadata::PrintMetadata( )
         cout << "Generator rotation : (" << b.X() << "," << b.Y() << "," << b.Z() << ") mm" << endl; 
         cout << "Generator size : " << GetGeneratorSize() << " mm" << endl; 
         cout << "Generator length : " << GetGeneratorLength() << " mm" << endl; 
-        cout << "---------------------------------------" << endl;
+        cout << "**********Particles**********" << endl;
         cout << "Number of primary particles : " << GetNumberOfPrimaries() << endl;
         cout << "Generator file : " << GetGeneratorFile() << endl;
-        cout << "***************************************" << endl;
 
         for( int n = 0; n < GetNumberOfPrimaries(); n++ )
         {
@@ -327,25 +322,24 @@ void TRestG4Metadata::PrintMetadata( )
             src.PrintParticleSource();
         }
         
-        cout << "Storage." << endl;
-        cout << "***************************************" << endl;
-        cout << "Energy range : Emin = " << GetMinimumEnergyStored() << " Emax : " << GetMaximumEnergyStored() << endl;
+        cout << "**********Storage Volumes**********" << endl;
+        cout << "Energy range : Emin = " << GetMinimumEnergyStored() << ", Emax : " << GetMaximumEnergyStored() << endl;
         cout << "Sensitive volume : " << GetSensitiveVolume() << endl;
         cout << "Active volumes : " << GetNumberOfActiveVolumes() << endl;
         cout << "---------------------------------------" << endl;
         for( int n = 0; n < GetNumberOfActiveVolumes(); n++ )
         {
-            cout << "Name : " << GetActiveVolumeName(n) << " ID : " << GetActiveVolumeID( GetActiveVolumeName(n) ) << " chance : " << GetStorageChance( GetActiveVolumeName(n) ) << endl;
+            cout << "Name : " << GetActiveVolumeName(n) << ", ID : " << GetActiveVolumeID( GetActiveVolumeName(n) ) << ", chance : " << GetStorageChance( GetActiveVolumeName(n) ) << endl;
 
         }
-        cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-        cout << "List of biasing volumes" << endl;
-        cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
+        cout << "**********Biasing Volumes**********" << endl;
         for( int n = 0; n < GetNumberOfBiasingVolumes(); n++ )
         {
             GetBiasingVolume( n ).PrintBiasingVolume();
         }
-
+		cout << "******************************************" << endl;
+		cout << endl;
+		cout << endl;
 }
 
 void TRestG4Metadata::ReadGeneratorFile( TString fName )

@@ -1083,18 +1083,14 @@ std::vector <std::string> TRestRun::GetMetadataStructureTitles()
 //Printers
 void TRestRun::PrintInfo()
 {
+	//cout.precision(10);
+	TRestMetadata::PrintMetadata();
 
-	cout.precision(10);
-	cout << endl;
-	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-	cout << "TRestRun content" << endl;
-	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-	// section name given in the constructor of TRestSpecificMetadata
-	cout << "---------------------------------------" << endl;
-	cout << "Name : " << GetName() << endl;
-	cout << "Title : " << GetTitle() << endl;
+	TRestStringOutput cout;
+	cout.setborder("||");
+	cout.setorientation(1);
+	cout.setlength(100);
 	cout << "Version : " << GetVersion() << endl;
-	cout << "---------------------------------------" << endl;
 	cout << "Parent run number : " << GetParentRunNumber() << endl;
 	cout << "Run number : " << GetRunNumber() << endl;
 	cout << "Experiment/project : " << GetExperimentName() << endl;
@@ -1112,7 +1108,9 @@ void TRestRun::PrintInfo()
 	//cout << "Output filename : " << fOutputFilename << endl;
 	//cout << "Number of initial events : " << GetNumberOfEvents() << endl;
 	//cout << "Number of processed events : " << fProcessedEvents << endl;
-	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	cout << "******************************************" << endl;
+	cout << endl;
+	cout << endl;
 
 }
 

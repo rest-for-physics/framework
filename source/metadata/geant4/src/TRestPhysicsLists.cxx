@@ -153,16 +153,13 @@ Bool_t TRestPhysicsLists::PhysicsListExists( TString phName )
 
 void TRestPhysicsLists::PrintMetadata( )
 {
-    cout << endl;
-    cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-    cout << "TRestPhysicsLists content" << endl;
-    cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-    cout << "Config file : " << fConfigFileName << endl;
-    cout << "Section name : " << this->ClassName() << endl;        // section name given in the constructor of TRestSpecificMetadata
-    cout << "---------------------------------------" << endl;
-    cout << "Name : " << GetName() << endl;
-    cout << "Title : " << GetTitle() << endl;
-    cout << "---------------------------------------" << endl;
+	TRestMetadata::PrintMetadata();
+
+	TRestStringOutput cout;
+	cout.setborder("||");
+	cout.setorientation(1);
+	cout.setlength(100);
+
     cout << "Cut for electrons : " << fCutForElectron << " mm" << endl;
     cout << "Cut for positrons : " << fCutForPositron << " mm" << endl;
     cout << "Cut for gammas : " << fCutForGamma << " mm" << endl;
@@ -179,5 +176,6 @@ void TRestPhysicsLists::PrintMetadata( )
             cout << " - Option " << m/2 << " : " << optList[m] << " = " << optList[m+1] << endl;
     }
     cout << "******************************************" << endl;
-    cout << endl;
+	cout << endl;
+	cout << endl;
 }
