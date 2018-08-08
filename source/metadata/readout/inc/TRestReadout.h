@@ -81,7 +81,8 @@ class TRestReadout:public TRestMetadata {
 		//2->+all readout module
 		//3->+all readout channel
 		//4->+all readout pixel
-		void PrintMetadata(Int_t DetailLevel = 1);
+		void PrintMetadata() { PrintMetadata(1); }
+		void PrintMetadata(Int_t DetailLevel);
 
         void Draw();
 

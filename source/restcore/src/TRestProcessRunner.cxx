@@ -1116,3 +1116,35 @@ string TRestProcessRunner::MakeProgressBar(int progress100, int length)
 TRestEvent* TRestProcessRunner::GetInputEvent() { return fRunInfo->GetInputEvent(); }
 
 TRestAnalysisTree* TRestProcessRunner::GetAnalysisTree() { return fRunInfo->GetAnalysisTree(); }
+
+
+void TRestProcessRunner::PrintMetadata()
+{
+	//cout.precision(10);
+	TRestMetadata::PrintMetadata();
+
+	TRestStringOutput cout;
+	cout.setborder("||");
+	cout.setorientation(1);
+	cout.setlength(100);
+
+	string status;
+	if (fProcStatus == kNormal)status = "Normal";
+	else if (fProcStatus == kStop)status = "Terminated";
+	else status = "Unknown";
+
+	cout << "Status : " << status << endl;
+	cout << "Processesed events : " << fProcessedEvents << endl;
+	cout << "Analysis tree branches : " << nBranches << endl;
+	cout << "Thread number : " << fThreadNumber << endl;
+	cout << "Processes in each thread : " << fProcessNumber << endl;
+
+	//cout << "Input filename : " << fInputFilename << endl;
+	//cout << "Output filename : " << fOutputFilename << endl;
+	//cout << "Number of initial events : " << GetNumberOfEvents() << endl;
+	//cout << "Number of processed events : " << fProcessedEvents << endl;
+	cout << "******************************************" << endl;
+	cout << endl;
+	cout << endl;
+
+}

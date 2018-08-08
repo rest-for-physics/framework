@@ -34,6 +34,7 @@ public:
 	void BeginOfInit();
 	Int_t ReadConfig(string keydeclare, TiXmlElement* e);
 	void EndOfInit();
+	void PrintMetadata();
 
 	//core functionality
 	void ReadProcInfo();

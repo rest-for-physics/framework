@@ -881,7 +881,7 @@ void TRestGas::PrintGasInfo()
 	cout << "Efield range : ( " << fEmin << " , " << fEmax << " ) V/cm " << endl;
 	cout << "Number of Gases : " << fNofGases << endl;
 	for (int i = 0; i < fNofGases; i++)
-		cout << "Gas id : " << i << " Name : " << fGasComponentName[i] << " Fraction : " << fGasComponentFraction[i] << endl;
+		cout << "Gas id : " << i << ", Name : " << fGasComponentName[i] << ", Fraction : " << fGasComponentFraction[i] << endl;
 	cout << "******************************************" << endl;
 	cout << endl;
 	cout << endl;
