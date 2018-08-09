@@ -74,7 +74,27 @@ void TRestG4Metadata::InitFromConfigFile()
     // Initialize the metadata members from a configfile
     fGDML_Filename = GetParameter( "gdml_file" );
 
-    fGeometryPath = GetParameter( "geometryPath" );
+	fGeometryPath = GetParameter("geometryPath", "");
+
+	//if "gdml_file" is purely a file (without any path) and "geometryPath" is defined,
+	//we recombine them together
+	if (
+			(
+				((string)fGDML_Filename).find_first_not_of("./~") == 0 || 
+				((string)fGDML_Filename).find("/") == -1
+			)
+			&& fGeometryPath != ""
+		)
+	{
+		if (fGeometryPath[fGeometryPath.Length() - 1] == '/') 
+		{
+			fGDML_Filename = fGeometryPath + GetParameter("gdml_file");
+		}
+		else
+		{
+			fGDML_Filename = fGeometryPath + "/" + GetParameter("gdml_file");
+		}
+	}
 
     Double_t defaultStep = 100 * REST_Units::um;
     fMaxTargetStepSize = GetDblParameterWithUnits( "maxTargetStepSize", defaultStep );
