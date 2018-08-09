@@ -155,9 +155,11 @@ void TRestRun::BeginOfInit()
 					fInputFileNames.push_back((TString)b);
 				delete db;
 			}
-			else
+			else if(ToUpper(GetParameter("inputFile", "")) == "AUTO") 
 			{
-				error << "REST ERROR : this REST has no access to sql database!" << endl;
+				error << "REST ERROR : The parameter \"inputFile\" is to \"auto\"" << endl;
+				error << "but this REST has no access to sql database" << endl;
+				error << "We cannot find the corresponding input file!" << endl;
 				error << "Please install the package \"restDataBaseImpl\"" << endl;
 				exit(1);
 			}
