@@ -99,6 +99,7 @@ TRestEvent* TRestHitsToTrackProcess::ProcessEvent( TRestEvent *evInput )
     */
 
     fHitsEvent = (TRestHitsEvent *) evInput;
+	fTrackEvent->SetEventInfo(fHitsEvent);
 
     if( GetVerboseLevel() >= REST_Debug )
         cout << "TResHitsToTrackProcess : nHits "  << fHitsEvent->GetNumberOfHits() << endl;

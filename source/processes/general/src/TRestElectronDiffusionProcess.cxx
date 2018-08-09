@@ -122,6 +122,7 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
 {
 
     TRestHitsEvent *inputHitsEvent = (TRestHitsEvent *) evInput;
+	fOutputHitsEvent->SetEventInfo(inputHitsEvent);
 
     Int_t nHits = inputHitsEvent->GetNumberOfHits();
     if( nHits <= 0 ) return NULL;

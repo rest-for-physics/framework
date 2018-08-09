@@ -78,7 +78,7 @@ void TRestTrackReductionProcess::BeginOfEventProcess()
 TRestEvent* TRestTrackReductionProcess::ProcessEvent( TRestEvent *evInput )
 {
     fInputTrackEvent = (TRestTrackEvent *) evInput;
-
+	fOutputTrackEvent->SetEventInfo(fInputTrackEvent);
     // Copying the input tracks to the output track
     for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
         fOutputTrackEvent->AddTrack( fInputTrackEvent->GetTrack(tck) ); 

@@ -111,6 +111,7 @@ TRestEvent* TRestSmearingProcess::ProcessEvent( TRestEvent *evInput )
 {
 
     fHitsInputEvent = (TRestHitsEvent *) evInput;
+	fHitsOutputEvent->SetEventInfo(fHitsInputEvent);
 
     Double_t eDep = fHitsInputEvent->GetTotalEnergy();
     Double_t eRes = fResolutionAtEref * TMath::Sqrt(fEnergyRef / eDep) / 2.35 / 100.0;

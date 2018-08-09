@@ -103,6 +103,7 @@ TRestEvent* TRestHitsNormalizationProcess::ProcessEvent( TRestEvent *evInput )
 {
 
     fHitsInputEvent = (TRestHitsEvent *) evInput;
+	fHitsOutputEvent->SetEventInfo(fHitsInputEvent);
 
     for( int hit = 0; hit < fHitsInputEvent->GetNumberOfHits(); hit++ )
         fHitsOutputEvent->AddHit( fHitsInputEvent->GetX(hit), fHitsInputEvent->GetY(hit), fHitsInputEvent->GetZ(hit), fHitsInputEvent->GetEnergy(hit) * fFactor );   

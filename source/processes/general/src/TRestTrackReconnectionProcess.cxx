@@ -82,6 +82,7 @@ TRestEvent* TRestTrackReconnectionProcess::ProcessEvent( TRestEvent *evInput )
     Int_t trackBranches = 0;
 
     fInputTrackEvent = (TRestTrackEvent *) evInput;
+	fOutputTrackEvent->SetEventInfo(fInputTrackEvent);
 
     // Copying the input tracks to the output track
     for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )

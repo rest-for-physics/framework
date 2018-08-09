@@ -157,6 +157,7 @@ Int_t TRestHitsToSignalProcess::FindModule( Int_t readoutPlane, Double_t x, Doub
 TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
 {
     fHitsEvent = (TRestHitsEvent *) evInput;
+	fSignalEvent->SetEventInfo(fHitsEvent);
 //     fHitsEvent = dynamic_cast<TRestHitsEvent*>(evInput);
 
     if ( GetVerboseLevel() >= REST_Debug ) 

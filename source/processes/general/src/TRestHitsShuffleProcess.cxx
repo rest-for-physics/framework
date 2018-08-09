@@ -77,7 +77,7 @@ void TRestHitsShuffleProcess::BeginOfEventProcess()
 TRestEvent* TRestHitsShuffleProcess::ProcessEvent( TRestEvent *evInput )
 {
     fInputHitsEvent = (TRestHitsEvent *) evInput;
-
+	fOutputHitsEvent->SetEventInfo(fInputHitsEvent);
     // Copying the input hits event to the output hits event
     for( int h = 0; h < fInputHitsEvent->GetNumberOfHits(); h++ )
     {
