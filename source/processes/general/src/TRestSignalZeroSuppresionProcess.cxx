@@ -110,9 +110,53 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
     Double_t totalIntegral = 0;
     for( int i = 0; i < numberOfSignals; i++ )
     {
-        TRestRawSignal *sgnl = fRawSignalEvent->GetSignal( i );
-        Int_t signalID = sgnl->GetSignalID();
+        TRestRawSignal *s = fRawSignalEvent->GetSignal( i );
+		TRestSignal sgn;
 
+		sgn.SetID(s->GetID());
+		double baseline = s->GetBaseLine(fBaseLineRange.X(), fBaseLineRange.Y());
+		double baselinerms = s->GetBaseLineSigma(fBaseLineRange.X(), fBaseLineRange.Y());
+		for (int i = fBaseLineRange.Y(); i < s->GetNumberOfPoints() - fLastPointsCutOff; i++)
+		{
+			if (s->GetData(i) > baseline + fPointThreshold * baselinerms) {
+				int pos = i;
+				vector<double> pulse;
+				pulse.push_back(s->GetData(i));
+				i++;
+				int flatN = 0;
+				while (i < s->GetNumberOfPoints() - fLastPointsCutOff && s->GetData(i) > baseline + fPointThreshold * baselinerms) {
+					if (TMath::Abs(s->GetData(i) - s->GetData(i - 1)) > fPointThreshold * baselinerms) {
+						flatN = 0;
+					}
+					else
+					{
+						flatN++;
+					}
+					if (flatN < fNPointsOverThreshold) {
+						pulse.push_back(s->GetData(i));
+						i++;
+					}
+					else
+					{
+						break;
+					}
+				}
+				if (pulse.size() > fNPointsOverThreshold) {
+					auto _e = max_element(begin(pulse), end(pulse));
+					if (*_e > fSignalThreshold*baselinerms) {
+						for (int j = pos; j < i; j++)
+						{
+							sgn.NewPoint(j, s->GetData(j));
+						}
+					}
+				}
+			}
+		}
+
+		if(sgn.GetNumberOfPoints()>0)
+			fSignalEvent->AddSignal(sgn);
+
+/*
         Double_t integral = sgnl->GetIntegralWithThreshold( 0, sgnl->GetNumberOfPoints(),
                 fBaseLineRange.X(), fBaseLineRange.Y(), fPointThreshold, fNPointsOverThreshold, fSignalThreshold );
 
@@ -128,7 +172,7 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
                 outSignal.NewPoint( poinsOver[n], sgnl->GetData( poinsOver[n] ) );
 
             fSignalEvent->AddSignal( outSignal );
-        }
+        }*/
     }
 
     if( this->GetVerboseLevel() >= REST_Debug ) 
@@ -168,5 +212,6 @@ void TRestSignalZeroSuppresionProcess::InitFromConfigFile( )
     fPointThreshold = StringToDouble( GetParameter( "pointThreshold", "2" ) );
     fNPointsOverThreshold = StringToInteger( GetParameter( "pointsOverThreshold", "5" ) );
     fSignalThreshold = StringToDouble( GetParameter( "signalThreshold", "5" ) );
+	fLastPointsCutOff = StringToDouble(GetParameter("lastPointsCutOff", "0"));
 }
 
