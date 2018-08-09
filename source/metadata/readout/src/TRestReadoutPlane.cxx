@@ -189,7 +189,7 @@ Double_t TRestReadoutPlane::GetX(Int_t modID, Int_t chID)
 			if (y2 - y1 > 0) deltaY = y2 - y1;
 			else deltaY = y1 - y2;
 
-			if (deltaY > deltaX) x = xOrigin + (*rChannel)[0].GetCenter().X();
+			if (deltaY > deltaX) x = xOrigin + (*rChannel)[0].GetCenter().Rotate(rModule->GetModuleRotation() * TMath::Pi() / 180.).X();
 		}
 	}
 	else if (rChannel->GetType() == Channel_Pixel) {
@@ -266,7 +266,7 @@ Double_t TRestReadoutPlane::GetY(Int_t modID, Int_t chID)
 			if (y2 - y1 > 0) deltaY = y2 - y1;
 			else deltaY = y1 - y2;
 
-			if (deltaY < deltaX) y = yOrigin + (*rChannel)[0].GetCenter().Y();
+			if (deltaY < deltaX) y = yOrigin + (*rChannel)[0].GetCenter().Rotate(rModule->GetModuleRotation() * TMath::Pi() / 180.).Y();
 		}
 	}
 	else if (rChannel->GetType() == Channel_Pixel) {
