@@ -15,7 +15,8 @@ Int_t REST_Viewer_GenericEvents(TString fName , TString EventType = "")
 {
 	TRestBrowser *browser = new TRestBrowser("TRestGenericEventViewer");
 	//TRestGenericEventViewer *viewer = (TRestGenericEventViewer*)browser->GetViewer();
-
+	TRestStringOutput cout;
+	cout.setorientation(1);
 	TClass*cl = TClass::GetClass(EventType);
 	if (cl == NULL||EventType=="") {
 		if (cl == NULL) {
@@ -33,6 +34,10 @@ Int_t REST_Viewer_GenericEvents(TString fName , TString EventType = "")
 		browser->OpenFile(fName);
 
 	}
+
+#ifdef REST_MANAGER
+	browser->GetChar("Running...\nPress a key to exit");
+#endif
 
 	return 0;
 }
@@ -61,26 +66,6 @@ Int_t REST_Viewer_TrackEvent(TString fName)
 	REST_Viewer_GenericEvents(fName, "TRestTrackEvent");
 	return 0;
 }
-
-
-
-class REST_ViewEvents :public TRestTask {
-public:
-	ClassDef(REST_ViewEvents, 1);
-
-	REST_ViewEvents() { fNRequiredArgument = 1; }
-	~REST_ViewEvents() {}
-
-	TString filename = " ";
-	TString eventype = "";
-
-	void RunTask(TRestManager*mgr)
-	{
-		REST_Viewer_GenericEvents(filename, eventype);
-		GetChar("Running...\nPress a key to exit");
-	}
-
-};
 
 
 #endif // !REST_ViewEvents
