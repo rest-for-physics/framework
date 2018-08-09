@@ -33,7 +33,7 @@ Finally we call the method TRestRun::FormOutputFile() through TRestManager to sa
       <myParameter name="nModules" value="${MODULES}" />
       <myParameter name="pitch" value="${PITCH}" />
       <myParameter name="pixelSize" value="${PITCH}/sqrt(2.)" />
-      <myParameter name="myDecodingFile" value="${REST_INPUTDATA}/decoding/module_On_AGET0-1.dec"/>
+      <myParameter name="myDecodingFile" value="${REST_INPUTDATA}/decoding/MM_On_AGET0-1.dec"/>
       
       <readoutModule name="module" file="readouts.rml"/>
 
