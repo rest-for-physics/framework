@@ -272,11 +272,11 @@ Double_t TRestReadoutPlane::GetY(Int_t modID, Int_t chID)
 	else if (rChannel->GetType() == Channel_Pixel) {
 		y = rModule->GetPixelCenter(chID, 0).Y();
 	}
-	else if (rChannel->GetType() == Channel_Y) {
+	else if (rChannel->GetType() == Channel_X) {
 		if (rModule->GetModuleRotation() == 0 || rModule->GetModuleRotation() == 180)
 			y = rModule->GetPixelCenter(chID, 0).Y();
 	}
-	else if (rChannel->GetType() == Channel_X) {
+	else if (rChannel->GetType() == Channel_Y) {
 		if (rModule->GetModuleRotation() == 90 || rModule->GetModuleRotation() == 270)
 			y = rModule->GetPixelCenter(chID, 0).X();
 	}
