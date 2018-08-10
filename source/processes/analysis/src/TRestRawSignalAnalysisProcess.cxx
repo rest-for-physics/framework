@@ -2,15 +2,33 @@
 ///______________________________________________________________________________
 ///             
 ///
-///             RESTSoft : Software for Rare Event Searches with TPCs
+///  RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestRawSignalAnalysisProcess.cxx
+///  TRestRawSignalAnalysisProcess.cxx
 ///
+///  List of vailable cuts:
 ///
-///             First implementation of raw signal analysis process into REST_v2
-///             Created from TRestSignalAnalysisProcess
-///             Date : feb/2017
-///             Author : J. Galan
+///  MeanBaseLineCut
+///  MeanBaseLineSigmaCut
+///  MaxNumberOfSignalsCut
+///  MaxNumberOfGoodSignalsCut
+///  FullIntegralCut
+///  ThresholdIntegralCut
+///  PeakTimeDelayCut
+///  ADCSaturationCut
+///
+///  To add cut, write "cut" sections in your rml file:
+///
+/// \code
+/// <TRestRawSignalAnalysisProcess name=""  ... >
+///     <parameter name="cutsEnabled" value="true" />
+///     <cut name="MeanBaseLineCut" value="(0,4096)" />
+/// </TRestRawSignalAnalysisProcess>
+///
+///  First implementation of raw signal analysis process into REST_v2
+///  Created from TRestSignalAnalysisProcess
+///  Date : feb/2017
+///  Author : J. Galan
 ///
 ///_______________________________________________________________________________
 
@@ -57,7 +75,7 @@ void TRestRawSignalAnalysisProcess::Initialize()
     fOutputEvent = fSignalEvent;
     fInputEvent = fSignalEvent;
 
-    fCutsEnabled = false;
+    //fCutsEnabled = false;
     fFirstEventTime = -1;
     fPreviousEventTime.clear();
 
@@ -127,6 +145,7 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 	ampeve_intmethod = 0;
 	ampeve_maxmethod = 0;
 	risetimemean = 0;
+	Double_t maxeve = 0;
 	for (int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++)
 	{
 		TRestRawSignal *sgnl = fSignalEvent->GetSignal(s);
@@ -148,6 +167,9 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 		ampeve_intmethod += _ampint;
 		ampeve_maxmethod += _ampmax;
 		risetimemean += _risetime;
+
+		Double_t value = sgnl->GetMaxValue();
+		if (value > maxeve) maxeve = value;
 	}
 	baselinemean /= fSignalEvent->GetNumberOfSignals();
 	baselinesigmamean /= fSignalEvent->GetNumberOfSignals();
@@ -182,34 +204,25 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     obsName = this->GetName() + (TString) "_BaseLineMean";
     fAnalysisTree->SetObservableValue( obsName, baseLineMean );
 
-    // Mean base line cut
-    if( fCutsEnabled )
-        if( baseLineMean > fMeanBaseLineCutRange.Y() || baseLineMean < fMeanBaseLineCutRange.X() ) return NULL; 
-
-    /////////////////////////////////////////////////
-
     Double_t baseLineSigma = fSignalEvent->GetBaseLineSigmaAverage( fBaseLineRange.X(), fBaseLineRange.Y() );
 
     obsName = this->GetName() + (TString) "_BaseLineSigmaMean";
     fAnalysisTree->SetObservableValue( obsName, baseLineSigma );
 
-    // Base line noise cut
-    if( fCutsEnabled )
-        if( baseLineSigma > fMeanBaseLineSigmaCutRange.Y() || baseLineSigma < fMeanBaseLineSigmaCutRange.X() ) return NULL;
-
-    /////////////////////////////////////////////////
-
     obsName = this->GetName() + (TString) "_TimeBinsLength";
     Double_t timeDelay = fSignalEvent->GetMaxTime() - fSignalEvent->GetMinTime();
     fAnalysisTree->SetObservableValue( obsName, timeDelay );
-
-    /////////////////////////////////////////////////
 
     obsName = this->GetName() + (TString) "_NumberOfSignals";
     Double_t nSignals = fSignalEvent->GetNumberOfSignals();
     fAnalysisTree->SetObservableValue( obsName, nSignals );
 
-    // Signals are zero-ed
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // SubstractBaselines
+	// After this the signal gets zero-ed, for the following analysis
+	// Keep in mind, to add raw signal analysis, we must write code at before
+	// This is where most of the problems occur
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     fSignalEvent->SubstractBaselines( fBaseLineRange.X(), fBaseLineRange.Y() );
 
     Int_t from = (Int_t) fIntegralRange.X();
@@ -344,22 +357,52 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     fAnalysisTree->SetObservableValue( obsName, peakTimeDelay );
 
     obsName = this->GetName() + (TString) "_AveragePeakTime";
-    fAnalysisTree->SetObservableValue( obsName, peakTimeAverage );
+	fAnalysisTree->SetObservableValue(obsName, peakTimeAverage);
 
 
-    // Cuts
-    if( fCutsEnabled )
-    {
-        if( nSignals < fMaxNumberOfSignalsCut.X() || nSignals > fMaxNumberOfSignalsCut.Y() )  return NULL;
-        if( nGoodSignals < fMaxNumberOfGoodSignalsCut.X() || nGoodSignals > fMaxNumberOfGoodSignalsCut.Y() ) return NULL;
-        if( thrIntegral < fThresholdIntegralCut.X() || thrIntegral > fThresholdIntegralCut.Y() ) return NULL;
-        if( fullIntegral < fFullIntegralCut.X() || fullIntegral > fFullIntegralCut.Y() ) return NULL;
-        if( peakTimeDelay < fPeakTimeDelayCut.X() || peakTimeDelay > fPeakTimeDelayCut.Y() ) return NULL;
-    }
+	// Cuts
+	if (fCuts.size() > 0)
+	{
+		auto iter = fCuts.begin();
+		while (iter != fCuts.end()) {
+			if (iter->first == "MeanBaseLineCut")
+				if (baseLineMean > iter->second.Y() || baseLineMean < iter->second.X())
+					return NULL;
+			if (iter->first == "MeanBaseLineSigmaCut")
+				if (baseLineSigma > iter->second.Y() || baseLineSigma < iter->second.X())
+					return NULL;
+			if (iter->first == "MaxNumberOfSignalsCut")
+				if (nSignals > iter->second.Y() || nSignals < iter->second.X())
+					return NULL;
+			if (iter->first == "MaxNumberOfGoodSignalsCut")
+				if (nGoodSignals > iter->second.Y() || nGoodSignals < iter->second.X())
+					return NULL;
+			if (iter->first == "FullIntegralCut")
+				if (fullIntegral > iter->second.Y() || fullIntegral < iter->second.X())
+					return NULL;
+			if (iter->first == "ThresholdIntegralCut")
+				if (thrIntegral > iter->second.Y() || thrIntegral < iter->second.X())
+					return NULL;
+			if (iter->first == "PeakTimeDelayCut")
+				if (peakTimeDelay > iter->second.Y() || peakTimeDelay < iter->second.X())
+					return NULL;
+			if (iter->first == "ADCSaturationCut")
+				if (maxeve > iter->second.Y() || maxeve < iter->second.X())
+					return NULL;
+
+			iter++;
+		}
+
+		//if (nSignals < fMaxNumberOfSignalsCut.X() || nSignals > fMaxNumberOfSignalsCut.Y())  return NULL;
+		//if (nGoodSignals < fMaxNumberOfGoodSignalsCut.X() || nGoodSignals > fMaxNumberOfGoodSignalsCut.Y()) return NULL;
+		//if (thrIntegral < fThresholdIntegralCut.X() || thrIntegral > fThresholdIntegralCut.Y()) return NULL;
+		//if (fullIntegral < fFullIntegralCut.X() || fullIntegral > fFullIntegralCut.Y()) return NULL;
+		//if (peakTimeDelay < fPeakTimeDelayCut.X() || peakTimeDelay > fPeakTimeDelayCut.Y()) return NULL;
+	}
 
 
-    if( GetVerboseLevel() >= REST_Debug ) 
-	fAnalysisTree->PrintObservables();
+	if (GetVerboseLevel() >= REST_Debug)
+		fAnalysisTree->PrintObservables();
 
     return fSignalEvent;
 }
@@ -490,7 +533,19 @@ void TRestRawSignalAnalysisProcess::InitFromConfigFile( )
     fNPointsOverThreshold = StringToInteger( GetParameter( "pointsOverThreshold", "5" ) );
     fSignalThreshold = StringToDouble( GetParameter( "signalThreshold", "5" ) );
 
-    fMeanBaseLineCutRange = StringTo2DVector( GetParameter( "meanBaseLineCutRange", "(0,4096)") );
+	if (ToUpper(GetParameter("cutsEnabled", "false")) == "TRUE") {
+		TiXmlElement*ele = fElement->FirstChildElement("cut");
+		while (ele != NULL) {
+			if (ele->Attribute("name") != NULL && ele->Attribute("value") != NULL) {
+				string name = ele->Attribute("name");
+				TVector2 value = StringTo2DVector(ele->Attribute("value"));
+				if (value.X() != value.Y())
+					fCuts.push_back(pair<string, TVector2>(name, value));
+			}
+			ele = ele->NextSiblingElement("cut");
+		}
+	}
+    /*fMeanBaseLineCutRange = StringTo2DVector( GetParameter( "meanBaseLineCutRange", "(0,4096)") );
     fMeanBaseLineSigmaCutRange = StringTo2DVector( GetParameter( "meanBaseLineSigmaCutRange", "(0,4096)") );
     fMaxNumberOfSignalsCut = StringTo2DVector( GetParameter( "maxNumberOfSignalsCut", "(0,20)" ) );
     fMaxNumberOfGoodSignalsCut = StringTo2DVector( GetParameter( "maxNumberOfGoodSignalsCut", "(0,20)" ) );
@@ -499,8 +554,7 @@ void TRestRawSignalAnalysisProcess::InitFromConfigFile( )
     fThresholdIntegralCut  = StringTo2DVector( GetParameter( "thresholdIntegralCut", "(0,100000)" ) );
 
     fPeakTimeDelayCut  = StringTo2DVector( GetParameter( "peakTimeDelayCut", "(0,20)" ) );
-    if( GetParameter( "cutsEnabled", "false" ) == "true" ) fCutsEnabled = true;
-
-
+    if( GetParameter( "cutsEnabled", "false" ) == "true" ) fCutsEnabled = true;*/
 }
+
 

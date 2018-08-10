@@ -7,6 +7,7 @@
 ///
 ///             TRestRawSignalAnalysisProcess.h
 ///
+///
 ///_______________________________________________________________________________
 
 
@@ -60,14 +61,18 @@ private:
 	Double_t fPointThreshold;//!
 	Double_t fSignalThreshold;//!
 	Int_t fNPointsOverThreshold;//!
-	Bool_t fCutsEnabled;//!
-	TVector2 fMeanBaseLineCutRange;//!
-	TVector2 fMeanBaseLineSigmaCutRange;//!
-	TVector2 fMaxNumberOfSignalsCut;//!
-	TVector2 fMaxNumberOfGoodSignalsCut;//!
-	TVector2 fFullIntegralCut;//!
-	TVector2 fThresholdIntegralCut;//!
-	TVector2 fPeakTimeDelayCut;//!
+	//Bool_t fCutsEnabled;//!
+	//TVector2 fMeanBaseLineCutRange;//!
+	//TVector2 fMeanBaseLineSigmaCutRange;//!
+	//TVector2 fMaxNumberOfSignalsCut;//!
+	//TVector2 fMaxNumberOfGoodSignalsCut;//!
+	//TVector2 fFullIntegralCut;//!
+	//TVector2 fThresholdIntegralCut;//!
+	//TVector2 fPeakTimeDelayCut;//!
+
+
+
+	vector<pair<string, TVector2>> fCuts;//!
 
 
     // analysis result(saved directly in root file)
@@ -106,22 +111,21 @@ public:
 		essential << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
 		essential << "Number of points over threshold : " << fNPointsOverThreshold << endl;
 		essential << " " << endl;
-		if (fCutsEnabled)
+		if (fCuts.size() > 0)
 		{
 			essential << "Cuts enabled" << endl;
 			essential << "------------" << endl;
-			essential << "Mean base line cut range : ( " << fMeanBaseLineCutRange.X() << " , " << fMeanBaseLineCutRange.Y() << " ) " << endl;
-			essential << "Mean base line sigma cut range : ( " << fMeanBaseLineSigmaCutRange.X() << " , " << fMeanBaseLineSigmaCutRange.Y() << " ) " << endl;
-			essential << "Max number of signals cut range : ( " << fMaxNumberOfSignalsCut.X() << " , " << fMaxNumberOfSignalsCut.Y() << " ) " << endl;
-			essential << "Max number of good signals cut range : ( " << fMaxNumberOfGoodSignalsCut.X() << " , " << fMaxNumberOfGoodSignalsCut.Y() << " ) " << endl;
-			essential << "Full integral cut range : ( " << fFullIntegralCut.X() << " , " << fFullIntegralCut.Y() << " ) " << endl;
-			essential << "Threshold integral cut range : ( " << fThresholdIntegralCut.X() << " , " << fThresholdIntegralCut.Y() << " ) " << endl;
-			essential << "Peak time delay cut range : ( " << fPeakTimeDelayCut.X() << " , " << fPeakTimeDelayCut.Y() << " )" << endl;
+
+			auto iter = fCuts.begin();
+			while (iter != fCuts.end()) {
+				if (iter->second.X() != iter->second.Y())
+					essential << iter->first << ", range : ( " << iter->second.X() << " , " << iter->second.Y() << " ) " << endl;
+				iter++;
+			}
 		}
 		else
 		{
 			essential << "No cuts have been enabled" << endl;
-
 		}
 
 		EndPrintProcess();

@@ -6,6 +6,21 @@
 ///
 ///             TRestTrackAnalysisProcess.cxx
 ///
+///  TRestRawSignalAnalysisProcess.cxx
+///
+///  List of vailable cuts:
+///
+///  NTracksXCut
+///  NTracksYCut
+///  NTracksXYZCut
+///
+///  To add cut, write "cut" sections in your rml file:
+///
+/// \code
+/// <TRestTrackAnalysisProcess name=""  ... >
+///     <parameter name="cutsEnabled" value="true" />
+///     <cut name="NTracksXCut" value="(1,3)" />
+/// </TRestTrackAnalysisProcess>
 ///
 ///             First implementation of Geant4 analysis process into REST_v2
 ///             Date : mar/2016
@@ -54,7 +69,7 @@ void TRestTrackAnalysisProcess::Initialize()
     fOutputEvent = fTrackEvent;
     fInputEvent = fTrackEvent;
 
-    fCutsEnabled = false;
+    //fCutsEnabled = false;
 }
 
 void TRestTrackAnalysisProcess::LoadConfig( std::string cfgFilename, std::string name )
@@ -234,11 +249,28 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     fTrackEvent->SetNumberOfXTracks( nTracksX );
     fTrackEvent->SetNumberOfYTracks( nTracksY );
 
-    if( fCutsEnabled )
-    {
-        if( nTracksX < fNTracksXCut.X() || nTracksX > fNTracksXCut.Y() ) return NULL;
-        if( nTracksY < fNTracksYCut.X() || nTracksY > fNTracksYCut.Y() ) return NULL;
-    }
+
+	// Cuts
+	if (fCuts.size() > 0)
+	{
+		auto iter = fCuts.begin();
+		while (iter != fCuts.end()) {
+				if (iter->first == "NTracksXCut")
+					if (nTracksX > iter->second.Y() || nTracksX < iter->second.X())
+						return NULL;
+				if (iter->first == "NTracksYCut")
+					if (nTracksY > iter->second.Y() || nTracksY < iter->second.X())
+						return NULL;
+				if (iter->first == "NTracksXYZCut")
+					if (nTracksXYZ > iter->second.Y() || nTracksXYZ < iter->second.X())
+						return NULL;
+			
+			iter++;
+		}
+
+		//if (nTracksX < fNTracksXCut.X() || nTracksX > fNTracksXCut.Y()) return NULL;
+		//if (nTracksY < fNTracksYCut.X() || nTracksY > fNTracksYCut.Y()) return NULL;
+	}
 
     Double_t x = 0, y = 0;
 
@@ -348,9 +380,17 @@ void TRestTrackAnalysisProcess::EndProcess()
 //______________________________________________________________________________
 void TRestTrackAnalysisProcess::InitFromConfigFile( )
 {
-    fNTracksXCut = StringTo2DVector( GetParameter( "nTracksXCut", "(1,10)") );
-    fNTracksYCut = StringTo2DVector( GetParameter( "nTracksYCut", "(1,10)") );
-
-    if( GetParameter( "cutsEnabled", "false" ) == "true" ) fCutsEnabled = true;
+	if (ToUpper(GetParameter("cutsEnabled", "false")) == "TRUE") {
+		TiXmlElement*ele = fElement->FirstChildElement("cut");
+		while (ele != NULL) {
+			if (ele->Attribute("name") != NULL && ele->Attribute("value") != NULL) {
+				string name = ele->Attribute("name");
+				TVector2 value = StringTo2DVector(ele->Attribute("value"));
+				if (value.X() != value.Y())
+					fCuts.push_back(pair<string, TVector2>(name, value));
+			}
+			ele = ele->NextSiblingElement("cut");
+		}
+	}
 }
 

@@ -24,7 +24,8 @@ class TRestTrackAnalysisProcess:public TRestEventProcess {
 
         vector <Double_t> fPreviousEventTime;//!
 
-        Bool_t fCutsEnabled;//!
+        //Bool_t fCutsEnabled;//!
+		vector<pair<string, TVector2>> fCuts;//!
 
         std::vector <std::string> fTrack_LE_EnergyObservables;//!
         std::vector <Double_t> fTrack_LE_Threshold;//!
@@ -61,8 +62,8 @@ class TRestTrackAnalysisProcess:public TRestEventProcess {
         
         //add here the members of your event process
 
-        TVector2 fNTracksXCut;
-        TVector2 fNTracksYCut;
+        //TVector2 fNTracksXCut;
+        //TVector2 fNTracksYCut;
 
 
     public:
@@ -78,16 +79,21 @@ class TRestTrackAnalysisProcess:public TRestEventProcess {
 
 		BeginPrintProcess();
 
-		if( fCutsEnabled )
+		if (fCuts.size() > 0)
 		{
-			cout << "Number of tracks in X cut : ( " << fNTracksXCut.X() << " , " << fNTracksXCut.Y() << " ) " << endl;
-			cout << "Number of tracks in Y cut : ( " << fNTracksYCut.X() << " , " << fNTracksYCut.Y() << " ) " << endl;
+			essential << "Cuts enabled" << endl;
+			essential << "------------" << endl;
+
+			auto iter = fCuts.begin();
+			while (iter != fCuts.end()) {
+				if (iter->second.X() != iter->second.Y())
+					essential << iter->first << ", range : ( " << iter->second.X() << " , " << iter->second.Y() << " ) " << endl;
+				iter++;
+			}
 		}
 		else
 		{
-			cout << endl;
-			cout << "No cuts have been enabled" << endl;
-
+			essential << "No cuts have been enabled" << endl;
 		}
 
 		EndPrintProcess();
