@@ -512,6 +512,8 @@ void TRestReadout::InitFromConfigFile()
 		Double_t tDriftDistance = plane.GetDistanceTo( plane.GetCathodePosition() );
 		plane.SetTotalDriftDistance( tDriftDistance );
 
+        moduleVector.clear();
+
 		string moduleDefinition;
 		size_t posPlane = 0;
 		while( ( moduleDefinition = GetKEYDefinition( "addReadoutModule", posPlane, planeString ) ) != "" )
@@ -602,6 +604,10 @@ void TRestReadout::InitFromConfigFile()
 
 			posPlane++;
 		}
+
+        // TODO An issue with the following code is that module id's should start by 0 and have no missing
+        // numbers in a multi-module readout plane. Thats fine. But we should create a warning/error message
+        // if that is not the case!!
 
 		//Creating the vector fReadoutModule in the plane with modules added in the order of their ID.
 		for ( Int_t i(0); i< (Int_t) moduleVector.size(); i++)
