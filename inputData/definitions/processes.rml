@@ -323,7 +323,8 @@
 
     <!-- This parameter is used to define the baseline calculation -->
     <parameter name="baseLineRange" value="(${BL_MIN},${BL_MAX})" />
-
+    <!-- This parameter is used to define the signal integration window -->
+    <parameter name="integralRange" value="(40,472)" />
     <!-- These parameters define the integral with threshold. 
          threshold : number of baseline noise sigmas to consider a point for integration.
          pointsOverThreshold : Number of consecutive points over threshold to be considered for integration.

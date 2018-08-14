@@ -39,10 +39,11 @@ class TRestSignalZeroSuppresionProcess:public TRestEventProcess {
     protected:
 
         TVector2 fBaseLineRange;
+		TVector2 fIntegralRange;
         Double_t fPointThreshold;
         Double_t fSignalThreshold;
         Int_t fNPointsOverThreshold;
-		Int_t fLastPointsCutOff;
+		Int_t fNPointsFlatThreshold;
 
 
     public:

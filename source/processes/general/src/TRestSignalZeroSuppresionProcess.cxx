@@ -116,7 +116,7 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
 		sgn.SetID(s->GetID());
 		double baseline = s->GetBaseLine(fBaseLineRange.X(), fBaseLineRange.Y());
 		double baselinerms = s->GetBaseLineSigma(fBaseLineRange.X(), fBaseLineRange.Y());
-		for (int i = fBaseLineRange.Y(); i < s->GetNumberOfPoints() - fLastPointsCutOff; i++)
+		for (int i = fIntegralRange.X(); i < fIntegralRange.Y(); i++)
 		{
 			if (s->GetData(i) > baseline + fPointThreshold * baselinerms) {
 				int pos = i;
@@ -124,15 +124,18 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
 				pulse.push_back(s->GetData(i));
 				i++;
 				int flatN = 0;
-				while (i < s->GetNumberOfPoints() - fLastPointsCutOff && s->GetData(i) > baseline + fPointThreshold * baselinerms) {
-					if (TMath::Abs(s->GetData(i) - s->GetData(i - 1)) > fPointThreshold * baselinerms) {
+				while (i < fIntegralRange.Y() && s->GetData(i) > baseline + fPointThreshold * baselinerms) {
+					if (TMath::Abs(s->GetData(i) - s->GetData(i - 1)) > fPointThreshold * baselinerms)
+					{
 						flatN = 0;
 					}
 					else
 					{
 						flatN++;
 					}
-					if (flatN < fNPointsOverThreshold) {
+					
+					if (flatN < fNPointsFlatThreshold) 
+					{
 						pulse.push_back(s->GetData(i));
 						i++;
 					}
@@ -142,8 +145,8 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
 					}
 				}
 				if (pulse.size() > fNPointsOverThreshold) {
-					auto _e = max_element(begin(pulse), end(pulse));
-					if (*_e > fSignalThreshold*baselinerms) {
+					auto stdev = TMath::StdDev(begin(pulse), end(pulse));
+					if (stdev > fSignalThreshold*baselinerms) {
 						for (int j = pos; j < i; j++)
 						{
 							sgn.NewPoint(j, s->GetData(j));
@@ -208,10 +211,14 @@ void TRestSignalZeroSuppresionProcess::EndProcess()
 //______________________________________________________________________________
 void TRestSignalZeroSuppresionProcess::InitFromConfigFile( )
 {
-    fBaseLineRange = StringTo2DVector( GetParameter( "baseLineRange", "(5,55)") );
+	//keep up with TRestRawSignalAnalysisProcess
+	fBaseLineRange = StringTo2DVector(GetParameter("baseLineRange", "(5,55)"));
+	fIntegralRange = StringTo2DVector(GetParameter("integralRange", "(10,500)"));
     fPointThreshold = StringToDouble( GetParameter( "pointThreshold", "2" ) );
     fNPointsOverThreshold = StringToInteger( GetParameter( "pointsOverThreshold", "5" ) );
     fSignalThreshold = StringToDouble( GetParameter( "signalThreshold", "5" ) );
-	fLastPointsCutOff = StringToDouble(GetParameter("lastPointsCutOff", "0"));
+
+	//introduced to prevent daq abnormal response: flat high signal tail
+	fNPointsFlatThreshold = StringToInteger(GetParameter("pointsFlatThreshold", "512"));
 }
 
