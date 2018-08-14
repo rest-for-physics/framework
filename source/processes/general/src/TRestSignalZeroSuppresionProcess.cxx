@@ -77,12 +77,24 @@ void TRestSignalZeroSuppresionProcess::Initialize()
 //______________________________________________________________________________
 void TRestSignalZeroSuppresionProcess::InitProcess()
 {
-    // Function to be executed once at the beginning of process
-    // (before starting the process of the events)
+	// !!!!!!!!!!!! BASELINE CORRECTION !!!!!!!!!!!!!!
+	// TRestRawSignalAnalysisProcess subtracts baseline. Baseline is double value,
+	// but data points in TRestRawSignalAnalysisProcess is only short integer type.
+	// So we need to correct this by adding decimal part back.
+	fBaseLineCorrection = false;
+	for (int i = 0; i < fFriendlyProcesses.size(); i++) {
+		if (fFriendlyProcesses[i]->ClassName() == "TRestRawSignalAnalysisProcess") {
+			fBaseLineCorrection = true;
 
-    //Start by calling the InitProcess function of the abstract class. 
-    //Comment this if you don't want it.
-    //TRestEventProcess::InitProcess();
+			// setting parameters to the same as sAna
+			fBaseLineRange = StringTo2DVector(fFriendlyProcesses[i]->GetParameter("baseLineRange", "(5,55)"));
+			fIntegralRange = StringTo2DVector(fFriendlyProcesses[i]->GetParameter("integralRange", "(10,500)"));
+			fPointThreshold = StringToDouble(fFriendlyProcesses[i]->GetParameter("pointThreshold", "2"));
+			fNPointsOverThreshold = StringToInteger(fFriendlyProcesses[i]->GetParameter("pointsOverThreshold", "5"));
+			fSignalThreshold = StringToDouble(fFriendlyProcesses[i]->GetParameter("signalThreshold", "5"));
+		}
+	}
+
 }
 
 //______________________________________________________________________________
@@ -149,7 +161,20 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
 					if (stdev > fSignalThreshold*baselinerms) {
 						for (int j = pos; j < i; j++)
 						{
-							sgn.NewPoint(j, s->GetData(j));
+							if (fBaseLineCorrection) {
+								if (baseline > -0.5 && baseline <= 0.5) {
+									sgn.NewPoint(j, (Double_t)s->GetData(j) - baseline);
+								}
+								else
+								{
+									cout << "REST Error! baseline is without (-0.5,0.5], check your code!" << endl;
+								}
+							}
+							else
+							{
+								sgn.NewPoint(j, s->GetData(j));
+							}
+
 						}
 					}
 				}

@@ -44,6 +44,7 @@ class TRestSignalZeroSuppresionProcess:public TRestEventProcess {
         Double_t fSignalThreshold;
         Int_t fNPointsOverThreshold;
 		Int_t fNPointsFlatThreshold;
+		bool fBaseLineCorrection;
 
 
     public:
