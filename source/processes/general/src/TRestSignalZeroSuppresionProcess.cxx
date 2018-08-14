@@ -13,6 +13,7 @@
 #include <TRestDetectorSetup.h>
 
 #include "TRestSignalZeroSuppresionProcess.h"
+#include <numeric>
 using namespace std;
 
 const double cmTomm = 10.;
@@ -83,7 +84,7 @@ void TRestSignalZeroSuppresionProcess::InitProcess()
 	// So we need to correct this by adding decimal part back.
 	fBaseLineCorrection = false;
 	for (int i = 0; i < fFriendlyProcesses.size(); i++) {
-		if (fFriendlyProcesses[i]->ClassName() == "TRestRawSignalAnalysisProcess") {
+		if ((string)fFriendlyProcesses[i]->ClassName() == "TRestRawSignalAnalysisProcess") {
 			fBaseLineCorrection = true;
 
 			// setting parameters to the same as sAna
@@ -122,7 +123,7 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
     Double_t totalIntegral = 0;
     for( int i = 0; i < numberOfSignals; i++ )
     {
-        TRestRawSignal *s = fRawSignalEvent->GetSignal( i );
+		TRestRawSignal *s = fRawSignalEvent->GetSignal( i );
 		TRestSignal sgn;
 
 		sgn.SetID(s->GetID());
@@ -156,8 +157,13 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
 						break;
 					}
 				}
-				if (pulse.size() > fNPointsOverThreshold) {
-					auto stdev = TMath::StdDev(begin(pulse), end(pulse));
+				if (pulse.size() >= fNPointsOverThreshold) {
+					//auto stdev = TMath::StdDev(begin(pulse), end(pulse));
+					//calculate stdev
+					double mean = std::accumulate(pulse.begin(), pulse.end(), 0.0) / pulse.size();
+					double sq_sum = std::inner_product(pulse.begin(), pulse.end(), pulse.begin(), 0.0);
+					double stdev = std::sqrt(sq_sum / pulse.size() - mean * mean);
+
 					if (stdev > fSignalThreshold*baselinerms) {
 						for (int j = pos; j < i; j++)
 						{
@@ -184,23 +190,39 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
 		if(sgn.GetNumberOfPoints()>0)
 			fSignalEvent->AddSignal(sgn);
 
-/*
-        Double_t integral = sgnl->GetIntegralWithThreshold( 0, sgnl->GetNumberOfPoints(),
-                fBaseLineRange.X(), fBaseLineRange.Y(), fPointThreshold, fNPointsOverThreshold, fSignalThreshold );
 
-        if( integral > 0 )
-        {
-            totalIntegral += integral;
 
-            vector <Int_t> poinsOver = sgnl->GetPointsOverThreshold();
+		//TRestRawSignal *sgnl = fRawSignalEvent->GetSignal(i);
+  //      Double_t integral = sgnl->GetIntegralWithThreshold( fIntegralRange.X(), fIntegralRange.Y(),
+  //              fBaseLineRange.X(), fBaseLineRange.Y(), fPointThreshold, fNPointsOverThreshold, fSignalThreshold );
+		//Double_t baseline = sgnl->GetBaseLine(fBaseLineRange.X(), fBaseLineRange.Y());
 
-            TRestSignal outSignal;
-            outSignal.SetID( signalID );
-            for( unsigned int n = 0; n < poinsOver.size(); n++ )
-                outSignal.NewPoint( poinsOver[n], sgnl->GetData( poinsOver[n] ) );
+  //      if( integral > 0 )
+  //      {
+  //          totalIntegral += integral;
 
-            fSignalEvent->AddSignal( outSignal );
-        }*/
+  //          vector <Int_t> poinsOver = sgnl->GetPointsOverThreshold();
+
+		//	TRestSignal outSignal;
+		//	outSignal.SetID(sgnl->GetID());
+		//	for (unsigned int n = 0; n < poinsOver.size(); n++) {
+		//		if (fBaseLineCorrection) {
+		//			if (baseline >= 0 && baseline < 1) {
+		//				outSignal.NewPoint(poinsOver[n], (Double_t)sgnl->GetData(poinsOver[n]) - baseline);
+		//			}
+		//			else
+		//			{
+		//				cout << "REST Error! baseline(" << baseline << ") is without [0,1), check your code!" << endl;
+		//			}
+		//		}
+		//		else
+		//		{
+		//			outSignal.NewPoint(poinsOver[n], sgnl->GetData(poinsOver[n]));
+		//		}
+		//	}
+
+		//	fSignalEvent->AddSignal(outSignal);
+  //      }
     }
 
     if( this->GetVerboseLevel() >= REST_Debug ) 
