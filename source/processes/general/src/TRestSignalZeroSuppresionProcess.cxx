@@ -162,12 +162,12 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
 						for (int j = pos; j < i; j++)
 						{
 							if (fBaseLineCorrection) {
-								if (baseline > -0.5 && baseline <= 0.5) {
+								if (baseline >= 0 && baseline < 1) {
 									sgn.NewPoint(j, (Double_t)s->GetData(j) - baseline);
 								}
 								else
 								{
-									cout << "REST Error! baseline is without (-0.5,0.5], check your code!" << endl;
+									cout << "REST Error! baseline(" << baseline << ") is without [0,1), check your code!" << endl;
 								}
 							}
 							else
