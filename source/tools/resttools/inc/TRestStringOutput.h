@@ -80,9 +80,12 @@ public:
 #ifdef WIN32
 		return 100;
 #else
-		struct winsize w;
-		ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-		return w.ws_col;
+		if (isatty(fileno(stdout))) {
+			struct winsize w;
+			ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+			return w.ws_col;
+		}
+		return -1;
 #endif // WIN32
 	}
 
@@ -90,9 +93,12 @@ public:
 #ifdef WIN32
 		return 100;
 #else
-		struct winsize w;
-		ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-		return w.ws_row;
+		if (isatty(fileno(stdout))) {
+			struct winsize w;
+			ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+			return w.ws_row;
+		}
+		return -1;
 #endif // WIN32
 	}
 
@@ -336,7 +342,7 @@ public:
 		color = COLOR_RESET;
 		length = ConsoleHelper::GetWidth() - 2;
 		stringbuf = "";
-		if (length > 500 || length < 20)//unsorpped console, we will fall back to compatibility modes
+		if (length > 500 || length < 20)//unsupported console, we will fall back to compatibility modes
 		{
 			length = -1;
 		}
