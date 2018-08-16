@@ -10,6 +10,12 @@ char cfgFileName[256];
 char iFile[256];
 TRestStringOutput fout;
 
+#ifdef WIN32
+void setenv(const char *__name, const char *__value, int __replace) {
+	_putenv(((string)__name + "=" + (string)__value).c_str());
+}
+#endif
+
 void PrintHelp()
 {
 	fout.resetcolor();

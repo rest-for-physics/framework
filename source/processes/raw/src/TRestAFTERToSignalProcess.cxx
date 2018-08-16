@@ -23,8 +23,11 @@
 #include "TRestAFTERToSignalProcess.h"
 using namespace std;
 #include "TTimeStamp.h"
-
+#ifdef WIN32
+#include <Windows.h>
+#else
 #include <arpa/inet.h>
+#endif
 #include "mygblink.h"
 
 #define MAX_UNSIGNED_INT 4294967295

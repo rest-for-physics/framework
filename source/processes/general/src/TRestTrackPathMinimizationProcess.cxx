@@ -85,6 +85,7 @@ void TRestTrackPathMinimizationProcess::BeginOfEventProcess()
 //______________________________________________________________________________
 TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput )
 {
+
     fInputTrackEvent = (TRestTrackEvent *) evInput;
 	fOutputTrackEvent->SetEventInfo(fInputTrackEvent);
 
@@ -94,6 +95,11 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
     // Copying the input tracks to the output track
     for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
         fOutputTrackEvent->AddTrack( fInputTrackEvent->GetTrack(tck) ); 
+
+#ifdef WIN32
+	warning << "not work on windows!" << endl;
+	return fOutputTrackEvent;
+#else
 
     for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
     {
@@ -199,6 +205,7 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent( TRestEvent *evInput
     }
 
     return fOutputTrackEvent;
+#endif // !WIN32
 }
 
 //______________________________________________________________________________
