@@ -11,7 +11,7 @@
 #include <RConfig.h>
 
 #ifdef WIN32
-#include <conio.h>
+//#include <conio.h>
 #else
 #include <unistd.h>
 #include <sys/ioctl.h>

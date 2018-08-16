@@ -1,6 +1,20 @@
 #include "TRestStringHelper.h"
+#include "Rtypes.h"
+
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+#include "TFormula.h"
+#else
 #include "v5/TFormula.h"
+#endif
+
+#ifdef WIN32
+#include <io.h>
+#include <Windows.h>
+#else
 #include <unistd.h>
+#endif // WIN32
+
+
 
 using namespace std;
 TRestStringHelper::TRestStringHelper()
@@ -87,7 +101,12 @@ std::string TRestStringHelper::EvaluateExpression(std::string exp) {
 	//NOTE!!! In root6 the expression like "1/2" will be computed using the input as int number,
 	//which will return 0, and cause problem.
 	//we roll back to TFormula of version 5
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+	TFormula formula("tmp", exp.c_str());
+#else
 	ROOT::v5::TFormula formula("tmp", exp.c_str());
+#endif
+
 
 	ostringstream sss;
 	Double_t number = formula.EvalPar(0);
@@ -395,8 +414,7 @@ bool TRestStringHelper::isPathWritable(const std::string& path)
 	int result = 0;
 #ifdef WIN32
 	result = _access(path.c_str(), 2);
-#endif
-#ifdef linux
+#else
 	result = access(path.c_str(), 2);
 #endif
 	
@@ -582,3 +600,12 @@ std::string TRestStringHelper::ExecuteShellCommand(string cmd)
 	return "";
 
 }
+
+
+#ifdef WIN32
+string get_current_dir_name() {
+	char pBuf[MAX_PATH];
+	GetCurrentDirectory(MAX_PATH, pBuf);
+	return string(pBuf);
+}
+#endif

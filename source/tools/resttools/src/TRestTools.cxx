@@ -1,12 +1,18 @@
 
 #include "TRestTools.h"
 #include <TSystem.h>
-
+#include "TRestStringHelper.h"
 #include <iostream>
 #include <limits> 
 using namespace std;
 
+#ifdef WIN32
+#include <../external/dirent_win/dirent.h>
+#else
 #include <dirent.h>
+#endif // WIN32
+
+
 
 ClassImp(TRestTools)
 
@@ -17,7 +23,12 @@ std::vector <TString> TRestTools::GetListOfRESTLibraries(  )
 
     vector <TString> libraryPathList;
 
-    libraryPathList = GetListOfPathsInEnvVariable( "LD_LIBRARY_PATH" );
+#ifdef WIN32
+	libraryPathList.push_back(get_current_dir_name() + "/../");
+#else
+	libraryPathList = GetListOfPathsInEnvVariable("LD_LIBRARY_PATH");
+#endif
+
 
     for( unsigned int n = 0; n < libraryPathList.size(); n++ )
     {
@@ -112,7 +123,7 @@ std::vector <TString> TRestTools::GetRESTLibrariesInDirectory( TString path )
         perror ("");
     }
 
-    return fileList;
+	return fileList;
 }
 
 
@@ -126,6 +137,5 @@ void TRestTools::LoadRESTLibrary(bool verbose)
 		gSystem->Load(list[n]);
 	}
 }
-
 
 

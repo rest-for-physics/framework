@@ -18,11 +18,6 @@
 #include <TVector2.h>
 #include <TVector3.h>
 
-#ifdef WIN32
-#include <io.h>
-#else
-#include <unistd.h>
-#endif
 /// String helper classes. Declared static to be able to access them without having to instantiate TRestMetadata.
 
 using namespace std;
@@ -110,6 +105,12 @@ inline std::vector <TString> GetFilesMatchingPattern(TString pattern) {
 inline std::string ToUpper(std::string in) { return TRestStringHelper::ToUpper(in); }
 inline std::string ExecuteShellCommand(string cmd) {return TRestStringHelper::ExecuteShellCommand(cmd); }
 
+#ifdef WIN32
+inline void setenv(const char *__name, const char *__value, int __replace);
+inline string get_current_dir_name();
+#define __PRETTY_FUNCTION__ __FUNCTION__
+#define M_PI 3.14159265358979323846
+#endif
 
 
 #endif
