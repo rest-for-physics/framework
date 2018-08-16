@@ -640,7 +640,7 @@ void TRestGas::SetPressure(Double_t pressure)
 ///
 void TRestGas::PlotDriftVelocity(Double_t eMin, Double_t eMax, Int_t nSteps)
 {
-	Double_t eField[nSteps], driftVel[nSteps];
+	vector<Double_t> eField(nSteps), driftVel(nSteps);
 
 	for (int i = 0; i < nSteps; i++)
 	{
@@ -651,7 +651,7 @@ void TRestGas::PlotDriftVelocity(Double_t eMin, Double_t eMax, Int_t nSteps)
 
 
 	TCanvas* c = new TCanvas("Drift velocity", "  ");
-	TGraph*		fDriftVel = new TGraph(nSteps, eField, driftVel);
+	TGraph*		fDriftVel = new TGraph(nSteps, &eField[0], &driftVel[0]);
 	TString str;
 	str.Form("Drift Velocity for %s", GetName());
 	fDriftVel->SetTitle(str);
@@ -671,7 +671,7 @@ void TRestGas::PlotDriftVelocity(Double_t eMin, Double_t eMax, Int_t nSteps)
 ///
 void TRestGas::PlotLongitudinalDiffusion(Double_t eMin, Double_t eMax, Int_t nSteps)
 {
-	Double_t eField[nSteps], longDiff[nSteps];
+	vector<Double_t> eField(nSteps), longDiff(nSteps);
 
 	for (int i = 0; i < nSteps; i++)
 	{
@@ -682,7 +682,7 @@ void TRestGas::PlotLongitudinalDiffusion(Double_t eMin, Double_t eMax, Int_t nSt
 
 
 	TCanvas* c = new TCanvas("Longitudinal diffusion", "  ");
-	TGraph*		fLongDiff = new TGraph(nSteps, eField, longDiff);
+	TGraph*		fLongDiff = new TGraph(nSteps, &eField[0], &longDiff[0]);
 	TString str;
 	str.Form("Longitudinal diffusion for %s", GetName());
 	fLongDiff->SetTitle(str);
@@ -702,7 +702,7 @@ void TRestGas::PlotLongitudinalDiffusion(Double_t eMin, Double_t eMax, Int_t nSt
 ///
 void TRestGas::PlotTransversalDiffusion(Double_t eMin, Double_t eMax, Int_t nSteps)
 {
-	Double_t eField[nSteps], transDiff[nSteps];
+	vector<Double_t> eField(nSteps), transDiff(nSteps);
 
 	for (int i = 0; i < nSteps; i++)
 	{
@@ -713,7 +713,7 @@ void TRestGas::PlotTransversalDiffusion(Double_t eMin, Double_t eMax, Int_t nSte
 
 
 	TCanvas* c = new TCanvas("Transitudinal diffusion", "  ");
-	TGraph*		fTransDiff = new TGraph(nSteps, eField, transDiff);
+	TGraph*		fTransDiff = new TGraph(nSteps, &eField[0], &transDiff[0]);
 	TString str;
 	str.Form("Transversal diffusion for %s", GetName());
 	fTransDiff->SetTitle(str);
@@ -733,7 +733,7 @@ void TRestGas::PlotTransversalDiffusion(Double_t eMin, Double_t eMax, Int_t nSte
 ///
 void TRestGas::PlotTownsendCoefficient(Double_t eMin, Double_t eMax, Int_t nSteps)
 {
-	Double_t eField[nSteps], townsendCoeff[nSteps];
+	vector<Double_t> eField(nSteps), townsendCoeff(nSteps);
 
 	for (int i = 0; i < nSteps; i++)
 	{
@@ -744,7 +744,7 @@ void TRestGas::PlotTownsendCoefficient(Double_t eMin, Double_t eMax, Int_t nStep
 
 
 	TCanvas* c = new TCanvas("Townsend coefficient", "  ");
-	TGraph*		fTownsend = new TGraph(nSteps, eField, townsendCoeff);
+	TGraph*		fTownsend = new TGraph(nSteps, &eField[0], &townsendCoeff[0]);
 	TString str;
 	str.Form("Townsend coefficient for %s", GetName());
 	fTownsend->SetTitle(str);

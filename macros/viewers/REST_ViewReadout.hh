@@ -53,10 +53,10 @@ int REST_Viewer_Readout(TString rootFile, TString name = "", Int_t plane = 0)
 	const Int_t nModConst = nModules;
 	const Int_t nChConst = totalChannels;
 
-	TGraph *pixelGraph[nPixConst];
-	TGraph *channelGraph[nChConst];
-	TGraph *modGraph[nModConst];
-	TLatex *channelIDLabel[nPixConst];
+	vector<TGraph *>pixelGraph(nPixConst);
+	vector<TGraph *>channelGraph(nChConst);
+	vector<TGraph *>modGraph(nModConst);
+	vector<TLatex *>channelIDLabel(nPixConst);
 
 	double xmin = 1E9, xmax = -1E9, ymin = 1E9, ymax = -1E9;
 

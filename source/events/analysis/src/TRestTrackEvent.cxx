@@ -287,10 +287,10 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
     fYZTrack = new TGraph[nTracks];
     fXYZTrack = new TGraph2D[nTracks];
 
-    Int_t drawLinesXY[nTracks];
-    Int_t drawLinesXZ[nTracks];
-    Int_t drawLinesYZ[nTracks];
-    Int_t drawLinesXYZ[nTracks];
+	vector<Int_t> drawLinesXY(nTracks);
+	vector<Int_t> drawLinesXZ(nTracks);
+	vector<Int_t> drawLinesYZ(nTracks);
+    vector<Int_t> drawLinesXYZ(nTracks);
 
     for( int i = 0; i < nTracks; i++ )
     {
