@@ -127,7 +127,12 @@ MACRO( COMPILEDIR libname )
 
 	#message(${libname} " will be compiled with: " ${contentfiles} ${addon_src})
 
-	add_library(${libname} SHARED ${contentfiles} ${addon_src})
+	if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+		add_library(${libname} STATIC ${contentfiles} ${addon_src})
+	else()
+		add_library(${libname} SHARED ${contentfiles} ${addon_src})
+	endif()
+
 	target_link_libraries(${libname} ${rest_libraries} ${external_libs})
 
 	install(TARGETS ${libname}

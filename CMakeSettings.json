@@ -15,7 +15,7 @@
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "cmakeCommandArgs": "",
-      "buildCommandArgs": "-v",
+      "buildCommandArgs": "/verbosity:m",
       "ctestCommandArgs": ""
     },
     {

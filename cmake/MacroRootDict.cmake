@@ -6,8 +6,6 @@ ENDIF()
 SET( LD_LIBRARY_PATH_CONTENTS $ENV{${LD_LIBRARY_PATH_VAR}} )
 #MESSAGE( STATUS "LD_LIBRARY_PATH_CONTENTS: ${LD_LIBRARY_PATH_CONTENTS}" )
 
-SET( ROOT_CINT_WRAPPER ${LD_LIBRARY_PATH_VAR}=${ROOT_LIBRARY_DIR}:${LD_LIBRARY_PATH_CONTENTS} ${ROOTCINT_EXECUTABLE} )
-
 IF( NOT DEFINED ROOT_DICT_OUTPUT_DIR )
     SET( ROOT_DICT_OUTPUT_DIR "${PROJECT_BINARY_DIR}/rootdict" )
 ENDIF()
@@ -19,6 +17,13 @@ IF( NOT ROOT_FIND_QUIETLY )
     MESSAGE( STATUS "Check for ROOT_DICT_OUTPUT_DIR: ${PROJECT_BINARY_DIR}/rootdict" )
     MESSAGE( STATUS "Check for ROOT_DICT_CINT_DEFINITIONS: ${ROOT_DICT_CINT_DEFINITIONS}" )
 ENDIF()
+
+IF (CMAKE_SYSTEM_NAME MATCHES "Windows")
+  SET( ROOT_CINT_WRAPPER ${LD_LIBRARY_PATH_CONTENTS} ${ROOTCINT_EXECUTABLE} )
+else()
+  SET( ROOT_CINT_WRAPPER ${LD_LIBRARY_PATH_VAR}=${ROOT_LIBRARY_DIR}:${LD_LIBRARY_PATH_CONTENTS} ${ROOTCINT_EXECUTABLE} )
+  execute_process(COMMAND mkdir -p ${ROOT_DICT_OUTPUT_DIR})
+endif()
 
 
 # ============================================================================
@@ -121,12 +126,11 @@ MACRO( GEN_ROOT_DICT_SOURCE _dict_src_filename )
     STRING( REPLACE "/" "_" _dict_src_filename_nosc ${_dict_src_filename} )
     SET( _dict_src_file ${ROOT_DICT_OUTPUT_DIR}/${_dict_src_filename_nosc} )
     STRING( REGEX REPLACE "^(.*)\\.(.*)$" "\\1.h" _dict_hdr_file "${_dict_src_file}" )
-	#message(${ROOT_CINT_WRAPPER} -f "${_dict_src_file}" -c ${ROOT_DICT_CINT_DEFINITIONS} ${_dict_includes} ${ROOT_DICT_INPUT_HEADERS})
+	#message(${ROOT_CINT_WRAPPER} " -f ${_dict_src_file} -c ${ROOT_DICT_CINT_DEFINITIONS} ${_dict_includes} ${ROOT_DICT_INPUT_HEADERS}")
     ADD_CUSTOM_COMMAND(
         OUTPUT  ${_dict_src_file}
-        COMMAND mkdir -p ${ROOT_DICT_OUTPUT_DIR}
         COMMAND ${ROOT_CINT_WRAPPER} -f "${_dict_src_file}" -c ${ROOT_DICT_CINT_DEFINITIONS} ${_dict_includes} ${ROOT_DICT_INPUT_HEADERS}
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         DEPENDS ${ROOT_DICT_INPUT_HEADERS}
         COMMENT "generating: ${_dict_src_file} with ${ROOT_DICT_CINT_DEFINITIONS} ${ROOT_DICT_INPUT_HEADERS}"
     )
