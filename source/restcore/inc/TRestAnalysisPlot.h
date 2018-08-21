@@ -64,6 +64,15 @@ class TRestAnalysisPlot:public TRestMetadata {
         std::vector <Int_t> fFillColor;
         std::vector <Int_t> fFillStyle;
 
+        Double_t fLabelOffsetX;
+        Double_t fLabelOffsetY;
+
+        Double_t fLabelScaleX;
+        Double_t fLabelScaleY;
+
+        Double_t fTicksScaleX;
+        Double_t fTicksScaleY;
+
         Double_t fStartTime;
         Double_t fEndTime;
 

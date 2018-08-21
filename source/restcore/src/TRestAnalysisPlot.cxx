@@ -51,6 +51,15 @@ void TRestAnalysisPlot::Initialize()
     fEndTime = 0;
 
     fClasifyBy = "runTag";
+
+    fLabelOffsetX = 1.1;
+    fLabelOffsetY = 1.3;
+
+    fLabelScaleX = 1.2;
+    fLabelScaleY = 1.3;
+
+    fTicksScaleX = 1.5;
+    fTicksScaleY = 1.5;
 }
 
 
@@ -88,6 +97,49 @@ void TRestAnalysisPlot::InitFromConfigFile()
         Int_t fillColor = StringToInteger ( GetFieldValue( "fillColor", styleString ) );
         if( fillColor != -1 )
             fFillColor.push_back( fillColor );
+    }
+
+    position = 0;
+    string formatDefinition;
+    if( ( formatDefinition = GetKEYDefinition( "labels", position ) ) != "" )
+    {
+        if( GetVerboseLevel() >= REST_Debug )
+        {
+            cout << formatDefinition << endl;
+            cout << "Reading format definition : " << endl;
+            cout << "---------------------------" << endl;
+        }
+
+        fTicksScaleX = StringToDouble ( GetFieldValue( "ticksScaleX", formatDefinition ) );
+        fTicksScaleY = StringToDouble ( GetFieldValue( "ticksScaleY", formatDefinition ) );
+        
+        fLabelScaleX = StringToDouble ( GetFieldValue( "labelScaleX", formatDefinition ) );
+        fLabelScaleY = StringToDouble ( GetFieldValue( "labelScaleY", formatDefinition ) );
+        
+        fLabelOffsetX = StringToDouble ( GetFieldValue( "labelOffsetX", formatDefinition ) );
+        fLabelOffsetY = StringToDouble ( GetFieldValue( "labelOffsetY", formatDefinition ) );
+
+        if( fLabelOffsetX == -1 ) fLabelOffsetX = 1.1;
+        if( fLabelOffsetY == -1 ) fLabelOffsetY = 1.3;
+
+        if( fTicksScaleX == -1 ) fTicksScaleX = 1.5;
+        if( fTicksScaleY == -1 ) fTicksScaleY = 1.5;
+
+        if( fLabelScaleX == -1 ) fLabelScaleX = 1.3;
+        if( fLabelScaleY == -1 ) fLabelScaleY = 1.3;
+
+        if( GetVerboseLevel() >= REST_Debug )
+        {
+            cout << "ticks scale X : " << fTicksScaleX << endl;
+            cout << "ticks scale Y : " << fTicksScaleY << endl;
+            cout << "label scale X : " << fLabelScaleX << endl;
+            cout << "label scale Y : " << fLabelScaleY << endl;
+            cout << "label offset X : " << fLabelOffsetX << endl;
+            cout << "label offset Y : " << fLabelOffsetY << endl;
+
+            if( GetVerboseLevel() >= REST_Extreme )
+                GetChar();
+        }
     }
 
     position = 0;
@@ -350,7 +402,7 @@ void TRestAnalysisPlot::AddFile( TString fileName )
     }
     else
     {
-        cout << "REST Warning. TRestAnalysisPlot : fClasifyBy not recognized" << endl;
+        cout << "REST Warning. TRestAnalysisPlot : fClassifyBy not recognized" << endl;
 
         fFileNames[0].push_back( fileName ); 
         fNFiles++;
@@ -578,15 +630,14 @@ void TRestAnalysisPlot::PlotCombinedCanvas( )
             htemp->GetXaxis()->SetTitle( fPlotXLabel[n] );
             htemp->GetYaxis()->SetTitle( fPlotYLabel[n] );
 
-            // TODO Should we be able to modify offsets and font size from metadata parameters?
-            htemp->GetXaxis()->SetLabelSize( 1.5 * htemp->GetXaxis()->GetLabelSize( ) );
-            htemp->GetYaxis()->SetLabelSize( 1.5 * htemp->GetYaxis()->GetLabelSize( ) );
+            htemp->GetXaxis()->SetLabelSize( fTicksScaleX * htemp->GetXaxis()->GetLabelSize( ) );
+            htemp->GetYaxis()->SetLabelSize( fTicksScaleY * htemp->GetYaxis()->GetLabelSize( ) );
 
-            htemp->GetXaxis()->SetTitleSize( 1.3 * htemp->GetXaxis()->GetTitleSize( ) );
-            htemp->GetYaxis()->SetTitleSize( 1.3 * htemp->GetYaxis()->GetTitleSize( ) );
+            htemp->GetXaxis()->SetTitleSize( fLabelScaleX * htemp->GetXaxis()->GetTitleSize( ) );
+            htemp->GetYaxis()->SetTitleSize( fLabelScaleY * htemp->GetYaxis()->GetTitleSize( ) );
 
-            htemp->GetXaxis()->SetTitleOffset( 1.1 * htemp->GetXaxis()->GetTitleOffset( ) );
-            htemp->GetYaxis()->SetTitleOffset( 1.3 * htemp->GetYaxis()->GetTitleOffset( ) );
+            htemp->GetXaxis()->SetTitleOffset( fLabelOffsetX * htemp->GetXaxis()->GetTitleOffset( ) );
+            htemp->GetYaxis()->SetTitleOffset( fLabelOffsetY * htemp->GetYaxis()->GetTitleOffset( ) );
 
             htemp->SetLineColor( fLineColor[i] );
             htemp->SetLineWidth( fLineWidth[i] );
