@@ -143,6 +143,39 @@ void TRestAnalysisPlot::InitFromConfigFile()
     }
 
     position = 0;
+    string legendDefinition;
+    if( ( legendDefinition = GetKEYDefinition( "legendPosition", position ) ) != "" )
+    {
+        if( GetVerboseLevel() >= REST_Debug )
+        {
+            cout << legendDefinition << endl;
+            cout << "Reading legend definition : " << endl;
+            cout << "---------------------------" << endl;
+        }
+
+        fLegendX1 = StringToDouble ( GetFieldValue( "x1", legendDefinition ) );
+        fLegendY1 = StringToDouble ( GetFieldValue( "y1", legendDefinition ) );
+
+        fLegendX2 = StringToDouble ( GetFieldValue( "x2", legendDefinition ) );
+        fLegendY2 = StringToDouble ( GetFieldValue( "y2", legendDefinition ) );
+        
+        if( fLegendX1 == -1 ) fLegendX1 = 0.7;
+        if( fLegendY1 == -1 ) fLegendY1 = 0.75;
+        
+        if( fLegendX2 == -1 ) fLegendX2 = 0.88;
+        if( fLegendY2 == -1 ) fLegendY2 = 0.88;
+
+        if( GetVerboseLevel() >= REST_Debug )
+        {
+            cout << "x1 : " << fLegendX1 << " y1 : " << fLegendY1 << endl;
+            cout << "x2 : " << fLegendX2 << " y2 : " << fLegendY2 << endl;
+
+            if( GetVerboseLevel() >= REST_Extreme )
+                GetChar();
+        }
+    }
+
+    position = 0;
     string addFileString;
     while( ( addFileString = GetKEYDefinition( "addFile", position ) ) != "" )
     {
@@ -660,7 +693,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas( )
 
         }
 
-        TLegend *legend = new TLegend( .7, .75, .88, .88 );
+        TLegend *legend = new TLegend( fLegendX1, fLegendY1, fLegendX2, fLegendY2 );
         for( unsigned int i = 0; i < fLegendName.size(); i++ )
         {
             legend->AddEntry( histCollection[i], fLegendName[i], "lf" );

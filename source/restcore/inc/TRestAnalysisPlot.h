@@ -73,6 +73,11 @@ class TRestAnalysisPlot:public TRestMetadata {
         Double_t fTicksScaleX;
         Double_t fTicksScaleY;
 
+        Double_t fLegendX1;
+        Double_t fLegendY1;
+        Double_t fLegendX2;
+        Double_t fLegendY2;
+
         Double_t fStartTime;
         Double_t fEndTime;
 
