@@ -639,7 +639,7 @@ Double_t TRestHits::GetSigmaY()
 Double_t TRestHits::GetSkewXY()
 {
 	Double_t skewXY=0;
-	Double_t totalEnergy = 0;
+	Double_t totalEnergy = this->GetTotalEnergy();
         Double_t sigmaXY=TMath::Sqrt(this->GetSigmaXY2());
          Double_t meanX=this->GetMeanPositionX();
 	Double_t meanY=this->GetMeanPositionY();
@@ -668,7 +668,7 @@ Double_t TRestHits::GetSigmaZ2()
 Double_t TRestHits::GetSkewZ()
 {
 	Double_t skewZ=0;
-	Double_t totalEnergy = 0;
+	Double_t totalEnergy = this->GetTotalEnergy();
         Double_t sigmaZ=TMath::Sqrt(this->GetSigmaZ2());
          Double_t meanZ=this->GetMeanPositionZ();
 	
