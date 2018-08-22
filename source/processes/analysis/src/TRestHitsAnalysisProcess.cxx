@@ -123,11 +123,11 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     obsName = this->GetName() + (TString) ".nHitsY";
     fAnalysisTree->SetObservableValue( obsName, nHitsY );
 
-	 obsName = this->GetName() + (TString) ".ratioXYnHits";
-    fAnalysisTree->SetObservableValue( obsName, nHitsX/nHitsY );
+	 obsName = this->GetName() + (TString) ".balanceXYnHits";
+    fAnalysisTree->SetObservableValue( obsName, (nHitsX-nHitsY)/(nHitsX+nHitsY) );
 
     obsName = this->GetName() + (TString) ".nHitsSizeXY";
-     if((nHits==nHitsX)||(nHits==nHitsX)) fAnalysisTree->SetObservableValue( obsName, nHits);
+     if((nHits==nHitsX)||(nHits==nHitsY)) fAnalysisTree->SetObservableValue( obsName, nHits);
        else fAnalysisTree->SetObservableValue( obsName, TMath::Sqrt(nHitsX*nHitsX+nHitsY*nHitsY));
 
     // Checking hits inside fiducial cylinder
@@ -237,9 +237,7 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 	obsName = this->GetName() + (TString) ".energyX";
     fAnalysisTree->SetObservableValue( obsName, energyX);
      obsName = this->GetName() + (TString) ".energyY";
-    fAnalysisTree->SetObservableValue( obsName, energyY ); 
-     obsName = this->GetName() + (TString) ".ratioXYenergy";
-    fAnalysisTree->SetObservableValue( obsName, energyX/energyY );
+    fAnalysisTree->SetObservableValue( obsName, energyY );
     obsName = this->GetName() + (TString) ".balanceXYenergy";
     fAnalysisTree->SetObservableValue( obsName, (energyX-energyY)/(energyX+energyY));
 
@@ -310,7 +308,7 @@ void TRestHitsAnalysisProcess::InitFromConfigFile( )
     fFid_R = GetDblParameterWithUnits( "fiducial_R", 1 );
     fFid_sX = GetDblParameterWithUnits( "fiducial_sX", 1 );
     fFid_sY = GetDblParameterWithUnits( "fiducial_sY", 1 );
-    fFid_theta=StringToDouble( GetParameter( "fiducial_theta" ) );
+    fFid_theta=StringToDouble( GetParameter( "fiducial_theta","0" ) );
 
     if( GetParameter( "cylinderFiducialization", "false" ) == "true" )
         fCylinderFiducial = true;
