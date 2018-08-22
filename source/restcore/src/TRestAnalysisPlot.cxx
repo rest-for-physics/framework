@@ -577,7 +577,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas( )
             TString plotString = fPlotString[n];
 
             size_t varStart = FindNthStringPosition( (string) fPlotString[n], 0, ">>", 0 );
-            size_t varEnd = FindNthStringPosition( (string) fPlotString[n], 0, "(", 0 );
+            size_t varEnd = FindNthStringPosition( (string) fPlotString[n], varStart, "(", 0 );
 
             TString varName = fPlotString[n]( varStart , varEnd - varStart );
 
