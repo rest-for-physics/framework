@@ -207,6 +207,14 @@ void TRestAnalysisPlot::InitFromConfigFile()
         if( cutActive == "on" || cutActive == "ON" || cutActive == "On" || cutActive == "oN" )
         {
             TString obsName = GetFieldValue( "name", globalCutString );
+            if( obsName == "Not defined"  )
+                obsName = GetFieldValue( "variable", globalCutString );
+            else
+            {
+                cout << "--W-- REST Warning. <globalCut name=\"var\" is now obsolete." << endl;
+                cout << "--W-- Please, replace by : <globalCut variable=\"var\" " << endl; 
+                cout << endl;
+            }
 
             TString cutCondition = GetFieldValue( "condition", globalCutString );
             TString cutString = obsName + cutCondition;
