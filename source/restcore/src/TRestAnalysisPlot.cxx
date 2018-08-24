@@ -626,7 +626,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas( )
                 if( m == 1 )
                 {
                     plotString = Replace( (string) plotString, ">>", ">>+", 0 , 1 );
-                    plotString = plotString ( 0, FindNthStringPosition( (string) plotString, 0, "(", 0 ) );
+                    size_t start = FindNthStringPosition( (string) plotString, 0, ">>+", 0 );
+                    plotString = plotString ( 0, FindNthStringPosition( (string) plotString, start, "(", 0 ) );
                 }
 
                 if( GetVerboseLevel() >= REST_Debug )
