@@ -91,16 +91,28 @@ void TRestFindTrackBlobsProcess::InitProcess()
             fQhigh_Observables.push_back( fObservables[i] );
         if( fObservables[i].find( "Qlow_R") != string::npos )
             fQlow_Observables.push_back( fObservables[i] );
+        if( fObservables[i].find( "Qbalance_R") != string::npos )
+            fQbalance_Observables.push_back( fObservables[i] );
+        if( fObservables[i].find( "Qratio_R") != string::npos )
+            fQratio_Observables.push_back( fObservables[i] );
 
         if( fObservables[i].find( "Qhigh_X_R") != string::npos )
             fQhigh_X_Observables.push_back( fObservables[i] );
         if( fObservables[i].find( "Qlow_X_R") != string::npos )
             fQlow_X_Observables.push_back( fObservables[i] );
+        if( fObservables[i].find( "Qbalance_X_R") != string::npos )
+            fQbalance_X_Observables.push_back( fObservables[i] );
+        if( fObservables[i].find( "Qratio_X_R") != string::npos )
+            fQratio_X_Observables.push_back( fObservables[i] );
 
         if( fObservables[i].find( "Qhigh_Y_R") != string::npos )
             fQhigh_Y_Observables.push_back( fObservables[i] );
         if( fObservables[i].find( "Qlow_Y_R") != string::npos )
             fQlow_Y_Observables.push_back( fObservables[i] );
+        if( fObservables[i].find( "Qbalance_Y_R") != string::npos )
+            fQbalance_Y_Observables.push_back( fObservables[i] );
+        if( fObservables[i].find( "Qratio_Y_R") != string::npos )
+            fQratio_Y_Observables.push_back( fObservables[i] );
     }
 
     for( unsigned int i = 0; i < fQ1_Observables.size(); i++ )
@@ -173,6 +185,42 @@ void TRestFindTrackBlobsProcess::InitProcess()
     {
         Double_t r2 = atof ( fQlow_Y_Observables[i].substr( 8, fQlow_Y_Observables[i].length() - 8 ).c_str() );
         fQlow_Y_Radius.push_back( r2 );
+    }
+
+    for( unsigned int i = 0; i < fQbalance_Observables.size(); i++ )
+    {
+        Double_t r1 = atof ( fQbalance_Observables[i].substr( 10, fQbalance_Observables[i].length() - 10 ).c_str() );
+        fQbalance_Radius.push_back( r1 );
+    }
+
+    for( unsigned int i = 0; i < fQratio_Observables.size(); i++ )
+    {
+        Double_t r2 = atof ( fQratio_Observables[i].substr( 8, fQratio_Observables[i].length() - 8 ).c_str() );
+        fQratio_Radius.push_back( r2 );
+    }
+
+    for( unsigned int i = 0; i < fQbalance_X_Observables.size(); i++ )
+    {
+        Double_t r1 = atof ( fQbalance_X_Observables[i].substr( 12, fQbalance_X_Observables[i].length() - 12 ).c_str() );
+        fQbalance_X_Radius.push_back( r1 );
+    }
+
+    for( unsigned int i = 0; i < fQratio_X_Observables.size(); i++ )
+    {
+        Double_t r2 = atof ( fQratio_X_Observables[i].substr( 10, fQratio_X_Observables[i].length() - 10 ).c_str() );
+        fQratio_X_Radius.push_back( r2 );
+    }
+
+    for( unsigned int i = 0; i < fQbalance_Y_Observables.size(); i++ )
+    {
+        Double_t r1 = atof ( fQbalance_Y_Observables[i].substr( 12, fQbalance_Y_Observables[i].length() - 12 ).c_str() );
+        fQbalance_Y_Radius.push_back( r1 );
+    }
+
+    for( unsigned int i = 0; i < fQratio_Y_Observables.size(); i++ )
+    {
+        Double_t r2 = atof ( fQratio_Y_Observables[i].substr( 10, fQratio_Y_Observables[i].length() - 10 ).c_str() );
+        fQratio_Y_Radius.push_back( r2 );
     }
 }
 
@@ -404,6 +452,36 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent( TRestEvent *evInput )
                 obsName = this->GetName() + (TString) "." + (TString) fQlow_Observables[n];
                 fAnalysisTree->SetObservableValue( obsName, q );
             }
+
+            for( unsigned int n = 0; n < fQbalance_Observables.size(); n++ )
+            {
+                Double_t q1 = originHits->GetEnergyInSphere( x1, y1, z1, fQbalance_Radius[n] );
+                Double_t q2 = originHits->GetEnergyInSphere( x2, y2, z2, fQbalance_Radius[n] );
+
+                Double_t qBalance;
+                if( q1 > q2 )
+                    qBalance = (q1 - q2)/(q1 + q2);
+                else
+                    qBalance = (q2 - q1)/(q1 + q2);
+
+                obsName = this->GetName() + (TString) "." + (TString) fQbalance_Observables[n];
+                fAnalysisTree->SetObservableValue( obsName, qBalance );
+            }
+
+            for( unsigned int n = 0; n < fQratio_Observables.size(); n++ )
+            {
+                Double_t q1 = originHits->GetEnergyInSphere( x1, y1, z1, fQratio_Radius[n] );
+                Double_t q2 = originHits->GetEnergyInSphere( x2, y2, z2, fQratio_Radius[n] );
+
+                Double_t qRatio;
+                if( q1 > q2 )
+                    qRatio = q1 / q2;
+                else
+                    qRatio = q2 / q1;
+
+                obsName = this->GetName() + (TString) "." + (TString) fQratio_Observables[n];
+                fAnalysisTree->SetObservableValue( obsName, qRatio );
+            }
         }
 
         if( tracks[t]->isXZ() )
@@ -447,6 +525,36 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent( TRestEvent *evInput )
                 obsName = this->GetName() + (TString) "." + (TString) fQlow_X_Observables[n];
                 fAnalysisTree->SetObservableValue( obsName, q );
             }
+
+            for( unsigned int n = 0; n < fQbalance_X_Observables.size(); n++ )
+            {
+                Double_t q1 = originHits->GetEnergyInSphere( x1_X, 0, z1_X, fQbalance_X_Radius[n] );
+                Double_t q2 = originHits->GetEnergyInSphere( x2_X, 0, z2_X, fQbalance_X_Radius[n] );
+
+                Double_t qBalance;
+                if( q1 > q2 )
+                    qBalance = (q1 - q2)/(q1 + q2);
+                else
+                    qBalance = (q2 - q1)/(q1 + q2);
+
+                obsName = this->GetName() + (TString) "." + (TString) fQbalance_X_Observables[n];
+                fAnalysisTree->SetObservableValue( obsName, qBalance );
+            }
+
+            for( unsigned int n = 0; n < fQratio_X_Observables.size(); n++ )
+            {
+                Double_t q1 = originHits->GetEnergyInSphere( x1_X, 0, z1_X, fQratio_X_Radius[n] );
+                Double_t q2 = originHits->GetEnergyInSphere( x2_X, 0, z2_X, fQratio_X_Radius[n] );
+
+                Double_t qRatio;
+                if( q1 > q2 )
+                    qRatio = q1 / q2;
+                else
+                    qRatio = q2 / q1;
+
+                obsName = this->GetName() + (TString) "." + (TString) fQratio_X_Observables[n];
+                fAnalysisTree->SetObservableValue( obsName, qRatio );
+            }
         }
 
         if( tracks[t]->isYZ() )
@@ -489,6 +597,36 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent( TRestEvent *evInput )
 
                 obsName = this->GetName() + (TString) "." + (TString) fQlow_Y_Observables[n];
                 fAnalysisTree->SetObservableValue( obsName, q );
+            }
+
+            for( unsigned int n = 0; n < fQbalance_Y_Observables.size(); n++ )
+            {
+                Double_t q1 = originHits->GetEnergyInSphere( 0, y1_Y, z1_Y, fQbalance_Y_Radius[n] );
+                Double_t q2 = originHits->GetEnergyInSphere( 0, y2_Y, z2_Y, fQbalance_Y_Radius[n] );
+
+                Double_t qBalance;
+                if( q1 > q2 )
+                    qBalance = (q1 - q2)/(q1 + q2);
+                else
+                    qBalance = (q2 - q1)/(q1 + q2);
+
+                obsName = this->GetName() + (TString) "." + (TString) fQbalance_Y_Observables[n];
+                fAnalysisTree->SetObservableValue( obsName, qBalance );
+            }
+
+            for( unsigned int n = 0; n < fQratio_Y_Observables.size(); n++ )
+            {
+                Double_t q1 = originHits->GetEnergyInSphere( 0, y1_Y, z1_Y, fQratio_Y_Radius[n] );
+                Double_t q2 = originHits->GetEnergyInSphere( 0, y2_Y, z2_Y, fQratio_Y_Radius[n] );
+
+                Double_t qRatio;
+                if( q1 > q2 )
+                    qRatio = q1 / q2;
+                else
+                    qRatio = q2 / q1;
+
+                obsName = this->GetName() + (TString) "." + (TString) fQratio_Y_Observables[n];
+                fAnalysisTree->SetObservableValue( obsName, qRatio );
             }
         }
     }
