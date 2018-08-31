@@ -49,6 +49,14 @@ class TRestTrackAnalysisProcess:public TRestEventProcess {
         std::vector <Double_t> fTwistHighTailPercentage;
         std::vector <Double_t> fTwistHighValue;
 
+        std::vector <TString> fTwistBalanceObservables;
+        std::vector <Double_t> fTwistBalanceTailPercentage;
+        std::vector <Double_t> fTwistBalanceValue;
+
+        std::vector <TString> fTwistRatioObservables;
+        std::vector <Double_t> fTwistRatioTailPercentage;
+        std::vector <Double_t> fTwistRatioValue;
+
         std::vector <TString> fTwistWeightedLowObservables;
         std::vector <Double_t> fTwistWeightedLowTailPercentage;
         std::vector <Double_t> fTwistWeightedLowValue;
@@ -65,6 +73,14 @@ class TRestTrackAnalysisProcess:public TRestEventProcess {
         std::vector <Double_t> fTwistHighTailPercentage_X;
         std::vector <Double_t> fTwistHighValue_X;
 
+        std::vector <TString> fTwistBalanceObservables_X;
+        std::vector <Double_t> fTwistBalanceTailPercentage_X;
+        std::vector <Double_t> fTwistBalanceValue_X;
+
+        std::vector <TString> fTwistRatioObservables_X;
+        std::vector <Double_t> fTwistRatioTailPercentage_X;
+        std::vector <Double_t> fTwistRatioValue_X;
+
         std::vector <TString> fTwistWeightedLowObservables_X;
         std::vector <Double_t> fTwistWeightedLowTailPercentage_X;
         std::vector <Double_t> fTwistWeightedLowValue_X;
@@ -80,6 +96,14 @@ class TRestTrackAnalysisProcess:public TRestEventProcess {
         std::vector <TString> fTwistHighObservables_Y;
         std::vector <Double_t> fTwistHighTailPercentage_Y;
         std::vector <Double_t> fTwistHighValue_Y;
+
+        std::vector <TString> fTwistBalanceObservables_Y;
+        std::vector <Double_t> fTwistBalanceTailPercentage_Y;
+        std::vector <Double_t> fTwistBalanceValue_Y;
+
+        std::vector <TString> fTwistRatioObservables_Y;
+        std::vector <Double_t> fTwistRatioTailPercentage_Y;
+        std::vector <Double_t> fTwistRatioValue_Y;
 
         std::vector <TString> fTwistWeightedLowObservables_Y;
         std::vector <Double_t> fTwistWeightedLowTailPercentage_Y;

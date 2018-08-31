@@ -125,6 +125,26 @@ void TRestTrackAnalysisProcess::InitProcess()
         }
 
     for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistBalance_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 13, fObservables[i].length() ).c_str() );
+
+            fTwistBalanceObservables.push_back( fObservables[i] );
+            fTwistBalanceTailPercentage.push_back( tailPercentage );
+            fTwistBalanceValue.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistRatio_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 11, fObservables[i].length() ).c_str() );
+
+            fTwistRatioObservables.push_back( fObservables[i] );
+            fTwistRatioTailPercentage.push_back( tailPercentage );
+            fTwistRatioValue.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
         if( fObservables[i].find( "twistWeightedLow_" ) != string::npos )
         {
             Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 17, fObservables[i].length() ).c_str() );
@@ -165,6 +185,26 @@ void TRestTrackAnalysisProcess::InitProcess()
         }
 
     for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistBalance_X_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 15, fObservables[i].length() ).c_str() );
+
+            fTwistBalanceObservables_X.push_back( fObservables[i] );
+            fTwistBalanceTailPercentage_X.push_back( tailPercentage );
+            fTwistBalanceValue_X.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistRatio_X_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 13, fObservables[i].length() ).c_str() );
+
+            fTwistRatioObservables_X.push_back( fObservables[i] );
+            fTwistRatioTailPercentage_X.push_back( tailPercentage );
+            fTwistRatioValue_X.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
         if( fObservables[i].find( "twistWeightedLow_X_" ) != string::npos )
         {
             Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 19, fObservables[i].length() ).c_str() );
@@ -202,6 +242,26 @@ void TRestTrackAnalysisProcess::InitProcess()
             fTwistHighObservables_Y.push_back( fObservables[i] );
             fTwistHighTailPercentage_Y.push_back( tailPercentage );
             fTwistHighValue_Y.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistBalance_Y_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 15, fObservables[i].length() ).c_str() );
+
+            fTwistBalanceObservables_Y.push_back( fObservables[i] );
+            fTwistBalanceTailPercentage_Y.push_back( tailPercentage );
+            fTwistBalanceValue_Y.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistRatio_Y_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 13, fObservables[i].length() ).c_str() );
+
+            fTwistRatioObservables_Y.push_back( fObservables[i] );
+            fTwistRatioTailPercentage_Y.push_back( tailPercentage );
+            fTwistRatioValue_Y.push_back(0);
         }
 
     for( unsigned int i = 0; i < fObservables.size(); i++ )
@@ -342,6 +402,12 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         for( unsigned int n = 0; n < fTwistHighValue.size(); n++ )
             fTwistHighValue[n] = -1;
 
+        for( unsigned int n = 0; n < fTwistBalanceValue.size(); n++ )
+            fTwistBalanceValue[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistRatioValue.size(); n++ )
+            fTwistRatioValue[n] = -1;
+
         if( tXYZ )
         {
             TRestVolumeHits *hits = tXYZ->GetVolumeHits();
@@ -372,6 +438,36 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
                     fTwistHighValue[n] = twistStart;
                 else
                     fTwistHighValue[n] = twistEnd;
+            }
+
+            for( unsigned int n = 0; n < fTwistBalanceObservables.size(); n++ )
+            {
+                Int_t Nend = fTwistBalanceTailPercentage[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
+
+                if( twistStart < twistEnd ) 
+                    fTwistBalanceValue[n] = (twistEnd - twistStart)/(twistEnd + twistStart);
+                else
+                    fTwistBalanceValue[n] = (twistStart - twistEnd)/(twistEnd + twistStart);
+            }
+
+            for( unsigned int n = 0; n < fTwistRatioObservables.size(); n++ )
+            {
+                Int_t Nend = fTwistRatioTailPercentage[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
+
+                if( twistStart > twistEnd ) 
+                {
+                    if( twistEnd <= 0 ) twistEnd = -1;
+                    fTwistRatioValue[n] = twistStart/twistEnd;
+                }
+                else
+                {
+                    if( twistStart <= 0 ) twistStart = -1;
+                    fTwistRatioValue[n] = twistEnd/twistStart;
+                }
             }
 
             for( unsigned int n = 0; n < fTwistWeightedLowObservables.size(); n++ )
@@ -413,6 +509,20 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
             fAnalysisTree->SetObservableValue( obsName, fTwistHighValue[n] );
         }
 
+        for( unsigned int n = 0; n < fTwistBalanceObservables.size(); n++ )
+        {
+            TString obsName = fTwistBalanceObservables[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistBalanceValue[n] );
+        }
+
+        for( unsigned int n = 0; n < fTwistRatioObservables.size(); n++ )
+        {
+            TString obsName = fTwistRatioObservables[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistRatioValue[n] );
+        }
+
         for( unsigned int n = 0; n < fTwistWeightedLowObservables.size(); n++ )
         {
             TString obsName = fTwistWeightedLowObservables[n];
@@ -435,7 +545,6 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         /* }}} */
 
         /* {{{ Adding twist observables from X track */
-
         Double_t twist_X = -1, twistWeighted_X = -1;
 
         for( unsigned int n = 0; n < fTwistWeightedHighValue_X.size(); n++ )
@@ -449,6 +558,12 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
         for( unsigned int n = 0; n < fTwistHighValue_X.size(); n++ )
             fTwistHighValue_X[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistBalanceValue_X.size(); n++ )
+            fTwistBalanceValue_X[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistRatioValue_X.size(); n++ )
+            fTwistRatioValue_X[n] = -1;
 
         if( tX )
         {
@@ -480,6 +595,36 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
                     fTwistHighValue_X[n] = twistStart;
                 else
                     fTwistHighValue_X[n] = twistEnd;
+            }
+
+            for( unsigned int n = 0; n < fTwistBalanceObservables_X.size(); n++ )
+            {
+                Int_t Nend = fTwistBalanceTailPercentage_X[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
+
+                if( twistStart < twistEnd ) 
+                    fTwistBalanceValue_X[n] = (twistEnd - twistStart)/(twistEnd + twistStart);
+                else
+                    fTwistBalanceValue_X[n] = (twistStart - twistEnd)/(twistEnd + twistStart);
+            }
+
+            for( unsigned int n = 0; n < fTwistRatioObservables_X.size(); n++ )
+            {
+                Int_t Nend = fTwistRatioTailPercentage_X[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
+
+                if( twistStart > twistEnd ) 
+                {
+                    if( twistEnd <= 0 ) twistEnd = -1;
+                    fTwistRatioValue[n] = twistStart/twistEnd;
+                }
+                else
+                {
+                    if( twistStart <= 0 ) twistStart = -1;
+                    fTwistRatioValue[n] = twistEnd/twistStart;
+                }
             }
 
             for( unsigned int n = 0; n < fTwistWeightedLowObservables_X.size(); n++ )
@@ -521,6 +666,20 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
             fAnalysisTree->SetObservableValue( obsName, fTwistHighValue_X[n] );
         }
 
+        for( unsigned int n = 0; n < fTwistBalanceObservables_X.size(); n++ )
+        {
+            TString obsName = fTwistBalanceObservables_X[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistBalanceValue_X[n] );
+        }
+
+        for( unsigned int n = 0; n < fTwistRatioObservables_X.size(); n++ )
+        {
+            TString obsName = fTwistRatioObservables_X[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistRatioValue_X[n] );
+        }
+
         for( unsigned int n = 0; n < fTwistWeightedLowObservables_X.size(); n++ )
         {
             TString obsName = fTwistWeightedLowObservables_X[n];
@@ -544,7 +703,6 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         /* }}} */
 
         /* {{{ Adding twist observables from Y track */
-
         Double_t twist_Y = -1, twistWeighted_Y = -1;
 
         for( unsigned int n = 0; n < fTwistWeightedHighValue_Y.size(); n++ )
@@ -558,6 +716,12 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
         for( unsigned int n = 0; n < fTwistHighValue_Y.size(); n++ )
             fTwistHighValue_Y[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistBalanceValue_Y.size(); n++ )
+            fTwistBalanceValue_Y[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistRatioValue_Y.size(); n++ )
+            fTwistRatioValue_Y[n] = -1;
 
         if( tY )
         {
@@ -589,6 +753,36 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
                     fTwistHighValue_Y[n] = twistStart;
                 else
                     fTwistHighValue_Y[n] = twistEnd;
+            }
+
+            for( unsigned int n = 0; n < fTwistBalanceObservables_Y.size(); n++ )
+            {
+                Int_t Nend = fTwistBalanceTailPercentage_Y[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
+
+                if( twistStart < twistEnd ) 
+                    fTwistBalanceValue_Y[n] = (twistEnd - twistStart)/(twistEnd + twistStart);
+                else
+                    fTwistBalanceValue_Y[n] = (twistStart - twistEnd)/(twistEnd + twistStart);
+            }
+
+            for( unsigned int n = 0; n < fTwistRatioObservables_Y.size(); n++ )
+            {
+                Int_t Nend = fTwistRatioTailPercentage_Y[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
+
+                if( twistStart > twistEnd ) 
+                {
+                    if( twistEnd <= 0 ) twistEnd = -1;
+                    fTwistRatioValue[n] = twistStart/twistEnd;
+                }
+                else
+                {
+                    if( twistStart <= 0 ) twistStart = -1;
+                    fTwistRatioValue[n] = twistEnd/twistStart;
+                }
             }
 
             for( unsigned int n = 0; n < fTwistWeightedLowObservables_Y.size(); n++ )
@@ -630,6 +824,20 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
             fAnalysisTree->SetObservableValue( obsName, fTwistHighValue_Y[n] );
         }
 
+        for( unsigned int n = 0; n < fTwistBalanceObservables_Y.size(); n++ )
+        {
+            TString obsName = fTwistBalanceObservables_Y[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistBalanceValue_Y[n] );
+        }
+
+        for( unsigned int n = 0; n < fTwistRatioObservables_Y.size(); n++ )
+        {
+            TString obsName = fTwistRatioObservables_Y[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistRatioValue_Y[n] );
+        }
+
         for( unsigned int n = 0; n < fTwistWeightedLowObservables_Y.size(); n++ )
         {
             TString obsName = fTwistWeightedLowObservables_Y[n];
@@ -651,7 +859,6 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         fAnalysisTree->SetObservableValue( obsName, twistWeighted_Y );
         /* }}} */
     }
-
 
     /* {{{ Getting max track energies and track energy ratio */
     Double_t tckMaxEnXYZ = 0, tckMaxEnX = 0, tckMaxEnY = 0;
