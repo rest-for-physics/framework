@@ -79,7 +79,7 @@ MACRO( GEN_ROOT_DICT_LINKDEF_HEADER _namespace )
     ADD_CUSTOM_COMMAND(
         OUTPUT ${_linkdef_header}
         COMMAND mkdir -p ${ROOT_DICT_OUTPUT_DIR}
-        COMMAND printf "${${_namespace}_file_contents}" > ${_linkdef_header}
+        COMMAND echo "${${_namespace}_file_contents}" > ${_linkdef_header}
         DEPENDS ${_input_headers}
         COMMENT "generating: ${_linkdef_header}"
     )
@@ -109,6 +109,7 @@ ENDMACRO()
 # ----------------------------------------------------------------------------
 MACRO( GEN_ROOT_DICT_SOURCE _dict_src_filename )
 
+    SET( _input_depend ${ARGN} )
     # TODO check for ROOT_CINT_EXECUTABLE
 
     # need to prefix all include dirs with -I
@@ -119,14 +120,14 @@ MACRO( GEN_ROOT_DICT_SOURCE _dict_src_filename )
     ENDFOREACH()
 
     STRING( REPLACE "/" "_" _dict_src_filename_nosc ${_dict_src_filename} )
-    SET( _dict_src_file ${ROOT_DICT_OUTPUT_DIR}/${_dict_src_filename_nosc} )
+    SET( _dict_src_file ${ROOT_DICT_OUTPUT_DIR}/Dict_${_dict_src_filename_nosc} )
     STRING( REGEX REPLACE "^(.*)\\.(.*)$" "\\1.h" _dict_hdr_file "${_dict_src_file}" )
     ADD_CUSTOM_COMMAND(
         OUTPUT  ${_dict_src_file} ${_dict_hdr_file}
         COMMAND mkdir -p ${ROOT_DICT_OUTPUT_DIR}
-        COMMAND ${ROOT_CINT_WRAPPER} -f "${_dict_src_file}" -c ${ROOT_DICT_CINT_DEFINITIONS} ${_dict_includes} ${ROOT_DICT_INPUT_HEADERS}
+        COMMAND ${ROOT_CINT_WRAPPER} -f "${_dict_src_file}" -c ${_dict_includes} ${ROOT_DICT_INPUT_HEADERS}
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-        DEPENDS ${ROOT_DICT_INPUT_HEADERS}
+        DEPENDS ${ROOT_DICT_INPUT_HEADERS} ${_input_depend}
         COMMENT "generating: ${_dict_src_file} ${_dict_hdr_file}"
     )
     LIST( APPEND ROOT_DICT_OUTPUT_SOURCES ${_dict_src_file} )
