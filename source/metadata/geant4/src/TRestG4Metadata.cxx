@@ -948,6 +948,7 @@ void TRestG4Metadata::PrintMetadata( )
 	cout << "Sub-event time delay : " << GetSubEventTimeDelay() << " us" << endl;
 	cout << "---------------------------------------" << endl;
 	TString generatorType = GetGeneratorType();
+    cout << "Number of generated events : " << GetNumberOfEvents() << endl;
 	cout << "Generator type : " << generatorType << endl;
 	cout << "Generated from : " << GetGeneratedFrom() << endl;
 	TVector3 a = GetGeneratorPosition();

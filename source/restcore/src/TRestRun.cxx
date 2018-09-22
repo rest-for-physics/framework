@@ -1066,7 +1066,6 @@ void TRestRun::PrintInfo( )
     cout << "Date/Time : " << GetDateFormatted( GetEndTimestamp() ) << " / " << GetTime( GetEndTimestamp() ) << endl;
     cout << "Input filename : " << fInputFilename << endl;
     cout << "Output filename : " << fOutputFilename << endl;
-    cout << "Number of initial events : " << GetNumberOfEvents() << endl;
     cout << "Number of processed events : " << fProcessedEvents << endl;
     cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
 

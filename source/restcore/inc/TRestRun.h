@@ -241,18 +241,7 @@ class TRestRun:public TRestMetadata {
             else return NULL;
         }
 
-        Int_t GetNumberOfInitialEvents( ) 
-        {
-            TRestMetadata *md = this->GetMetadataClass( "TRestG4Metadata" );
-
-            if( md != NULL )
-            {
-                return StringToInteger ( md->GetParameter("Nevents" ) );
-            }
-            
-            return -1;
-        }
-        Int_t GetNumberOfEvents( ) { return GetNumberOfInitialEvents(); }
+        Int_t GetNumberOfProcessedEvents( ) { return fProcessedEvents; }
 
         TString GetInputEventType( )
         {
