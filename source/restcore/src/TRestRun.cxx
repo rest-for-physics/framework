@@ -869,7 +869,7 @@ void TRestRun::CloseOutputFile( )
 
 void TRestRun::SetVersion()
 {
-    fVersion = "2.1.6";
+    fVersion = "2.1.7";
 }
 
 
