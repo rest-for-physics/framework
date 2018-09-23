@@ -96,7 +96,9 @@ class TRestMetadata:public TNamed {
         Int_t LoadConfigFromFile( string cfgFileName, std::string name );
         Int_t LoadConfigFromFile( std::string cfgFileName );
 
+#ifndef __CINT__
         std::string configBuffer;   ///< The buffer where the corresponding metadata section is stored
+#endif
 
     private:
 

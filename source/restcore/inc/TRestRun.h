@@ -233,8 +233,6 @@ class TRestRun:public TRestMetadata {
 
         Int_t Fill( );
 
-        Int_t GetNumberOfProcessedEvents() { return fProcessedEvents; }
-
         TRestMetadata *GetHistoricMetadata(unsigned int index)
         {
             if( index < fHistoricMetadata.size() ) return fHistoricMetadata[index];
