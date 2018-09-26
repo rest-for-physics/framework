@@ -93,7 +93,7 @@ private:
 	TString fGasFileContent;          //used for saving into root file
 
     void InitFromConfigFile( );
-    void ConstructFilename( string path="" );
+    string ConstructFilename();
 
     void AddGasComponent( std::string gasName, Double_t fraction );
 
@@ -114,6 +114,8 @@ public:
     void Initialize();
 
 	void LoadGasFile();
+
+	void SetGasFile(string name);
 
 	void CalcGarField(double Emin, double Emax, int n);
 
@@ -194,6 +196,9 @@ public:
     void PlotTransversalDiffusion( Double_t eMin, Double_t eMax, Int_t nSteps );
     void PlotTownsendCoefficient( Double_t eMin, Double_t eMax, Int_t nSteps );
 	void PrintGasInfo();
+	void PrintGasFileContent() {
+		cout << fGasFileContent << endl;
+	};
 
     /// Prints the metadata information from the gas
 	void PrintMetadata() { PrintGasInfo(); }

@@ -209,6 +209,8 @@
 #include "TRestGas.h"
 using namespace std;
 
+const char* ONLINE_GASFILE_PREFIX = "https://github.com/nkx111/gasFiles/raw/master/";
+
 ClassImp(TRestGas)
 
 /////////////////////////////////////////////
@@ -455,7 +457,7 @@ void TRestGas::InitFromConfigFile()
 	InitComplete = true;
 	if (GetParameter("gasFile") != PARAMETER_NOT_FOUND_STR)
 	{
-		fGasFilename = SearchFile(GetParameter("gasFile"));
+		SetGasFile(GetParameter("gasFile"));
 		if (fGasFilename!="") {
 			LoadGasFile();
 		}
@@ -497,26 +499,55 @@ void TRestGas::InitFromRootFile() {
 		LoadGasFile();
 		system("rm " + fGasFilename);
 	}
-	else if (fileExists((string)(fGasFilename)))
+	else
 	{
-		LoadGasFile();
+		SetGasFile((string)fGasFilename);
+		if (fGasFilename != "") {
+			LoadGasFile();
+		}
+	}
+}
+
+void TRestGas::SetGasFile(string name) {
+	string absolutename = SearchFile(name);
+	if (absolutename == "")//we try to download the gas file from git hub
+	{
+		warning << "TRestGas : gas file not found locally, trying to download with wget..." << endl;
+		string _name = Replace(name, "(", "\\(", 0);
+		_name = Replace(_name, ")", "\\)", 0);
+		string cmd = "wget " + (string)ONLINE_GASFILE_PREFIX + _name + " -O /tmp/restGasDownload.gas -q";
+		int a = system(cmd.c_str());
+		debug << a << endl;
+		if (a == 0)
+		{
+			warning << "download successful!" << endl;
+			fGasFilename = "/tmp/restGasDownload.gas";
+		}
+		else {
+			warning << "download failed!" << endl;
+			warning << "FileName: " << name << endl;
+			fGasFilename = "";
+		}
+	}
+	else
+	{
+		fGasFilename = absolutename;
 	}
 }
 
 void TRestGas::ConditionChanged() {
 	if (InitComplete) {
-		ConstructFilename();
-		fGasFilename = SearchFile(fGasFilename.Data());
-		if (fGasFilename!="")
+		string name = ConstructFilename();
+		SetGasFile(name);
+		if (fGasFilename != "")
 		{
 			LoadGasFile();
 		}
 		else
 		{
-			warning << "TRestGas : gas file not found for current condition!" << endl;
-			warning << "REST will perform single-E calculation in next Get()" << endl;
+			warning << "TRestGas : gas file not found for the specified gas mixture!" << endl;
+			warning << "REST will perform single-E calculation in the next Get()" << endl;
 			warning << "To generate a gas file, turn on the parameter \"generate\"" << endl;
-			fGasFileLoaded = false;
 			fLast_E = numeric_limits<double>::quiet_NaN();
 		}
 	}
@@ -543,41 +574,42 @@ TString TRestGas::GetGasMixture()
 /// \brief Constructs the filename of the pre-generated gas file using the members defined in the RML file.
 /// 
 /// The filename is a full name, containing path and name. The path is by default current directory.
-void TRestGas::ConstructFilename(string path)
+string TRestGas::ConstructFilename()
 {
-	fGasFilename = "";
+	string name = "";
 	char tmpStr[256];
 	for (int n = 0; n < fNofGases; n++)
 	{
-		if (n > 0) fGasFilename += "-";
-		fGasFilename += GetGasComponentName(n) + "_";
+		if (n > 0) name += "-";
+		name += GetGasComponentName(n) + "_";
 		sprintf(tmpStr, "%03.1lf", GetGasComponentFraction(n) * 100.);
-		fGasFilename += (TString)tmpStr;
+		name += (TString)tmpStr;
 	}
 
-	fGasFilename += "-E_vs_P_";
+	name += "-E_vs_P_";
 	sprintf(tmpStr, "%03.1lf", fEmin / fPressureInAtm);
-	fGasFilename += (TString)tmpStr;
+	name += (TString)tmpStr;
 
-	fGasFilename += "_";
+	name += "_";
 	sprintf(tmpStr, "%03.1lf", fEmax / fPressureInAtm);
-	fGasFilename += (TString)tmpStr;
+	name += (TString)tmpStr;
 
-	fGasFilename += "_nodes_";
+	name += "_nodes_";
 	sprintf(tmpStr, "%02d", fEnodes);
-	fGasFilename += (TString)tmpStr;
+	name += (TString)tmpStr;
 
-	fGasFilename += "-nCol_";
+	name += "-nCol_";
 	sprintf(tmpStr, "%02d", fNCollisions);
-	fGasFilename += (TString)tmpStr;
+	name += (TString)tmpStr;
 
-	fGasFilename += "-maxElectronEnergy_";
+	name += "-maxElectronEnergy_";
 	sprintf(tmpStr, "%04lf", fMaxElectronEnergy);
-	fGasFilename += (TString)tmpStr;
+	name += (TString)tmpStr;
 
-	fGasFilename += ".gas";
+	name += ".gas";
 
-	fGasFilename = path + fGasFilename;
+	return name;
+
 }
 
 /////////////////////////////////////////////
