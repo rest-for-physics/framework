@@ -918,8 +918,8 @@ void TRestProcessRunner::ConfigOutputFile()
 		}
 
 	//}
-	if (fEventTree != NULL)fEventTree->Write();
-	if (fAnalysisTree != NULL)fAnalysisTree->Write();
+	if (fEventTree != NULL)fEventTree->Write(0, kWriteDelete);
+	if (fAnalysisTree != NULL)fAnalysisTree->Write(0, kWriteDelete);
 	fTempOutputDataFile->Close();
 	//files_to_merge.push_back(fTempOutputDataFile->GetName());
 
