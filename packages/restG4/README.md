@@ -1,9 +1,3 @@
-//$Id$
-
-///\file "radioactivedecay/rdecay01/.README"
-///\brief Example rdecay01 README page
-
-/*! \page Examplerdecay01 Example rdecay01 
 			    
  Survey G4RadioactiveDecay process. See Physics Reference Manual, chapter 36.
  See also http://ie.lbl.gov/decay.html
