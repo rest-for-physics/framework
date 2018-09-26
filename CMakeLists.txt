@@ -23,8 +23,10 @@ IF(NOT DEFINED INSTALL_PREFIX)
 		set(INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/install)
 	endif()
 ENDIF()
+get_filename_component(INSTALL_PREFIX_ABSOLUTE ${INSTALL_PREFIX} ABSOLUTE BASE_DIR "${CMAKE_BINARY_DIR}")
+set(REST_PATH ${INSTALL_PREFIX_ABSOLUTE})
 
-set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
+set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX_ABSOLUTE})
 message ("\noo REST will be installed in : ${CMAKE_INSTALL_PREFIX}" )
 message ("oo System is : ${CMAKE_SYSTEM_NAME}\n" )
 
@@ -42,11 +44,6 @@ IF( NOT DEFINED REST_WELCOME )
     set(REST_WELCOME ON)
 ENDIF()
 
-#define c++ pragmas
-if(${REST_GARFIELD} MATCHES "ON")
-	add_definitions(-DUSE_Garfield)
-endif(${REST_GARFIELD} MATCHES "ON")
-
 #find includes and libs for dependence package
 set(ROOT_FIND_REQUIRED true)
 set(external_include_dirs)
@@ -59,20 +56,6 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
 	set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit)
 
-	if(${REST_GARFIELD} MATCHES "ON")
-		include(FindGarfield)
-		set(external_include_dirs ${external_include_dirs} ${Garfield_INCLUDE_DIRS})
-		set(external_libs ${external_libs} ${Garfield_LIBRARIES})
-	endif(${REST_GARFIELD} MATCHES "ON")
-
-	find_library(tiny libtinyxml.dylib)
-
-	if(NOT tiny)
-		message(FATAL_ERROR "library \"tinyxml\" is required, but not found!\nPlease, install libtinyxml in your system to continue.")
-	else()
-		message("-- Found tinyxml library in ${tiny}")
-	endif(NOT tiny)
-	set(external_libs ${external_libs} -ltinyxml)
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -81,20 +64,6 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
     #file(GLOB rootlibs ${ROOT_LIBRARY_DIR}/*.so)
 	set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit -lImt)
 
-	if(${REST_GARFIELD} MATCHES "ON")
-		include(FindGarfield)
-		set(external_include_dirs ${external_include_dirs} ${Garfield_INCLUDE_DIRS})
-		set(external_libs ${external_libs} ${Garfield_LIBRARIES})
-	endif(${REST_GARFIELD} MATCHES "ON")
-
-	find_library(tiny libtinyxml.so)
-
-	if(NOT tiny)
-		message(FATAL_ERROR "library \"tinyxml\" is required, but not found!\ntype \"sudo apt-get install libtinyxml-dev\" to install it.")
-	else()
-		message("-- Found tinyxml library in ${tiny}")
-	endif(NOT tiny)
-	set(external_libs ${external_libs} -ltinyxml)
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 #Here Windows is just for test. It is for the convenience of vs to make gramma check
@@ -105,7 +74,7 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		set(CMAKE_FIND_LIBRARY_PREFIXES "lib")
 		set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib" ".dll")
 		set(ROOT_LIBRARIES)
-		foreach(_cpt Core Imt RIO Net Hist Graf Graf3d Gpad Tree TreePlayer Rint Postscript Matrix Physics MathCore Thread MultiProc Minuit)
+		foreach(_cpt Core Imt RIO Net Hist Gui Eve RGL Gdml Geom Graf Graf3d Gpad Tree TreePlayer Rint Postscript Matrix Physics MathCore Thread MultiProc Minuit)
 			find_library(ROOT_${_cpt}_LIBRARY ${_cpt} HINTS ${ROOT_LIBRARY_DIR})
 			if(ROOT_${_cpt}_LIBRARY)
 				mark_as_advanced(ROOT_${_cpt}_LIBRARY)
@@ -144,6 +113,13 @@ ENDIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
 include(MacroRootDict)
 include(CompileDir)
+if(${REST_GARFIELD} MATCHES "ON")
+	add_definitions(-DUSE_Garfield)
+	include(FindGarfield)
+	message(STATUS "GARFIELD include dir: " ${Garfield_INCLUDE_DIRS})
+	set(external_include_dirs ${external_include_dirs} ${Garfield_INCLUDE_DIRS})
+	set(external_libs ${external_libs} ${Garfield_LIBRARIES})
+endif(${REST_GARFIELD} MATCHES "ON")
 include_directories(${external_include_dirs})
 
 #gether some infomation
@@ -184,11 +160,20 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 
-
-
-
 #start compile
 add_subdirectory(source)
+
+if(${REST_G4} MATCHES "ON")
+	add_subdirectory(packages/restG4)
+endif(${REST_G4} MATCHES "ON")
+
+if(${REST_DATABASE} MATCHES "ON")
+	add_subdirectory(packages/restDataBaseImpl)
+endif(${REST_DATABASE} MATCHES "ON")
+
+if(${REST_EXAMPLELIB} MATCHES "ON")
+	add_subdirectory(packages/userRESTLibrary)
+endif(${REST_EXAMPLELIB} MATCHES "ON")
 
 message("rest Libraries : " ${rest_libraries_regular})
 message("rest executables: " ${rest_exes})
@@ -197,11 +182,11 @@ message("rest macros: " ${rest_macros_str})
 #begin installation
 file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h")
 
-INSTALL(FILES ${Headers} DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+INSTALL(FILES ${Headers} DESTINATION include)
 
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG DESTINATION ${CMAKE_INSTALL_PREFIX})
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG DESTINATION .)
 
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENCE DESTINATION ${CMAKE_INSTALL_PREFIX})
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENCE DESTINATION .)
 
 install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/example
          DESTINATION .
