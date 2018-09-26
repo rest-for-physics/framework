@@ -172,7 +172,8 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 					x = channel1;
 					y = channel2;
 				}
-				fChannelsHitMaps[mod1]->Fill(x,y);
+				if(fChannelsHitMaps[mod1]!=NULL)
+					fChannelsHitMaps[mod1]->Fill(x,y);
 				//cout << n<<" "<<channel1 <<" "<< channel2 << endl;
 				//cout << x << " " << y << endl;
 				//cout << fReadout->GetX(firstX_id) << " " << fReadout->GetY(firstY_id) << endl;
