@@ -33,13 +33,13 @@
 class TRestReadoutPixel : public TObject {
 	private:
 		Int_t fPixelID; ///< The internal pixel id.
-		Double_t fPixelOriginX; ///< The pixel x-origin position, left-bottom corner.
-		Double_t fPixelOriginY; ///< The pixel y-origin position, left-bottom corner.
+		Float_t fPixelOriginX; ///< The pixel x-origin position, left-bottom corner.
+		Float_t fPixelOriginY; ///< The pixel y-origin position, left-bottom corner.
 
-		Double_t fPixelSizeX; ///< The pixel x size.
-		Double_t fPixelSizeY; ///< The pixel y size.
+		Float_t fPixelSizeX; ///< The pixel x size.
+		Float_t fPixelSizeY; ///< The pixel y size.
 
-		Double_t fRotation; ///< The pixel rotation angle in degrees, rotation with axis at the origin position.
+		Float_t fRotation; ///< The pixel rotation angle in degrees, rotation with axis at the origin position.
 
 		Bool_t fTriangle; ///< The type of the pixel : false is rectangular, true is triangle 
 		void Initialize();
@@ -111,6 +111,6 @@ class TRestReadoutPixel : public TObject {
 		//Destructor
 		virtual ~ TRestReadoutPixel();
 
-		ClassDef(TRestReadoutPixel, 1);
+		ClassDef(TRestReadoutPixel, 2);
 };
 #endif
