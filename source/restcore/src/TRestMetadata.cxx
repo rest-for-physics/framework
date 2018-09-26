@@ -1979,7 +1979,7 @@ TString TRestMetadata::GetVerboseLevelString()
 TString TRestMetadata::GetSearchPath() {
 	TiXmlElement*e = fElement;
 	//string result = "";
-	string result = getenv("configPath") + (string)":";
+	string result = getenv("configPath") == NULL ? ":" : getenv("configPath") + (string)":";
 	TiXmlElement* ele = e->FirstChildElement("searchPath");
 	while (ele != NULL)
 	{
