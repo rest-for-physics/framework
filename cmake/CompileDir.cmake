@@ -82,13 +82,14 @@ MACRO( COMPILEDIR libname )
 
 			set(ROOT_DICT_INCLUDE_DIRS ${rest_include_dirs} ${external_include_dirs})
 			file(GLOB_RECURSE header ${class}.h)
-			set(ROOT_DICT_INPUT_HEADERS ${header})
-			GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx)
+			set(ROOT_DICT_INPUT_HEADERS ${header} ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
+			GEN_ROOT_DICT_LINKDEF_HEADER( ${class} ${header})
+			GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
 
 			set(contentfiles ${contentfiles} ${file} ${ROOT_DICT_OUTPUT_SOURCES})
 
 		endforeach (file)
-
+		
 		endforeach(content)
 	else()
 		message("using inc/src folders in root directory")
@@ -103,8 +104,9 @@ MACRO( COMPILEDIR libname )
 
 			set(ROOT_DICT_INCLUDE_DIRS ${rest_include_dirs} ${external_include_dirs})
 			file(GLOB_RECURSE header ${class}.h)
-			set(ROOT_DICT_INPUT_HEADERS ${header})
-			GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx)
+			set(ROOT_DICT_INPUT_HEADERS ${header} ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
+			GEN_ROOT_DICT_LINKDEF_HEADER( ${class} ${header})
+			GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
 
 			set(contentfiles ${contentfiles} ${file} ${ROOT_DICT_OUTPUT_SOURCES})
 
@@ -127,19 +129,32 @@ MACRO( COMPILEDIR libname )
 
 	#message(${libname} " will be compiled with: " ${contentfiles} ${addon_src})
 
+
+
+	#if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+		#add_library(${libname} ${contentfiles} ${addon_src})
+	#else()
+	add_library(${libname} SHARED ${contentfiles} ${addon_src})
+
+
+	#endif()
+	message(${libname})
+
+
 	if(CMAKE_SYSTEM_NAME MATCHES "Windows")
-		add_library(${libname} STATIC ${contentfiles} ${addon_src})
-	else()
-		add_library(${libname} SHARED ${contentfiles} ${addon_src})
-	endif()
-
+	set_target_properties(${libname} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 	target_link_libraries(${libname} ${rest_libraries} ${external_libs})
-
+	install(TARGETS ${libname}
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION bin
+        ARCHIVE DESTINATION lib)
+	else()
+	target_link_libraries(${libname} ${rest_libraries} ${external_libs})
 	install(TARGETS ${libname}
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib/static)
-
+	endif()
 	set(rest_libraries ${rest_libraries} ${libname})
 	set(rest_libraries ${rest_libraries} PARENT_SCOPE)
 ENDMACRO()
