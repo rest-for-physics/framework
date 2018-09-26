@@ -92,9 +92,6 @@ class RESTinstaller(installer):
         if vars.software["root"] == False:
             print "ROOT6 is not installed!"
             return False
-        if vars.software["tinyxml"] == False:
-            print "Tinyxml is not installed!"
-            return False
         return True
 
     def install(self):
@@ -175,6 +172,27 @@ class restCustomProcessinstaller(installer):
         os.system("make install")
         return True
 
+
+class restGasinstaller(installer):
+
+    def ready(self):
+        if vars.software["garfield"] == False:
+            print "Garfield is not installed!"
+            return False
+        return True
+
+
+    def install(self):
+        if vars.software["REST"] == False :
+            print "you must install REST mainbody first!"
+            return False
+        print "installing restGas...\n\n"            
+        os.system("mkdir -p " + vars.opt["Build_Path"] + "/restGas")
+        os.chdir(vars.opt["Build_Path"] + "/restGas")
+        os.system("cmake " + vars.opt["Source_Path"] + "/packages/restGas/")
+        os.system("make -j" + vars.opt["Make_Threads"])
+        os.system("make install")
+        return True
 
 #def install(name):
 #    flag = True

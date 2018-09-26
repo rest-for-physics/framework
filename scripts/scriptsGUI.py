@@ -34,7 +34,7 @@ print "checking if root is installed...", installers.checkinstalled("root6")
 print "checking if geant4 is installed...", installers.checkinstalled("geant4")
 print "checking if garfield is installed...", installers.checkinstalled("garfield")
 print "checking if REST is installed...", installers.checkinstalled("REST")
-print "checking if tinyxml is installed...", installers.checkinstalled("tinyxml")
+#print "checking if tinyxml is installed...", installers.checkinstalled("tinyxml")
 print "checking if PostgreSQL is installed...", installers.checkinstalled("pgsql")
 
 win = tk.Tk() 
@@ -51,7 +51,7 @@ install_begin=0
 install_git=1
 install_clearbuild=2
 install_path=3
-install_garfield=4
+#install_garfield=4
 install_welcomemsg=5
 install_confirm=6
 install_finished=7
@@ -69,6 +69,7 @@ rest=installers.RESTinstaller()
 restG4=installers.restG4installer()
 restDB=installers.restDBinstaller()
 restCProc=installers.restCustomProcessinstaller()
+restGas=installers.restGasinstaller()
 
 
 import tkFileDialog
@@ -107,19 +108,12 @@ def refreshdisplay():
         instruction1.set("")
         instruction2.set("Choose the installation path:")
         instruction3.set("")
-    elif step == install_garfield:
-        text.delete("1.0",tk.END)
-        instruction1.set("")
-        if(installers.checkinstalled("garfield")):
-            instruction2.set("Turning on REST garfield accessibility? (ON/OFF)")
-            text.insert("1.0",vars.cmakeflags[1].split("=")[1])
-        else:
-            instruction2.set("Garfield has not been installed, install REST anyway? (yes/no)")
-            text.insert("1.0","yes")
-        instruction3.set("")
     elif step == install_welcomemsg:
         text.delete("1.0",tk.END)
         text.insert("1.0",vars.cmakeflags[0].split("=")[1])
+        check2.config(state='normal')
+        check3.config(state='normal')
+        check4.config(state='normal')
         instruction1.set("")
         instruction2.set("Enable welcome message in when logging in? (ON/OFF)")
         instruction3.set("")
@@ -128,13 +122,23 @@ def refreshdisplay():
         text.insert("1.0","Confirm install")
         btnprev.config(state='normal',text='previous')
         btnnext.config(state='normal',text='install')
+        check2.config(state='disabled')
+        check3.config(state='disabled')
+        check4.config(state='disabled')
+        if chVarDis4.get() == 1:
+            vars.cmakeflags[1]="-DREST_GARFIELD=ON"
+        else:
+            vars.cmakeflags[1]="-DREST_GARFIELD=OFF"
         instruction1.set("Cmake flages: "+vars.cmakeflags[0]+" "+vars.cmakeflags[1])
         instruction2.set("Install path: "+vars.opt["Install_Path"])
-        instruction3.set("After installation you need to source thisREST.sh manually")
+        instruction3.set("Note!!! After installation you need to source thisREST.sh")
     elif step == install_finished:
         text.delete("1.0",tk.END)
         btnprev.config(state='normal',text='previous')
         btnnext.config(state='disabled',text='install')
+        check2.config(state='normal')
+        check3.config(state='normal')
+        check4.config(state='normal')
         instruction1.set("")
         instruction2.set("Finished!")
         instruction3.set("")
@@ -179,18 +183,6 @@ def nextstep():
         step = install_path
     elif step == install_path:
         vars.opt["Install_Path"] = text.get("1.0", tk.END).strip('\n')
-        step=install_garfield
-    elif step == install_garfield:
-        if(installers.checkinstalled("garfield")):
-            if "ON" in text.get("1.0", tk.END).strip('\n').upper():
-                vars.cmakeflags[1]="-DREST_GARFIELD=ON"
-            elif "OFF" in text.get("1.0", tk.END).strip('\n').upper():
-                vars.cmakeflags[1]="-DREST_GARFIELD=OFF"
-        else:
-            if "Y" in text.get("1.0", tk.END).strip('\n').upper():
-                vars.cmakeflags[1]="-DREST_GARFIELD=OFF"
-            elif "N" in text.get("1.0", tk.END).strip('\n').upper():
-                step=install_finished
         step=install_welcomemsg
     elif step == install_welcomemsg:
         vars.cmakeflags[0]="-DREST_WELCOME="+ text.get("1.0", tk.END).strip('\n')
@@ -205,8 +197,6 @@ def nextstep():
             restG4.install()
         if chVarDis3.get() == 1:
             restDB.install()
-        if chVarDis4.get() == 1:
-            restCProc.install()
         step=install_finished
     elif step == install_finished:
         print "You can't hit this!"
@@ -266,12 +256,12 @@ def callCheckbutton3():
 def callCheckbutton4():
     if chVarDis4.get() == 1:
         if(restCProc.ready()):
-            print "selected package restCustomProcesses"
+            print "selected package restGas"
         else:
-            print "lacking dependency of restCustomProcesses! cannot add"
+            print "lacking dependency of restGas! cannot add"
             check4.deselect()
     else:
-        print "deselect package restCustomProcesses"
+        print "deselect package restGas"
 
 
 btninstall = ttk.Button(win, text="Install!", command=begininstall,width=10)
@@ -294,7 +284,7 @@ check2.grid(column=0, row=1, sticky=tk.W)
 check3 = tk.Checkbutton(labelsFrame, text="restDataBase", variable=chVarDis3, state ='active',command = callCheckbutton3)
 check3.grid(column=0, row=2, sticky=tk.W)
 
-check4 = tk.Checkbutton(labelsFrame, text="restCustomProcessLibray", variable=chVarDis4, state ='active',command = callCheckbutton4)
+check4 = tk.Checkbutton(labelsFrame, text="restGas", variable=chVarDis4, state ='active',command = callCheckbutton4)
 check4.grid(column=0, row=3, sticky=tk.W)
 
 
