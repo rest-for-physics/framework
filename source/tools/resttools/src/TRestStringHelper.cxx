@@ -205,7 +205,7 @@ string TRestStringHelper::Replace(string in, string thisString, string byThisStr
 	while ((pos = out.find(thisString, pos)) != string::npos)
 	{
 		out.replace(pos, thisString.length(), byThisString);
-		pos = pos + 1;
+		pos = pos + byThisString.length();
 	}
 
 	return out;
