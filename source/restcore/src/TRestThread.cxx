@@ -291,6 +291,7 @@ void TRestThread::PrepareToProcess(bool testrun)
 		//fEventTree->CreateEventBranches();
 		for (unsigned int i = 0; i < fProcessChain.size(); i++)
 		{
+			fProcessChain[i]->GetListOfAddedObservables().clear();
 			fProcessChain[i]->SetAnalysisTree(fAnalysisTree);
 			fProcessChain[i]->ConfigAnalysisTree();
 		}

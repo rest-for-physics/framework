@@ -89,7 +89,7 @@ public:
 	vector<string> GetAvailableObservals();
 	TRestAnalysisTree *GetAnalysisTree() { return fAnalysisTree; }
 	TCanvas *GetCanvas() { return fCanvas; }
-
+	std::vector <TString>& GetListOfAddedObservables() { return fObservableNames; }
 
 
 protected:
