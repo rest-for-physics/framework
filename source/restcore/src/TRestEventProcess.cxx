@@ -97,6 +97,7 @@ vector<string> TRestEventProcess::ReadObservables()
 {
 	TiXmlElement* e = GetElement("observable");
 	vector<string> obsnames;
+
 	while (e != NULL)
 	{
 		const char* obschr = e->Attribute("name");
@@ -115,8 +116,12 @@ vector<string> TRestEventProcess::ReadObservables()
 
 		e = e->NextSiblingElement("observable");
 	}//now we get a list of all observal names
+	if (fObservableNames.size() != 0) {
+		return obsnames;
+	}
 
-	//add observables.
+
+	//if fObservableNames is empty, add observables.
 	//1. observable is datamember of the process class
 	//then the address of this datamember is found, and associated to a branch
 	//it will be automatically saved at the end of each process loop
