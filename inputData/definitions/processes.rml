@@ -237,8 +237,8 @@
 
     <parameter name="cutsEnabled" value="false" />
 
-    <cut name="NTracksXCut" value="(1,10)" />
-    <cut name="NTracksYCut" value="(1,10)" />
+    <parameter name="nTracksXCut" value="(1,10)" />
+    <parameter name="nTracksYCut" value="(1,10)" />
 
     <observable name="MeanRate_InHz" value="OFF" />
     <observable name="EventTimeDelay" value="OFF" />
@@ -430,14 +430,14 @@
 
     <parameter name="cutsEnabled" value="false" />
 
-    <cut name="MeanBaseLineCut" value="(200,800)" />
-    <cut name="MeanBaseLineSigmaCut" value="(0,6)" />
-    <cut name="MaxNumberOfSignalsCut" value="(1,20)" />
-    <cut name="MaxNumberOfGoodSignalsCut" value="(4,10)" />
-    <cut name="FullIntegralCut" value="(1,500000)" />
-    <cut name="ThresholdIntegralCut" value="(1,150000)" />
-    <cut name="PeakTimeDelayCut" value="(0,10)" />
-    <cut name="ADCSaturationCut" value="(0,4096)" />
+    <parameter name="meanBaseLineCutRange" value="(300,600)" />
+    <parameter name="meanBaseLineSigmaCutRange" value="(0,20)" />
+    <parameter name="maxNumberOfSignalsCut" value="(1,20)" />
+    <parameter name="maxNumberOfGoodSignalsCut" value="(1,10)" />
+    <parameter name="fullIntegralCut" value="(1,500000)" />
+    <parameter name="thresholdIntegralCut" value="(1,150000)" />
+    <parameter name="peakTimeDelayCut" value="(0,40)" />
+	  <parameter name="ADCSaturationCut" value="(0,4096)" />
 
   </TRestRawSignalAnalysisProcess>
 

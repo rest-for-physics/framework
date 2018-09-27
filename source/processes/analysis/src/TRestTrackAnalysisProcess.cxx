@@ -255,13 +255,13 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 	{
 		auto iter = fCuts.begin();
 		while (iter != fCuts.end()) {
-				if (iter->first == "NTracksXCut")
+				if (iter->first == "nTracksXCut")
 					if (nTracksX > iter->second.Y() || nTracksX < iter->second.X())
 						return NULL;
-				if (iter->first == "NTracksYCut")
+				if (iter->first == "nTracksYCut")
 					if (nTracksY > iter->second.Y() || nTracksY < iter->second.X())
 						return NULL;
-				if (iter->first == "NTracksXYZCut")
+				if (iter->first == "nTracksXYZCut")
 					if (nTracksXYZ > iter->second.Y() || nTracksXYZ < iter->second.X())
 						return NULL;
 			

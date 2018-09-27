@@ -365,25 +365,25 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 	{
 		auto iter = fCuts.begin();
 		while (iter != fCuts.end()) {
-			if (iter->first == "MeanBaseLineCut")
+			if (iter->first == "meanBaseLineCut")
 				if (baseLineMean > iter->second.Y() || baseLineMean < iter->second.X())
 					return NULL;
-			if (iter->first == "MeanBaseLineSigmaCut")
+			if (iter->first == "meanBaseLineSigmaCut")
 				if (baseLineSigma > iter->second.Y() || baseLineSigma < iter->second.X())
 					return NULL;
-			if (iter->first == "MaxNumberOfSignalsCut")
+			if (iter->first == "maxNumberOfSignalsCut")
 				if (nSignals > iter->second.Y() || nSignals < iter->second.X())
 					return NULL;
-			if (iter->first == "MaxNumberOfGoodSignalsCut")
+			if (iter->first == "maxNumberOfGoodSignalsCut")
 				if (nGoodSignals > iter->second.Y() || nGoodSignals < iter->second.X())
 					return NULL;
-			if (iter->first == "FullIntegralCut")
+			if (iter->first == "fullIntegralCut")
 				if (fullIntegral > iter->second.Y() || fullIntegral < iter->second.X())
 					return NULL;
-			if (iter->first == "ThresholdIntegralCut")
+			if (iter->first == "thresholdIntegralCut")
 				if (thrIntegral > iter->second.Y() || thrIntegral < iter->second.X())
 					return NULL;
-			if (iter->first == "PeakTimeDelayCut")
+			if (iter->first == "peakTimeDelayCut")
 				if (peakTimeDelay > iter->second.Y() || peakTimeDelay < iter->second.X())
 					return NULL;
 			if (iter->first == "ADCSaturationCut")
