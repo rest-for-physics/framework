@@ -17,7 +17,7 @@
 <TRestManager name="CoBoDataAnalysis" title="Example" verboseLevel="info" >
 
   <TRestRun name="SJTU_Proto" >
-    <parameter name="runNumber" value="auto"/>
+    <parameter name="runNumber" value="-1"/>//change this value to "auto" to enable database
     <parameter name="outputFile" value="RUN[RunNumber]_[Time]_[LastProcess].root" />
 
     /// from the previously saved metadata file("restManager --c saveMetadataFile.rml --o meta.root")
@@ -37,11 +37,13 @@
       <parameter name="pointThreshold" value="3" />
       <parameter name="pointsOverThreshold" value="3" />
     </addProcess>
-    <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="OFF" file="processes.rml"/>
+    <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" file="processes.rml"/>
     <addProcess type="TRestReadoutAnalysisProcess" name="rA" value="ON">
-      <parameter name="modulesHist" value="3:5:6:8"/>
+      <parameter name="modulesHist" value="3:6:8"/>
+      <parameter name="modulesAmp" value="3-1.2:6-1.3:8-0.7"/>
       <observable name="FirstX" value="ON" />
       <observable name="FirstY" value="ON" />
+      <observable name="CalibratedIntegral" value="ON" />
     </addProcess>
     <addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="OFF" file="processes.rml"/>
     <addProcess type="TRestHitsAnalysisProcess" name="hitsAna" value="OFF" file="processes.rml" />
