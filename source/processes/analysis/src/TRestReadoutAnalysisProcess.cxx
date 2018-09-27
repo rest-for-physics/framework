@@ -187,7 +187,7 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 			// channel histo
 			int plane = -1, mod = -1, channel = -1;
 			fReadout->GetPlaneModuleChannel(sgn->GetID(), plane, mod, channel);
-			if (mod != -1) {
+			if (mod != -1 && fChannelsHistos.count(mod) > 0) {
 				if (fChannelsHistos[mod] != NULL)
 					fChannelsHistos[mod]->Fill(channel);
 
