@@ -71,10 +71,6 @@ private:
 	//TVector2 fPeakTimeDelayCut;//!
 
 
-
-	vector<pair<string, TVector2>> fCuts;//!
-
-
     // analysis result(saved directly in root file)
 	TH1D *fChannelsHisto;//!
 

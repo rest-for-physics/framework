@@ -533,19 +533,8 @@ void TRestRawSignalAnalysisProcess::InitFromConfigFile( )
     fNPointsOverThreshold = StringToInteger( GetParameter( "pointsOverThreshold", "5" ) );
     fSignalThreshold = StringToDouble( GetParameter( "signalThreshold", "5" ) );
 
-	if (ToUpper(GetParameter("cutsEnabled", "false")) == "TRUE") {
-		TiXmlElement*ele = fElement->FirstChildElement("cut");
-		while (ele != NULL) {
-			if (ele->Attribute("name") != NULL && ele->Attribute("value") != NULL) {
-				string name = ele->Attribute("name");
-				TVector2 value = StringTo2DVector(ele->Attribute("value"));
-				if (value.X() != value.Y())
-					fCuts.push_back(pair<string, TVector2>(name, value));
-			}
-			ele = ele->NextSiblingElement("cut");
-		}
-	}
-    /*fMeanBaseLineCutRange = StringTo2DVector( GetParameter( "meanBaseLineCutRange", "(0,4096)") );
+	
+	/*fMeanBaseLineCutRange = StringTo2DVector( GetParameter( "meanBaseLineCutRange", "(0,4096)") );
     fMeanBaseLineSigmaCutRange = StringTo2DVector( GetParameter( "meanBaseLineSigmaCutRange", "(0,4096)") );
     fMaxNumberOfSignalsCut = StringTo2DVector( GetParameter( "maxNumberOfSignalsCut", "(0,20)" ) );
     fMaxNumberOfGoodSignalsCut = StringTo2DVector( GetParameter( "maxNumberOfGoodSignalsCut", "(0,20)" ) );

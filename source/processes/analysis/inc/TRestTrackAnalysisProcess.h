@@ -25,7 +25,6 @@ class TRestTrackAnalysisProcess:public TRestEventProcess {
         vector <Double_t> fPreviousEventTime;//!
 
         //Bool_t fCutsEnabled;//!
-		vector<pair<string, TVector2>> fCuts;//!
 
         std::vector <std::string> fTrack_LE_EnergyObservables;//!
         std::vector <Double_t> fTrack_LE_Threshold;//!

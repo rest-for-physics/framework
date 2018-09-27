@@ -380,17 +380,7 @@ void TRestTrackAnalysisProcess::EndProcess()
 //______________________________________________________________________________
 void TRestTrackAnalysisProcess::InitFromConfigFile( )
 {
-	if (ToUpper(GetParameter("cutsEnabled", "false")) == "TRUE") {
-		TiXmlElement*ele = fElement->FirstChildElement("cut");
-		while (ele != NULL) {
-			if (ele->Attribute("name") != NULL && ele->Attribute("value") != NULL) {
-				string name = ele->Attribute("name");
-				TVector2 value = StringTo2DVector(ele->Attribute("value"));
-				if (value.X() != value.Y())
-					fCuts.push_back(pair<string, TVector2>(name, value));
-			}
-			ele = ele->NextSiblingElement("cut");
-		}
-	}
+	
+
 }
 
