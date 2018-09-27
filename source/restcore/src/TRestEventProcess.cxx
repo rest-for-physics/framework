@@ -201,6 +201,8 @@ void TRestEventProcess::ConfigAnalysisTree() {
 Int_t TRestEventProcess::LoadSectionMetadata()
 {
 	TRestMetadata::LoadSectionMetadata();
+
+	//load output level
 	REST_Process_Output lvl;
 	string s = GetParameter("outputLevel", "internalvar");
 	if (s == "nooutput" || s == "0") {
@@ -223,6 +225,39 @@ Int_t TRestEventProcess::LoadSectionMetadata()
 		warning << this->ClassName()<<" : invailed output level! use default(Internal_Var)" << endl;
 	}
 	SetOutputLevel(lvl);
+
+	//load cuts
+	fCuts.clear();
+	if (ToUpper(GetParameter("cutsEnabled", "false")) == "TRUE") {
+		TiXmlElement*ele = fElement->FirstChildElement();
+		while (ele != NULL) {
+			if (ele->Value() != NULL && (string)ele->Value() == "cut")
+			{
+				if (ele->Attribute("name") != NULL && ele->Attribute("value") != NULL) {
+					string name = ele->Attribute("name");
+					TVector2 value = StringTo2DVector(ele->Attribute("value"));
+					if (value.X() != value.Y())
+						fCuts.push_back(pair<string, TVector2>(name, value));
+				}
+			}
+
+			else if (ele->Value() != NULL && (string)ele->Value() == "parameter")
+			{
+				if (ele->Attribute("name") != NULL && ele->Attribute("value") != NULL) {
+					string name = ele->Attribute("name");
+					if (name.find("Cut") == name.size() - 3 || name.find("CutRange") == name.size() - 8) {
+						name = name.substr(0, name.find("Cut") + 3);
+						TVector2 value = StringTo2DVector(ele->Attribute("value"));
+						if (value.X() != value.Y())
+							fCuts.push_back(pair<string, TVector2>(name, value));
+					}
+				}
+			}
+
+			ele = ele->NextSiblingElement();
+		}
+	}
+
 	return 0;
 }
 

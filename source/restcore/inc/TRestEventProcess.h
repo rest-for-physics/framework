@@ -115,6 +115,7 @@ protected:
 
 	bool fReadOnly=false;//!
 
+	vector<pair<string, TVector2>> fCuts;//!  [name, cut range]
 
 
 
