@@ -60,7 +60,7 @@
 #		                        form, set them in this argument to include them. 
 #
 # ----------------------------------------------------------------------------
-MACRO( COMPILEDIR libname )
+MACRO( COMPILEDIR_SE libname )
 
 	message("making build files for ${CMAKE_CURRENT_SOURCE_DIR}")
 
@@ -125,21 +125,94 @@ MACRO( COMPILEDIR libname )
 		set(contentfiles ${contentfiles} ${src} ${ROOT_DICT_OUTPUT_SOURCES})
 	endforeach(src)
 
+
 	include_directories(${rest_include_dirs} ${addon_inc})
-
-	#message(${libname} " will be compiled with: " ${contentfiles} ${addon_src})
-
-
-
-	#if(CMAKE_SYSTEM_NAME MATCHES "Windows")
-		#add_library(${libname} ${contentfiles} ${addon_src})
-	#else()
 	add_library(${libname} SHARED ${contentfiles} ${addon_src})
 
 
-	#endif()
-	message(${libname})
+	if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+	set_target_properties(${libname} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+	target_link_libraries(${libname} ${rest_libraries} ${external_libs})
+	install(TARGETS ${libname}
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION bin
+        ARCHIVE DESTINATION lib)
+	else()
+	target_link_libraries(${libname} ${rest_libraries} ${external_libs})
+	install(TARGETS ${libname}
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib/static)
+	endif()
+	set(rest_libraries ${rest_libraries} ${libname})
+	set(rest_libraries ${rest_libraries} PARENT_SCOPE)
+ENDMACRO()
 
+MACRO( COMPILEDIR libname )
+
+	message("making build files for ${CMAKE_CURRENT_SOURCE_DIR}")
+
+	set(contentfiles)
+
+	if(DEFINED contents)
+		message("specified sub-dirs: ${contents}")
+		foreach(content ${contents})
+			set(rest_include_dirs ${rest_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR}/${content} ${CMAKE_CURRENT_SOURCE_DIR}/${content}/inc)
+		endforeach(content)
+		set(rest_include_dirs ${rest_include_dirs} PARENT_SCOPE)
+
+		foreach(content ${contents})
+		file(GLOB_RECURSE files ${content}/*.cxx)
+		foreach (file ${files})
+
+			string(REGEX MATCH "[^/\\]*cxx" temp ${file})
+			string(REPLACE ".cxx" "" class ${temp})
+
+			set(ROOT_DICT_INCLUDE_DIRS ${rest_include_dirs} ${external_include_dirs})
+			file(GLOB_RECURSE header ${class}.h)
+			set(ROOT_DICT_INPUT_HEADERS ${header})
+			GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx)
+
+			set(contentfiles ${contentfiles} ${file} ${ROOT_DICT_OUTPUT_SOURCES})
+
+		endforeach (file)
+
+		endforeach(content)
+	else()
+		message("using inc/src folders in root directory")
+		set(rest_include_dirs ${rest_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/inc)
+		set(rest_include_dirs ${rest_include_dirs} PARENT_SCOPE)
+
+		file(GLOB_RECURSE files src/*.cxx)
+		foreach (file ${files})
+
+			string(REGEX MATCH "[^/\\]*cxx" temp ${file})
+			string(REPLACE ".cxx" "" class ${temp})
+
+			set(ROOT_DICT_INCLUDE_DIRS ${rest_include_dirs} ${external_include_dirs})
+			file(GLOB_RECURSE header ${class}.h)
+			set(ROOT_DICT_INPUT_HEADERS ${header})
+			GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx)
+
+			set(contentfiles ${contentfiles} ${file} ${ROOT_DICT_OUTPUT_SOURCES})
+
+		endforeach (file)
+
+
+
+	endif()
+
+
+	foreach(src ${addon_CINT})
+		string(REGEX MATCH "[^/\\]+$" filename ${src})
+		set(ROOT_DICT_INCLUDE_DIRS ${rest_include_dirs} ${external_include_dirs})
+		set(ROOT_DICT_INPUT_HEADERS ${src})
+		GEN_ROOT_DICT_SOURCES(CINT_${filename}.cxx)
+		set(contentfiles ${contentfiles} ${src} ${ROOT_DICT_OUTPUT_SOURCES})
+	endforeach(src)
+
+	include_directories(${rest_include_dirs} ${addon_inc})
+	add_library(${libname} SHARED ${contentfiles} ${addon_src})
 
 	if(CMAKE_SYSTEM_NAME MATCHES "Windows")
 	set_target_properties(${libname} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
