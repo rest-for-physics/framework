@@ -34,9 +34,15 @@
 /// 
 /// * **shapingType**: It defines the type of convolution to be performed.
 ///     - gaus : It produces a gausian convolution.
+///     - shaper : It produces a shaping following traditional shaper 
+///               waveforms. 
+///     - shaperSin : It produces a shaping following traditional shaper 
+///               waveforms, it includes a sinusoidal effect. 
 ///     - responseFile : A file providing a user provided response (TODO).
 ///
-/// * **sigma** : The standard deviation of the gaussian convolution.
+/// * **shapingTime** : The standard deviation of the gaussian convolution,
+///                     or the shaping time on shaper models. Defined in
+///                     samples unit.
 /// * **gain** : A factor to amplify or attenuate the signal.
 /// * **responseFile** : A response file to be used in case the shapingType
 /// is defined to use a response file.
@@ -213,13 +219,35 @@ TRestEvent* TRestRawSignalShapingProcess::ProcessEvent( TRestEvent *evInput )
     if( fShapingType == "gaus" )
     {
         Double_t amp = fShapingGain;
-        Int_t cBin = (Int_t) (fShapingSigma * 3.5);
+        Int_t cBin = (Int_t) (fShapingTime * 3.5);
         Nr = 2*cBin;
-        Double_t sigma = fShapingSigma;
+        Double_t sigma = fShapingTime;
 
         rsp = new double[Nr];
         for( int i = 0; i < Nr; i++ )
             rsp[i] = (amp * TMath::Exp( -0.5 * (i-cBin) * (i-cBin)/sigma/sigma ));
+    }
+    else if( fShapingType == "shaper" )
+    {
+        Nr = (Int_t) ( 5 * fShapingTime );
+
+        rsp = new double[Nr];
+        for( int i = 0; i < Nr; i++ )
+        {
+            Double_t coeff = ((Double_t) i)/fShapingTime;
+            rsp[i] = (fShapingGain * TMath::Exp( -3. * coeff ) * coeff * coeff * coeff );
+        }
+    }
+    else if( fShapingType == "shaperSin" )
+    {
+        Nr = (Int_t) ( 5 * fShapingTime );
+
+        rsp = new double[Nr];
+        for( int i = 0; i < Nr; i++ )
+        {
+            Double_t coeff = ((Double_t) i)/fShapingTime;
+            rsp[i] = (fShapingGain * TMath::Exp( -3. * coeff ) * coeff * coeff * coeff * sin ( coeff ) );
+        }
     }
     else
     {
@@ -263,7 +291,7 @@ TRestEvent* TRestRawSignalShapingProcess::ProcessEvent( TRestEvent *evInput )
         delete out;
     }
 
-    delete rsp;
+    delete[] rsp;
 
     return fOutputSignalEvent;
 }
@@ -300,7 +328,7 @@ void TRestRawSignalShapingProcess::InitFromConfigFile( )
     // gaus, responseFile, etc
     fShapingType = GetParameter("shapingType", "gaus");
 
-    fShapingSigma = StringToDouble ( GetParameter( "sigma", "30" ) );
+    fShapingTime = StringToDouble ( GetParameter( "shapingTime", "10" ) );
 
     fShapingGain = StringToDouble( GetParameter( "gain", "1" ) );
 }

@@ -49,7 +49,7 @@ class TRestRawSignalShapingProcess:public TRestEventProcess {
 
         TString fShapingType;
 
-        Double_t fShapingSigma;
+        Double_t fShapingTime;
         Double_t fShapingGain;
 
     public:
@@ -68,6 +68,10 @@ class TRestRawSignalShapingProcess:public TRestEventProcess {
 
             std::cout << "Shaping type : " << fShapingType << std::endl;
 
+            std::cout << "Shaping time : " << fShapingTime << std::endl;
+
+            std::cout << "Amplitude gain : " << fShapingGain << std::endl;
+
             if( fShapingType == "responseFile" )
                 std::cout << "Response file : " << fResponseFilename << std::endl;
 
@@ -84,7 +88,7 @@ class TRestRawSignalShapingProcess:public TRestEventProcess {
         TRestRawSignalShapingProcess( char *cfgFileName );
         ~TRestRawSignalShapingProcess();
 
-        ClassDef(TRestRawSignalShapingProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+        ClassDef(TRestRawSignalShapingProcess, 2);      // Template for a REST "event process" class inherited from TRestEventProcess
 };
 #endif
 
