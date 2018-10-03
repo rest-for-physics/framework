@@ -178,6 +178,42 @@ Double_t TRestRawSignalEvent::GetBaseLineAverage( Int_t startBin, Int_t endBin )
     return baseLineMean/GetNumberOfSignals();
 }
 
+Int_t TRestRawSignalEvent::GetLowestWidth( Int_t startBin, Int_t endBin,  Double_t minPeakAmplitude )
+{
+    Int_t low = 10000000;
+
+    for( int sgnl = 0; sgnl < GetNumberOfSignals(); sgnl++ )
+    {
+        if( GetSignal( sgnl )->GetMaxPeakValue( startBin, endBin ) > minPeakAmplitude )
+        {
+            Int_t lW = GetSignal( sgnl )->GetMaxPeakWidth( startBin, endBin );
+            if( low > lW )
+                low = lW;
+        }
+    }
+
+    return low;
+}
+
+Double_t TRestRawSignalEvent::GetAverageWidth( Int_t startBin, Int_t endBin,  Double_t minPeakAmplitude )
+{
+    Double_t avg = 0;
+    Int_t n = 0;
+    for( int sgnl = 0; sgnl < GetNumberOfSignals(); sgnl++ )
+    {
+        if( GetSignal( sgnl )->GetMaxPeakValue( startBin, endBin ) > minPeakAmplitude )
+        {
+            avg += GetSignal( sgnl )->GetMaxPeakWidth( startBin, endBin );
+            n++;
+        }
+    }
+
+    if( n == 0 )
+        return 0;
+    else
+        return avg/n;
+}
+
 Double_t TRestRawSignalEvent::GetBaseLineSigmaAverage( Int_t startBin, Int_t endBin )
 {
     Double_t baseLineSigmaMean = 0;
