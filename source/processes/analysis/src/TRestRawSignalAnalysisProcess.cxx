@@ -249,6 +249,26 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         }
     }
 
+    Double_t widthLow = fSignalEvent->GetLowestWidth( from, to, maxValue/20. );
+    obsName = this->GetName() + (TString) ".LowestWidth";
+    fAnalysisTree->SetObservableValue( obsName, widthLow );
+
+    Double_t widthAvg = fSignalEvent->GetAverageWidth( from, to, maxValue/20. );
+    obsName = this->GetName() + (TString) ".AverageWidth";
+    fAnalysisTree->SetObservableValue( obsName, widthAvg );
+
+    Double_t lowWidthAvg_3 = fSignalEvent->GetLowAverageWidth( 3, from, to, 20. );
+    obsName = this->GetName() + (TString) ".LowAverageWidth_3";
+    fAnalysisTree->SetObservableValue( obsName, lowWidthAvg_3 );
+
+    Double_t lowWidthAvg_6 = fSignalEvent->GetLowAverageWidth( 6, from, to, 20. );
+    obsName = this->GetName() + (TString) ".LowAverageWidth_6";
+    fAnalysisTree->SetObservableValue( obsName, lowWidthAvg_6 );
+
+    Double_t lowWidthAvg_9 = fSignalEvent->GetLowAverageWidth( 9, from, to, 20. );
+    obsName = this->GetName() + (TString) ".LowAverageWidth_9";
+    fAnalysisTree->SetObservableValue( obsName, lowWidthAvg_9 );
+
     obsName = this->GetName() + (TString) ".MinPeakTime";
     fAnalysisTree->SetObservableValue( obsName, minPeakTime );
 
