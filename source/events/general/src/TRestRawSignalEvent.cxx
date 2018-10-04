@@ -229,8 +229,12 @@ Double_t TRestRawSignalEvent::GetLowAverageWidth( Int_t nSignals, Int_t startBin
 
     std::sort( widths.begin(), widths.end() );
 
+    Int_t nMax = nSignals;
+    if ( widths.size() < (unsigned int) nSignals )
+        nMax = widths.size();
+
     Double_t avg = 0;
-    for( int n = 0; n < nSignals; n++ )
+    for( int n = 0; n < nMax; n++ )
         avg += widths[n];
 
     return avg/nSignals;
