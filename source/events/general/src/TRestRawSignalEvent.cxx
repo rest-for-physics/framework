@@ -214,6 +214,28 @@ Double_t TRestRawSignalEvent::GetAverageWidth( Int_t startBin, Int_t endBin,  Do
         return avg/n;
 }
 
+Double_t TRestRawSignalEvent::GetLowAverageWidth( Int_t nSignals, Int_t startBin, Int_t endBin,  Double_t minPeakAmplitude )
+{
+    std::vector <Double_t> widths;
+
+    for( int sgnl = 0; sgnl < GetNumberOfSignals(); sgnl++ )
+    {
+        if( GetSignal( sgnl )->GetMaxPeakValue( startBin, endBin ) > minPeakAmplitude )
+            widths.push_back( GetSignal( sgnl )->GetMaxPeakWidth( startBin, endBin ) );
+    }
+
+    if( widths.size() == 0 )
+        return 0;
+
+    std::sort( widths.begin(), widths.end() );
+
+    Double_t avg = 0;
+    for( int n = 0; n < nSignals; n++ )
+        avg += widths[n];
+
+    return avg/nSignals;
+}
+
 Double_t TRestRawSignalEvent::GetBaseLineSigmaAverage( Int_t startBin, Int_t endBin )
 {
     Double_t baseLineSigmaMean = 0;
