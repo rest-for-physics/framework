@@ -434,19 +434,19 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent( TRestEvent *evInput )
     obsName = this->GetName() + (TString) ".zOriginPrimary";
     fAnalysisTree->SetObservableValue( obsName, zOrigin );
 
-    Double_t xDirection = fOutputG4Event->GetPrimaryEventDirection().X();
+    Double_t xDirection = fOutputG4Event->GetPrimaryEventDirection( 0 ).X();
     obsName = this->GetName() + (TString) ".xDirectionPrimary";
     fAnalysisTree->SetObservableValue( obsName, xDirection );
 
-    Double_t yDirection = fOutputG4Event->GetPrimaryEventDirection().Y();
+    Double_t yDirection = fOutputG4Event->GetPrimaryEventDirection( 0 ).Y();
     obsName = this->GetName() + (TString) ".yDirectionPrimary";
     fAnalysisTree->SetObservableValue( obsName, yDirection );
 
-    Double_t zDirection = fOutputG4Event->GetPrimaryEventDirection().Z();
+    Double_t zDirection = fOutputG4Event->GetPrimaryEventDirection( 0 ).Z();
     obsName = this->GetName() + (TString) ".zDirectionPrimary";
     fAnalysisTree->SetObservableValue( obsName, zDirection );
 
-    Double_t energyPrimary = fOutputG4Event->GetPrimaryEventEnergy(0);
+    Double_t energyPrimary = fOutputG4Event->GetPrimaryEventEnergy( 0 );
     obsName = this->GetName() + (TString) ".energyPrimary";
     fAnalysisTree->SetObservableValue( obsName, energyPrimary );
     /* }}} */
