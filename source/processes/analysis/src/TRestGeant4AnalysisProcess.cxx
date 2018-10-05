@@ -29,6 +29,8 @@
 /// interaction took place. This process accesses the Geant4 event data 
 /// and metadata information and it will add the observables defined by 
 /// the user to the analysisTree.
+///
+/// ### Parameters
 /// 
 /// This process receives two optional parameters to define the energy
 /// range  of the events to be processed. Only the events that are within
@@ -48,6 +50,8 @@
 ///
 /// \note If these parameters are not defined the low and/or high energy
 /// cuts will be just ignored.
+///
+/// ### Observables
 ///
 /// This process includes generic observables by using a common pattern
 /// inside the observable name. These observables require to be completed
@@ -119,6 +123,35 @@
 ///    // It will register the number of neutron tracks per event
 ///    <observable name="totalEdep" value="ON"
 ///            description="Total event energy registered in keV" />
+/// \endcode
+/// 
+/// The following list provides observables that can be defined in 
+/// order to add to the TRestAnalysisTree information related to the
+/// primary event, as the position, direction or energy of the
+/// the primary generated.
+///
+/// * **xOriginPrimary**: x-coordinate defining where the primary event
+/// was generated.
+/// * **yOriginPrimary**: y-coordinate defining where the primary event
+/// was generated.
+/// * **zOriginPrimary**: z-coordinate defining where the primary event
+/// was generated.
+///
+/// * **xDirectionPrimary**: x-component defining the momentum direction
+/// of the primary event generated.
+/// * **yDirectionPrimary**: y-component defining the momentum direction
+/// of the primary event generated.
+/// * **zDirectionPrimary**: z-component defining the momentum direction
+/// of the primary event generated.
+///
+/// * **energyPrimary**: energy of the primary event generated.
+///
+/// The following code ilustrates the addition of a primary event 
+/// observable.
+/// 
+/// \code
+///    <observable name="xOriginPrimary" value="ON"
+///        description="x-coordinate of the primary event." />
 /// \endcode
 /// 
 /// There are also observables allowing to identify the events where
@@ -387,6 +420,36 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     if( energy < fLowEnergyCut ) return NULL;
     if( fHighEnergyCut > 0 && energy > fHighEnergyCut ) return NULL;
+
+    /* {{{ Event origin variables */
+    Double_t xOrigin = fOutputG4Event->GetPrimaryEventOrigin().X();
+    obsName = this->GetName() + (TString) ".xOriginPrimary";
+    fAnalysisTree->SetObservableValue( obsName, xOrigin );
+
+    Double_t yOrigin = fOutputG4Event->GetPrimaryEventOrigin().Y();
+    obsName = this->GetName() + (TString) ".yOriginPrimary";
+    fAnalysisTree->SetObservableValue( obsName, yOrigin );
+
+    Double_t zOrigin = fOutputG4Event->GetPrimaryEventOrigin().Z();
+    obsName = this->GetName() + (TString) ".zOriginPrimary";
+    fAnalysisTree->SetObservableValue( obsName, zOrigin );
+
+    Double_t xDirection = fOutputG4Event->GetPrimaryEventDirection().X();
+    obsName = this->GetName() + (TString) ".xDirectionPrimary";
+    fAnalysisTree->SetObservableValue( obsName, xDirection );
+
+    Double_t yDirection = fOutputG4Event->GetPrimaryEventDirection().Y();
+    obsName = this->GetName() + (TString) ".yDirectionPrimary";
+    fAnalysisTree->SetObservableValue( obsName, yDirection );
+
+    Double_t zDirection = fOutputG4Event->GetPrimaryEventDirection().Z();
+    obsName = this->GetName() + (TString) ".zDirectionPrimary";
+    fAnalysisTree->SetObservableValue( obsName, zDirection );
+
+    Double_t energyPrimary = fOutputG4Event->GetPrimaryEventEnergy(0);
+    obsName = this->GetName() + (TString) ".energyPrimary";
+    fAnalysisTree->SetObservableValue( obsName, energyPrimary );
+    /* }}} */
 
     Double_t energyTotal = fOutputG4Event->GetTotalDepositedEnergy();
     obsName = this->GetName() + (TString) ".totalEdep";
