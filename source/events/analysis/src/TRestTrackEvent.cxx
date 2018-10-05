@@ -263,6 +263,13 @@ TRestTrack *TRestTrackEvent::GetSecondMaxEnergyTrack( TString option )
     return GetTrack( track );
 }
 
+Double_t TRestTrackEvent::GetMaxEnergyTrackVolume( TString option )
+{
+    if( this->GetMaxEnergyTrack( option ) )
+        return this->GetMaxEnergyTrack( option )->GetVolume( );
+    return 0;
+}
+
 Double_t TRestTrackEvent::GetMaxEnergyTrackLength( TString option )
 {
     if( this->GetMaxEnergyTrack( option ) )

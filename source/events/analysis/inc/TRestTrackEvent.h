@@ -70,6 +70,7 @@ class TRestTrackEvent: public TRestEvent {
         TRestTrack *GetMaxEnergyTrack( TString option = "" );
         TRestTrack *GetSecondMaxEnergyTrack( TString option = "" );
 
+        Double_t GetMaxEnergyTrackVolume( TString option = "" );
         Double_t GetMaxEnergyTrackLength( TString option = "" );
         Double_t GetEnergy( TString option = "" );
 
