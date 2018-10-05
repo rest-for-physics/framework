@@ -914,6 +914,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     fAnalysisTree->SetObservableValue( obsName, maxSecondTrackEnergy_Y );
     /* }}} */
 
+
     /* {{{ Track Length observables (MaxTrackLength_XX) */
     Double_t tckLenX = fInputTrackEvent->GetMaxEnergyTrackLength( "X" );
     Double_t tckLenY = fInputTrackEvent->GetMaxEnergyTrackLength( "Y" );
@@ -928,6 +929,22 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     obsName = this->GetName() + (TString) ".MaxTrackLength_XYZ";
     fAnalysisTree->SetObservableValue( obsName, tckLenXYZ );
     /* }}} */
+
+    /* {{{ Track Volume observables (MaxTrackVolume_XX) */
+    Double_t tckVolX = fInputTrackEvent->GetMaxEnergyTrackVolume( "X" );
+    Double_t tckVolY = fInputTrackEvent->GetMaxEnergyTrackVolume( "Y" );
+    Double_t tckVolXYZ = fInputTrackEvent->GetMaxEnergyTrackVolume( );
+
+    obsName = this->GetName() + (TString) ".MaxTrackVolume_X";
+    fAnalysisTree->SetObservableValue( obsName, tckVolX );
+
+    obsName = this->GetName() + (TString) ".MaxTrackVolume_Y";
+    fAnalysisTree->SetObservableValue( obsName, tckVolY );
+
+    obsName = this->GetName() + (TString) ".MaxTrackVolume_XYZ";
+    fAnalysisTree->SetObservableValue( obsName, tckVolXYZ );
+    /* }}} */
+
 
     /* {{{ Setting mean position for max energy tracks (MaxTrack_{x,y,z}Mean_XXX) */
     
