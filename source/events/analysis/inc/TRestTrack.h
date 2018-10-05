@@ -66,8 +66,9 @@ class TRestTrack: public TObject {
             return fTrackLength;
         }
 
-        Double_t GetMaximumDistance() { return fVolumeHits.GetMaximumHitDistance(); }
-        Double_t GetMaximumDistance2() { return fVolumeHits.GetMaximumHitDistance2(); }
+        Double_t GetMaximumDistance( ) { return fVolumeHits.GetMaximumHitDistance(); }
+        Double_t GetMaximumDistance2( ) { return fVolumeHits.GetMaximumHitDistance2(); }
+        Double_t GetVolume( ) { return fVolumeHits.GetMaximumHitDistance2(); }
 
         TVector3 GetMeanPosition() { return fVolumeHits.GetMeanPosition(); }
 
