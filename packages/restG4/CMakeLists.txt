@@ -17,7 +17,12 @@ ENDIF()
 set(CMAKE_INSTALL_PREFIX ${REST_PATH})
 message(STATUS "Using REST PATH: " ${REST_PATH})
 
+
+if(NOT CMAKE_CXX_FLAGS)
 SET(CMAKE_CXX_FLAGS "-std=c++1y")
+endif()
+
+
 
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
@@ -31,11 +36,9 @@ else()
 endif()
 message ("-- Found Geant4 in version : ${Geant4_VERSION}" )
 
-if(${Geant4_VERSION} MATCHES "10.4")
+if(${Geant4_VERSION} VERSION_GREATER "10.2.9")
 	add_definitions(-DG4104)
-elseif(${Geant4_VERSION} MATCHES "10.3.3")
-	add_definitions(-DG4104)
-endif(${Geant4_VERSION} MATCHES "10.4")
+endif()
 
 include(FindROOT)
 

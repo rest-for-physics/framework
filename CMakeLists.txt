@@ -31,6 +31,7 @@ message ("\noo REST will be installed in : ${CMAKE_INSTALL_PREFIX}" )
 message ("oo System is : ${CMAKE_SYSTEM_NAME}\n" )
 
 #gcc flags
+if(NOT CMAKE_CXX_FLAGS)
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
     SET(CMAKE_CXX_FLAGS "-std=c++1y")
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -38,6 +39,7 @@ ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(CMAKE_CXX_FLAGS "-stdlib=libc++ -std=c++11")
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+endif()
 
 #welcome message
 IF( NOT DEFINED REST_WELCOME )
@@ -215,52 +217,7 @@ file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/lib)
 
 )
 
-
-install( CODE
-"
-file( WRITE \${CMAKE_INSTALL_PREFIX}/thisREST.sh 
-
-\"\#!/bin/bash
-
-export REST_SOURCE=${CMAKE_CURRENT_SOURCE_DIR}
-export REST_PATH=${CMAKE_INSTALL_PREFIX}
-export REST_INPUTDATA=\\\$REST_PATH/inputData
-export REST_GARFIELD_INCLUDE=${Garfield_INCLUDE_DIRS}
-export REST_GARFIELD_LIB=${Garfield_LIBRARIES}
-export PATH=\\\$REST_PATH/bin:\\\$PATH
-export LD_LIBRARY_PATH=\\\$REST_PATH/lib:\\\$LD_LIBRARY_PATH
-export LIBRARY_PATH=\\\$LIBRARY_PATH:\\\$REST_PATH/lib
-
-\#alias restRoot=\\\"root -l \\\$REST_PATH/scripts/LoadRESTScripts.C\\\"
-
-if [ \\\$(rest-config --flags | grep \\\"REST_WELCOME=ON\\\") ];then
-rest-config --welcome
-fi
-\"
-)
-        "
-)
-
-
-foreach(mac ${rest_macros})
-
-string(REPLACE " " "" mac ${mac})
-string(REPLACE "rest" "" m ${mac})
-
-install( CODE
-"
-file( APPEND \${CMAKE_INSTALL_PREFIX}/thisREST.sh 
-
-\"
-alias ${mac}=\\\"restManager ${m}\\\"
-\"
-)
-        "
-)
-
-endforeach(mac ${rest_macros})
-
-
+include(thisREST)
 
 install( CODE
 "
