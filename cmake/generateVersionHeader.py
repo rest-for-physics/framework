@@ -67,7 +67,7 @@ f.write("#define REST_RELEASE_DATE \""+date+"\"\n" )
 f.write("#define REST_RELEASE_TIME \""+time+"\"\n" )
 f.write("#define REST_GIT_COMMIT \""+commit[0:8]+"\"\n" )
 f.write("#define REST_GIT_BRANCH \""+branchName+"\"\n" )
-f.write("#define REST_VERSION_CODE \""+str(code)+"\"\n" )
+f.write("#define REST_VERSION_CODE "+str(code)+"\n" )
 f.write("#define REST_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))\n")
 
 f.write("#endif\n")
