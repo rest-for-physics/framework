@@ -20,7 +20,7 @@ commit = os.popen('git rev-parse --verify HEAD' ).read().rstrip("\n")
 
 tag = os.popen( 'git describe --tags $(git rev-list --tags --max-count=1)' ).read().rstrip("\n")
 
-print tag
+#print tag
 
 command = "git log -1 --format=%ai " + str( tag )
 datetime = os.popen( command ).read().rstrip("\n")
