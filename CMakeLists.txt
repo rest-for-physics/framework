@@ -231,3 +231,8 @@ echo \\\"                                                                       
 )
         "
 )
+
+add_custom_target(
+    RESTVersion ALL
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/cmake/generateVersionHeader.py ${CMAKE_CURRENT_SOURCE_DIR}/source/restcore/inc/TRestVersion.h
+    )
