@@ -39,7 +39,9 @@ TRestRun::TRestRun()
 {
     Initialize();
 
-    SetVersion();
+    SetVersion( REST_RELEASE );
+    SetVersionCode( REST_VERSION_CODE );
+    SetCommit( REST_GIT_COMMIT );
 }
 
 TRestRun::TRestRun( char *cfgFileName) : TRestMetadata (cfgFileName)
@@ -48,7 +50,9 @@ TRestRun::TRestRun( char *cfgFileName) : TRestMetadata (cfgFileName)
 
     this->LoadConfigFromFile( fConfigFileName );
 
-    SetVersion();
+    SetVersion( REST_RELEASE );
+    SetVersionCode( REST_VERSION_CODE );
+    SetCommit( REST_GIT_COMMIT );
 }
 
 void TRestRun::Initialize()
@@ -750,8 +754,6 @@ void TRestRun::OpenOutputFile( )
 {
     this->ResetRunTimes();
 
-    SetVersion();
-
     if( fInputFile != NULL )
     {
 	fOutputFilename = tmpOutputFileName;
@@ -784,6 +786,10 @@ void TRestRun::OpenOutputFile( )
 
 void TRestRun::CloseOutputFile( )
 {
+    SetVersion( REST_RELEASE );
+    SetVersionCode( REST_VERSION_CODE );
+    SetCommit( REST_GIT_COMMIT );
+
     if( fOutputFile == NULL ) return;
     cout << __PRETTY_FUNCTION__ << endl;
     time_t  timev;
@@ -867,9 +873,19 @@ void TRestRun::CloseOutputFile( )
     cout << fOutputFilename << endl;
 }
 
-void TRestRun::SetVersion()
+void TRestRun::SetVersion( TString version )
 {
-    fVersion = "2.1.7";
+    fVersion = version;
+}
+
+void TRestRun::SetCommit( TString commit )
+{
+    fCommit = commit;
+}
+
+void TRestRun::SetVersionCode( Int_t version )
+{
+    fVersionCode = version;
 }
 
 
@@ -1038,6 +1054,42 @@ void TRestRun::SetRunFilenameAndIndex()
     }
 }
 
+void TRestRun::PrintRESTVersion( ) 
+{ 
+    cout << "------------------------------" << endl;
+    cout << " REST Release : " << REST_RELEASE << endl; 
+    cout << " REST Release date : " << REST_RELEASE_DATE << endl;
+    cout << " REST Release time : " << REST_RELEASE_TIME << endl;
+    cout << " REST commit hash : " << REST_GIT_COMMIT << endl;
+    cout << " REST branch : " << REST_GIT_BRANCH << endl;
+    cout << " REST version code : " << REST_VERSION_CODE << endl;
+    cout << "------------------------------" << endl;
+    cout << " TRestRun version : " << fVersion << endl;
+    cout << " TRestRun version code : " << fVersionCode << endl;
+    cout << " TRestRun commit : " << fCommit << endl;
+    cout << "------------------------------" << endl;
+}
+
+void TRestRun::PrintAllMetadata()
+{
+    this->PrintMetadata();
+    for( unsigned int i = 0; i < fMetadata.size(); i++ )
+        fMetadata[i]->PrintMetadata();
+    for( unsigned int i = 0; i < fEventProcess.size(); i++ )
+        fEventProcess[i]->PrintMetadata();
+    for( unsigned int i = 0; i < fHistoricMetadata.size(); i++ )
+        fHistoricMetadata[i]->PrintMetadata();
+    for( unsigned int i = 0; i < fHistoricEventProcess.size(); i++ )
+        fHistoricEventProcess[i]->PrintMetadata();
+}
+
+void TRestRun::PrintTagEventList( )
+{
+    cout << "Tag event list" << endl;
+    cout << "--------------" << endl;
+    for( unsigned int n = 0; n < fSubEventTagList.size(); n++ )
+        cout << "Tag " << n << " : " << fSubEventTagList[n] << endl;
+}
 
 void TRestRun::PrintInfo( )
 {

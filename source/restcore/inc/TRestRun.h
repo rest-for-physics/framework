@@ -35,10 +35,14 @@
 
 #include "TRestAnalysisTree.h"
 
+#include <TRestVersion.h>
+
 class TRestRun:public TRestMetadata {
     private:
         void InitFromConfigFile();
-        void SetVersion();
+        void SetVersion( TString version );
+        void SetVersionCode( Int_t versionCode );
+        void SetCommit( TString commit );
 
         virtual void Initialize();
 
@@ -56,7 +60,10 @@ class TRestRun:public TRestMetadata {
         TString fExperimentName;
         TString fOutputFilename;
         TString fInputFilename;
+
         TString fVersion;
+        TString fCommit;
+        Int_t fVersionCode;
 
         Double_t fStartTime;            ///< Event absolute starting time/date (unix timestamp)
         Double_t fEndTime;              ///< Event absolute starting time/date (unix timestamp)
@@ -312,29 +319,14 @@ class TRestRun:public TRestMetadata {
         void PrintStartDate();
         void PrintEndDate();
 
+        void PrintRESTVersion( );
+
         void PrintInfo( );
         void PrintMetadata() { PrintInfo(); }
 
-        void PrintAllMetadata()
-        {
-            this->PrintMetadata();
-            for( unsigned int i = 0; i < fMetadata.size(); i++ )
-                fMetadata[i]->PrintMetadata();
-            for( unsigned int i = 0; i < fEventProcess.size(); i++ )
-                fEventProcess[i]->PrintMetadata();
-            for( unsigned int i = 0; i < fHistoricMetadata.size(); i++ )
-                fHistoricMetadata[i]->PrintMetadata();
-            for( unsigned int i = 0; i < fHistoricEventProcess.size(); i++ )
-                fHistoricEventProcess[i]->PrintMetadata();
-        }
+        void PrintAllMetadata();
 
-        void PrintTagEventList( )
-        {
-            cout << "Tag event list" << endl;
-            cout << "--------------" << endl;
-            for( unsigned int n = 0; n < fSubEventTagList.size(); n++ )
-                cout << "Tag " << n << " : " << fSubEventTagList[n] << endl;
-        }
+        void PrintTagEventList( );
         
         void PrintProcessedEvents( Int_t rateE);
 
@@ -347,6 +339,6 @@ class TRestRun:public TRestMetadata {
         virtual ~ TRestRun();
 
 
-        ClassDef(TRestRun, 1);     // REST run class
+        ClassDef(TRestRun, 2);     // REST run class
 };
 #endif
