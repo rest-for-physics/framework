@@ -108,6 +108,7 @@ class TRestRawSignal: public TObject {
 
         void GetDifferentialSignal( TRestRawSignal *diffSgnl, Int_t smearPoints );
         void GetSignalSmoothed( TRestRawSignal *smthSignal, Int_t averagingPoints );
+        void GetWhiteNoiseSignal( TRestRawSignal *noiseSgnl, Double_t noiseLevel = 1. );
 
         Double_t GetBaseLine( Int_t startBin, Int_t endBin );
         Double_t GetStandardDeviation( Int_t startBin, Int_t endBin );
