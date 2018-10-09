@@ -451,8 +451,8 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName,string sectionName)
 		{
 			Sectional = GetElement(ClassName(), cfgFileName);
 			if (Sectional == NULL) {
-				warning << "cannot find xml section \"" << ClassName() << "\" in config file: " << cfgFileName << endl;
-				return -1;
+				error << "cannot find xml section \"" << ClassName() << "\" in config file: " << cfgFileName << endl;
+				exit(1);
 			}
 		}
 		else
@@ -461,9 +461,9 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName,string sectionName)
 			if (ele->Value() == (string)ClassName()) { Sectional = ele; }
 			else { Sectional = GetElementWithName(ClassName(), sectionName, ele); }
 			if (Sectional == NULL) {
-				warning << "cannot find xml section \"" << ClassName() << "\" with name \""<< sectionName <<"\""<<endl; 
-				warning << "in config file: " << cfgFileName << endl;
-				return -1;
+				error << "cannot find xml section \"" << ClassName() << "\" with name \""<< sectionName <<"\""<<endl;
+				error << "in config file: " << cfgFileName << endl;
+				exit(1);
 			}
 		}
 		TiXmlElement* Global = GetElement("globals", cfgFileName);
