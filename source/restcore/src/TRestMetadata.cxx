@@ -577,7 +577,7 @@ Int_t TRestMetadata::LoadSectionMetadata()
 			if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter" || (string)e->Value() == "constant")
 			{
 				ReplaceElementAttributes(e);
-				SetEnvWithElement(e);
+				SetEnv(e);
 			}
 			e = e->NextSiblingElement();
 		}
@@ -590,7 +590,7 @@ Int_t TRestMetadata::LoadSectionMetadata()
 		if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter" || (string)e->Value() == "constant")
 		{
 			ReplaceElementAttributes(e);
-			SetEnvWithElement(e);
+			SetEnv(e);
 		}
 		e = e->NextSiblingElement();
 	}
@@ -686,7 +686,7 @@ TiXmlElement * TRestMetadata::ReplaceElementAttributes(TiXmlElement * e)
 /// <variable name="TEST" value="VALUE" overwrite="true" /> 
 /// \endcode
 ///
-void TRestMetadata::SetEnvWithElement(TiXmlElement* e, bool updateexisting)
+void TRestMetadata::SetEnv(TiXmlElement* e, bool updateexisting)
 {
 	if (e == NULL)return;
 
@@ -747,7 +747,7 @@ void TRestMetadata::ExpandElement(TiXmlElement*e, bool recursive)
 	}
 	else if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter" || (string)e->Value() == "constant")
 	{
-		SetEnvWithElement(e);
+		SetEnv(e);
 	}
 	else if (e->FirstChildElement() != NULL) 
 	{
@@ -775,7 +775,7 @@ void TRestMetadata::ExpandElement(TiXmlElement*e, bool recursive)
 void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 {
 	if ((string)e->Value() != "for")return;
-	ReplaceElementAttributes(e);
+	//ReplaceElementAttributes(e);
 
 	const char* varname = e->Attribute("variable");
 	const char* varfrom = e->Attribute("from");
@@ -947,7 +947,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 					{
 						if ((string)globaldef->Value() == "variable" || (string)globaldef->Value() == "myParameter" || (string)globaldef->Value() == "constant")
 						{
-							SetEnvWithElement(globaldef, false);
+							SetEnv(globaldef, false);
 						}
 						globaldef = globaldef->NextSiblingElement();
 					}
@@ -1670,11 +1670,11 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, size_
 /// Replacing marks: 
 /// 1. $ENV{VARIABLE_NAME} : search the system env and replace it if found.
 /// 2. ${VARIABLE_NAME} : search both system env and program env and replace it if found.
-/// 3. VARIABLE_NAME    : try match the names of myParameter or constant and replace it if matched.
+/// 3. [VARIABLE_NAME] : search only program env and replace it if found. This is used for for loop.
+/// 4. VARIABLE_NAME    : try match the names of myParameter or constant and replace it if matched.
 string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer)
 {
 	string outputBuffer = buffer;
-
 
 	//replace system env only
 	int startPosition = 0;
@@ -1695,12 +1695,11 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer)
 		}
 		else
 		{
-			debug << "cannot find \"" << expression << "\", returning raw expression " << outputBuffer.substr(startPosition, endPosition - startPosition + 1) << endl;
+			debug << "cannot find \"$ENV{" << expression << "}\" in system env, returning raw expression..."<< endl;
 		}
 	}
 
-
-	//replace env
+	//replace env with mark ${}
 	startPosition = 0;
 	endPosition = 0;
 	while ((startPosition = outputBuffer.find("${", endPosition)) != (int)string::npos)
@@ -1712,12 +1711,7 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer)
 
 		int replacePos=startPosition;
 		int replaceLen=endPosition-startPosition+1;
-		//if (startPosition!=0&&outputBuffer[startPosition - 1] == '$') {
-		//	replacePos = startPosition - 1;
-		//	replaceLen = endPosition - startPosition + 2;
-		//}
 
-		//search for both system env and program env
 		char* sysenv = getenv(expression.c_str());
 		char* proenv = NULL;
 		int envindex = 0;
@@ -1745,57 +1739,45 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer)
 		}
 		else
 		{
-			debug << "replace env " << startPosition << ": cannot find \"" << expression << "\", returning raw expression " << outputBuffer.substr(replacePos, replaceLen) << endl;
+			debug << "replace env " << startPosition << ": cannot find \"${" << expression << "}\" in system and program env, returning raw expression..." << endl;
 		}
 	}
-	//startPosition = 0;
-	//endPosition = 0;
-	//while ((startPosition = outputBuffer.find("[", endPosition)) != (int)string::npos)
-	//{
-	//	endPosition = outputBuffer.find("]", startPosition + 1);
-	//	if (endPosition == (int)string::npos) break;
 
-	//	string expression = outputBuffer.substr(startPosition + 1, endPosition - startPosition - 1);
+	//replace only program env with mark []
+	startPosition = 0;
+	endPosition = 0;
+	while ((startPosition = outputBuffer.find("[", endPosition)) != (int)string::npos)
+	{
+		endPosition = outputBuffer.find("]", startPosition + 1);
+		if (endPosition == (int)string::npos) break;
 
-	//	int replacePos = startPosition;
-	//	int replaceLen = endPosition - startPosition + 1;
-	//	if (startPosition != 0 && outputBuffer[startPosition - 1] == '$') {
-	//		replacePos = startPosition - 1;
-	//		replaceLen = endPosition - startPosition + 2;
-	//	}
+		string expression = outputBuffer.substr(startPosition + 1, endPosition - startPosition - 1);
 
-	//	//search for both system env and program env
-	//	char* sysenv = getenv(expression.c_str());
-	//	char* proenv = NULL;
-	//	int envindex = 0;
-	//	for (int i = 0; i < fElementEnv.size(); i++) {
-	//		if ((string)fElementEnv[i]->Value() == "variable"&&expression == (string)fElementEnv[i]->Attribute("name"))
-	//		{
-	//			if (fElementEnv[i]->Attribute("value") != NULL)
-	//			{
-	//				proenv = const_cast<char*>(fElementEnv[i]->Attribute("value"));
-	//				envindex = i;
-	//				break;
-	//			}
-	//		}
-	//	}
+		int replacePos = startPosition;
+		int replaceLen = endPosition - startPosition + 1;
+		if (startPosition != 0 && outputBuffer[startPosition - 1] == '$') {
+			replacePos = startPosition - 1;
+			replaceLen = endPosition - startPosition + 2;
+		}
 
-	//	if (proenv != NULL)
-	//	{
-	//		outputBuffer.replace(replacePos, replaceLen, proenv);
-	//		endPosition = 0;
-	//	}
-	//	else if (sysenv != NULL)
-	//	{
-	//		outputBuffer.replace(replacePos, replaceLen, sysenv);
-	//		endPosition = 0;
-	//	}
-	//	else
-	//	{
-	//		debug << "replace env " << startPosition << ": cannot find \"" << expression << "\", returning raw expression " << outputBuffer.substr(replacePos, replaceLen) << endl;
-	//	}
-	//}
+		bool replaced = false;
+		for (int i = 0; i < fElementEnv.size(); i++) {
+			if ((string)fElementEnv[i]->Value() == "variable"&&expression == (string)fElementEnv[i]->Attribute("name"))
+			{
+				if (fElementEnv[i]->Attribute("value") != NULL)
+				{
+					outputBuffer.replace(replacePos, replaceLen, fElementEnv[i]->Attribute("value"));
+					replaced = true;
+					break;
+				}
+			}
+		}
 
+		if(!replaced)
+		{
+			debug << "replace env " << startPosition << ": cannot find \"[" << expression << "]\" for for loop, returning raw expression..."<< endl;
+		}
+	}
 
 	//replace myParameter
 	startPosition = 0;
