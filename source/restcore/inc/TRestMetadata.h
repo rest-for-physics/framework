@@ -254,7 +254,7 @@ protected:
 private:
 
 	//void ProcessElement(TiXmlElement* e);
-	void SetEnvWithElement(TiXmlElement* e,bool updateexisting =true);
+	void SetEnv(TiXmlElement* e,bool updateexisting =true);
 	//void ExecuteForLoops(TiXmlElement* e);
 	//void LoadConfigInIncludeFile(TiXmlElement* e);
 	void ExpandElement(TiXmlElement*e,bool recursive=false);
