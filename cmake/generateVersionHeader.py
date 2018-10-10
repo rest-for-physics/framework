@@ -5,7 +5,7 @@
 # J. Galan - Javier.Galan.Lacarra@cern.ch
 # 8 - Oct - 2018
 
-import os,sys
+import os,sys,re
 
 outputHeader = sys.argv[1]
 print " -- Generating TRestVersion.h"
@@ -34,9 +34,11 @@ time = datetime[11:]
 first =  tag.find(".")
 last = tag.rfind(".")
 
-a = int( tag[0:first] )
-b = int( tag[first+1:last] )
-c = int( tag[last+1:] )
+a = int( re.sub("[^0-9]", "", tag[0:first] ) )
+b = int( re.sub("[^0-9]", "", tag[first+1:last] ) )
+c = int( re.sub("[^0-9]", "", tag[last+1:] ) )
+
+restRelease = str(a) + "." + str(b) + "." + str(c)
 
 code = a << 16 + b << 8 + c
 codeA = a << 16 
@@ -62,11 +64,12 @@ f.write(" *     #include <oldheader.h>\n" )
 f.write(" * #endif\n")
 f.write(" *\n" )
 f.write(" */\n" )
-f.write("#define REST_RELEASE \""+tag+"\"\n" )
+f.write("#define REST_RELEASE \""+restRelease+"\"\n" )
 f.write("#define REST_RELEASE_DATE \""+date+"\"\n" )
 f.write("#define REST_RELEASE_TIME \""+time+"\"\n" )
 f.write("#define REST_GIT_COMMIT \""+commit[0:8]+"\"\n" )
 f.write("#define REST_GIT_BRANCH \""+branchName+"\"\n" )
+f.write("#define REST_GIT_TAG \""+tag+"\"\n" )
 f.write("#define REST_VERSION_CODE "+str(code)+"\n" )
 f.write("#define REST_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))\n")
 
