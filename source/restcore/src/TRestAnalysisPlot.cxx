@@ -244,6 +244,13 @@ void TRestAnalysisPlot::InitFromConfigFile()
             else
                 fLogScale.push_back( false );
 
+            string normStr = GetFieldValue( "norm", addPlotString );
+
+            if( normStr == "NotDefined" || !isANumber( normStr ) )
+                normStr = "0";
+
+            fNormalize.push_back( StringToInteger( normStr  ) );
+
             TString xLabel = GetFieldValue( "xlabel", addPlotString );
             fPlotXLabel.push_back( xLabel );
 
@@ -709,7 +716,16 @@ void TRestAnalysisPlot::PlotCombinedCanvas( )
 
             histCollection[i]->SetStats( fStats[n] );
 
-            histCollection[i]->GetYaxis()->SetRangeUser(0.1, 1.1 * maxValue );
+            Double_t scale = 1.;
+
+            if( fNormalize[n] > 0 )
+            {
+                scale = fNormalize[n] / (histCollection[i]->Integral());
+                histCollection[i]->Scale(scale);
+            }
+
+            histCollection[i]->GetYaxis()->SetRangeUser(0.1 * scale, 1.1 * maxValue * scale );
+
             if( i == 0 )
                 histCollection[i]->Draw();
             else

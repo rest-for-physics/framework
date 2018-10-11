@@ -53,6 +53,7 @@ class TRestAnalysisPlot:public TRestMetadata {
         std::vector <TString> fPlotXLabel;
         std::vector <TString> fPlotYLabel;
         std::vector <Bool_t> fLogScale;
+        std::vector <Double_t> fNormalize;
         std::vector <TString> fPlotTitle;
         std::vector <TString> fPlotOption;
         std::vector <TString> fPlotString;
