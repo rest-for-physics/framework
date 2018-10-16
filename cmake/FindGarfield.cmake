@@ -12,7 +12,7 @@
 #set(Garfield_DIR "" CACHE PATH "Directory where Garfield is installed")
 #set(Garfield_INC_DIR "" CACHE PATH "Alternative directory for Garfield includes")
 #set(Garfield_LIB_DIR "" CACHE PATH "Alternative directory for Garfield libraries")
-set(Garfield_DIR ${GARFIELD_HOME})
+set(Garfield_DIR $ENV{GARFIELD_HOME})
 
 find_path(Garfield_INCLUDE_DIRS Sensor.hh
     HINTS ${Garfield_DIR}/include ${Garfield_INC_DIR}
