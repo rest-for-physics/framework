@@ -742,7 +742,7 @@ TString TRestRun::ConstructFilename( TString filenameIn )
     outString = Replace( (string) outString, "[SUBRUN]", (string) subRunStr, 0 );
     outString = Replace( (string) outString, "[PARENTRUN]", (string) subRunStr, 0 );
     outString = Replace( (string) outString, "[RUNTAG]", (string) this->GetRunTag( ), 0 );
-    outString = Replace( (string) outString, "[VERSION]", (string) this->GetVersion( ), 0 );
+    outString = Replace( (string) outString, "[VERSION]", (string) REST_RELEASE, 0 );
     outString = Replace( (string) outString, "[EXPERIMENT]", (string) this->GetExperimentName( ), 0 );
     outString = Replace( (string) outString, "[USER]", (string) this->GetRunUser( ), 0 );
 
