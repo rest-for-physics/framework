@@ -391,6 +391,7 @@ const int NAME_NOT_FOUND = -2;
 const int NOT_FOUND = -1;
 const int ERROR = -1;
 const int OK = 0;
+bool TRestMetadata_ConfigFileUpdated = true;
 
 ClassImp(TRestMetadata)
 ///////////////////////////////////////////////
@@ -1192,15 +1193,29 @@ TiXmlElement* TRestMetadata::GetRootElementFromFile(std::string cfgFileName)
 	TiXmlDocument* doc = new TiXmlDocument();
 
 	if (!fileExists(cfgFileName)) {
-		cout << "Config file does not exist. The file is: " << cfgFileName << endl;
+		error << "Config file does not exist. The file is: " << cfgFileName << endl;
 		GetChar();
 		exit(1);
 	}
 	if (!doc->LoadFile(cfgFileName.c_str()))
 	{
-		cout << "Failed to load xml file, syntax maybe wrong. The file is: " << cfgFileName << endl;
-		GetChar();
-		exit(1);
+		if (TRestMetadata_ConfigFileUpdated) {
+			error << "Failed to load xml file, syntax maybe wrong. The file is: " << cfgFileName << endl;
+			int result = system(("xmllint " + cfgFileName + ">> /tmp/xmlerror.txt").c_str());
+
+			if (result == 256) { system("cat /tmp/xmlerror.txt"); }
+			else { error << "To do syntax check for the file, please install the package \"xmllint\"" << endl; }
+			system("rm /tmp/xmlerror.txt");
+
+			GetChar();
+			exit(1);
+		}
+		else {
+			//in future we will implement rml version update tool in c++
+			string newcfgGileName = cfgFileName;
+			TRestMetadata_ConfigFileUpdated = true;
+			GetRootElementFromFile(newcfgGileName);
+		}
 	}
 
 	TiXmlElement* root = doc->RootElement();
@@ -1209,7 +1224,7 @@ TiXmlElement* TRestMetadata::GetRootElementFromFile(std::string cfgFileName)
 	}
 	else
 	{
-		cout << "Succeeded to load xml file, but no element contained" << endl;
+		error << "Succeeded to load xml file, but no element contained" << endl;
 		GetChar();
 		exit(1);
 	}
