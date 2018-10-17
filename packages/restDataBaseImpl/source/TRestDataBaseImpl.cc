@@ -1,9 +1,23 @@
 #include "TRestDataBaseImpl.hh"
 #include "TRestStringHelper.h"
+#include "TRestStringOutput.h"
 using namespace pg;
 
 TRestDataBaseImpl::TRestDataBaseImpl() {
-	conn = pg::connect("postgresql://p3daq:ilovepanda@localhost/p3_daq");
+	auto url = getenv("REST_DBURL");
+	if (url == NULL) {
+		url = "postgresql://p3daq:ilovepanda@localhost/p3_daq";
+	}
+	try {
+		conn = pg::connect(url);
+	}
+	catch (std::runtime_error) {
+		cout << "REST ERROR!! unable to connect the database:" << endl;
+		cout << COLOR_BOLDRED << url << COLOR_RESET << endl;
+		cout << "If this url is not you want, change it by setting environmental variable \"REST_DBURL\" in your operation system." << endl;
+		cout << "If you don't want to use database, set parameter \"runNumber\" to \"-1\" instead of \"auto\" in the section \"TRestRun\"" << endl;
+		exit(1);
+	}
 }
 
 TRestDataBaseImpl::~TRestDataBaseImpl() {
