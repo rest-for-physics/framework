@@ -55,6 +55,158 @@ void TRestManager::Initialize()
 
 }
 
+/// we reorganize the element order
+/// before (v2.1.6 style):
+/// <root>
+///   <globals/>
+///   <TRestManager>
+///      <addProcess/>
+///      <addMetadata/>
+///      <addTask/>
+///   </TRestManager>
+///   <TRestRun/>
+/// </root>
+/// after (v2.2 style):
+/// <TRestManager>
+///   <globals/>
+///   <TRestRun/>
+///      <addMetadata/>
+///   </TRestRun>
+///   <TRestProcessRunner>
+///      <addProcess/>
+///   </TRestProcessRunner>
+///   <addTask/>
+/// </TRestManager>
+void TRestManager::BeginOfInit() {
+
+	if (fElement->FirstChildElement("TRestRun") == NULL &&
+		fElementGlobal != NULL && fElementGlobal->Parent() != NULL &&
+		fElementGlobal->Parent()->FirstChildElement("TRestRun") != NULL)
+	{
+		cout << "old style config file of TRestManager is detected!" << endl;
+		cout << "trying to re-arranage the xml element..." << endl;
+		cout << endl;
+
+		debug << "switch position of the elements" << endl;
+		fElement = (TiXmlElement*)fElementGlobal->Parent();
+		fElement->SetValue("TRestManager");
+		TiXmlElement* TRestProcessRunnerElement = fElement->FirstChildElement("TRestManager");
+		TRestProcessRunnerElement->SetValue("TRestProcessRunner");
+		TiXmlElement* TRestRunElement_old = fElement->FirstChildElement("TRestRun");
+		fElement->InsertBeforeChild(TRestProcessRunnerElement, *TRestRunElement_old);
+		fElement->RemoveChild(TRestRunElement_old);
+		TiXmlElement* TRestRunElement = fElement->FirstChildElement("TRestRun");
+
+
+
+		debug << "handle \"addProcess\"" << endl;
+		TString processFile = GetParameter("processesFile", TRestProcessRunnerElement, "");
+		TRestProcessRunnerElement->RemoveChild(GetElementWithName("parameter", "processesFile", TRestProcessRunnerElement));
+		TiXmlElement* addProcessElement = TRestProcessRunnerElement->FirstChildElement("addProcess");
+		while (addProcessElement != NULL) {
+			addProcessElement->SetAttribute("file", processFile);
+			addProcessElement = addProcessElement->NextSiblingElement("addProcess");
+		}
+
+		debug << "handle \"addMetadata\"" << endl;
+		TiXmlElement* addMetadataElement = TRestProcessRunnerElement->FirstChildElement("addMetadata");
+		while (addMetadataElement != NULL) {
+			if (addMetadataElement->Attribute("type") != NULL && (string)addMetadataElement->Attribute("type") == "TRestReadout") {
+				TString readoutFile = GetParameter("readoutFile", TRestProcessRunnerElement, "");
+				if (readoutFile != "")
+				{
+					addMetadataElement->SetAttribute("file", readoutFile);
+					TRestProcessRunnerElement->RemoveChild(GetElementWithName("parameter", "readoutFile", TRestProcessRunnerElement));
+				}
+			}
+			if (addMetadataElement->Attribute("type") != NULL && (string)addMetadataElement->Attribute("type") == "TRestGas") {
+				TString gasFile = GetParameter("gasFile", TRestProcessRunnerElement, "");
+				if (gasFile != "")
+				{
+					addMetadataElement->SetAttribute("file", gasFile);
+					TRestProcessRunnerElement->RemoveChild(GetElementWithName("parameter", "gasFile", TRestProcessRunnerElement));
+				}
+			}
+			TRestRunElement->InsertEndChild(*addMetadataElement);
+			TiXmlElement* tempelementptr = addMetadataElement;
+			addMetadataElement = addMetadataElement->NextSiblingElement("addMetadata");
+			TRestProcessRunnerElement->RemoveChild(tempelementptr);
+		}
+
+		debug << "handle \"addTask\"" << endl;
+		TiXmlElement* addTaskElement = TRestProcessRunnerElement->FirstChildElement("addTask");
+		while (addTaskElement != NULL) {
+
+			fElement->InsertEndChild(*addTaskElement);
+			TiXmlElement* tempelementptr = addTaskElement;
+			addTaskElement = addTaskElement->NextSiblingElement("addTask");
+			TRestProcessRunnerElement->RemoveChild(tempelementptr);
+		}
+
+		debug << "update parameters" << endl;
+		//add parameter "inputAnalysis" for the TRestProcessRunnerElement
+		TiXmlElement*parele = new TiXmlElement("prarmeter");
+		parele->SetAttribute("name", "inputAnalysis");
+		parele->SetAttribute("value", "on");
+		TRestProcessRunnerElement->InsertBeforeChild(TRestProcessRunnerElement->FirstChildElement(), *parele);
+
+		//some parameters should be translated
+		TString analysisString = GetParameter("pureAnalysisOutput", TRestProcessRunnerElement, "OFF");
+		if (analysisString == "ON" || analysisString == "On" || analysisString == "on")
+		{
+			parele->SetAttribute("name", "inputEvent");
+			parele->SetAttribute("value", "off");
+			TRestProcessRunnerElement->InsertBeforeChild(TRestProcessRunnerElement->FirstChildElement(), *parele);
+
+			parele->SetAttribute("name", "outputEvent");
+			parele->SetAttribute("value", "off");
+			TRestProcessRunnerElement->InsertBeforeChild(TRestProcessRunnerElement->FirstChildElement(), *parele);
+		}
+		else
+		{
+			parele->SetAttribute("name", "inputEvent");
+			parele->SetAttribute("value", "on");
+			TRestProcessRunnerElement->InsertBeforeChild(TRestProcessRunnerElement->FirstChildElement(), *parele);
+
+			parele->SetAttribute("name", "outputEvent");
+			parele->SetAttribute("value", "on");
+			TRestProcessRunnerElement->InsertBeforeChild(TRestProcessRunnerElement->FirstChildElement(), *parele);
+		}
+		TiXmlElement* inputFileElement = GetElementWithName("parameter", "inputFile", TRestProcessRunnerElement);
+		if (inputFileElement != NULL) {
+			TRestRunElement->InsertBeforeChild(TRestRunElement->FirstChildElement(),*inputFileElement);
+			TRestProcessRunnerElement->RemoveChild(inputFileElement);
+		}
+
+
+		if (TRestProcessRunnerElement->FirstChildElement("readoutPlane") != NULL) {
+
+			warning << "REST WARNING. TRestManager. Readout plane re-definition is not supported currently!" << endl;
+
+		}
+
+		if (fVerboseLevel >= REST_Debug) {
+			cout << "updated TRestManager section:" << endl;
+			fElement->Print(stdout, 0);
+			cout << endl;
+			GetChar();
+		}
+
+
+
+
+
+
+
+
+
+		
+	}
+
+
+
+}
+
 ///////////////////////////////////////////////
 /// \brief Respond to the input xml element.
 ///
@@ -213,7 +365,6 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 			return 0;
 		}
 	}
-
 
 
 	return -1;

@@ -30,6 +30,7 @@ public:
 
 	void Initialize();
 	void InitFromConfigFile() { TRestMetadata::InitFromConfigFile(); }
+	void BeginOfInit();
 	Int_t ReadConfig(string keydeclare, TiXmlElement* e);
 
 	//void LaunchTasks();
