@@ -638,8 +638,6 @@ TString TRestRun::FormFormat(TString FilenameFormat)
 			replacestr = fHostmgr->GetProcessRunner()->GetProcInfo(target);
 		if (replacestr == target && this->Get(target) != "")
 			replacestr = this->Get(target);
-		if (replacestr == target && this->Get("f" + target) != "")
-			replacestr = this->Get("f" + target);
 
 		if (replacestr != target)
 			outString = Replace(outString, targetstr, replacestr, 0);
@@ -957,7 +955,18 @@ void TRestRun::ImportMetadata(TString File, TString name, Bool_t store)
 
 	TFile *f = new TFile(File);
 	// TODO give error in case we try to obtain a class that is not TRestMetadata
-	TRestMetadata *meta = (TRestMetadata *)f->Get(name);
+	TRestMetadata *meta;
+	try {
+		meta = (TRestMetadata *)f->Get(name);
+	}
+	catch(std::bad_alloc e)//schema evolution conflict
+	{
+		error << "REST ERROR (ImportMetadata) : error when retrieving metadata object from ROOT file!" << endl;
+		error << "file: " << File << ", object name: " << name << endl;
+		cout << "HINT: this may be caused by schema evolution conflict. Make sure the object in the " << endl;
+		cout << "target file is with same schema evolution level as current REST" << endl;
+		exit(1);
+	}
 
 	if (meta == NULL)
 	{
@@ -997,11 +1006,15 @@ Double_t TRestRun::GetRunLength()
 string TRestRun::Get(string target)
 {
 	auto a = GetDataMemberWithName(target);
+	if (a == NULL) {
+		a = GetDataMemberWithName("f" + target);
+	}
+
+
 	if (a != NULL)
 	{
 		return GetDataMemberValString(a);
 	}
-
 	return "";
 }
 
