@@ -27,8 +27,7 @@ get_filename_component(INSTALL_PREFIX_ABSOLUTE ${INSTALL_PREFIX} ABSOLUTE BASE_D
 set(REST_PATH ${INSTALL_PREFIX_ABSOLUTE})
 
 set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX_ABSOLUTE})
-message ("\noo REST will be installed in : ${CMAKE_INSTALL_PREFIX}" )
-message ("oo System is : ${CMAKE_SYSTEM_NAME}\n" )
+
 
 #gcc flags
 if(NOT CMAKE_CXX_FLAGS)
@@ -41,37 +40,42 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 endif()
 
+
+#auto schema evolution for ROOT
+IF( NOT DEFINED REST_SE )
+    set(REST_SE OFF)
+ENDIF()
+
+
 #welcome message
 IF( NOT DEFINED REST_WELCOME )
     set(REST_WELCOME ON)
 ENDIF()
 
-#find includes and libs for dependence package
-set(ROOT_FIND_REQUIRED true)
+
+
+#find includes and libs of ROOT
 set(external_include_dirs)
 set(external_libs)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+include(MacroRootDict)
+include(CompileDir)
+set(ROOT_FIND_REQUIRED true)
 IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 	set(CMAKE_MACOSX_RPATH 1)
 	include(FindROOT)
 	set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
-
 	set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit)
 
-ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-
-IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	include(FindROOT)
 	set(external_include_dirs -I /usr/local/include ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
     #file(GLOB rootlibs ${ROOT_LIBRARY_DIR}/*.so)
 	set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit -lImt)
 
-ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
-
-#Here Windows is just for test. It is for the convenience of vs to make gramma check
-IF (CMAKE_SYSTEM_NAME MATCHES "Windows")
+elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
+	#It is possible to run REST on windows in future when ROOT6 is ready 
 	set(ROOTSYS $ENV{ROOTSYS})
-
 	if(ROOTSYS)
 		set(CMAKE_FIND_LIBRARY_PREFIXES "lib")
 		set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib" ".dll")
@@ -100,21 +104,10 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		include_directories(${USR_INCLUDE_DIRS})
 	endif()
 
-	#set(ROOT_INCLUDE_DIR $ENV{ROOTSYS}/include)
-	#set(ROOT_LIBRARY_DIR $ENV{ROOTSYS}/lib)
-	#include_directories(${ROOT_INCLUDE_DIR})
-	#find_program(ROOTCINT_EXECUTABLE rootcint PATHS $ENV{ROOTSYS}/bin)
-    #file(GLOB rootlibs ${ROOT_LIBRARY_DIR}/*.lib)
-
-	#set(Garfield_INCLUDE_DIRS $ENV{GARFIELD_HOME})
-	#message(${Garfield_INCLUDE_DIRS})
-	#include_directories(${Garfield_INCLUDE_DIRS})
+ENDIF ()
 
 
-ENDIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
-
-include(MacroRootDict)
-include(CompileDir)
+#find garfield libs and includes
 if(${REST_GARFIELD} MATCHES "ON")
 	add_definitions(-DUSE_Garfield)
 	include(FindGarfield)
@@ -124,7 +117,8 @@ if(${REST_GARFIELD} MATCHES "ON")
 endif(${REST_GARFIELD} MATCHES "ON")
 include_directories(${external_include_dirs})
 
-#gether some infomation
+
+#gether some infomation from git
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
     #get time
     execute_process(COMMAND date OUTPUT_VARIABLE d)
@@ -162,6 +156,12 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 
+message ("\noo REST will be installed in : ${CMAKE_INSTALL_PREFIX}" )
+message ("oo System is : ${CMAKE_SYSTEM_NAME}" )
+message ("oo Garfield is : ${REST_GARFIELD}" )
+message ("oo Auto Schema Evolution is : ${REST_SE}\n" )
+
+
 #start compile
 add_subdirectory(source)
 
@@ -180,6 +180,7 @@ endif(${REST_EXAMPLELIB} MATCHES "ON")
 message("rest Libraries : " ${rest_libraries_regular})
 message("rest executables: " ${rest_exes})
 message("rest macros: " ${rest_macros_str})
+
 
 #begin installation
 file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h")
