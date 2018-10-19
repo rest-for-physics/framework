@@ -62,6 +62,11 @@ public:
 
 };
 
+inline vector <TString> VectorTString_cast(vector <string> vecstring) {
+	vector <TString> result;
+	for (auto s : vecstring) { result.push_back((TString)s); }
+	return result;
+}
 inline Int_t isANumber(std::string in) { return TRestStringHelper::isANumber(in); }
 inline Int_t isAExpression(std::string in) { return TRestStringHelper::isAExpression(in); }
 inline std::string ReplaceMathematicalExpressions(std::string buffer) { return TRestStringHelper::ReplaceMathematicalExpressions(buffer); }
@@ -98,14 +103,11 @@ inline std::string SearchFileInPath(string paths, string filename) { return TRes
 inline Int_t ChecktheFile(std::string cfgFileName) { return TRestStringHelper::ChecktheFile(cfgFileName); }
 inline std::vector <string> GetFilesMatchingPattern(string pattern) { return TRestStringHelper::GetFilesMatchingPattern(pattern); }
 inline std::vector <TString> GetFilesMatchingPattern(TString pattern) { 
-	vector<TString> result;
-	auto a = TRestStringHelper::GetFilesMatchingPattern((string)pattern); 
-	for (auto b : a)
-		result.push_back((TString)b);
-	return result;
+return VectorTString_cast(TRestStringHelper::GetFilesMatchingPattern((string)pattern));
 }
 inline std::string ToUpper(std::string in) { return TRestStringHelper::ToUpper(in); }
 inline std::string ExecuteShellCommand(string cmd) {return TRestStringHelper::ExecuteShellCommand(cmd); }
+
 
 #ifdef WIN32
 inline void setenv(const char *__name, const char *__value, int __replace);
