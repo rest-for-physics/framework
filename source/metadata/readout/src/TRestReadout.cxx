@@ -480,9 +480,16 @@ void TRestReadout::InitFromConfigFile()
 
 			TRestReadoutChannel channel;
 
-			Int_t id = StringToInteger( GetFieldValue( "id", channelDefinition ) );
-			channel.SetID( id );
-			channel.SetDaqID( -1 );
+			Int_t id = StringToInteger(GetFieldValue("id", channelDefinition));
+			string typestring = GetFieldValue("type", channelDefinition);
+			TRestReadoutChannelType type = Channel_NoType;
+			if (typestring == "Not defined") type = Channel_NoType;
+			else if (ToUpper(typestring) == "X") type = Channel_X;
+			else if (ToUpper(typestring) == "Y") type = Channel_Y;
+			else if (ToUpper(typestring).find("P") != -1) type = Channel_Pixel;
+			channel.SetID(id);
+			channel.SetType(type);
+			channel.SetDaqID(-1);
 
 
 			vector <TRestReadoutPixel> pixelVector;
