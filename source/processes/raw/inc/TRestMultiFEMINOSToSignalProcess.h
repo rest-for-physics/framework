@@ -31,15 +31,17 @@ class TRestMultiFEMINOSToSignalProcess:public TRestRawToSignalProcess {
  private:
  
  unsigned short pay;
+
+ unsigned int fLastEventId;
+ Double_t fLastTimeStamp;
  
  public:
    void InitProcess();
    void Initialize();
    TRestEvent *ProcessEvent( TRestEvent *evInput );
    TString GetProcessName(){ return (TString) "MultiFEMINOSToSignal"; }
-   Int_t GetPhysChannel(int channel);
 
-	void ReadFrame( void *fr, int fr_sz );
+   Bool_t ReadFrame( void *fr, int fr_sz );
    
    //Constructor
    TRestMultiFEMINOSToSignalProcess();
