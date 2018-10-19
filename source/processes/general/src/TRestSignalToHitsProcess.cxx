@@ -223,7 +223,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent *evInput)
 		}
 		/////////////////////////////////////////////////////////////////////////
 
-		TRestReadoutPlane *plane = fReadout->GetReadoutPlane(planeID);
+		TRestReadoutPlane *plane = fReadout->GetReadoutPlaneWithID(planeID);
 
 		// For the moment this will only be valid for a TPC with its axis (field direction) being in z
 		Double_t fieldZDirection = plane->GetPlaneVector().Z();

@@ -52,7 +52,7 @@ void TRestReadoutAnalysisProcess::InitProcess()
 		{
 			auto iter = fChannelsHistos.begin();
 			while (iter != fChannelsHistos.end()) {
-				TRestReadoutModule*mod = fReadout->GetReadoutModule(iter->first);
+				TRestReadoutModule*mod = fReadout->GetReadoutModuleWithID(iter->first);
 				if (mod == NULL) {
 					warning << "REST Warning(TRestReadoutAnalysisProcess): readout module with id " << iter->first << " not found!" << endl;
 				}
@@ -69,7 +69,7 @@ void TRestReadoutAnalysisProcess::InitProcess()
 		{
 			auto iter = fChannelsHitMaps.begin();
 			while (iter != fChannelsHitMaps.end()) {
-				TRestReadoutModule*mod = fReadout->GetReadoutModule(iter->first);
+				TRestReadoutModule*mod = fReadout->GetReadoutModuleWithID(iter->first);
 				if (mod == NULL) {
 					warning << "REST Warning(TRestReadoutAnalysisProcess): readout module with id " << iter->first << " not found!" << endl;
 				}
@@ -161,7 +161,7 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 			fReadout->GetPlaneModuleChannel(firstY_id, plane, mod2, channel2);
 			if (mod1 == mod2 && mod1 > -1) {
 				int x=-1, y=-1;
-				int n = fReadout->GetReadoutModule(mod1)->GetNumberOfChannels() / 2;
+				int n = fReadout->GetReadoutModuleWithID(mod1)->GetNumberOfChannels() / 2;
 				if (channel1 >= n && channel2 < n)
 				{
 					x = channel2;

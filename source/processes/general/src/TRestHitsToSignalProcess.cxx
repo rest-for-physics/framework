@@ -184,7 +184,7 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
 
         if(daqId >= 0 )
         {
-			TRestReadoutPlane *plane = fReadout->GetReadoutPlane(planeId);
+			TRestReadoutPlane *plane = fReadout->GetReadoutPlaneWithID(planeId);
 
             Double_t energy = fHitsEvent->GetEnergy( hit );
 
