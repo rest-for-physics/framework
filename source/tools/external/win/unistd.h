@@ -2,6 +2,7 @@
 
 #define _UNISTD_H
 #ifdef WIN32
+#include <Windows.h>
 #include <io.h>
 #include <process.h>
 #include <getopt.h>
