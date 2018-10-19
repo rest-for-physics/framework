@@ -38,8 +38,6 @@
 #include "TRestRawSignalAnalysisProcess.h"
 using namespace std;
 
-int rawCounter = 0;
-
 ClassImp(TRestRawSignalAnalysisProcess)
     //______________________________________________________________________________
 TRestRawSignalAnalysisProcess::TRestRawSignalAnalysisProcess()

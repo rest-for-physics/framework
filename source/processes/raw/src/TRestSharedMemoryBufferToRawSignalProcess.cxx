@@ -206,8 +206,6 @@ void TRestSharedMemoryBufferToRawSignalProcess::Initialize()
     fInputEvent = NULL;
     fOutputEvent = fOutputRawSignalEvent;
 
-    fIsExternal = true;
-
     fReset = true;
 }
 
