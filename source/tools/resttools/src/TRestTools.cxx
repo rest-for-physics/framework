@@ -6,11 +6,8 @@
 #include <limits> 
 using namespace std;
 
-#ifdef WIN32
-#include <../external/dirent_win/dirent.h>
-#else
 #include <dirent.h>
-#endif // WIN32
+
 
 
 

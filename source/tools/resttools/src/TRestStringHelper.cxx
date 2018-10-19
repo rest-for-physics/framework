@@ -7,12 +7,7 @@
 #include "v5/TFormula.h"
 #endif
 
-#ifdef WIN32
-#include <io.h>
-#include <Windows.h>
-#else
 #include <unistd.h>
-#endif // WIN32
 
 
 

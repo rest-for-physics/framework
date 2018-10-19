@@ -9,14 +9,10 @@
 #include <fstream>
 #include <sstream> 
 #include <RConfig.h>
-
-#ifdef WIN32
-//#include <conio.h>
-#else
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <termios.h>  
 #include <unistd.h>  
+
+#ifndef WIN32
+#include <sys/ioctl.h>
 #include <fcntl.h> 
 #ifndef __APPLE__
 #include <termio.h>
@@ -63,6 +59,8 @@ enum REST_Verbose_Level
 	REST_Debug, //!< +show the defined debug messages
 	REST_Extreme //!< show everything
 };
+
+#define REST_Warning REST_Essential
 
 //////////////////////////////////////////////////////////////////////////
 /// ConsoleHelper class, providing several static methods dealing with terminal
