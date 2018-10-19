@@ -5,7 +5,7 @@
 # J. Galan - Javier.Galan.Lacarra@cern.ch
 # 8 - Oct - 2018
 
-import os,sys,re
+import os,sys,re,filecmp
 import subprocess
 
 if len(sys.argv) < 2:
@@ -68,7 +68,7 @@ codeC = c
 code = codeA + codeB + codeC
 
 
-f = open( outputHeader , "w")
+f = open( "TRestVersion.tmp" , "w")
 
 f.write("#ifndef REST_Version\n")
 f.write("#define REST_Version\n")
@@ -102,4 +102,7 @@ else:
 f.write("#endif\n")
 f.close()
 
-exit(0)
+if filecmp.cmp( "TRestVersion.tmp", outputHeader ):
+    os.remove( "TRestVersion.tmp" )
+else:
+    os.rename( "TRestVersion.tmp", outputHeader )
