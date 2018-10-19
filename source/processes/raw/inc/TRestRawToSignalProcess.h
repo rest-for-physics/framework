@@ -51,6 +51,8 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    Int_t nFiles;//!
    std::vector<FILE *> fInputFiles;//!
    std::vector<TString> fInputFileNames;
+   
+   Int_t fShowSamples;//!
    #endif
    
    void LoadDefaultConfig();

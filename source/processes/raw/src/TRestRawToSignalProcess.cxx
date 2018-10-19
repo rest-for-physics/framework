@@ -78,11 +78,12 @@ void TRestRawToSignalProcess::BeginOfEventProcess()
 
 void TRestRawToSignalProcess::InitFromConfigFile(){
 
-   fElectronicsType = GetParameter("electronics");
+   fElectronicsType = GetParameter("electronics","");
+   fShowSamples = StringToInteger(GetParameter("showSamples", "10"));
    fMinPoints = StringToInteger( GetParameter("minPoints", "512" ) );
    if(fElectronicsType=="")
    {
-       cout << "electronic type not found " << endl;
+	   warning << this->ClassName() << ": electronic type not found " << endl;
        LoadDefaultConfig();
    }
 
