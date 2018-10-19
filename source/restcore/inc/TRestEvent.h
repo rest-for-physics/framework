@@ -45,22 +45,18 @@ protected:
 	TTimeStamp fEventTime;      ///< Absolute event time
 	Bool_t fOk;                 ///< Flag to be used by processes to define an event status. fOk=true is the default.
 
+#ifndef __CINT__
+
+	TPad *fPad; //!
+#endif
+
+	void RestartPad(Int_t nElements);
+
+
 public:
 	//Setters
 	void SetRunOrigin(Int_t id) { fRunOrigin = id; }
 	void SetSubRunOrigin(Int_t id) { fSubRunOrigin = id; }
-
-	void PrintAddress()
-	{
-		std::cout << this << std::endl;
-		std::cout << &fRunOrigin << std::endl;
-		std::cout << &fSubRunOrigin << std::endl;
-		std::cout << &fEventID << std::endl;
-		std::cout << &fSubEventID << std::endl;
-		std::cout << &fSubEventTag << std::endl;
-		std::cout << &fEventTime << std::endl;
-		std::cout << &fOk << std::endl;
-	}
 
 	void SetID(Int_t id) { fEventID = id; }
 	void SetSubID(Int_t id) { fSubEventID = id; }

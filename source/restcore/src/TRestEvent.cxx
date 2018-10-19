@@ -22,6 +22,11 @@
 
 //////////////////////////////////////////////////////////////////////////
 ///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// \class      TRestEvent
+/// A base class for any REST event 
+///
 /// One of the core classes of REST. Absract class
 /// from which all REST "event classes" must derive.
 /// REST event classes represent the different holders to store 
@@ -31,11 +36,6 @@
 /// virtual functions that must be implemented in derived classes
 /// like Initialize(), PrintEvent() or DrawEvent().
 ///
-/// \class TRestEvent
-///
-///--------------------------------------------------------------------------
-/// 
-/// RESTsoft - Software for Rare Event Searches with TPCs
 ///
 /// History of developments:
 ///
@@ -81,6 +81,8 @@ void TRestEvent::Initialize()
 	fSubEventID = 0;
 	fSubEventTag = "";
 	fOk = true;
+	
+	fPad = NULL;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -156,6 +158,36 @@ void TRestEvent::SetEventInfo(TRestEvent*eve)
 		SetOK(eve->isOk());
 	}
 }
+
+void TRestEvent::RestartPad( Int_t nElements )
+{
+    if( fPad != NULL ) { delete fPad; fPad = NULL; }
+
+    fPad = new TPad( this->GetName(), "", 0., 0., 1., 1. );
+
+    if( nElements == 1 )
+        fPad->Divide( 1 , 1 );
+    if( nElements == 2 )
+        fPad->Divide( 2 , 1 );
+    if( nElements == 3 || nElements == 4 )
+        fPad->Divide( 2 , 2 );
+    if( nElements == 5 )
+        fPad->Divide( 3 , 2 );
+    if( nElements == 6 )
+        fPad->Divide( 3 , 2 );
+    if( nElements > 6 )
+        fPad->Divide( 3 , 3 );
+
+    if( nElements > 9 )
+    {
+        cout << "REST_WARNING. TRestEvent::RestartPad. Maximum number of pad elements reached!" << endl;
+        cout << "Setting the pad elements to 9" << endl;
+        nElements = 9;
+    }
+
+    fPad->Draw();
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 /// Run to print event data info on console
