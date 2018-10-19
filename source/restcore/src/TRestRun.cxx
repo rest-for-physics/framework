@@ -32,6 +32,17 @@
 #include "TRestEventProcess.h"
 #include "TRestDataBase.h"
 
+#ifdef REST_VERSION_HEADER
+#include "TRestVersion.h"
+#else
+
+#define REST_RELEASE "v2.2.0-dev"
+#define REST_VERSION_CODE 131336
+#define REST_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
+
+#endif // !WIN32
+
+
 
 
 ClassImp(TRestRun);
@@ -65,7 +76,7 @@ void TRestRun::Initialize()
 {
 	SetSectionName(this->ClassName());
 
-	fVersion = ExecuteShellCommand("rest-config --version");
+	fVersion = REST_RELEASE;
 	time_t  timev; time(&timev);
 	fStartTime = (Double_t)timev;
 	fEndTime = fStartTime - 1; // So that run length will be -1 if fEndTime is not set
