@@ -6,8 +6,21 @@
 # 8 - Oct - 2018
 
 import os,sys,re
+import subprocess
+
+if len(sys.argv) < 2:
+    print "Usage: ./generateVersionHeader.py XXX.h"
+    exit(1)
 
 outputHeader = sys.argv[1]
+
+p = subprocess.Popen(['git branch'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
+out, err = p.communicate()
+
+if err != "":
+    print err
+    exit(1)
+
 print " -- Generating TRestVersion.h"
 
 branchName = os.popen( "git branch | grep -e \"^*\" | cut -d\' \' -f 2" ).read().rstrip("\n")
@@ -76,3 +89,4 @@ f.write("#define REST_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))\n")
 f.write("#endif\n")
 f.close()
 
+exit(0)
