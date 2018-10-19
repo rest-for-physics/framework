@@ -142,7 +142,8 @@ Int_t TRestAnalysisTree::FillEvent(TRestEvent *evt)
 
 void TRestAnalysisTree::SetObservableValue(TString ProcName_ObsName, Double_t value)
 {
-	Int_t id = GetObservableID(ProcName_ObsName);
+	string name_fixed = Replace((string)ProcName_ObsName, ".", "_", 0);
+	Int_t id = GetObservableID(name_fixed);
 	if (id >= 0) SetObservableValue(id, value);
 }
 
