@@ -69,7 +69,7 @@ MACRO( COMPILEDIR_SE libname )
 	if(DEFINED contents)
 		message("specified sub-dirs: ${contents}")
 		foreach(content ${contents})
-			set(rest_include_dirs ${rest_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR}/${content} ${CMAKE_CURRENT_SOURCE_DIR}/${content}/inc)
+			set(rest_include_dirs ${rest_include_dirs} ${addon_inc} ${CMAKE_CURRENT_SOURCE_DIR}/${content} ${CMAKE_CURRENT_SOURCE_DIR}/${content}/inc)
 		endforeach(content)
 		set(rest_include_dirs ${rest_include_dirs} PARENT_SCOPE)
 
@@ -93,7 +93,7 @@ MACRO( COMPILEDIR_SE libname )
 		endforeach(content)
 	else()
 		message("using inc/src folders in root directory")
-		set(rest_include_dirs ${rest_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/inc)
+		set(rest_include_dirs ${rest_include_dirs} ${addon_inc} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/inc)
 		set(rest_include_dirs ${rest_include_dirs} PARENT_SCOPE)
 
 		file(GLOB_RECURSE files src/*.cxx)
@@ -126,7 +126,7 @@ MACRO( COMPILEDIR_SE libname )
 	endforeach(src)
 
 
-	include_directories(${rest_include_dirs} ${addon_inc})
+	include_directories(${rest_include_dirs})
 	add_library(${libname} SHARED ${contentfiles} ${addon_src})
 
 
@@ -157,7 +157,7 @@ MACRO( COMPILEDIR libname )
 	if(DEFINED contents)
 		message("specified sub-dirs: ${contents}")
 		foreach(content ${contents})
-			set(rest_include_dirs ${rest_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR}/${content} ${CMAKE_CURRENT_SOURCE_DIR}/${content}/inc)
+			set(rest_include_dirs ${rest_include_dirs} ${addon_inc} ${CMAKE_CURRENT_SOURCE_DIR}/${content} ${CMAKE_CURRENT_SOURCE_DIR}/${content}/inc)
 		endforeach(content)
 		set(rest_include_dirs ${rest_include_dirs} PARENT_SCOPE)
 
@@ -180,7 +180,7 @@ MACRO( COMPILEDIR libname )
 		endforeach(content)
 	else()
 		message("using inc/src folders in root directory")
-		set(rest_include_dirs ${rest_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/inc)
+		set(rest_include_dirs ${rest_include_dirs}  ${addon_inc} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/inc)
 		set(rest_include_dirs ${rest_include_dirs} PARENT_SCOPE)
 
 		file(GLOB_RECURSE files src/*.cxx)
@@ -211,7 +211,7 @@ MACRO( COMPILEDIR libname )
 		set(contentfiles ${contentfiles} ${src} ${ROOT_DICT_OUTPUT_SOURCES})
 	endforeach(src)
 
-	include_directories(${rest_include_dirs} ${addon_inc})
+	include_directories(${rest_include_dirs})
 	add_library(${libname} SHARED ${contentfiles} ${addon_src})
 
 	if(CMAKE_SYSTEM_NAME MATCHES "Windows")
