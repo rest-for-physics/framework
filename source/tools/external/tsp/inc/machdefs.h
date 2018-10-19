@@ -67,9 +67,7 @@
 # include <unistd.h>
 #endif
 #ifdef HAVE_MALLOC_H
-#ifndef __APPLE__
 # include <malloc.h>
-#endif
 #endif
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>

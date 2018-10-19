@@ -145,6 +145,45 @@ CLEANUP:
     return rval;
 }
 
+/// This version takes the segment distance matrix directly as elen
+/// The elen distances should be given in the same elist order
+int CCheldkarp_small_segment (int ncount, int *elen, double *upbound,
+        double *optval, int *foundtour, int anytour, int *tour_elist,
+        int nodelimit, int silent )
+{
+    int rval = 0;
+    int i, j, k, ecount;
+    int *elist = (int *) NULL;
+
+    ecount = ncount * (ncount-1) / 2;
+    elist = CC_SAFE_MALLOC (ecount*2, int);
+    // elen  = CC_SAFE_MALLOC (ecount, int);
+
+    if (elist == (int *) NULL || elen == (int *) NULL) {
+        fprintf (stderr, "out of memory in CCheldkarp_small\n");
+        rval = HELDKARP_ERROR; goto CLEANUP;
+    }
+
+    for (i = 0, k = 0; i < ncount; i++) {
+        for (j = 0; j < i; j++) {
+            elist[2*k] = i;
+            elist[2*k+1] = j;
+            //elen[k] = CCutil_dat_edgelen (i, j, dat);
+            k++;
+        }
+    }
+
+    rval = CCheldkarp_small_elist (ncount, ecount, elist, elen, upbound,
+                                   optval, foundtour, anytour, tour_elist,
+                                   nodelimit, silent);
+
+CLEANUP:
+
+    CC_IFFREE (elist, int);
+
+    return rval;
+}
+
 /* In adjacency list
  *   if (i,j) = k'th edge (starting from 0), then adj(i,j) = k+1
  *   adj(i,j) = 0 => undefined edge.
