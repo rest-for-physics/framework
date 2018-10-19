@@ -6,24 +6,10 @@
 ///
 ///             TRestTrackAnalysisProcess.cxx
 ///
-///  TRestRawSignalAnalysisProcess.cxx
-///
-///  List of vailable cuts:
-///
-///  NTracksXCut
-///  NTracksYCut
-///  NTracksXYZCut
-///
-///  To add cut, write "cut" sections in your rml file:
-///
-/// \code
-/// <TRestTrackAnalysisProcess name=""  ... >
-///     <parameter name="cutsEnabled" value="true" />
-///     <cut name="NTracksXCut" value="(1,3)" />
-/// </TRestTrackAnalysisProcess>
 ///
 ///             First implementation of Geant4 analysis process into REST_v2
 ///             Date : mar/2016
+///             Date : may/2018 Added twist parameters
 ///             Author : J. Galan
 ///
 ///_______________________________________________________________________________
@@ -51,7 +37,8 @@ TRestTrackAnalysisProcess::TRestTrackAnalysisProcess( char *cfgFileName )
 //______________________________________________________________________________
 TRestTrackAnalysisProcess::~TRestTrackAnalysisProcess()
 {
-    delete fTrackEvent;
+    delete fInputTrackEvent;
+    delete fOutputTrackEvent;
 }
 
 void TRestTrackAnalysisProcess::LoadDefaultConfig()
@@ -64,12 +51,15 @@ void TRestTrackAnalysisProcess::Initialize()
 {
     SetSectionName( this->ClassName() );
 
-    fTrackEvent = new TRestTrackEvent();
+    fInputTrackEvent = new TRestTrackEvent();
+    fOutputTrackEvent = new TRestTrackEvent();
 
-    fOutputEvent = fTrackEvent;
-    fInputEvent = fTrackEvent;
+    fInputEvent = fInputTrackEvent;
+    fOutputEvent = fOutputTrackEvent;
 
-    //fCutsEnabled = false;
+    fCutsEnabled = false;
+
+    fEnableTwistParameters = false;
 }
 
 void TRestTrackAnalysisProcess::LoadConfig( std::string cfgFilename, std::string name )
@@ -83,286 +73,995 @@ void TRestTrackAnalysisProcess::InitProcess()
     std::vector <string> fObservables;
     fObservables = TRestEventProcess::ReadObservables();
 
-	for (unsigned int i = 0; i < fObservables.size(); i++)
-	{
-		if (fObservables[i].find("nTracks_LE_Y_") != string::npos)
-		{
-			Double_t energy = StringToDouble(fObservables[i].substr(13, fObservables[i].length()).c_str());
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "nTracks_LE_" ) != string::npos )
+        {
+            Double_t energy = StringToDouble ( fObservables[i].substr( 11, fObservables[i].length() ).c_str() );
 
-			fTrack_LE_Y_EnergyObservables.push_back(fObservables[i]);
-			fTrack_LE_Y_Threshold.push_back(energy);
-			nTracks_LE_Y.push_back(0);
-		}
-		else if (fObservables[i].find("nTracks_HE_Y_") != string::npos)
-		{
-			Double_t energy = StringToDouble(fObservables[i].substr(13, fObservables[i].length()).c_str());
+            fTrack_LE_EnergyObservables.push_back( fObservables[i] );
+            fTrack_LE_Threshold.push_back( energy );
+            nTracks_LE.push_back(0);
+        }
 
-			fTrack_HE_Y_EnergyObservables.push_back(fObservables[i]);
-			fTrack_HE_Y_Threshold.push_back(energy);
-			nTracks_HE_Y.push_back(0);
-		}
-		else if (fObservables[i].find("nTracks_LE_X_") != string::npos)
-		{
-			Double_t energy = StringToDouble(fObservables[i].substr(13, fObservables[i].length()).c_str());
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "nTracks_HE_" ) != string::npos )
+        {
+            Double_t energy = StringToDouble ( fObservables[i].substr( 11, fObservables[i].length() ).c_str() );
 
-			fTrack_LE_X_EnergyObservables.push_back(fObservables[i]);
-			fTrack_LE_X_Threshold.push_back(energy);
-			nTracks_LE_X.push_back(0);
-		}
-		else if (fObservables[i].find("nTracks_HE_X_") != string::npos)
-		{
-			Double_t energy = StringToDouble(fObservables[i].substr(13, fObservables[i].length()).c_str());
+            fTrack_HE_EnergyObservables.push_back( fObservables[i] );
+            fTrack_HE_Threshold.push_back( energy );
+            nTracks_HE.push_back(0);
+        }
 
-			fTrack_HE_X_EnergyObservables.push_back(fObservables[i]);
-			fTrack_HE_X_Threshold.push_back(energy);
-			nTracks_HE_X.push_back(0);
-		}
-		else if (fObservables[i].find("nTracks_LE_") != string::npos)
-		{
-			Double_t energy = StringToDouble(fObservables[i].substr(11, fObservables[i].length()).c_str());
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "nTracks_En_" ) != string::npos )
+        {
+            Double_t energy = StringToDouble ( fObservables[i].substr( 11, fObservables[i].length() ).c_str() );
 
-			fTrack_LE_EnergyObservables.push_back(fObservables[i]);
-			fTrack_LE_Threshold.push_back(energy);
-			nTracks_LE.push_back(0);
-		}
-		else if (fObservables[i].find("nTracks_HE_") != string::npos)
-		{
-			Double_t energy = StringToDouble(fObservables[i].substr(11, fObservables[i].length()).c_str());
+            fTrack_En_EnergyObservables.push_back( fObservables[i] );
+            fTrack_En_Threshold.push_back( energy );
+            nTracks_En.push_back(0);
 
-			fTrack_HE_EnergyObservables.push_back(fObservables[i]);
-			fTrack_HE_Threshold.push_back(energy);
-			nTracks_HE.push_back(0);
-		}
-	}
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistLow_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 9, fObservables[i].length() ).c_str() );
+
+            fTwistLowObservables.push_back( fObservables[i] );
+            fTwistLowTailPercentage.push_back( tailPercentage );
+            fTwistLowValue.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistHigh_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 10, fObservables[i].length() ).c_str() );
+
+            fTwistHighObservables.push_back( fObservables[i] );
+            fTwistHighTailPercentage.push_back( tailPercentage );
+            fTwistHighValue.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistBalance_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 13, fObservables[i].length() ).c_str() );
+
+            fTwistBalanceObservables.push_back( fObservables[i] );
+            fTwistBalanceTailPercentage.push_back( tailPercentage );
+            fTwistBalanceValue.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistRatio_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 11, fObservables[i].length() ).c_str() );
+
+            fTwistRatioObservables.push_back( fObservables[i] );
+            fTwistRatioTailPercentage.push_back( tailPercentage );
+            fTwistRatioValue.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistWeightedLow_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 17, fObservables[i].length() ).c_str() );
+
+            fTwistWeightedLowObservables.push_back( fObservables[i] );
+            fTwistWeightedLowTailPercentage.push_back( tailPercentage );
+            fTwistWeightedLowValue.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistWeightedHigh_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 18, fObservables[i].length() ).c_str() );
+
+            fTwistWeightedHighObservables.push_back( fObservables[i] );
+            fTwistWeightedHighTailPercentage.push_back( tailPercentage );
+            fTwistWeightedHighValue.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistLow_X_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 11, fObservables[i].length() ).c_str() );
+
+            fTwistLowObservables_X.push_back( fObservables[i] );
+            fTwistLowTailPercentage_X.push_back( tailPercentage );
+            fTwistLowValue_X.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistHigh_X_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 12, fObservables[i].length() ).c_str() );
+
+            fTwistHighObservables_X.push_back( fObservables[i] );
+            fTwistHighTailPercentage_X.push_back( tailPercentage );
+            fTwistHighValue_X.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistBalance_X_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 15, fObservables[i].length() ).c_str() );
+
+            fTwistBalanceObservables_X.push_back( fObservables[i] );
+            fTwistBalanceTailPercentage_X.push_back( tailPercentage );
+            fTwistBalanceValue_X.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistRatio_X_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 13, fObservables[i].length() ).c_str() );
+
+            fTwistRatioObservables_X.push_back( fObservables[i] );
+            fTwistRatioTailPercentage_X.push_back( tailPercentage );
+            fTwistRatioValue_X.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistWeightedLow_X_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 19, fObservables[i].length() ).c_str() );
+
+            fTwistWeightedLowObservables_X.push_back( fObservables[i] );
+            fTwistWeightedLowTailPercentage_X.push_back( tailPercentage );
+            fTwistWeightedLowValue_X.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistWeightedHigh_X_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 20, fObservables[i].length() ).c_str() );
+
+            fTwistWeightedHighObservables_X.push_back( fObservables[i] );
+            fTwistWeightedHighTailPercentage_X.push_back( tailPercentage );
+            fTwistWeightedHighValue_X.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistLow_Y_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 11, fObservables[i].length() ).c_str() );
+
+            fTwistLowObservables_Y.push_back( fObservables[i] );
+            fTwistLowTailPercentage_Y.push_back( tailPercentage );
+            fTwistLowValue_Y.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistHigh_Y_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 12, fObservables[i].length() ).c_str() );
+
+            fTwistHighObservables_Y.push_back( fObservables[i] );
+            fTwistHighTailPercentage_Y.push_back( tailPercentage );
+            fTwistHighValue_Y.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistBalance_Y_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 15, fObservables[i].length() ).c_str() );
+
+            fTwistBalanceObservables_Y.push_back( fObservables[i] );
+            fTwistBalanceTailPercentage_Y.push_back( tailPercentage );
+            fTwistBalanceValue_Y.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistRatio_Y_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 13, fObservables[i].length() ).c_str() );
+
+            fTwistRatioObservables_Y.push_back( fObservables[i] );
+            fTwistRatioTailPercentage_Y.push_back( tailPercentage );
+            fTwistRatioValue_Y.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistWeightedLow_Y_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 19, fObservables[i].length() ).c_str() );
+
+            fTwistWeightedLowObservables_Y.push_back( fObservables[i] );
+            fTwistWeightedLowTailPercentage_Y.push_back( tailPercentage );
+            fTwistWeightedLowValue_Y.push_back(0);
+        }
+
+    for( unsigned int i = 0; i < fObservables.size(); i++ )
+        if( fObservables[i].find( "twistWeightedHigh_Y_" ) != string::npos )
+        {
+            Double_t tailPercentage = StringToDouble ( fObservables[i].substr( 20, fObservables[i].length() ).c_str() );
+
+            fTwistWeightedHighObservables_Y.push_back( fObservables[i] );
+            fTwistWeightedHighTailPercentage_Y.push_back( tailPercentage );
+            fTwistWeightedHighValue_Y.push_back(0);
+        }
 }
 
 //______________________________________________________________________________
 void TRestTrackAnalysisProcess::BeginOfEventProcess() 
 {
+    fOutputTrackEvent->Initialize();
 }
 
 //______________________________________________________________________________
 TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 {
-    *fTrackEvent =  *(( TRestTrackEvent *) evInput);
+    TRestTrackEvent *fInputTrackEvent =  (TRestTrackEvent *) evInput;
+
+    // Copying the input tracks to the output track
+    for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
+        fOutputTrackEvent->AddTrack( fInputTrackEvent->GetTrack(tck) ); 
+
+    if( this->GetVerboseLevel() >= REST_Debug )
+        fInputTrackEvent->PrintOnlyTracks();
 
     TString obsName;
 
-    Double_t tckLenX = 0;
-    Double_t tckLenY = 0;
-    Double_t tckLenXYZ=0;
-    Double_t tckMaxLenXYZ=0;
-    Double_t tckMaxEnXYZ=0;
-    Int_t nTracksX = 0;
-    Int_t nTracksY = 0;
-    Int_t nTracksXYZ = 0;
-    Double_t maxX = 0, maxY = 0, maxZ = 0;;
+    /* {{{ Number of tracks observables */
+    Int_t nTracksX = 0, nTracksY = 0, nTracksXYZ = 0;
+    nTracksX = fInputTrackEvent->GetNumberOfTracks( "X" );
+    nTracksY = fInputTrackEvent->GetNumberOfTracks( "Y" );
+    nTracksXYZ = fInputTrackEvent->GetNumberOfTracks( "XYZ" );
 
+    obsName = this->GetName() + (TString) ".nTracks_X";
+    fAnalysisTree->SetObservableValue( obsName, nTracksX );
+
+    obsName = this->GetName() + (TString) ".nTracks_Y";
+    fAnalysisTree->SetObservableValue( obsName, nTracksY );
+
+    obsName = this->GetName() + (TString) ".nTracks_XYZ";
+    fAnalysisTree->SetObservableValue( obsName, nTracksXYZ );
+    /* }}} */
+
+    if( fCutsEnabled )
+    {
+        if( nTracksX < fNTracksXCut.X() || nTracksX > fNTracksXCut.Y() ) return NULL;
+        if( nTracksY < fNTracksYCut.X() || nTracksY > fNTracksYCut.Y() ) return NULL;
+    }
+
+    /* {{{ Producing nTracks above/below threshold ( nTracls_LE/HE_XXX ) */
     for( unsigned int n = 0; n < nTracks_HE.size(); n++ )
         nTracks_HE[n] = 0;
+
     for( unsigned int n = 0; n < nTracks_LE.size(); n++ )
         nTracks_LE[n] = 0;
-    for( unsigned int n = 0; n < nTracks_HE_Y.size(); n++ )
-        nTracks_HE_Y[n] = 0;
-    for( unsigned int n = 0; n < nTracks_LE_Y.size(); n++ )
-        nTracks_LE_Y[n] = 0;
-	for (unsigned int n = 0; n < nTracks_HE_X.size(); n++)
-		nTracks_HE_X[n] = 0;
-	for (unsigned int n = 0; n < nTracks_LE_X.size(); n++)
-		nTracks_LE_X[n] = 0;
 
-    for( int tck = 0; tck < fTrackEvent->GetNumberOfTracks(); tck++ )
+    for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
     {
-        if( !fTrackEvent->isTopLevel( tck ) ) continue;
+        if( !fInputTrackEvent->isTopLevel( tck ) ) continue;
 
-        TRestTrack *t = fTrackEvent->GetTrack( tck );
+        TRestTrack *t = fInputTrackEvent->GetTrack( tck );
         Double_t en = t->GetEnergy( );
-
-        if( t->isXZ() )
-        {
-            if( t->GetTrackLength() >= 0 )
-            {
-                nTracksX++;
-                tckLenX += t->GetTrackLength();
-            }
-        }
-
-        if( t->isYZ() )
-        {
-            if( t->GetTrackLength() >= 0 )
-            {
-                nTracksY++;
-                tckLenY += t->GetTrackLength();
-            }
-        }
 
         if( t->isXYZ() )
         {
-            nTracksXYZ++;
-            tckLenXYZ += t->GetTrackLength();
-            if(en> tckMaxEnXYZ)  
-            {
-                tckMaxEnXYZ=en;
-                tckMaxLenXYZ= t->GetTrackLength();
-                maxX = t->GetMeanPosition().X();
-                maxY = t->GetMeanPosition().Y();
-                maxZ = t->GetMeanPosition().Z();
-            }
+            for( unsigned int n = 0; n < fTrack_HE_EnergyObservables.size(); n++ )
+                if( en > fTrack_HE_Threshold[n] )
+                    nTracks_HE[n]++;
+
+            for( unsigned int n = 0; n < fTrack_LE_EnergyObservables.size(); n++ )
+                if( en < fTrack_LE_Threshold[n] )
+                    nTracks_LE[n]++;
+
+            for( unsigned int n = 0; n < fTrack_En_EnergyObservables.size(); n++ )
+                if( en > fTrack_En_Threshold[n] - fDeltaEnergy && en < fTrack_En_Threshold[n] + fDeltaEnergy )
+                    nTracks_En[n]++;
         }
-
-
-        for( unsigned int n = 0; n < fTrack_HE_EnergyObservables.size(); n++ )
-            if( en > fTrack_HE_Threshold[n] )
-                nTracks_HE[n]++;
-        for( unsigned int n = 0; n < fTrack_LE_EnergyObservables.size(); n++ )
-            if( en < fTrack_LE_Threshold[n] )
-                nTracks_LE[n]++;
-
-        for( unsigned int n = 0; n < fTrack_HE_Y_EnergyObservables.size(); n++ )
-            if( en > fTrack_HE_Y_Threshold[n] && t->isYZ() )
-                nTracks_HE_Y[n]++;
-        for( unsigned int n = 0; n < fTrack_LE_Y_EnergyObservables.size(); n++ )
-            if( en < fTrack_LE_Y_Threshold[n] && t->isYZ() )
-                nTracks_LE_Y[n]++;
-
-		for (unsigned int n = 0; n < fTrack_HE_X_EnergyObservables.size(); n++)
-			if (en > fTrack_HE_X_Threshold[n] && t->isXZ())
-				nTracks_HE_X[n]++;
-		for (unsigned int n = 0; n < fTrack_LE_X_EnergyObservables.size(); n++)
-			if (en < fTrack_LE_X_Threshold[n] && t->isXZ())
-				nTracks_LE_X[n]++;
     }
-
-    Double_t evTimeDelay = 0;
-    if( fPreviousEventTime.size() > 0 )
-        evTimeDelay = fTrackEvent->GetTime() - fPreviousEventTime.back();
-    obsName = this->GetName() + (TString) "_EventTimeDelay";
-    fAnalysisTree->SetObservableValue( obsName, evTimeDelay );
-
-    Double_t meanRate = 0;
-    if( fPreviousEventTime.size() == 100 )
-        meanRate = 100. / (fTrackEvent->GetTime()-fPreviousEventTime.front());
-
-    obsName = this->GetName() + (TString) "_MeanRate_InHz";
-    fAnalysisTree->SetObservableValue( obsName, meanRate );
-
-    fTrackEvent->SetNumberOfXTracks( nTracksX );
-    fTrackEvent->SetNumberOfYTracks( nTracksY );
-
-
-	// Cuts
-	if (fCuts.size() > 0)
-	{
-		auto iter = fCuts.begin();
-		while (iter != fCuts.end()) {
-				if (iter->first == "nTracksXCut")
-					if (nTracksX > iter->second.Y() || nTracksX < iter->second.X())
-						return NULL;
-				if (iter->first == "nTracksYCut")
-					if (nTracksY > iter->second.Y() || nTracksY < iter->second.X())
-						return NULL;
-				if (iter->first == "nTracksXYZCut")
-					if (nTracksXYZ > iter->second.Y() || nTracksXYZ < iter->second.X())
-						return NULL;
-			
-			iter++;
-		}
-
-		//if (nTracksX < fNTracksXCut.X() || nTracksX > fNTracksXCut.Y()) return NULL;
-		//if (nTracksY < fNTracksYCut.X() || nTracksY > fNTracksYCut.Y()) return NULL;
-	}
-
-    Double_t x = 0, y = 0;
-
-    TRestTrack *tX = fTrackEvent->GetMaxEnergyTrackInX();
-    if( tX != NULL )
-        x = tX->GetMeanPosition().X();
-
-    TRestTrack *tY = fTrackEvent->GetMaxEnergyTrackInY();
-    if( tY != NULL )
-        y = tY->GetMeanPosition().Y();
-
-    obsName = this->GetName() + (TString) "_xMean";
-    fAnalysisTree->SetObservableValue( obsName, x );
-
-    obsName = this->GetName() + (TString) "_yMean";
-    fAnalysisTree->SetObservableValue( obsName, y );
-
-    obsName = this->GetName() + (TString) "_LengthX";
-    fAnalysisTree->SetObservableValue( obsName, tckLenX );
-
-    obsName = this->GetName() + (TString) "_LengthY";
-    fAnalysisTree->SetObservableValue( obsName, tckLenY );
-
-    obsName = this->GetName() + (TString) "_nTracksX";
-    fAnalysisTree->SetObservableValue( obsName, nTracksX );
-
-    obsName = this->GetName() + (TString) "_nTracksY";
-    fAnalysisTree->SetObservableValue( obsName, nTracksY );
-
-    obsName = this->GetName() + (TString) "_nTracksXYZ";
-    fAnalysisTree->SetObservableValue( obsName, nTracksXYZ );
-    obsName = this->GetName() + (TString) "_LengthXYZ";
-    fAnalysisTree->SetObservableValue( obsName, nTracksXYZ );
-    obsName = this->GetName() + (TString) "_MaxLengthXYZ";
-    fAnalysisTree->SetObservableValue( obsName, tckMaxLenXYZ );
-    obsName = this->GetName() + (TString) "_MaxEnXYZ";
-    fAnalysisTree->SetObservableValue( obsName, tckMaxEnXYZ );
-
-    obsName = this->GetName() + (TString) "_maxXMean";
-    fAnalysisTree->SetObservableValue( obsName, maxX );
-
-    obsName = this->GetName() + (TString) "_maxYMean";
-    fAnalysisTree->SetObservableValue( obsName, maxY );
-    obsName = this->GetName() + (TString) "_maxZMean";
-    fAnalysisTree->SetObservableValue( obsName, maxZ );
 
     for( unsigned int n = 0; n < fTrack_LE_EnergyObservables.size(); n++ )
     {
         TString obsName = fTrack_LE_EnergyObservables[n];
-        obsName = this->GetName( ) + (TString) "_" + obsName;
+        obsName = this->GetName( ) + (TString) "." + obsName;
         fAnalysisTree->SetObservableValue( obsName, nTracks_LE[n] );
     }
+
     for( unsigned int n = 0; n < fTrack_HE_EnergyObservables.size(); n++ )
     {
         TString obsName = fTrack_HE_EnergyObservables[n];
-        obsName = this->GetName( ) + (TString) "_" + obsName;
+        obsName = this->GetName( ) + (TString) "." + obsName;
         fAnalysisTree->SetObservableValue( obsName, nTracks_HE[n] );
     }
 
-    for( unsigned int n = 0; n < fTrack_LE_Y_EnergyObservables.size(); n++ )
+     for( unsigned int n = 0; n < fTrack_En_EnergyObservables.size(); n++ )
     {
-        TString obsName = fTrack_LE_Y_EnergyObservables[n];
-        obsName = this->GetName( ) + (TString) "_" + obsName;
-        fAnalysisTree->SetObservableValue( obsName, nTracks_LE_Y[n] );
+        TString obsName = fTrack_En_EnergyObservables[n];
+        obsName = this->GetName( ) + (TString) "." + obsName;
+        fAnalysisTree->SetObservableValue( obsName, nTracks_En[n] );
     }
-    for( unsigned int n = 0; n < fTrack_HE_Y_EnergyObservables.size(); n++ )
+    /* }}} */
+
+
+    TRestTrack *tXYZ = fInputTrackEvent->GetMaxEnergyTrack( );
+    TRestTrack *tX = fInputTrackEvent->GetMaxEnergyTrack("X");
+    TRestTrack *tY = fInputTrackEvent->GetMaxEnergyTrack("Y");
+
+    if( fEnableTwistParameters )
     {
-        TString obsName = fTrack_HE_Y_EnergyObservables[n];
-        obsName = this->GetName( ) + (TString) "_" + obsName;
-        fAnalysisTree->SetObservableValue( obsName, nTracks_HE_Y[n] );
+        /* {{{ Adding twist observables from XYZ track */
+
+        Double_t twist = -1, twistWeighted = -1;
+
+        for( unsigned int n = 0; n < fTwistWeightedHighValue.size(); n++ )
+            fTwistWeightedHighValue[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistWeightedLowValue.size(); n++ )
+            fTwistWeightedLowValue[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistLowValue.size(); n++ )
+            fTwistLowValue[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistHighValue.size(); n++ )
+            fTwistHighValue[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistBalanceValue.size(); n++ )
+            fTwistBalanceValue[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistRatioValue.size(); n++ )
+            fTwistRatioValue[n] = -1;
+
+        if( tXYZ )
+        {
+            TRestVolumeHits *hits = tXYZ->GetVolumeHits();
+            Int_t Nhits = hits->GetNumberOfHits();
+
+            twist = hits->GetHitsTwist( 0, 0 );
+            twistWeighted = hits->GetHitsTwistWeighted( 0, 0 );
+
+            for( unsigned int n = 0; n < fTwistLowObservables.size(); n++ )
+            {
+                Int_t Nend = fTwistLowTailPercentage[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
+
+                if( twistStart < twistEnd ) 
+                    fTwistLowValue[n] = twistStart;
+                else
+                    fTwistLowValue[n] = twistEnd;
+            }
+
+            for( unsigned int n = 0; n < fTwistHighObservables.size(); n++ )
+            {
+                Int_t Nend = fTwistHighTailPercentage[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
+
+                if( twistStart > twistEnd ) 
+                    fTwistHighValue[n] = twistStart;
+                else
+                    fTwistHighValue[n] = twistEnd;
+            }
+
+            for( unsigned int n = 0; n < fTwistBalanceObservables.size(); n++ )
+            {
+                Int_t Nend = fTwistBalanceTailPercentage[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
+
+                if( twistStart < twistEnd ) 
+                    fTwistBalanceValue[n] = (twistEnd - twistStart)/(twistEnd + twistStart);
+                else
+                    fTwistBalanceValue[n] = (twistStart - twistEnd)/(twistEnd + twistStart);
+            }
+
+            for( unsigned int n = 0; n < fTwistRatioObservables.size(); n++ )
+            {
+                Int_t Nend = fTwistRatioTailPercentage[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
+
+                if( twistStart > twistEnd ) 
+                {
+                    if( twistEnd <= 0 ) twistEnd = -1;
+                    fTwistRatioValue[n] = twistStart/twistEnd;
+                }
+                else
+                {
+                    if( twistStart <= 0 ) twistStart = -1;
+                    fTwistRatioValue[n] = twistEnd/twistStart;
+                }
+            }
+
+            for( unsigned int n = 0; n < fTwistWeightedLowObservables.size(); n++ )
+            {
+                Int_t Nend = fTwistWeightedLowTailPercentage[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwistWeighted( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwistWeighted( Nhits-Nend, Nhits ); 
+
+                if( twistStart < twistEnd ) 
+                    fTwistWeightedLowValue[n] = twistStart;
+                else
+                    fTwistWeightedLowValue[n] = twistEnd;
+            }
+
+            for( unsigned int n = 0; n < fTwistWeightedHighObservables.size(); n++ )
+            {
+                Int_t Nend = fTwistWeightedHighTailPercentage[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwistWeighted( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwistWeighted( Nhits-Nend, Nhits ); 
+
+                if( twistStart > twistEnd ) 
+                    fTwistWeightedHighValue[n] = twistStart;
+                else
+                    fTwistWeightedHighValue[n] = twistEnd;
+            }
+        }
+
+        for( unsigned int n = 0; n < fTwistLowObservables.size(); n++ )
+        {
+            TString obsName = fTwistLowObservables[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistLowValue[n] );
+        }
+
+        for( unsigned int n = 0; n < fTwistHighObservables.size(); n++ )
+        {
+            TString obsName = fTwistHighObservables[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistHighValue[n] );
+        }
+
+        for( unsigned int n = 0; n < fTwistBalanceObservables.size(); n++ )
+        {
+            TString obsName = fTwistBalanceObservables[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistBalanceValue[n] );
+        }
+
+        for( unsigned int n = 0; n < fTwistRatioObservables.size(); n++ )
+        {
+            TString obsName = fTwistRatioObservables[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistRatioValue[n] );
+        }
+
+        for( unsigned int n = 0; n < fTwistWeightedLowObservables.size(); n++ )
+        {
+            TString obsName = fTwistWeightedLowObservables[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistWeightedLowValue[n] );
+        }
+
+        for( unsigned int n = 0; n < fTwistWeightedHighObservables.size(); n++ )
+        {
+            TString obsName = fTwistWeightedHighObservables[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistWeightedHighValue[n] );
+        }
+
+        obsName = this->GetName( ) + (TString) ".twist";
+        fAnalysisTree->SetObservableValue( obsName, twist );
+
+        obsName = this->GetName( ) + (TString) ".twistWeighted";
+        fAnalysisTree->SetObservableValue( obsName, twistWeighted );
+        /* }}} */
+
+        /* {{{ Adding twist observables from X track */
+        Double_t twist_X = -1, twistWeighted_X = -1;
+
+        for( unsigned int n = 0; n < fTwistWeightedHighValue_X.size(); n++ )
+            fTwistWeightedHighValue_X[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistWeightedLowValue_X.size(); n++ )
+            fTwistWeightedLowValue_X[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistLowValue_X.size(); n++ )
+            fTwistLowValue_X[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistHighValue_X.size(); n++ )
+            fTwistHighValue_X[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistBalanceValue_X.size(); n++ )
+            fTwistBalanceValue_X[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistRatioValue_X.size(); n++ )
+            fTwistRatioValue_X[n] = -1;
+
+        if( tX )
+        {
+            TRestVolumeHits *hits = tX->GetVolumeHits();
+            Int_t Nhits = hits->GetNumberOfHits();
+
+            twist_X = hits->GetHitsTwist( 0, 0 );
+            twistWeighted_X = hits->GetHitsTwistWeighted( 0, 0 );
+
+            for( unsigned int n = 0; n < fTwistLowObservables_X.size(); n++ )
+            {
+                Int_t Nend = fTwistLowTailPercentage_X[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
+
+                if( twistStart < twistEnd ) 
+                    fTwistLowValue_X[n] = twistStart;
+                else
+                    fTwistLowValue_X[n] = twistEnd;
+            }
+
+            for( unsigned int n = 0; n < fTwistHighObservables_X.size(); n++ )
+            {
+                Int_t Nend = fTwistHighTailPercentage_X[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
+
+                if( twistStart > twistEnd ) 
+                    fTwistHighValue_X[n] = twistStart;
+                else
+                    fTwistHighValue_X[n] = twistEnd;
+            }
+
+            for( unsigned int n = 0; n < fTwistBalanceObservables_X.size(); n++ )
+            {
+                Int_t Nend = fTwistBalanceTailPercentage_X[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
+
+                if( twistStart < twistEnd ) 
+                    fTwistBalanceValue_X[n] = (twistEnd - twistStart)/(twistEnd + twistStart);
+                else
+                    fTwistBalanceValue_X[n] = (twistStart - twistEnd)/(twistEnd + twistStart);
+            }
+
+            for( unsigned int n = 0; n < fTwistRatioObservables_X.size(); n++ )
+            {
+                Int_t Nend = fTwistRatioTailPercentage_X[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
+
+                if( twistStart > twistEnd ) 
+                {
+                    if( twistEnd <= 0 ) twistEnd = -1;
+                    fTwistRatioValue[n] = twistStart/twistEnd;
+                }
+                else
+                {
+                    if( twistStart <= 0 ) twistStart = -1;
+                    fTwistRatioValue[n] = twistEnd/twistStart;
+                }
+            }
+
+            for( unsigned int n = 0; n < fTwistWeightedLowObservables_X.size(); n++ )
+            {
+                Int_t Nend = fTwistWeightedLowTailPercentage_X[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwistWeighted( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwistWeighted( Nhits-Nend, Nhits ); 
+
+                if( twistStart < twistEnd ) 
+                    fTwistWeightedLowValue_X[n] = twistStart;
+                else
+                    fTwistWeightedLowValue_X[n] = twistEnd;
+            }
+
+            for( unsigned int n = 0; n < fTwistWeightedHighObservables_X.size(); n++ )
+            {
+                Int_t Nend = fTwistWeightedHighTailPercentage_X[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwistWeighted( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwistWeighted( Nhits-Nend, Nhits ); 
+
+                if( twistStart > twistEnd ) 
+                    fTwistWeightedHighValue_X[n] = twistStart;
+                else
+                    fTwistWeightedHighValue_X[n] = twistEnd;
+            }
+        }
+
+        for( unsigned int n = 0; n < fTwistLowObservables_X.size(); n++ )
+        {
+            TString obsName = fTwistLowObservables_X[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistLowValue_X[n] );
+        }
+
+        for( unsigned int n = 0; n < fTwistHighObservables_X.size(); n++ )
+        {
+            TString obsName = fTwistHighObservables_X[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistHighValue_X[n] );
+        }
+
+        for( unsigned int n = 0; n < fTwistBalanceObservables_X.size(); n++ )
+        {
+            TString obsName = fTwistBalanceObservables_X[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistBalanceValue_X[n] );
+        }
+
+        for( unsigned int n = 0; n < fTwistRatioObservables_X.size(); n++ )
+        {
+            TString obsName = fTwistRatioObservables_X[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistRatioValue_X[n] );
+        }
+
+        for( unsigned int n = 0; n < fTwistWeightedLowObservables_X.size(); n++ )
+        {
+            TString obsName = fTwistWeightedLowObservables_X[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+
+            fAnalysisTree->SetObservableValue( obsName, fTwistWeightedLowValue_X[n] );
+        }
+
+        for( unsigned int n = 0; n < fTwistWeightedHighObservables_X.size(); n++ )
+        {
+            TString obsName = fTwistWeightedHighObservables_X[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistWeightedHighValue_X[n] );
+        }
+
+        obsName = this->GetName( ) + (TString) ".twist_X";
+        fAnalysisTree->SetObservableValue( obsName, twist_X );
+
+        obsName = this->GetName( ) + (TString) ".twistWeighted_X";
+        fAnalysisTree->SetObservableValue( obsName, twistWeighted_X );
+        /* }}} */
+
+        /* {{{ Adding twist observables from Y track */
+        Double_t twist_Y = -1, twistWeighted_Y = -1;
+
+        for( unsigned int n = 0; n < fTwistWeightedHighValue_Y.size(); n++ )
+            fTwistWeightedHighValue_Y[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistWeightedLowValue_Y.size(); n++ )
+            fTwistWeightedLowValue_Y[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistLowValue_Y.size(); n++ )
+            fTwistLowValue_Y[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistHighValue_Y.size(); n++ )
+            fTwistHighValue_Y[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistBalanceValue_Y.size(); n++ )
+            fTwistBalanceValue_Y[n] = -1;
+
+        for( unsigned int n = 0; n < fTwistRatioValue_Y.size(); n++ )
+            fTwistRatioValue_Y[n] = -1;
+
+        if( tY )
+        {
+            TRestVolumeHits *hits = tY->GetVolumeHits();
+            Int_t Nhits = hits->GetNumberOfHits();
+
+            twist_Y = hits->GetHitsTwist( 0, 0 );
+            twistWeighted_Y = hits->GetHitsTwistWeighted( 0, 0 );
+
+            for( unsigned int n = 0; n < fTwistLowObservables_Y.size(); n++ )
+            {
+                Int_t Nend = fTwistLowTailPercentage_Y[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
+
+                if( twistStart < twistEnd ) 
+                    fTwistLowValue_Y[n] = twistStart;
+                else
+                    fTwistLowValue_Y[n] = twistEnd;
+            }
+
+            for( unsigned int n = 0; n < fTwistHighObservables_Y.size(); n++ )
+            {
+                Int_t Nend = fTwistHighTailPercentage_Y[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
+
+                if( twistStart > twistEnd ) 
+                    fTwistHighValue_Y[n] = twistStart;
+                else
+                    fTwistHighValue_Y[n] = twistEnd;
+            }
+
+            for( unsigned int n = 0; n < fTwistBalanceObservables_Y.size(); n++ )
+            {
+                Int_t Nend = fTwistBalanceTailPercentage_Y[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
+
+                if( twistStart < twistEnd ) 
+                    fTwistBalanceValue_Y[n] = (twistEnd - twistStart)/(twistEnd + twistStart);
+                else
+                    fTwistBalanceValue_Y[n] = (twistStart - twistEnd)/(twistEnd + twistStart);
+            }
+
+            for( unsigned int n = 0; n < fTwistRatioObservables_Y.size(); n++ )
+            {
+                Int_t Nend = fTwistRatioTailPercentage_Y[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwist( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwist( Nhits-Nend, Nhits ); 
+
+                if( twistStart > twistEnd ) 
+                {
+                    if( twistEnd <= 0 ) twistEnd = -1;
+                    fTwistRatioValue[n] = twistStart/twistEnd;
+                }
+                else
+                {
+                    if( twistStart <= 0 ) twistStart = -1;
+                    fTwistRatioValue[n] = twistEnd/twistStart;
+                }
+            }
+
+            for( unsigned int n = 0; n < fTwistWeightedLowObservables_Y.size(); n++ )
+            {
+                Int_t Nend = fTwistWeightedLowTailPercentage_Y[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwistWeighted( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwistWeighted( Nhits-Nend, Nhits ); 
+
+                if( twistStart < twistEnd ) 
+                    fTwistWeightedLowValue_Y[n] = twistStart;
+                else
+                    fTwistWeightedLowValue_Y[n] = twistEnd;
+            }
+
+            for( unsigned int n = 0; n < fTwistWeightedHighObservables_Y.size(); n++ )
+            {
+                Int_t Nend = fTwistWeightedHighTailPercentage_Y[n] * Nhits / 100.;
+                Double_t twistStart = hits->GetHitsTwistWeighted( 0, Nend ); 
+                Double_t twistEnd = hits->GetHitsTwistWeighted( Nhits-Nend, Nhits ); 
+
+                if( twistStart > twistEnd ) 
+                    fTwistWeightedHighValue_Y[n] = twistStart;
+                else
+                    fTwistWeightedHighValue_Y[n] = twistEnd;
+            }
+        }
+
+        for( unsigned int n = 0; n < fTwistLowObservables_Y.size(); n++ )
+        {
+            TString obsName = fTwistLowObservables_Y[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistLowValue_Y[n] );
+        }
+
+        for( unsigned int n = 0; n < fTwistHighObservables_Y.size(); n++ )
+        {
+            TString obsName = fTwistHighObservables_Y[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistHighValue_Y[n] );
+        }
+
+        for( unsigned int n = 0; n < fTwistBalanceObservables_Y.size(); n++ )
+        {
+            TString obsName = fTwistBalanceObservables_Y[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistBalanceValue_Y[n] );
+        }
+
+        for( unsigned int n = 0; n < fTwistRatioObservables_Y.size(); n++ )
+        {
+            TString obsName = fTwistRatioObservables_Y[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistRatioValue_Y[n] );
+        }
+
+        for( unsigned int n = 0; n < fTwistWeightedLowObservables_Y.size(); n++ )
+        {
+            TString obsName = fTwistWeightedLowObservables_Y[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistWeightedLowValue_Y[n] );
+        }
+
+        for( unsigned int n = 0; n < fTwistWeightedHighObservables_Y.size(); n++ )
+        {
+            TString obsName = fTwistWeightedHighObservables_Y[n];
+            obsName = this->GetName( ) + (TString) "." + obsName;
+            fAnalysisTree->SetObservableValue( obsName, fTwistWeightedHighValue_Y[n] );
+        }
+
+        obsName = this->GetName( ) + (TString) ".twist_Y";
+        fAnalysisTree->SetObservableValue( obsName, twist_Y );
+
+        obsName = this->GetName( ) + (TString) ".twistWeighted_Y";
+        fAnalysisTree->SetObservableValue( obsName, twistWeighted_Y );
+        /* }}} */
     }
 
-	for (unsigned int n = 0; n < fTrack_LE_X_EnergyObservables.size(); n++)
-	{
-		TString obsName = fTrack_LE_X_EnergyObservables[n];
-		obsName = this->GetName() + (TString) "_" + obsName;
-		fAnalysisTree->SetObservableValue(obsName, nTracks_LE_X[n]);
-	}
-	for (unsigned int n = 0; n < fTrack_HE_X_EnergyObservables.size(); n++)
-	{
-		TString obsName = fTrack_HE_X_EnergyObservables[n];
-		obsName = this->GetName() + (TString) "_" + obsName;
-		fAnalysisTree->SetObservableValue(obsName, nTracks_HE_X[n]);
-	}
+    /* {{{ Getting max track energies and track energy ratio */
+    Double_t tckMaxEnXYZ = 0, tckMaxEnX = 0, tckMaxEnY = 0;
 
-    return fTrackEvent;
+    if( fInputTrackEvent->GetMaxEnergyTrack() )
+        tckMaxEnXYZ = fInputTrackEvent->GetMaxEnergyTrack()->GetEnergy();
+
+    obsName = this->GetName() + (TString) ".maxTrackEnergy";
+    fAnalysisTree->SetObservableValue( obsName, tckMaxEnXYZ );
+
+    if( fInputTrackEvent->GetMaxEnergyTrack("X") )
+        tckMaxEnX = fInputTrackEvent->GetMaxEnergyTrack("X")->GetEnergy();
+
+    obsName = this->GetName() + (TString) ".maxTrack_X_Energy";
+    fAnalysisTree->SetObservableValue( obsName, tckMaxEnX );
+
+    if( fInputTrackEvent->GetMaxEnergyTrack("Y") )
+        tckMaxEnY = fInputTrackEvent->GetMaxEnergyTrack("Y")->GetEnergy();
+
+    obsName = this->GetName() + (TString) ".maxTrack_Y_Energy";
+    fAnalysisTree->SetObservableValue( obsName, tckMaxEnY );
+
+    Double_t tckMaxEnergy = tckMaxEnX + tckMaxEnY + tckMaxEnXYZ;
+
+    Double_t totalEnergy = fInputTrackEvent->GetEnergy( );
+
+    Double_t trackEnergyRatio = (totalEnergy - tckMaxEnergy) / totalEnergy;
+
+    obsName = this->GetName() + (TString) ".nTrackEnergyRatio";
+    fAnalysisTree->SetObservableValue( obsName, trackEnergyRatio );
+    /* }}} */
+
+    /* {{{ Maximum Second Track Energy observable */
+    Double_t maxSecondTrackEnergy = 0;
+    if( fInputTrackEvent->GetSecondMaxEnergyTrack() != NULL )
+        maxSecondTrackEnergy = fInputTrackEvent->GetSecondMaxEnergyTrack( )->GetEnergy( );
+
+    Double_t maxSecondTrackEnergy_X = 0;
+    if( fInputTrackEvent->GetSecondMaxEnergyTrack( "X" ) != NULL )
+        maxSecondTrackEnergy_X = fInputTrackEvent->GetSecondMaxEnergyTrack( "X" )->GetEnergy( );
+
+    Double_t maxSecondTrackEnergy_Y = 0;
+    if( fInputTrackEvent->GetSecondMaxEnergyTrack( "Y" ) != NULL )
+        maxSecondTrackEnergy_Y = fInputTrackEvent->GetSecondMaxEnergyTrack( "Y" )->GetEnergy( );
+
+    obsName = this->GetName() + (TString) ".secondTrackMaxEnergy";
+    fAnalysisTree->SetObservableValue( obsName, maxSecondTrackEnergy );
+
+    obsName = this->GetName() + (TString) ".secondTrackMaxEnergy_X";
+    fAnalysisTree->SetObservableValue( obsName, maxSecondTrackEnergy_X );
+
+    obsName = this->GetName() + (TString) ".secondTrackMaxEnergy_Y";
+    fAnalysisTree->SetObservableValue( obsName, maxSecondTrackEnergy_Y );
+    /* }}} */
+
+
+    /* {{{ Track Length observables (MaxTrackLength_XX) */
+    Double_t tckLenX = fInputTrackEvent->GetMaxEnergyTrackLength( "X" );
+    Double_t tckLenY = fInputTrackEvent->GetMaxEnergyTrackLength( "Y" );
+    Double_t tckLenXYZ = fInputTrackEvent->GetMaxEnergyTrackLength( );
+
+    obsName = this->GetName() + (TString) ".MaxTrackLength_X";
+    fAnalysisTree->SetObservableValue( obsName, tckLenX );
+
+    obsName = this->GetName() + (TString) ".MaxTrackLength_Y";
+    fAnalysisTree->SetObservableValue( obsName, tckLenY );
+
+    obsName = this->GetName() + (TString) ".MaxTrackLength_XYZ";
+    fAnalysisTree->SetObservableValue( obsName, tckLenXYZ );
+    /* }}} */
+
+    /* {{{ Track Volume observables (MaxTrackVolume_XX) */
+    Double_t tckVolX = fInputTrackEvent->GetMaxEnergyTrackVolume( "X" );
+    Double_t tckVolY = fInputTrackEvent->GetMaxEnergyTrackVolume( "Y" );
+    Double_t tckVolXYZ = fInputTrackEvent->GetMaxEnergyTrackVolume( );
+
+    obsName = this->GetName() + (TString) ".MaxTrackVolume_X";
+    fAnalysisTree->SetObservableValue( obsName, tckVolX );
+
+    obsName = this->GetName() + (TString) ".MaxTrackVolume_Y";
+    fAnalysisTree->SetObservableValue( obsName, tckVolY );
+
+    obsName = this->GetName() + (TString) ".MaxTrackVolume_XYZ";
+    fAnalysisTree->SetObservableValue( obsName, tckVolXYZ );
+    /* }}} */
+
+
+    /* {{{ Setting mean position for max energy tracks (MaxTrack_{x,y,z}Mean_XXX) */
+    
+    /////////////////// XYZ-track //////////////////////////
+    Double_t maxX = 0, maxY = 0, maxZ = 0;;
+
+    TRestTrack *tMax = fInputTrackEvent->GetMaxEnergyTrack();
+
+    if( tMax != NULL )
+    {
+        maxX = tMax->GetMeanPosition().X();
+        maxY = tMax->GetMeanPosition().Y();
+        maxZ = tMax->GetMeanPosition().Z();
+    }
+
+    obsName = this->GetName() + (TString) ".MaxTrack_Xmean_XYZ";
+    fAnalysisTree->SetObservableValue( obsName, maxX );
+
+    obsName = this->GetName() + (TString) ".MaxTrack_Ymean_XYZ";
+    fAnalysisTree->SetObservableValue( obsName, maxY );
+
+    obsName = this->GetName() + (TString) ".MaxTrack_Zmean_XYZ";
+    fAnalysisTree->SetObservableValue( obsName, maxZ );
+
+    /////////////////// XZ-track //////////////////////////
+
+    maxX = 0, maxY = 0, maxZ = 0;
+    tMax = fInputTrackEvent->GetMaxEnergyTrack("X");
+    if( tMax != NULL )
+    {
+        maxX = tMax->GetMeanPosition().X();
+        maxZ = tMax->GetMeanPosition().Z();
+    }
+
+    obsName = this->GetName() + (TString) ".MaxTrack_Xmean_X";
+    fAnalysisTree->SetObservableValue( obsName, maxX );
+
+    obsName = this->GetName() + (TString) ".MaxTrack_Zmean_X";
+    fAnalysisTree->SetObservableValue( obsName, maxZ );
+
+    /////////////////// YZ-track //////////////////////////
+
+    maxX = 0, maxY = 0, maxZ = 0;
+    tMax = fInputTrackEvent->GetMaxEnergyTrack("Y");
+    if( tMax != NULL )
+    {
+        maxY = tMax->GetMeanPosition().Y();
+        maxZ = tMax->GetMeanPosition().Z();
+    }
+
+    obsName = this->GetName() + (TString) ".MaxTrack_Ymean_Y";
+    fAnalysisTree->SetObservableValue( obsName, maxX );
+
+    obsName = this->GetName() + (TString) ".MaxTrack_Zmean_Y";
+    fAnalysisTree->SetObservableValue( obsName, maxZ );
+
+    /////////////////// xMean, yMean and zMean //////////////////////////
+    Double_t x = 0, y = 0, z = 0;
+
+    if( tXYZ != NULL )
+    {
+        x = tXYZ->GetMeanPosition().X();
+        y = tXYZ->GetMeanPosition().Y();
+        z = tXYZ->GetMeanPosition().Y();
+    }
+    else if( tX != NULL )
+    {
+        x = tX->GetMeanPosition().X();
+        z = tX->GetMeanPosition().Y();
+    }
+    else if( tY != NULL )
+    {
+        y = tY->GetMeanPosition().Y();
+        z = tY->GetMeanPosition().Y();
+    }
+
+    obsName = this->GetName() + (TString) ".xMean";
+    fAnalysisTree->SetObservableValue( obsName, x );
+
+    obsName = this->GetName() + (TString) ".yMean";
+    fAnalysisTree->SetObservableValue( obsName, y );
+
+    obsName = this->GetName() + (TString) ".zMean";
+    fAnalysisTree->SetObservableValue( obsName, z );
+    /* }}} */
+
+    /// This kind of observables would be better in a separate process that measures the trigger rate
+    Double_t evTimeDelay = 0;
+    if( fPreviousEventTime.size() > 0 )
+        evTimeDelay = fInputTrackEvent->GetTime() - fPreviousEventTime.back();
+    obsName = this->GetName() + (TString) ".EventTimeDelay";
+    fAnalysisTree->SetObservableValue( obsName, evTimeDelay );
+
+    Double_t meanRate = 0;
+    if( fPreviousEventTime.size() == 100 )
+        meanRate = 100. / (fInputTrackEvent->GetTime()-fPreviousEventTime.front());
+
+    obsName = this->GetName() + (TString) ".MeanRate_InHz";
+    fAnalysisTree->SetObservableValue( obsName, meanRate );
+
+    if( GetVerboseLevel() >= REST_Info )
+    {
+        cout << "TRestTrackAnalysisProcess : " << GetName() << endl;
+        cout << "----------------------------------------------" << endl;
+        fAnalysisTree->PrintObservables();
+	GetChar();
+	if( GetVerboseLevel() >= REST_Extreme )
+		GetChar();
+    }
+
+    return fOutputTrackEvent;
 }
 
 //______________________________________________________________________________
 void TRestTrackAnalysisProcess::EndOfEventProcess() 
 {
-    fPreviousEventTime.push_back( fTrackEvent->GetTimeStamp() );
+    fPreviousEventTime.push_back( fInputTrackEvent->GetTimeStamp() );
     if( fPreviousEventTime.size() > 100 ) fPreviousEventTime.erase( fPreviousEventTime.begin() );
 }
 
@@ -380,7 +1079,13 @@ void TRestTrackAnalysisProcess::EndProcess()
 //______________________________________________________________________________
 void TRestTrackAnalysisProcess::InitFromConfigFile( )
 {
-	
+    fNTracksXCut = StringTo2DVector( GetParameter( "nTracksXCut", "(1,10)") );
+    fNTracksYCut = StringTo2DVector( GetParameter( "nTracksYCut", "(1,10)") );
+    fDeltaEnergy = GetDblParameterWithUnits( "deltaEnergy", 1 );
 
+    if( GetParameter( "cutsEnabled", "false" ) == "true" ) fCutsEnabled = true;
+
+    if ( GetParameter( "enableTwistParameters", "false" ) == "true" )
+        fEnableTwistParameters = true;
 }
 

@@ -157,11 +157,11 @@ TRestEvent* TRestPointLikeAnaProcess::ProcessEvent( TRestEvent *evInput )
     for(k = 0; k < fSignalEvent->GetNumberOfSignals(); k++)
     {
 	daqChannel = fSignalEvent->GetSignal(k)->GetSignalID();
-	TRestReadoutPlane *plane = &(*fReadout)[planeId];
+	TRestReadoutPlane *plane = fReadout->GetReadoutPlane( planeId );
 
 	for( int m = 0; m < plane->GetNumberOfModules(); m++ )
         	{
-            module = &(*plane)[ m ];
+            module = plane->GetModule( m );
             if( module->isDaqIDInside( daqChannel ) ) break;
        	}
 
@@ -316,11 +316,11 @@ TRestEvent* TRestPointLikeAnaProcess::ProcessEvent( TRestEvent *evInput )
     for(k = 0; k < fSignalEvent->GetNumberOfSignals(); k++)
     {
 	daqChannel = fSignalEvent->GetSignal(k)->GetSignalID();
-	TRestReadoutPlane *plane = &(*fReadout)[planeId];
+	TRestReadoutPlane *plane = fReadout->GetReadoutPlane( planeId );
 
 	for( int m = 0; m < plane->GetNumberOfModules(); m++ )
         	{
-            module = &(*plane)[m];
+            module = plane->GetModule( m );
             if( module->isDaqIDInside( daqChannel ) ) break;
        	}
 

@@ -82,109 +82,58 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
    
     TString obsName;
 
-    TransferEvent( fOutputHitsEvent, fInputHitsEvent );
-    
+	TRestHits *hits = fInputHitsEvent->GetHits();
+    for( int n = 0; n < hits->GetNumberOfHits(); n++ )
+    {
+        Double_t eDep = hits->GetEnergy(n);
+
+        Double_t x = hits->GetX(n);
+        Double_t y = hits->GetY(n);
+        Double_t z = hits->GetZ(n);
+
+        fOutputHitsEvent->AddHit( x, y, z, eDep );
+    }
+
+    if( fOutputHitsEvent->GetNumberOfHits() == 0 ) return NULL;
+
+
     Double_t energy = fOutputHitsEvent->GetEnergy( );
     TVector3 meanPosition = fOutputHitsEvent->GetMeanPosition();
-
+	Double_t sigmaX= fOutputHitsEvent->GetSigmaX();
+	Double_t sigmaY= fOutputHitsEvent->GetSigmaY();
+	Double_t sigmaXY2= fOutputHitsEvent->GetSigmaXY2();
+     Double_t sigmaZ2= fOutputHitsEvent->GetSigmaZ2();
+      Double_t skewXY= fOutputHitsEvent->GetSkewXY();
+     Double_t skewZ= fOutputHitsEvent->GetSkewZ();
+     Double_t energyX = fOutputHitsEvent->GetEnergyX( );
+      Double_t energyY = fOutputHitsEvent->GetEnergyY( );
+	Double_t maxEnergy = fOutputHitsEvent->GetMaximumHitEnergy( );
+	Double_t minEnergy = fOutputHitsEvent->GetMinimumHitEnergy( );
+	Double_t meanEnergy = fOutputHitsEvent->GetMeanHitEnergy( );
     Int_t nHits = fOutputHitsEvent->GetNumberOfHits( );
     Int_t nHitsX = fOutputHitsEvent->GetNumberOfHitsX( );
     Int_t nHitsY = fOutputHitsEvent->GetNumberOfHitsY( );
 
-    obsName = this->GetName() + (TString) "_nHits";
+    obsName = this->GetName() + (TString) ".nHits";
     fAnalysisTree->SetObservableValue( obsName, nHits );
 
-    obsName = this->GetName() + (TString) "_nHitsX";
+    obsName = this->GetName() + (TString) ".nHitsX";
     fAnalysisTree->SetObservableValue( obsName, nHitsX );
 
-    obsName = this->GetName() + (TString) "_nHitsY";
+    obsName = this->GetName() + (TString) ".nHitsY";
     fAnalysisTree->SetObservableValue( obsName, nHitsY );
 
-	double firstx=numeric_limits<Double_t>::quiet_NaN(), firsty = numeric_limits<Double_t>::quiet_NaN()
-		, lastx = numeric_limits<Double_t>::quiet_NaN(), lasty = numeric_limits<Double_t>::quiet_NaN();
-	
-	TRestHits*h = fOutputHitsEvent->GetHits();
-	
-	vector<int> myvector(nHits);
-	auto zs = h->fZ;
-	for (int i = 0; i < nHits; i++) 
-	{
-		int min = zs[0];
-		int minpos = 0;
-		for (int j = 1; j < nHits; j++) 
-		{
-			if (zs[j] < min)
-			{
-				min = zs[j];
-				minpos = j;
-			}
-		}
-		zs[minpos] = numeric_limits<Float_t>::quiet_NaN();
-		myvector[minpos] = i;
-	}
-	
+	 obsName = this->GetName() + (TString) ".balanceXYnHits";
+    fAnalysisTree->SetObservableValue( obsName, (nHitsX-nHitsY)/(nHitsX+nHitsY) );
 
+    obsName = this->GetName() + (TString) ".nHitsSizeXY";
+     if((nHits==nHitsX)||(nHits==nHitsY)) fAnalysisTree->SetObservableValue( obsName, nHits);
+       else fAnalysisTree->SetObservableValue( obsName, TMath::Sqrt(nHitsX*nHitsX+nHitsY*nHitsY));
 
-
-	for (int i = 0; i < nHits; i++) {
-		if (TMath::IsNaN(firstx))
-		{
-			firstx = fOutputHitsEvent->GetX(myvector[i]);
-		}
-		if (TMath::IsNaN(firsty))
-		{
-			firsty = fOutputHitsEvent->GetY(myvector[i]);
-		}
-		if (!TMath::IsNaN(firstx) && !TMath::IsNaN(firsty)) {
-			break;
-		}
-	}
-
-	for (int i = nHits-1; i >=0; i--) {
-		if (TMath::IsNaN(lastx))
-		{
-			lastx = fOutputHitsEvent->GetX(myvector[i]);
-		}
-		if (TMath::IsNaN(lasty))
-		{
-			lasty = fOutputHitsEvent->GetY(myvector[i]);
-		}
-		if (!TMath::IsNaN(lastx) && !TMath::IsNaN(lasty)) {
-			break;
-		}
-	}
-
-	//cout << firstx << " " << firsty << endl;
-
-	obsName = this->GetName() + (TString) "_FirstX";
-	fAnalysisTree->SetObservableValue(obsName, firstx);
-
-	obsName = this->GetName() + (TString) "_FirstY";
-	fAnalysisTree->SetObservableValue(obsName, firsty);
-
-	obsName = this->GetName() + (TString) "_LastX";
-	fAnalysisTree->SetObservableValue(obsName, lastx);
-
-	obsName = this->GetName() + (TString) "_LastY";
-	fAnalysisTree->SetObservableValue(obsName, lasty);
-
-	obsName = this->GetName() + (TString) "_energy";
-	fAnalysisTree->SetObservableValue(obsName, fOutputHitsEvent->GetEnergy());
-
-	obsName = this->GetName() + (TString) "_xMean";
-	fAnalysisTree->SetObservableValue(obsName, fOutputHitsEvent->GetMeanPositionX());
-
-	obsName = this->GetName() + (TString) "_yMean";
-	fAnalysisTree->SetObservableValue(obsName, fOutputHitsEvent->GetMeanPositionY());
-
-	obsName = this->GetName() + (TString) "_zMean";
-	fAnalysisTree->SetObservableValue(obsName, fOutputHitsEvent->GetMeanPositionZ());
-
-
-
-	// Checking hits inside fiducial cylinder
+    // Checking hits inside fiducial cylinder
     if( fCylinderFiducial )
-    {
+    {   TVector3 meanPositionInCylinder = fOutputHitsEvent->GetMeanPositionInCylinder( fFid_x0, fFid_x1, fFid_R );
+       
         Int_t isInsideCylinder = 0;
         if( fOutputHitsEvent->isHitsEventInsideCylinder( fFid_x0, fFid_x1, fFid_R ) )
             isInsideCylinder = 1;
@@ -193,35 +142,58 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
         Double_t enCylVol = fOutputHitsEvent->GetEnergyInCylinder( fFid_x0, fFid_x1, fFid_R );
 
-        obsName = this->GetName() + (TString) "_isInsideCylindricalVolume";
+        obsName = this->GetName() + (TString) ".isInsideCylindricalVolume";
         fAnalysisTree->SetObservableValue( obsName, isInsideCylinder );
 
-        obsName = this->GetName() + (TString) "_nInsideCylindricalVolume";
+        obsName = this->GetName() + (TString) ".nInsideCylindricalVolume";
         fAnalysisTree->SetObservableValue( obsName, nCylVol );
 
-        obsName = this->GetName() + (TString) "_energyInsideCylindricalVolume";
+        obsName = this->GetName() + (TString) ".energyInsideCylindricalVolume";
         fAnalysisTree->SetObservableValue( obsName, enCylVol );
+
+         
+       //mean positions
+       obsName = this->GetName() + (TString) ".xMeanInCylinder";
+          fAnalysisTree->SetObservableValue( obsName, meanPositionInCylinder.X( ) );
+
+        obsName = this->GetName() + (TString) ".yMeanInCylinder";
+         fAnalysisTree->SetObservableValue( obsName, meanPositionInCylinder.Y( ) );
+
+          obsName = this->GetName() + (TString) ".zMeanInCylinder";
+            fAnalysisTree->SetObservableValue( obsName, meanPositionInCylinder.Z() );
     }
 
     // Checking hits inside fiducial prism 
     if( fPrismFiducial )
-    {
+    {    TVector3 meanPositionInPrism = fOutputHitsEvent->GetMeanPositionInPrism( fFid_x0,  fFid_x1, fFid_sX, fFid_sY, fFid_theta);
+       
         Int_t isInsidePrism = 0;
-        if ( fOutputHitsEvent->isHitsEventInsidePrism( fFid_x0,  fFid_x1, fFid_sX, fFid_sY ) )
+        if ( fOutputHitsEvent->isHitsEventInsidePrism( fFid_x0,  fFid_x1, fFid_sX, fFid_sY,fFid_theta  ) )
             isInsidePrism = 1;
 
-        Int_t nPrismVol = fOutputHitsEvent->GetNumberOfHitsInsidePrism( fFid_x0,  fFid_x1, fFid_sX, fFid_sY );
+        Int_t nPrismVol = fOutputHitsEvent->GetNumberOfHitsInsidePrism( fFid_x0,  fFid_x1, fFid_sX, fFid_sY,fFid_theta  );
 
-        Double_t enPrismVol = fOutputHitsEvent->GetEnergyInPrism( fFid_x0,  fFid_x1, fFid_sX, fFid_sY );
+        Double_t enPrismVol = fOutputHitsEvent->GetEnergyInPrism( fFid_x0,  fFid_x1, fFid_sX, fFid_sY ,fFid_theta );
 
-        obsName = this->GetName() + (TString) "_isInsidePrismVolume";
+        obsName = this->GetName() + (TString) ".isInsidePrismVolume";
         fAnalysisTree->SetObservableValue( obsName, isInsidePrism );
 
-        obsName = this->GetName() + (TString) "_nInsidePrismVolume";
+        obsName = this->GetName() + (TString) ".nInsidePrismVolume";
         fAnalysisTree->SetObservableValue( obsName, nPrismVol );
 
-        obsName = this->GetName() + (TString) "_energyInsidePrismVolume";
+        obsName = this->GetName() + (TString) ".energyInsidePrismVolume";
         fAnalysisTree->SetObservableValue( obsName, enPrismVol );
+
+      //Mean Positions
+
+       obsName = this->GetName() + (TString) ".xMeanInPrism";
+    fAnalysisTree->SetObservableValue( obsName, meanPositionInPrism.X() );
+
+    obsName = this->GetName() + (TString) ".yMeanInPrism";
+    fAnalysisTree->SetObservableValue( obsName, meanPositionInPrism.Y( ) );
+
+    obsName = this->GetName() + (TString) ".zMeanInPrism";
+    fAnalysisTree->SetObservableValue( obsName, meanPositionInPrism.Z( ) );
     }
 
     ///////////////////////////////////////
@@ -233,34 +205,71 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         Double_t dToCylTop  = fOutputHitsEvent->GetClosestHitInsideDistanceToCylinderTop( fFid_x0, fFid_x1, fFid_R );
         Double_t dToCylBottom = fOutputHitsEvent->GetClosestHitInsideDistanceToCylinderBottom( fFid_x0, fFid_x1, fFid_R );
 
-        obsName = this->GetName() + (TString) "_distanceToCylinderWall";
+        obsName = this->GetName() + (TString) ".distanceToCylinderWall";
         fAnalysisTree->SetObservableValue( obsName, dToCylWall );
-        obsName = this->GetName() + (TString) "_distanceToCylinderTop";
+        obsName = this->GetName() + (TString) ".distanceToCylinderTop";
         fAnalysisTree->SetObservableValue( obsName, dToCylTop );
-        obsName = this->GetName() + (TString) "_distanceToCylinderBottom";
+        obsName = this->GetName() + (TString) ".distanceToCylinderBottom";
         fAnalysisTree->SetObservableValue( obsName, dToCylBottom );
     }
     
     if( fPrismFiducial )
     {
         // Adding distances to prism wall
-        Double_t dToPrismWall = fOutputHitsEvent->GetClosestHitInsideDistanceToPrismWall( fFid_x0,  fFid_x1, fFid_sX, fFid_sY );
-        Double_t dToPrismTop = fOutputHitsEvent->GetClosestHitInsideDistanceToPrismTop( fFid_x0, fFid_x1, fFid_sX, fFid_sY );
-        Double_t dToPrismBottom = fOutputHitsEvent->GetClosestHitInsideDistanceToPrismBottom( fFid_x0, fFid_x1, fFid_sX, fFid_sY );
+        Double_t dToPrismWall = fOutputHitsEvent->GetClosestHitInsideDistanceToPrismWall( fFid_x0,  fFid_x1, fFid_sX, fFid_sY ,fFid_theta  );
+        Double_t dToPrismTop = fOutputHitsEvent->GetClosestHitInsideDistanceToPrismTop( fFid_x0, fFid_x1, fFid_sX, fFid_sY,fFid_theta  );
+        Double_t dToPrismBottom = fOutputHitsEvent->GetClosestHitInsideDistanceToPrismBottom( fFid_x0, fFid_x1, fFid_sX, fFid_sY ,fFid_theta );
 
-        obsName = this->GetName() + (TString) "_distanceToPrismWall";
+        obsName = this->GetName() + (TString) ".distanceToPrismWall";
         fAnalysisTree->SetObservableValue( obsName, dToPrismWall );
 
-        obsName = this->GetName() + (TString) "_distanceToPrismTop";
+        obsName = this->GetName() + (TString) ".distanceToPrismTop";
         fAnalysisTree->SetObservableValue( obsName, dToPrismTop );
 
-        obsName = this->GetName() + (TString) "_distanceToPrismBottom";
+        obsName = this->GetName() + (TString) ".distanceToPrismBottom";
         fAnalysisTree->SetObservableValue( obsName, dToPrismBottom );
     }
 
     ///////////////////////////////////////
 
+    obsName = this->GetName() + (TString) ".energy";
+    fAnalysisTree->SetObservableValue( obsName, energy );
+	obsName = this->GetName() + (TString) ".energyX";
+    fAnalysisTree->SetObservableValue( obsName, energyX);
+     obsName = this->GetName() + (TString) ".energyY";
+    fAnalysisTree->SetObservableValue( obsName, energyY );
+    obsName = this->GetName() + (TString) ".balanceXYenergy";
+    fAnalysisTree->SetObservableValue( obsName, (energyX-energyY)/(energyX+energyY));
 
+       obsName = this->GetName() + (TString) ".maxHitEnergy";
+    fAnalysisTree->SetObservableValue( obsName, maxEnergy);
+      obsName = this->GetName() + (TString) ".minHitEnergy";
+    fAnalysisTree->SetObservableValue( obsName, minEnergy);
+      obsName = this->GetName() + (TString) ".meanHitEnergy";
+    fAnalysisTree->SetObservableValue( obsName, meanEnergy);
+     obsName = this->GetName() + (TString) ".meanHitEnergyBalance";
+    fAnalysisTree->SetObservableValue( obsName, meanEnergy/energy);
+
+    obsName = this->GetName() + (TString) ".xMean";
+    fAnalysisTree->SetObservableValue( obsName, meanPosition.X() );
+
+    obsName = this->GetName() + (TString) ".yMean";
+    fAnalysisTree->SetObservableValue( obsName, meanPosition.Y() );
+
+    obsName = this->GetName() + (TString) ".zMean";
+    fAnalysisTree->SetObservableValue( obsName, meanPosition.Z() );
+	 obsName = this->GetName() + (TString) ".xy2Sigma";
+    fAnalysisTree->SetObservableValue( obsName, sigmaXY2 );
+	obsName = this->GetName() + (TString) ".xySigmaBalance";
+    fAnalysisTree->SetObservableValue( obsName, (sigmaX-sigmaY)/(sigmaX+sigmaY) );
+
+   obsName = this->GetName() + (TString) ".z2Sigma";
+    fAnalysisTree->SetObservableValue( obsName, sigmaZ2 );
+
+     obsName = this->GetName() + (TString) ".xySkew";
+    fAnalysisTree->SetObservableValue( obsName, skewXY);
+   obsName = this->GetName() + (TString) ".zSkew";
+    fAnalysisTree->SetObservableValue( obsName, skewZ );
 
 
     if( GetVerboseLevel() >= REST_Extreme )
@@ -299,6 +308,7 @@ void TRestHitsAnalysisProcess::InitFromConfigFile( )
     fFid_R = GetDblParameterWithUnits( "fiducial_R", 1 );
     fFid_sX = GetDblParameterWithUnits( "fiducial_sX", 1 );
     fFid_sY = GetDblParameterWithUnits( "fiducial_sY", 1 );
+    fFid_theta=StringToDouble( GetParameter( "fiducial_theta","0" ) );
 
     if( GetParameter( "cylinderFiducialization", "false" ) == "true" )
         fCylinderFiducial = true;

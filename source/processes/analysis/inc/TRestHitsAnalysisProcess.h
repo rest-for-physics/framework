@@ -27,11 +27,11 @@
 class TRestHitsAnalysisProcess:public TRestEventProcess {
     private:
 #ifndef __CINT__
-        TRestHitsEvent *fInputHitsEvent;//!
-        TRestHitsEvent *fOutputHitsEvent;//!
+        TRestHitsEvent *fInputHitsEvent; //!
+        TRestHitsEvent *fOutputHitsEvent; //!
 
-        Bool_t fCylinderFiducial;//!
-        Bool_t fPrismFiducial;//!
+        Bool_t fCylinderFiducial; //!
+        Bool_t fPrismFiducial; //!
 #endif
 
         void InitFromConfigFile();
@@ -49,6 +49,7 @@ class TRestHitsAnalysisProcess:public TRestEventProcess {
         Double_t fFid_R;
         Double_t fFid_sX;
         Double_t fFid_sY;
+	 Double_t fFid_theta;
 
 
     public:
@@ -64,14 +65,14 @@ class TRestHitsAnalysisProcess:public TRestEventProcess {
 
             BeginPrintProcess();
 
-            essential << " Fiducial parameters" << endl;
-            essential << " ------------------- " << endl;
-            essential << " x0 : (" << fFid_x0.X() << " , " << fFid_x0.Y() << " , " << fFid_x0.Z() << ")" << endl;
-            essential << " x1 : (" << fFid_x1.X() << " , " << fFid_x1.Y() << " , " << fFid_x1.Z() << ")" << endl;
-            essential << " R : " << fFid_R << endl;
-            essential << " sX : " << fFid_sX << endl;
-            essential << " sY : " << fFid_sY << endl;
-            essential << " ------------------- " << endl;
+            std::cout << " Fiducial parameters" << std::endl;
+            std::cout << " -------------------" << std::endl;
+            std::cout << " x0 : (" << fFid_x0.X() << " , " << fFid_x0.Y() << " , " << fFid_x0.Z() << ")" << std::endl;
+            std::cout << " x1 : (" << fFid_x1.X() << " , " << fFid_x1.Y() << " , " << fFid_x1.Z() << ")" << std::endl;
+            std::cout << " R : " << fFid_R << std::endl;
+            std::cout << " sX : " << fFid_sX << std::endl;
+            std::cout << " sY : " << fFid_sY << std::endl;
+            std::cout << " -------------------" << std::endl;
 
             EndPrintProcess();
         }
