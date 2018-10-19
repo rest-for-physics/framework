@@ -68,8 +68,9 @@ public:
 	Int_t GetNumberOfPixels() { return fReadoutPixel.size(); }
 
 	TRestReadoutPixel& operator[] (int n) { return fReadoutPixel[n]; }
+
 	/// Returns a pointer to the pixel *n* by index.
-	//TRestReadoutPixel *GetPixel( int n ) { return &fReadoutPixel[n]; }
+	TRestReadoutPixel *GetPixel( int n ) { return &fReadoutPixel[n]; }
 
 	/// Sets the physical channel id
 	void SetID(Int_t id) {
