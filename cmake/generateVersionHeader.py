@@ -5,7 +5,7 @@
 # J. Galan - Javier.Galan.Lacarra@cern.ch
 # 8 - Oct - 2018
 
-import os,sys,re
+import os,sys,re,filecmp
 
 outputHeader = sys.argv[1]
 print " -- Generating TRestVersion.h"
@@ -47,7 +47,7 @@ codeC = c
 code = codeA + codeB + codeC
 
 
-f = open( outputHeader , "w")
+f = open( "TRestVersion.tmp" , "w")
 
 f.write("#ifndef REST_Version\n")
 f.write("#define REST_Version\n")
@@ -76,3 +76,7 @@ f.write("#define REST_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))\n")
 f.write("#endif\n")
 f.close()
 
+if filecmp.cmp( "TRestVersion.tmp", outputHeader ):
+    os.remove( "TRestVersion.tmp" )
+else:
+    os.rename( "TRestVersion.tmp", outputHeader )
