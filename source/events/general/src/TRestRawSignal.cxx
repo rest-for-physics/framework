@@ -263,7 +263,7 @@ Int_t TRestRawSignal::GetRiseTime( )
 		return 0;
 	}
 
-	return GetMaxPeakBin() - fPointsOverThreshold[0];
+	return GetMaxPeakBin( fPointsOverThreshold[0] ) - fPointsOverThreshold[0];
 }
 
 Double_t TRestRawSignal::GetTripleMaxIntegral( Int_t startBin, Int_t endBin )
