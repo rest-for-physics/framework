@@ -62,7 +62,7 @@
 # ----------------------------------------------------------------------------
 MACRO( COMPILEDIR_SE libname )
 
-	message("making build files for ${CMAKE_CURRENT_SOURCE_DIR}")
+	message(STATUS "making build files for ${CMAKE_CURRENT_SOURCE_DIR}")
 
 	set(contentfiles)
 
@@ -150,7 +150,7 @@ ENDMACRO()
 
 MACRO( COMPILEDIR libname )
 
-	message("making build files for ${CMAKE_CURRENT_SOURCE_DIR}")
+	message(STATUS "making build files for ${CMAKE_CURRENT_SOURCE_DIR}")
 
 	set(contentfiles)
 

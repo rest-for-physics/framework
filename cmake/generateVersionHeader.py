@@ -21,7 +21,7 @@ if err != "":
     print err
     exit(1)
 
-print " -- Generating TRestVersion.h"
+print "-- Generating TRestVersion.h"
 
 branchName = os.popen( "git branch | grep -e \"^*\" | cut -d\' \' -f 2" ).read().rstrip("\n")
 

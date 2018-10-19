@@ -58,8 +58,6 @@ ENDIF()
 set(external_include_dirs)
 set(external_libs)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
-include(MacroRootDict)
-include(CompileDir)
 set(ROOT_FIND_REQUIRED true)
 IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 	set(CMAKE_MACOSX_RPATH 1)
@@ -173,6 +171,8 @@ message ("oo Auto Schema Evolution is : ${REST_SE}\n" )
 
 
 #start compile
+include(MacroRootDict)
+include(CompileDir)
 add_subdirectory(source)
 
 if(${REST_G4} MATCHES "ON")
@@ -187,9 +187,9 @@ if(${REST_EXAMPLELIB} MATCHES "ON")
 	add_subdirectory(packages/userRESTLibrary)
 endif(${REST_EXAMPLELIB} MATCHES "ON")
 
-message("rest Libraries : " ${rest_libraries_regular})
-message("rest executables: " ${rest_exes})
-message("rest macros: " ${rest_macros_str})
+message("\noo rest Libraries : " ${rest_libraries_regular})
+message("oo rest executables: " ${rest_exes})
+message("oo rest macros: " ${rest_macros_str} "\n")
 
 
 #begin installation
