@@ -18,7 +18,7 @@
 
 #ifndef __CINT__
 #ifndef WIN32
-#include "trackMinimization.h"
+#include <trackMinimization.h>
 #endif
 #endif
 
@@ -27,8 +27,8 @@ class TRestTrackPathMinimizationProcess:public TRestEventProcess {
     private:
 
 #ifndef __CINT__
-        TRestTrackEvent *fInputTrackEvent;//!
-        TRestTrackEvent *fOutputTrackEvent;//!
+        TRestTrackEvent *fInputTrackEvent; //!
+        TRestTrackEvent *fOutputTrackEvent; //!
 #endif
 
         void InitFromConfigFile();
@@ -38,7 +38,9 @@ class TRestTrackPathMinimizationProcess:public TRestEventProcess {
 
     protected:
 
-        Int_t fMaxNodes;
+        //Int_t fMaxNodes;
+
+        Bool_t fWeightHits;
 
 
     public:
@@ -55,7 +57,14 @@ class TRestTrackPathMinimizationProcess:public TRestEventProcess {
         void PrintMetadata() 
         { 
             BeginPrintProcess();
-            cout << "Maximum number of nodes (hits) allowed : " << fMaxNodes << endl;
+
+ //           cout << "Maximum number of nodes (hits) allowed : " << fMaxNodes << endl;
+
+            if ( fWeightHits )
+                std::cout << "Weight hits : enabled" << std::endl;
+            else
+                std::cout << "Weight hits : disabled" << std::endl;
+
             EndPrintProcess();
         }
 

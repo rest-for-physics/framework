@@ -51,6 +51,8 @@ void TRestTrackReconnectionProcess::Initialize( )
 
     fOutputEvent = fOutputTrackEvent;
     fInputEvent  = fInputTrackEvent;
+
+    fSplitTrack = false;
 }
 
 void TRestTrackReconnectionProcess::LoadConfig( std::string cfgFilename, std::string name )
@@ -82,7 +84,6 @@ TRestEvent* TRestTrackReconnectionProcess::ProcessEvent( TRestEvent *evInput )
     Int_t trackBranches = 0;
 
     fInputTrackEvent = (TRestTrackEvent *) evInput;
-	fOutputTrackEvent->SetEventInfo(fInputTrackEvent);
 
     // Copying the input tracks to the output track
     for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
@@ -94,7 +95,6 @@ TRestEvent* TRestTrackReconnectionProcess::ProcessEvent( TRestEvent *evInput )
         Int_t tckId = fInputTrackEvent->GetTrack( tck )->GetTrackID();
 
         TRestVolumeHits *hits = fInputTrackEvent->GetTrack(tck)->GetVolumeHits();
-        Int_t nHits = hits->GetNumberOfHits();
 
         /* {{{ Debug output */
         if( this->GetVerboseLevel() >= REST_Debug )
@@ -106,51 +106,112 @@ TRestEvent* TRestTrackReconnectionProcess::ProcessEvent( TRestEvent *evInput )
         }
         /* }}} */
 
-        meanDistance = 0;
-        for( int n = 1; n < nHits; n++ )
-            meanDistance += hits->GetDistance( n-1, n );
-        meanDistance /= nHits;
-        sigma = TMath::Sqrt( meanDistance );
+        SetDistanceMeanAndSigma( (TRestHits *) hits );
 
-        /* {{{ Debug output 
-        cout << "Mean ; " << meanDistance << endl;
-        cout << "Sigma : " << sigma << endl;
-        cout << endl;
-        }}} */
+        if( fMeanDistance == 0 ) continue; // We have just 1-hit
 
-        if( meanDistance == 0 ) continue; // We have just 1-hit
-
+        TRestVolumeHits initialHits = *hits;
         vector <TRestVolumeHits> subHitSets;
-        BreakTracks( hits, subHitSets );
-        ReconnectTracks( subHitSets );
+        Int_t tBranches;
 
-        // We create the new track and add it giving its parent ID
-        TRestTrack bestTrack;
-        bestTrack.SetTrackID( fOutputTrackEvent->GetNumberOfTracks() + 1);
+        // We do 3 times the break and re-connect process
+        // Although another option would be to do it until we observe no change
+        // Most of the times even 1-round is more than enough.
+        for( int n = 0; n < 1; n++ )
+        {
+            // The required distance between hits to break a track is increased in each iteration
+            BreakTracks( &initialHits, subHitSets, 1.5 * (n + 1) );
+            ReconnectTracks( subHitSets );
 
-        bestTrack.SetParentID( tckId );
+            TRestVolumeHits resultHits = subHitSets[0];
+            SetDistanceMeanAndSigma( &resultHits );
+            tBranches = GetTrackBranches( resultHits, fNSigmas );
 
-        bestTrack.SetVolumeHits( subHitSets[0] );
+            if( GetVerboseLevel() >= REST_Debug )
+            {
+                cout << "Break and reconnect finished" << endl;
+                cout << "Branches : " << tBranches << endl;
+                if( GetVerboseLevel() >= REST_Extreme )
+                    GetChar();
+            }
 
-        TRestHits finalHits = (TRestHits) subHitSets[0];
+            initialHits = resultHits;
+        }
 
-        Int_t tBranches = GetTrackBranches( finalHits, meanDistance, sigma );
-
-        // We just take the value for the track with more number of branches
+        // For the observable We just take the value for the track with more number of branches
         if( tBranches > trackBranches ) trackBranches = tBranches;
 
-        fOutputTrackEvent->AddTrack( &bestTrack );
+        // A fine tunning applied to consecutive hits
+        for( int n = 0; n < subHitSets[0].GetNumberOfHits(); n++ )
+        {
+            if( n > 0 && n < subHitSets[0].GetNumberOfHits()-1 )
+            {
+                Double_t distance = subHitSets[0].GetHitsPathLength( n - 2, n + 2 ); 
+
+                subHitSets[0].SwapHits( n - 1, n );
+
+                Double_t distanceAfter = subHitSets[0].GetHitsPathLength( n - 2, n + 2 ); 
+
+                if( distanceAfter < distance ) continue;
+
+                subHitSets[0].SwapHits( n - 1, n );
+            }
+        }
+
+        if( fSplitTrack )
+        {
+            BreakTracks( &initialHits, subHitSets, fNSigmas );
+
+            if( GetVerboseLevel() >= REST_Debug )
+            {
+                cout << " **** Splitting track : " << endl;
+                cout << "Number of subHitSets : " << subHitSets.size() << endl;
+                if( GetVerboseLevel() >= REST_Extreme )
+                    GetChar();
+            }
+        }
+
+        for( unsigned int n = 0; n < subHitSets.size(); n++ )
+        {
+            TRestTrack aTrack;
+            // We create the new track and add it giving its parent ID
+            aTrack.SetTrackID( fOutputTrackEvent->GetNumberOfTracks() + 1);
+
+            aTrack.SetParentID( tckId );
+
+            aTrack.SetVolumeHits( subHitSets[n] );
+
+            fOutputTrackEvent->AddTrack( &aTrack );
+        }
     }
 
-    TString obsName = this->GetName() + (TString) "_branches";
+    TString obsName = this->GetName() + (TString) ".branches";
     fAnalysisTree->SetObservableValue( obsName, trackBranches );
     //cout << "Track branches : " << trackBranches << endl;
+
+    if( GetVerboseLevel() >= REST_Debug )
+    {
+        cout << "++++++++++++++++++++++++++++++++" << endl;
+        fOutputTrackEvent->PrintEvent();
+        cout << "++++++++++++++++++++++++++++++++" << endl;
+        if( GetVerboseLevel() >= REST_Extreme )
+            GetChar();
+    }
 
     return fOutputTrackEvent;
 }
 
-void TRestTrackReconnectionProcess::BreakTracks( TRestVolumeHits *hits, vector <TRestVolumeHits>& hitSets )
+/// BreakTracks and ReconnectTracks should be moved to libRestEvents in events/tools at RESTv2.2
+/// For the moment these methods might be replicated in other TrackProcesses
+void TRestTrackReconnectionProcess::BreakTracks( TRestVolumeHits *hits, vector <TRestVolumeHits>& hitSets, Double_t nSigma )
 {
+        hitSets.clear();
+        if( GetVerboseLevel() >= REST_Debug )
+        {
+            cout << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" << endl;
+            cout << "BreakTracks. Breaking tracks into hits subsets." << endl;
+        }
+
         TRestVolumeHits subHits;
         for( int n = 0; n < hits->GetNumberOfHits(); n++ )
         {
@@ -162,31 +223,39 @@ void TRestTrackReconnectionProcess::BreakTracks( TRestVolumeHits *hits, vector <
             Double_t sZ = hits->GetSigmaZ(n);
             Double_t energy = hits->GetEnergy(n);
 
-            /* {{{ Debug output 
-            if( n > 0 )
+            if( GetVerboseLevel() >= REST_Debug && n > 0 )
             {
                 cout << "Distance : " << hits->GetDistance( n-1, n );
-                if ( hits->GetDistance( n-1, n ) > meanDistance + 0.5 * sigma ) cout << " BREAKKKK";
+                if ( hits->GetDistance( n-1, n ) > fMeanDistance + nSigma * fSigma ) cout << " BREAKKKK";
                 cout << endl;
             }
-            }}} */
 
-            if( n > 0 && hits->GetDistance( n-1, n ) > meanDistance + 0.5 * sigma ) 
+            if( n > 0 && hits->GetDistance( n-1, n ) > fMeanDistance + nSigma * fSigma ) 
             {
                 hitSets.push_back( subHits );
                 subHits.RemoveHits();
             }
 
             subHits.AddHit( x, y, z, energy, sX, sY, sZ);
-            // cout << "H : " << n << " X : " << x << " Y : " << y << " Z : " << z << endl;
+
+            if( GetVerboseLevel() >= REST_Debug )
+                cout << "H : " << n << " X : " << x << " Y : " << y << " Z : " << z << endl;
         }
+
         hitSets.push_back( subHits );
 
-
+        if( GetVerboseLevel() >= REST_Debug )
+            cout << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" << endl;
 }
 
 void TRestTrackReconnectionProcess::ReconnectTracks( vector <TRestVolumeHits>& hitSets )
 {
+    if( GetVerboseLevel() >= REST_Debug )
+    {
+        cout << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" << endl;
+        cout << "ReconnectTracks. Connecting back sub tracks " << endl;
+    }
+
     Int_t nSubTracks = hitSets.size();
 
     if ( nSubTracks == 1 ) return;
@@ -195,22 +264,23 @@ void TRestTrackReconnectionProcess::ReconnectTracks( vector <TRestVolumeHits>& h
 
     Int_t tracks[2][2];
 
-    vector<Int_t> nHits(nSubTracks);
+    Int_t nHits[nSubTracks];
     for( int i = 0; i < nSubTracks; i++ )
         nHits[i] = hitSets[i].GetNumberOfHits();
 
-    /* {{{ Debug output
-    cout << "ORIGINAL" << endl;
-    cout << "--------" << endl;
-    for( int i = 0; i < nSubTracks; i++ )
+    if( GetVerboseLevel() >= REST_Debug )
     {
-        cout << "Subset : " << i << endl;
-        cout << " Sub hits : " << nHits[i] << endl;
+        cout << "ORIGINAL" << endl;
+        cout << "--------" << endl;
+        for( int i = 0; i < nSubTracks; i++ )
+        {
+            cout << "Subset : " << i << endl;
+            cout << " Sub hits : " << nHits[i] << endl;
 
-        hitSets[i].PrintHits();
+            hitSets[i].PrintHits();
+        }
+        cout << "--------" << endl;
     }
-    cout << "--------" << endl;
-    }}} */
 
     /* {{{ Finds the closest sub-track extremes */
     for( int i = 0; i < nSubTracks; i++ )
@@ -288,10 +358,10 @@ void TRestTrackReconnectionProcess::ReconnectTracks( vector <TRestVolumeHits>& h
     /* }}} */
 
     /* {{{ Debug output
-    cout << "Tracks" << endl;
-    cout << tracks[0][0] << " ::: " << tracks[0][1] << endl;
-    cout << tracks[1][0] << " ::: " << tracks[1][1] << endl;
-    }}} */
+       cout << "Tracks" << endl;
+       cout << tracks[0][0] << " ::: " << tracks[0][1] << endl;
+       cout << tracks[1][0] << " ::: " << tracks[1][1] << endl;
+       }}} */
 
     TRestVolumeHits newHits;
     newHits.RemoveHits();
@@ -347,32 +417,37 @@ void TRestTrackReconnectionProcess::ReconnectTracks( vector <TRestVolumeHits>& h
 
     nSubTracks = hitSets.size();
 
-    /* {{{ Debug output 
-    cout << "New subtracks : " << nSubTracks << endl;
-
-    cout << "AFTER REMOVAL" << endl;
-    cout << "--------" << endl;
-    for( int i = 0; i < nSubTracks; i++ )
+    if( GetVerboseLevel() >= REST_Debug )
     {
-        cout << "Subset : " << i << endl;
-        cout << " Sub hits : " << nHits[i] << endl;
+        cout << "New subtracks : " << nSubTracks << endl;
 
-        hitSets[i].PrintHits();
+        cout << "AFTER REMOVAL" << endl;
+        cout << "--------" << endl;
+        for( int i = 0; i < nSubTracks; i++ )
+        {
+            cout << "Subset : " << i << endl;
+            cout << " Sub hits : " << nHits[i] << endl;
+
+            hitSets[i].PrintHits();
+        }
+        cout << "--------" << endl;
+        if( GetVerboseLevel() >= REST_Extreme )
+            GetChar();
     }
-    cout << "--------" << endl;
-    GetChar();
-    }}} */
 
     if( nSubTracks > 1 ) ReconnectTracks( hitSets );
+
+    if( GetVerboseLevel() >= REST_Debug )
+        cout << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" << endl;
 }
 
-Int_t TRestTrackReconnectionProcess::GetTrackBranches( TRestHits &h, Double_t mean, Double_t sigma )
+Int_t TRestTrackReconnectionProcess::GetTrackBranches( TRestHits &h, Double_t nSigma )
 {
     Int_t breaks = 0;
     Int_t nHits = h.GetNumberOfHits();
 
     for( int n = 1; n < nHits; n++ )
-        if(  h.GetDistance( n-1, n ) > mean + 2*sigma ) 
+        if(  h.GetDistance( n-1, n ) > fMeanDistance + nSigma * fSigma ) 
                 breaks++;
     return breaks;
 }
@@ -391,5 +466,30 @@ void TRestTrackReconnectionProcess::EndProcess()
 //______________________________________________________________________________
 void TRestTrackReconnectionProcess::InitFromConfigFile( )
 {
+    if( GetParameter( "splitTrack", "false" ) == "true" )
+        fSplitTrack = true;
+    else
+        fSplitTrack = false;
+
+    fNSigmas = StringToDouble( GetParameter( "nSigmas", "5" ) );
 }
 
+void TRestTrackReconnectionProcess::SetDistanceMeanAndSigma( TRestHits *h )
+{
+
+    Int_t nHits = h->GetNumberOfHits();
+
+    fMeanDistance = 0;
+    for( int n = 1; n < nHits; n++ )
+        fMeanDistance += h->GetDistance( n-1, n );
+    fMeanDistance /= nHits;
+
+    fSigma = TMath::Sqrt( fMeanDistance );
+
+    if( GetVerboseLevel() >= REST_Debug )
+    {
+        cout << "-----> Node distance average ; " << fMeanDistance << endl;
+        cout << "-----> Node distance sigma : " << fSigma << endl;
+        cout << endl;
+    }
+}

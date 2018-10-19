@@ -165,8 +165,8 @@ Int_t TRestFastHitsToTrackProcess::FindTracks( TRestHits *hits )
 
     Int_t nTracksFound = mesh->GetNumberOfGroups();
 
-    TRestTrack *track = new TRestTrack[nTracksFound];
-    TRestVolumeHits *volHit = new TRestVolumeHits[nTracksFound];
+    TRestTrack track[nTracksFound];
+    TRestVolumeHits volHit[nTracksFound];
 
     for( int h = 0; h < hits->GetNumberOfHits(); h++ )
     {
@@ -189,9 +189,6 @@ Int_t TRestFastHitsToTrackProcess::FindTracks( TRestHits *hits )
         track[tckID].SetVolumeHits( volHit[tckID] );
         fTrackEvent->AddTrack( &track[tckID] );
     }
-
-    delete [] track;
-    delete [] volHit;
 
     delete mesh;
 

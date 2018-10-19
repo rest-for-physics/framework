@@ -77,7 +77,7 @@ void TRestG4toHitsProcess::InitProcess()
     {
         if( fG4Metadata->GetActiveVolumeID( fVolumeSelection[n] ) >= 0 ) 
             fVolumeId.push_back( fG4Metadata->GetActiveVolumeID( fVolumeSelection[n] ) ); 
-        else if( GetVerboseLevel() >= REST_Essential )
+        else if( GetVerboseLevel() >= REST_Warning )
             cout << "TRestG4ToHitsProcess. volume name : " << fVolumeSelection[n] << " not found and will not be added." << endl;
     }
 }
