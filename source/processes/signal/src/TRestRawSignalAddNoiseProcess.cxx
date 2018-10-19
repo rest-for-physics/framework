@@ -5,67 +5,79 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestRawSignalToSignalProcess.cxx
+///             TRestRawSignalAddNoiseProcess.cxx
 ///
 ///             February 2016: Javier Gracia
 ///_______________________________________________________________________________
 
 
-#include "TRestRawSignalToSignalProcess.h"
+#include "TRestRawSignalAddNoiseProcess.h"
 using namespace std;
 
+#include <TRestFFT.h>
 
-ClassImp(TRestRawSignalToSignalProcess)
+#include <TFile.h>
+
+
+ClassImp(TRestRawSignalAddNoiseProcess)
     //______________________________________________________________________________
-TRestRawSignalToSignalProcess::TRestRawSignalToSignalProcess()
+TRestRawSignalAddNoiseProcess::TRestRawSignalAddNoiseProcess()
 {
     Initialize();
 }
 
 //______________________________________________________________________________
-TRestRawSignalToSignalProcess::TRestRawSignalToSignalProcess( char *cfgFileName )
+TRestRawSignalAddNoiseProcess::TRestRawSignalAddNoiseProcess( char *cfgFileName )
 {
     Initialize();
 
     if( LoadConfigFromFile( cfgFileName ) == -1 ) LoadDefaultConfig( );
 
     PrintMetadata();
-    // TRestRawSignalToSignalProcess default constructor
+    // TRestRawSignalAddNoiseProcess default constructor
 }
 
 //______________________________________________________________________________
-TRestRawSignalToSignalProcess::~TRestRawSignalToSignalProcess()
+TRestRawSignalAddNoiseProcess::~TRestRawSignalAddNoiseProcess()
 {
     delete fOutputSignalEvent;
     delete fInputSignalEvent;
-    // TRestRawSignalToSignalProcess destructor
+    // TRestRawSignalAddNoiseProcess destructor
+
 }
 
-void TRestRawSignalToSignalProcess::LoadDefaultConfig( )
+
+
+void TRestRawSignalAddNoiseProcess::LoadDefaultConfig( )
 {
-    SetName( "rawSignalToSignal-Default" );
+    SetName( "addSignalNoiseProcess-Default" );
     SetTitle( "Default config" );
+
+    fNoiseLevel = 1;
 }
 
 //______________________________________________________________________________
-void TRestRawSignalToSignalProcess::Initialize()
+void TRestRawSignalAddNoiseProcess::Initialize()
 {
     SetSectionName( this->ClassName() );
 
+    fNoiseLevel = 1;
+
     fInputSignalEvent = new TRestRawSignalEvent();
-    fOutputSignalEvent = new TRestSignalEvent();
+    fOutputSignalEvent = new TRestRawSignalEvent();
 
     fInputEvent = fInputSignalEvent;
     fOutputEvent = fOutputSignalEvent;
+
 }
 
-void TRestRawSignalToSignalProcess::LoadConfig( string cfgFilename, string name )
+void TRestRawSignalAddNoiseProcess::LoadConfig( string cfgFilename, string name )
 {
     if( LoadConfigFromFile( cfgFilename, name ) == -1 ) LoadDefaultConfig( );
 }
 
 //______________________________________________________________________________
-void TRestRawSignalToSignalProcess::InitProcess()
+void TRestRawSignalAddNoiseProcess::InitProcess()
 {
     // Function to be executed once at the beginning of process
     // (before starting the process of the events)
@@ -73,51 +85,47 @@ void TRestRawSignalToSignalProcess::InitProcess()
     //Start by calling the InitProcess function of the abstract class. 
     //Comment this if you don't want it.
     //TRestEventProcess::InitProcess();
-
 }
 
 //______________________________________________________________________________
-void TRestRawSignalToSignalProcess::BeginOfEventProcess() 
+void TRestRawSignalAddNoiseProcess::BeginOfEventProcess() 
 {
     fOutputSignalEvent->Initialize(); 
 }
 
 //______________________________________________________________________________
-TRestEvent* TRestRawSignalToSignalProcess::ProcessEvent( TRestEvent *evInput )
+TRestEvent* TRestRawSignalAddNoiseProcess::ProcessEvent( TRestEvent *evInput )
 {
+
     fInputSignalEvent = (TRestRawSignalEvent *) evInput;
 
-    /// Copying the signal event to the output event
+	//cout<<"Number of signals "<< fInputSignalEvent->GetNumberOfSignals()<< endl;
 
-    fOutputSignalEvent->SetID( fInputSignalEvent->GetID() );
-    fOutputSignalEvent->SetSubID( fInputSignalEvent->GetSubID() );
-    fOutputSignalEvent->SetTimeStamp( fInputSignalEvent->GetTimeStamp() );
-    fOutputSignalEvent->SetSubEventTag( fInputSignalEvent->GetSubEventTag() );
+    if( fInputSignalEvent->GetNumberOfSignals() <= 0 ) return NULL;
 
-    for( int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++ )
+
+    for( int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++ ) 
     {
-	TRestSignal sgnl;
-	sgnl.Initialize();
-	TRestRawSignal *rawSgnl = fInputSignalEvent->GetSignal( n );
-	sgnl.SetID( rawSgnl->GetID() );
-	for( int p = 0; p < rawSgnl->GetNumberOfPoints(); p++ )
-		sgnl.NewPoint( p, rawSgnl->GetData(p) );
+        TRestRawSignal noiseSignal;
 
-	fOutputSignalEvent->AddSignal( sgnl );
+        // Asign ID and add noise    
+        fInputSignalEvent->GetSignal(n)->GetWhiteNoiseSignal( &noiseSignal, fNoiseLevel );
+        noiseSignal.SetSignalID( fInputSignalEvent->GetSignal(n)->GetSignalID() );
+
+        fOutputSignalEvent->AddSignal( noiseSignal );
     }
-    /////////////////////////////////////////////////
 
     return fOutputSignalEvent;
 }
 
 //______________________________________________________________________________
-void TRestRawSignalToSignalProcess::EndOfEventProcess() 
+void TRestRawSignalAddNoiseProcess::EndOfEventProcess() 
 {
 
 }
 
 //______________________________________________________________________________
-void TRestRawSignalToSignalProcess::EndProcess()
+void TRestRawSignalAddNoiseProcess::EndProcess()
 {
     // Function to be executed once at the end of the process 
     // (after all events have been processed)
@@ -128,7 +136,8 @@ void TRestRawSignalToSignalProcess::EndProcess()
 }
 
 //______________________________________________________________________________
-void TRestRawSignalToSignalProcess::InitFromConfigFile( )
+void TRestRawSignalAddNoiseProcess::InitFromConfigFile( )
 {
+    fNoiseLevel = StringToDouble( GetParameter( "noiseLevel" ) );
 }
 

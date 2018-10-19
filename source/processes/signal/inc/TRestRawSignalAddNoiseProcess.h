@@ -5,30 +5,31 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestRawSignalToSignalProcess.h
+///             TRestRawSignalAddNoiseProcess.h
 ///
 ///_______________________________________________________________________________
 
 
-#ifndef RestCore_TRestRawSignalToSignalProcess
-#define RestCore_TRestRawSignalToSignalProcess
+#ifndef RestCore_TRestRawSignalAddNoiseProcess
+#define RestCore_TRestRawSignalAddNoiseProcess
 
 #include <TRestRawSignalEvent.h>
-#include <TRestSignalEvent.h>
 
 #include "TRestEventProcess.h"
 
-class TRestRawSignalToSignalProcess:public TRestEventProcess {
+class TRestRawSignalAddNoiseProcess:public TRestEventProcess {
 
     private:
-        TRestRawSignalEvent *fInputSignalEvent;//!
-        TRestSignalEvent *fOutputSignalEvent;//!
+        TRestRawSignalEvent *fInputSignalEvent;
+        TRestRawSignalEvent *fOutputSignalEvent;
 
         void InitFromConfigFile();
 
         void Initialize();
 
         void LoadDefaultConfig();
+
+        Double_t fNoiseLevel;
 
     protected:
         //add here the members of your event process
@@ -46,20 +47,22 @@ class TRestRawSignalToSignalProcess:public TRestEventProcess {
         { 
             BeginPrintProcess();
 
+            std::cout << "Noise Level : " << fNoiseLevel << std::endl;
+
             EndPrintProcess();
         }
 
         TRestMetadata *GetProcessMetadata( ) { return NULL; }
 
-        TString GetProcessName() { return (TString) "rawSignalToSignal"; }
+        TString GetProcessName() { return (TString) "rawSignalAddNoise"; }
 
         //Constructor
-        TRestRawSignalToSignalProcess();
-        TRestRawSignalToSignalProcess( char *cfgFileName );
+        TRestRawSignalAddNoiseProcess();
+        TRestRawSignalAddNoiseProcess( char *cfgFileName );
         //Destructor
-        ~TRestRawSignalToSignalProcess();
+        ~TRestRawSignalAddNoiseProcess();
 
-        ClassDef(TRestRawSignalToSignalProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+        ClassDef(TRestRawSignalAddNoiseProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
 };
 #endif
 
