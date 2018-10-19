@@ -72,10 +72,32 @@ void TRestSignal::AddPoint(TVector2 p)
         fSignalCharge.push_back(y);
     }
 }
+void TRestSignal::SetPoint(TVector2 p) {
+	Int_t index = GetTimeIndex(p.X());
+	Float_t x = p.X();
+	Float_t y = p.Y();
+
+	if (index >= 0)
+	{
+		fSignalTime[index] = x;
+		fSignalCharge[index] = y;
+	}
+	else {
+		fSignalTime.push_back(x);
+		fSignalCharge.push_back(y);
+	}
+
+}
 
 void TRestSignal::AddPoint( Double_t t, Double_t d ) { TVector2 p( t,d); AddPoint( p ); }
 void TRestSignal::AddCharge( Double_t t, Double_t d ) { TVector2 p( t,d); AddPoint( p ); }
 void TRestSignal::AddDeposit( Double_t t, Double_t d ) { TVector2 p( t,d); AddPoint( p ); }
+
+void TRestSignal::SetPoint(Double_t t, Double_t d) { TVector2 p(t, d); SetPoint(p); }
+void TRestSignal::SetPoint(Int_t index, Double_t t, Double_t d) {
+	fSignalTime[index] = t;
+	fSignalCharge[index] = d;
+}
 
 Double_t TRestSignal::GetIntegral( Int_t startBin, Int_t endBin ) 
 {
