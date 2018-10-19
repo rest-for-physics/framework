@@ -66,8 +66,6 @@ protected:
 
 	TRestReadout* fReadout;//!
 
-	TPad *fPad;//!
-
 	vector<double> xzz;
 	vector<double> xzx;
 	vector<double> xze;

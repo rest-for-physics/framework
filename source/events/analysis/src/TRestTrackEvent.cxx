@@ -41,6 +41,8 @@ ClassImp(TRestTrackEvent)
     fPad = NULL;
     fLevels = -1;
 
+    fPrintHitsWarning = true;
+
 }
 
 //______________________________________________________________________________
@@ -59,6 +61,77 @@ void TRestTrackEvent::Initialize()
 
 }
 
+void TRestTrackEvent::AddTrack( TRestTrack *c )
+{
+    if( c->GetParentID() > 0 )
+    {
+        TRestTrack *pTrack = GetTrackById( c->GetParentID() );
+
+        if( pTrack->isXZ() )
+        {
+            TRestVolumeHits *vHits = c->GetVolumeHits();
+
+            Float_t NaN = std::numeric_limits<Float_t>::quiet_NaN();
+
+            vHits->InitializeYArray( NaN );
+        }
+
+        if( pTrack->isYZ() )
+        {
+            TRestVolumeHits *vHits = c->GetVolumeHits();
+
+            Float_t NaN = std::numeric_limits<Float_t>::quiet_NaN();
+
+            vHits->InitializeXArray( NaN );
+        }
+    }
+
+    if( c->isXZ() ) fNtracksX++;
+    if( c->isYZ() ) fNtracksY++;
+    fNtracks++;
+
+    fTrack.push_back(*c);
+
+    SetLevels(); 
+}
+
+void TRestTrackEvent::RemoveTrack( int n )
+{
+    if ( fTrack[n].isXZ() ) fNtracksX--;
+    if ( fTrack[n].isYZ() ) fNtracksY--;
+    fNtracks--;
+
+    fTrack.erase(fTrack.begin()+n);
+
+    SetLevels();
+}  
+
+
+Int_t TRestTrackEvent::GetNumberOfTracks( TString option )
+{
+    if( option == "" )
+        return fNtracks;
+    else
+    {
+        Int_t nT = 0;
+        for( int n = 0; n < GetNumberOfTracks(); n++ )
+        {
+            if( !this->isTopLevel( n ) ) continue;
+
+            if( option == "X" && GetTrack( n )->isXZ() )
+                nT++;
+            else if( option == "Y" && GetTrack( n )->isYZ() )
+                nT++;
+            else if( option == "XYZ" && GetTrack( n )->isXYZ() )
+                nT++;
+        }
+
+        return nT;
+    }
+
+    return -1;
+}
+
 TRestTrack *TRestTrackEvent::GetTrackById( Int_t id )
 {
     for( int i = 0; i < GetNumberOfTracks(); i++ )
@@ -72,6 +145,8 @@ TRestTrack *TRestTrackEvent::GetMaxEnergyTrackInX( )
     Double_t maxEnergy = 0;
     for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
     {
+        if( !this->isTopLevel( tck ) ) continue;
+
         TRestTrack *t = GetTrack( tck );
         if( t->isXZ() )
         {
@@ -94,6 +169,8 @@ TRestTrack *TRestTrackEvent::GetMaxEnergyTrackInY( )
     Double_t maxEnergy = 0;
     for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
     {
+        if( !this->isTopLevel( tck ) ) continue;
+
         TRestTrack *t = GetTrack( tck );
         if( t->isYZ() )
         {
@@ -110,34 +187,126 @@ TRestTrack *TRestTrackEvent::GetMaxEnergyTrackInY( )
     return GetTrack( track );
 }
 
-TRestTrack *TRestTrackEvent::GetLongestTopLevelTrack()
+TRestTrack *TRestTrackEvent::GetMaxEnergyTrack( TString option )
 {
-    Int_t found = 0;
-    Double_t len = 0;
-    Int_t theTrack = 0;
+    if( option == "X" ) return GetMaxEnergyTrackInX();
+    if( option == "Y" ) return GetMaxEnergyTrackInY();
 
+    Int_t track = -1;
+    Double_t maxEnergy = 0;
     for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
     {
-        if( this->isTopLevel( tck ) )
-        {
-            Double_t l = this->GetTrack(tck)->GetTrackLength();
+        if( !this->isTopLevel( tck ) ) continue;
 
-            if( l > len )
+        TRestTrack *t = GetTrack( tck );
+        if( t->isXYZ() )
+        {
+            if ( t->GetEnergy() > maxEnergy )
             {
-                len = l;
-                theTrack = tck;
-                found = 1;
+                maxEnergy = t->GetEnergy();
+                track = tck;
             }
         }
     }
 
-    if( found == 0 )
-    {
-        cout << "REST warning! TRestTrackEvent. GetLongestTopLevelTrack. A track was not found!" << endl;
-        return NULL;
-    }
-    return GetTrack( theTrack );
+    if ( track == -1 ) return NULL;
 
+    return GetTrack( track );
+
+}
+
+TRestTrack *TRestTrackEvent::GetSecondMaxEnergyTrack( TString option )
+{
+    if( GetMaxEnergyTrack( option ) == NULL ) return NULL;
+
+    Int_t id = GetMaxEnergyTrack( option )->GetTrackID();
+
+    Int_t track = -1;
+    Double_t maxEnergy = 0;
+    for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
+    {
+        if( !this->isTopLevel( tck ) ) continue;
+
+        TRestTrack *t = GetTrack( tck );
+        if( t->GetTrackID() == id ) continue;
+
+        Double_t en = t->GetEnergy();
+
+        if( option == "X" && t->isXZ() )
+        {
+            if ( en > maxEnergy )
+            {
+                maxEnergy = t->GetEnergy();
+                track = tck;
+            }
+        }
+        else if( option == "Y" && t->isYZ() )
+        {
+            if ( t->GetEnergy() > maxEnergy )
+            {
+                maxEnergy = t->GetEnergy();
+                track = tck;
+            }
+        }
+        else if ( t->isXYZ() )
+        {
+            if ( t->GetEnergy() > maxEnergy )
+            {
+                maxEnergy = t->GetEnergy();
+                track = tck;
+            }
+        }
+    }
+
+    if ( track == -1 ) return NULL;
+
+    return GetTrack( track );
+}
+
+Double_t TRestTrackEvent::GetMaxEnergyTrackVolume( TString option )
+{
+    if( this->GetMaxEnergyTrack( option ) )
+        return this->GetMaxEnergyTrack( option )->GetVolume( );
+    return 0;
+}
+
+Double_t TRestTrackEvent::GetMaxEnergyTrackLength( TString option )
+{
+    if( this->GetMaxEnergyTrack( option ) )
+        return this->GetMaxEnergyTrack( option )->GetLength( );
+    return 0;
+}
+
+Double_t TRestTrackEvent::GetEnergy( TString option )
+{
+    Double_t en = 0;
+    for( int tck = 0; tck < this->GetNumberOfTracks(); tck++ )
+    {
+        if( !this->isTopLevel( tck ) ) continue;
+
+        TRestTrack *t = GetTrack( tck );
+
+        if( option == "" )
+            en += t->GetEnergy();
+
+        else if( option == "X" && t->isXZ() )
+            en += t->GetEnergy();
+
+        else if( option == "Y" && t->isYZ() )
+            en += t->GetEnergy();
+
+        else if( option == "XYZ" && t->isXYZ() )
+            en += t->GetEnergy();
+    }
+
+    return en;
+}
+
+Bool_t TRestTrackEvent::isXYZ( )
+{
+    for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
+        if ( !fTrack[tck].isXYZ() ) return false;
+    return true;
 }
 
 
@@ -181,6 +350,20 @@ Int_t TRestTrackEvent::GetOriginTrackID( Int_t tck )
     }
 
     return originTrackID;
+}
+
+TRestTrack *TRestTrackEvent::GetOriginTrack( Int_t tck )
+{
+    Int_t originTrackID = GetTrack( tck )->GetTrackID();
+    Int_t pID = GetTrackById( originTrackID )->GetParentID();
+
+    while( pID != 0 )
+    {
+        originTrackID = pID;
+        pID = GetTrackById(originTrackID)->GetParentID();
+    }
+
+    return GetTrackById( originTrackID );
 }
 
 TRestTrack *TRestTrackEvent::GetOriginTrackById( Int_t tckId )
@@ -228,9 +411,9 @@ void TRestTrackEvent::PrintEvent( Bool_t fullInfo )
 {
     TRestEvent::PrintEvent();
 
-    cout << "Number of tracks : " << GetNumberOfTracks() << endl;
-    cout << "Number of tracks XZ " << fNtracksX << endl;
-    cout << "Number of tracks YZ " << fNtracksY << endl;
+    cout << "Number of tracks : " << GetNumberOfTracks("XYZ") + GetNumberOfTracks("X") + GetNumberOfTracks("Y") << endl;
+    cout << "Number of tracks XZ " << GetNumberOfTracks("X") << endl;
+    cout << "Number of tracks YZ " << GetNumberOfTracks("Y") << endl;
     cout << "Track levels : " << GetLevels() << endl;
     cout << "+++++++++++++++++++++++++++++++++++" << endl;
     for( int i = 0; i < GetNumberOfTracks(); i++ )
@@ -240,29 +423,56 @@ void TRestTrackEvent::PrintEvent( Bool_t fullInfo )
 //Draw current event in a Tpad
 TPad *TRestTrackEvent::DrawEvent( TString option )
 {
+    /* Not used for the moment
     Bool_t drawXZ = false;
     Bool_t drawYZ = false;
     Bool_t drawXY = false;
     Bool_t drawXYZ = false;
     Bool_t drawLines = false;
+    */
+
+    Int_t maxLevel = 0;
+    Int_t minLevel = 0;
 
     vector <TString> optList = TRestTools::GetOptions( option );
 
     for( unsigned int n = 0; n < optList.size(); n++ )
     {
+        if( optList[n] == "print" )
+            this->PrintEvent();
+        if( optList[n] == "noWarning" )
+            fPrintHitsWarning = false;
+    }
+
+    optList.erase( std::remove( optList.begin(), optList.end(), "print"), optList.end() );
+    optList.erase( std::remove( optList.begin(), optList.end(), "noWarning"), optList.end() );
+
+    for( unsigned int n = 0; n < optList.size(); n++ )
+    {
+        /* Not used for the moment
         if( optList[n] == "XZ" ) drawXZ = true;
         if( optList[n] == "YZ" ) drawYZ = true;
         if( optList[n] == "XY" ) drawXY = true;
         if( optList[n] == "XYZ" ) drawXYZ = true;
         if( optList[n] == "L" || optList[n] == "lines"  ) drawLines = true;
+        */
+        string opt = (string) optList[n].Data();
+
+        if( opt.find( "maxLevel=" ) != string::npos )
+            maxLevel = stoi ( opt.substr( 9, opt.length() ).c_str() );
+
+        if( opt.find( "minLevel=" ) != string::npos )
+            minLevel = stoi ( opt.substr( 9, opt.length() ).c_str() );
     }
 
     if( fXYHit != NULL ) { delete[] fXYHit; fXYHit=NULL;}
     if( fXZHit != NULL ) { delete[] fXZHit; fXZHit=NULL;}
     if( fYZHit != NULL ) { delete[] fYZHit; fYZHit=NULL;}
+    if( fXYZHit != NULL ) { delete [] fXYZHit; fXYZHit = NULL; }
     if( fXYTrack != NULL ) { delete[] fXYTrack; fXYTrack=NULL;}
     if( fXZTrack != NULL ) { delete[] fXZTrack; fXZTrack=NULL;}
     if( fYZTrack != NULL ) { delete[] fYZTrack; fYZTrack=NULL;}
+    if( fXYZTrack != NULL ) { delete [] fXYZTrack; fXYZTrack = NULL; }
     if( fPad != NULL ) { delete fPad; fPad=NULL;}
 
     int nTracks = this->GetNumberOfTracks();
@@ -278,6 +488,18 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
     double maxX = -1e10, minX = 1e10, maxZ = -1e10, minZ = 1e10, maxY = -1e10, minY = 1e10;
 
     Int_t nTotHits = GetTotalHits( );
+
+    if( fPrintHitsWarning && nTotHits > 5000 )
+    {
+        cout << endl;
+        cout << " REST WARNING. TRestTrackEvent::DrawEvent. Number of hits is too high." << endl;
+        cout << " This drawing method is not properly optimized to draw events with a high number of hits." << endl;
+        cout << " To remove this warning you may use the DrawEvent method option : noWarning " << endl;
+        cout << endl;
+
+        fPrintHitsWarning = false;
+    }
+
     fXYHit = new TGraph[nTotHits];
     fXZHit = new TGraph[nTotHits];
     fYZHit = new TGraph[nTotHits];
@@ -290,7 +512,8 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
 	vector<Int_t> drawLinesXY(nTracks);
 	vector<Int_t> drawLinesXZ(nTracks);
 	vector<Int_t> drawLinesYZ(nTracks);
-    vector<Int_t> drawLinesXYZ(nTracks);
+	vector<Int_t> drawLinesXYZ(nTracks);
+
 
     for( int i = 0; i < nTracks; i++ )
     {
@@ -313,7 +536,6 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
     {
         TRestVolumeHits *hits = fTrack[tck].GetVolumeHits( );
 
-
         Double_t maxHitEnergy = hits->GetMaximumHitEnergy();
         Double_t meanHitEnergy = hits->GetMeanHitEnergy();
 
@@ -327,6 +549,12 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
         Bool_t isTopLevel = this->isTopLevel( tck );
         if( isTopLevel ) tckColor++;
         Int_t level = this->GetLevel( tck );
+
+        if( !isTopLevel && maxLevel > 0 && level > maxLevel )
+            continue;
+
+        if( !isTopLevel && minLevel > 0 && level < minLevel )
+            continue;
 
         int tckXY = 0, tckYZ = 0, tckXZ = 0, tckXYZ = 0;
         Double_t radius;
@@ -378,8 +606,7 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
                     // If there is only one-point the TGraph2D does NOT draw the point!
                     fXYZHit[countXYZ].SetPoint( 1, x+0.001, y+0.001, z+0.001 );
 
-                    if( !isTopLevel ) fXYZHit[countXYZ].SetMarkerColor( level + 11 );
-                    else fXYZHit[countXYZ].SetMarkerColor( tckColor );
+                    fXYZHit[countXYZ].SetMarkerColor( level + 11 );
 
                     fXYZHit[countXYZ].SetMarkerSize(radius);
                     fXYZHit[countXYZ].SetMarkerStyle(20);
@@ -471,6 +698,11 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
     fPad->cd(1); 
     mgXZ->GetXaxis()->SetTitle("X-axis (mm)");
     mgXZ->GetYaxis()->SetTitle("Z-axis (mm)");
+    mgXZ->GetYaxis()->SetTitleOffset(1.75);
+    mgXZ->GetYaxis()->SetTitleSize( 1.4 * mgXZ->GetYaxis()->GetTitleSize() );
+    mgXZ->GetXaxis()->SetTitleSize( 1.4 * mgXZ->GetXaxis()->GetTitleSize() );
+    mgXZ->GetYaxis()->SetLabelSize( 1.25 * mgXZ->GetYaxis()->GetLabelSize() );
+    mgXZ->GetXaxis()->SetLabelSize( 1.25 * mgXZ->GetXaxis()->GetLabelSize() );
     mgXZ->Draw("P");
 
 
@@ -480,6 +712,11 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
     fPad->cd(2); 
     mgYZ->GetXaxis()->SetTitle("Y-axis (mm)");
     mgYZ->GetYaxis()->SetTitle("Z-axis (mm)");
+    mgYZ->GetYaxis()->SetTitleOffset(1.75);
+    mgYZ->GetYaxis()->SetTitleSize( 1.4 * mgYZ->GetYaxis()->GetTitleSize() );
+    mgYZ->GetXaxis()->SetTitleSize( 1.4 * mgYZ->GetXaxis()->GetTitleSize() );
+    mgYZ->GetYaxis()->SetLabelSize( 1.25 * mgYZ->GetYaxis()->GetLabelSize() );
+    mgYZ->GetXaxis()->SetLabelSize( 1.25 * mgYZ->GetXaxis()->GetLabelSize() );
     mgYZ->Draw("P");
 
     if( this->isXYZ() )
@@ -490,7 +727,12 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
         fPad->cd(3); 
         mgXY->GetXaxis()->SetTitle("X-axis (mm)");
         mgXY->GetYaxis()->SetTitle("Y-axis (mm)");
+        mgXY->GetYaxis()->SetTitleOffset(1.75);
         mgXY->Draw("P");
+        mgXY->GetYaxis()->SetTitleSize( 1.4 * mgXY->GetYaxis()->GetTitleSize() );
+        mgXY->GetXaxis()->SetTitleSize( 1.4 * mgXY->GetXaxis()->GetTitleSize() );
+        mgXY->GetYaxis()->SetLabelSize( 1.25 * mgXY->GetYaxis()->GetLabelSize() );
+        mgXY->GetXaxis()->SetLabelSize( 1.25 * mgXY->GetXaxis()->GetLabelSize() );
     }
 
     for( int tck = 0; tck < nTckXZ; tck++ )

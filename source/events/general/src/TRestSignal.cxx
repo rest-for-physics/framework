@@ -72,32 +72,10 @@ void TRestSignal::AddPoint(TVector2 p)
         fSignalCharge.push_back(y);
     }
 }
-void TRestSignal::SetPoint(TVector2 p) {
-	Int_t index = GetTimeIndex(p.X());
-	Float_t x = p.X();
-	Float_t y = p.Y();
-
-	if (index >= 0)
-	{
-		fSignalTime[index] = x;
-		fSignalCharge[index] = y;
-	}
-	else {
-		fSignalTime.push_back(x);
-		fSignalCharge.push_back(y);
-	}
-
-}
 
 void TRestSignal::AddPoint( Double_t t, Double_t d ) { TVector2 p( t,d); AddPoint( p ); }
 void TRestSignal::AddCharge( Double_t t, Double_t d ) { TVector2 p( t,d); AddPoint( p ); }
 void TRestSignal::AddDeposit( Double_t t, Double_t d ) { TVector2 p( t,d); AddPoint( p ); }
-
-void TRestSignal::SetPoint(Double_t t, Double_t d){ TVector2 p(t, d); SetPoint(p); }
-void TRestSignal::SetPoint(Int_t index, Double_t t, Double_t d) {
-	fSignalTime[index] = t;
-	fSignalCharge[index] = d;
-}
 
 Double_t TRestSignal::GetIntegral( Int_t startBin, Int_t endBin ) 
 {
@@ -111,7 +89,16 @@ Double_t TRestSignal::GetIntegral( Int_t startBin, Int_t endBin )
     return sum;
 }
 
-Double_t TRestSignal::GetIntegralWithTime( Int_t startTime, Int_t endTime ) 
+void TRestSignal::Normalize( Double_t scale )
+{
+    Double_t sum = GetIntegral();
+
+    for( int i = 0; i < GetNumberOfPoints(); i++ )
+         fSignalCharge[i] = scale * GetData(i)/sum;
+
+}
+
+Double_t TRestSignal::GetIntegralWithTime( Double_t startTime, Double_t endTime ) 
 {
     Double_t sum = 0;
     for( int i = 0; i < GetNumberOfPoints(); i++ )
@@ -122,6 +109,19 @@ Double_t TRestSignal::GetIntegralWithTime( Int_t startTime, Int_t endTime )
 }
 
 
+Double_t TRestSignal::GetMaxPeakWithTime( Double_t startTime, Double_t endTime ) 
+{
+    Double_t max = -1E10;
+
+    for( int i = 0; i < GetNumberOfPoints(); i++ )
+        if( GetTime(i) >= startTime && GetTime(i) < endTime )
+        {
+            if( this->GetData(i) > max) 
+                max = GetData(i);
+        }
+
+    return max;
+}
 
 
 Double_t TRestSignal::GetIntegralWithThreshold( Int_t from, Int_t to, Int_t startBaseline, Int_t endBaseline, Double_t nSigmas, Int_t nPointsOverThreshold, Double_t nMinSigmas ) 
@@ -193,6 +193,8 @@ Double_t TRestSignal::GetAverage( Int_t start, Int_t end )
 {
     this->Sort();
 
+    if( end == 0 ) end = this->GetNumberOfPoints();
+
     Double_t sum = 0;
     for( int i = start; i <= end; i++ )
     {
@@ -232,12 +234,17 @@ Double_t TRestSignal::GetMaxPeakValue()
     return GetData( GetMaxIndex() ); 
 }
 
-Int_t TRestSignal::GetMaxIndex( )
+Int_t TRestSignal::GetMaxIndex( Int_t from, Int_t to )
 {
     Double_t max = -1E10;
     Int_t index = 0;
 
-    for( int i = 0; i < GetNumberOfPoints(); i++ )
+    if( from < 0 ) from = 0;
+    if ( to > GetNumberOfPoints() ) to = GetNumberOfPoints();
+
+    if( to == 0 ) to = GetNumberOfPoints();
+
+    for( int i = from; i < to; i++ )
     {
 
         if( this->GetData(i) > max) 
@@ -250,9 +257,9 @@ Int_t TRestSignal::GetMaxIndex( )
     return index;
 }
 
-Double_t TRestSignal::GetMaxPeakTime()
+Double_t TRestSignal::GetMaxPeakTime( Int_t from, Int_t to )
 {
-    return GetTime( GetMaxIndex() );
+    return GetTime( GetMaxIndex( from, to ) );
 }
 
 Double_t TRestSignal::GetMinPeakValue()

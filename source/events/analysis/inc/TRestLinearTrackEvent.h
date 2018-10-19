@@ -36,15 +36,15 @@ class TRestLinearTrackEvent: public TRestEvent {
         std::vector <TRestLinearTrack> fLinearTrack;
 
         #ifndef __CINT__
-        TPad *fPad; //!
-        Double_t fMinLength;//!
-        Double_t fMaxLength;//!
-        Double_t fMinWidth;//!
-        Double_t fMaxWidth;//!
-        Double_t fMinLinearDeposit;//!
-        Double_t fMaxLinearDeposit;//!
-        Double_t fMinTransversalDeposit;//!
-        Double_t fMaxTransversalDeposit;//!
+        TPad *fPad; //! 
+        Double_t fMinLength; //!
+        Double_t fMaxLength; //!
+        Double_t fMinWidth; //!
+        Double_t fMaxWidth; //!
+        Double_t fMinLinearDeposit; //!
+        Double_t fMaxLinearDeposit; //!
+        Double_t fMinTransversalDeposit; //!
+        Double_t fMaxTransversalDeposit; //!
         #endif 
  
     public:

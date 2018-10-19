@@ -30,20 +30,23 @@ class TRestRawSignal: public TObject {
     private:
 
     protected:
-        
+
         Int_t fSignalID;
-        
+
         std::vector <Short_t> fSignalData;   //Vector with the data of the signal
-        
+
     public:
 
 #ifndef __CINT__
 
-        TGraph *fGraph;//!
+        TGraph *fGraph; //!
 
-        std::vector <Int_t> fPointsOverThreshold;//!
+        std::vector <Int_t> fPointsOverThreshold; //!
 
-	Double_t fThresholdIntegral;//!
+        Double_t fThresholdIntegral; //!
+
+        Int_t fHeadPoints; //!
+        Int_t fTailPoints; //!
 #endif
 
         //Getters
@@ -55,8 +58,8 @@ class TRestRawSignal: public TObject {
 
         std::vector <Int_t> GetPointsOverThreshold( ) { return fPointsOverThreshold; }
 
-        Double_t GetMaxValue() { return GetMaxPeakValue(); }
-        Double_t GetMinValue() { return GetMinPeakValue(); }
+        Double_t GetMaxValue( Int_t startBin = 0, Int_t endBin = 0 ) { return GetMaxPeakValue( startBin, endBin ); }
+        Double_t GetMinValue( Int_t startBin = 0, Int_t endBin = 0 ) { return GetMinPeakValue( startBin, endBin ); }
 
         //Setters
         void SetSignalID( Int_t sID ) { fSignalID = sID; }
@@ -76,6 +79,9 @@ class TRestRawSignal: public TObject {
 
         Double_t GetIntegral( Int_t startBin = 0, Int_t endBin = 0 );
 
+        void SetHeadPoints( Int_t p ) { fHeadPoints = p; }
+        void SetTailPoints( Int_t p ) { fTailPoints = p; }
+
         Double_t GetIntegralWithThreshold( Int_t from, Int_t to, 
                 Int_t startBaseline, Int_t endBaseline, 
                 Double_t nSigmas, Int_t nPointsOverThreshold, Double_t nMinSigmas );
@@ -84,24 +90,25 @@ class TRestRawSignal: public TObject {
                 Double_t baseline, Double_t pointThreshold,
                 Int_t nPointsOverThreshold, Double_t signalThreshold );
 
-	Double_t GetThresholdIntegralValue() { return fThresholdIntegral; }
+        Double_t GetThresholdIntegralValue() { return fThresholdIntegral; }
 
-	Double_t GetSlopeIntegral( );
-	Double_t GetRiseSlope( );
-	Int_t GetRiseTime( );
-	Double_t GetTripleMaxIntegral( );
+        Double_t GetSlopeIntegral( );
+        Double_t GetRiseSlope( );
+        Int_t GetRiseTime( );
+        Double_t GetTripleMaxIntegral( Int_t startBin = 0, Int_t endBin = 0 );
 
-        Double_t GetAverage( Int_t startBin, Int_t endBin );
+        Double_t GetAverage( Int_t startBin = 0, Int_t endBin = 0 );
 
-        Int_t GetMaxPeakWidth();
-        Double_t GetMaxPeakValue();
-        Int_t GetMaxPeakBin( );
+        Int_t GetMaxPeakWidth( Int_t startBin = 0, Int_t endBin = 0 );
+        Double_t GetMaxPeakValue( Int_t startBin = 0, Int_t endBin = 0 );
+        Int_t GetMaxPeakBin( Int_t startBin = 0, Int_t endBin = 0 );
 
-        Double_t GetMinPeakValue();
-        Int_t GetMinPeakBin( );
+        Double_t GetMinPeakValue( Int_t startBin = 0, Int_t endBin = 0 );
+        Int_t GetMinPeakBin( Int_t startBin = 0, Int_t endBin = 0 );
 
         void GetDifferentialSignal( TRestRawSignal *diffSgnl, Int_t smearPoints );
         void GetSignalSmoothed( TRestRawSignal *smthSignal, Int_t averagingPoints );
+        void GetWhiteNoiseSignal( TRestRawSignal *noiseSgnl, Double_t noiseLevel = 1. );
 
         Double_t GetBaseLine( Int_t startBin, Int_t endBin );
         Double_t GetStandardDeviation( Int_t startBin, Int_t endBin );
@@ -110,19 +117,19 @@ class TRestRawSignal: public TObject {
         void AddOffset( Short_t offset );
         void SignalAddition( TRestRawSignal *inSgnl );
 
-	void Scale( Double_t value );
+        void Scale( Double_t value );
 
         void WriteSignalToTextFile ( TString filename );
         void Print( );
 
         TGraph *GetGraph( Int_t color = 1 );
-                
+
         //Construtor
         TRestRawSignal();
         TRestRawSignal( Int_t nBins );
         //Destructor
         ~TRestRawSignal();
-        
+
         ClassDef(TRestRawSignal, 1);
 
 

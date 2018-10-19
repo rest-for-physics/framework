@@ -34,6 +34,9 @@ TRestRawSignal::TRestRawSignal()
    fPointsOverThreshold.clear();
 
    fThresholdIntegral = -1;
+
+   fHeadPoints = 0;
+   fTailPoints = 0;
 }
 
 TRestRawSignal::TRestRawSignal( Int_t nBins )
@@ -49,6 +52,9 @@ TRestRawSignal::TRestRawSignal( Int_t nBins )
        fSignalData.push_back( 0 );
 
    fThresholdIntegral = -1;
+
+   fHeadPoints = 0;
+   fTailPoints = 0;
 }
 
 //______________________________________________________________________________
@@ -64,6 +70,9 @@ void TRestRawSignal::Initialize()
     fSignalID = -1;
 
     fThresholdIntegral = -1;
+
+    fHeadPoints = 0;
+    fTailPoints = 0;
 }
 
 void TRestRawSignal::Reset()
@@ -116,7 +125,6 @@ Double_t TRestRawSignal::GetIntegral( Int_t startBin, Int_t endBin )
     return sum;
 }
 
-
 Double_t TRestRawSignal::GetIntegralWithThreshold( Int_t from, Int_t to, 
         Int_t startBaseline, Int_t endBaseline, 
         Double_t nSigmas, Int_t nPointsOverThreshold, Double_t nMinSigmas ) 
@@ -136,57 +144,70 @@ Double_t TRestRawSignal::GetIntegralWithThreshold( Int_t from, Int_t to,
         Double_t baseline, Double_t pointThreshold,
         Int_t nPointsOverThreshold, Double_t signalThreshold ) 
 {
-    Double_t sum = 0;
-    Int_t nPoints = 0;
-    fPointsOverThreshold.clear();
+	Double_t sum = 0;
+	Int_t nPoints = 0;
+	fPointsOverThreshold.clear();
 
-    if( to > GetNumberOfPoints() ) to = GetNumberOfPoints();
+	if( to > GetNumberOfPoints() ) to = GetNumberOfPoints();
 
-    Float_t maxValue = 0;
-    for( int i = from; i < to; i++ )
-    {
-        if( GetData(i) > baseline + pointThreshold )
-        {
-            if( GetData( i ) > maxValue ) maxValue = GetData( i );
-            nPoints++;
-        }
-        else
-        {
-            if( nPoints >= nPointsOverThreshold )
-            {
-                Double_t sig = GetStandardDeviation( i - nPoints, i );
+	//int debug = 0;
+	//if ( GetMaxPeakValue( 150, 250 ) > 20 ) debug = 1;
 
-                // Only if the sigma of points found over threshold 
-                // are found above the signal threshold defined 
-                // we will add them to the integral
-                if( sig > signalThreshold )
-                {
-                    for( int j = i - nPoints; j < i; j++ )
-                    {
-						sum += this->GetData(j) - baseline;
-                        fPointsOverThreshold.push_back( j );
-                    }
-                }
-            }
-            nPoints = 0;
-            maxValue = 0;
-        }
-    }
+	Float_t maxValue = 0;
+	for( int i = from; i < to; i++ )
+	{
+		//if( debug )
+		//	cout << "point : " << i << " data : " << GetData(i) << " baseline : " << baseline << " threshold : " << pointThreshold << endl;
+		if( GetData(i) > baseline + pointThreshold )
+		{
+		//	if( debug )
+		//		cout << "Point over threshold" << endl;
+			if( GetData( i ) > maxValue ) maxValue = GetData( i );
+			nPoints++;
+		}
+		else
+		{
+			if( nPoints >= nPointsOverThreshold )
+			{
+				Double_t sig = GetStandardDeviation( i - nPoints, i );
 
-    if( nPoints >= nPointsOverThreshold )
-    {
-        Double_t sig = GetStandardDeviation( to - nPoints, to );
-        if( sig > signalThreshold )
-        {
-            for( int j = to - nPoints; j < to; j++ )
-            {
-				sum += this->GetData(j) - baseline;
-                fPointsOverThreshold.push_back( j );
-            }
-        }
-    }
-    fThresholdIntegral = sum;
-    return sum;
+				// Only if the sigma of points found over threshold 
+				// are found above the signal threshold defined 
+				// we will add them to the integral
+		//		if( debug )
+		//			cout << "Signal : " << sig << " signal Threshold : " << signalThreshold << endl;
+				if( sig > signalThreshold )
+				{
+					for( int j = i - nPoints - fHeadPoints; j < i + fTailPoints && j < GetNumberOfPoints(); j++ )
+					{
+						if( j < 0 ) j = 0;
+		//				if( debug )
+		//					cout << "Adding point : " <<  j << " data : " << GetData( j ) << endl;
+						sum += this->GetData( j );
+						fPointsOverThreshold.push_back( j );
+					}
+				}
+			}
+			nPoints = 0;
+			maxValue = 0;
+		}
+	}
+
+	if( nPoints >= nPointsOverThreshold )
+	{
+		Double_t sig = GetStandardDeviation( to - nPoints, to );
+		if( sig > signalThreshold )
+		{
+			for( int j = to - nPoints; j < to; j++ )
+			{
+				sum += this->GetData( j );
+				fPointsOverThreshold.push_back( j );
+			}
+		}
+	}
+
+	fThresholdIntegral = sum;
+	return sum;
 }
 
 Double_t TRestRawSignal::GetSlopeIntegral( )
@@ -245,13 +266,24 @@ Int_t TRestRawSignal::GetRiseTime( )
 	return GetMaxPeakBin() - fPointsOverThreshold[0];
 }
 
-Double_t TRestRawSignal::GetTripleMaxIntegral( )
+Double_t TRestRawSignal::GetTripleMaxIntegral( Int_t startBin, Int_t endBin )
 {
-	//cout << __PRETTY_FUNCTION__ << endl;
-	if( fThresholdIntegral == -1 )
-		cout << "REST Warning. TRestRawSignal::GetRiseTime. GetIntegralWithThreshold should be called first." << endl;
+	if( startBin < 0 ) startBin = 0;
+	if( endBin <= 0 || endBin > GetNumberOfPoints() ) endBin = GetNumberOfPoints();
 
-	Int_t cBin = GetMaxPeakBin();
+	if( fThresholdIntegral == -1 )
+	{
+		cout << "REST Warning. TRestRawSignal::GetTripleMaxIntegral. GetIntegralWithThreshold should be called first." << endl;
+	        return 0;
+	}
+
+	if( fPointsOverThreshold.size() < 2 )
+	{
+		cout << "REST Warning. TRestRawSignal::GetTripleMaxIntegral. Points over threshold = " << fPointsOverThreshold.size() << endl;
+	        return 0;
+	}
+
+	Int_t cBin = GetMaxPeakBin( startBin, endBin );
 
 	if( cBin+1 >= GetNumberOfPoints() ) return 0;
 
@@ -274,9 +306,9 @@ Double_t TRestRawSignal::GetAverage( Int_t startBin, Int_t endBin )
     return sum/(endBin-startBin+1);
 }
 
-Int_t TRestRawSignal::GetMaxPeakWidth()
+Int_t TRestRawSignal::GetMaxPeakWidth( Int_t startBin, Int_t endBin )
 {
-    Int_t mIndex = this->GetMaxPeakBin();
+    Int_t mIndex = this->GetMaxPeakBin( startBin, endBin );
     Double_t maxValue = this->GetData(mIndex);
 
     Double_t value = maxValue;
@@ -297,17 +329,20 @@ Int_t TRestRawSignal::GetMaxPeakWidth()
     return rightIndex-leftIndex;
 }
 
-Double_t TRestRawSignal::GetMaxPeakValue() 
+Double_t TRestRawSignal::GetMaxPeakValue( Int_t startBin, Int_t endBin ) 
 {
-    return GetData( GetMaxPeakBin() ); 
+    return GetData( GetMaxPeakBin( startBin, endBin ) ); 
 }
 
-Int_t TRestRawSignal::GetMaxPeakBin( )
+Int_t TRestRawSignal::GetMaxPeakBin( Int_t startBin, Int_t endBin )
 {
     Double_t max = -1E10;
     Int_t index = 0;
 
-    for( int i = 0; i < GetNumberOfPoints(); i++ )
+    if( endBin == 0 || endBin > GetNumberOfPoints() ) endBin = GetNumberOfPoints();
+    if( startBin < 0 ) startBin = 0;
+
+    for( int i = startBin; i < endBin; i++ )
     {
         if( this->GetData(i) > max) 
         {
@@ -319,17 +354,20 @@ Int_t TRestRawSignal::GetMaxPeakBin( )
     return index;
 }
 
-Double_t TRestRawSignal::GetMinPeakValue() 
+Double_t TRestRawSignal::GetMinPeakValue( Int_t startBin, Int_t endBin ) 
 {
-    return GetData( GetMinPeakBin() ); 
+    return GetData( GetMinPeakBin( startBin, endBin ) ); 
 }
 
-Int_t TRestRawSignal::GetMinPeakBin( )
+Int_t TRestRawSignal::GetMinPeakBin( Int_t startBin, Int_t endBin )
 {
     Double_t min = 1E10;
     Int_t index = 0;
 
-    for( int i = 0; i < GetNumberOfPoints(); i++ )
+    if( endBin == 0 || endBin > GetNumberOfPoints() ) endBin = GetNumberOfPoints();
+    if( startBin < 0 ) startBin = 0;
+
+    for( int i = startBin; i < endBin; i++ )
     {
         if( this->GetData(i) < min) 
         {
@@ -357,6 +395,18 @@ void TRestRawSignal::GetDifferentialSignal( TRestRawSignal *diffSgnl, Int_t smea
 
     for( int i = GetNumberOfPoints()-smearPoints; i < GetNumberOfPoints(); i++ )
          diffSgnl->AddPoint( 0 );
+}
+
+void TRestRawSignal::GetWhiteNoiseSignal( TRestRawSignal *noiseSgnl, Double_t noiseLevel)
+{
+    TRandom3* fRandom  = new TRandom3(0);
+    for( int i = 0; i < GetNumberOfPoints(); i++ )
+    {
+        cout << "i : " << i << " random : " <<  (Short_t) fRandom->Gaus(0, noiseLevel) << endl;
+        noiseSgnl->AddPoint( this->GetData(i) + (Short_t) fRandom->Gaus(0, noiseLevel) );
+    }
+    getchar();
+    delete fRandom;
 }
 
 void TRestRawSignal::GetSignalSmoothed( TRestRawSignal *smthSignal, Int_t averagingPoints )
@@ -459,8 +509,12 @@ void TRestRawSignal::WriteSignalToTextFile ( TString filename )
 
 void TRestRawSignal::Print( )
 {
+    cout << "---------------------" << endl;
+    cout << "Signal id : " << this->GetSignalID() << endl;
+    cout << "+++++++++++++++++++++" << endl;
     for( int i = 0; i < GetNumberOfPoints(); i++ )
         cout << "Bin : " << i << " Charge : " << GetData(i) << endl;
+    cout << "---------------------" << endl;
 }
 
 TGraph *TRestRawSignal::GetGraph( Int_t color )
@@ -470,7 +524,7 @@ TGraph *TRestRawSignal::GetGraph( Int_t color )
     fGraph = new TGraph();
 
     fGraph->SetLineWidth( 2 );
-    fGraph->SetLineColor( color );
+    fGraph->SetLineColor( color%8 + 1 );
     fGraph->SetMarkerStyle( 7 );
 
     int points = 0;

@@ -36,20 +36,17 @@ class TRestRawSignalEvent: public TRestEvent {
     protected:
 
 #ifndef __CINT__
-        TPad *fPad;//!
-		TMultiGraph*mg;//!
-		TGraph*gr;//!
-        Double_t fMinTime;//!
-        Double_t fMaxTime;//!
-        Double_t fMinValue;//!
-        Double_t fMaxValue;//!
+        Double_t fMinTime; //!
+        Double_t fMaxTime; //!
+        Double_t fMinValue; //!
+        Double_t fMaxValue; //!
 #endif
 
         std::vector <TRestRawSignal> fSignal; //Collection of signals that define the event
 
     private:
 
-        void SetMaxAndMin();
+        void SetMaxAndMin( Int_t startBin = 0, Int_t endBin = 0 );
 
     public:
 
@@ -60,9 +57,26 @@ class TRestRawSignalEvent: public TRestEvent {
 
         void AddChargeToSignal( Int_t sgnlID, Int_t bin, Short_t value );
 
+        void SetTailPoints( Int_t p ) { for ( int n = 0; n < GetNumberOfSignals(); n++ ) fSignal[n].SetTailPoints(p); }
+
         //Getters
         Int_t GetNumberOfSignals() { return fSignal.size(); }
         TRestRawSignal *GetSignal(Int_t n ) { return &fSignal[n]; }
+
+        TRestRawSignal *GetSignalById( Int_t sid ) 
+        { 
+            Int_t index = GetSignalIndex( sid );
+            if( index < 0 ) return NULL;
+
+            return &fSignal[index]; 
+        }
+
+        TRestRawSignal* GetMaxSignal( Int_t startBin = 0, Int_t endBin = 0 );
+
+        Int_t GetLowestWidth( Int_t startBin = 0, Int_t endBin = 0,  Double_t minPeakAmplitude = 0 );
+        Double_t GetLowAverageWidth( Int_t nSignals = 5, Int_t startBin = 0, Int_t endBin = 0,  Double_t minPeakAmplitude = 0 );
+        Double_t GetAverageWidth( Int_t startBin = 0, Int_t endBin = 0,  Double_t minPeakAmplitude = 0 );
+
         Int_t GetSignalIndex( Int_t signalID );
 
         Double_t GetBaseLineAverage( Int_t startBin, Int_t endBin );
@@ -71,13 +85,13 @@ class TRestRawSignalEvent: public TRestEvent {
         Double_t GetIntegral( Int_t startBin = 0, Int_t endBin = 0 );
         Double_t GetIntegralWithThreshold( Int_t from, Int_t to, Int_t startBaseline, Int_t endBaseline, Double_t nSigmas, Int_t nPointsOverThreshold, Double_t minPeakAmplitude );
 
-	Double_t GetSlopeIntegral( );
-	Double_t GetRiseSlope( );
-	Double_t GetRiseTime( );
-	Double_t GetTripleMaxIntegral( );
+        Double_t GetSlopeIntegral( );
+        Double_t GetRiseSlope( );
+        Double_t GetRiseTime( );
+        Double_t GetTripleMaxIntegral( Int_t startBin = 0, Int_t endBin = 0 );
 
-        Double_t GetMaxValue( );
-        Double_t GetMinValue( );
+        Double_t GetMaxValue( Int_t startBin = 0, Int_t endBin = 0 );
+        Double_t GetMinValue( Int_t startBin = 0, Int_t endBin = 0 );
         Double_t GetMinTime( );
         Double_t GetMaxTime( );
 

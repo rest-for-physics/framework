@@ -42,7 +42,6 @@ void TRestSignalEvent::Initialize()
     TRestEvent::Initialize();
     fSignal.clear();
     fPad = NULL;
-	mg = NULL;
     fMinValue = 1E10;
     fMaxValue = -1E10;
     fMinTime = 1E10;
@@ -78,6 +77,15 @@ Double_t TRestSignalEvent::GetIntegral( Int_t startBin, Int_t endBin )
     return sum;
 }
 
+Double_t TRestSignalEvent::GetIntegralWithTime( Double_t startTime, Double_t endTime )
+{
+    Double_t sum = 0;
+    for( int n = 0; n < GetNumberOfSignals(); n++ )
+        sum += fSignal[n].GetIntegralWithTime( startTime, endTime );
+
+    return sum;
+}
+
 Double_t TRestSignalEvent::GetIntegralWithThreshold( Int_t from, Int_t to, Int_t startBaseline, Int_t endBaseline, Double_t nSigmas, Int_t nPointsOverThreshold, Double_t minPeakAmplitude ) 
 {
     Double_t sum = 0;
@@ -85,7 +93,7 @@ Double_t TRestSignalEvent::GetIntegralWithThreshold( Int_t from, Int_t to, Int_t
     for( int i = 0; i < GetNumberOfSignals(); i++ )
         sum += fSignal[i].GetIntegralWithThreshold( from, to, startBaseline, endBaseline, nSigmas, nPointsOverThreshold, minPeakAmplitude );
 
-    return sum;
+	    return sum;
 
 }
 
@@ -200,8 +208,6 @@ Double_t TRestSignalEvent::GetMaxTime( )
 //Draw current event in a Tpad
 TPad *TRestSignalEvent::DrawEvent( TString option )
 {
-	UNUSED(option);
-
     if(fPad != NULL) { delete fPad; fPad=NULL; }
 
     int nSignals = this->GetNumberOfSignals();
@@ -221,18 +227,23 @@ TPad *TRestSignalEvent::DrawEvent( TString option )
     fPad = new TPad( this->GetName(), " ", 0, 0, 1, 1 );
     fPad->Draw();
     fPad->cd();
-    fPad->DrawFrame( GetMinTime()-1, GetMinValue()-1 , GetMaxTime()+1, GetMaxValue()+1);
+    fPad->DrawFrame( GetMinTime(), 0 , GetMaxTime(), GetMaxValue());
 
     char title[256];
     sprintf(title, "Event ID %d", this->GetID());
 
-	if (mg != NULL)
-		delete mg;
-	mg = new TMultiGraph();
+
+    TMultiGraph *mg = new TMultiGraph();
     mg->SetTitle(title);
-    mg->GetXaxis()->SetTitle("time bins");
-    mg->GetYaxis()->SetTitleOffset(1.4);
-    mg->GetYaxis()->SetTitle("Energy");
+    mg->GetXaxis()->SetTitle("Drift time [us]");
+    mg->GetXaxis()->SetTitleOffset(1.1);
+    mg->GetYaxis()->SetTitle("Energy [keV]");
+    mg->GetYaxis()->SetTitleOffset(0.8);
+
+    mg->GetYaxis()->SetTitleSize( 1.4 * mg->GetYaxis()->GetTitleSize() );
+    mg->GetXaxis()->SetTitleSize( 1.4 * mg->GetXaxis()->GetTitleSize() );
+    mg->GetYaxis()->SetLabelSize( 1.25 * mg->GetYaxis()->GetLabelSize() );
+    mg->GetXaxis()->SetLabelSize( 1.25 * mg->GetXaxis()->GetLabelSize() );
 
 
     for( int n = 0; n < nSignals; n++ )

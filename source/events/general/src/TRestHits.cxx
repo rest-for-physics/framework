@@ -80,6 +80,24 @@ void TRestHits::GetXArray( Float_t *x )
     }
 }
 
+void TRestHits::InitializeXArray( Float_t x )
+{
+        for( int i = 0; i < GetNumberOfHits(); i++ )
+            fX[i] = x;
+}
+
+void TRestHits::InitializeYArray( Float_t y )
+{
+        for( int i = 0; i < GetNumberOfHits(); i++ )
+            fY[i] = y;
+}
+
+void TRestHits::InitializeZArray( Float_t z )
+{
+        for( int i = 0; i < GetNumberOfHits(); i++ )
+            fZ[i] = z;
+}
+
 void TRestHits::GetYArray( Float_t *y )
 {
     if( areXZ() )
@@ -117,7 +135,7 @@ Double_t TRestHits::GetEnergyIntegral()
 }
 
 
-Bool_t TRestHits::isHitNInsidePrism( Int_t n, TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY)
+Bool_t TRestHits::isHitNInsidePrism( Int_t n, TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta)
 {
 
     TVector3 axis = x1 - x0;
@@ -125,7 +143,7 @@ Bool_t TRestHits::isHitNInsidePrism( Int_t n, TVector3 x0, TVector3 x1, Double_t
     Double_t prismLength = axis.Mag();
 
     TVector3 hitPos = this->GetPosition( n ) - x0;
-
+     hitPos.RotateZ(theta);
     Double_t l = axis.Dot( hitPos )/prismLength;
 
     if( ( l > 0 ) && ( l < prismLength ) )
@@ -136,23 +154,23 @@ Bool_t TRestHits::isHitNInsidePrism( Int_t n, TVector3 x0, TVector3 x1, Double_t
 }
 
 
-Double_t TRestHits::GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY)
+Double_t TRestHits::GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,Double_t theta)
 {
     Double_t energy = 0.;
 
     for( int n = 0; n < GetNumberOfHits(); n++ )
-        if( isHitNInsidePrism( n, x0, x1, sizeX, sizeY ) )
+        if( isHitNInsidePrism( n, x0, x1, sizeX, sizeY, theta ) )
             energy += this->GetEnergy( n );
 
     return energy;
 }
 
-Int_t TRestHits::GetNumberOfHitsInsidePrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY)
+Int_t TRestHits::GetNumberOfHitsInsidePrism( TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta)
 {
     Int_t hits = 0;
 
     for( int n = 0; n < GetNumberOfHits(); n++ )
-        if( isHitNInsidePrism( n, x0, x1, sizeX,sizeY ) )
+        if( isHitNInsidePrism( n, x0, x1, sizeX,sizeY, theta ) )
             hits++;
 
     return hits;
@@ -194,6 +212,11 @@ Bool_t TRestHits::isHitNInsideCylinder( Int_t n, TVector3 x0, TVector3 x1, Doubl
     return false;
 }
 
+Double_t TRestHits::GetEnergyInCylinder( Int_t i, Int_t j, Double_t radius )
+{
+    return GetEnergyInCylinder( this->GetPosition(i), this->GetPosition(j), radius );
+}
+
 Double_t TRestHits::GetEnergyInCylinder( TVector3 x0, TVector3 x1, Double_t radius )
 {
     Double_t energy = 0.;
@@ -206,6 +229,11 @@ Double_t TRestHits::GetEnergyInCylinder( TVector3 x0, TVector3 x1, Double_t radi
     return energy;
 }
 
+Int_t TRestHits::GetNumberOfHitsInsideCylinder( Int_t i, Int_t j, Double_t radius )
+{
+    return GetNumberOfHitsInsideCylinder( this->GetPosition(i), this->GetPosition(j), radius );
+}
+
 Int_t TRestHits::GetNumberOfHitsInsideCylinder( TVector3 x0, TVector3 x1, Double_t radius )
 {
     Int_t hits = 0;
@@ -215,32 +243,19 @@ Int_t TRestHits::GetNumberOfHitsInsideCylinder( TVector3 x0, TVector3 x1, Double
     return hits;
 }
 
+Double_t TRestHits::GetEnergyInSphere( TVector3 pos0, Double_t radius )
+{
+    return GetEnergyInSphere( pos0.X(), pos0.Y(), pos0.Z(), radius );
+}
+
 Double_t TRestHits::GetEnergyInSphere( Double_t x0, Double_t y0, Double_t z0, Double_t radius )
 {
     Double_t sum = 0;
     for( int i = 0; i < GetNumberOfHits(); i++ )
     {
-        Double_t x = this->GetX(i);
-        Double_t y = this->GetY(i);
-        Double_t z = this->GetZ(i);
-
-		if (TMath::IsNaN(x) + TMath::IsNaN(y) + TMath::IsNaN(z) > 1) {
-			cout << "REST Warning (TRestHits::GetEnergyInSphere) : more than two coordinates missing in the hit!" << endl;
-			return 0;
-		}
-
-		x = TMath::IsNaN(x) ? 0 : x;
-		y = TMath::IsNaN(y) ? 0 : y;
-		z = TMath::IsNaN(z) ? 0 : z;
-
-		if (TMath::IsNaN(x0) + TMath::IsNaN(y0) + TMath::IsNaN(z0) > 1) {
-			cout << "REST Warning (TRestHits::GetEnergyInSphere) : more than two coordinates missing in the hit!" << endl;
-			return 0;
-		}
-
-		x0 = TMath::IsNaN(x0) ? 0 : x0;
-		y0 = TMath::IsNaN(y0) ? 0 : y0;
-		z0 = TMath::IsNaN(z0) ? 0 : z0;
+        Double_t x = this->GetPosition(i).X();
+        Double_t y = this->GetPosition(i).Y();
+        Double_t z = this->GetPosition(i).Z();
 
         Double_t dist = (x-x0) * (x-x0) + (y-y0) * (y-y0) + (z-z0) * (z-z0);
 
@@ -250,20 +265,40 @@ Double_t TRestHits::GetEnergyInSphere( Double_t x0, Double_t y0, Double_t z0, Do
     return sum;
 }
 
-void TRestHits::AddHit( Double_t x, Double_t y, Double_t z, Double_t en, Double_t t )
+Bool_t TRestHits::isHitNInsideSphere( Int_t n, TVector3 pos0, Double_t radius )
+{
+    return isHitNInsideSphere( n, pos0.X(), pos0.Y(), pos0.Z(), radius );
+}
+
+Bool_t TRestHits::isHitNInsideSphere( Int_t n, Double_t x0, Double_t y0, Double_t z0, Double_t radius )
+{
+    Double_t x = this->GetPosition( n ).X();
+    Double_t y = this->GetPosition( n ).Y();
+    Double_t z = this->GetPosition( n ).Z();
+
+    Double_t dist = (x-x0) * (x-x0) + (y-y0) * (y-y0) + (z-z0) * (z-z0);
+
+    if( dist < radius * radius )
+        return kTRUE;
+
+    return kFALSE;
+}
+
+void TRestHits::AddHit( Double_t x, Double_t y, Double_t z, Double_t en, Double_t t, Short_t mod, Short_t ch )
 {
     fNHits++;
     fX.push_back( (Float_t) (x) );
     fY.push_back( (Float_t) (y ));
     fZ.push_back( (Float_t) ( z));
     fT.push_back( (Float_t) t );
+    fMod.push_back( (Short_t) mod );
+    fCh.push_back( (Short_t) ch );
     fEnergy.push_back( (Float_t) ( en ) );
 
     fTotEnergy += en;
 }
 
-
-void TRestHits::AddHit( TVector3 pos, Double_t en, Double_t t )
+void TRestHits::AddHit( TVector3 pos, Double_t en, Double_t t, Short_t mod, Short_t ch )
 {
     fNHits++;
 
@@ -271,6 +306,8 @@ void TRestHits::AddHit( TVector3 pos, Double_t en, Double_t t )
     fY.push_back( (Float_t) (pos.Y() ));
     fZ.push_back( (Float_t) ( pos.Z()  ));
     fT.push_back( (Float_t) t );
+    fMod.push_back( (Short_t) mod );
+    fCh.push_back( (Short_t) ch );
     fEnergy.push_back( (Float_t) ( en ) );
 
     fTotEnergy += en;
@@ -283,8 +320,10 @@ void TRestHits::AddHit( TRestHits &hits, Int_t n )
     Double_t z =  hits.GetZ( n );
     Double_t en = hits.GetEnergy( n );
     Double_t t =  hits.GetTime( n );
+    Short_t mod =  hits.GetModule( n );
+    Short_t ch =  hits.GetChannel( n );
 
-    AddHit( x, y, z, en, t );
+    AddHit( x, y, z, en, t, mod, ch );
 }
 
 
@@ -295,6 +334,8 @@ void TRestHits::RemoveHits( )
     fY.clear();
     fZ.clear();
     fT.clear();
+    fMod.clear();
+    fCh.clear();
     fEnergy.clear();
     fTotEnergy = 0;
 }
@@ -372,12 +413,16 @@ void TRestHits::MergeHits( int n, int m )
     fY[n] = (fY[n]*fEnergy[n] + fY[m]*fEnergy[m])/totalEnergy;
     fZ[n] = (fZ[n]*fEnergy[n] + fZ[m]*fEnergy[m])/totalEnergy;
     fT[n] = ( fT[n]*fEnergy[n] + fT[m]*fEnergy[m] )/totalEnergy;
+	if( fMod[n] != fMod[m] ) fMod[n] = -1;
+	if( fCh[n] != fCh[m] ) fCh[n] = -1;
     fEnergy[n] += fEnergy[m];
 
     fX.erase( fX.begin() + m);
     fY.erase( fY.begin() + m);
     fZ.erase( fZ.begin() + m);
     fT.erase( fT.begin() + m );
+    fMod.erase( fMod.begin() + m );
+    fCh.erase( fCh.begin() + m );
     fEnergy.erase( fEnergy.begin() + m );
     fNHits--;
 }
@@ -389,6 +434,8 @@ void TRestHits::SwapHits( Int_t i, Int_t j )
     iter_swap(fZ.begin() + i, fZ.begin() + j);
     iter_swap(fEnergy.begin() + i, fEnergy.begin() + j);
     iter_swap(fT.begin() + i, fT.begin() + j);
+    iter_swap(fMod.begin() + i, fMod.begin() + j);
+    iter_swap(fCh.begin() + i, fCh.begin() + j);
 }
 
 Bool_t TRestHits::isSortedByEnergy( )
@@ -406,6 +453,8 @@ void TRestHits::RemoveHit( int n )
     fY.erase(fY.begin()+n);
     fZ.erase(fZ.begin()+n);
     fT.erase(fT.begin()+n);
+    fMod.erase(fMod.begin()+n);
+    fCh.erase(fCh.begin()+n);
     fEnergy.erase(fEnergy.begin()+n);
     fNHits--;
 }
@@ -447,6 +496,38 @@ Int_t TRestHits::GetNumberOfHitsY( )
 }
 
 
+Double_t TRestHits::GetEnergyX( )
+{
+ 
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+	if( !IsNaN( fX[n] ))
+	{
+		totalEnergy += fEnergy[n];
+	}
+    }
+
+
+    return totalEnergy;
+}
+
+
+Double_t TRestHits::GetEnergyY( )
+{
+ 
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+	if( !IsNaN( fY[n] ))
+	{
+		totalEnergy += fEnergy[n];
+	}
+    }
+
+
+    return totalEnergy;
+}
 Double_t TRestHits::GetMeanPositionX( )
 {
     Double_t meanX = 0;
@@ -505,6 +586,234 @@ Double_t TRestHits::GetMeanPositionZ( )
     meanZ /= totalEnergy;
 
     return meanZ;
+}
+
+
+
+Double_t TRestHits::GetSigmaXY2()
+{
+	Double_t sigmaXY2=0;
+	Double_t totalEnergy = this->GetTotalEnergy();
+        Double_t meanX=this->GetMeanPositionX();
+	Double_t meanY=this->GetMeanPositionY();
+        for( int n = 0; n < GetNumberOfHits(); n++ )
+    {    if( !IsNaN( fY[n] ) ) sigmaXY2+=fEnergy[n]*(meanY-fY[n])*(meanY-fY[n]);
+          if( !IsNaN( fX[n] ) ) sigmaXY2+=fEnergy[n]*(meanX-fX[n])*(meanX-fX[n]);    
+      }
+   return  sigmaXY2/=totalEnergy;
+}
+
+Double_t TRestHits::GetSigmaX()
+{
+	Double_t sigmaX2=0;
+        Double_t sigmaX=0;
+	Double_t totalEnergy = this->GetTotalEnergy();
+        Double_t meanX=this->GetMeanPositionX();
+	
+        for( int n = 0; n < GetNumberOfHits(); n++ )
+    {    
+          if( !IsNaN( fX[n] ) ) sigmaX2+=fEnergy[n]*(meanX-fX[n])*(meanX-fX[n]);    
+      }
+   sigmaX2/=totalEnergy;
+   
+   return  sigmaX=TMath::Sqrt(sigmaX2);
+}
+
+Double_t TRestHits::GetSigmaY()
+{
+	Double_t sigmaY2=0;
+        Double_t sigmaY=0;
+	Double_t totalEnergy = this->GetTotalEnergy();
+        Double_t meanY=this->GetMeanPositionY();
+	
+        for( int n = 0; n < GetNumberOfHits(); n++ )
+    {    
+          if( !IsNaN( fY[n] ) ) sigmaY2+=fEnergy[n]*(meanY-fY[n])*(meanY-fY[n]);    
+      }
+   sigmaY2/=totalEnergy;
+   
+   return  sigmaY=TMath::Sqrt(sigmaY2);
+}
+
+
+Double_t TRestHits::GetSkewXY()
+{
+	Double_t skewXY=0;
+	Double_t totalEnergy = this->GetTotalEnergy();
+        Double_t sigmaXY=TMath::Sqrt(this->GetSigmaXY2());
+         Double_t meanX=this->GetMeanPositionX();
+	Double_t meanY=this->GetMeanPositionY();
+        for( int n = 0; n < GetNumberOfHits(); n++ )
+    {    if( !IsNaN( fY[n] ) ) skewXY+=fEnergy[n]*(meanY-fY[n])*(meanY-fY[n])*(meanY-fY[n]);
+          if( !IsNaN( fX[n] ) ) skewXY+=fEnergy[n]*(meanX-fX[n])*(meanX-fX[n])*(meanX-fX[n]);    
+      }
+   return  skewXY/=(totalEnergy*sigmaXY*sigmaXY*sigmaXY);
+}
+
+Double_t TRestHits::GetSigmaZ2()
+{
+	Double_t sigmaZ2=0;
+	Double_t totalEnergy = this->GetTotalEnergy();
+        Double_t meanZ=this->GetMeanPositionZ();
+	
+        for( int n = 0; n < GetNumberOfHits(); n++ )
+    {    if( !IsNaN( fZ[n] ) ) sigmaZ2+=fEnergy[n]*(meanZ-fZ[n])*(meanZ-fZ[n]);
+         
+      }
+   return  sigmaZ2/=totalEnergy ;
+}
+
+
+
+Double_t TRestHits::GetSkewZ()
+{
+	Double_t skewZ=0;
+	Double_t totalEnergy = this->GetTotalEnergy();
+        Double_t sigmaZ=TMath::Sqrt(this->GetSigmaZ2());
+         Double_t meanZ=this->GetMeanPositionZ();
+	
+        for( int n = 0; n < GetNumberOfHits(); n++ )
+    {    if( !IsNaN( fZ[n] ) ) skewZ+=fEnergy[n]*(meanZ-fZ[n])*(meanZ-fZ[n])*(meanZ-fZ[n]); 
+      }
+  return   skewZ/=(totalEnergy*sigmaZ*sigmaZ*sigmaZ);
+}
+
+
+Double_t TRestHits::GetMeanPositionXInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta)
+{
+    Double_t meanX = 0;
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+	if( (!IsNaN( fX[n] )&&(isHitNInsidePrism( n, x0, x1, sizeX, sizeY, theta))))
+	{
+		meanX += fX[n] * fEnergy[n];
+		totalEnergy += fEnergy[n];
+	}
+    }
+
+    meanX /= totalEnergy;
+
+    return meanX;
+}
+
+Double_t TRestHits::GetMeanPositionYInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta)
+{
+    Double_t meanY = 0;
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+	if( (!IsNaN( fY[n] )&&(isHitNInsidePrism( n,  x0, x1, sizeX, sizeY, theta))))
+	{
+		meanY += fY[n] * fEnergy[n];
+		totalEnergy += fEnergy[n];
+	}
+    }
+
+    meanY /= totalEnergy;
+
+    return meanY;
+}
+Double_t TRestHits::GetMeanPositionZInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta)
+{
+    Double_t meanZ = 0;
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+	if( (!IsNaN( fZ[n] )&&(isHitNInsidePrism(  n, x0, x1, sizeX, sizeY,  theta))))
+	{
+		meanZ += fZ[n] * fEnergy[n];
+		totalEnergy += fEnergy[n];
+	}
+    }
+
+    meanZ /= totalEnergy;
+
+    return meanZ;
+}
+
+
+
+TVector3 TRestHits::GetMeanPositionInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta)
+{
+ TVector3 mean( GetMeanPositionXInPrism(x0,x1,sizeX,sizeY, theta), GetMeanPositionYInPrism(x0,x1,sizeX,sizeY,theta), GetMeanPositionZInPrism(x0,x1,sizeX, sizeY,theta) );
+    return mean;
+}
+
+
+
+Double_t TRestHits::GetMeanPositionXInCylinder( TVector3 x0, TVector3 x1, Double_t radius )
+{
+    Double_t meanX = 0;
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+	if( (!IsNaN( fX[n] )&&(isHitNInsideCylinder(  n, x0, x1,  radius ))))
+	{
+		meanX += fX[n] * fEnergy[n];
+		totalEnergy += fEnergy[n];
+	}
+    }
+
+    meanX /= totalEnergy;
+
+    return meanX;
+}
+
+Double_t TRestHits::GetMeanPositionYInCylinder( TVector3 x0, TVector3 x1, Double_t radius )
+{
+    Double_t meanY = 0;
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+	if( (!IsNaN( fY[n] )&&(isHitNInsideCylinder( n, x0, x1, radius ))))
+	{
+		meanY += fY[n] * fEnergy[n];
+		totalEnergy += fEnergy[n];
+	}
+    }
+
+    meanY /= totalEnergy;
+
+    return meanY;
+}
+
+Double_t TRestHits::GetMeanPositionZInCylinder( TVector3 x0, TVector3 x1, Double_t radius )
+{
+    Double_t meanZ = 0;
+    Double_t totalEnergy = 0;
+    for( int n = 0; n < GetNumberOfHits(); n++ )
+    {
+	if( (!IsNaN( fZ[n] )&&(isHitNInsideCylinder( n, x0, x1, radius ))))
+	{
+		meanZ += fZ[n] * fEnergy[n];
+		totalEnergy += fEnergy[n];
+	}
+    }
+
+    meanZ /= totalEnergy;
+
+    return meanZ;
+}
+
+
+
+TVector3 TRestHits::GetMeanPositionInCylinder( TVector3 x0, TVector3 x1, Double_t radius )
+{
+ TVector3 mean(GetMeanPositionXInCylinder(x0,x1,radius ), GetMeanPositionYInCylinder( x0, x1,radius ), GetMeanPositionZInCylinder(x0, x1,radius ) );
+    return mean;
+}
+
+
+Double_t TRestHits::GetHitsPathLength ( Int_t n, Int_t m )
+{
+    if( n < 0 ) n = 0;
+    if( m > GetNumberOfHits() - 1 ) m = GetNumberOfHits() - 1;
+
+    Double_t distance = 0;
+    for( int i = n; i < m; i++ )
+        distance += TMath::Sqrt( GetDistance2( i, i+1 ) );
+    return distance;
 }
 
 Double_t TRestHits::GetTotalDistance()
@@ -592,6 +901,67 @@ TVector2 TRestHits::GetProjection( Int_t n, Int_t m, TVector3 position )
     return TVector2( longitudinal, transversal );
 }
 
+Double_t TRestHits::GetTransversalProjection( TVector3 p0, TVector3 direction, TVector3 position )
+{
+    TVector3 oX = position - p0;
+
+    if( oX == TVector3( 0,0,0 ) ) return 0;
+
+    Double_t longitudinal = direction.Unit().Dot( oX );
+
+    return TMath::Sqrt( oX.Mag2() - longitudinal*longitudinal );
+}
+
+Double_t TRestHits::GetHitsTwist( Int_t n, Int_t m )
+{
+    if( n < 0 ) n = 0;
+    if( m == 0 ) m = this->GetNumberOfHits();
+
+    if( m - n < 2 ) return 0;
+
+    Double_t sum = 0;
+    Int_t cont = 0;
+    for( int N = n + 1; N < m - 1; N++ )
+    {
+        TVector3 a = ( this->GetPosition( N - 1 ) - this->GetPosition( N + 1 ) ).Unit();
+        TVector3 b = ( this->GetPosition( N ) - this->GetPosition( N + 1 ) ).Unit();
+
+        sum += (1 - a.Dot(b))/2.;
+        cont++;
+    }
+
+    if( cont == 0 )
+       return -1;
+
+    return sum/cont;
+}
+
+Double_t TRestHits::GetHitsTwistWeighted( Int_t n, Int_t m )
+{
+    if( n < 0 ) n = 0;
+    if( m == 0 ) m = this->GetNumberOfHits();
+
+    if( m - n < 2 ) return 0;
+
+    Double_t sum = 0;
+    Int_t cont = 0;
+    for( int N = n + 1; N < m - 1; N++ )
+    {
+        TVector3 a = ( this->GetPosition( N - 1 ) - this->GetPosition( N ) ).Unit();
+        TVector3 b = ( this->GetPosition( N ) - this->GetPosition( N + 1 ) ).Unit();
+
+        Double_t weight = TMath::Abs ( this->GetEnergy( N - 1 ) - this->GetEnergy( N ) );
+        weight += TMath::Abs ( this->GetEnergy( N ) - this->GetEnergy( N + 1 ) );
+
+        sum += weight * ( 1 - a.Dot(b) )/2.;
+        cont++;
+    }
+
+    if( cont == 0 ) return -1;
+
+    return sum/cont;
+}
+
 Double_t TRestHits::GetMaximumHitDistance( )
 {
     Double_t maxDistance = 0;
@@ -625,8 +995,12 @@ void TRestHits::PrintHits( Int_t nHits )
     if( N == -1 ) N = GetNumberOfHits();
     if( N > GetNumberOfHits() ) N = GetNumberOfHits();
 
-    for( int n = 0; n < N; n++ )
-      cout << "Hit " << n << " X: " << GetX(n) << " Y: " << GetY(n) << " Z: " << GetZ(n) 
-          <<  " Energy: " << GetEnergy(n) << " T: " << GetTime(n) << endl;
+	for( int n = 0; n < N; n++ )
+	{
+		cout << "Hit " << n << " X: " << GetX(n) << " Y: " << GetY(n) << " Z: " << GetZ(n)
+			<<  " Energy: " << GetEnergy(n) << " T: " << GetTime(n);
+		if( GetModule(n) != -1 ) cout << " Module: " << GetModule(n);
+		if( GetChannel(n) != -1 ) cout << " Channel: " << GetChannel(n);
+		cout << endl;
+	}
 }
-

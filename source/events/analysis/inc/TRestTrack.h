@@ -58,14 +58,17 @@ class TRestTrack: public TObject {
         Int_t GetParentID() { return fParentID; }
         Double_t GetEnergy() { return fTrackEnergy; }
         Double_t GetTrackEnergy() { return fTrackEnergy; }
+
+        Double_t GetLength( Bool_t update = true ) { return GetTrackLength( update ); }
         Double_t GetTrackLength( Bool_t update = true )
         {
             if( update ) fTrackLength = fVolumeHits.GetTotalDistance();
             return fTrackLength;
         }
 
-        Double_t GetMaximumDistance() { return fVolumeHits.GetMaximumHitDistance(); }
-        Double_t GetMaximumDistance2() { return fVolumeHits.GetMaximumHitDistance2(); }
+        Double_t GetMaximumDistance( ) { return fVolumeHits.GetMaximumHitDistance(); }
+        Double_t GetMaximumDistance2( ) { return fVolumeHits.GetMaximumHitDistance2(); }
+        Double_t GetVolume( ) { return fVolumeHits.GetMaximumHitDistance2(); }
 
         TVector3 GetMeanPosition() { return fVolumeHits.GetMeanPosition(); }
 

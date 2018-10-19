@@ -36,12 +36,10 @@ class TRestSignalEvent: public TRestEvent {
     protected:
 
 #ifndef __CINT__
-        TPad *fPad;//!
-		TMultiGraph*mg;//!
-        Double_t fMinTime;//!
-        Double_t fMaxTime;//!
-        Double_t fMinValue;//!
-        Double_t fMaxValue;//!
+        Double_t fMinTime; //!
+        Double_t fMaxTime; //!
+        Double_t fMinValue; //!
+        Double_t fMaxValue; //!
 #endif
 
         std::vector <TRestSignal> fSignal; //Collection of signals that define the event
@@ -64,6 +62,15 @@ class TRestSignalEvent: public TRestEvent {
         //Getters
         Int_t GetNumberOfSignals() { return fSignal.size(); }
         TRestSignal *GetSignal(Int_t n ) { return &fSignal[n]; }
+
+        TRestSignal *GetSignalById( Int_t sid ) 
+        { 
+            Int_t index = GetSignalIndex( sid );
+            if( index < 0 ) return NULL;
+
+            return &fSignal[index]; 
+        }
+
         Int_t GetSignalIndex( Int_t signalID );
 
         Double_t GetBaseLineAverage( Int_t startBin, Int_t endBin );
@@ -77,14 +84,7 @@ class TRestSignalEvent: public TRestEvent {
         Double_t GetMinTime( );
         Double_t GetMaxTime( );
 
-        Double_t GetIntegralWithTime( Int_t startTime, Int_t endTime )
-        {
-            Double_t sum = 0;
-            for( int n = 0; n < GetNumberOfSignals(); n++ )
-                sum += fSignal[n].GetIntegralWithTime( startTime, endTime );
-
-            return sum;
-        }
+        Double_t GetIntegralWithTime( Double_t startTime, Double_t endTime );
 
         // Default
         void Initialize();

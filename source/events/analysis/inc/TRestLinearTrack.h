@@ -67,6 +67,7 @@ class TRestLinearTrack: public TObject {
 
         void SetEnergy( Double_t en ) { fTrackEnergy = en; }
 
+        void Normalize( Double_t scaleLong = 1., Double_t scaleTrans = 1. );
 
         // Getters
         Int_t GetID( ) { return fLinearCharge.GetID(); }
@@ -112,6 +113,16 @@ class TRestLinearTrack: public TObject {
         {
             fLinearCharge.AddCharge( lin, charge );
             fTransversalCharge.AddCharge( trans, charge );
+        }
+
+        void AddChargeToLongitudinalTrack( Double_t lin, Double_t charge )
+        {
+            fLinearCharge.AddCharge( lin, charge );
+        }
+
+        void AddChargeToTransversalTrack( Double_t lin, Double_t charge )
+        {
+            fTransversalCharge.AddCharge( lin, charge );
         }
 
         void SetLinearTrack( TRestSignal l, TRestSignal t )

@@ -44,15 +44,16 @@ class TRestTrackEvent: public TRestEvent {
         #ifndef __CINT__
         // TODO These graphs should be placed in TRestTrack?
         // (following GetGraph implementation in TRestSignal)
-        TGraph *fXYHit;//!
-        TGraph *fXZHit;//!
-        TGraph *fYZHit;//!
-        TGraph2D *fXYZHit;//!
-        TGraph *fXYTrack;//!
-        TGraph *fXZTrack;//!
-        TGraph *fYZTrack;//!
-        TGraph2D *fXYZTrack;//!
-        TPad *fPad; //!
+        TGraph *fXYHit; //!
+        TGraph *fXZHit; //!
+        TGraph *fYZHit; //!
+        TGraph2D *fXYZHit; //!
+        TGraph *fXYTrack; //!
+        TGraph *fXZTrack; //!
+        TGraph *fYZTrack; //!
+        TGraph2D *fXYZTrack; //!
+
+        Bool_t fPrintHitsWarning; //!
         #endif 
 
     public:
@@ -61,12 +62,17 @@ class TRestTrackEvent: public TRestEvent {
         TRestTrack *GetTrackById( Int_t id );
 
         TRestTrack *GetOriginTrackById( Int_t tckId );
+        TRestTrack *GetOriginTrack( Int_t tck );
 
         TRestTrack *GetMaxEnergyTrackInX( );
         TRestTrack *GetMaxEnergyTrackInY( );
 
-        TRestTrack *GetLongestTopLevelTrack();
+        TRestTrack *GetMaxEnergyTrack( TString option = "" );
+        TRestTrack *GetSecondMaxEnergyTrack( TString option = "" );
 
+        Double_t GetMaxEnergyTrackVolume( TString option = "" );
+        Double_t GetMaxEnergyTrackLength( TString option = "" );
+        Double_t GetEnergy( TString option = "" );
 
         Int_t GetLevel( Int_t tck );
         void SetLevels();
@@ -77,47 +83,21 @@ class TRestTrackEvent: public TRestEvent {
         TPad *GetPad() { return fPad; }
 
         //Setters
-        void AddTrack( TRestTrack *c )
-        {
-            if( c->isXZ() ) fNtracksX++;
-            if( c->isYZ() ) fNtracksY++;
-            fNtracks++;
-
-            fTrack.push_back(*c);
-
-            SetLevels(); 
-        }
-        void RemoveTrack( int n )
-        {
-            if ( fTrack[n].isXZ() ) fNtracksX--;
-            if ( fTrack[n].isYZ() ) fNtracksY--;
-            fNtracks--;
-
-            fTrack.erase(fTrack.begin()+n);
-
-            SetLevels();
-        }  
-
-        Bool_t isXYZ( )
-        {
-            for( int tck = 0; tck < GetNumberOfTracks(); tck++ )
-                if ( !fTrack[tck].isXYZ() ) return false;
-            return true;
-        }
-
+        void AddTrack( TRestTrack *c );
+        void RemoveTrack( int n );
 
         void RemoveTracks( ){fTrack.clear();}  
 
+        Bool_t isXYZ( );
         Bool_t isTopLevel( Int_t tck );
+
         Int_t GetOriginTrackID( Int_t tck );
 
         void SetNumberOfXTracks( Int_t x ) { fNtracksX = x; }
         void SetNumberOfYTracks( Int_t y ) { fNtracksY = y; }
 
         //Getters
-        Int_t GetNumberOfTracks() { return fNtracks; }
-        Int_t GetNumberOfXTracks() { return fNtracksX; }
-        Int_t GetNumberOfYTracks() { return fNtracksY; }
+        Int_t GetNumberOfTracks( TString option = "" );
 
         Int_t GetTotalHits( );
       

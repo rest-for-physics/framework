@@ -70,7 +70,6 @@ void TRestLinearTrackEvent::PrintEvent( Bool_t fullInfo )
 //Draw current event in a Tpad
 TPad *TRestLinearTrackEvent::DrawEvent( TString option )
 {
-	UNUSED(option);
     if( fPad != NULL ) { delete fPad; fPad=NULL;}
 
     int nTracks = this->GetNumberOfTracks();
