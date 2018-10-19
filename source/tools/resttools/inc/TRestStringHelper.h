@@ -36,6 +36,7 @@ public:
 	static std::string EvaluateExpression(std::string exp);
 	static Double_t StringToDouble(std::string in);
 	static Int_t StringToInteger(std::string in);
+	static Bool_t StringToBool(std::string in);
 	static Long64_t StringToLong(std::string in);
 	static  TVector3 StringTo3DVector(std::string in);
 	static  TVector2 StringTo2DVector(std::string in);
@@ -67,6 +68,7 @@ inline std::string ReplaceMathematicalExpressions(std::string buffer) { return T
 inline std::string EvaluateExpression(std::string exp) { return TRestStringHelper::EvaluateExpression(exp); }
 inline Double_t StringToDouble(std::string in) { return TRestStringHelper::StringToDouble(in); }
 inline Int_t StringToInteger(std::string in) { return TRestStringHelper::StringToInteger(in); }
+inline Bool_t StringToBool(std::string in) { return TRestStringHelper::StringToBool(in); }
 inline Long64_t StringToLong(std::string in) { return TRestStringHelper::StringToLong(in); }
 inline TVector3 StringTo3DVector(std::string in) { return TRestStringHelper::StringTo3DVector(in); }
 inline TVector2 StringTo2DVector(std::string in) { return TRestStringHelper::StringTo2DVector(in); }

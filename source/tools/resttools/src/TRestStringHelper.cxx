@@ -313,6 +313,10 @@ Int_t TRestStringHelper::StringToInteger(string in)
 	return (Int_t)StringToDouble(in);
 }
 
+Bool_t TRestStringHelper::StringToBool(std::string in) {
+	return (in == "true" || in == "True" || in == "TRUE");
+}
+
 Long64_t TRestStringHelper::StringToLong(std::string in) {
 	stringstream strIn;
 	strIn << in;
