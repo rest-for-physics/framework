@@ -194,6 +194,11 @@ message("oo rest macros: " ${rest_macros_str} "\n")
 
 #begin installation
 file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h")
+file(GLOB_RECURSE Headers_ "${CMAKE_CURRENT_SOURCE_DIR}/source/tools/external/win/*.h")
+
+list(REMOVE_ITEM Headers ${Headers_})
+
+message(${Headers})
 
 INSTALL(FILES ${Headers} DESTINATION include)
 

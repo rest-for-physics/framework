@@ -13,6 +13,7 @@
 
 #ifndef WIN32
 #include <sys/ioctl.h>
+#include <termios.h>  
 #include <fcntl.h> 
 #ifndef __APPLE__
 #include <termio.h>
