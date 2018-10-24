@@ -1045,10 +1045,14 @@ TRestMetadata* TRestRun::GetMetadataClass(string type)
 		TKey *key;
 		while ((key = (TKey*)nextkey()))
 		{
-			auto a = (TRestMetadata*)fInputFile->Get(key->GetName());
-			if ((string)a->ClassName() == type)
+			string kName = key->GetClassName();
+
+			if (kName == type)
+			{
+				auto a = (TRestMetadata*)fInputFile->Get(key->GetName());
 				if (a->InheritsFrom("TRestMetadata"))
 					return a;
+			}
 		}
 	}
 
