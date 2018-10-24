@@ -29,7 +29,20 @@ public:
 	~TRestManager();
 
 	void Initialize();
-	void InitFromConfigFile() { TRestMetadata::InitFromConfigFile(); }
+	void InitFromConfigFile() {
+		BeginOfInit();
+		if (fElement != NULL)
+		{
+			TiXmlElement*e = fElement->FirstChildElement();
+			while (e != NULL)
+			{
+				string value = e->Value();
+				if (value == "variable" || value == "myParameter" || value == "constant") { e = e->NextSiblingElement(); continue; }
+				ReadConfig((string)e->Value(), e);
+				e = e->NextSiblingElement();
+			}
+		}
+	}
 	void BeginOfInit();
 	Int_t ReadConfig(string keydeclare, TiXmlElement* e);
 

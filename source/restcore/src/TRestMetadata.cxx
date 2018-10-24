@@ -119,10 +119,9 @@
 /// the config sections, expanding the include/for decinition and replacing the variables. After this, 
 /// the starter calls the method InitFromConfigFile().
 ///
-/// InitFromConfigFile() is a pure virtual method and every child classes has to implement it. This method 
-/// defines how the metadata class loads its xml config section in rml file. REST has implemented this method
-/// in base class, iterating all the child sections in the config section. If the user just want a simple 
-/// startup logic, he can implement it with few line of GetParameter().
+/// InitFromConfigFile() is a pure virtual method and every child classes have to implement it. This method 
+/// defines how the metadata class loads its xml config section in rml file. If the user just want a simple 
+/// startup logic, he can implement it with few lines of GetParameter().
 
 
 /// \code
@@ -143,13 +142,14 @@
 /// \endcode
 
 
-/// The pre-defined elememt iteration is like following: first call the method BeginOfInit(). Then the 
-/// loop all the child xml sections, and call the ReadConfig() method for each. The each xml section, wrapped
-/// as TiXmlElement, is given to the method. Finally the EndOfInit() method is called.
 /// 
 /// The sequential startup trick lies in that, when we want to initialize another TRestMetadata class
-/// (resident) in our main class(host), we can add the residient's config section as a child section of 
-/// host's section. And we then sent the resident's config section to its LoadConfigFromFile() method.
+/// (resident) in our main class(host), we write the residient's config section as a child section of 
+/// host's section in the rml file. When doing initialization, we iterate all the child elements of the 
+/// host's config element. Then when we find a child element declared as an available class name, we can
+/// instantiate the class. We then send this child element as config section to is resident class, calling
+/// its LoadConfigFromFile() method. The rml hierarchy will be the same as class residence.
+///
 /// For example, when received an xml section declared "TRestRun", the host "TRestManager" will pass 
 /// this section (together with its global section) to its resident "TRestRun". The TRestRun class can 
 /// therefor perform a startup using these sections.
@@ -162,6 +162,21 @@
 /// 	</TRestRun>
 ///		...
 /// </TRestManager>
+///
+/// void TRestManager::InitFromConfigFile()
+/// {
+///		if (fElement != NULL)
+///		{
+/// 		TiXmlElement*e = fElement->FirstChildElement();
+/// 		while (e != NULL)
+/// 		{
+///				string value = e->Value();
+/// 			if (value == "variable" || value == "myParameter" || value == "constant") { e = e->NextSiblingElement(); continue; }
+///				ReadConfig((string)e->Value(), e);
+///				e = e->NextSiblingElement();
+/// 		}
+///		}
+/// }
 ///
 /// Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 /// {
@@ -387,10 +402,6 @@
 using namespace std;
 using namespace REST_Units;
 
-const int NAME_NOT_FOUND = -2;
-const int NOT_FOUND = -1;
-const int ERROR = -1;
-const int OK = 0;
 bool TRestMetadata_ConfigFileUpdated = true;
 
 ClassImp(TRestMetadata)
@@ -603,40 +614,6 @@ Int_t TRestMetadata::LoadSectionMetadata()
 	configBuffer = ElementToString(fElement);
 
 	return 0;
-}
-
-///////////////////////////////////////////////
-/// \brief Pure virtual method defining the real action of reading rml config
-///
-/// By default it iterates all the child xml sections in the config section.
-/// Method calling sequence: BeginOfInit(), (loop)ReadConfig(), EndOfInit()
-/// 
-/// This method must be implemeneted in the derived class
-void TRestMetadata::InitFromConfigFile()
-{
-
-	BeginOfInit();
-	if (fElement != NULL)
-	{
-		TiXmlElement*e = fElement->FirstChildElement();
-		while (e != NULL)
-		{
-			//cout << 111111111111 << endl;
-			string value = e->Value();
-			string name = "";
-			const char* a = e->Attribute("name");
-			if (a != NULL) name = a;
-			if (value == "variable" || value == "myParameter" || value == "constant") { e = e->NextSiblingElement(); continue; }
-
-			if (ReadConfig((string)e->Value(), e) == 0) {
-				debug << "rml Element \"" << e->Value() << "\" with name \"" << name << "\" has been loaded by: " << this->ClassName() << endl;
-			}
-			e = e->NextSiblingElement();
-
-		}
-	}
-	EndOfInit();
-
 }
 
 void TRestMetadata::InitFromRootFile() {

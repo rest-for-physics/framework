@@ -63,8 +63,6 @@ public:
 	/// Call CINT to generate streamers for this class
 	ClassDef(TRestMetadata, 1);
 
-
-
 	Int_t LoadConfigFromFile();
 	Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal);
 	Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal, vector<TiXmlElement*> eEnv);
@@ -76,19 +74,10 @@ public:
 	/// Method called after the object is retrieved from root file. 
 	virtual void InitFromRootFile();
 
-
-
-
 	///////////////////////////////////////////////////////////////
 	/// Making default settings.
 	virtual void Initialize() {}
 
-	/// These methods can be overridden in the child class.
-	virtual void BeginOfInit() { return; };
-	/// These methods can be overridden in the child class.
-	virtual Int_t ReadConfig(string keydeclare, TiXmlElement* e) { UNUSED(keydeclare); UNUSED(e); return -1; };
-	/// These methods can be overridden in the child class.
-	virtual void EndOfInit() { return; };
 	/// Implementing TObject::Print() method
 	void Print() { PrintMetadata(); }
 	/// Implemented it in the derived metadata class to print out specific metadata information.
