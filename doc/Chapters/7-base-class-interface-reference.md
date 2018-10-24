@@ -153,11 +153,8 @@ LoadSectionMetadata() is called, which sets name, title and verboseLevel for the
 parpration with config xml section (expand for loop, replave env, etc.). Then the method InitFromConfigFile() 
 is called. This method is pure virtual and must be implemented in the derived class.
 
-![alt](Image/Metadata_Stratup.png)
-
-We can directly implement InitFromConfigFile() for simple startup logic or old version adaption. Alternatively 
-we can use its default behavier, which loops all the child elements in config xml section
-and calls the method ReadConfig() for each of them. In this case, ReadConfig() should be implemented.
+InitFromConfigFile() is implemented to give the startup logic. Specially, when we are doing sequential 
+startup, it is good to write some methods which loops up all the child elements in config xml section.
 
 For example, in most of the process classes, we implement the method directly to load config file, by 
 calling method GetParameter():
@@ -168,10 +165,16 @@ calling method GetParameter():
 &emsp;`...`
 `}`  
 
-In TRestManager, we prefer to use build-in xml iterator:
+In TRestManager, we implement with sequential startup:
 
 //TRestManager.h  
-`void InitFromConfigFile() { TRestMetadata::InitFromConfigFile(); }`  
+`void InitFromConfigFile() {`  
+&emsp;`if (fElement != NULL){`  
+&emsp;&emsp;`TiXmlElement*e = fElement->FirstChildElement();`  
+&emsp;&emsp;`while (e != NULL){`  
+&emsp;&emsp;&emsp;`...`  
+&emsp;&emsp;&emsp;`e = e->NextSiblingElement();`  
+`}}}`  
 `Int_t ReadConfig(string keydeclare, TiXmlElement* e);`  
 
 //TRestManager.cxx  
@@ -181,12 +184,11 @@ In TRestManager, we prefer to use build-in xml iterator:
 &emsp;`return -1`  
 `}`
 
+![alt](Image/Metadata_Stratup.png)
+
 #### other virtual methods
 
-The startup method LoadSectionMetadata(), ReadConfig() can be overriden. In addition, the method 
-BeginOfInit(), EndOfInit() will also be helpful.
-
-Another method is Initialize(), It resets the values in the class.
+The startup method LoadSectionMetadata() and Initialize() can be overriden by child classes.
 
 We also provide interface of printing in the method PrintMetadata(). REST macros like REST_PrintMetadata 
 call this method and print the information on screen. The user needs to implement it in some times.

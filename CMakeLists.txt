@@ -198,8 +198,6 @@ file(GLOB_RECURSE Headers_ "${CMAKE_CURRENT_SOURCE_DIR}/source/tools/external/wi
 
 list(REMOVE_ITEM Headers ${Headers_})
 
-message(${Headers})
-
 INSTALL(FILES ${Headers} DESTINATION include)
 
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG DESTINATION .)

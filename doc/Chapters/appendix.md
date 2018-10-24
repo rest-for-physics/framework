@@ -235,7 +235,7 @@ and
 &emsp;`<parameter name="parName" value="parVal" />`  
 `</TRestXXX>`  
 
-4. two types of include definition is available:
+4. removed processFile, readoutFile definition, use universal include definition:
 
 //to expand section "TRestXXX" with name "sAna" in file "processes.rml" into this section,  
 //we can write  
@@ -251,16 +251,22 @@ or
 2. event branch name is changed. In EventTree we have multiple branches named TRestXXXEventBranch, no more TRestXXXEventTree--evtBranch
 3. observables are named like "sAna_BaseLineSigmaMean"(use "_" instead of ".")
 
-#### Update directory order and software logic
+#### Update directory order 
 1. merge ./config into ./packages/restG4/example
-2. merge ./example into ./packages(the old example folder contains a userRESTLibrary)
-3. add example rml files into ./example
-4. remove some out-dated rml files
-5. add package restGas and restDataBaseImpl. modularized installation.
-6. optimized compilation logic and library hierarchy, add a macro CompileDir.cmake
-7. Keep only two executables, restManager and restRoot. Others are now the alias of calling restManager with macro files  
+2. change ./example to ./packages/userRESTLibrary, the old example folder now contains example rml file
+3. move ./source/viewers to ./source/events/viewers
+4. move TRestFFT and TRestMesh to ./source/events/addons, move TRestManager to ./source/restcore
+5. directory ./source/tools contains new classes
+6. move .C scripts in ./scripts into ./macros. ./macros now contians some python script for installation/updating
+
+#### Update software logic
+1. removed dependence of Garfield, tinyxml. Only based on ROOT6
+2. add package restDataBaseImpl. modularized installation.
+3. optimized compilation logic and library hierarchy, add a macro CompileDir.cmake
+4. keep only two executables, restManager and restRoot. Others are now the alias of calling restManager with macro files  
 (e.g. restViewEvents = restManager ViewEvents)
-8. Add a shell script rest-config
+5. add a shell script rest-config
+6. changed some codes. windows compilation is now passed, though it cannot run.
 
 #### Other class update
 
@@ -288,10 +294,9 @@ or
 
 ##### Changed class: TRestMetadata
 1. uses TinyXml to parse rml config file, not the home-made string parser
-2. initializes with TiXmlElement* object, 
-3. provides xml iterator method ReadConfig()
-4. changed verbose level name
-5. provides powerful string output tools which activates according to verbose level
+2. initializes with TiXmlElement* object 
+3. changed verbose level name
+4. provides beautiful string output tools which activates according to verbose level
 
 `int a =0;`  
 `fout<<"a is : "<<a<<endl;//show message at any condition`  
@@ -302,10 +307,10 @@ or
 `warning<<"a is : "<<a<<endl;//show message when verbose level is >= REST_ESSENTIAL, color is yellow`  
 `error<<"a is : "<<a<<endl;//show message at any condition, color is red`  
 
-6. keeps a pointer to TRestManager
-7. added reflection support(see document)
-8. Initialize() is no more a pure virtual method, now we have InitFromConfigFile()
-9. Unified search path definition and file finding
+5. keeps a pointer to TRestManager
+6. added reflection support(see document)
+7. Initialize() is no more a pure virtual method, now we have InitFromConfigFile()
+8. Unified search path definition and file finding
 
 `//in rml file`  
 `<searchPath value="/home/nkx/abc/"/>`  
@@ -315,24 +320,25 @@ or
 
 ##### Changed class: TRestManager
 1. manages all application objects, run tasks with the help of TRestTask. 
-2. now the task-running functionality are general, not special (see the code)
-3. allows C++ sytle command task and pre-defined task
+2. rml sections in TRestManager secrion keeps same hierarchy as class order. 
+3. use TClass reflection to instantiate these managed classes. use child rml sections to initialize these managed classes.
+4. allows C++ sytle command task and pre-defined task
 
 `<addTask command="TemplateEventProcess->RunProcess()" value="ON"/>`  
 `<addTask type="ProcessEvents" value="ON"/>`  
 
-4. currently we have three application classes: TRestProcessRunner, TRestRun and TRestAnalysisPlot. 
-5. Applications can refer to each other by asking their manager for their friends
+5. currently we have three application classes: TRestProcessRunner, TRestRun and TRestAnalysisPlot. 
+6. Applications can refer to each other by asking their manager for their friends
 
 ##### Changed class: TRestRun
 1. manages all metadata objects, provides data from objects or external file
 2. external process is handled here.
 3. other processes are handled in TRestProcessRunner
-4. "addMetadata" section now should be written in "TRestRun" section, not in "TRestManager section"
-5. auto naming now collects dynamic information from a fileinfo map. 
+4. rml section "addMetadata" now should be written inside "TRestRun" section, not in "TRestManager section"
+5. auto naming now collects information from multiple source: fileinfo map, processinfo map and TRestRun datamember. 
 
 ##### Added class: TRestProcessRunner
-1. all process functionality are move here. 
+1. old process functionality are move here. 
 2. "addProcess" section now should be written in "TRestProcessRunner" section, not in "TRestRun" section(for external process both are ok)
 3. add multi-thread support
 4. added class TRestThread for multi-thread run.
@@ -345,9 +351,17 @@ or
 &emsp;`...`  
 `</TRestProcessRunner>`  
 
+-- inputAnalysis: observables from input file. if input file is not REST file, this parameter
+can be ignored  
+-- inputEvent: inputEvent from input file, or the inputEvent of the first process. 
+if input file is not REST file, it is also the outputEvent of the external process  
+-- outputEvent: outputEvent of each process. if several of them is of the same type, only the 
+last one is kept  
+
 6. added progressbar
-7. added pause/terminate functionality. a pause menu is also provided
-8. added test run functionality, which is very useful for debuging. Now in processes the user doesn't need to copy the whole event data, he can just copy the pointer to output event
+7. added pause/terminate functionality. a pause menu is provided
+8. added test run functionality, which could be useful for debuging. 
+9. now in processes one can simply copy the pointer to output event
 
 `TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput ){`  
 &emsp;`fSignalEvent = (TRestRawSignalEvent *)evInput;`  
@@ -358,7 +372,7 @@ or
 &emsp;`return fSignalEvent;`  
 `}`  
 
-9. we don't necessarily need processes.rml to setup processes. 
+10. we don't necessarily need processes.rml to setup processes. 
 
 e.g.  
 `//uses include definition`  
@@ -384,12 +398,12 @@ or
 `}`
 
 ##### Changed class: TRestEventProcess
-1. added output level control:
+1. added analysistree output level control:
 
-No_Output : no autosave for any variables, user can still manually save what he wants.  
+No_Output : no analysistree in the output file, processes' self output is still available. e.g. a histogram in the file.  
 Observable : +saving observables in the root directory of the tree  
-Internal_Var : +saving internal variables as branches  
-Full_Output : +saving output event together in the branch  
+Internal_Var : +saving processes as branches. internal variables can be found inside the branch  
+Full_Output : +saving output event together in the process branch  
 
 2. we can save non-double type values as analysis result thanks to ouput level Internal_Var
 
@@ -414,13 +428,14 @@ Full_Output : +saving output event together in the branch
 2. TRestEventViewer is allowed to customize control bar
 
 ##### Changed class: TRestReadout
-1. unified usage of "ID" and "Index".
-All methods uses "ID", the saved value in each class(fChannelID, fModuleID, etc)
-Add operator [] in each class, which uses "Index" (fReadoutChannel[i])
-removed old GetChannel(), GetReadoutModule() method
-2. add a method GetHitsDaqChannel()
-3. add type definition to channels. This is for the convenience of GetX(), GetY() method
-4. fix bug in GetX(), GetY() method
+1. Add operator [] in each class, which uses "Index" (fReadoutChannel[i])
+2. add a method GetHitsDaqChannel(), GetPlaneModuleChannel(), GetXXXWithID(), GetX(), GetY()
+3. add channel type definition in TRestReadoutChannel. This is for the convenience of GetX(), GetY() method
+
+##### Changed class: TRestGas
+1. it saves garfield's gas file as string inside its class menber. This string will be saved inside metadata file.
+2. no need for gasFile! it will retrieve its content from metadata file or download it from website
+3. added several c++ preprocesser in the code. turn on/off garfield functionality by DREST_GARFIELD=ON/OFF
 
 ##### Changed processes
 1. TRestRawSignalAnalysisProcess: added several non-double analysis output
@@ -441,9 +456,9 @@ e.g.
 4. Add processes: TRest2DHitsEvent, TRestRawSignalTo2DHitsProcess, TRestMuonAnalysisProcess, 
 TRestReadoutAnalysisProcess, TRestUSTCElectronicsProcess
 5. Multiple processes will now transfer event info
-6. TRestTrackAnalysisProcess: add observables for XZ/YZ track analysis
-7. TRestMultiCoBoAsAdToSignalProcess: added package-loss handling
-8. TRestSignalToHitsProcess: fix a bug in triple max method
+6. TRestMultiCoBoAsAdToSignalProcess: added package-loss handling
+7. TRestSignalToHitsProcess: fix a bug in triple max method
+8. TRestHitsToSignalProcess: simplified the code using new TRestReadout method
 9. TRestHitsShuffleProcess: fix a bug when nHits is too small
 
 
