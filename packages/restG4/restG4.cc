@@ -124,7 +124,7 @@ int main(int argc,char** argv) {
 
         if( biasType  == "virtualSphere" )
             spatialDistribution[i] = new TH2D( spatialDistName, "Biasing spatial (virtualSphere) distribution ", 100, -M_PI, M_PI, 100, 0, M_PI  );
-        else if( biasType  == "virtualBox" )
+        else if( biasType.Contains( "virtualBox" ) )
             spatialDistribution[i] = new TH2D( spatialDistName, "Biasing spatial (virtualBox) distribution", 100, -biasSize/2., biasSize/2., 100, -biasSize/2., biasSize/2. );
         else
             spatialDistribution[i] = new TH2D( spatialDistName, "Biasing spatial distribution", 100, -1, 1, 100, -1, 1  );

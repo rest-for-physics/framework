@@ -445,7 +445,7 @@ void PrimaryGeneratorAction::SetParticlePosition( )
 		y = rndPos.y() + center.Y();
 		z = rndPos.z() + center.Z();
 	}
-	else if( type == "virtualBox" )
+	else if( type.compare( 0, 10, "virtualBox" ) )
 	{
 		Double_t side = restG4Metadata->GetGeneratorSize( );
 
@@ -456,6 +456,38 @@ void PrimaryGeneratorAction::SetParticlePosition( )
 
 		Double_t rndOrientation = 3 * G4UniformRand();
 		Double_t rndFace = G4UniformRand();
+
+        if( type.find("Face0") != std::string::npos )
+        {
+            rndOrientation = 0.5;
+            rndFace = 0.25;
+        }
+        else if( type.find("Face1") != std::string::npos )
+        {
+            rndOrientation = 1.5;
+            rndFace = 0.25;
+        }
+        else if( type.find("Face2") != std::string::npos )
+        {
+            rndOrientation = 2.5;
+            rndFace = 0.25;
+        }
+        else if( type.find("Face3") != std::string::npos )
+        {
+            rndOrientation = 0;
+            rndFace = 0.75;
+        }
+        else if( type.find("Face4") != std::string::npos )
+        {
+            rndOrientation = 1;
+            rndFace = 0.75;
+        }
+        else if( type.find("Face5") != std::string::npos )
+        {
+            rndOrientation = 2;
+            rndFace = 0.75;
+        }
+        
 		if( rndOrientation <= 1 )
 		{
 			// Event is in plane XZ
