@@ -151,7 +151,7 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent( TRestEvent *evInput )
             {
                 TRestReadoutPlane *plane = &(*fReadout)[p];
 
-                if ( plane->isZInsideDriftVolume( z ) >= 0 )
+                if ( plane->isZInsideDriftVolume( z ) )
                 {
                     Double_t xDiff, yDiff, zDiff;
 
