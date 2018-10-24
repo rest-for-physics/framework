@@ -249,8 +249,6 @@
 #include "TRestReadout.h"
 using namespace std;
 
-#define debug 0
-
 ClassImp(TRestReadout)
 ///////////////////////////////////////////////
 /// \brief TRestReadout default constructor
@@ -462,7 +460,7 @@ void TRestReadout::InitFromConfigFile()
 		module.SetSize( StringTo2DVector( GetFieldValue( "size", moduleDefinition ) ) );
 		module.SetTolerance( StringToDouble( GetFieldValue( "tolerance", moduleDefinition ) ) );
 
-		if( debug )
+		if(GetVerboseLevel() >= REST_Debug)
 		{
 			cout << "------module-----------------" << endl;
 			cout << moduleString << endl;
@@ -617,7 +615,7 @@ void TRestReadout::InitFromConfigFile()
 				fclose(f);
 			}
 
-			if( debug )
+			if (GetVerboseLevel() >= REST_Debug)
 			{
 				cout << "------module-----------------" << endl;
 				cout << moduleString << endl;
