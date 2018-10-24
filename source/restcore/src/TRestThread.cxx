@@ -239,12 +239,12 @@ void TRestThread::PrepareToProcess(bool testrun)
 		tempTree = new TRestAnalysisTree("AnalysisTree_tmp", "anaTree_tmp");
 		for (unsigned int i = 0; i < fProcessChain.size(); i++)
 		{
-			debug << fProcessChain[i]->ClassName() << endl;
 			fProcessChain[i]->SetAnalysisTree(tempTree);
 			for (unsigned int j = 0; j < fProcessChain.size(); j++)
 			{
 				fProcessChain[i]->SetFriendProcess(fProcessChain[j]);
 			}
+			debug << "InitProcess() process for " << fProcessChain[i]->ClassName() << endl;
 			fProcessChain[i]->InitProcess();
 		}
 
