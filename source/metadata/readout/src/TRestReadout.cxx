@@ -722,16 +722,17 @@ Int_t TRestReadout::GetHitsDaqChannel(TVector3 hitpos, Int_t& planeID, Int_t& mo
 	for (int p = 0; p < GetNumberOfReadoutPlanes(); p++)
 	{
 		TRestReadoutPlane* plane = &fReadoutPlanes[p];
-		int m = plane->isZInsideDriftVolume(z);
+		int m = plane->GetModuleIDFromPosition(x, y, z);
 		if (m >= 0)
 		{
-			TRestReadoutModule* mod = plane->GetModuleByID(m);
+			//TRestReadoutModule* mod = plane->GetModuleByID(m);
+			TRestReadoutModule* mod = plane->GetModule(m);
 			Int_t readoutChannel = plane->FindChannel(m, x, y);
 			if (readoutChannel >= 0) {
 				planeID = plane->GetID();
 				moduleID = mod->GetModuleID();
-				channelID = readoutChannel;
-				return mod->GetChannelByID(readoutChannel)->GetDaqID();
+				channelID = mod->GetChannel(readoutChannel)->GetID();
+				return mod->GetChannel(readoutChannel)->GetDaqID();
 			}
 
 		}
