@@ -10,7 +10,7 @@ internal values are saved.
   <TRestRun name="Run metadata" title="REST Metadata run info (template)">
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
-    <parameter name="runNumber" value="auto"/> //it will find next run number from database when we use "auto"
+    <parameter name="runNumber" value="-1"/> //it will find next run number from database when we use "auto"
     <parameter name="runTag" value="Template"/>
     <parameter name="runDescription" value="We launch just 100 events to check everything is ok."/>
     <parameter name="user" value="${USER}"/>
@@ -18,7 +18,7 @@ internal values are saved.
     <parameter name="outputFile" value="default.root" />
 
     /// from the previously saved metadata file("restManager --c saveMetadataFile.rml --o meta.root")
-    <addMetadata type="TRestReadout" name="Readout-PANDA_3MM_Jinping" file="meta.root"/>
+    <addMetadata type="TRestReadout" name="PandaReadout_MxM" file="meta.root"/>
     <addMetadata type="TRestGas" name="Xenon-TMA 1Pct 10-10E3Vcm" file="meta.root"/>
     
   </TRestRun>
@@ -28,19 +28,19 @@ internal values are saved.
     <parameter name="eventsToProcess" value="10000" />
     <parameter name="threadNumber" value="2"/>
 
-    <parameter name="inputAnalysis" value="on"/>
+    <parameter name="inputAnalysis" value="off"/>
     <parameter name="inputEvent" value="on"/>
     <parameter name="outputEvent" value="on"/>
 
     <addProcess type="TRestGeant4AnalysisProcess" name="g4Ana" value="ON" file="processes.rml"/>
     <addProcess type="TRestFindG4BlobAnalysisProcess" name="g4Blob" value="OFF" file="processes.rml"/>
     <addProcess type="TRestG4toHitsProcess" name="g4ToHits" value="ON" file="processes.rml"/>
-    <addProcess type="TRestElectronDiffusionProcess" name="electronDiffusion-1kVcm-10atm" value="ON" file="processes.rml"/>
-    <addProcess type="TRestHitsToSignalProcess" name="hitsToSignal" value="OFF" file="processes.rml"/>
+    <addProcess type="TRestElectronDiffusionProcess" name="electronDiffusion_1kVcm_10atm" value="ON" file="processes.rml"/>
+    <addProcess type="TRestHitsToSignalProcess" name="hitsToSignal" value="ON" file="processes.rml"/>
     <addProcess type="TRestSignalShapingProcess" name="signalShapingProcess" value="OFF" file="processes.rml"/>
-    <addProcess type="TRestSignalGaussianConvolutionProcess" name="gConv" value="OFF" file="processes.rml"/>
+    <!--<addProcess type="TRestSignalGaussianConvolutionProcess" name="gConv" value="OFF" file="processes.rml"/>
     <addProcess type="TRestAddSignalNoiseProcess" name="addSignalNoiseProcess" value="OFF" file="processes.rml"/>
-    <addProcess type="TRestSignalAnalysisProcess" name="sgnlAna2" value="OFF" file="processes.rml"/>
+    <addProcess type="TRestSignalAnalysisProcess" name="sgnlAna2" value="OFF" file="processes.rml"/>-->
 
   </TRestProcessRunner>
   
