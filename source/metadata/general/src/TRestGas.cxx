@@ -329,10 +329,9 @@ void TRestGas::LoadGasFile()
 		cout << "node " << i << " Field : " << fEFields[i] << " V/cm" << endl;
 		*/
 
-	//if (fGasMedium && fGasMedium->GetW() == 0.) {
-	//	fW = StringToDouble(GetParameter("W_value","0"));
-	//	fGasMedium->SetW(GetWvalue());
-	//} // as it is probably not computed by Magboltz
+	if (fGasMedium && fGasMedium->GetW() == 0.) {
+		fGasMedium->SetW(GetWvalue());
+	} // as it is probably not computed by Magboltz
 	//else
 	//{
 	//	fW = fGasMedium->GetW();
@@ -455,7 +454,13 @@ void TRestGas::InitFromConfigFile()
 	else { warning << "REST WARNING : TRestGas : The total gas fractions is NOT 1." << endl;  fStatus = RESTGAS_ERROR; return; }
 
 	InitComplete = true;
-	if (GetParameter("gasFile") != PARAMETER_NOT_FOUND_STR)
+	if (fGasGeneration)
+	{
+		CalcGarField(fEmax, fEmin, fEnodes);
+		GenerateGasFile();
+		fGasFileLoaded = true;
+	}
+	else if (GetParameter("gasFile") != PARAMETER_NOT_FOUND_STR)
 	{
 		SetGasFile(GetParameter("gasFile"));
 		if (fGasFilename!="") {
@@ -467,12 +472,6 @@ void TRestGas::InitFromConfigFile()
 			fGasFileLoaded = false;
 		}
 
-	}
-	else if (fGasGeneration)
-	{
-		CalcGarField(fEmax,fEmin,fEnodes);
-		GenerateGasFile();
-		fGasFileLoaded = true;
 	}
 	else
 	{
@@ -548,6 +547,7 @@ void TRestGas::ConditionChanged() {
 			warning << "TRestGas : gas file not found for the specified gas mixture!" << endl;
 			warning << "REST will perform single-E calculation in the next Get()" << endl;
 			warning << "To generate a gas file, turn on the parameter \"generate\"" << endl;
+			fGasFileLoaded = false;
 			fLast_E = numeric_limits<double>::quiet_NaN();
 		}
 	}
