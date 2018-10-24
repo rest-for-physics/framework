@@ -218,7 +218,7 @@ TRestTask* TRestTask::GetTask(TString MacroName)
 			return NULL;
 		}
 		cout << "Found MacroFile " << macfiles[0] << endl;
-		system("echo \"#define REST_MANAGER\" >> /tmp/tmpMacro.c");
+		system("echo \"#define REST_MANAGER\" > /tmp/tmpMacro.c");
 		system(("cat " + macfiles[0] + " >> /tmp/tmpMacro.c").c_str());
 		if (gInterpreter->LoadFile("/tmp/tmpMacro.c") != 0)
 		{

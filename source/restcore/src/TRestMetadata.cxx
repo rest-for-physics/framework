@@ -1178,7 +1178,7 @@ TiXmlElement* TRestMetadata::GetRootElementFromFile(std::string cfgFileName)
 	{
 		if (TRestMetadata_ConfigFileUpdated) {
 			error << "Failed to load xml file, syntax maybe wrong. The file is: " << cfgFileName << endl;
-			int result = system(("xmllint " + cfgFileName + ">> /tmp/xmlerror.txt").c_str());
+			int result = system(("xmllint " + cfgFileName + "> /tmp/xmlerror.txt").c_str());
 
 			if (result == 256) { system("cat /tmp/xmlerror.txt"); }
 			else { error << "To do syntax check for the file, please install the package \"xmllint\"" << endl; }
