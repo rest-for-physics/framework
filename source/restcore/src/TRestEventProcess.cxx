@@ -162,10 +162,7 @@ vector<string> TRestEventProcess::ReadObservables()
 ///
 void TRestEventProcess::SetAnalysisTree(TRestAnalysisTree *tree)
 {
-	debug << "setting analysis tree for " << this->ClassName() << endl;
 	fAnalysisTree = tree;
-
-	
 }
 
 //////////////////////////////////////////////////////////////////////////
