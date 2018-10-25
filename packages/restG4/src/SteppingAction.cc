@@ -65,7 +65,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
                 G4ThreeVector momentum = aStep->GetPreStepPoint()->GetMomentumDirection();
 
                 Double_t angle;
-                if( restBiasingVolume.GetBiasingVolumeType() == "virtualBox" ) 
+                if( restBiasingVolume.GetBiasingVolumeType().Contains ("virtualBox") ) 
                 {
                     if( absDouble( position.x() ) > absDouble( position.y() ) && 
                             absDouble( position.x() ) > absDouble( position.z() ) )
