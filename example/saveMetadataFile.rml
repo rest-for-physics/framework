@@ -35,7 +35,7 @@ Finally we call the method TRestRun::FormOutputFile() through TRestManager to sa
       <myParameter name="pixelSize" value="${PITCH}/sqrt(2.)" />
       <myParameter name="myDecodingFile" value="${REST_INPUTDATA}/decoding/MM_On_AGET0-1.dec"/>
       
-      <readoutModule name="module" file="readouts.rml"/>
+      <readoutModule name="module" file="microbulkModule.rml"/>
 
       <readoutPlane position="(0,0,990)mm" planeVector="(0,0,-1)mm"
           chargeCollection="1"
