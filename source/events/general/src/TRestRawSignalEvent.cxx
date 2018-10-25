@@ -17,6 +17,7 @@
 #include <TMath.h>
 
 #include "TRestRawSignalEvent.h"
+#include "TRestStringHelper.h"
 using namespace std;
 
 ClassImp(TRestRawSignalEvent)
@@ -38,6 +39,8 @@ void TRestRawSignalEvent::Initialize()
     TRestEvent::Initialize();
     fSignal.clear();
     fPad = NULL;
+	mg = NULL;
+	gr = NULL;
     fMinValue = 1E10;
     fMaxValue = -1E10;
     fMinTime = 1E10;
@@ -338,49 +341,78 @@ Double_t TRestRawSignalEvent::GetMaxTime( )
 //Draw current event in a Tpad
 TPad *TRestRawSignalEvent::DrawEvent( TString option )
 {
-    if(fPad != NULL) { delete fPad; fPad=NULL; }
+	if (fPad != NULL) { delete fPad; fPad = NULL; }
 
-    int nSignals = this->GetNumberOfSignals();
+	int nSignals = this->GetNumberOfSignals();
 
-    if( nSignals == 0 )
-    {
-        cout << "Empty event " << endl;
-        return NULL;
-    }
-
-
-    fMinValue = 1E10;
-    fMaxValue = -1E10;
-    fMinTime = 1E10;
-    fMaxTime = -1E10;
-
-    fPad = new TPad( this->GetName(), " ", 0, 0, 1, 1 );
-    fPad->Draw();
-    fPad->cd();
-    fPad->DrawFrame( 0, GetMinValue()-1 , GetMaxTime()+1, GetMaxValue()+1);
-
-    char title[256];
-    sprintf(title, "Event ID %d", this->GetID());
+	if (nSignals == 0)
+	{
+		cout << "Empty event " << endl;
+		return NULL;
+	}
 
 
-    TMultiGraph *mg = new TMultiGraph();
-    mg->SetTitle(title);
-    mg->GetXaxis()->SetTitle("time bins");
-    mg->GetYaxis()->SetTitleOffset(1.4);
-    mg->GetYaxis()->SetTitle("Energy");
+	fMinValue = 1E10;
+	fMaxValue = -1E10;
+	fMinTime = 1E10;
+	fMaxTime = -1E10;
+
+	fPad = new TPad(this->GetName(), " ", 0, 0, 1, 1);
+	fPad->Draw();
+	fPad->cd();
+	fPad->DrawFrame(0, GetMinValue() - 1, GetMaxTime() + 1, GetMaxValue() + 1);
+
+	char title[256];
 
 
-    for( int n = 0; n < nSignals; n++ )
-    {
-        TGraph *gr = fSignal[n].GetGraph( n + 1 );
+	if (option == "")
+	{
+		sprintf(title, "Event ID %d", this->GetID());
 
-        mg->Add(gr);
-    }
+		if (mg != NULL)
+			delete mg;
+		mg = new TMultiGraph();
+		mg->SetTitle(title);
+		mg->GetXaxis()->SetTitle("time bins");
+		mg->GetYaxis()->SetTitleOffset(1.4);
+		mg->GetYaxis()->SetTitle("Voltage");
 
-     fPad->cd();
-     mg->Draw("");
 
-    return fPad;
+		for (int n = 0; n < nSignals; n++)
+		{
+			TGraph *gr = fSignal[n].GetGraph(n + 1);
+
+			mg->Add(gr);
+		}
+
+		fPad->cd();
+		mg->Draw("");
+	}
+	else if (isANumber((string)option))
+	{
+		int signalid = StringToInteger((string)option);
+		if (signalid >= fSignal.size())
+		{
+			fPad->SetTitle("No Such Signal");
+			return fPad;
+		}
+		TRestRawSignal& sgn = fSignal[signalid];
+
+		sprintf(title, "Event ID %d, Signal ID. %d", this->GetID(), sgn.GetID());
+
+		gr = sgn.GetGraph(1);
+		gr->SetTitle(title);
+		gr->GetXaxis()->SetTitle("time bins");
+		gr->GetYaxis()->SetTitleOffset(1.4);
+		gr->GetYaxis()->SetTitle("Voltage");
+
+		fPad->cd();
+		gr->Draw("ALP");
+
+	}
+
+
+	return fPad;
 }
 
 
