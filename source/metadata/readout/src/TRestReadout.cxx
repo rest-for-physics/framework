@@ -609,8 +609,12 @@ void TRestReadout::InitFromConfigFile()
 						cout << "REST Error!!. TRestReadout::InitFromConfigFile. Contact rest-dev@cern.ch" << endl;
 						exit(-1);
 					}
-					rChannel.push_back( readout );
-					dChannel.push_back( daq + firstDaqChannel );
+					//we skip blank daq channels if readout id is <0
+					//e.g. daq id: 22, readout id: -1
+					if (readout >= 0) {
+						rChannel.push_back(readout);
+						dChannel.push_back(daq + firstDaqChannel);
+					}
 				}
 				fclose(f);
 			}
@@ -662,14 +666,15 @@ void TRestReadout::InitFromConfigFile()
 		//Creating the vector fReadoutModule in the plane with modules added in the order of their ID.
 		for ( Int_t i(0); i< (Int_t) moduleVector.size(); i++)
 		{
-			for ( Int_t j(0); j< (Int_t) moduleVector.size(); j++)
-			{
-				if ( moduleVector[j].GetModuleID() == i )
-				{
-					plane.AddModule( moduleVector[j] );
-					break;
-				}
-			}
+			plane.AddModule(moduleVector[i]);
+			//for ( Int_t j(0); j< (Int_t) moduleVector.size(); j++)
+			//{
+			//	if ( moduleVector[j].GetModuleID() == i )
+			//	{
+			//		
+			//		break;
+			//	}
+			//}
 		}
 
 		this->AddReadoutPlane( plane );
