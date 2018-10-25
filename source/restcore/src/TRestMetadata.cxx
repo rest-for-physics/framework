@@ -1427,28 +1427,22 @@ string TRestMetadata::GetKEYStructure(std::string keyName, size_t &fromPosition,
 string TRestMetadata::GetKEYStructure(std::string keyName, size_t &fromPosition, TiXmlElement*ele) {
 	size_t position = fromPosition;
 
-	debug << "Finding KEY Structure \"" << keyName <<"\""<< endl;
-	debug << "Start position : " << position << endl;
+	debug << "Finding " << fromPosition << "th appearance of KEY Structure \"" << keyName << "\"..." << endl;
 
-	TiXmlElement*childele = ele->FirstChildElement();
-	for (int i = 0; childele != NULL && i<fromPosition; i++)
+	TiXmlElement*childele = ele->FirstChildElement(keyName);
+	for (int i = 0; childele != NULL && i < fromPosition; i++)
 	{
-		childele = childele->NextSiblingElement();
+		childele = childele->NextSiblingElement(keyName);
 	}
-	for (int i = 0; childele != NULL; i++)
-	{
-		if ((string)childele->Value() == keyName)
-		{
-			string result = ElementToString(childele);
-			fromPosition = fromPosition + i + 1;
-			debug << "Found Key : "<< result << endl;
-			debug << "New position : " << fromPosition << endl;
-			return result;
-		}
-		childele = childele->NextSiblingElement();
+	if (childele != NULL) {
+		string result = ElementToString(childele);
+		//fromPosition = fromPosition + i + 1;
+		debug << "Found Key : " << result << endl;
+		//debug << "New position : " << fromPosition << endl;
+		return result;
 	}
 
-	debug << "END KEY not found!!" << endl;
+	debug << "Finding hit the end, KEY Structure not found!!" << endl;
 	return "";
 }
 
