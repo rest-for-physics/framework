@@ -48,28 +48,8 @@ class TRestBiasingVolume:public TObject {
         void SetBiasingFactor ( Double_t factor ) { fBiasingFactor = factor; }
         void SetEnergyRange( TVector2 eRange ) { fEnergyRange = eRange; }
 
-        // Check if it is inside the sphere
-        Int_t isInside( Double_t x, Double_t y, Double_t z )
-        {
-            if( fVolumeType.Contains( "virtualBox" ) )
-            {
-                if( x < fVolumeSize/2. && x > -fVolumeSize/2. )
-                    if( y < fVolumeSize/2. && y > -fVolumeSize/2. )
-                        if( z < fVolumeSize/2. && z > -fVolumeSize/2. )
-                            return 1;
-            }
-            else if( fVolumeType == "virtualSphere" )
-            {
-                Double_t r2 = x*x + y*y + z*z;
-                if( r2 < fVolumeSize*fVolumeSize )
-                    return 1;
-            }
-	    else
-	    {
-		cout << "TRestBiasingVolume::isInside. Biasing volume type not found" << endl;
-	    }
-            return 0;
-        }
+        // Check if it is inside the biasing volume
+        Int_t isInside( Double_t x, Double_t y, Double_t z );
 
         void PrintBiasingVolume();
 
