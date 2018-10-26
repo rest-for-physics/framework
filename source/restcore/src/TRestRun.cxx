@@ -36,8 +36,8 @@
 #include "TRestVersion.h"
 #else
 
-#define REST_RELEASE "v2.2.0-dev"
-#define REST_VERSION_CODE 131336
+#define REST_RELEASE "untagged"
+#define REST_VERSION_CODE 99999999
 #define REST_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 
 #endif // !WIN32
@@ -77,6 +77,7 @@ void TRestRun::Initialize()
 	SetSectionName(this->ClassName());
 
 	fVersion = REST_RELEASE;
+	fInputFileVersion = -1;
 	time_t  timev; time(&timev);
 	fStartTime = (Double_t)timev;
 	fEndTime = fStartTime - 1; // So that run length will be -1 if fEndTime is not set
@@ -120,6 +121,7 @@ void TRestRun::Initialize()
 ///
 void TRestRun::BeginOfInit()
 {
+	debug << "**** Initializing TRestRun from config file, version: " << REST_VERSION_CODE <<" ****"<< endl;
 	//if (fHostmgr == NULL)
 	//{
 	//	error << "manager not initialized!" << endl;
@@ -345,8 +347,14 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 	ReadFileInfo((string)filename);
 	if (isRootFile((string)filename))
 	{
-		debug << "Initializing input file" << endl;
+		debug << "Initializing input file, ";
 		fInputFile = new TFile(filename, mode.c_str());
+
+		TRestRun*r = (TRestRun*)GetMetadataClass("TRestRun", fInputFile);
+		if (r != NULL) {
+			fInputFileVersion = ConvertVersionCode((string)r->GetVersion());
+		}
+		debug << ", version code: " << fInputFileVersion << endl;
 
 		debug << "Finding TRestAnalysisTree.." << endl;
 		TTree* Tree1 = NULL;
@@ -942,6 +950,26 @@ void TRestRun::AddEventBranch(TRestEvent* eve)
 
 }
 
+///////////////////////////////////////////////
+/// \brief Convert version to a unique string
+///
+int TRestRun::ConvertVersionCode(string in) {
+	vector<string> ver = Spilt(in, ".");
+	if (ver.size() == 3) {
+		vector<int> verint;
+		for (auto v : ver) {
+			int n = StringToInteger(v.substr(0, v.find_first_not_of("0123456789")));
+			if (n != -1) {
+				verint.push_back(n);
+			}
+			else {
+				return -1;
+			}
+		}
+		return REST_VERSION(verint[0], verint[1], verint[2]);
+	}
+	return -1;
+}
 
 
 ///////////////////////////////////////////////
@@ -1030,17 +1058,9 @@ string TRestRun::Get(string target)
 }
 
 
-TRestMetadata* TRestRun::GetMetadataClass(string type)
+TRestMetadata* TRestRun::GetMetadataClass(string type, TFile*f)
 {
-	for (int i = 0; i < fMetadataInfo.size(); i++)
-	{
-		if ((string)fMetadataInfo[i]->ClassName() == type)
-		{
-			return fMetadataInfo[i];
-		}
-	}
-
-	if (fInputFile != NULL) {
+	if (f != NULL) {
 		TIter nextkey(fInputFile->GetListOfKeys());
 		TKey *key;
 		while ((key = (TKey*)nextkey()))
@@ -1055,16 +1075,21 @@ TRestMetadata* TRestRun::GetMetadataClass(string type)
 			}
 		}
 	}
+	else {
+		for (int i = 0; i < fMetadataInfo.size(); i++)
+			if ((string)fMetadataInfo[i]->ClassName() == type) return fMetadataInfo[i];
+
+		if (fInputFile != NULL && fInputFileVersion==REST_VERSION_CODE) {
+			return GetMetadataClass(type, fInputFile);
+		}
+	}
 
 	return NULL;
 }
 
-TRestMetadata *TRestRun::GetMetadata(TString name)
+TRestMetadata *TRestRun::GetMetadata(TString name, TFile*f)
 {
-	for (unsigned int i = 0; i < fMetadataInfo.size(); i++)
-		if (fMetadataInfo[i]->GetName() == name) return fMetadataInfo[i];
-
-	if (fInputFile != NULL) {
+	if (f != NULL) {
 		TIter nextkey(fInputFile->GetListOfKeys());
 		TKey *key;
 		while ((key = (TKey*)nextkey()))
@@ -1077,9 +1102,18 @@ TRestMetadata *TRestRun::GetMetadata(TString name)
 				if (a->InheritsFrom("TRestMetadata"))
 					return a;
 			}
-
 		}
 	}
+	else
+	{
+		for (unsigned int i = 0; i < fMetadataInfo.size(); i++)
+			if (fMetadataInfo[i]->GetName() == name) return fMetadataInfo[i];
+
+		if (fInputFile != NULL && fInputFileVersion == REST_VERSION_CODE) {
+			return GetMetadata(name, fInputFile);
+		}
+	}
+
 
 	return NULL;
 

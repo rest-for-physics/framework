@@ -83,7 +83,7 @@ public:
 	}
 	void AddEventBranch(TRestEvent* eve);
 	void SkipEventTree() {}
-
+	int ConvertVersionCode(string in);
 	
 
 
@@ -104,6 +104,7 @@ public:
 	vector<TString> GetInputFileNames() { return fInputFileNames; }
 	string GetInputFileName(int i) { return (string)fInputFileNames[i]; }
 	string GetInputFileNamepattern() { return (string)fInputFileName; }
+	int GetInputFileVersion() { return fInputFileVersion; }
 	TString GetOutputFileName() { return fOutputFileName; }
 	TFile* GetInputFile() { return fInputFile; }
 	TFile* GetOutputFile() { return fOutputFile; }
@@ -122,8 +123,8 @@ public:
 	TTree* GetEventTree() { return fEventTree; }
 	Int_t GetInputFileNumber() { return fFileProcess == NULL ? fInputFileNames.size() : 1; }
 
-	TRestMetadata* GetMetadata(TString name);
-	TRestMetadata* GetMetadataClass(string type);
+	TRestMetadata* GetMetadata(TString name, TFile*f = 0);
+	TRestMetadata* GetMetadataClass(string type, TFile*f = 0);
 	std::vector <std::string> GetMetadataStructureNames();
 	std::vector <std::string> GetMetadataStructureTitles();
 	int GetNumberOfMetadataStructures() { return fMetadataInfo.size(); }
@@ -223,7 +224,7 @@ protected:
 	Long64_t fBytesReaded;//!
 	Long64_t fTotalBytes;//!
 	int fEventBranchLoc;//!
-
+	int fInputFileVersion;//!
 
 };
 
