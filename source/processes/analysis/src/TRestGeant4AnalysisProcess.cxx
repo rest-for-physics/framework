@@ -260,7 +260,7 @@ void TRestGeant4AnalysisProcess::LoadDefaultConfig()
 /// 
 void TRestGeant4AnalysisProcess::Initialize()
 {
-  
+	fG4Metadata = NULL;
     SetSectionName( this->ClassName() );
 
     fInputG4Event = new TRestG4Event();
