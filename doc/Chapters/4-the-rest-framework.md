@@ -21,29 +21,30 @@ names mentioned. One can find their detailed usage in REST class reference.
 ### TRestMetadata : basic functionality of REST
 
 We first talk about the most important class - TRestMetadata. This abstract class brings basic funcitionality 
-to REST, and is the base class of many REST classes. Data member of a TRestMetadata-inherted class is defined 
-inside an rml file, an xml encoded configuration file. With this configuration file the inherted class can be 
+to REST, and is the base class of many REST classes. Data member of a TRestMetadata-inherited class is defined 
+inside an rml file, an xml encoded configuration file. With this configuration file the inherited class can be 
 initialized. The concrete operation of its initialization is defined in the method InitFromConfigFile() by the
-inherted class. This method is called during start up of the class by another method LoadConfigFromFile(), 
+inherited class. This method is called during start up of the class by another method LoadConfigFromFile(), 
 which parses the rml file or section as preparation. 
 
-TRestMetadata itself is inherted from the class TNamed. It allows the save/load functionality into/from a 
+TRestMetadata itself is inherited from the class TNamed. It allows the save/load functionality into/from a 
 ROOT file. In many cases loading from ROOT file will be much quicker than reading and parsing an rml file. 
 
-TRestMetadata inherted class should have a name and a title. They are from TNamed class. In addition, 
+TRestMetadata inherited class should have a name and a title. They are from TNamed class. In addition, 
 we also define two basic attritubes: verbose level and storage. They controls the amount of words printed on
-screen and whether the class should be saved. All those will automatically be set from the rml config file.
+screen and whether the class should be saved, respectively. All those will automatically be set from the rml 
+config file.
 
-One major type of the inherted class is called "metadata". They contain data of, for example, the geometry 
+One major type of the inherited class is called "metadata". They contain data of, for example, the geometry 
 of a simulation, the properties of a gas, the readout pattern used to "pixelize" data, etc. Usually 
 we will first instantiate and save a metadata class with an rml file. In pratical use, we can just read 
 it from the saved ROOT file.
 
-Another family of TRestMetadata inherted class is called "application". Their rml file gives, for example,
+Another family of TRestMetadata inherited class is called "application". Their rml file gives, for example,
 the parameters of an analysis, the targets of a plot, the processes to load of an analysis, etc.
 Application can do specific jobs according to the configuration.
 
-TRestMetadata also provides some utilities for the inherted class. The most commonly used methods are: 
+TRestMetadata also provides some utilities for the inherited class. The most commonly used methods are: 
 GetParameter(), GetElement(), GetChar(), GetDataMemberWithName(), etc. It also defines leveled string output 
 tools: fout, essential, info, debug, etc. See them in the REST class reference page.
 
@@ -58,7 +59,7 @@ For example, inside the rml configuration file, there is a section declared as "
 section there is some child sections declared by different application names(here we have "TRestRun", 
 "TRestProcessRunner"). TRestManager will try to instantiate objects of corresponding applications by calling
 the method TClass::GetClass(). Then it call the applications' LoadConfigFromFile() method giving them the 
-defined child sections. If the application also contains TRestMetadata-inherted class which can be initialized 
+defined child sections. If the application also contains TRestMetadata-inherited class which can be initialized 
 through rml file/sections, its section will have its own child section(here we have "TRestReadout"). 
 And this grandchild section is given to the grand-resident class in that application. This is sequential startup.
 
@@ -84,14 +85,17 @@ An xml section declared as "globals" is also in the TRestManager section, the co
 into all other sections in the same level. They will not override the one which are already defined.
 
 There is also an xml section declared as "addTask". This line actually tells TRestManager the real work
-with those initialized applications. "addTask" section can either call a TRestTask type application which has 
-a default behavior after initialization(talked [later](#running-with-a-root-script)), or be a C++ 
-style command for TRestManager to execute. For example, we can use: 
+with those initialized applications. "addTask" section can either be a pre-defined action, a macro name,
+or be a C++ style command for TRestManager to invoke. For example, we can use: 
 
 `<addTask command="TemplateEventProcess->RunProcess()" value="ON"/>`,
 
 and TRestManager will invoke the method "RunProcess()" in the application named "TemplateEventProcess". This 
-application should be defined in previous sections.
+application should be defined in previous sections. This is same to the V2.1.6 usage:
+
+`<addTask type="processEvents" value="ON"/>`,
+
+where "processEvents" is a pre-defined action calling same method "RunProcess()".
 
 ### TRestRun : operating files and handling data
 
@@ -113,13 +117,13 @@ to import a metadata object from saved ROOT file.
 ### TRestEvent & TRestEventProcess : data and analysis
 
 TRestEventProcess is another important application class. It is a base class for all REST pre-defined processes.
-TRestEvent is directly inherted from TObject. It is a base class for all REST pre-defined event types.
+TRestEvent is directly inherited from TObject. It is a base class for all REST pre-defined event types.
 
 Besides the functionality of reading configuration from file, TRestEventProcess defines extra interfaces for 
-its inherted class to do the job. The method InitProcess() and EndProcess() are used as preparation/completion 
+its inherited class to do the job. The method InitProcess() and EndProcess() are used as preparation/completion 
 steps before/after the process loop. The method ProcessEvent() is the main method of the loop. It receives 
 an input TRestEvent and returns a new output TRestEvent. The input and output events are in concrete type 
-inherted from TRestEvent. 
+inherited from TRestEvent. 
 
 TRestEventProcess can also output analysis result to a tree. This kind of analysis result is called "observable".
 For example, TRestRawSignalAnalysisProcess will add a branch in the output tree called "BaseLineSigmaMean". 

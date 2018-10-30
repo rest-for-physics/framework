@@ -49,7 +49,7 @@ directory order is:
 Cmake first targets on a .cxx file. It regards the file name as the class name. Then it searches the .h file
 of this class. If found, it calls CINT to make a wrapper for the class with this .h file. ROOT CINT genertes
 a new .cxx file for the .h file, containing some streamer methods and reflection methods which overwrites 
-those in TObject class. Each .h file can only contain one TObject inherted class whose name must be the 
+those in TObject class. Each .h file can only contain one TObject inherited class whose name must be the 
 same as the file name. Then Cmake includes that .h file and complies the two .cxx files calling gcc. This 
 work is done for all .cxx files, after which CMake generates a library with the name of the directory.
 

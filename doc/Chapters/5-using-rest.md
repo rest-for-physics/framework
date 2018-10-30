@@ -5,217 +5,47 @@ script containing REST system infomation.
 
 ![alt](Image/executables.png)
 
-`restManager` is the main program of REST. It runs with the first argument specifying the rml config file or ROOT
-script name. And with the following arguments giving some parameters. In rml config mode, the usage is like:
+`restManager` is the main program of REST. It can run in two modes: rml config mode and scripts executing mode.
+"restManager" calls TRestManager class to parse both rml config file and script file.
+
+In rml config mode, the usage is like:
 
 `restManager --c CONFIG_FILE [--i INPUT_FILE] [--o OUTPUT_FILE] [--j THREADS] [--e EVENTS_TO_PROCESS] [--v VERBOSELEVEL]`.
 
 Here we must give the rml config file to the program. Other arguments with squared brackets are optional. If given,
-they will overwrite the corresponding parameters in rml config file. "restManager" calls TRestManager object to
-parse rml config file and handle the objects and tasks defined in the xml section. 
+they will overwrite the corresponding parameters in rml file.
 
-In scripts executing mode, the usage is: `restManager TASK_NAME ARG1 ARG2 ARG3`. User just needs to specify
-the script name and REST will automatically find and run it from the "macro" directory in installation path. 
-Shell alias are set together with those ROOT scripts. For example, the command `restXXX` is actually alias
-of the command "restManager XXX". The usage is like:
+In scripts executing mode, the usage is: 
 
-`restViewEvents abc.root TRestRawSignalEvent` or `restManager ViewEvents abc.root TRestRawSignalEvent`
+`restManager TASK_NAME ARG1 ARG2 ARG3`
+
+User needs to specify the script name and type the argumens in sequence. REST will automatically find and load the 
+corrsponding script file. The script files contains a c++ function each, so called "macro". Those files are stored 
+in the "macro" directory in installation path. 
+
+Shell alias are set together with some of those macros. For example, the command `restViewEvents` is actually alias
+of the command "restManager ViewEvents". So we can also run restManager like: 
+`restViewEvents abc.root TRestRawSignalEvent`. This is as if we have many other executables.
 
 The other executable is `restRoot`. It is identically ROOT with additional REST libraries and macros loaded.
-The loaded library makes it able to operate REST objects or data trees saved in TFile. The macros are ones we
-mentioned above. So we can directly run the methods in those pre-defined ROOT scripts. For example, calling 
-`TASK_NAME(ARG1,ARG2,ARG3)`  
-in restRoot prompt will be equal to calling: 
-`restManager TASK_NAME ARG1 ARG2 ARG3`  
-in the shell.
+The loaded library enables us to operate REST objects or data trees saved in TFile. The macros, being same as
+what we mentioned above, enables us to do the same thing as above, similary in root prompt. The name is a little
+different. For example:
+
+`REST_ViewEvents("abc.root","TRestRawSignalEvent")`  
 
 Note that REST output file can only be opened by "restRoot". Trees and metadata objects can be reterived
-successfully. TBrowser also works for REST objects.
+successfully. TBrowser also works for REST objects. For example:
+
+`TBrowser a`  
+`AnalysisTree->Draw("XXX")`  
 
 Finally we have a shell script `rest-config`. It provides some basic infomation of REST, including
-installation date/directories, branch, commit id, compilation flags, etc.
-
-### Running with a ROOT script
-
-Pre-defined ROOT scripts are also called REST macros. They can be found in ./macros directory. In a ROOT 
-script we define a C++ function. Then this function can be used directly at restRoot prompt and bash prompt.
-
-When using `restRoot`, the program will load all the ROOT scripts and user can get access to all the defined C++ 
-functions in prompt. When using `restManager`, REST will try to instantiate a TRestTask class to wrap the 
-target macro file. It forms a C++ command and invokes it by calling gInterpreter->ProcessLine().
-Arguments of this C++ command are constructed according to the input arguments. 
-
-Our task running strategy makes different callings resulting the same, as they both referrs to a same ROOT 
-script. It also saves a lot of time for developer adapting these different usage.
-
-TRestTask provides basic functionalities of macro file wrapping, helping message output and rml parsing.
-If that's not enough, we can define TRestTask-inherted class ourselves inside the scripts, and override
-the helping or rml parsing methods in it. This will be talked later.
-
-For example, we can write a ROOT script named "REST_ViewEvents.hh" in the directory ./macros. Inside the script
-we define a C++ function "REST_Viewer_GenericEvents()" and a class "REST_ViewEvents". When we use the line 
-`<addTask type="ViewEvents" filename="abc.root" value="ON"/>` in an rml file, TRestManager will try to
-instantiate a TRestTask-inherted class with class name "REST_ViewEvents". The class will set its 
-datamember "filename" to the value "abc.root", and then do the task of showing an event. It calls 
-the defined function "REST_Viewer_GenericEvents()" in file, giving the argument of the input file name.
-This is equivelent to the call `REST_Viewer_GenericEvents("abc.root")` inside restRoot prompt, and the call
-`restManager ViewEvents abc.root` at bash.
-
-### Rml introduction
-
-Though encoded in standard xml format, all REST config files use .rml extension to identify themselves. rml file
-makes a clear hierarchy of C++ objects used during analysis. This kind of configuration file not only tells
-the newcomer the job it is carrying, but also gives him a good view of the entire REST framework.
-
-Firstly, the user needs to study a little xml stuff. We start with a template rml file.
-
-`<?xml version="1.0" encoding="UTF-8" standalone="no" ?>`  
-`<A_ROOT_SECTION>`  
-&emsp;`<ClassName name="userGivenName" title="User given title" >`  
-&emsp;&emsp;`<parameter name="parName" value="parVal" />` 
-&emsp;&emsp;`<SomeCommand field1="value1" field2="value2"/>`  
-&emsp;&emsp;`<ContainedClassName field1="value1" field2="value2" ... >`  
-&emsp;&emsp;&emsp;`<SomeCommand field1="value1" field2="value2" /> `   
-&emsp;&emsp;&emsp;`comments or words`  
-&emsp;&emsp;`</ContainedClassName>`  
-&emsp;`</ClassName>`  
-&emsp;`<AnotherClass ...>`  
-&emsp;&emsp;`...`  
-&emsp;`</AnotherClass>`  
-&emsp;`<SomeCommand field1="value1" field2="value2"/>`  
-`</A_ROOT_SECTION>`
-
-The first line is universal, telling the text viewer this file is xml encoded. Then here comes a **section**.
-An xml section is a sealed text structure starting with `<decalre` and ending with `</decalre>` or `/>`. 
-Sections in an xml file usually have multiple nesting relationship. Here as the indentation suggests, we have a root
-section decalred "A_ROOT_SECTION". It has three child sections "ClassName", "AnotherClass", "SomeCommand".
-In tinyxml xml sections are also called **element**, and the declaration are also called "value". In old 
-version xml sections are also called **KeyDefinition** or **KeyStructure**.
-
-Xml sections can also have some **field values** (also called xml **attributes**), like in the template 
-`field1="value1"` or `name="userGivenName"`. In REST these attributes can also be written in a child section
-declared with **parameter**. In the template if we add an attribute `parName="parVal"` in the thrid line, 
-this is equivalent to the forth line: `<parameter name="parName" value="parVal" />`.
-
-The symbol `<`, `>`, `&`, `"` shall appear in the main text of xml encoded file. Use escape string 
-`&lt;`, `&gt;`, `&amp;`, `&quot;` respectively.
-
-In REST, the section decalration `include`, `for`, `variable` and `myParameter` and the symbols `${` `$ENV{` and `}`
-are reserved for the software. They will be preprocessed by the software before the method "InitFromConfigFile()"
-in matadata classes.
-
-#### variable and myParameter
-
-The xml sections "variable" and "myParameter" are for the keyword replacement. They are defined with a line
-like: `<variable name="PITCH" value="3" overwrite="false" />`. xml sections with same or lower hierarchy than
-this definition section will have its attributes replaced. If this definition section is in the "globals"
-section, then all xml sections in the file can see it.
-
-To replace "variables", we must mark the corresponding keyword with `${}`, while to replace "myParameter" we
-need not. For example, we add a line after the previous "variable" definition: 
-`<myParameter name="pitch" value="${PITCH}" />`.
-This marks out the keyword "PITCH" and it will be replaced by the word "3". Now we defined a "myParameter" with 
-name "pitch" and value "3". Then we add another line: 
-`<addPixel id="0" origin="(pitch,pitch/4+pitch)" size="(20,20)" rotation="45" />`.
-In this line all the apperrance of "pitch" will be replced by the word "3". The expression will be executed.
-
-REST works together with system environmental variable. By switching true or false for the "overwrite" attribute,
-a variable definition will use the text defined vale or the system environmental variable. By marking the keyword
-with `$ENV{}` REST will search for system environmental variable to replace it. 
-
-#### include definition
-
-It is possible to link to other rml files in any section. The included file must also be xml encoded.
-REST will open the file and searches for the section with the same declaration(or type attribute) and name 
-attribute as the current section. If found, the external section will be expanded into the current section.
-Variable in that file will be imported together.
-
-There are two ways to make a include definition. One can either specify the external file in the element 
-attribute:  
-`<addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON" file="processes.rml"/>`  
-or in the element's child:  
-`<addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON">`  
-`&emsp;<include file = "processes.rml" />`  
-`</addProcess>`  
-
-These two include definitions will order REST to find a section in the file process.rml declared as 
-"addProcess" or "TRestRawSignalAnalysisProcess" and named with "sAna". The section can both be a root element
-or a child element of root element(cannot be grand-child element). If found, REST will expand its attributes
-and child elements to the element "addProcess".
-
-#### for loop expansion
-
-The definition of FOR loop is implemented in RML in order to allow extense
-definitions, where many elements may need to be added to an existing array in
-our metadata structure. The use of FOR loops allows to introduce more
-versatil and extense definitions. Its implementation was fundamentally triggered 
-by its use in the construction of complex, multi-channel generic readouts by
-TRestReadout.
-
-The for loop definition is as follows, where *pitch* and *nChannels* are previously 
-defined myParameters, and *nCh* and *nPix* are the *for* loop iteration variables.
-
-`<for variable = "nCh" from = "0" to = "nChannels-2" step = "1" >`  
-&emsp;`<readoutChannel id = "${nCh}" >`  
-&emsp;&emsp;`<for variable = "nPix" from = "0" to = "nChannels-1" step = "1" >`  
-&emsp;&emsp;&emsp;`<addPixel id = "${nPix}" origin = "((1+${nCh})*pitch,pitch/4+${nPix}*pitch)" size = "(pixelSize,pixelSize)" rotation = "45" />`  
-&emsp;&emsp;`</for>`  
-&emsp;&emsp;`<addPixel id = "nChannels" origin = "(${nCh}*pitch,pitch/4+(nChannels-1)*pitch+pitch/2)" size = "(pitch+pitch/2,pitch/2)" rotation = "0" />`  
-&emsp;`</readoutChannel>`  
-`</for>`  
-
-REST will recongize the fields "variable", "from", "to", "step" in the header of the for loop definition. 
-The variable "nCh", definded at the header of the for loop definition, will be updated in each loop and be used
-to replace values of the loop content. During the loop, REST will add the new content element at the 
-front of the for loop element(add a new sibling). After the loop, REST will delete the for loop element, leaving
-purely the loop content.
-
-#### an example
-
-We used generateReadoutFile.rml in the ./example directory to generate a readout file. We now open it and see what
-it did.
-
-`...`
-`<TRestManager ...>`  
-&emsp;`<globals>...</globals>`  
-&emsp;`<TRestRun>...</TRestRun>`  
-&emsp;`<addTask .../>`  
-&emsp;`<addTask .../>`  
-`</TRestManager>` 
-
-The root section is declared "TRestManager". It contains a scetion declared "globals", a scetion declared 
-"TRestRun" and two sections declared "addTask". This section has a corresponding class in REST with same class name. 
-
-In the "TRestManager" section, obviously, the "globals" section are providing some global setting for 
-others. The "TRestRun" section has also a corresponding class in REST. This class mainly deals with file IO
-and data transmission. So we are adding TRestRun class inside TRestManager class. Lets see what's in it.
-
-`<TRestRun ...>`  
-&emsp;`<TRestReadout ...>`  
-&emsp;&emsp;`<readoutModule .../>`  
-&emsp;&emsp;`<readoutPlane ...>`  
-&emsp;&emsp;&emsp;`<addReadoutModule .../>`  
-&emsp;&emsp;&emsp;`<addReadoutModule .../>`  
-&emsp;&emsp;&emsp;`<addReadoutModule .../>`  
-&emsp;&emsp;&emsp;`...`  
-&emsp;&emsp;`</readoutPlane ...>`  
-&emsp;`</TRestReadout>`  
-`</TRestRun>`  
-
-Its easy guess that we are adding a TRestReadout class inside TRestRun class. This class is what contains
-real readout definition. Inside its section, there are several operations. First we define a readout module,
-which in our experiment is the MicroMegas. And then we define a readoutplane, adding several of this kind of
-readout module in it, giving their physical position and some other infomation. All together they form 
-an one-plane readout system. This TRestReadout class is now saved inside TRestRun class.
-
-Previous work is done within the initialization of these classes. Now these classes are ready and we need 
-to tell REST what to do. So finally, in "addTask" section, we give the command readoutrun->FormOutputFile().
-and readoutrun->CloseFile(). Here "readoutrun" is the name(not class name) of the previously defind TRestRun 
-class. Obviously here we are telling REST to "save file and close". The two lines of command are actually
-a method in the class TRestRun which TRestManager will invoke.
+installation date/directories, branch, commit id, compilation flags, etc. Try `rest-config --help` for 
+more details.
 
 
-### Writing an rml
+### Writing rml to process file
 
 Here we will talk about the detailed options of rml config file when using REST. We usually have a 
 "TRestRun" section, a "TRestProcessRunner" section, a "globals" section and some "addTask" section under 
@@ -225,9 +55,9 @@ They cooperate with each other.
 
 #### name, title and verbose level
 
-TNamed class introduces name and title as datamembers for the objects of its inherted class. In addition,
+TNamed class introduces name and title as datamembers for the objects of its inherited class. In addition,
 TRestMetadata introduces verbose level option. We need to set all three of them as basic information for
-any TRestMetadata inherted class objects. Use xml attributes or child sections "parameter" to set them. 
+any TRestMetadata inherited class objects. Use xml attributes or child sections "parameter" to set them. 
 For example:
 
 `<TRestProcessRunner name="TemplateEventProcess" verboseLevel="info">`
@@ -246,7 +76,7 @@ REST_Info         | 2      | info             | +show most of the infomation
 REST_Debug        | 3      | debug            | +show the debug messages, pause at each processes to show the details
 REST_Extreme      | 4      | extreme          | show everything
 
-The default verbose level for a TRestMetadata inherted class is silent/info before/after
+The default verbose level for a TRestMetadata inherited class is silent/info before/after
 loading the rml file(calling the method "LoadConfigFromFile()").
 
 #### setting run information

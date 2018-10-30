@@ -2,7 +2,7 @@
 
 The users are welcomed to develop new classes based on REST. In this section, we will talk about the 
 interface of classes when one is going to write his own derived classes. We will first cover some 
-points of inherting the class TObject, which is the base class of many REST base classes. Then we will
+points of inheriting the class TObject, which is the base class of many REST base classes. Then we will
 talk about the three main base classes in REST: TRestEvent, TRestMetadata and TRestEventProcess. Both
 of them are abstract class.
 
@@ -33,14 +33,19 @@ declaration in the header file. For example:
 `int b;`  
 `}`  
 
-Then the class member ¡°a¡± will not be saved when the class TRestHits gets saved in TFile/TTree.
+Then the class member "a" will not be saved when the class TRestHits gets saved in TFile/TTree. In TTree we
+are unable to see the "a" branch. In TFile when we retrieve the class and get the class object, the class
+member "a" will be its default value.
 
-If the class member is a pointer, we cannot save it directly. We need to either add ¡°//->¡± annotation in 
-the same line(not tested), or create and link an instance of the pointer, then save the instance, As shown 
-in the code below. 
+If the class member is a pointer, we cannot save it directly. We need to either add "//->" annotation in 
+the same line(not tested), or create and link an instance of the pointer, then save the instance. There 
+are two ways to do it, as shown in the code below. 
 
-`1)	TH1D* h; //->`  
-`2)	TH1D* h; //!`  
+`1)`  
+`TH1D* h; //->`  
+
+`2)`  	
+`TH1D* h; //!`  
 `TH1D _h;`  
 `//in some method before saving`  
 `_h=*h;`  
@@ -52,7 +57,7 @@ loop all the entries to, e.g. draw something..
 ### TRestEvent
 
 #### class member
-This is an abstract class inherted from TObject. We have some additional class members defined in it.
+This is an abstract class inherited from TObject. We have some additional class members defined in it.
 
 Type | Name | Description
 -------------|------------|-------------
@@ -65,7 +70,7 @@ TTimeStamp |   fEventTime;         | Absolute event time. (Default: 0)
 Bool_t     |   fOk;                | Flag to be used by processes to define an event status. (Default: true)
 
 All of these class members are in hidden level "protected", which means we can directly use them in the 
-inherted classes, while cannot access to them in the other classes. In other classes, we need to call
+inherited classes, while cannot access to them in the other classes. In other classes, we need to call
 getter and setter methods of TRestEvent. e.g. GetID(), GetSubEventTag(), SetTime(), etc.
 
 These seven class members contains basic and universal infomation of an event. In the derived class, the user
@@ -116,7 +121,7 @@ transfer an event and not to use CloneTo();
 
 ### TRestMetadata
 
-This is an abstract class inherted from TNamed (TNamed is inherted from TObject). To write a TRestMetadata inherted
+This is an abstract class inherited from TNamed (TNamed is inherited from TObject). To write a TRestMetadata inherited
 class, there is a pure virtual method InitFromConfigFile() which everyone needs to implement. This method defines
 how this class loads data from rml config file. As there is too many methods in the class, we just explain
 roughly its usage here. For detailed class reference, check the 
@@ -127,7 +132,7 @@ roughly its usage here. For detailed class reference, check the
 Derived class can have the same start up strategy defined in TRestMetadata. The main starter method 
 InitFromConfigFile() needs to be called manually after or in the constructor. For example:
 
-// in constructor
+// in constructor  
 `TRestReadout::TRestReadout( const char *cfgFileName, string name) : TRestMetadata (cfgFileName){`  
 &emsp;`cout << "Loading readout. This might take few seconds" << endl;`  
 &emsp;`Initialize();`  
@@ -139,8 +144,8 @@ InitFromConfigFile() needs to be called manually after or in the constructor. Fo
 &emsp;`...`  
 `}`  
 
-or
-// after constructor
+or  
+// after constructor  
 `int main(){`  
 &emsp;`TRestReadout*readout=new TRestReadout();`  
 &emsp;`readout->LoadConfigFromFile("readout.rml");`  
@@ -162,7 +167,7 @@ calling method GetParameter():
 `void TRestRawSignalTo2DHitsProcess::InitFromConfigFile(){`  
 &emsp;`fSelection = GetParameter("selection", "0");`  
 &emsp;`fBaseLineRange = StringTo2DVector(GetParameter("baseLineRange", "(5,55)"));`  
-&emsp;`...`
+&emsp;`...`  
 `}`  
 
 In TRestManager, we implement with sequential startup:
@@ -172,7 +177,7 @@ In TRestManager, we implement with sequential startup:
 &emsp;`if (fElement != NULL){`  
 &emsp;&emsp;`TiXmlElement*e = fElement->FirstChildElement();`  
 &emsp;&emsp;`while (e != NULL){`  
-&emsp;&emsp;&emsp;`...`  
+&emsp;&emsp;&emsp;`ReadConfig(...)`  
 &emsp;&emsp;&emsp;`e = e->NextSiblingElement();`  
 `}}}`  
 `Int_t ReadConfig(string keydeclare, TiXmlElement* e);`  
@@ -299,36 +304,46 @@ of lines like:
 `par1=GetParameter("par1","")==""?0:StringToInteger(GetParameter("par1"));`  
 in the code. Of course we don't want to write like this. In this case we need reflection. 
 
-Another example is that when we are writing a base class, we usually want to make it easier to inhert. 
+Another example is that when we are writing a base class, we usually want to make it easier to inherit. 
 We want to directly implement the InitFromConfigFile() method for all of the derived class. How can we 
-set the class members' value event when we don't know them? We also need reflection.
+set the class members' value even when we don't know them? We also need reflection. Note that if the 
+class member has no ROOT streamer(annotation //! is added after member definition), the reflection
+won't work for it. 
 
 The reflection methods are in the table below:
 
-Return Type | Input Type | Name | Description
+Return Type | Name        | Input Type | Description
 ------------|-------------|------------|---------
-TStreamerElement* | string                    | GetDataMemberWithName      | Get ROOT streamer class of the target class member with class member name
-TStreamerElement* | int                       | GetDataMemberWithID        | Get ROOT streamer class of the target class member with class member's streamer id(not real id)
-int               | ~                         | GetNumberOfDataMember      | Get total number of avaliable class members. Initialize the reflection functionality.
-double            | TStreamerElement*         | GetDblDataMemberVal        | Get the value of class member assume its type is double.
-int               | TStreamerElement*         | GetIntDataMemberVal        | Get the value of class member assume its type is int.
-char*             | TStreamerElement*         | GetDataMemberRef           | Get address of the given class member in type of char*
-string            | TStreamerElement*         | GetDataMemberValString     | Get the value of class member assume its type is string.
-void              | TStreamerElement*, char"  | SetDataMemberVal           | Set the value of class member with a pointer. Assume the pointer is of same type of the class member.
-void              | TStreamerElement*, string | SetDataMemberVal           | Set the value of class member with a number string. Convert the string to certain value type(int, double, float).
-void              | TStreamerElement*         | SetDataMemberValFromConfig | Autometically set the value of corresponding class member with the given xml section.
+TStreamerElement* | GetDataMemberWithName      | string                      | Get ROOT streamer class of the target class member with class member name
+TStreamerElement* | GetDataMemberWithID        | int                         | Get ROOT streamer class of the target class member with class member's streamer id(not real id)
+int               | GetNumberOfDataMember      | ~                           | Get total number of avaliable class members. Initialize the reflection functionality.
+double            | GetDblDataMemberVal        | TStreamerElement*           | Get the value of class member assume its type is double.
+int               | GetIntDataMemberVal        | TStreamerElement*           | Get the value of class member assume its type is int.
+char*             | GetDataMemberRef           | TStreamerElement*           | Get address of the given class member in type of char*
+string            | GetDataMemberValString     | TStreamerElement*           | Get the value of class member assume its type is string.
+void              | SetDataMemberVal           | TStreamerElement¡ï, char¡ï  | Set the value of class member with a pointer. Assume the pointer is of same type of the class member.
+void              | SetDataMemberVal           | TStreamerElement*, string   | Set the value of class member with a number string. Convert the string to certain value type(int, double, float).
+void              | SetDataMemberValFromConfig | TStreamerElement*           | Autometically set the value of corresponding class member with the given xml section.
 
-Note that if the class member has no ROOT streamer(with annotation //! after member definition), the reflection
-won't work for it. 
+(¡ï: same as *)
+
+Now to setup value of a hundred class members from the rml file, we can write a loop:
+
+`int n = GetNumberOfDataMember();`  
+`for (int i = 1; i < n; i++) {`  
+&emsp;`TStreamerElement* e = GetDataMemberWithID(i);`   
+&emsp;`SetDataMemberValFromConfig(e);`  
+`}`  
+
 
 ### TRestEventProcess
 
 #### implementing
 
 The most frequent case of developing REST is to write or modifiy an event process. TRestEventProcess is 
-inherted from TRestMetadata, adding extra interfaces and tools to it. We need to implement/redefine 
+inherited from TRestMetadata, adding extra interfaces and tools to it. We need to implement/redefine 
 additional methods/variables in TRestEventProcess. The followings are a list of them. 
-The ones with a ¡°¡ï¡± mark ahead must be implemented/redefined by the user.
+The ones with a "¡ï" mark ahead must be implemented/redefined by the user.
 
 ¡ïTRestEvent* fInputEvent  
 

@@ -146,7 +146,7 @@ REST_Viewer_ReadoutEvent() | TString fName<br>TString cfgFilename = "template/co
 Function name  |Input arguments | Description
 ------------|-------------|------------
 REST_Printer_GenericEvents()   | TString fName<br>TString EventType=""<br>Int_t firstEvent = 0 | Print the event in file with given type. It calls the method TRestEvent::Print() 
-REST_Printer_FileContents() | TString fName | Print name and title of Metadata/Application/Trees saved in the file.(Anything inherted from TNamed)
+REST_Printer_FileContents() | TString fName | Print name and title of Metadata/Application/Trees saved in the file.(Anything inherited from TNamed)
 REST_Printer_Metadata() | TString fName |  Print the metadata content of metadata objects in the file.
 REST_Printer_Trees() | TString fName |  Print EventTree, AnalysisTree and observables in the file.
 
@@ -422,6 +422,43 @@ Full_Output : +saving output event together in the process branch
 `<addProcess type="TRestRawSignalAnalysisProcess" name="sAna">`  
 &emsp;`<observable name="baseLineSigmaMean" value="on"/>`  
 `</addProcess>`
+
+4. coding in the inherited class is simplified:
+
+Now we can use:
+
+`TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput ){`  
+&emsp;`fSignalEvent = (TRestRawSignalEvent *)evInput;`    
+&emsp;`fOutputEvent = fSignalEvent;`    
+`...`  
+`}`  
+
+Or:
+
+`TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput ){`  
+&emsp;`fSignalEvent->Initialize();`  
+&emsp;`evInput->CloneTo(fSignalEvent);`  
+&emsp;`fOutputEvent = fSignalEvent;`  
+`...`  
+`}`  
+
+Previously:
+
+`TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput ){`  
+&emsp;`fSignalEvent->Initialize();`  
+&emsp;`TRestRawSignalEvent *fInputSignalEvent = (TRestRawSignalEvent *)evInput;`  
+&emsp;`fSignalEvent->SetID(fInputSignalEvent->GetID());`  
+&emsp;`fSignalEvent->SetSubID(fInputSignalEvent->GetSubID());`  
+&emsp;`fSignalEvent->SetTimeStamp(fInputSignalEvent->GetTimeStamp());`  
+&emsp;`fSignalEvent->SetSubEventTag(fInputSignalEvent->GetSubEventTag());`  
+&emsp;`Int_t N = fInputSignalEvent->GetNumberOfSignals();`  
+&emsp;`for (int sgnl = 0; sgnl < N; sgnl++)`  
+&emsp;&emsp;`fSignalEvent->AddSignal(*fInputSignalEvent->GetSignal(sgnl));`  
+&emsp;`fOutputEvent = fSignalEvent;`  
+`...`  
+`}`
+
+We can directly copy the pointer, thanks to the test run strategy adpoted.
 
 ##### Changed class: TRestBrowser
 1. embeded into TBrowser.
