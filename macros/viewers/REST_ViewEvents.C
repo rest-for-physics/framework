@@ -11,7 +11,7 @@
 #define RestTask_ViewEvents
 
 
-Int_t REST_ViewGenericEvents(TString fName , TString EventType = "")
+Int_t REST_ViewEvents(TString fName , TString EventType = "")
 {
 	TRestBrowser *browser = new TRestBrowser("TRestGenericEventViewer");
 	//TRestGenericEventViewer *viewer = (TRestGenericEventViewer*)browser->GetViewer();
@@ -44,26 +44,26 @@ Int_t REST_ViewGenericEvents(TString fName , TString EventType = "")
 
 Int_t REST_ViewLinearTrackEvent(TString fName)
 {
-	REST_ViewGenericEvents(fName, "TRestLinearTrackEvent");
+	REST_ViewEvents(fName, "TRestLinearTrackEvent");
 	return 0;
 }
 
 Int_t REST_ViewRawSignalEvent(TString fName)
 {
-	REST_ViewGenericEvents(fName, "TRestRawSignalEvent");
+	REST_ViewEvents(fName, "TRestRawSignalEvent");
 	return 0;
 }
 
 
 Int_t REST_ViewSignalEvent(TString fName)
 {
-	REST_ViewGenericEvents(fName, "TRestSignalEvent");
+	REST_ViewEvents(fName, "TRestSignalEvent");
 	return 0;
 }
 
 Int_t REST_ViewTrackEvent(TString fName)
 {
-	REST_ViewGenericEvents(fName, "TRestTrackEvent");
+	REST_ViewEvents(fName, "TRestTrackEvent");
 	return 0;
 }
 
