@@ -11,7 +11,6 @@
 #include "TRestAnalysisPlot.h"
 #include "TApplication.h"
 
-#include "TRestTask.h"
 #include <TROOT.h>
 
 /// Managing applications and executing tasks
@@ -45,6 +44,8 @@ public:
 	}
 	void BeginOfInit();
 	Int_t ReadConfig(string keydeclare, TiXmlElement* e);
+
+	void InitFromTask(string taskName, vector<string> arguments);
 
 	//void LaunchTasks();
 

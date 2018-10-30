@@ -103,9 +103,6 @@ int main( int argc, char *argv[] )
 
 			delete a;
 			gSystem->Exit(0);
-			return 0;
-
-
 		}
 		else//usage2
 		{
@@ -117,15 +114,8 @@ int main( int argc, char *argv[] )
 			}
 			string type = (argv[1]);
 			fout <<"Initializing "<< type << endl;
-			TRestTask*tsk = TRestTask::GetTask(type);
-			if (tsk == NULL) {
-				cout << "REST ERROR. Task : " << type << " not found!!" << endl;
-				return -1;
-			}
-			tsk->SetArgumentValue(argumentlist);
-			tsk->ConstructCommand();
-			tsk->RunTask(NULL);
-			gSystem->Exit(0);
+			TRestManager* a = new TRestManager();
+			a->InitFromTask(type, argumentlist);
 		}
 	}
 
