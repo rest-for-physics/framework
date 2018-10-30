@@ -115,4 +115,4 @@ to fail. Ask administrator to open the premission, or just use ssh conncection, 
 
 [**prev**](1-introduction.md)
 [**contents**](0-contents.md)
-[**next**](3-try-some-examples.md)
+[**next**](3-getting-started.md)

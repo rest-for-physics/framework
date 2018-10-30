@@ -177,6 +177,6 @@ and copy the data from input event(if the process dosen't change the event type)
 address of the input event and directly operate it. This will also improve the efficiency and simplify the code.
 
 
-[**prev**](3-try-some-examples.md)
+[**prev**](3-getting-started.md)
 [**contents**](0-contents.md)
 [**next**](5-using-rest.md)
