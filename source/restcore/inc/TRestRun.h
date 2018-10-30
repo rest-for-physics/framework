@@ -68,7 +68,7 @@ public:
 
 	void CloseFile();
 
-	void ImportMetadata(TString rootFile, TString name, Bool_t store);
+	void ImportMetadata(TString rootFile, TString name, TString type, Bool_t store);
 
 	/// add metadata object to the metadata list
 	void AddMetadata(TRestMetadata* meta) {
@@ -124,7 +124,7 @@ public:
 	Int_t GetInputFileNumber() { return fFileProcess == NULL ? fInputFileNames.size() : 1; }
 
 	TRestMetadata* GetMetadata(TString name, TFile*f = 0);
-	TRestMetadata* GetMetadataClass(string type, TFile*f = 0);
+	TRestMetadata* GetMetadataClass(TString type, TFile*f = 0);
 	std::vector <std::string> GetMetadataStructureNames();
 	std::vector <std::string> GetMetadataStructureTitles();
 	int GetNumberOfMetadataStructures() { return fMetadataInfo.size(); }

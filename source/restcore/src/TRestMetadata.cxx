@@ -827,10 +827,11 @@ void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 ///		<include file="abc.txt"/>
 /// </TRestXXX>
 /// \endcode
-/// 2. auto insert. It will automatically find corresponding section in the file. 
-/// The section should have the same name and type. Here "type" can either be the
-/// element declare or attribute. After finding the section, this method will insert 
-/// its child as well as attribute into the local xml element. 
+/// 2. auto insert. It will automatically find the section in the file, according to
+/// "type" and "name". At least one of the two definitions should be specified. 
+/// Here "type" can either be the element declare or its attribute. After finding the 
+/// remote section, this method will insert its child sections and attributes into the 
+/// local xml element. 
 /// \code
 /// <TRestXXX name="sAna" file="abc.rml"/>
 /// \endcode
@@ -861,11 +862,15 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 		TiXmlElement* localele = NULL;
 		string type;
 		string name;
+
+		////////////////////////////////////////////////
 		//condition 1(raw file include): 
 		//   <TRestXXX name="" .....>
 		//     <include file="aaa.rml"/>
 		//     ....
 		//   </TRestXXX>
+		//
+		//We will insert all the xml elements in aaa.rml into this section
 		if ((string)e->Value() == "include")
 		{
 			localele = (TiXmlElement*)e->Parent();
@@ -876,8 +881,6 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 				return;
 			}
 
-			type = "";
-			name = "";
 			remoteele = new TiXmlElement("Config");
 
 			TiXmlElement*ele = GetRootElementFromFile(filename);
@@ -888,12 +891,19 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 			}
 
 		}
+
+		///////////////////////////////////
 		//condition 2(auto insert): 
 		//   <TRestXXX file=""/>
 		//or
 		//   <TRestXXX name="" ... file="aaa.rml" .../>
 		//or
+		//   <addXXX name="" ... file="aaa.rml" .../>
+		//or
 		//   <addXXX type="" name="" ... file="aaa.rml" .../>
+		//
+		//Here TRestXXX will be "type". we will find the corresponding section, and insert all 
+		//its attributes and child elements into this section. "name" overwrites "type"
 		else
 		{
 			localele = e;
@@ -931,10 +941,10 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 					}
 				}
 				//find its child section according to type and name
-				if (name == ""&&GetElement(type, rootele) != NULL)
+				if (name != ""&&GetElementWithName("", name, rootele) != NULL)
+					remoteele = GetElementWithName("", name, rootele);
+				else if (GetElement(type, rootele) != NULL)
 					remoteele = GetElement(type, rootele);
-				else if (GetElementWithName(type, name, rootele) != NULL)
-					remoteele = GetElementWithName(type, name, rootele);
 
 				if (remoteele == NULL)
 				{
@@ -948,8 +958,10 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 
 
 
-		debug << "Target element spotted" << endl;
+		debug << "Target xml element spotted" << endl;
 
+		///////////////////////////////////////
+		//begin inserting remote element into local element
 		ExpandElement(remoteele, true);
 		int nattr = 0;
 		int nele = 0;
@@ -1258,20 +1270,33 @@ TiXmlElement * TRestMetadata::GetElementWithName(std::string eleDeclare, std::st
 ///
 TiXmlElement * TRestMetadata::GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement * e)
 {
-	TiXmlElement* ele = e->FirstChildElement(eleDeclare.c_str());
-	while (ele != NULL)
-	{
-		if ((string)ele->Value() == eleDeclare)
+	if (eleDeclare == "") {
+		TiXmlElement* ele = e->FirstChildElement();
+		while (ele != NULL)
 		{
 			if (ele->Attribute("name") != NULL && (string)ele->Attribute("name") == eleName)
 			{
 				return ele;
 			}
+			ele = ele->NextSiblingElement();
 		}
-		ele = ele->NextSiblingElement();
+		return ele;
 	}
-	return ele;
+	else
+	{
+		TiXmlElement* ele = e->FirstChildElement(eleDeclare.c_str());
+		while (ele != NULL)
+		{
+			if (ele->Attribute("name") != NULL && (string)ele->Attribute("name") == eleName)
+			{
+				return ele;
+			}
+			ele = ele->NextSiblingElement(eleDeclare.c_str());
+		}
+		return ele;
+	}
 
+	return NULL;
 }
 
 ///////////////////////////////////////////////

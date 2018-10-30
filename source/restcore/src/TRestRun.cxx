@@ -210,9 +210,9 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e)
 {
 	if (keydeclare == "addMetadata")
 	{
-		if (e->Attribute("name") != NULL && e->Attribute("file") != NULL)
+		if (e->Attribute("file") != NULL)
 		{
-			ImportMetadata(e->Attribute("file"), e->Attribute("name"), true);
+			ImportMetadata(e->Attribute("file"), e->Attribute("name"), e->Attribute("type"), true);
 			return 0;
 		}
 		else
@@ -976,7 +976,7 @@ int TRestRun::ConvertVersionCode(string in) {
 /// \brief Open the root file and import the metadata of the given name.
 ///
 /// The metadata class can be recovered to the same condition as when it is saved.
-void TRestRun::ImportMetadata(TString File, TString name, Bool_t store)
+void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t store)
 {
     auto fileold = File;
 	File = SearchFile(File.Data());
@@ -994,18 +994,19 @@ void TRestRun::ImportMetadata(TString File, TString name, Bool_t store)
 
 	TFile *f = new TFile(File);
 	// TODO give error in case we try to obtain a class that is not TRestMetadata
+	if (type == ""&&name == "") {
+		error << "REST ERROR (ImportMetadata) : metadata type and name is not specified!" << endl;
+		return;
+	}
+
 	TRestMetadata *meta;
-	try {
-		meta = (TRestMetadata *)f->Get(name);
+	if (name != "") {
+		meta = GetMetadata(name, f);
 	}
-	catch(std::bad_alloc e)//schema evolution conflict
-	{
-		error << "REST ERROR (ImportMetadata) : error when retrieving metadata object from ROOT file!" << endl;
-		error << "file: " << File << ", object name: " << name << endl;
-		cout << "HINT: this may be caused by schema evolution conflict. Make sure the object in the " << endl;
-		cout << "target file is with same schema evolution level as current REST" << endl;
-		exit(1);
+	else if (type != "") {
+		meta = GetMetadataClass(type, f);
 	}
+
 
 	if (meta == NULL)
 	{
@@ -1058,7 +1059,7 @@ string TRestRun::Get(string target)
 }
 
 
-TRestMetadata* TRestRun::GetMetadataClass(string type, TFile*f)
+TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile*f)
 {
 	if (f != NULL) {
 		TIter nextkey(fInputFile->GetListOfKeys());
@@ -1069,9 +1070,27 @@ TRestMetadata* TRestRun::GetMetadataClass(string type, TFile*f)
 
 			if (kName == type)
 			{
-				auto a = (TRestMetadata*)fInputFile->Get(key->GetName());
+				TRestMetadata* a;
+
+				try {
+					a = (TRestMetadata *)f->Get(key->GetName());
+				}
+				catch (std::bad_alloc e)//schema evolution conflict
+				{
+					error << "REST ERROR (ImportMetadata) : error when retrieving metadata object from ROOT file!" << endl;
+					error << "file: " << f->GetName() << ", object name: " << key->GetName() << endl;
+					cout << "HINT: this may be caused by schema evolution conflict. Make sure the object in the " << endl;
+					cout << "target file is with same schema evolution level as current REST" << endl;
+					exit(1);
+				}
 				if (a->InheritsFrom("TRestMetadata"))
+				{
 					return a;
+				}
+				else
+				{
+					warning << "TRestRun::GetMetadataClass() : The object to import is not inherited from TRestMetadata" << endl;
+				}
 			}
 		}
 	}
@@ -1098,9 +1117,26 @@ TRestMetadata *TRestRun::GetMetadata(TString name, TFile*f)
 
 			if (kName == name)
 			{
-				auto a = (TRestMetadata*)fInputFile->Get(key->GetName());
+				TRestMetadata* a;
+
+				try {
+					a = (TRestMetadata *)f->Get(name);
+				}
+				catch (std::bad_alloc e)//schema evolution conflict
+				{
+					error << "REST ERROR (ImportMetadata) : error when retrieving metadata object from ROOT file!" << endl;
+					error << "file: " << f->GetName() << ", object name: " << name << endl;
+					cout << "HINT: this may be caused by schema evolution conflict. Make sure the object in the " << endl;
+					cout << "target file is with same schema evolution level as current REST" << endl;
+					exit(1);
+				}
 				if (a->InheritsFrom("TRestMetadata"))
+				{
 					return a;
+				}
+				else {
+					warning << "TRestRun::GetMetadata() : The object to import is not inherited from TRestMetadata" << endl;
+				}
 			}
 		}
 	}
