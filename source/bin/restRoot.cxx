@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
 	TRestTools::LoadRESTLibrary(verbose);
 
-	auto a = ExecuteShellCommand("find $REST_PATH/macros |grep .hh | grep -v \"swo\" | grep -v \"swp\"  | grep -v \"svn\"");
+	auto a = ExecuteShellCommand("find $REST_PATH/macros | grep REST_.*.C | grep -v \"swo\" | grep -v \"swp\"  | grep -v \"svn\"");
 	auto b = Spilt(a, "\n");
 	for (auto c : b) {
 		if (verbose)
