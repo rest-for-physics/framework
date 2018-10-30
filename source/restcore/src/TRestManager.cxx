@@ -27,8 +27,10 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "TRestManager.h"
-
+#include "TRestTask.h"
 #include "TInterpreter.h"
+#include "TSystem.h"
+
 ClassImp(TRestManager);
 
 
@@ -36,6 +38,8 @@ TRestManager::TRestManager()
 {
 	Initialize();
 }
+
+
 
 
 TRestManager::~TRestManager()
@@ -312,56 +316,13 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 		else if (cmd != NULL) {
 			debug << " \"" << cmd << "\" " << endl;
 
-			string name;
-			string call;
-			string method;
-			string arg;
-			if (Spilt(cmd, "->").size() != 2) {
-				if (Spilt(cmd, ".").size() != 2) {
-					warning << "command" << " \"" << cmd << "\" " << "is illegal!" << endl;
-					return -1;
-				}
-				else
-				{
-					name = Spilt(cmd, ".")[0];
-					call = Spilt(cmd, ".")[1];
-				}
-			}
-			else
-			{
-				name = Spilt(cmd, "->")[0];
-				call = Spilt(cmd, "->")[1];
-			}
-			if (Count(call, "(") != 1 || Count(call, ")") != 1) //we can only use one bracket
-			{
-				warning << "command" << " \"" << cmd << "\" " << "is illegal!" << endl;
+			TRestTask*tsk = TRestTask::ParseCommand(cmd);
+			if (tsk == NULL) {
+				warning << "REST ERROR. Command : " << cmd << " cannot be parsed!!" << endl;
+				warning << "This task will be skipped." << endl;
 				return -1;
 			}
-			method = Spilt(call, "(")[0];
-			arg = Spilt(Spilt(call, "(")[1], ")").size() == 0 ? "" : Spilt(Spilt(call, "(")[1], ")")[0];
-
-			for (int i = 0; i < fMetaObjects.size(); i++)
-			{
-				if (fMetaObjects[i]->GetName() == name) {
-					debug << "processing..." << endl;
-					gInterpreter->Execute(fMetaObjects[i], fMetaObjects[i]->IsA(), method.c_str(), arg.c_str());
-					//((TRestProcessRunner*)fMetaObjects[i])->RunProcess();
-					break;
-				}
-				else if (i == fMetaObjects.size() - 1)
-				{
-					warning << "Object \"" << name << "\" " << " is not defined in current scope!" << endl;
-					return -1;
-				}
-			}
-
-
-
-
-
-
-
-
+			tsk->RunTask(this);
 			return 0;
 		}
 	}
@@ -369,6 +330,19 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 
 	return -1;
 }
+
+void TRestManager::InitFromTask(string taskName, vector<string> arguments) {
+
+	TRestTask*tsk = TRestTask::GetTask(taskName);
+	if (tsk == NULL) {
+		cout << "REST ERROR. Task : " << taskName << " not found!!" << endl;
+		gSystem->Exit(-1);
+	}
+	tsk->SetArgumentValue(arguments);
+	tsk->RunTask(NULL);
+	gSystem->Exit(0);
+}
+
 
 ///////////////////////////////////////////////
 /// \brief Get the application metadata class, according to the type

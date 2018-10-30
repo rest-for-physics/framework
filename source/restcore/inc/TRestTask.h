@@ -19,38 +19,49 @@ class TRestManager;
 
 using namespace std;
 
+enum REST_TASKMODE {
+	TASK_ERROR = -1,
+	TASK_MACRO = 0,
+	TASK_CPPCMD=1,
+	TASK_CLASS=2
+};
+
 /// Wrapping REST macros into tasks
 class TRestTask :public TRestMetadata {
 
 public:
 	TRestTask();
-	TRestTask(TString MacroFileName);
+
 	~TRestTask() {};
 	
 	ClassDef(TRestTask, 1);
 	
-	int fNRequiredArgument;//!
-
 	//define default values here
 	void InitFromConfigFile();
 
-	void SetArgumentValue(string name, string value);
 	void SetArgumentValue(vector<string>arg);
 
 	static TRestTask* GetTask(TString Name);
+	static TRestTask* ParseCommand(TString cmd);
+
+	virtual void RunTask(TRestManager*);
+	virtual void PrintArgumentHelp();
+
+	void SetMode(REST_TASKMODE mod) { fMode = mod; }
+	REST_TASKMODE GetMode() { return fMode; }
+protected:
+	TRestTask(TString TaskString, REST_TASKMODE mode = TASK_MACRO);
 
 	void ConstructCommand();
 
-
-	virtual void RunTask(TRestManager*);
-	virtual void PrintHelp();
-
-private:
-	string methodname;
-	vector<int>argumenttype;
-	vector<string>argumentname;
-	vector<string>argument;//!
-	TString cmdstr="";//!
+	int fNRequiredArgument;
+	REST_TASKMODE fMode;
+	string targetname="";
+	string methodname="";
+	vector<int>argumenttype;//!
+	vector<string>argumentname;//!
+	vector<string>argument;
+	string cmdstr="";
 };
 
 
