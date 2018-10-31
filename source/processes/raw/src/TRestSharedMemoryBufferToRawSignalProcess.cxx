@@ -92,7 +92,7 @@ using namespace std;
 #include <sys/shm.h>
 #include <sys/sem.h>
 
-#if defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED)
+#if (defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED)) || __APPLE__
 // The union is already defined in sys/sem.h
 #else
 union semun
