@@ -26,8 +26,8 @@ p = subprocess.Popen(['git branch'], stdout=subprocess.PIPE, stderr=subprocess.P
 out, err = p.communicate()
 
 if err != "":
-    print err
-    exit(1)
+    print "WARNING! git repository is not initialized. TRestVersion.h will not be generated! REST will use default version header..."
+    exit(0)
 
 branchName = os.popen( "git branch | grep -e \"^*\" | cut -d\' \' -f 2" ).read().rstrip("\n")
 
