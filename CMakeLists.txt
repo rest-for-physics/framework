@@ -112,12 +112,14 @@ if(${REST_GARFIELD} MATCHES "ON")
 	message(STATUS "GARFIELD include dir: " ${Garfield_INCLUDE_DIRS})
 	set(external_include_dirs ${external_include_dirs} ${Garfield_INCLUDE_DIRS})
 	set(external_libs ${external_libs} ${Garfield_LIBRARIES})
+else()
+	set(REST_GARFIELD OFF)
 endif(${REST_GARFIELD} MATCHES "ON")
 include_directories(${external_include_dirs})
 
 
 #gether some infomation from git
-IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+IF (NOT CMAKE_SYSTEM_NAME MATCHES "Windows")
     #get time
     execute_process(COMMAND date OUTPUT_VARIABLE d)
     string(REPLACE "\n" "" date ${d})
