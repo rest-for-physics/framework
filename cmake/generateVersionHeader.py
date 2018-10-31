@@ -9,10 +9,18 @@ import os,sys,re
 import subprocess
 
 if len(sys.argv) < 2:
-    print "Usage: ./generateVersionHeader.py XXX.h"
+    print ""
+    print "Usage: ./generateVersionHeader.py XXX.h [SE]"
+    print ""
+    print "If any additional argument different from OFF is provided as [SE].\nSchema evolution will be defined as enabled."
+    print ""
     exit(1)
 
 outputHeader = sys.argv[1]
+
+seOption = "OFF"
+if len(sys.argv) > 2:
+	seOption = sys.argv[2]
 
 p = subprocess.Popen(['git branch'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
 out, err = p.communicate()
@@ -85,6 +93,11 @@ f.write("#define REST_GIT_BRANCH \""+branchName+"\"\n" )
 f.write("#define REST_GIT_TAG \""+tag+"\"\n" )
 f.write("#define REST_VERSION_CODE "+str(code)+"\n" )
 f.write("#define REST_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))\n")
+
+if seOption == "OFF":
+	f.write("#define REST_SCHEMA_EVOLUTION \"OFF\"\n" )
+else:
+	f.write("#define REST_SCHEMA_EVOLUTION \"ON\"\n" )
 
 f.write("#endif\n")
 f.close()
