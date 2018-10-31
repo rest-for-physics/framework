@@ -417,6 +417,8 @@ TRestMetadata::TRestMetadata()
 	//helper = new TRestStringHelper();
 	fElementEnv.clear();
 	fHostmgr = NULL;
+
+	fVersion = REST_RELEASE;
 }
 
 ///////////////////////////////////////////////
@@ -432,6 +434,8 @@ TRestMetadata::TRestMetadata(const char *cfgFileName)
 	//helper = new TRestStringHelper();
 	fElementEnv.clear();
 	fHostmgr = NULL;
+
+	fVersion = REST_RELEASE;
 }
 
 ///////////////////////////////////////////////

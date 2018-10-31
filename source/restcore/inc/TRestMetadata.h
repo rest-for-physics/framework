@@ -56,6 +56,7 @@ public:
 
 	///file output level enumerator. Setting different save types of output file.
 
+	TString fVersion;
 
 	TRestMetadata();
 	~TRestMetadata();
@@ -95,6 +96,9 @@ public:
 
 
 	//getters and setters
+
+	TString GetVersion() { return  fVersion; }
+
 	std::string GetSectionName();
 	std::string GetSectionContent();
 	/// set the section name, clear the section content

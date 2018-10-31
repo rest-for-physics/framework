@@ -88,7 +88,6 @@ public:
 
 
 	//Getters
-	TString GetVersion() { return  fVersion; }
 	Int_t GetParentRunNumber() { return fParentRunNumber; }
 	Int_t GetRunNumber() { return fRunNumber; }
 	TString GetRunType() { return fRunType; }
@@ -202,8 +201,6 @@ protected:
 	//program data
 	TString fInputFileName;
 	TString fOutputFileName;
-	TString fVersion;
-	TString fCommitID;
 	Double_t fStartTime;            ///< Event absolute starting time/date (unix timestamp)
 	Double_t fEndTime;              ///< Event absolute starting time/date (unix timestamp)
 

@@ -64,7 +64,6 @@ void TRestRun::Initialize()
 {
 	SetSectionName(this->ClassName());
 
-	fVersion = REST_RELEASE;
 	fInputFileVersion = -1;
 	time_t  timev; time(&timev);
 	fStartTime = (Double_t)timev;
