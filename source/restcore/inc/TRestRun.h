@@ -83,7 +83,7 @@ public:
 	}
 	void AddEventBranch(TRestEvent* eve);
 	void SkipEventTree() {}
-	int ConvertVersionCode(string in);
+
 	
 
 
@@ -203,6 +203,7 @@ protected:
 	TString fInputFileName;
 	TString fOutputFileName;
 	TString fVersion;
+	TString fCommitID;
 	Double_t fStartTime;            ///< Event absolute starting time/date (unix timestamp)
 	Double_t fEndTime;              ///< Event absolute starting time/date (unix timestamp)
 

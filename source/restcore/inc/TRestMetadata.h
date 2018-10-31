@@ -38,6 +38,7 @@
 #include "TClass.h"
 #include "TStreamerElement.h"
 #include "TApplication.h"
+#include "TRestVersion.h"
 
 const int PARAMETER_NOT_FOUND_INT = -99999999;
 const double PARAMETER_NOT_FOUND_DBL = -99999999;
