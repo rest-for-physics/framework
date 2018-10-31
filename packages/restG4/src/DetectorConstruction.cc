@@ -41,7 +41,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     //sprintf( buffer, "%s", (char *) restG4Metadata->GetGeometryPath().Data() );
     //chdir( buffer );
 	char originDirectory[256];
-	sprintf(originDirectory, "%s", get_current_dir_name());
+	sprintf(originDirectory, "%s", getenv("PWD") );
 	auto pathandname = SeparatePathAndName((string)restG4Metadata->Get_GDML_Filename());
 	chdir(pathandname.first.c_str());
 
