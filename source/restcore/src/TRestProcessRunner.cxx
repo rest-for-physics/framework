@@ -329,7 +329,7 @@ void TRestProcessRunner::RunProcess()
 		exit(1);
 	}
 	info << endl;
-	info << "TRestProcessRunner : perparing threads..." << endl;
+	info << "TRestProcessRunner : preparing threads..." << endl;
 	fRunInfo->ResetEntry();
 	fRunInfo->SetCurrentEntry(firstEntry);
 	bool testrun = ToUpper(GetParameter("testRun", "ON")) == "ON" || ToUpper(GetParameter("testRun", "ON")) == "TRUE";

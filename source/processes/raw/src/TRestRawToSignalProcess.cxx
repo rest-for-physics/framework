@@ -172,6 +172,7 @@ Bool_t TRestRawToSignalProcess::OpenInputFiles(vector<TString> files)
 {
 
 	nFiles = 0;
+	for (auto a : fInputFiles) { delete a; }
 	fInputFiles.clear();
 	fInputFileNames.clear();
 	totalBytes = 0;
@@ -183,8 +184,8 @@ Bool_t TRestRawToSignalProcess::OpenInputFiles(vector<TString> files)
 
 		if (f == NULL)
 		{
-			cout << "WARNING. Input file does not exist" << endl;
-			cout << "File : " << files[i] << endl;
+			warning << "REST WARNING. Input file for "<< this->ClassName() <<" does not exist!" << endl;
+			warning << "File : " << files[i] << endl;
 			continue;
 		}
 
@@ -195,12 +196,18 @@ Bool_t TRestRawToSignalProcess::OpenInputFiles(vector<TString> files)
 		stat(files[i].Data(), &statbuf);
 		totalBytes += statbuf.st_size;
 
-
 		nFiles++;
 	}
 
 	if (fRunInfo != NULL)
 		fRunInfo->SetTotalBytes(totalBytes);
+
+	if (nFiles > 0){ 
+		fInputBinFile = fInputFiles[0]; 
+	}
+	else {
+		error << "REST ERROR: no input files has been loaded by process: " << this->ClassName() <<"!"<< endl;
+	}
 
 	debug << this->GetName() << " : opened " << nFiles << " files" << endl;
 	return nFiles;

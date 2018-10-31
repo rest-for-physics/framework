@@ -601,6 +601,32 @@ std::string TRestStringHelper::ExecuteShellCommand(string cmd)
 }
 
 
+///////////////////////////////////////////////
+/// \brief Convert version to a unique string
+///
+int TRestStringHelper::ConvertVersionCode(string in) {
+#ifndef REST_Version
+	#define REST_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
+#endif
+	vector<string> ver = Spilt(in, ".");
+	if (ver.size() == 3) {
+		vector<int> verint;
+		for (auto v : ver) {
+			int n = StringToInteger(v.substr(0, v.find_first_not_of("0123456789")));
+			if (n != -1) {
+				verint.push_back(n);
+			}
+			else {
+				return -1;
+			}
+		}
+		return REST_VERSION(verint[0], verint[1], verint[2]);
+	}
+	return -1;
+}
+
+
+
 #ifdef WIN32
 string get_current_dir_name() {
 	char pBuf[MAX_PATH];
