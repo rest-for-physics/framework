@@ -58,6 +58,7 @@ public:
 	static std::vector <string> GetFilesMatchingPattern(string pattern);
 	static std::string ToUpper(std::string in);
 	static std::string ExecuteShellCommand(string cmd);
+	static int ConvertVersionCode(string in);
 
 
 };
@@ -107,6 +108,8 @@ return VectorTString_cast(TRestStringHelper::GetFilesMatchingPattern((string)pat
 }
 inline std::string ToUpper(std::string in) { return TRestStringHelper::ToUpper(in); }
 inline std::string ExecuteShellCommand(string cmd) {return TRestStringHelper::ExecuteShellCommand(cmd); }
+inline int ConvertVersionCode(string in) { return TRestStringHelper::ConvertVersionCode(in); }
+
 
 
 #ifdef WIN32
