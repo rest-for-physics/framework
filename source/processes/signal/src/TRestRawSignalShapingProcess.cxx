@@ -287,8 +287,8 @@ TRestEvent* TRestRawSignalShapingProcess::ProcessEvent( TRestEvent *evInput )
         fOutputSignalEvent->AddSignal(*shapingSignal );
 
         delete shapingSignal;
-        delete in;
-        delete out;
+        delete[] in;
+        delete[] out;
     }
 
     delete[] rsp;
