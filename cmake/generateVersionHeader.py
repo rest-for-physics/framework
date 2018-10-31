@@ -29,8 +29,6 @@ if err != "":
     print err
     exit(1)
 
-print "-- Generating TRestVersion.h"
-
 branchName = os.popen( "git branch | grep -e \"^*\" | cut -d\' \' -f 2" ).read().rstrip("\n")
 
 #print branchName
@@ -66,6 +64,8 @@ codeA = a << 16
 codeB = b << 8
 codeC = c 
 code = codeA + codeB + codeC
+
+print "-- Generating TRestVersion.h. Release : " + restRelease
 
 
 f = open( "TRestVersion.tmp" , "w")
@@ -106,3 +106,5 @@ if filecmp.cmp( "TRestVersion.tmp", outputHeader ):
     os.remove( "TRestVersion.tmp" )
 else:
     os.rename( "TRestVersion.tmp", outputHeader )
+
+exit(0)
