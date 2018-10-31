@@ -43,7 +43,7 @@ endif()
 
 #auto schema evolution for ROOT
 IF( NOT DEFINED REST_SE )
-    set(REST_SE OFF)
+    set(REST_SE ON)
 ENDIF()
 
 
