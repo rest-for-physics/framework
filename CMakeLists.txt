@@ -155,15 +155,18 @@ IF (NOT CMAKE_SYSTEM_NAME MATCHES "Windows")
 	endif(DEFINED git_date)
 
 	#generate 
-	execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/cmake/generateVersionHeader.py ${CMAKE_CURRENT_SOURCE_DIR}/source/restcore/inc/TRestVersion.h
-	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-	RESULT_VARIABLE h)
-	if(h MATCHES 0)
-		add_definitions(-DREST_VERSION_HEADER)
-	endif()
+	add_custom_target(
+	RESTVersion ALL
+	COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/cmake/generateVersionHeader.py ${CMAKE_CURRENT_SOURCE_DIR}/source/restcore/inc/TRestVersion.h
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+
+	#RESULT_VARIABLE h)
+	#if(h MATCHES 0)
+	#	add_definitions(-DREST_VERSION_HEADER)
+	#endif()
 	
 
-ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+ENDIF ()
 
 
 message ("\noo REST will be installed in : ${CMAKE_INSTALL_PREFIX}" )

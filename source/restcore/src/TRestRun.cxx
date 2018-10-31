@@ -32,15 +32,8 @@
 #include "TRestEventProcess.h"
 #include "TRestDataBase.h"
 
-#ifdef REST_VERSION_HEADER
 #include "TRestVersion.h"
-#else
 
-#define REST_RELEASE "untagged"
-#define REST_VERSION_CODE 99999999
-#define REST_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
-
-#endif // !WIN32
 
 
 
