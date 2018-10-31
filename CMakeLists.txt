@@ -124,7 +124,12 @@ IF (NOT CMAKE_SYSTEM_NAME MATCHES "Windows")
     execute_process(COMMAND date OUTPUT_VARIABLE d)
     string(REPLACE "\n" "" date ${d})
 
-    file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/version version )
+    execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/cmake/printRelease.py
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+	OUTPUT_VARIABLE version)
+	string(REPLACE "\n" "" version ${version})
+	message( "" )
+	message(STATUS "REST release : ${version}")
 
 	#get git branch
     execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/cmake/printVersionDate.sh
