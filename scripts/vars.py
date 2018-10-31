@@ -1,3 +1,4 @@
+# This file is used for the header of python installation scripts
 import os,sys
 
 opt = {
@@ -6,6 +7,8 @@ opt = {
     'Build_Path' : os.path.abspath('.') + "/../build/",
     'Make_Threads':"4",
     'Branch':"V2.2_processes",
+    'Clean_Up':"False",
+    'Branch':"master",
       }
 #change the Branch key to the actual branch name in each branch
 

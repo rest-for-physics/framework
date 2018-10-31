@@ -400,7 +400,7 @@ int main(int argc,char** argv) {
 
 		//We must change to the gdml file directory, otherwise ROOT cannot load.
 		char originDirectory[256];
-		sprintf(originDirectory, "%s", get_current_dir_name());
+		sprintf(originDirectory, "%s", getenv("PWD"));
 		auto pathandname = SeparatePathAndName((string)restG4Metadata->Get_GDML_Filename());
 		chdir(pathandname.first.c_str());
 		TGeoManager *geo2 = new TGeoManager();

@@ -468,10 +468,10 @@ std::pair<string, string> TRestStringHelper::SeparatePathAndName(const std::stri
 
 string TRestStringHelper::ToAbsoluteName(string filename) {
 	if (filename[0] == '~') {
-		return (string)getenv("HOME") + filename.substr(1, -1);
+		return (string) getenv("HOME") + filename.substr(1, -1);
 	}
 	else if (filename[0] != '/') {
-		return (string)get_current_dir_name() + "/" + filename;
+		return (string) getenv("PWD") + "/" + filename;
 	}
 	return filename;
 }
