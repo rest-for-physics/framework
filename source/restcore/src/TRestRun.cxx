@@ -1027,7 +1027,7 @@ string TRestRun::Get(string target)
 TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile*f)
 {
 	if (f != NULL) {
-		TIter nextkey(fInputFile->GetListOfKeys());
+		TIter nextkey(f->GetListOfKeys());
 		TKey *key;
 		while ((key = (TKey*)nextkey()))
 		{
@@ -1074,7 +1074,7 @@ TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile*f)
 TRestMetadata *TRestRun::GetMetadata(TString name, TFile*f)
 {
 	if (f != NULL) {
-		TIter nextkey(fInputFile->GetListOfKeys());
+		TIter nextkey(f->GetListOfKeys());
 		TKey *key;
 		while ((key = (TKey*)nextkey()))
 		{
