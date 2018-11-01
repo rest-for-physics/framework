@@ -85,6 +85,7 @@ void TRestRun::Initialize()
 
 	fBytesReaded = 0;
 	fTotalBytes = -1;
+	fOverwrite = true;
 
 	fInputFileNames.clear();
 	fInputFile = NULL;
@@ -108,77 +109,117 @@ void TRestRun::Initialize()
 ///
 void TRestRun::BeginOfInit()
 {
-	debug << "**** Initializing TRestRun from config file, version: " << REST_VERSION_CODE <<" ****"<< endl;
-	//if (fHostmgr == NULL)
-	//{
-	//	error << "manager not initialized!" << endl;
-	//	exit(0);
-	//}
+	debug << "Initializing TRestRun from config file, version: " << REST_VERSION_CODE << endl;
+
+
+	//Get some infomation
+	fRunUser = getenv("USER") == NULL ? "" : getenv("USER");
+	fRunType = ToUpper(GetParameter("runType", "ANALYSIS")).c_str();
+	fRunDescription = GetParameter("runDescription", "").c_str();
+	fExperimentName = GetParameter("experiment", "preserve").c_str();
+	fRunTag = GetParameter("runTag", "noTag").c_str();
+
+	//runnumber and input file name
 	fRunNumber = -1;
 	fParentRunNumber = 0;
-
 	string runNstr = GetParameter("runNumber", "");
-	if (ToUpper(runNstr) == "AUTO")
-	{
-		fInputFileName = GetParameter("inputFile", "").c_str();
-		fInputFileNames = GetFilesMatchingPattern(fInputFileName);
-		auto db = TRestDataBase::instantiate();
-		if (db != NULL) {
-			if (fInputFileNames.size() > 0) //the user wants REST to find run number
-			{
-				auto runN = db->getrunwithfilename((string)fInputFileNames[0]);
-				fRunNumber = runN.first;
-				fParentRunNumber = runN.second;
-			}
-			else //the user wants REST to define run number
-			{
-				fRunNumber = db->getlastrun() + 1;
-			}
-			delete db;
-		}
+	string inputname = GetParameter("inputFile", "");
+	TRestDataBase* db = TRestDataBase::instantiate();
+	if (ToUpper(runNstr) == "AUTO"&&ToUpper(inputname) == "AUTO") {
+		error << "REST ERROR. run number and input file name cannot both be \"auto\"" << endl;
+		exit(1);
 	}
-	else if (isANumber(runNstr))
-	{
+	if (ToUpper(inputname) == "AUTO"&&db == NULL) {
+		error << "REST ERROR : The parameter \"inputFile\" is to \"auto\"" << endl;
+		error << "but this REST has no access to sql database" << endl;
+		error << "We cannot find the corresponding input file!" << endl;
+		error << "Please install the package \"restDataBaseImpl\"" << endl;
+		exit(1);
+	}
+	if (!isANumber(runNstr) && ToUpper(runNstr) != "AUTO")runNstr = "-1";
+
+	if (ToUpper(inputname) != "AUTO") {
+		fInputFileName = inputname;
+		fInputFileNames = GetFilesMatchingPattern((TString)inputname);
+	}
+	if (isANumber(runNstr)) {
 		auto runN = Spilt(runNstr, ".");
 		fRunNumber = StringToInteger(runN[0]);
 		if (runN.size() > 1) {
 			fParentRunNumber = StringToInteger(runN[1]);
 		}
-
-		if (GetParameter("inputFile", "") == "" || ToUpper(GetParameter("inputFile", "")) == "AUTO") //the user wants REST to find input file
-		{
-			auto db = TRestDataBase::instantiate();
-			if (db != NULL) {
-				fInputFileName = db->query_filepattern(fRunNumber, fParentRunNumber);
-				auto a = db->query_files(fRunNumber, fParentRunNumber);
-				for (auto b : a)
-					fInputFileNames.push_back((TString)b);
-				delete db;
-			}
-			else if(ToUpper(GetParameter("inputFile", "")) == "AUTO") 
-			{
-				error << "REST ERROR : The parameter \"inputFile\" is to \"auto\"" << endl;
-				error << "but this REST has no access to sql database" << endl;
-				error << "We cannot find the corresponding input file!" << endl;
-				error << "Please install the package \"restDataBaseImpl\"" << endl;
-				exit(1);
-			}
-		}
-		else
-		{
-			fInputFileName = GetParameter("inputFile", "").c_str();
-			fInputFileNames = GetFilesMatchingPattern(fInputFileName);
-		}
 	}
-	else
+
+	if (ToUpper(runNstr) == "AUTO")
 	{
-		fInputFileName = GetParameter("inputFile", "").c_str();
-		fInputFileNames = GetFilesMatchingPattern(fInputFileName);
+		if (db != NULL && fInputFileNames.size() > 0) //the user wants REST to find run number in database
+		{
+			auto runN = db->getrunwithfilename((string)fInputFileNames[0]);
+			fRunNumber = runN.first;
+			fParentRunNumber = runN.second;
+		}
+		else //we can still find runnumber in "runNumber" file
+		{
+			string runFilename = getenv("REST_PATH") + (string)"/runNumber";
+			if (!fileExists(runFilename))
+			{
+				if (isPathWritable(getenv("REST_PATH"))) {
+					ExecuteShellCommand("echo 1 > " + runFilename);
+					fRunNumber = 1;
+				}
+			}
+			else
+			{
+				if (isPathWritable(getenv("REST_PATH"))) {
+					fRunNumber = StringToInteger(ExecuteShellCommand("cat " + runFilename));
+				}
+				else {
+					warning << "REST WARNING: runNumber file not writable. auto run number increment is disabled" << endl;
+				}
+			}
+		}
+	}
+	if (ToUpper(inputname) == "AUTO") {
+		if (db != NULL && fRunNumber != -1) //the user wants REST to find input file in database
+		{
+			fInputFileName = db->query_filepattern(fRunNumber, fParentRunNumber);
+			auto a = db->query_files(fRunNumber, fParentRunNumber);
+			for (auto b : a)
+				fInputFileNames.push_back((TString)b);
+		}
 	}
 
 
-	fOutputFileName = GetDataPath() + GetParameter("outputFile", "rest_default.root").c_str();
+	//output file pattern
+	string outputdir = ToAbsoluteName((string)GetDataPath());
+	string outputname = GetParameter("outputFile", "default");
+	if (outputname == "default") {
+		string expName = RemoveWhiteSpaces((string)GetExperimentName());
+		string runType = RemoveWhiteSpaces((string)GetRunType());
+		char runParentStr[256];
+		sprintf(runParentStr, "%05d", fParentRunNumber);
+		char runNumberStr[256];
+		sprintf(runNumberStr, "%05d", fRunNumber);
 
+		fOutputFileName = outputdir  + "/Run_" + expName + "_" + fRunUser + "_"
+			+ runType + "_" + fRunTag + "_" + (TString)runNumberStr + "_" + (TString)runParentStr + "_V" + fVersion + ".root";
+
+		fOverwrite = ToUpper(GetParameter("overwrite", "on")) != "OFF";
+		while (!fOverwrite && fileExists((string)fOutputFileName))
+		{
+			fParentRunNumber++;
+			sprintf(runParentStr, "%05d", fParentRunNumber);
+			fOutputFileName = outputdir + "/Run_" + expName + "_" + fRunUser + "_"
+				+ runType + "_" + fRunTag + "_" + (TString)runNumberStr + "_" + (TString)runParentStr + "_V" + fVersion + ".root";
+		}
+	
+	}
+	else { 
+		fOutputFileName = outputdir + outputname;
+	}
+
+
+	if(db!=NULL)delete db;
 }
 
 ///////////////////////////////////////////////
@@ -764,8 +805,8 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
 				if (db->query_run(fRunNumber) == -1)
 					if (force)
 						db->new_run(fRunNumber);
-					else
-						return;
+					else 
+						{ delete db;  return; }
 				else
 					db->new_run(fRunNumber);
 			}
@@ -773,8 +814,8 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
 				if (db->query_subrun(fRunNumber, 0) == -1)
 					if (force)
 						db->new_run(fRunNumber);
-					else
-						return;
+					else 
+						{ delete db;  return; }
 				else
 					db->set_runnumber(fRunNumber);
 			}
@@ -814,6 +855,12 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
 			fout << "DataBase Entry Added! Run Number: " << db->getcurrentrun() << "." << db->getcurrentsubrun() << ", File ID: " << fileid << endl;
 
 			delete db;
+		}
+		else
+		{
+			string runFilename = getenv("REST_PATH") + (string)"/runNumber";
+			if (isPathWritable(getenv("REST_PATH")))
+				ExecuteShellCommand("echo " + ToString(fRunNumber + 1) + " > " + runFilename);
 		}
 	}
 }

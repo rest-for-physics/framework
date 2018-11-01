@@ -215,6 +215,7 @@ protected:
 	TRestEvent* fInputEvent;//!
 	TTree *fEventTree;//!
 	TRestAnalysisTree *fAnalysisTree;//!
+	bool fOverwrite;//!
 
 	//input infomation
 	TRestEventProcess* fFileProcess;//!
@@ -223,6 +224,7 @@ protected:
 	Long64_t fTotalBytes;//!
 	int fEventBranchLoc;//!
 	int fInputFileVersion;//!
+
 
 };
 
