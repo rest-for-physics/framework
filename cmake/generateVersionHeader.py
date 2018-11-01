@@ -18,7 +18,7 @@ if len(sys.argv) < 2:
 
 outputHeader = sys.argv[1]
 
-seOption = "OFF"
+seOption = "ON"
 if len(sys.argv) > 2:
 	seOption = sys.argv[2]
 
