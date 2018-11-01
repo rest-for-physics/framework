@@ -172,7 +172,7 @@ Bool_t TRestRawToSignalProcess::OpenInputFiles(vector<TString> files)
 {
 
 	nFiles = 0;
-	for (auto a : fInputFiles) { delete a; }
+	//for (auto a : fInputFiles) { delete a; }
 	fInputFiles.clear();
 	fInputFileNames.clear();
 	totalBytes = 0;
