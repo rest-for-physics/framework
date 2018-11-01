@@ -519,7 +519,7 @@ void TRestRawSignal::Print( )
 
 TGraph *TRestRawSignal::GetGraph( Int_t color )
 {
-    if( fGraph != NULL ) { delete fGraph; fGraph = NULL; }
+    //if( fGraph != NULL ) { delete fGraph; fGraph = NULL; }
 
     fGraph = new TGraph();
 
