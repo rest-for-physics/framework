@@ -37,9 +37,8 @@ commit = os.popen('git rev-parse --verify HEAD' ).read().rstrip("\n")
 #print commit
 #print commit[0:8]
 
-tag = os.popen( 'git describe --tags $(git rev-list --tags --max-count=1)' ).read().rstrip("\n")
-
-#print tag
+tag = os.popen( 'git describe --tags HEAD' ).read().rstrip("\n")
+tag = tag[0:tag.find("-")]
 
 command = "git log -1 --format=%ai " + str( tag )
 datetime = os.popen( command ).read().rstrip("\n")
@@ -102,7 +101,7 @@ else:
 f.write("#endif\n")
 f.close()
 
-if filecmp.cmp( "TRestVersion.tmp", outputHeader ):
+if os.path.exists( outputHeader ) and filecmp.cmp( "TRestVersion.tmp", outputHeader ):
     os.remove( "TRestVersion.tmp" )
 else:
     os.rename( "TRestVersion.tmp", outputHeader )
