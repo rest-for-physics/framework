@@ -127,9 +127,12 @@ int TRestManager::LoadSectionMetadata() {
 				TString gasFile = GetParameter("gasFile", TRestProcessRunnerElement, "");
 				if (gasFile != "")
 				{
+					gasFile = Replace((string)gasFile, "V/cm", "Vcm", 0);
 					addMetadataElement->SetAttribute("file", gasFile);
 					if (Count((string)gasFile, ".rml") > 0)
+					{
 						addMetadataElement->SetValue("TRestGas");
+					}
 					TRestProcessRunnerElement->RemoveChild(GetElementWithName("parameter", "gasFile", TRestProcessRunnerElement));
 				}
 			}
@@ -252,7 +255,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e)
 		TRestMetadata*meta = (TRestMetadata*)c->New();
 		meta->SetHostmgr(this);
 		meta->SetConfigFile(fConfigFileName);
-		meta->LoadConfigFromFile(e, fElementGlobal);
+		meta->LoadConfigFromFile(e, fElementGlobal, fElementEnv);
 		fMetaObjects.push_back(meta);
 
 		return 0;
