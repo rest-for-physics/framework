@@ -25,7 +25,7 @@
   </TRestRun>
 
   <TRestProcessRunner name="Processor" verboseLevel="info">
-    <parameter name="eventsToProcess" value="10000" />
+    <parameter name="eventsToProcess" value="0" />
     <parameter name="threadNumber" value="2"/>
     
     <parameter name="inputAnalysis" value="on"/>
