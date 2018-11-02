@@ -564,6 +564,19 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
 /// 
 Int_t TRestMetadata::LoadSectionMetadata()
 {
+	//get debug level
+	string debugStr = GetParameter("verboseLevel", "essential");
+	if (debugStr == "silent" || debugStr == "0")
+		fVerboseLevel = REST_Silent;
+	if (debugStr == "essential" || debugStr == "1")
+		fVerboseLevel = REST_Essential;
+	if (debugStr == "info" || debugStr == "2")
+		fVerboseLevel = REST_Info;
+	if (debugStr == "debug" || debugStr == "3")
+		fVerboseLevel = REST_Debug;
+	if (debugStr == "extreme" || debugStr == "4")
+		fVerboseLevel = REST_Extreme;
+
 	debug << "Loading Config for : " << this->ClassName() << endl;
 
 	//first set env from global section
@@ -598,22 +611,10 @@ Int_t TRestMetadata::LoadSectionMetadata()
 
 	configBuffer = ElementToString(fElement);
 
-	//finally fill the general metadata info: name, title, verboselevel
+	//finally fill the general metadata info: name, title, fstore
 	this->SetName(GetParameter("name", "defaultName").c_str());
 	this->SetTitle(GetParameter("title", "defaultTitle").c_str());
 	this->SetSectionName(this->ClassName());
-	string debugStr = GetParameter("verboseLevel", "essential");
-	if (debugStr == "silent" || debugStr == "0")
-		fVerboseLevel = REST_Silent;
-	if (debugStr == "essential" || debugStr == "1")
-		fVerboseLevel = REST_Essential;
-	if (debugStr == "info" || debugStr == "2")
-		fVerboseLevel = REST_Info;
-	if (debugStr == "debug" || debugStr == "3")
-		fVerboseLevel = REST_Debug;
-	if (debugStr == "extreme" || debugStr == "4")
-		fVerboseLevel = REST_Extreme;
-
 	fStore = ToUpper(GetParameter("store", "true")) == "TRUE" || ToUpper(GetParameter("store", "true")) == "ON";
 
 	return 0;
@@ -642,11 +643,11 @@ TiXmlElement * TRestMetadata::ReplaceElementAttributes(TiXmlElement * e)
 		const char* val = attr->Value();
 		const char* name = attr->Name();
 
-		//set attribute except the item : name="" 
-		if ( strcmp (name , "name") != 0 ) {
+		//set attribute for all the vields 
+		//if ( strcmp (name , "name") != 0 ) {
 			string temp = ReplaceEnvironmentalVariables(val);
 			e->SetAttribute(name, ReplaceMathematicalExpressions(temp).c_str());
-		}
+		//}
 
 		attr = attr->Next();
 	}
