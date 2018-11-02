@@ -86,6 +86,7 @@ void TRestRun::Initialize()
 	fBytesReaded = 0;
 	fTotalBytes = -1;
 	fOverwrite = true;
+	fEntriesSaved = -1;
 
 	fInputFileNames.clear();
 	fInputFile = NULL;
@@ -785,13 +786,25 @@ TFile* TRestRun::FormOutputFile()
 /// level>=2 : add a new file in database. run number is determined in BeginOfInit(). subrun number is 0. 
 /// if not exist, it will create new if "force" is true.  
 void TRestRun::WriteWithDataBase(int level, bool force) {
+	
+	TRestAnalysisTree*tree = NULL;
+
+	//record the entries saved
+	fEntriesSaved = -1;
+	if (fOutputFile != NULL) {
+		tree = (TRestAnalysisTree*)fOutputFile->Get("AnalysisTree");
+		if (tree != NULL)
+		{
+			fEntriesSaved = tree->GetEntries();
+		}
+	}
+	//record the current time
 	time_t  timev; time(&timev);
 	fEndTime = (Double_t)timev;
 	this->Write(0, kOverwrite);
 	for (int i = 0; i < fMetadataInfo.size(); i++) {
 		fMetadataInfo[i]->Write(0, kOverwrite);
 	}
-
 	//write to database
 	if (fRunNumber != -1) {
 		auto db = TRestDataBase::instantiate();
@@ -824,19 +837,18 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
 			auto info = DataBaseFileInfo((string)fOutputFileName);
 			info.start = fStartTime;
 			info.stop = fEndTime;
-			if (fOutputFile != NULL) {
-				TRestAnalysisTree*tree = (TRestAnalysisTree*)fOutputFile->Get("AnalysisTree");
-				if (tree != NULL && tree->GetEntries()>1)
-				{
-					int n = tree->GetEntries();
-					tree->ConnectEventBranches();
-					tree->GetEntry(0);
-					double t1 = tree->GetTimeStamp();
-					tree->GetEntry(n - 1);
-					double t2 = tree->GetTimeStamp();
-					info.evtRate = n / (t2 - t1);
-				}
+
+			if (tree != NULL && tree->GetEntries() > 1)
+			{
+				int n = tree->GetEntries();
+				tree->ConnectEventBranches();
+				tree->GetEntry(0);
+				double t1 = tree->GetTimeStamp();
+				tree->GetEntry(n - 1);
+				double t2 = tree->GetTimeStamp();
+				info.evtRate = n / (t2 - t1);
 			}
+
 			int fileid = db->new_runfile((string)fOutputFileName, info);
 
 			if (level <= 1)
@@ -870,9 +882,14 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
 ///
 void TRestRun::CloseFile()
 {
+	fEntriesSaved = -1;
 	if (fAnalysisTree != NULL) {
+		fEntriesSaved = fAnalysisTree->GetEntries();
 		if (fAnalysisTree->GetEntries() > 0 && fInputFile == NULL)
+		{
 			fAnalysisTree->Write();
+			this->Write();
+		}
 		fAnalysisTree = NULL;
 	}
 
@@ -1216,6 +1233,7 @@ void TRestRun::PrintInfo()
 	cout << "Date/Time : " << ToDateTimeString(GetEndTimestamp()) << endl;
 	cout << "Input file : " << GetInputFileNamepattern() << endl;
 	cout << "Output file : " << GetOutputFileName() << endl;
+	cout << "Number of events : " << fEntriesSaved << endl;
 	//cout << "Input filename : " << fInputFilename << endl;
 	//cout << "Output filename : " << fOutputFilename << endl;
 	//cout << "Number of initial events : " << GetNumberOfEvents() << endl;

@@ -224,7 +224,7 @@ protected:
 	Long64_t fTotalBytes;//!
 	int fEventBranchLoc;//!
 	int fInputFileVersion;//!
-
+	Int_t fEntriesSaved;
 
 };
 
