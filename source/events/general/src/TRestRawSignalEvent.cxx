@@ -341,9 +341,19 @@ Double_t TRestRawSignalEvent::GetMaxTime( )
 //Draw current event in a Tpad
 TPad *TRestRawSignalEvent::DrawEvent( TString option )
 {
-	if (fPad != NULL) { delete fPad; fPad = NULL; }
-
 	int nSignals = this->GetNumberOfSignals();
+
+	if (fPad != NULL) { 
+		for (int n = 0; n < nSignals; n++)
+		{
+			delete fSignal[n].fGraph;
+			fSignal[n].fGraph = NULL;
+		}
+		delete fPad; 
+		fPad = NULL; 
+	}
+
+
 
 	if (nSignals == 0)
 	{
