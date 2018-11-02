@@ -72,7 +72,7 @@ int main( int argc, char *argv[] )
 						{
 						case 'c': sprintf(cfgFileName, "%s", argv[i + 1]); break;
 						case 'r': setenv("runNumber", argv[i + 1], 1); break;
-						case 'i': setenv("inputFile", argv[i + 1], 1); break;
+						case 'i': setenv("inputFile", argv[i + 1], 1); setenv("REST_INPUTFILE", argv[i + 1], 1); break;
 						case 'o': setenv("outputFile", argv[i + 1], 1); break;
 						case 'j': setenv("threadNumber", argv[i + 1], 1); break;
 						case 'e': setenv("eventsToProcess", argv[i + 1], 1); break;

@@ -81,7 +81,7 @@ void TRestManager::Initialize()
 ///   </TRestProcessRunner>
 ///   <addTask/>
 /// </TRestManager>
-void TRestManager::BeginOfInit() {
+int TRestManager::LoadSectionMetadata() {
 
 	if (fElement->FirstChildElement("TRestRun") == NULL &&
 		fElementGlobal != NULL && fElementGlobal->Parent() != NULL &&
@@ -128,6 +128,8 @@ void TRestManager::BeginOfInit() {
 				if (gasFile != "")
 				{
 					addMetadataElement->SetAttribute("file", gasFile);
+					if (Count((string)gasFile, ".rml") > 0)
+						addMetadataElement->SetValue("TRestGas");
 					TRestProcessRunnerElement->RemoveChild(GetElementWithName("parameter", "gasFile", TRestProcessRunnerElement));
 				}
 			}
@@ -194,20 +196,12 @@ void TRestManager::BeginOfInit() {
 			fElement->Print(stdout, 0);
 			cout << endl;
 			GetChar();
-		}
-
-
-
-
-
-
-
-
-
-		
+		}		
 	}
 
-
+	TRestMetadata::LoadSectionMetadata();
+	
+	return 0;
 
 }
 

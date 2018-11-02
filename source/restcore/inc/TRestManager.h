@@ -29,7 +29,6 @@ public:
 
 	void Initialize();
 	void InitFromConfigFile() {
-		BeginOfInit();
 		if (fElement != NULL)
 		{
 			TiXmlElement*e = fElement->FirstChildElement();
@@ -42,7 +41,7 @@ public:
 			}
 		}
 	}
-	void BeginOfInit();
+	int LoadSectionMetadata();
 	Int_t ReadConfig(string keydeclare, TiXmlElement* e);
 
 	void InitFromTask(string taskName, vector<string> arguments);
