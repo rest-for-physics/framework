@@ -696,11 +696,21 @@ void TRestMetadata::SetEnv(TiXmlElement* e, bool updateexisting)
 	for (int i = 0; i < fElementEnv.size(); i++)
 	{
 		string name2 = fElementEnv[i]->Attribute("name");
-		if ((string)e->Value() == (string)fElementEnv[i]->Value() && name2 == (string)name) 
+		if ((string)e->Value() == (string)fElementEnv[i]->Value()) 
 		{
-			if(updateexisting)
-				fElementEnv[i]->SetAttribute("value", value);
-			return;
+			if (name2 == (string)name) {
+				if (updateexisting)
+					fElementEnv[i]->SetAttribute("value", value);
+				return;
+			}
+			else if (((string)name).find(name2) != -1) 
+				//input name contains a substring of existing name
+				//in this case we need to insert the input env before the existing env
+				//otherwise there may be problem for constant and myParameter repalcement
+			{
+				fElementEnv.insert(fElementEnv.begin() + i, (TiXmlElement*)e->Clone());
+				return;
+			}
 		}
 	}
 
