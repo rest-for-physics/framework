@@ -1093,7 +1093,7 @@ void TRestG4Event::PrintEvent( int maxTracks, int maxHits )
     cout << "---------------------------------------------------------------------------" << endl;
     cout << "Total number of tracks : " << fNTracks << endl;
 
-    register int ntracks = GetNumberOfTracks();
+    int ntracks = GetNumberOfTracks();
     if ( maxTracks > 0 ) 
     {
       ntracks = min( maxTracks, GetNumberOfTracks() );
