@@ -1,5 +1,5 @@
 /*************************************************************************
- * This file is part of the REST software framework.                     *
+* This file is part of the REST software framework.                     *
  *                                                                       *
  * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
  * For more information see http://gifna.unizar.es/trex                  *
@@ -521,8 +521,6 @@ void TRestReadout::InitFromConfigFile()
 
 
 			channelVector.push_back( channel );
-
-			position2++;
 		}
 
 		//Creating the vector fReadoutChannel in the module with channels added in the order of their ID.
@@ -541,8 +539,6 @@ void TRestReadout::InitFromConfigFile()
 		module.DoReadoutMapping( fMappingNodes );
 
 		fModuleDefinitions.push_back( module );
-
-		posSection++;
 	}
 
 
@@ -678,8 +674,6 @@ void TRestReadout::InitFromConfigFile()
 		}
 
 		this->AddReadoutPlane( plane );
-
-		position++;
 	}
 
 	ValidateReadout( );

@@ -1465,7 +1465,7 @@ string TRestMetadata::GetKEYStructure(std::string keyName, size_t &fromPosition,
 	}
 	if (childele != NULL) {
 		string result = ElementToString(childele);
-		//fromPosition = fromPosition + i + 1;
+		fromPosition = fromPosition + 1;
 		debug << "Found Key : " << result << endl;
 		//debug << "New position : " << fromPosition << endl;
 		return result;
