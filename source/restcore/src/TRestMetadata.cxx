@@ -419,7 +419,6 @@ TRestMetadata::TRestMetadata()
 	fHostmgr = NULL;
 
 	fVersion = REST_RELEASE;
-	setenv( "REST_VERSION", REST_RELEASE, 1 );
 }
 
 ///////////////////////////////////////////////
@@ -437,7 +436,6 @@ TRestMetadata::TRestMetadata(const char *cfgFileName)
 	fHostmgr = NULL;
 
 	fVersion = REST_RELEASE;
-	setenv( "REST_VERSION", REST_RELEASE, 1 );
 }
 
 ///////////////////////////////////////////////
