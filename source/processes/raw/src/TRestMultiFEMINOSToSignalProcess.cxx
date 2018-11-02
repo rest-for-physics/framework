@@ -204,7 +204,7 @@ void TRestMultiFEMINOSToSignalProcess::InitProcess()
     if( !ORIGINAL_MCLIENT )
     {
         int tt;
-        if( fread( &tt, sizeof( int ), 1, fInputBinFile ) != 1 );
+        fread( &tt, sizeof( int ), 1, fInputBinFile );
 
         tStart = tt;
         printf( "Timestamp : %d - %lf\n", tt, tStart );
