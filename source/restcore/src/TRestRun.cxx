@@ -887,15 +887,15 @@ void TRestRun::CloseFile()
 		fEntriesSaved = fAnalysisTree->GetEntries();
 		if (fAnalysisTree->GetEntries() > 0 && fInputFile == NULL)
 		{
-			fAnalysisTree->Write();
-			this->Write();
+			fAnalysisTree->Write(0, kOverwrite);
+			this->Write(0, kOverwrite);
 		}
 		fAnalysisTree = NULL;
 	}
 
 	if (fEventTree != NULL) {
 		if (fEventTree->GetEntries() > 0 && fInputFile == NULL)
-			fEventTree->Write();
+			fEventTree->Write(0, kOverwrite);
 		fEventTree = NULL;
 	}
 
