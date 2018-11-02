@@ -16,7 +16,9 @@
 #ifndef __MACHDEFS_H
 #define __MACHDEFS_H
 
+#ifndef NDEBUG
 #define NDEBUG
+#endif
 
 #include "config.h"
 

@@ -373,7 +373,7 @@ void TRestUSTCElectronicsProcess::FixToNextFrame(FILE*f)
 		}
 	}
 
-	delete buffer;
+	delete[] buffer;
 }
 
 

@@ -188,7 +188,7 @@ void TRestG4Track::PrintTrack( int maxHits )
     cout << " Ekin : " << GetKineticEnergy() << " keV" << endl;
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
-    register int nHits = GetNumberOfHits();
+    int nHits = GetNumberOfHits();
     if ( maxHits > 0) 
     {
       nHits = min( maxHits, GetNumberOfHits() );
@@ -196,7 +196,7 @@ void TRestG4Track::PrintTrack( int maxHits )
     }
 
     TRestG4Hits *hits = GetHits();
-    for ( register int i = 0; i < nHits; i++ ) {
+    for ( int i = 0; i < nHits; i++ ) {
         cout << "Hit " << i << " process : " << GetProcessName(hits->GetHitProcess(i))
             << " volume : " << hits->GetHitVolume(i) 
             << " X : " << hits->GetX(i) << " Y : " << hits->GetY(i) << " Z : " << hits->GetZ(i) << " mm" 

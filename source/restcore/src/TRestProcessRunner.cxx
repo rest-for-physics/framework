@@ -1064,7 +1064,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 		sprintf(buffer, ("%.1f%[" + MakeProgressBar(prog, barlength) + "]").c_str(), prog);
 		string s3(buffer);
 
-		delete buffer;
+		delete[] buffer;
 
 		if (fout.CompatibilityMode()) {
 			if (((int)prog) != prog_last_printed)
@@ -1075,7 +1075,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 		}
 		else
 		{
-			printf((s1 + s2 + s3 + "\r").c_str());
+			printf( "%s", (s1 + s2 + s3 + "\r").c_str());
 			fflush(stdout);
 		}
 

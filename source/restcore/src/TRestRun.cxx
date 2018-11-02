@@ -638,7 +638,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
 		else
 		{
 			warning << "error to get event from input file, missing file process or analysis tree" << endl;
-			fInputEvent == NULL;
+			fInputEvent = NULL;
 		}
 	}
 

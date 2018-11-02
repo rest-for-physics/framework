@@ -419,6 +419,7 @@ TRestMetadata::TRestMetadata()
 	fHostmgr = NULL;
 
 	fVersion = REST_RELEASE;
+	setenv( "REST_VERSION", REST_RELEASE, 1 );
 }
 
 ///////////////////////////////////////////////
@@ -436,6 +437,7 @@ TRestMetadata::TRestMetadata(const char *cfgFileName)
 	fHostmgr = NULL;
 
 	fVersion = REST_RELEASE;
+	setenv( "REST_VERSION", REST_RELEASE, 1 );
 }
 
 ///////////////////////////////////////////////
@@ -643,7 +645,7 @@ TiXmlElement * TRestMetadata::ReplaceElementAttributes(TiXmlElement * e)
 		const char* name = attr->Name();
 
 		//set attribute except the item : name="" 
-		if (name != "name") {
+		if ( strcmp (name , "name") != 0 ) {
 			string temp = ReplaceEnvironmentalVariables(val);
 			e->SetAttribute(name, ReplaceMathematicalExpressions(temp).c_str());
 		}
@@ -764,7 +766,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 	const char* varstep = e->Attribute("step");
 
 	if (varname == NULL || varfrom == NULL || varto == NULL)return;
-	if (varstep == NULL)varstep == "1";
+	if (varstep == NULL) varstep = "1";
 	TiXmlElement*parele = (TiXmlElement*)e->Parent();
 	if (parele == NULL)return;
 

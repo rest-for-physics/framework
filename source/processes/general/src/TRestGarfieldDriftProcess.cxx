@@ -167,7 +167,7 @@ void TRestGarfieldDriftProcess::InitProcess() {
         exit(-1);
     }
 
-    register TGeoVolume *geovol = NULL;
+    TGeoVolume *geovol = NULL;
     fGeometry = new TRestGeometry();
     fGeometry->InitGfGeometry();
 
@@ -189,7 +189,7 @@ void TRestGarfieldDriftProcess::InitProcess() {
     TObjArray* thenodes = geovol->GetNodes();
     for (TIter it = thenodes->begin(); it != thenodes->end(); ++it) 
     {
-        register TGeoNode *itnode = (TGeoNode*)(*it);
+        TGeoNode *itnode = (TGeoNode*)(*it);
         if ( GetVerboseLevel() >= REST_Info ) {
             cout << "****** itnode " << itnode->GetName() << endl;
             itnode->PrintCandidates();
@@ -197,7 +197,7 @@ void TRestGarfieldDriftProcess::InitProcess() {
         cout << "****** itnode " << itnode->GetName() << endl;
         itnode->PrintCandidates();
 
-        register TGeoVolume *itvol = itnode->GetVolume();
+        TGeoVolume *itvol = itnode->GetVolume();
         if ( GetVerboseLevel() >= REST_Info ) {
             cout << "  *  *  itvolume " << itvol->GetName() << endl;
             itvol->Print();
@@ -205,7 +205,7 @@ void TRestGarfieldDriftProcess::InitProcess() {
         cout << "  *  *  itvolume " << itvol->GetName() << endl;
         itvol->Print();
 
-        register TGeoMedium *itmed = itvol->GetMedium();
+        TGeoMedium *itmed = itvol->GetMedium();
         if ( GetVerboseLevel() >= REST_Info ) cout  <<  "  *  *  itmed "  <<  itmed->GetName( )  <<  endl;
 
         // gas volume
@@ -236,9 +236,9 @@ void TRestGarfieldDriftProcess::InitProcess() {
     }
 
     // For the moment we set only constant electric field in Garfield
-    register double matrixZpos=0, planeZpos=0, planeZvec=0;
+    double matrixZpos=0, planeZpos=0, planeZvec=0;
     cout << "fGeometry " << fGeometry << " nb node " << fGeometry->GetNReadoutElecNodes() << endl;
-    for (register int ii=0; ii<fGeometry->GetNReadoutElecNodes(); ii++) {
+    for (int ii=0; ii<fGeometry->GetNReadoutElecNodes(); ii++) {
         bool rdPlaneFound = false;
 
         TGeoNode* readoutnode = fGeometry->GetReadoutElecNode(ii);
@@ -250,8 +250,8 @@ void TRestGarfieldDriftProcess::InitProcess() {
         if (! readoutmatrix) continue;
         cout << "readoutmatrix " << endl; readoutmatrix->Print();
         matrixZpos = ( readoutmatrix->IsTranslation() ? 10*readoutmatrix->GetTranslation()[2] : 0); // converted to mm
-        for (register int jj=0; jj<fReadout->GetNumberOfReadoutPlanes(); jj++) {
-            register TRestReadoutPlane* readoutplane = fReadout->GetReadoutPlane(jj);
+        for (int jj=0; jj<fReadout->GetNumberOfReadoutPlanes(); jj++) {
+            TRestReadoutPlane* readoutplane = fReadout->GetReadoutPlane(jj);
             planeZpos = readoutplane->GetPosition().Z();
             cout << "    jj " << jj << " matrixZpos " << matrixZpos << " planeZpos " << planeZpos << endl;
             if (fabs(planeZpos - matrixZpos) > 1) continue;  // we search for fReadout entry at same Z position
@@ -261,7 +261,7 @@ void TRestGarfieldDriftProcess::InitProcess() {
         }
 
         if (rdPlaneFound) {
-            register double field = fDriftPotential / (fGeometry->GetDriftElecNode()->GetMatrix()->GetTranslation()[2] - planeZpos);
+            double field = fDriftPotential / (fGeometry->GetDriftElecNode()->GetMatrix()->GetTranslation()[2] - planeZpos);
             ComponentConstant* cmp = new ComponentConstant();
             //         cmp->SetElectricField(0, 0, fElectricField);  // assuming V/cm
             cmp->SetElectricField(0, 0, field);  // assuming V/cm
@@ -291,7 +291,7 @@ void TRestGarfieldDriftProcess::InitProcess() {
             xmin = xmid - 10.*readoutbox->GetDX() - 100; xmax = xmid + 10.*readoutbox->GetDX() + 100;
             ymin = ymid - 10.*readoutbox->GetDY() - 100; ymax = ymid + 10.*readoutbox->GetDY() + 100;
         }
-        register double driftelecZpos = fGeometry->GetDriftElecNode()->GetMatrix()->GetTranslation()[2]; // hope that all these objects are really there...
+        double driftelecZpos = fGeometry->GetDriftElecNode()->GetMatrix()->GetTranslation()[2]; // hope that all these objects are really there...
         // drift area defined from bouding box of readout shape
         fGfSensor->SetArea(xmin/10., ymin/10., planeZpos/10.+fStopDistance, xmax/10., ymax/10., driftelecZpos); // drift stops fStopDistance above the readout plane
         fGeometry->AddGfSensor(fGfSensor);
@@ -372,7 +372,7 @@ TRestEvent* TRestGarfieldDriftProcess::ProcessEvent( TRestEvent *evInput ) {
         fInputHitsEvent->PrintEvent(20);
     }
 
-    for ( register int hit = 0; hit < fInputHitsEvent->GetNumberOfHits(); hit++ ) 
+    for ( int hit = 0; hit < fInputHitsEvent->GetNumberOfHits(); hit++ ) 
     {
         x = fInputHitsEvent->GetX( hit );
         y = fInputHitsEvent->GetY( hit );
@@ -382,7 +382,7 @@ TRestEvent* TRestGarfieldDriftProcess::ProcessEvent( TRestEvent *evInput ) {
         //         cout  <<  "hit: x "  <<  x  <<  " y "  <<  y  <<  " z "  <<  z  << " Energy " << energy <<  endl;
 
         // assuming energy in keV, W factor in eV
-        register Medium* tmed = fGeometry->GetGfMedium(x,y,z);
+        Medium* tmed = fGeometry->GetGfMedium(x,y,z);
         if (!tmed) {
             cout << "no medium found at x " << x << " y " << y << " z " << z << endl;
             continue; 
@@ -390,13 +390,13 @@ TRestEvent* TRestGarfieldDriftProcess::ProcessEvent( TRestEvent *evInput ) {
             //           cout << "  medium " << tmed->GetName() << " W " << tmed->GetW() << " at x " << x << " y " << y << " z " << z << endl;
     }
     double Wfactor = tmed->GetW();
-    register double nb_electrons_real = energy * 1000. / Wfactor / fPEReduction;
-    register unsigned int nb_electrons = fRandom->Poisson(nb_electrons_real);  // we need an int number of electrons to drift...
+    double nb_electrons_real = energy * 1000. / Wfactor / fPEReduction;
+    unsigned int nb_electrons = fRandom->Poisson(nb_electrons_real);  // we need an int number of electrons to drift...
     //         if (nb_electrons>0) printf("hit: x %lf y %lf z %lf Energy %lf\n", x, y, z, energy);
     //         if (nb_electrons>0) cout  <<  "   : energy " << energy << " nb_electrons_real " << nb_electrons_real << " nb_electrons " << nb_electrons << endl;
 
     // lets drift all those electrons
-    for (register unsigned int iel = 0; iel < nb_electrons; iel++) {
+    for ( unsigned int iel = 0; iel < nb_electrons; iel++) {
         // drift an electron
         fGfDriftMethod->DriftElectron(x/10., y/10., z/10., 0);
         //           fGfDriftMethod->GetEndPoint(xf, yf, zf, tf, status);

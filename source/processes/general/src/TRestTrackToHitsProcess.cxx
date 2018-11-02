@@ -38,7 +38,7 @@ void TRestTrackToHitsProcess::LoadDefaultConfig( )
     SetName( "trackToHitsProcess" );
     SetTitle( "Default config" );
 
-    fTrackLevel = 0.5;
+    fTrackLevel = 0;
 }
 
 //______________________________________________________________________________
