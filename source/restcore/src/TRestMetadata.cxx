@@ -564,26 +564,7 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
 /// 
 Int_t TRestMetadata::LoadSectionMetadata()
 {
-	//general metadata: name, title, verboselevel
-	this->SetName(GetParameter("name", "defaultName").c_str());
-	this->SetTitle(GetParameter("title", "defaultTitle").c_str());
-	this->SetSectionName(this->ClassName());
-	string debugStr = GetParameter("verboseLevel", "essential");
-	if (debugStr == "silent" || debugStr == "0")
-		fVerboseLevel = REST_Silent;
-	if (debugStr == "essential" || debugStr == "1")
-		fVerboseLevel = REST_Essential;
-	if (debugStr == "info" || debugStr == "2")
-		fVerboseLevel = REST_Info;
-	if (debugStr == "debug" || debugStr == "3")
-		fVerboseLevel = REST_Debug;
-	if (debugStr == "extreme" || debugStr == "4")
-		fVerboseLevel = REST_Extreme;
-
-	fStore = ToUpper(GetParameter("store", "true")) == "TRUE" || ToUpper(GetParameter("store", "true")) == "ON";
-
 	debug << "Loading Config for : " << this->ClassName() << endl;
-
 
 	//first set env from global section
 	if (fElementGlobal != NULL) {
@@ -612,10 +593,28 @@ Int_t TRestMetadata::LoadSectionMetadata()
 	}
 
 
-	//finally do this replacement for all child elements and expand for/include definitions
+	//then do this replacement for all child elements and expand for/include definitions
 	ExpandElement(fElement);
 
 	configBuffer = ElementToString(fElement);
+
+	//finally fill the general metadata info: name, title, verboselevel
+	this->SetName(GetParameter("name", "defaultName").c_str());
+	this->SetTitle(GetParameter("title", "defaultTitle").c_str());
+	this->SetSectionName(this->ClassName());
+	string debugStr = GetParameter("verboseLevel", "essential");
+	if (debugStr == "silent" || debugStr == "0")
+		fVerboseLevel = REST_Silent;
+	if (debugStr == "essential" || debugStr == "1")
+		fVerboseLevel = REST_Essential;
+	if (debugStr == "info" || debugStr == "2")
+		fVerboseLevel = REST_Info;
+	if (debugStr == "debug" || debugStr == "3")
+		fVerboseLevel = REST_Debug;
+	if (debugStr == "extreme" || debugStr == "4")
+		fVerboseLevel = REST_Extreme;
+
+	fStore = ToUpper(GetParameter("store", "true")) == "TRUE" || ToUpper(GetParameter("store", "true")) == "ON";
 
 	return 0;
 }
@@ -1754,7 +1753,9 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer)
 		}
 		else
 		{
-			debug << "replace env " << startPosition << ": cannot find \"${" << expression << "}\" in system and program env, returning raw expression..." << endl;
+			error << this->ClassName() << ", replace env : cannot find \"${" << expression << "}\"" << endl;
+			error << "(position: " << startPosition << ") in either system or program env, exiting..." << endl;
+			exit(1);
 		}
 	}
 
