@@ -98,7 +98,7 @@ public:
 	//getters and setters
 
 	TString GetVersion() { return  fVersion; }
-	Int_t GetVersionCode() { return  ConvertVersionCode(fVersion); }
+	Int_t GetVersionCode() { return  ConvertVersionCode ( (std::string) fVersion); }
 
 	std::string GetSectionName();
 	std::string GetSectionContent();
