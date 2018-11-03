@@ -63,7 +63,7 @@ public:
 	TRestMetadata(const char *cfgFileNamecfgFileName);
 
 	/// Call CINT to generate streamers for this class
-	ClassDef(TRestMetadata, 1);
+	ClassDef(TRestMetadata, 2);
 
 	Int_t LoadConfigFromFile();
 	Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal);

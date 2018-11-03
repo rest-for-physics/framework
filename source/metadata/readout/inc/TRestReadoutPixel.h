@@ -111,6 +111,6 @@ class TRestReadoutPixel : public TObject {
 		//Destructor
 		virtual ~ TRestReadoutPixel();
 
-		ClassDef(TRestReadoutPixel, 2);
+		ClassDef(TRestReadoutPixel, 3);
 };
 #endif
