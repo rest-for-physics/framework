@@ -1,14 +1,13 @@
-## Contributing changes to the repository with Git (WP)
+## Contributing changes to the repository with Git
 
-The Git system is an efficient way to track changes to the code in the repository if used smartly.
+The Git system is an efficient way to track changes to the code in the repository `if used smartly`.
+The history of the code repository will be digested into `commits`. Being a commit a minimum change to
+the code of the repository. Usually involving no more than 2-3 files. 
 
-The history of the code repository will be digested into commits. Being a commit a minimum change to
-the code of the repository. Usually involving no more than 2-3 files.
+The code can be independently developed into `branches` where we add `commits`. The main branch or `master
+branch` is the branch where we should finally merge the definitive changes of any `development branch`.
 
-The code can be independently developed into branches where we add commits. The main branch or master
-branch is the branch where we should finally merge the definitive changes of any development branch.
-
-Please, refer to the [Git website](https://git-scm.com/book/en/v2/Getting-Started-Git-Basics) for 
+You may refer to the [Git website](https://git-scm.com/book/en/v2/Getting-Started-Git-Basics) for 
 details on basic git usage.
 
 ### Using branches in REST repository
@@ -24,35 +23,35 @@ You can place yourself in the development branch by using `git checkout`
 git checkout v2.2.1_dev
 ```
 
-Use `git status` at any time in the command line to get information of the branch you are working on,
+Use `git status` at any time in the command line to get information of the `branch name` you are working on,
 and the files you have modified.
 
 
 Small changes to the code, i.e. bug fixes, new class methods, new processes, etc, can be directly pushed
- to the development branch. While, major changes taking place in longer development periods, i.e. days or 
-weeks, should be contributed in an independent branch for future merge to the development branch.
+ to the `development branch`. While, major changes taking place in longer development periods, i.e. days or 
+weeks, should be contributed in an independent branch for future merge to the `development branch`.
 
-Please, refer to the [branches section](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell) 
+For details on branches usage refer to the [branches section](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell) 
 at the Git documentation.
 
 ### Adding a new commit to the development branch
 
-It is critical to prepare the commit following few basic rules in order to allow future code review and track
+It is critical to prepare the `commit` following a few basic rules in order to allow future code review and track
 historical changes that may produce a future conflict identified much later on in time.
 
-The changes introduced to any single file added to the commit should be minimal, i.e. avoiding to upload a 
+The changes introduced to any single file added to the `commit` should be minimal, i.e. avoiding to upload a 
 file with temporary debugging code or comments used during the code development and testing process.
 
-Only the files involved in a particular change should be included in the commit.
+Only the files involved in a particular change should be included in the `commit`.
 
-In order to check the differences introduced in the local copy of a particular file we can use `git diff`,
+In order to check the differences introduced in the `local copy` of a particular file we can use `git diff`,
 
 ```
 git diff sourceFile.cxx
 ```
 
-This will allow us to identify the changes we will upload or push to the repository later on. When we are
-certain that the changes in a file should be included in a commit we can add the file to be commited
+This will allow us to identify the changes we will upload or `push` to the repository later on. When we are
+certain that the changes in a file should be included in a `commit` we can add the file to be commited
 
 ```
 git add sourceFile.cxx
@@ -61,13 +60,13 @@ git add sourceFile.cxx
 Hint: Use `git status` frequently!
 
 We should proceed following this scheme (checking for differences for each file to be commited before 
-adding it to the commit). When we have added all the files in a commit we can prepare the commit.
+adding it to the `commit`). When we have added all the files in a commit we can prepare the commit.
 
 ```
 git commit -m "My contribution to REST"
 ```
 
-It is important to know that, up to now, these changes took place only on your local machine, and in order
+It is important to know that, up to now, these changes took place only on your `local machine`, and in order
 to push (or upload) these changes to the repository we must do `git push`.
 
 ```
@@ -113,7 +112,6 @@ and accessible on the changes introduced in the `documentation` of the class.
 
 A `bad commit message` will pretend to provide the use of the new feature introduced, for example.
 
-
 ```
 git commit -m "I added a new method that provides the energies of gamma transfer in a biasing volume. The new method should receive 3 parameters as input ... and it will return a value in the specified energy range."
 ```
@@ -137,7 +135,7 @@ any future REST version `should be able to read older versions` without major is
 
 ----
 
-REST versioning system will allow to stamp the data generated with REST in order to identify new features 
+The REST versioning system will allow to stamp the data generated with REST in order to identify new features 
 or major changes to the code.
 
 A change in REST version `serves to markdown an important step` in the evolution of the code. 
@@ -224,7 +222,7 @@ Then, at REST compilation time this tag will be retrieved and the `TRestVersion.
 #endif
 ```
 
-It would be appropiate that if a new REST version has been generated using this system we `make a merge request the master branch`.
+It would be appropiate that if a new REST version has been generated using this system we `make a merge request to the master branch`.
 
 ### Using the version number
 
