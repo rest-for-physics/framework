@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 
 # Convert an rml file from rest,v2.1 syntax into xml standard syntax
 
