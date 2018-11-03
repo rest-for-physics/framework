@@ -2,10 +2,10 @@
 
 The Git system is an efficient way to track changes to the code in the repository `if used smartly`.
 The history of the code repository will be digested into `commits`. Being a commit a minimum change to
-the code of the repository. Usually involving no more than 2-3 files. 
+the code of the repository. Usually involving `no more than 2-3 files`. 
 
-The code can be independently developed into `branches` where we add `commits`. The main branch or `master
-branch` is the branch where we should finally merge the definitive changes of any `development branch`.
+The code can be independently developed into `branches` where we add `commits`. The main branch or 
+`master branch` is the branch where we should finally merge the definitive changes of any `development branch`.
 
 You may refer to the [Git website](https://git-scm.com/book/en/v2/Getting-Started-Git-Basics) for 
 details on basic git usage.
@@ -14,7 +14,7 @@ details on basic git usage.
 
 A branch can be contributed by several users at the same time. The `REST` repository will contain at 
 least `one main development branch` that can be contributed by anyone with developper access (while 
-any user can create his own branch for personal testing and/or future merging to the development branch). 
+any user can create his own branch for personal testing and/or future merging to the `development branch`). 
 The name of this branch will be the REST version followed by `_dev`, i.e. `v2.2.1_dev`.
 
 You can place yourself in the development branch by using `git checkout`
@@ -67,14 +67,14 @@ git commit -m "My contribution to REST"
 ```
 
 It is important to know that, up to now, these changes took place only on your `local machine`, and in order
-to push (or upload) these changes to the repository we must do `git push`.
+to `push` (or upload) these changes to the repository we must do `git push`.
 
 ```
 git push
 ```
 
-Note: This action may fail in case your local branch is not synchronized with the remote branch, or in 
-other words, the repository contains new commits that you have not pulled (downloaded) to your local copy.
+Note: This action may fail in case your local branch is not synchronized with the `remote branch`, or in 
+other words, the repository contains new commits that you have not pulled (downloaded) to your `local copy`.
 
 In that case you will need to update your local copy using `git pull`.
 
@@ -84,7 +84,7 @@ with others code. We encourage you to request help in the `REST forum` in case y
 
 ### The commit message format
 
-One of the most critical parts of a commit in the REST repository is the commit message. The Gitlab
+One of the `most critical` parts of a commit in the REST repository is the `commit message`. The Gitlab
 web interface will allow to list and navigate through the commit history and changes introduced in
 each file.
 
@@ -107,8 +107,10 @@ git commit -m "TRestFieldMap class added for the first time."
 ```
 
 Please, make your `commit message as short and significative` as possible. The commit message is not intended
-to explain others the changes you introduced, but to give an idea. The changes introduced should be visible
-and accessible on the changes introduced in the `documentation` of the class.
+to explain others the changes you introduced, but to give an idea. The changes introduced will be accesible
+in the contents of the commit that can be searched in the web interface. Therefore, more detailed comments
+can be introduced in the `documentation` of the class, and it will be highlighted in the commit differences by
+the Gitlab web interface when we access the commit contents.
 
 A `bad commit message` will pretend to provide the use of the new feature introduced, for example.
 
@@ -135,14 +137,17 @@ any future REST version `should be able to read older versions` without major is
 
 ----
 
-The REST versioning system will allow to stamp the data generated with REST in order to identify new features 
-or major changes to the code.
+The REST versioning system will allow to stamp the data generated with REST and it will 
+allow to identify new features or major changes to the code.
 
-A change in REST version `serves to markdown an important step` in the evolution of the code. 
+A change in REST version `serves to markdown an important step` or a `timeline` in the
+evolution of the code. 
 
-REST version might serve as `a solution to reproduce or recover previous results` which may show discrepancies with future versions, 
-i.e. a version number will serve as reference and it can be provided together with published 
-or internal results that were produced with a given version.
+REST version might serve as `a solution to reproduce or recover previous results` which 
+may show discrepancies with future versions. A version number will serve as a 
+reference for the user, as it can be provided together with published 
+or internal results that were produced with a specific version. If we own the data,
+then, the version used to generate that data can always be retrieved.
 
 ----
 
@@ -162,7 +167,8 @@ A version number increase will be optional but `may be justified` by the followi
 - Important changes on REST core libraries that introduce new features.
 
 
-A version number increase `will be mandatory` when the modification of existing processes or REST core libraries that change the behaviour and may lead to different results.
+A version number increase `will be mandatory` when the modification of existing processes or
+REST core libraries change the behaviour and may lead to different results.
 
 
 - leading to different results by modifying, upgrading or debugging of existing processes or REST classes
@@ -230,7 +236,7 @@ Any `TRestMetadata` class contains a member named `fVersion` that will be initia
 to disk together with other metadata information.
 
 The version of a metadata structure recovered from a ROOT file can be retrieved by using `GetVersion()` and  `GetVersionCode()` methods.
-And it can be used to compare to the installed version of REST to identify if the version we are running is newer, older or the same as the one stored in disk.
+And it can be used to compare to the installed version of REST and identify if the version we are running is newer, older or the same as the one stored in disk.
 
 ```c++
 TRestSpecificMetadataClass *md = (TRestSpecificMetadataClass *) file->Get("mdName");
@@ -242,6 +248,7 @@ if( md->GetVersion() == REST_RELEASE )
     cout << "Yes. The REST version used to generate this metadata structure is the same as the installed REST version!" << endl;
 ```
 
-This programming enables the REST users to take special actions need to be taken at a particular version or after a particular version.
+This programming enables the REST users to take special actions that may need to be taken at a particular 
+version or after a particular version.
 
 
