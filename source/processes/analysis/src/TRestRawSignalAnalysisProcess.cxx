@@ -79,6 +79,8 @@ void TRestRawSignalAnalysisProcess::Initialize()
 
     fDrawRefresh = 0;
     //fCanvas = NULL;
+	fReadout = NULL;
+	fChannelsHisto = NULL;
 
     time(&timeStored);
 }

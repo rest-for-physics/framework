@@ -79,11 +79,14 @@ TRestProcessRunner::~TRestProcessRunner()
 ///
 void TRestProcessRunner::Initialize()
 {
-	fInputEvent = NULL;
 	fRunInfo = NULL;
+	fInputEvent = NULL;
+	fOutputEvent = NULL;
+	fEventTree = NULL;
+	fAnalysisTree = NULL;
+	fTempOutputDataFile = NULL;
 	fThreads.clear();
 	ProcessInfo.clear();
-	fAnalysisTree = NULL;
 
 	fThreadNumber = 0;
 	firstEntry = 0;
