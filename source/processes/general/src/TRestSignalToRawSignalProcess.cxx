@@ -34,7 +34,7 @@
 /// contains Short_t values. Thats why there might be some information
 /// loss when transferring the signal data to the raw-signal data. To 
 /// minimize the impact, the maximum data value of the output signals should
-/// be high enough, and adjusted to the maximum value of a Float_t, being
+/// be high enough, and adjusted to the maximum value of a Short_t, being
 /// this value 32768. The *gain* parameter may serve to re-adjust the 
 /// amplitude of the output data array.
 ///
@@ -48,24 +48,43 @@
 /// parameter *triggerMode* will allow to define how we choose the time 
 /// start (corresponding to the bin 0 in the raw signal), and time end
 /// (corresponding to the last bin in the raw signal).
+///
 /// The trigger mode will fix the time the signal starts, while the
 /// *sampling* time parameter (in microseconds) and the number of points 
 /// per signal, *Npoints*, will fix the time end. A *triggerDelay* 
-/// parameter allows to shift the time measured in number of bins from 
+/// parameter allows to shift the time, measured in number of bins, from 
 /// the definition obtained using the *triggerMode* parameter.
 ///
 /// The following list describes the different parameters that can be 
 /// used in this process.
+///
 /// * **sampling**: It is the sampling time of the resulting raw signal
 /// output data. Time units must be specified (ns, us, ms)".
+///
 /// * **Npoints**: The number of points of the resulting raw signals.
+///
 /// * **triggerMode**: It defines how the start time is fixed. The 
 /// different options are:
+///
 ///   - *firstDeposit*: The first time deposit found in the event
 ///     will correspond to the bin 0.
+///   - *integralThreshold*: An integral window with size **Npoints/2** 
+///     will start to scan the input signal event from the first time
+///     deposit. The time at which the value of this integral is above 
+///     the value provided at the **integralThreshold** parameter will
+///     be defined as the center of the acquisition window.
+///
+/// * **integralThreshold**: It defines the value to be used in the
+///     triggerThreshold method. This parameter is not used otherwise.
+///
+///
+/// ![An ilustration of the integralThreshold trigger definition for a NLDBD event. tStart and tEnd define the acquision window, centered on the time when the signal integral is above the threshold defined. tStart has been shifted by a triggerDelay = 60samples*200ns](trigger.png)
+///
+///
 /// * **triggerDelay**: The time start obtained by the trigger mode
 /// definition can be shifted using this parameter. The shift is 
 /// measured in number of bins from the output signal.
+///
 /// * **gain**: Each data point from the resulting raw signal will be
 /// multiplied by this factor before performing the conversion to 
 /// Short_t. Each value in the raw output signal should be between
@@ -187,6 +206,8 @@ TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent( TRestEvent *evInput )
 {
     fInputSignalEvent = (TRestSignalEvent *) evInput;
 
+    if( fInputSignalEvent->GetNumberOfSignals() <= 0 ) return NULL;
+
     if( GetVerboseLevel() >= REST_Debug )
         fOutputRawSignalEvent->PrintEvent();
 
@@ -198,10 +219,60 @@ TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent( TRestEvent *evInput )
     // The time event window is defined (tStart, tEnd)
     Double_t tStart = 0;
     Double_t tEnd = 10000;
+
     if( fTriggerMode == "firstDeposit" )
     {
         tStart = fInputSignalEvent->GetMinTime() - fTriggerDelay * fSampling;
         tEnd = fInputSignalEvent->GetMinTime() + (fNPoints - fTriggerDelay) * fSampling;
+    }
+    else if ( fTriggerMode == "integralThreshold" )
+    {
+        Double_t maxT = fInputSignalEvent->GetMaxTime();
+        Double_t minT = fInputSignalEvent->GetMinTime();
+
+        for( Double_t t = minT-fNPoints*fSampling; t <= maxT+fNPoints*fSampling; t = t + 0.5 )
+        {
+            Double_t en = fInputSignalEvent->GetIntegralWithTime( t, t + (fSampling * fNPoints)/2. );
+
+            if ( tStart == 0 && en > fIntegralThreshold )
+            {
+                tStart = t - fTriggerDelay * fSampling;
+                tEnd = t + (fNPoints - fTriggerDelay) * fSampling;
+            }
+        }
+    }
+    else
+    {
+        if( GetVerboseLevel() >= REST_Warning )
+        {
+            cout << "REST WARNING. TRestSignalToRawSignalProcess. fTriggerMode not recognized!" << endl;
+            cout << "Setting fTriggerMode to firstDeposit" << endl;
+        }
+
+        fTriggerMode = "firstDeposit";
+
+        tStart = fInputSignalEvent->GetMinTime() - fTriggerDelay * fSampling;
+        tEnd = fInputSignalEvent->GetMinTime() + (fNPoints - fTriggerDelay) * fSampling;
+    }
+
+    if( tStart == 0 )
+    {
+        if( GetVerboseLevel() >= REST_Warning )
+        {
+            cout << endl;
+            cout << "REST WARNING. TRestSignalToRawSignalProcess. tStart was not defined." << endl;
+            cout << "Setting tStart = 0. tEnd = fNPoints * fSampling" << endl;
+            cout << endl;
+        }
+
+        tEnd = fNPoints * fSampling;
+    }
+
+    if( GetVerboseLevel() >= REST_Debug )
+    {
+        cout << "tStart : " << tStart << " ms " << endl;
+        cout << "tEnd : " << tEnd << " ms " << endl;
+        GetChar();
     }
 
     for( int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++ )
@@ -269,5 +340,6 @@ void TRestSignalToRawSignalProcess::InitFromConfigFile( )
     fTriggerMode = GetParameter( "triggerMode", "firstDeposit" );
     fTriggerDelay = StringToInteger( GetParameter( "triggerDelay", 100 ) );
     fGain = StringToDouble( GetParameter( "gain", "100" ) );
+    fIntegralThreshold = StringToDouble( GetParameter( "integralThreshold", "1229" ) );
 }
 

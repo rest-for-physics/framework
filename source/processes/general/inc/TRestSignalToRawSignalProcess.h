@@ -63,6 +63,9 @@ class TRestSignalToRawSignalProcess:public TRestEventProcess {
         /// A factor the data values will be multiplied by at the output signal.
         Double_t fGain;
 
+        /// This parameter is used by integralWindow trigger mode to define the acquisition window.
+        Double_t fIntegralThreshold;
+
     public:
 
         void BeginOfEventProcess(); 
