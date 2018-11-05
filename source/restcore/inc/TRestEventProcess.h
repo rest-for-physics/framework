@@ -41,8 +41,7 @@ class TRestDetectorSetup;
 
 /// A base class for any REST event process
 class TRestEventProcess :public TRestMetadata {
-public:
-
+protected:
 	enum REST_Process_Output
 	{
 		No_Output,//!< creates no branch in analysis tree, user can still manually save what he wants.
@@ -51,13 +50,64 @@ public:
 		Full_Output,//!< +saving output event as another branch. branch name is process name+"_evtBranch"
 	};
 
-	//Constructor
-	TRestEventProcess();
-	//Destructor
-	~TRestEventProcess();
+	TRestEvent *fInputEvent = NULL;	//!///< Pointer to input event
+	TRestEvent *fOutputEvent = NULL;    //!///< Pointer to output event
 
-	ClassDef(TRestEventProcess, 1);      // Base class for a REST process
+	TCanvas *fCanvas = NULL;//!
+	TVector2 fCanvasSize;//!
 
+	TRestAnalysisTree *fAnalysisTree = NULL; //!///< Pointer to analysis tree where to store the observables. 
+
+	Bool_t fSingleThreadOnly; //!///< It defines if the process reads event data from an external source.
+
+	REST_Process_Output fOutputLevel;//!
+
+	TRestRun* fRunInfo = NULL;//!
+
+	vector<TRestEventProcess*> fFriendlyProcesses;//!
+
+	std::vector <TString> fObservableNames;//!
+	//std::vector <Double_t*> fObservableRefs;//!
+
+	bool fReadOnly = false;//!
+
+	vector<pair<string, TVector2>> fCuts;//!  [name, cut range]
+
+	//utils
+	void BeginPrintProcess();
+	void EndPrintProcess();
+	TRestMetadata *GetMetadata(string type);
+	TRestMetadata *GetGasMetadata() { return GetMetadata("TRestGas"); }
+	TRestMetadata *GetReadoutMetadata() { return GetMetadata("TRestReadout"); }
+	TRestMetadata *GetGeant4Metadata() { return GetMetadata("TRestG4Metadata"); }
+	TRestMetadata *GetDetectorSetup() { return GetMetadata("TRestDetectorSetup"); }
+	Double_t GetDoubleParameterFromClass(TString className, TString parName);
+	Double_t GetDoubleParameterFromClassWithUnits(TString className, TString parName);
+	void StampOutputEvent(TRestEvent *inEv);
+	void CreateCanvas()
+	{
+		if (fCanvas != NULL) return;
+
+		fCanvas = new TCanvas(this->GetName(), this->GetTitle(), fCanvasSize.X(), fCanvasSize.Y());
+	}
+
+	void TransferEvent(TRestEvent*evOutput, TRestEvent*evInput)
+	{
+		if (evInput == NULL)return;
+		if (evOutput != NULL)
+		{
+			//copy without changing address
+			evInput->CloneTo(evOutput);
+		}
+		else
+		{
+			//clone and set the address of output event
+			evOutput = (TRestEvent*)evInput->Clone();
+		}
+
+	}
+
+public:
 	Int_t LoadSectionMetadata();
 	vector<string> ReadObservables();
 
@@ -91,69 +141,11 @@ public:
 	TCanvas *GetCanvas() { return fCanvas; }
 	std::vector <TString>& GetListOfAddedObservables() { return fObservableNames; }
 
+	//Constructor
+	TRestEventProcess();
+	//Destructor
+	~TRestEventProcess();
 
-protected:
-
-	TRestEvent *fInputEvent = NULL;	//!///< Pointer to input event
-	TRestEvent *fOutputEvent = NULL;    //!///< Pointer to output event
-
-	TCanvas *fCanvas=NULL;//!
-	TVector2 fCanvasSize;//!
-
-	TRestAnalysisTree *fAnalysisTree = NULL; //!///< Pointer to analysis tree where to store the observables. 
-
-	Bool_t fSingleThreadOnly; //!///< It defines if the process reads event data from an external source.
-
-	REST_Process_Output fOutputLevel;//!
-
-	TRestRun* fRunInfo = NULL;//!
-
-	vector<TRestEventProcess*> fFriendlyProcesses;//!
-
-	std::vector <TString> fObservableNames;//!
-	//std::vector <Double_t*> fObservableRefs;//!
-
-	bool fReadOnly=false;//!
-
-	vector<pair<string, TVector2>> fCuts;//!  [name, cut range]
-
-
-
-
-	//utils
-	void BeginPrintProcess();
-	void EndPrintProcess();
-	TRestMetadata *GetMetadata(string type);
-	TRestMetadata *GetGasMetadata() { return GetMetadata("TRestGas"); }
-	TRestMetadata *GetReadoutMetadata() { return GetMetadata("TRestReadout"); }
-	TRestMetadata *GetGeant4Metadata() { return GetMetadata("TRestG4Metadata"); }
-	TRestMetadata *GetDetectorSetup() { return GetMetadata("TRestDetectorSetup"); }
-	Double_t GetDoubleParameterFromClass(TString className, TString parName);
-	Double_t GetDoubleParameterFromClassWithUnits(TString className, TString parName);
-	void StampOutputEvent(TRestEvent *inEv);
-	void CreateCanvas()
-	{
-		if (fCanvas != NULL) return;
-
-		fCanvas = new TCanvas(this->GetName(), this->GetTitle(), fCanvasSize.X(), fCanvasSize.Y());
-	}
-	
-	void TransferEvent(TRestEvent*evOutput, TRestEvent*evInput)
-	{
-		if (evInput == NULL)return;
-		if (evOutput != NULL)
-		{
-			//copy without changing address
-			evInput->CloneTo(evOutput);
-		}
-		else
-		{
-			//clone and set the address of output event
-			evOutput = (TRestEvent*)evInput->Clone();
-		}
-		
-	}
-
-
+	ClassDef(TRestEventProcess, 1);      // Base class for a REST process
 };
 #endif

@@ -30,12 +30,27 @@
 /// Threaded worker of a process chain
 class TRestThread : public TRestMetadata
 {
-public:
-	/// Calling CINT
-	ClassDef(TRestThread, 1);
+private:
+	Bool_t isFinished;
+	Int_t fThreadId;
 
-	TRestThread() { Initialize(); }
-	~TRestThread() {};
+	TRestProcessRunner* fHostRunner;//!
+
+	TRestEvent* fInputEvent;//!
+	TRestEvent* fOutputEvent;//!
+
+	TTree* fEventTree;//!
+	TRestAnalysisTree* fAnalysisTree;//!
+
+	vector<TRestEventProcess*> fProcessChain;//!
+
+#ifndef __CINT__
+	TFile* fOutputFile;//!
+	vector<string> fTreeBranchDef;//!
+	std::thread t;//!
+#endif
+
+public:
 
 	void Initialize();
 	void InitFromConfigFile() {}
@@ -72,28 +87,11 @@ public:
 	TTree* GetEventTree() { return fEventTree; }
 	Bool_t Finished() { return isFinished; }
 
-private:
+	TRestThread() { Initialize(); }
+	~TRestThread() {};
 
-	Bool_t isFinished;
-	Int_t fThreadId;
-
-	TRestProcessRunner* fHostRunner;//!
-
-	TRestEvent* fInputEvent;//!
-	TRestEvent* fOutputEvent;//!
-
-	TTree* fEventTree;//!
-	TRestAnalysisTree* fAnalysisTree;//!
-
-
-
-	vector<TRestEventProcess*> fProcessChain;//!
-	
-#ifndef __CINT__
-	TFile* fOutputFile;//!
-	vector<string> fTreeBranchDef;//!
-	std::thread t;//!
-#endif
+	/// Calling CINT
+	ClassDef(TRestThread, 1);
 };
 
 

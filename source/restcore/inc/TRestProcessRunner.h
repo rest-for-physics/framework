@@ -23,12 +23,32 @@ enum ProcStatus {
 
 /// Running the processes efficiently with fantastic display.
 class TRestProcessRunner :public TRestMetadata {
+private:
+	//global variable
+	TRestRun *fRunInfo;//!
+
+	//event variables
+	TRestEvent *fInputEvent;//!
+	TRestEvent *fOutputEvent;//!
+
+	//self variables for processing
+	vector<TRestThread*> fThreads;//!
+	TFile* fTempOutputDataFile;//!
+	TTree* fEventTree;//!
+	TRestAnalysisTree* fAnalysisTree;//!
+	ProcStatus fProcStatus;
+	Int_t nBranches;
+	Int_t fThreadNumber;
+	Int_t fProcessNumber;
+	Int_t firstEntry;
+	Int_t eventsToProcess;
+	Int_t fProcessedEvents;
+	map<string, string> ProcessInfo;
+	vector<string> fOutputItem;
+
+
 public:
 	/// REST run class
-	ClassDef(TRestProcessRunner, 1);
-
-	TRestProcessRunner();
-	~TRestProcessRunner();
 	void Initialize();
 	void InitFromConfigFile() {
 		BeginOfInit();
@@ -59,7 +79,6 @@ public:
 	void WriteThreadFileFunc(TRestThread* t);
 	void ConfigOutputFile();
 
-
 	//tools
 	void ResetRunTimes();
 	TRestEventProcess* InstantiateProcess(TString type, TiXmlElement* ele);
@@ -67,40 +86,17 @@ public:
 	string MakeProgressBar(int progress100,int length=100);
 	void SetProcStatus(ProcStatus s) { fProcStatus = s; }
 
-
 	//getters and setters
 	TRestEvent* GetInputEvent();
 	TFile* GetTempOutputDataFile() { return fTempOutputDataFile; }
 	string GetProcInfo(string infoname) { return ProcessInfo[infoname] == "" ? infoname : ProcessInfo[infoname]; }
 	TRestAnalysisTree* GetAnalysisTree();
-private:
-	//global variable
-	TRestRun *fRunInfo;//!
 
+	//Construtor & Destructor
+	TRestProcessRunner();
+	~TRestProcessRunner();
 
-	//event variables
-	TRestEvent *fInputEvent;//!
-	TRestEvent *fOutputEvent;//!
-
-	//self variables for processing
-	vector<TRestThread*> fThreads;//!
-	TFile* fTempOutputDataFile;//!
-	TTree* fEventTree;//!
-	TRestAnalysisTree* fAnalysisTree;//!
-	ProcStatus fProcStatus;
-	Int_t nBranches;
-	Int_t fThreadNumber;
-	Int_t fProcessNumber;
-	Int_t firstEntry;
-	Int_t eventsToProcess;
-	Int_t fProcessedEvents;
-	map<string, string> ProcessInfo;
-	vector<string> fOutputItem;
-
-
-
-
-
+	ClassDef(TRestProcessRunner, 1);
 };
 
 #endif

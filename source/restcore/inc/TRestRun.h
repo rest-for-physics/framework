@@ -17,14 +17,48 @@ class TRestEventProcess;
 
 /// Data provider and manager in REST
 class TRestRun : public TRestMetadata {
+protected:
+	//runinfo
+	Int_t fRunNumber;                 //< first identificative number
+	Int_t fParentRunNumber;
+	TString fRunClassName;
+	TString fRunType;             //< Stores bit by bit the type of run. e.g. calibration, background, pedestal, simulation, datataking 
+	TString fRunUser;	          //< To identify the author it has created the run. It might be also a word describing the origin of the run (I.e. REST_Prototype, T-REX, etc)
+	TString fRunTag;            //< A tag to be written to the output file
+	TString fRunDescription;	  //< A word or sentence describing the run (I.e. Fe55 calibration, cosmics, etc)
+	TString fExperimentName;
+
+	//program data
+	TString fInputFileName;
+	TString fOutputFileName;
+	Double_t fStartTime;            ///< Event absolute starting time/date (unix timestamp)
+	Double_t fEndTime;              ///< Event absolute starting time/date (unix timestamp)
+
+	//data-like metadata objects
+	vector<TRestMetadata*> fMetadataInfo;//!
+	map<string, string> FileInfo;//!
+
+	//temp data member
+	vector<TString> fInputFileNames;//!
+	TFile *fInputFile;//!
+	TFile *fOutputFile;//!
+	TRestEvent* fInputEvent;//!
+	TTree *fEventTree;//!
+	TRestAnalysisTree *fAnalysisTree;//!
+	bool fOverwrite;//!
+
+	//input infomation
+	TRestEventProcess* fFileProcess;//!
+	int fCurrentEvent;//!
+	Long64_t fBytesReaded;//!
+	Long64_t fTotalBytes;//!
+	int fEventBranchLoc;//!
+	int fInputFileVersion;//!
+	Int_t fEntriesSaved;
+
+
 public:
 	/// REST run class
-	ClassDef(TRestRun, 1);
-
-	//overridden starters
-	TRestRun();
-	TRestRun(string rootfilename);
-	~TRestRun();
 	void Initialize();
 	void InitFromConfigFile() {
 		BeginOfInit();
@@ -83,9 +117,6 @@ public:
 	}
 	void AddEventBranch(TRestEvent* eve);
 	void SkipEventTree() {}
-
-	
-
 
 	//Getters
 	Int_t GetParentRunNumber() { return fParentRunNumber; }
@@ -187,45 +218,12 @@ public:
 
 	void PrintEvent() { fInputEvent->PrintEvent(); }
 
-protected:
-	//runinfo
-	Int_t fRunNumber;                 //< first identificative number
-	Int_t fParentRunNumber;
-	TString fRunClassName;
-	TString fRunType;             //< Stores bit by bit the type of run. e.g. calibration, background, pedestal, simulation, datataking 
-	TString fRunUser;	          //< To identify the author it has created the run. It might be also a word describing the origin of the run (I.e. REST_Prototype, T-REX, etc)
-	TString fRunTag;            //< A tag to be written to the output file
-	TString fRunDescription;	  //< A word or sentence describing the run (I.e. Fe55 calibration, cosmics, etc)
-	TString fExperimentName;
+	//Construtor & Destructor
+	TRestRun();
+	TRestRun(string rootfilename);
+	~TRestRun();
 
-	//program data
-	TString fInputFileName;
-	TString fOutputFileName;
-	Double_t fStartTime;            ///< Event absolute starting time/date (unix timestamp)
-	Double_t fEndTime;              ///< Event absolute starting time/date (unix timestamp)
-
-	//data-like metadata objects
-	vector<TRestMetadata*> fMetadataInfo;//!
-	map<string, string> FileInfo;//!
-
-	//temp data member
-	vector<TString> fInputFileNames;//!
-	TFile *fInputFile;//!
-	TFile *fOutputFile;//!
-	TRestEvent* fInputEvent;//!
-	TTree *fEventTree;//!
-	TRestAnalysisTree *fAnalysisTree;//!
-	bool fOverwrite;//!
-
-	//input infomation
-	TRestEventProcess* fFileProcess;//!
-	int fCurrentEvent;//!
-	Long64_t fBytesReaded;//!
-	Long64_t fTotalBytes;//!
-	int fEventBranchLoc;//!
-	int fInputFileVersion;//!
-	Int_t fEntriesSaved;
-
+	ClassDef(TRestRun, 1);
 };
 
 

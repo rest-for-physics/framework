@@ -21,12 +21,6 @@ private:
 	vector<TRestMetadata*> fMetaObjects;//!
 
 public:
-	/// Call CINT to generate streamers for this class
-	ClassDef(TRestManager, 1);
-
-	TRestManager();
-	~TRestManager();
-
 	void Initialize();
 	void InitFromConfigFile() {
 		if (fElement != NULL)
@@ -57,6 +51,11 @@ public:
 	TRestMetadata* GetApplicationWithName(string name);
 	TRestMetadata* GetApplication(string type);
 
+	TRestManager();
+	~TRestManager();
+
+	/// Call CINT to generate streamers for this class
+	ClassDef(TRestManager, 1);
 };
 
 
