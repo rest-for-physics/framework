@@ -34,6 +34,10 @@ public:
 };
 
 class TRestDataBase {
+protected:
+	int fRunNumber = 0;
+	int fSubRunNumber = 0;
+
 public:
 	TRestDataBase() {}
 	~TRestDataBase() {}
@@ -90,9 +94,6 @@ public:
 	virtual int set_fileinfo(int fileid, DataBaseFileInfo info) { return 0; }
 	virtual int set_fileinfo(string filename, DataBaseFileInfo info) { return 0; }
 
-protected:
-	int fRunNumber = 0;
-	int fSubRunNumber = 0;
 };
 
 

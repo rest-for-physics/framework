@@ -179,6 +179,13 @@ public:
 
 class TRestStringOutput
 {
+protected:
+	int orientation;//0->middle, else->left
+	string border;
+	string stringbuf;
+	string color;
+	int length;
+
 public:
 
 	string FormattingPrintString(string input)
@@ -325,6 +332,7 @@ public:
 	//	length = ConsoleHelper::GetWidth();
 	//}
 
+	//0->middle, else->left
 	void setorientation(int o) {
 		orientation = o;
 	}
@@ -346,13 +354,6 @@ public:
 			length = -1;
 		}
 	}
-
-protected:
-	int orientation;//0->middle, else->left
-	string border;
-	string stringbuf;
-	string color;
-	int length;
 };
 
 //////////////////////////////////////////////////////////////////////////
