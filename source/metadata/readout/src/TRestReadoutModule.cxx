@@ -239,7 +239,7 @@ Bool_t TRestReadoutModule::isDaqIDInside( Int_t daqID )
 }
 
 ///////////////////////////////////////////////
-/// \brief Returns the channel id corresponding to the absolute coordinates
+/// \brief Returns the channel index corresponding to the absolute coordinates
 /// (absX, absY), but relative to the readout plane coordinate system.
 /// 
 /// The readout mapping (see TRestReadoutMapping) is used to help finding 
@@ -318,26 +318,6 @@ Int_t TRestReadoutModule::FindChannel( Double_t absX, Double_t absY )
 }
 
 ///////////////////////////////////////////////
-/// \brief Returns a pointer to a readout channel by channel id
-/// 
-TRestReadoutChannel *TRestReadoutModule::GetChannelByID( int id )
-{
-	Int_t chNumber = -1;
-	for( unsigned int i = 0; i < fReadoutChannel.size(); i++ )
-		if( fReadoutChannel[i].GetID() == id )
-		{
-			if( chNumber != -1 ) cout << "REST Warning : Found several channels with the same ID" << endl;
-			chNumber = i;
-		}
-	if( chNumber != -1 )
-		return &fReadoutChannel[chNumber];
-
-	cout << "REST Warning : Readout channel with ID : " << id << " not found in module : " << fModuleID  << endl;
-
-	return NULL;
-}
-
-///////////////////////////////////////////////
 /// \brief Determines if the position *x,y* relative to the readout
 /// plane are inside this readout module.
 /// 
@@ -382,38 +362,6 @@ Bool_t TRestReadoutModule::isInsideChannel( Int_t channel, TVector2 pos )
 	pos = TransformToModuleCoordinates( pos );
 	for( int idx = 0; idx < GetChannel(channel)->GetNumberOfPixels(); idx++ )
 		if( GetChannel( channel )->GetPixel( idx )->isInside( pos ) ) return true;
-	return false;
-}
-
-///////////////////////////////////////////////
-/// \brief Determines if the position *x,y* is found in any of the pixels
-/// of the physical readout *channel* id given.
-/// 
-Bool_t TRestReadoutModule::isInsideChannelByID( Int_t channel, Double_t x, Double_t y )
-{
-	TVector2 pos(x,y);
-
-	return isInsideChannelByID( channel, pos );
-}
-
-///////////////////////////////////////////////
-/// \brief Determines if the position TVector2 *pos* is found in any of the pixels
-/// of the readout *channel* given.
-/// 
-Bool_t TRestReadoutModule::isInsideChannelByID( Int_t channel, TVector2 pos )
-{
-	/*
-	   cout << "Readout plane coordinates" << endl;
-	   pos.Print();
-	   */
-	pos = TransformToModuleCoordinates( pos );
-	/*
-	   cout << "Module coordinates" << endl;
-	   pos.Print();
-	   getchar();
-	   */
-	for( int idx = 0; idx < GetChannelByID(channel)->GetNumberOfPixels(); idx++ )
-		if( GetChannelByID( channel )->GetPixel( idx )->isInside( pos ) ) return true;
 	return false;
 }
 
@@ -598,7 +546,7 @@ void TRestReadoutModule::AddChannel( TRestReadoutChannel &rChannel )
 			if( showWarnings )
 			{
 				cout << "REST Warning (AddChannel) pixel outside the module boundaries" << endl;
-				cout << "Pixel " << i << " ID : " << rChannel.GetPixel(i)->GetID() << endl;
+				cout << "Channel: "<< fReadoutChannel.size() <<", Pixel : " << i << endl;
 				cout << "Pixel origin = (" << oX << " , " << oY << ")" << endl;
 				cout << "Pixel size = (" << sX << " , " << sY << ")" << endl;
 				cout << "Module size = (" << fModuleSizeX << " , " << fModuleSizeY << ")" << endl;
@@ -632,6 +580,6 @@ void TRestReadoutModule::Print(Int_t DetailLevel)
 		cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
 		for (int n = 0; n < GetNumberOfChannels(); n++)
-			fReadoutChannel[n].Print(DetailLevel - 1);
+			fReadoutChannel[n].Print(DetailLevel - 1, n);
 	}
 }
