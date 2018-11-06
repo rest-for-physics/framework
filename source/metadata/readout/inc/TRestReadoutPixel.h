@@ -32,7 +32,6 @@
 /// A class to store the readout pixel definition used in TRestReadoutChannel. 
 class TRestReadoutPixel : public TObject {
 	private:
-		Int_t fPixelID; ///< The internal pixel id.
 		Double_t fPixelOriginX; ///< The pixel x-origin position, left-bottom corner.
 		Double_t fPixelOriginY; ///< The pixel y-origin position, left-bottom corner.
 
@@ -47,9 +46,6 @@ class TRestReadoutPixel : public TObject {
 	protected:
 
 	public:
-		/// Returns the internal pixel id.
-		Int_t GetID() { return fPixelID; }
-
 		/// Returns the x-coordinate pixel origin.
 		Double_t GetOriginX( ) const { return fPixelOriginX; }
 
@@ -78,9 +74,6 @@ class TRestReadoutPixel : public TObject {
 
 		TVector2 GetVertex( int n ) const;
 
-		/// Sets the internal pixel id.
-		void SetID( Int_t id ) { fPixelID = id; }
-
 		/// Sets the origin of the pixel using the coordinate values *x*,*y*.
 		void SetOrigin( Double_t x, Double_t y ) { fPixelOriginX = x; fPixelOriginY = y; }
 
@@ -104,13 +97,13 @@ class TRestReadoutPixel : public TObject {
 
 		TVector2 TransformToPixelCoordinates( TVector2 p );
 
-		void Print( );
+		void Print( int index = -1 );
 
 		//Construtor
 		TRestReadoutPixel();
 		//Destructor
 		virtual ~ TRestReadoutPixel();
 
-		ClassDef(TRestReadoutPixel, 3);
+		ClassDef(TRestReadoutPixel, 4);
 };
 #endif

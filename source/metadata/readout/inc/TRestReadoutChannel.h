@@ -42,13 +42,7 @@ enum TRestReadoutChannelType {
 /// A class to store the readout channel definition used in TRestReadoutModule. It allows to integrate any number of independent readout pixels.
 class TRestReadoutChannel : public TObject {
 private:
-	//channelID: 
-	//-1: initial state
-	//0~9999: undefined type
-	//10000~19999: pixel channel(one pixel)
-	//20000~29999: x channel(pixels have fixed y coordinate)
-	//30000~39999: y channel(pixels have fixed x coordinate)
-	Int_t fChannelID; ///< Defines the physical readout channel id
+
 	Int_t fDaqID;     ///< Defines the corresponding daq channel id. See decoding details at TRestReadout.
 	std::vector <TRestReadoutPixel> fReadoutPixel;  ///< A vector storing the different TRestReadoutPixel definitions.
 
@@ -57,9 +51,6 @@ private:
 protected:
 
 public:
-
-	/// Returns the physical readout channel id
-	Int_t GetID() { return fChannelID % 10000; }
 
 	/// Returns the corresponding daq channel id
 	Int_t GetDaqID() { return fDaqID; }
@@ -70,26 +61,15 @@ public:
 	TRestReadoutPixel& operator[] (int n) { return fReadoutPixel[n]; }
 
 	/// Returns a pointer to the pixel *n* by index.
-	TRestReadoutPixel *GetPixel( int n ) { return &fReadoutPixel[n]; }
-
-	/// Sets the physical channel id
-	void SetID(Int_t id) {
-		int type = fChannelID / 10000;
-		fChannelID = id + type * 10000;
-	}
+	TRestReadoutPixel *GetPixel( int n ) { if (n >= GetNumberOfPixels())return NULL; return &fReadoutPixel[n]; }
 
 	void SetType(TRestReadoutChannelType type) {
-		if (fChannelID >= 0) {
-			fChannelID = type * 10000 + fChannelID % 10000;
-		}
-		else
-		{
-			std::cout << "REST WARNING: cannot set channel type before channel id!" << std::endl;
-		}
+		//in future we may implement this
 	}
 
 	TRestReadoutChannelType GetType() {
-		return TRestReadoutChannelType(fChannelID / 10000);
+		//in future we may implement this
+		return Channel_NoType;
 	}
 
 	/// Sets the daq channel number id
@@ -98,11 +78,9 @@ public:
 	/// Adds a new pixel to the readout channel
 	void AddPixel(TRestReadoutPixel pix) { fReadoutPixel.push_back(pix); }
 
-	TRestReadoutPixel *GetPixelByID(int id);
-
 	Int_t isInside(Double_t x, Double_t y);
 
-	void Print(int DetailLevel = 0);
+	void Print(int DetailLevel = 0, int index = -1);
 
 	//Construtor
 	TRestReadoutChannel();
@@ -110,6 +88,6 @@ public:
 	virtual ~TRestReadoutChannel();
 
 
-	ClassDef(TRestReadoutChannel, 1);     // REST run class
+	ClassDef(TRestReadoutChannel, 2);     // REST run class
 };
 #endif

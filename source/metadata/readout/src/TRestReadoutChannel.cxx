@@ -68,7 +68,7 @@ TRestReadoutChannel::~TRestReadoutChannel()
 /// 
 void TRestReadoutChannel::Initialize()
 {
-	fChannelID = -1;
+	fDaqID = -1;
 }
 
 ///////////////////////////////////////////////
@@ -82,32 +82,12 @@ Int_t TRestReadoutChannel::isInside(Double_t x, Double_t y)
 }
 
 ///////////////////////////////////////////////
-/// \brief Returns a TRestReadoutPixel pointer using the internal pixel id.
-/// 
-TRestReadoutPixel *TRestReadoutChannel::GetPixelByID(int id)
-{
-	Int_t pxNumber = -1;
-	for (unsigned int i = 0; i < fReadoutPixel.size(); i++)
-		if (fReadoutPixel[i].GetID() == id)
-		{
-			if (pxNumber != -1) cout << "REST Warning : Found several pixels with the same ID" << endl;
-			pxNumber = i;
-		}
-	if (pxNumber != -1)
-		return &fReadoutPixel[pxNumber];
-
-	cout << "REST Warning : Readout pixel with ID : " << id << " not found in channel : " << GetID() << endl;
-
-	return NULL;
-}
-
-///////////////////////////////////////////////
 /// \brief Prints the details of the readout channel including pixel coordinates.
 /// 
-void TRestReadoutChannel::Print(int DetailLevel)
+void TRestReadoutChannel::Print(int DetailLevel, int index)
 {
 	if (DetailLevel >= 0) {
-		cout << "++++ Channel ID : " << GetID() << " Daq channel : " << GetDaqID() << endl;
+		cout << "++++ Channel : " << index << " Daq channel : " << GetDaqID() << endl;
 
 		string typestr;
 		if (GetType() == Channel_NoType)typestr = "NoType";
@@ -124,7 +104,7 @@ void TRestReadoutChannel::Print(int DetailLevel)
 		if (DetailLevel - 1 >= 0)
 			for (int n = 0; n < GetNumberOfPixels(); n++)
 			{
-				fReadoutPixel[n].Print();
+				fReadoutPixel[n].Print( n );
 			}
 	}
 }
