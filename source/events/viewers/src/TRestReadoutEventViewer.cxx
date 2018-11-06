@@ -124,7 +124,7 @@ fHistoYZ = new TH2D("YZ","YZ",100,ymin,ymax,100,zmin,zmax);
 
         readoutChannel = module->DaqToReadoutChannel(daqChannel);
         cout<<"daqChannel "<<daqChannel<<" readoutChannel "<<readoutChannel<<endl;
-        if((module = GetModule(readoutChannel))==NULL)continue;
+        //if((module = GetModule(readoutChannel))==NULL)continue;
         if((channel = GetChannel(readoutChannel))==NULL)continue;
 
 
@@ -182,8 +182,8 @@ TRestReadoutChannel *TRestReadoutEventViewer::GetChannel( int readoutChannel){
 TRestReadoutPlane *plane = &(*fReadout)[0];
 	    for( int n = 0; n < plane->GetNumberOfModules( ); n++ ){
             
-            if ((*plane)[n].GetChannelByID(readoutChannel)==NULL)continue;
-            return (*plane)[n].GetChannelByID(readoutChannel);
+            if ((*plane)[n].GetChannel(readoutChannel)==NULL)continue;
+            return (*plane)[n].GetChannel(readoutChannel);
             	    	    
 	    }
 
@@ -197,7 +197,7 @@ TRestReadoutModule *TRestReadoutEventViewer::GetModule( int readoutChannel){
 TRestReadoutPlane *plane = &(*fReadout)[0];
 	    for( int n = 0; n < fReadout->GetNumberOfModules( ); n++ ){
             
-            if ((*plane)[n].GetChannelByID(readoutChannel)==NULL)continue;
+            if ((*plane)[n].GetChannel(readoutChannel)==NULL)continue;
             return &(*plane)[n];
             	    	    
 	    }

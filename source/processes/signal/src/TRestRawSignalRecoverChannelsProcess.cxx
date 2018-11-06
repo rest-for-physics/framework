@@ -271,8 +271,8 @@ void TRestRawSignalRecoverChannelsProcess::GetAdjacentSignalIds( Int_t signalId,
                 // to the physical readout channel
                 Int_t readoutChannelID = mod->DaqToReadoutChannel( signalId );
 
-                idLeft = mod->GetChannelByID( readoutChannelID - 1 )->GetDaqID();
-                idRight = mod->GetChannelByID( readoutChannelID + 1 )->GetDaqID();
+                idLeft = mod->GetChannel( readoutChannelID - 1 )->GetDaqID();
+                idRight = mod->GetChannel( readoutChannelID + 1 )->GetDaqID();
 
                 return;
             }
