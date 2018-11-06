@@ -106,6 +106,36 @@ TRestRawSignal* TRestRawSignalEvent::GetMaxSignal( Int_t startBin, Int_t endBin 
     return &fSignal[sId];
 }
 
+TRestRawSignal* TRestRawSignalEvent::GetLowestBinMaxPeak( Int_t startBin, Int_t endBin, Double_t minPeakAmplitude )
+{
+    if( GetNumberOfSignals() <= 0 ) return NULL;
+
+    Int_t sId = 0;
+
+    Int_t lowestBin = fSignal[sId].GetNumberOfPoints();
+
+    for( int i = 0; i < GetNumberOfSignals(); i++ )
+    {
+        if( fSignal[i].GetMaxPeakValue( ) < minPeakAmplitude )
+            continue;
+
+        if( fSignal[i].GetMaxPeakBin( ) < lowestBin )
+        {
+            lowestBin = fSignal[i].GetMaxPeakBin();
+            sId = i;
+        }
+    }
+
+    return &fSignal[sId];
+}
+
+Int_t TRestRawSignalEvent::GetLowestBinSignalWidth( Int_t startBin, Int_t endBin, Double_t minPeakAmplitude )
+{
+    TRestRawSignal *lowTimeSignal = GetLowestBinMaxPeak( startBin, endBin, minPeakAmplitude );
+
+    return lowTimeSignal->GetMaxPeakWidth( startBin, endBin );
+}
+
 Double_t TRestRawSignalEvent::GetSlopeIntegral( )
 {
     Double_t sum = 0;

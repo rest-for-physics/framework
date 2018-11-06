@@ -72,6 +72,9 @@ class TRestRawSignalEvent: public TRestEvent {
         }
 
         TRestRawSignal* GetMaxSignal( Int_t startBin = 0, Int_t endBin = 0 );
+        TRestRawSignal* GetLowestBinMaxPeak( Int_t startBin, Int_t endBin, Double_t minPeakAmplitude = 0 );
+
+        Int_t GetLowestBinSignalWidth( Int_t startBin, Int_t endBin, Double_t minPeakAmplitude = 0 );
 
         Int_t GetLowestWidth( Int_t startBin = 0, Int_t endBin = 0,  Double_t minPeakAmplitude = 0 );
         Double_t GetLowAverageWidth( Int_t nSignals = 5, Int_t startBin = 0, Int_t endBin = 0,  Double_t minPeakAmplitude = 0 );
