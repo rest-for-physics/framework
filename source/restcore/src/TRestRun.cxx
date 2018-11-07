@@ -192,7 +192,15 @@ void TRestRun::BeginOfInit()
 
 
 	//output file pattern
-	string outputdir = ToAbsoluteName((string)GetDataPath());
+	string outputdir = GetDataPath();
+	if (outputdir == "")outputdir = ".";
+	if (!isPathWritable(outputdir))
+	{
+		error << "REST Error!! TRestRun." << endl;
+		error << "Output path does not exist or it is not writtable." << endl;
+		error << "Path : " << outputdir << endl;
+		exit(1);
+	}
 	string outputname = GetParameter("outputFile", "default");
 	if (outputname == "default") {
 		string expName = RemoveWhiteSpaces((string)GetExperimentName());
@@ -216,7 +224,7 @@ void TRestRun::BeginOfInit()
 	
 	}
 	else { 
-		fOutputFileName = outputdir + outputname;
+		fOutputFileName = outputdir + "/" + outputname;
 	}
 
 
