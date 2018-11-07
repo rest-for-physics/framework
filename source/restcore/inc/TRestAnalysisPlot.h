@@ -89,6 +89,8 @@ class TRestAnalysisPlot:public TRestMetadata {
 
         TString ReplaceFilenameTags( TString filename, TRestRun *run );
         void AddMissingStyles( );
+		void AddFileFromExternalRun();
+		void AddFileFromEnv();
 
     protected:
 

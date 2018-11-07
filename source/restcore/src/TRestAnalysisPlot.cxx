@@ -12,6 +12,7 @@
 
 
 #include "TRestAnalysisPlot.h"
+#include "TRestManager.h"
 using namespace std;
 
 #include <TStyle.h>
@@ -183,6 +184,8 @@ void TRestAnalysisPlot::InitFromConfigFile()
 
         this->AddFile( inputfile );
     }
+	AddFileFromExternalRun();
+	AddFileFromEnv();
 
     fPlotMode = GetParameter( "plotMode", "compare" );
     fHistoOutputFile = GetParameter( "histoFilename", "/tmp/histos.root" );
@@ -516,6 +519,33 @@ void TRestAnalysisPlot::AddMissingStyles( )
         for( unsigned int n = fFillStyle.size(); n < fLegendName.size(); n++ )
             fFillStyle.push_back( 0 );
     }
+}
+
+//we can add input file from process's output file
+void TRestAnalysisPlot::AddFileFromExternalRun() {
+
+	if (fHostmgr->GetRunInfo() != NULL && fNFiles == 0) {
+		fRun = fHostmgr->GetRunInfo();
+		if (fRun->GetOutputFileName() != "") {
+			AddFile(fRun->GetOutputFileName());
+		}
+	}
+}
+
+//we can add input file from parameter "inputFile"
+void TRestAnalysisPlot::AddFileFromEnv() {
+
+	if (fNFiles == 0) {
+		string filepattern = GetParameter("inputFile", "");
+		auto files = GetFilesMatchingPattern(filepattern);
+
+		for (unsigned int n = 0; n < files.size(); n++)
+		{
+			essential << "Adding file : " << files[n] << endl;
+			AddFile(files[n]);
+		}
+
+	}
 }
 
 void TRestAnalysisPlot::PlotCombinedCanvas( )
