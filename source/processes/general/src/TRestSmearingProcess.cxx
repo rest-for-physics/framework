@@ -116,12 +116,7 @@ TRestEvent* TRestSmearingProcess::ProcessEvent( TRestEvent *evInput )
     Double_t eDep = fHitsInputEvent->GetTotalEnergy();
     Double_t eRes = fResolutionAtEref * TMath::Sqrt(fEnergyRef / eDep) / 2.35 / 100.0;
 
-
     Double_t gain = fRandom->Gaus(1.0, eRes);
-
-
-	cout << gain << endl;
-
     for( int hit = 0; hit < fHitsInputEvent->GetNumberOfHits(); hit++ )
         fHitsOutputEvent->AddHit( fHitsInputEvent->GetX(hit), fHitsInputEvent->GetY(hit), fHitsInputEvent->GetZ(hit), fHitsInputEvent->GetEnergy(hit) * gain );   
 
@@ -148,6 +143,6 @@ void TRestSmearingProcess::EndProcess()
 //______________________________________________________________________________
 void TRestSmearingProcess::InitFromConfigFile( )
 {
-    fEnergyRef = GetDblParameterWithUnits( "energyReference"  ) ;
+    fEnergyRef = GetDblParameterWithUnits( "energyReference" );
     fResolutionAtEref = StringToDouble( GetParameter( "resolutionReference" ) );
 }
