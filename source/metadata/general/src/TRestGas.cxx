@@ -659,7 +659,7 @@ void TRestGas::SetPressure(Double_t pressure)
 	fPressureInAtm = pressure;
 #if defined USE_Garfield
 	fGasMedium->SetPressure(fPressureInAtm * 760.);
-	ConditionChanged();
+	//ConditionChanged();
 #endif
 }
 
