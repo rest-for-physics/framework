@@ -474,10 +474,13 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName,string sectionName)
 		else
 		{
 			TiXmlElement*ele = GetRootElementFromFile(cfgFileName);
-			if (ele->Value() == (string)ClassName()) { Sectional = ele; }
-			else { Sectional = GetElementWithName(ClassName(), sectionName, ele); }
+			if ((string)ele->Value() == (string)ClassName() || (string)ele->Value() == sectionName)
+				Sectional = ele;
+			else
+				Sectional = GetElementWithName(ClassName(), sectionName, ele);
+
 			if (Sectional == NULL) {
-				error << "cannot find xml section \"" << ClassName() << "\" with name \""<< sectionName <<"\""<<endl;
+				error << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName << "\"" << endl;
 				error << "in config file: " << cfgFileName << endl;
 				exit(1);
 			}
@@ -1284,7 +1287,8 @@ TiXmlElement * TRestMetadata::GetElementWithName(std::string eleDeclare, std::st
 ///
 TiXmlElement * TRestMetadata::GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement * e)
 {
-	if (eleDeclare == "") {
+	if (eleDeclare == "") //find only with name
+	{
 		TiXmlElement* ele = e->FirstChildElement();
 		while (ele != NULL)
 		{
@@ -1296,7 +1300,7 @@ TiXmlElement * TRestMetadata::GetElementWithName(std::string eleDeclare, std::st
 		}
 		return ele;
 	}
-	else
+	else //find with name and declare
 	{
 		TiXmlElement* ele = e->FirstChildElement(eleDeclare.c_str());
 		while (ele != NULL)
