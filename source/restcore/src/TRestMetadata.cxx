@@ -568,7 +568,7 @@ Int_t TRestMetadata::LoadSectionMetadata()
 	string debugStr = GetParameter("verboseLevel", "essential");
 	if (debugStr == "silent" || debugStr == "0")
 		fVerboseLevel = REST_Silent;
-	if (debugStr == "essential" || debugStr == "1")
+	if (debugStr == "essential" || debugStr == "warning" || debugStr == "1")
 		fVerboseLevel = REST_Essential;
 	if (debugStr == "info" || debugStr == "2")
 		fVerboseLevel = REST_Info;
