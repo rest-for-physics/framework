@@ -528,7 +528,14 @@ void TRestAnalysisPlot::AddFileFromExternalRun() {
 		fRun = fHostmgr->GetRunInfo();
 		if (fRun->GetOutputFileName() != "") {
 			AddFile(fRun->GetOutputFileName());
+			return;
 		}
+
+		auto names = fRun->GetInputFileNames();
+		for (int i = 0; i < names.size(); i++) {
+			this->AddFile(names[i]);
+		}
+
 	}
 }
 
