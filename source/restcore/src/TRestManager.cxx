@@ -61,7 +61,7 @@ void TRestManager::Initialize()
 
 /// we reorganize the element order
 /// before (v2.1.6 style):
-/// <root>
+/// <restManager>
 ///   <globals/>
 ///   <TRestManager>
 ///      <addProcess/>
@@ -69,7 +69,7 @@ void TRestManager::Initialize()
 ///      <addTask/>
 ///   </TRestManager>
 ///   <TRestRun/>
-/// </root>
+/// </restManager>
 /// after (v2.2 style):
 /// <TRestManager>
 ///   <globals/>
@@ -83,17 +83,29 @@ void TRestManager::Initialize()
 /// </TRestManager>
 int TRestManager::LoadSectionMetadata() {
 
-	if (fElement->FirstChildElement("TRestRun") == NULL &&
-		fElementGlobal != NULL && fElementGlobal->Parent() != NULL &&
-		fElementGlobal->Parent()->FirstChildElement("TRestRun") != NULL)
+	//get debug level
+	string debugStr = GetParameter("verboseLevel", "essential");
+	if (debugStr == "silent" || debugStr == "0")
+		fVerboseLevel = REST_Silent;
+	if (debugStr == "essential" || debugStr == "warning" || debugStr == "1")
+		fVerboseLevel = REST_Essential;
+	if (debugStr == "info" || debugStr == "2")
+		fVerboseLevel = REST_Info;
+	if (debugStr == "debug" || debugStr == "3")
+		fVerboseLevel = REST_Debug;
+	if (debugStr == "extreme" || debugStr == "4")
+		fVerboseLevel = REST_Extreme;
+
+
+	if (fElement->FirstChildElement("TRestManager") != NULL)
 	{
-		cout << "old style config file of TRestManager is detected!" << endl;
+		cout << "old style config file of restManager is detected!" << endl;
 		cout << "trying to re-arranage the xml element..." << endl;
 		cout << endl;
 
 		debug << "switch position of the elements" << endl;
-		fElement = (TiXmlElement*)fElementGlobal->Parent();
-		fElement->SetValue("TRestManager");
+		//fElement = (TiXmlElement*)fElementGlobal->Parent();
+		//fElement->SetValue("TRestManager");
 		TiXmlElement* TRestProcessRunnerElement = fElement->FirstChildElement("TRestManager");
 		TRestProcessRunnerElement->SetValue("TRestProcessRunner");
 		TiXmlElement* TRestRunElement_old = fElement->FirstChildElement("TRestRun");
@@ -204,6 +216,36 @@ int TRestManager::LoadSectionMetadata() {
 			cout << endl;
 			GetChar();
 		}		
+	}
+
+	if (fElement->FirstChildElement("TRestAnalysisPlot") != NULL &&
+		fElement->FirstChildElement("TRestRun") == NULL &&
+		fElement->FirstChildElement("addTask") == NULL)
+	{
+		cout << "old style config file of restPlots is detected!" << endl;
+		cout << "trying to update the xml element..." << endl;
+		cout << endl;
+
+		char*name;
+		name = getenv("plotsectionname");
+		if (name == NULL) {
+			name = const_cast<char*>(fElement->FirstChildElement("TRestAnalysisPlot")->Attribute("name"));
+		}
+		if (name == NULL) {
+			fElement->FirstChildElement("TRestAnalysisPlot")->SetAttribute("name", "myplot");
+			name = "myplot";
+		}
+
+		TiXmlElement*ele = new TiXmlElement("addTask");
+		ele->SetAttribute("command", (string)name + "->PlotCombinedCanvas()");
+		ele->SetAttribute("value", "ON");
+
+		if (fVerboseLevel >= REST_Debug) {
+			cout << "updated TRestManager section:" << endl;
+			fElement->Print(stdout, 0);
+			cout << endl;
+			GetChar();
+		}
 	}
 
 	TRestMetadata::LoadSectionMetadata();
