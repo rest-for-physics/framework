@@ -63,7 +63,7 @@
 import sys, os, argparse, re
 
 ##### SELF CLOSING TAGS considered
-selfCTags = {"parameter","variable","observable","canvas","cut","energyDist","angularDist"} # + addWHATEVER
+selfCTags = {"parameter","variable","observable","canvas","cut","energyDist","angularDist","style","labels","legendPosition"} # + addWHATEVER
 
 def printMoreHelp():
     print('restv2_1ToXml: Convert an rml file from rest,v2.1 syntax into xml standard syntax\n')
