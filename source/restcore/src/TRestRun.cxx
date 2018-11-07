@@ -192,7 +192,7 @@ void TRestRun::BeginOfInit()
 
 
 	//output file pattern
-	string outputdir = GetDataPath();
+	string outputdir = (string)GetDataPath();
 	if (outputdir == "")outputdir = ".";
 	if (!isPathWritable(outputdir))
 	{
