@@ -233,12 +233,14 @@ int TRestManager::LoadSectionMetadata() {
 		}
 		if (name == NULL) {
 			fElement->FirstChildElement("TRestAnalysisPlot")->SetAttribute("name", "myplot");
-			name = "myplot";
+			name = (char*)"myplot";
 		}
 
 		TiXmlElement*ele = new TiXmlElement("addTask");
 		ele->SetAttribute("command", (string)name + "->PlotCombinedCanvas()");
 		ele->SetAttribute("value", "ON");
+
+		fElement->LinkEndChild(ele);
 
 		if (fVerboseLevel >= REST_Debug) {
 			cout << "updated TRestManager section:" << endl;

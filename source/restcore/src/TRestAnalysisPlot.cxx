@@ -833,6 +833,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas( )
         fCombinedCanvas->Print( fCanvasSave );
 
     f->Close();
+
+	GetChar();
 }
 
 void TRestAnalysisPlot::SavePlotToPDF( TString plotName, TString fileName )
