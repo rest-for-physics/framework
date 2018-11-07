@@ -20,7 +20,7 @@ void PrintHelp()
 {
 	fout.resetcolor();
 	fout << " " << endl;
-	fout << "Usage1 : ./restManager --c CONFIG_FILE [--r RUNID] [--i INPUT] [--o OUTPUT]          " << endl;
+	fout << "Usage1 : ./restManager --c CONFIG_FILE [--r RUNID] [--i/f INPUT] [--o OUTPUT]        " << endl;
 	fout << "                       [--j THREADS] [--e EVENTS_TO_PROCESS] [--v VERBOSELEVEL]      " << endl;
 	fout << "                       [--h HISTOS_FILE.root] [--p PDF_PLOTS.pdf]                    " << endl;
 	fout << "Usage2 : ./restManager TASK_NAME ARG1 ARG2 ARG3                                      " << endl;
@@ -72,6 +72,7 @@ int main( int argc, char *argv[] )
 						{
 						case 'c': sprintf(cfgFileName, "%s", argv[i + 1]); break;
 						case 'r': setenv("runNumber", argv[i + 1], 1); break;
+						case 'f': setenv("inputFile", argv[i + 1], 1); setenv("REST_INPUTFILE", argv[i + 1], 1); break;
 						case 'i': setenv("inputFile", argv[i + 1], 1); setenv("REST_INPUTFILE", argv[i + 1], 1); break;
 						case 'o': setenv("outputFile", argv[i + 1], 1); break;
 						case 'j': setenv("threadNumber", argv[i + 1], 1); break;
