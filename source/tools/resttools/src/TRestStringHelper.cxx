@@ -190,17 +190,30 @@ Int_t TRestStringHelper::Count(string in, string substring)
 	return count;
 }
 
+/// \brief Returns the position of the **nth** occurence of the string **strToFind** inside the string **in**.
+///
+Int_t TRestStringHelper::FindNthStringPosition(const string& in, size_t pos, const string& strToFind, size_t nth)
+{
+	size_t found_pos = in.find(strToFind, pos);
+	if (nth == 0 || string::npos == found_pos) return found_pos;
+	return FindNthStringPosition(in, found_pos + 1, strToFind, nth - 1);
+}
+
 ///////////////////////////////////////////////
 /// \brief Replace every occurences of **thisSring** by **byThisString** inside string **in**.
 ///
-string TRestStringHelper::Replace(string in, string thisString, string byThisString, size_t fromPosition = 0)
+string TRestStringHelper::Replace(string in, string thisString, string byThisString, size_t fromPosition, Int_t N)
 {
 	string out = in;
 	size_t pos = fromPosition;
+	Int_t cont = 0;
 	while ((pos = out.find(thisString, pos)) != string::npos)
 	{
 		out.replace(pos, thisString.length(), byThisString);
 		pos = pos + byThisString.length();
+		cont++;
+
+		if (N > 0 && cont == N) return out;
 	}
 
 	return out;
