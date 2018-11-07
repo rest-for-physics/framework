@@ -124,10 +124,14 @@ int TRestManager::LoadSectionMetadata() {
 				}
 			}
 			if (addMetadataElement->Attribute("type") != NULL && (string)addMetadataElement->Attribute("type") == "TRestGas") {
+				if (addMetadataElement->Attribute("name") != NULL) {
+					addMetadataElement->SetAttribute("name",
+						Replace(addMetadataElement->Attribute("name"), "V/cm", "Vcm", 0));
+				}
+				
 				TString gasFile = GetParameter("gasFile", TRestProcessRunnerElement, "");
 				if (gasFile != "")
 				{
-					gasFile = Replace((string)gasFile, "V/cm", "Vcm", 0);
 					addMetadataElement->SetAttribute("file", gasFile);
 					if (Count((string)gasFile, ".rml") > 0)
 					{
