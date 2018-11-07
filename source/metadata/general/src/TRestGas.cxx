@@ -515,6 +515,7 @@ void TRestGas::SetGasFile(string name) {
 		string _name = Replace(name, "(", "\\(", 0);
 		_name = Replace(_name, ")", "\\)", 0);
 		string cmd = "wget " + (string)ONLINE_GASFILE_PREFIX + _name + " -O /tmp/restGasDownload.gas -q";
+		debug << cmd << endl;
 		int a = system(cmd.c_str());
 		debug << a << endl;
 		if (a == 0)
