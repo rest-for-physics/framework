@@ -35,8 +35,18 @@ Int_t TRestStringHelper::isAExpression(string in)
 		temp = Replace(temp, replace[i], "0", 0);
 	}
 
-
-	if (temp.length() != 0)
+	if (temp.length() == 0)return 0;
+	else if (temp.length() == 1) {
+		if (temp.find_first_not_of("0123456789") == std::string::npos)
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	else
 	{
 		if (temp.find_first_not_of("-0123456789e+*/.,)( ^") == std::string::npos)
 		{
