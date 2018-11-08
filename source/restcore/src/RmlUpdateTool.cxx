@@ -45,7 +45,10 @@ bool RmlUpdateTool::Process() {
 			{
 				cout << "-- writing updated file..." << endl;
 				fOutputFileName = WriteFile();
-				cout << "RmlUpdateTool: an equivelent version of rml file for V2.2 is generated! Name: "<< fOutputFileName << endl;
+				cout << "--------------------" << endl;
+				cout << "RmlUpdateTool: an equivelent version of rml file for V2.2 is generated!" << endl;
+				cout << "Name: " << fOutputFileName << endl;
+				cout << "--------------------" << endl;
 				fStatus = true;
 				return fStatus;
 			}

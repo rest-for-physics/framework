@@ -1213,9 +1213,14 @@ TiXmlElement* TRestMetadata::GetRootElementFromFile(std::string cfgFileName)
 	}
 	if (!doc->LoadFile(filename.c_str()))
 	{
-
 		RmlUpdateTool t(filename, true);
 		if (t.UpdateSucceed()) {
+			TRestStringOutput cout;	cout.setcolor(COLOR_BOLDYELLOW);
+			cout << "REST WARNING : You are still using V2.1 config file, this file is successfully" << endl;
+			cout << "updated by REST. In future we may remove this self-adaption functionality." << endl;
+			cout << "So it is recommended to check and use the generated new file as soon as possible!" << endl;
+			cout << filename << "  -->  " << t.GetOutputFile() << endl;
+			GetChar();
 			TRestMetadata_UpdatedConfigFile[filename] = t.GetOutputFile();
 			return GetRootElementFromFile(t.GetOutputFile());
 		}
