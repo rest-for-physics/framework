@@ -335,7 +335,11 @@ or
 2. external process is handled here.
 3. other processes are handled in TRestProcessRunner
 4. rml section "addMetadata" now should be written inside "TRestRun" section, not in "TRestManager section"
-5. auto naming now collects information from multiple source: fileinfo map, processinfo map and TRestRun datamember. 
+5. auto naming now collects information from multiple source: fileinfo map, processinfo map and TRestRun datamember.
+6. naming key words changed from like:  
+`Tracks_[EXPERIMENT]_[USER]_[RUNTYPE]_[RUNTAG]_[RUN]_V[VERSION].root`  
+to  
+`Tracks_[fExperimentName]_[fRunUser]_[fRunType]_[fRunTag]_[fRunNumber]_V[fVersion].root`  
 
 ##### Added class: TRestProcessRunner
 1. old process functionality are move here. 

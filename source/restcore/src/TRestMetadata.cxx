@@ -398,11 +398,13 @@
 #include <TMath.h>
 #include <TSystem.h>
 #include "TRestMetadata.h"
+#include "RmlUpdateTool.h"
 #include "v5/TFormula.h"
+
 using namespace std;
 using namespace REST_Units;
 
-bool TRestMetadata_ConfigFileUpdated = true;
+map<string, string> TRestMetadata_UpdatedConfigFile;
 
 ClassImp(TRestMetadata)
 ///////////////////////////////////////////////
@@ -461,19 +463,20 @@ Int_t TRestMetadata::LoadConfigFromFile()
 /// 
 Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName,string sectionName)
 {
-	if (fileExists(cfgFileName)) {
+	fConfigFileName = cfgFileName;
+	if (fileExists(fConfigFileName)) {
 		TiXmlElement* Sectional;
 		if (sectionName == "")
 		{
-			Sectional = GetElement(ClassName(), cfgFileName);
+			Sectional = GetElement(ClassName(), fConfigFileName);
 			if (Sectional == NULL) {
-				error << "cannot find xml section \"" << ClassName() << "\" in config file: " << cfgFileName << endl;
+				error << "cannot find xml section \"" << ClassName() << "\" in config file: " << fConfigFileName << endl;
 				exit(1);
 			}
 		}
 		else
 		{
-			TiXmlElement*ele = GetRootElementFromFile(cfgFileName);
+			TiXmlElement*ele = GetRootElementFromFile(fConfigFileName);
 			if ((string)ele->Value() == (string)ClassName() || (string)ele->Value() == sectionName)
 				Sectional = ele;
 			else
@@ -481,18 +484,18 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName,string sectionName)
 
 			if (Sectional == NULL) {
 				error << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName << "\"" << endl;
-				error << "in config file: " << cfgFileName << endl;
+				error << "in config file: " << fConfigFileName << endl;
 				exit(1);
 			}
 		}
-		TiXmlElement* Global = GetElement("globals", cfgFileName);
+		TiXmlElement* Global = GetElement("globals", fConfigFileName);
 		vector<TiXmlElement*> a;
 		a.clear();
 		return LoadConfigFromFile(Sectional, Global, a);
 	}
 	else
 	{
-		error << "Filename : " << cfgFileName << endl;
+		error << "Filename : " << fConfigFileName << endl;
 		error << "REST ERROR. Config File does not exist. Right path/filename?" << endl;
 		GetChar();
 		return -1;
@@ -1197,39 +1200,36 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVect
 TiXmlElement* TRestMetadata::GetRootElementFromFile(std::string cfgFileName)
 {
 	TiXmlDocument* doc = new TiXmlDocument();
+	TiXmlElement* rootele;
 
-	if (!fileExists(cfgFileName)) {
-		error << "Config file does not exist. The file is: " << cfgFileName << endl;
+	string filename = cfgFileName;
+	if (TRestMetadata_UpdatedConfigFile.count(filename) > 0)
+		filename = TRestMetadata_UpdatedConfigFile[filename];
+
+	if (!fileExists(filename)) {
+		error << "Config file does not exist. The file is: " << filename << endl;
 		GetChar();
 		exit(1);
 	}
-	if (!doc->LoadFile(cfgFileName.c_str()))
+	if (!doc->LoadFile(filename.c_str()))
 	{
-		if (TRestMetadata_ConfigFileUpdated) {
-			error << "Failed to load xml file, syntax maybe wrong. The file is: " << cfgFileName << endl;
-			int result = system(("xmllint " + cfgFileName + "> /tmp/xmlerror.txt").c_str());
 
-			if (result == 256) { system("cat /tmp/xmlerror.txt"); }
-			else { error << "To do syntax check for the file, please install the package \"xmllint\"" << endl; }
-			system("rm /tmp/xmlerror.txt");
-
-			GetChar();
-			exit(1);
+		RmlUpdateTool t(filename, true);
+		if (t.UpdateSucceed()) {
+			TRestMetadata_UpdatedConfigFile[filename] = t.GetOutputFile();
+			return GetRootElementFromFile(t.GetOutputFile());
 		}
 		else {
-			//in future we will implement rml version update tool in c++
-			string newcfgGileName = cfgFileName;
-			TRestMetadata_ConfigFileUpdated = true;
-			GetRootElementFromFile(newcfgGileName);
+			error << "Failed to load xml file, syntax maybe wrong. The file is: " << filename << endl;
+			exit(1);
 		}
 	}
 
-	TiXmlElement* root = doc->RootElement();
-	if (root != NULL) {
-		return root;
+	rootele = doc->RootElement();
+	if (rootele != NULL) {
+		return rootele;
 	}
-	else
-	{
+	else {
 		error << "Succeeded to load xml file, but no element contained" << endl;
 		GetChar();
 		exit(1);
