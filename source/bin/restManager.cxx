@@ -92,7 +92,7 @@ int main( int argc, char *argv[] )
 			}
 
 			fout << endl;
-			fout.setcolor(COLOR_BOLDBLUE);
+			fout.setcolor(COLOR_BOLDBLUE); fout.setorientation(0);
 			fout << "Launching TRestManager..." << endl;
 			fout << endl;
 			TRestManager* a = new TRestManager();

@@ -343,10 +343,10 @@ public:
 
 	bool CompatibilityMode() { return length == -1; }
 
-	TRestStringOutput() {
-		orientation = 0;
-		border = "";
-		color = COLOR_RESET;
+	TRestStringOutput(string _color = COLOR_RESET, string _border = "", int _orientation = 1) {
+		orientation = _orientation;
+		border = _border;
+		color = _color;
 		length = ConsoleHelper::GetWidth() - 2;
 		stringbuf = "";
 		if (length > 500 || length < 20)//unsupported console, we will fall back to compatibility modes
@@ -367,12 +367,8 @@ template<REST_Verbose_Level v> class TRestLeveledOutput :public TRestStringOutpu
 public:
 	TRestLeveledOutput() {};
 	TRestLeveledOutput(REST_Verbose_Level& vref, string _color = COLOR_RESET, string _border = "", int _orientation = 0)
-		:verboselvlref(vref)
-	{
-		this->orientation = _orientation;
-		color = _color;
-		border = _border;
-	}
+		:verboselvlref(vref),TRestStringOutput(_color,_border, _orientation)
+	{}
 
 	REST_Verbose_Level verbose = v;
 	REST_Verbose_Level& verboselvlref;
