@@ -84,6 +84,8 @@ public:
 	void OpenInputFile(int i);
 	void OpenInputFile(TString filename,string mode = "");
 	void ReadFileInfo(string filename);
+	void ReadInputFileMetadata();
+	void ReadInputFileTrees();
 
 	void ResetEntry();
 
