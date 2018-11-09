@@ -393,7 +393,8 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 		}
 		debug << ", version code: " << fInputFileVersion << endl;
 
-		ReadInputFileMetadata();
+		if(fInputFileVersion == REST_VERSION_CODE)
+			ReadInputFileMetadata();
 		ReadInputFileTrees();
 	}
 	else
