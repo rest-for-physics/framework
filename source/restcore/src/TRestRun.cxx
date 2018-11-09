@@ -64,7 +64,6 @@ void TRestRun::Initialize()
 {
 	SetSectionName(this->ClassName());
 
-	fInputFileVersion = -1;
 	time_t  timev; time(&timev);
 	fStartTime = (Double_t)timev;
 	fEndTime = fStartTime - 1; // So that run length will be -1 if fEndTime is not set
@@ -384,17 +383,14 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 	ReadFileInfo((string)filename);
 	if (isRootFile((string)filename))
 	{
-		debug << "Initializing input file, ";
 		fInputFile = new TFile(filename, mode.c_str());
 
 		TRestRun*r = (TRestRun*)GetMetadataClass("TRestRun", fInputFile);
-		if (r != NULL) {
-			fInputFileVersion = ConvertVersionCode((string)r->GetVersion());
-		}
-		debug << ", version code: " << fInputFileVersion << endl;
 
-		if(fInputFileVersion == REST_VERSION_CODE)
+		if( r && (r->GetVersionCode() >= REST_VERSION(2,2,1) || r->GetVersion() == REST_RELEASE ) )
 			ReadInputFileMetadata();
+
+		debug << "Initializing input file : version code : " << this->GetVersionCode() << endl;
 		ReadInputFileTrees();
 	}
 	else
@@ -1198,7 +1194,7 @@ TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile*f)
 		for (int i = 0; i < fMetadataInfo.size(); i++)
 			if ((string)fMetadataInfo[i]->ClassName() == type) return fMetadataInfo[i];
 
-		if (fInputFile != NULL && fInputFileVersion==REST_VERSION_CODE) {
+		if (fInputFile != NULL && GetVersion() == REST_RELEASE ) {
 			return GetMetadataClass(type, fInputFile);
 		}
 	}
@@ -1245,7 +1241,7 @@ TRestMetadata *TRestRun::GetMetadata(TString name, TFile*f)
 		for (unsigned int i = 0; i < fMetadataInfo.size(); i++)
 			if (fMetadataInfo[i]->GetName() == name) return fMetadataInfo[i];
 
-		if (fInputFile != NULL && fInputFileVersion == REST_VERSION_CODE) {
+		if (fInputFile != NULL && GetVersion() == REST_RELEASE) {
 			return GetMetadata(name, fInputFile);
 		}
 	}

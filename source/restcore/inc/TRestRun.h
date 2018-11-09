@@ -53,7 +53,6 @@ protected:
 	Long64_t fBytesReaded;//!
 	Long64_t fTotalBytes;//!
 	int fEventBranchLoc;//!
-	int fInputFileVersion;//!
 	Int_t fEntriesSaved;
 
 
@@ -136,7 +135,6 @@ public:
 	vector<TString> GetInputFileNames() { return fInputFileNames; }
 	string GetInputFileName(int i) { return (string)fInputFileNames[i]; }
 	string GetInputFileNamepattern() { return (string)fInputFileName; }
-	int GetInputFileVersion() { return fInputFileVersion; }
 	TString GetOutputFileName() { return fOutputFileName; }
 	TFile* GetInputFile() { return fInputFile; }
 	TFile* GetOutputFile() { return fOutputFile; }
