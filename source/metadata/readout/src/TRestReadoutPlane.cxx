@@ -84,7 +84,7 @@ Int_t TRestReadoutPlane::GetNumberOfChannels( )
 {
 	Int_t nChannels = 0;
 	for( int md = 0; md < GetNumberOfModules(); md++ )
-		nChannels += GetReadoutModule(md)->GetNumberOfChannels();
+		nChannels += fReadoutModules[md].GetNumberOfChannels();
 	return nChannels;
 }
 
@@ -104,25 +104,10 @@ TRestReadoutModule *TRestReadoutPlane::GetModuleByID( Int_t modID )
 {
 
 	for( int md = 0; md < GetNumberOfModules(); md++ )
-		if( this->GetModule( md )->GetModuleID() == modID )
-			return this->GetModule( md );
+		if(fReadoutModules[md].GetModuleID() == modID )
+			return &fReadoutModules[md];
 
 	cout << "REST ERROR (GetReadoutModuleByID) : Module ID : " << modID << " was not found" << endl;
-	return NULL;
-}
-
-///////////////////////////////////////////////
-/// \brief Returns a pointer to a channel using its internal channel and module ids
-/// 
-TRestReadoutChannel *TRestReadoutPlane::GetChannelByID( Int_t modID, Int_t chID )
-{
-	TRestReadoutModule *module = GetModuleByID( modID );
-
-	for( int ch = 0; ch < module->GetNumberOfChannels(); ch++ )
-		if( module->GetChannel( ch )->GetID() == chID )
-			return module->GetChannel( ch );
-
-	cout << "REST ERROR (GetReadoutChannelByID) : Channel ID " << chID << " Module ID : " << modID << " was not found" << endl;
 	return NULL;
 }
 
@@ -142,7 +127,7 @@ Double_t TRestReadoutPlane::GetX( Int_t modID, Int_t chID )
 	TRestReadoutModule *rModule = GetModuleByID( modID );
 	Double_t xOrigin = rModule->GetModuleOriginX();
 
-	TRestReadoutChannel *rChannel = GetChannelByID( modID, chID );
+	TRestReadoutChannel *rChannel = rModule->GetChannel( chID );
 
 	Double_t x = numeric_limits<Double_t>::quiet_NaN();
 
@@ -207,7 +192,7 @@ Double_t TRestReadoutPlane::GetY( Int_t modID, Int_t chID )
 	TRestReadoutModule *rModule = GetModuleByID( modID );
 	Double_t yOrigin = rModule->GetModuleOriginY();
 
-	TRestReadoutChannel *rChannel = GetChannelByID( modID, chID );
+	TRestReadoutChannel *rChannel = rModule->GetChannel(chID);
 
 	Double_t y = numeric_limits<Double_t>::quiet_NaN();
 
@@ -258,7 +243,7 @@ Double_t TRestReadoutPlane::GetY( Int_t modID, Int_t chID )
 }
 
 ///////////////////////////////////////////////
-/// \brief Finds the readout channel for a given module stored in a given 
+/// \brief Finds the readout channel index for a given module stored in a given 
 /// module index stored in the readout plane (internal readout plane module id).
 /// 
 /// \param absX It is the x absolut physical position 
@@ -274,7 +259,7 @@ Int_t TRestReadoutPlane::FindChannel( Int_t module, Double_t absX, Double_t absY
 	// FindChannel will take a long time to search for the channel if it is not there.
 	// It will be faster
 
-	return GetModule( module )->FindChannel( modX, modY );
+	return fReadoutModules[module].FindChannel( modX, modY );
 }
 
 ///////////////////////////////////////////////
@@ -317,10 +302,10 @@ Int_t TRestReadoutPlane::isZInsideDriftVolume( Double_t z )
 ///
 Bool_t TRestReadoutPlane::isDaqIDInside( Int_t daqId )
 {
-		for( int m = 0; m < GetNumberOfModules( ); m++ )
-            if( GetModule( m )->isDaqIDInside( daqId ) ) return true;
+	for (int m = 0; m < GetNumberOfModules(); m++)
+		if (fReadoutModules[m].isDaqIDInside(daqId)) return true;
 
-        return false;
+	return false;
 }
 
 ///////////////////////////////////////////////
@@ -379,8 +364,9 @@ Int_t TRestReadoutPlane::GetModuleIDFromPosition( TVector3 pos )
 
 	if( distance > 0 && distance < fTotalDriftDistance )
 	{
-		for( int m = 0; m < GetNumberOfModules( ); m++ )
-			if( GetModule( m )->isInside( posNew.X(), posNew.Y() ) ) return m;
+		for (int m = 0; m < GetNumberOfModules(); m++)
+			if (fReadoutModules[m].isInside(posNew.X(), posNew.Y())) 
+				return fReadoutModules[m].GetModuleID();
 	}
 
 	return -1;
@@ -439,7 +425,7 @@ TH2Poly *TRestReadoutPlane::GetReadoutHistogram( )
 
 	for( int mdID = 0; mdID < this->GetNumberOfModules( ); mdID++ )
 	{
-		TRestReadoutModule *module = this->GetReadoutModule( mdID );
+		TRestReadoutModule *module = &fReadoutModules[mdID];
 
 		int nChannels = module->GetNumberOfChannels();
 
@@ -480,7 +466,7 @@ void TRestReadoutPlane::GetBoundaries( double &xmin, double &xmax, double &ymin,
 
 	for( int mdID = 0; mdID < this->GetNumberOfModules( ); mdID++ )
 	{
-		TRestReadoutModule *module = this->GetReadoutModule( mdID );
+		TRestReadoutModule *module = &fReadoutModules[mdID];
 
 		for( int v = 0; v < 4; v++ )
 		{

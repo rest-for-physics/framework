@@ -126,11 +126,11 @@ class TRestReadoutModule : public TObject {
 		/// Returns the maximum daq id number
 		Int_t GetMaxDaqID( ) { return fMaximumDaqId; }
 
-		/// Returns the physical readout channel id for a given daq id channel number
+		/// Returns the physical readout channel index for a given daq id channel number
 		Int_t DaqToReadoutChannel( Int_t daqChannel )
 		{
-			for( int n = 0; n < GetNumberOfChannels(); n++ )
-				if( GetChannel( n )->GetDaqID() == daqChannel ) return GetChannel( n )->GetID();
+			for (int n = 0; n < GetNumberOfChannels(); n++)
+				if (GetChannel(n)->GetDaqID() == daqChannel) return n;
 			return -1;
 		}
 
@@ -179,7 +179,7 @@ class TRestReadoutModule : public TObject {
 		TRestReadoutChannel& operator[] (int n) { return fReadoutChannel[n]; }
 		
 		/// Returns a pointer to a readout channel by index
-		TRestReadoutChannel *GetChannel( int n ) { return &fReadoutChannel[n]; }
+		TRestReadoutChannel *GetChannel(int n) { if (n >= GetNumberOfChannels())return NULL; return &fReadoutChannel[n]; }
 
 		/// Returns the total number of channels defined inside the module
 		Int_t GetNumberOfChannels( ) { return fReadoutChannel.size(); }
@@ -190,8 +190,6 @@ class TRestReadoutModule : public TObject {
 		/// Disables warning output
 		void DisableWarnings() { showWarnings = false; }
 
-		TRestReadoutChannel *GetChannelByID( int id );
-
 		void DoReadoutMapping( Int_t nodes = 0 );
 
 		Bool_t isInside( Double_t x, Double_t y );
@@ -199,9 +197,6 @@ class TRestReadoutModule : public TObject {
 
 		Bool_t isInsideChannel( Int_t channel, Double_t x, Double_t y );
 		Bool_t isInsideChannel( Int_t channel, TVector2 pos );
-
-		Bool_t isInsideChannelByID( Int_t channel, Double_t x, Double_t y );
-		Bool_t isInsideChannelByID( Int_t channel, TVector2 pos );
 
 		Bool_t isInsidePixel( Int_t channel, Int_t pixel, Double_t x, Double_t y );
 		Bool_t isInsidePixel( Int_t channel, Int_t pixel, TVector2 pos );

@@ -23,12 +23,6 @@
 
 #include "TTree.h"
 class TRestEventProcess;
-class TRestBranch :public TBranch {
-public:
-	void SetBranchAddressQuick(char* addr) {
-		fAddress = addr;
-	}
-};
 
 class TRestAnalysisTree :public TTree {
 

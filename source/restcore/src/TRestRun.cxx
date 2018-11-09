@@ -32,7 +32,7 @@
 #include "TRestEventProcess.h"
 #include "TRestDataBase.h"
 
-
+vector<TRestMetadata*> RESTRUN_INPUTMETADATA;
 ClassImp(TRestRun);
 
 TRestRun::TRestRun()
@@ -192,7 +192,15 @@ void TRestRun::BeginOfInit()
 
 
 	//output file pattern
-	string outputdir = ToAbsoluteName((string)GetDataPath());
+	string outputdir = (string)GetDataPath();
+	if (outputdir == "")outputdir = ".";
+	if (!isPathWritable(outputdir))
+	{
+		error << "REST Error!! TRestRun." << endl;
+		error << "Output path does not exist or it is not writtable." << endl;
+		error << "Path : " << outputdir << endl;
+		exit(1);
+	}
 	string outputname = GetParameter("outputFile", "default");
 	if (outputname == "default") {
 		string expName = RemoveWhiteSpaces((string)GetExperimentName());
@@ -216,7 +224,7 @@ void TRestRun::BeginOfInit()
 	
 	}
 	else { 
-		fOutputFileName = outputdir + outputname;
+		fOutputFileName = outputdir + "/" + outputname;
 	}
 
 
@@ -385,9 +393,75 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 		}
 		debug << ", version code: " << fInputFileVersion << endl;
 
+		if(fInputFileVersion == REST_VERSION_CODE)
+			ReadInputFileMetadata();
+		ReadInputFileTrees();
+	}
+	else
+	{
+		if (fFileProcess == NULL)
+			info << "Input file is not root file, a TRestExtFileProcess is needed!" << endl;
+		fInputFile = NULL;
+		fAnalysisTree = NULL;
+	}
+
+
+
+
+}
+
+
+void TRestRun::ReadInputFileMetadata() {
+
+	TFile*f = fInputFile;
+	if (f != NULL) {
+		RESTRUN_INPUTMETADATA.clear();
+
+		TIter nextkey(f->GetListOfKeys());
+		TKey *key;
+		while ((key = (TKey*)nextkey()))
+		{
+			TRestMetadata* a;
+
+			try {
+				a = (TRestMetadata *)f->Get(key->GetName());
+			}
+			catch (std::bad_alloc e)//schema evolution conflict
+			{
+				error << "REST ERROR (ImportMetadata) : error when retrieving metadata object from ROOT file!" << endl;
+				error << "file: " << f->GetName() << ", object name: " << key->GetName() << endl;
+				cout << "HINT: this may be caused by schema evolution conflict. Make sure the object in the " << endl;
+				cout << "target file is with same schema evolution level as current REST" << endl;
+				exit(1);
+			}
+
+			string name = a->GetName();
+			if (a->InheritsFrom("TRestMetadata"))
+			{
+				//we make sure there is no repeated class added
+				bool flag = false;
+				for (int i = 0; i < RESTRUN_INPUTMETADATA.size(); i++) {
+					if (a->ClassName() == RESTRUN_INPUTMETADATA[i]->ClassName()) {
+						flag = true;
+						break;
+					}
+				}
+				if (!flag) {
+					RESTRUN_INPUTMETADATA.push_back(a);
+				}
+			}
+		}
+	}
+
+}
+
+void TRestRun::ReadInputFileTrees() {
+
+	if (fInputFile != NULL) {
 		debug << "Finding TRestAnalysisTree.." << endl;
 		TTree* Tree1 = NULL;
 		TTree* Tree2 = NULL;
+		string filename = fInputFile->GetName();
 
 		Tree1 = (TTree*)fInputFile->Get("AnalysisTree");
 		if (Tree1 != NULL)
@@ -441,7 +515,7 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 			exit(1);
 		}
 
-		if (Tree2 != NULL) 
+		if (Tree2 != NULL)
 		{
 			fEventTree = Tree2;
 
@@ -486,19 +560,11 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 			warning << "This is a pure analysis file!" << endl;
 			fInputEvent = NULL;
 		}
+
 	}
-	else
-	{
-		if (fFileProcess == NULL)
-			info << "Input file is not root file, a TRestExtFileProcess is needed!" << endl;
-		fInputFile = NULL;
-		fAnalysisTree = NULL;
-	}
-
-
-
 
 }
+
 
 ///////////////////////////////////////////////
 /// \brief Extract file info from a file, and save it in the file info list
@@ -801,9 +867,14 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
 	//record the current time
 	time_t  timev; time(&timev);
 	fEndTime = (Double_t)timev;
+	//save metadata objects in file
 	this->Write(0, kOverwrite);
 	for (int i = 0; i < fMetadataInfo.size(); i++) {
 		fMetadataInfo[i]->Write(0, kOverwrite);
+	}
+	for (int i = 0; i < RESTRUN_INPUTMETADATA.size(); i++) {
+		RESTRUN_INPUTMETADATA[i]->Write(("Historic_" + (string)RESTRUN_INPUTMETADATA[i]->GetName()).c_str()
+			, kOverwrite);
 	}
 	//write to database
 	if (fRunNumber != -1) {

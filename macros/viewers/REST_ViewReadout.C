@@ -128,7 +128,7 @@ int REST_ViewReadout(TString rootFile, TString name = "", Int_t plane = 0)
 					if (x[l] > xMax) xMax = x[l];
 
 				}
-				channelIDLabel[graph] = new TLatex(xMin + (xMax - xMin) / 2, yMin, Form("%d", channel->GetID()));
+				channelIDLabel[graph] = new TLatex(xMin + (xMax - xMin) / 2, yMin, Form("%d", ch));
 				channelIDLabel[graph]->SetTextSize(0.01);
 				channelIDLabel[graph]->SetTextFont(12);
 				channelIDLabel[graph]->SetTextAlign(21);

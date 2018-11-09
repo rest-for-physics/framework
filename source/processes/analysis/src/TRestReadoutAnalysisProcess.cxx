@@ -42,6 +42,7 @@ void TRestReadoutAnalysisProcess::Initialize()
 	fOutputEvent = fSignalEvent;
 	fInputEvent = fSignalEvent;
 
+	fReadout = NULL;
 }
 
 //______________________________________________________________________________

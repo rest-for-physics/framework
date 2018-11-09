@@ -100,21 +100,13 @@ class TRestReadoutPlane: public TObject {
 		Double_t GetDistanceTo( Double_t x, Double_t y, Double_t z );
 
 		/// Returns a TVector2 oriented as the shortest distance of a given position *pos* on the plane to a specific module with id *mod*
-		TVector2 GetDistanceToModule( Int_t mod, TVector2 pos ) { return GetModule( mod )->GetDistanceToModule( pos ); }
+		TVector2 GetDistanceToModule( Int_t mod, TVector2 pos ) { return GetModuleByID( mod )->GetDistanceToModule( pos ); }
 
 		TRestReadoutModule& operator[] (int mod) { return fReadoutModules[mod]; }
 
 		/// Returns a pointer to a readout module using its vector index
-		TRestReadoutModule *GetModule( int mod ) { return &fReadoutModules[mod]; }
+		TRestReadoutModule *GetModule( int mod ) { if (mod >= GetNumberOfModules())return NULL; return &fReadoutModules[mod]; }
 
-		/// Returns a pointer to a readout channel at a given module and channel indexes.
-		TRestReadoutChannel *GetChannel( Int_t mod, Int_t ch ) { return fReadoutModules[mod].GetChannel( ch ); }
-
-		/// Returns a pointer to a readout module using its vector index
-		TRestReadoutModule *GetReadoutModule( int mod ) { return GetModule( mod ); }
-
-		/// Returns a pointer to a readout channel at a given module and channel indexes.
-		TRestReadoutChannel *GetReadoutChannel( Int_t mod, Int_t ch ) { return GetChannel( mod, ch ); }
 
 		/// Returns the total number of modules in the readout plane
 		Int_t GetNumberOfModules( ) { return fReadoutModules.size(); }
@@ -128,8 +120,6 @@ class TRestReadoutPlane: public TObject {
 		Int_t GetNumberOfChannels( );
 
 		TRestReadoutModule *GetModuleByID( Int_t modID );
-
-		TRestReadoutChannel *GetChannelByID( Int_t modID, Int_t chID );
 
 		Int_t isZInsideDriftVolume( Double_t z  );
 

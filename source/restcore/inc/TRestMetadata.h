@@ -48,23 +48,98 @@ class TRestManager;
 
 //! A base class for any REST metadata class
 class TRestMetadata :public TNamed {
+private:
+	void SetEnv(TiXmlElement* e, bool updateexisting = true);
+	void ExpandElement(TiXmlElement*e, bool recursive = false);
+	void ExpandForLoops(TiXmlElement*e);
+	void ExpandIncludeFile(TiXmlElement* e);
+
+protected:
+	//new xml utilities
+	std::string GetFieldValue(std::string parName, TiXmlElement* e);
+	string GetParameter(std::string parName, TiXmlElement* e, TString defaultValue = PARAMETER_NOT_FOUND_STR);
+	Double_t GetDblParameterWithUnits(std::string parName, TiXmlElement* e, Double_t defaultVal = PARAMETER_NOT_FOUND_DBL);
+	TVector2 Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* e, TVector2 defaultValue = TVector2(-1, -1));
+	TVector3 Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* e, TVector3 defaultValue = TVector3(-1, -1, -1));
+	TiXmlElement* GetRootElementFromFile(std::string cfgFileName);
+	TiXmlElement* GetElement(std::string eleDeclare);
+	TiXmlElement* GetElement(std::string eleDeclare, TiXmlElement* e);
+	TiXmlElement* GetElement(std::string eleDeclare, std::string cfgFileName);
+	TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement* e);
+	TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName);
+	std::string GetElementDeclare(TiXmlElement* e) { return e->Value(); }
+	std::string GetUnits(string whoseunits = "");
+	string GetUnits(TiXmlElement* e, string whoseunits = "");
+	TiXmlElement* ReplaceElementAttributes(TiXmlElement* e);
+
+	//old xml parser interface.
+	TiXmlElement* StringToElement(string definition);
+	string ElementToString(TiXmlElement*ele);
+	string GetKEYStructure(std::string keyName);
+	string GetKEYStructure(std::string keyName, size_t &Position);
+	string GetKEYStructure(std::string keyName, string buffer);
+	string GetKEYStructure(std::string keyName, size_t &Position, string buffer);
+	string GetKEYStructure(std::string keyName, size_t &Position, TiXmlElement*ele);
+	string GetKEYDefinition(std::string keyName);
+	string GetKEYDefinition(std::string keyName, size_t &Position);
+	string GetKEYDefinition(std::string keyName, string buffer);
+	string GetKEYDefinition(std::string keyName, size_t &Position, string buffer);
+	string GetParameter(std::string parName, size_t &pos, std::string inputString);
+	Double_t GetDblParameterWithUnits(std::string parName, size_t &pos, std::string inputString);
+	TVector2 Get2DVectorParameterWithUnits(std::string parName, size_t &pos, std::string inputString);
+	TVector3 Get3DVectorParameterWithUnits(std::string parName, size_t &pos, std::string inputString);
+	string GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition = 0);
+	Double_t GetDblFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
+	TVector2 Get2DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
+	TVector3 Get3DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
+
+	//string utils
+	std::string ReplaceEnvironmentalVariables(const std::string buffer);
+	void SetEnv(string name, string value, bool overwriteexisting);
+	void ClearEnv() { fElementEnv.clear(); }
+	string SearchFile(string filename);
+
+	//////////////////////////////////////////////////
+	///Data members
+	///NOTE!! In root6 the "#ifndef __CINT__" structure is not helpful any more!
+	///Attatch "//! something" structure in comment line to avoid variables being saved by root.
+	///see more detail in https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html#automatically-generated-streamers
+	
+	///REST version string
+	TString fVersion;
+	//Name;(Derived from TNamed)
+	//Title;(Derived from TNamed)
+	///Full name of rml file 
+	std::string fConfigFileName;
+	///Section name given in the constructor of the derived metadata class
+	std::string fSectionName;
+	///The buffer where the corresponding metadata section is stored. Filled only during Write()
+	std::string configBuffer;
+#ifndef __CINT__
+	///Verbose level used to print debug info
+	REST_Verbose_Level fVerboseLevel;   //! 
+	///All metadata classes can be initialized and managed by TRestManager
+	TRestManager* fHostmgr;//!
+	///This variable is used to determine if the metadata structure should be stored in the ROOT file.
+	Bool_t fStore;  //! 
+	///Saving the sectional element together with global element
+	TiXmlElement* fElement;//!
+	///Saving the global element, to be passed to the resident class, if necessary.
+	TiXmlElement* fElementGlobal;//! 
+	///Saving a list of environmental variables
+	vector<TiXmlElement*> fElementEnv;//! 
+
+	///formatted message output, used for print metadata
+	TRestLeveledOutput<REST_Silent> fout = TRestLeveledOutput<REST_Silent>(fVerboseLevel, COLOR_BOLDBLUE, "==");//! 
+	TRestLeveledOutput<REST_Silent> error = TRestLeveledOutput<REST_Silent>(fVerboseLevel, COLOR_BOLDRED, "", 1);//! 
+	TRestLeveledOutput<REST_Essential> warning = TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDYELLOW, "", 1);//! 
+	TRestLeveledOutput<REST_Essential> essential = TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDGREEN);//! 
+	TRestLeveledOutput<REST_Info> info = TRestLeveledOutput<REST_Info>(fVerboseLevel, COLOR_BOLDGREEN);//! 
+	TRestLeveledOutput<REST_Debug> debug = TRestLeveledOutput<REST_Debug>(fVerboseLevel, COLOR_RESET, "", 1);//! 
+	TRestLeveledOutput<REST_Extreme> extreme = TRestLeveledOutput<REST_Extreme>(fVerboseLevel, COLOR_RESET, "", 1);//! 
+#endif
 
 public:
-
-	///program message verbose level enumerator. Controlinng the density of output message.
-
-
-	///file output level enumerator. Setting different save types of output file.
-
-	TString fVersion;
-
-	TRestMetadata();
-	~TRestMetadata();
-	TRestMetadata(const char *cfgFileNamecfgFileName);
-
-	/// Call CINT to generate streamers for this class
-	ClassDef(TRestMetadata, 2);
-
 	Int_t LoadConfigFromFile();
 	Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal);
 	Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal, vector<TiXmlElement*> eEnv);
@@ -75,11 +150,8 @@ public:
 	virtual void InitFromConfigFile() = 0;
 	/// Method called after the object is retrieved from root file. 
 	virtual void InitFromRootFile();
-
-	///////////////////////////////////////////////////////////////
 	/// Making default settings.
 	virtual void Initialize() {}
-
 	/// Implementing TObject::Print() method
 	void Print() { PrintMetadata(); }
 	/// Implemented it in the derived metadata class to print out specific metadata information.
@@ -93,13 +165,9 @@ public:
 	/// ROOT GUI won't be jammed during this pause
 	int GetChar(string hint="Press a KEY to continue ...");
 
-
-
 	//getters and setters
-
 	TString GetVersion() { return  fVersion; }
 	Int_t GetVersionCode() { return  ConvertVersionCode ( (std::string) fVersion); }
-
 	std::string GetSectionName();
 	std::string GetSectionContent();
 	/// set the section name, clear the section content
@@ -135,8 +203,7 @@ public:
 	Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0) const { if (fStore) { return TNamed::Write(name, option, bufsize); } return -1; }
 	Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0) { if (fStore) { return TNamed::Write(name, option, bufsize); } return -1; }
 
-
-	//data tools
+	//data member reflection tools
 	TStreamerElement* GetDataMemberWithName(string name);
 	TStreamerElement* GetDataMemberWithID(int ID);
 	int GetNumberOfDataMember();
@@ -148,115 +215,12 @@ public:
 	void SetDataMemberVal(TStreamerElement*, string);
 	void SetDataMemberValFromConfig(TStreamerElement*);
 
-protected:
-	//new xml utilities
-	std::string GetFieldValue(std::string parName, TiXmlElement* e);
-	string GetParameter(std::string parName, TiXmlElement* e, TString defaultValue = PARAMETER_NOT_FOUND_STR);
-	Double_t GetDblParameterWithUnits(std::string parName, TiXmlElement* e, Double_t defaultVal = PARAMETER_NOT_FOUND_DBL);
-	TVector2 Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* e, TVector2 defaultValue = TVector2(-1, -1));
-	TVector3 Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* e, TVector3 defaultValue = TVector3(-1, -1, -1));
+	TRestMetadata();
+	~TRestMetadata();
+	TRestMetadata(const char *cfgFileNamecfgFileName);
 
-	TiXmlElement* GetRootElementFromFile(std::string cfgFileName);
-
-	TiXmlElement* GetElement(std::string eleDeclare);
-	TiXmlElement* GetElement(std::string eleDeclare, TiXmlElement* e);
-	TiXmlElement* GetElement(std::string eleDeclare, std::string cfgFileName);
-	TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement* e);
-	TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName);
-	std::string GetElementDeclare(TiXmlElement* e) { return e->Value(); }
-	std::string GetUnits(string whoseunits = "");
-	string GetUnits(TiXmlElement* e,string whoseunits="");
-	//replace mathematical expressions and env variables in the element attribute
-	//all the elements will get proprocessed before the real operation.
-	TiXmlElement* ReplaceElementAttributes(TiXmlElement* e);
-
-
-	//old xml parser interface.
-	TiXmlElement* StringToElement(string definition);
-	string ElementToString(TiXmlElement*ele);
-	string GetKEYStructure(std::string keyName);
-	string GetKEYStructure(std::string keyName, size_t &Position);
-	string GetKEYStructure(std::string keyName, string buffer);
-	string GetKEYStructure(std::string keyName, size_t &Position, string buffer);
-	string GetKEYStructure(std::string keyName, size_t &Position, TiXmlElement*ele);
-	string GetKEYDefinition(std::string keyName);
-	string GetKEYDefinition(std::string keyName, size_t &Position);
-	string GetKEYDefinition(std::string keyName, string buffer);
-	string GetKEYDefinition(std::string keyName, size_t &Position, string buffer);
-	string GetParameter(std::string parName, size_t &pos, std::string inputString);
-	Double_t GetDblParameterWithUnits(std::string parName, size_t &pos, std::string inputString);
-	TVector2 Get2DVectorParameterWithUnits(std::string parName, size_t &pos, std::string inputString);
-	TVector3 Get3DVectorParameterWithUnits(std::string parName, size_t &pos, std::string inputString);
-	string GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition = 0);
-	Double_t GetDblFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
-	TVector2 Get2DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
-	TVector3 Get3DVectorFieldValueWithUnits(string fieldName, string definition, size_t fromPosition = 0);
-
-	//string utils
-	//std::string EvaluateExpression(std::string exp);
-	//std::string ReplaceMathematicalExpressions(std::string buffer);
-	std::string ReplaceEnvironmentalVariables(const std::string buffer);
-
-	void SetEnv(string name, string value, bool overwriteexisting);
-	/// clear the env sections list
-	void ClearEnv() { fElementEnv.clear(); }
-
-	string SearchFile(string filename);
-
-	//////////////////////////////////////////////////
-	///Data members
-	///NOTE!! In root6 the "#ifndef __CINT__" structure is not helpful any more!
-	///Attatch "//! something" structure in comment line to avoid variables being saved by root.
-	///see more detail in https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html#automatically-generated-streamers
-#ifndef __CINT__
-
-	//Name;(Derived from TNamed)
-	//Title;(Derived from TNamed)
-	///Full name of rml file 
-	std::string fConfigFileName;
-	///Section name given in the constructor of the derived metadata class
-	std::string fSectionName;
-	///The buffer where the corresponding metadata section is stored. Filled only during Write()
-	std::string configBuffer;
-	///Verbose level used to print debug info
-	REST_Verbose_Level fVerboseLevel;   //! 
-	///All metadata classes can be initialized and managed by TRestManager
-	TRestManager* fHostmgr;//!
-	///This variable is used to determine if the metadata structure should be stored in the ROOT file.
-	Bool_t fStore;  //! 
-	///Saving the sectional element together with global element
-	TiXmlElement* fElement;//!
-	///Saving the global element, to be passed to the resident class, if necessary.
-	TiXmlElement* fElementGlobal;//! 
-	///Saving a list of environmental variables
-	vector<TiXmlElement*> fElementEnv;//! 
-
-
-	///formatted message output, used for print metadata
-	TRestLeveledOutput<REST_Silent> fout = TRestLeveledOutput<REST_Silent>(fVerboseLevel, COLOR_BOLDBLUE, "==");//! 
-	TRestLeveledOutput<REST_Silent> error = TRestLeveledOutput<REST_Silent>(fVerboseLevel, COLOR_BOLDRED, "", 1);//! 
-	TRestLeveledOutput<REST_Essential> warning = TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDYELLOW, "", 1);//! 
-	TRestLeveledOutput<REST_Essential> essential = TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDGREEN);//! 
-	TRestLeveledOutput<REST_Info> info = TRestLeveledOutput<REST_Info>(fVerboseLevel, COLOR_BOLDGREEN);//! 
-	TRestLeveledOutput<REST_Debug> debug = TRestLeveledOutput<REST_Debug>(fVerboseLevel, COLOR_RESET, "", 1);//! 
-	TRestLeveledOutput<REST_Extreme> extreme = TRestLeveledOutput<REST_Extreme>(fVerboseLevel, COLOR_RESET, "", 1);//! 
-
-
-
-#endif
-
-
-private:
-
-	//void ProcessElement(TiXmlElement* e);
-	void SetEnv(TiXmlElement* e,bool updateexisting =true);
-	//void ExecuteForLoops(TiXmlElement* e);
-	//void LoadConfigInIncludeFile(TiXmlElement* e);
-	void ExpandElement(TiXmlElement*e,bool recursive=false);
-	void ExpandForLoops(TiXmlElement*e);
-	void ExpandIncludeFile(TiXmlElement* e);
-
-
+	/// Call CINT to generate streamers for this class
+	ClassDef(TRestMetadata, 2);
 };
 
 

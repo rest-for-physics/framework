@@ -53,7 +53,7 @@ class TRestReadout:public TRestMetadata {
 
 		TRestReadoutPlane & operator[] (int p) { return fReadoutPlanes[p]; }
 
-        TRestReadoutPlane *GetReadoutPlane( int p );
+		TRestReadoutPlane *GetReadoutPlane( int p );
         void AddReadoutPlane( TRestReadoutPlane plane );
 
 		/////////////////////////////////////
@@ -72,6 +72,7 @@ class TRestReadout:public TRestMetadata {
 
 		/////////////////////////////////////
 		//{
+		TRestReadoutModule* ParseModuleDefinition(std::string ReadoutModuleString);
 		void GetPlaneModuleChannel(Int_t daqID, Int_t& planeID, Int_t& moduleID, Int_t& channelID);
 		Int_t GetHitsDaqChannel(TVector3 hitpos, Int_t& planeID, Int_t& moduleID, Int_t& channelID);
 		Double_t GetX(Int_t signalID);

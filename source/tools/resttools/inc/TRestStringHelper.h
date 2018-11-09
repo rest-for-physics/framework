@@ -42,11 +42,12 @@ public:
 	static  TVector2 StringTo2DVector(std::string in);
 	static std::vector<string> Spilt(std::string in, string separator);
 	static std::string RemoveWhiteSpaces(std::string in);
-	static  std::string Replace(std::string in, std::string thisString, std::string byThisString, size_t fromPosition);
+	static  std::string Replace(std::string in, std::string thisString, std::string byThisString, size_t fromPosition = 0, Int_t N = 0);
 	static string ToDateTimeString(time_t time);
 	static time_t ToTime(string time);
 	//template<class T> static string ToString(T source);
 	static Int_t Count(std::string s, std::string sbstring);
+	static Int_t FindNthStringPosition(const string& in, size_t pos, const string& strToFind, size_t nth);
 	static bool fileExists(const std::string& filename);
 	static  bool isRootFile(const std::string& filename);
 	static bool isPathWritable(const std::string& path);
@@ -79,12 +80,13 @@ inline Long64_t StringToLong(std::string in) { return TRestStringHelper::StringT
 inline TVector3 StringTo3DVector(std::string in) { return TRestStringHelper::StringTo3DVector(in); }
 inline TVector2 StringTo2DVector(std::string in) { return TRestStringHelper::StringTo2DVector(in); }
 inline std::string RemoveWhiteSpaces(std::string in) { return TRestStringHelper::RemoveWhiteSpaces(in); }
-inline std::string Replace(std::string in, std::string thisString, std::string byThisString, size_t fromPosition)
+inline std::string Replace(std::string in, std::string thisString, std::string byThisString, size_t fromPosition = 0, Int_t N = 0)
 {
-	return TRestStringHelper::Replace(in, thisString, byThisString, fromPosition);
+	return TRestStringHelper::Replace(in, thisString, byThisString, fromPosition, N);
 }
 inline vector<string> Spilt(std::string in, string separator) { return TRestStringHelper::Spilt(in, separator); }
 inline Int_t Count(std::string s, std::string sbstring) { return TRestStringHelper::Count(s, sbstring); }
+inline Int_t FindNthStringPosition(const string& in, size_t pos, const string& strToFind, size_t nth) { return TRestStringHelper::FindNthStringPosition(in, pos, strToFind, nth); }
 inline string ToDateTimeString(time_t time) { return TRestStringHelper::ToDateTimeString(time); }
 inline time_t ToTime(string time) { return TRestStringHelper::ToTime(time); }
 template<class T> inline string ToString(T source) 

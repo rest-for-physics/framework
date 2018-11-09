@@ -248,6 +248,7 @@
 
 #include "TRestReadout.h"
 using namespace std;
+bool RESTREADOUT_DECODINGFILE_ERROR = false;
 
 ClassImp(TRestReadout)
 ///////////////////////////////////////////////
@@ -335,7 +336,7 @@ Int_t TRestReadout::GetNumberOfModules( )
 {
 	Int_t modules = 0;
 	for( int p = 0; p < GetNumberOfReadoutPlanes( ); p++ )
-		modules += GetReadoutPlane( p )->GetNumberOfModules( );
+		modules += fReadoutPlanes[p].GetNumberOfModules( );
 	return modules;
 }
 
@@ -347,8 +348,8 @@ Int_t TRestReadout::GetNumberOfChannels( )
 {
 	Int_t channels = 0;
 	for( int p = 0; p < GetNumberOfReadoutPlanes( ); p++ )
-		for( int m = 0; m < GetReadoutPlane( p )->GetNumberOfModules( ); m++ )
-			channels += GetReadoutPlane( p )->GetModule( m )->GetNumberOfChannels( );
+		for( int m = 0; m < fReadoutPlanes[p].GetNumberOfModules( ); m++ )
+			channels += fReadoutPlanes[p][m].GetNumberOfChannels( );
 	return channels;
 }
 
@@ -412,8 +413,8 @@ TRestReadoutChannel*TRestReadout::GetReadoutChannelWithdaqID(int daqId) {
 ///////////////////////////////////////////////
 /// \brief Returns a pointer to the readout plane by index
 ///
-TRestReadoutPlane *TRestReadout::GetReadoutPlane( int p ) 
-{ 
+TRestReadoutPlane *TRestReadout::GetReadoutPlane( int p )
+{
 	if( p < fNReadoutPlanes)
 		return &fReadoutPlanes[p];
 	else
@@ -447,20 +448,12 @@ void TRestReadout::InitFromConfigFile()
 
 	fMappingNodes = StringToInteger( GetParameter( "mappingNodes", "0" ) );
 
+#pragma region ParseModuledefinition
 	string moduleString;
 	size_t posSection = 0;
 	while( ( moduleString = GetKEYStructure( "readoutModule", posSection ) ) != "NotFound" )
 	{
-		TRestReadoutModule module;
-		if( GetVerboseLevel() >= REST_Warning ) module.EnableWarnings();
-
-		string moduleDefinition = GetKEYDefinition( "readoutModule", moduleString );
-
-		module.SetName( GetFieldValue( "name", moduleDefinition ) );
-		module.SetSize( StringTo2DVector( GetFieldValue( "size", moduleDefinition ) ) );
-		module.SetTolerance( StringToDouble( GetFieldValue( "tolerance", moduleDefinition ) ) );
-
-		if(GetVerboseLevel() >= REST_Debug)
+		if (GetVerboseLevel() >= REST_Debug)
 		{
 			cout << "------module-----------------" << endl;
 			cout << moduleString << endl;
@@ -468,79 +461,12 @@ void TRestReadout::InitFromConfigFile()
 			cout << "position : " << posSection << endl;
 			GetChar();
 		}
-		vector <TRestReadoutChannel> channelVector;
-		string channelString;
-		size_t position2 = 0;
-		while( ( channelString = GetKEYStructure( "readoutChannel", position2, moduleString ) ) != "" )
-		{
-			size_t position3 = 0;
-			string channelDefinition = GetKEYDefinition( "readoutChannel", position3, channelString );
 
-			TRestReadoutChannel channel;
-
-			Int_t id = StringToInteger(GetFieldValue("id", channelDefinition));
-			string typestring = GetFieldValue("type", channelDefinition);
-			TRestReadoutChannelType type = Channel_NoType;
-			if (typestring == "Not defined") type = Channel_NoType;
-			else if (ToUpper(typestring) == "X") type = Channel_X;
-			else if (ToUpper(typestring) == "Y") type = Channel_Y;
-			else if (ToUpper(typestring).find("P") != -1) type = Channel_Pixel;
-			channel.SetID(id);
-			channel.SetType(type);
-			channel.SetDaqID(-1);
-
-
-			vector <TRestReadoutPixel> pixelVector;
-			string pixelString;
-			while( ( pixelString = GetKEYDefinition( "addPixel", position3, channelString ) ) != "" )
-			{
-				TRestReadoutPixel pixel;
-
-				pixel.SetID( StringToInteger( GetFieldValue( "id", pixelString ) ) );
-				pixel.SetOrigin( StringTo2DVector( GetFieldValue( "origin", pixelString ) ) );
-				pixel.SetSize( StringTo2DVector( GetFieldValue( "size", pixelString ) ) );
-				pixel.SetRotation( StringToDouble( GetFieldValue( "rotation", pixelString ) ) );
-				pixel.SetTriangle( StringToBool( GetFieldValue( "triangle", pixelString ) ) );
-
-				pixelVector.push_back( pixel );
-				//channel.AddPixel( pixel );
-			}
-
-			//Creating the vector fReadoutPixel in the channel with pixels added in the order of their ID.
-			for ( Int_t i(0); i< (Int_t) pixelVector.size(); i++)
-			{
-				for ( Int_t j(0); j< (Int_t) pixelVector.size(); j++)
-				{
-					if ( pixelVector[j].GetID() == i )
-					{
-					channel.AddPixel( pixelVector[j] );
-						break;
-					}
-				}
-			}
-
-
-			channelVector.push_back( channel );
-		}
-
-		//Creating the vector fReadoutChannel in the module with channels added in the order of their ID.
-		for ( Int_t i(0); i< (Int_t) channelVector.size(); i++)
-		{
-			for ( Int_t j(0); j< (Int_t) channelVector.size(); j++)
-			{
-				if ( channelVector[j].GetID() == i )
-				{
-					module.AddChannel( channelVector[j] );
-					break;
-				}
-			}
-		}
-
-		module.DoReadoutMapping( fMappingNodes );
-
+		TRestReadoutModule module = *ParseModuleDefinition(moduleString);
+		module.DoReadoutMapping(fMappingNodes);
 		fModuleDefinitions.push_back( module );
 	}
-
+#pragma endregion
 
 	vector <TRestReadoutModule> moduleVector;
 	Int_t addedChannels = 0;
@@ -558,8 +484,9 @@ void TRestReadout::InitFromConfigFile()
 		Double_t tDriftDistance = plane.GetDistanceTo( plane.GetCathodePosition() );
 		plane.SetTotalDriftDistance( tDriftDistance );
 
-        moduleVector.clear();
+#pragma region addReadoutModuleToPlane
 
+        moduleVector.clear();
 		string moduleDefinition;
 		size_t posPlane = 0;
 		while( ( moduleDefinition = GetKEYDefinition( "addReadoutModule", posPlane, planeString ) ) != "" )
@@ -571,12 +498,16 @@ void TRestReadout::InitFromConfigFile()
 			fModuleDefinitions[mid].SetOrigin( StringTo2DVector( GetFieldValue( "origin", moduleDefinition ) ) );
 			fModuleDefinitions[mid].SetRotation( StringToDouble( GetFieldValue( "rotation", moduleDefinition ) ) );
 
+#pragma region SetupDecodingFile
+
 			Int_t firstDaqChannel = StringToInteger( GetFieldValue( "firstDaqChannel", moduleDefinition ) );
 			if( firstDaqChannel == -1 ) firstDaqChannel = addedChannels;
 
 			string decodingFile = GetFieldValue( "decodingFile", moduleDefinition );
-			if( decodingFile == "Not defined" || decodingFile == "" ) fDecoding = false;
-			else fDecoding = true;
+			if( decodingFile == "Not defined" || decodingFile == "" || RESTREADOUT_DECODINGFILE_ERROR) 
+				fDecoding = false;
+			else 
+				fDecoding = true;
 
 			if( fDecoding && !fileExists( decodingFile.c_str() ) )
 			{
@@ -589,6 +520,7 @@ void TRestReadout::InitFromConfigFile()
 				cout << "Press a KEY to continue..." << endl;
 				getchar();
 				fDecoding = false;
+				RESTREADOUT_DECODINGFILE_ERROR = true;
 			}
 
 			vector <Int_t> rChannel;
@@ -636,14 +568,15 @@ void TRestReadout::InitFromConfigFile()
 			{
 				if( !fDecoding )
 				{
-					Int_t id = fModuleDefinitions[mid].GetChannel(ch)->GetID( );
+					Int_t id = ch;
 					rChannel.push_back( id );
 					dChannel.push_back( id + firstDaqChannel );
 				}
 
 				// WRONG version before --> fModuleDefinitions[mid].GetChannel(ch)->SetID( rChannel[ch] );
-				fModuleDefinitions[mid].GetChannelByID( rChannel[ch] )->SetDaqID( dChannel[ch] );
+				fModuleDefinitions[mid].GetChannel( rChannel[ch] )->SetDaqID( dChannel[ch] );
 
+#pragma endregion
 				addedChannels++;
 
 			}
@@ -655,11 +588,10 @@ void TRestReadout::InitFromConfigFile()
 			posPlane++;
 		}
 
-        // TODO An issue with the following code is that module id's should start by 0 and have no missing
-        // numbers in a multi-module readout plane. Thats fine. But we should create a warning/error message
-        // if that is not the case!!
+        // We removed the constraint that module id's should start by 0 and have no missing
+        // numbers in a multi-module readout plane. Modules can have their special "id", e.g.
+		// M0, M2, M3, M4 in SJTU proto. We don't have M1
 
-		//Creating the vector fReadoutModule in the plane with modules added in the order of their ID.
 		for ( Int_t i(0); i< (Int_t) moduleVector.size(); i++)
 		{
 			plane.AddModule(moduleVector[i]);
@@ -672,12 +604,119 @@ void TRestReadout::InitFromConfigFile()
 			//	}
 			//}
 		}
+#pragma endregion
 
 		this->AddReadoutPlane( plane );
 	}
 
 	ValidateReadout( );
 }
+
+
+TRestReadoutModule* TRestReadout::ParseModuleDefinition(string moduleString) {
+
+	TRestReadoutModule*mod = new TRestReadoutModule();
+	TRestReadoutModule& module = *mod;
+	if (GetVerboseLevel() >= REST_Warning) module.EnableWarnings();
+
+	string moduleDefinition = GetKEYDefinition("readoutModule", moduleString);
+
+	module.SetName(GetFieldValue("name", moduleDefinition));
+	module.SetSize(StringTo2DVector(GetFieldValue("size", moduleDefinition)));
+	module.SetTolerance(StringToDouble(GetFieldValue("tolerance", moduleDefinition)));
+
+#pragma region addChannel
+	vector <TRestReadoutChannel> channelVector;
+	vector <int> channelIDVector;
+	string channelString;
+	size_t position2 = 0;
+	while ((channelString = GetKEYStructure("readoutChannel", position2, moduleString)) != "")
+	{
+		size_t position3 = 0;
+		string channelDefinition = GetKEYDefinition("readoutChannel", position3, channelString);
+
+		TRestReadoutChannel channel;
+
+		Int_t id = StringToInteger(GetFieldValue("id", channelDefinition));
+		if (id != -1)
+			channelIDVector.push_back(id);
+		channel.SetDaqID(-1);
+
+#pragma region addPixel
+		vector <TRestReadoutPixel> pixelVector;
+		vector <int> pixelIDVector;
+		string pixelString;
+		while ((pixelString = GetKEYDefinition("addPixel", position3, channelString)) != "")
+		{
+			TRestReadoutPixel pixel;
+
+			pixel.SetOrigin(StringTo2DVector(GetFieldValue("origin", pixelString)));
+			pixel.SetSize(StringTo2DVector(GetFieldValue("size", pixelString)));
+			pixel.SetRotation(StringToDouble(GetFieldValue("rotation", pixelString)));
+			pixel.SetTriangle(StringToBool(GetFieldValue("triangle", pixelString)));
+
+			if (StringToInteger(GetFieldValue("id", pixelString)) != -1)
+				pixelIDVector.push_back(StringToInteger(GetFieldValue("id", pixelString)));
+			pixelVector.push_back(pixel);
+			//channel.AddPixel( pixel );
+		}
+
+		if (pixelIDVector.size() > 0 && pixelIDVector.size() != pixelVector.size()) {
+			error << "REST error, pixel id definition may be wrong! check your readout module definition!" << endl;
+			exit(0);
+		}
+
+		//Creating the vector fReadoutPixel in the channel with pixels added in the order of their ID.
+		for (Int_t i(0); i < (Int_t)pixelVector.size(); i++)
+		{
+			for (Int_t j(0); j < (Int_t)pixelVector.size(); j++)
+			{
+				if (pixelIDVector[j] == i)
+				{
+					channel.AddPixel(pixelVector[j]);
+					break;
+				}
+			}
+		}
+
+		if (channel.GetNumberOfPixels() != pixelVector.size()) {
+			error << "REST error, pixel id definition may be wrong! check your readout module definition!" << endl;
+			exit(0);
+		}
+#pragma endregion
+
+		channelVector.push_back(channel);
+	}
+
+	if (channelIDVector.size() > 0 && channelIDVector.size() != channelVector.size()) {
+		error << "REST error, channel id definition may be wrong! check your readout module definition!" << endl;
+		exit(0);
+	}
+
+	//Creating the vector fReadoutChannel in the module with channels added in the order of their ID.
+	for (Int_t i(0); i < (Int_t)channelVector.size(); i++)
+	{
+		for (Int_t j(0); j < (Int_t)channelVector.size(); j++)
+		{
+			if (channelIDVector[j] == i)
+			{
+				module.AddChannel(channelVector[j]);
+				break;
+			}
+		}
+	}
+
+	if (module.GetNumberOfChannels() != channelVector.size()) {
+		error << "REST error, channel id definition may be wrong! check your readout module definition!" << endl;
+		exit(0);
+	}
+#pragma endregion
+
+	return mod;
+
+
+}
+
 
 ///////////////////////////////////////////////
 /// \brief This method is not implemented yet. But it could 
@@ -725,12 +764,12 @@ Int_t TRestReadout::GetHitsDaqChannel(TVector3 hitpos, Int_t& planeID, Int_t& mo
 		if (m >= 0)
 		{
 			//TRestReadoutModule* mod = plane->GetModuleByID(m);
-			TRestReadoutModule* mod = plane->GetModule(m);
+			TRestReadoutModule* mod = plane->GetModuleByID(m);
 			Int_t readoutChannel = plane->FindChannel(m, x, y);
 			if (readoutChannel >= 0) {
 				planeID = plane->GetID();
 				moduleID = mod->GetModuleID();
-				channelID = mod->GetChannel(readoutChannel)->GetID();
+				channelID = readoutChannel;
 				return mod->GetChannel(readoutChannel)->GetDaqID();
 			}
 

@@ -20,9 +20,9 @@ void PrintHelp()
 {
 	fout.resetcolor();
 	fout << " " << endl;
-	fout << "Usage1 : ./restManager --c CONFIG_FILE [--r RUNID] [--i INPUT] [--o OUTPUT]          " << endl;
+	fout << "Usage1 : ./restManager --c CONFIG_FILE [--d RUNID] [--i/f INPUT] [--o OUTPUT]        " << endl;
 	fout << "                       [--j THREADS] [--e EVENTS_TO_PROCESS] [--v VERBOSELEVEL]      " << endl;
-	fout << "                       [--h HISTOS_FILE.root] [--p PDF_PLOTS.pdf]                    " << endl;
+	fout << "                       [--r HISTOS_FILE.root] [--p PDF_PLOTS.pdf] [--n PLOT_NAME]    " << endl;
 	fout << "Usage2 : ./restManager TASK_NAME ARG1 ARG2 ARG3                                      " << endl;
 	fout << " " << endl;
 	fout << "-" << endl;
@@ -71,14 +71,16 @@ int main( int argc, char *argv[] )
 						switch (*argv[i])
 						{
 						case 'c': sprintf(cfgFileName, "%s", argv[i + 1]); break;
-						case 'r': setenv("runNumber", argv[i + 1], 1); break;
+						case 'd': setenv("runNumber", argv[i + 1], 1); break;
+						case 'f': setenv("inputFile", argv[i + 1], 1); setenv("REST_INPUTFILE", argv[i + 1], 1); break;
 						case 'i': setenv("inputFile", argv[i + 1], 1); setenv("REST_INPUTFILE", argv[i + 1], 1); break;
 						case 'o': setenv("outputFile", argv[i + 1], 1); break;
 						case 'j': setenv("threadNumber", argv[i + 1], 1); break;
 						case 'e': setenv("eventsToProcess", argv[i + 1], 1); break;
 						case 'v': setenv("verboseLevel", argv[i + 1], 1); break;
 						case 'p': setenv("pdfFilename", argv[i + 1], 1); break;
-						case 'h': setenv("histoFilename", argv[i + 1], 1); break;
+						case 'r': setenv("histoFilename", argv[i + 1], 1); break;
+						case 'n': setenv("plotsectionname", argv[i + 1], 1); break;
 						//case 'help': PrintHelp(); exit(0);
 						default:
 							fout << endl;
@@ -90,7 +92,7 @@ int main( int argc, char *argv[] )
 			}
 
 			fout << endl;
-			fout.setcolor(COLOR_BOLDBLUE);
+			fout.setcolor(COLOR_BOLDBLUE); fout.setorientation(0);
 			fout << "Launching TRestManager..." << endl;
 			fout << endl;
 			TRestManager* a = new TRestManager();
@@ -98,7 +100,7 @@ int main( int argc, char *argv[] )
 			auto path = SeparatePathAndName(cfgFileName).first;
 			setenv("configPath", path.c_str(), 1);
 
-			a->LoadConfigFromFile(cfgFileName);
+			a->LoadConfigFromFile(cfgFileName, "restManager");
 
 			fout << "Done!" << endl;
 			//a->GetChar();

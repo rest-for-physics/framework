@@ -28,14 +28,23 @@ enum REST_TASKMODE {
 
 /// Wrapping REST macros into tasks
 class TRestTask :public TRestMetadata {
+protected:
+	TRestTask(TString TaskString, REST_TASKMODE mode = TASK_MACRO);
+
+	void ConstructCommand();
+
+	int fNRequiredArgument;
+	REST_TASKMODE fMode;
+	string targetname = "";
+	string methodname = "";
+	vector<int>argumenttype;//!
+	vector<string>argumentname;//!
+	vector<string>argument;
+	string cmdstr = "";
+
 
 public:
-	TRestTask();
 
-	~TRestTask() {};
-	
-	ClassDef(TRestTask, 1);
-	
 	//define default values here
 	void InitFromConfigFile();
 
@@ -49,19 +58,11 @@ public:
 
 	void SetMode(REST_TASKMODE mod) { fMode = mod; }
 	REST_TASKMODE GetMode() { return fMode; }
-protected:
-	TRestTask(TString TaskString, REST_TASKMODE mode = TASK_MACRO);
 
-	void ConstructCommand();
+	TRestTask();
+	~TRestTask() {};
 
-	int fNRequiredArgument;
-	REST_TASKMODE fMode;
-	string targetname="";
-	string methodname="";
-	vector<int>argumenttype;//!
-	vector<string>argumentname;//!
-	vector<string>argument;
-	string cmdstr="";
+	ClassDef(TRestTask, 1);
 };
 
 

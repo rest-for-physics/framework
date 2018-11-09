@@ -79,11 +79,14 @@ TRestProcessRunner::~TRestProcessRunner()
 ///
 void TRestProcessRunner::Initialize()
 {
-	fInputEvent = NULL;
 	fRunInfo = NULL;
+	fInputEvent = NULL;
+	fOutputEvent = NULL;
+	fEventTree = NULL;
+	fAnalysisTree = NULL;
+	fTempOutputDataFile = NULL;
 	fThreads.clear();
 	ProcessInfo.clear();
-	fAnalysisTree = NULL;
 
 	fThreadNumber = 0;
 	firstEntry = 0;
@@ -347,7 +350,7 @@ void TRestProcessRunner::RunProcess()
 	{
 		essential << this->ClassName() << ": " << fProcessNumber << " processes loaded, " << fThreadNumber << " threads prepared!" << endl;
 	}
-	if (fVerboseLevel >= REST_Info) {
+	if (fVerboseLevel >= REST_Essential) {
 		if (fRunInfo->GetFileProcess() != NULL)fRunInfo->GetFileProcess()->PrintMetadata();
 
 		for (int i = 0; i < fProcessNumber; i++)
@@ -355,15 +358,15 @@ void TRestProcessRunner::RunProcess()
 			fThreads[0]->GetProcess(i)->PrintMetadata();
 		}
 	}
-	else if (fVerboseLevel >= REST_Essential)
+	else
 	{
 		if (fRunInfo->GetFileProcess() != NULL)
 		{
-			essential << "(external) " << fRunInfo->GetFileProcess()->ClassName() << " : " << fRunInfo->GetFileProcess()->GetName() << endl;
+			fout << "(external) " << fRunInfo->GetFileProcess()->ClassName() << " : " << fRunInfo->GetFileProcess()->GetName() << endl;
 		}
 		for (int i = 0; i < fProcessNumber; i++)
 		{
-			essential << "++ " << fThreads[0]->GetProcess(i)->ClassName() << " : " << fThreads[0]->GetProcess(i)->GetName() << endl;
+			fout << "++ " << fThreads[0]->GetProcess(i)->ClassName() << " : " << fThreads[0]->GetProcess(i)->GetName() << endl;
 		}
 	}
 	fout << "=" << endl;

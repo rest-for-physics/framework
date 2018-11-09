@@ -143,6 +143,6 @@ void TRestSmearingProcess::EndProcess()
 //______________________________________________________________________________
 void TRestSmearingProcess::InitFromConfigFile( )
 {
-    fEnergyRef = StringToDouble( GetParameter( "energyReference"  ) );
+    fEnergyRef = GetDblParameterWithUnits( "energyReference" );
     fResolutionAtEref = StringToDouble( GetParameter( "resolutionReference" ) );
 }
