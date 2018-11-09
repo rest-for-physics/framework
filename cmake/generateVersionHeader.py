@@ -38,7 +38,8 @@ commit = os.popen('git rev-parse --verify HEAD' ).read().rstrip("\n")
 #print commit[0:8]
 
 tag = os.popen( 'git describe --tags HEAD' ).read().rstrip("\n")
-tag = tag[0:tag.find("-")]
+if( tag.find("-") != -1 ):
+	tag = tag[0:tag.find("-")]
 
 command = "git log -1 --format=%ai " + str( tag )
 datetime = os.popen( command ).read().rstrip("\n")
