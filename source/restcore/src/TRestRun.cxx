@@ -210,7 +210,7 @@ void TRestRun::BeginOfInit()
 		sprintf(runNumberStr, "%05d", fRunNumber);
 
 		fOutputFileName = outputdir  + "/Run_" + expName + "_" + fRunUser + "_"
-			+ runType + "_" + fRunTag + "_" + (TString)runNumberStr + "_" + (TString)runParentStr + "_V" + fVersion + ".root";
+			+ runType + "_" + fRunTag + "_" + (TString)runNumberStr + "_" + (TString)runParentStr + "_V" + REST_RELEASE + ".root";
 
 		fOverwrite = ToUpper(GetParameter("overwrite", "on")) != "OFF";
 		while (!fOverwrite && fileExists((string)fOutputFileName))
@@ -218,7 +218,7 @@ void TRestRun::BeginOfInit()
 			fParentRunNumber++;
 			sprintf(runParentStr, "%05d", fParentRunNumber);
 			fOutputFileName = outputdir + "/Run_" + expName + "_" + fRunUser + "_"
-				+ runType + "_" + fRunTag + "_" + (TString)runNumberStr + "_" + (TString)runParentStr + "_V" + fVersion + ".root";
+				+ runType + "_" + fRunTag + "_" + (TString)runNumberStr + "_" + (TString)runParentStr + "_V" + REST_RELEASE + ".root";
 		}
 	
 	}
@@ -387,10 +387,11 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 
 		TRestRun*r = (TRestRun*)GetMetadataClass("TRestRun", fInputFile);
 
-		if( r && (r->GetVersionCode() >= REST_VERSION(2,2,1) || r->GetVersion() == REST_RELEASE ) )
+		int vernum = r->GetVersionCode();
+		if( r && (vernum >= REST_VERSION(2,2,1) ) )
 			ReadInputFileMetadata();
 
-		debug << "Initializing input file : version code : " << this->GetVersionCode() << endl;
+		debug << "Initializing input file : version code : " << vernum << endl;
 		ReadInputFileTrees();
 	}
 	else
@@ -417,22 +418,9 @@ void TRestRun::ReadInputFileMetadata() {
 		TKey *key;
 		while ((key = (TKey*)nextkey()))
 		{
-			TRestMetadata* a;
+			TRestMetadata* a = (TRestMetadata *)f->Get(key->GetName());
 
-			try {
-				a = (TRestMetadata *)f->Get(key->GetName());
-			}
-			catch (std::bad_alloc e)//schema evolution conflict
-			{
-				error << "REST ERROR (ImportMetadata) : error when retrieving metadata object from ROOT file!" << endl;
-				error << "file: " << f->GetName() << ", object name: " << key->GetName() << endl;
-				cout << "HINT: this may be caused by schema evolution conflict. Make sure the object in the " << endl;
-				cout << "target file is with same schema evolution level as current REST" << endl;
-				exit(1);
-			}
-
-			string name = a->GetName();
-			if (a->InheritsFrom("TRestMetadata"))
+			if (a->InheritsFrom("TRestEventProcess"))
 			{
 				//we make sure there is no repeated class added
 				bool flag = false;
@@ -445,6 +433,18 @@ void TRestRun::ReadInputFileMetadata() {
 				if (!flag) {
 					RESTRUN_INPUTMETADATA.push_back(a);
 				}
+			}
+
+			if ((string)a->ClassName() == "TRestRun") {
+				TRestRun*r = (TRestRun*)a;
+
+				if (fRunType == "preserve")fRunType = r->GetRunType();
+				if (fRunUser == "preserve")fRunUser = r->GetRunUser();
+				if (fRunTag == "preserve")fRunTag = r->GetRunTag();
+				if (fRunDescription == "preserve")fRunDescription = r->GetRunDescription();
+				if (fExperimentName == "preserve")fExperimentName = r->GetExperimentName();
+
+				SetVersion(r->GetVersion());
 			}
 		}
 	}
@@ -869,7 +869,7 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
 		fMetadataInfo[i]->Write(0, kOverwrite);
 	}
 	for (int i = 0; i < RESTRUN_INPUTMETADATA.size(); i++) {
-		RESTRUN_INPUTMETADATA[i]->Write(("Historic_" + (string)RESTRUN_INPUTMETADATA[i]->GetName()).c_str()
+		RESTRUN_INPUTMETADATA[i]->Write(("Historic_" + (string)RESTRUN_INPUTMETADATA[i]->ClassName()).c_str()
 			, kOverwrite);
 	}
 	//write to database
@@ -1166,19 +1166,8 @@ TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile*f)
 
 			if (kName == type)
 			{
-				TRestMetadata* a;
+				TRestMetadata* a = (TRestMetadata *)f->Get(key->GetName());
 
-				try {
-					a = (TRestMetadata *)f->Get(key->GetName());
-				}
-				catch (std::bad_alloc e)//schema evolution conflict
-				{
-					error << "REST ERROR (ImportMetadata) : error when retrieving metadata object from ROOT file!" << endl;
-					error << "file: " << f->GetName() << ", object name: " << key->GetName() << endl;
-					cout << "HINT: this may be caused by schema evolution conflict. Make sure the object in the " << endl;
-					cout << "target file is with same schema evolution level as current REST" << endl;
-					exit(1);
-				}
 				if (a->InheritsFrom("TRestMetadata"))
 				{
 					return a;
@@ -1194,7 +1183,7 @@ TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile*f)
 		for (int i = 0; i < fMetadataInfo.size(); i++)
 			if ((string)fMetadataInfo[i]->ClassName() == type) return fMetadataInfo[i];
 
-		if (fInputFile != NULL && GetVersion() == REST_RELEASE ) {
+		if (fInputFile != NULL && GetVersionCode() >= REST_VERSION(2, 2, 1)) {
 			return GetMetadataClass(type, fInputFile);
 		}
 	}
@@ -1213,19 +1202,8 @@ TRestMetadata *TRestRun::GetMetadata(TString name, TFile*f)
 
 			if (kName == name)
 			{
-				TRestMetadata* a;
+				TRestMetadata* a = (TRestMetadata *)f->Get(name);
 
-				try {
-					a = (TRestMetadata *)f->Get(name);
-				}
-				catch (std::bad_alloc e)//schema evolution conflict
-				{
-					error << "REST ERROR (ImportMetadata) : error when retrieving metadata object from ROOT file!" << endl;
-					error << "file: " << f->GetName() << ", object name: " << name << endl;
-					cout << "HINT: this may be caused by schema evolution conflict. Make sure the object in the " << endl;
-					cout << "target file is with same schema evolution level as current REST" << endl;
-					exit(1);
-				}
 				if (a->InheritsFrom("TRestMetadata"))
 				{
 					return a;
@@ -1241,7 +1219,7 @@ TRestMetadata *TRestRun::GetMetadata(TString name, TFile*f)
 		for (unsigned int i = 0; i < fMetadataInfo.size(); i++)
 			if (fMetadataInfo[i]->GetName() == name) return fMetadataInfo[i];
 
-		if (fInputFile != NULL && GetVersion() == REST_RELEASE) {
+		if (fInputFile != NULL && GetVersionCode() >= REST_VERSION(2, 2, 1)) {
 			return GetMetadata(name, fInputFile);
 		}
 	}
