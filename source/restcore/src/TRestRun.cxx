@@ -391,7 +391,7 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 		if (r == NULL) {
 			error << "REST ERROR : invalid input file! Lacking TRestRun metadata!" << endl;
 			error << "filename : " << filename << endl;
-			exit(0);
+			exit(1);
 		}
 		if (vernum >= REST_VERSION(2, 2, 1))
 			ReadInputFileMetadata();
@@ -452,7 +452,6 @@ void TRestRun::ReadInputFileMetadata() {
 				if (fExperimentName == "preserve")fExperimentName = r->GetExperimentName();
 
 				SetVersion(r->GetVersion());
-				cout << GetVersion() << endl;
 			}
 		}
 	}
