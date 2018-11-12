@@ -206,8 +206,8 @@ public:
 	Int_t GetVersionCode() { return ConvertVersionCode((string)GetVersion()); }
 
 	/// overwriting the write() method with fStore considered
-	Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0) const;
-	Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0);
+	virtual Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0) const;
+	virtual Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0);
 
 	//data member reflection tools
 	TStreamerElement* GetDataMemberWithName(string name);

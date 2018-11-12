@@ -218,6 +218,8 @@ public:
 
 	void PrintEvent() { fInputEvent->PrintEvent(); }
 
+	Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0);
+
 	//Construtor & Destructor
 	TRestRun();
 	TRestRun(string rootfilename);

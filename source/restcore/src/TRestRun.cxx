@@ -1130,6 +1130,13 @@ void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t s
 	delete f;
 }
 
+Int_t TRestRun::Write(const char *name, Int_t option, Int_t bufsize) {
+	TString ver = GetVersion();
+	SetVersion(REST_RELEASE);
+	int n=TRestMetadata::Write(name, option, bufsize);
+	SetVersion(ver);
+	return n;
+}
 
 Double_t TRestRun::GetRunLength()
 {
