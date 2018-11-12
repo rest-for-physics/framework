@@ -1,4 +1,6 @@
-## Contributing changes to the repository with Git
+# Contributing to REST
+
+## 1. Contributing changes to the repository with Git
 
 The Git system is an efficient way to track changes to the code in the repository `if used smartly`.
 The history of the code repository will be digested into `commits`. Being a commit a minimum change to
@@ -124,84 +126,55 @@ The following commit message contains the following errors
 - It is `not concise`. The explanations should be included inside the code together the documentation of the method.
 - It is `not short`.
 
-## REST Versioning
+## 2. REST Versioning
 
-The impact of changes in REST classes, i.e. adding, removing or modifying class members 
-should be minimized by the use of `automatic schema evolution` feature of ROOT.
-
-REST is compiled by default using `automatic schema evolution` since version `2.2.1`.
-Therefore, any new/future generation of data before this version is `not recommended` for compatibility reasons.
-
-Any data produced with version `2.2.1`, and later, will be generated using `automatic schema evolution`, and therefore,
-any future REST version `should be able to read older versions` without major issues or warnings.
+`!!!NOTE!!!`  
+Since version `2.2.1`, REST is adopting `automatic schema evolution` feature of ROOT.
+The impact of changes in REST classes, i.e. adding, removing or modifying class members, 
+should have been minimized. That is, any future REST version `should be able to read 
+older versions` without major issues or warnings. Therefore, any new/future generation 
+of data before v2.2.1 is `not recommended` for compatibility reasons.
 
 ----
 
-The REST versioning system will allow to stamp the data generated with REST and it will 
-allow to identify new features or major changes to the code.
+The REST versioning system will allow to **stamp the data generated** with REST and it will 
+allow to **identify new features or major changes** to the code.
 
-A change in REST version `serves to markdown an important step` or a `timeline` in the
-evolution of the code. 
+The stamped version version number in the file might serve as a solution to reproduce or 
+recover previous results which may show discrepancies with future versions. The version 
+number shall be provided together with published or internal results that were produced 
+with a specific version. Then, if we own the data file, after reirieving the version in it, 
+we can `make a reference to the current result`.
 
-REST version might serve as `a solution to reproduce or recover previous results` which 
-may show discrepancies with future versions. A version number will serve as a 
-reference for the user, as it can be provided together with published 
-or internal results that were produced with a specific version. If we own the data,
-then, the version used to generate that data can always be retrieved.
-
-----
-
-REST version might be increased in at least three different scenarios.
-
+A change in REST version serves to markdown an important step or a timeline in the evolution
+of the code. The version `might be increased` in at the following scenarios:
 1. When new features are added (optional).
-
 2. When changes or modifications affect the behaviour of the framework.
-
 3. To fix a REST version release to produce data in a experiment physics run.
-
-
-A version number increase will be optional but `may be justified` by the following updates to the code.
-
-- New processes, metadata or event data types that introduce new funtionalities to REST.
-
-- Important changes on REST core libraries that introduce new features.
-
+4. New processes, metadata or event data types that introduce new funtionalities to REST.
+5. Important changes on REST core libraries that introduce new features.
 
 A version number increase `will be mandatory` when the modification of existing processes or
 REST core libraries change the behaviour and may lead to different results.
-
-
 - leading to different results by modifying, upgrading or debugging of existing processes or REST classes
-
 - modifying the structure of ROOT outputfile
-
 - changes to metadata structures that REST users should be aware of
 
-
-### Generating a new version number
-
-REST uses the git tagging system to generate the REST version number at compilation time.
+### A little about git tag
 
 The basics of tagging in Git are described at the following site [GitLab tagging](https://git-scm.com/book/en/v2/Git-Basics-Tagging)
 
-The version number must be written using the following format 2.X.Y, where X represents a major change or transition in the code,
-and Y represents a minor change/correction/update of the code.
+In order to change the version of REST we need to tag the state of the code using `git tag` command:
 
-In order to change the version of REST we need to tag the state of the code using `git tag` command. Usually by increasing the value of Y.
-
-I.e. if we are in version 2.2.1 we will upgrade the REST version to 2.2.2, indicating a message providing a clear clue of the reason of the new tagging version.
- 
 `git tag -a v2.2.2 -m "A small step for REST but a big step for humanity"`
 
-Additionaly, to publish the new version and make it visible to other users we need to use the `--tags` flag when pushing the code.
+Additionaly, to publish the new version and make it visible to other users we need to use the `--tags` flag 
+when pushing the code:
 
 `git push --tags`
 
-Any tag character that is not a number will be ignored in the construction of the REST release and the REST version code.
-
-I.e. the tag "v2.2.3b" will become "2.2.3", and the REST version code will be 131586.
-
-Then, at REST compilation time this tag will be retrieved and the `TRestVersion.h` header will be produced containning the following information.
+At REST compilation time this tag will be retrieved and the `TRestVersion.h` header will be produced 
+containning the following information:
 
 ```c++
 #ifndef REST_Version
@@ -228,27 +201,97 @@ Then, at REST compilation time this tag will be retrieved and the `TRestVersion.
 #endif
 ```
 
-It would be appropiate that if a new REST version has been generated using this system we `make a merge request to the master branch`.
+### Version control strategy
+
+REST uses the git tagging system to control its version. The tag value is directly our version number. 
+It must be written using the following format 2.X.Y, where X represents a major change or transition in 
+the code, and Y represents a minor change/correction/update of the code. Usually we increase the value 
+of Y when update the version. Both X and Y ranges from 0 to 255.
+
+A header `TRestVersion.h` is generated at compilation time, calling git commands from cmd line. This header
+contains various information about version, version number, commit id, branch name, etc. We also keep a default 
+TRestVersion.h in master branch for those who are unfamiliar with git. They may directly download zip from 
+git website, and then unzip and call `cmake && make install` in REST directory. TRestVersion.h will be updated
+together with version update.
+
+We only create tags for commits in the master branch. This branch is also the default branch on the website or 
+during `git clone`. We keep master branch being updated weely or monthly, in each update we will assign a new 
+tag. So if the user only download/clone the master branch, he will always get the **tagged commit**, which is 
+exactly a certain version.
+
+All the development work shall be within individual branches. The development branches should be named after 
+the version from which they are checked out. e.g. `v2.2.1_dev` or `v2.2.3_trackAnalysisNew`. Whenever the 
+developer verifies himself that the modification is working, he can `make a merge request to the master branch`.
+We will test those changes also. If we decide to accept the merge request, and if the changes are important, 
+we will push the merge immediately. Otherwise we shall wait several other merges before pushing.
+
+After the merge-to-master is pushed to gitlab, we will
+
+1. increase the version/tag to e.g. v2.2.2
+2. update TRestVersion.h in master branch
+3. remove the source branch
+4. Create a release note for the new version
+5. Send a mail to rest-dev@cern.ch mail list to inform the update
 
 ### Using the version number
 
-Any `TRestMetadata` class contains a member named `fVersion` that will be initialized using `TRestVersion.h` and that will be written 
-to disk together with other metadata information.
+Any `TRestMetadata` class contains a member named `fVersion` that will be initialized using `TRestVersion.h` 
+and that will be written to disk together with other metadata information. This member can be accessed by 
+inherited classes by using `GetVersion()`, `GetVersionCode()` and `SetVersion()`.
 
-The version of a metadata structure recovered from a ROOT file can be retrieved by using `GetVersion()` and  `GetVersionCode()` methods.
-And it can be used to compare to the installed version of REST and identify if the version we are running is newer, older or the same as the one stored in disk.
+fVersion is retrieved together with the metadata structure from a ROOT file. Then the result of GetVersion()
+will be different than the local class. We can compare them and act differently according to the result.
+
+REST version is a string like "2.2.1". To make it easier for computer, we calculate a version code according
+to this value. The method is `ConvertVersionCode()`. version code will be `a * 65536 + b * 256 + c` when the 
+version string is `a.b.c`. Note that any tag character that is not a number will be ignored in the construction 
+of the REST version code. I.e. the tag "v2.2.3b" will become "2.2.3", and the REST version code will be 131587.
 
 ```c++
+//in restRoot or in some scripts
+
 TRestSpecificMetadataClass *md = (TRestSpecificMetadataClass *) file->Get("mdName");
 
-if( md->GetVersionCode() > REST(2,2,1) )
-    cout << "Yes. This metadata structure was generated with a version newer than 2.2.1!" << endl;
+if( md->GetVersionCode() > ConvertVersionCode("2.2.1") )
+    cout << "This metadata structure was generated with a version newer than 2.2.1!" << endl;
 
-if( md->GetVersion() == REST_RELEASE )
-    cout << "Yes. The REST version used to generate this metadata structure is the same as the installed REST version!" << endl;
+if( md->GetVersionCode() < GetVersionCode() )
+    cout << "This metadata structure was generated with a version older than current version!" << endl;
+
+if( md->GetVersion() == GetVersion() )
+    cout << "The REST version used to generate this metadata structure is the same as the installed REST version!" << endl;
 ```
 
 This programming enables the REST users to take special actions that may need to be taken at a particular 
 version or after a particular version.
 
+## 3. Programme style
 
+The contributers may first have a quick look read of common [C++ coding styles](http://geosoft.no/development/cppstyle.html) 
+before start coding in the repository. Even if you have long experience writting you will reinforce your coding style 
+and detect few things you might be doing wrong when writting readable code. We should try to keep a fixed style.
+Point 84 and 71 (4 spaces indentation) is very important!
+
+For REST, we also have some constraints on the coding style
+
+### Control the amount of output message in a process
+
+When writing a process, the hierarchy of five verbose level should be clarified:
+
+* silent    : output nothing
+* essential : + print information (parameter value, status, warnings, etc) **before process starts**
+* info      : + print important but occational **information** during the process. Occational means only for some events.
+* debug     : + print values during the process, usually no more than 10 lines. e.g. Number of input signals; 
+Number of hits added; total energy of output event, etc. These message shall be helpful during **debug**.
+* extreme   : + print detailed values, usually within **sub-event level**. e.g. position & energy of each hits added; 
+peak, width, rms for each signals added, sampling points for the first signal added.
+
+There is some other notes:
+
+бя Process name should be attatched when printing with info  
+бя Don't add getchar() for debug or extreme message. REST will automaticly pause for you. In debug level, we will
+pause when the process chain finishes one event. In extreme level, we will pause after each process. In both two
+verbose levels multi threading is disabled.  
+бя One can directly use `info << "some message" << endl;` for convenience.  
+
+### Style of PrintMetadata()
