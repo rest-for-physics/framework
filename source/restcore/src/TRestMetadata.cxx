@@ -2025,13 +2025,13 @@ TString TRestMetadata::GetSearchPath() {
 	return ReplaceEnvironmentalVariables(result);
 }
 
-Int_t TRestMetadata::Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0) const {
+Int_t TRestMetadata::Write(const char *name, Int_t option, Int_t bufsize) const {
 	if (fStore) {
 		return TNamed::Write(name, option, bufsize);
 	}
 	return -1;
 }
-Int_t TRestMetadata::Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0) {
+Int_t TRestMetadata::Write(const char *name, Int_t option, Int_t bufsize) {
 	if (fStore) {
 		return TNamed::Write(name, option, bufsize);
 	}
