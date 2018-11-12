@@ -44,6 +44,10 @@ const int PARAMETER_NOT_FOUND_INT = -99999999;
 const double PARAMETER_NOT_FOUND_DBL = -99999999;
 const std::string PARAMETER_NOT_FOUND_STR = "NO_SUCH_PARA";
 
+// used in restRoot
+inline TString GetVersion() { return REST_RELEASE; }
+inline int GetVersionCode() { return ConvertVersionCode(REST_RELEASE); }
+
 class TRestManager;
 
 //! A base class for any REST metadata class
