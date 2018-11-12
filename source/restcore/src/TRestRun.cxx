@@ -388,8 +388,15 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 		TRestRun*r = (TRestRun*)GetMetadataClass("TRestRun", fInputFile);
 
 		int vernum = r->GetVersionCode();
-		if( r && (vernum >= REST_VERSION(2,2,1) ) )
+		if (r == NULL) {
+			error << "REST ERROR : invalid input file! Lacking TRestRun metadata!" << endl;
+			error << "filename : " << filename << endl;
+			exit(0);
+		}
+		if (vernum >= REST_VERSION(2, 2, 1))
 			ReadInputFileMetadata();
+		else
+			SetVersion("-1");
 
 		debug << "Initializing input file : version code : " << vernum << endl;
 		ReadInputFileTrees();
@@ -445,6 +452,7 @@ void TRestRun::ReadInputFileMetadata() {
 				if (fExperimentName == "preserve")fExperimentName = r->GetExperimentName();
 
 				SetVersion(r->GetVersion());
+				cout << GetVersion() << endl;
 			}
 		}
 	}

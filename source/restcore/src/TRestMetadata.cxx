@@ -1949,7 +1949,7 @@ TString TRestMetadata::GetVersion() {
 }
 
 void TRestMetadata::SetVersion(TString ver) {
-	if (this->InheritsFrom("TRestRun")) {
+	if (!this->InheritsFrom("TRestRun")) {
 		error << "REST ERROR : version is a static value, you cannot set version for a class!" << endl;
 	}
 	else {
