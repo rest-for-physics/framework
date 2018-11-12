@@ -1944,6 +1944,19 @@ void TRestMetadata::PrintMetadata()
 	cout << "---------------------------------------" << endl;
 }
 
+TString TRestMetadata::GetVersion() {
+	return fVersion;
+}
+
+void TRestMetadata::SetVersion(TString ver) {
+	if (this->InheritsFrom("TRestRun")) {
+		error << "REST ERROR : version is a static value, you cannot set version for a class!" << endl;
+	}
+	else {
+		fVersion = ver;
+	}
+}
+
 ///////////////////////////////////////////////
 /// \brief Returns the section name of this class, defined at the beginning of fSectionName
 std::string TRestMetadata::GetSectionName()
@@ -2010,6 +2023,19 @@ TString TRestMetadata::GetSearchPath() {
 	}
 
 	return ReplaceEnvironmentalVariables(result);
+}
+
+Int_t TRestMetadata::Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0) const {
+	if (fStore) {
+		return TNamed::Write(name, option, bufsize);
+	}
+	return -1;
+}
+Int_t TRestMetadata::Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0) {
+	if (fStore) {
+		return TNamed::Write(name, option, bufsize);
+	}
+	return -1;
 }
 
 

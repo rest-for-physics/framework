@@ -54,6 +54,8 @@ private:
 	void ExpandForLoops(TiXmlElement*e);
 	void ExpandIncludeFile(TiXmlElement* e);
 
+	///REST version string, only used for archive and retrieve
+	TString fVersion;
 protected:
 	//new xml utilities
 	std::string GetFieldValue(std::string parName, TiXmlElement* e);
@@ -105,8 +107,7 @@ protected:
 	///Attatch "//! something" structure in comment line to avoid variables being saved by root.
 	///see more detail in https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html#automatically-generated-streamers
 	
-	///REST version string
-	TString fVersion;
+
 	//Name;(Derived from TNamed)
 	//Title;(Derived from TNamed)
 	///Full name of rml file 
@@ -166,8 +167,6 @@ public:
 	int GetChar(string hint="Press a KEY to continue ...");
 
 	//getters and setters
-	TString GetVersion() { return  fVersion; }
-	Int_t GetVersionCode() { return  ConvertVersionCode ( (std::string) fVersion); }
 	std::string GetSectionName();
 	std::string GetSectionContent();
 	/// set the section name, clear the section content
@@ -199,9 +198,16 @@ public:
 	void DoNotStore() { fStore = false; }
 	/// If this method is called the metadata information will be stored in disk. This is the default behaviour.
 	void Store() { fStore = true; }
+	/// returning fVersion if the class is TRestRun
+	TString GetVersion();
+	/// sets the version if the class is TRestRun
+	void SetVersion(TString ver);
+	/// returning the version code
+	Int_t GetVersionCode() { return ConvertVersionCode((string)GetVersion()); }
+
 	/// overwriting the write() method with fStore considered
-	Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0) const { if (fStore) { return TNamed::Write(name, option, bufsize); } return -1; }
-	Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0) { if (fStore) { return TNamed::Write(name, option, bufsize); } return -1; }
+	Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0) const;
+	Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0);
 
 	//data member reflection tools
 	TStreamerElement* GetDataMemberWithName(string name);
