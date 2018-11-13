@@ -38,8 +38,6 @@
 
 std::mutex mutexx;
 
-#define TIME_MEASUREMENT
-
 #ifdef TIME_MEASUREMENT
 #include <chrono>
 using namespace chrono;

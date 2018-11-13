@@ -28,6 +28,11 @@
 
 #include "TRestThread.h"
 
+#ifdef TIME_MEASUREMENT
+#include <chrono>
+using namespace chrono;
+#endif
+
 ClassImp(TRestThread);
 
 ///////////////////////////////////////////////
@@ -487,11 +492,26 @@ void TRestThread::ProcessEvent()
 	TRestEvent* ProcessedEvent = fInputEvent;
 
 	if (fVerboseLevel >= REST_Debug) {
+
+#ifdef TIME_MEASUREMENT
+		vector<int> processtime(fProcessChain.size());
+#endif
+
 		for (unsigned int j = 0; j < fProcessChain.size(); j++)
 		{
+
+#ifdef TIME_MEASUREMENT
+			high_resolution_clock::time_point t1 = high_resolution_clock::now();
+#endif
+
 			fProcessChain[j]->BeginOfEventProcess();
 			ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
 			fProcessChain[j]->EndOfEventProcess();
+
+#ifdef TIME_MEASUREMENT
+			high_resolution_clock::time_point t2 = high_resolution_clock::now();
+			processtime[j] = (int)duration_cast<microseconds>(t2 - t1).count();
+#endif
 
 			if (ProcessedEvent == NULL) {
 				cout << "======= End of process " + (string)fProcessChain[j]->GetName() + " (NULL returned) =======" << endl;
@@ -509,6 +529,15 @@ void TRestThread::ProcessEvent()
 		}
 
 		fOutputEvent = ProcessedEvent;
+
+#ifdef TIME_MEASUREMENT
+		cout << "Process timing summary : " << endl;
+		for (unsigned int j = 0; j < fProcessChain.size(); j++)
+		{
+			cout << fProcessChain[j]->ClassName() << "(" << fProcessChain[j]->GetName()
+				<< ") : " << processtime[j] << " ms" << endl;
+		}
+#endif
 
 		GetChar("======= End of Event " + ((fOutputEvent == NULL) ? ToString(fInputEvent->GetID()) : ToString(fOutputEvent->GetID())) + " =======");
 	}

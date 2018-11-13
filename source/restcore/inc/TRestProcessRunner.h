@@ -9,6 +9,7 @@
 #include <mutex>
 #include <thread>
 
+#define TIME_MEASUREMENT
 
 class TRestThread;
 class TRestManager;
