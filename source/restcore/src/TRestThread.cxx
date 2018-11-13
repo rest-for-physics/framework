@@ -462,6 +462,18 @@ void TRestThread::StartThread()
 	//t.join();
 }
 
+///////////////////////////////////////////////
+/// \brief Add a process. 
+///
+/// The process will be added to the end of the process chain. It will also 
+/// increase the class's verbose level, if the added process's verbose level is higher.
+/// That is: TRestThread >= Added Process
+void TRestThread::AddProcess(TRestEventProcess *process) {
+	fProcessChain.push_back(process);
+	if (process->GetVerboseLevel() > fVerboseLevel)
+		SetVerboseLevel(process->GetVerboseLevel());
+}
+
 
 ///////////////////////////////////////////////
 /// \brief Process a single event. 
@@ -472,25 +484,45 @@ void TRestThread::StartThread()
 /// and saves it in the local output event.
 void TRestThread::ProcessEvent()
 {
-
-
 	TRestEvent* ProcessedEvent = fInputEvent;
-	for (unsigned int j = 0; j < fProcessChain.size(); j++)
-	{
-		fProcessChain[j]->BeginOfEventProcess();
 
+	if (fVerboseLevel >= REST_Debug) {
+		for (unsigned int j = 0; j < fProcessChain.size(); j++)
+		{
+			fProcessChain[j]->BeginOfEventProcess();
+			ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
+			fProcessChain[j]->EndOfEventProcess();
 
-		ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
+			if (ProcessedEvent == NULL) {
+				cout << "======= End of process " + (string)fProcessChain[j]->GetName() + " (NULL returned) =======" << endl;
+				break;
+			}
 
+			if (fProcessChain[j]->GetVerboseLevel() >= REST_Extreme) {
+				if (j == fProcessChain.size() - 1) {
+					cout << "======= End of process " + (string)fProcessChain[j]->GetName() + " =======" << endl;
+				}
+				else {
+					GetChar("======= End of process " + (string)fProcessChain[j]->GetName() + " =======");
+				}
+			}
+		}
 
-		fProcessChain[j]->EndOfEventProcess();
+		fOutputEvent = ProcessedEvent;
 
-		if (ProcessedEvent == NULL) break;
-
+		GetChar("======= End of Event " + ((fOutputEvent == NULL) ? ToString(fInputEvent->GetID()) : ToString(fOutputEvent->GetID())) + " =======");
 	}
-
-	fOutputEvent = ProcessedEvent;
-
+	else
+	{
+		for (unsigned int j = 0; j < fProcessChain.size(); j++)
+		{
+			fProcessChain[j]->BeginOfEventProcess();
+			ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
+			fProcessChain[j]->EndOfEventProcess();
+			if (ProcessedEvent == NULL) break;
+		}
+		fOutputEvent = ProcessedEvent;
+	}
 }
 
 

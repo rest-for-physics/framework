@@ -55,20 +55,16 @@ public:
 	void Initialize();
 	void InitFromConfigFile() {}
 
-	bool TestRun();
+	void AddProcess(TRestEventProcess *process);
 	void PrepareToProcess(bool testrun=true);
-
+	bool TestRun();
 	void StartProcess();
-
 
 	void ProcessEvent();
 	//void FillEvent();
 	void WriteFile();
 
 	void StartThread();
-
-
-	void AddProcess(TRestEventProcess *process) { fProcessChain.push_back(process); }
 
 	Int_t ValidateInput(TRestEvent* input);
 	Int_t ValidateChain();
@@ -78,7 +74,7 @@ public:
 	void SetThreadId(Int_t id);
 	void SetBranchConfig(vector<string> i) { fTreeBranchDef = i; }
 	void SetOutputTree(TRestAnalysisTree* t) { fAnalysisTree = t; }
-	void SetTRestRunner(TRestProcessRunner* r) { fHostRunner = r; }
+	void SetProcessRunner(TRestProcessRunner* r) { fHostRunner = r; }
 	TFile* GetOutputFile() { return fOutputFile; };
 	TRestEvent* GetOutputEvent() { return fOutputEvent; }
 	Int_t GetProcessnum() { return fProcessChain.size(); }
