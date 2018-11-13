@@ -109,7 +109,7 @@ void TRestRun::Initialize()
 ///
 void TRestRun::BeginOfInit()
 {
-	debug << "Initializing TRestRun from config file, version: " << REST_VERSION_CODE << endl;
+	debug << "Initializing TRestRun from config file, version: " << GetRESTVersionCode() << endl;
 
 
 	//Get some infomation
@@ -210,7 +210,8 @@ void TRestRun::BeginOfInit()
 		sprintf(runNumberStr, "%05d", fRunNumber);
 
 		fOutputFileName = outputdir  + "/Run_" + expName + "_" + fRunUser + "_"
-			+ runType + "_" + fRunTag + "_" + (TString)runNumberStr + "_" + (TString)runParentStr + "_V" + REST_RELEASE + ".root";
+			+ runType + "_" + fRunTag + "_" + (TString)runNumberStr + "_" + (TString)runParentStr 
+			+ "_V" + GetRESTVersion() + ".root";
 
 		fOverwrite = ToUpper(GetParameter("overwrite", "on")) != "OFF";
 		while (!fOverwrite && fileExists((string)fOutputFileName))
@@ -218,7 +219,8 @@ void TRestRun::BeginOfInit()
 			fParentRunNumber++;
 			sprintf(runParentStr, "%05d", fParentRunNumber);
 			fOutputFileName = outputdir + "/Run_" + expName + "_" + fRunUser + "_"
-				+ runType + "_" + fRunTag + "_" + (TString)runNumberStr + "_" + (TString)runParentStr + "_V" + REST_RELEASE + ".root";
+				+ runType + "_" + fRunTag + "_" + (TString)runNumberStr + "_" + (TString)runParentStr
+				+ "_V" + GetRESTVersion() + ".root";
 		}
 	
 	}
@@ -393,10 +395,10 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 			error << "filename : " << filename << endl;
 			exit(1);
 		}
-		if (vernum >= REST_VERSION(2, 2, 1))
+		if (vernum >= ConvertVersionCode("2.2.1"))
 			ReadInputFileMetadata();
 		else
-			SetVersion("-1");
+			this->SetVersion("-1");
 
 		debug << "Initializing input file : version code : " << vernum << endl;
 		ReadInputFileTrees();
@@ -451,7 +453,7 @@ void TRestRun::ReadInputFileMetadata() {
 				if (fRunDescription == "preserve")fRunDescription = r->GetRunDescription();
 				if (fExperimentName == "preserve")fExperimentName = r->GetExperimentName();
 
-				SetVersion(r->GetVersion());
+				this->SetVersion(r->GetVersion());
 			}
 		}
 	}
@@ -1131,10 +1133,10 @@ void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t s
 }
 
 Int_t TRestRun::Write(const char *name, Int_t option, Int_t bufsize) {
-	TString ver = GetVersion();
-	SetVersion(REST_RELEASE);
+	TString ver = this->GetVersion();
+	this->SetVersion(GetRESTVersion());
 	int n=TRestMetadata::Write(name, option, bufsize);
-	SetVersion(ver);
+	this->SetVersion(ver);
 	return n;
 }
 
@@ -1197,7 +1199,7 @@ TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile*f)
 		for (int i = 0; i < fMetadataInfo.size(); i++)
 			if ((string)fMetadataInfo[i]->ClassName() == type) return fMetadataInfo[i];
 
-		if (fInputFile != NULL && GetVersionCode() >= REST_VERSION(2, 2, 1)) {
+		if (fInputFile != NULL && this->GetVersionCode() >= ConvertVersionCode("2.2.1")) {
 			return GetMetadataClass(type, fInputFile);
 		}
 	}
@@ -1233,7 +1235,7 @@ TRestMetadata *TRestRun::GetMetadata(TString name, TFile*f)
 		for (unsigned int i = 0; i < fMetadataInfo.size(); i++)
 			if (fMetadataInfo[i]->GetName() == name) return fMetadataInfo[i];
 
-		if (fInputFile != NULL && GetVersionCode() >= REST_VERSION(2, 2, 1)) {
+		if (fInputFile != NULL && this->GetVersionCode() >= ConvertVersionCode("2.2.1")) {
 			return GetMetadata(name, fInputFile);
 		}
 	}
@@ -1278,7 +1280,7 @@ void TRestRun::PrintInfo()
 	cout.setborder("||");
 	cout.setorientation(1);
 	cout.setlength(100);
-	cout << "Version : " << GetVersion() << endl;
+	cout << "Version : " << this->GetVersion() << endl;
 	cout << "Parent run number : " << GetParentRunNumber() << endl;
 	cout << "Run number : " << GetRunNumber() << endl;
 	cout << "Experiment/project : " << GetExperimentName() << endl;
