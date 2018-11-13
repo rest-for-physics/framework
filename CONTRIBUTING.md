@@ -235,34 +235,35 @@ After the merge-to-master is pushed to gitlab, we will
 
 ### Using the version number
 
-Any `TRestMetadata` class contains a member named `fVersion` that will be initialized using `TRestVersion.h` 
-and that will be written to disk together with other metadata information. This member can be accessed by 
-inherited classes by using `GetVersion()`, `GetVersionCode()` and `SetVersion()`.
-
-fVersion is retrieved together with the metadata structure from a ROOT file. Then the result of GetVersion()
-will be different than the local class. We can compare them and act differently according to the result.
-
 REST version is a string like "2.2.1". To make it easier for computer, we calculate a version code according
 to this value. The method is `ConvertVersionCode()`. version code will be `a * 65536 + b * 256 + c` when the 
 version string is `a.b.c`. Note that any tag character that is not a number will be ignored in the construction 
 of the REST version code. I.e. the tag "v2.2.3b" will become "2.2.3", and the REST version code will be 131587.
 
+The version name and version tag of **current REST build** can be accessed by inline method `GetRESTVersion()`
+and `GetRESTVersionCode()`. These two methods directly returns the value defined in `TRestVersion.h`. 
+
+Any TRestMetadata class contains a member named `fVersion` that will be initialized at start up. This member 
+can be accessed by inherited classes with methods `GetVersion()`, `GetVersionCode()` and `SetVersion()`. 
+fVersion is always written/retrieved to/from the disk with the metadata class. When we are reading metadata 
+from an input file, we can compare its **retrieved version** with the version of current REST build:
+
 ```c++
-//in restRoot or in some scripts
+//in restRoot or in some source codes
 
 TRestSpecificMetadataClass *md = (TRestSpecificMetadataClass *) file->Get("mdName");
 
 if( md->GetVersionCode() > ConvertVersionCode("2.2.1") )
     cout << "This metadata structure was generated with a version newer than 2.2.1!" << endl;
 
-if( md->GetVersionCode() < GetVersionCode() )
+if( md->GetVersionCode() < GetRESTVersionCode() )
     cout << "This metadata structure was generated with a version older than current version!" << endl;
 
-if( md->GetVersion() == GetVersion() )
+if( md->GetVersion() == GetRESTVersion() )
     cout << "The REST version used to generate this metadata structure is the same as the installed REST version!" << endl;
 ```
 
-This programming enables the REST users to take special actions that may need to be taken at a particular 
+This programming enables the REST users to take special actions that may need to be with a particular 
 version or after a particular version.
 
 ## 3. Programme style
