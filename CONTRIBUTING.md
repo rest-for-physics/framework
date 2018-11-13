@@ -239,12 +239,13 @@ and that will be written to disk together with other metadata information. This 
 inherited classes by using `GetVersion()`, `GetVersionCode()` and `SetVersion()`.
 
 fVersion is retrieved together with the metadata structure from a ROOT file. Then the result of GetVersion()
-will be different than the local class. We can compare them and act differently according to the result.
+may be different from the REST installed version defined in TRestVersion.h. We can compare them and act 
+differently according to the result.
 
 There are two important parameters defined in `TRestVersion.h`: `REST_RELEASE` and `REST_VERSION_CODE`.
-`REST_RELEASE` is a string that will be stored in any `TRestMetadata` class when it is written for the first
-time, and it can be recovered using `TRestMetadata::GetVersion()`. `REST_VERSION_CODE` is a code generated
-using `REST_VERSION( 2, X, Y)` where X and Y are the major and minor version numbers.
+`REST_RELEASE` is a string that will be stored in any `TRestMetadata::fVersion` class member when it is written
+to disk, and it can be recovered in future using `TRestMetadata::GetVersion()`. `REST_VERSION_CODE` is a 
+code generated using `REST_VERSION( 2, X, Y)` where X and Y are the major and minor version numbers.
 
 `REST_VERSION_CODE` can be used to determine if a REST version is more recent or older than the installed REST
 version. The code of any metadata structure can be retrieved calling `TRestMetadata::GetVersionCode()`.
