@@ -499,6 +499,7 @@ void TRestThread::ProcessEvent()
 
 		for (unsigned int j = 0; j < fProcessChain.size(); j++)
 		{
+			cout << "------- Starting process " + (string)fProcessChain[j]->GetName() + " -------" << endl;
 
 #ifdef TIME_MEASUREMENT
 			high_resolution_clock::time_point t1 = high_resolution_clock::now();
@@ -514,17 +515,15 @@ void TRestThread::ProcessEvent()
 #endif
 
 			if (ProcessedEvent == NULL) {
-				cout << "======= End of process " + (string)fProcessChain[j]->GetName() + " (NULL returned) =======" << endl;
+				cout << "------- End of process " + (string)fProcessChain[j]->GetName() + " (NULL returned) -------" << endl;
 				break;
 			}
+			else {
+				cout << "------- End of process " + (string)fProcessChain[j]->GetName() + " -------" << endl;
+			}
 
-			if (fProcessChain[j]->GetVerboseLevel() >= REST_Extreme) {
-				if (j == fProcessChain.size() - 1) {
-					cout << "======= End of process " + (string)fProcessChain[j]->GetName() + " =======" << endl;
-				}
-				else {
-					GetChar("======= End of process " + (string)fProcessChain[j]->GetName() + " =======");
-				}
+			if (fProcessChain[j]->GetVerboseLevel() >= REST_Extreme && j < fProcessChain.size() - 1) {
+				GetChar();
 			}
 		}
 
@@ -535,7 +534,7 @@ void TRestThread::ProcessEvent()
 		for (unsigned int j = 0; j < fProcessChain.size(); j++)
 		{
 			cout << fProcessChain[j]->ClassName() << "(" << fProcessChain[j]->GetName()
-				<< ") : " << processtime[j] << " ms" << endl;
+				<< ") : " << processtime[j] / (double)1000 << " ms" << endl;
 		}
 #endif
 

@@ -211,7 +211,6 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 		fAnalysisTree->SetObservableValue(this, "CalibratedIntegral", integral);
 
 		debug << "TRestReadoutAnalysisProcess. Calibrated event energy : " << integral << endl;
-		debug << "------------------------------------" << endl;
 	}
 	return fSignalEvent;
 }

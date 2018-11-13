@@ -236,7 +236,6 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
 	debug << "TRestSignalZeroSuppresionProcess. Signals added : " << fSignalEvent->GetNumberOfSignals() << endl;
 	debug << "TRestSignalZeroSuppresionProcess. Signals rejected : " << rejectedSignal << endl;
 	debug << "TRestSignalZeroSuppresionProcess. Threshold integral : " << totalIntegral << endl;
-	debug << "------------------------------------" << endl;
 
 	if (fSignalEvent->GetNumberOfSignals() <= 0) return NULL;
 

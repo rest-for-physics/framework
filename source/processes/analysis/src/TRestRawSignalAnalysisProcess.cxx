@@ -403,7 +403,6 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 	if (GetVerboseLevel() >= REST_Debug)
 	{
 		fAnalysisTree->PrintObservables(this);
-		cout << "------------------------------------" << endl;
 	}
 
     return fSignalEvent;
