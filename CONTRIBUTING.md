@@ -241,11 +241,6 @@ inherited classes by using `GetVersion()`, `GetVersionCode()` and `SetVersion()`
 fVersion is retrieved together with the metadata structure from a ROOT file. Then the result of GetVersion()
 will be different than the local class. We can compare them and act differently according to the result.
 
-//REST version is a string like "2.2.1". To make it easier for computer, we calculate a version code according
-to this value. The method is `ConvertVersionCode()`. version code will be `a * 65536 + b * 256 + c` when the 
-version string is `a.b.c`. Note that any tag character that is not a number will be ignored in the construction 
-of the REST version code. I.e. the tag "v2.2.3b" will become "2.2.3", and the REST version code will be 131587.
-
 There are two important parameters defined in `TRestVersion.h`: `REST_RELEASE` and `REST_VERSION_CODE`.
 `REST_RELEASE` is a string that will be stored in any `TRestMetadata` class when it is written for the first
 time, and it can be recovered using `TRestMetadata::GetVersion()`. `REST_VERSION_CODE` is a code generated
