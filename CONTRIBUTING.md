@@ -235,12 +235,12 @@ After the merge-to-master is pushed to gitlab, we will
 
 ### Using the version number
 
-REST version is a string like "2.2.1". To make it easier for computer, we calculate a version code according
-to this value. The method is `ConvertVersionCode()`. version code will be `a * 65536 + b * 256 + c` when the 
+To make it easier for computer, we calculate a `version code` according to the version string 2.X.Y. The method 
+`ConvertVersionCode()` is used in this situation. Version code will be `a * 65536 + b * 256 + c` when the 
 version string is `a.b.c`. Note that any tag character that is not a number will be ignored in the construction 
 of the REST version code. I.e. the tag "v2.2.3b" will become "2.2.3", and the REST version code will be 131587.
 
-The version name and version tag of **current REST build** can be accessed by inline method `GetRESTVersion()`
+The version code and version name of **current REST build** can be accessed by inline method `GetRESTVersion()`
 and `GetRESTVersionCode()`. These two methods directly returns the value defined in `TRestVersion.h`. 
 
 Any TRestMetadata class contains a member named `fVersion` that will be initialized at start up. This member 
