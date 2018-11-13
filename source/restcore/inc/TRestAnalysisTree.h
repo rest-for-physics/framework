@@ -126,7 +126,7 @@ public:
 		fConnected = true;
 	}
 
-	void PrintObservables();
+	void PrintObservables(TRestEventProcess* proc = 0, int NObservables = 9999);
 
 	Int_t FillEvent(TRestEvent *evt);
 
