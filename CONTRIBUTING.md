@@ -140,15 +140,14 @@ of data before v2.2.1 is `not recommended` for compatibility reasons.
 The REST versioning system will allow to **stamp the data generated** with REST and it will 
 allow to **identify new features or major changes** to the code.
 
-The stamped version version number in the file might serve as a solution to reproduce or 
+The stamped version number in the file might serve as a solution to reproduce or 
 recover previous results which may show discrepancies with future versions. The version 
-number shall be provided together with published or internal results that were produced 
-with a specific version. Then, if we own the data file, after reirieving the version in it, 
-we can `make a reference to the current result`.
+number shall be provided together with published or internal results. Moreover, if we own 
+the data file, we will always be able to recover the version used to generate those results.
 
 A change in REST version serves to markdown an important step or a timeline in the evolution
 of the code. The version `might be increased` in at the following scenarios:
-1. When new features are added (optional).
+1. When new features are added.
 2. When changes or modifications affect the behaviour of the framework.
 3. To fix a REST version release to produce data in a experiment physics run.
 4. New processes, metadata or event data types that introduce new funtionalities to REST.
@@ -160,7 +159,7 @@ REST core libraries change the behaviour and may lead to different results.
 - modifying the structure of ROOT outputfile
 - changes to metadata structures that REST users should be aware of
 
-### A little about git tag
+### Git tagging system and its relation to REST versionning system
 
 The basics of tagging in Git are described at the following site [GitLab tagging](https://git-scm.com/book/en/v2/Git-Basics-Tagging)
 
