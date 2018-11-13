@@ -110,9 +110,6 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
 {
     fRawSignalEvent = (TRestRawSignalEvent *) evInput;
 
-    if( GetVerboseLevel() >= REST_Debug )
-        fSignalEvent->PrintEvent();
-
     fSignalEvent->SetID( fRawSignalEvent->GetID() );
     fSignalEvent->SetSubID( fRawSignalEvent->GetSubID() );
     fSignalEvent->SetTimeStamp( fRawSignalEvent->GetTimeStamp() );
@@ -121,6 +118,7 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
     Int_t numberOfSignals = fRawSignalEvent->GetNumberOfSignals();
 
     Double_t totalIntegral = 0;
+	Double_t rejectedSignal = 0;
     for( int i = 0; i < numberOfSignals; i++ )
     {
 		TRestRawSignal *s = fRawSignalEvent->GetSignal( i );
@@ -187,9 +185,15 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
 			}
 		}
 
-		if(sgn.GetNumberOfPoints()>0)
+		if (sgn.GetNumberOfPoints() > 0)
+		{
 			fSignalEvent->AddSignal(sgn);
-
+			totalIntegral += sgn.GetIntegral();
+		}
+		else
+		{
+			rejectedSignal++;
+		}
 
 
 		//TRestRawSignal *sgnl = fRawSignalEvent->GetSignal(i);
@@ -223,19 +227,20 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
 
 		//	fSignalEvent->AddSignal(outSignal);
   //      }
-    }
+	}
 
-    if( this->GetVerboseLevel() >= REST_Debug ) 
-    {
-        fSignalEvent->PrintEvent();
-        cout << "TRestSignalZeroSuppresionProcess. Signals added : " << fSignalEvent->GetNumberOfSignals() << endl;
-        cout << "TRestSignalZeroSuppresionProcess. Threshold integral : " << totalIntegral << endl;
-        GetChar();
-    }
+	if (this->GetVerboseLevel() >= REST_Extreme) {
+		fSignalEvent->PrintEvent();
+	}
 
-    if( fSignalEvent->GetNumberOfSignals() <= 0 ) return NULL;
+	debug << "TRestSignalZeroSuppresionProcess. Signals added : " << fSignalEvent->GetNumberOfSignals() << endl;
+	debug << "TRestSignalZeroSuppresionProcess. Signals rejected : " << rejectedSignal << endl;
+	debug << "TRestSignalZeroSuppresionProcess. Threshold integral : " << totalIntegral << endl;
+	debug << "------------------------------------" << endl;
 
-    return fSignalEvent;
+	if (fSignalEvent->GetNumberOfSignals() <= 0) return NULL;
+
+	return fSignalEvent;
 }
 
 //______________________________________________________________________________

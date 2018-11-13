@@ -132,8 +132,7 @@ TRestEvent* TRestMultiCoBoAsAdToSignalProcess::ProcessEvent(TRestEvent *evInput)
 
 	if (GetVerboseLevel() >= REST_Debug)
 	{
-		cout << "------------------------------------" << endl;
-		cout << "Generating event with ID: " << fCurrentEvent << endl;
+		cout << "TRestMultiCoBoAsAdToSignalProcess: Generating event with ID: " << fCurrentEvent << endl;
 	}
 
 
@@ -164,7 +163,7 @@ TRestEvent* TRestMultiCoBoAsAdToSignalProcess::ProcessEvent(TRestEvent *evInput)
 
 					fSignalEvent->AddSignal(sgnl);
 
-					if (GetVerboseLevel() >= REST_Debug)
+					if (GetVerboseLevel() >= REST_Extreme)
 					{
 						cout << "AgetId, chnId, first value, max value: " << m / 68 << ", " << m % 68 << ", " << sgnl.GetData(0) << ", " << sgnl.GetMaxValue() << endl;
 					}
@@ -179,8 +178,9 @@ TRestEvent* TRestMultiCoBoAsAdToSignalProcess::ProcessEvent(TRestEvent *evInput)
 
 	if (GetVerboseLevel() >= REST_Debug)
 	{
+		cout << "TRestMultiCoBoAsAdToSignalProcess: event time is : " << tSt << endl;
+		cout << "TRestMultiCoBoAsAdToSignalProcess: " << fSignalEvent->GetNumberOfSignals() << " signals added" << endl;
 		cout << "------------------------------------" << endl;
-		GetChar();
 	}
 	fSignalEvent->SetTimeStamp(tSt);
 	fSignalEvent->SetID(fCurrentEvent);
@@ -261,8 +261,9 @@ bool TRestMultiCoBoAsAdToSignalProcess::fillbuffer()
 		while (fHeaderFrame[i].eventIdx == fCurrentEvent) {
 
 			if (GetVerboseLevel() >= REST_Debug) {
-				cout << "file " << i << " (" << fInputFileNames[i] << ")" << " frame header:" << endl;
-				fHeaderFrame[i].Show();
+				cout << "TRestMultiCoBoAsAdToSignalProcess: retrieving frame header in file " << i << " (" << fInputFileNames[i] << ")" << endl;
+				if (GetVerboseLevel() >= REST_Extreme)
+					fHeaderFrame[i].Show();
 			}
 
 			//reading data according to the header

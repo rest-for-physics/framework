@@ -400,9 +400,11 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 		//if (peakTimeDelay < fPeakTimeDelayCut.X() || peakTimeDelay > fPeakTimeDelayCut.Y()) return NULL;
 	}
 
-
 	if (GetVerboseLevel() >= REST_Debug)
-		fAnalysisTree->PrintObservables();
+	{
+		fAnalysisTree->PrintObservables(this);
+		cout << "------------------------------------" << endl;
+	}
 
     return fSignalEvent;
 }
