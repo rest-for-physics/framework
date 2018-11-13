@@ -38,15 +38,18 @@
 #include "TClass.h"
 #include "TStreamerElement.h"
 #include "TApplication.h"
-#include "TRestVersion.h"
 
 const int PARAMETER_NOT_FOUND_INT = -99999999;
 const double PARAMETER_NOT_FOUND_DBL = -99999999;
 const std::string PARAMETER_NOT_FOUND_STR = "NO_SUCH_PARA";
 
-// used in restRoot
-inline TString GetVersion() { return REST_RELEASE; }
-inline int GetVersionCode() { return ConvertVersionCode(REST_RELEASE); }
+// storing the STATIC version of this installation
+namespace REST_VersionGlob {
+	TString GetRESTVersion();
+	int GetRESTVersionCode();
+};
+inline TString GetRESTVersion() { return REST_VersionGlob::GetRESTVersion(); }
+inline int GetRESTVersionCode() { return REST_VersionGlob::GetRESTVersionCode(); }
 
 class TRestManager;
 

@@ -400,9 +400,17 @@
 #include "TRestMetadata.h"
 #include "RmlUpdateTool.h"
 #include "v5/TFormula.h"
+#include "TRestVersion.h"
 
+//implementation of version methods in namespace rest_version
+namespace REST_VersionGlob {
+	TString GetRESTVersion() { return REST_RELEASE; }
+	int GetRESTVersionCode() { return ConvertVersionCode(REST_RELEASE); }
+}
 using namespace std;
 using namespace REST_Units;
+
+
 
 map<string, string> TRestMetadata_UpdatedConfigFile;
 
@@ -420,7 +428,7 @@ TRestMetadata::TRestMetadata()
 	fElementEnv.clear();
 	fHostmgr = NULL;
 
-	fVersion = REST_RELEASE;
+	fVersion = GetRESTVersion();
 }
 
 ///////////////////////////////////////////////
@@ -437,7 +445,7 @@ TRestMetadata::TRestMetadata(const char *cfgFileName)
 	fElementEnv.clear();
 	fHostmgr = NULL;
 
-	fVersion = REST_RELEASE;
+	fVersion = GetRESTVersion();
 }
 
 ///////////////////////////////////////////////
