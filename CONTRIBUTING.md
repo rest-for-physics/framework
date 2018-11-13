@@ -140,15 +140,14 @@ of data before v2.2.1 is `not recommended` for compatibility reasons.
 The REST versioning system will allow to **stamp the data generated** with REST and it will 
 allow to **identify new features or major changes** to the code.
 
-The stamped version version number in the file might serve as a solution to reproduce or 
+The stamped version number in the file might serve as a solution to reproduce or 
 recover previous results which may show discrepancies with future versions. The version 
-number shall be provided together with published or internal results that were produced 
-with a specific version. Then, if we own the data file, after reirieving the version in it, 
-we can `make a reference to the current result`.
+number shall be provided together with published or internal results. Moreover, if we own 
+the data file, we will always be able to recover the version used to generate those results.
 
 A change in REST version serves to markdown an important step or a timeline in the evolution
 of the code. The version `might be increased` in at the following scenarios:
-1. When new features are added (optional).
+1. When new features are added.
 2. When changes or modifications affect the behaviour of the framework.
 3. To fix a REST version release to produce data in a experiment physics run.
 4. New processes, metadata or event data types that introduce new funtionalities to REST.
@@ -160,7 +159,7 @@ REST core libraries change the behaviour and may lead to different results.
 - modifying the structure of ROOT outputfile
 - changes to metadata structures that REST users should be aware of
 
-### A little about git tag
+### Git tagging system and its relation to REST versionning system
 
 The basics of tagging in Git are described at the following site [GitLab tagging](https://git-scm.com/book/en/v2/Git-Basics-Tagging)
 
@@ -242,23 +241,34 @@ inherited classes by using `GetVersion()`, `GetVersionCode()` and `SetVersion()`
 fVersion is retrieved together with the metadata structure from a ROOT file. Then the result of GetVersion()
 will be different than the local class. We can compare them and act differently according to the result.
 
-REST version is a string like "2.2.1". To make it easier for computer, we calculate a version code according
+//REST version is a string like "2.2.1". To make it easier for computer, we calculate a version code according
 to this value. The method is `ConvertVersionCode()`. version code will be `a * 65536 + b * 256 + c` when the 
 version string is `a.b.c`. Note that any tag character that is not a number will be ignored in the construction 
 of the REST version code. I.e. the tag "v2.2.3b" will become "2.2.3", and the REST version code will be 131587.
+
+There are two important parameters defined in `TRestVersion.h`: `REST_RELEASE` and `REST_VERSION_CODE`.
+`REST_RELEASE` is a string that will be stored in any `TRestMetadata` class when it is written for the first
+time, and it can be recovered using `TRestMetadata::GetVersion()`. `REST_VERSION_CODE` is a code generated
+using `REST_VERSION( 2, X, Y)` where X and Y are the major and minor version numbers.
+
+`REST_VERSION_CODE` can be used to determine if a REST version is more recent or older than the installed REST
+version. The code of any metadata structure can be retrieved calling `TRestMetadata::GetVersionCode()`.
+
+These two parameters, `REST_RELEASE` and `REST_VERSION` will allow us always to compare the installed version
+to the version stored in a `TRestMetadata` structure as follows.
 
 ```c++
 //in restRoot or in some scripts
 
 TRestSpecificMetadataClass *md = (TRestSpecificMetadataClass *) file->Get("mdName");
 
-if( md->GetVersionCode() > ConvertVersionCode("2.2.1") )
+if( md->GetVersionCode() > REST_VERSION(2,2,1) )
     cout << "This metadata structure was generated with a version newer than 2.2.1!" << endl;
 
-if( md->GetVersionCode() < GetVersionCode() )
+if( md->GetVersionCode() < REST_VERSION_CODE )
     cout << "This metadata structure was generated with a version older than current version!" << endl;
 
-if( md->GetVersion() == GetVersion() )
+if( md->GetVersion() == REST_RELEASE )
     cout << "The REST version used to generate this metadata structure is the same as the installed REST version!" << endl;
 ```
 
