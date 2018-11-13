@@ -288,11 +288,15 @@ peak, width, rms for each signals added, sampling points for the first signal ad
 
 There is some other notes:
 
-* Process name should be attatched when printing with info  
-* Don't add getchar() for debug or extreme message. REST will automaticly pause for you. In debug level, we will
-pause when the process chain finishes one event. In extreme level, we will pause after each process. In both two
-verbose levels multi threading is disabled.  
-* One can directly use `info << "some message" << endl;` for convenience.  
+* One can directly use `info << "some message" << endl;` for convenience and better appearance. The efficiency 
+is a little lower than `if(GetVerboseLevel() >= REST_Info) cout << "some message" << endl;`  
+* Process name should be attatched when printing info message. e.g. 
+`info << this->GetName() << " : Signals added : " << N <<endl;`  
+* Don't add separators like `cout << "--------------" << endl;` for debug or extreme message. 
+REST will add them for you.  
+* Don't add getchar() for debug or extreme message. REST will also pause for you. In debug level, it will
+pause after each event. In extreme level, it will pause after each process.  
+* In both two verbose levels multi threading is disabled.  
 
 ### Style of PrintMetadata()
 
