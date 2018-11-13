@@ -288,10 +288,18 @@ peak, width, rms for each signals added, sampling points for the first signal ad
 
 There is some other notes:
 
-бя Process name should be attatched when printing with info  
-бя Don't add getchar() for debug or extreme message. REST will automaticly pause for you. In debug level, we will
+* Process name should be attatched when printing with info  
+* Don't add getchar() for debug or extreme message. REST will automaticly pause for you. In debug level, we will
 pause when the process chain finishes one event. In extreme level, we will pause after each process. In both two
 verbose levels multi threading is disabled.  
-бя One can directly use `info << "some message" << endl;` for convenience.  
+* One can directly use `info << "some message" << endl;` for convenience.  
 
 ### Style of PrintMetadata()
+
+We need to make `Printing` better with the help of REST string output tool. The style of PrintMetadata()
+shall be:
+
+* middled in screen
+* bordered with "||" (at side) and "=======" (at top/bottom)
+* white colored
+
