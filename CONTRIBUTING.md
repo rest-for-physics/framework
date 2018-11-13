@@ -234,31 +234,41 @@ After the merge-to-master is pushed to gitlab, we will
 
 ### Using the version number
 
-To make it easier for computer, we calculate a `version code` according to the version string 2.X.Y. The method 
-`ConvertVersionCode()` is used in this situation. Version code will be `a * 65536 + b * 256 + c` when the 
-version string is `a.b.c`. Note that any tag character that is not a number will be ignored in the construction 
-of the REST version code. I.e. the tag "v2.2.3b" will become "2.2.3", and the REST version code will be 131587.
-
-The version code and version name of **current REST build** can be accessed by inline method `GetRESTVersion()`
-and `GetRESTVersionCode()`. These two methods directly returns the value defined in `TRestVersion.h`. 
-
+Any `TRestMetadata` class contains a member named `fVersion` that will be initialized using `TRestVersion.h` 
+and that will be written to disk together with other metadata information. This member can be accessed by 
+inherited classes by using `GetVersion()`, `GetVersionCode()` and `SetVersion()`.
+ 
+fVersion is retrieved together with the metadata structure from a ROOT file. Then the result of GetVersion()
+might be different from installed version. We can compare them and act differently according to the result.
+ 
 Any TRestMetadata class contains a member named `fVersion` that will be initialized at start up. This member 
 can be accessed by inherited classes with methods `GetVersion()`, `GetVersionCode()` and `SetVersion()`. 
 fVersion is always written/retrieved to/from the disk with the metadata class. When we are reading metadata 
 from an input file, we can compare its **retrieved version** with the version of current REST build:
+
+There are two important parameters defined in `TRestVersion.h`: `REST_RELEASE` and `REST_VERSION_CODE`.
+`REST_RELEASE` is a string that will be stored in any `TRestMetadata::fVersion` class member when it is written
+to disk, and it can be recovered in future using `TRestMetadata::GetVersion()`. `REST_VERSION_CODE` is a 
+code generated using `REST_VERSION( 2, X, Y)` where X and Y are the major and minor version numbers.
+
+`REST_VERSION_CODE` can be used to determine if a REST version is more recent or older than the installed REST
+version. The code of any metadata structure can be retrieved calling `TRestMetadata::GetVersionCode()`.
+
+These two parameters, `REST_RELEASE` and `REST_VERSION` will allow us always to compare the installed version 
+to the version stored in a `TRestMetadata` structures as follows.
 
 ```c++
 //in restRoot or in some source codes
 
 TRestSpecificMetadataClass *md = (TRestSpecificMetadataClass *) file->Get("mdName");
 
-if( md->GetVersionCode() > ConvertVersionCode("2.2.1") )
+if( md->GetVersionCode() > REST_VERSION( 2, 2, 1 ) )
     cout << "This metadata structure was generated with a version newer than 2.2.1!" << endl;
 
-if( md->GetVersionCode() < GetRESTVersionCode() )
+if( md->GetVersionCode() < REST_VERSION_CODE )
     cout << "This metadata structure was generated with a version older than current version!" << endl;
 
-if( md->GetVersion() == GetRESTVersion() )
+if( md->GetVersion() == REST_RELEASE )
     cout << "The REST version used to generate this metadata structure is the same as the installed REST version!" << endl;
 ```
 
