@@ -12,21 +12,11 @@
 
 
 using namespace std;
-TRestStringHelper::TRestStringHelper()
-{
-
-}
-
-
-TRestStringHelper::~TRestStringHelper()
-{
-}
-
 
 ///////////////////////////////////////////////
 /// \brief Returns 1 only if valid mathematical expression keywords (or numbers) are found in the string **in**. If not it returns 0.
 ///
-Int_t TRestStringHelper::isAExpression(string in)
+Int_t REST_StringHelper::isAExpression(string in)
 {
 	string temp = in;
 	vector<string> replace{ "sqrt","log","exp","gaus","cos","sin","tan","atan","acos","asin" };
@@ -61,7 +51,7 @@ Int_t TRestStringHelper::isAExpression(string in)
 ///////////////////////////////////////////////
 /// \brief Evaluates and replaces valid mathematical expressions found in the input string **buffer**.
 ///
-std::string TRestStringHelper::ReplaceMathematicalExpressions(std::string buffer) {
+std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer) {
 
 	//we spilt the unit part and the expresstion part
 	int pos = buffer.find_last_of("1234567890().");
@@ -100,7 +90,7 @@ std::string TRestStringHelper::ReplaceMathematicalExpressions(std::string buffer
 ///////////////////////////////////////////////
 /// \brief Evaluates a complex numerical expression and returns the resulting value using TFormula.
 ///
-std::string TRestStringHelper::EvaluateExpression(std::string exp) {
+std::string REST_StringHelper::EvaluateExpression(std::string exp) {
 	if (!isAExpression(exp)) { return exp; }
 
 	//NOTE!!! In root6 the expression like "1/2" will be computed using the input as int number,
@@ -131,7 +121,7 @@ std::string TRestStringHelper::EvaluateExpression(std::string exp) {
 ///////////////////////////////////////////////
 /// \brief Returns 1 only if a valid number is found in the string **in**. If not it returns 0.
 ///
-Int_t TRestStringHelper::isANumber(string in)
+Int_t REST_StringHelper::isANumber(string in)
 {
 	return (in.find_first_not_of("-+0123456789.e") == std::string::npos && in.length() != 0);
 }
@@ -145,7 +135,7 @@ Int_t TRestStringHelper::isANumber(string in)
 /// Input: "abc" and "", Output: { "a", "b", "c" }
 /// Input: "abc:def" and ":", Output: { "abc", "def" }
 /// Input: "abc:def" and ":def", Output: { "abc" }
-std::vector<string> TRestStringHelper::Spilt(std::string in, string separator)
+std::vector<string> REST_StringHelper::Spilt(std::string in, string separator)
 {
 	std::vector<string> result;
 
@@ -171,7 +161,7 @@ std::vector<string> TRestStringHelper::Spilt(std::string in, string separator)
 ///////////////////////////////////////////////
 /// \brief Returns the input string removing white spaces.
 ///
-string TRestStringHelper::RemoveWhiteSpaces(string in)
+string REST_StringHelper::RemoveWhiteSpaces(string in)
 {
 	string out = in;
 	size_t pos = 0;
@@ -187,7 +177,7 @@ string TRestStringHelper::RemoveWhiteSpaces(string in)
 ///////////////////////////////////////////////
 /// \brief Counts the number of occurences of **substring** inside the input string **in**. 
 ///
-Int_t TRestStringHelper::Count(string in, string substring)
+Int_t REST_StringHelper::Count(string in, string substring)
 {
 	int count = 0;
 	size_t nPos = in.find(substring, 0); // First occurrence
@@ -202,7 +192,7 @@ Int_t TRestStringHelper::Count(string in, string substring)
 
 /// \brief Returns the position of the **nth** occurence of the string **strToFind** inside the string **in**.
 ///
-Int_t TRestStringHelper::FindNthStringPosition(const string& in, size_t pos, const string& strToFind, size_t nth)
+Int_t REST_StringHelper::FindNthStringPosition(const string& in, size_t pos, const string& strToFind, size_t nth)
 {
 	size_t found_pos = in.find(strToFind, pos);
 	if (nth == 0 || string::npos == found_pos) return found_pos;
@@ -212,7 +202,7 @@ Int_t TRestStringHelper::FindNthStringPosition(const string& in, size_t pos, con
 ///////////////////////////////////////////////
 /// \brief Replace every occurences of **thisSring** by **byThisString** inside string **in**.
 ///
-string TRestStringHelper::Replace(string in, string thisString, string byThisString, size_t fromPosition, Int_t N)
+string REST_StringHelper::Replace(string in, string thisString, string byThisString, size_t fromPosition, Int_t N)
 {
 	string out = in;
 	size_t pos = fromPosition;
@@ -235,12 +225,12 @@ string TRestStringHelper::Replace(string in, string thisString, string byThisStr
 /// 
 /// The output datatime format is "Y-M-D H:M:S". e.g. 
 /// \code
-/// TRestStringHelper::ToDateTimeString(0)
+/// REST_StringHelper::ToDateTimeString(0)
 /// (return) 1970-1-1 8:00:00
 /// \endcode
 /// here the type "time_t" is actually the type "long long", which indicates the elapsed 
 /// time in second from 1970-1-1 8:00:00
-string TRestStringHelper::ToDateTimeString(time_t time)
+string REST_StringHelper::ToDateTimeString(time_t time)
 {
 	tm *tm_ = localtime(&time);                
 	int year, month, day, hour, minute, second;
@@ -281,12 +271,12 @@ string TRestStringHelper::ToDateTimeString(time_t time)
 /// 
 /// The input datatime format should be "Y-M-D H:M:S". e.g.
 /// \code
-/// TRestStringHelper::ToTime("2018-1-1 8:00:00")
+/// REST_StringHelper::ToTime("2018-1-1 8:00:00")
 /// (return) 1514764800
 /// \endcode
 /// here the type "time_t" is actually the type "long long", which indicates the elapsed 
 /// time in second from 1970-1-1 8:00:00
-time_t TRestStringHelper::ToTime(string time) {
+time_t REST_StringHelper::ToTime(string time) {
 	struct tm tm1;
 	time_t time1;
 	int i = sscanf(time.c_str(), "%d-%d-%d %d:%d:%d",
@@ -310,7 +300,7 @@ time_t TRestStringHelper::ToTime(string time) {
 ///////////////////////////////////////////////
 /// \brief Gets a double from a string.
 ///
-Double_t TRestStringHelper::StringToDouble(string in)
+Double_t REST_StringHelper::StringToDouble(string in)
 {
 	if (isANumber(in))
 	{
@@ -326,16 +316,16 @@ Double_t TRestStringHelper::StringToDouble(string in)
 ///////////////////////////////////////////////
 /// \brief Gets an integer from a string.
 ///
-Int_t TRestStringHelper::StringToInteger(string in)
+Int_t REST_StringHelper::StringToInteger(string in)
 {
 	return (Int_t)StringToDouble(in);
 }
 
-Bool_t TRestStringHelper::StringToBool(std::string in) {
+Bool_t REST_StringHelper::StringToBool(std::string in) {
 	return (in == "true" || in == "True" || in == "TRUE");
 }
 
-Long64_t TRestStringHelper::StringToLong(std::string in) {
+Long64_t REST_StringHelper::StringToLong(std::string in) {
 	stringstream strIn;
 	strIn << in;
 	long long llNum;
@@ -346,7 +336,7 @@ Long64_t TRestStringHelper::StringToLong(std::string in) {
 ///////////////////////////////////////////////
 /// \brief Gets a 3D-vector from a string. Format should be : (X,Y,Z).
 ///
-TVector3 TRestStringHelper::StringTo3DVector(string in)
+TVector3 REST_StringHelper::StringTo3DVector(string in)
 {
 	TVector3 a;
 
@@ -378,7 +368,7 @@ TVector3 TRestStringHelper::StringTo3DVector(string in)
 ///////////////////////////////////////////////
 /// \brief Gets a 2D-vector from a string.
 ///
-TVector2 TRestStringHelper::StringTo2DVector(string in)
+TVector2 REST_StringHelper::StringTo2DVector(string in)
 {
 	TVector2 a(-1, -1);
 
@@ -408,7 +398,7 @@ TVector2 TRestStringHelper::StringTo2DVector(string in)
 ///////////////////////////////////////////////
 /// \brief Returns true if the filename exists.
 ///
-bool TRestStringHelper::fileExists(const std::string& filename)
+bool REST_StringHelper::fileExists(const std::string& filename)
 {
 	struct stat buf;
 	if (stat(filename.c_str(), &buf) != -1)
@@ -421,7 +411,7 @@ bool TRestStringHelper::fileExists(const std::string& filename)
 ///////////////////////////////////////////////
 /// \brief Returns true if the **filename** has *.root* extension.
 ///
-bool TRestStringHelper::isRootFile(const std::string& filename)
+bool REST_StringHelper::isRootFile(const std::string& filename)
 {
 	if (filename.find(".root") == string::npos) return false;
 
@@ -431,7 +421,7 @@ bool TRestStringHelper::isRootFile(const std::string& filename)
 ///////////////////////////////////////////////
 /// \brief Returns true if the **path** given by argument is writable 
 ///
-bool TRestStringHelper::isPathWritable(const std::string& path)
+bool REST_StringHelper::isPathWritable(const std::string& path)
 {
 	int result = 0;
 #ifdef WIN32
@@ -447,7 +437,7 @@ bool TRestStringHelper::isPathWritable(const std::string& path)
 ///////////////////////////////////////////////
 /// \brief Check if the path is absolute path or not
 ///
-bool TRestStringHelper::isAbsolutePath(const std::string & path)
+bool REST_StringHelper::isAbsolutePath(const std::string & path)
 {
 	if (path[0] == '/' ||path[0]=='~'|| path.find(':') != -1) { return true; }
 	return false;
@@ -462,7 +452,7 @@ bool TRestStringHelper::isAbsolutePath(const std::string & path)
 /// Input: "/home/nkx/abc.txt" and ":def", Output: { "/home/nkx/", "abc.txt" }
 /// Input: "abc.txt" and ":", Output: { ".", "abc.txt" }
 /// Input: "/home/nkx/" and ":", Output: { "/home/nkx/", "" }
-std::pair<string, string> TRestStringHelper::SeparatePathAndName(const std::string fullname)
+std::pair<string, string> REST_StringHelper::SeparatePathAndName(const std::string fullname)
 {
 	pair<string, string> result;
 	int pos = fullname.find_last_of('/', -1);
@@ -489,7 +479,7 @@ std::pair<string, string> TRestStringHelper::SeparatePathAndName(const std::stri
 	return result;
 }
 
-string TRestStringHelper::ToAbsoluteName(string filename) {
+string REST_StringHelper::ToAbsoluteName(string filename) {
 	if (filename[0] == '~') {
 		return (string) getenv("HOME") + filename.substr(1, -1);
 	}
@@ -503,7 +493,7 @@ string TRestStringHelper::ToAbsoluteName(string filename) {
 ///////////////////////////////////////////////
 /// \brief Search file in the given vector of path strings, return a full name if found, return "" if not
 ///
-std::string TRestStringHelper::SearchFileInPath(vector<string> paths, string filename) {
+std::string REST_StringHelper::SearchFileInPath(vector<string> paths, string filename) {
 	if (fileExists(filename)) {
 		return filename;
 	}
@@ -524,7 +514,7 @@ std::string TRestStringHelper::SearchFileInPath(vector<string> paths, string fil
 ///////////////////////////////////////////////
 /// \brief Checks if the config file can be openned. It returns OK in case of success, ERROR otherwise.
 ///
-Int_t TRestStringHelper::ChecktheFile(std::string FileName)
+Int_t REST_StringHelper::ChecktheFile(std::string FileName)
 {
 
 	ifstream ifs;
@@ -543,7 +533,7 @@ Int_t TRestStringHelper::ChecktheFile(std::string FileName)
 ///////////////////////////////////////////////
 /// \brief Returns a list of files whose name match the pattern string. Key word is "*". e.g. abc00*.root
 ///
-vector <string> TRestStringHelper::GetFilesMatchingPattern(string pattern)
+vector <string> REST_StringHelper::GetFilesMatchingPattern(string pattern)
 {
 	std::vector <string> outputFileNames;
 
@@ -586,7 +576,7 @@ vector <string> TRestStringHelper::GetFilesMatchingPattern(string pattern)
 ///////////////////////////////////////////////
 /// \brief Convert string to its upper case. Alternative of TString::ToUpper
 ///
-std::string TRestStringHelper::ToUpper(std::string str)
+std::string REST_StringHelper::ToUpper(std::string str)
 {
 	transform(str.begin(), str.end(), str.begin(), (int(*)(int))toupper);
 	return str;
@@ -595,7 +585,7 @@ std::string TRestStringHelper::ToUpper(std::string str)
 ///////////////////////////////////////////////
 /// \brief Execute shell command and returns a string containing the result
 ///
-std::string TRestStringHelper::ExecuteShellCommand(string cmd)
+std::string REST_StringHelper::ExecuteShellCommand(string cmd)
 {
 #ifdef WIN32
 	system(cmd.c_str());
@@ -627,7 +617,7 @@ std::string TRestStringHelper::ExecuteShellCommand(string cmd)
 ///////////////////////////////////////////////
 /// \brief Convert version to a unique string
 ///
-int TRestStringHelper::ConvertVersionCode(string in) {
+int REST_StringHelper::ConvertVersionCode(string in) {
 #ifndef REST_Version
 	#define REST_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 #endif

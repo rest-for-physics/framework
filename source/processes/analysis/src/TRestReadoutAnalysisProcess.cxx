@@ -181,6 +181,10 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 				//cout << x << " " << y << endl;
 				//cout << fReadout->GetX(firstX_id) << " " << fReadout->GetY(firstY_id) << endl;
 				//cout << endl;
+
+				debug << "TRestReadoutAnalysisProcess. Adding point to hitmap of module : " << mod1 << endl;
+				debug << "Position on module(X, Y) : (" << x << ", " << y << ")" << endl;
+
 			}
 		}
 		double integral = 0;
@@ -205,6 +209,8 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 		}
 
 		fAnalysisTree->SetObservableValue(this, "CalibratedIntegral", integral);
+
+		debug << "TRestReadoutAnalysisProcess. Calibrated event energy : " << integral << endl;
 	}
 	return fSignalEvent;
 }

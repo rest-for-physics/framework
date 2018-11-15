@@ -38,8 +38,6 @@
 
 std::mutex mutexx;
 
-#define TIME_MEASUREMENT
-
 #ifdef TIME_MEASUREMENT
 #include <chrono>
 using namespace chrono;
@@ -169,7 +167,7 @@ void TRestProcessRunner::BeginOfInit()
 	for (int i = 0; i < fThreadNumber; i++)
 	{
 		TRestThread* t = new TRestThread();
-		t->SetTRestRunner(this);
+		t->SetProcessRunner(this);
 		t->SetBranchConfig(fOutputItem);
 		t->SetVerboseLevel(fVerboseLevel);
 		t->SetThreadId(i);
@@ -213,31 +211,24 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement * e)
 					fRunInfo->SetExtProcess(p);
 					return 0;
 				}
-				else
+				else if (p->GetVerboseLevel() >= REST_Debug || p->singleThreadOnly())
 				{
-					if (p->GetVerboseLevel() >= REST_Debug) {
-						fProcStatus = kIgnore;
-						debug << "a process is in debug mode, pause menu disabled." << endl;
-					}
-					if (p->singleThreadOnly()) {
-						fProcStatus = kIgnore;
-						if (fThreadNumber > 1)
-						{
-							//If the process declared single thread only, then the whole process will be 
-							//in single thread mode
-							warning << "process: " << p->ClassName() << " can only run under single thread mode" << endl;
-							warning << "the analysis run will be performed with single thread!" << endl;
-							for (i = fThreadNumber; i > 1; i--) {
-								fThreads.erase(fThreads.end() - 1);
-								fThreadNumber--;
-							}
-							fThreads[0]->AddProcess(p);
+					fProcStatus = kIgnore;
+					info << "multi-threading is disabled due to process \""<< p->GetName() <<"\"" << endl;
+					info << "This process is in debug mode or is single thread only" << endl;
 
-							break;
+					if (fThreadNumber > 1)
+					{
+						for (i = fThreadNumber; i > 1; i--) {
+							fThreads.erase(fThreads.end() - 1);
+							fThreadNumber--;
 						}
+						fThreads[0]->AddProcess(p);
+
+						break;
 					}
-					fThreads[i]->AddProcess(p);
 				}
+				fThreads[i]->AddProcess(p);
 			}
 			else
 			{

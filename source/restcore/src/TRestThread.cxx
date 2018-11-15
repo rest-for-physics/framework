@@ -28,6 +28,11 @@
 
 #include "TRestThread.h"
 
+#ifdef TIME_MEASUREMENT
+#include <chrono>
+using namespace chrono;
+#endif
+
 ClassImp(TRestThread);
 
 ///////////////////////////////////////////////
@@ -462,6 +467,18 @@ void TRestThread::StartThread()
 	//t.join();
 }
 
+///////////////////////////////////////////////
+/// \brief Add a process. 
+///
+/// The process will be added to the end of the process chain. It will also 
+/// increase the class's verbose level, if the added process's verbose level is higher.
+/// That is: TRestThread >= Added Process
+void TRestThread::AddProcess(TRestEventProcess *process) {
+	fProcessChain.push_back(process);
+	if (process->GetVerboseLevel() > fVerboseLevel)
+		SetVerboseLevel(process->GetVerboseLevel());
+}
+
 
 ///////////////////////////////////////////////
 /// \brief Process a single event. 
@@ -472,25 +489,68 @@ void TRestThread::StartThread()
 /// and saves it in the local output event.
 void TRestThread::ProcessEvent()
 {
-
-
 	TRestEvent* ProcessedEvent = fInputEvent;
-	for (unsigned int j = 0; j < fProcessChain.size(); j++)
-	{
-		fProcessChain[j]->BeginOfEventProcess();
 
+	if (fVerboseLevel >= REST_Debug) {
 
-		ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
+#ifdef TIME_MEASUREMENT
+		vector<int> processtime(fProcessChain.size());
+#endif
 
+		for (unsigned int j = 0; j < fProcessChain.size(); j++)
+		{
+			cout << "------- Starting process " + (string)fProcessChain[j]->GetName() + " -------" << endl;
 
-		fProcessChain[j]->EndOfEventProcess();
+#ifdef TIME_MEASUREMENT
+			high_resolution_clock::time_point t1 = high_resolution_clock::now();
+#endif
 
-		if (ProcessedEvent == NULL) break;
+			fProcessChain[j]->BeginOfEventProcess();
+			ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
+			fProcessChain[j]->EndOfEventProcess();
 
+#ifdef TIME_MEASUREMENT
+			high_resolution_clock::time_point t2 = high_resolution_clock::now();
+			processtime[j] = (int)duration_cast<microseconds>(t2 - t1).count();
+#endif
+
+			if (ProcessedEvent == NULL) {
+				cout << "------- End of process " + (string)fProcessChain[j]->GetName() + " (NULL returned) -------" << endl;
+				break;
+			}
+			else {
+				cout << "------- End of process " + (string)fProcessChain[j]->GetName() + " -------" << endl;
+			}
+
+			if (fProcessChain[j]->GetVerboseLevel() >= REST_Extreme && j < fProcessChain.size() - 1) {
+				GetChar();
+			}
+		}
+
+		fOutputEvent = ProcessedEvent;
+
+#ifdef TIME_MEASUREMENT
+		cout << "Process timing summary : " << endl;
+		for (unsigned int j = 0; j < fProcessChain.size(); j++)
+		{
+			cout << fProcessChain[j]->ClassName() << "(" << fProcessChain[j]->GetName()
+				<< ") : " << processtime[j] / (double)1000 << " ms" << endl;
+		}
+#endif
+
+		GetChar("======= End of Event " + ((fOutputEvent == NULL) ? ToString(fInputEvent->GetID()) : ToString(fOutputEvent->GetID())) + " =======");
 	}
-
-	fOutputEvent = ProcessedEvent;
-
+	else
+	{
+		for (unsigned int j = 0; j < fProcessChain.size(); j++)
+		{
+			fProcessChain[j]->BeginOfEventProcess();
+			ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
+			fProcessChain[j]->EndOfEventProcess();
+			if (ProcessedEvent == NULL) break;
+		}
+		fOutputEvent = ProcessedEvent;
+	}
 }
 
 

@@ -400,9 +400,17 @@
 #include "TRestMetadata.h"
 #include "RmlUpdateTool.h"
 #include "v5/TFormula.h"
+#include "TRestVersion.h"
 
+//implementation of version methods in namespace rest_version
+namespace REST_VersionGlob {
+	TString GetRESTVersion() { return REST_RELEASE; }
+	int GetRESTVersionCode() { return ConvertVersionCode(REST_RELEASE); }
+}
 using namespace std;
 using namespace REST_Units;
+
+
 
 map<string, string> TRestMetadata_UpdatedConfigFile;
 
@@ -420,7 +428,7 @@ TRestMetadata::TRestMetadata()
 	fElementEnv.clear();
 	fHostmgr = NULL;
 
-	fVersion = REST_RELEASE;
+	fVersion = GetRESTVersion();
 }
 
 ///////////////////////////////////////////////
@@ -437,7 +445,7 @@ TRestMetadata::TRestMetadata(const char *cfgFileName)
 	fElementEnv.clear();
 	fHostmgr = NULL;
 
-	fVersion = REST_RELEASE;
+	fVersion = GetRESTVersion();
 }
 
 ///////////////////////////////////////////////
@@ -1944,6 +1952,19 @@ void TRestMetadata::PrintMetadata()
 	cout << "---------------------------------------" << endl;
 }
 
+TString TRestMetadata::GetVersion() {
+	return fVersion;
+}
+
+void TRestMetadata::SetVersion(TString ver) {
+	if (!this->InheritsFrom("TRestRun")) {
+		error << "REST ERROR : version is a static value, you cannot set version for a class!" << endl;
+	}
+	else {
+		fVersion = ver;
+	}
+}
+
 ///////////////////////////////////////////////
 /// \brief Returns the section name of this class, defined at the beginning of fSectionName
 std::string TRestMetadata::GetSectionName()
@@ -2010,6 +2031,19 @@ TString TRestMetadata::GetSearchPath() {
 	}
 
 	return ReplaceEnvironmentalVariables(result);
+}
+
+Int_t TRestMetadata::Write(const char *name, Int_t option, Int_t bufsize) const {
+	if (fStore) {
+		return TNamed::Write(name, option, bufsize);
+	}
+	return -1;
+}
+Int_t TRestMetadata::Write(const char *name, Int_t option, Int_t bufsize) {
+	if (fStore) {
+		return TNamed::Write(name, option, bufsize);
+	}
+	return -1;
 }
 
 

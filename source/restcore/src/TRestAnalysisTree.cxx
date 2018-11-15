@@ -57,7 +57,7 @@ void TRestAnalysisTree::Initialize()
 
 void TRestAnalysisTree::ConnectObservables(TRestAnalysisTree * from)
 {
-	if (from != NULL&&!fConnected) {
+	if (from != NULL && !fConnected) {
 
 		vector<double*> tmpobsval;
 		vector<TString> tmpobsname;
@@ -70,7 +70,7 @@ void TRestAnalysisTree::ConnectObservables(TRestAnalysisTree * from)
 			tmpobsdes.push_back(from->GetObservableDescription(i));
 		}
 
-		fObservableValues.insert(fObservableValues.begin(),tmpobsval.begin(),tmpobsval.end());
+		fObservableValues.insert(fObservableValues.begin(), tmpobsval.begin(), tmpobsval.end());
 		fObservableNames.insert(fObservableNames.begin(), tmpobsname.begin(), tmpobsname.end());
 		fObservableDescriptions.insert(fObservableDescriptions.begin(), tmpobsdes.begin(), tmpobsdes.end());
 		fNObservables += from->GetNumberOfObservables();
@@ -104,25 +104,34 @@ Int_t TRestAnalysisTree::AddObservable(TString observableName, Double_t* observa
 	return fNObservables - 1;
 }
 
-void TRestAnalysisTree::PrintObservables()
+void TRestAnalysisTree::PrintObservables(TRestEventProcess* proc, int NObs)
 {
 	cout.precision(15);
-	std::cout << "Run origin : " << GetRunOrigin() << std::endl;
-	std::cout << "Event ID : " << GetEventID() << std::endl;
-	std::cout << "Event Time : " << GetTimeStamp() << std::endl;
-	std::cout << "Event Tag : " << GetSubEventTag() << std::endl;
-	std::cout << "-----------------------------------------" << std::endl;
-	if (isConnected()||fBranchesCreated) {
-		for (int n = 0; n < GetNumberOfObservables(); n++)
-			std::cout << "Observable Name : " << fObservableNames[n] << "    Value : " << *fObservableValues[n] << std::endl;
-		std::cout << std::endl;
+	if (proc == NULL) {
+		std::cout << "Run origin : " << GetRunOrigin() << std::endl;
+		std::cout << "Event ID : " << GetEventID() << std::endl;
+		std::cout << "Event Time : " << GetTimeStamp() << std::endl;
+		std::cout << "Event Tag : " << GetSubEventTag() << std::endl;
+		std::cout << "-----------------------------------------" << std::endl;
+	}
+	else {
+		std::cout << "---- AnalysisTree Observable for process: " << proc->GetName() << " ----" << std::endl;
+	}
+	if (isConnected() || fBranchesCreated) {
+		for (int n = 0; n < GetNumberOfObservables() && n < NObs; n++) {
+			if (proc == NULL || (proc != NULL && ((string)fObservableNames[n]).find(proc->GetName()) == 0))
+				std::cout << "Observable Name : " << fObservableNames[n] << "    Value : " << *fObservableValues[n] << std::endl;
+		}
 	}
 	else
 	{
-		for (int n = 0; n < GetNumberOfObservables(); n++)
-			std::cout << "Observable Name : " << fObservableNames[n] << "    Value : ..." << std::endl;
-		std::cout << std::endl;
+		for (int n = 0; n < GetNumberOfObservables() && n < NObs; n++) {
+			if (proc == NULL || (proc != NULL && ((string)fObservableNames[n]).find(proc->GetName()) == 0))
+				std::cout << "Observable Name : " << fObservableNames[n] << "    Value : ..." << std::endl;
+		}
+
 	}
+	std::cout << std::endl;
 	cout.precision(6);
 }
 
