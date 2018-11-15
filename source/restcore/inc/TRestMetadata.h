@@ -23,6 +23,7 @@
 #ifndef RestCore_TRestMetadata
 #define RestCore_TRestMetadata
 
+#include "TRestVersion.h"
 
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
@@ -43,6 +44,17 @@ const int PARAMETER_NOT_FOUND_INT = -99999999;
 const double PARAMETER_NOT_FOUND_DBL = -99999999;
 const std::string PARAMETER_NOT_FOUND_STR = "NO_SUCH_PARA";
 
+/* We keep using REST_RELEASE, REST_VERSION(2,X,Y) and REST_VERSION_CODE
+   to determine the installed REST version and avoid too much prototyping
+
+REST version is connected independently to each metadata structure. TRestRun
+ should be our reference to determine the version of REST used to write the 
+ROOT file.
+
+By including #include "TRestVersion.h" we get access to the definition of
+ REST_RELEASE, REST_VERSION_CODE, REST_VERSION(2,X,Y) which is the REST
+version we are using.
+
 // storing the STATIC version of this installation
 namespace REST_VersionGlob {
 	TString GetRESTVersion();
@@ -50,6 +62,8 @@ namespace REST_VersionGlob {
 };
 inline TString GetRESTVersion() { return REST_VersionGlob::GetRESTVersion(); }
 inline int GetRESTVersionCode() { return REST_VersionGlob::GetRESTVersionCode(); }
+
+*/
 
 class TRestManager;
 
@@ -205,10 +219,10 @@ public:
 	void DoNotStore() { fStore = false; }
 	/// If this method is called the metadata information will be stored in disk. This is the default behaviour.
 	void Store() { fStore = true; }
-	/// returning fVersion if the class is TRestRun
+	/// returning fVersion
 	TString GetVersion();
-	/// sets the version if the class is TRestRun
-	void SetVersion(TString ver);
+	/// sets the version to REST_RELEASE if the class is TRestRun
+	void SetVersion( );
 	/// returning the version code
 	Int_t GetVersionCode() { return ConvertVersionCode((string)GetVersion()); }
 
