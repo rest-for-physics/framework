@@ -775,7 +775,21 @@ TString TRestRun::FormFormat(TString FilenameFormat)
 			replacestr = this->Get(target);
 
 		if (replacestr != target)
+		{
+			if( targetstr == "[fRunNumber]" )
+			{
+				TString runStr;
+				runStr.Form("%05d", GetRunNumber() );
+				replacestr = (string) runStr;
+			}
+			if( targetstr == "[fParentRunNumber]" )
+			{
+				TString runStr;
+				runStr.Form("%05d", GetParentRunNumber() );
+				replacestr = (string) runStr;
+			}
 			outString = Replace(outString, targetstr, replacestr, 0);
+		}
 		pos = pos2 + 1;
 	}
 
