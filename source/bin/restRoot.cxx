@@ -6,10 +6,12 @@
 #include <TRestTools.h>
 #include <TRestMetadata.h>
 
+#include "TRestVersion.h"
+
 bool verbose = true;
 int main(int argc, char *argv[])
 {
-	setenv("REST_VERSION", GetRESTVersion(), 1);
+	setenv("REST_VERSION", REST_RELEASE, 1);
 
 	for (int i = 1; i < argc; i++) {
 		if (ToUpper((string)argv[i]) == "-L")
