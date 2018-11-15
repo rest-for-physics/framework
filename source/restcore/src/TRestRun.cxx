@@ -395,6 +395,38 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 			exit(1);
 		}
 
+		// This should be the values in RML (if it was initialized using RML)
+		TString runTypeTmp = fRunType;
+		TString runUserTmp = fRunUser;
+		TString runTagTmp = fRunTag;
+		TString runDescriptionTmp = fRunDescription;
+		TString experimentNameTmp = fExperimentName;
+		TString outputFileNameTmp = fOutputFileName;
+		TString inputFileNameTmp = fInputFileName;
+		TString cFileNameTmp = fConfigFileName;
+
+		// Now we load the values in the previous run file
+		this->Read( GetMetadataClass( "TRestRun", fInputFile)->GetName() );
+
+		if( inputFileNameTmp != "null" )
+			fInputFileName = inputFileNameTmp;
+		if( outputFileNameTmp != "rest_default.root" )
+			fOutputFileName = outputFileNameTmp;
+		if( cFileNameTmp != "null" )
+			fConfigFileName = cFileNameTmp;
+
+		// If the value was initialized from RML and is not preserve, we recover back the value in RML
+		if( runTypeTmp != "Null" && runTypeTmp != "preserve" )
+			fRunType = runTypeTmp;
+		if( runUserTmp != "Null" && runTypeTmp != "preserve" )
+			fRunUser = runUserTmp;
+		if( runTagTmp != "Null" && runTagTmp != "preserve" )
+			fRunTag = runTagTmp;
+		if( runDescriptionTmp != "Null" && runDescriptionTmp != "preserve" )
+			fRunDescription = runDescriptionTmp;
+		if( experimentNameTmp != "Null" && experimentNameTmp != "preserve" )
+			fExperimentName = experimentNameTmp;
+
 		if ( this->GetVersionCode() >= REST_VERSION(2,2,1) )
 			ReadInputFileMetadata();
 
@@ -428,49 +460,28 @@ void TRestRun::ReadInputFileMetadata() {
 		{
 			TRestMetadata* a = (TRestMetadata *)f->Get(key->GetName());
 
-			if (a->InheritsFrom("TRestEventProcess"))
+			if ( a->InheritsFrom("TRestMetadata") && a->ClassName() != (TString) "TRestRun" )
 			{
+				/*
 				//we make sure there is no repeated class added
+				// However, we might have two processes with the same class name operating at different steps of the data chain
+				// We just avoid to write TRestRun from previous file to the list of metadata structures
+
 				bool flag = false;
 				for (int i = 0; i < RESTRUN_INPUTMETADATA.size(); i++) {
-					if (a->ClassName() == RESTRUN_INPUTMETADATA[i]->ClassName()) {
-						flag = true;
-						break;
-					}
+				if (a->ClassName() == RESTRUN_INPUTMETADATA[i]->ClassName()) {
+				flag = true;
+				break;
+				}
 				}
 				if (!flag) {
-					RESTRUN_INPUTMETADATA.push_back(a);
+				RESTRUN_INPUTMETADATA.push_back(a);
 				}
+				 */
+
+				RESTRUN_INPUTMETADATA.push_back(a);
 			}
 
-			// This should be the values in RML (if it was initialized using RML)
-			TString runTypeTmp = fRunType;
-			TString runUserTmp = fRunUser;
-			TString runTagTmp = fRunTag;
-			TString runDescriptionTmp = fRunDescription;
-			TString experimentNameTmp = fExperimentName;
-			TString outputFileNameTmp = fOutputFileName;
-			TString inputFileNameTmp = fInputFileName;
-
-			// Now we load the values in the previous run file
-			this->Read( GetMetadataClass( "TRestRun", fInputFile)->GetName() );
-
-			if( inputFileNameTmp != "null" )
-				fInputFileName = inputFileNameTmp;
-			if( outputFileNameTmp != "rest_default.root" )
-				fOutputFileName = outputFileNameTmp;
-
-			// If the value was initialized from RML and is not preserve, we recover back the value in RML
-			if( runTypeTmp != "Null" && runTypeTmp != "preserve" )
-				fRunType = runTypeTmp;
-			if( runUserTmp != "Null" && runTypeTmp != "preserve" )
-				fRunUser = runUserTmp;
-			if( runTagTmp != "Null" && runTagTmp != "preserve" )
-				fRunTag = runTagTmp;
-			if( runDescriptionTmp != "Null" && runDescriptionTmp != "preserve" )
-				fRunDescription = runDescriptionTmp;
-			if( experimentNameTmp != "Null" && experimentNameTmp != "preserve" )
-				fExperimentName = experimentNameTmp;
 		}
 	}
 

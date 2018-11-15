@@ -429,6 +429,8 @@ TRestMetadata::TRestMetadata()
 	fElementEnv.clear();
 	fHostmgr = NULL;
 
+	fConfigFileName = "null";
+
 	fVersion = REST_RELEASE;
 }
 
