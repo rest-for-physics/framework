@@ -26,6 +26,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 
+#include "TRestVersion.h"
 
 #include "TRestRun.h"
 #include "TRestManager.h"
@@ -74,6 +75,7 @@ void TRestRun::Initialize()
 	fRunType = "Null";
 	fExperimentName = "Null";
 	fRunTag = "Null";
+	fRunDescription = "Null";
 
 
 	//fOutputAnalysisTree = NULL;
@@ -109,8 +111,8 @@ void TRestRun::Initialize()
 ///
 void TRestRun::BeginOfInit()
 {
-	debug << "Initializing TRestRun from config file, version: " << GetRESTVersionCode() << endl;
-
+	debug << "Initializing TRestRun from config file, version: " << REST_RELEASE << endl;
+	SetVersion();
 
 	//Get some infomation
 	fRunUser = getenv("USER") == NULL ? "" : getenv("USER");
@@ -211,7 +213,7 @@ void TRestRun::BeginOfInit()
 
 		fOutputFileName = outputdir  + "/Run_" + expName + "_" + fRunUser + "_"
 			+ runType + "_" + fRunTag + "_" + (TString)runNumberStr + "_" + (TString)runParentStr 
-			+ "_V" + GetRESTVersion() + ".root";
+			+ "_V" + REST_RELEASE + ".root";
 
 		fOverwrite = ToUpper(GetParameter("overwrite", "on")) != "OFF";
 		while (!fOverwrite && fileExists((string)fOutputFileName))
@@ -220,7 +222,7 @@ void TRestRun::BeginOfInit()
 			sprintf(runParentStr, "%05d", fParentRunNumber);
 			fOutputFileName = outputdir + "/Run_" + expName + "_" + fRunUser + "_"
 				+ runType + "_" + fRunTag + "_" + (TString)runNumberStr + "_" + (TString)runParentStr
-				+ "_V" + GetRESTVersion() + ".root";
+				+ "_V" + REST_RELEASE + ".root";
 		}
 	
 	}
@@ -387,20 +389,49 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 	{
 		fInputFile = new TFile(filename, mode.c_str());
 
-		TRestRun*r = (TRestRun*)GetMetadataClass("TRestRun", fInputFile);
-
-		int vernum = r->GetVersionCode();
-		if (r == NULL) {
-			error << "REST ERROR : invalid input file! Lacking TRestRun metadata!" << endl;
+		if ( !GetMetadataClass( "TRestRun", fInputFile) ) {
+			error << "REST ERROR : invalid input file! TRestRun was not found!" << endl;
 			error << "filename : " << filename << endl;
 			exit(1);
 		}
-		if (vernum >= ConvertVersionCode("2.2.1"))
-			ReadInputFileMetadata();
-		else
-			this->SetVersion("-1");
 
-		debug << "Initializing input file : version code : " << vernum << endl;
+		// This should be the values in RML (if it was initialized using RML)
+		TString runTypeTmp = fRunType;
+		TString runUserTmp = fRunUser;
+		TString runTagTmp = fRunTag;
+		TString runDescriptionTmp = fRunDescription;
+		TString experimentNameTmp = fExperimentName;
+		TString outputFileNameTmp = fOutputFileName;
+		TString inputFileNameTmp = fInputFileName;
+		TString cFileNameTmp = fConfigFileName;
+
+		// Now we load the values in the previous run file
+		this->Read( GetMetadataClass( "TRestRun", fInputFile)->GetName() );
+
+		if( inputFileNameTmp != "null" )
+			fInputFileName = inputFileNameTmp;
+		if( outputFileNameTmp != "rest_default.root" )
+			fOutputFileName = outputFileNameTmp;
+		if( cFileNameTmp != "null" )
+			fConfigFileName = cFileNameTmp;
+
+		// If the value was initialized from RML and is not preserve, we recover back the value in RML
+		if( runTypeTmp != "Null" && runTypeTmp != "preserve" )
+			fRunType = runTypeTmp;
+		if( runUserTmp != "Null" && runTypeTmp != "preserve" )
+			fRunUser = runUserTmp;
+		if( runTagTmp != "Null" && runTagTmp != "preserve" )
+			fRunTag = runTagTmp;
+		if( runDescriptionTmp != "Null" && runDescriptionTmp != "preserve" )
+			fRunDescription = runDescriptionTmp;
+		if( experimentNameTmp != "Null" && experimentNameTmp != "preserve" )
+			fExperimentName = experimentNameTmp;
+
+		if ( this->GetVersionCode() >= REST_VERSION(2,2,1) )
+			ReadInputFileMetadata();
+
+		debug << "Initializing input file : version code : " << this->GetVersionCode() << endl;
+		debug << "Input file version : " << this->GetVersion() << endl;
 		ReadInputFileTrees();
 	}
 	else
@@ -429,32 +460,28 @@ void TRestRun::ReadInputFileMetadata() {
 		{
 			TRestMetadata* a = (TRestMetadata *)f->Get(key->GetName());
 
-			if (a->InheritsFrom("TRestEventProcess"))
+			if ( a->InheritsFrom("TRestMetadata") && a->ClassName() != (TString) "TRestRun" )
 			{
+				/*
 				//we make sure there is no repeated class added
+				// However, we might have two processes with the same class name operating at different steps of the data chain
+				// We just avoid to write TRestRun from previous file to the list of metadata structures
+
 				bool flag = false;
 				for (int i = 0; i < RESTRUN_INPUTMETADATA.size(); i++) {
-					if (a->ClassName() == RESTRUN_INPUTMETADATA[i]->ClassName()) {
-						flag = true;
-						break;
-					}
+				if (a->ClassName() == RESTRUN_INPUTMETADATA[i]->ClassName()) {
+				flag = true;
+				break;
+				}
 				}
 				if (!flag) {
-					RESTRUN_INPUTMETADATA.push_back(a);
+				RESTRUN_INPUTMETADATA.push_back(a);
 				}
+				 */
+
+				RESTRUN_INPUTMETADATA.push_back(a);
 			}
 
-			if ((string)a->ClassName() == "TRestRun") {
-				TRestRun*r = (TRestRun*)a;
-
-				if (fRunType == "preserve")fRunType = r->GetRunType();
-				if (fRunUser == "preserve")fRunUser = r->GetRunUser();
-				if (fRunTag == "preserve")fRunTag = r->GetRunTag();
-				if (fRunDescription == "preserve")fRunDescription = r->GetRunDescription();
-				if (fExperimentName == "preserve")fExperimentName = r->GetExperimentName();
-
-				this->SetVersion(r->GetVersion());
-			}
 		}
 	}
 
@@ -759,7 +786,21 @@ TString TRestRun::FormFormat(TString FilenameFormat)
 			replacestr = this->Get(target);
 
 		if (replacestr != target)
+		{
+			if( targetstr == "[fRunNumber]" )
+			{
+				TString runStr;
+				runStr.Form("%05d", GetRunNumber() );
+				replacestr = (string) runStr;
+			}
+			if( targetstr == "[fParentRunNumber]" )
+			{
+				TString runStr;
+				runStr.Form("%05d", GetParentRunNumber() );
+				replacestr = (string) runStr;
+			}
 			outString = Replace(outString, targetstr, replacestr, 0);
+		}
 		pos = pos2 + 1;
 	}
 
@@ -775,6 +816,7 @@ TString TRestRun::FormFormat(TString FilenameFormat)
 /// The metadata objects will also be written into the file.
 TFile* TRestRun::FormOutputFile(vector<string> filenames, string targetfilename)
 {
+	debug << "TRestRun::FormOutputFile. target : " << targetfilename << endl;
 	string filename;
 	TFileMerger* m = new TFileMerger();
 	if (targetfilename == "")
@@ -1132,12 +1174,10 @@ void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t s
 	delete f;
 }
 
-Int_t TRestRun::Write(const char *name, Int_t option, Int_t bufsize) {
-	TString ver = this->GetVersion();
-	this->SetVersion(GetRESTVersion());
-	int n=TRestMetadata::Write(name, option, bufsize);
-	this->SetVersion(ver);
-	return n;
+Int_t TRestRun::Write(const char *name, Int_t option, Int_t bufsize) 
+{
+	SetVersion();
+	return TRestMetadata::Write(name, option, bufsize);
 }
 
 Double_t TRestRun::GetRunLength()

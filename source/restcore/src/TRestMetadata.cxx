@@ -400,13 +400,14 @@
 #include "TRestMetadata.h"
 #include "RmlUpdateTool.h"
 #include "v5/TFormula.h"
-#include "TRestVersion.h"
 
 //implementation of version methods in namespace rest_version
+/*
 namespace REST_VersionGlob {
 	TString GetRESTVersion() { return REST_RELEASE; }
 	int GetRESTVersionCode() { return ConvertVersionCode(REST_RELEASE); }
 }
+*/
 using namespace std;
 using namespace REST_Units;
 
@@ -428,7 +429,9 @@ TRestMetadata::TRestMetadata()
 	fElementEnv.clear();
 	fHostmgr = NULL;
 
-	fVersion = GetRESTVersion();
+	fConfigFileName = "null";
+
+	fVersion = REST_RELEASE;
 }
 
 ///////////////////////////////////////////////
@@ -445,7 +448,7 @@ TRestMetadata::TRestMetadata(const char *cfgFileName)
 	fElementEnv.clear();
 	fHostmgr = NULL;
 
-	fVersion = GetRESTVersion();
+	fVersion = REST_RELEASE;
 }
 
 ///////////////////////////////////////////////
@@ -1949,6 +1952,7 @@ void TRestMetadata::PrintMetadata()
 	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
 	cout << "Name : " << GetName() << endl;
 	cout << "Title : " << GetTitle() << endl;
+	cout << "Version : " << GetVersion() << endl;
 	cout << "---------------------------------------" << endl;
 }
 
@@ -1956,12 +1960,14 @@ TString TRestMetadata::GetVersion() {
 	return fVersion;
 }
 
-void TRestMetadata::SetVersion(TString ver) {
-	if (!this->InheritsFrom("TRestRun")) {
+///////////////////////////////////////////////
+/// \brief Resets the version of TRestRun to REST_RELEASE. Only TRestRun is allowed to update version.
+void TRestMetadata::SetVersion( )
+{
+	if ( !this->InheritsFrom("TRestRun") )
 		error << "REST ERROR : version is a static value, you cannot set version for a class!" << endl;
-	}
 	else {
-		fVersion = ver;
+		fVersion = REST_RELEASE;
 	}
 }
 
