@@ -75,6 +75,7 @@ void TRestRun::Initialize()
 	fRunType = "Null";
 	fExperimentName = "Null";
 	fRunTag = "Null";
+	fRunDescription = "Null";
 
 
 	//fOutputAnalysisTree = NULL;
@@ -394,8 +395,6 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 			exit(1);
 		}
 
-		this->Read( GetMetadataClass( "TRestRun", fInputFile)->GetName() );
-
 		if ( this->GetVersionCode() >= REST_VERSION(2,2,1) )
 			ReadInputFileMetadata();
 
@@ -444,15 +443,34 @@ void TRestRun::ReadInputFileMetadata() {
 				}
 			}
 
-			if ((string)a->ClassName() == "TRestRun") {
-				TRestRun*r = (TRestRun*)a;
+			// This should be the values in RML (if it was initialized using RML)
+			TString runTypeTmp = fRunType;
+			TString runUserTmp = fRunUser;
+			TString runTagTmp = fRunTag;
+			TString runDescriptionTmp = fRunDescription;
+			TString experimentNameTmp = fExperimentName;
+			TString outputFileNameTmp = fOutputFileName;
+			TString inputFileNameTmp = fInputFileName;
 
-				if (fRunType == "preserve")fRunType = r->GetRunType();
-				if (fRunUser == "preserve")fRunUser = r->GetRunUser();
-				if (fRunTag == "preserve")fRunTag = r->GetRunTag();
-				if (fRunDescription == "preserve")fRunDescription = r->GetRunDescription();
-				if (fExperimentName == "preserve")fExperimentName = r->GetExperimentName();
-			}
+			// Now we load the values in the previous run file
+			this->Read( GetMetadataClass( "TRestRun", fInputFile)->GetName() );
+
+			if( inputFileNameTmp != "null" )
+				fInputFileName = inputFileNameTmp;
+			if( outputFileNameTmp != "rest_default.root" )
+				fOutputFileName = outputFileNameTmp;
+
+			// If the value was initialized from RML and is not preserve, we recover back the value in RML
+			if( runTypeTmp != "Null" && runTypeTmp != "preserve" )
+				fRunType = runTypeTmp;
+			if( runUserTmp != "Null" && runTypeTmp != "preserve" )
+				fRunUser = runUserTmp;
+			if( runTagTmp != "Null" && runTagTmp != "preserve" )
+				fRunTag = runTagTmp;
+			if( runDescriptionTmp != "Null" && runDescriptionTmp != "preserve" )
+				fRunDescription = runDescriptionTmp;
+			if( experimentNameTmp != "Null" && experimentNameTmp != "preserve" )
+				fExperimentName = experimentNameTmp;
 		}
 	}
 
@@ -773,6 +791,7 @@ TString TRestRun::FormFormat(TString FilenameFormat)
 /// The metadata objects will also be written into the file.
 TFile* TRestRun::FormOutputFile(vector<string> filenames, string targetfilename)
 {
+	debug << "TRestRun::FormOutputFile. target : " << targetfilename << endl;
 	string filename;
 	TFileMerger* m = new TFileMerger();
 	if (targetfilename == "")
