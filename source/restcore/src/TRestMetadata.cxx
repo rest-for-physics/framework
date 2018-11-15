@@ -1950,6 +1950,7 @@ void TRestMetadata::PrintMetadata()
 	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
 	cout << "Name : " << GetName() << endl;
 	cout << "Title : " << GetTitle() << endl;
+	cout << "Version : " << GetVersion() << endl;
 	cout << "---------------------------------------" << endl;
 }
 
