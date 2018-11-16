@@ -47,11 +47,10 @@ more details.
 
 ### Writing rml to process file
 
-Here we will talk about the detailed options of rml config file when using REST. We usually have a 
+Here we will talk about the detailed options of rml config file for restManager. We usually have a 
 "TRestRun" section, a "TRestProcessRunner" section, a "globals" section and some "addTask" section under 
-the root section "TRestManager" in an rml file to be loaded by `restManager`. "TRestRun" section and 
-"TRestProcessRunner" section corresponds to the two REST application objects managed by TRestManager.
-They cooperate with each other.
+the root section "TRestManager". "TRestRun" section and "TRestProcessRunner" section corresponds to the 
+two REST metadata objects managed by TRestManager. They cooperate with each other.
 
 #### name, title and verbose level
 
@@ -239,6 +238,9 @@ Let's assume that the graw file is created in 2018-01-30 16:30, and the last eve
 TRestRawSignalAnalysisProcess with a name "sAna", then the output file name will be:
 "RUN00042_16:42_sAna.root".
 
+The default auto naming is:  
+`Run_[fExperimentName]_[fRunUser]_[fRunType]_[fRunTag]_[fRunNumber]_[fParentRunNumber]_V[REST_RELEASE].root`
+
 Another parameter "mainDataPath" defines the path of saving output file. By default REST saves the output file 
 at current directory. When "mainDataPath" is specified, the output file is saved in this directory. We can set 
 it in "globals" section. For example:
@@ -266,14 +268,26 @@ When we have prepared the rml file, we can start the process! The command is lik
 
 `restManager --c multiCoboAnalysis.rml --i /data2/7MM/graw/CoBo_AsAd0_2017-12-23T17\:24\:04.657_0000.graw --o abc.root`
 
-REST provides a progress bar and a pause menu during the process. Pressing "p" and then "enter" will pause the process and
-a pause menu will be shown. Functionalities like changing verbose level, printing current event or exiting with saving,
-etc. is provided in the menu. As shown in the following figures.
+REST will show a progress bar with timing during the process.
 
 ![alt](Image/progressbar.png)
 
+The remaining time is calcluated by the proceeded precentage in the last 10 seconds, while the precentage
+is calculated by(ordered by priority):  
+
+1. saved events / eventsToProcess
+2. readed bytes / size of input binary file
+3. readed events / totalEntries of input root file
+
+Pause menu is also available during the process. It can be called out by pressing "p" and then "enter". 
+Functionalities like changing verbose level, printing current event or exiting with saving, etc. is provided 
+in the menu. As shown in the following figures.
 
 ![alt](Image/pausemenu.png)
+
+A general case is that when we are doing processing and want to terminate the program. If we directly use 
+"ctrl-c", we will loose all the processed data. So we can stop REST with the help menu, by simply pressing "q"
+in it.
 
 ### REST data format
 
@@ -356,7 +370,7 @@ Some viewer processes are also available in REST. The user can have a view of th
 the process. All the viewer processes are single thread only, and TRestProcessRunner will automatically
 roll back to single thread mode with a viewer process in process chain. 
 
-### Plot the analysis result
+### Plot the analysis result (may be incorrect)
 
 It is also allowed to plot histograms for observables in output file. REST has an application class 
 called TRestAnalysisPlot. It generates plot string according to an rml config file and calls the 

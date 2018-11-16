@@ -23,7 +23,7 @@ The only dependence of REST(mainbody) is
 
 Its [official website](https://root.cern.ch/downloading-root) provides downloads of binaries for most of
 the Linux system. If not, try to manually compile it. After finishing installing ROOT6, we can directly 
-install REST, just by using cmake. Instructions are in the [next section](#trouble-shooting).
+install REST, just by using cmake.
 
 For those who is new to git commands, we recommend using the python script "scriptsGUI.py". It gives a 
 GUI wizard for installation and updating. The package
@@ -38,19 +38,18 @@ that python should be in version 2.7. If the default python is python3, try `pyt
 
 ### Add-ons
 
-Here in the GUI we can see some optional packages like restGas, restDataBaseImpl, restG4. They provides 
-extra functionality through modularized installation. They shall be installed individualy after REST 
-mainbody is installed. 
+Here in the GUI we can see some optional checkboxes like restGas, restDataBaseImpl, restG4. They provides 
+extra functionality upon the fundamental REST mainbody. They depends on different 
 
-package | dependency | Description
+option | dependency | Description
 -------------|------------|-----------------
-restGas          | Garfield (compiled with ROOT6)    | Enables gas simulation (drift speed, diffusion), gas file reading/saving/generation for TRestGas class. Provides gas information for processes.
-restDataBaseImpl | PostgreSQL (tested version: 9.5)  | Can access to pgsql database on local machine. restManager will be able to find input files from database. restG4 will be able to record its run in the database. 
-restG4           | geant4                            | Generates events and save then in REST data format. Reads configuration from REST's rml file. 
+restGas          | Garfield (compiled with ROOT6)    | Enables gas simulation (drift speed, diffusion), gas file reading/saving/generation for TRestGas class. Therefore TRestGas can provide gas information for processes.
+restDataBaseImpl | PostgreSQL (tested version: 9.5)  | Adds a library libRestDataBaseImpl. Provides access to pgsql database on local machine. TRestRun will be able to find input files from database. restG4 will be able to record its run in the database.
+restG4           | geant4                            | Adds a executable restG4. Generates events and saves them in REST data format. Reads configuration from REST's rml file. 
 
 ### Using the GUI
 
-After checking the needed packages, we can click on "update!" or "install!" button on the window.
+After checking the needed options, we can click on "update!" or "install!" button on the window.
 Sometimes during update/installation, a window will show up asking for gitlab account. The account will
 be used in linking the authorized-only git repository. Note that during update, any modified local files 
 will be overwritten. 
@@ -77,18 +76,23 @@ and then enter it. Then run "cmake" followed by "make":
 :build$ `make install`
 
 If all proceed normally, REST will be installed in the directory "install" in the source directory. 
-This is by default, we can also change some settings which are listed below:  
+We provide multiple cmake flags for the users:
 
-**-DINSTALL_PREFIX=(install path)** : change the installation path of REST  
-**-DREST_WELCOME=(ON/OFF)** : switch on/off the welcome message when logging in. The message contains 
-information about the versions, install path, install date, etc.
+* **-DINSTALL_PREFIX=(install path)** : change the installation path of REST  
+* **-DREST_WELCOME=(ON/OFF)** : switch on/off the welcome message when logging in. The message contains 
+information about the versions, install path, install date, etc. Default is on.  
+* **-DREST_Garfield=(ON/OFF)** : switch on/off the garfield accessibility. Default is off.  
+* **-DREST_G4=(ON/OFF)** : switch on/off the installation of restG4. Default is off.  
+* **-REST_DATABASE=(ON/OFF)** : switch on/off the installation of restDataBaseImpl. Default is off.  
+* **-DREST_SE=(ON/OFF)** : switch on/off the ROOT auto schema evolution(on means, generating a linkdef.h 
+for each class). We don't need to care about this. Default is on.  
 
 For example, to install REST in softwares/REST in your home directory, one can type:
 
 :build$ `cmake .. -DINSTALL_PREFIX=~/softwares/REST/`
 
-To install restG4 and restDataBaseImpl, we need first install REST mainbody, source thisREST.sh, and 
-restart bash. Then we can switch to their main directory and do similar. 
+restG4 and restDataBaseImpl can be installed after REST mainbody installation and `source thisREST.sh`
+We just switch to their main directory and do similar. 
 
 :REST_v2$ `cd packages/restG4/`  
 :restG4$ `mkdir build`  
@@ -102,9 +106,9 @@ Sometimes during compilation ld will report error like "/usr/bin/ld: cannot find
 ROOT is not installed properly. In some operation system the self-contained ROOT6 lacks some library, 
 including libEve.so, libMathMore.so, libGdml.so, etc. First confirm the missing by checking those files in 
 ROOT's library directory, which can be found with `root-config --libdir`. If so, we need to install ROOT 
-manually.
+manually. Turn to their official website for more information.
 
-After updating ROOT, we need to clear build path and re-run the previous command.
+After this, we need to clear build path and re-run the previous command.
 
 #### Cannot update with the python script
 
