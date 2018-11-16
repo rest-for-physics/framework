@@ -281,6 +281,7 @@ void TRestAnalysisPlot::InitFromConfigFile()
 
             vector <TString> varNames;
             vector <TVector2> ranges;
+            vector <TVector2> yRanges;
             vector <Int_t> bins;
 
             string variableDefinition;
@@ -294,6 +295,10 @@ void TRestAnalysisPlot::InitFromConfigFile()
                 rangeStr = Replace( rangeStr, "days", "24*3600" );
 
                 ranges.push_back( StringTo2DVector( rangeStr ) );
+
+                rangeStr = GetFieldValue( "yRange", variableDefinition );
+                fYRangeUser.push_back( StringTo2DVector( rangeStr ) );
+
                 bins.push_back( StringToInteger( GetFieldValue( "nbins", variableDefinition ) ) );
             }
 
@@ -581,8 +586,10 @@ void TRestAnalysisPlot::PlotCombinedCanvas( )
         if( fLogScale[n] ) 
             fCombinedCanvas->cd(n+1)->SetLogy();
 
-        fCombinedCanvas->cd(n+1)->SetLeftMargin(0.15);
+        fCombinedCanvas->cd(n+1)->SetLeftMargin(0.18);
+        fCombinedCanvas->cd(n+1)->SetRightMargin(0.05);
         fCombinedCanvas->cd(n+1)->SetBottomMargin(0.15);
+        fCombinedCanvas->cd(n+1)->SetTopMargin(0.02);
 
         histCollection.clear();
 
@@ -724,7 +731,15 @@ void TRestAnalysisPlot::PlotCombinedCanvas( )
                 histCollection[i]->Scale(scale);
             }
 
-            histCollection[i]->GetYaxis()->SetRangeUser(0.1 * scale, 1.1 * maxValue * scale );
+            Double_t yMin = fYRangeUser[n].X();
+            if( yMin < 0 )
+                yMin = 0.1 * scale;
+
+            Double_t yMax = fYRangeUser[n].Y();
+            if( yMax < 0 )
+                yMax = 1.1 * maxValue * scale;
+
+            histCollection[i]->GetYaxis()->SetRangeUser( yMin, yMax );
 
             if( i == 0 )
                 histCollection[i]->Draw();
