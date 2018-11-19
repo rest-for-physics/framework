@@ -765,7 +765,7 @@ Int_t TRestReadout::GetHitsDaqChannel(TVector3 hitpos, Int_t& planeID, Int_t& mo
 		{
 			//TRestReadoutModule* mod = plane->GetModuleByID(m);
 			TRestReadoutModule* mod = plane->GetModuleByID(m);
-			Int_t readoutChannel = plane->FindChannel(m, x, y);
+			Int_t readoutChannel = mod->FindChannel(x, y);
 			if (readoutChannel >= 0) {
 				planeID = plane->GetID();
 				moduleID = mod->GetModuleID();

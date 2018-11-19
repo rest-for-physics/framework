@@ -1,4 +1,4 @@
-## Try Some Examples
+## Getting Started
 
 The main executable of REST is restManager and restRoot. By typing directly `restManager` it will show 
 its usage. By typing restRoot the user can access to REST libraries and macros inside ROOT prompt. We 
@@ -60,14 +60,14 @@ We start with a template xml file.
 The first line is universal, telling the text viewer this file is xml encoded. Then here comes an **element**.
 An xml element is a sealed text structure starting with `<value` and ending with `</value>` or `/>`. 
 Elements in an xml file usually have multiple nesting relationship. Here as the indentation suggests, we have
-a root element with value "A_ROOT_SECTION". It has two child elements "SectionName", "AnotherSection".
+a root element with **value** "A_ROOT_SECTION". It has two child elements "SectionName", "AnotherSection".
 Elements have **attribute**, namely the key-value pairs in its definition line. Here in the example the 
 element "SectionName" has two attributes: "name"-"abc" and "title"-"a section title". Only one root element
 is allowed in standard xml format. Attributes cannot be repeated.
 
 Besides the elements, xml file can also contain **character** and **comment**. Comment is the text starting 
 with `<!--` and ending with `-->`. Character is the naked text. Here in the example, "Hello World!" is 
-character, and "<!--This is a comment-->" is comment. We don't use those two things in rml.
+character, and "This is a comment" is comment. We don't use those two things in rml.
 
 The symbol `<`, `>`, `&`, `"`, `'` may cause ambiguity in the main text of xml encoded file. Its better to
 use escape string `&lt;`, `&gt;`, `&amp;`, `&quot;`, `&apos;` respectively.
@@ -86,17 +86,24 @@ if we add an attribute `parName="parVal"` in the fifth line, this is equivalent 
 #### variable and myParameter
 
 The xml sections valued **variable** and **myParameter** are for the keyword replacement. They are defined with a line
-like: `<variable name="PITCH" value="3" overwrite="false" />`. xml sections with same or lower hierarchy than
-this definition section will have its attributes replaced. If this definition section is in the "globals"
-section, then all xml sections in the file can see it.
+like: 
 
-To replace "variables", we must mark the corresponding keyword with `${}`, while to replace "myParameter" we
-need not. For example, we add a line after the previous "variable" definition: 
+`<variable name="PITCH" value="3" overwrite="false" />`
+
+xml sections with same or lower hierarchy than this definition section will know this variable. If this 
+definition section is in the "globals" section, then all xml sections in the file can see it. To mark 
+"variable" for REST to replace, we must use keyword `${}`. For "myParameter" we don't need to add any 
+mark. For example, we add a line after the previous "variable" definition: 
 `<myParameter name="pitch" value="${PITCH}" />`.
 This marks out the keyword "PITCH" and it will be replaced by the word "3". Now we defined a "myParameter" with 
 name "pitch" and value "3". Then we add another line: 
-`<addPixel id="0" origin="(pitch,pitch/4+pitch)" size="(20,20)" rotation="45" />`.
+
+`<addPixel id="0" origin="(pitch,pitch/4+pitch)" size="(20,20)" rotation="45" />`
+
 In this line all the apperrance of "pitch" will be replced by the word "3". The expression will be executed.
+Finally what the program see will be:
+
+`<addPixel id="0" origin="(3,3.75)" size="(20,20)" rotation="45" />`
 
 REST works together with system environmental variable. By switching true or false for the "overwrite" attribute,
 a variable definition will use the text defined vale or the system environmental variable. By marking the keyword
@@ -109,25 +116,22 @@ REST will open the file and searches for the section with the same declaration(o
 attribute as the current section. If found, the external section will be expanded into the current section, 
 inducing more attributes and parameters.(no overwriten). Variables in that file will be imported together.
 
-There are two ways to make a include definition. The key word is the attribute **file**. For auto insert,
-(REST will automatically find the section in the file, according to "type" and "name". At least one of the 
-two definitions should be specified. Here "type" can either be the element declare or its attribute. After 
-finding the remote section, this method will insert its child sections and attributes into the local xml 
-element), use:
+There are two ways to make a include definition. The key word is the attribute "**file**". We recommend to 
+use "auto insert include", it is like:
 
 `<addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON" file="processes.rml"/>`  
 
-For raw include(REST will parse all the lines in the file as xml element and insert them inside the local 
-section), use
+Then REST will automatically find the corresponding section, according to the specified "type" and "name". 
+Here "type" can alternatively be the element declaration. At least one of the two definitions should be 
+given. In "processes.rml", we both only search in its a root element. If found, REST will insert its child 
+sections and attributes into the local xml element.
+
+Another include definition is "raw include". REST will parse all the lines in the file as xml element 
+and insert them inside the local section. We use like:
 
 `<addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON">`  
 &emsp;`<include file = "processes.rml" />`  
 `</addProcess>`  
-
-These two include definitions will order REST to find a section in the file process.rml declared as 
-"addProcess" or "TRestRawSignalAnalysisProcess" and named with "sAna". The section can both be a root element
-or a child element of root element(cannot be grand-child element). If found, REST will expand its attributes
-and child elements to the element "addProcess".
 
 #### for loop expansion
 

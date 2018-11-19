@@ -321,11 +321,11 @@ double            | GetDblDataMemberVal        | TStreamerElement*           | G
 int               | GetIntDataMemberVal        | TStreamerElement*           | Get the value of class member assume its type is int.
 char*             | GetDataMemberRef           | TStreamerElement*           | Get address of the given class member in type of char*
 string            | GetDataMemberValString     | TStreamerElement*           | Get the value of class member assume its type is string.
-void              | SetDataMemberVal           | TStreamerElement°Ô, char°Ô  | Set the value of class member with a pointer. Assume the pointer is of same type of the class member.
+void              | SetDataMemberVal           | TStreamerElement#, char#  | Set the value of class member with a pointer. Assume the pointer is of same type of the class member.
 void              | SetDataMemberVal           | TStreamerElement*, string   | Set the value of class member with a number string. Convert the string to certain value type(int, double, float).
 void              | SetDataMemberValFromConfig | TStreamerElement*           | Autometically set the value of corresponding class member with the given xml section.
 
-(°Ô: same as *)
+(#: same as *)
 
 Now to setup value of a hundred class members from the rml file, we can write a loop:
 
@@ -343,17 +343,17 @@ Now to setup value of a hundred class members from the rml file, we can write a 
 The most frequent case of developing REST is to write or modifiy an event process. TRestEventProcess is 
 inherited from TRestMetadata, adding extra interfaces and tools to it. We need to implement/redefine 
 additional methods/variables in TRestEventProcess. The followings are a list of them. 
-The ones with a "°Ô" mark ahead must be implemented/redefined by the user.
+The ones with a "!" mark ahead must be implemented/redefined by the user.
 
-°ÔTRestEvent* fInputEvent  
+! TRestEvent* fInputEvent  
 
-°ÔTRestEvent* fOutputEvent  
+! TRestEvent* fOutputEvent  
 
 virtual void InitProcess()  
 
 virtual void BeginOfEventProcess()  
 
-°Ôvirtual TRestEvent *ProcessEvent( TRestEvent *evInput ) = 0  
+! virtual TRestEvent *ProcessEvent( TRestEvent *evInput ) = 0  
 
 virtual void EndOfEventProcess()  
 

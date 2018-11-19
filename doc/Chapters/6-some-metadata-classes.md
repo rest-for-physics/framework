@@ -68,9 +68,8 @@ drawing 100 extrapolated points.
 
 [3] `gas->PlotDriftVelocity( 1, 1000, 100 )`
 
-When changing the gas condition, TRestGas will re-seek the gas tables. If success, It will load it. 
-Otherwise a single E calculation will be performed in the next get property method, which takes
-several minutes.
+When we change the gas pressure, since the drift velocity is related only to E/P, we can directly use
+this retrieved TRestGas class.
 
 [4] `gas->SetPressure( 5 )`
 
@@ -99,6 +98,10 @@ Then we saved it manually in a root file.
 
 Alternativelly we can do this through a restManager command in bash:
 
+`restManager --c saveGas.rml --o argonMixture.root`
+
+with "saveGas.rml" contains:
+
 //we write a config file saveGas.rml  
 `<TRestManager verboseLevel="silent">`  
 &emsp;`<TRestRun name="run">`  
@@ -106,10 +109,6 @@ Alternativelly we can do this through a restManager command in bash:
 &emsp;`</TRestRun>`  
 &emsp;`<addTask command="run->FormOutputFile()" value="ON"/>`  
 `</TRestManager>`  
-
-When we type:
-
-`restManager --c saveGas.rml --o argonMixture.root`
 
 REST will use the previous gas table to create TRestGas object. Then it will save the object in a root file 
 named "argonMixture.root". 
