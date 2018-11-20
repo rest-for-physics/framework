@@ -10,32 +10,11 @@ import updateREST
 import installers
 import vars
 import subprocess
-from multiprocessing import cpu_count
 
-version="0.1"
 
-print "processors in cpu : ", cpu_count()
-vars.opt["Make_Threads"] = str(cpu_count() / 2)
-if int(vars.opt["Make_Threads"]) > 8:
-    vars.opt["Make_Threads"] = "8"
+version="0.2"
 
-import platform
-s = platform.platform()
-if s.find('Ubuntu')!=-1:
-    vars.var["OS"]="Ubuntu"
-if s.find('centos')!=-1:
-    vars.var["OS"]="Centos"
-
-print "Operating system: ", vars.var["OS"], "(", s,")"
-
-print ""
-
-print "checking if root is installed...", installers.checkinstalled("root6")
-print "checking if geant4 is installed...", installers.checkinstalled("geant4")
-print "checking if garfield is installed...", installers.checkinstalled("garfield")
-print "checking if REST is installed...", installers.checkinstalled("REST")
-#print "checking if tinyxml is installed...", installers.checkinstalled("tinyxml")
-print "checking if PostgreSQL is installed...", installers.checkinstalled("pgsql")
+vars.initvar()
 
 win = tk.Tk() 
 win.title("REST Scripts GUI V"+version) 
@@ -111,6 +90,7 @@ def refreshdisplay():
     elif step == install_welcomemsg:
         text.delete("1.0",tk.END)
         text.insert("1.0",vars.cmakeflags[0].split("=")[1])
+        btnnext.config(state='normal',text='next')
         check2.config(state='normal')
         check3.config(state='normal')
         check4.config(state='normal')
@@ -170,7 +150,7 @@ def nextstep():
             step = install_path
     elif step == install_git:
         vars.opt['Branch']=text.get("1.0", tk.END).strip('\n')
-        updateREST.repairgit()
+        installers.initgit()
         if os.path.exists(vars.opt["Build_Path"]) and os.listdir(vars.opt["Build_Path"]):
             step=install_clearbuild
         else :
@@ -202,7 +182,7 @@ def nextstep():
         print "You can't hit this!"
     elif step == update_confirm:
         vars.opt['Branch']=text.get("1.0", tk.END).strip('\n')
-        updateREST.main()
+        updateREST.update()
         step =install_begin;
     previoussteps.append(step)
     refreshdisplay()
@@ -255,13 +235,13 @@ def callCheckbutton3():
 
 def callCheckbutton4():
     if chVarDis4.get() == 1:
-        if(restCProc.ready()):
-            print "selected package restGas"
+        if(restGas.ready()):
+            print "selected to add garfield accessiblity"
         else:
             print "lacking dependency of restGas! cannot add"
             check4.deselect()
     else:
-        print "deselect package restGas"
+        print "deselect garfield"
 
 
 btninstall = ttk.Button(win, text="Install!", command=begininstall,width=10)
