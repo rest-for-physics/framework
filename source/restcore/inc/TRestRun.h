@@ -226,7 +226,7 @@ public:
 	TRestRun(string rootfilename);
 	~TRestRun();
 
-	ClassDef(TRestRun, 1);
+	ClassDef(TRestRun, 2);
 };
 
 
