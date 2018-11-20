@@ -44,11 +44,18 @@ TRestAnalysisTree::TRestAnalysisTree(TString name, TString title) : TTree(name, 
 
 void TRestAnalysisTree::Initialize()
 {
-
+	fRunOrigin = 0;
+	fSubRunOrigin = 0;
+	fEventID = 0;
+	fSubEventID = 0;
 	fSubEventTag = new TString();
-
+	fTimeStamp = 0;
+	
 	fNObservables = 0;
 
+	fObservableDescriptions.clear();
+	fObservableNames.clear();
+	fObservableValues.clear();
 	fConnected = false;
 	fBranchesCreated = false;
 
