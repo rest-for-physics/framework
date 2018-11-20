@@ -1005,8 +1005,10 @@ void TRestRun::CloseFile()
 		fEntriesSaved = fAnalysisTree->GetEntries();
 		if (fAnalysisTree->GetEntries() > 0 && fInputFile == NULL)
 		{
-			fAnalysisTree->Write(0, kOverwrite);
-			this->Write(0, kOverwrite);
+			if (fOutputFile != NULL) {
+				fAnalysisTree->Write(0, kOverwrite);
+				this->Write(0, kOverwrite);
+			}
 		}
 		fAnalysisTree = NULL;
 	}
@@ -1210,6 +1212,36 @@ string TRestRun::Get(string target)
 	return "";
 }
 
+TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, TString tag) {
+	if (fAnalysisTree != NULL && fAnalysisTree->isConnected()) {
+		int nentries = fAnalysisTree->GetEntries();
+
+		//set analysis tree to read only three branches
+		fAnalysisTree->SetBranchStatus("*", false);
+		fAnalysisTree->SetBranchStatus("eventID", true);
+		fAnalysisTree->SetBranchStatus("subEventID", true);
+		fAnalysisTree->SetBranchStatus("subEventTag", true);
+
+		//just look through the whole analysis tree and find the entry
+		for (int i = 0; i < nentries; i++) {
+			fAnalysisTree->GetEntry(i);
+			if (fAnalysisTree->GetEventID() == eventID) {
+				if (subEventID != -1 && fAnalysisTree->GetSubEventID() != subEventID)continue;
+				if (tag != "" && fAnalysisTree->GetSubEventTag() != tag)continue;
+				if (fEventTree != NULL) {
+					fEventTree->GetEntry(i);
+					fAnalysisTree->SetBranchStatus("*", true);
+					return fInputEvent;
+				}
+			}
+		}
+		
+		//reset the branch status
+		fAnalysisTree->SetBranchStatus("*", true);
+	}
+
+	return NULL;
+}
 
 TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile*f)
 {

@@ -144,8 +144,9 @@ public:
 	int GetEntries() { if (fAnalysisTree != NULL) { return fAnalysisTree->GetEntries(); } return REST_MAXIMUM_EVENTS; }
 
 	TRestEvent* GetInputEvent() { return fInputEvent; }
+	TRestEvent* GetEventWithID(Int_t eventID, Int_t subEventID = -1, TString tag = "");
 	TRestEventProcess* GetFileProcess() { return fFileProcess; }
-	string GetFileInfo(string infoname) { return FileInfo[infoname] == "" ? infoname : FileInfo[infoname]; }
+	string GetFileInfo(string infoname) { return FileInfo.count(infoname) == 0 ? infoname : FileInfo[infoname]; }
 	Int_t GetObservableID(TString name) { return fAnalysisTree->GetObservableID(name); }
 	Bool_t ObservableExists(TString name) { return fAnalysisTree->ObservableExists(name); }
 	TString GetInputEventName() { return fInputEvent->ClassName(); }
