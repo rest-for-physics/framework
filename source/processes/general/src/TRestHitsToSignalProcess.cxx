@@ -211,6 +211,7 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
                 printf(" TRestHitsToSignalProcess: x %lf y %lf z %lf energy %lf t %lf fDriftVelocity %lf fSampling %lf time %lf\n",
                        x, y, z, energy, t, fDriftVelocity, fSampling, time);
 
+            // In this process sampling is only used to discretize the time
             time = ( (Int_t) (time/fSampling) ) * fSampling;
 
             if( GetVerboseLevel() >= REST_Debug && hit < 20 )

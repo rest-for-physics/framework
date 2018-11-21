@@ -40,12 +40,11 @@ class TRestSignalToHitsProcess:public TRestEventProcess {
 
     protected:
 
-        Double_t fSampling; // us
         Double_t fElectricField; // V/cm
         Double_t fGasPressure; // atm
         Double_t fDriftVelocity; // mm/us
 
-	TString fSignalToHitMethod;
+        TString fSignalToHitMethod;
 
     public:
 
@@ -61,12 +60,11 @@ class TRestSignalToHitsProcess:public TRestEventProcess {
         {
             BeginPrintProcess();
 
-            std::cout << "Sampling rate : " << fSampling << " us" << std::endl;
             std::cout << "Electric field : " << fElectricField << " V/cm" << std::endl;
             std::cout << "Gas pressure : " << fGasPressure << " atm" << std::endl;
             std::cout << "Drift velocity : " << fDriftVelocity << " mm/us" << std::endl;
 
-	    std::cout << "Signal to hits method : " << fSignalToHitMethod << std::endl;
+            std::cout << "Signal to hits method : " << fSignalToHitMethod << std::endl;
 
             EndPrintProcess();
         }
@@ -79,7 +77,7 @@ class TRestSignalToHitsProcess:public TRestEventProcess {
         //Destructor
         ~TRestSignalToHitsProcess();
 
-        ClassDef(TRestSignalToHitsProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+        ClassDef(TRestSignalToHitsProcess, 2);      // Template for a REST "event process" class inherited from TRestEventProcess
 };
 #endif
 
