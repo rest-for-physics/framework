@@ -49,7 +49,6 @@ void TRestSignalToHitsProcess::LoadDefaultConfig( )
 
     cout << "Signal to hits metadata not found. Loading default values" << endl;
 
-    fSampling = 1;
     fElectricField = 1000;
     fGasPressure = 10;
 
@@ -68,16 +67,6 @@ void TRestSignalToHitsProcess::LoadConfig( std::string cfgFilename, std::string 
         {
             fElectricField = detSetup->GetFieldInVPerCm( );
             cout << "SignalToHitsProcess : Obtainning electric field from detector setup : " << fElectricField << " V/cm" << endl;
-        }
-    }
-
-    if ( fSampling == PARAMETER_NOT_FOUND_DBL )
-    {
-        TRestDetectorSetup *detSetup = (TRestDetectorSetup *) this->GetDetectorSetup();
-        if ( detSetup != NULL )
-        {
-            fSampling = detSetup->GetSamplingInMicroSeconds( );
-            cout << "SignalToHitsProcess : Obtainning sampling from detector setup : " << fSampling << " us" << endl;
         }
     }
 
@@ -103,12 +92,6 @@ void TRestSignalToHitsProcess::LoadConfig( std::string cfgFilename, std::string 
 
        GetChar();
 
-       if ( fSampling == PARAMETER_NOT_FOUND_DBL )
-       {
-       fSampling = this->GetDoubleParameterFromClassWithUnits( "TRestHitsToSignalProcess", "sampling" );
-       if( fSampling != PARAMETER_NOT_FOUND_DBL )
-       cout << "Getting sampling rate from hitsToSignal process : " << fSampling << " um" << endl;
-       }
        */
 }
 
@@ -292,7 +275,6 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent( TRestEvent *evInput )
 
 				if( GetVerboseLevel() >= REST_Debug )
 				{
-					cout << "Sampling : " << fSampling << endl;
 					cout << "Time : " << sgnl->GetTime(j) << " Drift velocity : " << fDriftVelocity << endl;
 					cout << "Distance to plane : " << distanceToPlane << endl;
 				}
@@ -346,7 +328,6 @@ void TRestSignalToHitsProcess::InitFromConfigFile( )
 {
 
     fElectricField = GetDblParameterWithUnits( "electricField" );
-    fSampling = GetDblParameterWithUnits( "sampling" );
     fGasPressure = StringToDouble( GetParameter( "gasPressure", "-1" ) );
     fDriftVelocity = StringToDouble( GetParameter( "driftVelocity" , "0") ) * cmTomm;
     fSignalToHitMethod =  GetParameter( "method", "all" );
