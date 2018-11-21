@@ -53,6 +53,8 @@ void TRestSignalZeroSuppresionProcess::LoadDefaultConfig( )
     fSignalThreshold = 2.;
     fNPointsOverThreshold = 10;
 
+    fSampling = 0.1;
+
 }
 
 void TRestSignalZeroSuppresionProcess::LoadConfig( std::string cfgFilename, std::string name )
@@ -71,6 +73,8 @@ void TRestSignalZeroSuppresionProcess::Initialize()
 
     fInputEvent = fRawSignalEvent;
     fOutputEvent = fSignalEvent;
+
+    fSampling = 0.1;
 }
 
 //______________________________________________________________________________
@@ -127,7 +131,7 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
             TRestSignal outSignal;
             outSignal.SetID( signalID );
             for( unsigned int n = 0; n < poinsOver.size(); n++ )
-                outSignal.NewPoint( poinsOver[n], sgnl->GetData( poinsOver[n] ) );
+                outSignal.NewPoint( poinsOver[n] * fSampling, sgnl->GetData( poinsOver[n] ) );
 
             fSignalEvent->AddSignal( outSignal );
         }
@@ -173,6 +177,8 @@ void TRestSignalZeroSuppresionProcess::InitFromConfigFile( )
     fSignalThreshold = StringToDouble( GetParameter( "signalThreshold", "5" ) );
     fHeadPoints = StringToInteger( GetParameter( "headPoints", "15" ) );
     fTailPoints = StringToInteger( GetParameter( "tailPoints", "15" ) );
+
+    fSampling = GetDblParameterWithUnits( "sampling", 0.1 );
 
     fMinimumAmplitude = StringToInteger( GetParameter( "minimumAmplitude", "15" ) );
 

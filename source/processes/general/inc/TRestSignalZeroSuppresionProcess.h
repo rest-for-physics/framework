@@ -48,6 +48,7 @@ class TRestSignalZeroSuppresionProcess:public TRestEventProcess {
 
         Int_t fMinimumAmplitude;
 
+        Double_t fSampling; // us
 
     public:
 
@@ -70,6 +71,7 @@ class TRestSignalZeroSuppresionProcess:public TRestEventProcess {
             std::cout << "Number of head points : " << fHeadPoints << std::endl;
             std::cout << "Number of tail points : " << fTailPoints << std::endl;
             std::cout << "Minimum max-peak amplitude : " << fMinimumAmplitude << std::endl;
+            std::cout << "Sampling : " << fSampling << " us" << std::endl;
 
             EndPrintProcess();
         }
@@ -82,7 +84,7 @@ class TRestSignalZeroSuppresionProcess:public TRestEventProcess {
         //Destructor
         ~TRestSignalZeroSuppresionProcess();
 
-        ClassDef(TRestSignalZeroSuppresionProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+        ClassDef(TRestSignalZeroSuppresionProcess, 2);      // Template for a REST "event process" class inherited from TRestEventProcess
 };
 #endif
 
