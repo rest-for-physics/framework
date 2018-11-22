@@ -971,16 +971,58 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 						globaldef = globaldef->NextSiblingElement();
 					}
 				}
+
 				//find its child section according to type and name
-				if (name != ""&&GetElementWithName("", name, rootele) != NULL)
-					remoteele = GetElementWithName("", name, rootele);
-				else if (GetElement(type, rootele) != NULL)
+				if (name != "") {
+					//we find only according to the name
+					vector<TiXmlElement*> eles;
+					TiXmlElement* ele = rootele->FirstChildElement();
+					while (ele != NULL){
+						if (ele->Attribute("name") != NULL && (string)ele->Attribute("name") == name){
+							eles.push_back(ele);
+						}
+						ele = ele->NextSiblingElement();
+					}
+					
+					//more than 1 elements found
+					if (eles.size() > 1) {
+						if (type != "") {
+							warning << "REST WARNING(expand include file): find multiple xml sections with same name!" << endl;
+							warning << "Trying to filter them with type" << endl;
+							for (int i = 0; i < eles.size();i++) {
+								auto ele = eles[i];
+								if ((string)ele->Value() != type) {
+									eles.erase(eles.begin()+i);
+									i--;
+								}
+							}
+
+							if (eles.size() > 1) //still more than 1 elements found
+							{
+								error << "REST ERROR: find multiple xml sections with same name and type!" << endl;
+								error << "Check your rml file!" << endl;
+								error << ElementToString(e) << endl;
+								exit(1);
+							}
+						}
+						else
+						{
+							warning << "REST WARNING(expand include file): find multiple xml sections with same name!" << endl;
+							warning << "Using the first one!" << endl;
+						}
+					}
+
+					if (eles.size() > 0)
+						remoteele = eles[0];
+				}
+				else if (type != "") {
 					remoteele = GetElement(type, rootele);
+				}
 
 				if (remoteele == NULL)
 				{
-					warning << "REST WARNING(expand include file): Cannot get corresponding xml section!" << endl;
-					warning << "type: " << type << " , name: " << name << " . Skipping" << endl;
+					warning << "REST WARNING: Cannot find the needed xml section in include file!" << endl;
+					warning << "type: \"" << type << "\" , name: \"" << name << "\" . Skipping" << endl;
 					warning << endl;
 					return;
 				}
