@@ -248,8 +248,8 @@ TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent( TRestEvent *evInput )
             if( sData[x] < -32768. || sData[x] > 32768. )
                 fOutputRawSignalEvent->SetOK( false );
 
-            Short_t value =  (Short_t) sData[x];
-            if( value > 0 ) value += x%2;
+            Short_t value =  (Short_t) round(sData[x]);
+            //if( value > 0 ) value += x%2;
             rSgnl.AddPoint( value ); // signalID%2 in order to reduce Double_t to Short_t precision loss
         }
 
