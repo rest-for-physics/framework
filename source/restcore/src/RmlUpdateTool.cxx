@@ -93,7 +93,7 @@ bool RmlUpdateTool::UpdateSyntax() {
 	index["readouts"] = fFileContent.find("TRestReadout");
 	index["gases"] = fFileContent.find("TRestGas");
 
-	string name = ""; int pos = 999999;
+	string name = "restManager"; int pos = 999999;
 	auto iter = index.begin();
 	while (iter != index.end()) {
 		if (iter->second != -1 && iter->second < pos) {
