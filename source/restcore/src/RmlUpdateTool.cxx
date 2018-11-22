@@ -229,7 +229,7 @@ bool RmlUpdateTool::UpdateStructure() {
 
 			debug << "update parameters" << endl;
 			//add parameter "inputAnalysis" for the TRestProcessRunnerElement
-			TiXmlElement*parele = new TiXmlElement("prarmeter");
+			TiXmlElement*parele = new TiXmlElement("parameter");
 			parele->SetAttribute("name", "inputAnalysis");
 			parele->SetAttribute("value", "on");
 			TRestProcessRunnerElement->InsertBeforeChild(TRestProcessRunnerElement->FirstChildElement(), *parele);
