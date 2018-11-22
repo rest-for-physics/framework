@@ -13,7 +13,7 @@
 #define REST_RELEASE "2.2.3"
 #define REST_RELEASE_DATE "2018-11-19"
 #define REST_RELEASE_TIME "18:07:02 +0800"
-#define REST_GIT_COMMIT "e24cac99"
+#define REST_GIT_COMMIT "d211c8f4"
 #define REST_GIT_BRANCH "master"
 #define REST_GIT_TAG "v2.2.3"
 #define REST_VERSION_CODE 131587
