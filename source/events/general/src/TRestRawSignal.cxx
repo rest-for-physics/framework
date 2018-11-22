@@ -399,13 +399,14 @@ void TRestRawSignal::GetDifferentialSignal( TRestRawSignal *diffSgnl, Int_t smea
 
 void TRestRawSignal::GetWhiteNoiseSignal( TRestRawSignal *noiseSgnl, Double_t noiseLevel)
 {
-    TRandom3* fRandom  = new TRandom3(0);
+	unsigned int seed = (uintptr_t)noiseSgnl + this->GetIntegral();
+    TRandom3* fRandom  = new TRandom3(seed);
     for( int i = 0; i < GetNumberOfPoints(); i++ )
     {
-        cout << "i : " << i << " random : " <<  (Short_t) fRandom->Gaus(0, noiseLevel) << endl;
+        //cout << "i : " << i << " random : " <<  (Short_t) fRandom->Gaus(0, noiseLevel) << endl;
         noiseSgnl->AddPoint( this->GetData(i) + (Short_t) fRandom->Gaus(0, noiseLevel) );
     }
-    getchar();
+    //getchar();
     delete fRandom;
 }
 
