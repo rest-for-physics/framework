@@ -195,13 +195,6 @@ void TRestRun::BeginOfInit()
 	//output file pattern
 	string outputdir = (string)GetDataPath();
 	if (outputdir == "")outputdir = ".";
-	if (!isPathWritable(outputdir))
-	{
-		error << "REST Error!! TRestRun." << endl;
-		error << "Output path does not exist or it is not writtable." << endl;
-		error << "Path : " << outputdir << endl;
-		exit(1);
-	}
 	string outputname = GetParameter("outputFile", "default");
 	if (outputname == "default") {
 		string expName = RemoveWhiteSpaces((string)GetExperimentName());
@@ -211,8 +204,8 @@ void TRestRun::BeginOfInit()
 		char runNumberStr[256];
 		sprintf(runNumberStr, "%05d", fRunNumber);
 
-		fOutputFileName = outputdir  + "/Run_" + expName + "_" + fRunUser + "_"
-			+ runType + "_" + fRunTag + "_" + (TString)runNumberStr + "_" + (TString)runParentStr 
+		fOutputFileName = outputdir + "/Run_" + expName + "_" + fRunUser + "_"
+			+ runType + "_" + fRunTag + "_" + (TString)runNumberStr + "_" + (TString)runParentStr
 			+ "_V" + REST_RELEASE + ".root";
 
 		fOverwrite = ToUpper(GetParameter("overwrite", "on")) != "OFF";
@@ -224,10 +217,20 @@ void TRestRun::BeginOfInit()
 				+ runType + "_" + fRunTag + "_" + (TString)runNumberStr + "_" + (TString)runParentStr
 				+ "_V" + REST_RELEASE + ".root";
 		}
-	
+
 	}
-	else { 
+	else if (isAbsolutePath(outputname)) {
+		fOutputFileName = outputname;
+	}
+	else {
 		fOutputFileName = outputdir + "/" + outputname;
+	}
+	if (!isPathWritable(SeparatePathAndName((string)fOutputFileName).first))
+	{
+		error << "REST Error!! TRestRun." << endl;
+		error << "Output path does not exist or it is not writtable." << endl;
+		error << "Path : " << outputdir << endl;
+		exit(1);
 	}
 
 
