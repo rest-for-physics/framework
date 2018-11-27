@@ -431,7 +431,7 @@ TRestMetadata::TRestMetadata()
 
 	fConfigFileName = "null";
 
-	fVersion = REST_RELEASE;
+	fVersion = -1;
 }
 
 ///////////////////////////////////////////////
@@ -448,7 +448,7 @@ TRestMetadata::TRestMetadata(const char *cfgFileName)
 	fElementEnv.clear();
 	fHostmgr = NULL;
 
-	fVersion = REST_RELEASE;
+	fVersion = -1;
 }
 
 ///////////////////////////////////////////////

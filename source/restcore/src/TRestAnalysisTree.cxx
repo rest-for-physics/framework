@@ -84,8 +84,31 @@ void TRestAnalysisTree::ConnectObservables(TRestAnalysisTree * from)
 
 		fConnected = true;
 	}
+	else {
+		cout << "REST ERROR: AnalysisTree Observables is already connected!" << endl;
+	}
 
+}
 
+void TRestAnalysisTree::ConnectObservables()
+{
+	if (!fConnected) {
+		for (int i = 0; i < GetNumberOfObservables(); i++)
+		{
+			double* x = new double(0);
+			fObservableValues.push_back(x);
+		}
+
+		for (int i = 0; i < GetNumberOfObservables(); i++)
+		{
+			TBranch*branch = GetBranch(fObservableNames[i]);
+			branch->SetAddress(fObservableValues[i]);
+		}
+		fConnected = true;
+	}
+	else {
+		cout << "REST ERROR: AnalysisTree Observables is already connected!" << endl;
+	}
 }
 
 Int_t TRestAnalysisTree::AddObservable(TString observableName, Double_t* observableValue, TString description)
