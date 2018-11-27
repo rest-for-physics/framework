@@ -87,6 +87,7 @@ public:
 	void CreateEventBranches();
 	void CreateObservableBranches();
 
+	void ConnectObservables();
 	void ConnectObservables(TRestAnalysisTree * from);
 
 	void ConnectEventBranches()
@@ -110,21 +111,8 @@ public:
 		br6->SetAddress(&fSubRunOrigin);
 	}
 
-	void ConnectObservables()
-	{
-		for (int i = 0; i < GetNumberOfObservables(); i++)
-		{
-			double* x = new double(0);
-			fObservableValues.push_back(x);
-		}
 
-		for (int i = 0; i < GetNumberOfObservables(); i++)
-		{
-			TBranch*branch = GetBranch(fObservableNames[i]);
-			branch->SetAddress(fObservableValues[i]);
-		}
-		fConnected = true;
-	}
+
 
 	void PrintObservables(TRestEventProcess* proc = 0, int NObservables = 9999);
 

@@ -195,13 +195,6 @@ void TRestRun::BeginOfInit()
 	//output file pattern
 	string outputdir = (string)GetDataPath();
 	if (outputdir == "")outputdir = ".";
-	if (!isPathWritable(outputdir))
-	{
-		error << "REST Error!! TRestRun." << endl;
-		error << "Output path does not exist or it is not writtable." << endl;
-		error << "Path : " << outputdir << endl;
-		exit(1);
-	}
 	string outputname = GetParameter("outputFile", "default");
 	if (outputname == "default") {
 		string expName = RemoveWhiteSpaces((string)GetExperimentName());
@@ -211,8 +204,8 @@ void TRestRun::BeginOfInit()
 		char runNumberStr[256];
 		sprintf(runNumberStr, "%05d", fRunNumber);
 
-		fOutputFileName = outputdir  + "/Run_" + expName + "_" + fRunUser + "_"
-			+ runType + "_" + fRunTag + "_" + (TString)runNumberStr + "_" + (TString)runParentStr 
+		fOutputFileName = outputdir + "/Run_" + expName + "_" + fRunUser + "_"
+			+ runType + "_" + fRunTag + "_" + (TString)runNumberStr + "_" + (TString)runParentStr
 			+ "_V" + REST_RELEASE + ".root";
 
 		fOverwrite = ToUpper(GetParameter("overwrite", "on")) != "OFF";
@@ -224,10 +217,20 @@ void TRestRun::BeginOfInit()
 				+ runType + "_" + fRunTag + "_" + (TString)runNumberStr + "_" + (TString)runParentStr
 				+ "_V" + REST_RELEASE + ".root";
 		}
-	
+
 	}
-	else { 
+	else if (isAbsolutePath(outputname)) {
+		fOutputFileName = outputname;
+	}
+	else {
 		fOutputFileName = outputdir + "/" + outputname;
+	}
+	if (!isPathWritable(SeparatePathAndName((string)fOutputFileName).first))
+	{
+		error << "REST Error!! TRestRun." << endl;
+		error << "Output path does not exist or it is not writtable." << endl;
+		error << "Path : " << outputdir << endl;
+		exit(1);
 	}
 
 
@@ -427,7 +430,8 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 		if( experimentNameTmp != "Null" && experimentNameTmp != "preserve" )
 			fExperimentName = experimentNameTmp;
 
-		if ( this->GetVersionCode() >= REST_VERSION(2,2,1) )
+		// If successfully read the input file, the version code will be changed form -1 --> certain number
+		if ( this->GetVersionCode() >= REST_VERSION(2,2,1))
 			ReadInputFileMetadata();
 
 		debug << "Initializing input file : version code : " << this->GetVersionCode() << endl;
@@ -491,14 +495,12 @@ void TRestRun::ReadInputFileTrees() {
 
 	if (fInputFile != NULL) {
 		debug << "Finding TRestAnalysisTree.." << endl;
-		TTree* Tree1 = NULL;
-		TTree* Tree2 = NULL;
+		TTree* _eventTree = NULL;
 		string filename = fInputFile->GetName();
 
-		Tree1 = (TTree*)fInputFile->Get("AnalysisTree");
-		if (Tree1 != NULL)
+		if (fInputFile->Get("AnalysisTree") != NULL)
 		{
-			fAnalysisTree = (TRestAnalysisTree *)Tree1;
+			fAnalysisTree = (TRestAnalysisTree *)fInputFile->Get("AnalysisTree");
 			fAnalysisTree->ConnectObservables();
 			fAnalysisTree->ConnectEventBranches();
 			TObjArray* branches = fAnalysisTree->GetListOfBranches();//we skip process branches
@@ -510,33 +512,33 @@ void TRestRun::ReadInputFileTrees() {
 				}
 			}
 
-			Tree2 = (TTree *)fInputFile->Get("EventTree");
+			_eventTree = (TTree *)fInputFile->Get("EventTree");
 		}
 		else if (fInputFile->FindKey("TRestAnalysisTree") != NULL)
 		{
-			//This is v2.1.6- version of input file, we directly find EventTree. 
-			//The old name pattern is "TRestXXXEventTree-eventBranch"
+			//This is v2.1.6- version of input file, we directly find EventTree and AnalysisTree. 
+			//The old name pattern is "TRestXXXEventTree-eventBranch" and "TRestAnalysisTree"
 			warning << "Loading root file from old version REST!" << endl;
-			fAnalysisTree = new TRestAnalysisTree("AnalysisTree", "AnalysisTree");
-			//fAnalysisTree->ConnectObservables();
+			fAnalysisTree = (TRestAnalysisTree *)fInputFile->Get("TRestAnalysisTree");
 			fAnalysisTree->CreateEventBranches();
+			fAnalysisTree->ConnectObservables();
 
 			TIter nextkey(fInputFile->GetListOfKeys());
 			TKey *key;
-			Tree2 = NULL;
 			while ((key = (TKey*)nextkey()))
 			{
-				cout << key->GetName() << endl;
+				//cout << key->GetName() << endl;
 				if (((string)key->GetName()).find("EventTree") != -1) {
-					Tree2 = (TTree *)fInputFile->Get(key->GetName());
+					_eventTree = (TTree *)fInputFile->Get(key->GetName());
 					string eventname = Replace(key->GetName(), "Tree", "", 0);
-					TBranch* br = Tree2->GetBranch("eventBranch");
+					TBranch* br = _eventTree->GetBranch("eventBranch");
 					br->SetName((eventname + "Branch").c_str());
 					br->SetTitle((eventname + "Branch").c_str());
 					break;
 				}
 			}
-			fAnalysisTree->SetEntries(Tree2->GetEntries());
+			//if(Tree2!=NULL)
+			//	fAnalysisTree->SetEntries(Tree2->GetEntries());
 			debug << "Old REST file successfully recovered!" << endl;
 		}
 		else
@@ -547,9 +549,10 @@ void TRestRun::ReadInputFileTrees() {
 			exit(1);
 		}
 
-		if (Tree2 != NULL)
+
+		if (_eventTree != NULL)
 		{
-			fEventTree = Tree2;
+			fEventTree = _eventTree;
 
 			debug << "Finding event branch.." << endl;
 			if (fInputEvent == NULL)
