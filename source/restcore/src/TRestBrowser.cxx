@@ -281,6 +281,7 @@ Bool_t TRestBrowser::OpenFile(TString fName)
 
 	if (fEventTree != NULL) {
 		//init viewer
+		pureAnalysis = kFALSE;
 		if (fEventViewer == NULL) SetViewer("TRestGenericEventViewer");
 		if (geometry != NULL && fEventViewer != NULL)fEventViewer->SetGeometry(geometry);
 		LoadEventAction();
