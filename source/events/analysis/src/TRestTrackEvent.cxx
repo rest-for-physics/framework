@@ -574,6 +574,10 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
             Double_t z = hits->GetZ( nhit );
             Double_t en = hits->GetEnergy( nhit );
 
+            Bool_t isNaN_X =  TMath::IsNaN( x );
+            Bool_t isNaN_Y =  TMath::IsNaN( y );
+            Bool_t isNaN_Z =  TMath::IsNaN( z );
+
             /* {{{ Hit size definition (radius) */
             Double_t m = (maxRadiusSize)/(maxHitEnergy-meanHitEnergy);
             Double_t n = (maxRadiusSize-minRadiusSize) - m * meanHitEnergy;
@@ -614,7 +618,7 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
                 tckXYZ++;
             }
 
-            if( x != 0 && y != 0 )
+            if( !isNaN_X && !isNaN_Y )
             {
                 if( tckXY == 0 ) nTckXY++;
                 fXYTrack[nTckXY-1].SetPoint( tckXY , x, y);
@@ -630,7 +634,7 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
                 countXY++;
             }
 
-            if( x != 0 && z != 0 )
+            if( !isNaN_X && !isNaN_Z )
             {
                 if( tckXZ == 0 ) nTckXZ++;
                 fXZTrack[nTckXZ-1].SetPoint( tckXZ , x, z);
@@ -646,7 +650,7 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
                 countXZ++;
             }
 
-            if( y!= 0 && z != 0 )
+            if( !isNaN_Y && !isNaN_Z )
             {
                 if( tckYZ == 0 ) nTckYZ++;
                 fYZTrack[nTckYZ-1].SetPoint( tckYZ , y, z);
@@ -691,10 +695,10 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
     if( this->isXYZ() )
         fPad->cd(3)->DrawFrame( minX-10 , minY-10, maxX+10, maxY+10, title);
 
+    fPad->cd(1); 
     for( int i = 0; i < countXZ; i++ )
         mgXZ->Add(&fXZHit[i]);
 
-    fPad->cd(1); 
     mgXZ->GetXaxis()->SetTitle("X-axis (mm)");
     mgXZ->GetYaxis()->SetTitle("Z-axis (mm)");
     mgXZ->GetYaxis()->SetTitleOffset(1.75);
@@ -705,10 +709,10 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
     mgXZ->Draw("P");
 
 
+    fPad->cd(2); 
     for( int i = 0; i < countYZ; i++ )
         mgYZ->Add(&fYZHit[i]);
 
-    fPad->cd(2); 
     mgYZ->GetXaxis()->SetTitle("Y-axis (mm)");
     mgYZ->GetYaxis()->SetTitle("Z-axis (mm)");
     mgYZ->GetYaxis()->SetTitleOffset(1.75);
@@ -720,10 +724,10 @@ TPad *TRestTrackEvent::DrawEvent( TString option )
 
     if( this->isXYZ() )
     {
+        fPad->cd(3); 
         for( int i = 0; i < countXY; i++ )
             mgXY->Add(&fXYHit[i]);
 
-        fPad->cd(3); 
         mgXY->GetXaxis()->SetTitle("X-axis (mm)");
         mgXY->GetYaxis()->SetTitle("Y-axis (mm)");
         mgXY->GetYaxis()->SetTitleOffset(1.75);
