@@ -15,9 +15,9 @@ details on basic git usage.
 ### Using branches in REST repository
 
 A branch can be contributed by several users at the same time. The `REST` repository will contain at 
-least `one main development branch` that can be contributed by anyone with developper access (while 
+least `one main development branch` that can be contributed by anyone with developer access (while 
 any user can create his own branch for personal testing and/or future merging to the `development branch`). 
-The name of this branch will be the REST version followed by `_dev`, i.e. `v2.2.1_dev`.
+The name of this branch will be the REST version followed by `_dev`, e.g. `v2.2.1_dev`.
 
 You can place yourself in the development branch by using `git checkout`
 
@@ -30,7 +30,7 @@ and the files you have modified.
 
 
 Small changes to the code, i.e. bug fixes, new class methods, new processes, etc, can be directly pushed
- to the `development branch`. While, major changes taking place in longer development periods, i.e. days or 
+ to the `development branch`. While major changes taking place in longer development periods, i.e. days or 
 weeks, should be contributed in an independent branch for future merge to the `development branch`.
 
 For details on branches usage refer to the [branches section](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell) 
@@ -53,7 +53,7 @@ git diff sourceFile.cxx
 ```
 
 This will allow us to identify the changes we will upload or `push` to the repository later on. When we are
-certain that the changes in a file should be included in a `commit` we can add the file to be commited
+certain that the changes in a file should be included in a `commit` we can add the file to be committed
 
 ```
 git add sourceFile.cxx
@@ -61,7 +61,7 @@ git add sourceFile.cxx
 
 Hint: Use `git status` frequently!
 
-We should proceed following this scheme (checking for differences for each file to be commited before 
+We should proceed following this scheme (checking for differences for each file to be committed before 
 adding it to the `commit`). When we have added all the files in a commit we can prepare the commit.
 
 ```
@@ -86,7 +86,7 @@ with others code. We encourage you to request help in the `REST forum` in case y
 
 ### The commit message format
 
-One of the `most critical` parts of a commit in the REST repository is the `commit message`. The Gitlab
+One of the `most critical` parts of a commit in the REST repository is the `commit message`. The GitLab
 web interface will allow to list and navigate through the commit history and changes introduced in
 each file.
 
@@ -108,11 +108,11 @@ git commit -m "TRestFieldMap class added for the first time."
 
 ```
 
-Please, make your `commit message as short and significative` as possible. The commit message is not intended
-to explain others the changes you introduced, but to give an idea. The changes introduced will be accesible
+Please, make your `commit message as short and significant` as possible. The commit message is not intended
+to explain others the changes you introduced, but to give an idea. The changes introduced will be accessible
 in the contents of the commit that can be searched in the web interface. Therefore, more detailed comments
 can be introduced in the `documentation` of the class, and it will be highlighted in the commit differences by
-the Gitlab web interface when we access the commit contents.
+the GitLab web interface when we access the commit contents.
 
 A `bad commit message` will pretend to provide the use of the new feature introduced, for example.
 
@@ -120,7 +120,7 @@ A `bad commit message` will pretend to provide the use of the new feature introd
 git commit -m "I added a new method that provides the energies of gamma transfer in a biasing volume. The new method should receive 3 parameters as input ... and it will return a value in the specified energy range."
 ```
 
-The following commit message contains the following errors
+The above-mentioned commit message contains the following mistakes:
 
 - It does not contain the name of the `class`, neither the `method`.
 - It is `not concise`. The explanations should be included inside the code together the documentation of the method.
@@ -130,7 +130,7 @@ The following commit message contains the following errors
 
 `!!!NOTE!!!`  
 Since version `2.2.1`, REST is adopting `automatic schema evolution` feature of ROOT.
-The impact of changes in REST classes, i.e. adding, removing or modifying class members, 
+Therefore, the impact of changes in REST classes, i.e. adding, removing or modifying class members, 
 should have been minimized. That is, any future REST version `should be able to read 
 older versions` without major issues or warnings. Therefore, any new/future generation 
 of data before v2.2.1 is `not recommended` for compatibility reasons.
@@ -145,35 +145,35 @@ recover previous results which may show discrepancies with future versions. The 
 number shall be provided together with published or internal results. Moreover, if we own 
 the data file, we will always be able to recover the version used to generate those results.
 
-A change in REST version serves to markdown an important step or a timeline in the evolution
+A change in REST version serves to mark down an important step or a timeline in the evolution
 of the code. The version `might be increased` in at the following scenarios:
 1. When new features are added.
 2. When changes or modifications affect the behaviour of the framework.
 3. To fix a REST version release to produce data in a experiment physics run.
-4. New processes, metadata or event data types that introduce new funtionalities to REST.
+4. New processes, metadata or event data types that introduce new functionalities to REST.
 5. Important changes on REST core libraries that introduce new features.
 
 A version number increase `will be mandatory` when the modification of existing processes or
-REST core libraries change the behaviour and may lead to different results.
-- leading to different results by modifying, upgrading or debugging of existing processes or REST classes
-- modifying the structure of ROOT outputfile
-- changes to metadata structures that REST users should be aware of
+REST core libraries change the behaviour and may lead to different results:
+- leading to different results by modifying, upgrading or debugging of existing processes or REST classes,
+- modifying the structure of ROOT output file,
+- changes to metadata structures that REST users should be aware of.
 
-### Git tagging system and its relation to REST versionning system
+### Git tagging system and its relation to REST versioning system
 
-The basics of tagging in Git are described at the following site [GitLab tagging](https://git-scm.com/book/en/v2/Git-Basics-Tagging)
+The basics of tagging in Git are described at the following site: [Git Tagging](https://git-scm.com/book/en/v2/Git-Basics-Tagging)
 
 In order to change the version of REST we need to tag the state of the code using `git tag` command:
 
 `git tag -a v2.2.2 -m "A small step for REST but a big step for humanity"`
 
-Additionaly, to publish the new version and make it visible to other users we need to use the `--tags` flag 
+Additionally, to publish the new version and make it visible to other users we need to use the `--tags` flag 
 when pushing the code:
 
 `git push --tags`
 
 At REST compilation time this tag will be retrieved and the `TRestVersion.h` header will be produced 
-containning the following information:
+containing the following information:
 
 ```c++
 #ifndef REST_Version
@@ -205,18 +205,18 @@ containning the following information:
 REST uses the git tagging system to control its version. The tag value is directly our version number. 
 It must be written using the following format 2.X.Y, where X represents a major change or transition in 
 the code, and Y represents a minor change/correction/update of the code. Usually we increase the value 
-of Y when update the version. Both X and Y ranges from 0 to 255.
+of Y when updating the version. Both X and Y ranges from 0 to 255.
 
 A header `TRestVersion.h` is generated at compilation time, calling git commands from cmd line. This header
-contains various information about version, version number, commit id, branch name, etc. We also keep a default 
+contains various information about version, version number, commit id, branch name, etc.. (see example of header above). We also keep a default 
 TRestVersion.h in master branch for those who are unfamiliar with git. They may directly download zip from 
 git website, and then unzip and call `cmake && make install` in REST directory. TRestVersion.h will be updated
 together with version update.
 
 We only create tags for commits in the master branch. This branch is also the default branch on the website or 
-during `git clone`. We keep master branch being updated weely or monthly, in each update we will assign a new 
+during `git clone`. We keep master branch being updated weekly or monthly, in each update we will assign a new 
 tag. So if the user only download/clone the master branch, he will always get the **tagged commit**, which is 
-exactly a certain version.
+exactly a definite version.
 
 All the development work shall be within individual branches. The development branches should be named after 
 the version from which they are checked out. e.g. `v2.2.1_dev` or `v2.2.3_trackAnalysisNew`. Whenever the 
@@ -224,13 +224,13 @@ developer verifies himself that the modification is working, he can `make a merg
 We will test those changes also. If we decide to accept the merge request, and if the changes are important, 
 we will push the merge immediately. Otherwise we shall wait several other merges before pushing.
 
-After the merge-to-master is pushed to gitlab, we will
+After the merge-to-master is pushed to gitlab, we will:
 
-1. increase the version/tag to e.g. v2.2.2
-2. update TRestVersion.h in master branch
-3. remove the source branch
-4. Create a release note for the new version
-5. Send a mail to rest-dev@cern.ch mail list to inform the update
+1. increase the version/tag to e.g. v2.2.2,
+2. update TRestVersion.h in master branch,
+3. remove the source branch,
+4. create a release note for the new version
+5. send a mail to rest-dev@cern.ch mail list to inform the update.
 
 ### Using the version number
 
@@ -239,13 +239,8 @@ and that will be written to disk together with other metadata information. This 
 inherited classes by using `GetVersion()`, `GetVersionCode()` and `SetVersion()`.
  
 fVersion is retrieved together with the metadata structure from a ROOT file. Then the result of GetVersion()
-might be different from installed version. We can compare them and act differently according to the result.
+might be different from the version of current REST build. We can compare them and act differently according to the result.
  
-Any TRestMetadata class contains a member named `fVersion` that will be initialized at start up. This member 
-can be accessed by inherited classes with methods `GetVersion()`, `GetVersionCode()` and `SetVersion()`. 
-fVersion is always written/retrieved to/from the disk with the metadata class. When we are reading metadata 
-from an input file, we can compare its **retrieved version** with the version of current REST build:
-
 There are two important parameters defined in `TRestVersion.h`: `REST_RELEASE` and `REST_VERSION_CODE`.
 `REST_RELEASE` is a string that will be stored in any `TRestMetadata::fVersion` class member when it is written
 to disk, and it can be recovered in future using `TRestMetadata::GetVersion()`. `REST_VERSION_CODE` is a 
@@ -272,35 +267,33 @@ if( md->GetVersion() == REST_RELEASE )
     cout << "The REST version used to generate this metadata structure is the same as the installed REST version!" << endl;
 ```
 
-This programming enables the REST users to take special actions that may need to be with a particular 
+This programming enables the REST users to take special actions that may need to be done with a particular 
 version or after a particular version.
 
-## 3. Programme style
+## 3. Programming style
 
-The contributers may first have a quick look read of common [C++ coding styles](http://geosoft.no/development/cppstyle.html) 
-before start coding in the repository. Even if you have long experience writting you will reinforce your coding style 
-and detect few things you might be doing wrong when writting readable code. We should try to keep a fixed style.
-Point 84 and 71 (4 spaces indentation) is very important!
-
-For REST, we also have some constraints on the coding style
+The contributors may first have a quick look read of common [C++ coding styles](http://geosoft.no/development/cppstyle.html) 
+before starting coding in the repository. Even if you have long experience writing you will reinforce your coding style 
+and detect few things you might be doing wrong when writ-ting readable code. We should try to keep a fixed style.
+Points 84 and 71 (4 spaces indentation) are very important!
 
 ### Control the amount of output message in a process
 
 When writing a process, the hierarchy of five verbose level should be clarified:
 
-* silent    : output nothing
-* essential : + print information (parameter value, status, warnings, etc) **before process starts**
-* info      : + print important but occational **information** during the process. Occational means only for some events.
-* debug     : + print values during the process, usually no more than 10 lines. e.g. Number of input signals; 
-Number of hits added; total energy of output event, etc. These message shall be helpful during **debug**.
-* extreme   : + print detailed values, usually within **sub-event level**. e.g. position & energy of each hits added; 
+* silent    : output nothing.
+* essential : + print information (parameter value, status, warnings, etc) **before process starts**.
+* info      : + print important but occasional **information** during the process. Occasional means only for some events.
+* debug     : + print values during the process, usually no more than 10 lines. e.g. Number of input signals;
+Number of hits added; total energy of output event, etc. These messages shall be helpful during **debug**.
+* extreme   : + print detailed values, usually within **sub-event level**, e.g. position & energy of each hits added;
 peak, width, rms for each signals added, sampling points for the first signal added.
 
-There is some other notes:
+There are some other notes:
 
 * One can directly use `info << "some message" << endl;` for convenience and better appearance. The efficiency 
 is a little lower than `if(GetVerboseLevel() >= REST_Info) cout << "some message" << endl;`  
-* Process name should be attatched when printing info message. e.g. 
+* Process name should be attached when printing info message. e.g. 
 `info << this->GetName() << " : Signals added : " << N <<endl;`  
 * Don't add separators like `cout << "--------------" << endl;` for debug or extreme message. 
 REST will add them for you.  
@@ -313,7 +306,7 @@ pause after each event. In extreme level, it will pause after each process.
 We need to make `Printing` better with the help of REST string output tool. The style of PrintMetadata()
 shall be:
 
-* middled in screen
+* centered in screen
 * bordered with "||" (at side) and "=======" (at top/bottom)
 * white colored
 
