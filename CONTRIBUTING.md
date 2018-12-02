@@ -242,11 +242,11 @@ fVersion is retrieved together with the metadata structure from a ROOT file. The
 might be different from the version of current REST build. We can compare them and act differently according to the result.
  
 There are two important parameters defined in `TRestVersion.h`: `REST_RELEASE` and `REST_VERSION_CODE`.
-`REST_RELEASE` is a string that will be stored in any `TRestMetadata::fVersion` class member when it is written
-to disk, and it can be recovered in future using `TRestMetadata::GetVersion()`. `REST_VERSION_CODE` is a 
-code generated using `REST_VERSION( 2, X, Y)` where X and Y are the major and minor version numbers.
 
-`REST_VERSION_CODE` can be used to determine if a REST version is more recent or older than the installed REST
+* `REST_RELEASE` is a string that will be stored in any `TRestMetadata::fVersion` class member when it is written
+to disk, and it can be recovered in future using `TRestMetadata::GetVersion()`. 
+* `REST_VERSION_CODE` is a 
+code generated using `REST_VERSION( 2, X, Y)` where X and Y are the major and minor version numbers. This code can be used to determine if a REST version is more recent or older than the installed REST
 version. The code of any metadata structure can be retrieved calling `TRestMetadata::GetVersionCode()`.
 
 These two parameters, `REST_RELEASE` and `REST_VERSION` will allow us always to compare the installed version 
