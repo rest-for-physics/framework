@@ -126,7 +126,7 @@
 /// `gasVolume` in the geometry.
 ///
 /// * **subEventTimeDelay**: This parameter defines the event time window. If a
-/// Geant4 energy deposit has place after this time, those hits will be registered
+/// Geant4 energy deposit takes place after this time, those hits will be registered
 /// as a fully independent event. Therefore, the total number of registered 
 /// events could be higher than the initial number of events.
 ///
@@ -179,17 +179,17 @@
 /// primaries, is specified in the definition of the generator, through the
 /// generator *type* field.
 ///
-/// We must define the *generatorType* inside the generator tag description as
-/// follows.
+/// We must specify the generator type as an attribute of the generator element as
+/// follows:
 /// \code
-/// <generator type="generatorType" ... />
+/// <generator type="generatorType" ... >
 /// \endcode
 ///
-/// Depending on the generator type we use, we will need to define additional
-/// values to the generator definition.
+/// Depending on the generator type we use, we will need to define additional values to
+/// the generator definition.
 ///
-/// The different types we can choose to use in *restG4*, are
-/// detailed in the following list:
+/// The different types we can choose to use in *restG4*, are detailed in the following
+/// list:
 ///
 /// * **volume**: This generator will launch the events from random positions inside
 /// a volume defined in the geometry. It requires to define the parameter
@@ -232,20 +232,23 @@
 /// \code
 ///     // We launch particles from the surface of a virtual sphere,
 ///     // with center at (0,0,-100)mm, and radius 10cm.
-///     <generator type="virtualSphere" position="(0,0,-100)" units="mm" radius="100" units="mm" >
+///     <generator type="virtualSphere" position="(0,0,-100)mm" radius="100mm" >
 /// \endcode
 ///
-/// * **virtualWall**: It generates the events from a finite rectangular plane of a given length and width.
-/// It requires to define the additional parameters `position="(X,Y,Z)"`,
-/// `lenX="lX"`,`lenY="lY"` and `rotation="(rX,rY,rZ)"`. Where `X,Y,Z` is the center position of
-/// the wall, `lX` and `lY` are respectively the size of the wall along th x-axis and the y-axis, and `rX`, `rY`, `rZ` are the rotation
+/// * **virtualWall**: It generates the events from a finite rectangular plane of a
+/// given length and width. It requires to define the additional parameters
+/// `position="(X,Y,Z)"`, `lenX="lX"`,`lenY="lY"` and `rotation="(rX,rY,rZ)"`. Where
+/// `X,Y,Z` is the center position of the wall, `lX` and `lY` are respectively the size
+/// of the wall along th x-axis and the y-axis, and `rX`, `rY`, `rZ` are the rotation
 /// angles applied to the wall. The wall is originally generated on the `XY` plane and
 /// then rotated by the axis angles `rX`, `rY`, `rZ`, following that order.
-/// NB: the generic word "size" an be used instead of "lenX" and "lenY", producing a square of the specified size.
+/// NB: the keyword "size" can be used instead of "lenX" and "lenY", producing a square
+/// of the specified size.
 /// \code
 ///     // We launch particles from the surface of a virtual wall,
-///     // with center at (0,0,-100)mm, size of 10cm by 15cm, and rotate 45 degrees along x-axis.
-///    <generator type="virtualWall" position="(0,0,-100)" units="mm" lenX="100" units="mm" lenY="150" units="mm" rotation="(45,0,0)" >
+///     // with center at (0,0,-100)mm, size of 10cm by 15cm, and rotate 45 degrees
+///     // along x-axis.
+///    <generator type="virtualWall" position="(0,0,-100)mm" lenX="100mm" lenY="150mm" rotation="(45,0,0)" >
 /// \endcode
 ///
 /// * **virtualCylinder**: It generates the events from the surface of a virtual (not
@@ -260,20 +263,21 @@
 /// NB: the generic word "size" can replace "radius".
 /// \code
 ///     // We launch particles from the surface of a virtual cylinder,
-///     // with center at (0,0,-100)mm, radius 10cm, length 100cm and rotated 90 degrees along y-axis.
-///     <generator type="virtualCylinder" position="(0,0,-100)" units="mm" radius="100" units="mm" length="100" units="cm" rotation="(0,90,0)" >
+///     // with center at (0,0,-100)mm, radius 10cm, length 100cm and
+///     // rotated 90 degrees along y-axis.
+///     <generator type="virtualCylinder" position="(0,0,-100)mm" radius="100mm" length="100cm" rotation="(0,90,0)" >
 /// \endcode
 ///
 /// * **virtualBox**: It generates the events from a surface of a virtual (not defined
-/// in the GDML geometry) box, a cube of size L. It requires to define the additional parameters
-/// `position="(X,Y,Z)"`, `size="L"`, where `X`, `Y`, `Z` is the center of the box, and
-/// `L` is the length of the box side. The virtualBox does not implement rotation yet.
-/// And if isotropic angular distribution is used events will be launched towards
-/// the inside.
+/// in the GDML geometry) box, a cube of size L. It requires to define the additional
+/// parameters `position="(X,Y,Z)"`, `size="L"`, where `X`, `Y`, `Z` is the center of
+/// the box, and `L` is the length of the box side. The virtualBox does not implement
+/// rotation yet. And if isotropic angular distribution is used events will be launched
+/// towards the inside.
 /// \code
 ///     // We launch particles from the surface of a virtual box,
 ///     // with center at (0,0,-100)mm, and size 10cm.
-///     <generator type="virtualBox" position="(0,0,-100)" units="mm" size="100" units="mm" >
+///     <generator type="virtualBox" position="(0,0,-100)mm" size="100mm" >
 /// \endcode
 ///
 /// ### The source definition
@@ -288,15 +292,15 @@
 ///     </source>
 /// \endcode
 ///
-/// [leptons]: http://geant4.cern.ch/G4UsersDocuments/UsersGuides/ForApplicationDeveloper/html/Appendix/particleList.src/leptons/index.html
-/// [ions]: http://geant4.cern.ch/G4UsersDocuments/UsersGuides/ForApplicationDeveloper/html/Appendix/particleList.src/ions/index.html
+/// [leptons]: http://geant4-userdoc.web.cern.ch/geant4-userdoc/UsersGuides/ForApplicationDeveloper/html/TrackingAndPhysics/AllResources/TrackingAndPhysics/particleList.src/leptons/index.html
+/// [ions]:    http://geant4-userdoc.web.cern.ch/geant4-userdoc/UsersGuides/ForApplicationDeveloper/html/TrackingAndPhysics/AllResources/TrackingAndPhysics/particleList.src/ions/index.html
 ///
 /// In the particle field we can use any pre-defined particle name existing in Geant4,
 /// as [leptons][leptons] or [ions][ions]. Additionally, we can define any radioactive
-/// isotope by using the element name symbol and the number of nucleons 
-///(i.e. Rn222, Co60, U238 ). For the radiactive decays we can also define an additional
-/// field `fullchain="on/off"`. This parameter specifies if we want to simulate the full
-/// radiative chain or a single decay to the next de-excited isotope. Or, we can also 
+/// isotope by using the element name symbol and the number of nucleons (i.e. Rn222,
+/// Co60, U238 ). For the radiactive decays we can also define an additional field
+/// `fullchain="on/off"`. This parameter specifies if we want to simulate the full
+/// radiative chain or a single decay to the next de-excited isotope. Or, we can also
 /// use an external generator using the `fromFile=""` parameter.
 ///
 /// In summary we can use the following options inside the source definition.
@@ -347,7 +351,7 @@
 /// `energy="E"`, where `E` is the kinetic energy of the particle in keV.
 /// \code
 ///     // A mono energetic particle with 10keV.
-///     <energyDist type="mono" energy="10" units="keV" >
+///     <energyDist type="mono" energy="10" units="keV" />
 /// \endcode
 ///
 /// * **flat**: All the particles from this source will be launched in a specified
@@ -356,7 +360,7 @@
 /// maximum energy (in keV).
 /// \code
 ///     // A random uniform generation between 1 and 10 keV
-///     <energyDist type="mono" range="(1,10)" units="keV" >
+///     <energyDist type="flat" range="(1,10)" units="keV" />
 /// \endcode
 ///
 /// * **TH1D**: It will use a TH1D histogram from a ROOT file with a user defined
@@ -368,7 +372,7 @@
 /// in the x-label, the default units considered will be keV.
 /// \code
 ///     // A TH1D input spectrum to produce underground muons in the range between 150 and 400 GeV
-///     <energyDist type="TH1D" file="Muons.root" spctName="LSCMuon" range="(150,400)" units="GeV" >
+///     <energyDist type="TH1D" file="Muons.root" spctName="LSCMuon" range="(150,400)" units="GeV" />
 /// \endcode
 ///
 /// #### The source angular distribution
@@ -388,7 +392,7 @@
 /// normalized).
 /// \code
 ///     // Particles will be launched in the positive y-axis direction.
-///     <angularDist type="flux" direction="(0,1,0)" >
+///     <angularDist type="flux" direction="(0,1,0)" />
 /// \endcode
 ///       
 /// * **isotropic**: The momentum direction of each particle will be
@@ -397,7 +401,7 @@
 /// volume will be considered.
 /// \code
 ///     // Particles will be launched without prefered direction.
-///     <angularDist type="isotropic" >
+///     <angularDist type="isotropic" />
 /// \endcode
 /// 
 /// * **backtoback**: The source momentum direction will be oposite to
@@ -405,7 +409,7 @@
 /// angular distribution type will be re-defined to isotropic.
 /// \code
 ///     // Particles will be launched without prefered direction.
-///     <angularDist type="backtoback" >
+///     <angularDist type="backtoback" />
 /// \endcode
 /// 
 /// * **TH1D** : It will use a TH1D histogram from a ROOT file with a
@@ -416,7 +420,7 @@
 /// name "histName".
 /// \code
 ///     // A TH1D input angular distribution used for cosmic rays
-///     <angularDist type="TH1D" file="CosmicAngles.root" spctName="Theta2">
+///     <angularDist type="TH1D" file="CosmicAngles.root" spctName="Theta2" />
 /// \endcode
 /// 
 /// ## 3. The storage section definition
@@ -497,7 +501,7 @@
 /// ## 4. The biasing volumes section (optional)
 ///
 /// The REST Geant4 toolkit (*restG4*) implements a particular biasing 
-/// technique to simulate external radiation contributions in extense 
+/// technique to simulate external radiation contributions in extensive 
 /// shieldings. The technique consists in spatially placing biasing volumes
 /// between the initial particle generator and the detector (or sensitive
 /// volume).
