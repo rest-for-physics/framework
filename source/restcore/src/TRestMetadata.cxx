@@ -431,7 +431,7 @@ TRestMetadata::TRestMetadata()
 
 	fConfigFileName = "null";
 
-	fVersion = -1;
+	fVersion = REST_RELEASE;
 }
 
 ///////////////////////////////////////////////
@@ -448,7 +448,7 @@ TRestMetadata::TRestMetadata(const char *cfgFileName)
 	fElementEnv.clear();
 	fHostmgr = NULL;
 
-	fVersion = -1;
+	fVersion = REST_RELEASE;
 }
 
 ///////////////////////////////////////////////
@@ -2010,6 +2010,15 @@ void TRestMetadata::SetVersion( )
 		error << "REST ERROR : version is a static value, you cannot set version for a class!" << endl;
 	else {
 		fVersion = REST_RELEASE;
+	}
+}
+
+void TRestMetadata::UnSetVersion( )
+{
+	if ( !this->InheritsFrom("TRestRun") )
+		error << "REST ERROR : version is a static value, you cannot set version for a class!" << endl;
+	else {
+		fVersion = -1;
 	}
 }
 

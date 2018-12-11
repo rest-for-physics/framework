@@ -223,6 +223,8 @@ public:
 	TString GetVersion();
 	/// sets the version to REST_RELEASE if the class is TRestRun
 	void SetVersion( );
+	/// sets the version to -1 if the class is TRestRun
+	void UnSetVersion( );
 	/// returning the version code
 	Int_t GetVersionCode() { return ConvertVersionCode((string)GetVersion()); }
 

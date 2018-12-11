@@ -408,7 +408,11 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 		TString inputFileNameTmp = fInputFileName;
 		TString cFileNameTmp = fConfigFileName;
 
+		// We define fVersion to -1 to identify old REST files that did not have yet versioning system
+		this->UnSetVersion();
+
 		// Now we load the values in the previous run file
+		// If successfully read the input file, the version code will be changed from -1 --> certain number
 		this->Read( GetMetadataClass( "TRestRun", fInputFile)->GetName() );
 
 		if( inputFileNameTmp != "null" )
@@ -430,9 +434,14 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 		if( experimentNameTmp != "Null" && experimentNameTmp != "preserve" )
 			fExperimentName = experimentNameTmp;
 
-		// If successfully read the input file, the version code will be changed form -1 --> certain number
+		// If version is lower than 2.2.1 we do not read/transfer the metadata to output file?
 		if ( this->GetVersionCode() >= REST_VERSION(2,2,1))
 			ReadInputFileMetadata();
+		else
+		{
+			warning << "-- W : The metadata version found on input file is lower than 2.2.1!" << endl;
+			warning << "-- W : metadata from input file will not be read" << endl;
+		}
 
 		debug << "Initializing input file : version code : " << this->GetVersionCode() << endl;
 		debug << "Input file version : " << this->GetVersion() << endl;
