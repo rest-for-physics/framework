@@ -138,14 +138,14 @@ Double_t TRestReadoutPlane::GetX( Int_t modID, Int_t chID )
 
 		if ( sX > 2 * sY ) return x;
 
-		x = xOrigin + rChannel->GetPixel(0)->GetCenter().X();
+		x = rModule->GetPixelCenter( chID, 0 ).X();
 
 		return x;
 	}
 
 	if( rChannel->GetNumberOfPixels() > 1 )
 	{
-        Int_t nPix = rChannel->GetNumberOfPixels();
+		Int_t nPix = rChannel->GetNumberOfPixels();
 
 		// We check the origin of consecutive pixels to check if it goes X or Y direction.
 		// Perhaps more complex readouts need some changes here
@@ -170,7 +170,7 @@ Double_t TRestReadoutPlane::GetX( Int_t modID, Int_t chID )
 		if( y2 - y1 > 0 ) deltaY = y2 - y1;
 		else deltaY = y1 - y2;
 
-		if( deltaY > deltaX ) x = xOrigin + rChannel->GetPixel(0)->GetCenter().X();
+		if( deltaY > deltaX ) x = rModule->GetPixelCenter( chID, 0 ).X();
 	}
 
 	return x;
@@ -203,7 +203,7 @@ Double_t TRestReadoutPlane::GetY( Int_t modID, Int_t chID )
 
 		if ( sY > 2 * sX ) return y;
 
-		y = yOrigin + rChannel->GetPixel(0)->GetCenter().Y();
+		y = rModule->GetPixelCenter( chID, 0 ).Y();
 
 		return y;
 	}
@@ -235,7 +235,7 @@ Double_t TRestReadoutPlane::GetY( Int_t modID, Int_t chID )
 		if( y2 - y1 > 0 ) deltaY = y2 - y1;
 		else deltaY = y1 - y2;
 
-		if( deltaY < deltaX ) y = yOrigin + rChannel->GetPixel(0)->GetCenter().Y();
+		if( deltaY < deltaX ) y = rModule->GetPixelCenter( chID, 0 ).Y();
 	}
 
 
