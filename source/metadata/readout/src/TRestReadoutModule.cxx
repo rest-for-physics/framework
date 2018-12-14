@@ -419,9 +419,7 @@ TVector2 TRestReadoutModule::GetDistanceToModule( TVector2 pos )
 /// 
 TVector2 TRestReadoutModule::GetPixelOrigin( Int_t channel, Int_t pixel ) 
 {
-	TVector2 pixPosition( GetChannel( channel )->GetPixel(pixel)->GetOrigin() );
-	pixPosition = pixPosition.Rotate( fModuleRotation * TMath::Pi()/ 180. );
-	return pixPosition;
+	return GetPixelVertex( channel, pixel, 0 );
 }
 
 ///////////////////////////////////////////////
@@ -468,23 +466,27 @@ Bool_t TRestReadoutModule::GetPixelTriangle( Int_t channel, Int_t pixel )
 }
 
 
-TVector2 TRestReadoutModule::GetPixelOrigin(TRestReadoutPixel*pix) {
-	TVector2 pixPosition(pix->GetOrigin());
-	pixPosition = pixPosition.Rotate(fModuleRotation * TMath::Pi() / 180.);
-	return pixPosition;
+TVector2 TRestReadoutModule::GetPixelOrigin( TRestReadoutPixel*pix )
+{
+	return GetPixelVertex( pix, 0 );
 }
-TVector2 TRestReadoutModule::GetPixelVertex(TRestReadoutPixel*pix, Int_t vertex) {
+
+TVector2 TRestReadoutModule::GetPixelVertex(TRestReadoutPixel*pix, Int_t vertex)
+{
 	TVector2 pixPosition = pix->GetVertex(vertex);
 	pixPosition = pixPosition.Rotate(fModuleRotation * TMath::Pi() / 180.);
 	pixPosition = pixPosition + TVector2(fModuleOriginX, fModuleOriginY);
 	return pixPosition;
 }
-TVector2 TRestReadoutModule::GetPixelCenter(TRestReadoutPixel*pix) {
+
+TVector2 TRestReadoutModule::GetPixelCenter(TRestReadoutPixel*pix)
+{
 	TVector2 corner1(GetPixelVertex(pix, 0));
 	TVector2 corner2(GetPixelVertex(pix, 2));
 	TVector2 center = (corner1 + corner2) / 2.;
 	return center;
 }
+
 Bool_t TRestReadoutModule::GetPixelTriangle(TRestReadoutPixel*pix)
 {
 	return pix->GetTriangle();
