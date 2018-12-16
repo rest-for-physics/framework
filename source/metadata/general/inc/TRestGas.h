@@ -55,156 +55,155 @@ const int RESTGAS_GASFILE_LOADED = 2;
 //! A specific metadata class to generate and read gas files using Magboltz interface
 class TRestGas : public TRestMetadata
 {
+    private:
 
-private:
+        MediumMagboltz *fGasMedium;//! Pointer to Garfield::MediumMagboltz class giving access to gas properties
 
-    MediumMagboltz *fGasMedium;//! Pointer to Garfield::MediumMagboltz class giving access to gas properties
 
-    
-    Int_t fStatus;              // Used to define the status of the gas : RESTGAS_ERROR, RESTGAS_INTITIALIZED, RESTGAS_CFG_LOADED, RESTGAS_GASFILE_LOADED
-    TString fGasFilename;       // The filename of the Magboltz gas file.
-    Int_t fNofGases;			// Number of different elements composing the gas mixture
+        Int_t fStatus;              // Used to define the status of the gas : RESTGAS_ERROR, RESTGAS_INTITIALIZED, RESTGAS_CFG_LOADED, RESTGAS_GASFILE_LOADED
+        TString fGasFilename;       // The filename of the Magboltz gas file.
+        Int_t fNofGases;			// Number of different elements composing the gas mixture
 
-    Int_t fNCollisions;             // Number of collisions used in the Magboltz calculation.
-    Double_t fMaxElectronEnergy;    // Maximum electron energy, in eV, used in Magboltz gas calculation.
-    Double_t fW;                    // Work function for electron extraction. This is defined by REST.
+        Int_t fNCollisions;             // Number of collisions used in the Magboltz calculation.
+        Double_t fMaxElectronEnergy;    // Maximum electron energy, in eV, used in Magboltz gas calculation.
+        Double_t fW;                    // Work function for electron extraction. This is defined by REST.
 
-    std::vector <TString> fGasComponentName;        // A string vector storing the names of each of the gas components
-    std::vector <Double_t> fGasComponentFraction;   // A double vector storing the fraction values of each of the gas components
+        std::vector <TString> fGasComponentName;        // A string vector storing the names of each of the gas components
+        std::vector <Double_t> fGasComponentFraction;   // A double vector storing the fraction values of each of the gas components
 
-    Double_t fPressureInAtm;		    // Pressure of the gas in atm.
-    Double_t fTemperatureInK;	        // Temperature of the gas in K.
+        Double_t fPressureInAtm;		    // Pressure of the gas in atm.
+        Double_t fTemperatureInK;	        // Temperature of the gas in K.
 
-    Int_t fEnodes;                      // Number of electric field nodes used in the gas calculation.
-    Double_t fEmax;                     // Minimum value of the electric field used for the gas calculation.
-    Double_t fEmin;                     // Maximum value of the electric field used for the gas calculation.
-	Double_t fLast_E;//!                Last calculated E field. Used in no-gas-file mode.
+        Int_t fEnodes;                      // Number of electric field nodes used in the gas calculation.
+        Double_t fEmax;                     // Minimum value of the electric field used for the gas calculation.
+        Double_t fEmin;                     // Maximum value of the electric field used for the gas calculation.
+        Double_t fLast_E;//!                Last calculated E field. Used in no-gas-file mode.
 
-    std::vector <Double_t> fEFields;    // The electric field nodes as calculated by Garfield::MediumMagboltz.
-    std::vector <Double_t> fBFields;    // The magnetic field nodes as calculated by Garfield::MediumMagboltz.
-    std::vector <Double_t> fAngles;     // The field angles as calculated by Garfield::MediumMagboltz.
+        std::vector <Double_t> fEFields;    // The electric field nodes as calculated by Garfield::MediumMagboltz.
+        std::vector <Double_t> fBFields;    // The magnetic field nodes as calculated by Garfield::MediumMagboltz.
+        std::vector <Double_t> fAngles;     // The field angles as calculated by Garfield::MediumMagboltz.
 
-    TString fGDMLMaterialRef;       // The corresponding material reference name in GDML description
+        TString fGDMLMaterialRef;       // The corresponding material reference name in GDML description
 
-    bool fGasGeneration;                // If true, and the pre-generated Magboltz gas file is not found, it will allow to launch the gas generation.
-	bool fGasFileLoaded;//!              If true, REST uses directly MediumMagboltz::ElectronDiffusion, etc, in GetXXX, otherwise it calculates E first
-	bool InitComplete;//!                If false, REST gas is doing initialization. ConditionChanged won't work
+        bool fGasGeneration;                // If true, and the pre-generated Magboltz gas file is not found, it will allow to launch the gas generation.
+        bool fGasFileLoaded;//!              If true, REST uses directly MediumMagboltz::ElectronDiffusion, etc, in GetXXX, otherwise it calculates E first
+        bool InitComplete;//!                If false, REST gas is doing initialization. ConditionChanged won't work
 
-	TString fGasFileContent;          //used for saving into root file
+        TString fGasFileContent;          //used for saving into root file
 
-    void InitFromConfigFile( );
-    string ConstructFilename();
+        void InitFromConfigFile( );
+        string ConstructFilename();
 
-    void AddGasComponent( std::string gasName, Double_t fraction );
+        void AddGasComponent( std::string gasName, Double_t fraction );
 
-    void GenerateGasFile( );
-		
-public:
-	TRestGas();
-    TRestGas( const char *cfgFileName, string name = "", bool gasGeneration = false);
-	~TRestGas();
+        void GenerateGasFile( );
 
-    /// This enables the generation of the gas file if a non existing gas file is found.
-    void EnableGasGeneration ( ) { fGasGeneration = true; }
+    public:
+        TRestGas();
+        TRestGas( const char *cfgFileName, string name = "", bool gasGeneration = false);
+        ~TRestGas();
 
-    /// Returns true if the file generation is enabled. False otherwise.
-    bool GasFileGenerationEnabled() { return fGasGeneration; } 
-	bool GasFileLoaded() { return fGasFileLoaded; }
+        /// This enables the generation of the gas file if a non existing gas file is found.
+        void EnableGasGeneration ( ) { fGasGeneration = true; }
 
-    void Initialize();
+        /// Returns true if the file generation is enabled. False otherwise.
+        bool GasFileGenerationEnabled() { return fGasGeneration; } 
+        bool GasFileLoaded() { return fGasFileLoaded; }
 
-	void LoadGasFile();
+        void Initialize();
 
-	void SetGasFile(string name);
+        void LoadGasFile();
 
-	void CalcGarField(double Emin, double Emax, int n);
+        void SetGasFile(string name);
 
-	void ConditionChanged();
+        void CalcGarField(double Emin, double Emax, int n);
 
-	Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0);
+        void ConditionChanged();
 
-	void InitFromRootFile();
+        Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0);
 
-	Double_t GetW() { return fW; }
+        void InitFromRootFile();
 
-	/// Returns the maximum electron energy used by Magboltz for the gas properties calculation
-	Double_t GetMaxElectronEnergy() { return fMaxElectronEnergy; }
+        Double_t GetW() { return fW; }
 
-	/// Returns the number of gas elements/compounds present in the gas mixture.
-	Int_t GetNofGases() { return fNofGases; }
+        /// Returns the maximum electron energy used by Magboltz for the gas properties calculation
+        Double_t GetMaxElectronEnergy() { return fMaxElectronEnergy; }
 
-	Int_t GetLastCalculatedE() { return fLast_E; }
+        /// Returns the number of gas elements/compounds present in the gas mixture.
+        Int_t GetNofGases() { return fNofGases; }
 
-    /// Returns the gas component *n*.
-    TString GetGasComponentName( Int_t n ) 
-    {
-        if( n >= GetNofGases() ) 
+        Int_t GetLastCalculatedE() { return fLast_E; }
+
+        /// Returns the gas component *n*.
+        TString GetGasComponentName( Int_t n ) 
         {
-            cout << "REST WARNING. Gas name component n=" << n << " requested. But only " << GetNofGases() << " component(s) in the mixture." << endl;
-            return "";
-        }
-        return fGasComponentName[n]; 
-    }
-
-    TString GetGasMixture();
-
-    Double_t GetDriftVelocity( Double_t E );
-    Double_t GetLongitudinalDiffusion( Double_t E );
-    Double_t GetTransversalDiffusion( Double_t E );
-    Double_t GetTownsendCoefficient( Double_t E );
-    Double_t GetAttachmentCoefficient( Double_t E );
-
-    /// Returns the gas fraction in volume for component *n*.
-    Double_t GetGasComponentFraction( Int_t n ) 
-    {
-        if( n >= GetNofGases() ) 
-        {
-            cout << "REST WARNING. Gas fraction for component n=" << n << " requested. But only " << GetNofGases() << " component(s) in the mixture." << endl;
-            return 0.;
+            if( n >= GetNofGases() ) 
+            {
+                cout << "REST WARNING. Gas name component n=" << n << " requested. But only " << GetNofGases() << " component(s) in the mixture." << endl;
+                return "";
+            }
+            return fGasComponentName[n]; 
         }
 
-        return fGasComponentFraction[n]; 
-    }
+        TString GetGasMixture();
 
-    /// Returns the gas pressure in atm.
-    Double_t GetPressure() { return fPressureInAtm; }; 
-    
-    /// Returns the gas temperature in K.
-    Double_t GetTemperature() { return fTemperatureInK;	ConditionChanged();};
+        Double_t GetDriftVelocity( Double_t E );
+        Double_t GetLongitudinalDiffusion( Double_t E );
+        Double_t GetTransversalDiffusion( Double_t E );
+        Double_t GetTownsendCoefficient( Double_t E );
+        Double_t GetAttachmentCoefficient( Double_t E );
 
-    /// Returns the gas work function in eV.
-    Double_t GetWvalue() { return fW; }
+        /// Returns the gas fraction in volume for component *n*.
+        Double_t GetGasComponentFraction( Int_t n ) 
+        {
+            if( n >= GetNofGases() ) 
+            {
+                cout << "REST WARNING. Gas fraction for component n=" << n << " requested. But only " << GetNofGases() << " component(s) in the mixture." << endl;
+                return 0.;
+            }
+
+            return fGasComponentFraction[n]; 
+        }
+
+        /// Returns the gas pressure in atm.
+        Double_t GetPressure() { return fPressureInAtm; }; 
+
+        /// Returns the gas temperature in K.
+        Double_t GetTemperature() { return fTemperatureInK;	ConditionChanged();};
+
+        /// Returns the gas work function in eV.
+        Double_t GetWvalue() { return fW; }
 
 #ifndef __CINT__
-    /// Return pointer to Garfield::MediumGas for gas properties
-    MediumMagboltz* GetGasMedium()  { return fGasMedium; };
+        /// Return pointer to Garfield::MediumGas for gas properties
+        MediumMagboltz* GetGasMedium()  { return fGasMedium; };
 #endif
 
-    /// Return reference name of the corresponding material in GDML file
-    TString GetGDMLMaterialRef()  { return fGDMLMaterialRef; };
+        /// Return reference name of the corresponding material in GDML file
+        TString GetGDMLMaterialRef()  { return fGDMLMaterialRef; };
 
-    void SetPressure( Double_t pressure );
+        void SetPressure( Double_t pressure );
 
-    /// Sets the maximum electron energy to be used in gas generation.
-    void SetMaxElectronEnergy( Double_t energy ) { fMaxElectronEnergy = energy; ConditionChanged();}
+        /// Sets the maximum electron energy to be used in gas generation.
+        void SetMaxElectronEnergy( Double_t energy ) { fMaxElectronEnergy = energy; ConditionChanged();}
 
-    /// Sets the value of the work funtion for the gas mixture.
-    void SetWvalue( Double_t iP ) { fW = iP; ConditionChanged();}
+        /// Sets the value of the work funtion for the gas mixture.
+        void SetWvalue( Double_t iP ) { fW = iP; ConditionChanged();}
 
-    void PlotDriftVelocity( Double_t eMin, Double_t eMax, Int_t nSteps );
-    void PlotLongitudinalDiffusion( Double_t eMin, Double_t eMax, Int_t nSteps );
-    void PlotTransversalDiffusion( Double_t eMin, Double_t eMax, Int_t nSteps );
-    void PlotTownsendCoefficient( Double_t eMin, Double_t eMax, Int_t nSteps );
-	void PrintGasInfo();
-	void PrintGasFileContent() {
-		cout << fGasFileContent << endl;
-	};
+        void PlotDriftVelocity( Double_t eMin, Double_t eMax, Int_t nSteps );
+        void PlotLongitudinalDiffusion( Double_t eMin, Double_t eMax, Int_t nSteps );
+        void PlotTransversalDiffusion( Double_t eMin, Double_t eMax, Int_t nSteps );
+        void PlotTownsendCoefficient( Double_t eMin, Double_t eMax, Int_t nSteps );
+        void PrintGasInfo();
+        void PrintGasFileContent() {
+            cout << fGasFileContent << endl;
+        };
 
-    /// Prints the metadata information from the gas
-	void PrintMetadata() { PrintGasInfo(); }
+        /// Prints the metadata information from the gas
+        void PrintMetadata() { PrintGasInfo(); }
 
-	
-	ClassDef(TRestGas,2);  // Gas Parameters
+
+        ClassDef(TRestGas,2);  // Gas Parameters
 };
 
 #endif
