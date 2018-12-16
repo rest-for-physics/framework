@@ -635,8 +635,8 @@ string TRestGas::ConstructFilename()
     sprintf(tmpStr, "%02d", fNCollisions);
     name += (TString)tmpStr;
 
-    name += "-maxElectronEnergy_";
-    sprintf(tmpStr, "%04lf", fMaxElectronEnergy);
+    name += "-maxE_";
+    sprintf(tmpStr, "%03d", (Int_t) fMaxElectronEnergy);
     name += (TString)tmpStr;
 
     name += ".gas";
@@ -961,7 +961,7 @@ void TRestGas::PrintGasInfo()
     cout.setorientation(1);
     cout.setlength(100);
     cout << "Status : " << fStatus << endl;
-    cout << "Gas filename : " << fGasFilename << endl;
+    cout << "Gas filename : " << REST_StringHelper::RemoveAbsolutePath( (string) fGasFilename ) << endl;
     cout << "Pressure : " << fPressureInAtm << " atm" << endl;
     cout << "Temperature : " << fTemperatureInK << " K" << endl;
     cout << "W-value : " << fW << " eV" << endl;
