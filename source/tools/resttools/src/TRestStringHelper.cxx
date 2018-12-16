@@ -444,10 +444,11 @@ bool REST_StringHelper::isAbsolutePath(const std::string & path)
 }
 
 ///////////////////////////////////////////////
-/// \brief Separate path and fila name in a full name, returns a pair of string
+/// \brief Separate path and filename in a full path+filename string, returns a 
+/// pair of string
 ///
-/// if input file name contains no directory, the directory is convinced to be "."
-/// if input file name contains no file, the file is convinced to be ""
+/// if input file name contains no directory, the returned directory is set to "."
+/// if input file name contains no file, the returned filename is set to ""
 /// e.g.
 /// Input: "/home/nkx/abc.txt" and ":def", Output: { "/home/nkx/", "abc.txt" }
 /// Input: "abc.txt" and ":", Output: { ".", "abc.txt" }
@@ -474,9 +475,21 @@ std::pair<string, string> REST_StringHelper::SeparatePathAndName(const std::stri
 	else
 	{
 		result.first = fullname.substr(0, pos + 1);
-		result.second =fullname.substr(pos + 1, fullname.size() - pos - 1);
+		result.second = fullname.substr(pos + 1, fullname.size() - pos - 1);
 	}
 	return result;
+}
+
+///////////////////////////////////////////////
+/// \brief Removes all directories in the full path filename description
+/// given in the argument.
+///
+/// e.g.
+/// Input: "/home/nkx/abc.txt", Returns: "abc.txt"
+/// Input: "/home/nkx/", Output: ""
+std::string REST_StringHelper::RemoveAbsolutePath( std::string fullpathFileName )
+{
+    return SeparatePathAndName( fullpathFileName).second;
 }
 
 string REST_StringHelper::ToAbsoluteName(string filename) {

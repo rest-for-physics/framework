@@ -51,6 +51,7 @@ namespace REST_StringHelper
 	bool isAbsolutePath(const std::string& path);
 	string ToAbsoluteName(string filename);
 	std::pair<string, string> SeparatePathAndName(const std::string fullname);
+    std::string RemoveAbsolutePath( std::string fullpathFileName );
 	std::string SearchFileInPath(vector<string> path, string filename);
 	Int_t ChecktheFile(std::string cfgFileName);
 	std::vector <string> GetFilesMatchingPattern(string pattern);
