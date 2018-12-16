@@ -237,6 +237,9 @@ TRestGas::TRestGas() : TRestMetadata()
 ///
 TRestGas::TRestGas(const char *cfgFileName, string name, bool gasGeneration) : TRestMetadata(cfgFileName)
 {
+
+    debug << "-- Debug : Entering ... TRestGas( cfgFileName=" << cfgFileName << ", name=" << name << ", gasGeneration=" << gasGeneration << " ) constructor." << endl;
+
 	Initialize();
 
 	fGasGeneration = gasGeneration;
@@ -251,6 +254,9 @@ TRestGas::TRestGas(const char *cfgFileName, string name, bool gasGeneration) : T
 ///
 TRestGas::~TRestGas()
 {
+
+    debug << "-- Debug : Entering ... TRestGas() destructor." << endl;
+
 #if defined USE_Garfield
 	delete fGasMedium;
 #endif
@@ -261,6 +267,8 @@ TRestGas::~TRestGas()
 ///
 void TRestGas::Initialize()
 {
+    debug << "-- Debug : Entering ... Initialize()." << endl;
+
 	SetSectionName(this->ClassName());
 
 	fPressureInAtm = 1;
@@ -306,10 +314,10 @@ void TRestGas::Initialize()
 ///
 void TRestGas::LoadGasFile()
 {
+    debug << "-- Debug : Entering ... TRestGas::LoadGasFile()." << endl;
+
 #if defined USE_Garfield
-
-    debug << "-- Debug : TRestGas::LoadGasFile(). fGasFilename = " << fGasFilename << endl;
-
+    debug << "-- Debug : fGasFilename = " << fGasFilename << endl;
 	if (!fileExists((string)(fGasFilename)))
 	{
 		error << __PRETTY_FUNCTION__ << endl;
@@ -347,7 +355,10 @@ void TRestGas::LoadGasFile()
 }
 
 
-void TRestGas::CalcGarField(double Emin, double Emax, int n) {
+void TRestGas::CalcGarField(double Emin, double Emax, int n)
+{
+    debug << "-- Debug : Entering ... TRestGas::CalcGarField( Emin=" << Emin << " , Emax=" << Emax << " )" << endl;
+
 #if defined USE_Garfield
 	if (fEnodes <= 0) { cout << "REST ERROR : The number of nodes is not a positive number!!. Gas file generation cancelled." << endl; fStatus = RESTGAS_ERROR; return; }
 	if (fEmin >= fEmax) { cout << "REST ERROR : The Electric field grid boundaries are not properly defined." << endl; fStatus = RESTGAS_ERROR; return; }
@@ -390,6 +401,7 @@ void TRestGas::CalcGarField(double Emin, double Emax, int n) {
 	cout << "This REST is not complied with garfield, it cannot calculate garfield!" << endl;
 #endif
 }
+
 /////////////////////////////////////////////
 /// \brief Adds a new element/compound to the gas.
 ///
@@ -401,6 +413,8 @@ void TRestGas::CalcGarField(double Emin, double Emax, int n) {
 ///
 void TRestGas::AddGasComponent(string gasName, Double_t fraction)
 {
+    debug << "-- Debug : Entering ... TRestGas::AddGasComponent( gasName=" << gasName << " , fraction=" << fraction << " )" << endl;
+
 	fGasComponentName.push_back(gasName);
 	fGasComponentFraction.push_back(fraction);
 	fNofGases++;
@@ -417,6 +431,7 @@ void TRestGas::AddGasComponent(string gasName, Double_t fraction)
 ///
 void TRestGas::InitFromConfigFile()
 {
+    debug << "-- Debug : Entering ... TRestGas::InitFromConfigFile()" << endl;
 
 	fPressureInAtm = StringToDouble(GetParameter("pressure"));
 	fTemperatureInK = StringToDouble(GetParameter("temperature"));
@@ -487,7 +502,9 @@ void TRestGas::InitFromConfigFile()
 
 }
 
-void TRestGas::InitFromRootFile() {
+void TRestGas::InitFromRootFile() 
+{
+    debug << "-- Debug : Entering ... TRestGas::InitFromRootFile()" << endl;
 
 	if(fGasFileContent!="")//use gas file content by default
 	{
@@ -508,7 +525,10 @@ void TRestGas::InitFromRootFile() {
 	}
 }
 
-void TRestGas::SetGasFile(string name) {
+void TRestGas::SetGasFile(string name) 
+{
+    debug << "-- Debug : Entering ... TRestGas::SetGasFile( name=" << name << " )" << endl;
+
 	string absolutename = SearchFile(name);
 	if (absolutename == "")//we try to download the gas file from git hub
 	{
@@ -536,10 +556,17 @@ void TRestGas::SetGasFile(string name) {
 	}
 }
 
-void TRestGas::ConditionChanged() {
-	if (InitComplete) {
+void TRestGas::ConditionChanged() 
+{
+    debug << "-- Debug : Entering ... TRestGas::ConditionChanged( )" << endl;
+
+	if (InitComplete) 
+    {
 		string name = ConstructFilename();
 		SetGasFile(name);
+
+        debug << "-- Debug : gasFilename = " << name << endl;
+
 		if (fGasFilename != "")
 		{
 			LoadGasFile();
@@ -560,6 +587,8 @@ void TRestGas::ConditionChanged() {
 /// 
 TString TRestGas::GetGasMixture()
 {
+    debug << "-- Debug : Entering ... TRestGas::GetGasMixture( )" << endl;
+
 	TString gasMixture;
 	char tmpStr[64];
 	for (int n = 0; n < fNofGases; n++)
@@ -578,6 +607,8 @@ TString TRestGas::GetGasMixture()
 /// The filename is a full name, containing path and name. The path is by default current directory.
 string TRestGas::ConstructFilename()
 {
+    debug << "-- Debug : Entering ... TRestGas::ConstructFilename( )" << endl;
+
 	string name = "";
 	char tmpStr[256];
 	for (int n = 0; n < fNofGases; n++)
@@ -610,6 +641,7 @@ string TRestGas::ConstructFilename()
 
 	name += ".gas";
 
+    debug << "-- Debug : Constructed filename : " << name << endl;
 	return name;
 
 }
@@ -618,6 +650,8 @@ string TRestGas::ConstructFilename()
 /// \brief Save a gas file with a structured file name
 void TRestGas::GenerateGasFile()
 {
+    debug << "-- Debug : Entering ... TRestGas::GenerateGasFile( )" << endl;
+
 #if defined USE_Garfield
 
 	ConstructFilename();
@@ -658,6 +692,8 @@ void TRestGas::GenerateGasFile()
 /// 
 void TRestGas::SetPressure(Double_t pressure)
 {
+    debug << "-- Debug : Entering ... TRestGas::SetPressure( pressure=" << pressure << " )" << endl;
+
 	fPressureInAtm = pressure;
 #if defined USE_Garfield
 	fGasMedium->SetPressure(fPressureInAtm * 760.);
@@ -674,6 +710,8 @@ void TRestGas::SetPressure(Double_t pressure)
 ///
 void TRestGas::PlotDriftVelocity(Double_t eMin, Double_t eMax, Int_t nSteps)
 {
+    debug << "-- Debug : Entering ... TRestGas::PlotDriftVelocity( eMin=" << eMin << " , eMax=" << eMax << ", nSteps=" << nSteps << " )" << endl;
+
 	vector<Double_t> eField(nSteps), driftVel(nSteps);
 
 	for (int i = 0; i < nSteps; i++)
@@ -682,7 +720,6 @@ void TRestGas::PlotDriftVelocity(Double_t eMin, Double_t eMax, Int_t nSteps)
 
 		driftVel[i] = GetDriftVelocity(eField[i]);
 	}
-
 
 	TCanvas* c = new TCanvas("Drift velocity", "  ");
 	TGraph*		fDriftVel = new TGraph(nSteps, &eField[0], &driftVel[0]);
@@ -705,6 +742,8 @@ void TRestGas::PlotDriftVelocity(Double_t eMin, Double_t eMax, Int_t nSteps)
 ///
 void TRestGas::PlotLongitudinalDiffusion(Double_t eMin, Double_t eMax, Int_t nSteps)
 {
+    debug << "-- Debug : Entering ... TRestGas::PlotLongitudinalDiffusion( eMin=" << eMin << " , eMax=" << eMax << ", nSteps=" << nSteps << " )" << endl;
+
 	vector<Double_t> eField(nSteps), longDiff(nSteps);
 
 	for (int i = 0; i < nSteps; i++)
@@ -736,6 +775,8 @@ void TRestGas::PlotLongitudinalDiffusion(Double_t eMin, Double_t eMax, Int_t nSt
 ///
 void TRestGas::PlotTransversalDiffusion(Double_t eMin, Double_t eMax, Int_t nSteps)
 {
+    debug << "-- Debug : Entering ... TRestGas::PlotTransversalDiffusion( eMin=" << eMin << " , eMax=" << eMax << ", nSteps=" << nSteps << " )" << endl;
+
 	vector<Double_t> eField(nSteps), transDiff(nSteps);
 
 	for (int i = 0; i < nSteps; i++)
@@ -767,6 +808,8 @@ void TRestGas::PlotTransversalDiffusion(Double_t eMin, Double_t eMax, Int_t nSte
 ///
 void TRestGas::PlotTownsendCoefficient(Double_t eMin, Double_t eMax, Int_t nSteps)
 {
+    debug << "-- Debug : Entering ... TRestGas::PlotTownsendCoefficient( eMin=" << eMin << " , eMax=" << eMax << ", nSteps=" << nSteps << " )" << endl;
+
 	vector<Double_t> eField(nSteps), townsendCoeff(nSteps);
 
 	for (int i = 0; i < nSteps; i++)
@@ -794,6 +837,8 @@ void TRestGas::PlotTownsendCoefficient(Double_t eMin, Double_t eMax, Int_t nStep
 ///
 Double_t TRestGas::GetDriftVelocity(Double_t E)
 {
+    debug << "-- Debug : Entering ... TRestGas::GetDriftVelocity( E=" << E << " )" << endl;
+
 #if defined USE_Garfield
 	if (fGasFileLoaded == false && fLast_E != E)
 	{
@@ -815,6 +860,8 @@ Double_t TRestGas::GetDriftVelocity(Double_t E)
 ///
 Double_t TRestGas::GetLongitudinalDiffusion(Double_t E)
 {
+    debug << "-- Debug : Entering ... TRestGas::GetLongitudinalDiffusion( E=" << E << " )" << endl;
+
 #if defined USE_Garfield
 	if (fGasFileLoaded == false && fLast_E != E)
 	{
@@ -836,6 +883,8 @@ Double_t TRestGas::GetLongitudinalDiffusion(Double_t E)
 ///
 Double_t TRestGas::GetTransversalDiffusion(Double_t E)
 {
+    debug << "-- Debug : Entering ... TRestGas::GetTransversalDiffusion( E=" << E << " )" << endl;
+
 #if defined USE_Garfield
 	if (fGasFileLoaded == false && fLast_E != E)
 	{
@@ -857,6 +906,8 @@ Double_t TRestGas::GetTransversalDiffusion(Double_t E)
 ///
 Double_t TRestGas::GetTownsendCoefficient(Double_t E)
 {
+    debug << "-- Debug : Entering ... TRestGas::GetTownsendCoefficient( E=" << E << " )" << endl;
+
 #if defined USE_Garfield
 	if (fGasFileLoaded == false && fLast_E != E)
 	{
@@ -878,6 +929,8 @@ Double_t TRestGas::GetTownsendCoefficient(Double_t E)
 ///
 Double_t TRestGas::GetAttachmentCoefficient(Double_t E)
 {
+    debug << "-- Debug : Entering ... TRestGas::GetAttachmentCoefficient( E=" << E << " )" << endl;
+
 #if defined USE_Garfield
 	if (fGasFileLoaded == false && fLast_E != E)
 	{
@@ -899,6 +952,8 @@ Double_t TRestGas::GetAttachmentCoefficient(Double_t E)
 ///
 void TRestGas::PrintGasInfo()
 {
+    debug << "-- Debug : Entering ... TRestGas::PrintGasInfo( )" << endl;
+
 	TRestMetadata::PrintMetadata();
 
 	TRestStringOutput cout;
@@ -921,7 +976,10 @@ void TRestGas::PrintGasInfo()
 	cout << endl;
 }
 
-Int_t TRestGas::Write(const char *name, Int_t option, Int_t bufsize) {
+Int_t TRestGas::Write(const char *name, Int_t option, Int_t bufsize) 
+{
+    debug << "-- Debug : Entering ... TRestGas::Write( name=" << name << " option=" << option << " bufsize=" << bufsize << " )" << endl;
+
 	if (fGasFileContent == "" && fGasFileLoaded) {
 		ifstream infile;
 		infile.open(fGasFilename);
