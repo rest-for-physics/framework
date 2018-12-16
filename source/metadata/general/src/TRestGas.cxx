@@ -209,7 +209,7 @@
 #include "TRestGas.h"
 using namespace std;
 
-const char* ONLINE_GASFILE_PREFIX = "https://github.com/nkx111/gasFiles/raw/master/";
+const char* ONLINE_GASFILE_PREFIX = "https://sultan.unizar.es/gasFiles/";
 
 ClassImp(TRestGas)
 
@@ -218,9 +218,9 @@ ClassImp(TRestGas)
 ///
 TRestGas::TRestGas() : TRestMetadata()
 {
-
 	Initialize();
 
+    fGasGeneration = false;
 }
 
 /////////////////////////////////////////////
@@ -282,7 +282,12 @@ void TRestGas::Initialize()
 	fGasMedium = NULL;
 #endif
 
-	fGasGeneration = false;
+    ///////////////////// ///////////////////// /////////////////////
+    // This must be comented. If not when we specify gasGeneration=true on the constructor,
+    // it will be overriden inside LoadConfigFromFile
+    //
+    // fGasGeneration = false;
+    ///////////////////// ///////////////////// /////////////////////
 	fGasFileLoaded = false;
 	InitComplete = false;
 
@@ -302,9 +307,8 @@ void TRestGas::Initialize()
 void TRestGas::LoadGasFile()
 {
 #if defined USE_Garfield
-	//Double_t pressure = fPressureInAtm;
-	//fPressureInAtm = 1;
-	//ConstructFilename( );
+
+    debug << "-- Debug : TRestGas::LoadGasFile(). fGasFilename = " << fGasFilename << endl;
 
 	if (!fileExists((string)(fGasFilename)))
 	{
@@ -314,9 +318,6 @@ void TRestGas::LoadGasFile()
 		fLast_E = numeric_limits<double>::quiet_NaN();
 		return;
 	}
-
-	// We might print this in debug mode
-	debug << "Loading gas file : " << fGasFilename << endl;
 
 	fGasMedium->LoadGasFile((string)(fGasFilename));
 
