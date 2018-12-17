@@ -52,6 +52,10 @@ IF( NOT DEFINED REST_WELCOME )
     set(REST_WELCOME ON)
 ENDIF()
 
+#Garfield 
+IF( NOT DEFINED REST_GARFIELD )
+    set(REST_GARFIELD ON)
+ENDIF()
 
 
 #find includes and libs of ROOT

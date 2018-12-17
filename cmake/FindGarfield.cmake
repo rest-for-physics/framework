@@ -33,9 +33,12 @@ if (Garfield_INCLUDE_DIRS AND Garfield_LIBRARIES)
 endif()
 
 if (NOT DEFINED ENV{GARFIELD_HOME} )
-	message("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\nGARFIELD HOME has not been defined!
+    message("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\nError : GARFIELD HOME is not defined!
 		\nCheck Garfield is installed and GARFIELD_HOME is pointing to install directory
 		\nHINT : GARFIELD_HOME/lib/libGarfield.so should exist.
+        \nIf you do not need Garfield++ interface in your REST installation, then,
+        \nplease, run cmake disabling REST_GARFIELD variable
+        \n\ni.e. : cmake -DREST_GARFIELD=OFF ../
 		\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n" )
 endif()
 
