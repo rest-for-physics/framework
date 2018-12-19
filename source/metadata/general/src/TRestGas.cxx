@@ -223,6 +223,7 @@ TRestGas::TRestGas() : TRestMetadata()
     fGasGeneration = false;
 }
 
+
 /////////////////////////////////////////////
 /// \brief TRestGas constructor loading data from a config file.
 ///
@@ -237,14 +238,42 @@ TRestGas::TRestGas() : TRestMetadata()
 ///
 TRestGas::TRestGas(const char *cfgFileName, string name, bool gasGeneration) : TRestMetadata(cfgFileName)
 {
-
-    debug << "-- Debug : Entering ... TRestGas( cfgFileName=" << cfgFileName << ", name=" << name << ", gasGeneration=" << gasGeneration << " ) constructor." << endl;
-
     Initialize();
 
     fGasGeneration = gasGeneration;
 
-    LoadConfigFromFile(fConfigFileName, name);
+    if( strcmp( cfgFileName, "server" ) == 0 )
+    { 
+        fVerboseLevel = REST_Info;
+
+        fGasServer = defaultServer;
+
+        string cmd = "wget --no-check-certificate " + (string) fGasServer + "/gases.rml -O /tmp/gases.rml -q";
+
+        info << "-- Info : Trying to download gases definitions from server : " << fGasServer << endl;
+        int a = system( cmd.c_str() );
+
+        if ( a == 0 )
+        {
+            success << "-- Success : download OK!" << endl;
+
+            LoadConfigFromFile( "/tmp/gases.rml", name);
+        }
+        else 
+        {
+            
+            error << "-- Error : download failed!" << endl;
+            if( a == 1024 ) error << "-- Error : Network connection problem?" << endl;
+            if( a == 2048 ) error << "-- Error : Gas file does NOT exist in database?" << endl;
+            error << "-- Error : FileName: " << name << endl;
+            info << "-- Info : Please specify a local config file" << endl;
+            exit(1);
+        }
+    }
+    else
+    {
+        LoadConfigFromFile(fConfigFileName, name);
+    }
 
     //if ( fStatus == RESTGAS_CFG_LOADED ) LoadGasFile( );
 }
