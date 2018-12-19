@@ -59,7 +59,6 @@ class TRestGas : public TRestMetadata
 
         MediumMagboltz *fGasMedium;//! Pointer to Garfield::MediumMagboltz class giving access to gas properties
 
-
         Int_t fStatus;              // Used to define the status of the gas : RESTGAS_ERROR, RESTGAS_INTITIALIZED, RESTGAS_CFG_LOADED, RESTGAS_GASFILE_LOADED
         TString fGasFilename;       // The filename of the Magboltz gas file.
         Int_t fNofGases;			// Number of different elements composing the gas mixture
@@ -83,15 +82,17 @@ class TRestGas : public TRestMetadata
         std::vector <Double_t> fBFields;    // The magnetic field nodes as calculated by Garfield::MediumMagboltz.
         std::vector <Double_t> fAngles;     // The field angles as calculated by Garfield::MediumMagboltz.
 
-        TString fGDMLMaterialRef;       // The corresponding material reference name in GDML description
+        TString fGDMLMaterialRef;           // The corresponding material reference name in GDML description
 
-        bool fGasGeneration;                // If true, and the pre-generated Magboltz gas file is not found, it will allow to launch the gas generation.
-        bool fGasFileLoaded;//!              If true, REST uses directly MediumMagboltz::ElectronDiffusion, etc, in GetXXX, otherwise it calculates E first
-        bool InitComplete;//!                If false, REST gas is doing initialization. ConditionChanged won't work
+        bool fGasGeneration;//!             If true, and the pre-generated Magboltz gas file is not found, it will allow to launch the gas generation.
+        bool fGasFileLoaded;//!             If true, REST uses directly MediumMagboltz::ElectronDiffusion, etc, in GetXXX, otherwise it calculates E first
+        bool InitComplete;//!               If false, REST gas is doing initialization. ConditionChanged won't work
 
         TString fGasOutputPath;//!          A string to store the output path where a new generated gas file will be written
 
-        TString fGasFileContent;          //used for saving into root file
+        TString fGasServer;//!              The remote server from where we retrieve the gasFiles. If it is set to *none* local files will be used.
+
+        TString fGasFileContent;            // Used for saving the gasFile into a root file
 
         void InitFromConfigFile( );
         string ConstructFilename();
@@ -116,7 +117,7 @@ class TRestGas : public TRestMetadata
 
         void LoadGasFile();
 
-        void SetGasFile(string name);
+        string FindGasFile(string name);
 
         void CalcGarField(double Emin, double Emax, int n);
 

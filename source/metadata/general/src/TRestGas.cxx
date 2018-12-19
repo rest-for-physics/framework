@@ -209,7 +209,7 @@
 #include "TRestGas.h"
 using namespace std;
 
-const char* ONLINE_GASFILE_PREFIX = "https://sultan.unizar.es/gasFiles/";
+const char *defaultServer = "https://sultan.unizar.es/gasFiles/";
 
 ClassImp(TRestGas)
 
@@ -348,7 +348,7 @@ void TRestGas::LoadGasFile()
     fGasFileLoaded = true;
     //in future we need to import fPressure, fTemperature from fGasMedium
     //this->SetPressure(pressure);
-    info << "TRestGas : Gas file loaded!" << endl;
+    info << "-- Info : TRestGas. Gas file loaded!" << endl;
 #else
     cout << "This REST is not complied with garfield, it cannot load any gas file!" << endl;
 #endif
@@ -449,6 +449,8 @@ void TRestGas::InitFromConfigFile()
 
     fGDMLMaterialRef = GetParameter("GDMLMaterialRef", "");
 
+    fGasServer = GetParameter( "gasServer", defaultServer );
+
     if (fMaxElectronEnergy == -1) { fMaxElectronEnergy = 40; cout << "Setting default maxElectronEnergy to : " << fMaxElectronEnergy << endl; }
     if (fW == -1) { fW = 21.9; cout << "Setting default W-value : " << fW << endl; }
 
@@ -479,31 +481,29 @@ void TRestGas::InitFromConfigFile()
     else { warning << "REST WARNING : TRestGas : The total gas fractions is NOT 1." << endl;  fStatus = RESTGAS_ERROR; return; }
 
     fGasFilename = ConstructFilename();
-    debug << "-- Debug : TRestGas::InitFromConfigFile. fGasFilename = " << fGasFilename << endl;
 
-    InitComplete = true;
+    debug << "-- Debug : TRestGas::InitFromConfigFile. ConstructFilename. fGasFilename = " << fGasFilename << endl;
+
+    fGasFilename = FindGasFile( (string) fGasFilename );
+
+    debug << "-- Debug : TRestGas::InitFromConfigFile. FindGasFile. fGasFilename = " << fGasFilename << endl;
+
+    // If we found the gasFile then obviously we disable the gas generation
+    if( fGasGeneration && fileExists( (string) fGasFilename ) )
+    {
+        fGasGeneration = false;
+
+        warning << "-- Warning: The gasFile already exists!!" << endl;
+        warning << "-- Warning: fGasGeneration should be disabled to remove this warning." << endl;
+        warning << "-- Warning: If you really want to re-generate the gas file you will need to disable the gasServer." << endl;
+        warning << "-- Warning: And/or remove any local copies that are found by SearchPath." << endl;
+    }
+
     if (fGasGeneration)
     {
-        CalcGarField(fEmax, fEmin, fEnodes);
+        CalcGarField( fEmin, fEmax, fEnodes );
         GenerateGasFile();
         fGasFileLoaded = true;
-    }
-    else if (GetParameter("gasFile") != PARAMETER_NOT_FOUND_STR)
-    {
-        SetGasFile(GetParameter("gasFile"));
-        if (fGasFilename!="") {
-            LoadGasFile();
-        }
-        else
-        {
-            warning << "TRestGas: gas file does not exist!" << endl;
-            fGasFileLoaded = false;
-        }
-
-    }
-    else
-    {
-        ConditionChanged();
     }
 
     PrintGasInfo();
@@ -530,42 +530,61 @@ void TRestGas::InitFromRootFile()
     }
     else
     {
-        SetGasFile((string)fGasFilename);
-        if (fGasFilename != "") {
+        fGasFilename = FindGasFile( (string) fGasFilename );
+        if ( fGasFilename != "" ) {
             LoadGasFile();
         }
     }
 }
 
-void TRestGas::SetGasFile(string name) 
+/////////////////////////////////////////////
+/// \brief This method tries to find the gas filename given in the argument 
+///
+/// First, this method will try to retrieve the gasFile from *fGasServer*.
+/// If the file is not found in the server, then we will try to find it locally.
+/// If not found, the gas will be generated if fGasGeneration has been enabled.
+/// 
+/// The gasFiles are retrieved by default from the gasFile server. In order to
+/// avoid this, and use locally generated gasFiles you need to set the metadata
+/// parameter *fGasServer* to *none*.
+///
+/// \return The filename with full path to the existing local filename
+/// 
+///
+string TRestGas::FindGasFile( string name ) 
 {
-    debug << "-- Debug : Entering ... TRestGas::SetGasFile( name=" << name << " )" << endl;
+    debug << "-- Debug : Entering ... TRestGas::FindGasFile( name=" << name << " )" << endl;
 
-    string absolutename = SearchFile(name);
-    if (absolutename == "")//we try to download the gas file from git hub
+    string absoluteName = "";
+    // First, we try to download the gas file from fGasServer
+    if ( fGasServer != "none" ) 
     {
-        warning << "TRestGas : gas file not found locally, trying to download with wget..." << endl;
-        string _name = Replace(name, "(", "\\(", 0);
-        _name = Replace(_name, ")", "\\)", 0);
-        string cmd = "wget " + (string)ONLINE_GASFILE_PREFIX + _name + " -O /tmp/restGasDownload.gas -q";
-        debug << cmd << endl;
-        int a = system(cmd.c_str());
-        debug << a << endl;
-        if (a == 0)
+        string _name = Replace( name, "(", "\\(", 0);
+        _name = Replace( _name, ")", "\\)", 0);
+        string cmd = "wget --no-check-certificate " + (string) fGasServer + "/" + _name + " -O /tmp/restGasDownload.gas -q";
+
+        debug << "-- Debug : Launching ... " << cmd << endl;
+
+        info << "-- Info : Trying to download gasFile " << name << " from server : " << fGasServer << endl;
+        int a = system( cmd.c_str() );
+
+        debug << "-- Debug : Command output : " << a << endl;
+
+        if ( a == 0 )
         {
-            warning << "download successful!" << endl;
-            fGasFilename = "/tmp/restGasDownload.gas";
+            success << "-- Success : download OK!" << endl;
+            absoluteName = "/tmp/restGasDownload.gas";
         }
-        else {
-            warning << "download failed!" << endl;
+        else 
+        {
+            error << "-- Error : download failed!" << endl;
             warning << "FileName: " << name << endl;
-            fGasFilename = "";
         }
     }
-    else
-    {
-        fGasFilename = absolutename;
-    }
+
+    absoluteName = SearchFile( name );
+
+    return absoluteName;
 }
 
 void TRestGas::ConditionChanged() 
@@ -575,7 +594,7 @@ void TRestGas::ConditionChanged()
     if (InitComplete) 
     {
         string name = ConstructFilename();
-        SetGasFile(name);
+        fGasFilename = FindGasFile( name );
 
         debug << "-- Debug : gasFilename = " << name << endl;
 
@@ -616,7 +635,7 @@ TString TRestGas::GetGasMixture()
 /////////////////////////////////////////////
 /// \brief Constructs the filename of the pre-generated gas file using the members defined in the RML file.
 /// 
-/// The filename is a full name, containing path and name. The path is by default current directory.
+/// This method returns only the filename without including absolute or relative paths.
 string TRestGas::ConstructFilename()
 {
     debug << "-- Debug : Entering ... TRestGas::ConstructFilename( )" << endl;
@@ -658,7 +677,6 @@ string TRestGas::ConstructFilename()
     name += ".gas";
 
     debug << "-- Debug : Constructed filename : " << name << endl;
-    fGasFilename = name;
     return name;
 
 }
