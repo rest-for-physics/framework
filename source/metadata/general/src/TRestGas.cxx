@@ -264,7 +264,7 @@ TRestGas::TRestGas(const char *cfgFileName, string name, bool gasGeneration) : T
             
             error << "-- Error : download failed!" << endl;
             if( a == 1024 ) error << "-- Error : Network connection problem?" << endl;
-            if( a == 2048 ) error << "-- Error : Gas file does NOT exist in database?" << endl;
+            if( a == 2048 ) error << "-- Error : Gas definition does NOT exist in database?" << endl;
             error << "-- Error : FileName: " << name << endl;
             info << "-- Info : Please specify a local config file" << endl;
             exit(1);
@@ -349,8 +349,8 @@ void TRestGas::LoadGasFile()
     debug << "-- Debug : fGasFilename = " << fGasFilename << endl;
     if (!fileExists((string)(fGasFilename)))
     {
-        error << __PRETTY_FUNCTION__ << endl;
-        error << "The gas file does not exist. (name:"<<fGasFilename<<")" << endl;
+        error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
+        error << "-- Error : The gas file does not exist. (name:"<<fGasFilename<<")" << endl;
         fGasFileLoaded = false;
         fLast_E = numeric_limits<double>::quiet_NaN();
         return;
@@ -619,6 +619,8 @@ string TRestGas::FindGasFile( string name )
     }
 
     absoluteName = SearchFile( name );
+    if( absoluteName == "" )
+        absoluteName = name;
 
     return absoluteName;
 }
