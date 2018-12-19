@@ -89,6 +89,8 @@ class TRestGas : public TRestMetadata
         bool fGasFileLoaded;//!              If true, REST uses directly MediumMagboltz::ElectronDiffusion, etc, in GetXXX, otherwise it calculates E first
         bool InitComplete;//!                If false, REST gas is doing initialization. ConditionChanged won't work
 
+        TString fGasOutputPath;//!          A string to store the output path where a new generated gas file will be written
+
         TString fGasFileContent;          //used for saving into root file
 
         void InitFromConfigFile( );

@@ -439,6 +439,14 @@ void TRestGas::InitFromConfigFile()
     fMaxElectronEnergy = StringToDouble(GetParameter("maxElectronEnergy"));
     fW = StringToDouble(GetParameter("W_value","-1"));
 
+    fGasOutputPath = GetParameter("gasOutputPath","./");
+    if ( !isPathWritable( (string) fGasOutputPath ) )
+    {
+        warning << "-- Warning : The specified gasOutputPath is not writable!" << endl;
+        warning << "-- Warning : The output path will be changed to ./" << endl;
+        fGasOutputPath = "./";
+    }
+
     fGDMLMaterialRef = GetParameter("GDMLMaterialRef", "");
 
     if (fMaxElectronEnergy == -1) { fMaxElectronEnergy = 40; cout << "Setting default maxElectronEnergy to : " << fMaxElectronEnergy << endl; }
@@ -459,6 +467,7 @@ void TRestGas::InitFromConfigFile()
     fEmax = StringToDouble(GetFieldValue("Emax", eFieldString));
     fEmin = StringToDouble(GetFieldValue("Emin", eFieldString));
     fEnodes = StringToInteger(GetFieldValue("nodes", eFieldString));
+
     if (ToUpper(GetParameter("generate")) == "ON" || ToUpper(GetParameter("generate")) == "TRUE")
         fGasGeneration = true;
 
@@ -468,6 +477,9 @@ void TRestGas::InitFromConfigFile()
 
     if (sum == 1) fStatus = RESTGAS_CFG_LOADED;
     else { warning << "REST WARNING : TRestGas : The total gas fractions is NOT 1." << endl;  fStatus = RESTGAS_ERROR; return; }
+
+    fGasFilename = ConstructFilename();
+    debug << "-- Debug : TRestGas::InitFromConfigFile. fGasFilename = " << fGasFilename << endl;
 
     InitComplete = true;
     if (fGasGeneration)
@@ -642,6 +654,7 @@ string TRestGas::ConstructFilename()
     name += ".gas";
 
     debug << "-- Debug : Constructed filename : " << name << endl;
+    fGasFilename = name;
     return name;
 
 }
@@ -654,28 +667,27 @@ void TRestGas::GenerateGasFile()
 
 #if defined USE_Garfield
 
-    ConstructFilename();
+    fGasFilename = ConstructFilename();
+    debug << " -- Debug : TRestGas::GenerateGasFile. fGasFilename = " << fGasFilename << endl;
 
-    string path = SeparatePathAndName((string)fGasFilename).first;
-    string name = SeparatePathAndName((string)fGasFilename).second;
-
-    if (!isPathWritable(path))
+    if ( !isPathWritable( (string) fGasOutputPath ) )
     {
         cout << endl;
-        cout << "REST ERROR. TRestGas. Path is not writtable." << endl;
-        cout << "Path : " << path << endl;
-        cout << "Make sure the final data path is writtable before proceed to gas generation." << endl;
-        cout << "or change the gas data path ... " << endl;
-        cout << endl;
+        warning << "-- Warning: REST ERROR. TRestGas. Path is not writtable." << endl;
+        warning << "-- Warning: Path : " << fGasOutputPath << endl;
+        warning << "-- Warning: Make sure the final data path is writtable before proceed to gas generation." << endl;
+        warning << "-- Warning: or change the gas data path ... " << endl;
+        warning << endl;
         GetChar();
         return;
     }
 
-    cout << "Writting gas file" << endl;
+    cout << "Writting gas file : " << endl;
     cout << "-----------------" << endl;
-    cout << "Path : " << path << endl;
-    cout << "Filename : " << name << endl;
-    fGasMedium->WriteGasFile((string)fGasFilename);
+    cout << "Path : " << fGasOutputPath << endl;
+    cout << "Filename : " << fGasFilename << endl;
+
+    fGasMedium->WriteGasFile( (string) (fGasOutputPath + "/" + fGasFilename) );
 #else
     cout << "This REST is not complied with garfield, it cannot save any gas file!" << endl;
 #endif
