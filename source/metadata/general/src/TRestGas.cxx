@@ -502,6 +502,8 @@ void TRestGas::InitFromConfigFile()
 #if defined USE_Garfield
     if (fGasGeneration)
     {
+        info << "-- Info : Starting gas generation" << endl; 
+
         CalcGarField( fEmin, fEmax, fEnodes );
         GenerateGasFile();
         fGasFileLoaded = true;
@@ -581,6 +583,8 @@ string TRestGas::FindGasFile( string name )
         else 
         {
             error << "-- Error : download failed!" << endl;
+            if( a == 1024 ) error << "-- Error : Network connection problem?" << endl;
+            if( a == 2048 ) error << "-- Error : Gas file does NOT exist in database?" << endl;
             error << "-- Error : FileName: " << name << endl;
         }
     }
