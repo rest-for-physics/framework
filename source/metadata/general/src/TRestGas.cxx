@@ -475,7 +475,7 @@ void TRestGas::InitFromConfigFile()
     for (int i = 0; i < fNofGases; i++)
         sum += GetGasComponentFraction(i);
 
-    if (sum == 1) fStatus = RESTGAS_CFG_LOADED;
+    if (sum - 1 < 1.e12) fStatus = RESTGAS_CFG_LOADED;
     else { warning << "REST WARNING : TRestGas : The total gas fractions is NOT 1." << endl;  fStatus = RESTGAS_ERROR; return; }
 
     fGasFilename = ConstructFilename();
