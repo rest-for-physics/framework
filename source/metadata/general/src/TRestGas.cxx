@@ -627,7 +627,11 @@ string TRestGas::ConstructFilename()
     {
         if (n > 0) name += "-";
         name += GetGasComponentName(n) + "_";
-        sprintf(tmpStr, "%03.1lf", GetGasComponentFraction(n) * 100.);
+        if( GetGasComponentFraction(n) >= 0.001 )
+            sprintf(tmpStr, "%03.1lf", GetGasComponentFraction(n) * 100.);
+        else
+            sprintf(tmpStr, "%03.1lfppm", GetGasComponentFraction(n) * 1.e6);
+
         name += (TString)tmpStr;
     }
 
