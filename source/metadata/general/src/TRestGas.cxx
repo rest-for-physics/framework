@@ -388,7 +388,7 @@ void TRestGas::CalcGarField(double Emin, double Emax, int n)
 
     fGasMedium->SetMaxElectronEnergy(fMaxElectronEnergy);
 
-    cout << "Garfield: calclulating..." << endl;
+    cout << "Garfield: calculating..." << endl;
 
     if(fVerboseLevel>=REST_Info)
         fGasMedium->EnableDebugging();
@@ -493,25 +493,28 @@ void TRestGas::InitFromConfigFile()
     {
         fGasGeneration = false;
 
-        warning << "-- Warning: The gasFile already exists!!" << endl;
+        warning << "-- Warning: TRestGas gasFile generation is enabled, but the gasFile already exists!!" << endl;
         warning << "-- Warning: fGasGeneration should be disabled to remove this warning." << endl;
         warning << "-- Warning: If you really want to re-generate the gas file you will need to disable the gasServer." << endl;
         warning << "-- Warning: And/or remove any local copies that are found by SearchPath." << endl;
     }
 
+#if defined USE_Garfield
     if (fGasGeneration)
     {
         CalcGarField( fEmin, fEmax, fEnodes );
         GenerateGasFile();
         fGasFileLoaded = true;
     }
+    else
+    {
+        LoadGasFile();
+    }
 
-    PrintGasInfo();
-
-#if defined USE_Garfield
     if (fGasMedium && fGasMedium->GetW() == 0.) fGasMedium->SetW(fW);  // as it is probably not computed by Magboltz
 #endif
 
+    PrintGasInfo();
 }
 
 void TRestGas::InitFromRootFile() 
@@ -578,7 +581,7 @@ string TRestGas::FindGasFile( string name )
         else 
         {
             error << "-- Error : download failed!" << endl;
-            warning << "FileName: " << name << endl;
+            error << "-- Error : FileName: " << name << endl;
         }
     }
 
@@ -591,7 +594,7 @@ void TRestGas::ConditionChanged()
 {
     debug << "-- Debug : Entering ... TRestGas::ConditionChanged( )" << endl;
 
-    if (InitComplete) 
+    if ( InitComplete )
     {
         string name = ConstructFilename();
         fGasFilename = FindGasFile( name );
@@ -906,7 +909,7 @@ Double_t TRestGas::GetLongitudinalDiffusion(Double_t E)
     fGasMedium->ElectronDiffusion(0., 0, -E, 0, 0, 0, dl, dt);
     return dl;
 #else
-    cout << "This REST is not complied with garfield, Do not use Longitudinal Diffusion from TRestGas!" << endl;
+    cout << "This REST is not compiled with garfield, Do not use Longitudinal Diffusion from TRestGas!" << endl;
     cout << "Please define the Longitudinal Diffusion in each process!" << endl;
     return 0;
 #endif
