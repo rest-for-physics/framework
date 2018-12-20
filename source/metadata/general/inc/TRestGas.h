@@ -76,7 +76,6 @@ class TRestGas : public TRestMetadata
         Int_t fEnodes;                      // Number of electric field nodes used in the gas calculation.
         Double_t fEmax;                     // Minimum value of the electric field used for the gas calculation.
         Double_t fEmin;                     // Maximum value of the electric field used for the gas calculation.
-        Double_t fLast_E;//!                Last calculated E field. Used in no-gas-file mode.
 
         std::vector <Double_t> fEFields;    // The electric field nodes as calculated by Garfield::MediumMagboltz.
         std::vector <Double_t> fBFields;    // The magnetic field nodes as calculated by Garfield::MediumMagboltz.
@@ -85,8 +84,6 @@ class TRestGas : public TRestMetadata
         TString fGDMLMaterialRef;           // The corresponding material reference name in GDML description
 
         bool fGasGeneration;//!             If true, and the pre-generated Magboltz gas file is not found, it will allow to launch the gas generation.
-        bool fGasFileLoaded;//!             If true, REST uses directly MediumMagboltz::ElectronDiffusion, etc, in GetXXX, otherwise it calculates E first
-        bool InitComplete;//!               If false, REST gas is doing initialization. ConditionChanged won't work
 
         TString fGasOutputPath;//!          A string to store the output path where a new generated gas file will be written
 
@@ -101,6 +98,8 @@ class TRestGas : public TRestMetadata
 
         void GenerateGasFile( );
 
+        void UploadGasToServer( string gasFilename );
+
     public:
         TRestGas();
         TRestGas( const char *cfgFileName, string name = "", bool gasGeneration = false);
@@ -111,7 +110,9 @@ class TRestGas : public TRestMetadata
 
         /// Returns true if the file generation is enabled. False otherwise.
         bool GasFileGenerationEnabled() { return fGasGeneration; } 
-        bool GasFileLoaded() { return fGasFileLoaded; }
+
+        /// Returns true if the gas file has been properly loaded. False otherwise.
+        bool GasFileLoaded() { return fStatus == RESTGAS_GASFILE_LOADED; }
 
         void Initialize();
 
@@ -120,8 +121,6 @@ class TRestGas : public TRestMetadata
         string FindGasFile(string name);
 
         void CalcGarField(double Emin, double Emax, int n);
-
-        void ConditionChanged();
 
         Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0);
 
@@ -134,8 +133,6 @@ class TRestGas : public TRestMetadata
 
         /// Returns the number of gas elements/compounds present in the gas mixture.
         Int_t GetNofGases() { return fNofGases; }
-
-        Int_t GetLastCalculatedE() { return fLast_E; }
 
         /// Returns the gas component *n*.
         TString GetGasComponentName( Int_t n ) 
@@ -172,7 +169,7 @@ class TRestGas : public TRestMetadata
         Double_t GetPressure() { return fPressureInAtm; }; 
 
         /// Returns the gas temperature in K.
-        Double_t GetTemperature() { return fTemperatureInK;	ConditionChanged();};
+        Double_t GetTemperature() { return fTemperatureInK;	};
 
         /// Returns the gas work function in eV.
         Double_t GetWvalue() { return fW; }
@@ -188,10 +185,10 @@ class TRestGas : public TRestMetadata
         void SetPressure( Double_t pressure );
 
         /// Sets the maximum electron energy to be used in gas generation.
-        void SetMaxElectronEnergy( Double_t energy ) { fMaxElectronEnergy = energy; ConditionChanged();}
+        void SetMaxElectronEnergy( Double_t energy ) { fMaxElectronEnergy = energy; }
 
         /// Sets the value of the work funtion for the gas mixture.
-        void SetWvalue( Double_t iP ) { fW = iP; ConditionChanged();}
+        void SetWvalue( Double_t iP ) { fW = iP; }
 
         void PlotDriftVelocity( Double_t eMin, Double_t eMax, Int_t nSteps );
         void PlotLongitudinalDiffusion( Double_t eMin, Double_t eMax, Int_t nSteps );

@@ -244,7 +244,8 @@ TRestGas::TRestGas(const char *cfgFileName, string name, bool gasGeneration) : T
 
     if( strcmp( cfgFileName, "server" ) == 0 )
     { 
-        fVerboseLevel = REST_Info;
+        if( GetVerboseLevel() <= REST_Info )
+            fVerboseLevel = REST_Info;
 
         fGasServer = defaultServer;
 
@@ -325,13 +326,10 @@ void TRestGas::Initialize()
     //
     // fGasGeneration = false;
     ///////////////////// ///////////////////// /////////////////////
-    fGasFileLoaded = false;
-    InitComplete = false;
 
     fEmin = 10;
     fEmax = 1000;
     fEnodes = 20;
-    fLast_E = numeric_limits<double>::quiet_NaN();
 }
 
 /////////////////////////////////////////////
@@ -351,8 +349,7 @@ void TRestGas::LoadGasFile()
     {
         error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
         error << "-- Error : The gas file does not exist. (name:"<<fGasFilename<<")" << endl;
-        fGasFileLoaded = false;
-        fLast_E = numeric_limits<double>::quiet_NaN();
+        fStatus = RESTGAS_ERROR;
         return;
     }
 
@@ -361,23 +358,15 @@ void TRestGas::LoadGasFile()
     fEFields.clear(); fBFields.clear(); fAngles.clear();
     fGasMedium->GetFieldGrid(fEFields, fBFields, fAngles);
 
-    /*
-    // We might print this in debug mode
+    fStatus = RESTGAS_GASFILE_LOADED;
+    info << "-- Info : TRestGas. Gas file loaded!" << endl;
+
     for( unsigned int i = 0; i < fEFields.size(); i++ )
-    cout << "node " << i << " Field : " << fEFields[i] << " V/cm" << endl;
-    */
+        debug << "-- Debug : node " << i << " Field : " << fEFields[i] << " V/cm" << endl;
 
     if (fGasMedium && fGasMedium->GetW() == 0.) {
         fGasMedium->SetW(GetWvalue());
     } // as it is probably not computed by Magboltz
-    //else
-    //{
-    //	fW = fGasMedium->GetW();
-    //}
-    fGasFileLoaded = true;
-    //in future we need to import fPressure, fTemperature from fGasMedium
-    //this->SetPressure(pressure);
-    info << "-- Info : TRestGas. Gas file loaded!" << endl;
 #else
     cout << "This REST is not complied with garfield, it cannot load any gas file!" << endl;
 #endif
@@ -447,7 +436,6 @@ void TRestGas::AddGasComponent(string gasName, Double_t fraction)
     fGasComponentName.push_back(gasName);
     fGasComponentFraction.push_back(fraction);
     fNofGases++;
-    ConditionChanged();
 }
 
 /////////////////////////////////////////////
@@ -460,6 +448,9 @@ void TRestGas::AddGasComponent(string gasName, Double_t fraction)
 ///
 void TRestGas::InitFromConfigFile()
 {
+    if( GetVerboseLevel() <= REST_Info )
+        fVerboseLevel = REST_Info;
+
     debug << "-- Debug : Entering ... TRestGas::InitFromConfigFile()" << endl;
 
     fPressureInAtm = StringToDouble(GetParameter("pressure"));
@@ -528,6 +519,8 @@ void TRestGas::InitFromConfigFile()
         warning << "-- Warning: And/or remove any local copies that are found by SearchPath." << endl;
     }
 
+    fStatus = RESTGAS_CFG_LOADED;
+
 #if defined USE_Garfield
     if (fGasGeneration)
     {
@@ -535,7 +528,7 @@ void TRestGas::InitFromConfigFile()
 
         CalcGarField( fEmin, fEmax, fEnodes );
         GenerateGasFile();
-        fGasFileLoaded = true;
+        fStatus = RESTGAS_GASFILE_LOADED;
     }
     else
     {
@@ -571,6 +564,90 @@ void TRestGas::InitFromRootFile()
     }
 }
 
+void TRestGas::UploadGasToServer( string gasFilename )
+{
+    string fname = "/tmp/gases.rml";
+    // We download (probably again) the original version
+    string cmd = "wget --no-check-certificate " + (string) fGasServer + "/gases.rml -O " + fname + " -q";
+
+    int a = system( cmd.c_str() );
+
+    if( a != 0 )
+    {
+        error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
+        error << "-- Error : download failed!" << endl;
+        if( a == 1024 ) error << "-- Error : Network connection problem?" << endl;
+        if( a == 2048 ) error << "-- Error : Gas definition does NOT exist in database?" << endl;
+        error << "-- Error : FileName: " << fname << endl;
+        info << "-- Info : Please specify a local config file" << endl;
+
+        return;
+    }
+
+#ifdef __APPLE__
+    cmd = "sed -i '' -e '$ d' " + fname; 
+    //   this->WriteConfigBuffer( fname );
+#elif
+    cmd = "sed -i '$ d' " + fname;
+#endif
+
+    a = system( cmd.c_str() );
+
+    if( a != 0 )
+    {
+        error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
+        error << "-- Error : problem removing last line from " << fname << endl;
+        return;
+    }
+
+    getenv("USER");
+
+    ofstream outf;
+    outf.open(fname,ios::app);
+    outf << endl;
+    outf << "//------- User : " << getenv("USER") << " ---- REST version : " << REST_RELEASE << " ---------------------------" << endl;
+    outf.close();
+
+    this->WriteConfigBuffer( fname );
+
+    outf.open(fname,ios::app);
+    outf << "\n" << endl;
+    outf << "</gases>" << endl;
+    outf.close();
+
+    cmd = "scp /tmp/gases.rml gasUser@sultan.unizar.es:./gasFiles/";
+    a = system(  cmd.c_str() );
+
+    if( a != 0 )
+    {
+        error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
+        error << "-- Error : problem copying gases definitions to remote server" << endl;
+        return;
+    }
+
+    string _name = Replace( gasFilename, "(", "\\(", 0);
+    _name = Replace( _name, ")", "\\)", 0);
+    cmd = "scp " + _name + " gasUser@sultan.unizar.es:./gasFiles/";
+    a = system(  cmd.c_str() );
+
+    if( a != 0 )
+    {
+        error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
+        error << "-- Error : problem copying gas file to remote server" << endl;
+        return;
+    }
+
+    cmd = "rm " + _name;
+    a = system(  cmd.c_str() );
+
+    if( a != 0 )
+    {
+        error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
+        error << "-- Error : problem removing the locally generated gas file" << endl;
+        return;
+    }
+}
+
 /////////////////////////////////////////////
 /// \brief This method tries to find the gas filename given in the argument 
 ///
@@ -588,6 +665,8 @@ void TRestGas::InitFromRootFile()
 string TRestGas::FindGasFile( string name ) 
 {
     debug << "-- Debug : Entering ... TRestGas::FindGasFile( name=" << name << " )" << endl;
+
+    int errorStatus = 0;
 
     string absoluteName = "";
     // First, we try to download the gas file from fGasServer
@@ -615,40 +694,23 @@ string TRestGas::FindGasFile( string name )
             if( a == 1024 ) error << "-- Error : Network connection problem?" << endl;
             if( a == 2048 ) error << "-- Error : Gas file does NOT exist in database?" << endl;
             error << "-- Error : FileName: " << name << endl;
+
+            errorStatus = 1;
         }
     }
 
-    absoluteName = SearchFile( name );
-    if( absoluteName == "" )
-        absoluteName = name;
+    if ( errorStatus )
+    {
+        info << "-- Info : Trying to find the gasFile locally" << endl;
+        absoluteName = SearchFile( name );
+        if( absoluteName == "" )
+        {
+            warning << "-- Warning : No sucess" << endl;
+            absoluteName = name;
+        }
+    }
 
     return absoluteName;
-}
-
-void TRestGas::ConditionChanged() 
-{
-    debug << "-- Debug : Entering ... TRestGas::ConditionChanged( )" << endl;
-
-    if ( InitComplete )
-    {
-        string name = ConstructFilename();
-        fGasFilename = FindGasFile( name );
-
-        debug << "-- Debug : gasFilename = " << name << endl;
-
-        if (fGasFilename != "")
-        {
-            LoadGasFile();
-        }
-        else
-        {
-            warning << "TRestGas : gas file not found for the specified gas mixture!" << endl;
-            warning << "REST will perform single-E calculation in the next Get()" << endl;
-            warning << "To generate a gas file, turn on the parameter \"generate\"" << endl;
-            fGasFileLoaded = false;
-            fLast_E = numeric_limits<double>::quiet_NaN();
-        }
-    }
 }
 
 /////////////////////////////////////////////
@@ -748,6 +810,10 @@ void TRestGas::GenerateGasFile()
     cout << "Filename : " << fGasFilename << endl;
 
     fGasMedium->WriteGasFile( (string) (fGasOutputPath + "/" + fGasFilename) );
+
+    if( fGasServer != "none" )
+        UploadGasToServer( (string) (fGasOutputPath + "/" + fGasFilename) );
+
 #else
     cout << "This REST is not complied with garfield, it cannot save any gas file!" << endl;
 #endif
@@ -769,7 +835,6 @@ void TRestGas::SetPressure(Double_t pressure)
     fPressureInAtm = pressure;
 #if defined USE_Garfield
     fGasMedium->SetPressure(fPressureInAtm * 760.);
-    //ConditionChanged();
 #endif
 }
 
@@ -912,11 +977,13 @@ Double_t TRestGas::GetDriftVelocity(Double_t E)
     debug << "-- Debug : Entering ... TRestGas::GetDriftVelocity( E=" << E << " )" << endl;
 
 #if defined USE_Garfield
-    if (fGasFileLoaded == false && fLast_E != E)
+    if( fStatus != RESTGAS_GASFILE_LOADED )
     {
-        CalcGarField(E, E, 1);
-        fLast_E = E;
+        debug << "-- Error : " << __PRETTY_FUNCTION__ << endl;
+        debug << "-- Error : Gas file was not loaded!" << endl;
+        return 0;
     }
+
     Double_t vx, vy, vz;
     fGasMedium->ElectronVelocity(0., 0, -E, 0, 0, 0, vx, vy, vz);
     return vz * 1000.;
@@ -935,11 +1002,13 @@ Double_t TRestGas::GetLongitudinalDiffusion(Double_t E)
     debug << "-- Debug : Entering ... TRestGas::GetLongitudinalDiffusion( E=" << E << " )" << endl;
 
 #if defined USE_Garfield
-    if (fGasFileLoaded == false && fLast_E != E)
+    if( fStatus != RESTGAS_GASFILE_LOADED )
     {
-        CalcGarField(E, E, 1);
-        fLast_E = E;
+        debug << "-- Error : " << __PRETTY_FUNCTION__ << endl;
+        debug << "-- Error : Gas file was not loaded!" << endl;
+        return 0;
     }
+
     Double_t dl, dt;
     fGasMedium->ElectronDiffusion(0., 0, -E, 0, 0, 0, dl, dt);
     return dl;
@@ -958,11 +1027,13 @@ Double_t TRestGas::GetTransversalDiffusion(Double_t E)
     debug << "-- Debug : Entering ... TRestGas::GetTransversalDiffusion( E=" << E << " )" << endl;
 
 #if defined USE_Garfield
-    if (fGasFileLoaded == false && fLast_E != E)
+    if( fStatus != RESTGAS_GASFILE_LOADED )
     {
-        CalcGarField(E, E, 1);
-        fLast_E = E;
+        debug << "-- Error : " << __PRETTY_FUNCTION__ << endl;
+        debug << "-- Error : Gas file was not loaded!" << endl;
+        return 0;
     }
+
     Double_t dl, dt;
     fGasMedium->ElectronDiffusion(0., 0, -E, 0, 0, 0, dl, dt);
     return dt;
@@ -981,11 +1052,13 @@ Double_t TRestGas::GetTownsendCoefficient(Double_t E)
     debug << "-- Debug : Entering ... TRestGas::GetTownsendCoefficient( E=" << E << " )" << endl;
 
 #if defined USE_Garfield
-    if (fGasFileLoaded == false && fLast_E != E)
+    if( fStatus != RESTGAS_GASFILE_LOADED )
     {
-        CalcGarField(E, E, 1);
-        fLast_E = E;
+        debug << "-- Error : " << __PRETTY_FUNCTION__ << endl;
+        debug << "-- Error : Gas file was not loaded!" << endl;
+        return 0;
     }
+
     Double_t alpha;
     fGasMedium->ElectronTownsend(0., 0, -E, 0, 0, 0, alpha);
     return alpha;
@@ -1004,11 +1077,13 @@ Double_t TRestGas::GetAttachmentCoefficient(Double_t E)
     debug << "-- Debug : Entering ... TRestGas::GetAttachmentCoefficient( E=" << E << " )" << endl;
 
 #if defined USE_Garfield
-    if (fGasFileLoaded == false && fLast_E != E)
+    if( fStatus != RESTGAS_GASFILE_LOADED )
     {
-        CalcGarField(E, E, 1);
-        fLast_E = E;
+        debug << "-- Error : " << __PRETTY_FUNCTION__ << endl;
+        debug << "-- Error : Gas file was not loaded!" << endl;
+        return 0;
     }
+
     Double_t eta;
     fGasMedium->ElectronAttachment(0., 0, -E, 0, 0, 0, eta);
     return eta;
@@ -1032,7 +1107,13 @@ void TRestGas::PrintGasInfo()
     cout.setborder("||");
     cout.setorientation(1);
     cout.setlength(100);
-    cout << "Status : " << fStatus << endl;
+    cout << "Status : ";
+    if( fStatus == RESTGAS_INTITIALIZED ) cout << "Initialized";
+    if( fStatus == RESTGAS_CFG_LOADED ) cout << "Configuration loaded";
+    if( fStatus == RESTGAS_GASFILE_LOADED ) cout << "Gasfile loaded";
+    if( fStatus == RESTGAS_ERROR ) cout << "Error";
+    cout << endl;
+
     cout << "Gas filename : " << REST_StringHelper::RemoveAbsolutePath( (string) fGasFilename ) << endl;
     cout << "Pressure : " << fPressureInAtm << " atm" << endl;
     cout << "Temperature : " << fTemperatureInK << " K" << endl;
@@ -1052,7 +1133,7 @@ Int_t TRestGas::Write(const char *name, Int_t option, Int_t bufsize)
 {
     debug << "-- Debug : Entering ... TRestGas::Write( name=" << name << " option=" << option << " bufsize=" << bufsize << " )" << endl;
 
-    if (fGasFileContent == "" && fGasFileLoaded) {
+    if (fGasFileContent == "" && GasFileLoaded() ) {
         ifstream infile;
         infile.open(fGasFilename);
         if (!infile)
