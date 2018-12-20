@@ -228,7 +228,7 @@ After the merge-to-master is pushed to gitlab, we will:
 
 1. increase the version/tag to e.g. v2.2.2,
 2. update TRestVersion.h in master branch,
-3. remove the source branch,
+3. remove the development branch, and create a new one,
 4. create a release note for the new version
 5. send a mail to rest-dev@cern.ch mail list to inform the update.
 
