@@ -622,6 +622,7 @@ void TRestGas::UploadGasToServer( string gasFilename )
     {
         error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
         error << "-- Error : problem copying gases definitions to remote server" << endl;
+        error << "-- Error : Please report this problem at http://gifna.unizar.es/rest-forum/" << endl;
         return;
     }
 
@@ -634,6 +635,7 @@ void TRestGas::UploadGasToServer( string gasFilename )
     {
         error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
         error << "-- Error : problem copying gas file to remote server" << endl;
+        error << "-- Error : Please report this problem at http://gifna.unizar.es/rest-forum/" << endl;
         return;
     }
 
@@ -644,8 +646,11 @@ void TRestGas::UploadGasToServer( string gasFilename )
     {
         error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
         error << "-- Error : problem removing the locally generated gas file" << endl;
+        error << "-- Error : Please report this problem at http://gifna.unizar.es/rest-forum/" << endl;
         return;
     }
+
+    success << "-- Sucess : Gasfile server database was updated sucessfully!!" << endl;
 }
 
 /////////////////////////////////////////////
