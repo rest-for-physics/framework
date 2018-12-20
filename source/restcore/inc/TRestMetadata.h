@@ -184,6 +184,9 @@ public:
 	/// Print the config xml section stored in the class
 	void PrintConfigBuffer();
 
+    /// Writes the config buffer to a file in append mode
+    void WriteConfigBuffer( string fname );
+
 	/// helps to pause the program, printing a message before pausing. 
 	/// ROOT GUI won't be jammed during this pause
 	int GetChar(string hint="Press a KEY to continue ...");

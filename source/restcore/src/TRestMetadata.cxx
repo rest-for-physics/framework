@@ -1956,8 +1956,22 @@ void TRestMetadata::PrintConfigBuffer()
 	{
 		cout << GetSectionContent() << endl;
 	}
+}
 
+void TRestMetadata::WriteConfigBuffer( string fname )
+{
+    if( fElement != NULL )
+    {
+        FILE *f = fopen( fname.c_str(), "at" );
 
+        fElement->Print( f, 0 );
+
+        fclose( f );
+
+        return;
+    }
+
+    error << "-- Error : Something missing here. Call the police" << endl;
 }
 
 int TRestMetadata::GetChar(string hint) 
