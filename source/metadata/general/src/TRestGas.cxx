@@ -438,6 +438,49 @@ void TRestGas::AddGasComponent(string gasName, Double_t fraction)
     fNofGases++;
 }
 
+// This was just a test to try to Get the calculated W for the gas definition.
+// However, I tested with Xe+TMA and I got an error message that TMA photoncrossection database is not available
+void TRestGas::GetGasWorkFunction( )
+{
+#if defined USE_Garfield
+    essential << __PRETTY_FUNCTION__ << endl;
+    essential << "This method has never been validated to operate properly" << endl;
+    essential << "If we manage to make it work we could use this method to obtain the calculated W of the gas" << endl;
+
+    // Gas gap [cm].
+    const double width = 1.;
+    SolidBox* box = new SolidBox(width / 2., 0., 0., width / 2., 10., 10.);
+    GeometrySimple* geo = new GeometrySimple();
+    geo->AddSolid(box, fGasMedium);
+
+    ComponentConstant* cmp = new ComponentConstant();
+    cmp->SetGeometry(geo);
+    cmp->SetElectricField(100., 0., 0.);
+
+    Sensor* sensor = new Sensor();
+    sensor->AddComponent(cmp);
+
+    TrackHeed* heed = new TrackHeed();
+    heed->SetSensor(sensor);
+    // Set the particle type.
+    heed->SetParticle("pi");
+    // Set the particle momentum (in eV/c).
+    heed->SetMomentum(120.e9);
+
+    // Switch on debugging to print out some information (stopping power, W value, ...)
+    heed->EnableDebugging();
+    // Initial position
+    double x0 = 0., y0 = 0., z0 = 0., t0 = 0.;
+    // Direction of the track (perpendicular incidence)
+    double dx0 = 1., dy0 = 0., dz0 = 0.;
+    heed->NewTrack(x0, y0, z0, t0, dx0, dy0, dz0);
+    cout << "W : " << heed->GetW() << endl;
+#else
+    cout << "This REST is not complied with garfield, it cannot calculate garfield!" << endl;
+#endif
+
+}
+
 /////////////////////////////////////////////
 /// \brief Loads the gas parameters that define the gas calculation 
 /// and properties.

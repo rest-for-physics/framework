@@ -42,6 +42,11 @@
 //#define USE_Garfield
 #if defined USE_Garfield
 #include "MediumMagboltz.hh"
+#include "SolidBox.hh"
+#include "GeometrySimple.hh"
+#include "ComponentConstant.hh"
+#include "Sensor.hh"
+#include "TrackHeed.hh"
 using namespace Garfield;
 #else
 class MediumMagboltz;
@@ -152,6 +157,8 @@ class TRestGas : public TRestMetadata
         Double_t GetTransversalDiffusion( Double_t E );
         Double_t GetTownsendCoefficient( Double_t E );
         Double_t GetAttachmentCoefficient( Double_t E );
+
+        void GetGasWorkFunction( );
 
         /// Returns the gas fraction in volume for component *n*.
         Double_t GetGasComponentFraction( Int_t n ) 
