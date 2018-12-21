@@ -640,7 +640,7 @@ void TRestGas::UploadGasToServer( string gasFilename )
     // We remove the last line. I.e. the enclosing </gases> in the original file
 #ifdef __APPLE__
     cmd = "sed -i '' -e '$ d' " + fname; 
-#elif
+#else
     cmd = "sed -i '$ d' " + fname;
 #endif
 
