@@ -609,6 +609,16 @@ void TRestGas::InitFromRootFile()
 
 void TRestGas::UploadGasToServer( string gasFilename )
 {
+    if( fMaxElectronEnergy < 400 || fNCollisions < 10 || fEnodes < 20 )
+    {
+        warning << "-- Warning : The gas file does not fulfill the requirements for being uploaded to the gasServer" << endl;
+        warning << "-- Warning : maxElectronEnergy >= 400. Number of collisions >= 10. Number of E nodes >= 20." << endl;
+        warning << "-- Warning : The generated file will NOT be uploaded to the server but preserved locally." << endl;
+        return;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // We add the gas definition we used to generate the gas file and prepare it to upload/update in the gasServer
     string fname = "/tmp/gases.rml";
     // We download (probably again) the original version
     string cmd = "wget --no-check-certificate " + (string) fGasServer + "/gases.rml -O " + fname + " -q";
@@ -627,9 +637,9 @@ void TRestGas::UploadGasToServer( string gasFilename )
         return;
     }
 
+    // We remove the last line. I.e. the enclosing </gases> in the original file
 #ifdef __APPLE__
     cmd = "sed -i '' -e '$ d' " + fname; 
-    //   this->WriteConfigBuffer( fname );
 #elif
     cmd = "sed -i '$ d' " + fname;
 #endif
@@ -643,6 +653,8 @@ void TRestGas::UploadGasToServer( string gasFilename )
         return;
     }
 
+    // We add some header before the gas definition. We might add also date an other information essential to
+    // identify the gasFile submission
     getenv("USER");
 
     ofstream outf;
@@ -651,13 +663,17 @@ void TRestGas::UploadGasToServer( string gasFilename )
     outf << "//------- User : " << getenv("USER") << " ---- REST version : " << REST_RELEASE << " ---------------------------" << endl;
     outf.close();
 
+    // We write the TRestGas section
     this->WriteConfigBuffer( fname );
 
+    // We re-write the enclosing </gases> tag
     outf.open(fname,ios::app);
     outf << "\n" << endl;
     outf << "</gases>" << endl;
     outf.close();
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // We transfer the new gas definitions to the gasServer
     cmd = "scp /tmp/gases.rml gasUser@sultan.unizar.es:./gasFiles/";
     a = system(  cmd.c_str() );
 
@@ -669,6 +685,7 @@ void TRestGas::UploadGasToServer( string gasFilename )
         return;
     }
 
+    // We transfer the gasFile to the gasServer
     string _name = Replace( gasFilename, "(", "\\(", 0);
     _name = Replace( _name, ")", "\\)", 0);
     cmd = "scp " + _name + " gasUser@sultan.unizar.es:./gasFiles/";
@@ -682,6 +699,7 @@ void TRestGas::UploadGasToServer( string gasFilename )
         return;
     }
 
+    // We remove the local file (afterwards, the remote copy will be used)
     cmd = "rm " + _name;
     a = system(  cmd.c_str() );
 
