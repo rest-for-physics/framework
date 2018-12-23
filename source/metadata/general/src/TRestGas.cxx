@@ -655,8 +655,6 @@ void TRestGas::UploadGasToServer( string gasFilename )
 
     // We add some header before the gas definition. We might add also date an other information essential to
     // identify the gasFile submission
-    getenv("USER");
-
     ofstream outf;
     outf.open(fname,ios::app);
     outf << endl;
@@ -740,7 +738,8 @@ string TRestGas::FindGasFile( string name )
     {
         string _name = Replace( name, "(", "\\(", 0);
         _name = Replace( _name, ")", "\\)", 0);
-        string cmd = "wget --no-check-certificate " + (string) fGasServer + "/" + _name + " -O /tmp/restGasDownload.gas -q";
+        string cmd = "wget --no-check-certificate " + (string) fGasServer + "/" + _name + " -O /tmp/restGas_" + (string) getenv("USER") + "_Download.gas -q";
+
 
         debug << "-- Debug : Launching ... " << cmd << endl;
 
@@ -752,7 +751,7 @@ string TRestGas::FindGasFile( string name )
         if ( a == 0 )
         {
             success << "-- Success : download OK!" << endl;
-            absoluteName = "/tmp/restGasDownload.gas";
+            absoluteName = "/tmp/restGas_" + (string) getenv("USER") + "_Download.gas";
         }
         else 
         {
