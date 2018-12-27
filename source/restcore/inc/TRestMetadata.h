@@ -122,6 +122,8 @@ protected:
 	void ClearEnv() { fElementEnv.clear(); }
 	string SearchFile(string filename);
 
+    std::string DownloadHttpFile( string remoteFile );
+
 	//////////////////////////////////////////////////
 	///Data members
 	///NOTE!! In root6 the "#ifndef __CINT__" structure is not helpful any more!

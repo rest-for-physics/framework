@@ -152,7 +152,7 @@
 ///
 /// For example, when received an xml section declared "TRestRun", the host "TRestManager" will pass 
 /// this section (together with its global section) to its resident "TRestRun". The TRestRun class can 
-/// therefor perform a startup using these sections.
+/// therefore perform a startup using these sections.
 ///
 /// \code
 ///
@@ -874,9 +874,16 @@ void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 /// TRestRun::ImportMetadata()
 void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 {
+    debug << "-- Debug : Entering ... " << __PRETTY_FUNCTION__ << endl;
 	ReplaceElementAttributes(e);
-	const char* _filename = e->Attribute("file");
-	if (_filename == NULL)return;
+	const char* _filetmp = e->Attribute("file");
+	if (_filetmp == NULL)return;
+    string _filename = _filetmp;
+
+    debug << "-- Debug : filename to expand : " << _filename << endl;
+
+    if( REST_StringHelper::isURL( _filename ) )
+            _filename = DownloadHttpFile( _filename );
 
 	string filename = SearchFile(_filename);
 	if (filename == "") {
@@ -1067,6 +1074,40 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 		debug << nattr << " attributes and " << nele << " xml elements added by inclusion" << endl;
 		debug << "----end of expansion file----" << endl;
 	}
+}
+
+string TRestMetadata::DownloadHttpFile( string remoteFile )
+{
+    debug << "-- Debug : Entering ... " << __PRETTY_FUNCTION__ << endl;
+
+    debug << "-- Debug : Complete remote filename : " << remoteFile << endl;
+
+    TString remoteFilename = REST_StringHelper::RemoveAbsolutePath( remoteFile );
+
+    debug << "-- Debug : Reduced remote filename : " << remoteFilename << endl;
+
+    string cmd = "wget --no-check-certificate " + remoteFile + " -O /tmp/REST_" + getenv( "USER" ) + "_remote.rml -q";
+
+    info << "-- Info : Trying to download remote file from : " << remoteFile << endl;
+    int a = system( cmd.c_str() );
+
+    if ( a == 0 )
+    {
+        success << "-- Success : download OK!" << endl;
+
+        return (string) ("/tmp/REST_" + (string) getenv("USER") + "_remote.rml");
+    }
+    else 
+    {
+
+        error << "-- Error : download failed!" << endl;
+        if( a == 1024 ) error << "-- Error : Network connection problem?" << endl;
+        if( a == 2048 ) error << "-- Error : Gas definition does NOT exist in database?" << endl;
+        info << "-- Info : Please specify a local config file" << endl;
+        exit(1);
+    }
+
+    return "";
 }
 
 ///////////////////////////////////////////////
