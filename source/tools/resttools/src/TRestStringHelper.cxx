@@ -419,6 +419,17 @@ bool REST_StringHelper::isRootFile(const std::string& filename)
 }
 
 ///////////////////////////////////////////////
+/// \brief Returns true if **filename** is an *http* address.
+///
+bool REST_StringHelper::isURL(const std::string& filename)
+{
+	if( filename.find("http") == 0 )
+        return true;
+
+	return false;
+}
+
+///////////////////////////////////////////////
 /// \brief Returns true if the **path** given by argument is writable 
 ///
 bool REST_StringHelper::isPathWritable(const std::string& path)

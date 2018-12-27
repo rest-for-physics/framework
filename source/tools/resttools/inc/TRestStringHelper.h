@@ -47,6 +47,7 @@ namespace REST_StringHelper
 	Int_t FindNthStringPosition(const string& in, size_t pos, const string& strToFind, size_t nth);
 	bool fileExists(const std::string& filename);
 	bool isRootFile(const std::string& filename);
+	bool isURL(const std::string& filename);
 	bool isPathWritable(const std::string& path);
 	bool isAbsolutePath(const std::string& path);
 	string ToAbsoluteName(string filename);
