@@ -1076,6 +1076,12 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 	}
 }
 
+///////////////////////////////////////////////
+/// \brief It will download the remote file provided in the argument using wget.
+/// 
+/// If it succeeds to download the file, this method will return the location of
+/// the local temporary file downloaded. If it fails, the method will invoke an 
+/// exit call and print out some error.
 string TRestMetadata::DownloadHttpFile( string remoteFile )
 {
     debug << "-- Debug : Entering ... " << __PRETTY_FUNCTION__ << endl;
