@@ -412,6 +412,10 @@ using namespace std;
 using namespace REST_Units;
 
 
+// We introduce the gases file here.
+// But, should we have a corner somewhere to define hard-coded globals?
+const char *gasesFile = "https://sultan.unizar.es/gasFiles/gases.rml";
+
 
 map<string, string> TRestMetadata_UpdatedConfigFile;
 
@@ -745,6 +749,8 @@ void TRestMetadata::SetEnv(TiXmlElement* e, bool updateexisting)
 /// Before expansion, ReplaceElementAttributes() will first be called.
 void TRestMetadata::ExpandElement(TiXmlElement*e, bool recursive)
 {
+    debug << "-- Debug : Entering ... " << __PRETTY_FUNCTION__ << endl;
+
 	ReplaceElementAttributes(e);
 	if ((string)e->Value() == "for") 
 	{
@@ -875,10 +881,21 @@ void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 {
     debug << "-- Debug : Entering ... " << __PRETTY_FUNCTION__ << endl;
+
 	ReplaceElementAttributes(e);
 	const char* _filetmp = e->Attribute("file");
+
+	if (_filetmp == NULL && (string) e->Value() == "TRestGas" ) 
+        _filetmp = "server";
+
 	if (_filetmp == NULL)return;
     string _filename = _filetmp;
+
+    // For the moment we only expect to have the gasFiles localed remotely.
+    // I keep "server" keyword to be coherent with the one used in TRestGas constructor
+    if( _filename == "server" && (string) e->Value() == "TRestGas" )
+        _filename = (string) gasesFile;
+
 
     debug << "-- Debug : filename to expand : " << _filename << endl;
 
