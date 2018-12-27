@@ -297,7 +297,7 @@ TRestGas::~TRestGas()
 ///
 void TRestGas::Initialize()
 {
-    debug << "-- Debug : Entering ... Initialize()." << endl;
+    debug << "-- Debug : TRestGas. Entering ... Initialize()." << endl;
 
     SetSectionName(this->ClassName());
 
@@ -400,7 +400,11 @@ void TRestGas::CalcGarField(double Emin, double Emax, int n)
     if (fNofGases > 3) { cout << "REST ERROR : Number of gas components higher than 3 not allowed" << endl; fStatus = RESTGAS_ERROR; return; }
 
     fGasMedium->SetTemperature(fTemperatureInK);
-    fGasMedium->SetPressure(fPressureInAtm * 760.);
+
+    if( fPressureInAtm != 1 )
+        warning << "-- Warning : The gas will be generated for gas pressure = 1atm" << endl;
+
+    fGasMedium->SetPressure( 760.);
 
     fGasMedium->SetFieldGrid(Emin, Emax, n, n > 1);
 
@@ -415,6 +419,11 @@ void TRestGas::CalcGarField(double Emin, double Emax, int n)
         fGasMedium->DisableDebugging();
 
     fGasMedium->GenerateGasTable(fNCollisions, true);
+    if( fPressureInAtm != 1 )
+    {
+        warning << "-- Warning : Restoring the gas pressure" << endl;
+        fGasMedium->SetPressure( fPressureInAtm * 760. );
+    }
 #else
     cout << "This REST is not complied with garfield, it cannot calculate garfield!" << endl;
 #endif
@@ -819,12 +828,16 @@ string TRestGas::ConstructFilename()
         name += (TString)tmpStr;
     }
 
+    // The filename is constructed always at 1 atm pressure.
+    // We keep E_vs_P to remind the field calculation range will 
+    // depend on pressure.
+
     name += "-E_vs_P_";
-    sprintf(tmpStr, "%03.1lf", fEmin / fPressureInAtm);
+    sprintf(tmpStr, "%03.1lf", fEmin);
     name += (TString)tmpStr;
 
     name += "_";
-    sprintf(tmpStr, "%03.1lf", fEmax / fPressureInAtm);
+    sprintf(tmpStr, "%03.1lf", fEmax);
     name += (TString)tmpStr;
 
     name += "_nodes_";
