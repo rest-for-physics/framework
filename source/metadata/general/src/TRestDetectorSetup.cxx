@@ -79,9 +79,6 @@ void TRestDetectorSetup::InitFromConfigFile()
 		TRestRun*r = fHostmgr->GetRunInfo();
 		InitFromFileName(r->GetInputFileName(0));
 	}
-	if (fVerboseLevel >= REST_Info) {
-		PrintMetadata();
-	}
 	// TOBE implemented if needed
 }
 
