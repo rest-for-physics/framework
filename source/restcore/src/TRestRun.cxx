@@ -315,9 +315,9 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e)
 			return -1;
 		}
 		TRestMetadata*meta = (TRestMetadata*)c->New();
-		meta->SetHostmgr(NULL);
+		meta->SetHostmgr(fHostmgr);
+		AddMetadata(meta);
 		meta->LoadConfigFromFile(e, fElementGlobal);
-		fMetadataInfo.push_back(meta);
 
 		return 0;
 	}
@@ -1182,8 +1182,8 @@ void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t s
 	if (store) meta->Store();
 	else meta->DoNotStore();
 
+	AddMetadata(meta);
 	meta->InitFromRootFile();
-	this->AddMetadata(meta);
 	f->Close();
 	delete f;
 }

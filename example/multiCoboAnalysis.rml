@@ -22,6 +22,8 @@
 
     /// from the previously saved metadata file("restManager --c saveMetadataFile.rml --o meta.root")
     <addMetadata name="PandaReadout_MxM" file="meta.root"/>
+    /// we can alternatively use "addMetadata name="Xenon-TMA 1Pct 10-10E3Vcm" file="meta.root"
+    <TRestGas name="Xenon-TMA 1Pct 10-10E3Vcm" pressure="10" file="server"/>
   </TRestRun>
 
   <TRestProcessRunner name="Processor" verboseLevel="info">
@@ -45,10 +47,10 @@
       <observable name="FirstY" value="ON" />
       <observable name="CalibratedIntegral" value="ON" />
     </addProcess>
-    <addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="OFF" file="processes.rml"/>
+    <addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="ON" file="processes.rml"/>
     <addProcess type="TRestHitsAnalysisProcess" name="hitsAna" value="OFF" file="processes.rml" />
-    <addProcess type="TRestHitsToTrackProcess" name="hitsToTrack" value="OFF"/>
-    <addProcess type="TRestTrackAnalysisProcess" name="tckAna" value="OFF" />
+    <addProcess type="TRestHitsToTrackProcess" name="hitsToTrack" value="ON"/>
+    <addProcess type="TRestTrackAnalysisProcess" name="tckAna" value="ON" />
 
   </TRestProcessRunner>
 

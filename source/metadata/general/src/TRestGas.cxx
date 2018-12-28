@@ -585,6 +585,7 @@ void TRestGas::InitFromConfigFile()
     else
     {
         LoadGasFile();
+		fGasMedium->SetPressure(fPressureInAtm);
     }
 
     if (fGasMedium && fGasMedium->GetW() == 0.) fGasMedium->SetW(fW);  // as it is probably not computed by Magboltz
@@ -649,7 +650,7 @@ void TRestGas::UploadGasToServer( string gasFilename )
     // We remove the last line. I.e. the enclosing </gases> in the original file
 #ifdef __APPLE__
     cmd = "sed -i '' -e '$ d' " + fname; 
-#elif
+#else
     cmd = "sed -i '$ d' " + fname;
 #endif
 
