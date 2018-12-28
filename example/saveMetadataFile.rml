@@ -17,15 +17,20 @@ Finally we call the method TRestRun::FormOutputFile() through TRestManager to sa
   <globals>
     <searchPath value="${REST_INPUTDATA}/definitions/"/>
     <searchPath value="${REST_INPUTDATA}/gasFiles/"/>
-    <variable name="PITCH" value="3" overwrite="false" /><!-- The pitch value in mm -->
-    <variable name="MODULES" value="10" overwrite="false" /><!-- The number of modules per axis MxM -->
-    <variable name="CHANNELS" value="64" overwrite="false" /><!-- The number of pixels per side PxP -->
+    <variable name="PITCH" value="3" overwrite="false" />
+    <!-- The pitch value in mm -->
+    <variable name="MODULES" value="10" overwrite="false" />
+    <!-- The number of modules per axis MxM -->
+    <variable name="CHANNELS" value="64" overwrite="false" />
+    <!-- The number of pixels per side PxP -->
   </globals>
 
   <TRestRun name="readoutrun">
     <TRestGas name="Xenon 10-10E3Vcm" pressure="10" file="server"/>
     <TRestGas name="Xenon-TMA 1Pct 10-10E3Vcm" pressure="10" file="server"/>
-    
+
+    <TRestReadout name="Panda-CDR" title="PANDA CDR" file="readouts.rml" />
+
     <TRestReadout name="PandaReadout_MxM" title="PANDA readout 7module" >
       <parameter name="verboseLevel" value="info"/>
       <parameter name="mappingNodes" value="0" />
@@ -34,7 +39,7 @@ Finally we call the method TRestRun::FormOutputFile() through TRestManager to sa
       <myParameter name="pitch" value="${PITCH}" />
       <myParameter name="pixelSize" value="${PITCH}/sqrt(2.)" />
       <myParameter name="myDecodingFile" value="${REST_INPUTDATA}/decoding/MM_On_AGET0-1.dec"/>
-      
+
       <readoutModule name="module" file="microbulkModule.rml"/>
 
       <readoutPlane position="(0,0,990)mm" planeVector="(0,0,-1)mm"
@@ -54,7 +59,7 @@ Finally we call the method TRestRun::FormOutputFile() through TRestManager to sa
       </readoutPlane>
     </TRestReadout>
   </TRestRun>
-  
+
   <addTask command="readoutrun->FormOutputFile()" value="ON"/>
 
 </TRestManager>
