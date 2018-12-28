@@ -5,7 +5,7 @@ file known as metadata file. The file can be used in "addMetadata" section in TR
 
 We first set "searchPath" to tell TRestMetadata where to find the include file. Then we instantiate 
 a TRestRun object by adding a section in TRestMenager section. TRestRun will hold and manage our metadata.
-Inside TRestRun section, we define two TRestGas objects by using the pre-defined rml sections from gases.rml. 
+Inside TRestRun section, we define two TRestGas objects from online database(https://sultan.unizar.es/gasFiles/). 
 We also construct an TRestReadout object by hand. In the construction we first define a readout 
 module known as MicroMegas(module). This is from a pre-defined section in readouts.rml. Then we define a 
 readout plane and add the modules piece by piece.
@@ -23,8 +23,8 @@ Finally we call the method TRestRun::FormOutputFile() through TRestManager to sa
   </globals>
 
   <TRestRun name="readoutrun">
-    <TRestGas name="Xenon 10-10E3Vcm" file="gases.rml"/>
-    <TRestGas name="Xenon-TMA 1Pct 10-10E3Vcm" file="gases.rml"/>
+    <TRestGas name="Xenon 10-10E3Vcm" pressure="10" file="server"/>
+    <TRestGas name="Xenon-TMA 1Pct 10-10E3Vcm" pressure="10" file="server"/>
     
     <TRestReadout name="PandaReadout_MxM" title="PANDA readout 7module" >
       <parameter name="verboseLevel" value="info"/>
