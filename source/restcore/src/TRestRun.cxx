@@ -929,7 +929,7 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
 	//save metadata objects in file
 	this->Write(0, kOverwrite);
 	for (int i = 0; i < fMetadataInfo.size(); i++) {
-		fMetadataInfo[i]->Write(0, kOverwrite);
+		fMetadataInfo[i]->Write( fMetadataInfo[i]->GetName(), kOverwrite );
 	}
 	for (int i = 0; i < RESTRUN_INPUTMETADATA.size(); i++) {
 		RESTRUN_INPUTMETADATA[i]->Write(("Historic_" + (string)RESTRUN_INPUTMETADATA[i]->ClassName()).c_str()
