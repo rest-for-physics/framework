@@ -1,8 +1,22 @@
 image: nkx1231/root6-geant4-garfield:0.1
 
-before_script:
-  - apt-get install -y libglu1-mesa
-  - . /root/installgarfield.sh
+stages:
+  - prebuild
+  - build
+  - testMetarestG4
+  - testProcess
+
+cache:
+  paths:
+    - /usr
+    - /root/rest
+
+
+prebuild:
+  type: prebuild
+  script:
+    - apt-get install -y libglu1-mesa
+    - . /root/installgarfield.sh
 
 build:
   type: build
@@ -14,3 +28,21 @@ build:
     - mkdir /tmp/restg4 && cd /tmp/restg4
     - cmake ${CI_PROJECT_DIR}/packages/restG4
     - make install
+
+testrestG4:
+  type: testMetarestG4
+  script:
+    - cd /root/rest/example/restG4template
+    - restG4 restG4.rml
+
+testMeta:
+  type: testMetarestG4
+  script:
+    - cd /root/rest/example
+    - restManager restManager --c saveMetadataFile.rml --o meta.root
+
+testProcess:
+  type: testProcess
+  script:
+    - cd /root/rest/example
+    - restManager --c electronicsSimu.rml restG4template/example_output.root --o abc.root
