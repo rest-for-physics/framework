@@ -5,11 +5,7 @@ stages:
   - testMetarestG4
   - testProcess
 
-cache:
-  key: "$CI_JOB_NAME"
-  paths:
-    - /builds/pandax-iii/REST_v2/install
-  group: sharedcache
+
 
 before_script:
   - . /root/installgarfield.sh
@@ -24,13 +20,19 @@ build:
     - mkdir /tmp/restg4 && cd /tmp/restg4
     - cmake ${CI_PROJECT_DIR}/packages/restG4
     - make install
-
+  artifacts:
+    paths:
+      - /builds/pandax-iii/REST_v2/install
+      
 testrestG4:
   type: testMetarestG4
   script:
     - . /builds/pandax-iii/REST_v2/install/thisREST.sh
     - cd /builds/pandax-iii/REST_v2/install/example/restG4template
     - restG4 restG4.rml
+  artifacts:
+    paths:
+      - /builds/pandax-iii/REST_v2/install
 
 testMeta:
   type: testMetarestG4
@@ -38,10 +40,16 @@ testMeta:
     - . /builds/pandax-iii/REST_v2/install/thisREST.sh
     - cd /builds/pandax-iii/REST_v2/install/example
     - restManager restManager --c saveMetadataFile.rml --o meta.root
-
+  artifacts:
+    paths:
+      - /builds/pandax-iii/REST_v2/install
+      
 testProcess:
   type: testProcess
   script:
     - . /builds/pandax-iii/REST_v2/install/thisREST.sh
     - cd /builds/pandax-iii/REST_v2/install/example
     - restManager --c electronicsSimu.rml restG4template/example_output.root --o abc.root
+  artifacts:
+    paths:
+      - /builds/pandax-iii/REST_v2/install
