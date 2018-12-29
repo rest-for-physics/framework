@@ -6,6 +6,7 @@ stages:
   - testProcess
 
 cache:
+  key: "$CI_JOB_NAME"
   paths:
     - /builds/pandax-iii/REST_v2/install
 
