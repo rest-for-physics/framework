@@ -1,21 +1,19 @@
 image: nkx1231/root6-geant4-garfield:0.1
 
 stages:
-  - prebuild
   - build
   - testMetarestG4
   - testProcess
 
 cache:
   paths:
-    - /usr
-    - /root/rest
+    - /usr/local/garfield/
+    - /root/rest/
 
 
 build:
   type: build
   script:
-    - apt-get install -y libglu1-mesa
     - . /root/installgarfield.sh
     - mkdir /tmp/rest && cd /tmp/rest
     - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DINSTALL_PREFIX=/root/rest
