@@ -8,6 +8,7 @@ stages:
 
 
 before_script:
+  - export USER="test"
   - . /root/installgarfield.sh
 
 build:
@@ -39,7 +40,7 @@ testMeta:
   script:
     - . /builds/pandax-iii/REST_v2/install/thisREST.sh
     - cd /builds/pandax-iii/REST_v2/install/example
-    - restManager --c saveMetadataFile.rml --o meta.root
+    - restManager --c saveMetadataFile.rml --o meta.root --v 3
   artifacts:
     paths:
       - /builds/pandax-iii/REST_v2/install
@@ -47,7 +48,6 @@ testMeta:
 testProcess:
   type: testProcess
   script:
-    - export USER="test"
     - . /builds/pandax-iii/REST_v2/install/thisREST.sh
     - cd /builds/pandax-iii/REST_v2/install/example
     - restManager --c electronicsSimu.rml restG4template/example_output.root --o abc.root
