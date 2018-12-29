@@ -630,7 +630,7 @@ Int_t TRestMetadata::LoadSectionMetadata()
 	//then do this replacement for all child elements and expand for/include definitions
 	ExpandElement(fElement);
 
-	configBuffer = ElementToString(fElement);
+	
 
 	//finally fill the general metadata info: name, title, fstore
 	this->SetName(GetParameter("name", "defaultName").c_str());
@@ -2168,14 +2168,10 @@ TString TRestMetadata::GetSearchPath() {
 	return ReplaceEnvironmentalVariables(result);
 }
 
-Int_t TRestMetadata::Write(const char *name, Int_t option, Int_t bufsize) const {
-	if (fStore) {
-		return TNamed::Write(name, option, bufsize);
-	}
-	return -1;
-}
+
 Int_t TRestMetadata::Write(const char *name, Int_t option, Int_t bufsize) {
 	if (fStore) {
+		configBuffer = ElementToString(fElement);
 		return TNamed::Write(name, option, bufsize);
 	}
 	return -1;
