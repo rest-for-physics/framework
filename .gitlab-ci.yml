@@ -4,6 +4,7 @@ stages:
   - build
   - testMetarestG4
   - testProcess
+  - deploy
 
 before_script:
   - export USER="test"
@@ -21,6 +22,7 @@ build:
   artifacts:
     paths:
       - /builds/pandax-iii/REST_v2/install
+    expire_in: 1 week
       
 testrestG4:
   type: testMetarestG4
@@ -31,6 +33,7 @@ testrestG4:
   artifacts:
     paths:
       - /builds/pandax-iii/REST_v2/install
+    expire_in: 1 day
 
 testMeta:
   type: testMetarestG4
@@ -41,6 +44,7 @@ testMeta:
   artifacts:
     paths:
       - /builds/pandax-iii/REST_v2/install
+    expire_in: 1 day
       
 testProcess:
   type: testProcess
@@ -48,6 +52,18 @@ testProcess:
     - . /builds/pandax-iii/REST_v2/install/thisREST.sh
     - cd /builds/pandax-iii/REST_v2/install/example
     - restManager --c electronicsSimu.rml restG4template/example_output.root --o abc.root
+  artifacts:
+    paths:
+      - /builds/pandax-iii/REST_v2/install
+    expire_in: 1 day
+
+deploy:
+  type: deploy
+  only:
+    - tags
+  script:
+    - . /builds/pandax-iii/REST_v2/install/thisREST.sh
+    - rest-config --welcome
   artifacts:
     paths:
       - /builds/pandax-iii/REST_v2/install
