@@ -1,15 +1,12 @@
-image: nkx1231/root6-geant4-garfield:0.1
+image: nkx1231/root6-geant4-garfield:0.2
 
 stages:
   - build
   - testMetarestG4
   - testProcess
 
-
-
 before_script:
   - export USER="test"
-  - . /root/installgarfield.sh
 
 build:
   type: build
