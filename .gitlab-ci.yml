@@ -51,7 +51,7 @@ testProcess:
   script:
     - . /builds/pandax-iii/REST_v2/install/thisREST.sh
     - cd /builds/pandax-iii/REST_v2/install/example
-    - restManager --c electronicsSimu.rml restG4template/example_output.root --o abc.root
+    - restManager --c electronicsSimu.rml --i restG4template/example_output.root --o abc.root
   artifacts:
     paths:
       - /builds/pandax-iii/REST_v2/install
