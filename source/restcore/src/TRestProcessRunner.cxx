@@ -369,7 +369,12 @@ void TRestProcessRunner::RunProcess()
 	if (tree != NULL) {
 		fEventTree = (TRestAnalysisTree*)tree->Clone();
 		fEventTree->SetName("EventTree");
-		fEventTree->SetTitle("EventTree");
+		string outputeventname;
+		if (fThreads[0]->GetOutputEvent() != NULL) {
+			outputeventname = fThreads[0]->GetOutputEvent()->ClassName();
+		}
+		
+		fEventTree->SetTitle((outputeventname +"Tree").c_str());
 		fEventTree->SetDirectory(fTempOutputDataFile);
 	}
 	else
