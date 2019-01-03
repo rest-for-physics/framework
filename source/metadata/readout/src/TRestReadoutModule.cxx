@@ -172,10 +172,10 @@ void TRestReadoutModule::DoReadoutMapping( Int_t nodes )
 
 	for( int i = 0; i < nodes; i++ )
 	{
+		printf("Completed : %.2lf %%\r", 100. * (i * (Double_t)nodes) / nodes / nodes);
+		fflush(stdout);
 		for( int j = 0; j < nodes; j++ )
 		{
-			printf("Completed : %.2lf %%\r", 100. * (i * (Double_t) nodes + j) / nodes/nodes );
-			fflush(stdout);
 			Double_t x = fMapping.GetX( i );
 			Double_t y = fMapping.GetY( j );
 			Double_t xAbs = TransformToPhysicalCoordinates( x, y ).X();
