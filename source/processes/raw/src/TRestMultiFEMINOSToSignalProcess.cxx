@@ -184,12 +184,15 @@ void TRestMultiFEMINOSToSignalProcess::InitProcess()
     unsigned short sh;
     unsigned short al;
 
+	totalBytesReaded = 0;
+
     // Read prefix
     if (fread(&sh, sizeof(unsigned short), 1, fInputBinFile ) != 1)
     {
         printf("Error: could not read first prefix.\n");
         exit(1);
     }
+	totalBytesReaded += sizeof(unsigned short);
 
     //f->tot_file_rd+= sizeof(unsigned short);
 
@@ -205,6 +208,7 @@ void TRestMultiFEMINOSToSignalProcess::InitProcess()
     {
         int tt;
         fread( &tt, sizeof( int ), 1, fInputBinFile );
+		totalBytesReaded += sizeof(int);
 
         tStart = tt;
         printf( "Timestamp : %d - %lf\n", tt, tStart );
@@ -219,6 +223,7 @@ void TRestMultiFEMINOSToSignalProcess::InitProcess()
             printf("Error: could not read %d characters.\n", al);
             exit(1);
         }
+		totalBytesReaded += sizeof(char);
 
         // Show run string information if desired
         printf("Run string: %s\n", &(run_str[0]));
@@ -253,6 +258,7 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput 
                 fOutputEvent = NULL;
                 return NULL;
             }
+			totalBytesReaded += sizeof(unsigned short);
 
             if ((*sh & PFX_0_BIT_CONTENT_MASK) == PFX_START_OF_BUILT_EVENT)
             {
@@ -278,6 +284,7 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput 
                     printf("Error: could not read two short words.\n");
                     exit(1);
                 }
+				totalBytesReaded += sizeof(unsigned short)*2;
 
                 // Get the size of the event in bytes
                 fr_sz = (int) (((*(sh+2)) << 16) | (*(sh+1)));
@@ -301,6 +308,7 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput 
                     printf("Error: could not read short word.\n");
                     exit(1);
                 }
+				totalBytesReaded += sizeof(unsigned short);
 
                 // Get the size of the event in bytes
                 fr_sz = (int) *(sh+1);
@@ -327,6 +335,7 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput 
                 printf("Error: could not read %d bytes.\n", (nb_sh*2));
                 exit(1);
             }
+			totalBytesReaded += sizeof(unsigned short)*nb_sh;
 
             // Zero the first two bytes because these are no longer used to specify the size of the frame
             cur_fr[0] = 0x00;
