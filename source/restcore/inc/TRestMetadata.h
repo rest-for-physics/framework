@@ -178,13 +178,13 @@ public:
 	/// Making default settings.
 	virtual void Initialize() {}
 	/// Implementing TObject::Print() method
-	void Print() { PrintMetadata(); }
+	void Print() { PrintMetadata(); } // *MENU*
 	/// Implemented it in the derived metadata class to print out specific metadata information.
 	virtual void PrintMetadata();
 	/// Print the current time on local machine.
 	void PrintTimeStamp(Double_t timeStamp);
 	/// Print the config xml section stored in the class
-	void PrintConfigBuffer();
+	void PrintConfigBuffer(); // *MENU*
 
     /// Writes the config buffer to a file in append mode
     void WriteConfigBuffer( string fname );
