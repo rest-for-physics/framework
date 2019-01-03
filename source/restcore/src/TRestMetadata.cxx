@@ -2018,7 +2018,11 @@ void TRestMetadata::PrintConfigBuffer()
 	}
 	else
 	{
-		cout << GetSectionContent() << endl;
+		auto ele = StringToElement(GetSectionContent());
+		ele->Print(stdout, 0);
+		cout << endl;
+		delete ele;
+		//cout << GetSectionContent() << endl;
 	}
 }
 

@@ -450,7 +450,7 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 	else
 	{
 		if (fFileProcess == NULL)
-			info << "Input file is not root file, a TRestExtFileProcess is needed!" << endl;
+			info << "Input file is not root file, an external process is needed!" << endl;
 		fInputFile = NULL;
 		fAnalysisTree = NULL;
 	}
