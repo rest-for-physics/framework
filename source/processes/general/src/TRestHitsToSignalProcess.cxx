@@ -203,8 +203,7 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent( TRestEvent *evInput )
 			if (GetVerboseLevel() >= REST_Extreme)
 				cout << "Drift velocity : " << fDriftVelocity << " mm/us" << endl;
 
-
-            time = ( (Int_t) (time/fSampling) );
+			time = ((Int_t)(time / fSampling)) * fSampling;//now time is in unit "us", but dispersed
 
 			fSignalEvent->AddChargeToSignal(daqId, time, energy);
 		}
