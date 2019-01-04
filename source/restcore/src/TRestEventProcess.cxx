@@ -189,7 +189,7 @@ void TRestEventProcess::ConfigAnalysisTree() {
 	if (fOutputLevel >= Observable)ReadObservables();
 	if (fOutputLevel >= Internal_Var)fAnalysisTree->Branch(this->GetName(), this);
 	if (fOutputLevel >= Full_Output) fAnalysisTree->Branch(this->GetName() + (TString)"_evtBranch", GetOutputEvent());
-	
+
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -369,6 +369,19 @@ void TRestEventProcess::BeginPrintProcess()
 /// Prints several separators
 void TRestEventProcess::EndPrintProcess()
 {
+	if (fCuts.size() > 0)
+	{
+		essential << "Cuts enabled" << endl;
+		essential << "------------" << endl;
+
+		auto iter = fCuts.begin();
+		while (iter != fCuts.end()) {
+			if (iter->second.X() != iter->second.Y())
+				essential << iter->first << ", range : ( " << iter->second.X() << " , " << iter->second.Y() << " ) " << endl;
+			iter++;
+		}
+	}
+
 	essential << " " << endl;
 	essential << "=" << endl;
 	essential << endl;
