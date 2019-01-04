@@ -429,11 +429,11 @@ TRestMetadata::TRestMetadata()
 	fElementGlobal = NULL;
 	fElement = NULL;
 	fVerboseLevel = REST_Essential;
-	//helper = new TRestStringHelper();
 	fElementEnv.clear();
 	fHostmgr = NULL;
 
 	fConfigFileName = "null";
+	configBuffer = "";
 
 	fVersion = REST_RELEASE;
 }
@@ -447,10 +447,11 @@ TRestMetadata::TRestMetadata(const char *cfgFileName)
 	fElementGlobal = NULL;
 	fElement = NULL;
 	fVerboseLevel = REST_Essential;
-	fConfigFileName = cfgFileName;
-	//helper = new TRestStringHelper();
 	fElementEnv.clear();
 	fHostmgr = NULL;
+
+	fConfigFileName = cfgFileName;
+	configBuffer = "";
 
 	fVersion = REST_RELEASE;
 }
@@ -643,8 +644,9 @@ Int_t TRestMetadata::LoadSectionMetadata()
 
 void TRestMetadata::InitFromRootFile() {
 
-	if (GetSectionContent() != "") {
-		fElement = StringToElement(GetSectionContent());
+	if (configBuffer != "") {
+		fElement = StringToElement(configBuffer);
+		configBuffer = "";
 		//this->InitFromConfigFile();
 	}
 }
@@ -2018,28 +2020,39 @@ void TRestMetadata::PrintConfigBuffer()
 	}
 	else
 	{
-		auto ele = StringToElement(GetSectionContent());
-		ele->Print(stdout, 0);
-		cout << endl;
-		delete ele;
-		//cout << GetSectionContent() << endl;
+		if (configBuffer != "") {
+			auto ele = StringToElement(configBuffer);
+			ele->Print(stdout, 0);
+			cout << endl;
+			delete ele;
+		}
+		else
+		{
+			cout << "N/A" << endl;
+		}
 	}
 }
 
-void TRestMetadata::WriteConfigBuffer( string fname )
+void TRestMetadata::WriteConfigBuffer(string fname)
 {
-    if( fElement != NULL )
-    {
-        FILE *f = fopen( fname.c_str(), "at" );
+	if (fElement != NULL)
+	{
+		FILE *f = fopen(fname.c_str(), "at");
+		fElement->Print(f, 0);
+		fclose(f);
+		return;
+	}
+	else if (configBuffer != "")
+	{
+		FILE *f = fopen(fname.c_str(), "at");
+		auto ele = StringToElement(configBuffer);
+		ele->Print(f, 0);
+		fclose(f);
+		delete ele;
+		return;
+	}
 
-        fElement->Print( f, 0 );
-
-        fclose( f );
-
-        return;
-    }
-
-    error << "-- Error : Something missing here. Call the police" << endl;
+	error << "-- Error : Something missing here. Call the police" << endl;
 }
 
 int TRestMetadata::GetChar(string hint) 
@@ -2115,12 +2128,9 @@ std::string TRestMetadata::GetSectionName()
 }
 
 ///////////////////////////////////////////////
-/// \brief Returns the config section of this class, defined after section name in fSectionName
-std::string TRestMetadata::GetSectionContent()
+/// \brief Returns the config section of this class
+std::string TRestMetadata::GetConfigBuffer()
 {
-	auto a = fSectionName.find('\n', 0);
-	if (a != -1)
-		return fSectionName.substr(a + 1, -1);
 	return configBuffer;
 }
 

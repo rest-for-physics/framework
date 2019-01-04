@@ -195,7 +195,7 @@ public:
 
 	//getters and setters
 	std::string GetSectionName();
-	std::string GetSectionContent();
+	std::string GetConfigBuffer();
 	/// set the section name, clear the section content
 	void SetSectionName(std::string sName) { fSectionName = sName; }
 	/// set config file path from external
