@@ -54,7 +54,8 @@ void TRestSignalZeroSuppresionProcess::LoadDefaultConfig( )
     fPointThreshold = 2.;
     fSignalThreshold = 2.;
     fNPointsOverThreshold = 10;
-
+	fSampling = 0.1;
+	fBaseLineCorrection = false;
 }
 
 void TRestSignalZeroSuppresionProcess::LoadConfig( std::string cfgFilename, std::string name )
@@ -119,9 +120,9 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
 
     Double_t totalIntegral = 0;
 	Double_t rejectedSignal = 0;
-    for( int i = 0; i < numberOfSignals; i++ )
+    for( int n = 0; n < numberOfSignals; n++ )
     {
-		TRestRawSignal *s = fRawSignalEvent->GetSignal( i );
+		TRestRawSignal *s = fRawSignalEvent->GetSignal( n );
 		TRestSignal sgn;
 
 		sgn.SetID(s->GetID());
@@ -167,7 +168,7 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
 						{
 							if (fBaseLineCorrection) {
 								if (baseline >= 0 && baseline < 1) {
-									sgn.NewPoint(j, (Double_t)s->GetData(j) - baseline);
+									sgn.NewPoint(j* fSampling, (Double_t)s->GetData(j) - baseline);//convert timeBin(no unit) to time(unit: us)
 								}
 								else
 								{
@@ -176,7 +177,7 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent( TRestEvent *evInput 
 							}
 							else
 							{
-								sgn.NewPoint(j, s->GetData(j));
+								sgn.NewPoint(j* fSampling, s->GetData(j));
 							}
 
 						}
@@ -271,5 +272,7 @@ void TRestSignalZeroSuppresionProcess::InitFromConfigFile( )
 
 	//introduced to prevent daq abnormal response: flat high signal tail
 	fNPointsFlatThreshold = StringToInteger(GetParameter("pointsFlatThreshold", "512"));
+
+	fSampling = GetDblParameterWithUnits("sampling", 0.1);
 }
 
