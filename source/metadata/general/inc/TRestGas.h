@@ -92,7 +92,7 @@ class TRestGas : public TRestMetadata
 
 		TString fGasOutputPath;//!          A string to store the output path where a new generated gas file will be written
 
-		TString fGasServer;//!              The remote server from where we retrieve the gasFiles. If it is set to *none* local files will be used.
+		bool fUseGasServer;//!              The remote server from where we retrieve the gasFiles. If it is set to *none* local files will be used.
 
 		TString fGasFileContent;            // Used for saving the gasFile into a root file
 
