@@ -219,6 +219,18 @@ string REST_StringHelper::Replace(string in, string thisString, string byThisStr
 	return out;
 }
 
+std::string REST_StringHelper::EscapeSpecialLetters(string in) {
+	string result = Replace(in, "(", "\\(", 0);
+	result = Replace(result, ")", "\\)", 0);
+	result = Replace(result, "$", "\\$", 0);
+	result = Replace(result, "#", "\\#", 0);
+	result = Replace(result, "{", "\\{", 0);
+	result = Replace(result, "}", "\\}", 0);
+	result = Replace(result, "<", "\\<", 0);
+	result = Replace(result, ">", "\\>", 0);
+	return result;
+}
+
 
 ///////////////////////////////////////////////
 /// \brief Format time_t into string

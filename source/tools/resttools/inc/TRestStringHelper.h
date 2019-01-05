@@ -40,6 +40,7 @@ namespace REST_StringHelper
 	std::vector<string> Spilt(std::string in, string separator);
 	std::string RemoveWhiteSpaces(std::string in);
 	std::string Replace(std::string in, std::string thisString, std::string byThisString, size_t fromPosition = 0, Int_t N = 0);
+	std::string EscapeSpecialLetters(string in);
 	string ToDateTimeString(time_t time);
 	time_t ToTime(string time);
 	//template<class T> string ToString(T source);
@@ -80,9 +81,8 @@ inline TVector3 StringTo3DVector(std::string in) { return REST_StringHelper::Str
 inline TVector2 StringTo2DVector(std::string in) { return REST_StringHelper::StringTo2DVector(in); }
 inline std::string RemoveWhiteSpaces(std::string in) { return REST_StringHelper::RemoveWhiteSpaces(in); }
 inline std::string Replace(std::string in, std::string thisString, std::string byThisString, size_t fromPosition = 0, Int_t N = 0)
-{
-	return REST_StringHelper::Replace(in, thisString, byThisString, fromPosition, N);
-}
+	{return REST_StringHelper::Replace(in, thisString, byThisString, fromPosition, N);}
+inline std::string EscapeSpecialLetters(string in) { return REST_StringHelper::EscapeSpecialLetters(in);}
 inline vector<string> Spilt(std::string in, string separator) { return REST_StringHelper::Spilt(in, separator); }
 inline Int_t Count(std::string s, std::string sbstring) { return REST_StringHelper::Count(s, sbstring); }
 inline Int_t FindNthStringPosition(const string& in, size_t pos, const string& strToFind, size_t nth) { return REST_StringHelper::FindNthStringPosition(in, pos, strToFind, nth); }
