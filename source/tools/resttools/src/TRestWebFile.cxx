@@ -37,9 +37,9 @@ string TRestWebFile::Download() {
 	if ((string)fServer_Download.GetProtocol() == "https") {
 		cmd << "wget ";
 		if (!certificate)cmd << "--no-check-certificate ";
-		cmd << string(fServer_Download.GetUrl()) << "/" << fFileName << " ";
+		cmd << string(fServer_Download.GetUrl()) << "/" << EscapeSpecialLetters(fFileName) << " ";
 
-		cmd << " -O " << DownLoadFile << " ";
+		cmd << " -O " << EscapeSpecialLetters(DownLoadFile) << " ";
 		cmd << "-T " << timeout << " -t 1 ";
 		cmd << "-q";
 	}
@@ -49,8 +49,8 @@ string TRestWebFile::Download() {
 		cmd << "scp ";
 		if (fServer_Download.GetPort() != 0) cmd << "-P " << fServer_Download.GetPort() << " ";
 		cmd << fServer_Download.GetUser() << "@" << fServer_Download.GetHost() << ":";
-		cmd << fServer_Download.GetFile() << "/" << fFileName << " ";
-		cmd << DownLoadFile;
+		cmd << fServer_Download.GetFile() << "/" << EscapeSpecialLetters(fFileName) << " ";
+		cmd << EscapeSpecialLetters(DownLoadFile);
 	}
 
 	cout << "downloading file, command: " << cmd.str() << endl;
@@ -63,7 +63,7 @@ string TRestWebFile::Download() {
 		//we move the file to local database if it is writable
 		if (isPathWritable(fLocalDir))
 		{
-			system(("mv " + DownLoadFile + " " + fullFileName).c_str());
+			system(("mv " + EscapeSpecialLetters(DownLoadFile) + " " + EscapeSpecialLetters(fullFileName)).c_str());
 			return fullFileName;
 		}
 		//otherwise we return the temporary file
@@ -104,16 +104,16 @@ string TRestWebFile::Upload() {
 
 	stringstream cmd;
 	//cmd << "scp " << fullFileName << " " << fServer_Upload.GetUser() << "@" << fServer_Upload.GetHost() << ":./" << fServer_Upload.GetFile();
-	
+
 	if ((string)fServer_Upload.GetProtocol() == "ssh") {
 		cmd << "sshpass -p " << fServer_Upload.GetPasswd() << " ";
 		cmd << "scp ";
 		if (fServer_Upload.GetPort() != 0) cmd << "-P " << fServer_Upload.GetPort() << " ";
-		cmd << fullFileName << " ";
+		cmd << EscapeSpecialLetters(fullFileName) << " ";
 		cmd << fServer_Upload.GetUser() << "@" << fServer_Upload.GetHost() << ":./";
-		cmd << fServer_Upload.GetFile() << "/" << fFileName;
+		cmd << fServer_Upload.GetFile() << "/" << EscapeSpecialLetters(fFileName);
 	}
-	
+
 	//GetFile --> "gasFiles/"
 	//GetFileName --> "gases.rml"
 
