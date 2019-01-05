@@ -1045,15 +1045,15 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     obsName = this->GetName() + (TString) ".MeanRate_InHz";
     fAnalysisTree->SetObservableValue( obsName, meanRate );
 
-    if( GetVerboseLevel() >= REST_Info )
-    {
-        cout << "TRestTrackAnalysisProcess : " << GetName() << endl;
-        cout << "----------------------------------------------" << endl;
-        fAnalysisTree->PrintObservables();
-	GetChar();
+ //   if( GetVerboseLevel() >= REST_Info )
+ //   {
+ //       cout << "TRestTrackAnalysisProcess : " << GetName() << endl;
+ //       cout << "----------------------------------------------" << endl;
+ //       fAnalysisTree->PrintObservables();
+	//GetChar();
 	if( GetVerboseLevel() >= REST_Extreme )
 		GetChar();
-    }
+    //}
 
     return fOutputTrackEvent;
 }
