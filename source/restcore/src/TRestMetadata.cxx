@@ -399,6 +399,7 @@
 #include <TSystem.h>
 #include "TRestMetadata.h"
 #include "RmlUpdateTool.h"
+#include "TRestWebFile.h"
 #include "v5/TFormula.h"
 
 //implementation of version methods in namespace rest_version
@@ -885,26 +886,17 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
     debug << "-- Debug : Entering ... " << __PRETTY_FUNCTION__ << endl;
 
 	ReplaceElementAttributes(e);
-	const char* _filetmp = e->Attribute("file");
 
-	if (_filetmp == NULL && (string) e->Value() == "TRestGas" ) 
-        _filetmp = "server";
+	const char*_filename= e->Attribute("file");
+	if (_filename == NULL) { error << "this cannot happen" << endl; exit(1); }
+	string filename = _filename;
 
-	if (_filetmp == NULL)return;
-    string _filename = _filetmp;
+	if (filename == "" || filename == "server") {
+		string webFileKey = (string)e->Value();
+		filename = GetRESTWebFiles(webFileKey).Download();
+	}
 
-    // For the moment we only expect to have the gasFiles localed remotely.
-    // I keep "server" keyword to be coherent with the one used in TRestGas constructor
-    if( _filename == "server" && (string) e->Value() == "TRestGas" )
-        _filename = (string) gasesFile;
-
-
-    debug << "-- Debug : filename to expand : " << _filename << endl;
-
-    if( REST_StringHelper::isURL( _filename ) )
-            _filename = DownloadHttpFile( _filename );
-
-	string filename = SearchFile(_filename);
+	filename = SearchFile(filename);
 	if (filename == "") {
 		warning << "REST WARNING(expand include file): Include file \"" << _filename << "\" does not exist!" << endl;
 		warning << endl;
@@ -1975,15 +1967,17 @@ void TRestMetadata::SetEnv(string name, string value, bool overwriteexisting)
 ///
 /// Return blank string if file not found, return directly filename if found in current 
 /// directory, return full name (path+name) if found in "searchPath". 
-string TRestMetadata::SearchFile(string filename) {
+string TRestMetadata::SearchFile(string filename, vector<string> addonPath) {
 	if (fileExists(filename)) {
 		return filename;
 	}
 	else
 	{
-		
 		auto pathstring = GetSearchPath();
 		auto paths = Spilt((string)pathstring, ":");
+		if (addonPath.size() != 0) {
+			paths.insert(paths.begin(), addonPath.begin(), addonPath.end());
+		}
 		return SearchFileInPath(paths, filename);
 	}
 }
