@@ -207,9 +207,8 @@
 /// <hr>
 
 #include "TRestGas.h"
+#include "TRestWebFile.h"
 using namespace std;
-
-const char *defaultServer = "https://sultan.unizar.es/gasFiles/";
 
 ClassImp(TRestGas)
 
@@ -242,39 +241,47 @@ TRestGas::TRestGas(const char *cfgFileName, string name, bool gasGeneration) : T
 
 	fGasGeneration = gasGeneration;
 
-	if( strcmp( cfgFileName, "server" ) == 0 )
-	{ 
-		if( GetVerboseLevel() <= REST_Info )
-			fVerboseLevel = REST_Info;
-
-		fGasServer = defaultServer;
-
-		string cmd = "wget --no-check-certificate " + (string) fGasServer + "/gases.rml -O /tmp/gases.rml -q";
-
-		info << "-- Info : Trying to download gases definitions from server : " << fGasServer << endl;
-		int a = system( cmd.c_str() );
-
-		if ( a == 0 )
-		{
-			success << "-- Success : download OK!" << endl;
-
-			LoadConfigFromFile( "/tmp/gases.rml", name);
+	if (strcmp(cfgFileName, "server") == 0)
+	{
+		TRestWebFile onlinefileinfo = GetRESTWebFiles("TRestGas");
+		string a = onlinefileinfo.Download();
+		if (a == "") {
+			fConfigFileName = a;
 		}
-		else 
-		{
-
-			error << "-- Error : download failed!" << endl;
-			if( a == 1024 ) error << "-- Error : Network connection problem?" << endl;
-			if( a == 2048 ) error << "-- Error : Gas definition does NOT exist in database?" << endl;
-			error << "-- Error : FileName: " << name << endl;
+		else {
+			fVerboseLevel = REST_Info;
 			info << "-- Info : Please specify a local config file" << endl;
 			exit(1);
 		}
+
+		//string cmd = "wget --no-check-certificate " + (string) fGasServer + "/gases.rml -O /tmp/gases.rml -q";
+
+		//info << "-- Info : Trying to download gases definitions from server : " << fGasServer << endl;
+		//int a = system( cmd.c_str() );
+
+		//if ( a == 0 )
+		//{
+		//	success << "-- Success : download OK!" << endl;
+
+		//	LoadConfigFromFile( "/tmp/gases.rml", name);
+		//}
+		//else 
+		//{
+
+		//	error << "-- Error : download failed!" << endl;
+		//	if( a == 1024 ) error << "-- Error : Network connection problem?" << endl;
+		//	if( a == 2048 ) error << "-- Error : Gas definition does NOT exist in database?" << endl;
+		//	error << "-- Error : FileName: " << name << endl;
+		//	info << "-- Info : Please specify a local config file" << endl;
+		//	exit(1);
+		//}
 	}
 	else
 	{
-		LoadConfigFromFile(fConfigFileName, name);
+		fUseGasServer = false;
 	}
+
+	LoadConfigFromFile(fConfigFileName, name);
 
 	//if ( fStatus == RESTGAS_CFG_LOADED ) LoadGasFile( );
 }
@@ -305,6 +312,8 @@ void TRestGas::Initialize()
 	fTemperatureInK = 300;
 
 	fNofGases = 0;
+
+	fUseGasServer = true;
 
 	fGasComponentName.clear();
 	fGasComponentFraction.clear();
@@ -521,7 +530,7 @@ void TRestGas::InitFromConfigFile()
 
 	fGDMLMaterialRef = GetParameter("GDMLMaterialRef", "");
 
-	fGasServer = GetParameter( "gasServer", defaultServer );
+	fUseGasServer = StringToBool(GetParameter( "gasServer", "true"));
 
 	if (fMaxElectronEnergy == -1) { fMaxElectronEnergy = 40; cout << "Setting default maxElectronEnergy to : " << fMaxElectronEnergy << endl; }
 	if (fW == -1) { fW = 21.9; cout << "Setting default W-value : " << fW << endl; }
@@ -629,95 +638,42 @@ void TRestGas::UploadGasToServer( string gasFilename )
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// We add the gas definition we used to generate the gas file and prepare it to upload/update in the gasServer
-	string fname = "/tmp/gases.rml";
-	// We download (probably again) the original version
-	string cmd = "wget --no-check-certificate " + (string) fGasServer + "/gases.rml -O " + fname + " -q";
-
-	int a = system( cmd.c_str() );
-
-	if( a != 0 )
-	{
-		error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
-		error << "-- Error : download failed!" << endl;
-		if( a == 1024 ) error << "-- Error : Network connection problem?" << endl;
-		if( a == 2048 ) error << "-- Error : Gas definition does NOT exist in database?" << endl;
-		error << "-- Error : FileName: " << fname << endl;
-		info << "-- Info : Please specify a local config file" << endl;
-
-		return;
-	}
-
+	TRestWebFile onlinefileinfo = GetRESTWebFiles("TRestGas");
+	string fname = onlinefileinfo.Download();
+	if (fname == "")return;
 	// We remove the last line. I.e. the enclosing </gases> in the original file
 #ifdef __APPLE__
-	cmd = "sed -i '' -e '$ d' " + fname; 
+	string cmd = "sed -i '' -e '$ d' " + fname;
 #else
-	cmd = "sed -i '$ d' " + fname;
+	string cmd = "sed -i '$ d' " + fname;
 #endif
-
-	a = system( cmd.c_str() );
-
-	if( a != 0 )
+	int a = system(cmd.c_str());
+	if (a != 0)
 	{
 		error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
 		error << "-- Error : problem removing last line from " << fname << endl;
 		return;
 	}
-
 	// We add some header before the gas definition. We might add also date an other information essential to
 	// identify the gasFile submission
 	ofstream outf;
-	outf.open(fname,ios::app);
+	outf.open(fname, ios::app);
 	outf << endl;
 	outf << "//------- User : " << getenv("USER") << " ---- REST version : " << REST_RELEASE << " ---------------------------" << endl;
 	outf.close();
-
 	// We write the TRestGas section
-	this->WriteConfigBuffer( fname );
-
+	this->WriteConfigBuffer(fname);
 	// We re-write the enclosing </gases> tag
-	outf.open(fname,ios::app);
+	outf.open(fname, ios::app);
 	outf << "\n" << endl;
 	outf << "</gases>" << endl;
 	outf.close();
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	// We transfer the new gas definitions to the gasServer
-	cmd = "scp /tmp/gases.rml gasUser@sultan.unizar.es:./gasFiles/";
-	a = system(  cmd.c_str() );
-
-	if( a != 0 )
-	{
-		error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
-		error << "-- Error : problem copying gases definitions to remote server" << endl;
-		error << "-- Error : Please report this problem at http://gifna.unizar.es/rest-forum/" << endl;
-		return;
-	}
-
+	// We transfer the new gas definition rml file to the gasServer
+	if (onlinefileinfo.Upload() == "")return;
 	// We transfer the gasFile to the gasServer
-	string _name = Replace( gasFilename, "(", "\\(", 0);
-	_name = Replace( _name, ")", "\\)", 0);
-	cmd = "scp " + _name + " gasUser@sultan.unizar.es:./gasFiles/";
-	a = system(  cmd.c_str() );
-
-	if( a != 0 )
-	{
-		error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
-		error << "-- Error : problem copying gas file to remote server" << endl;
-		error << "-- Error : Please report this problem at http://gifna.unizar.es/rest-forum/" << endl;
-		return;
-	}
-
-	// We remove the local file (afterwards, the remote copy will be used)
-	cmd = "rm " + _name;
-	a = system(  cmd.c_str() );
-
-	if( a != 0 )
-	{
-		error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
-		error << "-- Error : problem removing the locally generated gas file" << endl;
-		error << "-- Error : Please report this problem at http://gifna.unizar.es/rest-forum/" << endl;
-		return;
-	}
+	onlinefileinfo.SetFileName((string)fGasFilename);
+	if (onlinefileinfo.Upload() == "")return;
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	success << "-- Sucess : Gasfile server database was updated sucessfully!!" << endl;
 }
@@ -744,46 +700,51 @@ string TRestGas::FindGasFile( string name )
 
 	string absoluteName = "";
 	// First, we try to download the gas file from fGasServer
-	if ( fGasServer != "none" ) 
+	if ( fUseGasServer ) 
 	{
-		string _name = Replace( name, "(", "\\(", 0);
-		_name = Replace( _name, ")", "\\)", 0);
-		string cmd = "wget --no-check-certificate " + (string) fGasServer + "/" + _name + " -O /tmp/restGas_" + (string) getenv("USER") + "_Download.gas -q";
+		//string cmd = "wget --no-check-certificate " + (string) fGasServer + "/" + _name + " -O /tmp/restGas_" + (string) getenv("USER") + "_Download.gas -q -T 5 -t 1";
 
+		//debug << "-- Debug : Launching ... " << cmd << endl;
 
-		debug << "-- Debug : Launching ... " << cmd << endl;
+		//info << "-- Info : Trying to download gasFile " << name << " from server : " << fGasServer << endl;
+		//int a = system( cmd.c_str() );
 
-		info << "-- Info : Trying to download gasFile " << name << " from server : " << fGasServer << endl;
-		int a = system( cmd.c_str() );
+		//debug << "-- Debug : Command output : " << a << endl;
 
-		debug << "-- Debug : Command output : " << a << endl;
+		//if ( a == 0 )
+		//{
+		//	success << "-- Success : download OK!" << endl;
+		//	absoluteName = "/tmp/restGas_" + (string) getenv("USER") + "_Download.gas";
+		//}
+		//else 
+		//{
+		//	error << "-- Error : download failed!" << endl;
+		//	if( a == 1024 ) error << "-- Error : Network connection problem?" << endl;
+		//	if( a == 2048 ) error << "-- Error : Gas file does NOT exist in database?" << endl;
+		//	error << "-- Error : FileName: " << name << endl;
 
-		if ( a == 0 )
+		//	errorStatus = 1;
+		//}
+
+		TRestWebFile onlinefileinfo = GetRESTWebFiles("TRestGas");
+		onlinefileinfo.SetFileName(name);
+		absoluteName = onlinefileinfo.Download();
+		if(absoluteName=="")
 		{
-			success << "-- Success : download OK!" << endl;
-			absoluteName = "/tmp/restGas_" + (string) getenv("USER") + "_Download.gas";
-		}
-		else 
-		{
-			error << "-- Error : download failed!" << endl;
-			if( a == 1024 ) error << "-- Error : Network connection problem?" << endl;
-			if( a == 2048 ) error << "-- Error : Gas file does NOT exist in database?" << endl;
-			error << "-- Error : FileName: " << name << endl;
-
-			errorStatus = 1;
+			info << "-- Info : Trying to find the gasFile locally" << endl;
+			absoluteName = SearchFile(name);//this searches the gas file in additional path defined in rml
+			if (absoluteName == "")
+			{
+				error << "-- FATAL : gas file finding failed!" << endl;
+				exit(1);
+			}
 		}
 	}
-
-	if ( errorStatus )
+	else
 	{
-		info << "-- Info : Trying to find the gasFile locally" << endl;
-		absoluteName = SearchFile( name );
-		if( absoluteName == "" )
-		{
-			warning << "-- Warning : No sucess" << endl;
-			absoluteName = name;
-		}
+		return SearchFile(name);
 	}
+
 
 	return absoluteName;
 }
@@ -890,7 +851,7 @@ void TRestGas::GenerateGasFile()
 
 	fGasMedium->WriteGasFile( (string) (fGasOutputPath + "/" + fGasFilename) );
 
-	if( fGasServer != "none" )
+	if( fUseGasServer )
 		UploadGasToServer( (string) (fGasOutputPath + "/" + fGasFilename) );
 
 #else
