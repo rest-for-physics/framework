@@ -214,7 +214,7 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement * e)
 				else if (p->GetVerboseLevel() >= REST_Debug || p->singleThreadOnly())
 				{
 					fProcStatus = kIgnore;
-					info << "multi-threading is disabled due to process \""<< p->GetName() <<"\"" << endl;
+					info << "multi-threading is disabled due to process \"" << p->GetName() << "\"" << endl;
 					info << "This process is in debug mode or is single thread only" << endl;
 
 					if (fThreadNumber > 1)
@@ -373,8 +373,8 @@ void TRestProcessRunner::RunProcess()
 		if (fThreads[0]->GetOutputEvent() != NULL) {
 			outputeventname = fThreads[0]->GetOutputEvent()->ClassName();
 		}
-		
-		fEventTree->SetTitle((outputeventname +"Tree").c_str());
+
+		fEventTree->SetTitle((outputeventname + "Tree").c_str());
 		fEventTree->SetDirectory(fTempOutputDataFile);
 	}
 	else
@@ -428,12 +428,17 @@ void TRestProcessRunner::RunProcess()
 	cout << endl << endl;
 	while (fProcStatus == kPause || (fRunInfo->GetInputEvent() != NULL && eventsToProcess > fProcessedEvents))
 	{
+		PrintProcessedEvents(100);
+
+		//ConsoleHelper::enable_raw_mode();
+
 		if (fProcStatus != kIgnore && ConsoleHelper::kbhit())//if keyboard inputs
 		{
-			cursorUp(1);
-			int a = getchar();//get char
-			if (a != '\n')
-				while (getchar() != '\n');//clear buffer
+			//cout << ConsoleHelper::getch() << endl;
+			//cursorUp(1);
+			int a = ConsoleHelper::getch();//get char
+			//if (a != '\n')
+			//	while (getchar() != '\n');//clear buffer
 			if (a == 'p') {
 				fProcStatus = kPause;
 				clearLinesAfterCursor();
@@ -458,7 +463,7 @@ void TRestProcessRunner::RunProcess()
 			break;
 		}
 
-		PrintProcessedEvents(100);
+		//ConsoleHelper::disable_raw_mode();
 
 #ifdef WIN32
 		_sleep(50);
@@ -674,7 +679,7 @@ void TRestProcessRunner::PauseMenu() {
 							eventsToProcess = REST_MAXIMUM_EVENTS;
 						cursorUp(submenuleng + 2);
 						cout.setcolor(COLOR_BOLDGREEN);
-						cout << "Maximum number of events to process has been set to default (" << eventsToProcess <<")"<< endl;
+						cout << "Maximum number of events to process has been set to default (" << eventsToProcess << ")" << endl;
 						cout.setcolor(COLOR_BOLDWHITE);
 						cursorDown(1);
 						break;
@@ -728,7 +733,7 @@ void TRestProcessRunner::PauseMenu() {
 		{
 			cursorUp(mainmenuleng + 2);
 			cout.setcolor(COLOR_BOLDYELLOW);
-			cout <<"Invailed option \"" << (char)b << "\" !" << endl;
+			cout << "Invailed option \"" << (char)b << "\" (key value: " << b << ") !" << endl;
 			cout.setcolor(COLOR_BOLDWHITE);
 			cursorDown(mainmenuleng + 1);
 		}
@@ -902,19 +907,19 @@ void TRestProcessRunner::ConfigOutputFile()
 	//string savemetadata = GetParameter("saveMetadata", "true");
 	//if (savemetadata == "true" || savemetadata == "True" || savemetadata == "yes" || savemetadata == "ON")
 	//{
-		fTempOutputDataFile->cd();
-		fRunInfo->Write();
-		this->Write();
-		char tmpString[256];
-		if (fRunInfo->GetFileProcess() != NULL)
-		{
-			sprintf(tmpString, "Process-%d. %s", 0, fRunInfo->GetFileProcess()->GetName());
-			fRunInfo->GetFileProcess()->Write();
-		}
-		for (int i = 0; i < fProcessNumber; i++) {
-			sprintf(tmpString, "Process-%d. %s", i + 1, fThreads[0]->GetProcess(i)->GetName());
-			fThreads[0]->GetProcess(i)->Write();
-		}
+	fTempOutputDataFile->cd();
+	fRunInfo->Write();
+	this->Write();
+	char tmpString[256];
+	if (fRunInfo->GetFileProcess() != NULL)
+	{
+		sprintf(tmpString, "Process-%d. %s", 0, fRunInfo->GetFileProcess()->GetName());
+		fRunInfo->GetFileProcess()->Write();
+	}
+	for (int i = 0; i < fProcessNumber; i++) {
+		sprintf(tmpString, "Process-%d. %s", i + 1, fThreads[0]->GetProcess(i)->GetName());
+		fThreads[0]->GetProcess(i)->Write();
+	}
 
 	//}
 	if (fEventTree != NULL)fEventTree->Write(0, kWriteDelete);
@@ -1074,7 +1079,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 		}
 		else
 		{
-			printf( "%s", (s1 + s2 + s3 + "\r").c_str());
+			printf("%s", (s1 + s2 + s3 + "\r").c_str());
 			fflush(stdout);
 		}
 
