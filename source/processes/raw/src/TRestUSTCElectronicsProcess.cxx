@@ -86,6 +86,7 @@ void TRestUSTCElectronicsProcess::InitProcess()
 	fOutputEvent = fSignalEvent;
 	fCurrentFile = 0;
 	fCurrentBuffer = 0;
+	totalBytesReaded = 0;
 
 	USTCDataFrame frame;
 	if ((!GetNextFrame(frame)) || (!ReadFrameData(frame))) {
@@ -336,6 +337,7 @@ bool TRestUSTCElectronicsProcess::GetNextFrame(USTCDataFrame& frame)
 			return false;
 		}
 	}
+	totalBytesReaded += N;
 	return true;
 
 }
@@ -372,7 +374,7 @@ void TRestUSTCElectronicsProcess::FixToNextFrame(FILE*f)
 			}
 		}
 	}
-
+	totalBytesReaded += n;
 	delete[] buffer;
 }
 

@@ -152,7 +152,7 @@
 ///
 /// For example, when received an xml section declared "TRestRun", the host "TRestManager" will pass 
 /// this section (together with its global section) to its resident "TRestRun". The TRestRun class can 
-/// therefor perform a startup using these sections.
+/// therefore perform a startup using these sections.
 ///
 /// \code
 ///
@@ -399,6 +399,7 @@
 #include <TSystem.h>
 #include "TRestMetadata.h"
 #include "RmlUpdateTool.h"
+#include "TRestWebFile.h"
 #include "v5/TFormula.h"
 
 //implementation of version methods in namespace rest_version
@@ -411,6 +412,10 @@ namespace REST_VersionGlob {
 using namespace std;
 using namespace REST_Units;
 
+
+// We introduce the gases file here.
+// But, should we have a corner somewhere to define hard-coded globals?
+const char *gasesFile = "https://sultan.unizar.es/gasFiles/gases.rml";
 
 
 map<string, string> TRestMetadata_UpdatedConfigFile;
@@ -425,11 +430,11 @@ TRestMetadata::TRestMetadata()
 	fElementGlobal = NULL;
 	fElement = NULL;
 	fVerboseLevel = REST_Essential;
-	//helper = new TRestStringHelper();
 	fElementEnv.clear();
 	fHostmgr = NULL;
 
 	fConfigFileName = "null";
+	configBuffer = "";
 
 	fVersion = REST_RELEASE;
 }
@@ -443,10 +448,11 @@ TRestMetadata::TRestMetadata(const char *cfgFileName)
 	fElementGlobal = NULL;
 	fElement = NULL;
 	fVerboseLevel = REST_Essential;
-	fConfigFileName = cfgFileName;
-	//helper = new TRestStringHelper();
 	fElementEnv.clear();
 	fHostmgr = NULL;
+
+	fConfigFileName = cfgFileName;
+	configBuffer = "";
 
 	fVersion = REST_RELEASE;
 }
@@ -626,7 +632,7 @@ Int_t TRestMetadata::LoadSectionMetadata()
 	//then do this replacement for all child elements and expand for/include definitions
 	ExpandElement(fElement);
 
-	configBuffer = ElementToString(fElement);
+	
 
 	//finally fill the general metadata info: name, title, fstore
 	this->SetName(GetParameter("name", "defaultName").c_str());
@@ -639,8 +645,9 @@ Int_t TRestMetadata::LoadSectionMetadata()
 
 void TRestMetadata::InitFromRootFile() {
 
-	if (GetSectionContent() != "") {
-		fElement = StringToElement(GetSectionContent());
+	if (configBuffer != "") {
+		fElement = StringToElement(configBuffer);
+		configBuffer = "";
 		//this->InitFromConfigFile();
 	}
 }
@@ -745,6 +752,8 @@ void TRestMetadata::SetEnv(TiXmlElement* e, bool updateexisting)
 /// Before expansion, ReplaceElementAttributes() will first be called.
 void TRestMetadata::ExpandElement(TiXmlElement*e, bool recursive)
 {
+    debug << "-- Debug : Entering ... " << __PRETTY_FUNCTION__ << endl;
+
 	ReplaceElementAttributes(e);
 	if ((string)e->Value() == "for") 
 	{
@@ -874,11 +883,20 @@ void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 /// TRestRun::ImportMetadata()
 void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 {
-	ReplaceElementAttributes(e);
-	const char* _filename = e->Attribute("file");
-	if (_filename == NULL)return;
+    debug << "-- Debug : Entering ... " << __PRETTY_FUNCTION__ << endl;
 
-	string filename = SearchFile(_filename);
+	ReplaceElementAttributes(e);
+
+	const char*_filename= e->Attribute("file");
+	if (_filename == NULL) { error << "this cannot happen" << endl; exit(1); }
+	string filename = _filename;
+
+	if (filename == "" || filename == "server") {
+		string webFileKey = (string)e->Value();
+		filename = GetRESTWebFiles(webFileKey).Download();
+	}
+
+	filename = SearchFile(filename);
 	if (filename == "") {
 		warning << "REST WARNING(expand include file): Include file \"" << _filename << "\" does not exist!" << endl;
 		warning << endl;
@@ -1067,6 +1085,46 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 		debug << nattr << " attributes and " << nele << " xml elements added by inclusion" << endl;
 		debug << "----end of expansion file----" << endl;
 	}
+}
+
+///////////////////////////////////////////////
+/// \brief It will download the remote file provided in the argument using wget.
+/// 
+/// If it succeeds to download the file, this method will return the location of
+/// the local temporary file downloaded. If it fails, the method will invoke an 
+/// exit call and print out some error.
+string TRestMetadata::DownloadHttpFile( string remoteFile )
+{
+    debug << "-- Debug : Entering ... " << __PRETTY_FUNCTION__ << endl;
+
+    debug << "-- Debug : Complete remote filename : " << remoteFile << endl;
+
+    TString remoteFilename = REST_StringHelper::RemoveAbsolutePath( remoteFile );
+
+    debug << "-- Debug : Reduced remote filename : " << remoteFilename << endl;
+
+    string cmd = "wget --no-check-certificate " + remoteFile + " -O /tmp/REST_" + getenv( "USER" ) + "_remote.rml -q";
+
+    info << "-- Info : Trying to download remote file from : " << remoteFile << endl;
+    int a = system( cmd.c_str() );
+
+    if ( a == 0 )
+    {
+        success << "-- Success : download OK!" << endl;
+
+        return (string) ("/tmp/REST_" + (string) getenv("USER") + "_remote.rml");
+    }
+    else 
+    {
+
+        error << "-- Error : download failed!" << endl;
+        if( a == 1024 ) error << "-- Error : Network connection problem?" << endl;
+        if( a == 2048 ) error << "-- Error : Gas definition does NOT exist in database?" << endl;
+        info << "-- Info : Please specify a local config file" << endl;
+        exit(1);
+    }
+
+    return "";
 }
 
 ///////////////////////////////////////////////
@@ -1909,15 +1967,17 @@ void TRestMetadata::SetEnv(string name, string value, bool overwriteexisting)
 ///
 /// Return blank string if file not found, return directly filename if found in current 
 /// directory, return full name (path+name) if found in "searchPath". 
-string TRestMetadata::SearchFile(string filename) {
+string TRestMetadata::SearchFile(string filename, vector<string> addonPath) {
 	if (fileExists(filename)) {
 		return filename;
 	}
 	else
 	{
-		
 		auto pathstring = GetSearchPath();
 		auto paths = Spilt((string)pathstring, ":");
+		if (addonPath.size() != 0) {
+			paths.insert(paths.begin(), addonPath.begin(), addonPath.end());
+		}
 		return SearchFileInPath(paths, filename);
 	}
 }
@@ -1954,24 +2014,39 @@ void TRestMetadata::PrintConfigBuffer()
 	}
 	else
 	{
-		cout << GetSectionContent() << endl;
+		if (configBuffer != "") {
+			auto ele = StringToElement(configBuffer);
+			ele->Print(stdout, 0);
+			cout << endl;
+			delete ele;
+		}
+		else
+		{
+			cout << "N/A" << endl;
+		}
 	}
 }
 
-void TRestMetadata::WriteConfigBuffer( string fname )
+void TRestMetadata::WriteConfigBuffer(string fname)
 {
-    if( fElement != NULL )
-    {
-        FILE *f = fopen( fname.c_str(), "at" );
+	if (fElement != NULL)
+	{
+		FILE *f = fopen(fname.c_str(), "at");
+		fElement->Print(f, 0);
+		fclose(f);
+		return;
+	}
+	else if (configBuffer != "")
+	{
+		FILE *f = fopen(fname.c_str(), "at");
+		auto ele = StringToElement(configBuffer);
+		ele->Print(f, 0);
+		fclose(f);
+		delete ele;
+		return;
+	}
 
-        fElement->Print( f, 0 );
-
-        fclose( f );
-
-        return;
-    }
-
-    error << "-- Error : Something missing here. Call the police" << endl;
+	error << "-- Error : Something missing here. Call the police" << endl;
 }
 
 int TRestMetadata::GetChar(string hint) 
@@ -2047,12 +2122,9 @@ std::string TRestMetadata::GetSectionName()
 }
 
 ///////////////////////////////////////////////
-/// \brief Returns the config section of this class, defined after section name in fSectionName
-std::string TRestMetadata::GetSectionContent()
+/// \brief Returns the config section of this class
+std::string TRestMetadata::GetConfigBuffer()
 {
-	auto a = fSectionName.find('\n', 0);
-	if (a != -1)
-		return fSectionName.substr(a + 1, -1);
 	return configBuffer;
 }
 
@@ -2104,14 +2176,10 @@ TString TRestMetadata::GetSearchPath() {
 	return ReplaceEnvironmentalVariables(result);
 }
 
-Int_t TRestMetadata::Write(const char *name, Int_t option, Int_t bufsize) const {
-	if (fStore) {
-		return TNamed::Write(name, option, bufsize);
-	}
-	return -1;
-}
+
 Int_t TRestMetadata::Write(const char *name, Int_t option, Int_t bufsize) {
 	if (fStore) {
+		configBuffer = ElementToString(fElement);
 		return TNamed::Write(name, option, bufsize);
 	}
 	return -1;

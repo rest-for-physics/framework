@@ -101,22 +101,6 @@ public:
 		essential << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
 		essential << "Number of points over threshold : " << fNPointsOverThreshold << endl;
 		essential << " " << endl;
-		if (fCuts.size() > 0)
-		{
-			essential << "Cuts enabled" << endl;
-			essential << "------------" << endl;
-
-			auto iter = fCuts.begin();
-			while (iter != fCuts.end()) {
-				if (iter->second.X() != iter->second.Y())
-					essential << iter->first << ", range : ( " << iter->second.X() << " , " << iter->second.Y() << " ) " << endl;
-				iter++;
-			}
-		}
-		else
-		{
-			essential << "No cuts have been enabled" << endl;
-		}
 
 		EndPrintProcess();
 	}

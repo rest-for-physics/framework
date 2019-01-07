@@ -107,13 +107,11 @@ public:
 
 	/// add metadata object to the metadata list
 	void AddMetadata(TRestMetadata* meta) {
-		fMetadataInfo.push_back(meta); 
-		if (fVerboseLevel >= REST_Info)
-		{
-			fout << "=added metadata=" << endl;
-			meta->PrintMetadata();
-			fout << "=" << endl;
-			fout << endl;
+		if (meta != NULL) {
+			fMetadataInfo.push_back(meta);
+		}
+		else {
+			warning << "REST Warning! A null matadata wants to be added in TRestRun!" << endl;
 		}
 	}
 	void AddEventBranch(TRestEvent* eve);

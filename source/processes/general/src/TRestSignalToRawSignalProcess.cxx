@@ -223,7 +223,7 @@ TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent( TRestEvent *evInput )
 
             if( t > tStart && t < tEnd )
             {
-                Int_t timeBin = (Int_t) ( (t - tStart)/fSampling );
+                Int_t timeBin = (Int_t) ( (t - tStart)/fSampling );//convert time(in unit us) to timeBin
 
                 if( GetVerboseLevel() >= REST_Warning )
                     if( timeBin < 0 || timeBin > fNPoints )

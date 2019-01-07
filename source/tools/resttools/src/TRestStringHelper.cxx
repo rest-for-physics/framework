@@ -219,6 +219,18 @@ string REST_StringHelper::Replace(string in, string thisString, string byThisStr
 	return out;
 }
 
+std::string REST_StringHelper::EscapeSpecialLetters(string in) {
+	string result = Replace(in, "(", "\\(", 0);
+	result = Replace(result, ")", "\\)", 0);
+	result = Replace(result, "$", "\\$", 0);
+	result = Replace(result, "#", "\\#", 0);
+	result = Replace(result, "{", "\\{", 0);
+	result = Replace(result, "}", "\\}", 0);
+	result = Replace(result, "<", "\\<", 0);
+	result = Replace(result, ">", "\\>", 0);
+	return result;
+}
+
 
 ///////////////////////////////////////////////
 /// \brief Format time_t into string
@@ -416,6 +428,17 @@ bool REST_StringHelper::isRootFile(const std::string& filename)
 	if (filename.find(".root") == string::npos) return false;
 
 	return true;
+}
+
+///////////////////////////////////////////////
+/// \brief Returns true if **filename** is an *http* address.
+///
+bool REST_StringHelper::isURL(const std::string& filename)
+{
+	if( filename.find("http") == 0 )
+        return true;
+
+	return false;
 }
 
 ///////////////////////////////////////////////

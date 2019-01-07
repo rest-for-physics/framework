@@ -184,6 +184,7 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 
 				debug << "TRestReadoutAnalysisProcess. Adding point to hitmap of module : " << mod1 << endl;
 				debug << "Position on module(X, Y) : (" << x << ", " << y << ")" << endl;
+				debug << "Absolute position:(X, Y) : (" << firstx << ", " << firsty << ")" << endl;
 
 			}
 		}

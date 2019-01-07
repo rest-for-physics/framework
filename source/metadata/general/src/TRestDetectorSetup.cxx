@@ -16,6 +16,8 @@
 
 
 #include "TRestDetectorSetup.h"
+#include "TRestManager.h"
+#include "TRestRun.h"
 using namespace std;
 
 ClassImp(TRestDetectorSetup)
@@ -73,7 +75,10 @@ void TRestDetectorSetup::InitFromConfigFile()
 	// Initialize the metadata members from a configfile
 	fRunNumber = StringToInteger( GetParameter( "runNumber" ) );
 	fSubRunNumber = StringToInteger( GetParameter( "subRunNumber" ) );
-
+	if (fHostmgr != NULL && fHostmgr->GetRunInfo()!=NULL) {
+		TRestRun*r = fHostmgr->GetRunInfo();
+		InitFromFileName(r->GetInputFileName(0));
+	}
 	// TOBE implemented if needed
 }
 

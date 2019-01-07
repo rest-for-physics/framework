@@ -120,7 +120,9 @@ protected:
 	std::string ReplaceEnvironmentalVariables(const std::string buffer);
 	void SetEnv(string name, string value, bool overwriteexisting);
 	void ClearEnv() { fElementEnv.clear(); }
-	string SearchFile(string filename);
+	string SearchFile(string filename, vector<string> addonPath = {});
+
+    std::string DownloadHttpFile( string remoteFile );
 
 	//////////////////////////////////////////////////
 	///Data members
@@ -176,13 +178,13 @@ public:
 	/// Making default settings.
 	virtual void Initialize() {}
 	/// Implementing TObject::Print() method
-	void Print() { PrintMetadata(); }
+	void Print() { PrintMetadata(); } // *MENU*
 	/// Implemented it in the derived metadata class to print out specific metadata information.
 	virtual void PrintMetadata();
 	/// Print the current time on local machine.
 	void PrintTimeStamp(Double_t timeStamp);
 	/// Print the config xml section stored in the class
-	void PrintConfigBuffer();
+	void PrintConfigBuffer(); // *MENU*
 
     /// Writes the config buffer to a file in append mode
     void WriteConfigBuffer( string fname );
@@ -193,7 +195,7 @@ public:
 
 	//getters and setters
 	std::string GetSectionName();
-	std::string GetSectionContent();
+	std::string GetConfigBuffer();
 	/// set the section name, clear the section content
 	void SetSectionName(std::string sName) { fSectionName = sName; }
 	/// set config file path from external
@@ -233,7 +235,6 @@ public:
 	Int_t GetVersionCode() { return ConvertVersionCode((string)GetVersion()); }
 
 	/// overwriting the write() method with fStore considered
-	virtual Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0) const;
 	virtual Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0);
 
 	//data member reflection tools

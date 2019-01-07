@@ -42,9 +42,10 @@ class TRestSignalZeroSuppresionProcess:public TRestEventProcess {
 		TVector2 fIntegralRange;
         Double_t fPointThreshold;
         Double_t fSignalThreshold;
-        Int_t fNPointsOverThreshold;
+		Int_t fNPointsOverThreshold;
 		Int_t fNPointsFlatThreshold;
 		bool fBaseLineCorrection;
+		Double_t fSampling; // us
 
 
     public:
@@ -82,7 +83,7 @@ class TRestSignalZeroSuppresionProcess:public TRestEventProcess {
         //Destructor
         ~TRestSignalZeroSuppresionProcess();
 
-        ClassDef(TRestSignalZeroSuppresionProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+        ClassDef(TRestSignalZeroSuppresionProcess, 2);      // Template for a REST "event process" class inherited from TRestEventProcess
 };
 #endif
 

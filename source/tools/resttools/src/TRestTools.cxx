@@ -8,7 +8,21 @@ using namespace std;
 
 #include <dirent.h>
 
-
+struct _REST_STARTUP_CHECK {
+public:
+	_REST_STARTUP_CHECK() {
+		if (getenv("REST_PATH") == NULL) {
+			cout << "REST ERROR!! Lacking system env \"REST_PATH\"! Cannot start!" << endl;
+			cout << "You need to source \"thisREST.sh\" first" << endl;
+			exit(1);
+		}
+		if (getenv("USER") == NULL) {
+			cout << "REST ERROR!! Lacking system env \"USER\"! Cannot start!" << endl;
+			cout << "You need to source \"thisREST.sh\" first" << endl;
+			exit(1);
+		}
+	}
+}; const _REST_STARTUP_CHECK __check;
 
 
 ClassImp(TRestTools)

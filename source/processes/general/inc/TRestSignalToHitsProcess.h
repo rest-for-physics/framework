@@ -40,7 +40,6 @@ private:
 
 protected:
 
-	Double_t fSampling; // us
 	Double_t fElectricField; // V/cm
 	Double_t fGasPressure; // atm
 	Double_t fDriftVelocity; // mm/us
@@ -61,7 +60,6 @@ public:
 	{
 		BeginPrintProcess();
 
-		essential << "Sampling rate : " << fSampling << " us" << endl;
 		essential << "Electric field : " << fElectricField << " V/cm" << endl;
 		essential << "Gas pressure : " << fGasPressure << " atm" << endl;
 		essential << "Drift velocity : " << fDriftVelocity << " mm/us" << endl;
@@ -79,7 +77,7 @@ public:
 	//Destructor
 	~TRestSignalToHitsProcess();
 
-	ClassDef(TRestSignalToHitsProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+	ClassDef(TRestSignalToHitsProcess, 2);      // Template for a REST "event process" class inherited from TRestEventProcess
 };
 #endif
 
