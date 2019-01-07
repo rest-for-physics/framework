@@ -180,10 +180,10 @@ Double_t TRestRawSignal::GetIntegralWithThreshold( Int_t from, Int_t to,
 				{
 					for( int j = i - nPoints - fHeadPoints; j < i + fTailPoints && j < GetNumberOfPoints(); j++ )
 					{
-						if( j < 0 ) j = 0;
+						if (j < 0) continue;
 		//				if( debug )
 		//					cout << "Adding point : " <<  j << " data : " << GetData( j ) << endl;
-						sum += this->GetData( j );
+						sum += this->GetData(j) - baseline;
 						fPointsOverThreshold.push_back( j );
 					}
 				}
