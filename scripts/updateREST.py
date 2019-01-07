@@ -31,7 +31,7 @@ def update():
         print "updating local git repository of REST"
         os.chdir(vars.opt["Source_Path"])
         os.system("git stash")
-        p = subprocess.Popen(['git fetch origin '+vars.opt["Branch"]], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
+        p = subprocess.Popen(['git fetch origin '+vars.opt["Branch"] + ' --all'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
         out, err = p.communicate()
         if "up-to-date" in out:
             print "REST is already up-to-date"
