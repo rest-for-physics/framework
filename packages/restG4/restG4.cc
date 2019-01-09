@@ -387,11 +387,11 @@ int main(int argc,char** argv) {
     delete subRestG4Event;
     delete restTrack;
 
-     //Writting the geometry in TGeoManager format to the ROOT file
+     //Writing the geometry in TGeoManager format to the ROOT file
 	{
-		//writting the geometry object
+		//writing the geometry object
 		TFile *f1 = new TFile(Filename, "update");
-		cout << "Writting geometry..." << endl;
+		cout << "Writing geometry..." << endl;
 
 		//making a temporary file for ROOT to load. ROOT6 has a bug loading math expressions in gdml file
 		system(("cp " + (string)restG4Metadata->Get_GDML_Filename() + " " + (string)restG4Metadata->Get_GDML_Filename() + "_").c_str());

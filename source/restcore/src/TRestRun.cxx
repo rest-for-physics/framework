@@ -708,10 +708,10 @@ void TRestRun::ResetEntry()
 }
 
 ///////////////////////////////////////////////
-/// \brief Get next event by writting event data into target event and target tree
+/// \brief Get next event by writing event data into target event and target tree
 ///
 /// returns 0 if success, returns -1 if failed, e.g. end of file
-/// writting event data into target event calls the method TRestEvent::CloneTo()
+/// writing event data into target event calls the method TRestEvent::CloneTo()
 Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettree)
 {
 	if (fFileProcess != NULL)
@@ -881,7 +881,7 @@ TFile* TRestRun::FormOutputFile(vector<string> filenames, string targetfilename)
 }
 
 ///////////////////////////////////////////////
-/// \brief Create a new TFile as REST output file. Writting metadata objects into it.
+/// \brief Create a new TFile as REST output file. Writing metadata objects into it.
 ///
 TFile* TRestRun::FormOutputFile()
 {
