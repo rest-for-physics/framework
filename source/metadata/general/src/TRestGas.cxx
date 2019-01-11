@@ -844,7 +844,7 @@ void TRestGas::GenerateGasFile()
 		return;
 	}
 
-	cout << "Writting gas file : " << endl;
+	cout << "Writing gas file : " << endl;
 	cout << "-----------------" << endl;
 	cout << "Path : " << fGasOutputPath << endl;
 	cout << "Filename : " << fGasFilename << endl;

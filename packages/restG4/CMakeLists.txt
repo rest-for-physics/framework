@@ -99,7 +99,7 @@ install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/mac
 install(TARGETS restG4 DESTINATION bin)
 
 install(CODE "execute_process(COMMAND chmod 744 ${REST_PATH}/example/replaceRMLVars.py)")
-install(CODE "execute_process(COMMAND ln -s ${REST_PATH}/inputData/definitions/materials.xml ${REST_PATH}/example/restG4template/geometry/materials.xml)")
-install(CODE "execute_process(COMMAND ln -s ${REST_PATH}/inputData/definitions/materials.xml ${REST_PATH}/example/pandaXIII/geometry/traditional/materials.xml)")
-install(CODE "execute_process(COMMAND ln -s ${REST_PATH}/inputData/definitions/materials.xml ${REST_PATH}/example/pandaXIII/geometry/resistive/materials.xml)")
+install(CODE "execute_process(COMMAND ln -sf ${REST_PATH}/inputData/definitions/materials.xml ${REST_PATH}/example/restG4template/geometry/materials.xml)")
+install(CODE "execute_process(COMMAND ln -sf ${REST_PATH}/inputData/definitions/materials.xml ${REST_PATH}/example/pandaXIII/geometry/traditional/materials.xml)")
+install(CODE "execute_process(COMMAND ln -sf ${REST_PATH}/inputData/definitions/materials.xml ${REST_PATH}/example/pandaXIII/geometry/resistive/materials.xml)")
 

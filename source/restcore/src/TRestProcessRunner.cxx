@@ -873,7 +873,7 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t)
 /// As a result threads will not write their files together, thus preventing segmentaion violation.
 void TRestProcessRunner::WriteThreadFileFunc(TRestThread* t)
 {
-	cout << "writting files" << endl;
+	cout << "writing files" << endl;
 	mutexx.lock();
 #ifdef TIME_MEASUREMENT
 	high_resolution_clock::time_point t5 = high_resolution_clock::now();

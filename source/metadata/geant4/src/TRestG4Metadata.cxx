@@ -53,12 +53,12 @@
 ///     ...
 /// </TRestRun>
 /// 
-/// //A TRestG4Metadata section definning few parameters, generator, and storage.
+/// //A TRestG4Metadata section defining few parameters, generator, and storage.
 /// <TRestG4Metadata>
 ///     ...
 /// </TRestG4Metadata>
 ///
-/// //A TRestPhysicsLists section definning the physics processes active.
+/// //A TRestPhysicsLists section def-inning the physics processes active.
 /// <TRestPhysicsLists>
 ///     ...
 /// </TRestPhysicsLists>
@@ -118,7 +118,7 @@
 /// in a single physical volume on the geometry) must be named `gasVolume`.
 ///
 /// * **maxTargetStepSize**: This is the maximum integration step size allowed to
-/// Geant4 when aproximating the interaction of particles in a medium. Lower
+/// Geant4 when approximating the interaction of particles in a medium. Lower
 /// values will provide a more accurate description of the particle tracks, but
 /// will also require an additional computation time.
 /// \note The parameter **maxTargetStepSize** has only effect on the target
@@ -130,7 +130,7 @@
 /// as a fully independent event. Therefore, the total number of registered 
 /// events could be higher than the initial number of events.
 ///
-/// The following example ilustrates the definition of the common simulation
+/// The following example illustrates the definition of the common simulation
 /// parameters.
 ///
 /// \code
@@ -196,7 +196,7 @@
 /// `from="physVolume"`, where `physVolume` is a physical volume name defined in our
 /// GDML geometry description. This generator will launch homogeneously events from
 /// the internal volume of `physVolume`. If there are empty holes in this physical
-/// volumes we should take care to substract the different internal empty volumes in
+/// volumes we should take care to subtract the different internal empty volumes in
 /// the geometry definition, for this generator to work properly.
 /// \code
 ///     // We launch particles from random positions inside the vessel
@@ -218,7 +218,7 @@
 /// requires to define the additional parameter `position="(X,Y,Z)"` together with the
 /// unit values.
 /// \code
-///     // We launch particles at a fix position at the XY origing and z=-15cm
+///     // We launch particles at a fix position at the XY origin and z=-15cm
 ///     <generator type="point" position="(0,0,-150)" units="mm" >
 /// \endcode
 ///
@@ -298,7 +298,7 @@
 /// In the particle field we can use any pre-defined particle name existing in Geant4,
 /// as [leptons][leptons] or [ions][ions]. Additionally, we can define any radioactive
 /// isotope by using the element name symbol and the number of nucleons (i.e. Rn222,
-/// Co60, U238 ). For the radiactive decays we can also define an additional field
+/// Co60, U238 ). For the radioactive decays we can also define an additional field
 /// `fullchain="on/off"`. This parameter specifies if we want to simulate the full
 /// radiative chain or a single decay to the next de-excited isotope. Or, we can also
 /// use an external generator using the `fromFile=""` parameter.
@@ -312,7 +312,7 @@
 ///     <source particle="gamma">
 /// \endcode
 ///
-/// * **particle="Xn" fullchain="off"**: A radiactive isotope. Where X is the element
+/// * **particle="Xn" fullchain="off"**: A radioactive isotope. Where X is the element
 /// name and n the number of nucleons (I.e. Rn222, Xe137, Co60, etc).
 /// \code
 ///     // We launch a single chain Rn222 decay
@@ -367,7 +367,7 @@
 /// spectrum. It requires to define the parameters `file="mySpectrum.root"`
 /// `spctName="histName"` and `range="(Ei,Ef)"`. The ROOT file should contain a
 /// TH1D histogram with name `histName`. Only the region of the spectrum inside
-/// the range `Ei-Ef` will be considered. The energy units of the spectum must be 
+/// the range `Ei-Ef` will be considered. The energy units of the spectrum must be 
 /// specified in the x-axis label of the TH1D object. If no units are given
 /// in the x-label, the default units considered will be keV.
 /// \code
@@ -400,15 +400,15 @@
 /// only the particles travelling towards the inside of the virtual
 /// volume will be considered.
 /// \code
-///     // Particles will be launched without prefered direction.
+///     // Particles will be launched without preferred direction.
 ///     <angularDist type="isotropic" />
 /// \endcode
 /// 
-/// * **backtoback**: The source momentum direction will be oposite to
+/// * **backtoback**: The source momentum direction will be opposite to
 /// the direction of the previous source. If it is the first source the
 /// angular distribution type will be re-defined to isotropic.
 /// \code
-///     // Particles will be launched without prefered direction.
+///     // Particles will be launched without preferred direction.
 ///     <angularDist type="backtoback" />
 /// \endcode
 /// 
@@ -509,7 +509,7 @@
 /// The largest biasing volume must be fully contained inside the original 
 /// event generator. And the smaller biasing volume should fully contain
 /// all the volumes where hits will be stored. The different biasing 
-/// volumes must be fully containned one in each other (in other words, 
+/// volumes must be fully contained one in each other (in other words, 
 /// the biasing volumes should not overlap).
 ///
 /// In practice, *restG4* will run a total of N+1 *Geant4* simulations,
@@ -554,7 +554,7 @@
 /// </biasing>
 /// \endcode
 ///
-/// \note The biasing is optional, and only required in exceptional cirumstances, 
+/// \note The biasing is optional, and only required in exceptional circumstances, 
 /// most of the times will be disabled by using `value="off"`. 
 ///
 /// We can use two spatial generators to define the biasing volumes (virtualBox
@@ -588,7 +588,7 @@
 ///
 /// History of developments:
 ///
-/// 2015-july: First concept and implementation of TRestG4 classes.
+/// 2015-July: First concept and implementation of TRestG4 classes.
 ///            Javier Galán
 ///
 ///
@@ -619,7 +619,7 @@ TRestG4Metadata::TRestG4Metadata() : TRestMetadata()
 /// full path, absolute or relative.
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
-/// \param name The name of the specific metadata. It will be used to find the correspondig TRestG4Metadata section inside the RML.
+/// \param name The name of the specific metadata. It will be used to find the corresponding TRestG4Metadata section inside the RML.
 ///
 TRestG4Metadata::TRestG4Metadata(char *cfgFileName, string name) : TRestMetadata(cfgFileName)
 {
@@ -708,7 +708,7 @@ void TRestG4Metadata::InitFromConfigFile()
 
 	ReadBiasing();
 
-	// should return sucess or fail
+	// should return success or fail
 
 }
 
@@ -717,7 +717,7 @@ void TRestG4Metadata::InitFromConfigFile()
 /// 
 /// This section allows to define the size and properties of any number of biasing 
 /// volumes. Biasing volume properties include the multiplicity factor and the 
-/// range of energies that particles will be propogated to the next biasing volume.
+/// range of energies that particles will be propagated to the next biasing volume.
 /// 
 /// Check for more details in the general description of this class.
 /// 
@@ -924,7 +924,7 @@ void TRestG4Metadata::ReadStorage()
 	cout << "Sensitive volume : " << fSensitiveVolume << endl;
 	if (fSensitiveVolume == "Not defined")
 	{
-		cout << "REST WARNNING : Sensitive volume not defined. Setting it to gas!!!!" << endl;
+		cout << "REST WARNING : Sensitive volume not defined. Setting it to gas!!!!" << endl;
 		fSensitiveVolume = "gas";
 	}
 
@@ -1033,7 +1033,7 @@ void TRestG4Metadata::ReadGeneratorFile(TString fName)
 	if (!fileExists((string)fName)) {
 		fName = (TString)getenv("REST_PATH") + "/inputData/generator/" + fName;
 		if (!fileExists((string)fName)) {
-			warning << "REST WARNING (TRestG4Metadata): generatot file does not exist!" << endl;
+			warning << "REST WARNING (TRestG4Metadata): generator file does not exist!" << endl;
 			GetChar();
 		}
 	}

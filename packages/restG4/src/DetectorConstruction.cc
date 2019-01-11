@@ -144,7 +144,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     }
 
 
-    cout << "Detector construced : " << W << endl;
+    cout << "Detector constructed : " << W << endl;
 
     return W;
 }
