@@ -40,6 +40,10 @@ at the Git documentation.
 
 TODO : Explain doxygen formatting, tutorials, where official doc is located. ETC.
 
+### REST forum. Communication of updates to the code and discussion on development topics.
+
+TODO : describe how changes should be discussed at REST forum. Bug report, report on changes, encourage discussion, user support, etc.
+
 ### Adding a new commit to the development branch
 
 It is critical to prepare the `commit` following a few basic rules in order to allow future code review and track
