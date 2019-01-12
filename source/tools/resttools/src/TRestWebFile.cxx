@@ -4,8 +4,7 @@ map<string, TRestWebFile> webFilesList = {
 	{ "TRestGas", TRestWebFile(
 		"gases.rml",
 		(string)getenv("REST_PATH") + "/inputData/gasFiles/",
-		"https://sultan.unizar.es/gasFiles/",
-		"ssh://gasUser@sultan.unizar.es/gasFiles/",
+		"https://gasUser@sultan.unizar.es/gasFiles/",
 		3,
 		false,
 		false
@@ -14,16 +13,6 @@ map<string, TRestWebFile> webFilesList = {
 	{ "TRestReadout",TRestWebFile(
 		"readouts.rml",
 		(string)getenv("REST_PATH") + "/inputData/readouts/",
-		"https://sultan.unizar.es/readouts/"
-	)},
-	{ "generator",TRestWebFile(
-		"readouts.rml",
-		(string)getenv("REST_PATH") + "/inputData/generator/",
-		"https://sultan.unizar.es/generator/"
-	)},
-	{ "distribution",TRestWebFile(
-		"readouts.rml",
-		(string)getenv("REST_PATH") + "/inputData/distribution/",
 		"https://sultan.unizar.es/readouts/"
 	)}
 };
@@ -86,7 +75,7 @@ string TRestWebFile::Download() {
 	{
 		cout << "REST Error : TRestWebFile::Download() : download failed!" << endl;
 		if (a == 1024) cout << "Network connection problem?" << endl;
-		else if (a == 2048) cout << "Gas definition does NOT exist in database?" << endl;
+		if (a == 2048) cout << "Gas definition does NOT exist in database?" << endl;
 
 		//we return the file from last successfull download, if it exists
 		if (fileExists(fullFileName)) {
@@ -117,7 +106,7 @@ string TRestWebFile::Upload() {
 	//cmd << "scp " << fullFileName << " " << fServer_Upload.GetUser() << "@" << fServer_Upload.GetHost() << ":./" << fServer_Upload.GetFile();
 
 	if ((string)fServer_Upload.GetProtocol() == "ssh") {
-		if ((string)fServer_Upload.GetPasswd() != "") cmd << "sshpass -p " << fServer_Upload.GetPasswd() << " ";
+		cmd << "sshpass -p " << fServer_Upload.GetPasswd() << " ";
 		cmd << "scp ";
 		if (fServer_Upload.GetPort() != 0) cmd << "-P " << fServer_Upload.GetPort() << " ";
 		cmd << EscapeSpecialLetters(fullFileName) << " ";
