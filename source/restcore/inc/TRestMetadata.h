@@ -120,7 +120,7 @@ protected:
 	std::string ReplaceEnvironmentalVariables(const std::string buffer);
 	void SetEnv(string name, string value, bool overwriteexisting);
 	void ClearEnv() { fElementEnv.clear(); }
-	string SearchFile(string filename, vector<string> addonPath = {});
+	string SearchFile(string filename);
 
     std::string DownloadHttpFile( string remoteFile );
 
