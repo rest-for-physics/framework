@@ -10,13 +10,13 @@
  * #endif
  *
  */
-#define REST_RELEASE "2.2.6"
-#define REST_RELEASE_DATE "2019-01-07"
-#define REST_RELEASE_TIME "14:51:26 +0800"
-#define REST_GIT_COMMIT "657681cc"
+#define REST_RELEASE "2.2.7"
+#define REST_RELEASE_DATE "2019-01-12"
+#define REST_RELEASE_TIME "13:18:26 +0100"
+#define REST_GIT_COMMIT "d34d76ae"
 #define REST_GIT_BRANCH "master"
-#define REST_GIT_TAG "v2.2.6"
-#define REST_VERSION_CODE 131590
+#define REST_GIT_TAG "v2.2.7"
+#define REST_VERSION_CODE 131591
 #define REST_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 #define REST_SCHEMA_EVOLUTION "ON"
 #endif
