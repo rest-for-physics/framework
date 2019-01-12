@@ -36,6 +36,10 @@ weeks, should be contributed in an independent branch for future merge to the `d
 For details on branches usage refer to the [branches section](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell) 
 at the Git documentation.
 
+### Documenting new methods or classes added to the repository
+
+TODO : Explain doxygen formatting, tutorials, where official doc is located. ETC.
+
 ### Adding a new commit to the development branch
 
 It is critical to prepare the `commit` following a few basic rules in order to allow future code review and track
