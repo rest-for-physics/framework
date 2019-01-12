@@ -780,7 +780,12 @@ string TRestGas::FindGasFile( string name )
 		absoluteName = SearchFile( name );
 		if( absoluteName == "" )
 		{
-			warning << "-- Warning : No sucess" << endl;
+			warning << "-- Warning : No sucess finding local gas file definition." << endl;
+			warning << "-- Warning : Gas file definition does not exist." << endl;
+			info << "-- Info : To generate a new gasFile enable gas generation in TRestGas constructor" << endl;
+			info << "-- Info : TRestGas ( \"gasDefinition.rml\", \"gas Name\", true );" << endl;
+			info << "-- Info : Further details can be found at TRestGas class definition and tutorial." << endl;
+
 			absoluteName = name;
 		}
 	}
