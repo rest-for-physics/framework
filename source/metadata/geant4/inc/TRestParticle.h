@@ -28,6 +28,7 @@ class TRestParticle:public TObject {
         Double_t fExcitationLevel;
         TVector3 fDirection;
         Double_t fEnergy;
+		Int_t fCharge;
 
     public:
 
@@ -35,6 +36,7 @@ class TRestParticle:public TObject {
         Double_t GetExcitationLevel() { return fExcitationLevel; }
         Double_t GetEnergy() { return fEnergy; }
         TVector3 GetMomentumDirection() { return fDirection; }
+		Int_t GetParticleCharge() { return fCharge; }
 
         void SetParticle ( TRestParticle ptcle ) 
         { 
@@ -51,6 +53,8 @@ class TRestParticle:public TObject {
             if( fExcitationLevel < 0 ) fExcitationLevel = 0;
         }
 
+		void SetParticleCharge( Int_t charge ) { fCharge = charge; }
+
         void SetDirection( TVector3 dir ) { fDirection = dir; }
         void SetEnergy( Double_t en ) { fEnergy = en; }
 
@@ -59,6 +63,6 @@ class TRestParticle:public TObject {
         //Destructor
         virtual ~ TRestParticle();
 
-        ClassDef(TRestParticle, 1); 
+        ClassDef(TRestParticle, 2); 
 };
 #endif
