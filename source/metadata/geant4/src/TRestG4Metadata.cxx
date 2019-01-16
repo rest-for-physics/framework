@@ -850,6 +850,14 @@ void TRestG4Metadata::ReadGenerator()
 
 		source.SetExcitationLevel(StringToDouble(GetFieldValue("excitedLevel", sourceDefinition)));
 
+		Int_t charge = 0;
+		if( GetFieldValue("charge", sourceDefinition) == "Not defined" )
+		   	charge = 0;
+		else
+			charge = StringToInteger(GetFieldValue("charge", sourceDefinition));
+
+		source.SetParticleCharge( charge );
+
 		TString fullChain = GetFieldValue("fullChain", sourceDefinition);
 
 		if (fullChain == "on" || fullChain == "ON" || fullChain == "On" || fullChain == "oN")
