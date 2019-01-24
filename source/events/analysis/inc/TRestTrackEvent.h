@@ -60,7 +60,7 @@ class TRestTrackEvent: public TRestEvent {
 
         TRestTrack *GetTrack( Int_t n ) 
 		{
-			if( fTrack.size() <= 0 )
+			if( fTrack.size() < n + 1 )
 			{
 				std::cout << "-- Error : TRestTrackEvent::GetTrack. ERROR!" << std::endl;
 				std::cout << "-- Error : GetTrack requested track with index n = " << n << std::endl;
