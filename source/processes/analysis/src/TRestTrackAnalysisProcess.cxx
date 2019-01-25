@@ -327,21 +327,25 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         if( nTracksY < fNTracksYCut.X() || nTracksY > fNTracksYCut.Y() ) return NULL;
     }
 
-    /* {{{ Producing nTracks above/below threshold ( nTracls_LE/HE_XXX ) */
+
+
+    /* {{{ Producing nTracks around/above/below threshold ( nTracks_En/LE/HE_XXX ) */
     for( unsigned int n = 0; n < nTracks_HE.size(); n++ )
         nTracks_HE[n] = 0;
 
     for( unsigned int n = 0; n < nTracks_LE.size(); n++ )
         nTracks_LE[n] = 0;
+        for( unsigned int n = 0; n < nTracks_En.size(); n++ )
+        nTracks_En[n] = 0;
 
     for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
     {
         if( !fInputTrackEvent->isTopLevel( tck ) ) continue;
 
         TRestTrack *t = fInputTrackEvent->GetTrack( tck );
-        Double_t en = t->GetEnergy( );
+        Double_t en = t->GetEnergy();
 
-        if( t->isXYZ() )
+       // if( t->isXYZ() )
         {
             for( unsigned int n = 0; n < fTrack_HE_EnergyObservables.size(); n++ )
                 if( en > fTrack_HE_Threshold[n] )
@@ -379,14 +383,16 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     }
     /* }}} */
 
+     
 
     TRestTrack *tXYZ = fInputTrackEvent->GetMaxEnergyTrack( );
     TRestTrack *tX = fInputTrackEvent->GetMaxEnergyTrack("X");
     TRestTrack *tY = fInputTrackEvent->GetMaxEnergyTrack("Y");
+   
 
     if( fEnableTwistParameters )
     {
-        /* {{{ Adding twist observables from XYZ track */
+        /* {{{ Adding twist observables from XYZ maxEnergyTrack */
 
         Double_t twist = -1, twistWeighted = -1;
 
@@ -544,7 +550,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         fAnalysisTree->SetObservableValue( obsName, twistWeighted );
         /* }}} */
 
-        /* {{{ Adding twist observables from X track */
+        /* {{{ Adding twist observables from X maxEnergyTrack */
         Double_t twist_X = -1, twistWeighted_X = -1;
 
         for( unsigned int n = 0; n < fTwistWeightedHighValue_X.size(); n++ )
@@ -702,7 +708,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         fAnalysisTree->SetObservableValue( obsName, twistWeighted_X );
         /* }}} */
 
-        /* {{{ Adding twist observables from Y track */
+        /* {{{ Adding twist observables from Y maxEnergyTrack */
         Double_t twist_Y = -1, twistWeighted_Y = -1;
 
         for( unsigned int n = 0; n < fTwistWeightedHighValue_Y.size(); n++ )
@@ -861,7 +867,10 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     }
 
     /* {{{ Getting max track energies and track energy ratio */
-    Double_t tckMaxEnXYZ = 0, tckMaxEnX = 0, tckMaxEnY = 0;
+    Double_t tckMaxEnXYZ = 0, tckMaxEnX = 0, tckMaxEnY = 0, tckMaxEnergy=0, totalEnergy=0, trackEnergyRatio=0 ;
+   
+     totalEnergy= fInputTrackEvent->GetEnergy( );
+   
 
     if( fInputTrackEvent->GetMaxEnergyTrack() )
         tckMaxEnXYZ = fInputTrackEvent->GetMaxEnergyTrack()->GetEnergy();
@@ -881,13 +890,16 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     obsName = this->GetName() + (TString) ".maxTrack_Y_Energy";
     fAnalysisTree->SetObservableValue( obsName, tckMaxEnY );
 
-    Double_t tckMaxEnergy = tckMaxEnX + tckMaxEnY + tckMaxEnXYZ;
+     tckMaxEnergy = tckMaxEnX + tckMaxEnY + tckMaxEnXYZ;
 
-    Double_t totalEnergy = fInputTrackEvent->GetEnergy( );
+     
 
-    Double_t trackEnergyRatio = (totalEnergy - tckMaxEnergy) / totalEnergy;
+     trackEnergyRatio = (totalEnergy - tckMaxEnergy) / totalEnergy;
+    obsName = this->GetName() + (TString) ".trackEnergy";
+    fAnalysisTree->SetObservableValue( obsName, totalEnergy);
+    /* }}} */
 
-    obsName = this->GetName() + (TString) ".nTrackEnergyRatio";
+    obsName = this->GetName() + (TString) ".maxTrackEnergyRatio";
     fAnalysisTree->SetObservableValue( obsName, trackEnergyRatio );
     /* }}} */
 
@@ -996,40 +1008,12 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     }
 
     obsName = this->GetName() + (TString) ".MaxTrack_Ymean_Y";
-    fAnalysisTree->SetObservableValue( obsName, maxX );
+    fAnalysisTree->SetObservableValue( obsName, maxY );
 
     obsName = this->GetName() + (TString) ".MaxTrack_Zmean_Y";
     fAnalysisTree->SetObservableValue( obsName, maxZ );
 
-    /////////////////// xMean, yMean and zMean //////////////////////////
-    Double_t x = 0, y = 0, z = 0;
-
-    if( tXYZ != NULL )
-    {
-        x = tXYZ->GetMeanPosition().X();
-        y = tXYZ->GetMeanPosition().Y();
-        z = tXYZ->GetMeanPosition().Y();
-    }
-    else if( tX != NULL )
-    {
-        x = tX->GetMeanPosition().X();
-        z = tX->GetMeanPosition().Y();
-    }
-    else if( tY != NULL )
-    {
-        y = tY->GetMeanPosition().Y();
-        z = tY->GetMeanPosition().Y();
-    }
-
-    obsName = this->GetName() + (TString) ".xMean";
-    fAnalysisTree->SetObservableValue( obsName, x );
-
-    obsName = this->GetName() + (TString) ".yMean";
-    fAnalysisTree->SetObservableValue( obsName, y );
-
-    obsName = this->GetName() + (TString) ".zMean";
-    fAnalysisTree->SetObservableValue( obsName, z );
-    /* }}} */
+    
 
     /// This kind of observables would be better in a separate process that measures the trigger rate
     Double_t evTimeDelay = 0;
