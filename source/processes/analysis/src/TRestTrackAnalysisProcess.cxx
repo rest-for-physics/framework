@@ -891,7 +891,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     Double_t trackEnergyRatio = (totalEnergy - tckMaxEnergy) / totalEnergy;
 
-    obsName = this->GetName() + (TString) ".nTrackEnergyRatio";
+    obsName = this->GetName() + (TString) ".maxTrackEnergyRatio";
     fAnalysisTree->SetObservableValue( obsName, trackEnergyRatio );
     /* }}} */
 
