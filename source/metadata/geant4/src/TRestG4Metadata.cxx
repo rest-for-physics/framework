@@ -319,6 +319,9 @@
 ///     <source particle="Rn222" fullChain="off" >
 /// \endcode
 ///
+/// \note For ions, we can also define its electric charge (signed integer) and excited
+///level value in eV, by using the additional fields excitedLevel and charge.
+///
 /// * **fromFile="Xe136bb0n.dat"**: The particles, energies, and direction are 
 /// fully described by an input file. `<energyDistribution>` and 
 /// `<angularDistribution>` source specifiers have no effect here. Everything will
@@ -849,6 +852,14 @@ void TRestG4Metadata::ReadGenerator()
 		source.SetParticleName(GetFieldValue("particle", sourceDefinition));
 
 		source.SetExcitationLevel(StringToDouble(GetFieldValue("excitedLevel", sourceDefinition)));
+
+		Int_t charge = 0;
+		if( GetFieldValue("charge", sourceDefinition) == "Not defined" )
+		   	charge = 0;
+		else
+			charge = StringToInteger(GetFieldValue("charge", sourceDefinition));
+
+		source.SetParticleCharge( charge );
 
 		TString fullChain = GetFieldValue("fullChain", sourceDefinition);
 
