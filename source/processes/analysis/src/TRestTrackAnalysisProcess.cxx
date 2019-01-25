@@ -334,6 +334,10 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     for( unsigned int n = 0; n < nTracks_LE.size(); n++ )
         nTracks_LE[n] = 0;
 
+	for( unsigned int n = 0; n < nTracks_En.size(); n++ )
+		nTracks_En[n] = 0;
+
+
     for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
     {
         if( !fInputTrackEvent->isTopLevel( tck ) ) continue;
