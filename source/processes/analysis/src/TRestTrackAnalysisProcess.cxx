@@ -1000,7 +1000,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     }
 
     obsName = this->GetName() + (TString) ".MaxTrack_Ymean_Y";
-    fAnalysisTree->SetObservableValue( obsName, maxX );
+    fAnalysisTree->SetObservableValue( obsName, maxY );
 
     obsName = this->GetName() + (TString) ".MaxTrack_Zmean_Y";
     fAnalysisTree->SetObservableValue( obsName, maxZ );
