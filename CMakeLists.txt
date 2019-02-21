@@ -1,6 +1,7 @@
 PROJECT(REST)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
+
 #minimum compiler version
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # require at least gcc 4.8
@@ -13,6 +14,15 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         message(FATAL_ERROR "Clang version must be at least 3.2!")
     endif()
 endif()
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-stdlib=libc++")
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+
+
+
 
 
 #install path
@@ -29,22 +39,11 @@ set(REST_PATH ${INSTALL_PREFIX_ABSOLUTE})
 set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX_ABSOLUTE})
 
 
-#gcc flags
-if(NOT CMAKE_CXX_FLAGS)
-IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
-    SET(CMAKE_CXX_FLAGS "-std=c++1y")
-ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
-
-IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-    SET(CMAKE_CXX_FLAGS "-stdlib=libc++ -std=c++11")
-ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-endif()
-
-
 #auto schema evolution for ROOT
 IF( NOT DEFINED REST_SE )
     set(REST_SE ON)
 ENDIF()
+set(SCHEMA_EVOLUTION ${REST_SE})
 
 
 #welcome message
@@ -52,161 +51,101 @@ IF( NOT DEFINED REST_WELCOME )
     set(REST_WELCOME ON)
 ENDIF()
 
-#Garfield 
-IF( NOT DEFINED REST_GARFIELD )
-    set(REST_GARFIELD ON)
-ENDIF()
 
-
-#find includes and libs of ROOT
+#find ROOT libs and includes
 set(external_include_dirs)
 set(external_libs)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 set(ROOT_FIND_REQUIRED true)
-IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-	set(CMAKE_MACOSX_RPATH 1)
-	include(FindROOT)
-	set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
-	set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit)
-
-elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
-	include(FindROOT)
-	set(external_include_dirs -I /usr/local/include ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
-    #file(GLOB rootlibs ${ROOT_LIBRARY_DIR}/*.so)
-	set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit -lImt)
-
-elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
-	#It is possible to run REST on windows in future when ROOT6 is ready 
-	set(ROOTSYS $ENV{ROOTSYS})
-	if(ROOTSYS)
-		set(CMAKE_FIND_LIBRARY_PREFIXES "lib")
-		set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib" ".dll")
-		set(ROOT_LIBRARIES)
-		foreach(_cpt Core Imt RIO Net Hist Gui Eve RGL Gdml Geom Graf Graf3d Gpad Tree TreePlayer Rint Postscript Matrix Physics MathCore Thread MultiProc Minuit)
-			find_library(ROOT_${_cpt}_LIBRARY ${_cpt} HINTS ${ROOT_LIBRARY_DIR})
-			if(ROOT_${_cpt}_LIBRARY)
-				mark_as_advanced(ROOT_${_cpt}_LIBRARY)
-				list(APPEND ROOT_LIBRARIES ${ROOT_${_cpt}_LIBRARY})
-				#list(REMOVE_ITEM ROOT_FIND_COMPONENTS ${_cpt})
-			endif()
-		endforeach()
-		if(ROOT_LIBRARIES)
-			list(REMOVE_DUPLICATES ROOT_LIBRARIES)
-		endif()
-		set(ROOTCINT_EXECUTABLE ${ROOTSYS}/bin/rootcint.exe)
-		set(ROOT_INCLUDE_DIRS ${ROOTSYS}/include)
-
-		message(STATUS ${ROOT_LIBRARIES})
-		message(STATUS ${ROOTCINT_EXECUTABLE})
-		set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
-		set(external_libs ${external_libs} ${ROOT_LIBRARIES})
-	else()
-		set(USR_INCLUDE_DIRS $ENV{usrinclude})
-		message(${USR_INCLUDE_DIRS})
-		include_directories(${USR_INCLUDE_DIRS})
-	endif()
-
-ENDIF ()
+set(CMAKE_MACOSX_RPATH 1)
+include(FindROOT)
+set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
+set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit)
 
 
 #find garfield libs and includes
+IF( NOT DEFINED REST_GARFIELD )
+    set(REST_GARFIELD ON)
+ENDIF()
 if(${REST_GARFIELD} MATCHES "ON")
 	add_definitions(-DUSE_Garfield)
 	include(FindGarfield)
-	message(STATUS "GARFIELD include dir: " ${Garfield_INCLUDE_DIRS})
 	set(external_include_dirs ${external_include_dirs} ${Garfield_INCLUDE_DIRS})
 	set(external_libs ${external_libs} ${Garfield_LIBRARIES})
 else()
 	set(REST_GARFIELD OFF)
 endif(${REST_GARFIELD} MATCHES "ON")
+
+
+#include dir for compilation
 include_directories(${external_include_dirs})
+message(STATUS "external include directory: " ${external_include_dirs})
+message(STATUS "external libraries to link: " ${external_libs})
 
 
-#gether some infomation from git
+#gether some infomation
+string(TIMESTAMP date "%Y-%m-%d %H:%M")
+message("")
+include(CollectGitInfo)
+message(STATUS "REST release : ${GIT_TAG}")
+message(STATUS "REST date : ${GIT_DATE}")
+message(STATUS "REST commit : ${GIT_COMMIT}")
+message(STATUS "REST branch : ${GIT_BRANCH}")
+message("")
+
+
+#generate TRestVersion.h during build stage
 IF (NOT CMAKE_SYSTEM_NAME MATCHES "Windows")
-    #get time
-    execute_process(COMMAND date OUTPUT_VARIABLE d)
-    string(REPLACE "\n" "" date ${d})
-
-    execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/cmake/printRelease.py
-	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-	OUTPUT_VARIABLE version)
-	string(REPLACE "\n" "" version ${version})
-	message( "" )
-	message(STATUS "REST release : ${version}")
-
-	#get git branch
-    execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/cmake/printVersionDate.sh
-	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-	OUTPUT_VARIABLE git_date)
-
-	if(DEFINED git_date)#git is available
-	if(git_date MATCHES " ")
-	string(REPLACE "\n" "" git_date ${git_date})
-	message(STATUS "REST date : ${git_date}")
-
-	#get git number	
-	set (git_cmd git)
-	set (git_arg rev-parse --verify HEAD )
-	execute_process(COMMAND ${git_cmd} ${git_arg}
-	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-	OUTPUT_VARIABLE git_ver)
-	string(SUBSTRING ${git_ver} 0 8 git_commit )
-	message(STATUS "REST commit : ${git_commit}")
-
-	#get git branch
-	execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/cmake/printBranch.sh
-	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-	OUTPUT_VARIABLE b)
-	string(REPLACE "\n" "" git_branch ${b})
-	message(STATUS "REST branch : ${git_branch}")
-	endif(git_date MATCHES " ")
-	endif(DEFINED git_date)
-
-	#generate 
 	add_custom_target(
 	RESTVersion ALL
-	COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/cmake/generateVersionHeader.py ${CMAKE_CURRENT_SOURCE_DIR}/source/restcore/inc/TRestVersion.h
+	COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generateVersionHeader.py ${CMAKE_CURRENT_SOURCE_DIR}/source/restcore/inc/TRestVersion.h
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 
 	#RESULT_VARIABLE h)
 	#if(h MATCHES 0)
 	#	add_definitions(-DREST_VERSION_HEADER)
 	#endif()
-	
-
 ENDIF ()
-
-
-message ("\noo REST will be installed in : ${CMAKE_INSTALL_PREFIX}" )
-message ("oo System is : ${CMAKE_SYSTEM_NAME}" )
-message ("oo Garfield is : ${REST_GARFIELD}" )
-message ("oo Auto Schema Evolution is : ${REST_SE}\n" )
 
 
 #start compile
 include(MacroRootDict)
-include(CompileDir)
 add_subdirectory(source)
+message("")
+message(STATUS "rest Libraries : " ${rest_libraries_regular})
+message(STATUS "rest executables: " ${rest_exes})
+message(STATUS "rest macros: " ${rest_macros_str})
+message("")
 
+
+#compile the packages
+IF( NOT DEFINED REST_G4 )
+    set(REST_G4 OFF)
+ENDIF()
 if(${REST_G4} MATCHES "ON")
 	add_subdirectory(packages/restG4)
 endif(${REST_G4} MATCHES "ON")
 
+IF( NOT DEFINED REST_DATABASE )
+    set(REST_DATABASE OFF)
+ENDIF()
 if(${REST_DATABASE} MATCHES "ON")
 	add_subdirectory(packages/restDataBaseImpl)
 endif(${REST_DATABASE} MATCHES "ON")
 
-if(${REST_EXAMPLELIB} MATCHES "ON")
-	add_subdirectory(packages/userRESTLibrary)
-endif(${REST_EXAMPLELIB} MATCHES "ON")
-
-message("\noo rest Libraries : " ${rest_libraries_regular})
-message("oo rest executables: " ${rest_exes})
-message("oo rest macros: " ${rest_macros_str} "\n")
-
 
 #begin installation
+message("")
+message("=============================")
+message ("REST will be installed in : ${CMAKE_INSTALL_PREFIX}" )
+message ("Version: ${GIT_TAG}" )
+message ("System is : ${CMAKE_SYSTEM_NAME}" )
+message ("Garfield is : ${REST_GARFIELD}" )
+message ("Geant4 is : ${REST_G4}" )
+message ("DataBase is : ${REST_DATABASE}" )
+message("=============================")
+message("")
+
 file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h")
 file(GLOB_RECURSE Headers_ "${CMAKE_CURRENT_SOURCE_DIR}/source/tools/external/win/*.h")
 
@@ -293,13 +232,15 @@ echo ${rest_macros_str}
 fi
 
 if [ $option = \\\"--version\\\" ] ; then
-echo ${version}
+echo ${GIT_TAG}
 
 fi
 
 if [ $option = \\\"--flags\\\" ] ; then
 echo REST_WELCOME=${REST_WELCOME}
 echo REST_GARFIELD=${REST_GARFIELD}
+echo REST_G4=${REST_G4}
+echo REST_DATABASE=${REST_DATABASE}
 echo CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
 echo CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
 
@@ -310,9 +251,8 @@ if [ $option = \\\"--welcome\\\" ] ; then
 echo \\\"  *****************************************************************************\\\"
 echo \\\"  W E L C O M E   to  R E S T                                                  \\\"
 echo \\\"                                                                               \\\"
-echo \\\"  Commit  : ${git_commit} (${git_date})                                        \\\"
-echo \\\"  Last update  :  ${git_date}                                                  \\\"
-echo \\\"  Branch/Version : ${git_branch}/${version}                                    \\\"
+echo \\\"  Commit  : ${GIT_COMMIT} (${GIT_DATE})                                        \\\"
+echo \\\"  Branch/Version : ${GIT_BRANCH}/${GIT_TAG}                                    \\\"
 echo \\\"  Compilation date : ${date}                                                   \\\"
 echo \\\"								                                                \\\"
 echo \\\"  Installed at : $REST_PATH                                                    \\\"
