@@ -98,7 +98,7 @@ message("")
 IF (NOT CMAKE_SYSTEM_NAME MATCHES "Windows")
 	add_custom_target(
 	RESTVersion ALL
-	COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generateVersionHeader.py ${CMAKE_CURRENT_SOURCE_DIR}/source/restcore/inc/TRestVersion.h
+	COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generateVersionHeader.py ${CMAKE_CURRENT_SOURCE_DIR}/source/restcore/inc/TRestVersion.h
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 
 	#RESULT_VARIABLE h)
