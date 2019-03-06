@@ -334,6 +334,10 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     for( unsigned int n = 0; n < nTracks_LE.size(); n++ )
         nTracks_LE[n] = 0;
 
+	for( unsigned int n = 0; n < nTracks_En.size(); n++ )
+		nTracks_En[n] = 0;
+
+
     for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
     {
         if( !fInputTrackEvent->isTopLevel( tck ) ) continue;
@@ -887,7 +891,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
     Double_t trackEnergyRatio = (totalEnergy - tckMaxEnergy) / totalEnergy;
 
-    obsName = this->GetName() + (TString) ".nTrackEnergyRatio";
+    obsName = this->GetName() + (TString) ".maxTrackEnergyRatio";
     fAnalysisTree->SetObservableValue( obsName, trackEnergyRatio );
     /* }}} */
 
@@ -996,7 +1000,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
     }
 
     obsName = this->GetName() + (TString) ".MaxTrack_Ymean_Y";
-    fAnalysisTree->SetObservableValue( obsName, maxX );
+    fAnalysisTree->SetObservableValue( obsName, maxY );
 
     obsName = this->GetName() + (TString) ".MaxTrack_Zmean_Y";
     fAnalysisTree->SetObservableValue( obsName, maxZ );
