@@ -1201,7 +1201,7 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
 		}
 		else
 		{
-			if (GetVerboseLevel() > REST_Debug) { cout << "Parameter not found!" << endl; }
+			debug << ClassName() << ": Parameter : " << parName << " not found!" << endl;
 		}
 	}
 
