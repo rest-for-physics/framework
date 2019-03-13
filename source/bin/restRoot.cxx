@@ -8,27 +8,29 @@
 
 #include "TRestVersion.h"
 
-bool verbose = true;
+bool silent = false;
 int main(int argc, char *argv[])
 {
 	setenv("REST_VERSION", REST_RELEASE, 1);
 
 	for (int i = 1; i < argc; i++) {
-		if (ToUpper((string)argv[i]) == "-L")
+		if (ToUpper((string)argv[i]) == "--SILENT")
 		{
-			verbose = false;
+			silent = true;
 			break;
 		}
 	}
 	TRint theApp("App",&argc,argv);
 
-	TRestTools::LoadRESTLibrary(verbose);
+	TRestTools::LoadRESTLibrary( silent );
 
 	auto a = ExecuteShellCommand("find $REST_PATH/macros | grep REST_.*.C | grep -v \"swo\" | grep -v \"CMakeLists\" | grep -v \"swp\"  | grep -v \"svn\"");
 	auto b = Spilt(a, "\n");
-	for (auto c : b) {
-		if (verbose)
+	for (auto c : b)
+	{
+		if ( !silent )
 			printf("Loading macro : %s\n", c.c_str());
+
 		gROOT->ProcessLine((".L "+c).c_str());
 	}
 

@@ -43,6 +43,7 @@ void TRestParticleSource::PrintParticleSource()
 
 	cout << "---------------------------------------" << endl;
     cout << "Particle : " << GetParticle() << endl;
+	cout << "Charge : " << GetParticleCharge() << endl;
     cout << "Angular distribution type : " << GetAngularDistType() << endl;
     if (GetAngularDistType() == "TH1D" )
     {

@@ -58,7 +58,18 @@ class TRestTrackEvent: public TRestEvent {
 
     public:
 
-        TRestTrack *GetTrack( Int_t n )  { return &fTrack[n]; }
+        TRestTrack *GetTrack( Int_t n ) 
+		{
+			if( fTrack.size() < n + 1 )
+			{
+				std::cout << "-- Error : TRestTrackEvent::GetTrack. ERROR!" << std::endl;
+				std::cout << "-- Error : GetTrack requested track with index n = " << n << std::endl;
+				std::cout << "-- Error : However, only " << fTrack.size() << " where found inside TRestTrackEvent" << std::endl;
+				std::cout << "-- Error : This might be probably a crash ... !!" << std::endl;
+				return NULL;
+			}
+			return &fTrack[n]; 
+		}
         TRestTrack *GetTrackById( Int_t id );
 
         TRestTrack *GetOriginTrackById( Int_t tckId );

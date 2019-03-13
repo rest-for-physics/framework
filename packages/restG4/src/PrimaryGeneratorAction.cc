@@ -88,10 +88,17 @@ G4ParticleDefinition *PrimaryGeneratorAction::SetParticleDefinition( int n )
 {
     string particleName = (string) restG4Metadata->GetParticleSource(n).GetParticleName();
 
-    Double_t eenergy = (double) restG4Metadata->GetParticleSource(n).GetExcitationLevel();
+	Double_t eenergy = (double) restG4Metadata->GetParticleSource(n).GetExcitationLevel();
+
+	Int_t charge =  restG4Metadata->GetParticleSource(n).GetParticleCharge();
 
     if( restG4Metadata->GetVerboseLevel() >= REST_Debug )
-        cout << "Searching for particle: " << particleName << " and excited energy: " << eenergy << endl;
+	{
+		cout << "-- Debug : Searching for : " << endl;
+		cout << "-- Debug : particle name : " << particleName << endl;
+		cout << "-- Debug : particle charge : " << charge << endl;
+		cout <<	"-- Debug : particle excited energy : " << eenergy << endl;
+	}
 
     G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
     G4ParticleDefinition* particle = particleTable->FindParticle(particleName);
@@ -106,6 +113,7 @@ G4ParticleDefinition *PrimaryGeneratorAction::SetParticleDefinition( int n )
                 if( particleName == G4IonTable::GetIonTable()->GetIonName ( Z, A ) )
                 {   
                     particle = G4IonTable::GetIonTable()->GetIon(Z,A, eenergy );
+					fParticleGun->SetParticleCharge( charge );
                     cout << "Found ion: " << particleName << " Z " << Z << " A " << A << " excited energy " << eenergy << endl;
                 }
 
