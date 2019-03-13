@@ -266,6 +266,16 @@
             <fraction n="0.915000" ref="Carbon"/>
         </material>
         <!-- }}} -->
+	
+	<!-- {{{ Acrylic -->
+         <material name="Acrylic" state="solid">
+             <MEE unit="eV" value="0.00000"/><!-- this is not a correct figure -->
+             <D unit="g/cm3" value="1.18"/>
+             <fraction n="0.080000" ref="Hydrogen"/>
+             <fraction n="0.600000" ref="Carbon"/>
+             <fraction n="0.320000" ref="Oxygen"/>
+         </material>
+         <!-- }}} -->
 
 
     </materials>
