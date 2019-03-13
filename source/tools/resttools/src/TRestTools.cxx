@@ -43,6 +43,7 @@ std::vector <TString> TRestTools::GetListOfRESTLibraries(  )
 
     for( unsigned int n = 0; n < libraryPathList.size(); n++ )
     {
+		//cout << "Getting libraries in directory : " << libraryPathList[n] << endl;
         vector <TString> list = GetRESTLibrariesInDirectory( libraryPathList[n] );
         for( unsigned int i = 0; i < list.size(); i++ )
             libraryList.push_back( list[i] );
@@ -123,8 +124,9 @@ std::vector <TString> TRestTools::GetRESTLibrariesInDirectory( TString path )
         while ((ent = readdir (dir)) != NULL) 
         {
             TString fName ( ent->d_name );
-            if( (fName.Contains( "REST" ) || fName.Contains( "Rest" ))&&fName.Contains(".so") )
-                fileList.push_back( fName );
+            if( (fName.Contains( "REST" ) || fName.Contains( "Rest" )) )
+				if( fName.Contains(".dylib") || fName.Contains(".so") )
+					fileList.push_back( fName );
         }
         closedir (dir);
     } 
@@ -143,8 +145,9 @@ void TRestTools::LoadRESTLibrary(bool verbose)
 	vector <TString> list = TRestTools::GetListOfRESTLibraries();
 	for (unsigned int n = 0; n < list.size(); n++)
 	{
-		if(verbose)
+		if( verbose )
 			cout << "Loading library : " << list[n] << endl;
+
 		gSystem->Load(list[n]);
 	}
 }
