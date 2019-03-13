@@ -1,9 +1,16 @@
 #----------------------------------------------------------------------------
 # Setup the project
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
-set( MY_LIBRARY "MyRESTLibrary" )
+set(CMAKE_MACOSX_RPATH 1)
+
+# MY_LIBRARY should contain Rest or REST in the name to be recognized by restRoot and restManager
+set( MY_LIBRARY "MyRestLibraryName" )
+
 project(${MY_LIBRARY})
-message("!!!!!!!!${MY_LIBRARY}!!!!!!!!")
+
+message("\n===========================================")
+message("Project : ${MY_LIBRARY}")
+message("===========================================\n")
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake ${CMAKE_MODULE_PATH})
 
 # find REST 
