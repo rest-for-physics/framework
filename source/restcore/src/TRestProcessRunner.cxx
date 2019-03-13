@@ -206,7 +206,7 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement * e)
 		{
 			TRestEventProcess* p = InstantiateProcess(processType, e);
 			if (p != NULL) {
-				if (p->InheritsFrom("TRestRawToSignalProcess"))
+				if (p->isExternal())
 				{
 					fRunInfo->SetExtProcess(p);
 					return 0;

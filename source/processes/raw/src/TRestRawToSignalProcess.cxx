@@ -64,6 +64,7 @@ void TRestRawToSignalProcess::Initialize()
     fMinPoints = 512;
 
 	fSingleThreadOnly = true;
+	fIsExternal = true;
 
 	totalBytes = 0;
 	totalBytesReaded = 0;

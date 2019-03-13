@@ -57,9 +57,10 @@ protected:
 	TVector2 fCanvasSize;//!
 
 	TRestAnalysisTree *fAnalysisTree = NULL; //!///< Pointer to analysis tree where to store the observables. 
-
-	Bool_t fSingleThreadOnly; //!///< It defines if the process reads event data from an external source.
-
+	
+	Bool_t fIsExternal = false; //!///< It defines if the process reads event data from an external source.
+	Bool_t fSingleThreadOnly = false; //!///< It defines if the process can run only under single thread
+	
 	REST_Process_Output fOutputLevel;//!
 
 	TRestRun* fRunInfo = NULL;//!
@@ -135,6 +136,7 @@ public:
 	virtual Long64_t GetTotalBytes() { return -1; }
 	virtual Long64_t GetTotalBytesReaded() { return 0; }
 	Bool_t singleThreadOnly() { return fSingleThreadOnly; }
+	Bool_t isExternal() { return fIsExternal; }
 	TRestRun* GetRunInfo() { return fRunInfo; }
 	vector<string> GetAvailableObservals();
 	TRestAnalysisTree *GetAnalysisTree() { return fAnalysisTree; }
