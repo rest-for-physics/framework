@@ -140,12 +140,12 @@ std::vector <TString> TRestTools::GetRESTLibrariesInDirectory( TString path )
 }
 
 
-void TRestTools::LoadRESTLibrary(bool verbose)
+void TRestTools::LoadRESTLibrary(bool silent)
 {
 	vector <TString> list = TRestTools::GetListOfRESTLibraries();
 	for (unsigned int n = 0; n < list.size(); n++)
 	{
-		if( verbose )
+		if( !silent )
 			cout << "Loading library : " << list[n] << endl;
 
 		gSystem->Load(list[n]);

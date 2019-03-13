@@ -70,7 +70,7 @@ class TRestTools:public TObject {
 		/// After this we can use reflection methods TClass::GetClass() and 
 		/// TRestMetadata::GetDataMemberRef()
 		///
-		static void LoadRESTLibrary(bool verbose = false);
+		static void LoadRESTLibrary(bool silent = false);
 
 		/// Rest tools class 
         ClassDef(TRestTools, 1); 
