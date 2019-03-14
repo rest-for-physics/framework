@@ -216,12 +216,12 @@ public:
 	void flushstring();
 
 
-	void insertfront(string s) {
-		stringbuf = s + stringbuf;
+	void insertfront(string str) {
+		stringbuf = str + stringbuf;
 	}
 
-	void insertback(string s) {
-		stringbuf = stringbuf + s;
+	void insertback(string str) {
+		stringbuf = stringbuf + str;
 	}
 
 	void setcolor(string colordef)
@@ -290,7 +290,7 @@ template<REST_Verbose_Level v> class TRestLeveledOutput :public TRestStringOutpu
 public:
 	TRestLeveledOutput() {};
 	TRestLeveledOutput(REST_Verbose_Level& vref, string _color = COLOR_RESET, string _border = "", int _orientation = 0)
-		:verboselvlref(vref),TRestStringOutput(_color,_border, _orientation)
+		:TRestStringOutput(_color,_border, _orientation),verboselvlref(vref)
 	{}
 
 	REST_Verbose_Level verbose = v;
