@@ -293,7 +293,7 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e)
 
 		pc->SetRunInfo(this);
 
-		if (pc->InheritsFrom("TRestRawToSignalProcess"))
+		if (pc->isExternal())
 		{
 			SetExtProcess(pc);
 			return 0;
@@ -1049,10 +1049,7 @@ void TRestRun::SetExtProcess(TRestEventProcess* p)
 	if (fFileProcess == NULL && p != NULL) {
 		fFileProcess = p;
 
-		if (fFileProcess->OpenInputFiles(fInputFileNames) == 0) {
-			error << "no files has been loaded by the external process!" << endl;
-			exit(1);
-		}
+        fFileProcess->OpenInputFiles(fInputFileNames);
 		fFileProcess->InitProcess();
 		fInputEvent = fFileProcess->GetOutputEvent();
 		fInputFile = NULL;
