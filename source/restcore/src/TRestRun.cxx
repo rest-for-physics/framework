@@ -293,7 +293,7 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e)
 
 		pc->SetRunInfo(this);
 
-		if (pc->InheritsFrom("TRestRawToSignalProcess"))
+		if (pc->isExternal())
 		{
 			SetExtProcess(pc);
 			return 0;
