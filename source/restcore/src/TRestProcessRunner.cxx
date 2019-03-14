@@ -1077,7 +1077,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 				prog_last_printed = (int)prog;
 			}
 		}
-		else
+		else if (fThreads[0]->GetVerboseLevel() < REST_Debug)
 		{
 			printf("%s", (s1 + s2 + s3 + "\r").c_str());
 			fflush(stdout);

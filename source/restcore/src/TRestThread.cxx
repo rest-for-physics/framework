@@ -471,12 +471,19 @@ void TRestThread::StartThread()
 /// \brief Add a process. 
 ///
 /// The process will be added to the end of the process chain. It will also 
-/// increase the class's verbose level, if the added process's verbose level is higher.
-/// That is: TRestThread >= Added Process
+/// increase TRestThread's verbose level if the added process's verbose level is higher.
+/// Note that we cannot use "debug" verbose level under compatibility output mode, i.e. in condor jobs.
 void TRestThread::AddProcess(TRestEventProcess *process) {
 	fProcessChain.push_back(process);
+	if (fout.CompatibilityMode() && process->GetVerboseLevel() >= REST_Debug)
+	{
+		warning << "REST WARNING! Cannot use \"debug\" output level for process " << process->GetName() << endl;
+		process->SetVerboseLevel(REST_Info);
+	}
 	if (process->GetVerboseLevel() > fVerboseLevel)
+	{
 		SetVerboseLevel(process->GetVerboseLevel());
+	}
 }
 
 
