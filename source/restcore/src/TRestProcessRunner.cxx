@@ -317,6 +317,7 @@ void TRestProcessRunner::ReadProcInfo()
 void TRestProcessRunner::RunProcess()
 {
 
+	debug << "Creating output File " << fRunInfo->GetOutputFileName() << endl;
 	fTempOutputDataFile = new TFile(fRunInfo->GetOutputFileName(), "recreate");
 	if (!fTempOutputDataFile->IsOpen()) {
 		error << "Failed to create output file: " << fTempOutputDataFile << endl;
@@ -324,6 +325,7 @@ void TRestProcessRunner::RunProcess()
 	}
 	info << endl;
 	info << "TRestProcessRunner : preparing threads..." << endl;
+
 	fRunInfo->ResetEntry();
 	fRunInfo->SetCurrentEntry(firstEntry);
 	bool testrun = ToUpper(GetParameter("testRun", "ON")) == "ON" || ToUpper(GetParameter("testRun", "ON")) == "TRUE";
@@ -331,7 +333,6 @@ void TRestProcessRunner::RunProcess()
 	{
 		fThreads[i]->PrepareToProcess(testrun);
 	}
-
 
 	//print metadata
 	if (fRunInfo->GetFileProcess() != NULL) {
@@ -425,7 +426,6 @@ void TRestProcessRunner::RunProcess()
 		fThreads[i]->StartThread();
 	}
 
-	cout << endl << endl;
 	while (fProcStatus == kPause || (fRunInfo->GetInputEvent() != NULL && eventsToProcess > fProcessedEvents))
 	{
 		PrintProcessedEvents(100);
