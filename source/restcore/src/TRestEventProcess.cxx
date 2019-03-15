@@ -335,31 +335,32 @@ cout << GetName() << ": Process ending..." << endl;
 /// event type, and several separators
 void TRestEventProcess::BeginPrintProcess()
 {
-	essential.setcolor(COLOR_BOLDGREEN);
-	essential.setborder("||");
-	essential.setlength(100);
-	essential << endl;
-	essential << "=" << endl;
-	essential << "Process : " << ClassName() << endl;
-	essential << "Name: " << GetName() << "  Title: " << GetTitle() << "  VerboseLevel: " << GetVerboseLevelString() << endl;
-	essential << " ----------------------------------------------- " << endl;
-	essential << " " << endl;
+	metadata.setcolor(COLOR_BOLDGREEN);
+	metadata.setborder("||");
+	metadata.setlength(100);
+	//metadata << " " << endl;
+	cout << endl;
+	metadata << "=" << endl;
+	metadata << "Process : " << ClassName() << endl;
+	metadata << "Name: " << GetName() << "  Title: " << GetTitle() << "  VerboseLevel: " << GetVerboseLevelString() << endl;
+	metadata << " ----------------------------------------------- " << endl;
+ 	metadata << " " << endl;
 
 	if (fObservableNames.size() > 0)
 	{
-		essential << " Analysis tree observables added by this process " << endl;
-		essential << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
+		metadata << " Analysis tree observables added by this process " << endl;
+		metadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
 	}
 
 	for (unsigned int i = 0; i < fObservableNames.size(); i++)
 	{
-		essential << " ++ " << fObservableNames[i] << endl;
+		metadata << " ++ " << fObservableNames[i] << endl;
 	}
 
 	if (fObservableNames.size() > 0)
 	{
-		essential << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
-		essential << " " << endl;
+		metadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
+		metadata << " " << endl;
 	}
 }
 
@@ -371,24 +372,23 @@ void TRestEventProcess::EndPrintProcess()
 {
 	if (fCuts.size() > 0)
 	{
-		essential << "Cuts enabled" << endl;
-		essential << "------------" << endl;
+		metadata << "Cuts enabled" << endl;
+		metadata << "------------" << endl;
 
 		auto iter = fCuts.begin();
 		while (iter != fCuts.end()) {
 			if (iter->second.X() != iter->second.Y())
-				essential << iter->first << ", range : ( " << iter->second.X() << " , " << iter->second.Y() << " ) " << endl;
+				metadata << iter->first << ", range : ( " << iter->second.X() << " , " << iter->second.Y() << " ) " << endl;
 			iter++;
 		}
 	}
 
-	essential << " " << endl;
-	essential << "=" << endl;
-	essential << endl;
-	essential << endl;
-	essential.resetcolor();
-	essential.setborder("");
-	essential.setlength(10000);
+	metadata << " " << endl;
+	metadata << "=" << endl;
+	metadata << endl;
+	metadata.resetcolor();
+	metadata.setborder("");
+	metadata.setlength(10000);
 }
 
 //////////////////////////////////////////////////////////////////////////
