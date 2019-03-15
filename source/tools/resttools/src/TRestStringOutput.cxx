@@ -5,7 +5,7 @@
 
 string TRestStringOutput::FormattingPrintString(string input)
 {
-	if (input == "")return "";
+	if (input == "") return "";
 
 	string output = string(length, ' ');
 	for (unsigned int i = 0; i < border.size(); i++) {
@@ -14,21 +14,28 @@ string TRestStringOutput::FormattingPrintString(string input)
 	}
 
 	// input: "=", output "=========================="(length)
-	if (input == "=" || input == "-" || input == "*" || input == "+")
+	if (input == header + "=" || input == header + "-" || input == header + "*" || input == header + "+")
 	{
 		for (unsigned int i = border.size(); i < length - border.size(); i++)
 		{
-			output[i] = input[0];
+			if( input == header + "=" ) output[i] = '=';
+			if( input == header + "-" ) output[i] = '-';
+			if( input == header + "*" ) output[i] = '*';
+			if( input == header + "+" ) output[i] = '+';
 		}
 	}
 	else
 	{
 		// input: "=abc=", output "=============abc============="(length)
-		if (input[0] == input[input.size() - 1] && (input[0] == '=' || input[0] == '-' || input[0] == '*' || input[0] == '+'))
+		if (input[0] == input[input.size() - 1] && 
+				(input == header + "=" || input == header + "-" || input == header + "*" || input == header + "+"))
 		{
 			for (unsigned int i = border.size(); i < length - border.size(); i++)
 			{
-				output[i] = input[0];
+				if( input == header + "=" ) output[i] = '=';
+				if( input == header + "-" ) output[i] = '-';
+				if( input == header + "*" ) output[i] = '*';
+				if( input == header + "+" ) output[i] = '+';
 			}
 		}
 
@@ -78,12 +85,12 @@ void TRestStringOutput::flushstring()
 		printf("\033[K");
 		if (orientation == 0) {
 			cout << color << string((consolewidth - length) / 2, ' ')
-				<< FormattingPrintString(stringbuf)
+				<< FormattingPrintString(header + stringbuf)
 				<< string((consolewidth - length) / 2, ' ') << COLOR_RESET << endl;
 		}
 		else
 		{
-			cout << color << FormattingPrintString(stringbuf) << COLOR_RESET << endl;
+			cout << color << FormattingPrintString( header + stringbuf) << COLOR_RESET << endl;
 		}
 		stringbuf = "";
 	}

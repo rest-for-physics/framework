@@ -751,7 +751,7 @@ void TRestMetadata::SetEnv(TiXmlElement* e, bool updateexisting)
 /// Before expansion, ReplaceElementAttributes() will first be called.
 void TRestMetadata::ExpandElement(TiXmlElement*e, bool recursive)
 {
-    debug << "-- Debug : Entering ... " << __PRETTY_FUNCTION__ << endl;
+    debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
 
 	ReplaceElementAttributes(e);
 	if ((string)e->Value() == "for") 
@@ -882,7 +882,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 /// TRestRun::ImportMetadata()
 void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 {
-    debug << "-- Debug : Entering ... " << __PRETTY_FUNCTION__ << endl;
+    debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
 
 	ReplaceElementAttributes(e);
 	const char* _filetmp = e->Attribute("file");
@@ -899,7 +899,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
         _filename = (string) gasesFile;
 
 
-    debug << "-- Debug : filename to expand : " << _filename << endl;
+    debug << "filename to expand : " << _filename << endl;
 
     if( REST_StringHelper::isURL( _filename ) )
             _filename = DownloadHttpFile( _filename );
@@ -1103,13 +1103,13 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 /// exit call and print out some error.
 string TRestMetadata::DownloadHttpFile( string remoteFile )
 {
-    debug << "-- Debug : Entering ... " << __PRETTY_FUNCTION__ << endl;
+    debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
 
-    debug << "-- Debug : Complete remote filename : " << remoteFile << endl;
+    debug << "Complete remote filename : " << remoteFile << endl;
 
     TString remoteFilename = REST_StringHelper::RemoveAbsolutePath( remoteFile );
 
-    debug << "-- Debug : Reduced remote filename : " << remoteFilename << endl;
+    debug << "Reduced remote filename : " << remoteFilename << endl;
 
     string cmd = "wget --no-check-certificate " + remoteFile + " -O /tmp/REST_" + getenv( "USER" ) + "_remote.rml -q";
 

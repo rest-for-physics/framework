@@ -154,14 +154,15 @@ protected:
 	vector<TiXmlElement*> fElementEnv;//! 
 
 	///formatted message output, used for print metadata
-	TRestLeveledOutput<REST_Silent> fout = TRestLeveledOutput<REST_Silent>(fVerboseLevel, COLOR_BOLDBLUE, "==");//! 
-	TRestLeveledOutput<REST_Silent> error = TRestLeveledOutput<REST_Silent>(fVerboseLevel, COLOR_BOLDRED, "", 1);//! 
-	TRestLeveledOutput<REST_Essential> warning = TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDYELLOW, "", 1);//! 
-	TRestLeveledOutput<REST_Essential> essential = TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDGREEN);//! 
-	TRestLeveledOutput<REST_Info> info = TRestLeveledOutput<REST_Info>(fVerboseLevel, COLOR_BLUE, "", 1);//! 
-	TRestLeveledOutput<REST_Info> success = TRestLeveledOutput<REST_Info>(fVerboseLevel, COLOR_GREEN, "", 1);//! 
-	TRestLeveledOutput<REST_Debug> debug = TRestLeveledOutput<REST_Debug>(fVerboseLevel, COLOR_RESET, "", 1);//! 
-	TRestLeveledOutput<REST_Extreme> extreme = TRestLeveledOutput<REST_Extreme>(fVerboseLevel, COLOR_RESET, "", 1);//! 
+	TRestLeveledOutput<REST_Silent> fout = TRestLeveledOutput<REST_Silent>(fVerboseLevel, COLOR_BOLDBLUE, "==", 0, "-- Output : ");//! 
+	TRestLeveledOutput<REST_Silent> error = TRestLeveledOutput<REST_Silent>(fVerboseLevel, COLOR_BOLDRED, "", 1, "-- Error : " );//! 
+	TRestLeveledOutput<REST_Essential> warning = TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDYELLOW, "", 1, "-- Warning : ");//! 
+	TRestLeveledOutput<REST_Essential> essential = TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDGREEN, "", 0, "-- Essential : " );//! 
+	TRestLeveledOutput<REST_Essential> metadata = TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDGREEN, "", 0 );//! 
+	TRestLeveledOutput<REST_Info> info = TRestLeveledOutput<REST_Info>(fVerboseLevel, COLOR_BLUE, "", 1, "-- Info : " );//! 
+	TRestLeveledOutput<REST_Info> success = TRestLeveledOutput<REST_Info>(fVerboseLevel, COLOR_GREEN, "", 1, "-- Success : ");//! 
+	TRestLeveledOutput<REST_Debug> debug = TRestLeveledOutput<REST_Debug>(fVerboseLevel, COLOR_RESET, "", 1, "-- Debug : ");//! 
+	TRestLeveledOutput<REST_Extreme> extreme = TRestLeveledOutput<REST_Extreme>(fVerboseLevel, COLOR_RESET, "-- Extreme : ", 1);//! 
 #endif
 
 public:

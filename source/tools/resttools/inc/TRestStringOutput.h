@@ -187,6 +187,7 @@ protected:
 	string border;
 	string stringbuf;
 	string color;
+	string header;
 	int length;
 
 public:
@@ -229,9 +230,19 @@ public:
 		color = colordef;
 	}
 
+	void setheader(string headerdef)
+	{
+		header = headerdef;
+	}
+
 	void resetcolor()
 	{
 		color = COLOR_RESET;
+	}
+
+	void resetheader()
+	{
+		header = "";
 	}
 
 	void setborder(string b) {
@@ -266,10 +277,11 @@ public:
 
 	bool CompatibilityMode() { return length == -1; }
 
-	TRestStringOutput(string _color = COLOR_RESET, string _border = "", int _orientation = 1) {
+	TRestStringOutput(string _color = COLOR_RESET, string _border = "", int _orientation = 1, string _header = "" ) {
 		orientation = _orientation;
 		border = _border;
 		color = _color;
+		header = _header;
 		length = ConsoleHelper::GetWidth() - 2;
 		stringbuf = "";
 		if (length > 500 || length < 20)//unsupported console, we will fall back to compatibility modes
@@ -289,8 +301,8 @@ public:
 template<REST_Verbose_Level v> class TRestLeveledOutput :public TRestStringOutput {
 public:
 	TRestLeveledOutput() {};
-	TRestLeveledOutput(REST_Verbose_Level& vref, string _color = COLOR_RESET, string _border = "", int _orientation = 0)
-		:TRestStringOutput(_color,_border, _orientation),verboselvlref(vref)
+	TRestLeveledOutput(REST_Verbose_Level& vref, string _color = COLOR_RESET, string _border = "", int _orientation = 0, string _header = "" )
+		:TRestStringOutput(_color,_border, _orientation, _header),verboselvlref(vref)
 	{}
 
 	REST_Verbose_Level verbose = v;
