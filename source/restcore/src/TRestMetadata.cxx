@@ -1469,9 +1469,9 @@ string TRestMetadata::GetUnits(TiXmlElement* e, string whoseunits)
 		}
 		else
 		{
-			warning << "No units are defined in element "<<e->Value()<<" , returning blank unit" << endl;
-			warning << "The field value will be directly returned with blank unit." << endl;
-			warning << endl;
+			warning << "TRestMetadata::" << ClassName() << endl;
+			warning << "No units are defined in " << e->Value() << " : " << e->Attribute("name") << endl;
+			warning << "The parameter will use REST default units" << endl;
 			return "";
 		}
 	}
