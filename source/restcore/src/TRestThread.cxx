@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////////
+
 ///
 /// Multiple instances of TRestThread is created inside TRestProcessRunner. 
 /// Each of them can detach a thread containing a process chain, which 
@@ -62,7 +62,6 @@ void TRestThread::Initialize()
 ///
 Int_t TRestThread::ValidateInput(TRestEvent* input)
 {
-
 	if (input == NULL&&fProcessChain[0]->GetInputEvent() != NULL)
 	{
 		cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
@@ -187,8 +186,7 @@ bool TRestThread::TestRun()
 		debug << "Test run " << i << " : Input Event ---- " << fInputEvent->ClassName() << "(" << fInputEvent << ")" << endl;
 		for (unsigned int j = 0; j < fProcessChain.size(); j++)
 		{
-			debug << j << " " << fProcessChain[j]->GetName() << "(" << fProcessChain[j]->ClassName() << ")";
-			fProcessChain[j]->BeginOfEventProcess();
+			fProcessChain[j]->BeginOfEventProcess( ProcessedEvent );
 			fProcessChain[j]->ProcessEvent(ProcessedEvent);
 			ProcessedEvent = fProcessChain[j]->GetOutputEvent();
 			if (ProcessedEvent == NULL) {
@@ -232,6 +230,7 @@ bool TRestThread::TestRun()
 /// Note: this methed runs under single thread node, so there is no conflict when creating files.
 void TRestThread::PrepareToProcess(bool testrun)
 {
+	debug << "Entering TRestThread::PrepareToProcess( testrun=" << testrun << " )" << endl;
 
 	if (fProcessChain.size() > 0)
 	{
@@ -474,6 +473,8 @@ void TRestThread::StartThread()
 /// increase TRestThread's verbose level if the added process's verbose level is higher.
 /// Note that we cannot use "debug" verbose level under compatibility output mode, i.e. in condor jobs.
 void TRestThread::AddProcess(TRestEventProcess *process) {
+	debug << "Entering TRestThread::AddProcess" << endl;
+
 	fProcessChain.push_back(process);
 	if (fout.CompatibilityMode() && process->GetVerboseLevel() >= REST_Debug)
 	{
@@ -512,7 +513,7 @@ void TRestThread::ProcessEvent()
 			high_resolution_clock::time_point t1 = high_resolution_clock::now();
 #endif
 
-			fProcessChain[j]->BeginOfEventProcess();
+			fProcessChain[j]->BeginOfEventProcess( ProcessedEvent );
 			ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
 			fProcessChain[j]->EndOfEventProcess();
 
@@ -551,7 +552,7 @@ void TRestThread::ProcessEvent()
 	{
 		for (unsigned int j = 0; j < fProcessChain.size(); j++)
 		{
-			fProcessChain[j]->BeginOfEventProcess();
+			fProcessChain[j]->BeginOfEventProcess( ProcessedEvent );
 			ProcessedEvent = fProcessChain[j]->ProcessEvent(ProcessedEvent);
 			fProcessChain[j]->EndOfEventProcess();
 			if (ProcessedEvent == NULL) break;

@@ -102,6 +102,7 @@ vector<string> TRestEventProcess::ReadObservables()
 	{
 		const char* obschr = e->Attribute("name");
 		const char* _value = e->Attribute("value");
+
 		string value;
 		if (_value == NULL)value = "ON";
 		else { value = _value; }
@@ -115,11 +116,11 @@ vector<string> TRestEventProcess::ReadObservables()
 		}
 
 		e = e->NextSiblingElement("observable");
+		
 	}//now we get a list of all observal names
-	if (fObservableNames.size() != 0) {
-		return obsnames;
-	}
 
+	if (fObservableNames.size() != 0)
+		return obsnames;
 
 	//if fObservableNames is empty, add observables.
 	//1. observable is datamember of the process class
@@ -312,13 +313,51 @@ void TRestEventProcess::InitProcess()
 // (before starting the process of the events)
 cout << GetName() << ": Process initialization..." << endl;
 }
+*/
 
+//////////////////////////////////////////////////////////////////////////
+/// \brief Implemention of BeginOfEventProcess at TRestEventProcess.
+/// If this method is re-implemented at the inhereted cass we will need
+/// to call TRestEventProcess::BeginOfEventProcess( evIn );
+///
+TRestEvent* TRestEventProcess::BeginOfEventProcess( TRestEvent *evInput )
+{ 
+	debug << "Entering TRestEventProcess::BeginOfEventProcess (" << ClassName() << ")" << endl;
+	fOutputEvent->Initialize();
+
+	if( evInput ) // or is NOT fIsExternal
+	{
+		debug << "TRestEventProcess::BeginOfEventProcess (" << ClassName() << ") --> Stamping output event" << endl;
+		StampOutputEvent( evInput );
+	}
+
+	// TODO if fIsExternal and we already have defined the fAnalysisTree run#, evId#, timestamp,
+	// etc at the analysisTree we could stamp the output event here.
+
+	return evInput;
+}
+
+/*
 //______________________________________________________________________________
 void TRestEventProcess::ProcessEvent( TRestEvent *eventInput )
 {
 // virtual function to be executed for every event to be processed
 }
+*/
 
+//////////////////////////////////////////////////////////////////////////
+/// \brief Implemention of BeginOfEventProcess at TRestEventProcess.
+/// If this method is re-implemented at the inhereted cass we will need
+/// to call TRestEventProcess::BeginOfEventProcess( evIn );
+///
+TRestEvent* TRestEventProcess::EndOfEventProcess( TRestEvent *evInput )
+{ 
+	debug << "Entering TRestEventProcess::EndOfEventProcess (" << ClassName() << ")" << endl;
+	return evInput;
+}
+
+
+/*
 //______________________________________________________________________________
 void TRestEventProcess::EndProcess()
 {

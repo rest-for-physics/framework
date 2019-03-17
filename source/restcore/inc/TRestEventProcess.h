@@ -115,9 +115,12 @@ public:
 	virtual Bool_t OpenInputFiles(vector<TString> files) { return false; }
 
 	virtual void InitProcess() { } ///< To be executed at the beginning of the run
-	virtual void BeginOfEventProcess() { }
+
+	virtual TRestEvent* BeginOfEventProcess( TRestEvent *evInput = NULL ); ///< To be executed before processing event
+
 	virtual TRestEvent *ProcessEvent(TRestEvent *evInput) = 0; ///< Process one event
-	virtual void EndOfEventProcess() { } ///< To be executed after processing event
+
+	virtual TRestEvent* EndOfEventProcess( TRestEvent *evInput = NULL ); ///< To be executed after processing event
 	virtual void EndProcess() { } ///< To be executed at the end of the run
 	
 	virtual void ConfigAnalysisTree();
