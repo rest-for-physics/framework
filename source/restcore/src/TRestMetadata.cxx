@@ -2079,18 +2079,14 @@ int TRestMetadata::GetChar(string hint)
 ///
 void TRestMetadata::PrintMetadata()
 {
-	TRestStringOutput cout;
-	cout.setborder("||");
-	cout.setorientation(1);
-	cout.setlength(100);
-	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-	cout << this->ClassName() << " content" << endl;
-	cout << "Config file : " << fConfigFileName << endl;
-	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-	cout << "Name : " << GetName() << endl;
-	cout << "Title : " << GetTitle() << endl;
-	cout << "Version : " << GetVersion() << endl;
-	cout << "---------------------------------------" << endl;
+	metadata << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	metadata << this->ClassName() << " content" << endl;
+	metadata << "Config file : " << fConfigFileName << endl;
+	metadata << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	metadata << "Name : " << GetName() << endl;
+	metadata << "Title : " << GetTitle() << endl;
+	metadata << "Version : " << GetVersion() << endl;
+	metadata << "---------------------------------------" << endl;
 }
 
 TString TRestMetadata::GetVersion() {

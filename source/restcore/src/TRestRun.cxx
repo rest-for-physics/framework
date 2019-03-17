@@ -1357,32 +1357,27 @@ void TRestRun::PrintInfo()
 	//cout.precision(10);
 	TRestMetadata::PrintMetadata();
 
-	TRestStringOutput cout;
-	cout.setborder("||");
-	cout.setorientation(1);
-	cout.setlength(100);
-	cout << "Version : " << this->GetVersion() << endl;
-	cout << "Parent run number : " << GetParentRunNumber() << endl;
-	cout << "Run number : " << GetRunNumber() << endl;
-	cout << "Experiment/project : " << GetExperimentName() << endl;
-	cout << "Run type : " << GetRunType() << endl;
-	cout << "Run tag : " << GetRunTag() << endl;
-	cout << "Run user : " << GetRunUser() << endl;
-	cout << "Run description : " << GetRunDescription() << endl;
-	cout << "Start timestamp : " << GetStartTimestamp() << endl;
-	cout << "Date/Time : " << ToDateTimeString(GetStartTimestamp()) << endl;
-	cout << "End timestamp : " << GetEndTimestamp() << endl;
-	cout << "Date/Time : " << ToDateTimeString(GetEndTimestamp()) << endl;
-	cout << "Input file : " << GetInputFileNamepattern() << endl;
-	cout << "Output file : " << GetOutputFileName() << endl;
-	cout << "Number of events : " << fEntriesSaved << endl;
-	//cout << "Input filename : " << fInputFilename << endl;
-	//cout << "Output filename : " << fOutputFilename << endl;
-	//cout << "Number of initial events : " << GetNumberOfEvents() << endl;
-	//cout << "Number of processed events : " << fProcessedEvents << endl;
-	cout << "******************************************" << endl;
-	cout << endl;
-	cout << endl;
+	metadata << "Version : " << this->GetVersion() << endl;
+	metadata << "Parent run number : " << GetParentRunNumber() << endl;
+	metadata << "Run number : " << GetRunNumber() << endl;
+	metadata << "Experiment/project : " << GetExperimentName() << endl;
+	metadata << "Run type : " << GetRunType() << endl;
+	metadata << "Run tag : " << GetRunTag() << endl;
+	metadata << "Run user : " << GetRunUser() << endl;
+	metadata << "Run description : " << GetRunDescription() << endl;
+	metadata << "Start timestamp : " << GetStartTimestamp() << endl;
+	metadata << "Date/Time : " << ToDateTimeString(GetStartTimestamp()) << endl;
+	metadata << "End timestamp : " << GetEndTimestamp() << endl;
+	metadata << "Date/Time : " << ToDateTimeString(GetEndTimestamp()) << endl;
+	metadata << "Input file : " << GetInputFileNamepattern() << endl;
+	metadata << "Output file : " << GetOutputFileName() << endl;
+	metadata << "Number of events : " << fEntriesSaved << endl;
+	//metadata << "Input filename : " << fInputFilename << endl;
+	//metadata << "Output filename : " << fOutputFilename << endl;
+	//metadata << "Number of initial events : " << GetNumberOfEvents() << endl;
+	//metadata << "Number of processed events : " << fProcessedEvents << endl;
+	metadata << "---------------------------------------" << endl;
+	metadata << endl;
 
 }
 
