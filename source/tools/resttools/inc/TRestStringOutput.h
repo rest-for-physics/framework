@@ -61,6 +61,14 @@ enum REST_Verbose_Level
 	REST_Extreme //!< show everything
 };
 
+enum REST_Display_Format
+{
+	kBorderedLeft,
+	kBorderedMiddle,
+	kHeaderedLeft,
+	kHeaderedMiddle
+};
+
 #define REST_Warning REST_Essential
 
 //////////////////////////////////////////////////////////////////////////
@@ -183,16 +191,33 @@ public:
 class TRestStringOutput
 {
 protected:
-	int orientation;//0->middle, else->left
-	string border;
-	string stringbuf;
 	string color;
-	string header;
+	string formatstring;
+	bool useborder;
+	int orientation;//0->middle, 1->left, 2->right
+
+	string stringbuf;
 	int length;
 
 public:
-
 	string FormattingPrintString(string input);
+	void resetstring(){	stringbuf = "";}
+	void flushstring();
+	void insertfront(string str) {stringbuf = str + stringbuf;}
+	void insertback(string str) {stringbuf = stringbuf + str;}
+	void setcolor(string colordef){	color = colordef;}
+	void setheader(string headerdef) { formatstring = headerdef; useborder = false; }
+	void resetcolor(){color = COLOR_RESET;}
+	void resetheader(){ formatstring = "";}
+	void setborder(string b) { formatstring = b; useborder = true; }
+	void resetborder() { formatstring = "";}
+	void setlength(int n);
+	void setorientation(int o) {orientation = o;}
+	void resetorientation() {orientation = 0;}
+	bool CompatibilityMode() { return length == -1; }
+
+	// style options: < : orientation left, ^ : orientation middle, > : orientation right, | : use border, - : use header 
+	TRestStringOutput(string _color = COLOR_RESET, string BorderOrHeader = "", REST_Display_Format style = kBorderedLeft);
 
 	template<class T> TRestStringOutput& operator << (T content)
 	{
@@ -207,88 +232,6 @@ public:
 		((*pfunc)(*this));
 		return *this;
 	}
-
-
-	void resetstring()
-	{
-		stringbuf = "";
-	}
-
-	void flushstring();
-
-
-	void insertfront(string str) {
-		stringbuf = str + stringbuf;
-	}
-
-	void insertback(string str) {
-		stringbuf = stringbuf + str;
-	}
-
-	void setcolor(string colordef)
-	{
-		color = colordef;
-	}
-
-	void setheader(string headerdef)
-	{
-		header = headerdef;
-	}
-
-	void resetcolor()
-	{
-		color = COLOR_RESET;
-	}
-
-	void resetheader()
-	{
-		header = "";
-	}
-
-	void setborder(string b) {
-		border = b;
-	}
-
-	void resetborder() {
-		border = "";
-	}
-
-	void setlength(int n) {
-		if (length != -1) {
-			if (n < ConsoleHelper::GetWidth() - 2)
-				length = n;
-			else
-				length = ConsoleHelper::GetWidth() - 2;
-		}
-	}
-
-	//static void resetlength() {
-	//	length = ConsoleHelper::GetWidth();
-	//}
-
-	//0->middle, else->left
-	void setorientation(int o) {
-		orientation = o;
-	}
-
-	void resetorientation() {
-		orientation = 0;
-	}
-
-	bool CompatibilityMode() { return length == -1; }
-
-	TRestStringOutput(string _color = COLOR_RESET, string _border = "", int _orientation = 1, string _header = "" ) {
-		orientation = _orientation;
-		border = _border;
-		color = _color;
-		header = _header;
-		length = ConsoleHelper::GetWidth() - 2;
-		stringbuf = "";
-		if (length > 500 || length < 20)//unsupported console, we will fall back to compatibility modes
-		{
-			length = -1;
-		}
-	}
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -301,8 +244,8 @@ public:
 template<REST_Verbose_Level v> class TRestLeveledOutput :public TRestStringOutput {
 public:
 	TRestLeveledOutput() {};
-	TRestLeveledOutput(REST_Verbose_Level& vref, string _color = COLOR_RESET, string _border = "", int _orientation = 0, string _header = "" )
-		:TRestStringOutput(_color,_border, _orientation, _header),verboselvlref(vref)
+	TRestLeveledOutput(REST_Verbose_Level& vref, string _color = COLOR_RESET, string BorderOrHeader = "", REST_Display_Format style = kBorderedLeft)
+		:TRestStringOutput(_color, BorderOrHeader, style),verboselvlref(vref)
 	{}
 
 	REST_Verbose_Level verbose = v;
