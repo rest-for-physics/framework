@@ -374,10 +374,6 @@ cout << GetName() << ": Process ending..." << endl;
 /// event type, and several separators
 void TRestEventProcess::BeginPrintProcess()
 {
-	metadata.setcolor(COLOR_BOLDGREEN);
-	metadata.setborder("||");
-	metadata.setlength(100);
-	//metadata << " " << endl;
 	cout << endl;
 	metadata << "=" << endl;
 	metadata << "Process : " << ClassName() << endl;

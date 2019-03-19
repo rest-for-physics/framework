@@ -434,6 +434,7 @@ TRestMetadata::TRestMetadata()
 
 	fConfigFileName = "null";
 	configBuffer = "";
+	metadata.setlength(100);
 
 	fVersion = REST_RELEASE;
 }
@@ -452,6 +453,7 @@ TRestMetadata::TRestMetadata(const char *cfgFileName)
 
 	fConfigFileName = cfgFileName;
 	configBuffer = "";
+	metadata.setlength(100);
 
 	fVersion = REST_RELEASE;
 }

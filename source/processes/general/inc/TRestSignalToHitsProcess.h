@@ -60,11 +60,11 @@ public:
 	{
 		BeginPrintProcess();
 
-		essential << "Electric field : " << fElectricField << " V/cm" << endl;
-		essential << "Gas pressure : " << fGasPressure << " atm" << endl;
-		essential << "Drift velocity : " << fDriftVelocity << " mm/us" << endl;
+		metadata << "Electric field : " << fElectricField << " V/cm" << endl;
+		metadata << "Gas pressure : " << fGasPressure << " atm" << endl;
+		metadata << "Drift velocity : " << fDriftVelocity << " mm/us" << endl;
 
-		essential << "Signal to hits method : " << fSignalToHitMethod << endl;
+		metadata << "Signal to hits method : " << fSignalToHitMethod << endl;
 
 		EndPrintProcess();
 	}

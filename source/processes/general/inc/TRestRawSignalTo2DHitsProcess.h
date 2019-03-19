@@ -101,15 +101,15 @@ class TRestRawSignalTo2DHitsProcess:public TRestEventProcess {
         { 
             BeginPrintProcess();
 
-			essential << "Baseline range : ( " << fBaseLineRange.X() << " , " << fBaseLineRange.Y() << " ) " << endl;
-			essential << "Integral range : ( " << fIntegralRange.X() << " , " << fIntegralRange.Y() << " ) " << endl;
-			essential << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
-			essential << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
-			essential << "Number of points over threshold : " << fNPointsOverThreshold << endl;
-			essential << "Hough sigma threshold for muon tracks: " << fHoughSigmaLimit << endl;
-			essential << endl;
-			essential << "Event selection: " << fSelection << endl;
-			essential << "0: uses all, 1: muon, 2: strong electron, 3: weak electron, 4: firing, 5: abnormal, 9: other" << endl;
+			metadata << "Baseline range : ( " << fBaseLineRange.X() << " , " << fBaseLineRange.Y() << " ) " << endl;
+			metadata << "Integral range : ( " << fIntegralRange.X() << " , " << fIntegralRange.Y() << " ) " << endl;
+			metadata << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
+			metadata << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
+			metadata << "Number of points over threshold : " << fNPointsOverThreshold << endl;
+			metadata << "Hough sigma threshold for muon tracks: " << fHoughSigmaLimit << endl;
+			metadata << endl;
+			metadata << "Event selection: " << fSelection << endl;
+			metadata << "0: uses all, 1: muon, 2: strong electron, 3: weak electron, 4: firing, 5: abnormal, 9: other" << endl;
 
 			EndPrintProcess();
         }
