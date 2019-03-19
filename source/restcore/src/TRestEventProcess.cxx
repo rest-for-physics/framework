@@ -288,23 +288,6 @@ vector<string> TRestEventProcess::GetAvailableObservals()
 	return result;
 }
 
-//////////////////////////////////////////////////////////////////////////
-/// \brief Copy six basic event information items to fOutputEvent from "inEv"
-///
-void TRestEventProcess::StampOutputEvent(TRestEvent *inEv)
-{
-	fOutputEvent->Initialize();
-
-	fOutputEvent->SetID(inEv->GetID());
-	fOutputEvent->SetSubID(inEv->GetSubID());
-	fOutputEvent->SetSubEventTag(inEv->GetSubEventTag());
-
-	fOutputEvent->SetRunOrigin(inEv->GetRunOrigin());
-	fOutputEvent->SetSubRunOrigin(inEv->GetSubRunOrigin());
-
-	fOutputEvent->SetTime(inEv->GetTime());
-}
-
 /*
 //______________________________________________________________________________
 void TRestEventProcess::InitProcess()
@@ -320,21 +303,25 @@ cout << GetName() << ": Process initialization..." << endl;
 /// If this method is re-implemented at the inhereted cass we will need
 /// to call TRestEventProcess::BeginOfEventProcess( evIn );
 ///
-TRestEvent* TRestEventProcess::BeginOfEventProcess( TRestEvent *evInput )
+void TRestEventProcess::BeginOfEventProcess( TRestEvent *inEv )
 { 
-	debug << "Entering TRestEventProcess::BeginOfEventProcess (" << ClassName() << ")" << endl;
-	fOutputEvent->Initialize();
+	debug << "Entering "<< ClassName() <<"::BeginOfEventProcess, Initializing output event..." << endl;
+	if (inEv != NULL && fOutputEvent != NULL && fOutputEvent != inEv) {
+		fOutputEvent->Initialize();
 
-	if( evInput ) // or is NOT fIsExternal
-	{
-		debug << "TRestEventProcess::BeginOfEventProcess (" << ClassName() << ") --> Stamping output event" << endl;
-		StampOutputEvent( evInput );
+		fOutputEvent->SetID(inEv->GetID());
+		fOutputEvent->SetSubID(inEv->GetSubID());
+		fOutputEvent->SetSubEventTag(inEv->GetSubEventTag());
+
+		fOutputEvent->SetRunOrigin(inEv->GetRunOrigin());
+		fOutputEvent->SetSubRunOrigin(inEv->GetSubRunOrigin());
+
+		fOutputEvent->SetTime(inEv->GetTime());
 	}
 
 	// TODO if fIsExternal and we already have defined the fAnalysisTree run#, evId#, timestamp,
 	// etc at the analysisTree we could stamp the output event here.
 
-	return evInput;
 }
 
 /*
@@ -350,10 +337,9 @@ void TRestEventProcess::ProcessEvent( TRestEvent *eventInput )
 /// If this method is re-implemented at the inhereted cass we will need
 /// to call TRestEventProcess::BeginOfEventProcess( evIn );
 ///
-TRestEvent* TRestEventProcess::EndOfEventProcess( TRestEvent *evInput )
+void TRestEventProcess::EndOfEventProcess( TRestEvent *evInput )
 { 
 	debug << "Entering TRestEventProcess::EndOfEventProcess (" << ClassName() << ")" << endl;
-	return evInput;
 }
 
 
@@ -374,6 +360,10 @@ cout << GetName() << ": Process ending..." << endl;
 /// event type, and several separators
 void TRestEventProcess::BeginPrintProcess()
 {
+	metadata.setcolor(COLOR_BOLDGREEN);
+	metadata.setborder("||");
+	metadata.setlength(100);
+	//metadata << " " << endl;
 	cout << endl;
 	metadata << "=" << endl;
 	metadata << "Process : " << ClassName() << endl;

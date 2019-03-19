@@ -84,7 +84,7 @@ protected:
 	TRestMetadata *GetDetectorSetup() { return GetMetadata("TRestDetectorSetup"); }
 	Double_t GetDoubleParameterFromClass(TString className, TString parName);
 	Double_t GetDoubleParameterFromClassWithUnits(TString className, TString parName);
-	void StampOutputEvent(TRestEvent *inEv);
+
 	void CreateCanvas()
 	{
 		if (fCanvas != NULL) return;
@@ -116,11 +116,12 @@ public:
 
 	virtual void InitProcess() { } ///< To be executed at the beginning of the run
 
-	virtual TRestEvent* BeginOfEventProcess( TRestEvent *evInput = NULL ); ///< To be executed before processing event
+	void BeginOfEventProcess( TRestEvent *evInput = NULL ); ///< To be executed before processing event
 
 	virtual TRestEvent *ProcessEvent(TRestEvent *evInput) = 0; ///< Process one event
 
-	virtual TRestEvent* EndOfEventProcess( TRestEvent *evInput = NULL ); ///< To be executed after processing event
+	void EndOfEventProcess( TRestEvent *evInput = NULL ); ///< To be executed after processing event
+
 	virtual void EndProcess() { } ///< To be executed at the end of the run
 	
 	virtual void ConfigAnalysisTree();
