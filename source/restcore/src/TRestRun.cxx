@@ -274,14 +274,12 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e)
 		TClass *cl = TClass::GetClass(processType.c_str());
 		if (cl == NULL)
 		{
-			cout << " " << endl;
-			cout << "REST ERROR. Process : " << processType << " not found!!" << endl;
-			cout << "Please verify the process type and launch again." << endl;
-			cout << "If you are not willing to use this process you can deactivate using value=\"off\"" << endl;
-			cout << " " << endl;
-			cout << "This process will be skipped." << endl;
-			GetChar();
-			return -1;
+			error << endl;
+			error << "Process : " << processType << " not found!!" << endl;
+			error << "This may due to a mis-spelling in the rml or mis-installation" << endl;
+			error << "of an external library. Please verify them and launch again." << endl;
+			exit(1);
+			return NULL;
 		}
 		TRestEventProcess *pc = (TRestEventProcess *)cl->New();
 
@@ -305,9 +303,9 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e)
 	{
 		TClass*c = TClass::GetClass(keydeclare.c_str());
 		if (c == NULL) {
-			cout << " " << endl;
-			cout << "REST ERROR. Class : " << keydeclare << " not found!!" << endl;
-			cout << "This class will be skipped." << endl;
+			warning << endl;
+			warning << "Class : " << keydeclare << " not found!!" << endl;
+			warning << "This class will be skipped." << endl;
 			return -1;
 		}
 		TRestMetadata*meta = (TRestMetadata*)c->New();

@@ -968,13 +968,11 @@ TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type, TiXmlEle
 	TClass *cl = TClass::GetClass(type);
 	if (cl == NULL)
 	{
-		cout << " " << endl;
-		cout << "REST ERROR. Process : " << type << " not found!!" << endl;
-		cout << "Please verify the process type and launch again." << endl;
-		cout << "If you are not willing to use this process you can deactivate using value=\"off\"" << endl;
-		cout << " " << endl;
-		cout << "This process will be skipped." << endl;
-		GetChar();
+		error << endl;
+		error << "Process : " << type << " not found!!" << endl;
+		error << "This may due to a mis-spelling in the rml or mis-installation" << endl;
+		error << "of an external library. Please verify them and launch again." << endl;
+		exit(1);
 		return NULL;
 	}
 	TRestEventProcess *pc = (TRestEventProcess *)cl->New();
