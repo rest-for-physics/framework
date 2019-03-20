@@ -441,28 +441,31 @@ bool TRestMultiCoBoAsAdToSignalProcess::ReadFrameHeader(CoBoHeaderFrame& HdrFram
 		//sometimes there is a itemnumber-framesize unmatch problem
 		//nItems*itemSize(=4)+256=frameSize
 		//because nitems/512 should be a integer(signal number), we can make a fix
-		if (HdrFrame.nItems % 512 == 0) {
-			warning << "...frameSize (" << HdrFrame.frameSize;
-			HdrFrame.frameSize = HdrFrame.nItems * HdrFrame.itemSize + 256;
-			warning << ") fixed to " << HdrFrame.frameSize << "..." << endl;
-			warning << endl;
-		}
-		else
-		{
-			if(fVerboseLevel>=REST_Info)
-				HdrFrame.Show();
-			if (((HdrFrame.frameSize - 256) / HdrFrame.itemSize) % 512 == 0) 
-			{
-				HdrFrame.nItems = (HdrFrame.frameSize - 256) / HdrFrame.itemSize;
-				warning << "...nItems fixed to " << HdrFrame.nItems << "..." << endl;
-				warning << endl;
-			}
-			else
-			{
-				warning << "frame unfixed" << endl;
-				warning << endl;
-			}
-		}
+		//{
+		//if (HdrFrame.nItems % 512 == 0) {
+		//	warning << "...frameSize (" << HdrFrame.frameSize;
+		//	HdrFrame.frameSize = HdrFrame.nItems * HdrFrame.itemSize + 256;
+		//	warning << ") fixed to " << HdrFrame.frameSize << "..." << endl;
+		//	warning << endl;
+		//}
+		//else
+		//{
+		//	if(fVerboseLevel>=REST_Info)
+		//		HdrFrame.Show();
+		//	if (((HdrFrame.frameSize - 256) / HdrFrame.itemSize) % 512 == 0) 
+		//	{
+		//		HdrFrame.nItems = (HdrFrame.frameSize - 256) / HdrFrame.itemSize;
+		//		warning << "...nItems fixed to " << HdrFrame.nItems << "..." << endl;
+		//		warning << endl;
+		//	}
+		//	else
+		//	{
+		//		warning << "frame unfixed" << endl;
+		//		warning << endl;
+		//	}
+		//}
+
+		
 
 	}
 
@@ -490,33 +493,29 @@ bool TRestMultiCoBoAsAdToSignalProcess::ReadFrameDataP(FILE*f, CoBoHeaderFrame& 
 	//------------read frame data-----------
 	if (size > 256)
 	{
-		
-		for (i = 0; i * 512 < items; i++)
+		unsigned int NBuckTotal = (size - 256) / 4;
+		for (i = 0; i < NBuckTotal; i++)
 		{
-			if ((fread(frameDataP, 2048, 1, f)) != 1 || feof(f))
+			if ((fread(frameDataP, 4, 1, f)) != 1 || feof(f))
 			{
 				fclose(f);
 				f = NULL;
 				return kFALSE;
 			}
-			totalBytesReaded += 2048;
-			for (j = 0; j < 2048; j += 4)
-			{
-				//total 8*4= 32 bits 
-				//11         111111|1     1111111|11   11        1111|11111111
-				//agetIdx    chanIdx      buckIdx      unused    samplepoint
-				agetIdx = (frameDataP[j] >> 6);//first 2 bits of the byte
-				chanIdx = ((unsigned int)(frameDataP[j] & 0x3f) * 2 + (frameDataP[j + 1] >> 7));
-				chTmp = agetIdx * 68 + chanIdx;
-				buckIdx = ((unsigned int)(frameDataP[j + 1] & 0x7f) * 4 + (frameDataP[j + 2] >> 6));
-				sample = ((unsigned int)(frameDataP[j + 2] & 0x0f) * 0x100 + frameDataP[j + 3]);
+			totalBytesReaded += 4;
+			//total: 4bytes, 32 bits 
+			//11         111111|1     1111111|11   11        1111|11111111
+			//agetIdx    chanIdx      buckIdx      unused    samplepoint
+			agetIdx = (frameDataP[0] >> 6);//first 2 bits of the byte
+			chanIdx = ((unsigned int)(frameDataP[0] & 0x3f) * 2 + (frameDataP[1] >> 7));
+			chTmp = agetIdx * 68 + chanIdx;
+			buckIdx = ((unsigned int)(frameDataP[1] & 0x7f) * 4 + (frameDataP[2] >> 6));
+			sample = ((unsigned int)(frameDataP[2] & 0x0f) * 0x100 + frameDataP[3]);
 
-				if (chTmp >= 272) { cout << "channel id error!" << endl; continue; }
+			if (chTmp >= 272) { cout << "channel id error! value: "<< chTmp << endl; continue; }
 
-				dataf.chHit[chTmp] = kTRUE;
-				dataf.data[chTmp][buckIdx] = sample;
-
-			}
+			dataf.chHit[chTmp] = kTRUE;
+			dataf.data[chTmp][buckIdx] = sample;
 
 		}
 	}
