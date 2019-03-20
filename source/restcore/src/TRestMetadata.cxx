@@ -635,6 +635,21 @@ Int_t TRestMetadata::LoadSectionMetadata()
 
 	
 
+	//get debug level again in case it is defined in the included file
+	string debugStr = GetParameter("verboseLevel", "essential");
+	if (debugStr == "silent" || debugStr == "0")
+		fVerboseLevel = REST_Silent;
+	if (debugStr == "essential" || debugStr == "warning" || debugStr == "1")
+		fVerboseLevel = REST_Essential;
+	if (debugStr == "info" || debugStr == "2")
+		fVerboseLevel = REST_Info;
+	if (debugStr == "debug" || debugStr == "3")
+		fVerboseLevel = REST_Debug;
+	if (debugStr == "extreme" || debugStr == "4")
+		fVerboseLevel = REST_Extreme;
+
+
+
 	//finally fill the general metadata info: name, title, fstore
 	this->SetName(GetParameter("name", "defaultName").c_str());
 	this->SetTitle(GetParameter("title", "defaultTitle").c_str());
