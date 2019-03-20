@@ -636,7 +636,7 @@ Int_t TRestMetadata::LoadSectionMetadata()
 	
 
 	//get debug level again in case it is defined in the included file
-	string debugStr = GetParameter("verboseLevel", "essential");
+	debugStr = GetParameter("verboseLevel", "essential");
 	if (debugStr == "silent" || debugStr == "0")
 		fVerboseLevel = REST_Silent;
 	if (debugStr == "essential" || debugStr == "warning" || debugStr == "1")
