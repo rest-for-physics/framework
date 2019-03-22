@@ -279,7 +279,7 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e)
 			error << "This may due to a mis-spelling in the rml or mis-installation" << endl;
 			error << "of an external library. Please verify them and launch again." << endl;
 			exit(1);
-			return NULL;
+			return -1;
 		}
 		TRestEventProcess *pc = (TRestEventProcess *)cl->New();
 
