@@ -35,6 +35,7 @@
 #include <thread>
 
 #include "TRestSystemOfUnits.h"
+#include "TRestPhysics.h"
 #include "TVirtualStreamerInfo.h"
 #include "TClass.h"
 #include "TStreamerElement.h"

@@ -410,6 +410,7 @@ namespace REST_VersionGlob {
 */
 using namespace std;
 using namespace REST_Units;
+using namespace REST_Physics;
 
 
 // We introduce the gases file here.
