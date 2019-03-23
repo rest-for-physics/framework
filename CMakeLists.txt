@@ -173,7 +173,7 @@ install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/scripts/restv2_1ToXml.py
                  )
 
 install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/inputData
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data
     DESTINATION .
     COMPONENT install
         )

@@ -32,8 +32,8 @@
 
     <generator type="virtualBox" size="${REST_BOXSIZE}" units="mm" >
       <source particle="gamma" fullChain="off">
-        <angularDist type="TH1D" file="${REST_PATH}/inputData/distributions/HighEnergyGammaBiasing.root" spctName="${REST_ISOTOPE}_Angular_${REST_BOXSIZE}"/>
-        <energyDist type="TH1D" file="${REST_PATH}/inputData/distributions/HighEnergyGammaBiasing.root" spctName="${REST_ISOTOPE}_Spectrum_${REST_BOXSIZE}" range="(2.4,15.0)" units="MeV"/>
+        <angularDist type="TH1D" file="${REST_PATH}/data/distributions/HighEnergyGammaBiasing.root" spctName="${REST_ISOTOPE}_Angular_${REST_BOXSIZE}"/>
+        <energyDist type="TH1D" file="${REST_PATH}/data/distributions/HighEnergyGammaBiasing.root" spctName="${REST_ISOTOPE}_Spectrum_${REST_BOXSIZE}" range="(2.4,15.0)" units="MeV"/>
       </source>
     </generator>
 

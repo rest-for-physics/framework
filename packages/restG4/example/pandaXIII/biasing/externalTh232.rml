@@ -12,7 +12,7 @@
   <globals>
     <parameter name="mainDataPath" value="" />
     <parameter name="verboseLevel" value="essential" />
-    <variable name="DFilePath" value="${REST_PATH}/inputData/distributions" />
+    <variable name="DFilePath" value="${REST_PATH}/data/distributions" />
   </globals>
 
   <TRestRun name="PANDA-X III run" title="Simulations v2.0">
