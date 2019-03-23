@@ -64,9 +64,10 @@ set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -l
 
 
 #find garfield libs and includes
-IF( NOT DEFINED REST_GARFIELD )
-    set(REST_GARFIELD ON)
-ENDIF()
+#IF( NOT DEFINED REST_GARFIELD )
+#set(REST_GARFIELD ON)
+#ENDIF()
+
 if(${REST_GARFIELD} MATCHES "ON")
 	add_definitions(-DUSE_Garfield)
 	include(FindGarfield)
@@ -140,7 +141,11 @@ message("=============================")
 message ("REST will be installed in : ${CMAKE_INSTALL_PREFIX}" )
 message ("Version: ${GIT_TAG}" )
 message ("System is : ${CMAKE_SYSTEM_NAME}" )
-message ("Garfield is : ${REST_GARFIELD}" )
+if(${REST_GARFIELD} MATCHES "ON")
+	message ("Garfield is : ${REST_GARFIELD}" )
+else()
+	message ("Garfield is : ${REST_GARFIELD}. To enable run cmake adding : -DREST_GARFIELD=ON" )
+endif()
 message ("Geant4 is : ${REST_G4}" )
 message ("DataBase is : ${REST_DATABASE}" )
 message("=============================")
