@@ -326,7 +326,7 @@
 /// fully described by an input file. `<energyDistribution>` and 
 /// `<angularDistribution>` source specifiers have no effect here. Everything will
 /// be defined through the generator file. The file `Xe136bb0n.dat` is a pre-generated
-/// `Decay0` file that can be found at `REST_PATH/inputData/generator`, together with
+/// `Decay0` file that can be found at `REST_PATH/data/generator`, together with
 /// other generator examples.
 /// \code
 ///     // We launch pre-generated 136Xe NLDBD events
@@ -419,7 +419,7 @@
 /// user defined angular distribution. It requires to define the 
 /// additional parameters as `file="mySpectrum.root"` and 
 /// `spctName="histName"`. The file we give should be stored in 
-/// `"inputData/distributions/"` and contain a TH1D histogram with 
+/// `"data/distributions/"` and contain a TH1D histogram with 
 /// name "histName".
 /// \code
 ///     // A TH1D input angular distribution used for cosmic rays
@@ -1037,18 +1037,18 @@ void TRestG4Metadata::PrintMetadata()
 /// by the restG4 package.
 ///
 /// \param fName The Decay0 filename located at 
-/// REST_PATH/inputData/generator/
+/// REST_PATH/data/generator/
 ///
 void TRestG4Metadata::ReadGeneratorFile(TString fName)
 {
 	if (!fileExists((string)fName)) {
-		fName = (TString)getenv("REST_PATH") + "/inputData/generator/" + fName;
+		fName = (TString)getenv("REST_PATH") + "/data/generator/" + fName;
 		if (!fileExists((string)fName)) {
 			warning << "REST WARNING (TRestG4Metadata): generator file does not exist!" << endl;
 			GetChar();
 		}
 	}
-	//TString fullFilename = (TString) getenv("REST_PATH") +  "/inputData/generator/" + fName;
+	//TString fullFilename = (TString) getenv("REST_PATH") +  "/data/generator/" + fName;
 
 	char cadena[256];
 	int tmpInt;

@@ -67,7 +67,7 @@
 /// the gas properties inside the directory inputdata/gasFiles. These files cover different 
 /// conditions of gas and can be used if a new TRestGas object meets the condition among 
 /// one of them. The TRestGas sections that were used to
-/// generate those gas files can be found at $REST_PATH/inputData/definitions/gases.rml.
+/// generate those gas files can be found at $REST_PATH/data/definitions/gases.rml.
 ///
 /// Gas files will be searched by TRestGas in the paths that can be
 /// defined inside our main RML file through the section "searchPath" at the

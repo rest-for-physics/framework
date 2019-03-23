@@ -168,7 +168,7 @@ void TRestRawSignalShapingProcess::InitProcess()
 
     if( fShapingType == "responseFile" )
     {
-        TString fullPathName = (TString) getenv("REST_PATH") + "/inputData/signal/" + fResponseFilename;
+        TString fullPathName = (TString) getenv("REST_PATH") + "/data/signal/" + fResponseFilename;
         TFile *f = new TFile(fullPathName);
         responseSignal = (TRestRawSignal *) f->Get("signal Response");
         f->Close();
