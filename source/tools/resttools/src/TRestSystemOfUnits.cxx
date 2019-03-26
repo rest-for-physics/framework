@@ -110,11 +110,30 @@ namespace REST_Units
         return potential;
     }
 
+	// Return the value in Teslas
+	Double_t GetMagneticFieldInRESTUnits( Double_t field, TString unitsStr )
+	{
+		if( unitsStr == "T" ) return field/T;
+		if( unitsStr == "mT" ) return field/mT;
+		if( unitsStr == "G" )  return field/G;
+
+		return field;
+	}
+
     Bool_t isPotential( TString unitsStr )
     {
         if( unitsStr == "mV" ) return true;
         if( unitsStr == "V" ) return true;
         if( unitsStr == "kV" ) return true;
+
+        return false;
+    }
+
+    Bool_t isMagneticField( TString unitsStr )
+    {
+        if( unitsStr == "T" ) return true;
+        if( unitsStr == "mT" ) return true;
+        if( unitsStr == "G" ) return true;
 
         return false;
     }
@@ -125,6 +144,10 @@ namespace REST_Units
 		{
 			return true;
 		}
+
+		if( isMagneticField( unitsStr ) )
+				return true;
+
 		return false;
 	}
 
@@ -172,6 +195,7 @@ namespace REST_Units
         if( isField ( unitsStr ) ) return GetFieldInRESTUnits( value, unitsStr );
         if( isTime ( unitsStr ) ) return GetTimeInRESTUnits( value, unitsStr );
         if( isPotential ( unitsStr ) ) return GetPotentialInRESTUnits( value, unitsStr );
+        if( isMagneticField ( unitsStr ) ) return GetMagneticFieldInRESTUnits( value, unitsStr );
 
         cout << "REST WARNING (REST_Units)  Unit=[" << unitsStr << "] is not recognized" << endl;
 		cout << "returning NaN value" << endl;
