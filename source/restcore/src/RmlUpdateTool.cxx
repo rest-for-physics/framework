@@ -14,23 +14,23 @@ RmlUpdateTool::RmlUpdateTool(string Filename, bool process) {
 		Process();
 	}
 	else {
-		TiXmlDocument* doc = new TiXmlDocument();
-		if (doc->LoadFile(Filename.c_str()))
-		{
-			fStatus = true;
-		}
-		else
-		{
-			fStatus = false;
-			int result = system(("xmllint " + Filename + "> /tmp/xmlerror.txt").c_str());
-			if (result == 256) { system("cat /tmp/xmlerror.txt"); }
-			else {
-				error << "Something is wrong in the rml file!" << endl;
-				error << "To do syntax check for the file, please install the package \"xmllint\"" << endl;
-			}
-			system("rm /tmp/xmlerror.txt");
+		//TiXmlDocument* doc = new TiXmlDocument();
+		//if (doc->LoadFile(Filename.c_str()))
+		//{
+		//	fStatus = true;
+		//}
+		//else
+		//{
+		//	fStatus = false;
+		//	int result = system(("xmllint " + Filename + "> /tmp/xmlerror.txt").c_str());
+		//	if (result == 256) { system("cat /tmp/xmlerror.txt"); }
+		//	else {
+		//		error << "Something is wrong in the rml file!" << endl;
+		//		error << "To do syntax check for the file, please install the package \"xmllint\"" << endl;
+		//	}
+		//	system("rm /tmp/xmlerror.txt");
 
-		}
+		//}
 	}
 
 }
