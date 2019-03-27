@@ -85,10 +85,9 @@ protected:
 	Double_t GetDblParameterWithUnits(std::string parName, TiXmlElement* e, Double_t defaultVal = PARAMETER_NOT_FOUND_DBL);
 	TVector2 Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* e, TVector2 defaultValue = TVector2(-1, -1));
 	TVector3 Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* e, TVector3 defaultValue = TVector3(-1, -1, -1));
-	TiXmlElement* GetRootElementFromFile(std::string cfgFileName);
+	TiXmlElement* GetElementFromFile(std::string cfgFileName, std::string NameOrDecalre = "");
 	TiXmlElement* GetElement(std::string eleDeclare);
 	TiXmlElement* GetElement(std::string eleDeclare, TiXmlElement* e);
-	TiXmlElement* GetElement(std::string eleDeclare, std::string cfgFileName);
 	TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement* e);
 	TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName);
 	std::string GetElementDeclare(TiXmlElement* e) { return e->Value(); }

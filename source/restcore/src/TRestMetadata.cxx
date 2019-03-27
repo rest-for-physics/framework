@@ -484,30 +484,18 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName,string sectionName)
 {
 	fConfigFileName = cfgFileName;
 	if (fileExists(fConfigFileName)) {
-		TiXmlElement* Sectional;
-		if (sectionName == "")
-		{
-			Sectional = GetElement(ClassName(), fConfigFileName);
-			if (Sectional == NULL) {
-				error << "cannot find xml section \"" << ClassName() << "\" in config file: " << fConfigFileName << endl;
-				exit(1);
-			}
+		if (sectionName == "") {
+			sectionName = this->ClassName();
 		}
-		else
-		{
-			TiXmlElement*ele = GetRootElementFromFile(fConfigFileName);
-			if ((string)ele->Value() == (string)ClassName() || (string)ele->Value() == sectionName)
-				Sectional = ele;
-			else
-				Sectional = GetElementWithName(ClassName(), sectionName, ele);
 
-			if (Sectional == NULL) {
-				error << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName << "\"" << endl;
-				error << "in config file: " << fConfigFileName << endl;
-				exit(1);
-			}
+		//search with value
+		TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, sectionName);
+		if (Sectional == NULL) {
+			error << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName << "\"" << endl;
+			error << "in config file: " << fConfigFileName << endl;
+			exit(1);
 		}
-		TiXmlElement* Global = GetElement("globals", fConfigFileName);
+		TiXmlElement* Global = GetElementFromFile(fConfigFileName, "globals");
 		vector<TiXmlElement*> a;
 		a.clear();
 		return LoadConfigFromFile(Sectional, Global, a);
@@ -958,7 +946,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 
 			remoteele = new TiXmlElement("Config");
 
-			TiXmlElement*ele = GetRootElementFromFile(filename);
+			TiXmlElement*ele = GetElementFromFile(filename);
 			if (ele == NULL)warning << "REST Waring: no xml elements contained in the include file \"" << filename << "\"" << endl;
 			while (ele != NULL) {
 				remoteele->InsertEndChild(*ele);
@@ -992,7 +980,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 			name = localele->Attribute("name") == NULL ? "" : localele->Attribute("name");
 
 			//get the root element
-			TiXmlElement* rootele = GetRootElementFromFile(filename);
+			TiXmlElement* rootele = GetElementFromFile(filename);
 			if (rootele == NULL) {
 				warning << "REST WARNING(expand include file): Include file " << filename << " is of wrong xml format!" << endl;
 				warning << endl;
@@ -1327,14 +1315,20 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVect
 }
 
 ///////////////////////////////////////////////
-/// \brief Open an xml encoded file and get its root element. 
+/// \brief Open an xml encoded file and find its element.
+///
+/// If NameOrDecalre is a blank string, then it will return the first root element
+/// Otherwise it will search within all the root elements and sub-root elements
 ///
 /// The root element is the parent of any other xml elements in the file. 
-/// There could be only one root element in each xml encoded file.
+/// There could be only one root element in each xml encoded file in standard xml foamat.
+/// We recommened the users to write rml in this way, however, multi-root element is 
+/// still supported in this method.
 ///
-/// Exits the whole program if the xml file does not exist or is in wrong in syntax.
+/// Exits the whole program if the xml file does not exist, or is in wrong in syntax.
+/// Returns NULL if no element matches NameOrDecalre
 ///
-TiXmlElement* TRestMetadata::GetRootElementFromFile(std::string cfgFileName)
+TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::string NameOrDecalre)
 {
 	TiXmlDocument* doc = new TiXmlDocument();
 	TiXmlElement* rootele;
@@ -1359,7 +1353,7 @@ TiXmlElement* TRestMetadata::GetRootElementFromFile(std::string cfgFileName)
 			cout << filename << "  -->  " << t.GetOutputFile() << endl;
 			GetChar();
 			TRestMetadata_UpdatedConfigFile[filename] = t.GetOutputFile();
-			return GetRootElementFromFile(t.GetOutputFile());
+			return GetElementFromFile(t.GetOutputFile());
 		}
 		else {
 			error << "Failed to load xml file, syntax maybe wrong. The file is: " << filename << endl;
@@ -1368,15 +1362,41 @@ TiXmlElement* TRestMetadata::GetRootElementFromFile(std::string cfgFileName)
 	}
 
 	rootele = doc->RootElement();
-	if (rootele != NULL) {
-		return rootele;
-	}
-	else {
-		error << "Succeeded to load xml file, but no element contained" << endl;
+	if (rootele == NULL) {
+		error << "The rml file \""<< cfgFileName <<"\" does not contain any valid elements!" << endl;
 		GetChar();
 		exit(1);
 	}
+	if (NameOrDecalre == "") {
+		return rootele;
+	}
+	//search with either name or declare in either root element or sub-root element
+	while (rootele != NULL) {
+		if (rootele->Value() != NULL && (string)rootele->Value() == NameOrDecalre) {
+			return rootele;
+		}
 
+		if (rootele->Attribute("name") != NULL && (string)rootele->Attribute("name") == NameOrDecalre) {
+			return rootele;
+		}
+
+		TiXmlElement* etemp = GetElement(NameOrDecalre, rootele);
+		if (etemp != NULL) {
+			return etemp;
+		}
+
+		etemp = GetElementWithName("", NameOrDecalre, rootele);
+		if (etemp != NULL) {
+			return etemp;
+		}
+
+		rootele = rootele->NextSiblingElement();
+	}
+
+	return NULL;
+	/*error << "Cannot find xml element with name \""<< NameOrDecalre <<"\" in rml file \"" << cfgFileName << endl;
+	GetChar();
+	exit(1);*/
 }
 
 ///////////////////////////////////////////////
@@ -1402,18 +1422,6 @@ TiXmlElement * TRestMetadata::GetElement(std::string eleDeclare, TiXmlElement * 
 		ele = ele->NextSiblingElement();
 	}
 	return ele;
-}
-
-///////////////////////////////////////////////
-/// \brief Get an xml element from the root element of a xml encoded file, according to its declaration
-///
-TiXmlElement * TRestMetadata::GetElement(std::string eleDeclare, std::string cfgFileName)
-{
-	TiXmlElement* root = GetRootElementFromFile(cfgFileName);
-	if ((string)root->Value() == eleDeclare) {
-		return root;
-	}
-	return GetElement(eleDeclare, root);
 }
 
 ///////////////////////////////////////////////
