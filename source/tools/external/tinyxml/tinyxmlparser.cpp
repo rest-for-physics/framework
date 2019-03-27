@@ -756,6 +756,12 @@ const char* TiXmlDocument::Parse( const char* p, TiXmlParsingData* prevData, TiX
 		TiXmlNode* node = Identify( p, encoding );
 		if ( node )
 		{
+			if (lastChild && lastChild->ToElement() && node->ToElement()) {
+				node->Parse(p, &data, encoding);
+				SetError(TIXML_ERROR_MULTI_ROOTSECTION, p, &data, encoding);
+				return 0;
+			}
+
 			p = node->Parse( p, &data, encoding );
 			LinkEndChild( node );
 		}
@@ -795,8 +801,44 @@ const char* TiXmlDocument::Parse( const char* p, TiXmlParsingData* prevData, TiX
 	return p;
 }
 
-void TiXmlDocument::SetError( int err, const char* pError, TiXmlParsingData* data, TiXmlEncoding encoding )
-{	
+inline TIXML_STRING NotifyPosition(const char* p, TiXmlCursor c) {
+	char message[30];
+	sprintf(message, "row %i, column %i", c.row+1, c.col);
+	TIXML_STRING result = TIXML_STRING(message);
+
+	int length = 40;
+	int n = 0;
+	int m = 0;
+	if (p) {
+		const char* pp = p;
+		while (*pp != 0 && *pp != '\n') {
+			--pp;
+			++n;
+		}
+		++pp; --n; if (n == -1) { return result; }
+		result += ":\n" + TIXML_STRING(pp, n <= length ? n : length - 5);
+		if (n > length) {
+			result += " ... ";
+		}
+
+		pp = p;
+		while (*pp != 0 && *pp != '\n' && m <= length) {
+			++pp;
+			++m;
+		}
+		result += TIXML_STRING(p, m <= length ? m : length - 5);
+		if (m > length) {
+			result += "...";
+		}
+	}
+	result += "\n" + TIXML_STRING(n,' ') + "^\n";
+
+
+	return result;
+}
+
+void TiXmlDocument::SetError(int err, const char* pError, TiXmlParsingData* data, TiXmlEncoding encoding)
+{
 	// The first error in a chain is more accurate - don't set again!
 	if ( error )
 		return;
@@ -811,6 +853,8 @@ void TiXmlDocument::SetError( int err, const char* pError, TiXmlParsingData* dat
 	{
 		data->Stamp( pError, encoding );
 		errorLocation = data->Cursor();
+		errorDesc += "\nIn " + TIXML_STRING(this->value) + ": ";
+		errorDesc += NotifyPosition(pError, errorLocation);
 	}
 }
 
@@ -1127,7 +1171,7 @@ const char* TiXmlElement::Parse( const char* p, TiXmlParsingData* data, TiXmlEnc
 					++p;
 					return p;
 				}
-				if ( document ) document->SetError( TIXML_ERROR_READING_END_TAG, p, data, encoding );
+				if ( document ) document->SetError( TIXML_ERROR_READING_END_TAG, p, data, encoding ); 
 				return 0;
 			}
 			else

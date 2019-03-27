@@ -1076,6 +1076,10 @@ bool TiXmlDocument::LoadFile( FILE* file, TiXmlEncoding encoding )
 
 	Parse( buf, 0, encoding );
 
+	if (Error()) {
+		printf("%s\n", ErrorDesc());
+	}
+
 	delete [] buf;
 	return !Error();
 }
