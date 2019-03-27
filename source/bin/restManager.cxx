@@ -100,7 +100,7 @@ int main( int argc, char *argv[] )
 			auto path = SeparatePathAndName(cfgFileName).first;
 			setenv("configPath", path.c_str(), 1);
 
-			a->LoadConfigFromFile(cfgFileName, "restManager");
+			a->LoadConfigFromFile(cfgFileName);
 
 			fout << "Done!" << endl;
 			//a->GetChar();
