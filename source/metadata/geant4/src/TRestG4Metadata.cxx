@@ -1050,33 +1050,24 @@ void TRestG4Metadata::ReadGeneratorFile(TString fName)
 	}
 	//TString fullFilename = (TString) getenv("REST_PATH") +  "/data/generator/" + fName;
 
-	char cadena[256];
-	int tmpInt;
 
-	FILE *fFileIn;
-
-	if ((fFileIn = fopen(fName.Data(), "rt")) == NULL) {
-		printf("Error en el archivo %s\n", fName.Data());
+	ifstream infile;
+	infile.open(fName);
+	if (!infile.is_open()) {
+		printf("Error when opening file %s\n", fName.Data());
 		return;
 	}
 
+	string s;
 	// First lines are discarded.
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < 30; i++)
 	{
-		if (fscanf(fFileIn, "%[^\n]\n", cadena) <= 0)
-		{
-			cout << "REST Error!!. TRestG4Metadata::ReadGeneratorFile. Contact rest-dev@cern.ch" << endl;
-			exit(-1);
-		}
-		if (strcmp(cadena, "First event and full number of events:") == 0) break;
+		getline(infile, s);
+		if (s.find("First event and full number of events:") != -1) break;
 	}
-
-	Int_t fGeneratorEvents;
-	if (fscanf(fFileIn, "%d %d\n", &tmpInt, &fGeneratorEvents) <= 0) // The number of events.
-	{
-		cout << "REST Error!!. TRestG4Metadata::ReadGeneratorFile. Contact rest-dev@cern.ch" << endl;
-		exit(-1);
-	}
+	int tmpInt;
+	int fGeneratorEvents;
+	infile >> tmpInt >> fGeneratorEvents;
 
 	// cout << "i : " << tmpInt << " fN : " << fGeneratorEvents << endl;
 
@@ -1084,11 +1075,10 @@ void TRestG4Metadata::ReadGeneratorFile(TString fName)
 
 	TRestParticle particle;
 
-
 	cout << "Reading generator file : " << fName << endl;
 	cout << "Total number of events : " << fGeneratorEvents << endl;
 
-	for (int n = 0; n < fGeneratorEvents; n++)
+	for (int n = 0; n < fGeneratorEvents && !infile.eof(); n++)
 	{
 		particleCollection.RemoveParticles();
 
@@ -1096,24 +1086,18 @@ void TRestG4Metadata::ReadGeneratorFile(TString fName)
 		Int_t evID;
 		Double_t time;
 
+		infile >> evID >> time >> nParticles;
 
-		if (fscanf(fFileIn, "%d %lf %d\n", &evID, &time, &nParticles) <= 0)
-		{
-			cout << "REST Error!!. TRestG4Metadata::ReadGeneratorFile. Contact rest-dev@cern.ch" << endl;
-			exit(-1);
-		}
-
-		for (int i = 0; i < nParticles; i++)
+		//cout << evID <<" "<< time <<" "<< nParticles <<" "<< endl;
+		for (int i = 0; i < nParticles && !infile.eof(); i++)
 		{
 			Int_t pID;
 			Double_t momx, momy, momz, mass;
 			Double_t energy = -1, momentum2;
 
-			if (fscanf(fFileIn, "%d %lf %lf %lf %lf\n", &pID, &momx, &momy, &momz, &time) <= 0)
-			{
-				cout << "REST Error!!. TRestG4Metadata::ReadGeneratorFile. Contact rest-dev@cern.ch" << endl;
-				exit(-1);
-			}
+			infile >> pID >> momx >> momy >> momz >> time;
+
+			//cout << momx << " " << momy << " " << momz << " " << endl;
 
 			if (pID == 3)
 			{
