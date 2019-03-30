@@ -802,9 +802,11 @@ const char* TiXmlDocument::Parse( const char* p, TiXmlParsingData* prevData, TiX
 }
 
 inline TIXML_STRING NotifyPosition(const char* p, TiXmlCursor c) {
-	char message[30];
-	sprintf(message, "row %i, column %i", c.row+1, c.col);
-	TIXML_STRING result = TIXML_STRING(message);
+	char _message[30];
+	sprintf(_message, "row %i, column %i", c.row + 1, c.col + 1);
+	TIXML_STRING message = TIXML_STRING(_message);
+	TIXML_STRING line;
+	TIXML_STRING pointer;
 
 	int length = 40;
 	int n = 0;
@@ -815,26 +817,31 @@ inline TIXML_STRING NotifyPosition(const char* p, TiXmlCursor c) {
 			--pp;
 			++n;
 		}
-		++pp; --n; if (n == -1) { return result; }
-		result += ":\n" + TIXML_STRING(pp, n <= length ? n : length - 5);
+		++pp; --n; if (n == -1) { return message; }
+		message += ":";
+		line += TIXML_STRING(pp, n <= length ? n : length - 5);
 		if (n > length) {
-			result += " ... ";
+			line += " ... ";
 		}
+
+		pointer = line;
+		for (int i = 0; i < pointer.size(); i++) {
+			if (iswprint(pointer[i]))pointer[i] = ' ';
+		}
+		pointer += '^';
 
 		pp = p;
 		while (*pp != 0 && *pp != '\n' && m <= length) {
 			++pp;
 			++m;
 		}
-		result += TIXML_STRING(p, m <= length ? m : length - 5);
+		line += TIXML_STRING(p, m <= length ? m : length - 5);
 		if (m > length) {
-			result += "...";
+			line += "...";
 		}
 	}
-	result += "\n" + TIXML_STRING(n,' ') + "^\n";
 
-
-	return result;
+	return message + '\n' + line + '\n' + pointer;
 }
 
 void TiXmlDocument::SetError(int err, const char* pError, TiXmlParsingData* data, TiXmlEncoding encoding)
