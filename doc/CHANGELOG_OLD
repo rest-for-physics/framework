@@ -299,9 +299,9 @@ Example :
 
 * The `subEventID` definition has changed. Now a new parameter `subEventTimeDelay` has been added to `TRestG4Metadata`. If this parameter is not defined it will take by default 1 second. Events with timeStamp containned inside the `subEventTimeDelay` will be considered as a single `subEventID`.
 
-# Changes on inputData
+# Changes on data
 
-* inputData/definitions : New directory containning common definitions : `readouts.rml`, `materials.xml`, `gases.rml`
+* data/definitions : New directory containning common definitions : `readouts.rml`, `materials.xml`, `gases.rml`
        In order to implement materials.xml in specific configurations we just use a symbolic link.
        materials.xml symlink has been added to the different geometries in the configuration directories.
 
@@ -309,10 +309,10 @@ Example :
 
 ---
 Example:
-  <section gas nameref="Gas name" file="{REST_PATH}/inputData/definitions/gases.rml" >
+  <section gas nameref="Gas name" file="{REST_PATH}/data/definitions/gases.rml" >
 ---
 
-* inputData/distributions : Added `HighEnergyGammaBiasing.root` distribution containning the resulting gamma after biasing in a water tank (see README).
+* data/distributions : Added `HighEnergyGammaBiasing.root` distribution containning the resulting gamma after biasing in a water tank (see README).
 
 
 # Changes in restcore
@@ -405,11 +405,11 @@ Author : Gloria Luzón/Javier Galan
 Merge : #43
 ==========================================================
 
-README files have been added and/or modified in inputData/distributions and inputData/generator. This files contain detailed descriptions of the files found under each folfer.
+README files have been added and/or modified in data/distributions and data/generator. This files contain detailed descriptions of the files found under each folfer.
 
-- Reorganized the inputData/distributions. 
+- Reorganized the data/distributions. 
 
-- New generators found at inputData/generator
+- New generators found at data/generator
 
 ==========================================================
 Date : 2nd / March / 2016
@@ -561,7 +561,7 @@ Merge : #34
 ==========================================================
 
 Adding gas mixture files
-Adding in inputData/gasFiles/
+Adding in data/gasFiles/
 - pure Xe
 - pure He
 - Ar+iso; Xe+iso; Xe+CF4 mixtures - 0.5,1,2,3,5%
@@ -665,7 +665,7 @@ The run filename is now by default :
 Run_experiment_user_processName_Tag_runNumber_parentNumber_codeVersion.root
 
 Modifications related to overwrite option.
-Now runNumber accepts option runNumber="auto". It will take by default an increasing value stored in inputData/runNumber.
+Now runNumber accepts option runNumber="auto". It will take by default an increasing value stored in data/runNumber.
 
 TRestReadoutModule
 ------------------

@@ -71,6 +71,13 @@ namespace REST_Units {
     Double_t GetPotentialInRESTUnits( Double_t potential, TString unitsStr );
     Bool_t isPotential( TString unitsStr );
 
+    const double mT = 1.e3;
+    const double T  = 1.;
+    const double G = 1.e4;
+
+    Double_t GetMagneticFieldInRESTUnits( Double_t field, TString unitsStr );
+    Bool_t isMagneticField( TString unitsStr );
+
 	bool IsUnit(string in);
 	string GetRESTUnitsInString(string InString);
     Double_t GetValueInRESTUnits( Double_t value, TString unitsStr );

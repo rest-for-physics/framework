@@ -64,9 +64,10 @@ set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -l
 
 
 #find garfield libs and includes
-IF( NOT DEFINED REST_GARFIELD )
-    set(REST_GARFIELD ON)
-ENDIF()
+#IF( NOT DEFINED REST_GARFIELD )
+#set(REST_GARFIELD ON)
+#ENDIF()
+
 if(${REST_GARFIELD} MATCHES "ON")
 	add_definitions(-DUSE_Garfield)
 	include(FindGarfield)
@@ -140,7 +141,11 @@ message("=============================")
 message ("REST will be installed in : ${CMAKE_INSTALL_PREFIX}" )
 message ("Version: ${GIT_TAG}" )
 message ("System is : ${CMAKE_SYSTEM_NAME}" )
-message ("Garfield is : ${REST_GARFIELD}" )
+if(${REST_GARFIELD} MATCHES "ON")
+	message ("Garfield is : ${REST_GARFIELD}" )
+else()
+	message ("Garfield is : ${REST_GARFIELD}. To enable run cmake adding : -DREST_GARFIELD=ON" )
+endif()
 message ("Geant4 is : ${REST_G4}" )
 message ("DataBase is : ${REST_DATABASE}" )
 message("=============================")
@@ -173,7 +178,7 @@ install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/scripts/restv2_1ToXml.py
                  )
 
 install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/inputData
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data
     DESTINATION .
     COMPONENT install
         )
@@ -257,14 +262,11 @@ echo \\\"  Compilation date : ${date}                                           
 echo \\\"								                                                \\\"
 echo \\\"  Installed at : $REST_PATH                                                    \\\"
 echo \\\"                                                                               \\\"
-echo \\\"  REST news/dev/support mail-list : rest-dev@cern.ch                           \\\"
+echo \\\"  REST releases announcement : rest-dev@cern.ch                           		\\\"
 echo \\\"                                                                               \\\"
-echo \\\"  You can subscribe at egroups.cern.ch                                         \\\"
+echo \\\"  Self-subscription policy is open at egroups.cern.ch                          \\\"
 echo \\\"                                                                               \\\"
-echo \\\"  If you have no CERN account you can get an account                           \\\"
-echo \\\"  linked to your usual mail address at this site:                              \\\"
-echo \\\"                                                                               \\\"
-echo \\\"  https://account.cern.ch/account/Externals/                                   \\\"
+echo \\\"  REST forum site : gifna.unizar.es/rest-forum                                 \\\"
 echo \\\"  *****************************************************************************\\\"
 echo \\\"                                                                               \\\" 
 

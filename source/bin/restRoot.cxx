@@ -9,6 +9,7 @@
 #include "TRestVersion.h"
 
 bool silent = false;
+bool debug = false;
 int main(int argc, char *argv[])
 {
 	setenv("REST_VERSION", REST_RELEASE, 1);
@@ -17,6 +18,12 @@ int main(int argc, char *argv[])
 		if (ToUpper((string)argv[i]) == "--SILENT")
 		{
 			silent = true;
+			break;
+		}
+
+		if (ToUpper((string)argv[i]) == "--DEBUG")
+		{
+			debug = true;
 			break;
 		}
 	}
@@ -28,7 +35,7 @@ int main(int argc, char *argv[])
 	auto b = Spilt(a, "\n");
 	for (auto c : b)
 	{
-		if ( !silent )
+		if ( debug )
 			printf("Loading macro : %s\n", c.c_str());
 
 		gROOT->ProcessLine((".L "+c).c_str());

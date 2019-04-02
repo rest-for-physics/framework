@@ -93,7 +93,7 @@ void TRestDAQMetadata::PrintMetadata( )
 void TRestDAQMetadata::SetScriptsBuffer( ){
 
 TString folder = getenv("REST_PATH");
-folder.Append("inputData/acquisition/");
+folder.Append("data/acquisition/");
 
 TString fName;
 

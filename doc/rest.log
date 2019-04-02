@@ -231,7 +231,7 @@ Revision 110 - librestcore.so.2.1.0
 + Added TRestG4PrimaryGenerator class. Now TRestG4Metadata stores a TRestG4EventGenerator that includes TRestParticleSource and a TRestParticle storage.
 + Added TRestParticleCollection class. It stores a vector of TRestParticles.
 
-+ Added inputData folder containning generators, distributions and gas files
++ Added data folder containning generators, distributions and gas files
 
 =================
 10-Aug-2015

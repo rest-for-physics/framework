@@ -64,6 +64,7 @@ void TRestRawToSignalProcess::Initialize()
     fMinPoints = 512;
 
 	fSingleThreadOnly = true;
+	fIsExternal = true;
 
 	totalBytes = 0;
 	totalBytesReaded = 0;
@@ -247,14 +248,14 @@ void  TRestRawToSignalProcess::printBits(unsigned int num)
 void TRestRawToSignalProcess::PrintMetadata(){
 	BeginPrintProcess();
 
-    essential <<" "<< endl;
-    essential << " ==================================== " << endl;
-    essential << "DAQ : " << GetTitle() << endl;
-    essential << "Electronics type : " << fElectronicsType.Data() << endl;
-    essential << "Minimum number of points : " << fMinPoints << endl;
-    essential << " ==================================== " << endl;
+    metadata <<" "<< endl;
+    metadata << " ==================================== " << endl;
+    metadata << "DAQ : " << GetTitle() << endl;
+    metadata << "Electronics type : " << fElectronicsType.Data() << endl;
+    metadata << "Minimum number of points : " << fMinPoints << endl;
+    metadata << " ==================================== " << endl;
     
-	essential << " " << endl;
+	metadata << " " << endl;
 
 	EndPrintProcess();
 }

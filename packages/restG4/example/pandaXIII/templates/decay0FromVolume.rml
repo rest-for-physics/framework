@@ -4,7 +4,7 @@
      File   : decay0FromVolume.rml
      Authors : J. Galan / H.Liang
      Date   :  9th-Apr-2016
-     Description : Configuration template file to launch pre-generated events from decay0 that can be found inside inputData/generators/${REST_GENERATOR}.dat. The files are launched
+     Description : Configuration template file to launch pre-generated events from decay0 that can be found inside data/generators/${REST_GENERATOR}.dat. The files are launched
      from a given volume ${REST_VOLUME} defined in the geometry.
  -->
 <restG4>

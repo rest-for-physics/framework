@@ -62,15 +62,15 @@ class TRestSignalZeroSuppresionProcess:public TRestEventProcess {
         {
             BeginPrintProcess();
 
-            essential << "Base line range definition : ( " << fBaseLineRange.X() << " , " << fBaseLineRange.Y() << " ) " << endl;
-			essential << "Integral range : ( " << fIntegralRange.X() << " , " << fIntegralRange.Y() << " ) " << endl;
-			essential << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
-            essential << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
-            essential << "Number of points over threshold : " << fNPointsOverThreshold << endl;
-			essential << "Max Number of points of flat signal tail : " << fNPointsFlatThreshold << endl;
+            metadata << "Base line range definition : ( " << fBaseLineRange.X() << " , " << fBaseLineRange.Y() << " ) " << endl;
+			metadata << "Integral range : ( " << fIntegralRange.X() << " , " << fIntegralRange.Y() << " ) " << endl;
+			metadata << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
+            metadata << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
+            metadata << "Number of points over threshold : " << fNPointsOverThreshold << endl;
+			metadata << "Max Number of points of flat signal tail : " << fNPointsFlatThreshold << endl;
 
 			if(fBaseLineCorrection)
-				essential << "BaseLine correction is enabled for TRestRawSignalAnalysisProcess"<< endl;
+				metadata << "BaseLine correction is enabled for TRestRawSignalAnalysisProcess"<< endl;
 
             EndPrintProcess();
         }

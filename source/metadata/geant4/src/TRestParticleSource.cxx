@@ -68,7 +68,7 @@ void TRestParticleSource::PrintParticleSource()
 /* {{{ LoadEnergyDistribution ( A better way would be to store TH1D energySpectrum in particle source  (Commented)
 void TRestParticleSource::LoadEnergyDistribution( TString fName, TString spctName )
 {
-    TString fileFullPath = (TString ) getenv("REST_PATH") + "/inputData/energySpectra/" + fName;
+    TString fileFullPath = (TString ) getenv("REST_PATH") + "/data/energySpectra/" + fName;
 
     cout << "Loading energy distribution : " << endl;
     cout << "Full path file : " << fileFullPath << endl;

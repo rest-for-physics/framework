@@ -410,6 +410,7 @@ namespace REST_VersionGlob {
 */
 using namespace std;
 using namespace REST_Units;
+using namespace REST_Physics;
 
 
 // We introduce the gases file here.
@@ -434,6 +435,7 @@ TRestMetadata::TRestMetadata()
 
 	fConfigFileName = "null";
 	configBuffer = "";
+	metadata.setlength(100);
 
 	fVersion = REST_RELEASE;
 }
@@ -452,6 +454,7 @@ TRestMetadata::TRestMetadata(const char *cfgFileName)
 
 	fConfigFileName = cfgFileName;
 	configBuffer = "";
+	metadata.setlength(100);
 
 	fVersion = REST_RELEASE;
 }
@@ -481,30 +484,18 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName,string sectionName)
 {
 	fConfigFileName = cfgFileName;
 	if (fileExists(fConfigFileName)) {
-		TiXmlElement* Sectional;
-		if (sectionName == "")
-		{
-			Sectional = GetElement(ClassName(), fConfigFileName);
-			if (Sectional == NULL) {
-				error << "cannot find xml section \"" << ClassName() << "\" in config file: " << fConfigFileName << endl;
-				exit(1);
-			}
+		if (sectionName == "") {
+			sectionName = this->ClassName();
 		}
-		else
-		{
-			TiXmlElement*ele = GetRootElementFromFile(fConfigFileName);
-			if ((string)ele->Value() == (string)ClassName() || (string)ele->Value() == sectionName)
-				Sectional = ele;
-			else
-				Sectional = GetElementWithName(ClassName(), sectionName, ele);
 
-			if (Sectional == NULL) {
-				error << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName << "\"" << endl;
-				error << "in config file: " << fConfigFileName << endl;
-				exit(1);
-			}
+		//search with value
+		TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, sectionName);
+		if (Sectional == NULL) {
+			error << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName << "\"" << endl;
+			error << "in config file: " << fConfigFileName << endl;
+			exit(1);
 		}
-		TiXmlElement* Global = GetElement("globals", fConfigFileName);
+		TiXmlElement* Global = GetElementFromFile(fConfigFileName, "globals");
 		vector<TiXmlElement*> a;
 		a.clear();
 		return LoadConfigFromFile(Sectional, Global, a);
@@ -633,6 +624,21 @@ Int_t TRestMetadata::LoadSectionMetadata()
 
 	
 
+	//get debug level again in case it is defined in the included file
+	debugStr = GetParameter("verboseLevel", "essential");
+	if (debugStr == "silent" || debugStr == "0")
+		fVerboseLevel = REST_Silent;
+	if (debugStr == "essential" || debugStr == "warning" || debugStr == "1")
+		fVerboseLevel = REST_Essential;
+	if (debugStr == "info" || debugStr == "2")
+		fVerboseLevel = REST_Info;
+	if (debugStr == "debug" || debugStr == "3")
+		fVerboseLevel = REST_Debug;
+	if (debugStr == "extreme" || debugStr == "4")
+		fVerboseLevel = REST_Extreme;
+
+
+
 	//finally fill the general metadata info: name, title, fstore
 	this->SetName(GetParameter("name", "defaultName").c_str());
 	this->SetTitle(GetParameter("title", "defaultTitle").c_str());
@@ -751,7 +757,7 @@ void TRestMetadata::SetEnv(TiXmlElement* e, bool updateexisting)
 /// Before expansion, ReplaceElementAttributes() will first be called.
 void TRestMetadata::ExpandElement(TiXmlElement*e, bool recursive)
 {
-    debug << "-- Debug : Entering ... " << __PRETTY_FUNCTION__ << endl;
+    debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
 
 	ReplaceElementAttributes(e);
 	if ((string)e->Value() == "for") 
@@ -882,7 +888,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement*e)
 /// TRestRun::ImportMetadata()
 void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 {
-    debug << "-- Debug : Entering ... " << __PRETTY_FUNCTION__ << endl;
+    debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
 
 	ReplaceElementAttributes(e);
 	const char* _filetmp = e->Attribute("file");
@@ -899,7 +905,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
         _filename = (string) gasesFile;
 
 
-    debug << "-- Debug : filename to expand : " << _filename << endl;
+    debug << "filename to expand : " << _filename << endl;
 
     if( REST_StringHelper::isURL( _filename ) )
             _filename = DownloadHttpFile( _filename );
@@ -940,7 +946,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 
 			remoteele = new TiXmlElement("Config");
 
-			TiXmlElement*ele = GetRootElementFromFile(filename);
+			TiXmlElement*ele = GetElementFromFile(filename);
 			if (ele == NULL)warning << "REST Waring: no xml elements contained in the include file \"" << filename << "\"" << endl;
 			while (ele != NULL) {
 				remoteele->InsertEndChild(*ele);
@@ -974,7 +980,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 			name = localele->Attribute("name") == NULL ? "" : localele->Attribute("name");
 
 			//get the root element
-			TiXmlElement* rootele = GetRootElementFromFile(filename);
+			TiXmlElement* rootele = GetElementFromFile(filename);
 			if (rootele == NULL) {
 				warning << "REST WARNING(expand include file): Include file " << filename << " is of wrong xml format!" << endl;
 				warning << endl;
@@ -1103,13 +1109,13 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement * e)
 /// exit call and print out some error.
 string TRestMetadata::DownloadHttpFile( string remoteFile )
 {
-    debug << "-- Debug : Entering ... " << __PRETTY_FUNCTION__ << endl;
+    debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
 
-    debug << "-- Debug : Complete remote filename : " << remoteFile << endl;
+    debug << "Complete remote filename : " << remoteFile << endl;
 
     TString remoteFilename = REST_StringHelper::RemoveAbsolutePath( remoteFile );
 
-    debug << "-- Debug : Reduced remote filename : " << remoteFilename << endl;
+    debug << "Reduced remote filename : " << remoteFilename << endl;
 
     string cmd = "wget --no-check-certificate " + remoteFile + " -O /tmp/REST_" + getenv( "USER" ) + "_remote.rml -q";
 
@@ -1201,7 +1207,7 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
 		}
 		else
 		{
-			if (GetVerboseLevel() > REST_Debug) { cout << "Parameter not found!" << endl; }
+			debug << ClassName() << ": Parameter : " << parName << " not found!" << endl;
 		}
 	}
 
@@ -1309,14 +1315,20 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVect
 }
 
 ///////////////////////////////////////////////
-/// \brief Open an xml encoded file and get its root element. 
+/// \brief Open an xml encoded file and find its element.
+///
+/// If NameOrDecalre is a blank string, then it will return the first root element
+/// Otherwise it will search within all the root elements and sub-root elements
 ///
 /// The root element is the parent of any other xml elements in the file. 
-/// There could be only one root element in each xml encoded file.
+/// There could be only one root element in each xml encoded file in standard xml foamat.
+/// We recommened the users to write rml in this way, however, multi-root element is 
+/// still supported in this method.
 ///
-/// Exits the whole program if the xml file does not exist or is in wrong in syntax.
+/// Exits the whole program if the xml file does not exist, or is in wrong in syntax.
+/// Returns NULL if no element matches NameOrDecalre
 ///
-TiXmlElement* TRestMetadata::GetRootElementFromFile(std::string cfgFileName)
+TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::string NameOrDecalre)
 {
 	TiXmlDocument* doc = new TiXmlDocument();
 	TiXmlElement* rootele;
@@ -1341,7 +1353,7 @@ TiXmlElement* TRestMetadata::GetRootElementFromFile(std::string cfgFileName)
 			cout << filename << "  -->  " << t.GetOutputFile() << endl;
 			GetChar();
 			TRestMetadata_UpdatedConfigFile[filename] = t.GetOutputFile();
-			return GetRootElementFromFile(t.GetOutputFile());
+			return GetElementFromFile(t.GetOutputFile());
 		}
 		else {
 			error << "Failed to load xml file, syntax maybe wrong. The file is: " << filename << endl;
@@ -1350,15 +1362,41 @@ TiXmlElement* TRestMetadata::GetRootElementFromFile(std::string cfgFileName)
 	}
 
 	rootele = doc->RootElement();
-	if (rootele != NULL) {
-		return rootele;
-	}
-	else {
-		error << "Succeeded to load xml file, but no element contained" << endl;
+	if (rootele == NULL) {
+		error << "The rml file \""<< cfgFileName <<"\" does not contain any valid elements!" << endl;
 		GetChar();
 		exit(1);
 	}
+	if (NameOrDecalre == "") {
+		return rootele;
+	}
+	//search with either name or declare in either root element or sub-root element
+	while (rootele != NULL) {
+		if (rootele->Value() != NULL && (string)rootele->Value() == NameOrDecalre) {
+			return rootele;
+		}
 
+		if (rootele->Attribute("name") != NULL && (string)rootele->Attribute("name") == NameOrDecalre) {
+			return rootele;
+		}
+
+		TiXmlElement* etemp = GetElement(NameOrDecalre, rootele);
+		if (etemp != NULL) {
+			return etemp;
+		}
+
+		etemp = GetElementWithName("", NameOrDecalre, rootele);
+		if (etemp != NULL) {
+			return etemp;
+		}
+
+		rootele = rootele->NextSiblingElement();
+	}
+
+	return NULL;
+	/*error << "Cannot find xml element with name \""<< NameOrDecalre <<"\" in rml file \"" << cfgFileName << endl;
+	GetChar();
+	exit(1);*/
 }
 
 ///////////////////////////////////////////////
@@ -1384,18 +1422,6 @@ TiXmlElement * TRestMetadata::GetElement(std::string eleDeclare, TiXmlElement * 
 		ele = ele->NextSiblingElement();
 	}
 	return ele;
-}
-
-///////////////////////////////////////////////
-/// \brief Get an xml element from the root element of a xml encoded file, according to its declaration
-///
-TiXmlElement * TRestMetadata::GetElement(std::string eleDeclare, std::string cfgFileName)
-{
-	TiXmlElement* root = GetRootElementFromFile(cfgFileName);
-	if ((string)root->Value() == eleDeclare) {
-		return root;
-	}
-	return GetElement(eleDeclare, root);
 }
 
 ///////////////////////////////////////////////
@@ -1469,9 +1495,9 @@ string TRestMetadata::GetUnits(TiXmlElement* e, string whoseunits)
 		}
 		else
 		{
-			warning << "No units are defined in element "<<e->Value()<<" , returning blank unit" << endl;
-			warning << "The field value will be directly returned with blank unit." << endl;
-			warning << endl;
+			warning << "TRestMetadata::" << ClassName() << endl;
+			warning << "No units are defined in " << e->Value() << " : " << e->Attribute("name") << endl;
+			warning << "The parameter will use REST default units" << endl;
 			return "";
 		}
 	}
@@ -2079,18 +2105,14 @@ int TRestMetadata::GetChar(string hint)
 ///
 void TRestMetadata::PrintMetadata()
 {
-	TRestStringOutput cout;
-	cout.setborder("||");
-	cout.setorientation(1);
-	cout.setlength(100);
-	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-	cout << this->ClassName() << " content" << endl;
-	cout << "Config file : " << fConfigFileName << endl;
-	cout << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-	cout << "Name : " << GetName() << endl;
-	cout << "Title : " << GetTitle() << endl;
-	cout << "Version : " << GetVersion() << endl;
-	cout << "---------------------------------------" << endl;
+	metadata << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	metadata << this->ClassName() << " content" << endl;
+	metadata << "Config file : " << fConfigFileName << endl;
+	metadata << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	metadata << "Name : " << GetName() << endl;
+	metadata << "Title : " << GetTitle() << endl;
+	metadata << "Version : " << GetVersion() << endl;
+	metadata << "---------------------------------------" << endl;
 }
 
 TString TRestMetadata::GetVersion() {

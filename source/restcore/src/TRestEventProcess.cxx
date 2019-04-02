@@ -102,6 +102,7 @@ vector<string> TRestEventProcess::ReadObservables()
 	{
 		const char* obschr = e->Attribute("name");
 		const char* _value = e->Attribute("value");
+
 		string value;
 		if (_value == NULL)value = "ON";
 		else { value = _value; }
@@ -115,11 +116,11 @@ vector<string> TRestEventProcess::ReadObservables()
 		}
 
 		e = e->NextSiblingElement("observable");
+		
 	}//now we get a list of all observal names
-	if (fObservableNames.size() != 0) {
-		return obsnames;
-	}
 
+	if (fObservableNames.size() != 0)
+		return obsnames;
 
 	//if fObservableNames is empty, add observables.
 	//1. observable is datamember of the process class
@@ -287,23 +288,6 @@ vector<string> TRestEventProcess::GetAvailableObservals()
 	return result;
 }
 
-//////////////////////////////////////////////////////////////////////////
-/// \brief Copy six basic event information items to fOutputEvent from "inEv"
-///
-void TRestEventProcess::StampOutputEvent(TRestEvent *inEv)
-{
-	fOutputEvent->Initialize();
-
-	fOutputEvent->SetID(inEv->GetID());
-	fOutputEvent->SetSubID(inEv->GetSubID());
-	fOutputEvent->SetSubEventTag(inEv->GetSubEventTag());
-
-	fOutputEvent->SetRunOrigin(inEv->GetRunOrigin());
-	fOutputEvent->SetSubRunOrigin(inEv->GetSubRunOrigin());
-
-	fOutputEvent->SetTime(inEv->GetTime());
-}
-
 /*
 //______________________________________________________________________________
 void TRestEventProcess::InitProcess()
@@ -312,13 +296,54 @@ void TRestEventProcess::InitProcess()
 // (before starting the process of the events)
 cout << GetName() << ": Process initialization..." << endl;
 }
+*/
 
+//////////////////////////////////////////////////////////////////////////
+/// \brief Implemention of BeginOfEventProcess at TRestEventProcess.
+/// If this method is re-implemented at the inhereted cass we will need
+/// to call TRestEventProcess::BeginOfEventProcess( evIn );
+///
+void TRestEventProcess::BeginOfEventProcess( TRestEvent *inEv )
+{ 
+	debug << "Entering "<< ClassName() <<"::BeginOfEventProcess, Initializing output event..." << endl;
+	if (inEv != NULL && fOutputEvent != NULL && fOutputEvent != inEv) {
+		fOutputEvent->Initialize();
+
+		fOutputEvent->SetID(inEv->GetID());
+		fOutputEvent->SetSubID(inEv->GetSubID());
+		fOutputEvent->SetSubEventTag(inEv->GetSubEventTag());
+
+		fOutputEvent->SetRunOrigin(inEv->GetRunOrigin());
+		fOutputEvent->SetSubRunOrigin(inEv->GetSubRunOrigin());
+
+		fOutputEvent->SetTime(inEv->GetTime());
+	}
+
+	// TODO if fIsExternal and we already have defined the fAnalysisTree run#, evId#, timestamp,
+	// etc at the analysisTree we could stamp the output event here.
+
+}
+
+/*
 //______________________________________________________________________________
 void TRestEventProcess::ProcessEvent( TRestEvent *eventInput )
 {
 // virtual function to be executed for every event to be processed
 }
+*/
 
+//////////////////////////////////////////////////////////////////////////
+/// \brief Implemention of BeginOfEventProcess at TRestEventProcess.
+/// If this method is re-implemented at the inhereted cass we will need
+/// to call TRestEventProcess::BeginOfEventProcess( evIn );
+///
+void TRestEventProcess::EndOfEventProcess( TRestEvent *evInput )
+{ 
+	debug << "Entering TRestEventProcess::EndOfEventProcess (" << ClassName() << ")" << endl;
+}
+
+
+/*
 //______________________________________________________________________________
 void TRestEventProcess::EndProcess()
 {
@@ -335,31 +360,32 @@ cout << GetName() << ": Process ending..." << endl;
 /// event type, and several separators
 void TRestEventProcess::BeginPrintProcess()
 {
-	essential.setcolor(COLOR_BOLDGREEN);
-	essential.setborder("||");
-	essential.setlength(100);
-	essential << endl;
-	essential << "=" << endl;
-	essential << "Process : " << ClassName() << endl;
-	essential << "Name: " << GetName() << "  Title: " << GetTitle() << "  VerboseLevel: " << GetVerboseLevelString() << endl;
-	essential << " ----------------------------------------------- " << endl;
-	essential << " " << endl;
+	metadata.setcolor(COLOR_BOLDGREEN);
+	metadata.setborder("||");
+	metadata.setlength(100);
+	//metadata << " " << endl;
+	cout << endl;
+	metadata << "=" << endl;
+	metadata << "Process : " << ClassName() << endl;
+	metadata << "Name: " << GetName() << "  Title: " << GetTitle() << "  VerboseLevel: " << GetVerboseLevelString() << endl;
+	metadata << " ----------------------------------------------- " << endl;
+ 	metadata << " " << endl;
 
 	if (fObservableNames.size() > 0)
 	{
-		essential << " Analysis tree observables added by this process " << endl;
-		essential << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
+		metadata << " Analysis tree observables added by this process " << endl;
+		metadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
 	}
 
 	for (unsigned int i = 0; i < fObservableNames.size(); i++)
 	{
-		essential << " ++ " << fObservableNames[i] << endl;
+		metadata << " ++ " << fObservableNames[i] << endl;
 	}
 
 	if (fObservableNames.size() > 0)
 	{
-		essential << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
-		essential << " " << endl;
+		metadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
+		metadata << " " << endl;
 	}
 }
 
@@ -371,24 +397,23 @@ void TRestEventProcess::EndPrintProcess()
 {
 	if (fCuts.size() > 0)
 	{
-		essential << "Cuts enabled" << endl;
-		essential << "------------" << endl;
+		metadata << "Cuts enabled" << endl;
+		metadata << "------------" << endl;
 
 		auto iter = fCuts.begin();
 		while (iter != fCuts.end()) {
 			if (iter->second.X() != iter->second.Y())
-				essential << iter->first << ", range : ( " << iter->second.X() << " , " << iter->second.Y() << " ) " << endl;
+				metadata << iter->first << ", range : ( " << iter->second.X() << " , " << iter->second.Y() << " ) " << endl;
 			iter++;
 		}
 	}
 
-	essential << " " << endl;
-	essential << "=" << endl;
-	essential << endl;
-	essential << endl;
-	essential.resetcolor();
-	essential.setborder("");
-	essential.setlength(10000);
+	metadata << " " << endl;
+	metadata << "=" << endl;
+	metadata << endl;
+	metadata.resetcolor();
+	metadata.setborder("");
+	metadata.setlength(10000);
 }
 
 //////////////////////////////////////////////////////////////////////////

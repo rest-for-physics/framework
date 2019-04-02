@@ -206,7 +206,7 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement * e)
 		{
 			TRestEventProcess* p = InstantiateProcess(processType, e);
 			if (p != NULL) {
-				if (p->InheritsFrom("TRestRawToSignalProcess"))
+				if (p->isExternal())
 				{
 					fRunInfo->SetExtProcess(p);
 					return 0;
@@ -317,6 +317,7 @@ void TRestProcessRunner::ReadProcInfo()
 void TRestProcessRunner::RunProcess()
 {
 
+	debug << "Creating output File " << fRunInfo->GetOutputFileName() << endl;
 	fTempOutputDataFile = new TFile(fRunInfo->GetOutputFileName(), "recreate");
 	if (!fTempOutputDataFile->IsOpen()) {
 		error << "Failed to create output file: " << fTempOutputDataFile << endl;
@@ -324,6 +325,7 @@ void TRestProcessRunner::RunProcess()
 	}
 	info << endl;
 	info << "TRestProcessRunner : preparing threads..." << endl;
+
 	fRunInfo->ResetEntry();
 	fRunInfo->SetCurrentEntry(firstEntry);
 	bool testrun = ToUpper(GetParameter("testRun", "ON")) == "ON" || ToUpper(GetParameter("testRun", "ON")) == "TRUE";
@@ -331,7 +333,6 @@ void TRestProcessRunner::RunProcess()
 	{
 		fThreads[i]->PrepareToProcess(testrun);
 	}
-
 
 	//print metadata
 	if (fRunInfo->GetFileProcess() != NULL) {
@@ -425,7 +426,6 @@ void TRestProcessRunner::RunProcess()
 		fThreads[i]->StartThread();
 	}
 
-	cout << endl << endl;
 	while (fProcStatus == kPause || (fRunInfo->GetInputEvent() != NULL && eventsToProcess > fProcessedEvents))
 	{
 		PrintProcessedEvents(100);
@@ -968,13 +968,11 @@ TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type, TiXmlEle
 	TClass *cl = TClass::GetClass(type);
 	if (cl == NULL)
 	{
-		cout << " " << endl;
-		cout << "REST ERROR. Process : " << type << " not found!!" << endl;
-		cout << "Please verify the process type and launch again." << endl;
-		cout << "If you are not willing to use this process you can deactivate using value=\"off\"" << endl;
-		cout << " " << endl;
-		cout << "This process will be skipped." << endl;
-		GetChar();
+		error << endl;
+		error << "Process : " << type << " not found!!" << endl;
+		error << "This may due to a mis-spelling in the rml or mis-installation" << endl;
+		error << "of an external library. Please verify them and launch again." << endl;
+		exit(1);
 		return NULL;
 	}
 	TRestEventProcess *pc = (TRestEventProcess *)cl->New();
@@ -1077,7 +1075,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE)
 				prog_last_printed = (int)prog;
 			}
 		}
-		else
+		else if (fThreads[0]->GetVerboseLevel() < REST_Debug)
 		{
 			printf("%s", (s1 + s2 + s3 + "\r").c_str());
 			fflush(stdout);

@@ -190,14 +190,14 @@ makes it simple to specify the file name. On the other hand, when the target fil
 and we don't want to input a long absolute path in rml, we can add additional paths for REST to find files. 
 The following is an example:  
 `<globals>`  
-&emsp;`<searchPath value="$ENV{REST_PATH}/inputData/definitions/:$ENV{REST_PATH}/inputData/gasFiles/"/>`  
+&emsp;`<searchPath value="$ENV{REST_PATH}/data/definitions/:$ENV{REST_PATH}/data/gasFiles/"/>`  
 `</globals>`  
 
 Putting the parameter in "globals" section will make it visible for all the sections in rml. The value is in
 linux env style with ":" separating multiple paths. Alternativally on can define multiple "searchPath sections,
 this is also vaild.
 
-The directry "inputData" is where REST saves its universal reference files. For example here in the directoty 
+The directory "data" is where REST saves its universal reference files. For example here in the directoty 
 "definitions" REST saves many pre-defined rml files for readout, processes and gases. The detailed organization 
 of the directory "inputdata" can be found in the appendix. [REST pre-definition data](#rest-pre-definition-data)  
 

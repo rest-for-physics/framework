@@ -35,6 +35,7 @@
 #include <thread>
 
 #include "TRestSystemOfUnits.h"
+#include "TRestPhysics.h"
 #include "TVirtualStreamerInfo.h"
 #include "TClass.h"
 #include "TStreamerElement.h"
@@ -84,10 +85,9 @@ protected:
 	Double_t GetDblParameterWithUnits(std::string parName, TiXmlElement* e, Double_t defaultVal = PARAMETER_NOT_FOUND_DBL);
 	TVector2 Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* e, TVector2 defaultValue = TVector2(-1, -1));
 	TVector3 Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* e, TVector3 defaultValue = TVector3(-1, -1, -1));
-	TiXmlElement* GetRootElementFromFile(std::string cfgFileName);
+	TiXmlElement* GetElementFromFile(std::string cfgFileName, std::string NameOrDecalre = "");
 	TiXmlElement* GetElement(std::string eleDeclare);
 	TiXmlElement* GetElement(std::string eleDeclare, TiXmlElement* e);
-	TiXmlElement* GetElement(std::string eleDeclare, std::string cfgFileName);
 	TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName, TiXmlElement* e);
 	TiXmlElement* GetElementWithName(std::string eleDeclare, std::string eleName);
 	std::string GetElementDeclare(TiXmlElement* e) { return e->Value(); }
@@ -154,14 +154,15 @@ protected:
 	vector<TiXmlElement*> fElementEnv;//! 
 
 	///formatted message output, used for print metadata
-	TRestLeveledOutput<REST_Silent> fout = TRestLeveledOutput<REST_Silent>(fVerboseLevel, COLOR_BOLDBLUE, "==");//! 
-	TRestLeveledOutput<REST_Silent> error = TRestLeveledOutput<REST_Silent>(fVerboseLevel, COLOR_BOLDRED, "", 1);//! 
-	TRestLeveledOutput<REST_Essential> warning = TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDYELLOW, "", 1);//! 
-	TRestLeveledOutput<REST_Essential> essential = TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDGREEN);//! 
-	TRestLeveledOutput<REST_Info> info = TRestLeveledOutput<REST_Info>(fVerboseLevel, COLOR_BLUE, "", 1);//! 
-	TRestLeveledOutput<REST_Info> success = TRestLeveledOutput<REST_Info>(fVerboseLevel, COLOR_GREEN, "", 1);//! 
-	TRestLeveledOutput<REST_Debug> debug = TRestLeveledOutput<REST_Debug>(fVerboseLevel, COLOR_RESET, "", 1);//! 
-	TRestLeveledOutput<REST_Extreme> extreme = TRestLeveledOutput<REST_Extreme>(fVerboseLevel, COLOR_RESET, "", 1);//! 
+	TRestLeveledOutput<REST_Silent> fout = TRestLeveledOutput<REST_Silent>(fVerboseLevel, COLOR_BOLDBLUE, "[==",kBorderedMiddle);//! 
+	TRestLeveledOutput<REST_Silent> error = TRestLeveledOutput<REST_Silent>(fVerboseLevel, COLOR_BOLDRED, "-- Error : ", kHeaderedLeft);//! 
+	TRestLeveledOutput<REST_Essential> warning = TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDYELLOW, "-- Warning : ", kHeaderedLeft);//! 
+	TRestLeveledOutput<REST_Essential> essential = TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDGREEN, "", kHeaderedMiddle);//! 
+	TRestLeveledOutput<REST_Essential> metadata = TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDGREEN, "||", kBorderedLeft);//! 
+	TRestLeveledOutput<REST_Info> info = TRestLeveledOutput<REST_Info>(fVerboseLevel, COLOR_BLUE,  "-- Info : ", kHeaderedLeft);//! 
+	TRestLeveledOutput<REST_Info> success = TRestLeveledOutput<REST_Info>(fVerboseLevel, COLOR_GREEN,  "-- Success : ", kHeaderedLeft);//! 
+	TRestLeveledOutput<REST_Debug> debug = TRestLeveledOutput<REST_Debug>(fVerboseLevel, COLOR_RESET, "-- Debug : ", kHeaderedLeft);//! 
+	TRestLeveledOutput<REST_Extreme> extreme = TRestLeveledOutput<REST_Extreme>(fVerboseLevel, COLOR_RESET, "-- Extreme : ", kHeaderedLeft);//! 
 #endif
 
 public:

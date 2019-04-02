@@ -51,11 +51,11 @@
 # - REST_v2.1(c5171f61)
 # + "isotopeFromVCylinder.rml" in "config/pandaXIII/templates": "units"
 #  attributes referring to env. variables (see caveat (3)).
-# + "gases.rml" in "inputData/definitions": comment all C++ ahead of section
+# + "gases.rml" in "data/definitions": comment all C++ ahead of section
 #  tag.
-# + "pixelReadout.rml" in "/inputData/definitions/readouts": for loop tag and
+# + "pixelReadout.rml" in "/data/definitions/readouts": for loop tag and
 #  "<readoutModule" tag intertwined.
-# + "readouts.rml" in "/inputData/definitions/readouts": many self closing
+# + "readouts.rml" in "/data/definitions/readouts": many self closing
 #  "<readoutModule" tags not properly closed (see caveat (4)).
 # Nota Bena: The above means that output files passed succesfully the
 # "xmllint" test and not that they are correctly understood by rest,v2.2.

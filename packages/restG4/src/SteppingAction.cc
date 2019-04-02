@@ -38,6 +38,25 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
     nom_vol  = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName();
     nom_part = aStep->GetTrack()->GetDefinition()->GetParticleName();
     ener_dep = aStep->GetTotalEnergyDeposit();
+
+	if( !aStep->GetPostStepPoint()->GetProcessDefinedStep() )
+	{
+		G4cout << endl;
+		G4cout << endl;
+		G4cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+		G4cout << "An ERROR was detected on the G4Step process definition." << endl;
+		G4cout << "This is a sign of problem in the restG4 particle definition" << endl;
+		G4cout << endl;
+		G4cout << "E.g. A definition of a gamma with 0keV energy" << endl;
+		G4cout << endl;
+		G4cout << "Please, review your TRestG4Metadata RML definition" << endl;
+		G4cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+		G4cout << endl;
+		G4cout << endl;
+
+		exit(0);
+	}
+
     nom_proc = aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
 
     G4Track* aTrack = aStep->GetTrack();

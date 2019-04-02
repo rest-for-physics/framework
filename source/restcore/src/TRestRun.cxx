@@ -114,6 +114,7 @@ void TRestRun::BeginOfInit()
 	debug << "Initializing TRestRun from config file, version: " << REST_RELEASE << endl;
 	SetVersion();
 
+
 	//Get some infomation
 	fRunUser = getenv("USER") == NULL ? "" : getenv("USER");
 	fRunType = ToUpper(GetParameter("runType", "ANALYSIS")).c_str();
@@ -121,29 +122,17 @@ void TRestRun::BeginOfInit()
 	fExperimentName = GetParameter("experiment", "preserve").c_str();
 	fRunTag = GetParameter("runTag", "noTag").c_str();
 
+
 	//runnumber and input file name
 	fRunNumber = -1;
 	fParentRunNumber = 0;
 	string runNstr = GetParameter("runNumber", "");
 	string inputname = GetParameter("inputFile", "");
-	TRestDataBase* db = TRestDataBase::instantiate();
-	if (ToUpper(runNstr) == "AUTO"&&ToUpper(inputname) == "AUTO") {
-		error << "REST ERROR. run number and input file name cannot both be \"auto\"" << endl;
-		exit(1);
-	}
-	if (ToUpper(inputname) == "AUTO"&&db == NULL) {
-		error << "REST ERROR : The parameter \"inputFile\" is to \"auto\"" << endl;
-		error << "but this REST has no access to sql database" << endl;
-		error << "We cannot find the corresponding input file!" << endl;
-		error << "Please install the package \"restDataBaseImpl\"" << endl;
-		exit(1);
-	}
-	if (!isANumber(runNstr) && ToUpper(runNstr) != "AUTO")runNstr = "-1";
-
-	if (ToUpper(inputname) != "AUTO") {
+	if (ToUpper(inputname) != "AUTO" && ToUpper(inputname) != "DATABASE") {
 		fInputFileName = inputname;
 		fInputFileNames = GetFilesMatchingPattern((TString)inputname);
 	}
+	if (!isANumber(runNstr) && ToUpper(runNstr) != "AUTO"&& ToUpper(runNstr) != "DATABASE") runNstr = "-1";
 	if (isANumber(runNstr)) {
 		auto runN = Spilt(runNstr, ".");
 		fRunNumber = StringToInteger(runN[0]);
@@ -151,43 +140,54 @@ void TRestRun::BeginOfInit()
 			fParentRunNumber = StringToInteger(runN[1]);
 		}
 	}
-
-	if (ToUpper(runNstr) == "AUTO")
+	//we read the database to get either the runnumber or file name
+	if (ToUpper(runNstr) == "DATABASE" || ToUpper(inputname) == "DATABASE")
 	{
-		if (db != NULL && fInputFileNames.size() > 0) //the user wants REST to find run number in database
-		{
+		TRestDataBase* db = TRestDataBase::instantiate();
+		if (ToUpper(runNstr) == "DATABASE" && ToUpper(inputname) == "DATABASE") {
+			error << "REST ERROR. run number and input file name cannot both be \"DATABASE\"" << endl;
+			exit(1);
+		}
+		if (db == NULL) {
+			error << "TRestRun: The parameter \"inputFile\" is to \"DATABASE\"" << endl;
+			error << "but this REST has no access to sql database." << endl;
+			error << "We cannot find the corresponding input file!" << endl;
+			error << "Please install the package \"restDataBaseImpl\"" << endl;
+			exit(1);
+		}
+		if (ToUpper(runNstr) == "DATABASE") {
 			auto runN = db->getrunwithfilename((string)fInputFileNames[0]);
 			fRunNumber = runN.first;
 			fParentRunNumber = runN.second;
 		}
-		else //we can still find runnumber in "runNumber" file
-		{
-			string runFilename = getenv("REST_PATH") + (string)"/runNumber";
-			if (!fileExists(runFilename))
-			{
-				if (isPathWritable(getenv("REST_PATH"))) {
-					ExecuteShellCommand("echo 1 > " + runFilename);
-					fRunNumber = 1;
-				}
-			}
-			else
-			{
-				if (isPathWritable(getenv("REST_PATH"))) {
-					fRunNumber = StringToInteger(ExecuteShellCommand("cat " + runFilename));
-				}
-				else {
-					warning << "REST WARNING: runNumber file not writable. auto run number increment is disabled" << endl;
-				}
-			}
-		}
-	}
-	if (ToUpper(inputname) == "AUTO") {
-		if (db != NULL && fRunNumber != -1) //the user wants REST to find input file in database
-		{
+		if (ToUpper(inputname) == "DATABASE") {
 			fInputFileName = db->query_filepattern(fRunNumber, fParentRunNumber);
 			auto a = db->query_files(fRunNumber, fParentRunNumber);
 			for (auto b : a)
 				fInputFileNames.push_back((TString)b);
+			if (fInputFileNames.size() == 0) {
+				warning << "REST cannot find any file from database with runnumber "<< fRunNumber << endl;
+			}
+		}
+		if (db != NULL)delete db;
+	}
+	//we assign the runnumber as stored in file $REST_PATH/runNumber
+	if (ToUpper(runNstr) == "AUTO") 
+	{
+		string runFilename = getenv("REST_PATH") + (string)"/runNumber";
+		if (!fileExists(runFilename)) {
+			if (isPathWritable(getenv("REST_PATH"))) {
+				ExecuteShellCommand("echo 1 > " + runFilename);
+				fRunNumber = 1;
+			}
+		}
+		else {
+			if (isPathWritable(getenv("REST_PATH"))) {
+				fRunNumber = StringToInteger(ExecuteShellCommand("cat " + runFilename));
+			}
+			else {
+				warning << "REST WARNING: runNumber file not writable. auto run number increment is disabled" << endl;
+			}
 		}
 	}
 
@@ -217,7 +217,6 @@ void TRestRun::BeginOfInit()
 				+ runType + "_" + fRunTag + "_" + (TString)runNumberStr + "_" + (TString)runParentStr
 				+ "_V" + REST_RELEASE + ".root";
 		}
-
 	}
 	else if (isAbsolutePath(outputname)) {
 		fOutputFileName = outputname;
@@ -232,9 +231,6 @@ void TRestRun::BeginOfInit()
 		error << "Path : " << outputdir << endl;
 		exit(1);
 	}
-
-
-	if(db!=NULL)delete db;
 }
 
 ///////////////////////////////////////////////
@@ -278,13 +274,11 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e)
 		TClass *cl = TClass::GetClass(processType.c_str());
 		if (cl == NULL)
 		{
-			cout << " " << endl;
-			cout << "REST ERROR. Process : " << processType << " not found!!" << endl;
-			cout << "Please verify the process type and launch again." << endl;
-			cout << "If you are not willing to use this process you can deactivate using value=\"off\"" << endl;
-			cout << " " << endl;
-			cout << "This process will be skipped." << endl;
-			GetChar();
+			error << endl;
+			error << "Process : " << processType << " not found!!" << endl;
+			error << "This may due to a mis-spelling in the rml or mis-installation" << endl;
+			error << "of an external library. Please verify them and launch again." << endl;
+			exit(1);
 			return -1;
 		}
 		TRestEventProcess *pc = (TRestEventProcess *)cl->New();
@@ -293,7 +287,7 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e)
 
 		pc->SetRunInfo(this);
 
-		if (pc->InheritsFrom("TRestRawToSignalProcess"))
+		if (pc->isExternal())
 		{
 			SetExtProcess(pc);
 			return 0;
@@ -309,9 +303,9 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e)
 	{
 		TClass*c = TClass::GetClass(keydeclare.c_str());
 		if (c == NULL) {
-			cout << " " << endl;
-			cout << "REST ERROR. Class : " << keydeclare << " not found!!" << endl;
-			cout << "This class will be skipped." << endl;
+			warning << endl;
+			warning << "Class : " << keydeclare << " not found!!" << endl;
+			warning << "This class will be skipped." << endl;
 			return -1;
 		}
 		TRestMetadata*meta = (TRestMetadata*)c->New();
@@ -937,73 +931,81 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
 	}
 	//write to database
 	if (fRunNumber != -1) {
-		auto db = TRestDataBase::instantiate();
-		if (db != NULL) {
-			if (level == 0)
-			{
-				db->new_run();
-			}
-			else if (level == 1)
-			{
-				if (db->query_run(fRunNumber) == -1)
-					if (force)
-						db->new_run(fRunNumber);
-					else 
-						{ delete db;  return; }
-				else
-					db->new_run(fRunNumber);
-			}
-			else {
-				if (db->query_subrun(fRunNumber, 0) == -1)
-					if (force)
-						db->new_run(fRunNumber);
-					else 
-						{ delete db;  return; }
-				else
-					db->set_runnumber(fRunNumber);
-			}
-
-
-			auto info = DataBaseFileInfo((string)fOutputFileName);
-			info.start = fStartTime;
-			info.stop = fEndTime;
-
-			if (tree != NULL && tree->GetEntries() > 1)
-			{
-				int n = tree->GetEntries();
-				tree->ConnectEventBranches();
-				tree->GetEntry(0);
-				double t1 = tree->GetTimeStamp();
-				tree->GetEntry(n - 1);
-				double t2 = tree->GetTimeStamp();
-				info.evtRate = n / (t2 - t1);
-			}
-
-			int fileid = db->new_runfile((string)fOutputFileName, info);
-
-			if (level <= 1)
-			{
-				db->set_description((string)fRunDescription);
-				db->set_runend(fEndTime);
-				db->set_runstart(fStartTime);
-				db->set_tag((string)fRunTag);
-				db->set_type((string)fRunType);
-			}
-			else
-			{
-				db->set_runend(fEndTime);
-			}
-
-			fout << "DataBase Entry Added! Run Number: " << db->getcurrentrun() << "." << db->getcurrentsubrun() << ", File ID: " << fileid << endl;
-
-			delete db;
-		}
-		else
-		{
+		string runNstr = GetParameter("runNumber", "");
+		if(ToUpper(runNstr)=="AUTO") {
 			string runFilename = getenv("REST_PATH") + (string)"/runNumber";
 			if (isPathWritable(getenv("REST_PATH")))
 				ExecuteShellCommand("echo " + ToString(fRunNumber + 1) + " > " + runFilename);
 		}
+		else {
+			auto db = TRestDataBase::instantiate();
+			if (db != NULL) {
+				if (level == 0)
+				{
+					db->new_run();
+				}
+				else if (level == 1)
+				{
+					if (db->query_run(fRunNumber) == -1)
+						if (force)
+							db->new_run(fRunNumber);
+						else
+						{
+							delete db;  return;
+						}
+					else
+						db->new_run(fRunNumber);
+				}
+				else {
+					if (db->query_subrun(fRunNumber, 0) == -1)
+						if (force)
+							db->new_run(fRunNumber);
+						else
+						{
+							delete db;  return;
+						}
+					else
+						db->set_runnumber(fRunNumber);
+				}
+
+
+				auto info = DataBaseFileInfo((string)fOutputFileName);
+				info.start = fStartTime;
+				info.stop = fEndTime;
+
+				if (tree != NULL && tree->GetEntries() > 1)
+				{
+					int n = tree->GetEntries();
+					tree->ConnectEventBranches();
+					tree->GetEntry(0);
+					double t1 = tree->GetTimeStamp();
+					tree->GetEntry(n - 1);
+					double t2 = tree->GetTimeStamp();
+					info.evtRate = n / (t2 - t1);
+				}
+
+				int fileid = db->new_runfile((string)fOutputFileName, info);
+
+				if (level <= 1)
+				{
+					db->set_description((string)fRunDescription);
+					db->set_runend(fEndTime);
+					db->set_runstart(fStartTime);
+					db->set_tag((string)fRunTag);
+					db->set_type((string)fRunType);
+				}
+				else
+				{
+					db->set_runend(fEndTime);
+				}
+
+				fout << "DataBase Entry Added! Run Number: " << db->getcurrentrun() << "." << db->getcurrentsubrun() << ", File ID: " << fileid << endl;
+
+				delete db;
+			}
+		}
+		
+
 	}
 }
 
@@ -1049,12 +1051,17 @@ void TRestRun::SetExtProcess(TRestEventProcess* p)
 	if (fFileProcess == NULL && p != NULL) {
 		fFileProcess = p;
 
-		if (fFileProcess->OpenInputFiles(fInputFileNames) == 0) {
-			error << "no files has been loaded by the external process!" << endl;
-			exit(1);
-		}
+        fFileProcess->OpenInputFiles(fInputFileNames);
 		fFileProcess->InitProcess();
 		fInputEvent = fFileProcess->GetOutputEvent();
+		if (fInputEvent == NULL) {
+			error << "The external process \"" << p->GetName() << "\" doesn't yield any output event!" << endl; exit(1);
+		}
+		else {
+			fInputEvent->SetRunOrigin(fRunNumber);
+			fInputEvent->SetSubRunOrigin(fParentRunNumber);
+			fInputEvent->SetTimeStamp(fStartTime);
+		}
 		fInputFile = NULL;
 		fAnalysisTree = NULL;
 		info << "The external file process has been set! Name : " << fFileProcess->GetName() << endl;
@@ -1360,32 +1367,27 @@ void TRestRun::PrintInfo()
 	//cout.precision(10);
 	TRestMetadata::PrintMetadata();
 
-	TRestStringOutput cout;
-	cout.setborder("||");
-	cout.setorientation(1);
-	cout.setlength(100);
-	cout << "Version : " << this->GetVersion() << endl;
-	cout << "Parent run number : " << GetParentRunNumber() << endl;
-	cout << "Run number : " << GetRunNumber() << endl;
-	cout << "Experiment/project : " << GetExperimentName() << endl;
-	cout << "Run type : " << GetRunType() << endl;
-	cout << "Run tag : " << GetRunTag() << endl;
-	cout << "Run user : " << GetRunUser() << endl;
-	cout << "Run description : " << GetRunDescription() << endl;
-	cout << "Start timestamp : " << GetStartTimestamp() << endl;
-	cout << "Date/Time : " << ToDateTimeString(GetStartTimestamp()) << endl;
-	cout << "End timestamp : " << GetEndTimestamp() << endl;
-	cout << "Date/Time : " << ToDateTimeString(GetEndTimestamp()) << endl;
-	cout << "Input file : " << GetInputFileNamepattern() << endl;
-	cout << "Output file : " << GetOutputFileName() << endl;
-	cout << "Number of events : " << fEntriesSaved << endl;
-	//cout << "Input filename : " << fInputFilename << endl;
-	//cout << "Output filename : " << fOutputFilename << endl;
-	//cout << "Number of initial events : " << GetNumberOfEvents() << endl;
-	//cout << "Number of processed events : " << fProcessedEvents << endl;
-	cout << "******************************************" << endl;
-	cout << endl;
-	cout << endl;
+	metadata << "Version : " << this->GetVersion() << endl;
+	metadata << "Parent run number : " << GetParentRunNumber() << endl;
+	metadata << "Run number : " << GetRunNumber() << endl;
+	metadata << "Experiment/project : " << GetExperimentName() << endl;
+	metadata << "Run type : " << GetRunType() << endl;
+	metadata << "Run tag : " << GetRunTag() << endl;
+	metadata << "Run user : " << GetRunUser() << endl;
+	metadata << "Run description : " << GetRunDescription() << endl;
+	metadata << "Start timestamp : " << GetStartTimestamp() << endl;
+	metadata << "Date/Time : " << ToDateTimeString(GetStartTimestamp()) << endl;
+	metadata << "End timestamp : " << GetEndTimestamp() << endl;
+	metadata << "Date/Time : " << ToDateTimeString(GetEndTimestamp()) << endl;
+	metadata << "Input file : " << GetInputFileNamepattern() << endl;
+	metadata << "Output file : " << GetOutputFileName() << endl;
+	metadata << "Number of events : " << fEntriesSaved << endl;
+	//metadata << "Input filename : " << fInputFilename << endl;
+	//metadata << "Output filename : " << fOutputFilename << endl;
+	//metadata << "Number of initial events : " << GetNumberOfEvents() << endl;
+	//metadata << "Number of processed events : " << fProcessedEvents << endl;
+	metadata << "---------------------------------------" << endl;
+	metadata << endl;
 
 }
 

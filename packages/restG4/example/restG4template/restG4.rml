@@ -102,9 +102,9 @@ By default REST units are mm, keV and degrees
 
 
   <!-- If the manager is not used we can still use nameref to reference a external file where we have the real definition -->
-  <TRestReadout nameref="Readout-PANDA_3MM_Single" file="${REST_PATH}/inputData/definitions/readouts.rml"/>
+  <TRestReadout nameref="Readout-PANDA_3MM_Single" file="${REST_PATH}/data/definitions/readouts.rml"/>
 
-  <TRestGas nameref="Xenon-TMA 3Pct 10-10E3V/cm" file="${REST_PATH}/inputData/definitions/gases.rml"/>
+  <TRestGas nameref="Xenon-TMA 3Pct 10-10E3V/cm" file="${REST_PATH}/data/definitions/gases.rml"/>
   <!-- -->
 
 </restG4>

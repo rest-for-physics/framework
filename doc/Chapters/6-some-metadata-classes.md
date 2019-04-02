@@ -149,7 +149,7 @@ documentation.
 ### TRestReadout
 
 We will address two different examples following basic readout topologies. You will find a variety of 
-more complex examples at REST_v2/inputData/definitions/readouts.rml. More details about readout 
+more complex examples at REST_v2/data/definitions/readouts.rml. More details about readout 
 construction are available at the documentation of TRestReadout class. The class TRestMetadata describes 
 detailed information on how to write RML files.
 

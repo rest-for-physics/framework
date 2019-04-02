@@ -95,12 +95,12 @@ public:
 
 		BeginPrintProcess();
 
-		essential << "Baseline range : ( " << fBaseLineRange.X() << " , " << fBaseLineRange.Y() << " ) " << endl;
-		essential << "Integral range : ( " << fIntegralRange.X() << " , " << fIntegralRange.Y() << " ) " << endl;
-		essential << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
-		essential << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
-		essential << "Number of points over threshold : " << fNPointsOverThreshold << endl;
-		essential << " " << endl;
+		metadata << "Baseline range : ( " << fBaseLineRange.X() << " , " << fBaseLineRange.Y() << " ) " << endl;
+		metadata << "Integral range : ( " << fIntegralRange.X() << " , " << fIntegralRange.Y() << " ) " << endl;
+		metadata << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
+		metadata << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
+		metadata << "Number of points over threshold : " << fNPointsOverThreshold << endl;
+		metadata << " " << endl;
 
 		EndPrintProcess();
 	}

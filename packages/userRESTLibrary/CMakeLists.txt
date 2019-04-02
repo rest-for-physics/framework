@@ -58,9 +58,10 @@ include_directories(${incdir})
 #
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cxx)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/inc/*.h)
+
 foreach (header ${headers})
-	string(REGEX MATCH "[^/\\]*h" temp ${header})
-	string(REPLACE ".h" "" class ${temp})
+	get_filename_component(barename ${header} NAME)
+	string(REPLACE ".h" "" class ${barename})
 
 	set(ROOT_DICT_INCLUDE_DIRS ${incdir})
 	set(ROOT_DICT_INPUT_HEADERS ${header} ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)

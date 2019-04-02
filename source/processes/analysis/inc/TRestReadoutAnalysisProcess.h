@@ -60,20 +60,20 @@ public:
 
 		BeginPrintProcess();
 
-		essential << "module amplification:(module id -> amp value) " << endl;
+		metadata << "module amplification:(module id -> amp value) " << endl;
 		auto iter = fModuldeAmplification.begin();
 		while (iter != fModuldeAmplification.end()) {
-			essential << iter->first << " -> " << iter->second << endl;
+			metadata << iter->first << " -> " << iter->second << endl;
 			iter++;
 		}
 
-		essential << "channel activity histograms required for module: ";
+		metadata << "channel activity histograms required for module: ";
 		auto iter2 = fChannelsHistos.begin();
 		while (iter2 != fChannelsHistos.end()) {
-			essential << iter2->first << ", ";
+			metadata << iter2->first << ", ";
 			iter2++;
 		}
-		essential << endl;
+		metadata << endl;
 
 		EndPrintProcess();
 	}

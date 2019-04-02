@@ -9,8 +9,7 @@ the code of the repository. Usually involving `no more than 2-3 files`.
 The code can be independently developed into `branches` where we add `commits`. The main branch or 
 `master branch` is the branch where we should finally merge the definitive changes of any `development branch`.
 
-You may refer to the [Git website](https://git-scm.com/book/en/v2/Getting-Started-Git-Basics) for 
-details on basic git usage.
+You may refer to the [Git website](https://git-scm.com/book/en/v2/Getting-Started-Git-Basics) for details on basic git usage. See also basic [CERN Gitlab tutorials](https://gitlab.cern.ch/help/gitlab-basics/README.md).
 
 ### Using branches in REST repository
 

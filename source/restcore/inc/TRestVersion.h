@@ -13,8 +13,8 @@
 #define REST_RELEASE "2.2.8"
 #define REST_RELEASE_DATE "2019-03-13"
 #define REST_RELEASE_TIME "09:48:37 +0100"
-#define REST_GIT_COMMIT "0cf87489"
-#define REST_GIT_BRANCH "master"
+#define REST_GIT_COMMIT "da0fa13d"
+#define REST_GIT_BRANCH "v2.2.8_dev"
 #define REST_GIT_TAG "v2.2.8"
 #define REST_VERSION_CODE 131592
 #define REST_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
