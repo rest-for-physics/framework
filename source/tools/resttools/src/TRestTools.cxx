@@ -152,4 +152,40 @@ void TRestTools::LoadRESTLibrary(bool silent)
 	}
 }
 
+int TRestTools::ReadASCIITable( TString fName, std::vector <std::vector <Double_t> > &data )
+{
+
+	if( !REST_StringHelper::fileExists( (string) fName ) )
+			return 0;
+
+	data.clear();
+
+	std::ifstream fin( fName.Data() );
+
+	// First we create a table with string values
+	std::vector < std::vector <std::string> > values;
+
+	for (std::string line; std::getline(fin, line); )
+	{
+		std::istringstream in(line);
+		values.push_back(
+				std::vector<std::string>(std::istream_iterator<std::string>(in),
+					std::istream_iterator<std::string>()));
+	}
+
+	// Filling the double values table (TODO error handling in case ToDouble conversion fails)
+	for( int n = 0; n < values.size(); n++ )
+	{
+		std::vector <Double_t> dblTmp;
+		dblTmp.clear();
+
+		for( int m = 0; m < values[n].size(); m++ )
+			dblTmp.push_back( StringToDouble( values[n][m] ) );
+
+		data.push_back( dblTmp );
+	}
+
+	return 1;
+}
+
 

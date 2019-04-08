@@ -16,6 +16,8 @@
 #include <TList.h>
 #define UNUSED(x) (void)x 
 
+#include "TRestStringHelper.h"
+
 class TRestTools:public TObject {
 
     public:
@@ -71,6 +73,16 @@ class TRestTools:public TObject {
 		/// TRestMetadata::GetDataMemberRef()
 		///
 		static void LoadRESTLibrary(bool silent = false);
+
+		///////////////////////////////////////////////
+		/// \brief Reads an ASCII file containning 
+		///
+		/// This method will open the file fName. This file should contain a tabulated ASCII table
+		/// containning numeric values. The values on the table will be loaded in the matrix
+		/// provided through the argument `data`. The content of `data` will be cleared in this
+		/// method.
+		///
+		static int ReadASCIITable( TString fName, std::vector <std::vector <Double_t> > &data );
 
 		/// Rest tools class 
         ClassDef(TRestTools, 1); 
