@@ -576,6 +576,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas( )
             runs[i].push_back( r );
             r->OpenInputFile( fFileNames[i][n] );
             anT = r->GetAnalysisTree();
+            anT->SetBranchStatus("*",true);
 
             trees[i].push_back( anT );
 
@@ -691,7 +692,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas( )
                     cout << endl;
                     cout << "REST ERROR. TRestAnalysisPlot::PlotCombinedCanvas." << endl;
                     cout << "Plot string not properly constructed. Does the analysis observable exist inside the file?" << endl;
-                    cout << "Use \"restPrintAnaTreeVariables FILE.ROOT\" to get a list of existing observables." << endl;
+                    cout << "Use \" restManager PrintTrees FILE.ROOT\" to get a list of existing observables." << endl;
                     cout << endl;
                     exit(1);
                 }
