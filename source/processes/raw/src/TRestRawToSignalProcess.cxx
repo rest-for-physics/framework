@@ -73,34 +73,38 @@ void TRestRawToSignalProcess::Initialize()
 
 void TRestRawToSignalProcess::InitFromConfigFile(){
 
-   fElectronicsType = GetParameter("electronics","");
-   fShowSamples = StringToInteger(GetParameter("showSamples", "10"));
-   fMinPoints = StringToInteger( GetParameter("minPoints", "512" ) );
-   if(fElectronicsType=="")
-   {
-	   warning << this->ClassName() << ": electronic type not found " << endl;
-       LoadDefaultConfig();
-   }
+    fElectronicsType = GetParameter("electronics");
+    fShowSamples = StringToInteger( GetParameter("showSamples", "10") );
+    fMinPoints = StringToInteger( GetParameter("minPoints", "512" ) );
+    fFilenameFormat = GetParameter("fileFormat");
 
-  if(fElectronicsType=="AFTER"||fElectronicsType=="AGET")return;
-  LoadDefaultConfig();
+    if( fElectronicsType == "SingleFeminos" || fElectronicsType == "TCMFeminos" ) return;
+
+    if( GetVerboseLevel() >= REST_Warning )
+    {
+        cout << "REST WARNING: TRestRawToSignalProcess::InitFromConfigFile" << endl;
+        cout << "Electronic type " << fElectronicsType << " not found " << endl;
+        cout << "Loading default config" << endl;
+    }
+
+    LoadDefaultConfig();
 
 }
 
 
-void TRestRawToSignalProcess::LoadDefaultConfig(){
+void TRestRawToSignalProcess::LoadDefaultConfig()
+{
+    if( GetVerboseLevel() <= REST_Warning )
+    {
+        cout<<"REST WARNING: TRestRawToSignalProcess "<<endl;
+        cout<<"Error Loading config file "<<endl;
+    }
 
-//cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
-//cout<<"WARNING "<<endl;
-//cout<<"Error Loading config file "<<endl;
-//cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
-//
-//cout<<"Press a key to continue..."<<endl;
-//
-//getchar();
+    if( GetVerboseLevel() >= REST_Debug )
+        GetChar();
 
-fElectronicsType = "AGET";
-fMinPoints = 512;
+    fElectronicsType = "SingleFeminos";
+    fMinPoints = 512;
 
 }
 
