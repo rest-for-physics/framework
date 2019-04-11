@@ -172,7 +172,6 @@ void TRestMultiFEMINOSToSignalProcess::Initialize()
     fLastTimeStamp = 0;
 
     //this->SetVerboseLevel(REST_Debug);
-
 }
 
 //______________________________________________________________________________
@@ -245,6 +244,8 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput 
 
     nChannels = 0;
     Bool_t endOfEvent = false;
+
+	fSignalEvent->Initialize();
 
     while( !endOfEvent )
     {
