@@ -467,7 +467,13 @@ void TRestRun::ReadInputFileMetadata() {
 		{
 			TRestMetadata* a = (TRestMetadata *)f->Get(key->GetName());
 
-			if ( a->InheritsFrom("TRestMetadata") && a->ClassName() != (TString) "TRestRun" )
+			if( !a )
+			{
+				error << "TRestRun::ReadInputFileMetadata." << endl;
+				error << "Key name : " << key->GetName() << endl;
+				error << "Hidden key? Please, report this problem." << endl;
+			}
+			else if ( a->InheritsFrom("TRestMetadata") && a->ClassName() != (TString) "TRestRun" )
 			{
 				/*
 				//we make sure there is no repeated class added
