@@ -71,12 +71,6 @@ void TRestRawToSignalProcess::Initialize()
 
 }
 
-void TRestRawToSignalProcess::BeginOfEventProcess() 
-{
-   // cout << "Begin of event process" << endl;
-    fSignalEvent->Initialize();
-}
-
 void TRestRawToSignalProcess::InitFromConfigFile(){
 
    fElectronicsType = GetParameter("electronics","");
@@ -107,16 +101,6 @@ void TRestRawToSignalProcess::LoadDefaultConfig(){
 
 fElectronicsType = "AGET";
 fMinPoints = 512;
-
-}
-
-
-//______________________________________________________________________________
-
-void TRestRawToSignalProcess::EndOfEventProcess() 
-{
-
-//cout << __PRETTY_FUNCTION__ << endl;
 
 }
 

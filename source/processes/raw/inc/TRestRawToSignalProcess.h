@@ -64,8 +64,6 @@ class TRestRawToSignalProcess:public TRestEventProcess {
    virtual void InitProcess()=0;
    virtual TRestEvent *ProcessEvent( TRestEvent *evInput )=0;
    virtual void EndProcess();
-   virtual void BeginOfEventProcess();
-   virtual void EndOfEventProcess();
    //virtual TString GetProcessName()=0;
    TRestMetadata *GetProcessMetadata() { return NULL; }
 
