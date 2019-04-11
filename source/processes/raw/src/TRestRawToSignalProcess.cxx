@@ -76,7 +76,8 @@ void TRestRawToSignalProcess::InitFromConfigFile(){
     fElectronicsType = GetParameter("electronics");
     fShowSamples = StringToInteger( GetParameter("showSamples", "10") );
     fMinPoints = StringToInteger( GetParameter("minPoints", "512" ) );
-    fFilenameFormat = GetParameter("fileFormat");
+
+  	PrintMetadata();
 
     if( fElectronicsType == "SingleFeminos" || fElectronicsType == "TCMFeminos" ) return;
 
@@ -201,13 +202,6 @@ Bool_t TRestRawToSignalProcess::OpenInputFiles(vector<TString> files)
 	debug << this->GetName() << " : opened " << nFiles << " files" << endl;
 	return nFiles;
 }
-
-
-
-
-
-
-
 
 //For debugging
 void  TRestRawToSignalProcess::printBits(unsigned short num)
