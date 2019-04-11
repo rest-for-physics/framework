@@ -13,6 +13,9 @@ if [ \\\$REST_PATH ] ; then
 echo switching to REST installed in \\\${thisdir}
 _PATH=`echo \\\$PATH | sed -e \\\"s\#\\\${REST_PATH}/bin:\#\#g\\\"`
 _LD_LIBRARY_PATH=`echo \\\$LD_LIBRARY_PATH | sed -e \\\"s\#\\\${REST_PATH}/lib:\#\#g\\\"`
+else
+_PATH=\\\$PATH
+_LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH
 fi
 
 export REST_SOURCE=${CMAKE_CURRENT_SOURCE_DIR}
