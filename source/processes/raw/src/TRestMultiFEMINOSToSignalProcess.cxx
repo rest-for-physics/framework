@@ -172,7 +172,6 @@ void TRestMultiFEMINOSToSignalProcess::Initialize()
     fLastTimeStamp = 0;
 
     //this->SetVerboseLevel(REST_Debug);
-
 }
 
 //______________________________________________________________________________
@@ -245,6 +244,8 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent( TRestEvent *evInput 
 
     nChannels = 0;
     Bool_t endOfEvent = false;
+
+	fSignalEvent->Initialize();
 
     while( !endOfEvent )
     {
@@ -381,6 +382,7 @@ Bool_t TRestMultiFEMINOSToSignalProcess::ReadFrame( void *fr, int fr_sz )
     unsigned short *p;
     int done = 0;
     unsigned short r0, r1, r2;
+    unsigned short n0, n1;
     unsigned short cardNumber, chipNumber, daqChannel;
     unsigned int tmp;
     int tmp_i[10];
@@ -470,14 +472,14 @@ Bool_t TRestMultiFEMINOSToSignalProcess::ReadFrame( void *fr, int fr_sz )
             //Set timestamp and event ID
 
             // Event Count lower 16-bit
-            r0 = *p;
+            n0 = *p;
             p++;
 
             // Event Count upper 16-bit
-            r1 = *p;
+            n1 = *p;
             p++;
 
-            tmp = (((unsigned int) r1) << 16) | ((unsigned int) r0);
+            tmp = (((unsigned int) n1) << 16) | ((unsigned int) n0);
             if( GetVerboseLevel() >= REST_Info )
                 printf( "ReadFrame: Event_Count 0x%08x (%d)\n", tmp, tmp);
 

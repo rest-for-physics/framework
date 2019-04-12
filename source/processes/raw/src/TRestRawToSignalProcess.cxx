@@ -71,52 +71,41 @@ void TRestRawToSignalProcess::Initialize()
 
 }
 
-void TRestRawToSignalProcess::BeginOfEventProcess() 
-{
-   // cout << "Begin of event process" << endl;
-    fSignalEvent->Initialize();
-}
-
 void TRestRawToSignalProcess::InitFromConfigFile(){
 
-   fElectronicsType = GetParameter("electronics","");
-   fShowSamples = StringToInteger(GetParameter("showSamples", "10"));
-   fMinPoints = StringToInteger( GetParameter("minPoints", "512" ) );
-   if(fElectronicsType=="")
-   {
-	   warning << this->ClassName() << ": electronic type not found " << endl;
-       LoadDefaultConfig();
-   }
+    fElectronicsType = GetParameter("electronics");
+    fShowSamples = StringToInteger( GetParameter("showSamples", "10") );
+    fMinPoints = StringToInteger( GetParameter("minPoints", "512" ) );
 
-  if(fElectronicsType=="AFTER"||fElectronicsType=="AGET")return;
-  LoadDefaultConfig();
+  	PrintMetadata();
 
-}
+    if( fElectronicsType == "SingleFeminos" || fElectronicsType == "TCMFeminos" ) return;
 
+    if( GetVerboseLevel() >= REST_Warning )
+    {
+        cout << "REST WARNING: TRestRawToSignalProcess::InitFromConfigFile" << endl;
+        cout << "Electronic type " << fElectronicsType << " not found " << endl;
+        cout << "Loading default config" << endl;
+    }
 
-void TRestRawToSignalProcess::LoadDefaultConfig(){
-
-//cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
-//cout<<"WARNING "<<endl;
-//cout<<"Error Loading config file "<<endl;
-//cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
-//
-//cout<<"Press a key to continue..."<<endl;
-//
-//getchar();
-
-fElectronicsType = "AGET";
-fMinPoints = 512;
+    LoadDefaultConfig();
 
 }
 
 
-//______________________________________________________________________________
-
-void TRestRawToSignalProcess::EndOfEventProcess() 
+void TRestRawToSignalProcess::LoadDefaultConfig()
 {
+    if( GetVerboseLevel() <= REST_Warning )
+    {
+        cout<<"REST WARNING: TRestRawToSignalProcess "<<endl;
+        cout<<"Error Loading config file "<<endl;
+    }
 
-//cout << __PRETTY_FUNCTION__ << endl;
+    if( GetVerboseLevel() >= REST_Debug )
+        GetChar();
+
+    fElectronicsType = "SingleFeminos";
+    fMinPoints = 512;
 
 }
 
@@ -213,13 +202,6 @@ Bool_t TRestRawToSignalProcess::OpenInputFiles(vector<TString> files)
 	debug << this->GetName() << " : opened " << nFiles << " files" << endl;
 	return nFiles;
 }
-
-
-
-
-
-
-
 
 //For debugging
 void  TRestRawToSignalProcess::printBits(unsigned short num)
