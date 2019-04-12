@@ -33,7 +33,6 @@
 #include "TRestEventProcess.h"
 #include "TRestDataBase.h"
 
-vector<TRestMetadata*> RESTRUN_INPUTMETADATA;
 ClassImp(TRestRun);
 
 TRestRun::TRestRun()
@@ -263,7 +262,7 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e)
 	else if (keydeclare == "addProcess")
 	{
 		string active = GetParameter("value", e, "");
-		if (active != "ON" && active != "On" && active != "on") return 0;
+		if (active != "" && ToUpper(active) != "ON") return 0;
 		string processName = GetParameter("name", e, "");
 		string processType = GetParameter("type", e, "");
 		if (processType == "") { warning << "Bad expression of addProcess" << endl; return 0; }
@@ -459,7 +458,7 @@ void TRestRun::ReadInputFileMetadata() {
 
 	TFile*f = fInputFile;
 	if (f != NULL) {
-		RESTRUN_INPUTMETADATA.clear();
+		fInputMetadata.clear();
 
 		TIter nextkey(f->GetListOfKeys());
 		TKey *key;
@@ -481,18 +480,19 @@ void TRestRun::ReadInputFileMetadata() {
 				// We just avoid to write TRestRun from previous file to the list of metadata structures
 
 				bool flag = false;
-				for (int i = 0; i < RESTRUN_INPUTMETADATA.size(); i++) {
-				if (a->ClassName() == RESTRUN_INPUTMETADATA[i]->ClassName()) {
+				for (int i = 0; i < fInputMetadata.size(); i++) {
+				if (a->ClassName() == fInputMetadata[i]->ClassName()) {
 				flag = true;
 				break;
 				}
 				}
 				if (!flag) {
-				RESTRUN_INPUTMETADATA.push_back(a);
+				fInputMetadata.push_back(a);
 				}
 				 */
 
-				RESTRUN_INPUTMETADATA.push_back(a);
+				fInputMetadata.push_back(a);
+				fMetadataInfo.push_back(a);
 			}
 
 		}
@@ -929,11 +929,14 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
 	//save metadata objects in file
 	this->Write(0, kOverwrite);
 	for (int i = 0; i < fMetadataInfo.size(); i++) {
-		fMetadataInfo[i]->Write( fMetadataInfo[i]->GetName(), kOverwrite );
-	}
-	for (int i = 0; i < RESTRUN_INPUTMETADATA.size(); i++) {
-		RESTRUN_INPUTMETADATA[i]->Write(("Historic_" + (string)RESTRUN_INPUTMETADATA[i]->ClassName()).c_str()
-			, kOverwrite);
+		if (GetMetadata(fMetadataInfo[i]->GetName()) != NULL) {
+			fMetadataInfo[i]->Write(("Historic_" + (string)fMetadataInfo[i]->ClassName()).c_str()
+				, kOverwrite);
+		}
+		else
+		{
+			fMetadataInfo[i]->Write(fMetadataInfo[i]->GetName(), kOverwrite);
+		}
 	}
 	//write to database
 	if (fRunNumber != -1) {
@@ -1332,9 +1335,9 @@ TRestMetadata *TRestRun::GetMetadata(TString name, TFile*f)
 		for (unsigned int i = 0; i < fMetadataInfo.size(); i++)
 			if (fMetadataInfo[i]->GetName() == name) return fMetadataInfo[i];
 
-		if (fInputFile != NULL && this->GetVersionCode() >= ConvertVersionCode("2.2.1")) {
-			return GetMetadata(name, fInputFile);
-		}
+		//if (fInputFile != NULL && this->GetVersionCode() >= ConvertVersionCode("2.2.1")) {
+		//	return GetMetadata(name, fInputFile);
+		//}
 	}
 
 
