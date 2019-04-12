@@ -198,7 +198,8 @@ void TRestEvent::RestartPad( Int_t nElements )
 void TRestEvent::PrintEvent()
 {
 	cout << "*******************************************************" << endl;
-	cout << " EVENT ID : " << GetID() << " TIME : " << GetTime() << endl;
+	cout << " EVENT ID : " << GetID() << endl;
+	cout << " TIME : " << GetTimeStamp().AsString() << endl;
 	cout << " SUB-EVENT ID : " << GetSubID();
 	if (fSubEventTag != "") cout << "   SUB-EVENT TAG : \"" << fSubEventTag << "\"";
 	cout << endl;
