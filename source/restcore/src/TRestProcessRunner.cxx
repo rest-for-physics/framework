@@ -189,7 +189,7 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement * e)
 	if (keydeclare == "addProcess")
 	{
 		string active = GetParameter("value", e, "");
-		if (ToUpper(active) != "ON") return 0;
+		if (active != "" && ToUpper(active) != "ON") return 0;
 
 		string processName = GetParameter("name", e, "");
 
@@ -255,23 +255,29 @@ Int_t TRestProcessRunner::ReadConfig(string keydeclare, TiXmlElement * e)
 void TRestProcessRunner::EndOfInit()
 {
 	debug << "Validating process chain..." << endl;
+
+	if (fRunInfo->GetFileProcess() != NULL)
+	{
+		fInputEvent = fRunInfo->GetFileProcess()->GetOutputEvent();
+	}
+	else
+	{
+		if (fThreads[0]->GetProcessnum() > 0 && fThreads[0]->GetProcess(0)->GetInputEvent() != NULL)
+		{
+			string name = fThreads[0]->GetProcess(0)->GetInputEvent()->ClassName();
+			auto a = (TRestEvent*)TClass::GetClass(name.c_str())->New();
+			a->Initialize();
+			fRunInfo->SetInputEvent(a);
+		}
+		fInputEvent = fRunInfo->GetInputEvent();
+	}
+	if (fInputEvent == NULL) {
+		error << "Cannot determine input event, validating process chain failed!" << endl;
+		exit(1);
+	}
+
 	if (fProcessNumber > 0)
 	{
-		if (fRunInfo->GetFileProcess() != NULL)
-		{
-			fInputEvent = fRunInfo->GetFileProcess()->GetOutputEvent();
-		}
-		else
-		{
-			if (fThreads[0]->GetProcessnum() > 0 && fThreads[0]->GetProcess(0)->GetInputEvent() != NULL)
-			{
-				string name = fThreads[0]->GetProcess(0)->GetInputEvent()->ClassName();
-				auto a = (TRestEvent*)TClass::GetClass(name.c_str())->New();
-				a->Initialize();
-				fRunInfo->SetInputEvent(a);
-			}
-			fInputEvent = fRunInfo->GetInputEvent();
-		}
 		if (fThreads[0]->ValidateInput(fInputEvent) == -1) exit(1);
 		if (fThreads[0]->ValidateChain() == -1)exit(1);
 	}
