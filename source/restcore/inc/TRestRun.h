@@ -93,6 +93,12 @@ public:
 	void GetEntry(int i) { 
 		if (fAnalysisTree != NULL) { fAnalysisTree->GetEntry(i); } 
 		if (fEventTree != NULL) { fEventTree->GetEntry(i); }
+
+		if( i >= GetEntries() )
+		{
+			warning << "TRestRun::GetEntry. Entry requested out of limits" << endl;
+			warning << "Total number of entries is : " << GetEntries() << endl;
+		}
 	}
 
 	TString FormFormat(TString FilenameFormat);
