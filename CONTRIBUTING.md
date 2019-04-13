@@ -135,7 +135,6 @@ The above-mentioned commit message contains the following mistakes:
 
 ## 2. REST Versioning
 
-`!!!NOTE!!!`  
 Since version `2.2.1`, REST is adopting `automatic schema evolution` feature of ROOT.
 Therefore, the impact of changes in REST classes, i.e. adding, removing or modifying class members, 
 should have been minimized. That is, any future REST version `should be able to read 
@@ -233,9 +232,10 @@ we will push the merge immediately. Otherwise we shall wait several other merges
 
 After the merge-to-master is pushed to gitlab, we will:
 
-1. increase the version/tag to e.g. v2.2.2,
+1. increase the version/tag to e.g. v2.2.2. Using git tag -a v2.2.2 -m "Update to version 2.2.2".
+2. merge, or create a merge request, of the development branch to master.
 2. update TRestVersion.h in master branch,
-3. remove the development branch, and create a new one,
+3. remove the merged development branch, and create a new one using the naming convention,
 4. create a release note for the new version
 5. send a mail to rest-dev@cern.ch mail list to inform the update.
 
