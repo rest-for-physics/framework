@@ -555,10 +555,11 @@ std::string REST_StringHelper::SearchFileInPath(vector<string> paths, string fil
 
 		for (int i = 0; i < paths.size(); i++)
 		{
-			if (fileExists(paths[i] + filename)) {
-				return paths[i] + filename;
-				break;
-			}
+			vector <string> pathsExpanded;
+			GetSubdirectories( paths[i], pathsExpanded );
+			for (int j = 0; j < pathsExpanded.size(); j++)
+				if (fileExists(pathsExpanded[j] + filename))
+					return pathsExpanded[j] + filename;
 		}
 	}
 	return "";
