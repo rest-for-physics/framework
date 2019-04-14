@@ -8,7 +8,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
   return()
 endif()
 
-execute_process(COMMAND git describe --tags 
+execute_process(COMMAND git describe --exact-match --abbrev=0
 WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} 
 OUTPUT_VARIABLE gitdiscribe ERROR_VARIABLE err)
 
