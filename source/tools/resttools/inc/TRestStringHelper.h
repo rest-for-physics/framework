@@ -52,6 +52,7 @@ namespace REST_StringHelper
 	bool isPathWritable(const std::string& path);
 	bool isAbsolutePath(const std::string& path);
 	string ToAbsoluteName(string filename);
+	void GetSubdirectories( const string &path, vector <string> &result );
 	std::pair<string, string> SeparatePathAndName(const std::string fullname);
     std::string RemoveAbsolutePath( std::string fullpathFileName );
 	std::string SearchFileInPath(vector<string> path, string filename);

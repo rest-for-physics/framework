@@ -8,7 +8,7 @@
 #endif
 
 #include <unistd.h>
-
+#include <dirent.h>
 
 
 using namespace std;
@@ -525,6 +525,23 @@ string REST_StringHelper::ToAbsoluteName(string filename) {
 	return filename;
 }
 
+///////////////////////////////////////////////
+/// \brief It lists all the subdirectories recursively inside path and adds
+/// them to the result vector.
+void REST_StringHelper::GetSubdirectories( const string &path, vector <string> &result )
+{
+	if (auto dir = opendir(path.c_str())) {
+		while (auto f = readdir(dir)) {
+			if ( f->d_name[0] == '.') continue;
+			if (f->d_type == DT_DIR)
+			{
+				result.push_back( path + f->d_name + "/" );
+				GetSubdirectories(path + f->d_name + "/", result );//, cb);
+			}
+		}
+		closedir(dir);
+	}
+}
 
 ///////////////////////////////////////////////
 /// \brief Search file in the given vector of path strings, return a full name if found, return "" if not
@@ -535,6 +552,7 @@ std::string REST_StringHelper::SearchFileInPath(vector<string> paths, string fil
 	}
 	else
 	{
+
 		for (int i = 0; i < paths.size(); i++)
 		{
 			if (fileExists(paths[i] + filename)) {
