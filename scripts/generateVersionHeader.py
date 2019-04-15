@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: iso-8859-15 -*-
+# -*- coding: utf-8 -*-
 
 # This script generates the version header to be used in REST installation
 # J. Galan - Javier.Galan.Lacarra@cern.ch
@@ -22,48 +22,46 @@ seOption = "ON"
 if len(sys.argv) > 2:
 	seOption = sys.argv[2]
 
+
+restRelease="2.2.10"
+date="2019-04-13"
+time="11:00:22 +0200"
+commit="d5c684bc"
+branchName="master"
+tag="v2.2.10"
+code=131594
+
+
 p = subprocess.Popen(['git branch'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
 out, err = p.communicate()
 
 if err != "":
     print "WARNING! git repository is not initialized. TRestVersion.h will not be generated! REST will use default version header..."
-    exit(0)
+else:
+    branchName = os.popen( "git branch | grep -e \"^*\" | cut -d\' \' -f 2" ).read().rstrip("\n")
 
-branchName = os.popen( "git branch | grep -e \"^*\" | cut -d\' \' -f 2" ).read().rstrip("\n")
+    commit = os.popen('git rev-parse --verify HEAD' ).read().rstrip("\n")
+    tag = os.popen( 'git describe --tags HEAD' ).read().rstrip("\n")
+    if( tag.find("-") != -1 ):
+        tag = tag[0:tag.find("-")]
 
-#print branchName
+    command = "git log -1 --format=%ai " + str( tag )
+    datetime = os.popen( command ).read().rstrip("\n")
+    date = datetime[0:10]
+    time = datetime[11:]
 
-commit = os.popen('git rev-parse --verify HEAD' ).read().rstrip("\n")
-#print commit
-#print commit[0:8]
+    first =  tag.find(".")
+    last = tag.rfind(".")
+    a = int( re.sub("[^0-9]", "", tag[0:first] ) )
+    b = int( re.sub("[^0-9]", "", tag[first+1:last] ) )
+    c = int( re.sub("[^0-9]", "", tag[last+1:] ) )
+    restRelease = str(a) + "." + str(b) + "." + str(c)
 
-tag = os.popen( 'git describe --tags HEAD' ).read().rstrip("\n")
-if( tag.find("-") != -1 ):
-	tag = tag[0:tag.find("-")]
-
-command = "git log -1 --format=%ai " + str( tag )
-datetime = os.popen( command ).read().rstrip("\n")
-
-date = datetime[0:10]
-time = datetime[11:]
-
-#print date
-#print time
-
-first =  tag.find(".")
-last = tag.rfind(".")
-
-a = int( re.sub("[^0-9]", "", tag[0:first] ) )
-b = int( re.sub("[^0-9]", "", tag[first+1:last] ) )
-c = int( re.sub("[^0-9]", "", tag[last+1:] ) )
-
-restRelease = str(a) + "." + str(b) + "." + str(c)
-
-code = a << 16 + b << 8 + c
-codeA = a << 16 
-codeB = b << 8
-codeC = c 
-code = codeA + codeB + codeC
+    code = a << 16 + b << 8 + c
+    codeA = a << 16 
+    codeB = b << 8
+    codeC = c 
+    code = codeA + codeB + codeC
 
 print "-- Generating TRestVersion.h. Release : " + restRelease
 
