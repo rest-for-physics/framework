@@ -36,7 +36,7 @@ protected:
 
 	//data-like metadata objects
 	vector<TRestMetadata*> fMetadataInfo;//!
-	vector<TRestMetadata*> fInputMetadata;
+	vector<TRestMetadata*> fInputMetadata;//!
 	map<string, string> FileInfo;//!
 
 	//temp data member
