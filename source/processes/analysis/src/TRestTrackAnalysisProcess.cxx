@@ -345,7 +345,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         TRestTrack *t = fInputTrackEvent->GetTrack( tck );
         Double_t en = t->GetEnergy( );
 
-        if( t->isXYZ() )
+        if( (t->isXYZ())||(t->isXZ())||(t->isYZ()) )
         {
             for( unsigned int n = 0; n < fTrack_HE_EnergyObservables.size(); n++ )
                 if( en > fTrack_HE_Threshold[n] )
