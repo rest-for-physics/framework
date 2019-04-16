@@ -172,7 +172,7 @@ echo \\\"  REST releases announcement : rest-dev@cern.ch  \\\"
 echo \\\"  \\\"
 echo \\\"  Self-subscription policy is open at egroups.cern.ch  \\\"
 echo \\\"  \\\"
-echo \\\"  REST forum site : gifna.unizar.es/rest-forum  \\\"
+echo \\\"  REST forum site : ezpc10.unizar.es (New!)  \\\"
 echo \\\"  *****************************************************************************\\\"
 echo \\\"  \\\" 
 

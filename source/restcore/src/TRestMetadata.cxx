@@ -2189,6 +2189,7 @@ TString TRestMetadata::GetSearchPath() {
 	TiXmlElement*e = fElement;
 	//string result = "";
 	string result = getenv("configPath") == NULL ? ":" : getenv("configPath") + (string)":";
+	result += getenv("REST_PATH") + (string) "/data/:";
 	TiXmlElement* ele = e->FirstChildElement("searchPath");
 	while (ele != NULL)
 	{
