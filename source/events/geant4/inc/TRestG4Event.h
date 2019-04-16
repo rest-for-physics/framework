@@ -261,6 +261,106 @@ class TRestG4Event: public TRestEvent {
                 if( (GetTrack( n )->GetParticleName()).Contains("Ne" )) return true;
             return false;
         }
+        ///Processes and particles in a given volume
+
+         Bool_t isRadiactiveDecayInVolume(Int_t volID) 
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isRadiactiveDecayInVolume(volID)  ) return true;
+            return false;
+        }
+
+        Bool_t isPhotoElectricInVolume(Int_t volID) 
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isPhotoElectricInVolume(volID)  ) return true;
+            return false;
+        }
+	   Bool_t isPhotonNuclearInVolume(Int_t volID) 
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isPhotonNuclearInVolume(volID)  ) return true;
+            return false;
+        }
+        Bool_t isComptonInVolume(Int_t volID) 
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isComptonInVolume(volID)  ) return true;
+            return false;
+        }
+        Bool_t isBremstralungInVolume(Int_t volID) 
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isBremstralungInVolume(volID)  ) return true;
+            return false;
+        }
+
+        Bool_t isHadElasticInVolume(Int_t volID) 
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isHadElasticInVolume(volID)  ) return true;
+            return false;
+        }
+        Bool_t isNeutronInelasticInVolume(Int_t volID) 
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isNeutronInelasticInVolume(volID)  ) return true;
+            return false;
+        }
+
+        Bool_t isNCaptureInVolume(Int_t volID) 
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isNCaptureInVolume(volID)  ) return true;
+            return false;
+        }
+
+        Bool_t ishIoniInVolume(Int_t volID) 
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isHIoniInVolume(volID)  ) return true;
+            return false;
+        }
+
+        Bool_t isAlphaInVolume(Int_t volID) 
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isAlphaInVolume(volID) ) return true;
+            return false;
+        }
+
+        Bool_t isNeutronInVolume(Int_t volID) 
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isNeutronInVolume(volID) ) return true;
+            return false;
+        }
+
+
+
+	   Bool_t isArgonInVolume(Int_t volID) 
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isArgonInVolume(volID) ) return true;
+            return false;
+        }
+
+
+	   Bool_t isXenonInVolume(Int_t volID) 
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isXenonInVolume(volID) ) return true;
+            return false;
+        }
+
+
+	   Bool_t isNeonInVolume(Int_t volID) 
+        {
+            for( int n = 0; n < GetNumberOfTracks(); n++ )
+                if( GetTrack( n )->isNeonInVolume(volID) ) return true;
+            return false;
+        }
+
 
         void Initialize();
 

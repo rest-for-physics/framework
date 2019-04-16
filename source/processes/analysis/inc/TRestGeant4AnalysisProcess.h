@@ -58,7 +58,14 @@ class TRestGeant4AnalysisProcess:public TRestEventProcess {
 
         /// A vector storing the direction X,Y or Z from corresponding mean position observable (xxxMeanPosX,Y,Z).
         std::vector <std::string>  fDirID; //!
+	 /// A vector storing the name of observables  related to  processes in a particular active volume.
+        std::vector <std::string> fProcessObservables; //!
 
+        /// A vector storing the active volume ids corresponding process observable .
+        std::vector <Int_t> fVolumeID3; //!
+  
+        /// A vector storing the name of processes.
+        std::vector <std::string> fProcessName; //!
         /// A vector storing the name of observables (xxxTrackCounter) related to the number of tracks of the given particle name.
         std::vector <std::string> fTrackCounterObservables; //!
 
