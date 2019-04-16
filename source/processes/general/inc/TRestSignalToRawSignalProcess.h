@@ -32,13 +32,11 @@
 class TRestSignalToRawSignalProcess:public TRestEventProcess {
     private:
 
-#ifndef __CINT__
         /// A pointer to the specific TRestSignalEvent input
         TRestSignalEvent *fInputSignalEvent; //!
 
         /// A pointer to the specific TRestRawSignalEvent input
         TRestRawSignalEvent *fOutputRawSignalEvent; //!
-#endif
 
         void InitFromConfigFile();
 
@@ -62,6 +60,9 @@ class TRestSignalToRawSignalProcess:public TRestEventProcess {
 
         /// A factor the data values will be multiplied by at the output signal.
         Double_t fGain;
+
+        /// This parameter is used by integralWindow trigger mode to define the acquisition window.
+        Double_t fIntegralThreshold;
 
     public:
 
@@ -97,7 +98,7 @@ class TRestSignalToRawSignalProcess:public TRestEventProcess {
         //Destructor
         ~TRestSignalToRawSignalProcess();
 
-        ClassDef(TRestSignalToRawSignalProcess, 1);
+        ClassDef(TRestSignalToRawSignalProcess, 2);
 };
 #endif
 
