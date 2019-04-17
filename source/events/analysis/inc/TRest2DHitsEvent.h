@@ -73,8 +73,8 @@ protected:
 	vector<double> yzy;
 	vector<double> yze;
 
-	vector<TVector3> fHough_XZ; //!  y=ax+b, vertical line angle 牟, length 老, [id][老,牟,weight]
-	vector<TVector3> fHough_YZ; //!  y=ax+b, vertical line angle 牟, length 老, [id][老,牟,weight]
+	vector<TVector3> fHough_XZ; //!  y=ax+b, vertical line angle 
+	vector<TVector3> fHough_YZ; //!  y=ax+b, vertical line angle 
 
 	int X1;
 	int X2;
