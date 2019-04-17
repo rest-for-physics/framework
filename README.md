@@ -187,7 +187,7 @@ See also the list of [contributors]() who participated in this project.
 
 ## License
 
-This project is licensed under the GNU License - see the [LICENSE.md](https://lfna.unizar.es/rest-development/REST_v2/blob/master/LICENCE.md) file for details
+This project is licensed under the GNU License - see the [LICENSE](https://lfna.unizar.es/rest-development/REST_v2/blob/master/LICENCE) file for details
 
 ## Acknowledgments
 
