@@ -1,13 +1,17 @@
-# REST (Rare Event Searches with TPCs) Framework
+# The REST Framework
 
-RESTSoft (Rare Event Searches with TPCs Software) was born as a collaborative software effort to provide common tools for acquisition, simulation, and data analysis of gaseous Time Projection Chambers (TPCs). The REST Framework is mainly written in C++ and it is fully integrated in [ROOT](root.cern.ch).
+The REST (Rare Event Searches with TPCs Software) Framework is mainly written in C++ and it is fully integrated with [ROOT](root.cern.ch) I/O interface.
+REST was born as a collaborative software effort to provide common tools for acquisition, simulation, and data analysis of gaseous Time Projection Chambers (TPCs).
+The REST Framework provides 3 interfaces that prototype the use of `event types`, `metadata` and `event processes` through TRestEvent, TRestMetadata and TRestEventProcess abstract class definitions.
+Any REST library will implement `specific objects` that inherit from those 3 basic interfaces. 
+Different `event processes` can be combined to build complex event processing chains with full traceability. 
+The `metadata` structures will allow us to provide input parameters or information to the framework using an XML like format.
+REST integrates a special `metadata` class named `TRestManager` that encapsulates all the required information to launch the processing of a particular data chain.
+REST will produce output using ROOT format. Any REST file will always contain a TRestRun metadata object.
+TRestRun is a `metadata` object responsible to encapsulate and give access to all the objects stored inside the ROOT file; 
+i.e. the resulting `event data` output, the TRestAnalysisTree, any `specific` metadata object used during a processing chain.
 
- i.e. all REST classes inherit from TObject and can be read/accessed/written using the ROOT I/O interface. The only structural dependence is related to ROOT libraries, while other packages, as Geant4 [32] or
-Topological background discrimination in the PandaX-III experiment 31
-Garfield++ [19], can be optionally integrated and used within the REST framework when generating or processing Monte Carlo data.
-During the last years, major upgrades took place on the REST core libraries [33]. An important feature introduced in REST is that metadata and event data are stored together in a unique file. We understand by metadata any information required to give meaning to the data registered in the event data, as it can be the initial run data taking conditions, the geometry of the detector, the gas properties, or the detector readout topology. Additionally, any input or output parameters, required during the processing or transformation of event data, using event processes, will be stored as metadata. Any previous existing metadata structures inside the REST input file will be transferred to any future output, assuring full traceability, as well as reproducibility of results obtained with a particular dataset.
-An ambitious feature of REST is its capability to analyze Monte Carlo and experimental data using common event processes. This is possible by using existing REST event processes to condition the input data generated, for example, by a Geant4 Monte Carlo simulation. After an appropriate event data conditioning, our Monte Carlo generated event will reproduce the rawdata of the detector (as it is shown in section 4). Once we are at that stage, we can benefit from using the same event processes to analyze Monte Carlo and real experimental data. A realistic Monte Carlo rawdata reconstruction will allow us to assess, validate and optimize the processes that will be involved in the real event reconstruction and analysis even before the start of the physics run of the experiment.
-In the following subsections, we recall the definitions of the different components of REST, viz. event types, event processes, and analysis tree. These definitions will serve as a reference for the article. Note that we do this having in mind the case where the physics variables of interest are local energy deposits, called hits, and the signal is digitized by a sampling ADC. The REST software is versatile enough, though, to handle many other cases. We include here only those components of REST that are relevant to our study.
+
 
 ## Getting Started
 
