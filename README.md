@@ -72,7 +72,7 @@ make -j4 install
 
 After all the compilation and installation process ends, you will end up with an installed REST version at your `REST_SOURCE_PATH/install/master/`.
 
-Add the following line to your `.bashrc` file in order to load REST in your system environment each time you open a new shell terminal.
+Execute the following command to configure your `.bashrc` to load REST in your system environment each time you open a new shell terminal.
 
  ```
  echo "source REST_SOURCE_PATH/install/master/thisREST.sh" >> .bashrc
