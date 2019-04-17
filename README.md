@@ -72,7 +72,11 @@ make -j4 install
 
 After all the compilation and installation process ends, you will end up with an installed REST version at your `REST_SOURCE_PATH/install/master/`.
 
-Add the following line ```source REST_SOURCE_PATH/install/master/thisREST.sh``` to your `.bashrc` file in order to load REST in your system environment each time you open a new shell terminal.
+Add the following line to your `.bashrc` file in order to load REST in your system environment each time you open a new shell terminal.
+
+ ```
+ echo "source REST_SOURCE_PATH/install/master/thisREST.sh" >> .bashrc
+ ```
 
 ### Basic tests of the REST installation
 
@@ -166,7 +170,7 @@ Additional information on the functionality provided by those libraries will be 
 * RestRawLib : 
 * etc
 
-TOBE written
+`TOBE written`
 
 ## Contributing, versioning and documentation
 
@@ -191,7 +195,7 @@ This project is licensed under the GNU License - see the [LICENSE](https://lfna.
 
 ## Acknowledgments
 
-TOBE written
+`TOBE written`
 
 * Hat tip to anyone whose code was used
 * Inspiration
