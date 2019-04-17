@@ -4,7 +4,7 @@ The following instructions assume you have a linux system with ubuntu or debian 
 
 ## Downloading REST from the Git repository
 
-The [Git repository of REST](https://sultan.unizar.es:4443/) is hosted at the server at the University of Zaragoza. Git offers web access to the repository, that you may access with your Git account credentials.
+The [Git repository of REST](https://lfna.unizar.es/) is hosted at the server at the University of Zaragoza. Git offers web access to the repository, that you may access with your Git account credentials.
 
 To be able to download the code in your local machine you will need to install a [Git](https://git-scm.com/) client in your local machine, by doing
 
@@ -14,9 +14,9 @@ sudo apt-get install git
 
 or downloading an alternative git client following the instructions [here](https://git-scm.com/downloads/guis).
 
-**Note:** If you are new to Git, you may start reading this [simple Git introduction] (http://rogerdudler.github.io/git-guide/). You can find more info on Git usage at the [REST Git web interface] (https://sultan.unizar.es:4443/rest-development/REST_v2/wikis/rest-git) wiki pages.
+**Note:** If you are new to Git, you may start reading this [simple Git introduction] (http://rogerdudler.github.io/git-guide/). You can find more info on Git usage at the [REST Git wiki page] (https://lfna.unizar.es/rest-development/REST_v2/wikis/home).
 
-To get access to the repository via SSH you need to generate an SSH key at your local machine you need to follow [these instructions] (https://git-scm.com/book/en/v2/Git-on-the-Server-Generating-Your-SSH-Public-Key). Then, add the SSH key to your Git account through the Git web interface.
+To get access to the repository via SSH you need to generate a SSH key at your local machine. Follow [these instructions] (https://git-scm.com/book/en/v2/Git-on-the-Server-Generating-Your-SSH-Public-Key) to generate a public SSH key. Then, add the SSH key to your Git user account profile, through the [Gitlab web interface](https://lfna.unizar.es/).
 
 You have to set up your git client to recognize your credentials 
 
@@ -28,12 +28,12 @@ You have to set up your git client to recognize your credentials
 And, finally, clone the repository in a local folder: 
 
 \code
- git clone git@sultan.unizar.es:rest-development/REST_v2.git
+ git clone git@lfna.unizar.es:rest-development/REST_v2.git
 \endcode
 
 You will have downloaded the code into a new folder named <code>REST_v2</code>, and you should be now in the master branch
 
-\warning if you get a request for a password here is because you didnt add your previoustly generated SSH key to your git profile. Go to the [REST Git web interface] (https://sultan.unizar.es:4443/), go to your profile, *profile settings* at the top-right corner, go to *SSH Keys* tab, and add the public SSH key you generated previously.
+\warning if you get a request for a password here is because you did not add sucessflly your previoustly generated SSH key to your git profile. Go to the [REST Git web interface] (https://lfna.unizar.es/), go to your profile, *profile settings* at the top-right corner, go to *SSH Keys* tab, and add the public SSH key you generated previously.
 
 ## Preparing the environment
 
@@ -119,11 +119,11 @@ Alternativelly you can follow the instructions found at the official site:
 
 REST uses [GDML] (http://gdml.web.cern.ch/GDML/) to encode geometry information. To enable import/export GDML files with ROOT you need to enable it before building ROOT, by using the option <code>-enable-gdml</code>.
 
-**Note:** It is a good option to install the latest consolidated release of ROOT. For the moment, REST has been successfully tested with the last ROOT5 version (*ROOT version 5.34/32*). Working with ROOT6 has not been tested yet.
+**Note:** It is a good option to install the latest consolidated release of ROOT. REST has been successfully tested with the ROOT version (*ROOT version 6.14*).
 
 \warning You should choose **cmake** compilation scheme in ROOT so that REST compilation recognizes the ROOT installation.
 
-### Install Garfield++
+### Install Garfield++ (optional)
 
 REST provides access to Garfield++ objects and some metadata structures as TRestGas use Garfield++ to generate gas properties using Magboltz. You can follow the official instructions provided in this link.
 *  [Garfield++ getting started] (http://garfieldpp.web.cern.ch/garfieldpp/getting-started/).
@@ -205,13 +205,13 @@ First of all, create a build directory wherever you want, here we assume it is d
 We then create the compilation environment using cmake (i.e., we define the REST install path, the compiler version, etc). If we do not specify the installation path, the default is <code>/usr/local/REST</code> (which requires admin privileges). We use cmake for this, with the following syntax:
 
 \code
- cmake -DCMAKE_CXX_COMPILER=g++-4.8 -DINSTALL_PREFIX=/full/path/to/install/destination/ $REST_v2
+ cmake -DINSTALL_PREFIX=/install/path/ $REST_v2
 \endcode
 
 Where *DINSTALL_PREFIX* will be the directory where headers, libraries and other required files will be installed. You can choose for example $REST_v2/install. Since *../* points to $REST_v2, you could execute
 
 \code
- cmake -DCMAKE_CXX_COMPILER=g++-4.8 -DINSTALL_PREFIX=$REST_v2/install ../
+ cmake -DINSTALL_PREFIX=$REST_v2/install ../
 \endcode
 
 being $REST_v2 the full path directory pointing to your REST_v2 directory.
@@ -271,18 +271,12 @@ The geometry and macros are copied to this directory every time you execute <cod
 Now execute <code>cmake</code> using the Geant4 installation path and the restG4 source path:
 
 \code
- cmake -DCMAKE_CXX_COMPILER=g++-4.8 -DGeant4_DIR="$G4_INSTALL_CMAKE" $REST_v2/packages/restG4
+ cmake -DGeant4_DIR="$G4_INSTALL_CMAKE" $REST_v2/packages/restG4
 \endcode
 
-Where <code>$G4_INSTALL_CMAKE</code> is the path to the cmake package configuration file of Geant4 
+Where <code>$G4_INSTALL_CMAKE</code> is the path to the cmake package configuration file of Geant4. If the -DGeant4_DIR definition is skipped cmake will attempt to find Geant4 installation automatically.
 
-For example (if you used ./installGeant4.sh) you should do:
-
-\code
- cmake -DCMAKE_CXX_COMPILER=g++-4.8 -DGeant4_DIR=$HOME/apps/geant4_10_02_p02-install/lib/Geant4-10.2.0/ ../
-\endcode
-
-If <code>cmake</code> executed with no errors you should be able now to execute <code>make</code> to build the restG4 executable
+Finally, if <code>cmake</code> executed with no errors you should be able now to execute <code>make</code> to build the restG4 executable
 
 \code
  make -j4
