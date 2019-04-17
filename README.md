@@ -176,7 +176,17 @@ Additional information on the functionality provided by those libraries will be 
 
 Please read [CONTRIBUTING.md](https://lfna.unizar.es/rest-development/REST_v2/blob/master/CONTRIBUTING.md) to get some guidelines on how to contribute to this project.
 Before any contribution, those guidelines must be assimilated and accepted. 
-In any case, changes, improvements, or addons, to CONTRIBUTING.md are aceptable after proposal and discussion with other authors at the [REST Framework forum](https://ezpc10.unizar.es/).
+In any case, changes, improvements, or addons, to [CONTRIBUTING.md](https://lfna.unizar.es/rest-development/REST_v2/blob/master/CONTRIBUTING.md) are aceptable after proposal and discussion with other authors at the [REST Framework forum](https://ezpc10.unizar.es/).
+
+REST exploits the Git tagging system to produce its own versioning system. Details on how the REST version number is produced are given in [CONTRIBUTING.md](https://lfna.unizar.es/rest-development/REST_v2/blob/master/CONTRIBUTING.md).
+Any **metadata** object written with REST **will contain this version number**, making it possible to determine the REST version used to write any particular ROOT file.
+If different REST versions were used to write a ROOT file, e.g. at different steps of the data processing chain, the historic metadata objects will preserve their original version.
+However, the `TRestRun` metadata object **will always store** the version used to write the ROOT file.
+
+After REST release 2.2.1., REST implements correctly the `ROOT schema evolution`. Therefore, any new REST version should always be backwards compatible.
+I.e. Any file written after v2.2.1 should be readable without problems with any future version.
+
+The [REST API documentation](https://sultan.unizar.es/rest/) (WIP) will provide details on the use of the different REST objects, together with few tutorials and basic examples on the use of REST in different scenarios. 
 
 
 ## Main authors and contributing institutions
@@ -189,7 +199,7 @@ See also the list of [contributors]() who participated in this project.
 
 ## Publications
 
-
+`TOBE written`
 
 ## License
 
