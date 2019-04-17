@@ -1,6 +1,6 @@
 # The REST Framework
 
-The REST (Rare Event Searches with TPCs Software) Framework is mainly written in C++ and it is fully integrated with [ROOT](root.cern.ch) I/O interface.
+The REST (Rare Event Searches with TPCs) Framework is mainly written in C++ and it is fully integrated with [ROOT](root.cern.ch) I/O interface.
 REST was born as a collaborative software effort to provide common tools for acquisition, simulation, and data analysis of gaseous Time Projection Chambers (TPCs).
 The REST Framework provides 3 interfaces that prototype the use of **event types**, **metadata** and **event processes** through `TRestEvent`, `TRestMetadata` and `TRestEventProcess` abstract class definitions.
 Any REST library will implement **specific objects** that inherit from those 3 basic interfaces. 
@@ -18,37 +18,116 @@ Other objects included in the framework will help to add unit definitions, `REST
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine.
+
+The recommended way to download a copy of REST will be to clone it using the corresponding git command.
+
+```
+git clone git@lfna.unizar.es:rest-development/REST_v2.git
+```
+
+As soon as REST is under strong development phase the repository will be private, and access to the REST repository will be only granted on demand.
+Before granting access, an account must be registered at the [Unizar Gitlab site](https://lfna.unizar.es). 
+Then, you will need to contact the authors to request access to the code.
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
+The only mandatory prerequisite of REST is ROOT6. Details on the installation of ROOT will be found at the [ROOT's official site](root.cern.ch). 
+To avoid problems during the installation it is recommended that REST libraries will be compiled using the same version of g++ compiler used to compile ROOT.
+
+We provide a script inside `scripts/installation/installROOT.sh`, to automatize the process of downloading, compiling and installing a predefined version of ROOT in your local system.
+If your system comes installed with all the [ROOT prerequisites](https://root.cern.ch/build-prerequisites) the installation using this script should be quite smooth.
+
+Example of installing ROOT6 using REST installation script:
 
 ```
-Give examples
+cd scripts/installation/
+./installROOT.sh
 ```
+
+The script will install a particular version of ROOT defined inside the script, and it will add to your bashrc a line to load ROOT each time you start a new terminal session.
+ROOT will be installed at `$HOME/apps`. Feel free to modify the `installROOT.sh` script to choose a different installation directory or ROOT version.
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
+After ROOT6 has been installed in the system, the compilation of REST should be straight forward. 
+Before starting the REST installation process make sure you are running the desired ROOT version and binary.
 
 ```
-until finished
+root-config --version
+which root
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+REST will recognize those and use them to link to your ROOT installation.
 
-## Running the tests
+Then, go to the root directory of your local REST repository, lets name it here `REST_SOURCE_PATH` and execute the following commands.
 
-Explain how to run the automated tests for this system
+```
+cd REST_SOURCE_PATH
+mkdir build
+cd build
+cmake -DINSTALL_PREFIX=../install/master/ ../
+make -j4 install
+```
+
+After all the compilation and installation process ends, you will end up with an installed REST version at your `REST_SOURCE_PATH/install/master/`.
+
+Add the following line ```source REST_SOURCE_PATH/install/master/thisREST.sh``` to your `.bashrc` file in order to load REST in your system environment each time you open a new shell terminal.
+
+### Basic tests of the REST installation
+
+After sourcing `thisREST.sh` you should see a message on screen similar to the following one.
+
+```
+  *****************************************************************************
+  W E L C O M E   to  R E S T  
+  
+  Commit  : b8474752 (2019-04-13 11:00:22 +0200)  
+  Branch/Version : v2.2.10/v2.2.10  
+  Compilation date : 2019-04-16 21:51  
+  
+  Installed at : /Users/jgalan/git/REST_v2/install/v2.2.10  
+  
+  REST releases announcement : rest-dev@cern.ch  
+  
+  Self-subscription policy is open at egroups.cern.ch  
+  
+  REST forum site : rest-forum.gifna.unizar.es
+  *****************************************************************************
+```
+
+You can test now that REST libraries are loaded without errors inside the ROOT environment using the `restRoot` command:
+
+```
+restRoot
+
+   ------------------------------------------------------------
+  | Welcome to ROOT 6.14/06                http://root.cern.ch |
+  |                               (c) 1995-2018, The ROOT Team |
+  | Built for macosx64                                         |
+  | From tags/v6-14-06@v6-14-06, Dec 11 2018, 12:58:00         |
+  | Try '.help', '.demo', '.license', '.credits', '.quit'/'.q' |
+   ------------------------------------------------------------
+
+Loading library : libRestCore.dylib
+Loading library : libRestProcesses.dylib
+Loading library : libRestEvents.dylib
+Loading library : libRestMetadata.dylib
+Loading library : libRestTools.dylib
+
+```
+
+
+### Compilation options
+
+Different options can be passed to the `cmake` command to personalize the REST installation. The following options are available in REST.
+
+* **REST_WELCOME** (Default: ON) : If dissabled no message will be displayed each time we call thisREST.sh.
+* **INSTALL_PREFIX** : Allows to define the destination of the final REST install directory.
+* **REST_GARFIELD** (Default: OFF) : Enables access to [Garfield++](https://garfieldpp.web.cern.ch/garfieldpp/) libraries in REST.
+
+### Installing a particular REST version release
+
 
 
 ## REST libraries
