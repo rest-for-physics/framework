@@ -1,6 +1,6 @@
 # The REST Framework
 
-The REST (Rare Event Searches with TPCs) Framework is mainly written in C++ and it is fully integrated with [ROOT](root.cern.ch) I/O interface.
+The REST (Rare Event Searches with TPCs) Framework is mainly written in C++ and it is fully integrated with [ROOT](https://root.cern.ch) I/O interface.
 REST was born as a collaborative software effort to provide common tools for acquisition, simulation, and data analysis of gaseous Time Projection Chambers (TPCs).
 The REST Framework provides 3 interfaces that prototype the use of **event types**, **metadata** and **event processes** through `TRestEvent`, `TRestMetadata` and `TRestEventProcess` abstract class definitions.
 Any REST library will implement **specific objects** that inherit from those 3 basic interfaces. 
@@ -174,11 +174,11 @@ Additional information on the functionality provided by those libraries will be 
 
 ## Contributing, versioning and documentation
 
-Please read [CONTRIBUTING.md](https://lfna.unizar.es/rest-development/REST_v2/blob/master/CONTRIBUTING.md) to get some guidelines on how to contribute to this project.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) to get some guidelines on how to contribute to this project.
 Before any contribution, those guidelines must be assimilated and accepted. 
-In any case, changes, improvements, or addons, to [CONTRIBUTING.md](https://lfna.unizar.es/rest-development/REST_v2/blob/master/CONTRIBUTING.md) are aceptable after proposal and discussion with other authors at the [REST Framework forum](https://ezpc10.unizar.es/).
+In any case, changes, improvements, or addons, to [CONTRIBUTING.md](CONTRIBUTING.md) are aceptable after proposal and discussion with other authors at the [REST Framework forum](https://ezpc10.unizar.es/).
 
-REST exploits the Git tagging system to produce its own versioning system. Details on how the REST version number is produced are given in [CONTRIBUTING.md](https://lfna.unizar.es/rest-development/REST_v2/blob/master/CONTRIBUTING.md).
+REST exploits the Git tagging system to produce its own versioning system. Details on how the REST version number is produced are given in [CONTRIBUTING.md](CONTRIBUTING.md).
 Any **metadata** object written with REST **will contain this version number**, making it possible to determine the REST version used to write any particular ROOT file.
 If different REST versions were used to write a ROOT file, e.g. at different steps of the data processing chain, the historic metadata objects will preserve their original version.
 However, the `TRestRun` metadata object **will always store** the version used to write the ROOT file.
