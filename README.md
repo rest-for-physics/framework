@@ -174,7 +174,9 @@ Additional information on the functionality provided by those libraries will be 
 
 ## Contributing, versioning and documentation
 
-Please read [CONTRIBUTING.md](https://lfna.unizar.es/rest-development/REST_v2/blob/master/CONTRIBUTING.md) to get 
+Please read [CONTRIBUTING.md](https://lfna.unizar.es/rest-development/REST_v2/blob/master/CONTRIBUTING.md) to get some guidelines on how to contribute to this project.
+Before any contribution, those guidelines must be assimilated and accepted. 
+In any case, changes, improvements, or addons, to CONTRIBUTING.md are aceptable after proposal and discussion with other authors at the [REST Framework forum](https://ezpc10.unizar.es/).
 
 
 ## Main authors and contributing institutions
