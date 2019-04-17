@@ -6,7 +6,7 @@ The REST Framework provides 3 interfaces that prototype the use of **event types
 Any REST library will implement **specific objects** that inherit from those 3 basic interfaces. 
 
 Different **event processes** can be combined to build complex event processing chains with full traceability. 
-The **metadata** objects will allow us to provide input parameters or information to the framework using a XML like format.
+The **metadata** objects will allow us to provide input parameters or information to the framework using a XML-like format.
 REST integrates a special **metadata** object named `TRestManager` that encapsulates all the required information to launch the processing of a particular data chain.
 REST will produce output using ROOT format. Any REST file will always contain a `TRestRun` metadata object.
 `TRestRun` is a **metadata** object responsible to encapsulate and give access to all the objects stored inside the REST/ROOT file; 
@@ -117,7 +117,6 @@ Loading library : libRestTools.dylib
 
 ```
 
-
 ### Compilation options
 
 Different options can be passed to the `cmake` command to personalize the REST installation. The following options are available in REST.
@@ -128,7 +127,34 @@ Different options can be passed to the `cmake` command to personalize the REST i
 
 ### Installing a particular REST version release
 
+When we download/clone REST repository on our local system, the latest release will be downloaded. 
+We can switch and install any specific REST release by cloning any particular *git tag*.
 
+**Note!:** Save all your changes before continuing. You need to be in a clean copy to be able to change to a new release.
+
+For example, to create a git branch connected to the REST release v2.2.6, you will do the following.
+
+```
+git reset --hard
+git checkout tags/v2.2.6 -b v2.2.6
+```
+
+You may make sure the change took place by checking the status and commit history.
+
+```
+git status
+git log
+```
+
+Then, you may re-use the build directory to compile and install the new version. We recommend to remove your build directory before.
+
+```
+cd REST_SOURCE_PATH
+cd build
+rm -rf *
+cmake -DINSTALL_PREFIX=../install/v2.2.6/ ../
+make -j4 install
+```
 
 ## REST libraries
 
