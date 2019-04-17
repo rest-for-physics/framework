@@ -10,3 +10,4 @@ Debug
 *.zip
 *.tgz
 *.tar.gz
+.DS_Store
