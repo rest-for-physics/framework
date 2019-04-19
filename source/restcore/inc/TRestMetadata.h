@@ -260,7 +260,7 @@ public:
 	void SetVersion( );
 
 	/// sets the library version. Needs to be called by each REST library.
-	TString SetLibraryVersion( TString version) { fLibraryVersion = version; }
+	void SetLibraryVersion( TString version) { fLibraryVersion = version; }
 
 	/// sets the version to -1 if the class is TRestRun
 	void UnSetVersion( );
