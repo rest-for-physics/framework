@@ -78,6 +78,7 @@ private:
 
 	///REST version string, only used for archive and retrieve
 	TString fVersion;
+	TString fLibraryVersion = "0";
 protected:
 	//new xml utilities
 	std::string GetFieldValue(std::string parName, TiXmlElement* e);
@@ -170,20 +171,28 @@ public:
 	Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal);
 	Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal, vector<TiXmlElement*> eEnv);
 	Int_t LoadConfigFromFile(string cfgFileName, string sectionName = "");
+
 	//virtual Int_t LoadSectionMetadata(string section, string cfgFileName, string name) { LoadSectionMetadata(); return 0; }
 	virtual Int_t LoadSectionMetadata();
+
 	///  To make settings from rml file. This method must be implemented in the derived class.
 	virtual void InitFromConfigFile() = 0;
+
 	/// Method called after the object is retrieved from root file. 
 	virtual void InitFromRootFile();
+
 	/// Making default settings.
 	virtual void Initialize() {}
+
 	/// Implementing TObject::Print() method
 	void Print() { PrintMetadata(); } // *MENU*
+
 	/// Implemented it in the derived metadata class to print out specific metadata information.
 	virtual void PrintMetadata();
+
 	/// Print the current time on local machine.
 	void PrintTimeStamp(Double_t timeStamp);
+
 	/// Print the config xml section stored in the class
 	void PrintConfigBuffer(); // *MENU*
 
@@ -197,41 +206,65 @@ public:
 	//getters and setters
 	std::string GetSectionName();
 	std::string GetConfigBuffer();
+
 	/// set the section name, clear the section content
 	void SetSectionName(std::string sName) { fSectionName = sName; }
+
 	/// set config file path from external
 	void SetConfigFile(std::string cfgFileName) { fConfigFileName = cfgFileName; }
+
 	/// Set the hoster manager for this class.
 	void SetHostmgr(TRestManager*m) { fHostmgr = m; }
+
 	/// Returns a string with the path used for data storage
 	TString GetDataPath() { return GetParameter("mainDataPath",""); }
+
 	/// Returns a string with the path defined in sections "searchPath". 
 	TString GetSearchPath();
+
 	/// returns the verboselevel in type of REST_Verbose_Level enumerator
 	REST_Verbose_Level GetVerboseLevel() { return fVerboseLevel; }
+
 	/// returns the verboselevel in type of TString
 	TString GetVerboseLevelString();
+
 	/// Gets a string with the path used for data storage
 	TString GetMainDataPath() { return GetDataPath(); }
+
 	std::string GetParameter(std::string parName, TString defaultValue = PARAMETER_NOT_FOUND_STR);
+
 	Double_t GetDblParameterWithUnits(std::string parName, Double_t defaultValue = PARAMETER_NOT_FOUND_DBL);
 	Double_t GetDoubleParameterWithUnits(std::string parName, Double_t defaultValue = PARAMETER_NOT_FOUND_DBL) {
 		return GetDblParameterWithUnits(parName, defaultValue);
 	}
+
 	TVector2 Get2DVectorParameterWithUnits(string parName, TVector2 defaultValue = TVector2(-1, -1));
 	TVector3 Get3DVectorParameterWithUnits(string parName, TVector3 defaultValue = TVector3(-1, -1, -1));
+
 	/// sets the verboselevel
 	void SetVerboseLevel(REST_Verbose_Level v) { fVerboseLevel = v; }
+
 	/// If this method is called the metadata information will **not** be stored in disk. I/O is handled by TRestRun.
 	void DoNotStore() { fStore = false; }
+
 	/// If this method is called the metadata information will be stored in disk. This is the default behaviour.
 	void Store() { fStore = true; }
+
 	/// returning fVersion
 	TString GetVersion();
+
+	/// returning fLibraryVersion
+	TString GetLibraryVersion() { return fLibraryVersion; }
+
 	/// sets the version to REST_RELEASE if the class is TRestRun
 	void SetVersion( );
+
+	/// sets the library version. Needs to be called by each REST library.
+	TString SetLibraryVersion( TString version) { fLibraryVersion = version; }
+
 	/// sets the version to -1 if the class is TRestRun
 	void UnSetVersion( );
+
 	/// returning the version code
 	Int_t GetVersionCode() { return ConvertVersionCode((string)GetVersion()); }
 
@@ -255,7 +288,7 @@ public:
 	TRestMetadata(const char *cfgFileNamecfgFileName);
 
 	/// Call CINT to generate streamers for this class
-	ClassDef(TRestMetadata, 2);
+	ClassDef(TRestMetadata, 3);
 };
 
 
