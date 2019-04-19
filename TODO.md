@@ -30,3 +30,12 @@ This is our TODO list. A TODO bullet might be connected to a post in the forum s
 * Give the event tree the name of the specific event stored. See [forum post](http://ezpc10.unizar.es/t/eventtree-should-be-stored-using-the-name-of-the-specific-event-output/42).
 
 * Fix duplicated metadata entries. See [forum post](http://ezpc10.unizar.es/t/duplicated-metadata-entries-in-last-version-v2-2-10/38).
+
+* We need to work on the `TRestEvent::DrawEvent()` methods of the different event types. See implementation of `TRestG4Event::DrawEvent` to be used as reference. We should create first the documentation of this method in `TRestG4Event` and then use it in other `TRestEvent::DrawEvent` methods.
+
+* Work on `basic RML's examples` and validation for REST new comers. Add a README.md giving a brief description of the examples.
+
+* Work on having a `README.md` description **on each data directory**.
+
+* Documentation of all classes using doxygen.
+
