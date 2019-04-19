@@ -18,7 +18,7 @@
 
 #include "TRestStringHelper.h"
 
-class TRestTools:public TObject {
+class TRestTools {
 
     public:
 		///////////////////////////////////////////////
@@ -75,7 +75,7 @@ class TRestTools:public TObject {
 		static void LoadRESTLibrary(bool silent = false);
 
 		///////////////////////////////////////////////
-		/// \brief Reads an ASCII file containning 
+		/// \brief Reads an ASCII file containning a table with values
 		///
 		/// This method will open the file fName. This file should contain a tabulated ASCII table
 		/// containning numeric values. The values on the table will be loaded in the matrix
@@ -83,6 +83,11 @@ class TRestTools:public TObject {
 		/// method.
 		///
 		static int ReadASCIITable( TString fName, std::vector <std::vector <Double_t> > &data );
+
+        ///////////////////////////////////////////////
+        /// \brief Executes a shell command and returns its output in a string
+        ///
+        static std::string Execute( const char *cmd );
 
 		/// Rest tools class 
         ClassDef(TRestTools, 1); 

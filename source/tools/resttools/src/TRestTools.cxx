@@ -156,7 +156,11 @@ int TRestTools::ReadASCIITable( TString fName, std::vector <std::vector <Double_
 {
 
 	if( !REST_StringHelper::fileExists( (string) fName ) )
-			return 0;
+    {
+        cout << "TRestTools::ReadASCIITable. Error" << endl;
+        cout << "Cannot open file : " << fName << endl;
+        return 0;
+    }
 
 	data.clear();
 
@@ -186,6 +190,20 @@ int TRestTools::ReadASCIITable( TString fName, std::vector <std::vector <Double_
 	}
 
 	return 1;
+}
+
+std::string TRestTools::Execute( const char *cmd )
+{
+    std::array<char, 128> buffer;
+    std::string result;
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+    if (!pipe) {
+        throw std::runtime_error("popen() failed!");
+    }
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+        result += buffer.data();
+    }
+    return result;
 }
 
 
