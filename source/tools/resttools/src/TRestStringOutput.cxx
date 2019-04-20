@@ -7,6 +7,7 @@ TRestStringOutput::TRestStringOutput(string _color, string BorderOrHeader, REST_
 	color = _color;
 	formatstring = BorderOrHeader;
 
+
 	if (style == kBorderedLeft) {
 		orientation = 1;
 		useborder = true;
@@ -24,7 +25,10 @@ TRestStringOutput::TRestStringOutput(string _color, string BorderOrHeader, REST_
 		useborder = false;
 	}
 
-	length = ConsoleHelper::GetWidth() - 2;
+    length = 100;
+	if( length > ConsoleHelper::GetWidth() - 2)
+        length = ConsoleHelper::GetWidth() - 2;
+
 	stringbuf = "";
 	if (length > 500 || length < 20)//unsupported console, we will fall back to compatibility modes
 	{
