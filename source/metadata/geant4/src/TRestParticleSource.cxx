@@ -21,6 +21,10 @@
 #include "TRestStringOutput.h"
 using namespace std;
 
+REST_Verbose_Level fLevel = REST_Essential;   //! 
+//	TRestLeveledOutput(REST_Verbose_Level& vref, string _color = COLOR_RESET, string BorderOrHeader = "", REST_Display_Format style = kBorderedLeft)
+TRestLeveledOutput<REST_Essential> metadata = TRestLeveledOutput<REST_Essential>( fLevel, COLOR_BOLDGREEN, "||", (REST_Display_Format) kBorderedLeft);//! 
+
 ClassImp(TRestParticleSource)
 //______________________________________________________________________________
     TRestParticleSource::TRestParticleSource()
@@ -36,31 +40,27 @@ TRestParticleSource::~TRestParticleSource()
 
 void TRestParticleSource::PrintParticleSource()
 {
-	TRestStringOutput cout;
-	cout.setborder("||");
-	cout.setorientation(1);
-	cout.setlength(100);
 
-	cout << "---------------------------------------" << endl;
-    cout << "Particle : " << GetParticle() << endl;
-	cout << "Charge : " << GetParticleCharge() << endl;
-    cout << "Angular distribution type : " << GetAngularDistType() << endl;
+	metadata << "---------------------------------------" << endl;
+    metadata << "Particle : " << GetParticle() << endl;
+	metadata << "Charge : " << GetParticleCharge() << endl;
+    metadata << "Angular distribution type : " << GetAngularDistType() << endl;
     if (GetAngularDistType() == "TH1D" )
     {
-        cout << "Angular distribution filename : " << GetAngularFilename() << endl;
-        cout << "Angular histogram name  : " << GetAngularName() << endl;
+        metadata << "Angular distribution filename : " << GetAngularFilename() << endl;
+        metadata << "Angular histogram name  : " << GetAngularName() << endl;
     }
-    cout << "Direction : (" << GetDirection().X() << "," << GetDirection().Y() << "," << GetDirection().Z() << ")" << endl;
-    cout << "Energy distribution : " << GetEnergyDistType() << endl;
+    metadata << "Direction : (" << GetDirection().X() << "," << GetDirection().Y() << "," << GetDirection().Z() << ")" << endl;
+    metadata << "Energy distribution : " << GetEnergyDistType() << endl;
     if (GetEnergyDistType() == "TH1D" )
     {
-        cout << "Energy distribution filename : " << GetSpectrumFilename() << endl;
-        cout << "Energy histogram name  : " << GetSpectrumName() << endl;
+        metadata << "Energy distribution filename : " << GetSpectrumFilename() << endl;
+        metadata << "Energy histogram name  : " << GetSpectrumName() << endl;
     }
     if( GetEnergyRange().X() ==  GetEnergyRange().Y() )
-        cout << "Energy : " << GetEnergy() << " keV" << endl;
+        metadata << "Energy : " << GetEnergy() << " keV" << endl;
     else
-        cout << "Energy range : (" << GetEnergyRange().X() << "," << GetEnergyRange().Y() << ") keV" << endl;
+        metadata << "Energy range : (" << GetEnergyRange().X() << "," << GetEnergyRange().Y() << ") keV" << endl;
 
 
 }
