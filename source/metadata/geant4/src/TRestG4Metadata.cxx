@@ -964,41 +964,44 @@ void TRestG4Metadata::PrintMetadata()
 {
 	TRestMetadata::PrintMetadata();
 
+    /*
 	TRestStringOutput cout;
-	cout.setborder("||");
-	cout.setorientation(1);
-	cout.setlength(100);
+	metadata.setborder("||");
+	metadata.setorientation(1);
+	metadat.setlength(100);
+    */
 
-	cout << "Geometry File : " << Get_GDML_Filename() << endl;
-	cout << "Geometry Path : " << GetGeometryPath() << endl;
-	cout << "Max. Step size : " << GetMaxTargetStepSize() << " mm" << endl;
-	cout << "Sub-event time delay : " << GetSubEventTimeDelay() << " us" << endl;
-	cout << "**********Generator**********" << endl;
+    metadata << "Geant 4 version : " << GetGeant4Version() << endl;
+	metadata << "Geometry File : " << Get_GDML_Filename() << endl;
+	metadata << "Geometry Path : " << GetGeometryPath() << endl;
+	metadata << "Max. Step size : " << GetMaxTargetStepSize() << " mm" << endl;
+	metadata << "Sub-event time delay : " << GetSubEventTimeDelay() << " us" << endl;
+	metadata << "**********Generator**********" << endl;
 	TString generatorType = GetGeneratorType();
-	cout << "Number of generated events : " << GetNumberOfEvents() << endl;
-	cout << "Generator type : " << generatorType << endl;
-	cout << "Generated from : " << GetGeneratedFrom() << endl;
+	metadata << "Number of generated events : " << GetNumberOfEvents() << endl;
+	metadata << "Generator type : " << generatorType << endl;
+	metadata << "Generated from : " << GetGeneratedFrom() << endl;
 	TVector3 a = GetGeneratorPosition();
-	cout << "Generator center : (" << a.X() << "," << a.Y() << "," << a.Z() << ") mm" << endl;
+	metadata << "Generator center : (" << a.X() << "," << a.Y() << "," << a.Z() << ") mm" << endl;
 	TVector3 b = GetGeneratorRotation();
-	cout << "Generator rotation : (" << b.X() << "," << b.Y() << "," << b.Z() << ") mm" << endl;
+	metadata << "Generator rotation : (" << b.X() << "," << b.Y() << "," << b.Z() << ") mm" << endl;
 	if (generatorType == "virtualSphere")
-		cout << "Generator radius : " << GetGeneratorRadius() << " mm" << endl;
+		metadata << "Generator radius : " << GetGeneratorRadius() << " mm" << endl;
 	else if (generatorType == "virtualWall")
 	{
-		cout << "Generator lenX : " << GetGeneratorLenX() << " mm" << endl;
-		cout << "Generator lenY : " << GetGeneratorLenY() << " mm" << endl;
+		metadata << "Generator lenX : " << GetGeneratorLenX() << " mm" << endl;
+		metadata << "Generator lenY : " << GetGeneratorLenY() << " mm" << endl;
 	}
 	else if (generatorType == "virtualCylinder")
 	{
-		cout << "Generator radius : " << GetGeneratorRadius() << " mm" << endl;
-		cout << "Generator length : " << GetGeneratorLength() << " mm" << endl;
+		metadata << "Generator radius : " << GetGeneratorRadius() << " mm" << endl;
+		metadata << "Generator length : " << GetGeneratorLength() << " mm" << endl;
 	}
 	else if (generatorType == "virtualBox")
-		cout << "Generator size : " << GetGeneratorSize() << " mm" << endl;
-	cout << "**********Particles**********" << endl;
-	cout << "Number of primary particles : " << GetNumberOfPrimaries() << endl;
-	cout << "Generator file : " << GetGeneratorFile() << endl;
+		metadata << "Generator size : " << GetGeneratorSize() << " mm" << endl;
+	metadata << "++++++++++Particles++++++++++" << endl;
+	metadata << "Number of primary particles : " << GetNumberOfPrimaries() << endl;
+	metadata << "Generator file : " << GetGeneratorFile() << endl;
 
 	for (int n = 0; n < GetNumberOfPrimaries(); n++)
 	{
@@ -1006,24 +1009,22 @@ void TRestG4Metadata::PrintMetadata()
 		src.PrintParticleSource();
 	}
 
-	cout << "**********Storage Volumes**********" << endl;
-	cout << "Energy range : Emin = " << GetMinimumEnergyStored() << ", Emax : " << GetMaximumEnergyStored() << endl;
-	cout << "Sensitive volume : " << GetSensitiveVolume() << endl;
-	cout << "Active volumes : " << GetNumberOfActiveVolumes() << endl;
-	cout << "---------------------------------------" << endl;
+	metadata << "++++++++++Storage Volumes++++++++++" << endl;
+	metadata << "Energy range : Emin = " << GetMinimumEnergyStored() << ", Emax : " << GetMaximumEnergyStored() << endl;
+	metadata << "Sensitive volume : " << GetSensitiveVolume() << endl;
+	metadata << "Active volumes : " << GetNumberOfActiveVolumes() << endl;
+	metadata << "---------------------------------------" << endl;
 	for (int n = 0; n < GetNumberOfActiveVolumes(); n++)
 	{
-		cout << "Name : " << GetActiveVolumeName(n) << ", ID : " << GetActiveVolumeID(GetActiveVolumeName(n)) << ", chance : " << GetStorageChance(GetActiveVolumeName(n)) << endl;
+		metadata << "Name : " << GetActiveVolumeName(n) << ", ID : " << GetActiveVolumeID(GetActiveVolumeName(n)) << ", chance : " << GetStorageChance(GetActiveVolumeName(n)) << endl;
 
 	}
-	cout << "**********Biasing Volumes**********" << endl;
+	metadata << "++++++++++Biasing Volumes++++++++++" << endl;
 	for (int n = 0; n < GetNumberOfBiasingVolumes(); n++)
 	{
 		GetBiasingVolume(n).PrintBiasingVolume();
 	}
-	cout << "******************************************" << endl;
-	cout << endl;
-	cout << endl;
+	metadata << endl;
 }
 
 ///////////////////////////////////////////////

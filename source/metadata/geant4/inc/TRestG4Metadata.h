@@ -53,6 +53,9 @@ class TRestG4Metadata:public TRestMetadata {
 
 		void ReadGeneratorFile( TString fName );
 
+        /// The version of Geant4 used to generate the data
+        TString fGeant4Version;
+
 		/// The local path to the GDML geometry
 		TString fGeometryPath;
 
@@ -115,6 +118,8 @@ class TRestG4Metadata:public TRestMetadata {
 		Int_t fNEvents;
 
 	public:
+        /// Returns a string with the version of Geant4 used on the event data simulation
+        TString GetGeant4Version( ) { return fGeant4Version; }
 
 		/// Returns the local path to the GDML geometry
 		TString GetGeometryPath() { return fGeometryPath; }
@@ -174,6 +179,9 @@ class TRestG4Metadata:public TRestMetadata {
 		/// It is used to separate simulated events that in practice will appear as such in our detector.
 		/// I.e. to separate multiple decay products (sometimes with years time delays) into independent events.
 		Double_t GetSubEventTimeDelay() { return fSubEventTimeDelay; }
+
+        /// Sets the value of the Geant4 version
+        void SetGeant4Version( TString g4Version ) { fGeant4Version = g4Version; }
 
 		///  Sets the generator type. I.e. volume, surface, point, virtualWall, virtualCylinder, etc.
 		void SetGeneratorType( TString type ) { fGenType = type; } 
@@ -277,6 +285,6 @@ class TRestG4Metadata:public TRestMetadata {
 		~TRestG4Metadata();
 
 
-		ClassDef(TRestG4Metadata, 1);
+		ClassDef(TRestG4Metadata, 2);
 };
 #endif
