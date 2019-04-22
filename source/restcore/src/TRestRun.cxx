@@ -929,13 +929,19 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
 	//save metadata objects in file
 	this->Write(0, kOverwrite);
 	for (int i = 0; i < fMetadataInfo.size(); i++) {
-		if (GetMetadata(fMetadataInfo[i]->GetName()) != NULL) {
-			fMetadataInfo[i]->Write(("Historic_" + (string)fMetadataInfo[i]->ClassName()).c_str()
-				, kOverwrite);
+		bool historic = false;
+		for (int j = 0; j < fInputMetadata.size(); i++) {
+			if (fMetadataInfo[i] == fInputMetadata[j]) {
+				historic = true;
+				break;
+			}
 		}
-		else
-		{
+
+		if (!historic) {
 			fMetadataInfo[i]->Write(fMetadataInfo[i]->GetName(), kOverwrite);
+		}
+		else {
+			fMetadataInfo[i]->Write(("Historic_" + (string)fMetadataInfo[i]->ClassName()).c_str(), kOverwrite);
 		}
 	}
 	//write to database
