@@ -168,7 +168,7 @@ string REST_StringHelper::RemoveWhiteSpaces(string in)
 	while ((pos = out.find(" ", pos)) != string::npos)
 	{
 		out.erase(pos, 1);
-		pos = pos + 1;
+		//pos = pos + 1;
 	}
 
 	return out;
