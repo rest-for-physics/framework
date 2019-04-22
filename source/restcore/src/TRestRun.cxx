@@ -32,6 +32,7 @@
 #include "TRestManager.h"
 #include "TRestEventProcess.h"
 #include "TRestDataBase.h"
+#include "GdmlPreprocessor.h"
 
 ClassImp(TRestRun);
 
@@ -1149,8 +1150,10 @@ void TRestRun::AddEventBranch(TRestEvent* eve)
 	if (eve != NULL) {
 
 		if (fEventTree != NULL) {
-			string brname = (string)eve->ClassName() + "Branch";
+			string evename = (string)eve->ClassName();
+			string brname = evename + "Branch";
 			fEventTree->Branch(brname.c_str(), eve);
+			fEventTree->SetTitle((evename + "Tree").c_str());
 		}
 	}
 
