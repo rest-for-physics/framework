@@ -51,10 +51,9 @@ void PrintHelp()
 int main( int argc, char *argv[] )
 {
 	setenv("REST_VERSION", REST_RELEASE, 1);
-
 	TApplication app("app", NULL, NULL);
-    
 	TRestTools::LoadRESTLibrary(true);
+	gInterpreter->ProcessLine("#define REST_MANAGER");
 
     if( argc <= 1 ) { PrintHelp(); exit(1); }
 
