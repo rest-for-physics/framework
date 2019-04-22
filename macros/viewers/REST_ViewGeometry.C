@@ -14,9 +14,6 @@ Int_t REST_ViewGeometry( TString fName)
    
 	TRestStringOutput cout;
     cout << "Filename : " << fName << endl;
-    
-    TRestRun *run = new TRestRun( );
-    run->OpenInputFile(fName);
         
     TFile *fFile = new TFile( fName );
 	TGeoManager *geo = NULL;
@@ -63,6 +60,7 @@ Int_t REST_ViewGeometry( TString fName)
 	//we need to call TRestMetadata::GetChar() to prevent returning,
 	//while keeping GUI alive.
 #ifdef REST_MANAGER
+	TRestRun *run = new TRestRun();
 	run->GetChar("Running...\nPress a key to exit");
 #endif
 
