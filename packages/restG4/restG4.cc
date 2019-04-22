@@ -26,7 +26,7 @@
 #include "TrackingAction.hh"
 #include "SteppingAction.hh"
 
-#include "GdmlPreprocessor.hh"
+#include "GdmlPreprocessor.h"
 
 #ifdef G4VIS_USE
 #include "G4VisExecutive.hh"
@@ -399,21 +399,10 @@ int main(int argc,char** argv) {
 		cout << "Writing geometry..." << endl;
 
 		//making a temporary file for ROOT to load. ROOT6 has a bug loading math expressions in gdml file
-		system(("cp " + (string)restG4Metadata->Get_GDML_Filename() + " " + (string)restG4Metadata->Get_GDML_Filename() + "_").c_str());
+		//system(("cp " + (string)restG4Metadata->Get_GDML_Filename() + " " + (string)restG4Metadata->Get_GDML_Filename() + "_").c_str());
 		GdmlPreprocessor* p = new GdmlPreprocessor();
-		p->Load((string)restG4Metadata->Get_GDML_Filename() + "_");
-
-		//We must change to the gdml file directory, otherwise ROOT cannot load.
-		char originDirectory[256];
-		sprintf(originDirectory, "%s", getenv("PWD"));
-		auto pathandname = SeparatePathAndName((string)restG4Metadata->Get_GDML_Filename());
-		chdir(pathandname.first.c_str());
-		TGeoManager *geo2 = new TGeoManager();
-		geo2->Import((pathandname.second + "_").c_str());
-		chdir(originDirectory);
-
-		//remove the temporary file
-		system(("rm " + (string)restG4Metadata->Get_GDML_Filename() + "_").c_str());
+		p->Load((string)restG4Metadata->Get_GDML_Filename());
+		TGeoManager *geo2 = p->CreateGeoM();
 
 		f1->cd();
 		geo2->SetName("Geometry");
