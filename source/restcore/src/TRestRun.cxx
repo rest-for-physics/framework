@@ -428,10 +428,10 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 			fExperimentName = experimentNameTmp;
 
 		// If version is lower than 2.2.1 we do not read/transfer the metadata to output file?
-		if ( this->GetVersionCode() >= REST_VERSION(2,2,1))
+		if (this->GetVersionCode() >= REST_VERSION(2, 2, 1)) {
 			ReadInputFileMetadata();
-		else
-		{
+		}
+		else {
 			warning << "-- W : The metadata version found on input file is lower than 2.2.1!" << endl;
 			warning << "-- W : metadata from input file will not be read" << endl;
 		}
@@ -439,6 +439,7 @@ void TRestRun::OpenInputFile(TString filename, string mode)
 		debug << "Initializing input file : version code : " << this->GetVersionCode() << endl;
 		debug << "Input file version : " << this->GetVersion() << endl;
 		ReadInputFileTrees();
+		ResetEntry();
 	}
 	else
 	{

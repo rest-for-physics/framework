@@ -30,13 +30,10 @@
 
 
 using namespace std;
-
-ClassImp(TRestBrowser)
 //______________________________________________________________________________
 TRestBrowser::TRestBrowser()
 {
-
-	if (gDirectory->GetFile() != NULL) {
+	if (gDirectory != NULL && gDirectory->GetFile() != NULL) {
 		Initialize();
 		SetViewer("TRestGenericEventViewer");
 		OpenFile(gDirectory->GetFile()->GetName());
@@ -45,6 +42,7 @@ TRestBrowser::TRestBrowser()
 	else
 	{
 		b = new TBrowser("Browser", 0, "REST Browser");
+		r = new TRestRun();
 	}
 }
 
@@ -66,7 +64,8 @@ TRestBrowser::~TRestBrowser()
 void TRestBrowser::Initialize(TString opt) {
 
 	pureAnalysis = kFALSE;
-	fCurrentEvent = 0;
+
+	r = new TRestRun();
 
 	b = new TBrowser("Browser", 0, "REST Browser", opt);
 	b->GetBrowserImp()->GetMainFrame()->DontCallClose();
@@ -92,7 +91,7 @@ void TRestBrowser::Initialize(TString opt) {
 void TRestBrowser::SetViewer(TRestEventViewer *eV)
 {
 	if (fEventViewer != NULL) {
-		warning << "Event viewer has already been set!" << endl;
+		cout << "Event viewer has already been set!" << endl;
 		return;
 	}
 	if (eV != NULL) {
@@ -109,7 +108,7 @@ void TRestBrowser::SetViewer(TString viewerName) {
 	if (Count((string)viewerName, "Viewer") > 0) {
 		TClass *cl = TClass::GetClass(viewerName);
 		if (cl == NULL) {
-			warning << "cannot find viewer: " << viewerName << " !" << endl;
+			cout << "cannot find viewer: " << viewerName << " !" << endl;
 		}
 		else
 		{
@@ -121,7 +120,7 @@ void TRestBrowser::SetViewer(TString viewerName) {
 	}
 	else
 	{
-		warning << "illegal viewer : " << viewerName << endl;
+		cout << "illegal viewer : " << viewerName << endl;
 		exit(0);
 	}
 }
@@ -241,7 +240,6 @@ void TRestBrowser::LoadFileAction() {
 
 	if (fileExists(dir.Data())) {
 		OpenFile(dir);
-		fCurrentEvent = 0;
 		fNEvent->SetIntNumber(fCurrentEvent);
 	}
 
@@ -254,32 +252,15 @@ Bool_t TRestBrowser::OpenFile(TString fName)
 		return kFALSE;
 	}
 
-	if (fInputFile != NULL) fInputFile->Close();
 	fInputFileName = fName;
-	TRestRun::OpenInputFile(fName);
+	r->OpenInputFile(fName);
+	TFile*f = r->GetInputFile();
+	TTree*t = r->GetEventTree();
+	fCurrentEvent = r->GetCurrentEntry();
 
+	TGeoManager *geometry = gGeoManager;
 
-	if (fInputFile == NULL || fInputFile->IsZombie()) {
-		error << "TRestBrowser : failed to open input file" << endl;
-		exit(0);
-	}
-	if (fAnalysisTree == NULL && fEventTree == NULL)
-	{
-		cout << "REST ERROR (OpenFile) : No REST Tree was not found" << endl;
-		cout << "Inside file : " << fInputFileName << endl;
-		exit(1);
-	}
-
-	TGeoManager *geometry = NULL;
-	TIter nextkey(fInputFile->GetListOfKeys());
-	TKey *key;
-	while ((key = (TKey*)nextkey())) {
-		string className = key->GetClassName();
-		if (className == "TGeoManager")
-			geometry = (TGeoManager *)fInputFile->Get(key->GetName());
-	}
-
-	if (fEventTree != NULL) {
+	if (t != NULL) {
 		//init viewer
 		pureAnalysis = kFALSE;
 		if (fEventViewer == NULL) SetViewer("TRestGenericEventViewer");
@@ -294,19 +275,32 @@ Bool_t TRestBrowser::OpenFile(TString fName)
 	return kTRUE;
 }
 
+void TRestBrowser::SetInputEvent(TRestEvent*eve) {
+	if (r != NULL) {
+		r->SetInputEvent(eve);
+	}
+}
+
+
+int TRestBrowser::GetChar(string hint) {
+	if (r != NULL) {
+		r->GetChar(hint);
+	}
+}
+
 Bool_t TRestBrowser::LoadEvent(Int_t n) {
-	if (fInputFile == NULL || fInputFile->IsZombie()) { cout << "No File..." << endl; return kFALSE; }
+	if (r->GetInputFile() == NULL || r->GetInputFile()->IsZombie()) { cout << "No File..." << endl; return kFALSE; }
 	if (pureAnalysis) { cout << "This is a pure analysis file..." << endl; return kFALSE; }
-	if (fAnalysisTree != NULL && n < fAnalysisTree->GetEntries() && n >= 0) {
-		this->GetEntry(n);
+	if (r->GetAnalysisTree() != NULL && n < r->GetAnalysisTree()->GetEntries() && n >= 0) {
+		r->GetEntry(n);
 	}
 	else { cout << "Event out of limits" << endl; return kFALSE; }
-	if (fEventViewer != NULL) {
-		fEventViewer->AddEvent(fInputEvent);
-	}
-	if (fAnalysisTree != NULL)
-		GetAnalysisTree()->PrintObservables();
 
+	if (fEventViewer != NULL) {
+		fEventViewer->AddEvent(r->GetInputEvent());
+	}
+
+	r->GetAnalysisTree()->PrintObservables();
 
 	fCanDefault->cd();
 	return kTRUE;

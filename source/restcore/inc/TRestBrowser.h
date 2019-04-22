@@ -21,7 +21,7 @@
 #include <iostream>
 
 /// Event browser for different input file
-class TRestBrowser : public TRestRun {
+class TRestBrowser {
 
 protected:
 
@@ -41,13 +41,16 @@ protected:
 
 	TCanvas*fCanDefault = 0;//!
 
-	TBrowser*b = 0;//!
+	TBrowser* b = 0;//!
+	TRestRun* r = 0;//!
 #endif     
 
 
 private:
 #ifndef __CINT__
 	Bool_t pureAnalysis;
+	TString fInputFileName;
+	Int_t fCurrentEvent;
 
 	TRestEventViewer *fEventViewer = 0;//!
 #endif
@@ -65,6 +68,9 @@ public:
 
 	void SetViewer(TRestEventViewer *eV);
 	void SetViewer(TString viewerName);
+	void SetInputEvent(TRestEvent*);
+
+	int GetChar(string hint = "Press a KEY to continue ...");
 
 	void setWindowName(TString wName) { frmMain->SetWindowName(wName.Data()); }
 
@@ -84,7 +90,5 @@ public:
 
 	Bool_t OpenFile(TString fName);
 	Bool_t LoadEvent(Int_t n);
-
-	ClassDef(TRestBrowser, 1);     //
 };
 #endif
