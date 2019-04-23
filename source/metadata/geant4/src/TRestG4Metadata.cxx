@@ -1085,7 +1085,7 @@ Int_t TRestG4Metadata::ReadNewDecay0File( TString fileName )
         exit(1);
     }
 
-    TRestParticleCollection particleCollection;
+	TRestParticleCollection* particleCollection = TRestParticleCollection::instantiate();
 
     TRestParticle particle;
 
@@ -1094,7 +1094,7 @@ Int_t TRestG4Metadata::ReadNewDecay0File( TString fileName )
 
     for (int n = 0; n < generatorEvents && !infile.eof(); n++)
     {
-        particleCollection.RemoveParticles();
+        particleCollection->RemoveParticles();
 
         int pos = -1;
         while( !infile.eof() && pos == -1 )
@@ -1159,7 +1159,7 @@ Int_t TRestG4Metadata::ReadNewDecay0File( TString fileName )
             particle.SetEnergy(1000. * energy);
             particle.SetDirection(momDirection);
 
-            particleCollection.AddParticle(particle);
+            particleCollection->AddParticle(particle);
         }
 
         fPrimaryGenerator.AddParticleCollection(particleCollection);
