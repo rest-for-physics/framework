@@ -1042,18 +1042,19 @@ void TRestG4Metadata::PrintMetadata()
 ///
 void TRestG4Metadata::ReadGeneratorFile(TString fName)
 {
-	if (!fileExists((string)fName)) {
-		fName = (TString)getenv("REST_PATH") + "/data/generator/" + fName;
-		if (!fileExists((string)fName)) {
-			warning << "REST WARNING (TRestG4Metadata): generator file does not exist!" << endl;
-			GetChar();
-		}
-	}
-	//TString fullFilename = (TString) getenv("REST_PATH") +  "/data/generator/" + fName;
+    string fullPathName = SearchFile( (string) fName );
+    if( fullPathName == "" )
+    {
+        error << "File not found : " <<  fName << endl;
+        error << "Decay0 generator file could not be found!!" << endl;
+        exit(1);
+    }
 
-    TString fullFilename = fName;
-    if( !ReadOldDecay0File( fullFilename ) )
-        ReadNewDecay0File( fullFilename );
+    debug << "TRestG4Metadata::ReadGeneratorFile" << endl;
+    debug << "Full path generator file : " << fullPathName << endl;
+
+    if( !ReadOldDecay0File( fullPathName ) )
+        ReadNewDecay0File( fullPathName );
 }
 
 Int_t TRestG4Metadata::ReadNewDecay0File( TString fileName )
@@ -1131,6 +1132,8 @@ Int_t TRestG4Metadata::ReadNewDecay0File( TString fileName )
 
                 energy = TMath::Sqrt(momentum2 + mass * mass) - mass;
                 particle.SetParticleName("e-");
+                particle.SetParticleCharge( -1 );
+                particle.SetExcitationLevel( 0 );
 
             }
             else if (pID == 1)
@@ -1139,6 +1142,8 @@ Int_t TRestG4Metadata::ReadNewDecay0File( TString fileName )
 
                 energy = TMath::Sqrt( momentum2 );
                 particle.SetParticleName("gamma");
+                particle.SetParticleCharge( 0 );
+                particle.SetExcitationLevel( 0 );
             }
             else
             {
@@ -1221,7 +1226,8 @@ Int_t TRestG4Metadata::ReadOldDecay0File( TString fileName )
 
 				energy = TMath::Sqrt(momentum2 + mass * mass) - mass;
 				particle.SetParticleName("e-");
-
+                particle.SetParticleCharge( -1 );
+                particle.SetExcitationLevel( 0 );
 			}
 			else
 			{
