@@ -25,10 +25,10 @@
 class TRestParticle:public TObject {
     protected:
         TString fParticleName;
-        Double_t fExcitationLevel;
+        Double_t fExcitationLevel = 0;
         TVector3 fDirection;
         Double_t fEnergy;
-		Int_t fCharge;
+        Int_t fCharge = 0;
 
     public:
 
