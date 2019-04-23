@@ -29,6 +29,8 @@ class TRestParticleCollection:public TObject {
 
     public:
 
+		static TRestParticleCollection* instantiate();
+
 		virtual void VirtualUpdate(){}
 		virtual Int_t GetNumberOfParticles() { return fParticles.size(); }
         virtual TRestParticle GetParticle( int i ) { return fParticles[i]; }
