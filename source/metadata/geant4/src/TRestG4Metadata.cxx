@@ -895,6 +895,8 @@ void TRestG4Metadata::ReadGenerator()
 
 		// Energy distribution parameters
 		string energyDefinition = GetKEYDefinition("energyDist", sourceString);
+		cout << energyDefinition << endl;
+		getchar();
 
 		source.SetEnergyDistType(GetFieldValue("type", energyDefinition));
 
@@ -1083,7 +1085,7 @@ Int_t TRestG4Metadata::ReadNewDecay0File( TString fileName )
         exit(1);
     }
 
-    TRestParticleCollection particleCollection;
+	TRestParticleCollection* particleCollection = TRestParticleCollection::instantiate();
 
     TRestParticle particle;
 
@@ -1092,7 +1094,7 @@ Int_t TRestG4Metadata::ReadNewDecay0File( TString fileName )
 
     for (int n = 0; n < generatorEvents && !infile.eof(); n++)
     {
-        particleCollection.RemoveParticles();
+        particleCollection->RemoveParticles();
 
         int pos = -1;
         while( !infile.eof() && pos == -1 )
@@ -1157,7 +1159,7 @@ Int_t TRestG4Metadata::ReadNewDecay0File( TString fileName )
             particle.SetEnergy(1000. * energy);
             particle.SetDirection(momDirection);
 
-            particleCollection.AddParticle(particle);
+            particleCollection->AddParticle(particle);
         }
 
         fPrimaryGenerator.AddParticleCollection(particleCollection);
@@ -1191,7 +1193,7 @@ Int_t TRestG4Metadata::ReadOldDecay0File( TString fileName )
 
 	// cout << "i : " << tmpInt << " fN : " << fGeneratorEvents << endl;
 
-	TRestParticleCollection particleCollection;
+	TRestParticleCollection* particleCollection = TRestParticleCollection::instantiate();
 
 	TRestParticle particle;
 
@@ -1200,7 +1202,7 @@ Int_t TRestG4Metadata::ReadOldDecay0File( TString fileName )
 
 	for (int n = 0; n < fGeneratorEvents && !infile.eof(); n++)
 	{
-		particleCollection.RemoveParticles();
+		particleCollection->RemoveParticles();
 
 		Int_t nParticles;
 		Int_t evID;
@@ -1241,7 +1243,7 @@ Int_t TRestG4Metadata::ReadOldDecay0File( TString fileName )
 			particle.SetEnergy(1000. * energy);
 			particle.SetDirection(momDirection);
 
-			particleCollection.AddParticle(particle);
+			particleCollection->AddParticle(particle);
 		}
 
 		fPrimaryGenerator.AddParticleCollection(particleCollection);

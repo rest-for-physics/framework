@@ -39,16 +39,22 @@ void TRestG4PrimaryGenerator::SetSourcesFromParticleCollection( Int_t n )
 
     Int_t pCollectionID = n % fNCollections;
 
-    TRestParticleCollection pCollection = GetParticleCollection( pCollectionID );
+    TRestParticleCollection* pCollection = GetParticleCollection( pCollectionID );
+
+	pCollection->VirtualUpdate();
 
     TRestParticleSource src;
     src.SetAngularDistType( "flux" );
     src.SetEnergyDistType( "mono" );
 
-    for( int i = 0; i < pCollection.GetNumberOfParticles(); i++ )
+	//cout << pCollectionID << " ";
+    for( int i = 0; i < pCollection->GetNumberOfParticles(); i++ )
     {
-        src.SetParticle( pCollection.GetParticle( i ) );
+        src.SetParticle( pCollection->GetParticle( i ) );
+
+		//cout << pCollection->GetParticle(i).GetEnergy()<<" ";
 
         AddSource( src );
     }
+	//cout << endl;
 }

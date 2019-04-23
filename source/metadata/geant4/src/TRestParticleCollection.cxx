@@ -16,6 +16,7 @@
 ///_______________________________________________________________________________
 
 #include "TRestParticleCollection.h"
+#include "TClass.h"
 
 ClassImp(TRestParticleCollection)
 //______________________________________________________________________________
@@ -30,3 +31,13 @@ TRestParticleCollection::~TRestParticleCollection()
    // TRestParticleCollection destructor
 }
 
+
+TRestParticleCollection* TRestParticleCollection::instantiate() {
+
+	TClass*c = TClass::GetClass("TRestParticleCollectionDecay0");
+	if (c != NULL)//this means we have the package installed
+	{
+		return (TRestParticleCollection*)c->New();
+	}
+	return new TRestParticleCollection();
+}
