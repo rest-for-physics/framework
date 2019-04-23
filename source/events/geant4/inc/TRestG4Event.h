@@ -99,6 +99,7 @@ class TRestG4Event: public TRestEvent {
         
         TVector3 fPrimaryEventOrigin;
 
+        std::vector <TString> fPrimaryParticleName;
         std::vector <TVector3> fPrimaryEventDirection;
         std::vector <Double_t> fPrimaryEventEnergy;
         
@@ -116,6 +117,13 @@ class TRestG4Event: public TRestEvent {
 
 
     public:
+
+        TString GetPrimaryEventParticleName( int n )
+        {
+            if( fPrimaryParticleName.size() > n )
+                return fPrimaryParticleName[n];
+            return "Not defined";
+        }
 
         TVector3 GetPrimaryEventDirection( int n ) { return fPrimaryEventDirection[n]; }
         TVector3 GetPrimaryEventOrigin() { return fPrimaryEventOrigin; }
@@ -146,6 +154,7 @@ class TRestG4Event: public TRestEvent {
 
         void SetPrimaryEventOrigin( TVector3 pos ) { fPrimaryEventOrigin = pos; }
         void SetPrimaryEventDirection( TVector3 dir ) { fPrimaryEventDirection.push_back( dir ); }
+        void SetPrimaryEventParticleName( TString pName ) { fPrimaryParticleName.push_back( pName ); }
         void SetPrimaryEventEnergy( Double_t en ) { fPrimaryEventEnergy.push_back( en ); }
         void ActivateVolumeForStorage( Int_t n ) {  fVolumeStored[n] = 1; }
         void DisableVolumeForStorage( Int_t n ) {  fVolumeStored[n] = 0; }
@@ -374,6 +383,6 @@ class TRestG4Event: public TRestEvent {
         //Destructor
         virtual ~ TRestG4Event();
 
-        ClassDef(TRestG4Event, 1);     // REST event superclass
+        ClassDef(TRestG4Event, 2);     // REST event superclass
 };
 #endif
