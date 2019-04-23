@@ -1074,7 +1074,7 @@ void TRestG4Metadata::ReadGeneratorFile(TString fName)
 
 	// cout << "i : " << tmpInt << " fN : " << fGeneratorEvents << endl;
 
-	TRestParticleCollection* particleCollection = new TRestParticleCollection();
+	TRestParticleCollection* particleCollection = TRestParticleCollection::instantiate();
 
 	TRestParticle particle;
 
