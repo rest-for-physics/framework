@@ -528,19 +528,25 @@ string REST_StringHelper::ToAbsoluteName(string filename) {
 ///////////////////////////////////////////////
 /// \brief It lists all the subdirectories recursively inside path and adds
 /// them to the result vector.
-void REST_StringHelper::GetSubdirectories( const string &path, vector <string> &result )
+vector<string> REST_StringHelper::GetSubdirectories( const string& path, bool recursive)
 {
+	vector<string> result;
 	if (auto dir = opendir(path.c_str())) {
 		while (auto f = readdir(dir)) {
 			if ( f->d_name[0] == '.') continue;
 			if (f->d_type == DT_DIR)
 			{
 				result.push_back( path + f->d_name + "/" );
-				GetSubdirectories(path + f->d_name + "/", result );//, cb);
+				if (recursive) {
+					vector<string> subD = GetSubdirectories(path + f->d_name + "/", recursive);
+					result.insert(result.begin(), subD.begin(), subD.end());
+						//, cb);
+				}
 			}
 		}
 		closedir(dir);
 	}
+	return result;
 }
 
 ///////////////////////////////////////////////
@@ -555,8 +561,12 @@ std::string REST_StringHelper::SearchFileInPath(vector<string> paths, string fil
 
 		for (int i = 0; i < paths.size(); i++)
 		{
-			vector <string> pathsExpanded;
-			GetSubdirectories( paths[i], pathsExpanded );
+			if (fileExists(paths[i] + filename)) {
+				return paths[i] + filename;
+			}
+
+			//search also in subdirectory
+			vector <string> pathsExpanded = GetSubdirectories(paths[i]);
 			for (int j = 0; j < pathsExpanded.size(); j++)
 				if (fileExists(pathsExpanded[j] + filename))
 					return pathsExpanded[j] + filename;

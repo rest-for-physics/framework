@@ -52,7 +52,7 @@ namespace REST_StringHelper
 	bool isPathWritable(const std::string& path);
 	bool isAbsolutePath(const std::string& path);
 	string ToAbsoluteName(string filename);
-	void GetSubdirectories( const string &path, vector <string> &result );
+	vector <string> GetSubdirectories( const string &path, bool recursive=true);
 	std::pair<string, string> SeparatePathAndName(const std::string fullname);
     std::string RemoveAbsolutePath( std::string fullpathFileName );
 	std::string SearchFileInPath(vector<string> path, string filename);
@@ -99,6 +99,7 @@ inline bool fileExists(const std::string& filename) { return REST_StringHelper::
 inline bool isRootFile(const std::string& filename) { return REST_StringHelper::isRootFile(filename); }
 inline bool isPathWritable(const std::string& path) { return REST_StringHelper::isPathWritable(path); }
 inline bool isAbsolutePath(const std::string& path) { return REST_StringHelper::isAbsolutePath(path); }
+inline vector<string> GetSubdirectories(const string &path, bool recursive = true) { return REST_StringHelper::GetSubdirectories(path, recursive); }
 inline std::pair<string, string> SeparatePathAndName(const std::string fullname) { return REST_StringHelper::SeparatePathAndName(fullname); }
 inline string ToAbsoluteName(string filename) { return REST_StringHelper::ToAbsoluteName(filename); }
 inline std::string SearchFileInPath(vector<string> path, string filename) { return REST_StringHelper::SearchFileInPath(path, filename); }
