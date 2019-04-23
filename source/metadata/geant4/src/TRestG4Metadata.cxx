@@ -895,6 +895,8 @@ void TRestG4Metadata::ReadGenerator()
 
 		// Energy distribution parameters
 		string energyDefinition = GetKEYDefinition("energyDist", sourceString);
+		cout << energyDefinition << endl;
+		getchar();
 
 		source.SetEnergyDistType(GetFieldValue("type", energyDefinition));
 
@@ -1072,7 +1074,7 @@ void TRestG4Metadata::ReadGeneratorFile(TString fName)
 
 	// cout << "i : " << tmpInt << " fN : " << fGeneratorEvents << endl;
 
-	TRestParticleCollection particleCollection;
+	TRestParticleCollection* particleCollection = new TRestParticleCollection();
 
 	TRestParticle particle;
 
@@ -1081,7 +1083,7 @@ void TRestG4Metadata::ReadGeneratorFile(TString fName)
 
 	for (int n = 0; n < fGeneratorEvents && !infile.eof(); n++)
 	{
-		particleCollection.RemoveParticles();
+		particleCollection->RemoveParticles();
 
 		Int_t nParticles;
 		Int_t evID;
@@ -1121,14 +1123,14 @@ void TRestG4Metadata::ReadGeneratorFile(TString fName)
 			particle.SetEnergy(1000. * energy);
 			particle.SetDirection(momDirection);
 
-			particleCollection.AddParticle(particle);
+			particleCollection->AddParticle(particle);
 		}
 
 		fPrimaryGenerator.AddParticleCollection(particleCollection);
 	}
 
 	fPrimaryGenerator.SetSourcesFromParticleCollection(0);
-
+	getchar();
 }
 
 ///////////////////////////////////////////////

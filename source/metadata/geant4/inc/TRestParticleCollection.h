@@ -29,11 +29,12 @@ class TRestParticleCollection:public TObject {
 
     public:
 
-        Int_t GetNumberOfParticles() { return fParticles.size(); }
-        TRestParticle GetParticle( int i ) { return fParticles[i]; }
+		virtual void VirtualUpdate(){}
+		virtual Int_t GetNumberOfParticles() { return fParticles.size(); }
+        virtual TRestParticle GetParticle( int i ) { return fParticles[i]; }
 
-        void RemoveParticles() { fParticles.clear(); }
-        void AddParticle( TRestParticle ptcle ) { fParticles.push_back( ptcle ); }
+		virtual void RemoveParticles() { fParticles.clear(); }
+		virtual void AddParticle( TRestParticle ptcle ) { fParticles.push_back( ptcle ); }
 
         //Construtor
         TRestParticleCollection();
