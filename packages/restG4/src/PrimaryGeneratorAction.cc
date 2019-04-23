@@ -69,7 +69,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
     for(int j = 0; j < nParticles; j++)
     {
-
         // ParticleDefinition should be always declared first
         SetParticleDefinition ( j );
 
@@ -121,6 +120,8 @@ G4ParticleDefinition *PrimaryGeneratorAction::SetParticleDefinition( int n )
     }
 
     fParticleGun->SetParticleDefinition( particle );
+
+    restG4Event->SetPrimaryEventParticleName( particleName );
 
     return particle;
 }

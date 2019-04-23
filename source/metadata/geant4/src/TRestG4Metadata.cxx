@@ -1044,21 +1044,139 @@ void TRestG4Metadata::PrintMetadata()
 ///
 void TRestG4Metadata::ReadGeneratorFile(TString fName)
 {
-	if (!fileExists((string)fName)) {
-		fName = (TString)getenv("REST_PATH") + "/data/generator/" + fName;
-		if (!fileExists((string)fName)) {
-			warning << "REST WARNING (TRestG4Metadata): generator file does not exist!" << endl;
-			GetChar();
-		}
-	}
-	//TString fullFilename = (TString) getenv("REST_PATH") +  "/data/generator/" + fName;
+    string fullPathName = SearchFile( (string) fName );
+    if( fullPathName == "" )
+    {
+        error << "File not found : " <<  fName << endl;
+        error << "Decay0 generator file could not be found!!" << endl;
+        exit(1);
+    }
 
+    debug << "TRestG4Metadata::ReadGeneratorFile" << endl;
+    debug << "Full path generator file : " << fullPathName << endl;
 
+    if( !ReadOldDecay0File( fullPathName ) )
+        ReadNewDecay0File( fullPathName );
+}
+
+Int_t TRestG4Metadata::ReadNewDecay0File( TString fileName )
+{
+    ifstream infile;
+    infile.open(fileName);
+    if ( !infile.is_open() ) {
+        printf("Error when opening file %s\n", fileName.Data());
+        return 0;
+    }
+
+    int generatorEvents = 0;
+    string s;
+    // First lines are discarded.
+    for (int i = 0; i < 24; i++)
+    {
+        getline(infile, s);
+        int pos = s.find("@nevents=");
+        if ( pos != -1) 
+            generatorEvents = StringToInteger( s.substr( 10, s.length() - 10 ) );
+    }
+
+    if( generatorEvents == 0 )
+    {
+        error << "TRestG4Metadata::ReadNewDecay0File. Problem reading generator file" << endl;
+        exit(1);
+    }
+
+    TRestParticleCollection particleCollection;
+
+    TRestParticle particle;
+
+    debug << "Reading generator file : " << fileName << endl;
+    debug << "Total number of events : " << generatorEvents << endl;
+
+    for (int n = 0; n < generatorEvents && !infile.eof(); n++)
+    {
+        particleCollection.RemoveParticles();
+
+        int pos = -1;
+        while( !infile.eof() && pos == -1 )
+        {
+            getline(infile, s);
+            pos = s.find("@event_start");
+        }
+
+        // Time - nuclide is skipped
+        getline(infile, s);
+
+        Int_t nParticles;
+        infile >> nParticles;
+        debug << "Number of particles : " << nParticles << endl;
+
+        //cout << evID <<" "<< time <<" "<< nParticles <<" "<< endl;
+        for (int i = 0; i < nParticles && !infile.eof(); i++)
+        {
+            Int_t pID;
+            Double_t momx, momy, momz, mass;
+            Double_t energy = -1, momentum2;
+            TString pName;
+
+            Double_t time;
+            infile >> pID >> time >> momx >> momy >> momz >> pName;
+
+            debug << " ---- New particle found --- " << endl;
+            debug << " Particle name : " << pName << endl;
+            debug << " - pId : " << pID << endl;
+            debug << " - Relative time : " << time << endl;
+            debug << " - px: " << momx << " py: " << momy << " pz: " << momz << " " << endl;
+
+            if (pID == 3)
+            {
+                momentum2 = (momx * momx) + (momy * momy) + (momz * momz);
+                mass = 0.511;
+
+                energy = TMath::Sqrt(momentum2 + mass * mass) - mass;
+                particle.SetParticleName("e-");
+                particle.SetParticleCharge( -1 );
+                particle.SetExcitationLevel( 0 );
+
+            }
+            else if (pID == 1)
+            {
+                momentum2 = (momx * momx) + (momy * momy) + (momz * momz);
+
+                energy = TMath::Sqrt( momentum2 );
+                particle.SetParticleName("gamma");
+                particle.SetParticleCharge( 0 );
+                particle.SetExcitationLevel( 0 );
+            }
+            else
+            {
+                cout << "Particle id " << pID << " not recognized" << endl;
+
+            }
+
+            TVector3 momDirection(momx, momy, momz);
+            momDirection = momDirection.Unit();
+
+            particle.SetEnergy(1000. * energy);
+            particle.SetDirection(momDirection);
+
+            particleCollection.AddParticle(particle);
+        }
+
+        fPrimaryGenerator.AddParticleCollection(particleCollection);
+    }
+
+    fPrimaryGenerator.SetSourcesFromParticleCollection(0);
+
+    return 1;
+}
+
+Int_t TRestG4Metadata::ReadOldDecay0File( TString fileName )
+{
 	ifstream infile;
-	infile.open(fName);
+	infile.open(fileName);
 	if (!infile.is_open()) {
-		printf("Error when opening file %s\n", fName.Data());
-		return;
+		printf("Error when opening file %s\n", fileName.Data());
+		return 0;
 	}
 
 	string s;
@@ -1066,6 +1184,7 @@ void TRestG4Metadata::ReadGeneratorFile(TString fName)
 	for (int i = 0; i < 30; i++)
 	{
 		getline(infile, s);
+        if (s.find("#!bxdecay0 1.0.0") != -1 ) return 0;
 		if (s.find("First event and full number of events:") != -1) break;
 	}
 	int tmpInt;
@@ -1078,7 +1197,7 @@ void TRestG4Metadata::ReadGeneratorFile(TString fName)
 
 	TRestParticle particle;
 
-	cout << "Reading generator file : " << fName << endl;
+	cout << "Reading generator file : " << fileName << endl;
 	cout << "Total number of events : " << fGeneratorEvents << endl;
 
 	for (int n = 0; n < fGeneratorEvents && !infile.eof(); n++)
@@ -1109,7 +1228,8 @@ void TRestG4Metadata::ReadGeneratorFile(TString fName)
 
 				energy = TMath::Sqrt(momentum2 + mass * mass) - mass;
 				particle.SetParticleName("e-");
-
+                particle.SetParticleCharge( -1 );
+                particle.SetExcitationLevel( 0 );
 			}
 			else
 			{
@@ -1130,7 +1250,8 @@ void TRestG4Metadata::ReadGeneratorFile(TString fName)
 	}
 
 	fPrimaryGenerator.SetSourcesFromParticleCollection(0);
-	getchar();
+
+    return 1;
 }
 
 ///////////////////////////////////////////////

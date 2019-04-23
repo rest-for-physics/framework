@@ -147,6 +147,7 @@ void EventAction::FillSubEvent( Int_t subId )
     subRestG4Event->SetPrimaryEventOrigin( restG4Event->GetPrimaryEventOrigin() );
     for( int n = 0; n < restG4Event->GetNumberOfPrimaries(); n++ )
     {
+        subRestG4Event->SetPrimaryEventParticleName( restG4Event->GetPrimaryEventParticleName( n ) );
         subRestG4Event->SetPrimaryEventDirection( restG4Event->GetPrimaryEventDirection( n ) );
         subRestG4Event->SetPrimaryEventEnergy( restG4Event->GetPrimaryEventEnergy( n ) );
     }

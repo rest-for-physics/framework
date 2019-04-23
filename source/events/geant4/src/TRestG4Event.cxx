@@ -44,6 +44,7 @@ void TRestG4Event::Initialize()
 {
     TRestEvent::Initialize();
 
+    fPrimaryParticleName.clear();
     fPrimaryEventDirection.clear();
     fPrimaryEventEnergy.clear();
     fPrimaryEventOrigin.SetXYZ( 0, 0, 0 );
@@ -1075,6 +1076,7 @@ void TRestG4Event::PrintEvent( int maxTracks, int maxHits )
     for( int n = 0; n < GetNumberOfPrimaries(); n++ )
     {
         TVector3 *dir = &fPrimaryEventDirection[n];
+        cout << "Source " << n << " Particle name : " << GetPrimaryEventParticleName(n) << endl;
         cout << "Source " << n << " direction : (" << dir->X() << "," << dir->Y() << "," << dir->Z() << ")" << endl;
         cout << "Source " << n << " energy : " << fPrimaryEventEnergy[n] << " keV" << endl;
     }
