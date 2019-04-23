@@ -31,7 +31,7 @@ class TRestParticleCollection:public TObject {
 
 		static TRestParticleCollection* instantiate();
 
-		virtual void SetParticleModel(std::string modelstring);
+		virtual void SetParticleModel(std::string modelstring) {}
 		virtual void VirtualUpdate(){}
 		virtual Int_t GetNumberOfParticles() { return fParticles.size(); }
         virtual TRestParticle GetParticle( int i ) { return fParticles[i]; }
