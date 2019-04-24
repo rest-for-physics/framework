@@ -77,6 +77,7 @@ char physListName[256];
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
 
 int main(int argc,char** argv) {
+	TRestTools::LoadRESTLibrary();
 
     // {{{ Getting by argument the simulation config file 
 	//sprintf( inputConfigFile, "%s", "myConfig.rml");
