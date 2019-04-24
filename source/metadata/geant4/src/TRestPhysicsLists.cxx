@@ -18,9 +18,9 @@
 
 #include "TRestTools.h"
 
-
 #include "TRestPhysicsLists.h"
 using namespace std;
+
 
 ClassImp(TRestPhysicsLists)
 //______________________________________________________________________________
@@ -155,27 +155,22 @@ void TRestPhysicsLists::PrintMetadata( )
 {
 	TRestMetadata::PrintMetadata();
 
-	TRestStringOutput cout;
-	cout.setborder("||");
-	cout.setorientation(1);
-	cout.setlength(100);
-
-    cout << "Cut for electrons : " << fCutForElectron << " mm" << endl;
-    cout << "Cut for positrons : " << fCutForPositron << " mm" << endl;
-    cout << "Cut for gammas : " << fCutForGamma << " mm" << endl;
-    cout << "Cut for muons : " << fCutForMuon << " mm" << endl;
-    cout << "Cut for neutrons : " << fCutForNeutron << " mm" << endl;
-    cout << "Min Energy for particle production: " << fMinEnergyRangeProductionCuts << " keV" << endl;
-    cout << "Max Energy for particle production: " << fMaxEnergyRangeProductionCuts <<" keV" << endl;
-    cout << "---------------------------------------" << endl;
+    metadata << "Cut for electrons : " << fCutForElectron << " mm" << endl;
+    metadata << "Cut for positrons : " << fCutForPositron << " mm" << endl;
+    metadata << "Cut for gammas : " << fCutForGamma << " mm" << endl;
+    metadata << "Cut for muons : " << fCutForMuon << " mm" << endl;
+    metadata << "Cut for neutrons : " << fCutForNeutron << " mm" << endl;
+    metadata << "Min Energy for particle production: " << fMinEnergyRangeProductionCuts << " keV" << endl;
+    metadata << "Max Energy for particle production: " << fMaxEnergyRangeProductionCuts <<" keV" << endl;
+    metadata << "---------------------------------------" << endl;
     for( unsigned int n = 0; n < fPhysicsLists.size(); n++ )
     {
-        cout << "Physics list " << n << " : " << fPhysicsLists[n] << endl;
+        metadata << "Physics list " << n << " : " << fPhysicsLists[n] << endl;
         vector <TString> optList = TRestTools::GetOptions( fPhysicsListOptions[n] );
         for( unsigned int m = 0; m < optList.size(); m = m + 2 )
-            cout << " - Option " << m/2 << " : " << optList[m] << " = " << optList[m+1] << endl;
+            metadata << " - Option " << m/2 << " : " << optList[m] << " = " << optList[m+1] << endl;
     }
-    cout << "******************************************" << endl;
-	cout << endl;
-	cout << endl;
+    metadata << "******************************************" << endl;
+	metadata << endl;
+	metadata << endl;
 }

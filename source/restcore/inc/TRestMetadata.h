@@ -159,7 +159,7 @@ protected:
 	TRestLeveledOutput<REST_Silent> error = TRestLeveledOutput<REST_Silent>(fVerboseLevel, COLOR_BOLDRED, "-- Error : ", kHeaderedLeft);//! 
 	TRestLeveledOutput<REST_Essential> warning = TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDYELLOW, "-- Warning : ", kHeaderedLeft);//! 
 	TRestLeveledOutput<REST_Essential> essential = TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDGREEN, "", kHeaderedMiddle);//! 
-	TRestLeveledOutput<REST_Essential> metadata = TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDGREEN, "||", kBorderedLeft);//! 
+	TRestLeveledOutput<REST_Essential> metadata = TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDGREEN, "||", kBorderedMiddle);//! 
 	TRestLeveledOutput<REST_Info> info = TRestLeveledOutput<REST_Info>(fVerboseLevel, COLOR_BLUE,  "-- Info : ", kHeaderedLeft);//! 
 	TRestLeveledOutput<REST_Info> success = TRestLeveledOutput<REST_Info>(fVerboseLevel, COLOR_GREEN,  "-- Success : ", kHeaderedLeft);//! 
 	TRestLeveledOutput<REST_Debug> debug = TRestLeveledOutput<REST_Debug>(fVerboseLevel, COLOR_RESET, "-- Debug : ", kHeaderedLeft);//! 
