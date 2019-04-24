@@ -40,7 +40,6 @@ public:
 	virtual void AddParticle(TRestParticle ptcle) { fParticles.push_back(ptcle); }
 
 	TRestParticleCollectionDecay0() : generator((uintptr_t)this), prng(generator) {
-		cout << "Initializing decay0 model, seed: " << (uintptr_t)this << endl;
 	}
 
 	ClassDef(TRestParticleCollectionDecay0, 1);
