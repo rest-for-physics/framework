@@ -10,7 +10,7 @@
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "remoteBuildRoot": "/var/tmp/build/${workspaceHash}/build/${name}",
-      "remoteInstallRoot": "/var/tmp/build/${workspaceHash}/install/${name}",
+      "remoteInstallRoot": "/home/nkx/debug/REST_v2/install/",
       "remoteCopySources": true,
       "remoteCopySourcesOutputVerbosity": "Normal",
       "remoteCopySourcesConcurrentCopies": "10",
@@ -23,7 +23,7 @@
       ],
       "rsyncCommandArgs": "-t --delete --delete-excluded",
       "remoteCopyBuildOutput": false,
-      "cmakeCommandArgs": "-DREST_GARFIELD=ON -DREST_G4=ON",
+      "cmakeCommandArgs": "-DREST_WELCOME=OFF -DINSTALL_PREFIX=/home/nkx/debug/REST_v2/install/ -DREST_GARFIELD=ON -DREST_G4=ON -DREST_DECAY0=ON",
       "buildCommandArgs": "-j4 install",
       "ctestCommandArgs": "",
       "inheritEnvironments": [

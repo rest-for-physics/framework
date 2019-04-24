@@ -134,6 +134,12 @@ if(${REST_DATABASE} MATCHES "ON")
 	add_subdirectory(packages/restDataBaseImpl)
 endif(${REST_DATABASE} MATCHES "ON")
 
+IF( NOT DEFINED REST_DECAY0 )
+    set(REST_DECAY0 OFF)
+ENDIF()
+if(${REST_DECAY0} MATCHES "ON")
+	add_subdirectory(packages/restDecay0)
+endif(${REST_DECAY0} MATCHES "ON")
 
 #begin installation
 message("")
