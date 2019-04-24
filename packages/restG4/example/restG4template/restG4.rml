@@ -43,17 +43,20 @@ By default REST units are mm, keV and degrees
     <!-- The number of events to be simulated is now defined in TRestG4Metadata -->
     <parameter name="Nevents" value="100" />
 
+    ///three types of source definition supported:
     <generator type="volume" from="gas" >
-      <source fromFile="Xe136bb0n.dat"/>
-    </generator>
+      ///1. generator file
+      <source use="Xe136bb0n.dat"/>
 
-    
-    <!--<generator type="volume" from="gas" >
-      <source particle="Na22" excitedLevel="0.0" fullChain="on">
+      ///2. decay0 package
+      <!--<source use="decay0" particle="Xe136" decayMode="0vbb" daughterLevel="3" />-->
+
+      ///3. geant4 internal
+      <!--<source use="geant4" particle="Na22" excitedLevel="0.0" fullChain="on">
         <angularDist type="isotropic" />
         <energyDist type="mono" energy="0.0" units="MeV" />
-      </source>
-    </generator>-->
+      </source>-->
+    </generator>
 
     <biasing value="off" type="virtualBox">
       <biasingVolume size="2850mm" position="(0,0,0)mm" factor="2" energyRange="(0,5)MeV" />
