@@ -22,4 +22,19 @@ They include energies and momentum distributions.
 		event type: Xe136           
               2nubb     0+ -> 0+     {2n}      
               level, Elevel (MeV) =  0+       0.0000     MeV
+              
 
+======================================================================
+The new updated .dat:the decay of Xe136 to excited state of Ba136 
+======================================================================
+author: Xie Chen
+date: 2019-4-23
+======================================================================
+Decay0:https://github.com/BxCppDev/bxdecay0.
+----------------------------------------------------------------------
+The new updated .dat file:
+Xe136nldbd.dat: nevent=200 Xe136 0+->Ba 0+
+Xe136bb0n21Plus.dat nevent=200 Xe136 0+->Ba136 21+ with 1 gamma
+Xe136bb0n22Plus.dat nevent=200 Xe136 0+->Ba136 22+ with 1 or 2 gamma
+                    branch ratio:47.1%  22+->21+(732.455keV)->0+(818.515keV)  2gamma
+                                 52.9%  22+->0+(1550.97keV)  1gamma
