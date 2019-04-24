@@ -32,12 +32,18 @@ TRestParticleCollection::~TRestParticleCollection()
 }
 
 
-TRestParticleCollection* TRestParticleCollection::instantiate() {
+TRestParticleCollection* TRestParticleCollection::instantiate(std::string model) {
 
-	TClass*c = TClass::GetClass("TRestParticleCollectionDecay0");
-	if (c != NULL)//this means we have the package installed
-	{
-		return (TRestParticleCollection*)c->New();
+	if (model == "decay0") {
+		TClass*c = TClass::GetClass("TRestParticleCollectionDecay0");
+		if (c != NULL)//this means we have the package installed
+		{
+			return (TRestParticleCollection*)c->New();
+		}
 	}
-	return new TRestParticleCollection();
+	//in future we may add more classes to use other particle generation software, e.g. CRY, 
+	else if (model == "") {
+		return new TRestParticleCollection();
+	}
+	return NULL;
 }

@@ -61,7 +61,11 @@ class TRestG4PrimaryGenerator:public TObject {
         void AddSource( TRestParticleSource src ) { fSources.push_back ( src ); fNsources++; }
 
         TRestParticleCollection* GetParticleCollection( Int_t n ) { return fParticleCollections[n]; }
-        void RemoveParticleCollections() { fParticleCollections.clear(); fNCollections = 0; }
+        void RemoveParticleCollections() { 
+			for (auto c : fParticleCollections) { delete c; }
+			fParticleCollections.clear(); 
+			fNCollections = 0; 
+		}
         void AddParticleCollection ( TRestParticleCollection* collection ) { fParticleCollections.push_back( collection ); fNCollections++; }
 
         void SetSourcesFromParticleCollection( Int_t n );

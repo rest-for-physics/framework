@@ -29,9 +29,13 @@ class TRestParticleCollection:public TObject {
 
     public:
 
-		static TRestParticleCollection* instantiate();
+		static TRestParticleCollection* instantiate(std::string model="");
 
-		virtual void SetParticleModel(std::string modelstring) {}
+		virtual void SetParticleModel(std::string modelstring) {
+			std::cout << "REST ERROR: SetParticleModel() called in base class TRestParticleCollection" << std::endl;
+			std::cout << "Package not properly installed? LD_LIBRARY_PATH not properly set?" << std::endl;
+			exit(1);
+		}
 		virtual void VirtualUpdate(){}
 		virtual Int_t GetNumberOfParticles() { return fParticles.size(); }
         virtual TRestParticle GetParticle( int i ) { return fParticles[i]; }
