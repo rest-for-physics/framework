@@ -526,21 +526,37 @@ string REST_StringHelper::ToAbsoluteName(string filename) {
 }
 
 ///////////////////////////////////////////////
-/// \brief It lists all the subdirectories recursively inside path and adds
+/// \brief It lists all the subdirectories inside path and adds
 /// them to the result vector.
-vector<string> REST_StringHelper::GetSubdirectories( const string& path, bool recursive)
+/// if recursion is 0, then list only the subdirectory of this directory
+/// if recursion is < 0, then list subdirectories recursively
+/// Otherwise recurse only certain times.
+vector<string> REST_StringHelper::GetSubdirectories( const string& path, int recursion)
 {
 	vector<string> result;
 	if (auto dir = opendir(path.c_str())) {
-		while (auto f = readdir(dir)) {
-			if ( f->d_name[0] == '.') continue;
-			if (f->d_type == DT_DIR)
+		while (1) {
+			auto f = readdir(dir);
+			if (f == NULL) { break; }
+			if (f->d_name[0] == '.') continue;
+
+			string ipath;
+			if (path[path.size() - 1] != '/') {
+				ipath = path + "/" + f->d_name + "/";
+			}
+			else {
+				ipath = path + f->d_name + "/";
+			}
+
+			//if (f->d_type == DT_DIR)
+			if (opendir(ipath.c_str()))//to make sure it is a directory
 			{
-				result.push_back( path + f->d_name + "/" );
-				if (recursive) {
-					vector<string> subD = GetSubdirectories(path + f->d_name + "/", recursive);
+				result.push_back(ipath);
+
+				if (recursion != 0) {
+					vector<string> subD = GetSubdirectories(ipath, recursion - 1);
 					result.insert(result.begin(), subD.begin(), subD.end());
-						//, cb);
+					//, cb);
 				}
 			}
 		}
@@ -561,12 +577,17 @@ std::string REST_StringHelper::SearchFileInPath(vector<string> paths, string fil
 
 		for (int i = 0; i < paths.size(); i++)
 		{
-			if (fileExists(paths[i] + filename)) {
-				return paths[i] + filename;
+			string path = paths[i];
+			if (path[path.size() - 1] != '/') {
+				path = path + "/";
 			}
 
-			//search also in subdirectory
-			vector <string> pathsExpanded = GetSubdirectories(paths[i]);
+			if (fileExists(path + filename)) {
+				return path + filename;
+			}
+
+			//search also in subdirectory, but only 5 times of recursion
+			vector <string> pathsExpanded = GetSubdirectories(paths[i], 5);
 			for (int j = 0; j < pathsExpanded.size(); j++)
 				if (fileExists(pathsExpanded[j] + filename))
 					return pathsExpanded[j] + filename;
