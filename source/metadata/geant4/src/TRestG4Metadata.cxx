@@ -851,7 +851,7 @@ void TRestG4Metadata::ReadGenerator()
 			info << "Reading custom sources from generator file : " << fGeneratorFile << endl;
 			ReadEventDataFile(fGeneratorFile);
 		}
-		else if (use == "geant4" || use == "") {
+		else if (use == "geant4" || use == "" || use == "Not defined") {
 			info << "Adding sources to geant4" << endl;
 			ReadParticleSource(sourceString);
 		}
