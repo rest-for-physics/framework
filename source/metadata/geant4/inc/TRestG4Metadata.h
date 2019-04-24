@@ -47,15 +47,15 @@ class TRestG4Metadata:public TRestMetadata {
 
 		void InitFromConfigFile();
 
-        Int_t ReadNewDecay0File( TString fileName );
-        Int_t ReadOldDecay0File( TString fileName );
-
 		void ReadGenerator();
 
 		void ReadStorage();
 		void ReadBiasing();
 
-		void ReadGeneratorFile( TString fName );
+		void ReadEventDataFile(TString fName);
+		Int_t ReadNewDecay0File(TString fileName);
+		Int_t ReadOldDecay0File(TString fileName);
+		void ReadParticleSource(TString definition);
 
         /// The version of Geant4 used to generate the data
         TString fGeant4Version;

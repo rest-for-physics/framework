@@ -831,11 +831,8 @@ void TRestG4Metadata::ReadGenerator()
 	size_t position = 0;
 	string sourceString;
 
-	Int_t n = 0;
 	while ((sourceString = GetKEYStructure("source", position, generatorString)) != "")
 	{
-		TRestParticleSource source;
-
 		// Source parameters
 		string sourceDefinition = GetKEYDefinition("source", sourceString);
 
@@ -843,84 +840,41 @@ void TRestG4Metadata::ReadGenerator()
 
 		if (fGeneratorFile != "Not defined")
 		{
-			cout << "Reading sources from generator file : " << fGeneratorFile << endl;
-			ReadGeneratorFile(fGeneratorFile);
-
+			info << "Reading custom sources from generator file : " << fGeneratorFile << endl;
+			ReadEventDataFile(fGeneratorFile);
 			break;
 		}
 
-		source.SetParticleName(GetFieldValue("particle", sourceDefinition));
-
-		source.SetExcitationLevel(StringToDouble(GetFieldValue("excitedLevel", sourceDefinition)));
-
-		Int_t charge = 0;
-		if( GetFieldValue("charge", sourceDefinition) == "Not defined" )
-		   	charge = 0;
-		else
-			charge = StringToInteger(GetFieldValue("charge", sourceDefinition));
-
-		source.SetParticleCharge( charge );
-
-		TString fullChain = GetFieldValue("fullChain", sourceDefinition);
-
-		if (fullChain == "on" || fullChain == "ON" || fullChain == "On" || fullChain == "oN")
-		{
-			SetFullChain(true);
+		string use = GetFieldValue("use", sourceDefinition);
+		if (use.find(".dat") != -1) {
+			fGeneratorFile = use;
+			info << "Reading custom sources from generator file : " << fGeneratorFile << endl;
+			ReadEventDataFile(fGeneratorFile);
 		}
-		else
-		{
-			SetFullChain(false);
+		else if (use == "geant4" || use == "") {
+			info << "Adding sources to geant4" << endl;
+			ReadParticleSource(sourceString);
+		}
+		else {
+			info << "Load custom sources from " << use << endl;
+			TRestParticleCollection* particleCollection = TRestParticleCollection::instantiate(use);
+			if (particleCollection != NULL) {
+				particleCollection->SetParticleModel(sourceString);
+				fPrimaryGenerator.AddParticleCollection(particleCollection);
+				//cout << 111 << endl;
+				fPrimaryGenerator.SetSourcesFromParticleCollection(0);
+			}
 		}
 
-		// Angular distribution parameters
-		string angularDefinition = GetKEYDefinition("angularDist", sourceString);
-
-		source.SetAngularDistType(GetFieldValue("type", angularDefinition));
-
-		if (source.GetAngularDistType() == "TH1D")
-		{
-
-			source.SetAngularFilename(GetFieldValue("file", angularDefinition));
-			source.SetAngularName(GetFieldValue("spctName", angularDefinition));
-		}
-
-		if (n == 0 && source.GetAngularDistType() == "backtoback")
-		{
-			cout << "WARNING: First source cannot be backtoback. Setting it to isotropic" << endl;
-			source.SetAngularDistType("isotropic");
-
-		}
-
-		source.SetDirection(StringTo3DVector(GetFieldValue("direction", angularDefinition)));
-
-		// Energy distribution parameters
-		string energyDefinition = GetKEYDefinition("energyDist", sourceString);
-		cout << energyDefinition << endl;
-		getchar();
-
-		source.SetEnergyDistType(GetFieldValue("type", energyDefinition));
-
-		if (source.GetEnergyDistType() == "TH1D")
-		{
-			source.SetSpectrumFilename(GetFieldValue("file", energyDefinition));
-			source.SetSpectrumName(GetFieldValue("spctName", energyDefinition));
-		}
-
-		source.SetEnergyRange(Get2DVectorFieldValueWithUnits("range", energyDefinition));
-
-		if (source.GetEnergyDistType() == "mono")
-		{
-			Double_t en;
-			en = GetDblFieldValueWithUnits("energy", energyDefinition);
-			source.SetEnergyRange(TVector2(en, en));
-			source.SetEnergy(en);
-		}
-
-		fPrimaryGenerator.AddSource(source);
-
-		n++;
 	}
 
+	//check if the generator is valid.
+	if (fPrimaryGenerator.GetNumberOfCollections() == 0 && fPrimaryGenerator.GetNumberOfSources() == 0) {
+		warning << "No sources are added inside geneartor!" << endl;
+		warning << generatorDefinition << endl;
+		GetChar();
+	}
+	
 }
 
 ///////////////////////////////////////////////
@@ -1042,7 +996,7 @@ void TRestG4Metadata::PrintMetadata()
 /// \param fName The Decay0 filename located at 
 /// REST_PATH/data/generator/
 ///
-void TRestG4Metadata::ReadGeneratorFile(TString fName)
+void TRestG4Metadata::ReadEventDataFile(TString fName)
 {
     string fullPathName = SearchFile( (string) fName );
     if( fullPathName == "" )
@@ -1252,6 +1206,80 @@ Int_t TRestG4Metadata::ReadOldDecay0File( TString fileName )
 	fPrimaryGenerator.SetSourcesFromParticleCollection(0);
 
     return 1;
+}
+
+void TRestG4Metadata::ReadParticleSource(TString definition) {
+
+	string sourceString = (string)definition;
+	string sourceDefinition = GetKEYDefinition("source", sourceString);
+
+	TRestParticleSource source;
+
+	source.SetParticleName(GetFieldValue("particle", sourceDefinition));
+
+	source.SetExcitationLevel(StringToDouble(GetFieldValue("excitedLevel", sourceDefinition)));
+
+	Int_t charge = 0;
+	if (GetFieldValue("charge", sourceDefinition) == "Not defined")
+		charge = 0;
+	else
+		charge = StringToInteger(GetFieldValue("charge", sourceDefinition));
+
+	source.SetParticleCharge(charge);
+
+	TString fullChain = GetFieldValue("fullChain", sourceDefinition);
+
+	if (fullChain == "on" || fullChain == "ON" || fullChain == "On" || fullChain == "oN")
+	{
+		SetFullChain(true);
+	}
+	else
+	{
+		SetFullChain(false);
+	}
+
+	// Angular distribution parameters
+	string angularDefinition = GetKEYDefinition("angularDist", sourceString);
+
+	source.SetAngularDistType(GetFieldValue("type", angularDefinition));
+
+	if (source.GetAngularDistType() == "TH1D")
+	{
+		source.SetAngularFilename(GetFieldValue("file", angularDefinition));
+		source.SetAngularName(GetFieldValue("spctName", angularDefinition));
+	}
+
+	if (fPrimaryGenerator.GetNumberOfSources() == 0 && source.GetAngularDistType() == "backtoback")
+	{
+		cout << "WARNING: First source cannot be backtoback. Setting it to isotropic" << endl;
+		source.SetAngularDistType("isotropic");
+
+	}
+
+	source.SetDirection(StringTo3DVector(GetFieldValue("direction", angularDefinition)));
+
+	// Energy distribution parameters
+	string energyDefinition = GetKEYDefinition("energyDist", sourceString);
+
+	source.SetEnergyDistType(GetFieldValue("type", energyDefinition));
+
+	if (source.GetEnergyDistType() == "TH1D")
+	{
+		source.SetSpectrumFilename(GetFieldValue("file", energyDefinition));
+		source.SetSpectrumName(GetFieldValue("spctName", energyDefinition));
+	}
+
+	source.SetEnergyRange(Get2DVectorFieldValueWithUnits("range", energyDefinition));
+
+	if (source.GetEnergyDistType() == "mono")
+	{
+		Double_t en;
+		en = GetDblFieldValueWithUnits("energy", energyDefinition);
+		source.SetEnergyRange(TVector2(en, en));
+		source.SetEnergy(en);
+	}
+
+	fPrimaryGenerator.AddSource(source);
 }
 
 ///////////////////////////////////////////////
