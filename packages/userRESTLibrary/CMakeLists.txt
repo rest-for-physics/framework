@@ -8,9 +8,8 @@ set( MY_LIBRARY "MyRestLibraryName" )
 
 project(${MY_LIBRARY})
 
-message("\n===========================================")
-message("Project : ${MY_LIBRARY}")
-message("===========================================\n")
+message("===============  ${MY_LIBRARY}  ==============")
+
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake ${CMAKE_MODULE_PATH})
 
 # find REST 
