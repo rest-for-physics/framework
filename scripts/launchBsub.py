@@ -5,6 +5,8 @@
 # J. Galan - Javier.Galan.Lacarra@cern.ch
 # 18 - May - 2007
 
+from __future__ import print_function
+
 import os,sys, time, commands
 
 calrun = 0
@@ -30,15 +32,15 @@ for x in range(narg-1):
 	repeat = int(sys.argv[x+2])
 
 if queue == "":
-	print "Please specify a queue name : --queue QUEUE [1nh, 2nh, 1nd, 2nd, 1nw, 2nw]" 
+	print("Please specify a queue name : --queue QUEUE [1nh, 2nh, 1nd, 2nd, 1nw, 2nw]")
 	sys.exit(0)
 
 if taskName == "":
-	print "Please specify a task name : --task NAME"
+	print("Please specify a task name : --task NAME")
 	sys.exit(0)
 
 if inputfile == "":
-	print "Please specify an input file with commands to execute in lxbatch --input FILE"
+	print("Please specify an input file with commands to execute in lxbatch --input FILE")
 	sys.exit(0)
 
 f = open(inputfile,'r')
@@ -51,7 +53,7 @@ f.close()
 
 cont = 0
 for command in lines:
-	
+
     rpt = repeat
     while ( rpt > 0 ):
 	f = open("/tmp/suehrjksui", "w")
@@ -61,9 +63,7 @@ for command in lines:
 	f.close()
 	cont = cont + 1
 	bsubcommand = "bsub -q " + queue + " -J " + taskName + "_" + str(cont) + " < /tmp/suehrjksui"
-	print "Launching : " + command
+	print("Launching : " + command)
 	time.sleep(sleep)
-	print commands.getstatusoutput( bsubcommand )
+	print(commands.getstatusoutput( bsubcommand ))
     	rpt = rpt - 1
-
-

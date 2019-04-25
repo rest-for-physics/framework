@@ -8,6 +8,8 @@
 # J. Galan - Javier.Galan.Lacarra@cern.ch
 # 23 - Dec - 2016
 
+from __future__ import print_function
+
 import os,sys, time, commands
 import subprocess, StringIO
 
@@ -36,7 +38,7 @@ p = subprocess.Popen(['/usr/bin/git', 'pull', '--tags'], stdout=subprocess.PIPE,
 out, err = p.communicate()
 
 if err == "" and "up-to-date" in out:
-	print "Master is already updated"
+	print("Master is already updated")
 else:
 	os.system( "cmake -DINSTALL_PREFIX=" + REST_Install_Path + "master" + " ../" )
 	os.system ('/usr/bin/make clean' )
@@ -91,7 +93,7 @@ for x in gitTags:
 
     if x.find("v2.0.0") == 0:
 		alreadyInstalled = 1
-		
+
 	if not alreadyInstalled:
 		notInstalledTags.append( x )
 
@@ -110,4 +112,3 @@ for tag in notInstalledTags:
 	os.system ('git checkout master' )
 	os.system ('git branch -d ' + tag )
 	os.chdir( REST_Build_Path )
-

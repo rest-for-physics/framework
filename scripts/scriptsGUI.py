@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+from __future__ import print_function
 
 import Tkinter as tk
 import ttk
@@ -16,9 +16,9 @@ version="0.2"
 
 vars.initvar()
 
-win = tk.Tk() 
-win.title("REST Scripts GUI V"+version) 
-win.resizable(0, 0) 
+win = tk.Tk()
+win.title("REST Scripts GUI V"+version)
+win.resizable(0, 0)
 
 #define step actions
 global step
@@ -55,7 +55,7 @@ import tkFileDialog
 
 def refreshdisplay():
     global step
-    print "step: ", step
+    print("step: ", step)
     if step == install_begin:
         text.delete("1.0",tk.END)
         btnprev.config(state='disabled',text='previous')
@@ -78,7 +78,7 @@ def refreshdisplay():
         btnnext.config(state='normal',text='next')
         instruction1.set("The build path seems not empty, ")
         instruction2.set("Clear it or not? (yes/no)")
-        instruction3.set("(keeping it may make the build quicker)")    
+        instruction3.set("(keeping it may make the build quicker)")
     elif step == install_path:
         text.delete("1.0",tk.END)
         text.insert("1.0",vars.opt["Install_Path"])
@@ -179,7 +179,7 @@ def nextstep():
             restDB.install()
         step=install_finished
     elif step == install_finished:
-        print "You can't hit this!"
+        print("You can't hit this!")
     elif step == update_confirm:
         vars.opt['Branch']=text.get("1.0", tk.END).strip('\n')
         updateREST.update()
@@ -209,39 +209,39 @@ def beginupdate():
     previoussteps=[]
     previoussteps.append(step)
     refreshdisplay()
- 
+
 def callCheckbutton1():
-    print 'how can you check this button!', chVarDis1.get()
+    print('how can you check this button!', chVarDis1.get())
 
 def callCheckbutton2():
     if chVarDis2.get() == 1:
         if(restG4.ready()):
-            print "selected package restG4"
+            print("selected package restG4")
         else:
-            print "lacking dependency of restG4! cannot add"
+            print("lacking dependency of restG4! cannot add")
             check2.deselect()
     else:
-        print "deselect package restG4"
+        print("deselect package restG4")
 
 def callCheckbutton3():
     if chVarDis3.get() == 1:
         if(restDB.ready()):
-            print "selected package restDabaBaseImpl"
+            print("selected package restDabaBaseImpl")
         else:
-            print "lacking dependency of restDabaBase! cannot add"
+            print("lacking dependency of restDabaBase! cannot add")
             check3.deselect()
     else:
-        print "deselect package restDabaBaseImpl"
+        print("deselect package restDabaBaseImpl")
 
 def callCheckbutton4():
     if chVarDis4.get() == 1:
         if(restGas.ready()):
-            print "selected to add garfield accessiblity"
+            print("selected to add garfield accessiblity")
         else:
-            print "lacking dependency of restGas! cannot add"
+            print("lacking dependency of restGas! cannot add")
             check4.deselect()
     else:
-        print "deselect garfield"
+        print("deselect garfield")
 
 
 btninstall = ttk.Button(win, text="Install!", command=begininstall,width=10)

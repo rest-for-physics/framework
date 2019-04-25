@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+from __future__ import print_function
+
 import os,sys, time, commands
 import subprocess, StringIO
 import vars
@@ -28,37 +30,36 @@ def branchname():
 def update():
     newgit=installers.initgit()
     if newgit==False:
-        print "updating local git repository of REST"
+        print("updating local git repository of REST")
         os.chdir(vars.opt["Source_Path"])
         os.system("git stash")
         p = subprocess.Popen(['git fetch origin '+vars.opt["Branch"] + ' --tags'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
         out, err = p.communicate()
         if "up-to-date" in out:
-            print "REST is already up-to-date"
+            print("REST is already up-to-date")
             return False
         elif "fatal:" in err:
-            print err
+            print(err)
             return False
         os.system("git reset --hard FETCH_HEAD")
         return True
-    print "Project files has been updated!"
-    print commitid()
-    print branchname()
+    print("Project files has been updated!")
+    print(commitid())
+    print(branchname())
     return True
 
 
-        
+
 if __name__ == '__main__':
     vars.initvar()
     if vars.software["REST"] == True:
-        print ""
-        print "!!!Updating REST from git repository!!! Target branch: " + vars.opt["Branch"]
-        print "!!!Local changes will be overwritten!!! (except additions). Make backup and do it carefully."
-        print "Press a key to continue, Press ctrl-c to cancel."
+        print("")
+        print("!!!Updating REST from git repository!!! Target branch: " + vars.opt["Branch"])
+        print("!!!Local changes will be overwritten!!! (except additions). Make backup and do it carefully.")
+        print("Press a key to continue, Press ctrl-c to cancel.")
         raw_input()
         update()
         a = installers.RESTinstaller()
         a.install()
     else:
-        print "ERROR! REST is not installed. Install it first!"
-
+        print("ERROR! REST is not installed. Install it first!")
