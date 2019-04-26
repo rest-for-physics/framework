@@ -892,6 +892,7 @@ void TRestAnalysisPlot::SavePlotToPDF( Int_t n, TString fileName )
     htemp->SetTitle( fPlotTitle[n] );
     htemp->GetXaxis()->SetTitle( fPlotXLabel[n] );
     htemp->GetYaxis()->SetTitle( fPlotYLabel[n] );
+    htemp->SetStats( fStats[n] );
 
     c->Print( fileName );
 
