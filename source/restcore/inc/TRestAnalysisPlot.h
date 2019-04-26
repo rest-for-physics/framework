@@ -65,6 +65,8 @@ class TRestAnalysisPlot:public TRestMetadata {
         std::vector <Int_t> fFillColor;
         std::vector <Int_t> fFillStyle;
 
+        std::vector <TVector2> fYRangeUser;
+
         Double_t fLabelOffsetX;
         Double_t fLabelOffsetY;
 

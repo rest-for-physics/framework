@@ -284,8 +284,10 @@ void TRestAnalysisPlot::InitFromConfigFile()
 
             vector <TString> varNames;
             vector <TVector2> ranges;
+            vector <TVector2> yRanges;
             vector <Int_t> bins;
 
+            TVector2 yRange(0,0);
             string variableDefinition;
             size_t pos = 0;
             while( (variableDefinition = GetKEYDefinition( "variable", pos, addPlotString ) ) != "" )
@@ -297,8 +299,20 @@ void TRestAnalysisPlot::InitFromConfigFile()
                 rangeStr = Replace( rangeStr, "days", "24*3600" );
 
                 ranges.push_back( StringTo2DVector( rangeStr ) );
+
                 bins.push_back( StringToInteger( GetFieldValue( "nbins", variableDefinition ) ) );
+
+                rangeStr = GetFieldValue( "yRange", variableDefinition );
+                yRange = StringTo2DVector( rangeStr );
+                if( yRange.X() == -1 && yRange.Y() == -1 )
+                    yRange = TVector2( 0, 0 );
             }
+
+            // When we have 2 variables 2D histogram. We define the range of second variable as the yRange
+            if( ranges.size() == 2 )
+                fYRangeUser.push_back( ranges[0] );
+            else
+                fYRangeUser.push_back( yRange );
 
             TString pltString = "";
             for( unsigned int i = 0; i < varNames.size(); i++ )
@@ -619,8 +633,10 @@ void TRestAnalysisPlot::PlotCombinedCanvas( )
         if( fLogScale[n] ) 
             fCombinedCanvas->cd(n+1)->SetLogy();
 
-        fCombinedCanvas->cd(n+1)->SetLeftMargin(0.15);
+        fCombinedCanvas->cd(n+1)->SetLeftMargin(0.18);
+        fCombinedCanvas->cd(n+1)->SetRightMargin(0.05);
         fCombinedCanvas->cd(n+1)->SetBottomMargin(0.15);
+        fCombinedCanvas->cd(n+1)->SetTopMargin(0.07);
 
         histCollection.clear();
 
@@ -762,10 +778,22 @@ void TRestAnalysisPlot::PlotCombinedCanvas( )
                 histCollection[i]->Scale(scale);
             }
 
-            histCollection[i]->GetYaxis()->SetRangeUser(0.1 * scale, 1.1 * maxValue * scale );
+            Double_t yMin = fYRangeUser[n].X();
+            Double_t yMax = fYRangeUser[n].Y();
+
+            if( yMin == 0 && yMax == 0 )
+            {
+                yMin = 0.1 * scale;
+                yMax = 1.1 * maxValue * scale;
+            }
+
+            debug << "++++++++++++++" << endl;
+            debug << "yMin : " << yMin << " yMax : " << yMax << endl;
+            debug << "++++++++++++++" << endl;
+            histCollection[i]->GetYaxis()->SetRangeUser( yMin, yMax );
 
             if( i == 0 )
-                histCollection[i]->Draw();
+                histCollection[i]->Draw( fPlotOption[n] );
             else
                 histCollection[i]->Draw("same");
 
@@ -814,10 +842,10 @@ void TRestAnalysisPlot::PlotCombinedCanvas( )
             hNew->SetStats(kFALSE);
 
         hNew->SetTitle( fHistoTitle[n] );
-        hNew->GetXaxis()->SetTitle( fHistoXLabel[n] );
+        hNew->GetYaxis()->SetTitle( fHistoXLabel[n] );
         hNew->GetYaxis()->SetTitle( fHistoYLabel[n] );
 
-        hNew->Draw();
+        hNew->Draw( fPlotOption[n] );
 
         f->cd();
         hNew->Write( fHistoNames[n] );
@@ -858,7 +886,7 @@ void TRestAnalysisPlot::SavePlotToPDF( Int_t n, TString fileName )
     run->OpenInputFile( fFileNames[0][0] );
 
     TRestAnalysisTree *anTree = run->GetAnalysisTree();
-    anTree->Draw( fPlotString[n], fCutString[n], "", anTree->GetEntries(), 0 );
+    anTree->Draw( fPlotString[n], fCutString[n], fPlotOption[n], anTree->GetEntries(), 0 );
 
     TH3F *htemp = (TH3F*)gPad->GetPrimitive( fPlotNames[n] );
     htemp->SetTitle( fPlotTitle[n] );
@@ -876,12 +904,13 @@ void TRestAnalysisPlot::SaveHistoToPDF( TH1D *h, Int_t n, TString fileName )
 
     TCanvas *c = new TCanvas( h->GetName(), h->GetTitle(), 800, 600 );
 
-    h->Draw( );
+    h->Draw( "colz" );
 
     h->SetTitle( fHistoTitle[n] );
     h->GetXaxis()->SetTitle( fHistoXLabel[n] );
     h->GetYaxis()->SetTitle( fHistoYLabel[n] );
 
+    h->Draw( "colz" );
     c->Print( fileName );
 
     delete c;
