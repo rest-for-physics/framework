@@ -131,7 +131,7 @@ vector<string> TRestEventProcess::ReadObservables()
 	//the user needs to call fAnalysisTree->SetObservableValue( obsName, obsValue ) during each process
 	
 	for (int i = 0; i < obsnames.size(); i++) {
-		TStreamerElement* se = GetDataMemberWithName(obsnames[i]);
+		TStreamerElement* se = GetDataMember(obsnames[i]);
 		if (se != NULL)
 		{
 			if (se->GetType() != 8) {
@@ -188,7 +188,52 @@ void TRestEventProcess::ConfigAnalysisTree() {
 	if (fAnalysisTree == NULL)return;
 
 	if (fOutputLevel >= Observable)ReadObservables();
-	if (fOutputLevel >= Internal_Var)fAnalysisTree->Branch(this->GetName(), this);
+	if (fOutputLevel >= Internal_Var) {
+		int n = GetNumberOfDataMember();
+		for (int i = 1; i < n; i++) {
+			TStreamerElement*ele = this->GetDataMember(i);
+			//cout << ele->GetTypeName() << " " << ele->GetName() << " " << ele->ClassName() << endl;
+			if (ele != NULL && !ele->IsaPointer()) {
+				TString brName = this->GetName() + (TString)"." + ele->GetName();
+
+				if ((string)ele->ClassName() == "TStreamerObject" || (string)ele->ClassName() == "TStreamerSTL")
+				{
+					fAnalysisTree->Branch(brName, ele->GetTypeName(), GetDataMemberRef(ele));
+				}
+				else if ((string)ele->ClassName() == "TStreamerBasicType")
+				{
+					string typeName = ele->GetTypeName();
+					if (typeName == "double") {
+						fAnalysisTree->Branch(brName, (double*)GetDataMemberRef(ele));
+					}
+					else if (typeName == "float") {
+						fAnalysisTree->Branch(brName, (float*)GetDataMemberRef(ele));
+					}
+					else if (typeName == "long double") {
+						fAnalysisTree->Branch(brName, (long double*)GetDataMemberRef(ele));
+					}
+					else if (typeName == "bool") {
+						fAnalysisTree->Branch(brName, (bool*)GetDataMemberRef(ele));
+					}
+					else if (typeName == "char") {
+						fAnalysisTree->Branch(brName, (char*)GetDataMemberRef(ele));
+					}
+					else if (typeName == "int") {
+						fAnalysisTree->Branch(brName, (int*)GetDataMemberRef(ele));
+					}
+					else if (typeName == "short") {
+						fAnalysisTree->Branch(brName, (short*)GetDataMemberRef(ele));
+					}
+					else if (typeName == "long") {
+						fAnalysisTree->Branch(brName, (long*)GetDataMemberRef(ele));
+					}
+					else if (typeName == "long long") {
+						fAnalysisTree->Branch(brName, (long long*)GetDataMemberRef(ele));
+					}
+				}
+			}
+		}
+	}
 	if (fOutputLevel >= Full_Output) fAnalysisTree->Branch(this->GetName() + (TString)"_evtBranch", GetOutputEvent());
 
 }
@@ -269,23 +314,11 @@ TRestMetadata *TRestEventProcess::GetMetadata(string name)
 	return m;
 }
 
-//////////////////////////////////////////////////////////////////////////
-/// \brief Get a list of available datamember-observables in the class
-///
-/// This method uses GetDataMemberWithID() from TRestMetadata.
-vector<string> TRestEventProcess::GetAvailableObservals()
-{
-	vector<string> result;
-	result.clear();
-	int n = GetNumberOfDataMember();
-	for (int i = 1; i < n; i++) {
-		TStreamerElement *se = GetDataMemberWithID(i);
-		if (se->GetType() == 8)
-		{
-			result.push_back(se->GetFullName());
-		}
+
+void TRestEventProcess::SetObservableValue(TString name, double value) {
+	if (fAnalysisTree != NULL) {
+		fAnalysisTree->SetObservableValue(name, value);
 	}
-	return result;
 }
 
 /*
