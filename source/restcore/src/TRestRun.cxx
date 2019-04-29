@@ -1237,15 +1237,15 @@ Double_t TRestRun::GetRunLength()
 /// It uses reflection method GetDataMemberWithName() and GetDataMemberValString()
 string TRestRun::Get(string target)
 {
-	auto a = GetDataMemberWithName(target);
+	auto a = GetDataMember(target);
 	if (a == NULL) {
-		a = GetDataMemberWithName("f" + target);
+		a = GetDataMember("f" + target);
 	}
 
 
 	if (a != NULL)
 	{
-		return GetDataMemberValString(a);
+		return GetDataMemberValInString(a);
 	}
 	return "";
 }

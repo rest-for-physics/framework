@@ -184,7 +184,7 @@ void TRestTask::InitFromConfigFile()
 		//load config for the inherited task class
 		int n = GetNumberOfDataMember();
 		for (int i = 1; i < n; i++) {
-			TStreamerElement* e = GetDataMemberWithID(i);
+			TStreamerElement* e = GetDataMember(i);
 			SetDataMemberValFromConfig(e);
 		}
 	}
@@ -207,9 +207,9 @@ void TRestTask::SetArgumentValue(vector<string>arg)
 		int n = GetNumberOfDataMember();
 		for (int i = 1; (i < argument.size() + 1 && i < n); i++)
 		{
-			TStreamerElement* e = GetDataMemberWithID(i);
-			SetDataMemberVal(e, argument[i - 1]);
-			debug << "data member " << e->GetName() << " has been set to " << GetDataMemberValString(e);
+			TStreamerElement* e = GetDataMember(i);
+			SetDataMemberValWithString(e, argument[i - 1]);
+			debug << "data member " << e->GetName() << " has been set to " << GetDataMemberValInString(e);
 		}
 
 	}
@@ -326,7 +326,7 @@ void TRestTask::PrintArgumentHelp()
 		for (int i = 1; i < n; i++) {
 			if (i < fNRequiredArgument + 1)
 				error << "*";
-			error << GetDataMemberWithID(i)->GetName() << endl;
+			error << GetDataMember(i)->GetName() << endl;
 		}
 	}
 
