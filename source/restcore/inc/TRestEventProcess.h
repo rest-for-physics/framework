@@ -85,6 +85,8 @@ protected:
 	Double_t GetDoubleParameterFromClass(TString className, TString parName);
 	Double_t GetDoubleParameterFromClassWithUnits(TString className, TString parName);
 
+	void SetObservableValue(TString name, double value);
+
 	void CreateCanvas()
 	{
 		if (fCanvas != NULL) return;
@@ -142,7 +144,6 @@ public:
 	Bool_t singleThreadOnly() { return fSingleThreadOnly; }
 	Bool_t isExternal() { return fIsExternal; }
 	TRestRun* GetRunInfo() { return fRunInfo; }
-	vector<string> GetAvailableObservals();
 	TRestAnalysisTree *GetAnalysisTree() { return fAnalysisTree; }
 	TCanvas *GetCanvas() { return fCanvas; }
 	std::vector <TString>& GetListOfAddedObservables() { return fObservableNames; }
