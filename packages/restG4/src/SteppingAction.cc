@@ -23,7 +23,7 @@ extern Int_t biasing;
 SteppingAction::SteppingAction(  )
 {
 
-    if( biasing > 0 )
+    if( biasing > 1 )
         restBiasingVolume = restG4Metadata->GetBiasingVolume( biasing-1 );
     
 }

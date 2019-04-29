@@ -1,4 +1,6 @@
 # This file is used for the header of python installation scripts
+from __future__ import print_function
+
 import os,sys
 from multiprocessing import cpu_count
 import platform
@@ -105,14 +107,14 @@ def checkinstalled(name):
             software["pgsql"] = False
             return False
     else:
-        print "What is ", name," ... "
+        print("What is ", name," ... ")
     return False
 
 
 
 def initvar():
 
-    print "processors in cpu : ", cpu_count()
+    print("processors in cpu : ", cpu_count())
     opt["Make_Threads"] = str(cpu_count() / 2)
     if int(opt["Make_Threads"]) > 8:
         opt["Make_Threads"] = "8"
@@ -123,12 +125,12 @@ def initvar():
     if s.find('centos')!=-1:
         var["OS"]="Centos"
 
-    print "Operating system: ", var["OS"], "(", s,")"
+    print("Operating system: ", var["OS"], "(", s,")")
 
-    print ""
+    print("")
 
-    print "checking if root is installed...", checkinstalled("root6")
-    print "checking if geant4 is installed...", checkinstalled("geant4")
-    print "checking if garfield is installed...", checkinstalled("garfield")
-    print "checking if REST is installed...", checkinstalled("REST")
-    print "checking if PostgreSQL is installed...", checkinstalled("pgsql")
+    print("checking if root is installed...", checkinstalled("root6"))
+    print("checking if geant4 is installed...", checkinstalled("geant4"))
+    print("checking if garfield is installed...", checkinstalled("garfield"))
+    print("checking if REST is installed...", checkinstalled("REST"))
+    print("checking if PostgreSQL is installed...", checkinstalled("pgsql"))

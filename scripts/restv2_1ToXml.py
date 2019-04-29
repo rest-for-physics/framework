@@ -60,6 +60,8 @@
 # Nota Bena: The above means that output files passed succesfully the
 # "xmllint" test and not that they are correctly understood by rest,v2.2.
 
+from __future__ import print_function
+
 import sys, os, argparse, re
 
 ##### SELF CLOSING TAGS considered
@@ -128,7 +130,7 @@ def main():
     try:
         rmlInF = open(args.rmlInFile,"r")
     except IOError, e:
-        sys.stderr.write('%s\n** restv2_1ToXml: Error opening "%s" input <rmlInFile> => Exiting...\n' % (str(e),args.rmlInFile))
+        sys.stderr.write('%s\n** restv2_1ToXml: Error opening "%s" input <rmlInFile> => Exiting...\n' % (str(e),args.rmlInFile)
         sys.exit(2)
     # Copy contents to array "lines"
     lines = []
@@ -143,7 +145,7 @@ def main():
 
 
     ###########   LOOP ON LINES IN INPUT FILE   ##########
-    print(' * restv2_1ToXml: Processing input <rmlInFile> "%s"' % args.rmlInFile)
+    print(' * restv2_1ToXml: Processing input <rmlInFile> "%s"' % args.rmlInFile))
     newlines = []
     newline = ""
     count = newcount = -1
@@ -186,7 +188,7 @@ def main():
         ##### BLANK LINE: Skip, so that rootNode be inserted just ahead of
         # first meaningful, not-comment-or-blank, line
         m = re.match(r'\s*$',line)
-        if m and environment <= 0: # Keep 
+        if m and environment <= 0: # Keep
             continue
 
         ##### COMMENT:
@@ -239,7 +241,7 @@ def main():
                 continue
             else:
                 sys.stderr.write("** restv2_1ToXml: Input <rmlInFile> has </environment> closing tag (at line %d) while it's found to have not opened any <environment> section  => Exiting...\n" % count+1)
-                sys.exit(2)                
+                sys.exit(2)
         # Body
         # - Save <environment> lines to "envlines" array.
         if environment > 0:
@@ -304,7 +306,7 @@ def main():
         #  present.
         m = re.search(r'units="[A-Za-z]+"',line)
         if m:
-            # Python has a special sequence "\w" for matching alphanumeric and underscore when the LOCALE and UNICODE flags are not specified. 
+            # Python has a special sequence "\w" for matching alphanumeric and underscore when the LOCALE and UNICODE flags are not specified.
             newline = re.sub(r'(\s\w+="[\+\-0-9\.(,)]+)" units="([A-Za-z]+)"',r'\1\2"',line)
             line = newline
             unitsFixes += 1
@@ -446,7 +448,7 @@ def main():
                 rmlOutF.write(envline)
             rmlOutF.write("	<!-- Globals proper -->\n")
         #http://legacy.python.org/search/hypermail/python-1992/0115.html
-        #Is it possible to print something but not automatically have a carriage return appended to it ?
+        #Is it possible to print(something but not automatically have a carriage return appended to it ?
         #Yes, append a comma after the last argument to print.
         #print(newline),
         rmlOutF.write("%s" % newline)
@@ -479,5 +481,3 @@ def main():
 
 if __name__ == "__main__":
   main()
-
-

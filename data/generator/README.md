@@ -8,10 +8,11 @@ They should be included in the `generator` definition in the `TRestG4Metadata` s
 </generator>
 ```
 
-The following describes the contents of the data files inside the directory.
+The following describes the contents of the data files inside the directory, contributed by different authors.
 
 - Author : Gloria Luzon
 - Date : 22-Feb-2016
+- Description : 
 - Generated using Decay0 :  arxiv.org/pdf/nucl-ex/0104018v1.pdf
 ---------------------
 
@@ -31,22 +32,20 @@ The following describes the contents of the data files inside the directory.
               level, Elevel (MeV) =  0+       0.0000     MeV
               
 
-author: Xie Chen
-date: 2019-4-23
-description : The new updated .dat:the decay of Xe136 to excited state of Ba136 
-Generated using Decay0 : https://github.com/BxCppDev/bxdecay0.
-----------------------------------------------------------------------
+- Author: Xie Chen
+- Date: 2019-4-23
+- Description : The new updated .dat:the decay of Xe136 to excited state of Ba136 
+- Generated using Decay0 : https://github.com/BxCppDev/bxdecay0.
+---------------------
 
-Relation of files containning Xe136 generators.
+    - Filename                         nevent          process                                                 decay mode
+    - Xe136nldbdM1.dat:        nevent=20000     Xe136 0+->Ba 0+                        bxdecay0::MODEBB_1 : 0nubb(mn), with neutrino mass, 0+ -> 0+ {2n}
 
-name                         nevent          process                                                 decay mode
-Xe136nldbdM1.dat:        nevent=20000     Xe136 0+->Ba 0+                        bxdecay0::MODEBB_1 : 0nubb(mn), with neutrino mass, 0+ -> 0+ {2n}
+    - Xe136bb0n21PlusM7.dat    nevent=20000    Xe136 0+->Ba136 21+ with 1 gamma        bxdecay0::MODEBB_7 : 0nubb(rhc-lambda), with rhc-lambda, 0+ -> 2+ {2n}
 
-Xe136bb0n21PlusM7.dat    nevent=20000    Xe136 0+->Ba136 21+ with 1 gamma        bxdecay0::MODEBB_7 : 0nubb(rhc-lambda), with rhc-lambda, 0+ -> 2+ {2n}
-
-Xe136bb0n22PlusM7.dat    nevent=20000    Xe136 0+->Ba136 22+ with 1 or 2 gamma{  bxdecay0::MODEBB_7 : 0nubb(rhc-lambda), with rhc-lambda, 0+ -> 2+ {2n}
+    - Xe136bb0n22PlusM7.dat    nevent=20000    Xe136 0+->Ba136 22+ with 1 or 2 gamma{  bxdecay0::MODEBB_7 : 0nubb(rhc-lambda), with rhc-lambda, 0+ -> 2+ {2n}
                 branch ratio:47.1%  22+->21+(732.455keV)->0+(818.515keV) 2gamma
                 branch ratio:52.9%  22+->0+(1550.97keV)                  1gamma}
 
-Xe136bb0n01PlusM1.dat    nevent=20000    Xe136 0+->Ba136 01+ with 2 gamma        bxdecay0::MODEBB_1 : 0nubb(mn), with neutrino mass, 0+ -> 0+ {2n}
-(M1,M7 mean the decay mode of MODEBB_1 and MODEBB_7)
+    - Xe136bb0n01PlusM1.dat    nevent=20000    Xe136 0+->Ba136 01+ with 2 gamma        bxdecay0::MODEBB_1 : 0nubb(mn), with neutrino mass, 0+ -> 0+ {2n}
+                (M1,M7 mean the decay mode of MODEBB_1 and MODEBB_7)

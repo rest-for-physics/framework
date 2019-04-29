@@ -5,15 +5,17 @@
 # J. Galan - Javier.Galan.Lacarra@cern.ch
 # 8 - Oct - 2018
 
+from __future__ import print_function
+
 import os,sys,re,filecmp
 import subprocess
 
 if len(sys.argv) < 2:
-    print ""
-    print "Usage: ./generateVersionHeader.py XXX.h [SE]"
-    print ""
-    print "If any additional argument different from OFF is provided as [SE].\nSchema evolution will be defined as enabled."
-    print ""
+    print("")
+    print("Usage: ./generateVersionHeader.py XXX.h [SE]")
+    print("")
+    print("If any additional argument different from OFF is provided as [SE].\nSchema evolution will be defined as enabled.")
+    print("")
     exit(1)
 
 outputHeader = sys.argv[1]
@@ -26,16 +28,16 @@ p = subprocess.Popen(['git branch'], stdout=subprocess.PIPE, stderr=subprocess.P
 out, err = p.communicate()
 
 if err != "":
-    print "WARNING! git repository is not initialized. TRestVersion.h will not be generated! REST will use default version header..."
+    print("WARNING! git repository is not initialized. TRestVersion.h will not be generated! REST will use default version header...")
     exit(0)
 
 branchName = os.popen( "git branch | grep -e \"^*\" | cut -d\' \' -f 2" ).read().rstrip("\n")
 
-#print branchName
+#print(branchName)
 
 commit = os.popen('git rev-parse --verify HEAD' ).read().rstrip("\n")
-#print commit
-#print commit[0:8]
+#print(commit)
+#print(commit[0:8])
 
 tag = os.popen( 'git describe --tags HEAD' ).read().rstrip("\n")
 if( tag.find("-") != -1 ):
@@ -47,8 +49,8 @@ datetime = os.popen( command ).read().rstrip("\n")
 date = datetime[0:10]
 time = datetime[11:]
 
-#print date
-#print time
+#print(date)
+#print(time)
 
 first =  tag.find(".")
 last = tag.rfind(".")
@@ -60,12 +62,12 @@ c = int( re.sub("[^0-9]", "", tag[last+1:] ) )
 restRelease = str(a) + "." + str(b) + "." + str(c)
 
 code = a << 16 + b << 8 + c
-codeA = a << 16 
+codeA = a << 16
 codeB = b << 8
-codeC = c 
+codeC = c
 code = codeA + codeB + codeC
 
-print "-- Generating TRestVersion.h. Release : " + restRelease
+print("-- Generating TRestVersion.h. Release : " + restRelease)
 
 
 f = open( "TRestVersion.tmp" , "w")

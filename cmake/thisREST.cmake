@@ -3,11 +3,19 @@
 # install thisREST script, sh VERSION
 install( CODE
 "
-file( WRITE \${CMAKE_INSTALL_PREFIX}/thisREST.sh 
+file( WRITE \${CMAKE_INSTALL_PREFIX}/thisREST.sh
 
 \"\#!/bin/bash
 
-thisdir=\\\$(cd \\\$(dirname \\\${BASH_ARGV[0]}); pwd)
+\# check active shell by checking for existence of _VERSION variable
+if [[ -n \\\"\\\${BASH_VERSION}\\\" ]]; then
+    thisdir=\\\$(cd \\\$(dirname \\\${BASH_ARGV[0]}); pwd)
+elif [[ -n \\\"\\\${ZSH_VERSION}\\\" ]]; then
+    thisdir=\\\$(cd \\\$(dirname \\\$0); pwd)
+else
+    echo \\\"Invalid shell! Either source with bash or zsh!\\\"
+    return 1
+fi
 
 if [ \\\$REST_PATH ] ; then
 echo switching to REST installed in \\\${thisdir}
