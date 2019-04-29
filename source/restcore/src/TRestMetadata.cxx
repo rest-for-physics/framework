@@ -2215,16 +2215,20 @@ Int_t TRestMetadata::Write(const char *name, Int_t option, Int_t bufsize) {
 }
 
 
-TClass*c;
-TVirtualStreamerInfo *vs;
-TObjArray* ses;
+//TClass*c;
+//TVirtualStreamerInfo *vs;
+//TObjArray* ses;
 ///////////////////////////////////////////////
 /// \brief Reflection methods, Get the class's datamember info according to its name. 
 ///
 /// The info returned is wrapped in TStreamerElement
-TStreamerElement* TRestMetadata::GetDataMemberWithName(string name)
+TStreamerElement* TRestMetadata::GetDataMember(string name)
 {
-	int n = GetNumberOfDataMember();
+	TClass* c = this->IsA();
+	TVirtualStreamerInfo* vs = c->GetStreamerInfo();
+	TObjArray* ses = vs->GetElements();
+	int n = ses->GetLast() + 1;
+
 	for (int i = 0; i < n; i++) {
 		TStreamerElement *se = (TStreamerElement*)ses->At(i);
 		if ((string)se->GetFullName() == name)
@@ -2239,9 +2243,13 @@ TStreamerElement* TRestMetadata::GetDataMemberWithName(string name)
 ///////////////////////////////////////////////
 /// \brief Reflection methods, Get the class's datamember info according to its id. 
 ///
-TStreamerElement* TRestMetadata::GetDataMemberWithID(int ID)
+TStreamerElement* TRestMetadata::GetDataMember(int ID)
 {
-	int n = GetNumberOfDataMember();
+	TClass* c = this->IsA();
+	TVirtualStreamerInfo* vs = c->GetStreamerInfo();
+	TObjArray* ses = vs->GetElements();
+	int n = ses->GetLast() + 1;
+
 	if (ID < n)return (TStreamerElement*)ses->At(ID);
 	return NULL;
 }
@@ -2251,33 +2259,23 @@ TStreamerElement* TRestMetadata::GetDataMemberWithID(int ID)
 ///
 int TRestMetadata::GetNumberOfDataMember()
 {
-	if (c==NULL||(c!=NULL&&c->GetName()!=this->ClassName())) {
-		c = this->IsA();
-		vs = c->GetStreamerInfo();
-		ses = vs->GetElements();
-	}
+	TClass* c = this->IsA();
+	TVirtualStreamerInfo* vs = c->GetStreamerInfo();
+	TObjArray* ses = vs->GetElements();
+
 	return ses->GetLast() + 1;
 }
 
-///////////////////////////////////////////////
-/// \brief Reflection methods, Get the value of a datamember assuming it is double type
-///
-double TRestMetadata::GetDblDataMemberVal(TStreamerElement*ele)
-{
-	if (ele != NULL&&ele->GetType() == 8)
-		return *(double*)((char*)this + ele->GetOffset());
-	return 0;
-}
 
 ///////////////////////////////////////////////
-/// \brief Reflection methods, Get the value of a datamember assuming it is int type
+/// \brief Reflection methods, Get the value of a datamember specifying its type
 ///
-int TRestMetadata::GetIntDataMemberVal(TStreamerElement*ele)
+template<class T>
+T TRestMetadata::GetDataMemberVal(TStreamerElement*ele, T)
 {
-	if (ele != NULL&&ele->GetType() == 3)
-		return *(int*)((char*)this + ele->GetOffset());
-	return 0;
+	return *(T*)((char*)this + ele->GetOffset());
 }
+
 
 ///////////////////////////////////////////////
 /// \brief Reflection methods, Get the address of a datamember(class address+offset)
@@ -2292,7 +2290,7 @@ char* TRestMetadata::GetDataMemberRef(TStreamerElement*ele) {
 ///
 /// Supported type: double, int, TString. If not supported, returns the type name.
 /// This method can be used as a real time inspector of TRestMetadata objects.
-string TRestMetadata::GetDataMemberValString(TStreamerElement*ele)
+string TRestMetadata::GetDataMemberValInString(TStreamerElement*ele)
 {
 	if (ele == NULL)
 		return "";
@@ -2305,27 +2303,12 @@ string TRestMetadata::GetDataMemberValString(TStreamerElement*ele)
 	return ele->GetTypeName();
 }
 
-///////////////////////////////////////////////
-/// \brief Reflection methods, Set the value of a datamember if the type is supported
-///
-/// Supported type: double, int, TString. The address of target value variable needs 
-/// to be given.
-void TRestMetadata::SetDataMemberVal(TStreamerElement*ele, char*ptr) {
-
-	if (ele != NULL && ele->GetType() == 8)//double
-		*((double*)((char*)this + ele->GetOffset())) = *((double*)ptr);
-	if (ele != NULL && ele->GetType() == 3)//int
-		*((int*)((char*)this + ele->GetOffset())) = *((int*)ptr);
-	if (ele != NULL && ele->GetType() == 65)//TString
-		*((TString*)((char*)this + ele->GetOffset())) = *((TString*)ptr);
-
-}
 
 ///////////////////////////////////////////////
-/// \brief Reflection methods, Set the value of a datamember if the type is supported
+/// \brief Reflection methods, Set the value of a datamember with a string, if the type is supported
 ///
 /// Supported type: double, int, TString. A string of value needs to be given.
-void TRestMetadata::SetDataMemberVal(TStreamerElement*ele, string valdef)
+void TRestMetadata::SetDataMemberValWithString(TStreamerElement*ele, string valdef)
 {
 	if (ele != NULL && ele->GetType() == 8)//double
 		*((double*)((char*)this + ele->GetOffset())) = StringToDouble(valdef);
@@ -2333,6 +2316,15 @@ void TRestMetadata::SetDataMemberVal(TStreamerElement*ele, string valdef)
 		*((int*)((char*)this + ele->GetOffset())) = StringToInteger(valdef);
 	if (ele != NULL && ele->GetType() == 65)//TString
 		*((TString*)((char*)this + ele->GetOffset())) = (TString)(valdef);
+}
+
+///////////////////////////////////////////////
+/// \brief Reflection methods, Set the value of a datamember if the type is supported
+///
+/// Supported type: double, int, TString. The address of target value variable needs 
+/// to be given.
+template<class T> void TRestMetadata::SetDataMemberVal(TStreamerElement*ele, T val) {
+	*((T*)((char*)this + ele->GetOffset())) = val;
 }
 
 ///////////////////////////////////////////////

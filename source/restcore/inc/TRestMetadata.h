@@ -272,16 +272,16 @@ public:
 	virtual Int_t Write(const char *name = 0, Int_t option = 0, Int_t bufsize = 0);
 
 	//data member reflection tools
-	TStreamerElement* GetDataMemberWithName(string name);
-	TStreamerElement* GetDataMemberWithID(int ID);
-	int GetNumberOfDataMember();
-	double GetDblDataMemberVal(TStreamerElement*);
-	int GetIntDataMemberVal(TStreamerElement*);
-	char* GetDataMemberRef(TStreamerElement*);
-	string GetDataMemberValString(TStreamerElement*);
-	void SetDataMemberVal(TStreamerElement*, char*);
-	void SetDataMemberVal(TStreamerElement*, string);
-	void SetDataMemberValFromConfig(TStreamerElement*);
+	TStreamerElement*        GetDataMember(string name);
+	TStreamerElement*        GetDataMember(int ID);
+	int                      GetNumberOfDataMember();
+	template<class T> T      GetDataMemberVal(TStreamerElement*ele, T);
+	string                   GetDataMemberValInString(TStreamerElement*);
+	char*                    GetDataMemberRef(TStreamerElement*);
+
+	template<class T> void   SetDataMemberVal(TStreamerElement*, T);
+	void                     SetDataMemberValWithString(TStreamerElement*, string);
+	void                     SetDataMemberValFromConfig(TStreamerElement*);
 
 	TRestMetadata();
 	~TRestMetadata();
