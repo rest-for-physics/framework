@@ -121,8 +121,8 @@ vector<string> TRestEventProcess::ReadObservables()
 	//If fObservableInfo is not empty, directly return the observable name list.
 	//This is because the user may manually this method somewhere else. 
 	//We need to prevent adding observables repeadtedly.
-	if (fObservableInfo.size() != 0)
-		return obsnames;
+	//if (fObservableInfo.size() != 0)
+	//	return obsnames;
 
 	//if fObservableInfo is empty, add observables.
 	//1. observable is datamember of the process class
