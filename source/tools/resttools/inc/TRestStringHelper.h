@@ -89,11 +89,22 @@ inline Int_t Count(std::string s, std::string sbstring) { return REST_StringHelp
 inline Int_t FindNthStringPosition(const string& in, size_t pos, const string& strToFind, size_t nth) { return REST_StringHelper::FindNthStringPosition(in, pos, strToFind, nth); }
 inline string ToDateTimeString(time_t time) { return REST_StringHelper::ToDateTimeString(time); }
 inline time_t ToTime(string time) { return REST_StringHelper::ToTime(time); }
-template<class T> inline string ToString(T source)
+template<class T> inline string ToString(T source, int length = -1, char fill = ' ')
 {
-	stringstream s;
-	s << source;
-	return s.str();
+	stringstream ss1;
+	ss1 << source;
+	string s = ss1.str();
+	if (length == -1) {
+		return s;
+	}
+	else if (s.size() < length)
+	{
+		return s + string(length - s.size(), fill);
+	}
+	else
+	{
+		return s.substr(0, length);
+	}
 }
 inline bool fileExists(const std::string& filename) { return REST_StringHelper::fileExists(filename); }
 inline bool isRootFile(const std::string& filename) { return REST_StringHelper::isRootFile(filename); }
