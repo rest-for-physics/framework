@@ -316,8 +316,8 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent( TRestEvent *evInput )
         }
     }
 
-	fAnalysisTree->SetObservableValue(this, "xEnergySum", xsum);
-	fAnalysisTree->SetObservableValue(this, "yEnergySum", ysum);
+	this->SetObservableValue("xEnergySum", xsum);
+	this->SetObservableValue("yEnergySum", ysum);
 
     obsName = this->GetName() + (TString) "_MinPeakTime";
     fAnalysisTree->SetObservableValue( obsName, minPeakTime );

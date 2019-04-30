@@ -74,20 +74,20 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 	fAnaEvent = (TRest2DHitsEvent*)evInput;
 	fOutputEvent = evInput;
 
-	fAnalysisTree->SetObservableValue(this, "muphi", numeric_limits<double>::quiet_NaN());
-	fAnalysisTree->SetObservableValue(this, "mutanthe", numeric_limits<double>::quiet_NaN());
-	fAnalysisTree->SetObservableValue(this, "muproj", numeric_limits<double>::quiet_NaN());
-	fAnalysisTree->SetObservableValue(this, "rawtantheXZ", numeric_limits<double>::quiet_NaN());
-	fAnalysisTree->SetObservableValue(this, "rawtantheYZ", numeric_limits<double>::quiet_NaN());
-	fAnalysisTree->SetObservableValue(this, "tantheXZ", numeric_limits<double>::quiet_NaN());
-	fAnalysisTree->SetObservableValue(this, "tantheYZ", numeric_limits<double>::quiet_NaN());
-	fAnalysisTree->SetObservableValue(this, "evefirstX", numeric_limits<double>::quiet_NaN());
-	fAnalysisTree->SetObservableValue(this, "evefirstY", numeric_limits<double>::quiet_NaN());
-	fAnalysisTree->SetObservableValue(this, "adjustedfirstX", numeric_limits<double>::quiet_NaN());
-	fAnalysisTree->SetObservableValue(this, "adjustedfirstY", numeric_limits<double>::quiet_NaN());
-	fAnalysisTree->SetObservableValue(this, "MMpenet", 0);
-	fAnalysisTree->SetObservableValue(this, "longTrackX", 0);
-	fAnalysisTree->SetObservableValue(this, "longTrackY", 0);
+	this->SetObservableValue("muphi", numeric_limits<double>::quiet_NaN());
+	this->SetObservableValue("mutanthe", numeric_limits<double>::quiet_NaN());
+	this->SetObservableValue("muproj", numeric_limits<double>::quiet_NaN());
+	this->SetObservableValue("rawtantheXZ", numeric_limits<double>::quiet_NaN());
+	this->SetObservableValue("rawtantheYZ", numeric_limits<double>::quiet_NaN());
+	this->SetObservableValue("tantheXZ", numeric_limits<double>::quiet_NaN());
+	this->SetObservableValue("tantheYZ", numeric_limits<double>::quiet_NaN());
+	this->SetObservableValue("evefirstX", numeric_limits<double>::quiet_NaN());
+	this->SetObservableValue("evefirstY", numeric_limits<double>::quiet_NaN());
+	this->SetObservableValue("adjustedfirstX", numeric_limits<double>::quiet_NaN());
+	this->SetObservableValue("adjustedfirstY", numeric_limits<double>::quiet_NaN());
+	this->SetObservableValue("MMpenet", 0);
+	this->SetObservableValue("longTrackX", 0);
+	this->SetObservableValue("longTrackY", 0);
 	if (fAnaEvent->GetSubEventTag() == "muon") {
 		if (fAnaEvent->GetHoughXZ().size() == 0 && fAnaEvent->GetHoughYZ().size() == 0)
 			fAnaEvent->DoHough();
@@ -136,9 +136,9 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 
 
 			//writing raw values(before adjustment)
-			fAnalysisTree->SetObservableValue(this, "rawtantheXZ", tan(thexz));
-			fAnalysisTree->SetObservableValue(this, "rawtantheYZ", tan(theyz));
-			fAnalysisTree->SetObservableValue(this, "rawmutanthe", sqrt(tan(thexz)*tan(thexz) + tan(theyz) * tan(theyz)));
+			this->SetObservableValue("rawtantheXZ", tan(thexz));
+			this->SetObservableValue("rawtantheYZ", tan(theyz));
+			this->SetObservableValue("rawmutanthe", sqrt(tan(thexz)*tan(thexz) + tan(theyz) * tan(theyz)));
 			double muphi = 0;
 			if (tan(thexz) >= 0)
 			{
@@ -152,9 +152,9 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 			{
 				muphi = atan(tan(theyz) / tan(thexz)) - 3.1416;
 			}
-			fAnalysisTree->SetObservableValue(this, "rawmuphi", muphi);
-			fAnalysisTree->SetObservableValue(this, "evefirstX", eve->GetFirstX());
-			fAnalysisTree->SetObservableValue(this, "evefirstY", eve->GetFirstY());
+			this->SetObservableValue("rawmuphi", muphi);
+			this->SetObservableValue("evefirstX", eve->GetFirstX());
+			this->SetObservableValue("evefirstY", eve->GetFirstY());
 
 
 
@@ -209,11 +209,11 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 
 
 			//writing adjusted values
-			fAnalysisTree->SetObservableValue(this, "tantheXZ", tan(thexz));
-			fAnalysisTree->SetObservableValue(this, "tantheYZ", tan(theyz));
-			fAnalysisTree->SetObservableValue(this, "adjustedfirstX", firstx);
-			fAnalysisTree->SetObservableValue(this, "adjustedfirstY", firsty);
-			fAnalysisTree->SetObservableValue(this, "mutanthe", sqrt(tan(thexz)*tan(thexz) + tan(theyz) * tan(theyz)));
+			this->SetObservableValue("tantheXZ", tan(thexz));
+			this->SetObservableValue("tantheYZ", tan(theyz));
+			this->SetObservableValue("adjustedfirstX", firstx);
+			this->SetObservableValue("adjustedfirstY", firsty);
+			this->SetObservableValue("mutanthe", sqrt(tan(thexz)*tan(thexz) + tan(theyz) * tan(theyz)));
 			muphi = 0;
 			if (tan(thexz) >= 0)
 			{
@@ -227,21 +227,21 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 			{
 				muphi = atan(tan(theyz) / tan(thexz)) - 3.1416;
 			}
-			fAnalysisTree->SetObservableValue(this, "muphi", muphi);
+			this->SetObservableValue("muphi", muphi);
 			muhitmap->Fill(firstx, firsty);
 
 			//calculate projection
 			int bin = muhitdir->FindBin(firstx, firsty);
 			double p = ProjectionToCenter(firstx, firsty, thexz, theyz);
 			muhitdir->SetBinContent(bin, muhitdir->GetBinContent(bin) + p);
-			fAnalysisTree->SetObservableValue(this, "muproj", p);
+			this->SetObservableValue("muproj", p);
 
 
 			//the MM pentrating muon
 			if (firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 && firsty < Y2 - 30)
 			{
 				info << "MM penetration muon,";
-				fAnalysisTree->SetObservableValue(this, "MMpenet", 1);
+				this->SetObservableValue("MMpenet", 1);
 				//if (eve->GetNumberOfXZSignals()>7 && xlen<15)
 				//	return;
 				//if (eve->GetNumberOfYZSignals()>7 && ylen<15)
@@ -276,7 +276,7 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 			//XZ depos
 			if (eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X() > 345 && thexz != 0 && tan(thexz) * 350 < (X2 - X1)) {
 				info << " Long track XZ,";
-				fAnalysisTree->SetObservableValue(this, "longTrackX", 1);
+				this->SetObservableValue("longTrackX", 1);
 				xzflag = true;
 				for (int i = 0; i < 512; i++) {
 					//cout << i << endl;
@@ -328,7 +328,7 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 			//YZ depos
 			if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X() > 345 && theyz != 0 && tan(theyz) * 350 < (Y2 - Y1)) {
 				info << " Long track YZ,";
-				fAnalysisTree->SetObservableValue(this, "longTrackY", 1);
+				this->SetObservableValue("longTrackY", 1);
 				yzflag = true;
 				for (int i = 0; i < 512; i++) {
 					auto hitsz = eve->GetYZHitsWithZ(i);
@@ -416,9 +416,9 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 						}
 						int fitstatus;
 						if (GetVerboseLevel() >= REST_Debug) {
-							hdiffz->SetTitle((TString)"Z index: "+ToString(z));
+							hdiffz->SetTitle((TString)"Z index: " + ToString(z));
 							hdiffz->Draw();
-							
+
 							fitstatus = hdiffz->Fit(fdiffz, "");
 							GetChar();
 						}
@@ -438,7 +438,7 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 
 
 						//if (tan(thexz) > 0.15)
-							musmearxy[z].push_back(sgn[z] / (xzdepos[z] + yzdepos[z]));
+						musmearxy[z].push_back(sgn[z] / (xzdepos[z] + yzdepos[z]));
 					}
 				}
 
@@ -478,7 +478,7 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 						}
 
 						//if (tan(theyz) > 0.15)
-							musmearxy[z].push_back(sgn[z] / (xzdepos[z] + yzdepos[z]));
+						musmearxy[z].push_back(sgn[z] / (xzdepos[z] + yzdepos[z]));
 					}
 				}
 
