@@ -275,11 +275,15 @@ public:
 	TStreamerElement*        GetDataMember(string name);
 	TStreamerElement*        GetDataMember(int ID);
 	int                      GetNumberOfDataMember();
-	template<class T> T      GetDataMemberVal(TStreamerElement*ele, T);
+	template<typename T> T   GetDataMemberVal(TStreamerElement*ele) {
+			return *(T*)((char*)this + ele->GetOffset());
+	}
 	string                   GetDataMemberValInString(TStreamerElement*);
 	char*                    GetDataMemberRef(TStreamerElement*);
 
-	template<class T> void   SetDataMemberVal(TStreamerElement*, T);
+	template<class T> void   SetDataMemberVal(TStreamerElement*ele, T val) {
+		*((T*)((char*)this + ele->GetOffset())) = val;
+	}
 	void                     SetDataMemberValWithString(TStreamerElement*, string);
 	void                     SetDataMemberValFromConfig(TStreamerElement*);
 
