@@ -3,17 +3,17 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 
 #minimum compiler version
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # require at least gcc 4.8
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8)
         message(FATAL_ERROR "GCC version must be at least 4.8!")
-    endif()
+    endif ()
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     # require at least clang 3.2
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.2)
         message(FATAL_ERROR "Clang version must be at least 3.2!")
-    endif()
-endif()
+    endif ()
+endif ()
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -22,17 +22,14 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
 
-
-
-
 #install path
-IF(NOT DEFINED INSTALL_PREFIX)
-	IF(DEFINED ENV{REST_PATH})
-		set(INSTALL_PREFIX $ENV{REST_PATH})
-	else()
-		set(INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/install)
-	endif()
-ENDIF()
+IF (NOT DEFINED INSTALL_PREFIX)
+    IF (DEFINED ENV{REST_PATH})
+        set(INSTALL_PREFIX $ENV{REST_PATH})
+    else ()
+        set(INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/install)
+    endif ()
+ENDIF ()
 get_filename_component(INSTALL_PREFIX_ABSOLUTE ${INSTALL_PREFIX} ABSOLUTE BASE_DIR "${CMAKE_BINARY_DIR}")
 set(REST_PATH ${INSTALL_PREFIX_ABSOLUTE})
 
@@ -40,16 +37,16 @@ set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX_ABSOLUTE})
 
 
 #auto schema evolution for ROOT
-IF( NOT DEFINED REST_SE )
+IF (NOT DEFINED REST_SE)
     set(REST_SE ON)
-ENDIF()
+ENDIF ()
 set(SCHEMA_EVOLUTION ${REST_SE})
 
 
 #welcome message
-IF( NOT DEFINED REST_WELCOME )
+IF (NOT DEFINED REST_WELCOME)
     set(REST_WELCOME ON)
-ENDIF()
+ENDIF ()
 
 
 #find ROOT libs and includes
@@ -68,14 +65,14 @@ set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -l
 #set(REST_GARFIELD ON)
 #ENDIF()
 
-if(${REST_GARFIELD} MATCHES "ON")
-	add_definitions(-DUSE_Garfield)
-	include(FindGarfield)
-	set(external_include_dirs ${external_include_dirs} ${Garfield_INCLUDE_DIRS})
-	set(external_libs ${external_libs} ${Garfield_LIBRARIES})
-else()
-	set(REST_GARFIELD OFF)
-endif(${REST_GARFIELD} MATCHES "ON")
+if (${REST_GARFIELD} MATCHES "ON")
+    add_definitions(-DUSE_Garfield)
+    include(FindGarfield)
+    set(external_include_dirs ${external_include_dirs} ${Garfield_INCLUDE_DIRS})
+    set(external_libs ${external_libs} ${Garfield_LIBRARIES})
+else ()
+    set(REST_GARFIELD OFF)
+endif (${REST_GARFIELD} MATCHES "ON")
 
 
 #include dir for compilation
@@ -97,15 +94,15 @@ message("")
 
 #generate TRestVersion.h during build stage
 IF (NOT CMAKE_SYSTEM_NAME MATCHES "Windows")
-	add_custom_target(
-	RESTVersion ALL
-	COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generateVersionHeader.py ${CMAKE_CURRENT_SOURCE_DIR}/source/restcore/inc/TRestVersion.h
-	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+    add_custom_target(
+            RESTVersion ALL
+            COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generateVersionHeader.py ${CMAKE_CURRENT_SOURCE_DIR}/source/restcore/inc/TRestVersion.h
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 
-	#RESULT_VARIABLE h)
-	#if(h MATCHES 0)
-	#	add_definitions(-DREST_VERSION_HEADER)
-	#endif()
+    #RESULT_VARIABLE h)
+    #if(h MATCHES 0)
+    #	add_definitions(-DREST_VERSION_HEADER)
+    #endif()
 ENDIF ()
 
 
@@ -120,40 +117,40 @@ message("")
 
 
 #compile the packages
-IF( NOT DEFINED REST_G4 )
+IF (NOT DEFINED REST_G4)
     set(REST_G4 OFF)
-ENDIF()
-if(${REST_G4} MATCHES "ON")
-	add_subdirectory(packages/restG4)
-endif(${REST_G4} MATCHES "ON")
+ENDIF ()
+if (${REST_G4} MATCHES "ON")
+    add_subdirectory(packages/restG4)
+endif (${REST_G4} MATCHES "ON")
 
-IF( NOT DEFINED REST_DATABASE )
+IF (NOT DEFINED REST_DATABASE)
     set(REST_DATABASE OFF)
-ENDIF()
-if(${REST_DATABASE} MATCHES "ON")
-	add_subdirectory(packages/restDataBaseImpl)
-endif(${REST_DATABASE} MATCHES "ON")
+ENDIF ()
+if (${REST_DATABASE} MATCHES "ON")
+    add_subdirectory(packages/restDataBaseImpl)
+endif (${REST_DATABASE} MATCHES "ON")
 
-IF( NOT DEFINED REST_DECAY0 )
+IF (NOT DEFINED REST_DECAY0)
     set(REST_DECAY0 OFF)
-ENDIF()
-if(${REST_DECAY0} MATCHES "ON")
-	add_subdirectory(packages/restDecay0)
-endif(${REST_DECAY0} MATCHES "ON")
+ENDIF ()
+if (${REST_DECAY0} MATCHES "ON")
+    add_subdirectory(packages/restDecay0)
+endif (${REST_DECAY0} MATCHES "ON")
 
 #begin installation
 message("")
 message("=============================")
-message ("REST will be installed in : ${CMAKE_INSTALL_PREFIX}" )
-message ("Version: ${GIT_TAG}" )
-message ("System is : ${CMAKE_SYSTEM_NAME}" )
-if(${REST_GARFIELD} MATCHES "ON")
-	message ("Garfield is : ${REST_GARFIELD}" )
-else()
-	message ("Garfield is : ${REST_GARFIELD}. To enable run cmake adding : -DREST_GARFIELD=ON" )
-endif()
-message ("Geant4 is : ${REST_G4}" )
-message ("DataBase is : ${REST_DATABASE}" )
+message("REST will be installed in : ${CMAKE_INSTALL_PREFIX}")
+message("Version: ${GIT_TAG}")
+message("System is : ${CMAKE_SYSTEM_NAME}")
+if (${REST_GARFIELD} MATCHES "ON")
+    message("Garfield is : ${REST_GARFIELD}")
+else ()
+    message("Garfield is : ${REST_GARFIELD}. To enable run cmake adding : -DREST_GARFIELD=ON")
+endif ()
+message("Geant4 is : ${REST_G4}")
+message("DataBase is : ${REST_DATABASE}")
 message("=============================")
 message("")
 
@@ -168,37 +165,35 @@ INSTALL(FILES ${Headers} DESTINATION include)
 
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENCE DESTINATION .)
 
-install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/example
-         DESTINATION .
-         COMPONENT install
-                 )
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/example
+        DESTINATION .
+        COMPONENT install
+        )
 
-install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/macros
-         DESTINATION .
-         COMPONENT install
-                 )
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/macros
+        DESTINATION .
+        COMPONENT install
+        )
 
-install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/scripts/restv2_1ToXml.py
-         DESTINATION scripts
-         COMPONENT install
-                 )
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/scripts/restv2_1ToXml.py
+        DESTINATION scripts
+        COMPONENT install
+        )
 
 install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data
-    DESTINATION .
-    COMPONENT install
-        )
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data
+        DESTINATION .
+        COMPONENT install
+)
 
 #copying pcm files
 
 install(CODE
-"
+        "
 file(GLOB PCMFiles \"\${CMAKE_CURRENT_SOURCE_DIR}/rootdict/*.pcm\")
 file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/lib)
-
 "
-
-)
+        )
 
 include(thisREST)
 
