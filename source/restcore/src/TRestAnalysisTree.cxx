@@ -16,6 +16,7 @@
 
 #include "TRestAnalysisTree.h"
 #include "TRestEventProcess.h"
+#include "TRestMetadata.h"
 
 #include "TObjArray.h"
 
@@ -50,7 +51,7 @@ void TRestAnalysisTree::Initialize()
 	fSubEventID = 0;
 	fSubEventTag = new TString();
 	fTimeStamp = 0;
-	
+
 	fNObservables = 0;
 
 	fObservableDescriptions.clear();
@@ -66,20 +67,23 @@ void TRestAnalysisTree::ConnectObservables(TRestAnalysisTree * from)
 {
 	if (from != NULL && !fConnected) {
 
-		vector<double*> tmpobsval;
+		vector<char*> tmpobsval;
 		vector<TString> tmpobsname;
 		vector<TString> tmpobsdes;
+		vector<TString> tmptypes;
 
 		for (int i = 0; i < from->GetNumberOfObservables(); i++)
 		{
-			tmpobsval.push_back(new double(0));
+			tmpobsval.push_back(TRestTools::Assembly(from->GetObservableType(i)));
 			tmpobsname.push_back("old_" + from->GetObservableName(i));
 			tmpobsdes.push_back(from->GetObservableDescription(i));
+			tmptypes.push_back(from->GetObservableType(i));
 		}
 
 		fObservableValues.insert(fObservableValues.begin(), tmpobsval.begin(), tmpobsval.end());
 		fObservableNames.insert(fObservableNames.begin(), tmpobsname.begin(), tmpobsname.end());
 		fObservableDescriptions.insert(fObservableDescriptions.begin(), tmpobsdes.begin(), tmpobsdes.end());
+		fObservableTypes.insert(fObservableTypes.begin(), tmptypes.begin(), tmptypes.end());
 		fNObservables += from->GetNumberOfObservables();
 
 		fConnected = true;
@@ -96,13 +100,14 @@ void TRestAnalysisTree::ConnectObservables()
 		for (int i = 0; i < GetNumberOfObservables(); i++)
 		{
 			double* x = new double(0);
-			fObservableValues.push_back(x);
+			fObservableValues.push_back(TRestTools::Assembly(GetObservableType(i)));
 		}
 
 		for (int i = 0; i < GetNumberOfObservables(); i++)
 		{
 			TBranch*branch = GetBranch(fObservableNames[i]);
-			branch->SetAddress(fObservableValues[i]);
+			if (branch != NULL)
+				branch->SetAddress(fObservableValues[i]);
 		}
 		fConnected = true;
 	}
@@ -111,8 +116,7 @@ void TRestAnalysisTree::ConnectObservables()
 	}
 }
 
-Int_t TRestAnalysisTree::AddObservable(TString observableName, Double_t* observableValue, TString description)
-{
+Int_t TRestAnalysisTree::AddObservable(TString observableName, TString description) {
 	if (fBranchesCreated)
 	{
 		return -1;
@@ -121,7 +125,8 @@ Int_t TRestAnalysisTree::AddObservable(TString observableName, Double_t* observa
 	if (GetObservableID(observableName) == -1) {
 		fObservableNames.push_back(observableName);
 		fObservableDescriptions.push_back(description);
-		fObservableValues.push_back(observableValue);
+		fObservableValues.push_back((char*)new double(0));
+		fObservableTypes.push_back("double");
 
 		fNObservables++;
 	}
@@ -134,8 +139,42 @@ Int_t TRestAnalysisTree::AddObservable(TString observableName, Double_t* observa
 	return fNObservables - 1;
 }
 
+Int_t TRestAnalysisTree::AddObservable(TString objName, TRestMetadata* meta, TString description) {
+
+	if (fBranchesCreated)
+	{
+		return -1;
+	}
+	TStreamerElement*ele = meta->GetDataMember((string)objName);
+	//cout << ele->GetTypeName() << " " << ele->GetName() << " " << ele->ClassName() << endl;
+	if (ele != NULL && !ele->IsaPointer() && ele->GetName()[0] != 'f') {
+		TString brName = this->GetName() + (TString)"." + ele->GetName();
+		fObservableNames.push_back(brName);
+		fObservableDescriptions.push_back(description);
+		fObservableValues.push_back(meta->GetDataMemberRef(ele));
+		fObservableTypes.push_back(ele->GetTypeName());
+		fNObservables++;
+	}
+	else
+	{
+		cout << "Data member \"" << objName << "\" not found in class: \"" << meta->ClassName() << "\"" << endl;
+		return -1;
+	}
+
+	return fNObservables - 1;
+}
+
 void TRestAnalysisTree::PrintObservables(TRestEventProcess* proc, int NObs)
 {
+	if (!isConnected() || !fBranchesCreated)
+	{
+		if (fNObservables > 0 && fObservableValues.size() == 0) //the object may be just retrieved from root file
+		{
+			ConnectEventBranches();
+			ConnectObservables();
+		}
+	}
+
 	cout.precision(15);
 	if (proc == NULL) {
 		std::cout << "Run origin : " << GetRunOrigin() << std::endl;
@@ -147,22 +186,30 @@ void TRestAnalysisTree::PrintObservables(TRestEventProcess* proc, int NObs)
 	else {
 		std::cout << "---- AnalysisTree Observable for process: " << proc->GetName() << " ----" << std::endl;
 	}
-	if (isConnected() || fBranchesCreated) {
-		for (int n = 0; n < GetNumberOfObservables() && n < NObs; n++) {
-			if (proc == NULL || (proc != NULL && ((string)fObservableNames[n]).find(proc->GetName()) == 0))
-				std::cout << "Observable Name : " << fObservableNames[n] << "    Value : " << *fObservableValues[n] << std::endl;
-		}
-	}
-	else
-	{
-		for (int n = 0; n < GetNumberOfObservables() && n < NObs; n++) {
-			if (proc == NULL || (proc != NULL && ((string)fObservableNames[n]).find(proc->GetName()) == 0))
-				std::cout << "Observable Name : " << fObservableNames[n] << "    Value : ..." << std::endl;
-		}
 
+	for (int n = 0; n < GetNumberOfObservables() && n < NObs; n++) {
+		if (proc == NULL || (proc != NULL && ((string)fObservableNames[n]).find(proc->GetName()) == 0))
+			PrintObservable(n);
 	}
+
 	std::cout << std::endl;
 	cout.precision(6);
+}
+
+//print the Nth observable in the observal list
+void TRestAnalysisTree::PrintObservable(int n) {
+	if (n < 0 || n >= fNObservables) { return; }
+	if (isConnected() || fBranchesCreated) {
+		if (GetObservableType(n) == "double") {
+			std::cout << "Observable : " << ToString(fObservableNames[n], 25) << "    Value : " << *(double*)fObservableValues[n] << std::endl;
+		}
+		else {
+			std::cout << "Observable : " << ToString(fObservableNames[n], 25) << "    (" << fObservableTypes[n] << ")" << std::endl;
+		}
+	}
+	else {
+		std::cout << "Observable : " << ToString(fObservableNames[n], 25) << "    Value : ???" << std::endl;
+	}
 }
 
 
@@ -177,19 +224,6 @@ Int_t TRestAnalysisTree::FillEvent(TRestEvent *evt)
 
 	//return this->Fill();
 	return 0;
-}
-
-void TRestAnalysisTree::SetObservableValue(TString ProcName_ObsName, Double_t value)
-{
-	string name_fixed = Replace((string)ProcName_ObsName, ".", "_", 0);
-	Int_t id = GetObservableID(name_fixed);
-	if (id >= 0) SetObservableValue(id, value);
-}
-
-void TRestAnalysisTree::SetObservableValue(TRestEventProcess* proc, TString obsName, Double_t value) 
-{
-	TString name = proc->GetName() + (TString)"_" + obsName;
-	SetObservableValue(name, value);
 }
 
 void TRestAnalysisTree::CreateEventBranches()
@@ -211,7 +245,45 @@ void TRestAnalysisTree::CreateObservableBranches()
 	}
 
 	for (int n = 0; n < GetNumberOfObservables(); n++)
-		Branch(fObservableNames[n], fObservableValues[n]);
+	{
+
+		TString typeName = fObservableTypes[n];
+		TString brName = fObservableNames[n];
+		char* ref = fObservableValues[n];
+
+		if (typeName == "double") {
+			this->Branch(brName, (double*)ref);
+		}
+		else if (typeName == "float") {
+			this->Branch(brName, (float*)ref);
+		}
+		else if (typeName == "long double") {
+			this->Branch(brName, (long double*)ref);
+		}
+		else if (typeName == "bool") {
+			this->Branch(brName, (bool*)ref);
+		}
+		else if (typeName == "char") {
+			this->Branch(brName, (char*)ref);
+		}
+		else if (typeName == "int") {
+			this->Branch(brName, (int*)ref);
+		}
+		else if (typeName == "short") {
+			this->Branch(brName, (short*)ref);
+		}
+		else if (typeName == "long") {
+			this->Branch(brName, (long*)ref);
+		}
+		else if (typeName == "long long") {
+			this->Branch(brName, (long long*)ref);
+		}
+		else {
+			this->Branch(brName, typeName, ref);
+		}
+	}
+
+	//Branch(fObservableNames[n], fObservableValues[n]);
 
 	fBranchesCreated = true;
 }
