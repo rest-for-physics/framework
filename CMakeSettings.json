@@ -24,7 +24,7 @@
       "rsyncCommandArgs": "-t --delete --delete-excluded",
       "remoteCopyBuildOutput": false,
       "cmakeCommandArgs": "-DREST_WELCOME=OFF -DINSTALL_PREFIX=/home/nkx/debug/REST_v2/install/ -DREST_GARFIELD=ON -DREST_G4=ON -DREST_DECAY0=ON",
-      "buildCommandArgs": "-j4 install",
+      "buildCommandArgs": "-j8 install",
       "ctestCommandArgs": "",
       "inheritEnvironments": [
         "linux_x64"
