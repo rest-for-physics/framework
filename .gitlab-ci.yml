@@ -1,13 +1,46 @@
-image: lobis/root:6.16.00
+image: nkx1231/root6-geant4-garfield:0.2
 
 stages:
   - build
+  - deploy
+
+before_script:
+  - export USER="test"
 
 build:
   type: build
   script:
     - mkdir /tmp/rest && cd /tmp/rest
-    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=OFF -DINSTALL_PREFIX=/opt/rest
+    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DINSTALL_PREFIX=/builds/pandax-iii/REST_v2/install
     - make install
-    - source /opt/rest/thisREST.sh
-    - rest-config --version
+    - . /builds/pandax-iii/REST_v2/install/thisREST.sh
+    - mkdir /tmp/restg4 && cd /tmp/restg4
+    - cmake ${CI_PROJECT_DIR}/packages/restG4
+    - make install
+
+    - cd /builds/pandax-iii/REST_v2/install/example/restG4template
+    - restG4 restG4.rml
+
+    - cd /builds/pandax-iii/REST_v2/install/example
+    - restManager --c saveMetadataFile.rml --o meta.root
+
+    - cd /builds/pandax-iii/REST_v2/install/example
+    - restManager --c electronicsSimu.rml --i restG4template/example_output.root --o abc.root
+
+
+deploy:
+  type: deploy
+  only:
+    - tags
+  script:
+    - mkdir /tmp/rest && cd /tmp/rest
+    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DINSTALL_PREFIX=/builds/pandax-iii/REST_v2/install
+    - make install
+    - . /builds/pandax-iii/REST_v2/install/thisREST.sh
+    - mkdir /tmp/restg4 && cd /tmp/restg4
+    - cmake ${CI_PROJECT_DIR}/packages/restG4
+    - make install
+    - rest-config --welcome
+  artifacts:
+    paths:
+      - /builds/pandax-iii/REST_v2/install
