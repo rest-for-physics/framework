@@ -8,7 +8,7 @@ This image's `Dockerfile` is under the *ROOT* directory. This image can be build
 
 ```
 ROOT_VERSION=6.16.00
-docker build -t root_v${ROOT_VERSION} --build-arg ROOT_VERSION=${ROOT_VERSION} --build-arg MAKE_N_JOBS=3 .
+docker build -t root:${ROOT_VERSION} --build-arg ROOT_VERSION=${ROOT_VERSION} --build-arg MAKE_N_JOBS=3 .
 ```
 
 Where the `-t` option is used to give the image a name (`root_v6.16.00` in this case) and `--build-arg ROOT_VERSION` is to assign a value to the `ROOT_VERSION` variable inside the `Dockerfile`. In this example we used an environment variable to keep the naming of the image consistent with the installed ROOT version. Remember you need to be on the directory of the `Dockerfile` (or use the `-f PATH_TO_DOCKERFILE` option) and have superuser privileges. 
