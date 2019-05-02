@@ -28,7 +28,12 @@ ARG MAKE_N_JOBS=""
 RUN if [ -z "$MAKE_N_JOBS" ]; then MAKE_N_JOBS=$((`nproc` + 1)); fi
 RUN cmake -DCMAKE_INSTALL_PREFIX=$ROOT_INSTALL_PREFIX -DCXX17=ON -DGDML=ON ..
 RUN make install -j$MAKE_N_JOBS
+# remove downloaded sources
 
+WORKDIR /
+RUN rm -rf /opt/root-${ROOT_VERSION}/
+
+# set environment variables
 ENV ROOTSYS "${ROOT_INSTALL_PREFIX}"
 ENV PATH "${ROOTSYS}/bin:${PATH}"
 ENV LD_LIBRARY_PATH "${ROOTSYS}/lib:${LD_LIBRARY_PATH}"
