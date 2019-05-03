@@ -66,7 +66,7 @@ ClassImp(TRestEventProcess)
 
 TRestEventProcess::TRestEventProcess()
 {
-	fObservableNames.clear();
+	fObservableInfo.clear();
 	fSingleThreadOnly = false;
 }
 
@@ -81,8 +81,8 @@ TRestEventProcess::~TRestEventProcess()
 /// \brief Loop child sections declared as "observable" and set them in the analysis tree
 ///
 /// \code <observable name="abc" value="ON"/>
-/// There are two types of observables: datamember observable and realtime observable
-/// datamember observable has the same name with a class-defined data member. The address
+/// There are two types of observables: datamember observable and realtime observable.
+/// Datamember observable has the same name with a class-defined data member. The address
 /// of this data member will be found and be used to crate the tree branch. On the other hand,
 /// realtime observable is only defined during the analysis process. We need to call the 
 /// method TRestAnalysisTree::SetObservableValue() after the value is calculated.
@@ -90,9 +90,8 @@ TRestEventProcess::~TRestEventProcess()
 /// After all the processes have finished the event, observable branches will automatically
 /// be filled.
 ///
-/// Note that observables can only be double type. If one wants to save other types of 
-/// analysis result, e.g. vector or map, he can only define them as process's data member 
-/// and save the wholel process in analysis tree.
+/// Note that realtime observables can only be double type. If one wants to save other types of 
+/// analysis result, e.g. vector or map, he needs to use datamember observables.
 vector<string> TRestEventProcess::ReadObservables()
 {
 	TiXmlElement* e = GetElement("observable");
@@ -119,38 +118,37 @@ vector<string> TRestEventProcess::ReadObservables()
 		
 	}//now we get a list of all observal names
 
-	if (fObservableNames.size() != 0)
-		return obsnames;
+	//If fObservableInfo is not empty, directly return the observable name list.
+	//This is because the user may manually this method somewhere else. 
+	//We need to prevent adding observables repeadtedly.
+	//if (fObservableInfo.size() != 0)
+	//	return obsnames;
 
-	//if fObservableNames is empty, add observables.
+	//if fObservableInfo is empty, add observables.
 	//1. observable is datamember of the process class
 	//then the address of this datamember is found, and associated to a branch
 	//it will be automatically saved at the end of each process loop
 	//2. observable is not datamember of the process class
-	//then REST will create a new double value as observable.
-	//the user needs to call fAnalysisTree->SetObservableValue( obsName, obsValue ) during each process
+	//then REST will create a new double-typed observable in analysis tree.
+	//
+	//the user is recommended to call TRestEventProcess::SetObservableValue( obsName, obsValue ) during each process
 	
 	for (int i = 0; i < obsnames.size(); i++) {
 		TStreamerElement* se = GetDataMember(obsnames[i]);
 		if (se != NULL)
 		{
-			if (se->GetType() != 8) {
-				warning << "Only double type datamember can be used as observable, \""<<obsnames[i]<<"\" will be skipped" << endl;
-				continue;
+			int id = fAnalysisTree->AddObservable(obsnames[i], this);
+			if (id != -1)
+			{
+				fObservableInfo[(TString)GetName() + "." + obsnames[i]] = id;
 			}
-			if (fAnalysisTree->AddObservable((TString)GetName() + "_" + obsnames[i], (double*)GetDataMemberRef(se))!=-1)
-				fObservableNames.push_back((TString)GetName() + "_" + obsnames[i]);
 		}
 		else
 		{
-			double*d = new double();
-			if (fAnalysisTree->AddObservable((TString)GetName() + "_" + obsnames[i], d)!=-1)
+			int id = fAnalysisTree->AddObservable((TString)GetName() + "_" + obsnames[i]);
+			if (id != -1)
 			{
-				fObservableNames.push_back((TString)GetName() + "_" + obsnames[i]);
-			}
-			else
-			{
-				delete d;
+				fObservableInfo[(TString)GetName() + "_" + obsnames[i]] = id;
 			}
 		}
 	}
@@ -188,52 +186,7 @@ void TRestEventProcess::ConfigAnalysisTree() {
 	if (fAnalysisTree == NULL)return;
 
 	if (fOutputLevel >= Observable)ReadObservables();
-	if (fOutputLevel >= Internal_Var) {
-		int n = GetNumberOfDataMember();
-		for (int i = 1; i < n; i++) {
-			TStreamerElement*ele = this->GetDataMember(i);
-			//cout << ele->GetTypeName() << " " << ele->GetName() << " " << ele->ClassName() << endl;
-			if (ele != NULL && !ele->IsaPointer()) {
-				TString brName = this->GetName() + (TString)"." + ele->GetName();
-
-				if ((string)ele->ClassName() == "TStreamerObject" || (string)ele->ClassName() == "TStreamerSTL")
-				{
-					fAnalysisTree->Branch(brName, ele->GetTypeName(), GetDataMemberRef(ele));
-				}
-				else if ((string)ele->ClassName() == "TStreamerBasicType")
-				{
-					string typeName = ele->GetTypeName();
-					if (typeName == "double") {
-						fAnalysisTree->Branch(brName, (double*)GetDataMemberRef(ele));
-					}
-					else if (typeName == "float") {
-						fAnalysisTree->Branch(brName, (float*)GetDataMemberRef(ele));
-					}
-					else if (typeName == "long double") {
-						fAnalysisTree->Branch(brName, (long double*)GetDataMemberRef(ele));
-					}
-					else if (typeName == "bool") {
-						fAnalysisTree->Branch(brName, (bool*)GetDataMemberRef(ele));
-					}
-					else if (typeName == "char") {
-						fAnalysisTree->Branch(brName, (char*)GetDataMemberRef(ele));
-					}
-					else if (typeName == "int") {
-						fAnalysisTree->Branch(brName, (int*)GetDataMemberRef(ele));
-					}
-					else if (typeName == "short") {
-						fAnalysisTree->Branch(brName, (short*)GetDataMemberRef(ele));
-					}
-					else if (typeName == "long") {
-						fAnalysisTree->Branch(brName, (long*)GetDataMemberRef(ele));
-					}
-					else if (typeName == "long long") {
-						fAnalysisTree->Branch(brName, (long long*)GetDataMemberRef(ele));
-					}
-				}
-			}
-		}
-	}
+	if (fOutputLevel >= Internal_Var) fAnalysisTree->Branch(this->GetName(), this);
 	if (fOutputLevel >= Full_Output) fAnalysisTree->Branch(this->GetName() + (TString)"_evtBranch", GetOutputEvent());
 
 }
@@ -247,7 +200,7 @@ Int_t TRestEventProcess::LoadSectionMetadata()
 
 	//load output level
 	REST_Process_Output lvl;
-	string s = GetParameter("outputLevel", "internalvar");
+	string s = GetParameter("outputLevel", "observable");
 	if (s == "nooutput" || s == "0") {
 		lvl = No_Output;
 	}
@@ -314,10 +267,16 @@ TRestMetadata *TRestEventProcess::GetMetadata(string name)
 	return m;
 }
 
-
+//////////////////////////////////////////////////////////////////////////
+/// \brief Set observable value for analysistree. 
+///
+/// recommended as it is more efficienct than calling fAnalysisTree->SetObservableValue( obsName, obsValue )
 void TRestEventProcess::SetObservableValue(TString name, double value) {
 	if (fAnalysisTree != NULL) {
-		fAnalysisTree->SetObservableValue(name, value);
+		TString obsname = this->GetName() + (TString)"_" + name;
+		if (fObservableInfo.count(obsname) != 0) {
+			fAnalysisTree->SetObservableValue(fObservableInfo[obsname], value);
+		}
 	}
 }
 
@@ -404,18 +363,19 @@ void TRestEventProcess::BeginPrintProcess()
 	metadata << " ----------------------------------------------- " << endl;
  	metadata << " " << endl;
 
-	if (fObservableNames.size() > 0)
+	if (fObservableInfo.size() > 0)
 	{
 		metadata << " Analysis tree observables added by this process " << endl;
 		metadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
 	}
 
-	for (unsigned int i = 0; i < fObservableNames.size(); i++)
-	{
-		metadata << " ++ " << fObservableNames[i] << endl;
+	auto iter = fObservableInfo.begin();
+	while (iter != fObservableInfo.end()) {
+		metadata << " ++ " << iter->first << endl;
+		iter++;
 	}
 
-	if (fObservableNames.size() > 0)
+	if (fObservableInfo.size() > 0)
 	{
 		metadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
 		metadata << " " << endl;
@@ -477,4 +437,14 @@ Double_t TRestEventProcess::GetDoubleParameterFromClassWithUnits(TString classNa
 			return fFriendlyProcesses[i]->GetDblParameterWithUnits((string)parName);
 
 	return PARAMETER_NOT_FOUND_DBL;
+}
+
+std::vector <TString> TRestEventProcess::GetListOfAddedObservables() {
+	vector <TString> list;
+	auto iter = fObservableInfo.begin();
+	while (iter != fObservableInfo.end()) {
+		list.push_back(iter->first);
+		iter++;
+	}
+	return list;
 }

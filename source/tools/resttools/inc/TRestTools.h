@@ -89,6 +89,8 @@ class TRestTools {
         ///
         static std::string Execute( const char *cmd );
 
+		static char* Assembly(TString typeName);
+
 		/// Rest tools class 
         ClassDef(TRestTools, 1); 
 };

@@ -7,6 +7,7 @@
 using namespace std;
 
 #include <dirent.h>
+#include "TClass.h"
 
 struct _REST_STARTUP_CHECK {
 public:
@@ -204,6 +205,42 @@ std::string TRestTools::Execute( const char *cmd )
         result += buffer.data();
     }
     return result;
+}
+
+char* TRestTools::Assembly(TString typeName)
+{
+	if (typeName == "double") {
+		return (char*)new double(0);
+	}
+	else if (typeName == "float") {
+		return (char*)new double(0);
+	}
+	else if (typeName == "long double") {
+		return (char*)new double(0);
+	}
+	else if (typeName == "bool") {
+		return (char*)new double(0);
+	}
+	else if (typeName == "char") {
+		return (char*)new double(0);
+	}
+	else if (typeName == "int") {
+		return (char*)new double(0);
+	}
+	else if (typeName == "short") {
+		return (char*)new double(0);
+	}
+	else if (typeName == "long") {
+		return (char*)new double(0);
+	}
+	else if (typeName == "long long") {
+		return (char*)new double(0);
+	}
+	else {
+		TClass*c = new TClass(typeName);
+		return (char*)c->New();
+	}
+
 }
 
 

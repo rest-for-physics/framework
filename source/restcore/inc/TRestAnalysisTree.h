@@ -23,6 +23,8 @@
 
 #include "TTree.h"
 class TRestEventProcess;
+class TRestMetadata;
+class TStreamerElement;
 
 class TRestAnalysisTree :public TTree {
 
@@ -39,12 +41,14 @@ private:
 	Int_t fRunOrigin;//!
 	Int_t fSubRunOrigin;//!
 
-	std::vector <Double_t*> fObservableValues;//!
+	std::vector <char*> fObservableValues;//!
 #endif
 
 	Int_t fNObservables;
 	std::vector <TString> fObservableNames;
 	std::vector <TString> fObservableDescriptions;
+	std::vector <TString> fObservableTypes;
+
 
 protected:
 public:
@@ -76,13 +80,18 @@ public:
 	TString GetObservableName(Int_t n) { return fObservableNames[n]; } // TODO implement error message in case n >= fNObservables
 	TString GetObservableDescription(Int_t n) { return fObservableDescriptions[n]; }
 	Double_t GetObservableValue(Int_t n) { return *fObservableValues[n]; } // TODO implement error message in case n >= fNObservables
-
 	Double_t GetObservableValue(TString obsName) { return this->GetObservableValue(this->GetObservableID(obsName)); }
+	TString GetObservableType(Int_t n) { 
+		if (fNObservables > 0 && fObservableTypes.size() == 0) return "double"; 
+		return fObservableTypes[n]; 
+	}
 
-	void SetObservableValue(Int_t n, Double_t value) { *fObservableValues[n] = value; }
-
-	void SetObservableValue(TString ProcName_ObsName, Double_t value);
-	void SetObservableValue(TRestEventProcess* proc, TString obsName, Double_t value);
+	template<class T> void SetObservableValue(Int_t n, T value) { *(T*)fObservableValues[n] = value; }
+	template<class T> void SetObservableValue(TString ProcName_ObsName, T value) {
+		//string name_fixed = Replace((string)ProcName_ObsName, ".", "_", 0);
+		Int_t id = GetObservableID(ProcName_ObsName);
+		if (id >= 0) SetObservableValue(id, value);
+	}
 
 	void CreateEventBranches();
 	void CreateObservableBranches();
@@ -115,10 +124,13 @@ public:
 
 
 	void PrintObservables(TRestEventProcess* proc = 0, int NObservables = 9999);
+	void PrintObservable(int N);
+
 
 	Int_t FillEvent(TRestEvent *evt);
 
-	Int_t AddObservable(TString observableName, Double_t* observableValue, TString description = "");
+	Int_t AddObservable(TString objName, TRestMetadata* meta, TString description = "");
+	Int_t AddObservable(TString observableName, TString description = "");
 
 	//Construtor
 	TRestAnalysisTree();
@@ -127,6 +139,6 @@ public:
 	virtual ~TRestAnalysisTree();
 
 
-	ClassDef(TRestAnalysisTree, 1);     // REST run class
+	ClassDef(TRestAnalysisTree, 2);     // REST run class
 };
 #endif

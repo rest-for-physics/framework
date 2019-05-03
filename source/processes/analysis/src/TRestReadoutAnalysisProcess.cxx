@@ -110,10 +110,10 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 		Double_t lastY_t = 0.0;
 
 		double nan = numeric_limits<double>::quiet_NaN();
-		fAnalysisTree->SetObservableValue(this, "FirstX", nan);
-		fAnalysisTree->SetObservableValue(this, "FirstY", nan);
-		fAnalysisTree->SetObservableValue(this, "LastX", nan);
-		fAnalysisTree->SetObservableValue(this, "LastY", nan);
+		this->SetObservableValue("FirstX", nan);
+		this->SetObservableValue("FirstY", nan);
+		this->SetObservableValue("LastX", nan);
+		this->SetObservableValue("LastY", nan);
 
 		for (int i = 0; i < fSignalEvent->GetNumberOfSignals(); i++) {
 			TRestSignal*sgnl = fSignalEvent->GetSignal(i);
@@ -150,10 +150,10 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 			double firsty = fReadout->GetY(firstY_id);
 			double lastx = fReadout->GetX(lastX_id);
 			double lasty = fReadout->GetY(lastY_id);
-			fAnalysisTree->SetObservableValue(this, "FirstX", firstx);
-			fAnalysisTree->SetObservableValue(this, "FirstY", firsty);
-			fAnalysisTree->SetObservableValue(this, "LastX", lastx);
-			fAnalysisTree->SetObservableValue(this, "LastY", lasty);
+			this->SetObservableValue("FirstX", firstx);
+			this->SetObservableValue("FirstY", firsty);
+			this->SetObservableValue("LastX", lastx);
+			this->SetObservableValue("LastY", lasty);
 
 			int mod1 = -1, mod2 = -1;
 			int channel1 = -1, channel2 = -1;
@@ -209,7 +209,7 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent *evInput)
 			}
 		}
 
-		fAnalysisTree->SetObservableValue(this, "CalibratedIntegral", integral);
+		this->SetObservableValue("CalibratedIntegral", integral);
 
 		debug << "TRestReadoutAnalysisProcess. Calibrated event energy : " << integral << endl;
 	}
