@@ -275,13 +275,13 @@ void TRestThread::PrepareToProcess(bool testrun)
 				error << "One of the processes has NULL pointer fOutputEvent!" << endl;
 				if(fVerboseLevel<REST_Debug)
 					error << "To see more detail, turn on debug mode for TRestProcessRunner!" << endl;
-				exit(0);
+				exit(1);
 			}
 			debug << "Test Run complete!" << endl;
 		}
 		else
 		{
-			debug << "Setting output event address with out test run... This may cause empty event problem!" << endl;
+			debug << "Setting output event address without test run... This may cause empty event problem!" << endl;
 			fOutputEvent = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent();
 		}
 		delete tempTree;
