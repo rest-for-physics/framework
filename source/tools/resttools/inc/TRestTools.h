@@ -91,6 +91,46 @@ class TRestTools {
 
 		static char* Assembly(TString typeName);
 
+		template<class T> static std::string GetTypeName(T obj) {
+			TClass*cl = TClass::GetClass(typeid(obj));
+			if (c1 != NULL) {
+				return c1->Name();
+			}
+			else {
+				if (typeid(obj) == typeid(double)) {
+					return "double";
+				}
+				else if (typeid(obj) == typeid(float)) {
+					return "float";
+				}
+				else if (typeid(obj) == typeid(long double)) {
+					return "long double";
+				}
+				else if (typeid(obj) == typeid(bool)) {
+					return "bool";
+				}
+				else if (typeid(obj) == typeid(char)) {
+					return "char";
+				}
+				else if (typeid(obj) == typeid(int)) {
+					return "int";
+				}
+				else if (typeid(obj) == typeid(short)) {
+					return "short";
+				}
+				else if (typeid(obj) == typeid(long)) {
+					return "long";
+				}
+				else if (typeid(obj) == typeid(long long)) {
+					return "long long";
+				}
+
+
+			}
+
+			return "unknown";
+		}
+
 		/// Rest tools class 
         ClassDef(TRestTools, 1); 
 };

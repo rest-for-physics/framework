@@ -213,34 +213,35 @@ char* TRestTools::Assembly(TString typeName)
 		return (char*)new double(0);
 	}
 	else if (typeName == "float") {
-		return (char*)new double(0);
+		return (char*)new float(0);
 	}
 	else if (typeName == "long double") {
-		return (char*)new double(0);
+		return (char*)new long double(0);
 	}
 	else if (typeName == "bool") {
-		return (char*)new double(0);
+		return (char*)new bool(0);
 	}
 	else if (typeName == "char") {
-		return (char*)new double(0);
+		return (char*)new char(0);
 	}
 	else if (typeName == "int") {
-		return (char*)new double(0);
+		return (char*)new int(0);
 	}
 	else if (typeName == "short") {
-		return (char*)new double(0);
+		return (char*)new short(0);
 	}
 	else if (typeName == "long") {
-		return (char*)new double(0);
+		return (char*)new long(0);
 	}
 	else if (typeName == "long long") {
-		return (char*)new double(0);
+		return (char*)new long long(0);
 	}
 	else {
 		TClass*c = new TClass(typeName);
-		return (char*)c->New();
+		if(c!=NULL)
+			return (char*)c->New();
 	}
-
+	return NULL;
 }
 
 
