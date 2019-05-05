@@ -132,8 +132,8 @@ Int_t TRestAnalysisTree::AddObservable(TString observableName, TString descripti
 	}
 	else
 	{
-		cout << "observable \"" << observableName << "\" has already been created! skipping" << endl;
-		return -1;
+		//cout << "observable \"" << observableName << "\" has already been created! skipping" << endl;
+		return GetObservableID(observableName);
 	}
 
 	return fNObservables - 1;
@@ -146,21 +146,26 @@ Int_t TRestAnalysisTree::AddObservable(TString objName, TRestMetadata* meta, TSt
 		return -1;
 	}
 	TStreamerElement*ele = meta->GetDataMember((string)objName);
+	TString brName = meta->GetName() + (TString)"." + ele->GetName();
 	//cout << ele->GetTypeName() << " " << ele->GetName() << " " << ele->ClassName() << endl;
-	if (ele != NULL && !ele->IsaPointer() && ele->GetName()[0] != 'f') {
-		TString brName = this->GetName() + (TString)"." + ele->GetName();
-		fObservableNames.push_back(brName);
-		fObservableDescriptions.push_back(description);
-		fObservableValues.push_back(meta->GetDataMemberRef(ele));
-		fObservableTypes.push_back(ele->GetTypeName());
-		fNObservables++;
+	if (GetObservableID(brName) == -1) {
+		if (ele != NULL && !ele->IsaPointer() && ele->GetName()[0] != 'f') {
+			fObservableNames.push_back(brName);
+			fObservableDescriptions.push_back(description);
+			fObservableValues.push_back(meta->GetDataMemberRef(ele));
+			fObservableTypes.push_back(ele->GetTypeName());
+			fNObservables++;
+		}
+		else
+		{
+			cout << "Data member \"" << objName << "\" not found in class: \"" << meta->ClassName() << "\"" << endl;
+			return -1;
+		}
 	}
-	else
-	{
-		cout << "Data member \"" << objName << "\" not found in class: \"" << meta->ClassName() << "\"" << endl;
-		return -1;
+	else {
+		//cout << "observable \"" << observableName << "\" has already been created! skipping" << endl;
+		return GetObservableID(brName);
 	}
-
 	return fNObservables - 1;
 }
 

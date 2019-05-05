@@ -47,7 +47,6 @@
 
   <globals>
     <searchPath value="$ENV{REST_INPUTDATA}/definitions/"/>
-    <parameter name="outputLevel" value="internalvar" /> %options are : nooutput(0), observable(1), internalvar(2), fulloutput(3)
     <parameter name="verboseLevel" value="essential" /> %options are : silent(0), essential(1), info(2), debug(3), extreme(4)
     <parameter name="mainDataPath" value="" />
   </globals>
