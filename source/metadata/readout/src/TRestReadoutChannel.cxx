@@ -20,91 +20,90 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-
- //////////////////////////////////////////////////////////////////////////
- ///
- /// This class stores the readout pixel geometrical description, origin  
- /// position, orientation, and size. A readout pixel is the most elementary
- /// component of a readout used to construct a readout channel.
- /// 
- ///--------------------------------------------------------------------------
- ///
- /// RESTsoft - Software for Rare Event Searches with TPCs
- ///
- /// History of developments:
- ///
- /// 2015-aug:  First concept.
- ///            Javier Galan
- ///
- /// \class      TRestReadoutChannel
- /// \author     Javier Galan
- ///
- /// <hr>
- ///
-
+//////////////////////////////////////////////////////////////////////////
+///
+/// This class stores the readout pixel geometrical description, origin
+/// position, orientation, and size. A readout pixel is the most elementary
+/// component of a readout used to construct a readout channel.
+///
+///--------------------------------------------------------------------------
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2015-aug:  First concept.
+///            Javier Galan
+///
+/// \class      TRestReadoutChannel
+/// \author     Javier Galan
+///
+/// <hr>
+///
 
 #include "TRestReadoutChannel.h"
 using namespace std;
 
 ClassImp(TRestReadoutChannel)
-///////////////////////////////////////////////
-/// \brief TRestReadoutChannel default constructor
-///
-TRestReadoutChannel::TRestReadoutChannel()
-{
-	Initialize();
-
+    ///////////////////////////////////////////////
+    /// \brief TRestReadoutChannel default constructor
+    ///
+    TRestReadoutChannel::TRestReadoutChannel() {
+  Initialize();
 }
 
 ///////////////////////////////////////////////
 /// \brief TRestReadoutChannel default destructor
 ///
-TRestReadoutChannel::~TRestReadoutChannel()
-{
-}
+TRestReadoutChannel::~TRestReadoutChannel() {}
 
 ///////////////////////////////////////////////
 /// \brief Initializes the channel members
-/// 
-void TRestReadoutChannel::Initialize()
-{
-	fDaqID = -1;
-}
-
-///////////////////////////////////////////////
-/// \brief Determines if (x,y) referenced to module coordinates is inside the channel
 ///
-Int_t TRestReadoutChannel::isInside(Double_t x, Double_t y)
-{
-	for (unsigned int i = 0; i < fReadoutPixel.size(); i++)
-		if (fReadoutPixel[i].isInside(x, y)) return true;
-	return false;
+void TRestReadoutChannel::Initialize() { fDaqID = -1; }
+
+///////////////////////////////////////////////
+/// \brief Determines if (x,y) referenced to module coordinates is inside the
+/// channel
+///
+Int_t TRestReadoutChannel::isInside(Double_t x, Double_t y) {
+  for (unsigned int i = 0; i < fReadoutPixel.size(); i++)
+    if (fReadoutPixel[i].isInside(x, y)) return true;
+  return false;
 }
 
 ///////////////////////////////////////////////
-/// \brief Prints the details of the readout channel including pixel coordinates.
-/// 
-void TRestReadoutChannel::Print(int DetailLevel, int index)
-{
-	if (DetailLevel >= 0) {
-		cout << "++++ Channel : " << index << " Daq channel : " << GetDaqID() << endl;
+/// \brief Prints the details of the readout channel including pixel
+/// coordinates.
+///
+void TRestReadoutChannel::Print(int DetailLevel, int index) {
+  if (DetailLevel >= 0) {
+    cout << "++++ Channel : " << index << " Daq channel : " << GetDaqID()
+         << endl;
 
-		string typestr;
-		if (GetType() == Channel_NoType)typestr = "NoType";
-		else if (GetType() == Channel_Pixel)typestr = "Pixel";
-		else if (GetType() == Channel_X)typestr = "X";
-		else if (GetType() == Channel_Y)typestr = "Y";
-		else if (GetType() == Channel_U)typestr = "U";
-		else if (GetType() == Channel_V)typestr = "V";
-		else if (GetType() == Channel_W)typestr = "W";
+    string typestr;
+    if (GetType() == Channel_NoType)
+      typestr = "NoType";
+    else if (GetType() == Channel_Pixel)
+      typestr = "Pixel";
+    else if (GetType() == Channel_X)
+      typestr = "X";
+    else if (GetType() == Channel_Y)
+      typestr = "Y";
+    else if (GetType() == Channel_U)
+      typestr = "U";
+    else if (GetType() == Channel_V)
+      typestr = "V";
+    else if (GetType() == Channel_W)
+      typestr = "W";
 
-		cout << " Total pixels : " << GetNumberOfPixels() << " Channel type : " << typestr << endl;
-		cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    cout << " Total pixels : " << GetNumberOfPixels()
+         << " Channel type : " << typestr << endl;
+    cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
-		if (DetailLevel - 1 >= 0)
-			for (int n = 0; n < GetNumberOfPixels(); n++)
-			{
-				fReadoutPixel[n].Print( n );
-			}
-	}
+    if (DetailLevel - 1 >= 0)
+      for (int n = 0; n < GetNumberOfPixels(); n++) {
+        fReadoutPixel[n].Print(n);
+      }
+  }
 }

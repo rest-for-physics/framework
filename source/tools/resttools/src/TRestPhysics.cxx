@@ -1,10 +1,6 @@
 #include "TRestPhysics.h"
 #include <iostream>
-#include <limits> 
+#include <limits>
 using namespace std;
 
-namespace REST_Physics
-{
-
-}
-
+namespace REST_Physics {}

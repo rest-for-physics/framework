@@ -1,102 +1,106 @@
 ///______________________________________________________________________________
 ///______________________________________________________________________________
 ///______________________________________________________________________________
-///             
+///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
 ///             TRestSignalEvent.h
 ///
-///             Event class to store DAQ events either from simulation and acquisition 
+///             Event class to store DAQ events either from simulation and
+///             acquisition
 ///
 ///             sept 2015:   First concept
-///                 Created as part of the conceptualization of existing REST 
+///                 Created as part of the conceptualization of existing REST
 ///                 software.
 ///                 JuanAn Garcia
 ///_______________________________________________________________________________
-
 
 #ifndef RestDAQ_TRestSignalEvent
 #define RestDAQ_TRestSignalEvent
 
 #include <iostream>
 
-#include <TObject.h>
 #include <TArrayD.h>
-#include <TPad.h>
+#include <TAxis.h>
 #include <TGraph.h>
 #include <TMultiGraph.h>
-#include <TAxis.h>
+#include <TObject.h>
+#include <TPad.h>
 
 #include "TRestEvent.h"
 #include "TRestSignal.h"
 
-class TRestSignalEvent: public TRestEvent {
-
-    protected:
-
+class TRestSignalEvent : public TRestEvent {
+ protected:
 #ifndef __CINT__
-        Double_t fMinTime; //!
-        Double_t fMaxTime; //!
-        Double_t fMinValue; //!
-        Double_t fMaxValue; //!
+  Double_t fMinTime;   //!
+  Double_t fMaxTime;   //!
+  Double_t fMinValue;  //!
+  Double_t fMaxValue;  //!
 #endif
 
-        std::vector <TRestSignal> fSignal; //Collection of signals that define the event
+  std::vector<TRestSignal>
+      fSignal;  // Collection of signals that define the event
 
-    private:
+ private:
+  void SetMaxAndMin();
 
-        void SetMaxAndMin();
+ public:
+  Bool_t signalIDExists(Int_t sID) {
+    if (GetSignalIndex(sID) == -1) return false;
+    return true;
+  }
 
-    public:
+  void SortSignals() {
+    for (int n = 0; n < GetNumberOfSignals(); n++) fSignal[n].Sort();
+  }
 
-        Bool_t signalIDExists( Int_t sID ) { if( GetSignalIndex( sID ) == -1 ) return false; return true; }
+  // Setters
+  void AddSignal(TRestSignal s);
 
-        void SortSignals( ) { for ( int n = 0; n < GetNumberOfSignals(); n++ ) fSignal[n].Sort(); }
+  void AddChargeToSignal(Int_t sgnlID, Double_t tm, Double_t chrg);
 
-        //Setters
-        void AddSignal(TRestSignal s);
+  // Getters
+  Int_t GetNumberOfSignals() { return fSignal.size(); }
+  TRestSignal* GetSignal(Int_t n) { return &fSignal[n]; }
 
-        void AddChargeToSignal( Int_t sgnlID, Double_t tm, Double_t chrg );
+  TRestSignal* GetSignalById(Int_t sid) {
+    Int_t index = GetSignalIndex(sid);
+    if (index < 0) return NULL;
 
-        //Getters
-        Int_t GetNumberOfSignals() { return fSignal.size(); }
-        TRestSignal *GetSignal(Int_t n ) { return &fSignal[n]; }
+    return &fSignal[index];
+  }
 
-        TRestSignal *GetSignalById( Int_t sid ) 
-        { 
-            Int_t index = GetSignalIndex( sid );
-            if( index < 0 ) return NULL;
+  Int_t GetSignalIndex(Int_t signalID);
 
-            return &fSignal[index]; 
-        }
+  Double_t GetBaseLineAverage(Int_t startBin, Int_t endBin);
+  Double_t GetBaseLineSigmaAverage(Int_t startBin, Int_t endBin);
+  void SubstractBaselines(Int_t startBin, Int_t endBin);
+  Double_t GetIntegral(Int_t startBin = 0, Int_t endBin = 0);
+  Double_t GetIntegralWithThreshold(Int_t from, Int_t to, Int_t startBaseline,
+                                    Int_t endBaseline, Double_t nSigmas,
+                                    Int_t nPointsOverThreshold,
+                                    Double_t minPeakAmplitude);
 
-        Int_t GetSignalIndex( Int_t signalID );
+  Double_t GetMaxValue();
+  Double_t GetMinValue();
+  Double_t GetMinTime();
+  Double_t GetMaxTime();
 
-        Double_t GetBaseLineAverage( Int_t startBin, Int_t endBin );
-        Double_t GetBaseLineSigmaAverage( Int_t startBin, Int_t endBin );
-        void SubstractBaselines( Int_t startBin, Int_t endBin );
-        Double_t GetIntegral( Int_t startBin = 0, Int_t endBin = 0 );
-        Double_t GetIntegralWithThreshold( Int_t from, Int_t to, Int_t startBaseline, Int_t endBaseline, Double_t nSigmas, Int_t nPointsOverThreshold, Double_t minPeakAmplitude );
+  Double_t GetIntegralWithTime(Double_t startTime, Double_t endTime);
 
-        Double_t GetMaxValue( );
-        Double_t GetMinValue( );
-        Double_t GetMinTime( );
-        Double_t GetMaxTime( );
+  // Default
+  void Initialize();
+  void PrintEvent();
 
-        Double_t GetIntegralWithTime( Double_t startTime, Double_t endTime );
+  TPad* DrawEvent(TString option = "");
 
-        // Default
-        void Initialize();
-        void PrintEvent();
+  // Construtor
+  TRestSignalEvent();
+  // Destructor
+  virtual ~TRestSignalEvent();
 
-        TPad *DrawEvent( TString option = "" );
-
-        //Construtor
-        TRestSignalEvent();
-        //Destructor
-        virtual ~ TRestSignalEvent();
-
-        ClassDef(TRestSignalEvent, 1);     // REST event superclass
+  ClassDef(TRestSignalEvent, 1);  // REST event superclass
 };
 #endif

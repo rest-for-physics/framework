@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////
-///             
+///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
@@ -9,58 +9,54 @@
 ///
 //////////////////////////////////////////////////////////////////////////
 
-
 #ifndef RestCore_TRestTrackToHitsProcess
 #define RestCore_TRestTrackToHitsProcess
 
-#include <TRestTrackEvent.h>
 #include <TRestHitsEvent.h>
+#include <TRestTrackEvent.h>
 #include "TRestEventProcess.h"
 
-class TRestTrackToHitsProcess:public TRestEventProcess {
-
-    private:
-
+class TRestTrackToHitsProcess : public TRestEventProcess {
+ private:
 #ifndef __CINT__
-        TRestTrackEvent *fInputTrackEvent;//!
-        TRestHitsEvent *fOutputHitsEvent;//!
+  TRestTrackEvent* fInputTrackEvent;  //!
+  TRestHitsEvent* fOutputHitsEvent;   //!
 #endif
 
-        void InitFromConfigFile();
+  void InitFromConfigFile();
 
-        void Initialize();
+  void Initialize();
 
-    protected:
+ protected:
+  Int_t fTrackLevel;
 
-        Int_t fTrackLevel;
+ public:
+  void InitProcess();
+  TRestEvent* ProcessEvent(TRestEvent* eventInput);
+  void EndOfEventProcess();
+  void EndProcess();
+  void LoadDefaultConfig();
 
-    public:
-        void InitProcess();
-        TRestEvent *ProcessEvent( TRestEvent *eventInput );
-        void EndOfEventProcess(); 
-        void EndProcess();
-        void LoadDefaultConfig( );
+  void LoadConfig(std::string cfgFilename, std::string name = "");
 
-        void LoadConfig( std::string cfgFilename, std::string name = "" );
+  void PrintMetadata() {
+    BeginPrintProcess();
 
-        void PrintMetadata() { 
+    cout << "Track level : " << fTrackLevel << endl;
 
-            BeginPrintProcess();
+    EndPrintProcess();
+  }
 
-            cout << "Track level : " << fTrackLevel << endl;
+  TString GetProcessName() { return (TString) "trackToHits"; }
 
-            EndPrintProcess();
-        }
+  // Constructor
+  TRestTrackToHitsProcess();
+  TRestTrackToHitsProcess(char* cfgFileName);
+  // Destructor
+  ~TRestTrackToHitsProcess();
 
-        TString GetProcessName() { return (TString) "trackToHits"; }
-
-        //Constructor
-        TRestTrackToHitsProcess();
-        TRestTrackToHitsProcess( char *cfgFileName );
-        //Destructor
-        ~TRestTrackToHitsProcess();
-
-        ClassDef(TRestTrackToHitsProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+  ClassDef(TRestTrackToHitsProcess,
+           1);  // Template for a REST "event process" class inherited from
+                // TRestEventProcess
 };
 #endif
-

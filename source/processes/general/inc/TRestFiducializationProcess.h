@@ -1,7 +1,7 @@
 ///______________________________________________________________________________
 ///______________________________________________________________________________
 ///______________________________________________________________________________
-///             
+///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
@@ -9,59 +9,56 @@
 ///
 ///_______________________________________________________________________________
 
-
 #ifndef RestCore_TRestFiducializationProcess
 #define RestCore_TRestFiducializationProcess
 
-#include <TRestReadout.h>
 #include <TRestHitsEvent.h>
+#include <TRestReadout.h>
 
 #include "TRestEventProcess.h"
 
-class TRestFiducializationProcess:public TRestEventProcess {
-    private:
+class TRestFiducializationProcess : public TRestEventProcess {
+ private:
 #ifndef __CINT__
-        TRestHitsEvent *fInputHitsEvent;//!
-        TRestHitsEvent *fOutputHitsEvent;//!
+  TRestHitsEvent* fInputHitsEvent;   //!
+  TRestHitsEvent* fOutputHitsEvent;  //!
 
-        TRestReadout *fReadout;//!
+  TRestReadout* fReadout;  //!
 
 #endif
 
-        void InitFromConfigFile();
+  void InitFromConfigFile();
 
-        void Initialize();
+  void Initialize();
 
-        void LoadDefaultConfig();
+  void LoadDefaultConfig();
 
-    protected:
+ protected:
+ public:
+  void InitProcess();
+  void BeginOfEventProcess();
+  TRestEvent* ProcessEvent(TRestEvent* eventInput);
+  void EndOfEventProcess();
+  void EndProcess();
 
-    public:
-        void InitProcess();
-        void BeginOfEventProcess(); 
-        TRestEvent *ProcessEvent( TRestEvent *eventInput );
-        void EndOfEventProcess(); 
-        void EndProcess();
+  void LoadConfig(std::string cfgFilename, std::string name = "");
 
-        void LoadConfig( std::string cfgFilename, std::string name = "" );
+  void PrintMetadata() {
+    BeginPrintProcess();
 
-        void PrintMetadata() { 
+    EndPrintProcess();
+  }
 
-            BeginPrintProcess();
+  TString GetProcessName() { return (TString) "fiducialization"; }
 
-            EndPrintProcess();
+  // Constructor
+  TRestFiducializationProcess();
+  TRestFiducializationProcess(char* cfgFileName);
+  // Destructor
+  ~TRestFiducializationProcess();
 
-        }
-
-        TString GetProcessName() { return (TString) "fiducialization"; }
-
-        //Constructor
-        TRestFiducializationProcess();
-        TRestFiducializationProcess( char *cfgFileName );
-        //Destructor
-        ~TRestFiducializationProcess();
-
-        ClassDef(TRestFiducializationProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+  ClassDef(TRestFiducializationProcess,
+           1);  // Template for a REST "event process" class inherited from
+                // TRestEventProcess
 };
 #endif
-

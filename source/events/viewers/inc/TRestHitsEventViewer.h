@@ -1,7 +1,7 @@
 ///______________________________________________________________________________
 ///______________________________________________________________________________
 ///______________________________________________________________________________
-///             
+///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
@@ -12,7 +12,6 @@
 ///                 JuanAn Garcia
 ///_______________________________________________________________________________
 
-
 #ifndef RestCore_TRestHitsEventViewer
 #define RestCore_TRestHitsEventViewer
 
@@ -20,23 +19,20 @@
 
 #include "TRestHitsEvent.h"
 
-class TRestHitsEventViewer:public TRestEveEventViewer {
-
+class TRestHitsEventViewer : public TRestEveEventViewer {
  private:
-        
-    TRestHitsEvent *fHitsEvent;
-               
- public:
- 
-   void Initialize();
-   void DeleteCurrentEvent(  );
-   void AddEvent( TRestEvent *ev );
-     
-   //Constructor
-   TRestHitsEventViewer();
-   //Destructor
-   ~TRestHitsEventViewer();
+  TRestHitsEvent* fHitsEvent;
 
-   ClassDef(TRestHitsEventViewer, 1);      //class inherited from TRestEventViewer
+ public:
+  void Initialize();
+  void DeleteCurrentEvent();
+  void AddEvent(TRestEvent* ev);
+
+  // Constructor
+  TRestHitsEventViewer();
+  // Destructor
+  ~TRestHitsEventViewer();
+
+  ClassDef(TRestHitsEventViewer, 1);  // class inherited from TRestEventViewer
 };
 #endif

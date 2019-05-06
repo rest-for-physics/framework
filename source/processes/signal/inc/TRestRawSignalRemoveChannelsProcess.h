@@ -28,59 +28,54 @@
 #include "TRestEventProcess.h"
 
 //! A process allowing to remove selected channels from a TRestRawSignalEvent
-class TRestRawSignalRemoveChannelsProcess:public TRestEventProcess {
-    private:
-
+class TRestRawSignalRemoveChannelsProcess : public TRestEventProcess {
+ private:
 #ifndef __CINT__
-        /// A pointer to the specific TRestSignalEvent input
-        TRestRawSignalEvent *fInputSignalEvent; //!
+  /// A pointer to the specific TRestSignalEvent input
+  TRestRawSignalEvent* fInputSignalEvent;  //!
 
-        /// A pointer to the specific TRestRawSignalEvent input
-        TRestRawSignalEvent *fOutputSignalEvent; //!
+  /// A pointer to the specific TRestRawSignalEvent input
+  TRestRawSignalEvent* fOutputSignalEvent;  //!
 #endif
 
-        void InitFromConfigFile();
+  void InitFromConfigFile();
 
-        void Initialize();
+  void Initialize();
 
-        void LoadDefaultConfig();
+  void LoadDefaultConfig();
 
-    protected:
+ protected:
+  std::vector<Int_t> fChannelIds;
 
-    std::vector <Int_t> fChannelIds;
+ public:
+  void BeginOfEventProcess();
+  TRestEvent* ProcessEvent(TRestEvent* eventInput);
 
-    public:
+  void LoadConfig(std::string cfgFilename, string name = "");
 
-        void BeginOfEventProcess(); 
-        TRestEvent *ProcessEvent( TRestEvent *eventInput );
+  /// It prints out the process parameters stored in the metadata structure
+  void PrintMetadata() {
+    BeginPrintProcess();
 
-        void LoadConfig( std::string cfgFilename, string name = "" );
+    for (unsigned int n = 0; n < fChannelIds.size(); n++)
+      std::cout << "Channel id to remove : " << fChannelIds[n] << std::endl;
 
-        /// It prints out the process parameters stored in the metadata structure
-        void PrintMetadata() 
-        { 
-            BeginPrintProcess();
+    EndPrintProcess();
+  }
 
-            for( unsigned int n = 0; n < fChannelIds.size(); n++ )
-                std::cout << "Channel id to remove : " << fChannelIds[n] << std::endl;
+  /// Returns a new instance of this class
+  TRestEventProcess* Maker() { return new TRestRawSignalRemoveChannelsProcess; }
 
-            EndPrintProcess();
-        }
-        
-        /// Returns a new instance of this class
-        TRestEventProcess *Maker() { return new TRestRawSignalRemoveChannelsProcess; }
+  /// Returns the name of this process
+  TString GetProcessName() { return (TString) "removeChannels"; }
 
-        /// Returns the name of this process
-        TString GetProcessName() { return (TString) "removeChannels"; }
+  // Constructor
+  TRestRawSignalRemoveChannelsProcess();
+  TRestRawSignalRemoveChannelsProcess(char* cfgFileName);
 
-        //Constructor
-        TRestRawSignalRemoveChannelsProcess();
-        TRestRawSignalRemoveChannelsProcess( char *cfgFileName );
+  // Destructor
+  ~TRestRawSignalRemoveChannelsProcess();
 
-        //Destructor
-        ~TRestRawSignalRemoveChannelsProcess();
-
-        ClassDef(TRestRawSignalRemoveChannelsProcess, 1);
+  ClassDef(TRestRawSignalRemoveChannelsProcess, 1);
 };
 #endif
-

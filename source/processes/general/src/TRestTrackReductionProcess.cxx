@@ -5,183 +5,165 @@
 ///             TRestTrackReductionProcess.cxx
 ///
 ///             Jan 2016:   First concept (Javier Galan)
-///             
+///
 //////////////////////////////////////////////////////////////////////////
 
 #include "TRestTrackReductionProcess.h"
 using namespace std;
 
 ClassImp(TRestTrackReductionProcess)
-//______________________________________________________________________________
-TRestTrackReductionProcess::TRestTrackReductionProcess( )
-{
-    Initialize();
+    //______________________________________________________________________________
+    TRestTrackReductionProcess::TRestTrackReductionProcess() {
+  Initialize();
 }
 
 //______________________________________________________________________________
-TRestTrackReductionProcess::TRestTrackReductionProcess( char *cfgFileName )
-{
-    Initialize();
+TRestTrackReductionProcess::TRestTrackReductionProcess(char* cfgFileName) {
+  Initialize();
 
-    if( LoadConfigFromFile( cfgFileName ) == -1 ) LoadDefaultConfig( );
+  if (LoadConfigFromFile(cfgFileName) == -1) LoadDefaultConfig();
 }
 
 //______________________________________________________________________________
-TRestTrackReductionProcess::~TRestTrackReductionProcess( )
-{
-    delete fInputTrackEvent;
-    delete fOutputTrackEvent;
+TRestTrackReductionProcess::~TRestTrackReductionProcess() {
+  delete fInputTrackEvent;
+  delete fOutputTrackEvent;
 }
 
-void TRestTrackReductionProcess::LoadDefaultConfig( )
-{
-    SetName( "trackReductionProcess" );
-    SetTitle( "Default config" );
+void TRestTrackReductionProcess::LoadDefaultConfig() {
+  SetName("trackReductionProcess");
+  SetTitle("Default config");
 
-    fStartingDistance = 0.5;
-    fMinimumDistance  = 3;
-    fDistanceFactor   = 1.5;
-    fMaxNodes         = 30;
-}
-
-//______________________________________________________________________________
-void TRestTrackReductionProcess::Initialize( )
-{
-    SetSectionName( this->ClassName() );
-
-    fInputTrackEvent = new TRestTrackEvent();
-    fOutputTrackEvent = new TRestTrackEvent();
-
-    fOutputEvent = fOutputTrackEvent;
-    fInputEvent  = fInputTrackEvent;
-}
-
-void TRestTrackReductionProcess::LoadConfig( std::string cfgFilename, std::string name )
-{
-
-    if( LoadConfigFromFile( cfgFilename, name ) == -1 ) LoadDefaultConfig( );
+  fStartingDistance = 0.5;
+  fMinimumDistance = 3;
+  fDistanceFactor = 1.5;
+  fMaxNodes = 30;
 }
 
 //______________________________________________________________________________
-void TRestTrackReductionProcess::InitProcess()
-{
-    cout << __PRETTY_FUNCTION__ << endl;
+void TRestTrackReductionProcess::Initialize() {
+  SetSectionName(this->ClassName());
+
+  fInputTrackEvent = new TRestTrackEvent();
+  fOutputTrackEvent = new TRestTrackEvent();
+
+  fOutputEvent = fOutputTrackEvent;
+  fInputEvent = fInputTrackEvent;
+}
+
+void TRestTrackReductionProcess::LoadConfig(std::string cfgFilename,
+                                            std::string name) {
+  if (LoadConfigFromFile(cfgFilename, name) == -1) LoadDefaultConfig();
 }
 
 //______________________________________________________________________________
-void TRestTrackReductionProcess::BeginOfEventProcess() 
-{
-    fOutputTrackEvent->Initialize(); 
+void TRestTrackReductionProcess::InitProcess() {
+  cout << __PRETTY_FUNCTION__ << endl;
 }
 
 //______________________________________________________________________________
-TRestEvent* TRestTrackReductionProcess::ProcessEvent( TRestEvent *evInput )
-{
-    fInputTrackEvent = (TRestTrackEvent *) evInput;
-	fOutputTrackEvent->SetEventInfo(fInputTrackEvent);
-    // Copying the input tracks to the output track
-    for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
-        fOutputTrackEvent->AddTrack( fInputTrackEvent->GetTrack(tck) ); 
+void TRestTrackReductionProcess::BeginOfEventProcess() {
+  fOutputTrackEvent->Initialize();
+}
 
-    if( this->GetVerboseLevel() >= REST_Debug )
-        fInputTrackEvent->PrintOnlyTracks();
+//______________________________________________________________________________
+TRestEvent* TRestTrackReductionProcess::ProcessEvent(TRestEvent* evInput) {
+  fInputTrackEvent = (TRestTrackEvent*)evInput;
+  fOutputTrackEvent->SetEventInfo(fInputTrackEvent);
+  // Copying the input tracks to the output track
+  for (int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++)
+    fOutputTrackEvent->AddTrack(fInputTrackEvent->GetTrack(tck));
 
-    // Reducing the hits inside each track
-    for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
-    {
-        if( !fInputTrackEvent->isTopLevel( tck ) ) continue;
+  if (this->GetVerboseLevel() >= REST_Debug)
+    fInputTrackEvent->PrintOnlyTracks();
 
-        TRestTrack *track = fInputTrackEvent->GetTrack( tck );
-        TRestVolumeHits *hits = track->GetVolumeHits();
+  // Reducing the hits inside each track
+  for (int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++) {
+    if (!fInputTrackEvent->isTopLevel(tck)) continue;
 
-        if( this->GetVerboseLevel() >= REST_Debug )
-              cout << "TRestTrackReductionProcess. Reducing hits in track id : " <<  track->GetTrackID() << endl;
+    TRestTrack* track = fInputTrackEvent->GetTrack(tck);
+    TRestVolumeHits* hits = track->GetVolumeHits();
 
-        Double_t distance = fStartingDistance;
-        while( distance < fMinimumDistance || hits->GetNumberOfHits() > fMaxNodes )
-        {
-            if( this->GetVerboseLevel() >= REST_Debug )
-            {
-                cout << "TRestTrackReductionProcess. Merging track hits within a distance : " << distance << " mm" << endl;
-                cout << "TRestTrackReductionProcess. Hits now : " <<hits->GetNumberOfHits() << endl;
+    if (this->GetVerboseLevel() >= REST_Debug)
+      cout << "TRestTrackReductionProcess. Reducing hits in track id : "
+           << track->GetTrackID() << endl;
+
+    Double_t distance = fStartingDistance;
+    while (distance < fMinimumDistance || hits->GetNumberOfHits() > fMaxNodes) {
+      if (this->GetVerboseLevel() >= REST_Debug) {
+        cout << "TRestTrackReductionProcess. Merging track hits within a "
+                "distance : "
+             << distance << " mm" << endl;
+        cout << "TRestTrackReductionProcess. Hits now : "
+             << hits->GetNumberOfHits() << endl;
+      }
+
+      Int_t mergedHits = 0;
+
+      Bool_t merged = true;
+      while (merged) {
+        merged = false;
+        for (int i = 0; i < hits->GetNumberOfHits(); i++) {
+          for (int j = i + 1; j < hits->GetNumberOfHits(); j++) {
+            if (hits->GetDistance2(i, j) < distance * distance) {
+              mergedHits++;
+              hits->MergeHits(i, j);
+              merged = true;
             }
-
-            Int_t mergedHits = 0;
-
-            Bool_t merged = true;
-            while( merged )
-            {
-                merged = false;
-                for( int i = 0; i < hits->GetNumberOfHits(); i++ )
-                {
-                    for( int j = i+1; j < hits->GetNumberOfHits(); j++ )
-                    {
-                        if( hits->GetDistance2( i, j ) < distance * distance )
-                        {
-                            mergedHits++;
-                            hits->MergeHits( i, j );
-                            merged = true;
-                        }
-                    }
-                }
-            }
-
-            if( this->GetVerboseLevel() >= REST_Debug )
-            {
-                cout << "TRestTrackReductionProcess. Number of hits merged : " << mergedHits << endl;
-            }
-
-            mergedHits = 0;
-
-            distance *= fDistanceFactor;
+          }
         }
+      }
 
-        track->SetParentID( track->GetTrackID() );
-        track->SetTrackID( fOutputTrackEvent->GetNumberOfTracks()+1 );
+      if (this->GetVerboseLevel() >= REST_Debug) {
+        cout << "TRestTrackReductionProcess. Number of hits merged : "
+             << mergedHits << endl;
+      }
 
-        fOutputTrackEvent->AddTrack( track ); 
+      mergedHits = 0;
+
+      distance *= fDistanceFactor;
     }
 
-    /*
-    cout << "output event" << endl;
-    cout << "+++++++++++++++++" << endl;
-    fOutputTrackEvent->PrintOnlyTracks();
-    cout << "+++++++++++++++++" << endl;
-    getchar();
+    track->SetParentID(track->GetTrackID());
+    track->SetTrackID(fOutputTrackEvent->GetNumberOfTracks() + 1);
 
-    cout << "Checking levels " << endl;
-    cout << "---------------------------------------------_" << endl;
-    cout << "TrackEvent pointer : " << fOutputTrackEvent << endl;
-    cout << fOutputTrackEvent->GetNumberOfTracks() << endl;
-    cout << "TrackEvent pointer : " << fOutputTrackEvent << endl;
+    fOutputTrackEvent->AddTrack(track);
+  }
 
-    fOutputTrackEvent->GetLevels();
-    cout << "---------------" << endl;
-    */
+  /*
+  cout << "output event" << endl;
+  cout << "+++++++++++++++++" << endl;
+  fOutputTrackEvent->PrintOnlyTracks();
+  cout << "+++++++++++++++++" << endl;
+  getchar();
 
-    //cout << "Number output of tracks : " << fOutputTrackEvent->GetNumberOfTracks() << endl;
+  cout << "Checking levels " << endl;
+  cout << "---------------------------------------------_" << endl;
+  cout << "TrackEvent pointer : " << fOutputTrackEvent << endl;
+  cout << fOutputTrackEvent->GetNumberOfTracks() << endl;
+  cout << "TrackEvent pointer : " << fOutputTrackEvent << endl;
 
-    fOutputTrackEvent->SetLevels();
-    return fOutputTrackEvent;
+  fOutputTrackEvent->GetLevels();
+  cout << "---------------" << endl;
+  */
+
+  // cout << "Number output of tracks : " <<
+  // fOutputTrackEvent->GetNumberOfTracks() << endl;
+
+  fOutputTrackEvent->SetLevels();
+  return fOutputTrackEvent;
 }
 
 //______________________________________________________________________________
-void TRestTrackReductionProcess::EndOfEventProcess() 
-{
-
-}
+void TRestTrackReductionProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
-void TRestTrackReductionProcess::EndProcess()
-{
-}
+void TRestTrackReductionProcess::EndProcess() {}
 
 //______________________________________________________________________________
-void TRestTrackReductionProcess::InitFromConfigFile( )
-{
-    fStartingDistance = GetDblParameterWithUnits(  "startingDistance" );
-    fMinimumDistance  = GetDblParameterWithUnits( "minimumDistance" );
-    fDistanceFactor   = StringToDouble( GetParameter( "distanceStepFactor" ) );
-    fMaxNodes         = StringToDouble( GetParameter( "maxNodes" ) );
+void TRestTrackReductionProcess::InitFromConfigFile() {
+  fStartingDistance = GetDblParameterWithUnits("startingDistance");
+  fMinimumDistance = GetDblParameterWithUnits("minimumDistance");
+  fDistanceFactor = StringToDouble(GetParameter("distanceStepFactor"));
+  fMaxNodes = StringToDouble(GetParameter("maxNodes"));
 }
-

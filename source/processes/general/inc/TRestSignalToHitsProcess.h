@@ -1,7 +1,7 @@
 ///______________________________________________________________________________
 ///______________________________________________________________________________
 ///______________________________________________________________________________
-///             
+///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
@@ -9,75 +9,71 @@
 ///
 ///_______________________________________________________________________________
 
-
 #ifndef RestCore_TRestSignalToHitsProcess
 #define RestCore_TRestSignalToHitsProcess
 
 #include <TRestGas.h>
 #include <TRestReadout.h>
 
-#include <TRestSignalEvent.h>
 #include <TRestHitsEvent.h>
+#include <TRestSignalEvent.h>
 
 #include "TRestEventProcess.h"
 
-class TRestSignalToHitsProcess :public TRestEventProcess {
-private:
-
+class TRestSignalToHitsProcess : public TRestEventProcess {
+ private:
 #ifndef __CINT__
-	TRestHitsEvent *fHitsEvent;//!
-	TRestSignalEvent *fSignalEvent;//!
+  TRestHitsEvent* fHitsEvent;      //!
+  TRestSignalEvent* fSignalEvent;  //!
 
-	TRestReadout *fReadout;//!
-	TRestGas *fGas;//!
+  TRestReadout* fReadout;  //!
+  TRestGas* fGas;          //!
 #endif
 
-	void InitFromConfigFile();
+  void InitFromConfigFile();
 
-	void Initialize();
+  void Initialize();
 
-	void LoadDefaultConfig();
+  void LoadDefaultConfig();
 
-protected:
+ protected:
+  Double_t fElectricField;  // V/cm
+  Double_t fGasPressure;    // atm
+  Double_t fDriftVelocity;  // mm/us
 
-	Double_t fElectricField; // V/cm
-	Double_t fGasPressure; // atm
-	Double_t fDriftVelocity; // mm/us
+  TString fSignalToHitMethod;
 
-	TString fSignalToHitMethod;
+ public:
+  void InitProcess();
+  void BeginOfEventProcess();
+  TRestEvent* ProcessEvent(TRestEvent* eventInput);
+  void EndOfEventProcess();
+  void EndProcess();
 
-public:
+  void LoadConfig(std::string cfgFilename, std::string name = "");
 
-	void InitProcess();
-	void BeginOfEventProcess();
-	TRestEvent *ProcessEvent(TRestEvent *eventInput);
-	void EndOfEventProcess();
-	void EndProcess();
+  void PrintMetadata() {
+    BeginPrintProcess();
 
-	void LoadConfig(std::string cfgFilename, std::string name = "");
+    metadata << "Electric field : " << fElectricField << " V/cm" << endl;
+    metadata << "Gas pressure : " << fGasPressure << " atm" << endl;
+    metadata << "Drift velocity : " << fDriftVelocity << " mm/us" << endl;
 
-	void PrintMetadata()
-	{
-		BeginPrintProcess();
+    metadata << "Signal to hits method : " << fSignalToHitMethod << endl;
 
-		metadata << "Electric field : " << fElectricField << " V/cm" << endl;
-		metadata << "Gas pressure : " << fGasPressure << " atm" << endl;
-		metadata << "Drift velocity : " << fDriftVelocity << " mm/us" << endl;
+    EndPrintProcess();
+  }
 
-		metadata << "Signal to hits method : " << fSignalToHitMethod << endl;
+  TString GetProcessName() { return (TString) "signalToHits"; }
 
-		EndPrintProcess();
-	}
+  // Constructor
+  TRestSignalToHitsProcess();
+  TRestSignalToHitsProcess(char* cfgFileName);
+  // Destructor
+  ~TRestSignalToHitsProcess();
 
-	TString GetProcessName() { return (TString) "signalToHits"; }
-
-	//Constructor
-	TRestSignalToHitsProcess();
-	TRestSignalToHitsProcess(char *cfgFileName);
-	//Destructor
-	~TRestSignalToHitsProcess();
-
-	ClassDef(TRestSignalToHitsProcess, 2);      // Template for a REST "event process" class inherited from TRestEventProcess
+  ClassDef(TRestSignalToHitsProcess,
+           2);  // Template for a REST "event process" class inherited from
+                // TRestEventProcess
 };
 #endif
-

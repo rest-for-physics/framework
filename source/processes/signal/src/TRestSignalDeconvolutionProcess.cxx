@@ -1,7 +1,7 @@
 ///______________________________________________________________________________
 ///______________________________________________________________________________
 ///______________________________________________________________________________
-///             
+///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
@@ -9,7 +9,6 @@
 ///
 ///             oct 2015:  Javier Galan
 ///_______________________________________________________________________________
-
 
 #include "TRestSignalDeconvolutionProcess.h"
 using namespace std;
@@ -20,282 +19,267 @@ using namespace std;
 
 #include <TCanvas.h>
 
-TRestFFT *responseFFT;
-//TRestFFT *cleanFFT;
+TRestFFT* responseFFT;
+// TRestFFT *cleanFFT;
 
 ClassImp(TRestSignalDeconvolutionProcess)
     //______________________________________________________________________________
-TRestSignalDeconvolutionProcess::TRestSignalDeconvolutionProcess()
-{
-    Initialize();
+    TRestSignalDeconvolutionProcess::TRestSignalDeconvolutionProcess() {
+  Initialize();
 }
 
 //______________________________________________________________________________
-TRestSignalDeconvolutionProcess::TRestSignalDeconvolutionProcess( char *cfgFileName )
-{
-    Initialize();
+TRestSignalDeconvolutionProcess::TRestSignalDeconvolutionProcess(
+    char* cfgFileName) {
+  Initialize();
 
-    if( LoadConfigFromFile( cfgFileName ) == -1 ) LoadDefaultConfig( );
+  if (LoadConfigFromFile(cfgFileName) == -1) LoadDefaultConfig();
 
-    PrintMetadata();
-    // TRestSignalDeconvolutionProcess default constructor
+  PrintMetadata();
+  // TRestSignalDeconvolutionProcess default constructor
 }
 
 //______________________________________________________________________________
-TRestSignalDeconvolutionProcess::~TRestSignalDeconvolutionProcess()
-{
-    delete fOutputSignalEvent;
-    delete fInputSignalEvent;
-    // TRestSignalDeconvolutionProcess destructor
+TRestSignalDeconvolutionProcess::~TRestSignalDeconvolutionProcess() {
+  delete fOutputSignalEvent;
+  delete fInputSignalEvent;
+  // TRestSignalDeconvolutionProcess destructor
 
- //   delete cleanFFT;
-    delete responseFFT;
+  //   delete cleanFFT;
+  delete responseFFT;
 }
 
-void TRestSignalDeconvolutionProcess::LoadConfig( string cfgFilename )
-{
-    if( LoadConfigFromFile( cfgFilename ) ) LoadDefaultConfig( );
+void TRestSignalDeconvolutionProcess::LoadConfig(string cfgFilename) {
+  if (LoadConfigFromFile(cfgFilename)) LoadDefaultConfig();
 
-    PrintMetadata();
+  PrintMetadata();
 }
 
-void TRestSignalDeconvolutionProcess::LoadDefaultConfig( )
-{
-    SetName( "signalDeconvolutionProcess-Default" );
-    SetTitle( "Default config" );
+void TRestSignalDeconvolutionProcess::LoadDefaultConfig() {
+  SetName("signalDeconvolutionProcess-Default");
+  SetTitle("Default config");
 
-    fFreq1 = 11.1063e-2/M_PI/1.5;
-    fFreq2 = 14.8001e-2/M_PI/1.5;
+  fFreq1 = 11.1063e-2 / M_PI / 1.5;
+  fFreq2 = 14.8001e-2 / M_PI / 1.5;
 
-    fSmoothingPoints = 3;
-    fSmearingPoints = 5;
+  fSmoothingPoints = 3;
+  fSmearingPoints = 5;
 
-    fBaseLineStart = 32;
-    fBaseLineEnd = 64;
+  fBaseLineStart = 32;
+  fBaseLineEnd = 64;
 
-    fFFTStart = 32;
-    fFFTEnd = 32;
+  fFFTStart = 32;
+  fFFTEnd = 32;
 
-    fCutFrequency = 12;
+  fCutFrequency = 12;
 
-    fResponseFilename = "AGET_Response_100MHz_Gain0x2_Shaping0x7.root";
+  fResponseFilename = "AGET_Response_100MHz_Gain0x2_Shaping0x7.root";
 }
 
 //______________________________________________________________________________
-void TRestSignalDeconvolutionProcess::Initialize()
-{
-    SetSectionName( this->ClassName() );
-    fInputSignalEvent = new TRestSignalEvent();
+void TRestSignalDeconvolutionProcess::Initialize() {
+  SetSectionName(this->ClassName());
+  fInputSignalEvent = new TRestSignalEvent();
 
-    fOutputSignalEvent = new TRestSignalEvent();
+  fOutputSignalEvent = new TRestSignalEvent();
 
-    fInputEvent = fInputSignalEvent;
-    fOutputEvent = fOutputSignalEvent;
+  fInputEvent = fInputSignalEvent;
+  fOutputEvent = fOutputSignalEvent;
 
-    responseFFT = new TRestFFT();
-    //cleanFFT = new TRestFFT();
+  responseFFT = new TRestFFT();
+  // cleanFFT = new TRestFFT();
 }
 
 //______________________________________________________________________________
-void TRestSignalDeconvolutionProcess::InitProcess()
-{
-    // Function to be executed once at the beginning of process
-    // (before starting the process of the events)
+void TRestSignalDeconvolutionProcess::InitProcess() {
+  // Function to be executed once at the beginning of process
+  // (before starting the process of the events)
 
-    //Start by calling the InitProcess function of the abstract class. 
-    //Comment this if you don't want it.
-    //TRestEventProcess::InitProcess();
+  // Start by calling the InitProcess function of the abstract class.
+  // Comment this if you don't want it.
+  // TRestEventProcess::InitProcess();
 
-    TRestSignal *responseSignal = new TRestSignal();
+  TRestSignal* responseSignal = new TRestSignal();
 
-    TString fullPathName = (TString) getenv("REST_PATH") + "/data/signal/" + fResponseFilename;
+  TString fullPathName =
+      (TString)getenv("REST_PATH") + "/data/signal/" + fResponseFilename;
 
-    TFile *f = new TFile( fullPathName );
+  TFile* f = new TFile(fullPathName);
 
-    responseSignal = (TRestSignal *) f->Get( "signal Response" );
+  responseSignal = (TRestSignal*)f->Get("signal Response");
 
-    f->Close();
+  f->Close();
 
-    TRestSignal smoothSignal, difSignal, dif2Signal;
+  TRestSignal smoothSignal, difSignal, dif2Signal;
 
-    // Smoothing response signal
-    responseSignal->GetSignalSmoothed( &smoothSignal, 3 );
-    if( GetVerboseLevel() >= REST_Debug )
-	smoothSignal.WriteSignalToTextFile ( "/tmp/smooth.txt" );
+  // Smoothing response signal
+  responseSignal->GetSignalSmoothed(&smoothSignal, 3);
+  if (GetVerboseLevel() >= REST_Debug)
+    smoothSignal.WriteSignalToTextFile("/tmp/smooth.txt");
 
-    // Obtainning dV/dt
-    //smoothSignal.GetDifferentialSignal( &difSignal, fSmearingPoints );
-    //difSignal.WriteSignalToTextFile ( "diff.txt" );
-    /*
-    // Obtainning d2V/dt2
-    difSignal.GetDifferentialSignal( &dif2Signal, fSmearingPoints );
-    dif2Signal.WriteSignalToTextFile ( "diff2.txt" );
+  // Obtainning dV/dt
+  // smoothSignal.GetDifferentialSignal( &difSignal, fSmearingPoints );
+  // difSignal.WriteSignalToTextFile ( "diff.txt" );
+  /*
+  // Obtainning d2V/dt2
+  difSignal.GetDifferentialSignal( &dif2Signal, fSmearingPoints );
+  dif2Signal.WriteSignalToTextFile ( "diff2.txt" );
 
 
-    // Applying transform -> difSignal
-    difSignal.MultiplySignalBy ( 1/fFreq1 );
-    dif2Signal.MultiplySignalBy ( 1/fFreq2/fFreq1 );
-    difSignal.SignalAddition ( &smoothSignal );
-    difSignal.SignalAddition ( &dif2Signal );
+  // Applying transform -> difSignal
+  difSignal.MultiplySignalBy ( 1/fFreq1 );
+  dif2Signal.MultiplySignalBy ( 1/fFreq2/fFreq1 );
+  difSignal.SignalAddition ( &smoothSignal );
+  difSignal.SignalAddition ( &dif2Signal );
 
-    difSignal.WriteSignalToTextFile( "diff3.txt");
-    exit(1);
-    */
- //   cout << "oFFT : " << responseFFT << endl;
+  difSignal.WriteSignalToTextFile( "diff3.txt");
+  exit(1);
+  */
+  //   cout << "oFFT : " << responseFFT << endl;
   //  responseFFT->ForwardSignalFFT( &smoothSignal, fFFTStart, fFFTEnd );
-    if ( GetVerboseLevel() >= REST_Debug )
-	responseFFT->WriteFrequencyToTextFile( "/tmp/responseFFT.txt" );
+  if (GetVerboseLevel() >= REST_Debug)
+    responseFFT->WriteFrequencyToTextFile("/tmp/responseFFT.txt");
 
-    // We overwrite the response signal and replace by the analytical version
-    responseFFT->SetNfft( 512 );
-    responseFFT->GaussianSecondOrderResponse( 27.1385, 186.388, 21355.9, 2.18342e-3 );
+  // We overwrite the response signal and replace by the analytical version
+  responseFFT->SetNfft(512);
+  responseFFT->GaussianSecondOrderResponse(27.1385, 186.388, 21355.9,
+                                           2.18342e-3);
 
-    responseFFT->WriteFrequencyToTextFile( "ANALYTICAL.txt" );
+  responseFFT->WriteFrequencyToTextFile("ANALYTICAL.txt");
 
-    // Exponential convolution for signal tail-cleaning
-    /*
-    Double_t baseline = difSignal.GetAverage( fBaseLineStart, fBaseLineEnd );
-    Double_t maxIndex = difSignal.GetMaxIndex();
-    Double_t width = difSignal.GetMaxPeakWidth();
-    difSignal.ExponentialConvolution( maxIndex+width/2., width, baseline );
+  // Exponential convolution for signal tail-cleaning
+  /*
+  Double_t baseline = difSignal.GetAverage( fBaseLineStart, fBaseLineEnd );
+  Double_t maxIndex = difSignal.GetMaxIndex();
+  Double_t width = difSignal.GetMaxPeakWidth();
+  difSignal.ExponentialConvolution( maxIndex+width/2., width, baseline );
 
-    difSignal.WriteSignalToTextFile( "diffProc.txt" );
+  difSignal.WriteSignalToTextFile( "diffProc.txt" );
 
-    cleanFFT->ForwardSignalFFT( &difSignal, fFFTStart, fFFTEnd );
-    cleanFFT->WriteFrequencyToTextFile( "cleanFFT.txt" );
-    cleanFFT->DivideBy( originalFFT );
-    cleanFFT->WriteFrequencyToTextFile( "responseFFT.txt" );
+  cleanFFT->ForwardSignalFFT( &difSignal, fFFTStart, fFFTEnd );
+  cleanFFT->WriteFrequencyToTextFile( "cleanFFT.txt" );
+  cleanFFT->DivideBy( originalFFT );
+  cleanFFT->WriteFrequencyToTextFile( "responseFFT.txt" );
 */
 
-    delete responseSignal;
+  delete responseSignal;
 }
 
 //______________________________________________________________________________
-void TRestSignalDeconvolutionProcess::BeginOfEventProcess() 
-{
-    fOutputSignalEvent->Initialize(); 
+void TRestSignalDeconvolutionProcess::BeginOfEventProcess() {
+  fOutputSignalEvent->Initialize();
 }
 
 //______________________________________________________________________________
-TRestEvent* TRestSignalDeconvolutionProcess::ProcessEvent( TRestEvent *evInput )
-{
+TRestEvent* TRestSignalDeconvolutionProcess::ProcessEvent(TRestEvent* evInput) {
+  fInputSignalEvent = (TRestSignalEvent*)evInput;
 
-    fInputSignalEvent = (TRestSignalEvent *) evInput;
+  if (fInputSignalEvent->GetNumberOfSignals() <= 0) return NULL;
 
-    if( fInputSignalEvent->GetNumberOfSignals() <= 0 ) return NULL;
+  for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++) {
+    TRestSignal smoothSignal, difSignal, dif2Signal;
 
+    fInputSignalEvent->SubstractBaselines(40, 100);
+    // Smoothing input signal
+    fInputSignalEvent->GetSignal(n)->GetSignalSmoothed(&smoothSignal,
+                                                       fSmoothingPoints);
+    difSignal.SetSignalID(fInputSignalEvent->GetSignal(n)->GetSignalID());
 
-    for( int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++ ) 
-    {
-        TRestSignal smoothSignal, difSignal, dif2Signal;
+    /* **** This could be implemented in another process */
+    // Obtainning dV(t)/dt
+    // smoothSignal.GetDifferentialSignal( &difSignal, fSmearingPoints );
+    // Obtainning d2V(t)/dt2
+    // difSignal.GetDifferentialSignal( &dif2Signal, fSmearingPoints );
 
-	fInputSignalEvent->SubstractBaselines( 40, 100 );
-        // Smoothing input signal
-        fInputSignalEvent->GetSignal(n)->GetSignalSmoothed( &smoothSignal, fSmoothingPoints );
-        difSignal.SetSignalID( fInputSignalEvent->GetSignal(n)->GetSignalID() );
+    // Applying second order deconvolution -> difSignal
+    // difSignal.MultiplySignalBy ( 1/fFreq1 );
+    // dif2Signal.MultiplySignalBy ( 1/fFreq2/fFreq1 );
+    // difSignal.SignalAddition ( &smoothSignal );
+    // difSignal.SignalAddition ( &dif2Signal );
+    /* ************************************************ */
 
-	/* **** This could be implemented in another process */
-        // Obtainning dV(t)/dt
-        //smoothSignal.GetDifferentialSignal( &difSignal, fSmearingPoints );
-        // Obtainning d2V(t)/dt2
-        //difSignal.GetDifferentialSignal( &dif2Signal, fSmearingPoints );
+    // Applying response
+    TRestFFT* mySignalFFT = new TRestFFT();
+    mySignalFFT->ForwardSignalFFT(&smoothSignal, fFFTStart, fFFTEnd);
+    if (GetVerboseLevel() >= REST_Debug)
+      smoothSignal.WriteSignalToTextFile("/tmp/smoothSignal.txt");
 
-        // Applying second order deconvolution -> difSignal
-        //difSignal.MultiplySignalBy ( 1/fFreq1 );
-        //dif2Signal.MultiplySignalBy ( 1/fFreq2/fFreq1 );
-        //difSignal.SignalAddition ( &smoothSignal );
-        //difSignal.SignalAddition ( &dif2Signal );
-        /* ************************************************ */
+    if (GetVerboseLevel() >= REST_Debug)
+      mySignalFFT->WriteFrequencyToTextFile("/tmp/smoothFFT.txt");
 
-        // Applying response
-        TRestFFT *mySignalFFT = new TRestFFT();
-        mySignalFFT->ForwardSignalFFT( &smoothSignal, fFFTStart, fFFTEnd );
-	if( GetVerboseLevel() >= REST_Debug )
-		smoothSignal.WriteSignalToTextFile( "/tmp/smoothSignal.txt" );
+    // responseFFT->DivideBy( responseFFT, 500 );
 
-	if( GetVerboseLevel() >= REST_Debug )
-		mySignalFFT->WriteFrequencyToTextFile( "/tmp/smoothFFT.txt" );
+    // mySignalFFT->KillFrequencies( 60, 260 );
+    // mySignalFFT->ButterWorthFilter( 80, 1 );//, Double_t amp, Double_t decay
+    // )
 
-        //responseFFT->DivideBy( responseFFT, 500 );
+    if (GetVerboseLevel() >= REST_Debug)
+      mySignalFFT->WriteFrequencyToTextFile("/tmp/filteredFFT.txt");
 
-	//mySignalFFT->KillFrequencies( 60, 260 );
-	//mySignalFFT->ButterWorthFilter( 80, 1 );//, Double_t amp, Double_t decay )
-
-	if( GetVerboseLevel() >= REST_Debug )
-		mySignalFFT->WriteFrequencyToTextFile( "/tmp/filteredFFT.txt" );
-
-	if( GetVerboseLevel() >= REST_Debug )
-	{
-		mySignalFFT->BackwardFFT();
-		mySignalFFT->GetSignal( &difSignal );
-		difSignal.WriteSignalToTextFile( "/tmp/filteredSignal.txt" );
-	}
-
-	//mySignalFFT->DivideBy( responseFFT, 0, 20 );
-	mySignalFFT->ApplyResponse( responseFFT, fCutFrequency );
-	//mySignalFFT->ButterWorthFilter( 43, 4 );//, Double_t amp, Double_t decay )
-	//mySignalFFT->KillFrequencies( 63 );//, Double_t amp, Double_t decay )
-
-	if( GetVerboseLevel() >= REST_Debug )
-		mySignalFFT->WriteFrequencyToTextFile( "/tmp/unconvolutedFFT.txt" );
-
-        // Removing baseline
- 	mySignalFFT->RemoveBaseline( );
-
-        // Recovering time signal
-	mySignalFFT->BackwardFFT();
-	mySignalFFT->GetSignal( &difSignal );
-
-	if( GetVerboseLevel() >= REST_Debug )
-		difSignal.WriteSignalToTextFile( "/tmp/resultingSignal.txt" );
-
-	if( GetVerboseLevel() >= REST_Debug )
-		GetChar();
-
-        fOutputSignalEvent->AddSignal( difSignal );
-
-        delete mySignalFFT;
+    if (GetVerboseLevel() >= REST_Debug) {
+      mySignalFFT->BackwardFFT();
+      mySignalFFT->GetSignal(&difSignal);
+      difSignal.WriteSignalToTextFile("/tmp/filteredSignal.txt");
     }
 
-    return fOutputSignalEvent;
+    // mySignalFFT->DivideBy( responseFFT, 0, 20 );
+    mySignalFFT->ApplyResponse(responseFFT, fCutFrequency);
+    // mySignalFFT->ButterWorthFilter( 43, 4 );//, Double_t amp, Double_t decay
+    // ) mySignalFFT->KillFrequencies( 63 );//, Double_t amp, Double_t decay )
+
+    if (GetVerboseLevel() >= REST_Debug)
+      mySignalFFT->WriteFrequencyToTextFile("/tmp/unconvolutedFFT.txt");
+
+    // Removing baseline
+    mySignalFFT->RemoveBaseline();
+
+    // Recovering time signal
+    mySignalFFT->BackwardFFT();
+    mySignalFFT->GetSignal(&difSignal);
+
+    if (GetVerboseLevel() >= REST_Debug)
+      difSignal.WriteSignalToTextFile("/tmp/resultingSignal.txt");
+
+    if (GetVerboseLevel() >= REST_Debug) GetChar();
+
+    fOutputSignalEvent->AddSignal(difSignal);
+
+    delete mySignalFFT;
+  }
+
+  return fOutputSignalEvent;
 }
 
 //______________________________________________________________________________
-void TRestSignalDeconvolutionProcess::EndOfEventProcess() 
-{
+void TRestSignalDeconvolutionProcess::EndOfEventProcess() {}
 
+//______________________________________________________________________________
+void TRestSignalDeconvolutionProcess::EndProcess() {
+  // Function to be executed once at the end of the process
+  // (after all events have been processed)
+
+  // Start by calling the EndProcess function of the abstract class.
+  // Comment this if you don't want it.
+  // TRestEventProcess::EndProcess();
 }
 
 //______________________________________________________________________________
-void TRestSignalDeconvolutionProcess::EndProcess()
-{
-    // Function to be executed once at the end of the process 
-    // (after all events have been processed)
+void TRestSignalDeconvolutionProcess::InitFromConfigFile() {
+  fFreq1 = StringToDouble(GetParameter("frequency1"));
+  fFreq2 = StringToDouble(GetParameter("frequency2"));
 
-    //Start by calling the EndProcess function of the abstract class. 
-    //Comment this if you don't want it.
-    //TRestEventProcess::EndProcess();
+  fSmoothingPoints = StringToInteger(GetParameter("smoothingPoints"));
+  fSmearingPoints = StringToInteger(GetParameter("smearingPoints"));
+
+  fBaseLineStart = StringToInteger(GetParameter("baselineStart"));
+  fBaseLineEnd = StringToInteger(GetParameter("baselineEnd"));
+
+  fFFTStart = StringToInteger(GetParameter("nFFTStart"));
+  fFFTEnd = StringToInteger(GetParameter("nFFTEnd"));
+
+  fCutFrequency = StringToInteger(GetParameter("cutFrequency"));
+
+  fResponseFilename = GetParameter("responseFile");
+
+  PrintMetadata();
 }
-
-//______________________________________________________________________________
-void TRestSignalDeconvolutionProcess::InitFromConfigFile( )
-{
-    fFreq1 = StringToDouble( GetParameter( "frequency1" ) );
-    fFreq2 = StringToDouble( GetParameter( "frequency2" ) );
-
-    fSmoothingPoints = StringToInteger( GetParameter( "smoothingPoints" ) );
-    fSmearingPoints = StringToInteger( GetParameter( "smearingPoints" ) );
-
-    fBaseLineStart = StringToInteger( GetParameter( "baselineStart" ) );
-    fBaseLineEnd = StringToInteger( GetParameter( "baselineEnd" ) );
-
-    fFFTStart = StringToInteger( GetParameter( "nFFTStart" ) );
-    fFFTEnd = StringToInteger( GetParameter( "nFFTEnd" ) );
-
-    fCutFrequency = StringToInteger( GetParameter( "cutFrequency" ) );
-
-    fResponseFilename = GetParameter( "responseFile" );
-
-    PrintMetadata();
-}
-

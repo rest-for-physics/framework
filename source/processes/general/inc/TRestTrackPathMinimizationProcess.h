@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////
-///             
+///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
@@ -8,7 +8,6 @@
 ///              Jan 2016 : Javier Galan
 ///
 //////////////////////////////////////////////////////////////////////////
-
 
 #ifndef RestCore_TRestTrackPathMinimizationProcess
 #define RestCore_TRestTrackPathMinimizationProcess
@@ -22,61 +21,54 @@
 #endif
 #endif
 
-class TRestTrackPathMinimizationProcess:public TRestEventProcess {
-
-    private:
-
+class TRestTrackPathMinimizationProcess : public TRestEventProcess {
+ private:
 #ifndef __CINT__
-        TRestTrackEvent *fInputTrackEvent; //!
-        TRestTrackEvent *fOutputTrackEvent; //!
+  TRestTrackEvent* fInputTrackEvent;   //!
+  TRestTrackEvent* fOutputTrackEvent;  //!
 #endif
 
-        void InitFromConfigFile();
+  void InitFromConfigFile();
 
-        void Initialize();
+  void Initialize();
 
+ protected:
+  // Int_t fMaxNodes;
 
-    protected:
+  Bool_t fWeightHits;
 
-        //Int_t fMaxNodes;
+ public:
+  void InitProcess();
+  void BeginOfEventProcess();
+  TRestEvent* ProcessEvent(TRestEvent* eventInput);
+  void EndOfEventProcess();
+  void EndProcess();
+  void LoadDefaultConfig();
 
-        Bool_t fWeightHits;
+  void LoadConfig(std::string cfgFilename, std::string name = "");
 
+  void PrintMetadata() {
+    BeginPrintProcess();
 
-    public:
+    //           cout << "Maximum number of nodes (hits) allowed : " <<
+    //           fMaxNodes << endl;
 
-        void InitProcess();
-        void BeginOfEventProcess(); 
-        TRestEvent *ProcessEvent( TRestEvent *eventInput );
-        void EndOfEventProcess(); 
-        void EndProcess();
-        void LoadDefaultConfig( );
+    if (fWeightHits)
+      std::cout << "Weight hits : enabled" << std::endl;
+    else
+      std::cout << "Weight hits : disabled" << std::endl;
 
-        void LoadConfig( std::string cfgFilename, std::string name = "" );
+    EndPrintProcess();
+  }
 
-        void PrintMetadata() 
-        { 
-            BeginPrintProcess();
+  TString GetProcessName() { return (TString) "trackPathMinimization"; }
 
- //           cout << "Maximum number of nodes (hits) allowed : " << fMaxNodes << endl;
+  // Constructor
+  TRestTrackPathMinimizationProcess();
+  TRestTrackPathMinimizationProcess(char* cfgFileName);
+  // Destructor
+  ~TRestTrackPathMinimizationProcess();
 
-            if ( fWeightHits )
-                std::cout << "Weight hits : enabled" << std::endl;
-            else
-                std::cout << "Weight hits : disabled" << std::endl;
-
-            EndPrintProcess();
-        }
-
-        TString GetProcessName() { return (TString) "trackPathMinimization"; }
-
-        //Constructor
-        TRestTrackPathMinimizationProcess();
-        TRestTrackPathMinimizationProcess( char *cfgFileName );
-        //Destructor
-        ~TRestTrackPathMinimizationProcess();
-
-        ClassDef( TRestTrackPathMinimizationProcess, 1);
+  ClassDef(TRestTrackPathMinimizationProcess, 1);
 };
 #endif
-

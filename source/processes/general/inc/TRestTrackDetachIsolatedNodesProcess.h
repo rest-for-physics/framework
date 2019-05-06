@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////
-///             
+///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
@@ -9,62 +9,54 @@
 ///
 //////////////////////////////////////////////////////////////////////////
 
-
 #ifndef RestCore_TRestTrackDetachIsolatedNodesProcess
 #define RestCore_TRestTrackDetachIsolatedNodesProcess
 
 #include <TRestTrackEvent.h>
 #include "TRestEventProcess.h"
 
-class TRestTrackDetachIsolatedNodesProcess:public TRestEventProcess {
-
-    private:
-
+class TRestTrackDetachIsolatedNodesProcess : public TRestEventProcess {
+ private:
 #ifndef __CINT__
-        TRestTrackEvent *fInputTrackEvent; //!
-        TRestTrackEvent *fOutputTrackEvent; //!
+  TRestTrackEvent* fInputTrackEvent;   //!
+  TRestTrackEvent* fOutputTrackEvent;  //!
 #endif
 
-        void InitFromConfigFile();
+  void InitFromConfigFile();
 
-        void Initialize();
+  void Initialize();
 
-        Double_t fThresholdDistance;
-        Double_t fConnectivityThreshold;
+  Double_t fThresholdDistance;
+  Double_t fConnectivityThreshold;
 
-        Double_t fTubeLengthReduction;
-        Double_t fTubeRadius;
+  Double_t fTubeLengthReduction;
+  Double_t fTubeRadius;
 
-    protected:
+ protected:
+ public:
+  void InitProcess();
+  void BeginOfEventProcess();
+  TRestEvent* ProcessEvent(TRestEvent* eventInput);
+  void EndOfEventProcess();
+  void EndProcess();
+  void LoadDefaultConfig();
 
+  void LoadConfig(std::string cfgFilename, std::string name = "");
 
-    public:
+  void PrintMetadata() {
+    BeginPrintProcess();
 
-        void InitProcess();
-        void BeginOfEventProcess(); 
-        TRestEvent *ProcessEvent( TRestEvent *eventInput );
-        void EndOfEventProcess(); 
-        void EndProcess();
-        void LoadDefaultConfig( );
+    EndPrintProcess();
+  }
 
-        void LoadConfig( std::string cfgFilename, std::string name = "" );
+  TString GetProcessName() { return (TString) "trackDetachIsolatedNode"; }
 
-        void PrintMetadata() 
-        { 
-            BeginPrintProcess();
+  // Constructor
+  TRestTrackDetachIsolatedNodesProcess();
+  TRestTrackDetachIsolatedNodesProcess(char* cfgFileName);
+  // Destructor
+  ~TRestTrackDetachIsolatedNodesProcess();
 
-            EndPrintProcess();
-        }
-
-        TString GetProcessName() { return (TString) "trackDetachIsolatedNode"; }
-
-        //Constructor
-        TRestTrackDetachIsolatedNodesProcess();
-        TRestTrackDetachIsolatedNodesProcess( char *cfgFileName );
-        //Destructor
-        ~TRestTrackDetachIsolatedNodesProcess();
-
-        ClassDef( TRestTrackDetachIsolatedNodesProcess, 1);
+  ClassDef(TRestTrackDetachIsolatedNodesProcess, 1);
 };
 #endif
-

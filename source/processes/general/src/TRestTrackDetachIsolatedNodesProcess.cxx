@@ -14,200 +14,183 @@ using namespace std;
 const int Nmax = 30;
 
 ClassImp(TRestTrackDetachIsolatedNodesProcess)
-//______________________________________________________________________________
-TRestTrackDetachIsolatedNodesProcess::TRestTrackDetachIsolatedNodesProcess( )
-{
-    Initialize();
+    //______________________________________________________________________________
+    TRestTrackDetachIsolatedNodesProcess::
+        TRestTrackDetachIsolatedNodesProcess() {
+  Initialize();
 }
 
 //______________________________________________________________________________
-TRestTrackDetachIsolatedNodesProcess::TRestTrackDetachIsolatedNodesProcess( char *cfgFileName )
-{
-    Initialize();
+TRestTrackDetachIsolatedNodesProcess::TRestTrackDetachIsolatedNodesProcess(
+    char* cfgFileName) {
+  Initialize();
 
-    if( LoadConfigFromFile( cfgFileName ) == -1 ) LoadDefaultConfig( );
-    PrintMetadata();
+  if (LoadConfigFromFile(cfgFileName) == -1) LoadDefaultConfig();
+  PrintMetadata();
 }
 
 //______________________________________________________________________________
-TRestTrackDetachIsolatedNodesProcess::~TRestTrackDetachIsolatedNodesProcess( )
-{
-    delete fInputTrackEvent;
-    delete fOutputTrackEvent;
+TRestTrackDetachIsolatedNodesProcess::~TRestTrackDetachIsolatedNodesProcess() {
+  delete fInputTrackEvent;
+  delete fOutputTrackEvent;
 }
 
-void TRestTrackDetachIsolatedNodesProcess::LoadDefaultConfig( )
-{
-    SetName( "trackDetachIsolatedNodesProcess" );
-    SetTitle( "Default config" );
-
+void TRestTrackDetachIsolatedNodesProcess::LoadDefaultConfig() {
+  SetName("trackDetachIsolatedNodesProcess");
+  SetTitle("Default config");
 }
 
 //______________________________________________________________________________
-void TRestTrackDetachIsolatedNodesProcess::Initialize( )
-{
-    SetSectionName( this->ClassName() );
+void TRestTrackDetachIsolatedNodesProcess::Initialize() {
+  SetSectionName(this->ClassName());
 
-    fInputTrackEvent = new TRestTrackEvent();
-    fOutputTrackEvent = new TRestTrackEvent();
+  fInputTrackEvent = new TRestTrackEvent();
+  fOutputTrackEvent = new TRestTrackEvent();
 
-    fOutputEvent = fOutputTrackEvent;
-    fInputEvent  = fInputTrackEvent;
+  fOutputEvent = fOutputTrackEvent;
+  fInputEvent = fInputTrackEvent;
 }
 
-void TRestTrackDetachIsolatedNodesProcess::LoadConfig( std::string cfgFilename, std::string name )
-{
+void TRestTrackDetachIsolatedNodesProcess::LoadConfig(std::string cfgFilename,
+                                                      std::string name) {
+  if (LoadConfigFromFile(cfgFilename, name) == -1) LoadDefaultConfig();
 
-    if( LoadConfigFromFile( cfgFilename, name ) == -1 ) LoadDefaultConfig( );
-
-    PrintMetadata();
-
+  PrintMetadata();
 }
 
 //______________________________________________________________________________
-void TRestTrackDetachIsolatedNodesProcess::InitProcess()
-{
+void TRestTrackDetachIsolatedNodesProcess::InitProcess() {}
+
+//______________________________________________________________________________
+void TRestTrackDetachIsolatedNodesProcess::BeginOfEventProcess() {
+  fOutputTrackEvent->Initialize();
 }
 
 //______________________________________________________________________________
-void TRestTrackDetachIsolatedNodesProcess::BeginOfEventProcess() 
-{
-    fOutputTrackEvent->Initialize(); 
-}
+TRestEvent* TRestTrackDetachIsolatedNodesProcess::ProcessEvent(
+    TRestEvent* evInput) {
+  fInputTrackEvent = (TRestTrackEvent*)evInput;
 
-//______________________________________________________________________________
-TRestEvent* TRestTrackDetachIsolatedNodesProcess::ProcessEvent( TRestEvent *evInput )
-{
-    fInputTrackEvent = (TRestTrackEvent *) evInput;
+  if (this->GetVerboseLevel() >= REST_Debug)
+    cout << "TRestTrackDetachIsolatedNodesProcess. Number of tracks : "
+         << fInputTrackEvent->GetNumberOfTracks() << endl;
 
-    if( this->GetVerboseLevel() >= REST_Debug )
-        cout << "TRestTrackDetachIsolatedNodesProcess. Number of tracks : " << fInputTrackEvent->GetNumberOfTracks() << endl;
+  if (GetVerboseLevel() >= REST_Debug) fInputTrackEvent->PrintEvent();
 
-    if( GetVerboseLevel() >= REST_Debug )
-        fInputTrackEvent->PrintEvent();
+  // Copying the input tracks to the output track
+  for (int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++)
+    fOutputTrackEvent->AddTrack(fInputTrackEvent->GetTrack(tck));
 
-    // Copying the input tracks to the output track
-    for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
-        fOutputTrackEvent->AddTrack( fInputTrackEvent->GetTrack(tck) ); 
+  for (int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++) {
+    if (!fInputTrackEvent->isTopLevel(tck)) continue;
+    Int_t tckId = fInputTrackEvent->GetTrack(tck)->GetTrackID();
 
-    for( int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++ )
-    {
-        if( !fInputTrackEvent->isTopLevel( tck ) ) continue;
-        Int_t tckId = fInputTrackEvent->GetTrack( tck )->GetTrackID();
+    TRestVolumeHits* hits = fInputTrackEvent->GetTrack(tck)->GetVolumeHits();
+    TRestVolumeHits* originHits =
+        fInputTrackEvent->GetOriginTrackById(tckId)->GetVolumeHits();
 
-        TRestVolumeHits *hits = fInputTrackEvent->GetTrack(tck)->GetVolumeHits();
-        TRestVolumeHits *originHits = fInputTrackEvent->GetOriginTrackById( tckId )->GetVolumeHits();
+    Int_t nHits = hits->GetNumberOfHits();
 
-        Int_t nHits = hits->GetNumberOfHits();
+    /* {{{ Debug output */
 
-        /* {{{ Debug output */
+    if (this->GetVerboseLevel() >= REST_Debug) {
+      Int_t pId = fInputTrackEvent->GetTrack(tck)->GetParentID();
+      cout << "Track : " << tck << " TrackID : " << tckId
+           << " ParentID : " << pId << endl;
+      cout << "-----------------" << endl;
+      hits->PrintHits();
+      cout << "-----------------" << endl;
+      GetChar();
+    }
+    /* }}} */
 
-        if( this->GetVerboseLevel() >= REST_Debug )
-        {
-            Int_t pId = fInputTrackEvent->GetTrack( tck )->GetParentID();
-            cout << "Track : " << tck << " TrackID : " << tckId << " ParentID : " << pId << endl;
-            cout << "-----------------" << endl;
-            hits->PrintHits();
-            cout << "-----------------" << endl;
-            GetChar();
-        }
-        /* }}} */
+    TRestVolumeHits connectedHits;
+    TRestVolumeHits isolatedHit;
 
+    connectedHits.AddHit(hits->GetPosition(0), hits->GetEnergy(0),
+                         hits->GetSigma(0));
 
-        TRestVolumeHits connectedHits;
-        TRestVolumeHits isolatedHit;
+    for (int n = 1; n < nHits - 1; n++) {
+      TVector3 x0, x1, pos0, pos1;
 
-        connectedHits.AddHit( hits->GetPosition(0), hits->GetEnergy(0), hits->GetSigma(0) );
+      Double_t hitConnectivity = 0;
 
-        for( int n = 1; n < nHits-1; n++ )
-        {
-            TVector3 x0, x1, pos0, pos1;
+      x0 = hits->GetPosition(n);
 
-            Double_t hitConnectivity = 0;
-            
-            x0 = hits->GetPosition( n );
+      Double_t distance = 0;
+      for (int m = n - 1; m < n + 1; m++) {
+        if (n == m) m++;
 
-            Double_t distance = 0;
-            for( int m = n-1; m < n+1; m++ )
-            {
-                if( n == m ) m++; 
+        x1 = hits->GetPosition(m);
 
-                x1 = hits->GetPosition( m );
+        pos0 = fTubeLengthReduction * (x1 - x0) + x0;
+        pos1 = (1 - fTubeLengthReduction) * (x1 - x0) + x0;
 
-                pos0 = fTubeLengthReduction * ( x1-x0 ) + x0;
-                pos1 = (1 - fTubeLengthReduction) * ( x1-x0 ) + x0;
+        distance += (x0 - x1).Mag();
+        hitConnectivity +=
+            originHits->GetEnergyInCylinder(pos0, pos1, fTubeRadius);
+      }
 
-                distance += (x0-x1).Mag();
-                hitConnectivity += originHits->GetEnergyInCylinder( pos0, pos1, fTubeRadius );
-            }
+      if (GetVerboseLevel() >= REST_Debug)
+        cout << "Hit : " << n << " Connectivity : " << hitConnectivity
+             << " distance : " << distance / 2. << endl;
 
-            if( GetVerboseLevel() >= REST_Debug )
-                cout << "Hit : " << n << " Connectivity : " << hitConnectivity << " distance : " << distance/2. << endl;
+      if (hitConnectivity <= fConnectivityThreshold &&
+          distance / 2 > fThresholdDistance) {
+        isolatedHit.AddHit(hits->GetPosition(n), hits->GetEnergy(n),
+                           hits->GetSigma(n));
 
+        TRestTrack isoTrack;
+        isoTrack.SetTrackID(fOutputTrackEvent->GetNumberOfTracks() + 1);
 
-            if( hitConnectivity <= fConnectivityThreshold && distance/2 > fThresholdDistance )
-            {
-                isolatedHit.AddHit( hits->GetPosition(n), hits->GetEnergy(n), hits->GetSigma(n) );
+        isoTrack.SetParentID(tckId);
 
-                TRestTrack isoTrack;
-                isoTrack.SetTrackID( fOutputTrackEvent->GetNumberOfTracks() + 1);
+        isoTrack.SetVolumeHits(isolatedHit);
 
-                isoTrack.SetParentID( tckId );
+        fOutputTrackEvent->AddTrack(&isoTrack);
 
-                isoTrack.SetVolumeHits( isolatedHit );
-
-                fOutputTrackEvent->AddTrack( &isoTrack );
-
-                isolatedHit.RemoveHits();
-            }
-            else
-            {
-                connectedHits.AddHit( hits->GetPosition(n), hits->GetEnergy(n), hits->GetSigma(n) );
-            }
-        }
-
-        connectedHits.AddHit( hits->GetPosition( nHits-1 ), hits->GetEnergy( nHits-1 ), hits->GetSigma( nHits-1 ) );
-
-        TRestTrack connectedTrack;
-        connectedTrack.SetTrackID( fOutputTrackEvent->GetNumberOfTracks() + 1);
-
-        connectedTrack.SetParentID( tckId );
-
-        connectedTrack.SetVolumeHits( connectedHits );
-
-        fOutputTrackEvent->AddTrack( &connectedTrack );
+        isolatedHit.RemoveHits();
+      } else {
+        connectedHits.AddHit(hits->GetPosition(n), hits->GetEnergy(n),
+                             hits->GetSigma(n));
+      }
     }
 
-    if( GetVerboseLevel() >= REST_Debug )
-    {
-        cout << "xxxx DetachIsolatedNodes trackEvent output xxxxx" << endl;
-        fOutputTrackEvent->PrintEvent( );
-        cout << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" << endl;
-        GetChar();
-    }
+    connectedHits.AddHit(hits->GetPosition(nHits - 1),
+                         hits->GetEnergy(nHits - 1), hits->GetSigma(nHits - 1));
 
-    return fOutputTrackEvent;
+    TRestTrack connectedTrack;
+    connectedTrack.SetTrackID(fOutputTrackEvent->GetNumberOfTracks() + 1);
+
+    connectedTrack.SetParentID(tckId);
+
+    connectedTrack.SetVolumeHits(connectedHits);
+
+    fOutputTrackEvent->AddTrack(&connectedTrack);
+  }
+
+  if (GetVerboseLevel() >= REST_Debug) {
+    cout << "xxxx DetachIsolatedNodes trackEvent output xxxxx" << endl;
+    fOutputTrackEvent->PrintEvent();
+    cout << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" << endl;
+    GetChar();
+  }
+
+  return fOutputTrackEvent;
 }
 
 //______________________________________________________________________________
-void TRestTrackDetachIsolatedNodesProcess::EndOfEventProcess() 
-{
-
-}
+void TRestTrackDetachIsolatedNodesProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
-void TRestTrackDetachIsolatedNodesProcess::EndProcess()
-{
-}
+void TRestTrackDetachIsolatedNodesProcess::EndProcess() {}
 
 //______________________________________________________________________________
-void TRestTrackDetachIsolatedNodesProcess::InitFromConfigFile( )
-{
-    fThresholdDistance = StringToDouble( GetParameter( "thDistance", "8" ) );
-    fConnectivityThreshold = StringToDouble( GetParameter( "connectivityThreshold", "0" ) );
+void TRestTrackDetachIsolatedNodesProcess::InitFromConfigFile() {
+  fThresholdDistance = StringToDouble(GetParameter("thDistance", "8"));
+  fConnectivityThreshold =
+      StringToDouble(GetParameter("connectivityThreshold", "0"));
 
-    fTubeLengthReduction = StringToDouble( GetParameter( "tubeLength", "0.2" ) );
-    fTubeRadius = StringToDouble( GetParameter( "tubeRadius", "0.2" ) );
+  fTubeLengthReduction = StringToDouble(GetParameter("tubeLength", "0.2"));
+  fTubeRadius = StringToDouble(GetParameter("tubeRadius", "0.2"));
 }
-
-

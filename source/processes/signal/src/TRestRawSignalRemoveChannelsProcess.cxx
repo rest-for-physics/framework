@@ -20,20 +20,20 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-
 //////////////////////////////////////////////////////////////////////////
 /// The TRestRawSignalRemoveChannelsProcess allows to remove a selection
-/// daq channels ids from a TRestRawSignalEvent. The channels should be 
+/// daq channels ids from a TRestRawSignalEvent. The channels should be
 /// provided through the corresponding section at the RML configuration file.
-/// 
+///
 /// An application of this process is to evaluate the impact on the detector
-/// response due to the absence of signal on some channels, or dead channels. 
+/// response due to the absence of signal on some channels, or dead channels.
 ///
 /// The following example will remove the channels with signal ids 17,19,27
 /// and 67 from the TRestRawSignalEvent output.
 ///
 /// \code
-/// <TRestRawSignalRemoveChannelsProcess name="rmChannels" title="Removing few channels" verboseLevel="debug" >
+/// <TRestRawSignalRemoveChannelsProcess name="rmChannels" title="Removing few
+/// channels" verboseLevel="debug" >
 ///     <removeChannel id="17" />
 ///     <removeChannel id="19" />
 ///     <removeChannel id="27" />
@@ -59,135 +59,129 @@
 using namespace std;
 
 ClassImp(TRestRawSignalRemoveChannelsProcess)
- 
-///////////////////////////////////////////////
-/// \brief Default constructor
-///
-TRestRawSignalRemoveChannelsProcess::TRestRawSignalRemoveChannelsProcess()
-{
-    Initialize();
+
+    ///////////////////////////////////////////////
+    /// \brief Default constructor
+    ///
+    TRestRawSignalRemoveChannelsProcess::TRestRawSignalRemoveChannelsProcess() {
+  Initialize();
 }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
-/// 
-/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
-/// the path to the config file must be specified using full path, absolute or relative.
 ///
-/// The default behaviour is that the config file must be specified with 
+/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// The default behaviour is that the config file must be specified with
 /// full path, absolute or relative.
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 ///
-TRestRawSignalRemoveChannelsProcess::TRestRawSignalRemoveChannelsProcess( char *cfgFileName )
-{
-    Initialize();
+TRestRawSignalRemoveChannelsProcess::TRestRawSignalRemoveChannelsProcess(
+    char* cfgFileName) {
+  Initialize();
 
-    if( LoadConfigFromFile( cfgFileName ) == -1 ) LoadDefaultConfig( );
+  if (LoadConfigFromFile(cfgFileName) == -1) LoadDefaultConfig();
 
-    PrintMetadata();
+  PrintMetadata();
 }
 
 ///////////////////////////////////////////////
-/// \brief Default destructor 
-/// 
-TRestRawSignalRemoveChannelsProcess::~TRestRawSignalRemoveChannelsProcess()
-{
-    delete fOutputSignalEvent;
-    delete fInputSignalEvent;
+/// \brief Default destructor
+///
+TRestRawSignalRemoveChannelsProcess::~TRestRawSignalRemoveChannelsProcess() {
+  delete fOutputSignalEvent;
+  delete fInputSignalEvent;
 }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
-/// 
-void TRestRawSignalRemoveChannelsProcess::LoadDefaultConfig( )
-{
-    SetName( "removeChannels-Default" );
-    SetTitle( "Default config" );
+///
+void TRestRawSignalRemoveChannelsProcess::LoadDefaultConfig() {
+  SetName("removeChannels-Default");
+  SetTitle("Default config");
 }
 
 ///////////////////////////////////////////////
-/// \brief Function to initialize input/output event members and define the section name
-/// 
-void TRestRawSignalRemoveChannelsProcess::Initialize()
-{
-    SetSectionName( this->ClassName() );
+/// \brief Function to initialize input/output event members and define the
+/// section name
+///
+void TRestRawSignalRemoveChannelsProcess::Initialize() {
+  SetSectionName(this->ClassName());
 
-    fInputSignalEvent = new TRestRawSignalEvent();
-    fOutputSignalEvent = new TRestRawSignalEvent();
+  fInputSignalEvent = new TRestRawSignalEvent();
+  fOutputSignalEvent = new TRestRawSignalEvent();
 
-    fInputEvent = fInputSignalEvent;
-    fOutputEvent = fOutputSignalEvent;
+  fInputEvent = fInputSignalEvent;
+  fOutputEvent = fOutputSignalEvent;
 }
 
 ///////////////////////////////////////////////
-/// \brief Function to load the configuration from an external configuration file.
-/// 
+/// \brief Function to load the configuration from an external configuration
+/// file.
+///
 /// If no configuration path is defined in TRestMetadata::SetConfigFilePath
-/// the path to the config file must be specified using full path, absolute or relative.
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
-/// \param name The name of the specific metadata. It will be used to find the 
+/// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestGeant4AnalysisProcess section inside the RML.
 ///
-void TRestRawSignalRemoveChannelsProcess::LoadConfig( string cfgFilename, string name )
-{
-    if( LoadConfigFromFile( cfgFilename, name ) == -1 ) LoadDefaultConfig( );
+void TRestRawSignalRemoveChannelsProcess::LoadConfig(string cfgFilename,
+                                                     string name) {
+  if (LoadConfigFromFile(cfgFilename, name) == -1) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
-/// \brief Function including required initialization before each event starts to process.
-/// 
-void TRestRawSignalRemoveChannelsProcess::BeginOfEventProcess() 
-{
-    fOutputSignalEvent->Initialize(); 
+/// \brief Function including required initialization before each event starts
+/// to process.
+///
+void TRestRawSignalRemoveChannelsProcess::BeginOfEventProcess() {
+  fOutputSignalEvent->Initialize();
 }
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
-/// 
-TRestEvent* TRestRawSignalRemoveChannelsProcess::ProcessEvent( TRestEvent *evInput )
-{
-    fInputSignalEvent = (TRestRawSignalEvent *) evInput;
+///
+TRestEvent* TRestRawSignalRemoveChannelsProcess::ProcessEvent(
+    TRestEvent* evInput) {
+  fInputSignalEvent = (TRestRawSignalEvent*)evInput;
 
-    for( int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++ ) 
-    {
+  for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++) {
+    TRestRawSignal* sgnl = fInputSignalEvent->GetSignal(n);
 
-        TRestRawSignal *sgnl = fInputSignalEvent->GetSignal(n);
+    Bool_t removeChannel = false;
+    for (unsigned int x = 0; x < fChannelIds.size() && !removeChannel; x++)
+      if (sgnl->GetID() == fChannelIds[x]) removeChannel = true;
 
-        Bool_t removeChannel = false;
-        for( unsigned int x = 0; x < fChannelIds.size() && !removeChannel; x++ )
-            if( sgnl->GetID() == fChannelIds[x] ) 
-                removeChannel = true;
+    if (!removeChannel) fOutputSignalEvent->AddSignal(*sgnl);
 
-        if( !removeChannel )
-            fOutputSignalEvent->AddSignal( *sgnl );
+    if (GetVerboseLevel() >= REST_Extreme)
+      cout << "Channel ID : " << sgnl->GetID() << endl;
 
-        if( GetVerboseLevel() >= REST_Extreme )
-            cout << "Channel ID : " << sgnl->GetID() << endl;
-        
-        if( GetVerboseLevel() >= REST_Debug && removeChannel )
-            cout << "Removing channel id : " << sgnl->GetID() << endl;
-    }
+    if (GetVerboseLevel() >= REST_Debug && removeChannel)
+      cout << "Removing channel id : " << sgnl->GetID() << endl;
+  }
 
-    if( GetVerboseLevel() >= REST_Extreme )
-        GetChar();
+  if (GetVerboseLevel() >= REST_Extreme) GetChar();
 
-    return fOutputSignalEvent;
+  return fOutputSignalEvent;
 }
 
 ///////////////////////////////////////////////
-/// \brief Function reading input parameters from the RML TRestSignalToRawSignalProcess metadata section
-/// 
-void TRestRawSignalRemoveChannelsProcess::InitFromConfigFile( )
-{
-    size_t pos = 0;
+/// \brief Function reading input parameters from the RML
+/// TRestSignalToRawSignalProcess metadata section
+///
+void TRestRawSignalRemoveChannelsProcess::InitFromConfigFile() {
+  size_t pos = 0;
 
-    string removeChannelDefinition;
-    while( (removeChannelDefinition = GetKEYDefinition( "removeChannel", pos )) != "" )
-    {
-        Int_t id = StringToInteger( GetFieldValue( "id", removeChannelDefinition ) );
-        fChannelIds.push_back( id );
-    }
+  string removeChannelDefinition;
+  while ((removeChannelDefinition = GetKEYDefinition("removeChannel", pos)) !=
+         "") {
+    Int_t id = StringToInteger(GetFieldValue("id", removeChannelDefinition));
+    fChannelIds.push_back(id);
+  }
 }
-

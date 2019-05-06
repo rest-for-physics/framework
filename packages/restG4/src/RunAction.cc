@@ -28,119 +28,112 @@
 //
 //
 // $Id: RunAction.cc 68030 2013-03-13 13:51:27Z gcosmo $
-// 
+//
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo...... 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #include "RunAction.hh"
 #include "PrimaryGeneratorAction.hh"
 
+#include <iomanip>
+#include "G4PhysicalConstants.hh"
 #include "G4Run.hh"
 #include "G4RunManager.hh"
-#include "G4UnitsTable.hh"
-#include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
-#include <iomanip>
+#include "G4UnitsTable.hh"
 
 #include <TRestG4Metadata.h>
 
-extern TRestG4Metadata *restG4Metadata;
+extern TRestG4Metadata* restG4Metadata;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 RunAction::RunAction(PrimaryGeneratorAction* gen)
-:G4UserRunAction(),
- fPrimary(gen)
-{
+    : G4UserRunAction(), fPrimary(gen) {}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+RunAction::~RunAction() {}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void RunAction::BeginOfRunAction(const G4Run*) {
+  // inform the runManager to save random number seed
+  G4RunManager::GetRunManager()->SetRandomNumberStore(false);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-RunAction::~RunAction()
-{ 
-}
+void RunAction::EndOfRunAction(const G4Run* run) {
+  G4int nbEvents = run->GetNumberOfEvent();
+  if (nbEvents == 0) {
+    return;
+  }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+  G4ParticleDefinition* particle =
+      fPrimary->GetParticleGun()->GetParticleDefinition();
+  G4String partName = particle->GetParticleName();
+  // G4double eprimary = fPrimary->GetParticleGun()->GetParticleEnergy();
 
-void RunAction::BeginOfRunAction(const G4Run*)
-{ 
-  
-  //inform the runManager to save random number seed
-  G4RunManager::GetRunManager()->SetRandomNumberStore(false);  
-}
+  G4cout << "======================== run summary ======================";
+  G4cout << "\n" << nbEvents << " Events simulated\n";
+  G4cout << "===========================================================";
+  G4cout << G4endl;
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+  // restG4Metadata->PrintMetadata();
 
-void RunAction::EndOfRunAction(const G4Run* run)
-{
-    G4int nbEvents = run->GetNumberOfEvent();
-    if (nbEvents == 0) { return; }
+  /*
 
-    G4ParticleDefinition* particle = fPrimary->GetParticleGun() ->GetParticleDefinition();
-    G4String partName = particle->GetParticleName();
-    //G4double eprimary = fPrimary->GetParticleGun()->GetParticleEnergy();
+  G4int prec = 4, wid = prec + 2;
+  G4int dfprec = G4cout.precision(prec);
 
-    G4cout << "======================== run summary ======================";  
-	G4cout << "\n" << nbEvents << " Events simulated\n";
-    G4cout << "===========================================================";
-    G4cout << G4endl;
+  //particle count
+  //
+  G4cout << " Nb of generated particles: \n" << G4endl;
 
-    //restG4Metadata->PrintMetadata();
+  std::map<G4String,G4int>::iterator it;
+  for (it = fParticleCount.begin(); it != fParticleCount.end(); it++) {
+      G4String name = it->first;
+      G4int count   = it->second;
+      G4double eMean = fEmean[name]/count;
+      G4double eMin = fEmin[name], eMax = fEmax[name];
 
+      G4cout << "  " << std::setw(13) << name << ": " << std::setw(7) << count
+          << "  Emean = " << std::setw(wid) << G4BestUnit(eMean, "Energy")
+          << "\t( "  << G4BestUnit(eMin, "Energy")
+          << " --> " << G4BestUnit(eMax, "Energy")
+          << ")" << G4endl;
+  }
 
+  //energy momentum balance
+  //
 
-    /*
+  if (fDecayCount > 0) {
+      G4double Ebmean = fEkinTot[0]/fDecayCount;
+      G4double Pbmean = fPbalance[0]/fDecayCount;
 
-    G4int prec = 4, wid = prec + 2;
-    G4int dfprec = G4cout.precision(prec);
+      G4cout << "\n   Ekin Total (Q): mean = "
+          << std::setw(wid) << G4BestUnit(Ebmean, "Energy")
+          << "\t( "  << G4BestUnit(fEkinTot[1], "Energy")
+          << " --> " << G4BestUnit(fEkinTot[2], "Energy")
+          << ")" << G4endl;
 
-    //particle count
-    //
-    G4cout << " Nb of generated particles: \n" << G4endl;
+      G4cout << "\n   Momentum balance (excluding gamma desexcitation): mean = "
+          << std::setw(wid) << G4BestUnit(Pbmean, "Energy")
+          << "\t( "  << G4BestUnit(fPbalance[1], "Energy")
+          << " --> " << G4BestUnit(fPbalance[2], "Energy")
+          << ")" << G4endl;
+  }
 
-    std::map<G4String,G4int>::iterator it;               
-    for (it = fParticleCount.begin(); it != fParticleCount.end(); it++) { 
-        G4String name = it->first;
-        G4int count   = it->second;
-        G4double eMean = fEmean[name]/count;
-        G4double eMin = fEmin[name], eMax = fEmax[name];    
+  // remove all contents in fParticleCount
+  //
+  fParticleCount.clear();
+  fEmean.clear();  fEmin.clear(); fEmax.clear();
 
-        G4cout << "  " << std::setw(13) << name << ": " << std::setw(7) << count
-            << "  Emean = " << std::setw(wid) << G4BestUnit(eMean, "Energy")
-            << "\t( "  << G4BestUnit(eMin, "Energy")
-            << " --> " << G4BestUnit(eMax, "Energy") 
-            << ")" << G4endl;           
-    }
-
-    //energy momentum balance
-    //
-
-    if (fDecayCount > 0) {
-        G4double Ebmean = fEkinTot[0]/fDecayCount;
-        G4double Pbmean = fPbalance[0]/fDecayCount;
-
-        G4cout << "\n   Ekin Total (Q): mean = "
-            << std::setw(wid) << G4BestUnit(Ebmean, "Energy")
-            << "\t( "  << G4BestUnit(fEkinTot[1], "Energy")
-            << " --> " << G4BestUnit(fEkinTot[2], "Energy")
-            << ")" << G4endl;    
-
-        G4cout << "\n   Momentum balance (excluding gamma desexcitation): mean = " 
-            << std::setw(wid) << G4BestUnit(Pbmean, "Energy")
-            << "\t( "  << G4BestUnit(fPbalance[1], "Energy")
-            << " --> " << G4BestUnit(fPbalance[2], "Energy")
-            << ")" << G4endl;
-    }
-
-    // remove all contents in fParticleCount
-    // 
-    fParticleCount.clear(); 
-    fEmean.clear();  fEmin.clear(); fEmax.clear();
-
-    // restore default precision
-    // 
-    G4cout.precision(dfprec);
-    */
+  // restore default precision
+  //
+  G4cout.precision(dfprec);
+  */
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

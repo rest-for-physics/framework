@@ -1,0 +1,7 @@
+# Our style is based on the Google style
+# https://google.github.io/styleguide/cppguide.html
+BasedOnStyle: Google
+
+# we use left pointer alignment
+DerivePointerAlignment: false
+PointerAlignment: Left

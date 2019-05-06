@@ -1,28 +1,24 @@
 
 #include "Particles.hh"
-#include "G4ParticleDefinition.hh"
-#include "G4ParticleTypes.hh"
-#include "G4ParticleTable.hh"
-#include "G4LeptonConstructor.hh"
-#include "G4BosonConstructor.hh"
-#include "G4MesonConstructor.hh"
 #include "G4BaryonConstructor.hh"
-#include "G4ShortLivedConstructor.hh"
+#include "G4BosonConstructor.hh"
 #include "G4IonConstructor.hh"
+#include "G4LeptonConstructor.hh"
+#include "G4MesonConstructor.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4ParticleTable.hh"
+#include "G4ParticleTypes.hh"
+#include "G4ShortLivedConstructor.hh"
 #include "G4SystemOfUnits.hh"
 
-Particles::Particles(const G4String& name)
-  :  G4VPhysicsConstructor(name)
-{ }
+Particles::Particles(const G4String& name) : G4VPhysicsConstructor(name) {}
 
-Particles::~Particles()
-{}
+Particles::~Particles() {}
 
-void Particles::ConstructParticle()
-{
+void Particles::ConstructParticle() {
   G4Gamma::GammaDefinition();
 
-  // *******//  
+  // *******//
   // leptons//
   // *******//
 
@@ -61,9 +57,9 @@ void Particles::ConstructParticle()
   G4Alpha::AlphaDefinition();
   G4GenericIon::GenericIonDefinition();
 
- G4LeptonConstructor lepton;
+  G4LeptonConstructor lepton;
   lepton.ConstructParticle();
- 
+
   G4BosonConstructor boson;
   boson.ConstructParticle();
 
@@ -78,12 +74,4 @@ void Particles::ConstructParticle()
 
   G4IonConstructor ion;
   ion.ConstructParticle();
-
 }
-
-
-
-
-
-
-

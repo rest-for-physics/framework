@@ -28,24 +28,23 @@
 //
 //
 // $Id: TrackingAction.cc 71485 2013-06-17 08:14:54Z gcosmo $
-// 
+//
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #include "TrackingAction.hh"
-#include "RunAction.hh"
 #include "EventAction.hh"
+#include "RunAction.hh"
 
-#include "G4Track.hh"
 #include "G4ParticleTypes.hh"
 #include "G4RunManager.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4Track.hh"
 #include "G4UnitsTable.hh"
 
-
-extern TRestG4Metadata *restG4Metadata;
-extern TRestG4Event *restG4Event;
-extern TRestG4Track *restTrack;
+extern TRestG4Metadata* restG4Metadata;
+extern TRestG4Event* restG4Event;
+extern TRestG4Track* restTrack;
 
 //#include "OutputDictionary.hh"
 
@@ -55,83 +54,76 @@ G4String aux;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 TrackingAction::TrackingAction(RunAction* RA, EventAction* EA)
-:G4UserTrackingAction(),
- fRun(RA),fEvent(EA)
- 
+    : G4UserTrackingAction(),
+      fRun(RA),
+      fEvent(EA)
+
 {
-    fFullChain = false;
+  fFullChain = false;
 
-    fFullChain = restG4Metadata->isFullChainActivated();
+  fFullChain = restG4Metadata->isFullChainActivated();
 
-    if( fFullChain ) G4cout << "Full chain is active" << G4endl;
-    else G4cout << "Full chain is NOT active" << G4endl;
-
+  if (fFullChain)
+    G4cout << "Full chain is active" << G4endl;
+  else
+    G4cout << "Full chain is NOT active" << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-TrackingAction::~TrackingAction()
-{
+TrackingAction::~TrackingAction() {}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void TrackingAction::PreUserTrackingAction(const G4Track* track) {
+  if (restG4Metadata->GetVerboseLevel() >= REST_Debug)
+    if (track->GetTrackID() % 10 == 0)
+      G4cout << "Processing track " << track->GetTrackID() << endl;
+  G4ParticleDefinition* particle = track->GetDefinition();
+  G4String name = particle->GetParticleName();
+  fCharge = particle->GetPDGCharge();
+
+  restTrack->RemoveHits();
+
+  restTrack->SetTrackID(track->GetTrackID());
+  restTrack->SetParentID(track->GetParentID());
+  restTrack->SetKineticEnergy(track->GetKineticEnergy() / keV);
+  restTrack->SetParticleName(name);
+  restTrack->SetGlobalTrackTime(track->GetGlobalTime() / second);
+
+  G4ThreeVector trkOrigin = track->GetPosition();
+  restTrack->SetTrackOrigin(trkOrigin.x(), trkOrigin.y(), trkOrigin.z());
+
+  // We finish after the de-excitation of the resulting nucleus (we skip the
+  // full chain, just first decay) On future we must add an option through
+  // TRestG4Metadata to store a given number of decays
+
+  //   if( fFullChain == true ) G4cout << "Full chain active" << G4endl;
+  //   else  G4cout << "Full chain not active" << G4endl;
+
+  Int_t ID = track->GetTrackID();
+  if (fFullChain == false && fCharge > 2 && ID > 1 && !name.contains("[")) {
+    G4Track* tr = (G4Track*)track;
+    tr->SetTrackStatus(fStopAndKill);
+  }
+
+  /*
+  if ( fFullChain == true && fCharge > 2  && ID > 1 && !name.contains("["))
+  {
+      restTrack->IncreaseSubEventID();
+  }
+  */
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void TrackingAction::PreUserTrackingAction(const G4Track* track)
-{
+void TrackingAction::PostUserTrackingAction(const G4Track* track) {
+  restTrack->SetTrackTimeLength(track->GetLocalTime() / microsecond);
 
-	if (restG4Metadata->GetVerboseLevel() >= REST_Debug) 
-		if(track->GetTrackID() % 10 == 0)
-			G4cout << "Processing track "<< track->GetTrackID() << endl; 
-    G4ParticleDefinition* particle = track->GetDefinition();
-    G4String name   = particle->GetParticleName();
-    fCharge = particle->GetPDGCharge();
+  //   G4cout << "Storing track : Number of hits : " <<
+  //   restTrack->GetNumberOfHits() << G4endl;
 
-    restTrack->RemoveHits();
-
-    restTrack->SetTrackID ( track->GetTrackID() );
-    restTrack->SetParentID ( track->GetParentID() );
-    restTrack->SetKineticEnergy( track->GetKineticEnergy()/keV );
-    restTrack->SetParticleName( name );
-    restTrack->SetGlobalTrackTime( track->GetGlobalTime()/second );
-
-    G4ThreeVector trkOrigin = track->GetPosition( );
-    restTrack->SetTrackOrigin( trkOrigin.x(), trkOrigin.y(), trkOrigin.z() );
-
-
-    // We finish after the de-excitation of the resulting nucleus (we skip the full chain, just first decay)
-    // On future we must add an option through TRestG4Metadata to store a given number of decays
-
-    //   if( fFullChain == true ) G4cout << "Full chain active" << G4endl;
-    //   else  G4cout << "Full chain not active" << G4endl;
-
-    Int_t ID = track->GetTrackID();
-    if( fFullChain == false && fCharge > 2 && ID > 1 && !name.contains("[") )
-    {
-        G4Track* tr = (G4Track*) track;
-        tr->SetTrackStatus(fStopAndKill);
-    }
-
-    /*
-    if ( fFullChain == true && fCharge > 2  && ID > 1 && !name.contains("["))
-    {
-        restTrack->IncreaseSubEventID();
-    }
-    */
-
+  restG4Event->AddTrack(*restTrack);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void TrackingAction::PostUserTrackingAction(const G4Track* track)
-{
-
-    restTrack->SetTrackTimeLength( track->GetLocalTime()/microsecond );
-
- //   G4cout << "Storing track : Number of hits : " << restTrack->GetNumberOfHits() << G4endl;
-
-    restG4Event->AddTrack( *restTrack );
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-

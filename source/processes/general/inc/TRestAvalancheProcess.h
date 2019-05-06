@@ -1,18 +1,17 @@
 ///______________________________________________________________________________
 ///______________________________________________________________________________
 ///______________________________________________________________________________
-///             
+///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
 ///             TRestAvalancheProcess.h
 ///
 ///             feb 2016:   First concept
-///                 Created as part of the conceptualization of existing REST 
+///                 Created as part of the conceptualization of existing REST
 ///                 software.
 ///                 Javier G. Garza
 ///_______________________________________________________________________________
-
 
 #ifndef RestCore_TRestAvalancheProcess
 #define RestCore_TRestAvalancheProcess
@@ -22,60 +21,57 @@
 
 #include "TRestEventProcess.h"
 
-class TRestAvalancheProcess:public TRestEventProcess {
-    private:
-        TRestHitsEvent *fHitsInputEvent;//!
-        TRestHitsEvent *fHitsOutputEvent;//!
+class TRestAvalancheProcess : public TRestEventProcess {
+ private:
+  TRestHitsEvent* fHitsInputEvent;   //!
+  TRestHitsEvent* fHitsOutputEvent;  //!
 
-        Double_t fEnergyRef;	///< reference energy for the FWHM
-        Double_t fResolutionAtEref; ///< FWHM at Energy of reference
-        Double_t fDetectorGain;	///< Detector's gain.
+  Double_t fEnergyRef;         ///< reference energy for the FWHM
+  Double_t fResolutionAtEref;  ///< FWHM at Energy of reference
+  Double_t fDetectorGain;      ///< Detector's gain.
 
-        void InitFromConfigFile();
-        void Initialize();
-        void LoadDefaultConfig();
+  void InitFromConfigFile();
+  void Initialize();
+  void LoadDefaultConfig();
 
-    protected:
-        //add here the members of your event process
-        TRestGas *fGas;//!
+ protected:
+  // add here the members of your event process
+  TRestGas* fGas;  //!
 
+ public:
+  void InitProcess();
+  void BeginOfEventProcess();
+  TRestEvent* ProcessEvent(TRestEvent* eventInput);
+  void EndOfEventProcess();
+  void EndProcess();
 
-    public:
-        void InitProcess();
-        void BeginOfEventProcess(); 
-        TRestEvent *ProcessEvent( TRestEvent *eventInput );
-        void EndOfEventProcess(); 
-        void EndProcess();
+  void LoadConfig(std::string cfgFilename);
 
-        void LoadConfig( std::string cfgFilename );
+  void PrintMetadata() {
+    BeginPrintProcess();
 
-        void PrintMetadata() { 
+    std::cout << " reference energy (Eref): " << fEnergyRef << std::endl;
+    std::cout << " resolution at Eref : " << fResolutionAtEref << std::endl;
+    std::cout << " detector gain : " << fDetectorGain << std::endl;
 
-            BeginPrintProcess();
+    EndPrintProcess();
+  }
 
-            std::cout << " reference energy (Eref): " << fEnergyRef << std::endl;
-            std::cout << " resolution at Eref : " << fResolutionAtEref << std::endl;
-            std::cout << " detector gain : " << fDetectorGain << std::endl;
+  TRestMetadata* GetProcessMetadata() { return fGas; }
 
-            EndPrintProcess();
+  TString GetProcessName() { return (TString) "avalancheProcess"; }
 
-        }
+  Double_t GetEnergyReference() { return fEnergyRef; }
+  Double_t GetResolutionReference() { return fResolutionAtEref; }
+  Double_t GetDetectorGain() { return fDetectorGain; }
 
-        TRestMetadata *GetProcessMetadata( ) { return fGas; }
+  // Constructor
+  TRestAvalancheProcess();
+  TRestAvalancheProcess(char* cfgFileName);
+  // Destructor
+  ~TRestAvalancheProcess();
 
-        TString GetProcessName() { return (TString) "avalancheProcess"; }
-
-        Double_t GetEnergyReference() { return fEnergyRef; }
-        Double_t GetResolutionReference() { return fResolutionAtEref; }
-        Double_t GetDetectorGain() { return fDetectorGain; }
-
-        //Constructor
-        TRestAvalancheProcess();
-        TRestAvalancheProcess( char *cfgFileName );
-        //Destructor
-        ~TRestAvalancheProcess();
-
-        ClassDef(TRestAvalancheProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+  ClassDef(TRestAvalancheProcess, 1);  // Template for a REST "event process"
+                                       // class inherited from TRestEventProcess
 };
 #endif
-

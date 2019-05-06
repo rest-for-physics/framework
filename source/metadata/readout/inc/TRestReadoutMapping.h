@@ -25,73 +25,69 @@
 
 #include <iostream>
 
-#include <TObject.h>
 #include <TMatrixD.h>
+#include <TObject.h>
 
-/// This class defines a uniform 2-dimensional grid relating its nodes to the pixels of a readout.
-class TRestReadoutMapping: public TObject {
+/// This class defines a uniform 2-dimensional grid relating its nodes to the
+/// pixels of a readout.
+class TRestReadoutMapping : public TObject {
+ private:
+  Int_t fNodesX;  ///< The number of nodes in the x-axis.
+  Int_t fNodesY;  ///< The number of nodes in the y-axis.
 
-	private:
+  Double_t fNetSizeX;  ///< The size of the net/grid in the x-axis.
+  Double_t fNetSizeY;  ///< The size of the net/grid in the y-axis.
 
-		Int_t fNodesX;  ///< The number of nodes in the x-axis.
-		Int_t fNodesY;  ///< The number of nodes in the y-axis.
+  TMatrixD fChannel;  ///< A matrix containning the channel id for the
+                      ///< corresponding XY-node.
+  TMatrixD fPixel;    ///< A matrix containning the pixel id of fChannel for the
+                      ///< corresponding XY-node.
 
-		Double_t fNetSizeX; ///< The size of the net/grid in the x-axis.
-		Double_t fNetSizeY; ///< The size of the net/grid in the y-axis.
+ public:
+  // Getters
+  /// Returns the number of nodes in X.
+  Int_t GetNumberOfNodesX() { return fNodesX; }
 
-		TMatrixD fChannel;  ///< A matrix containning the channel id for the corresponding XY-node.
-		TMatrixD fPixel;    ///< A matrix containning the pixel id of fChannel for the corresponding XY-node.
+  /// Returns the number of nodes in Y.
+  Int_t GetNumberOfNodesY() { return fNodesY; }
 
-	public:
+  /// Gets the channel id correspoding to a given node (i,j)
+  Int_t GetChannelByNode(Int_t i, Int_t j) { return fChannel[i][j]; }
 
-		//Getters
-		/// Returns the number of nodes in X.
-		Int_t GetNumberOfNodesX( ) { return fNodesX; }
+  /// Gets the pixel id correspoding to a given node (i,j)
+  Int_t GetPixelByNode(Int_t i, Int_t j) { return fPixel[i][j]; }
 
-		/// Returns the number of nodes in Y.
-		Int_t GetNumberOfNodesY( ) { return fNodesY; }
+  Bool_t isNodeSet(Int_t i, Int_t j);
 
-		/// Gets the channel id correspoding to a given node (i,j)
-		Int_t GetChannelByNode( Int_t i, Int_t j ) { return fChannel[i][j]; }
+  Bool_t AllNodesSet();
 
-		/// Gets the pixel id correspoding to a given node (i,j)
-		Int_t GetPixelByNode( Int_t i, Int_t j ) { return fPixel[i][j]; }
+  Int_t GetNumberOfNodesNotSet();
 
-		Bool_t isNodeSet( Int_t i, Int_t j );
+  Int_t GetNodeX_ForChannelAndPixel(Int_t ch, Int_t px);
 
-		Bool_t AllNodesSet( );
+  Int_t GetNodeY_ForChannelAndPixel(Int_t ch, Int_t px);
 
-		Int_t GetNumberOfNodesNotSet( );
+  Int_t GetNodeX(Double_t x);
 
-		Int_t GetNodeX_ForChannelAndPixel( Int_t ch, Int_t px );
+  Int_t GetNodeY(Double_t y);
 
-		Int_t GetNodeY_ForChannelAndPixel( Int_t ch, Int_t px );
+  Double_t GetX(Int_t nodeX);
 
-		Int_t GetNodeX( Double_t x );
+  Double_t GetY(Int_t nodeY);
 
-		Int_t GetNodeY( Double_t y );
+  Int_t GetChannel(Double_t x, Double_t y);
 
-		Double_t GetX( Int_t nodeX );
+  Int_t GetPixel(Double_t x, Double_t y);
 
-		Double_t GetY( Int_t nodeY );
+  void SetNode(Int_t i, Int_t j, Int_t ch, Int_t pix);
 
-		Int_t GetChannel( Double_t x, Double_t y );
+  void Initialize(Int_t nX, Int_t nY, Double_t sX, Double_t sY);
 
-		Int_t GetPixel( Double_t x, Double_t y );
+  // Construtor
+  TRestReadoutMapping();
+  // Destructor
+  ~TRestReadoutMapping();
 
-		void SetNode( Int_t i, Int_t j, Int_t ch, Int_t pix );
-
-		void Initialize( Int_t nX, Int_t nY, Double_t sX, Double_t sY );
-
-		//Construtor
-		TRestReadoutMapping();
-		//Destructor
-		~TRestReadoutMapping();
-
-		ClassDef(TRestReadoutMapping, 1);
-
+  ClassDef(TRestReadoutMapping, 1);
 };
 #endif
-
-
-

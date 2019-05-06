@@ -1,7 +1,7 @@
 ///______________________________________________________________________________
 ///______________________________________________________________________________
 ///______________________________________________________________________________
-///             
+///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
@@ -15,69 +15,64 @@
 ///
 ///_______________________________________________________________________________
 
-
 #ifndef RestCore_TRestG4toHitsProcess
 #define RestCore_TRestG4toHitsProcess
 
-#include <TRestGas.h>
 #include <TRestG4Event.h>
 #include <TRestG4Metadata.h>
+#include <TRestGas.h>
 #include <TRestHitsEvent.h>
 
 #include "TRestEventProcess.h"
 
-class TRestG4toHitsProcess:public TRestEventProcess {
-    private:
+class TRestG4toHitsProcess : public TRestEventProcess {
+ private:
 #ifndef __CINT__
-        TRestG4Event *fG4Event;//!
-        TRestG4Metadata *fG4Metadata;//!
-        TRestHitsEvent *fHitsEvent;//!
+  TRestG4Event* fG4Event;        //!
+  TRestG4Metadata* fG4Metadata;  //!
+  TRestHitsEvent* fHitsEvent;    //!
 
-        vector <Int_t> fVolumeId;//!
+  vector<Int_t> fVolumeId;  //!
 #endif
 
-        vector <TString> fVolumeSelection;
+  vector<TString> fVolumeSelection;
 
-        void InitFromConfigFile();
+  void InitFromConfigFile();
 
-        void Initialize();
+  void Initialize();
 
-        void LoadDefaultConfig();
+  void LoadDefaultConfig();
 
-    protected:
+ protected:
+  // add here the members of your event process
 
-        //add here the members of your event process
+ public:
+  void InitProcess();
+  void BeginOfEventProcess();
+  TRestEvent* ProcessEvent(TRestEvent* eventInput);
+  void EndOfEventProcess();
+  void EndProcess();
 
+  void LoadConfig(std::string cfgFilename, std::string name = "");
 
-    public:
-        void InitProcess();
-        void BeginOfEventProcess(); 
-        TRestEvent *ProcessEvent( TRestEvent *eventInput );
-        void EndOfEventProcess(); 
-        void EndProcess();
+  void PrintMetadata() {
+    BeginPrintProcess();
 
-        void LoadConfig( std::string cfgFilename, std::string name = "" );
+    for (unsigned int n = 0; n < fVolumeSelection.size(); n++)
+      std::cout << "Volume added : " << fVolumeSelection[n] << std::endl;
 
-        void PrintMetadata() { 
+    EndPrintProcess();
+  }
 
-            BeginPrintProcess();
+  TString GetProcessName() { return (TString) "g4toHitsEvent"; }
 
-            for ( unsigned int n = 0; n < fVolumeSelection.size(); n++ )
-                std::cout << "Volume added : " << fVolumeSelection[n] << std::endl;
+  // Constructor
+  TRestG4toHitsProcess();
+  TRestG4toHitsProcess(char* cfgFileName);
+  // Destructor
+  ~TRestG4toHitsProcess();
 
-            EndPrintProcess();
-
-        }
-
-        TString GetProcessName() { return (TString) "g4toHitsEvent"; }
-
-        //Constructor
-        TRestG4toHitsProcess();
-        TRestG4toHitsProcess( char *cfgFileName );
-        //Destructor
-        ~TRestG4toHitsProcess();
-
-        ClassDef(TRestG4toHitsProcess, 1);      // Transform a TRestG4Event event to a TRestHitsEvent (hits-collection event)
+  ClassDef(TRestG4toHitsProcess, 1);  // Transform a TRestG4Event event to a
+                                      // TRestHitsEvent (hits-collection event)
 };
 #endif
-

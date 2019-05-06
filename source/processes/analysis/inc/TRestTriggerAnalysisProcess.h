@@ -1,7 +1,7 @@
 ///______________________________________________________________________________
 ///______________________________________________________________________________
 ///______________________________________________________________________________
-///             
+///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
@@ -9,71 +9,68 @@
 ///
 ///_______________________________________________________________________________
 
-
 #ifndef RestCore_TRestTriggerAnalysisProcess
 #define RestCore_TRestTriggerAnalysisProcess
 
 #include <TH1D.h>
 
 #include <TRestGas.h>
+#include <TRestHitsEvent.h>
 #include <TRestReadout.h>
 #include <TRestSignalEvent.h>
-#include <TRestHitsEvent.h>
 
 #include "TRestEventProcess.h"
 
-class TRestTriggerAnalysisProcess:public TRestEventProcess {
-    private:
+class TRestTriggerAnalysisProcess : public TRestEventProcess {
+ private:
 #ifndef __CINT__
-        TRestSignalEvent *fSignalEvent;//!
-        // TODO We must get here a pointer to TRestDaqMetadata
-        // In order to convert the parameters to time using the sampling time
+  TRestSignalEvent* fSignalEvent;  //!
+  // TODO We must get here a pointer to TRestDaqMetadata
+  // In order to convert the parameters to time using the sampling time
 
-        std::vector <std::string> fIntegralObservables;//!
-        std::vector <double> fThreshold;//!
+  std::vector<std::string> fIntegralObservables;  //!
+  std::vector<double> fThreshold;                 //!
 #endif
 
-        void InitFromConfigFile();
+  void InitFromConfigFile();
 
-        void Initialize();
+  void Initialize();
 
-        void LoadDefaultConfig();
+  void LoadDefaultConfig();
 
-    protected:
-        
-        //add here the members of your event process
-        //
+ protected:
+  // add here the members of your event process
+  //
 
-        Double_t fW;
+  Double_t fW;
 
+ public:
+  void InitProcess();
+  void BeginOfEventProcess();
+  TRestEvent* ProcessEvent(TRestEvent* eventInput);
+  void EndOfEventProcess();
+  void EndProcess();
 
-    public:
-        void InitProcess();
-        void BeginOfEventProcess(); 
-        TRestEvent *ProcessEvent( TRestEvent *eventInput );
-        void EndOfEventProcess(); 
-        void EndProcess();
+  void LoadConfig(std::string cfgFilename, std::string name = "");
 
-        void LoadConfig( std::string cfgFilename, std::string name = "" );
+  void PrintMetadata() {
+    BeginPrintProcess();
 
-        void PrintMetadata() { 
+    std::cout << " W : " << fW << std::endl;
 
-            BeginPrintProcess();
+    EndPrintProcess();
+  }
 
-            std::cout << " W : " << fW << std::endl;
+  TString GetProcessName() { return (TString) "triggerAnalysis"; }
 
-            EndPrintProcess();
-        }
+  // Constructor
+  TRestTriggerAnalysisProcess();
+  TRestTriggerAnalysisProcess(char* cfgFileName);
+  // Destructor
+  ~TRestTriggerAnalysisProcess();
 
-        TString GetProcessName() { return (TString) "triggerAnalysis"; }
-
-        //Constructor
-        TRestTriggerAnalysisProcess();
-        TRestTriggerAnalysisProcess( char *cfgFileName );
-        //Destructor
-        ~TRestTriggerAnalysisProcess();
-
-        ClassDef(TRestTriggerAnalysisProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+  ClassDef(TRestTriggerAnalysisProcess,
+           1);  // Template for a REST "event process" class inherited from
+                // TRestEventProcess
 };
 #endif
-

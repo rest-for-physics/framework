@@ -1,7 +1,7 @@
 ///______________________________________________________________________________
 ///______________________________________________________________________________
 ///______________________________________________________________________________
-///             
+///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
@@ -9,90 +9,88 @@
 ///
 ///_______________________________________________________________________________
 
-
 #ifndef _TRestMuonAnalysisProcess
 #define _TRestMuonAnalysisProcess
 
-#include "TRestEventProcess.h"
 #include "TRest2DHitsEvent.h"
+#include "TRestEventProcess.h"
 
 #define stripWidth 3
 
-class TRestMuonAnalysisProcess:public TRestEventProcess {
+class TRestMuonAnalysisProcess : public TRestEventProcess {
+ private:
+  // We define specific input/output event data holders
+  TRest2DHitsEvent* fAnaEvent;  //!
 
-    private:
+  TH1D* hxzt;  //!
+  TH1D* hyzt;  //!
+  TH1D* hxzr;  //!
+  TH1D* hyzr;  //!
 
-        // We define specific input/output event data holders
-        TRest2DHitsEvent *fAnaEvent;//!
+  TH1D* hdiffz;  //!
+  TF1* fdiffz;   //!
 
-		TH1D*hxzt;//!
-		TH1D*hyzt;//!
-		TH1D*hxzr;//!
-		TH1D*hyzr;//!
+  int X1;  //!
+  int X2;  //!
+  int Y1;  //!
+  int Y2;  //!
 
-		TH1D*hdiffz;//!
-		TF1*fdiffz;//!
+  int nummudeposxz;  //!
+  int nummudeposyz;  //!
+  // int numsmearxy;//!
+  // int numsmearz;//!
+  TH1D* mudeposxz;  //!
+  TH1D* mudeposyz;  //!
 
-		int X1;//!
-		int X2;//!
-		int Y1;//!
-		int Y2;//!
+  TH1D* mudepos;   //!
+  TH1D* mutanthe;  //!
 
-		int nummudeposxz;//!
-		int nummudeposyz;//!
-		//int numsmearxy;//!
-		//int numsmearz;//!
-		TH1D* mudeposxz;//!
-		TH1D* mudeposyz;//!
+  TH2D* muhitmap;  //!
+  TH2D* muhitdir;  //!
 
-		TH1D* mudepos;//!
-		TH1D* mutanthe;//!
+  map<int, vector<double>> musmearxy;       // [z index][single strip ene]
+  map<int, pair<double, double>> musmearz;  // [z index][sigma, chi2]
 
-		TH2D* muhitmap;//!
-		TH2D* muhitdir;//!
+  void InitFromConfigFile();
 
-		map<int, vector<double>> musmearxy;// [z index][single strip ene]
-		map<int, pair<double, double>> musmearz;// [z index][sigma, chi2]
+  void Initialize();
 
-        void InitFromConfigFile();
+  // add here the metadata members of your event process
+  // You can just remove fMyProcessParameter
+  Int_t fMyDummyParameter;
 
-        void Initialize();
+ protected:
+ public:
+  void InitProcess();
 
-        // add here the metadata members of your event process
-        // You can just remove fMyProcessParameter
-        Int_t fMyDummyParameter;
+  TRestEvent* ProcessEvent(TRestEvent* eventInput);
 
-    protected:
+  void EndProcess();
 
-    public:
-		void InitProcess();
+  void PrintMetadata() {
+    BeginPrintProcess();
 
-        TRestEvent *ProcessEvent( TRestEvent *eventInput );
+    std::cout << "A dummy Process parameter : " << fMyDummyParameter
+              << std::endl;
 
-		void EndProcess();
+    EndPrintProcess();
+  }
 
-        void PrintMetadata() 
-        { 
-            BeginPrintProcess();
+  double ProjectionToCenter(double x, double y, double xzthe, double yzthe);
 
-            std::cout << "A dummy Process parameter : " << fMyDummyParameter << std::endl;
+  double DistanceToTrack(double x, double z, double x0, double z0,
+                         double theta);
 
-            EndPrintProcess();
-        }
+  map<int, vector<double>> GetdiffXY() { return musmearxy; }
+  map<int, pair<double, double>> GetdiffZ() { return musmearz; }
 
-		double ProjectionToCenter(double x, double y, double xzthe, double yzthe);
+  // Constructor
+  TRestMuonAnalysisProcess();
+  // Destructor
+  ~TRestMuonAnalysisProcess();
 
-		double DistanceToTrack(double x, double z, double x0, double z0, double theta);
-
-		map<int, vector<double>> GetdiffXY() { return musmearxy; }
-		map<int, pair<double, double>> GetdiffZ() { return musmearz; }
-
-        //Constructor
-        TRestMuonAnalysisProcess();
-        //Destructor
-        ~TRestMuonAnalysisProcess();
-
-        ClassDef(TRestMuonAnalysisProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+  ClassDef(TRestMuonAnalysisProcess,
+           1);  // Template for a REST "event process" class inherited from
+                // TRestEventProcess
 };
 #endif
-

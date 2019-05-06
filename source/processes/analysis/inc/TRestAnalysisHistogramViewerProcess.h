@@ -1,14 +1,13 @@
 ///______________________________________________________________________________
 ///______________________________________________________________________________
 ///______________________________________________________________________________
-///             
+///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
 ///             TRestAnalysisHistogramViewerProcess.h
 ///
 ///_______________________________________________________________________________
-
 
 #ifndef RestCore_TRestAnalysisHistogramViewerProcess
 #define RestCore_TRestAnalysisHistogramViewerProcess
@@ -20,53 +19,52 @@
 
 #include "TRestEventProcess.h"
 
-class TRestAnalysisHistogramViewerProcess:public TRestEventProcess {
-    private:
+class TRestAnalysisHistogramViewerProcess : public TRestEventProcess {
+ private:
 #ifndef __CINT__
-        TRestTrackEvent *fInputTrackEvent; //!
-        TRestTrackEvent *fOutputTrackEvent; //!
+  TRestTrackEvent* fInputTrackEvent;   //!
+  TRestTrackEvent* fOutputTrackEvent;  //!
 
-	TCanvas *fAnaHistoCanvas; //!
-	TVector2 fHistoCanvasSize; //!
+  TCanvas* fAnaHistoCanvas;   //!
+  TVector2 fHistoCanvasSize;  //!
 
-	TString fPlotString; //!
+  TString fPlotString;  //!
 #endif
 
-        void InitFromConfigFile();
+  void InitFromConfigFile();
 
-        void Initialize();
+  void Initialize();
 
-        void LoadDefaultConfig();
+  void LoadDefaultConfig();
 
-    protected:
+ protected:
+  // add here the members of your event process
 
-        //add here the members of your event process
+ public:
+  void InitProcess();
+  void BeginOfEventProcess();
+  TRestEvent* ProcessEvent(TRestEvent* eventInput);
+  void EndOfEventProcess();
+  void EndProcess();
 
-    public:
-        void InitProcess();
-        void BeginOfEventProcess(); 
-        TRestEvent *ProcessEvent( TRestEvent *eventInput );
-        void EndOfEventProcess(); 
-        void EndProcess();
+  void LoadConfig(std::string cfgFilename, std::string name = "");
 
-        void LoadConfig( std::string cfgFilename, std::string name = "" );
+  void PrintMetadata() {
+    BeginPrintProcess();
 
-        void PrintMetadata() { 
+    EndPrintProcess();
+  }
 
-            BeginPrintProcess();
+  TString GetProcessName() { return (TString) "histogramAnalysisViewer"; }
 
-            EndPrintProcess();
-        }
+  // Constructor
+  TRestAnalysisHistogramViewerProcess();
+  TRestAnalysisHistogramViewerProcess(char* cfgFileName);
+  // Destructor
+  ~TRestAnalysisHistogramViewerProcess();
 
-        TString GetProcessName() { return (TString) "histogramAnalysisViewer"; }
-
-        //Constructor
-        TRestAnalysisHistogramViewerProcess();
-        TRestAnalysisHistogramViewerProcess( char *cfgFileName );
-        //Destructor
-        ~TRestAnalysisHistogramViewerProcess();
-
-        ClassDef(TRestAnalysisHistogramViewerProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+  ClassDef(TRestAnalysisHistogramViewerProcess,
+           1);  // Template for a REST "event process" class inherited from
+                // TRestEventProcess
 };
 #endif
-

@@ -1,7 +1,7 @@
 ///______________________________________________________________________________
 ///______________________________________________________________________________
 ///______________________________________________________________________________
-///             
+///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
@@ -9,117 +9,119 @@
 ///
 ///_______________________________________________________________________________
 
-
 #ifndef RESTCore_TRestRawSignalTo2DHitsProcess
 #define RESTCore_TRestRawSignalTo2DHitsProcess
 
+#include "TRest2DHitsEvent.h"
 #include "TRestEventProcess.h"
 #include "TRestRawSignalEvent.h"
-#include "TRest2DHitsEvent.h"
 #include "TRestSignalEvent.h"
 
-class TRestRawSignalTo2DHitsProcess:public TRestEventProcess {
+class TRestRawSignalTo2DHitsProcess : public TRestEventProcess {
+ private:
+  // We define specific input/output event data holders
+  TRestRawSignalEvent* fInputSignalEvent;  //!
+  TRest2DHitsEvent* fOutput2DHitsEvent;    //!
 
-    private:
+  TRestReadout* fReadout;  //!
 
-        // We define specific input/output event data holders
-        TRestRawSignalEvent *fInputSignalEvent;//!
-		TRest2DHitsEvent *fOutput2DHitsEvent;//!
+  void InitFromConfigFile();
 
-		TRestReadout* fReadout;//!
+  void Initialize();
 
-        void InitFromConfigFile();
+  // add here the metadata members of your event process
+  // You can just remove fMyProcessParameter
+  // int fNoiseReductionLevel;//0: no reduction, 1: subtract baseline, 2:
+  // subtract baseline plus threshold
 
-        void Initialize();
+  string fSelection;  // 0: uses all, 1: muon, 2: strong electron, 3: weak
+                      // electron, 4: firing, 5: abnormal, 6: pile up, 9: other
 
-        // add here the metadata members of your event process
-        // You can just remove fMyProcessParameter
-		//int fNoiseReductionLevel;//0: no reduction, 1: subtract baseline, 2: subtract baseline plus threshold
+  TVector2 fBaseLineRange;       //!
+  TVector2 fIntegralRange;       //!
+  Double_t fPointThreshold;      //!
+  Double_t fSignalThreshold;     //!
+  Int_t fNPointsOverThreshold;   //!
+  Double_t fHoughSigmaLimit;     //!
+  Double_t fPeakPointRateLimit;  //!
 
-		string fSelection;//0: uses all, 1: muon, 2: strong electron, 3: weak electron, 4: firing, 5: abnormal, 6: pile up, 9: other
+  vector<TVector3> fHough_XZ;  // y=ax+b, vertical line angle 牟, length 老,
+                               // [id][老,牟,weight]
+  vector<TVector3> fHough_YZ;  // y=ax+b, vertical line angle 牟, length 老,
+                               // [id][老,牟,weight]
 
-		TVector2 fBaseLineRange;//!
-		TVector2 fIntegralRange;//!
-		Double_t fPointThreshold;//!
-		Double_t fSignalThreshold;//!
-		Int_t fNPointsOverThreshold;//!
-		Double_t fHoughSigmaLimit;//!
-		Double_t fPeakPointRateLimit;//!
+  // int longmunumxz;//!
+  // int longmunumyz;//!
+  // TH1D* mudeposxz;//!
+  // TH1D* mudeposyz;//!
 
-		vector<TVector3> fHough_XZ; //y=ax+b, vertical line angle 牟, length 老, [id][老,牟,weight]
-		vector<TVector3> fHough_YZ; //y=ax+b, vertical line angle 牟, length 老, [id][老,牟,weight]
+  TH1D* hxzt;  //!
+  TH1D* hyzt;  //!
+  TH1D* hxzr;  //!
+  TH1D* hyzr;  //!
+  TF1* fxz;    //!
+  TF1* fyz;    //!
 
-		//int longmunumxz;//!
-		//int longmunumyz;//!
-		//TH1D* mudeposxz;//!
-		//TH1D* mudeposyz;//!
+  int X1;  //!
+  int X2;  //!
+  int Y1;  //!
+  int Y2;  //!
 
-		TH1D*hxzt;//!
-		TH1D*hyzt;//!
-		TH1D*hxzr;//!
-		TH1D*hyzr;//!
-		TF1*fxz;//!
-		TF1*fyz;//!
+  // observables
+  double zlen;
+  double xlen;
+  double ylen;
+  double firstx;
+  double firsty;
+  double firstz;
+  double lastz;
+  double ene;
 
-		int X1;//!
-		int X2;//!
-		int Y1;//!
-		int Y2;//!
+  // double mutanthe;
 
-		//observables
-		double zlen;
-		double xlen;
-		double ylen;
-		double firstx;
-		double firsty;
-		double firstz;
-		double lastz;
-		double ene;
+ protected:
+ public:
+  void InitProcess();
 
-		//double mutanthe;
+  TRestEvent* ProcessEvent(TRestEvent* eventInput);
 
+  void MakeCluster();
 
+  TRest2DHitsEvent* SelectTag();
 
+  void MuDepos(TRest2DHitsEvent* eve);
 
+  void EndProcess();
 
-    protected:
+  void PrintMetadata() {
+    BeginPrintProcess();
 
-    public:
-		void InitProcess();
+    metadata << "Baseline range : ( " << fBaseLineRange.X() << " , "
+             << fBaseLineRange.Y() << " ) " << endl;
+    metadata << "Integral range : ( " << fIntegralRange.X() << " , "
+             << fIntegralRange.Y() << " ) " << endl;
+    metadata << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
+    metadata << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
+    metadata << "Number of points over threshold : " << fNPointsOverThreshold
+             << endl;
+    metadata << "Hough sigma threshold for muon tracks: " << fHoughSigmaLimit
+             << endl;
+    metadata << endl;
+    metadata << "Event selection: " << fSelection << endl;
+    metadata << "0: uses all, 1: muon, 2: strong electron, 3: weak electron, "
+                "4: firing, 5: abnormal, 9: other"
+             << endl;
 
-        TRestEvent *ProcessEvent( TRestEvent *eventInput );
+    EndPrintProcess();
+  }
 
-		void MakeCluster();
+  // Constructor
+  TRestRawSignalTo2DHitsProcess();
+  // Destructor
+  ~TRestRawSignalTo2DHitsProcess();
 
-		TRest2DHitsEvent* SelectTag();
-
-		void MuDepos(TRest2DHitsEvent*eve);
-
-		void EndProcess();
-
-        void PrintMetadata() 
-        { 
-            BeginPrintProcess();
-
-			metadata << "Baseline range : ( " << fBaseLineRange.X() << " , " << fBaseLineRange.Y() << " ) " << endl;
-			metadata << "Integral range : ( " << fIntegralRange.X() << " , " << fIntegralRange.Y() << " ) " << endl;
-			metadata << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
-			metadata << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
-			metadata << "Number of points over threshold : " << fNPointsOverThreshold << endl;
-			metadata << "Hough sigma threshold for muon tracks: " << fHoughSigmaLimit << endl;
-			metadata << endl;
-			metadata << "Event selection: " << fSelection << endl;
-			metadata << "0: uses all, 1: muon, 2: strong electron, 3: weak electron, 4: firing, 5: abnormal, 9: other" << endl;
-
-			EndPrintProcess();
-        }
-
-        //Constructor
-        TRestRawSignalTo2DHitsProcess();
-        //Destructor
-        ~TRestRawSignalTo2DHitsProcess();
-
-        ClassDef(TRestRawSignalTo2DHitsProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+  ClassDef(TRestRawSignalTo2DHitsProcess,
+           1);  // Template for a REST "event process" class inherited from
+                // TRestEventProcess
 };
 #endif
-

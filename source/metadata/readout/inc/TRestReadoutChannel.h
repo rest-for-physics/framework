@@ -30,64 +30,67 @@
 #include "TRestReadoutPixel.h"
 
 enum TRestReadoutChannelType {
-	Channel_NoType = 0,
-	Channel_Pixel = 1,
-	Channel_X = 2,
-	Channel_Y = 3,
-	Channel_U = 4,
-	Channel_V = 5,
-	Channel_W = 6,
+  Channel_NoType = 0,
+  Channel_Pixel = 1,
+  Channel_X = 2,
+  Channel_Y = 3,
+  Channel_U = 4,
+  Channel_V = 5,
+  Channel_W = 6,
 };
 
-/// A class to store the readout channel definition used in TRestReadoutModule. It allows to integrate any number of independent readout pixels.
+/// A class to store the readout channel definition used in TRestReadoutModule.
+/// It allows to integrate any number of independent readout pixels.
 class TRestReadoutChannel : public TObject {
-private:
+ private:
+  Int_t fDaqID;  ///< Defines the corresponding daq channel id. See decoding
+                 ///< details at TRestReadout.
+  std::vector<TRestReadoutPixel>
+      fReadoutPixel;  ///< A vector storing the different TRestReadoutPixel
+                      ///< definitions.
 
-	Int_t fDaqID;     ///< Defines the corresponding daq channel id. See decoding details at TRestReadout.
-	std::vector <TRestReadoutPixel> fReadoutPixel;  ///< A vector storing the different TRestReadoutPixel definitions.
+  void Initialize();
 
-	void Initialize();
+ protected:
+ public:
+  /// Returns the corresponding daq channel id
+  Int_t GetDaqID() { return fDaqID; }
 
-protected:
+  /// Returns the total number of pixels inside the readout channel
+  Int_t GetNumberOfPixels() { return fReadoutPixel.size(); }
 
-public:
+  TRestReadoutPixel& operator[](int n) { return fReadoutPixel[n]; }
 
-	/// Returns the corresponding daq channel id
-	Int_t GetDaqID() { return fDaqID; }
+  /// Returns a pointer to the pixel *n* by index.
+  TRestReadoutPixel* GetPixel(int n) {
+    if (n >= GetNumberOfPixels()) return NULL;
+    return &fReadoutPixel[n];
+  }
 
-	/// Returns the total number of pixels inside the readout channel
-	Int_t GetNumberOfPixels() { return fReadoutPixel.size(); }
+  void SetType(TRestReadoutChannelType type) {
+    // in future we may implement this
+  }
 
-	TRestReadoutPixel& operator[] (int n) { return fReadoutPixel[n]; }
+  TRestReadoutChannelType GetType() {
+    // in future we may implement this
+    return Channel_NoType;
+  }
 
-	/// Returns a pointer to the pixel *n* by index.
-	TRestReadoutPixel *GetPixel( int n ) { if (n >= GetNumberOfPixels())return NULL; return &fReadoutPixel[n]; }
+  /// Sets the daq channel number id
+  void SetDaqID(Int_t id) { fDaqID = id; }
 
-	void SetType(TRestReadoutChannelType type) {
-		//in future we may implement this
-	}
+  /// Adds a new pixel to the readout channel
+  void AddPixel(TRestReadoutPixel pix) { fReadoutPixel.push_back(pix); }
 
-	TRestReadoutChannelType GetType() {
-		//in future we may implement this
-		return Channel_NoType;
-	}
+  Int_t isInside(Double_t x, Double_t y);
 
-	/// Sets the daq channel number id
-	void SetDaqID(Int_t id) { fDaqID = id; }
+  void Print(int DetailLevel = 0, int index = -1);
 
-	/// Adds a new pixel to the readout channel
-	void AddPixel(TRestReadoutPixel pix) { fReadoutPixel.push_back(pix); }
+  // Construtor
+  TRestReadoutChannel();
+  // Destructor
+  virtual ~TRestReadoutChannel();
 
-	Int_t isInside(Double_t x, Double_t y);
-
-	void Print(int DetailLevel = 0, int index = -1);
-
-	//Construtor
-	TRestReadoutChannel();
-	//Destructor
-	virtual ~TRestReadoutChannel();
-
-
-	ClassDef(TRestReadoutChannel, 2);     // REST run class
+  ClassDef(TRestReadoutChannel, 2);  // REST run class
 };
 #endif

@@ -1,7 +1,7 @@
 ///______________________________________________________________________________
 ///______________________________________________________________________________
 ///______________________________________________________________________________
-///             
+///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
@@ -9,70 +9,68 @@
 ///
 ///_______________________________________________________________________________
 
-
 #ifndef RestCore_TRestFastHitsToTrackProcess
 #define RestCore_TRestFastHitsToTrackProcess
 
+#include <TRestEventProcess.h>
 #include <TRestHitsEvent.h>
 #include <TRestTrackEvent.h>
-#include <TRestEventProcess.h>
 
 #include <TVector3.h>
 
-class TRestFastHitsToTrackProcess:public TRestEventProcess {
-    private:
-
+class TRestFastHitsToTrackProcess : public TRestEventProcess {
+ private:
 #ifndef __CINT__
-        TRestHitsEvent *fHitsEvent;//!
-        TRestTrackEvent *fTrackEvent;//!
+  TRestHitsEvent* fHitsEvent;    //!
+  TRestTrackEvent* fTrackEvent;  //!
 #endif
 
-        void InitFromConfigFile();
+  void InitFromConfigFile();
 
-        void Initialize();
-        Int_t FindTracks( TRestHits *hits );
+  void Initialize();
+  Int_t FindTracks(TRestHits* hits);
 
-    protected:
-        //add here the members of your event process
+ protected:
+  // add here the members of your event process
 
-        Double_t fCellResolution;
-        Double_t fNetSize;
-        TVector3 fNetOrigin;
-        Int_t fNodes;
-	
+  Double_t fCellResolution;
+  Double_t fNetSize;
+  TVector3 fNetOrigin;
+  Int_t fNodes;
 
-    public:
-        void InitProcess();
-        void BeginOfEventProcess(); 
-        TRestEvent *ProcessEvent( TRestEvent *eventInput );
-        void EndOfEventProcess(); 
-        void EndProcess();
-        void LoadDefaultConfig( );
+ public:
+  void InitProcess();
+  void BeginOfEventProcess();
+  TRestEvent* ProcessEvent(TRestEvent* eventInput);
+  void EndOfEventProcess();
+  void EndProcess();
+  void LoadDefaultConfig();
 
-        void LoadConfig( std::string cfgFilename, std::string name = "" );
+  void LoadConfig(std::string cfgFilename, std::string name = "");
 
-        void PrintMetadata() { 
+  void PrintMetadata() {
+    BeginPrintProcess();
 
-            BeginPrintProcess();
+    std::cout << " Cell resolution : " << fCellResolution << " mm "
+              << std::endl;
+    std::cout << " Net size : " << fNetSize << " mm " << std::endl;
+    std::cout << " Net origin : ( " << fNetOrigin.X() << " , " << fNetOrigin.Y()
+              << " , " << fNetOrigin.Z() << " ) mm " << std::endl;
+    std::cout << " Number of nodes (per axis) : " << fNodes << std::endl;
 
-            std::cout << " Cell resolution : " << fCellResolution << " mm " << std::endl;
-            std::cout << " Net size : " << fNetSize << " mm " << std::endl;
-            std::cout << " Net origin : ( " << fNetOrigin.X() << " , "  << fNetOrigin.Y() << " , "  << fNetOrigin.Z() << " ) mm " << std::endl;
-            std::cout << " Number of nodes (per axis) : " << fNodes << std::endl;
+    EndPrintProcess();
+  }
 
-            EndPrintProcess();
+  TString GetProcessName() { return (TString) "fastHitsToTrack"; }
 
-        }
+  // Constructor
+  TRestFastHitsToTrackProcess();
+  TRestFastHitsToTrackProcess(char* cfgFileName);
+  // Destructor
+  ~TRestFastHitsToTrackProcess();
 
-        TString GetProcessName() { return (TString) "fastHitsToTrack"; }
-
-        //Constructor
-        TRestFastHitsToTrackProcess();
-        TRestFastHitsToTrackProcess( char *cfgFileName );
-        //Destructor
-        ~TRestFastHitsToTrackProcess();
-
-        ClassDef(TRestFastHitsToTrackProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+  ClassDef(TRestFastHitsToTrackProcess,
+           1);  // Template for a REST "event process" class inherited from
+                // TRestEventProcess
 };
 #endif
-

@@ -1,7 +1,7 @@
 ///______________________________________________________________________________
 ///______________________________________________________________________________
 ///______________________________________________________________________________
-///             
+///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
@@ -9,90 +9,85 @@
 ///
 ///_______________________________________________________________________________
 
-
 #ifndef RestCore_TRestSignalDeconvolutionProcess
 #define RestCore_TRestSignalDeconvolutionProcess
 
+#include <TRestHitsEvent.h>
 #include <TRestReadout.h>
 #include <TRestSignalEvent.h>
-#include <TRestHitsEvent.h>
 
 #include "TRestEventProcess.h"
 
-class TRestSignalDeconvolutionProcess:public TRestEventProcess {
-
-    private:
-
+class TRestSignalDeconvolutionProcess : public TRestEventProcess {
+ private:
 #ifndef __CINT__
-        TRestSignalEvent *fInputSignalEvent;//!
-        TRestSignalEvent *fOutputSignalEvent;//!
+  TRestSignalEvent* fInputSignalEvent;   //!
+  TRestSignalEvent* fOutputSignalEvent;  //!
 
-	TCanvas *canvas;//!
+  TCanvas* canvas;  //!
 #endif
 
-        void InitFromConfigFile();
+  void InitFromConfigFile();
 
-        void Initialize();
+  void Initialize();
 
-        void LoadDefaultConfig();
+  void LoadDefaultConfig();
 
+ protected:
+  TString fResponseFilename;
+  Double_t fFreq1;
+  Double_t fFreq2;
 
-    protected:
+  Int_t fCutFrequency;
+  Int_t fSmoothingPoints;
+  Int_t fSmearingPoints;
 
-        TString fResponseFilename;
-        Double_t fFreq1;
-        Double_t fFreq2;
+  Int_t fBaseLineStart;
+  Int_t fBaseLineEnd;
 
-        Int_t fCutFrequency;
-        Int_t fSmoothingPoints;
-        Int_t fSmearingPoints;
+  Int_t fFFTStart;
+  Int_t fFFTEnd;
 
-        Int_t fBaseLineStart;
-        Int_t fBaseLineEnd;
+ public:
+  void InitProcess();
+  void BeginOfEventProcess();
+  TRestEvent* ProcessEvent(TRestEvent* eventInput);
+  void EndOfEventProcess();
+  void EndProcess();
 
-        Int_t fFFTStart;
-        Int_t fFFTEnd;
+  void LoadConfig(std::string cfgFilename);
 
+  void PrintMetadata() {
+    BeginPrintProcess();
 
-    public:
-        void InitProcess();
-        void BeginOfEventProcess(); 
-        TRestEvent *ProcessEvent( TRestEvent *eventInput );
-        void EndOfEventProcess(); 
-        void EndProcess();
+    std::cout << "Response filename : " << fResponseFilename << std::endl;
+    std::cout << "Frequency 1 : " << fFreq1 << std::endl;
+    std::cout << "Frequency 2 : " << fFreq2 << std::endl;
+    std::cout << "Cut frequency : " << fCutFrequency << std::endl;
 
-        void LoadConfig( std::string cfgFilename );
+    std::cout << "Smoothing points : " << fSmoothingPoints << std::endl;
+    std::cout << "Smearing points : " << fSmearingPoints << std::endl;
 
-        void PrintMetadata() 
-        { 
-            BeginPrintProcess();
+    std::cout << "Baseline range : ( " << fBaseLineStart << " , "
+              << fBaseLineEnd << " ) " << std::endl;
+    std::cout << "FFT remove beginning points : " << fFFTStart << std::endl;
+    std::cout << "FFT remove end points : " << fFFTEnd << std::endl;
 
-            std::cout << "Response filename : " << fResponseFilename << std::endl;
-            std::cout << "Frequency 1 : " << fFreq1 << std::endl;
-            std::cout << "Frequency 2 : " << fFreq2 << std::endl;
-            std::cout << "Cut frequency : " << fCutFrequency << std::endl;
+    EndPrintProcess();
+  }
 
-            std::cout << "Smoothing points : " << fSmoothingPoints << std::endl;
-            std::cout << "Smearing points : " << fSmearingPoints << std::endl;
+  TRestMetadata* GetProcessMetadata() { return NULL; }
 
-            std::cout << "Baseline range : ( " << fBaseLineStart << " , " << fBaseLineEnd << " ) " << std::endl;
-            std::cout << "FFT remove beginning points : " << fFFTStart << std::endl;
-            std::cout << "FFT remove end points : " << fFFTEnd << std::endl;
+  TString GetProcessName() { return (TString) "signalDeconvolution"; }
 
-            EndPrintProcess();
-        }
+  // Constructor
+  TRestSignalDeconvolutionProcess();
+  TRestSignalDeconvolutionProcess(char* cfgFileName);
+  // Destructor
+  ~TRestSignalDeconvolutionProcess();
 
-        TRestMetadata *GetProcessMetadata( ) { return NULL; }
-
-        TString GetProcessName() { return (TString) "signalDeconvolution"; }
-
-        //Constructor
-        TRestSignalDeconvolutionProcess();
-        TRestSignalDeconvolutionProcess( char *cfgFileName );
-        //Destructor
-        ~TRestSignalDeconvolutionProcess();
-
-        ClassDef(TRestSignalDeconvolutionProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+  ClassDef(TRestSignalDeconvolutionProcess,
+           1);  // Template for a REST "event process" class inherited from
+                // TRestEventProcess
 };
 #endif
-

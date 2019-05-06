@@ -1,7 +1,7 @@
 ///______________________________________________________________________________
 ///______________________________________________________________________________
 ///______________________________________________________________________________
-///             
+///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
@@ -9,50 +9,45 @@
 ///
 ///_______________________________________________________________________________
 
-
 #ifndef _mySignalProcess
 #define _mySignalProcess
 
 #include "TRestEventProcess.h"
 #include "TRestSignalEvent.h"
 
+class mySignalProcess : public TRestEventProcess {
+ private:
+  // We define specific input/output event data holders
+  TRestSignalEvent* fInputSignalEvent;
+  TRestSignalEvent* fOutputSignalEvent;
 
-class mySignalProcess:public TRestEventProcess {
+  void InitFromConfigFile();
 
-    private:
+  void Initialize();
 
-        // We define specific input/output event data holders
-        TRestSignalEvent *fInputSignalEvent;
-        TRestSignalEvent *fOutputSignalEvent;
+  // add here the metadata members of your event process
+  // You can just remove fMyProcessParameter
+  Int_t fMyDummyParameter;
 
-        void InitFromConfigFile();
+ protected:
+ public:
+  TRestEvent* ProcessEvent(TRestEvent* eventInput);
 
-        void Initialize();
+  void PrintMetadata() {
+    BeginPrintProcess();
 
-        // add here the metadata members of your event process
-        // You can just remove fMyProcessParameter
-        Int_t fMyDummyParameter;
+    std::cout << "A dummy Process parameter : " << fMyDummyParameter
+              << std::endl;
 
-    protected:
+    EndPrintProcess();
+  }
 
-    public:
-        TRestEvent *ProcessEvent( TRestEvent *eventInput );
+  // Constructor
+  mySignalProcess();
+  // Destructor
+  ~mySignalProcess();
 
-        void PrintMetadata() 
-        { 
-            BeginPrintProcess();
-
-            std::cout << "A dummy Process parameter : " << fMyDummyParameter << std::endl;
-
-            EndPrintProcess();
-        }
-
-        //Constructor
-        mySignalProcess();
-        //Destructor
-        ~mySignalProcess();
-
-        ClassDef(mySignalProcess, 1);      // Template for a REST "event process" class inherited from TRestEventProcess
+  ClassDef(mySignalProcess, 1);  // Template for a REST "event process" class
+                                 // inherited from TRestEventProcess
 };
 #endif
-
