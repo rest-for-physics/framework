@@ -279,10 +279,10 @@ void TRestHits::RemoveHits() {
     fTotEnergy = 0;
 }
 
-void TRestHits::Traslate(Int_t n, double deltax, double deltay, double deltaz) {
-    fX[n] += deltax;
-    fY[n] += deltay;
-    fZ[n] += deltaz;
+void TRestHits::Translate(Int_t n, double x, double y, double z) {
+    fX[n] += x;
+    fY[n] += y;
+    fZ[n] += z;
 }
 
 void TRestHits::RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, TVector3 vMean) {

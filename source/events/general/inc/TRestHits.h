@@ -49,7 +49,7 @@ public:
                                // us, 0 is time of decay)
 
     //! Changes the origin of the Cartesian coordinate system
-    void Traslate(Int_t n, Double_t x, Double_t y, Double_t z);
+    void Translate(Int_t n, Double_t x, Double_t y, Double_t z);
     /// Event is rotated in XYZ.
     void RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma,
                     TVector3 vMean);  // vMean is the mean position of the event from GetMeanPosition()

@@ -362,7 +362,7 @@ Title : Translate and rotation of TRestHits
 ==========================================================
 
 Implementation of TRestHitsRotateAndTraslateProcess.
-It uses the TRestHits::RotateIn3D() and TRestHits::Traslate() methods.
+It uses the TRestHits::RotateIn3D() and TRestHits::Translate() methods.
 The process requires as metadata the distance to shift in x, y and z-asis, and the angles around x, y and z axis.
 An script to perform this operation is also icluded.
 

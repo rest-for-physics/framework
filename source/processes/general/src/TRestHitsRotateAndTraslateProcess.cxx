@@ -128,7 +128,7 @@ TRestEvent* TRestHitsRotateAndTraslateProcess::ProcessEvent( TRestEvent *evInput
     for(int hit = 0; hit < fHitsInputEvent->GetNumberOfHits(); hit++)
     {
        proEvent->fHits->RotateIn3D(hit, fAlpha , fBeta , fGamma, meanPosition );
-       proEvent->fHits->Traslate(hit, fDeltaX, fDeltaY, fDeltaZ );
+       proEvent->fHits->Translate(hit, fDeltaX, fDeltaY, fDeltaZ);
 
       fHitsOutputEvent->AddHit( proEvent->GetX(hit), proEvent->GetY(hit), proEvent->GetZ(hit), proEvent->GetEnergy(hit) );   
     }
