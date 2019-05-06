@@ -461,9 +461,9 @@ void TRestHits::RemoveHit( int n )
 
 TVector3 TRestHits::GetPosition( int n )
 {
-    if( areXY() )  return TVector3 ( ( (Double_t) fX[n]), ((Double_t) fY[n]), 0 );
-    if( areXZ() )  return TVector3 ( ( (Double_t) fX[n]), 0, ((Double_t) fZ[n]) );
-    if( areYZ() )  return TVector3 ( 0, ((Double_t) fY[n]), ((Double_t) fZ[n]) );
+    if( IsNaN( GetZ(n) ) )  return TVector3 ( ( (Double_t) fX[n]), ((Double_t) fY[n]), 0 );
+    if( IsNaN( GetY(n)) )  return TVector3 ( ( (Double_t) fX[n]), 0, ((Double_t) fZ[n]) );
+    if( IsNaN( GetX(n)) )  return TVector3 ( 0, ((Double_t) fY[n]), ((Double_t) fZ[n]) );
     return TVector3 ( ( (Double_t) fX[n]), ((Double_t) fY[n]), ((Double_t) fZ[n]) );
 }
 
