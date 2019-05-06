@@ -67,7 +67,7 @@ protected:
 
 	vector<TRestEventProcess*> fFriendlyProcesses;//!
 
-	std::vector <TString> fObservableNames;//!
+	map<TString, int> fObservableInfo;//!
 	//std::vector <Double_t*> fObservableRefs;//!
 
 	bool fReadOnly = false;//!
@@ -146,13 +146,13 @@ public:
 	TRestRun* GetRunInfo() { return fRunInfo; }
 	TRestAnalysisTree *GetAnalysisTree() { return fAnalysisTree; }
 	TCanvas *GetCanvas() { return fCanvas; }
-	std::vector <TString>& GetListOfAddedObservables() { return fObservableNames; }
+	std::vector <TString> GetListOfAddedObservables();
 
 	//Constructor
 	TRestEventProcess();
 	//Destructor
 	~TRestEventProcess();
 
-	ClassDef(TRestEventProcess, 1);      // Base class for a REST process
+	ClassDef(TRestEventProcess, 2);      // Base class for a REST process
 };
 #endif
