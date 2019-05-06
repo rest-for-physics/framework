@@ -11,6 +11,8 @@
 #ifndef RestCore_TRestTools
 #define RestCore_TRestTools
 
+#include <TClass.h>
+
 #include <TList.h>
 #include <TString.h>
 #include <iostream>
@@ -92,8 +94,8 @@ public:
 
     template <class T> static std::string GetTypeName(T obj) {
         TClass *cl = TClass::GetClass(typeid(obj));
-        if (c1 != NULL) {
-            return c1->Name();
+        if (cl != NULL) {
+            return cl->ClassName();
         } else {
             if (typeid(obj) == typeid(double)) {
                 return "double";
