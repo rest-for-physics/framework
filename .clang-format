@@ -5,3 +5,6 @@ BasedOnStyle: Google
 # we use left pointer alignment
 DerivePointerAlignment: false
 PointerAlignment: Left
+
+IndentWidth: 4
+ColumnLimit : 110
