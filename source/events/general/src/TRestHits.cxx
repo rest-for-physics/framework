@@ -32,24 +32,55 @@ ClassImp(TRestHits)
 TRestHits::~TRestHits() {}
 
 Bool_t TRestHits::areXY() {
-    // for( int i = 0; i < GetNumberOfHits(); i++ )
-    if (!IsNaN(GetX(0)) && !IsNaN(GetY(0)) && IsNaN(GetZ(0))) return true;
-    return false;
+    bool result = true;
+    for (int i = 0; i < GetNumberOfHits(); i++) {
+        if (!IsNaN(GetX(i)) && !IsNaN(GetY(i)) && IsNaN(GetZ(i))) {
+            // all hits should fit this condition to be considered XY
+        } else {
+            result = false;
+            break;
+        }
+    }
+    return result;
 }
 
 Bool_t TRestHits::areXZ() {
-    if (IsNaN(GetY(0)) && !IsNaN(GetX(0)) && !IsNaN(GetZ(0))) return true;
-    return false;
+    bool result = true;
+    for (int i = 0; i < GetNumberOfHits(); i++) {
+        if (!IsNaN(GetZ(i)) && !IsNaN(GetX(i)) && IsNaN(GetY(i))) {
+            // all hits should fit this condition to be considered XZ
+        } else {
+            result = false;
+            break;
+        }
+    }
+    return result;
 }
 
 Bool_t TRestHits::areYZ() {
-    if (IsNaN(GetX(0)) && !IsNaN(GetY(0)) && !IsNaN(GetZ(0))) return true;
-    return false;
+    bool result = true;
+    for (int i = 0; i < GetNumberOfHits(); i++) {
+        if (!IsNaN(GetZ(i)) && !IsNaN(GetY(i)) && IsNaN(GetX(i))) {
+            // all hits should fit this condition to be considered YZ
+        } else {
+            result = false;
+            break;
+        }
+    }
+    return result;
 }
 
 Bool_t TRestHits::areXYZ() {
-    if (!isNaN(0) && (IsNaN(GetX(0)) || IsNaN(GetY(0)) || IsNaN(GetZ(0)))) return false;
-    return true;
+    bool result = true;
+    for (int i = 0; i < GetNumberOfHits(); i++) {
+        if (!isNaN(i) && (IsNaN(GetX(i)) || IsNaN(GetY(i)) || IsNaN(GetZ(i)))) {
+            // all hits should fit this condition to be considered XYZ
+        } else {
+            result = false;
+            break;
+        }
+    }
+    return result;
 }
 
 Bool_t TRestHits::isNaN(Int_t n) {
