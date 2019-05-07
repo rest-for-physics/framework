@@ -46,7 +46,7 @@ for DIRECTORY in $1
 do
     echo "Formatting code under $DIRECTORY/"
     cd $DIRECTORY
-    find "$DIRECTORY" \( -name '*.h' -or -name '*.cxx' \) -print0 | xargs -0 "$CLANG_FORMAT" -i
+    find "$DIRECTORY" \( -name '*.h' -or -name '*.cxx' -or -name '*.cc' \) -print0 | xargs -0 "$CLANG_FORMAT" -i
     cd $pathNow
     echo "DONE!"
 done
