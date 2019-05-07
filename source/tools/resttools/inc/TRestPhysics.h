@@ -21,8 +21,7 @@ const double kBoltzman = 1.380E-23;                          // J/K
 const double hPlanck = 1.054E-34;                            // J*s
 
 /* Physical constants */
-const double PhMeterIneV =
-    5067731.236453719;  // 8.0655447654281218E5;// 506.773123645372;
+const double PhMeterIneV = 5067731.236453719;  // 8.0655447654281218E5;// 506.773123645372;
 const double lightSpeed = 2.99792458E8;
 const double naturalElectron = 0.302822120214353;
 }  // namespace REST_Physics

@@ -18,67 +18,65 @@
 #include "TRestEventProcess.h"
 
 class TRestPointLikeAnaProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
-  TRestSignalEvent* fSignalEvent;  //!
-  // TODO We must get here a pointer to TRestDaqMetadata
-  // In order to convert the parameters to time using the sampling time
+    TRestSignalEvent* fSignalEvent;  //!
+                                     // TODO We must get here a pointer to TRestDaqMetadata
+                                     // In order to convert the parameters to time using the sampling time
 #endif
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
+    void Initialize();
 
-  void LoadDefaultConfig();
+    void LoadDefaultConfig();
 
-  Int_t fThreshold;
-  Int_t fPedLevel;
-  Int_t fNChannels;
-  Double_t fPitch;
-  TString fGainFilename;
+    Int_t fThreshold;
+    Int_t fPedLevel;
+    Int_t fNChannels;
+    Double_t fPitch;
+    TString fGainFilename;
 
-  Double_t fCalGain;
+    Double_t fCalGain;
 
- protected:
-  // add here the members of your event process
-  TRestReadout* fReadout;
+   protected:
+    // add here the members of your event process
+    TRestReadout* fReadout;
 
- public:
-  void InitProcess();
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
-  void EndOfEventProcess();
-  void EndProcess();
+   public:
+    void InitProcess();
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndOfEventProcess();
+    void EndProcess();
 
-  void LoadConfig(std::string cfgFilename);
+    void LoadConfig(std::string cfgFilename);
 
-  void PrintMetadata() {
-    BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    std::cout << "Calibration File Name : " << fGainFilename << std::endl;
+        std::cout << "Calibration File Name : " << fGainFilename << std::endl;
 
-    std::cout << "Selection threshold : " << fThreshold << " ADC units"
-              << std::endl;
-    std::cout << "Pedestal level : " << fPedLevel << " ADC units" << std::endl;
-    std::cout << "Number of channels: " << fNChannels << " ADC units"
-              << std::endl;
-    std::cout << "Readout pitch: " << fPitch << " mm" << std::endl;
+        std::cout << "Selection threshold : " << fThreshold << " ADC units" << std::endl;
+        std::cout << "Pedestal level : " << fPedLevel << " ADC units" << std::endl;
+        std::cout << "Number of channels: " << fNChannels << " ADC units" << std::endl;
+        std::cout << "Readout pitch: " << fPitch << " mm" << std::endl;
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  TString GetProcessName() { return (TString) "pointLikeAna"; }
-  //       Double_t GetCalibFactor();           ///< Calibration factor is
-  //       found.
+    TString GetProcessName() { return (TString) "pointLikeAna"; }
+    //       Double_t GetCalibFactor();           ///< Calibration factor is
+    //       found.
 
-  // Constructor
-  TRestPointLikeAnaProcess();
-  TRestPointLikeAnaProcess(char* cfgFileName);
-  // Destructor
-  ~TRestPointLikeAnaProcess();
+    // Constructor
+    TRestPointLikeAnaProcess();
+    TRestPointLikeAnaProcess(char* cfgFileName);
+    // Destructor
+    ~TRestPointLikeAnaProcess();
 
-  ClassDef(TRestPointLikeAnaProcess,
-           1);  // Template for a REST "event process" class inherited from
-                // TRestEventProcess
+    ClassDef(TRestPointLikeAnaProcess,
+             1);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

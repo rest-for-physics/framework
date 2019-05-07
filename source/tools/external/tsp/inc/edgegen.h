@@ -26,7 +26,6 @@
 
 #include "util.h"
 
-
 /****************************************************************************/
 /*                                                                          */
 /*                             edgegen.c                                    */
@@ -69,27 +68,19 @@ typedef struct CCedgegengroup {
         int priced;
     } f2match_nearest;
 
-    int    random;
-    int    nearest;
-    int    quadnearest;
-    int    want_tree;
-    int    nearest_twomatch_count;
-    int    delaunay;
-    int    mlinkern;
+    int random;
+    int nearest;
+    int quadnearest;
+    int want_tree;
+    int nearest_twomatch_count;
+    int delaunay;
+    int mlinkern;
 } CCedgegengroup;
 
-
-
-int
-    CCedgegen_read (char *egname, CCedgegengroup *plan),
-    CCedgegen_edges (CCedgegengroup *plan, int ncount, CCdatagroup *dat,
-        double *wcoord, int *ecount, int **elist, int silent,
-        CCrandstate *rstate);
-void
-    CCedgegen_init_edgegengroup (CCedgegengroup *plan);
-
-
-
+int CCedgegen_read(char*egname, CCedgegengroup*plan),
+    CCedgegen_edges(CCedgegengroup*plan, int ncount, CCdatagroup*dat, double*wcoord, int*ecount, int**elist,
+                    int silent, CCrandstate*rstate);
+void CCedgegen_init_edgegengroup(CCedgegengroup* plan);
 
 /****************************************************************************/
 /*                                                                          */
@@ -99,46 +90,35 @@ void
 
 typedef struct CCxnear {
     struct CCdatagroup dat;
-    double            *w;
-    int               *nodenames;
-    int               *invnames;
+    double* w;
+    int* nodenames;
+    int* invnames;
 } CCxnear;
 
+int CCedgegen_x_k_nearest(int ncount, int num, CCdatagroup*dat, double*wcoord, int wantlist, int*ecount,
+                          int**elist, int silent),
+    CCedgegen_x_quadrant_k_nearest(int ncount, int num, CCdatagroup*dat, double*wcoord, int wantlist,
+                                   int*ecount, int**elist, int silent),
+    CCedgegen_x_node_k_nearest(CCxnear*xn, int n, int nearnum, int ncount, int*list),
+    CCedgegen_x_node_quadrant_k_nearest(CCxnear*xn, int n, int nearnum, int ncount, int*list),
+    CCedgegen_x_node_nearest(CCxnear*xn, int ncount, int ni, char*marks),
+    CCedgegen_x_nearest_neighbor_tour(int ncount, int start, CCdatagroup*dat, int*outcycle, double*val),
+    CCedgegen_x_greedy_tour(int ncount, CCdatagroup*dat, int*outcycle, double*val, int ecount, int*elist,
+                            int silent),
+    CCedgegen_x_qboruvka_tour(int ncount, CCdatagroup*dat, int*outcycle, double*val, int ecount, int*elist,
+                              int silent),
+    CCedgegen_junk_k_nearest(int ncount, int num, CCdatagroup*dat, double*wcoord, int wantlist, int*ecount,
+                             int**elist, int silent),
+    CCedgegen_junk_node_k_nearest(CCdatagroup*dat, double*wcoord, int n, int nearnum, int ncount, int*list),
+    CCedgegen_junk_node_nearest(CCdatagroup*dat, double*wcoord, int ncount, int n, char*marks),
+    CCedgegen_junk_nearest_neighbor_tour(int ncount, int start, CCdatagroup*dat, int*outcycle, double*val,
+                                         int silent),
+    CCedgegen_junk_greedy_tour(int ncount, CCdatagroup*dat, int*outcycle, double*val, int ecount, int*elist,
+                               int silent),
+    CCedgegen_junk_qboruvka_tour(int ncount, CCdatagroup*dat, int*outcycle, double*val, int ecount, int*elist,
+                                 int silent),
+    CCedgegen_xnear_build(int ncount, CCdatagroup*dat, double*wcoord, CCxnear*xn);
 
+void CCedgegen_xnear_free(CCxnear* xn);
 
-int
-    CCedgegen_x_k_nearest (int ncount, int num, CCdatagroup *dat,
-        double *wcoord, int wantlist, int *ecount, int **elist, int silent),
-    CCedgegen_x_quadrant_k_nearest (int ncount, int num, CCdatagroup *dat,
-        double *wcoord, int wantlist, int *ecount, int **elist, int silent),
-    CCedgegen_x_node_k_nearest (CCxnear *xn, int n, int nearnum, int ncount,
-        int *list),
-    CCedgegen_x_node_quadrant_k_nearest (CCxnear *xn, int n, int nearnum,
-        int ncount, int *list),
-    CCedgegen_x_node_nearest (CCxnear *xn, int ncount, int ni, char *marks),
-    CCedgegen_x_nearest_neighbor_tour (int ncount, int start, CCdatagroup *dat,
-        int *outcycle, double *val),
-    CCedgegen_x_greedy_tour (int ncount, CCdatagroup *dat, int *outcycle,
-        double *val, int ecount, int *elist, int silent),
-    CCedgegen_x_qboruvka_tour (int ncount, CCdatagroup *dat, int *outcycle,
-        double *val, int ecount, int *elist, int silent),
-    CCedgegen_junk_k_nearest (int ncount, int num, CCdatagroup *dat,
-        double *wcoord, int wantlist, int *ecount, int **elist, int silent),
-    CCedgegen_junk_node_k_nearest (CCdatagroup *dat, double *wcoord, int n,
-        int nearnum, int ncount, int *list),
-    CCedgegen_junk_node_nearest (CCdatagroup *dat, double *wcoord, int ncount,
-        int n, char *marks),
-    CCedgegen_junk_nearest_neighbor_tour (int ncount, int start,
-        CCdatagroup *dat, int *outcycle, double *val, int silent),
-    CCedgegen_junk_greedy_tour (int ncount, CCdatagroup *dat, int *outcycle,
-        double *val, int ecount, int *elist, int silent),
-    CCedgegen_junk_qboruvka_tour (int ncount, CCdatagroup *dat, int *outcycle,
-        double *val, int ecount, int *elist, int silent),
-    CCedgegen_xnear_build (int ncount, CCdatagroup *dat, double *wcoord,
-        CCxnear *xn);
-
-void
-    CCedgegen_xnear_free (CCxnear *xn);
-
-
-#endif  /* __EDGEGEN_H */
+#endif /* __EDGEGEN_H */

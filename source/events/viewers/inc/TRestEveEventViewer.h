@@ -42,55 +42,55 @@
 #define GEOM_SCALE 0.1
 
 class TRestEveEventViewer : public TRestEventViewer {
- protected:
-  TEveManager* gEve;
+   protected:
+    TEveManager* gEve;
 
-  TEveWindowSlot* slot;
-  TEveWindowPack* pack;
+    TEveWindowSlot* slot;
+    TEveWindowPack* pack;
 
-  TEveViewer* viewer3D;
-  TEveViewer* rphiViewer;
-  TEveViewer* rhozViewer;
+    TEveViewer* viewer3D;
+    TEveViewer* rphiViewer;
+    TEveViewer* rhozViewer;
 
-  TEveScene* rphiScene;
-  TEveScene* rhozScene;
+    TEveScene* rphiScene;
+    TEveScene* rhozScene;
 
-  TEveProjectionManager* rphi;
-  TEveProjectionManager* rhoz;
+    TEveProjectionManager* rphi;
+    TEveProjectionManager* rhoz;
 
-  TEveProjectionAxes* rphiAxes;
-  TEveProjectionAxes* rhozAxes;
+    TEveProjectionAxes* rphiAxes;
+    TEveProjectionAxes* rhozAxes;
 
-  TEvePointSet* fEnergyDeposits;
+    TEvePointSet* fEnergyDeposits;
 
-  char pointName[256];
+    char pointName[256];
 
-  Double_t fMinRadius;
-  Double_t fMaxRadius;
+    Double_t fMinRadius;
+    Double_t fMaxRadius;
 
- public:
-  virtual void Initialize();
+   public:
+    virtual void Initialize();
 
-  virtual void DeleteCurrentEvent();
-  void DeleteGeometry();
+    virtual void DeleteCurrentEvent();
+    void DeleteGeometry();
 
-  virtual void AddEvent(TRestEvent* ev) = 0;
+    virtual void AddEvent(TRestEvent* ev) = 0;
 
-  void AddSphericalHit(double x, double y, double z, double radius, double en);
+    void AddSphericalHit(double x, double y, double z, double radius, double en);
 
-  void MultiView();
-  void DrawTab();
-  void SetGeometry(TGeoManager* geo);
-  void Update();
+    void MultiView();
+    void DrawTab();
+    void SetGeometry(TGeoManager* geo);
+    void Update();
 
-  void SetMinRadious(Double_t rmin) { fMinRadius = rmin; }
-  void SetMaxRadious(Double_t rmax) { fMaxRadius = rmax; }
+    void SetMinRadious(Double_t rmin) { fMinRadius = rmin; }
+    void SetMaxRadious(Double_t rmax) { fMaxRadius = rmax; }
 
-  // Constructor
-  TRestEveEventViewer();
-  // Destructor
-  virtual ~TRestEveEventViewer();
+    // Constructor
+    TRestEveEventViewer();
+    // Destructor
+    virtual ~TRestEveEventViewer();
 
-  ClassDef(TRestEveEventViewer, 1);  // class inherited from TRestEventViewer
+    ClassDef(TRestEveEventViewer, 1);  // class inherited from TRestEventViewer
 };
 #endif

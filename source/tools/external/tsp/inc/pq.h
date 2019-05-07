@@ -23,11 +23,11 @@ struct CCtsp_cuttree;
 
 typedef struct CCpq_node {
     int number;
-    struct CCpq_node *next;
+    struct CCpq_node* next;
 
     CCpq_elem queue_elem;
 
-/* the size of the children_set will not necessarily be correct for Q nodes */
+    /* the size of the children_set will not necessarily be correct for Q nodes */
     CCpq_set children_set;
     CCpq_elem children_elem;
 
@@ -41,17 +41,17 @@ typedef struct CCpq_node {
 
     CCpq_elem leaves_elem;
 
-    struct CCpq_node *parent;
+    struct CCpq_node* parent;
 
     int pertinent_child_count;
     int pertinent_leaf_count;
 
     int mark;
-#define IS_UNINITIALIZED(x,T) ((x)->mark < (T)->markbase)
-#define UNMARKED(T) ((T)->markbase+0)
-#define QUEUED(T) ((T)->markbase+1)
-#define BLOCKED(T) ((T)->markbase+2)
-#define UNBLOCKED(T) ((T)->markbase+3)
+#define IS_UNINITIALIZED(x, T) ((x)->mark < (T)->markbase)
+#define UNMARKED(T) ((T)->markbase + 0)
+#define QUEUED(T) ((T)->markbase + 1)
+#define BLOCKED(T) ((T)->markbase + 2)
+#define UNBLOCKED(T) ((T)->markbase + 3)
 
     int type;
     int parenttype;
@@ -62,7 +62,7 @@ typedef struct CCpq_node {
 #define PQ_ROOT 4
 
     int label;
-#define IS_EMPTY(x,T) ((x)->label <= (T)->markbase)
+#define IS_EMPTY(x, T) ((x)->label <= (T)->markbase)
 #define EMPTY(T) ((T)->markbase + 0)
 #define PARTIAL(T) ((T)->markbase + 1)
 #define FULL(T) ((T)->markbase + 2)
@@ -72,8 +72,8 @@ typedef struct CCpq_node {
 typedef struct CCpq_tree {
     int nodecount;
     int extern_node;
-    CCpq_node *elems;
-    CCpq_node *leaflist;
+    CCpq_node* elems;
+    CCpq_node* leaflist;
     int markbase;
     CCpq_node pseudo_root;
     int node_counter;
@@ -86,26 +86,17 @@ typedef struct CCpq_tree {
 #define CCpq_STATUS_NONTRIVIAL 3
 #define CCpq_STATUS_BUBBLEOK 4
 
-#define CCpq_clear_leaflist(T) ((T)->leaflist = (CCpq_node *) NULL)
-#define CCpq_add_leaflist(T,i) ((T)->elems[(i)].next = (T)->leaflist, \
-                              (T)->leaflist = &((T)->elems[(i)]))
-#define CCpq_set_leaflist(T,l) ((T)->leaflist = l)
+#define CCpq_clear_leaflist(T) ((T)->leaflist = (CCpq_node*)NULL)
+#define CCpq_add_leaflist(T, i) ((T)->elems[(i)].next = (T)->leaflist, (T)->leaflist = &((T)->elems[(i)]))
+#define CCpq_set_leaflist(T, l) ((T)->leaflist = l)
 
+void CCpq_tree_init(CCpq_tree*T), CCpq_tree_free(CCpq_tree*T), CCpq_describe_solution(CCpq_tree*T),
+    CCpq_dump_solution(CCpq_tree*T);
 
-void
-    CCpq_tree_init (CCpq_tree *T),
-    CCpq_tree_free (CCpq_tree *T),
-    CCpq_describe_solution (CCpq_tree *T),
-    CCpq_dump_solution (CCpq_tree *T);
+int CCpq_check(CCpq_tree*T, int*status), CCpq_apply(CCpq_tree*T, int*status),
+    CCpq_tree_trivial(CCpq_tree*T, int nodecount, int extern_node),
+    CCpq_cuttree_to_pq(struct CCtsp_cuttree*ct, CCpq_tree*pqT);
 
-int
-    CCpq_check (CCpq_tree *T, int *status),
-    CCpq_apply (CCpq_tree *T, int *status),
-    CCpq_tree_trivial (CCpq_tree *T, int nodecount, int extern_node),
-    CCpq_cuttree_to_pq (struct CCtsp_cuttree *ct, CCpq_tree *pqT);
+CCpq_node* CCpq_find_root(CCpq_tree* T);
 
-CCpq_node
-   *CCpq_find_root (CCpq_tree *T);
-
-
-#endif  /* __PQ_H */
+#endif /* __PQ_H */

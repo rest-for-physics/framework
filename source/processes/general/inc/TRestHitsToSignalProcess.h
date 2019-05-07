@@ -20,62 +20,62 @@
 #include "TRestEventProcess.h"
 
 class TRestHitsToSignalProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
-  TRestHitsEvent* fHitsEvent;      //!
-  TRestSignalEvent* fSignalEvent;  //!
+    TRestHitsEvent* fHitsEvent;      //!
+    TRestSignalEvent* fSignalEvent;  //!
 
-  TRestReadout* fReadout;  //!
-  TRestGas* fGas;          //!
+    TRestReadout* fReadout;  //!
+    TRestGas* fGas;          //!
 #endif
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
+    void Initialize();
 
-  void LoadDefaultConfig();
+    void LoadDefaultConfig();
 
-  Int_t FindModule(Int_t readoutPlane, Double_t x, Double_t y);
-  Int_t FindChannel(Int_t module, Double_t x, Double_t y);
+    Int_t FindModule(Int_t readoutPlane, Double_t x, Double_t y);
+    Int_t FindChannel(Int_t module, Double_t x, Double_t y);
 
- protected:
-  Double_t fSampling;       // us
-  Double_t fGasPressure;    // atm
-  Double_t fElectricField;  // V/cm
-  Double_t fDriftVelocity;  // mm/us
+   protected:
+    Double_t fSampling;       // us
+    Double_t fGasPressure;    // atm
+    Double_t fElectricField;  // V/cm
+    Double_t fDriftVelocity;  // mm/us
 
- public:
-  void InitProcess();
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
-  void EndOfEventProcess();
-  void EndProcess();
+   public:
+    void InitProcess();
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndOfEventProcess();
+    void EndProcess();
 
-  void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
-  void PrintMetadata() {
-    BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    std::cout << "Sampling : " << fSampling << " us" << std::endl;
-    std::cout << "Electric field : " << fElectricField << " V/cm" << std::endl;
-    std::cout << "Gas pressure : " << fGasPressure << " atm" << std::endl;
-    std::cout << "Drift velocity : " << fDriftVelocity << " mm/us" << std::endl;
+        std::cout << "Sampling : " << fSampling << " us" << std::endl;
+        std::cout << "Electric field : " << fElectricField << " V/cm" << std::endl;
+        std::cout << "Gas pressure : " << fGasPressure << " atm" << std::endl;
+        std::cout << "Drift velocity : " << fDriftVelocity << " mm/us" << std::endl;
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  TRestMetadata* GetProcessMetadata() { return fReadout; }
+    TRestMetadata* GetProcessMetadata() { return fReadout; }
 
-  TString GetProcessName() { return (TString) "hitsToSignal"; }
+    TString GetProcessName() { return (TString) "hitsToSignal"; }
 
-  // Constructor
-  TRestHitsToSignalProcess();
-  TRestHitsToSignalProcess(char* cfgFileName);
-  // Destructor
-  ~TRestHitsToSignalProcess();
+    // Constructor
+    TRestHitsToSignalProcess();
+    TRestHitsToSignalProcess(char* cfgFileName);
+    // Destructor
+    ~TRestHitsToSignalProcess();
 
-  ClassDef(TRestHitsToSignalProcess,
-           1);  // Template for a REST "event process" class inherited from
-                // TRestEventProcess
+    ClassDef(TRestHitsToSignalProcess,
+             1);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

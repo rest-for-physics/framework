@@ -22,21 +22,21 @@
 ClassImp(TRestEventViewer)
     //______________________________________________________________________________
     TRestEventViewer::TRestEventViewer() {
-  // TRestEventViewer default constructor
-  Initialize();
+    // TRestEventViewer default constructor
+    Initialize();
 }
 
 //______________________________________________________________________________
 TRestEventViewer::~TRestEventViewer() {
-  // TRestEventViewer destructor
-  // DeleteCurrentEvent(  );
+    // TRestEventViewer destructor
+    // DeleteCurrentEvent(  );
 }
 
 void TRestEventViewer::Initialize() {
-  fGeometry = NULL;
-  fEvent = NULL;
+    fGeometry = NULL;
+    fEvent = NULL;
 
-  DeleteCurrentEvent();
+    DeleteCurrentEvent();
 }
 
 void TRestEventViewer::DeleteCurrentEvent() { delete fEvent; }

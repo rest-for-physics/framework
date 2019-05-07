@@ -324,8 +324,8 @@
 ///		<parameter name = "inputFile" value = "${REST_INPUTFILE}" />
 ///		<parameter name = "inputFormat" value =
 ///"run[RunNumber]_file[Fragment]_[Time-d]_[Time].graw" /> 		<parameter
-///name = "outputFile" value = "RUN[RunNumber]_[Time]_[LastProcess].root" />
-///<parameter name = "mainDataPath" value = "" />
+/// name = "outputFile" value = "RUN[RunNumber]_[Time]_[LastProcess].root" />
+///< parameter name = "mainDataPath" value = "" />
 ///	</globals>
 /// \endcode
 ///
@@ -452,95 +452,92 @@ ClassImp(TRestMetadata)
     /// \brief TRestMetadata default constructor
     ///
     TRestMetadata::TRestMetadata() {
-  fStore = true;
-  fElementGlobal = NULL;
-  fElement = NULL;
-  fVerboseLevel = REST_Essential;
-  fElementEnv.clear();
-  fHostmgr = NULL;
+    fStore = true;
+    fElementGlobal = NULL;
+    fElement = NULL;
+    fVerboseLevel = REST_Essential;
+    fElementEnv.clear();
+    fHostmgr = NULL;
 
-  fConfigFileName = "null";
-  configBuffer = "";
-  metadata.setlength(100);
+    fConfigFileName = "null";
+    configBuffer = "";
+    metadata.setlength(100);
 
-  fVersion = REST_RELEASE;
+    fVersion = REST_RELEASE;
 }
 
 ///////////////////////////////////////////////
 /// \brief constructor
 ///
 TRestMetadata::TRestMetadata(const char* cfgFileName) {
-  fStore = true;
-  fElementGlobal = NULL;
-  fElement = NULL;
-  fVerboseLevel = REST_Essential;
-  fElementEnv.clear();
-  fHostmgr = NULL;
+    fStore = true;
+    fElementGlobal = NULL;
+    fElement = NULL;
+    fVerboseLevel = REST_Essential;
+    fElementEnv.clear();
+    fHostmgr = NULL;
 
-  fConfigFileName = cfgFileName;
-  configBuffer = "";
-  metadata.setlength(100);
+    fConfigFileName = cfgFileName;
+    configBuffer = "";
+    metadata.setlength(100);
 
-  fVersion = REST_RELEASE;
+    fVersion = REST_RELEASE;
 }
 
 ///////////////////////////////////////////////
 /// \brief TRestMetadata default destructor
 ///
 TRestMetadata::~TRestMetadata() {
-  // delete fElementGlobal;
-  // delete fElementSectional;
+    // delete fElementGlobal;
+    // delete fElementSectional;
 }
 
 ///////////////////////////////////////////////
 /// \brief Default starter. Just call again the Initialize() method.
 ///
 Int_t TRestMetadata::LoadConfigFromFile() {
-  Initialize();
-  return 0;
+    Initialize();
+    return 0;
 }
 
 ///////////////////////////////////////////////
 /// \brief Give the file name, find out the corresponding section. Then call the
 /// main starter.
 ///
-Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName,
-                                        string sectionName) {
-  fConfigFileName = cfgFileName;
-  if (fileExists(fConfigFileName)) {
-    if (sectionName == "") {
-      sectionName = this->ClassName();
-    }
+Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) {
+    fConfigFileName = cfgFileName;
+    if (fileExists(fConfigFileName)) {
+        if (sectionName == "") {
+            sectionName = this->ClassName();
+        }
 
-    // search with value
-    TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, sectionName);
-    if (Sectional == NULL) {
-      error << "cannot find xml section \"" << ClassName() << "\" with name \""
-            << sectionName << "\"" << endl;
-      error << "in config file: " << fConfigFileName << endl;
-      exit(1);
+        // search with value
+        TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, sectionName);
+        if (Sectional == NULL) {
+            error << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName << "\""
+                  << endl;
+            error << "in config file: " << fConfigFileName << endl;
+            exit(1);
+        }
+        TiXmlElement* Global = GetElementFromFile(fConfigFileName, "globals");
+        vector<TiXmlElement*> a;
+        a.clear();
+        return LoadConfigFromFile(Sectional, Global, a);
+    } else {
+        error << "Filename : " << fConfigFileName << endl;
+        error << "REST ERROR. Config File does not exist. Right path/filename?" << endl;
+        GetChar();
+        return -1;
     }
-    TiXmlElement* Global = GetElementFromFile(fConfigFileName, "globals");
-    vector<TiXmlElement*> a;
-    a.clear();
-    return LoadConfigFromFile(Sectional, Global, a);
-  } else {
-    error << "Filename : " << fConfigFileName << endl;
-    error << "REST ERROR. Config File does not exist. Right path/filename?"
-          << endl;
-    GetChar();
-    return -1;
-  }
 }
 
 ///////////////////////////////////////////////
 /// \brief Calling the main starter
 ///
-Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional,
-                                        TiXmlElement* eGlobal) {
-  vector<TiXmlElement*> a;
-  a.clear();
-  return LoadConfigFromFile(eSectional, eGlobal, a);
+Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal) {
+    vector<TiXmlElement*> a;
+    a.clear();
+    return LoadConfigFromFile(eSectional, eGlobal, a);
 }
 
 ///////////////////////////////////////////////
@@ -550,38 +547,36 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional,
 /// env section. To make start up it calls the following methods in sequence:
 /// LoadSectionMetadata(), InitFromConfigFile()
 ///
-Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional,
-                                        TiXmlElement* eGlobal,
+Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal,
                                         vector<TiXmlElement*> eEnv) {
-  Initialize();
-  TiXmlElement* theElement;
-  if (eSectional != NULL && eGlobal != NULL) {
-    // Sectional and global elements are first combined.
-    theElement = (TiXmlElement*)eSectional->Clone();
-    TiXmlElement* echild = eGlobal->FirstChildElement();
-    while (echild != NULL) {
-      theElement->LinkEndChild(echild->Clone());
-      echild = echild->NextSiblingElement();
+    Initialize();
+    TiXmlElement* theElement;
+    if (eSectional != NULL && eGlobal != NULL) {
+        // Sectional and global elements are first combined.
+        theElement = (TiXmlElement*)eSectional->Clone();
+        TiXmlElement* echild = eGlobal->FirstChildElement();
+        while (echild != NULL) {
+            theElement->LinkEndChild(echild->Clone());
+            echild = echild->NextSiblingElement();
+        }
+        for (int i = 0; i < eEnv.size(); i++) {
+            theElement->LinkEndChild(eEnv[i]->Clone());
+        }
+    } else if (eSectional != NULL) {
+        theElement = eSectional;
+    } else if (eGlobal != NULL) {
+        theElement = eGlobal;
+    } else {
+        return 0;
     }
-    for (int i = 0; i < eEnv.size(); i++) {
-      theElement->LinkEndChild(eEnv[i]->Clone());
-    }
-  } else if (eSectional != NULL) {
-    theElement = eSectional;
-  } else if (eGlobal != NULL) {
-    theElement = eGlobal;
-  } else {
-    return 0;
-  }
-  fElement = theElement;
-  fElementGlobal = eGlobal;
-  fElementEnv = eEnv;
+    fElement = theElement;
+    fElementGlobal = eGlobal;
+    fElementEnv = eEnv;
 
-  int result = LoadSectionMetadata();
-  if (result == 0) InitFromConfigFile();
-  debug << "**** " << ClassName() << " has finished preparing config data ****"
-        << endl;
-  return result;
+    int result = LoadSectionMetadata();
+    if (result == 0) InitFromConfigFile();
+    debug << "**** " << ClassName() << " has finished preparing config data ****" << endl;
+    return result;
 }
 
 ///////////////////////////////////////////////
@@ -594,72 +589,68 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional,
 /// include definitions, and replaces env and expressions in rml config section.
 ///
 Int_t TRestMetadata::LoadSectionMetadata() {
-  // get debug level
-  string debugStr = GetParameter("verboseLevel", "essential");
-  if (debugStr == "silent" || debugStr == "0") fVerboseLevel = REST_Silent;
-  if (debugStr == "essential" || debugStr == "warning" || debugStr == "1")
-    fVerboseLevel = REST_Essential;
-  if (debugStr == "info" || debugStr == "2") fVerboseLevel = REST_Info;
-  if (debugStr == "debug" || debugStr == "3") fVerboseLevel = REST_Debug;
-  if (debugStr == "extreme" || debugStr == "4") fVerboseLevel = REST_Extreme;
+    // get debug level
+    string debugStr = GetParameter("verboseLevel", "essential");
+    if (debugStr == "silent" || debugStr == "0") fVerboseLevel = REST_Silent;
+    if (debugStr == "essential" || debugStr == "warning" || debugStr == "1") fVerboseLevel = REST_Essential;
+    if (debugStr == "info" || debugStr == "2") fVerboseLevel = REST_Info;
+    if (debugStr == "debug" || debugStr == "3") fVerboseLevel = REST_Debug;
+    if (debugStr == "extreme" || debugStr == "4") fVerboseLevel = REST_Extreme;
 
-  debug << "Loading Config for : " << this->ClassName() << endl;
+    debug << "Loading Config for : " << this->ClassName() << endl;
 
-  // first set env from global section
-  if (fElementGlobal != NULL) {
-    TiXmlElement* e = fElementGlobal->FirstChildElement();
+    // first set env from global section
+    if (fElementGlobal != NULL) {
+        TiXmlElement* e = fElementGlobal->FirstChildElement();
+        while (e != NULL) {
+            if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter" ||
+                (string)e->Value() == "constant") {
+                ReplaceElementAttributes(e);
+                SetEnv(e);
+            }
+            e = e->NextSiblingElement();
+        }
+    }
+
+    // then from local section
+    TiXmlElement* e = fElement->FirstChildElement();
     while (e != NULL) {
-      if ((string)e->Value() == "variable" ||
-          (string)e->Value() == "myParameter" ||
-          (string)e->Value() == "constant") {
-        ReplaceElementAttributes(e);
-        SetEnv(e);
-      }
-      e = e->NextSiblingElement();
+        if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter" ||
+            (string)e->Value() == "constant") {
+            ReplaceElementAttributes(e);
+            SetEnv(e);
+        }
+        e = e->NextSiblingElement();
     }
-  }
 
-  // then from local section
-  TiXmlElement* e = fElement->FirstChildElement();
-  while (e != NULL) {
-    if ((string)e->Value() == "variable" ||
-        (string)e->Value() == "myParameter" ||
-        (string)e->Value() == "constant") {
-      ReplaceElementAttributes(e);
-      SetEnv(e);
-    }
-    e = e->NextSiblingElement();
-  }
+    // then do this replacement for all child elements and expand for/include
+    // definitions
+    ExpandElement(fElement);
 
-  // then do this replacement for all child elements and expand for/include
-  // definitions
-  ExpandElement(fElement);
+    // get debug level again in case it is defined in the included file
+    debugStr = GetParameter("verboseLevel", "essential");
+    if (debugStr == "silent" || debugStr == "0") fVerboseLevel = REST_Silent;
+    if (debugStr == "essential" || debugStr == "warning" || debugStr == "1") fVerboseLevel = REST_Essential;
+    if (debugStr == "info" || debugStr == "2") fVerboseLevel = REST_Info;
+    if (debugStr == "debug" || debugStr == "3") fVerboseLevel = REST_Debug;
+    if (debugStr == "extreme" || debugStr == "4") fVerboseLevel = REST_Extreme;
 
-  // get debug level again in case it is defined in the included file
-  debugStr = GetParameter("verboseLevel", "essential");
-  if (debugStr == "silent" || debugStr == "0") fVerboseLevel = REST_Silent;
-  if (debugStr == "essential" || debugStr == "warning" || debugStr == "1")
-    fVerboseLevel = REST_Essential;
-  if (debugStr == "info" || debugStr == "2") fVerboseLevel = REST_Info;
-  if (debugStr == "debug" || debugStr == "3") fVerboseLevel = REST_Debug;
-  if (debugStr == "extreme" || debugStr == "4") fVerboseLevel = REST_Extreme;
+    // finally fill the general metadata info: name, title, fstore
+    this->SetName(GetParameter("name", "defaultName").c_str());
+    this->SetTitle(GetParameter("title", "defaultTitle").c_str());
+    this->SetSectionName(this->ClassName());
+    fStore =
+        ToUpper(GetParameter("store", "true")) == "TRUE" || ToUpper(GetParameter("store", "true")) == "ON";
 
-  // finally fill the general metadata info: name, title, fstore
-  this->SetName(GetParameter("name", "defaultName").c_str());
-  this->SetTitle(GetParameter("title", "defaultTitle").c_str());
-  this->SetSectionName(this->ClassName());
-  fStore = ToUpper(GetParameter("store", "true")) == "TRUE" ||
-           ToUpper(GetParameter("store", "true")) == "ON";
-
-  return 0;
+    return 0;
 }
 
 void TRestMetadata::InitFromRootFile() {
-  if (configBuffer != "") {
-    fElement = StringToElement(configBuffer);
-    configBuffer = "";
-    // this->InitFromConfigFile();
-  }
+    if (configBuffer != "") {
+        fElement = StringToElement(configBuffer);
+        configBuffer = "";
+        // this->InitFromConfigFile();
+    }
 }
 
 ///////////////////////////////////////////////
@@ -669,23 +660,23 @@ void TRestMetadata::InitFromRootFile() {
 /// ReplaceMathematicalExpressions() in sequence. "name" attribute won't be
 /// replaced
 TiXmlElement* TRestMetadata::ReplaceElementAttributes(TiXmlElement* e) {
-  if (e == NULL) return NULL;
+    if (e == NULL) return NULL;
 
-  TiXmlAttribute* attr = e->FirstAttribute();
-  while (attr != NULL) {
-    const char* val = attr->Value();
-    const char* name = attr->Name();
+    TiXmlAttribute* attr = e->FirstAttribute();
+    while (attr != NULL) {
+        const char* val = attr->Value();
+        const char* name = attr->Name();
 
-    // set attribute for all the vields
-    // if ( strcmp (name , "name") != 0 ) {
-    string temp = ReplaceEnvironmentalVariables(val);
-    e->SetAttribute(name, ReplaceMathematicalExpressions(temp).c_str());
-    //}
+        // set attribute for all the vields
+        // if ( strcmp (name , "name") != 0 ) {
+        string temp = ReplaceEnvironmentalVariables(val);
+        e->SetAttribute(name, ReplaceMathematicalExpressions(temp).c_str());
+        //}
 
-    attr = attr->Next();
-  }
+        attr = attr->Next();
+    }
 
-  return e;
+    return e;
 }
 
 ///////////////////////////////////////////////
@@ -703,49 +694,48 @@ TiXmlElement* TRestMetadata::ReplaceElementAttributes(TiXmlElement* e) {
 /// \endcode
 ///
 void TRestMetadata::SetEnv(TiXmlElement* e, bool updateexisting) {
-  if (e == NULL) return;
+    if (e == NULL) return;
 
-  // cout << this->ClassName() << " " << (string)e->Value()<< " " <<
-  // e->Attribute("value") << endl;
+    // cout << this->ClassName() << " " << (string)e->Value()<< " " <<
+    // e->Attribute("value") << endl;
 
-  const char* name = e->Attribute("name");
-  if (name == NULL) return;
-  const char* value = e->Attribute("value");
-  if (value == NULL) return;
+    const char* name = e->Attribute("name");
+    if (name == NULL) return;
+    const char* value = e->Attribute("value");
+    if (value == NULL) return;
 
-  // if overwrite is false, try to replace the value from system env.
-  const char* overwrite = e->Attribute("overwrite");
-  if (overwrite == NULL) overwrite = "false";
-  if ((string)overwrite == "true" || (string)overwrite == "True" ||
-      (string)overwrite == "yes") {
-    // setenv(name, value,1);
-  } else {
-    char* sysenv = getenv(name);
-    if (sysenv != NULL) value = sysenv;
-  }
-
-  // SetEnv(name, value, overwriteexisting);
-
-  // find the existing and set its value
-  for (int i = 0; i < fElementEnv.size(); i++) {
-    string name2 = fElementEnv[i]->Attribute("name");
-    if ((string)e->Value() == (string)fElementEnv[i]->Value()) {
-      if (name2 == (string)name) {
-        if (updateexisting) fElementEnv[i]->SetAttribute("value", value);
-        return;
-      } else if (((string)name).find(name2) != -1)
-      // input name contains a substring of existing name
-      // in this case we need to insert the input env before the existing env
-      // otherwise there may be problem for constant and myParameter repalcement
-      {
-        fElementEnv.insert(fElementEnv.begin() + i, (TiXmlElement*)e->Clone());
-        return;
-      }
+    // if overwrite is false, try to replace the value from system env.
+    const char* overwrite = e->Attribute("overwrite");
+    if (overwrite == NULL) overwrite = "false";
+    if ((string)overwrite == "true" || (string)overwrite == "True" || (string)overwrite == "yes") {
+        // setenv(name, value,1);
+    } else {
+        char* sysenv = getenv(name);
+        if (sysenv != NULL) value = sysenv;
     }
-  }
 
-  // if not find, add it directly.
-  fElementEnv.push_back((TiXmlElement*)e->Clone());
+    // SetEnv(name, value, overwriteexisting);
+
+    // find the existing and set its value
+    for (int i = 0; i < fElementEnv.size(); i++) {
+        string name2 = fElementEnv[i]->Attribute("name");
+        if ((string)e->Value() == (string)fElementEnv[i]->Value()) {
+            if (name2 == (string)name) {
+                if (updateexisting) fElementEnv[i]->SetAttribute("value", value);
+                return;
+            } else if (((string)name).find(name2) != -1)
+            // input name contains a substring of existing name
+            // in this case we need to insert the input env before the existing env
+            // otherwise there may be problem for constant and myParameter repalcement
+            {
+                fElementEnv.insert(fElementEnv.begin() + i, (TiXmlElement*)e->Clone());
+                return;
+            }
+        }
+    }
+
+    // if not find, add it directly.
+    fElementEnv.push_back((TiXmlElement*)e->Clone());
 }
 
 ///////////////////////////////////////////////
@@ -757,33 +747,30 @@ void TRestMetadata::SetEnv(TiXmlElement* e, bool updateexisting) {
 /// sections will also be processed. Before expansion,
 /// ReplaceElementAttributes() will first be called.
 void TRestMetadata::ExpandElement(TiXmlElement* e, bool recursive) {
-  debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
+    debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
 
-  ReplaceElementAttributes(e);
-  if ((string)e->Value() == "for") {
-    ExpandForLoops(e);
-  } else if (e->Attribute("file") != NULL) {
-    ExpandIncludeFile(e);
-  } else if ((string)e->Value() == "variable" ||
-             (string)e->Value() == "myParameter" ||
-             (string)e->Value() == "constant") {
-    SetEnv(e);
-  } else if (e->FirstChildElement() != NULL) {
-    TiXmlElement* contentelement = e->FirstChildElement();
-    // we won't expand child section unless forced recursive. The expansion of
-    // this section will be executed by the resident TRestXXX class
-    if (contentelement != NULL &&
-        (recursive || ((string)contentelement->Value()).find("TRest") == -1)) {
-      debug << "into child elements of: " << e->Value() << endl;
+    ReplaceElementAttributes(e);
+    if ((string)e->Value() == "for") {
+        ExpandForLoops(e);
+    } else if (e->Attribute("file") != NULL) {
+        ExpandIncludeFile(e);
+    } else if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter" ||
+               (string)e->Value() == "constant") {
+        SetEnv(e);
+    } else if (e->FirstChildElement() != NULL) {
+        TiXmlElement* contentelement = e->FirstChildElement();
+        // we won't expand child section unless forced recursive. The expansion of
+        // this section will be executed by the resident TRestXXX class
+        if (contentelement != NULL && (recursive || ((string)contentelement->Value()).find("TRest") == -1)) {
+            debug << "into child elements of: " << e->Value() << endl;
+        }
+        while (contentelement != NULL &&
+               (recursive || ((string)contentelement->Value()).find("TRest") == -1)) {
+            TiXmlElement* nxt = contentelement->NextSiblingElement();
+            ExpandElement(contentelement, recursive);
+            contentelement = nxt;
+        }
     }
-    while (
-        contentelement != NULL &&
-        (recursive || ((string)contentelement->Value()).find("TRest") == -1)) {
-      TiXmlElement* nxt = contentelement->NextSiblingElement();
-      ExpandElement(contentelement, recursive);
-      contentelement = nxt;
-    }
-  }
 }
 
 ///////////////////////////////////////////////
@@ -794,64 +781,59 @@ void TRestMetadata::ExpandElement(TiXmlElement* e, bool recursive) {
 /// "variable"
 ///
 void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
-  if ((string)e->Value() != "for") return;
-  // ReplaceElementAttributes(e);
+    if ((string)e->Value() != "for") return;
+    // ReplaceElementAttributes(e);
 
-  const char* varname = e->Attribute("variable");
-  const char* varfrom = e->Attribute("from");
-  const char* varto = e->Attribute("to");
-  const char* varstep = e->Attribute("step");
+    const char* varname = e->Attribute("variable");
+    const char* varfrom = e->Attribute("from");
+    const char* varto = e->Attribute("to");
+    const char* varstep = e->Attribute("step");
 
-  if (varname == NULL || varfrom == NULL || varto == NULL) return;
-  if (varstep == NULL) varstep = "1";
-  TiXmlElement* parele = (TiXmlElement*)e->Parent();
-  if (parele == NULL) return;
+    if (varname == NULL || varfrom == NULL || varto == NULL) return;
+    if (varstep == NULL) varstep = "1";
+    TiXmlElement* parele = (TiXmlElement*)e->Parent();
+    if (parele == NULL) return;
 
-  string _from =
-      ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varfrom));
-  string _to =
-      ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varto));
-  string _step =
-      ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varstep));
-  if (isANumber(_from) && isANumber(_to) && isANumber(_step)) {
-    double from = StringToDouble(_from);
-    double to = StringToDouble(_to);
-    double step = StringToDouble(_step);
+    string _from = ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varfrom));
+    string _to = ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varto));
+    string _step = ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(varstep));
+    if (isANumber(_from) && isANumber(_to) && isANumber(_step)) {
+        double from = StringToDouble(_from);
+        double to = StringToDouble(_to);
+        double step = StringToDouble(_step);
 
-    debug << "----expanding for loop----" << endl;
-    double i = 0;
-    for (i = from; i <= to; i = i + step) {
-      ostringstream ss;
-      ss << i;
-      SetEnv(varname, ss.str(), true);
-      TiXmlElement* contentelement = e->FirstChildElement();
-      while (contentelement != NULL) {
-        if ((string)contentelement->Value() == "for") {
-          TiXmlElement* newforloop = (TiXmlElement*)contentelement->Clone();
-          // ReplaceElementAttributes(newforloop);
-          TiXmlElement* tempnew =
-              (TiXmlElement*)parele->InsertBeforeChild(e, *newforloop);
-          delete newforloop;
-          newforloop = tempnew;
-          ExpandForLoops(newforloop);
-          contentelement = contentelement->NextSiblingElement();
-        } else {
-          TiXmlElement* attatchedalament =
-              (TiXmlElement*)contentelement->Clone();
-          ExpandElement(attatchedalament, true);
-          // debug << *attatchedalament << endl;
-          parele->InsertBeforeChild(e, *attatchedalament);
-          delete attatchedalament;
-          contentelement = contentelement->NextSiblingElement();
+        debug << "----expanding for loop----" << endl;
+        double i = 0;
+        for (i = from; i <= to; i = i + step) {
+            ostringstream ss;
+            ss << i;
+            SetEnv(varname, ss.str(), true);
+            TiXmlElement* contentelement = e->FirstChildElement();
+            while (contentelement != NULL) {
+                if ((string)contentelement->Value() == "for") {
+                    TiXmlElement* newforloop = (TiXmlElement*)contentelement->Clone();
+                    // ReplaceElementAttributes(newforloop);
+                    TiXmlElement* tempnew = (TiXmlElement*)parele->InsertBeforeChild(e, *newforloop);
+                    delete newforloop;
+                    newforloop = tempnew;
+                    ExpandForLoops(newforloop);
+                    contentelement = contentelement->NextSiblingElement();
+                } else {
+                    TiXmlElement* attatchedalament = (TiXmlElement*)contentelement->Clone();
+                    ExpandElement(attatchedalament, true);
+                    // debug << *attatchedalament << endl;
+                    parele->InsertBeforeChild(e, *attatchedalament);
+                    delete attatchedalament;
+                    contentelement = contentelement->NextSiblingElement();
+                }
+            }
         }
-      }
+
+        parele->RemoveChild(e);
+
+        if (fVerboseLevel >= REST_Extreme) parele->Print(stdout, 0);
+        debug << "----end of for loop----" << endl;
     }
-
-    parele->RemoveChild(e);
-
-    if (fVerboseLevel >= REST_Extreme) parele->Print(stdout, 0);
-    debug << "----end of for loop----" << endl;
-  }
 }
 
 ///////////////////////////////////////////////
@@ -875,225 +857,220 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
 /// name="sAna" file="abc.rml"/> \endcode If the target file is a root file,
 /// there will be a different way to load, see TRestRun::ImportMetadata()
 void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
-  debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
+    debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
 
-  ReplaceElementAttributes(e);
-  const char* _filetmp = e->Attribute("file");
+    ReplaceElementAttributes(e);
+    const char* _filetmp = e->Attribute("file");
 
-  if (_filetmp == NULL && (string)e->Value() == "TRestGas") _filetmp = "server";
+    if (_filetmp == NULL && (string)e->Value() == "TRestGas") _filetmp = "server";
 
-  if (_filetmp == NULL) return;
-  string _filename = _filetmp;
+    if (_filetmp == NULL) return;
+    string _filename = _filetmp;
 
-  // For the moment we only expect to have the gasFiles localed remotely.
-  // I keep "server" keyword to be coherent with the one used in TRestGas
-  // constructor
-  if (_filename == "server" && (string)e->Value() == "TRestGas")
-    _filename = (string)gasesFile;
+    // For the moment we only expect to have the gasFiles localed remotely.
+    // I keep "server" keyword to be coherent with the one used in TRestGas
+    // constructor
+    if (_filename == "server" && (string)e->Value() == "TRestGas") _filename = (string)gasesFile;
 
-  debug << "filename to expand : " << _filename << endl;
+    debug << "filename to expand : " << _filename << endl;
 
-  if (REST_StringHelper::isURL(_filename))
-    _filename = DownloadHttpFile(_filename);
+    if (REST_StringHelper::isURL(_filename)) _filename = DownloadHttpFile(_filename);
 
-  string filename = SearchFile(_filename);
-  if (filename == "") {
-    warning << "REST WARNING(expand include file): Include file \"" << _filename
-            << "\" does not exist!" << endl;
-    warning << endl;
-    return;
-  }
-  if (!isRootFile(filename))  // root file inclusion is implemented in TRestRun
-  {
-    debug << "----expanding include file----" << endl;
-    // we find the local element(the element to receive content)
-    // and the remote element(the element to provide content)
-    TiXmlElement* remoteele = NULL;
-    TiXmlElement* localele = NULL;
-    string type;
-    string name;
-
-    ////////////////////////////////////////////////
-    // condition 1(raw file include):
-    //   <TRestXXX name="" .....>
-    //     <include file="aaa.rml"/>
-    //     ....
-    //   </TRestXXX>
-    //
-    // We will insert all the xml elements in aaa.rml into this section
-    if ((string)e->Value() == "include") {
-      localele = (TiXmlElement*)e->Parent();
-      if (localele == NULL) return;
-      if (localele->Attribute("expanded") == NULL
-              ? false
-              : ((string)localele->Attribute("expanded") == "true")) {
-        debug << "----already expanded----" << endl;
-        return;
-      }
-
-      remoteele = new TiXmlElement("Config");
-
-      TiXmlElement* ele = GetElementFromFile(filename);
-      if (ele == NULL)
-        warning
-            << "REST Waring: no xml elements contained in the include file \""
-            << filename << "\"" << endl;
-      while (ele != NULL) {
-        remoteele->InsertEndChild(*ele);
-        ele = ele->NextSiblingElement();
-      }
-
-    }
-
-    ///////////////////////////////////
-    // condition 2(auto insert):
-    //   <TRestXXX file=""/>
-    // or
-    //   <TRestXXX name="" ... file="aaa.rml" .../>
-    // or
-    //   <addXXX name="" ... file="aaa.rml" .../>
-    // or
-    //   <addXXX type="" name="" ... file="aaa.rml" .../>
-    //
-    // Here TRestXXX will be "type". we will find the corresponding section, and
-    // insert all its attributes and child elements into this section. "name"
-    // overwrites "type"
-    else {
-      localele = e;
-      if (localele->Attribute("expanded") == NULL
-              ? false
-              : ((string)localele->Attribute("expanded") == "true")) {
-        debug << "----already expanded----" << endl;
-        return;
-      }
-
-      type = e->Attribute("type") != NULL ? e->Attribute("type") : e->Value();
-      name = localele->Attribute("name") == NULL ? ""
-                                                 : localele->Attribute("name");
-
-      // get the root element
-      TiXmlElement* rootele = GetElementFromFile(filename);
-      if (rootele == NULL) {
-        warning << "REST WARNING(expand include file): Include file "
-                << filename << " is of wrong xml format!" << endl;
+    string filename = SearchFile(_filename);
+    if (filename == "") {
+        warning << "REST WARNING(expand include file): Include file \"" << _filename << "\" does not exist!"
+                << endl;
         warning << endl;
         return;
-      }
-      if ((string)rootele->Value() == type) {
-        // if root element in the included file is of given type, directly use
-        // it
-        remoteele = rootele;
-      } else {
-        // import env first
-        if (type != "globals" && GetElement("globals", rootele) != NULL) {
-          TiXmlElement* globaldef =
-              GetElement("globals", rootele)->FirstChildElement();
-          while (globaldef != NULL) {
-            if ((string)globaldef->Value() == "variable" ||
-                (string)globaldef->Value() == "myParameter" ||
-                (string)globaldef->Value() == "constant") {
-              SetEnv(globaldef, false);
+    }
+    if (!isRootFile(filename))  // root file inclusion is implemented in TRestRun
+    {
+        debug << "----expanding include file----" << endl;
+        // we find the local element(the element to receive content)
+        // and the remote element(the element to provide content)
+        TiXmlElement* remoteele = NULL;
+        TiXmlElement* localele = NULL;
+        string type;
+        string name;
+
+        ////////////////////////////////////////////////
+        // condition 1(raw file include):
+        //   <TRestXXX name="" .....>
+        //     <include file="aaa.rml"/>
+        //     ....
+        //   </TRestXXX>
+        //
+        // We will insert all the xml elements in aaa.rml into this section
+        if ((string)e->Value() == "include") {
+            localele = (TiXmlElement*)e->Parent();
+            if (localele == NULL) return;
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
+                debug << "----already expanded----" << endl;
+                return;
             }
-            globaldef = globaldef->NextSiblingElement();
-          }
+
+            remoteele = new TiXmlElement("Config");
+
+            TiXmlElement* ele = GetElementFromFile(filename);
+            if (ele == NULL)
+                warning << "REST Waring: no xml elements contained in the include file \"" << filename << "\""
+                        << endl;
+            while (ele != NULL) {
+                remoteele->InsertEndChild(*ele);
+                ele = ele->NextSiblingElement();
+            }
+
         }
 
-        // find its child section according to type and name
-        if (name != "") {
-          // we find only according to the name
-          vector<TiXmlElement*> eles;
-          TiXmlElement* ele = rootele->FirstChildElement();
-          while (ele != NULL) {
-            if (ele->Attribute("name") != NULL &&
-                (string)ele->Attribute("name") == name) {
-              eles.push_back(ele);
+        ///////////////////////////////////
+        // condition 2(auto insert):
+        //   <TRestXXX file=""/>
+        // or
+        //   <TRestXXX name="" ... file="aaa.rml" .../>
+        // or
+        //   <addXXX name="" ... file="aaa.rml" .../>
+        // or
+        //   <addXXX type="" name="" ... file="aaa.rml" .../>
+        //
+        // Here TRestXXX will be "type". we will find the corresponding section, and
+        // insert all its attributes and child elements into this section. "name"
+        // overwrites "type"
+        else {
+            localele = e;
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
+                debug << "----already expanded----" << endl;
+                return;
+            }
+
+            type = e->Attribute("type") != NULL ? e->Attribute("type") : e->Value();
+            name = localele->Attribute("name") == NULL ? "" : localele->Attribute("name");
+
+            // get the root element
+            TiXmlElement* rootele = GetElementFromFile(filename);
+            if (rootele == NULL) {
+                warning << "REST WARNING(expand include file): Include file " << filename
+                        << " is of wrong xml format!" << endl;
+                warning << endl;
+                return;
+            }
+            if ((string)rootele->Value() == type) {
+                // if root element in the included file is of given type, directly use
+                // it
+                remoteele = rootele;
+            } else {
+                // import env first
+                if (type != "globals" && GetElement("globals", rootele) != NULL) {
+                    TiXmlElement* globaldef = GetElement("globals", rootele)->FirstChildElement();
+                    while (globaldef != NULL) {
+                        if ((string)globaldef->Value() == "variable" ||
+                            (string)globaldef->Value() == "myParameter" ||
+                            (string)globaldef->Value() == "constant") {
+                            SetEnv(globaldef, false);
+                        }
+                        globaldef = globaldef->NextSiblingElement();
+                    }
+                }
+
+                // find its child section according to type and name
+                if (name != "") {
+                    // we find only according to the name
+                    vector<TiXmlElement*> eles;
+                    TiXmlElement* ele = rootele->FirstChildElement();
+                    while (ele != NULL) {
+                        if (ele->Attribute("name") != NULL && (string)ele->Attribute("name") == name) {
+                            eles.push_back(ele);
+                        }
+                        ele = ele->NextSiblingElement();
+                    }
+
+                    // more than 1 elements found
+                    if (eles.size() > 1) {
+                        if (type != "") {
+                            warning << "REST WARNING(expand include file): find "
+                                       "multiple xml "
+                                       "sections with same name!"
+                                    << endl;
+                            warning << "Trying to filter them with type" << endl;
+                            for (int i = 0; i < eles.size(); i++) {
+                                auto ele = eles[i];
+                                if ((string)ele->Value() != type) {
+                                    eles.erase(eles.begin() + i);
+                                    i--;
+                                }
+                            }
+
+                            if (eles.size() > 1)  // still more than 1 elements found
+                            {
+                                error << "REST ERROR: find multiple xml sections "
+                                         "with same "
+                                         "name and type!"
+                                      << endl;
+                                error << "Check your rml file!" << endl;
+                                error << ElementToString(e) << endl;
+                                exit(1);
+                            }
+                        } else {
+                            warning << "REST WARNING(expand include file): find "
+                                       "multiple xml "
+                                       "sections with same name!"
+                                    << endl;
+                            warning << "Using the first one!" << endl;
+                        }
+                    }
+
+                    if (eles.size() > 0) remoteele = eles[0];
+                } else if (type != "") {
+                    remoteele = GetElement(type, rootele);
+                }
+
+                if (remoteele == NULL) {
+                    warning << "REST WARNING: Cannot find the needed xml section in "
+                               "include file!"
+                            << endl;
+                    warning << "type: \"" << type << "\" , name: \"" << name << "\" . Skipping" << endl;
+                    warning << endl;
+                    return;
+                }
+            }
+        }
+
+        debug << "Target xml element spotted" << endl;
+
+        ///////////////////////////////////////
+        // begin inserting remote element into local element
+        ExpandElement(remoteele, true);
+        int nattr = 0;
+        int nele = 0;
+        TiXmlAttribute* attr = remoteele->FirstAttribute();
+        while (attr != NULL) {
+            if (localele->Attribute(attr->Name()) == NULL) {
+                localele->SetAttribute(attr->Name(), attr->Value());
+                nattr++;
+            }
+            attr = attr->Next();
+        }
+        TiXmlElement* ele = remoteele->FirstChildElement();
+        while (ele != NULL) {
+            // ExpandElement(ele);
+            if ((string)ele->Value() != "for") {
+                localele->InsertEndChild(*ele);
+                nele++;
             }
             ele = ele->NextSiblingElement();
-          }
-
-          // more than 1 elements found
-          if (eles.size() > 1) {
-            if (type != "") {
-              warning << "REST WARNING(expand include file): find multiple xml "
-                         "sections with same name!"
-                      << endl;
-              warning << "Trying to filter them with type" << endl;
-              for (int i = 0; i < eles.size(); i++) {
-                auto ele = eles[i];
-                if ((string)ele->Value() != type) {
-                  eles.erase(eles.begin() + i);
-                  i--;
-                }
-              }
-
-              if (eles.size() > 1)  // still more than 1 elements found
-              {
-                error << "REST ERROR: find multiple xml sections with same "
-                         "name and type!"
-                      << endl;
-                error << "Check your rml file!" << endl;
-                error << ElementToString(e) << endl;
-                exit(1);
-              }
-            } else {
-              warning << "REST WARNING(expand include file): find multiple xml "
-                         "sections with same name!"
-                      << endl;
-              warning << "Using the first one!" << endl;
-            }
-          }
-
-          if (eles.size() > 0) remoteele = eles[0];
-        } else if (type != "") {
-          remoteele = GetElement(type, rootele);
         }
 
-        if (remoteele == NULL) {
-          warning << "REST WARNING: Cannot find the needed xml section in "
-                     "include file!"
-                  << endl;
-          warning << "type: \"" << type << "\" , name: \"" << name
-                  << "\" . Skipping" << endl;
-          warning << endl;
-          return;
+        localele->SetAttribute("expanded", "true");
+        if (fVerboseLevel >= REST_Debug) {
+            localele->Print(stdout, 0);
+            cout << endl;
         }
-      }
+        debug << nattr << " attributes and " << nele << " xml elements added by inclusion" << endl;
+        debug << "----end of expansion file----" << endl;
     }
-
-    debug << "Target xml element spotted" << endl;
-
-    ///////////////////////////////////////
-    // begin inserting remote element into local element
-    ExpandElement(remoteele, true);
-    int nattr = 0;
-    int nele = 0;
-    TiXmlAttribute* attr = remoteele->FirstAttribute();
-    while (attr != NULL) {
-      if (localele->Attribute(attr->Name()) == NULL) {
-        localele->SetAttribute(attr->Name(), attr->Value());
-        nattr++;
-      }
-      attr = attr->Next();
-    }
-    TiXmlElement* ele = remoteele->FirstChildElement();
-    while (ele != NULL) {
-      // ExpandElement(ele);
-      if ((string)ele->Value() != "for") {
-        localele->InsertEndChild(*ele);
-        nele++;
-      }
-      ele = ele->NextSiblingElement();
-    }
-
-    localele->SetAttribute("expanded", "true");
-    if (fVerboseLevel >= REST_Debug) {
-      localele->Print(stdout, 0);
-      cout << endl;
-    }
-    debug << nattr << " attributes and " << nele
-          << " xml elements added by inclusion" << endl;
-    debug << "----end of expansion file----" << endl;
-  }
 }
 
 ///////////////////////////////////////////////
@@ -1103,35 +1080,33 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
 /// the local temporary file downloaded. If it fails, the method will invoke an
 /// exit call and print out some error.
 string TRestMetadata::DownloadHttpFile(string remoteFile) {
-  debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
+    debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
 
-  debug << "Complete remote filename : " << remoteFile << endl;
+    debug << "Complete remote filename : " << remoteFile << endl;
 
-  TString remoteFilename = REST_StringHelper::RemoveAbsolutePath(remoteFile);
+    TString remoteFilename = REST_StringHelper::RemoveAbsolutePath(remoteFile);
 
-  debug << "Reduced remote filename : " << remoteFilename << endl;
+    debug << "Reduced remote filename : " << remoteFilename << endl;
 
-  string cmd = "wget --no-check-certificate " + remoteFile + " -O /tmp/REST_" +
-               getenv("USER") + "_remote.rml -q";
+    string cmd =
+        "wget --no-check-certificate " + remoteFile + " -O /tmp/REST_" + getenv("USER") + "_remote.rml -q";
 
-  info << "-- Info : Trying to download remote file from : " << remoteFile
-       << endl;
-  int a = system(cmd.c_str());
+    info << "-- Info : Trying to download remote file from : " << remoteFile << endl;
+    int a = system(cmd.c_str());
 
-  if (a == 0) {
-    success << "-- Success : download OK!" << endl;
+    if (a == 0) {
+        success << "-- Success : download OK!" << endl;
 
-    return (string)("/tmp/REST_" + (string)getenv("USER") + "_remote.rml");
-  } else {
-    error << "-- Error : download failed!" << endl;
-    if (a == 1024) error << "-- Error : Network connection problem?" << endl;
-    if (a == 2048)
-      error << "-- Error : Gas definition does NOT exist in database?" << endl;
-    info << "-- Info : Please specify a local config file" << endl;
-    exit(1);
-  }
+        return (string)("/tmp/REST_" + (string)getenv("USER") + "_remote.rml");
+    } else {
+        error << "-- Error : download failed!" << endl;
+        if (a == 1024) error << "-- Error : Network connection problem?" << endl;
+        if (a == 2048) error << "-- Error : Gas definition does NOT exist in database?" << endl;
+        info << "-- Info : Please specify a local config file" << endl;
+        exit(1);
+    }
 
-  return "";
+    return "";
 }
 
 ///////////////////////////////////////////////
@@ -1148,14 +1123,14 @@ string TRestMetadata::DownloadHttpFile(string remoteFile) {
 ///
 /// \return A string of result
 string TRestMetadata::GetParameter(std::string parName, TString defaultValue) {
-  // first search the parameter in system env
-  char* val = getenv(parName.c_str());
-  if (val != NULL) {
-    return val;
-  }
+    // first search the parameter in system env
+    char* val = getenv(parName.c_str());
+    if (val != NULL) {
+        return val;
+    }
 
-  // then look within local xml element
-  return GetParameter(parName, fElement, defaultValue);
+    // then look within local xml element
+    return GetParameter(parName, fElement, defaultValue);
 }
 
 ///////////////////////////////////////////////
@@ -1183,31 +1158,29 @@ string TRestMetadata::GetParameter(std::string parName, TString defaultValue) {
 /// found
 ///
 /// \return A string of result, with env and expressions replaced
-string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e,
-                                   TString defaultValue) {
-  if (e == NULL) {
-    if (GetVerboseLevel() > REST_Debug) {
-      cout << "Element is null" << endl;
+string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString defaultValue) {
+    if (e == NULL) {
+        if (GetVerboseLevel() > REST_Debug) {
+            cout << "Element is null" << endl;
+        }
+        return (string)defaultValue;
     }
-    return (string)defaultValue;
-  }
-  string result = (string)defaultValue;
-  // first find in attribute
-  if (e->Attribute(parName.c_str()) != NULL) {
-    result = e->Attribute(parName.c_str());
-  }
-  // then find in child sections/elements
-  else {
-    TiXmlElement* element = GetElementWithName("parameter", parName, e);
-    if (element != NULL && element->Attribute("value") != NULL) {
-      result = element->Attribute("value");
-    } else {
-      debug << ClassName() << ": Parameter : " << parName << " not found!"
-            << endl;
+    string result = (string)defaultValue;
+    // first find in attribute
+    if (e->Attribute(parName.c_str()) != NULL) {
+        result = e->Attribute(parName.c_str());
     }
-  }
+    // then find in child sections/elements
+    else {
+        TiXmlElement* element = GetElementWithName("parameter", parName, e);
+        if (element != NULL && element->Attribute("value") != NULL) {
+            result = element->Attribute("value");
+        } else {
+            debug << ClassName() << ": Parameter : " << parName << " not found!" << endl;
+        }
+    }
 
-  return ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(result));
+    return ReplaceMathematicalExpressions(ReplaceEnvironmentalVariables(result));
 }
 
 ///////////////////////////////////////////////
@@ -1218,7 +1191,7 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e,
 /// element.
 ///
 std::string TRestMetadata::GetFieldValue(std::string parName, TiXmlElement* e) {
-  return GetParameter(parName, e, "Not defined");
+    return GetParameter(parName, e, "Not defined");
 }
 
 ///////////////////////////////////////////////
@@ -1250,67 +1223,58 @@ std::string TRestMetadata::GetFieldValue(std::string parName, TiXmlElement* e) {
 /// \return A double/2DVector/3DVector value in the default correspoding REST
 /// units (keV, us, mm, Vcm).
 ///
-Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName,
-                                                 TiXmlElement* ele,
+Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlElement* ele,
                                                  Double_t defaultVal) {
-  string a = GetParameter(parName, ele);
-  if (a == PARAMETER_NOT_FOUND_STR) {
-    return defaultVal;
-  } else {
-    string units = GetUnits(ele, parName);
-    double val =
-        StringToDouble(a.substr(0, a.find_last_of("1234567890()") + 1));
-    return REST_Units::GetValueInRESTUnits(val, units);
-  }
+    string a = GetParameter(parName, ele);
+    if (a == PARAMETER_NOT_FOUND_STR) {
+        return defaultVal;
+    } else {
+        string units = GetUnits(ele, parName);
+        double val = StringToDouble(a.substr(0, a.find_last_of("1234567890()") + 1));
+        return REST_Units::GetValueInRESTUnits(val, units);
+    }
 
-  return defaultVal;
+    return defaultVal;
 }
-Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName,
-                                                 Double_t defaultVal) {
-  return GetDblParameterWithUnits(parName, fElement, defaultVal);
+Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, Double_t defaultVal) {
+    return GetDblParameterWithUnits(parName, fElement, defaultVal);
 }
-TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName,
-                                                      TiXmlElement* ele,
+TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* ele,
                                                       TVector2 defaultVal) {
-  string a = GetParameter(parName, ele);
-  if (a == PARAMETER_NOT_FOUND_STR) {
-    return defaultVal;
-  } else {
-    string unit = GetUnits(ele, parName);
-    TVector2 value =
-        StringTo2DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
-    Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unit);
-    Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unit);
-    return TVector2(valueX, valueY);
-  }
+    string a = GetParameter(parName, ele);
+    if (a == PARAMETER_NOT_FOUND_STR) {
+        return defaultVal;
+    } else {
+        string unit = GetUnits(ele, parName);
+        TVector2 value = StringTo2DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
+        Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unit);
+        Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unit);
+        return TVector2(valueX, valueY);
+    }
 
-  return defaultVal;
-}
-TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName,
-                                                      TVector2 defaultVal) {
-  return Get2DVectorParameterWithUnits(parName, fElement, defaultVal);
-}
-TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName,
-                                                      TiXmlElement* ele,
-                                                      TVector3 defaultVal) {
-  string a = GetParameter(parName, ele);
-  if (a == PARAMETER_NOT_FOUND_STR) {
     return defaultVal;
-  } else {
-    string unit = GetUnits(ele, parName);
-    TVector3 value =
-        StringTo3DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
-    Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unit);
-    Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unit);
-    Double_t valueZ = REST_Units::GetValueInRESTUnits(value.Z(), unit);
-    return TVector3(valueX, valueY, valueZ);
-  }
-
-  return defaultVal;
 }
-TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName,
+TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TVector2 defaultVal) {
+    return Get2DVectorParameterWithUnits(parName, fElement, defaultVal);
+}
+TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXmlElement* ele,
                                                       TVector3 defaultVal) {
-  return Get3DVectorParameterWithUnits(parName, fElement, defaultVal);
+    string a = GetParameter(parName, ele);
+    if (a == PARAMETER_NOT_FOUND_STR) {
+        return defaultVal;
+    } else {
+        string unit = GetUnits(ele, parName);
+        TVector3 value = StringTo3DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
+        Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unit);
+        Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unit);
+        Double_t valueZ = REST_Units::GetValueInRESTUnits(value.Z(), unit);
+        return TVector3(valueX, valueY, valueZ);
+    }
+
+    return defaultVal;
+}
+TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVector3 defaultVal) {
+    return Get3DVectorParameterWithUnits(parName, fElement, defaultVal);
 }
 
 ///////////////////////////////////////////////
@@ -1328,150 +1292,139 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName,
 /// Exits the whole program if the xml file does not exist, or is in wrong in
 /// syntax. Returns NULL if no element matches NameOrDecalre
 ///
-TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName,
-                                                std::string NameOrDecalre) {
-  TiXmlDocument* doc = new TiXmlDocument();
-  TiXmlElement* rootele;
+TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::string NameOrDecalre) {
+    TiXmlDocument* doc = new TiXmlDocument();
+    TiXmlElement* rootele;
 
-  string filename = cfgFileName;
-  if (TRestMetadata_UpdatedConfigFile.count(filename) > 0)
-    filename = TRestMetadata_UpdatedConfigFile[filename];
+    string filename = cfgFileName;
+    if (TRestMetadata_UpdatedConfigFile.count(filename) > 0)
+        filename = TRestMetadata_UpdatedConfigFile[filename];
 
-  if (!fileExists(filename)) {
-    error << "Config file does not exist. The file is: " << filename << endl;
-    GetChar();
-    exit(1);
-  }
-  if (!doc->LoadFile(filename.c_str())) {
-    RmlUpdateTool t(filename, true);
-    if (t.UpdateSucceed()) {
-      TRestStringOutput cout;
-      cout.setcolor(COLOR_BOLDYELLOW);
-      cout << "REST WARNING : You are still using V2.1 config file, this file "
-              "is successfully"
-           << endl;
-      cout << "updated by REST. In future we may remove this self-adaption "
-              "functionality."
-           << endl;
-      cout << "So it is recommended to check and use the generated new file as "
-              "soon as possible!"
-           << endl;
-      cout << filename << "  -->  " << t.GetOutputFile() << endl;
-      GetChar();
-      TRestMetadata_UpdatedConfigFile[filename] = t.GetOutputFile();
-      return GetElementFromFile(t.GetOutputFile());
-    } else {
-      error << "Failed to load xml file, syntax maybe wrong. The file is: "
-            << filename << endl;
-      exit(1);
+    if (!fileExists(filename)) {
+        error << "Config file does not exist. The file is: " << filename << endl;
+        GetChar();
+        exit(1);
     }
-  }
-
-  rootele = doc->RootElement();
-  if (rootele == NULL) {
-    error << "The rml file \"" << cfgFileName
-          << "\" does not contain any valid elements!" << endl;
-    GetChar();
-    exit(1);
-  }
-  if (NameOrDecalre == "") {
-    return rootele;
-  }
-  // search with either name or declare in either root element or sub-root
-  // element
-  while (rootele != NULL) {
-    if (rootele->Value() != NULL && (string)rootele->Value() == NameOrDecalre) {
-      return rootele;
+    if (!doc->LoadFile(filename.c_str())) {
+        RmlUpdateTool t(filename, true);
+        if (t.UpdateSucceed()) {
+            TRestStringOutput cout;
+            cout.setcolor(COLOR_BOLDYELLOW);
+            cout << "REST WARNING : You are still using V2.1 config file, this file "
+                    "is successfully"
+                 << endl;
+            cout << "updated by REST. In future we may remove this self-adaption "
+                    "functionality."
+                 << endl;
+            cout << "So it is recommended to check and use the generated new file as "
+                    "soon as possible!"
+                 << endl;
+            cout << filename << "  -->  " << t.GetOutputFile() << endl;
+            GetChar();
+            TRestMetadata_UpdatedConfigFile[filename] = t.GetOutputFile();
+            return GetElementFromFile(t.GetOutputFile());
+        } else {
+            error << "Failed to load xml file, syntax maybe wrong. The file is: " << filename << endl;
+            exit(1);
+        }
     }
 
-    if (rootele->Attribute("name") != NULL &&
-        (string)rootele->Attribute("name") == NameOrDecalre) {
-      return rootele;
+    rootele = doc->RootElement();
+    if (rootele == NULL) {
+        error << "The rml file \"" << cfgFileName << "\" does not contain any valid elements!" << endl;
+        GetChar();
+        exit(1);
+    }
+    if (NameOrDecalre == "") {
+        return rootele;
+    }
+    // search with either name or declare in either root element or sub-root
+    // element
+    while (rootele != NULL) {
+        if (rootele->Value() != NULL && (string)rootele->Value() == NameOrDecalre) {
+            return rootele;
+        }
+
+        if (rootele->Attribute("name") != NULL && (string)rootele->Attribute("name") == NameOrDecalre) {
+            return rootele;
+        }
+
+        TiXmlElement* etemp = GetElement(NameOrDecalre, rootele);
+        if (etemp != NULL) {
+            return etemp;
+        }
+
+        etemp = GetElementWithName("", NameOrDecalre, rootele);
+        if (etemp != NULL) {
+            return etemp;
+        }
+
+        rootele = rootele->NextSiblingElement();
     }
 
-    TiXmlElement* etemp = GetElement(NameOrDecalre, rootele);
-    if (etemp != NULL) {
-      return etemp;
-    }
-
-    etemp = GetElementWithName("", NameOrDecalre, rootele);
-    if (etemp != NULL) {
-      return etemp;
-    }
-
-    rootele = rootele->NextSiblingElement();
-  }
-
-  return NULL;
-  /*error << "Cannot find xml element with name \""<< NameOrDecalre <<"\" in rml
-  file \"" << cfgFileName << endl; GetChar(); exit(1);*/
+    return NULL;
+    /*error << "Cannot find xml element with name \""<< NameOrDecalre <<"\" in rml
+    file \"" << cfgFileName << endl; GetChar(); exit(1);*/
 }
 
 ///////////////////////////////////////////////
 /// \brief Get an xml element from default location(TRestMetadata::fElement),
 /// according to its declaration
 ///
-TiXmlElement* TRestMetadata::GetElement(std::string eleDeclare) {
-  return GetElement(eleDeclare, fElement);
-}
+TiXmlElement* TRestMetadata::GetElement(std::string eleDeclare) { return GetElement(eleDeclare, fElement); }
 
 ///////////////////////////////////////////////
 /// \brief Get an xml element from a given parent element, according to its
 /// declaration
 ///
-TiXmlElement* TRestMetadata::GetElement(std::string eleDeclare,
-                                        TiXmlElement* e) {
-  // cout << eleDeclare << " " << e << endl;
-  TiXmlElement* ele = e->FirstChildElement(eleDeclare.c_str());
-  while (ele != NULL) {
-    string a = ele->Value();
-    if (a == eleDeclare) break;
-    ele = ele->NextSiblingElement();
-  }
-  return ele;
+TiXmlElement* TRestMetadata::GetElement(std::string eleDeclare, TiXmlElement* e) {
+    // cout << eleDeclare << " " << e << endl;
+    TiXmlElement* ele = e->FirstChildElement(eleDeclare.c_str());
+    while (ele != NULL) {
+        string a = ele->Value();
+        if (a == eleDeclare) break;
+        ele = ele->NextSiblingElement();
+    }
+    return ele;
 }
 
 ///////////////////////////////////////////////
 /// \brief Get an xml element from the default location, according to its
 /// declaration and its field "name"
 ///
-TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare,
-                                                std::string eleName) {
-  return GetElementWithName(eleDeclare, eleName, fElement);
+TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::string eleName) {
+    return GetElementWithName(eleDeclare, eleName, fElement);
 }
 
 ///////////////////////////////////////////////
 /// \brief Get an xml element from a given parent element, according to its
 /// declaration and its field "name"
 ///
-TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare,
-                                                std::string eleName,
+TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::string eleName,
                                                 TiXmlElement* e) {
-  if (eleDeclare == "")  // find only with name
-  {
-    TiXmlElement* ele = e->FirstChildElement();
-    while (ele != NULL) {
-      if (ele->Attribute("name") != NULL &&
-          (string)ele->Attribute("name") == eleName) {
+    if (eleDeclare == "")  // find only with name
+    {
+        TiXmlElement* ele = e->FirstChildElement();
+        while (ele != NULL) {
+            if (ele->Attribute("name") != NULL && (string)ele->Attribute("name") == eleName) {
+                return ele;
+            }
+            ele = ele->NextSiblingElement();
+        }
         return ele;
-      }
-      ele = ele->NextSiblingElement();
-    }
-    return ele;
-  } else  // find with name and declare
-  {
-    TiXmlElement* ele = e->FirstChildElement(eleDeclare.c_str());
-    while (ele != NULL) {
-      if (ele->Attribute("name") != NULL &&
-          (string)ele->Attribute("name") == eleName) {
+    } else  // find with name and declare
+    {
+        TiXmlElement* ele = e->FirstChildElement(eleDeclare.c_str());
+        while (ele != NULL) {
+            if (ele->Attribute("name") != NULL && (string)ele->Attribute("name") == eleName) {
+                return ele;
+            }
+            ele = ele->NextSiblingElement(eleDeclare.c_str());
+        }
         return ele;
-      }
-      ele = ele->NextSiblingElement(eleDeclare.c_str());
     }
-    return ele;
-  }
 
-  return NULL;
+    return NULL;
 }
 
 ///////////////////////////////////////////////
@@ -1479,9 +1432,7 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare,
 /// element.
 ///
 /// It calls the method GetUnits(TiXmlElement,string) with the current elemnet.
-string TRestMetadata::GetUnits(string whoseunits) {
-  return GetUnits(fElement, whoseunits);
-}
+string TRestMetadata::GetUnits(string whoseunits) { return GetUnits(fElement, whoseunits); }
 
 ///////////////////////////////////////////////
 /// \brief Returns a string with the unit name given in the given xml element
@@ -1491,40 +1442,37 @@ string TRestMetadata::GetUnits(string whoseunits) {
 /// if not given, it will find the unit as a parameter of the element.
 ///	e.g. <... value="3" units="mm" .../>
 string TRestMetadata::GetUnits(TiXmlElement* e, string whoseunits) {
-  string unitstring = "";
-  if (whoseunits == "") {
-    unitstring = GetParameter("units", e);
-    if (IsUnit(unitstring)) {
-      debug << "Found unit definition \"" << unitstring << "\" in element "
-            << e->Value() << endl;
-      debug << endl;
-      return unitstring;
+    string unitstring = "";
+    if (whoseunits == "") {
+        unitstring = GetParameter("units", e);
+        if (IsUnit(unitstring)) {
+            debug << "Found unit definition \"" << unitstring << "\" in element " << e->Value() << endl;
+            debug << endl;
+            return unitstring;
+        } else {
+            warning << "TRestMetadata::" << ClassName() << endl;
+            warning << "No units are defined in " << e->Value() << " : " << e->Attribute("name") << endl;
+            warning << "The parameter will use REST default units" << endl;
+            return "";
+        }
     } else {
-      warning << "TRestMetadata::" << ClassName() << endl;
-      warning << "No units are defined in " << e->Value() << " : "
-              << e->Attribute("name") << endl;
-      warning << "The parameter will use REST default units" << endl;
-      return "";
-    }
-  } else {
-    string a = GetParameter(whoseunits, e);
-    unitstring = REST_Units::GetRESTUnitsInString(a);
+        string a = GetParameter(whoseunits, e);
+        unitstring = REST_Units::GetRESTUnitsInString(a);
 
-    if (IsUnit(unitstring)) {
-      return unitstring;
-    } else {
-      debug << "Parameter \"" << whoseunits << " = " << a
-            << "\" dose not contain any units" << endl;
-      debug << "Trying to find unit in element..." << endl;
-      if (GetElementWithName("parameter", whoseunits, e) != NULL) {
-        return GetUnits(GetElementWithName("parameter", whoseunits, e), "");
-      } else {
-        return GetUnits(e, "");
-      }
+        if (IsUnit(unitstring)) {
+            return unitstring;
+        } else {
+            debug << "Parameter \"" << whoseunits << " = " << a << "\" dose not contain any units" << endl;
+            debug << "Trying to find unit in element..." << endl;
+            if (GetElementWithName("parameter", whoseunits, e) != NULL) {
+                return GetUnits(GetElementWithName("parameter", whoseunits, e), "");
+            } else {
+                return GetUnits(e, "");
+            }
+        }
     }
-  }
 
-  return unitstring;
+    return unitstring;
 }
 
 ///////////////////////////////////////////////
@@ -1533,10 +1481,10 @@ string TRestMetadata::GetUnits(TiXmlElement* e, string whoseunits) {
 /// This method creates TiXmlElement object with the alloator "new".
 /// Be advised to delete the object after using it!
 TiXmlElement* TRestMetadata::StringToElement(string definition) {
-  TiXmlElement* ele = new TiXmlElement("temp");
-  // TiXmlDocument*doc = new TiXmlDocument();
-  ele->Parse(definition.c_str(), NULL, TIXML_ENCODING_UTF8);
-  return ele;
+    TiXmlElement* ele = new TiXmlElement("temp");
+    // TiXmlDocument*doc = new TiXmlDocument();
+    ele->Parse(definition.c_str(), NULL, TIXML_ENCODING_UTF8);
+    return ele;
 }
 
 ///////////////////////////////////////////////
@@ -1545,37 +1493,37 @@ TiXmlElement* TRestMetadata::StringToElement(string definition) {
 /// This method does't arrange the output. All the contents are written in one
 /// line.
 string TRestMetadata::ElementToString(TiXmlElement* ele) {
-  if (ele != NULL) {
-    // remove comments
-    TiXmlNode* n = ele->FirstChild();
-    while (n != NULL) {
-      TiXmlComment* cmt = n->ToComment();
-      if (cmt != NULL) {
-        TiXmlNode* nn = n;
-        n = n->NextSibling();
-        ele->RemoveChild(nn);
-        continue;
-      }
-      n = n->NextSibling();
+    if (ele != NULL) {
+        // remove comments
+        TiXmlNode* n = ele->FirstChild();
+        while (n != NULL) {
+            TiXmlComment* cmt = n->ToComment();
+            if (cmt != NULL) {
+                TiXmlNode* nn = n;
+                n = n->NextSibling();
+                ele->RemoveChild(nn);
+                continue;
+            }
+            n = n->NextSibling();
+        }
+
+        stringstream ss;
+        ss << (*ele);
+        string s = ss.str();
+
+        // int pos = 0;
+        // int pos2 = 0;
+        // while ((pos = s.find("<!--", pos)) != -1 && (pos2 = s.find("-->", pos))
+        // != -1)
+        //{
+        //	s.replace(pos, pos2 - pos + 3, "");//3 is the length of "-->"
+        //	pos = pos + 1;
+        //}
+
+        return s;
     }
 
-    stringstream ss;
-    ss << (*ele);
-    string s = ss.str();
-
-    // int pos = 0;
-    // int pos2 = 0;
-    // while ((pos = s.find("<!--", pos)) != -1 && (pos2 = s.find("-->", pos))
-    // != -1)
-    //{
-    //	s.replace(pos, pos2 - pos + 3, "");//3 is the length of "-->"
-    //	pos = pos + 1;
-    //}
-
-    return s;
-  }
-
-  return " ";
+    return " ";
 }
 
 ///////////////////////////////////////////////
@@ -1591,50 +1539,47 @@ string TRestMetadata::ElementToString(TiXmlElement* ele) {
 /// \endcode
 ///
 string TRestMetadata::GetKEYStructure(std::string keyName) {
-  size_t Position = 0;
-  string result = GetKEYStructure(keyName, Position, fElement);
-  if (result == "") result = "NotFound";
-  return result;
+    size_t Position = 0;
+    string result = GetKEYStructure(keyName, Position, fElement);
+    if (result == "") result = "NotFound";
+    return result;
 }
 string TRestMetadata::GetKEYStructure(std::string keyName, size_t& Position) {
-  string result = GetKEYStructure(keyName, Position, fElement);
-  if (result == "") result = "NotFound";
-  return result;
+    string result = GetKEYStructure(keyName, Position, fElement);
+    if (result == "") result = "NotFound";
+    return result;
 }
 string TRestMetadata::GetKEYStructure(std::string keyName, string buffer) {
-  size_t Position = 0;
-  string result = GetKEYStructure(keyName, Position, buffer);
-  if (result == "") result = "NotFound";
-  return result;
-}
-string TRestMetadata::GetKEYStructure(std::string keyName, size_t& fromPosition,
-                                      string buffer) {
-  TiXmlElement* ele = StringToElement(buffer);
-  string result = GetKEYStructure(keyName, fromPosition, ele);
-  delete ele;
-  return result;
-}
-string TRestMetadata::GetKEYStructure(std::string keyName, size_t& fromPosition,
-                                      TiXmlElement* ele) {
-  size_t position = fromPosition;
-
-  debug << "Finding " << fromPosition << "th appearance of KEY Structure \""
-        << keyName << "\"..." << endl;
-
-  TiXmlElement* childele = ele->FirstChildElement(keyName);
-  for (int i = 0; childele != NULL && i < fromPosition; i++) {
-    childele = childele->NextSiblingElement(keyName);
-  }
-  if (childele != NULL) {
-    string result = ElementToString(childele);
-    fromPosition = fromPosition + 1;
-    debug << "Found Key : " << result << endl;
-    // debug << "New position : " << fromPosition << endl;
+    size_t Position = 0;
+    string result = GetKEYStructure(keyName, Position, buffer);
+    if (result == "") result = "NotFound";
     return result;
-  }
+}
+string TRestMetadata::GetKEYStructure(std::string keyName, size_t& fromPosition, string buffer) {
+    TiXmlElement* ele = StringToElement(buffer);
+    string result = GetKEYStructure(keyName, fromPosition, ele);
+    delete ele;
+    return result;
+}
+string TRestMetadata::GetKEYStructure(std::string keyName, size_t& fromPosition, TiXmlElement* ele) {
+    size_t position = fromPosition;
 
-  debug << "Finding hit the end, KEY Structure not found!!" << endl;
-  return "";
+    debug << "Finding " << fromPosition << "th appearance of KEY Structure \"" << keyName << "\"..." << endl;
+
+    TiXmlElement* childele = ele->FirstChildElement(keyName);
+    for (int i = 0; childele != NULL && i < fromPosition; i++) {
+        childele = childele->NextSiblingElement(keyName);
+    }
+    if (childele != NULL) {
+        string result = ElementToString(childele);
+        fromPosition = fromPosition + 1;
+        debug << "Found Key : " << result << endl;
+        // debug << "New position : " << fromPosition << endl;
+        return result;
+    }
+
+    debug << "Finding hit the end, KEY Structure not found!!" << endl;
+    return "";
 }
 
 ///////////////////////////////////////////////
@@ -1648,106 +1593,97 @@ string TRestMetadata::GetKEYStructure(std::string keyName, size_t& fromPosition,
 /// \code <keyName field1="value1" field2="value2" /> \endcode
 /// which is in standard xml form
 string TRestMetadata::GetKEYDefinition(string keyName) {
-  string buffer = ElementToString(fElement);
-  size_t Position = 0;
-  return GetKEYDefinition(keyName, Position, buffer);
+    string buffer = ElementToString(fElement);
+    size_t Position = 0;
+    return GetKEYDefinition(keyName, Position, buffer);
 }
 string TRestMetadata::GetKEYDefinition(string keyName, size_t& fromPosition) {
-  string buffer = ElementToString(fElement);
-  return GetKEYDefinition(keyName, fromPosition, buffer);
+    string buffer = ElementToString(fElement);
+    return GetKEYDefinition(keyName, fromPosition, buffer);
 }
 string TRestMetadata::GetKEYDefinition(string keyName, string buffer) {
-  size_t Position = 0;
-  return GetKEYDefinition(keyName, Position, buffer);
+    size_t Position = 0;
+    return GetKEYDefinition(keyName, Position, buffer);
 }
-string TRestMetadata::GetKEYDefinition(string keyName, size_t& fromPosition,
-                                       string buffer) {
-  string key = "<" + keyName;
-  size_t startPos = buffer.find(key, fromPosition);
-  if (startPos == string::npos) return "";
-  size_t endPos = buffer.find(">", startPos);
-  if (endPos == string::npos) return "";
+string TRestMetadata::GetKEYDefinition(string keyName, size_t& fromPosition, string buffer) {
+    string key = "<" + keyName;
+    size_t startPos = buffer.find(key, fromPosition);
+    if (startPos == string::npos) return "";
+    size_t endPos = buffer.find(">", startPos);
+    if (endPos == string::npos) return "";
 
-  fromPosition = endPos;
+    fromPosition = endPos;
 
-  Int_t notDefinitionEnd = 1;
+    Int_t notDefinitionEnd = 1;
 
-  while (notDefinitionEnd) {
-    // We might find a problem when we insert > symbol inside a field value.
-    // As for example: condition=">100" This patch checks if the definition
-    // finishes in "= If it is the case it searches the next > symbol ending
-    // the definition.
+    while (notDefinitionEnd) {
+        // We might find a problem when we insert > symbol inside a field value.
+        // As for example: condition=">100" This patch checks if the definition
+        // finishes in "= If it is the case it searches the next > symbol ending
+        // the definition.
 
-    string def = RemoveWhiteSpaces(buffer.substr(startPos, endPos - startPos));
+        string def = RemoveWhiteSpaces(buffer.substr(startPos, endPos - startPos));
 
-    if ((TString)def[def.length() - 1] == "\"" &&
-        (TString)def[def.length() - 2] == "=")
-      endPos = buffer.find(">", endPos + 1);
-    else
-      notDefinitionEnd = 0;
-  }
+        if ((TString)def[def.length() - 1] == "\"" && (TString)def[def.length() - 2] == "=")
+            endPos = buffer.find(">", endPos + 1);
+        else
+            notDefinitionEnd = 0;
+    }
 
-  string result = buffer.substr(startPos, endPos - startPos + 1);
-  if (result[result.size() - 2] != '/')
-    result.insert(result.size() - 1, 1, '/');
-  // cout << result << endl << endl;
-  // getchar();
-  return result;
+    string result = buffer.substr(startPos, endPos - startPos + 1);
+    if (result[result.size() - 2] != '/') result.insert(result.size() - 1, 1, '/');
+    // cout << result << endl << endl;
+    // getchar();
+    return result;
 }
 
 ///////////////////////////////////////////////
 /// \brief Gets field value in an xml element string by parsing it as
 /// TiXmlElement
 ///
-std::string TRestMetadata::GetFieldValue(std::string fieldName,
-                                         std::string definition,
-                                         size_t fromPosition) {
-  TiXmlElement* ele = StringToElement(definition);
-  string value = GetFieldValue(fieldName, ele);
-  delete ele;
-  return value;
+std::string TRestMetadata::GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition) {
+    TiXmlElement* ele = StringToElement(definition);
+    string value = GetFieldValue(fieldName, ele);
+    delete ele;
+    return value;
 }
-Double_t TRestMetadata::GetDblFieldValueWithUnits(string fieldName,
-                                                  string definition,
-                                                  size_t fromPosition) {
-  TiXmlElement* ele = StringToElement(definition);
-  TiXmlElement* e = ele->FirstChildElement();
-  while (e != NULL) {
-    TiXmlElement* tmp = e;
-    e = e->NextSiblingElement();
-    ele->RemoveChild(tmp);
-  }
-  auto value = GetDblParameterWithUnits(fieldName, ele);
-  delete ele;
-  return value;
+Double_t TRestMetadata::GetDblFieldValueWithUnits(string fieldName, string definition, size_t fromPosition) {
+    TiXmlElement* ele = StringToElement(definition);
+    TiXmlElement* e = ele->FirstChildElement();
+    while (e != NULL) {
+        TiXmlElement* tmp = e;
+        e = e->NextSiblingElement();
+        ele->RemoveChild(tmp);
+    }
+    auto value = GetDblParameterWithUnits(fieldName, ele);
+    delete ele;
+    return value;
 }
-TVector2 TRestMetadata::Get2DVectorFieldValueWithUnits(string fieldName,
-                                                       string definition,
+TVector2 TRestMetadata::Get2DVectorFieldValueWithUnits(string fieldName, string definition,
                                                        size_t fromPosition) {
-  TiXmlElement* ele = StringToElement(definition);
-  TiXmlElement* e = ele->FirstChildElement();
-  while (e != NULL) {
-    TiXmlElement* tmp = e;
-    e = e->NextSiblingElement();
-    ele->RemoveChild(tmp);
-  }
-  auto value = Get2DVectorParameterWithUnits(fieldName, ele);
-  delete ele;
-  return value;
+    TiXmlElement* ele = StringToElement(definition);
+    TiXmlElement* e = ele->FirstChildElement();
+    while (e != NULL) {
+        TiXmlElement* tmp = e;
+        e = e->NextSiblingElement();
+        ele->RemoveChild(tmp);
+    }
+    auto value = Get2DVectorParameterWithUnits(fieldName, ele);
+    delete ele;
+    return value;
 }
-TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits(string fieldName,
-                                                       string definition,
+TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits(string fieldName, string definition,
                                                        size_t fromPosition) {
-  TiXmlElement* ele = StringToElement(definition);
-  TiXmlElement* e = ele->FirstChildElement();
-  while (e != NULL) {
-    TiXmlElement* tmp = e;
-    e = e->NextSiblingElement();
-    ele->RemoveChild(tmp);
-  }
-  auto value = Get3DVectorParameterWithUnits(fieldName, ele);
-  delete ele;
-  return value;
+    TiXmlElement* ele = StringToElement(definition);
+    TiXmlElement* e = ele->FirstChildElement();
+    while (e != NULL) {
+        TiXmlElement* tmp = e;
+        e = e->NextSiblingElement();
+        ele->RemoveChild(tmp);
+    }
+    auto value = Get3DVectorParameterWithUnits(fieldName, ele);
+    delete ele;
+    return value;
 }
 
 ///////////////////////////////////////////////
@@ -1757,17 +1693,16 @@ TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits(string fieldName,
 /// The methods starts searching in **inputString** after a given position
 /// **pos**.
 ///
-string TRestMetadata::GetParameter(string parName, size_t& pos,
-                                   string inputString) {
-  pos = inputString.find(parName, pos);
+string TRestMetadata::GetParameter(string parName, size_t& pos, string inputString) {
+    pos = inputString.find(parName, pos);
 
-  TiXmlElement* ele = StringToElement(inputString);
+    TiXmlElement* ele = StringToElement(inputString);
 
-  string value = GetParameter(parName, ele);
+    string value = GetParameter(parName, ele);
 
-  delete ele;
+    delete ele;
 
-  return value;
+    return value;
 }
 
 ///////////////////////////////////////////////
@@ -1786,18 +1721,16 @@ string TRestMetadata::GetParameter(string parName, size_t& pos,
 /// \return A double value in the default correspoding REST units (keV, us, mm,
 /// Vcm).
 ///
-Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName,
-                                                 size_t& pos,
-                                                 std::string inputString) {
-  pos = inputString.find(parName, pos);
+Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, size_t& pos, std::string inputString) {
+    pos = inputString.find(parName, pos);
 
-  TiXmlElement* ele = StringToElement(inputString);
+    TiXmlElement* ele = StringToElement(inputString);
 
-  double value = GetDblParameterWithUnits(parName, ele);
+    double value = GetDblParameterWithUnits(parName, ele);
 
-  delete ele;
+    delete ele;
 
-  return value;
+    return value;
 }
 
 ///////////////////////////////////////////////
@@ -1816,18 +1749,17 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName,
 /// \return A 2D vector value in the default correspoding REST units (keV, us,
 /// mm, Vcm).
 ///
-TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName,
-                                                      size_t& pos,
+TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, size_t& pos,
                                                       std::string inputString) {
-  pos = inputString.find(parName, pos);
+    pos = inputString.find(parName, pos);
 
-  TiXmlElement* ele = StringToElement(inputString);
+    TiXmlElement* ele = StringToElement(inputString);
 
-  TVector2 value = Get2DVectorParameterWithUnits(parName, ele);
+    TVector2 value = Get2DVectorParameterWithUnits(parName, ele);
 
-  delete ele;
+    delete ele;
 
-  return value;
+    return value;
 }
 
 ///////////////////////////////////////////////
@@ -1846,18 +1778,17 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName,
 /// \return A 3D vector value in the default correspoding REST units (keV, us,
 /// mm, Vcm).
 ///
-TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName,
-                                                      size_t& pos,
+TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, size_t& pos,
                                                       std::string inputString) {
-  pos = inputString.find(parName, pos);
+    pos = inputString.find(parName, pos);
 
-  TiXmlElement* ele = StringToElement(inputString);
+    TiXmlElement* ele = StringToElement(inputString);
 
-  TVector3 value = Get3DVectorParameterWithUnits(parName, ele);
+    TVector3 value = Get3DVectorParameterWithUnits(parName, ele);
 
-  delete ele;
+    delete ele;
 
-  return value;
+    return value;
 }
 
 ///////////////////////////////////////////////
@@ -1873,125 +1804,114 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName,
 /// 4. VARIABLE_NAME    : try match the names of myParameter or constant and
 /// replace it if matched.
 string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
-  string outputBuffer = buffer;
+    string outputBuffer = buffer;
 
-  // replace system env only
-  int startPosition = 0;
-  int endPosition = 0;
-  while ((startPosition = outputBuffer.find("$ENV{", endPosition)) !=
-         (int)string::npos) {
-    char envValue[256];
-    endPosition = outputBuffer.find("}", startPosition + 1);
-    if (endPosition == (int)string::npos) break;
+    // replace system env only
+    int startPosition = 0;
+    int endPosition = 0;
+    while ((startPosition = outputBuffer.find("$ENV{", endPosition)) != (int)string::npos) {
+        char envValue[256];
+        endPosition = outputBuffer.find("}", startPosition + 1);
+        if (endPosition == (int)string::npos) break;
 
-    string expression =
-        outputBuffer.substr(startPosition + 5, endPosition - startPosition - 5);
+        string expression = outputBuffer.substr(startPosition + 5, endPosition - startPosition - 5);
 
-    if (getenv(expression.c_str()) != NULL) {
-      sprintf(envValue, "%s", getenv(expression.c_str()));
-      outputBuffer.replace(startPosition, endPosition - startPosition + 1,
-                           envValue);
-      endPosition = 0;
-    } else {
-      debug << "cannot find \"$ENV{" << expression
-            << "}\" in system env, returning raw expression..." << endl;
-    }
-  }
-
-  // replace env with mark ${}
-  startPosition = 0;
-  endPosition = 0;
-  while ((startPosition = outputBuffer.find("${", endPosition)) !=
-         (int)string::npos) {
-    endPosition = outputBuffer.find("}", startPosition + 2);
-    if (endPosition == (int)string::npos) break;
-
-    string expression =
-        outputBuffer.substr(startPosition + 2, endPosition - startPosition - 2);
-
-    int replacePos = startPosition;
-    int replaceLen = endPosition - startPosition + 1;
-
-    char* sysenv = getenv(expression.c_str());
-    char* proenv = NULL;
-    int envindex = 0;
-    for (int i = 0; i < fElementEnv.size(); i++) {
-      if ((string)fElementEnv[i]->Value() == "variable" &&
-          expression == (string)fElementEnv[i]->Attribute("name")) {
-        if (fElementEnv[i]->Attribute("value") != NULL) {
-          proenv = const_cast<char*>(fElementEnv[i]->Attribute("value"));
-          envindex = i;
-          break;
+        if (getenv(expression.c_str()) != NULL) {
+            sprintf(envValue, "%s", getenv(expression.c_str()));
+            outputBuffer.replace(startPosition, endPosition - startPosition + 1, envValue);
+            endPosition = 0;
+        } else {
+            debug << "cannot find \"$ENV{" << expression << "}\" in system env, returning raw expression..."
+                  << endl;
         }
-      }
     }
 
-    if (proenv != NULL) {
-      outputBuffer.replace(replacePos, replaceLen, proenv);
-      endPosition = 0;
-    } else if (sysenv != NULL) {
-      outputBuffer.replace(replacePos, replaceLen, sysenv);
-      endPosition = 0;
-    } else {
-      error << this->ClassName() << ", replace env : cannot find \"${"
-            << expression << "}\"" << endl;
-      error << "(position: " << startPosition
-            << ") in either system or program env, exiting..." << endl;
-      exit(1);
-    }
-  }
+    // replace env with mark ${}
+    startPosition = 0;
+    endPosition = 0;
+    while ((startPosition = outputBuffer.find("${", endPosition)) != (int)string::npos) {
+        endPosition = outputBuffer.find("}", startPosition + 2);
+        if (endPosition == (int)string::npos) break;
 
-  // replace only program env with mark []
-  startPosition = 0;
-  endPosition = 0;
-  while ((startPosition = outputBuffer.find("[", endPosition)) !=
-         (int)string::npos) {
-    endPosition = outputBuffer.find("]", startPosition + 1);
-    if (endPosition == (int)string::npos) break;
+        string expression = outputBuffer.substr(startPosition + 2, endPosition - startPosition - 2);
 
-    string expression =
-        outputBuffer.substr(startPosition + 1, endPosition - startPosition - 1);
+        int replacePos = startPosition;
+        int replaceLen = endPosition - startPosition + 1;
 
-    int replacePos = startPosition;
-    int replaceLen = endPosition - startPosition + 1;
-    if (startPosition != 0 && outputBuffer[startPosition - 1] == '$') {
-      replacePos = startPosition - 1;
-      replaceLen = endPosition - startPosition + 2;
-    }
-
-    bool replaced = false;
-    for (int i = 0; i < fElementEnv.size(); i++) {
-      if ((string)fElementEnv[i]->Value() == "variable" &&
-          expression == (string)fElementEnv[i]->Attribute("name")) {
-        if (fElementEnv[i]->Attribute("value") != NULL) {
-          outputBuffer.replace(replacePos, replaceLen,
-                               fElementEnv[i]->Attribute("value"));
-          replaced = true;
-          break;
+        char* sysenv = getenv(expression.c_str());
+        char* proenv = NULL;
+        int envindex = 0;
+        for (int i = 0; i < fElementEnv.size(); i++) {
+            if ((string)fElementEnv[i]->Value() == "variable" &&
+                expression == (string)fElementEnv[i]->Attribute("name")) {
+                if (fElementEnv[i]->Attribute("value") != NULL) {
+                    proenv = const_cast<char*>(fElementEnv[i]->Attribute("value"));
+                    envindex = i;
+                    break;
+                }
+            }
         }
-      }
+
+        if (proenv != NULL) {
+            outputBuffer.replace(replacePos, replaceLen, proenv);
+            endPosition = 0;
+        } else if (sysenv != NULL) {
+            outputBuffer.replace(replacePos, replaceLen, sysenv);
+            endPosition = 0;
+        } else {
+            error << this->ClassName() << ", replace env : cannot find \"${" << expression << "}\"" << endl;
+            error << "(position: " << startPosition << ") in either system or program env, exiting..."
+                  << endl;
+            exit(1);
+        }
     }
 
-    if (!replaced) {
-      debug << "replace env " << startPosition << ": cannot find \"["
-            << expression << "]\" for for loop, returning raw expression..."
-            << endl;
-    }
-  }
+    // replace only program env with mark []
+    startPosition = 0;
+    endPosition = 0;
+    while ((startPosition = outputBuffer.find("[", endPosition)) != (int)string::npos) {
+        endPosition = outputBuffer.find("]", startPosition + 1);
+        if (endPosition == (int)string::npos) break;
 
-  // replace myParameter
-  startPosition = 0;
-  endPosition = 0;
-  for (int i = 0; i < fElementEnv.size(); i++) {
-    if ((string)fElementEnv[i]->Value() == "myParameter" ||
-        (string)fElementEnv[i]->Value() == "constant") {
-      outputBuffer =
-          Replace(outputBuffer, (string)fElementEnv[i]->Attribute("name"),
-                  fElementEnv[i]->Attribute("value"), 0);
-    }
-  }
+        string expression = outputBuffer.substr(startPosition + 1, endPosition - startPosition - 1);
 
-  return outputBuffer;
+        int replacePos = startPosition;
+        int replaceLen = endPosition - startPosition + 1;
+        if (startPosition != 0 && outputBuffer[startPosition - 1] == '$') {
+            replacePos = startPosition - 1;
+            replaceLen = endPosition - startPosition + 2;
+        }
+
+        bool replaced = false;
+        for (int i = 0; i < fElementEnv.size(); i++) {
+            if ((string)fElementEnv[i]->Value() == "variable" &&
+                expression == (string)fElementEnv[i]->Attribute("name")) {
+                if (fElementEnv[i]->Attribute("value") != NULL) {
+                    outputBuffer.replace(replacePos, replaceLen, fElementEnv[i]->Attribute("value"));
+                    replaced = true;
+                    break;
+                }
+            }
+        }
+
+        if (!replaced) {
+            debug << "replace env " << startPosition << ": cannot find \"[" << expression
+                  << "]\" for for loop, returning raw expression..." << endl;
+        }
+    }
+
+    // replace myParameter
+    startPosition = 0;
+    endPosition = 0;
+    for (int i = 0; i < fElementEnv.size(); i++) {
+        if ((string)fElementEnv[i]->Value() == "myParameter" ||
+            (string)fElementEnv[i]->Value() == "constant") {
+            outputBuffer = Replace(outputBuffer, (string)fElementEnv[i]->Attribute("name"),
+                                   fElementEnv[i]->Attribute("value"), 0);
+        }
+    }
+
+    return outputBuffer;
 }
 
 ///////////////////////////////////////////////
@@ -2002,19 +1922,19 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
 /// permission is true. Otherwise it will generate a new TiXmlElement object and
 /// save it at the end of the env list.
 void TRestMetadata::SetEnv(string name, string value, bool overwriteexisting) {
-  for (int i = 0; i < fElementEnv.size(); i++) {
-    if ((string)fElementEnv[i]->Value() == "variable" &&
-        (string)fElementEnv[i]->Attribute("name") == name) {
-      if (overwriteexisting) {
-        fElementEnv[i]->SetAttribute("value", value.c_str());
-      }
-      return;
+    for (int i = 0; i < fElementEnv.size(); i++) {
+        if ((string)fElementEnv[i]->Value() == "variable" &&
+            (string)fElementEnv[i]->Attribute("name") == name) {
+            if (overwriteexisting) {
+                fElementEnv[i]->SetAttribute("value", value.c_str());
+            }
+            return;
+        }
     }
-  }
-  TiXmlElement* e = new TiXmlElement("variable");
-  e->SetAttribute("name", name.c_str());
-  e->SetAttribute("value", value.c_str());
-  fElementEnv.push_back(e);
+    TiXmlElement* e = new TiXmlElement("variable");
+    e->SetAttribute("name", name.c_str());
+    e->SetAttribute("value", value.c_str());
+    fElementEnv.push_back(e);
 }
 
 ///////////////////////////////////////////////
@@ -2024,85 +1944,85 @@ void TRestMetadata::SetEnv(string name, string value, bool overwriteexisting) {
 /// Return blank string if file not found, return directly filename if found in
 /// current directory, return full name (path+name) if found in "searchPath".
 string TRestMetadata::SearchFile(string filename) {
-  if (fileExists(filename)) {
-    return filename;
-  } else {
-    auto pathstring = GetSearchPath();
-    auto paths = Spilt((string)pathstring, ":");
-    return SearchFileInPath(paths, filename);
-  }
+    if (fileExists(filename)) {
+        return filename;
+    } else {
+        auto pathstring = GetSearchPath();
+        auto paths = Spilt((string)pathstring, ":");
+        return SearchFileInPath(paths, filename);
+    }
 }
 
 ///////////////////////////////////////////////
 /// \brief Prints a UNIX timestamp in human readable format.
 ///
 void TRestMetadata::PrintTimeStamp(Double_t timeStamp) {
-  cout.precision(10);
+    cout.precision(10);
 
-  time_t tt = (time_t)timeStamp;
-  struct tm* tm = localtime(&tt);
+    time_t tt = (time_t)timeStamp;
+    struct tm* tm = localtime(&tt);
 
-  char date[20];
-  strftime(date, sizeof(date), "%Y-%m-%d", tm);
-  cout << "Date : " << date << endl;
+    char date[20];
+    strftime(date, sizeof(date), "%Y-%m-%d", tm);
+    cout << "Date : " << date << endl;
 
-  char time[20];
-  strftime(time, sizeof(time), "%H:%M:%S", tm);
-  cout << "Time : " << time << endl;
-  cout << "++++++++++++++++++++++++" << endl;
+    char time[20];
+    strftime(time, sizeof(time), "%H:%M:%S", tm);
+    cout << "Time : " << time << endl;
+    cout << "++++++++++++++++++++++++" << endl;
 }
 
 ///////////////////////////////////////////////
 /// \brief Prints current config buffer on screen
 ///
 void TRestMetadata::PrintConfigBuffer() {
-  if (fElement != NULL) {
-    fElement->Print(stdout, 0);
-    cout << endl;
-  } else {
-    if (configBuffer != "") {
-      auto ele = StringToElement(configBuffer);
-      ele->Print(stdout, 0);
-      cout << endl;
-      delete ele;
+    if (fElement != NULL) {
+        fElement->Print(stdout, 0);
+        cout << endl;
     } else {
-      cout << "N/A" << endl;
+        if (configBuffer != "") {
+            auto ele = StringToElement(configBuffer);
+            ele->Print(stdout, 0);
+            cout << endl;
+            delete ele;
+        } else {
+            cout << "N/A" << endl;
+        }
     }
-  }
 }
 
 void TRestMetadata::WriteConfigBuffer(string fname) {
-  if (fElement != NULL) {
-    FILE* f = fopen(fname.c_str(), "at");
-    fElement->Print(f, 0);
-    fclose(f);
-    return;
-  } else if (configBuffer != "") {
-    FILE* f = fopen(fname.c_str(), "at");
-    auto ele = StringToElement(configBuffer);
-    ele->Print(f, 0);
-    fclose(f);
-    delete ele;
-    return;
-  }
+    if (fElement != NULL) {
+        FILE* f = fopen(fname.c_str(), "at");
+        fElement->Print(f, 0);
+        fclose(f);
+        return;
+    } else if (configBuffer != "") {
+        FILE* f = fopen(fname.c_str(), "at");
+        auto ele = StringToElement(configBuffer);
+        ele->Print(f, 0);
+        fclose(f);
+        delete ele;
+        return;
+    }
 
-  error << "-- Error : Something missing here. Call the police" << endl;
+    error << "-- Error : Something missing here. Call the police" << endl;
 }
 
 int TRestMetadata::GetChar(string hint) {
-  if (gApplication != NULL && !gApplication->IsRunning()) {
-    thread t = thread(&TApplication::Run, gApplication, true);
-    t.detach();
+    if (gApplication != NULL && !gApplication->IsRunning()) {
+        thread t = thread(&TApplication::Run, gApplication, true);
+        t.detach();
 
-    cout << hint << endl;
-    int result = getchar();
-    gSystem->ExitLoop();
-    return result;
-  } else {
-    cout << hint << endl;
-    return getchar();
-  }
-  return -1;
+        cout << hint << endl;
+        int result = getchar();
+        gSystem->ExitLoop();
+        return result;
+    } else {
+        cout << hint << endl;
+        return getchar();
+    }
+    return -1;
 }
 
 ///////////////////////////////////////////////
@@ -2110,14 +2030,14 @@ int TRestMetadata::GetChar(string hint) {
 /// metadata class.
 ///
 void TRestMetadata::PrintMetadata() {
-  metadata << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-  metadata << this->ClassName() << " content" << endl;
-  metadata << "Config file : " << fConfigFileName << endl;
-  metadata << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
-  metadata << "Name : " << GetName() << endl;
-  metadata << "Title : " << GetTitle() << endl;
-  metadata << "Version : " << GetVersion() << endl;
-  metadata << "---------------------------------------" << endl;
+    metadata << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    metadata << this->ClassName() << " content" << endl;
+    metadata << "Config file : " << fConfigFileName << endl;
+    metadata << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    metadata << "Name : " << GetName() << endl;
+    metadata << "Title : " << GetTitle() << endl;
+    metadata << "Version : " << GetVersion() << endl;
+    metadata << "---------------------------------------" << endl;
 }
 
 TString TRestMetadata::GetVersion() { return fVersion; }
@@ -2126,32 +2046,32 @@ TString TRestMetadata::GetVersion() { return fVersion; }
 /// \brief Resets the version of TRestRun to REST_RELEASE. Only TRestRun is
 /// allowed to update version.
 void TRestMetadata::SetVersion() {
-  if (!this->InheritsFrom("TRestRun"))
-    error << "REST ERROR : version is a static value, you cannot set version "
-             "for a class!"
-          << endl;
-  else {
-    fVersion = REST_RELEASE;
-  }
+    if (!this->InheritsFrom("TRestRun"))
+        error << "REST ERROR : version is a static value, you cannot set version "
+                 "for a class!"
+              << endl;
+    else {
+        fVersion = REST_RELEASE;
+    }
 }
 
 void TRestMetadata::UnSetVersion() {
-  if (!this->InheritsFrom("TRestRun"))
-    error << "REST ERROR : version is a static value, you cannot set version "
-             "for a class!"
-          << endl;
-  else {
-    fVersion = -1;
-  }
+    if (!this->InheritsFrom("TRestRun"))
+        error << "REST ERROR : version is a static value, you cannot set version "
+                 "for a class!"
+              << endl;
+    else {
+        fVersion = -1;
+    }
 }
 
 ///////////////////////////////////////////////
 /// \brief Returns the section name of this class, defined at the beginning of
 /// fSectionName
 std::string TRestMetadata::GetSectionName() {
-  auto a = fSectionName.find('\n', 0);
-  if (a != -1) return fSectionName.substr(0, a);
-  return fSectionName;
+    auto a = fSectionName.find('\n', 0);
+    if (a != -1) return fSectionName.substr(0, a);
+    return fSectionName;
 }
 
 ///////////////////////////////////////////////
@@ -2162,13 +2082,13 @@ std::string TRestMetadata::GetConfigBuffer() { return configBuffer; }
 /// \brief Returns a string corresponding to current verbose level.
 ///
 TString TRestMetadata::GetVerboseLevelString() {
-  TString level = "unknown";
-  if (this->GetVerboseLevel() == REST_Debug) level = "debug";
-  if (this->GetVerboseLevel() == REST_Info) level = "info";
-  if (this->GetVerboseLevel() == REST_Essential) level = "warning";
-  if (this->GetVerboseLevel() == REST_Silent) level = "silent";
+    TString level = "unknown";
+    if (this->GetVerboseLevel() == REST_Debug) level = "debug";
+    if (this->GetVerboseLevel() == REST_Info) level = "info";
+    if (this->GetVerboseLevel() == REST_Essential) level = "warning";
+    if (this->GetVerboseLevel() == REST_Silent) level = "silent";
 
-  return level;
+    return level;
 }
 
 ///////////////////////////////////////////////
@@ -2189,31 +2109,30 @@ TString TRestMetadata::GetVerboseLevelString() {
 /// TRestStringHelper. Uniformed search path definition provides us uniformed
 /// file search tool, see TRestMetadata::SearchFile().
 TString TRestMetadata::GetSearchPath() {
-  TiXmlElement* e = fElement;
-  // string result = "";
-  string result =
-      getenv("configPath") == NULL ? ":" : getenv("configPath") + (string) ":";
-  result += getenv("REST_PATH") + (string) "/data/:";
-  TiXmlElement* ele = e->FirstChildElement("searchPath");
-  while (ele != NULL) {
-    if (ele->Attribute("value") != NULL) {
-      result += (string)ele->Attribute("value") + ":";
+    TiXmlElement* e = fElement;
+    // string result = "";
+    string result = getenv("configPath") == NULL ? ":" : getenv("configPath") + (string) ":";
+    result += getenv("REST_PATH") + (string) "/data/:";
+    TiXmlElement* ele = e->FirstChildElement("searchPath");
+    while (ele != NULL) {
+        if (ele->Attribute("value") != NULL) {
+            result += (string)ele->Attribute("value") + ":";
+        }
+        ele = ele->NextSiblingElement("searchPath");
     }
-    ele = ele->NextSiblingElement("searchPath");
-  }
-  if (result[result.size() - 1] == ':') {
-    result.erase(result.size() - 1);
-  }
+    if (result[result.size() - 1] == ':') {
+        result.erase(result.size() - 1);
+    }
 
-  return ReplaceEnvironmentalVariables(result);
+    return ReplaceEnvironmentalVariables(result);
 }
 
 Int_t TRestMetadata::Write(const char* name, Int_t option, Int_t bufsize) {
-  if (fStore) {
-    configBuffer = ElementToString(fElement);
-    return TNamed::Write(name, option, bufsize);
-  }
-  return -1;
+    if (fStore) {
+        configBuffer = ElementToString(fElement);
+        return TNamed::Write(name, option, bufsize);
+    }
+    return -1;
 }
 
 // TClass*c;
@@ -2225,18 +2144,18 @@ Int_t TRestMetadata::Write(const char* name, Int_t option, Int_t bufsize) {
 ///
 /// The info returned is wrapped in TStreamerElement
 TStreamerElement* TRestMetadata::GetDataMember(string name) {
-  TClass* c = this->IsA();
-  TVirtualStreamerInfo* vs = c->GetStreamerInfo();
-  TObjArray* ses = vs->GetElements();
-  int n = ses->GetLast() + 1;
+    TClass* c = this->IsA();
+    TVirtualStreamerInfo* vs = c->GetStreamerInfo();
+    TObjArray* ses = vs->GetElements();
+    int n = ses->GetLast() + 1;
 
-  for (int i = 0; i < n; i++) {
-    TStreamerElement* se = (TStreamerElement*)ses->At(i);
-    if ((string)se->GetFullName() == name) {
-      return se;
+    for (int i = 0; i < n; i++) {
+        TStreamerElement* se = (TStreamerElement*)ses->At(i);
+        if ((string)se->GetFullName() == name) {
+            return se;
+        }
     }
-  }
-  return NULL;
+    return NULL;
 }
 
 ///////////////////////////////////////////////
@@ -2244,24 +2163,24 @@ TStreamerElement* TRestMetadata::GetDataMember(string name) {
 /// id.
 ///
 TStreamerElement* TRestMetadata::GetDataMember(int ID) {
-  TClass* c = this->IsA();
-  TVirtualStreamerInfo* vs = c->GetStreamerInfo();
-  TObjArray* ses = vs->GetElements();
-  int n = ses->GetLast() + 1;
+    TClass* c = this->IsA();
+    TVirtualStreamerInfo* vs = c->GetStreamerInfo();
+    TObjArray* ses = vs->GetElements();
+    int n = ses->GetLast() + 1;
 
-  if (ID < n) return (TStreamerElement*)ses->At(ID);
-  return NULL;
+    if (ID < n) return (TStreamerElement*)ses->At(ID);
+    return NULL;
 }
 
 ///////////////////////////////////////////////
 /// \brief Reflection methods, Get the number of the class's datamembers
 ///
 int TRestMetadata::GetNumberOfDataMember() {
-  TClass* c = this->IsA();
-  TVirtualStreamerInfo* vs = c->GetStreamerInfo();
-  TObjArray* ses = vs->GetElements();
+    TClass* c = this->IsA();
+    TVirtualStreamerInfo* vs = c->GetStreamerInfo();
+    TObjArray* ses = vs->GetElements();
 
-  return ses->GetLast() + 1;
+    return ses->GetLast() + 1;
 }
 
 ///////////////////////////////////////////////
@@ -2269,8 +2188,8 @@ int TRestMetadata::GetNumberOfDataMember() {
 /// address+offset)
 ///
 char* TRestMetadata::GetDataMemberRef(TStreamerElement* ele) {
-  if (ele == NULL) return 0;
-  return ((char*)this + ele->GetOffset());
+    if (ele == NULL) return 0;
+    return ((char*)this + ele->GetOffset());
 }
 
 ///////////////////////////////////////////////
@@ -2281,339 +2200,336 @@ char* TRestMetadata::GetDataMemberRef(TStreamerElement* ele) {
 /// name. This method can be used as a real time inspector of TRestMetadata
 /// objects.
 string TRestMetadata::GetDataMemberValInString(TStreamerElement* aElement) {
-  char* ladd = GetDataMemberRef(aElement);
-  char* buffer = new char[500]();
+    char* ladd = GetDataMemberRef(aElement);
+    char* buffer = new char[500]();
 
-  int atype = aElement->GetType();
-  int j;
-  // assert(!((kOffsetP + kChar) <= atype && atype <= (kOffsetP + kBool) &&
-  // count == 0));
-  switch (atype) {
-      // basic types
-    case TStreamerInfo::kBool: {
-      Bool_t* val = (Bool_t*)ladd;
-      sprintf(buffer, "%d", *val);
-      break;
-    }
-    case TStreamerInfo::kChar: {
-      Char_t* val = (Char_t*)ladd;
-      sprintf(buffer, "%d", *val);
-      break;
-    }
-    case TStreamerInfo::kShort: {
-      Short_t* val = (Short_t*)ladd;
-      sprintf(buffer, "%d", *val);
-      break;
-    }
-    case TStreamerInfo::kInt: {
-      Int_t* val = (Int_t*)ladd;
-      sprintf(buffer, "%d", *val);
-      break;
-    }
-    case TStreamerInfo::kLong: {
-      Long_t* val = (Long_t*)ladd;
-      sprintf(buffer, "%ld", *val);
-      break;
-    }
-    case TStreamerInfo::kLong64: {
-      Long64_t* val = (Long64_t*)ladd;
-      sprintf(buffer, "%lld", *val);
-      break;
-    }
-    case TStreamerInfo::kFloat: {
-      Float_t* val = (Float_t*)ladd;
-      sprintf(buffer, "%f", *val);
-      break;
-    }
-    case TStreamerInfo::kFloat16: {
-      Float_t* val = (Float_t*)ladd;
-      sprintf(buffer, "%f", *val);
-      break;
-    }
-    case TStreamerInfo::kDouble: {
-      Double_t* val = (Double_t*)ladd;
-      sprintf(buffer, "%g", *val);
-      break;
-    }
-    case TStreamerInfo::kDouble32: {
-      Double_t* val = (Double_t*)ladd;
-      sprintf(buffer, "%g", *val);
-      break;
-    }
-    case TStreamerInfo::kUChar: {
-      UChar_t* val = (UChar_t*)ladd;
-      sprintf(buffer, "%u", *val);
-      break;
-    }
-    case TStreamerInfo::kUShort: {
-      UShort_t* val = (UShort_t*)ladd;
-      sprintf(buffer, "%u", *val);
-      break;
-    }
-    case TStreamerInfo::kUInt: {
-      UInt_t* val = (UInt_t*)ladd;
-      sprintf(buffer, "%u", *val);
-      break;
-    }
-    case TStreamerInfo::kULong: {
-      ULong_t* val = (ULong_t*)ladd;
-      sprintf(buffer, "%lu", *val);
-      break;
-    }
-    case TStreamerInfo::kULong64: {
-      ULong64_t* val = (ULong64_t*)ladd;
-      sprintf(buffer, "%llu", *val);
-      break;
-    }
-    case TStreamerInfo::kBits: {
-      UInt_t* val = (UInt_t*)ladd;
-      sprintf(buffer, "%d", *val);
-      break;
-    }
-
-      //			// array of basic types  array[8]
-      // case TStreamerInfo::kOffsetL + TStreamerInfo::kBool: {Bool_t    *val =
-      // (Bool_t*)ladd; for (j = 0; j < aleng; j++) { sprintf(buffer,"%c ",
-      // val[j]); PrintCR(j, aleng, 20); } break; } case TStreamerInfo::kOffsetL
-      // + TStreamerInfo::kChar: {Char_t    *val = (Char_t*)ladd; for (j = 0; j
-      // < aleng; j++) { sprintf(buffer,"%c ", val[j]); PrintCR(j, aleng, 20); }
-      // break; } case TStreamerInfo::kOffsetL + TStreamerInfo::kShort: {Short_t
-      // *val = (Short_t*)ladd; for (j = 0; j < aleng; j++) { sprintf(buffer,"%d
-      // ", val[j]); PrintCR(j, aleng, 10); } break; } case
-      // TStreamerInfo::kOffsetL + TStreamerInfo::kInt: {Int_t     *val =
-      // (Int_t*)ladd; for (j = 0; j < aleng; j++) { sprintf(buffer,"%d ",
-      // val[j]); PrintCR(j, aleng, 10); } break; } case TStreamerInfo::kOffsetL
-      // + TStreamerInfo::kLong: {Long_t    *val = (Long_t*)ladd; for (j = 0; j
-      // < aleng; j++) { sprintf(buffer,"%ld ", val[j]); PrintCR(j, aleng, 5); }
-      // break; } case TStreamerInfo::kOffsetL + TStreamerInfo::kLong64:
-      // {Long64_t  *val = (Long64_t*)ladd; for (j = 0; j < aleng; j++) {
-      // sprintf(buffer,"%lld ", val[j]); PrintCR(j, aleng, 5); } break; } case
-      // TStreamerInfo::kOffsetL + TStreamerInfo::kFloat: {Float_t   *val =
-      // (Float_t*)ladd; for (j = 0; j < aleng; j++) { sprintf(buffer,"%f ",
-      // val[j]); PrintCR(j, aleng, 5); } break; } case TStreamerInfo::kOffsetL
-      // + TStreamerInfo::kFloat16: {Float_t   *val = (Float_t*)ladd; for (j =
-      // 0; j < aleng; j++) { sprintf(buffer,"%f ", val[j]); PrintCR(j, aleng,
-      // 5); } break; } case TStreamerInfo::kOffsetL + TStreamerInfo::kDouble:
-      // {Double_t  *val = (Double_t*)ladd; for (j = 0; j < aleng; j++) {
-      // sprintf(buffer,"%g ", val[j]); PrintCR(j, aleng, 5); } break; } case
-      // TStreamerInfo::kOffsetL + TStreamerInfo::kDouble32: {Double_t  *val =
-      // (Double_t*)ladd; for (j = 0; j < aleng; j++) { sprintf(buffer,"%g ",
-      // val[j]); PrintCR(j, aleng, 5); } break; } case TStreamerInfo::kOffsetL
-      // + TStreamerInfo::kUChar: {UChar_t   *val = (UChar_t*)ladd; for (j = 0;
-      // j < aleng; j++) { sprintf(buffer,"%u ", val[j]); PrintCR(j, aleng, 20);
-      // } break; } case TStreamerInfo::kOffsetL + TStreamerInfo::kUShort:
-      // {UShort_t  *val = (UShort_t*)ladd; for (j = 0; j < aleng; j++) {
-      // sprintf(buffer,"%u ", val[j]); PrintCR(j, aleng, 10); } break; } case
-      // TStreamerInfo::kOffsetL + TStreamerInfo::kUInt: {UInt_t    *val =
-      // (UInt_t*)ladd; for (j = 0; j < aleng; j++) { sprintf(buffer,"%u ",
-      // val[j]); PrintCR(j, aleng, 5); } break; } case TStreamerInfo::kOffsetL
-      // + TStreamerInfo::kULong: {ULong_t   *val = (ULong_t*)ladd; for (j = 0;
-      // j < aleng; j++) { sprintf(buffer,"%lu ", val[j]); PrintCR(j, aleng, 5);
-      // } break; } case TStreamerInfo::kOffsetL + TStreamerInfo::kULong64:
-      // {ULong64_t *val = (ULong64_t*)ladd; for (j = 0; j < aleng; j++) {
-      // sprintf(buffer,"%llu ", val[j]); PrintCR(j, aleng, 5); } break; } case
-      // TStreamerInfo::kOffsetL + TStreamerInfo::kBits: {UInt_t    *val =
-      // (UInt_t*)ladd; for (j = 0; j < aleng; j++) { sprintf(buffer,"%d ",
-      // val[j]); PrintCR(j, aleng, 5); } break; }
-
-      //					   // pointer to an array of
-      // basic types  array[n] case TStreamerInfo::kOffsetP +
-      // TStreamerInfo::kBool: {Bool_t   **val = (Bool_t**)ladd; for (j = 0; j <
-      // *count; j++) { sprintf(buffer,"%d ", (*val)[j]);  PrintCR(j, aleng,
-      // 20); } break; } case TStreamerInfo::kOffsetP + TStreamerInfo::kChar:
-      // {Char_t
-      // **val = (Char_t**)ladd; for (j = 0; j < *count; j++) {
-      // sprintf(buffer,"%d ", (*val)[j]);  PrintCR(j, aleng, 20); } break; }
-      // case TStreamerInfo::kOffsetP + TStreamerInfo::kShort: {Short_t  **val =
-      // (Short_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%d ",
-      // (*val)[j]);  PrintCR(j, aleng, 10); } break; } case
-      // TStreamerInfo::kOffsetP + TStreamerInfo::kInt: {Int_t    **val =
-      // (Int_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%d ",
-      // (*val)[j]);  PrintCR(j, aleng, 10); } break; } case
-      // TStreamerInfo::kOffsetP + TStreamerInfo::kLong: {Long_t   **val =
-      // (Long_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%ld ",
-      // (*val)[j]);  PrintCR(j, aleng, 5); } break; } case
-      // TStreamerInfo::kOffsetP + TStreamerInfo::kLong64: {Long64_t **val =
-      // (Long64_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%lld
-      // ",
-      // (*val)[j]); PrintCR(j, aleng, 5); } break; } case
-      // TStreamerInfo::kOffsetP + TStreamerInfo::kFloat: {Float_t  **val =
-      // (Float_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%f ",
-      // (*val)[j]);  PrintCR(j, aleng, 5); } break; } case
-      // TStreamerInfo::kOffsetP + TStreamerInfo::kFloat16: {Float_t  **val =
-      // (Float_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%f ",
-      // (*val)[j]);  PrintCR(j, aleng, 5); } break; } case
-      // TStreamerInfo::kOffsetP + TStreamerInfo::kDouble: {Double_t **val =
-      // (Double_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%g ",
-      // (*val)[j]);  PrintCR(j, aleng, 5); } break; } case
-      // TStreamerInfo::kOffsetP + TStreamerInfo::kDouble32: {Double_t **val =
-      // (Double_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%g ",
-      // (*val)[j]);  PrintCR(j, aleng, 5); } break; } case
-      // TStreamerInfo::kOffsetP + TStreamerInfo::kUChar: {UChar_t  **val =
-      // (UChar_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%u ",
-      // (*val)[j]);  PrintCR(j, aleng, 20); } break; } case
-      // TStreamerInfo::kOffsetP + TStreamerInfo::kUShort: {UShort_t **val =
-      // (UShort_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%u ",
-      // (*val)[j]);  PrintCR(j, aleng, 10); } break; } case
-      // TStreamerInfo::kOffsetP + TStreamerInfo::kUInt: {UInt_t   **val =
-      // (UInt_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%u ",
-      // (*val)[j]);  PrintCR(j, aleng, 5); } break; } case
-      // TStreamerInfo::kOffsetP + TStreamerInfo::kULong: {ULong_t  **val =
-      // (ULong_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%lu ",
-      // (*val)[j]);  PrintCR(j, aleng, 5); } break; } case
-      // TStreamerInfo::kOffsetP + TStreamerInfo::kULong64: {ULong64_t**val =
-      // (ULong64_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%llu
-      // ", (*val)[j]); PrintCR(j, aleng, 5); } break; }
-
-      // array counter //[n]
-    case TStreamerInfo::kCounter: {
-      Int_t* val = (Int_t*)ladd;
-      sprintf(buffer, "%d", *val);
-      break;
-    }
-      // char *
-    case TStreamerInfo::kCharStar: {
-      char** val = (char**)ladd;
-      if (*val) sprintf(buffer, "%s", *val);
-      break;
-    }
-      // Class *  derived from TObject with comment field  //->
-    case TStreamerInfo::kObjectp: {
-      TObject** obj = (TObject**)(ladd);
-      TStreamerObjectPointer* el = (TStreamerObjectPointer*)aElement;
-      sprintf(buffer, "(%s*)%lx",
-              el ? el->GetClass()->GetName() : "unknown_type", (Long_t)(*obj));
-      break;
-    }
-
-      // Class*   derived from TObject
-    case TStreamerInfo::kObjectP: {
-      TObject** obj = (TObject**)(ladd);
-      TStreamerObjectPointer* el = (TStreamerObjectPointer*)aElement;
-      sprintf(buffer, "(%s*)%lx",
-              el ? el->GetClass()->GetName() : "unknown_type", (Long_t)(*obj));
-      break;
-    }
-
-      // Class    derived from TObject
-    case TStreamerInfo::kObject: {
-      TObject* obj = (TObject*)(ladd);
-      sprintf(buffer, "%s", obj->GetName());
-      break;
-    }
-
-      // Special case TStreamerInfo::for TString, TObject, TNamed
-    case TStreamerInfo::kTString: {
-      TString* st = (TString*)(ladd);
-      sprintf(buffer, "%s", st->Data());
-      break;
-    }
-    case TStreamerInfo::kTObject: {
-      TObject* obj = (TObject*)(ladd);
-      sprintf(buffer, "%s", obj->GetName());
-      break;
-    }
-    case TStreamerInfo::kTNamed: {
-      TNamed* named = (TNamed*)(ladd);
-      sprintf(buffer, "%s/%s", named->GetName(), named->GetTitle());
-      break;
-    }
-
-      // Class *  not derived from TObject with comment field  //->
-    case TStreamerInfo::kAnyp: {
-      TObject** obj = (TObject**)(ladd);
-      TStreamerObjectAnyPointer* el = (TStreamerObjectAnyPointer*)aElement;
-      sprintf(buffer, "(%s*)0x%lx",
-              el ? el->GetClass()->GetName() : "unknown_type", (Long_t)(*obj));
-      break;
-    }
-
-      // Class*   not derived from TObject
-    case TStreamerInfo::kAnyP: {
-      TObject** obj = (TObject**)(ladd);
-      TStreamerObjectAnyPointer* el = (TStreamerObjectAnyPointer*)aElement;
-      sprintf(buffer, "(%s*)0x%lx",
-              el ? el->GetClass()->GetName() : "unknown_type", (Long_t)(*obj));
-      break;
-    }
-      // Any Class not derived from TObject
-    case TStreamerInfo::kOffsetL + TStreamerInfo::kObjectp:
-    case TStreamerInfo::kOffsetL + TStreamerInfo::kObjectP:
-    case TStreamerInfo::kAny: {
-      sprintf(buffer, "printing kAny case TStreamerInfo::(%d)", atype);
-      //         if (aElement) {
-      //            TMemberStreamer *pstreamer = aElement->GetStreamer();
-      //            if (pstreamer == 0) {
-      //               //sprintf(buffer,"ERROR, Streamer is null\n");
-      //               //aElement->ls();
-      //               break;
-      //            }
-      //            //(*pstreamer)(b,ladd,0);
-      //         }
-      break;
-    }
-      // Base Class
-    case TStreamerInfo::kBase: {
-      sprintf(buffer, "printing kBase case TStreamerInfo::(%d)", atype);
-      // aElement->ReadBuffer(b,pointer);
-      break;
-    }
-
-    case TStreamerInfo::kOffsetL + TStreamerInfo::kObject:
-    case TStreamerInfo::kOffsetL + TStreamerInfo::kTString:
-    case TStreamerInfo::kOffsetL + TStreamerInfo::kTObject:
-    case TStreamerInfo::kOffsetL + TStreamerInfo::kTNamed:
-    case TStreamerInfo::kStreamer: {
-      sprintf(buffer, "printing kStreamer case TStreamerInfo::(%d)", atype);
-      //         TMemberStreamer *pstreamer = aElement->GetStreamer();
-      //         if (pstreamer == 0) {
-      //            //sprintf(buffer,"ERROR, Streamer is null\n");
-      //            //aElement->ls();
-      //            break;
-      //         }
-      //         //UInt_t start,count;
-      //         //b.ReadVersion(&start, &count);
-      //         //(*pstreamer)(b,ladd,0);
-      //         //b.CheckByteCount(start,count,IsA());
-      break;
-    }
-
-    case TStreamerInfo::kStreamLoop: {
-      sprintf(buffer, "printing kStreamLoop case TStreamerInfo::(%d)", atype);
-      //         TMemberStreamer *pstreamer = aElement->GetStreamer();
-      //         if (pstreamer == 0) {
-      //            //sprintf(buffer,"ERROR, Streamer is null\n");
-      //            //aElement->ls();
-      //            break;
-      //         }
-      // Int_t *counter = (Int_t*)(count);
-      // UInt_t start,count;
-      /// b.ReadVersion(&start, &count);
-      //(*pstreamer)(b,ladd,*counter);
-      // b.CheckByteCount(start,count,IsA());
-      break;
-    }
-    case TStreamerInfo::kSTL: {
-      if (aElement) {
-        static TClassRef stringClass("string");
-        if (ladd && aElement->GetClass() == stringClass) {
-          std::string* st = (std::string*)(ladd);
-          sprintf(buffer, "%s", st->c_str());
-        } else {
-          sprintf(buffer, "(%s*)0x%lx", aElement->GetClass()->GetName(),
-                  (Long_t)(ladd));
+    int atype = aElement->GetType();
+    int j;
+    // assert(!((kOffsetP + kChar) <= atype && atype <= (kOffsetP + kBool) &&
+    // count == 0));
+    switch (atype) {
+            // basic types
+        case TStreamerInfo::kBool: {
+            Bool_t* val = (Bool_t*)ladd;
+            sprintf(buffer, "%d", *val);
+            break;
         }
-      } else {
-        sprintf(buffer, "(unknown_type*)0x%lx", (Long_t)(ladd));
-      }
-      break;
-    }
-    default: { sprintf(buffer, ""); }
-  }
+        case TStreamerInfo::kChar: {
+            Char_t* val = (Char_t*)ladd;
+            sprintf(buffer, "%d", *val);
+            break;
+        }
+        case TStreamerInfo::kShort: {
+            Short_t* val = (Short_t*)ladd;
+            sprintf(buffer, "%d", *val);
+            break;
+        }
+        case TStreamerInfo::kInt: {
+            Int_t* val = (Int_t*)ladd;
+            sprintf(buffer, "%d", *val);
+            break;
+        }
+        case TStreamerInfo::kLong: {
+            Long_t* val = (Long_t*)ladd;
+            sprintf(buffer, "%ld", *val);
+            break;
+        }
+        case TStreamerInfo::kLong64: {
+            Long64_t* val = (Long64_t*)ladd;
+            sprintf(buffer, "%lld", *val);
+            break;
+        }
+        case TStreamerInfo::kFloat: {
+            Float_t* val = (Float_t*)ladd;
+            sprintf(buffer, "%f", *val);
+            break;
+        }
+        case TStreamerInfo::kFloat16: {
+            Float_t* val = (Float_t*)ladd;
+            sprintf(buffer, "%f", *val);
+            break;
+        }
+        case TStreamerInfo::kDouble: {
+            Double_t* val = (Double_t*)ladd;
+            sprintf(buffer, "%g", *val);
+            break;
+        }
+        case TStreamerInfo::kDouble32: {
+            Double_t* val = (Double_t*)ladd;
+            sprintf(buffer, "%g", *val);
+            break;
+        }
+        case TStreamerInfo::kUChar: {
+            UChar_t* val = (UChar_t*)ladd;
+            sprintf(buffer, "%u", *val);
+            break;
+        }
+        case TStreamerInfo::kUShort: {
+            UShort_t* val = (UShort_t*)ladd;
+            sprintf(buffer, "%u", *val);
+            break;
+        }
+        case TStreamerInfo::kUInt: {
+            UInt_t* val = (UInt_t*)ladd;
+            sprintf(buffer, "%u", *val);
+            break;
+        }
+        case TStreamerInfo::kULong: {
+            ULong_t* val = (ULong_t*)ladd;
+            sprintf(buffer, "%lu", *val);
+            break;
+        }
+        case TStreamerInfo::kULong64: {
+            ULong64_t* val = (ULong64_t*)ladd;
+            sprintf(buffer, "%llu", *val);
+            break;
+        }
+        case TStreamerInfo::kBits: {
+            UInt_t* val = (UInt_t*)ladd;
+            sprintf(buffer, "%d", *val);
+            break;
+        }
 
-  string result(buffer);
-  delete[] buffer;
-  return result;
+            //			// array of basic types  array[8]
+            // case TStreamerInfo::kOffsetL + TStreamerInfo::kBool: {Bool_t    *val =
+            // (Bool_t*)ladd; for (j = 0; j < aleng; j++) { sprintf(buffer,"%c ",
+            // val[j]); PrintCR(j, aleng, 20); } break; } case TStreamerInfo::kOffsetL
+            // + TStreamerInfo::kChar: {Char_t    *val = (Char_t*)ladd; for (j = 0; j
+            // < aleng; j++) { sprintf(buffer,"%c ", val[j]); PrintCR(j, aleng, 20); }
+            // break; } case TStreamerInfo::kOffsetL + TStreamerInfo::kShort: {Short_t
+            // *val = (Short_t*)ladd; for (j = 0; j < aleng; j++) { sprintf(buffer,"%d
+            // ", val[j]); PrintCR(j, aleng, 10); } break; } case
+            // TStreamerInfo::kOffsetL + TStreamerInfo::kInt: {Int_t     *val =
+            // (Int_t*)ladd; for (j = 0; j < aleng; j++) { sprintf(buffer,"%d ",
+            // val[j]); PrintCR(j, aleng, 10); } break; } case TStreamerInfo::kOffsetL
+            // + TStreamerInfo::kLong: {Long_t    *val = (Long_t*)ladd; for (j = 0; j
+            // < aleng; j++) { sprintf(buffer,"%ld ", val[j]); PrintCR(j, aleng, 5); }
+            // break; } case TStreamerInfo::kOffsetL + TStreamerInfo::kLong64:
+            // {Long64_t  *val = (Long64_t*)ladd; for (j = 0; j < aleng; j++) {
+            // sprintf(buffer,"%lld ", val[j]); PrintCR(j, aleng, 5); } break; } case
+            // TStreamerInfo::kOffsetL + TStreamerInfo::kFloat: {Float_t   *val =
+            // (Float_t*)ladd; for (j = 0; j < aleng; j++) { sprintf(buffer,"%f ",
+            // val[j]); PrintCR(j, aleng, 5); } break; } case TStreamerInfo::kOffsetL
+            // + TStreamerInfo::kFloat16: {Float_t   *val = (Float_t*)ladd; for (j =
+            // 0; j < aleng; j++) { sprintf(buffer,"%f ", val[j]); PrintCR(j, aleng,
+            // 5); } break; } case TStreamerInfo::kOffsetL + TStreamerInfo::kDouble:
+            // {Double_t  *val = (Double_t*)ladd; for (j = 0; j < aleng; j++) {
+            // sprintf(buffer,"%g ", val[j]); PrintCR(j, aleng, 5); } break; } case
+            // TStreamerInfo::kOffsetL + TStreamerInfo::kDouble32: {Double_t  *val =
+            // (Double_t*)ladd; for (j = 0; j < aleng; j++) { sprintf(buffer,"%g ",
+            // val[j]); PrintCR(j, aleng, 5); } break; } case TStreamerInfo::kOffsetL
+            // + TStreamerInfo::kUChar: {UChar_t   *val = (UChar_t*)ladd; for (j = 0;
+            // j < aleng; j++) { sprintf(buffer,"%u ", val[j]); PrintCR(j, aleng, 20);
+            // } break; } case TStreamerInfo::kOffsetL + TStreamerInfo::kUShort:
+            // {UShort_t  *val = (UShort_t*)ladd; for (j = 0; j < aleng; j++) {
+            // sprintf(buffer,"%u ", val[j]); PrintCR(j, aleng, 10); } break; } case
+            // TStreamerInfo::kOffsetL + TStreamerInfo::kUInt: {UInt_t    *val =
+            // (UInt_t*)ladd; for (j = 0; j < aleng; j++) { sprintf(buffer,"%u ",
+            // val[j]); PrintCR(j, aleng, 5); } break; } case TStreamerInfo::kOffsetL
+            // + TStreamerInfo::kULong: {ULong_t   *val = (ULong_t*)ladd; for (j = 0;
+            // j < aleng; j++) { sprintf(buffer,"%lu ", val[j]); PrintCR(j, aleng, 5);
+            // } break; } case TStreamerInfo::kOffsetL + TStreamerInfo::kULong64:
+            // {ULong64_t *val = (ULong64_t*)ladd; for (j = 0; j < aleng; j++) {
+            // sprintf(buffer,"%llu ", val[j]); PrintCR(j, aleng, 5); } break; } case
+            // TStreamerInfo::kOffsetL + TStreamerInfo::kBits: {UInt_t    *val =
+            // (UInt_t*)ladd; for (j = 0; j < aleng; j++) { sprintf(buffer,"%d ",
+            // val[j]); PrintCR(j, aleng, 5); } break; }
+
+            //					   // pointer to an array of
+            // basic types  array[n] case TStreamerInfo::kOffsetP +
+            // TStreamerInfo::kBool: {Bool_t   **val = (Bool_t**)ladd; for (j = 0; j <
+            // *count; j++) { sprintf(buffer,"%d ", (*val)[j]);  PrintCR(j, aleng,
+            // 20); } break; } case TStreamerInfo::kOffsetP + TStreamerInfo::kChar:
+            // {Char_t
+            // **val = (Char_t**)ladd; for (j = 0; j < *count; j++) {
+            // sprintf(buffer,"%d ", (*val)[j]);  PrintCR(j, aleng, 20); } break; }
+            // case TStreamerInfo::kOffsetP + TStreamerInfo::kShort: {Short_t  **val =
+            // (Short_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%d ",
+            // (*val)[j]);  PrintCR(j, aleng, 10); } break; } case
+            // TStreamerInfo::kOffsetP + TStreamerInfo::kInt: {Int_t    **val =
+            // (Int_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%d ",
+            // (*val)[j]);  PrintCR(j, aleng, 10); } break; } case
+            // TStreamerInfo::kOffsetP + TStreamerInfo::kLong: {Long_t   **val =
+            // (Long_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%ld ",
+            // (*val)[j]);  PrintCR(j, aleng, 5); } break; } case
+            // TStreamerInfo::kOffsetP + TStreamerInfo::kLong64: {Long64_t **val =
+            // (Long64_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%lld
+            // ",
+            // (*val)[j]); PrintCR(j, aleng, 5); } break; } case
+            // TStreamerInfo::kOffsetP + TStreamerInfo::kFloat: {Float_t  **val =
+            // (Float_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%f ",
+            // (*val)[j]);  PrintCR(j, aleng, 5); } break; } case
+            // TStreamerInfo::kOffsetP + TStreamerInfo::kFloat16: {Float_t  **val =
+            // (Float_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%f ",
+            // (*val)[j]);  PrintCR(j, aleng, 5); } break; } case
+            // TStreamerInfo::kOffsetP + TStreamerInfo::kDouble: {Double_t **val =
+            // (Double_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%g ",
+            // (*val)[j]);  PrintCR(j, aleng, 5); } break; } case
+            // TStreamerInfo::kOffsetP + TStreamerInfo::kDouble32: {Double_t **val =
+            // (Double_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%g ",
+            // (*val)[j]);  PrintCR(j, aleng, 5); } break; } case
+            // TStreamerInfo::kOffsetP + TStreamerInfo::kUChar: {UChar_t  **val =
+            // (UChar_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%u ",
+            // (*val)[j]);  PrintCR(j, aleng, 20); } break; } case
+            // TStreamerInfo::kOffsetP + TStreamerInfo::kUShort: {UShort_t **val =
+            // (UShort_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%u ",
+            // (*val)[j]);  PrintCR(j, aleng, 10); } break; } case
+            // TStreamerInfo::kOffsetP + TStreamerInfo::kUInt: {UInt_t   **val =
+            // (UInt_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%u ",
+            // (*val)[j]);  PrintCR(j, aleng, 5); } break; } case
+            // TStreamerInfo::kOffsetP + TStreamerInfo::kULong: {ULong_t  **val =
+            // (ULong_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%lu ",
+            // (*val)[j]);  PrintCR(j, aleng, 5); } break; } case
+            // TStreamerInfo::kOffsetP + TStreamerInfo::kULong64: {ULong64_t**val =
+            // (ULong64_t**)ladd; for (j = 0; j < *count; j++) { sprintf(buffer,"%llu
+            // ", (*val)[j]); PrintCR(j, aleng, 5); } break; }
+
+            // array counter //[n]
+        case TStreamerInfo::kCounter: {
+            Int_t* val = (Int_t*)ladd;
+            sprintf(buffer, "%d", *val);
+            break;
+        }
+            // char *
+        case TStreamerInfo::kCharStar: {
+            char** val = (char**)ladd;
+            if (*val) sprintf(buffer, "%s", *val);
+            break;
+        }
+            // Class *  derived from TObject with comment field  //->
+        case TStreamerInfo::kObjectp: {
+            TObject** obj = (TObject**)(ladd);
+            TStreamerObjectPointer* el = (TStreamerObjectPointer*)aElement;
+            sprintf(buffer, "(%s*)%lx", el ? el->GetClass()->GetName() : "unknown_type", (Long_t)(*obj));
+            break;
+        }
+
+            // Class*   derived from TObject
+        case TStreamerInfo::kObjectP: {
+            TObject** obj = (TObject**)(ladd);
+            TStreamerObjectPointer* el = (TStreamerObjectPointer*)aElement;
+            sprintf(buffer, "(%s*)%lx", el ? el->GetClass()->GetName() : "unknown_type", (Long_t)(*obj));
+            break;
+        }
+
+            // Class    derived from TObject
+        case TStreamerInfo::kObject: {
+            TObject* obj = (TObject*)(ladd);
+            sprintf(buffer, "%s", obj->GetName());
+            break;
+        }
+
+            // Special case TStreamerInfo::for TString, TObject, TNamed
+        case TStreamerInfo::kTString: {
+            TString* st = (TString*)(ladd);
+            sprintf(buffer, "%s", st->Data());
+            break;
+        }
+        case TStreamerInfo::kTObject: {
+            TObject* obj = (TObject*)(ladd);
+            sprintf(buffer, "%s", obj->GetName());
+            break;
+        }
+        case TStreamerInfo::kTNamed: {
+            TNamed* named = (TNamed*)(ladd);
+            sprintf(buffer, "%s/%s", named->GetName(), named->GetTitle());
+            break;
+        }
+
+            // Class *  not derived from TObject with comment field  //->
+        case TStreamerInfo::kAnyp: {
+            TObject** obj = (TObject**)(ladd);
+            TStreamerObjectAnyPointer* el = (TStreamerObjectAnyPointer*)aElement;
+            sprintf(buffer, "(%s*)0x%lx", el ? el->GetClass()->GetName() : "unknown_type", (Long_t)(*obj));
+            break;
+        }
+
+            // Class*   not derived from TObject
+        case TStreamerInfo::kAnyP: {
+            TObject** obj = (TObject**)(ladd);
+            TStreamerObjectAnyPointer* el = (TStreamerObjectAnyPointer*)aElement;
+            sprintf(buffer, "(%s*)0x%lx", el ? el->GetClass()->GetName() : "unknown_type", (Long_t)(*obj));
+            break;
+        }
+            // Any Class not derived from TObject
+        case TStreamerInfo::kOffsetL + TStreamerInfo::kObjectp:
+        case TStreamerInfo::kOffsetL + TStreamerInfo::kObjectP:
+        case TStreamerInfo::kAny: {
+            sprintf(buffer, "printing kAny case TStreamerInfo::(%d)", atype);
+            //         if (aElement) {
+            //            TMemberStreamer *pstreamer = aElement->GetStreamer();
+            //            if (pstreamer == 0) {
+            //               //sprintf(buffer,"ERROR, Streamer is null\n");
+            //               //aElement->ls();
+            //               break;
+            //            }
+            //            //(*pstreamer)(b,ladd,0);
+            //         }
+            break;
+        }
+            // Base Class
+        case TStreamerInfo::kBase: {
+            sprintf(buffer, "printing kBase case TStreamerInfo::(%d)", atype);
+            // aElement->ReadBuffer(b,pointer);
+            break;
+        }
+
+        case TStreamerInfo::kOffsetL + TStreamerInfo::kObject:
+        case TStreamerInfo::kOffsetL + TStreamerInfo::kTString:
+        case TStreamerInfo::kOffsetL + TStreamerInfo::kTObject:
+        case TStreamerInfo::kOffsetL + TStreamerInfo::kTNamed:
+        case TStreamerInfo::kStreamer: {
+            sprintf(buffer, "printing kStreamer case TStreamerInfo::(%d)", atype);
+            //         TMemberStreamer *pstreamer = aElement->GetStreamer();
+            //         if (pstreamer == 0) {
+            //            //sprintf(buffer,"ERROR, Streamer is null\n");
+            //            //aElement->ls();
+            //            break;
+            //         }
+            //         //UInt_t start,count;
+            //         //b.ReadVersion(&start, &count);
+            //         //(*pstreamer)(b,ladd,0);
+            //         //b.CheckByteCount(start,count,IsA());
+            break;
+        }
+
+        case TStreamerInfo::kStreamLoop: {
+            sprintf(buffer, "printing kStreamLoop case TStreamerInfo::(%d)", atype);
+            //         TMemberStreamer *pstreamer = aElement->GetStreamer();
+            //         if (pstreamer == 0) {
+            //            //sprintf(buffer,"ERROR, Streamer is null\n");
+            //            //aElement->ls();
+            //            break;
+            //         }
+            // Int_t *counter = (Int_t*)(count);
+            // UInt_t start,count;
+            /// b.ReadVersion(&start, &count);
+            //(*pstreamer)(b,ladd,*counter);
+            // b.CheckByteCount(start,count,IsA());
+            break;
+        }
+        case TStreamerInfo::kSTL: {
+            if (aElement) {
+                static TClassRef stringClass("string");
+                if (ladd && aElement->GetClass() == stringClass) {
+                    std::string* st = (std::string*)(ladd);
+                    sprintf(buffer, "%s", st->c_str());
+                } else {
+                    sprintf(buffer, "(%s*)0x%lx", aElement->GetClass()->GetName(), (Long_t)(ladd));
+                }
+            } else {
+                sprintf(buffer, "(unknown_type*)0x%lx", (Long_t)(ladd));
+            }
+            break;
+        }
+        default: {
+            sprintf(buffer, "");
+        }
+    }
+
+    string result(buffer);
+    delete[] buffer;
+    return result;
 }
 
 ///////////////////////////////////////////////
@@ -2621,14 +2537,13 @@ string TRestMetadata::GetDataMemberValInString(TStreamerElement* aElement) {
 /// the type is supported
 ///
 /// Supported type: double, int, TString. A string of value needs to be given.
-void TRestMetadata::SetDataMemberValWithString(TStreamerElement* ele,
-                                               string valdef) {
-  if (ele != NULL && ele->GetType() == 8)  // double
-    *((double*)((char*)this + ele->GetOffset())) = StringToDouble(valdef);
-  if (ele != NULL && ele->GetType() == 3)  // int
-    *((int*)((char*)this + ele->GetOffset())) = StringToInteger(valdef);
-  if (ele != NULL && ele->GetType() == 65)  // TString
-    *((TString*)((char*)this + ele->GetOffset())) = (TString)(valdef);
+void TRestMetadata::SetDataMemberValWithString(TStreamerElement* ele, string valdef) {
+    if (ele != NULL && ele->GetType() == 8)  // double
+        *((double*)((char*)this + ele->GetOffset())) = StringToDouble(valdef);
+    if (ele != NULL && ele->GetType() == 3)  // int
+        *((int*)((char*)this + ele->GetOffset())) = StringToInteger(valdef);
+    if (ele != NULL && ele->GetType() == 65)  // TString
+        *((TString*)((char*)this + ele->GetOffset())) = (TString)(valdef);
 }
 
 ///////////////////////////////////////////////
@@ -2646,9 +2561,9 @@ void TRestMetadata::SetDataMemberValWithString(TStreamerElement* ele,
 /// be set to 10
 ///
 void TRestMetadata::SetDataMemberValFromConfig(TStreamerElement* ele) {
-  if (ele != NULL) {
-    if (GetParameter(ele->GetName()) != PARAMETER_NOT_FOUND_STR) {
-      SetDataMemberVal(ele, GetParameter(ele->GetName()));
+    if (ele != NULL) {
+        if (GetParameter(ele->GetName()) != PARAMETER_NOT_FOUND_STR) {
+            SetDataMemberVal(ele, GetParameter(ele->GetName()));
+        }
     }
-  }
 }

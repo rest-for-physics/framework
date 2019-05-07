@@ -1,23 +1,26 @@
-#include "machdefs.h"
-#include "util.h"
-#include "edgegen.h"
-#include "tsp.h"
-#include "linkern.h"
-#include "heldkarp.h"
 #include "bigguy.h"
+#include "edgegen.h"
+#include "heldkarp.h"
+#include "linkern.h"
+#include "machdefs.h"
 #include "macrorus.h"
-
-#ifdef __cplusplus
-extern "C" 
-#endif
-int TrackMinimization_2D ( int *xIn, int *yIn, int ncount, int *mytour );
+#include "tsp.h"
+#include "util.h"
 
 #ifdef __cplusplus
 extern "C"
 #endif
-int TrackMinimization_segment ( int ncount, int *elen, int *mytour );
+    int
+    TrackMinimization_2D(int* xIn, int* yIn, int ncount, int* mytour);
 
 #ifdef __cplusplus
-extern "C" 
+extern "C"
 #endif
-int TrackMinimization_3D ( int *xIn, int *yIn, int *zIn, int ncount, int *mytour );
+    int
+    TrackMinimization_segment(int ncount, int* elen, int* mytour);
+
+#ifdef __cplusplus
+extern "C"
+#endif
+    int
+    TrackMinimization_3D(int* xIn, int* yIn, int* zIn, int ncount, int* mytour);

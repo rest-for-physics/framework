@@ -16,63 +16,61 @@
 #include "TRestEventProcess.h"
 
 class TRestTrackReconnectionProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
-  TRestTrackEvent* fInputTrackEvent;   //!
-  TRestTrackEvent* fOutputTrackEvent;  //!
+    TRestTrackEvent* fInputTrackEvent;   //!
+    TRestTrackEvent* fOutputTrackEvent;  //!
 
-  Double_t fMeanDistance;  //!
-  Double_t fSigma;         //!
+    Double_t fMeanDistance;  //!
+    Double_t fSigma;         //!
 #endif
 
-  Bool_t fSplitTrack;
-  Double_t fNSigmas;
+    Bool_t fSplitTrack;
+    Double_t fNSigmas;
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
+    void Initialize();
 
-  void SetDistanceMeanAndSigma(TRestHits* h);
+    void SetDistanceMeanAndSigma(TRestHits* h);
 
- protected:
- public:
-  void InitProcess();
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
-  void EndOfEventProcess();
-  void EndProcess();
-  void LoadDefaultConfig();
+   protected:
+   public:
+    void InitProcess();
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndOfEventProcess();
+    void EndProcess();
+    void LoadDefaultConfig();
 
-  void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
-  void PrintMetadata() {
-    BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    std::cout << "Split track : ";
-    if (fSplitTrack)
-      std::cout << " enabled" << std::endl;
-    else
-      std::cout << " disabled" << std::endl;
+        std::cout << "Split track : ";
+        if (fSplitTrack)
+            std::cout << " enabled" << std::endl;
+        else
+            std::cout << " disabled" << std::endl;
 
-    std::cout << "Number of sigmas to defined a branch : " << fNSigmas
-              << std::endl;
+        std::cout << "Number of sigmas to defined a branch : " << fNSigmas << std::endl;
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  TString GetProcessName() { return (TString) "trackReconnection"; }
+    TString GetProcessName() { return (TString) "trackReconnection"; }
 
-  void BreakTracks(TRestVolumeHits* hits, vector<TRestVolumeHits>& hitSets,
-                   Double_t nSigma = 2.);
-  void ReconnectTracks(vector<TRestVolumeHits>& hitSets);
-  Int_t GetTrackBranches(TRestHits& h, Double_t nSigma);
+    void BreakTracks(TRestVolumeHits* hits, vector<TRestVolumeHits>& hitSets, Double_t nSigma = 2.);
+    void ReconnectTracks(vector<TRestVolumeHits>& hitSets);
+    Int_t GetTrackBranches(TRestHits& h, Double_t nSigma);
 
-  // Constructor
-  TRestTrackReconnectionProcess();
-  TRestTrackReconnectionProcess(char* cfgFileName);
-  // Destructor
-  ~TRestTrackReconnectionProcess();
+    // Constructor
+    TRestTrackReconnectionProcess();
+    TRestTrackReconnectionProcess(char* cfgFileName);
+    // Destructor
+    ~TRestTrackReconnectionProcess();
 
-  ClassDef(TRestTrackReconnectionProcess, 1);
+    ClassDef(TRestTrackReconnectionProcess, 1);
 };
 #endif

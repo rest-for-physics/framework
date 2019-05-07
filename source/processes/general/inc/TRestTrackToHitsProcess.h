@@ -17,46 +17,46 @@
 #include "TRestEventProcess.h"
 
 class TRestTrackToHitsProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
-  TRestTrackEvent* fInputTrackEvent;  //!
-  TRestHitsEvent* fOutputHitsEvent;   //!
+    TRestTrackEvent* fInputTrackEvent;  //!
+    TRestHitsEvent* fOutputHitsEvent;   //!
 #endif
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
+    void Initialize();
 
- protected:
-  Int_t fTrackLevel;
+   protected:
+    Int_t fTrackLevel;
 
- public:
-  void InitProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
-  void EndOfEventProcess();
-  void EndProcess();
-  void LoadDefaultConfig();
+   public:
+    void InitProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndOfEventProcess();
+    void EndProcess();
+    void LoadDefaultConfig();
 
-  void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
-  void PrintMetadata() {
-    BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    cout << "Track level : " << fTrackLevel << endl;
+        cout << "Track level : " << fTrackLevel << endl;
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  TString GetProcessName() { return (TString) "trackToHits"; }
+    TString GetProcessName() { return (TString) "trackToHits"; }
 
-  // Constructor
-  TRestTrackToHitsProcess();
-  TRestTrackToHitsProcess(char* cfgFileName);
-  // Destructor
-  ~TRestTrackToHitsProcess();
+    // Constructor
+    TRestTrackToHitsProcess();
+    TRestTrackToHitsProcess(char* cfgFileName);
+    // Destructor
+    ~TRestTrackToHitsProcess();
 
-  ClassDef(TRestTrackToHitsProcess,
-           1);  // Template for a REST "event process" class inherited from
-                // TRestEventProcess
+    ClassDef(TRestTrackToHitsProcess,
+             1);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

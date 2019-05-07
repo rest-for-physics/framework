@@ -26,44 +26,41 @@ REST_Verbose_Level fLevel = REST_Essential;  //!
 // COLOR_RESET, string BorderOrHeader = "", REST_Display_Format style =
 // kBorderedLeft)
 TRestLeveledOutput<REST_Essential> metadata =
-    TRestLeveledOutput<REST_Essential>(
-        fLevel, COLOR_BOLDGREEN, "||",
-        (REST_Display_Format)kBorderedMiddle);  //!
+    TRestLeveledOutput<REST_Essential>(fLevel, COLOR_BOLDGREEN, "||",
+                                       (REST_Display_Format)kBorderedMiddle);  //!
 
 ClassImp(TRestParticleSource)
     //______________________________________________________________________________
     TRestParticleSource::TRestParticleSource() {
-  // TRestParticleSource default constructor
+    // TRestParticleSource default constructor
 }
 
 //______________________________________________________________________________
 TRestParticleSource::~TRestParticleSource() {
-  // TRestParticleSource destructor
+    // TRestParticleSource destructor
 }
 
 void TRestParticleSource::PrintParticleSource() {
-  metadata << "---------------------------------------" << endl;
-  metadata << "Particle : " << GetParticle() << endl;
-  metadata << "Charge : " << GetParticleCharge() << endl;
-  metadata << "Angular distribution type : " << GetAngularDistType() << endl;
-  if (GetAngularDistType() == "TH1D") {
-    metadata << "Angular distribution filename : " << GetAngularFilename()
-             << endl;
-    metadata << "Angular histogram name  : " << GetAngularName() << endl;
-  }
-  metadata << "Direction : (" << GetDirection().X() << "," << GetDirection().Y()
-           << "," << GetDirection().Z() << ")" << endl;
-  metadata << "Energy distribution : " << GetEnergyDistType() << endl;
-  if (GetEnergyDistType() == "TH1D") {
-    metadata << "Energy distribution filename : " << GetSpectrumFilename()
-             << endl;
-    metadata << "Energy histogram name  : " << GetSpectrumName() << endl;
-  }
-  if (GetEnergyRange().X() == GetEnergyRange().Y())
-    metadata << "Energy : " << GetEnergy() << " keV" << endl;
-  else
-    metadata << "Energy range : (" << GetEnergyRange().X() << ","
-             << GetEnergyRange().Y() << ") keV" << endl;
+    metadata << "---------------------------------------" << endl;
+    metadata << "Particle : " << GetParticle() << endl;
+    metadata << "Charge : " << GetParticleCharge() << endl;
+    metadata << "Angular distribution type : " << GetAngularDistType() << endl;
+    if (GetAngularDistType() == "TH1D") {
+        metadata << "Angular distribution filename : " << GetAngularFilename() << endl;
+        metadata << "Angular histogram name  : " << GetAngularName() << endl;
+    }
+    metadata << "Direction : (" << GetDirection().X() << "," << GetDirection().Y() << ","
+             << GetDirection().Z() << ")" << endl;
+    metadata << "Energy distribution : " << GetEnergyDistType() << endl;
+    if (GetEnergyDistType() == "TH1D") {
+        metadata << "Energy distribution filename : " << GetSpectrumFilename() << endl;
+        metadata << "Energy histogram name  : " << GetSpectrumName() << endl;
+    }
+    if (GetEnergyRange().X() == GetEnergyRange().Y())
+        metadata << "Energy : " << GetEnergy() << " keV" << endl;
+    else
+        metadata << "Energy range : (" << GetEnergyRange().X() << "," << GetEnergyRange().Y() << ") keV"
+                 << endl;
 }
 
 /* {{{ LoadEnergyDistribution ( A better way would be to store TH1D

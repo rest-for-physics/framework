@@ -26,28 +26,28 @@
 #include "TRestSignalEvent.h"
 
 class TRestMultiFEMINOSToSignalProcess : public TRestRawToSignalProcess {
- private:
-  unsigned short pay;
+   private:
+    unsigned short pay;
 
-  unsigned int fLastEventId;
-  Double_t fLastTimeStamp;
+    unsigned int fLastEventId;
+    Double_t fLastTimeStamp;
 
- public:
-  void InitProcess();
-  void Initialize();
-  TRestEvent* ProcessEvent(TRestEvent* evInput);
-  TString GetProcessName() { return (TString) "MultiFEMINOSToSignal"; }
+   public:
+    void InitProcess();
+    void Initialize();
+    TRestEvent* ProcessEvent(TRestEvent* evInput);
+    TString GetProcessName() { return (TString) "MultiFEMINOSToSignal"; }
 
-  Bool_t ReadFrame(void* fr, int fr_sz);
+    Bool_t ReadFrame(void* fr, int fr_sz);
 
-  // Constructor
-  TRestMultiFEMINOSToSignalProcess();
-  TRestMultiFEMINOSToSignalProcess(char* cfgFileName);
-  // Destructor
-  ~TRestMultiFEMINOSToSignalProcess();
+    // Constructor
+    TRestMultiFEMINOSToSignalProcess();
+    TRestMultiFEMINOSToSignalProcess(char* cfgFileName);
+    // Destructor
+    ~TRestMultiFEMINOSToSignalProcess();
 
-  ClassDef(TRestMultiFEMINOSToSignalProcess,
-           1);  // Template for a REST "event process" class inherited from
-                // TRestEventProcess
+    ClassDef(TRestMultiFEMINOSToSignalProcess,
+             1);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

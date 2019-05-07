@@ -20,19 +20,19 @@
 #include "TRestHitsEvent.h"
 
 class TRestHitsEventViewer : public TRestEveEventViewer {
- private:
-  TRestHitsEvent* fHitsEvent;
+   private:
+    TRestHitsEvent* fHitsEvent;
 
- public:
-  void Initialize();
-  void DeleteCurrentEvent();
-  void AddEvent(TRestEvent* ev);
+   public:
+    void Initialize();
+    void DeleteCurrentEvent();
+    void AddEvent(TRestEvent* ev);
 
-  // Constructor
-  TRestHitsEventViewer();
-  // Destructor
-  ~TRestHitsEventViewer();
+    // Constructor
+    TRestHitsEventViewer();
+    // Destructor
+    ~TRestHitsEventViewer();
 
-  ClassDef(TRestHitsEventViewer, 1);  // class inherited from TRestEventViewer
+    ClassDef(TRestHitsEventViewer, 1);  // class inherited from TRestEventViewer
 };
 #endif

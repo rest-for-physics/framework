@@ -27,121 +27,117 @@ using namespace std;
 ClassImp(TRestAvalancheProcess)
     //______________________________________________________________________________
     TRestAvalancheProcess::TRestAvalancheProcess() {
-  Initialize();
+    Initialize();
 }
 
 //______________________________________________________________________________
 TRestAvalancheProcess::TRestAvalancheProcess(char* cfgFileName) {
-  Initialize();
+    Initialize();
 
-  if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
+    if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
 
-  PrintMetadata();
-  fGas = new TRestGas(cfgFileName);
+    PrintMetadata();
+    fGas = new TRestGas(cfgFileName);
 
-  // TRestAvalancheProcess default constructor
+    // TRestAvalancheProcess default constructor
 }
 
 //______________________________________________________________________________
 TRestAvalancheProcess::~TRestAvalancheProcess() {
-  if (fGas != NULL) delete fGas;
+    if (fGas != NULL) delete fGas;
 
-  delete fHitsInputEvent;
-  delete fHitsOutputEvent;
-  // TRestAvalancheProcess destructor
+    delete fHitsInputEvent;
+    delete fHitsOutputEvent;
+    // TRestAvalancheProcess destructor
 }
 
 void TRestAvalancheProcess::LoadDefaultConfig() {
-  SetTitle("Default config");
+    SetTitle("Default config");
 
-  fEnergyRef = 5.9;
-  fResolutionAtEref = 15.0;
-  fDetectorGain = 8000.0;
+    fEnergyRef = 5.9;
+    fResolutionAtEref = 15.0;
+    fDetectorGain = 8000.0;
 }
 
 //______________________________________________________________________________
 void TRestAvalancheProcess::Initialize() {
-  SetSectionName(this->ClassName());
+    SetSectionName(this->ClassName());
 
-  fGas = NULL;
+    fGas = NULL;
 
-  fEnergyRef = 5.9;
-  fResolutionAtEref = 15.0;
-  fDetectorGain = 8000.0;
+    fEnergyRef = 5.9;
+    fResolutionAtEref = 15.0;
+    fDetectorGain = 8000.0;
 
-  fHitsInputEvent = new TRestHitsEvent();
-  fHitsOutputEvent = new TRestHitsEvent();
+    fHitsInputEvent = new TRestHitsEvent();
+    fHitsOutputEvent = new TRestHitsEvent();
 
-  fOutputEvent = fHitsOutputEvent;
-  fInputEvent = fHitsInputEvent;
+    fOutputEvent = fHitsOutputEvent;
+    fInputEvent = fHitsInputEvent;
 }
 
 void TRestAvalancheProcess::LoadConfig(string cfgFilename) {
-  if (LoadConfigFromFile(cfgFilename)) LoadDefaultConfig();
+    if (LoadConfigFromFile(cfgFilename)) LoadDefaultConfig();
 
-  PrintMetadata();
-  fGas = new TRestGas(cfgFilename.c_str());
-  fGas->PrintMetadata();
+    PrintMetadata();
+    fGas = new TRestGas(cfgFilename.c_str());
+    fGas->PrintMetadata();
 }
 
 //______________________________________________________________________________
 void TRestAvalancheProcess::InitProcess() {
-  // Function to be executed once at the beginning of process
-  // (before starting the process of the events)
+    // Function to be executed once at the beginning of process
+    // (before starting the process of the events)
 
-  // Start by calling the InitProcess function of the abstract class.
-  // Comment this if you don't want it.
-  // TRestEventProcess::InitProcess();
+    // Start by calling the InitProcess function of the abstract class.
+    // Comment this if you don't want it.
+    // TRestEventProcess::InitProcess();
 
-  if (fGas == NULL)
-    cout << "REST ERRORRRR : Gas has not been initialized" << endl;
+    if (fGas == NULL) cout << "REST ERRORRRR : Gas has not been initialized" << endl;
 
-  cout << __PRETTY_FUNCTION__ << endl;
+    cout << __PRETTY_FUNCTION__ << endl;
 }
 
 //______________________________________________________________________________
 void TRestAvalancheProcess::BeginOfEventProcess() {
-  cout << "Begin of event process" << endl;
-  fHitsOutputEvent->Initialize();
+    cout << "Begin of event process" << endl;
+    fHitsOutputEvent->Initialize();
 }
 
 //______________________________________________________________________________
 TRestEvent* TRestAvalancheProcess::ProcessEvent(TRestEvent* evInput) {
-  fHitsInputEvent = (TRestHitsEvent*)evInput;
+    fHitsInputEvent = (TRestHitsEvent*)evInput;
 
-  Double_t fW = fGas->GetWvalue();
-  Double_t gain, totelectrons = 0;
+    Double_t fW = fGas->GetWvalue();
+    Double_t gain, totelectrons = 0;
 
-  Double_t eDep = fHitsInputEvent->GetTotalEnergy() * fW / 1000.0;
-  Double_t eRes =
-      fResolutionAtEref * TMath::Sqrt(fEnergyRef / eDep) / 2.35 / 100.0;
+    Double_t eDep = fHitsInputEvent->GetTotalEnergy() * fW / 1000.0;
+    Double_t eRes = fResolutionAtEref * TMath::Sqrt(fEnergyRef / eDep) / 2.35 / 100.0;
 
-  cout << "Initial electrons " << fHitsInputEvent->GetTotalEnergy()
-       << " ; eDep " << eDep << " keV; resolution " << eRes * 2.35 * 100
-       << " fwhm" << endl;
+    cout << "Initial electrons " << fHitsInputEvent->GetTotalEnergy() << " ; eDep " << eDep
+         << " keV; resolution " << eRes * 2.35 * 100 << " fwhm" << endl;
 
-  TRandom3* rnd = new TRandom3(0);
+    TRandom3* rnd = new TRandom3(0);
 
-  for (int hit = 0; hit < fHitsInputEvent->GetNumberOfHits(); hit++) {
-    gain = fDetectorGain * rnd->Gaus(1.0, eRes);
+    for (int hit = 0; hit < fHitsInputEvent->GetNumberOfHits(); hit++) {
+        gain = fDetectorGain * rnd->Gaus(1.0, eRes);
 
-    // The electronics gain is applied.
-    // gain = gain * 4096.0 / fElectronicsGain;
+        // The electronics gain is applied.
+        // gain = gain * 4096.0 / fElectronicsGain;
 
-    totelectrons += gain;
+        totelectrons += gain;
 
-    fHitsOutputEvent->AddHit(
-        fHitsInputEvent->GetX(hit), fHitsInputEvent->GetY(hit),
-        fHitsInputEvent->GetZ(hit), fHitsInputEvent->GetEnergy(hit) * gain);
-  }
+        fHitsOutputEvent->AddHit(fHitsInputEvent->GetX(hit), fHitsInputEvent->GetY(hit),
+                                 fHitsInputEvent->GetZ(hit), fHitsInputEvent->GetEnergy(hit) * gain);
+    }
 
-  delete rnd;
+    delete rnd;
 
-  if (fHitsOutputEvent->GetNumberOfHits() == 0) return NULL;
+    if (fHitsOutputEvent->GetNumberOfHits() == 0) return NULL;
 
-  cout << "Initial: " << fHitsInputEvent->GetNumberOfHits()
-       << "e-s, and amplified: " << totelectrons << " e-s : " << endl;
-  return fHitsOutputEvent;
+    cout << "Initial: " << fHitsInputEvent->GetNumberOfHits() << "e-s, and amplified: " << totelectrons
+         << " e-s : " << endl;
+    return fHitsOutputEvent;
 }
 
 //______________________________________________________________________________
@@ -149,17 +145,17 @@ void TRestAvalancheProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestAvalancheProcess::EndProcess() {
-  // Function to be executed once at the end of the process
-  // (after all events have been processed)
+    // Function to be executed once at the end of the process
+    // (after all events have been processed)
 
-  // Start by calling the EndProcess function of the abstract class.
-  // Comment this if you don't want it.
-  // TRestEventProcess::EndProcess();
+    // Start by calling the EndProcess function of the abstract class.
+    // Comment this if you don't want it.
+    // TRestEventProcess::EndProcess();
 }
 
 //______________________________________________________________________________
 void TRestAvalancheProcess::InitFromConfigFile() {
-  fEnergyRef = GetDblParameterWithUnits("energyReference");
-  fResolutionAtEref = StringToDouble(GetParameter("resolutionReference"));
-  fDetectorGain = StringToDouble(GetParameter("detectorGain"));
+    fEnergyRef = GetDblParameterWithUnits("energyReference");
+    fResolutionAtEref = StringToDouble(GetParameter("resolutionReference"));
+    fDetectorGain = StringToDouble(GetParameter("detectorGain"));
 }

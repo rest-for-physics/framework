@@ -41,16 +41,14 @@ TRestManager::~TRestManager() {}
 /// \brief Set the class name as section name during initialization.
 ///
 void TRestManager::Initialize() {
-  SetSectionName(this->ClassName());
+    SetSectionName(this->ClassName());
 
-  fMetaObjects.clear();
+    fMetaObjects.clear();
 
-  fMetaObjects.push_back(this);
+    fMetaObjects.push_back(this);
 }
 
-int TRestManager::LoadSectionMetadata() {
-  return TRestMetadata::LoadSectionMetadata();
-}
+int TRestManager::LoadSectionMetadata() { return TRestMetadata::LoadSectionMetadata(); }
 
 ///////////////////////////////////////////////
 /// \brief Respond to the input xml element.
@@ -69,133 +67,132 @@ int TRestManager::LoadSectionMetadata() {
 /// Other types of declarations will be omitted.
 ///
 Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
-  // if (keydeclare == "TRestRun") {
-  //	TRestRun* fRunInfo = new TRestRun();
-  //	fRunInfo->SetHostmgr(this);
-  //	fRunInfo->LoadConfigFromFile(e, fElementGlobal);
-  //	fMetaObjects.push_back(fRunInfo);
-  //	gROOT->Add(fRunInfo);
-  //	return 0;
-  //}
+    // if (keydeclare == "TRestRun") {
+    //	TRestRun* fRunInfo = new TRestRun();
+    //	fRunInfo->SetHostmgr(this);
+    //	fRunInfo->LoadConfigFromFile(e, fElementGlobal);
+    //	fMetaObjects.push_back(fRunInfo);
+    //	gROOT->Add(fRunInfo);
+    //	return 0;
+    //}
 
-  // else if (keydeclare == "TRestProcessRunner") {
-  //	TRestProcessRunner* fProcessRunner = new TRestProcessRunner();
-  //	fProcessRunner->SetHostmgr(this);
-  //	fProcessRunner->LoadConfigFromFile(e, fElementGlobal);
-  //	fMetaObjects.push_back(fProcessRunner);
-  //	gROOT->Add(fProcessRunner);
-  //	return 0;
-  //}
+    // else if (keydeclare == "TRestProcessRunner") {
+    //	TRestProcessRunner* fProcessRunner = new TRestProcessRunner();
+    //	fProcessRunner->SetHostmgr(this);
+    //	fProcessRunner->LoadConfigFromFile(e, fElementGlobal);
+    //	fMetaObjects.push_back(fProcessRunner);
+    //	gROOT->Add(fProcessRunner);
+    //	return 0;
+    //}
 
-  // cout << "----------- " << gROOT->FindObject("SJTU_Proto") << endl;
+    // cout << "----------- " << gROOT->FindObject("SJTU_Proto") << endl;
 
-  if (Count(keydeclare, "TRest") > 0) {
-    TClass* c = TClass::GetClass(keydeclare.c_str());
-    if (c == NULL) {
-      cout << " " << endl;
-      cout << "REST ERROR. Class : " << keydeclare << " not found!!" << endl;
-      cout << "This class will be skipped." << endl;
-      return -1;
-    }
-    TRestMetadata* meta = (TRestMetadata*)c->New();
-    meta->SetHostmgr(this);
-    fMetaObjects.push_back(meta);
-    meta->SetConfigFile(fConfigFileName);
-    meta->LoadConfigFromFile(e, fElementGlobal, fElementEnv);
-
-    return 0;
-  }
-
-  else if (keydeclare == "addTask") {
-    string active = GetParameter("value", e, "");
-    if (active != "ON" && active != "On" && active != "on") {
-      debug << "Inactived task : \"" << ElementToString(e) << "\"" << endl;
-      return 0;
-    }
-    debug << "Loading Task...";
-
-    const char* type = e->Attribute("type");
-    const char* cmd = e->Attribute("command");
-    if (type == NULL && cmd == NULL) {
-      warning << "command or type should be given!" << endl;
-      return -1;
-    }
-    if (type != NULL) {
-      debug << " \"" << type << "\" " << endl;
-      if ((string)type == "processEvents") {
-        auto pr = GetProcessRunner();
-        if (pr != NULL) pr->RunProcess();
-      } else if ((string)type == "analysisPlot") {
-        auto ap = GetAnaPlot();
-        if (ap != NULL) ap->PlotCombinedCanvas();
-      } else if ((string)type == "saveMetadata") {
-        auto ri = GetRunInfo();
-        if (ri != NULL) {
-          ri->FormOutputFile();
-          ri->CloseFile();
+    if (Count(keydeclare, "TRest") > 0) {
+        TClass* c = TClass::GetClass(keydeclare.c_str());
+        if (c == NULL) {
+            cout << " " << endl;
+            cout << "REST ERROR. Class : " << keydeclare << " not found!!" << endl;
+            cout << "This class will be skipped." << endl;
+            return -1;
         }
-      } else {
-        TRestTask* tsk = TRestTask::GetTask(type);
-        if (tsk == NULL) {
-          warning << "REST ERROR. Task : " << type << " not found!!" << endl;
-          warning << "This task will be skipped." << endl;
-          return -1;
-        }
-        tsk->LoadConfigFromFile(e, fElementGlobal);
-        tsk->RunTask(this);
+        TRestMetadata* meta = (TRestMetadata*)c->New();
+        meta->SetHostmgr(this);
+        fMetaObjects.push_back(meta);
+        meta->SetConfigFile(fConfigFileName);
+        meta->LoadConfigFromFile(e, fElementGlobal, fElementEnv);
+
         return 0;
-      }
-    } else if (cmd != NULL) {
-      debug << " \"" << cmd << "\" " << endl;
-
-      TRestTask* tsk = TRestTask::ParseCommand(cmd);
-      if (tsk == NULL) {
-        warning << "REST ERROR. Command : " << cmd << " cannot be parsed!!"
-                << endl;
-        warning << "This task will be skipped." << endl;
-        return -1;
-      }
-      tsk->RunTask(this);
-      return 0;
     }
-  }
 
-  return -1;
+    else if (keydeclare == "addTask") {
+        string active = GetParameter("value", e, "");
+        if (active != "ON" && active != "On" && active != "on") {
+            debug << "Inactived task : \"" << ElementToString(e) << "\"" << endl;
+            return 0;
+        }
+        debug << "Loading Task...";
+
+        const char* type = e->Attribute("type");
+        const char* cmd = e->Attribute("command");
+        if (type == NULL && cmd == NULL) {
+            warning << "command or type should be given!" << endl;
+            return -1;
+        }
+        if (type != NULL) {
+            debug << " \"" << type << "\" " << endl;
+            if ((string)type == "processEvents") {
+                auto pr = GetProcessRunner();
+                if (pr != NULL) pr->RunProcess();
+            } else if ((string)type == "analysisPlot") {
+                auto ap = GetAnaPlot();
+                if (ap != NULL) ap->PlotCombinedCanvas();
+            } else if ((string)type == "saveMetadata") {
+                auto ri = GetRunInfo();
+                if (ri != NULL) {
+                    ri->FormOutputFile();
+                    ri->CloseFile();
+                }
+            } else {
+                TRestTask* tsk = TRestTask::GetTask(type);
+                if (tsk == NULL) {
+                    warning << "REST ERROR. Task : " << type << " not found!!" << endl;
+                    warning << "This task will be skipped." << endl;
+                    return -1;
+                }
+                tsk->LoadConfigFromFile(e, fElementGlobal);
+                tsk->RunTask(this);
+                return 0;
+            }
+        } else if (cmd != NULL) {
+            debug << " \"" << cmd << "\" " << endl;
+
+            TRestTask* tsk = TRestTask::ParseCommand(cmd);
+            if (tsk == NULL) {
+                warning << "REST ERROR. Command : " << cmd << " cannot be parsed!!" << endl;
+                warning << "This task will be skipped." << endl;
+                return -1;
+            }
+            tsk->RunTask(this);
+            return 0;
+        }
+    }
+
+    return -1;
 }
 
 void TRestManager::InitFromTask(string taskName, vector<string> arguments) {
-  TRestTask* tsk = TRestTask::GetTask(taskName);
-  if (tsk == NULL) {
-    cout << "REST ERROR. Task : " << taskName << " not found!!" << endl;
-    gSystem->Exit(-1);
-  }
-  tsk->SetArgumentValue(arguments);
-  tsk->RunTask(NULL);
-  gSystem->Exit(0);
+    TRestTask* tsk = TRestTask::GetTask(taskName);
+    if (tsk == NULL) {
+        cout << "REST ERROR. Task : " << taskName << " not found!!" << endl;
+        gSystem->Exit(-1);
+    }
+    tsk->SetArgumentValue(arguments);
+    tsk->RunTask(NULL);
+    gSystem->Exit(0);
 }
 
 ///////////////////////////////////////////////
 /// \brief Get the application metadata class, according to the type
 ///
 TRestMetadata* TRestManager::GetApplication(string type) {
-  for (int i = 0; i < fMetaObjects.size(); i++) {
-    if ((string)fMetaObjects[i]->ClassName() == type) {
-      return fMetaObjects[i];
+    for (int i = 0; i < fMetaObjects.size(); i++) {
+        if ((string)fMetaObjects[i]->ClassName() == type) {
+            return fMetaObjects[i];
+        }
     }
-  }
-  return NULL;
+    return NULL;
 }
 
 ///////////////////////////////////////////////
 /// \brief Get the application metadata class, according to the name
 ///
 TRestMetadata* TRestManager::GetApplicationWithName(string name) {
-  for (int i = 0; i < fMetaObjects.size(); i++) {
-    if (fMetaObjects[i]->GetName() == name) {
-      return fMetaObjects[i];
+    for (int i = 0; i < fMetaObjects.size(); i++) {
+        if (fMetaObjects[i]->GetName() == name) {
+            return fMetaObjects[i];
+        }
     }
-  }
-  return NULL;
+    return NULL;
 }
 
 ///////////////////////////////////////////////

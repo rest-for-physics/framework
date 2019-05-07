@@ -22,51 +22,51 @@
 #include "TVector3.h"
 
 class TRestBiasingVolume : public TObject {
- protected:
-  TVector3 fVolumePosition;
-  Double_t fVolumeSize;
-  TString fBiasingVolumeType;
-  Double_t fBiasingFactor;
-  TVector2 fEnergyRange;
-  TString fVolumeType;
+   protected:
+    TVector3 fVolumePosition;
+    Double_t fVolumeSize;
+    TString fBiasingVolumeType;
+    Double_t fBiasingFactor;
+    TVector2 fEnergyRange;
+    TString fVolumeType;
 
- public:
-  Double_t GetBiasingFactor() { return fBiasingFactor; }
-  Double_t GetBiasingVolumeSize() { return fVolumeSize; }
-  TString GetBiasingVolumeType() { return fVolumeType; }
-  TVector3 GetBiasingVolumePosition() { return fVolumePosition; }
-  TVector2 GetEnergyRange() { return fEnergyRange; }
-  Double_t GetMaxEnergy() { return fEnergyRange.Y(); }
-  Double_t GetMinEnergy() { return fEnergyRange.X(); }
+   public:
+    Double_t GetBiasingFactor() { return fBiasingFactor; }
+    Double_t GetBiasingVolumeSize() { return fVolumeSize; }
+    TString GetBiasingVolumeType() { return fVolumeType; }
+    TVector3 GetBiasingVolumePosition() { return fVolumePosition; }
+    TVector2 GetEnergyRange() { return fEnergyRange; }
+    Double_t GetMaxEnergy() { return fEnergyRange.Y(); }
+    Double_t GetMinEnergy() { return fEnergyRange.X(); }
 
-  void SetBiasingVolumeSize(Double_t size) { fVolumeSize = size; }
-  void SetBiasingVolumeType(TString type) { fVolumeType = type; }
-  void SetBiasingVolumePosition(TVector3 pos) { fVolumePosition = pos; }
-  void SetBiasingFactor(Double_t factor) { fBiasingFactor = factor; }
-  void SetEnergyRange(TVector2 eRange) { fEnergyRange = eRange; }
+    void SetBiasingVolumeSize(Double_t size) { fVolumeSize = size; }
+    void SetBiasingVolumeType(TString type) { fVolumeType = type; }
+    void SetBiasingVolumePosition(TVector3 pos) { fVolumePosition = pos; }
+    void SetBiasingFactor(Double_t factor) { fBiasingFactor = factor; }
+    void SetEnergyRange(TVector2 eRange) { fEnergyRange = eRange; }
 
-  // Check if it is inside the sphere
-  Int_t isInside(Double_t x, Double_t y, Double_t z) {
-    if (fVolumeType == "virtualBox") {
-      if (x < fVolumeSize / 2. && x > -fVolumeSize / 2.)
-        if (y < fVolumeSize / 2. && y > -fVolumeSize / 2.)
-          if (z < fVolumeSize / 2. && z > -fVolumeSize / 2.) return 1;
+    // Check if it is inside the sphere
+    Int_t isInside(Double_t x, Double_t y, Double_t z) {
+        if (fVolumeType == "virtualBox") {
+            if (x < fVolumeSize / 2. && x > -fVolumeSize / 2.)
+                if (y < fVolumeSize / 2. && y > -fVolumeSize / 2.)
+                    if (z < fVolumeSize / 2. && z > -fVolumeSize / 2.) return 1;
+        }
+
+        if (fVolumeType == "virtualSphere") {
+            Double_t r2 = x * x + y * y + z * z;
+            if (r2 < fVolumeSize * fVolumeSize) return 1;
+        }
+        return 0;
     }
 
-    if (fVolumeType == "virtualSphere") {
-      Double_t r2 = x * x + y * y + z * z;
-      if (r2 < fVolumeSize * fVolumeSize) return 1;
-    }
-    return 0;
-  }
+    void PrintBiasingVolume();
 
-  void PrintBiasingVolume();
+    // Construtor
+    TRestBiasingVolume();
+    // Destructor
+    virtual ~TRestBiasingVolume();
 
-  // Construtor
-  TRestBiasingVolume();
-  // Destructor
-  virtual ~TRestBiasingVolume();
-
-  ClassDef(TRestBiasingVolume, 2);  // REST event superclass
+    ClassDef(TRestBiasingVolume, 2);  // REST event superclass
 };
 #endif

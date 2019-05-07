@@ -27,10 +27,10 @@ ClassImp(TRestGeometry)
     : TGeoManager()  //, fGfGeometry(0), fDriftElec(0)
 {
 #if defined USE_Garfield
-  // TRestGeometry default constructor
-  vReadoutElec.clear();
-  vGfComponent.clear();
-  vGfSensor.clear();
+    // TRestGeometry default constructor
+    vReadoutElec.clear();
+    vGfComponent.clear();
+    vGfSensor.clear();
 #endif
 }
 
@@ -38,10 +38,10 @@ ClassImp(TRestGeometry)
 
 TRestGeometry::~TRestGeometry() {
 #if defined USE_Garfield
-  // TRestGeometry destructor
-  vReadoutElec.clear();
-  vGfSensor.clear();
-  vGfComponent.clear();
+    // TRestGeometry destructor
+    vReadoutElec.clear();
+    vGfSensor.clear();
+    vGfComponent.clear();
 #endif
 }
 
@@ -49,27 +49,27 @@ TRestGeometry::~TRestGeometry() {
 
 void TRestGeometry::InitGfGeometry() {
 #if defined USE_Garfield
-  fGfGeometry = new Garfield::GeometryRoot();
-  fGfGeometry->SetGeometry(this);
+    fGfGeometry = new Garfield::GeometryRoot();
+    fGfGeometry->SetGeometry(this);
 #endif
 }
 
 //------------------------------------------------------------------------------
 
 void TRestGeometry::PrintGeometry() {
-  cout << "--------------------------------------" << endl;
-  cout << "Volumes : " << this->GetListOfVolumes()->GetEntries() << endl;
-  cout << "Mother volume : " << this->GetTopVolume()->GetName() << endl;
-  cout << "--------------------------------------" << endl;
+    cout << "--------------------------------------" << endl;
+    cout << "Volumes : " << this->GetListOfVolumes()->GetEntries() << endl;
+    cout << "Mother volume : " << this->GetTopVolume()->GetName() << endl;
+    cout << "--------------------------------------" << endl;
 
-  TGeoVolume* vol;
-  TGeoMaterial* mat;
-  for (int volID = 0; volID < this->GetListOfVolumes()->GetEntries(); volID++) {
-    vol = this->GetVolume(volID);
-    mat = vol->GetMaterial();
-    cout << "Volume " << volID << endl;
-    cout << "       Name : " << vol->GetName() << endl;
-    cout << "       Material : " << mat->GetName() << endl;
-    cout << "       Density : " << mat->GetDensity() << endl;
-  }
+    TGeoVolume* vol;
+    TGeoMaterial* mat;
+    for (int volID = 0; volID < this->GetListOfVolumes()->GetEntries(); volID++) {
+        vol = this->GetVolume(volID);
+        mat = vol->GetMaterial();
+        cout << "Volume " << volID << endl;
+        cout << "       Name : " << vol->GetName() << endl;
+        cout << "       Material : " << mat->GetName() << endl;
+        cout << "       Density : " << mat->GetDensity() << endl;
+    }
 }

@@ -37,189 +37,182 @@ using namespace std;
 ClassImp(TRestRawSignalTo2DHitsProcess)
     //______________________________________________________________________________
     TRestRawSignalTo2DHitsProcess::TRestRawSignalTo2DHitsProcess() {
-  Initialize();
+    Initialize();
 }
 
 //______________________________________________________________________________
 TRestRawSignalTo2DHitsProcess::~TRestRawSignalTo2DHitsProcess() {
-  delete fOutput2DHitsEvent;
-  delete fInputSignalEvent;
+    delete fOutput2DHitsEvent;
+    delete fInputSignalEvent;
 }
 
 //______________________________________________________________________________
 void TRestRawSignalTo2DHitsProcess::Initialize() {
-  // We define the section name (by default we use the name of the class)
-  SetSectionName(this->ClassName());
+    // We define the section name (by default we use the name of the class)
+    SetSectionName(this->ClassName());
 
-  // We create the input/output specific event data
-  fInputSignalEvent = new TRestRawSignalEvent();
-  fOutput2DHitsEvent = new TRest2DHitsEvent();
+    // We create the input/output specific event data
+    fInputSignalEvent = new TRestRawSignalEvent();
+    fOutput2DHitsEvent = new TRest2DHitsEvent();
 
-  // We connect the TRestEventProcess input/output event pointers
-  fInputEvent = fInputSignalEvent;
-  fOutputEvent = fOutput2DHitsEvent;
+    // We connect the TRestEventProcess input/output event pointers
+    fInputEvent = fInputSignalEvent;
+    fOutputEvent = fOutput2DHitsEvent;
 
-  // TVirtualFitter::SetDefaultFitter("Minuit2");
+    // TVirtualFitter::SetDefaultFitter("Minuit2");
 }
 
 void TRestRawSignalTo2DHitsProcess::InitProcess() {
-  fReadout = (TRestReadout*)GetReadoutMetadata();
-  if (fReadout != NULL) fOutput2DHitsEvent->SetReadout(fReadout);
+    fReadout = (TRestReadout*)GetReadoutMetadata();
+    if (fReadout != NULL) fOutput2DHitsEvent->SetReadout(fReadout);
 
-  fOutput2DHitsEvent->SetROIX(TVector2(X1, X2));
-  fOutput2DHitsEvent->SetROIY(TVector2(Y1, Y2));
+    fOutput2DHitsEvent->SetROIX(TVector2(X1, X2));
+    fOutput2DHitsEvent->SetROIY(TVector2(Y1, Y2));
 
-  // longmunumxz = 0;
-  // longmunumyz = 0;
-  // mudeposxz = new TH1D("mudeposxzup", "muonXZenergydepos", 512, 0., 512.);
-  // mudeposyz = new TH1D("mudeposyzup", "muonYZenergydepos", 512, 0., 512.);
+    // longmunumxz = 0;
+    // longmunumyz = 0;
+    // mudeposxz = new TH1D("mudeposxzup", "muonXZenergydepos", 512, 0., 512.);
+    // mudeposyz = new TH1D("mudeposyzup", "muonYZenergydepos", 512, 0., 512.);
 
-  hxzt = new TH1D((TString) "hxzt" + ToString(this), "hh", 200, 0, 3.14);
-  hxzr = new TH1D((TString) "hxzr" + ToString(this), "hh", 200, -(X2 - X1),
-                  (X2 - X1));
-  fxz = new TF1((TString) "fxz" + ToString(this), "gaus");
-  hyzt = new TH1D((TString) "hyzt" + ToString(this), "hh", 200, 0, 3.14);
-  hyzr = new TH1D((TString) "hyzr" + ToString(this), "hh", 200, -(Y2 - Y1),
-                  (Y2 - Y1));
-  fyz = new TF1((TString) "fyz" + ToString(this), "gaus");
+    hxzt = new TH1D((TString) "hxzt" + ToString(this), "hh", 200, 0, 3.14);
+    hxzr = new TH1D((TString) "hxzr" + ToString(this), "hh", 200, -(X2 - X1), (X2 - X1));
+    fxz = new TF1((TString) "fxz" + ToString(this), "gaus");
+    hyzt = new TH1D((TString) "hyzt" + ToString(this), "hh", 200, 0, 3.14);
+    hyzr = new TH1D((TString) "hyzr" + ToString(this), "hh", 200, -(Y2 - Y1), (Y2 - Y1));
+    fyz = new TF1((TString) "fyz" + ToString(this), "gaus");
 }
 
 //______________________________________________________________________________
 TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent* evInput) {
-  fInputSignalEvent = (TRestRawSignalEvent*)evInput;
+    fInputSignalEvent = (TRestRawSignalEvent*)evInput;
 
-  if (fInputSignalEvent->GetNumberOfSignals() <= 0) return NULL;
+    if (fInputSignalEvent->GetNumberOfSignals() <= 0) return NULL;
 
-  if (fReadout == NULL) {
-    error << "Lack readout definition! Cannot process..." << endl;
-    return NULL;
-  } else {
-    fOutput2DHitsEvent->Initialize();
-    fOutput2DHitsEvent->SetEventInfo(fInputSignalEvent);
-    fOutput2DHitsEvent->SetSubEventTag("general");
-    ene = 0;
+    if (fReadout == NULL) {
+        error << "Lack readout definition! Cannot process..." << endl;
+        return NULL;
+    } else {
+        fOutput2DHitsEvent->Initialize();
+        fOutput2DHitsEvent->SetEventInfo(fInputSignalEvent);
+        fOutput2DHitsEvent->SetSubEventTag("general");
+        ene = 0;
 
-    int firingN = 0;
-    for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++) {
-      TRestRawSignal* s = fInputSignalEvent->GetSignal(n);
-      if (s->GetMaxValue() >= 3600) firingN++;
-      // s->GetIntegralWithThreshold((Int_t)fIntegralRange.X(),
-      // (Int_t)fIntegralRange.Y(), fBaseLineRange.X(), fBaseLineRange.Y(),
-      // fPointThreshold, fNPointsOverThreshold, fSignalThreshold); if
-      // (fNoiseReductionLevel == 0) { 	fOutput2DHitsEvent->AddSignal(s);
-      //}
-      // else if (fNoiseReductionLevel == 1)
-      //{
-      //	s->SubstractBaseline(fBaseLineRange.X(), fBaseLineRange.Y());
-      //	fOutput2DHitsEvent->AddSignal(s);
-      //}
-      // else if (fNoiseReductionLevel == 2)
-      //{
-      TRestSignal sgn;
-      sgn.SetID(s->GetID());
-      double baseline = s->GetBaseLine(fBaseLineRange.X(), fBaseLineRange.Y());
-      double baselinerms =
-          s->GetBaseLineSigma(fBaseLineRange.X(), fBaseLineRange.Y());
-      for (int i = fBaseLineRange.Y(); i < s->GetNumberOfPoints() - 5; i++) {
-        if (s->GetData(i) > baseline + fPointThreshold * baselinerms) {
-          int pos = i;
-          vector<double> pulse;
-          pulse.push_back(s->GetData(i));
-          i++;
-          int flatN = 0;
-          while (i < s->GetNumberOfPoints() - 5 &&
-                 s->GetData(i) > baseline + fPointThreshold * baselinerms) {
-            if (TMath::Abs(s->GetData(i) - s->GetData(i - 1)) >
-                fPointThreshold * baselinerms) {
-              flatN = 0;
-            } else {
-              flatN++;
+        int firingN = 0;
+        for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++) {
+            TRestRawSignal* s = fInputSignalEvent->GetSignal(n);
+            if (s->GetMaxValue() >= 3600) firingN++;
+            // s->GetIntegralWithThreshold((Int_t)fIntegralRange.X(),
+            // (Int_t)fIntegralRange.Y(), fBaseLineRange.X(), fBaseLineRange.Y(),
+            // fPointThreshold, fNPointsOverThreshold, fSignalThreshold); if
+            // (fNoiseReductionLevel == 0) { 	fOutput2DHitsEvent->AddSignal(s);
+            //}
+            // else if (fNoiseReductionLevel == 1)
+            //{
+            //	s->SubstractBaseline(fBaseLineRange.X(), fBaseLineRange.Y());
+            //	fOutput2DHitsEvent->AddSignal(s);
+            //}
+            // else if (fNoiseReductionLevel == 2)
+            //{
+            TRestSignal sgn;
+            sgn.SetID(s->GetID());
+            double baseline = s->GetBaseLine(fBaseLineRange.X(), fBaseLineRange.Y());
+            double baselinerms = s->GetBaseLineSigma(fBaseLineRange.X(), fBaseLineRange.Y());
+            for (int i = fBaseLineRange.Y(); i < s->GetNumberOfPoints() - 5; i++) {
+                if (s->GetData(i) > baseline + fPointThreshold * baselinerms) {
+                    int pos = i;
+                    vector<double> pulse;
+                    pulse.push_back(s->GetData(i));
+                    i++;
+                    int flatN = 0;
+                    while (i < s->GetNumberOfPoints() - 5 &&
+                           s->GetData(i) > baseline + fPointThreshold * baselinerms) {
+                        if (TMath::Abs(s->GetData(i) - s->GetData(i - 1)) > fPointThreshold * baselinerms) {
+                            flatN = 0;
+                        } else {
+                            flatN++;
+                        }
+                        if (flatN < fNPointsOverThreshold) {
+                            pulse.push_back(s->GetData(i));
+                            i++;
+                        } else {
+                            break;
+                        }
+                    }
+                    if (pulse.size() > fNPointsOverThreshold) {
+                        auto _e = max_element(begin(pulse), end(pulse));
+                        if (*_e > fSignalThreshold * baselinerms) {
+                            for (int j = pos; j < i; j++) {
+                                sgn.NewPoint(j, s->GetData(j));
+                                ene += s->GetData(j);
+                            }
+                        }
+                    }
+                }
             }
-            if (flatN < fNPointsOverThreshold) {
-              pulse.push_back(s->GetData(i));
-              i++;
-            } else {
-              break;
-            }
-          }
-          if (pulse.size() > fNPointsOverThreshold) {
-            auto _e = max_element(begin(pulse), end(pulse));
-            if (*_e > fSignalThreshold * baselinerms) {
-              for (int j = pos; j < i; j++) {
-                sgn.NewPoint(j, s->GetData(j));
-                ene += s->GetData(j);
-              }
-            }
-          }
+            // if (fOutput2DHitsEvent->GetID() == 92) {
+            //	cout << s->GetID() << " " << sgn.GetNumberOfPoints() << endl;
+            //}
+            fOutput2DHitsEvent->AddSignal(&sgn);
+            /*}
+            else
+            {
+                    TRestSignal sgn;
+                    sgn.SetID(s->GetID());
+                    double baseline = s->GetBaseLine(fBaseLineRange.X(),
+            fBaseLineRange.Y()); double baselinerms =
+            s->GetBaseLineSigma(fBaseLineRange.X(), fBaseLineRange.Y()); for (int i =
+            fBaseLineRange.Y(); i < s->GetNumberOfPoints(); i++)
+                    {
+                            if (s->GetData(i) > baseline + fPointThreshold *
+            baselinerms) { int pos = i; vector<double> pulse;
+                                    pulse.push_back(s->GetData(i));
+                                    i++;
+                                    while (i < s->GetNumberOfPoints() && s->GetData(i)
+            > baseline + fPointThreshold * baselinerms) {
+                                            pulse.push_back(s->GetData(i));
+                                            i++;
+                                    }
+                                    if (pulse.size() > fNPointsOverThreshold) {
+                                            auto _e = max_element(begin(pulse),
+            end(pulse)); if (*_e > fSignalThreshold*baselinerms) {
+
+                                                    sgn.NewPoint(distance(std::begin(pulse),
+            _e) + pos, *_e);
+                                            }
+                                    }
+                            }
+                    }
+                    fOutput2DHitsEvent->AddSignal(&sgn);
+            }*/
         }
-      }
-      // if (fOutput2DHitsEvent->GetID() == 92) {
-      //	cout << s->GetID() << " " << sgn.GetNumberOfPoints() << endl;
-      //}
-      fOutput2DHitsEvent->AddSignal(&sgn);
-      /*}
-      else
-      {
-              TRestSignal sgn;
-              sgn.SetID(s->GetID());
-              double baseline = s->GetBaseLine(fBaseLineRange.X(),
-      fBaseLineRange.Y()); double baselinerms =
-      s->GetBaseLineSigma(fBaseLineRange.X(), fBaseLineRange.Y()); for (int i =
-      fBaseLineRange.Y(); i < s->GetNumberOfPoints(); i++)
-              {
-                      if (s->GetData(i) > baseline + fPointThreshold *
-      baselinerms) { int pos = i; vector<double> pulse;
-                              pulse.push_back(s->GetData(i));
-                              i++;
-                              while (i < s->GetNumberOfPoints() && s->GetData(i)
-      > baseline + fPointThreshold * baselinerms) {
-                                      pulse.push_back(s->GetData(i));
-                                      i++;
-                              }
-                              if (pulse.size() > fNPointsOverThreshold) {
-                                      auto _e = max_element(begin(pulse),
-      end(pulse)); if (*_e > fSignalThreshold*baselinerms) {
-
-                                              sgn.NewPoint(distance(std::begin(pulse),
-      _e) + pos, *_e);
-                                      }
-                              }
-                      }
-              }
-              fOutput2DHitsEvent->AddSignal(&sgn);
-      }*/
+        if (firingN > 20) fOutput2DHitsEvent->SetSubEventTag("firing");
     }
-    if (firingN > 20) fOutput2DHitsEvent->SetSubEventTag("firing");
-  }
 
-  fOutput2DHitsEvent->RemoveSeparateZ();
+    fOutput2DHitsEvent->RemoveSeparateZ();
 
-  // the analysis
-  zlen =
-      fOutput2DHitsEvent->GetZRange().Y() - fOutput2DHitsEvent->GetZRange().X();
-  xlen =
-      fOutput2DHitsEvent->GetXRange().Y() - fOutput2DHitsEvent->GetXRange().X();
-  ylen =
-      fOutput2DHitsEvent->GetYRange().Y() - fOutput2DHitsEvent->GetYRange().X();
-  firstx = fOutput2DHitsEvent->GetFirstX();
-  firsty = fOutput2DHitsEvent->GetFirstY();
-  firstz = fOutput2DHitsEvent->GetZRange().X();
-  lastz = fOutput2DHitsEvent->GetZRange().Y();
-  // mutanthe = numeric_limits<double>::quiet_NaN();
+    // the analysis
+    zlen = fOutput2DHitsEvent->GetZRange().Y() - fOutput2DHitsEvent->GetZRange().X();
+    xlen = fOutput2DHitsEvent->GetXRange().Y() - fOutput2DHitsEvent->GetXRange().X();
+    ylen = fOutput2DHitsEvent->GetYRange().Y() - fOutput2DHitsEvent->GetYRange().X();
+    firstx = fOutput2DHitsEvent->GetFirstX();
+    firsty = fOutput2DHitsEvent->GetFirstY();
+    firstz = fOutput2DHitsEvent->GetZRange().X();
+    lastz = fOutput2DHitsEvent->GetZRange().Y();
+    // mutanthe = numeric_limits<double>::quiet_NaN();
 
-  TRest2DHitsEvent* eve = SelectTag();
+    TRest2DHitsEvent* eve = SelectTag();
 
-  if (eve != NULL) MuDepos(eve);
+    if (eve != NULL) MuDepos(eve);
 
-  // if (eve!=NULL && eve->GetNumberOfSignals() > 12 && eve->GetZRange().Y() -
-  // eve->GetZRange().X() > 200) { 	return eve;
-  //}
-  // else
-  //{
-  //	return NULL;
-  //}
+    // if (eve!=NULL && eve->GetNumberOfSignals() > 12 && eve->GetZRange().Y() -
+    // eve->GetZRange().X() > 200) { 	return eve;
+    //}
+    // else
+    //{
+    //	return NULL;
+    //}
 
-  return eve;
+    return eve;
 }
 
 // int CheckFitFunction(const TF1 * f1, int dim) {
@@ -283,7 +276,7 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent* evInput) {
 //	Int_t npar = f1->GetNpar();
 //	if (special == 299 + npar)  linear = kTRUE; // for polynomial functions
 //												//
-//do not use linear fitter in these case 	if (fitOption.Bound ||
+// do not use linear fitter in these case 	if (fitOption.Bound ||
 // fitOption.Like || fitOption.Errors || fitOption.Gradient || fitOption.More ||
 // fitOption.User || fitOption.Integral || fitOption.Minuit) 		linear =
 // kFALSE;
@@ -310,7 +303,7 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent* evInput) {
 //	if (fitOption.BinVolume) {
 //		opt.fBinVolume = true; // scale by bin volume
 //		if (fitOption.BinVolume == 2) opt.fNormBinVolume = true; //
-//scale by normalized bin volume
+// scale by normalized bin volume
 //	}
 //
 //	if (opt.fUseRange) {
@@ -395,14 +388,15 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent* evInput) {
 //		if (err > 0)
 //			parSettings.SetStepSize(err);
 //		else if (plow < pup && TMath::Finite(plow) &&
-//TMath::Finite(pup))
+// TMath::Finite(pup))
 //{ // in case of limits improve step sizes 			double step = 0.1
 //* (pup - plow);
 //			// check if value is not too close to limit otherwise
-//trim
+// trim
 // value 			if (parSettings.Value() < pup && pup -
-// parSettings.Value() < 2 * step) 				step = (pup - parSettings.Value()) / 2; 			else
-//if (parSettings.Value() > plow && parSettings.Value() - plow < 2 * step)
+// parSettings.Value() < 2 * step) 				step = (pup - parSettings.Value()) / 2;
+// else
+// if (parSettings.Value() > plow && parSettings.Value() - plow < 2 * step)
 // step = (parSettings.Value() - plow) / 2;
 //
 //			parSettings.SetStepSize(step);
@@ -434,7 +428,7 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent* evInput) {
 //			// robust fitting
 //			std::string type = "Robust";
 //			// if an h is specified print out the value adding to
-//the
+// the
 // type 			if (fitOption.hRobust > 0 && fitOption.hRobust < 1.)
 // type += " (h=" + ROOT::Math::Util::ToString(fitOption.hRobust) + ")";
 //			fitConfig.SetMinimizer("Linear", type.c_str());
@@ -510,7 +504,7 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent* evInput) {
 // opt.fCoordErrors = false; // no need to use coordinate errors in a pol0 fit
 // if (fitOption.NoErrX) opt.fCoordErrors = false;  // do not use coordinate
 // errors when requested 		if (fitOption.W1) opt.fErrors1 = true;
-//if (fitOption.W1 > 1) opt.fUseEmpty = true; // use empty bins with weight=1
+// if (fitOption.W1 > 1) opt.fUseEmpty = true; // use empty bins with weight=1
 //
 //		if (fitOption.BinVolume) {
 //			opt.fBinVolume = true; // scale by bin volume
@@ -536,7 +530,7 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent* evInput) {
 // gaussian 		else if (special == 110 || special == 112)
 // ROOT::Fit::Init2DGaus(data, f1); // 2D gaussians ( xygaus or bigaus)
 // else if (special == 400)      ROOT::Fit::InitGaus(data, f1); // landau (use
-//the same) 		else if (special == 410)      ROOT::Fit::Init2DGaus(data, f1); // 2D
+// the same) 		else if (special == 410)      ROOT::Fit::Init2DGaus(data, f1); // 2D
 // landau (use the same) 		else if (special == 200)
 // ROOT::Fit::InitExpo(data, f1); // exponential
 //	}
@@ -574,14 +568,15 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent* evInput) {
 //		if (err > 0)
 //			parSettings.SetStepSize(err);
 //		else if (plow < pup && TMath::Finite(plow) &&
-//TMath::Finite(pup))
+// TMath::Finite(pup))
 //{ // in case of limits improve step sizes 			double step = 0.1
 //* (pup - plow);
 //			// check if value is not too close to limit otherwise
-//trim
+// trim
 // value 			if (parSettings.Value() < pup && pup -
-// parSettings.Value() < 2 * step) 				step = (pup - parSettings.Value()) / 2; 			else
-//if (parSettings.Value() > plow && parSettings.Value() - plow < 2 * step)
+// parSettings.Value() < 2 * step) 				step = (pup - parSettings.Value()) / 2;
+// else
+// if (parSettings.Value() > plow && parSettings.Value() - plow < 2 * step)
 // step = (parSettings.Value() - plow) / 2;
 //
 //			parSettings.SetStepSize(step);
@@ -637,516 +632,488 @@ TRestEvent* TRestRawSignalTo2DHitsProcess::ProcessEvent(TRestEvent* evInput) {
 //}
 
 void TRestRawSignalTo2DHitsProcess::MakeCluster() {
-  vector<double> xzz;
-  vector<double> xzx;
-  vector<double> xze;
+    vector<double> xzz;
+    vector<double> xzx;
+    vector<double> xze;
 
-  if (fOutput2DHitsEvent->GetNumberOfXZSignals() > 3) {
-    double baselinemean = 0;
-    double baselinermsmean = 0;
-    // we first make cluster along z(same x)
-    for (int i = 0; i < fOutput2DHitsEvent->GetNumberOfXZSignals(); i++) {
-      auto s = fOutput2DHitsEvent->GetXZSignal(i);
-      auto x = fOutput2DHitsEvent->GetX(i);
-      double baseline = TMath::Mean(s.begin() + fBaseLineRange.X(),
-                                    s.begin() + fBaseLineRange.Y());
-      double baselinerms = TMath::StdDev(s.begin() + fBaseLineRange.X(),
-                                         s.begin() + fBaseLineRange.Y());
-      baselinemean += baseline / fOutput2DHitsEvent->GetNumberOfXZSignals();
-      baselinermsmean +=
-          baselinerms / fOutput2DHitsEvent->GetNumberOfXZSignals();
+    if (fOutput2DHitsEvent->GetNumberOfXZSignals() > 3) {
+        double baselinemean = 0;
+        double baselinermsmean = 0;
+        // we first make cluster along z(same x)
+        for (int i = 0; i < fOutput2DHitsEvent->GetNumberOfXZSignals(); i++) {
+            auto s = fOutput2DHitsEvent->GetXZSignal(i);
+            auto x = fOutput2DHitsEvent->GetX(i);
+            double baseline = TMath::Mean(s.begin() + fBaseLineRange.X(), s.begin() + fBaseLineRange.Y());
+            double baselinerms =
+                TMath::StdDev(s.begin() + fBaseLineRange.X(), s.begin() + fBaseLineRange.Y());
+            baselinemean += baseline / fOutput2DHitsEvent->GetNumberOfXZSignals();
+            baselinermsmean += baselinerms / fOutput2DHitsEvent->GetNumberOfXZSignals();
 
-      for (int j = fBaseLineRange.Y(); j < s.size(); j++) {
-        if (s[j] > baseline + fSignalThreshold * baselinerms) {
-          int pos = j;
-          vector<double> pulse;
-          pulse.push_back(s[j]);
-          j++;
-          while (j < s.size() &&
-                 s[j] > baseline + fSignalThreshold * baselinerms) {
-            pulse.push_back(s[j]);
-            j++;
-          }
-          if (pulse.size() > fNPointsOverThreshold) {
-            auto _e = max_element(begin(pulse), end(pulse));
-            if (*_e > fSignalThreshold * baselinerms) {
-              xzz.push_back((double)(distance(std::begin(pulse), _e) + pos));
-              xzx.push_back(x);
-              xze.push_back(*_e);
+            for (int j = fBaseLineRange.Y(); j < s.size(); j++) {
+                if (s[j] > baseline + fSignalThreshold * baselinerms) {
+                    int pos = j;
+                    vector<double> pulse;
+                    pulse.push_back(s[j]);
+                    j++;
+                    while (j < s.size() && s[j] > baseline + fSignalThreshold * baselinerms) {
+                        pulse.push_back(s[j]);
+                        j++;
+                    }
+                    if (pulse.size() > fNPointsOverThreshold) {
+                        auto _e = max_element(begin(pulse), end(pulse));
+                        if (*_e > fSignalThreshold * baselinerms) {
+                            xzz.push_back((double)(distance(std::begin(pulse), _e) + pos));
+                            xzx.push_back(x);
+                            xze.push_back(*_e);
+                        }
+                    }
+                }
             }
-          }
         }
-      }
-    }
 
-    // then make cluster along x(same z)
-    int a = fOutput2DHitsEvent->GetZRange().X();
-    int b = fOutput2DHitsEvent->GetZRange().Y();
-    for (int i = a; i <= b; i += (int)(5 * gRandom->Rndm((Long64_t)this) +
-                                       10))  // we sample every 15 points
-    {
-      auto hits = fOutput2DHitsEvent->GetXZHitsWithZ(i);
-      map<double, double>::iterator iter = hits.begin();
-      while (iter != hits.end()) {
-        if (iter->second > baselinemean + fSignalThreshold * baselinermsmean) {
-          double pos = iter->first;
-          double ene = iter->second;
-          vector<double> pulse;
-          pulse.push_back(iter->second);
-          iter++;
-          while (iter != hits.end() &&
-                 iter->second >
-                     baselinemean + fSignalThreshold * baselinermsmean) {
-            pulse.push_back(iter->second);
-            if (iter->second > ene) {
-              ene = iter->second;
-              pos = iter->first;
+        // then make cluster along x(same z)
+        int a = fOutput2DHitsEvent->GetZRange().X();
+        int b = fOutput2DHitsEvent->GetZRange().Y();
+        for (int i = a; i <= b;
+             i += (int)(5 * gRandom->Rndm((Long64_t)this) + 10))  // we sample every 15 points
+        {
+            auto hits = fOutput2DHitsEvent->GetXZHitsWithZ(i);
+            map<double, double>::iterator iter = hits.begin();
+            while (iter != hits.end()) {
+                if (iter->second > baselinemean + fSignalThreshold * baselinermsmean) {
+                    double pos = iter->first;
+                    double ene = iter->second;
+                    vector<double> pulse;
+                    pulse.push_back(iter->second);
+                    iter++;
+                    while (iter != hits.end() &&
+                           iter->second > baselinemean + fSignalThreshold * baselinermsmean) {
+                        pulse.push_back(iter->second);
+                        if (iter->second > ene) {
+                            ene = iter->second;
+                            pos = iter->first;
+                        }
+                        iter++;
+                    }
+                    iter--;
+                    if (!TMath::IsNaN(pos)) {
+                        xzz.push_back((double)i);
+                        xzx.push_back(pos);
+                        xze.push_back(ene);
+                    }
+                }
+                iter++;
             }
-            iter++;
-          }
-          iter--;
-          if (!TMath::IsNaN(pos)) {
-            xzz.push_back((double)i);
-            xzx.push_back(pos);
-            xze.push_back(ene);
-          }
         }
-        iter++;
-      }
+
+        for (int i = 0; i < xzz.size(); i++) {
+            fOutput2DHitsEvent->AddXZCluster(xzx[i], xzz[i], xze[i]);
+        }
+
+        // tag firing event
+        if (xzz.size() > 10 &&
+            (*max_element(begin(xzz), end(xzz)) - *min_element(begin(xzz), end(xzz))) /
+                    (*max_element(begin(xzx), end(xzx)) - *min_element(begin(xzx), end(xzx))) <
+                0.1) {
+            fOutput2DHitsEvent->SetSubEventTag("firing");
+        }
     }
 
-    for (int i = 0; i < xzz.size(); i++) {
-      fOutput2DHitsEvent->AddXZCluster(xzx[i], xzz[i], xze[i]);
-    }
+    vector<double> yzz;
+    vector<double> yzy;
+    vector<double> yze;
 
-    // tag firing event
-    if (xzz.size() > 10 && (*max_element(begin(xzz), end(xzz)) -
-                            *min_element(begin(xzz), end(xzz))) /
-                                   (*max_element(begin(xzx), end(xzx)) -
-                                    *min_element(begin(xzx), end(xzx))) <
-                               0.1) {
-      fOutput2DHitsEvent->SetSubEventTag("firing");
-    }
-  }
+    if (fOutput2DHitsEvent->GetNumberOfYZSignals() > 3) {
+        double baselinemean = 0;
+        double baselinermsmean = 0;
+        // we first make cluster along z(same y)
+        for (int i = 0; i < fOutput2DHitsEvent->GetNumberOfYZSignals(); i++) {
+            auto s = fOutput2DHitsEvent->GetYZSignal(i);
+            auto y = fOutput2DHitsEvent->GetY(i);
+            double baseline = TMath::Mean(s.begin() + fBaseLineRange.X(), s.begin() + fBaseLineRange.Y());
+            double baselinerms =
+                TMath::StdDev(s.begin() + fBaseLineRange.X(), s.begin() + fBaseLineRange.Y());
+            baselinemean += baseline / fOutput2DHitsEvent->GetNumberOfYZSignals();
+            baselinermsmean += baselinerms / fOutput2DHitsEvent->GetNumberOfYZSignals();
 
-  vector<double> yzz;
-  vector<double> yzy;
-  vector<double> yze;
-
-  if (fOutput2DHitsEvent->GetNumberOfYZSignals() > 3) {
-    double baselinemean = 0;
-    double baselinermsmean = 0;
-    // we first make cluster along z(same y)
-    for (int i = 0; i < fOutput2DHitsEvent->GetNumberOfYZSignals(); i++) {
-      auto s = fOutput2DHitsEvent->GetYZSignal(i);
-      auto y = fOutput2DHitsEvent->GetY(i);
-      double baseline = TMath::Mean(s.begin() + fBaseLineRange.X(),
-                                    s.begin() + fBaseLineRange.Y());
-      double baselinerms = TMath::StdDev(s.begin() + fBaseLineRange.X(),
-                                         s.begin() + fBaseLineRange.Y());
-      baselinemean += baseline / fOutput2DHitsEvent->GetNumberOfYZSignals();
-      baselinermsmean +=
-          baselinerms / fOutput2DHitsEvent->GetNumberOfYZSignals();
-
-      for (int j = fBaseLineRange.Y(); j < s.size(); j++) {
-        if (s[j] > baseline + fSignalThreshold * baselinerms) {
-          int pos = j;
-          vector<double> pulse;
-          pulse.push_back(s[j]);
-          j++;
-          while (j < s.size() &&
-                 s[j] > baseline + fSignalThreshold * baselinerms) {
-            pulse.push_back(s[j]);
-            j++;
-          }
-          if (pulse.size() > fNPointsOverThreshold) {
-            auto _e = max_element(begin(pulse), end(pulse));
-            if (*_e > fSignalThreshold * baselinerms) {
-              yzz.push_back((double)(distance(std::begin(pulse), _e) + pos));
-              yzy.push_back(y);
-              yze.push_back(*_e);
+            for (int j = fBaseLineRange.Y(); j < s.size(); j++) {
+                if (s[j] > baseline + fSignalThreshold * baselinerms) {
+                    int pos = j;
+                    vector<double> pulse;
+                    pulse.push_back(s[j]);
+                    j++;
+                    while (j < s.size() && s[j] > baseline + fSignalThreshold * baselinerms) {
+                        pulse.push_back(s[j]);
+                        j++;
+                    }
+                    if (pulse.size() > fNPointsOverThreshold) {
+                        auto _e = max_element(begin(pulse), end(pulse));
+                        if (*_e > fSignalThreshold * baselinerms) {
+                            yzz.push_back((double)(distance(std::begin(pulse), _e) + pos));
+                            yzy.push_back(y);
+                            yze.push_back(*_e);
+                        }
+                    }
+                }
             }
-          }
         }
-      }
-    }
 
-    // then make cluster along y(same z)
-    int a = fOutput2DHitsEvent->GetZRange().X();
-    int b = fOutput2DHitsEvent->GetZRange().Y();
-    for (int i = a; i <= b; i += (int)(5 * gRandom->Rndm((Long64_t)this) +
-                                       10))  // we sample every 15 points
-    {
-      auto hits = fOutput2DHitsEvent->GetYZHitsWithZ(i);
-      map<double, double>::iterator iter = hits.begin();
-      while (iter != hits.end()) {
-        if (iter->second > baselinemean + fSignalThreshold * baselinermsmean) {
-          double pos = iter->first;
-          double ene = iter->second;
-          vector<double> pulse;
-          pulse.push_back(iter->second);
-          iter++;
-          while (iter != hits.end() &&
-                 iter->second >
-                     baselinemean + fSignalThreshold * baselinermsmean) {
-            pulse.push_back(iter->second);
-            if (iter->second > ene) {
-              ene = iter->second;
-              pos = iter->first;
+        // then make cluster along y(same z)
+        int a = fOutput2DHitsEvent->GetZRange().X();
+        int b = fOutput2DHitsEvent->GetZRange().Y();
+        for (int i = a; i <= b;
+             i += (int)(5 * gRandom->Rndm((Long64_t)this) + 10))  // we sample every 15 points
+        {
+            auto hits = fOutput2DHitsEvent->GetYZHitsWithZ(i);
+            map<double, double>::iterator iter = hits.begin();
+            while (iter != hits.end()) {
+                if (iter->second > baselinemean + fSignalThreshold * baselinermsmean) {
+                    double pos = iter->first;
+                    double ene = iter->second;
+                    vector<double> pulse;
+                    pulse.push_back(iter->second);
+                    iter++;
+                    while (iter != hits.end() &&
+                           iter->second > baselinemean + fSignalThreshold * baselinermsmean) {
+                        pulse.push_back(iter->second);
+                        if (iter->second > ene) {
+                            ene = iter->second;
+                            pos = iter->first;
+                        }
+                        iter++;
+                    }
+                    iter--;
+                    if (!TMath::IsNaN(pos)) {
+                        yzz.push_back((double)i);
+                        yzy.push_back(pos);
+                        yze.push_back(ene);
+                    }
+                }
+                iter++;
             }
-            iter++;
-          }
-          iter--;
-          if (!TMath::IsNaN(pos)) {
-            yzz.push_back((double)i);
-            yzy.push_back(pos);
-            yze.push_back(ene);
-          }
         }
-        iter++;
-      }
-    }
 
-    for (int i = 0; i < yzz.size(); i++) {
-      fOutput2DHitsEvent->AddYZCluster(yzy[i], yzz[i], yze[i]);
-    }
+        for (int i = 0; i < yzz.size(); i++) {
+            fOutput2DHitsEvent->AddYZCluster(yzy[i], yzz[i], yze[i]);
+        }
 
-    // tag firing event
-    if (yzz.size() > 10 && (*max_element(begin(yzz), end(yzz)) -
-                            *min_element(begin(yzz), end(yzz))) /
-                                   (*max_element(begin(yzy), end(yzy)) -
-                                    *min_element(begin(yzy), end(yzy))) <
-                               0.1) {
-      fOutput2DHitsEvent->SetSubEventTag("firing");
+        // tag firing event
+        if (yzz.size() > 10 &&
+            (*max_element(begin(yzz), end(yzz)) - *min_element(begin(yzz), end(yzz))) /
+                    (*max_element(begin(yzy), end(yzy)) - *min_element(begin(yzy), end(yzy))) <
+                0.1) {
+            fOutput2DHitsEvent->SetSubEventTag("firing");
+        }
     }
-  }
 }
 
 TRest2DHitsEvent* TRestRawSignalTo2DHitsProcess::SelectTag() {
-  if (fOutput2DHitsEvent->GetSubEventTag() == "general")  // if no tags
-  {
-    if (fOutput2DHitsEvent->GetNumberOfSignals() < 6 && zlen < 50)
-    // 1. tag low count event from source
+    if (fOutput2DHitsEvent->GetSubEventTag() == "general")  // if no tags
     {
-      fOutput2DHitsEvent->SetSubEventTag("weak");
+        if (fOutput2DHitsEvent->GetNumberOfSignals() < 6 && zlen < 50)
+        // 1. tag low count event from source
+        {
+            fOutput2DHitsEvent->SetSubEventTag("weak");
+        }
+        if (TMath::IsNaN(zlen) || fOutput2DHitsEvent->GetZRange().X() < 50 ||
+            fOutput2DHitsEvent->GetZRange().X() > 300)
+        // 2. tag abnormal event from source
+        {
+            fOutput2DHitsEvent->SetSubEventTag("abnormal");
+        }
     }
-    if (TMath::IsNaN(zlen) || fOutput2DHitsEvent->GetZRange().X() < 50 ||
-        fOutput2DHitsEvent->GetZRange().X() > 300)
-    // 2. tag abnormal event from source
+
+    fxz->SetParameter(1, -1);
+    fyz->SetParameter(1, -1);
+    fHough_XZ.clear();
+    fHough_YZ.clear();
+    if (fOutput2DHitsEvent->GetSubEventTag() == "general") {
+        MakeCluster();
+        fOutput2DHitsEvent->DoHough();
+        fHough_XZ = fOutput2DHitsEvent->GetHoughXZ();
+        fHough_YZ = fOutput2DHitsEvent->GetHoughYZ();
+    }
+    // 3. fit hough and tag muon/electron event
+    if (fOutput2DHitsEvent->GetSubEventTag() == "general") {
+        if (fHough_XZ.size() > 100) {
+            hxzt->Reset();
+            hxzr->Reset();
+            for (int i = 0; i < fHough_XZ.size(); i++) {
+                hxzt->Fill(fHough_XZ[i].y(), fHough_XZ[i].z());
+                hxzr->Fill(fHough_XZ[i].x(), fHough_XZ[i].z());
+            }
+
+            if (hxzt->GetMaximumBin() == 1) {
+                fOutput2DHitsEvent->SetSubEventTag("firing");
+            }
+
+            fxz->SetParameter(1, hxzt->GetBinCenter(hxzt->GetMaximumBin()));
+            int fitStatus;
+            if (fVerboseLevel >= REST_Debug) {
+                debug << "ID: " << fOutput2DHitsEvent->GetID() << ", hxzt points: " << fHough_XZ.size()
+                      << ", center: " << hxzt->GetBinCenter(hxzt->GetMaximumBin()) << endl;
+                fitStatus = hxzt->Fit(fxz, "N", "", hxzt->GetBinCenter(hxzt->GetMaximumBin()) - 0.2,
+                                      hxzt->GetBinCenter(hxzt->GetMaximumBin()) + 0.2);
+            } else {
+                fitStatus = hxzt->Fit(fxz, "QN", "", hxzt->GetBinCenter(hxzt->GetMaximumBin()) - 0.2,
+                                      hxzt->GetBinCenter(hxzt->GetMaximumBin()) + 0.2);
+            }
+
+            if (fitStatus == 0) {
+                if (fxz->GetParameter(2) < fHoughSigmaLimit) {
+                    double c = fxz->GetParameter(1);
+                    int from = hxzt->FindBin(c - fxz->GetParameter(2) * 2);  // 2 sigma
+                    int to = hxzt->FindBin(c + fxz->GetParameter(2));
+
+                    int sum = hxzt->Integral(from, to);
+
+                    if (sum > (double)hxzt->Integral() * fPeakPointRateLimit)
+                        fOutput2DHitsEvent->SetSubEventTag("muon");
+                } else if (fxz->GetParameter(2) > 0.8 && zlen > 250) {
+                    fOutput2DHitsEvent->SetSubEventTag("electron");
+                }
+            }
+        }
+        if (fHough_YZ.size() > 100) {
+            hyzt->Reset();
+            hyzr->Reset();
+            for (int i = 0; i < fHough_YZ.size(); i++) {
+                hyzt->Fill(fHough_YZ[i].y(), fHough_YZ[i].z());
+                hyzr->Fill(fHough_YZ[i].x(), fHough_YZ[i].z());
+            }
+            if (hyzt->GetMaximumBin() == 1) {
+                fOutput2DHitsEvent->SetSubEventTag("firing");
+            }
+
+            fyz->SetParameter(1, hyzt->GetBinCenter(hyzt->GetMaximumBin()));
+            int fitStatus;
+            if (fVerboseLevel >= REST_Debug) {
+                debug << "ID: " << fOutput2DHitsEvent->GetID() << ", hyzt points: " << fHough_YZ.size()
+                      << ", center: " << hyzt->GetBinCenter(hyzt->GetMaximumBin()) << endl;
+                fitStatus = hyzt->Fit(fyz, "N", "", hyzt->GetBinCenter(hyzt->GetMaximumBin()) - 0.2,
+                                      hyzt->GetBinCenter(hyzt->GetMaximumBin()) + 0.2);
+            } else {
+                fitStatus = hyzt->Fit(fyz, "QN", "", hyzt->GetBinCenter(hyzt->GetMaximumBin()) - 0.2,
+                                      hyzt->GetBinCenter(hyzt->GetMaximumBin()) + 0.2);
+            }
+
+            if (fitStatus == 0) {
+                if (fyz->GetParameter(2) < fHoughSigmaLimit) {
+                    double c = fyz->GetParameter(1);
+                    int from = hyzt->FindBin(c - fyz->GetParameter(2) * 2);  // 2 sigma
+                    int to = hyzt->FindBin(c + fyz->GetParameter(2));
+
+                    int sum = hyzt->Integral(from, to);
+
+                    if (sum > (double)hyzt->Integral() * fPeakPointRateLimit) {
+                        if (fOutput2DHitsEvent->GetSubEventTag() == "electron")
+                            fOutput2DHitsEvent->SetSubEventTag("general");
+                        else
+                            fOutput2DHitsEvent->SetSubEventTag("muon");
+                    }
+
+                } else if (fyz->GetParameter(2) > 0.8 && zlen > 250) {
+                    if (fOutput2DHitsEvent->GetSubEventTag() == "muon")
+                        fOutput2DHitsEvent->SetSubEventTag("general");
+                    else
+                        fOutput2DHitsEvent->SetSubEventTag("electron");
+                }
+            }
+        }
+    }
+
+    if (fOutput2DHitsEvent->GetSubEventTag() == "general")  // 4. tag electron event
     {
-      fOutput2DHitsEvent->SetSubEventTag("abnormal");
     }
-  }
 
-  fxz->SetParameter(1, -1);
-  fyz->SetParameter(1, -1);
-  fHough_XZ.clear();
-  fHough_YZ.clear();
-  if (fOutput2DHitsEvent->GetSubEventTag() == "general") {
-    MakeCluster();
-    fOutput2DHitsEvent->DoHough();
-    fHough_XZ = fOutput2DHitsEvent->GetHoughXZ();
-    fHough_YZ = fOutput2DHitsEvent->GetHoughYZ();
-  }
-  // 3. fit hough and tag muon/electron event
-  if (fOutput2DHitsEvent->GetSubEventTag() == "general") {
-    if (fHough_XZ.size() > 100) {
-      hxzt->Reset();
-      hxzr->Reset();
-      for (int i = 0; i < fHough_XZ.size(); i++) {
-        hxzt->Fill(fHough_XZ[i].y(), fHough_XZ[i].z());
-        hxzr->Fill(fHough_XZ[i].x(), fHough_XZ[i].z());
-      }
-
-      if (hxzt->GetMaximumBin() == 1) {
-        fOutput2DHitsEvent->SetSubEventTag("firing");
-      }
-
-      fxz->SetParameter(1, hxzt->GetBinCenter(hxzt->GetMaximumBin()));
-      int fitStatus;
-      if (fVerboseLevel >= REST_Debug) {
-        debug << "ID: " << fOutput2DHitsEvent->GetID()
-              << ", hxzt points: " << fHough_XZ.size()
-              << ", center: " << hxzt->GetBinCenter(hxzt->GetMaximumBin())
-              << endl;
-        fitStatus = hxzt->Fit(fxz, "N", "",
-                              hxzt->GetBinCenter(hxzt->GetMaximumBin()) - 0.2,
-                              hxzt->GetBinCenter(hxzt->GetMaximumBin()) + 0.2);
-      } else {
-        fitStatus = hxzt->Fit(fxz, "QN", "",
-                              hxzt->GetBinCenter(hxzt->GetMaximumBin()) - 0.2,
-                              hxzt->GetBinCenter(hxzt->GetMaximumBin()) + 0.2);
-      }
-
-      if (fitStatus == 0) {
-        if (fxz->GetParameter(2) < fHoughSigmaLimit) {
-          double c = fxz->GetParameter(1);
-          int from = hxzt->FindBin(c - fxz->GetParameter(2) * 2);  // 2 sigma
-          int to = hxzt->FindBin(c + fxz->GetParameter(2));
-
-          int sum = hxzt->Integral(from, to);
-
-          if (sum > (double)hxzt->Integral() * fPeakPointRateLimit)
-            fOutput2DHitsEvent->SetSubEventTag("muon");
-        } else if (fxz->GetParameter(2) > 0.8 && zlen > 250) {
-          fOutput2DHitsEvent->SetSubEventTag("electron");
+    // 0: uses all, 1: muon, 2: strong electron, 3: weak electron, 4: firing, 5:
+    // abnormal, 9: other
+    if (Count(fSelection, "0") == 0) {
+        if (Count(fSelection, "4") != 0) {
+            if (fOutput2DHitsEvent->GetSubEventTag() == "firing") {
+                info << "selecting firing event, id " << fOutput2DHitsEvent->GetID() << endl;
+                return fOutput2DHitsEvent;
+            }
         }
-      }
-    }
-    if (fHough_YZ.size() > 100) {
-      hyzt->Reset();
-      hyzr->Reset();
-      for (int i = 0; i < fHough_YZ.size(); i++) {
-        hyzt->Fill(fHough_YZ[i].y(), fHough_YZ[i].z());
-        hyzr->Fill(fHough_YZ[i].x(), fHough_YZ[i].z());
-      }
-      if (hyzt->GetMaximumBin() == 1) {
-        fOutput2DHitsEvent->SetSubEventTag("firing");
-      }
-
-      fyz->SetParameter(1, hyzt->GetBinCenter(hyzt->GetMaximumBin()));
-      int fitStatus;
-      if (fVerboseLevel >= REST_Debug) {
-        debug << "ID: " << fOutput2DHitsEvent->GetID()
-              << ", hyzt points: " << fHough_YZ.size()
-              << ", center: " << hyzt->GetBinCenter(hyzt->GetMaximumBin())
-              << endl;
-        fitStatus = hyzt->Fit(fyz, "N", "",
-                              hyzt->GetBinCenter(hyzt->GetMaximumBin()) - 0.2,
-                              hyzt->GetBinCenter(hyzt->GetMaximumBin()) + 0.2);
-      } else {
-        fitStatus = hyzt->Fit(fyz, "QN", "",
-                              hyzt->GetBinCenter(hyzt->GetMaximumBin()) - 0.2,
-                              hyzt->GetBinCenter(hyzt->GetMaximumBin()) + 0.2);
-      }
-
-      if (fitStatus == 0) {
-        if (fyz->GetParameter(2) < fHoughSigmaLimit) {
-          double c = fyz->GetParameter(1);
-          int from = hyzt->FindBin(c - fyz->GetParameter(2) * 2);  // 2 sigma
-          int to = hyzt->FindBin(c + fyz->GetParameter(2));
-
-          int sum = hyzt->Integral(from, to);
-
-          if (sum > (double)hyzt->Integral() * fPeakPointRateLimit) {
-            if (fOutput2DHitsEvent->GetSubEventTag() == "electron")
-              fOutput2DHitsEvent->SetSubEventTag("general");
-            else
-              fOutput2DHitsEvent->SetSubEventTag("muon");
-          }
-
-        } else if (fyz->GetParameter(2) > 0.8 && zlen > 250) {
-          if (fOutput2DHitsEvent->GetSubEventTag() == "muon")
-            fOutput2DHitsEvent->SetSubEventTag("general");
-          else
-            fOutput2DHitsEvent->SetSubEventTag("electron");
+        if (Count(fSelection, "3") != 0) {
+            if (fOutput2DHitsEvent->GetSubEventTag() == "weak") {
+                info << "selecting event from calibration source, id " << fOutput2DHitsEvent->GetID() << endl;
+                return fOutput2DHitsEvent;
+            }
         }
-      }
-    }
-  }
+        if (Count(fSelection, "1") != 0) {
+            if (fOutput2DHitsEvent->GetSubEventTag() == "muon") {
+                info << "selecting muon event, id " << fOutput2DHitsEvent->GetID() << endl;
+                return fOutput2DHitsEvent;
+            }
+        }
+        if (Count(fSelection, "2") != 0) {
+            if (fOutput2DHitsEvent->GetSubEventTag() == "electron") {
+                info << "selecting electron event, id " << fOutput2DHitsEvent->GetID() << endl;
+                return fOutput2DHitsEvent;
+            }
+        }
+        if (Count(fSelection, "5") != 0) {
+            if (fOutput2DHitsEvent->GetSubEventTag() == "abnormal") {
+                info << "selecting abnormal trigger, id " << fOutput2DHitsEvent->GetID() << endl;
+                return fOutput2DHitsEvent;
+            }
+        }
+        if (Count(fSelection, "6") != 0) {
+            if (fOutput2DHitsEvent->GetSubEventTag() == "pile up") {
+                info << "selecting pile up event, id " << fOutput2DHitsEvent->GetID() << endl;
+                return fOutput2DHitsEvent;
+            }
+        }
+        if (Count(fSelection, "9") != 0) {
+            if (fOutput2DHitsEvent->GetSubEventTag() == "general") {
+                info << "selecting unknown event, id " << fOutput2DHitsEvent->GetID() << endl;
+                return fOutput2DHitsEvent;
+            }
+        }
 
-  if (fOutput2DHitsEvent->GetSubEventTag() ==
-      "general")  // 4. tag electron event
-  {
-  }
-
-  // 0: uses all, 1: muon, 2: strong electron, 3: weak electron, 4: firing, 5:
-  // abnormal, 9: other
-  if (Count(fSelection, "0") == 0) {
-    if (Count(fSelection, "4") != 0) {
-      if (fOutput2DHitsEvent->GetSubEventTag() == "firing") {
-        info << "selecting firing event, id " << fOutput2DHitsEvent->GetID()
-             << endl;
-        return fOutput2DHitsEvent;
-      }
+        return NULL;
     }
-    if (Count(fSelection, "3") != 0) {
-      if (fOutput2DHitsEvent->GetSubEventTag() == "weak") {
-        info << "selecting event from calibration source, id "
-             << fOutput2DHitsEvent->GetID() << endl;
-        return fOutput2DHitsEvent;
-      }
-    }
-    if (Count(fSelection, "1") != 0) {
-      if (fOutput2DHitsEvent->GetSubEventTag() == "muon") {
-        info << "selecting muon event, id " << fOutput2DHitsEvent->GetID()
-             << endl;
-        return fOutput2DHitsEvent;
-      }
-    }
-    if (Count(fSelection, "2") != 0) {
-      if (fOutput2DHitsEvent->GetSubEventTag() == "electron") {
-        info << "selecting electron event, id " << fOutput2DHitsEvent->GetID()
-             << endl;
-        return fOutput2DHitsEvent;
-      }
-    }
-    if (Count(fSelection, "5") != 0) {
-      if (fOutput2DHitsEvent->GetSubEventTag() == "abnormal") {
-        info << "selecting abnormal trigger, id " << fOutput2DHitsEvent->GetID()
-             << endl;
-        return fOutput2DHitsEvent;
-      }
-    }
-    if (Count(fSelection, "6") != 0) {
-      if (fOutput2DHitsEvent->GetSubEventTag() == "pile up") {
-        info << "selecting pile up event, id " << fOutput2DHitsEvent->GetID()
-             << endl;
-        return fOutput2DHitsEvent;
-      }
-    }
-    if (Count(fSelection, "9") != 0) {
-      if (fOutput2DHitsEvent->GetSubEventTag() == "general") {
-        info << "selecting unknown event, id " << fOutput2DHitsEvent->GetID()
-             << endl;
-        return fOutput2DHitsEvent;
-      }
-    }
-
-    return NULL;
-  }
-  return fOutput2DHitsEvent;
+    return fOutput2DHitsEvent;
 }
 
 void TRestRawSignalTo2DHitsProcess::MuDepos(TRest2DHitsEvent* eve) {
-  // if (eve->GetSubEventTag() == "muon")
-  //{
-  //	double firstx = 9999;
-  //	double firsty = 9999;
+    // if (eve->GetSubEventTag() == "muon")
+    //{
+    //	double firstx = 9999;
+    //	double firsty = 9999;
 
-  //	if (eve->GetZRangeInYZ().X() < eve->GetZRangeInXZ().Y() ||
-  // eve->GetZRangeInXZ().X() < eve->GetZRangeInYZ().Y()) {
+    //	if (eve->GetZRangeInYZ().X() < eve->GetZRangeInXZ().Y() ||
+    // eve->GetZRangeInXZ().X() < eve->GetZRangeInYZ().Y()) {
 
-  //		if (fxz->GetParameter(1) == -1 && fyz->GetParameter(1) != -1)
-  //		{
-  //			if (xlen > 20)
-  //			{
-  //				double t = (xlen) / (eve->GetZRangeInXZ().Y() -
-  // eve->GetZRangeInXZ().X()); 				fxz->SetParameter(1, atan(t)
-  // + 1.5708);
-  //			}
-  //			else
-  // if(eve->GetZRangeInXZ().Y()-eve->GetZRangeInXZ().X()>100)
-  //			{
-  //				fxz->SetParameter(1, 1.5708);
-  //			}
-  //			else
-  //			{
-  //				return;
-  //			}
-  //		}
-  //		else if (fxz->GetParameter(1) != -1 && fyz->GetParameter(1) ==
-  //-1)
-  //		{
-  //			if (ylen > 20)
-  //			{
-  //				double t = (ylen) / (eve->GetZRangeInYZ().Y() -
-  // eve->GetZRangeInYZ().X()); 				fyz->SetParameter(1, atan(t)
-  // + 1.5708);
-  //			}
-  //			else if (eve->GetZRangeInYZ().Y() -
-  // eve->GetZRangeInYZ().X()>100)
-  //			{
-  //				fyz->SetParameter(1, 1.5708);
-  //			}
-  //			else
-  //			{
-  //				return;
-  //			}
-  //		}
+    //		if (fxz->GetParameter(1) == -1 && fyz->GetParameter(1) != -1)
+    //		{
+    //			if (xlen > 20)
+    //			{
+    //				double t = (xlen) / (eve->GetZRangeInXZ().Y() -
+    // eve->GetZRangeInXZ().X()); 				fxz->SetParameter(1, atan(t)
+    // + 1.5708);
+    //			}
+    //			else
+    // if(eve->GetZRangeInXZ().Y()-eve->GetZRangeInXZ().X()>100)
+    //			{
+    //				fxz->SetParameter(1, 1.5708);
+    //			}
+    //			else
+    //			{
+    //				return;
+    //			}
+    //		}
+    //		else if (fxz->GetParameter(1) != -1 && fyz->GetParameter(1) ==
+    //-1)
+    //		{
+    //			if (ylen > 20)
+    //			{
+    //				double t = (ylen) / (eve->GetZRangeInYZ().Y() -
+    // eve->GetZRangeInYZ().X()); 				fyz->SetParameter(1, atan(t)
+    // + 1.5708);
+    //			}
+    //			else if (eve->GetZRangeInYZ().Y() -
+    // eve->GetZRangeInYZ().X()>100)
+    //			{
+    //				fyz->SetParameter(1, 1.5708);
+    //			}
+    //			else
+    //			{
+    //				return;
+    //			}
+    //		}
 
-  //		firstx = eve->GetFirstX() - tan(fxz->GetParameter(1)
-  //- 1.5708)*(eve->GetZRangeInXZ().X() - eve->GetZRange().X()); 		firsty
-  //= eve->GetFirstY() - tan(fyz->GetParameter(1)
-  //- 1.5708)*(eve->GetZRangeInYZ().X() - eve->GetZRange().X());
+    //		firstx = eve->GetFirstX() - tan(fxz->GetParameter(1)
+    //- 1.5708)*(eve->GetZRangeInXZ().X() - eve->GetZRange().X()); 		firsty
+    //= eve->GetFirstY() - tan(fyz->GetParameter(1)
+    //- 1.5708)*(eve->GetZRangeInYZ().X() - eve->GetZRange().X());
 
-  //		if (eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X() > 345 &&
-  // eve->GetZRangeInXZ().X()>140 && fxz->GetParameter(1) != 1.5708) {
-  // for (int i
-  //= 0; i < 512; i++) { 				auto hitsz = eve->GetXZHitsWithZ(i);
-  //map<double, double>::iterator iter = hitsz.begin();
-  // double sum = 0; 				while (iter != hitsz.end()) {
-  // sum += iter->second; 					iter++;
-  //				}
-  //				//cout << i << " " << sum << endl;
-  //				if (sum < 1e5)
-  //					mudeposxz->SetBinContent(mudeposxz->FindBin(i),
-  // mudeposxz->GetBinContent(mudeposxz->FindBin(i)) + sum);
-  //			}
-  //			longmunumxz++;
-  //		}
-  //		if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X() > 345 &&
-  // eve->GetZRangeInYZ().X()>140 && fyz->GetParameter(1) != 1.5708) {
-  // for (int i
-  //= 0; i < 512; i++) { 				auto hitsz = eve->GetYZHitsWithZ(i);
-  //map<double, double>::iterator iter = hitsz.begin();
-  // double sum = 0; 				while (iter != hitsz.end()) {
-  // sum += iter->second; 					iter++;
-  //				}
-  //				if (sum < 1e5)
-  //					mudeposyz->SetBinContent(mudeposyz->FindBin(i),
-  // mudeposyz->GetBinContent(mudeposyz->FindBin(i)) + sum);
-  //			}
-  //			longmunumyz++;
-  //		}
+    //		if (eve->GetZRangeInXZ().Y() - eve->GetZRangeInXZ().X() > 345 &&
+    // eve->GetZRangeInXZ().X()>140 && fxz->GetParameter(1) != 1.5708) {
+    // for (int i
+    //= 0; i < 512; i++) { 				auto hitsz = eve->GetXZHitsWithZ(i);
+    // map<double, double>::iterator iter = hitsz.begin();
+    // double sum = 0; 				while (iter != hitsz.end()) {
+    // sum += iter->second; 					iter++;
+    //				}
+    //				//cout << i << " " << sum << endl;
+    //				if (sum < 1e5)
+    //					mudeposxz->SetBinContent(mudeposxz->FindBin(i),
+    // mudeposxz->GetBinContent(mudeposxz->FindBin(i)) + sum);
+    //			}
+    //			longmunumxz++;
+    //		}
+    //		if (eve->GetZRangeInYZ().Y() - eve->GetZRangeInYZ().X() > 345 &&
+    // eve->GetZRangeInYZ().X()>140 && fyz->GetParameter(1) != 1.5708) {
+    // for (int i
+    //= 0; i < 512; i++) { 				auto hitsz = eve->GetYZHitsWithZ(i);
+    // map<double, double>::iterator iter = hitsz.begin();
+    // double sum = 0; 				while (iter != hitsz.end()) {
+    // sum += iter->second; 					iter++;
+    //				}
+    //				if (sum < 1e5)
+    //					mudeposyz->SetBinContent(mudeposyz->FindBin(i),
+    // mudeposyz->GetBinContent(mudeposyz->FindBin(i)) + sum);
+    //			}
+    //			longmunumyz++;
+    //		}
 
-  //		if (firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 &&
-  // firsty < Y2 - 30)
-  //			//the MM pentrating muon
-  //		{
+    //		if (firstx > X1 + 30 && firstx < X2 - 30 && firsty > Y1 + 30 &&
+    // firsty < Y2 - 30)
+    //			//the MM pentrating muon
+    //		{
 
-  //			info << "MM pentrating muon" << endl;
+    //			info << "MM pentrating muon" << endl;
 
-  //
+    //
 
-  //			//if (eve->GetNumberOfXZSignals()>7 && xlen<15)
-  //			//	return;
-  //			//if (eve->GetNumberOfYZSignals()>7 && ylen<15)
-  //			//	return;
-  //			//if (eve->GetZRangeInXZ().X() > 450 ||
-  //eve->GetZRangeInYZ().X() > 450)
-  //			//	return;
-  //			double tan1 = tan(abs(fxz->GetParameter(1) - 1.5708));
-  //			double tan2 = tan(abs(fyz->GetParameter(1) - 1.5708));
-  //			mutanthe = sqrt(tan1*tan1 + tan2 * tan2);
+    //			//if (eve->GetNumberOfXZSignals()>7 && xlen<15)
+    //			//	return;
+    //			//if (eve->GetNumberOfYZSignals()>7 && ylen<15)
+    //			//	return;
+    //			//if (eve->GetZRangeInXZ().X() > 450 ||
+    // eve->GetZRangeInYZ().X() > 450)
+    //			//	return;
+    //			double tan1 = tan(abs(fxz->GetParameter(1) - 1.5708));
+    //			double tan2 = tan(abs(fyz->GetParameter(1) - 1.5708));
+    //			mutanthe = sqrt(tan1*tan1 + tan2 * tan2);
 
-  //		}
+    //		}
 
-  //	}
+    //	}
 
-  //}
+    //}
 }
 
 void TRestRawSignalTo2DHitsProcess::EndProcess() {
-  // mudeposxz->Scale(1 / (double)longmunumxz);
-  // mudeposxz->SetEntries(longmunumxz);
-  // mudeposyz->Scale(1 / (double)longmunumyz);
-  // mudeposyz->SetEntries(longmunumyz);
+    // mudeposxz->Scale(1 / (double)longmunumxz);
+    // mudeposxz->SetEntries(longmunumxz);
+    // mudeposyz->Scale(1 / (double)longmunumyz);
+    // mudeposyz->SetEntries(longmunumyz);
 
-  // mudeposxz->Write();
-  // mudeposyz->Write();
+    // mudeposxz->Write();
+    // mudeposyz->Write();
 }
 
 void TRestRawSignalTo2DHitsProcess::InitFromConfigFile() {
-  // fNoiseReductionLevel = StringToInteger(GetParameter("noiseReduction",
-  // "0"));
-  fSelection = GetParameter("selection", "0");
+    // fNoiseReductionLevel = StringToInteger(GetParameter("noiseReduction",
+    // "0"));
+    fSelection = GetParameter("selection", "0");
 
-  fBaseLineRange = StringTo2DVector(GetParameter("baseLineRange", "(5,55)"));
-  fIntegralRange = StringTo2DVector(GetParameter("integralRange", "(10,500)"));
-  fPointThreshold = StringToDouble(GetParameter("pointThreshold", "2"));
-  fNPointsOverThreshold =
-      StringToInteger(GetParameter("pointsOverThreshold", "5"));
-  fSignalThreshold = StringToDouble(GetParameter("signalThreshold", "2.5"));
-  fHoughSigmaLimit = StringToDouble(GetParameter("houghSigmaLimit", "0.05"));
-  fPeakPointRateLimit =
-      StringToDouble(GetParameter("peakPointRateLimit", "0.9"));
+    fBaseLineRange = StringTo2DVector(GetParameter("baseLineRange", "(5,55)"));
+    fIntegralRange = StringTo2DVector(GetParameter("integralRange", "(10,500)"));
+    fPointThreshold = StringToDouble(GetParameter("pointThreshold", "2"));
+    fNPointsOverThreshold = StringToInteger(GetParameter("pointsOverThreshold", "5"));
+    fSignalThreshold = StringToDouble(GetParameter("signalThreshold", "2.5"));
+    fHoughSigmaLimit = StringToDouble(GetParameter("houghSigmaLimit", "0.05"));
+    fPeakPointRateLimit = StringToDouble(GetParameter("peakPointRateLimit", "0.9"));
 
-  TVector2 XROI = StringTo2DVector(GetParameter("XROI", "(-100,100)"));
-  TVector2 YROI = StringTo2DVector(GetParameter("YROI", "(-100,100)"));
+    TVector2 XROI = StringTo2DVector(GetParameter("XROI", "(-100,100)"));
+    TVector2 YROI = StringTo2DVector(GetParameter("YROI", "(-100,100)"));
 
-  X1 = XROI.X();
-  X2 = XROI.Y();
-  Y1 = YROI.X();
-  Y2 = YROI.Y();
+    X1 = XROI.X();
+    X2 = XROI.Y();
+    Y1 = YROI.X();
+    Y2 = YROI.Y();
 }

@@ -21,70 +21,66 @@
 #include "TRestEventProcess.h"
 
 class TRestSignalZeroSuppresionProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
-  TRestRawSignalEvent* fRawSignalEvent;  //!
-  TRestSignalEvent* fSignalEvent;        //!
+    TRestRawSignalEvent* fRawSignalEvent;  //!
+    TRestSignalEvent* fSignalEvent;        //!
 
 #endif
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
+    void Initialize();
 
-  void LoadDefaultConfig();
+    void LoadDefaultConfig();
 
- protected:
-  TVector2 fBaseLineRange;
-  TVector2 fIntegralRange;
-  Double_t fPointThreshold;
-  Double_t fSignalThreshold;
-  Int_t fNPointsOverThreshold;
-  Int_t fNPointsFlatThreshold;
-  bool fBaseLineCorrection;
-  Double_t fSampling;  // us
+   protected:
+    TVector2 fBaseLineRange;
+    TVector2 fIntegralRange;
+    Double_t fPointThreshold;
+    Double_t fSignalThreshold;
+    Int_t fNPointsOverThreshold;
+    Int_t fNPointsFlatThreshold;
+    bool fBaseLineCorrection;
+    Double_t fSampling;  // us
 
- public:
-  void InitProcess();
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
-  void EndOfEventProcess();
-  void EndProcess();
+   public:
+    void InitProcess();
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndOfEventProcess();
+    void EndProcess();
 
-  void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
-  void PrintMetadata() {
-    BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    metadata << "Base line range definition : ( " << fBaseLineRange.X() << " , "
-             << fBaseLineRange.Y() << " ) " << endl;
-    metadata << "Integral range : ( " << fIntegralRange.X() << " , "
-             << fIntegralRange.Y() << " ) " << endl;
-    metadata << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
-    metadata << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
-    metadata << "Number of points over threshold : " << fNPointsOverThreshold
-             << endl;
-    metadata << "Max Number of points of flat signal tail : "
-             << fNPointsFlatThreshold << endl;
+        metadata << "Base line range definition : ( " << fBaseLineRange.X() << " , " << fBaseLineRange.Y()
+                 << " ) " << endl;
+        metadata << "Integral range : ( " << fIntegralRange.X() << " , " << fIntegralRange.Y() << " ) "
+                 << endl;
+        metadata << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
+        metadata << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
+        metadata << "Number of points over threshold : " << fNPointsOverThreshold << endl;
+        metadata << "Max Number of points of flat signal tail : " << fNPointsFlatThreshold << endl;
 
-    if (fBaseLineCorrection)
-      metadata
-          << "BaseLine correction is enabled for TRestRawSignalAnalysisProcess"
-          << endl;
+        if (fBaseLineCorrection)
+            metadata << "BaseLine correction is enabled for TRestRawSignalAnalysisProcess" << endl;
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  TString GetProcessName() { return (TString) "signalZeroSuppresion"; }
+    TString GetProcessName() { return (TString) "signalZeroSuppresion"; }
 
-  // Constructor
-  TRestSignalZeroSuppresionProcess();
-  TRestSignalZeroSuppresionProcess(char* cfgFileName);
-  // Destructor
-  ~TRestSignalZeroSuppresionProcess();
+    // Constructor
+    TRestSignalZeroSuppresionProcess();
+    TRestSignalZeroSuppresionProcess(char* cfgFileName);
+    // Destructor
+    ~TRestSignalZeroSuppresionProcess();
 
-  ClassDef(TRestSignalZeroSuppresionProcess,
-           2);  // Template for a REST "event process" class inherited from
-                // TRestEventProcess
+    ClassDef(TRestSignalZeroSuppresionProcess,
+             2);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

@@ -21,89 +21,87 @@ ClassImp(TRestG4Hits)
     //______________________________________________________________________________
     TRestG4Hits::TRestG4Hits()
     : TRestHits() {
-  // TRestG4Hits default constructor
+    // TRestG4Hits default constructor
 }
 
 //______________________________________________________________________________
 TRestG4Hits::~TRestG4Hits() {
-  // TRestG4Hits destructor
+    // TRestG4Hits destructor
 }
-void TRestG4Hits::AddG4Hit(TVector3 pos, Double_t en, Int_t process,
-                           Int_t volume) {
-  AddHit(pos, en);
+void TRestG4Hits::AddG4Hit(TVector3 pos, Double_t en, Int_t process, Int_t volume) {
+    AddHit(pos, en);
 
-  fProcessID.Set(fNHits);
+    fProcessID.Set(fNHits);
 
-  fProcessID[fNHits - 1] = process;
+    fProcessID[fNHits - 1] = process;
 
-  fVolumeID.Set(fNHits);
+    fVolumeID.Set(fNHits);
 
-  fVolumeID[fNHits - 1] = volume;
+    fVolumeID[fNHits - 1] = volume;
 }
 
-void TRestG4Hits::AddG4Hit(Double_t X, Double_t Y, Double_t Z, Double_t en,
-                           Int_t process, Int_t volume) {
-  AddHit(X, Y, Z, en);
+void TRestG4Hits::AddG4Hit(Double_t X, Double_t Y, Double_t Z, Double_t en, Int_t process, Int_t volume) {
+    AddHit(X, Y, Z, en);
 
-  fProcessID.Set(fNHits);
+    fProcessID.Set(fNHits);
 
-  fProcessID[fNHits - 1] = process;
+    fProcessID[fNHits - 1] = process;
 
-  fVolumeID.Set(fNHits);
+    fVolumeID.Set(fNHits);
 
-  fVolumeID[fNHits - 1] = volume;
+    fVolumeID[fNHits - 1] = volume;
 }
 
 void TRestG4Hits::RemoveG4Hits() {
-  RemoveHits();
+    RemoveHits();
 
-  fProcessID.Set(0);
+    fProcessID.Set(0);
 
-  fVolumeID.Set(0);
+    fVolumeID.Set(0);
 }
 
 Double_t TRestG4Hits::GetEnergyInVolume(Int_t volID) {
-  Double_t en = 0;
+    Double_t en = 0;
 
-  for (int n = 0; n < fNHits; n++)
-    if (fVolumeID[n] == volID) en += GetEnergy(n);
+    for (int n = 0; n < fNHits; n++)
+        if (fVolumeID[n] == volID) en += GetEnergy(n);
 
-  return en;
+    return en;
 }
 
 TVector3 TRestG4Hits::GetMeanPositionInVolume(Int_t volID) {
-  TVector3 pos;
-  Double_t en = 0;
-  for (int n = 0; n < fNHits; n++)
-    if (fVolumeID[n] == volID) {
-      pos += GetPosition(n) * GetEnergy(n);
-      en += GetEnergy(n);
+    TVector3 pos;
+    Double_t en = 0;
+    for (int n = 0; n < fNHits; n++)
+        if (fVolumeID[n] == volID) {
+            pos += GetPosition(n) * GetEnergy(n);
+            en += GetEnergy(n);
+        }
+
+    if (en == 0) {
+        TVector3 pos;
+        Double_t nan = TMath::QuietNaN();
+        return TVector3(nan, nan, nan);
     }
 
-  if (en == 0) {
-    TVector3 pos;
-    Double_t nan = TMath::QuietNaN();
-    return TVector3(nan, nan, nan);
-  }
-
-  pos = (1. / en) * pos;
-  return pos;
+    pos = (1. / en) * pos;
+    return pos;
 }
 
 TVector3 TRestG4Hits::GetFirstPositionInVolume(Int_t volID) {
-  for (int n = 0; n < fNHits; n++)
-    if (fVolumeID[n] == volID) return GetPosition(n);
+    for (int n = 0; n < fNHits; n++)
+        if (fVolumeID[n] == volID) return GetPosition(n);
 
-  TVector3 pos;
-  Double_t nan = TMath::QuietNaN();
-  return TVector3(nan, nan, nan);
+    TVector3 pos;
+    Double_t nan = TMath::QuietNaN();
+    return TVector3(nan, nan, nan);
 }
 
 TVector3 TRestG4Hits::GetLastPositionInVolume(Int_t volID) {
-  for (int n = fNHits - 1; n >= 0; n--)
-    if (fVolumeID[n] == volID) return GetPosition(n);
+    for (int n = fNHits - 1; n >= 0; n--)
+        if (fVolumeID[n] == volID) return GetPosition(n);
 
-  TVector3 pos;
-  Double_t nan = TMath::QuietNaN();
-  return TVector3(nan, nan, nan);
+    TVector3 pos;
+    Double_t nan = TMath::QuietNaN();
+    return TVector3(nan, nan, nan);
 }

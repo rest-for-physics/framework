@@ -118,7 +118,7 @@ ClassImp(TRestSignalToRawSignalProcess)
     /// \brief Default constructor
     ///
     TRestSignalToRawSignalProcess::TRestSignalToRawSignalProcess() {
-  Initialize();
+    Initialize();
 }
 
 ///////////////////////////////////////////////
@@ -133,34 +133,33 @@ ClassImp(TRestSignalToRawSignalProcess)
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 ///
-TRestSignalToRawSignalProcess::TRestSignalToRawSignalProcess(
-    char* cfgFileName) {
-  Initialize();
+TRestSignalToRawSignalProcess::TRestSignalToRawSignalProcess(char* cfgFileName) {
+    Initialize();
 
-  LoadConfig(cfgFileName);
+    LoadConfig(cfgFileName);
 }
 
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
 TRestSignalToRawSignalProcess::~TRestSignalToRawSignalProcess() {
-  delete fInputSignalEvent;
-  delete fOutputRawSignalEvent;
+    delete fInputSignalEvent;
+    delete fOutputRawSignalEvent;
 }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
 ///
 void TRestSignalToRawSignalProcess::LoadDefaultConfig() {
-  SetName("signalToRawSignalProcess-Default");
-  SetTitle("Default config");
+    SetName("signalToRawSignalProcess-Default");
+    SetTitle("Default config");
 
-  cout << "Signal to hits metadata not found. Loading default values" << endl;
+    cout << "Signal to hits metadata not found. Loading default values" << endl;
 
-  fSampling = 1;
-  fNPoints = 512;
-  fTriggerMode = "firstDeposit";
-  fTriggerDelay = 50;
+    fSampling = 1;
+    fNPoints = 512;
+    fTriggerMode = "firstDeposit";
+    fTriggerDelay = 50;
 }
 
 ///////////////////////////////////////////////
@@ -175,9 +174,8 @@ void TRestSignalToRawSignalProcess::LoadDefaultConfig() {
 /// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestGeant4AnalysisProcess section inside the RML.
 ///
-void TRestSignalToRawSignalProcess::LoadConfig(std::string cfgFilename,
-                                               std::string name) {
-  if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
+void TRestSignalToRawSignalProcess::LoadConfig(std::string cfgFilename, std::string name) {
+    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
@@ -185,141 +183,133 @@ void TRestSignalToRawSignalProcess::LoadConfig(std::string cfgFilename,
 /// section name
 ///
 void TRestSignalToRawSignalProcess::Initialize() {
-  SetSectionName(this->ClassName());
+    SetSectionName(this->ClassName());
 
-  fInputSignalEvent = new TRestSignalEvent();
-  fOutputRawSignalEvent = new TRestRawSignalEvent();
+    fInputSignalEvent = new TRestSignalEvent();
+    fOutputRawSignalEvent = new TRestRawSignalEvent();
 
-  fInputEvent = fInputSignalEvent;
-  fOutputEvent = fOutputRawSignalEvent;
+    fInputEvent = fInputSignalEvent;
+    fOutputEvent = fOutputRawSignalEvent;
 }
 
 ///////////////////////////////////////////////
 /// \brief Function including required initialization before each event starts
 /// to process.
 ///
-void TRestSignalToRawSignalProcess::BeginOfEventProcess() {
-  fOutputRawSignalEvent->Initialize();
-}
+void TRestSignalToRawSignalProcess::BeginOfEventProcess() { fOutputRawSignalEvent->Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
 TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent(TRestEvent* evInput) {
-  fInputSignalEvent = (TRestSignalEvent*)evInput;
+    fInputSignalEvent = (TRestSignalEvent*)evInput;
 
-  if (fInputSignalEvent->GetNumberOfSignals() <= 0) return NULL;
+    if (fInputSignalEvent->GetNumberOfSignals() <= 0) return NULL;
 
-  if (GetVerboseLevel() >= REST_Debug) fOutputRawSignalEvent->PrintEvent();
+    if (GetVerboseLevel() >= REST_Debug) fOutputRawSignalEvent->PrintEvent();
 
-  fOutputRawSignalEvent->SetID(fInputSignalEvent->GetID());
-  fOutputRawSignalEvent->SetSubID(fInputSignalEvent->GetSubID());
-  fOutputRawSignalEvent->SetTimeStamp(fInputSignalEvent->GetTimeStamp());
-  fOutputRawSignalEvent->SetSubEventTag(fInputSignalEvent->GetSubEventTag());
+    fOutputRawSignalEvent->SetID(fInputSignalEvent->GetID());
+    fOutputRawSignalEvent->SetSubID(fInputSignalEvent->GetSubID());
+    fOutputRawSignalEvent->SetTimeStamp(fInputSignalEvent->GetTimeStamp());
+    fOutputRawSignalEvent->SetSubEventTag(fInputSignalEvent->GetSubEventTag());
 
-  // The time event window is defined (tStart, tEnd)
-  Double_t tStart = 0;
-  Double_t tEnd = 10000;
-  if (fTriggerMode == "firstDeposit") {
-    tStart = fInputSignalEvent->GetMinTime() - fTriggerDelay * fSampling;
-    tEnd = fInputSignalEvent->GetMinTime() +
-           (fNPoints - fTriggerDelay) * fSampling;
-  } else if (fTriggerMode == "integralThreshold") {
-    Double_t maxT = fInputSignalEvent->GetMaxTime();
-    Double_t minT = fInputSignalEvent->GetMinTime();
+    // The time event window is defined (tStart, tEnd)
+    Double_t tStart = 0;
+    Double_t tEnd = 10000;
+    if (fTriggerMode == "firstDeposit") {
+        tStart = fInputSignalEvent->GetMinTime() - fTriggerDelay * fSampling;
+        tEnd = fInputSignalEvent->GetMinTime() + (fNPoints - fTriggerDelay) * fSampling;
+    } else if (fTriggerMode == "integralThreshold") {
+        Double_t maxT = fInputSignalEvent->GetMaxTime();
+        Double_t minT = fInputSignalEvent->GetMinTime();
 
-    for (Double_t t = minT - fNPoints * fSampling;
-         t <= maxT + fNPoints * fSampling; t = t + 0.5) {
-      Double_t en = fInputSignalEvent->GetIntegralWithTime(
-          t, t + (fSampling * fNPoints) / 2.);
+        for (Double_t t = minT - fNPoints * fSampling; t <= maxT + fNPoints * fSampling; t = t + 0.5) {
+            Double_t en = fInputSignalEvent->GetIntegralWithTime(t, t + (fSampling * fNPoints) / 2.);
 
-      if (tStart == 0 && en > fIntegralThreshold) {
-        tStart = t - fTriggerDelay * fSampling;
-        tEnd = t + (fNPoints - fTriggerDelay) * fSampling;
-      }
-    }
-  } else {
-    if (GetVerboseLevel() >= REST_Warning) {
-      cout << "REST WARNING. TRestSignalToRawSignalProcess. fTriggerMode not "
-              "recognized!"
-           << endl;
-      cout << "Setting fTriggerMode to firstDeposit" << endl;
-    }
+            if (tStart == 0 && en > fIntegralThreshold) {
+                tStart = t - fTriggerDelay * fSampling;
+                tEnd = t + (fNPoints - fTriggerDelay) * fSampling;
+            }
+        }
+    } else {
+        if (GetVerboseLevel() >= REST_Warning) {
+            cout << "REST WARNING. TRestSignalToRawSignalProcess. fTriggerMode not "
+                    "recognized!"
+                 << endl;
+            cout << "Setting fTriggerMode to firstDeposit" << endl;
+        }
 
-    fTriggerMode = "firstDeposit";
+        fTriggerMode = "firstDeposit";
 
-    tStart = fInputSignalEvent->GetMinTime() - fTriggerDelay * fSampling;
-    tEnd = fInputSignalEvent->GetMinTime() +
-           (fNPoints - fTriggerDelay) * fSampling;
-  }
-
-  if (tStart == 0) {
-    if (GetVerboseLevel() >= REST_Warning) {
-      cout << endl;
-      cout << "REST WARNING. TRestSignalToRawSignalProcess. tStart was not "
-              "defined."
-           << endl;
-      cout << "Setting tStart = 0. tEnd = fNPoints * fSampling" << endl;
-      cout << endl;
+        tStart = fInputSignalEvent->GetMinTime() - fTriggerDelay * fSampling;
+        tEnd = fInputSignalEvent->GetMinTime() + (fNPoints - fTriggerDelay) * fSampling;
     }
 
-    tEnd = fNPoints * fSampling;
-  }
+    if (tStart == 0) {
+        if (GetVerboseLevel() >= REST_Warning) {
+            cout << endl;
+            cout << "REST WARNING. TRestSignalToRawSignalProcess. tStart was not "
+                    "defined."
+                 << endl;
+            cout << "Setting tStart = 0. tEnd = fNPoints * fSampling" << endl;
+            cout << endl;
+        }
 
-  if (GetVerboseLevel() >= REST_Debug) {
-    cout << "tStart : " << tStart << " ms " << endl;
-    cout << "tEnd : " << tEnd << " ms " << endl;
-    GetChar();
-  }
+        tEnd = fNPoints * fSampling;
+    }
 
-  for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++) {
-    Double_t sData[fNPoints];
-    for (int i = 0; i < fNPoints; i++) sData[i] = 0;
+    if (GetVerboseLevel() >= REST_Debug) {
+        cout << "tStart : " << tStart << " ms " << endl;
+        cout << "tEnd : " << tEnd << " ms " << endl;
+        GetChar();
+    }
 
-    TRestSignal* sgnl = fInputSignalEvent->GetSignal(n);
-    Int_t signalID = sgnl->GetSignalID();
+    for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++) {
+        Double_t sData[fNPoints];
+        for (int i = 0; i < fNPoints; i++) sData[i] = 0;
 
-    for (int m = 0; m < sgnl->GetNumberOfPoints(); m++) {
-      Double_t t = sgnl->GetTime(m);
-      Double_t d = sgnl->GetData(m);
+        TRestSignal* sgnl = fInputSignalEvent->GetSignal(n);
+        Int_t signalID = sgnl->GetSignalID();
 
-      if (GetVerboseLevel() >= REST_Debug)
-        cout << "Sample : " << m << " T : " << t << " D : " << d << endl;
+        for (int m = 0; m < sgnl->GetNumberOfPoints(); m++) {
+            Double_t t = sgnl->GetTime(m);
+            Double_t d = sgnl->GetData(m);
 
-      if (t > tStart && t < tEnd) {
-        // convert physical time (in us) to timeBin
-        Int_t timeBin = (Int_t)((t - tStart) / fSampling);
+            if (GetVerboseLevel() >= REST_Debug)
+                cout << "Sample : " << m << " T : " << t << " D : " << d << endl;
+
+            if (t > tStart && t < tEnd) {
+                // convert physical time (in us) to timeBin
+                Int_t timeBin = (Int_t)((t - tStart) / fSampling);
+
+                if (GetVerboseLevel() >= REST_Warning)
+                    if (timeBin < 0 || timeBin > fNPoints) {
+                        cout << "Time bin out of range!!! bin value : " << timeBin << endl;
+                        timeBin = 0;
+                    }
+
+                sData[timeBin] += fGain * sgnl->GetData(m);
+            }
+        }
 
         if (GetVerboseLevel() >= REST_Warning)
-          if (timeBin < 0 || timeBin > fNPoints) {
-            cout << "Time bin out of range!!! bin value : " << timeBin << endl;
-            timeBin = 0;
-          }
+            for (int x = 0; x < fNPoints; x++)
+                if (sData[x] < -32768. || sData[x] > 32768.)
+                    cout << "REST Warning : data is outside short range : " << sData[x] << endl;
 
-        sData[timeBin] += fGain * sgnl->GetData(m);
-      }
+        TRestRawSignal rSgnl;
+        rSgnl.SetSignalID(signalID);
+        for (int x = 0; x < fNPoints; x++) {
+            if (sData[x] < -32768. || sData[x] > 32768.) fOutputRawSignalEvent->SetOK(false);
+
+            Short_t value = (Short_t)round(sData[x]);
+            rSgnl.AddPoint(value);
+        }
+
+        fOutputRawSignalEvent->AddSignal(rSgnl);
     }
 
-    if (GetVerboseLevel() >= REST_Warning)
-      for (int x = 0; x < fNPoints; x++)
-        if (sData[x] < -32768. || sData[x] > 32768.)
-          cout << "REST Warning : data is outside short range : " << sData[x]
-               << endl;
-
-    TRestRawSignal rSgnl;
-    rSgnl.SetSignalID(signalID);
-    for (int x = 0; x < fNPoints; x++) {
-      if (sData[x] < -32768. || sData[x] > 32768.)
-        fOutputRawSignalEvent->SetOK(false);
-
-      Short_t value = (Short_t)round(sData[x]);
-      rSgnl.AddPoint(value);
-    }
-
-    fOutputRawSignalEvent->AddSignal(rSgnl);
-  }
-
-  return fOutputRawSignalEvent;
+    return fOutputRawSignalEvent;
 }
 
 ///////////////////////////////////////////////
@@ -327,11 +317,10 @@ TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent(TRestEvent* evInput) {
 /// TRestSignalToRawSignalProcess metadata section
 ///
 void TRestSignalToRawSignalProcess::InitFromConfigFile() {
-  fSampling = GetDblParameterWithUnits("sampling");
-  fNPoints = StringToInteger(GetParameter("Npoints", "512"));
-  fTriggerMode = GetParameter("triggerMode", "firstDeposit");
-  fTriggerDelay = StringToInteger(GetParameter("triggerDelay", 100));
-  fGain = StringToDouble(GetParameter("gain", "100"));
-  fIntegralThreshold =
-      StringToDouble(GetParameter("integralThreshold", "1229"));
+    fSampling = GetDblParameterWithUnits("sampling");
+    fNPoints = StringToInteger(GetParameter("Npoints", "512"));
+    fTriggerMode = GetParameter("triggerMode", "firstDeposit");
+    fTriggerDelay = StringToInteger(GetParameter("triggerDelay", 100));
+    fGain = StringToDouble(GetParameter("gain", "100"));
+    fIntegralThreshold = StringToDouble(GetParameter("integralThreshold", "1229"));
 }

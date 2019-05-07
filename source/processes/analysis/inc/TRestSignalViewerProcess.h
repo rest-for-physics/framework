@@ -24,60 +24,60 @@
 #include "TRestEventProcess.h"
 
 class TRestSignalViewerProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
-  TRestSignalEvent* fSignalEvent;  //!
-  // TODO We must get here a pointer to TRestDaqMetadata
-  // In order to convert the parameters to time using the sampling time
+    TRestSignalEvent* fSignalEvent;  //!
+    // TODO We must get here a pointer to TRestDaqMetadata
+    // In order to convert the parameters to time using the sampling time
 
-  // TCanvas *fCanvas;
-  vector<TObject*> fDrawingObjects;  //!
-  Double_t fDrawRefresh;             //!
+    // TCanvas *fCanvas;
+    vector<TObject*> fDrawingObjects;  //!
+    Double_t fDrawRefresh;             //!
 
-  TVector2 fBaseLineRange;  //!
+    TVector2 fBaseLineRange;  //!
 
-  int eveCounter = 0;  //!
-  int sgnCounter = 0;  //!
+    int eveCounter = 0;  //!
+    int sgnCounter = 0;  //!
 #endif
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
+    void Initialize();
 
-  void LoadDefaultConfig();
+    void LoadDefaultConfig();
 
- protected:
-  // add here the members of your event process
+   protected:
+    // add here the members of your event process
 
- public:
-  void InitProcess();
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
-  void EndOfEventProcess();
-  void EndProcess();
+   public:
+    void InitProcess();
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndOfEventProcess();
+    void EndProcess();
 
-  void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
-  void PrintMetadata() {
-    BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    cout << "Refresh value : " << fDrawRefresh << endl;
+        cout << "Refresh value : " << fDrawRefresh << endl;
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  TPad* DrawSignal(Int_t signal);
+    TPad* DrawSignal(Int_t signal);
 
-  TString GetProcessName() { return (TString) "rawSignalViewer"; }
+    TString GetProcessName() { return (TString) "rawSignalViewer"; }
 
-  // Constructor
-  TRestSignalViewerProcess();
-  TRestSignalViewerProcess(char* cfgFileName);
-  // Destructor
-  ~TRestSignalViewerProcess();
+    // Constructor
+    TRestSignalViewerProcess();
+    TRestSignalViewerProcess(char* cfgFileName);
+    // Destructor
+    ~TRestSignalViewerProcess();
 
-  ClassDef(TRestSignalViewerProcess,
-           1);  // Template for a REST "event process" class inherited from
-                // TRestEventProcess
+    ClassDef(TRestSignalViewerProcess,
+             1);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

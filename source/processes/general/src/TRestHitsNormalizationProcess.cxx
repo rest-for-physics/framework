@@ -25,87 +25,81 @@ using namespace std;
 ClassImp(TRestHitsNormalizationProcess)
     //______________________________________________________________________________
     TRestHitsNormalizationProcess::TRestHitsNormalizationProcess() {
-  Initialize();
+    Initialize();
 }
 
 //______________________________________________________________________________
-TRestHitsNormalizationProcess::TRestHitsNormalizationProcess(
-    char* cfgFileName) {
-  Initialize();
+TRestHitsNormalizationProcess::TRestHitsNormalizationProcess(char* cfgFileName) {
+    Initialize();
 
-  if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
+    if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
 
-  PrintMetadata();
+    PrintMetadata();
 
-  // TRestHitsNormalizationProcess default constructor
+    // TRestHitsNormalizationProcess default constructor
 }
 
 //______________________________________________________________________________
 TRestHitsNormalizationProcess::~TRestHitsNormalizationProcess() {
-  delete fHitsInputEvent;
-  delete fHitsOutputEvent;
-  // TRestHitsNormalizationProcess destructor
+    delete fHitsInputEvent;
+    delete fHitsOutputEvent;
+    // TRestHitsNormalizationProcess destructor
 }
 
 void TRestHitsNormalizationProcess::LoadDefaultConfig() {
-  SetTitle("Default config");
+    SetTitle("Default config");
 
-  fFactor = 5.9;
+    fFactor = 5.9;
 }
 
 //______________________________________________________________________________
 void TRestHitsNormalizationProcess::Initialize() {
-  SetSectionName(this->ClassName());
+    SetSectionName(this->ClassName());
 
-  fFactor = 1.;
+    fFactor = 1.;
 
-  fHitsInputEvent = new TRestHitsEvent();
-  fHitsOutputEvent = new TRestHitsEvent();
+    fHitsInputEvent = new TRestHitsEvent();
+    fHitsOutputEvent = new TRestHitsEvent();
 
-  fOutputEvent = fHitsOutputEvent;
-  fInputEvent = fHitsInputEvent;
+    fOutputEvent = fHitsOutputEvent;
+    fInputEvent = fHitsInputEvent;
 }
 
-void TRestHitsNormalizationProcess::LoadConfig(string cfgFilename,
-                                               string name) {
-  if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
+void TRestHitsNormalizationProcess::LoadConfig(string cfgFilename, string name) {
+    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 
-  PrintMetadata();
+    PrintMetadata();
 }
 
 //______________________________________________________________________________
 void TRestHitsNormalizationProcess::InitProcess() {
-  // Function to be executed once at the beginning of process
-  // (before starting the process of the events)
+    // Function to be executed once at the beginning of process
+    // (before starting the process of the events)
 
-  // Start by calling the InitProcess function of the abstract class.
-  // Comment this if you don't want it.
-  // TRestEventProcess::InitProcess();
+    // Start by calling the InitProcess function of the abstract class.
+    // Comment this if you don't want it.
+    // TRestEventProcess::InitProcess();
 }
 
 //______________________________________________________________________________
-void TRestHitsNormalizationProcess::BeginOfEventProcess() {
-  fHitsOutputEvent->Initialize();
-}
+void TRestHitsNormalizationProcess::BeginOfEventProcess() { fHitsOutputEvent->Initialize(); }
 
 //______________________________________________________________________________
 TRestEvent* TRestHitsNormalizationProcess::ProcessEvent(TRestEvent* evInput) {
-  fHitsInputEvent = (TRestHitsEvent*)evInput;
-  fHitsOutputEvent->SetEventInfo(fHitsInputEvent);
+    fHitsInputEvent = (TRestHitsEvent*)evInput;
+    fHitsOutputEvent->SetEventInfo(fHitsInputEvent);
 
-  for (int hit = 0; hit < fHitsInputEvent->GetNumberOfHits(); hit++)
-    fHitsOutputEvent->AddHit(
-        fHitsInputEvent->GetX(hit), fHitsInputEvent->GetY(hit),
-        fHitsInputEvent->GetZ(hit), fHitsInputEvent->GetEnergy(hit) * fFactor);
+    for (int hit = 0; hit < fHitsInputEvent->GetNumberOfHits(); hit++)
+        fHitsOutputEvent->AddHit(fHitsInputEvent->GetX(hit), fHitsInputEvent->GetY(hit),
+                                 fHitsInputEvent->GetZ(hit), fHitsInputEvent->GetEnergy(hit) * fFactor);
 
-  if (this->GetVerboseLevel() >= REST_Debug) {
-    cout << "TRestHitsNormalizationProcess. Hits added : "
-         << fHitsOutputEvent->GetNumberOfHits() << endl;
-    cout << "TRestHitsNormalizationProcess. Hits total energy : "
-         << fHitsOutputEvent->GetEnergy() << endl;
-  }
+    if (this->GetVerboseLevel() >= REST_Debug) {
+        cout << "TRestHitsNormalizationProcess. Hits added : " << fHitsOutputEvent->GetNumberOfHits() << endl;
+        cout << "TRestHitsNormalizationProcess. Hits total energy : " << fHitsOutputEvent->GetEnergy()
+             << endl;
+    }
 
-  return fHitsOutputEvent;
+    return fHitsOutputEvent;
 }
 
 //______________________________________________________________________________
@@ -113,15 +107,15 @@ void TRestHitsNormalizationProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestHitsNormalizationProcess::EndProcess() {
-  // Function to be executed once at the end of the process
-  // (after all events have been processed)
+    // Function to be executed once at the end of the process
+    // (after all events have been processed)
 
-  // Start by calling the EndProcess function of the abstract class.
-  // Comment this if you don't want it.
-  // TRestEventProcess::EndProcess();
+    // Start by calling the EndProcess function of the abstract class.
+    // Comment this if you don't want it.
+    // TRestEventProcess::EndProcess();
 }
 
 //______________________________________________________________________________
 void TRestHitsNormalizationProcess::InitFromConfigFile() {
-  fFactor = StringToDouble(GetParameter("normFactor", "1"));
+    fFactor = StringToDouble(GetParameter("normFactor", "1"));
 }

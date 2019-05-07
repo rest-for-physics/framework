@@ -21,26 +21,26 @@
 #define MAX_PACKETRX_DATA_SIZE 4096
 
 typedef struct _PacketTx {
-  unsigned short dst;
-  unsigned short cmd;
-  unsigned short adr;
-  unsigned short dat;
+    unsigned short dst;
+    unsigned short cmd;
+    unsigned short adr;
+    unsigned short dat;
 } PacketTx;
 
 typedef struct _PacketRx {
-  unsigned short size;
-  unsigned short data[MAX_PACKETRX_DATA_SIZE / (sizeof(unsigned short))];
+    unsigned short size;
+    unsigned short data[MAX_PACKETRX_DATA_SIZE / (sizeof(unsigned short))];
 } PacketRx;
 
 typedef struct _DataPacket {
-  unsigned short size;
-  unsigned short hdr;
-  unsigned short args;
-  unsigned short ts_h;
-  unsigned short ts_l;
-  unsigned short ecnt;
-  unsigned short scnt;
-  unsigned short samp[MAX_PACKETRX_DATA_SIZE / (sizeof(unsigned short))];
+    unsigned short size;
+    unsigned short hdr;
+    unsigned short args;
+    unsigned short ts_h;
+    unsigned short ts_l;
+    unsigned short ecnt;
+    unsigned short scnt;
+    unsigned short samp[MAX_PACKETRX_DATA_SIZE / (sizeof(unsigned short))];
 } DataPacket;
 
 // Macros to put header information in request packet

@@ -215,7 +215,7 @@ ClassImp(TRestGeant4AnalysisProcess)
     /// \brief Default constructor
     ///
     TRestGeant4AnalysisProcess::TRestGeant4AnalysisProcess() {
-  Initialize();
+    Initialize();
 }
 
 ///////////////////////////////////////////////
@@ -231,39 +231,37 @@ ClassImp(TRestGeant4AnalysisProcess)
 /// \param cfgFileName A const char* giving the path to an RML file.
 ///
 TRestGeant4AnalysisProcess::TRestGeant4AnalysisProcess(char* cfgFileName) {
-  Initialize();
+    Initialize();
 
-  if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
+    if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
 TRestGeant4AnalysisProcess::~TRestGeant4AnalysisProcess() {
-  delete fOutputG4Event;
-  delete fInputG4Event;
+    delete fOutputG4Event;
+    delete fInputG4Event;
 }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
 ///
-void TRestGeant4AnalysisProcess::LoadDefaultConfig() {
-  SetTitle("Default config");
-}
+void TRestGeant4AnalysisProcess::LoadDefaultConfig() { SetTitle("Default config"); }
 
 ///////////////////////////////////////////////
 /// \brief Function to initialize input/output event members and define the
 /// section name
 ///
 void TRestGeant4AnalysisProcess::Initialize() {
-  fG4Metadata = NULL;
-  SetSectionName(this->ClassName());
+    fG4Metadata = NULL;
+    SetSectionName(this->ClassName());
 
-  fInputG4Event = new TRestG4Event();
-  fOutputG4Event = new TRestG4Event();
+    fInputG4Event = new TRestG4Event();
+    fOutputG4Event = new TRestG4Event();
 
-  fOutputEvent = fOutputG4Event;
-  fInputEvent = fInputG4Event;
+    fOutputEvent = fOutputG4Event;
+    fInputEvent = fInputG4Event;
 }
 
 ///////////////////////////////////////////////
@@ -278,9 +276,8 @@ void TRestGeant4AnalysisProcess::Initialize() {
 /// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestGeant4AnalysisProcess section inside the RML.
 ///
-void TRestGeant4AnalysisProcess::LoadConfig(std::string cfgFilename,
-                                            std::string name) {
-  if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
+void TRestGeant4AnalysisProcess::LoadConfig(std::string cfgFilename, std::string name) {
+    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
@@ -289,128 +286,117 @@ void TRestGeant4AnalysisProcess::LoadConfig(std::string cfgFilename,
 /// observables defined in TRestGeant4AnalysisProcess are filled at this stage.
 ///
 void TRestGeant4AnalysisProcess::InitProcess() {
-  fG4Metadata = (TRestG4Metadata*)GetGeant4Metadata();
+    fG4Metadata = (TRestG4Metadata*)GetGeant4Metadata();
 
-  std::vector<string> fObservables;
-  fObservables = TRestEventProcess::ReadObservables();
+    std::vector<string> fObservables;
+    fObservables = TRestEventProcess::ReadObservables();
 
-  for (unsigned int i = 0; i < fObservables.size(); i++) {
-    if (fObservables[i].find("VolumeEDep") != string::npos) {
-      TString volName =
-          fObservables[i].substr(0, fObservables[i].length() - 10).c_str();
+    for (unsigned int i = 0; i < fObservables.size(); i++) {
+        if (fObservables[i].find("VolumeEDep") != string::npos) {
+            TString volName = fObservables[i].substr(0, fObservables[i].length() - 10).c_str();
 
-      Int_t volId = fG4Metadata->GetActiveVolumeID(volName);
-      if (volId >= 0) {
-        fEnergyInObservables.push_back(fObservables[i]);
-        fVolumeID.push_back(volId);
-      }
+            Int_t volId = fG4Metadata->GetActiveVolumeID(volName);
+            if (volId >= 0) {
+                fEnergyInObservables.push_back(fObservables[i]);
+                fVolumeID.push_back(volId);
+            }
 
-      if (volId == -1) {
-        cout << endl;
-        cout << "??????????????????????????????????????????????????" << endl;
-        cout << "REST warning : TRestGeant4AnalysisProcess." << endl;
-        cout << "------------------------------------------" << endl;
-        cout << endl;
-        cout << " Volume " << volName << " is not an active volume" << endl;
-        cout << endl;
-        cout << "List of active volumes : " << endl;
-        cout << "------------------------ " << endl;
+            if (volId == -1) {
+                cout << endl;
+                cout << "??????????????????????????????????????????????????" << endl;
+                cout << "REST warning : TRestGeant4AnalysisProcess." << endl;
+                cout << "------------------------------------------" << endl;
+                cout << endl;
+                cout << " Volume " << volName << " is not an active volume" << endl;
+                cout << endl;
+                cout << "List of active volumes : " << endl;
+                cout << "------------------------ " << endl;
 
-        for (int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes(); n++)
-          cout << "Volume " << n << " : " << fG4Metadata->GetActiveVolumeName(n)
-               << endl;
-        cout << "??????????????????????????????????????????????????" << endl;
-        cout << endl;
-      }
+                for (int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes(); n++)
+                    cout << "Volume " << n << " : " << fG4Metadata->GetActiveVolumeName(n) << endl;
+                cout << "??????????????????????????????????????????????????" << endl;
+                cout << endl;
+            }
+        }
+
+        if (fObservables[i].find("MeanPos") != string::npos) {
+            TString volName2 = fObservables[i].substr(0, fObservables[i].length() - 8).c_str();
+            std::string dirId = fObservables[i].substr(fObservables[i].length() - 1, 1).c_str();
+
+            Int_t volId2 = fG4Metadata->GetActiveVolumeID(volName2);
+            if (volId2 >= 0) {
+                fMeanPosObservables.push_back(fObservables[i]);
+                fVolumeID2.push_back(volId2);
+                fDirID.push_back(dirId);
+            }
+
+            if (volId2 == -1) {
+                cout << endl;
+                cout << "??????????????????????????????????????????????????" << endl;
+                cout << "REST warning : TRestGeant4AnalysisProcess." << endl;
+                cout << "------------------------------------------" << endl;
+                cout << endl;
+                cout << " Volume " << volName2 << " is not an active volume" << endl;
+                cout << endl;
+                cout << "List of active volumes : " << endl;
+                cout << "------------------------ " << endl;
+
+                for (int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes(); n++)
+                    cout << "Volume " << n << " : " << fG4Metadata->GetActiveVolumeName(n) << endl;
+                cout << "??????????????????????????????????????????????????" << endl;
+                cout << endl;
+            }
+
+            if ((dirId != "X") && (dirId != "Y") && (dirId != "Z")) {
+                cout << endl;
+                cout << "??????????????????????????????????????????????????" << endl;
+                cout << "REST warning : TRestGeant4AnalysisProcess." << endl;
+                cout << "------------------------------------------" << endl;
+                cout << endl;
+                cout << " Direction " << dirId << " is not valid" << endl;
+                cout << " Only X, Y or Z accepted" << endl;
+                cout << endl;
+            }
+        }
+        if (fObservables[i].find("Process") != string::npos) {
+            Int_t ls = 0;
+            if (fObservables[i].find("RadiactiveDecay") != string::npos) ls = 15;
+            if (fObservables[i].find("Photoelectric") != string::npos) ls = 13;
+            if (fObservables[i].find("PhotonNuclear") != string::npos) ls = 13;
+            if (fObservables[i].find("Bremstralung") != string::npos) ls = 12;
+            if (fObservables[i].find("HadElastic") != string::npos) ls = 10;
+            if (fObservables[i].find("NCapture") != string::npos) ls = 8;
+            if (fObservables[i].find("Compton") != string::npos) ls = 7;
+            if (fObservables[i].find("Neutron") != string::npos) ls = 7;
+            if (fObservables[i].find("Alpha") != string::npos) ls = 5;
+            if (fObservables[i].find("Argon") != string::npos) ls = 5;
+            if (fObservables[i].find("Xenon") != string::npos) ls = 5;
+            if (fObservables[i].find("Neon") != string::npos) ls = 4;
+
+            TString processName = fObservables[i].substr(fObservables[i].length() - (ls + 7), ls).c_str();
+            TString volName3 = fObservables[i].substr(0, fObservables[i].length() - (ls + 7)).c_str();
+            Int_t volId3 = fG4Metadata->GetActiveVolumeID(volName3);
+
+            if (volId3 >= 0) {
+                fProcessObservables.push_back(fObservables[i]);
+                fVolumeID3.push_back(volId3);
+                fProcessName.push_back((string)processName);
+            }
+        }
+        if (fObservables[i].find("TracksCounter") != string::npos) {
+            TString partName = fObservables[i].substr(0, fObservables[i].length() - 13).c_str();
+
+            fTrackCounterObservables.push_back(fObservables[i]);
+            fParticleTrackCounter.push_back((string)partName);
+        }
+
+        if (fObservables[i].find("TracksEDep") != string::npos) {
+            TString partName = fObservables[i].substr(0, fObservables[i].length() - 10).c_str();
+
+            fTracksEDepObservables.push_back(fObservables[i]);
+            fParticleTrackEdep.push_back((string)partName);
+        }
     }
-
-    if (fObservables[i].find("MeanPos") != string::npos) {
-      TString volName2 =
-          fObservables[i].substr(0, fObservables[i].length() - 8).c_str();
-      std::string dirId =
-          fObservables[i].substr(fObservables[i].length() - 1, 1).c_str();
-
-      Int_t volId2 = fG4Metadata->GetActiveVolumeID(volName2);
-      if (volId2 >= 0) {
-        fMeanPosObservables.push_back(fObservables[i]);
-        fVolumeID2.push_back(volId2);
-        fDirID.push_back(dirId);
-      }
-
-      if (volId2 == -1) {
-        cout << endl;
-        cout << "??????????????????????????????????????????????????" << endl;
-        cout << "REST warning : TRestGeant4AnalysisProcess." << endl;
-        cout << "------------------------------------------" << endl;
-        cout << endl;
-        cout << " Volume " << volName2 << " is not an active volume" << endl;
-        cout << endl;
-        cout << "List of active volumes : " << endl;
-        cout << "------------------------ " << endl;
-
-        for (int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes(); n++)
-          cout << "Volume " << n << " : " << fG4Metadata->GetActiveVolumeName(n)
-               << endl;
-        cout << "??????????????????????????????????????????????????" << endl;
-        cout << endl;
-      }
-
-      if ((dirId != "X") && (dirId != "Y") && (dirId != "Z")) {
-        cout << endl;
-        cout << "??????????????????????????????????????????????????" << endl;
-        cout << "REST warning : TRestGeant4AnalysisProcess." << endl;
-        cout << "------------------------------------------" << endl;
-        cout << endl;
-        cout << " Direction " << dirId << " is not valid" << endl;
-        cout << " Only X, Y or Z accepted" << endl;
-        cout << endl;
-      }
-    }
-    if (fObservables[i].find("Process") != string::npos) {
-      Int_t ls = 0;
-      if (fObservables[i].find("RadiactiveDecay") != string::npos) ls = 15;
-      if (fObservables[i].find("Photoelectric") != string::npos) ls = 13;
-      if (fObservables[i].find("PhotonNuclear") != string::npos) ls = 13;
-      if (fObservables[i].find("Bremstralung") != string::npos) ls = 12;
-      if (fObservables[i].find("HadElastic") != string::npos) ls = 10;
-      if (fObservables[i].find("NCapture") != string::npos) ls = 8;
-      if (fObservables[i].find("Compton") != string::npos) ls = 7;
-      if (fObservables[i].find("Neutron") != string::npos) ls = 7;
-      if (fObservables[i].find("Alpha") != string::npos) ls = 5;
-      if (fObservables[i].find("Argon") != string::npos) ls = 5;
-      if (fObservables[i].find("Xenon") != string::npos) ls = 5;
-      if (fObservables[i].find("Neon") != string::npos) ls = 4;
-
-      TString processName = fObservables[i]
-                                .substr(fObservables[i].length() - (ls + 7), ls)
-                                .c_str();
-      TString volName3 = fObservables[i]
-                             .substr(0, fObservables[i].length() - (ls + 7))
-                             .c_str();
-      Int_t volId3 = fG4Metadata->GetActiveVolumeID(volName3);
-
-      if (volId3 >= 0) {
-        fProcessObservables.push_back(fObservables[i]);
-        fVolumeID3.push_back(volId3);
-        fProcessName.push_back((string)processName);
-      }
-    }
-    if (fObservables[i].find("TracksCounter") != string::npos) {
-      TString partName =
-          fObservables[i].substr(0, fObservables[i].length() - 13).c_str();
-
-      fTrackCounterObservables.push_back(fObservables[i]);
-      fParticleTrackCounter.push_back((string)partName);
-    }
-
-    if (fObservables[i].find("TracksEDep") != string::npos) {
-      TString partName =
-          fObservables[i].substr(0, fObservables[i].length() - 10).c_str();
-
-      fTracksEDepObservables.push_back(fObservables[i]);
-      fParticleTrackEdep.push_back((string)partName);
-    }
-  }
 }
 
 ///////////////////////////////////////////////
@@ -423,189 +409,175 @@ void TRestGeant4AnalysisProcess::BeginOfEventProcess() {}
 /// \brief The main processing event function
 ///
 TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
-  *fOutputG4Event = *((TRestG4Event*)evInput);
+    *fOutputG4Event = *((TRestG4Event*)evInput);
 
-  TString obsName;
+    TString obsName;
 
-  Double_t energy = fOutputG4Event->GetSensitiveVolumeEnergy();
+    Double_t energy = fOutputG4Event->GetSensitiveVolumeEnergy();
 
-  if (GetVerboseLevel() >= REST_Debug) {
-    cout << "----------------------------" << endl;
-    cout << "TRestG4Event : " << fOutputG4Event->GetID() << endl;
-    cout << "Sensitive volume Energy : " << energy << endl;
-    cout << "Total energy : " << fOutputG4Event->GetTotalDepositedEnergy()
-         << endl;
-    ;
-  }
+    if (GetVerboseLevel() >= REST_Debug) {
+        cout << "----------------------------" << endl;
+        cout << "TRestG4Event : " << fOutputG4Event->GetID() << endl;
+        cout << "Sensitive volume Energy : " << energy << endl;
+        cout << "Total energy : " << fOutputG4Event->GetTotalDepositedEnergy() << endl;
+        ;
+    }
 
-  if (energy < fLowEnergyCut) return NULL;
-  if (fHighEnergyCut > 0 && energy > fHighEnergyCut) return NULL;
+    if (energy < fLowEnergyCut) return NULL;
+    if (fHighEnergyCut > 0 && energy > fHighEnergyCut) return NULL;
 
-  /* {{{ Event origin variables */
-  Double_t xOrigin = fOutputG4Event->GetPrimaryEventOrigin().X();
-  obsName = this->GetName() + (TString) ".xOriginPrimary";
-  fAnalysisTree->SetObservableValue(obsName, xOrigin);
+    /* {{{ Event origin variables */
+    Double_t xOrigin = fOutputG4Event->GetPrimaryEventOrigin().X();
+    obsName = this->GetName() + (TString) ".xOriginPrimary";
+    fAnalysisTree->SetObservableValue(obsName, xOrigin);
 
-  Double_t yOrigin = fOutputG4Event->GetPrimaryEventOrigin().Y();
-  obsName = this->GetName() + (TString) ".yOriginPrimary";
-  fAnalysisTree->SetObservableValue(obsName, yOrigin);
+    Double_t yOrigin = fOutputG4Event->GetPrimaryEventOrigin().Y();
+    obsName = this->GetName() + (TString) ".yOriginPrimary";
+    fAnalysisTree->SetObservableValue(obsName, yOrigin);
 
-  Double_t zOrigin = fOutputG4Event->GetPrimaryEventOrigin().Z();
-  obsName = this->GetName() + (TString) ".zOriginPrimary";
-  fAnalysisTree->SetObservableValue(obsName, zOrigin);
+    Double_t zOrigin = fOutputG4Event->GetPrimaryEventOrigin().Z();
+    obsName = this->GetName() + (TString) ".zOriginPrimary";
+    fAnalysisTree->SetObservableValue(obsName, zOrigin);
 
-  Double_t xDirection = fOutputG4Event->GetPrimaryEventDirection(0).X();
-  obsName = this->GetName() + (TString) ".xDirectionPrimary";
-  fAnalysisTree->SetObservableValue(obsName, xDirection);
+    Double_t xDirection = fOutputG4Event->GetPrimaryEventDirection(0).X();
+    obsName = this->GetName() + (TString) ".xDirectionPrimary";
+    fAnalysisTree->SetObservableValue(obsName, xDirection);
 
-  Double_t yDirection = fOutputG4Event->GetPrimaryEventDirection(0).Y();
-  obsName = this->GetName() + (TString) ".yDirectionPrimary";
-  fAnalysisTree->SetObservableValue(obsName, yDirection);
+    Double_t yDirection = fOutputG4Event->GetPrimaryEventDirection(0).Y();
+    obsName = this->GetName() + (TString) ".yDirectionPrimary";
+    fAnalysisTree->SetObservableValue(obsName, yDirection);
 
-  Double_t zDirection = fOutputG4Event->GetPrimaryEventDirection(0).Z();
-  obsName = this->GetName() + (TString) ".zDirectionPrimary";
-  fAnalysisTree->SetObservableValue(obsName, zDirection);
+    Double_t zDirection = fOutputG4Event->GetPrimaryEventDirection(0).Z();
+    obsName = this->GetName() + (TString) ".zDirectionPrimary";
+    fAnalysisTree->SetObservableValue(obsName, zDirection);
 
-  Double_t energyPrimary = fOutputG4Event->GetPrimaryEventEnergy(0);
-  obsName = this->GetName() + (TString) ".energyPrimary";
-  fAnalysisTree->SetObservableValue(obsName, energyPrimary);
-  /* }}} */
+    Double_t energyPrimary = fOutputG4Event->GetPrimaryEventEnergy(0);
+    obsName = this->GetName() + (TString) ".energyPrimary";
+    fAnalysisTree->SetObservableValue(obsName, energyPrimary);
+    /* }}} */
 
-  Double_t energyTotal = fOutputG4Event->GetTotalDepositedEnergy();
-  obsName = this->GetName() + (TString) ".totalEdep";
-  fAnalysisTree->SetObservableValue(obsName, energyTotal);
+    Double_t energyTotal = fOutputG4Event->GetTotalDepositedEnergy();
+    obsName = this->GetName() + (TString) ".totalEdep";
+    fAnalysisTree->SetObservableValue(obsName, energyTotal);
 
-  obsName = this->GetName() + (TString) ".photoelectric";
-  if (fOutputG4Event->isPhotoElectric()) {
-    fAnalysisTree->SetObservableValue(obsName, 1);
-  } else {
-    fAnalysisTree->SetObservableValue(obsName, 0);
-  }
+    obsName = this->GetName() + (TString) ".photoelectric";
+    if (fOutputG4Event->isPhotoElectric()) {
+        fAnalysisTree->SetObservableValue(obsName, 1);
+    } else {
+        fAnalysisTree->SetObservableValue(obsName, 0);
+    }
 
-  obsName = this->GetName() + (TString) ".compton";
-  if (fOutputG4Event->isCompton())
-    fAnalysisTree->SetObservableValue(obsName, 1);
-  else
-    fAnalysisTree->SetObservableValue(obsName, 0);
-
-  obsName = this->GetName() + (TString) ".bremstralung";
-  if (fOutputG4Event->isBremstralung())
-    fAnalysisTree->SetObservableValue(obsName, 1);
-  else
-    fAnalysisTree->SetObservableValue(obsName, 0);
-
-  obsName = this->GetName() + (TString) ".hadElastic";
-  if (fOutputG4Event->ishadElastic())
-    fAnalysisTree->SetObservableValue(obsName, 1);
-  else
-    fAnalysisTree->SetObservableValue(obsName, 0);
-
-  obsName = this->GetName() + (TString) ".neutronInelastic";
-  if (fOutputG4Event->isneutronInelastic())
-    fAnalysisTree->SetObservableValue(obsName, 1);
-  else
-    fAnalysisTree->SetObservableValue(obsName, 0);
-
-  obsName = this->GetName() + (TString) ".nCapture";
-  if (fOutputG4Event->isnCapture())
-    fAnalysisTree->SetObservableValue(obsName, 1);
-  else
-    fAnalysisTree->SetObservableValue(obsName, 0);
-
-  obsName = this->GetName() + (TString) ".hIoni";
-  if (fOutputG4Event->ishIoni())
-    fAnalysisTree->SetObservableValue(obsName, 1);
-  else
-    fAnalysisTree->SetObservableValue(obsName, 0);
-  for (unsigned int n = 0; n < fProcessObservables.size(); n++) {
-    TString obsName = fProcessObservables[n];
-    obsName = this->GetName() + (TString) "." + obsName;
-    TString processName = fProcessName[n];
-    if ((processName == "RadiactiveDecay") &&
-        (fOutputG4Event->isRadiactiveDecayInVolume(fVolumeID3[n])))
-      fAnalysisTree->SetObservableValue(obsName, 1);
-    else if ((processName == "Photoelectric") &&
-             (fOutputG4Event->isPhotoElectricInVolume(fVolumeID3[n])))
-      fAnalysisTree->SetObservableValue(obsName, 1);
-    // else if((processName=="PhotonNuclear")&&(
-    // fOutputG4Event->isPhotonNuclearInVolume(fVolumeID3[n]) ))
-    // fAnalysisTree->SetObservableValue( obsName, 1 );
-    else if ((processName == "Bremstralung") &&
-             (fOutputG4Event->isBremstralungInVolume(fVolumeID3[n])))
-      fAnalysisTree->SetObservableValue(obsName, 1);
-    else if ((processName == "HadElastic") &&
-             (fOutputG4Event->isHadElasticInVolume(fVolumeID3[n])))
-      fAnalysisTree->SetObservableValue(obsName, 1);
-    else if ((processName == "NCapture") &&
-             (fOutputG4Event->isNCaptureInVolume(fVolumeID3[n])))
-      fAnalysisTree->SetObservableValue(obsName, 1);
-    else if ((processName == "Compton") &&
-             (fOutputG4Event->isComptonInVolume(fVolumeID3[n])))
-      fAnalysisTree->SetObservableValue(obsName, 1);
-    else if ((processName == "Neutron") &&
-             (fOutputG4Event->isNeutronInVolume(fVolumeID3[n])))
-      fAnalysisTree->SetObservableValue(obsName, 1);
-    else if ((processName == "Alpha") &&
-             (fOutputG4Event->isAlphaInVolume(fVolumeID3[n])))
-      fAnalysisTree->SetObservableValue(obsName, 1);
-    else if ((processName == "Argon") &&
-             (fOutputG4Event->isArgonInVolume(fVolumeID3[n])))
-      fAnalysisTree->SetObservableValue(obsName, 1);
-    else if ((processName == "Xenon") &&
-             (fOutputG4Event->isXenonInVolume(fVolumeID3[n])))
-      fAnalysisTree->SetObservableValue(obsName, 1);
-    else if ((processName == "Neon") &&
-             (fOutputG4Event->isNeonInVolume(fVolumeID3[n])))
-      fAnalysisTree->SetObservableValue(obsName, 1);
-
+    obsName = this->GetName() + (TString) ".compton";
+    if (fOutputG4Event->isCompton())
+        fAnalysisTree->SetObservableValue(obsName, 1);
     else
-      fAnalysisTree->SetObservableValue(obsName, 0);
-  }
-  for (unsigned int n = 0; n < fParticleTrackCounter.size(); n++) {
-    Int_t nT =
-        fOutputG4Event->GetNumberOfTracksForParticle(fParticleTrackCounter[n]);
-    TString obsName = fTrackCounterObservables[n];
-    obsName = this->GetName() + (TString) "." + obsName;
-    fAnalysisTree->SetObservableValue(obsName, nT);
-  }
+        fAnalysisTree->SetObservableValue(obsName, 0);
 
-  for (unsigned int n = 0; n < fTracksEDepObservables.size(); n++) {
-    Double_t energy =
-        fOutputG4Event->GetEnergyDepositedByParticle(fParticleTrackEdep[n]);
-    TString obsName = fTracksEDepObservables[n];
-    obsName = this->GetName() + (TString) "." + obsName;
-    fAnalysisTree->SetObservableValue(obsName, energy);
-  }
+    obsName = this->GetName() + (TString) ".bremstralung";
+    if (fOutputG4Event->isBremstralung())
+        fAnalysisTree->SetObservableValue(obsName, 1);
+    else
+        fAnalysisTree->SetObservableValue(obsName, 0);
 
-  for (unsigned int n = 0; n < fEnergyInObservables.size(); n++) {
-    Double_t en = fOutputG4Event->GetEnergyDepositedInVolume(fVolumeID[n]);
-    TString obsName = fEnergyInObservables[n];
-    obsName = this->GetName() + (TString) "." + obsName;
-    fAnalysisTree->SetObservableValue(obsName, en);
-  }
+    obsName = this->GetName() + (TString) ".hadElastic";
+    if (fOutputG4Event->ishadElastic())
+        fAnalysisTree->SetObservableValue(obsName, 1);
+    else
+        fAnalysisTree->SetObservableValue(obsName, 0);
 
-  for (unsigned int n = 0; n < fMeanPosObservables.size(); n++) {
-    TString obsName = fMeanPosObservables[n];
-    obsName = this->GetName() + (TString) "." + obsName;
+    obsName = this->GetName() + (TString) ".neutronInelastic";
+    if (fOutputG4Event->isneutronInelastic())
+        fAnalysisTree->SetObservableValue(obsName, 1);
+    else
+        fAnalysisTree->SetObservableValue(obsName, 0);
 
-    Double_t mpos = 0;
-    if (fDirID[n] == (TString) "X")
-      mpos = fOutputG4Event->GetMeanPositionInVolume(fVolumeID2[n]).X();
+    obsName = this->GetName() + (TString) ".nCapture";
+    if (fOutputG4Event->isnCapture())
+        fAnalysisTree->SetObservableValue(obsName, 1);
+    else
+        fAnalysisTree->SetObservableValue(obsName, 0);
 
-    else if (fDirID[n] == (TString) "Y")
-      mpos = fOutputG4Event->GetMeanPositionInVolume(fVolumeID2[n]).Y();
+    obsName = this->GetName() + (TString) ".hIoni";
+    if (fOutputG4Event->ishIoni())
+        fAnalysisTree->SetObservableValue(obsName, 1);
+    else
+        fAnalysisTree->SetObservableValue(obsName, 0);
+    for (unsigned int n = 0; n < fProcessObservables.size(); n++) {
+        TString obsName = fProcessObservables[n];
+        obsName = this->GetName() + (TString) "." + obsName;
+        TString processName = fProcessName[n];
+        if ((processName == "RadiactiveDecay") && (fOutputG4Event->isRadiactiveDecayInVolume(fVolumeID3[n])))
+            fAnalysisTree->SetObservableValue(obsName, 1);
+        else if ((processName == "Photoelectric") && (fOutputG4Event->isPhotoElectricInVolume(fVolumeID3[n])))
+            fAnalysisTree->SetObservableValue(obsName, 1);
+        // else if((processName=="PhotonNuclear")&&(
+        // fOutputG4Event->isPhotonNuclearInVolume(fVolumeID3[n]) ))
+        // fAnalysisTree->SetObservableValue( obsName, 1 );
+        else if ((processName == "Bremstralung") && (fOutputG4Event->isBremstralungInVolume(fVolumeID3[n])))
+            fAnalysisTree->SetObservableValue(obsName, 1);
+        else if ((processName == "HadElastic") && (fOutputG4Event->isHadElasticInVolume(fVolumeID3[n])))
+            fAnalysisTree->SetObservableValue(obsName, 1);
+        else if ((processName == "NCapture") && (fOutputG4Event->isNCaptureInVolume(fVolumeID3[n])))
+            fAnalysisTree->SetObservableValue(obsName, 1);
+        else if ((processName == "Compton") && (fOutputG4Event->isComptonInVolume(fVolumeID3[n])))
+            fAnalysisTree->SetObservableValue(obsName, 1);
+        else if ((processName == "Neutron") && (fOutputG4Event->isNeutronInVolume(fVolumeID3[n])))
+            fAnalysisTree->SetObservableValue(obsName, 1);
+        else if ((processName == "Alpha") && (fOutputG4Event->isAlphaInVolume(fVolumeID3[n])))
+            fAnalysisTree->SetObservableValue(obsName, 1);
+        else if ((processName == "Argon") && (fOutputG4Event->isArgonInVolume(fVolumeID3[n])))
+            fAnalysisTree->SetObservableValue(obsName, 1);
+        else if ((processName == "Xenon") && (fOutputG4Event->isXenonInVolume(fVolumeID3[n])))
+            fAnalysisTree->SetObservableValue(obsName, 1);
+        else if ((processName == "Neon") && (fOutputG4Event->isNeonInVolume(fVolumeID3[n])))
+            fAnalysisTree->SetObservableValue(obsName, 1);
 
-    else if (fDirID[n] == (TString) "Z")
-      mpos = fOutputG4Event->GetMeanPositionInVolume(fVolumeID2[n]).Z();
+        else
+            fAnalysisTree->SetObservableValue(obsName, 0);
+    }
+    for (unsigned int n = 0; n < fParticleTrackCounter.size(); n++) {
+        Int_t nT = fOutputG4Event->GetNumberOfTracksForParticle(fParticleTrackCounter[n]);
+        TString obsName = fTrackCounterObservables[n];
+        obsName = this->GetName() + (TString) "." + obsName;
+        fAnalysisTree->SetObservableValue(obsName, nT);
+    }
 
-    fAnalysisTree->SetObservableValue(obsName, mpos);
-  }
+    for (unsigned int n = 0; n < fTracksEDepObservables.size(); n++) {
+        Double_t energy = fOutputG4Event->GetEnergyDepositedByParticle(fParticleTrackEdep[n]);
+        TString obsName = fTracksEDepObservables[n];
+        obsName = this->GetName() + (TString) "." + obsName;
+        fAnalysisTree->SetObservableValue(obsName, energy);
+    }
 
-  if (GetVerboseLevel() >= REST_Debug) {
-    cout << "G4 Tracks : " << fOutputG4Event->GetNumberOfTracks() << endl;
-    cout << "----------------------------" << endl;
-  }
-  return fOutputG4Event;
+    for (unsigned int n = 0; n < fEnergyInObservables.size(); n++) {
+        Double_t en = fOutputG4Event->GetEnergyDepositedInVolume(fVolumeID[n]);
+        TString obsName = fEnergyInObservables[n];
+        obsName = this->GetName() + (TString) "." + obsName;
+        fAnalysisTree->SetObservableValue(obsName, en);
+    }
+
+    for (unsigned int n = 0; n < fMeanPosObservables.size(); n++) {
+        TString obsName = fMeanPosObservables[n];
+        obsName = this->GetName() + (TString) "." + obsName;
+
+        Double_t mpos = 0;
+        if (fDirID[n] == (TString) "X")
+            mpos = fOutputG4Event->GetMeanPositionInVolume(fVolumeID2[n]).X();
+
+        else if (fDirID[n] == (TString) "Y")
+            mpos = fOutputG4Event->GetMeanPositionInVolume(fVolumeID2[n]).Y();
+
+        else if (fDirID[n] == (TString) "Z")
+            mpos = fOutputG4Event->GetMeanPositionInVolume(fVolumeID2[n]).Z();
+
+        fAnalysisTree->SetObservableValue(obsName, mpos);
+    }
+
+    if (GetVerboseLevel() >= REST_Debug) {
+        cout << "G4 Tracks : " << fOutputG4Event->GetNumberOfTracks() << endl;
+        cout << "----------------------------" << endl;
+    }
+    return fOutputG4Event;
 }
 
 ///////////////////////////////////////////////
@@ -619,12 +591,12 @@ void TRestGeant4AnalysisProcess::EndOfEventProcess() {}
 /// processed.
 ///
 void TRestGeant4AnalysisProcess::EndProcess() {
-  // Function to be executed once at the end of the process
-  // (after all events have been processed)
+    // Function to be executed once at the end of the process
+    // (after all events have been processed)
 
-  // Start by calling the EndProcess function of the abstract class.
-  // Comment this if you don't want it.
-  // TRestEventProcess::EndProcess();
+    // Start by calling the EndProcess function of the abstract class.
+    // Comment this if you don't want it.
+    // TRestEventProcess::EndProcess();
 }
 
 ///////////////////////////////////////////////
@@ -632,6 +604,6 @@ void TRestGeant4AnalysisProcess::EndProcess() {
 /// TRestGeant4AnalysisProcess metadata section
 ///
 void TRestGeant4AnalysisProcess::InitFromConfigFile() {
-  fLowEnergyCut = GetDblParameterWithUnits("lowEnergyCut", (double)0);
-  fHighEnergyCut = GetDblParameterWithUnits("highEnergyCut", (double)0);
+    fLowEnergyCut = GetDblParameterWithUnits("lowEnergyCut", (double)0);
+    fHighEnergyCut = GetDblParameterWithUnits("highEnergyCut", (double)0);
 }

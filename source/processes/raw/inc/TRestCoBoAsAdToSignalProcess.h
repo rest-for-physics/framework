@@ -26,24 +26,24 @@
 #include "TRestSignalEvent.h"
 
 class TRestCoBoAsAdToSignalProcess : public TRestRawToSignalProcess {
- private:
-  TTimeStamp fStartTimeStamp;
+   private:
+    TTimeStamp fStartTimeStamp;
 
- public:
-  void InitProcess();
-  void Initialize();
-  Bool_t OpenInputCoBoAsAdBinFile(TString fName);
-  TRestEvent* ProcessEvent(TRestEvent* evInput);
-  TString GetProcessName() { return (TString) "CoBoAsAdToSignal"; }
+   public:
+    void InitProcess();
+    void Initialize();
+    Bool_t OpenInputCoBoAsAdBinFile(TString fName);
+    TRestEvent* ProcessEvent(TRestEvent* evInput);
+    TString GetProcessName() { return (TString) "CoBoAsAdToSignal"; }
 
-  // Constructor
-  TRestCoBoAsAdToSignalProcess();
-  TRestCoBoAsAdToSignalProcess(char* cfgFileName);
-  // Destructor
-  ~TRestCoBoAsAdToSignalProcess();
+    // Constructor
+    TRestCoBoAsAdToSignalProcess();
+    TRestCoBoAsAdToSignalProcess(char* cfgFileName);
+    // Destructor
+    ~TRestCoBoAsAdToSignalProcess();
 
-  ClassDef(TRestCoBoAsAdToSignalProcess,
-           1);  // Template for a REST "event process" class inherited from
-                // TRestEventProcess
+    ClassDef(TRestCoBoAsAdToSignalProcess,
+             1);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

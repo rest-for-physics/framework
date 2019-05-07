@@ -13,49 +13,40 @@
 /*                                                                          */
 /****************************************************************************/
 
-#ifndef  __COMBS_H
-#define  __COMBS_H
+#ifndef __COMBS_H
+#define __COMBS_H
 
 #define CCcombs_BLOCK_ZERO_EPSILON (1e-10)
 
 typedef struct CC_GCedge {
-    int         to;
-    double      weight;
+    int to;
+    double weight;
 } CC_GCedge;
 
 typedef struct CC_GCnode {
-    int         deg;
-    CC_GCedge  *adj;
-    int         mark;
-    int         qhandle;
-    double      flow;
-    int         setloc;
-    int         setdeg;
-    int         status;
+    int deg;
+    CC_GCedge* adj;
+    int mark;
+    int qhandle;
+    double flow;
+    int setloc;
+    int setdeg;
+    int status;
 } CC_GCnode;
 
 typedef struct CC_GCgraph {
-    int        ncount;
-    int        ecount;
-    CC_GCnode *nodelist;
-    CC_GCedge *edgespace;
+    int ncount;
+    int ecount;
+    CC_GCnode* nodelist;
+    CC_GCedge* edgespace;
 } CC_GCgraph;
 
+int CCcombs_find_blocks(int ncount, int ecount, int*elist, double*x, int*nblocks, int**blockcnts,
+                        int***blocks, int*ncutnodes, int**cutnodes),
+    CCcombs_greedy_cut(CC_GCgraph*g, int*setsize, int*set, int mark_fixed, int forced_moves, int bad_moves,
+                       int fixed_moves, int*moves_done, double*cut_val),
+    CCcombs_GC_build_graph(CC_GCgraph*G, int ncount, int ecount, int*elist, double*x);
 
-
-int
-    CCcombs_find_blocks (int ncount, int ecount, int *elist, double *x,
-        int *nblocks, int **blockcnts, int ***blocks, int *ncutnodes,
-        int **cutnodes),
-    CCcombs_greedy_cut (CC_GCgraph *g, int *setsize, int *set, int mark_fixed,
-        int forced_moves, int bad_moves, int fixed_moves, int *moves_done,
-        double *cut_val),
-    CCcombs_GC_build_graph (CC_GCgraph *G, int ncount, int ecount, int *elist,
-        double *x);
-
-void
-    CCcombs_GC_init_graph (CC_GCgraph *G),
-    CCcombs_GC_free_graph (CC_GCgraph *G);
-
+void CCcombs_GC_init_graph(CC_GCgraph*G), CCcombs_GC_free_graph(CC_GCgraph*G);
 
 #endif /* __COMBS_H */

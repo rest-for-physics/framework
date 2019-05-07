@@ -30,61 +30,61 @@
 
 //! A process to convert a TRestRawSignalEvent into a TRestSignalEvent
 class TRestRawSignalToSignalProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
-  /// A pointer to the specific TRestRawSignalEvent input
-  TRestRawSignalEvent* fInputSignalEvent;  //!
+    /// A pointer to the specific TRestRawSignalEvent input
+    TRestRawSignalEvent* fInputSignalEvent;  //!
 
-  /// A pointer to the specific TRestSignalEvent input
-  TRestSignalEvent* fOutputSignalEvent;  //!
+    /// A pointer to the specific TRestSignalEvent input
+    TRestSignalEvent* fOutputSignalEvent;  //!
 #endif
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
+    void Initialize();
 
-  void LoadDefaultConfig();
+    void LoadDefaultConfig();
 
- protected:
-  /// The sampling time used to transform the binned data to time information
-  Double_t fSampling;
+   protected:
+    /// The sampling time used to transform the binned data to time information
+    Double_t fSampling;
 
-  /// The corresponding time of the first bin inside the raw signal
-  Int_t fTriggerStarts;
+    /// The corresponding time of the first bin inside the raw signal
+    Int_t fTriggerStarts;
 
-  /// A factor the data values will be multiplied by at the output signal.
-  Double_t fGain;
+    /// A factor the data values will be multiplied by at the output signal.
+    Double_t fGain;
 
- public:
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
+   public:
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
 
-  void LoadConfig(std::string cfgFilename, string name = "");
+    void LoadConfig(std::string cfgFilename, string name = "");
 
-  /// It prints out the process parameters stored in the metadata structure
-  void PrintMetadata() {
-    BeginPrintProcess();
+    /// It prints out the process parameters stored in the metadata structure
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    std::cout << "Sampling time : " << fSampling << " us" << std::endl;
-    std::cout << "Trigger starts : " << fTriggerStarts << " us" << std::endl;
-    std::cout << "Gain : " << fGain << std::endl;
+        std::cout << "Sampling time : " << fSampling << " us" << std::endl;
+        std::cout << "Trigger starts : " << fTriggerStarts << " us" << std::endl;
+        std::cout << "Gain : " << fGain << std::endl;
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  /// Returns a new instance of this class
-  TRestEventProcess* Maker() { return new TRestRawSignalToSignalProcess; }
+    /// Returns a new instance of this class
+    TRestEventProcess* Maker() { return new TRestRawSignalToSignalProcess; }
 
-  /// Returns the name of this process
-  TString GetProcessName() { return (TString) "rawSignalToSignal"; }
+    /// Returns the name of this process
+    TString GetProcessName() { return (TString) "rawSignalToSignal"; }
 
-  // Constructor
-  TRestRawSignalToSignalProcess();
-  TRestRawSignalToSignalProcess(char* cfgFileName);
+    // Constructor
+    TRestRawSignalToSignalProcess();
+    TRestRawSignalToSignalProcess(char* cfgFileName);
 
-  // Destructor
-  ~TRestRawSignalToSignalProcess();
+    // Destructor
+    ~TRestRawSignalToSignalProcess();
 
-  ClassDef(TRestRawSignalToSignalProcess, 1);
+    ClassDef(TRestRawSignalToSignalProcess, 1);
 };
 #endif

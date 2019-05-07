@@ -21,35 +21,35 @@ using namespace std;
 ClassImp(TRestG4PrimaryGenerator)
     //______________________________________________________________________________
     TRestG4PrimaryGenerator::TRestG4PrimaryGenerator() {
-  // TRestG4PrimaryGenerator default constructor
-  Reset();
+    // TRestG4PrimaryGenerator default constructor
+    Reset();
 }
 
 //______________________________________________________________________________
 TRestG4PrimaryGenerator::~TRestG4PrimaryGenerator() {
-  // TRestG4PrimaryGenerator destructor
+    // TRestG4PrimaryGenerator destructor
 }
 
 void TRestG4PrimaryGenerator::SetSourcesFromParticleCollection(Int_t n) {
-  RemoveSources();
+    RemoveSources();
 
-  Int_t pCollectionID = n % fNCollections;
+    Int_t pCollectionID = n % fNCollections;
 
-  TRestParticleCollection* pCollection = GetParticleCollection(pCollectionID);
+    TRestParticleCollection* pCollection = GetParticleCollection(pCollectionID);
 
-  pCollection->VirtualUpdate();
+    pCollection->VirtualUpdate();
 
-  TRestParticleSource src;
-  src.SetAngularDistType("flux");
-  src.SetEnergyDistType("mono");
+    TRestParticleSource src;
+    src.SetAngularDistType("flux");
+    src.SetEnergyDistType("mono");
 
-  // cout << pCollectionID << " ";
-  for (int i = 0; i < pCollection->GetNumberOfParticles(); i++) {
-    src.SetParticle(pCollection->GetParticle(i));
+    // cout << pCollectionID << " ";
+    for (int i = 0; i < pCollection->GetNumberOfParticles(); i++) {
+        src.SetParticle(pCollection->GetParticle(i));
 
-    // cout << pCollection->GetParticle(i).GetEnergy()<<" ";
+        // cout << pCollection->GetParticle(i).GetEnergy()<<" ";
 
-    AddSource(src);
-  }
-  // cout << endl;
+        AddSource(src);
+    }
+    // cout << endl;
 }

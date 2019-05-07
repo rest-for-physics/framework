@@ -30,73 +30,72 @@
 
 //! A process to convert a TRestSignalEvent into a TRestRawSignalEvent
 class TRestSignalToRawSignalProcess : public TRestEventProcess {
- private:
-  /// A pointer to the specific TRestSignalEvent input
-  TRestSignalEvent* fInputSignalEvent;  //!
+   private:
+    /// A pointer to the specific TRestSignalEvent input
+    TRestSignalEvent* fInputSignalEvent;  //!
 
-  /// A pointer to the specific TRestRawSignalEvent input
-  TRestRawSignalEvent* fOutputRawSignalEvent;  //!
+    /// A pointer to the specific TRestRawSignalEvent input
+    TRestRawSignalEvent* fOutputRawSignalEvent;  //!
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
+    void Initialize();
 
-  void LoadDefaultConfig();
+    void LoadDefaultConfig();
 
- protected:
-  /// The sampling time from the binned raw output signal
-  Double_t fSampling;
+   protected:
+    /// The sampling time from the binned raw output signal
+    Double_t fSampling;
 
-  /// The number of points of the resulting output signal
-  Int_t fNPoints;
+    /// The number of points of the resulting output signal
+    Int_t fNPoints;
 
-  /// It is used to define the way the time start will be fixed
-  TString fTriggerMode;
+    /// It is used to define the way the time start will be fixed
+    TString fTriggerMode;
 
-  /// The number of time bins the time start is delayed in the resulting output
-  /// signal.
-  Int_t fTriggerDelay;
+    /// The number of time bins the time start is delayed in the resulting output
+    /// signal.
+    Int_t fTriggerDelay;
 
-  /// A factor the data values will be multiplied by at the output signal.
-  Double_t fGain;
+    /// A factor the data values will be multiplied by at the output signal.
+    Double_t fGain;
 
-  /// This parameter is used by integralWindow trigger mode to define the
-  /// acquisition window.
-  Double_t fIntegralThreshold;
+    /// This parameter is used by integralWindow trigger mode to define the
+    /// acquisition window.
+    Double_t fIntegralThreshold;
 
- public:
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
+   public:
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
 
-  void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
-  /// It prints out the process parameters stored in the metadata structure
-  void PrintMetadata() {
-    BeginPrintProcess();
+    /// It prints out the process parameters stored in the metadata structure
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    std::cout << "Sampling time : " << fSampling << " us" << std::endl;
-    std::cout << "Points per channel : " << fNPoints << std::endl;
-    std::cout << "Trigger mode : " << fTriggerMode << std::endl;
-    std::cout << "Trigger delay : " << fTriggerDelay << " time units"
-              << std::endl;
-    std::cout << "ADC gain : " << fGain << std::endl;
+        std::cout << "Sampling time : " << fSampling << " us" << std::endl;
+        std::cout << "Points per channel : " << fNPoints << std::endl;
+        std::cout << "Trigger mode : " << fTriggerMode << std::endl;
+        std::cout << "Trigger delay : " << fTriggerDelay << " time units" << std::endl;
+        std::cout << "ADC gain : " << fGain << std::endl;
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  /// Returns a new instance of this class
-  TRestEventProcess* Maker() { return new TRestSignalToRawSignalProcess; }
+    /// Returns a new instance of this class
+    TRestEventProcess* Maker() { return new TRestSignalToRawSignalProcess; }
 
-  /// Returns the name of this process
-  TString GetProcessName() { return (TString) "signalToRawSignal"; }
+    /// Returns the name of this process
+    TString GetProcessName() { return (TString) "signalToRawSignal"; }
 
-  // Constructor
-  TRestSignalToRawSignalProcess();
-  TRestSignalToRawSignalProcess(char* cfgFileName);
+    // Constructor
+    TRestSignalToRawSignalProcess();
+    TRestSignalToRawSignalProcess(char* cfgFileName);
 
-  // Destructor
-  ~TRestSignalToRawSignalProcess();
+    // Destructor
+    ~TRestSignalToRawSignalProcess();
 
-  ClassDef(TRestSignalToRawSignalProcess, 2);
+    ClassDef(TRestSignalToRawSignalProcess, 2);
 };
 #endif

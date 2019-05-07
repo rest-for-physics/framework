@@ -20,70 +20,68 @@
 #include "TRestEventProcess.h"
 
 class TRestSignalChannelActivityProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
-  TRestSignalEvent* fSignalEvent;  //!
-  TRestReadout* fReadout;          //!
+    TRestSignalEvent* fSignalEvent;  //!
+    TRestReadout* fReadout;          //!
 
-  Int_t fDaqHistogramChannels;      //!
-  Int_t fReadoutHistogramChannels;  //!
+    Int_t fDaqHistogramChannels;      //!
+    Int_t fReadoutHistogramChannels;  //!
 #endif
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
+    void Initialize();
 
-  void LoadDefaultConfig();
+    void LoadDefaultConfig();
 
- protected:
-  // add here the members of your event process
-  //
-  Double_t fLowThreshold;
-  Double_t fHighThreshold;
+   protected:
+    // add here the members of your event process
+    //
+    Double_t fLowThreshold;
+    Double_t fHighThreshold;
 
-  TH1D* fDaqChannelsHisto;
+    TH1D* fDaqChannelsHisto;
 
-  TH1D* fReadoutChannelsHisto_OneSignal;
-  TH1D* fReadoutChannelsHisto_OneSignal_High;
-  TH1D* fReadoutChannelsHisto_TwoSignals;
-  TH1D* fReadoutChannelsHisto_TwoSignals_High;
-  TH1D* fReadoutChannelsHisto_ThreeSignals;
-  TH1D* fReadoutChannelsHisto_ThreeSignals_High;
-  TH1D* fReadoutChannelsHisto_MultiSignals;
-  TH1D* fReadoutChannelsHisto_MultiSignals_High;
+    TH1D* fReadoutChannelsHisto_OneSignal;
+    TH1D* fReadoutChannelsHisto_OneSignal_High;
+    TH1D* fReadoutChannelsHisto_TwoSignals;
+    TH1D* fReadoutChannelsHisto_TwoSignals_High;
+    TH1D* fReadoutChannelsHisto_ThreeSignals;
+    TH1D* fReadoutChannelsHisto_ThreeSignals_High;
+    TH1D* fReadoutChannelsHisto_MultiSignals;
+    TH1D* fReadoutChannelsHisto_MultiSignals_High;
 
- public:
-  void InitProcess();
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
-  void EndOfEventProcess();
-  void EndProcess();
+   public:
+    void InitProcess();
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndOfEventProcess();
+    void EndProcess();
 
-  void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
-  void PrintMetadata() {
-    BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    cout << "Low signal threshold activity : " << fLowThreshold << endl;
-    cout << "High signal threshold activity : " << fHighThreshold << endl;
+        cout << "Low signal threshold activity : " << fLowThreshold << endl;
+        cout << "High signal threshold activity : " << fHighThreshold << endl;
 
-    cout << "Number of daq histogram channels : " << fDaqHistogramChannels
-         << endl;
-    cout << "Number of readout histogram channels : "
-         << fReadoutHistogramChannels << endl;
+        cout << "Number of daq histogram channels : " << fDaqHistogramChannels << endl;
+        cout << "Number of readout histogram channels : " << fReadoutHistogramChannels << endl;
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  TString GetProcessName() { return (TString) "signalChannelActivity"; }
+    TString GetProcessName() { return (TString) "signalChannelActivity"; }
 
-  // Constructor
-  TRestSignalChannelActivityProcess();
-  TRestSignalChannelActivityProcess(char* cfgFileName);
-  // Destructor
-  ~TRestSignalChannelActivityProcess();
+    // Constructor
+    TRestSignalChannelActivityProcess();
+    TRestSignalChannelActivityProcess(char* cfgFileName);
+    // Destructor
+    ~TRestSignalChannelActivityProcess();
 
-  ClassDef(TRestSignalChannelActivityProcess,
-           1);  // Template for a REST "event process" class inherited from
-                // TRestEventProcess
+    ClassDef(TRestSignalChannelActivityProcess,
+             1);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

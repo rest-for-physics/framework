@@ -37,11 +37,11 @@ ClassImp(TRestTask);
 /// \brief TRestTask default constructor
 ///
 TRestTask::TRestTask() {
-  Initialize();
-  fNRequiredArgument = 0;
-  if (this->ClassName() != (string) "TRestTask") {
-    fMode = TASK_CLASS;
-  }
+    Initialize();
+    fNRequiredArgument = 0;
+    if (this->ClassName() != (string) "TRestTask") {
+        fMode = TASK_CLASS;
+    }
 }
 
 ///////////////////////////////////////////////
@@ -51,104 +51,100 @@ TRestTask::TRestTask() {
 /// arguments saved in the class. They will be used in forming the command
 /// line in the method TRestTask::InitTask()
 TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
-  Initialize();
-  fNRequiredArgument = 0;
-  fMode = mode;
+    Initialize();
+    fNRequiredArgument = 0;
+    fMode = mode;
 
-  if (mode == 0) {
-    // we parse the macro file, get the method's name and argument list
-    ifstream in(TaskString);
-    if (!in.is_open()) {
-      error << "Error opening file" << endl;
-    }
-    char buffer[256];
-    while (!in.eof()) {
-      in.getline(buffer, 256);
-      string line = buffer;
-
-      if (line.find('(') != -1 && line.find(' ') > 0) {
-        // this line is a definition of the macro method
-        methodname = line.substr(line.find(' ') + 1,
-                                 line.find('(') - line.find(' ') - 1);
-        SetName(methodname.c_str());
-
-        while (line.find(')') == -1) {
-          if (in.eof()) {
-            error << "invaild macro file!" << endl;
-          }
-          in.getline(buffer, 256);
-          line = line + (string)buffer;
+    if (mode == 0) {
+        // we parse the macro file, get the method's name and argument list
+        ifstream in(TaskString);
+        if (!in.is_open()) {
+            error << "Error opening file" << endl;
         }
+        char buffer[256];
+        while (!in.eof()) {
+            in.getline(buffer, 256);
+            string line = buffer;
 
-        string args = line.substr(line.find('(') + 1,
-                                  line.find(')') - line.find('(') - 1);
-        auto list = Spilt(args, ",");
-        argumentname.clear();
-        argumenttype.clear();
-        for (int i = 0; i < list.size(); i++) {
-          auto tmp = Spilt(list[i], " ");
-          if (Count(tmp[0], "TString") > 0) {
-            argumenttype.push_back(65);
-          } else if (Count(ToUpper(tmp[0]), "INT") > 0) {
-            argumenttype.push_back(3);
-          } else if (Count(ToUpper(tmp[0]), "DOUBLE") > 0) {
-            argumenttype.push_back(8);
-          } else {
-            argumenttype.push_back(-1);
-          }
+            if (line.find('(') != -1 && line.find(' ') > 0) {
+                // this line is a definition of the macro method
+                methodname = line.substr(line.find(' ') + 1, line.find('(') - line.find(' ') - 1);
+                SetName(methodname.c_str());
 
-          argumentname.push_back(Spilt(tmp[1], "=")[0]);
-          if (Spilt(list[i], "=").size() > 1) {
-            argument.push_back(Spilt(list[i], "=")[1]);
-          } else {
-            argument.push_back("NOT SET");
-            fNRequiredArgument++;
-          }
+                while (line.find(')') == -1) {
+                    if (in.eof()) {
+                        error << "invaild macro file!" << endl;
+                    }
+                    in.getline(buffer, 256);
+                    line = line + (string)buffer;
+                }
+
+                string args = line.substr(line.find('(') + 1, line.find(')') - line.find('(') - 1);
+                auto list = Spilt(args, ",");
+                argumentname.clear();
+                argumenttype.clear();
+                for (int i = 0; i < list.size(); i++) {
+                    auto tmp = Spilt(list[i], " ");
+                    if (Count(tmp[0], "TString") > 0) {
+                        argumenttype.push_back(65);
+                    } else if (Count(ToUpper(tmp[0]), "INT") > 0) {
+                        argumenttype.push_back(3);
+                    } else if (Count(ToUpper(tmp[0]), "DOUBLE") > 0) {
+                        argumenttype.push_back(8);
+                    } else {
+                        argumenttype.push_back(-1);
+                    }
+
+                    argumentname.push_back(Spilt(tmp[1], "=")[0]);
+                    if (Spilt(list[i], "=").size() > 1) {
+                        argument.push_back(Spilt(list[i], "=")[1]);
+                    } else {
+                        argument.push_back("NOT SET");
+                        fNRequiredArgument++;
+                    }
+                }
+
+                break;
+            }
         }
+    } else if (mode == 1) {
+        // we parse the command, get the target object, method to be invoked, and
+        // the argument list
+        string cmd = (string)TaskString;
 
-        break;
-      }
-    }
-  } else if (mode == 1) {
-    // we parse the command, get the target object, method to be invoked, and
-    // the argument list
-    string cmd = (string)TaskString;
+        string name;
+        string call;
+        if (Spilt(cmd, "->").size() != 2) {
+            if (Spilt(cmd, ".").size() != 2) {
+                warning << "command"
+                        << " \"" << cmd << "\" "
+                        << "is illegal!" << endl;
+                fMode = TASK_ERROR;
+                return;
+            } else {
+                name = Spilt(cmd, ".")[0];
+                call = Spilt(cmd, ".")[1];
+            }
+        } else {
+            name = Spilt(cmd, "->")[0];
+            call = Spilt(cmd, "->")[1];
+        }
+        if (Count(call, "(") != 1 || Count(call, ")") != 1)  // we can only use one bracket
+        {
+            warning << "command"
+                    << " \"" << cmd << "\" "
+                    << "is illegal!" << endl;
+            fMode = TASK_ERROR;
+            return;
+        }
+        methodname = Spilt(call, "(")[0];
+        argument.push_back(Spilt(Spilt(call, "(")[1], ")").size() == 0 ? ""
+                                                                       : Spilt(Spilt(call, "(")[1], ")")[0]);
+        targetname = name;
 
-    string name;
-    string call;
-    if (Spilt(cmd, "->").size() != 2) {
-      if (Spilt(cmd, ".").size() != 2) {
-        warning << "command"
-                << " \"" << cmd << "\" "
-                << "is illegal!" << endl;
-        fMode = TASK_ERROR;
-        return;
-      } else {
-        name = Spilt(cmd, ".")[0];
-        call = Spilt(cmd, ".")[1];
-      }
-    } else {
-      name = Spilt(cmd, "->")[0];
-      call = Spilt(cmd, "->")[1];
+    } else if (mode == 2) {
+        // I don't think we can get here
     }
-    if (Count(call, "(") != 1 ||
-        Count(call, ")") != 1)  // we can only use one bracket
-    {
-      warning << "command"
-              << " \"" << cmd << "\" "
-              << "is illegal!" << endl;
-      fMode = TASK_ERROR;
-      return;
-    }
-    methodname = Spilt(call, "(")[0];
-    argument.push_back(Spilt(Spilt(call, "(")[1], ")").size() == 0
-                           ? ""
-                           : Spilt(Spilt(call, "(")[1], ")")[0]);
-    targetname = name;
-
-  } else if (mode == 2) {
-    // I don't think we can get here
-  }
 }
 
 ///////////////////////////////////////////////
@@ -156,29 +152,28 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
 /// argument/datamenber value
 ///
 void TRestTask::InitFromConfigFile() {
-  if (fMode == TASK_MACRO) {
-    TiXmlElement* ele = fElement->FirstChildElement("parameter");
-    while (ele != NULL) {
-      if (ele->Attribute("name") == NULL || ele->Attribute("value") == NULL)
-        continue;
-      string name = ele->Attribute("name");
-      string value = ele->Attribute("value");
-      for (int i = 0; i < argumentname.size(); i++) {
-        if (name == argumentname[i]) {
-          argument[i] = value;
+    if (fMode == TASK_MACRO) {
+        TiXmlElement* ele = fElement->FirstChildElement("parameter");
+        while (ele != NULL) {
+            if (ele->Attribute("name") == NULL || ele->Attribute("value") == NULL) continue;
+            string name = ele->Attribute("name");
+            string value = ele->Attribute("value");
+            for (int i = 0; i < argumentname.size(); i++) {
+                if (name == argumentname[i]) {
+                    argument[i] = value;
+                }
+            }
+            ele = ele->NextSiblingElement("parameter");
         }
-      }
-      ele = ele->NextSiblingElement("parameter");
-    }
 
-  } else if (fMode == TASK_CLASS) {
-    // load config for the inherited task class
-    int n = GetNumberOfDataMember();
-    for (int i = 1; i < n; i++) {
-      TStreamerElement* e = GetDataMember(i);
-      SetDataMemberValFromConfig(e);
+    } else if (fMode == TASK_CLASS) {
+        // load config for the inherited task class
+        int n = GetNumberOfDataMember();
+        for (int i = 1; i < n; i++) {
+            TStreamerElement* e = GetDataMember(i);
+            SetDataMemberValFromConfig(e);
+        }
     }
-  }
 }
 
 ///////////////////////////////////////////////
@@ -187,87 +182,84 @@ void TRestTask::InitFromConfigFile() {
 /// Argument list will be overwritten by the input list. It will also set the
 /// data member value for derived class
 void TRestTask::SetArgumentValue(vector<string> arg) {
-  if (arg.size() < fNRequiredArgument) {
-    PrintArgumentHelp();
-    exit(0);
-  }
-  argument = arg;
-  if (fMode == TASK_CLASS) {
-    int n = GetNumberOfDataMember();
-    for (int i = 1; (i < argument.size() + 1 && i < n); i++) {
-      TStreamerElement* e = GetDataMember(i);
-      SetDataMemberValWithString(e, argument[i - 1]);
-      debug << "data member " << e->GetName() << " has been set to "
-            << GetDataMemberValInString(e);
+    if (arg.size() < fNRequiredArgument) {
+        PrintArgumentHelp();
+        exit(0);
     }
-  }
+    argument = arg;
+    if (fMode == TASK_CLASS) {
+        int n = GetNumberOfDataMember();
+        for (int i = 1; (i < argument.size() + 1 && i < n); i++) {
+            TStreamerElement* e = GetDataMember(i);
+            SetDataMemberValWithString(e, argument[i - 1]);
+            debug << "data member " << e->GetName() << " has been set to " << GetDataMemberValInString(e);
+        }
+    }
 }
 
 ///////////////////////////////////////////////
 /// \brief Forms the command string
 ///
 void TRestTask::ConstructCommand() {
-  // check if all the arguments have been set
-  for (int i = 0; i < argument.size(); i++) {
-    if (argument[i] == "NOT SET") {
-      error << "TRestTask : argument " << i << " not set! Task will not run!"
-            << endl;
-    }
-  }
-
-  string methodname = GetName();
-  cmdstr = methodname + "(";
-  for (int i = 0; i < argument.size(); i++) {
-    if (argumenttype[i] == 65) {
-      cmdstr += "\"" + argument[i] + "\"";
-    } else {
-      cmdstr += argument[i];
+    // check if all the arguments have been set
+    for (int i = 0; i < argument.size(); i++) {
+        if (argument[i] == "NOT SET") {
+            error << "TRestTask : argument " << i << " not set! Task will not run!" << endl;
+        }
     }
 
-    if (i < argument.size() - 1) cmdstr += ",";
-  }
-  cmdstr += ")";
+    string methodname = GetName();
+    cmdstr = methodname + "(";
+    for (int i = 0; i < argument.size(); i++) {
+        if (argumenttype[i] == 65) {
+            cmdstr += "\"" + argument[i] + "\"";
+        } else {
+            cmdstr += argument[i];
+        }
 
-  cout << "Command : " << cmdstr << endl;
+        if (i < argument.size() - 1) cmdstr += ",";
+    }
+    cmdstr += ")";
+
+    cout << "Command : " << cmdstr << endl;
 }
 
 ///////////////////////////////////////////////
 /// \brief Run the task with command line
 ///
 void TRestTask::RunTask(TRestManager* mgr) {
-  if (methodname == "") {
-    error << "REST ERROR : no task specified for TRestTask!!!" << endl;
-    exit(-1);
-  } else {
-    if (fMode == 0) {
-      // call gInterpreter to run a command
-      ConstructCommand();
-      gInterpreter->ProcessLine(cmdstr.c_str());
-      return;
-    } else if (fMode == 1) {
-      //
-      if (mgr == NULL) {
-        error << "REST ERROR : no target specified for the command:" << endl;
-        error << cmdstr << endl;
+    if (methodname == "") {
+        error << "REST ERROR : no task specified for TRestTask!!!" << endl;
         exit(-1);
-      } else {
-        TRestMetadata* meta = mgr->GetApplicationWithName(targetname);
-        if (meta == NULL) {
-          error << "REST ERROR : cannot file metadata: " << targetname
-                << " in TRestManager" << endl;
-          error << "command: " << cmdstr << endl;
-          exit(-1);
-        } else {
-          string arg;
-          //////////////////////////////////
-          // consuruct arguments
+    } else {
+        if (fMode == 0) {
+            // call gInterpreter to run a command
+            ConstructCommand();
+            gInterpreter->ProcessLine(cmdstr.c_str());
+            return;
+        } else if (fMode == 1) {
+            //
+            if (mgr == NULL) {
+                error << "REST ERROR : no target specified for the command:" << endl;
+                error << cmdstr << endl;
+                exit(-1);
+            } else {
+                TRestMetadata* meta = mgr->GetApplicationWithName(targetname);
+                if (meta == NULL) {
+                    error << "REST ERROR : cannot file metadata: " << targetname << " in TRestManager"
+                          << endl;
+                    error << "command: " << cmdstr << endl;
+                    exit(-1);
+                } else {
+                    string arg;
+                    //////////////////////////////////
+                    // consuruct arguments
 
-          gInterpreter->Execute(meta, meta->IsA(), methodname.c_str(),
-                                arg.c_str());
+                    gInterpreter->Execute(meta, meta->IsA(), methodname.c_str(), arg.c_str());
+                }
+            }
         }
-      }
     }
-  }
 }
 
 ///////////////////////////////////////////////
@@ -275,27 +267,24 @@ void TRestTask::RunTask(TRestManager* mgr) {
 /// class
 ///
 void TRestTask::PrintArgumentHelp() {
-  if (fMode == 0) {
-    error << GetName() << "() Gets invailed input!" << endl;
-    error << "You should give the following arguments ( * : necessary input):"
-          << endl;
-    int n = argument.size();
-    for (int i = 0; i < n; i++) {
-      if (i < fNRequiredArgument) error << "*";
-      error << argumentname[i] << endl;
+    if (fMode == 0) {
+        error << GetName() << "() Gets invailed input!" << endl;
+        error << "You should give the following arguments ( * : necessary input):" << endl;
+        int n = argument.size();
+        for (int i = 0; i < n; i++) {
+            if (i < fNRequiredArgument) error << "*";
+            error << argumentname[i] << endl;
+        }
+    } else if (fMode == 1) {
+    } else if (fMode == 2) {
+        error << "Macro class \"" << this->ClassName() << "\" gets invailed input!" << endl;
+        error << "You should give the following arguments ( * : necessary input):" << endl;
+        int n = GetNumberOfDataMember();
+        for (int i = 1; i < n; i++) {
+            if (i < fNRequiredArgument + 1) error << "*";
+            error << GetDataMember(i)->GetName() << endl;
+        }
     }
-  } else if (fMode == 1) {
-  } else if (fMode == 2) {
-    error << "Macro class \"" << this->ClassName() << "\" gets invailed input!"
-          << endl;
-    error << "You should give the following arguments ( * : necessary input):"
-          << endl;
-    int n = GetNumberOfDataMember();
-    for (int i = 1; i < n; i++) {
-      if (i < fNRequiredArgument + 1) error << "*";
-      error << GetDataMember(i)->GetName() << endl;
-    }
-  }
 }
 
 ///////////////////////////////////////////////
@@ -312,41 +301,41 @@ void TRestTask::PrintArgumentHelp() {
 /// corresponding macro file and calls gInterpreter to load it, and then
 /// instaintiates a TRestTask class wrapping this file.
 TRestTask* TRestTask::GetTask(TString MacroName) {
-  TClass* c = TClass::GetClass(MacroName);
-  if (c == NULL) c = TClass::GetClass("REST_" + MacroName);
+    TClass* c = TClass::GetClass(MacroName);
+    if (c == NULL) c = TClass::GetClass("REST_" + MacroName);
 
-  if (c == NULL) {
-    string macfilelists = ExecuteShellCommand(
-        "find $REST_PATH/macros -name *" + (string)MacroName + (string) ".*");
-    auto macfiles = Spilt(macfilelists, "\n");
+    if (c == NULL) {
+        string macfilelists =
+            ExecuteShellCommand("find $REST_PATH/macros -name *" + (string)MacroName + (string) ".*");
+        auto macfiles = Spilt(macfilelists, "\n");
 
-    if (macfiles.size() == 0 || macfiles[0] == "") {
-      return NULL;
+        if (macfiles.size() == 0 || macfiles[0] == "") {
+            return NULL;
+        }
+        cout << "Found MacroFile " << macfiles[0] << endl;
+        // system("echo \"#define REST_MANAGER\" > /tmp/tmpMacro.c");
+        // system(("cat " + macfiles[0] + " >> /tmp/tmpMacro.c").c_str());
+        if (gInterpreter->LoadFile(macfiles[0].c_str()) != 0) {
+            return NULL;
+        }
+
+        auto tsk = new TRestTask(macfiles[0].c_str(), TASK_MACRO);
+        // system("rm /tmp/tmpMacro.c");
+        return tsk;
+    } else if (c->InheritsFrom("TRestTask")) {
+        auto tsk = (TRestTask*)c->New();
+        tsk->SetMode(TASK_CLASS);
+        return tsk;
     }
-    cout << "Found MacroFile " << macfiles[0] << endl;
-    // system("echo \"#define REST_MANAGER\" > /tmp/tmpMacro.c");
-    // system(("cat " + macfiles[0] + " >> /tmp/tmpMacro.c").c_str());
-    if (gInterpreter->LoadFile(macfiles[0].c_str()) != 0) {
-      return NULL;
-    }
-
-    auto tsk = new TRestTask(macfiles[0].c_str(), TASK_MACRO);
-    // system("rm /tmp/tmpMacro.c");
-    return tsk;
-  } else if (c->InheritsFrom("TRestTask")) {
-    auto tsk = (TRestTask*)c->New();
-    tsk->SetMode(TASK_CLASS);
-    return tsk;
-  }
-  return NULL;
+    return NULL;
 }
 
 TRestTask* TRestTask::ParseCommand(TString cmd) {
-  auto tsk = new TRestTask(cmd, TASK_CPPCMD);
-  if (tsk->GetMode() == TASK_ERROR) {
-    delete tsk;
-    return NULL;
-  } else {
-    return tsk;
-  }
+    auto tsk = new TRestTask(cmd, TASK_CPPCMD);
+    if (tsk->GetMode() == TASK_ERROR) {
+        delete tsk;
+        return NULL;
+    } else {
+        return tsk;
+    }
 }

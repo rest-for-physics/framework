@@ -70,24 +70,24 @@ TRestEvent::~TRestEvent() {}
 /// by calling TRestEvent::Initialize();
 ///
 void TRestEvent::Initialize() {
-  fEventID = 0;
-  fEventTime = 0;
-  fSubEventID = 0;
-  fSubEventTag = "";
-  fOk = true;
+    fEventID = 0;
+    fEventTime = 0;
+    fSubEventID = 0;
+    fSubEventTag = "";
+    fOk = true;
 
-  fPad = NULL;
+    fPad = NULL;
 }
 
 //////////////////////////////////////////////////////////////////////////
 /// Set the time of the event
 ///
 void TRestEvent::SetTime(Double_t time) {
-  Int_t sec = (Int_t)time;
-  Int_t nsec = (Int_t)((time - sec) * 1E9);
+    Int_t sec = (Int_t)time;
+    Int_t nsec = (Int_t)((time - sec) * 1E9);
 
-  fEventTime.SetSec(sec);
-  fEventTime.SetNanoSec(nsec);
+    fEventTime.SetSec(sec);
+    fEventTime.SetNanoSec(nsec);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -96,79 +96,78 @@ void TRestEvent::SetTime(Double_t time) {
 /// This method uses default root streamer to do the copying. The efficiency is
 /// low. Override recommanded.
 void TRestEvent::CloneTo(TRestEvent* target) {
-  if (this->ClassName() != target->ClassName()) {
-    cout << "In TRestEvent::CloneTo() : Event type doesn't match! (This :"
-         << this->ClassName() << ", Target : " << target->ClassName() << ")"
-         << endl;
-    return;
-  }
+    if (this->ClassName() != target->ClassName()) {
+        cout << "In TRestEvent::CloneTo() : Event type doesn't match! (This :" << this->ClassName()
+             << ", Target : " << target->ClassName() << ")" << endl;
+        return;
+    }
 
-  TBufferFile buffer(TBuffer::kWrite);
-  buffer.MapObject(this);  // register obj in map to handle self reference
-  {
-    Bool_t isRef = this->TestBit(kIsReferenced);
-    ((TObject*)this)->ResetBit(kIsReferenced);
+    TBufferFile buffer(TBuffer::kWrite);
+    buffer.MapObject(this);  // register obj in map to handle self reference
+    {
+        Bool_t isRef = this->TestBit(kIsReferenced);
+        ((TObject*)this)->ResetBit(kIsReferenced);
 
-    ((TObject*)this)->Streamer(buffer);
+        ((TObject*)this)->Streamer(buffer);
 
-    if (isRef) ((TObject*)this)->SetBit(kIsReferenced);
-  }
+        if (isRef) ((TObject*)this)->SetBit(kIsReferenced);
+    }
 
-  // read new object from buffer
-  buffer.SetReadMode();
-  buffer.ResetMap();
-  buffer.SetBufferOffset(0);
-  buffer.MapObject(target);  // register obj in map to handle self reference
-  target->Streamer(buffer);
-  target->ResetBit(kIsReferenced);
-  target->ResetBit(kCanDelete);
+    // read new object from buffer
+    buffer.SetReadMode();
+    buffer.ResetMap();
+    buffer.SetBufferOffset(0);
+    buffer.MapObject(target);  // register obj in map to handle self reference
+    target->Streamer(buffer);
+    target->ResetBit(kIsReferenced);
+    target->ResetBit(kCanDelete);
 }
 
 //////////////////////////////////////////////////////////////////////////
 /// Set the time of the event
 ///
 void TRestEvent::SetTime(Double_t seconds, Double_t nanoseconds) {
-  fEventTime.SetSec(seconds);
-  fEventTime.SetNanoSec(nanoseconds);
+    fEventTime.SetSec(seconds);
+    fEventTime.SetNanoSec(nanoseconds);
 }
 
 //////////////////////////////////////////////////////////////////////////
 /// Copy the six univeral information in TRestEvent from another TRestEvent
 ///
 void TRestEvent::SetEventInfo(TRestEvent* eve) {
-  if (eve != NULL) {
-    SetID(eve->GetID());
-    SetSubID(eve->GetSubID());
-    SetTimeStamp(eve->GetTimeStamp());
-    SetSubEventTag(eve->GetSubEventTag());
-    SetOK(eve->isOk());
-  }
+    if (eve != NULL) {
+        SetID(eve->GetID());
+        SetSubID(eve->GetSubID());
+        SetTimeStamp(eve->GetTimeStamp());
+        SetSubEventTag(eve->GetSubEventTag());
+        SetOK(eve->isOk());
+    }
 }
 
 void TRestEvent::RestartPad(Int_t nElements) {
-  if (fPad != NULL) {
-    delete fPad;
-    fPad = NULL;
-  }
+    if (fPad != NULL) {
+        delete fPad;
+        fPad = NULL;
+    }
 
-  fPad = new TPad(this->GetName(), "", 0., 0., 1., 1.);
+    fPad = new TPad(this->GetName(), "", 0., 0., 1., 1.);
 
-  if (nElements == 1) fPad->Divide(1, 1);
-  if (nElements == 2) fPad->Divide(2, 1);
-  if (nElements == 3 || nElements == 4) fPad->Divide(2, 2);
-  if (nElements == 5) fPad->Divide(3, 2);
-  if (nElements == 6) fPad->Divide(3, 2);
-  if (nElements > 6) fPad->Divide(3, 3);
+    if (nElements == 1) fPad->Divide(1, 1);
+    if (nElements == 2) fPad->Divide(2, 1);
+    if (nElements == 3 || nElements == 4) fPad->Divide(2, 2);
+    if (nElements == 5) fPad->Divide(3, 2);
+    if (nElements == 6) fPad->Divide(3, 2);
+    if (nElements > 6) fPad->Divide(3, 3);
 
-  if (nElements > 9) {
-    cout << "REST_WARNING. TRestEvent::RestartPad. Maximum number of pad "
-            "elements reached!"
-         << endl;
-    cout << "Setting the pad elements to 9" << endl;
-    nElements = 9;
-  }
+    if (nElements > 9) {
+        cout << "REST_WARNING. TRestEvent::RestartPad. Maximum number of pad "
+                "elements reached!"
+             << endl;
+        cout << "Setting the pad elements to 9" << endl;
+        nElements = 9;
+    }
 
-  fPad->Draw();
+    fPad->Draw();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -178,16 +177,15 @@ void TRestEvent::RestartPad(Int_t nElements) {
 /// by calling TRestEvent::PrintEvent();
 ///
 void TRestEvent::PrintEvent() {
-  cout << "*******************************************************" << endl;
-  cout << " EVENT ID : " << GetID() << endl;
-  cout << " TIME : " << GetTimeStamp().AsString() << endl;
-  cout << " SUB-EVENT ID : " << GetSubID();
-  if (fSubEventTag != "")
-    cout << "   SUB-EVENT TAG : \"" << fSubEventTag << "\"";
-  cout << endl;
-  if (fOk)
-    cout << " Status : OK" << endl;
-  else
-    cout << " Status : NOT OK" << endl;
-  cout << "*******************************************************" << endl;
+    cout << "*******************************************************" << endl;
+    cout << " EVENT ID : " << GetID() << endl;
+    cout << " TIME : " << GetTimeStamp().AsString() << endl;
+    cout << " SUB-EVENT ID : " << GetSubID();
+    if (fSubEventTag != "") cout << "   SUB-EVENT TAG : \"" << fSubEventTag << "\"";
+    cout << endl;
+    if (fOk)
+        cout << " Status : OK" << endl;
+    else
+        cout << " Status : NOT OK" << endl;
+    cout << "*******************************************************" << endl;
 }

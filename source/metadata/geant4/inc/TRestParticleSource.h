@@ -27,53 +27,49 @@
 #include <TRestParticle.h>
 
 class TRestParticleSource : public TRestParticle {
- protected:
-  TString fAngularDistType;
-  TString fEnergyDistType;
-  TVector2 fEnergyRange;
+   protected:
+    TString fAngularDistType;
+    TString fEnergyDistType;
+    TVector2 fEnergyRange;
 
-  TString fSpectrumFilename;
-  TString fSpectrumName;
+    TString fSpectrumFilename;
+    TString fSpectrumName;
 
-  TString fAngularFilename;
-  TString fAngularName;
+    TString fAngularFilename;
+    TString fAngularName;
 
- public:
-  TString GetParticle() { return fParticleName; }
-  TString GetAngularDistType() { return fAngularDistType; }
-  TVector3 GetDirection() { return fDirection; }
-  TString GetEnergyDistType() { return fEnergyDistType; }
-  TVector2 GetEnergyRange() { return fEnergyRange; }
-  Double_t GetMinEnergy() { return fEnergyRange.X(); }
-  Double_t GetMaxEnergy() { return fEnergyRange.Y(); }
+   public:
+    TString GetParticle() { return fParticleName; }
+    TString GetAngularDistType() { return fAngularDistType; }
+    TVector3 GetDirection() { return fDirection; }
+    TString GetEnergyDistType() { return fEnergyDistType; }
+    TVector2 GetEnergyRange() { return fEnergyRange; }
+    Double_t GetMinEnergy() { return fEnergyRange.X(); }
+    Double_t GetMaxEnergy() { return fEnergyRange.Y(); }
 
-  TString GetSpectrumFilename() { return fSpectrumFilename; }
-  TString GetSpectrumName() { return fSpectrumName; }
+    TString GetSpectrumFilename() { return fSpectrumFilename; }
+    TString GetSpectrumName() { return fSpectrumName; }
 
-  TString GetAngularFilename() { return fAngularFilename; }
-  TString GetAngularName() { return fAngularName; }
+    TString GetAngularFilename() { return fAngularFilename; }
+    TString GetAngularName() { return fAngularName; }
 
-  void SetAngularDistType(TString type) { fAngularDistType = type; }
-  void SetEnergyDistType(TString type) { fEnergyDistType = type; }
-  void SetEnergyRange(TVector2 range) { fEnergyRange = range; }
+    void SetAngularDistType(TString type) { fAngularDistType = type; }
+    void SetEnergyDistType(TString type) { fEnergyDistType = type; }
+    void SetEnergyRange(TVector2 range) { fEnergyRange = range; }
 
-  void SetSpectrumFilename(TString spctFilename) {
-    fSpectrumFilename = spctFilename;
-  }
-  void SetSpectrumName(TString spctName) { fSpectrumName = spctName; }
+    void SetSpectrumFilename(TString spctFilename) { fSpectrumFilename = spctFilename; }
+    void SetSpectrumName(TString spctName) { fSpectrumName = spctName; }
 
-  void SetAngularFilename(TString angFilename) {
-    fAngularFilename = angFilename;
-  }
-  void SetAngularName(TString angName) { fAngularName = angName; }
+    void SetAngularFilename(TString angFilename) { fAngularFilename = angFilename; }
+    void SetAngularName(TString angName) { fAngularName = angName; }
 
-  void PrintParticleSource();
+    void PrintParticleSource();
 
-  // Construtor
-  TRestParticleSource();
-  // Destructor
-  virtual ~TRestParticleSource();
+    // Construtor
+    TRestParticleSource();
+    // Destructor
+    virtual ~TRestParticleSource();
 
-  ClassDef(TRestParticleSource, 2);
+    ClassDef(TRestParticleSource, 2);
 };
 #endif

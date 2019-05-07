@@ -24,59 +24,59 @@
 #include "TRestEventProcess.h"
 
 class TRestSmearingProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
 
-  TRestHitsEvent* fHitsInputEvent;   //!
-  TRestHitsEvent* fHitsOutputEvent;  //!
+    TRestHitsEvent* fHitsInputEvent;   //!
+    TRestHitsEvent* fHitsOutputEvent;  //!
 
-  TRandom3* fRandom;  //!
+    TRandom3* fRandom;  //!
 
-  TRestGas* fGas;  //!
+    TRestGas* fGas;  //!
 #endif
 
-  void InitFromConfigFile();
-  void Initialize();
-  void LoadDefaultConfig();
+    void InitFromConfigFile();
+    void Initialize();
+    void LoadDefaultConfig();
 
- protected:
-  // add here the members of your event process
+   protected:
+    // add here the members of your event process
 
-  Double_t fEnergyRef;         ///< reference energy for the FWHM
-  Double_t fResolutionAtEref;  ///< FWHM at Energy of reference
+    Double_t fEnergyRef;         ///< reference energy for the FWHM
+    Double_t fResolutionAtEref;  ///< FWHM at Energy of reference
 
- public:
-  void InitProcess();
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
-  void EndOfEventProcess();
-  void EndProcess();
+   public:
+    void InitProcess();
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndOfEventProcess();
+    void EndProcess();
 
-  void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
-  void PrintMetadata() {
-    BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    std::cout << " reference energy (Eref): " << fEnergyRef << std::endl;
-    std::cout << " resolution at Eref : " << fResolutionAtEref << std::endl;
+        std::cout << " reference energy (Eref): " << fEnergyRef << std::endl;
+        std::cout << " resolution at Eref : " << fResolutionAtEref << std::endl;
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  TRestMetadata* GetProcessMetadata() { return NULL; }
+    TRestMetadata* GetProcessMetadata() { return NULL; }
 
-  TString GetProcessName() { return (TString) "smearingProcess"; }
+    TString GetProcessName() { return (TString) "smearingProcess"; }
 
-  Double_t GetEnergyReference() { return fEnergyRef; }
-  Double_t GetResolutionReference() { return fResolutionAtEref; }
+    Double_t GetEnergyReference() { return fEnergyRef; }
+    Double_t GetResolutionReference() { return fResolutionAtEref; }
 
-  // Constructor
-  TRestSmearingProcess();
-  TRestSmearingProcess(char* cfgFileName);
-  // Destructor
-  ~TRestSmearingProcess();
+    // Constructor
+    TRestSmearingProcess();
+    TRestSmearingProcess(char* cfgFileName);
+    // Destructor
+    ~TRestSmearingProcess();
 
-  ClassDef(TRestSmearingProcess, 1);  // Template for a REST "event process"
-                                      // class inherited from TRestEventProcess
+    ClassDef(TRestSmearingProcess, 1);  // Template for a REST "event process"
+                                        // class inherited from TRestEventProcess
 };
 #endif

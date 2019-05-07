@@ -20,51 +20,51 @@
 #include "TRestEventProcess.h"
 
 class TRestAnalysisHistogramViewerProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
-  TRestTrackEvent* fInputTrackEvent;   //!
-  TRestTrackEvent* fOutputTrackEvent;  //!
+    TRestTrackEvent* fInputTrackEvent;   //!
+    TRestTrackEvent* fOutputTrackEvent;  //!
 
-  TCanvas* fAnaHistoCanvas;   //!
-  TVector2 fHistoCanvasSize;  //!
+    TCanvas* fAnaHistoCanvas;   //!
+    TVector2 fHistoCanvasSize;  //!
 
-  TString fPlotString;  //!
+    TString fPlotString;  //!
 #endif
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
+    void Initialize();
 
-  void LoadDefaultConfig();
+    void LoadDefaultConfig();
 
- protected:
-  // add here the members of your event process
+   protected:
+    // add here the members of your event process
 
- public:
-  void InitProcess();
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
-  void EndOfEventProcess();
-  void EndProcess();
+   public:
+    void InitProcess();
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndOfEventProcess();
+    void EndProcess();
 
-  void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
-  void PrintMetadata() {
-    BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  TString GetProcessName() { return (TString) "histogramAnalysisViewer"; }
+    TString GetProcessName() { return (TString) "histogramAnalysisViewer"; }
 
-  // Constructor
-  TRestAnalysisHistogramViewerProcess();
-  TRestAnalysisHistogramViewerProcess(char* cfgFileName);
-  // Destructor
-  ~TRestAnalysisHistogramViewerProcess();
+    // Constructor
+    TRestAnalysisHistogramViewerProcess();
+    TRestAnalysisHistogramViewerProcess(char* cfgFileName);
+    // Destructor
+    ~TRestAnalysisHistogramViewerProcess();
 
-  ClassDef(TRestAnalysisHistogramViewerProcess,
-           1);  // Template for a REST "event process" class inherited from
-                // TRestEventProcess
+    ClassDef(TRestAnalysisHistogramViewerProcess,
+             1);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

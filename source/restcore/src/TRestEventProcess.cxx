@@ -63,8 +63,8 @@ ClassImp(TRestEventProcess)
     /// TRestEventProcess default constructor
 
     TRestEventProcess::TRestEventProcess() {
-  fObservableInfo.clear();
-  fSingleThreadOnly = false;
+    fObservableInfo.clear();
+    fSingleThreadOnly = false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -91,99 +91,93 @@ TRestEventProcess::~TRestEventProcess() {}
 /// other types of analysis result, e.g. vector or map, he needs to use
 /// datamember observables.
 vector<string> TRestEventProcess::ReadObservables() {
-  TiXmlElement* e = GetElement("observable");
-  vector<string> obsnames;
+    TiXmlElement* e = GetElement("observable");
+    vector<string> obsnames;
 
-  while (e != NULL) {
-    const char* obschr = e->Attribute("name");
-    const char* _value = e->Attribute("value");
+    while (e != NULL) {
+        const char* obschr = e->Attribute("name");
+        const char* _value = e->Attribute("value");
 
-    string value;
-    if (_value == NULL)
-      value = "ON";
-    else {
-      value = _value;
+        string value;
+        if (_value == NULL)
+            value = "ON";
+        else {
+            value = _value;
+        }
+        if (value == "ON" || value == "On" || value == "on") {
+            if (obschr != NULL) {
+                string obsstring = (string)obschr;
+                debug << this->ClassName() << " : setting following observables " << obsstring << endl;
+                vector<string> tmp = Spilt(obsstring, ":");
+                obsnames.insert(obsnames.end(), tmp.begin(), tmp.end());
+            }
+        }
+
+        e = e->NextSiblingElement("observable");
+
+    }  // now we get a list of all observal names
+
+    // If fObservableInfo is not empty, directly return the observable name list.
+    // This is because the user may manually this method somewhere else.
+    // We need to prevent adding observables repeadtedly.
+    // if (fObservableInfo.size() != 0)
+    //	return obsnames;
+
+    // if fObservableInfo is empty, add observables.
+    // 1. observable is datamember of the process class
+    // then the address of this datamember is found, and associated to a branch
+    // it will be automatically saved at the end of each process loop
+    // 2. observable is not datamember of the process class
+    // then REST will create a new double-typed observable in analysis tree.
+    //
+    // the user is recommended to call TRestEventProcess::SetObservableValue(
+    // obsName, obsValue ) during each process
+
+    for (int i = 0; i < obsnames.size(); i++) {
+        TStreamerElement* se = GetDataMember(obsnames[i]);
+        if (se != NULL) {
+            int id = fAnalysisTree->AddObservable(obsnames[i], this);
+            if (id != -1) {
+                fObservableInfo[(TString)GetName() + "." + obsnames[i]] = id;
+            }
+        } else {
+            int id = fAnalysisTree->AddObservable((TString)GetName() + "_" + obsnames[i]);
+            if (id != -1) {
+                fObservableInfo[(TString)GetName() + "_" + obsnames[i]] = id;
+            }
+        }
     }
-    if (value == "ON" || value == "On" || value == "on") {
-      if (obschr != NULL) {
-        string obsstring = (string)obschr;
-        debug << this->ClassName() << " : setting following observables "
-              << obsstring << endl;
-        vector<string> tmp = Spilt(obsstring, ":");
-        obsnames.insert(obsnames.end(), tmp.begin(), tmp.end());
-      }
-    }
 
-    e = e->NextSiblingElement("observable");
-
-  }  // now we get a list of all observal names
-
-  // If fObservableInfo is not empty, directly return the observable name list.
-  // This is because the user may manually this method somewhere else.
-  // We need to prevent adding observables repeadtedly.
-  // if (fObservableInfo.size() != 0)
-  //	return obsnames;
-
-  // if fObservableInfo is empty, add observables.
-  // 1. observable is datamember of the process class
-  // then the address of this datamember is found, and associated to a branch
-  // it will be automatically saved at the end of each process loop
-  // 2. observable is not datamember of the process class
-  // then REST will create a new double-typed observable in analysis tree.
-  //
-  // the user is recommended to call TRestEventProcess::SetObservableValue(
-  // obsName, obsValue ) during each process
-
-  for (int i = 0; i < obsnames.size(); i++) {
-    TStreamerElement* se = GetDataMember(obsnames[i]);
-    if (se != NULL) {
-      int id = fAnalysisTree->AddObservable(obsnames[i], this);
-      if (id != -1) {
-        fObservableInfo[(TString)GetName() + "." + obsnames[i]] = id;
-      }
-    } else {
-      int id =
-          fAnalysisTree->AddObservable((TString)GetName() + "_" + obsnames[i]);
-      if (id != -1) {
-        fObservableInfo[(TString)GetName() + "_" + obsnames[i]] = id;
-      }
-    }
-  }
-
-  return obsnames;
+    return obsnames;
 }
 
 //////////////////////////////////////////////////////////////////////////
 /// \brief Set analysis tree of this process
 ///
-void TRestEventProcess::SetAnalysisTree(TRestAnalysisTree* tree) {
-  fAnalysisTree = tree;
-}
+void TRestEventProcess::SetAnalysisTree(TRestAnalysisTree* tree) { fAnalysisTree = tree; }
 
 //////////////////////////////////////////////////////////////////////////
 /// \brief Add a process to the friendly process list.
 ///
 /// Processes can get access to each other's parameter and observable
 void TRestEventProcess::SetFriendProcess(TRestEventProcess* p) {
-  if (p == NULL) return;
-  for (int i = 0; i < fFriendlyProcesses.size(); i++) {
-    if (fFriendlyProcesses[i]->GetName() == p->GetName()) return;
-  }
-  fFriendlyProcesses.push_back(p);
+    if (p == NULL) return;
+    for (int i = 0; i < fFriendlyProcesses.size(); i++) {
+        if (fFriendlyProcesses[i]->GetName() == p->GetName()) return;
+    }
+    fFriendlyProcesses.push_back(p);
 }
 
 //////////////////////////////////////////////////////////////////////////
 /// \brief Set branches for analysis tree according to the output level
 ///
 void TRestEventProcess::ConfigAnalysisTree() {
-  if (fAnalysisTree == NULL) return;
+    if (fAnalysisTree == NULL) return;
 
-  if (fOutputLevel >= Observable) ReadObservables();
-  if (fOutputLevel >= Internal_Var)
-    fAnalysisTree->Branch(this->GetName(), this);
-  if (fOutputLevel >= Full_Output)
-    fAnalysisTree->Branch(this->GetName() + (TString) "_evtBranch",
-                          GetOutputEvent());
+    if (fOutputLevel >= Observable) ReadObservables();
+    if (fOutputLevel >= Internal_Var) fAnalysisTree->Branch(this->GetName(), this);
+    if (fOutputLevel >= Full_Output)
+        fAnalysisTree->Branch(this->GetName() + (TString) "_evtBranch", GetOutputEvent());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -191,66 +185,62 @@ void TRestEventProcess::ConfigAnalysisTree() {
 /// TRestMetadata::LoadSectionMetadata()
 ///
 Int_t TRestEventProcess::LoadSectionMetadata() {
-  TRestMetadata::LoadSectionMetadata();
+    TRestMetadata::LoadSectionMetadata();
 
-  // load output level
-  REST_Process_Output lvl;
-  string s = GetParameter("outputLevel", "observable");
-  if (s == "nooutput" || s == "0") {
-    lvl = No_Output;
-  } else if (s == "observable" || s == "1") {
-    lvl = Observable;
-  } else if (s == "internalvar" || s == "2") {
-    lvl = Internal_Var;
-  } else if (s == "fulloutput" || s == "3") {
-    lvl = Full_Output;
-  } else {
-    warning << this->ClassName()
-            << " : invailed output level! use default(Internal_Var)" << endl;
-  }
-  SetOutputLevel(lvl);
-
-  // load cuts
-  fCuts.clear();
-  if (ToUpper(GetParameter("cutsEnabled", "false")) == "TRUE") {
-    TiXmlElement* ele = fElement->FirstChildElement();
-    while (ele != NULL) {
-      if (ele->Value() != NULL && (string)ele->Value() == "cut") {
-        if (ele->Attribute("name") != NULL && ele->Attribute("value") != NULL) {
-          string name = ele->Attribute("name");
-          TVector2 value = StringTo2DVector(ele->Attribute("value"));
-          if (value.X() != value.Y())
-            fCuts.push_back(pair<string, TVector2>(name, value));
-        }
-      }
-
-      else if (ele->Value() != NULL && (string)ele->Value() == "parameter") {
-        if (ele->Attribute("name") != NULL && ele->Attribute("value") != NULL) {
-          string name = ele->Attribute("name");
-          if (name.find("Cut") == name.size() - 3 ||
-              name.find("CutRange") == name.size() - 8) {
-            name = name.substr(0, name.find("Cut") + 3);
-            TVector2 value = StringTo2DVector(ele->Attribute("value"));
-            if (value.X() != value.Y())
-              fCuts.push_back(pair<string, TVector2>(name, value));
-          }
-        }
-      }
-
-      ele = ele->NextSiblingElement();
+    // load output level
+    REST_Process_Output lvl;
+    string s = GetParameter("outputLevel", "observable");
+    if (s == "nooutput" || s == "0") {
+        lvl = No_Output;
+    } else if (s == "observable" || s == "1") {
+        lvl = Observable;
+    } else if (s == "internalvar" || s == "2") {
+        lvl = Internal_Var;
+    } else if (s == "fulloutput" || s == "3") {
+        lvl = Full_Output;
+    } else {
+        warning << this->ClassName() << " : invailed output level! use default(Internal_Var)" << endl;
     }
-  }
+    SetOutputLevel(lvl);
 
-  return 0;
+    // load cuts
+    fCuts.clear();
+    if (ToUpper(GetParameter("cutsEnabled", "false")) == "TRUE") {
+        TiXmlElement* ele = fElement->FirstChildElement();
+        while (ele != NULL) {
+            if (ele->Value() != NULL && (string)ele->Value() == "cut") {
+                if (ele->Attribute("name") != NULL && ele->Attribute("value") != NULL) {
+                    string name = ele->Attribute("name");
+                    TVector2 value = StringTo2DVector(ele->Attribute("value"));
+                    if (value.X() != value.Y()) fCuts.push_back(pair<string, TVector2>(name, value));
+                }
+            }
+
+            else if (ele->Value() != NULL && (string)ele->Value() == "parameter") {
+                if (ele->Attribute("name") != NULL && ele->Attribute("value") != NULL) {
+                    string name = ele->Attribute("name");
+                    if (name.find("Cut") == name.size() - 3 || name.find("CutRange") == name.size() - 8) {
+                        name = name.substr(0, name.find("Cut") + 3);
+                        TVector2 value = StringTo2DVector(ele->Attribute("value"));
+                        if (value.X() != value.Y()) fCuts.push_back(pair<string, TVector2>(name, value));
+                    }
+                }
+            }
+
+            ele = ele->NextSiblingElement();
+        }
+    }
+
+    return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////
 /// \brief Get a metadata object from friendly TRestRun object
 ///
 TRestMetadata* TRestEventProcess::GetMetadata(string name) {
-  TRestMetadata* m = fRunInfo->GetMetadata(name);
-  if (m == NULL) m = fRunInfo->GetMetadataClass(name);
-  return m;
+    TRestMetadata* m = fRunInfo->GetMetadata(name);
+    if (m == NULL) m = fRunInfo->GetMetadataClass(name);
+    return m;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -259,12 +249,12 @@ TRestMetadata* TRestEventProcess::GetMetadata(string name) {
 /// recommended as it is more efficienct than calling
 /// fAnalysisTree->SetObservableValue( obsName, obsValue )
 void TRestEventProcess::SetObservableValue(TString name, double value) {
-  if (fAnalysisTree != NULL) {
-    TString obsname = this->GetName() + (TString) "_" + name;
-    if (fObservableInfo.count(obsname) != 0) {
-      fAnalysisTree->SetObservableValue(fObservableInfo[obsname], value);
+    if (fAnalysisTree != NULL) {
+        TString obsname = this->GetName() + (TString) "_" + name;
+        if (fObservableInfo.count(obsname) != 0) {
+            fAnalysisTree->SetObservableValue(fObservableInfo[obsname], value);
+        }
     }
-  }
 }
 
 /*
@@ -283,24 +273,23 @@ cout << GetName() << ": Process initialization..." << endl;
 /// to call TRestEventProcess::BeginOfEventProcess( evIn );
 ///
 void TRestEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
-  debug << "Entering " << ClassName()
-        << "::BeginOfEventProcess, Initializing output event..." << endl;
-  if (inEv != NULL && fOutputEvent != NULL && fOutputEvent != inEv) {
-    fOutputEvent->Initialize();
+    debug << "Entering " << ClassName() << "::BeginOfEventProcess, Initializing output event..." << endl;
+    if (inEv != NULL && fOutputEvent != NULL && fOutputEvent != inEv) {
+        fOutputEvent->Initialize();
 
-    fOutputEvent->SetID(inEv->GetID());
-    fOutputEvent->SetSubID(inEv->GetSubID());
-    fOutputEvent->SetSubEventTag(inEv->GetSubEventTag());
+        fOutputEvent->SetID(inEv->GetID());
+        fOutputEvent->SetSubID(inEv->GetSubID());
+        fOutputEvent->SetSubEventTag(inEv->GetSubEventTag());
 
-    fOutputEvent->SetRunOrigin(inEv->GetRunOrigin());
-    fOutputEvent->SetSubRunOrigin(inEv->GetSubRunOrigin());
+        fOutputEvent->SetRunOrigin(inEv->GetRunOrigin());
+        fOutputEvent->SetSubRunOrigin(inEv->GetSubRunOrigin());
 
-    fOutputEvent->SetTime(inEv->GetTime());
-  }
+        fOutputEvent->SetTime(inEv->GetTime());
+    }
 
-  // TODO if fIsExternal and we already have defined the fAnalysisTree run#,
-  // evId#, timestamp, etc at the analysisTree we could stamp the output event
-  // here.
+    // TODO if fIsExternal and we already have defined the fAnalysisTree run#,
+    // evId#, timestamp, etc at the analysisTree we could stamp the output event
+    // here.
 }
 
 /*
@@ -317,8 +306,7 @@ void TRestEventProcess::ProcessEvent( TRestEvent *eventInput )
 /// to call TRestEventProcess::BeginOfEventProcess( evIn );
 ///
 void TRestEventProcess::EndOfEventProcess(TRestEvent* evInput) {
-  debug << "Entering TRestEventProcess::EndOfEventProcess (" << ClassName()
-        << ")" << endl;
+    debug << "Entering TRestEventProcess::EndOfEventProcess (" << ClassName() << ")" << endl;
 }
 
 /*
@@ -338,33 +326,33 @@ cout << GetName() << ": Process ending..." << endl;
 /// Prints process type, name, title, verboselevel, outputlevel, input/output
 /// event type, and several separators
 void TRestEventProcess::BeginPrintProcess() {
-  metadata.setcolor(COLOR_BOLDGREEN);
-  metadata.setborder("||");
-  metadata.setlength(100);
-  // metadata << " " << endl;
-  cout << endl;
-  metadata << "=" << endl;
-  metadata << "Process : " << ClassName() << endl;
-  metadata << "Name: " << GetName() << "  Title: " << GetTitle()
-           << "  VerboseLevel: " << GetVerboseLevelString() << endl;
-  metadata << " ----------------------------------------------- " << endl;
-  metadata << " " << endl;
-
-  if (fObservableInfo.size() > 0) {
-    metadata << " Analysis tree observables added by this process " << endl;
-    metadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
-  }
-
-  auto iter = fObservableInfo.begin();
-  while (iter != fObservableInfo.end()) {
-    metadata << " ++ " << iter->first << endl;
-    iter++;
-  }
-
-  if (fObservableInfo.size() > 0) {
-    metadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
+    metadata.setcolor(COLOR_BOLDGREEN);
+    metadata.setborder("||");
+    metadata.setlength(100);
+    // metadata << " " << endl;
+    cout << endl;
+    metadata << "=" << endl;
+    metadata << "Process : " << ClassName() << endl;
+    metadata << "Name: " << GetName() << "  Title: " << GetTitle()
+             << "  VerboseLevel: " << GetVerboseLevelString() << endl;
+    metadata << " ----------------------------------------------- " << endl;
     metadata << " " << endl;
-  }
+
+    if (fObservableInfo.size() > 0) {
+        metadata << " Analysis tree observables added by this process " << endl;
+        metadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
+    }
+
+    auto iter = fObservableInfo.begin();
+    while (iter != fObservableInfo.end()) {
+        metadata << " ++ " << iter->first << endl;
+        iter++;
+    }
+
+    if (fObservableInfo.size() > 0) {
+        metadata << " +++++++++++++++++++++++++++++++++++++++++++++++ " << endl;
+        metadata << " " << endl;
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -373,25 +361,25 @@ void TRestEventProcess::BeginPrintProcess() {
 ///
 /// Prints several separators
 void TRestEventProcess::EndPrintProcess() {
-  if (fCuts.size() > 0) {
-    metadata << "Cuts enabled" << endl;
-    metadata << "------------" << endl;
+    if (fCuts.size() > 0) {
+        metadata << "Cuts enabled" << endl;
+        metadata << "------------" << endl;
 
-    auto iter = fCuts.begin();
-    while (iter != fCuts.end()) {
-      if (iter->second.X() != iter->second.Y())
-        metadata << iter->first << ", range : ( " << iter->second.X() << " , "
-                 << iter->second.Y() << " ) " << endl;
-      iter++;
+        auto iter = fCuts.begin();
+        while (iter != fCuts.end()) {
+            if (iter->second.X() != iter->second.Y())
+                metadata << iter->first << ", range : ( " << iter->second.X() << " , " << iter->second.Y()
+                         << " ) " << endl;
+            iter++;
+        }
     }
-  }
 
-  metadata << " " << endl;
-  metadata << "=" << endl;
-  metadata << endl;
-  metadata.resetcolor();
-  metadata.setborder("");
-  metadata.setlength(10000);
+    metadata << " " << endl;
+    metadata << "=" << endl;
+    metadata << endl;
+    metadata.resetcolor();
+    metadata.setborder("");
+    metadata.setlength(10000);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -401,14 +389,12 @@ void TRestEventProcess::EndPrintProcess() {
 /// \param className string with name of metadata class to access
 /// \param parName  string with name of parameter to retrieve
 ///
-Double_t TRestEventProcess::GetDoubleParameterFromClass(TString className,
-                                                        TString parName) {
-  for (size_t i = 0; i < fFriendlyProcesses.size(); i++)
-    if ((string)fFriendlyProcesses[i]->ClassName() == (string)className)
-      return StringToDouble(
-          fFriendlyProcesses[i]->GetParameter((string)parName));
+Double_t TRestEventProcess::GetDoubleParameterFromClass(TString className, TString parName) {
+    for (size_t i = 0; i < fFriendlyProcesses.size(); i++)
+        if ((string)fFriendlyProcesses[i]->ClassName() == (string)className)
+            return StringToDouble(fFriendlyProcesses[i]->GetParameter((string)parName));
 
-  return PARAMETER_NOT_FOUND_DBL;
+    return PARAMETER_NOT_FOUND_DBL;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -418,21 +404,20 @@ Double_t TRestEventProcess::GetDoubleParameterFromClass(TString className,
 /// \param className string with name of metadata class to access
 /// \param parName  string with name of parameter to retrieve
 ///
-Double_t TRestEventProcess::GetDoubleParameterFromClassWithUnits(
-    TString className, TString parName) {
-  for (size_t i = 0; i < fFriendlyProcesses.size(); i++)
-    if ((string)fFriendlyProcesses[i]->ClassName() == (string)className)
-      return fFriendlyProcesses[i]->GetDblParameterWithUnits((string)parName);
+Double_t TRestEventProcess::GetDoubleParameterFromClassWithUnits(TString className, TString parName) {
+    for (size_t i = 0; i < fFriendlyProcesses.size(); i++)
+        if ((string)fFriendlyProcesses[i]->ClassName() == (string)className)
+            return fFriendlyProcesses[i]->GetDblParameterWithUnits((string)parName);
 
-  return PARAMETER_NOT_FOUND_DBL;
+    return PARAMETER_NOT_FOUND_DBL;
 }
 
 std::vector<TString> TRestEventProcess::GetListOfAddedObservables() {
-  vector<TString> list;
-  auto iter = fObservableInfo.begin();
-  while (iter != fObservableInfo.end()) {
-    list.push_back(iter->first);
-    iter++;
-  }
-  return list;
+    vector<TString> list;
+    auto iter = fObservableInfo.begin();
+    while (iter != fObservableInfo.end()) {
+        list.push_back(iter->first);
+        iter++;
+    }
+    return list;
 }

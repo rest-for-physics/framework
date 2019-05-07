@@ -81,7 +81,7 @@ ClassImp(TRestRawSignalToSignalProcess)
     /// \brief Default constructor
     ///
     TRestRawSignalToSignalProcess::TRestRawSignalToSignalProcess() {
-  Initialize();
+    Initialize();
 }
 
 ///////////////////////////////////////////////
@@ -96,29 +96,28 @@ ClassImp(TRestRawSignalToSignalProcess)
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 ///
-TRestRawSignalToSignalProcess::TRestRawSignalToSignalProcess(
-    char* cfgFileName) {
-  Initialize();
+TRestRawSignalToSignalProcess::TRestRawSignalToSignalProcess(char* cfgFileName) {
+    Initialize();
 
-  if (LoadConfigFromFile(cfgFileName) == -1) LoadDefaultConfig();
+    if (LoadConfigFromFile(cfgFileName) == -1) LoadDefaultConfig();
 
-  PrintMetadata();
+    PrintMetadata();
 }
 
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
 TRestRawSignalToSignalProcess::~TRestRawSignalToSignalProcess() {
-  delete fOutputSignalEvent;
-  delete fInputSignalEvent;
+    delete fOutputSignalEvent;
+    delete fInputSignalEvent;
 }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
 ///
 void TRestRawSignalToSignalProcess::LoadDefaultConfig() {
-  SetName("rawSignalToSignal-Default");
-  SetTitle("Default config");
+    SetName("rawSignalToSignal-Default");
+    SetTitle("Default config");
 }
 
 ///////////////////////////////////////////////
@@ -126,13 +125,13 @@ void TRestRawSignalToSignalProcess::LoadDefaultConfig() {
 /// section name
 ///
 void TRestRawSignalToSignalProcess::Initialize() {
-  SetSectionName(this->ClassName());
+    SetSectionName(this->ClassName());
 
-  fInputSignalEvent = new TRestRawSignalEvent();
-  fOutputSignalEvent = new TRestSignalEvent();
+    fInputSignalEvent = new TRestRawSignalEvent();
+    fOutputSignalEvent = new TRestSignalEvent();
 
-  fInputEvent = fInputSignalEvent;
-  fOutputEvent = fOutputSignalEvent;
+    fInputEvent = fInputSignalEvent;
+    fOutputEvent = fOutputSignalEvent;
 }
 
 ///////////////////////////////////////////////
@@ -147,38 +146,34 @@ void TRestRawSignalToSignalProcess::Initialize() {
 /// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestGeant4AnalysisProcess section inside the RML.
 ///
-void TRestRawSignalToSignalProcess::LoadConfig(string cfgFilename,
-                                               string name) {
-  if (LoadConfigFromFile(cfgFilename, name) == -1) LoadDefaultConfig();
+void TRestRawSignalToSignalProcess::LoadConfig(string cfgFilename, string name) {
+    if (LoadConfigFromFile(cfgFilename, name) == -1) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
 /// \brief Function including required initialization before each event starts
 /// to process.
 ///
-void TRestRawSignalToSignalProcess::BeginOfEventProcess() {
-  fOutputSignalEvent->Initialize();
-}
+void TRestRawSignalToSignalProcess::BeginOfEventProcess() { fOutputSignalEvent->Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
 TRestEvent* TRestRawSignalToSignalProcess::ProcessEvent(TRestEvent* evInput) {
-  fInputSignalEvent = (TRestRawSignalEvent*)evInput;
+    fInputSignalEvent = (TRestRawSignalEvent*)evInput;
 
-  for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++) {
-    TRestSignal sgnl;
-    sgnl.Initialize();
-    TRestRawSignal* rawSgnl = fInputSignalEvent->GetSignal(n);
-    sgnl.SetID(rawSgnl->GetID());
-    for (int p = 0; p < rawSgnl->GetNumberOfPoints(); p++)
-      sgnl.NewPoint(fTriggerStarts + fSampling * p,
-                    fGain * rawSgnl->GetData(p));
+    for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++) {
+        TRestSignal sgnl;
+        sgnl.Initialize();
+        TRestRawSignal* rawSgnl = fInputSignalEvent->GetSignal(n);
+        sgnl.SetID(rawSgnl->GetID());
+        for (int p = 0; p < rawSgnl->GetNumberOfPoints(); p++)
+            sgnl.NewPoint(fTriggerStarts + fSampling * p, fGain * rawSgnl->GetData(p));
 
-    fOutputSignalEvent->AddSignal(sgnl);
-  }
+        fOutputSignalEvent->AddSignal(sgnl);
+    }
 
-  return fOutputSignalEvent;
+    return fOutputSignalEvent;
 }
 
 ///////////////////////////////////////////////
@@ -186,7 +181,7 @@ TRestEvent* TRestRawSignalToSignalProcess::ProcessEvent(TRestEvent* evInput) {
 /// TRestRawSignalToSignalProcess metadata section
 ///
 void TRestRawSignalToSignalProcess::InitFromConfigFile() {
-  fSampling = GetDblParameterWithUnits("sampling");
-  fTriggerStarts = GetDblParameterWithUnits("triggerStarts");
-  fGain = StringToDouble(GetParameter("gain", "1"));
+    fSampling = GetDblParameterWithUnits("sampling");
+    fTriggerStarts = GetDblParameterWithUnits("triggerStarts");
+    fGain = StringToDouble(GetParameter("gain", "1"));
 }

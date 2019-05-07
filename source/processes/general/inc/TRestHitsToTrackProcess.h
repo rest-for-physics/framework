@@ -18,50 +18,49 @@
 #include "TRestEventProcess.h"
 
 class TRestHitsToTrackProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
-  TRestHitsEvent* fHitsEvent;    //!
-  TRestTrackEvent* fTrackEvent;  //!
+    TRestHitsEvent* fHitsEvent;    //!
+    TRestTrackEvent* fTrackEvent;  //!
 #endif
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
-  Int_t FindTracks(TRestHits* hits);
+    void Initialize();
+    Int_t FindTracks(TRestHits* hits);
 
- protected:
-  // add here the members of your event process
-  Double_t fClusterDistance;
+   protected:
+    // add here the members of your event process
+    Double_t fClusterDistance;
 
- public:
-  void InitProcess();
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
-  void EndOfEventProcess();
-  void EndProcess();
-  void LoadDefaultConfig();
+   public:
+    void InitProcess();
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndOfEventProcess();
+    void EndProcess();
+    void LoadDefaultConfig();
 
-  void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
-  void PrintMetadata() {
-    BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    std::cout << " cluster-distance : " << fClusterDistance << " mm "
-              << std::endl;
+        std::cout << " cluster-distance : " << fClusterDistance << " mm " << std::endl;
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  TString GetProcessName() { return (TString) "hitsToTrack"; }
+    TString GetProcessName() { return (TString) "hitsToTrack"; }
 
-  // Constructor
-  TRestHitsToTrackProcess();
-  TRestHitsToTrackProcess(char* cfgFileName);
-  // Destructor
-  ~TRestHitsToTrackProcess();
+    // Constructor
+    TRestHitsToTrackProcess();
+    TRestHitsToTrackProcess(char* cfgFileName);
+    // Destructor
+    ~TRestHitsToTrackProcess();
 
-  ClassDef(TRestHitsToTrackProcess,
-           1);  // Template for a REST "event process" class inherited from
-                // TRestEventProcess
+    ClassDef(TRestHitsToTrackProcess,
+             1);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

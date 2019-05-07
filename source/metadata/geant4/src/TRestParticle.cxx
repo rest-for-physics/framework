@@ -21,10 +21,10 @@ using namespace std;
 ClassImp(TRestParticle)
     //______________________________________________________________________________
     TRestParticle::TRestParticle() {
-  // TRestParticle default constructor
+    // TRestParticle default constructor
 }
 
 //______________________________________________________________________________
 TRestParticle::~TRestParticle() {
-  // TRestParticle destructor
+    // TRestParticle destructor
 }

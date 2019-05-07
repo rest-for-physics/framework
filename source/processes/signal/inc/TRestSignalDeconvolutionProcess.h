@@ -19,75 +19,74 @@
 #include "TRestEventProcess.h"
 
 class TRestSignalDeconvolutionProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
-  TRestSignalEvent* fInputSignalEvent;   //!
-  TRestSignalEvent* fOutputSignalEvent;  //!
+    TRestSignalEvent* fInputSignalEvent;   //!
+    TRestSignalEvent* fOutputSignalEvent;  //!
 
-  TCanvas* canvas;  //!
+    TCanvas* canvas;  //!
 #endif
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
+    void Initialize();
 
-  void LoadDefaultConfig();
+    void LoadDefaultConfig();
 
- protected:
-  TString fResponseFilename;
-  Double_t fFreq1;
-  Double_t fFreq2;
+   protected:
+    TString fResponseFilename;
+    Double_t fFreq1;
+    Double_t fFreq2;
 
-  Int_t fCutFrequency;
-  Int_t fSmoothingPoints;
-  Int_t fSmearingPoints;
+    Int_t fCutFrequency;
+    Int_t fSmoothingPoints;
+    Int_t fSmearingPoints;
 
-  Int_t fBaseLineStart;
-  Int_t fBaseLineEnd;
+    Int_t fBaseLineStart;
+    Int_t fBaseLineEnd;
 
-  Int_t fFFTStart;
-  Int_t fFFTEnd;
+    Int_t fFFTStart;
+    Int_t fFFTEnd;
 
- public:
-  void InitProcess();
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
-  void EndOfEventProcess();
-  void EndProcess();
+   public:
+    void InitProcess();
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndOfEventProcess();
+    void EndProcess();
 
-  void LoadConfig(std::string cfgFilename);
+    void LoadConfig(std::string cfgFilename);
 
-  void PrintMetadata() {
-    BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    std::cout << "Response filename : " << fResponseFilename << std::endl;
-    std::cout << "Frequency 1 : " << fFreq1 << std::endl;
-    std::cout << "Frequency 2 : " << fFreq2 << std::endl;
-    std::cout << "Cut frequency : " << fCutFrequency << std::endl;
+        std::cout << "Response filename : " << fResponseFilename << std::endl;
+        std::cout << "Frequency 1 : " << fFreq1 << std::endl;
+        std::cout << "Frequency 2 : " << fFreq2 << std::endl;
+        std::cout << "Cut frequency : " << fCutFrequency << std::endl;
 
-    std::cout << "Smoothing points : " << fSmoothingPoints << std::endl;
-    std::cout << "Smearing points : " << fSmearingPoints << std::endl;
+        std::cout << "Smoothing points : " << fSmoothingPoints << std::endl;
+        std::cout << "Smearing points : " << fSmearingPoints << std::endl;
 
-    std::cout << "Baseline range : ( " << fBaseLineStart << " , "
-              << fBaseLineEnd << " ) " << std::endl;
-    std::cout << "FFT remove beginning points : " << fFFTStart << std::endl;
-    std::cout << "FFT remove end points : " << fFFTEnd << std::endl;
+        std::cout << "Baseline range : ( " << fBaseLineStart << " , " << fBaseLineEnd << " ) " << std::endl;
+        std::cout << "FFT remove beginning points : " << fFFTStart << std::endl;
+        std::cout << "FFT remove end points : " << fFFTEnd << std::endl;
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  TRestMetadata* GetProcessMetadata() { return NULL; }
+    TRestMetadata* GetProcessMetadata() { return NULL; }
 
-  TString GetProcessName() { return (TString) "signalDeconvolution"; }
+    TString GetProcessName() { return (TString) "signalDeconvolution"; }
 
-  // Constructor
-  TRestSignalDeconvolutionProcess();
-  TRestSignalDeconvolutionProcess(char* cfgFileName);
-  // Destructor
-  ~TRestSignalDeconvolutionProcess();
+    // Constructor
+    TRestSignalDeconvolutionProcess();
+    TRestSignalDeconvolutionProcess(char* cfgFileName);
+    // Destructor
+    ~TRestSignalDeconvolutionProcess();
 
-  ClassDef(TRestSignalDeconvolutionProcess,
-           1);  // Template for a REST "event process" class inherited from
-                // TRestEventProcess
+    ClassDef(TRestSignalDeconvolutionProcess,
+             1);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

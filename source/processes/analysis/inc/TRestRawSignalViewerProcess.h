@@ -24,60 +24,60 @@
 #include "TRestEventProcess.h"
 
 class TRestRawSignalViewerProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
-  TRestRawSignalEvent* fSignalEvent;  //!
-  // TODO We must get here a pointer to TRestDaqMetadata
-  // In order to convert the parameters to time using the sampling time
+    TRestRawSignalEvent* fSignalEvent;  //!
+    // TODO We must get here a pointer to TRestDaqMetadata
+    // In order to convert the parameters to time using the sampling time
 
-  // TCanvas *fCanvas;
-  vector<TObject*> fDrawingObjects;  //!
-  Double_t fDrawRefresh;             //!
+    // TCanvas *fCanvas;
+    vector<TObject*> fDrawingObjects;  //!
+    Double_t fDrawRefresh;             //!
 
-  TVector2 fBaseLineRange;  //!
-  int eveCounter = 0;       //!
-  int sgnCounter = 0;       //!
+    TVector2 fBaseLineRange;  //!
+    int eveCounter = 0;       //!
+    int sgnCounter = 0;       //!
 #endif
 
-  TPad* DrawSignal(Int_t signal);
-  TPad* DrawObservables();
+    TPad* DrawSignal(Int_t signal);
+    TPad* DrawObservables();
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
+    void Initialize();
 
-  void LoadDefaultConfig();
+    void LoadDefaultConfig();
 
- protected:
-  // add here the members of your event process
+   protected:
+    // add here the members of your event process
 
- public:
-  void InitProcess();
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
-  void EndOfEventProcess();
-  void EndProcess();
+   public:
+    void InitProcess();
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndOfEventProcess();
+    void EndProcess();
 
-  void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
-  void PrintMetadata() {
-    BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    cout << "Refresh value : " << fDrawRefresh << endl;
+        cout << "Refresh value : " << fDrawRefresh << endl;
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  TString GetProcessName() { return (TString) "rawSignalViewer"; }
+    TString GetProcessName() { return (TString) "rawSignalViewer"; }
 
-  // Constructor
-  TRestRawSignalViewerProcess();
-  TRestRawSignalViewerProcess(char* cfgFileName);
-  // Destructor
-  ~TRestRawSignalViewerProcess();
+    // Constructor
+    TRestRawSignalViewerProcess();
+    TRestRawSignalViewerProcess(char* cfgFileName);
+    // Destructor
+    ~TRestRawSignalViewerProcess();
 
-  ClassDef(TRestRawSignalViewerProcess,
-           1);  // Template for a REST "event process" class inherited from
-                // TRestEventProcess
+    ClassDef(TRestRawSignalViewerProcess,
+             1);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

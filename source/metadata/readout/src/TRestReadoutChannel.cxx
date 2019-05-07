@@ -49,7 +49,7 @@ ClassImp(TRestReadoutChannel)
     /// \brief TRestReadoutChannel default constructor
     ///
     TRestReadoutChannel::TRestReadoutChannel() {
-  Initialize();
+    Initialize();
 }
 
 ///////////////////////////////////////////////
@@ -67,9 +67,9 @@ void TRestReadoutChannel::Initialize() { fDaqID = -1; }
 /// channel
 ///
 Int_t TRestReadoutChannel::isInside(Double_t x, Double_t y) {
-  for (unsigned int i = 0; i < fReadoutPixel.size(); i++)
-    if (fReadoutPixel[i].isInside(x, y)) return true;
-  return false;
+    for (unsigned int i = 0; i < fReadoutPixel.size(); i++)
+        if (fReadoutPixel[i].isInside(x, y)) return true;
+    return false;
 }
 
 ///////////////////////////////////////////////
@@ -77,33 +77,31 @@ Int_t TRestReadoutChannel::isInside(Double_t x, Double_t y) {
 /// coordinates.
 ///
 void TRestReadoutChannel::Print(int DetailLevel, int index) {
-  if (DetailLevel >= 0) {
-    cout << "++++ Channel : " << index << " Daq channel : " << GetDaqID()
-         << endl;
+    if (DetailLevel >= 0) {
+        cout << "++++ Channel : " << index << " Daq channel : " << GetDaqID() << endl;
 
-    string typestr;
-    if (GetType() == Channel_NoType)
-      typestr = "NoType";
-    else if (GetType() == Channel_Pixel)
-      typestr = "Pixel";
-    else if (GetType() == Channel_X)
-      typestr = "X";
-    else if (GetType() == Channel_Y)
-      typestr = "Y";
-    else if (GetType() == Channel_U)
-      typestr = "U";
-    else if (GetType() == Channel_V)
-      typestr = "V";
-    else if (GetType() == Channel_W)
-      typestr = "W";
+        string typestr;
+        if (GetType() == Channel_NoType)
+            typestr = "NoType";
+        else if (GetType() == Channel_Pixel)
+            typestr = "Pixel";
+        else if (GetType() == Channel_X)
+            typestr = "X";
+        else if (GetType() == Channel_Y)
+            typestr = "Y";
+        else if (GetType() == Channel_U)
+            typestr = "U";
+        else if (GetType() == Channel_V)
+            typestr = "V";
+        else if (GetType() == Channel_W)
+            typestr = "W";
 
-    cout << " Total pixels : " << GetNumberOfPixels()
-         << " Channel type : " << typestr << endl;
-    cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+        cout << " Total pixels : " << GetNumberOfPixels() << " Channel type : " << typestr << endl;
+        cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
-    if (DetailLevel - 1 >= 0)
-      for (int n = 0; n < GetNumberOfPixels(); n++) {
-        fReadoutPixel[n].Print(n);
-      }
-  }
+        if (DetailLevel - 1 >= 0)
+            for (int n = 0; n < GetNumberOfPixels(); n++) {
+                fReadoutPixel[n].Print(n);
+            }
+    }
 }

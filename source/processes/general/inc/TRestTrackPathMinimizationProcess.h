@@ -22,53 +22,53 @@
 #endif
 
 class TRestTrackPathMinimizationProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
-  TRestTrackEvent* fInputTrackEvent;   //!
-  TRestTrackEvent* fOutputTrackEvent;  //!
+    TRestTrackEvent* fInputTrackEvent;   //!
+    TRestTrackEvent* fOutputTrackEvent;  //!
 #endif
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
+    void Initialize();
 
- protected:
-  // Int_t fMaxNodes;
+   protected:
+    // Int_t fMaxNodes;
 
-  Bool_t fWeightHits;
+    Bool_t fWeightHits;
 
- public:
-  void InitProcess();
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
-  void EndOfEventProcess();
-  void EndProcess();
-  void LoadDefaultConfig();
+   public:
+    void InitProcess();
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndOfEventProcess();
+    void EndProcess();
+    void LoadDefaultConfig();
 
-  void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
-  void PrintMetadata() {
-    BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    //           cout << "Maximum number of nodes (hits) allowed : " <<
-    //           fMaxNodes << endl;
+        //           cout << "Maximum number of nodes (hits) allowed : " <<
+        //           fMaxNodes << endl;
 
-    if (fWeightHits)
-      std::cout << "Weight hits : enabled" << std::endl;
-    else
-      std::cout << "Weight hits : disabled" << std::endl;
+        if (fWeightHits)
+            std::cout << "Weight hits : enabled" << std::endl;
+        else
+            std::cout << "Weight hits : disabled" << std::endl;
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  TString GetProcessName() { return (TString) "trackPathMinimization"; }
+    TString GetProcessName() { return (TString) "trackPathMinimization"; }
 
-  // Constructor
-  TRestTrackPathMinimizationProcess();
-  TRestTrackPathMinimizationProcess(char* cfgFileName);
-  // Destructor
-  ~TRestTrackPathMinimizationProcess();
+    // Constructor
+    TRestTrackPathMinimizationProcess();
+    TRestTrackPathMinimizationProcess(char* cfgFileName);
+    // Destructor
+    ~TRestTrackPathMinimizationProcess();
 
-  ClassDef(TRestTrackPathMinimizationProcess, 1);
+    ClassDef(TRestTrackPathMinimizationProcess, 1);
 };
 #endif

@@ -13,15 +13,12 @@
 /*                                                                          */
 /****************************************************************************/
 
-#ifndef  __CONSEC1_H
-#define  __CONSEC1_H
+#ifndef __CONSEC1_H
+#define __CONSEC1_H
 
 #include "tsp.h"
 
-int
-    CCpq_consecutiveones (CCtsp_lpcut_in **cuts, int *cutcount,
-        CCtsp_cuttree *ctree, CCtsp_lpcuts *pool, int ecount, int *elist,
-        double *x);
-
+int CCpq_consecutiveones(CCtsp_lpcut_in** cuts, int* cutcount, CCtsp_cuttree* ctree, CCtsp_lpcuts* pool,
+                         int ecount, int* elist, double* x);
 
 #endif /* __CONSEC1_H */

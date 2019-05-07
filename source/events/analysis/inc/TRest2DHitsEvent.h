@@ -42,140 +42,134 @@
 //#define Y2 300
 
 class TRest2DHitsEvent : public TRestEvent {
- protected:
-  vector<map<double, double>> fXZHits;  // XZsignal[z_index][xposition,energy]
-  vector<map<double, double>> fYZHits;  // YZsignal[z_index][yposition,energy]
-  map<int, double> fXZIdPos;            // signaId ,xPosition
-  map<int, double> fYZIdPos;            // signaId ,yPosition
+   protected:
+    vector<map<double, double>> fXZHits;  // XZsignal[z_index][xposition,energy]
+    vector<map<double, double>> fYZHits;  // YZsignal[z_index][yposition,energy]
+    map<int, double> fXZIdPos;            // signaId ,xPosition
+    map<int, double> fYZIdPos;            // signaId ,yPosition
 
-  int fNz;
-  int fNx;
-  int fNy;
-  int fNSignalx;
-  int fNSignaly;
+    int fNz;
+    int fNx;
+    int fNy;
+    int fNSignalx;
+    int fNSignaly;
 
-  TGraph2D* gxz = NULL;  //!
-  TGraph2D* gyz = NULL;  //!
-  TH2D* pointxz = NULL;  //!
-  TH2D* pointyz = NULL;  //!
-  TH1D* houghxz = NULL;  //!
-  TH1D* houghyz = NULL;  //!
+    TGraph2D* gxz = NULL;  //!
+    TGraph2D* gyz = NULL;  //!
+    TH2D* pointxz = NULL;  //!
+    TH2D* pointyz = NULL;  //!
+    TH1D* houghxz = NULL;  //!
+    TH1D* houghyz = NULL;  //!
 
-  TRestReadout* fReadout;  //!
+    TRestReadout* fReadout;  //!
 
-  vector<double> xzz;
-  vector<double> xzx;
-  vector<double> xze;
-  vector<double> yzz;
-  vector<double> yzy;
-  vector<double> yze;
+    vector<double> xzz;
+    vector<double> xzx;
+    vector<double> xze;
+    vector<double> yzz;
+    vector<double> yzy;
+    vector<double> yze;
 
-  vector<TVector3> fHough_XZ;  //!  y=ax+b, vertical line angle
-  vector<TVector3> fHough_YZ;  //!  y=ax+b, vertical line angle
+    vector<TVector3> fHough_XZ;  //!  y=ax+b, vertical line angle
+    vector<TVector3> fHough_YZ;  //!  y=ax+b, vertical line angle
 
-  int X1;
-  int X2;
-  int Y1;
-  int Y2;
+    int X1;
+    int X2;
+    int Y1;
+    int Y2;
 
- public:
-  TPad* DrawEvent(TString option = "");
+   public:
+    TPad* DrawEvent(TString option = "");
 
-  void DoHough();
-  // Setters
-  void AddSignal(TRestRawSignal* s);
+    void DoHough();
+    // Setters
+    void AddSignal(TRestRawSignal* s);
 
-  void AddSignal(TRestSignal* s);
+    void AddSignal(TRestSignal* s);
 
-  void SetXZSignal(int zIndex, double xPosition, double energy);
+    void SetXZSignal(int zIndex, double xPosition, double energy);
 
-  void SetYZSignal(int zIndex, double yPosition, double energy);
+    void SetYZSignal(int zIndex, double yPosition, double energy);
 
-  void SetSignal(int zIndex, int signalID, double energy);
+    void SetSignal(int zIndex, int signalID, double energy);
 
-  void SetROIX(TVector2 x) {
-    X1 = x.X();
-    X2 = x.Y();
-  }
+    void SetROIX(TVector2 x) {
+        X1 = x.X();
+        X2 = x.Y();
+    }
 
-  void SetROIY(TVector2 y) {
-    Y1 = y.X();
-    Y2 = y.Y();
-  }
+    void SetROIY(TVector2 y) {
+        Y1 = y.X();
+        Y2 = y.Y();
+    }
 
-  void ResetHits();
+    void ResetHits();
 
-  void RemoveSeparateZ();
+    void RemoveSeparateZ();
 
-  void SetReadout(TRestReadout* r) {
-    if (r != NULL) fReadout = r;
-  }
+    void SetReadout(TRestReadout* r) {
+        if (r != NULL) fReadout = r;
+    }
 
-  void SetZLength(int l) { fNz = l; }
+    void SetZLength(int l) { fNz = l; }
 
-  void AddXZCluster(double x, double z, double e) {
-    xzx.push_back(x);
-    xzz.push_back(z);
-    xze.push_back(e);
-  }
+    void AddXZCluster(double x, double z, double e) {
+        xzx.push_back(x);
+        xzz.push_back(z);
+        xze.push_back(e);
+    }
 
-  void AddYZCluster(double y, double z, double e) {
-    yzy.push_back(y);
-    yzz.push_back(z);
-    yze.push_back(e);
-  }
+    void AddYZCluster(double y, double z, double e) {
+        yzy.push_back(y);
+        yzz.push_back(z);
+        yze.push_back(e);
+    }
 
-  // Getters
-  Int_t GetNumberOfSignals() {
-    return GetNumberOfXZSignals() + GetNumberOfYZSignals();
-  }
-  Int_t GetNumberOfXZSignals() { return fNSignalx; }
-  Int_t GetNumberOfYZSignals() { return fNSignaly; }
+    // Getters
+    Int_t GetNumberOfSignals() { return GetNumberOfXZSignals() + GetNumberOfYZSignals(); }
+    Int_t GetNumberOfXZSignals() { return fNSignalx; }
+    Int_t GetNumberOfYZSignals() { return fNSignaly; }
 
-  // 2D hits are with three values
-  map<double, double> GetXZHitsWithZ(int z);  // x,e
-  map<double, double> GetYZHitsWithZ(int z);  // x,e
-  map<int, double> GetXZHitsWithX(double x);  // z,e
-  map<int, double> GetYZHitsWithY(double y);  // z,e
-  // signals are one dementional vector
-  vector<double> GetXZSignal(int n);
-  vector<double> GetYZSignal(int n);
+    // 2D hits are with three values
+    map<double, double> GetXZHitsWithZ(int z);  // x,e
+    map<double, double> GetYZHitsWithZ(int z);  // x,e
+    map<int, double> GetXZHitsWithX(double x);  // z,e
+    map<int, double> GetYZHitsWithY(double y);  // z,e
+    // signals are one dementional vector
+    vector<double> GetXZSignal(int n);
+    vector<double> GetYZSignal(int n);
 
-  double GetSumEnergy(map<double, double> hits);
+    double GetSumEnergy(map<double, double> hits);
 
-  double GetSumEnergy(map<int, double> hits);
+    double GetSumEnergy(map<int, double> hits);
 
-  double GetFirstX();
-  double GetFirstY();
+    double GetFirstX();
+    double GetFirstY();
 
-  double GetLastX();
-  double GetLastY();
+    double GetLastX();
+    double GetLastY();
 
-  TVector2 GetZRange();
-  TVector2 GetZRangeInXZ();
-  TVector2 GetZRangeInYZ();
-  TVector2 GetXRange();
-  TVector2 GetYRange();
+    TVector2 GetZRange();
+    TVector2 GetZRangeInXZ();
+    TVector2 GetZRangeInYZ();
+    TVector2 GetXRange();
+    TVector2 GetYRange();
 
-  double GetX(int n) {
-    return n < fNSignalx ? fXZIdPos[n] : numeric_limits<Double_t>::quiet_NaN();
-  }
-  double GetY(int n) {
-    return n < fNSignaly ? fYZIdPos[n] : numeric_limits<Double_t>::quiet_NaN();
-  }
+    double GetX(int n) { return n < fNSignalx ? fXZIdPos[n] : numeric_limits<Double_t>::quiet_NaN(); }
+    double GetY(int n) { return n < fNSignaly ? fYZIdPos[n] : numeric_limits<Double_t>::quiet_NaN(); }
 
-  vector<TVector3> GetHoughXZ() { return fHough_XZ; }
-  vector<TVector3> GetHoughYZ() { return fHough_YZ; }
+    vector<TVector3> GetHoughXZ() { return fHough_XZ; }
+    vector<TVector3> GetHoughYZ() { return fHough_YZ; }
 
-  void Initialize();
+    void Initialize();
 
-  void PrintEvent(Bool_t fullInfo = false);
+    void PrintEvent(Bool_t fullInfo = false);
 
-  // Construtor
-  TRest2DHitsEvent();
-  // Destructor
-  ~TRest2DHitsEvent();
+    // Construtor
+    TRest2DHitsEvent();
+    // Destructor
+    ~TRest2DHitsEvent();
 
-  ClassDef(TRest2DHitsEvent, 1);  // REST event superclass
+    ClassDef(TRest2DHitsEvent, 1);  // REST event superclass
 };
 #endif

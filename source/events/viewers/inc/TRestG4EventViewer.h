@@ -20,28 +20,28 @@
 #include "TRestG4Event.h"
 
 class TRestG4EventViewer : public TRestEveEventViewer {
- private:
-  std::vector<TEveLine*> fHitConnectors;
+   private:
+    std::vector<TEveLine*> fHitConnectors;
 
-  TRestG4Event* fG4Event;
+    TRestG4Event* fG4Event;
 
- public:
-  void Initialize();
-  void DeleteCurrentEvent();
-  void AddEvent(TRestEvent* ev);
+   public:
+    void Initialize();
+    void DeleteCurrentEvent();
+    void AddEvent(TRestEvent* ev);
 
-  void NextTrackVertex(Int_t trkID, TVector3 to);
-  void AddTrack(Int_t trkID, Int_t parentID, TVector3 from, TString name);
-  void AddParentTrack(Int_t trkID, TVector3 from, TString name);
+    void NextTrackVertex(Int_t trkID, TVector3 to);
+    void AddTrack(Int_t trkID, Int_t parentID, TVector3 from, TString name);
+    void AddParentTrack(Int_t trkID, TVector3 from, TString name);
 
-  void AddText(TString text, TVector3 at);
-  void AddMarker(Int_t trkID, TVector3 at, TString name);
+    void AddText(TString text, TVector3 at);
+    void AddMarker(Int_t trkID, TVector3 at, TString name);
 
-  // Constructor
-  TRestG4EventViewer();
-  // Destructor
-  ~TRestG4EventViewer();
+    // Constructor
+    TRestG4EventViewer();
+    // Destructor
+    ~TRestG4EventViewer();
 
-  ClassDef(TRestG4EventViewer, 1);  // class inherited from TRestEventViewer
+    ClassDef(TRestG4EventViewer, 1);  // class inherited from TRestEventViewer
 };
 #endif

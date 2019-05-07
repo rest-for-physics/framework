@@ -1,94 +1,91 @@
 #ifndef RestCore_TRestBrowser
 #define RestCore_TRestBrowser
 
-#include "TObject.h"
-#include "TGFrame.h"
+#include "TApplication.h"
+#include "TBrowser.h"
+#include "TCanvas.h"
 #include "TGButton.h"
+#include "TGDimension.h"
+#include "TGFileDialog.h"
+#include "TGFrame.h"
+#include "TGLabel.h"
 #include "TGNumberEntry.h"
 #include "TGTextEntry.h"
-#include "TGFileDialog.h"
-#include "TApplication.h"
-#include "TGLabel.h"
-#include "TGDimension.h"
-#include "TBrowser.h"
-#include "TSystem.h"
+#include "TObject.h"
 #include "TROOT.h"
-#include "TCanvas.h"
+#include "TSystem.h"
 
-#include "TRestRun.h"
 #include "TRestEventViewer.h"
+#include "TRestRun.h"
 
 #include <iostream>
 
 /// Event browser for different input file
 class TRestBrowser {
-
-protected:
-
+   protected:
 #ifndef __CINT__
-	TGMainFrame* frmMain = 0;//!
+    TGMainFrame* frmMain = 0;  //!
 
-	//Frames and buttons
+    // Frames and buttons
 
-	TGVerticalFrame *fVFrame = 0;   	//! < Vertical frame.
-	TGNumberEntry   *fNEvent = 0;  	//! Event number.
-	TGLabel			*fLabel = 0;		//! label(content"plot options:")
-	TGPictureButton	*fButPrev = 0;  	//! Previous event.
-	TGPictureButton	*fLoadEvent = 0;	//! Load Event button
-	TGPictureButton	*fButNext = 0;  	//! Next number.
-	TGPictureButton	*fMenuOpen = 0;	//! Open file
-	TGTextButton	*fExit = 0;		//! Load Event button
+    TGVerticalFrame* fVFrame = 0;     //! < Vertical frame.
+    TGNumberEntry* fNEvent = 0;       //! Event number.
+    TGLabel* fLabel = 0;              //! label(content"plot options:")
+    TGPictureButton* fButPrev = 0;    //! Previous event.
+    TGPictureButton* fLoadEvent = 0;  //! Load Event button
+    TGPictureButton* fButNext = 0;    //! Next number.
+    TGPictureButton* fMenuOpen = 0;   //! Open file
+    TGTextButton* fExit = 0;          //! Load Event button
 
-	TCanvas*fCanDefault = 0;//!
+    TCanvas* fCanDefault = 0;  //!
 
-	TBrowser* b = 0;//!
-	TRestRun* r = 0;//!
-#endif     
-
-
-private:
-#ifndef __CINT__
-	Bool_t pureAnalysis;
-	TString fInputFileName;
-	Int_t fCurrentEvent;
-
-	TRestEventViewer *fEventViewer = 0;//!
+    TBrowser* b = 0;  //!
+    TRestRun* r = 0;  //!
 #endif
 
-public:
-	//Constructors
-	TRestBrowser();
-	TRestBrowser(TString viewerName);
+   private:
+#ifndef __CINT__
+    Bool_t pureAnalysis;
+    TString fInputFileName;
+    Int_t fCurrentEvent;
 
-	//Destructor
-	~TRestBrowser();
+    TRestEventViewer* fEventViewer = 0;  //!
+#endif
 
-	void Initialize(TString opt="FI");
-	void InitFromConfigFile();
+   public:
+    // Constructors
+    TRestBrowser();
+    TRestBrowser(TString viewerName);
 
-	void SetViewer(TRestEventViewer *eV);
-	void SetViewer(TString viewerName);
-	void SetInputEvent(TRestEvent*);
+    // Destructor
+    ~TRestBrowser();
 
-	int GetChar(string hint = "Press a KEY to continue ...");
+    void Initialize(TString opt = "FI");
+    void InitFromConfigFile();
 
-	void setWindowName(TString wName) { frmMain->SetWindowName(wName.Data()); }
+    void SetViewer(TRestEventViewer* eV);
+    void SetViewer(TString viewerName);
+    void SetInputEvent(TRestEvent*);
 
-	void setButtons();
+    int GetChar(string hint = "Press a KEY to continue ...");
 
-	TRestEventViewer * GetViewer() { return fEventViewer; }
+    void setWindowName(TString wName) { frmMain->SetWindowName(wName.Data()); }
 
-	TGVerticalFrame *generateNewFrame();
+    void setButtons();
 
-	void addFrame(TGFrame*f);
+    TRestEventViewer* GetViewer() { return fEventViewer; }
 
-	void LoadEventAction();
-	void LoadNextEventAction();
-	void LoadPrevEventAction();
-	void LoadFileAction();
-	void ExitAction();
+    TGVerticalFrame* generateNewFrame();
 
-	Bool_t OpenFile(TString fName);
-	Bool_t LoadEvent(Int_t n);
+    void addFrame(TGFrame* f);
+
+    void LoadEventAction();
+    void LoadNextEventAction();
+    void LoadPrevEventAction();
+    void LoadFileAction();
+    void ExitAction();
+
+    Bool_t OpenFile(TString fName);
+    Bool_t LoadEvent(Int_t n);
 };
 #endif

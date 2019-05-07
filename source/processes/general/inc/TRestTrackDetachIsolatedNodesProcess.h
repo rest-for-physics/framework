@@ -16,47 +16,47 @@
 #include "TRestEventProcess.h"
 
 class TRestTrackDetachIsolatedNodesProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
-  TRestTrackEvent* fInputTrackEvent;   //!
-  TRestTrackEvent* fOutputTrackEvent;  //!
+    TRestTrackEvent* fInputTrackEvent;   //!
+    TRestTrackEvent* fOutputTrackEvent;  //!
 #endif
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
+    void Initialize();
 
-  Double_t fThresholdDistance;
-  Double_t fConnectivityThreshold;
+    Double_t fThresholdDistance;
+    Double_t fConnectivityThreshold;
 
-  Double_t fTubeLengthReduction;
-  Double_t fTubeRadius;
+    Double_t fTubeLengthReduction;
+    Double_t fTubeRadius;
 
- protected:
- public:
-  void InitProcess();
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
-  void EndOfEventProcess();
-  void EndProcess();
-  void LoadDefaultConfig();
+   protected:
+   public:
+    void InitProcess();
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndOfEventProcess();
+    void EndProcess();
+    void LoadDefaultConfig();
 
-  void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
-  void PrintMetadata() {
-    BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  TString GetProcessName() { return (TString) "trackDetachIsolatedNode"; }
+    TString GetProcessName() { return (TString) "trackDetachIsolatedNode"; }
 
-  // Constructor
-  TRestTrackDetachIsolatedNodesProcess();
-  TRestTrackDetachIsolatedNodesProcess(char* cfgFileName);
-  // Destructor
-  ~TRestTrackDetachIsolatedNodesProcess();
+    // Constructor
+    TRestTrackDetachIsolatedNodesProcess();
+    TRestTrackDetachIsolatedNodesProcess(char* cfgFileName);
+    // Destructor
+    ~TRestTrackDetachIsolatedNodesProcess();
 
-  ClassDef(TRestTrackDetachIsolatedNodesProcess, 1);
+    ClassDef(TRestTrackDetachIsolatedNodesProcess, 1);
 };
 #endif

@@ -32,94 +32,92 @@
 #include <TRestTrack.h>
 
 class TRestTrackEvent : public TRestEvent {
- protected:
-  Int_t fNtracks;
-  Int_t fNtracksX;
-  Int_t fNtracksY;
-  Int_t fLevels;
-  std::vector<TRestTrack> fTrack;  // Collection of tracks that define the event
+   protected:
+    Int_t fNtracks;
+    Int_t fNtracksX;
+    Int_t fNtracksY;
+    Int_t fLevels;
+    std::vector<TRestTrack> fTrack;  // Collection of tracks that define the event
 
 #ifndef __CINT__
-  // TODO These graphs should be placed in TRestTrack?
-  // (following GetGraph implementation in TRestSignal)
-  TGraph* fXYHit;       //!
-  TGraph* fXZHit;       //!
-  TGraph* fYZHit;       //!
-  TGraph2D* fXYZHit;    //!
-  TGraph* fXYTrack;     //!
-  TGraph* fXZTrack;     //!
-  TGraph* fYZTrack;     //!
-  TGraph2D* fXYZTrack;  //!
+    // TODO These graphs should be placed in TRestTrack?
+    // (following GetGraph implementation in TRestSignal)
+    TGraph* fXYHit;       //!
+    TGraph* fXZHit;       //!
+    TGraph* fYZHit;       //!
+    TGraph2D* fXYZHit;    //!
+    TGraph* fXYTrack;     //!
+    TGraph* fXZTrack;     //!
+    TGraph* fYZTrack;     //!
+    TGraph2D* fXYZTrack;  //!
 
-  Bool_t fPrintHitsWarning;  //!
+    Bool_t fPrintHitsWarning;  //!
 #endif
 
- public:
-  TRestTrack* GetTrack(Int_t n) {
-    if (fTrack.size() < n + 1) {
-      std::cout << "-- Error : TRestTrackEvent::GetTrack. ERROR!" << std::endl;
-      std::cout << "-- Error : GetTrack requested track with index n = " << n
-                << std::endl;
-      std::cout << "-- Error : However, only " << fTrack.size()
-                << " where found inside TRestTrackEvent" << std::endl;
-      std::cout << "-- Error : This might be probably a crash ... !!"
-                << std::endl;
-      return NULL;
+   public:
+    TRestTrack* GetTrack(Int_t n) {
+        if (fTrack.size() < n + 1) {
+            std::cout << "-- Error : TRestTrackEvent::GetTrack. ERROR!" << std::endl;
+            std::cout << "-- Error : GetTrack requested track with index n = " << n << std::endl;
+            std::cout << "-- Error : However, only " << fTrack.size() << " where found inside TRestTrackEvent"
+                      << std::endl;
+            std::cout << "-- Error : This might be probably a crash ... !!" << std::endl;
+            return NULL;
+        }
+        return &fTrack[n];
     }
-    return &fTrack[n];
-  }
-  TRestTrack* GetTrackById(Int_t id);
+    TRestTrack* GetTrackById(Int_t id);
 
-  TRestTrack* GetOriginTrackById(Int_t tckId);
-  TRestTrack* GetOriginTrack(Int_t tck);
+    TRestTrack* GetOriginTrackById(Int_t tckId);
+    TRestTrack* GetOriginTrack(Int_t tck);
 
-  TRestTrack* GetMaxEnergyTrackInX();
-  TRestTrack* GetMaxEnergyTrackInY();
+    TRestTrack* GetMaxEnergyTrackInX();
+    TRestTrack* GetMaxEnergyTrackInY();
 
-  TRestTrack* GetMaxEnergyTrack(TString option = "");
-  TRestTrack* GetSecondMaxEnergyTrack(TString option = "");
+    TRestTrack* GetMaxEnergyTrack(TString option = "");
+    TRestTrack* GetSecondMaxEnergyTrack(TString option = "");
 
-  Double_t GetMaxEnergyTrackVolume(TString option = "");
-  Double_t GetMaxEnergyTrackLength(TString option = "");
-  Double_t GetEnergy(TString option = "");
+    Double_t GetMaxEnergyTrackVolume(TString option = "");
+    Double_t GetMaxEnergyTrackLength(TString option = "");
+    Double_t GetEnergy(TString option = "");
 
-  Int_t GetLevel(Int_t tck);
-  void SetLevels();
-  Int_t GetLevels() { return fLevels; }
+    Int_t GetLevel(Int_t tck);
+    void SetLevels();
+    Int_t GetLevels() { return fLevels; }
 
-  TPad* DrawEvent(TString option = "");
+    TPad* DrawEvent(TString option = "");
 
-  TPad* GetPad() { return fPad; }
+    TPad* GetPad() { return fPad; }
 
-  // Setters
-  void AddTrack(TRestTrack* c);
-  void RemoveTrack(int n);
+    // Setters
+    void AddTrack(TRestTrack* c);
+    void RemoveTrack(int n);
 
-  void RemoveTracks() { fTrack.clear(); }
+    void RemoveTracks() { fTrack.clear(); }
 
-  Bool_t isXYZ();
-  Bool_t isTopLevel(Int_t tck);
+    Bool_t isXYZ();
+    Bool_t isTopLevel(Int_t tck);
 
-  Int_t GetOriginTrackID(Int_t tck);
+    Int_t GetOriginTrackID(Int_t tck);
 
-  void SetNumberOfXTracks(Int_t x) { fNtracksX = x; }
-  void SetNumberOfYTracks(Int_t y) { fNtracksY = y; }
+    void SetNumberOfXTracks(Int_t x) { fNtracksX = x; }
+    void SetNumberOfYTracks(Int_t y) { fNtracksY = y; }
 
-  // Getters
-  Int_t GetNumberOfTracks(TString option = "");
+    // Getters
+    Int_t GetNumberOfTracks(TString option = "");
 
-  Int_t GetTotalHits();
+    Int_t GetTotalHits();
 
-  void Initialize();
+    void Initialize();
 
-  void PrintOnlyTracks();
-  void PrintEvent(Bool_t fullInfo = false);
+    void PrintOnlyTracks();
+    void PrintEvent(Bool_t fullInfo = false);
 
-  // Construtor
-  TRestTrackEvent();
-  // Destructor
-  virtual ~TRestTrackEvent();
+    // Construtor
+    TRestTrackEvent();
+    // Destructor
+    virtual ~TRestTrackEvent();
 
-  ClassDef(TRestTrackEvent, 1);  // REST event superclass
+    ClassDef(TRestTrackEvent, 1);  // REST event superclass
 };
 #endif

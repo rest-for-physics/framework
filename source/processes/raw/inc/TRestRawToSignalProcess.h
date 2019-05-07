@@ -27,69 +27,69 @@
 #include "TRestRawSignalEvent.h"
 
 class TRestRawToSignalProcess : public TRestEventProcess {
- protected:
-  void InitFromConfigFile();
-  unsigned int payload;
-  unsigned int frameBits;
-  TString fElectronicsType;  // AFTER or AGET
-  Int_t fMinPoints;
+   protected:
+    void InitFromConfigFile();
+    unsigned int payload;
+    unsigned int frameBits;
+    TString fElectronicsType;  // AFTER or AGET
+    Int_t fMinPoints;
 
-  Double_t tStart;
-  Long64_t totalBytesReaded;
-  Long64_t totalBytes;
+    Double_t tStart;
+    Long64_t totalBytesReaded;
+    Long64_t totalBytes;
 
-  TRestRawSignalEvent* fSignalEvent;  //!
+    TRestRawSignalEvent* fSignalEvent;  //!
 #ifndef __CINT__
-  FILE* fInputBinFile;  //!
+    FILE* fInputBinFile;  //!
 
-  Int_t fRunOrigin;     //!
-  Int_t fSubRunOrigin;  //!
+    Int_t fRunOrigin;     //!
+    Int_t fSubRunOrigin;  //!
 
-  Int_t nFiles;                    //!
-  std::vector<FILE*> fInputFiles;  //!
-  std::vector<TString> fInputFileNames;
+    Int_t nFiles;                    //!
+    std::vector<FILE*> fInputFiles;  //!
+    std::vector<TString> fInputFileNames;
 
-  Int_t fShowSamples;  //!
+    Int_t fShowSamples;  //!
 #endif
 
-  void LoadDefaultConfig();
+    void LoadDefaultConfig();
 
- public:
-  virtual void Initialize();
-  virtual void InitProcess() = 0;
-  virtual TRestEvent* ProcessEvent(TRestEvent* evInput) = 0;
-  virtual void EndProcess();
-  // virtual TString GetProcessName()=0;
-  TRestMetadata* GetProcessMetadata() { return NULL; }
+   public:
+    virtual void Initialize();
+    virtual void InitProcess() = 0;
+    virtual TRestEvent* ProcessEvent(TRestEvent* evInput) = 0;
+    virtual void EndProcess();
+    // virtual TString GetProcessName()=0;
+    TRestMetadata* GetProcessMetadata() { return NULL; }
 
-  void SetRunOrigin(Int_t runOrigin) { fRunOrigin = runOrigin; }
-  void SetSubRunOrigin(Int_t subOrigin) { fSubRunOrigin = subOrigin; }
+    void SetRunOrigin(Int_t runOrigin) { fRunOrigin = runOrigin; }
+    void SetSubRunOrigin(Int_t subOrigin) { fSubRunOrigin = subOrigin; }
 
-  void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
-  virtual void PrintMetadata();
+    virtual void PrintMetadata();
 
-  // Bool_t OpenInputBinFile(TString fName);
+    // Bool_t OpenInputBinFile(TString fName);
 
-  virtual Bool_t OpenInputFiles(vector<TString> files);
+    virtual Bool_t OpenInputFiles(vector<TString> files);
 
-  virtual void printBits(unsigned short num);
-  virtual void printBits(unsigned int num);
+    virtual void printBits(unsigned short num);
+    virtual void printBits(unsigned int num);
 
-  virtual Long64_t GetTotalBytesReaded() { return totalBytesReaded; }
-  virtual Long64_t GetTotalBytes() { return totalBytes; }
-  //  Int_t GetRunNumber(){return fRunNumber;}
-  //  Int_t GetRunIndex(){return fRunIndex;}
-  virtual TString GetElectronicsType() { return fElectronicsType; }
+    virtual Long64_t GetTotalBytesReaded() { return totalBytesReaded; }
+    virtual Long64_t GetTotalBytes() { return totalBytes; }
+    //  Int_t GetRunNumber(){return fRunNumber;}
+    //  Int_t GetRunIndex(){return fRunIndex;}
+    virtual TString GetElectronicsType() { return fElectronicsType; }
 
-  // Constructor
-  TRestRawToSignalProcess();
-  TRestRawToSignalProcess(char* cfgFileName);
-  // Destructor
-  ~TRestRawToSignalProcess();
+    // Constructor
+    TRestRawToSignalProcess();
+    TRestRawToSignalProcess(char* cfgFileName);
+    // Destructor
+    ~TRestRawToSignalProcess();
 
-  ClassDef(TRestRawToSignalProcess,
-           1);  // Template for a REST "event process" class inherited from
-                // TRestEventProcess
+    ClassDef(TRestRawToSignalProcess,
+             1);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

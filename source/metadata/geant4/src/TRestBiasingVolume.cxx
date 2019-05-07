@@ -21,26 +21,24 @@ using namespace std;
 ClassImp(TRestBiasingVolume)
     //______________________________________________________________________________
     TRestBiasingVolume::TRestBiasingVolume() {
-  fBiasingVolumeType = "virtualBox";
-  // TRestBiasingVolume default constructor
+    fBiasingVolumeType = "virtualBox";
+    // TRestBiasingVolume default constructor
 }
 
 //______________________________________________________________________________
 TRestBiasingVolume::~TRestBiasingVolume() {
-  // TRestBiasingVolume destructor
+    // TRestBiasingVolume destructor
 }
 
 void TRestBiasingVolume::PrintBiasingVolume() {
-  cout << "-----------------------------" << endl;
-  cout << "Biasing volume" << endl;
-  cout << "-----------------------------" << endl;
-  cout << "volume size : " << GetBiasingVolumeSize() << " mm" << endl;
-  cout << "volume type : " << GetBiasingVolumeType() << endl;
-  cout << "volume factor : " << GetBiasingFactor() << endl;
-  cout << "volume position : ( " << GetBiasingVolumePosition().X() << " , "
-       << GetBiasingVolumePosition().Y() << " , "
-       << GetBiasingVolumePosition().Z() << " ) mm" << endl;
-  cout << "Energy range : ( " << GetMinEnergy() << " , " << GetMaxEnergy()
-       << " ) keV" << endl;
-  cout << "-----------------------------" << endl;
+    cout << "-----------------------------" << endl;
+    cout << "Biasing volume" << endl;
+    cout << "-----------------------------" << endl;
+    cout << "volume size : " << GetBiasingVolumeSize() << " mm" << endl;
+    cout << "volume type : " << GetBiasingVolumeType() << endl;
+    cout << "volume factor : " << GetBiasingFactor() << endl;
+    cout << "volume position : ( " << GetBiasingVolumePosition().X() << " , "
+         << GetBiasingVolumePosition().Y() << " , " << GetBiasingVolumePosition().Z() << " ) mm" << endl;
+    cout << "Energy range : ( " << GetMinEnergy() << " , " << GetMaxEnergy() << " ) keV" << endl;
+    cout << "-----------------------------" << endl;
 }

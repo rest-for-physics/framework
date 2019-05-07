@@ -25,91 +25,87 @@ using namespace std;
 ClassImp(TRestSmearingProcess)
     //______________________________________________________________________________
     TRestSmearingProcess::TRestSmearingProcess() {
-  Initialize();
+    Initialize();
 }
 
 //______________________________________________________________________________
 TRestSmearingProcess::TRestSmearingProcess(char* cfgFileName) {
-  Initialize();
+    Initialize();
 
-  if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
+    if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
 
-  PrintMetadata();
+    PrintMetadata();
 
-  // TRestSmearingProcess default constructor
+    // TRestSmearingProcess default constructor
 }
 
 //______________________________________________________________________________
 TRestSmearingProcess::~TRestSmearingProcess() {
-  delete fHitsInputEvent;
-  delete fHitsOutputEvent;
-  // TRestSmearingProcess destructor
+    delete fHitsInputEvent;
+    delete fHitsOutputEvent;
+    // TRestSmearingProcess destructor
 }
 
 void TRestSmearingProcess::LoadDefaultConfig() {
-  SetTitle("Default config");
+    SetTitle("Default config");
 
-  fEnergyRef = 5.9;
-  fResolutionAtEref = 15.0;
+    fEnergyRef = 5.9;
+    fResolutionAtEref = 15.0;
 }
 
 //______________________________________________________________________________
 void TRestSmearingProcess::Initialize() {
-  SetSectionName(this->ClassName());
+    SetSectionName(this->ClassName());
 
-  fEnergyRef = 5.9;
-  fResolutionAtEref = 15.0;
+    fEnergyRef = 5.9;
+    fResolutionAtEref = 15.0;
 
-  fHitsInputEvent = new TRestHitsEvent();
-  fHitsOutputEvent = new TRestHitsEvent();
+    fHitsInputEvent = new TRestHitsEvent();
+    fHitsOutputEvent = new TRestHitsEvent();
 
-  fOutputEvent = fHitsOutputEvent;
-  fInputEvent = fHitsInputEvent;
+    fOutputEvent = fHitsOutputEvent;
+    fInputEvent = fHitsInputEvent;
 
-  fRandom = new TRandom3(0);
+    fRandom = new TRandom3(0);
 }
 
 void TRestSmearingProcess::LoadConfig(string cfgFilename, string name) {
-  if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
+    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 
-  PrintMetadata();
+    PrintMetadata();
 
-  fGas = (TRestGas*)GetGasMetadata();
+    fGas = (TRestGas*)GetGasMetadata();
 }
 
 //______________________________________________________________________________
 void TRestSmearingProcess::InitProcess() {
-  // Function to be executed once at the beginning of process
-  // (before starting the process of the events)
+    // Function to be executed once at the beginning of process
+    // (before starting the process of the events)
 
-  // Start by calling the InitProcess function of the abstract class.
-  // Comment this if you don't want it.
-  // TRestEventProcess::InitProcess();
+    // Start by calling the InitProcess function of the abstract class.
+    // Comment this if you don't want it.
+    // TRestEventProcess::InitProcess();
 
-  cout << __PRETTY_FUNCTION__ << endl;
+    cout << __PRETTY_FUNCTION__ << endl;
 }
 
 //______________________________________________________________________________
-void TRestSmearingProcess::BeginOfEventProcess() {
-  fHitsOutputEvent->Initialize();
-}
+void TRestSmearingProcess::BeginOfEventProcess() { fHitsOutputEvent->Initialize(); }
 
 //______________________________________________________________________________
 TRestEvent* TRestSmearingProcess::ProcessEvent(TRestEvent* evInput) {
-  fHitsInputEvent = (TRestHitsEvent*)evInput;
-  fHitsOutputEvent->SetEventInfo(fHitsInputEvent);
+    fHitsInputEvent = (TRestHitsEvent*)evInput;
+    fHitsOutputEvent->SetEventInfo(fHitsInputEvent);
 
-  Double_t eDep = fHitsInputEvent->GetTotalEnergy();
-  Double_t eRes =
-      fResolutionAtEref * TMath::Sqrt(fEnergyRef / eDep) / 2.35 / 100.0;
+    Double_t eDep = fHitsInputEvent->GetTotalEnergy();
+    Double_t eRes = fResolutionAtEref * TMath::Sqrt(fEnergyRef / eDep) / 2.35 / 100.0;
 
-  Double_t gain = fRandom->Gaus(1.0, eRes);
-  for (int hit = 0; hit < fHitsInputEvent->GetNumberOfHits(); hit++)
-    fHitsOutputEvent->AddHit(
-        fHitsInputEvent->GetX(hit), fHitsInputEvent->GetY(hit),
-        fHitsInputEvent->GetZ(hit), fHitsInputEvent->GetEnergy(hit) * gain);
+    Double_t gain = fRandom->Gaus(1.0, eRes);
+    for (int hit = 0; hit < fHitsInputEvent->GetNumberOfHits(); hit++)
+        fHitsOutputEvent->AddHit(fHitsInputEvent->GetX(hit), fHitsInputEvent->GetY(hit),
+                                 fHitsInputEvent->GetZ(hit), fHitsInputEvent->GetEnergy(hit) * gain);
 
-  return fHitsOutputEvent;
+    return fHitsOutputEvent;
 }
 
 //______________________________________________________________________________
@@ -117,16 +113,16 @@ void TRestSmearingProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestSmearingProcess::EndProcess() {
-  // Function to be executed once at the end of the process
-  // (after all events have been processed)
+    // Function to be executed once at the end of the process
+    // (after all events have been processed)
 
-  // Start by calling the EndProcess function of the abstract class.
-  // Comment this if you don't want it.
-  // TRestEventProcess::EndProcess();
+    // Start by calling the EndProcess function of the abstract class.
+    // Comment this if you don't want it.
+    // TRestEventProcess::EndProcess();
 }
 
 //______________________________________________________________________________
 void TRestSmearingProcess::InitFromConfigFile() {
-  fEnergyRef = GetDblParameterWithUnits("energyReference");
-  fResolutionAtEref = StringToDouble(GetParameter("resolutionReference"));
+    fEnergyRef = GetDblParameterWithUnits("energyReference");
+    fResolutionAtEref = StringToDouble(GetParameter("resolutionReference"));
 }

@@ -18,8 +18,6 @@
 
 #include "util.h"
 
-int
-    CCedgegen_delaunay (int ncount, CCdatagroup *dat, int wantlist,
-        int *ecount, int **elist);
+int CCedgegen_delaunay(int ncount, CCdatagroup* dat, int wantlist, int* ecount, int** elist);
 
 #endif

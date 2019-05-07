@@ -30,61 +30,59 @@
 
 //! A process allowing to recover selected channels from a TRestRawSignalEvent
 class TRestRawSignalRecoverChannelsProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
-  /// A pointer to the specific TRestSignalEvent input
-  TRestRawSignalEvent* fInputSignalEvent;  //!
+    /// A pointer to the specific TRestSignalEvent input
+    TRestRawSignalEvent* fInputSignalEvent;  //!
 
-  /// A pointer to the specific TRestRawSignalEvent input
-  TRestRawSignalEvent* fOutputSignalEvent;  //!
+    /// A pointer to the specific TRestRawSignalEvent input
+    TRestRawSignalEvent* fOutputSignalEvent;  //!
 
-  /// A pointer to the readout previously defined inside REST.
-  TRestReadout* fReadout;  //!
+    /// A pointer to the readout previously defined inside REST.
+    TRestReadout* fReadout;  //!
 #endif
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
+    void Initialize();
 
-  void LoadDefaultConfig();
+    void LoadDefaultConfig();
 
-  void GetAdjacentSignalIds(Int_t signalId, Int_t& idLeft, Int_t& idRight);
+    void GetAdjacentSignalIds(Int_t signalId, Int_t& idLeft, Int_t& idRight);
 
- protected:
-  std::vector<Int_t> fChannelIds;
+   protected:
+    std::vector<Int_t> fChannelIds;
 
- public:
-  void BeginOfEventProcess();
-  void InitProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
+   public:
+    void BeginOfEventProcess();
+    void InitProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
 
-  void LoadConfig(std::string cfgFilename, string name = "");
+    void LoadConfig(std::string cfgFilename, string name = "");
 
-  /// It prints out the process parameters stored in the metadata structure
-  void PrintMetadata() {
-    BeginPrintProcess();
+    /// It prints out the process parameters stored in the metadata structure
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    for (unsigned int n = 0; n < fChannelIds.size(); n++)
-      std::cout << "Channel id to recover : " << fChannelIds[n] << std::endl;
+        for (unsigned int n = 0; n < fChannelIds.size(); n++)
+            std::cout << "Channel id to recover : " << fChannelIds[n] << std::endl;
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  /// Returns a new instance of this class
-  TRestEventProcess* Maker() {
-    return new TRestRawSignalRecoverChannelsProcess;
-  }
+    /// Returns a new instance of this class
+    TRestEventProcess* Maker() { return new TRestRawSignalRecoverChannelsProcess; }
 
-  /// Returns the name of this process
-  TString GetProcessName() { return (TString) "recoverChannels"; }
+    /// Returns the name of this process
+    TString GetProcessName() { return (TString) "recoverChannels"; }
 
-  // Constructor
-  TRestRawSignalRecoverChannelsProcess();
-  TRestRawSignalRecoverChannelsProcess(char* cfgFileName);
+    // Constructor
+    TRestRawSignalRecoverChannelsProcess();
+    TRestRawSignalRecoverChannelsProcess(char* cfgFileName);
 
-  // Destructor
-  ~TRestRawSignalRecoverChannelsProcess();
+    // Destructor
+    ~TRestRawSignalRecoverChannelsProcess();
 
-  ClassDef(TRestRawSignalRecoverChannelsProcess, 1);
+    ClassDef(TRestRawSignalRecoverChannelsProcess, 1);
 };
 #endif

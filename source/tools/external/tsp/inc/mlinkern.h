@@ -16,12 +16,10 @@
 #ifndef __MLINKERN_H
 #define __MLINKERN_H
 
-#include "util.h"
 #include "kdtree.h"
+#include "util.h"
 
-int
-    CCedgegen_mlinkern (int ncount, CCdatagroup *dat, int wantlist,
-        int *ecount, int **elist, CCkdtree *kt, int iterations,
-        CCrandstate *rstate);
+int CCedgegen_mlinkern(int ncount, CCdatagroup* dat, int wantlist, int* ecount, int** elist, CCkdtree* kt,
+                       int iterations, CCrandstate* rstate);
 
 #endif

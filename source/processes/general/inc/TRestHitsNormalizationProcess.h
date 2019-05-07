@@ -21,52 +21,52 @@
 #include "TRestEventProcess.h"
 
 class TRestHitsNormalizationProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
 
-  TRestHitsEvent* fHitsInputEvent;   //!
-  TRestHitsEvent* fHitsOutputEvent;  //!
+    TRestHitsEvent* fHitsInputEvent;   //!
+    TRestHitsEvent* fHitsOutputEvent;  //!
 
 #endif
 
-  void InitFromConfigFile();
-  void Initialize();
-  void LoadDefaultConfig();
+    void InitFromConfigFile();
+    void Initialize();
+    void LoadDefaultConfig();
 
- protected:
-  // add here the members of your event process
+   protected:
+    // add here the members of your event process
 
-  Double_t fFactor;
+    Double_t fFactor;
 
- public:
-  void InitProcess();
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
-  void EndOfEventProcess();
-  void EndProcess();
+   public:
+    void InitProcess();
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndOfEventProcess();
+    void EndProcess();
 
-  void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
-  void PrintMetadata() {
-    BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    std::cout << " Renormalization factor : " << fFactor << std::endl;
+        std::cout << " Renormalization factor : " << fFactor << std::endl;
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  TRestMetadata* GetProcessMetadata() { return NULL; }
+    TRestMetadata* GetProcessMetadata() { return NULL; }
 
-  TString GetProcessName() { return (TString) "hitsNormalizationProcess"; }
+    TString GetProcessName() { return (TString) "hitsNormalizationProcess"; }
 
-  // Constructor
-  TRestHitsNormalizationProcess();
-  TRestHitsNormalizationProcess(char* cfgFileName);
-  // Destructor
-  ~TRestHitsNormalizationProcess();
+    // Constructor
+    TRestHitsNormalizationProcess();
+    TRestHitsNormalizationProcess(char* cfgFileName);
+    // Destructor
+    ~TRestHitsNormalizationProcess();
 
-  ClassDef(TRestHitsNormalizationProcess,
-           1);  // Template for a REST "event process" class inherited from
-                // TRestEventProcess
+    ClassDef(TRestHitsNormalizationProcess,
+             1);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

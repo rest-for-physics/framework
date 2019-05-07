@@ -26,53 +26,53 @@
 #include "TRestEventProcess.h"
 
 class TRestG4toHitsProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
-  TRestG4Event* fG4Event;        //!
-  TRestG4Metadata* fG4Metadata;  //!
-  TRestHitsEvent* fHitsEvent;    //!
+    TRestG4Event* fG4Event;        //!
+    TRestG4Metadata* fG4Metadata;  //!
+    TRestHitsEvent* fHitsEvent;    //!
 
-  vector<Int_t> fVolumeId;  //!
+    vector<Int_t> fVolumeId;  //!
 #endif
 
-  vector<TString> fVolumeSelection;
+    vector<TString> fVolumeSelection;
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
+    void Initialize();
 
-  void LoadDefaultConfig();
+    void LoadDefaultConfig();
 
- protected:
-  // add here the members of your event process
+   protected:
+    // add here the members of your event process
 
- public:
-  void InitProcess();
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
-  void EndOfEventProcess();
-  void EndProcess();
+   public:
+    void InitProcess();
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndOfEventProcess();
+    void EndProcess();
 
-  void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
-  void PrintMetadata() {
-    BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    for (unsigned int n = 0; n < fVolumeSelection.size(); n++)
-      std::cout << "Volume added : " << fVolumeSelection[n] << std::endl;
+        for (unsigned int n = 0; n < fVolumeSelection.size(); n++)
+            std::cout << "Volume added : " << fVolumeSelection[n] << std::endl;
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  TString GetProcessName() { return (TString) "g4toHitsEvent"; }
+    TString GetProcessName() { return (TString) "g4toHitsEvent"; }
 
-  // Constructor
-  TRestG4toHitsProcess();
-  TRestG4toHitsProcess(char* cfgFileName);
-  // Destructor
-  ~TRestG4toHitsProcess();
+    // Constructor
+    TRestG4toHitsProcess();
+    TRestG4toHitsProcess(char* cfgFileName);
+    // Destructor
+    ~TRestG4toHitsProcess();
 
-  ClassDef(TRestG4toHitsProcess, 1);  // Transform a TRestG4Event event to a
-                                      // TRestHitsEvent (hits-collection event)
+    ClassDef(TRestG4toHitsProcess, 1);  // Transform a TRestG4Event event to a
+                                        // TRestHitsEvent (hits-collection event)
 };
 #endif

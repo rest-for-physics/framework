@@ -18,11 +18,8 @@
 
 #include "util.h"
 
+int CCfmatch_fractional_2match(int ncount, int ecount, int* elist, int* elen, CCdatagroup* dat, double* val,
+                               int* thematching, int* thedual, int* thebasis, int wantbasic, int silent,
+                               CCrandstate* rstate);
 
-int
-    CCfmatch_fractional_2match (int ncount, int ecount, int *elist, int *elen,
-        CCdatagroup *dat, double *val, int *thematching, int *thedual,
-        int *thebasis, int wantbasic, int silent, CCrandstate *rstate);
-
-
-#endif  /* __FMATCH_H */
+#endif /* __FMATCH_H */

@@ -16,53 +16,53 @@
 #include "TRestEventProcess.h"
 
 class TRestTrackReductionProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
-  TRestTrackEvent* fInputTrackEvent;   //!
-  TRestTrackEvent* fOutputTrackEvent;  //!
+    TRestTrackEvent* fInputTrackEvent;   //!
+    TRestTrackEvent* fOutputTrackEvent;  //!
 #endif
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
+    void Initialize();
 
- protected:
-  Double_t fStartingDistance;
-  Double_t fMinimumDistance;
-  Double_t fDistanceFactor;
-  Double_t fMaxNodes;
+   protected:
+    Double_t fStartingDistance;
+    Double_t fMinimumDistance;
+    Double_t fDistanceFactor;
+    Double_t fMaxNodes;
 
- public:
-  void InitProcess();
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
-  void EndOfEventProcess();
-  void EndProcess();
-  void LoadDefaultConfig();
+   public:
+    void InitProcess();
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndOfEventProcess();
+    void EndProcess();
+    void LoadDefaultConfig();
 
-  void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
-  void PrintMetadata() {
-    BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    std::cout << " Starting distance : " << fStartingDistance << std::endl;
-    std::cout << " Minimum distance : " << fMinimumDistance << std::endl;
-    std::cout << " Distance step factor : " << fDistanceFactor << std::endl;
-    std::cout << " Maximum number of nodes : " << fMaxNodes << std::endl;
+        std::cout << " Starting distance : " << fStartingDistance << std::endl;
+        std::cout << " Minimum distance : " << fMinimumDistance << std::endl;
+        std::cout << " Distance step factor : " << fDistanceFactor << std::endl;
+        std::cout << " Maximum number of nodes : " << fMaxNodes << std::endl;
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  TString GetProcessName() { return (TString) "trackReduction"; }
+    TString GetProcessName() { return (TString) "trackReduction"; }
 
-  // Constructor
-  TRestTrackReductionProcess();
-  TRestTrackReductionProcess(char* cfgFileName);
-  // Destructor
-  ~TRestTrackReductionProcess();
+    // Constructor
+    TRestTrackReductionProcess();
+    TRestTrackReductionProcess(char* cfgFileName);
+    // Destructor
+    ~TRestTrackReductionProcess();
 
-  ClassDef(TRestTrackReductionProcess,
-           1);  // Template for a REST "event process" class inherited from
-                // TRestEventProcess
+    ClassDef(TRestTrackReductionProcess,
+             1);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

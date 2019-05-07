@@ -18,49 +18,49 @@
 #include <TRandom3.h>
 
 class TRestHitsShuffleProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
-  TRestHitsEvent* fInputHitsEvent;   //!
-  TRestHitsEvent* fOutputHitsEvent;  //!
+    TRestHitsEvent* fInputHitsEvent;   //!
+    TRestHitsEvent* fOutputHitsEvent;  //!
 
-  TRandom3* fRandom;  //!
+    TRandom3* fRandom;  //!
 #endif
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
+    void Initialize();
 
- protected:
-  Int_t fIterations;
+   protected:
+    Int_t fIterations;
 
- public:
-  void InitProcess();
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
-  void EndOfEventProcess();
-  void EndProcess();
-  void LoadDefaultConfig();
+   public:
+    void InitProcess();
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndOfEventProcess();
+    void EndProcess();
+    void LoadDefaultConfig();
 
-  void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
-  void PrintMetadata() {
-    BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    std::cout << " Iterations : " << fIterations << std::endl;
+        std::cout << " Iterations : " << fIterations << std::endl;
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  TString GetProcessName() { return (TString) "hitsShuffle"; }
+    TString GetProcessName() { return (TString) "hitsShuffle"; }
 
-  // Constructor
-  TRestHitsShuffleProcess();
-  TRestHitsShuffleProcess(char* cfgFileName);
-  // Destructor
-  ~TRestHitsShuffleProcess();
+    // Constructor
+    TRestHitsShuffleProcess();
+    TRestHitsShuffleProcess(char* cfgFileName);
+    // Destructor
+    ~TRestHitsShuffleProcess();
 
-  ClassDef(TRestHitsShuffleProcess,
-           1);  // Template for a REST "event process" class inherited from
-                // TRestEventProcess
+    ClassDef(TRestHitsShuffleProcess,
+             1);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

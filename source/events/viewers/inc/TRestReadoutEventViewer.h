@@ -25,37 +25,37 @@
 #include "TRestReadout.h"
 
 class TRestReadoutEventViewer : public TRestGenericEventViewer {
- protected:
-  TCanvas* fCanvasXY;
-  TCanvas* fCanvasXZYZ;
+   protected:
+    TCanvas* fCanvasXY;
+    TCanvas* fCanvasXZYZ;
 
-  // TRestDecoding *fDecoding;
-  TRestReadout* fReadout;
+    // TRestDecoding *fDecoding;
+    TRestReadout* fReadout;
 
-  TRestSignalEvent* fSignalEvent;
+    TRestSignalEvent* fSignalEvent;
 
-  TH2Poly* fHistoXY;
-  TH2D* fHistoXZ;
-  TH2D* fHistoYZ;
+    TH2Poly* fHistoXY;
+    TH2D* fHistoXZ;
+    TH2D* fHistoYZ;
 
-  bool isfirstEvent;
+    bool isfirstEvent;
 
-  double xmin, xmax, ymin, ymax, zmin, zmax;
+    double xmin, xmax, ymin, ymax, zmin, zmax;
 
- public:
-  void Initialize();
+   public:
+    void Initialize();
 
-  void AddEvent(TRestEvent* ev);
-  void DrawReadoutPulses();
-  TRestReadoutChannel* GetChannel(int readoutChannel);
-  TRestReadoutModule* GetModule(int readoutChannel);
+    void AddEvent(TRestEvent* ev);
+    void DrawReadoutPulses();
+    TRestReadoutChannel* GetChannel(int readoutChannel);
+    TRestReadoutModule* GetModule(int readoutChannel);
 
-  // Constructor
-  TRestReadoutEventViewer(char* cfgFilename);
-  // Destructor
-  ~TRestReadoutEventViewer();
+    // Constructor
+    TRestReadoutEventViewer(char* cfgFilename);
+    // Destructor
+    ~TRestReadoutEventViewer();
 
-  ClassDef(TRestReadoutEventViewer, 1);  // class inherited from
-                                         // TRestEventViewer
+    ClassDef(TRestReadoutEventViewer, 1);  // class inherited from
+                                           // TRestEventViewer
 };
 #endif

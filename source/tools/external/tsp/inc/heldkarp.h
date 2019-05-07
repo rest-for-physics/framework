@@ -16,25 +16,18 @@
 #ifndef __HELDKARP_H
 #define __HELDKARP_H
 
-#define HELDKARP_ERROR               -1
-#define HELDKARP_SEARCHLIMITEXCEEDED  1
+#define HELDKARP_ERROR -1
+#define HELDKARP_SEARCHLIMITEXCEEDED 1
 
 #include "util.h"
 
-
-
-int
-    CCheldkarp_small (int ncount, CCdatagroup *dat, double *upbound,
-             double *optval, int *foundtour, int anytour, int *tour_elist,
-             int nodelimit, int silent),
-    CCheldkarp_small_elist (int ncount, int ecount, int *elist, int *elen,
-             double *upbound, double *optval, int *foundtour, int anytour,
-             int *tour_elist, int nodelimit, int silent);
+int CCheldkarp_small(int ncount, CCdatagroup*dat, double*upbound, double*optval, int*foundtour, int anytour,
+                     int*tour_elist, int nodelimit, int silent),
+    CCheldkarp_small_elist(int ncount, int ecount, int*elist, int*elen, double*upbound, double*optval,
+                           int*foundtour, int anytour, int*tour_elist, int nodelimit, int silent);
 
 // Added to introduce user-defined distance matrix (through *elen)
-int CCheldkarp_small_segment (int ncount, int *elen, double *upbound,
-        double *optval, int *foundtour, int anytour, int *tour_elist,
-        int nodelimit, int silent );
+int CCheldkarp_small_segment(int ncount, int* elen, double* upbound, double* optval, int* foundtour,
+                             int anytour, int* tour_elist, int nodelimit, int silent);
 
-
-#endif  /* __HELDKARP_H */
+#endif /* __HELDKARP_H */

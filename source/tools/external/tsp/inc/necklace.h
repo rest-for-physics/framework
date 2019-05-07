@@ -13,14 +13,12 @@
 /*                                                                          */
 /****************************************************************************/
 
-#ifndef  __NECKLACE_H
-#define  __NECKLACE_H
+#ifndef __NECKLACE_H
+#define __NECKLACE_H
 
 #include "tsp.h"
 
-int
-    CCpq_necklaces (CCtsp_lpcut_in **cuts, int *cutcount, CCtsp_cuttree *ctree,
-        int ecount, int *elist, double *x, CCrandstate *rstate);
-
+int CCpq_necklaces(CCtsp_lpcut_in** cuts, int* cutcount, CCtsp_cuttree* ctree, int ecount, int* elist,
+                   double* x, CCrandstate* rstate);
 
 #endif /* __NECKLACE_H */

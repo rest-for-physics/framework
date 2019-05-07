@@ -18,47 +18,47 @@
 #include "TRestEventProcess.h"
 
 class TRestFiducializationProcess : public TRestEventProcess {
- private:
+   private:
 #ifndef __CINT__
-  TRestHitsEvent* fInputHitsEvent;   //!
-  TRestHitsEvent* fOutputHitsEvent;  //!
+    TRestHitsEvent* fInputHitsEvent;   //!
+    TRestHitsEvent* fOutputHitsEvent;  //!
 
-  TRestReadout* fReadout;  //!
+    TRestReadout* fReadout;  //!
 
 #endif
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  void Initialize();
+    void Initialize();
 
-  void LoadDefaultConfig();
+    void LoadDefaultConfig();
 
- protected:
- public:
-  void InitProcess();
-  void BeginOfEventProcess();
-  TRestEvent* ProcessEvent(TRestEvent* eventInput);
-  void EndOfEventProcess();
-  void EndProcess();
+   protected:
+   public:
+    void InitProcess();
+    void BeginOfEventProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndOfEventProcess();
+    void EndProcess();
 
-  void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
-  void PrintMetadata() {
-    BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-    EndPrintProcess();
-  }
+        EndPrintProcess();
+    }
 
-  TString GetProcessName() { return (TString) "fiducialization"; }
+    TString GetProcessName() { return (TString) "fiducialization"; }
 
-  // Constructor
-  TRestFiducializationProcess();
-  TRestFiducializationProcess(char* cfgFileName);
-  // Destructor
-  ~TRestFiducializationProcess();
+    // Constructor
+    TRestFiducializationProcess();
+    TRestFiducializationProcess(char* cfgFileName);
+    // Destructor
+    ~TRestFiducializationProcess();
 
-  ClassDef(TRestFiducializationProcess,
-           1);  // Template for a REST "event process" class inherited from
-                // TRestEventProcess
+    ClassDef(TRestFiducializationProcess,
+             1);  // Template for a REST "event process" class inherited from
+                  // TRestEventProcess
 };
 #endif

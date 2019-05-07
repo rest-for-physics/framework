@@ -32,75 +32,73 @@
 #include "TRestSignal.h"
 
 class TRestSignalEvent : public TRestEvent {
- protected:
+   protected:
 #ifndef __CINT__
-  Double_t fMinTime;   //!
-  Double_t fMaxTime;   //!
-  Double_t fMinValue;  //!
-  Double_t fMaxValue;  //!
+    Double_t fMinTime;   //!
+    Double_t fMaxTime;   //!
+    Double_t fMinValue;  //!
+    Double_t fMaxValue;  //!
 #endif
 
-  std::vector<TRestSignal>
-      fSignal;  // Collection of signals that define the event
+    std::vector<TRestSignal> fSignal;  // Collection of signals that define the event
 
- private:
-  void SetMaxAndMin();
+   private:
+    void SetMaxAndMin();
 
- public:
-  Bool_t signalIDExists(Int_t sID) {
-    if (GetSignalIndex(sID) == -1) return false;
-    return true;
-  }
+   public:
+    Bool_t signalIDExists(Int_t sID) {
+        if (GetSignalIndex(sID) == -1) return false;
+        return true;
+    }
 
-  void SortSignals() {
-    for (int n = 0; n < GetNumberOfSignals(); n++) fSignal[n].Sort();
-  }
+    void SortSignals() {
+        for (int n = 0; n < GetNumberOfSignals(); n++) fSignal[n].Sort();
+    }
 
-  // Setters
-  void AddSignal(TRestSignal s);
+    // Setters
+    void AddSignal(TRestSignal s);
 
-  void AddChargeToSignal(Int_t sgnlID, Double_t tm, Double_t chrg);
+    void AddChargeToSignal(Int_t sgnlID, Double_t tm, Double_t chrg);
 
-  // Getters
-  Int_t GetNumberOfSignals() { return fSignal.size(); }
-  TRestSignal* GetSignal(Int_t n) { return &fSignal[n]; }
+    // Getters
+    Int_t GetNumberOfSignals() { return fSignal.size(); }
+    TRestSignal* GetSignal(Int_t n) { return &fSignal[n]; }
 
-  TRestSignal* GetSignalById(Int_t sid) {
-    Int_t index = GetSignalIndex(sid);
-    if (index < 0) return NULL;
+    TRestSignal* GetSignalById(Int_t sid) {
+        Int_t index = GetSignalIndex(sid);
+        if (index < 0) return NULL;
 
-    return &fSignal[index];
-  }
+        return &fSignal[index];
+    }
 
-  Int_t GetSignalIndex(Int_t signalID);
+    Int_t GetSignalIndex(Int_t signalID);
 
-  Double_t GetBaseLineAverage(Int_t startBin, Int_t endBin);
-  Double_t GetBaseLineSigmaAverage(Int_t startBin, Int_t endBin);
-  void SubstractBaselines(Int_t startBin, Int_t endBin);
-  Double_t GetIntegral(Int_t startBin = 0, Int_t endBin = 0);
-  Double_t GetIntegralWithThreshold(Int_t from, Int_t to, Int_t startBaseline,
-                                    Int_t endBaseline, Double_t nSigmas,
-                                    Int_t nPointsOverThreshold,
-                                    Double_t minPeakAmplitude);
+    Double_t GetBaseLineAverage(Int_t startBin, Int_t endBin);
+    Double_t GetBaseLineSigmaAverage(Int_t startBin, Int_t endBin);
+    void SubstractBaselines(Int_t startBin, Int_t endBin);
+    Double_t GetIntegral(Int_t startBin = 0, Int_t endBin = 0);
+    Double_t GetIntegralWithThreshold(Int_t from, Int_t to, Int_t startBaseline, Int_t endBaseline,
+                                      Double_t nSigmas, Int_t nPointsOverThreshold,
+                                      Double_t minPeakAmplitude);
 
-  Double_t GetMaxValue();
-  Double_t GetMinValue();
-  Double_t GetMinTime();
-  Double_t GetMaxTime();
+    Double_t GetMaxValue();
+    Double_t GetMinValue();
+    Double_t GetMinTime();
+    Double_t GetMaxTime();
 
-  Double_t GetIntegralWithTime(Double_t startTime, Double_t endTime);
+    Double_t GetIntegralWithTime(Double_t startTime, Double_t endTime);
 
-  // Default
-  void Initialize();
-  void PrintEvent();
+    // Default
+    void Initialize();
+    void PrintEvent();
 
-  TPad* DrawEvent(TString option = "");
+    TPad* DrawEvent(TString option = "");
 
-  // Construtor
-  TRestSignalEvent();
-  // Destructor
-  virtual ~TRestSignalEvent();
+    // Construtor
+    TRestSignalEvent();
+    // Destructor
+    virtual ~TRestSignalEvent();
 
-  ClassDef(TRestSignalEvent, 1);  // REST event superclass
+    ClassDef(TRestSignalEvent, 1);  // REST event superclass
 };
 #endif

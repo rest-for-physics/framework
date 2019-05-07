@@ -76,7 +76,7 @@ ClassImp(TRestRawSignalShapingProcess)
     /// \brief Default constructor
     ///
     TRestRawSignalShapingProcess::TRestRawSignalShapingProcess() {
-  Initialize();
+    Initialize();
 }
 
 ///////////////////////////////////////////////
@@ -92,27 +92,27 @@ ClassImp(TRestRawSignalShapingProcess)
 /// \param cfgFileName A const char* giving the path to an RML file.
 ///
 TRestRawSignalShapingProcess::TRestRawSignalShapingProcess(char* cfgFileName) {
-  Initialize();
+    Initialize();
 
-  if (LoadConfigFromFile(cfgFileName) == -1) LoadDefaultConfig();
+    if (LoadConfigFromFile(cfgFileName) == -1) LoadDefaultConfig();
 
-  PrintMetadata();
+    PrintMetadata();
 }
 
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
 TRestRawSignalShapingProcess::~TRestRawSignalShapingProcess() {
-  delete fOutputSignalEvent;
-  delete fInputSignalEvent;
+    delete fOutputSignalEvent;
+    delete fInputSignalEvent;
 }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
 ///
 void TRestRawSignalShapingProcess::LoadDefaultConfig() {
-  SetName("rawSignalShapingProcess-Default");
-  SetTitle("Default config");
+    SetName("rawSignalShapingProcess-Default");
+    SetTitle("Default config");
 }
 
 ///////////////////////////////////////////////
@@ -120,13 +120,13 @@ void TRestRawSignalShapingProcess::LoadDefaultConfig() {
 /// section name
 ///
 void TRestRawSignalShapingProcess::Initialize() {
-  SetSectionName(this->ClassName());
+    SetSectionName(this->ClassName());
 
-  fInputSignalEvent = new TRestRawSignalEvent();
-  fOutputSignalEvent = new TRestRawSignalEvent();
+    fInputSignalEvent = new TRestRawSignalEvent();
+    fOutputSignalEvent = new TRestRawSignalEvent();
 
-  fInputEvent = fInputSignalEvent;
-  fOutputEvent = fOutputSignalEvent;
+    fInputEvent = fInputSignalEvent;
+    fOutputEvent = fOutputSignalEvent;
 }
 
 ///////////////////////////////////////////////
@@ -142,7 +142,7 @@ void TRestRawSignalShapingProcess::Initialize() {
 /// correspondig TRestGeant4AnalysisProcess section inside the RML.
 ///
 void TRestRawSignalShapingProcess::LoadConfig(string cfgFilename, string name) {
-  if (LoadConfigFromFile(cfgFilename, name) == -1) LoadDefaultConfig();
+    if (LoadConfigFromFile(cfgFilename, name) == -1) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
@@ -151,129 +151,123 @@ void TRestRawSignalShapingProcess::LoadConfig(string cfgFilename, string name) {
 /// observables defined in TRestGeant4AnalysisProcess are filled at this stage.
 ///
 void TRestRawSignalShapingProcess::InitProcess() {
-  /*
-   * NOT IMPLEMENTED. TODO To use a generic response from a
-   * predefined TRestSignal
-   *
-   * For the moment we do only a gausian shaping"
-   * /
+    /*
+     * NOT IMPLEMENTED. TODO To use a generic response from a
+     * predefined TRestSignal
+     *
+     * For the moment we do only a gausian shaping"
+     * /
 
-  responseSignal = new TRestRawSignal();
+    responseSignal = new TRestRawSignal();
 
-  if( fShapingType == "responseFile" )
-  {
-      TString fullPathName = (TString) getenv("REST_PATH") + "/data/signal/" +
-  fResponseFilename; TFile *f = new TFile(fullPathName); responseSignal =
-  (TRestRawSignal *) f->Get("signal Response"); f->Close();
-  }
+    if( fShapingType == "responseFile" )
+    {
+        TString fullPathName = (TString) getenv("REST_PATH") + "/data/signal/" +
+    fResponseFilename; TFile *f = new TFile(fullPathName); responseSignal =
+    (TRestRawSignal *) f->Get("signal Response"); f->Close();
+    }
 
-  if( GetVerboseLevel() >= REST_Debug )
-  {
-      CreateCanvas();
-      fCanvas->Draw();
-  }
+    if( GetVerboseLevel() >= REST_Debug )
+    {
+        CreateCanvas();
+        fCanvas->Draw();
+    }
 
-  if( fShapingType == "gaus" )
-  {
-      responseSignal->InitGaussian( 100, 100, 30, 200 );
+    if( fShapingType == "gaus" )
+    {
+        responseSignal->InitGaussian( 100, 100, 30, 200 );
 
-      if( GetVerboseLevel() >= REST_Debug )
-      {
-          responseSignal->GetGraph()->Draw();
-          fCanvas->Update();
-          GetChar();
-      }
-  }
-  */
+        if( GetVerboseLevel() >= REST_Debug )
+        {
+            responseSignal->GetGraph()->Draw();
+            fCanvas->Update();
+            GetChar();
+        }
+    }
+    */
 }
 
 ///////////////////////////////////////////////
 /// \brief Function to include required initialization before each event starts
 /// to process.
 ///
-void TRestRawSignalShapingProcess::BeginOfEventProcess() {
-  fOutputSignalEvent->Initialize();
-}
+void TRestRawSignalShapingProcess::BeginOfEventProcess() { fOutputSignalEvent->Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
 TRestEvent* TRestRawSignalShapingProcess::ProcessEvent(TRestEvent* evInput) {
-  fInputSignalEvent = (TRestRawSignalEvent*)evInput;
+    fInputSignalEvent = (TRestRawSignalEvent*)evInput;
 
-  if (fInputSignalEvent->GetNumberOfSignals() <= 0) return NULL;
+    if (fInputSignalEvent->GetNumberOfSignals() <= 0) return NULL;
 
-  double* rsp;
-  Int_t Nr;
+    double* rsp;
+    Int_t Nr;
 
-  if (fShapingType == "gaus") {
-    Double_t amp = fShapingGain;
-    Int_t cBin = (Int_t)(fShapingTime * 3.5);
-    Nr = 2 * cBin;
-    Double_t sigma = fShapingTime;
+    if (fShapingType == "gaus") {
+        Double_t amp = fShapingGain;
+        Int_t cBin = (Int_t)(fShapingTime * 3.5);
+        Nr = 2 * cBin;
+        Double_t sigma = fShapingTime;
 
-    rsp = new double[Nr];
-    for (int i = 0; i < Nr; i++)
-      rsp[i] =
-          (amp * TMath::Exp(-0.5 * (i - cBin) * (i - cBin) / sigma / sigma));
-  } else if (fShapingType == "shaper") {
-    Nr = (Int_t)(5 * fShapingTime);
+        rsp = new double[Nr];
+        for (int i = 0; i < Nr; i++)
+            rsp[i] = (amp * TMath::Exp(-0.5 * (i - cBin) * (i - cBin) / sigma / sigma));
+    } else if (fShapingType == "shaper") {
+        Nr = (Int_t)(5 * fShapingTime);
 
-    rsp = new double[Nr];
-    for (int i = 0; i < Nr; i++) {
-      Double_t coeff = ((Double_t)i) / fShapingTime;
-      rsp[i] = (fShapingGain * TMath::Exp(-3. * coeff) * coeff * coeff * coeff);
-    }
-  } else if (fShapingType == "shaperSin") {
-    Nr = (Int_t)(5 * fShapingTime);
+        rsp = new double[Nr];
+        for (int i = 0; i < Nr; i++) {
+            Double_t coeff = ((Double_t)i) / fShapingTime;
+            rsp[i] = (fShapingGain * TMath::Exp(-3. * coeff) * coeff * coeff * coeff);
+        }
+    } else if (fShapingType == "shaperSin") {
+        Nr = (Int_t)(5 * fShapingTime);
 
-    rsp = new double[Nr];
-    for (int i = 0; i < Nr; i++) {
-      Double_t coeff = ((Double_t)i) / fShapingTime;
-      rsp[i] = (fShapingGain * TMath::Exp(-3. * coeff) * coeff * coeff * coeff *
-                sin(coeff));
-    }
-  } else {
-    if (GetVerboseLevel() >= REST_Warning)
-      cout << "REST WARNING. Shaping type : " << fShapingType
-           << " is not defined!!" << endl;
-    return NULL;
-  }
-
-  for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++) {
-    TRestRawSignal* shapingSignal = new TRestRawSignal();
-
-    TRestRawSignal* inSignal = fInputSignalEvent->GetSignal(n);
-
-    Int_t nBins = inSignal->GetNumberOfPoints();
-
-    double* in = new double[nBins];
-    for (int i = 0; i < nBins; i++) in[i] = inSignal->GetData(i);
-
-    double* out = new double[nBins];
-    for (int i = 0; i < nBins; i++) out[i] = 0;
-
-    for (int m = 0; m < nBins; m++) {
-      if (in[m] > 0) {
-        for (int n = 0; n < Nr && m + n < nBins; n++)
-          out[m + n] += rsp[n] * in[m];
-      }
+        rsp = new double[Nr];
+        for (int i = 0; i < Nr; i++) {
+            Double_t coeff = ((Double_t)i) / fShapingTime;
+            rsp[i] = (fShapingGain * TMath::Exp(-3. * coeff) * coeff * coeff * coeff * sin(coeff));
+        }
+    } else {
+        if (GetVerboseLevel() >= REST_Warning)
+            cout << "REST WARNING. Shaping type : " << fShapingType << " is not defined!!" << endl;
+        return NULL;
     }
 
-    for (int i = 0; i < nBins; i++) shapingSignal->AddPoint((Short_t)out[i]);
+    for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++) {
+        TRestRawSignal* shapingSignal = new TRestRawSignal();
 
-    shapingSignal->SetSignalID(inSignal->GetSignalID());
+        TRestRawSignal* inSignal = fInputSignalEvent->GetSignal(n);
 
-    fOutputSignalEvent->AddSignal(*shapingSignal);
+        Int_t nBins = inSignal->GetNumberOfPoints();
 
-    delete shapingSignal;
-    delete[] in;
-    delete[] out;
-  }
+        double* in = new double[nBins];
+        for (int i = 0; i < nBins; i++) in[i] = inSignal->GetData(i);
 
-  delete[] rsp;
+        double* out = new double[nBins];
+        for (int i = 0; i < nBins; i++) out[i] = 0;
 
-  return fOutputSignalEvent;
+        for (int m = 0; m < nBins; m++) {
+            if (in[m] > 0) {
+                for (int n = 0; n < Nr && m + n < nBins; n++) out[m + n] += rsp[n] * in[m];
+            }
+        }
+
+        for (int i = 0; i < nBins; i++) shapingSignal->AddPoint((Short_t)out[i]);
+
+        shapingSignal->SetSignalID(inSignal->GetSignalID());
+
+        fOutputSignalEvent->AddSignal(*shapingSignal);
+
+        delete shapingSignal;
+        delete[] in;
+        delete[] out;
+    }
+
+    delete[] rsp;
+
+    return fOutputSignalEvent;
 }
 
 ///////////////////////////////////////////////
@@ -287,12 +281,12 @@ void TRestRawSignalShapingProcess::EndOfEventProcess() {}
 /// processed.
 ///
 void TRestRawSignalShapingProcess::EndProcess() {
-  // Function to be executed once at the end of the process
-  // (after all events have been processed)
+    // Function to be executed once at the end of the process
+    // (after all events have been processed)
 
-  // Start by calling the EndProcess function of the abstract class.
-  // Comment this if you don't want it.
-  // TRestEventProcess::EndProcess();
+    // Start by calling the EndProcess function of the abstract class.
+    // Comment this if you don't want it.
+    // TRestEventProcess::EndProcess();
 }
 
 ///////////////////////////////////////////////
@@ -300,13 +294,13 @@ void TRestRawSignalShapingProcess::EndProcess() {
 /// TRestGeant4AnalysisProcess metadata section
 ///
 void TRestRawSignalShapingProcess::InitFromConfigFile() {
-  // It is not used for the moment
-  fResponseFilename = GetParameter("responseFile");
+    // It is not used for the moment
+    fResponseFilename = GetParameter("responseFile");
 
-  // gaus, responseFile, etc
-  fShapingType = GetParameter("shapingType", "gaus");
+    // gaus, responseFile, etc
+    fShapingType = GetParameter("shapingType", "gaus");
 
-  fShapingTime = StringToDouble(GetParameter("shapingTime", "10"));
+    fShapingTime = StringToDouble(GetParameter("shapingTime", "10"));
 
-  fShapingGain = StringToDouble(GetParameter("gain", "1"));
+    fShapingGain = StringToDouble(GetParameter("gain", "1"));
 }
