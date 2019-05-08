@@ -70,6 +70,13 @@ inline vector<TString> VectorTString_cast(vector<string> vecstring) {
     }
     return result;
 }
+inline vector<string> Vectorstring_cast(vector<TString> vecstring) {
+    vector<string> result;
+    for (auto s : vecstring) {
+        result.push_back((string)s);
+    }
+    return result;
+}
 inline Int_t isANumber(std::string in) { return REST_StringHelper::isANumber(in); }
 inline Int_t isAExpression(std::string in) { return REST_StringHelper::isAExpression(in); }
 inline std::string ReplaceMathematicalExpressions(std::string buffer) {
