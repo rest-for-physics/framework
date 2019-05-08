@@ -98,7 +98,7 @@ class TRestTools {
     static std::string GetTypeName(T obj) {
         TClass* cl = TClass::GetClass(typeid(obj));
         if (cl != NULL) {
-            return cl->ClassName();
+            return cl->GetName();
         } else {
             if (typeid(obj) == typeid(double)) {
                 return "double";
