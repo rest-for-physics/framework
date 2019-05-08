@@ -173,7 +173,6 @@ void TRestThread::SetThreadId(Int_t id) {
     if (fThreadId != 0 && fVerboseLevel > REST_Essential) fVerboseLevel = REST_Essential;
 }
 
-TRestAnalysisTree* tempTree;
 ///////////////////////////////////////////////
 /// \brief Make a test run of our process chain
 ///
@@ -196,7 +195,7 @@ TRestAnalysisTree* tempTree;
 ///
 /// returns false when fOutputEvent is null after 5 times of retry, returns true
 /// when fOutputEvent address is determined.
-bool TRestThread::TestRun() {
+bool TRestThread::TestRun(TRestAnalysisTree* tempTree) {
     debug << "Processing ..." << endl;
     for (int i = 0; i < 5; i++) {
         TRestEvent* ProcessedEvent = fInputEvent;
@@ -254,7 +253,7 @@ void TRestThread::PrepareToProcess(bool testrun) {
         fOutputFile = new TFile(Filename.str().c_str(), "recreate");
         fOutputFile->SetCompressionLevel(0);
 
-        tempTree = new TRestAnalysisTree("AnalysisTree_tmp", "anaTree_tmp");
+        TRestAnalysisTree* tempTree = new TRestAnalysisTree("AnalysisTree_tmp", "anaTree_tmp");
         for (unsigned int i = 0; i < fProcessChain.size(); i++) {
             fProcessChain[i]->SetAnalysisTree(tempTree);
             for (unsigned int j = 0; j < fProcessChain.size(); j++) {
@@ -284,7 +283,7 @@ void TRestThread::PrepareToProcess(bool testrun) {
         // test run
         if (testrun) {
             debug << "Test Run..." << endl;
-            if (!TestRun()) {
+            if (!TestRun(tempTree)) {
                 error << "REST WARNING("
                       << "In thread " << fThreadId << ")::test run failed!" << endl;
                 error << "One of the processes has NULL pointer fOutputEvent!" << endl;
@@ -301,17 +300,16 @@ void TRestThread::PrepareToProcess(bool testrun) {
                   << endl;
             fOutputEvent = fProcessChain[fProcessChain.size() - 1]->GetOutputEvent();
         }
-        delete tempTree;
 
         //////////////////////////////////////////
         // create dummy tree to store branch addresses.
         debug << "Creating Analysis Tree..." << endl;
         fAnalysisTree = new TRestAnalysisTree("AnalysisTree_" + ToString(fThreadId), "dummyTree");
         fAnalysisTree->CreateEventBranches();
+        fAnalysisTree->CopyObservableList(tempTree);
         fEventTree = new TTree((TString) "EventTree_" + ToString(fThreadId), "dummyTree");
-        // fEventTree->CreateEventBranches();
         for (unsigned int i = 0; i < fProcessChain.size(); i++) {
-            fProcessChain[i]->GetListOfAddedObservables().clear();
+            //fProcessChain[i]->GetListOfAddedObservables().clear();
             fProcessChain[i]->SetAnalysisTree(fAnalysisTree);
             fProcessChain[i]->ConfigAnalysisTree();
         }
@@ -367,7 +365,7 @@ void TRestThread::PrepareToProcess(bool testrun) {
             }
             if (fTreeBranchDef[i] == "inputanalysis") {
                 if (fHostRunner->GetAnalysisTree() != NULL)
-                    fAnalysisTree->ConnectObservables(fHostRunner->GetAnalysisTree());
+                    fAnalysisTree->CopyObservableList(fHostRunner->GetAnalysisTree(), "old_");
             }
         }
         auto iter = branchesToAdd.begin();
@@ -392,6 +390,7 @@ void TRestThread::PrepareToProcess(bool testrun) {
             fProcessChain[i]->InitProcess();
         }
 
+        delete tempTree;
         debug << "Thread " << fThreadId << " Ready!" << endl;
     } else {
         string tmp = fHostRunner->GetInputEvent()->ClassName();

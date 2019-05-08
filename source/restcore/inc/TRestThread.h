@@ -54,7 +54,7 @@ class TRestThread : public TRestMetadata {
 
     void AddProcess(TRestEventProcess* process);
     void PrepareToProcess(bool testrun = true);
-    bool TestRun();
+    bool TestRun(TRestAnalysisTree* tempTree = NULL);
     void StartProcess();
 
     void ProcessEvent();
