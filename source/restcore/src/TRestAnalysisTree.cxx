@@ -54,7 +54,7 @@ void TRestAnalysisTree::Initialize() {
     fBranchesCreated = false;
 }
 
-void TRestAnalysisTree::ConnectObservables(TRestAnalysisTree* from) {
+void TRestAnalysisTree::CopyObservableList(TRestAnalysisTree* from, string prefix) {
     if (from != NULL && !fConnected) {
         vector<char*> tmpobsval;
         vector<TString> tmpobsname;
@@ -63,7 +63,7 @@ void TRestAnalysisTree::ConnectObservables(TRestAnalysisTree* from) {
 
         for (int i = 0; i < from->GetNumberOfObservables(); i++) {
             tmpobsval.push_back(TRestTools::Assembly(from->GetObservableType(i)));
-            tmpobsname.push_back("old_" + from->GetObservableName(i));
+            tmpobsname.push_back(prefix + from->GetObservableName(i));
             tmpobsdes.push_back(from->GetObservableDescription(i));
             tmptypes.push_back(from->GetObservableType(i));
         }
@@ -97,21 +97,27 @@ void TRestAnalysisTree::ConnectObservables() {
     }
 }
 
-Int_t TRestAnalysisTree::AddObservable(TString observableName, TString description) {
+Int_t TRestAnalysisTree::AddObservable(TString observableName, TString observableType, TString description) {
     if (fBranchesCreated) {
         return -1;
     }
     Double_t x = 0;
     if (GetObservableID(observableName) == -1) {
-        fObservableNames.push_back(observableName);
-        fObservableDescriptions.push_back(description);
-        fObservableValues.push_back((char*)new double(0));
-        fObservableTypes.push_back("double");
+        char* ptr = TRestTools::Assembly(observableType);
+        if (ptr != NULL) {
+            fObservableNames.push_back(observableName);
+            fObservableDescriptions.push_back(description);
+            fObservableValues.push_back(ptr);
+            fObservableTypes.push_back(observableType);
 
-        fNObservables++;
+            fNObservables++;
+        } else {
+            cout << "Error adding observable \"" << observableName << "\" with type \"" << observableType
+                 << "\", type not found!" << endl;
+            return -1;
+        }
     } else {
-        // cout << "observable \"" << observableName << "\" has already been
-        // created! skipping" << endl;
+        // cout << "observable \"" << observableName << "\" has already been created! skipping" << endl;
         return GetObservableID(observableName);
     }
 

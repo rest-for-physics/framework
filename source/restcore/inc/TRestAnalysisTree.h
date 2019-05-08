@@ -101,7 +101,8 @@ class TRestAnalysisTree : public TTree {
     void CreateObservableBranches();
 
     void ConnectObservables();
-    void ConnectObservables(TRestAnalysisTree* from);
+
+    void CopyObservableList(TRestAnalysisTree* from, string prefix="");
 
     void ConnectEventBranches() {
         TBranch* br1 = GetBranch("eventID");
@@ -129,7 +130,11 @@ class TRestAnalysisTree : public TTree {
     Int_t FillEvent(TRestEvent* evt);
 
     Int_t AddObservable(TString objName, TRestMetadata* meta, TString description = "");
-    Int_t AddObservable(TString observableName, TString description = "");
+    Int_t AddObservable(TString observableName, TString observableType = "double", TString description = "");
+	template <typename T> 
+	Int_t AddObservable(TString observableName, TString description = "") {
+        return AddObservable(observableName, (TString)TRestTools::GetTypeName<T>(), description);
+	}
 
     // Construtor
     TRestAnalysisTree();
