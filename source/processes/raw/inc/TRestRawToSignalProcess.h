@@ -31,7 +31,7 @@ class TRestRawToSignalProcess : public TRestEventProcess {
     void InitFromConfigFile();
     unsigned int payload;
     unsigned int frameBits;
-    TString fElectronicsType;  // AFTER or AGET
+    string fElectronicsType;  // AFTER or AGET
     Int_t fMinPoints;
 
     Double_t tStart;
@@ -47,7 +47,7 @@ class TRestRawToSignalProcess : public TRestEventProcess {
 
     Int_t nFiles;                    //!
     std::vector<FILE*> fInputFiles;  //!
-    std::vector<TString> fInputFileNames;
+    std::vector<string> fInputFileNames;
 
     Int_t fShowSamples;  //!
 #endif
@@ -71,7 +71,7 @@ class TRestRawToSignalProcess : public TRestEventProcess {
 
     // Bool_t OpenInputBinFile(TString fName);
 
-    virtual Bool_t OpenInputFiles(vector<TString> files);
+    virtual Bool_t OpenInputFiles(vector<string> files);
 
     virtual void printBits(unsigned short num);
     virtual void printBits(unsigned int num);
@@ -80,7 +80,7 @@ class TRestRawToSignalProcess : public TRestEventProcess {
     virtual Long64_t GetTotalBytes() { return totalBytes; }
     //  Int_t GetRunNumber(){return fRunNumber;}
     //  Int_t GetRunIndex(){return fRunIndex;}
-    virtual TString GetElectronicsType() { return fElectronicsType; }
+    virtual string GetElectronicsType() { return fElectronicsType; }
 
     // Constructor
     TRestRawToSignalProcess();

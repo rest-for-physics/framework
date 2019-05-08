@@ -142,7 +142,7 @@ void TRestRawToSignalProcess::EndProcess() {
 //	return kTRUE;
 //}
 
-Bool_t TRestRawToSignalProcess::OpenInputFiles(vector<TString> files) {
+Bool_t TRestRawToSignalProcess::OpenInputFiles(vector<string> files) {
     nFiles = 0;
     // for (auto a : fInputFiles) { delete a; }
     fInputFiles.clear();
@@ -151,7 +151,7 @@ Bool_t TRestRawToSignalProcess::OpenInputFiles(vector<TString> files) {
     totalBytesReaded = 0;
 
     for (int i = 0; i < files.size(); i++) {
-        FILE* f = fopen(files[i].Data(), "rb");
+        FILE* f = fopen(files[i].c_str(), "rb");
 
         if (f == NULL) {
             warning << "REST WARNING. Input file for " << this->ClassName() << " does not exist!" << endl;
@@ -163,7 +163,7 @@ Bool_t TRestRawToSignalProcess::OpenInputFiles(vector<TString> files) {
         fInputFileNames.push_back(files[i]);
 
         struct stat statbuf;
-        stat(files[i].Data(), &statbuf);
+        stat(files[i].c_str(), &statbuf);
         totalBytes += statbuf.st_size;
 
         nFiles++;
@@ -208,7 +208,7 @@ void TRestRawToSignalProcess::PrintMetadata() {
     metadata << " " << endl;
     metadata << " ==================================== " << endl;
     metadata << "DAQ : " << GetTitle() << endl;
-    metadata << "Electronics type : " << fElectronicsType.Data() << endl;
+    metadata << "Electronics type : " << fElectronicsType << endl;
     metadata << "Minimum number of points : " << fMinPoints << endl;
     metadata << " ==================================== " << endl;
 

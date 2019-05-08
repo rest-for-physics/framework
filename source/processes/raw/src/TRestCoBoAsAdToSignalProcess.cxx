@@ -98,7 +98,7 @@ Bool_t TRestCoBoAsAdToSignalProcess::OpenInputCoBoAsAdBinFile(TString fName) {
         return kFALSE;
     }
 
-    fInputFileNames.push_back(fName);
+    fInputFileNames.push_back((string)fName);
     fStartTimeStamp.Print();
 
     return kTRUE;
