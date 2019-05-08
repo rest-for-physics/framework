@@ -639,7 +639,7 @@ void TRestRun::ReadFileInfo(string filename) {
 void TRestRun::ResetEntry() {
     fCurrentEvent = 0;
     if (fFileProcess != NULL) {
-        fFileProcess->OpenInputFiles(fInputFileNames);
+        fFileProcess->OpenInputFiles(Vectorstring_cast(fInputFileNames));
         fFileProcess->InitProcess();
     }
 }
@@ -972,7 +972,7 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
     if (fFileProcess == NULL && p != NULL) {
         fFileProcess = p;
 
-        fFileProcess->OpenInputFiles(fInputFileNames);
+        fFileProcess->OpenInputFiles(Vectorstring_cast(fInputFileNames));
         fFileProcess->InitProcess();
         fInputEvent = fFileProcess->GetOutputEvent();
         if (fInputEvent == NULL) {
