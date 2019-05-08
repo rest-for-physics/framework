@@ -35,10 +35,14 @@
     <parameter name="outputEvent" value="on"/>
 
     <addProcess type="TRestMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON"/>
-    <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON" file="processes.rml">
+    <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON">
       <parameter name="pointThreshold" value="3" />
       <parameter name="pointsOverThreshold" value="3" />
-      <observable name="baseline" value="ON" />
+      <parameter name="observable" value="all" />
+      /// no need for explicit observable definition if we use "observable=all"
+      <!--<observable name="baseline" value="ON" />
+      <observable name="SecondsFromStart" value="ON" />
+      <observable name="ThresholdIntegral" value="ON" />-->
     </addProcess>
     <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" file="processes.rml"/>
     <addProcess type="TRestReadoutAnalysisProcess" name="rA" value="ON">
