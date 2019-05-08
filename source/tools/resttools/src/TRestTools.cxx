@@ -171,7 +171,9 @@ std::string TRestTools::Execute(const char* cmd) {
 }
 
 char* TRestTools::Assembly(TString typeName) {
-    if (typeName == "double") {
+    if (typeName == "") {
+        return NULL;
+    } else if (typeName == "double") {
         return (char*)new double(0);
     } else if (typeName == "float") {
         return (char*)new float(0);
@@ -190,7 +192,7 @@ char* TRestTools::Assembly(TString typeName) {
     } else if (typeName == "long long") {
         return (char*)new long long(0);
     } else {
-        TClass* c = new TClass(typeName);
+        TClass* c = TClass::GetClass(typeName);
         if (c != NULL) return (char*)c->New();
     }
     return NULL;
