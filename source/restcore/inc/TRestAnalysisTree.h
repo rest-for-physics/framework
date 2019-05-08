@@ -87,7 +87,7 @@ class TRestAnalysisTree : public TTree {
     }
 
     template <class T>
-    void SetObservableValue(Int_t n, T value) {
+    void SetObservableValue(Int_t n, const T& value) {
         if (!fBranchesCreated) {
             // if the observable branches is not created, this might be in test run
             // we check whether the value in the specified type(saved in fObservableTypes)
@@ -103,7 +103,7 @@ class TRestAnalysisTree : public TTree {
         *(T*)fObservableValues[n] = value;
     }
     template <class T>
-    void SetObservableValue(TString ProcName_ObsName, T value) {
+    void SetObservableValue(TString ProcName_ObsName, const T& value) {
         // string name_fixed = Replace((string)ProcName_ObsName, ".", "_", 0);
         Int_t id = GetObservableID(ProcName_ObsName);
         if (id >= 0) SetObservableValue(id, value);
