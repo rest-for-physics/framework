@@ -42,11 +42,11 @@ class TRestRawSignalAnalysisProcess : public TRestEventProcess {
     std::vector<std::string> fSignalAnalysisObservables;  //!
 
     // parameters
-    TVector2 fBaseLineRange;      //!
-    TVector2 fIntegralRange;      //!
-    Double_t fPointThreshold;     //!
-    Double_t fSignalThreshold;    //!
-    Int_t fNPointsOverThreshold;  //!
+    TVector2 fBaseLineRange;      
+    TVector2 fIntegralRange;      
+    Double_t fPointThreshold;     
+    Double_t fSignalThreshold;    
+    Int_t fNPointsOverThreshold;  
     // Bool_t fCutsEnabled;//!
     // TVector2 fMeanBaseLineCutRange;//!
     // TVector2 fMeanBaseLineSigmaCutRange;//!
@@ -59,17 +59,6 @@ class TRestRawSignalAnalysisProcess : public TRestEventProcess {
     // analysis result(saved directly in root file)
     TH1D* fChannelsHisto;  //!
 #endif
-    // analysis result(saved in its branch in the analysis tree, in sequence)
-    map<int, Double_t> baseline;
-    Double_t baselinemean;
-    map<int, Double_t> baselinesigma;
-    Double_t baselinesigmamean;
-    map<int, Double_t> ampsgn_maxmethod;
-    Double_t ampeve_maxmethod;
-    map<int, Double_t> ampsgn_intmethod;
-    Double_t ampeve_intmethod;
-    map<int, Double_t> risetime;
-    Double_t risetimemean;
 
     TPad* DrawSignal(Int_t signal);
     TPad* DrawObservables();

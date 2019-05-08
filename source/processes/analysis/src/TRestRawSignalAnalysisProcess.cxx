@@ -118,7 +118,19 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     //	fSignalEvent->AddSignal(*fInputSignalEvent->GetSignal(sgnl));
     ////////////////////////////////////////////
 
-    // we save some analysis result to class's datamember
+
+    // we save some complex typed analysis result
+    map<int, Double_t> baseline;
+    Double_t baselinemean;
+    map<int, Double_t> baselinesigma;
+    Double_t baselinesigmamean;
+    map<int, Double_t> ampsgn_maxmethod;
+    Double_t ampeve_maxmethod;
+    map<int, Double_t> ampsgn_intmethod;
+    Double_t ampeve_intmethod;
+    map<int, Double_t> risetime;
+    Double_t risetimemean;
+
     baseline.clear();
     baselinesigma.clear();
     ampsgn_maxmethod.clear();
@@ -161,44 +173,43 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     baselinesigmamean /= fSignalEvent->GetNumberOfSignals();
     risetimemean /= fSignalEvent->GetNumberOfSignals();
 
+	SetObservableValue("risetime", risetime);
+    SetObservableValue("risetimemean", risetimemean);
+    SetObservableValue("baseline", baseline);
+    SetObservableValue("baselinemean", baselinemean);
+    SetObservableValue("baselinesigma", baselinesigma);
+    SetObservableValue("baselinesigmamean", baselinesigmamean);
+    SetObservableValue("ampsgn_maxmethod", ampsgn_maxmethod);
+    SetObservableValue("ampeve_maxmethod", ampeve_maxmethod);
+    SetObservableValue("ampsgn_intmethod", ampsgn_intmethod);
+    SetObservableValue("ampeve_intmethod", ampeve_intmethod);
+
     if (fFirstEventTime == -1) fFirstEventTime = fSignalEvent->GetTime();
 
     Double_t secondsFromStart = fSignalEvent->GetTime() - fFirstEventTime;
-    obsName = this->GetName() + (TString) "_SecondsFromStart";
-    fAnalysisTree->SetObservableValue(obsName, secondsFromStart);
-
-    obsName = this->GetName() + (TString) "_HoursFromStart";
-    fAnalysisTree->SetObservableValue(obsName, secondsFromStart / 3600.);
+    SetObservableValue("SecondsFromStart", secondsFromStart);
+	SetObservableValue("HoursFromStart", secondsFromStart / 3600.);
 
     Double_t evTimeDelay = 0;
     if (fPreviousEventTime.size() > 0) evTimeDelay = fSignalEvent->GetTime() - fPreviousEventTime.back();
-    obsName = this->GetName() + (TString) "_EventTimeDelay";
-    fAnalysisTree->SetObservableValue(obsName, evTimeDelay);
+    SetObservableValue("EventTimeDelay", evTimeDelay);
 
     Double_t meanRate = 0;
     if (fPreviousEventTime.size() == 100)
         meanRate = 100. / (fSignalEvent->GetTime() - fPreviousEventTime.front());
-
-    obsName = this->GetName() + (TString) "_MeanRate_InHz";
-    fAnalysisTree->SetObservableValue(obsName, meanRate);
+    SetObservableValue("MeanRate_InHz", meanRate);
 
     Double_t baseLineMean = fSignalEvent->GetBaseLineAverage(fBaseLineRange.X(), fBaseLineRange.Y());
-
-    obsName = this->GetName() + (TString) "_BaseLineMean";
-    fAnalysisTree->SetObservableValue(obsName, baseLineMean);
+    SetObservableValue("BaseLineMean", baseLineMean);
 
     Double_t baseLineSigma = fSignalEvent->GetBaseLineSigmaAverage(fBaseLineRange.X(), fBaseLineRange.Y());
+    SetObservableValue("BaseLineSigmaMean", baseLineSigma);
 
-    obsName = this->GetName() + (TString) "_BaseLineSigmaMean";
-    fAnalysisTree->SetObservableValue(obsName, baseLineSigma);
-
-    obsName = this->GetName() + (TString) "_TimeBinsLength";
     Double_t timeDelay = fSignalEvent->GetMaxTime() - fSignalEvent->GetMinTime();
-    fAnalysisTree->SetObservableValue(obsName, timeDelay);
+    SetObservableValue("TimeBinsLength", timeDelay);
 
-    obsName = this->GetName() + (TString) "_NumberOfSignals";
     Double_t nSignals = fSignalEvent->GetNumberOfSignals();
-    fAnalysisTree->SetObservableValue(obsName, nSignals);
+    SetObservableValue("NumberOfSignals", nSignals);
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // SubstractBaselines
@@ -211,39 +222,31 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     Int_t from = (Int_t)fIntegralRange.X();
     Int_t to = (Int_t)fIntegralRange.Y();
     Double_t fullIntegral = fSignalEvent->GetIntegral(from, to);
-    obsName = this->GetName() + (TString) "_FullIntegral";
-    fAnalysisTree->SetObservableValue(obsName, fullIntegral);
+    SetObservableValue("FullIntegral", fullIntegral);
 
     Double_t thrIntegral =
         fSignalEvent->GetIntegralWithThreshold(from, to, fBaseLineRange.X(), fBaseLineRange.Y(),
                                                fPointThreshold, fNPointsOverThreshold, fSignalThreshold);
-    obsName = this->GetName() + (TString) "_ThresholdIntegral";
-    fAnalysisTree->SetObservableValue(obsName, thrIntegral);
+    SetObservableValue("ThresholdIntegral", thrIntegral);
 
     Double_t riseSlope = fSignalEvent->GetRiseSlope();
-    obsName = this->GetName() + (TString) "_RiseSlopeAvg";
-    fAnalysisTree->SetObservableValue(obsName, riseSlope);
+    SetObservableValue("RiseSlopeAvg", riseSlope);
 
     Double_t slopeIntegral = fSignalEvent->GetSlopeIntegral();
-    obsName = this->GetName() + (TString) "_SlopeIntegral";
-    fAnalysisTree->SetObservableValue(obsName, slopeIntegral);
+    SetObservableValue("SlopeIntegral", slopeIntegral);
 
     Double_t rateOfChange = riseSlope / slopeIntegral;
     if (slopeIntegral == 0) rateOfChange = 0;
-    obsName = this->GetName() + (TString) "_RateOfChangeAvg";
-    fAnalysisTree->SetObservableValue(obsName, rateOfChange);
+    SetObservableValue("RateOfChangeAvg", rateOfChange);
 
     Double_t riseTime = fSignalEvent->GetRiseTime();
-    obsName = this->GetName() + (TString) "_RiseTimeAvg";
-    fAnalysisTree->SetObservableValue(obsName, riseTime);
+    SetObservableValue("RiseTimeAvg", riseTime);
 
     Double_t tripleMaxIntegral = fSignalEvent->GetTripleMaxIntegral();
-    obsName = this->GetName() + (TString) "_TripleMaxIntegral";
-    fAnalysisTree->SetObservableValue(obsName, tripleMaxIntegral);
+    SetObservableValue("TripleMaxIntegral", tripleMaxIntegral);
 
     Double_t integralRatio = (fullIntegral - thrIntegral) / (fullIntegral + thrIntegral);
-    obsName = this->GetName() + (TString) "_IntegralBalance";
-    fAnalysisTree->SetObservableValue(obsName, integralRatio);
+    SetObservableValue("IntegralBalance", integralRatio);
 
     Double_t maxValue = 0;
     Double_t minValue = 1.e6;
@@ -295,48 +298,32 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         }
     }
 
-    this->SetObservableValue("xEnergySum", xsum);
-    this->SetObservableValue("yEnergySum", ysum);
+    SetObservableValue("xEnergySum", xsum);
+    SetObservableValue("yEnergySum", ysum);
 
-    obsName = this->GetName() + (TString) "_MinPeakTime";
-    fAnalysisTree->SetObservableValue(obsName, minPeakTime);
 
     if (nGoodSignals > 0) peakTimeAverage /= nGoodSignals;
 
     Double_t ampIntRatio = thrIntegral / maxValueIntegral;
     if (maxValueIntegral == 0) ampIntRatio = 0;
-    obsName = this->GetName() + (TString) "_AmplitudeIntegralRatio";
-    fAnalysisTree->SetObservableValue(obsName, ampIntRatio);
 
-    obsName = this->GetName() + (TString) "_NumberOfGoodSignals";
-    fAnalysisTree->SetObservableValue(obsName, nGoodSignals);
-
-    obsName = this->GetName() + (TString) "_MinPeakAmplitude";
-    fAnalysisTree->SetObservableValue(obsName, minValue);
-
-    obsName = this->GetName() + (TString) "_MaxPeakAmplitude";
-    fAnalysisTree->SetObservableValue(obsName, maxValue);
-
-    obsName = this->GetName() + (TString) "_PeakAmplitudeIntegral";
-    fAnalysisTree->SetObservableValue(obsName, maxValueIntegral);
+    SetObservableValue("AmplitudeIntegralRatio", ampIntRatio);
+    SetObservableValue("NumberOfGoodSignals", nGoodSignals);
+    SetObservableValue("MinPeakAmplitude", minValue);
+    SetObservableValue("MaxPeakAmplitude", maxValue);
+    SetObservableValue("PeakAmplitudeIntegral", maxValueIntegral);
 
     Double_t amplitudeRatio = maxValueIntegral / maxValue;
     if (maxValue == 0) amplitudeRatio = 0;
-    obsName = this->GetName() + (TString) "_AmplitudeRatio";
-    fAnalysisTree->SetObservableValue(obsName, amplitudeRatio);
-
-    obsName = this->GetName() + (TString) "_MaxPeakTime";
-    fAnalysisTree->SetObservableValue(obsName, maxPeakTime);
-
-    obsName = this->GetName() + (TString) "_MinPeakTime";
-    fAnalysisTree->SetObservableValue(obsName, minPeakTime);
+    
+    SetObservableValue("AmplitudeRatio", amplitudeRatio);
+    SetObservableValue("MaxPeakTime", maxPeakTime);
+    SetObservableValue("MinPeakTime", minPeakTime);
 
     Double_t peakTimeDelay = maxPeakTime - minPeakTime;
-    obsName = this->GetName() + (TString) "_MaxPeakTimeDelay";
-    fAnalysisTree->SetObservableValue(obsName, peakTimeDelay);
-
-    obsName = this->GetName() + (TString) "_AveragePeakTime";
-    fAnalysisTree->SetObservableValue(obsName, peakTimeAverage);
+    
+    SetObservableValue("MaxPeakTimeDelay", peakTimeDelay);
+    SetObservableValue("AveragePeakTime", peakTimeAverage);
 
     // Cuts
     if (fCuts.size() > 0) {
@@ -409,7 +396,7 @@ TPad* TRestRawSignalAnalysisProcess::DrawObservables() {
     txt->AddText(" ");
     for (unsigned int i = 0; i < fSignalAnalysisObservables.size(); i++) {
         Int_t id =
-            fAnalysisTree->GetObservableID(this->GetName() + (TString) "_" + fSignalAnalysisObservables[i]);
+            fAnalysisTree->GetObservableID(this->GetName() + (TString) "" + fSignalAnalysisObservables[i]);
         TString valueStr;
         valueStr.Form(" : %lf", fAnalysisTree->GetObservableValue(id));
         TString sentence = (TString)fSignalAnalysisObservables[i] + valueStr;
