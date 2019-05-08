@@ -64,7 +64,7 @@ class TRestEventProcess : public TRestMetadata {
     REST_Process_Output fOutputLevel;  //!
 
     vector<pair<string, TVector2>> fCuts;  //!  [name, cut range]
-	map<TString, int> fObservableInfo;  //!     [name, id in AnalysisTree]
+	map<string, int> fObservableInfo;  //!     [name, id in AnalysisTree]
 	vector<TRestEventProcess*> fFriendlyProcesses;  //!
 
     // utils
@@ -75,8 +75,8 @@ class TRestEventProcess : public TRestMetadata {
     TRestMetadata* GetReadoutMetadata() { return GetMetadata("TRestReadout"); }
     TRestMetadata* GetGeant4Metadata() { return GetMetadata("TRestG4Metadata"); }
     TRestMetadata* GetDetectorSetup() { return GetMetadata("TRestDetectorSetup"); }
-    Double_t GetDoubleParameterFromClass(TString className, TString parName);
-    Double_t GetDoubleParameterFromClassWithUnits(TString className, TString parName);
+    Double_t GetDoubleParameterFromClass(string className, string parName);
+    Double_t GetDoubleParameterFromClassWithUnits(string className, string parName);
 
     //////////////////////////////////////////////////////////////////////////
     /// \brief Set observable value for analysistree.
@@ -84,9 +84,9 @@ class TRestEventProcess : public TRestMetadata {
     /// recommended as it is more efficienct than calling
     /// fAnalysisTree->SetObservableValue( obsName, obsValue )
     template <class T>
-    void SetObservableValue(TString name, T value) {
+    void SetObservableValue(string name, const T& value) {
         if (fAnalysisTree != NULL) {
-            TString obsname = this->GetName() + (TString) "_" + name;
+            string obsname = this->GetName() + (string) "_" + (string)name;
             if (fObservableInfo.count(obsname) != 0) {
                 fAnalysisTree->SetObservableValue(fObservableInfo[obsname], value);
             } else if (fDynamicObs && fObservableInfo.count(obsname) == 0) {
@@ -121,7 +121,7 @@ class TRestEventProcess : public TRestMetadata {
     Int_t LoadSectionMetadata();
     vector<string> ReadObservables();
 
-    virtual Bool_t OpenInputFiles(vector<TString> files) { return false; }
+    virtual Bool_t OpenInputFiles(vector<string> files) { return false; }
 
     virtual void InitProcess() {}  ///< To be executed at the beginning of the run
 
@@ -156,7 +156,7 @@ class TRestEventProcess : public TRestMetadata {
     TRestRun* GetRunInfo() { return fRunInfo; }
     TRestAnalysisTree* GetAnalysisTree() { return fAnalysisTree; }
     TCanvas* GetCanvas() { return fCanvas; }
-    std::vector<TString> GetListOfAddedObservables();
+    std::vector<string> GetListOfAddedObservables();
 
     // Constructor
     TRestEventProcess();

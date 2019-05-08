@@ -151,9 +151,9 @@ vector<string> TRestEventProcess::ReadObservables() {
         //    }
         //} else {
         int id =
-            fAnalysisTree->AddObservable((TString)GetName() + "_" + obsnames[i], obstypes[i], obsdesc[i]);
+            fAnalysisTree->AddObservable((this->GetName() + (string)"_" + obsnames[i]).c_str(), obstypes[i], obsdesc[i]);
         if (id != -1) {
-            fObservableInfo[(TString)GetName() + "_" + obsnames[i]] = id;
+            fObservableInfo[(string)GetName() + "_" + obsnames[i]] = id;
         }
         /*}*/
     }
@@ -187,7 +187,7 @@ void TRestEventProcess::ConfigAnalysisTree() {
     if (fOutputLevel >= Observable) ReadObservables();
     if (fOutputLevel >= Internal_Var) fAnalysisTree->Branch(this->GetName(), this);
     if (fOutputLevel >= Full_Output)
-        fAnalysisTree->Branch(this->GetName() + (TString) "_evtBranch", GetOutputEvent());
+        fAnalysisTree->Branch((this->GetName() + (string) "_evtBranch").c_str(), GetOutputEvent());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -213,7 +213,7 @@ Int_t TRestEventProcess::LoadSectionMetadata() {
     }
     SetOutputLevel(lvl);
 
-	if (ToUpper(GetParameter("observable", "")) == "all") {
+	if (ToUpper(GetParameter("observable", "")) == "ALL") {
         fDynamicObs = true;
 	}
 
@@ -389,7 +389,7 @@ void TRestEventProcess::EndPrintProcess() {
 /// \param className string with name of metadata class to access
 /// \param parName  string with name of parameter to retrieve
 ///
-Double_t TRestEventProcess::GetDoubleParameterFromClass(TString className, TString parName) {
+Double_t TRestEventProcess::GetDoubleParameterFromClass(string className, string parName) {
     for (size_t i = 0; i < fFriendlyProcesses.size(); i++)
         if ((string)fFriendlyProcesses[i]->ClassName() == (string)className)
             return StringToDouble(fFriendlyProcesses[i]->GetParameter((string)parName));
@@ -404,7 +404,7 @@ Double_t TRestEventProcess::GetDoubleParameterFromClass(TString className, TStri
 /// \param className string with name of metadata class to access
 /// \param parName  string with name of parameter to retrieve
 ///
-Double_t TRestEventProcess::GetDoubleParameterFromClassWithUnits(TString className, TString parName) {
+Double_t TRestEventProcess::GetDoubleParameterFromClassWithUnits(string className, string parName) {
     for (size_t i = 0; i < fFriendlyProcesses.size(); i++)
         if ((string)fFriendlyProcesses[i]->ClassName() == (string)className)
             return fFriendlyProcesses[i]->GetDblParameterWithUnits((string)parName);
@@ -412,8 +412,8 @@ Double_t TRestEventProcess::GetDoubleParameterFromClassWithUnits(TString classNa
     return PARAMETER_NOT_FOUND_DBL;
 }
 
-std::vector<TString> TRestEventProcess::GetListOfAddedObservables() {
-    vector<TString> list;
+std::vector<string> TRestEventProcess::GetListOfAddedObservables() {
+    vector<string> list;
     auto iter = fObservableInfo.begin();
     while (iter != fObservableInfo.end()) {
         list.push_back(iter->first);
