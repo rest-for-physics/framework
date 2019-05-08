@@ -69,6 +69,8 @@ class TRestEventProcess : public TRestMetadata {
 
     bool fReadOnly = false;  //!
 
+    bool fDynamicObs = false;  //!
+
     vector<pair<string, TVector2>> fCuts;  //!  [name, cut range]
 
     // utils
@@ -82,7 +84,27 @@ class TRestEventProcess : public TRestMetadata {
     Double_t GetDoubleParameterFromClass(TString className, TString parName);
     Double_t GetDoubleParameterFromClassWithUnits(TString className, TString parName);
 
-    void SetObservableValue(TString name, double value);
+    //////////////////////////////////////////////////////////////////////////
+    /// \brief Set observable value for analysistree.
+    ///
+    /// recommended as it is more efficienct than calling
+    /// fAnalysisTree->SetObservableValue( obsName, obsValue )
+    template <class T>
+    void SetObservableValue(TString name, T value) {
+        if (fAnalysisTree != NULL) {
+            TString obsname = this->GetName() + (TString) "_" + name;
+            if (fObservableInfo.count(obsname) != 0) {
+                fAnalysisTree->SetObservableValue(fObservableInfo[obsname], value);
+            } else if (fDynamicObs && fObservableInfo.count(obsname) == 0) {
+                // create new branch for this observable
+                int n = fAnalysisTree->AddObservable<T>(obsname);
+                if (n != -1) {
+                    fObservableInfo[obsname] = n;
+                    fAnalysisTree->SetObservableValue(fObservableInfo[obsname], value);
+                }
+            }
+        }
+    }
 
     void CreateCanvas() {
         if (fCanvas != NULL) return;

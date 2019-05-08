@@ -93,35 +93,44 @@ TRestEventProcess::~TRestEventProcess() {}
 vector<string> TRestEventProcess::ReadObservables() {
     TiXmlElement* e = GetElement("observable");
     vector<string> obsnames;
+    vector<string> obstypes;
+    vector<string> obsdesc;
 
     while (e != NULL) {
         const char* obschr = e->Attribute("name");
         const char* _value = e->Attribute("value");
+        const char* _type = e->Attribute("type");
+        const char* _desc = e->Attribute("description");
 
         string value;
         if (_value == NULL)
             value = "ON";
-        else {
+        else
             value = _value;
-        }
-        if (value == "ON" || value == "On" || value == "on") {
+        string type;
+        if (_type == NULL)
+            type = "double";
+        else
+            type = _type;
+        string description;
+        if (_desc == NULL)
+            description = "";
+        else
+            description = _desc;
+
+        if (ToUpper(value) == "ON") {
             if (obschr != NULL) {
-                string obsstring = (string)obschr;
-                debug << this->ClassName() << " : setting following observables " << obsstring << endl;
-                vector<string> tmp = Spilt(obsstring, ":");
-                obsnames.insert(obsnames.end(), tmp.begin(), tmp.end());
+                debug << this->ClassName() << " : setting observable \"" << obschr << "\"" << endl;
+                // vector<string> tmp = Spilt(obsstring, ":");
+                obsnames.push_back(obschr);
+                obstypes.push_back(type);
+                obsdesc.push_back(description);
             }
         }
 
         e = e->NextSiblingElement("observable");
 
     }  // now we get a list of all observal names
-
-    // If fObservableInfo is not empty, directly return the observable name list.
-    // This is because the user may manually this method somewhere else.
-    // We need to prevent adding observables repeadtedly.
-    // if (fObservableInfo.size() != 0)
-    //	return obsnames;
 
     // if fObservableInfo is empty, add observables.
     // 1. observable is datamember of the process class
@@ -130,22 +139,23 @@ vector<string> TRestEventProcess::ReadObservables() {
     // 2. observable is not datamember of the process class
     // then REST will create a new double-typed observable in analysis tree.
     //
-    // the user is recommended to call TRestEventProcess::SetObservableValue(
-    // obsName, obsValue ) during each process
+    // the user is recommended to call TRestEventProcess::SetObservableValue( obsName, obsValue ) during each
+    // process
 
     for (int i = 0; i < obsnames.size(); i++) {
-        TStreamerElement* se = GetDataMember(obsnames[i]);
-        if (se != NULL) {
-            int id = fAnalysisTree->AddObservable(obsnames[i], this);
-            if (id != -1) {
-                fObservableInfo[(TString)GetName() + "." + obsnames[i]] = id;
-            }
-        } else {
-            int id = fAnalysisTree->AddObservable((TString)GetName() + "_" + obsnames[i]);
-            if (id != -1) {
-                fObservableInfo[(TString)GetName() + "_" + obsnames[i]] = id;
-            }
+        // TStreamerElement* se = GetDataMember(obsnames[i]);
+        // if (se != NULL) {
+        //    int id = fAnalysisTree->AddObservable(obsnames[i], this, obsdesc[i]);
+        //    if (id != -1) {
+        //        fObservableInfo[(TString)GetName() + "." + obsnames[i]] = id;
+        //    }
+        //} else {
+        int id =
+            fAnalysisTree->AddObservable((TString)GetName() + "_" + obsnames[i], obstypes[i], obsdesc[i]);
+        if (id != -1) {
+            fObservableInfo[(TString)GetName() + "_" + obsnames[i]] = id;
         }
+        /*}*/
     }
 
     return obsnames;
@@ -203,6 +213,10 @@ Int_t TRestEventProcess::LoadSectionMetadata() {
     }
     SetOutputLevel(lvl);
 
+	if (ToUpper(GetParameter("observable", "")) == "all") {
+        fDynamicObs = true;
+	}
+
     // load cuts
     fCuts.clear();
     if (ToUpper(GetParameter("cutsEnabled", "false")) == "TRUE") {
@@ -241,20 +255,6 @@ TRestMetadata* TRestEventProcess::GetMetadata(string name) {
     TRestMetadata* m = fRunInfo->GetMetadata(name);
     if (m == NULL) m = fRunInfo->GetMetadataClass(name);
     return m;
-}
-
-//////////////////////////////////////////////////////////////////////////
-/// \brief Set observable value for analysistree.
-///
-/// recommended as it is more efficienct than calling
-/// fAnalysisTree->SetObservableValue( obsName, obsValue )
-void TRestEventProcess::SetObservableValue(TString name, double value) {
-    if (fAnalysisTree != NULL) {
-        TString obsname = this->GetName() + (TString) "_" + name;
-        if (fObservableInfo.count(obsname) != 0) {
-            fAnalysisTree->SetObservableValue(fObservableInfo[obsname], value);
-        }
-    }
 }
 
 /*
