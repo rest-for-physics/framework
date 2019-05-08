@@ -88,6 +88,18 @@ class TRestAnalysisTree : public TTree {
 
     template <class T>
     void SetObservableValue(Int_t n, T value) {
+        if (!fBranchesCreated) {
+            // if the observable branches is not created, this might be in test run
+            // we check whether the value in the specified type(saved in fObservableTypes)
+			// if not, we reset fObservableTypes and fObservableValues according to the 
+			// value. Memory leak is inevitable.
+            TString type = TRestTools::GetTypeName<T>();
+            if (type != fObservableTypes[n]) {
+                fObservableTypes[n] = type;
+                fObservableValues[n] = TRestTools::Assembly(type);
+            }
+        }
+
         *(T*)fObservableValues[n] = value;
     }
     template <class T>
@@ -102,7 +114,7 @@ class TRestAnalysisTree : public TTree {
 
     void ConnectObservables();
 
-    void CopyObservableList(TRestAnalysisTree* from, string prefix="");
+    void CopyObservableList(TRestAnalysisTree* from, string prefix = "");
 
     void ConnectEventBranches() {
         TBranch* br1 = GetBranch("eventID");
@@ -131,10 +143,10 @@ class TRestAnalysisTree : public TTree {
 
     Int_t AddObservable(TString objName, TRestMetadata* meta, TString description = "");
     Int_t AddObservable(TString observableName, TString observableType = "double", TString description = "");
-	template <typename T> 
-	Int_t AddObservable(TString observableName, TString description = "") {
-        return AddObservable(observableName, (TString)TRestTools::GetTypeName<T>(), description);
-	}
+    template <typename T>
+    Int_t AddObservable(TString observableName, TString description = "") {
+        return AddObservable(observableName, TRestTools::GetTypeName<T>(), description);
+    }
 
     // Construtor
     TRestAnalysisTree();
