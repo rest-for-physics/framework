@@ -3,6 +3,7 @@
 #include <TSystem.h>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include "TRestStringHelper.h"
 using namespace std;
 
