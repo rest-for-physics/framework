@@ -54,18 +54,18 @@ class TRestEventProcess : public TRestMetadata {
     TVector2 fCanvasSize;     //!
 
     TRestAnalysisTree* fAnalysisTree = NULL;  //!///< Pointer to analysis tree where to store the observables.
-	TRestRun* fRunInfo = NULL;  //!
+    TRestRun* fRunInfo = NULL;                //!
 
     bool fIsExternal = false;  //!///< It defines if the process reads event data from an external source.
     bool fSingleThreadOnly = false;  //!///< It defines if the process can run only under single thread
-	bool fReadOnly = false;  //!
-    bool fDynamicObs = false;  //!
+    bool fReadOnly = false;          //!
+    bool fDynamicObs = false;        //!
 
     REST_Process_Output fOutputLevel;  //!
 
-    vector<pair<string, TVector2>> fCuts;  //!  [name, cut range]
-	map<string, int> fObservableInfo;  //!     [name, id in AnalysisTree]
-	vector<TRestEventProcess*> fFriendlyProcesses;  //!
+    vector<pair<string, TVector2>> fCuts;           //!  [name, cut range]
+    map<string, int> fObservableInfo;               //!     [name, id in AnalysisTree]
+    vector<TRestEventProcess*> fFriendlyProcesses;  //!
 
     // utils
     void BeginPrintProcess();

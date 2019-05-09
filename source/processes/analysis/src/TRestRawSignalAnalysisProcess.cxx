@@ -118,7 +118,6 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     //	fSignalEvent->AddSignal(*fInputSignalEvent->GetSignal(sgnl));
     ////////////////////////////////////////////
 
-
     // we save some complex typed analysis result
     map<int, Double_t> baseline;
     Double_t baselinemean;
@@ -173,7 +172,7 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     baselinesigmamean /= fSignalEvent->GetNumberOfSignals();
     risetimemean /= fSignalEvent->GetNumberOfSignals();
 
-	SetObservableValue("risetime", risetime);
+    SetObservableValue("risetime", risetime);
     SetObservableValue("risetimemean", risetimemean);
     SetObservableValue("baseline", baseline);
     SetObservableValue("baselinemean", baselinemean);
@@ -188,7 +187,7 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     Double_t secondsFromStart = fSignalEvent->GetTime() - fFirstEventTime;
     SetObservableValue("SecondsFromStart", secondsFromStart);
-	SetObservableValue("HoursFromStart", secondsFromStart / 3600.);
+    SetObservableValue("HoursFromStart", secondsFromStart / 3600.);
 
     Double_t evTimeDelay = 0;
     if (fPreviousEventTime.size() > 0) evTimeDelay = fSignalEvent->GetTime() - fPreviousEventTime.back();
@@ -301,7 +300,6 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     SetObservableValue("xEnergySum", xsum);
     SetObservableValue("yEnergySum", ysum);
 
-
     if (nGoodSignals > 0) peakTimeAverage /= nGoodSignals;
 
     Double_t ampIntRatio = thrIntegral / maxValueIntegral;
@@ -315,13 +313,13 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     Double_t amplitudeRatio = maxValueIntegral / maxValue;
     if (maxValue == 0) amplitudeRatio = 0;
-    
+
     SetObservableValue("AmplitudeRatio", amplitudeRatio);
     SetObservableValue("MaxPeakTime", maxPeakTime);
     SetObservableValue("MinPeakTime", minPeakTime);
 
     Double_t peakTimeDelay = maxPeakTime - minPeakTime;
-    
+
     SetObservableValue("MaxPeakTimeDelay", peakTimeDelay);
     SetObservableValue("AveragePeakTime", peakTimeAverage);
 

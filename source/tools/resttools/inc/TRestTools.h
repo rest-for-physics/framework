@@ -94,7 +94,7 @@ class TRestTools {
 
     static char* Assembly(TString typeName);
 
-	template <typename T>
+    template <typename T>
     static std::string GetTypeName() {
         TClass* cl = TClass::GetClass(typeid(T));
         if (cl != NULL) {

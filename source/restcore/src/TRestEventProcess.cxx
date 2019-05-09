@@ -150,8 +150,8 @@ vector<string> TRestEventProcess::ReadObservables() {
         //        fObservableInfo[(TString)GetName() + "." + obsnames[i]] = id;
         //    }
         //} else {
-        int id =
-            fAnalysisTree->AddObservable((this->GetName() + (string)"_" + obsnames[i]).c_str(), obstypes[i], obsdesc[i]);
+        int id = fAnalysisTree->AddObservable((this->GetName() + (string) "_" + obsnames[i]).c_str(),
+                                              obstypes[i], obsdesc[i]);
         if (id != -1) {
             fObservableInfo[(string)GetName() + "_" + obsnames[i]] = id;
         }
@@ -213,9 +213,9 @@ Int_t TRestEventProcess::LoadSectionMetadata() {
     }
     SetOutputLevel(lvl);
 
-	if (ToUpper(GetParameter("observable", "")) == "ALL") {
+    if (ToUpper(GetParameter("observable", "")) == "ALL") {
         fDynamicObs = true;
-	}
+    }
 
     // load cuts
     fCuts.clear();

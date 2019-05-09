@@ -91,8 +91,8 @@ class TRestAnalysisTree : public TTree {
         if (!fBranchesCreated) {
             // if the observable branches is not created, this might be in test run
             // we check whether the value in the specified type(saved in fObservableTypes)
-			// if not, we reset fObservableTypes and fObservableValues according to the 
-			// value. Memory leak is inevitable.
+            // if not, we reset fObservableTypes and fObservableValues according to the
+            // value. Memory leak is inevitable.
             TString type = TRestTools::GetTypeName<T>();
             if (type != fObservableTypes[n]) {
                 fObservableTypes[n] = type;

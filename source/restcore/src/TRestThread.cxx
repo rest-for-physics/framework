@@ -309,7 +309,7 @@ void TRestThread::PrepareToProcess(bool testrun) {
         fAnalysisTree->CopyObservableList(tempTree);
         fEventTree = new TTree((TString) "EventTree_" + ToString(fThreadId), "dummyTree");
         for (unsigned int i = 0; i < fProcessChain.size(); i++) {
-            //fProcessChain[i]->GetListOfAddedObservables().clear();
+            // fProcessChain[i]->GetListOfAddedObservables().clear();
             fProcessChain[i]->SetAnalysisTree(fAnalysisTree);
             fProcessChain[i]->ConfigAnalysisTree();
         }

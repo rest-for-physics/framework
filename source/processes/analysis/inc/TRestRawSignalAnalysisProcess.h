@@ -42,11 +42,11 @@ class TRestRawSignalAnalysisProcess : public TRestEventProcess {
     std::vector<std::string> fSignalAnalysisObservables;  //!
 
     // parameters
-    TVector2 fBaseLineRange;      
-    TVector2 fIntegralRange;      
-    Double_t fPointThreshold;     
-    Double_t fSignalThreshold;    
-    Int_t fNPointsOverThreshold;  
+    TVector2 fBaseLineRange;
+    TVector2 fIntegralRange;
+    Double_t fPointThreshold;
+    Double_t fSignalThreshold;
+    Int_t fNPointsOverThreshold;
     // Bool_t fCutsEnabled;//!
     // TVector2 fMeanBaseLineCutRange;//!
     // TVector2 fMeanBaseLineSigmaCutRange;//!

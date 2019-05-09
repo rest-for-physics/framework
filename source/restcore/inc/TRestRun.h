@@ -23,9 +23,9 @@ class TRestRun : public TRestMetadata {
     Int_t fParentRunNumber;
     TString fRunClassName;
     TString fRunType;  //< Stores bit by bit the type of run. e.g. calibration, background, pedestal,
-                       //simulation, datataking
+                       // simulation, datataking
     TString fRunUser;  //< To identify the author it has created the run. It might be also a word describing
-                       //the origin of the run (I.e. REST_Prototype, T-REX, etc)
+                       // the origin of the run (I.e. REST_Prototype, T-REX, etc)
     TString fRunTag;   //< A tag to be written to the output file
     TString fRunDescription;  //< A word or sentence describing the run (I.e. Fe55 calibration, cosmics, etc)
     TString fExperimentName;
