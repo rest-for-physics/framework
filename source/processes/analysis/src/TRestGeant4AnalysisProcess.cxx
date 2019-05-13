@@ -428,137 +428,111 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     /* {{{ Event origin variables */
     Double_t xOrigin = fOutputG4Event->GetPrimaryEventOrigin().X();
-    obsName = this->GetName() + (TString) ".xOriginPrimary";
-    fAnalysisTree->SetObservableValue(obsName, xOrigin);
+    SetObservableValue((string) "xOriginPrimary", xOrigin);
 
     Double_t yOrigin = fOutputG4Event->GetPrimaryEventOrigin().Y();
-    obsName = this->GetName() + (TString) ".yOriginPrimary";
-    fAnalysisTree->SetObservableValue(obsName, yOrigin);
+    SetObservableValue((string) "yOriginPrimary", yOrigin);
 
     Double_t zOrigin = fOutputG4Event->GetPrimaryEventOrigin().Z();
-    obsName = this->GetName() + (TString) ".zOriginPrimary";
-    fAnalysisTree->SetObservableValue(obsName, zOrigin);
+    SetObservableValue((string) "zOriginPrimary", zOrigin);
 
     Double_t xDirection = fOutputG4Event->GetPrimaryEventDirection(0).X();
-    obsName = this->GetName() + (TString) ".xDirectionPrimary";
-    fAnalysisTree->SetObservableValue(obsName, xDirection);
+    SetObservableValue((string) "xDirectionPrimary", xDirection);
 
     Double_t yDirection = fOutputG4Event->GetPrimaryEventDirection(0).Y();
-    obsName = this->GetName() + (TString) ".yDirectionPrimary";
-    fAnalysisTree->SetObservableValue(obsName, yDirection);
+    SetObservableValue((string) "yDirectionPrimary", yDirection);
 
     Double_t zDirection = fOutputG4Event->GetPrimaryEventDirection(0).Z();
-    obsName = this->GetName() + (TString) ".zDirectionPrimary";
-    fAnalysisTree->SetObservableValue(obsName, zDirection);
+    SetObservableValue((string) "zDirectionPrimary", zDirection);
 
     Double_t energyPrimary = fOutputG4Event->GetPrimaryEventEnergy(0);
-    obsName = this->GetName() + (TString) ".energyPrimary";
-    fAnalysisTree->SetObservableValue(obsName, energyPrimary);
+    SetObservableValue((string) "energyPrimary", energyPrimary);
     /* }}} */
 
     Double_t energyTotal = fOutputG4Event->GetTotalDepositedEnergy();
     obsName = this->GetName() + (TString) ".totalEdep";
-    fAnalysisTree->SetObservableValue(obsName, energyTotal);
+    SetObservableValue((string) "totalEdep", energyTotal);
 
-    obsName = this->GetName() + (TString) ".photoelectric";
-    if (fOutputG4Event->isPhotoElectric()) {
-        fAnalysisTree->SetObservableValue(obsName, 1);
-    } else {
-        fAnalysisTree->SetObservableValue(obsName, 0);
-    }
+    Int_t photo = 0;
+    if (fOutputG4Event->isPhotoElectric()) photo = 1;
+    SetObservableValue((string) "photoelectric", photo);
 
-    obsName = this->GetName() + (TString) ".compton";
-    if (fOutputG4Event->isCompton())
-        fAnalysisTree->SetObservableValue(obsName, 1);
-    else
-        fAnalysisTree->SetObservableValue(obsName, 0);
+    Int_t compton = 0;
+    if (fOutputG4Event->isCompton()) compton = 1;
+    SetObservableValue((string) "compton", compton);
 
-    obsName = this->GetName() + (TString) ".bremstralung";
-    if (fOutputG4Event->isBremstralung())
-        fAnalysisTree->SetObservableValue(obsName, 1);
-    else
-        fAnalysisTree->SetObservableValue(obsName, 0);
+    Int_t bremstralung = 0;
+    if (fOutputG4Event->isBremstralung()) bremstralung = 1;
+    SetObservableValue((string) "bremstralung", bremstralung);
 
-    obsName = this->GetName() + (TString) ".hadElastic";
-    if (fOutputG4Event->ishadElastic())
-        fAnalysisTree->SetObservableValue(obsName, 1);
-    else
-        fAnalysisTree->SetObservableValue(obsName, 0);
+    Int_t hadElastic = 0;
+    if (fOutputG4Event->ishadElastic()) hadElastic = 1;
+    SetObservableValue((string) "hadElastic", hadElastic);
 
-    obsName = this->GetName() + (TString) ".neutronInelastic";
-    if (fOutputG4Event->isneutronInelastic())
-        fAnalysisTree->SetObservableValue(obsName, 1);
-    else
-        fAnalysisTree->SetObservableValue(obsName, 0);
+    Int_t neutronInelastic = 0;
+    if (fOutputG4Event->isneutronInelastic()) neutronInelastic = 1;
+    SetObservableValue((string) "neutronInelastic", neutronInelastic);
 
-    obsName = this->GetName() + (TString) ".nCapture";
-    if (fOutputG4Event->isnCapture())
-        fAnalysisTree->SetObservableValue(obsName, 1);
-    else
-        fAnalysisTree->SetObservableValue(obsName, 0);
+    Int_t nCapture = 0;
+    if (fOutputG4Event->isnCapture()) nCapture = 1;
+    SetObservableValue((string) "nCapture", nCapture);
 
-    obsName = this->GetName() + (TString) ".hIoni";
-    if (fOutputG4Event->ishIoni())
-        fAnalysisTree->SetObservableValue(obsName, 1);
-    else
-        fAnalysisTree->SetObservableValue(obsName, 0);
+    Int_t hIoni = 0;
+    if (fOutputG4Event->ishIoni()) hIoni = 1;
+    SetObservableValue((string) "hIoni", hIoni);
+
     for (unsigned int n = 0; n < fProcessObservables.size(); n++) {
-        TString obsName = fProcessObservables[n];
-        obsName = this->GetName() + (TString) "." + obsName;
+        string obsName = fProcessObservables[n];
         TString processName = fProcessName[n];
         if ((processName == "RadiactiveDecay") && (fOutputG4Event->isRadiactiveDecayInVolume(fVolumeID3[n])))
-            fAnalysisTree->SetObservableValue(obsName, 1);
+            SetObservableValue(obsName, 1);
         else if ((processName == "Photoelectric") && (fOutputG4Event->isPhotoElectricInVolume(fVolumeID3[n])))
-            fAnalysisTree->SetObservableValue(obsName, 1);
+            SetObservableValue(obsName, 1);
         // else if((processName=="PhotonNuclear")&&(
         // fOutputG4Event->isPhotonNuclearInVolume(fVolumeID3[n]) ))
-        // fAnalysisTree->SetObservableValue( obsName, 1 );
+        // SetObservableValue( obsName, 1 );
         else if ((processName == "Bremstralung") && (fOutputG4Event->isBremstralungInVolume(fVolumeID3[n])))
-            fAnalysisTree->SetObservableValue(obsName, 1);
+            SetObservableValue(obsName, 1);
         else if ((processName == "HadElastic") && (fOutputG4Event->isHadElasticInVolume(fVolumeID3[n])))
-            fAnalysisTree->SetObservableValue(obsName, 1);
+            SetObservableValue(obsName, 1);
         else if ((processName == "NCapture") && (fOutputG4Event->isNCaptureInVolume(fVolumeID3[n])))
-            fAnalysisTree->SetObservableValue(obsName, 1);
+            SetObservableValue(obsName, 1);
         else if ((processName == "Compton") && (fOutputG4Event->isComptonInVolume(fVolumeID3[n])))
-            fAnalysisTree->SetObservableValue(obsName, 1);
+            SetObservableValue(obsName, 1);
         else if ((processName == "Neutron") && (fOutputG4Event->isNeutronInVolume(fVolumeID3[n])))
-            fAnalysisTree->SetObservableValue(obsName, 1);
+            SetObservableValue(obsName, 1);
         else if ((processName == "Alpha") && (fOutputG4Event->isAlphaInVolume(fVolumeID3[n])))
-            fAnalysisTree->SetObservableValue(obsName, 1);
+            SetObservableValue(obsName, 1);
         else if ((processName == "Argon") && (fOutputG4Event->isArgonInVolume(fVolumeID3[n])))
-            fAnalysisTree->SetObservableValue(obsName, 1);
+            SetObservableValue(obsName, 1);
         else if ((processName == "Xenon") && (fOutputG4Event->isXenonInVolume(fVolumeID3[n])))
-            fAnalysisTree->SetObservableValue(obsName, 1);
+            SetObservableValue(obsName, 1);
         else if ((processName == "Neon") && (fOutputG4Event->isNeonInVolume(fVolumeID3[n])))
-            fAnalysisTree->SetObservableValue(obsName, 1);
+            SetObservableValue(obsName, 1);
 
         else
-            fAnalysisTree->SetObservableValue(obsName, 0);
+            SetObservableValue(obsName, 0);
     }
     for (unsigned int n = 0; n < fParticleTrackCounter.size(); n++) {
         Int_t nT = fOutputG4Event->GetNumberOfTracksForParticle(fParticleTrackCounter[n]);
-        TString obsName = fTrackCounterObservables[n];
-        obsName = this->GetName() + (TString) "." + obsName;
-        fAnalysisTree->SetObservableValue(obsName, nT);
+        string obsName = fTrackCounterObservables[n];
+        SetObservableValue(obsName, nT);
     }
 
     for (unsigned int n = 0; n < fTracksEDepObservables.size(); n++) {
         Double_t energy = fOutputG4Event->GetEnergyDepositedByParticle(fParticleTrackEdep[n]);
-        TString obsName = fTracksEDepObservables[n];
-        obsName = this->GetName() + (TString) "." + obsName;
-        fAnalysisTree->SetObservableValue(obsName, energy);
+        string obsName = fTracksEDepObservables[n];
+        SetObservableValue(obsName, energy);
     }
 
     for (unsigned int n = 0; n < fEnergyInObservables.size(); n++) {
         Double_t en = fOutputG4Event->GetEnergyDepositedInVolume(fVolumeID[n]);
-        TString obsName = fEnergyInObservables[n];
-        obsName = this->GetName() + (TString) "." + obsName;
-        fAnalysisTree->SetObservableValue(obsName, en);
+        string obsName = fEnergyInObservables[n];
+        SetObservableValue(obsName, en);
     }
 
     for (unsigned int n = 0; n < fMeanPosObservables.size(); n++) {
-        TString obsName = fMeanPosObservables[n];
-        obsName = this->GetName() + (TString) "." + obsName;
+        string obsName = fMeanPosObservables[n];
 
         Double_t mpos = 0;
         if (fDirID[n] == (TString) "X")
@@ -570,7 +544,7 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         else if (fDirID[n] == (TString) "Z")
             mpos = fOutputG4Event->GetMeanPositionInVolume(fVolumeID2[n]).Z();
 
-        fAnalysisTree->SetObservableValue(obsName, mpos);
+        SetObservableValue((string)obsName, mpos);
     }
 
     if (GetVerboseLevel() >= REST_Debug) {
