@@ -999,14 +999,13 @@ Int_t TRestG4Metadata::ReadNewDecay0File(TString fileName) {
         exit(1);
     }
 
-    TRestParticleCollection* particleCollection = TRestParticleCollection::instantiate();
-
     TRestParticle particle;
 
     debug << "Reading generator file : " << fileName << endl;
     debug << "Total number of events : " << generatorEvents << endl;
 
     for (int n = 0; n < generatorEvents && !infile.eof(); n++) {
+        TRestParticleCollection* particleCollection = TRestParticleCollection::instantiate();
         particleCollection->RemoveParticles();
 
         int pos = -1;
@@ -1096,14 +1095,13 @@ Int_t TRestG4Metadata::ReadOldDecay0File(TString fileName) {
 
     // cout << "i : " << tmpInt << " fN : " << fGeneratorEvents << endl;
 
-    TRestParticleCollection* particleCollection = TRestParticleCollection::instantiate();
-
     TRestParticle particle;
 
     cout << "Reading generator file : " << fileName << endl;
     cout << "Total number of events : " << fGeneratorEvents << endl;
 
     for (int n = 0; n < fGeneratorEvents && !infile.eof(); n++) {
+        TRestParticleCollection* particleCollection = TRestParticleCollection::instantiate();
         particleCollection->RemoveParticles();
 
         Int_t nParticles;
