@@ -57,7 +57,7 @@
 #  "<readoutModule" tag intertwined.
 # + "readouts.rml" in "/data/definitions/readouts": many self closing
 #  "<readoutModule" tags not properly closed (see caveat (4)).
-# Nota Bena: The above means that output files passed succesfully the
+# Nota Bene: The above means that output files passed succesfully the
 # "xmllint" test and not that they are correctly understood by rest,v2.2.
 
 from __future__ import print_function
@@ -130,7 +130,7 @@ def main():
     try:
         rmlInF = open(args.rmlInFile,"r")
     except IOError, e:
-        sys.stderr.write('%s\n** restv2_1ToXml: Error opening "%s" input <rmlInFile> => Exiting...\n' % (str(e),args.rmlInFile)
+        sys.stderr.write('%s\n** restv2_1ToXml: Error opening "%s" input <rmlInFile> => Exiting...\n' % (str(e),args.rmlInFile))
         sys.exit(2)
     # Copy contents to array "lines"
     lines = []
@@ -145,7 +145,7 @@ def main():
 
 
     ###########   LOOP ON LINES IN INPUT FILE   ##########
-    print(' * restv2_1ToXml: Processing input <rmlInFile> "%s"' % args.rmlInFile))
+    print(' * restv2_1ToXml: Processing input <rmlInFile> "%s"' % args.rmlInFile)
     newlines = []
     newline = ""
     count = newcount = -1
@@ -448,7 +448,7 @@ def main():
                 rmlOutF.write(envline)
             rmlOutF.write("	<!-- Globals proper -->\n")
         #http://legacy.python.org/search/hypermail/python-1992/0115.html
-        #Is it possible to print(something but not automatically have a carriage return appended to it ?
+        #Is it possible to print something but not automatically have a carriage return appended to it ?
         #Yes, append a comma after the last argument to print.
         #print(newline),
         rmlOutF.write("%s" % newline)
@@ -468,10 +468,10 @@ def main():
 
     ##### INDENT
     # It's only done if the "xmllint" check goes well, for else output file
-    # may have to be investigated visually and compared to input fiel: better
+    # may have to be investigated visually and compared to input file: better
     # then that we limit the aount of differences to the minimum...
     if args.doIndent:
-        status = os.system("which emacs >& /dev/null")
+        status = os.system('bash -c "which emacs >& /dev/null"')
         if status:
             print('\n** restv2_1ToXml: No indenting output <rmlOutFile>: "emacs" not available')
         else:
