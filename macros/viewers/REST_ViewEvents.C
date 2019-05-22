@@ -1,6 +1,6 @@
-#include "TRestTask.h"
-#include "TRestGenericEventViewer.h"
 #include "TRestBrowser.h"
+#include "TRestGenericEventViewer.h"
+#include "TRestTask.h"
 
 #include "TRestLinearTrackEvent.h"
 #include "TRestRawSignalEvent.h"
@@ -10,63 +10,51 @@
 #ifndef RestTask_ViewEvents
 #define RestTask_ViewEvents
 
-
-Int_t REST_ViewEvents(TString fName , TString EventType = "")
-{
-	TRestBrowser *browser = new TRestBrowser("TRestGenericEventViewer");
-	//TRestGenericEventViewer *viewer = (TRestGenericEventViewer*)browser->GetViewer();
-	TRestStringOutput cout;
-	cout.setorientation(1);
-	TClass*cl = TClass::GetClass(EventType);
-	if (cl == NULL||EventType=="") {
-		if (cl == NULL) {
-			cout << "REST WARNING : unknown event type \"" << EventType << "\"" << endl;
-			cout << "Using default event in file..." << endl;
-			cout << endl;
-		}
-		browser->OpenFile(fName);
-	}
-	else
-	{
-		TRestEvent*eve = (TRestEvent*)cl->New();
-		browser->SetInputEvent(eve);
-		//viewer->SetEvent(eve);
-		browser->OpenFile(fName);
-
-	}
+Int_t REST_ViewEvents(TString fName, TString EventType = "") {
+    TRestBrowser* browser = new TRestBrowser("TRestGenericEventViewer");
+    // TRestGenericEventViewer *viewer = (TRestGenericEventViewer*)browser->GetViewer();
+    TRestStringOutput cout;
+    cout.setorientation(1);
+    TClass* cl = TClass::GetClass(EventType);
+    if (cl == NULL || EventType == "") {
+        if (cl == NULL) {
+            cout << "REST WARNING : unknown event type \"" << EventType << "\"" << endl;
+            cout << "Using default event in file..." << endl;
+            cout << endl;
+        }
+        browser->OpenFile(fName);
+    } else {
+        TRestEvent* eve = (TRestEvent*)cl->New();
+        browser->SetInputEvent(eve);
+        // viewer->SetEvent(eve);
+        browser->OpenFile(fName);
+    }
 
 #ifdef REST_MANAGER
-	browser->GetChar("Running...\nPress a key to exit");
+    browser->GetChar("Running...\nPress a key to exit");
 #endif
 
-	return 0;
+    return 0;
 }
 
-Int_t REST_ViewLinearTrackEvent(TString fName)
-{
-	REST_ViewEvents(fName, "TRestLinearTrackEvent");
-	return 0;
+Int_t REST_ViewLinearTrackEvent(TString fName) {
+    REST_ViewEvents(fName, "TRestLinearTrackEvent");
+    return 0;
 }
 
-Int_t REST_ViewRawSignalEvent(TString fName)
-{
-	REST_ViewEvents(fName, "TRestRawSignalEvent");
-	return 0;
+Int_t REST_ViewRawSignalEvent(TString fName) {
+    REST_ViewEvents(fName, "TRestRawSignalEvent");
+    return 0;
 }
 
-
-Int_t REST_ViewSignalEvent(TString fName)
-{
-	REST_ViewEvents(fName, "TRestSignalEvent");
-	return 0;
+Int_t REST_ViewSignalEvent(TString fName) {
+    REST_ViewEvents(fName, "TRestSignalEvent");
+    return 0;
 }
 
-Int_t REST_ViewTrackEvent(TString fName)
-{
-	REST_ViewEvents(fName, "TRestTrackEvent");
-	return 0;
+Int_t REST_ViewTrackEvent(TString fName) {
+    REST_ViewEvents(fName, "TRestTrackEvent");
+    return 0;
 }
 
-
-#endif // !REST_ViewEvents
-
+#endif  // !REST_ViewEvents

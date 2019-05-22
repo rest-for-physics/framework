@@ -1,10 +1,9 @@
-#include "TRestTask.h"
 #include "TRestGas.h"
-Int_t REST_GenerateGasFile( char *cfgFile)
-{
-    TRestGas *gas = new TRestGas( cfgFile, "", true );
+#include "TRestTask.h"
+Int_t REST_GenerateGasFile(char* cfgFile) {
+    TRestGas* gas = new TRestGas(cfgFile, "", true);
 
- //   gas->SetGasPressure( 1. );
+    //   gas->SetGasPressure( 1. );
 
     gas->PlotDriftVelocity(1, 1.e7, 50);
     gas->PlotLongitudinalDiffusion(1, 5000, 50);
