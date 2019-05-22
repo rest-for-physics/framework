@@ -251,10 +251,12 @@ void TRestG4Track::PrintTrack(int maxHits) {
     cout.precision(10);
     cout << " SubEvent ID : " << fSubEventId << " Global timestamp : " << GetGlobalTime() << " seconds"
          << endl;
-    cout.precision(2);
+    cout.precision(5);
     cout << " Track ID : " << GetTrackID() << " Parent ID : " << GetParentID();
     cout << " Particle : " << GetParticleName() << " Time track length : " << GetTrackTimeLength() << " us"
          << endl;
+    cout << " Origin : X = " << GetTrackOrigin().X() << "mm Y = " << GetTrackOrigin().Y()
+         << "mm Z = " << GetTrackOrigin().Z() << "mm" << endl;
     cout << " Ekin : " << GetKineticEnergy() << " keV" << endl;
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
             "++++++++++++"
@@ -267,7 +269,6 @@ void TRestG4Track::PrintTrack(int maxHits) {
     }
 
     TRestG4Hits* hits = GetHits();
-    cout.precision(5);
     for (int i = 0; i < nHits; i++) {
         cout << "Hit " << i << " process : " << GetProcessName(hits->GetHitProcess(i))
              << " volume : " << hits->GetHitVolume(i) << " X : " << hits->GetX(i) << " Y : " << hits->GetY(i)
