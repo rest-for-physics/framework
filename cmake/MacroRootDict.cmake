@@ -8,6 +8,10 @@ SET( LD_LIBRARY_PATH_CONTENTS $ENV{${LD_LIBRARY_PATH_VAR}} )
 
 SET( ROOT_CINT_WRAPPER ${LD_LIBRARY_PATH_VAR}=${ROOT_LIBRARY_DIR}:${LD_LIBRARY_PATH_CONTENTS} ${ROOTCINT_EXECUTABLE} )
 
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+    SET( ROOT_CINT_WRAPPER ${ROOTCINT_EXECUTABLE} )
+endif()
+
 IF( NOT DEFINED ROOT_DICT_OUTPUT_DIR )
     SET( ROOT_DICT_OUTPUT_DIR "${PROJECT_BINARY_DIR}/rootdict" )
 ENDIF()
@@ -73,23 +77,18 @@ MACRO( GEN_ROOT_DICT_LINKDEF_HEADER _namespace )
     SET( _linkdef_header "${ROOT_DICT_OUTPUT_DIR}/${_namespace}_Linkdef.h" )
 
     FOREACH( _header ${_input_headers} )
-        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}\\#ifdef __CINT__\\\\n" )
-        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}\\#pragma link off all globals\\;\\\\n" )
-        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}\\#pragma link off all classes\\;\\\\n" )
-        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}\\#pragma link off all functions\\;\\\\n" )
-        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}\\#pragma link C++ nestedclasses\\;\\\\n" )
-        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}\\#pragma link C++ nestedclasses\\;\\\\n" )
-        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}\\#pragma link C++ class ${_namespace}\\+\\;\\\\n" )
-        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}\\#endif\\\\n" )
+        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}#ifdef __CINT__" \n )
+        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}#pragma link off all globals\;" \n )
+        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}#pragma link off all classes\;" \n )
+        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}#pragma link off all functions\;" \n )
+        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}#pragma link C++ nestedclasses\;" \n )
+        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}#pragma link C++ nestedclasses\;" \n )
+        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}#pragma link C++ class ${_namespace}+\;" \n )
+        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}#endif" \n )
     ENDFOREACH()
 
-    ADD_CUSTOM_COMMAND(
-        OUTPUT ${_linkdef_header}
-        COMMAND mkdir -p ${ROOT_DICT_OUTPUT_DIR}
-        COMMAND printf "${${_namespace}_file_contents}" > ${_linkdef_header}
-        DEPENDS ${_input_headers}
-        COMMENT "generating: ${_linkdef_header}"
-    )
+	file(MAKE_DIRECTORY ${ROOT_DICT_OUTPUT_DIR})
+	file(WRITE ${_linkdef_header} ${${_namespace}_file_contents})
 
     SET( ROOT_DICT_INPUT_HEADERS ${_input_headers} ${_linkdef_header} )
 
@@ -118,7 +117,7 @@ MACRO( GEN_ROOT_DICT_SOURCE _dict_src_filename )
 
     SET( _input_depend ${ARGN} )
     # TODO check for ROOT_CINT_EXECUTABLE
-
+	file(MAKE_DIRECTORY ${ROOT_DICT_OUTPUT_DIR})
     # need to prefix all include dirs with -I
     set( _dict_includes )
     FOREACH( _inc ${ROOT_DICT_INCLUDE_DIRS} )
@@ -131,7 +130,6 @@ MACRO( GEN_ROOT_DICT_SOURCE _dict_src_filename )
     STRING( REGEX REPLACE "^(.*)\\.(.*)$" "\\1.h" _dict_hdr_file "${_dict_src_file}" )
     ADD_CUSTOM_COMMAND(
         OUTPUT  ${_dict_src_file}
-        COMMAND mkdir -p ${ROOT_DICT_OUTPUT_DIR}
         COMMAND ${ROOT_CINT_WRAPPER} -f "${_dict_src_file}" -c ${_dict_includes} ${ROOT_DICT_INPUT_HEADERS}
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         DEPENDS ${ROOT_DICT_INPUT_HEADERS} ${_input_depend}
