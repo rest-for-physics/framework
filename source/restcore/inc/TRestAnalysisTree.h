@@ -139,6 +139,7 @@ class TRestAnalysisTree : public TTree {
     void PrintObservables(TRestEventProcess* proc = 0, int NObservables = 9999);
     void PrintObservable(int N);
 
+	void SetEventInfo(TRestEvent* evt);
     Int_t FillEvent(TRestEvent* evt);
 
     Int_t AddObservable(TString objName, TRestMetadata* meta, TString description = "");

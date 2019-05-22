@@ -200,16 +200,18 @@ void TRestAnalysisTree::PrintObservable(int n) {
     }
 }
 
-Int_t TRestAnalysisTree::FillEvent(TRestEvent* evt) {
+void TRestAnalysisTree::SetEventInfo(TRestEvent* evt) {
     fEventID = evt->GetID();
     fSubEventID = evt->GetSubID();
     fTimeStamp = evt->GetTimeStamp().AsDouble();
     *fSubEventTag = evt->GetSubEventTag();
     fRunOrigin = evt->GetRunOrigin();
     fSubRunOrigin = evt->GetSubRunOrigin();
+}
 
-    // return this->Fill();
-    return 0;
+Int_t TRestAnalysisTree::FillEvent(TRestEvent* evt) {
+    SetEventInfo(evt);
+    return this->Fill();
 }
 
 void TRestAnalysisTree::CreateEventBranches() {
