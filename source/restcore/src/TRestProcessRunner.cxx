@@ -733,7 +733,7 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
         TObjArray* branchesL;
 
         if (fAnalysisTree != NULL) {
-            t->GetAnalysisTree()->FillEvent(t->GetOutputEvent());
+            t->GetAnalysisTree()->SetEventInfo(t->GetOutputEvent());
             branchesT = t->GetAnalysisTree()->GetListOfBranches();
             branchesL = fAnalysisTree->GetListOfBranches();
             for (int i = 0; i < nBranches; i++) {
