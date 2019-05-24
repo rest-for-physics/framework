@@ -27,9 +27,9 @@ struct _REST_STARTUP_CHECK {
 };
 const _REST_STARTUP_CHECK __check;
 
-ClassImp(TRestTools)
+ClassImp(TRestTools);
 
-    std::vector<TString> TRestTools::GetListOfRESTLibraries() {
+std::vector<TString> TRestTools::GetListOfRESTLibraries() {
     vector<TString> libraryList;
 
     vector<TString> libraryPathList;
