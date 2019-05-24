@@ -19,7 +19,7 @@ By default REST units are mm, keV and degrees
   <TRestRun name="Run metadata" title="REST Metadata run info (template)">
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
-    <parameter name="runNumber" value="-1"/>  //set value to "auto" can add simulation run into database
+    <parameter name="runNumber" value="auto"/>  //set value to "auto" can add simulation run into database
     <parameter name="readOnly" value="false" />
     <parameter name="runTag" value="Template"/>
     <parameter name="runDescription" value="We launch just 100 events to check everything is ok."/>
