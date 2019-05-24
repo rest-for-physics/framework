@@ -273,11 +273,17 @@ class TRestMetadata : public TNamed {
     /// returning fLibraryVersion
     TString GetLibraryVersion() { return fLibraryVersion; }
 
+    /// returning fLibraryVersion
+    TString GetVersionLibrary() { return fLibraryVersion; }
+
     /// sets the version to REST_RELEASE if the class is TRestRun
     void SetVersion();
 
     /// sets the library version. Needs to be called by each REST library.
     void SetLibraryVersion(TString version) { fLibraryVersion = version; }
+
+    /// sets the library version. Needs to be called by each REST library.
+    void SetVersionLibrary(TString version) { fLibraryVersion = version; }
 
     /// sets the version to -1 if the class is TRestRun
     void UnSetVersion();
