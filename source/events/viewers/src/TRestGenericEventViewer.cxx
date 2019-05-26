@@ -99,10 +99,10 @@ void TRestGenericEventViewer::PreviousOption() {
 }
 
 void TRestGenericEventViewer::OptionPlot() {
-    auto pad = fEvent->DrawEvent(fOptwindow->GetText());
-    if (pad == NULL) pad = new TPad();
+    fPad = fEvent->DrawEvent(fOptwindow->GetText());
+    if (fPad == NULL) fPad = new TPad();
     fCanvas->cd();
-    pad->Draw();
-    pad->Update();
+    fPad->Draw();
+    fPad->Update();
     fCanvas->Update();
 }

@@ -44,14 +44,16 @@ class TRestReadoutEventViewer : public TRestGenericEventViewer {
 
    public:
     void Initialize();
-
+   //Finalize initialization based on arg. TRestReadout
+    void SetReadout(TRestReadout *readout);
+  
     void AddEvent(TRestEvent* ev);
     void DrawReadoutPulses();
     TRestReadoutChannel* GetChannel(int readoutChannel);
     TRestReadoutModule* GetModule(int readoutChannel);
 
     // Constructor
-    TRestReadoutEventViewer(char* cfgFilename);
+    TRestReadoutEventViewer();
     // Destructor
     ~TRestReadoutEventViewer();
 
