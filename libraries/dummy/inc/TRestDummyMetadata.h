@@ -19,29 +19,29 @@
 
 #include <TRestMetadata.h>
 
-class myMetadata : public TRestMetadata {
- private:
-  void Initialize();
+class TRestDummyMetadata : public TRestMetadata {
+   private:
+    void Initialize();
 
-  void InitFromConfigFile();
+    void InitFromConfigFile();
 
-  // Define here your metadata members
-  Int_t fDummy;
+    // Define here your metadata members
+    Int_t fDummy;
 
- public:
-  // You can define methods to access your metadata members here
-  Int_t GetDummyValue() { return fDummy; }
+   public:
+    // You can define methods to access your metadata members here
+    Int_t GetDummyValue() { return fDummy; }
 
-  void SetDummyValue(Int_t value) { fDummy = value; }
+    void SetDummyValue(Int_t value) { fDummy = value; }
 
-  void PrintMetadata();
+    void PrintMetadata();
 
-  // Constructors
-  myMetadata();
-  myMetadata(const char* cfgFileName, std::string name = "");
-  // Destructor
-  ~myMetadata();
+    // Constructors
+    TRestDummyMetadata();
+    TRestDummyMetadata(const char* cfgFileName, std::string name = "");
+    // Destructor
+    ~TRestDummyMetadata();
 
-  ClassDef(myMetadata, 1);
+    ClassDef(TRestDummyMetadata, 1);
 };
 #endif

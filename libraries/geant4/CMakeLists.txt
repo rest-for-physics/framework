@@ -3,12 +3,24 @@
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 set(CMAKE_MACOSX_RPATH 1)
 
-# MY_LIBRARY should contain Rest or REST in the name to be recognized by restRoot and restManager
-set( MY_LIBRARY "MyRestLibraryName" )
+## --------------------------------------------------------------------------
+## ---------- ONLY need to change THIS_LIBRARY and LibraryVersion -----------
+## ---------- to adapt this CMakeLists file to a new library name.  --------
+## ---------- The version value should be assigned to any metadata ----------
+## ---------- structure inside the Initialize method              -----------
+## ----------
+## ---------- THIS_LIBRARY should contain `Rest` or `REST` in the -----------
+## ---------- name to be recognized by TRestTools::GetListOfRestLibraries. --
+## ---------- You might use any string you like in the version field --------
+## ----------
+set( THIS_LIBRARY "RestGeant4" )
+set( LibraryVersion "1.0" )
+## ----------
+## --------------------------------------------------------------------------
 
-project(${MY_LIBRARY})
-
-message("===============  ${MY_LIBRARY}  ==============")
+add_definitions(-DLIBRARY_VERSION="${LibraryVersion}")
+project(${THIS_LIBRARY})
+message("===============  ${THIS_LIBRARY}  ==============")
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake ${CMAKE_MODULE_PATH})
 
@@ -40,6 +52,9 @@ else()
 set(incdir ${PROJECT_SOURCE_DIR}/inc ${ROOT_INCLUDE_DIRS} ${REST_PATH}/include)
 endif()
 
+# TODO Once we have everything in lRestFramework we will replace lRestCore and lRestTools by lRestFramework.
+# TODO See how we include the dependency with TRestDetector. A kind of requires (libRestDetector.so).
+# TODO This must be an option, since we may wish to create a library that does not link to detector libraries.
 if(DEFINED rest_libraries)
 set(lnklib ${rest_libraries} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit)
 else()
@@ -72,14 +87,14 @@ endforeach (header ${headers})
 #----------------------------------------------------------------------------
 # Add the library, and link it to the Geant4 libraries
 #
-add_library(${MY_LIBRARY} SHARED ${sources} ${newsources})
-target_link_libraries(${MY_LIBRARY} ${lnklib})
+add_library(${THIS_LIBRARY} SHARED ${sources} ${newsources})
+target_link_libraries(${THIS_LIBRARY} ${lnklib})
 
 
 #----------------------------------------------------------------------------
 # Install the library to 'lib' directory under REST_PATH
 #
-install(TARGETS ${MY_LIBRARY} DESTINATION lib)
+install(TARGETS ${THIS_LIBRARY} DESTINATION lib)
 
 install(CODE
 "
@@ -88,4 +103,25 @@ file(COPY \${PCMFiles} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
 "
 
+)
+
+string(TOLOWER ${THIS_LIBRARY} lowcaseLibName )
+string(SUBSTRING ${lowcaseLibName} 4 -1 shortLibName )
+
+install(
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/
+        DESTINATION ./data/${shortLibName}/
+        COMPONENT install
+)
+
+install(
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/
+        DESTINATION ./examples/${shortLibName}/
+        COMPONENT install
+)
+
+install(
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/macros/
+        DESTINATION ./macros/${shortLibName}/
+        COMPONENT install
 )
