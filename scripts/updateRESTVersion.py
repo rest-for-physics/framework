@@ -10,15 +10,18 @@ from __future__ import print_function
 import os,sys,re,filecmp
 import subprocess
 
-if len(sys.argv) < 2:
-    print("")
-    print("Usage: ./generateVersionHeader.py XXX.h [SE]")
-    print("")
-    print("If any additional argument different from OFF is provided as [SE].\nSchema evolution will be defined as enabled.")
-    print("")
-    exit(1)
+if len(sys.argv) >= 2:
+    if sys.argv[1] == "--help":
+        print("")
+        print("Usage: ./generateVersionHeader.py XXX.h [SE]")
+        print("")
+        print("If any additional argument different from OFF is provided as [SE].\nSchema evolution will be defined as enabled.")
+        print("")
+        exit(1)
 
-outputHeader = sys.argv[1]
+outputHeader = "TRestVersion.h"
+if len(sys.argv) >= 2:
+    outputHeader = sys.argv[1]
 
 seOption = "ON"
 if len(sys.argv) > 2:
@@ -59,6 +62,9 @@ a = int( re.sub("[^0-9]", "", tag[0:first] ) )
 b = int( re.sub("[^0-9]", "", tag[first+1:last] ) )
 c = int( re.sub("[^0-9]", "", tag[last+1:] ) )
 
+##### Increasing version!!
+c = c + 1
+
 restRelease = str(a) + "." + str(b) + "." + str(c)
 
 code = a << 16 + b << 8 + c
@@ -91,8 +97,6 @@ f.write("#define REST_RELEASE \""+restRelease+"\"\n" )
 f.write("#define REST_RELEASE_DATE \""+date+"\"\n" )
 f.write("#define REST_RELEASE_TIME \""+time+"\"\n" )
 f.write("#define REST_GIT_COMMIT \""+commit[0:8]+"\"\n" )
-f.write("#define REST_GIT_BRANCH \""+branchName+"\"\n" )
-f.write("#define REST_GIT_TAG \""+tag+"\"\n" )
 f.write("#define REST_VERSION_CODE "+str(code)+"\n" )
 f.write("#define REST_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))\n")
 
@@ -108,5 +112,20 @@ if os.path.exists( outputHeader ) and filecmp.cmp( "TRestVersion.tmp", outputHea
     os.remove( "TRestVersion.tmp" )
 else:
     os.rename( "TRestVersion.tmp", outputHeader )
+
+print ("\nA new version file has been generated at : " + outputHeader )
+print ("To increase the version of REST use the generated file to replace the existing TRestVersion.h file.\n" )
+print ("-----> cp " + outputHeader + " /path/to/REST_v2/source/restcore/inc/TRestVersion.h\n")
+print ("After replacing TRestVersion.h, add the file and commit it\n")
+print ("-----> git add /path/to/REST_v2/source/restcore/inc/TRestVersion.h")
+print ("-----> git commit -m \"Updated TRestVersion.h\" " )
+print ("\n")
+print ("You should generate a new Git tag now!\n")
+print ("-----> git tag -a v" + str(a) + "." + str(b) + "." + str(c) + " -m \"Update to version v" + str(a) + "." + str(b) + "." + str(c) + "\"\n" )
+print ("And push the changes to repository\n")
+print ("-----> git push --tags\n" )
+print ("IMPORTANT. Summarize the changes in the tag generated at the Gitlab repository website.\n")
+
+
 
 exit(0)
