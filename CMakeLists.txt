@@ -93,18 +93,18 @@ message(STATUS "REST branch : ${GIT_BRANCH}")
 message("")
 
 
-#generate TRestVersion.h during build stage
-IF (NOT CMAKE_SYSTEM_NAME MATCHES "Windows")
-    add_custom_target(
-            RESTVersion ALL
-            COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generateVersionHeader.py ${CMAKE_CURRENT_SOURCE_DIR}/source/restcore/inc/TRestVersion.h
-            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
-
-    #RESULT_VARIABLE h)
-    #if(h MATCHES 0)
-    #	add_definitions(-DREST_VERSION_HEADER)
-    #endif()
-ENDIF ()
+##generate TRestVersion.h during build stage
+#IF (NOT CMAKE_SYSTEM_NAME MATCHES "Windows")
+#    add_custom_target(
+#            RESTVersion ALL
+#            COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generateVersionHeader.py ${CMAKE_CURRENT_SOURCE_DIR}/source/restcore/inc/TRestVersion.h
+#            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+#
+#    #RESULT_VARIABLE h)
+#    #if(h MATCHES 0)
+#    #	add_definitions(-DREST_VERSION_HEADER)
+#    #endif()
+#ENDIF ()
 
 
 #start compile
