@@ -29,6 +29,7 @@ class TRestParticle : public TObject {
     TVector3 fDirection;
     Double_t fEnergy;
     Int_t fCharge = 0;
+    TVector3 fOrigin;
 
    public:
     TString GetParticleName() { return fParticleName; }
@@ -36,12 +37,14 @@ class TRestParticle : public TObject {
     Double_t GetEnergy() { return fEnergy; }
     TVector3 GetMomentumDirection() { return fDirection; }
     Int_t GetParticleCharge() { return fCharge; }
+    TVector3 GetOrigin() { return fOrigin; }
 
     void SetParticle(TRestParticle ptcle) {
         fExcitationLevel = ptcle.GetExcitationLevel();
         fParticleName = ptcle.GetParticleName();
         fEnergy = ptcle.GetEnergy();
         fDirection = ptcle.GetMomentumDirection();
+        fOrigin = ptcle.fOrigin;
     }
 
     void SetParticleName(TString ptcle) { fParticleName = ptcle; }
@@ -54,12 +57,13 @@ class TRestParticle : public TObject {
 
     void SetDirection(TVector3 dir) { fDirection = dir; }
     void SetEnergy(Double_t en) { fEnergy = en; }
+    void SetOrigin(TVector3 pos) { fOrigin = pos; }
 
-    // Construtor
+    //Constructor
     TRestParticle();
     // Destructor
     virtual ~TRestParticle();
 
-    ClassDef(TRestParticle, 2);
+    ClassDef(TRestParticle, 3); 
 };
 #endif

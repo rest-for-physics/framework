@@ -49,21 +49,35 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
   // (in endOfEventAction)
   restG4Event->Initialize();
 
+  // Singling out generator type "file" so as to...
+  // ...not randomize its sequence.
+  // ...set a distinct position for each particle.
+  string type = (string) restG4Metadata->GetGeneratorType();
+
   // If there are particle collections stored is because we are using a
   // generator from file
   if (nCollections > 0) {
-    Int_t rndCollection = (Int_t)(G4UniformRand() * nCollections);
+    Int_t rndCollection;
+    if (type == "file") { // Generator type "file": no randomisation
+      static int nEvts = 0; rndCollection = nEvts++;
+    }
+    else rndCollection = (Int_t) (G4UniformRand() * nCollections);
 
     restG4Metadata->SetParticleCollection(rndCollection);
   }
 
   Int_t nParticles = restG4Metadata->GetNumberOfPrimaries();
 
-  // Position is common for all particles
-  SetParticlePosition();
+  if (type != "file") // Except for generator "file"...
+    // ...Position is common for all particles
+    SetParticlePosition();
 
   for (int j = 0; j < nParticles; j++) {
-    // ParticleDefinition should be always declared first
+    if ( type == "file" ) // Generator type "file"...
+      // ...Get position from particle collection
+      SetParticlePosition(j);
+
+    // ParticleDefinition should be always declared first (after position).
     SetParticleDefinition(j);
 
     // Particle Direction must be always set before energy
@@ -253,9 +267,9 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
 
   if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
     cout << "Event direction has been set : " << endl;
-    cout << "(" << restG4Event->GetPrimaryEventDirection(0).X() << ", "
-         << restG4Event->GetPrimaryEventDirection(0).Y() << ", "
-         << restG4Event->GetPrimaryEventDirection(0).Z() << ")" << endl;
+    cout << "(" << restG4Event->GetPrimaryEventDirection(n).X() << ", "
+         << restG4Event->GetPrimaryEventDirection(n).Y() << ", "
+         << restG4Event->GetPrimaryEventDirection(n).Z() << ")" << endl;
   }
 
   // setting particle direction
@@ -513,6 +527,24 @@ void PrimaryGeneratorAction::SetParticlePosition() {
 
   // setting particle position
   fParticleGun->SetParticlePosition(G4ThreeVector(x, y, z));
+}
+
+//_____________________________________________________________________________
+void PrimaryGeneratorAction::SetParticlePosition( int n )
+{
+  // Storing particle's position to that retrieved from TRestParticle
+  TVector3 pos = restG4Metadata->GetParticleSource(n).GetOrigin();
+  restG4Event->SetPrimaryEventOrigin( pos );
+
+  if( restG4Metadata->GetVerboseLevel() >= REST_Debug ) {
+    cout << "Event origin has been set : " << endl;
+    cout << "("<<restG4Event->GetPrimaryEventOrigin().X() << ", "
+	 << restG4Event->GetPrimaryEventOrigin().Y() << ", "
+	 << restG4Event->GetPrimaryEventOrigin().Z() << ")" << endl;
+  }
+
+  // Setting particle position
+  fParticleGun->SetParticlePosition(G4ThreeVector(pos.X(), pos.Y(), pos.Z()));
 }
 
 //_____________________________________________________________________________

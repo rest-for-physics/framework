@@ -181,14 +181,17 @@
 ///
 /// We can define any number of primary particles (sources) that will be used
 /// to construct an initial event. All primary particles that build an
-/// event will have a common position. The spatial origin of these sources, or
+/// event will have a common position(*). The spatial origin of these sources, or
 /// primaries, is specified in the definition of the generator, through the
 /// generator *type* field.
+/// (*) This rule is exceptionally broken for generator type "file", meant to
+/// provide for fringe cases where, e.g., events prepared by an external MC
+/// generator are propagated in the TPC, including their incident particle.
 ///
 /// We must specify the generator type as an attribute of the generator element
 /// as follows: \code <generator type="generatorType" ... > \endcode
 ///
-/// Depending on the generator type we use, we will need to define additional
+/// Depending on the generator type we use, we will need to add additional
 /// values to the generator definition.
 ///
 /// The different types we can choose to use in *restG4*, are detailed in the
@@ -921,6 +924,8 @@ void TRestG4Metadata::PrintMetadata() {
         metadata << "Generator length : " << GetGeneratorLength() << " mm" << endl;
     } else if (generatorType == "virtualBox")
         metadata << "Generator size : " << GetGeneratorSize() << " mm" << endl;
+    else if (generatorType == "file" )
+        metadata << "Generator file : \"" << GetGeneratorFile() << "\"\n";
     metadata << "++++++++++Particles++++++++++" << endl;
     metadata << "Number of primary particles : " << GetNumberOfPrimaries() << endl;
     metadata << "Generator file : " << GetGeneratorFile() << endl;
@@ -1082,10 +1087,16 @@ Int_t TRestG4Metadata::ReadOldDecay0File(TString fileName) {
 
     string s;
     // First lines are discarded.
-    for (int i = 0; i < 30; i++) {
+    int headerFound = 0; for (int i = 0; i < 30; i++) {
         getline(infile, s);
         if (s.find("#!bxdecay0 1.0.0") != -1) return 0;
-        if (s.find("First event and full number of events:") != -1) break;
+        if (s.find("First event and full number of events:") != -1) {
+    	  headerFound = 1; break;
+    	}
+    }
+    if (!headerFound) {
+	error << "TRestG4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event and full number of events:\" header.\n";
+	abort();
     }
     int tmpInt;
     int fGeneratorEvents;
@@ -1094,6 +1105,7 @@ Int_t TRestG4Metadata::ReadOldDecay0File(TString fileName) {
     // cout << "i : " << tmpInt << " fN : " << fGeneratorEvents << endl;
 
     TRestParticle particle;
+    string type = (string) GetGeneratorType();
 
     cout << "Reading generator file : " << fileName << endl;
     cout << "Total number of events : " << fGeneratorEvents << endl;
@@ -1113,18 +1125,33 @@ Int_t TRestG4Metadata::ReadOldDecay0File(TString fileName) {
             Int_t pID;
             Double_t momx, momy, momz, mass;
             Double_t energy = -1, momentum2;
+	    Double_t x, y, z;
 
             infile >> pID >> momx >> momy >> momz >> time;
+	    if (type == "file") infile >> x >> y >> z;
 
             // cout << momx << " " << momy << " " << momz << " " << endl;
 
-            if (pID == 3) {
-                momentum2 = (momx * momx) + (momy * momy) + (momz * momz);
-                mass = 0.511;
+	    bool ise = 2<=pID && pID<=3, ismu = 5<=pID && pID<=6, isp = pID==14, isg = pID==1;
+	    if (ise || ismu || isp || isg) {
+	        momentum2 = (momx * momx) + (momy * momy) + (momz * momz);
+		if        (ise) {
+		    mass = 0.511;
+		    particle.SetParticleName(pID==2?"e+":"e-");
+		    particle.SetParticleCharge(pID==2?1:-1);
+		} else if (ismu) {
+		    mass = 105.7;
+		    particle.SetParticleName(pID==5?"mu+":"mu-");
+		    particle.SetParticleCharge(pID==5?1:-1);
+		} else if (isp) {
+		    mass = 938.3; particle.SetParticleName("proton");
+		    particle.SetParticleCharge(1);
+		} else {
+		    mass = 0;     particle.SetParticleName("gamma");
+		    particle.SetParticleCharge(0);
+		}
 
                 energy = TMath::Sqrt(momentum2 + mass * mass) - mass;
-                particle.SetParticleName("e-");
-                particle.SetParticleCharge(-1);
                 particle.SetExcitationLevel(0);
             } else {
                 cout << "Particle id " << pID << " not recognized" << endl;
@@ -1135,6 +1162,7 @@ Int_t TRestG4Metadata::ReadOldDecay0File(TString fileName) {
 
             particle.SetEnergy(1000. * energy);
             particle.SetDirection(momDirection);
+	    particle.SetOrigin(TVector3(x,y,z));
 
             particleCollection->AddParticle(particle);
         }
