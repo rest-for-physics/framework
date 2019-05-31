@@ -598,11 +598,9 @@
 /// History of developments:
 ///
 /// 2015-July: First concept and implementation of TRestG4 classes.
-///            Javier Galán
-///
-///
-/// \class      TRestG4Metadata
 /// \author     Javier Galan
+///
+/// \class TRestG4Metadata
 ///
 /// <hr>
 ///

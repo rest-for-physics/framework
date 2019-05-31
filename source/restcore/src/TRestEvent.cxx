@@ -21,21 +21,19 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-///
-/// RESTsoft - Software for Rare Event Searches with TPCs
-///
-/// \class      TRestEvent
-/// A base class for any REST event
-///
-/// One of the core classes of REST. Absract class
+/// TRestEvent is one of the core classes of REST. Absract class
 /// from which all REST "event classes" must derive.
 /// REST event classes represent the different holders to store
-/// single event data. TRestEvent contain common data members
-/// to all type of events, like the timestamp or the references to
-/// the run and subrun numbers which they belong to. It contains
+/// specific event data. TRestEvent contains common data members
+/// to all type of events, as it is the timestamp. or the references to
+/// the event belongs to, as run and subrun numbers. It contains
 /// virtual functions that must be implemented in derived classes
 /// like Initialize(), PrintEvent() or DrawEvent().
 ///
+///
+///--------------------------------------------------------------------------
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
 ///
 /// History of developments:
 ///
@@ -43,10 +41,10 @@
 ///            code (REST v2)
 ///            Igor G. Irastorza
 ///
-/// 2017-Aug:  Major change to xml reading and class startup procedure
-///            Kaixiang Ni
+/// \class TRestEvent
 ///
 /// <hr>
+///
 //////////////////////////////////////////////////////////////////////////
 
 #include "TRestEvent.h"

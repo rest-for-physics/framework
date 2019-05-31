@@ -19,10 +19,7 @@ using namespace std;
 
 #include <TString.h>
 
-//! This namespace defines the unit conversion for different units which are
-//! understood by REST
-
-//! TODO: Write a detailed description HERE
+/// This namespace defines the unit conversion for different units which are understood by REST.
 namespace REST_Units {
 
 const double meV = 1e6;

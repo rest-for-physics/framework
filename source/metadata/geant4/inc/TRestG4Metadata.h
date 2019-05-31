@@ -40,8 +40,7 @@
 #include <TRestG4PrimaryGenerator.h>
 #include <TRestMetadata.h>
 
-//! The main class to store the *Geant4* simulation conditions that will be used
-//! by *restG4*.
+/// The main class to store the *Geant4* simulation conditions that will be used by *restG4*.
 class TRestG4Metadata : public TRestMetadata {
    private:
     void Initialize();

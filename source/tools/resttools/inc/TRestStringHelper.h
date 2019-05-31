@@ -18,11 +18,9 @@
 #include <TVector2.h>
 #include <TVector3.h>
 
-/// String helper classes. Declared static to be able to access them without
-/// having to instantiate TRestMetadata.
-
 using namespace std;
 
+/// String helper classes. Declared static to be able to have direct access to the methods
 namespace REST_StringHelper {
 
 Int_t isANumber(std::string in);

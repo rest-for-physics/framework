@@ -1,6 +1,5 @@
 //////////////////////////////////////////////////////////////////////////
 ///
-
 ///
 /// This class is inherted from TRestRun. It opens input file as TRestRun
 /// defined, and shows a plot of the event contained in the file. The plot

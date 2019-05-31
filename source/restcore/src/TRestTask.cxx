@@ -19,11 +19,7 @@
 ///
 /// History of developments:
 ///
-/// 2014-june: First concept. As part of conceptualization of previous REST
-///            code (REST v2)
-///            Igor G. Irastorza
-///
-/// 2017-Aug:  Major change to xml reading and class startup procedure
+/// 2017-Nov:  First concept and implementation of TRestTask
 ///            Kaixiang Ni
 ///
 /// <hr>

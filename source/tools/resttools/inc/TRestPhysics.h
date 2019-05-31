@@ -6,10 +6,7 @@ using namespace std;
 
 #include <TString.h>
 
-//! This namespace defines the unit conversion for different units which are
-//! understood by REST
-
-//! TODO: Write a detailed description HERE
+/// This namespace serves to define physics constants
 namespace REST_Physics {
 
 const double vacuumPermitivity = 8.854E-12;                  // F/m

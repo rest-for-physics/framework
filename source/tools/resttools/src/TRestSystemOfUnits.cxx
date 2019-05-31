@@ -5,6 +5,22 @@
 #include "TRestStringHelper.h"
 using namespace std;
 
+//////////////////////////////////////////////////////////////////////////
+/// TODO : Write a detailed documentation here
+///
+///
+///--------------------------------------------------------------------------
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2017-Nov:   First concept and implementation of REST_Units namespace.
+/// \author     Javier Galan
+///
+/// \class REST_Units
+///
+/// <hr>
 namespace REST_Units {
 
 Double_t GetEnergyInRESTUnits(Double_t energy, TString unitsStr) {
