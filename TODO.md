@@ -48,7 +48,7 @@ Use it to discuss about options to solve a particular point, or to inform others
 TODO: This section will evolve in a section to determine README files or directories that require documentation.
 
 * B.1 [ ] Write a README.md for X directory.
-* 
+
 * B.2 [ ] Review README.md at Y directory.
 
 ## C. Examples
@@ -367,4 +367,17 @@ Note : Rename these processes to TRestRawToSignalAFTERProcess, TRestRawToSignalC
 ## E. New directory structure. Towards 2.3.0 release.
 
 After previous points have been addressed. We start to integrate the new directory structure. This topic might be discussed in between.
+
+Preliminary proposed structure, this is just a very open proposal to be discussed.
+- framework/tools : Like tools, string helper, anlysis tools, etc
+- framework/physics : REST_Units, REST_Physics, TRestParticle interface, TRestFieldMap interface, TRestHits, TRestSignal, TRestMesh.
+- framework/core : TRestEvent, TRestEventProcess, TRestMetadata, TRestRun, TRestManager, TRestProcessRunner, TRestThread
+
+- libraries/detector : TRestSignalEvent, TRestHitsEvent, and TRestReadout related processes and metadata.
+- libraries/raw : TRestRawSignalEvent related processes and metadata.
+- libraries/geant4 : TRestGeant4Event related processes and metadata.
+- libraries/track : TRestTrackEvent related processes and metadata.
+- libraries/projectedTrack : Related TRestProjectedTrack processes and metadata.
+
+- libraries/dummy : It will be used as a reference for all other libraries, CMakeLists and directory structure, data/ examples/ etc/ macros/ src/ inc/.
 
