@@ -2,35 +2,40 @@
 
 ## 1. Contributing changes to the repository with Git
 
-The Git system is an efficient way to track changes to the code in the repository `if used smartly`.
-The history of the code repository will be digested into `commits`. Being a commit a minimum change to
-the code of the repository. Usually involving `no more than 2-3 files`. 
+The Git system is an efficient way to track changes to the code in the repository *if used smartly*.
+The history of the code repository will be digested into **commits**. Being a commit a minimum change to
+the code of the repository. Usually involving **no more than 2-3 files**. 
 
-The code can be independently developed into `branches` where we add `commits`. The main branch or 
-`master branch` is the branch where we should finally merge the definitive changes of any `development branch`.
+The code can be independently developed into **branches** where we add *commit*. The main branch or 
+**master branch** is the branch where we should finally merge the definitive changes of any parallel **development branch**.
 
 You may refer to the [Git website](https://git-scm.com/book/en/v2/Getting-Started-Git-Basics) for details on basic git usage. See also basic [CERN Gitlab tutorials](https://gitlab.cern.ch/help/gitlab-basics/README.md).
 
 ### Using branches in REST repository
 
-A branch can be contributed by several users at the same time. The `REST` repository will contain at 
-least `one main development branch` that can be contributed by anyone with developer access (while 
-any user can create his own branch for personal testing and/or future merging to the `development branch`). 
-The name of this branch will be the REST version followed by `_dev`, e.g. `v2.2.1_dev`.
+A branch can be contributed by several users at the same time. The REST repository will contain at 
+least **one main `development` branch** that can be contributed by anyone with developer access (while 
+any user can create his own branch for personal testing and/or future merging to the *development branch*).
 
-You can place yourself in the development branch by using `git checkout`
+The name of the main development branch will be the latest REST version followed by `_dev`, e.g. `v2.2.1_dev`.
+
+You can place yourself in the development branch by updating your local repository index `git fetch` and using `git checkout`
 
 ```
-git checkout v2.2.1_dev
+git fetch
+git checkout v2.2.XX_dev
 ```
+
+where XX is the minor version of the existing development branch.
 
 Use `git status` at any time in the command line to get information of the `branch name` you are working on,
 and the files you have modified.
 
-
-Small changes to the code, i.e. bug fixes, new class methods, new processes, etc, can be directly pushed
- to the `development branch`. While major changes taking place in longer development periods, i.e. days or 
-weeks, should be contributed in an independent branch for future merge to the `development branch`.
+The *development* branch is intended for obvious bug fixes or contributions that have been previously discussed in the forum or marked as minor issue. 
+Major contributions or experimental updates should be placed in independent branches. User or dedicated branches may be named `experimental` branches.
+While the *development* branch will be merged to master in the short term, experimental branches might not be finally merged to master, 
+and are in principle considered temporary branches that might be removed at any time once they got stalled. Therefore, small changes to the code, i.e. bug fixes, new class methods, new processes, etc, can be directly pushed
+ to the `development branch`. While major changes taking place in longer development periods, i.e. days or weeks, should be contributed in an independent branch for future merge to the **main development branch**.
 
 For details on branches usage refer to the [branches section](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell) 
 at the Git documentation.
@@ -45,15 +50,15 @@ TODO : describe how changes should be discussed at REST forum. Bug report, repor
 
 ### Adding a new commit to the development branch
 
-It is critical to prepare the `commit` following a few basic rules in order to allow future code review and track
+It is critical to prepare the **commit** following a few basic rules in order to allow future code review and track
 historical changes that may produce a future conflict identified much later on in time.
 
-The changes introduced to any single file added to the `commit` should be minimal, i.e. avoiding to upload a 
+The changes introduced to any single file added to the **commit** should be minimal, i.e. avoiding to upload a 
 file with temporary debugging code or comments used during the code development and testing process.
 
-Only the files involved in a particular change should be included in the `commit`.
+Only the files involved in a particular change should be included in the **commit**.
 
-In order to check the differences introduced in the `local copy` of a particular file we can use `git diff`,
+In order to check the differences introduced in the **local copy** of a particular file we can use `git diff`,
 
 ```
 git diff sourceFile.cxx
@@ -75,36 +80,34 @@ adding it to the `commit`). When we have added all the files in a commit we can 
 git commit -m "My contribution to REST"
 ```
 
-It is important to know that, up to now, these changes took place only on your `local machine`, and in order
+It is important to know that, up to now, these changes took place only on your **local machine**, and in order
 to `push` (or upload) these changes to the repository we must do `git push`.
 
 ```
 git push
 ```
 
-Note: This action may fail in case your local branch is not synchronized with the `remote branch`, or in 
-other words, the repository contains new commits that you have not pulled (downloaded) to your `local copy`.
+Note: This action may fail in case your local branch is not synchronized with the **remote branch**, or in 
+other words, the repository contains new commits that you have not pulled (downloaded) to your **local copy**.
 
-In that case you will need to update your local copy using `git pull`.
+In that case you will need to update your local copy before pushing any changes using `git pull`.
 
 
 The first steps with git may be sometimes confusing for beginners. Specially if you enter in conflict
-with others code. We encourage you to request help in the `REST forum` in case you run into troubles.
+with others code. We encourage you to request help in the *REST forum* in case you run into troubles.
 
 ### The commit message format
 
-One of the `most critical` parts of a commit in the REST repository is the `commit message`. The GitLab
+One of the *most critical* parts of a commit in the REST repository is the *commit message*. The GitLab
 web interface will allow to list and navigate through the commit history and changes introduced in
 each file.
 
 The interface allows to search commits by using the contents of the commit message. Therefore, a proper
 commit message will allow us to search and identify promptly where given changes were introduced.
 
-The commit message `should include` at least the name of the main class, the name of the binary, script
- or package being modified.
-
-Having a commit message format will help in the future to find all changes related to a given REST class
-or file. Some examples of `good commit messages` are the following ones
+The commit message **should include** at least the name of the main class, the name of the binary, script
+ or package being modified. Having a commit message format will help in the future to find all changes 
+ related to a given REST class or file. Some examples of **good commit messages** are the following ones
 
 ```
 git commit -m "TRestReadout::GetPixelPosition method modified. Bug fixed related to pixel rotation."
@@ -115,13 +118,13 @@ git commit -m "TRestFieldMap class added for the first time."
 
 ```
 
-Please, make your `commit message as short and significant` as possible. The commit message is not intended
-to explain others the changes you introduced, but to give an idea. The changes introduced will be accessible
+Please, make your **commit message as short and significant** as possible. The commit message is not intended
+to explain others detailed changes you introduced, but to give an idea. The changes introduced will be accessible
 in the contents of the commit that can be searched in the web interface. Therefore, more detailed comments
-can be introduced in the `documentation` of the class, and it will be highlighted in the commit differences by
+can be introduced in the *documentation* of the class. Differences will be highlighted in the commit by
 the GitLab web interface when we access the commit contents.
 
-A `bad commit message` will pretend to provide the use of the new feature introduced, for example.
+A **bad commit message** will pretend to provide the use of the new feature introduced, for example.
 
 ```
 git commit -m "I added a new method that provides the energies of gamma transfer in a biasing volume. The new method should receive 3 parameters as input ... and it will return a value in the specified energy range."
@@ -129,17 +132,17 @@ git commit -m "I added a new method that provides the energies of gamma transfer
 
 The above-mentioned commit message contains the following mistakes:
 
-- It does not contain the name of the `class`, neither the `method`.
-- It is `not concise`. The explanations should be included inside the code together the documentation of the method.
-- It is `not short`.
+- It **does not contain the name** of the *class*, neither the *method*.
+- It **is not concise**. The explanations should be included inside the code together the documentation of the method.
+- It **is not short**`.
 
 ## 2. REST Versioning
 
-Since version `2.2.1`, REST is adopting `automatic schema evolution` feature of ROOT.
+Since version `2.2.1`, REST is adopting **automatic schema evolution** feature of ROOT.
 Therefore, the impact of changes in REST classes, i.e. adding, removing or modifying class members, 
-should have been minimized. That is, any future REST version `should be able to read 
-older versions` without major issues or warnings. Therefore, any new/future generation 
-of data before v2.2.1 is `not recommended` for compatibility reasons.
+should have been minimized. That is, any future REST version *should be able to read 
+older versions* without major issues or warnings. Therefore, any new/future generation 
+of data `before v2.2.1` is **not recommended** for compatibility reasons.
 
 ----
 
