@@ -289,12 +289,16 @@ version or after a particular version.
 
 ## 3. Programming style
 
-TODO: Update clang-format
+All Contributors should try to follow a single coding style in order to maintain cohesion of the code and make the code as readable as possible.
 
-The contributors may first have a quick look read of common [C++ coding styles](http://geosoft.no/development/cppstyle.html) 
-before starting coding in the repository. Even if you have long experience writing you will reinforce your coding style 
-and detect few things you might be doing wrong when writ-ting readable code. We should try to keep a fixed style.
-Points 84 and 71 (4 spaces indentation) are very important!
+### Clang-Format
+
+In order to achieve this cohesion we chose the tool [clang-format](https://clang.llvm.org/docs/ClangFormat.html) which is the industry standard tool to format C++ code. It only requires a single `.clang-format` file which is included on the root of the repository.
+
+This file contains all the information about our coding style of choice which is based on the [Google C++ style](https://google.github.io/styleguide/cppguide.html). This file will track the latest changes in style directives and contributors are encouraged to submit improvements to this file with the goal of increasing readability and cohesion.
+
+clang-format can be launched from the terminal and also is supported by almost any IDE or editor (such as [Vim](https://clang.llvm.org/docs/ClangFormat.html#vim-integration)). There is also an optional script (`/scripts/reformat-clang.sh`) which can be launched to reformat the whole repository. The contributor is encouraged to either enable clang-format support in their editor of choice or to run this script before a significant push.
+
 
 ### Control the amount of output message in a process
 
