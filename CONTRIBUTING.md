@@ -28,7 +28,7 @@ git checkout v2.2.XX_dev
 
 where XX is the minor version of the existing development branch.
 
-Use `git status` at any time in the command line to get information of the `branch name` you are working on,
+Use `git status` at any time in the command line to get information of the **branch name** you are working on,
 and the files you have modified.
 
 The *development* branch is intended for obvious bug fixes or contributions that have been previously discussed in the forum or marked as minor issue. 
@@ -155,14 +155,14 @@ number shall be provided together with published or internal results. Moreover, 
 the data file, we will always be able to recover the version used to generate those results.
 
 A change in REST version serves to mark down an important step or a timeline in the evolution
-of the code. The version `might be increased` in at the following scenarios:
+of the code. The version **might be increased** in at the following scenarios:
 1. When new features are added.
 2. When changes or modifications affect the behaviour of the framework.
 3. To fix a REST version release to produce data in a experiment physics run.
 4. New processes, metadata or event data types that introduce new functionalities to REST.
 5. Important changes on REST core libraries that introduce new features.
 
-A version number increase `will be mandatory` when the modification of existing processes or
+A version number increase **will be mandatory** when the modification of existing processes or
 REST core libraries change the behaviour and may lead to different results:
 - leading to different results by modifying, upgrading or debugging of existing processes or REST classes,
 - modifying the structure of ROOT output file,
@@ -180,7 +180,7 @@ In order to change the version of REST we need to tag the state of the code usin
 
 Once we have produced a new tag we can generate a new `TRestVersion.h` header file with the information of the new version.
 
-Inside the scripts/ directory. Execute the following command to generate the version header.
+Inside the scripts/ directory. Execute the following command to generate the version header which will be extracted from the latest tag name.
 
 ```
 ./generateVersionHeader.py TRestVersion.h
@@ -204,8 +204,6 @@ The contents of the generated file will look like this
 #define REST_RELEASE_DATE "2018-11-01"
 #define REST_RELEASE_TIME "07:40:41 +0800"
 #define REST_GIT_COMMIT "a71c196f"
-#define REST_GIT_BRANCH "v2.2.1"
-#define REST_GIT_TAG "v2.2.1"
 #define REST_VERSION_CODE 131585
 #define REST_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 #define REST_SCHEMA_EVOLUTION "OFF"
@@ -221,38 +219,34 @@ when pushing the code:
 
 ### Version control strategy
 
-NEEDS REVISION. TRestVersion.h is not generated automatically anymore.
-
-REST uses the git tagging system to control its version. The tag value is directly our version number. 
+REST uses the git tagging system to control its version. The tag value is directly used to extract the REST version number. 
 It must be written using the following format 2.X.Y, where X represents a major change or transition in 
 the code, and Y represents a minor change/correction/update of the code. Usually we increase the value 
-of Y when updating the version. Both X and Y ranges from 0 to 255.
+of Y when updating the version. Both X and Y ranges from 0 to 255. Usually X will be updated when a major change, or 
+backwards compatibility takes place.
 
-A header `TRestVersion.h` is generated at compilation time, calling git commands from cmd line. This header
-contains various information about version, version number, commit id, branch name, etc.. (see example of header above). We also keep a default 
-TRestVersion.h in master branch for those who are unfamiliar with git. They may directly download zip from 
-git website, and then unzip and call `cmake && make install` in REST directory. TRestVersion.h will be updated
-together with version update.
+The script `generateVersionHeader.py` found under scripts directory will generate a `TRestVersion.h` header. This header
+contains information about version, version number, commit id, date, etc.. (see example of header above). If satisfied
+with the result generated inside `TRestVersion.h` you may update the REST version by overwritting the `TRestVersion.h`
+found under `source/restcore/inc/`.
 
-We only create tags for commits in the master branch. This branch is also the default branch on the website or 
-during `git clone`. We keep master branch being updated weekly or monthly, in each update we will assign a new 
-tag. So if the user only download/clone the master branch, he will always get the **tagged commit**, which is 
-exactly a definite version.
+Tags may be created (leading to an update of REST version) at any time. We reserve that for the main development
+branch, that will be at some point merged to master, and the only one that will be merged to master.
 
 All the development work shall be within individual branches. The development branches should be named after 
 the version from which they are checked out. e.g. `v2.2.1_dev` or `v2.2.3_trackAnalysisNew`. Whenever the 
-developer verifies himself that the modification is working, he can `make a merge request to the master branch`.
-We will test those changes also. If we decide to accept the merge request, and if the changes are important, 
-we will push the merge immediately. Otherwise we shall wait several other merges before pushing.
+developer verifies himself that the modification is working, she can **make a merge request to the development 
+branch, v2.2.11_dev**. Minor bug fixes, or non harming updates, such as adding new methods to a class may be added
+directly to the development branch.
 
-After the merge-to-master is pushed to gitlab, we will:
+Steps to increase the version of REST in the development branch.
 
-1. increase the version/tag to e.g. v2.2.2. Using git tag -a v2.2.2 -m "Update to version 2.2.2".
-2. merge, or create a merge request, of the development branch to master.
-2. update TRestVersion.h in master branch,
-3. remove the merged development branch, and create a new one using the naming convention,
-4. create a release note for the new version
-5. send a mail to rest-dev@cern.ch mail list to inform the update.
+1. increase the tag to the next minor revision e.g. from v2.2.1 to v2.2.2. Using git tag -a v2.2.2 -m "Update to version 2.2.2".
+2. generate a new `TRestVersion.h` header, and overwrite the one in `restcore`.
+3. push the changes to the remote development branch, `git push --tags`.
+4. Enter to the Gitlab website and document the changes on the **tags** section.
+5. Create a merge request to master of the development branch with the new updated version.
+
 
 ### Using the version number
 
@@ -260,7 +254,7 @@ Any `TRestMetadata` class contains a member named `fVersion` that will be initia
 and that will be written to disk together with other metadata information. This member can be accessed by 
 inherited classes by using `GetVersion()`, `GetVersionCode()` and `SetVersion()`.
  
-fVersion is retrieved together with the metadata structure from a ROOT file. Then the result of GetVersion()
+`fVersion` is retrieved together with the metadata structure from a previously written ROOT file. Then the result of GetVersion()
 might be different from the version of current REST build. We can compare them and act differently according to the result.
  
 There are two important parameters defined in `TRestVersion.h`: `REST_RELEASE` and `REST_VERSION_CODE`.
@@ -268,10 +262,11 @@ There are two important parameters defined in `TRestVersion.h`: `REST_RELEASE` a
 * `REST_RELEASE` is a string that will be stored in any `TRestMetadata::fVersion` class member when it is written
 to disk, and it can be recovered in future using `TRestMetadata::GetVersion()`. 
 * `REST_VERSION_CODE` is a 
-code generated using `REST_VERSION( 2, X, Y)` where X and Y are the major and minor version numbers. This code can be used to determine if a REST version is more recent or older than the installed REST
+code generated using `REST_VERSION( 2, X, Y)` where X and Y are the major and minor version numbers. 
+This code can be used to determine if a REST version is more recent or older than the installed REST
 version. The code of any metadata structure can be retrieved calling `TRestMetadata::GetVersionCode()`.
 
-These two parameters, `REST_RELEASE` and `REST_VERSION` will allow us always to compare the installed version 
+These two parameters, `REST_RELEASE` and `REST_VERSION` will allow us to compare the installed version 
 to the version stored in a `TRestMetadata` structures as follows.
 
 ```c++
@@ -293,6 +288,8 @@ This programming enables the REST users to take special actions that may need to
 version or after a particular version.
 
 ## 3. Programming style
+
+TODO: Update clang-format
 
 The contributors may first have a quick look read of common [C++ coding styles](http://geosoft.no/development/cppstyle.html) 
 before starting coding in the repository. Even if you have long experience writing you will reinforce your coding style 
