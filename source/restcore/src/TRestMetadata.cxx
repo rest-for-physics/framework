@@ -2092,7 +2092,11 @@ TString TRestMetadata::GetVerboseLevelString() {
 }
 
 ///////////////////////////////////////////////
-/// Returns a string with the path defined in sections "searchPath".
+/// Returns a string with a list of pathes defined, in decreasing order of
+/// precedence:
+///  1) in sections "searchPath",
+///  2) in env. var. "configPath",
+///  3) as env. var. "REST_PATH", expceted to point to REST base directory.
 ///
 /// To add a searchPath, use:
 /// \code
@@ -2109,10 +2113,8 @@ TString TRestMetadata::GetVerboseLevelString() {
 /// TRestStringHelper. Uniformed search path definition provides us uniformed
 /// file search tool, see TRestMetadata::SearchFile().
 TString TRestMetadata::GetSearchPath() {
+    string result = "";
     TiXmlElement* e = fElement;
-    // string result = "";
-    string result = getenv("configPath") == NULL ? ":" : getenv("configPath") + (string) ":";
-    result += getenv("REST_PATH") + (string) "/data/:";
     TiXmlElement* ele = e->FirstChildElement("searchPath");
     while (ele != NULL) {
         if (ele->Attribute("value") != NULL) {
@@ -2120,9 +2122,9 @@ TString TRestMetadata::GetSearchPath() {
         }
         ele = ele->NextSiblingElement("searchPath");
     }
-    if (result[result.size() - 1] == ':') {
-        result.erase(result.size() - 1);
-    }
+    if (getenv("configPath")) result += getenv("configPath") + (string)":";
+    result += getenv("REST_PATH") + (string) "/data/:";
+    if (result.back() == ':') result.erase(result.size() - 1);
 
     return ReplaceEnvironmentalVariables(result);
 }
