@@ -51,7 +51,8 @@ or more options such as ignoring underscores.
 
 namespace parameters {
   string CleanString(string);
-  enum generator_types {
+
+  enum class generator_types {
     FILE,
     VOLUME,
     SURFACE,
@@ -63,6 +64,21 @@ namespace parameters {
     VIRTUAL_CYLINDER,
   };
   extern std::map<string, generator_types> generator_types_map;
+
+  enum class energy_dist_types {
+    TH1D,
+    MONO,
+    FLAT,
+  };
+  extern std::map<string, energy_dist_types> energy_dist_types_map;
+
+  enum class angular_dist_types {
+    TH1D,
+    ISOTROPIC,
+    FLUX,
+    BACK_TO_BACK,
+  };
+  extern std::map<string, angular_dist_types> angular_dist_types_map;
 }
 
 /*
