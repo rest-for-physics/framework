@@ -74,7 +74,7 @@ void TRestAnalysisTree::CopyObservableList(TRestAnalysisTree* from, string prefi
         fObservableTypes.insert(fObservableTypes.begin(), tmptypes.begin(), tmptypes.end());
         fNObservables += from->GetNumberOfObservables();
 
-        fConnected = true;
+        //fConnected = true;
     } else {
         cout << "REST ERROR: AnalysisTree Observables is already connected!" << endl;
     }
