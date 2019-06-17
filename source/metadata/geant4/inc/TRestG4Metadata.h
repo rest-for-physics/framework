@@ -69,6 +69,31 @@ class TRestG4Metadata : public TRestMetadata {
     /// Type of spatial generator (surface, volume, point, virtualWall, etc)
     TString fGenType;
 
+    enum generator_types {
+        FILE,
+        VOLUME,
+        SURFACE,
+        POINT,
+        VIRTUAL_WALL,
+        VIRTUAL_BOX,
+        VIRTUAL_SPHERE,
+        VIRTUAL_CIRCLE_WALL,
+    };
+
+    // TODO: place this function in a more generic place (base metadata?)
+    string CleanString(string s) { return s; }
+
+    const std::map<string, generator_types> generator_types_map{
+        {CleanString("file"), generator_types::FILE},
+        {CleanString("volume"), generator_types::VOLUME},
+        {CleanString("surface"), generator_types::SURFACE},
+        {CleanString("point"), generator_types::POINT},
+        {CleanString("virtualWall"), generator_types::VIRTUAL_WALL},
+        {CleanString("virtualBox"), generator_types::VIRTUAL_BOX},
+        {CleanString("virtualSphere"), generator_types::VIRTUAL_SPHERE},
+        {CleanString("virtualCircleWall"), generator_types::VIRTUAL_CIRCLE_WALL},
+    };
+
     /// The volume name where the events are generated, in case of volume or
     /// surface generator types.
     TString fGenFrom;
@@ -149,6 +174,10 @@ class TRestG4Metadata : public TRestMetadata {
     /// virtualWall, etc )
     TString GetGeneratorType() { return fGenType; }
 
+    generator_types GetGeneratorTypeEnum() {
+        string generator_type = (string) fGenType;
+        return generator_types_map[CleanString(generator_type)];
+    }
     /// \brief Returns the name of the GDML volume where primary events are
     /// produced. This value has meaning only when using volume or surface
     /// generator types.
@@ -318,6 +347,6 @@ class TRestG4Metadata : public TRestMetadata {
 
     ~TRestG4Metadata();
 
-    ClassDef(TRestG4Metadata, 2);
+    ClassDef(TRestG4Metadata, 3);
 };
 #endif
