@@ -52,13 +52,14 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
   // Singling out generator type "file" so as to...
   // ...not randomize its sequence.
   // ...set a distinct position for each particle.
-  string type = (string) restG4Metadata->GetGeneratorType();
+  string generator_type_name = (string) restG4Metadata->GetGeneratorType();
+  parameters::generator_types generator_type = parameters::generator_types_map[parameters::CleanString(generator_type_name)];
 
   // If there are particle collections stored is because we are using a
   // generator from file
   if (nCollections > 0) {
     Int_t rndCollection;
-    if (type == "file") { // Generator type "file": no randomisation
+    if (generator_type == parameters::generator_types::FILE) { // Generator type "file": no randomisation
       static int nEvts = 0;
       rndCollection = nEvts++;
     } else rndCollection = (Int_t) (G4UniformRand() * nCollections);
@@ -68,12 +69,12 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
 
   Int_t nParticles = restG4Metadata->GetNumberOfPrimaries();
 
-  if (type != "file") // Except for generator "file"...
+  if (generator_type != parameters::generator_types::FILE) // Except for generator "file"...
     // ...Position is common for all particles
     SetParticlePosition();
 
   for (int j = 0; j < nParticles; j++) {
-    if (type == "file") // Generator type "file"...
+    if (generator_type == parameters::generator_types::FILE) // Generator type "file"...
       // ...Get position from particle collection
       SetParticlePosition(j);
 
@@ -134,11 +135,12 @@ G4ParticleDefinition *PrimaryGeneratorAction::SetParticleDefinition(int n) {
 void PrimaryGeneratorAction::SetParticleDirection(int n) {
   G4ThreeVector direction;
 
-  string type =
-      (string) restG4Metadata->GetParticleSource(n).GetAngularDistType();
+  string angular_dist_type_name = (string) restG4Metadata->GetParticleSource(n).GetAngularDistType();
+  parameters::angular_dist_types angular_dist_type =
+      parameters::angular_dist_types_map[parameters::CleanString(angular_dist_type_name)];
 
   // TODO make this kind of string keyword comparisons case insensitive?
-  if (type == "isotropic") {
+  if (angular_dist_type == parameters::angular_dist_types::ISOTROPIC) {
     if ((string) restG4Metadata->GetGeneratorType() == "virtualBox") {
       if (face == 0) direction.set(0, -1, 0);
       if (face == 1) direction.set(0, 1, 0);
@@ -176,7 +178,7 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
     } else {
       direction = GetIsotropicVector();
     }
-  } else if (type == "TH1D") {
+  } else if (angular_dist_type == parameters::angular_dist_types::TH1D) {
     Double_t angle = 0;
     Double_t value = G4UniformRand() * (fAngularDistribution->Integral());
     Double_t sum = 0;
@@ -239,14 +241,14 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
     //       G4cout << "Angle  " << direction.angle( referenceOrigin ) << "
     //       should be = to " << angle << G4endl;
 
-  } else if (type == "flux") {
+  } else if (angular_dist_type == parameters::angular_dist_types::FLUX) {
     TVector3 v = restG4Metadata->GetParticleSource(n).GetDirection();
 
     v = v.Unit();
 
     direction.set(v.X(), v.Y(), v.Z());
 
-  } else if (type == "backtoback") {
+  } else if (angular_dist_type == parameters::angular_dist_types::BACK_TO_BACK) {
     // This should never crash. In TRestG4Metadata we have defined that if the
     // first source is backtoback we set it to isotropic
     TVector3 v = restG4Event->GetPrimaryEventDirection(n - 1);
@@ -276,19 +278,20 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
 
 //_____________________________________________________________________________
 void PrimaryGeneratorAction::SetParticleEnergy(int n) {
-  string type =
-      (string) restG4Metadata->GetParticleSource(n).GetEnergyDistType();
+  string energy_dist_type_name = (string) restG4Metadata->GetParticleSource(n).GetEnergyDistType();
+  parameters::energy_dist_types energy_dist_type =
+      parameters::energy_dist_types_map[parameters::CleanString(energy_dist_type_name)];
 
   Double_t energy = 0;
 
-  if (type == "mono") {
+  if (energy_dist_type == parameters::energy_dist_types::MONO) {
     energy = restG4Metadata->GetParticleSource(n).GetEnergy() * keV;
-  } else if (type == "flat") {
+  } else if (energy_dist_type == parameters::energy_dist_types::FLAT) {
     TVector2 enRange = restG4Metadata->GetParticleSource(n).GetEnergyRange();
 
     energy =
         ((enRange.Y() - enRange.X()) * G4UniformRand() + enRange.X()) * keV;
-  } else if (type == "TH1D") {
+  } else if (energy_dist_type == parameters::energy_dist_types::TH1D) {
     Double_t value = G4UniformRand() * fSpectrumIntegral;
     Double_t sum = 0;
     Double_t deltaEnergy =
