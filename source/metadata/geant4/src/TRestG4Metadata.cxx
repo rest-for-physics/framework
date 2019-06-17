@@ -610,6 +610,22 @@
 #include "TRestG4Metadata.h"
 using namespace std;
 
+
+namespace parameters{
+  string CleanString(string s){ return s;}
+  std::map<string, generator_types> generator_types_map = {
+      {CleanString("file"), generator_types::FILE},
+      {CleanString("volume"), generator_types::VOLUME},
+      {CleanString("surface"), generator_types::SURFACE},
+      {CleanString("point"), generator_types::POINT},
+      {CleanString("virtualWall"), generator_types::VIRTUAL_WALL},
+      {CleanString("virtualBox"), generator_types::VIRTUAL_BOX},
+      {CleanString("virtualSphere"), generator_types::VIRTUAL_SPHERE},
+      {CleanString("virtualCircleWall"), generator_types::VIRTUAL_CIRCLE_WALL},
+      {CleanString("virtualCylinder"), generator_types::VIRTUAL_CYLINDER},
+  };
+}
+
 ClassImp(TRestG4Metadata)
     ///////////////////////////////////////////////
     /// \brief Default constructor

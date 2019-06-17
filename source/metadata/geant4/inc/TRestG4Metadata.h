@@ -22,7 +22,6 @@
 
 #ifndef RestCore_TRestG4Metadata
 #define RestCore_TRestG4Metadata
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstdio>
@@ -40,6 +39,35 @@
 #include <TRestG4PrimaryGenerator.h>
 #include <TRestMetadata.h>
 
+/*
+------------------------------------------------------------------------------------------------------------------------
+
+ * This section was added by Luis A. Obis (lobis@unizar.es) on 17/06/2019
+
+Here we add all the possible options for different configurations such as all the types of generators, etc.
+We use a structure called 'enum' and a function to clean the strings so that we can easily implement case insensitivity
+or more options such as ignoring underscores.
+*/
+
+namespace parameters {
+  string CleanString(string);
+  enum generator_types {
+    FILE,
+    VOLUME,
+    SURFACE,
+    POINT,
+    VIRTUAL_WALL,
+    VIRTUAL_BOX,
+    VIRTUAL_SPHERE,
+    VIRTUAL_CIRCLE_WALL,
+    VIRTUAL_CYLINDER,
+  };
+  extern std::map<string, generator_types> generator_types_map;
+}
+
+/*
+------------------------------------------------------------------------------------------------------------------------
+*/
 /// The main class to store the *Geant4* simulation conditions that will be used by *restG4*.
 class TRestG4Metadata : public TRestMetadata {
    private:
@@ -68,31 +96,6 @@ class TRestG4Metadata : public TRestMetadata {
 
     /// Type of spatial generator (surface, volume, point, virtualWall, etc)
     TString fGenType;
-
-    enum generator_types {
-        FILE,
-        VOLUME,
-        SURFACE,
-        POINT,
-        VIRTUAL_WALL,
-        VIRTUAL_BOX,
-        VIRTUAL_SPHERE,
-        VIRTUAL_CIRCLE_WALL,
-    };
-
-    // TODO: place this function in a more generic place (base metadata?)
-    string CleanString(string s) { return s; }
-
-    const std::map<string, generator_types> generator_types_map{
-        {CleanString("file"), generator_types::FILE},
-        {CleanString("volume"), generator_types::VOLUME},
-        {CleanString("surface"), generator_types::SURFACE},
-        {CleanString("point"), generator_types::POINT},
-        {CleanString("virtualWall"), generator_types::VIRTUAL_WALL},
-        {CleanString("virtualBox"), generator_types::VIRTUAL_BOX},
-        {CleanString("virtualSphere"), generator_types::VIRTUAL_SPHERE},
-        {CleanString("virtualCircleWall"), generator_types::VIRTUAL_CIRCLE_WALL},
-    };
 
     /// The volume name where the events are generated, in case of volume or
     /// surface generator types.
@@ -174,10 +177,12 @@ class TRestG4Metadata : public TRestMetadata {
     /// virtualWall, etc )
     TString GetGeneratorType() { return fGenType; }
 
-    generator_types GetGeneratorTypeEnum() {
+    /*
+    config::generator_types GetGeneratorTypeEnum() {
         string generator_type = (string) fGenType;
-        return generator_types_map[CleanString(generator_type)];
+        return config::generator_types_map[config::CleanString(generator_type)];
     }
+     */
     /// \brief Returns the name of the GDML volume where primary events are
     /// produced. This value has meaning only when using volume or surface
     /// generator types.
@@ -347,6 +352,6 @@ class TRestG4Metadata : public TRestMetadata {
 
     ~TRestG4Metadata();
 
-    ClassDef(TRestG4Metadata, 3);
+    ClassDef(TRestG4Metadata, 2);
 };
-#endif
+#endif // RestCore_TRestG4Metadata
