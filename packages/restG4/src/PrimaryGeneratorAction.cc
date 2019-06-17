@@ -61,7 +61,12 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
   }else{
     // if we get here it means the parameter is not valid, we can either assign a default value or stop execution
     // default value
-    cout << "Invalid generator type " + generator_type_name << std::endl;
+    cout << "Invalid angular distribution (" + generator_type_name + ") valid values are: ";
+    for ( const auto &pair : parameters::generator_types_map ) {
+      cout << pair.first << ", ";
+    }
+    cout << std::endl;
+
     throw "Invalid generator type";
   }
 
@@ -155,7 +160,11 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
   }else{
     // if we get here it means the parameter is not valid, we can either assign a default value or stop execution
     // default value
-    cout << "Invalid angular distribution " + angular_dist_type_name << std::endl;
+    cout << "Invalid angular distribution (" + angular_dist_type_name + ") valid values are: ";
+    for ( const auto &pair : parameters::angular_dist_types_map ) {
+      cout << pair.first << ", ";
+    }
+    cout << std::endl;
     throw "Invalid angular distribution";
   }
   // generator type
@@ -167,7 +176,11 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
   }else{
     // if we get here it means the parameter is not valid, we can either assign a default value or stop execution
     // default value
-    cout << "Invalid generator type " + generator_type_name << std::endl;
+    cout << "Invalid angular distribution (" + generator_type_name + ") valid values are: ";
+    for ( const auto &pair : parameters::generator_types_map ) {
+      cout << pair.first << ", ";
+    }
+    cout << std::endl;
     throw "Invalid generator type";
   }
 
@@ -319,7 +332,11 @@ void PrimaryGeneratorAction::SetParticleEnergy(int n) {
   }else{
     // if we get here it means the parameter is not valid, we can either assign a default value or stop execution
     // default value in this case is 1 keV
-    cout << "Invalid energy distribution type " + energy_dist_type_name << std::endl;
+    cout << "Invalid angular distribution (" + energy_dist_type_name + ") valid values are: ";
+    for ( const auto &pair : parameters::angular_dist_types_map ) {
+      cout << pair.first << ", ";
+    }
+    cout << std::endl;
     G4cout << "WARNING! Energy distribution type was not recognized. Setting "
               "energy to 1keV"
            << G4endl;
