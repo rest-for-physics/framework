@@ -14,8 +14,8 @@
 #include <TRestG4Event.h>
 #include <TRestG4Metadata.h>
 
-extern TRestG4Metadata* restG4Metadata;
-extern TRestG4Event* restG4Event;
+extern TRestG4Metadata *restG4Metadata;
+extern TRestG4Event *restG4Event;
 
 extern Int_t biasing;
 
@@ -23,7 +23,7 @@ Int_t face = 0;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-PrimaryGeneratorAction::PrimaryGeneratorAction(DetectorConstruction* pDetector)
+PrimaryGeneratorAction::PrimaryGeneratorAction(DetectorConstruction *pDetector)
     : G4VUserPrimaryGeneratorAction(), fParticleGun(0), fDetector(pDetector) {
   G4int n_particle = 1;
   fParticleGun = new G4ParticleGun(n_particle);
@@ -39,7 +39,7 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() { delete fParticleGun; }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
+void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
   if (restG4Metadata->GetVerboseLevel() >= REST_Info)
     cout << "Primary generation..." << endl;
   // We have to initialize here and not in start of the event because
@@ -59,9 +59,9 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
   if (nCollections > 0) {
     Int_t rndCollection;
     if (type == "file") { // Generator type "file": no randomisation
-      static int nEvts = 0; rndCollection = nEvts++;
-    }
-    else rndCollection = (Int_t) (G4UniformRand() * nCollections);
+      static int nEvts = 0;
+      rndCollection = nEvts++;
+    } else rndCollection = (Int_t) (G4UniformRand() * nCollections);
 
     restG4Metadata->SetParticleCollection(rndCollection);
   }
@@ -73,7 +73,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
     SetParticlePosition();
 
   for (int j = 0; j < nParticles; j++) {
-    if ( type == "file" ) // Generator type "file"...
+    if (type == "file") // Generator type "file"...
       // ...Get position from particle collection
       SetParticlePosition(j);
 
@@ -90,12 +90,12 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 }
 
 //_____________________________________________________________________________
-G4ParticleDefinition* PrimaryGeneratorAction::SetParticleDefinition(int n) {
+G4ParticleDefinition *PrimaryGeneratorAction::SetParticleDefinition(int n) {
   string particleName =
-      (string)restG4Metadata->GetParticleSource(n).GetParticleName();
+      (string) restG4Metadata->GetParticleSource(n).GetParticleName();
 
   Double_t eenergy =
-      (double)restG4Metadata->GetParticleSource(n).GetExcitationLevel();
+      (double) restG4Metadata->GetParticleSource(n).GetExcitationLevel();
 
   Int_t charge = restG4Metadata->GetParticleSource(n).GetParticleCharge();
 
@@ -106,8 +106,8 @@ G4ParticleDefinition* PrimaryGeneratorAction::SetParticleDefinition(int n) {
     cout << "-- Debug : particle excited energy : " << eenergy << endl;
   }
 
-  G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-  G4ParticleDefinition* particle = particleTable->FindParticle(particleName);
+  G4ParticleTable *particleTable = G4ParticleTable::GetParticleTable();
+  G4ParticleDefinition *particle = particleTable->FindParticle(particleName);
 
   if ((particle == NULL)) {
     // There might be a better way to do this
@@ -135,11 +135,11 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
   G4ThreeVector direction;
 
   string type =
-      (string)restG4Metadata->GetParticleSource(n).GetAngularDistType();
+      (string) restG4Metadata->GetParticleSource(n).GetAngularDistType();
 
   // TODO make this kind of string keyword comparisons case insensitive?
   if (type == "isotropic") {
-    if ((string)restG4Metadata->GetGeneratorType() == "virtualBox") {
+    if ((string) restG4Metadata->GetGeneratorType() == "virtualBox") {
       if (face == 0) direction.set(0, -1, 0);
       if (face == 1) direction.set(0, 1, 0);
       if (face == 2) direction.set(-1, 0, 0);
@@ -158,7 +158,7 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
       // We rotate a random angle along the original direction
       Double_t randomAngle = G4UniformRand() * 2 * M_PI;
       direction.rotate(randomAngle, referenceOrigin);
-    } else if ((string)restG4Metadata->GetGeneratorType() == "virtualSphere") {
+    } else if ((string) restG4Metadata->GetGeneratorType() == "virtualSphere") {
       direction = -fParticleGun->GetParticlePosition().unit();
 
       Double_t theta = GetCosineLowRandomThetaAngle();
@@ -176,21 +176,19 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
     } else {
       direction = GetIsotropicVector();
     }
-  }
-
-  else if (type == "TH1D") {
+  } else if (type == "TH1D") {
     Double_t angle = 0;
     Double_t value = G4UniformRand() * (fAngularDistribution->Integral());
     Double_t sum = 0;
 
     Double_t deltaAngle = fAngularDistribution->GetBinCenter(2) -
-                          fAngularDistribution->GetBinCenter(1);
+        fAngularDistribution->GetBinCenter(1);
     for (int bin = 1; bin <= fAngularDistribution->GetNbinsX(); bin++) {
       sum += fAngularDistribution->GetBinContent(bin);
 
       if (sum >= value) {
         angle = fAngularDistribution->GetBinCenter(bin) +
-                deltaAngle * (0.5 - G4UniformRand());
+            deltaAngle * (0.5 - G4UniformRand());
         break;
       }
     }
@@ -219,7 +217,7 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
       direction.set(1, 0, 0);
     }
 
-    if ((string)restG4Metadata->GetGeneratorType() == "virtualBox") {
+    if ((string) restG4Metadata->GetGeneratorType() == "virtualBox") {
       if (face == 0) direction.set(0, -1, 0);
       if (face == 1) direction.set(0, 1, 0);
       if (face == 2) direction.set(-1, 0, 0);
@@ -279,7 +277,7 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
 //_____________________________________________________________________________
 void PrimaryGeneratorAction::SetParticleEnergy(int n) {
   string type =
-      (string)restG4Metadata->GetParticleSource(n).GetEnergyDistType();
+      (string) restG4Metadata->GetParticleSource(n).GetEnergyDistType();
 
   Double_t energy = 0;
 
@@ -300,9 +298,9 @@ void PrimaryGeneratorAction::SetParticleEnergy(int n) {
 
       if (sum > value) {
         energy = energyFactor *
-                 (Double_t)(fSpectrum->GetBinCenter(bin) +
-                            deltaEnergy * (0.5 - G4UniformRand())) *
-                 keV;
+            (Double_t) (fSpectrum->GetBinCenter(bin) +
+                deltaEnergy * (0.5 - G4UniformRand())) *
+            keV;
         break;
       }
     }
@@ -324,10 +322,10 @@ void PrimaryGeneratorAction::SetParticleEnergy(int n) {
 //_____________________________________________________________________________
 void PrimaryGeneratorAction::SetParticlePosition() {
   double x = 0, y = 0, z = 0;
-  string type = (string)restG4Metadata->GetGeneratorType();
+  string generator_type_name = (string) restG4Metadata->GetGeneratorType();
+  parameters::generator_types generator_type = parameters::generator_types_map[parameters::CleanString(generator_type_name)];
 
-  // TODO make this kind of string keyword comparisons case insensitive?
-  if (type == "volume") {
+  if (generator_type == parameters::generator_types::VOLUME) {
     double xMin = fDetector->GetBoundingX_min();
     double xMax = fDetector->GetBoundingX_max();
     double yMin = fDetector->GetBoundingY_min();
@@ -340,12 +338,12 @@ void PrimaryGeneratorAction::SetParticlePosition() {
       y = yMin + (yMax - yMin) * G4UniformRand();
       z = zMin + (zMax - zMin) * G4UniformRand();
     } while (fDetector->GetGeneratorSolid()->Inside(G4ThreeVector(x, y, z)) !=
-             kInside);
+        kInside);
 
     x = x + fDetector->GetGeneratorTranslation().x();
     y = y + fDetector->GetGeneratorTranslation().y();
     z = z + fDetector->GetGeneratorTranslation().z();
-  } else if (type == "surface") {
+  } else if (generator_type == parameters::generator_types::SURFACE) {
     // TODO there is a problem, probably with G4 function GetPointOnSurface
     // It produces a point on the surface but it is not uniformly distributed
     // May be it is just an OPENGL drawing issue?
@@ -360,14 +358,14 @@ void PrimaryGeneratorAction::SetParticlePosition() {
     x = x + fDetector->GetGeneratorTranslation().x();
     y = y + fDetector->GetGeneratorTranslation().y();
     z = z + fDetector->GetGeneratorTranslation().z();
-  } else if (type == "point") {
+  } else if (generator_type == parameters::generator_types::POINT) {
     TVector3 position = restG4Metadata->GetGeneratorPosition();
 
     x = position.X();
     y = position.Y();
     z = position.Z();
 
-  } else if (type == "virtualWall") {
+  } else if (generator_type == parameters::generator_types::VIRTUAL_WALL) {
     Double_t side = restG4Metadata->GetGeneratorSize();
 
     x = side * (G4UniformRand() - 0.5);
@@ -383,7 +381,7 @@ void PrimaryGeneratorAction::SetParticlePosition() {
     x = rndPos.x() + center.X();
     y = rndPos.y() + center.Y();
     z = rndPos.z() + center.Z();
-  } else if (type == "virtualCircleWall") {
+  } else if (generator_type == parameters::generator_types::VIRTUAL_CIRCLE_WALL) {
     Double_t radius = restG4Metadata->GetGeneratorSize();
 
     do {
@@ -402,7 +400,7 @@ void PrimaryGeneratorAction::SetParticlePosition() {
     x = rndPos.x() + center.X();
     y = rndPos.y() + center.Y();
     z = rndPos.z() + center.Z();
-  } else if (type == "virtualSphere") {
+  } else if (generator_type == parameters::generator_types::VIRTUAL_SPHERE) {
     G4ThreeVector rndPos = GetIsotropicVector();
 
     Double_t radius = restG4Metadata->GetGeneratorSize();
@@ -412,7 +410,7 @@ void PrimaryGeneratorAction::SetParticlePosition() {
     x = radius * rndPos.x() + center.X();
     y = radius * rndPos.y() + center.Y();
     z = radius * rndPos.z() + center.Z();
-  } else if (type == "virtualCylinder") {
+  } else if (generator_type == parameters::generator_types::VIRTUAL_CYLINDER) {
     Double_t angle = 2 * M_PI * G4UniformRand();
 
     Double_t radius = restG4Metadata->GetGeneratorSize();
@@ -432,7 +430,7 @@ void PrimaryGeneratorAction::SetParticlePosition() {
     x = rndPos.x() + center.X();
     y = rndPos.y() + center.Y();
     z = rndPos.z() + center.Z();
-  } else if (type == "virtualBox") {
+  } else if (generator_type == parameters::generator_types::VIRTUAL_BOX) {
     Double_t side = restG4Metadata->GetGeneratorSize();
 
     x = side * (G4UniformRand() - 0.5);
@@ -530,17 +528,16 @@ void PrimaryGeneratorAction::SetParticlePosition() {
 }
 
 //_____________________________________________________________________________
-void PrimaryGeneratorAction::SetParticlePosition( int n )
-{
+void PrimaryGeneratorAction::SetParticlePosition(int n) {
   // Storing particle's position to that retrieved from TRestParticle
   TVector3 pos = restG4Metadata->GetParticleSource(n).GetOrigin();
-  restG4Event->SetPrimaryEventOrigin( pos );
+  restG4Event->SetPrimaryEventOrigin(pos);
 
-  if( restG4Metadata->GetVerboseLevel() >= REST_Debug ) {
+  if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
     cout << "Event origin has been set : " << endl;
-    cout << "("<<restG4Event->GetPrimaryEventOrigin().X() << ", "
-	 << restG4Event->GetPrimaryEventOrigin().Y() << ", "
-	 << restG4Event->GetPrimaryEventOrigin().Z() << ")" << endl;
+    cout << "(" << restG4Event->GetPrimaryEventOrigin().X() << ", "
+         << restG4Event->GetPrimaryEventOrigin().Y() << ", "
+         << restG4Event->GetPrimaryEventOrigin().Z() << ")" << endl;
   }
 
   // Setting particle position
