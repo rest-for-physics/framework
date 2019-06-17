@@ -612,7 +612,10 @@ using namespace std;
 
 
 namespace parameters{
-  string CleanString(string s){ return s;}
+  string CleanString(string s){
+    std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+    return s;
+  }
 
   std::map<string, generator_types> generator_types_map = {
     {CleanString("file"), generator_types::FILE},

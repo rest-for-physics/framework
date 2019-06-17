@@ -52,8 +52,18 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
   // Singling out generator type "file" so as to...
   // ...not randomize its sequence.
   // ...set a distinct position for each particle.
+
   string generator_type_name = (string) restG4Metadata->GetGeneratorType();
-  parameters::generator_types generator_type = parameters::generator_types_map[parameters::CleanString(generator_type_name)];
+  generator_type_name = parameters::CleanString(generator_type_name);
+  parameters::generator_types generator_type;
+  if (parameters::generator_types_map.count(generator_type_name)){
+    generator_type = parameters::generator_types_map[generator_type_name];
+  }else{
+    // if we get here it means the parameter is not valid, we can either assign a default value or stop execution
+    // default value
+    cout << "Invalid generator type " + generator_type_name << std::endl;
+    throw "Invalid generator type";
+  }
 
   // If there are particle collections stored is because we are using a
   // generator from file
@@ -134,14 +144,35 @@ G4ParticleDefinition *PrimaryGeneratorAction::SetParticleDefinition(int n) {
 
 void PrimaryGeneratorAction::SetParticleDirection(int n) {
   G4ThreeVector direction;
-
+  // TODO: maybe reduce code redundancy by defining some functions?
+  // TODO: fix bug when giving TH1D with lowercase (e.g. Th1D). string conversion is OK but integral gives exception.
   string angular_dist_type_name = (string) restG4Metadata->GetParticleSource(n).GetAngularDistType();
-  parameters::angular_dist_types angular_dist_type =
-      parameters::angular_dist_types_map[parameters::CleanString(angular_dist_type_name)];
+  angular_dist_type_name = parameters::CleanString(angular_dist_type_name);
+  parameters::angular_dist_types angular_dist_type;
+  // we first check if it is a valid parameter
+  if (parameters::angular_dist_types_map.count(angular_dist_type_name)){
+    angular_dist_type = parameters::angular_dist_types_map[angular_dist_type_name];
+  }else{
+    // if we get here it means the parameter is not valid, we can either assign a default value or stop execution
+    // default value
+    cout << "Invalid angular distribution " + angular_dist_type_name << std::endl;
+    throw "Invalid angular distribution";
+  }
+  // generator type
+  string generator_type_name = (string) restG4Metadata->GetGeneratorType();
+  generator_type_name = parameters::CleanString(generator_type_name);
+  parameters::generator_types generator_type;
+  if (parameters::generator_types_map.count(generator_type_name)){
+    generator_type = parameters::generator_types_map[generator_type_name];
+  }else{
+    // if we get here it means the parameter is not valid, we can either assign a default value or stop execution
+    // default value
+    cout << "Invalid generator type " + generator_type_name << std::endl;
+    throw "Invalid generator type";
+  }
 
-  // TODO make this kind of string keyword comparisons case insensitive?
   if (angular_dist_type == parameters::angular_dist_types::ISOTROPIC) {
-    if ((string) restG4Metadata->GetGeneratorType() == "virtualBox") {
+    if (generator_type == parameters::generator_types::VIRTUAL_BOX) {
       if (face == 0) direction.set(0, -1, 0);
       if (face == 1) direction.set(0, 1, 0);
       if (face == 2) direction.set(-1, 0, 0);
@@ -160,7 +191,7 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
       // We rotate a random angle along the original direction
       Double_t randomAngle = G4UniformRand() * 2 * M_PI;
       direction.rotate(randomAngle, referenceOrigin);
-    } else if ((string) restG4Metadata->GetGeneratorType() == "virtualSphere") {
+    } else if (generator_type == parameters::generator_types::VIRTUAL_SPHERE) {
       direction = -fParticleGun->GetParticlePosition().unit();
 
       Double_t theta = GetCosineLowRandomThetaAngle();
@@ -278,11 +309,24 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
 
 //_____________________________________________________________________________
 void PrimaryGeneratorAction::SetParticleEnergy(int n) {
-  string energy_dist_type_name = (string) restG4Metadata->GetParticleSource(n).GetEnergyDistType();
-  parameters::energy_dist_types energy_dist_type =
-      parameters::energy_dist_types_map[parameters::CleanString(energy_dist_type_name)];
-
   Double_t energy = 0;
+
+  string energy_dist_type_name = (string) restG4Metadata->GetParticleSource(n).GetEnergyDistType();
+  energy_dist_type_name = parameters::CleanString(energy_dist_type_name);
+  parameters::energy_dist_types energy_dist_type;
+  if (parameters::generator_types_map.count(energy_dist_type_name)){
+    energy_dist_type = parameters::energy_dist_types_map[energy_dist_type_name];
+  }else{
+    // if we get here it means the parameter is not valid, we can either assign a default value or stop execution
+    // default value in this case is 1 keV
+    cout << "Invalid energy distribution type " + energy_dist_type_name << std::endl;
+    G4cout << "WARNING! Energy distribution type was not recognized. Setting "
+              "energy to 1keV"
+           << G4endl;
+    energy = 1 * keV;
+    // maybe it would be better to set type as mono and change energy of particle, or define the default energy there
+    // throw "Invalid energy distribution type";
+  }
 
   if (energy_dist_type == parameters::energy_dist_types::MONO) {
     energy = restG4Metadata->GetParticleSource(n).GetEnergy() * keV;
