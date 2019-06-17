@@ -228,6 +228,24 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
       if (face == 5) direction.set(0, 0, 1);
     }
 
+       if ((string)restG4Metadata->GetGeneratorType() == "virtualWall") {
+         double x = 0, y = 0, z = 0;
+       TVector3 center = restG4Metadata->GetGeneratorPosition();
+          TVector3 ad = (-1)*center.Unit();
+	ad.RotateX(M_PI * restG4Metadata->GetGeneratorRotation().X()/180);
+	ad.RotateY(M_PI * restG4Metadata->GetGeneratorRotation().Y()/180);
+	ad.RotateZ(M_PI * restG4Metadata->GetGeneratorRotation().Z()/180);
+   
+        x=ad.X();
+	y=ad.Y();
+	z=ad.Z();
+
+     direction.set(x,y,z);
+
+           }   
+
+
+
     G4ThreeVector referenceOrigin = direction;
 
     // We rotate the origin direction by the angular distribution angle
