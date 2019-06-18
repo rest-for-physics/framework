@@ -614,6 +614,10 @@ namespace parameters {
 string CleanString(string s) {
     // transform the string to lowercase
     std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+    // this is a temporary fix, TH1D name comparison is being done elsewhere and giving error
+    if (s == "th1d"){
+      s = "TH1D";
+    }
     return s;
 }
 
