@@ -45,14 +45,14 @@
  * This section was added by Luis A. Obis (lobis@unizar.es) on 17/06/2019
 
 Here we add all the possible options for different configurations such as all the types of generators, etc.
-We use a structure called 'enum' and a function to clean the strings so that we can easily implement case insensitivity
-or more options such as ignoring underscores.
+We use a structure called 'enum' and a function to clean the strings so that we can easily implement case
+insensitivity or more options such as ignoring underscores.
 */
 
 namespace parameters {
-  string CleanString(string);
+string CleanString(string);
 
-  enum class generator_types {
+enum class generator_types {
     FILE,
     VOLUME,
     SURFACE,
@@ -62,24 +62,24 @@ namespace parameters {
     VIRTUAL_SPHERE,
     VIRTUAL_CIRCLE_WALL,
     VIRTUAL_CYLINDER,
-  };
-  extern std::map<string, generator_types> generator_types_map;
+};
+extern std::map<string, generator_types> generator_types_map;
 
-  enum class energy_dist_types {
+enum class energy_dist_types {
     TH1D,
     MONO,
     FLAT,
-  };
-  extern std::map<string, energy_dist_types> energy_dist_types_map;
+};
+extern std::map<string, energy_dist_types> energy_dist_types_map;
 
-  enum class angular_dist_types {
+enum class angular_dist_types {
     TH1D,
     ISOTROPIC,
     FLUX,
     BACK_TO_BACK,
-  };
-  extern std::map<string, angular_dist_types> angular_dist_types_map;
-}
+};
+extern std::map<string, angular_dist_types> angular_dist_types_map;
+}  // namespace parameters
 
 /*
 ------------------------------------------------------------------------------------------------------------------------
@@ -193,12 +193,6 @@ class TRestG4Metadata : public TRestMetadata {
     /// virtualWall, etc )
     TString GetGeneratorType() { return fGenType; }
 
-    /*
-    config::generator_types GetGeneratorTypeEnum() {
-        string generator_type = (string) fGenType;
-        return config::generator_types_map[config::CleanString(generator_type)];
-    }
-     */
     /// \brief Returns the name of the GDML volume where primary events are
     /// produced. This value has meaning only when using volume or surface
     /// generator types.
@@ -370,4 +364,4 @@ class TRestG4Metadata : public TRestMetadata {
 
     ClassDef(TRestG4Metadata, 2);
 };
-#endif // RestCore_TRestG4Metadata
+#endif  // RestCore_TRestG4Metadata

@@ -2122,7 +2122,7 @@ TString TRestMetadata::GetSearchPath() {
         }
         ele = ele->NextSiblingElement("searchPath");
     }
-    if (getenv("configPath")) result += getenv("configPath") + (string)":";
+    if (getenv("configPath")) result += getenv("configPath") + (string) ":";
     result += getenv("REST_PATH") + (string) "/data/:";
     if (result.back() == ':') result.erase(result.size() - 1);
 
@@ -2524,9 +2524,7 @@ string TRestMetadata::GetDataMemberValInString(TStreamerElement* aElement) {
             }
             break;
         }
-        default: {
-            sprintf(buffer, "");
-        }
+        default: { sprintf(buffer, ""); }
     }
 
     string result(buffer);

@@ -19,7 +19,7 @@ Int_t planeId = 0;
 
 ClassImp(TRestReadoutEventViewer)
 
-TRestReadoutEventViewer::TRestReadoutEventViewer() {
+    TRestReadoutEventViewer::TRestReadoutEventViewer() {
     Initialize();
 }
 
@@ -42,7 +42,7 @@ void TRestReadoutEventViewer::Initialize() {
 }
 
 //______________________________________________________________________________
-void TRestReadoutEventViewer::SetReadout(TRestReadout *readout) {
+void TRestReadoutEventViewer::SetReadout(TRestReadout* readout) {
     // Finalize the instantiation based on argument TRestReadout
     fReadout = readout;
     cout << "WARNING : Only plane 0 is drawn. Implementation to draw several "
@@ -63,12 +63,18 @@ void TRestReadoutEventViewer::AddEvent(TRestEvent* ev) {
     if (fPad == NULL) return;
 
     fSignalEvent = (TRestSignalEvent*)ev;
-    
+
     // XY histo is expected to have always same binning => reset it.
     // (X|Y)Z may change from event to event => delete (and later on re-create).
     fHistoXY->Reset(0);
-    if (fHistoXZ != NULL) { delete fHistoXZ; fHistoXZ =NULL; }
-    if (fHistoYZ != NULL) { delete fHistoYZ; fHistoYZ =NULL; }
+    if (fHistoXZ != NULL) {
+        delete fHistoXZ;
+        fHistoXZ = NULL;
+    }
+    if (fHistoYZ != NULL) {
+        delete fHistoYZ;
+        fHistoYZ = NULL;
+    }
 
     DrawReadoutPulses();
     fCanvasXY->cd();
