@@ -1,6 +1,6 @@
-#include "TRestTask.h"
-#include "TRestReadoutEventViewer.h"
 #include "TRestBrowser.h"
+#include "TRestReadoutEventViewer.h"
+#include "TRestTask.h"
 
 #ifndef RestTask_ViewReadoutEvents
 #define RestTask_ViewReadoutEvents
@@ -14,47 +14,47 @@
 //  TREV object, and handing it over the TRestReadout object, via TREV's
 //  "SetReadout" member method.
 
-Int_t REST_ViewReadoutEvent(TString fName, TString readoutFilename = "definitions/readouts.root" ) {
-    
+Int_t REST_ViewReadoutEvent(TString fName, TString readoutFilename = "definitions/readouts.root") {
     // Instantiate browser (and hence TREV object)
-    TRestBrowser *browser = new TRestBrowser("TRestReadoutEventViewer");
+    TRestBrowser* browser = new TRestBrowser("TRestReadoutEventViewer");
 
     // Retrieve readout based on arg. <readoutFilename>
-    TRestReadout *readout = 0;
+    TRestReadout* readout = 0;
     int length = readoutFilename.Length();
-    if      (((string)readoutFilename).find(".root")==length-5) {
-	// ***** <readoutFilename> IS A ROOT FILE
-	// - Check that it's indeed the case.
-	TFile *fFile = new TFile(readoutFilename.Data());
-	if (fFile->IsZombie()) {
-	    printf("\n** REST_ViewReadoutEvent: Bad <readoutFilename> argument (=\"%s\") => Exit...",readoutFilename.Data());
-	    return 1;
-	}
-	// - Search KEY of TRestReadout class.
-	TIter nextkey(fFile->GetListOfKeys()); TKey *key;
-	while ((key = (TKey*)nextkey()) != NULL) {
-	    if (key->GetClassName() == (TString)"TRestReadout") {
-		if (readout == NULL)
-		    readout = (TRestReadout *)fFile->Get(key->GetName());
-	    }
-	}
-	delete key;
-	if (readout == NULL) {
-	    printf("\n** REST_ViewReadoutEvent: <readoutFilename> argument (=\"%s\") contains no TRestReadout\n",readoutFilename.Data());
-	    return 1;
-	}
-    }
-    else if (((string)readoutFilename).find(".rml")==length-4) {
-	// ***** <readoutFilename> IS AN RML FILE
-	readout = new TRestReadout(readoutFilename);
-    }
-    else {
-	printf("\n** REST_ViewReadoutEvent: Argument <readoutFilename> must be a ROOT file or an RML file\n");
-	return 1;
+    if (((string)readoutFilename).find(".root") == length - 5) {
+        // ***** <readoutFilename> IS A ROOT FILE
+        // - Check that it's indeed the case.
+        TFile* fFile = new TFile(readoutFilename.Data());
+        if (fFile->IsZombie()) {
+            printf("\n** REST_ViewReadoutEvent: Bad <readoutFilename> argument (=\"%s\") => Exit...",
+                   readoutFilename.Data());
+            return 1;
+        }
+        // - Search KEY of TRestReadout class.
+        TIter nextkey(fFile->GetListOfKeys());
+        TKey* key;
+        while ((key = (TKey*)nextkey()) != NULL) {
+            if (key->GetClassName() == (TString) "TRestReadout") {
+                if (readout == NULL) readout = (TRestReadout*)fFile->Get(key->GetName());
+            }
+        }
+        delete key;
+        if (readout == NULL) {
+            printf(
+                "\n** REST_ViewReadoutEvent: <readoutFilename> argument (=\"%s\") contains no TRestReadout\n",
+                readoutFilename.Data());
+            return 1;
+        }
+    } else if (((string)readoutFilename).find(".rml") == length - 4) {
+        // ***** <readoutFilename> IS AN RML FILE
+        readout = new TRestReadout(readoutFilename);
+    } else {
+        printf("\n** REST_ViewReadoutEvent: Argument <readoutFilename> must be a ROOT file or an RML file\n");
+        return 1;
     }
 
     // Finalise the initialization of TREV
-    TRestReadoutEventViewer *viewer = (TRestReadoutEventViewer*)browser->GetViewer();
+    TRestReadoutEventViewer* viewer = (TRestReadoutEventViewer*)browser->GetViewer();
     viewer->SetReadout(readout);
 
     browser->OpenFile(fName);
@@ -69,8 +69,3 @@ Int_t REST_ViewReadoutEvent(TString fName, TString readoutFilename = "definition
 }
 
 #endif
-
-
-
-
-
