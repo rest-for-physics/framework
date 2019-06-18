@@ -15,8 +15,8 @@
 set(Garfield_DIR $ENV{GARFIELD_HOME})
 
 find_path(Garfield_INCLUDE_DIRS Sensor.hh
-    HINTS ${Garfield_DIR}/include/Garfield ${Garfield_INC_DIR}
-    $ENV{GARFIELD_HOME}/Include)
+    HINTS ${Garfield_DIR}/include/ ${Garfield_DIR}/include/Garfield ${Garfield_INC_DIR}
+    ${Garfield_DIR}/Include)
 
 #message(STATUS Garfield_INCLUDE_DIRS ${Garfield_INCLUDE_DIRS})
 

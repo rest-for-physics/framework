@@ -117,17 +117,13 @@ TRestEvent* TRestTriggerAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     }
 
     for (unsigned int i = 0; i < nObs; i++) {
-        obsName = this->GetName() + (TString) "." + fIntegralObservables[i];
-        fAnalysisTree->SetObservableValue(obsName, integral[i]);
+        SetObservableValue(fIntegralObservables[i], integral[i]);
     }
 
     Double_t full = fSignalEvent->GetIntegralWithTime(minT - 1, maxT + 1);
 
-    obsName = this->GetName() + (TString) ".RawIntegral";
-    fAnalysisTree->SetObservableValue(obsName, full);
-
-    obsName = this->GetName() + (TString) ".TriggerStarts";
-    fAnalysisTree->SetObservableValue(obsName, triggerStarts);
+    SetObservableValue("RawIntegral", full);
+    SetObservableValue("TriggerStarts", triggerStarts);
 
     return fSignalEvent;
 }
