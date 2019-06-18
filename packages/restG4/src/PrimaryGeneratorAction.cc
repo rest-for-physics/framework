@@ -225,8 +225,10 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
         Double_t angle = 0;
         Double_t value = G4UniformRand() * (fAngularDistribution->Integral());
         Double_t sum = 0;
-
+	// deltaAngle is the constant x distance between bins
         Double_t deltaAngle = fAngularDistribution->GetBinCenter(2) - fAngularDistribution->GetBinCenter(1);
+	// we sample the CDF (uniform between 0 and the distribution integral which should be equal to 1)
+	// the inverse of CDF of the uniformly sampled value will follow a distribution given by the PDF, we compute this inverse
         for (int bin = 1; bin <= fAngularDistribution->GetNbinsX(); bin++) {
             sum += fAngularDistribution->GetBinContent(bin);
 
