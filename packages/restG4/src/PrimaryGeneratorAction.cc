@@ -60,7 +60,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
     } else {
         // if we get here it means the parameter is not valid, we can either assign a default value or stop
         // execution default value
-        cout << "Invalid angular distribution (" + generator_type_name + ") valid values are: ";
+        cout << "Invalid generator type (" + generator_type_name + ") valid values are: ";
         for (const auto& pair : parameters::generator_types_map) {
             cout << pair.first << ", ";
         }
@@ -175,7 +175,7 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
     } else {
         // if we get here it means the parameter is not valid, we can either assign a default value or stop
         // execution default value
-        cout << "Invalid angular distribution (" + generator_type_name + ") valid values are: ";
+        cout << "Invalid generator type (" + generator_type_name + ") valid values are: ";
         for (const auto& pair : parameters::generator_types_map) {
             cout << pair.first << ", ";
         }
@@ -342,13 +342,13 @@ void PrimaryGeneratorAction::SetParticleEnergy(int n) {
     string energy_dist_type_name = (string)restG4Metadata->GetParticleSource(n).GetEnergyDistType();
     energy_dist_type_name = parameters::CleanString(energy_dist_type_name);
     parameters::energy_dist_types energy_dist_type;
-    if (parameters::generator_types_map.count(energy_dist_type_name)) {
+    if (parameters::energy_dist_types_map.count(energy_dist_type_name)) {
         energy_dist_type = parameters::energy_dist_types_map[energy_dist_type_name];
     } else {
         // if we get here it means the parameter is not valid, we can either assign a default value or stop
         // execution default value in this case is 1 keV
-        cout << "Invalid angular distribution (" + energy_dist_type_name + ") valid values are: ";
-        for (const auto& pair : parameters::angular_dist_types_map) {
+        cout << "Invalid energy distribution (" + energy_dist_type_name + ") valid values are: ";
+        for (const auto& pair : parameters::energy_dist_types_map) {
             cout << pair.first << ", ";
         }
         cout << std::endl;
