@@ -262,7 +262,7 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
             direction.set(1, 0, 0);
         }
 
-        if ((string)restG4Metadata->GetGeneratorType() == "virtualBox") {
+        if (generator_type == parameters::generator_types::VIRTUAL_BOX) {
             if (face == 0) direction.set(0, -1, 0);
             if (face == 1) direction.set(0, 1, 0);
             if (face == 2) direction.set(-1, 0, 0);
