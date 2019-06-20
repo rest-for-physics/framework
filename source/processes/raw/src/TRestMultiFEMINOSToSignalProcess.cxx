@@ -163,17 +163,33 @@ TRestMultiFEMINOSToSignalProcess::~TRestMultiFEMINOSToSignalProcess() {
 }
 
 //______________________________________________________________________________
+void TRestMultiFEMINOSToSignalProcess::ReadDetectorSetup(){
+
+    if (fRunInfo == nullptr){
+      cout << "'fRunInfo' is null" << endl;
+      return;
+    }
+
+    string file_name = (string)fRunInfo->GetInputFileNamepattern();
+    TRestDetectorSetup* detector_setup = new TRestDetectorSetup();
+    detector_setup->InitFromFileName(file_name);
+
+    fRunInfo->SetParentRunNumber(detector_setup->GetSubRunNumber());
+    fRunInfo->SetRunNumber(detector_setup->GetRunNumber());
+    fRunInfo->SetRunTag(detector_setup->GetRunTag());
+}
+//______________________________________________________________________________
 void TRestMultiFEMINOSToSignalProcess::Initialize() {
     fLastEventId = 0;
     fLastTimeStamp = 0;
-
-    // this->SetVerboseLevel(REST_Debug);
 }
 
 //______________________________________________________________________________
 void TRestMultiFEMINOSToSignalProcess::InitProcess() {
     cout << "TRestMultiFeminos::InitProcess" << endl;
     // Reading binary file header
+
+    ReadDetectorSetup();
 
     unsigned short sh;
     unsigned short al;
