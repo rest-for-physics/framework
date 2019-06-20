@@ -183,10 +183,10 @@ void TRestMultiFEMINOSToSignalProcess::LoadDetectorSetupData() {
     TRestAnalysisTree* analysis_tree = fRunInfo->GetAnalysisTree();
     if (analysis_tree == nullptr) {
         cout << "'analysis tree' is null when trying to write run info" << endl;
-        return;
+    } else {
+        analysis_tree->SetRunOrigin(fRunOrigin);
+        analysis_tree->SetSubRunOrigin(fSubRunOrigin);
     }
-    //analysis_tree->SetRunOrigin(fRunOrigin);
-    //analysis_tree->SetSubRunOrigin(fSubRunOrigin);
 }
 //______________________________________________________________________________
 void TRestMultiFEMINOSToSignalProcess::Initialize() {
