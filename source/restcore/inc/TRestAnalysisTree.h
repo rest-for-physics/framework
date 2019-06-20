@@ -46,6 +46,7 @@ class TRestAnalysisTree : public TTree {
     std::vector<TString> fObservableDescriptions;
     std::vector<TString> fObservableTypes;
 
+	void PrintObservable(int N);
    protected:
    public:
     void Initialize();
@@ -76,7 +77,7 @@ class TRestAnalysisTree : public TTree {
     }  // TODO implement error message in case n >= fNObservables
     TString GetObservableDescription(Int_t n) { return fObservableDescriptions[n]; }
     Double_t GetObservableValue(Int_t n) {
-        return *fObservableValues[n];
+        return *(double*)fObservableValues[n];
     }  // TODO implement error message in case n >= fNObservables
     Double_t GetObservableValue(TString obsName) {
         return this->GetObservableValue(this->GetObservableID(obsName));
@@ -112,32 +113,12 @@ class TRestAnalysisTree : public TTree {
     void CreateEventBranches();
     void CreateObservableBranches();
 
+	void ConnectEventBranches();
     void ConnectObservables();
-
     void CopyObservableList(TRestAnalysisTree* from, string prefix = "");
 
-    void ConnectEventBranches() {
-        TBranch* br1 = GetBranch("eventID");
-        br1->SetAddress(&fEventID);
-
-        TBranch* br2 = GetBranch("subEventID");
-        br2->SetAddress(&fSubEventID);
-
-        TBranch* br3 = GetBranch("timeStamp");
-        br3->SetAddress(&fTimeStamp);
-
-        TBranch* br4 = GetBranch("subEventTag");
-        br4->SetAddress(&fSubEventTag);
-
-        TBranch* br5 = GetBranch("runOrigin");
-        br5->SetAddress(&fRunOrigin);
-
-        TBranch* br6 = GetBranch("subRunOrigin");
-        br6->SetAddress(&fSubRunOrigin);
-    }
-
     void PrintObservables(TRestEventProcess* proc = 0, int NObservables = 9999);
-    void PrintObservable(int N);
+
 
     void SetEventInfo(TRestEvent* evt);
     Int_t FillEvent(TRestEvent* evt);
@@ -148,6 +129,8 @@ class TRestAnalysisTree : public TTree {
     Int_t AddObservable(TString observableName, TString description = "") {
         return AddObservable(observableName, TRestTools::GetTypeName<T>(), description);
     }
+
+	Int_t GetEntry(Long64_t entry = 0, Int_t getall = 0);
 
     // Construtor
     TRestAnalysisTree();

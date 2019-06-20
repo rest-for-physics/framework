@@ -80,16 +80,44 @@ void TRestAnalysisTree::CopyObservableList(TRestAnalysisTree* from, string prefi
     }
 }
 
+void TRestAnalysisTree::ConnectEventBranches() {
+    TBranch* br1 = GetBranch("eventID");
+    br1->SetAddress(&fEventID);
+
+    TBranch* br2 = GetBranch("subEventID");
+    br2->SetAddress(&fSubEventID);
+
+    TBranch* br3 = GetBranch("timeStamp");
+    br3->SetAddress(&fTimeStamp);
+
+    TBranch* br4 = GetBranch("subEventTag");
+    br4->SetAddress(&fSubEventTag);
+
+    TBranch* br5 = GetBranch("runOrigin");
+    br5->SetAddress(&fRunOrigin);
+
+    TBranch* br6 = GetBranch("subRunOrigin");
+    br6->SetAddress(&fSubRunOrigin);
+}
+
 void TRestAnalysisTree::ConnectObservables() {
     if (!fConnected) {
-        for (int i = 0; i < GetNumberOfObservables(); i++) {
-            double* x = new double(0);
-            fObservableValues.push_back(TRestTools::Assembly(GetObservableType(i)));
-        }
-
+        TTree::GetEntry(0);
+        fObservableValues = std::vector<char*>(GetNumberOfObservables(), 0);
         for (int i = 0; i < GetNumberOfObservables(); i++) {
             TBranch* branch = GetBranch(fObservableNames[i]);
-            if (branch != NULL) branch->SetAddress(fObservableValues[i]);
+            if (branch != NULL) {
+                cout << fObservableNames[i];
+                if (branch->GetAddress() != NULL) {
+                    fObservableValues[i] = *(char**)branch->GetAddress();
+                    cout << " --> ";
+                } else {
+                    fObservableValues[i] = TRestTools::Assembly(GetObservableType(i));
+                    branch->SetAddress(fObservableValues[i]);
+                    cout << " ==> ";
+                }
+                cout << static_cast<const void*>(branch->GetAddress()) << endl;
+            }
         }
         fConnected = true;
     } else {
@@ -153,14 +181,15 @@ Int_t TRestAnalysisTree::AddObservable(TString objName, TRestMetadata* meta, TSt
 }
 
 void TRestAnalysisTree::PrintObservables(TRestEventProcess* proc, int NObs) {
-    if (!isConnected() || !fBranchesCreated) {
-        if (fNObservables > 0 &&
-            fObservableValues.size() == 0)  // the object may be just retrieved from root file
-        {
-            ConnectEventBranches();
-            ConnectObservables();
-        }
-    }
+    //if (!isConnected() || !fBranchesCreated) {
+    //    if (fNObservables > 0 &&
+    //        fObservableValues.size() == 0)  // the object may be just retrieved from root file
+    //    {
+    //        ConnectEventBranches();
+    //        ConnectObservables();
+    //        GetEntry(0);
+    //    }
+    //}
 
     cout.precision(15);
     if (proc == NULL) {
@@ -200,13 +229,29 @@ void TRestAnalysisTree::PrintObservable(int n) {
     }
 }
 
+
+Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
+    if (!isConnected() || !fBranchesCreated) {
+        if (fNObservables > 0 &&
+            fObservableValues.size() == 0)  // the object is just retrieved from root file, we connect the branches
+        {
+            ConnectEventBranches();
+            ConnectObservables();
+        }
+    }
+
+    return TTree::GetEntry(entry, getall);
+}
+
 void TRestAnalysisTree::SetEventInfo(TRestEvent* evt) {
-    fEventID = evt->GetID();
-    fSubEventID = evt->GetSubID();
-    fTimeStamp = evt->GetTimeStamp().AsDouble();
-    *fSubEventTag = evt->GetSubEventTag();
-    fRunOrigin = evt->GetRunOrigin();
-    fSubRunOrigin = evt->GetSubRunOrigin();
+    if (evt != NULL) {
+        fEventID = evt->GetID();
+        fSubEventID = evt->GetSubID();
+        fTimeStamp = evt->GetTimeStamp().AsDouble();
+        *fSubEventTag = evt->GetSubEventTag();
+        fRunOrigin = evt->GetRunOrigin();
+        fSubRunOrigin = evt->GetSubRunOrigin();
+    }
 }
 
 Int_t TRestAnalysisTree::FillEvent(TRestEvent* evt) {
