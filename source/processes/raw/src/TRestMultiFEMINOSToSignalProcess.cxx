@@ -163,20 +163,30 @@ TRestMultiFEMINOSToSignalProcess::~TRestMultiFEMINOSToSignalProcess() {
 }
 
 //______________________________________________________________________________
-void TRestMultiFEMINOSToSignalProcess::ReadDetectorSetup(){
-
-    if (fRunInfo == nullptr){
-      cout << "'fRunInfo' is null" << endl;
-      return;
+void TRestMultiFEMINOSToSignalProcess::LoadDetectorSetupData() {
+    if (fRunInfo == nullptr) {
+        cout << "'fRunInfo' is null" << endl;
+        return;
     }
-
     string file_name = (string)fRunInfo->GetInputFileNamepattern();
     TRestDetectorSetup* detector_setup = new TRestDetectorSetup();
     detector_setup->InitFromFileName(file_name);
 
-    fRunInfo->SetParentRunNumber(detector_setup->GetSubRunNumber());
-    fRunInfo->SetRunNumber(detector_setup->GetRunNumber());
+    // fRunOrigin value filled by fRunNumber
+    fRunOrigin = detector_setup->GetRunNumber();
+    fSubRunOrigin = detector_setup->GetSubRunNumber();
+
+    fRunInfo->SetParentRunNumber(fSubRunOrigin);
+    fRunInfo->SetRunNumber(fRunOrigin);
     fRunInfo->SetRunTag(detector_setup->GetRunTag());
+
+    TRestAnalysisTree* analysis_tree = fRunInfo->GetAnalysisTree();
+    if (analysis_tree == nullptr) {
+        cout << "'analysis tree' is null when trying to write run info" << endl;
+        return;
+    }
+    //analysis_tree->SetRunOrigin(fRunOrigin);
+    //analysis_tree->SetSubRunOrigin(fSubRunOrigin);
 }
 //______________________________________________________________________________
 void TRestMultiFEMINOSToSignalProcess::Initialize() {
@@ -189,7 +199,7 @@ void TRestMultiFEMINOSToSignalProcess::InitProcess() {
     cout << "TRestMultiFeminos::InitProcess" << endl;
     // Reading binary file header
 
-    ReadDetectorSetup();
+    LoadDetectorSetupData();
 
     unsigned short sh;
     unsigned short al;
@@ -351,6 +361,8 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent(TRestEvent* evInput) 
 
     if (fSignalEvent->GetNumberOfSignals() == 0) return NULL;
 
+    fSignalEvent->SetRunOrigin(fRunOrigin);
+    fSignalEvent->SetSubRunOrigin(fSubRunOrigin);
     return fSignalEvent;
 }
 
