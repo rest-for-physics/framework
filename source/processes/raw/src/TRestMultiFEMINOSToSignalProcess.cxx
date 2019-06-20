@@ -179,14 +179,6 @@ void TRestMultiFEMINOSToSignalProcess::LoadDetectorSetupData() {
     fRunInfo->SetParentRunNumber(fSubRunOrigin);
     fRunInfo->SetRunNumber(fRunOrigin);
     fRunInfo->SetRunTag(detector_setup->GetRunTag());
-
-    TRestAnalysisTree* analysis_tree = fRunInfo->GetAnalysisTree();
-    if (analysis_tree == nullptr) {
-        cout << "'analysis tree' is null when trying to write run info" << endl;
-    } else {
-        analysis_tree->SetRunOrigin(fRunOrigin);
-        analysis_tree->SetSubRunOrigin(fSubRunOrigin);
-    }
 }
 //______________________________________________________________________________
 void TRestMultiFEMINOSToSignalProcess::Initialize() {
@@ -363,6 +355,16 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent(TRestEvent* evInput) 
 
     fSignalEvent->SetRunOrigin(fRunOrigin);
     fSignalEvent->SetSubRunOrigin(fSubRunOrigin);
+
+    TRestAnalysisTree* analysis_tree = fRunInfo->GetAnalysisTree();
+    if (analysis_tree == nullptr) {
+        //cout << "'analysis tree' is null when trying to write run info" << endl;
+    } else {
+        analysis_tree->SetRunOrigin(fRunOrigin);
+        analysis_tree->SetSubRunOrigin(fSubRunOrigin);
+        //cout << "info written to ana tree" << endl;
+    }
+
     return fSignalEvent;
 }
 
