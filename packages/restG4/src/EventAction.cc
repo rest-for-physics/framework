@@ -118,7 +118,7 @@ void EventAction::EndOfEventAction(const G4Event* evt) {
                 analysis_tree->Fill();
             } else {
                 // analysis tree is not found (nullptr)
-                if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
+                if (restG4Metadata->GetVerboseLevel() >= REST_Warning) {
                     cout << "WARNING: analysis tree is not found ('nullptr'). Cannot write event info"
                          << endl;
                 }
