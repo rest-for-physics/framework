@@ -112,12 +112,16 @@ void EventAction::EndOfEventAction(const G4Event* evt) {
         }
         if (sensitive_volume_deposited_energy > 0 && total_deposited_energy > minimum_energy_stored &&
             total_deposited_energy < maximum_energy_stored) {
-            if (restRun->GetAnalysisTree() != nullptr) {
-                restRun->GetAnalysisTree()->SetEventInfo(subRestG4Event);
-                restRun->GetAnalysisTree()->Fill();
-            }
-            if (restRun->GetEventTree() != nullptr) {
-                restRun->GetEventTree()->Fill();
+            TRestAnalysisTree* analysis_tree = restRun->GetAnalysisTree();
+            if (analysis_tree != nullptr) {
+                analysis_tree->SetEventInfo(subRestG4Event);
+                analysis_tree->Fill();
+            } else {
+                // analysis tree is not found (nullptr)
+                if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
+                    cout << "WARNING: analysis tree is not found ('nullptr'). Cannot write event info"
+                         << endl;
+                }
             }
         }
     }
