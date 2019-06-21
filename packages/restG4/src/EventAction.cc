@@ -100,7 +100,7 @@ void EventAction::EndOfEventAction(const G4Event* evt) {
         FillSubEvent(subId);
 
         Double_t total_deposited_energy = subRestG4Event->GetTotalDepositedEnergy();
-        Double_t sensitive_volume_deposited_energy = subRestG4Event->GetTotalDepositedEnergy();
+        Double_t sensitive_volume_deposited_energy = subRestG4Event->GetSensitiveVolumeEnergy();
 
         if (minimum_energy_stored < 0) minimum_energy_stored = 0;
         if (maximum_energy_stored == 0) maximum_energy_stored = total_deposited_energy + 1.;
