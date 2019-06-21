@@ -253,6 +253,9 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent(TRestEvent* evInput) 
 
     fSignalEvent->Initialize();
 
+    fSignalEvent->SetRunOrigin(fRunOrigin);
+    fSignalEvent->SetSubRunOrigin(fSubRunOrigin);
+
     while (!endOfEvent) {
         done = 0;
         while (!done) {
@@ -352,18 +355,6 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent(TRestEvent* evInput) 
     }
 
     if (fSignalEvent->GetNumberOfSignals() == 0) return NULL;
-
-    fSignalEvent->SetRunOrigin(fRunOrigin);
-    fSignalEvent->SetSubRunOrigin(fSubRunOrigin);
-
-    TRestAnalysisTree* analysis_tree = fRunInfo->GetAnalysisTree();
-    if (analysis_tree == nullptr) {
-        //cout << "'analysis tree' is null when trying to write run info" << endl;
-    } else {
-        analysis_tree->SetRunOrigin(fRunOrigin);
-        analysis_tree->SetSubRunOrigin(fSubRunOrigin);
-        //cout << "info written to ana tree" << endl;
-    }
 
     return fSignalEvent;
 }
