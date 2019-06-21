@@ -37,7 +37,7 @@
 ///               waveforms.
 ///     - shaperSin : It produces a shaping following traditional shaper
 ///               waveforms, it includes a sinusoidal effect.
-///     - responseFile : A file providing a user provided response (TODO).
+///     - responseFile : Uses a file providing a custom response (TODO).
 ///
 /// * **shapingTime** : The standard deviation of the gaussian convolution,
 ///                     or the shaping time on shaper models. Defined in
@@ -70,14 +70,12 @@ using namespace std;
 #include <TFile.h>
 #include <TMath.h>
 
-ClassImp(TRestRawSignalShapingProcess)
+ClassImp(TRestRawSignalShapingProcess);
 
-    ///////////////////////////////////////////////
-    /// \brief Default constructor
-    ///
-    TRestRawSignalShapingProcess::TRestRawSignalShapingProcess() {
-    Initialize();
-}
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestRawSignalShapingProcess::TRestRawSignalShapingProcess() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -202,24 +200,25 @@ TRestEvent* TRestRawSignalShapingProcess::ProcessEvent(TRestEvent* evInput) {
     if (fInputSignalEvent->GetNumberOfSignals() <= 0) return NULL;
 
     double* rsp;
-    Int_t Nr;
+    Int_t Nr = 0;
 
     if (fShapingType == "gaus") {
-        Double_t amp = fShapingGain;
         Int_t cBin = (Int_t)(fShapingTime * 3.5);
         Nr = 2 * cBin;
         Double_t sigma = fShapingTime;
 
         rsp = new double[Nr];
-        for (int i = 0; i < Nr; i++)
-            rsp[i] = (amp * TMath::Exp(-0.5 * (i - cBin) * (i - cBin) / sigma / sigma));
+        for (int i = 0; i < Nr; i++) {
+            rsp[i] = TMath::Exp(-0.5 * (i - cBin) * (i - cBin) / sigma / sigma);
+            rsp[i] = rsp[i] / TMath::Sqrt(2 * M_PI) / sigma;
+        }
     } else if (fShapingType == "shaper") {
         Nr = (Int_t)(5 * fShapingTime);
 
         rsp = new double[Nr];
         for (int i = 0; i < Nr; i++) {
             Double_t coeff = ((Double_t)i) / fShapingTime;
-            rsp[i] = (fShapingGain * TMath::Exp(-3. * coeff) * coeff * coeff * coeff);
+            rsp[i] = TMath::Exp(-3. * coeff) * coeff * coeff * coeff;
         }
     } else if (fShapingType == "shaperSin") {
         Nr = (Int_t)(5 * fShapingTime);
@@ -227,13 +226,18 @@ TRestEvent* TRestRawSignalShapingProcess::ProcessEvent(TRestEvent* evInput) {
         rsp = new double[Nr];
         for (int i = 0; i < Nr; i++) {
             Double_t coeff = ((Double_t)i) / fShapingTime;
-            rsp[i] = (fShapingGain * TMath::Exp(-3. * coeff) * coeff * coeff * coeff * sin(coeff));
+            rsp[i] = TMath::Exp(-3. * coeff) * coeff * coeff * coeff * sin(coeff);
         }
     } else {
         if (GetVerboseLevel() >= REST_Warning)
             cout << "REST WARNING. Shaping type : " << fShapingType << " is not defined!!" << endl;
         return NULL;
     }
+
+    // Making sure that rsp integral is 1, and applying the gain
+    Double_t sum = 0;
+    for (int n = 0; n < Nr; n++) sum += rsp[n];
+    for (int n = 0; n < Nr; n++) rsp[n] = rsp[n] * fShapingGain / sum;
 
     for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++) {
         TRestRawSignal* shapingSignal = new TRestRawSignal();

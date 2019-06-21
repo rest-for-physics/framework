@@ -14,13 +14,10 @@ using namespace std;
 
 vector<Double_t> distanceToNode;
 
-ClassImp(TRestTrackLinearizationProcess)
-    //______________________________________________________________________________
-    TRestTrackLinearizationProcess::TRestTrackLinearizationProcess() {
-    Initialize();
-}
+ClassImp(TRestTrackLinearizationProcess);
 
-//______________________________________________________________________________
+TRestTrackLinearizationProcess::TRestTrackLinearizationProcess() { Initialize(); }
+
 TRestTrackLinearizationProcess::TRestTrackLinearizationProcess(char* cfgFileName) {
     Initialize();
 
@@ -28,7 +25,6 @@ TRestTrackLinearizationProcess::TRestTrackLinearizationProcess(char* cfgFileName
     PrintMetadata();
 }
 
-//______________________________________________________________________________
 TRestTrackLinearizationProcess::~TRestTrackLinearizationProcess() {
     delete fInputTrackEvent;
     delete fOutputLinearTrackEvent;
@@ -42,7 +38,6 @@ void TRestTrackLinearizationProcess::LoadDefaultConfig() {
     fLengthResolution = 1;
 }
 
-//______________________________________________________________________________
 void TRestTrackLinearizationProcess::Initialize() {
     SetSectionName(this->ClassName());
 
@@ -64,17 +59,12 @@ void TRestTrackLinearizationProcess::LoadConfig(string cfgFilename) {
     PrintMetadata();
 }
 
-//______________________________________________________________________________
 void TRestTrackLinearizationProcess::InitProcess() {
     cout << __PRETTY_FUNCTION__ << endl;
 
     TRestEventProcess::ReadObservables();
 }
 
-//______________________________________________________________________________
-void TRestTrackLinearizationProcess::BeginOfEventProcess() { fOutputLinearTrackEvent->Initialize(); }
-
-//______________________________________________________________________________
 TRestEvent* TRestTrackLinearizationProcess::ProcessEvent(TRestEvent* evInput) {
     fInputTrackEvent = (TRestTrackEvent*)evInput;
 
@@ -510,133 +500,61 @@ TRestEvent* TRestTrackLinearizationProcess::ProcessEvent(TRestEvent* evInput) {
             //////////////////////////////////////////////////////////////////////////////
         }
 
-        TString obsName;
+        SetObservableValue((string) "coverage", chargeCoverage);
+        SetObservableValue((string) "coverage_X", chargeCoverage_X);
+        SetObservableValue((string) "coverage_Y", chargeCoverage_Y);
 
-        obsName = this->GetName() + (TString) ".coverage";
-        fAnalysisTree->SetObservableValue(obsName, chargeCoverage);
+        SetObservableValue((string) "dEdx_low", dEdx_low);
+        SetObservableValue((string) "dEdx_high", dEdx_high);
+        SetObservableValue((string) "dEdx_middle", dEdx_middle);
 
-        obsName = this->GetName() + (TString) ".coverage_X";
-        fAnalysisTree->SetObservableValue(obsName, chargeCoverage_X);
+        SetObservableValue((string) "dEdx_Max_low", dEdx_Max_low);
+        SetObservableValue((string) "dEdx_Max_high", dEdx_Max_high);
+        SetObservableValue((string) "dEdx_Max_middle", dEdx_Max_middle);
 
-        obsName = this->GetName() + (TString) ".coverage_Y";
-        fAnalysisTree->SetObservableValue(obsName, chargeCoverage_Y);
+        SetObservableValue((string) "dEdx_low_X", dEdx_low_X);
+        SetObservableValue((string) "dEdx_high_X", dEdx_high_X);
+        SetObservableValue((string) "dEdx_middle_X", dEdx_middle_X);
 
-        obsName = this->GetName() + (TString) ".dEdx_low";
-        fAnalysisTree->SetObservableValue(obsName, dEdx_low);
+        SetObservableValue((string) "dEdx_low_Y", dEdx_low_Y);
+        SetObservableValue((string) "dEdx_high_Y", dEdx_high_Y);
+        SetObservableValue((string) "dEdx_middle_Y", dEdx_middle_Y);
 
-        obsName = this->GetName() + (TString) ".dEdx_high";
-        fAnalysisTree->SetObservableValue(obsName, dEdx_high);
+        SetObservableValue((string) "dEdx_Max_low_X", dEdx_Max_low_X);
+        SetObservableValue((string) "dEdx_Max_high_X", dEdx_Max_high_X);
+        SetObservableValue((string) "dEdx_Max_middle_X", dEdx_Max_middle_X);
 
-        obsName = this->GetName() + (TString) ".dEdx_middle";
-        fAnalysisTree->SetObservableValue(obsName, dEdx_middle);
+        SetObservableValue((string) "dEdx_Max_low_Y", dEdx_Max_low_Y);
+        SetObservableValue((string) "dEdx_Max_high_Y", dEdx_Max_high_Y);
+        SetObservableValue((string) "dEdx_Max_middle_Y", dEdx_Max_middle_Y);
 
-        obsName = this->GetName() + (TString) ".dEdx_Max_low";
-        fAnalysisTree->SetObservableValue(obsName, dEdx_Max_low);
+        SetObservableValue((string) "Q_low", Q_low);
+        SetObservableValue((string) "Q_high", Q_high);
+        SetObservableValue((string) "Q_middle", Q_middle);
 
-        obsName = this->GetName() + (TString) ".dEdx_Max_high";
-        fAnalysisTree->SetObservableValue(obsName, dEdx_Max_high);
+        SetObservableValue((string) "Q_low_X", Q_low_X);
+        SetObservableValue((string) "Q_high_X", Q_high_X);
+        SetObservableValue((string) "Q_middle_X", Q_middle_X);
 
-        obsName = this->GetName() + (TString) ".dEdx_Max_middle";
-        fAnalysisTree->SetObservableValue(obsName, dEdx_Max_middle);
+        SetObservableValue((string) "Q_low_Y", Q_low_Y);
+        SetObservableValue((string) "Q_high_Y", Q_high_Y);
+        SetObservableValue((string) "Q_middle_Y", Q_middle_Y);
 
-        obsName = this->GetName() + (TString) ".dEdx_low_X";
-        fAnalysisTree->SetObservableValue(obsName, dEdx_low_X);
+        SetObservableValue((string) "Q_Peak_low", Q_Peak_low);
+        SetObservableValue((string) "Q_Peak_high", Q_Peak_high);
+        SetObservableValue((string) "Q_Peak_middle", Q_Peak_middle);
 
-        obsName = this->GetName() + (TString) ".dEdx_high_X";
-        fAnalysisTree->SetObservableValue(obsName, dEdx_high_X);
+        SetObservableValue((string) "Q_Peak_low_X", Q_Peak_low_X);
+        SetObservableValue((string) "Q_Peak_high_X", Q_Peak_high_X);
+        SetObservableValue((string) "Q_Peak_middle_X", Q_Peak_middle_X);
 
-        obsName = this->GetName() + (TString) ".dEdx_middle_X";
-        fAnalysisTree->SetObservableValue(obsName, dEdx_middle_X);
+        SetObservableValue((string) "Q_Peak_low_Y", Q_Peak_low_Y);
+        SetObservableValue((string) "Q_Peak_high_Y", Q_Peak_high_Y);
+        SetObservableValue((string) "Q_Peak_middle_Y", Q_Peak_middle_Y);
 
-        obsName = this->GetName() + (TString) ".dEdx_low_Y";
-        fAnalysisTree->SetObservableValue(obsName, dEdx_low_Y);
-
-        obsName = this->GetName() + (TString) ".dEdx_high_Y";
-        fAnalysisTree->SetObservableValue(obsName, dEdx_high_Y);
-
-        obsName = this->GetName() + (TString) ".dEdx_middle_Y";
-        fAnalysisTree->SetObservableValue(obsName, dEdx_middle_Y);
-
-        obsName = this->GetName() + (TString) ".dEdx_Max_low_X";
-        fAnalysisTree->SetObservableValue(obsName, dEdx_Max_low_X);
-
-        obsName = this->GetName() + (TString) ".dEdx_Max_high_X";
-        fAnalysisTree->SetObservableValue(obsName, dEdx_Max_high_X);
-
-        obsName = this->GetName() + (TString) ".dEdx_Max_middle_X";
-        fAnalysisTree->SetObservableValue(obsName, dEdx_Max_middle_X);
-
-        obsName = this->GetName() + (TString) ".dEdx_Max_low_Y";
-        fAnalysisTree->SetObservableValue(obsName, dEdx_Max_low_Y);
-
-        obsName = this->GetName() + (TString) ".dEdx_Max_high_Y";
-        fAnalysisTree->SetObservableValue(obsName, dEdx_Max_high_Y);
-
-        obsName = this->GetName() + (TString) ".dEdx_Max_middle_Y";
-        fAnalysisTree->SetObservableValue(obsName, dEdx_Max_middle_Y);
-
-        obsName = this->GetName() + (TString) ".Q_low";
-        fAnalysisTree->SetObservableValue(obsName, Q_low);
-
-        obsName = this->GetName() + (TString) ".Q_high";
-        fAnalysisTree->SetObservableValue(obsName, Q_high);
-
-        obsName = this->GetName() + (TString) ".Q_middle";
-        fAnalysisTree->SetObservableValue(obsName, Q_middle);
-
-        obsName = this->GetName() + (TString) ".Q_low_X";
-        fAnalysisTree->SetObservableValue(obsName, Q_low_X);
-
-        obsName = this->GetName() + (TString) ".Q_high_X";
-        fAnalysisTree->SetObservableValue(obsName, Q_high_X);
-
-        obsName = this->GetName() + (TString) ".Q_middle_X";
-        fAnalysisTree->SetObservableValue(obsName, Q_middle_X);
-
-        obsName = this->GetName() + (TString) ".Q_low_Y";
-        fAnalysisTree->SetObservableValue(obsName, Q_low_Y);
-
-        obsName = this->GetName() + (TString) ".Q_high_Y";
-        fAnalysisTree->SetObservableValue(obsName, Q_high_Y);
-
-        obsName = this->GetName() + (TString) ".Q_middle_Y";
-        fAnalysisTree->SetObservableValue(obsName, Q_middle_Y);
-
-        obsName = this->GetName() + (TString) ".Q_Peak_low";
-        fAnalysisTree->SetObservableValue(obsName, Q_Peak_low);
-
-        obsName = this->GetName() + (TString) ".Q_Peak_high";
-        fAnalysisTree->SetObservableValue(obsName, Q_Peak_high);
-
-        obsName = this->GetName() + (TString) ".Q_Peak_middle";
-        fAnalysisTree->SetObservableValue(obsName, Q_Peak_middle);
-
-        obsName = this->GetName() + (TString) ".Q_Peak_low_X";
-        fAnalysisTree->SetObservableValue(obsName, Q_Peak_low_X);
-
-        obsName = this->GetName() + (TString) ".Q_Peak_high_X";
-        fAnalysisTree->SetObservableValue(obsName, Q_Peak_high_X);
-
-        obsName = this->GetName() + (TString) ".Q_Peak_middle_X";
-        fAnalysisTree->SetObservableValue(obsName, Q_Peak_middle_X);
-
-        obsName = this->GetName() + (TString) ".Q_Peak_low_Y";
-        fAnalysisTree->SetObservableValue(obsName, Q_Peak_low_Y);
-
-        obsName = this->GetName() + (TString) ".Q_Peak_high_Y";
-        fAnalysisTree->SetObservableValue(obsName, Q_Peak_high_Y);
-
-        obsName = this->GetName() + (TString) ".Q_Peak_middle_Y";
-        fAnalysisTree->SetObservableValue(obsName, Q_Peak_middle_Y);
-
-        obsName = this->GetName() + (TString) ".transDiff";
-        fAnalysisTree->SetObservableValue(obsName, transDiffusionXYZ);
-
-        obsName = this->GetName() + (TString) ".transDiff_X";
-        fAnalysisTree->SetObservableValue(obsName, transDiffusionX);
-
-        obsName = this->GetName() + (TString) ".transDiff_Y";
-        fAnalysisTree->SetObservableValue(obsName, transDiffusionY);
+        SetObservableValue((string) "transDiff", transDiffusionXYZ);
+        SetObservableValue((string) "transDiff_X", transDiffusionX);
+        SetObservableValue((string) "transDiff_Y", transDiffusionY);
     }
     /* }}} */
 
@@ -690,13 +608,6 @@ TVector2 TRestTrackLinearizationProcess::FindProjection(TVector3 position, TRest
     }
 }
 
-//______________________________________________________________________________
-void TRestTrackLinearizationProcess::EndOfEventProcess() {}
-
-//______________________________________________________________________________
-void TRestTrackLinearizationProcess::EndProcess() {}
-
-//______________________________________________________________________________
 void TRestTrackLinearizationProcess::InitFromConfigFile() {
     fLengthResolution = GetDblParameterWithUnits("lengthResolution", 1);
     fTransversalResolution = GetDblParameterWithUnits("transversalResolution", 1);

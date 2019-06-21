@@ -155,6 +155,11 @@ echo ${GIT_TAG}
 
 fi
 
+if [ $option = \\\"--commit\\\" ] ; then
+echo ${GIT_COMMIT}
+
+fi
+
 if [ $option = \\\"--flags\\\" ] ; then
 echo REST_WELCOME=${REST_WELCOME}
 echo REST_GARFIELD=${REST_GARFIELD}

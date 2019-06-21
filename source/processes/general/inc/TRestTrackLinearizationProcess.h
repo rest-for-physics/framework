@@ -41,10 +41,7 @@ class TRestTrackLinearizationProcess : public TRestEventProcess {
    protected:
    public:
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
-    void EndProcess();
     void LoadDefaultConfig();
 
     void LoadConfig(std::string cfgFilename);
