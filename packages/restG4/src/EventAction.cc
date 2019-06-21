@@ -106,9 +106,10 @@ void EventAction::EndOfEventAction(const G4Event* evt) {
         if (maximum_energy_stored == 0) maximum_energy_stored = total_deposited_energy + 1.;
 
         if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
-            cout << "Energy deposited in ACTIVE and SENSITIVE volumes: " << total_deposited_energy << "keV"
+            cout << "Energy deposited in ACTIVE and SENSITIVE volumes: " << total_deposited_energy << " keV"
                  << endl;
-            cout << "Energy deposited in SENSITIVE volume: " << total_deposited_energy << "keV" << endl;
+            cout << "Energy deposited in SENSITIVE volume: " << sensitive_volume_deposited_energy << " keV"
+                 << endl;
         }
         if (sensitive_volume_deposited_energy > 0 && total_deposited_energy > minimum_energy_stored &&
             total_deposited_energy < maximum_energy_stored) {
