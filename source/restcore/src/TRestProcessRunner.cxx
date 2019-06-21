@@ -989,7 +989,7 @@ string TRestProcessRunner::MakeProgressBar(int progress100, int length) {
 
 TRestEvent* TRestProcessRunner::GetInputEvent() { return fRunInfo->GetInputEvent(); }
 
-TRestAnalysisTree* TRestProcessRunner::GetAnalysisTree() { return fRunInfo->GetAnalysisTree(); }
+TRestAnalysisTree* TRestProcessRunner::GetInputAnalysisTree() { return fRunInfo->GetAnalysisTree(); }
 
 void TRestProcessRunner::PrintMetadata() {
     // cout.precision(10);

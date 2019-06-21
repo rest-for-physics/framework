@@ -89,11 +89,12 @@ class TRestProcessRunner : public TRestMetadata {
 
     // getters and setters
     TRestEvent* GetInputEvent();
+    TRestAnalysisTree* GetInputAnalysisTree();
     TFile* GetTempOutputDataFile() { return fTempOutputDataFile; }
     string GetProcInfo(string infoname) {
         return ProcessInfo[infoname] == "" ? infoname : ProcessInfo[infoname];
     }
-    TRestAnalysisTree* GetAnalysisTree();
+
 
     // Construtor & Destructor
     TRestProcessRunner();
