@@ -52,8 +52,8 @@ class TRestEvent : public TObject {
 
    public:
     // Setters
-    void SetRunOrigin(Int_t id) { fRunOrigin = id; }
-    void SetSubRunOrigin(Int_t id) { fSubRunOrigin = id; }
+    void SetRunOrigin(Int_t run_origin) { fRunOrigin = run_origin; }
+    void SetSubRunOrigin(Int_t sub_run_origin) { fSubRunOrigin = sub_run_origin; }
 
     void SetID(Int_t id) { fEventID = id; }
     void SetSubID(Int_t id) { fSubEventID = id; }

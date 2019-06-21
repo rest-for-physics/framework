@@ -139,6 +139,9 @@ class TRestAnalysisTree : public TTree {
     void PrintObservables(TRestEventProcess* proc = 0, int NObservables = 9999);
     void PrintObservable(int N);
 
+    void SetRunOrigin(Int_t run_origin) { fRunOrigin = run_origin; }
+    void SetSubRunOrigin(Int_t sub_run_origin) { fSubRunOrigin = sub_run_origin; }
+
     void SetEventInfo(TRestEvent* evt);
     Int_t FillEvent(TRestEvent* evt);
 
