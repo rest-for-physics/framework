@@ -38,6 +38,7 @@
 #include "TClass.h"
 #include "TRestPhysics.h"
 #include "TRestSystemOfUnits.h"
+#include "TRestReflection.h"
 #include "TStreamerElement.h"
 #include "TVirtualStreamerInfo.h"
 
@@ -294,23 +295,7 @@ class TRestMetadata : public TNamed {
     /// overwriting the write() method with fStore considered
     virtual Int_t Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
 
-    // data member reflection tools
-    TStreamerElement* GetDataMember(string name);
-    TStreamerElement* GetDataMember(int ID);
-    int GetNumberOfDataMember();
-    template <typename T>
-    T GetDataMemberVal(TStreamerElement* ele) {
-        return *(T*)((char*)this + ele->GetOffset());
-    }
-    string GetDataMemberValInString(TStreamerElement*);
-    char* GetDataMemberRef(TStreamerElement*);
-
-    template <class T>
-    void SetDataMemberVal(TStreamerElement* ele, T val) {
-        *((T*)((char*)this + ele->GetOffset())) = val;
-    }
-    void SetDataMemberValWithString(TStreamerElement*, string);
-    void SetDataMemberValFromConfig(TStreamerElement*);
+	void SetDataMemberValFromConfig();
 
     TRestMetadata();
     ~TRestMetadata();
