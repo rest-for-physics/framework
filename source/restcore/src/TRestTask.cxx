@@ -27,8 +27,10 @@
 
 #include "TRestTask.h"
 #include "TRestManager.h"
+#include "TRestReflection.h"
 ClassImp(TRestTask);
 
+using namespace REST_Reflection;
 ///////////////////////////////////////////////
 /// \brief TRestTask default constructor
 ///
@@ -164,11 +166,7 @@ void TRestTask::InitFromConfigFile() {
 
     } else if (fMode == TASK_CLASS) {
         // load config for the inherited task class
-        int n = GetNumberOfDataMember();
-        for (int i = 1; i < n; i++) {
-            TStreamerElement* e = GetDataMember(i);
-            SetDataMemberValFromConfig(e);
-        }
+		SetDataMemberValFromConfig();
     }
 }
 
@@ -184,12 +182,7 @@ void TRestTask::SetArgumentValue(vector<string> arg) {
     }
     argument = arg;
     if (fMode == TASK_CLASS) {
-        int n = GetNumberOfDataMember();
-        for (int i = 1; (i < argument.size() + 1 && i < n); i++) {
-            TStreamerElement* e = GetDataMember(i);
-            SetDataMemberValWithString(e, argument[i - 1]);
-            debug << "data member " << e->GetName() << " has been set to " << GetDataMemberValInString(e);
-        }
+		SetDataMemberValFromConfig();
     }
 }
 
@@ -275,10 +268,10 @@ void TRestTask::PrintArgumentHelp() {
     } else if (fMode == 2) {
         error << "Macro class \"" << this->ClassName() << "\" gets invailed input!" << endl;
         error << "You should give the following arguments ( * : necessary input):" << endl;
-        int n = GetNumberOfDataMember();
+        int n = GetNumberOfDataMembers(this);
         for (int i = 1; i < n; i++) {
             if (i < fNRequiredArgument + 1) error << "*";
-            error << GetDataMember(i)->GetName() << endl;
+            error << GetDataMember(this,i).name << endl;
         }
     }
 }
