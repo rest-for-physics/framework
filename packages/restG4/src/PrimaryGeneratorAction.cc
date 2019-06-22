@@ -40,6 +40,9 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() { delete fParticleGun; }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* geant4_event) {
+    if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
+        cout << "INFO: Primary generation" << endl;
+    }
     // We have to initialize here and not in start of the event because
     // GeneratePrimaries is called first, and we want to store event origin and
     // position inside
@@ -54,6 +57,11 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* geant4_event) {
     string generator_type_name = (string)restG4Metadata->GetGeneratorType();
     generator_type_name = g4_metadata_parameters::CleanString(generator_type_name);
     g4_metadata_parameters::generator_types generator_type;
+
+    if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
+        cout << "DEBUG: Generator type: " << generator_type_name << endl;
+    }
+
     if (g4_metadata_parameters::generator_types_map.count(generator_type_name)) {
         generator_type = g4_metadata_parameters::generator_types_map[generator_type_name];
     } else {
@@ -66,13 +74,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* geant4_event) {
         cout << endl;
 
         throw "Invalid generator type";
-    }
-
-    if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
-        G4int event_number = geant4_event->GetEventID();
-
-        cout << "INFO: Primary generation for event " << event_number << " (" << generator_type_name << ") "
-             << endl;
     }
 
     // If there are particle collections stored is because we are using a
@@ -159,6 +160,10 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
     string angular_dist_type_name = (string)restG4Metadata->GetParticleSource(n).GetAngularDistType();
     angular_dist_type_name = g4_metadata_parameters::CleanString(angular_dist_type_name);
     g4_metadata_parameters::angular_dist_types angular_dist_type;
+
+    if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
+        cout << "DEBUG: Angular distribution: " << angular_dist_type_name << endl;
+    }
     // we first check if it is a valid parameter
     if (g4_metadata_parameters::angular_dist_types_map.count(angular_dist_type_name)) {
         angular_dist_type = g4_metadata_parameters::angular_dist_types_map[angular_dist_type_name];
@@ -347,6 +352,11 @@ void PrimaryGeneratorAction::SetParticleEnergy(int n) {
 
     string energy_dist_type_name = (string)restG4Metadata->GetParticleSource(n).GetEnergyDistType();
     energy_dist_type_name = g4_metadata_parameters::CleanString(energy_dist_type_name);
+
+    if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
+        cout << "DEBUG: Energy distribution: " << energy_dist_type_name << endl;
+    }
+
     g4_metadata_parameters::energy_dist_types energy_dist_type;
     if (g4_metadata_parameters::energy_dist_types_map.count(energy_dist_type_name)) {
         energy_dist_type = g4_metadata_parameters::energy_dist_types_map[energy_dist_type_name];
