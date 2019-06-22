@@ -141,7 +141,6 @@ class TRestRun : public TRestMetadata {
     Double_t GetStartTimestamp() { return fStartTime; }
     Double_t GetEndTimestamp() { return fEndTime; }
     TString GetExperimentName() { return fExperimentName; }
-    string Get(string target);
 
     vector<TString> GetInputFileNames() { return fInputFileNames; }
     string GetInputFileName(int i) { return (string)fInputFileNames[i]; }

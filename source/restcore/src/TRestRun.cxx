@@ -469,8 +469,7 @@ void TRestRun::ReadInputFileTrees() {
 
         if (fInputFile->Get("AnalysisTree") != NULL) {
             fAnalysisTree = (TRestAnalysisTree*)fInputFile->Get("AnalysisTree");
-            fAnalysisTree->ConnectObservables();
-            fAnalysisTree->ConnectEventBranches();
+
             TObjArray* branches = fAnalysisTree->GetListOfBranches();  // we skip process branches
             for (int i = 0; i <= branches->GetLast(); i++) {
                 TBranch* br = (TBranch*)branches->At(i);
@@ -486,8 +485,6 @@ void TRestRun::ReadInputFileTrees() {
             // and "TRestAnalysisTree"
             warning << "Loading root file from old version REST!" << endl;
             fAnalysisTree = (TRestAnalysisTree*)fInputFile->Get("TRestAnalysisTree");
-            fAnalysisTree->CreateEventBranches();
-            fAnalysisTree->ConnectObservables();
 
             TIter nextkey(fInputFile->GetListOfKeys());
             TKey* key;
@@ -650,6 +647,8 @@ void TRestRun::ResetEntry() {
 ///
 /// returns 0 if success, returns -1 if failed, e.g. end of file
 /// writing event data into target event calls the method TRestEvent::CloneTo()
+/// writing observable data into target analysistree calls memcpy
+/// It requires same branch structure, but we didn't verify it here.
 Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettree) {
     if (fFileProcess != NULL) {
         debug << "TRestRun: getting next event from external process" << endl;
@@ -666,9 +665,9 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
             } else {
                 fInputEvent->Initialize();
                 fBytesReaded += fAnalysisTree->GetEntry(fCurrentEvent);
-                if (targettree != NULL && targettree->isConnected()) {
+                if (targettree != NULL) {
                     for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
-                        targettree->SetObservableValue(n, fAnalysisTree->GetObservableValue(n));
+                        targettree->SetObservableValue(n, fAnalysisTree->GetObservableRef(n));//this is problematic if the observable is not in base type
                 }
                 if (fEventTree != NULL) {
                     fBytesReaded += ((TBranch*)fEventTree->GetListOfBranches()->UncheckedAt(fEventBranchLoc))
@@ -725,7 +724,8 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
         string replacestr = GetFileInfo(target);
         if (replacestr == target && fHostmgr != NULL && fHostmgr->GetProcessRunner() != NULL)
             replacestr = fHostmgr->GetProcessRunner()->GetProcInfo(target);
-        if (replacestr == target && this->Get(target) != "") replacestr = this->Get(target);
+		if (replacestr == target && REST_Reflection::GetDataMember(this, target).IsZombie())
+			replacestr = REST_Reflection::GetDataMember(this, target).ToString();
 
         if (replacestr != target) {
             if (targetstr == "[fRunNumber]") {
@@ -903,7 +903,6 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
 
                 if (tree != NULL && tree->GetEntries() > 1) {
                     int n = tree->GetEntries();
-                    tree->ConnectEventBranches();
                     tree->GetEntry(0);
                     double t1 = tree->GetTimeStamp();
                     tree->GetEntry(n - 1);
@@ -1120,26 +1119,8 @@ Double_t TRestRun::GetRunLength() {
 }
 
 // Getters
-
-///////////////////////////////////////////////
-/// \brief Get a string of data member value according to its defined name
-///
-/// It uses reflection method GetDataMemberWithName() and
-/// GetDataMemberValString()
-string TRestRun::Get(string target) {
-    auto a = GetDataMember(target);
-    if (a == NULL) {
-        a = GetDataMember("f" + target);
-    }
-
-    if (a != NULL) {
-        return GetDataMemberValInString(a);
-    }
-    return "";
-}
-
 TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, TString tag) {
-    if (fAnalysisTree != NULL && fAnalysisTree->isConnected()) {
+    if (fAnalysisTree != NULL) {
         int nentries = fAnalysisTree->GetEntries();
 
         // set analysis tree to read only three branches
@@ -1149,6 +1130,7 @@ TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, TString ta
         fAnalysisTree->SetBranchStatus("subEventTag", true);
 
         // just look through the whole analysis tree and find the entry
+		// this is not good!
         for (int i = 0; i < nentries; i++) {
             fAnalysisTree->GetEntry(i);
             if (fAnalysisTree->GetEventID() == eventID) {
