@@ -63,21 +63,24 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* geant4_event) {
         for (const auto& pair : g4_metadata_parameters::generator_types_map) {
             cout << pair.first << ", ";
         }
-        cout << std::endl;
+        cout << endl;
 
         throw "Invalid generator type";
     }
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
         G4int event_number = geant4_event->GetEventID();
-        cout << "Primary generation (" << generator_type_name << ")" << endl;
+
+        cout << "INFO: Primary generation for event " << event_number << " (" << generator_type_name << ") "
+             << endl;
     }
 
     // If there are particle collections stored is because we are using a
     // generator from file
     if (nCollections > 0) {
         Int_t rndCollection;
-        if (generator_type == g4_metadata_parameters::generator_types::FILE) {  // Generator type "file": no randomisation
+        if (generator_type ==
+            g4_metadata_parameters::generator_types::FILE) {  // Generator type "file": no randomisation
             static int nEvts = 0;
             rndCollection = nEvts++;
         } else
@@ -111,40 +114,39 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* geant4_event) {
 
 //_____________________________________________________________________________
 G4ParticleDefinition* PrimaryGeneratorAction::SetParticleDefinition(int n) {
-    string particleName = (string)restG4Metadata->GetParticleSource(n).GetParticleName();
+    string particle_name = (string)restG4Metadata->GetParticleSource(n).GetParticleName();
 
-    Double_t eenergy = (double)restG4Metadata->GetParticleSource(n).GetExcitationLevel();
+    Double_t excited_energy = (double)restG4Metadata->GetParticleSource(n).GetExcitationLevel();
 
     Int_t charge = restG4Metadata->GetParticleSource(n).GetParticleCharge();
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
-        cout << "-- Debug : Searching for : " << endl;
-        cout << "-- Debug : particle name : " << particleName << endl;
-        cout << "-- Debug : particle charge : " << charge << endl;
-        cout << "-- Debug : particle excited energy : " << eenergy << endl;
+        cout << "DEBUG: Particle name: " << particle_name << endl;
+        cout << "DEBUG: Particle charge: " << charge << endl;
+        cout << "DEBUG: Particle excited energy: " << excited_energy << endl;
     }
 
     G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-    G4ParticleDefinition* particle = particleTable->FindParticle(particleName);
+    G4ParticleDefinition* particle = particleTable->FindParticle(particle_name);
 
-    if ((particle == NULL)) {
+    if ((particle == nullptr)) {
         // There might be a better way to do this
         for (int Z = 1; Z <= 110; Z++)
             for (int A = 2 * Z; A <= 3 * Z; A++) {
                 //   cout << "Ion name : " << G4IonTable::GetIonTable()->GetIonName ( Z,
                 //   A ) << endl;
-                if (particleName == G4IonTable::GetIonTable()->GetIonName(Z, A)) {
-                    particle = G4IonTable::GetIonTable()->GetIon(Z, A, eenergy);
+                if (particle_name == G4IonTable::GetIonTable()->GetIonName(Z, A)) {
+                    particle = G4IonTable::GetIonTable()->GetIon(Z, A, excited_energy);
                     fParticleGun->SetParticleCharge(charge);
-                    cout << "Found ion: " << particleName << " Z " << Z << " A " << A << " excited energy "
-                         << eenergy << endl;
+                    cout << "Found ion: " << particle_name << " Z " << Z << " A " << A << " excited energy "
+                         << excited_energy << endl;
                 }
             }
     }
 
     fParticleGun->SetParticleDefinition(particle);
 
-    restG4Event->SetPrimaryEventParticleName(particleName);
+    restG4Event->SetPrimaryEventParticleName(particle_name);
 
     return particle;
 }
@@ -319,7 +321,7 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
 
         direction.set(-v.X(), -v.Y(), -v.Z());
     } else {
-        G4cout << "WARNING! Generator angular distribution was not recognized. "
+        G4cout << "WARNING: Generator angular distribution was not recognized. "
                   "Launching particle to (1,0,0)"
                << G4endl;
     }
@@ -329,8 +331,8 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
     restG4Event->SetPrimaryEventDirection(eventDirection);
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
-        cout << "Event direction has been set : " << endl;
-        cout << "(" << restG4Event->GetPrimaryEventDirection(n).X() << ", "
+        cout << "DEBUG: Event direction (normalized): "
+             << "(" << restG4Event->GetPrimaryEventDirection(n).X() << ", "
              << restG4Event->GetPrimaryEventDirection(n).Y() << ", "
              << restG4Event->GetPrimaryEventDirection(n).Z() << ")" << endl;
     }
@@ -396,7 +398,7 @@ void PrimaryGeneratorAction::SetParticleEnergy(int n) {
     restG4Event->SetPrimaryEventEnergy(energy / keV);
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Debug)
-        cout << "Setting particle Energy : " << energy / keV << " keV" << endl;
+        cout << "DEBUG: Particle energy: " << energy / keV << " keV" << endl;
 }
 
 //_____________________________________________________________________________
@@ -596,10 +598,11 @@ void PrimaryGeneratorAction::SetParticlePosition() {
     restG4Event->SetPrimaryEventOrigin(eventPosition);
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
-        cout << "Event origin has been set : " << endl;
-        cout << "(" << restG4Event->GetPrimaryEventOrigin().X() << ", "
+        cout << "DEBUG: Event origin: "
+             << "(" << restG4Event->GetPrimaryEventOrigin().X() << ", "
              << restG4Event->GetPrimaryEventOrigin().Y() << ", " << restG4Event->GetPrimaryEventOrigin().Z()
-             << ")" << endl;
+             << ")"
+             << " mm" << endl;
     }
 
     // setting particle position
@@ -613,10 +616,11 @@ void PrimaryGeneratorAction::SetParticlePosition(int n) {
     restG4Event->SetPrimaryEventOrigin(pos);
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
-        cout << "Event origin has been set : " << endl;
-        cout << "(" << restG4Event->GetPrimaryEventOrigin().X() << ", "
+        cout << "DEBUG: Event origin: "
+             << "(" << restG4Event->GetPrimaryEventOrigin().X() << ", "
              << restG4Event->GetPrimaryEventOrigin().Y() << ", " << restG4Event->GetPrimaryEventOrigin().Z()
-             << ")" << endl;
+             << ")"
+             << " mm" << endl;
     }
 
     // Setting particle position

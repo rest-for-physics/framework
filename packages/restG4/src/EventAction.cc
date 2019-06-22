@@ -62,11 +62,12 @@ EventAction::~EventAction() {}
 void EventAction::BeginOfEventAction(const G4Event* geant4_event) {
     G4int event_number = geant4_event->GetEventID();
 
-    if (geant4_event->GetEventID() % 10000 == 0) {
-        cout << "Start of event " << event_number << endl;
-    } else if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
+    if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
+        cout << "INFO: Start of event " << event_number << endl;
+    } else if (geant4_event->GetEventID() % 10000 == 0) {
         cout << "Start of event " << event_number << endl;
     }
+
     restTrack->Initialize();
 
     restG4Event->SetID(event_number);
@@ -110,10 +111,10 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
         if (maximum_energy_stored == 0) maximum_energy_stored = total_deposited_energy + 1.;
 
         if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
-            cout << "Energy deposited in ACTIVE and SENSITIVE volumes: " << total_deposited_energy << " keV"
-                 << endl;
-            cout << "Energy deposited in SENSITIVE volume: " << sensitive_volume_deposited_energy << " keV"
-                 << endl;
+            cout << "INFO: Energy deposited in ACTIVE and SENSITIVE volumes: " << total_deposited_energy
+                 << " keV" << endl;
+            cout << "INFO: Energy deposited in SENSITIVE volume: " << sensitive_volume_deposited_energy
+                 << " keV" << endl;
         }
         if (sensitive_volume_deposited_energy > 0 && total_deposited_energy > minimum_energy_stored &&
             total_deposited_energy < maximum_energy_stored) {
@@ -124,7 +125,7 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
             } else {
                 // analysis tree is not found (nullptr)
                 if (restG4Metadata->GetVerboseLevel() >= REST_Warning) {
-                    cout << "WARNING: analysis tree is not found ('nullptr'). Cannot write event info"
+                    cout << "WARNING: Analysis tree is not found ('nullptr'). Cannot write event info"
                          << endl;
                 }
             }
@@ -132,7 +133,7 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
     }
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
-        cout << "End of event " << event_number << endl;
+        cout << "INFO: End of event " << event_number << endl;
         cout << endl;
     }
 }

@@ -77,7 +77,9 @@ TrackingAction::~TrackingAction() {}
 
 void TrackingAction::PreUserTrackingAction(const G4Track* track) {
     if (restG4Metadata->GetVerboseLevel() >= REST_Debug)
-        if (track->GetTrackID() % 10 == 0) G4cout << "Processing track " << track->GetTrackID() << endl;
+        if (track->GetTrackID() % 10 == 0) {
+            cout << "DEBUG: Processing track " << track->GetTrackID() << endl;
+        }
     G4ParticleDefinition* particle = track->GetDefinition();
     G4String name = particle->GetParticleName();
     fCharge = particle->GetPDGCharge();
