@@ -1,4 +1,5 @@
 #include "TRestReflection.h"
+#include "TEmulatedCollectionProxy.h"
 #include "TStreamerInfo.h"
 
 map<string, TDataType*> REST_Reflection::lDataType = map<string, TDataType*>();
@@ -72,7 +73,7 @@ void REST_Reflection::AnyPtr_t::PrintMemory(int bytepreline) {
         int i = 0;
         while (i < size) {
             stringstream save;
-			for (unsigned char j = 0; j < bytepreline && i < size; j++) {
+            for (unsigned char j = 0; j < bytepreline && i < size; j++) {
                 // 44 03 00 d1 56 00 00 05 00 16 60 4a 38 08 81 8e
                 // 44 03 00 D1 56 00 00 05 00 16 60 4A 38 08 81 8E
                 save << std::uppercase << std::setfill('0') << std::setw(2) << std::hex
@@ -99,6 +100,13 @@ void REST_Reflection::AnyPtr_t::CloneTo(AnyPtr_t to) {
     if (cl == NULL) {
         memcpy(to.address, address, size);
     } else {
+        if (cl->GetCollectionProxy() && dynamic_cast<TEmulatedCollectionProxy*>(cl->GetCollectionProxy())) {
+            cout << "In AnyPtr_t::CloneTo() : the target is an stl collection but does not have a "
+                    "compiled CollectionProxy. Please generate the dictionary for this collection."
+                 << endl;
+			cout << "Data not copied!" << endl;
+			return;
+        }
         TBufferFile buffer(TBuffer::kWrite);
 
         buffer.MapObject(address, cl);  // register obj in map to handle self reference
