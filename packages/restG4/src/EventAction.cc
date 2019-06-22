@@ -67,7 +67,7 @@ void EventAction::BeginOfEventAction(const G4Event* evt) {
 
     restG4Event->SetID(evt->GetEventID());
     restG4Event->SetOK(true);
-    time_t systime = time(NULL);
+    time_t systime = time(nullptr);
 
     restG4Event->SetTime((Double_t)systime);
 
@@ -91,28 +91,38 @@ void EventAction::EndOfEventAction(const G4Event* evt) {
         restG4Event->PrintEvent();
     }
 
-    Double_t minEnergy = restG4Metadata->GetMinimumEnergyStored();
-    Double_t maxEnergy = restG4Metadata->GetMaximumEnergyStored();
+    Double_t minimum_energy_stored = restG4Metadata->GetMinimumEnergyStored();
+    Double_t maximum_energy_stored = restG4Metadata->GetMaximumEnergyStored();
 
     SetTrackSubeventIDs();
 
     for (int subId = 0; subId < restG4Event->GetNumberOfSubEventIDTracks(); subId++) {
         FillSubEvent(subId);
 
-        Double_t en = subRestG4Event->GetTotalDepositedEnergy();
-        if (minEnergy < 0) minEnergy = 0;
-        if (maxEnergy == 0) maxEnergy = en + 1.;
+        Double_t total_deposited_energy = subRestG4Event->GetTotalDepositedEnergy();
+        Double_t sensitive_volume_deposited_energy = subRestG4Event->GetSensitiveVolumeEnergy();
 
-        if (restG4Metadata->GetVerboseLevel() >= REST_Info)
-            cout << "Event Deposited energy in sensitive volume:  " << en << endl;
+        if (minimum_energy_stored < 0) minimum_energy_stored = 0;
+        if (maximum_energy_stored == 0) maximum_energy_stored = total_deposited_energy + 1.;
 
-        if (subRestG4Event->GetSensitiveVolumeEnergy() > 0 && en > minEnergy && en < maxEnergy) {
-            if (restRun->GetAnalysisTree() != NULL) {
-                restRun->GetAnalysisTree()->SetEventInfo(subRestG4Event);
-                restRun->GetAnalysisTree()->Fill();
-            }
-            if (restRun->GetEventTree() != NULL) {
-                restRun->GetEventTree()->Fill();
+        if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
+            cout << "Energy deposited in ACTIVE and SENSITIVE volumes: " << total_deposited_energy << " keV"
+                 << endl;
+            cout << "Energy deposited in SENSITIVE volume: " << sensitive_volume_deposited_energy << " keV"
+                 << endl;
+        }
+        if (sensitive_volume_deposited_energy > 0 && total_deposited_energy > minimum_energy_stored &&
+            total_deposited_energy < maximum_energy_stored) {
+            TRestAnalysisTree* analysis_tree = restRun->GetAnalysisTree();
+            if (analysis_tree != nullptr) {
+                analysis_tree->SetEventInfo(subRestG4Event);
+                analysis_tree->Fill();
+            } else {
+                // analysis tree is not found (nullptr)
+                if (restG4Metadata->GetVerboseLevel() >= REST_Warning) {
+                    cout << "WARNING: analysis tree is not found ('nullptr'). Cannot write event info"
+                         << endl;
+                }
             }
         }
     }

@@ -163,17 +163,35 @@ TRestMultiFEMINOSToSignalProcess::~TRestMultiFEMINOSToSignalProcess() {
 }
 
 //______________________________________________________________________________
+void TRestMultiFEMINOSToSignalProcess::LoadDetectorSetupData() {
+    if (fRunInfo == nullptr) {
+        cout << "'fRunInfo' is null" << endl;
+        return;
+    }
+    string file_name = (string)fRunInfo->GetInputFileNamepattern();
+    TRestDetectorSetup* detector_setup = new TRestDetectorSetup();
+    detector_setup->InitFromFileName(file_name);
+
+    // fRunOrigin value filled by fRunNumber
+    fRunOrigin = detector_setup->GetRunNumber();
+    fSubRunOrigin = detector_setup->GetSubRunNumber();
+
+    fRunInfo->SetParentRunNumber(fSubRunOrigin);
+    fRunInfo->SetRunNumber(fRunOrigin);
+    fRunInfo->SetRunTag(detector_setup->GetRunTag());
+}
+//______________________________________________________________________________
 void TRestMultiFEMINOSToSignalProcess::Initialize() {
     fLastEventId = 0;
     fLastTimeStamp = 0;
-
-    // this->SetVerboseLevel(REST_Debug);
 }
 
 //______________________________________________________________________________
 void TRestMultiFEMINOSToSignalProcess::InitProcess() {
     cout << "TRestMultiFeminos::InitProcess" << endl;
     // Reading binary file header
+
+    LoadDetectorSetupData();
 
     unsigned short sh;
     unsigned short al;
@@ -234,6 +252,9 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent(TRestEvent* evInput) 
     Bool_t endOfEvent = false;
 
     fSignalEvent->Initialize();
+
+    fSignalEvent->SetRunOrigin(fRunOrigin);
+    fSignalEvent->SetSubRunOrigin(fSubRunOrigin);
 
     while (!endOfEvent) {
         done = 0;
