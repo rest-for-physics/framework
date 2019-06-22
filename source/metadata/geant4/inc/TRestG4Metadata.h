@@ -49,7 +49,7 @@ We use a structure called 'enum' and a function to clean the strings so that we 
 insensitivity or more options such as ignoring underscores.
 */
 
-namespace parameters {
+namespace g4_metadata_parameters {
 string CleanString(string);
 
 enum class generator_types {

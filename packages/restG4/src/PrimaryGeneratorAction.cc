@@ -39,8 +39,7 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() { delete fParticleGun; }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
-    if (restG4Metadata->GetVerboseLevel() >= REST_Info) cout << "Primary generation..." << endl;
+void PrimaryGeneratorAction::GeneratePrimaries(G4Event* geant4_event) {
     // We have to initialize here and not in start of the event because
     // GeneratePrimaries is called first, and we want to store event origin and
     // position inside
@@ -53,15 +52,15 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
     // ...set a distinct position for each particle.
 
     string generator_type_name = (string)restG4Metadata->GetGeneratorType();
-    generator_type_name = parameters::CleanString(generator_type_name);
-    parameters::generator_types generator_type;
-    if (parameters::generator_types_map.count(generator_type_name)) {
-        generator_type = parameters::generator_types_map[generator_type_name];
+    generator_type_name = g4_metadata_parameters::CleanString(generator_type_name);
+    g4_metadata_parameters::generator_types generator_type;
+    if (g4_metadata_parameters::generator_types_map.count(generator_type_name)) {
+        generator_type = g4_metadata_parameters::generator_types_map[generator_type_name];
     } else {
         // if we get here it means the parameter is not valid, we can either assign a default value or stop
         // execution default value
         cout << "Invalid generator type (" + generator_type_name + ") valid values are: ";
-        for (const auto& pair : parameters::generator_types_map) {
+        for (const auto& pair : g4_metadata_parameters::generator_types_map) {
             cout << pair.first << ", ";
         }
         cout << std::endl;
@@ -69,11 +68,16 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
         throw "Invalid generator type";
     }
 
+    if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
+        G4int event_number = geant4_event->GetEventID();
+        cout << "Primary generation (" << generator_type_name << ")" << endl;
+    }
+
     // If there are particle collections stored is because we are using a
     // generator from file
     if (nCollections > 0) {
         Int_t rndCollection;
-        if (generator_type == parameters::generator_types::FILE) {  // Generator type "file": no randomisation
+        if (generator_type == g4_metadata_parameters::generator_types::FILE) {  // Generator type "file": no randomisation
             static int nEvts = 0;
             rndCollection = nEvts++;
         } else
@@ -84,12 +88,12 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 
     Int_t nParticles = restG4Metadata->GetNumberOfPrimaries();
 
-    if (generator_type != parameters::generator_types::FILE)  // Except for generator "file"...
+    if (generator_type != g4_metadata_parameters::generator_types::FILE)  // Except for generator "file"...
         // ...Position is common for all particles
         SetParticlePosition();
 
     for (int j = 0; j < nParticles; j++) {
-        if (generator_type == parameters::generator_types::FILE)  // Generator type "file"...
+        if (generator_type == g4_metadata_parameters::generator_types::FILE)  // Generator type "file"...
             // ...Get position from particle collection
             SetParticlePosition(j);
 
@@ -101,7 +105,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 
         SetParticleDirection(j);
 
-        fParticleGun->GeneratePrimaryVertex(anEvent);
+        fParticleGun->GeneratePrimaryVertex(geant4_event);
     }
 }
 
@@ -151,16 +155,16 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
     // TODO: fix bug when giving TH1D with lowercase (e.g. Th1D). string conversion is OK but integral gives
     // exception.
     string angular_dist_type_name = (string)restG4Metadata->GetParticleSource(n).GetAngularDistType();
-    angular_dist_type_name = parameters::CleanString(angular_dist_type_name);
-    parameters::angular_dist_types angular_dist_type;
+    angular_dist_type_name = g4_metadata_parameters::CleanString(angular_dist_type_name);
+    g4_metadata_parameters::angular_dist_types angular_dist_type;
     // we first check if it is a valid parameter
-    if (parameters::angular_dist_types_map.count(angular_dist_type_name)) {
-        angular_dist_type = parameters::angular_dist_types_map[angular_dist_type_name];
+    if (g4_metadata_parameters::angular_dist_types_map.count(angular_dist_type_name)) {
+        angular_dist_type = g4_metadata_parameters::angular_dist_types_map[angular_dist_type_name];
     } else {
         // if we get here it means the parameter is not valid, we can either assign a default value or stop
         // execution default value
         cout << "Invalid angular distribution (" + angular_dist_type_name + ") valid values are: ";
-        for (const auto& pair : parameters::angular_dist_types_map) {
+        for (const auto& pair : g4_metadata_parameters::angular_dist_types_map) {
             cout << pair.first << ", ";
         }
         cout << std::endl;
@@ -168,23 +172,23 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
     }
     // generator type
     string generator_type_name = (string)restG4Metadata->GetGeneratorType();
-    generator_type_name = parameters::CleanString(generator_type_name);
-    parameters::generator_types generator_type;
-    if (parameters::generator_types_map.count(generator_type_name)) {
-        generator_type = parameters::generator_types_map[generator_type_name];
+    generator_type_name = g4_metadata_parameters::CleanString(generator_type_name);
+    g4_metadata_parameters::generator_types generator_type;
+    if (g4_metadata_parameters::generator_types_map.count(generator_type_name)) {
+        generator_type = g4_metadata_parameters::generator_types_map[generator_type_name];
     } else {
         // if we get here it means the parameter is not valid, we can either assign a default value or stop
         // execution default value
         cout << "Invalid generator type (" + generator_type_name + ") valid values are: ";
-        for (const auto& pair : parameters::generator_types_map) {
+        for (const auto& pair : g4_metadata_parameters::generator_types_map) {
             cout << pair.first << ", ";
         }
         cout << std::endl;
         throw "Invalid generator type";
     }
 
-    if (angular_dist_type == parameters::angular_dist_types::ISOTROPIC) {
-        if (generator_type == parameters::generator_types::VIRTUAL_BOX) {
+    if (angular_dist_type == g4_metadata_parameters::angular_dist_types::ISOTROPIC) {
+        if (generator_type == g4_metadata_parameters::generator_types::VIRTUAL_BOX) {
             if (face == 0) direction.set(0, -1, 0);
             if (face == 1) direction.set(0, 1, 0);
             if (face == 2) direction.set(-1, 0, 0);
@@ -203,7 +207,7 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
             // We rotate a random angle along the original direction
             Double_t randomAngle = G4UniformRand() * 2 * M_PI;
             direction.rotate(randomAngle, referenceOrigin);
-        } else if (generator_type == parameters::generator_types::VIRTUAL_SPHERE) {
+        } else if (generator_type == g4_metadata_parameters::generator_types::VIRTUAL_SPHERE) {
             direction = -fParticleGun->GetParticlePosition().unit();
 
             Double_t theta = GetCosineLowRandomThetaAngle();
@@ -221,7 +225,7 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
         } else {
             direction = GetIsotropicVector();
         }
-    } else if (angular_dist_type == parameters::angular_dist_types::TH1D) {
+    } else if (angular_dist_type == g4_metadata_parameters::angular_dist_types::TH1D) {
         Double_t angle = 0;
         Double_t value = G4UniformRand() * (fAngularDistribution->Integral());
         Double_t sum = 0;
@@ -263,7 +267,7 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
             direction.set(1, 0, 0);
         }
 
-        if (generator_type == parameters::generator_types::VIRTUAL_BOX) {
+        if (generator_type == g4_metadata_parameters::generator_types::VIRTUAL_BOX) {
             if (face == 0) direction.set(0, -1, 0);
             if (face == 1) direction.set(0, 1, 0);
             if (face == 2) direction.set(-1, 0, 0);
@@ -272,7 +276,7 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
             if (face == 5) direction.set(0, 0, 1);
         }
 
-        if (generator_type == parameters::generator_types::VIRTUAL_WALL) {
+        if (generator_type == g4_metadata_parameters::generator_types::VIRTUAL_WALL) {
             double x = 0, y = 0, z = 0;
             TVector3 center = restG4Metadata->GetGeneratorPosition();
             TVector3 ad = (-1) * center.Unit();
@@ -300,14 +304,14 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
         //       G4cout << "Angle  " << direction.angle( referenceOrigin ) << "
         //       should be = to " << angle << G4endl;
 
-    } else if (angular_dist_type == parameters::angular_dist_types::FLUX) {
+    } else if (angular_dist_type == g4_metadata_parameters::angular_dist_types::FLUX) {
         TVector3 v = restG4Metadata->GetParticleSource(n).GetDirection();
 
         v = v.Unit();
 
         direction.set(v.X(), v.Y(), v.Z());
 
-    } else if (angular_dist_type == parameters::angular_dist_types::BACK_TO_BACK) {
+    } else if (angular_dist_type == g4_metadata_parameters::angular_dist_types::BACK_TO_BACK) {
         // This should never crash. In TRestG4Metadata we have defined that if the
         // first source is backtoback we set it to isotropic
         TVector3 v = restG4Event->GetPrimaryEventDirection(n - 1);
@@ -340,15 +344,15 @@ void PrimaryGeneratorAction::SetParticleEnergy(int n) {
     Double_t energy = 0;
 
     string energy_dist_type_name = (string)restG4Metadata->GetParticleSource(n).GetEnergyDistType();
-    energy_dist_type_name = parameters::CleanString(energy_dist_type_name);
-    parameters::energy_dist_types energy_dist_type;
-    if (parameters::energy_dist_types_map.count(energy_dist_type_name)) {
-        energy_dist_type = parameters::energy_dist_types_map[energy_dist_type_name];
+    energy_dist_type_name = g4_metadata_parameters::CleanString(energy_dist_type_name);
+    g4_metadata_parameters::energy_dist_types energy_dist_type;
+    if (g4_metadata_parameters::energy_dist_types_map.count(energy_dist_type_name)) {
+        energy_dist_type = g4_metadata_parameters::energy_dist_types_map[energy_dist_type_name];
     } else {
         // if we get here it means the parameter is not valid, we can either assign a default value or stop
         // execution default value in this case is 1 keV
         cout << "Invalid energy distribution (" + energy_dist_type_name + ") valid values are: ";
-        for (const auto& pair : parameters::energy_dist_types_map) {
+        for (const auto& pair : g4_metadata_parameters::energy_dist_types_map) {
             cout << pair.first << ", ";
         }
         cout << std::endl;
@@ -360,13 +364,13 @@ void PrimaryGeneratorAction::SetParticleEnergy(int n) {
         // energy there throw "Invalid energy distribution type";
     }
 
-    if (energy_dist_type == parameters::energy_dist_types::MONO) {
+    if (energy_dist_type == g4_metadata_parameters::energy_dist_types::MONO) {
         energy = restG4Metadata->GetParticleSource(n).GetEnergy() * keV;
-    } else if (energy_dist_type == parameters::energy_dist_types::FLAT) {
+    } else if (energy_dist_type == g4_metadata_parameters::energy_dist_types::FLAT) {
         TVector2 enRange = restG4Metadata->GetParticleSource(n).GetEnergyRange();
 
         energy = ((enRange.Y() - enRange.X()) * G4UniformRand() + enRange.X()) * keV;
-    } else if (energy_dist_type == parameters::energy_dist_types::TH1D) {
+    } else if (energy_dist_type == g4_metadata_parameters::energy_dist_types::TH1D) {
         Double_t value = G4UniformRand() * fSpectrumIntegral;
         Double_t sum = 0;
         Double_t deltaEnergy = fSpectrum->GetBinCenter(2) - fSpectrum->GetBinCenter(1);
@@ -399,10 +403,10 @@ void PrimaryGeneratorAction::SetParticleEnergy(int n) {
 void PrimaryGeneratorAction::SetParticlePosition() {
     double x = 0, y = 0, z = 0;
     string generator_type_name = (string)restG4Metadata->GetGeneratorType();
-    parameters::generator_types generator_type =
-        parameters::generator_types_map[parameters::CleanString(generator_type_name)];
+    g4_metadata_parameters::generator_types generator_type =
+        g4_metadata_parameters::generator_types_map[g4_metadata_parameters::CleanString(generator_type_name)];
 
-    if (generator_type == parameters::generator_types::VOLUME) {
+    if (generator_type == g4_metadata_parameters::generator_types::VOLUME) {
         double xMin = fDetector->GetBoundingX_min();
         double xMax = fDetector->GetBoundingX_max();
         double yMin = fDetector->GetBoundingY_min();
@@ -419,7 +423,7 @@ void PrimaryGeneratorAction::SetParticlePosition() {
         x = x + fDetector->GetGeneratorTranslation().x();
         y = y + fDetector->GetGeneratorTranslation().y();
         z = z + fDetector->GetGeneratorTranslation().z();
-    } else if (generator_type == parameters::generator_types::SURFACE) {
+    } else if (generator_type == g4_metadata_parameters::generator_types::SURFACE) {
         // TODO there is a problem, probably with G4 function GetPointOnSurface
         // It produces a point on the surface but it is not uniformly distributed
         // May be it is just an OPENGL drawing issue?
@@ -433,14 +437,14 @@ void PrimaryGeneratorAction::SetParticlePosition() {
         x = x + fDetector->GetGeneratorTranslation().x();
         y = y + fDetector->GetGeneratorTranslation().y();
         z = z + fDetector->GetGeneratorTranslation().z();
-    } else if (generator_type == parameters::generator_types::POINT) {
+    } else if (generator_type == g4_metadata_parameters::generator_types::POINT) {
         TVector3 position = restG4Metadata->GetGeneratorPosition();
 
         x = position.X();
         y = position.Y();
         z = position.Z();
 
-    } else if (generator_type == parameters::generator_types::VIRTUAL_WALL) {
+    } else if (generator_type == g4_metadata_parameters::generator_types::VIRTUAL_WALL) {
         Double_t side = restG4Metadata->GetGeneratorSize();
 
         x = side * (G4UniformRand() - 0.5);
@@ -456,7 +460,7 @@ void PrimaryGeneratorAction::SetParticlePosition() {
         x = rndPos.x() + center.X();
         y = rndPos.y() + center.Y();
         z = rndPos.z() + center.Z();
-    } else if (generator_type == parameters::generator_types::VIRTUAL_CIRCLE_WALL) {
+    } else if (generator_type == g4_metadata_parameters::generator_types::VIRTUAL_CIRCLE_WALL) {
         Double_t radius = restG4Metadata->GetGeneratorSize();
 
         do {
@@ -475,7 +479,7 @@ void PrimaryGeneratorAction::SetParticlePosition() {
         x = rndPos.x() + center.X();
         y = rndPos.y() + center.Y();
         z = rndPos.z() + center.Z();
-    } else if (generator_type == parameters::generator_types::VIRTUAL_SPHERE) {
+    } else if (generator_type == g4_metadata_parameters::generator_types::VIRTUAL_SPHERE) {
         G4ThreeVector rndPos = GetIsotropicVector();
 
         Double_t radius = restG4Metadata->GetGeneratorSize();
@@ -485,7 +489,7 @@ void PrimaryGeneratorAction::SetParticlePosition() {
         x = radius * rndPos.x() + center.X();
         y = radius * rndPos.y() + center.Y();
         z = radius * rndPos.z() + center.Z();
-    } else if (generator_type == parameters::generator_types::VIRTUAL_CYLINDER) {
+    } else if (generator_type == g4_metadata_parameters::generator_types::VIRTUAL_CYLINDER) {
         Double_t angle = 2 * M_PI * G4UniformRand();
 
         Double_t radius = restG4Metadata->GetGeneratorSize();
@@ -505,7 +509,7 @@ void PrimaryGeneratorAction::SetParticlePosition() {
         x = rndPos.x() + center.X();
         y = rndPos.y() + center.Y();
         z = rndPos.z() + center.Z();
-    } else if (generator_type == parameters::generator_types::VIRTUAL_BOX) {
+    } else if (generator_type == g4_metadata_parameters::generator_types::VIRTUAL_BOX) {
         Double_t side = restG4Metadata->GetGeneratorSize();
 
         x = side * (G4UniformRand() - 0.5);

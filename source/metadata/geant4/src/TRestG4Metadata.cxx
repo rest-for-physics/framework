@@ -610,7 +610,7 @@
 #include "TRestG4Metadata.h"
 using namespace std;
 
-namespace parameters {
+namespace g4_metadata_parameters {
 string CleanString(string s) {
     // transform the string to lowercase
     std::transform(s.begin(), s.end(), s.begin(), ::tolower);

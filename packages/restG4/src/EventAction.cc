@@ -59,17 +59,21 @@ EventAction::~EventAction() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void EventAction::BeginOfEventAction(const G4Event* evt) {
-    if (evt->GetEventID() % 10000 == 0) cout << "Starting event : " << evt->GetEventID() << endl;
-    if (restG4Metadata->GetVerboseLevel() >= REST_Debug)
-        cout << "Start of event " << evt->GetEventID() << endl;
+void EventAction::BeginOfEventAction(const G4Event* geant4_event) {
+    G4int event_number = geant4_event->GetEventID();
+
+    if (geant4_event->GetEventID() % 10000 == 0) {
+        cout << "Start of event " << event_number << endl;
+    } else if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
+        cout << "Start of event " << event_number << endl;
+    }
     restTrack->Initialize();
 
-    restG4Event->SetID(evt->GetEventID());
+    restG4Event->SetID(event_number);
     restG4Event->SetOK(true);
-    time_t systime = time(nullptr);
+    time_t system_time = time(nullptr);
 
-    restG4Event->SetTime((Double_t)systime);
+    restG4Event->SetTime((Double_t)system_time);
 
     // Defining if the hits in a given volume will be stored
     for (int i = 0; i < restG4Metadata->GetNumberOfActiveVolumes(); i++) {
@@ -84,8 +88,8 @@ void EventAction::BeginOfEventAction(const G4Event* evt) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void EventAction::EndOfEventAction(const G4Event* evt) {
-    G4int evtNb = evt->GetEventID();
+void EventAction::EndOfEventAction(const G4Event* geant4_event) {
+    G4int event_number = geant4_event->GetEventID();
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Extreme) {
         restG4Event->PrintEvent();
@@ -128,7 +132,7 @@ void EventAction::EndOfEventAction(const G4Event* evt) {
     }
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
-        cout << "End of event " << evtNb << endl;
+        cout << "End of event " << event_number << endl;
         cout << endl;
     }
 }
