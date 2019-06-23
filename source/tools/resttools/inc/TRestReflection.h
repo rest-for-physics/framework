@@ -217,6 +217,7 @@ AnyPtr_t Assembly(string typeName);
 AnyPtr_t WrapType(string typeName);
 
 // data member reflection tools
+AnyPtr_t GetDataMember(REST_Reflection::AnyPtr_t obj, string name);
 AnyPtr_t GetDataMember(TObject* obj, string name);
 AnyPtr_t GetDataMember(TObject* obj, int ID);
 int GetNumberOfDataMembers(TObject* obj);

@@ -366,6 +366,13 @@ REST_Reflection::AnyPtr_t::AnyPtr_t(char* _address, string _type) {
     size = cl == 0 ? dt->Size() : cl->Size();
 }
 
+REST_Reflection::AnyPtr_t REST_Reflection::GetDataMember(REST_Reflection::AnyPtr_t obj, string name) {
+	if (obj.cl != NULL && obj.cl->InheritsFrom("TObject")) {
+		return GetDataMember((TObject*)obj, name);
+	}
+	return AnyPtr_t();
+}
+
 REST_Reflection::AnyPtr_t REST_Reflection::GetDataMember(TObject* obj, string name) {
     TClass* c = obj->IsA();
     TVirtualStreamerInfo* vs = c->GetStreamerInfo();
