@@ -27,6 +27,8 @@
 
 using namespace std;
 
+class TRestEventProcess;
+
 /// String helper classes. Declared static to be able to have direct access to the methods
 namespace REST_Reflection {
 
@@ -168,6 +170,11 @@ class AnyPtr_t {
     void Destroy();
 	// Print the Hex memory map of the wrappered object
 	void PrintMemory(int bytepreline=16);
+
+	template <class T>
+	operator T*() {
+		return (T*)address;
+	}
 
     AnyPtr_t() {}
     AnyPtr_t(char* address, string type);
