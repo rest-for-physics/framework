@@ -11,7 +11,10 @@
 #ifndef RestCore_TRestTools
 #define RestCore_TRestTools
 
+#include <vector>
 #include <string>
+
+#include "TObject.h"
 
 using namespace std;
 
