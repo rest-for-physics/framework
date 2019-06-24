@@ -11,11 +11,10 @@
 #ifndef RestCore_TRestTools
 #define RestCore_TRestTools
 
-#include <TClass.h>
+#include <string>
 
-#include <TList.h>
-#include <TString.h>
-#include <iostream>
+using namespace std;
+
 #define UNUSED(x) (void)x
 
 class TRestTools {

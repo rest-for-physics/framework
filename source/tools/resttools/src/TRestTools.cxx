@@ -1,14 +1,13 @@
-
-#include "TRestTools.h"
-#include <TSystem.h>
 #include <iostream>
 #include <limits>
 #include <memory>
-#include "TRestStringHelper.h"
-using namespace std;
-
 #include <dirent.h>
+
 #include "TClass.h"
+#include "TSystem.h"
+
+#include "TRestTools.h"
+#include "TRestStringHelper.h"
 
 struct _REST_STARTUP_CHECK {
    public:

@@ -55,14 +55,14 @@ string ToString(T source, int length = -1, char fill = ' ') {
 		return s.substr(0, length);
 	}
 }
-vector<TString> VectorTString_cast(vector<string> vecstring) {
+inline vector<TString> VectorTString_cast(vector<string> vecstring) {
 	vector<TString> result;
 	for (auto s : vecstring) {
 		result.push_back((TString)s);
 	}
 	return result;
 }
-vector<string> Vectorstring_cast(vector<TString> vecstring) {
+inline vector<string> Vectorstring_cast(vector<TString> vecstring) {
 	vector<string> result;
 	for (auto s : vecstring) {
 		result.push_back((string)s);
