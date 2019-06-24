@@ -18,8 +18,6 @@
 #include <iostream>
 #define UNUSED(x) (void)x
 
-#include "TRestStringHelper.h"
-
 class TRestTools {
    public:
     ///////////////////////////////////////////////
@@ -29,7 +27,7 @@ class TRestTools {
     /// calling the method GetRESTLibrariesInDirectory(). This requests rest being
     /// installed correctly.
     ///
-    static std::vector<TString> GetListOfRESTLibraries();
+    static std::vector<string> GetListOfRESTLibraries();
 
     ///////////////////////////////////////////////
     /// \brief Returns all paths in an env variable.
@@ -37,7 +35,7 @@ class TRestTools {
     /// This method gives the env variable string to the method GetFirstPath().
     /// And then adds the result to the list.
     ///
-    static std::vector<TString> GetListOfPathsInEnvVariable(TString envVariable);
+    //static std::vector<string> GetListOfPathsInEnvVariable(string envVariable);
 
     ///////////////////////////////////////////////
     /// \brief Returns the first sub string spilt by ":" in a string
@@ -46,7 +44,7 @@ class TRestTools {
     /// this method repeatedly will get all the substring in the input string.
     /// Actually it does not return path, but any sub string spilt by ":"
     ///
-    static TString GetFirstPath(TString& path);
+    //static TString GetFirstPath(TString& path);
 
     ///////////////////////////////////////////////
     /// \brief Returns the list of rest librarys found in a path.
@@ -54,7 +52,7 @@ class TRestTools {
     /// It just finds the files with name containing "REST" or "Rest" in that
     /// path.
     ///
-    static std::vector<TString> GetRESTLibrariesInDirectory(TString path);
+    static std::vector<string> GetRESTLibrariesInDirectory(string path);
 
     ///////////////////////////////////////////////
     /// \brief Returns all the options in an option string
@@ -62,12 +60,12 @@ class TRestTools {
     /// This method gives string to the method GetFirstOption().
     /// And then adds the result to the list.
     ///
-    static std::vector<TString> GetOptions(TString optionsStr);
+    static std::vector<string> GetOptions(string optionsStr);
 
     ///////////////////////////////////////////////
     /// \brief Returns the first option of the string
     ///
-    static TString GetFirstOption(TString& path);
+    //static TString GetFirstOption(TString& path);
 
     ///////////////////////////////////////////////
     /// \brief Calls gSystem to load REST library.
@@ -85,12 +83,27 @@ class TRestTools {
     /// loaded in the matrix provided through the argument `data`. The content of
     /// `data` will be cleared in this method.
     ///
-    static int ReadASCIITable(TString fName, std::vector<std::vector<Double_t>>& data);
+    static int ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data);
+
+
+	static bool fileExists(const std::string& filename);
+	static bool isRootFile(const std::string& filename);
+	static bool isURL(const std::string& filename);
+	static bool isPathWritable(const std::string& path);
+	static bool isAbsolutePath(const std::string& path);
+	static string ToAbsoluteName(string filename);
+	static vector<string> GetSubdirectories(const string& path, int recursion = -1);
+	static std::pair<string, string> SeparatePathAndName(const std::string fullname);
+	static std::string RemoveAbsolutePath(std::string fullpathFileName);
+	static std::string SearchFileInPath(vector<string> path, string filename);
+	static Int_t ChecktheFile(std::string cfgFileName);
+	static std::vector<string> GetFilesMatchingPattern(string pattern);
+	static int ConvertVersionCode(string in);
 
     ///////////////////////////////////////////////
     /// \brief Executes a shell command and returns its output in a string
     ///
-    static std::string Execute(const char* cmd);
+    static std::string Execute(string cmd);
 
     /// Rest tools class
     ClassDef(TRestTools, 1);
