@@ -1,6 +1,9 @@
 #include "TRestReflection.h"
 #include "TEmulatedCollectionProxy.h"
+#include "TRestStringHelper.h"
+#include "TRestTools.h"
 #include "TStreamerInfo.h"
+#include "TSystem.h"
 
 map<string, TDataType*> REST_Reflection::lDataType = map<string, TDataType*>();
 
@@ -100,13 +103,6 @@ void REST_Reflection::AnyPtr_t::CloneTo(AnyPtr_t to) {
     if (cl == NULL) {
         memcpy(to.address, address, size);
     } else {
-        if (cl->GetCollectionProxy() && dynamic_cast<TEmulatedCollectionProxy*>(cl->GetCollectionProxy())) {
-            cout << "In AnyPtr_t::CloneTo() : the target is an stl collection but does not have a "
-                    "compiled CollectionProxy. Please generate the dictionary for this collection."
-                 << endl;
-			cout << "Data not copied!" << endl;
-			return;
-        }
         TBufferFile buffer(TBuffer::kWrite);
 
         buffer.MapObject(address, cl);  // register obj in map to handle self reference
@@ -366,29 +362,140 @@ REST_Reflection::AnyPtr_t::AnyPtr_t(char* _address, string _type) {
     size = cl == 0 ? dt->Size() : cl->Size();
 }
 
-REST_Reflection::AnyPtr_t REST_Reflection::GetDataMember(REST_Reflection::AnyPtr_t obj, string name) {
-	if (obj.cl != NULL && obj.cl->InheritsFrom("TObject")) {
-		return GetDataMember((TObject*)obj, name);
-	}
-	return AnyPtr_t();
+bool REST_Reflection::HasDictionary(REST_Reflection::AnyPtr_t obj) {
+    if (obj.dt != NULL) return true;
+
+    if (obj.cl != NULL) {
+        if (obj.cl->GetCollectionProxy() &&
+            dynamic_cast<TEmulatedCollectionProxy*>(obj.cl->GetCollectionProxy())) {
+            // cout << "In AnyPtr_t::CloneTo() : the target is an stl collection but does not have a "
+            //	"compiled CollectionProxy. Please generate the dictionary for this collection."
+            //	<< endl;
+            // cout << "Data not copied!" << endl;
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    return false;
 }
 
-REST_Reflection::AnyPtr_t REST_Reflection::GetDataMember(TObject* obj, string name) {
-    TClass* c = obj->IsA();
-    TVirtualStreamerInfo* vs = c->GetStreamerInfo();
-    TObjArray* ses = vs->GetElements();
-    int n = ses->GetLast() + 1;
+int REST_Reflection::CreateDictionary(REST_Reflection::AnyPtr_t obj) {
+    if (obj.IsZombie()) {
+        cout << "Error in REST_Reflection::CreateDictionary: object is zombie!" << endl;
+        return -1;
+    }
 
-    for (int i = 0; i < n; i++) {
-        TStreamerElement* ele = (TStreamerElement*)ses->At(i);
-        if ((string)ele->GetFullName() == name) {
+    if (!HasDictionary(obj)) {
+        string type = obj.type;
+        int pos = type.find("<");
+
+        string basetype = type.substr(0, pos);
+        vector<string> stltypes{"vector", "list", "map", "set", "array", "deque"};
+        bool flag = false;
+        for (auto stltype : stltypes) {
+            if (basetype == stltype) {
+                flag = true;
+            }
+        }
+        if (!flag) {
+            cout << "Error in REST_Reflection::CreateDictionary: unknown type \"" << type << "\"" << endl;
+            return -1;
+        }
+
+        char* restpath = getenv("REST_PATH");
+        if (restpath == NULL || !TRestTools::isPathWritable(restpath)) {
+            cout
+                << "Error in REST_Reflection::CreateDictionary: cannot create dictionary, path not writeable!"
+                << endl;
+            cout << "path: \"" << restpath << "\"" << endl;
+            cout << "This is possible in case you are using public installation of REST, install one by your "
+                    "own?"
+                 << endl;
+            return -1;
+        }
+        system(Form("mkdir -p %s/libs/AddonDict", restpath));
+
+        string infilename = restpath + (string) "/lib/AddonDict/LinkDef.h";
+        ofstream ofs(infilename);
+        ofs << "#include <map>" << endl;
+        ofs << "#include <vector>" << endl;
+        ofs << "#include <map>" << endl;
+        ofs << "#include <set>" << endl;
+        ofs << "#include <list>" << endl;
+        ofs << "#include <array>" << endl;
+        ofs << "#ifdef __ROOTCLING__" << endl;
+        ofs << "#pragma link C++ class " << type << ";" << endl;
+        ofs << "#endif" << endl;
+        ofs.close();
+
+        string outfilename = Replace(type, ">", "_");
+        outfilename = Replace(type, "<", "_");
+        outfilename = Replace(type, ",", "_");
+        outfilename = restpath + (string) "/lib/AddonDict/" + outfilename + ".cxx";
+
+        int a = system(Form("rootcling -f %s -c %s", outfilename.c_str(), infilename.c_str()));
+        if (a != 0) {
+            cout << "rootcling failed to generate dictionary" << endl;
+            return -1;
+        }
+
+		int b = system(
+			Form("gcc %s/lib/AddonDict/*.cxx -std=c++11 -I`root-config --incdir` "
+				"`root-config --libs` -lGui -lEve -lGeom -lMathMore -lGdml -lMinuit -L/usr/lib64 "
+				"-lstdc++ -shared -fPIC -o %s/lib/AddonDict/AddonDict.so",
+				restpath, restpath));
+
+		if (b != 0) {
+			cout << "rootcling failed to generate dictionary" << endl;
+			return -1;
+		}
+		
+		gSystem->Load(Form("%s/lib/AddonDict/AddonDict.so", restpath));
+
+    }
+
+	return 0;
+}
+
+REST_Reflection::AnyPtr_t REST_Reflection::GetDataMember(REST_Reflection::AnyPtr_t obj, string name) {
+    if (obj.cl != NULL && obj.cl->InheritsFrom("TObject")) {
+        TClass* c = obj.cl;
+        TVirtualStreamerInfo* vs = c->GetStreamerInfo();
+        TObjArray* ses = vs->GetElements();
+        int n = ses->GetLast() + 1;
+
+        for (int i = 0; i < n; i++) {
+            TStreamerElement* ele = (TStreamerElement*)ses->At(i);
+            if ((string)ele->GetFullName() == name) {
+                char* addr = (char*)obj + ele->GetOffset();
+                string type = ele->GetTypeName();
+
+                AnyPtr_t ptr(addr, type);
+                ptr.name = name;
+
+                return ptr;
+            }
+        }
+    }
+    return AnyPtr_t();
+}
+
+REST_Reflection::AnyPtr_t REST_Reflection::GetDataMember(REST_Reflection::AnyPtr_t obj, int ID) {
+    if (obj.cl != NULL && obj.cl->InheritsFrom("TObject")) {
+        TClass* c = obj.cl;
+        TVirtualStreamerInfo* vs = c->GetStreamerInfo();
+        TObjArray* ses = vs->GetElements();
+        int n = ses->GetLast() + 1;
+
+        if (ID < n) {
+            TStreamerElement* ele = (TStreamerElement*)ses->At(ID);
             char* addr = (char*)obj + ele->GetOffset();
             string type = ele->GetTypeName();
 
             AnyPtr_t ptr(addr, type);
-            ptr.name = name;
-            ptr.parent = (char*)obj;
-            ptr.offset = ele->GetOffset();
+            ptr.name = ele->GetName();
 
             return ptr;
         }
@@ -396,29 +503,8 @@ REST_Reflection::AnyPtr_t REST_Reflection::GetDataMember(TObject* obj, string na
     return AnyPtr_t();
 }
 
-REST_Reflection::AnyPtr_t REST_Reflection::GetDataMember(TObject* obj, int ID) {
-    TClass* c = obj->IsA();
-    TVirtualStreamerInfo* vs = c->GetStreamerInfo();
-    TObjArray* ses = vs->GetElements();
-    int n = ses->GetLast() + 1;
-
-    if (ID < n) {
-        TStreamerElement* ele = (TStreamerElement*)ses->At(ID);
-        char* addr = (char*)obj + ele->GetOffset();
-        string type = ele->GetTypeName();
-
-        AnyPtr_t ptr(addr, type);
-        ptr.name = ele->GetName();
-        ptr.parent = (char*)obj;
-        ptr.offset = ele->GetOffset();
-
-        return ptr;
-    }
-    return AnyPtr_t();
-}
-
-int REST_Reflection::GetNumberOfDataMembers(TObject* obj) {
-    TClass* c = obj->IsA();
+int REST_Reflection::GetNumberOfDataMembers(REST_Reflection::AnyPtr_t obj) {
+    TClass* c = obj.cl;
     TVirtualStreamerInfo* vs = c->GetStreamerInfo();
     TObjArray* ses = vs->GetElements();
 

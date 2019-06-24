@@ -116,19 +116,15 @@ std::string GetTypeName(T obj) {
 }
 
 class AnyPtr_t {
-   public:
+public:
 	//basic info
+	string name = "";
     string type = "";
     char* address = 0;
     bool onheap = false;
     int size = 0;
     TClass* cl = 0;
     TDataType* dt = 0;
-
-	//parent info
-    string name = "";
-    char* parent = 0;
-    int offset = 0;
 
     bool IsZombie() { return (type == "" || address == 0 || size == 0 || (cl == 0 && dt == 0)); }
 
@@ -216,11 +212,13 @@ AnyPtr_t Assembly(string typeName);
 ///
 AnyPtr_t WrapType(string typeName);
 
+bool HasDictionary(REST_Reflection::AnyPtr_t obj);
+int CreateDictionary(REST_Reflection::AnyPtr_t obj);
+
 // data member reflection tools
 AnyPtr_t GetDataMember(REST_Reflection::AnyPtr_t obj, string name);
-AnyPtr_t GetDataMember(TObject* obj, string name);
-AnyPtr_t GetDataMember(TObject* obj, int ID);
-int GetNumberOfDataMembers(TObject* obj);
+AnyPtr_t GetDataMember(REST_Reflection::AnyPtr_t obj, int ID);
+int GetNumberOfDataMembers(REST_Reflection::AnyPtr_t obj);
 
 };  // namespace REST_Reflection
 
