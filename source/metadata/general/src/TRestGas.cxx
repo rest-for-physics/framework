@@ -340,7 +340,7 @@ void TRestGas::LoadGasFile() {
 
 #if defined USE_Garfield
     debug << "fGasFilename = " << fGasFilename << endl;
-    if (!fileExists((string)(fGasFilename))) {
+    if (!TRestTools::fileExists((string)(fGasFilename))) {
         error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
         error << "-- Error : The gas file does not exist. (name:" << fGasFilename << ")" << endl;
         fStatus = RESTGAS_ERROR;
@@ -524,7 +524,7 @@ void TRestGas::InitFromConfigFile() {
     fW = StringToDouble(GetParameter("W_value", "-1"));
 
     fGasOutputPath = GetParameter("gasOutputPath", "./");
-    if (!isPathWritable((string)fGasOutputPath)) {
+    if (!TRestTools::isPathWritable((string)fGasOutputPath)) {
         warning << "-- Warning : The specified gasOutputPath is not writable!" << endl;
         warning << "-- Warning : The output path will be changed to ./" << endl;
         fGasOutputPath = "./";
@@ -581,7 +581,7 @@ void TRestGas::InitFromConfigFile() {
     debug << "TRestGas::InitFromConfigFile. FindGasFile. fGasFilename = " << fGasFilename << endl;
 
     // If we found the gasFile then obviously we disable the gas generation
-    if (fGasGeneration && fileExists((string)fGasFilename)) {
+    if (fGasGeneration && TRestTools::fileExists((string)fGasFilename)) {
         fGasGeneration = false;
 
         warning << "-- Warning: TRestGas gasFile generation is enabled, but the "
@@ -898,7 +898,7 @@ void TRestGas::GenerateGasFile() {
     fGasFilename = ConstructFilename();
     debug << " TRestGas::GenerateGasFile. fGasFilename = " << fGasFilename << endl;
 
-    if (!isPathWritable((string)fGasOutputPath)) {
+    if (!TRestTools::isPathWritable((string)fGasOutputPath)) {
         cout << endl;
         warning << "-- Warning: REST ERROR. TRestGas. Path is not writtable." << endl;
         warning << "-- Warning: Path : " << fGasOutputPath << endl;
@@ -1216,7 +1216,7 @@ void TRestGas::PrintGasInfo() {
     if (fStatus == RESTGAS_ERROR) metadata << "Error";
     metadata << endl;
 
-    metadata << "Gas filename : " << REST_StringHelper::RemoveAbsolutePath((string)fGasFilename) << endl;
+    metadata << "Gas filename : " << TRestTools::RemoveAbsolutePath((string)fGasFilename) << endl;
     metadata << "Pressure : " << fPressureInAtm << " atm" << endl;
     metadata << "Temperature : " << fTemperatureInK << " K" << endl;
     metadata << "W-value : " << fW << " eV" << endl;

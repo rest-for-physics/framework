@@ -103,7 +103,7 @@ TString TRestPhysicsLists::GetPhysicsListOptionString(TString phName) {
 }
 
 TString TRestPhysicsLists::GetPhysicsListOptionValue(TString phName, TString option) {
-    vector<TString> optList = TRestTools::GetOptions(GetPhysicsListOptionString(phName));
+    vector<string> optList = TRestTools::GetOptions((string)GetPhysicsListOptionString(phName));
 
     for (unsigned int n = 0; n < optList.size(); n = n + 2)
         if (optList[n] == option) return optList[n + 1];
@@ -145,7 +145,7 @@ void TRestPhysicsLists::PrintMetadata() {
     metadata << "---------------------------------------" << endl;
     for (unsigned int n = 0; n < fPhysicsLists.size(); n++) {
         metadata << "Physics list " << n << " : " << fPhysicsLists[n] << endl;
-        vector<TString> optList = TRestTools::GetOptions(fPhysicsListOptions[n]);
+        vector<string> optList = TRestTools::GetOptions((string)fPhysicsListOptions[n]);
         for (unsigned int m = 0; m < optList.size(); m = m + 2)
             metadata << " - Option " << m / 2 << " : " << optList[m] << " = " << optList[m + 1] << endl;
     }
