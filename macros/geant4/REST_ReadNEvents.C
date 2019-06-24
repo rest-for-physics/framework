@@ -6,7 +6,7 @@ Int_t REST_ReadNEvents(TString fName, int n1, int n2) {
     TRestRun* run = new TRestRun();
 
     string fname = fName.Data();
-    if (!fileExists(fname)) {
+    if (!TRestTools::fileExists(fname)) {
         cout << "WARNING. Input file does not exist" << endl;
         exit(1);
     } else

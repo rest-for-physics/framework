@@ -9,7 +9,7 @@ Int_t REST_Metadata(TString fName, TString objName = "") {
 
     string fname = fileName.Data();
 
-    if (!fileExists(fname)) {
+    if (!TRestTools::fileExists(fname)) {
         cout << "WARNING. Input file does not exist" << endl;
         exit(1);
     }

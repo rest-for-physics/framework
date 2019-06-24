@@ -15,7 +15,7 @@ Double_t REST_GetROIEvents(TString fName, Double_t mean = 2457.83, Double_t fwhm
 
     TRestRun* run = new TRestRun();
     string fname = fName.Data();
-    if (!fileExists(fname)) {
+    if (!TRestTools::fileExists(fname)) {
         cout << "WARNING. Input file does not exist" << endl;
         exit(1);
     }

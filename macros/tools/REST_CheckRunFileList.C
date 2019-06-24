@@ -23,8 +23,8 @@ Int_t REST_CheckRunFileList(TString namePattern, Int_t N = 100000) {
     // FILE *flist = fopen( "/tmp/CheckRunListCommand_72nd72jdl", "rt" );
     TRestStringOutput cout;
 
-    string a = ExecuteShellCommand((string)("ls -d -1 " + namePattern));
-    vector<string> b = Spilt(a, "\n");
+    string a = TRestTools::Execute((string)("ls -d -1 " + namePattern));
+    vector<string> b = Split(a, "\n");
 
     int cont = 0;
     for (int i = 0; i < b.size(); i++) {
@@ -35,7 +35,7 @@ Int_t REST_CheckRunFileList(TString namePattern, Int_t N = 100000) {
 
         TFile* f = new TFile(filename.c_str());
 
-        if (!fileExists(filename)) {
+        if (!TRestTools::fileExists(filename)) {
             cout << "WARNING. Input file does not exist" << endl;
             exit(1);
         }

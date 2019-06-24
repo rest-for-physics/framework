@@ -10,7 +10,7 @@ Double_t REST_Fiducial(TString fName, Double_t zMin, Double_t zMax, Double_t rad
     TRestRun* run = new TRestRun();
     cout << "x" << endl;
     string fname = fName.Data();
-    if (!fileExists(fname)) {
+    if (!TRestTools::fileExists(fname)) {
         cout << "WARNING. Input file does not exist" << endl;
         exit(1);
     } else

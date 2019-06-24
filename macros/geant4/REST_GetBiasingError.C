@@ -9,7 +9,7 @@ Double_t REST_GetBiasingError(TString fName, Int_t finalEvents = 0) {
     TRestG4Metadata* metadata = new TRestG4Metadata();
 
     string fname = fName.Data();
-    if (!fileExists(fname)) {
+    if (!TRestTools::fileExists(fname)) {
         cout << "WARNING. Input file does not exist" << endl;
         exit(1);
     }
