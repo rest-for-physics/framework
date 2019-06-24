@@ -368,7 +368,7 @@ TPad* TRestTrackEvent::DrawEvent(TString option) {
     Int_t maxLevel = 0;
     Int_t minLevel = 0;
 
-    vector<TString> optList = TRestTools::GetOptions(option);
+    vector<string> optList = TRestTools::GetOptions((string)option);
 
     for (unsigned int n = 0; n < optList.size(); n++) {
         if (optList[n] == "print") this->PrintEvent();
@@ -386,7 +386,7 @@ TPad* TRestTrackEvent::DrawEvent(TString option) {
         if( optList[n] == "XYZ" ) drawXYZ = true;
         if( optList[n] == "L" || optList[n] == "lines"  ) drawLines = true;
         */
-        string opt = (string)optList[n].Data();
+        string opt = optList[n];
 
         if (opt.find("maxLevel=") != string::npos) maxLevel = stoi(opt.substr(9, opt.length()).c_str());
 
