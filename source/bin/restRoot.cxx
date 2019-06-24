@@ -28,10 +28,10 @@ int main(int argc, char* argv[]) {
 
     TRestTools::LoadRESTLibrary(silent);
 
-    auto a = ExecuteShellCommand(
+    auto a = TRestTools::Execute(
         "find $REST_PATH/macros | grep REST_.*.C | grep -v \"swo\" | grep -v "
         "\"CMakeLists\" | grep -v \"swp\"  | grep -v \"svn\"");
-    auto b = Spilt(a, "\n");
+    auto b = Split(a, "\n");
     for (auto c : b) {
         if (debug) printf("Loading macro : %s\n", c.c_str());
 
