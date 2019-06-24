@@ -106,17 +106,6 @@ class TRestEventProcess : public TRestMetadata {
         fCanvas = new TCanvas(this->GetName(), this->GetTitle(), fCanvasSize.X(), fCanvasSize.Y());
     }
 
-    void TransferEvent(TRestEvent* evOutput, TRestEvent* evInput) {
-        if (evInput == NULL) return;
-        if (evOutput != NULL) {
-            // copy without changing address
-            evInput->CloneTo(evOutput);
-        } else {
-            // clone and set the address of output event
-            evOutput = (TRestEvent*)evInput->Clone();
-        }
-    }
-
    public:
     Int_t LoadSectionMetadata();
     vector<string> ReadObservables();

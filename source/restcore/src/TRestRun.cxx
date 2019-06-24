@@ -123,11 +123,11 @@ void TRestRun::BeginOfInit() {
     string inputname = GetParameter("inputFile", "");
     if (ToUpper(inputname) != "AUTO" && ToUpper(inputname) != "DATABASE") {
         fInputFileName = inputname;
-        fInputFileNames = GetFilesMatchingPattern((TString)inputname);
+        fInputFileNames = VectorTString_cast(TRestTools::GetFilesMatchingPattern(inputname));
     }
     if (!isANumber(runNstr) && ToUpper(runNstr) != "AUTO" && ToUpper(runNstr) != "DATABASE") runNstr = "-1";
     if (isANumber(runNstr)) {
-        auto runN = Spilt(runNstr, ".");
+        auto runN = Split(runNstr, ".");
         fRunNumber = StringToInteger(runN[0]);
         if (runN.size() > 1) {
             fParentRunNumber = StringToInteger(runN[1]);
@@ -167,14 +167,14 @@ void TRestRun::BeginOfInit() {
     // we assign the runnumber as stored in file $REST_PATH/runNumber
     if (ToUpper(runNstr) == "AUTO") {
         string runFilename = getenv("REST_PATH") + (string) "/runNumber";
-        if (!fileExists(runFilename)) {
-            if (isPathWritable(getenv("REST_PATH"))) {
-                ExecuteShellCommand("echo 1 > " + runFilename);
+        if (!TRestTools::fileExists(runFilename)) {
+            if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
+				TRestTools::Execute("echo 1 > " + runFilename);
                 fRunNumber = 1;
             }
         } else {
-            if (isPathWritable(getenv("REST_PATH"))) {
-                fRunNumber = StringToInteger(ExecuteShellCommand("cat " + runFilename));
+            if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
+                fRunNumber = StringToInteger(TRestTools::Execute("cat " + runFilename));
             } else {
                 warning << "REST WARNING: runNumber file not writable. auto run number "
                            "increment is disabled"
@@ -200,19 +200,19 @@ void TRestRun::BeginOfInit() {
                           ".root";
 
         fOverwrite = ToUpper(GetParameter("overwrite", "on")) != "OFF";
-        while (!fOverwrite && fileExists((string)fOutputFileName)) {
+        while (!fOverwrite && TRestTools::fileExists((string)fOutputFileName)) {
             fParentRunNumber++;
             sprintf(runParentStr, "%05d", fParentRunNumber);
             fOutputFileName = outputdir + "/Run_" + expName + "_" + fRunUser + "_" + runType + "_" + fRunTag +
                               "_" + (TString)runNumberStr + "_" + (TString)runParentStr + "_V" +
                               REST_RELEASE + ".root";
         }
-    } else if (isAbsolutePath(outputname)) {
+    } else if (TRestTools::isAbsolutePath(outputname)) {
         fOutputFileName = outputname;
     } else {
         fOutputFileName = outputdir + "/" + outputname;
     }
-    if (!isPathWritable(SeparatePathAndName((string)fOutputFileName).first)) {
+    if (!TRestTools::isPathWritable(TRestTools::SeparatePathAndName((string)fOutputFileName).first)) {
         error << "REST Error!! TRestRun." << endl;
         error << "Output path does not exist or it is not writtable." << endl;
         error << "Path : " << outputdir << endl;
@@ -350,12 +350,12 @@ void TRestRun::OpenInputFile(int i) {
 ///
 void TRestRun::OpenInputFile(TString filename, string mode) {
     CloseFile();
-    if (!fileExists((string)filename)) {
+    if (!TRestTools::fileExists((string)filename)) {
         error << "REST ERROR : input file \"" << filename << "\" does not exist!" << endl;
         exit(1);
     }
     ReadFileInfo((string)filename);
-    if (isRootFile((string)filename)) {
+    if (TRestTools::isRootFile((string)filename)) {
         fInputFile = new TFile(filename, mode.c_str());
 
         if (!GetMetadataClass("TRestRun", fInputFile)) {
@@ -570,19 +570,19 @@ void TRestRun::ReadFileInfo(string filename) {
     fstat(fd, &buf);
 
     string datetime = ToDateTimeString(buf.st_mtime);
-    FileInfo["Time"] = Spilt(datetime, " ")[1];
-    FileInfo["Date"] = Spilt(datetime, " ")[0];
+    FileInfo["Time"] = Split(datetime, " ")[1];
+    FileInfo["Date"] = Split(datetime, " ")[0];
     FileInfo["Size"] = ToString(buf.st_size) + "B";
     FileInfo["Entries"] = ToString(GetEntries());
 
-    if (isRootFile((string)filename)) {
+    if (TRestTools::isRootFile((string)filename)) {
         fTotalBytes = buf.st_size;
     }
 
     debug << "begin matching file names" << endl;
 
     string format = GetParameter("inputFormat", "");
-    string name = SeparatePathAndName(filename).second;
+    string name = TRestTools::SeparatePathAndName(filename).second;
 
     vector<string> formatsectionlist;
     vector<string> formatprefixlist;
@@ -868,8 +868,8 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
         string runNstr = GetParameter("runNumber", "");
         if (ToUpper(runNstr) == "AUTO") {
             string runFilename = getenv("REST_PATH") + (string) "/runNumber";
-            if (isPathWritable(getenv("REST_PATH")))
-                ExecuteShellCommand("echo " + ToString(fRunNumber + 1) + " > " + runFilename);
+            if (TRestTools::isPathWritable(getenv("REST_PATH")))
+				TRestTools::Execute("echo " + ToString(fRunNumber + 1) + " > " + runFilename);
         } else {
             auto db = TRestDataBase::instantiate();
             if (db != NULL) {
@@ -1067,7 +1067,7 @@ void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t s
         error << endl;
         return;
     }
-    if (!isRootFile(File.Data())) {
+    if (!TRestTools::isRootFile(File.Data())) {
         error << "REST ERROR (ImportMetadata) : The file " << File << " is not root file!" << endl;
         return;
     }
@@ -1174,7 +1174,7 @@ TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
         for (int i = 0; i < fMetadataInfo.size(); i++)
             if ((string)fMetadataInfo[i]->ClassName() == type) return fMetadataInfo[i];
 
-        if (fInputFile != NULL && this->GetVersionCode() >= ConvertVersionCode("2.2.1")) {
+        if (fInputFile != NULL && this->GetVersionCode() >= TRestTools::ConvertVersionCode("2.2.1")) {
             return GetMetadataClass(type, fInputFile);
         }
     }

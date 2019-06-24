@@ -130,7 +130,7 @@ void TRestProcessRunner::BeginOfInit() {
     if (ToUpper(GetParameter("inputEvent", "ON")) == "ON") fOutputItem.push_back("inputevent");
     if (ToUpper(GetParameter("outputEvent", "ON")) == "ON") fOutputItem.push_back("outputevent");
 
-    // fOutputItem = Spilt(GetParameter("treeBranches",
+    // fOutputItem = Split(GetParameter("treeBranches",
     // "inputevent:outputevent:inputanalysis"), ":");
     if (fThreadNumber < 1) fThreadNumber = 1;
     if (fThreadNumber > 15) fThreadNumber = 15;
@@ -854,7 +854,7 @@ void TRestProcessRunner::ResetRunTimes() {
     deltaTime = 0;
 #endif
     time_t tt = time(NULL);
-    ProcessInfo["ProcessDate"] = Spilt(ToDateTimeString(tt), " ")[0];
+    ProcessInfo["ProcessDate"] = Split(ToDateTimeString(tt), " ")[0];
 }
 
 ///////////////////////////////////////////////

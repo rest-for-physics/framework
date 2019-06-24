@@ -20,10 +20,10 @@ class GdmlPreprocessor : public TRestMetadata {
     string path = "";
     string outfilename = "";
     void Load(string file) {
-        file = ToAbsoluteName(file);
-        if (fileExists(file)) {
+        file = TRestTools::ToAbsoluteName(file);
+        if (TRestTools::fileExists(file)) {
             fConfigFileName = file;
-            path = SeparatePathAndName(file).first;
+            path = TRestTools::SeparatePathAndName(file).first;
 
             // getchar();
 
@@ -104,7 +104,7 @@ class GdmlPreprocessor : public TRestMetadata {
 
             int pos5 = 0;
             if ((pos5 = filestr.find("&" + entityname + ";")) != -1) {
-                if (fileExists(entityfile)) {
+                if (TRestTools::fileExists(entityfile)) {
                     std::ifstream t(entityfile);
                     std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
                     t.close();

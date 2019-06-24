@@ -205,14 +205,14 @@ void TRestBrowser::LoadFileAction() {
 
     cout << "Opening " << dir.Data() << endl;
 
-    if (fileExists(dir.Data())) {
+    if (TRestTools::fileExists(dir.Data())) {
         OpenFile(dir);
         fNEvent->SetIntNumber(fCurrentEvent);
     }
 }
 
 Bool_t TRestBrowser::OpenFile(TString fName) {
-    if (!fileExists((string)fName)) {
+    if (!TRestTools::fileExists((string)fName)) {
         cout << "WARNING. Input file " << fName << " does not exist" << endl;
         return kFALSE;
     }
