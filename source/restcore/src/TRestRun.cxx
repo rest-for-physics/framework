@@ -469,7 +469,7 @@ void TRestRun::ReadInputFileTrees() {
 
         if (fInputFile->Get("AnalysisTree") != NULL) {
             fAnalysisTree = (TRestAnalysisTree*)fInputFile->Get("AnalysisTree");
-			fAnalysisTree->GetEntry(0);//we call GetEntry() to connect branches
+            fAnalysisTree->GetEntry(0);  // we call GetEntry() to connect branches
 
             _eventTree = (TTree*)fInputFile->Get("EventTree");
         } else if (fInputFile->FindKey("TRestAnalysisTree") != NULL) {
@@ -478,7 +478,7 @@ void TRestRun::ReadInputFileTrees() {
             // and "TRestAnalysisTree"
             warning << "Loading root file from old version REST!" << endl;
             fAnalysisTree = (TRestAnalysisTree*)fInputFile->Get("TRestAnalysisTree");
-			fAnalysisTree->GetEntry(0);
+            fAnalysisTree->GetEntry(0);
 
             TIter nextkey(fInputFile->GetListOfKeys());
             TKey* key;

@@ -104,10 +104,10 @@ void TRestAnalysisTree::ConnectEventBranches() {
 
 void TRestAnalysisTree::ConnectObservables() {
     if (!fConnected) {
-		fObservableMemory = std::vector<any>(GetNumberOfObservables());
-		for (int i = 0; i < GetNumberOfObservables(); i++) {
-			fObservableMemory[i] = REST_Reflection::WrapType((string)fObservableTypes[i]);
-		}
+        fObservableMemory = std::vector<any>(GetNumberOfObservables());
+        for (int i = 0; i < GetNumberOfObservables(); i++) {
+            fObservableMemory[i] = REST_Reflection::WrapType((string)fObservableTypes[i]);
+        }
 
         TTree::GetEntry(0);
         cout << "Connecting observables..." << endl;
@@ -115,16 +115,16 @@ void TRestAnalysisTree::ConnectObservables() {
         for (int i = 0; i < GetNumberOfObservables(); i++) {
             TBranch* branch = GetBranch(fObservableNames[i]);
             if (branch != NULL) {
-                //cout << fObservableNames[i];
+                // cout << fObservableNames[i];
                 if (branch->GetAddress() != NULL) {
                     fObservableMemory[i].address = *(char**)branch->GetAddress();
-                    //cout << " --> ";
+                    // cout << " --> ";
                 } else {
                     fObservableMemory[i].Assembly();
                     branch->SetAddress(fObservableMemory[i].address);
-                    //cout << " ==> ";
+                    // cout << " ==> ";
                 }
-                //cout << static_cast<const void*>(branch->GetAddress()) << endl;
+                // cout << static_cast<const void*>(branch->GetAddress()) << endl;
             }
         }
         fConnected = true;
@@ -201,10 +201,10 @@ void TRestAnalysisTree::PrintObservables(TRestEventProcess* proc, int NObs) {
     //    }
     //}
 
-	if (!fConnected && !fBranchesCreated) {
-		cout << "Error in PrintObservables, please connect or create the tree branch first!" << endl;
-		return;
-	}
+    if (!fConnected && !fBranchesCreated) {
+        cout << "Error in PrintObservables, please connect or create the tree branch first!" << endl;
+        return;
+    }
 
     cout.precision(15);
     if (proc == NULL) {
@@ -267,6 +267,12 @@ void TRestAnalysisTree::SetEventInfo(TRestEvent* evt) {
 
 Int_t TRestAnalysisTree::FillEvent(TRestEvent* evt) {
     SetEventInfo(evt);
+
+    if (!fBranchesCreated) {
+        CreateEventBranches();
+        CreateObservableBranches();
+    }
+
     return this->Fill();
 }
 
