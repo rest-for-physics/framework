@@ -169,7 +169,7 @@ void TRestRun::BeginOfInit() {
         string runFilename = getenv("REST_PATH") + (string) "/runNumber";
         if (!TRestTools::fileExists(runFilename)) {
             if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
-				TRestTools::Execute("echo 1 > " + runFilename);
+                TRestTools::Execute("echo 1 > " + runFilename);
                 fRunNumber = 1;
             }
         } else {
@@ -469,14 +469,7 @@ void TRestRun::ReadInputFileTrees() {
 
         if (fInputFile->Get("AnalysisTree") != NULL) {
             fAnalysisTree = (TRestAnalysisTree*)fInputFile->Get("AnalysisTree");
-
-            TObjArray* branches = fAnalysisTree->GetListOfBranches();  // we skip process branches
-            for (int i = 0; i <= branches->GetLast(); i++) {
-                TBranch* br = (TBranch*)branches->At(i);
-                if ((string)br->ClassName() == "TBranchElement") {
-                    br->SetStatus(false);
-                }
-            }
+			fAnalysisTree->GetEntry(0);//we call GetEntry() to connect branches
 
             _eventTree = (TTree*)fInputFile->Get("EventTree");
         } else if (fInputFile->FindKey("TRestAnalysisTree") != NULL) {
@@ -485,6 +478,7 @@ void TRestRun::ReadInputFileTrees() {
             // and "TRestAnalysisTree"
             warning << "Loading root file from old version REST!" << endl;
             fAnalysisTree = (TRestAnalysisTree*)fInputFile->Get("TRestAnalysisTree");
+			fAnalysisTree->GetEntry(0);
 
             TIter nextkey(fInputFile->GetListOfKeys());
             TKey* key;
@@ -667,7 +661,9 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
                 fBytesReaded += fAnalysisTree->GetEntry(fCurrentEvent);
                 if (targettree != NULL) {
                     for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
-                        targettree->SetObservableValue(n, fAnalysisTree->GetObservableRef(n));//this is problematic if the observable is not in base type
+                        targettree->SetObservableValue(
+                            n, fAnalysisTree->GetObservableRef(
+                                   n));  // this is problematic if the observable is not in base type
                 }
                 if (fEventTree != NULL) {
                     fBytesReaded += ((TBranch*)fEventTree->GetListOfBranches()->UncheckedAt(fEventBranchLoc))
@@ -724,8 +720,8 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
         string replacestr = GetFileInfo(target);
         if (replacestr == target && fHostmgr != NULL && fHostmgr->GetProcessRunner() != NULL)
             replacestr = fHostmgr->GetProcessRunner()->GetProcInfo(target);
-		if (replacestr == target && REST_Reflection::GetDataMember(this, target).IsZombie())
-			replacestr = REST_Reflection::GetDataMember(this, target).ToString();
+        if (replacestr == target && REST_Reflection::GetDataMember(this, target).IsZombie())
+            replacestr = REST_Reflection::GetDataMember(this, target).ToString();
 
         if (replacestr != target) {
             if (targetstr == "[fRunNumber]") {
@@ -869,7 +865,7 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
         if (ToUpper(runNstr) == "AUTO") {
             string runFilename = getenv("REST_PATH") + (string) "/runNumber";
             if (TRestTools::isPathWritable(getenv("REST_PATH")))
-				TRestTools::Execute("echo " + ToString(fRunNumber + 1) + " > " + runFilename);
+                TRestTools::Execute("echo " + ToString(fRunNumber + 1) + " > " + runFilename);
         } else {
             auto db = TRestDataBase::instantiate();
             if (db != NULL) {
@@ -1130,7 +1126,7 @@ TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, TString ta
         fAnalysisTree->SetBranchStatus("subEventTag", true);
 
         // just look through the whole analysis tree and find the entry
-		// this is not good!
+        // this is not good!
         for (int i = 0; i < nentries; i++) {
             fAnalysisTree->GetEntry(i);
             if (fAnalysisTree->GetEventID() == eventID) {
