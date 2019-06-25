@@ -489,7 +489,7 @@ void TRestAnalysisPlot::AddFileFromExternalRun() {
 void TRestAnalysisPlot::AddFileFromEnv() {
     if (fNFiles == 0) {
         string filepattern = GetParameter("inputFile", "");
-        auto files = GetFilesMatchingPattern(filepattern);
+        auto files = TRestTools::GetFilesMatchingPattern(filepattern);
 
         for (unsigned int n = 0; n < files.size(); n++) {
             essential << "Adding file : " << files[n] << endl;

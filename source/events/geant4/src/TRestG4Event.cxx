@@ -870,7 +870,7 @@ TH1D* TRestG4Event::GetYHistogram(Int_t gridElement, std::vector<TString> optLis
 }
 
 TPad* TRestG4Event::DrawEvent(TString option) {
-    vector<TString> optList = TRestTools::GetOptions(option);
+    vector<TString> optList =VectorTString_cast(TRestTools::GetOptions((string)option));
 
     SetBoundaries();
 
@@ -931,7 +931,7 @@ TPad* TRestG4Event::DrawEvent(TString option) {
 
         if (endPos != string::npos) {
             TString tmpStr = optList[n](startPos + 1, endPos - startPos - 1);
-            optList_2 = VectorTString_cast(Spilt((string)tmpStr, ","));
+            optList_2 = VectorTString_cast(Split((string)tmpStr, ","));
         }
         /* }}} */
 

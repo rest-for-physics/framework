@@ -20,7 +20,7 @@ Int_t REST_Integrate(TString varName, TString rootFileName, double startVal, dou
         return -1;
     }
 
-    std::vector<TString> inputFilesNew = GetFilesMatchingPattern(rootFileName);
+    std::vector<string> inputFilesNew = TRestTools::GetFilesMatchingPattern((string)rootFileName);
 
     if (inputFilesNew.size() == 0) {
         cout << "Files not found!" << endl;

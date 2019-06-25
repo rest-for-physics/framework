@@ -13,7 +13,7 @@ Int_t REST_ViewGeometry(TString fName, TString option = "") {
     cout << "Filename : " << fName << endl;
 
     TGeoManager* geo = NULL;
-    if (isRootFile((string)fName)) {
+    if (TRestTools::isRootFile((string)fName)) {
         TFile* fFile = new TFile(fName);
 
         TIter nextkey(fFile->GetListOfKeys());

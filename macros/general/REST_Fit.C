@@ -20,7 +20,7 @@ Int_t REST_Fit(TString varName, TString rootFileName, double startVal, double en
         return -1;
     }
 
-    std::vector<TString> inputFilesNew = GetFilesMatchingPattern(rootFileName);
+    std::vector<string> inputFilesNew = TRestTools::GetFilesMatchingPattern((string)rootFileName);
 
     TH1D* h = new TH1D("FitHisto", "FitHisto", nBins, startVal, endVal);
 

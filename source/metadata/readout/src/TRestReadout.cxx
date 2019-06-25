@@ -503,7 +503,7 @@ void TRestReadout::InitFromConfigFile() {
             else
                 fDecoding = true;
 
-            if (fDecoding && !fileExists(decodingFile.c_str())) {
+            if (fDecoding && !TRestTools::fileExists(decodingFile.c_str())) {
                 cout << "REST ERROR : The decoding file does not exist" << endl;
                 cout << "--------------------------------" << endl;
                 cout << "File : " << decodingFile << endl;
@@ -520,7 +520,7 @@ void TRestReadout::InitFromConfigFile() {
 
             vector<Int_t> rChannel;
             vector<Int_t> dChannel;
-            if (fDecoding && fileExists(decodingFile.c_str())) {
+            if (fDecoding && TRestTools::fileExists(decodingFile.c_str())) {
                 FILE* f = fopen(decodingFile.c_str(), "r");
 
                 Int_t daq, readout;

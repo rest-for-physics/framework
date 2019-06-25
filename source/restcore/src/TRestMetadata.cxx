@@ -506,7 +506,7 @@ Int_t TRestMetadata::LoadConfigFromFile() {
 ///
 Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) {
     fConfigFileName = cfgFileName;
-    if (fileExists(fConfigFileName)) {
+    if (TRestTools::fileExists(fConfigFileName)) {
         if (sectionName == "") {
             sectionName = this->ClassName();
         }
@@ -874,7 +874,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
 
     debug << "filename to expand : " << _filename << endl;
 
-    if (REST_StringHelper::isURL(_filename)) _filename = DownloadHttpFile(_filename);
+    if (TRestTools::isURL(_filename)) _filename = DownloadHttpFile(_filename);
 
     string filename = SearchFile(_filename);
     if (filename == "") {
@@ -883,7 +883,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         warning << endl;
         return;
     }
-    if (!isRootFile(filename))  // root file inclusion is implemented in TRestRun
+    if (!TRestTools::isRootFile(filename))  // root file inclusion is implemented in TRestRun
     {
         debug << "----expanding include file----" << endl;
         // we find the local element(the element to receive content)
@@ -1084,7 +1084,7 @@ string TRestMetadata::DownloadHttpFile(string remoteFile) {
 
     debug << "Complete remote filename : " << remoteFile << endl;
 
-    TString remoteFilename = REST_StringHelper::RemoveAbsolutePath(remoteFile);
+    TString remoteFilename = TRestTools::RemoveAbsolutePath(remoteFile);
 
     debug << "Reduced remote filename : " << remoteFilename << endl;
 
@@ -1300,7 +1300,7 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
     if (TRestMetadata_UpdatedConfigFile.count(filename) > 0)
         filename = TRestMetadata_UpdatedConfigFile[filename];
 
-    if (!fileExists(filename)) {
+    if (!TRestTools::fileExists(filename)) {
         error << "Config file does not exist. The file is: " << filename << endl;
         GetChar();
         exit(1);
@@ -1944,12 +1944,12 @@ void TRestMetadata::SetEnv(string name, string value, bool overwriteexisting) {
 /// Return blank string if file not found, return directly filename if found in
 /// current directory, return full name (path+name) if found in "searchPath".
 string TRestMetadata::SearchFile(string filename) {
-    if (fileExists(filename)) {
+    if (TRestTools::fileExists(filename)) {
         return filename;
     } else {
         auto pathstring = GetSearchPath();
-        auto paths = Spilt((string)pathstring, ":");
-        return SearchFileInPath(paths, filename);
+        auto paths = Split((string)pathstring, ":");
+        return TRestTools::SearchFileInPath(paths, filename);
     }
 }
 
@@ -2109,7 +2109,7 @@ TString TRestMetadata::GetVerboseLevelString() {
 /// \endcode
 /// "searchPath" can also be added multiple times. Both of them will be added
 /// into the output string. A separator ":" is inserted between each defined
-/// paths. To separate them, use inline method Spilt() provided by
+/// paths. To separate them, use inline method Split() provided by
 /// TRestStringHelper. Uniformed search path definition provides us uniformed
 /// file search tool, see TRestMetadata::SearchFile().
 TString TRestMetadata::GetSearchPath() {

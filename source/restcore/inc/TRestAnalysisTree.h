@@ -48,9 +48,8 @@ class TRestAnalysisTree : public TTree {
     std::vector<TString> fObservableTypes;
 
     void PrintObservable(int N);
-	void ConnectEventBranches();
+    void ConnectEventBranches();
     void ConnectObservables();
-
 
    protected:
    public:
@@ -115,21 +114,21 @@ class TRestAnalysisTree : public TTree {
                 fObservableMemory[n] = REST_Reflection::Assembly((string)type);
             }
         }
-		fObservableMemory[n].SetValue(value);
+        if (n != -1 && n < fObservableMemory.size()) fObservableMemory[n].SetValue(value);
     }
     template <class T>
-    void SetObservableValue(TString ProcName_ObsName, const T& value) {
+    void SetObservableValue(TString name, const T& value) {
         // string name_fixed = Replace((string)ProcName_ObsName, ".", "_", 0);
-        Int_t id = GetObservableID(ProcName_ObsName);
-        if (id >= 0) SetObservableValue(id, value);
+        Int_t id = GetObservableID(name);
+        if (id == -1 && !fBranchesCreated) {
+            id = AddObservable<T>(name);
+        }
+        SetObservableValue(id, value);
     }
-    void SetObservableValue(Int_t n, any value) {
-		value >> fObservableMemory[n];
-    }
+    void SetObservableValue(Int_t n, any value) { value >> fObservableMemory[n]; }
 
     void CreateEventBranches();
     void CreateObservableBranches();
-
 
     void CopyObservableList(TRestAnalysisTree* from, string prefix = "");
 

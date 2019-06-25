@@ -154,23 +154,17 @@ TRestEvent* TRestFindG4BlobAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         z2 = zBlob1;
     }
 
-    obsName = this->GetName() + (TString) ".x1";
-    fAnalysisTree->SetObservableValue(obsName, x1);
+    SetObservableValue("x1", x1);
 
-    obsName = this->GetName() + (TString) ".y1";
-    fAnalysisTree->SetObservableValue(obsName, y1);
+    SetObservableValue("y1", y1);
 
-    obsName = this->GetName() + (TString) ".z1";
-    fAnalysisTree->SetObservableValue(obsName, z1);
+    SetObservableValue("z1", z1);
 
-    obsName = this->GetName() + (TString) ".x2";
-    fAnalysisTree->SetObservableValue(obsName, x2);
+    SetObservableValue("x2", x2);
 
-    obsName = this->GetName() + (TString) ".y2";
-    fAnalysisTree->SetObservableValue(obsName, y2);
+    SetObservableValue("y2", y2);
 
-    obsName = this->GetName() + (TString) ".z2";
-    fAnalysisTree->SetObservableValue(obsName, z2);
+    SetObservableValue("z2", z2);
 
     Double_t deltaX = xBlob1 - xBlob2;
     Double_t deltaY = yBlob1 - yBlob2;
@@ -179,8 +173,7 @@ TRestEvent* TRestFindG4BlobAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     Double_t blobDistance = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ;
     blobDistance = TMath::Sqrt(blobDistance);
 
-    obsName = this->GetName() + (TString) ".distance";
-    fAnalysisTree->SetObservableValue(obsName, blobDistance);
+    SetObservableValue("distance", blobDistance);
 
     /// We get the energy of the blobs
     TRestHits hits = fG4Event->GetHits();
@@ -188,15 +181,13 @@ TRestEvent* TRestFindG4BlobAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     for (unsigned int n = 0; n < fQ1_Observables.size(); n++) {
         Double_t q = hits.GetEnergyInSphere(x1, y1, z1, fQ1_Radius[n]);
 
-        obsName = this->GetName() + (TString) "." + (TString)fQ1_Observables[n];
-        fAnalysisTree->SetObservableValue(obsName, q);
+        SetObservableValue(fQ1_Observables[n], q);
     }
 
     for (unsigned int n = 0; n < fQ2_Observables.size(); n++) {
         Double_t q = hits.GetEnergyInSphere(x2, y2, z2, fQ2_Radius[n]);
 
-        obsName = this->GetName() + (TString) "." + (TString)fQ2_Observables[n];
-        fAnalysisTree->SetObservableValue(obsName, q);
+        SetObservableValue(fQ2_Observables[n], q);
     }
 
     return fG4Event;

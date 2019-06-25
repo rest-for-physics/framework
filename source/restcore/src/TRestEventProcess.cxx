@@ -121,7 +121,7 @@ vector<string> TRestEventProcess::ReadObservables() {
         if (ToUpper(value) == "ON") {
             if (obschr != NULL) {
                 debug << this->ClassName() << " : setting observable \"" << obschr << "\"" << endl;
-                // vector<string> tmp = Spilt(obsstring, ":");
+                // vector<string> tmp = Split(obsstring, ":");
                 obsnames.push_back(obschr);
                 obstypes.push_back(type);
                 obsdesc.push_back(description);

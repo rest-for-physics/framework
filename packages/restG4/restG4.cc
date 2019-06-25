@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
     restG4Metadata = new TRestG4Metadata(inputConfigFile, (string)restG4Name);
 
     std::string g4Version = TRestTools::Execute("geant4-config --version");
-    g4Version.erase(std::remove(g4Version.begin(), g4Version.end(), '\n'), g4Version.end());
+    //g4Version.erase(std::remove(g4Version.begin(), g4Version.end(), '\n'), g4Version.end());
     restG4Metadata->SetGeant4Version(g4Version);
 
     restPhysList = new TRestPhysicsLists(inputConfigFile, (string)physListName);

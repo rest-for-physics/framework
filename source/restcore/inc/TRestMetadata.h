@@ -290,7 +290,7 @@ class TRestMetadata : public TNamed {
     void UnSetVersion();
 
     /// returning the version code
-    Int_t GetVersionCode() { return ConvertVersionCode((string)GetVersion()); }
+    Int_t GetVersionCode() { return TRestTools::ConvertVersionCode((string)GetVersion()); }
 
     /// overwriting the write() method with fStore considered
     virtual Int_t Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);

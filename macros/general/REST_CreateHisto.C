@@ -14,7 +14,7 @@ Int_t REST_CreateHisto(TString varName, TString rootFileName, TString histoName,
                        int endVal = 1000, int bins = 1000, Double_t normFactor = 1) {
     TRestStringOutput cout;
 
-    std::vector<TString> inputFilesNew = GetFilesMatchingPattern(rootFileName);
+    std::vector<string> inputFilesNew = TRestTools::GetFilesMatchingPattern((string)rootFileName);
 
     TH1D* h = new TH1D(histoName, histoName, bins, startVal, endVal);
 

@@ -9,7 +9,7 @@ Int_t REST_FindIsotopes(TString fName, TString fIsotope) {
     TRestRun* run = new TRestRun();
 
     string fname = fName.Data();
-    if (!fileExists(fname)) {
+    if (!TRestTools::fileExists(fname)) {
         cout << "WARNING. Input file does not exist" << endl;
         exit(1);
     } else

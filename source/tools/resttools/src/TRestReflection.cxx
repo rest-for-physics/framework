@@ -1,6 +1,9 @@
 #include "TRestReflection.h"
 #include "TEmulatedCollectionProxy.h"
+#include "TRestStringHelper.h"
+#include "TRestTools.h"
 #include "TStreamerInfo.h"
+#include "TSystem.h"
 
 map<string, TDataType*> REST_Reflection::lDataType = map<string, TDataType*>();
 
@@ -11,31 +14,7 @@ REST_Reflection::AnyPtr_t REST_Reflection::Assembly(string typeName) {
 }
 
 REST_Reflection::AnyPtr_t REST_Reflection::WrapType(string type) {
-    TClass* cl = GetClass(type);
-    TDataType* dt = GetDataType(type);
-
-    if (cl != NULL) {
-        REST_Reflection::AnyPtr_t ptr;
-        ptr.type = type;
-        ptr.address = 0;
-        ptr.onheap = false;
-        ptr.size = cl->Size();
-        ptr.cl = cl;
-        ptr.dt = 0;
-        return ptr;
-    }
-    if (dt != NULL) {
-        REST_Reflection::AnyPtr_t ptr;
-        ptr.type = type;
-        ptr.address = 0;
-        ptr.onheap = false;
-        ptr.size = dt->Size();
-        ptr.cl = 0;
-        ptr.dt = dt;
-        return ptr;
-    }
-
-    return REST_Reflection::AnyPtr_t();
+    return REST_Reflection::AnyPtr_t(0, type);
 }
 
 void REST_Reflection::AnyPtr_t::Assembly() {
@@ -85,41 +64,36 @@ void REST_Reflection::AnyPtr_t::PrintMemory(int bytepreline) {
     }
 }
 
-void REST_Reflection::AnyPtr_t::CloneTo(AnyPtr_t to) {
-    if (IsZombie() || to.IsZombie()) {
+void REST_Reflection::CloneAny(AnyPtr_t from, AnyPtr_t to) {
+    if (from.IsZombie() || to.IsZombie()) {
         cout << "In AnyPtr_t::CloneTo() : the ptr is zombie! " << endl;
         return;
     }
 
-    if (type != to.type) {
-        cout << "In AnyPtr_t::CloneTo() : type doesn't match! (This :" << type << ", Target : " << to.type
-             << ")" << endl;
+    if (from.type != to.type) {
+        cout << "In AnyPtr_t::CloneTo() : type doesn't match! (This :" << from.type
+             << ", Target : " << to.type << ")" << endl;
         return;
     }
 
-    if (cl == NULL) {
-        memcpy(to.address, address, size);
+    if (from.cl == NULL) {
+        memcpy(to.address, from.address, from.size);
     } else {
-        if (cl->GetCollectionProxy() && dynamic_cast<TEmulatedCollectionProxy*>(cl->GetCollectionProxy())) {
-            cout << "In AnyPtr_t::CloneTo() : the target is an stl collection but does not have a "
-                    "compiled CollectionProxy. Please generate the dictionary for this collection."
-                 << endl;
-			cout << "Data not copied!" << endl;
-			return;
-        }
         TBufferFile buffer(TBuffer::kWrite);
 
-        buffer.MapObject(address, cl);  // register obj in map to handle self reference
-        cl->Streamer(address, buffer);
+        buffer.MapObject(from.address, from.cl);  // register obj in map to handle self reference
+        from.cl->Streamer(from.address, buffer);
 
         buffer.SetReadMode();
         buffer.ResetMap();
         buffer.SetBufferOffset(0);
 
-        buffer.MapObject(to.address, cl);  // register obj in map to handle self reference
-        cl->Streamer(to.address, buffer);
+        buffer.MapObject(to.address, to.cl);  // register obj in map to handle self reference
+        to.cl->Streamer(to.address, buffer);
     }
 }
+
+void REST_Reflection::AnyPtr_t::operator>>(AnyPtr_t to) { REST_Reflection::CloneAny(*this, to); }
 
 string REST_Reflection::AnyPtr_t::ToString() {
     char* ladd = address;
@@ -356,69 +330,194 @@ string REST_Reflection::AnyPtr_t::ToString() {
 REST_Reflection::AnyPtr_t::AnyPtr_t(char* _address, string _type) {
     address = _address;
     onheap = false;
-    type = _type;
-    cl = GetClass(type);
-    dt = GetDataType(type);
+    cl = GetClass(_type);
+    dt = GetDataType(_type);
     if (cl == NULL && dt == NULL) {
-        cout << "In AnyPtr_t::AnyPtr_t() : unrecognized type: \"" << type << "\"" << endl;
+        cout << "In AnyPtr_t::AnyPtr_t() : unrecognized type: \"" << _type << "\"" << endl;
         return;
     }
+    InitDictionary();
+}
+
+int REST_Reflection::AnyPtr_t::InitDictionary() {
     size = cl == 0 ? dt->Size() : cl->Size();
+    type = cl == 0 ? dt->GetName() : cl->GetName();
+
+    if (type == "" || size == 0 || (cl == 0 && dt == 0)) {
+        cout << "Error in REST_Reflection::CreateDictionary: object is zombie!" << endl;
+        return -1;
+    }
+
+    if (dt != NULL) return 0;
+
+    if (cl != NULL) {
+        if (cl->GetCollectionProxy() && dynamic_cast<TEmulatedCollectionProxy*>(cl->GetCollectionProxy())) {
+            // cout << "In AnyPtr_t::CloneTo() : the target is an stl collection but does not have a "
+            //	"compiled CollectionProxy. Please generate the dictionary for this collection."
+            //	<< endl;
+            // cout << "Data not copied!" << endl;
+        } else {
+            return 0;
+        }
+    }
+
+    if (1) {
+        int pos = type.find("<");
+
+        string basetype = type.substr(0, pos);
+        vector<string> stltypes{"vector", "list", "map", "set", "array", "deque"};
+        bool flag = false;
+        for (auto stltype : stltypes) {
+            if (basetype == stltype) {
+                flag = true;
+            }
+        }
+        if (!flag) {
+            cout << "Error in REST_Reflection::CreateDictionary: unknown type \"" << type << "\"" << endl;
+            return -1;
+        }
+
+        char* restpath = getenv("REST_PATH");
+        if (restpath == NULL) {
+            cout << "This cannot happen!" << endl;
+            return -1;
+        }
+
+        string typeformatted = Replace(type, ">", "_");
+        typeformatted = Replace(typeformatted, "<", "_");
+        typeformatted = Replace(typeformatted, ",", "_");
+        typeformatted = RemoveWhiteSpaces(typeformatted);
+
+        string sofilename = restpath + (string) "/lib/AddonDict/Dict_" + typeformatted + ".so";
+
+        // we directly load the dictionary if it exists
+        if (TRestTools::fileExists(sofilename)) {
+            cout << "Loading external dictionary for: \"" << type << "\":" << endl;
+            cout << sofilename << endl;
+            gSystem->Load(sofilename.c_str());
+            cl = GetClass(type);  // reset the TClass after loading external library.
+            return 0;
+        }
+
+        // we create a new library of dictionary for that type
+        if (!TRestTools::isPathWritable(restpath)) {
+            cout
+                << "Error in REST_Reflection::CreateDictionary: cannot create dictionary, path not writeable!"
+                << endl;
+            cout << "path: \"" << restpath << "\"" << endl;
+            cout << "This is possible in case you are using public installation of REST, install one by your "
+                    "own?"
+                 << endl;
+            return -1;
+        }
+        system(Form("mkdir -p %s/lib/AddonDict", restpath));
+
+        string linkdeffilename = restpath + (string) "/lib/AddonDict/LinkDef.h";
+        ofstream ofs(linkdeffilename);
+        ofs << "#include <map>" << endl;
+        ofs << "#include <vector>" << endl;
+        ofs << "#include <map>" << endl;
+        ofs << "#include <set>" << endl;
+        ofs << "#include <list>" << endl;
+        ofs << "#include <array>" << endl;
+        ofs << "#ifdef __ROOTCLING__" << endl;
+        ofs << "#pragma link C++ class " << type << ";" << endl;
+        ofs << "#endif" << endl;
+        ofs.close();
+
+        string cxxfilename = restpath + (string) "/lib/AddonDict/" + typeformatted + ".cxx";
+
+        cout << "Creating external dictionary for: \"" << type << "\":" << endl;
+        cout << sofilename << endl;
+
+        // cout << Form("rootcling -f %s -c %s", outfilename.c_str(), infilename.c_str()) << endl;
+        int a = system(Form("rootcling -f %s -c %s", cxxfilename.c_str(), linkdeffilename.c_str()));
+        if (a != 0) {
+            cout << "rootcling failed to generate dictionary" << endl;
+            return -1;
+        }
+
+        int b =
+            system(Form("gcc %s -std=c++11 -I`root-config --incdir` "
+                        "`root-config --libs` -lGui -lEve -lGeom -lMathMore -lGdml -lMinuit -L/usr/lib64 "
+                        "-lstdc++ -shared -fPIC -o %s",
+                        cxxfilename.c_str(), sofilename.c_str()));
+
+        // int c =
+        //    system(Form("gcc %s/lib/AddonDict/*.cxx -std=c++11 -I`root-config --incdir` "
+        //                "`root-config --libs` -lGui -lEve -lGeom -lMathMore -lGdml -lMinuit -L/usr/lib64 "
+        //                "-lstdc++ -shared -fPIC -o %s/lib/AddonDict/libRestAddonDict.so",
+        //                restpath, restpath));
+
+        if (b != 0 /*|| c != 0*/) {
+            cout << "gcc failed to generate library for the dictionary" << endl;
+            return -1;
+        }
+
+        gSystem->Load(Form("%s", sofilename.c_str()));
+        cl = GetClass(type);  // reset the TClass after loading external library.
+    }
+
+    return 0;
 }
 
 REST_Reflection::AnyPtr_t REST_Reflection::GetDataMember(REST_Reflection::AnyPtr_t obj, string name) {
-	if (obj.cl != NULL && obj.cl->InheritsFrom("TObject")) {
-		return GetDataMember((TObject*)obj, name);
-	}
-	return AnyPtr_t();
+    TClass* c = obj.cl;
+    if (c != NULL) {
+        TVirtualStreamerInfo* vs = c->GetStreamerInfo();
+        TObjArray* ses = vs->GetElements();
+        int n = ses->GetLast() + 1;
+
+        for (int i = 0; i < n; i++) {
+            TStreamerElement* ele = (TStreamerElement*)ses->At(i);
+            if ((string)ele->GetFullName() == name) {
+                char* addr = (char*)obj + ele->GetOffset();
+                string type = ele->GetTypeName();
+                if (type == "BASE") {
+                    type = ele->GetClass()->GetName();
+                }
+                if (type == obj.type) {
+                    return AnyPtr_t();
+                }
+
+                AnyPtr_t ptr(addr, type);
+                ptr.name = name;
+
+                return ptr;
+            }
+        }
+    }
+    return AnyPtr_t();
 }
 
-REST_Reflection::AnyPtr_t REST_Reflection::GetDataMember(TObject* obj, string name) {
-    TClass* c = obj->IsA();
-    TVirtualStreamerInfo* vs = c->GetStreamerInfo();
-    TObjArray* ses = vs->GetElements();
-    int n = ses->GetLast() + 1;
+REST_Reflection::AnyPtr_t REST_Reflection::GetDataMember(REST_Reflection::AnyPtr_t obj, int ID) {
+    TClass* c = obj.cl;
+    if (c != NULL) {
+        TVirtualStreamerInfo* vs = c->GetStreamerInfo();
+        TObjArray* ses = vs->GetElements();
+        int n = ses->GetLast() + 1;
 
-    for (int i = 0; i < n; i++) {
-        TStreamerElement* ele = (TStreamerElement*)ses->At(i);
-        if ((string)ele->GetFullName() == name) {
+        if (ID < n) {
+            TStreamerElement* ele = (TStreamerElement*)ses->At(ID);
             char* addr = (char*)obj + ele->GetOffset();
             string type = ele->GetTypeName();
+            if (type == "BASE") {
+                type = ele->GetClass()->GetName();
+            }
+            if (type == obj.type) {
+                return AnyPtr_t();
+            }
 
             AnyPtr_t ptr(addr, type);
-            ptr.name = name;
-            ptr.parent = (char*)obj;
-            ptr.offset = ele->GetOffset();
-
+            ptr.name = ele->GetName();
             return ptr;
         }
     }
     return AnyPtr_t();
 }
 
-REST_Reflection::AnyPtr_t REST_Reflection::GetDataMember(TObject* obj, int ID) {
-    TClass* c = obj->IsA();
-    TVirtualStreamerInfo* vs = c->GetStreamerInfo();
-    TObjArray* ses = vs->GetElements();
-    int n = ses->GetLast() + 1;
-
-    if (ID < n) {
-        TStreamerElement* ele = (TStreamerElement*)ses->At(ID);
-        char* addr = (char*)obj + ele->GetOffset();
-        string type = ele->GetTypeName();
-
-        AnyPtr_t ptr(addr, type);
-        ptr.name = ele->GetName();
-        ptr.parent = (char*)obj;
-        ptr.offset = ele->GetOffset();
-
-        return ptr;
-    }
-    return AnyPtr_t();
-}
-
-int REST_Reflection::GetNumberOfDataMembers(TObject* obj) {
-    TClass* c = obj->IsA();
+int REST_Reflection::GetNumberOfDataMembers(REST_Reflection::AnyPtr_t obj) {
+    TClass* c = obj.cl;
     TVirtualStreamerInfo* vs = c->GetStreamerInfo();
     TObjArray* ses = vs->GetElements();
 

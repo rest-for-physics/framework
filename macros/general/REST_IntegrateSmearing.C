@@ -13,7 +13,7 @@
 Int_t REST_IntegrateSmearing(TString varName, TString rootFileName, double Middle) {
     TRestStringOutput cout;
 
-    std::vector<TString> inputFilesNew = GetFilesMatchingPattern(rootFileName);
+    std::vector<string> inputFilesNew = TRestTools::GetFilesMatchingPattern((string)rootFileName);
 
     if (inputFilesNew.size() == 0) {
         cout << "Files not found!" << endl;

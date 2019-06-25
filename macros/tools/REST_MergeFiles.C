@@ -1,7 +1,7 @@
 #include "TFileMerger.h"
 #include "TRestTask.h"
 Int_t REST_MergeFiles(TString pathAndPattern, TString outputFilename) {
-    vector<string> files = GetFilesMatchingPattern((string)pathAndPattern);
+    vector<string> files = TRestTools::GetFilesMatchingPattern((string)pathAndPattern);
     TFileMerger* m = new TFileMerger();
     m->OutputFile(outputFilename);
     for (auto f : files) {

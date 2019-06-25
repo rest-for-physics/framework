@@ -62,10 +62,10 @@
 /// db->exec("select * into rest_files_bk from rest_files");
 /// \endcode
 TRestDataBase* TRestDataBase::instantiate() {
-    vector<TString> list = TRestTools::GetListOfRESTLibraries();
-    for (unsigned int n = 0; n < list.size(); n++) {
-        gSystem->Load(list[n]);
-    }
+    //vector<string> list = TRestTools::GetListOfRESTLibraries();
+    //for (unsigned int n = 0; n < list.size(); n++) {
+    //    gSystem->Load(list[n].c_str());
+    //}
 
     TClass* c = TClass::GetClass("TRestDataBaseImpl");
     if (c != NULL)  // this means we have the package installed
@@ -76,7 +76,7 @@ TRestDataBase* TRestDataBase::instantiate() {
 }
 
 DataBaseFileInfo::DataBaseFileInfo(string filename) {
-    auto _fullname = ToAbsoluteName(filename);
+    auto _fullname = TRestTools::ToAbsoluteName(filename);
 
     struct stat buf;
     int result = stat(_fullname.c_str(), &buf);
@@ -97,8 +97,8 @@ DataBaseFileInfo::DataBaseFileInfo(string filename) {
         quality = true;
         start = buf.st_ctime;
         stop = buf.st_mtime;
-        string sha1result = ExecuteShellCommand("sha1sum " + _fullname);
-        string sha1 = Spilt(sha1result, " ")[0];
+        string sha1result = TRestTools::Execute("sha1sum " + _fullname);
+        string sha1 = Split(sha1result, " ")[0];
         if (sha1.size() == 40) {
             for (int i = 0; i < 40; i++) {
                 sha1sum[i] = sha1[i];

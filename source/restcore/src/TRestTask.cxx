@@ -78,11 +78,11 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
                 }
 
                 string args = line.substr(line.find('(') + 1, line.find(')') - line.find('(') - 1);
-                auto list = Spilt(args, ",");
+                auto list = Split(args, ",");
                 argumentname.clear();
                 argumenttype.clear();
                 for (int i = 0; i < list.size(); i++) {
-                    auto tmp = Spilt(list[i], " ");
+                    auto tmp = Split(list[i], " ");
                     if (Count(tmp[0], "TString") > 0) {
                         argumenttype.push_back(65);
                     } else if (Count(ToUpper(tmp[0]), "INT") > 0) {
@@ -93,9 +93,9 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
                         argumenttype.push_back(-1);
                     }
 
-                    argumentname.push_back(Spilt(tmp[1], "=")[0]);
-                    if (Spilt(list[i], "=").size() > 1) {
-                        argument.push_back(Spilt(list[i], "=")[1]);
+                    argumentname.push_back(Split(tmp[1], "=")[0]);
+                    if (Split(list[i], "=").size() > 1) {
+                        argument.push_back(Split(list[i], "=")[1]);
                     } else {
                         argument.push_back("NOT SET");
                         fNRequiredArgument++;
@@ -112,20 +112,20 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
 
         string name;
         string call;
-        if (Spilt(cmd, "->").size() != 2) {
-            if (Spilt(cmd, ".").size() != 2) {
+        if (Split(cmd, "->").size() != 2) {
+            if (Split(cmd, ".").size() != 2) {
                 warning << "command"
                         << " \"" << cmd << "\" "
                         << "is illegal!" << endl;
                 fMode = TASK_ERROR;
                 return;
             } else {
-                name = Spilt(cmd, ".")[0];
-                call = Spilt(cmd, ".")[1];
+                name = Split(cmd, ".")[0];
+                call = Split(cmd, ".")[1];
             }
         } else {
-            name = Spilt(cmd, "->")[0];
-            call = Spilt(cmd, "->")[1];
+            name = Split(cmd, "->")[0];
+            call = Split(cmd, "->")[1];
         }
         if (Count(call, "(") != 1 || Count(call, ")") != 1)  // we can only use one bracket
         {
@@ -135,9 +135,9 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
             fMode = TASK_ERROR;
             return;
         }
-        methodname = Spilt(call, "(")[0];
-        argument.push_back(Spilt(Spilt(call, "(")[1], ")").size() == 0 ? ""
-                                                                       : Spilt(Spilt(call, "(")[1], ")")[0]);
+        methodname = Split(call, "(")[0];
+        argument.push_back(Split(Split(call, "(")[1], ")").size() == 0 ? ""
+                                                                       : Split(Split(call, "(")[1], ")")[0]);
         targetname = name;
 
     } else if (mode == 2) {
@@ -295,8 +295,8 @@ TRestTask* TRestTask::GetTask(TString MacroName) {
 
     if (c == NULL) {
         string macfilelists =
-            ExecuteShellCommand("find $REST_PATH/macros -name *" + (string)MacroName + (string) ".*");
-        auto macfiles = Spilt(macfilelists, "\n");
+			TRestTools::Execute("find $REST_PATH/macros -name *" + (string)MacroName + (string) ".*");
+        auto macfiles = Split(macfilelists, "\n");
 
         if (macfiles.size() == 0 || macfiles[0] == "") {
             return NULL;

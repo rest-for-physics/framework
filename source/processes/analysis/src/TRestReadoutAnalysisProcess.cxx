@@ -235,16 +235,16 @@ void TRestReadoutAnalysisProcess::EndProcess() {
 // <parameter name="modulesHist" value="2:5:6:8"/>
 void TRestReadoutAnalysisProcess::InitFromConfigFile() {
     string moduleAmp = GetParameter("modulesAmp", "");
-    auto ampdef = Spilt(moduleAmp, ":");
+    auto ampdef = Split(moduleAmp, ":");
     for (int i = 0; i < ampdef.size(); i++) {
-        auto amppair = Spilt(ampdef[i], "-");
+        auto amppair = Split(ampdef[i], "-");
         if (amppair.size() == 2) {
             fModuldeAmplification[StringToInteger(amppair[0])] = StringToDouble(amppair[1]);
         }
     }
 
     string moduleHist = GetParameter("modulesHist", "");
-    auto histdef = Spilt(moduleHist, ":");
+    auto histdef = Split(moduleHist, ":");
     for (int i = 0; i < histdef.size(); i++) {
         fChannelsHistos[StringToInteger(histdef[i])] = NULL;
         fChannelsHitMaps[StringToInteger(histdef[i])] = NULL;

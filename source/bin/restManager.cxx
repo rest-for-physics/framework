@@ -148,7 +148,7 @@ int main(int argc, char* argv[]) {
             fout << endl;
             TRestManager* mgr = new TRestManager();
 
-            auto path = SeparatePathAndName(cfgFileName).first;
+            auto path = TRestTools::SeparatePathAndName(cfgFileName).first;
             setenv("configPath", path.c_str(), 1);
 
             mgr->LoadConfigFromFile(cfgFileName);

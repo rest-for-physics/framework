@@ -1,6 +1,6 @@
 #include "TRestHitsEvent.h"
 #include "TRestTools.h"
-
+#include "TRestStringHelper.h"
 #include "TStyle.h"
 
 using namespace std;
@@ -283,7 +283,7 @@ Double_t TRestHitsEvent::GetClosestHitInsideDistanceToPrismBottom(TVector3 x0, T
 }
 
 TPad* TRestHitsEvent::DrawEvent(TString option) {
-    vector<TString> optList = TRestTools::GetOptions(option);
+    vector<TString> optList = VectorTString_cast(TRestTools::GetOptions((string)option));
 
     SetBoundaries();
 

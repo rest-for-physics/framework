@@ -56,7 +56,7 @@ std::string REST_StringHelper::ReplaceMathematicalExpressions(std::string buffer
 
     bool erased = false;
 
-    std::vector<std::string> Expressions = Spilt(temp, ",");
+    std::vector<std::string> Expressions = Split(temp, ",");
 
     if (Expressions.size() > 1 && Expressions[0][0] == '(' &&
         Expressions[Expressions.size() - 1][Expressions[Expressions.size() - 1].size() - 1] == ')') {
@@ -120,7 +120,7 @@ Int_t REST_StringHelper::isANumber(string in) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Spilt the input string according to the given separator. Returning a
+/// \brief Split the input string according to the given separator. Returning a
 /// vector of fragments
 ///
 /// e.g.
@@ -129,7 +129,7 @@ Int_t REST_StringHelper::isANumber(string in) {
 /// Input: "abc" and "", Output: { "a", "b", "c" }
 /// Input: "abc:def" and ":", Output: { "abc", "def" }
 /// Input: "abc:def" and ":def", Output: { "abc" }
-std::vector<string> REST_StringHelper::Spilt(std::string in, string separator) {
+std::vector<string> REST_StringHelper::Split(std::string in, string separator) {
     std::vector<string> result;
 
     int pos = -1;
@@ -370,288 +370,11 @@ TVector2 REST_StringHelper::StringTo2DVector(string in) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Returns true if the filename exists.
-///
-bool REST_StringHelper::fileExists(const std::string& filename) {
-    struct stat buf;
-    if (stat(filename.c_str(), &buf) != -1) {
-        return true;
-    }
-    return false;
-}
-
-///////////////////////////////////////////////
-/// \brief Returns true if the **filename** has *.root* extension.
-///
-bool REST_StringHelper::isRootFile(const std::string& filename) {
-    if (filename.find(".root") == string::npos) return false;
-
-    return true;
-}
-
-///////////////////////////////////////////////
-/// \brief Returns true if **filename** is an *http* address.
-///
-bool REST_StringHelper::isURL(const std::string& filename) {
-    if (filename.find("http") == 0) return true;
-
-    return false;
-}
-
-///////////////////////////////////////////////
-/// \brief Returns true if the **path** given by argument is writable
-///
-bool REST_StringHelper::isPathWritable(const std::string& path) {
-    int result = 0;
-#ifdef WIN32
-    result = _access(path.c_str(), 2);
-#else
-    result = access(path.c_str(), 2);
-#endif
-
-    if (result == 0)
-        return true;
-    else
-        return false;
-}
-
-///////////////////////////////////////////////
-/// \brief Check if the path is absolute path or not
-///
-bool REST_StringHelper::isAbsolutePath(const std::string& path) {
-    if (path[0] == '/' || path[0] == '~' || path.find(':') != -1) {
-        return true;
-    }
-    return false;
-}
-
-///////////////////////////////////////////////
-/// \brief Separate path and filename in a full path+filename string, returns a
-/// pair of string
-///
-/// if input file name contains no directory, the returned directory is set to
-/// "." if input file name contains no file, the returned filename is set to ""
-/// e.g.
-/// Input: "/home/nkx/abc.txt" and ":def", Output: { "/home/nkx/", "abc.txt" }
-/// Input: "abc.txt" and ":", Output: { ".", "abc.txt" }
-/// Input: "/home/nkx/" and ":", Output: { "/home/nkx/", "" }
-std::pair<string, string> REST_StringHelper::SeparatePathAndName(const std::string fullname) {
-    pair<string, string> result;
-    int pos = fullname.find_last_of('/', -1);
-
-    if (pos == -1) {
-        result.first = ".";
-        result.second = fullname;
-    } else if (pos == 0) {
-        result.first = "/";
-        result.second = fullname.substr(1, fullname.size() - 1);
-    } else if (pos == fullname.size() - 1) {
-        result.first = fullname;
-        result.second = "";
-    } else {
-        result.first = fullname.substr(0, pos + 1);
-        result.second = fullname.substr(pos + 1, fullname.size() - pos - 1);
-    }
-    return result;
-}
-
-///////////////////////////////////////////////
-/// \brief Removes all directories in the full path filename description
-/// given in the argument.
-///
-/// e.g.
-/// Input: "/home/nkx/abc.txt", Returns: "abc.txt"
-/// Input: "/home/nkx/", Output: ""
-std::string REST_StringHelper::RemoveAbsolutePath(std::string fullpathFileName) {
-    return SeparatePathAndName(fullpathFileName).second;
-}
-
-string REST_StringHelper::ToAbsoluteName(string filename) {
-    if (filename[0] == '~') {
-        return (string)getenv("HOME") + filename.substr(1, -1);
-    } else if (filename[0] != '/') {
-        return (string)getenv("PWD") + "/" + filename;
-    }
-    return filename;
-}
-
-///////////////////////////////////////////////
-/// \brief It lists all the subdirectories inside path and adds
-/// them to the result vector.
-/// if recursion is 0, then list only the subdirectory of this directory
-/// if recursion is < 0, then list subdirectories recursively
-/// Otherwise recurse only certain times.
-vector<string> REST_StringHelper::GetSubdirectories(const string& path, int recursion) {
-    vector<string> result;
-    if (auto dir = opendir(path.c_str())) {
-        while (1) {
-            auto f = readdir(dir);
-            if (f == NULL) {
-                break;
-            }
-            if (f->d_name[0] == '.') continue;
-
-            string ipath;
-            if (path[path.size() - 1] != '/') {
-                ipath = path + "/" + f->d_name + "/";
-            } else {
-                ipath = path + f->d_name + "/";
-            }
-
-            // if (f->d_type == DT_DIR)
-            if (opendir(ipath.c_str()))  // to make sure it is a directory
-            {
-                result.push_back(ipath);
-
-                if (recursion != 0) {
-                    vector<string> subD = GetSubdirectories(ipath, recursion - 1);
-                    result.insert(result.begin(), subD.begin(), subD.end());
-                    //, cb);
-                }
-            }
-        }
-        closedir(dir);
-    }
-    return result;
-}
-
-///////////////////////////////////////////////
-/// \brief Search file in the given vector of path strings, return a full name
-/// if found, return "" if not
-///
-std::string REST_StringHelper::SearchFileInPath(vector<string> paths, string filename) {
-    if (fileExists(filename)) {
-        return filename;
-    } else {
-        for (int i = 0; i < paths.size(); i++) {
-            string path = paths[i];
-            if (path[path.size() - 1] != '/') {
-                path = path + "/";
-            }
-
-            if (fileExists(path + filename)) {
-                return path + filename;
-            }
-
-            // search also in subdirectory, but only 5 times of recursion
-            vector<string> pathsExpanded = GetSubdirectories(paths[i], 5);
-            for (int j = 0; j < pathsExpanded.size(); j++)
-                if (fileExists(pathsExpanded[j] + filename)) return pathsExpanded[j] + filename;
-        }
-    }
-    return "";
-}
-
-///////////////////////////////////////////////
-/// \brief Checks if the config file can be openned. It returns OK in case of
-/// success, ERROR otherwise.
-///
-Int_t REST_StringHelper::ChecktheFile(std::string FileName) {
-    ifstream ifs;
-    ifs.open(FileName.c_str());
-
-    if (!ifs) {
-        return -1;
-    } else
-        ifs.close();
-
-    return 0;
-}
-
-///////////////////////////////////////////////
-/// \brief Returns a list of files whose name match the pattern string. Key word
-/// is "*". e.g. abc00*.root
-///
-vector<string> REST_StringHelper::GetFilesMatchingPattern(string pattern) {
-    std::vector<string> outputFileNames;
-
-    if (pattern != "") {
-        if (pattern.find_first_of("*") >= 0 || pattern.find_first_of("?") >= 0) {
-            string a = ExecuteShellCommand("find " + pattern);
-
-            auto b = Spilt(a, "\n");
-
-            for (int i = 0; i < b.size(); i++) {
-                outputFileNames.push_back(b[i]);
-            }
-
-            // char command[256];
-            // sprintf(command, "find %s > /tmp/RESTTools_fileList.tmp",
-            // pattern.Data());
-
-            // system(command);
-
-            // FILE *fin = fopen("/tmp/RESTTools_fileList.tmp", "r");
-            // char str[256];
-            // while (fscanf(fin, "%s\n", str) != EOF)
-            //{
-            //	TString newFile = str;
-            //	outputFileNames.push_back(newFile);
-            //}
-            // fclose(fin);
-
-            // system("rm /tmp/RESTTools_fileList.tmp");
-        } else {
-            if (fileExists(pattern)) outputFileNames.push_back(pattern);
-        }
-    }
-    return outputFileNames;
-}
-
-///////////////////////////////////////////////
 /// \brief Convert string to its upper case. Alternative of TString::ToUpper
 ///
 std::string REST_StringHelper::ToUpper(std::string str) {
     transform(str.begin(), str.end(), str.begin(), (int (*)(int))toupper);
     return str;
-}
-
-///////////////////////////////////////////////
-/// \brief Execute shell command and returns a string containing the result
-///
-std::string REST_StringHelper::ExecuteShellCommand(string cmd) {
-#ifdef WIN32
-    system(cmd.c_str());
-#else
-    char buf[1024];
-    string result = "";
-    FILE* ptr;
-    if ((ptr = popen(cmd.c_str(), "r")) != NULL) {
-        while (fgets(buf, 1024, ptr) != NULL) {
-            result += (string)buf;
-        }
-        pclose(ptr);
-        ptr = NULL;
-        result = result.substr(0, result.size() - 1);  // remove last "\n"
-        return result;
-    } else {
-        printf("popen %s error\n", cmd.c_str());
-    }
-#endif  // WIN32
-    return "";
-}
-
-///////////////////////////////////////////////
-/// \brief Convert version to a unique string
-///
-int REST_StringHelper::ConvertVersionCode(string in) {
-#ifndef REST_Version
-#define REST_VERSION(a, b, c) (((a) << 16) + ((b) << 8) + (c))
-#endif
-    vector<string> ver = Spilt(in, ".");
-    if (ver.size() == 3) {
-        vector<int> verint;
-        for (auto v : ver) {
-            int n = StringToInteger(v.substr(0, v.find_first_not_of("0123456789")));
-            if (n != -1) {
-                verint.push_back(n);
-            } else {
-                return -1;
-            }
-        }
-        return REST_VERSION(verint[0], verint[1], verint[2]);
-    }
-    return -1;
 }
 
 #ifdef WIN32

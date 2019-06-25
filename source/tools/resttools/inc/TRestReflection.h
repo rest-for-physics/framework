@@ -116,8 +116,12 @@ std::string GetTypeName(T obj) {
 }
 
 class AnyPtr_t {
+   private:
+    int InitDictionary();
+
    public:
-	//basic info
+    // basic info
+    string name = "";
     string type = "";
     char* address = 0;
     bool onheap = false;
@@ -125,24 +129,18 @@ class AnyPtr_t {
     TClass* cl = 0;
     TDataType* dt = 0;
 
-	//parent info
-    string name = "";
-    char* parent = 0;
-    int offset = 0;
-
     bool IsZombie() { return (type == "" || address == 0 || size == 0 || (cl == 0 && dt == 0)); }
 
-    void CloneTo(AnyPtr_t to);
-    void operator>>(AnyPtr_t to) { CloneTo(to); }
+    void operator>>(AnyPtr_t to);
 
     string ToString();
     friend ostream& operator<<(ostream& cin, AnyPtr_t ptr) { return cin << ptr.ToString(); }
 
-	int GetTypeID() {
-		if (cl != 0) return cl->GetStreamerInfo()->GetElement(0)->GetType();
-		if (dt != 0) return dt->GetType();
-		return -1;
-	}
+    int GetTypeID() {
+        if (cl != 0) return cl->GetStreamerInfo()->GetElement(0)->GetType();
+        if (dt != 0) return dt->GetType();
+        return -1;
+    }
     template <typename T>
     void GetValue(T& val, bool check = false) {
         if (check) {
@@ -168,13 +166,13 @@ class AnyPtr_t {
     void Assembly();
     // Destroy the current object. It will make the class to be zombie.
     void Destroy();
-	// Print the Hex memory map of the wrappered object
-	void PrintMemory(int bytepreline=16);
+    // Print the Hex memory map of the wrappered object
+    void PrintMemory(int bytepreline = 16);
 
-	template <class T>
-	operator T*() {
-		return (T*)address;
-	}
+    template <class T>
+    operator T*() {
+        return (T*)address;
+    }
 
     AnyPtr_t() {}
     AnyPtr_t(char* address, string type);
@@ -188,8 +186,7 @@ class AnyPtr_t {
             cout << "In AnyPtr_t::AnyPtr_t() : unrecognized type! " << endl;
             return;
         }
-        size = cl == 0 ? dt->Size() : cl->Size();
-        type = cl == 0 ? dt->GetName() : cl->GetName();
+        InitDictionary();
     }
     template <class T>
     AnyPtr_t(T* obj) {
@@ -201,8 +198,7 @@ class AnyPtr_t {
             cout << "In AnyPtr_t::AnyPtr_t() : unrecognized type! " << endl;
             return;
         }
-        size = cl == 0 ? dt->Size() : cl->Size();
-        type = cl == 0 ? dt->GetName() : cl->GetName();
+        InitDictionary();
     }
 };
 
@@ -216,11 +212,12 @@ AnyPtr_t Assembly(string typeName);
 ///
 AnyPtr_t WrapType(string typeName);
 
+void CloneAny(AnyPtr_t from, AnyPtr_t to);
+
 // data member reflection tools
 AnyPtr_t GetDataMember(REST_Reflection::AnyPtr_t obj, string name);
-AnyPtr_t GetDataMember(TObject* obj, string name);
-AnyPtr_t GetDataMember(TObject* obj, int ID);
-int GetNumberOfDataMembers(TObject* obj);
+AnyPtr_t GetDataMember(REST_Reflection::AnyPtr_t obj, int ID);
+int GetNumberOfDataMembers(REST_Reflection::AnyPtr_t obj);
 
 };  // namespace REST_Reflection
 
