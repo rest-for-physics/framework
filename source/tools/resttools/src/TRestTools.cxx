@@ -27,29 +27,29 @@ struct _REST_STARTUP_CHECK {
 const _REST_STARTUP_CHECK __check;
 
 ClassImp(TRestTools);
-
-std::vector<string> TRestTools::GetListOfRESTLibraries() {
-    vector<string> libraryList;
-
-    vector<string> libraryPathList;
-
-#ifdef WIN32
-    libraryPathList.push_back(get_current_dir_name() + "/../");
-#else
-	char* _env = getenv("LD_LIBRARY_PATH");
-	string env = _env == NULL ? "" : _env;
-	libraryPathList = Split(env, ":");
-#endif
-
-    for (unsigned int n = 0; n < libraryPathList.size(); n++) {
-        // cout << "Getting libraries in directory : " << libraryPathList[n] <<
-        // endl;
-        vector<string> list = GetRESTLibrariesInDirectory(libraryPathList[n]);
-        for (unsigned int i = 0; i < list.size(); i++) libraryList.push_back(list[i]);
-    }
-
-    return libraryList;
-}
+//
+//std::vector<string> TRestTools::GetListOfRESTLibraries() {
+//    vector<string> libraryList;
+//
+//    vector<string> libraryPathList;
+//
+//#ifdef WIN32
+//    libraryPathList.push_back(get_current_dir_name() + "/../");
+//#else
+//	char* _env = getenv("LD_LIBRARY_PATH");
+//	string env = _env == NULL ? "" : _env;
+//	libraryPathList = Split(env, ":");
+//#endif
+//
+//    for (unsigned int n = 0; n < libraryPathList.size(); n++) {
+//        // cout << "Getting libraries in directory : " << libraryPathList[n] <<
+//        // endl;
+//        vector<string> list = GetRESTLibrariesInDirectory(libraryPathList[n]);
+//        for (unsigned int i = 0; i < list.size(); i++) libraryList.push_back(list[i]);
+//    }
+//
+//    return libraryList;
+//}
 //
 //std::vector<string> TRestTools::GetListOfPathsInEnvVariable(string envVariable) {
 //    vector<string> pathList;
@@ -86,32 +86,52 @@ std::vector<string> TRestTools::GetOptions(string optionsStr) {
 //    return resultPath;
 //}
 
-std::vector<string> TRestTools::GetRESTLibrariesInDirectory(string path) {
-    vector<string> fileList;
-    DIR* dir;
-    struct dirent* ent;
-    if ((dir = opendir(path.c_str())) != NULL) {
-        /* print all the files and directories within directory */
-        while ((ent = readdir(dir)) != NULL) {
-            string fName(ent->d_name);
-            if ((fName.find("REST") != -1 || fName.find("Rest") != -1))
-                if (fName.find(".dylib") != -1 || fName.find(".so") != -1) fileList.push_back(fName);
-        }
-        closedir(dir);
-    } else {
-        /* could not open directory */
-        perror("");
-    }
-
-    return fileList;
-}
+//std::vector<string> TRestTools::GetRESTLibrariesInDirectory(string path) {
+//    vector<string> fileList;
+//    DIR* dir;
+//    struct dirent* ent;
+//    if ((dir = opendir(path.c_str())) != NULL) {
+//        /* print all the files and directories within directory */
+//        while ((ent = readdir(dir)) != NULL) {
+//            string fName(ent->d_name);
+//            if ((fName.find("REST") != -1 || fName.find("Rest") != -1))
+//                if (fName.find(".dylib") != -1 || fName.find(".so") != -1) fileList.push_back(fName);
+//        }
+//        closedir(dir);
+//    } else {
+//        /* could not open directory */
+//        perror("");
+//    }
+//
+//    return fileList;
+//}
 
 void TRestTools::LoadRESTLibrary(bool silent) {
-    vector<string> list = TRestTools::GetListOfRESTLibraries();
-    for (unsigned int n = 0; n < list.size(); n++) {
-        if (!silent) cout << "Loading library : " << list[n] << endl;
+	char* _ldpath = getenv("LD_LIBRARY_PATH");
+	if (_ldpath == NULL) {
+		_ldpath = Form("%s/lib/", getenv("REST_PATH"));
+	}
+	vector<string> ldpaths = Split(_ldpath, ":");
 
-        gSystem->Load(list[n].c_str());
+	vector<string> fileList;
+	for (string path : ldpaths) {
+		DIR* dir;
+		struct dirent* ent;
+		if ((dir = opendir(path.c_str())) != NULL) {
+			/* print all the files and directories within directory */
+			while ((ent = readdir(dir)) != NULL) {
+				string fName(ent->d_name);
+				if ((fName.find("REST") != -1 || fName.find("Rest") != -1))
+					if (fName.find(".dylib") != -1 || fName.find(".so") != -1) fileList.push_back(fName);
+			}
+			closedir(dir);
+		}
+	}
+	
+	//load the finded REST libraries
+    for (unsigned int n = 0; n < fileList.size(); n++) {
+        if (!silent) cout << "Loading library : " << fileList[n] << endl;
+        gSystem->Load(fileList[n].c_str());
     }
 }
 

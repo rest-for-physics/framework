@@ -29,7 +29,7 @@ class TRestTools {
     /// calling the method GetRESTLibrariesInDirectory(). This requests rest being
     /// installed correctly.
     ///
-    static std::vector<string> GetListOfRESTLibraries();
+    //static std::vector<string> GetListOfRESTLibraries();
 
     ///////////////////////////////////////////////
     /// \brief Returns all paths in an env variable.
@@ -54,7 +54,7 @@ class TRestTools {
     /// It just finds the files with name containing "REST" or "Rest" in that
     /// path.
     ///
-    static std::vector<string> GetRESTLibrariesInDirectory(string path);
+    //static std::vector<string> GetRESTLibrariesInDirectory(string path);
 
     ///////////////////////////////////////////////
     /// \brief Returns all the options in an option string
