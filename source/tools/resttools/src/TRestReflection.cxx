@@ -14,7 +14,7 @@ REST_Reflection::AnyPtr_t REST_Reflection::Assembly(string typeName) {
 }
 
 REST_Reflection::AnyPtr_t REST_Reflection::WrapType(string type) {
-	return REST_Reflection::AnyPtr_t(0, type);
+    return REST_Reflection::AnyPtr_t(0, type);
 }
 
 void REST_Reflection::AnyPtr_t::Assembly() {
@@ -71,8 +71,8 @@ void REST_Reflection::CloneAny(AnyPtr_t from, AnyPtr_t to) {
     }
 
     if (from.type != to.type) {
-        cout << "In AnyPtr_t::CloneTo() : type doesn't match! (This :" << from.type << ", Target : " << to.type
-             << ")" << endl;
+        cout << "In AnyPtr_t::CloneTo() : type doesn't match! (This :" << from.type
+             << ", Target : " << to.type << ")" << endl;
         return;
     }
 
@@ -82,20 +82,18 @@ void REST_Reflection::CloneAny(AnyPtr_t from, AnyPtr_t to) {
         TBufferFile buffer(TBuffer::kWrite);
 
         buffer.MapObject(from.address, from.cl);  // register obj in map to handle self reference
-		from.cl->Streamer(from.address, buffer);
+        from.cl->Streamer(from.address, buffer);
 
         buffer.SetReadMode();
         buffer.ResetMap();
         buffer.SetBufferOffset(0);
 
         buffer.MapObject(to.address, to.cl);  // register obj in map to handle self reference
-		to.cl->Streamer(to.address, buffer);
+        to.cl->Streamer(to.address, buffer);
     }
 }
 
-void REST_Reflection::AnyPtr_t::operator>>(AnyPtr_t to) {
-	REST_Reflection::CloneAny(*this, to);
-}
+void REST_Reflection::AnyPtr_t::operator>>(AnyPtr_t to) { REST_Reflection::CloneAny(*this, to); }
 
 string REST_Reflection::AnyPtr_t::ToString() {
     char* ladd = address;
@@ -338,31 +336,30 @@ REST_Reflection::AnyPtr_t::AnyPtr_t(char* _address, string _type) {
         cout << "In AnyPtr_t::AnyPtr_t() : unrecognized type: \"" << _type << "\"" << endl;
         return;
     }
-	InitDictionary();
+    InitDictionary();
 }
 
 int REST_Reflection::AnyPtr_t::InitDictionary() {
-	size = cl == 0 ? dt->Size() : cl->Size();
-	type = cl == 0 ? dt->GetName() : cl->GetName();
+    size = cl == 0 ? dt->Size() : cl->Size();
+    type = cl == 0 ? dt->GetName() : cl->GetName();
 
-    if (IsZombie()) {
+    if (type == "" || size == 0 || (cl == 0 && dt == 0)) {
         cout << "Error in REST_Reflection::CreateDictionary: object is zombie!" << endl;
         return -1;
     }
 
-	if (dt != NULL) return 0;
+    if (dt != NULL) return 0;
 
-	if (cl != NULL) {
-		if (cl->GetCollectionProxy() &&
-			dynamic_cast<TEmulatedCollectionProxy*>(cl->GetCollectionProxy())) {
-			// cout << "In AnyPtr_t::CloneTo() : the target is an stl collection but does not have a "
-			//	"compiled CollectionProxy. Please generate the dictionary for this collection."
-			//	<< endl;
-			// cout << "Data not copied!" << endl;
-		} else {
-			return 0;
-		}
-	}
+    if (cl != NULL) {
+        if (cl->GetCollectionProxy() && dynamic_cast<TEmulatedCollectionProxy*>(cl->GetCollectionProxy())) {
+            // cout << "In AnyPtr_t::CloneTo() : the target is an stl collection but does not have a "
+            //	"compiled CollectionProxy. Please generate the dictionary for this collection."
+            //	<< endl;
+            // cout << "Data not copied!" << endl;
+        } else {
+            return 0;
+        }
+    }
 
     if (1) {
         int pos = type.find("<");
@@ -380,39 +377,39 @@ int REST_Reflection::AnyPtr_t::InitDictionary() {
             return -1;
         }
 
-		char* restpath = getenv("REST_PATH");
-		if (restpath == NULL) {
-			cout << "This cannot happen!" << endl;
-			return -1;
-		}
+        char* restpath = getenv("REST_PATH");
+        if (restpath == NULL) {
+            cout << "This cannot happen!" << endl;
+            return -1;
+        }
 
-		string typeformatted =  Replace(type, ">", "_");
-		typeformatted = Replace(typeformatted, "<", "_");
-		typeformatted = Replace(typeformatted, ",", "_");
-		typeformatted = RemoveWhiteSpaces(typeformatted);
+        string typeformatted = Replace(type, ">", "_");
+        typeformatted = Replace(typeformatted, "<", "_");
+        typeformatted = Replace(typeformatted, ",", "_");
+        typeformatted = RemoveWhiteSpaces(typeformatted);
 
-		string sofilename = restpath + (string) "/lib/AddonDict/Dict_" + typeformatted + ".so";
+        string sofilename = restpath + (string) "/lib/AddonDict/Dict_" + typeformatted + ".so";
 
-		//we directly load the dictionary if it exists
-		if (TRestTools::fileExists(sofilename)) {
-			cout << "Loading external dictionary for: \"" << type << "\":" << endl;
-			cout << sofilename << endl;
-			gSystem->Load(sofilename.c_str());
-			cl = GetClass(type);//reset the TClass after loading external library.
-			return 0;
-		}
-		
-		//we create a new library of dictionary for that type
-		if(!TRestTools::isPathWritable(restpath)) {
-			cout
-				<< "Error in REST_Reflection::CreateDictionary: cannot create dictionary, path not writeable!"
-				<< endl;
-			cout << "path: \"" << restpath << "\"" << endl;
-			cout << "This is possible in case you are using public installation of REST, install one by your "
-				"own?"
-				<< endl;
-			return -1;
-		}
+        // we directly load the dictionary if it exists
+        if (TRestTools::fileExists(sofilename)) {
+            cout << "Loading external dictionary for: \"" << type << "\":" << endl;
+            cout << sofilename << endl;
+            gSystem->Load(sofilename.c_str());
+            cl = GetClass(type);  // reset the TClass after loading external library.
+            return 0;
+        }
+
+        // we create a new library of dictionary for that type
+        if (!TRestTools::isPathWritable(restpath)) {
+            cout
+                << "Error in REST_Reflection::CreateDictionary: cannot create dictionary, path not writeable!"
+                << endl;
+            cout << "path: \"" << restpath << "\"" << endl;
+            cout << "This is possible in case you are using public installation of REST, install one by your "
+                    "own?"
+                 << endl;
+            return -1;
+        }
         system(Form("mkdir -p %s/lib/AddonDict", restpath));
 
         string linkdeffilename = restpath + (string) "/lib/AddonDict/LinkDef.h";
@@ -428,39 +425,45 @@ int REST_Reflection::AnyPtr_t::InitDictionary() {
         ofs << "#endif" << endl;
         ofs.close();
 
-		string cxxfilename = restpath + (string) "/lib/AddonDict/" + typeformatted + ".cxx";
+        string cxxfilename = restpath + (string) "/lib/AddonDict/" + typeformatted + ".cxx";
 
-		cout << "Creating external dictionary for: \"" << type << "\":" << endl;
-		cout << sofilename << endl;
+        cout << "Creating external dictionary for: \"" << type << "\":" << endl;
+        cout << sofilename << endl;
 
-		//cout << Form("rootcling -f %s -c %s", outfilename.c_str(), infilename.c_str()) << endl;
+        // cout << Form("rootcling -f %s -c %s", outfilename.c_str(), infilename.c_str()) << endl;
         int a = system(Form("rootcling -f %s -c %s", cxxfilename.c_str(), linkdeffilename.c_str()));
         if (a != 0) {
             cout << "rootcling failed to generate dictionary" << endl;
             return -1;
         }
 
-		int b = system(
-			Form("gcc %s -std=c++11 -I`root-config --incdir` "
-				"`root-config --libs` -lGui -lEve -lGeom -lMathMore -lGdml -lMinuit -L/usr/lib64 "
-				"-lstdc++ -shared -fPIC -o %s",
-				cxxfilename.c_str(), sofilename.c_str()));
+        int b =
+            system(Form("gcc %s -std=c++11 -I`root-config --incdir` "
+                        "`root-config --libs` -lGui -lEve -lGeom -lMathMore -lGdml -lMinuit -L/usr/lib64 "
+                        "-lstdc++ -shared -fPIC -o %s",
+                        cxxfilename.c_str(), sofilename.c_str()));
 
-		if (b != 0) {
-			cout << "gcc failed to generate library for the dictionary" << endl;
-			return -1;
-		}
-		
-		gSystem->Load(Form("%s", sofilename.c_str()));
-		cl = GetClass(type);//reset the TClass after loading external library.
+        // int c =
+        //    system(Form("gcc %s/lib/AddonDict/*.cxx -std=c++11 -I`root-config --incdir` "
+        //                "`root-config --libs` -lGui -lEve -lGeom -lMathMore -lGdml -lMinuit -L/usr/lib64 "
+        //                "-lstdc++ -shared -fPIC -o %s/lib/AddonDict/libRestAddonDict.so",
+        //                restpath, restpath));
+
+        if (b != 0 /*|| c != 0*/) {
+            cout << "gcc failed to generate library for the dictionary" << endl;
+            return -1;
+        }
+
+        gSystem->Load(Form("%s", sofilename.c_str()));
+        cl = GetClass(type);  // reset the TClass after loading external library.
     }
 
-	return 0;
+    return 0;
 }
 
 REST_Reflection::AnyPtr_t REST_Reflection::GetDataMember(REST_Reflection::AnyPtr_t obj, string name) {
-	TClass* c = obj.cl;
-	if (c != NULL) {
+    TClass* c = obj.cl;
+    if (c != NULL) {
         TVirtualStreamerInfo* vs = c->GetStreamerInfo();
         TObjArray* ses = vs->GetElements();
         int n = ses->GetLast() + 1;
@@ -470,12 +473,12 @@ REST_Reflection::AnyPtr_t REST_Reflection::GetDataMember(REST_Reflection::AnyPtr
             if ((string)ele->GetFullName() == name) {
                 char* addr = (char*)obj + ele->GetOffset();
                 string type = ele->GetTypeName();
-				if (type == "BASE") {
-					type = ele->GetClass()->GetName();
-				}
-				if (type == obj.type) {
-					return AnyPtr_t(); 
-				}
+                if (type == "BASE") {
+                    type = ele->GetClass()->GetName();
+                }
+                if (type == obj.type) {
+                    return AnyPtr_t();
+                }
 
                 AnyPtr_t ptr(addr, type);
                 ptr.name = name;
@@ -488,7 +491,7 @@ REST_Reflection::AnyPtr_t REST_Reflection::GetDataMember(REST_Reflection::AnyPtr
 }
 
 REST_Reflection::AnyPtr_t REST_Reflection::GetDataMember(REST_Reflection::AnyPtr_t obj, int ID) {
-	TClass* c = obj.cl;
+    TClass* c = obj.cl;
     if (c != NULL) {
         TVirtualStreamerInfo* vs = c->GetStreamerInfo();
         TObjArray* ses = vs->GetElements();
@@ -498,12 +501,12 @@ REST_Reflection::AnyPtr_t REST_Reflection::GetDataMember(REST_Reflection::AnyPtr
             TStreamerElement* ele = (TStreamerElement*)ses->At(ID);
             char* addr = (char*)obj + ele->GetOffset();
             string type = ele->GetTypeName();
-			if (type == "BASE") {
-				type = ele->GetClass()->GetName();
-			}
-			if (type == obj.type) {
-				return AnyPtr_t(); 
-			}
+            if (type == "BASE") {
+                type = ele->GetClass()->GetName();
+            }
+            if (type == obj.type) {
+                return AnyPtr_t();
+            }
 
             AnyPtr_t ptr(addr, type);
             ptr.name = ele->GetName();

@@ -116,11 +116,12 @@ std::string GetTypeName(T obj) {
 }
 
 class AnyPtr_t {
-private:
-	int InitDictionary();
-public:
-	//basic info
-	string name = "";
+   private:
+    int InitDictionary();
+
+   public:
+    // basic info
+    string name = "";
     string type = "";
     char* address = 0;
     bool onheap = false;
@@ -130,16 +131,16 @@ public:
 
     bool IsZombie() { return (type == "" || address == 0 || size == 0 || (cl == 0 && dt == 0)); }
 
-	void operator>>(AnyPtr_t to);
+    void operator>>(AnyPtr_t to);
 
     string ToString();
     friend ostream& operator<<(ostream& cin, AnyPtr_t ptr) { return cin << ptr.ToString(); }
 
-	int GetTypeID() {
-		if (cl != 0) return cl->GetStreamerInfo()->GetElement(0)->GetType();
-		if (dt != 0) return dt->GetType();
-		return -1;
-	}
+    int GetTypeID() {
+        if (cl != 0) return cl->GetStreamerInfo()->GetElement(0)->GetType();
+        if (dt != 0) return dt->GetType();
+        return -1;
+    }
     template <typename T>
     void GetValue(T& val, bool check = false) {
         if (check) {
@@ -165,13 +166,13 @@ public:
     void Assembly();
     // Destroy the current object. It will make the class to be zombie.
     void Destroy();
-	// Print the Hex memory map of the wrappered object
-	void PrintMemory(int bytepreline=16);
+    // Print the Hex memory map of the wrappered object
+    void PrintMemory(int bytepreline = 16);
 
-	template <class T>
-	operator T*() {
-		return (T*)address;
-	}
+    template <class T>
+    operator T*() {
+        return (T*)address;
+    }
 
     AnyPtr_t() {}
     AnyPtr_t(char* address, string type);
@@ -185,7 +186,7 @@ public:
             cout << "In AnyPtr_t::AnyPtr_t() : unrecognized type! " << endl;
             return;
         }
-		InitDictionary();
+        InitDictionary();
     }
     template <class T>
     AnyPtr_t(T* obj) {
@@ -197,7 +198,7 @@ public:
             cout << "In AnyPtr_t::AnyPtr_t() : unrecognized type! " << endl;
             return;
         }
-		InitDictionary();
+        InitDictionary();
     }
 };
 
