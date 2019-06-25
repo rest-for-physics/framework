@@ -287,63 +287,32 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {
 
     TString obsName;
 
-    obsName = this->GetName() + (TString) ".x1";
-    fAnalysisTree->SetObservableValue(obsName, x1);
-
-    obsName = this->GetName() + (TString) ".y1";
-    fAnalysisTree->SetObservableValue(obsName, y1);
-
-    obsName = this->GetName() + (TString) ".z1";
-    fAnalysisTree->SetObservableValue(obsName, z1);
-
+    
+    SetObservableValue("x1", x1);
+    SetObservableValue("y1", y1);
+    SetObservableValue("z1", z1);
     /////
-
-    obsName = this->GetName() + (TString) ".x2";
-    fAnalysisTree->SetObservableValue(obsName, x2);
-
-    obsName = this->GetName() + (TString) ".y2";
-    fAnalysisTree->SetObservableValue(obsName, y2);
-
-    obsName = this->GetName() + (TString) ".z2";
-    fAnalysisTree->SetObservableValue(obsName, z2);
+    SetObservableValue("x2", x2);
+    SetObservableValue("y2", y2);
+    SetObservableValue("z2", z2);
 
     Double_t dist = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) + (z1 - z2) * (z1 - z2);
     dist = TMath::Sqrt(dist);
-
-    obsName = this->GetName() + (TString) ".distance";
-    fAnalysisTree->SetObservableValue(obsName, dist);
+    SetObservableValue("distance", dist);
 
     /////
-
-    obsName = this->GetName() + (TString) ".x1_X";
-    fAnalysisTree->SetObservableValue(obsName, x1_X);
-
-    obsName = this->GetName() + (TString) ".z1_X";
-    fAnalysisTree->SetObservableValue(obsName, z1_X);
-
+    SetObservableValue("x1_X", x1_X);
+    SetObservableValue("z1_X", z1_X);
+    /////
+    SetObservableValue("x2_X", x2_X);
+    SetObservableValue("z2_X", z2_X);
+    /////
+    SetObservableValue("y1_Y", y1_Y);
+    SetObservableValue("z1_Y", z1_Y);
     /////
 
-    obsName = this->GetName() + (TString) ".x2_X";
-    fAnalysisTree->SetObservableValue(obsName, x2_X);
-
-    obsName = this->GetName() + (TString) ".z2_X";
-    fAnalysisTree->SetObservableValue(obsName, z2_X);
-
-    /////
-
-    obsName = this->GetName() + (TString) ".y1_Y";
-    fAnalysisTree->SetObservableValue(obsName, y1_Y);
-
-    obsName = this->GetName() + (TString) ".z1_Y";
-    fAnalysisTree->SetObservableValue(obsName, z1_Y);
-
-    /////
-
-    obsName = this->GetName() + (TString) ".y2_Y";
-    fAnalysisTree->SetObservableValue(obsName, y2_Y);
-
-    obsName = this->GetName() + (TString) ".z2_Y";
-    fAnalysisTree->SetObservableValue(obsName, z2_Y);
+    SetObservableValue("y2_Y", y2_Y);
+    SetObservableValue("z2_Y", z2_Y);
 
     for (unsigned int t = 0; t < tracks.size(); t++) {
         // We get the hit blob energy from the origin track (not from the reduced
@@ -355,16 +324,12 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {
         if (tracks[t]->isXYZ()) {
             for (unsigned int n = 0; n < fQ1_Observables.size(); n++) {
                 Double_t q = originHits->GetEnergyInSphere(x1, y1, z1, fQ1_Radius[n]);
-
-                obsName = this->GetName() + (TString) "." + (TString)fQ1_Observables[n];
-                fAnalysisTree->SetObservableValue(obsName, q);
+                SetObservableValue(fQ1_Observables[n], q);
             }
 
             for (unsigned int n = 0; n < fQ2_Observables.size(); n++) {
                 Double_t q = originHits->GetEnergyInSphere(x2, y2, z2, fQ2_Radius[n]);
-
-                obsName = this->GetName() + (TString) "." + (TString)fQ2_Observables[n];
-                fAnalysisTree->SetObservableValue(obsName, q);
+                SetObservableValue(fQ2_Observables[n], q);
             }
 
             for (unsigned int n = 0; n < fQhigh_Observables.size(); n++) {
@@ -373,9 +338,7 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {
 
                 Double_t q = q2;
                 if (q1 > q2) q = q1;
-
-                obsName = this->GetName() + (TString) "." + (TString)fQhigh_Observables[n];
-                fAnalysisTree->SetObservableValue(obsName, q);
+                SetObservableValue(fQhigh_Observables[n], q);
             }
 
             for (unsigned int n = 0; n < fQlow_Observables.size(); n++) {
@@ -384,9 +347,7 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {
 
                 Double_t q = q2;
                 if (q1 < q2) q = q1;
-
-                obsName = this->GetName() + (TString) "." + (TString)fQlow_Observables[n];
-                fAnalysisTree->SetObservableValue(obsName, q);
+                SetObservableValue(fQlow_Observables[n], q);
             }
 
             for (unsigned int n = 0; n < fQbalance_Observables.size(); n++) {
@@ -398,9 +359,7 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {
                     qBalance = (q1 - q2) / (q1 + q2);
                 else
                     qBalance = (q2 - q1) / (q1 + q2);
-
-                obsName = this->GetName() + (TString) "." + (TString)fQbalance_Observables[n];
-                fAnalysisTree->SetObservableValue(obsName, qBalance);
+                SetObservableValue(fQbalance_Observables[n], qBalance);
             }
 
             for (unsigned int n = 0; n < fQratio_Observables.size(); n++) {
@@ -412,25 +371,19 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {
                     qRatio = q1 / q2;
                 else
                     qRatio = q2 / q1;
-
-                obsName = this->GetName() + (TString) "." + (TString)fQratio_Observables[n];
-                fAnalysisTree->SetObservableValue(obsName, qRatio);
+                SetObservableValue(fQratio_Observables[n], qRatio);
             }
         }
 
         if (tracks[t]->isXZ()) {
             for (unsigned int n = 0; n < fQ1_X_Observables.size(); n++) {
                 Double_t q = originHits->GetEnergyInSphere(x1_X, 0, z1_X, fQ1_X_Radius[n]);
-
-                obsName = this->GetName() + (TString) "." + (TString)fQ1_X_Observables[n];
-                fAnalysisTree->SetObservableValue(obsName, q);
+                SetObservableValue(fQ1_X_Observables[n], q);
             }
 
             for (unsigned int n = 0; n < fQ2_X_Observables.size(); n++) {
                 Double_t q = originHits->GetEnergyInSphere(x2_X, 0, z2_X, fQ2_X_Radius[n]);
-
-                obsName = this->GetName() + (TString) "." + (TString)fQ2_X_Observables[n];
-                fAnalysisTree->SetObservableValue(obsName, q);
+                SetObservableValue(fQ2_X_Observables[n], q);
             }
 
             for (unsigned int n = 0; n < fQhigh_X_Observables.size(); n++) {
@@ -439,9 +392,7 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {
 
                 Double_t q = q2;
                 if (q1 > q2) q = q1;
-
-                obsName = this->GetName() + (TString) "." + (TString)fQhigh_X_Observables[n];
-                fAnalysisTree->SetObservableValue(obsName, q);
+                SetObservableValue(fQhigh_X_Observables[n], q);
             }
 
             for (unsigned int n = 0; n < fQlow_X_Observables.size(); n++) {
@@ -450,9 +401,7 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {
 
                 Double_t q = q2;
                 if (q1 < q2) q = q1;
-
-                obsName = this->GetName() + (TString) "." + (TString)fQlow_X_Observables[n];
-                fAnalysisTree->SetObservableValue(obsName, q);
+                SetObservableValue(fQlow_X_Observables[n], q);
             }
 
             for (unsigned int n = 0; n < fQbalance_X_Observables.size(); n++) {
@@ -464,9 +413,7 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {
                     qBalance = (q1 - q2) / (q1 + q2);
                 else
                     qBalance = (q2 - q1) / (q1 + q2);
-
-                obsName = this->GetName() + (TString) "." + (TString)fQbalance_X_Observables[n];
-                fAnalysisTree->SetObservableValue(obsName, qBalance);
+                SetObservableValue(fQbalance_X_Observables[n], qBalance);
             }
 
             for (unsigned int n = 0; n < fQratio_X_Observables.size(); n++) {
@@ -478,25 +425,19 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {
                     qRatio = q1 / q2;
                 else
                     qRatio = q2 / q1;
-
-                obsName = this->GetName() + (TString) "." + (TString)fQratio_X_Observables[n];
-                fAnalysisTree->SetObservableValue(obsName, qRatio);
+                SetObservableValue(fQratio_X_Observables[n], qRatio);
             }
         }
 
         if (tracks[t]->isYZ()) {
             for (unsigned int n = 0; n < fQ1_Y_Observables.size(); n++) {
                 Double_t q = originHits->GetEnergyInSphere(0, y1_Y, z1_Y, fQ1_Y_Radius[n]);
-
-                obsName = this->GetName() + (TString) "." + (TString)fQ1_Y_Observables[n];
-                fAnalysisTree->SetObservableValue(obsName, q);
+                SetObservableValue(fQ1_Y_Observables[n], q);
             }
 
             for (unsigned int n = 0; n < fQ2_Y_Observables.size(); n++) {
                 Double_t q = originHits->GetEnergyInSphere(0, y2_Y, z2_Y, fQ2_Y_Radius[n]);
-
-                obsName = this->GetName() + (TString) "." + (TString)fQ2_Y_Observables[n];
-                fAnalysisTree->SetObservableValue(obsName, q);
+                SetObservableValue(fQ2_Y_Observables[n], q);
             }
 
             for (unsigned int n = 0; n < fQhigh_Y_Observables.size(); n++) {
@@ -505,9 +446,7 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {
 
                 Double_t q = q2;
                 if (q1 > q2) q = q1;
-
-                obsName = this->GetName() + (TString) "." + (TString)fQhigh_Y_Observables[n];
-                fAnalysisTree->SetObservableValue(obsName, q);
+                SetObservableValue(fQhigh_Y_Observables[n], q);
             }
 
             for (unsigned int n = 0; n < fQlow_Y_Observables.size(); n++) {
@@ -516,9 +455,7 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {
 
                 Double_t q = q2;
                 if (q1 < q2) q = q1;
-
-                obsName = this->GetName() + (TString) "." + (TString)fQlow_Y_Observables[n];
-                fAnalysisTree->SetObservableValue(obsName, q);
+                SetObservableValue(fQlow_Y_Observables[n], q);
             }
 
             for (unsigned int n = 0; n < fQbalance_Y_Observables.size(); n++) {
@@ -530,9 +467,7 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {
                     qBalance = (q1 - q2) / (q1 + q2);
                 else
                     qBalance = (q2 - q1) / (q1 + q2);
-
-                obsName = this->GetName() + (TString) "." + (TString)fQbalance_Y_Observables[n];
-                fAnalysisTree->SetObservableValue(obsName, qBalance);
+                SetObservableValue(fQbalance_Y_Observables[n], qBalance);
             }
 
             for (unsigned int n = 0; n < fQratio_Y_Observables.size(); n++) {
@@ -544,9 +479,7 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {
                     qRatio = q1 / q2;
                 else
                     qRatio = q2 / q1;
-
-                obsName = this->GetName() + (TString) "." + (TString)fQratio_Y_Observables[n];
-                fAnalysisTree->SetObservableValue(obsName, qRatio);
+                SetObservableValue(fQratio_Y_Observables[n], qRatio);
             }
         }
     }

@@ -163,8 +163,7 @@ TRestEvent* TRestTrackReconnectionProcess::ProcessEvent(TRestEvent* evInput) {
         }
     }
 
-    TString obsName = this->GetName() + (TString) ".branches";
-    fAnalysisTree->SetObservableValue(obsName, trackBranches);
+    SetObservableValue("branches", trackBranches);
     // cout << "Track branches : " << trackBranches << endl;
 
     if (GetVerboseLevel() >= REST_Debug) {
