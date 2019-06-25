@@ -63,9 +63,10 @@ void EventAction::BeginOfEventAction(const G4Event* geant4_event) {
     G4int event_number = geant4_event->GetEventID();
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
-        cout << "INFO: Start of event " << event_number << endl;
+        cout << "INFO: Start of event " << event_number << " of " << restG4Metadata->GetNumberOfEvents()
+             << endl;
     } else if (geant4_event->GetEventID() % 10000 == 0) {
-        cout << "Start of event " << event_number << endl;
+        cout << "Start of event " << event_number << " of " << restG4Metadata->GetNumberOfEvents() << endl;
     }
 
     restTrack->Initialize();
@@ -145,7 +146,10 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
     }
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
-        cout << "INFO: End of event " << event_number << endl;
+        cout << "INFO: Events depositing energy in sensitive volume: " << sensitive_volume_hits_count << "/"
+             << event_number << endl;
+        cout << "INFO: End of event " << event_number << " of " << restG4Metadata->GetNumberOfEvents()
+             << endl;
         cout << endl;
     }
 }
