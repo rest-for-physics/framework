@@ -28,20 +28,20 @@
 //
 //
 // $Id: TrackingAction.hh 68030 2013-03-13 13:51:27Z gcosmo $
-// 
+//
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo...... 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #ifndef TrackingAction_h
 #define TrackingAction_h 1
 
-#include "G4UserTrackingAction.hh"
 #include "G4Track.hh"
+#include "G4UserTrackingAction.hh"
 #include "globals.hh"
 
+#include <TRestG4Event.h>
 #include <TRestG4Metadata.h>
 #include <TRestG4Track.h>
-#include <TRestG4Event.h>
 
 class RunAction;
 class EventAction;
@@ -49,19 +49,18 @@ class EventAction;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class TrackingAction : public G4UserTrackingAction {
-
-  public:  
+   public:
     TrackingAction(RunAction*, EventAction*);
-   ~TrackingAction();
-   
-    virtual void  PreUserTrackingAction(const G4Track*);
-    virtual void PostUserTrackingAction(const G4Track*);
-    
-  private:
-    RunAction          *fRun;
-    EventAction        *fEvent;
+    ~TrackingAction();
 
-    G4double fCharge, fMass;        
+    virtual void PreUserTrackingAction(const G4Track*);
+    virtual void PostUserTrackingAction(const G4Track*);
+
+   private:
+    RunAction* fRun;
+    EventAction* fEvent;
+
+    G4double fCharge, fMass;
 
     G4bool fFullChain;
 
