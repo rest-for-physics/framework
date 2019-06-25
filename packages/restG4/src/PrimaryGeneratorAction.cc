@@ -154,12 +154,48 @@ G4ParticleDefinition* PrimaryGeneratorAction::SetParticleDefinition(int n) {
 
 void PrimaryGeneratorAction::SetParticleDirection(int n) {
     G4ThreeVector direction;
+    // TODO: maybe reduce code redundancy by defining some functions?
+    // TODO: fix bug when giving TH1D with lowercase (e.g. Th1D). string conversion is OK but integral gives
+    // exception.
+    string angular_dist_type_name = (string)restG4Metadata->GetParticleSource(n).GetAngularDistType();
+    angular_dist_type_name = g4_metadata_parameters::CleanString(angular_dist_type_name);
+    g4_metadata_parameters::angular_dist_types angular_dist_type;
 
-    string type = (string)restG4Metadata->GetParticleSource(n).GetAngularDistType();
+    if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
+        cout << "DEBUG: Angular distribution: " << angular_dist_type_name << endl;
+    }
+    // we first check if it is a valid parameter
+    if (g4_metadata_parameters::angular_dist_types_map.count(angular_dist_type_name)) {
+        angular_dist_type = g4_metadata_parameters::angular_dist_types_map[angular_dist_type_name];
+    } else {
+        // if we get here it means the parameter is not valid, we can either assign a default value or stop
+        // execution default value
+        cout << "Invalid angular distribution (" + angular_dist_type_name + ") valid values are: ";
+        for (const auto& pair : g4_metadata_parameters::angular_dist_types_map) {
+            cout << pair.first << ", ";
+        }
+        cout << std::endl;
+        throw "Invalid angular distribution";
+    }
+    // generator type
+    string generator_type_name = (string)restG4Metadata->GetGeneratorType();
+    generator_type_name = g4_metadata_parameters::CleanString(generator_type_name);
+    g4_metadata_parameters::generator_types generator_type;
+    if (g4_metadata_parameters::generator_types_map.count(generator_type_name)) {
+        generator_type = g4_metadata_parameters::generator_types_map[generator_type_name];
+    } else {
+        // if we get here it means the parameter is not valid, we can either assign a default value or stop
+        // execution default value
+        cout << "Invalid generator type (" + generator_type_name + ") valid values are: ";
+        for (const auto& pair : g4_metadata_parameters::generator_types_map) {
+            cout << pair.first << ", ";
+        }
+        cout << std::endl;
+        throw "Invalid generator type";
+    }
 
-    // TODO make this kind of string keyword comparisons case insensitive?
-    if (type == "isotropic") {
-        if ((string)restG4Metadata->GetGeneratorType() == "virtualBox") {
+    if (angular_dist_type == g4_metadata_parameters::angular_dist_types::ISOTROPIC) {
+        if (generator_type == g4_metadata_parameters::generator_types::VIRTUAL_BOX) {
             if (face == 0) direction.set(0, -1, 0);
             if (face == 1) direction.set(0, 1, 0);
             if (face == 2) direction.set(-1, 0, 0);
@@ -178,7 +214,7 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
             // We rotate a random angle along the original direction
             Double_t randomAngle = G4UniformRand() * 2 * M_PI;
             direction.rotate(randomAngle, referenceOrigin);
-        } else if ((string)restG4Metadata->GetGeneratorType() == "virtualSphere") {
+        } else if (generator_type == g4_metadata_parameters::generator_types::VIRTUAL_SPHERE) {
             direction = -fParticleGun->GetParticlePosition().unit();
 
             Double_t theta = GetCosineLowRandomThetaAngle();
@@ -196,14 +232,15 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
         } else {
             direction = GetIsotropicVector();
         }
-    }
-
-    else if (type == "TH1D") {
+    } else if (angular_dist_type == g4_metadata_parameters::angular_dist_types::TH1D) {
         Double_t angle = 0;
         Double_t value = G4UniformRand() * (fAngularDistribution->Integral());
         Double_t sum = 0;
-
+        // deltaAngle is the constant x distance between bins
         Double_t deltaAngle = fAngularDistribution->GetBinCenter(2) - fAngularDistribution->GetBinCenter(1);
+        // we sample the CDF (uniform between 0 and the distribution integral which should be equal to 1)
+        // the inverse of CDF of the uniformly sampled value will follow a distribution given by the PDF, we
+        // compute this inverse
         for (int bin = 1; bin <= fAngularDistribution->GetNbinsX(); bin++) {
             sum += fAngularDistribution->GetBinContent(bin);
 
@@ -237,7 +274,7 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
             direction.set(1, 0, 0);
         }
 
-        if ((string)restG4Metadata->GetGeneratorType() == "virtualBox") {
+        if (generator_type == g4_metadata_parameters::generator_types::VIRTUAL_BOX) {
             if (face == 0) direction.set(0, -1, 0);
             if (face == 1) direction.set(0, 1, 0);
             if (face == 2) direction.set(-1, 0, 0);
@@ -246,7 +283,7 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
             if (face == 5) direction.set(0, 0, 1);
         }
 
-        if ((string)restG4Metadata->GetGeneratorType() == "virtualWall") {
+        if (generator_type == g4_metadata_parameters::generator_types::VIRTUAL_WALL) {
             /*
             The default plane (virtualWall) is an XY plane so the default normal vector is (0,0,1).
             We will rotate this vector according to the generator rotation so that keeps being normal to the
@@ -286,14 +323,14 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
         //       G4cout << "Angle  " << direction.angle( referenceOrigin ) << "
         //       should be = to " << angle << G4endl;
 
-    } else if (type == "flux") {
+    } else if (angular_dist_type == g4_metadata_parameters::angular_dist_types::FLUX) {
         TVector3 v = restG4Metadata->GetParticleSource(n).GetDirection();
 
         v = v.Unit();
 
         direction.set(v.X(), v.Y(), v.Z());
 
-    } else if (type == "backtoback") {
+    } else if (angular_dist_type == g4_metadata_parameters::angular_dist_types::BACK_TO_BACK) {
         // This should never crash. In TRestG4Metadata we have defined that if the
         // first source is backtoback we set it to isotropic
         TVector3 v = restG4Event->GetPrimaryEventDirection(n - 1);
@@ -301,7 +338,7 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
 
         direction.set(-v.X(), -v.Y(), -v.Z());
     } else {
-        G4cout << "WARNING! Generator angular distribution was not recognized. "
+        G4cout << "WARNING: Generator angular distribution was not recognized. "
                   "Launching particle to (1,0,0)"
                << G4endl;
     }
@@ -311,8 +348,8 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
     restG4Event->SetPrimaryEventDirection(eventDirection);
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
-        cout << "Event direction has been set : " << endl;
-        cout << "(" << restG4Event->GetPrimaryEventDirection(n).X() << ", "
+        cout << "DEBUG: Event direction (normalized): "
+             << "(" << restG4Event->GetPrimaryEventDirection(n).X() << ", "
              << restG4Event->GetPrimaryEventDirection(n).Y() << ", "
              << restG4Event->GetPrimaryEventDirection(n).Z() << ")" << endl;
     }
