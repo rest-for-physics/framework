@@ -35,7 +35,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     // chdir( buffer );
     char originDirectory[256];
     sprintf(originDirectory, "%s", getenv("PWD"));
-    auto pathandname = SeparatePathAndName((string)restG4Metadata->Get_GDML_Filename());
+    auto pathandname = TRestTools::SeparatePathAndName((string)restG4Metadata->Get_GDML_Filename());
     chdir(pathandname.first.c_str());
 
     parser->Read(pathandname.second, false);
