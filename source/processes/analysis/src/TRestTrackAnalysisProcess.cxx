@@ -291,14 +291,14 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     nTracksY = fInputTrackEvent->GetNumberOfTracks("Y");
     nTracksXYZ = fInputTrackEvent->GetNumberOfTracks("XYZ");
 
-    obsName = this->GetName() + (TString) ".nTracks_X";
-    fAnalysisTree->SetObservableValue(obsName, nTracksX);
+    //obsName = this->GetName() + (TString) ".nTracks_X";
+    SetObservableValue("nTracks_X", nTracksX);
 
-    obsName = this->GetName() + (TString) ".nTracks_Y";
-    fAnalysisTree->SetObservableValue(obsName, nTracksY);
+    //obsName = this->GetName() + (TString) ".nTracks_Y";
+    SetObservableValue("nTracks_Y", nTracksY);
 
-    obsName = this->GetName() + (TString) ".nTracks_XYZ";
-    fAnalysisTree->SetObservableValue(obsName, nTracksXYZ);
+    //obsName = this->GetName() + (TString) ".nTracks_XYZ";
+    SetObservableValue("nTracks_XYZ", nTracksXYZ);
     /* }}} */
 
     if (fCutsEnabled) {
@@ -333,21 +333,15 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     }
 
     for (unsigned int n = 0; n < fTrack_LE_EnergyObservables.size(); n++) {
-        TString obsName = fTrack_LE_EnergyObservables[n];
-        obsName = this->GetName() + (TString) "." + obsName;
-        fAnalysisTree->SetObservableValue(obsName, nTracks_LE[n]);
+        SetObservableValue(fTrack_LE_EnergyObservables[n], nTracks_LE[n]);
     }
 
     for (unsigned int n = 0; n < fTrack_HE_EnergyObservables.size(); n++) {
-        TString obsName = fTrack_HE_EnergyObservables[n];
-        obsName = this->GetName() + (TString) "." + obsName;
-        fAnalysisTree->SetObservableValue(obsName, nTracks_HE[n]);
+        SetObservableValue(fTrack_HE_EnergyObservables[n], nTracks_HE[n]);
     }
 
     for (unsigned int n = 0; n < fTrack_En_EnergyObservables.size(); n++) {
-        TString obsName = fTrack_En_EnergyObservables[n];
-        obsName = this->GetName() + (TString) "." + obsName;
-        fAnalysisTree->SetObservableValue(obsName, nTracks_En[n]);
+        SetObservableValue(fTrack_En_EnergyObservables[n], nTracks_En[n]);
     }
     /* }}} */
 
@@ -450,46 +444,35 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         }
 
         for (unsigned int n = 0; n < fTwistLowObservables.size(); n++) {
-            TString obsName = fTwistLowObservables[n];
-            obsName = this->GetName() + (TString) "." + obsName;
-            fAnalysisTree->SetObservableValue(obsName, fTwistLowValue[n]);
+            SetObservableValue((string)fTwistLowObservables[n], fTwistLowValue[n]);
         }
 
         for (unsigned int n = 0; n < fTwistHighObservables.size(); n++) {
-            TString obsName = fTwistHighObservables[n];
-            obsName = this->GetName() + (TString) "." + obsName;
-            fAnalysisTree->SetObservableValue(obsName, fTwistHighValue[n]);
+
+            SetObservableValue((string)fTwistHighObservables[n], fTwistHighValue[n]);
         }
 
         for (unsigned int n = 0; n < fTwistBalanceObservables.size(); n++) {
-            TString obsName = fTwistBalanceObservables[n];
-            obsName = this->GetName() + (TString) "." + obsName;
-            fAnalysisTree->SetObservableValue(obsName, fTwistBalanceValue[n]);
+            SetObservableValue((string)fTwistBalanceObservables[n], fTwistBalanceValue[n]);
         }
 
         for (unsigned int n = 0; n < fTwistRatioObservables.size(); n++) {
-            TString obsName = fTwistRatioObservables[n];
-            obsName = this->GetName() + (TString) "." + obsName;
-            fAnalysisTree->SetObservableValue(obsName, fTwistRatioValue[n]);
+            SetObservableValue((string)fTwistRatioObservables[n], fTwistRatioValue[n]);
         }
 
         for (unsigned int n = 0; n < fTwistWeightedLowObservables.size(); n++) {
-            TString obsName = fTwistWeightedLowObservables[n];
-            obsName = this->GetName() + (TString) "." + obsName;
-            fAnalysisTree->SetObservableValue(obsName, fTwistWeightedLowValue[n]);
+            SetObservableValue((string)fTwistWeightedLowObservables[n], fTwistWeightedLowValue[n]);
         }
 
         for (unsigned int n = 0; n < fTwistWeightedHighObservables.size(); n++) {
-            TString obsName = fTwistWeightedHighObservables[n];
-            obsName = this->GetName() + (TString) "." + obsName;
-            fAnalysisTree->SetObservableValue(obsName, fTwistWeightedHighValue[n]);
+            SetObservableValue((string)fTwistWeightedHighObservables[n], fTwistWeightedHighValue[n]);
         }
 
         obsName = this->GetName() + (TString) ".twist";
-        fAnalysisTree->SetObservableValue(obsName, twist);
+        SetObservableValue("twist", twist);
 
         obsName = this->GetName() + (TString) ".twistWeighted";
-        fAnalysisTree->SetObservableValue(obsName, twistWeighted);
+        SetObservableValue("twistWeighted", twistWeighted);
         /* }}} */
 
         /* {{{ Adding twist observables from X track */
@@ -585,47 +568,34 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         }
 
         for (unsigned int n = 0; n < fTwistLowObservables_X.size(); n++) {
-            TString obsName = fTwistLowObservables_X[n];
-            obsName = this->GetName() + (TString) "." + obsName;
-            fAnalysisTree->SetObservableValue(obsName, fTwistLowValue_X[n]);
+            SetObservableValue((string)fTwistLowObservables_X[n], fTwistLowValue_X[n]);
         }
 
         for (unsigned int n = 0; n < fTwistHighObservables_X.size(); n++) {
-            TString obsName = fTwistHighObservables_X[n];
-            obsName = this->GetName() + (TString) "." + obsName;
-            fAnalysisTree->SetObservableValue(obsName, fTwistHighValue_X[n]);
+            SetObservableValue((string)fTwistHighObservables_X[n], fTwistHighValue_X[n]);
         }
 
         for (unsigned int n = 0; n < fTwistBalanceObservables_X.size(); n++) {
-            TString obsName = fTwistBalanceObservables_X[n];
-            obsName = this->GetName() + (TString) "." + obsName;
-            fAnalysisTree->SetObservableValue(obsName, fTwistBalanceValue_X[n]);
+            SetObservableValue((string)fTwistBalanceObservables_X[n], fTwistBalanceValue_X[n]);
         }
 
         for (unsigned int n = 0; n < fTwistRatioObservables_X.size(); n++) {
-            TString obsName = fTwistRatioObservables_X[n];
-            obsName = this->GetName() + (TString) "." + obsName;
-            fAnalysisTree->SetObservableValue(obsName, fTwistRatioValue_X[n]);
+            SetObservableValue((string)fTwistRatioObservables_X[n], fTwistRatioValue_X[n]);
         }
 
         for (unsigned int n = 0; n < fTwistWeightedLowObservables_X.size(); n++) {
-            TString obsName = fTwistWeightedLowObservables_X[n];
-            obsName = this->GetName() + (TString) "." + obsName;
-
-            fAnalysisTree->SetObservableValue(obsName, fTwistWeightedLowValue_X[n]);
+            SetObservableValue((string)fTwistWeightedLowObservables_X[n], fTwistWeightedLowValue_X[n]);
         }
 
         for (unsigned int n = 0; n < fTwistWeightedHighObservables_X.size(); n++) {
-            TString obsName = fTwistWeightedHighObservables_X[n];
-            obsName = this->GetName() + (TString) "." + obsName;
-            fAnalysisTree->SetObservableValue(obsName, fTwistWeightedHighValue_X[n]);
+            SetObservableValue((string)fTwistWeightedHighObservables_X[n], fTwistWeightedHighValue_X[n]);
         }
 
         obsName = this->GetName() + (TString) ".twist_X";
-        fAnalysisTree->SetObservableValue(obsName, twist_X);
+        SetObservableValue("twist_X", twist_X);
 
         obsName = this->GetName() + (TString) ".twistWeighted_X";
-        fAnalysisTree->SetObservableValue(obsName, twistWeighted_X);
+        SetObservableValue("twistWeighted_X", twistWeighted_X);
         /* }}} */
 
         /* {{{ Adding twist observables from Y track */
@@ -721,46 +691,32 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         }
 
         for (unsigned int n = 0; n < fTwistLowObservables_Y.size(); n++) {
-            TString obsName = fTwistLowObservables_Y[n];
-            obsName = this->GetName() + (TString) "." + obsName;
-            fAnalysisTree->SetObservableValue(obsName, fTwistLowValue_Y[n]);
+            SetObservableValue((string)fTwistLowObservables_Y[n], fTwistLowValue_Y[n]);
         }
 
         for (unsigned int n = 0; n < fTwistHighObservables_Y.size(); n++) {
-            TString obsName = fTwistHighObservables_Y[n];
-            obsName = this->GetName() + (TString) "." + obsName;
-            fAnalysisTree->SetObservableValue(obsName, fTwistHighValue_Y[n]);
+            SetObservableValue((string)fTwistHighObservables_Y[n], fTwistHighValue_Y[n]);
         }
 
         for (unsigned int n = 0; n < fTwistBalanceObservables_Y.size(); n++) {
-            TString obsName = fTwistBalanceObservables_Y[n];
-            obsName = this->GetName() + (TString) "." + obsName;
-            fAnalysisTree->SetObservableValue(obsName, fTwistBalanceValue_Y[n]);
+            SetObservableValue((string)fTwistBalanceObservables_Y[n], fTwistBalanceValue_Y[n]);
         }
 
         for (unsigned int n = 0; n < fTwistRatioObservables_Y.size(); n++) {
-            TString obsName = fTwistRatioObservables_Y[n];
-            obsName = this->GetName() + (TString) "." + obsName;
-            fAnalysisTree->SetObservableValue(obsName, fTwistRatioValue_Y[n]);
+            SetObservableValue((string)fTwistRatioObservables_Y[n], fTwistRatioValue_Y[n]);
         }
 
         for (unsigned int n = 0; n < fTwistWeightedLowObservables_Y.size(); n++) {
-            TString obsName = fTwistWeightedLowObservables_Y[n];
-            obsName = this->GetName() + (TString) "." + obsName;
-            fAnalysisTree->SetObservableValue(obsName, fTwistWeightedLowValue_Y[n]);
+            SetObservableValue((string)fTwistWeightedLowObservables_Y[n], fTwistWeightedLowValue_Y[n]);
         }
 
         for (unsigned int n = 0; n < fTwistWeightedHighObservables_Y.size(); n++) {
-            TString obsName = fTwistWeightedHighObservables_Y[n];
-            obsName = this->GetName() + (TString) "." + obsName;
-            fAnalysisTree->SetObservableValue(obsName, fTwistWeightedHighValue_Y[n]);
+            SetObservableValue((string)fTwistWeightedHighObservables_Y[n], fTwistWeightedHighValue_Y[n]);
         }
 
-        obsName = this->GetName() + (TString) ".twist_Y";
-        fAnalysisTree->SetObservableValue(obsName, twist_Y);
+        SetObservableValue("twist_Y", twist_Y);
 
-        obsName = this->GetName() + (TString) ".twistWeighted_Y";
-        fAnalysisTree->SetObservableValue(obsName, twistWeighted_Y);
+        SetObservableValue("twistWeighted_Y", twistWeighted_Y);
         /* }}} */
     }
 
@@ -770,20 +726,17 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     if (fInputTrackEvent->GetMaxEnergyTrack())
         tckMaxEnXYZ = fInputTrackEvent->GetMaxEnergyTrack()->GetEnergy();
 
-    obsName = this->GetName() + (TString) ".maxTrackEnergy";
-    fAnalysisTree->SetObservableValue(obsName, tckMaxEnXYZ);
+    SetObservableValue("maxTrackEnergy", tckMaxEnXYZ);
 
     if (fInputTrackEvent->GetMaxEnergyTrack("X"))
         tckMaxEnX = fInputTrackEvent->GetMaxEnergyTrack("X")->GetEnergy();
 
-    obsName = this->GetName() + (TString) ".maxTrack_X_Energy";
-    fAnalysisTree->SetObservableValue(obsName, tckMaxEnX);
+    SetObservableValue("maxTrack_X_Energy", tckMaxEnX);
 
     if (fInputTrackEvent->GetMaxEnergyTrack("Y"))
         tckMaxEnY = fInputTrackEvent->GetMaxEnergyTrack("Y")->GetEnergy();
 
-    obsName = this->GetName() + (TString) ".maxTrack_Y_Energy";
-    fAnalysisTree->SetObservableValue(obsName, tckMaxEnY);
+    SetObservableValue("maxTrack_Y_Energy", tckMaxEnY);
 
     Double_t tckMaxEnergy = tckMaxEnX + tckMaxEnY + tckMaxEnXYZ;
 
@@ -791,8 +744,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     Double_t trackEnergyRatio = (totalEnergy - tckMaxEnergy) / totalEnergy;
 
-    obsName = this->GetName() + (TString) ".maxTrackEnergyRatio";
-    fAnalysisTree->SetObservableValue(obsName, trackEnergyRatio);
+    SetObservableValue("maxTrackEnergyRatio", trackEnergyRatio);
     /* }}} */
 
     /* {{{ Maximum Second Track Energy observable */
@@ -808,14 +760,11 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     if (fInputTrackEvent->GetSecondMaxEnergyTrack("Y") != NULL)
         maxSecondTrackEnergy_Y = fInputTrackEvent->GetSecondMaxEnergyTrack("Y")->GetEnergy();
 
-    obsName = this->GetName() + (TString) ".secondTrackMaxEnergy";
-    fAnalysisTree->SetObservableValue(obsName, maxSecondTrackEnergy);
+    SetObservableValue("secondTrackMaxEnergy", maxSecondTrackEnergy);
 
-    obsName = this->GetName() + (TString) ".secondTrackMaxEnergy_X";
-    fAnalysisTree->SetObservableValue(obsName, maxSecondTrackEnergy_X);
+    SetObservableValue("secondTrackMaxEnergy_X", maxSecondTrackEnergy_X);
 
-    obsName = this->GetName() + (TString) ".secondTrackMaxEnergy_Y";
-    fAnalysisTree->SetObservableValue(obsName, maxSecondTrackEnergy_Y);
+    SetObservableValue("secondTrackMaxEnergy_Y", maxSecondTrackEnergy_Y);
     /* }}} */
 
     /* {{{ Track Length observables (MaxTrackLength_XX) */
@@ -823,14 +772,11 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     Double_t tckLenY = fInputTrackEvent->GetMaxEnergyTrackLength("Y");
     Double_t tckLenXYZ = fInputTrackEvent->GetMaxEnergyTrackLength();
 
-    obsName = this->GetName() + (TString) ".MaxTrackLength_X";
-    fAnalysisTree->SetObservableValue(obsName, tckLenX);
+    SetObservableValue("MaxTrackLength_X", tckLenX);
 
-    obsName = this->GetName() + (TString) ".MaxTrackLength_Y";
-    fAnalysisTree->SetObservableValue(obsName, tckLenY);
+    SetObservableValue("MaxTrackLength_Y", tckLenY);
 
-    obsName = this->GetName() + (TString) ".MaxTrackLength_XYZ";
-    fAnalysisTree->SetObservableValue(obsName, tckLenXYZ);
+    SetObservableValue("MaxTrackLength_XYZ", tckLenXYZ);
     /* }}} */
 
     /* {{{ Track Volume observables (MaxTrackVolume_XX) */
@@ -838,14 +784,11 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     Double_t tckVolY = fInputTrackEvent->GetMaxEnergyTrackVolume("Y");
     Double_t tckVolXYZ = fInputTrackEvent->GetMaxEnergyTrackVolume();
 
-    obsName = this->GetName() + (TString) ".MaxTrackVolume_X";
-    fAnalysisTree->SetObservableValue(obsName, tckVolX);
+    SetObservableValue("MaxTrackVolume_X", tckVolX);
 
-    obsName = this->GetName() + (TString) ".MaxTrackVolume_Y";
-    fAnalysisTree->SetObservableValue(obsName, tckVolY);
+    SetObservableValue("MaxTrackVolume_Y", tckVolY);
 
-    obsName = this->GetName() + (TString) ".MaxTrackVolume_XYZ";
-    fAnalysisTree->SetObservableValue(obsName, tckVolXYZ);
+    SetObservableValue("MaxTrackVolume_XYZ", tckVolXYZ);
     /* }}} */
 
     /* {{{ Setting mean position for max energy tracks (MaxTrack_{x,y,z}Mean_XXX)
@@ -863,14 +806,11 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         maxZ = tMax->GetMeanPosition().Z();
     }
 
-    obsName = this->GetName() + (TString) ".MaxTrack_Xmean_XYZ";
-    fAnalysisTree->SetObservableValue(obsName, maxX);
+    SetObservableValue("MaxTrack_Xmean_XYZ", maxX);
 
-    obsName = this->GetName() + (TString) ".MaxTrack_Ymean_XYZ";
-    fAnalysisTree->SetObservableValue(obsName, maxY);
+    SetObservableValue("MaxTrack_Ymean_XYZ", maxY);
 
-    obsName = this->GetName() + (TString) ".MaxTrack_Zmean_XYZ";
-    fAnalysisTree->SetObservableValue(obsName, maxZ);
+    SetObservableValue("MaxTrack_Zmean_XYZ", maxZ);
 
     /////////////////// XZ-track //////////////////////////
 
@@ -881,11 +821,9 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         maxZ = tMax->GetMeanPosition().Z();
     }
 
-    obsName = this->GetName() + (TString) ".MaxTrack_Xmean_X";
-    fAnalysisTree->SetObservableValue(obsName, maxX);
+    SetObservableValue("MaxTrack_Xmean_X", maxX);
 
-    obsName = this->GetName() + (TString) ".MaxTrack_Zmean_X";
-    fAnalysisTree->SetObservableValue(obsName, maxZ);
+    SetObservableValue("MaxTrack_Zmean_X", maxZ);
 
     /////////////////// YZ-track //////////////////////////
 
@@ -896,11 +834,9 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         maxZ = tMax->GetMeanPosition().Z();
     }
 
-    obsName = this->GetName() + (TString) ".MaxTrack_Ymean_Y";
-    fAnalysisTree->SetObservableValue(obsName, maxY);
+    SetObservableValue("MaxTrack_Ymean_Y", maxY);
 
-    obsName = this->GetName() + (TString) ".MaxTrack_Zmean_Y";
-    fAnalysisTree->SetObservableValue(obsName, maxZ);
+    SetObservableValue("MaxTrack_Zmean_Y", maxZ);
 
     /////////////////// xMean, yMean and zMean //////////////////////////
     Double_t x = 0, y = 0, z = 0;
@@ -917,29 +853,23 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         z = tY->GetMeanPosition().Y();
     }
 
-    obsName = this->GetName() + (TString) ".xMean";
-    fAnalysisTree->SetObservableValue(obsName, x);
+    SetObservableValue("xMean", x);
 
-    obsName = this->GetName() + (TString) ".yMean";
-    fAnalysisTree->SetObservableValue(obsName, y);
+    SetObservableValue("yMean", y);
 
-    obsName = this->GetName() + (TString) ".zMean";
-    fAnalysisTree->SetObservableValue(obsName, z);
+    SetObservableValue("zMean", z);
     /* }}} */
 
     /// This kind of observables would be better in a separate process that
     /// measures the trigger rate
     Double_t evTimeDelay = 0;
     if (fPreviousEventTime.size() > 0) evTimeDelay = fInputTrackEvent->GetTime() - fPreviousEventTime.back();
-    obsName = this->GetName() + (TString) ".EventTimeDelay";
-    fAnalysisTree->SetObservableValue(obsName, evTimeDelay);
+    SetObservableValue("EventTimeDelay", evTimeDelay);
 
     Double_t meanRate = 0;
     if (fPreviousEventTime.size() == 100)
         meanRate = 100. / (fInputTrackEvent->GetTime() - fPreviousEventTime.front());
-
-    obsName = this->GetName() + (TString) ".MeanRate_InHz";
-    fAnalysisTree->SetObservableValue(obsName, meanRate);
+    SetObservableValue("MeanRate_InHz", meanRate);
 
     //   if( GetVerboseLevel() >= REST_Info )
     //   {

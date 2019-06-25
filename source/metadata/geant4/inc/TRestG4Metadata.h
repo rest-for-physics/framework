@@ -22,7 +22,6 @@
 
 #ifndef RestCore_TRestG4Metadata
 #define RestCore_TRestG4Metadata
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstdio>
@@ -40,6 +39,51 @@
 #include <TRestG4PrimaryGenerator.h>
 #include <TRestMetadata.h>
 
+/*
+------------------------------------------------------------------------------------------------------------------------
+
+ * This section was added by Luis A. Obis (lobis@unizar.es) on 17/06/2019
+
+Here we add all the possible options for different configurations such as all the types of generators, etc.
+We use a structure called 'enum' and a function to clean the strings so that we can easily implement case
+insensitivity or more options such as ignoring underscores.
+*/
+
+namespace g4_metadata_parameters {
+string CleanString(string);
+
+enum class generator_types {
+    FILE,
+    VOLUME,
+    SURFACE,
+    POINT,
+    VIRTUAL_WALL,
+    VIRTUAL_BOX,
+    VIRTUAL_SPHERE,
+    VIRTUAL_CIRCLE_WALL,
+    VIRTUAL_CYLINDER,
+};
+extern std::map<string, generator_types> generator_types_map;
+
+enum class energy_dist_types {
+    TH1D,
+    MONO,
+    FLAT,
+};
+extern std::map<string, energy_dist_types> energy_dist_types_map;
+
+enum class angular_dist_types {
+    TH1D,
+    ISOTROPIC,
+    FLUX,
+    BACK_TO_BACK,
+};
+extern std::map<string, angular_dist_types> angular_dist_types_map;
+}  // namespace parameters
+
+/*
+------------------------------------------------------------------------------------------------------------------------
+*/
 /// The main class to store the *Geant4* simulation conditions that will be used by *restG4*.
 class TRestG4Metadata : public TRestMetadata {
    private:
@@ -320,4 +364,4 @@ class TRestG4Metadata : public TRestMetadata {
 
     ClassDef(TRestG4Metadata, 2);
 };
-#endif
+#endif  // RestCore_TRestG4Metadata

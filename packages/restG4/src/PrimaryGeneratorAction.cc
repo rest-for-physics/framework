@@ -39,8 +39,10 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() { delete fParticleGun; }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
-    if (restG4Metadata->GetVerboseLevel() >= REST_Info) cout << "Primary generation..." << endl;
+void PrimaryGeneratorAction::GeneratePrimaries(G4Event* geant4_event) {
+    if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
+        cout << "INFO: Primary generation" << endl;
+    }
     // We have to initialize here and not in start of the event because
     // GeneratePrimaries is called first, and we want to store event origin and
     // position inside
@@ -51,13 +53,35 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
     // Singling out generator type "file" so as to...
     // ...not randomize its sequence.
     // ...set a distinct position for each particle.
-    string type = (string)restG4Metadata->GetGeneratorType();
+
+    string generator_type_name = (string)restG4Metadata->GetGeneratorType();
+    generator_type_name = g4_metadata_parameters::CleanString(generator_type_name);
+    g4_metadata_parameters::generator_types generator_type;
+
+    if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
+        cout << "DEBUG: Generator type: " << generator_type_name << endl;
+    }
+
+    if (g4_metadata_parameters::generator_types_map.count(generator_type_name)) {
+        generator_type = g4_metadata_parameters::generator_types_map[generator_type_name];
+    } else {
+        // if we get here it means the parameter is not valid, we can either assign a default value or stop
+        // execution default value
+        cout << "Invalid generator type (" + generator_type_name + ") valid values are: ";
+        for (const auto& pair : g4_metadata_parameters::generator_types_map) {
+            cout << pair.first << ", ";
+        }
+        cout << endl;
+
+        throw "Invalid generator type";
+    }
 
     // If there are particle collections stored is because we are using a
     // generator from file
     if (nCollections > 0) {
         Int_t rndCollection;
-        if (type == "file") {  // Generator type "file": no randomisation
+        if (generator_type ==
+            g4_metadata_parameters::generator_types::FILE) {  // Generator type "file": no randomisation
             static int nEvts = 0;
             rndCollection = nEvts++;
         } else
@@ -68,12 +92,12 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 
     Int_t nParticles = restG4Metadata->GetNumberOfPrimaries();
 
-    if (type != "file")  // Except for generator "file"...
+    if (generator_type != g4_metadata_parameters::generator_types::FILE)  // Except for generator "file"...
         // ...Position is common for all particles
         SetParticlePosition();
 
     for (int j = 0; j < nParticles; j++) {
-        if (type == "file")  // Generator type "file"...
+        if (generator_type == g4_metadata_parameters::generator_types::FILE)  // Generator type "file"...
             // ...Get position from particle collection
             SetParticlePosition(j);
 
@@ -85,46 +109,45 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 
         SetParticleDirection(j);
 
-        fParticleGun->GeneratePrimaryVertex(anEvent);
+        fParticleGun->GeneratePrimaryVertex(geant4_event);
     }
 }
 
 //_____________________________________________________________________________
 G4ParticleDefinition* PrimaryGeneratorAction::SetParticleDefinition(int n) {
-    string particleName = (string)restG4Metadata->GetParticleSource(n).GetParticleName();
+    string particle_name = (string)restG4Metadata->GetParticleSource(n).GetParticleName();
 
-    Double_t eenergy = (double)restG4Metadata->GetParticleSource(n).GetExcitationLevel();
+    Double_t excited_energy = (double)restG4Metadata->GetParticleSource(n).GetExcitationLevel();
 
     Int_t charge = restG4Metadata->GetParticleSource(n).GetParticleCharge();
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
-        cout << "-- Debug : Searching for : " << endl;
-        cout << "-- Debug : particle name : " << particleName << endl;
-        cout << "-- Debug : particle charge : " << charge << endl;
-        cout << "-- Debug : particle excited energy : " << eenergy << endl;
+        cout << "DEBUG: Particle name: " << particle_name << endl;
+        cout << "DEBUG: Particle charge: " << charge << endl;
+        cout << "DEBUG: Particle excited energy: " << excited_energy << endl;
     }
 
     G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-    G4ParticleDefinition* particle = particleTable->FindParticle(particleName);
+    G4ParticleDefinition* particle = particleTable->FindParticle(particle_name);
 
-    if ((particle == NULL)) {
+    if ((particle == nullptr)) {
         // There might be a better way to do this
         for (int Z = 1; Z <= 110; Z++)
             for (int A = 2 * Z; A <= 3 * Z; A++) {
                 //   cout << "Ion name : " << G4IonTable::GetIonTable()->GetIonName ( Z,
                 //   A ) << endl;
-                if (particleName == G4IonTable::GetIonTable()->GetIonName(Z, A)) {
-                    particle = G4IonTable::GetIonTable()->GetIon(Z, A, eenergy);
+                if (particle_name == G4IonTable::GetIonTable()->GetIonName(Z, A)) {
+                    particle = G4IonTable::GetIonTable()->GetIon(Z, A, excited_energy);
                     fParticleGun->SetParticleCharge(charge);
-                    cout << "Found ion: " << particleName << " Z " << Z << " A " << A << " excited energy "
-                         << eenergy << endl;
+                    cout << "Found ion: " << particle_name << " Z " << Z << " A " << A << " excited energy "
+                         << excited_energy << endl;
                 }
             }
     }
 
     fParticleGun->SetParticleDefinition(particle);
 
-    restG4Event->SetPrimaryEventParticleName(particleName);
+    restG4Event->SetPrimaryEventParticleName(particle_name);
 
     return particle;
 }
@@ -300,17 +323,41 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
 
 //_____________________________________________________________________________
 void PrimaryGeneratorAction::SetParticleEnergy(int n) {
-    string type = (string)restG4Metadata->GetParticleSource(n).GetEnergyDistType();
-
     Double_t energy = 0;
 
-    if (type == "mono") {
+    string energy_dist_type_name = (string)restG4Metadata->GetParticleSource(n).GetEnergyDistType();
+    energy_dist_type_name = g4_metadata_parameters::CleanString(energy_dist_type_name);
+
+    if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
+        cout << "DEBUG: Energy distribution: " << energy_dist_type_name << endl;
+    }
+
+    g4_metadata_parameters::energy_dist_types energy_dist_type;
+    if (g4_metadata_parameters::energy_dist_types_map.count(energy_dist_type_name)) {
+        energy_dist_type = g4_metadata_parameters::energy_dist_types_map[energy_dist_type_name];
+    } else {
+        // if we get here it means the parameter is not valid, we can either assign a default value or stop
+        // execution default value in this case is 1 keV
+        cout << "Invalid energy distribution (" + energy_dist_type_name + ") valid values are: ";
+        for (const auto& pair : g4_metadata_parameters::energy_dist_types_map) {
+            cout << pair.first << ", ";
+        }
+        cout << std::endl;
+        G4cout << "WARNING! Energy distribution type was not recognized. Setting "
+                  "energy to 1keV"
+               << G4endl;
+        energy = 1 * keV;
+        // maybe it would be better to set type as mono and change energy of particle, or define the default
+        // energy there throw "Invalid energy distribution type";
+    }
+
+    if (energy_dist_type == g4_metadata_parameters::energy_dist_types::MONO) {
         energy = restG4Metadata->GetParticleSource(n).GetEnergy() * keV;
-    } else if (type == "flat") {
+    } else if (energy_dist_type == g4_metadata_parameters::energy_dist_types::FLAT) {
         TVector2 enRange = restG4Metadata->GetParticleSource(n).GetEnergyRange();
 
         energy = ((enRange.Y() - enRange.X()) * G4UniformRand() + enRange.X()) * keV;
-    } else if (type == "TH1D") {
+    } else if (energy_dist_type == g4_metadata_parameters::energy_dist_types::TH1D) {
         Double_t value = G4UniformRand() * fSpectrumIntegral;
         Double_t sum = 0;
         Double_t deltaEnergy = fSpectrum->GetBinCenter(2) - fSpectrum->GetBinCenter(1);
@@ -336,16 +383,17 @@ void PrimaryGeneratorAction::SetParticleEnergy(int n) {
     restG4Event->SetPrimaryEventEnergy(energy / keV);
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Debug)
-        cout << "Setting particle Energy : " << energy / keV << " keV" << endl;
+        cout << "DEBUG: Particle energy: " << energy / keV << " keV" << endl;
 }
 
 //_____________________________________________________________________________
 void PrimaryGeneratorAction::SetParticlePosition() {
     double x = 0, y = 0, z = 0;
-    string type = (string)restG4Metadata->GetGeneratorType();
+    string generator_type_name = (string)restG4Metadata->GetGeneratorType();
+    g4_metadata_parameters::generator_types generator_type =
+        g4_metadata_parameters::generator_types_map[g4_metadata_parameters::CleanString(generator_type_name)];
 
-    // TODO make this kind of string keyword comparisons case insensitive?
-    if (type == "volume") {
+    if (generator_type == g4_metadata_parameters::generator_types::VOLUME) {
         double xMin = fDetector->GetBoundingX_min();
         double xMax = fDetector->GetBoundingX_max();
         double yMin = fDetector->GetBoundingY_min();
@@ -362,7 +410,7 @@ void PrimaryGeneratorAction::SetParticlePosition() {
         x = x + fDetector->GetGeneratorTranslation().x();
         y = y + fDetector->GetGeneratorTranslation().y();
         z = z + fDetector->GetGeneratorTranslation().z();
-    } else if (type == "surface") {
+    } else if (generator_type == g4_metadata_parameters::generator_types::SURFACE) {
         // TODO there is a problem, probably with G4 function GetPointOnSurface
         // It produces a point on the surface but it is not uniformly distributed
         // May be it is just an OPENGL drawing issue?
@@ -376,14 +424,14 @@ void PrimaryGeneratorAction::SetParticlePosition() {
         x = x + fDetector->GetGeneratorTranslation().x();
         y = y + fDetector->GetGeneratorTranslation().y();
         z = z + fDetector->GetGeneratorTranslation().z();
-    } else if (type == "point") {
+    } else if (generator_type == g4_metadata_parameters::generator_types::POINT) {
         TVector3 position = restG4Metadata->GetGeneratorPosition();
 
         x = position.X();
         y = position.Y();
         z = position.Z();
 
-    } else if (type == "virtualWall") {
+    } else if (generator_type == g4_metadata_parameters::generator_types::VIRTUAL_WALL) {
         Double_t side = restG4Metadata->GetGeneratorSize();
 
         x = side * (G4UniformRand() - 0.5);
@@ -399,7 +447,7 @@ void PrimaryGeneratorAction::SetParticlePosition() {
         x = rndPos.x() + center.X();
         y = rndPos.y() + center.Y();
         z = rndPos.z() + center.Z();
-    } else if (type == "virtualCircleWall") {
+    } else if (generator_type == g4_metadata_parameters::generator_types::VIRTUAL_CIRCLE_WALL) {
         Double_t radius = restG4Metadata->GetGeneratorSize();
 
         do {
@@ -418,7 +466,7 @@ void PrimaryGeneratorAction::SetParticlePosition() {
         x = rndPos.x() + center.X();
         y = rndPos.y() + center.Y();
         z = rndPos.z() + center.Z();
-    } else if (type == "virtualSphere") {
+    } else if (generator_type == g4_metadata_parameters::generator_types::VIRTUAL_SPHERE) {
         G4ThreeVector rndPos = GetIsotropicVector();
 
         Double_t radius = restG4Metadata->GetGeneratorSize();
@@ -428,7 +476,7 @@ void PrimaryGeneratorAction::SetParticlePosition() {
         x = radius * rndPos.x() + center.X();
         y = radius * rndPos.y() + center.Y();
         z = radius * rndPos.z() + center.Z();
-    } else if (type == "virtualCylinder") {
+    } else if (generator_type == g4_metadata_parameters::generator_types::VIRTUAL_CYLINDER) {
         Double_t angle = 2 * M_PI * G4UniformRand();
 
         Double_t radius = restG4Metadata->GetGeneratorSize();
@@ -448,7 +496,7 @@ void PrimaryGeneratorAction::SetParticlePosition() {
         x = rndPos.x() + center.X();
         y = rndPos.y() + center.Y();
         z = rndPos.z() + center.Z();
-    } else if (type == "virtualBox") {
+    } else if (generator_type == g4_metadata_parameters::generator_types::VIRTUAL_BOX) {
         Double_t side = restG4Metadata->GetGeneratorSize();
 
         x = side * (G4UniformRand() - 0.5);
@@ -535,10 +583,11 @@ void PrimaryGeneratorAction::SetParticlePosition() {
     restG4Event->SetPrimaryEventOrigin(eventPosition);
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
-        cout << "Event origin has been set : " << endl;
-        cout << "(" << restG4Event->GetPrimaryEventOrigin().X() << ", "
+        cout << "DEBUG: Event origin: "
+             << "(" << restG4Event->GetPrimaryEventOrigin().X() << ", "
              << restG4Event->GetPrimaryEventOrigin().Y() << ", " << restG4Event->GetPrimaryEventOrigin().Z()
-             << ")" << endl;
+             << ")"
+             << " mm" << endl;
     }
 
     // setting particle position
@@ -552,10 +601,11 @@ void PrimaryGeneratorAction::SetParticlePosition(int n) {
     restG4Event->SetPrimaryEventOrigin(pos);
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
-        cout << "Event origin has been set : " << endl;
-        cout << "(" << restG4Event->GetPrimaryEventOrigin().X() << ", "
+        cout << "DEBUG: Event origin: "
+             << "(" << restG4Event->GetPrimaryEventOrigin().X() << ", "
              << restG4Event->GetPrimaryEventOrigin().Y() << ", " << restG4Event->GetPrimaryEventOrigin().Z()
-             << ")" << endl;
+             << ")"
+             << " mm" << endl;
     }
 
     // Setting particle position

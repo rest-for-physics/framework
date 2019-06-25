@@ -59,11 +59,11 @@ class TRestParticle : public TObject {
     void SetEnergy(Double_t en) { fEnergy = en; }
     void SetOrigin(TVector3 pos) { fOrigin = pos; }
 
-    //Constructor
+    // Constructor
     TRestParticle();
     // Destructor
     virtual ~TRestParticle();
 
-    ClassDef(TRestParticle, 3); 
+    ClassDef(TRestParticle, 3);
 };
 #endif

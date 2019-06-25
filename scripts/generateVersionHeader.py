@@ -13,7 +13,7 @@ import subprocess
 if len(sys.argv) >= 2:
     if sys.argv[1] == "--help":
         print("")
-        print("Usage: ./generateVersionHeader.py XXX.h [SE]")
+        print("Usage: ./updateVersionHeader.py XXX.h [SE]")
         print("")
         print("If any additional argument different from OFF is provided as [SE].\nSchema evolution will be defined as enabled.")
         print("")
@@ -46,8 +46,8 @@ tag = os.popen( 'git describe --tags HEAD' ).read().rstrip("\n")
 if( tag.find("-") != -1 ):
 	tag = tag[0:tag.find("-")]
 
-command = "git log -1 --format=%ai " + str( tag )
-datetime = os.popen( command ).read().rstrip("\n")
+#command = "git log -1 --format=%ai " + str( tag )
+datetime = os.popen( "date" ).read().rstrip("\n")
 
 date = datetime[0:10]
 time = datetime[11:]

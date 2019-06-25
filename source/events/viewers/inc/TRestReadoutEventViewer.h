@@ -44,9 +44,9 @@ class TRestReadoutEventViewer : public TRestGenericEventViewer {
 
    public:
     void Initialize();
-   //Finalize initialization based on arg. TRestReadout
-    void SetReadout(TRestReadout *readout);
-  
+    // Finalize initialization based on arg. TRestReadout
+    void SetReadout(TRestReadout* readout);
+
     void AddEvent(TRestEvent* ev);
     void DrawReadoutPulses();
     TRestReadoutChannel* GetChannel(int readoutChannel);

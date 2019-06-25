@@ -610,6 +610,43 @@
 #include "TRestG4Metadata.h"
 using namespace std;
 
+namespace g4_metadata_parameters {
+string CleanString(string s) {
+    // transform the string to lowercase
+    std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+    // this is a temporary fix, TH1D name comparison is being done elsewhere and giving error
+    if (s == "th1d"){
+      s = "TH1D";
+    }
+    return s;
+}
+
+std::map<string, generator_types> generator_types_map = {
+    {CleanString("file"), generator_types::FILE},
+    {CleanString("volume"), generator_types::VOLUME},
+    {CleanString("surface"), generator_types::SURFACE},
+    {CleanString("point"), generator_types::POINT},
+    {CleanString("virtualWall"), generator_types::VIRTUAL_WALL},
+    {CleanString("virtualBox"), generator_types::VIRTUAL_BOX},
+    {CleanString("virtualSphere"), generator_types::VIRTUAL_SPHERE},
+    {CleanString("virtualCircleWall"), generator_types::VIRTUAL_CIRCLE_WALL},
+    {CleanString("virtualCylinder"), generator_types::VIRTUAL_CYLINDER},
+};
+
+std::map<string, energy_dist_types> energy_dist_types_map = {
+    {CleanString("TH1D"), energy_dist_types::TH1D},
+    {CleanString("mono"), energy_dist_types::MONO},
+    {CleanString("flat"), energy_dist_types::FLAT},
+};
+
+std::map<string, angular_dist_types> angular_dist_types_map = {
+    {CleanString("TH1D"), angular_dist_types::TH1D},
+    {CleanString("isotropic"), angular_dist_types::ISOTROPIC},
+    {CleanString("flux"), angular_dist_types::FLUX},
+    {CleanString("backtoback"), angular_dist_types::BACK_TO_BACK},
+};
+}  // namespace parameters
+
 ClassImp(TRestG4Metadata)
     ///////////////////////////////////////////////
     /// \brief Default constructor
@@ -924,7 +961,7 @@ void TRestG4Metadata::PrintMetadata() {
         metadata << "Generator length : " << GetGeneratorLength() << " mm" << endl;
     } else if (generatorType == "virtualBox")
         metadata << "Generator size : " << GetGeneratorSize() << " mm" << endl;
-    else if (generatorType == "file" )
+    else if (generatorType == "file")
         metadata << "Generator file : \"" << GetGeneratorFile() << "\"\n";
     metadata << "++++++++++Particles++++++++++" << endl;
     metadata << "Number of primary particles : " << GetNumberOfPrimaries() << endl;
@@ -1087,16 +1124,19 @@ Int_t TRestG4Metadata::ReadOldDecay0File(TString fileName) {
 
     string s;
     // First lines are discarded.
-    int headerFound = 0; for (int i = 0; i < 30; i++) {
+    int headerFound = 0;
+    for (int i = 0; i < 30; i++) {
         getline(infile, s);
         if (s.find("#!bxdecay0 1.0.0") != -1) return 0;
         if (s.find("First event and full number of events:") != -1) {
-    	  headerFound = 1; break;
-    	}
+            headerFound = 1;
+            break;
+        }
     }
     if (!headerFound) {
-	error << "TRestG4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event and full number of events:\" header.\n";
-	abort();
+        error << "TRestG4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event and "
+                 "full number of events:\" header.\n";
+        abort();
     }
     int tmpInt;
     int fGeneratorEvents;
@@ -1105,7 +1145,7 @@ Int_t TRestG4Metadata::ReadOldDecay0File(TString fileName) {
     // cout << "i : " << tmpInt << " fN : " << fGeneratorEvents << endl;
 
     TRestParticle particle;
-    string type = (string) GetGeneratorType();
+    string type = (string)GetGeneratorType();
 
     cout << "Reading generator file : " << fileName << endl;
     cout << "Total number of events : " << fGeneratorEvents << endl;
@@ -1125,31 +1165,33 @@ Int_t TRestG4Metadata::ReadOldDecay0File(TString fileName) {
             Int_t pID;
             Double_t momx, momy, momz, mass;
             Double_t energy = -1, momentum2;
-	    Double_t x, y, z;
+            Double_t x, y, z;
 
             infile >> pID >> momx >> momy >> momz >> time;
-	    if (type == "file") infile >> x >> y >> z;
+            if (type == "file") infile >> x >> y >> z;
 
             // cout << momx << " " << momy << " " << momz << " " << endl;
 
-	    bool ise = 2<=pID && pID<=3, ismu = 5<=pID && pID<=6, isp = pID==14, isg = pID==1;
-	    if (ise || ismu || isp || isg) {
-	        momentum2 = (momx * momx) + (momy * momy) + (momz * momz);
-		if        (ise) {
-		    mass = 0.511;
-		    particle.SetParticleName(pID==2?"e+":"e-");
-		    particle.SetParticleCharge(pID==2?1:-1);
-		} else if (ismu) {
-		    mass = 105.7;
-		    particle.SetParticleName(pID==5?"mu+":"mu-");
-		    particle.SetParticleCharge(pID==5?1:-1);
-		} else if (isp) {
-		    mass = 938.3; particle.SetParticleName("proton");
-		    particle.SetParticleCharge(1);
-		} else {
-		    mass = 0;     particle.SetParticleName("gamma");
-		    particle.SetParticleCharge(0);
-		}
+            bool ise = 2 <= pID && pID <= 3, ismu = 5 <= pID && pID <= 6, isp = pID == 14, isg = pID == 1;
+            if (ise || ismu || isp || isg) {
+                momentum2 = (momx * momx) + (momy * momy) + (momz * momz);
+                if (ise) {
+                    mass = 0.511;
+                    particle.SetParticleName(pID == 2 ? "e+" : "e-");
+                    particle.SetParticleCharge(pID == 2 ? 1 : -1);
+                } else if (ismu) {
+                    mass = 105.7;
+                    particle.SetParticleName(pID == 5 ? "mu+" : "mu-");
+                    particle.SetParticleCharge(pID == 5 ? 1 : -1);
+                } else if (isp) {
+                    mass = 938.3;
+                    particle.SetParticleName("proton");
+                    particle.SetParticleCharge(1);
+                } else {
+                    mass = 0;
+                    particle.SetParticleName("gamma");
+                    particle.SetParticleCharge(0);
+                }
 
                 energy = TMath::Sqrt(momentum2 + mass * mass) - mass;
                 particle.SetExcitationLevel(0);
@@ -1162,7 +1204,7 @@ Int_t TRestG4Metadata::ReadOldDecay0File(TString fileName) {
 
             particle.SetEnergy(1000. * energy);
             particle.SetDirection(momDirection);
-	    particle.SetOrigin(TVector3(x,y,z));
+            particle.SetOrigin(TVector3(x, y, z));
 
             particleCollection->AddParticle(particle);
         }

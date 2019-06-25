@@ -59,17 +59,22 @@ EventAction::~EventAction() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void EventAction::BeginOfEventAction(const G4Event* evt) {
-    if (evt->GetEventID() % 10000 == 0) cout << "Starting event : " << evt->GetEventID() << endl;
-    if (restG4Metadata->GetVerboseLevel() >= REST_Debug)
-        cout << "Start of event " << evt->GetEventID() << endl;
+void EventAction::BeginOfEventAction(const G4Event* geant4_event) {
+    G4int event_number = geant4_event->GetEventID();
+
+    if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
+        cout << "INFO: Start of event " << event_number << endl;
+    } else if (geant4_event->GetEventID() % 10000 == 0) {
+        cout << "Start of event " << event_number << endl;
+    }
+
     restTrack->Initialize();
 
-    restG4Event->SetID(evt->GetEventID());
+    restG4Event->SetID(event_number);
     restG4Event->SetOK(true);
-    time_t systime = time(NULL);
+    time_t system_time = time(nullptr);
 
-    restG4Event->SetTime((Double_t)systime);
+    restG4Event->SetTime((Double_t)system_time);
 
     // Defining if the hits in a given volume will be stored
     for (int i = 0; i < restG4Metadata->GetNumberOfActiveVolumes(); i++) {
@@ -84,41 +89,51 @@ void EventAction::BeginOfEventAction(const G4Event* evt) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void EventAction::EndOfEventAction(const G4Event* evt) {
-    G4int evtNb = evt->GetEventID();
+void EventAction::EndOfEventAction(const G4Event* geant4_event) {
+    G4int event_number = geant4_event->GetEventID();
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Extreme) {
         restG4Event->PrintEvent();
     }
 
-    Double_t minEnergy = restG4Metadata->GetMinimumEnergyStored();
-    Double_t maxEnergy = restG4Metadata->GetMaximumEnergyStored();
+    Double_t minimum_energy_stored = restG4Metadata->GetMinimumEnergyStored();
+    Double_t maximum_energy_stored = restG4Metadata->GetMaximumEnergyStored();
 
     SetTrackSubeventIDs();
 
     for (int subId = 0; subId < restG4Event->GetNumberOfSubEventIDTracks(); subId++) {
         FillSubEvent(subId);
 
-        Double_t en = subRestG4Event->GetTotalDepositedEnergy();
-        if (minEnergy < 0) minEnergy = 0;
-        if (maxEnergy == 0) maxEnergy = en + 1.;
+        Double_t total_deposited_energy = subRestG4Event->GetTotalDepositedEnergy();
+        Double_t sensitive_volume_deposited_energy = subRestG4Event->GetSensitiveVolumeEnergy();
 
-        if (restG4Metadata->GetVerboseLevel() >= REST_Info)
-            cout << "Event Deposited energy in sensitive volume:  " << en << endl;
+        if (minimum_energy_stored < 0) minimum_energy_stored = 0;
+        if (maximum_energy_stored == 0) maximum_energy_stored = total_deposited_energy + 1.;
 
-        if (subRestG4Event->GetSensitiveVolumeEnergy() > 0 && en > minEnergy && en < maxEnergy) {
-            if (restRun->GetAnalysisTree() != NULL) {
-                restRun->GetAnalysisTree()->SetEventInfo(subRestG4Event);
-                restRun->GetAnalysisTree()->Fill();
-            }
-            if (restRun->GetEventTree() != NULL) {
-                restRun->GetEventTree()->Fill();
+        if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
+            cout << "INFO: Energy deposited in ACTIVE and SENSITIVE volumes: " << total_deposited_energy
+                 << " keV" << endl;
+            cout << "INFO: Energy deposited in SENSITIVE volume: " << sensitive_volume_deposited_energy
+                 << " keV" << endl;
+        }
+        if (sensitive_volume_deposited_energy > 0 && total_deposited_energy > minimum_energy_stored &&
+            total_deposited_energy < maximum_energy_stored) {
+            TRestAnalysisTree* analysis_tree = restRun->GetAnalysisTree();
+            if (analysis_tree != nullptr) {
+                analysis_tree->SetEventInfo(subRestG4Event);
+                analysis_tree->Fill();
+            } else {
+                // analysis tree is not found (nullptr)
+                if (restG4Metadata->GetVerboseLevel() >= REST_Warning) {
+                    cout << "WARNING: Analysis tree is not found ('nullptr'). Cannot write event info"
+                         << endl;
+                }
             }
         }
     }
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
-        cout << "End of event " << evtNb << endl;
+        cout << "INFO: End of event " << event_number << endl;
         cout << endl;
     }
 }

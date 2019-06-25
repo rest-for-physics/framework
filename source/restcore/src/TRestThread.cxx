@@ -364,8 +364,8 @@ void TRestThread::PrepareToProcess(bool testrun) {
                 }
             }
             if (fTreeBranchDef[i] == "inputanalysis") {
-                if (fHostRunner->GetAnalysisTree() != NULL)
-                    fAnalysisTree->CopyObservableList(fHostRunner->GetAnalysisTree(), "old_");
+                if (fHostRunner->GetInputAnalysisTree() != NULL)
+                    fAnalysisTree->CopyObservableList(fHostRunner->GetInputAnalysisTree(), "old_");
             }
         }
         auto iter = branchesToAdd.begin();

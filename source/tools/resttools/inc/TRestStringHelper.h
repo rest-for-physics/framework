@@ -1,6 +1,6 @@
 
-#ifndef RestCore_REST_StringHelper
-#define RestCore_REST_StringHelper
+#ifndef RestTools_REST_StringHelper
+#define RestTools_REST_StringHelper
 #pragma once
 
 #include <stdio.h>

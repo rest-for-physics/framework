@@ -16,8 +16,8 @@
 ///_______________________________________________________________________________
 
 #include "TRestParticleCollection.h"
-#include "TRestStringHelper.h"
 #include "TClass.h"
+#include "TRestStringHelper.h"
 
 ClassImp(TRestParticleCollection)
     //______________________________________________________________________________
@@ -36,10 +36,10 @@ TRestParticleCollection* TRestParticleCollection::instantiate(std::string model)
         return new TRestParticleCollection();
     } else {
         // use specific generator
-		// naming convension: TRestParticleCollectionXXX
-		// currently supported generator: decay0
-		// in future we may add wrapper of generators: cry(for muon), pythia(for HEP), etc.
-        model[0] = *REST_StringHelper::ToUpper(std::string(&model[0],1)).c_str();
+        // naming convension: TRestParticleCollectionXXX
+        // currently supported generator: decay0
+        // in future we may add wrapper of generators: cry(for muon), pythia(for HEP), etc.
+        model[0] = *REST_StringHelper::ToUpper(std::string(&model[0], 1)).c_str();
         TClass* c = TClass::GetClass(("TRestParticleCollection" + model).c_str());
         if (c != NULL)  // this means we have the package installed
         {

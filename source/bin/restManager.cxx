@@ -146,17 +146,17 @@ int main(int argc, char* argv[]) {
             fout.setorientation(0);
             fout << "Launching TRestManager..." << endl;
             fout << endl;
-            TRestManager* a = new TRestManager();
+            TRestManager* mgr = new TRestManager();
 
             auto path = SeparatePathAndName(cfgFileName).first;
             setenv("configPath", path.c_str(), 1);
 
-            a->LoadConfigFromFile(cfgFileName);
+            mgr->LoadConfigFromFile(cfgFileName);
 
             fout << "Done!" << endl;
             // a->GetChar();
 
-            delete a;
+            delete mgr;
             gSystem->Exit(0);
         } else  // usage2
         {
