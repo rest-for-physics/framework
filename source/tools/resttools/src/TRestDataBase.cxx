@@ -62,10 +62,10 @@
 /// db->exec("select * into rest_files_bk from rest_files");
 /// \endcode
 TRestDataBase* TRestDataBase::instantiate() {
-    vector<string> list = TRestTools::GetListOfRESTLibraries();
-    for (unsigned int n = 0; n < list.size(); n++) {
-        gSystem->Load(list[n].c_str());
-    }
+    //vector<string> list = TRestTools::GetListOfRESTLibraries();
+    //for (unsigned int n = 0; n < list.size(); n++) {
+    //    gSystem->Load(list[n].c_str());
+    //}
 
     TClass* c = TClass::GetClass("TRestDataBaseImpl");
     if (c != NULL)  // this means we have the package installed
