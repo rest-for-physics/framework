@@ -79,7 +79,7 @@ enum class angular_dist_types {
     BACK_TO_BACK,
 };
 extern std::map<string, angular_dist_types> angular_dist_types_map;
-}  // namespace parameters
+}  // namespace g4_metadata_parameters
 
 /*
 ------------------------------------------------------------------------------------------------------------------------
@@ -273,7 +273,7 @@ class TRestG4Metadata : public TRestMetadata {
     /// Sets the number of events to be simulated.
     void SetNEvents(Int_t n) { fNEvents = n; }
 
-    /// Returns the number of events simulated.
+    /// Returns the number of events to be simulated.
     Int_t GetNumberOfEvents() { return fNEvents; }
     ///////////////////////////////////////////////////////////
 
