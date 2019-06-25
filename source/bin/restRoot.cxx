@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
             break;
         }
     }
-    TRint theApp("App", &argc, argv);
+
 
     TRestTools::LoadRESTLibrary(silent);
 
@@ -37,6 +37,19 @@ int main(int argc, char* argv[]) {
 
         gROOT->ProcessLine((".L " + c).c_str());
     }
+
+	int Nfile = 0;
+	for (int i = 1; i < argc; i++) {
+		string opt = (string)argv[i];
+		if (TRestTools::fileExists(opt) && TRestTools::isRootFile(opt)) {
+			printf("Attaching file %s as run%i...\n", opt.c_str(), Nfile);
+			gROOT->ProcessLine(Form("TRestRun* run%i =new TRestRun(\"%s\")", Nfile, opt.c_str()));
+			argv[i] = "";
+			Nfile++;
+		}
+	}
+
+	TRint theApp("App", &argc, argv);
 
     theApp.Run();
 }
