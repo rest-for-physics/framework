@@ -129,6 +129,16 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
                          << endl;
                 }
             }
+
+            TTree* event_tree = restRun->GetEventTree();
+            if (event_tree != nullptr) {
+                event_tree->Fill();
+            } else {
+                // event tree is not found (nullptr)
+                if (restG4Metadata->GetVerboseLevel() >= REST_Warning) {
+                    cout << "WARNING: Event tree is not found ('nullptr'). Cannot write event info" << endl;
+                }
+            }
         }
     }
 
