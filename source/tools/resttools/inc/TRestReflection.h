@@ -116,6 +116,8 @@ std::string GetTypeName(T obj) {
 }
 
 class AnyPtr_t {
+private:
+	int InitDictionary();
 public:
 	//basic info
 	string name = "";
@@ -128,8 +130,7 @@ public:
 
     bool IsZombie() { return (type == "" || address == 0 || size == 0 || (cl == 0 && dt == 0)); }
 
-    void CloneTo(AnyPtr_t to);
-    void operator>>(AnyPtr_t to) { CloneTo(to); }
+	void operator>>(AnyPtr_t to);
 
     string ToString();
     friend ostream& operator<<(ostream& cin, AnyPtr_t ptr) { return cin << ptr.ToString(); }
@@ -184,8 +185,7 @@ public:
             cout << "In AnyPtr_t::AnyPtr_t() : unrecognized type! " << endl;
             return;
         }
-        size = cl == 0 ? dt->Size() : cl->Size();
-        type = cl == 0 ? dt->GetName() : cl->GetName();
+		InitDictionary();
     }
     template <class T>
     AnyPtr_t(T* obj) {
@@ -197,8 +197,7 @@ public:
             cout << "In AnyPtr_t::AnyPtr_t() : unrecognized type! " << endl;
             return;
         }
-        size = cl == 0 ? dt->Size() : cl->Size();
-        type = cl == 0 ? dt->GetName() : cl->GetName();
+		InitDictionary();
     }
 };
 
@@ -212,8 +211,7 @@ AnyPtr_t Assembly(string typeName);
 ///
 AnyPtr_t WrapType(string typeName);
 
-bool HasDictionary(REST_Reflection::AnyPtr_t obj);
-int CreateDictionary(REST_Reflection::AnyPtr_t obj);
+void CloneAny(AnyPtr_t from, AnyPtr_t to);
 
 // data member reflection tools
 AnyPtr_t GetDataMember(REST_Reflection::AnyPtr_t obj, string name);
