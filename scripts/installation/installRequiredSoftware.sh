@@ -23,7 +23,7 @@ sudo apt-get -y install texlive-latex-base
 sudo apt-get -y install libxpm-dev libxft-dev 
 
 # geant4
-sudo apt-get -y install expat libexpat1-dev zlib1g-dev libxerces-c3.1 libxerces-c-dev libicu-dev qt4-dev-tools qt4-doc qt4-qtconfig
+sudo apt-get -y install expat libexpat1-dev zlib1g-dev libxerces-c3.2 libxerces-c-dev libicu-dev qt4-dev-tools qt4-doc qt4-qtconfig
 
 #libtinyxml
 sudo apt-get install libtinyxml-dev
