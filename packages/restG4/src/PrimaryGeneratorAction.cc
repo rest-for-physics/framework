@@ -284,18 +284,30 @@ void PrimaryGeneratorAction::SetParticleDirection(int n) {
         }
 
         if (generator_type == g4_metadata_parameters::generator_types::VIRTUAL_WALL) {
-            double x = 0, y = 0, z = 0;
-            TVector3 center = restG4Metadata->GetGeneratorPosition();
-            TVector3 ad = (-1) * center.Unit();
-            ad.RotateX(M_PI * restG4Metadata->GetGeneratorRotation().X() / 180);
-            ad.RotateY(M_PI * restG4Metadata->GetGeneratorRotation().Y() / 180);
-            ad.RotateZ(M_PI * restG4Metadata->GetGeneratorRotation().Z() / 180);
+            /*
+            The default plane (virtualWall) is an XY plane so the default normal vector is (0,0,1).
+            We will rotate this vector according to the generator rotation so that keeps being normal to the
+            plane
+            */
+            TVector3 normal(0, 0, 1);
 
-            x = ad.X();
-            y = ad.Y();
-            z = ad.Z();
+            normal.RotateX(M_PI * restG4Metadata->GetGeneratorRotation().X() / 180);
+            normal.RotateY(M_PI * restG4Metadata->GetGeneratorRotation().Y() / 180);
+            normal.RotateZ(M_PI * restG4Metadata->GetGeneratorRotation().Z() / 180);
 
-            direction.set(x, y, z);
+            /*
+            Depending on which rotation we chose for the plane the normal vector can now point outwards of the
+            detector.
+            We rotate so that it always looks towards the center (0,0,0)
+            */
+            TVector3 generator_position = restG4Metadata->GetGeneratorPosition().Unit();
+            if (generator_position.x() * normal.x() + generator_position.y() * normal.y() +
+                    generator_position.z() * normal.z() >
+                0) {
+                normal = (-1) * normal;
+            }
+
+            direction.set(normal.x(), normal.y(), normal.z());
         }
 
         G4ThreeVector referenceOrigin = direction;
