@@ -104,23 +104,27 @@ void TRestAnalysisTree::ConnectEventBranches() {
 
 void TRestAnalysisTree::ConnectObservables() {
     if (!fConnected) {
+		fObservableMemory = std::vector<any>(GetNumberOfObservables());
+		for (int i = 0; i < GetNumberOfObservables(); i++) {
+			fObservableMemory[i] = REST_Reflection::WrapType((string)fObservableTypes[i]);
+		}
+
         TTree::GetEntry(0);
-        fObservableMemory = std::vector<any>(GetNumberOfObservables());
         cout << "Connecting observables..." << endl;
+
         for (int i = 0; i < GetNumberOfObservables(); i++) {
-            fObservableMemory[i] = REST_Reflection::WrapType((string)fObservableTypes[i]);
             TBranch* branch = GetBranch(fObservableNames[i]);
             if (branch != NULL) {
-                cout << fObservableNames[i];
+                //cout << fObservableNames[i];
                 if (branch->GetAddress() != NULL) {
                     fObservableMemory[i].address = *(char**)branch->GetAddress();
-                    cout << " --> ";
+                    //cout << " --> ";
                 } else {
                     fObservableMemory[i].Assembly();
                     branch->SetAddress(fObservableMemory[i].address);
-                    cout << " ==> ";
+                    //cout << " ==> ";
                 }
-                cout << static_cast<const void*>(branch->GetAddress()) << endl;
+                //cout << static_cast<const void*>(branch->GetAddress()) << endl;
             }
         }
         fConnected = true;
