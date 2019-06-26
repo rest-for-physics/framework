@@ -233,7 +233,8 @@ bool TRestTools::isAbsolutePath(const std::string& path) {
 /// Input: "/home/nkx/abc.txt" and ":def", Output: { "/home/nkx/", "abc.txt" }
 /// Input: "abc.txt" and ":", Output: { ".", "abc.txt" }
 /// Input: "/home/nkx/" and ":", Output: { "/home/nkx/", "" }
-std::pair<string, string> TRestTools::SeparatePathAndName(const std::string fullname) {
+std::pair<string, string> TRestTools::SeparatePathAndName(std::string fullname) {
+    fullname = RemoveMultipleSlash(fullname);
     pair<string, string> result;
     int pos = fullname.find_last_of('/', -1);
 
@@ -277,16 +278,19 @@ std::string TRestTools::RemoveMultipleSlash(std::string str) {
 /// Input: "/home/nkx/abc.txt", Returns: "abc.txt"
 /// Input: "/home/nkx/", Output: ""
 std::string TRestTools::RemoveAbsolutePath(std::string fullpathFileName) {
+    fullpathFileName = RemoveMultipleSlash(fullpathFileName);
     return SeparatePathAndName(fullpathFileName).second;
 }
 
 string TRestTools::ToAbsoluteName(string filename) {
+    string result = filename;
     if (filename[0] == '~') {
-        return (string)getenv("HOME") + filename.substr(1, -1);
+        result = (string)getenv("HOME") + filename.substr(1, -1);
     } else if (filename[0] != '/') {
-        return (string)getenv("PWD") + "/" + filename;
+        result = (string)getenv("PWD") + "/" + filename;
     }
-    return filename;
+    result = RemoveMultipleSlash(result);
+    return result;
 }
 
 ///////////////////////////////////////////////
