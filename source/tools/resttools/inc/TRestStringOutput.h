@@ -332,7 +332,7 @@ inline void clearLinesAfterCursor() {
 inline void endl(TRestStringOutput& input) { input.flushstring(); }
 
 /// \relates TRestLeveledOutput
-/// calls TRestLeveledOutput to flush string when the refered verbose level
+/// calls TRestLeveledOutput to flush string when the referred verbose level
 /// meets the required
 template <REST_Verbose_Level v>
 inline void endl(TRestLeveledOutput<v>& input) {

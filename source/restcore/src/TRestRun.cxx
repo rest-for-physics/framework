@@ -323,7 +323,7 @@ void TRestRun::EndOfInit() {
     fRunTag = GetParameter("runTag", "noTag").c_str();
 
     OpenInputFile(0);
-    essential << "InputFile pattern: \"" << fInputFileName << "\"" << endl;
+    cout << "InputFile pattern: \"" << fInputFileName << "\"" << endl;
     if (fInputFileNames.size() > 1) {
         info << "which matches :" << endl;
         for (int i = 0; i < fInputFileNames.size(); i++) {
@@ -334,7 +334,7 @@ void TRestRun::EndOfInit() {
         essential << "(no input file added)" << endl;
     }
 
-    essential << "OutputFile pattern: \"" << fOutputFileName << "\"" << endl;
+    cout << "OutputFile pattern: \"" << fOutputFileName << "\"" << endl;
 }
 
 ///////////////////////////////////////////////
