@@ -1,13 +1,13 @@
+#include <dirent.h>
 #include <iostream>
 #include <limits>
 #include <memory>
-#include <dirent.h>
 
 #include "TClass.h"
 #include "TSystem.h"
 
-#include "TRestTools.h"
 #include "TRestStringHelper.h"
+#include "TRestTools.h"
 
 struct _REST_STARTUP_CHECK {
    public:
@@ -28,7 +28,7 @@ const _REST_STARTUP_CHECK __check;
 
 ClassImp(TRestTools);
 //
-//std::vector<string> TRestTools::GetListOfRESTLibraries() {
+// std::vector<string> TRestTools::GetListOfRESTLibraries() {
 //    vector<string> libraryList;
 //
 //    vector<string> libraryPathList;
@@ -51,7 +51,7 @@ ClassImp(TRestTools);
 //    return libraryList;
 //}
 //
-//std::vector<string> TRestTools::GetListOfPathsInEnvVariable(string envVariable) {
+// std::vector<string> TRestTools::GetListOfPathsInEnvVariable(string envVariable) {
 //    vector<string> pathList;
 //
 //    string p(getenv(envVariable.Data()));
@@ -65,13 +65,11 @@ ClassImp(TRestTools);
 //    return pathList;
 //}
 
-std::vector<string> TRestTools::GetOptions(string optionsStr) {
-	return Split(optionsStr, ":");
-}
+std::vector<string> TRestTools::GetOptions(string optionsStr) { return Split(optionsStr, ":"); }
 
-//string TRestTools::GetFirstOption(string& path) { return GetFirstPath(path); }
+// string TRestTools::GetFirstOption(string& path) { return GetFirstPath(path); }
 //
-//string TRestTools::GetFirstPath(string& path) {
+// string TRestTools::GetFirstPath(string& path) {
 //    string resultPath;
 //
 //    if (path.First(":") >= 0) {
@@ -86,7 +84,7 @@ std::vector<string> TRestTools::GetOptions(string optionsStr) {
 //    return resultPath;
 //}
 
-//std::vector<string> TRestTools::GetRESTLibrariesInDirectory(string path) {
+// std::vector<string> TRestTools::GetRESTLibrariesInDirectory(string path) {
 //    vector<string> fileList;
 //    DIR* dir;
 //    struct dirent* ent;
@@ -107,28 +105,28 @@ std::vector<string> TRestTools::GetOptions(string optionsStr) {
 //}
 
 void TRestTools::LoadRESTLibrary(bool silent) {
-	char* _ldpath = getenv("LD_LIBRARY_PATH");
-	if (_ldpath == NULL) {
-		_ldpath = Form("%s/lib/", getenv("REST_PATH"));
-	}
-	vector<string> ldpaths = Split(_ldpath, ":");
+    char* _ldpath = getenv("LD_LIBRARY_PATH");
+    if (_ldpath == NULL) {
+        _ldpath = Form("%s/lib/", getenv("REST_PATH"));
+    }
+    vector<string> ldpaths = Split(_ldpath, ":");
 
-	vector<string> fileList;
-	for (string path : ldpaths) {
-		DIR* dir;
-		struct dirent* ent;
-		if ((dir = opendir(path.c_str())) != NULL) {
-			/* print all the files and directories within directory */
-			while ((ent = readdir(dir)) != NULL) {
-				string fName(ent->d_name);
-				if ((fName.find("REST") != -1 || fName.find("Rest") != -1))
-					if (fName.find(".dylib") != -1 || fName.find(".so") != -1) fileList.push_back(fName);
-			}
-			closedir(dir);
-		}
-	}
-	
-	//load the finded REST libraries
+    vector<string> fileList;
+    for (string path : ldpaths) {
+        DIR* dir;
+        struct dirent* ent;
+        if ((dir = opendir(path.c_str())) != NULL) {
+            /* print all the files and directories within directory */
+            while ((ent = readdir(dir)) != NULL) {
+                string fName(ent->d_name);
+                if ((fName.find("REST") != -1 || fName.find("Rest") != -1))
+                    if (fName.find(".dylib") != -1 || fName.find(".so") != -1) fileList.push_back(fName);
+            }
+            closedir(dir);
+        }
+    }
+
+    // load the finded REST libraries
     for (unsigned int n = 0; n < fileList.size(); n++) {
         if (!silent) cout << "Loading library : " << fileList[n] << endl;
         gSystem->Load(fileList[n].c_str());
@@ -169,62 +167,60 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
     return 1;
 }
 
-
-
 ///////////////////////////////////////////////
 /// \brief Returns true if the filename exists.
 ///
 bool TRestTools::fileExists(const std::string& filename) {
-	struct stat buf;
-	if (stat(filename.c_str(), &buf) != -1) {
-		return true;
-	}
-	return false;
+    struct stat buf;
+    if (stat(filename.c_str(), &buf) != -1) {
+        return true;
+    }
+    return false;
 }
 
 ///////////////////////////////////////////////
 /// \brief Returns true if the **filename** has *.root* extension.
 ///
 bool TRestTools::isRootFile(const std::string& filename) {
-	if (filename.find(".root") == string::npos) return false;
+    if (filename.find(".root") == string::npos) return false;
 
-	return true;
+    return true;
 }
 
 ///////////////////////////////////////////////
 /// \brief Returns true if **filename** is an *http* address.
 ///
 bool TRestTools::isURL(const std::string& filename) {
-	if (filename.find("http") == 0) return true;
+    if (filename.find("http") == 0) return true;
 
-	return false;
+    return false;
 }
 
 ///////////////////////////////////////////////
 /// \brief Returns true if the **path** given by argument is writable
 ///
 bool TRestTools::isPathWritable(const std::string& path) {
-	int result = 0;
+    int result = 0;
 #ifdef WIN32
-	result = _access(path.c_str(), 2);
+    result = _access(path.c_str(), 2);
 #else
-	result = access(path.c_str(), 2);
+    result = access(path.c_str(), 2);
 #endif
 
-	if (result == 0)
-		return true;
-	else
-		return false;
+    if (result == 0)
+        return true;
+    else
+        return false;
 }
 
 ///////////////////////////////////////////////
 /// \brief Check if the path is absolute path or not
 ///
 bool TRestTools::isAbsolutePath(const std::string& path) {
-	if (path[0] == '/' || path[0] == '~' || path.find(':') != -1) {
-		return true;
-	}
-	return false;
+    if (path[0] == '/' || path[0] == '~' || path.find(':') != -1) {
+        return true;
+    }
+    return false;
 }
 
 ///////////////////////////////////////////////
@@ -238,23 +234,23 @@ bool TRestTools::isAbsolutePath(const std::string& path) {
 /// Input: "abc.txt" and ":", Output: { ".", "abc.txt" }
 /// Input: "/home/nkx/" and ":", Output: { "/home/nkx/", "" }
 std::pair<string, string> TRestTools::SeparatePathAndName(const std::string fullname) {
-	pair<string, string> result;
-	int pos = fullname.find_last_of('/', -1);
+    pair<string, string> result;
+    int pos = fullname.find_last_of('/', -1);
 
-	if (pos == -1) {
-		result.first = ".";
-		result.second = fullname;
-	} else if (pos == 0) {
-		result.first = "/";
-		result.second = fullname.substr(1, fullname.size() - 1);
-	} else if (pos == fullname.size() - 1) {
-		result.first = fullname;
-		result.second = "";
-	} else {
-		result.first = fullname.substr(0, pos + 1);
-		result.second = fullname.substr(pos + 1, fullname.size() - pos - 1);
-	}
-	return result;
+    if (pos == -1) {
+        result.first = ".";
+        result.second = fullname;
+    } else if (pos == 0) {
+        result.first = "/";
+        result.second = fullname.substr(1, fullname.size() - 1);
+    } else if (pos == fullname.size() - 1) {
+        result.first = fullname;
+        result.second = "";
+    } else {
+        result.first = fullname.substr(0, pos + 1);
+        result.second = fullname.substr(pos + 1, fullname.size() - pos - 1);
+    }
+    return result;
 }
 
 ///////////////////////////////////////////////
@@ -265,16 +261,16 @@ std::pair<string, string> TRestTools::SeparatePathAndName(const std::string full
 /// Input: "/home/nkx/abc.txt", Returns: "abc.txt"
 /// Input: "/home/nkx/", Output: ""
 std::string TRestTools::RemoveAbsolutePath(std::string fullpathFileName) {
-	return SeparatePathAndName(fullpathFileName).second;
+    return SeparatePathAndName(fullpathFileName).second;
 }
 
 string TRestTools::ToAbsoluteName(string filename) {
-	if (filename[0] == '~') {
-		return (string)getenv("HOME") + filename.substr(1, -1);
-	} else if (filename[0] != '/') {
-		return (string)getenv("PWD") + "/" + filename;
-	}
-	return filename;
+    if (filename[0] == '~') {
+        return (string)getenv("HOME") + filename.substr(1, -1);
+    } else if (filename[0] != '/') {
+        return (string)getenv("PWD") + "/" + filename;
+    }
+    return filename;
 }
 
 ///////////////////////////////////////////////
@@ -284,37 +280,37 @@ string TRestTools::ToAbsoluteName(string filename) {
 /// if recursion is < 0, then list subdirectories recursively
 /// Otherwise recurse only certain times.
 vector<string> TRestTools::GetSubdirectories(const string& path, int recursion) {
-	vector<string> result;
-	if (auto dir = opendir(path.c_str())) {
-		while (1) {
-			auto f = readdir(dir);
-			if (f == NULL) {
-				break;
-			}
-			if (f->d_name[0] == '.') continue;
+    vector<string> result;
+    if (auto dir = opendir(path.c_str())) {
+        while (1) {
+            auto f = readdir(dir);
+            if (f == NULL) {
+                break;
+            }
+            if (f->d_name[0] == '.') continue;
 
-			string ipath;
-			if (path[path.size() - 1] != '/') {
-				ipath = path + "/" + f->d_name + "/";
-			} else {
-				ipath = path + f->d_name + "/";
-			}
+            string ipath;
+            if (path[path.size() - 1] != '/') {
+                ipath = path + "/" + f->d_name + "/";
+            } else {
+                ipath = path + f->d_name + "/";
+            }
 
-			// if (f->d_type == DT_DIR)
-			if (opendir(ipath.c_str()))  // to make sure it is a directory
-			{
-				result.push_back(ipath);
+            // if (f->d_type == DT_DIR)
+            if (opendir(ipath.c_str()))  // to make sure it is a directory
+            {
+                result.push_back(ipath);
 
-				if (recursion != 0) {
-					vector<string> subD = GetSubdirectories(ipath, recursion - 1);
-					result.insert(result.begin(), subD.begin(), subD.end());
-					//, cb);
-				}
-			}
-		}
-		closedir(dir);
-	}
-	return result;
+                if (recursion != 0) {
+                    vector<string> subD = GetSubdirectories(ipath, recursion - 1);
+                    result.insert(result.begin(), subD.begin(), subD.end());
+                    //, cb);
+                }
+            }
+        }
+        closedir(dir);
+    }
+    return result;
 }
 
 ///////////////////////////////////////////////
@@ -322,26 +318,26 @@ vector<string> TRestTools::GetSubdirectories(const string& path, int recursion) 
 /// if found, return "" if not
 ///
 std::string TRestTools::SearchFileInPath(vector<string> paths, string filename) {
-	if (fileExists(filename)) {
-		return filename;
-	} else {
-		for (int i = 0; i < paths.size(); i++) {
-			string path = paths[i];
-			if (path[path.size() - 1] != '/') {
-				path = path + "/";
-			}
+    if (fileExists(filename)) {
+        return filename;
+    } else {
+        for (int i = 0; i < paths.size(); i++) {
+            string path = paths[i];
+            if (path[path.size() - 1] != '/') {
+                path = path + "/";
+            }
 
-			if (fileExists(path + filename)) {
-				return path + filename;
-			}
+            if (fileExists(path + filename)) {
+                return path + filename;
+            }
 
-			// search also in subdirectory, but only 5 times of recursion
-			vector<string> pathsExpanded = GetSubdirectories(paths[i], 5);
-			for (int j = 0; j < pathsExpanded.size(); j++)
-				if (fileExists(pathsExpanded[j] + filename)) return pathsExpanded[j] + filename;
-		}
-	}
-	return "";
+            // search also in subdirectory, but only 5 times of recursion
+            vector<string> pathsExpanded = GetSubdirectories(paths[i], 5);
+            for (int j = 0; j < pathsExpanded.size(); j++)
+                if (fileExists(pathsExpanded[j] + filename)) return pathsExpanded[j] + filename;
+        }
+    }
+    return "";
 }
 
 ///////////////////////////////////////////////
@@ -349,15 +345,15 @@ std::string TRestTools::SearchFileInPath(vector<string> paths, string filename) 
 /// success, ERROR otherwise.
 ///
 Int_t TRestTools::ChecktheFile(std::string FileName) {
-	ifstream ifs;
-	ifs.open(FileName.c_str());
+    ifstream ifs;
+    ifs.open(FileName.c_str());
 
-	if (!ifs) {
-		return -1;
-	} else
-		ifs.close();
+    if (!ifs) {
+        return -1;
+    } else
+        ifs.close();
 
-	return 0;
+    return 0;
 }
 
 ///////////////////////////////////////////////
@@ -365,38 +361,38 @@ Int_t TRestTools::ChecktheFile(std::string FileName) {
 /// is "*". e.g. abc00*.root
 ///
 vector<string> TRestTools::GetFilesMatchingPattern(string pattern) {
-	std::vector<string> outputFileNames;
+    std::vector<string> outputFileNames;
 
-	if (pattern != "") {
-		if (pattern.find_first_of("*") >= 0 || pattern.find_first_of("?") >= 0) {
-			string a = Execute("find " + pattern);
-			auto b = Split(a, "\n");
+    if (pattern != "") {
+        if (pattern.find_first_of("*") >= 0 || pattern.find_first_of("?") >= 0) {
+            string a = Execute("find " + pattern);
+            auto b = Split(a, "\n");
 
-			for (int i = 0; i < b.size(); i++) {
-				outputFileNames.push_back(b[i]);
-			}
+            for (int i = 0; i < b.size(); i++) {
+                outputFileNames.push_back(b[i]);
+            }
 
-			// char command[256];
-			// sprintf(command, "find %s > /tmp/RESTTools_fileList.tmp",
-			// pattern.Data());
+            // char command[256];
+            // sprintf(command, "find %s > /tmp/RESTTools_fileList.tmp",
+            // pattern.Data());
 
-			// system(command);
+            // system(command);
 
-			// FILE *fin = fopen("/tmp/RESTTools_fileList.tmp", "r");
-			// char str[256];
-			// while (fscanf(fin, "%s\n", str) != EOF)
-			//{
-			//	TString newFile = str;
-			//	outputFileNames.push_back(newFile);
-			//}
-			// fclose(fin);
+            // FILE *fin = fopen("/tmp/RESTTools_fileList.tmp", "r");
+            // char str[256];
+            // while (fscanf(fin, "%s\n", str) != EOF)
+            //{
+            //	TString newFile = str;
+            //	outputFileNames.push_back(newFile);
+            //}
+            // fclose(fin);
 
-			// system("rm /tmp/RESTTools_fileList.tmp");
-		} else {
-			if (fileExists(pattern)) outputFileNames.push_back(pattern);
-		}
-	}
-	return outputFileNames;
+            // system("rm /tmp/RESTTools_fileList.tmp");
+        } else {
+            if (fileExists(pattern)) outputFileNames.push_back(pattern);
+        }
+    }
+    return outputFileNames;
 }
 
 ///////////////////////////////////////////////
@@ -406,23 +402,21 @@ int TRestTools::ConvertVersionCode(string in) {
 #ifndef REST_Version
 #define REST_VERSION(a, b, c) (((a) << 16) + ((b) << 8) + (c))
 #endif
-	vector<string> ver = Split(in, ".");
-	if (ver.size() == 3) {
-		vector<int> verint;
-		for (auto v : ver) {
-			int n = StringToInteger(v.substr(0, v.find_first_not_of("0123456789")));
-			if (n != -1) {
-				verint.push_back(n);
-			} else {
-				return -1;
-			}
-		}
-		return REST_VERSION(verint[0], verint[1], verint[2]);
-	}
-	return -1;
+    vector<string> ver = Split(in, ".");
+    if (ver.size() == 3) {
+        vector<int> verint;
+        for (auto v : ver) {
+            int n = StringToInteger(v.substr(0, v.find_first_not_of("0123456789")));
+            if (n != -1) {
+                verint.push_back(n);
+            } else {
+                return -1;
+            }
+        }
+        return REST_VERSION(verint[0], verint[1], verint[2]);
+    }
+    return -1;
 }
-
-
 
 std::string TRestTools::Execute(string cmd) {
     std::array<char, 128> buffer;
@@ -435,10 +429,7 @@ std::string TRestTools::Execute(string cmd) {
         result += buffer.data();
     }
 
-	if(result[result.size()-1]=='\n')
-		result = result.substr(0, result.size() - 1);  // remove last "\n"
+    if (result[result.size() - 1] == '\n') result = result.substr(0, result.size() - 1);  // remove last "\n"
 
     return result;
 }
-
-
