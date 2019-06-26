@@ -254,6 +254,22 @@ std::pair<string, string> TRestTools::SeparatePathAndName(const std::string full
 }
 
 ///////////////////////////////////////////////
+/// \brief Returns the input string but without multiple slashes ("/")
+///
+/// \param str: input path string (e.g. "///home///test/")
+/// \return path string without multiple slashes (e.g. "/home/test/")
+std::string TRestTools::RemoveMultipleSlash(std::string str) {
+    // we replace multiple appearances of "/" (slash) by a single "/"
+    string to_replace = "//";
+    size_t start_pos = str.find(to_replace);
+    while (start_pos != std::string::npos) {
+        str.replace(start_pos, to_replace.length(), "/");
+        start_pos = str.find(to_replace);
+    }
+    return str;
+}
+
+///////////////////////////////////////////////
 /// \brief Removes all directories in the full path filename description
 /// given in the argument.
 ///
