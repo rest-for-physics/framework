@@ -12,12 +12,12 @@
 struct _REST_STARTUP_CHECK {
    public:
     _REST_STARTUP_CHECK() {
-        if (getenv("REST_PATH") == NULL) {
+        if (getenv("REST_PATH") == nullptr) {
             cout << "REST ERROR!! Lacking system env \"REST_PATH\"! Cannot start!" << endl;
             cout << "You need to source \"thisREST.sh\" first" << endl;
             exit(1);
         }
-        if (getenv("USER") == NULL) {
+        if (getenv("USER") == nullptr) {
             cout << "REST ERROR!! Lacking system env \"USER\"! Cannot start!" << endl;
             cout << "You need to source \"thisREST.sh\" first" << endl;
             exit(1);
@@ -37,7 +37,7 @@ ClassImp(TRestTools);
 //    libraryPathList.push_back(get_current_dir_name() + "/../");
 //#else
 //	char* _env = getenv("LD_LIBRARY_PATH");
-//	string env = _env == NULL ? "" : _env;
+//	string env = _env == nullptr ? "" : _env;
 //	libraryPathList = Split(env, ":");
 //#endif
 //
@@ -88,9 +88,9 @@ std::vector<string> TRestTools::GetOptions(string optionsStr) { return Split(opt
 //    vector<string> fileList;
 //    DIR* dir;
 //    struct dirent* ent;
-//    if ((dir = opendir(path.c_str())) != NULL) {
+//    if ((dir = opendir(path.c_str())) != nullptr) {
 //        /* print all the files and directories within directory */
-//        while ((ent = readdir(dir)) != NULL) {
+//        while ((ent = readdir(dir)) != nullptr) {
 //            string fName(ent->d_name);
 //            if ((fName.find("REST") != -1 || fName.find("Rest") != -1))
 //                if (fName.find(".dylib") != -1 || fName.find(".so") != -1) fileList.push_back(fName);
@@ -106,7 +106,7 @@ std::vector<string> TRestTools::GetOptions(string optionsStr) { return Split(opt
 
 void TRestTools::LoadRESTLibrary(bool silent) {
     char* _ldpath = getenv("LD_LIBRARY_PATH");
-    if (_ldpath == NULL) {
+    if (_ldpath == nullptr) {
         _ldpath = Form("%s/lib/", getenv("REST_PATH"));
     }
     vector<string> ldpaths = Split(_ldpath, ":");
@@ -115,9 +115,9 @@ void TRestTools::LoadRESTLibrary(bool silent) {
     for (string path : ldpaths) {
         DIR* dir;
         struct dirent* ent;
-        if ((dir = opendir(path.c_str())) != NULL) {
+        if ((dir = opendir(path.c_str())) != nullptr) {
             /* print all the files and directories within directory */
-            while ((ent = readdir(dir)) != NULL) {
+            while ((ent = readdir(dir)) != nullptr) {
                 string fName(ent->d_name);
                 if ((fName.find("REST") != -1 || fName.find("Rest") != -1))
                     if (fName.find(".dylib") != -1 || fName.find(".so") != -1) fileList.push_back(fName);
@@ -284,7 +284,7 @@ vector<string> TRestTools::GetSubdirectories(const string& path, int recursion) 
     if (auto dir = opendir(path.c_str())) {
         while (1) {
             auto f = readdir(dir);
-            if (f == NULL) {
+            if (f == nullptr) {
                 break;
             }
             if (f->d_name[0] == '.') continue;
