@@ -145,12 +145,12 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
     std::ifstream fin(fName);
 
     // First we create a table with string values
-    std::vector<std::vector<std::string>> values;
+    std::vector<std::vector<string>> values;
 
-    for (std::string line; std::getline(fin, line);) {
+    for (string line; std::getline(fin, line);) {
         std::istringstream in(line);
-        values.push_back(std::vector<std::string>(std::istream_iterator<std::string>(in),
-                                                  std::istream_iterator<std::string>()));
+        values.push_back(std::vector<string>(std::istream_iterator<string>(in),
+                                                  std::istream_iterator<string>()));
     }
 
     // Filling the double values table (TODO error handling in case ToDouble
@@ -170,7 +170,7 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
 ///////////////////////////////////////////////
 /// \brief Returns true if the filename exists.
 ///
-bool TRestTools::fileExists(const std::string& filename) {
+bool TRestTools::fileExists(const string& filename) {
     struct stat buf;
     if (stat(filename.c_str(), &buf) != -1) {
         return true;
@@ -181,7 +181,7 @@ bool TRestTools::fileExists(const std::string& filename) {
 ///////////////////////////////////////////////
 /// \brief Returns true if the **filename** has *.root* extension.
 ///
-bool TRestTools::isRootFile(const std::string& filename) {
+bool TRestTools::isRootFile(const string& filename) {
     if (filename.find(".root") == string::npos) return false;
 
     return true;
@@ -190,7 +190,7 @@ bool TRestTools::isRootFile(const std::string& filename) {
 ///////////////////////////////////////////////
 /// \brief Returns true if **filename** is an *http* address.
 ///
-bool TRestTools::isURL(const std::string& filename) {
+bool TRestTools::isURL(const string& filename) {
     if (filename.find("http") == 0) return true;
 
     return false;
@@ -199,7 +199,7 @@ bool TRestTools::isURL(const std::string& filename) {
 ///////////////////////////////////////////////
 /// \brief Returns true if the **path** given by argument is writable
 ///
-bool TRestTools::isPathWritable(const std::string& path) {
+bool TRestTools::isPathWritable(const string& path) {
     int result = 0;
 #ifdef WIN32
     result = _access(path.c_str(), 2);
@@ -216,7 +216,7 @@ bool TRestTools::isPathWritable(const std::string& path) {
 ///////////////////////////////////////////////
 /// \brief Check if the path is absolute path or not
 ///
-bool TRestTools::isAbsolutePath(const std::string& path) {
+bool TRestTools::isAbsolutePath(const string& path) {
     if (path[0] == '/' || path[0] == '~' || path.find(':') != -1) {
         return true;
     }
@@ -233,7 +233,7 @@ bool TRestTools::isAbsolutePath(const std::string& path) {
 /// Input: "/home/nkx/abc.txt" and ":def", Output: { "/home/nkx/", "abc.txt" }
 /// Input: "abc.txt" and ":", Output: { ".", "abc.txt" }
 /// Input: "/home/nkx/" and ":", Output: { "/home/nkx/", "" }
-std::pair<string, string> TRestTools::SeparatePathAndName(std::string fullname) {
+std::pair<string, string> TRestTools::SeparatePathAndName(string fullname) {
     fullname = RemoveMultipleSlash(fullname);
     pair<string, string> result;
     int pos = fullname.find_last_of('/', -1);
@@ -259,11 +259,11 @@ std::pair<string, string> TRestTools::SeparatePathAndName(std::string fullname) 
 ///
 /// \param str: input path string (e.g. "///home///test/")
 /// \return path string without multiple slashes (e.g. "/home/test/")
-std::string TRestTools::RemoveMultipleSlash(std::string str) {
+string TRestTools::RemoveMultipleSlash(string str) {
     // we replace multiple appearances of "/" (slash) by a single "/"
     string to_replace = "//";
     size_t start_pos = str.find(to_replace);
-    while (start_pos != std::string::npos) {
+    while (start_pos != string::npos) {
         str.replace(start_pos, to_replace.length(), "/");
         start_pos = str.find(to_replace);
     }
@@ -277,7 +277,7 @@ std::string TRestTools::RemoveMultipleSlash(std::string str) {
 /// e.g.
 /// Input: "/home/nkx/abc.txt", Returns: "abc.txt"
 /// Input: "/home/nkx/", Output: ""
-std::string TRestTools::RemoveAbsolutePath(std::string fullpathFileName) {
+string TRestTools::RemoveAbsolutePath(string fullpathFileName) {
     fullpathFileName = RemoveMultipleSlash(fullpathFileName);
     return SeparatePathAndName(fullpathFileName).second;
 }
@@ -337,7 +337,7 @@ vector<string> TRestTools::GetSubdirectories(const string& path, int recursion) 
 /// \brief Search file in the given vector of path strings, return a full name
 /// if found, return "" if not
 ///
-std::string TRestTools::SearchFileInPath(vector<string> paths, string filename) {
+string TRestTools::SearchFileInPath(vector<string> paths, string filename) {
     if (fileExists(filename)) {
         return filename;
     } else {
@@ -364,7 +364,7 @@ std::string TRestTools::SearchFileInPath(vector<string> paths, string filename) 
 /// \brief Checks if the config file can be openned. It returns OK in case of
 /// success, ERROR otherwise.
 ///
-Int_t TRestTools::ChecktheFile(std::string FileName) {
+Int_t TRestTools::ChecktheFile(string FileName) {
     ifstream ifs;
     ifs.open(FileName.c_str());
 
@@ -438,9 +438,9 @@ int TRestTools::ConvertVersionCode(string in) {
     return -1;
 }
 
-std::string TRestTools::Execute(string cmd) {
+string TRestTools::Execute(string cmd) {
     std::array<char, 128> buffer;
-    std::string result;
+    string result;
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
     if (!pipe) {
         throw std::runtime_error("popen() failed!");
