@@ -155,6 +155,11 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
     }
 }
 
+/*
+ * TODO:
+ * this method takes a very long time and is acting as a bottleneck on some instances (high track
+ * number), see if it can be optimised.
+ * */
 void EventAction::FillSubEvent(Int_t subId) {
     subRestG4Event->Initialize();
     subRestG4Event->ClearVolumes();
@@ -221,8 +226,6 @@ void EventAction::FillSubEvent(Int_t subId) {
         tr->SetParentID(tr->GetParentID() - lowestID + 1);
         if (tr->GetParentID() < 0) tr->SetParentID(0);
     }
-
-    lowestID = subRestG4Event->GetLowestTrackID();
 
     for (int i = 0; i < nTracks; i++) {
         TRestG4Track* tr = subRestG4Event->GetTrack(i);
