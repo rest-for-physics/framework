@@ -121,6 +121,11 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
         if (sensitive_volume_deposited_energy > 0 && total_deposited_energy > minimum_energy_stored &&
             total_deposited_energy < maximum_energy_stored) {
             sensitive_volume_hits_count += 1;
+
+            // call `ReOrderTrackIds` which before was integrated into `FillSubEvent`
+            // it takes a while to run so we only do it if we are going to save the event
+            ReOrderTrackIds(subId);
+
             // fill analysis tree
             TRestAnalysisTree* analysis_tree = restRun->GetAnalysisTree();
             if (analysis_tree != nullptr) {
@@ -196,7 +201,9 @@ void EventAction::FillSubEvent(Int_t subId) {
 
         subRestG4Event->SetSensitiveVolumeEnergy(subRestG4Event->GetEnergyDepositedInVolume(sensVolID));
     }
+}
 
+void EventAction::ReOrderTrackIds(Int_t subId) {
     Double_t minTimestamp = 0;
     if (subRestG4Event->GetNumberOfTracks() > 0) minTimestamp = subRestG4Event->GetTrack(0)->GetGlobalTime();
 

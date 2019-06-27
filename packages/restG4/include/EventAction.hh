@@ -63,7 +63,9 @@ class EventAction : public G4UserEventAction {
     }
 
     void SetTrackSubeventIDs();
-    void FillSubEvent(Int_t subId);
+    static void FillSubEvent(Int_t subId);
+    // old method `FillSubEvent` has been split into `FillSubEvent` and `ReOrderTrackIds` for speed
+    static void ReOrderTrackIds(Int_t subId);
 
     // variable used to track the number of events that hit the sensitive volume
     UInt_t sensitive_volume_hits_count = 0;
