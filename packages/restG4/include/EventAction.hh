@@ -27,7 +27,7 @@
 /// \brief Definition of the EventAction class
 //
 // $Id: EventAction.hh 68017 2013-03-13 13:29:53Z gcosmo $
-// 
+//
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -41,33 +41,34 @@ using namespace std;
 
 #include "TH1D.h"
 
-#include <TRestG4Metadata.h>
 #include <TRestG4Event.h>
+#include <TRestG4Metadata.h>
 #include <TRestG4Track.h>
-
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class EventAction : public G4UserEventAction
-{
-    public:
-        EventAction();
-        ~EventAction();
+class EventAction : public G4UserEventAction {
+   public:
+    EventAction();
+    ~EventAction();
 
-    public:
-        virtual void BeginOfEventAction(const G4Event*);
-        virtual void   EndOfEventAction(const G4Event*);
+   public:
+    virtual void BeginOfEventAction(const G4Event*);
+    virtual void EndOfEventAction(const G4Event*);
 
-    private:
-        Double_t absDouble( Double_t x ) { if( x > 0 ) return x; return -x; }
+   private:
+    Double_t absDouble(Double_t x) {
+        if (x > 0) return x;
+        return -x;
+    }
 
-        void SetTrackSubeventIDs();
-        void FillSubEvent( Int_t subId );
+    void SetTrackSubeventIDs();
+    void FillSubEvent(Int_t subId);
 
+    // variable used to track the number of events that hit the sensitive volume
+    UInt_t sensitive_volume_hits_count = 0;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
-
-    

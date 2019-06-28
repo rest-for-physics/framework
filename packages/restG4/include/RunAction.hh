@@ -28,19 +28,19 @@
 //
 //
 // $Id: RunAction.hh 68017 2013-03-13 13:29:53Z gcosmo $
-// 
+//
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo...... 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #ifndef RunAction_h
 #define RunAction_h 1
 
+#include <map>
 #include "G4UserRunAction.hh"
 #include "globals.hh"
-#include <map>
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 using namespace std;
 
 class G4Run;
@@ -48,31 +48,27 @@ class PrimaryGeneratorAction;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class RunAction : public G4UserRunAction
-{
-  public:
+class RunAction : public G4UserRunAction {
+   public:
     RunAction(PrimaryGeneratorAction*);
-   ~RunAction();
-   
-    virtual void BeginOfRunAction(const G4Run*);
-    virtual void   EndOfRunAction(const G4Run*);
+    ~RunAction();
 
-  private:
+    virtual void BeginOfRunAction(const G4Run*);
+    virtual void EndOfRunAction(const G4Run*);
+
+   private:
     PrimaryGeneratorAction* fPrimary;
 
-    std::map<G4String,G4int> fParticleCount;
-    std::map<G4String,G4double> fEmean;
-    std::map<G4String,G4double> fEmin;
-    std::map<G4String,G4double> fEmax;
+    std::map<G4String, G4int> fParticleCount;
+    std::map<G4String, G4double> fEmean;
+    std::map<G4String, G4double> fEmin;
+    std::map<G4String, G4double> fEmax;
 
-    G4int    fDecayCount, fTimeCount;
+    G4int fDecayCount, fTimeCount;
     G4double fEkinTot[3];
     G4double fPbalance[3];
-    
-
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
-

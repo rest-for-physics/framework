@@ -121,6 +121,7 @@ void TRestRun::BeginOfInit() {
     fParentRunNumber = 0;
     string runNstr = GetParameter("runNumber", "");
     string inputname = GetParameter("inputFile", "");
+    inputname = TRestTools::RemoveMultipleSlash(inputname);
     if (ToUpper(inputname) != "AUTO" && ToUpper(inputname) != "DATABASE") {
         fInputFileName = inputname;
         fInputFileNames = VectorTString_cast(TRestTools::GetFilesMatchingPattern(inputname));
@@ -212,9 +213,12 @@ void TRestRun::BeginOfInit() {
     } else {
         fOutputFileName = outputdir + "/" + outputname;
     }
+    // remove multiple slashes from fOutputFileName
+    fOutputFileName = (TString)TRestTools::RemoveMultipleSlash((string)fOutputFileName);
+
     if (!TRestTools::isPathWritable(TRestTools::SeparatePathAndName((string)fOutputFileName).first)) {
         error << "REST Error!! TRestRun." << endl;
-        error << "Output path does not exist or it is not writtable." << endl;
+        error << "Output path does not exist or it is not writable." << endl;
         error << "Path : " << outputdir << endl;
         exit(1);
     }
@@ -319,7 +323,7 @@ void TRestRun::EndOfInit() {
     fRunTag = GetParameter("runTag", "noTag").c_str();
 
     OpenInputFile(0);
-    essential << "InputFile pattern : \"" << fInputFileName << "\", " << endl;
+    cout << "InputFile pattern: \"" << fInputFileName << "\"" << endl;
     if (fInputFileNames.size() > 1) {
         info << "which matches :" << endl;
         for (int i = 0; i < fInputFileNames.size(); i++) {
@@ -330,7 +334,7 @@ void TRestRun::EndOfInit() {
         essential << "(no input file added)" << endl;
     }
 
-    essential << " OutputFile pattern : \"" << fOutputFileName << "\"" << endl;
+    cout << "OutputFile pattern: \"" << fOutputFileName << "\"" << endl;
 }
 
 ///////////////////////////////////////////////

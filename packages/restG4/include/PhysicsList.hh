@@ -28,16 +28,16 @@
 //
 //
 // $Id: PhysicsList.hh 68017 2013-03-13 13:29:53Z gcosmo $
-// 
+//
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo...... 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #ifndef PhysicsList_h
 #define PhysicsList_h 1
 
+#include "G4EmConfigurator.hh"
 #include "G4VModularPhysicsList.hh"
 #include "globals.hh"
-#include "G4EmConfigurator.hh"
 
 #include <TRestPhysicsLists.h>
 
@@ -46,34 +46,30 @@ class G4VPhysicsConstructor;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class PhysicsList: public G4VModularPhysicsList
-{
-  public:
+class PhysicsList : public G4VModularPhysicsList {
+   public:
     PhysicsList();
-    PhysicsList( TRestPhysicsLists *restPhysicsLists );
-   ~PhysicsList();
+    PhysicsList(TRestPhysicsLists* restPhysicsLists);
+    ~PhysicsList();
 
-  protected:
+   protected:
     // Construct particle and physics
     virtual void InitializePhysicsLists();
     virtual void ConstructParticle();
-    virtual void ConstructProcess(); 
-    virtual void SetCuts();   
+    virtual void ConstructProcess();
+    virtual void SetCuts();
 
-  private:
-      G4EmConfigurator em_config;
+   private:
+    G4EmConfigurator em_config;
 
-      G4VPhysicsConstructor*                   fEmPhysicsList;
-      G4VPhysicsConstructor*                   fDecPhysicsList;
-      G4VPhysicsConstructor*                   fRadDecPhysicsList;
-      std::vector < G4VPhysicsConstructor* >   fHadronPhys;
+    G4VPhysicsConstructor* fEmPhysicsList;
+    G4VPhysicsConstructor* fDecPhysicsList;
+    G4VPhysicsConstructor* fRadDecPhysicsList;
+    std::vector<G4VPhysicsConstructor*> fHadronPhys;
 
-      TRestPhysicsLists *restPhysList;
+    TRestPhysicsLists* restPhysList;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
-
-
-

@@ -63,9 +63,10 @@ void EventAction::BeginOfEventAction(const G4Event* geant4_event) {
     G4int event_number = geant4_event->GetEventID();
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
-        cout << "INFO: Start of event " << event_number << endl;
+        cout << "INFO: Start of event " << event_number << " of " << restG4Metadata->GetNumberOfEvents()
+             << endl;
     } else if (geant4_event->GetEventID() % 10000 == 0) {
-        cout << "Start of event " << event_number << endl;
+        cout << "Start of event " << event_number << " of " << restG4Metadata->GetNumberOfEvents() << endl;
     }
 
     restTrack->Initialize();
@@ -118,6 +119,8 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
         }
         if (sensitive_volume_deposited_energy > 0 && total_deposited_energy > minimum_energy_stored &&
             total_deposited_energy < maximum_energy_stored) {
+            sensitive_volume_hits_count += 1;
+            // fill analysis tree
             TRestAnalysisTree* analysis_tree = restRun->GetAnalysisTree();
             if (analysis_tree != nullptr) {
                 analysis_tree->SetEventInfo(subRestG4Event);
@@ -129,7 +132,7 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
                          << endl;
                 }
             }
-
+            // fill event tree
             TTree* event_tree = restRun->GetEventTree();
             if (event_tree != nullptr) {
                 event_tree->Fill();
@@ -143,7 +146,10 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
     }
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
-        cout << "INFO: End of event " << event_number << endl;
+        cout << "INFO: Events depositing energy in sensitive volume: " << sensitive_volume_hits_count << "/"
+             << event_number << endl;
+        cout << "INFO: End of event " << event_number << " of " << restG4Metadata->GetNumberOfEvents()
+             << endl;
         cout << endl;
     }
 }
