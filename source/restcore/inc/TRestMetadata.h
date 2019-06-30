@@ -37,8 +37,8 @@
 #include "TApplication.h"
 #include "TClass.h"
 #include "TRestPhysics.h"
-#include "TRestSystemOfUnits.h"
 #include "TRestReflection.h"
+#include "TRestSystemOfUnits.h"
 #include "TStreamerElement.h"
 #include "TVirtualStreamerInfo.h"
 
@@ -78,8 +78,9 @@ class TRestMetadata : public TNamed {
     void ExpandIncludeFile(TiXmlElement* e);
 
     /// REST version string, only used for archive and retrieve
-    TString fVersion;
-    TString fLibraryVersion = "0";
+    TString fVersion;               //<
+    TString fCommit = "0";          //<
+    TString fLibraryVersion = "0";  //<
 
    protected:
     // new xml utilities
@@ -271,6 +272,8 @@ class TRestMetadata : public TNamed {
     /// returning fVersion
     TString GetVersion();
 
+    TString GetCommit();
+
     /// returning fLibraryVersion
     TString GetLibraryVersion() { return fLibraryVersion; }
 
@@ -295,14 +298,14 @@ class TRestMetadata : public TNamed {
     /// overwriting the write() method with fStore considered
     virtual Int_t Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
 
-	void SetDataMemberValFromConfig();
+    void SetDataMemberValFromConfig();
 
     TRestMetadata();
     ~TRestMetadata();
     TRestMetadata(const char* cfgFileNamecfgFileName);
 
     /// Call CINT to generate streamers for this class
-    ClassDef(TRestMetadata, 3);
+    ClassDef(TRestMetadata, 4);
 };
 
 #endif
