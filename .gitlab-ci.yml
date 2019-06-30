@@ -12,46 +12,46 @@ before_script:
 build:
   type: build
   script:
-    - mkdir /tmp/rest && cd /tmp/rest
-    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DINSTALL_PREFIX=/builds/REST_v2/install
+    - mkdir ${CI_PROJECT_DIR}/build && cd ${CI_PROJECT_DIR}/build
+    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
     - make install
-    - . /builds/REST_v2/install/thisREST.sh
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
   artifacts:
     paths:
-      - /builds/REST_v2/install
+      - ${CI_PROJECT_DIR}/install
     expire_in: 1 week
       
 testrestG4:
   type: testMetarestG4
   script:
-    - . /builds/REST_v2/install/thisREST.sh
-    - cd /builds/REST_v2/install/example/restG4template
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/example/restG4template
     - restG4 restG4.rml
   artifacts:
     paths:
-      - /builds/REST_v2/install
+      - ${CI_PROJECT_DIR}/install
     expire_in: 1 day
 
 testMeta:
   type: testMetarestG4
   script:
-    - . /builds/REST_v2/install/thisREST.sh
-    - cd /builds/REST_v2/install/example
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/example
     - restManager --c saveMetadataFile.rml --o meta.root
   artifacts:
     paths:
-      - /builds/REST_v2/install
+      - ${CI_PROJECT_DIR}/install
     expire_in: 1 day
       
 testProcess:
   type: testProcess
   script:
-    - . /builds/REST_v2/install/thisREST.sh
-    - cd /builds/REST_v2/install/example
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/example
     - restManager --c electronicsSimu.rml --i restG4template/example_output.root --o abc.root
   artifacts:
     paths:
-      - /builds/REST_v2/install
+      - ${CI_PROJECT_DIR}/install
     expire_in: 1 day
 
 deploy:
@@ -59,8 +59,8 @@ deploy:
   only:
     - tags
   script:
-    - . /builds/REST_v2/install/thisREST.sh
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - rest-config --welcome
   artifacts:
     paths:
-      - /builds/REST_v2/install
+      - ${CI_PROJECT_DIR}/install

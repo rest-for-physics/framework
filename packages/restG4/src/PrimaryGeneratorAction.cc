@@ -123,7 +123,7 @@ G4ParticleDefinition* PrimaryGeneratorAction::SetParticleDefinition(int n) {
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
         cout << "DEBUG: Particle name: " << particle_name << endl;
-        cout << "DEBUG: Particle charge: " << charge << endl;
+        // cout << "DEBUG: Particle charge: " << charge << endl;
         cout << "DEBUG: Particle excited energy: " << excited_energy << endl;
     }
 
