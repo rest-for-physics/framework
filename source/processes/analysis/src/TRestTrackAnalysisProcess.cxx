@@ -280,7 +280,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     // Copying the input tracks to the output track
     for (int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++)
         fOutputTrackEvent->AddTrack(fInputTrackEvent->GetTrack(tck));
-//cout<<"ntracks "<<fInputTrackEvent->GetNumberOfTracks("")<<endl;
+    // cout<<"ntracks "<<fInputTrackEvent->GetNumberOfTracks("")<<endl;
     if (this->GetVerboseLevel() >= REST_Debug) fInputTrackEvent->PrintOnlyTracks();
 
     TString obsName;
@@ -289,20 +289,18 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     Int_t nTracksX = 0, nTracksY = 0, nTracksXYZ = 0;
     nTracksX = fInputTrackEvent->GetNumberOfTracks("X");
     nTracksY = fInputTrackEvent->GetNumberOfTracks("Y");
-    nTracksXYZ = fInputTrackEvent->GetNumberOfTracks("XYZ"); 
+    nTracksXYZ = fInputTrackEvent->GetNumberOfTracks("XYZ");
 
+    SetObservableValue((string) "trackEnergy", fInputTrackEvent->GetEnergy(""));
 
+    // obsName = this->GetName() + (TString) ".nTracks_X";
+    SetObservableValue((string) "nTracks_X", nTracksX);
 
-     SetObservableValue((string)"trackEnergy", fInputTrackEvent->GetEnergy(""));
-    
-    //obsName = this->GetName() + (TString) ".nTracks_X";
-    SetObservableValue((string)"nTracks_X", nTracksX);
+    // obsName = this->GetName() + (TString) ".nTracks_Y";
+    SetObservableValue((string) "nTracks_Y", nTracksY);
 
-    //obsName = this->GetName() + (TString) ".nTracks_Y";
-    SetObservableValue((string)"nTracks_Y", nTracksY);
-
-    //obsName = this->GetName() + (TString) ".nTracks_XYZ";
-    SetObservableValue((string)"nTracks_XYZ", nTracksXYZ);
+    // obsName = this->GetName() + (TString) ".nTracks_XYZ";
+    SetObservableValue((string) "nTracks_XYZ", nTracksXYZ);
     /* }}} */
 
     if (fCutsEnabled) {
@@ -322,9 +320,9 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
         TRestTrack* t = fInputTrackEvent->GetTrack(tck);
         Double_t en = t->GetEnergy();
-       
+
         if ((t->isXYZ()) || (t->isXZ()) || (t->isYZ())) {
-             //cout<<"tracks "<<endl;
+            // cout<<"tracks "<<endl;
             for (unsigned int n = 0; n < fTrack_HE_EnergyObservables.size(); n++)
                 if (en > fTrack_HE_Threshold[n]) nTracks_HE[n]++;
 
@@ -453,7 +451,6 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         }
 
         for (unsigned int n = 0; n < fTwistHighObservables.size(); n++) {
-
             SetObservableValue((string)fTwistHighObservables[n], fTwistHighValue[n]);
         }
 
@@ -597,10 +594,10 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         }
 
         obsName = this->GetName() + (TString) ".twist_X";
-        SetObservableValue((string)"twist_X", twist_X);
+        SetObservableValue((string) "twist_X", twist_X);
 
         obsName = this->GetName() + (TString) ".twistWeighted_X";
-        SetObservableValue((string)"twistWeighted_X", twistWeighted_X);
+        SetObservableValue((string) "twistWeighted_X", twistWeighted_X);
         /* }}} */
 
         /* {{{ Adding twist observables from Y track */
@@ -731,17 +728,17 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     if (fInputTrackEvent->GetMaxEnergyTrack())
         tckMaxEnXYZ = fInputTrackEvent->GetMaxEnergyTrack()->GetEnergy();
 
-    SetObservableValue((string)"maxTrackEnergy", tckMaxEnXYZ);
+    SetObservableValue((string) "maxTrackEnergy", tckMaxEnXYZ);
 
     if (fInputTrackEvent->GetMaxEnergyTrack("X"))
         tckMaxEnX = fInputTrackEvent->GetMaxEnergyTrack("X")->GetEnergy();
 
-    SetObservableValue((string)"maxTrack_X_Energy", tckMaxEnX);
+    SetObservableValue((string) "maxTrack_X_Energy", tckMaxEnX);
 
     if (fInputTrackEvent->GetMaxEnergyTrack("Y"))
         tckMaxEnY = fInputTrackEvent->GetMaxEnergyTrack("Y")->GetEnergy();
 
-    SetObservableValue((string)"maxTrack_Y_Energy", tckMaxEnY);
+    SetObservableValue((string) "maxTrack_Y_Energy", tckMaxEnY);
 
     Double_t tckMaxEnergy = tckMaxEnX + tckMaxEnY + tckMaxEnXYZ;
 
@@ -749,7 +746,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     Double_t trackEnergyRatio = (totalEnergy - tckMaxEnergy) / totalEnergy;
 
-    SetObservableValue((string)"maxTrackEnergyRatio", trackEnergyRatio);
+    SetObservableValue((string) "maxTrackEnergyRatio", trackEnergyRatio);
     /* }}} */
 
     /* {{{ Maximum Second Track Energy observable */
@@ -765,11 +762,11 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     if (fInputTrackEvent->GetSecondMaxEnergyTrack("Y") != NULL)
         maxSecondTrackEnergy_Y = fInputTrackEvent->GetSecondMaxEnergyTrack("Y")->GetEnergy();
 
-    SetObservableValue((string)"secondTrackMaxEnergy", maxSecondTrackEnergy);
+    SetObservableValue((string) "secondTrackMaxEnergy", maxSecondTrackEnergy);
 
-    SetObservableValue((string)"secondTrackMaxEnergy_X", maxSecondTrackEnergy_X);
+    SetObservableValue((string) "secondTrackMaxEnergy_X", maxSecondTrackEnergy_X);
 
-    SetObservableValue((string)"secondTrackMaxEnergy_Y", maxSecondTrackEnergy_Y);
+    SetObservableValue((string) "secondTrackMaxEnergy_Y", maxSecondTrackEnergy_Y);
     /* }}} */
 
     /* {{{ Track Length observables (MaxTrackLength_XX) */
@@ -777,11 +774,11 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     Double_t tckLenY = fInputTrackEvent->GetMaxEnergyTrackLength("Y");
     Double_t tckLenXYZ = fInputTrackEvent->GetMaxEnergyTrackLength();
 
-    SetObservableValue((string)"MaxTrackLength_X", tckLenX);
+    SetObservableValue((string) "MaxTrackLength_X", tckLenX);
 
-    SetObservableValue((string)"MaxTrackLength_Y", tckLenY);
+    SetObservableValue((string) "MaxTrackLength_Y", tckLenY);
 
-    SetObservableValue((string)"MaxTrackLength_XYZ", tckLenXYZ);
+    SetObservableValue((string) "MaxTrackLength_XYZ", tckLenXYZ);
     /* }}} */
 
     /* {{{ Track Volume observables (MaxTrackVolume_XX) */
@@ -789,11 +786,11 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     Double_t tckVolY = fInputTrackEvent->GetMaxEnergyTrackVolume("Y");
     Double_t tckVolXYZ = fInputTrackEvent->GetMaxEnergyTrackVolume();
 
-    SetObservableValue((string)"MaxTrackVolume_X", tckVolX);
+    SetObservableValue((string) "MaxTrackVolume_X", tckVolX);
 
-    SetObservableValue((string)"MaxTrackVolume_Y", tckVolY);
+    SetObservableValue((string) "MaxTrackVolume_Y", tckVolY);
 
-    SetObservableValue((string)"MaxTrackVolume_XYZ", tckVolXYZ);
+    SetObservableValue((string) "MaxTrackVolume_XYZ", tckVolXYZ);
     /* }}} */
 
     /* {{{ Setting mean position for max energy tracks (MaxTrack_{x,y,z}Mean_XXX)
@@ -811,11 +808,11 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         maxZ = tMax->GetMeanPosition().Z();
     }
 
-    SetObservableValue((string)"MaxTrack_Xmean_XYZ", maxX);
+    SetObservableValue((string) "MaxTrack_Xmean_XYZ", maxX);
 
-    SetObservableValue((string)"MaxTrack_Ymean_XYZ", maxY);
+    SetObservableValue((string) "MaxTrack_Ymean_XYZ", maxY);
 
-    SetObservableValue((string)"MaxTrack_Zmean_XYZ", maxZ);
+    SetObservableValue((string) "MaxTrack_Zmean_XYZ", maxZ);
 
     /////////////////// XZ-track //////////////////////////
 
@@ -826,9 +823,9 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         maxZ = tMax->GetMeanPosition().Z();
     }
 
-    SetObservableValue((string)"MaxTrack_Xmean_X", maxX);
+    SetObservableValue((string) "MaxTrack_Xmean_X", maxX);
 
-    SetObservableValue((string)"MaxTrack_Zmean_X", maxZ);
+    SetObservableValue((string) "MaxTrack_Zmean_X", maxZ);
 
     /////////////////// YZ-track //////////////////////////
 
@@ -839,9 +836,9 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         maxZ = tMax->GetMeanPosition().Z();
     }
 
-    SetObservableValue((string)"MaxTrack_Ymean_Y", maxY);
+    SetObservableValue((string) "MaxTrack_Ymean_Y", maxY);
 
-    SetObservableValue((string)"MaxTrack_Zmean_Y", maxZ);
+    SetObservableValue((string) "MaxTrack_Zmean_Y", maxZ);
 
     /////////////////// xMean, yMean and zMean //////////////////////////
     Double_t x = 0, y = 0, z = 0;
@@ -858,23 +855,23 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         z = tY->GetMeanPosition().Y();
     }
 
-    SetObservableValue((string)"xMean", x);
+    SetObservableValue((string) "xMean", x);
 
-    SetObservableValue((string)"yMean", y);
+    SetObservableValue((string) "yMean", y);
 
-    SetObservableValue((string)"zMean", z);
+    SetObservableValue((string) "zMean", z);
     /* }}} */
 
     /// This kind of observables would be better in a separate process that
     /// measures the trigger rate
     Double_t evTimeDelay = 0;
     if (fPreviousEventTime.size() > 0) evTimeDelay = fInputTrackEvent->GetTime() - fPreviousEventTime.back();
-    SetObservableValue((string)"EventTimeDelay", evTimeDelay);
+    SetObservableValue((string) "EventTimeDelay", evTimeDelay);
 
     Double_t meanRate = 0;
     if (fPreviousEventTime.size() == 100)
         meanRate = 100. / (fInputTrackEvent->GetTime() - fPreviousEventTime.front());
-    SetObservableValue((string)"MeanRate_InHz", meanRate);
+    SetObservableValue((string) "MeanRate_InHz", meanRate);
 
     //   if( GetVerboseLevel() >= REST_Info )
     //   {
