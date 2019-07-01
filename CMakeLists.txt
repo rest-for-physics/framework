@@ -84,13 +84,13 @@ message(STATUS "external libraries to link: " ${external_libs})
 
 #gether some infomation
 string(TIMESTAMP date "%Y-%m-%d %H:%M")
-message("")
-include(CollectGitInfo)
-message(STATUS "REST release : ${GIT_TAG}")
-message(STATUS "REST date : ${GIT_DATE}")
-message(STATUS "REST commit : ${GIT_COMMIT}")
-message(STATUS "REST branch : ${GIT_BRANCH}")
-message("")
+#message("")
+#include(CollectGitInfo)
+#message(STATUS "REST release : ${GIT_TAG}")
+#message(STATUS "REST date : ${GIT_DATE}")
+#message(STATUS "REST commit : ${GIT_COMMIT}")
+#message(STATUS "REST branch : ${GIT_BRANCH}")
+#message("")
 
 
 ##generate TRestVersion.h during build stage

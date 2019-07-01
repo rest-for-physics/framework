@@ -63,10 +63,11 @@ void EventAction::BeginOfEventAction(const G4Event* geant4_event) {
     G4int event_number = geant4_event->GetEventID();
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
-        cout << "INFO: Start of event " << event_number << " of " << restG4Metadata->GetNumberOfEvents()
-             << endl;
+        cout << "INFO: Start of event ID " << event_number << " (" << event_number + 1 << " of "
+             << restG4Metadata->GetNumberOfEvents() << ")" << endl;
     } else if (geant4_event->GetEventID() % 10000 == 0) {
-        cout << "Start of event " << event_number << " of " << restG4Metadata->GetNumberOfEvents() << endl;
+        cout << "INFO: Start of event ID " << event_number << " (" << event_number + 1 << " of "
+             << restG4Metadata->GetNumberOfEvents() << ")" << endl;
     }
 
     restTrack->Initialize();
@@ -120,6 +121,11 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
         if (sensitive_volume_deposited_energy > 0 && total_deposited_energy > minimum_energy_stored &&
             total_deposited_energy < maximum_energy_stored) {
             sensitive_volume_hits_count += 1;
+
+            // call `ReOrderTrackIds` which before was integrated into `FillSubEvent`
+            // it takes a while to run so we only do it if we are going to save the event
+            ReOrderTrackIds(subId);
+
             // fill analysis tree
             TRestAnalysisTree* analysis_tree = restRun->GetAnalysisTree();
             if (analysis_tree != nullptr) {
@@ -147,13 +153,18 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
         cout << "INFO: Events depositing energy in sensitive volume: " << sensitive_volume_hits_count << "/"
-             << event_number << endl;
-        cout << "INFO: End of event " << event_number << " of " << restG4Metadata->GetNumberOfEvents()
-             << endl;
+             << event_number + 1 << endl;
+        cout << "INFO: End of event ID " << event_number << " (" << event_number + 1 << " of "
+             << restG4Metadata->GetNumberOfEvents() << ")" << endl;
         cout << endl;
     }
 }
 
+/*
+ * TODO:
+ * this method takes a very long time and is acting as a bottleneck on some instances (high track
+ * number), see if it can be optimised.
+ * */
 void EventAction::FillSubEvent(Int_t subId) {
     subRestG4Event->Initialize();
     subRestG4Event->ClearVolumes();
@@ -190,7 +201,9 @@ void EventAction::FillSubEvent(Int_t subId) {
 
         subRestG4Event->SetSensitiveVolumeEnergy(subRestG4Event->GetEnergyDepositedInVolume(sensVolID));
     }
+}
 
+void EventAction::ReOrderTrackIds(Int_t subId) {
     Double_t minTimestamp = 0;
     if (subRestG4Event->GetNumberOfTracks() > 0) minTimestamp = subRestG4Event->GetTrack(0)->GetGlobalTime();
 
@@ -220,8 +233,6 @@ void EventAction::FillSubEvent(Int_t subId) {
         tr->SetParentID(tr->GetParentID() - lowestID + 1);
         if (tr->GetParentID() < 0) tr->SetParentID(0);
     }
-
-    lowestID = subRestG4Event->GetLowestTrackID();
 
     for (int i = 0; i < nTracks; i++) {
         TRestG4Track* tr = subRestG4Event->GetTrack(i);
