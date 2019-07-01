@@ -73,8 +73,9 @@ Bool_t TRestHits::areYZ() {
 Bool_t TRestHits::areXYZ() {
     bool result = true;
     for (int i = 0; i < GetNumberOfHits(); i++) {
-        if (!isNaN(i) && (IsNaN(GetX(i)) || IsNaN(GetY(i)) || IsNaN(GetZ(i)))) {
+        if (!isNaN(i) && (!IsNaN(GetX(i)) && !IsNaN(GetY(i)) &&!IsNaN(GetZ(i)))) {
             // all hits should fit this condition to be considered XYZ
+            //cout<<"xyz hit"<<endl;
         } else {
             result = false;
             break;
