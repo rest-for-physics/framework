@@ -447,11 +447,12 @@ const char* gasesFile = "https://sultan.unizar.es/gasFiles/gases.rml";
 
 map<string, string> TRestMetadata_UpdatedConfigFile;
 
-ClassImp(TRestMetadata)
-    ///////////////////////////////////////////////
-    /// \brief TRestMetadata default constructor
-    ///
-    TRestMetadata::TRestMetadata() {
+ClassImp(TRestMetadata);
+
+///////////////////////////////////////////////
+/// \brief TRestMetadata default constructor
+///
+TRestMetadata::TRestMetadata() {
     fStore = true;
     fElementGlobal = NULL;
     fElement = NULL;
@@ -464,6 +465,7 @@ ClassImp(TRestMetadata)
     metadata.setlength(100);
 
     fVersion = REST_RELEASE;
+    fCommit = (TString)TRestTools::Execute("rest-config --commit");
 }
 
 ///////////////////////////////////////////////
@@ -482,6 +484,7 @@ TRestMetadata::TRestMetadata(const char* cfgFileName) {
     metadata.setlength(100);
 
     fVersion = REST_RELEASE;
+    fCommit = (TString)TRestTools::Execute("rest-config --commit");
 }
 
 ///////////////////////////////////////////////
@@ -2036,11 +2039,21 @@ void TRestMetadata::PrintMetadata() {
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++" << endl;
     metadata << "Name : " << GetName() << endl;
     metadata << "Title : " << GetTitle() << endl;
-    metadata << "Version : " << GetVersion() << endl;
+    metadata << "REST Version : " << GetVersion() << endl;
+    metadata << "REST Commit : " << GetCommit() << endl;
+    metadata << "REST Library version : " << GetLibraryVersion() << endl;
     metadata << "---------------------------------------" << endl;
 }
 
+///////////////////////////////////////////////
+/// \brief Returns the REST version stored in fVersion
+///
 TString TRestMetadata::GetVersion() { return fVersion; }
+
+///////////////////////////////////////////////
+/// \brief Returns the REST commit value stored in fCommit
+///
+TString TRestMetadata::GetCommit() { return fCommit; }
 
 ///////////////////////////////////////////////
 /// \brief Resets the version of TRestRun to REST_RELEASE. Only TRestRun is
@@ -2052,6 +2065,7 @@ void TRestMetadata::SetVersion() {
               << endl;
     else {
         fVersion = REST_RELEASE;
+        fCommit = (TString)TRestTools::Execute("rest-config --commit");
     }
 }
 
@@ -2062,6 +2076,7 @@ void TRestMetadata::UnSetVersion() {
               << endl;
     else {
         fVersion = -1;
+        fCommit = "0";
     }
 }
 
@@ -2151,6 +2166,4 @@ Int_t TRestMetadata::Write(const char* name, Int_t option, Int_t bufsize) {
 /// After loading the rml file and calling this method, the value of "par0" will
 /// be set to 10
 ///
-void TRestMetadata::SetDataMemberValFromConfig() {
-
-}
+void TRestMetadata::SetDataMemberValFromConfig() {}

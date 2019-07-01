@@ -3,6 +3,7 @@
 # install thisREST script, sh VERSION
 install( CODE
 "
+
 file( WRITE \${CMAKE_INSTALL_PREFIX}/thisREST.sh
 
 \"\#!/bin/bash
@@ -112,6 +113,61 @@ endforeach(mac ${rest_macros})
 #install rest-config
 install( CODE
 "
+set (git_cmd git )
+set (git_arg rev-parse --verify HEAD )
+execute_process(COMMAND \${git_cmd} \${git_arg}
+  WORKING_DIRECTORY \"${PROJECT_SOURCE_DIR}\"
+  RESULT_VARIABLE git_result
+  OUTPUT_VARIABLE git_ver)
+
+string(SUBSTRING \${git_ver} 0 8 git_commit )
+
+message(STATUS \"git commit: \${git_commit}\")
+
+set (git_cm git )
+set (git_ar log -1 --format=%ai )
+execute_process(COMMAND \${git_cm} \${git_ar}
+  WORKING_DIRECTORY \"${PROJECT_SOURCE_DIR}\"
+  RESULT_VARIABLE git_result
+  OUTPUT_VARIABLE git_date)
+
+string(STRIP \"\${git_date}\" git_date)
+message(STATUS \"git commit date: \${git_date}\")
+
+set (git_cmx git )
+set (git_arx describe --tags )
+execute_process(COMMAND \${git_cmx} \${git_arx}
+    WORKING_DIRECTORY \"${PROJECT_SOURCE_DIR}\"
+    ERROR_VARIABLE git_err
+    OUTPUT_VARIABLE git_tagout)
+
+set( ch_find -)
+string(FIND \${git_tagout} \${ch_find} ch_pos)
+
+string(SUBSTRING \${git_tagout} 0 \${ch_pos} git_tag)
+message(STATUS \"Git tag: \${git_tag}\")
+
+set (git_cmy git )
+set (git_ary branch )
+set (git_tmpfile /tmp/temp.txt )
+execute_process(COMMAND \${git_cmy} \${git_ary}
+    WORKING_DIRECTORY \"${PROJECT_SOURCE_DIR}\"
+    OUTPUT_FILE \${git_tmpfile})
+
+set (git_arz grep -e \"^*\" )
+execute_process(COMMAND \${git_arz}
+    WORKING_DIRECTORY \"${PROJECT_SOURCE_DIR}\"
+    INPUT_FILE \${git_tmpfile}
+    OUTPUT_VARIABLE git_branch)
+
+set (git_cmrm rm /tmp/temp.txt )
+execute_process(COMMAND \${git_cmrm})
+string(REPLACE \"\n\" \"\" git_branch \${git_branch})
+string(SUBSTRING \${git_branch} 2 -1 git_branch)
+
+message(STATUS \"Git branch: \${git_branch}\")
+
+message(STATUS \"Installing: \${CMAKE_INSTALL_PREFIX}/bin/rest-config\")
 
 
 file( WRITE \${CMAKE_INSTALL_PREFIX}/bin/rest-config
@@ -151,12 +207,12 @@ echo ${rest_macros_str}
 fi
 
 if [ $option = \\\"--version\\\" ] ; then
-echo ${GIT_TAG}
+echo ${git_tag}
 
 fi
 
 if [ $option = \\\"--commit\\\" ] ; then
-echo ${GIT_COMMIT}
+echo \${git_commit}
 
 fi
 
@@ -175,15 +231,11 @@ if [ $option = \\\"--welcome\\\" ] ; then
 echo \\\"  *****************************************************************************\\\"
 echo \\\"  W E L C O M E   to  R E S T  \\\"
 echo \\\"  \\\"
-echo \\\"  Commit  : ${GIT_COMMIT} (${GIT_DATE})  \\\"
-echo \\\"  Branch/Version : ${GIT_BRANCH}/${GIT_TAG}  \\\"
+echo \\\"  Commit  : \${git_commit} (\${git_date})  \\\"
+echo \\\"  Branch/Version : \${git_branch}/\${git_tag}  \\\"
 echo \\\"  Compilation date : ${date}  \\\"
 echo \\\"  \\\"
 echo \\\"  Installed at : $REST_PATH  \\\"
-echo \\\"  \\\"
-echo \\\"  REST releases announcement : rest-dev@cern.ch  \\\"
-echo \\\"  \\\"
-echo \\\"  Self-subscription policy is open at egroups.cern.ch  \\\"
 echo \\\"  \\\"
 echo \\\"  REST forum site : ezpc10.unizar.es (New!)  \\\"
 echo \\\"  *****************************************************************************\\\"
