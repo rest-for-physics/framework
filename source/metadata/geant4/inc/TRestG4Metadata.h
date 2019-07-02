@@ -84,6 +84,7 @@ extern std::map<string, angular_dist_types> angular_dist_types_map;
 /*
 ------------------------------------------------------------------------------------------------------------------------
 */
+
 /// The main class to store the *Geant4* simulation conditions that will be used by *restG4*.
 class TRestG4Metadata : public TRestMetadata {
    private:
@@ -178,7 +179,15 @@ class TRestG4Metadata : public TRestMetadata {
     /// The number of events simulated, or to be simulated.
     Int_t fNEvents;
 
+    /// The seed value used for Geant4 random event generator. If it is zero
+    /// its value will be assigned using the system timestamp.
+    Long_t fSeed = 0;
+
    public:
+    /// Returns the random seed that was used to generate the corresponding
+    /// geant4 dataset.
+    Long_t GetSeed() { return fSeed; }
+
     /// Returns a string with the version of Geant4 used on the event data
     /// simulation
     TString GetGeant4Version() { return fGeant4Version; }
@@ -249,6 +258,10 @@ class TRestG4Metadata : public TRestMetadata {
     /// practice will appear as such in our detector. I.e. to separate multiple
     /// decay products (sometimes with years time delays) into independent events.
     Double_t GetSubEventTimeDelay() { return fSubEventTimeDelay; }
+
+    /// Used exclusively by restG4 to set the value of the random seed used on
+    /// Geant4 simulation.
+    void SetSeed(Long_t seed) { fSeed = seed; }
 
     /// Sets the value of the Geant4 version
     void SetGeant4Version(TString g4Version) { fGeant4Version = g4Version; }
@@ -362,6 +375,6 @@ class TRestG4Metadata : public TRestMetadata {
 
     ~TRestG4Metadata();
 
-    ClassDef(TRestG4Metadata, 2);
+    ClassDef(TRestG4Metadata, 3);
 };
 #endif  // RestCore_TRestG4Metadata

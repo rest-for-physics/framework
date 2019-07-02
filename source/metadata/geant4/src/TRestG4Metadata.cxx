@@ -615,8 +615,8 @@ string CleanString(string s) {
     // transform the string to lowercase
     std::transform(s.begin(), s.end(), s.begin(), ::tolower);
     // this is a temporary fix, TH1D name comparison is being done elsewhere and giving error
-    if (s == "th1d"){
-      s = "TH1D";
+    if (s == "th1d") {
+        s = "TH1D";
     }
     return s;
 }
@@ -645,7 +645,7 @@ std::map<string, angular_dist_types> angular_dist_types_map = {
     {CleanString("flux"), angular_dist_types::FLUX},
     {CleanString("backtoback"), angular_dist_types::BACK_TO_BACK},
 };
-}  // namespace parameters
+}  // namespace g4_metadata_parameters
 
 ClassImp(TRestG4Metadata)
     ///////////////////////////////////////////////
@@ -714,6 +714,8 @@ void TRestG4Metadata::InitFromConfigFile() {
     fGDML_Filename = GetParameter("gdml_file");
 
     fGeometryPath = GetParameter("geometryPath", "");
+
+    fSeed = (Long_t)StringToInteger(GetParameter("seed", "0"));
 
     // if "gdml_file" is purely a file (without any path) and "geometryPath" is
     // defined, we recombine them together
@@ -938,6 +940,7 @@ void TRestG4Metadata::PrintMetadata() {
     */
 
     metadata << "Geant 4 version : " << GetGeant4Version() << endl;
+    metadata << "Random seed : " << GetSeed() << endl;
     metadata << "Geometry File : " << Get_GDML_Filename() << endl;
     metadata << "Geometry Path : " << GetGeometryPath() << endl;
     metadata << "Max. Step size : " << GetMaxTargetStepSize() << " mm" << endl;

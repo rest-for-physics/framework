@@ -96,7 +96,6 @@ int main(int argc, char** argv) {
     restG4Metadata = new TRestG4Metadata(inputConfigFile, (string)restG4Name);
 
     std::string g4Version = TRestTools::Execute("geant4-config --version");
-    //g4Version.erase(std::remove(g4Version.begin(), g4Version.end(), '\n'), g4Version.end());
     restG4Metadata->SetGeant4Version(g4Version);
 
     restPhysList = new TRestPhysicsLists(inputConfigFile, (string)physListName);
@@ -154,8 +153,10 @@ int main(int argc, char** argv) {
     // choose the Random engine
     CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine);
     time_t systime = time(NULL);
-    long seed = (long)systime + restRun->GetRunNumber() * 13;
+    long seed = restG4Metadata->GetSeed();
+    if (seed == 0) seed = (long)systime + restRun->GetRunNumber() * 13;
     CLHEP::HepRandom::setTheSeed(seed);
+    restG4Metadata->SetSeed(seed);
 
     // Construct the default run manager
     G4RunManager* runManager = new G4RunManager;
