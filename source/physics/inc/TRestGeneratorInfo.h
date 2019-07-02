@@ -2,7 +2,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestParticleCollection.h
+///             TRestGeneratorInfo.h
 ///
 ///             Class to store a particle definition
 ///
@@ -13,8 +13,8 @@
 ///
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef RestCore_TRestParticleCollection
-#define RestCore_TRestParticleCollection
+#ifndef RestCore_TRestGeneratorInfo
+#define RestCore_TRestGeneratorInfo
 
 #include <iostream>
 
@@ -22,16 +22,16 @@
 
 #include <TRestParticle.h>
 
-class TRestParticleCollection : public TObject {
+class TRestGeneratorInfo : public TObject {
    protected:
     std::vector<TRestParticle> fParticles;
 
    public:
-    static TRestParticleCollection* instantiate(std::string model = "");
+    static TRestGeneratorInfo* instantiate(std::string model = "");
 
     virtual void SetParticleModel(std::string modelstring) {
         std::cout << "REST ERROR: SetParticleModel() called in base class "
-                     "TRestParticleCollection"
+                     "TRestGeneratorInfo"
                   << std::endl;
         std::cout << "Package not properly installed? LD_LIBRARY_PATH not properly set?" << std::endl;
         exit(1);
@@ -39,15 +39,16 @@ class TRestParticleCollection : public TObject {
     virtual void VirtualUpdate() {}
     virtual Int_t GetNumberOfParticles() { return fParticles.size(); }
     virtual TRestParticle GetParticle(int i) { return fParticles[i]; }
+	virtual void ReadGeneratorFile(string filename) {}
 
     virtual void RemoveParticles() { fParticles.clear(); }
     virtual void AddParticle(TRestParticle ptcle) { fParticles.push_back(ptcle); }
 
     // Construtor
-    TRestParticleCollection();
+    TRestGeneratorInfo();
     // Destructor
-    virtual ~TRestParticleCollection();
+    virtual ~TRestGeneratorInfo();
 
-    ClassDef(TRestParticleCollection, 1);
+    ClassDef(TRestGeneratorInfo, 1);
 };
 #endif

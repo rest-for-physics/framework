@@ -5,7 +5,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestParticleCollection.cxx
+///             TRestGeneratorInfo.cxx
 ///
 ///             Base class from which to inherit all other event classes in REST
 ///
@@ -15,37 +15,37 @@
 ///                 J. Galan
 ///_______________________________________________________________________________
 
-#include "TRestParticleCollection.h"
+#include "TRestGeneratorInfo.h"
 #include "TClass.h"
 #include "TRestStringHelper.h"
 
-ClassImp(TRestParticleCollection)
+ClassImp(TRestGeneratorInfo)
     //______________________________________________________________________________
-    TRestParticleCollection::TRestParticleCollection() {
-    // TRestParticleCollection default constructor
+    TRestGeneratorInfo::TRestGeneratorInfo() {
+    // TRestGeneratorInfo default constructor
 }
 
 //______________________________________________________________________________
-TRestParticleCollection::~TRestParticleCollection() {
-    // TRestParticleCollection destructor
+TRestGeneratorInfo::~TRestGeneratorInfo() {
+    // TRestGeneratorInfo destructor
 }
 
-TRestParticleCollection* TRestParticleCollection::instantiate(std::string model) {
+TRestGeneratorInfo* TRestGeneratorInfo::instantiate(std::string model) {
     if (model == "" || model == "geant4") {
         // use default generator
-        return new TRestParticleCollection();
+        return new TRestGeneratorInfo();
     } else {
         // use specific generator
-        // naming convension: TRestParticleCollectionXXX
+        // naming convension: TRestGeneratorInfoXXX
         // currently supported generator: decay0
         // in future we may add wrapper of generators: cry(for muon), pythia(for HEP), etc.
         model[0] = *REST_StringHelper::ToUpper(std::string(&model[0], 1)).c_str();
-        TClass* c = TClass::GetClass(("TRestParticleCollection" + model).c_str());
+        TClass* c = TClass::GetClass(("TRestGeneratorInfo" + model).c_str());
         if (c != NULL)  // this means we have the package installed
         {
-            return (TRestParticleCollection*)c->New();
+            return (TRestGeneratorInfo*)c->New();
         } else {
-            std::cout << "REST ERROR! generator wrapper \"" << ("TRestParticleCollection" + model)
+            std::cout << "REST ERROR! generator wrapper \"" << ("TRestGeneratorInfo" + model)
                       << "\" not found!" << std::endl;
         }
     }
