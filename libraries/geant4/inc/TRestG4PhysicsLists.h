@@ -2,11 +2,11 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestPhysicsLists.h
+///             TRestG4PhysicsLists.h
 ///
 ///             G4 class to be used to design REST metadata classes to be
 ///             inherited from TRestMetadata
-///             How to use: replace TRestPhysicsLists by your class name,
+///             How to use: replace TRestG4PhysicsLists by your class name,
 ///             fill the required functions following instructions and add all
 ///             needed additional members and funcionality
 ///
@@ -14,8 +14,8 @@
 ///
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef RestCore_TRestPhysicsLists
-#define RestCore_TRestPhysicsLists
+#ifndef RestCore_TRestG4PhysicsLists
+#define RestCore_TRestG4PhysicsLists
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,7 +29,7 @@
 
 #include <TRestMetadata.h>
 
-class TRestPhysicsLists : public TRestMetadata {
+class TRestG4PhysicsLists : public TRestMetadata {
    private:
     void Initialize();
 
@@ -66,11 +66,11 @@ class TRestPhysicsLists : public TRestMetadata {
     void PrintMetadata();
 
     // Constructors
-    TRestPhysicsLists();
-    TRestPhysicsLists(char* cfgFileName, std::string name = "");
+    TRestG4PhysicsLists();
+    TRestG4PhysicsLists(char* cfgFileName, std::string name = "");
     // Destructor
-    ~TRestPhysicsLists();
+    ~TRestG4PhysicsLists();
 
-    ClassDef(TRestPhysicsLists, 1);
+    ClassDef(TRestG4PhysicsLists, 1);
 };
 #endif

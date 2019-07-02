@@ -5,7 +5,7 @@
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
 ///
-///             TRestPhysicsLists.cxx
+///             TRestG4PhysicsLists.cxx
 ///
 ///             G4 class description
 ///
@@ -18,19 +18,19 @@
 
 #include "TRestTools.h"
 
-#include "TRestPhysicsLists.h"
+#include "TRestG4PhysicsLists.h"
 using namespace std;
 
-ClassImp(TRestPhysicsLists)
+ClassImp(TRestG4PhysicsLists)
     //______________________________________________________________________________
-    TRestPhysicsLists::TRestPhysicsLists()
+    TRestG4PhysicsLists::TRestG4PhysicsLists()
     : TRestMetadata() {
-    // TRestPhysicsLists default constructor
+    // TRestG4PhysicsLists default constructor
     Initialize();
 }
 
 //______________________________________________________________________________
-TRestPhysicsLists::TRestPhysicsLists(char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
+TRestG4PhysicsLists::TRestG4PhysicsLists(char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);
@@ -39,14 +39,14 @@ TRestPhysicsLists::TRestPhysicsLists(char* cfgFileName, string name) : TRestMeta
 }
 
 //______________________________________________________________________________
-TRestPhysicsLists::~TRestPhysicsLists() {
-    // TRestPhysicsLists destructor
+TRestG4PhysicsLists::~TRestG4PhysicsLists() {
+    // TRestG4PhysicsLists destructor
 }
 
-void TRestPhysicsLists::Initialize() { SetSectionName(this->ClassName()); }
+void TRestG4PhysicsLists::Initialize() { SetSectionName(this->ClassName()); }
 
 //______________________________________________________________________________
-void TRestPhysicsLists::InitFromConfigFile() {
+void TRestG4PhysicsLists::InitFromConfigFile() {
     this->Initialize();
 
     fCutForGamma = GetDblParameterWithUnits("cutForGamma", 0.01);
@@ -85,7 +85,7 @@ void TRestPhysicsLists::InitFromConfigFile() {
     }
 }
 
-Int_t TRestPhysicsLists::FindPhysicsList(TString phName) {
+Int_t TRestG4PhysicsLists::FindPhysicsList(TString phName) {
     if (!PhysicsListExists(phName)) return -1;
 
     for (unsigned int n = 0; n < fPhysicsLists.size(); n++)
@@ -94,7 +94,7 @@ Int_t TRestPhysicsLists::FindPhysicsList(TString phName) {
     return -1;
 }
 
-TString TRestPhysicsLists::GetPhysicsListOptionString(TString phName) {
+TString TRestG4PhysicsLists::GetPhysicsListOptionString(TString phName) {
     Int_t index = FindPhysicsList(phName);
 
     if (index == -1) return "";
@@ -102,7 +102,7 @@ TString TRestPhysicsLists::GetPhysicsListOptionString(TString phName) {
     return fPhysicsListOptions[index];
 }
 
-TString TRestPhysicsLists::GetPhysicsListOptionValue(TString phName, TString option) {
+TString TRestG4PhysicsLists::GetPhysicsListOptionValue(TString phName, TString option) {
     vector<string> optList = TRestTools::GetOptions((string)GetPhysicsListOptionString(phName));
 
     for (unsigned int n = 0; n < optList.size(); n = n + 2)
@@ -111,7 +111,7 @@ TString TRestPhysicsLists::GetPhysicsListOptionValue(TString phName, TString opt
     return "NotDefined";
 }
 
-Bool_t TRestPhysicsLists::PhysicsListExists(TString phName) {
+Bool_t TRestG4PhysicsLists::PhysicsListExists(TString phName) {
     if (phName == "G4DecayPhysics") return true;
     if (phName == "G4RadioactiveDecayPhysics") return true;
     if (phName == "G4RadioactiveDecay") return true;
@@ -125,14 +125,14 @@ Bool_t TRestPhysicsLists::PhysicsListExists(TString phName) {
     if (phName == "G4EmExtraPhysics") return true;
 
     cout << endl;
-    cout << "REST Warning. TRestPhysicsLists::PhysicsListExists." << endl;
-    cout << "Physics list " << phName << " does NOT exist in TRestPhysicsLists." << endl;
+    cout << "REST Warning. TRestG4PhysicsLists::PhysicsListExists." << endl;
+    cout << "Physics list " << phName << " does NOT exist in TRestG4PhysicsLists." << endl;
     cout << endl;
 
     return false;
 }
 
-void TRestPhysicsLists::PrintMetadata() {
+void TRestG4PhysicsLists::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     metadata << "Cut for electrons : " << fCutForElectron << " mm" << endl;
