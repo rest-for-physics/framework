@@ -1,5 +1,5 @@
-#ifndef __RestCore_TRestPhysics_H__
-#define __RestCore_TRestPhysics_H__
+#ifndef __RestCore_TRestPhysicsConstants_H__
+#define __RestCore_TRestPhysicsConstants_H__
 
 #include <iostream>
 using namespace std;
