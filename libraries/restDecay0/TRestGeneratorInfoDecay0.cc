@@ -1,8 +1,8 @@
-#include "TRestParticleCollectionDecay0.hh"
+#include "TRestGeneratorInfoDecay0.hh"
 
-ClassImp(TRestParticleCollectionDecay0)
+ClassImp(TRestGeneratorInfoDecay0)
 
-    void TRestParticleCollectionDecay0::SetParticleModel(std::string modelstring) {
+    void TRestGeneratorInfoDecay0::SetParticleModel(std::string modelstring) {
     cout << "Initializing decay0 model, seed: " << (uintptr_t)this << endl;
 
     fElement = StringToElement(modelstring);
@@ -10,7 +10,7 @@ ClassImp(TRestParticleCollectionDecay0)
     InitFromConfigFile();
 }
 
-void TRestParticleCollectionDecay0::VirtualUpdate() {
+void TRestGeneratorInfoDecay0::VirtualUpdate() {
     RemoveParticles();
 
     bxdecay0::event gendecay;
@@ -89,7 +89,7 @@ void TRestParticleCollectionDecay0::VirtualUpdate() {
     // cout << endl;
 }
 
-void TRestParticleCollectionDecay0::InitFromConfigFile() {
+void TRestGeneratorInfoDecay0::InitFromConfigFile() {
     // unsigned int seed = (uintptr_t)this;
     // std::default_random_engine generator(seed);
     // prng = bxdecay0::std_random(generator);

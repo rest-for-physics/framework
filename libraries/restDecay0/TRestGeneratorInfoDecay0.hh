@@ -1,5 +1,5 @@
-#ifndef RestCore_TRestParticleCollectionD0
-#define RestCore_TRestParticleCollectionD0
+#ifndef RestCore_TRestGeneratorInfoD0
+#define RestCore_TRestGeneratorInfoD0
 
 
 
@@ -8,7 +8,7 @@
 #include "TObject.h"
 #include <TRestParticle.h>
 
-#include "TRestParticleCollection.h"
+#include "TRestGeneratorInfo.h"
 #include "TRestMetadata.h"
 
 #include <bxdecay0/std_random.h>
@@ -17,7 +17,7 @@
 
 using namespace std;
 
-class TRestParticleCollectionDecay0 :public TRestParticleCollection, public TRestMetadata {
+class TRestGeneratorInfoDecay0 :public TRestGeneratorInfo, public TRestMetadata {
 protected:
 	bxdecay0::decay0_generator fDecay0Model;//!
 	bxdecay0::std_random prng;//!
@@ -39,9 +39,9 @@ public:
 	virtual void RemoveParticles() { fParticles.clear(); }
 	virtual void AddParticle(TRestParticle ptcle) { fParticles.push_back(ptcle); }
 
-	TRestParticleCollectionDecay0() : generator((uintptr_t)this), prng(generator) {
+	TRestGeneratorInfoDecay0() : generator((uintptr_t)this), prng(generator) {
 	}
 
-	ClassDef(TRestParticleCollectionDecay0, 1);
+	ClassDef(TRestGeneratorInfoDecay0, 1);
 };
 #endif

@@ -51,8 +51,8 @@ include_directories(${incdir})
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
 #
-file(GLOB sources ${PROJECT_SOURCE_DIR}/TRestParticleCollectionDecay0.cc)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/TRestParticleCollectionDecay0.hh)
+file(GLOB sources ${PROJECT_SOURCE_DIR}/TRestGeneratorInfoDecay0.cc)
+file(GLOB headers ${PROJECT_SOURCE_DIR}/TRestGeneratorInfoDecay0.hh)
 foreach (header ${headers})
 	string(REGEX MATCH "[^/\\]*hh" temp ${header})
 	string(REPLACE ".hh" "" class ${temp})
