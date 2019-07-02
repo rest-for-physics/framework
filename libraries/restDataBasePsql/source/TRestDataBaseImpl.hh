@@ -4,10 +4,10 @@
 using namespace std;
 
 
-class TRestDataBaseImpl:public TRestDataBase {
+class TRestDataBasePsql:public TRestDataBase {
 public:
-	TRestDataBaseImpl();
-	~TRestDataBaseImpl();
+	TRestDataBasePsql();
+	~TRestDataBasePsql();
 
 	void test();
 	void print(int runnumber, int subrun = 0);

@@ -1,8 +1,8 @@
 #----------------------------------------------------------------------------
 # Setup the project
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
-project(RestDataBaseImpl)
-message("===============  RestDataBaseImpl  ==============")
+project(RestDataBasePsql)
+message("===============  RestDataBasePsql  ==============")
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake ${CMAKE_MODULE_PATH})
 
 # find REST 
@@ -41,7 +41,7 @@ set(lnklib ${PostgreSQL_LIBRARIES} ${rest_libraries} ${ROOT_LIBRARIES} -lGui -lE
 else()
 set(lnklib ${PostgreSQL_LIBRARIES} -L${REST_PATH}/lib/ -lRestTools -lRestCore -lRestEvents -lRestMetadata ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit)
 message( "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n
-          After \"make install\" RestDataBaseImpl will be installed in ${REST_PATH}/lib\n\n
+          After \"make install\" RestDataBasePsql will be installed in ${REST_PATH}/lib\n\n
           It will take effect in the next launch of restManager/restRoot
           \n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" )
 endif()
@@ -52,7 +52,7 @@ include_directories(${incdir})
 # Locate sources and headers for this project
 #
 file(GLOB sources ${PROJECT_SOURCE_DIR}/source/*cc)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/source/TRestDataBaseImpl.hh)
+file(GLOB headers ${PROJECT_SOURCE_DIR}/source/TRestDataBasePsql.hh)
 foreach (header ${headers})
 	string(REGEX MATCH "[^/\\]*hh" temp ${header})
 	string(REPLACE ".hh" "" class ${temp})
@@ -67,14 +67,14 @@ endforeach (header ${headers})
 #----------------------------------------------------------------------------
 # Add the library, and link it to the Geant4 libraries
 #
-add_library(RestDataBaseImpl SHARED ${sources} ${newsources})
-target_link_libraries(RestDataBaseImpl ${lnklib})
+add_library(RestDataBasePsql SHARED ${sources} ${newsources})
+target_link_libraries(RestDataBasePsql ${lnklib})
 
 
 #----------------------------------------------------------------------------
 # Install the library to 'lib' directory under REST_PATH
 #
-install(TARGETS RestDataBaseImpl DESTINATION lib)
+install(TARGETS RestDataBasePsql DESTINATION lib)
 
 install(CODE
 "

@@ -1,9 +1,9 @@
-#include "TRestDataBaseImpl.hh"
+#include "TRestDataBasePsql.hh"
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
 using namespace pg;
 
-TRestDataBaseImpl::TRestDataBaseImpl() {
+TRestDataBasePsql::TRestDataBasePsql() {
     auto url = getenv("REST_DBURL");
     if (url == NULL) {
         url = "postgresql://p3daq:ilovepanda@localhost/p3_daq";
@@ -23,22 +23,22 @@ TRestDataBaseImpl::TRestDataBaseImpl() {
     }
 }
 
-TRestDataBaseImpl::~TRestDataBaseImpl() {}
+TRestDataBasePsql::~TRestDataBasePsql() {}
 
 // returns input runnumber when run exists, returns -1 if not
-int TRestDataBaseImpl::query_run(int runnumber, int subrun) {
+int TRestDataBasePsql::query_run(int runnumber, int subrun) {
     auto a = query(conn, "select run_id from rest_runs where run_id=$1::int", runnumber);
     return a.size() > 0 ? StringToInteger(a[0][0]) : -1;
 }
 // returns input runnumber when subrun exists, returns -1 if not
-int TRestDataBaseImpl::query_subrun(int runnumber, int subrun) {
+int TRestDataBasePsql::query_subrun(int runnumber, int subrun) {
     auto a = query(conn,
                    "select subrun_id from rest_runs where run_id=$1::int and "
                    "subrun_id=$2::int",
                    runnumber, subrun);
     return a.size() > 0 ? StringToInteger(a[0][0]) : -1;
 }
-vector<string> TRestDataBaseImpl::query_files(int runnumber, int subrun) {
+vector<string> TRestDataBasePsql::query_files(int runnumber, int subrun) {
     auto a = query(conn,
                    "select file_name from rest_files where run_id=$1::int and "
                    "subrun_id=$2::int",
@@ -50,7 +50,7 @@ vector<string> TRestDataBaseImpl::query_files(int runnumber, int subrun) {
     }
     return files;
 }
-string TRestDataBaseImpl::query_file(int runnumber, int subrun, int fileid) {
+string TRestDataBasePsql::query_file(int runnumber, int subrun, int fileid) {
     auto a = query(conn,
                    "select file_name from rest_files where run_id=$1::int and "
                    "subrun_id=$2::int and file_id=$3::int",
@@ -60,11 +60,11 @@ string TRestDataBaseImpl::query_file(int runnumber, int subrun, int fileid) {
     }
     return "";
 }
-string TRestDataBaseImpl::query_filepattern(int runnumber, int subrun) {
+string TRestDataBasePsql::query_filepattern(int runnumber, int subrun) {
     auto a = query_files(runnumber, subrun);
     return a.size() > 0 ? a[0] : "";
 }
-DataBaseFileInfo TRestDataBaseImpl::query_fileinfo(int runnumber, int subrun, string filename) {
+DataBaseFileInfo TRestDataBasePsql::query_fileinfo(int runnumber, int subrun, string filename) {
     string querystring;
     if (filename != "") {
         querystring =
@@ -98,7 +98,7 @@ DataBaseFileInfo TRestDataBaseImpl::query_fileinfo(int runnumber, int subrun, st
 
     return DataBaseFileInfo();
 }
-DataBaseFileInfo TRestDataBaseImpl::query_fileinfo(int runnumber, int subrun, int fileid) {
+DataBaseFileInfo TRestDataBasePsql::query_fileinfo(int runnumber, int subrun, int fileid) {
     string querystring =
         "select file_size, start_time, stop_time, event_rate, sha1sum, quality "
         "from rest_files where run_id=$1::int and subrun_id=$2::int and "
@@ -124,43 +124,43 @@ DataBaseFileInfo TRestDataBaseImpl::query_fileinfo(int runnumber, int subrun, in
 
     return DataBaseFileInfo();
 }
-double TRestDataBaseImpl::query_start(int runnumber, int subrun) {
+double TRestDataBasePsql::query_start(int runnumber, int subrun) {
     auto a = query(conn,
                    "select run_start from rest_runs where run_id=$1::int and "
                    "subrun_id=$2::int",
                    runnumber, subrun);
     return a.size() > 0 ? ToTime(a[0][0]) : 0;
 }
-double TRestDataBaseImpl::query_end(int runnumber, int subrun) {
+double TRestDataBasePsql::query_end(int runnumber, int subrun) {
     auto a = query(conn,
                    "select run_end from rest_runs where run_id=$1::int and "
                    "subrun_id=$2::int",
                    runnumber, subrun);
     return a.size() > 0 ? ToTime(a[0][0]) : 0;
 }
-string TRestDataBaseImpl::query_type(int runnumber, int subrun) {
+string TRestDataBasePsql::query_type(int runnumber, int subrun) {
     auto a = query(conn, "select type from rest_runs where run_id=$1::int and subrun_id=$2::int", runnumber,
                    subrun);
     return a.size() > 0 ? a[0][0] : "";
 }
-string TRestDataBaseImpl::query_user(int runnumber, int subrun) {
+string TRestDataBasePsql::query_user(int runnumber, int subrun) {
     auto a = query(conn, "select usr from rest_runs where run_id=$1::int and subrun_id=$2::int", runnumber,
                    subrun);
     return a.size() > 0 ? a[0][0] : "";
 }
-string TRestDataBaseImpl::query_tag(int runnumber, int subrun) {
+string TRestDataBasePsql::query_tag(int runnumber, int subrun) {
     auto a = query(conn, "select tag from rest_runs where run_id=$1::int and subrun_id=$2::int", runnumber,
                    subrun);
     return a.size() > 0 ? a[0][0] : "";
 }
-string TRestDataBaseImpl::query_description(int runnumber, int subrun) {
+string TRestDataBasePsql::query_description(int runnumber, int subrun) {
     auto a = query(conn,
                    "select description from rest_runs where run_id=$1::int and "
                    "subrun_id=$2::int",
                    runnumber, subrun);
     return a.size() > 0 ? a[0][0] : "";
 }
-string TRestDataBaseImpl::query_version(int runnumber, int subrun) {
+string TRestDataBasePsql::query_version(int runnumber, int subrun) {
     auto a = query(conn,
                    "select version from rest_runs where run_id=$1::int and "
                    "subrun_id=$2::int",
@@ -168,7 +168,7 @@ string TRestDataBaseImpl::query_version(int runnumber, int subrun) {
     return a.size() > 0 ? a[0][0] : "";
 }
 
-vector<pair<int, int>> TRestDataBaseImpl::search_filepattern(string filepattern) {
+vector<pair<int, int>> TRestDataBasePsql::search_filepattern(string filepattern) {
     string namepattern = Replace(filepattern, "*", "%", 0);
     namepattern = Replace(namepattern, "?", "%", 0);
 
@@ -180,7 +180,7 @@ vector<pair<int, int>> TRestDataBaseImpl::search_filepattern(string filepattern)
     }
     return result;
 }
-vector<pair<int, int>> TRestDataBaseImpl::search_withintime(time_t t1, time_t t2) {
+vector<pair<int, int>> TRestDataBasePsql::search_withintime(time_t t1, time_t t2) {
     auto a = query(conn,
                    "select run_id, subrun_id from rest_runs where "
                    "run_start>=to_timestamp($1::bigint) and "
@@ -192,7 +192,7 @@ vector<pair<int, int>> TRestDataBaseImpl::search_withintime(time_t t1, time_t t2
     }
     return result;
 }
-vector<pair<int, int>> TRestDataBaseImpl::search_tag(string tag) {
+vector<pair<int, int>> TRestDataBasePsql::search_tag(string tag) {
     string _tag = Replace(tag, "*", "%", 0);
     _tag = Replace(_tag, "?", "%", 0);
     auto a = query(conn, "select run_id, subrun_id from rest_runs where tag like $1::text", _tag);
@@ -202,7 +202,7 @@ vector<pair<int, int>> TRestDataBaseImpl::search_tag(string tag) {
     }
     return result;
 }
-vector<pair<int, int>> TRestDataBaseImpl::search_user(string user) {
+vector<pair<int, int>> TRestDataBasePsql::search_user(string user) {
     string _user = Replace(user, "*", "%", 0);
     _user = Replace(_user, "?", "%", 0);
     auto a = query(conn, "select run_id, subrun_id from rest_runs where usr like $1::text", _user);
@@ -212,7 +212,7 @@ vector<pair<int, int>> TRestDataBaseImpl::search_user(string user) {
     }
     return result;
 }
-vector<pair<int, int>> TRestDataBaseImpl::search_type(string type) {
+vector<pair<int, int>> TRestDataBasePsql::search_type(string type) {
     string _type = Replace(type, "*", "%", 0);
     _type = Replace(_type, "?", "%", 0);
     auto a = query(conn,
@@ -225,7 +225,7 @@ vector<pair<int, int>> TRestDataBaseImpl::search_type(string type) {
     }
     return result;
 }
-vector<pair<int, int>> TRestDataBaseImpl::search_description(string description) {
+vector<pair<int, int>> TRestDataBasePsql::search_description(string description) {
     string _description = Replace(description, "*", "%", 0);
     _description = Replace(_description, "?", "%", 0);
     auto a =
@@ -236,7 +236,7 @@ vector<pair<int, int>> TRestDataBaseImpl::search_description(string description)
     }
     return result;
 }
-vector<pair<int, int>> TRestDataBaseImpl::search_version(string version) {
+vector<pair<int, int>> TRestDataBasePsql::search_version(string version) {
     string _version = Replace(version, "*", "%", 0);
     _version = Replace(_version, "?", "%", 0);
     auto a = query(conn, "select run_id, subrun_id from rest_runs where version like $1::text", _version);
@@ -246,7 +246,7 @@ vector<pair<int, int>> TRestDataBaseImpl::search_version(string version) {
     }
     return result;
 }
-vector<pair<int, int>> TRestDataBaseImpl::searchexp(string expresstion) {
+vector<pair<int, int>> TRestDataBasePsql::searchexp(string expresstion) {
     auto a = query(conn, "select run_id, subrun_id from rest_runs where " + expresstion);
     vector<pair<int, int>> result(0);
     for (int i = 0; i < a.size(); i++) {
@@ -255,7 +255,7 @@ vector<pair<int, int>> TRestDataBaseImpl::searchexp(string expresstion) {
     return result;
 }
 
-pair<int, int> TRestDataBaseImpl::getrunwithfilename(string filename) {
+pair<int, int> TRestDataBasePsql::getrunwithfilename(string filename) {
     auto a = search_filepattern(filename);
 
     if (a.size() == 0) {
@@ -268,18 +268,18 @@ pair<int, int> TRestDataBaseImpl::getrunwithfilename(string filename) {
     }
     return a[a.size() - 1];
 }
-int TRestDataBaseImpl::getlastrun() {
+int TRestDataBasePsql::getlastrun() {
     auto a = query(conn, "select MAX(run_id) from rest_runs");
     return StringToInteger(a[0][0]);
 }
-int TRestDataBaseImpl::getlastsubrun(int runnumber) {
+int TRestDataBasePsql::getlastsubrun(int runnumber) {
     auto a = query(conn, "select MAX(subrun_id) from rest_runs where run_id=$1::int", runnumber);
     return StringToInteger(a[0][0]);
 }
 
 // create new run in data base
 // returning the created run id
-int TRestDataBaseImpl::new_run() {
+int TRestDataBasePsql::new_run() {
     int last_run = getlastrun();
     fRunNumber = last_run + 1;
     int last_subrun = getlastsubrun(fRunNumber);
@@ -296,7 +296,7 @@ int TRestDataBaseImpl::new_run() {
 }
 // create subrun for specific run number
 // returning the created subrun id
-int TRestDataBaseImpl::new_run(int runnumber) {
+int TRestDataBasePsql::new_run(int runnumber) {
     int last_run = getlastrun();
     if (runnumber > last_run + 1) {
         cout << "REST ERROR : cannot create run with run id incoherent! (last run: " << last_run
@@ -321,7 +321,7 @@ int TRestDataBaseImpl::new_run(int runnumber) {
 }
 // create new run file according to the given file name and DataBaseFileInfo
 // object returns the added file id if success, returns -1 if failed
-int TRestDataBaseImpl::new_runfile(string filename, DataBaseFileInfo info) {
+int TRestDataBasePsql::new_runfile(string filename, DataBaseFileInfo info) {
     int nFiles = -1;
     if (fRunNumber >= 0 && fSubRunNumber >= 0) {
         nFiles = query_files(fRunNumber, fSubRunNumber).size();
@@ -341,7 +341,7 @@ int TRestDataBaseImpl::new_runfile(string filename, DataBaseFileInfo info) {
     return nFiles;
 }
 
-int TRestDataBaseImpl::set_runnumber(int runnumber) {
+int TRestDataBasePsql::set_runnumber(int runnumber) {
     if (query_run(runnumber) == -1) {
         cout << "REST ERROR : run does not exist!" << endl;
         return -1;
@@ -350,7 +350,7 @@ int TRestDataBaseImpl::set_runnumber(int runnumber) {
     }
     return 0;
 }
-int TRestDataBaseImpl::set_subrun(int subrun) {
+int TRestDataBasePsql::set_subrun(int subrun) {
     if (query_subrun(fRunNumber, subrun) == -1) {
         cout << "REST ERROR : subrun does not exist!" << endl;
         return -1;
@@ -359,56 +359,56 @@ int TRestDataBaseImpl::set_subrun(int subrun) {
     }
     return 0;
 }
-int TRestDataBaseImpl::set_type(string type) {
+int TRestDataBasePsql::set_type(string type) {
     query(conn,
           "update rest_runs set type=$1::run_type where run_id=$2::int and "
           "subrun_id=$3::int",
           type, fRunNumber, fSubRunNumber);
     return 0;
 }
-int TRestDataBaseImpl::set_user(string user) {
+int TRestDataBasePsql::set_user(string user) {
     query(conn,
           "update rest_runs set usr=$1::text where run_id=$2::int and "
           "subrun_id=$3::int",
           user, fRunNumber, fSubRunNumber);
     return 0;
 }
-int TRestDataBaseImpl::set_tag(string tag) {
+int TRestDataBasePsql::set_tag(string tag) {
     query(conn,
           "update rest_runs set tag=$1::text where run_id=$2::int and "
           "subrun_id=$3::int",
           tag, fRunNumber, fSubRunNumber);
     return 0;
 }
-int TRestDataBaseImpl::set_description(string description) {
+int TRestDataBasePsql::set_description(string description) {
     query(conn,
           "update rest_runs set description=$1::text where run_id=$2::int and "
           "subrun_id=$3::int",
           description, fRunNumber, fSubRunNumber);
     return 0;
 }
-int TRestDataBaseImpl::set_version(string version) {
+int TRestDataBasePsql::set_version(string version) {
     query(conn,
           "update rest_runs set version=$1::text where run_id=$2::int and "
           "subrun_id=$3::int",
           version, fRunNumber, fSubRunNumber);
     return 0;
 }
-int TRestDataBaseImpl::set_runstart(double starttime) {
+int TRestDataBasePsql::set_runstart(double starttime) {
     query(conn,
           "update rest_runs set run_start=$1::timestamp with time zone where "
           "run_id=$2::int and subrun_id=$3::int",
           ToDateTimeString(starttime), fRunNumber, fSubRunNumber);
     return 0;
 }
-int TRestDataBaseImpl::set_runend(double endtime) {
+int TRestDataBasePsql::set_runend(double endtime) {
     query(conn,
           "update rest_runs set run_end=$1::timestamp with time zone where "
           "run_id=$2::int and subrun_id=$3::int",
           ToDateTimeString(endtime), fRunNumber, fSubRunNumber);
     return 0;
 }
-int TRestDataBaseImpl::set_fileinfo(int fileid, DataBaseFileInfo info) {
+int TRestDataBasePsql::set_fileinfo(int fileid, DataBaseFileInfo info) {
     query(conn,
           "update rest_files set file_size=$4::bigint, start_time=$5::timestamp "
           "with time zone, stop_time=$6::timestamp with time zone, "
@@ -419,7 +419,7 @@ int TRestDataBaseImpl::set_fileinfo(int fileid, DataBaseFileInfo info) {
 
     return 0;
 }
-int TRestDataBaseImpl::set_fileinfo(string filename, DataBaseFileInfo info) {
+int TRestDataBasePsql::set_fileinfo(string filename, DataBaseFileInfo info) {
     query(conn,
           "update rest_files set file_size=$4::bigint, start_time=$5::timestamp "
           "with time zone, stop_time=$6::timestamp with time zone, "
@@ -431,13 +431,13 @@ int TRestDataBaseImpl::set_fileinfo(string filename, DataBaseFileInfo info) {
     return 0;
 }
 
-void TRestDataBaseImpl::test() {
+void TRestDataBasePsql::test() {
     auto result = pg::query(conn, "select * from rest_files", 1, 16, 1);
     for (size_t row = 0; row < result.size() && row < 10; ++row) {
         cout << result[row][3] << endl;
     }
 }
-void TRestDataBaseImpl::print(int runnumber, int subrun) {
+void TRestDataBasePsql::print(int runnumber, int subrun) {
     auto a = query(conn,
                    "select run_id, run_start, run_end, type, description, usr "
                    "from rest_runs where run_id=$1::int and subrun_id=$2::int",
@@ -469,7 +469,7 @@ void TRestDataBaseImpl::print(int runnumber, int subrun) {
              << "(RUN " << runnumber << ", SubRun " << subrun << ")" << endl;
     }
 }
-void TRestDataBaseImpl::exec(string cmd) {
+void TRestDataBasePsql::exec(string cmd) {
     if (ToUpper(cmd).find("DROP") != -1) {
         cout << "ERROR!!!FORBIDDEN OPERATION!!!" << endl;
         return;
