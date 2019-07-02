@@ -1,0 +1,147 @@
+##################################
+# Minos prototype detector setup
+# 1 Feminos + 1 FEC AGET
+# Pedestal run
+##################################
+#
+##################################
+# Feminos Settings 
+##################################
+# SCA write clock: 100MHz / wckdiv
+sca wckdiv 0x1
+sca cnt 0x200
+sca autostart 1
+rst_len 0
+##################################
+# Test mode settings
+##################################
+keep_fco 0
+test_zbt 0
+test_enable 0
+test_mode 0
+tdata A 0x40
+##################################
+# AGET settings
+##################################
+aget * autoreset_bank 0x1
+aget * dis_multiplicity_out 0x0
+# Vicm: 0x1 for negative polarity 0x2 for positive 
+aget * vicm 0x1
+aget * polarity 0x0
+aget * en_mkr_rst 0x0
+aget * rst_level 0x1
+aget * short_read 0x1
+aget * tst_digout 0x1
+# Mode: 0x0: hit/selected channels 0x1:all channels
+aget * mode 0x1
+# Gain: 0x0:120fC; 0x1:240fC; 0x2:1pC; 0x3:10pC
+aget * gain * 0x3
+# Shaping time: 0x0 to 0xF: 70ns to 1014ns
+aget * time 0xF
+# Common part of discriminator threshold
+aget * dac 0x0
+##################################
+# Readout settings
+##################################
+modify_hit_reg 0
+emit_hit_cnt 1
+emit_empty_ch 1
+keep_rst 1
+skip_rst 0
+##################################
+# Channel ena/disable (AGET only)
+##################################
+forceon_all 1
+forceoff * * 0x1
+forceon * * 0x0
+forceoff 0 * 0x0
+forceon 0 * 0x1
+##################################
+# Pedestal Thresholds and Zero-suppression
+##################################
+ped * * 0x0
+subtract_ped 0
+zero_suppress 0
+zs_pre_post 0 0
+thr * * 0x0
+##################################
+# Event generator
+##################################
+# Event limit: 0x0:infinite; 0x1:1; 0x2:10; 0x3:100; 0x4: 1000; 0x5:10000; 0x6:100000; 0x7:1000000
+event_limit 0x2
+# Range: 0:0.1Hz-10Hz 1:10Hz-1kHz 2:100Hz-10kHz 3:1kHz-100kHz
+trig_rate 1 10
+trig_enable 0x1
+##################################
+# Pedestal Histograms
+##################################
+# Set histogram offset polarity negative: 0 positive: 3584
+hped offset * * 0
+# Clear all pedestal histograms
+hped clr * *
+##################################
+# Set Data server target:
+#  0: drop data
+#  1: send to DAQ
+#  2: feed to pedestal histos
+#  3: feed to hit channel histos 
+##################################
+serve_target 2
+##################################
+# Enable data taking
+##################################
+sca enable 1
+##################################
+# Wait pedestal accumulation completion
+##################################
+sleep 15
+##################################
+# Disable data taking
+##################################
+sca enable 0
+##################################
+# Print pedestals of all ASICs
+##################################
+hped getsummary 0 *
+hped getsummary 1 *
+hped getsummary 2 *
+hped getsummary 3 *
+##################################
+# Set pedestal equalization constants
+##################################
+hped centermean * * 250
+#hped centermean * * 3850
+##################################
+# Enable Pedestal Equalization
+##################################
+subtract_ped 1
+# Clear all pedestal histograms
+hped clr * *
+##################################
+# Enable data taking
+##################################
+sca enable 1
+##################################
+# Wait pedestal accumulation completion
+##################################
+sleep 15
+##################################
+# Disable data taking
+##################################
+sca enable 0
+##################################
+# Print pedestals of all ASICs
+##################################
+hped getsummary 0 *
+hped getsummary 1 *
+hped getsummary 2 *
+hped getsummary 3 *
+##################################
+# Set thresholds for zero-suppression
+##################################
+hped setthr * * 250 5.0
+#hped setthr * * 3850 5.0
+##################################
+# Set Data server target to DAQ
+##################################
+serve_target 1
