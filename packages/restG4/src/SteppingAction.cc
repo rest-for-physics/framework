@@ -123,8 +123,9 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
 
         // We check if the hit must be stored and keep it on restG4Track
         for (int volID = 0; volID < restG4Metadata->GetNumberOfActiveVolumes(); volID++) {
-            Bool_t isDecay = (nom_proc == (G4String) "RadioactiveDecay");
-            if (restG4Event->isVolumeStored(volID) || isDecay) {
+            // Commented in connection with issue #65.
+            /// Bool_t isDecay = (nom_proc == (G4String) "RadioactiveDecay");
+            if (restG4Event->isVolumeStored(volID)) {
                 if (restG4Metadata->GetVerboseLevel() >= REST_Extreme)
                     G4cout << "Step volume :" << nom_vol << "::("
                            << (G4String)restG4Metadata->GetActiveVolumeName(volID) << ")" << G4endl;
@@ -132,7 +133,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
                 // We store the hit if we have activated in the config
                 Bool_t isActiveVolume = (nom_vol == (G4String)restG4Metadata->GetActiveVolumeName(volID));
 
-                if (isActiveVolume || isDecay) {
+                if (isActiveVolume) {
                     if (restG4Metadata->GetVerboseLevel() >= REST_Extreme) G4cout << "Storing hit" << G4endl;
 
                     Int_t pcsID = restTrack->GetProcessID(nom_proc);
