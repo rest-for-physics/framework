@@ -11,11 +11,20 @@ IF(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${child})
 ENDIF()
 ENDFOREACH()
   
-list(REMOVE_ITEM dirlist detector dummy muon)
+list(REMOVE_ITEM dirlist detector dummy)
 message(${dirlist})
 
-FOREACH(dir ${dirlist})
-    add_subdirectory(${dir})
+FOREACH(dir ${dirlist})	
+	string(TOUPPER ${dir} dir_upper)
+	string(REPLACE "REST" "" name ${dir_upper})
+
+	IF(NOT DEFINED REST_${name})
+		set(REST_${name} ON)
+	ENDIF()
+
+	if (${REST_${name}} MATCHES "ON")
+		add_subdirectory(${dir})
+	endif()
 ENDFOREACH()
 
 

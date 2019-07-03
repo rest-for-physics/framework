@@ -89,7 +89,7 @@ foreach(dir ${rest_include_dirs})
 	set(Headers ${hdr} ${Headers})
 endforeach()
 
-message("Headers: ${Headers}")
+#message("Headers: ${Headers}")
 
 INSTALL(FILES ${Headers} DESTINATION include)
 
