@@ -22,7 +22,7 @@
 #include <TVector3.h>
 #include "TObject.h"
 
-#include <TRestParticleCollection.h>
+#include <TRestGeneratorInfo.h>
 #include <TRestParticleSource.h>
 
 class TRestG4PrimaryGenerator : public TObject {
@@ -40,7 +40,7 @@ class TRestG4PrimaryGenerator : public TObject {
     // each entry --> one event template¡£
     // in restG4, we randomly pick the template from its entries and refresh
     // fSources
-    std::vector<TRestParticleCollection*> fParticleCollections;
+    std::vector<TRestGeneratorInfo*> fParticleCollections;
 
    public:
     Int_t GetNumberOfCollections() { return fNCollections; }
@@ -64,7 +64,7 @@ class TRestG4PrimaryGenerator : public TObject {
         fNsources++;
     }
 
-    TRestParticleCollection* GetParticleCollection(Int_t n) { return fParticleCollections[n]; }
+    TRestGeneratorInfo* GetParticleCollection(Int_t n) { return fParticleCollections[n]; }
     void RemoveParticleCollections() {
         for (auto c : fParticleCollections) {
             delete c;
@@ -72,7 +72,7 @@ class TRestG4PrimaryGenerator : public TObject {
         fParticleCollections.clear();
         fNCollections = 0;
     }
-    void AddParticleCollection(TRestParticleCollection* collection) {
+    void AddParticleCollection(TRestGeneratorInfo* collection) {
         fParticleCollections.push_back(collection);
         fNCollections++;
     }

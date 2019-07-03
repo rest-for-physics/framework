@@ -296,7 +296,7 @@ class TRestG4Metadata : public TRestMetadata {
     TRestG4PrimaryGenerator GetPrimaryGenerator() { return fPrimaryGenerator; }
 
     /// \brief Places in fPrimaryGenerator the source definition, with index n,
-    /// from a TRestParticleCollection. This will be used by restG4 to pick up
+    /// from a TRestGeneratorInfo. This will be used by restG4 to pick up
     /// randomly a primary source definition from a pre-generated sources
     /// collection. The particle collection needs to be previously populated using
     /// i.e. an input Decay0 file.

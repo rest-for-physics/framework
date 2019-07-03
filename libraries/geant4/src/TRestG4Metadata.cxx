@@ -31,7 +31,7 @@
 ///
 /// There are few helper classes that aid to organize and access the information
 /// that TRestG4Metadata contains, TRestG4PrimaryGenerator, TRestBiasingVolume,
-/// TRestParticleCollection, TRestParticle, TRestParticleSource, and
+/// TRestGeneratorInfo, TRestParticle, TRestParticleSource, and
 /// TRestPhysicsLists.
 ///
 /// The full RML description to be provided to *restG4* to launch a simulation
@@ -875,7 +875,7 @@ void TRestG4Metadata::ReadGenerator() {
             ReadParticleSource(sourceString);
         } else {
             info << "Load custom sources from " << use << endl;
-            TRestParticleCollection* particleCollection = TRestParticleCollection::instantiate(use);
+            TRestGeneratorInfo* particleCollection = TRestGeneratorInfo::instantiate(use);
             if (particleCollection != NULL) {
                 particleCollection->SetParticleModel(sourceString);
                 fPrimaryGenerator.AddParticleCollection(particleCollection);
@@ -997,7 +997,7 @@ void TRestG4Metadata::PrintMetadata() {
 /// pre-generated events, providing the names (or ids) of
 /// particles to be produced, their energy, and momentum.
 /// The particles and their properties are stored in a
-/// TRestParticleCollection which will be randomly accessed
+/// TRestGeneratorInfo which will be randomly accessed
 /// by the restG4 package.
 ///
 /// \param fName The Decay0 filename located at
@@ -1045,7 +1045,7 @@ Int_t TRestG4Metadata::ReadNewDecay0File(TString fileName) {
     debug << "Total number of events : " << generatorEvents << endl;
 
     for (int n = 0; n < generatorEvents && !infile.eof(); n++) {
-        TRestParticleCollection* particleCollection = TRestParticleCollection::instantiate();
+        TRestGeneratorInfo* particleCollection = TRestGeneratorInfo::instantiate();
         particleCollection->RemoveParticles();
 
         int pos = -1;
@@ -1151,7 +1151,7 @@ Int_t TRestG4Metadata::ReadOldDecay0File(TString fileName) {
     cout << "Total number of events : " << fGeneratorEvents << endl;
 
     for (int n = 0; n < fGeneratorEvents && !infile.eof(); n++) {
-        TRestParticleCollection* particleCollection = TRestParticleCollection::instantiate();
+        TRestGeneratorInfo* particleCollection = TRestGeneratorInfo::instantiate();
         particleCollection->RemoveParticles();
 
         Int_t nParticles;

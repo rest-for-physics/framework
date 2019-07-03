@@ -35,7 +35,7 @@ void TRestG4PrimaryGenerator::SetSourcesFromParticleCollection(Int_t n) {
 
     Int_t pCollectionID = n % fNCollections;
 
-    TRestParticleCollection* pCollection = GetParticleCollection(pCollectionID);
+    TRestGeneratorInfo* pCollection = GetParticleCollection(pCollectionID);
 
     pCollection->VirtualUpdate();
 
