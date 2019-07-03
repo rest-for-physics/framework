@@ -10,7 +10,7 @@
 #include "TRestG4Metadata.h"
 #include "TRestG4Track.h"
 #include "TRestGeometry.h"
-#include "TRestPhysicsLists.h"
+#include "TRestG4PhysicsLists.h"
 #include "TRestRun.h"
 
 #include "G4RunManager.hh"
@@ -55,7 +55,7 @@ TRestRun* restRun;
 TRestG4Track* restTrack;
 TRestG4Event *restG4Event, *subRestG4Event;
 TRestG4Metadata* restG4Metadata;
-TRestPhysicsLists* restPhysList;
+TRestG4PhysicsLists* restPhysList;
 
 #include <TGeoVolume.h>
 
@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
     //g4Version.erase(std::remove(g4Version.begin(), g4Version.end(), '\n'), g4Version.end());
     restG4Metadata->SetGeant4Version(g4Version);
 
-    restPhysList = new TRestPhysicsLists(inputConfigFile, (string)physListName);
+    restPhysList = new TRestG4PhysicsLists(inputConfigFile, (string)physListName);
 
     restRun = new TRestRun();
     restRun->LoadConfigFromFile(inputConfigFile);

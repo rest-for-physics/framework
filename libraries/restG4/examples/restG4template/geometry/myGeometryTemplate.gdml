@@ -1,0 +1,64 @@
+<solids>
+    <box name="WorldSolid" x="world_size" y="world_size" z="world_size" lunit="mm" />
+    <box name="waterTankSolidBox" x="waterTankSize" y="waterTankSize" z="waterTankSize" lunit="mm" />
+    <tube name="vesselSolidTube" startphi="0" deltaphi="360" rmin="0" rmax="gasRadius+vesselThickness" z="gasLength+2*vesselThickness" aunit="deg" lunit="mm" />
+    <tube name="gasSolid" startphi="0" deltaphi="360" rmin="0" rmax="gasRadius" z="gasLength" aunit="deg" lunit="mm" />
+
+    <!-- We MUST substract the vessel so that the "volume" generator will produce events only in the water tank -->
+    <subtraction name="waterTankSolid">
+        <first ref="waterTankSolidBox"/>
+        <second ref="vesselSolidTube"/>
+    </subtraction>
+
+    <!-- We MUST substract the gas so that the "volume" generator will produce events only in the vessel -->
+    <subtraction name="vesselSolid">
+        <first ref="vesselSolidTube"/>
+        <second ref="gasSolid"/>
+    </subtraction>
+
+</solids>
+
+<structure>
+
+    <!-- {{{ Volumes definition (material and solid assignment) -->
+    <volume name="gasVolume">
+        <materialref ref="Xenon_TMA"/>
+        <solidref ref="gasSolid"/>
+    </volume>
+
+    <volume name="waterTankVolume">
+        <materialref ref="Water"/>
+        <solidref ref="waterTankSolid"/>
+    </volume>
+
+    <volume name="vesselVolume">
+        <materialref ref="Copper"/>
+        <solidref ref="vesselSolid"/>
+    </volume>
+
+    <!-- }}} -->
+
+    <!-- {{{ Physical volume definition (volume and position assignment) -->
+    <volume name="World">
+        <materialref ref="Air"/>
+        <solidref ref="WorldSolid"/>
+
+        <physvol name="gas">
+            <volumeref ref="gasVolume"/>
+            <position name="gasPosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+        
+        <physvol name="vessel">
+            <volumeref ref="vesselVolume"/>
+            <position name="vesselPosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+        
+        <physvol name="waterTank">
+            <volumeref ref="waterTankVolume"/>
+            <position name="waterTankPosition" unit="mm" x="0" y="0" z="0"/>
+        </physvol>
+
+    </volume>
+    <!-- }}} -->
+
+</structure>

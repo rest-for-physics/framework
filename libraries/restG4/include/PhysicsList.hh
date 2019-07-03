@@ -39,7 +39,7 @@
 #include "G4VModularPhysicsList.hh"
 #include "globals.hh"
 
-#include <TRestPhysicsLists.h>
+#include <TRestG4PhysicsLists.h>
 
 using namespace std;
 class G4VPhysicsConstructor;
@@ -49,7 +49,7 @@ class G4VPhysicsConstructor;
 class PhysicsList : public G4VModularPhysicsList {
    public:
     PhysicsList();
-    PhysicsList(TRestPhysicsLists* restPhysicsLists);
+    PhysicsList(TRestG4PhysicsLists* restPhysicsLists);
     ~PhysicsList();
 
    protected:
@@ -67,7 +67,7 @@ class PhysicsList : public G4VModularPhysicsList {
     G4VPhysicsConstructor* fRadDecPhysicsList;
     std::vector<G4VPhysicsConstructor*> fHadronPhys;
 
-    TRestPhysicsLists* restPhysList;
+    TRestG4PhysicsLists* restPhysList;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

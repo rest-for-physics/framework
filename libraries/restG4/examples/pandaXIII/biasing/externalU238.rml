@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<!-- 
+     File   : isotopeFromVolume.rml
+     Authors : J. Galan / H.Liang
+     Date   :  9th-Apr-2016
+     Description : Template configuration file to launch radiactive ${REST_ISOTOPE} decays from a given volume ${REST_VOLUME} defined in the geometry.
+ -->
+
+
+<restG4>
+
+  <globals>
+    <parameter name="mainDataPath" value="" />
+    <parameter name="verboseLevel" value="essential" />
+    <variable name="DFilePath" value="${REST_PATH}/data/distributions" />
+  </globals>
+
+  <TRestRun name="PANDA-X III run" title="Simulations v2.0">
+    <parameter name="experiment" value="PANDAXIII"/>
+    <parameter name="runType" value="simulation"/>
+    <parameter name="runNumber" value="${REST_RUN}"/>
+    <parameter name="runTag" value="biasing_U238"/>
+    <parameter name="runDescription" value="We launch U238 decays from the virtual box."/>
+    <parameter name="user" value="${USER}"/>
+    <parameter name="verboseLevel" value="3"/>
+    <parameter name="overwrite" value="on" />
+    <parameter name="outputFile" value="Run_ConcreteWall_Biasing_U238.root" />
+  </TRestRun>
+
+  <TRestG4Metadata name="restG4 Simulation run" title="Biasing simulation of U238 gammas from a external concrete wall.">
+
+    <parameter name="gdml_file" value="../geometry/resistive/pandaXIII_Setup.gdml"/>
+    <parameter name="maxTargetStepSize" value="10" units="mm" />
+    
+    <parameter name="Nevents" value="100"/> 
+    change the value to -1 to enter vis mode for more opeartions
+    
+    <generator type="virtualBox" size="12000" units="mm" >
+      <source particle="gamma" fullChain="off">
+        <angularDist type="TH1D" file="${DFilePath}/RadioactivityGammas.root" spctName="ThetaAngle"/>
+        <energyDist type="TH1D" file="${DFilePath}/RadioactivityGammas.root" spctName="U238" range="(2.4,15.0)" units="MeV"/>
+      </source>
+    </generator>
+
+    <biasing value="on" type="virtualBox">
+      <biasingVolume particle="gamma" size="2.5m" position="(0,0,0)mm" factor="10" energyRange="(2.4,15.0)MeV"/>
+      <biasingVolume particle="gamma" size="3.0m" position="(0,0,0)mm" factor="2.8" energyRange="(2.4,15)MeV"/>
+      <biasingVolume particle="gamma" size="4.0m" position="(0,0,0)mm" factor="6.3" energyRange="(2.4,15)MeV"/>
+      <biasingVolume particle="gamma" size="5.0m" position="(0,0,0)mm" factor="5.6" energyRange="(2.4,15)MeV"/>
+      <biasingVolume particle="gamma" size="6.0m" position="(0,0,0)mm" factor="5.2" energyRange="(2.4,15)MeV"/>
+      <biasingVolume particle="gamma" size="7.0m" position="(0,0,0)mm" factor="5.1" energyRange="(2.4,15)MeV"/>
+      <biasingVolume particle="gamma" size="8.0m" position="(0,0,0)mm" factor="5.3" energyRange="(2.4,15)MeV"/>
+      <biasingVolume particle="gamma" size="9.0m" position="(0,0,0)mm" factor="6.1" energyRange="(2.4,15)MeV"/>
+      <biasingVolume particle="gamma" size="10.0m" position="(0,0,0)mm" factor="7.9" energyRange="(2.4,15)MeV"/>
+      <biasingVolume particle="gamma" size="11.0m" position="(0,0,0)mm" factor="11.4" energyRange="(2.4,15)MeV"/>
+    </biasing>
+
+    <storage sensitiveVolume="gas">
+      <parameter name="energyRange" value="(2.4,15)MeV" />
+      <activeVolume name="gas" chance="1" />
+    </storage>
+
+  </TRestG4Metadata>
+
+  <TRestPhysicsLists name="default" title="First physics list implementation." >
+
+    <parameter name="cutForGamma" value="1" units="um" />
+    <parameter name="cutForElectron" value="1" units="um" />
+    <parameter name="cutForPositron" value="1" units="mm" />
+
+    <parameter name="cutForMuon" value="1" units="mm" />
+    <parameter name="cutForNeutron" value="1" units="mm" />
+    <parameter name="minEnergyRangeProductionCuts" value="1" units="keV" />
+    <parameter name="maxEnergyRangeProductionCuts" value="1" units="GeV" />
+
+    <!-- EM Physics lists -->
+    <physicsList name="G4EmLivermorePhysics"> </physicsList>
+    <!-- <physicsList name="G4EmPenelopePhysics"> </physicsList> -->
+    <!-- <physicsList name="G4EmStandardPhysics_option3"> </physicsList> -->
+
+    <!-- Decay physics lists -->
+    <physicsList name="G4DecayPhysics"> </physicsList>
+    <physicsList name="G4RadioactiveDecayPhysics"> </physicsList>
+    <physicsList name="G4RadioactiveDecay">
+      <option name="ICM" value="true" />
+      <option name="ARM" value="true" />
+    </physicsList>
+
+    <!-- Hadron physics lists -->
+    <physicsList name="G4HadronElasticPhysicsHP"> </physicsList>
+    <physicsList name="G4IonBinaryCascadePhysics"> </physicsList>
+    <physicsList name="G4HadronPhysicsQGSP_BIC_HP"> </physicsList>
+    <physicsList name="G4NeutronTrackingCut"> </physicsList>
+    <physicsList name="G4EmExtraPhysics"> </physicsList>
+
+  </TRestPhysicsLists>
+
+</restG4>
