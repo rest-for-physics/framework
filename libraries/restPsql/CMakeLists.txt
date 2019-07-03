@@ -1,6 +1,6 @@
 #----------------------------------------------------------------------------
 # Setup the project
-set(projname RestDataBasePsql)
+set(projname RestPsql)
 project(${projname})
 message("===============  ${projname}  ==============")
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake ${CMAKE_MODULE_PATH})
