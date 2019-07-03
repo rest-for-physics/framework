@@ -2,10 +2,7 @@
 #include "TRestGenericEventViewer.h"
 #include "TRestTask.h"
 
-#include "TRestLinearTrackEvent.h"
-#include "TRestRawSignalEvent.h"
 #include "TRestSignalEvent.h"
-#include "TRestTrackEvent.h"
 
 #ifndef RestTask_ViewEvents
 #define RestTask_ViewEvents

@@ -1,16 +1,11 @@
-#include "TRestG4Event.h"
-#include "TRestG4Metadata.h"
 #include "TRestHitsEvent.h"
-#include "TRestLinearTrackEvent.h"
-#include "TRestRawSignalEvent.h"
 #include "TRestSignalEvent.h"
 #include "TRestTask.h"
-#include "TRestTrackEvent.h"
 
 #ifndef RESTTask_PrintEvents
 #define RESTTask_PrintEvents
 
-Int_t REST_GenericEvents(TString fName, TString EventType = "", Int_t Entry = 0) {
+Int_t REST_PrintEvents(TString fName, TString EventType = "", Int_t Entry = 0) {
     TRestRun* run = new TRestRun();
     TClass* cl = TClass::GetClass(EventType);
     if (cl == NULL || EventType == "") {
@@ -38,125 +33,4 @@ Int_t REST_GenericEvents(TString fName, TString EventType = "", Int_t Entry = 0)
 
     return 0;
 }
-
-Int_t REST_G4Event(TString fName, Int_t firstEvent = 0) {
-    TRestRun* run = new TRestRun();
-
-    run->OpenInputFile(fName);
-
-    run->PrintInfo();
-
-    TRestG4Event* evt = new TRestG4Event();
-
-    run->SetInputEvent(evt);
-
-    run->GetEntry(firstEvent);
-
-    evt->PrintEvent();
-
-    delete run;
-
-    return 0;
-}
-
-Int_t REST_HitsEvent(TString fName, Int_t firstEvent = 0) {
-    TRestRun* run = new TRestRun();
-
-    run->OpenInputFile(fName);
-
-    run->PrintInfo();
-
-    TRestHitsEvent* evt = new TRestHitsEvent();
-
-    run->SetInputEvent(evt);
-
-    run->GetEntry(firstEvent);
-
-    evt->PrintEvent();
-
-    delete run;
-
-    return 0;
-}
-
-Int_t REST_LinearTrackEvent(TString fName, Int_t firstEvent = 0) {
-    TRestRun* run = new TRestRun();
-
-    run->OpenInputFile(fName);
-
-    run->PrintInfo();
-
-    TRestLinearTrackEvent* evt = new TRestLinearTrackEvent();
-
-    run->SetInputEvent(evt);
-
-    run->GetEntry(firstEvent);
-
-    evt->PrintEvent();
-
-    delete run;
-
-    return 0;
-}
-
-Int_t REST_RawSignalEvent(TString fName, Int_t firstEvent = 0) {
-    TRestRun* run = new TRestRun();
-
-    run->OpenInputFile(fName);
-
-    run->PrintInfo();
-
-    TRestRawSignalEvent* evt = new TRestRawSignalEvent();
-
-    run->SetInputEvent(evt);
-
-    run->GetEntry(firstEvent);
-
-    evt->PrintEvent();
-
-    delete run;
-
-    return 0;
-}
-
-Int_t REST_SignalEvent(TString fName, Int_t firstEvent = 0) {
-    TRestRun* run = new TRestRun();
-
-    run->OpenInputFile(fName);
-
-    run->PrintInfo();
-
-    TRestSignalEvent* evt = new TRestSignalEvent();
-
-    run->SetInputEvent(evt);
-
-    run->GetEntry(firstEvent);
-
-    evt->PrintEvent();
-
-    delete run;
-
-    return 0;
-}
-
-Int_t REST_TrackEvent(TString fName, Int_t firstEvent = 0) {
-    TRestRun* run = new TRestRun();
-
-    run->OpenInputFile(fName);
-
-    run->PrintInfo();
-
-    TRestTrackEvent* evt = new TRestTrackEvent();
-
-    run->SetInputEvent(evt);
-
-    run->GetEntry(firstEvent);
-
-    evt->PrintEvent();
-
-    delete run;
-
-    return 0;
-}
-
 #endif
