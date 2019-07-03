@@ -31,7 +31,7 @@ fi
 if [[ $LD_LIBRARY_PATH =~ "$GARFIELD_HOME/lib" ]]; then
     echo Find garfield lib path $GARFIELD_HOME/lib in LD_LIBRARY_PATH
 else
-    echo Adding garifeld lib path into env
+    echo Adding garfield lib path into env
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GARFIELD_HOME/lib
     echo " ++++ LD_LIBRARY_PATH has been added to your .bashrc"
     echo "export LD_LIBRARY_PATH=\$GARFIELD_HOME/lib:\$LD_LIBRARY_PATH" >> ~/.bashrc
@@ -42,17 +42,19 @@ echo " " >> ~/.bashrc
 rm -rf $GARFIELD_HOME/build
 
 echo checkout the code...
-svn co http://svn.cern.ch/guest/garfield/tags/v1r0 $GARFIELD_HOME
-cp garfield6/CMakeLists.txt $GARFIELD_HOME/CMakeLists.txt
-
+#svn co http://svn.cern.ch/guest/garfield/tags/v1r0 $GARFIELD_HOME
+git clone https://gitlab.cern.ch/garfield/garfieldpp.git $GARFIELD_HOME
 cd $GARFIELD_HOME
+git checkout c84002f1
+
+#cp garfield6/CMakeLists.txt $GARFIELD_HOME/CMakeLists.txt
 
 
 echo building...
 mkdir build -p
 cd build
 
-cmake -DCMAKE_INSTALL_PREFIX=$GARFIELD_HOME ../
+cmake -DWITH_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=$GARFIELD_HOME ../
 make -j2
 mkdir ../lib -p
 
@@ -73,5 +75,6 @@ else
 	echo ROOT6 required, but not found!
 	echo ROOT version is: $(root-config --version)
 fi
+
 
 
