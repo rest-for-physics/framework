@@ -19,7 +19,7 @@ set(Lib_Source ${sources})
 set(Exe_Source)
 
 # Customize directories to install
-set(Copy_Source data examples macros)
+set(Copy_Source data example macros)
 
 # Whether to generate dictionary with ROOTCINT
 set(GenDict TRUE)

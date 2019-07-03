@@ -115,8 +115,8 @@ install(
 )
 
 install(
-        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/
-        DESTINATION ./examples/${shortLibName}/
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/example/
+        DESTINATION ./example/${shortLibName}/
         COMPONENT install
 )
 
