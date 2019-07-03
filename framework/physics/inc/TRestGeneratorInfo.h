@@ -39,7 +39,6 @@ class TRestGeneratorInfo : public TObject {
     virtual void VirtualUpdate() {}
     virtual Int_t GetNumberOfParticles() { return fParticles.size(); }
     virtual TRestParticle GetParticle(int i) { return fParticles[i]; }
-	virtual void ReadGeneratorFile(string filename) {}
 
     virtual void RemoveParticles() { fParticles.clear(); }
     virtual void AddParticle(TRestParticle ptcle) { fParticles.push_back(ptcle); }

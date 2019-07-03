@@ -24,5 +24,4 @@ class RmlUpdateTool : public TRestMetadata {
 
     RmlUpdateTool();
     RmlUpdateTool(string Filename, bool process = false);
-    ClassDef(RmlUpdateTool, 1);
 };

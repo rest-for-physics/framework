@@ -18,9 +18,15 @@ MACRO( COMPILEPROJ projname )
 
 	#----------------------------------------------------------------------------
 	# Set include and lib
-	set(incdir ${PROJECT_SOURCE_DIR}/inc ${ROOT_INCLUDE_DIRS} ${REST_INCLUDE_DIRS} ${Depend_Inc})
+	set(incdir ${REST_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${Depend_Inc})
 	set(lnklib ${REST_LIBRARIES} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit ${Depend_Lib})
 
+	foreach (file ${Lib_Source})
+		get_filename_component(dir ${file} DIRECTORY)
+		list(APPEND incdir ${dir})
+		list(APPEND incdir ${dir}/../inc)
+	endforeach()
+	list(REMOVE_DUPLICATES incdir)
 	include_directories(${incdir})
 
 	if(Lib_Source)
@@ -33,7 +39,7 @@ MACRO( COMPILEPROJ projname )
 				if(pos GREATER -1)
 					file(GLOB_RECURSE header ${class}.h*)
 					if(header)
-						message("hhhhh ${class} ${header}")
+						#message("hhhhh ${class} ${header}")
 
 						set(ROOT_DICT_INCLUDE_DIRS ${incdir})
 						set(ROOT_DICT_INPUT_HEADERS ${header} ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
@@ -44,7 +50,7 @@ MACRO( COMPILEPROJ projname )
 						# Install PCM files
 						install(CODE
 						"
-						file(GLOB PCMFiles \"\${CMAKE_CURRENT_SOURCE_DIR}/rootdict/${class}.pcm\")
+						file(GLOB PCMFiles \"${ROOT_DICT_OUTPUT_DIR}/*${class}*.pcm\")
 						file(COPY \${PCMFiles} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 						"
 						)
@@ -67,6 +73,9 @@ MACRO( COMPILEPROJ projname )
 			get_filename_component(exe ${file} NAME_WE)
 			add_executable(${exe} ${file})
 			target_link_libraries(${exe} ${lnklib})
+			if(Lib_Source)
+				target_link_libraries(${exe} ${projname})
+			endif()
 			# Install executable
 			install(TARGETS ${exe} DESTINATION bin)
 		endforeach()

@@ -12,7 +12,7 @@ set(Depend_Inc)
 set(Depend_Lib)
 
 # Library source files
-file(GLOB sources ${PROJECT_SOURCE_DIR}/source/*cc)
+file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*cxx)
 set(Lib_Source ${sources})
 
 # Executables source files

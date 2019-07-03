@@ -120,6 +120,17 @@ set(rest_macros_str)
 add_subdirectory(framework)
 add_subdirectory(libraries)
 
+set(rest_libraries_regular "-L${CMAKE_INSTALL_PREFIX}/lib ")
+foreach(lib ${rest_libraries})
+	set(rest_libraries_regular "${rest_libraries_regular}-l${lib} ")
+endforeach(lib)
+
+#REST macros string(separate with blank)
+set(rest_macros_str)
+foreach(mac ${rest_macros})
+	set(rest_macros_str "${rest_macros_str}${mac} ")
+endforeach(mac)
+
 message("")
 message(STATUS "rest Libraries : " ${rest_libraries_regular})
 message(STATUS "rest executables: " ${rest_exes})
@@ -133,17 +144,8 @@ message("=============================")
 message("REST will be installed in : ${CMAKE_INSTALL_PREFIX}")
 message("Version: ${GIT_TAG}")
 message("System is : ${CMAKE_SYSTEM_NAME}")
-if (${REST_GARFIELD} MATCHES "ON")
-    message("Garfield is : ${REST_GARFIELD}")
-else ()
-    message("Garfield is : ${REST_GARFIELD}. To enable run cmake adding : -DREST_GARFIELD=ON")
-endif ()
-message("Geant4 is : ${REST_G4}")
-message("DataBase is : ${REST_DATABASE}")
 message("=============================")
 message("")
-
-message("aaaaa ${rest_include_dirs}")
 
 set(Headers)
 foreach(dir ${rest_include_dirs})
@@ -151,18 +153,13 @@ foreach(dir ${rest_include_dirs})
 	set(Headers ${hdr} ${Headers})
 endforeach()
 
-message("bbbbb ${Headers}")
+message("Headers: ${Headers}")
 
 INSTALL(FILES ${Headers} DESTINATION include)
 
 #INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG DESTINATION .)
 
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENCE DESTINATION .)
-
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/macros
-        DESTINATION .
-        COMPONENT install
-        )
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/scripts/restv2_1ToXml.py
         DESTINATION scripts
