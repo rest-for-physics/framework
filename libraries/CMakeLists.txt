@@ -1,38 +1,22 @@
 #compile the packages
 
+# RestDetectorLib is added by default
 add_subdirectory(detector)
 
+FILE(GLOB children RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/*)
+SET(dirlist "")
+FOREACH(child ${children})
+IF(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${child})
+    LIST(APPEND dirlist ${child})
+ENDIF()
+ENDFOREACH()
+  
+list(REMOVE_ITEM dirlist detector dummy muon)
+message(${dirlist})
 
-IF (NOT DEFINED REST_GARFIELD)
-    set(REST_GARFIELD OFF)
-ENDIF ()
-if (${REST_GARFIELD} MATCHES "ON")
-    add_subdirectory(garfield)
-endif (${REST_GARFIELD} MATCHES "ON")
-
-
-IF (NOT DEFINED REST_G4)
-    set(REST_G4 OFF)
-ENDIF ()
-if (${REST_G4} MATCHES "ON")
-    add_subdirectory(geant4)
-endif (${REST_G4} MATCHES "ON")
-
-
-IF (NOT DEFINED REST_PQSL)
-    set(REST_PQSL OFF)
-ENDIF ()
-if (${REST_PQSL} MATCHES "ON")
-    add_subdirectory(restDataBasePsql)
-endif (${REST_PQSL} MATCHES "ON")
-
-
-IF (NOT DEFINED REST_DECAY0)
-    set(REST_DECAY0 OFF)
-ENDIF ()
-if (${REST_DECAY0} MATCHES "ON")
-    add_subdirectory(restDecay0)
-endif (${REST_DECAY0} MATCHES "ON")
+FOREACH(dir ${dirlist})
+    add_subdirectory(${dir})
+ENDFOREACH()
 
 
 set(rest_include_dirs ${rest_include_dirs} PARENT_SCOPE)
