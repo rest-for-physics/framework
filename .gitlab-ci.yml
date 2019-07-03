@@ -8,6 +8,8 @@ stages:
 
 before_script:
   - export USER="test"
+  - rm -rf /builds/REST_v2/install
+  - rm -rf /tmp/rest
 
 build:
   type: build
