@@ -53,8 +53,12 @@ string(REPLACE "\n" "" git_branch ${git_branch})
 string(SUBSTRING ${git_branch} 2 -1 git_branch)
 set(GIT_BRANCH ${git_branch})
 
+#get build time
+string(TIMESTAMP date "%Y-%m-%d %H:%M")
+
 message(STATUS "REST release : ${GIT_TAG}")
-message(STATUS "REST date : ${GIT_DATE}")
-message(STATUS "REST commit : ${GIT_COMMIT}")
-message(STATUS "REST branch : ${GIT_BRANCH}")
+message(STATUS "REST date    : ${GIT_DATE}")
+message(STATUS "REST commit  : ${GIT_COMMIT}")
+message(STATUS "REST branch  : ${GIT_BRANCH}")
+message(STATUS "Build time   : ${date}")
 message("")

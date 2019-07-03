@@ -15,13 +15,15 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     endif ()
 endif ()
 
+#some cmake settings
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
-
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+set(ROOT_FIND_REQUIRED true)
+set(CMAKE_MACOSX_RPATH 1)
 IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-stdlib=libc++")
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-
 
 #install path
 IF (NOT DEFINED INSTALL_PREFIX)
@@ -36,76 +38,10 @@ set(REST_PATH ${INSTALL_PREFIX_ABSOLUTE})
 
 set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX_ABSOLUTE})
 
-
-#auto schema evolution for ROOT
-IF (NOT DEFINED REST_SE)
-    set(REST_SE ON)
-ENDIF ()
-set(SCHEMA_EVOLUTION ${REST_SE})
-
-
 #welcome message
 IF (NOT DEFINED REST_WELCOME)
     set(REST_WELCOME ON)
 ENDIF ()
-
-
-#find ROOT libs and includes
-set(external_include_dirs)
-set(external_libs)
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
-set(ROOT_FIND_REQUIRED true)
-set(CMAKE_MACOSX_RPATH 1)
-include(FindROOT)
-set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
-set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit)
-
-
-#find garfield libs and includes
-#IF( NOT DEFINED REST_GARFIELD )
-#set(REST_GARFIELD ON)
-#ENDIF()
-
-if (${REST_GARFIELD} MATCHES "ON")
-    add_definitions(-DUSE_Garfield)
-    include(FindGarfield)
-    set(external_include_dirs ${external_include_dirs} ${Garfield_INCLUDE_DIRS})
-    set(external_libs ${external_libs} ${Garfield_LIBRARIES})
-else ()
-    set(REST_GARFIELD OFF)
-endif (${REST_GARFIELD} MATCHES "ON")
-
-
-#include dir for compilation
-include_directories(${external_include_dirs})
-message(STATUS "external include directory: " ${external_include_dirs})
-message(STATUS "external libraries to link: " ${external_libs})
-
-
-#gether some infomation
-string(TIMESTAMP date "%Y-%m-%d %H:%M")
-#message("")
-#include(CollectGitInfo)
-#message(STATUS "REST release : ${GIT_TAG}")
-#message(STATUS "REST date : ${GIT_DATE}")
-#message(STATUS "REST commit : ${GIT_COMMIT}")
-#message(STATUS "REST branch : ${GIT_BRANCH}")
-#message("")
-
-
-##generate TRestVersion.h during build stage
-#IF (NOT CMAKE_SYSTEM_NAME MATCHES "Windows")
-#    add_custom_target(
-#            RESTVersion ALL
-#            COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generateVersionHeader.py ${CMAKE_CURRENT_SOURCE_DIR}/source/restcore/inc/TRestVersion.h
-#            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
-#
-#    #RESULT_VARIABLE h)
-#    #if(h MATCHES 0)
-#    #	add_definitions(-DREST_VERSION_HEADER)
-#    #endif()
-#ENDIF ()
-
 
 #start compile
 include(MacroRootDict)
