@@ -1,6 +1,7 @@
 #include "TRestDataBasePsql.hh"
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
+#include "TRestTools.h"
 using namespace pg;
 
 TRestDataBasePsql::TRestDataBasePsql() {
@@ -286,7 +287,7 @@ int TRestDataBasePsql::new_run() {
     fSubRunNumber = last_subrun + 1;
 
     string user = getenv("USER") == NULL ? "" : getenv("USER");
-    string version = ExecuteShellCommand("rest-config --version");
+    string version = TRestTools::Execute("rest-config --version");
     auto a = query(conn,
                    "insert into rest_runs(run_id, subrun_id, usr, version) "
                    "values($1::int, $2::int, $3::text, $4::text)",
@@ -311,7 +312,7 @@ int TRestDataBasePsql::new_run(int runnumber) {
     fSubRunNumber = last_subrun + 1;
 
     string user = getenv("USER") == NULL ? "" : getenv("USER");
-    string version = ExecuteShellCommand("rest-config --version");
+    string version = TRestTools::Execute("rest-config --version");
     auto a = query(conn,
                    "insert into rest_runs(run_id, subrun_id, usr, version) "
                    "values($1::int, $2::int, $3::text, $4::text)",
@@ -332,7 +333,7 @@ int TRestDataBasePsql::new_runfile(string filename, DataBaseFileInfo info) {
                        ") values($1::int, $2::int, $3::int, $4::text, $5::bigint, "
                        "$6::timestamp with time zone, $7::timestamp with time zone, "
                        "$8::real, $9::text, $10::bool)",
-                       fRunNumber, fSubRunNumber, nFiles, ToAbsoluteName(filename), ToString(info.fileSize),
+                       fRunNumber, fSubRunNumber, nFiles, TRestTools::ToAbsoluteName(filename), ToString(info.fileSize),
                        ToDateTimeString(info.start), ToDateTimeString(info.stop), info.evtRate,
                        (string)info.sha1sum, info.quality);
     } else {
@@ -425,7 +426,7 @@ int TRestDataBasePsql::set_fileinfo(string filename, DataBaseFileInfo info) {
           "with time zone, stop_time=$6::timestamp with time zone, "
           "event_rate=$7::real, sha1sum=$8::text, quality=$9::bool where "
           "run_id=$1::int and subrun_id=$2::int and file_name=$3::text",
-          fRunNumber, fSubRunNumber, ToAbsoluteName(filename), ToString(info.fileSize),
+          fRunNumber, fSubRunNumber, TRestTools::ToAbsoluteName(filename), ToString(info.fileSize),
           ToDateTimeString(info.start), ToDateTimeString(info.stop), info.evtRate, (string)info.sha1sum,
           info.quality);
     return 0;
