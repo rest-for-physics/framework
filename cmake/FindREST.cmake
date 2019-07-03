@@ -10,7 +10,7 @@ IF(NOT DEFINED REST_PATH)
 	ENDIF()
 ENDIF()
 set(CMAKE_INSTALL_PREFIX ${REST_PATH})
-message(STATUS "Found REST in: " ${REST_PATH})
+#message(STATUS "Found REST in: " ${REST_PATH})
 set(REST_FOUND TRUE)
 
 find_program(REST_CONFIG_EXECUTABLE rest-config
@@ -28,7 +28,7 @@ else()
       OUTPUT_VARIABLE REST_INCLUDE_DIRS
       OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
-message (STATUS "REST Include Directory: ${REST_INCLUDE_DIRS}")
+#message (STATUS "REST Include Directory: ${REST_INCLUDE_DIRS}")
 
 
 if(DEFINED rest_libraries)
@@ -40,4 +40,4 @@ else()
       OUTPUT_VARIABLE REST_LIBRARIES
       OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
-message (STATUS "REST Libraries: ${REST_LIBRARIES}")
+#message (STATUS "REST Libraries: ${REST_LIBRARIES}")

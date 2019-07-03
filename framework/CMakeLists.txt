@@ -1,18 +1,56 @@
-set(rest_include_dirs)
-set(rest_libraries)
-set(rest_macros)
+#----------------------------------------------------------------------------
+# Setup the project
+set(projname RestFramework)
+project(${projname})
+message("===============  ${projname}  ==============")
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../cmake ${CMAKE_MODULE_PATH})
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
-add_subdirectory(tools)
-add_subdirectory(restcore)
-add_subdirectory(metadata)
-add_subdirectory(events)
-add_subdirectory(processes)
-add_subdirectory(../macros tasks.out)
+# Find additional package
+set(Depend_Inc)
+set(Depend_Lib)
 
-set(rest_include_dirs ${local_include_dirs})
-set(rest_libraries ${local_libraries})
+# Library source files
+file(GLOB_RECURSE sources1 ${PROJECT_SOURCE_DIR}/external/*cxx)
+file(GLOB_RECURSE sources2 ${PROJECT_SOURCE_DIR}/tools/*cxx)
+file(GLOB_RECURSE sources3 ${PROJECT_SOURCE_DIR}/physics/*cxx)
+file(GLOB_RECURSE sources4 ${PROJECT_SOURCE_DIR}/core/*cxx)
+file(GLOB_RECURSE addon_src
+        "trackMinimization.c"
+        "allocrus.c"
+        "edgelen.c"
+        "edgeutil.c"
+        "heldkarp.c"
+		"tiny*.cpp")
+set(Lib_Source ${sources1} ${sources2} ${sources3} ${sources4} ${addon_src})
+
+# Executables source files
+set(Exe_Source bin/restManager.cxx bin/restRoot.cxx)
+
+# Customize directories to install
+set(Copy_Source)
+
+# Whether to generate dictionary with ROOTCINT
+set(GenDict TRUE)
+
+include(CompileProj)
+COMPILEPROJ(${projname})
+
+
+
+
+set(rest_include_dirs ${PROJECT_SOURCE_DIR}/external/inc ${rest_include_dirs})
+set(rest_include_dirs ${PROJECT_SOURCE_DIR}/tools/inc ${rest_include_dirs})
+set(rest_include_dirs ${PROJECT_SOURCE_DIR}/physics/inc ${rest_include_dirs})
+set(rest_include_dirs ${PROJECT_SOURCE_DIR}/core/inc ${rest_include_dirs})
 set(rest_include_dirs ${rest_include_dirs} PARENT_SCOPE)
+
+set(rest_libraries ${projname})
 set(rest_libraries ${rest_libraries} PARENT_SCOPE)
+
+set(rest_exes restManager restRoot)
+set(rest_exes ${rest_exes} PARENT_SCOPE)
 
 set(rest_libraries_regular "-L${CMAKE_INSTALL_PREFIX}/lib ")
 foreach(lib ${rest_libraries})
@@ -20,8 +58,4 @@ foreach(lib ${rest_libraries})
 endforeach(lib)
 set(rest_libraries_regular ${rest_libraries_regular} PARENT_SCOPE)
 
-add_subdirectory(bin)
 
-set(rest_exes ${rest_exes} PARENT_SCOPE)
-set(rest_macros ${rest_macros} PARENT_SCOPE)
-set(rest_macros_str ${rest_macros_str} PARENT_SCOPE)

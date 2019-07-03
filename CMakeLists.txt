@@ -109,35 +109,23 @@ string(TIMESTAMP date "%Y-%m-%d %H:%M")
 
 #start compile
 include(MacroRootDict)
-add_subdirectory(source)
+
+set(rest_include_dirs)
+set(rest_libraries)
+set(rest_libraries_regular)
+set(rest_exes)
+set(rest_macros)
+set(rest_macros_str)
+
+add_subdirectory(framework)
+add_subdirectory(libraries)
+
 message("")
 message(STATUS "rest Libraries : " ${rest_libraries_regular})
 message(STATUS "rest executables: " ${rest_exes})
 message(STATUS "rest macros: " ${rest_macros_str})
 message("")
 
-
-#compile the packages
-IF (NOT DEFINED REST_G4)
-    set(REST_G4 OFF)
-ENDIF ()
-if (${REST_G4} MATCHES "ON")
-    add_subdirectory(packages/restG4)
-endif (${REST_G4} MATCHES "ON")
-
-IF (NOT DEFINED REST_DATABASE)
-    set(REST_DATABASE OFF)
-ENDIF ()
-if (${REST_DATABASE} MATCHES "ON")
-    add_subdirectory(packages/restDataBaseImpl)
-endif (${REST_DATABASE} MATCHES "ON")
-
-IF (NOT DEFINED REST_DECAY0)
-    set(REST_DECAY0 OFF)
-ENDIF ()
-if (${REST_DECAY0} MATCHES "ON")
-    add_subdirectory(packages/restDecay0)
-endif (${REST_DECAY0} MATCHES "ON")
 
 #begin installation
 message("")
@@ -155,21 +143,21 @@ message("DataBase is : ${REST_DATABASE}")
 message("=============================")
 message("")
 
-file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h")
-file(GLOB_RECURSE Headers_ "${CMAKE_CURRENT_SOURCE_DIR}/source/tools/external/win/*.h")
+message("aaaaa ${rest_include_dirs}")
 
-list(REMOVE_ITEM Headers ${Headers_})
+set(Headers)
+foreach(dir ${rest_include_dirs})
+	file(GLOB hdr "${dir}/*.h*")
+	set(Headers ${hdr} ${Headers})
+endforeach()
+
+message("bbbbb ${Headers}")
 
 INSTALL(FILES ${Headers} DESTINATION include)
 
 #INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG DESTINATION .)
 
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENCE DESTINATION .)
-
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/example
-        DESTINATION .
-        COMPONENT install
-        )
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/macros
         DESTINATION .
@@ -181,21 +169,7 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/scripts/restv2_1ToXml.py
         COMPONENT install
         )
 
-install(
-        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data
-        DESTINATION .
-        COMPONENT install
-)
-
-#copying pcm files
-
-install(CODE
-        "
-file(GLOB PCMFiles \"\${CMAKE_CURRENT_SOURCE_DIR}/rootdict/*.pcm\")
-file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/lib)
-"
-        )
-
+#adding shell executables
 include(thisREST)
 
 #install(CODE "chmod 744 ${CMAKE_INSTALL_PREFIX}/bin/rest-config")
