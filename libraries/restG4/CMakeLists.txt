@@ -103,3 +103,5 @@ install(CODE "execute_process(COMMAND ln -sf ${REST_PATH}/data/definitions/mater
 install(CODE "execute_process(COMMAND ln -sf ${REST_PATH}/data/definitions/materials.xml ${REST_PATH}/example/pandaXIII/geometry/traditional/materials.xml)")
 install(CODE "execute_process(COMMAND ln -sf ${REST_PATH}/data/definitions/materials.xml ${REST_PATH}/example/pandaXIII/geometry/resistive/materials.xml)")
 
+set(rest_exes ${rest_exes} restG4)
+set(rest_exes ${rest_exes} PARENT_SCOPE)

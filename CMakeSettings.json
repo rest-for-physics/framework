@@ -23,7 +23,7 @@
       ],
       "rsyncCommandArgs": "-t --delete --delete-excluded",
       "remoteCopyBuildOutput": false,
-      "cmakeCommandArgs": "-DREST_WELCOME=OFF -DINSTALL_PREFIX=/home/nkx/debug/REST_v2/install/ -DREST_GARFIELD=ON -DREST_G4=ON -DREST_DECAY0=ON",
+      "cmakeCommandArgs": "-DREST_WELCOME=OFF -DINSTALL_PREFIX=/home/nkx/debug/REST_v2/install/ -DREST_MUON=OFF -DREST_PSQL=OFF",
       "buildCommandArgs": "-j12 install",
       "ctestCommandArgs": "",
       "inheritEnvironments": [

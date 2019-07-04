@@ -61,6 +61,12 @@ foreach(lib ${rest_libraries})
 	set(rest_libraries_regular "${rest_libraries_regular}-l${lib} ")
 endforeach(lib)
 
+#REST ese string(separate with blank)
+set(rest_exes_str)
+foreach(exe ${rest_exes})
+	set(rest_exes_str "${rest_exes_str}${exe} ")
+endforeach(exe)
+
 #REST macros string(separate with blank)
 set(rest_macros_str)
 foreach(mac ${rest_macros})

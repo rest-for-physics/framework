@@ -55,6 +55,7 @@ set(GIT_BRANCH ${git_branch})
 
 #get build time
 string(TIMESTAMP date "%Y-%m-%d %H:%M")
+set(DATE ${date})
 
 message(STATUS "REST release : ${GIT_TAG}")
 message(STATUS "REST date    : ${GIT_DATE}")

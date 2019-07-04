@@ -8,8 +8,10 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 # Find additional package
-set(Depend_Inc)
-set(Depend_Lib)
+add_definitions(-DUSE_Garfield)
+include(FindGarfield)
+set(Depend_Inc ${Garfield_INCLUDE_DIRS})
+set(Depend_Lib ${Garfield_LIBRARIES})
 
 # Library source files
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*cxx)

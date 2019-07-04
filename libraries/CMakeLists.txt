@@ -30,3 +30,6 @@ ENDFOREACH()
 
 set(rest_include_dirs ${rest_include_dirs} PARENT_SCOPE)
 set(rest_libraries ${rest_libraries} PARENT_SCOPE)
+
+set(rest_exes ${rest_exes})
+set(rest_exes ${rest_exes} PARENT_SCOPE)
