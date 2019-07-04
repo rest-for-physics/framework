@@ -14,8 +14,9 @@ set(Depend_Inc ${Garfield_INCLUDE_DIRS})
 set(Depend_Lib ${Garfield_LIBRARIES})
 
 # Library source files
-file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*cxx)
-set(Lib_Source ${sources})
+file(GLOB sources1 ${PROJECT_SOURCE_DIR}/src/*cxx)
+file(GLOB sources2 ${PROJECT_SOURCE_DIR}/physical/*cxx)
+set(Lib_Source ${sources1} ${sources2})
 
 # Executables source files
 set(Exe_Source)
@@ -31,6 +32,7 @@ COMPILEPROJ(${projname})
 
 
 set(rest_include_dirs ${rest_include_dirs} ${PROJECT_SOURCE_DIR}/inc)
+set(rest_include_dirs ${PROJECT_SOURCE_DIR}/physical/inc ${rest_include_dirs})
 set(rest_include_dirs ${rest_include_dirs} PARENT_SCOPE)
 	
 set(rest_libraries ${rest_libraries} ${projname})

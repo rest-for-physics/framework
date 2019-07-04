@@ -13,7 +13,7 @@ set(Depend_Lib)
 
 # Library source files
 file(GLOB_RECURSE sources1 ${PROJECT_SOURCE_DIR}/tools/*cxx)
-file(GLOB_RECURSE sources2 ${PROJECT_SOURCE_DIR}/physics/*cxx)
+
 file(GLOB_RECURSE sources3 ${PROJECT_SOURCE_DIR}/core/*cxx)
 file(GLOB_RECURSE sources4
         "trackMinimization.c"
@@ -42,7 +42,6 @@ COMPILEPROJ(${projname})
 set(rest_include_dirs ${PROJECT_SOURCE_DIR}/external/tinyxml/ ${rest_include_dirs})
 set(rest_include_dirs ${PROJECT_SOURCE_DIR}/external/tsp/inc ${rest_include_dirs})
 set(rest_include_dirs ${PROJECT_SOURCE_DIR}/tools/inc ${rest_include_dirs})
-set(rest_include_dirs ${PROJECT_SOURCE_DIR}/physics/inc ${rest_include_dirs})
 set(rest_include_dirs ${PROJECT_SOURCE_DIR}/core/inc ${rest_include_dirs})
 set(rest_include_dirs ${rest_include_dirs} PARENT_SCOPE)
 

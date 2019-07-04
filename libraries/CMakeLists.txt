@@ -12,7 +12,7 @@ ENDIF()
 ENDFOREACH()
   
 list(REMOVE_ITEM dirlist detector dummy)
-message(${dirlist})
+#message(${dirlist})
 
 IF(NOT DEFINED REST_ALL)
 	set(REST_ALL ON)
