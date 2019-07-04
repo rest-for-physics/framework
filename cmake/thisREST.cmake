@@ -166,9 +166,7 @@ fi
 
 if [ $option = \\\"--flags\\\" ] ; then
 echo REST_WELCOME=${REST_WELCOME}
-echo REST_GARFIELD=${REST_GARFIELD}
-echo REST_G4=${REST_G4}
-echo REST_DATABASE=${REST_DATABASE}
+echo ${rest_library_flags}
 echo CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
 echo CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
 
