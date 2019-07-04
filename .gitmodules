@@ -1,6 +1,3 @@
-[submodule "config/barraconSetup"]
-	path = config/barraconSetup
-	url = git@sultan.unizar.es:jgalan/barraconSetup.git
-[submodule "config/IAXOD0-REST"]
-	path = config/IAXOD0-REST
-	url = git@sultan.unizar.es:gifna/IAXOD0-REST.git
+[submodule ".vs"]
+	path = .vs
+	url = https://gitlab.pandax.sjtu.edu.cn/nkx/rest_vs_config.git
