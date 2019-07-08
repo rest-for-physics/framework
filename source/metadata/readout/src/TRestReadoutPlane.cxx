@@ -142,24 +142,24 @@ Double_t TRestReadoutPlane::GetX(Int_t modID, Int_t chID) {
         Double_t y2 = rChannel->GetPixel(nPix - 1)->GetCenter().Y();
 
         /*
-           cout << "Pix id : " << rChannel->GetPixel(0)->GetID() << " X1 : " << x1
-           << endl; cout << "Pix id : " << rChannel->GetPixel(1)->GetID() << " X2 :
-           " << x2 << endl; cout << "Pix id : " << rChannel->GetPixel(0)->GetID() <<
-           " Y1 : " << y1 << endl; cout << "Pix id : " <<
-           rChannel->GetPixel(1)->GetID() << " Y2 : " << y2 << endl;
-           */
+        cout << "Pixel 0. X : " << x1 << " Y : " << y1 endl;
+        cout << "Pixel N. X : " << x2 << " Y : " << y2 endl;
+        */
 
         Double_t deltaX = abs(x2 - x1);
         Double_t deltaY = abs(y2 - y1);
 
-        if (((int)rModule->GetModuleRotation()) % 90 == 0) {
-            if (((int)rModule->GetModuleRotation()) / 90 % 2 == 0)  // rotation is 0, 180, 360...
+        Int_t rotation = (Int_t)rModule->GetModuleRotation();
+        if (rotation % 90 == 0) {
+            if (rotation / 90 % 2 == 0)  // rotation is 0, 180, 360...
             {
                 if (deltaY > deltaX) x = rModule->GetPixelCenter(chID, 0).X();
             } else  // rotation is 90, 270... We need to invert x and y
             {
                 if (deltaY < deltaX) x = rModule->GetPixelCenter(chID, 0).X();
             }
+        } else {
+            if (deltaY > deltaX) x = rModule->GetPixelCenter(chID, 0).X();
         }
     }
 
@@ -218,14 +218,17 @@ Double_t TRestReadoutPlane::GetY(Int_t modID, Int_t chID) {
         Double_t deltaX = abs(x2 - x1);
         Double_t deltaY = abs(y2 - y1);
 
-        if (((int)rModule->GetModuleRotation()) % 90 == 0) {
-            if (((int)rModule->GetModuleRotation()) / 90 % 2 == 0)  // rotation is 0, 180, 360...
+        Int_t rotation = (Int_t)rModule->GetModuleRotation();
+        if (rotation % 90 == 0) {
+            if (rotation / 90 % 2 == 0)  // rotation is 0, 180, 360...
             {
                 if (deltaY < deltaX) y = rModule->GetPixelCenter(chID, 0).Y();
             } else  // rotation is 90, 270... We need to invert x and y
             {
                 if (deltaY > deltaX) y = rModule->GetPixelCenter(chID, 0).Y();
             }
+        } else {
+            if (deltaY < deltaX) y = rModule->GetPixelCenter(chID, 0).X();
         }
     }
 
