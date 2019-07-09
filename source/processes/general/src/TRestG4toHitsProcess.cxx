@@ -73,7 +73,7 @@ void TRestG4toHitsProcess::InitProcess() {
                  << " not found and will not be added." << endl;
     }
 
-    ////// Debug output //////
+    /* {{{ Debug output */
     debug << "Active volumes available in TRestG4Metadata" << endl;
     debug << "-------------------------------------------" << endl;
     for (int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes(); n++)
@@ -107,6 +107,7 @@ void TRestG4toHitsProcess::InitProcess() {
             }
         debug << " " << endl;
     }
+    /* }}} */
 }
 
 //______________________________________________________________________________
@@ -115,6 +116,13 @@ void TRestG4toHitsProcess::BeginOfEventProcess() { fHitsEvent->Initialize(); }
 //______________________________________________________________________________
 TRestEvent* TRestG4toHitsProcess::ProcessEvent(TRestEvent* evInput) {
     fG4Event = (TRestG4Event*)evInput;
+
+    if (this->GetVerboseLevel() >= REST_Extreme) {
+        cout << "------ TRestG4toHitsProcess --- Printing Input Event --- START ----" << endl;
+        fG4Event->PrintEvent();
+        cout << "------ TRestG4toHitsProcess --- Printing Input Event ---- END ----" << endl;
+        GetChar();
+    }
 
     fHitsEvent->SetRunOrigin(fG4Event->GetRunOrigin());
     fHitsEvent->SetSubRunOrigin(fG4Event->GetSubRunOrigin());
