@@ -155,7 +155,7 @@ echo ${rest_macros_str}
 fi
 
 if [ $option = \\\"--version\\\" ] ; then
-echo ${GIT_TAG}
+echo \${GIT_TAG}
 
 fi
 
