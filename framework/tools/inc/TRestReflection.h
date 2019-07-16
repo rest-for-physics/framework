@@ -136,11 +136,7 @@ class AnyPtr_t {
     string ToString();
     friend ostream& operator<<(ostream& cin, AnyPtr_t ptr) { return cin << ptr.ToString(); }
 
-    int GetTypeID() {
-        if (cl != 0) return cl->GetStreamerInfo()->GetElement(0)->GetType();
-        if (dt != 0) return dt->GetType();
-        return -1;
-    }
+	int GetTypeID();
     template <typename T>
     void GetValue(T& val, bool check = false) {
         if (check) {

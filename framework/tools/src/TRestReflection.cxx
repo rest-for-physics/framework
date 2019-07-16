@@ -17,6 +17,22 @@ REST_Reflection::AnyPtr_t REST_Reflection::WrapType(string type) {
     return REST_Reflection::AnyPtr_t(0, type);
 }
 
+int REST_Reflection::AnyPtr_t::GetTypeID() {
+	if (cl != 0) {
+		if (cl->GetName() == "string") {
+			return TStreamerInfo::kSTL;
+		}
+		else if (cl->GetName() == "TString") {
+			return TStreamerInfo::kTString;
+		}
+
+		return cl->GetStreamerInfo()->GetElement(0)->GetType();
+	}
+
+	if (dt != 0) return dt->GetType();
+	return -1;
+}
+
 void REST_Reflection::AnyPtr_t::Assembly() {
     if (!IsZombie() && onheap) {
         Destroy();
@@ -100,6 +116,9 @@ string REST_Reflection::AnyPtr_t::ToString() {
     char* buffer = new char[500]();
 
     int atype = GetTypeID();
+
+
+
     int j;
     // assert(!((kOffsetP + kChar) <= atype && atype <= (kOffsetP + kBool) &&
     // count == 0));
@@ -323,9 +342,14 @@ string REST_Reflection::AnyPtr_t::ToString() {
     }
 
     string result(buffer);
+
+	cout << atype <<" " << result << endl;
+
     delete[] buffer;
     return result;
 }
+
+
 
 REST_Reflection::AnyPtr_t::AnyPtr_t(char* _address, string _type) {
     address = _address;
