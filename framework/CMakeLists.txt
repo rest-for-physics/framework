@@ -33,17 +33,15 @@ set(Copy_Source macros)
 # Whether to generate dictionary with ROOTCINT
 set(GenDict TRUE)
 
-include(CompileProj)
-COMPILEPROJ(${projname})
-
-
-
-
+# Add include dirs for the framework
 set(rest_include_dirs ${PROJECT_SOURCE_DIR}/external/tinyxml/ ${rest_include_dirs})
 set(rest_include_dirs ${PROJECT_SOURCE_DIR}/external/tsp/inc ${rest_include_dirs})
 set(rest_include_dirs ${PROJECT_SOURCE_DIR}/tools/inc ${rest_include_dirs})
 set(rest_include_dirs ${PROJECT_SOURCE_DIR}/core/inc ${rest_include_dirs})
 set(rest_include_dirs ${rest_include_dirs} PARENT_SCOPE)
+
+include(CompileProj)
+COMPILEPROJ(${projname})
 
 set(rest_libraries ${projname})
 set(rest_libraries ${rest_libraries} PARENT_SCOPE)
