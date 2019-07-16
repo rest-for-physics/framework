@@ -19,10 +19,10 @@ REST_Reflection::AnyPtr_t REST_Reflection::WrapType(string type) {
 
 int REST_Reflection::AnyPtr_t::GetTypeID() {
 	if (cl != 0) {
-		if (cl->GetName() == "string") {
+		if ((string)cl->GetName() == "string") {
 			return TStreamerInfo::kSTL;
 		}
-		else if (cl->GetName() == "TString") {
+		else if ((string)cl->GetName() == "TString") {
 			return TStreamerInfo::kTString;
 		}
 
@@ -342,9 +342,6 @@ string REST_Reflection::AnyPtr_t::ToString() {
     }
 
     string result(buffer);
-
-	cout << atype <<" " << result << endl;
-
     delete[] buffer;
     return result;
 }

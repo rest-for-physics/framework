@@ -724,20 +724,22 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
         string replacestr = GetFileInfo(target);
         if (replacestr == target && fHostmgr != NULL && fHostmgr->GetProcessRunner() != NULL)
             replacestr = fHostmgr->GetProcessRunner()->GetProcInfo(target);
-        if (replacestr == target && REST_Reflection::GetDataMember(this, target).IsZombie())
+        if (replacestr == target && !REST_Reflection::GetDataMember(this, target).IsZombie())
             replacestr = REST_Reflection::GetDataMember(this, target).ToString();
+        if (replacestr == target && !REST_Reflection::GetDataMember(this, "f" + target).IsZombie())
+            replacestr = REST_Reflection::GetDataMember(this, "f" + target).ToString();
 
         if (replacestr != target) {
-            if (targetstr == "[fRunNumber]") {
-                TString runStr;
-                runStr.Form("%05d", GetRunNumber());
-                replacestr = (string)runStr;
-            }
-            if (targetstr == "[fParentRunNumber]") {
-                TString runStr;
-                runStr.Form("%05d", GetParentRunNumber());
-                replacestr = (string)runStr;
-            }
+            //if (targetstr == "[fRunNumber]") {
+            //    TString runStr;
+            //    runStr.Form("%05d", GetRunNumber());
+            //    replacestr = (string)runStr;
+            //}
+            //if (targetstr == "[fParentRunNumber]") {
+            //    TString runStr;
+            //    runStr.Form("%05d", GetParentRunNumber());
+            //    replacestr = (string)runStr;
+            //}
             outString = Replace(outString, targetstr, replacestr, 0);
         }
         pos = pos2 + 1;
