@@ -31,7 +31,7 @@ Finally we call the method TRestRun::FormOutputFile() through TRestManager to sa
 
     <TRestReadout name="Panda-CDR" title="PANDA CDR" file="readouts.rml" />
 
-    <TRestReadout name="PandaReadout_MxM" title="PANDA readout 7module" >
+    <TRestReadout name="Prototype" title="PANDA readout 7module" >
       <parameter name="verboseLevel" value="info"/>
       <parameter name="mappingNodes" value="0" />
       <myParameter name="nChannels" value="${CHANNELS}" />
@@ -58,6 +58,8 @@ Finally we call the method TRestRun::FormOutputFile() through TRestManager to sa
 
       </readoutPlane>
     </TRestReadout>
+
+    <parameter name="outputFile" value="meta.root" />
   </TRestRun>
 
   <addTask command="readoutrun->FormOutputFile()" value="ON"/>
