@@ -814,6 +814,7 @@ TFile* TRestRun::FormOutputFile() {
     fAnalysisTree->CreateEventBranches();
     // fEventTree->CreateEventBranches();
     this->Write();
+    fAnalysisTree->Write();
     for (int i = 0; i < fMetadataInfo.size(); i++) {
         fMetadataInfo[i]->Write();
     }
