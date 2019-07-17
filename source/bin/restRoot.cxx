@@ -4,6 +4,7 @@
 #include <TSystem.h>
 
 #include <TRestMetadata.h>
+#include <TRestRun.h>
 #include <TRestTools.h>
 
 #include "TRestVersion.h"
@@ -43,7 +44,17 @@ int main(int argc, char* argv[]) {
         if (TRestTools::fileExists(opt) && TRestTools::isRootFile(opt)) {
             printf("Attaching file %s as run%i...\n", opt.c_str(), Nfile);
             gROOT->ProcessLine(Form("TRestRun* run%i =new TRestRun(\"%s\")", Nfile, opt.c_str()));
-            argv[i] = "";
+
+            TRestRun* runTmp = new TRestRun(opt);
+            TString eventType = runTmp->GetEventTree()->GetTitle();
+            // Removing the Tree ending
+            eventType = eventType(0, eventType.Length() - 4);
+
+            printf("Instantiating %s as ev%i...\n", eventType.Data(), Nfile);
+            gROOT->ProcessLine(Form("%s* ev%i =new %s()", eventType.Data(), Nfile, eventType.Data()));
+            gROOT->ProcessLine(Form("run0->SetInputEvent( ev%i )", Nfile));
+
+            argv[i] = (char*)"";
             Nfile++;
         }
     }
