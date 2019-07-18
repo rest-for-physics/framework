@@ -25,6 +25,50 @@
 ///     <cut name="MeanBaseLineCut" value="(0,4096)" />
 /// </TRestRawSignalAnalysisProcess>
 ///
+/// ### Observables
+/// 
+/// * **TripleMaxIntegral**: Add the highest value of each pulse with the previous sample and the next, and then add this amount for all pulses in the event. It is an estimation of the deposited energy.
+/// * **NumberOfSignals**: Number of pulses recorded in an event.
+/// * **NumberOfGoodSignals**: Number of pulses recorded in an event that gets over the threshold. It counts the signal if GetIntegralWithThreshold (fSignal) > 0 
+/// * **BaseLineMean**: Average of the base line of the pulses of the event.
+/// * **BaseLineSigmaMean**: Average of the standard deviation from the base line in the pulses of the event.
+/// * **FullIntegral**: Add the integral of all pulses of the event. The integral of a pulse is the sum of all samples.
+/// * **ThresholdIntegral**: Add the integral of all the pulses in the event that pass the threshold.
+/// * **SlopeIntegral**: Add the integral of the rising part of each pulse of the event.
+/// * **RiseSlopeAvg**: Add the SlopeIntegral of all pulses in the event that pass the GetThresholdIntegralValue() > 0 condition and divides it by the number of signals that pass the cut.
+/// * **SecondsFromStart**: It takes the time of the event and subtracts the time of the first event.
+/// * **HoursFromStart**: SecondsFromStart divided by 3600.
+/// * **EventTimeDelay**: It counts the time from the previous event to the present one.
+/// * **MeanRate_InHz**: It records the mean rate of the last 100 events. It divides 100 by the time in seconds between the first and the last.
+/// * **TimeBinsLength**: MaxTime of the event – MinTime of the event. The functions GetMaxTime() and GetMinTime() take the number of points of the signal (MinTime=0 MaxTime= fSignal[0].GetNumberOfPoints())
+/// * **RateOfChangeAvg**: RiseSlopeAvg/SlopeIntegral. The first value takes only the events that pass the threshold cut, SopeIntegral takes all the events.
+/// * **RiseTimeAvg**: Add GetRiseTime(fSignal) for all signals that satisfy the GetThresholdIntegralValue() > 0 condition and divide it by the number of signals that pass this cut. GetRiseTime(fSignal) provides the number of bins between the fist sample that pass the threshold and the maximum of the peak.
+/// * **IntegralBalance**: (fullIntegral - thrIntegral) / (fullIntegral + thrIntegral) Balance between FullIntegral and ThresholdIntegral
+/// * **xEnergySum**: Add the ThresholdIntegral of all signals recorded in X direction.
+/// * **yEnergySum**: Add the ThresholdIntegral of all signals recorded in Y direction.
+/// * **AmplitudeIntegralRatio**: ThresholdIntegral/maxValueIntegral. This is the sum of the integral of all the pulses in the event that pass the threshold divided by the sum of the maximum point of these pulses.
+/// * **MinPeakAmplitude**: Minimum value between the maximum points of the pulses that pass the threshold in the event.
+/// * **MaxPeakAmplitude**: Maximum value between the maximum points of the pulses that pass the threshold in the event.
+/// * **PeakAmplitudeIntegral**: Sum of all maximum points of the pulses that pass the threshold in the event.
+/// * **AmplitudeRatio**: PeakAmplitudeIntegral/ MaxPeakAmplitude. Sum of all maximum points divided by the maximum between the maximum points of the pulses.
+/// * **MaxPeakTime**: Highest bin for the maximum point of a pulse that pass the threshold in the event.  
+/// * **MinPeakTime**: Smallest bin for the maximum point of a pulse that pass the threshold in the event. 
+/// * **MaxPeakTimeDelay**: MaxPeakTime-MinPeakTime. Time between the earliest peak and the latest peak between the pulses that pass the threshold in the event. 
+/// * **AveragePeakTime**: For all pulses that pass the threshold, add the bin of their maximums and divide this amount by the number of signals that pass the threshold.
+/// * **risetime**: Map the ID of each signal in the event with its rise time. GetRiseTime() gives the number of bins between the first sample that pass the threshold and the maximum point of the peak.
+/// * **risetimemean**: Add the rise time of all pulses in the event and divide it by the number of pulses.
+/// * **baseline**: Map the ID of each signal in the event with its base line. It computes the base line adding the samples in a certain range and dividing it by the number of samples. 
+/// * **baselinemean**: Add the base line of all pulses in the event and divide it by the number of pulses.
+/// * **baselinesigma**: Map the ID of each signal in the event with its base line’s standard deviation. Standard deviation computed as the squared root of the sum of the squared differences between the samples and the base line, divided by the number of samples in the range used to compute the base line.
+/// * **baselinesigmamean**: Add the base line’s standard deviation of all pulses in the event and divide it by the number of pulses.
+/// * **ampsgn_maxmethod**: Map the ID of each signal in the event with the amplitude of its peak. Amplitude = MaxPeakValue-BaseLine 
+/// * **ampeve_maxmethod**: Add the amplitude of all pulses in the event. Amplitude = MaxPeakValue-BaseLine 
+/// * **ampsgn_intmethod**: Map the ID of each signal in the event with the threshold integral of its peak. GetIntegralWithThreshold () adds the samples of a pulse that get over the threshold. A certain number of samples must pass the threshold to be taken into account.
+/// * **ampeve_intmethod**: Add the threshold integral of all pulses in the event. GetIntegralWithThreshold () adds the samples of a pulse that get over the threshold. A certain number of samples must pass the threshold to be taken into account.
+
+
+///_______________________________________________________________________________
+///
 ///  First implementation of raw signal analysis process into REST_v2
 ///  Created from TRestSignalAnalysisProcess
 ///  Date : feb/2017
