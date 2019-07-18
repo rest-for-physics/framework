@@ -325,11 +325,17 @@ void TRestRun::EndOfInit() {
     OpenInputFile(0);
 
     if (fInputFileNames.size() == 0) {
-        essential << "! no input file added" << endl;
+        essential << "ERROR! no input file added" << endl;
+        throw;
     }
     // single file, not pattern
     else if (fInputFileNames.size() == 1) {
-        cout << "Input file: \"" << fInputFileName << "\"";
+        cout << "Input file: \"" << fInputFileName << "\"" << endl;
+        if (!TRestTools::fileExists((string)fInputFileName)) {
+            // file does not exist
+            cout << "ERROR: Input file (" << fInputFileName << ") does not exist" << endl;
+            throw;
+        }
     }
     // file pattern, more than one file
     else {
