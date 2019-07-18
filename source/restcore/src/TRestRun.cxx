@@ -314,7 +314,7 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
 /// 3. Print some message.
 ///
 void TRestRun::EndOfInit() {
-    // Get some infomation
+    // Get some information
 
     fRunUser = getenv("USER") == NULL ? "" : getenv("USER");
     fRunType = ToUpper(GetParameter("runType", "ANALYSIS")).c_str();
@@ -323,18 +323,25 @@ void TRestRun::EndOfInit() {
     fRunTag = GetParameter("runTag", "noTag").c_str();
 
     OpenInputFile(0);
-    cout << "InputFile pattern: \"" << fInputFileName << "\"" << endl;
-    if (fInputFileNames.size() > 1) {
+
+    if (fInputFileNames.size() == 0) {
+        essential << "! no input file added" << endl;
+    }
+    // single file, not pattern
+    else if (fInputFileNames.size() == 1) {
+        cout << "Input file: \"" << fInputFileName << "\"";
+    }
+    // file pattern, more than one file
+    else {
+        cout << "InputFile pattern: \"" << fInputFileName << "\"" << endl;
         info << "which matches :" << endl;
         for (int i = 0; i < fInputFileNames.size(); i++) {
             info << fInputFileNames[i] << endl;
         }
         essential << "(" << fInputFileNames.size() << " added files)" << endl;
-    } else if (fInputFileNames.size() == 0) {
-        essential << "(no input file added)" << endl;
     }
 
-    cout << "OutputFile pattern: \"" << fOutputFileName << "\"" << endl;
+    cout << "Output file: \"" << fOutputFileName << "\"" << endl;
 }
 
 ///////////////////////////////////////////////
@@ -728,7 +735,6 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
             replacestr = REST_Reflection::GetDataMember(this, target).ToString();
         if (replacestr == target && !REST_Reflection::GetDataMember(this, "f" + target).IsZombie())
             replacestr = REST_Reflection::GetDataMember(this, "f" + target).ToString();
-
 
         if (replacestr != target) {
             /*if (targetstr == "[fRunNumber]") {
