@@ -326,7 +326,7 @@ void TRestRun::EndOfInit() {
 
     if (fInputFileNames.size() == 0) {
         essential << "ERROR! no input file added" << endl;
-        throw;
+        // throw;
     }
     // single file, not pattern
     else if (fInputFileNames.size() == 1) {
@@ -334,7 +334,7 @@ void TRestRun::EndOfInit() {
         if (!TRestTools::fileExists((string)fInputFileName)) {
             // file does not exist
             cout << "ERROR: Input file (" << fInputFileName << ") does not exist" << endl;
-            throw;
+            // throw;
         }
     }
     // file pattern, more than one file
