@@ -149,8 +149,8 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
 
     for (string line; std::getline(fin, line);) {
         std::istringstream in(line);
-        values.push_back(std::vector<string>(std::istream_iterator<string>(in),
-                                                  std::istream_iterator<string>()));
+        values.push_back(
+            std::vector<string>(std::istream_iterator<string>(in), std::istream_iterator<string>()));
     }
 
     // Filling the double values table (TODO error handling in case ToDouble
@@ -168,14 +168,11 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
 }
 
 ///////////////////////////////////////////////
-/// \brief Returns true if the filename exists.
+/// \brief Returns true if the file with path filename exists.
 ///
 bool TRestTools::fileExists(const string& filename) {
-    struct stat buf;
-    if (stat(filename.c_str(), &buf) != -1) {
-        return true;
-    }
-    return false;
+    struct stat buffer;
+    return (stat(filename.c_str(), &buffer) == 0);
 }
 
 ///////////////////////////////////////////////
