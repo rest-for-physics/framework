@@ -893,6 +893,9 @@ void TRestG4Metadata::ReadGenerator() {
         warning << generatorDefinition << endl;
         GetChar();
     }
+
+    // initialize primary generator with values from RestG4Metadata
+    fPrimaryGenerator.set_spatial_generator_type((string)this->GetGeneratorType());
 }
 
 ///////////////////////////////////////////////
