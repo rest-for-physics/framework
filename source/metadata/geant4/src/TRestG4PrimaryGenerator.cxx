@@ -47,12 +47,13 @@ void TRestG4PrimaryGenerator::set_spatial_generator_type(string type) {
     }
     if (!is_valid_type) {
         // not a valid type
-        cout << "WARNING: not a valid type passed for spatial_generator: " << type << endl;
-        cout << "valid types are: ";
+        cout << "ERROR: not a valid type passed for spatial_generator: " << type << endl;
+        cout << "valid types are:";
         for (auto type_name : spatial_generator_types) {
-            cout << type_name << " ";
+            cout << " \"" << type_name << "\",";
         }
         cout << endl;
+        throw;
     }
 }
 
