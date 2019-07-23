@@ -16,6 +16,7 @@
 ///_______________________________________________________________________________
 
 #include "TRestG4PrimaryGenerator.h"
+#include <TRestG4Metadata.h>
 
 using namespace std;
 
@@ -57,6 +58,61 @@ void TRestG4PrimaryGenerator::set_spatial_generator_type(string type) {
     }
 }
 
+void TRestG4PrimaryGenerator::set_angular_generator_type(string type) {
+    // first we need to check we are passing a valid type value
+
+    bool is_valid_type = false;
+    for (auto type_name : angular_generator_types) {
+        if (TRestG4PrimaryGenerator::clean_type_string(type) ==
+            TRestG4PrimaryGenerator::clean_type_string(type_name)) {
+            is_valid_type = true;
+            angular_generator_type = type_name;
+            break;
+        }
+    }
+    if (!is_valid_type) {
+        // not a valid type
+        cout << "ERROR: not a valid type passed for angular_generator: " << type << endl;
+        cout << "valid types are:";
+        for (auto type_name : angular_generator_types) {
+            cout << " \"" << type_name << "\",";
+        }
+        cout << endl;
+        throw;
+    }
+}
+
+void TRestG4PrimaryGenerator::set_energy_generator_type(string type) {
+    // first we need to check we are passing a valid type value
+
+    // const bool is_valid_type = spatial_generator_types.find(type) != spatial_generator_types.end();
+    bool is_valid_type = false;
+    for (auto type_name : energy_generator_types) {
+        if (TRestG4PrimaryGenerator::clean_type_string(type) ==
+            TRestG4PrimaryGenerator::clean_type_string(type_name)) {
+            is_valid_type = true;
+            energy_generator_type = type_name;
+            break;
+        }
+    }
+    if (!is_valid_type) {
+        // not a valid type
+        cout << "ERROR: not a valid type passed for spatial_generator: " << type << endl;
+        cout << "valid types are:";
+        for (auto type_name : energy_generator_types) {
+            cout << " \"" << type_name << "\",";
+        }
+        cout << endl;
+        throw;
+    }
+}
+
+void TRestG4PrimaryGenerator::initialize_from_metadata(TRestG4Metadata* restG4_metadata) {
+    // first initialize spatial, angular and energy generator types
+    set_spatial_generator_type((string)(restG4_metadata->GetGeneratorType()));
+    //set_angular_generator_type((string)(restG4_metadata->);
+    //set_energy_generator_type((string)(restG4_metadata->GetGeneratorType()));
+}
 void TRestG4PrimaryGenerator::SetSourcesFromParticleCollection(Int_t n) {
     RemoveSources();
 

@@ -29,6 +29,7 @@
 #include <TVector3.h>
 #include "TObject.h"
 
+#include <TRestEventProcess.h>  // TODO: for some reason TRestG4Metadata is declared here, review this
 #include <TRestParticleCollection.h>
 #include <TRestParticleSource.h>
 
@@ -64,6 +65,19 @@ class TRestG4PrimaryGenerator : public TObject {
         "virtual_cylinder",
     };  //!
 
+    set<string> energy_generator_types{
+        "TH1D",
+        "mono",
+        "flat",
+    };  //!
+
+    set<string> angular_generator_types{
+        "TH1D",
+        "isotropic",
+        "flux",
+        "back_to_back",
+    }; //!
+
     string default_generator_type_value = "NOT_ASSIGNED";  //!
 
     string spatial_generator_type = default_generator_type_value;  //!
@@ -74,7 +88,7 @@ class TRestG4PrimaryGenerator : public TObject {
         std::transform(type.begin(), type.end(), type.begin(), ::tolower);
         // remove '_'
         string string_to_remove = "_";
-        while (type.find(string_to_remove) != string::npos){
+        while (type.find(string_to_remove) != string::npos) {
             type.replace(type.find("_"), string_to_remove.length(), "");
         }
         return type;
@@ -85,13 +99,13 @@ class TRestG4PrimaryGenerator : public TObject {
     inline string get_spatial_generator_type() { return spatial_generator_type; }
     void set_spatial_generator_type(string type);
     inline string get_angular_generator_type() { return angular_generator_type; }
-    inline void set_angular_generator_type(string type) {
-        angular_generator_type = clean_type_string((string)type);
-    }
+    void set_angular_generator_type(string type);
+
     inline string get_energy_generator_type() { return energy_generator_type; }
-    inline void set_energy_generator_type(string type) {
-        energy_generator_type = clean_type_string((string)type);
-    }
+    void set_energy_generator_type(string type);
+
+    void initialize_from_metadata(TRestG4Metadata*);
+    TVector3 sample_spatial_generator();
 
     Int_t GetNumberOfCollections() { return fNCollections; }
     Int_t GetNumberOfSources() { return fNsources; }

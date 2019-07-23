@@ -95,6 +95,9 @@ int main(int argc, char** argv) {
     // {{{ Initializing REST classes
     restG4Metadata = new TRestG4Metadata(inputConfigFile, (string)restG4Name);
 
+    cout << "DEBUG LOBIS: " << restG4Metadata->GetGeneratorType() << endl;
+    cout << "DEBUG LOBIS: " << restG4Metadata->GetPrimaryGenerator().get_spatial_generator_type() << endl;
+
     std::string g4Version = TRestTools::Execute("geant4-config --version");
     restG4Metadata->SetGeant4Version(g4Version);
 
@@ -178,7 +181,7 @@ int main(int argc, char** argv) {
         TString sptName = restG4Metadata->GetParticleSource(0).GetSpectrumName();
 
         TH1D* h = (TH1D*)fin.Get(sptName);
-        ;
+
         if (h == NULL) {
             cout << "REST ERROR  when trying to find energy spectrum" << endl;
             cout << "File : " << fileFullPath << endl;
@@ -205,7 +208,7 @@ int main(int argc, char** argv) {
 
         TString sptName = restG4Metadata->GetParticleSource(0).GetAngularName();
         TH1D* h = (TH1D*)fin.Get(sptName);
-        ;
+
         if (h == NULL) {
             cout << "REST ERROR  when trying to find angular spectrum" << endl;
             cout << "File : " << fileFullPath << endl;
