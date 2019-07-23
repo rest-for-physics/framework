@@ -16,7 +16,10 @@
 ///_______________________________________________________________________________
 
 #include "TRestG4PrimaryGenerator.h"
+#include <TRandom3.h>
 #include <TRestG4Metadata.h>
+
+#include <TMath.h>
 
 using namespace std;
 
@@ -110,9 +113,35 @@ void TRestG4PrimaryGenerator::set_energy_generator_type(string type) {
 void TRestG4PrimaryGenerator::initialize_from_metadata(TRestG4Metadata* restG4_metadata) {
     // first initialize spatial, angular and energy generator types
     set_spatial_generator_type((string)(restG4_metadata->GetGeneratorType()));
-    //set_angular_generator_type((string)(restG4_metadata->);
-    //set_energy_generator_type((string)(restG4_metadata->GetGeneratorType()));
 }
+
+void TRestG4PrimaryGenerator::sample_spatial_generator() {
+    // sample the generator type (with its own seed, separate from GEANT4 seed
+    if (get_spatial_generator_type() == "virtual_sphere") {
+        Float_t radius = get_sphere_radius();  // this has to be defined
+        if (radius == 0) {
+            cout << "WARNING: radius needs to be defined before sampling!" << endl;
+        }
+        auto random = TRandom3();
+        Float_t theta = TMath::Pi() * random.Rndm();
+        Float_t phi = 2 * TMath::Pi() * random.Rndm();
+
+        TVector3 position(radius * TMath::Sin(theta) * TMath::Cos(phi),
+                          radius * TMath::Sin(theta) * TMath::Sin(phi), radius * TMath::Cos(theta));
+        TVector3 direction = -1 / radius * position;
+
+        set_particle_position(position);
+        set_particle_direction(direction);
+
+    }
+    // not a valid type or valid type but not implemented yet
+    else {
+        cout << "sampling this distribution has not been implemented yet or is invalid: "
+             << get_spatial_generator_type() << endl;
+        throw;
+    }
+}
+
 void TRestG4PrimaryGenerator::SetSourcesFromParticleCollection(Int_t n) {
     RemoveSources();
 

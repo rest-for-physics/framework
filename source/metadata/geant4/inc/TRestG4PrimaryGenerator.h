@@ -76,7 +76,7 @@ class TRestG4PrimaryGenerator : public TObject {
         "isotropic",
         "flux",
         "back_to_back",
-    }; //!
+    };  //!
 
     string default_generator_type_value = "NOT_ASSIGNED";  //!
 
@@ -94,6 +94,12 @@ class TRestG4PrimaryGenerator : public TObject {
         return type;
     }
 
+    Float_t sphere_radius = 0;  //!
+    TVector3 generator_origin = TVector3(0,0,0);  //!
+
+    TVector3 particle_position; //!
+    TVector3 particle_direction; //!
+
    public:
     // regarding particle generation
     inline string get_spatial_generator_type() { return spatial_generator_type; }
@@ -103,9 +109,35 @@ class TRestG4PrimaryGenerator : public TObject {
 
     inline string get_energy_generator_type() { return energy_generator_type; }
     void set_energy_generator_type(string type);
+    // TODO: review this section
+    Float_t get_sphere_radius() {
+        if (get_spatial_generator_type() == "virtual_sphere") {
+            return sphere_radius;
+        } else {
+            cout << "WARNING: radius is not defined for generator of type: " << get_spatial_generator_type()
+                 << endl;
+        }
+    }
+    void set_sphere_radius(Float_t radius) {
+        if (get_spatial_generator_type() == "virtual_sphere") {
+            sphere_radius = radius;
+        } else {
+            cout << "WARNING: radius is not defined for generator of type: " << get_spatial_generator_type()
+                 << endl;
+        }
+    }
+
+    inline void set_generator_origin(TVector3 origin) { generator_origin = origin; }
+    inline TVector3 get_generator_origin(){ return generator_origin;}
+
+    inline void set_particle_position(TVector3 position) { particle_position = position; }
+    inline TVector3 get_particle_position(){ return particle_position;}
+
+    inline void set_particle_direction(TVector3 direction) { particle_direction = direction; }
+    inline TVector3 get_particle_direction(){ return particle_direction;}
 
     void initialize_from_metadata(TRestG4Metadata*);
-    TVector3 sample_spatial_generator();
+    void sample_spatial_generator();
 
     Int_t GetNumberOfCollections() { return fNCollections; }
     Int_t GetNumberOfSources() { return fNsources; }
