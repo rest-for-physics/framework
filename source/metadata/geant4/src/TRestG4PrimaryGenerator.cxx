@@ -16,7 +16,6 @@
 ///_______________________________________________________________________________
 
 #include "TRestG4PrimaryGenerator.h"
-#include <TRandom3.h>
 #include <TRestG4Metadata.h>
 
 #include <TMath.h>
@@ -122,15 +121,14 @@ void TRestG4PrimaryGenerator::sample_spatial_generator() {
         if (radius == 0) {
             cout << "WARNING: radius needs to be defined before sampling!" << endl;
         }
-        auto random = TRandom3();
         Float_t theta = TMath::Pi() * random.Rndm();
-        Float_t phi = 2 * TMath::Pi() * random.Rndm();
+        Float_t phi = TMath::ACos(1 - 2 * random.Rndm());
 
         TVector3 position(radius * TMath::Sin(theta) * TMath::Cos(phi),
                           radius * TMath::Sin(theta) * TMath::Sin(phi), radius * TMath::Cos(theta));
         TVector3 direction = -1 / radius * position;
 
-        set_particle_position(position);
+        set_particle_position(position + get_generator_origin());
         set_particle_direction(direction);
 
     }

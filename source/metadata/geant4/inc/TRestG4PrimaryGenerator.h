@@ -28,6 +28,7 @@
 #include <TString.h>
 #include <TVector3.h>
 #include "TObject.h"
+#include <TRandom3.h>
 
 #include <TRestEventProcess.h>  // TODO: for some reason TRestG4Metadata is declared here, review this
 #include <TRestParticleCollection.h>
@@ -97,6 +98,7 @@ class TRestG4PrimaryGenerator : public TObject {
     Float_t sphere_radius = 0;  //!
     TVector3 generator_origin = TVector3(0,0,0);  //!
 
+    TRandom3 random = TRandom3();
     TVector3 particle_position; //!
     TVector3 particle_direction; //!
 
