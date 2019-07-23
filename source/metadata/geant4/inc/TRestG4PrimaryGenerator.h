@@ -117,7 +117,9 @@ class TRestG4PrimaryGenerator : public TObject {
             cout << "WARNING: radius is not defined for generator of type: " << get_spatial_generator_type()
                  << endl;
         }
+        return 0;
     }
+
     void set_sphere_radius(Float_t radius) {
         if (get_spatial_generator_type() == "virtual_sphere") {
             sphere_radius = radius;
