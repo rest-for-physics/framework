@@ -149,6 +149,13 @@ TVector3 TRestG4Event::GetMeanPositionInVolume(Int_t volID) {
     return pos;
 }
 
+///////////////////////////////////////////////
+/// \brief Function to get the position (TVector3) of the first track that deposits energy in specified
+/// volume. If no hit is found for the volume, returns `TVector3(nan, nan, nan)` vector.
+///
+///
+/// \param volID Int_t specifying volume ID
+///
 TVector3 TRestG4Event::GetFirstPositionInVolume(Int_t volID) {
     for (int t = 0; t < GetNumberOfTracks(); t++)
         if (GetTrack(t)->GetEnergyInVolume(volID) > 0) return GetTrack(t)->GetFirstPositionInVolume(volID);
@@ -158,6 +165,15 @@ TVector3 TRestG4Event::GetFirstPositionInVolume(Int_t volID) {
     return TVector3(nan, nan, nan);
 }
 
+///////////////////////////////////////////////
+/// \brief Function to get the position (TVector3) of the last track that deposits energy in specified
+/// volume. If no hit is found for the volume, returns `TVector3(nan, nan, nan)` vector.
+/// If an event enters and exits a volume multiple times this will only return the last exit position, one needs to
+/// keep this in mind when using this observable.
+///
+///
+/// \param volID Int_t specifying volume ID
+///
 TVector3 TRestG4Event::GetLastPositionInVolume(Int_t volID) {
     for (int t = GetNumberOfTracks() - 1; t >= 0; t--)
         if (GetTrack(t)->GetEnergyInVolume(volID) > 0) return GetTrack(t)->GetLastPositionInVolume(volID);
@@ -870,7 +886,7 @@ TH1D* TRestG4Event::GetYHistogram(Int_t gridElement, std::vector<TString> optLis
 }
 
 TPad* TRestG4Event::DrawEvent(TString option) {
-    vector<TString> optList =VectorTString_cast(TRestTools::GetOptions((string)option));
+    vector<TString> optList = VectorTString_cast(TRestTools::GetOptions((string)option));
 
     SetBoundaries();
 

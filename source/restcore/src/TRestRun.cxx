@@ -314,7 +314,7 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
 /// 3. Print some message.
 ///
 void TRestRun::EndOfInit() {
-    // Get some infomation
+    // Get some information
 
     fRunUser = getenv("USER") == NULL ? "" : getenv("USER");
     fRunType = ToUpper(GetParameter("runType", "ANALYSIS")).c_str();
@@ -323,18 +323,31 @@ void TRestRun::EndOfInit() {
     fRunTag = GetParameter("runTag", "noTag").c_str();
 
     OpenInputFile(0);
-    cout << "InputFile pattern: \"" << fInputFileName << "\"" << endl;
-    if (fInputFileNames.size() > 1) {
+
+    if (fInputFileNames.size() == 0) {
+        essential << "ERROR! no input file added" << endl;
+        // throw;
+    }
+    // single file, not pattern
+    else if (fInputFileNames.size() == 1) {
+        cout << "Input file: \"" << fInputFileName << "\"" << endl;
+        if (!TRestTools::fileExists((string)fInputFileName)) {
+            // file does not exist
+            cout << "ERROR: Input file (" << fInputFileName << ") does not exist" << endl;
+            // throw;
+        }
+    }
+    // file pattern, more than one file
+    else {
+        cout << "InputFile pattern: \"" << fInputFileName << "\"" << endl;
         info << "which matches :" << endl;
         for (int i = 0; i < fInputFileNames.size(); i++) {
             info << fInputFileNames[i] << endl;
         }
         essential << "(" << fInputFileNames.size() << " added files)" << endl;
-    } else if (fInputFileNames.size() == 0) {
-        essential << "(no input file added)" << endl;
     }
 
-    cout << "OutputFile pattern: \"" << fOutputFileName << "\"" << endl;
+    cout << "Output file: \"" << fOutputFileName << "\"" << endl;
 }
 
 ///////////////////////////////////////////////
@@ -724,11 +737,13 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
         string replacestr = GetFileInfo(target);
         if (replacestr == target && fHostmgr != NULL && fHostmgr->GetProcessRunner() != NULL)
             replacestr = fHostmgr->GetProcessRunner()->GetProcInfo(target);
-        if (replacestr == target && REST_Reflection::GetDataMember(this, target).IsZombie())
+        if (replacestr == target && !REST_Reflection::GetDataMember(this, target).IsZombie())
             replacestr = REST_Reflection::GetDataMember(this, target).ToString();
+        if (replacestr == target && !REST_Reflection::GetDataMember(this, "f" + target).IsZombie())
+            replacestr = REST_Reflection::GetDataMember(this, "f" + target).ToString();
 
         if (replacestr != target) {
-            if (targetstr == "[fRunNumber]") {
+            /*if (targetstr == "[fRunNumber]") {
                 TString runStr;
                 runStr.Form("%05d", GetRunNumber());
                 replacestr = (string)runStr;
@@ -737,7 +752,7 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
                 TString runStr;
                 runStr.Form("%05d", GetParentRunNumber());
                 replacestr = (string)runStr;
-            }
+            }*/
             outString = Replace(outString, targetstr, replacestr, 0);
         }
         pos = pos2 + 1;
@@ -812,6 +827,7 @@ TFile* TRestRun::FormOutputFile() {
     fAnalysisTree->CreateEventBranches();
     // fEventTree->CreateEventBranches();
     this->Write();
+    fAnalysisTree->Write();
     for (int i = 0; i < fMetadataInfo.size(); i++) {
         fMetadataInfo[i]->Write();
     }

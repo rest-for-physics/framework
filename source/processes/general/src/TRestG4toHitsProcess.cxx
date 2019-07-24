@@ -72,6 +72,42 @@ void TRestG4toHitsProcess::InitProcess() {
             cout << "TRestG4ToHitsProcess. volume name : " << fVolumeSelection[n]
                  << " not found and will not be added." << endl;
     }
+
+    /* {{{ Debug output */
+    debug << "Active volumes available in TRestG4Metadata" << endl;
+    debug << "-------------------------------------------" << endl;
+    for (int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes(); n++)
+        debug << "Volume id : " << n << " name : " << fG4Metadata->GetActiveVolumeName(n) << endl;
+    debug << endl;
+
+    debug << "TRestG4HitsProcess volumes enabled in RML : ";
+    debug << "-------------------------------------------" << endl;
+    if (fVolumeSelection.size() == 0)
+        debug << "all" << endl;
+    else {
+        for (int n = 0; n < fVolumeSelection.size(); n++) {
+            debug << "" << endl;
+            debug << " - " << fVolumeSelection[n] << endl;
+        }
+        debug << " " << endl;
+    }
+
+    if (fVolumeSelection.size() > 0 && fVolumeSelection.size() != fVolumeId.size())
+        warning << "TRestG4toHitsProcess. Not all volumes were properly identified!" << endl;
+
+    if (fVolumeId.size() > 0) {
+        debug << "TRestG4HitsProcess volumes identified : ";
+        debug << "---------------------------------------" << endl;
+        if (fVolumeSelection.size() == 0)
+            debug << "all" << endl;
+        else
+            for (int n = 0; n < fVolumeSelection.size(); n++) {
+                debug << "" << endl;
+                debug << " - " << fVolumeSelection[n] << endl;
+            }
+        debug << " " << endl;
+    }
+    /* }}} */
 }
 
 //______________________________________________________________________________
@@ -80,6 +116,13 @@ void TRestG4toHitsProcess::BeginOfEventProcess() { fHitsEvent->Initialize(); }
 //______________________________________________________________________________
 TRestEvent* TRestG4toHitsProcess::ProcessEvent(TRestEvent* evInput) {
     fG4Event = (TRestG4Event*)evInput;
+
+    if (this->GetVerboseLevel() >= REST_Extreme) {
+        cout << "------ TRestG4toHitsProcess --- Printing Input Event --- START ----" << endl;
+        fG4Event->PrintEvent();
+        cout << "------ TRestG4toHitsProcess --- Printing Input Event ---- END ----" << endl;
+        GetChar();
+    }
 
     fHitsEvent->SetRunOrigin(fG4Event->GetRunOrigin());
     fHitsEvent->SetSubRunOrigin(fG4Event->GetSubRunOrigin());
