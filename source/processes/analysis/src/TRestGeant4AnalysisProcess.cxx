@@ -364,6 +364,7 @@ void TRestGeant4AnalysisProcess::InitProcess() {
             if (fObservables[i].find("Photoelectric") != string::npos) ls = 13;
             if (fObservables[i].find("PhotonNuclear") != string::npos) ls = 13;
             if (fObservables[i].find("Bremstralung") != string::npos) ls = 12;
+            if (fObservables[i].find("NInelastic") != string::npos) ls = 10;
             if (fObservables[i].find("HadElastic") != string::npos) ls = 10;
             if (fObservables[i].find("NCapture") != string::npos) ls = 8;
             if (fObservables[i].find("Compton") != string::npos) ls = 7;
@@ -410,6 +411,8 @@ void TRestGeant4AnalysisProcess::BeginOfEventProcess() {}
 ///
 TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     *fOutputG4Event = *((TRestG4Event*)evInput);
+
+ 
 
     TString obsName;
 
@@ -481,6 +484,11 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     if (fOutputG4Event->ishIoni()) hIoni = 1;
     SetObservableValue((string) "hIoni", hIoni);
 
+
+     Int_t phoNucl = 0;
+    if (fOutputG4Event->isphotonNuclear()) phoNucl = 1;
+    SetObservableValue((string) "photonNuclear", phoNucl);
+
     for (unsigned int n = 0; n < fProcessObservables.size(); n++) {
         string obsName = fProcessObservables[n];
         TString processName = fProcessName[n];
@@ -494,6 +502,8 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         else if ((processName == "Bremstralung") && (fOutputG4Event->isBremstralungInVolume(fVolumeID3[n])))
             SetObservableValue(obsName, 1);
         else if ((processName == "HadElastic") && (fOutputG4Event->isHadElasticInVolume(fVolumeID3[n])))
+            SetObservableValue(obsName, 1);
+          else if ((processName == "NInelastic") && (fOutputG4Event->isNeutronInelasticInVolume(fVolumeID3[n])))
             SetObservableValue(obsName, 1);
         else if ((processName == "NCapture") && (fOutputG4Event->isNCaptureInVolume(fVolumeID3[n])))
             SetObservableValue(obsName, 1);
