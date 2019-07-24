@@ -131,7 +131,8 @@ class TRestG4Track : public TObject {
     }
     Bool_t isneutronInelastic() {
         for (int n = 0; n < GetHits()->GetNumberOfHits(); n++)
-            if (GetHits()->GetHitProcess(n) == 37) return true;
+            if (GetHits()->GetHitProcess(n) == 37) 
+               return true;
         return false;
     }
     Bool_t isnCapture() {
@@ -143,6 +144,11 @@ class TRestG4Track : public TObject {
     Bool_t ishIoni() {
         for (int n = 0; n < GetHits()->GetNumberOfHits(); n++)
             if (GetHits()->GetHitProcess(n) == 33) return true;
+        return false;
+    }
+      Bool_t isphotonNuclear() {
+        for (int n = 0; n < GetHits()->GetNumberOfHits(); n++)
+            if (GetHits()->GetHitProcess(n) == 42) return true;
         return false;
     }
     // Processes in active volume
@@ -175,14 +181,17 @@ class TRestG4Track : public TObject {
 
     Bool_t isHadElasticInVolume(Int_t volID) {
         for (int n = 0; n < GetHits()->GetNumberOfHits(); n++)
-            if ((GetHits()->GetHitProcess(n) == 36) && (GetHits()->GetHitVolume(n)) == volID) return true;
+            if ((GetHits()->GetHitProcess(n) == 36) && (GetHits()->GetHitVolume(n)) == volID)
+                  return true;
         return false;
     }
     Bool_t isNeutronInelasticInVolume(Int_t volID) {
         for (int n = 0; n < GetHits()->GetNumberOfHits(); n++)
-            if ((GetHits()->GetHitProcess(n) == 37) && (GetHits()->GetHitVolume(n)) == volID) return true;
+            if ((GetHits()->GetHitProcess(n) == 37) && (GetHits()->GetHitVolume(n)) == volID)
+               return true;
         return false;
     }
+
     Bool_t isNCaptureInVolume(Int_t volID) {
         for (int n = 0; n < GetHits()->GetNumberOfHits(); n++)
             if ((GetHits()->GetHitProcess(n) == 38) && (GetHits()->GetHitVolume(n)) == volID) return true;

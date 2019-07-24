@@ -226,6 +226,13 @@ class TRestG4Event : public TRestEvent {
         return false;
     }
 
+       Bool_t isphotonNuclear() {
+        for (int n = 0; n < GetNumberOfTracks(); n++)
+            if (GetTrack(n)->isphotonNuclear()) return true;
+        return false;
+    }
+
+
     Bool_t isAlpha() {
         for (int n = 0; n < GetNumberOfTracks(); n++)
             if (GetTrack(n)->GetParticleName() == "alpha") return true;
