@@ -6,9 +6,12 @@
 /////////////////////////////////////////////////////////
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 File : NeutronSources.root
-Histograms : AmBe
-Description : It contains the energy distribution for Am241Be neutron emission (normalized) created using the ISO 8529-2 recommended 241Am-Be spectrum
+Histograms : AmBe, Cf252
+Description : It contains the energy distribution for Am241Be neutron emission (normalized) created using the ISO 8529-2 recommended 241Am-Be spectrum and the energy distribution for a Cf252 source neutron emission created as an evaporation spectrum n=exp(-0.88*N)*sinh(sqrt(2*E))
 	-AmBe: Neutron spectrum in Mev
+	-Cf252: Neutron spectrum in MeV 
+
+Notes: in any Cf252 decay, 4 neutrons are emitted.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
