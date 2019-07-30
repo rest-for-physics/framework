@@ -1,3 +1,111 @@
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
+
+//////////////////////////////////////////////////////////////////////////
+///VVVVVVVVVVVVVVVVVVVVVVV
+///
+/// ### Observables
+///
+/// Related to the number of hits
+///
+/// * **nHits**: Number of punctual energy depositions (fNHits).
+/// * **nHitsX**: Number of punctual depositions detected in X channels.
+/// * **nHitsY**: Number of punctual depositions detected in Y channels.
+/// * **balanceXYnHits**: (nHitsX - nHitsY) / (nHitsX + nHitsY)
+/// * **nHitsSizeXY**: If (nHits == nHitsX) or (nHits == nHitsY) => nHitsSizeXY==nHits
+///	                   Else: nHitsSizeXY == (nHitsX^2+ nHitsY^2)^1/2
+///
+/// Fiducial volumes
+///
+/// Cylindrical fiducial volume: 
+/// * **isInsideCylindricalVolume**: 1 if some hits of the event are inside the cylindrical
+/// fiducial volume, 0 if none is inside.
+/// * **nInsideCylindricalVolume**: Number of hits inside the cylindrical fiducial volume
+/// * **energyInsideCylindricalVolume**: energy of the hits inside the cylindrical fiducial
+/// volume.
+/// * **xMeanInCylinder**: For all energy depositions inside the cylindrical fiducial volume
+/// it takes the mean position in X coordinate using the energies as weights. 
+/// * **yMeanInCylinder**: For all energy depositions inside the cylindrical fiducial volume
+/// it takes the mean position in Y coordinate using the energies as weights.
+/// * **zMeanInCylinder**: For all energy depositions inside the cylindrical fiducial volume
+/// it takes the mean position in Z coordinate using the energies as weights.
+///
+/// Prism fiducial volume:
+/// * **isInsidePrismVolume**: It is a binary observable. It checks if the event has deposited
+/// energy inside the volume. To do so, it checks if GetNumberOfHitsInsidePrism > 0.
+/// GetNumberOfHitsInsidePrism counts the number of hits inside the volume.
+/// * **nInsidePrismVolume**: Number of hits of the event registered inside the volume.
+/// * **energyInsidePrismVolume**: Total energy of the hits deposited inside the volume.
+/// * **xMeanInPrism**: For all energy depositions inside the prism fiducial volume it takes
+/// the mean position in X coordinate using the energies as weights.
+/// * **yMeanInPrism**: For all energy depositions inside the prism fiducial volume it takes
+/// the mean position in Y coordinate using the energies as weights.
+/// * **zMeanInPrism**: For all energy depositions inside the prism fiducial volume it takes
+/// the mean position in Z coordinate using the energies as weights.
+///
+/// Distance to the borders of the volume (cylinder or prism)
+///
+/// * **distanceToCylinderWall**: Distance from the closest hit of the event to the cylinder
+/// wall. Only hits inside the cylinder. 
+/// * **distanceToCylinderTop**: Distance from the closest hit of the event to the top of
+/// the cylinder. Only hits inside the cylinder. 
+/// * **distanceToCylinderBottom**: Distance from the closest hit of the event to the bottom
+/// of the cylinder. Only hits inside the cylinder. 
+/// * **distanceToPrismWall**: Distance from the closest hit of the event to the wall of the
+/// prism. Only hits inside the prism.
+/// * **distanceToPrismTop**: Distance from the closest hit of the event to the top of the
+/// prism. Only hits inside the prism.
+/// * **distanceToPrismBottom**: Distance from the closest hit of the event to the bottom
+/// of the prism. Only hits inside the prism.
+///
+/// Energy properties
+///
+/// * **energy**: Total energy deposited in all the hits of the event. (fTotEnergy)
+/// * **energyX**: Total energy deposited in hits with X coordinate well defined (!IsNaN(fX[n])).
+/// * **energyY**: Total energy deposited in hits with Y coordinate well defined (!IsNaN(fY[n])).
+/// * **balanceXYenergy**: (energyX - energyY) / (energyX + energyY)
+/// * **maxHitEnergy**: Maximum energy of a hit in the event.
+/// * **minHitEnergy**: Minimum energy of a hit in the event.
+/// * **meanHitEnergy**: Total energy / Number of hits
+/// * **meanHitEnergyBalance**: meanHitEnergy / energy
+///
+/// Position statistics: mean, variance, skewness
+///
+/// * **xMean**: Coordinate X of the mean position of the hits of the event weighted with
+/// their energies. (?E_n x_n)/E_T 
+/// * **yMean**: Coordinate Y of the mean position of the hits of the event weighted with
+/// their energies. (?E_n y_n)/E_T 
+/// * **zMean**: Coordinate Z of the mean position of the hits of the event weighted with
+/// their energies.  (?E_n z_n)/E_T 
+///
+/// * **xy2Sigma**: Sum of the variance in coordinates X and Y in the hits of an event.
+/// s_xy^2=(?E_n[(m_x-x_n)^2+(m_y-y_n)^2])/E_T =s_x^2+s_y^2
+/// * **xySigmaBalance**: (s_x-s_y)/(s_x+s_y)
+/// * **z2Sigma**: Variance in Z in the hits of an event,  s_z^2=(?E_n (m_z-z_n )^2)/E_T 
+/// * **xySkew**: s_xy=(?E_n [(m_x-x_n)^3+(m_y-y_n)^3])/(E_T ·s_xy^3)
+/// * **zSkew**: skew=(?E_n (m_z-z_n)^3)/(E_T· s_z^3) Fisher-Pearson coefficient of skewness,
+/// third central moment divided by the standard deviation to the power three.
+/// It measures the asymmetry of the distribution.
+///
 ///______________________________________________________________________________
 ///______________________________________________________________________________
 ///
@@ -12,6 +120,7 @@
 ///             Author : J. Galan
 ///
 ///_______________________________________________________________________________
+///
 
 #include "TRestHitsAnalysisProcess.h"
 using namespace std;
