@@ -1,18 +1,114 @@
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
+
+/////////////////////////////////////////////////////////////////////////////
+///
+/// ### Observables
+///
+/// Energy and number of tracks:
+///
+/// * **trackEnergy**: Energy of the track (fTrackEnergy)
+/// * **nTracks_X**: Number of tracks in the event with hits' coordinates only in X and Z (not Y).
+/// * **nTracks_Y**: Number of tracks in the event with hits' coordinates only in Y and Z (not X).
+/// * **nTracks_XYZ**: Number of tracks in the event with hits' coordinates in X, Y and Z.
+///
+/// Max track energies and track energy ratio:
+///
+/// * **maxTrackEnergy**: Energy of the most energetic track in the event with X, Y, Z coordinates.
+/// * **maxTrack_X_Energy**: Energy of the most energetic track in the event with X, Z coordinates.
+/// * **maxTrack_Y_Energy**: Energy of the most energetic track in the event with Y, Z coordinates.
+/// * **maxTrackEnergyRatio**: (totalEnergy - tckMaxEnergy) / totalEnergy 
+/// with tckMaxEnergy = tckMaxEnX + tckMaxEnY + tckMaxEnXYZ.  
+///
+/// Maximum Second Track Energy observables:
+///
+/// * **secondTrackMaxEnergy**: Energy of the second most energetic track in the event with X,Y,Z 
+/// coordinates.
+/// * **secondTrackMaxEnergy_X**: Energy of the second most energetic track in the event with X,Z
+/// coordinates.
+/// * **secondTrackMaxEnergy_Y**: Energy of the second most energetic track in the event with Y,Z
+/// coordinates.
+///
+/// Track Length observables:
+///
+/// * **MaxTrackLength_X**: Length of the most energetic track in the event with X,Z coordinates.
+/// * **MaxTrackLength_Y**: Length of the most energetic track in the event with Y,Z coordinates.
+/// * **MaxTrackLength_XYZ**: Length of the most energetic track in the event with X,Y,Z coordinates.
+///
+/// Track Volume observables:
+///
+/// * **MaxTrackVolume_X**: Squared distance of the most separated hits in the most energetic track
+/// in the event with X, Z coordinates.
+/// * **MaxTrackVolume_Y**: Squared distance of the most separated hits in the most energetic track
+/// in the event with Y, Z coordinates.
+/// * **MaxTrackVolume_XYZ**: Squared distance of the most separated hits in the most energetic track
+/// in the event with X, Y, Z coordinates.
+///
+/// Mean position for max energy tracks:
+///
+/// * **MaxTrack_Xmean_XYZ**: X coordinate in the mean position of the most energetic track with X,Y,Z
+/// in the event.
+/// * **MaxTrack_Ymean_XYZ**: Y coordinate in the mean position of the most energetic track with X,Y,Z
+/// in the event.
+/// * **MaxTrack_Zmean_XYZ**: Z coordinate in the mean position of the most energetic track with X,Y,Z
+/// in the event.
+/// * **MaxTrack_Xmean_X**: X coordinate in the mean position of the most energetic track with only X
+/// and Z coord in the event.
+/// * **MaxTrack_Zmean_X**: Z coordinate in the mean position of the most energetic track with only X
+/// and Z coord in the event.
+/// * **MaxTrack_Ymean_Y**: Y coordinate in the mean position of the most energetic track with only Y
+/// and Z coord in the event.
+/// * **MaxTrack_Zmean_Y**: Z coordinate in the mean position of the most energetic track with only Y
+/// and Z coord in the event.
+///
+/// Mean position: Very similar to the previous observables, main difference all tracks (XYZ, XZ, YZ)
+/// together. 
+///
+/// * **xMean**: X coordinate (if it has) in the mean position of the most energetic track in the event.
+/// * **yMean**: Y coordinate (if it has) in the mean position of the most energetic track in the event.
+/// * **zMean**: Z coordinate (if it has) in the mean position of the most energetic track in the event.
+///
+/// Time observables:
+///
+/// * **EventTimeDelay**: Time between the event and the previous event.
+/// * **MeanRate_InHz**: Rate of events in the last 100 events.
+///
 ///______________________________________________________________________________
+///      
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2016-March:  First implementation of Geant4 analysis process into REST_v2.
+///             Javier Galan
+///
+/// 2018-May: Added twist parameters.
+///                           
+/// \class      TRestTrackAnalysisProcess
+/// \author     Javier Galan
+///
 ///______________________________________________________________________________
 ///
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestTrackAnalysisProcess.cxx
-///
-///
-///             First implementation of Geant4 analysis process into REST_v2
-///             Date : mar/2016
-///             Date : may/2018 Added twist parameters
-///             Author : J. Galan
-///
-///_______________________________________________________________________________
+/////////////////////////////////////////////////////////////////////////////
 
 #include "TRestTrackAnalysisProcess.h"
 using namespace std;
@@ -308,7 +404,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         if (nTracksY < fNTracksYCut.X() || nTracksY > fNTracksYCut.Y()) return NULL;
     }
 
-    /* {{{ Producing nTracks above/below threshold ( nTracls_LE/HE_XXX ) */
+    /* {{{ Producing nTracks above/below threshold ( nTracks_LE/HE_XXX ) */
     for (unsigned int n = 0; n < nTracks_HE.size(); n++) nTracks_HE[n] = 0;
 
     for (unsigned int n = 0; n < nTracks_LE.size(); n++) nTracks_LE[n] = 0;
