@@ -83,7 +83,7 @@ target_link_libraries(restG4 ${lnklib})
 # build sphereSimLab. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 
-install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/example
+install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples
          DESTINATION .
          COMPONENT install
                  )
