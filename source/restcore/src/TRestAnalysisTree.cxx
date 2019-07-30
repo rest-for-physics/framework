@@ -110,7 +110,7 @@ void TRestAnalysisTree::ConnectObservables() {
         }
 
         TTree::GetEntry(0);
-        cout << "Connecting observables..." << endl;
+        // cout << "Connecting observables..." << endl;
 
         for (int i = 0; i < GetNumberOfObservables(); i++) {
             TBranch* branch = GetBranch(fObservableNames[i]);
