@@ -493,10 +493,6 @@ Double_t TRestHits::GetMeanPositionY() {
     return meanY;
 }
 
-TVector3 TRestHits::GetMeanPosition() {
-    TVector3 mean(GetMeanPositionX(), GetMeanPositionY(), GetMeanPositionZ());
-    return mean;
-}
 
 Double_t TRestHits::GetMeanPositionZ() {
     Double_t meanZ = 0;
@@ -511,6 +507,11 @@ Double_t TRestHits::GetMeanPositionZ() {
     meanZ /= totalEnergy;
 
     return meanZ;
+}
+
+TVector3 TRestHits::GetMeanPosition() {
+    TVector3 mean(GetMeanPositionX(), GetMeanPositionY(), GetMeanPositionZ());
+    return mean;
 }
 
 Double_t TRestHits::GetSigmaXY2() {
