@@ -31,7 +31,7 @@ endif()
 #message (STATUS "REST Include Directory: ${REST_INCLUDE_DIRS}")
 
 
-if(DEFINED rest_libraries)
+if(DEFINED REST_MAIN_COMPILE)
 	#this means it is during installation
 	set(REST_LIBRARIES ${rest_libraries})
 else()
