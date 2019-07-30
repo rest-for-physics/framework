@@ -942,13 +942,13 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     if (tXYZ != NULL) {
         x = tXYZ->GetMeanPosition().X();
         y = tXYZ->GetMeanPosition().Y();
-        z = tXYZ->GetMeanPosition().Y();
+        z = tXYZ->GetMeanPosition().Z();
     } else if (tX != NULL) {
         x = tX->GetMeanPosition().X();
-        z = tX->GetMeanPosition().Y();
+        z = tX->GetMeanPosition().Z();
     } else if (tY != NULL) {
         y = tY->GetMeanPosition().Y();
-        z = tY->GetMeanPosition().Y();
+        z = tY->GetMeanPosition().Z();
     }
 
     SetObservableValue((string) "xMean", x);
