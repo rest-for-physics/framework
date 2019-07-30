@@ -147,7 +147,7 @@ Double_t TRestHitsEvent::GetClosestHitInsideDistanceToCylinderWall(TVector3 x0, 
         if (fHits->isHitNInsideCylinder(n, x0, x1, radius)) {
             l = axis.Dot(this->GetPosition(n) - x0) / cylLength;
 
-            d2 = rad2 - (this->GetPosition(n) - x0).Mag2() - l * l;
+            d2 = rad2 - (this->GetPosition(n) - x0).Mag2() + l * l;
 
             if (d2 < hitDistance) hitDistance = d2;
 
@@ -159,6 +159,8 @@ Double_t TRestHitsEvent::GetClosestHitInsideDistanceToCylinderWall(TVector3 x0, 
 
     return TMath::Sqrt(hitDistance);
 }
+
+
 
 Double_t TRestHitsEvent::GetClosestHitInsideDistanceToCylinderTop(TVector3 x0, TVector3 x1, Double_t radius) {
     TVector3 axis = x1 - x0;
@@ -183,6 +185,7 @@ Double_t TRestHitsEvent::GetClosestHitInsideDistanceToCylinderTop(TVector3 x0, T
     return hitDistance;
 }
 
+
 Double_t TRestHitsEvent::GetClosestHitInsideDistanceToCylinderBottom(TVector3 x0, TVector3 x1,
                                                                      Double_t radius) {
     TVector3 axis = x1 - x0;
@@ -194,7 +197,7 @@ Double_t TRestHitsEvent::GetClosestHitInsideDistanceToCylinderBottom(TVector3 x0
     Int_t nhits = 0;
     for (int n = 0; n < GetNumberOfHits(); n++) {
         if (fHits->isHitNInsideCylinder(n, x0, x1, radius)) {
-            d = cylLength - axis.Dot(this->GetPosition(n) - x0) / cylLength;
+            d = axis.Dot(this->GetPosition(n) - x0) / cylLength;
 
             if (d < hitDistance) hitDistance = d;
 
