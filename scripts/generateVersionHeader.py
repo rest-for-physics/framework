@@ -118,7 +118,7 @@ print ("To increase the version of REST use the generated file to replace the ex
 print ("-----> cp " + outputHeader + " /path/to/REST_v2/source/restcore/inc/TRestVersion.h\n")
 print ("After replacing TRestVersion.h, add the file and commit it\n")
 print ("-----> git add /path/to/REST_v2/source/restcore/inc/TRestVersion.h")
-print ("-----> git commit -m \"Updated TRestVersion.h\" " )
+print ("-----> git commit -m \"Updated TRestVersion.h to v2.2.X\" " )
 print ("\n")
 print ("You should generate a new Git tag now!\n")
 print ("-----> git tag -a v" + str(a) + "." + str(b) + "." + str(c) + " -m \"Update to version v" + str(a) + "." + str(b) + "." + str(c) + "\"\n" )
