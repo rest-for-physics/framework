@@ -1,3 +1,0 @@
-set(contents)
-
-COMPILEDIR(RestCore)

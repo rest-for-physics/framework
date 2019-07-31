@@ -148,7 +148,7 @@ echo ${rest_libraries_regular}
 fi
 
 if [ $option = \\\"--exes\\\" ] ; then
-echo ${rest_exes} 
+echo ${rest_exes_str} 
 echo -------------------------------------------
 echo ${rest_macros_str}
 
@@ -166,9 +166,7 @@ fi
 
 if [ $option = \\\"--flags\\\" ] ; then
 echo REST_WELCOME=${REST_WELCOME}
-echo REST_GARFIELD=${REST_GARFIELD}
-echo REST_G4=${REST_G4}
-echo REST_DATABASE=${REST_DATABASE}
+echo ${rest_library_flags}
 echo CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
 echo CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
 
@@ -181,7 +179,7 @@ echo \\\"  W E L C O M E   to  R E S T  \\\"
 echo \\\"  \\\"
 echo \\\"  Commit  : \${GIT_COMMIT} (\${GIT_DATE})  \\\"
 echo \\\"  Branch/Version : \${GIT_BRANCH}/\${GIT_TAG}  \\\"
-echo \\\"  Compilation date : ${date}  \\\"
+echo \\\"  Compilation date : \${DATE}  \\\"
 echo \\\"  \\\"
 echo \\\"  Installed at : $REST_PATH  \\\"
 echo \\\"  \\\"
@@ -198,6 +196,7 @@ echo \\\"  rest-config [--libdir]  : Show the directory of library              
 echo \\\"  rest-config [--libs]    : Print regular REST libraries                       \\\"
 echo \\\"  rest-config [--exes]    : Print a list of REST executables with alias        \\\"
 echo \\\"  rest-config [--version] : Print the version of REST                          \\\"
+echo \\\"  rest-config [--commit]  : Print the commit of REST                          \\\"
 echo \\\"  rest-config [--welcome] : Print the welcome message                          \\\"
 echo \\\"  rest-config [--flags]   : Print cmake flags defined when installing          \\\"
 

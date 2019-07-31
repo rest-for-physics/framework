@@ -12,8 +12,10 @@ before_script:
 build:
   type: build
   script:
+    - rm -rf /builds/REST_v2/install
+    - rm -rf /tmp/rest
     - mkdir /tmp/rest && cd /tmp/rest
-    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DINSTALL_PREFIX=/builds/REST_v2/install
+    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_PSQL=OFF -DREST_MUON=OFF -DREST_DECAY0=OFF -DINSTALL_PREFIX=/builds/REST_v2/install
     - make install
     - . /builds/REST_v2/install/thisREST.sh
   artifacts:

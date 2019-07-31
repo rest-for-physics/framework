@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<!--We generate two TRestGas objects and a TRestReadout object in this example, and save them to a root
+file known as metadata file. The file can be used in "addMetadata" section in TRestRun in future.
+
+We first set "searchPath" to tell TRestMetadata where to find the include file. Then we instantiate 
+a TRestRun object by adding a section in TRestMenager section. TRestRun will hold and manage our metadata.
+Inside TRestRun section, we define two TRestGas objects from online database(https://sultan.unizar.es/gasFiles/). 
+We also construct an TRestReadout object by hand. In the construction we first define a readout 
+module known as MicroMegas(module). This is from a pre-defined section in readouts.rml. Then we define a 
+readout plane and add the modules piece by piece.
+
+Finally we call the method TRestRun::FormOutputFile() through TRestManager to save the metadata file.
+-->
+
+<TRestManager verboseLevel="silent">
+  <globals>
+    <searchPath value="${REST_INPUTDATA}/definitions/"/>
+    <searchPath value="${REST_INPUTDATA}/gasFiles/"/>
+    <variable name="PITCH" value="3" overwrite="false" />
+    <!-- The pitch value in mm -->
+    <variable name="MODULES" value="10" overwrite="false" />
+    <!-- The number of modules per axis MxM -->
+    <variable name="CHANNELS" value="64" overwrite="false" />
+    <!-- The number of pixels per side PxP -->
+  </globals>
+
+  <TRestRun name="readoutrun">
+    <TRestGas name="Xenon 10-10E3Vcm" pressure="10" file="server"/>
+    <TRestGas name="Xenon-TMA 1Pct 10-10E3Vcm" pressure="10" file="server"/>
+
+    <TRestReadout name="Panda-CDR" title="PANDA CDR" file="readouts.rml" />
+
+    <TRestReadout name="Prototype" title="PANDA readout 7module" >
+      <parameter name="verboseLevel" value="info"/>
+      <parameter name="mappingNodes" value="0" />
+      <myParameter name="nChannels" value="${CHANNELS}" />
+      <myParameter name="nModules" value="${MODULES}" />
+      <myParameter name="pitch" value="${PITCH}" />
+      <myParameter name="pixelSize" value="${PITCH}/sqrt(2.)" />
+      <myParameter name="myDecodingFile" value="${REST_INPUTDATA}/decoding/MM_On_AGET0-1.dec"/>
+
+      <readoutModule name="module" file="microbulkModule.rml"/>
+
+      <readoutPlane position="(0,0,990)mm" planeVector="(0,0,-1)mm"
+          chargeCollection="1"
+          cathodePosition="(0,0,0)mm" >
+
+        see the readout plane configuration here : https://pandax.physics.sjtu.edu.cn/docdb3/0004/000496/005/Data_taking_prototype%20_1130.pdf
+
+        <addReadoutModule id="0" name="module" origin="(292.175,-194.65)" rotation="90" decodingFile="myDecodingFile" firstDaqChannel="136*5" />
+        <addReadoutModule id="2" name="module" origin="(-292.175,194.65)" rotation="-90" decodingFile="myDecodingFile" firstDaqChannel="136*3"/>
+        <addReadoutModule id="3" name="module" origin="(292.175,1.15)" rotation="90"  decodingFile="myDecodingFile" firstDaqChannel="136*4"/>
+        <addReadoutModule id="4" name="module" origin="(-292.175,-1.525)" rotation="-90"  decodingFile="myDecodingFile" firstDaqChannel="136*2"/>
+        <addReadoutModule id="6" name="module" origin="(-96.75,-96.375)" rotation="0"  decodingFile="myDecodingFile" firstDaqChannel="136*1"/>
+        <addReadoutModule id="8" name="module" origin="(96.75,292.175)" rotation="180" decodingFile="myDecodingFile" firstDaqChannel="136*6+68"/>
+        <addReadoutModule id="9" name="module" origin="(-96.75,-292.175)" rotation="0" decodingFile="myDecodingFile" firstDaqChannel="136*0"/>
+
+      </readoutPlane>
+    </TRestReadout>
+
+    <parameter name="outputFile" value="meta.root" />
+  </TRestRun>
+
+  <addTask command="readoutrun->FormOutputFile()" value="ON"/>
+
+</TRestManager>
+

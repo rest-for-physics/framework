@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<TRestManager name="CoBoDataAnalysis" title="testing" verboseLevel="info" >
+
+  <TRestRun name="SJTU_Proto" verboseLevel="essential">
+    <addMetadata name="Prototype" file="meta.root"/>
+    <!--<addMetadata name="SingleModule" file="/home/Shaobo/PandaXIII-REST_BK/readouts/readouts.root"/>-->
+    <!--<addMetadata name="SingleModule" file="/home/Shaobo/PandaXIII-REST_BK/readouts/readouts_M8_1Asad.root"/>-->
+    <parameter name="outputFile" value="RUN[RunNumber]-[RunTag].[LastProcess]_[RunUser].root" />
+  </TRestRun>
+
+  <TRestProcessRunner name="TemplateEventProcess" verboseLevel="info">
+    <parameter name="eventsToProcess" value="0" />
+    <parameter name="threadNumber" value="2"/>
+
+    <parameter name="inputAnalysis" value="on"/>
+    <parameter name="inputEvent" value="on"/>
+    <parameter name="outputEvent" value="on"/>
+
+    <addProcess type="TRestMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON"/>
+    <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON" verboseLevel="2">
+      <observable name="MeanRate_InHz" value="ON" />
+      <observable name="NumberOfSignals" value="ON" />
+      <observable name="NumberOfGoodSignals" value="ON" />
+      <observable name="BaseLineMean" value="ON" />
+      <observable name="BaseLineSigmaMean" value="ON" />
+      <observable name="ThresholdIntegral" value="ON" />
+      <observable name="RiseTimeAvg" value="ON" />
+      <observable name="AmplitudeIntegralRatio" value="ON" />
+      <observable name="MinPeakTime" value="ON" />
+      <observable name="xEnergySum" value="ON" />
+      <observable name="yEnergySum" value="ON" />
+    </addProcess>
+    <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON">
+      <parameter name="baseLineRange" value="(50,100)" />
+      <parameter name="integralRange" value="(40,472)" />
+      <parameter name="pointThreshold" value="2.5" />
+      <parameter name="pointsOverThreshold" value="5" />
+      <parameter name="signalThreshold" value="2.5" />
+      <parameter name="sampling" value="1" />
+    </addProcess>
+    <addProcess type="TRestSignalTo2DHitsProcess" name="rs2hits" value="ON" verboseLevel="2">
+      <parameter name="houghSigmaLimit" value="0.12" />
+      <parameter name="peakPointRateLimit" value="0.8" />
+      <parameter name="selection" value="1" />
+      <observable name="zlen" value="ON" />
+      <observable name="xlen" value="ON" />
+      <observable name="ylen" value="ON" />
+      <observable name="firstz" value="ON" />
+      <observable name="firstx" value="ON" />
+      <observable name="firsty" value="ON" />
+    </addProcess>
+    
+    <addProcess type="TRestMuonAnalysisProcess" name="muAna" value="OFF" verboseLevel="2">
+      <observable name="tantheXZ" value="ON" />
+      <observable name="tantheYZ" value="ON" />
+      <observable name="adjustedfirstX" value="ON" />
+      <observable name="adjustedfirstY" value="ON" />
+      <observable name="mutanthe:muphi" value="ON" />
+      <observable name="MMpenet:longTrackX:longTrackY" value="ON" />
+    </addProcess>
+    <addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="OFF" file="processes.rml"/>
+    <addProcess type="TRestHitsAnalysisProcess" name="hitsAna" value="OFF" file="processes.rml" />
+    <addProcess type="TRestHitsToTrackProcess" name="hitsToTrack" value="OFF"/>
+    <addProcess type="TRestTrackAnalysisProcess" name="tckAna" value="OFF" />
+
+  </TRestProcessRunner>
+
+  <addTask command="TemplateEventProcess.RunProcess()" value="ON"/>
+
+  <globals>
+    <!--<parameter name="XROI" value="(100,300)" />
+    <parameter name="YROI" value="(-200,0)" />  //M0-->
+    <parameter name="XROI" value="(-100,100)" />
+    <parameter name="YROI" value="(100,300)" />  //M8
+    <!--<parameter name="XROI" value="(-100,300)" />
+    <parameter name="YROI" value="(-300,200)" />  //M0,M3,M6,M9-->
+    
+    <searchPath value="${REST_INPUTDATA}/definitions/"/>
+    <parameter name="verboseLevel" value="essential" /> %options are : silent, essential, info, debug
+  </globals>
+
+</TRestManager>
+
+
+<!--paramater here is accessible to all the classes-->
+
+
