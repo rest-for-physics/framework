@@ -11,9 +11,9 @@
  *
  */
 #define REST_RELEASE "2.2.12"
-#define REST_RELEASE_DATE "Fri Jul 26"
-#define REST_RELEASE_TIME "08:19:32 CEST 2019"
-#define REST_GIT_COMMIT "3ce99020"
+#define REST_RELEASE_DATE "Wed Jul 31"
+#define REST_RELEASE_TIME "12:15:04 CEST 2019"
+#define REST_GIT_COMMIT "c1198555"
 #define REST_VERSION_CODE 131596
 #define REST_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 #define REST_SCHEMA_EVOLUTION "ON"
