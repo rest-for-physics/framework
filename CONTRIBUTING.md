@@ -176,15 +176,15 @@ In order to change the version of REST we need to tag the state of the code usin
 
 `git tag -a v2.2.2 -m "A small step for REST but a big step for humanity"`
 
-#### Generating a new version header file
+#### Generating a new REST version
 
-Once we have produced a new tag we can generate a new `TRestVersion.h` header file with the information of the new version.
+In order to generate a new REST version just go to `scripts/` directory and execute
 
-Inside the scripts/ directory. Execute the following command to generate the version header which will be extracted from the latest tag name.
 
 ```
 ./generateVersionHeader.py TRestVersion.h
 ```
+
 
 The contents of the generated file will look like this
 ```c++
@@ -210,12 +210,8 @@ The contents of the generated file will look like this
 #endif
 ```
 
-Replace the existing `TRestVersion.h` with the new generated one, and push the changes to the repository.
+Follow the detailed instructions on screen to push the new version to the development branch where you are.
 
-Additionally, to publish the new version and make it visible to other users we need to use the `--tags` flag 
-when pushing the code:
-
-`git push --tags`
 
 ### Version control strategy
 
