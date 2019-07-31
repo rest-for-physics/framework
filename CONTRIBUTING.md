@@ -172,19 +172,20 @@ REST core libraries change the behaviour and may lead to different results:
 
 The basics of tagging in Git are described at the following site: [Git Tagging](https://git-scm.com/book/en/v2/Git-Basics-Tagging)
 
-In order to change the version of REST we need to tag the state of the code using `git tag` command:
+REST needs to tag the state of the code using `git tag` command in order to identify the latest version.
+
+For example using:
 
 `git tag -a v2.2.2 -m "A small step for REST but a big step for humanity"`
 
-#### Generating a new REST version
 
-In order to generate a new REST version just go to `scripts/` directory and execute
-
+In order to generate a new REST version just go to `scripts/` directory, execute
 
 ```
 ./generateVersionHeader.py TRestVersion.h
 ```
 
+and then follow the detailed instructions given on screen to push the new version to the development branch where you are.
 
 The contents of the generated file will look like this
 ```c++
@@ -210,8 +211,7 @@ The contents of the generated file will look like this
 #endif
 ```
 
-Follow the detailed instructions on screen to push the new version to the development branch where you are.
-
+Once the new version has been uploaded to the repository we must add the main changes to the [Tags section of the Gitlab repository](https://lfna.unizar.es/rest-development/REST_v2/tags/).
 
 ### Version control strategy
 
