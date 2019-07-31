@@ -68,7 +68,7 @@ void TRestDummyEvent::Initialize() { TRestEvent::Initialize(); }
 /// \brief Function to define any drawing of this particular event data
 ///
 TPad* TRestDummyEvent::DrawEvent(TString option) {
-    vector<TString> optList = TRestTools::GetOptions(option);
+    vector<string> optList = TRestTools::GetOptions((string)option);
 
     // If `print` is found in the options the event data will be dumped
     // on screen before drawing the event
