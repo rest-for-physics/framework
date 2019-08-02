@@ -75,6 +75,7 @@ class TRestHitsEvent : public TRestEvent {
    public:
     void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0);
     void AddHit(TVector3 pos, Double_t en, Double_t t = 0);
+
     void RemoveHits();
 
     void MergeHits(int n, int m);

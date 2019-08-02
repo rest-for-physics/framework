@@ -86,28 +86,73 @@ TRestHitsEvent::TRestHitsEvent() {
     fMaxZ = 10;
 }
 
+///////////////////////////////////////////////
+/// \brief TRestHitsEvent default destructor
+///
 TRestHitsEvent::~TRestHitsEvent() { delete fHits; }
 
+///////////////////////////////////////////////
+/// \brief Adds a new hit to this event
+///
+/// It adds a new hit with coordinates `x`,`y`,`z` in mm, and energy `en` in keV, to this TRestHitsEvent
+/// structure. Additionaly a time delay value in `us` may be added to the hits.
 void TRestHitsEvent::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t) {
     fHits->AddHit(x, y, z, en, t);
 }
 
+///////////////////////////////////////////////
+/// \brief Adds a new hit to this event
+///
+/// It adds a new hit with position `pos` in mm, and energy `en` in keV, to this TRestHitsEvent
+/// structure. Additionaly a time delay value in `us` may be added to the hits.
 void TRestHitsEvent::AddHit(TVector3 pos, Double_t en, Double_t t) { fHits->AddHit(pos, en, t); }
 
+///////////////////////////////////////////////
+/// \brief Removes all hits from this event, and clears all auxiliar variables.
+///
 void TRestHitsEvent::Initialize() {
     TRestEvent::Initialize();
 
     RemoveHits();
 
+    if (fXZHits) {
+        delete fXZHits;
+        fXZHits = NULL;
+    }
+    if (fYZHits) {
+        delete fYZHits;
+        fYZHits = NULL;
+    }
+    if (fXYZHits) {
+        delete fXYZHits;
+        fXYZHits = NULL;
+    }
+
     fXZHits = new TRestHits();
     fYZHits = new TRestHits();
     fXYZHits = new TRestHits();
+
+    fMinX = 0;
+    fMaxX = 0;
+    fMinY = 0;
+    fMaxY = 0;
+    fMinZ = 0;
+    fMaxZ = 0;
 }
 
+///////////////////////////////////////////////
+/// \brief Merges hits `n` and `m` recalculating the weighted position.
+///
 void TRestHitsEvent::MergeHits(int n, int m) { fHits->MergeHits(n, m); }
 
+///////////////////////////////////////////////
+/// \brief Removes the hit `n`.
+///
 void TRestHitsEvent::RemoveHit(int n) { fHits->RemoveHit(n); }
 
+///////////////////////////////////////////////
+/// \brief Removes all the hits inside the event.
+///
 void TRestHitsEvent::RemoveHits() { fHits->RemoveHits(); }
 
 ///////////////////////////////////////////////
@@ -145,27 +190,27 @@ TRestHits* TRestHitsEvent::GetYZHits() {
 }
 
 ///////////////////////////////////////////////
-/// \brief This method collects all hits which are compatible with a pure XYZ hit.
+/// \brief This method returns true if at least 1 hit is found inside the cylinder volume given by argument.
 ///
-/// A pure XYZ hit are those hits that have valid values on X, Y and Z coordinates.
+/// \param x0 The center of the bottom face of the cylinder.
+/// \param x1 The center of the top face of the cylinder.
+/// \param radius The radius of the cylinder.
 ///
-/// \return It returns back a TRestHits structure with the hits fulfilling the XZ condition.
-TRestHits* TRestHitsEvent::GetXYZHits() {
-    fXYZHits->RemoveHits();
-
-    for (int i = 0; i < this->GetNumberOfHits(); i++)
-        if (!IsNaN(this->GetX(i)) && !IsNaN(this->GetY(i)) && !IsNaN(this->GetZ(i)))
-            fXYZHits->AddHit(this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i), 0);
-
-    return fXYZHits;
-}
-
 Bool_t TRestHitsEvent::isHitsEventInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
     if (fHits->GetNumberOfHitsInsideCylinder(x0, x1, radius) > 0) return true;
 
     return false;
 }
 
+///////////////////////////////////////////////
+/// \brief This method returns true if at least 1 hit is found inside the prism volume given by argument.
+///
+/// \param x0 The center of the bottom face of the prism.
+/// \param x1 The center of the top face of the prism.
+/// \param sizeX Size of the side X of the prism face.
+/// \param sizeY Size of the side X of the prism face.
+/// \param theta An angle in radians to rotate the face of the prism.
+///
 Bool_t TRestHitsEvent::isHitsEventInsidePrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
                                               Double_t theta) {
     if (fHits->GetNumberOfHitsInsidePrism(x0, x1, sizeX, sizeY, theta) > 0) return true;
@@ -173,12 +218,28 @@ Bool_t TRestHitsEvent::isHitsEventInsidePrism(TVector3 x0, TVector3 x1, Double_t
     return false;
 }
 
+///////////////////////////////////////////////
+/// \brief This method returns true if all hits are containned inside the cylinder volume given by argument.
+///
+/// \param x0 The center of the bottom face of the cylinder.
+/// \param x1 The center of the top face of the cylinder.
+/// \param radius The radius of the cylinder.
+///
 Bool_t TRestHitsEvent::areHitsFullyContainnedInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
     if (fHits->GetNumberOfHitsInsideCylinder(x0, x1, radius) == GetNumberOfHits()) return true;
 
     return false;
 }
 
+///////////////////////////////////////////////
+/// \brief This method returns true if all hits are found inside the prism volume given by argument.
+///
+/// \param x0 The center of the bottom face of the prism.
+/// \param x1 The center of the top face of the prism.
+/// \param sizeX Size of the side X of the prism face.
+/// \param sizeY Size of the side X of the prism face.
+/// \param theta An angle in radians to rotate the face of the prism.
+///
 Bool_t TRestHitsEvent::areHitsFullyContainnedInsidePrism(TVector3 x0, TVector3 x1, Double_t sizeX,
                                                          Double_t sizeY, Double_t theta) {
     if (fHits->GetNumberOfHitsInsidePrism(x0, x1, sizeX, sizeY, theta) == GetNumberOfHits()) return true;
@@ -186,6 +247,16 @@ Bool_t TRestHitsEvent::areHitsFullyContainnedInsidePrism(TVector3 x0, TVector3 x
     return false;
 }
 
+///////////////////////////////////////////////
+/// \brief This method returns the distance to the cylinder wall from the closest hit containned inside the
+/// cylinder volume given by argument.
+///
+/// \param x0 The center of the bottom face of the cylinder.
+/// \param x1 The center of the top face of the cylinder.
+/// \param radius The radius of the cylinder.
+///
+/// \return If no hit is found inside the cylinder, -1 is returned.
+///
 Double_t TRestHitsEvent::GetClosestHitInsideDistanceToCylinderWall(TVector3 x0, TVector3 x1,
                                                                    Double_t radius) {
     Double_t rad2 = radius * radius;
@@ -214,6 +285,16 @@ Double_t TRestHitsEvent::GetClosestHitInsideDistanceToCylinderWall(TVector3 x0, 
     return TMath::Sqrt(hitDistance);
 }
 
+///////////////////////////////////////////////
+/// \brief This method returns the distance to the cylinder **top** face from the closest hit containned
+/// inside the cylinder volume given by argument.
+///
+/// \param x0 The center of the bottom face of the cylinder.
+/// \param x1 The center of the top face of the cylinder.
+/// \param radius The radius of the cylinder.
+///
+/// \return If no hit is found inside the cylinder, -1 is returned.
+///
 Double_t TRestHitsEvent::GetClosestHitInsideDistanceToCylinderTop(TVector3 x0, TVector3 x1, Double_t radius) {
     TVector3 axis = x1 - x0;
     Double_t cylLength = axis.Mag();
@@ -237,6 +318,16 @@ Double_t TRestHitsEvent::GetClosestHitInsideDistanceToCylinderTop(TVector3 x0, T
     return hitDistance;
 }
 
+///////////////////////////////////////////////
+/// \brief This method returns the distance to the cylinder **bottom** face from the closest hit containned
+/// inside the cylinder volume given by argument.
+///
+/// \param x0 The center of the bottom face of the cylinder.
+/// \param x1 The center of the top face of the cylinder.
+/// \param radius The radius of the cylinder.
+///
+/// \return If no hit is found inside the cylinder, -1 is returned.
+///
 Double_t TRestHitsEvent::GetClosestHitInsideDistanceToCylinderBottom(TVector3 x0, TVector3 x1,
                                                                      Double_t radius) {
     TVector3 axis = x1 - x0;
@@ -261,6 +352,18 @@ Double_t TRestHitsEvent::GetClosestHitInsideDistanceToCylinderBottom(TVector3 x0
     return hitDistance;
 }
 
+///////////////////////////////////////////////
+/// \brief This method returns the distance to the prism **wall** from the closest hit containned
+/// inside the prism volume given by argument.
+///
+/// \param x0 The center of the bottom face of the prism.
+/// \param x1 The center of the top face of the prism.
+/// \param sizeX Size of the side X of the prism face.
+/// \param sizeY Size of the side X of the prism face.
+/// \param theta An angle in radians to rotate the face of the prism.
+///
+/// \return If no hit is found inside the prism, -1 is returned.
+///
 Double_t TRestHitsEvent::GetClosestHitInsideDistanceToPrismWall(TVector3 x0, TVector3 x1, Double_t sizeX,
                                                                 Double_t sizeY, Double_t theta) {
     Double_t dX = sizeX / 2;
@@ -288,6 +391,18 @@ Double_t TRestHitsEvent::GetClosestHitInsideDistanceToPrismWall(TVector3 x0, TVe
     return hitDistance;
 }
 
+///////////////////////////////////////////////
+/// \brief This method returns the distance to the prism **top** face from the closest hit containned
+/// inside the prism volume given by argument.
+///
+/// \param x0 The center of the bottom face of the prism.
+/// \param x1 The center of the top face of the prism.
+/// \param sizeX Size of the side X of the prism face.
+/// \param sizeY Size of the side X of the prism face.
+/// \param theta An angle in radians to rotate the face of the prism.
+///
+/// \return If no hit is found inside the prism, -1 is returned.
+///
 Double_t TRestHitsEvent::GetClosestHitInsideDistanceToPrismTop(TVector3 x0, TVector3 x1, Double_t sizeX,
                                                                Double_t sizeY, Double_t theta) {
     TVector3 axis = x1 - x0;
@@ -312,6 +427,18 @@ Double_t TRestHitsEvent::GetClosestHitInsideDistanceToPrismTop(TVector3 x0, TVec
     return hitDistance;
 }
 
+///////////////////////////////////////////////
+/// \brief This method returns the distance to the prism **bottom** face from the closest hit containned
+/// inside the prism volume given by argument.
+///
+/// \param x0 The center of the bottom face of the prism.
+/// \param x1 The center of the top face of the prism.
+/// \param sizeX Size of the side X of the prism face.
+/// \param sizeY Size of the side X of the prism face.
+/// \param theta An angle in radians to rotate the face of the prism.
+///
+/// \return If no hit is found inside the prism, -1 is returned.
+///
 Double_t TRestHitsEvent::GetClosestHitInsideDistanceToPrismBottom(TVector3 x0, TVector3 x1, Double_t sizeX,
                                                                   Double_t sizeY, Double_t theta) {
     TVector3 axis = x1 - x0;
