@@ -17,25 +17,25 @@
 #include "TRestEvent.h"
 #include "TRestHits.h"
 
-// Storage class
-
-// It let save an event as a set of punctual deposition.
-// It saves a 3-coordinate position and an energy for each punctual deposition.
+//! An event data type that register a vector of TRestHits,
+//! allowing us to save a 3-coordinate position and energy.
 class TRestHitsEvent : public TRestEvent {
    private:
-#ifndef __CINT__
+    /// An auxiliar TRestHits structure to register hits on XZ projection
     TRestHits* fXZHits;  //!
+    /// An auxiliar TRestHits structure to register hits on YZ projection
     TRestHits* fYZHits;  //!
 
+    /// An auxiliar TRestHits structure to register hits on XYZ projection
     TRestHits* fXYZHits;  //!
 
+    /// A variable to store the minimum and maximum values from the hits belonging the hits event
+    /// structure.
     Double_t fMinX, fMaxX;  //!
     Double_t fMinY, fMaxY;  //!
     Double_t fMinZ, fMaxZ;  //!
-#endif
 
    protected:
-#ifndef __CINT__
     // TODO These graphs should be placed in TRestTrack?
     // (following GetGraph implementation in TRestSignal)
     TGraph* fXYHitGraph;  //!
@@ -48,8 +48,6 @@ class TRestHitsEvent : public TRestEvent {
     TH1F* fXHisto;   //!
     TH1F* fYHisto;   //!
     TH1F* fZHisto;   //!
-
-#endif
 
    public:
     TRestHits* fHits;  //->
