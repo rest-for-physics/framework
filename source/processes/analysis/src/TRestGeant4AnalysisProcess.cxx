@@ -209,14 +209,12 @@
 #include "TRestGeant4AnalysisProcess.h"
 using namespace std;
 
-ClassImp(TRestGeant4AnalysisProcess)
+ClassImp(TRestGeant4AnalysisProcess);
 
-    ///////////////////////////////////////////////
-    /// \brief Default constructor
-    ///
-    TRestGeant4AnalysisProcess::TRestGeant4AnalysisProcess() {
-    Initialize();
-}
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestGeant4AnalysisProcess::TRestGeant4AnalysisProcess() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -412,8 +410,6 @@ void TRestGeant4AnalysisProcess::BeginOfEventProcess() {}
 TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     *fOutputG4Event = *((TRestG4Event*)evInput);
 
- 
-
     TString obsName;
 
     Double_t energy = fOutputG4Event->GetSensitiveVolumeEnergy();
@@ -484,8 +480,7 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     if (fOutputG4Event->ishIoni()) hIoni = 1;
     SetObservableValue((string) "hIoni", hIoni);
 
-
-     Int_t phoNucl = 0;
+    Int_t phoNucl = 0;
     if (fOutputG4Event->isphotonNuclear()) phoNucl = 1;
     SetObservableValue((string) "photonNuclear", phoNucl);
 
@@ -503,7 +498,7 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
             SetObservableValue(obsName, 1);
         else if ((processName == "HadElastic") && (fOutputG4Event->isHadElasticInVolume(fVolumeID3[n])))
             SetObservableValue(obsName, 1);
-          else if ((processName == "NInelastic") && (fOutputG4Event->isNeutronInelasticInVolume(fVolumeID3[n])))
+        else if ((processName == "NInelastic") && (fOutputG4Event->isNeutronInelasticInVolume(fVolumeID3[n])))
             SetObservableValue(obsName, 1);
         else if ((processName == "NCapture") && (fOutputG4Event->isNCaptureInVolume(fVolumeID3[n])))
             SetObservableValue(obsName, 1);
