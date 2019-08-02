@@ -190,30 +190,30 @@ TRestHits* TRestHitsEvent::GetYZHits() {
 }
 
 ///////////////////////////////////////////////
+/// \brief This method collects all hits which are compatible with a XYZ hit.
+///
+/// A XYZ hit compatible are those hits that have valid X, Y and Z coordinates.
+///
+/// \return It returns back a TRestHits structure with the hits fulfilling the XYZ condition.
+TRestHits* TRestHitsEvent::GetXYZHits() {
+    fXYZHits->RemoveHits();
+
+    for (int i = 0; i < this->GetNumberOfHits(); i++)
+        if (!IsNaN(this->GetX(i)) && !IsNaN(this->GetY(i)) && !IsNaN(this->GetZ(i)))
+            fXYZHits->AddHit(this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i), 0);
+
+    return fXYZHits;
+}
+
+///////////////////////////////////////////////
 /// \brief This method returns true if at least 1 hit is found inside the cylinder volume given by argument.
 ///
 /// \param x0 The center of the bottom face of the cylinder.
 /// \param x1 The center of the top face of the cylinder.
 /// \param radius The radius of the cylinder.
 ///
-Bool_t TRestHitsEvent::isHitsEventInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
+Bool_t TRestHitsEvent::anyHitInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
     if (fHits->GetNumberOfHitsInsideCylinder(x0, x1, radius) > 0) return true;
-
-    return false;
-}
-
-///////////////////////////////////////////////
-/// \brief This method returns true if at least 1 hit is found inside the prism volume given by argument.
-///
-/// \param x0 The center of the bottom face of the prism.
-/// \param x1 The center of the top face of the prism.
-/// \param sizeX Size of the side X of the prism face.
-/// \param sizeY Size of the side X of the prism face.
-/// \param theta An angle in radians to rotate the face of the prism.
-///
-Bool_t TRestHitsEvent::isHitsEventInsidePrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
-                                              Double_t theta) {
-    if (fHits->GetNumberOfHitsInsidePrism(x0, x1, sizeX, sizeY, theta) > 0) return true;
 
     return false;
 }
@@ -225,8 +225,60 @@ Bool_t TRestHitsEvent::isHitsEventInsidePrism(TVector3 x0, TVector3 x1, Double_t
 /// \param x1 The center of the top face of the cylinder.
 /// \param radius The radius of the cylinder.
 ///
-Bool_t TRestHitsEvent::areHitsFullyContainnedInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
+Bool_t TRestHitsEvent::allHitsInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
     if (fHits->GetNumberOfHitsInsideCylinder(x0, x1, radius) == GetNumberOfHits()) return true;
+
+    return false;
+}
+
+///////////////////////////////////////////////
+/// \brief This method returns the total integrated energy of all hits found inside the cylinder volume given
+/// by argument.
+///
+/// \param x0 The center of the bottom face of the cylinder.
+/// \param x1 The center of the top face of the cylinder.
+/// \param radius The radius of the cylinder.
+///
+Int_t TRestHitsEvent::GetEnergyInCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
+    return fHits->GetEnergyInCylinder(x0, x1, radius);
+}
+
+///////////////////////////////////////////////
+/// \brief This method returns the total number hits found inside the cylinder volume given
+/// by argument.
+///
+/// \param x0 The center of the bottom face of the cylinder.
+/// \param x1 The center of the top face of the cylinder.
+/// \param radius The radius of the cylinder.
+///
+Int_t TRestHitsEvent::GetNumberOfHitsInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
+    return fHits->GetNumberOfHitsInsideCylinder(x0, x1, radius);
+}
+
+///////////////////////////////////////////////
+/// \brief This method returns the mean position of the hits found inside the cylinder volume given
+/// by argument.
+///
+/// \param x0 The center of the bottom face of the cylinder.
+/// \param x1 The center of the top face of the cylinder.
+/// \param radius The radius of the cylinder.
+///
+TVector3 TRestHitsEvent::GetMeanPositionInCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
+    return fHits->GetMeanPositionInCylinder(x0, x1, radius);
+}
+
+///////////////////////////////////////////////
+/// \brief This method returns true if at least 1 hit is found inside the prism volume given by argument.
+///
+/// \param x0 The center of the bottom face of the prism.
+/// \param x1 The center of the top face of the prism.
+/// \param sizeX Size of the side X of the prism face.
+/// \param sizeY Size of the side X of the prism face.
+/// \param theta An angle in radians to rotate the face of the prism.
+///
+Bool_t TRestHitsEvent::anyHitInsidePrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
+                                         Double_t theta) {
+    if (fHits->GetNumberOfHitsInsidePrism(x0, x1, sizeX, sizeY, theta) > 0) return true;
 
     return false;
 }
@@ -240,11 +292,56 @@ Bool_t TRestHitsEvent::areHitsFullyContainnedInsideCylinder(TVector3 x0, TVector
 /// \param sizeY Size of the side X of the prism face.
 /// \param theta An angle in radians to rotate the face of the prism.
 ///
-Bool_t TRestHitsEvent::areHitsFullyContainnedInsidePrism(TVector3 x0, TVector3 x1, Double_t sizeX,
-                                                         Double_t sizeY, Double_t theta) {
+Bool_t TRestHitsEvent::allHitsInsidePrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
+                                          Double_t theta) {
     if (fHits->GetNumberOfHitsInsidePrism(x0, x1, sizeX, sizeY, theta) == GetNumberOfHits()) return true;
 
     return false;
+}
+
+///////////////////////////////////////////////
+/// \brief This method returns the total integrated energy of all hits found inside the prism volume given
+/// by argument.
+///
+/// \param x0 The center of the bottom face of the prism.
+/// \param x1 The center of the top face of the prism.
+/// \param sizeX Size of the side X of the prism face.
+/// \param sizeY Size of the side X of the prism face.
+/// \param theta An angle in radians to rotate the face of the prism.
+///
+Int_t TRestHitsEvent::GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
+                                       Double_t theta) {
+    return fHits->GetEnergyInPrism(x0, x1, sizeX, sizeY, theta);
+}
+
+///////////////////////////////////////////////
+/// \brief This method returns the total number of hits found inside the prism volume given
+/// by argument.
+///
+/// \param x0 The center of the bottom face of the prism.
+/// \param x1 The center of the top face of the prism.
+/// \param sizeX Size of the side X of the prism face.
+/// \param sizeY Size of the side X of the prism face.
+/// \param theta An angle in radians to rotate the face of the prism.
+///
+Int_t TRestHitsEvent::GetNumberOfHitsInsidePrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
+                                                 Double_t theta) {
+    return fHits->GetNumberOfHitsInsidePrism(x0, x1, sizeX, sizeY, theta);
+}
+
+///////////////////////////////////////////////
+/// \brief This method returns the mean position of all hits found inside the prism volume given
+/// by argument.
+///
+/// \param x0 The center of the bottom face of the prism.
+/// \param x1 The center of the top face of the prism.
+/// \param sizeX Size of the side X of the prism face.
+/// \param sizeY Size of the side X of the prism face.
+/// \param theta An angle in radians to rotate the face of the prism.
+///
+TVector3 TRestHitsEvent::GetMeanPositionInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
+                                                Double_t theta) {
+    return fHits->GetMeanPositionInPrism(x0, x1, sizeX, sizeY, theta);
 }
 
 ///////////////////////////////////////////////

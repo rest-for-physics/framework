@@ -140,39 +140,20 @@ class TRestHitsEvent : public TRestEvent {
     Int_t GetClosestHit(TVector3 position) { return fHits->GetClosestHit(position); }
 
     // Inside Cylinder methods
-    Bool_t isHitsEventInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius);
-
-    Int_t GetEnergyInCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
-        return fHits->GetEnergyInCylinder(x0, x1, radius);
-    }
-
-    Int_t GetNumberOfHitsInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
-        return fHits->GetNumberOfHitsInsideCylinder(x0, x1, radius);
-    }
-
-    Bool_t areHitsFullyContainnedInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius);
-    TVector3 GetMeanPositionInCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
-        return fHits->GetMeanPositionInCylinder(x0, x1, radius);
-    }
+    Bool_t anyHitInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius);
+    Bool_t allHitsInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius);
+    Int_t GetEnergyInCylinder(TVector3 x0, TVector3 x1, Double_t radius);
+    Int_t GetNumberOfHitsInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius);
+    TVector3 GetMeanPositionInCylinder(TVector3 x0, TVector3 x1, Double_t radius);
 
     // Inside Prim methods
-    Bool_t isHitsEventInsidePrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta);
-    Bool_t areHitsFullyContainnedInsidePrism(TVector3 x0, TVector3 x1, Double_t sX, Double_t sY,
-                                             Double_t theta);
+    Bool_t anyHitInsidePrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta);
+    Bool_t allHitsInsidePrism(TVector3 x0, TVector3 x1, Double_t sX, Double_t sY, Double_t theta);
 
+    Int_t GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta);
     Int_t GetNumberOfHitsInsidePrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
-                                     Double_t theta) {
-        return fHits->GetNumberOfHitsInsidePrism(x0, x1, sizeX, sizeY, theta);
-    }
-
-    Int_t GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta) {
-        return fHits->GetEnergyInPrism(x0, x1, sizeX, sizeY, theta);
-    }
-
-    TVector3 GetMeanPositionInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
-                                    Double_t theta) {
-        return fHits->GetMeanPositionInPrism(x0, x1, sizeX, sizeY, theta);
-    }
+                                     Double_t theta);
+    TVector3 GetMeanPositionInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta);
 
     // Get closest distance to cylinder walls methods
     Double_t GetClosestHitInsideDistanceToCylinderWall(TVector3 x0, TVector3 x1, Double_t radius);

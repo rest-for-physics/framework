@@ -34,14 +34,14 @@
 ///	                   Else: nHitsSizeXY == (nHitsX^2+ nHitsY^2)^1/2.
 ///
 /// Cylindrical fiducial volume:
-/// 
+///
 /// * **isInsideCylindricalVolume**: 1 if some hits of the event are inside the cylindrical
 /// fiducial volume, 0 if none is inside.
 /// * **nInsideCylindricalVolume**: Number of hits inside the cylindrical fiducial volume.
 /// * **energyInsideCylindricalVolume**: energy of the hits inside the cylindrical fiducial
 /// volume.
 /// * **xMeanInCylinder**: For all energy depositions inside the cylindrical fiducial volume
-/// it takes the mean position in X coordinate using the energies as weights. 
+/// it takes the mean position in X coordinate using the energies as weights.
 /// * **yMeanInCylinder**: For all energy depositions inside the cylindrical fiducial volume
 /// it takes the mean position in Y coordinate using the energies as weights.
 /// * **zMeanInCylinder**: For all energy depositions inside the cylindrical fiducial volume
@@ -64,11 +64,11 @@
 /// Distance to the borders of the volume (cylinder or prism):
 ///
 /// * **distanceToCylinderWall**: Distance from the closest hit of the event to the cylinder
-/// wall. Only hits inside the cylinder. 
+/// wall. Only hits inside the cylinder.
 /// * **distanceToCylinderTop**: Distance from the closest hit of the event to the top of
-/// the cylinder. Only hits inside the cylinder. 
+/// the cylinder. Only hits inside the cylinder.
 /// * **distanceToCylinderBottom**: Distance from the closest hit of the event to the bottom
-/// of the cylinder. Only hits inside the cylinder. 
+/// of the cylinder. Only hits inside the cylinder.
 /// * **distanceToPrismWall**: Distance from the closest hit of the event to the wall of the
 /// prism. Only hits inside the prism.
 /// * **distanceToPrismTop**: Distance from the closest hit of the event to the top of the
@@ -223,7 +223,7 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
             fOutputHitsEvent->GetMeanPositionInCylinder(fFid_x0, fFid_x1, fFid_R);
 
         Int_t isInsideCylinder = 0;
-        if (fOutputHitsEvent->isHitsEventInsideCylinder(fFid_x0, fFid_x1, fFid_R)) isInsideCylinder = 1;
+        if (fOutputHitsEvent->anyHitInsideCylinder(fFid_x0, fFid_x1, fFid_R)) isInsideCylinder = 1;
 
         Int_t nCylVol = fOutputHitsEvent->GetNumberOfHitsInsideCylinder(fFid_x0, fFid_x1, fFid_R);
 
@@ -249,7 +249,7 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
             fOutputHitsEvent->GetMeanPositionInPrism(fFid_x0, fFid_x1, fFid_sX, fFid_sY, fFid_theta);
 
         Int_t isInsidePrism = 0;
-        if (fOutputHitsEvent->isHitsEventInsidePrism(fFid_x0, fFid_x1, fFid_sX, fFid_sY, fFid_theta))
+        if (fOutputHitsEvent->anyHitInsidePrism(fFid_x0, fFid_x1, fFid_sX, fFid_sY, fFid_theta))
             isInsidePrism = 1;
 
         Int_t nPrismVol =
