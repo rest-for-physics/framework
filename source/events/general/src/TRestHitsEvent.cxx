@@ -116,15 +116,15 @@ void TRestHitsEvent::Initialize() {
     RemoveHits();
 
     if (fXZHits) {
-        delete fXZHits;
+        // delete fXZHits;
         fXZHits = NULL;
     }
     if (fYZHits) {
-        delete fYZHits;
+        // delete fYZHits;
         fYZHits = NULL;
     }
     if (fXYZHits) {
-        delete fXYZHits;
+        // delete fXYZHits;
         fXYZHits = NULL;
     }
 
