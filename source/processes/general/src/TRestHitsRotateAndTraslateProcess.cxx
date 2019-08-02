@@ -108,11 +108,11 @@ TRestEvent* TRestHitsRotateAndTraslateProcess::ProcessEvent(TRestEvent* evInput)
 
     proEvent = fHitsInputEvent;
 
-    TVector3 meanPosition = proEvent->fHits->GetMeanPosition();
+    TVector3 meanPosition = proEvent->GetHits()->GetMeanPosition();
 
     for (int hit = 0; hit < fHitsInputEvent->GetNumberOfHits(); hit++) {
-        proEvent->fHits->RotateIn3D(hit, fAlpha, fBeta, fGamma, meanPosition);
-        proEvent->fHits->Translate(hit, fDeltaX, fDeltaY, fDeltaZ);
+        proEvent->GetHits()->RotateIn3D(hit, fAlpha, fBeta, fGamma, meanPosition);
+        proEvent->GetHits()->Translate(hit, fDeltaX, fDeltaY, fDeltaZ);
 
         fHitsOutputEvent->AddHit(proEvent->GetX(hit), proEvent->GetY(hit), proEvent->GetZ(hit),
                                  proEvent->GetEnergy(hit));
