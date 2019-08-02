@@ -29,35 +29,52 @@ class TRestHitsEvent : public TRestEvent {
     /// An auxiliar TRestHits structure to register hits on XYZ projection
     TRestHits* fXYZHits;  //!
 
-    /// A variable to store the minimum and maximum values from the hits belonging the hits event
-    /// structure.
-    Double_t fMinX, fMaxX;  //!
-    Double_t fMinY, fMaxY;  //!
-    Double_t fMinZ, fMaxZ;  //!
+    /// Stores the minimum x-position value. It is initialized by SetBoundaries.
+    Double_t fMinX;  //!
+    /// Stores the maximum x-position value. It is initialized by SetBoundaries.
+    Double_t fMaxX;  //!
+
+    /// Stores the minimum y-position value. It is initialized by SetBoundaries.
+    Double_t fMinY;  //!
+    /// Stores the maximum y-position value. It is initialized by SetBoundaries.
+    Double_t fMaxY;  //!
+
+    /// Stores the minimum z-position value. It is initialized by SetBoundaries.
+    Double_t fMinZ;  //!
+    /// Stores the maximum z-position value. It is initialized by SetBoundaries.
+    Double_t fMaxZ;  //!
 
    protected:
-    // TODO These graphs should be placed in TRestTrack?
-    // (following GetGraph implementation in TRestSignal)
+    // TODO These graphs should be placed in TRestHits?
+    // (following similar GetGraph implementation in TRestSignal)
+
+    /// An auxiliar TGraph pointer to visualize hits on XY-projection.
     TGraph* fXYHitGraph;  //!
+    /// An auxiliar TGraph pointer to visualize hits on XZ-projection.
     TGraph* fXZHitGraph;  //!
+    /// An auxiliar TGraph pointer to visualize hits on YZ-projection.
     TGraph* fYZHitGraph;  //!
 
+    /// An auxiliar TH2F histogram to visualize hits on XY-projection.
     TH2F* fXYHisto;  //!
+    /// An auxiliar TH2F histogram to visualize hits on YZ-projection.
     TH2F* fYZHisto;  //!
+    /// An auxiliar TH2F histogram to visualize hits on XZ-projection.
     TH2F* fXZHisto;  //!
-    TH1F* fXHisto;   //!
-    TH1F* fYHisto;   //!
-    TH1F* fZHisto;   //!
 
-   public:
+    /// An auxiliar TH1F histogram to visualize hits on X-projection.
+    TH1F* fXHisto;  //!
+    /// An auxiliar TH1F histogram to visualize hits on Y-projection.
+    TH1F* fYHisto;  //!
+    /// An auxiliar TH1F histogram to visualize hits on Z-projection.
+    TH1F* fZHisto;  //!
+
+    /// The hits structure that is is saved to disk.
     TRestHits* fHits;  //->
 
-    //! Changes the orgin of the Cartesian coordinate system
-    void ChangeOrigin(double origx, double origy, double origz);
-
-    void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0, Short_t mod = -1,
-                Short_t ch = -1);
-    void AddHit(TVector3 pos, Double_t en, Double_t t = 0, Short_t mod = -1, Short_t ch = -1);
+   public:
+    void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0);
+    void AddHit(TVector3 pos, Double_t en, Double_t t = 0);
     void RemoveHits();
 
     void MergeHits(int n, int m);
@@ -69,12 +86,15 @@ class TRestHitsEvent : public TRestEvent {
 
     TRestHits* GetHits() { return fHits; }
 
-    Double_t GetX(int n) { return fHits->GetX(n); }             // return value in mm
-    Double_t GetY(int n) { return fHits->GetY(n); }             // return value in mm
-    Double_t GetZ(int n) { return fHits->GetZ(n); }             // return value in mm
-    Double_t GetEnergy(int n) { return fHits->GetEnergy(n); }   // return value in keV
+    /// Returns the X-coordinate of hit entry `n` in mm.
+    Double_t GetX(int n) { return fHits->GetX(n); }
+    Double_t GetY(int n) { return fHits->GetY(n); }
+    Double_t GetZ(int n) { return fHits->GetZ(n); }  // return value in mm
+
+    /*
     Short_t GetModule(int n) { return fHits->GetModule(n); }    // return module ID
     Short_t GetChannel(int n) { return fHits->GetChannel(n); }  // return channel ID
+    */
 
     Double_t GetDistance2(int n, int m) { return fHits->GetDistance2(n, m); }
 
@@ -112,7 +132,8 @@ class TRestHitsEvent : public TRestEvent {
     Double_t GetEnergyY() { return fHits->GetEnergyY(); }
     Double_t GetTotalDepositedEnergy() { return fHits->fTotEnergy; }
     Double_t GetTotalEnergy() { return fHits->fTotEnergy; }
-    Double_t GetEnergy() { return fHits->fTotEnergy; }
+    Double_t GetEnergy() { return fHits->GetEnergy(); }
+    Double_t GetEnergy(int n) { return fHits->GetEnergy(n); }
     Double_t GetTime(int n) { return GetHits()->GetTime(n); }  // return value in us
 
     Int_t GetClosestHit(TVector3 position) { return fHits->GetClosestHit(position); }

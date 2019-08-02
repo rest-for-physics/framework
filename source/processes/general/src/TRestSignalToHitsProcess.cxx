@@ -221,7 +221,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent* evInput) {
                 cout << "Adding hit. Time : " << time << " x : " << x << " y : " << y << " z : " << z
                      << " Energy : " << energy << endl;
 
-            fHitsEvent->AddHit(x, y, z, energy, 0, (Short_t)readoutModule, (Short_t)readoutChannel);
+            fHitsEvent->AddHit(x, y, z, energy, 0);
         } else if (fSignalToHitMethod == "tripleMax") {
             Int_t bin = sgnl->GetMaxIndex();
             int binprev = (bin - 1) < 0 ? bin : bin - 1;
@@ -233,7 +233,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent* evInput) {
             Double_t distanceToPlane = time * fDriftVelocity;
             Double_t z = zPosition + fieldZDirection * distanceToPlane;
 
-            fHitsEvent->AddHit(x, y, z, energy, 0, (Short_t)readoutModule, (Short_t)readoutChannel);
+            fHitsEvent->AddHit(x, y, z, energy, 0);
 
             time = sgnl->GetTime(binprev);
             energy = sgnl->GetData(binprev);
@@ -241,7 +241,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent* evInput) {
             distanceToPlane = time * fDriftVelocity;
             z = zPosition + fieldZDirection * distanceToPlane;
 
-            fHitsEvent->AddHit(x, y, z, energy, 0, (Short_t)readoutModule, (Short_t)readoutChannel);
+            fHitsEvent->AddHit(x, y, z, energy, 0);
 
             time = sgnl->GetTime(binnext);
             energy = sgnl->GetData(binnext);
@@ -249,7 +249,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent* evInput) {
             distanceToPlane = time * fDriftVelocity;
             z = zPosition + fieldZDirection * distanceToPlane;
 
-            fHitsEvent->AddHit(x, y, z, energy, 0, (Short_t)readoutModule, (Short_t)readoutChannel);
+            fHitsEvent->AddHit(x, y, z, energy, 0);
 
             if (GetVerboseLevel() >= REST_Debug) {
                 cout << "Distance to plane : " << distanceToPlane << endl;
@@ -273,7 +273,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent* evInput) {
                     cout << "Adding hit. Time : " << sgnl->GetTime(j) << " x : " << x << " y : " << y
                          << " z : " << z << endl;
 
-                fHitsEvent->AddHit(x, y, z, energy, 0, (Short_t)readoutModule, (Short_t)readoutChannel);
+                fHitsEvent->AddHit(x, y, z, energy, 0);
             }
         }
     }

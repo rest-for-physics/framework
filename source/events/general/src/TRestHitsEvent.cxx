@@ -76,14 +76,11 @@ ClassImp(TRestHitsEvent)
 
 TRestHitsEvent::~TRestHitsEvent() { delete fHits; }
 
-void TRestHitsEvent::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t, Short_t mod,
-                            Short_t ch) {
-    fHits->AddHit(x, y, z, en, t, mod, ch);
+void TRestHitsEvent::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t) {
+    fHits->AddHit(x, y, z, en, t);
 }
 
-void TRestHitsEvent::AddHit(TVector3 pos, Double_t en, Double_t t, Short_t mod, Short_t ch) {
-    fHits->AddHit(pos, en, t, mod, ch);
-}
+void TRestHitsEvent::AddHit(TVector3 pos, Double_t en, Double_t t) { fHits->AddHit(pos, en, t); }
 
 void TRestHitsEvent::Initialize() {
     TRestEvent::Initialize();
@@ -106,8 +103,7 @@ TRestHits* TRestHitsEvent::GetXZHits() {
 
     for (int i = 0; i < this->GetNumberOfHits(); i++)
         if (IsNaN(this->GetY(i)))
-            fXZHits->AddHit(this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i), 0,
-                            this->GetModule(i), this->GetChannel(i));
+            fXZHits->AddHit(this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i), 0);
 
     return fXZHits;
 }
@@ -117,8 +113,7 @@ TRestHits* TRestHitsEvent::GetYZHits() {
 
     for (int i = 0; i < this->GetNumberOfHits(); i++)
         if (IsNaN(this->GetX(i)))
-            fYZHits->AddHit(this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i), 0,
-                            this->GetModule(i), this->GetChannel(i));
+            fYZHits->AddHit(this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i), 0);
 
     return fYZHits;
 }
@@ -128,21 +123,9 @@ TRestHits* TRestHitsEvent::GetXYZHits() {
 
     for (int i = 0; i < this->GetNumberOfHits(); i++)
         if (!IsNaN(this->GetX(i)) && !IsNaN(this->GetY(i)) && !IsNaN(this->GetZ(i)))
-            fXYZHits->AddHit(this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i), 0,
-                             this->GetModule(i), this->GetChannel(i));
+            fXYZHits->AddHit(this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i), 0);
 
     return fXYZHits;
-}
-
-void TRestHitsEvent::ChangeOrigin(double origx, double origy, double origz) {
-    /*
-        for(int i = 0; i < fHits; i++)
-        {
-                fX.fArray[i] += origx;
-                fY.fArray[i] += origy;
-                fZ.fArray[i] += origz;
-        }
-    */
 }
 
 Bool_t TRestHitsEvent::isHitsEventInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius) {

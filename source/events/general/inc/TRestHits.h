@@ -48,10 +48,6 @@ class TRestHits : public TObject {
                                    // (units us, 0 is time of decay)
     std::vector<Float_t> fEnergy;  // [fNHits] Energy deposited at each
                                    // 3-coordinate position (units keV)
-    std::vector<Short_t> fMod;     // [fNHits] Module ID on which each punctual deposition was
-                                   // detected (units us, 0 is time of decay)
-    std::vector<Short_t> fCh;      // [fNHits] Channel ID on which each punctual deposition was
-                                   // detected (units us, 0 is time of decay)
 
     //! Changes the origin of the Cartesian coordinate system
     void Translate(Int_t n, Double_t x, Double_t y, Double_t z);
@@ -101,12 +97,10 @@ class TRestHits : public TObject {
 
     Int_t GetNumberOfHits() { return fNHits; }
 
-    Double_t GetX(int n) { return ((Double_t)fX[n]); }       // return value in mm
-    Double_t GetY(int n) { return ((Double_t)fY[n]); }       // return value in mm
-    Double_t GetZ(int n) { return ((Double_t)fZ[n]); }       // return value in mm
-    Double_t GetTime(int n) { return ((Double_t)fT[n]); }    // return value in us
-    Short_t GetModule(int n) { return ((Short_t)fMod[n]); }  // return module ID
-    Short_t GetChannel(int n) { return ((Short_t)fCh[n]); }  // return channel ID
+    Double_t GetX(int n) { return ((Double_t)fX[n]); }     // return value in mm
+    Double_t GetY(int n) { return ((Double_t)fY[n]); }     // return value in mm
+    Double_t GetZ(int n) { return ((Double_t)fZ[n]); }     // return value in mm
+    Double_t GetTime(int n) { return ((Double_t)fT[n]); }  // return value in us
 
     TVector3 GetPosition(int n);
     TVector3 GetVector(int i, int j);
@@ -192,6 +186,6 @@ class TRestHits : public TObject {
     // Destructor
     ~TRestHits();
 
-    ClassDef(TRestHits, 3);
+    ClassDef(TRestHits, 4);
 };
 #endif
