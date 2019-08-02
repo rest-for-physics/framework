@@ -2,7 +2,7 @@
 
 This README.md is a template to be used as an example to write the library README. 
 
-This file should include basic information to understand the main use trend of the library. It should include a brief description of this class. What is intended for, features, functionalities, connection to other REST libraries, etc. And a description of the main use of this library.
+This file should include basic information to understand the main use trend of the library. It should include a brief description, what is intended for, features, functionalities, connection to other REST libraries, etc. And a description of the main use of this library.
     
 NOTE: The use of this library should be documented through examples and doxygen class description.
 
