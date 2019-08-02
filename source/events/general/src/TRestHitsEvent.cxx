@@ -45,9 +45,21 @@
 using namespace std;
 using namespace TMath;
 
-ClassImp(TRestHitsEvent)
+ClassImp(TRestHitsEvent);
 
-    TRestHitsEvent::TRestHitsEvent() {
+///////////////////////////////////////////////
+/// \brief TRestHitsEvent default constructor
+///
+/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// The default behaviour is that the config file must be specified with
+/// full path, absolute or relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+///
+TRestHitsEvent::TRestHitsEvent() {
     fHits = new TRestHits();
 
     fPad = NULL;
@@ -98,26 +110,46 @@ void TRestHitsEvent::RemoveHit(int n) { fHits->RemoveHit(n); }
 
 void TRestHitsEvent::RemoveHits() { fHits->RemoveHits(); }
 
+///////////////////////////////////////////////
+/// \brief This method collects all hits which are compatible with a XZ-projected hit.
+///
+/// A hit compatible with XZ projection are those hits that have undetermined Y coordinate,
+/// and valid X and Z coordinates.
+///
+/// \return It returns back a TRestHits structure with the hits fulfilling the XZ condition.
 TRestHits* TRestHitsEvent::GetXZHits() {
     fXZHits->RemoveHits();
 
     for (int i = 0; i < this->GetNumberOfHits(); i++)
-        if (IsNaN(this->GetY(i)))
+        if (IsNaN(this->GetY(i)) && !IsNaN(this->GetX(i)) && !IsNaN(this->GetZ(i)))
             fXZHits->AddHit(this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i), 0);
 
     return fXZHits;
 }
 
+///////////////////////////////////////////////
+/// \brief This method collects all hits which are compatible with a YZ-projected hit.
+///
+/// A hit compatible with XZ projection are those hits that have undetermined X coordinate,
+/// and valid Y and Z coordinates.
+///
+/// \return It returns back a TRestHits structure with the hits fulfilling the XZ condition.
 TRestHits* TRestHitsEvent::GetYZHits() {
     fYZHits->RemoveHits();
 
     for (int i = 0; i < this->GetNumberOfHits(); i++)
-        if (IsNaN(this->GetX(i)))
+        if (IsNaN(this->GetX(i)) && !IsNaN(this->GetY(i)) && !IsNaN(this->GetZ(i)))
             fYZHits->AddHit(this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i), 0);
 
     return fYZHits;
 }
 
+///////////////////////////////////////////////
+/// \brief This method collects all hits which are compatible with a pure XYZ hit.
+///
+/// A pure XYZ hit are those hits that have valid values on X, Y and Z coordinates.
+///
+/// \return It returns back a TRestHits structure with the hits fulfilling the XZ condition.
 TRestHits* TRestHitsEvent::GetXYZHits() {
     fXYZHits->RemoveHits();
 

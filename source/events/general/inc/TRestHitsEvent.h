@@ -88,14 +88,14 @@ class TRestHitsEvent : public TRestEvent {
 
     /// Returns the X-coordinate of hit entry `n` in mm.
     Double_t GetX(int n) { return fHits->GetX(n); }
+
+    /// Returns the Y-coordinate of hit entry `n` in mm.
     Double_t GetY(int n) { return fHits->GetY(n); }
-    Double_t GetZ(int n) { return fHits->GetZ(n); }  // return value in mm
 
-    /*
-    Short_t GetModule(int n) { return fHits->GetModule(n); }    // return module ID
-    Short_t GetChannel(int n) { return fHits->GetChannel(n); }  // return channel ID
-    */
+    /// Returns the Z-coordinate of hit entry `n` in mm.
+    Double_t GetZ(int n) { return fHits->GetZ(n); }
 
+    /// Returns the squared distance between hits `n` and `m`.
     Double_t GetDistance2(int n, int m) { return fHits->GetDistance2(n, m); }
 
     TRestHits* GetXZHits();
