@@ -359,7 +359,10 @@ void TRestHitsAnalysisProcess::InitFromConfigFile() {
     fFid_R = GetDblParameterWithUnits("fiducial_R", 1);
     fFid_sX = GetDblParameterWithUnits("fiducial_sX", 1);
     fFid_sY = GetDblParameterWithUnits("fiducial_sY", 1);
+    // read angle in degrees
     fFid_theta = StringToDouble(GetParameter("fiducial_theta", "0"));
+    // convert it into radians for internal usage
+    fFid_theta = std::fmod(fFid_theta, 360) * TMath::DegToRad();
 
     if (GetParameter("cylinderFiducialization", "false") == "true") fCylinderFiducial = true;
 
