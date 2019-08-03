@@ -560,6 +560,22 @@ Double_t TRestHitsEvent::GetClosestHitInsideDistanceToPrismBottom(TVector3 x0, T
     return hitDistance;
 }
 
+///////////////////////////////////////////////
+/// \brief This method draws the hits event structure into a TPad.
+///
+/// This method receives as argument a string that defines the different plots to be produced.
+///
+/// The following options are allowed:
+///
+/// * **graph**:
+/// * **hist**:
+/// * **print**:
+///
+/// The different options must separated by colons, as "option1:option2:option3".
+///
+///
+/// \return A pointer to the TPad where the event was drawn is returned.
+///
 TPad* TRestHitsEvent::DrawEvent(TString option) {
     vector<TString> optList = VectorTString_cast(TRestTools::GetOptions((string)option));
 
