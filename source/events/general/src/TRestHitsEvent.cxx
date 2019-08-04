@@ -243,7 +243,7 @@ Bool_t TRestHitsEvent::allHitsInsideCylinder(TVector3 x0, TVector3 x1, Double_t 
 /// \param x1 The center of the top face of the cylinder.
 /// \param radius The radius of the cylinder.
 ///
-Int_t TRestHitsEvent::GetEnergyInCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
+Double_t TRestHitsEvent::GetEnergyInCylinder(TVector3 x0, TVector3 x1, Double_t radius) {
     return fHits->GetEnergyInCylinder(x0, x1, radius);
 }
 
@@ -313,7 +313,7 @@ Bool_t TRestHitsEvent::allHitsInsidePrism(TVector3 x0, TVector3 x1, Double_t siz
 /// \param sizeY Size of the side X of the prism face.
 /// \param theta An angle in radians to rotate the face of the prism.
 ///
-Int_t TRestHitsEvent::GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
+Double_t TRestHitsEvent::GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
                                        Double_t theta) {
     return fHits->GetEnergyInPrism(x0, x1, sizeX, sizeY, theta);
 }
