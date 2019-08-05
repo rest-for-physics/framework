@@ -19,26 +19,28 @@ By default REST units are mm, keV and degrees
   <TRestRun name="Run metadata" title="REST Metadata run info (template)">
     <parameter name="experiment" value="Test"/>
     <parameter name="runType" value="simulation"/>
-    <parameter name="runNumber" value="auto"/>  //set value to "auto" can add simulation run into database
-    <parameter name="readOnly" value="false" />
-    <parameter name="runTag" value="Template"/>
+
+    // Value "auto" can add simulation run into database ???
+    <parameter name="runNumber" value="auto"/>
+
+    // The runTag in a restG4 simulation will be replaced by the title of TRestG4Metadata
+    <parameter name="runTag" value="g4Tag"/>
+
+    // The output filename can be built using any member from TRestRun, fRunNumber, fRunTag, ..., etc.
+    <parameter name="outputFile" value="Run[fRunNumber]_[fRunTag]_[fExperimentName].root" />
+
     <parameter name="runDescription" value="We launch just 100 events to check everything is ok."/>
     <parameter name="user" value="${USER}"/>
     <parameter name="verboseLevel" value="3"/>
     <parameter name="overwrite" value="off" />
-    <parameter name="outputFile" value="example_output.root" />
     <parameter name="readOnly" value="false" />
   </TRestRun>
 
-  <TRestG4Metadata name="DBDsimulation" title="A dummy DBD simulation">
+  <TRestG4Metadata name="DBDsimulation" title="NLDBD">
 
     <parameter name="gdml_file" value="geometry/mySetupTemplate.gdml"/>
     <parameter name="maxTargetStepSize" value="200" units="um" />
     <parameter name="subEventTimeDelay" value="100" units="us" />
-
-    <!-- A member to store the component activity (and mass) are now present in G4Metadata -->
-    <parameter name="activity" value="0.01" />
-    <parameter name="mass" value="3000" />
 
     <!-- The number of events to be simulated is now defined in TRestG4Metadata -->
     <parameter name="Nevents" value="100" />
@@ -81,6 +83,7 @@ By default REST units are mm, keV and degrees
     <parameter name="minEnergyRangeProductionCuts" value="1" units="keV" />
     <parameter name="maxEnergyRangeProductionCuts" value="1" units="GeV" />
     
+    // Use only one EM physics list
     <!-- EM Physics lists -->
     <physicsList name="G4EmLivermorePhysics"> </physicsList>
     <!-- <physicsList name="G4EmPenelopePhysics"> </physicsList> -->
@@ -102,12 +105,5 @@ By default REST units are mm, keV and degrees
     <physicsList name="G4EmExtraPhysics"> </physicsList>
     
   </TRestPhysicsLists>
-
-
-  <!-- If the manager is not used we can still use nameref to reference a external file where we have the real definition -->
-  <TRestReadout nameref="Readout-PANDA_3MM_Single" file="${REST_PATH}/data/definitions/readouts.rml"/>
-
-  <TRestGas nameref="Xenon-TMA 3Pct 10-10E3V/cm" file="${REST_PATH}/data/definitions/gases.rml"/>
-  <!-- -->
 
 </restG4>
