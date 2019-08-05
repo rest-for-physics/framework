@@ -743,16 +743,9 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
             replacestr = REST_Reflection::GetDataMember(this, "f" + target).ToString();
 
         if (replacestr != target) {
-            /*if (targetstr == "[fRunNumber]") {
-                TString runStr;
-                runStr.Form("%05d", GetRunNumber());
-                replacestr = (string)runStr;
+            if (target == "fRunNumber" || "fParentRunNumber") {
+                replacestr = Form("%05d", StringToInteger(replacestr));
             }
-            if (targetstr == "[fParentRunNumber]") {
-                TString runStr;
-                runStr.Form("%05d", GetParentRunNumber());
-                replacestr = (string)runStr;
-            }*/
             outString = Replace(outString, targetstr, replacestr, 0);
         }
         pos = pos2 + 1;
