@@ -142,7 +142,7 @@ class TRestHitsEvent : public TRestEvent {
     // Inside Cylinder methods
     Bool_t anyHitInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius);
     Bool_t allHitsInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius);
-    Int_t GetEnergyInCylinder(TVector3 x0, TVector3 x1, Double_t radius);
+    Double_t GetEnergyInCylinder(TVector3 x0, TVector3 x1, Double_t radius);
     Int_t GetNumberOfHitsInsideCylinder(TVector3 x0, TVector3 x1, Double_t radius);
     TVector3 GetMeanPositionInCylinder(TVector3 x0, TVector3 x1, Double_t radius);
 
@@ -150,7 +150,7 @@ class TRestHitsEvent : public TRestEvent {
     Bool_t anyHitInsidePrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta);
     Bool_t allHitsInsidePrism(TVector3 x0, TVector3 x1, Double_t sX, Double_t sY, Double_t theta);
 
-    Int_t GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta);
+    Double_t GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta);
     Int_t GetNumberOfHitsInsidePrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
                                      Double_t theta);
     TVector3 GetMeanPositionInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY, Double_t theta);
