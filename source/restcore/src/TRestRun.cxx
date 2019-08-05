@@ -726,6 +726,8 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
     string inString = (string)FilenameFormat;
     string outString = (string)FilenameFormat;
 
+    debug << "TRestRun::FormFormat. In string : " << inString << endl;
+
     int pos = 0;
     while (1) {
         int pos1 = inString.find("[", pos);
@@ -742,8 +744,10 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
         if (replacestr == target && !REST_Reflection::GetDataMember(this, "f" + target).IsZombie())
             replacestr = REST_Reflection::GetDataMember(this, "f" + target).ToString();
 
+        debug << "TRestRun::FormFormat. target : " << target << endl;
+        debug << "TRestRun::FormFormat. replacestr : " << replacestr << endl;
         if (replacestr != target) {
-            if (target == "fRunNumber" || "fParentRunNumber") {
+            if (target == "fRunNumber" || target == "fParentRunNumber") {
                 replacestr = Form("%05d", StringToInteger(replacestr));
             }
             outString = Replace(outString, targetstr, replacestr, 0);
@@ -775,6 +779,8 @@ TFile* TRestRun::FormOutputFile(vector<string> filenames, string targetfilename)
         info << "Creating file : " << filename << endl;
         m->OutputFile(filename.c_str(), "UPDATE");
     }
+
+    debug << "TRestRun::FormOutputFile. Starting to add files" << endl;
 
     for (int i = 0; i < filenames.size(); i++) {
         m->AddFile(filenames[i].c_str(), false);
