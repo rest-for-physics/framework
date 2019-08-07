@@ -406,13 +406,22 @@ void TRestAnalysisPlot::AddFile(TString fileName) {
     TRestRun* run = new TRestRun();
     run->OpenInputFile(fileName);
 
+    debug << "TRestAnalysisPlot::AddFile. Adding file. " << endl;
+    debug << "File name: " << fileName << endl;
     if (fClasifyBy == "runTag") {
         TString rTag = run->GetRunTag();
 
+        debug << "TRestAnalysisPlot::AddFile. Calling GetRunTagIndex. Tag = " << run->GetRunTag() << endl;
         Int_t index = GetRunTagIndex(run->GetRunTag());
+        debug << "Index. = " << index << endl;
 
-        fFileNames[index].push_back(fileName);
-        fNFiles++;
+        if (index < REST_MAX_TAGS) {
+            fFileNames[index].push_back(fileName);
+            fNFiles++;
+        } else {
+            error << "TRestAnalysisPlot::AddFile. Maximum number of tags per plot is : " << REST_MAX_TAGS
+                  << endl;
+        }
     } else if (fClasifyBy == "combineAll") {
         fFileNames[0].push_back(fileName);
         fNFiles++;
@@ -423,6 +432,7 @@ void TRestAnalysisPlot::AddFile(TString fileName) {
         fNFiles++;
     }
 
+    debug << "TRestAnalysisPlot::AddFile. Closing file. " << endl;
     run->CloseFile();
     delete run;
 }
