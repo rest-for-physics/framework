@@ -20,6 +20,8 @@
 #include <TRestEnums.h>
 
 #include <TVector3.h>
+
+#include <iostream>
 #include <map>
 #include <set>
 
@@ -62,28 +64,113 @@ class TRestParticleGenerator {
     angularGeneratorTypes angularGeneratorType;
     energyGeneratorTypes energyGeneratorType;
 
+    template <class generatorTypes>
+    string GeneratorEnumToString(generatorTypes type) {
+        // type is in either 'spatialGeneratorTypes', 'angularGeneratorTypes' or 'energyGeneratorTypes'
+        if (typeid(generatorTypes) == typeid(spatialGeneratorTypes)) {
+            for (auto const& pair : spatialGeneratorTypesMap) {
+                if (pair.second == spatialGeneratorType) {
+                    return pair.first;
+                }
+            }
+        } else if (typeid(generatorTypes) == typeid(angularGeneratorTypes)) {
+            for (auto const& pair : angularGeneratorTypesMap) {
+                if (pair.second == angularGeneratorType) {
+                    return pair.first;
+                }
+            }
+        } else if (typeid(generatorTypes) == typeid(energyGeneratorTypes)) {
+            for (auto const& pair : energyGeneratorTypesMap) {
+                if (pair.second == energyGeneratorType) {
+                    return pair.first;
+                }
+            }
+        } else {
+            // error
+            return "ERROR!";
+        }
+        return "NONE! (error)";
+    }
+
+    inline string NormalizeTypeString(string type) {
+        std::transform(type.begin(), type.end(), type.begin(), ::tolower);
+        // remove '_'
+        string string_to_remove = "_";
+        while (type.find(string_to_remove) != string::npos) {
+            type.replace(type.find("_"), string_to_remove.length(), "");
+        }
+        return type;
+    }
+
+    inline void SetGeneratorTypeFromStringAndCategory(string type, string generator_category) {
+        // generator_category must be one of the following: 'spatial', 'angular', 'energy'
+        if (generator_category == "spatial") {
+            for (auto const& pair : spatialGeneratorTypesMap) {
+                if (NormalizeTypeString(pair.first) == NormalizeTypeString(type)) {
+                    spatialGeneratorType = pair.second;
+                    return;
+                }
+            }
+        } else if (generator_category == "angular") {
+            for (auto const& pair : angularGeneratorTypesMap) {
+                if (NormalizeTypeString(pair.first) == NormalizeTypeString(type)) {
+                    angularGeneratorType = pair.second;
+                    return;
+                }
+            }
+        } else if (generator_category == "energy") {
+            for (auto const& pair : energyGeneratorTypesMap) {
+                if (NormalizeTypeString(pair.first) == NormalizeTypeString(type)) {
+                    energyGeneratorType = pair.second;
+                    return;
+                }
+            }
+        } else {
+            // generator_category not valid
+            cout << "ERROR: category " << generator_category << " not valid. nothing is set";
+            return;
+        }
+
+        cout << "ERROR when setting " << generator_category << " generator type to: " << type << endl;
+        cout << "Valid values are: ";
+        string to_print = "";
+
+        if (generator_category == "spatial") {
+            for (auto const& pair : spatialGeneratorTypesMap) {
+                to_print += pair.first;
+                to_print += ", ";
+            }
+        } else if (generator_category == "angular") {
+            for (auto const& pair : angularGeneratorTypesMap) {
+                to_print += pair.first;
+                to_print += ", ";
+            }
+        } else if (generator_category == "energy") {
+            for (auto const& pair : energyGeneratorTypesMap) {
+                to_print += pair.first;
+                to_print += ", ";
+            }
+        }
+        // remove the last ", "
+        if (to_print.size() > 0) to_print.resize(to_print.size() - 2);  // '2' is the size of ", "
+        cout << to_print << endl;
+    }
+
    public:
-    inline string GetSpatialGeneratorType() {
-        for (auto const& pair : spatialGeneratorTypesMap) {
-            if (pair.second == spatialGeneratorType) {
-                return pair.first;
-            }
-        }
+    inline string GetSpatialGeneratorType() { return GeneratorEnumToString(spatialGeneratorType); }
+    inline string GetAngularGeneratorType() { return GeneratorEnumToString(angularGeneratorType); }
+    inline string GetEnergyGeneratorType() { return GeneratorEnumToString(energyGeneratorType); }
+
+    inline void SetSpatialGeneratorType(spatialGeneratorTypes type) { spatialGeneratorType = type; }
+    inline void SetSpatialGeneratorType(string type) {
+        SetGeneratorTypeFromStringAndCategory(type, "spatial");
     }
-    inline string GetAngularGeneratorType() {
-        for (auto const& pair : angularGeneratorTypesMap) {
-            if (pair.second == angularGeneratorType) {
-                return pair.first;
-            }
-        }
+    inline void SetAngularGeneratorType(angularGeneratorTypes type) { angularGeneratorType = type; }
+    inline void SetAngularGeneratorType(string type) {
+        SetGeneratorTypeFromStringAndCategory(type, "angular");
     }
-    inline string GetEnergyGeneratorType() {
-        for (auto const& pair : energyGeneratorTypesMap) {
-            if (pair.second == energyGeneratorType) {
-                return pair.first;
-            }
-        }
-    }
+    inline void SetEnergyGeneratorType(energyGeneratorTypes type) { energyGeneratorType = type; }
+    inline void SetEnergyGeneratorType(string type) { SetGeneratorTypeFromStringAndCategory(type, "energy"); }
 
     TRestParticleGenerator();
 };

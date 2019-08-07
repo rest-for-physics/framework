@@ -17,8 +17,4 @@
 
 using namespace std;
 
-TRestParticleGenerator::TRestParticleGenerator() {
-    cout << GetAngularGeneratorType() << endl;
-    cout << GetSpatialGeneratorType() << endl;
-    cout << GetEnergyGeneratorType() << endl;
-}
+TRestParticleGenerator::TRestParticleGenerator() {}
