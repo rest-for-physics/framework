@@ -120,8 +120,8 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        cout << "Low energy cut : " << fLowEnergyCut << " keV" << endl;
-        cout << "High energy cut : " << fHighEnergyCut << " keV" << endl;
+        metadata << "Low energy cut : " << fLowEnergyCut << " keV" << endl;
+        metadata << "High energy cut : " << fHighEnergyCut << " keV" << endl;
 
         EndPrintProcess();
     }
