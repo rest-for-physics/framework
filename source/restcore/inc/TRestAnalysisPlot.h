@@ -17,7 +17,7 @@
 #include "TH3D.h"
 #include "TRestAnalysisTree.h"
 
-const int REST_MAX_TAGS = 6;
+const int REST_MAX_TAGS = 15;
 
 class TRestAnalysisPlot : public TRestMetadata {
    private:
