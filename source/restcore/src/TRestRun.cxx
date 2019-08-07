@@ -864,7 +864,7 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
     this->Write(0, kOverwrite);
     for (int i = 0; i < fMetadataInfo.size(); i++) {
         bool historic = false;
-        for (int j = 0; j < fInputMetadata.size(); i++) {
+        for (int j = 0; j < fInputMetadata.size(); j++) {
             if (fMetadataInfo[i] == fInputMetadata[j]) {
                 historic = true;
                 break;
