@@ -66,10 +66,18 @@ int main(int argc, char* argv[]) {
                     Form("new TString(run%d->GetMetadata(\"%s\")->ClassName());", Nfile, metaName.Data()));
                 TString metaType(myOutput->Data());
 
-                cout << "- md" << Nfile << "_" << metaName << " (" << metaType << ")" << endl;
+				TString metaFixed = Replace( (string) metaName, "-", "_" );
+				metaFixed = Replace( (string) metaFixed, " ", "" );
+				metaFixed = Replace( (string) metaFixed, ".", "_" );
+
+                cout << "- md" << Nfile << "_" << metaFixed << " (" << metaType << ")" << endl;
+
+				if( debug )
+					cout << Form("%s *md%i_%s = (%s *) run%d->GetMetadata(\"%s\");", metaType.Data(),
+                                        Nfile, metaFixed.Data(), metaType.Data(), Nfile, metaName.Data()) << endl;
 
                 gROOT->ProcessLine(Form("%s *md%i_%s = (%s *) run%d->GetMetadata(\"%s\");", metaType.Data(),
-                                        Nfile, metaName.Data(), metaType.Data(), Nfile, metaName.Data()));
+                                        Nfile, metaFixed.Data(), metaType.Data(), Nfile, metaName.Data()));
             }
 
             argv[i] = (char*)"";
