@@ -11,3 +11,14 @@
 ///             Aug 2019: Introduction. Luis Obis (@lobis)
 ///
 //////////////////////////////////////////////////////////////////////////
+
+#include <TRestParticleGenerator.h>
+#include <iostream>
+
+using namespace std;
+
+TRestParticleGenerator::TRestParticleGenerator() {
+    cout << GetAngularGeneratorType() << endl;
+    cout << GetSpatialGeneratorType() << endl;
+    cout << GetEnergyGeneratorType() << endl;
+}
