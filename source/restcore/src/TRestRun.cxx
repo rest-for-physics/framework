@@ -804,12 +804,15 @@ TFile* TRestRun::FormOutputFile(vector<string> filenames, string targetfilename)
 
     // write metadata into the output file
     fOutputFile = new TFile(fOutputFileName, "UPDATE");
+    debug << "TRestRun::FormOutputFile. Calling WriteWithDataBase()" << endl;
     this->WriteWithDataBase();
     // for (int i = 0; i < fMetadataInfo.size(); i++) {
     //	fMetadataInfo[i]->Write();
     //}
 
+    debug << this->ClassName() << " Created: " << fOutputFileName << endl;
     fout << this->ClassName() << " Created: " << fOutputFileName << endl;
+    debug << "fOutputFile " << fOutputFile << endl;
     return fOutputFile;
 }
 
@@ -848,6 +851,7 @@ TFile* TRestRun::FormOutputFile() {
 void TRestRun::WriteWithDataBase(int level, bool force) {
     TRestAnalysisTree* tree = NULL;
 
+    debug << "TRestRun::WriteWithDataBase. Getting entries in analysisTree" << endl;
     // record the entries saved
     fEntriesSaved = -1;
     if (fOutputFile != NULL) {
@@ -856,15 +860,22 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
             fEntriesSaved = tree->GetEntries();
         }
     }
+    debug << "TRestRun::WriteWithDataBase. Entries found : " << fEntriesSaved << endl;
     // record the current time
     time_t timev;
     time(&timev);
     fEndTime = (Double_t)timev;
     // save metadata objects in file
+    debug << "TRestRun::WriteWithDataBase. Calling this->Write(0,kOverWrite)" << endl;
     this->Write(0, kOverwrite);
+    debug << "TRestRun::WriteWithDataBase. Succeed" << endl;
+
+    debug << "TRestRun::WriteWithDataBase. fMetadataInfo.size() == " << fMetadataInfo.size() << endl;
     for (int i = 0; i < fMetadataInfo.size(); i++) {
         bool historic = false;
+        debug << "TRestRun::WriteWithDataBase. fInputMetadata.size() == " << fInputMetadata.size() << endl;
         for (int j = 0; j < fInputMetadata.size(); j++) {
+            debug << fMetadataInfo[i]->GetName() << " == " << fInputMetadata[j]->GetName() << endl;
             if (fMetadataInfo[i] == fInputMetadata[j]) {
                 historic = true;
                 break;
@@ -872,13 +883,16 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
         }
 
         if (!historic) {
+            debug << "NO historic" << endl;
             fMetadataInfo[i]->Write(fMetadataInfo[i]->GetName(), kOverwrite);
         } else {
+            debug << "IS historic" << endl;
             fMetadataInfo[i]->Write(("Historic_" + (string)fMetadataInfo[i]->ClassName()).c_str(),
                                     kOverwrite);
         }
     }
     // write to database
+    debug << "TResRun::WriteWithDataBase. Run number is : " << fRunNumber << endl;
     if (fRunNumber != -1) {
         string runNstr = GetParameter("runNumber", "");
         if (ToUpper(runNstr) == "AUTO") {
