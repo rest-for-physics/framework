@@ -8,7 +8,7 @@
 ///             information stored in this class, which is supposed to be loaded from a `TRestG4Metadata`
 ///             object. This class is invoked in the GEANT4 code to define primary sources.
 ///
-///             Aug 2019: Introduction. Luis Obis (@lobis)
+///             Aug 2019: Added. Luis Obis (@lobis)
 ///
 //////////////////////////////////////////////////////////////////////////
 
@@ -18,6 +18,8 @@
 #endif  // REST_TRESTPARTICLEGENERATOR_H
 
 #include <TRestEnums.h>
+#include <TRestEventProcess.h>
+//#include <TRestG4Metadata.h>
 
 #include <TVector3.h>
 
@@ -29,13 +31,19 @@ using namespace std;
 using namespace TRestParticleGeneratorConfig;
 
 class TRestParticleGenerator {
+   public:
+    // Constructors
+    TRestParticleGenerator();
+    TRestParticleGenerator(TRestG4Metadata*);
+    TRestParticleGenerator(const TRestG4Metadata&);
+
    private:
     TVector3 particlePosition;
     TVector3 particleDirection;
     Double_t particleEnergy;
     // configuration
 
-    std::map<string, spatialGeneratorTypes> spatialGeneratorTypesMap = {
+    const std::map<string, spatialGeneratorTypes> spatialGeneratorTypesMap = {
         {"FILE", spatialGeneratorTypes::FILE},
         {"VOLUME", spatialGeneratorTypes::VOLUME},
         {"SURFACE", spatialGeneratorTypes::SURFACE},
@@ -47,14 +55,14 @@ class TRestParticleGenerator {
         {"VIRTUAL_CYLINDER", spatialGeneratorTypes::VIRTUAL_CYLINDER},
     };
 
-    std::map<string, angularGeneratorTypes> angularGeneratorTypesMap = {
+    const std::map<string, angularGeneratorTypes> angularGeneratorTypesMap = {
         {"TH1D", angularGeneratorTypes::ROOT_HIST},
         {"ISOTROPIC", angularGeneratorTypes::ISOTROPIC},
         {"FLUX", angularGeneratorTypes::FLUX},
         {"BACK_TO_BACK", angularGeneratorTypes::BACK_TO_BACK},
     };
 
-    map<string, energyGeneratorTypes> energyGeneratorTypesMap = {
+    const map<string, energyGeneratorTypes> energyGeneratorTypesMap = {
         {"T1HD", energyGeneratorTypes::ROOT_HIST},
         {"MONO", energyGeneratorTypes::MONO},
         {"FLAT", energyGeneratorTypes::FLAT},
@@ -65,7 +73,7 @@ class TRestParticleGenerator {
     energyGeneratorTypes energyGeneratorType;
 
     template <class generatorTypes>
-    string GeneratorEnumToString(generatorTypes type) {
+    string GeneratorEnumToString(generatorTypes type) const {
         // type is in either 'spatialGeneratorTypes', 'angularGeneratorTypes' or 'energyGeneratorTypes'
         if (typeid(generatorTypes) == typeid(spatialGeneratorTypes)) {
             for (auto const& pair : spatialGeneratorTypesMap) {
@@ -92,7 +100,7 @@ class TRestParticleGenerator {
         return "NONE! (error)";
     }
 
-    inline string NormalizeTypeString(string type) {
+    inline string NormalizeTypeString(string type) const {
         std::transform(type.begin(), type.end(), type.begin(), ::tolower);
         // remove '_'
         string string_to_remove = "_";
@@ -157,9 +165,9 @@ class TRestParticleGenerator {
     }
 
    public:
-    inline string GetSpatialGeneratorType() { return GeneratorEnumToString(spatialGeneratorType); }
-    inline string GetAngularGeneratorType() { return GeneratorEnumToString(angularGeneratorType); }
-    inline string GetEnergyGeneratorType() { return GeneratorEnumToString(energyGeneratorType); }
+    inline string GetSpatialGeneratorType() const { return GeneratorEnumToString(spatialGeneratorType); }
+    inline string GetAngularGeneratorType() const { return GeneratorEnumToString(angularGeneratorType); }
+    inline string GetEnergyGeneratorType() const { return GeneratorEnumToString(energyGeneratorType); }
 
     inline void SetSpatialGeneratorType(spatialGeneratorTypes type) { spatialGeneratorType = type; }
     inline void SetSpatialGeneratorType(string type) {
@@ -171,6 +179,4 @@ class TRestParticleGenerator {
     }
     inline void SetEnergyGeneratorType(energyGeneratorTypes type) { energyGeneratorType = type; }
     inline void SetEnergyGeneratorType(string type) { SetGeneratorTypeFromStringAndCategory(type, "energy"); }
-
-    TRestParticleGenerator();
 };
