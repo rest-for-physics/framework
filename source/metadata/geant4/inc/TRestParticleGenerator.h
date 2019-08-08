@@ -31,10 +31,9 @@ class TRestParticleGenerator : public TRestMetadata {
    public:
     // Constructors
     TRestParticleGenerator();
-    TRestParticleGenerator(const string&, const string&);
+    TRestParticleGenerator(const string&, const string& name = "TRestG4Metadata");
     // Destructor
     inline ~TRestParticleGenerator(){};
-
     ClassDef(TRestParticleGenerator, 1);
 
    private:
@@ -45,7 +44,34 @@ class TRestParticleGenerator : public TRestMetadata {
     TVector3 particleDirection;
     Double_t particleEnergy;
     Long_t fSeed;
+
+    string fFromVolume;
+    TVector3 fGeneratorPosition;
+    TVector3 fGeneratorNormal;  // normal vector used to define orientation
+    inline void SetGeneratorNormal(TVector3 normalVector) { fGeneratorNormal = normalVector.Unit(); }
     // configuration
+    inline bool IsGeneratorPositionRequired() const {
+        if (fSpatialGeneratorType == spatialGeneratorTypes::SURFACE ||
+            fSpatialGeneratorType == spatialGeneratorTypes::POINT ||
+            fSpatialGeneratorType == spatialGeneratorTypes::VIRTUAL_WALL ||
+            fSpatialGeneratorType == spatialGeneratorTypes::VIRTUAL_BOX ||
+            fSpatialGeneratorType == spatialGeneratorTypes::VIRTUAL_SPHERE ||
+            fSpatialGeneratorType == spatialGeneratorTypes::VIRTUAL_CIRCLE_WALL ||
+            fSpatialGeneratorType == spatialGeneratorTypes::VIRTUAL_CYLINDER) {
+            return true;
+        }
+        return false;
+    }
+    inline bool IsGeneratorNormalRequired() const {
+        if (fSpatialGeneratorType == spatialGeneratorTypes::SURFACE ||
+            fSpatialGeneratorType == spatialGeneratorTypes::VIRTUAL_WALL ||
+            fSpatialGeneratorType == spatialGeneratorTypes::VIRTUAL_BOX ||
+            fSpatialGeneratorType == spatialGeneratorTypes::VIRTUAL_CIRCLE_WALL ||
+            fSpatialGeneratorType == spatialGeneratorTypes::VIRTUAL_CYLINDER) {
+            return true;
+        }
+        return false;
+    };
 
     const std::map<string, spatialGeneratorTypes> spatialGeneratorTypesMap = {
         {"FILE", spatialGeneratorTypes::FILE},
@@ -72,28 +98,28 @@ class TRestParticleGenerator : public TRestMetadata {
         {"FLAT", energyGeneratorTypes::FLAT},
     };
 
-    spatialGeneratorTypes spatialGeneratorType;
-    angularGeneratorTypes angularGeneratorType;
-    energyGeneratorTypes energyGeneratorType;
+    spatialGeneratorTypes fSpatialGeneratorType;
+    angularGeneratorTypes fAngularGeneratorType;
+    energyGeneratorTypes fEnergyGeneratorType;
 
     template <class generatorTypes>
     string GeneratorEnumToString(generatorTypes type) const {
         // type is in either 'spatialGeneratorTypes', 'angularGeneratorTypes' or 'energyGeneratorTypes'
         if (typeid(generatorTypes) == typeid(spatialGeneratorTypes)) {
             for (auto const& pair : spatialGeneratorTypesMap) {
-                if (pair.second == spatialGeneratorType) {
+                if (pair.second == fSpatialGeneratorType) {
                     return pair.first;
                 }
             }
         } else if (typeid(generatorTypes) == typeid(angularGeneratorTypes)) {
             for (auto const& pair : angularGeneratorTypesMap) {
-                if (pair.second == angularGeneratorType) {
+                if (pair.second == fAngularGeneratorType) {
                     return pair.first;
                 }
             }
         } else if (typeid(generatorTypes) == typeid(energyGeneratorTypes)) {
             for (auto const& pair : energyGeneratorTypesMap) {
-                if (pair.second == energyGeneratorType) {
+                if (pair.second == fEnergyGeneratorType) {
                     return pair.first;
                 }
             }
@@ -103,7 +129,6 @@ class TRestParticleGenerator : public TRestMetadata {
         }
         return "NONE! (error)";
     }
-
     inline string NormalizeTypeString(string type) const {
         std::transform(type.begin(), type.end(), type.begin(), ::tolower);
         // remove '_'
@@ -113,27 +138,26 @@ class TRestParticleGenerator : public TRestMetadata {
         }
         return type;
     }
-
     inline void SetGeneratorTypeFromStringAndCategory(string type, string generator_category) {
         // generator_category must be one of the following: 'spatial', 'angular', 'energy'
         if (generator_category == "spatial") {
             for (auto const& pair : spatialGeneratorTypesMap) {
                 if (NormalizeTypeString(pair.first) == NormalizeTypeString(type)) {
-                    spatialGeneratorType = pair.second;
+                    fSpatialGeneratorType = pair.second;
                     return;
                 }
             }
         } else if (generator_category == "angular") {
             for (auto const& pair : angularGeneratorTypesMap) {
                 if (NormalizeTypeString(pair.first) == NormalizeTypeString(type)) {
-                    angularGeneratorType = pair.second;
+                    fAngularGeneratorType = pair.second;
                     return;
                 }
             }
         } else if (generator_category == "energy") {
             for (auto const& pair : energyGeneratorTypesMap) {
                 if (NormalizeTypeString(pair.first) == NormalizeTypeString(type)) {
-                    energyGeneratorType = pair.second;
+                    fEnergyGeneratorType = pair.second;
                     return;
                 }
             }
@@ -166,26 +190,30 @@ class TRestParticleGenerator : public TRestMetadata {
         // remove the last ", "
         if (to_print.size() > 0) to_print.resize(to_print.size() - 2);  // '2' is the size of ", "
         cout << to_print << endl;
+        exit(0);
     }
 
    public:
     // generators
-    inline string GetSpatialGeneratorType() const { return GeneratorEnumToString(spatialGeneratorType); }
-    inline string GetAngularGeneratorType() const { return GeneratorEnumToString(angularGeneratorType); }
-    inline string GetEnergyGeneratorType() const { return GeneratorEnumToString(energyGeneratorType); }
+    inline string GetSpatialGeneratorType() const { return GeneratorEnumToString(fSpatialGeneratorType); }
+    inline string GetAngularGeneratorType() const { return GeneratorEnumToString(fAngularGeneratorType); }
+    inline string GetEnergyGeneratorType() const { return GeneratorEnumToString(fEnergyGeneratorType); }
 
-    inline void SetSpatialGeneratorType(spatialGeneratorTypes type) { spatialGeneratorType = type; }
+    inline void SetSpatialGeneratorType(spatialGeneratorTypes type) { fSpatialGeneratorType = type; }
     inline void SetSpatialGeneratorType(string type) {
         SetGeneratorTypeFromStringAndCategory(type, "spatial");
     }
-    inline void SetAngularGeneratorType(angularGeneratorTypes type) { angularGeneratorType = type; }
+    inline void SetAngularGeneratorType(angularGeneratorTypes type) { fAngularGeneratorType = type; }
     inline void SetAngularGeneratorType(string type) {
         SetGeneratorTypeFromStringAndCategory(type, "angular");
     }
-    inline void SetEnergyGeneratorType(energyGeneratorTypes type) { energyGeneratorType = type; }
+    inline void SetEnergyGeneratorType(energyGeneratorTypes type) { fEnergyGeneratorType = type; }
     inline void SetEnergyGeneratorType(string type) { SetGeneratorTypeFromStringAndCategory(type, "energy"); }
     // random seed
     inline Long_t GetRandomSeed() const { return fSeed; }
     inline void SetRandomSeed(Long_t seed) { fSeed = seed; }
+
+    // TRestMetadata methods
+    void PrintMetadata();
 };
 #endif  // REST_TRESTPARTICLEGENERATOR_H
