@@ -186,78 +186,78 @@ class TRestG4Metadata : public TRestMetadata {
    public:
     /// Returns the random seed that was used to generate the corresponding
     /// geant4 dataset.
-    Long_t GetSeed() { return fSeed; }
+    Long_t GetSeed() const { return fSeed; }
 
     /// Returns a string with the version of Geant4 used on the event data
     /// simulation
-    TString GetGeant4Version() { return fGeant4Version; }
+    TString GetGeant4Version() const { return fGeant4Version; }
 
     /// Returns the local path to the GDML geometry
-    TString GetGeometryPath() { return fGeometryPath; }
+    TString GetGeometryPath() const { return fGeometryPath; }
 
     /// Returns the main filename of the GDML geometry
-    TString Get_GDML_Filename() { return fGDML_Filename; }
+    TString Get_GDML_Filename() const { return fGDML_Filename; }
 
     /// Returns a string specifying the generator type (volume, surface, point,
     /// virtualWall, etc )
-    TString GetGeneratorType() { return fGenType; }
+    TString GetGeneratorType() const { return fGenType; }
 
     /// \brief Returns the name of the GDML volume where primary events are
     /// produced. This value has meaning only when using volume or surface
     /// generator types.
-    TString GetGeneratedFrom() { return fGenFrom; }
+    TString GetGeneratedFrom() const { return fGenFrom; }
 
     /// \brief Returns the name of the GDML volume where primary events are
     /// produced. This value has meaning only when using volume or surface
     /// generator types.
-    TString GetGDMLGeneratorVolume() { return fGenFrom; }
+    TString GetGDMLGeneratorVolume() const { return fGenFrom; }
 
     /// \brief Returns a 3d-vector with the position of the primary event
     /// generator. This value has meaning only when using point and virtual
     /// generator types.
-    TVector3 GetGeneratorPosition() { return fGenPosition; }
+    TVector3 GetGeneratorPosition() const { return fGenPosition; }
 
     /// \brief Returns a 3d-vector, fGenRotation, with the XYZ rotation angle
     /// values in degrees. This value is used by virtualWall, virtualCircleWall
     /// and virtualCylinder generator types.
-    TVector3 GetGeneratorRotation() { return fGenRotation; }
+    TVector3 GetGeneratorRotation() const { return fGenRotation; }
 
     /// \brief Returns the main spatial dimension of virtual generator.
     /// It is the size of a  virtualBox.
-    Double_t GetGeneratorSize() { return fGenDimension1; }
+    Double_t GetGeneratorSize() const { return fGenDimension1; }
 
     /// \brief Returns the main spatial dimension of virtual generator.
     /// It is the length along the x-axis of a virtualWall.
-    Double_t GetGeneratorLenX() { return fGenDimension1; }
+    Double_t GetGeneratorLenX() const { return fGenDimension1; }
 
     /// \brief Returns the main spatial dimension of virtual generator.
     /// It is the radius for virtualSphere, virtualCylinder and virtualCircleWall.
-    Double_t GetGeneratorRadius() { return fGenDimension1; }
+    Double_t GetGeneratorRadius() const { return fGenDimension1; }
 
     /// \brief Returns the secondary spatial dimension of a virtual volume
     /// generator. It is used to define the length of virtualCylinder generator.
-    Double_t GetGeneratorLength() { return fGenDimension2; }
+    Double_t GetGeneratorLength() const { return fGenDimension2; }
 
     /// \brief Returns the secondary spatial dimension of a virtual volume
     /// generator. It is the length along the y-axis of a virtualWall.
-    Double_t GetGeneratorLenY() { return fGenDimension2; }
+    Double_t GetGeneratorLenY() const { return fGenDimension2; }
 
     /// \brief Returns true in case full decay chain simulation is enabled.
-    Bool_t isFullChainActivated() { return fFullChain; }
+    Bool_t isFullChainActivated() const { return fFullChain; }
 
     /// \brief Returns the filename used as manual generator. Decay0 files are can
     /// be understood by restG4.
-    TString GetGeneratorFile() { return fGeneratorFile; }
+    TString GetGeneratorFile() const { return fGeneratorFile; }
 
     /// \brief Returns the value of the maximum Geant4 step size in mm for the
     /// target volume.
-    Double_t GetMaxTargetStepSize() { return fMaxTargetStepSize; }
+    Double_t GetMaxTargetStepSize() const { return fMaxTargetStepSize; }
 
     /// \brief Returns the time gap, in us, required to consider a Geant4 hit as a
     /// new independent event. It is used to separate simulated events that in
     /// practice will appear as such in our detector. I.e. to separate multiple
     /// decay products (sometimes with years time delays) into independent events.
-    Double_t GetSubEventTimeDelay() { return fSubEventTimeDelay; }
+    Double_t GetSubEventTimeDelay() const { return fSubEventTimeDelay; }
 
     /// Used exclusively by restG4 to set the value of the random seed used on
     /// Geant4 simulation.
