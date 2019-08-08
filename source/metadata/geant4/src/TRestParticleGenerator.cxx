@@ -18,67 +18,54 @@
 
 using namespace std;
 
-/*
-namespace {
+ClassImp(TRestParticleGenerator)
 
-enum class energyGeneratorTypes {
-    ROOT_HIST,
-    MONO,
-    FLAT,
-};
-enum class angularGeneratorTypes {
-    ROOT_HIST,
-    ISOTROPIC,
-    FLUX,
-    BACK_TO_BACK,
-};
-enum class spatialGeneratorTypes {
-    FILE,
-    VOLUME,
-    SURFACE,
-    POINT,
-    VIRTUAL_WALL,
-    VIRTUAL_BOX,
-    VIRTUAL_SPHERE,
-    VIRTUAL_CIRCLE_WALL,
-    VIRTUAL_CYLINDER,
-};
-
+    TRestParticleGenerator::TRestParticleGenerator()
+    : TRestMetadata() {
+    Initialize();
+}
+TRestParticleGenerator::TRestParticleGenerator(const string& configFileName, const string& name = "")
+    : TRestMetadata(configFileName.c_str()) {
+    Initialize();
+    LoadConfigFromFile(fConfigFileName, name);
+    PrintMetadata();
 }
 
-const std::map<string, spatialGeneratorTypes> spatialGeneratorTypesMap = {
-    {"FILE", spatialGeneratorTypes::FILE},
-    {"VOLUME", spatialGeneratorTypes::VOLUME},
-    {"SURFACE", spatialGeneratorTypes::SURFACE},
-    {"POINT", spatialGeneratorTypes::POINT},
-    {"VIRTUAL_WALL", spatialGeneratorTypes::VIRTUAL_WALL},
-    {"VIRTUAL_BOX", spatialGeneratorTypes::VIRTUAL_BOX},
-    {"VIRTUAL_SPHERE", spatialGeneratorTypes::VIRTUAL_SPHERE},
-    {"VIRTUAL_CIRCLE_WALL", spatialGeneratorTypes::VIRTUAL_CIRCLE_WALL},
-    {"VIRTUAL_CYLINDER", spatialGeneratorTypes::VIRTUAL_CYLINDER},
-};
+void TRestParticleGenerator::InitFromConfigFile() {
+    /*
+    fCutForGamma = GetDblParameterWithUnits("cutForGamma", 0.01);
+    fCutForElectron = GetDblParameterWithUnits("cutForElectron", 1);
+    fCutForPositron = GetDblParameterWithUnits("cutForPositron", 1);
+    fCutForMuon = GetDblParameterWithUnits("cutForMuon", 1);
+    fCutForNeutron = GetDblParameterWithUnits("cutForNeutron", 1);
+    fMinEnergyRangeProductionCuts = GetDblParameterWithUnits("minEnergyRangeProductionCuts", 1);
+    fMaxEnergyRangeProductionCuts = GetDblParameterWithUnits("maxEnergyRangeProductionCuts", 1e6);
+    size_t position = 0;
+    string physicsListString;
 
-const std::map<string, angularGeneratorTypes> angularGeneratorTypesMap = {
-    {"TH1D", angularGeneratorTypes::ROOT_HIST},
-    {"ISOTROPIC", angularGeneratorTypes::ISOTROPIC},
-    {"FLUX", angularGeneratorTypes::FLUX},
-    {"BACK_TO_BACK", angularGeneratorTypes::BACK_TO_BACK},
-};
+    while ((physicsListString = GetKEYStructure("physicsList", position)) != "NotFound") {
+        // PhysicsList name
+        TString phName = GetFieldValue("name", GetKEYDefinition("physicsList", physicsListString));
 
-const map<string, energyGeneratorTypes> energyGeneratorTypesMap = {
-    {"T1HD", energyGeneratorTypes::ROOT_HIST},
-    {"MONO", energyGeneratorTypes::MONO},
-    {"FLAT", energyGeneratorTypes::FLAT},
-};
-*/
+        if (!PhysicsListExists(phName)) {
+            cout << "REST WARNING. TRestPhysicsList : Skipping physics list : " << phName << endl;
+            continue;
+        }
+        size_t pos = 0;
+        string optionDefinition;
 
-TRestParticleGenerator::TRestParticleGenerator() {}
+        TString optionString = "";
+        while ((optionDefinition = GetKEYDefinition("option", pos, physicsListString)) != "") {
+            TString optionName = GetFieldValue("name", optionDefinition);
+            TString optionValue = GetFieldValue("value", optionDefinition);
 
-TRestParticleGenerator::TRestParticleGenerator(const TRestG4Metadata& restG4Metadata) {
-    // load random seed
-    Long_t randomSeed = restG4Metadata.GetSeed();
-    SetRandomSeed(randomSeed);
-    // load spatial generator
-    string generatorTypeString = (string)restG4Metadata.GetGeneratorType();
-    SetSpatialGeneratorType(generatorTypeString);
+            if (optionString != "") optionString += ":";
+
+            optionString += optionName + ":" + optionValue;
+        }
+
+        fPhysicsLists.push_back(phName);
+        fPhysicsListOptions.push_back(optionString);
+    }
+    */
 }

@@ -16,8 +16,7 @@
 #define REST_TRESTPARTICLEGENERATOR_H
 
 #include <TRestEnums.h>
-
-#include <TRestEventProcess.h>
+#include <TRestMetadata.h>
 
 #include <TVector3.h>
 
@@ -28,14 +27,20 @@
 using namespace std;
 using namespace TRestParticleGeneratorConfig;
 
-class TRestParticleGenerator {
+class TRestParticleGenerator : public TRestMetadata {
    public:
     // Constructors
     TRestParticleGenerator();
-    TRestParticleGenerator(TRestG4Metadata*);
-    TRestParticleGenerator(const TRestG4Metadata&);
+    TRestParticleGenerator(const string&, const string&);
+    // Destructor
+    inline ~TRestParticleGenerator(){};
+
+    ClassDef(TRestParticleGenerator, 1);
 
    private:
+    inline void Initialize() { SetSectionName(this->ClassName()); }
+    void InitFromConfigFile();
+
     TVector3 particlePosition;
     TVector3 particleDirection;
     Double_t particleEnergy;
