@@ -5,8 +5,6 @@
 #ifndef REST_TRESTENUMS_H
 #define REST_TRESTENUMS_H
 
-#endif  // REST_TRESTENUMS_H
-
 namespace TRestParticleGeneratorConfig {
 
 enum class energyGeneratorTypes {
@@ -32,4 +30,6 @@ enum class spatialGeneratorTypes {
     VIRTUAL_CYLINDER,
 };
 
-}
+}  // namespace TRestParticleGeneratorConfig
+
+#endif  // REST_TRESTENUMS_H

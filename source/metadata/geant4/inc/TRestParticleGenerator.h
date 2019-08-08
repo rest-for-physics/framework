@@ -15,11 +15,9 @@
 #ifndef REST_TRESTPARTICLEGENERATOR_H
 #define REST_TRESTPARTICLEGENERATOR_H
 
-#endif  // REST_TRESTPARTICLEGENERATOR_H
-
 #include <TRestEnums.h>
+
 #include <TRestEventProcess.h>
-//#include <TRestG4Metadata.h>
 
 #include <TVector3.h>
 
@@ -41,6 +39,7 @@ class TRestParticleGenerator {
     TVector3 particlePosition;
     TVector3 particleDirection;
     Double_t particleEnergy;
+    Long_t fSeed;
     // configuration
 
     const std::map<string, spatialGeneratorTypes> spatialGeneratorTypesMap = {
@@ -165,6 +164,7 @@ class TRestParticleGenerator {
     }
 
    public:
+    // generators
     inline string GetSpatialGeneratorType() const { return GeneratorEnumToString(spatialGeneratorType); }
     inline string GetAngularGeneratorType() const { return GeneratorEnumToString(angularGeneratorType); }
     inline string GetEnergyGeneratorType() const { return GeneratorEnumToString(energyGeneratorType); }
@@ -179,4 +179,8 @@ class TRestParticleGenerator {
     }
     inline void SetEnergyGeneratorType(energyGeneratorTypes type) { energyGeneratorType = type; }
     inline void SetEnergyGeneratorType(string type) { SetGeneratorTypeFromStringAndCategory(type, "energy"); }
+    // random seed
+    inline Long_t GetRandomSeed() const { return fSeed; }
+    inline void SetRandomSeed(Long_t seed) { fSeed = seed; }
 };
+#endif  // REST_TRESTPARTICLEGENERATOR_H
