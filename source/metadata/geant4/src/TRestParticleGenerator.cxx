@@ -206,7 +206,44 @@ void TRestParticleGenerator::PrintMetadata() {
         parameterValue = geometricParameterValues[geometricParameter];
         metadata << parameterName << ": " << parameterValue << " mm" << endl;
     }
+    metadata << "Angular distribution type: " << GetAngularGeneratorType() << endl;
+    metadata << "Energy distribution type: " << GetEnergyGeneratorType() << endl;
+
     metadata << "******************************************" << endl;
     metadata << endl;
     metadata << endl;
+}
+
+void TRestParticleGenerator::Sample() {
+    if (GetSpatialGeneratorType() == noGeneratorTypeSpecified) {
+        cout << "cannot sample if no spatial generator type is specified" << endl;
+        return;
+    } else if (fSpatialGeneratorType == spatialGeneratorTypes::FILE) {
+    } else if (fSpatialGeneratorType == spatialGeneratorTypes::VOLUME) {
+    } else if (fSpatialGeneratorType == spatialGeneratorTypes::SURFACE) {
+    } else if (fSpatialGeneratorType == spatialGeneratorTypes::POINT) {
+    } else if (fSpatialGeneratorType == spatialGeneratorTypes::VIRTUAL_WALL) {
+    } else if (fSpatialGeneratorType == spatialGeneratorTypes::VIRTUAL_BOX) {
+    } else if (fSpatialGeneratorType == spatialGeneratorTypes::VIRTUAL_SPHERE) {
+        Float_t radius = geometricParameterValues.at(geometricParameters::RADIUS);  // this has to be defined
+        if (radius <= 0) {
+            cout << "ERROR: radius needs to be defined before sampling!" << endl;
+            // return;
+        }
+        Float_t theta = TMath::Pi() * fRandom.Rndm();
+        Float_t phi = TMath::ACos(1 - 2 * fRandom.Rndm());
+
+        TVector3 position(radius * TMath::Sin(theta) * TMath::Cos(phi),
+                          radius * TMath::Sin(theta) * TMath::Sin(phi), radius * TMath::Cos(theta));
+        TVector3 direction = -1 / radius * position;
+
+        SetParticlePosition(position + fGeneratorPosition);
+        SetParticleDirection(direction);
+    } else if (fSpatialGeneratorType == spatialGeneratorTypes::VIRTUAL_CIRCLE_WALL) {
+    } else if (fSpatialGeneratorType == spatialGeneratorTypes::VIRTUAL_CYLINDER) {
+    }
+    // we should never get here probably missing to list some type of generator
+    cout << "WARNING: this section of code should not be reachable in `TRestParticleGenerator::Sample()`"
+         << endl;
+    return;
 }

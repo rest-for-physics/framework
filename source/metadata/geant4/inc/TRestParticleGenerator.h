@@ -18,6 +18,7 @@
 #include <TRestEnums.h>
 #include <TRestMetadata.h>
 
+#include <TRandom3.h>
 #include <TVector3.h>
 
 #include <iostream>
@@ -38,11 +39,10 @@ class TRestParticleGenerator : public TRestMetadata {
 
    private:
     inline void Initialize() { SetSectionName(this->ClassName()); }
-    void InitFromConfigFile();
 
-    TVector3 particlePosition;
-    TVector3 particleDirection;
-    Double_t particleEnergy;
+    TVector3 fParticlePosition;
+    TVector3 fParticleDirection;
+    Double_t fParticleEnergy;
     Long_t fSeed = 0;
 
     string fFromVolume;
@@ -126,6 +126,7 @@ class TRestParticleGenerator : public TRestMetadata {
     angularGeneratorTypes fAngularGeneratorType;
     energyGeneratorTypes fEnergyGeneratorType;
 
+    string noGeneratorTypeSpecified = "NOT DEFINED!";
     template <class generatorTypes>
     string GeneratorEnumToString(generatorTypes type) const {
         // type is in either 'spatialGeneratorTypes', 'angularGeneratorTypes' or 'energyGeneratorTypes'
@@ -149,9 +150,10 @@ class TRestParticleGenerator : public TRestMetadata {
             }
         } else {
             // error
+            exit(0);
             return "ERROR!";
         }
-        return "NONE! (error)";
+        return noGeneratorTypeSpecified;
     }
     inline string NormalizeTypeString(string type) const {
         std::transform(type.begin(), type.end(), type.begin(), ::tolower);
@@ -235,9 +237,39 @@ class TRestParticleGenerator : public TRestMetadata {
     inline void SetEnergyGeneratorType(string type) { SetGeneratorTypeFromStringAndCategory(type, "energy"); }
     // random seed
     inline Long_t GetRandomSeed() const { return fSeed; }
-    inline void SetRandomSeed(Long_t seed) { fSeed = seed; }
+    inline void SetRandomSeed(Long_t seed) {
+        fSeed = seed;
+        fRandom = TRandom3(fSeed);
+    }
+    TRandom3 fRandom = TRandom3(fSeed);
 
+    inline void SetGeometricParameter(string parameterName, Double_t parameterValue) {
+        auto requiredParameters = GetRequiredGeometricParameters(fSpatialGeneratorType);
+        // check if a valid parameter name was specified
+        if (geometricParameterMap.count(parameterName) == 0) {
+            cout << "bad parameter name: " << parameterName << endl;
+            cout << "valid parameter names for generator: " << GetSpatialGeneratorType() << " are: ";
+            for (auto const& parameter : requiredParameters) {
+                cout << GetGeometricParameterName(parameter) << ", ";
+            }
+            cout << endl;
+            return;
+        }
+        auto geometricParameter = geometricParameterMap.at(parameterName);
+        geometricParameterValues[geometricParameter] = parameterValue;
+    }
+    void Sample();
+    inline TVector3 GetParticlePosition() const { return fParticlePosition; }
+    inline TVector3 GetParticleDirection() const { return fParticleDirection.Unit(); }
+    inline Double_t GetParticleEnergy() const { return fParticleEnergy; }
+    inline void SetParticlePosition(TVector3 position) { fParticlePosition = position; }
+    inline void SetParticleDirection(TVector3 direction) { fParticleDirection = direction.Unit(); }
+    inline void SetParticleEnergy(Double_t energy) { fParticleEnergy = energy; }
     // TRestMetadata methods
+   public:
     void PrintMetadata();
+
+   private:
+    void InitFromConfigFile();
 };
 #endif  // REST_TRESTPARTICLEGENERATOR_H
