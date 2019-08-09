@@ -30,6 +30,14 @@ enum class spatialGeneratorTypes {
     VIRTUAL_CYLINDER,
 };
 
+// list of all possible geometric parameters
+enum class geometricParameters {
+    SIZE,
+    RADIUS,
+    LENGTH,
+    LENGTH_X,
+    LENGTH_Y,
+};
 }  // namespace TRestParticleGeneratorConfig
 
 #endif  // REST_TRESTENUMS_H

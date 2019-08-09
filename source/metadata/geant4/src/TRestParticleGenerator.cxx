@@ -32,19 +32,23 @@ TRestParticleGenerator::TRestParticleGenerator(const string& configFileName, con
 }
 
 void TRestParticleGenerator::InitFromConfigFile() {
+    string parameterNotFoundString = "Not defined";
+
     string generatorString = GetKEYStructure("generator");
     string generatorDefinition = GetKEYDefinition("generator", generatorString);
 
-    // we first define the spatial generator type (box, virtualWall etc.)
+    // we load random seed if present
+    fSeed = (Long_t)StringToInteger(GetParameter("seed", "0"));
+
+    // we define the spatial generator type (box, virtualWall etc.)
     string generatorType = GetFieldValue("type", generatorDefinition);
     SetSpatialGeneratorType(generatorType);
 
     // we run through all possible parameters
     // TODO: this should be changed in TRestMetadata. We should not use hardcoded values like this.
-    string parameterNotFound = "Not defined";
     // 'from' (volume)
     string fromVolume = GetFieldValue("from", generatorDefinition);
-    if (fromVolume != parameterNotFound) {
+    if (fromVolume != parameterNotFoundString) {
         if (fSpatialGeneratorType == spatialGeneratorTypes::VOLUME) {
             fFromVolume = fromVolume;
         } else {
@@ -55,7 +59,7 @@ void TRestParticleGenerator::InitFromConfigFile() {
     }
     // position
     string positionString = GetFieldValue("position", generatorDefinition);
-    if (positionString != parameterNotFound) {
+    if (positionString != parameterNotFoundString) {
         if (IsGeneratorPositionRequired()) {
             fGeneratorPosition = Get3DVectorFieldValueWithUnits("position", generatorDefinition);
         } else {
@@ -71,10 +75,10 @@ void TRestParticleGenerator::InitFromConfigFile() {
     string rotationString = GetFieldValue("rotation", generatorDefinition);
     string normalVectorString = GetFieldValue("normal", generatorDefinition);
     // check if both are defined and give error
-    if (rotationString != parameterNotFound && normalVectorString != parameterNotFound) {
+    if (rotationString != parameterNotFoundString && normalVectorString != parameterNotFoundString) {
         cout << "'rotation' and 'normal' cannot be defined at the same time" << endl;
         exit(0);
-    } else if (rotationString != parameterNotFound || normalVectorString != parameterNotFound) {
+    } else if (rotationString != parameterNotFoundString || normalVectorString != parameterNotFoundString) {
         // only one is defined (correct)
         if (!IsGeneratorNormalRequired()) {
             // is defined but makes no sense
@@ -85,10 +89,10 @@ void TRestParticleGenerator::InitFromConfigFile() {
         }
     }
     // if we get here we can safely assign orientation
-    if (normalVectorString != parameterNotFound) {
+    if (normalVectorString != parameterNotFoundString) {
         TVector3 normalVector = Get3DVectorFieldValueWithUnits("normal", generatorDefinition);
         SetGeneratorNormal(normalVector);
-    } else if (rotationString != parameterNotFound) {
+    } else if (rotationString != parameterNotFoundString) {
         // only rotation is defined
         cout << "WARNING: you are using 'rotation' to specify spatial generator orientation. It is "
                 "recommended that you use 'normal' instead (normal vector). 'rotation' might not be "
@@ -115,6 +119,70 @@ void TRestParticleGenerator::InitFromConfigFile() {
             SetGeneratorNormal((-1) * fGeneratorNormal);
         }
     }
+
+    // geometric parameters
+    Double_t parameterNotFoundDouble = PARAMETER_NOT_FOUND_DBL;
+    // get necessary geometric parameters
+    set<geometricParameters> requiredParameters = GetRequiredGeometricParameters(fSpatialGeneratorType);
+    string parameterName;
+    Double_t parameterValue;
+    for (geometricParameters const& geometricParameter : requiredParameters) {
+        // get parameter name
+        parameterName = GetGeometricParameterName(geometricParameter);
+        parameterValue = GetDblFieldValueWithUnits(parameterName, generatorDefinition);
+        if (parameterValue != parameterNotFoundDouble) {
+            geometricParameterValues[geometricParameter] = parameterValue;
+        } else {
+            // a parameter is missing
+            // if type only requires one parameter (sphere: radius) and only size is specified we assign the
+            // value of size
+            if (requiredParameters.count(geometricParameters::SIZE) == 1 && requiredParameters.size() == 1) {
+                parameterName = GetGeometricParameterName(geometricParameters::SIZE);
+                parameterValue = GetDblFieldValueWithUnits(parameterName, generatorDefinition);
+                geometricParameterValues[geometricParameter] = parameterValue;
+            } else if (requiredParameters.count(geometricParameters::LENGTH_X) == 1 &&
+                       requiredParameters.count(geometricParameters::LENGTH_Y) == 1 &&
+                       requiredParameters.size() == 2) {
+                // if X and Y length are required but only size is specified we set equal X and Y length
+                parameterName = GetGeometricParameterName(geometricParameters::SIZE);
+                parameterValue = GetDblFieldValueWithUnits(parameterName, generatorDefinition);
+                geometricParameterValues[geometricParameters::LENGTH_X] = parameterValue;
+                geometricParameterValues[geometricParameters::LENGTH_Y] = parameterValue;
+            } else {
+                cout << "you need to specify parameter: " << parameterName << endl;
+                exit(0);
+            }
+        }
+    }
+}
+
+set<geometricParameters> TRestParticleGenerator::GetRequiredGeometricParameters(
+    spatialGeneratorTypes type) const {
+    set<geometricParameters> parameterSet;
+    switch (type) {
+        case spatialGeneratorTypes::POINT:
+            // no geometric parameters
+            break;
+        case spatialGeneratorTypes::VIRTUAL_WALL:
+            parameterSet = {geometricParameters::LENGTH_X, geometricParameters::LENGTH_Y};
+            break;
+        case spatialGeneratorTypes::VIRTUAL_SPHERE:
+            parameterSet = {geometricParameters::RADIUS};
+            break;
+        case spatialGeneratorTypes::VIRTUAL_CYLINDER:
+            parameterSet = {geometricParameters::RADIUS, geometricParameters::LENGTH};
+            break;
+        case spatialGeneratorTypes::VIRTUAL_CIRCLE_WALL:
+            parameterSet = {geometricParameters::RADIUS};
+            break;
+        case spatialGeneratorTypes::VIRTUAL_BOX:
+            parameterSet = {geometricParameters::SIZE};
+            break;
+        default:
+            // by default no geometric parameters required (e.g. VOLUME)
+            break;
+    }
+    return parameterSet;
 }
 
 void TRestParticleGenerator::PrintMetadata() {
@@ -128,6 +196,15 @@ void TRestParticleGenerator::PrintMetadata() {
     if (IsGeneratorNormalRequired()) {
         metadata << "Generator orientation (normal vector): (" << fGeneratorNormal.X() << ","
                  << fGeneratorNormal.Y() << "," << fGeneratorNormal.Z() << ")" << endl;
+    }
+    set<geometricParameters> requiredParameters = GetRequiredGeometricParameters(fSpatialGeneratorType);
+    string parameterName;
+    Double_t parameterValue;
+    for (geometricParameters const& geometricParameter : requiredParameters) {
+        // get parameter name
+        parameterName = GetGeometricParameterName(geometricParameter);
+        parameterValue = geometricParameterValues[geometricParameter];
+        metadata << parameterName << ": " << parameterValue << " mm" << endl;
     }
     metadata << "******************************************" << endl;
     metadata << endl;

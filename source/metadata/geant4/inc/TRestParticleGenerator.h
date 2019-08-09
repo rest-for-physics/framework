@@ -43,7 +43,7 @@ class TRestParticleGenerator : public TRestMetadata {
     TVector3 particlePosition;
     TVector3 particleDirection;
     Double_t particleEnergy;
-    Long_t fSeed;
+    Long_t fSeed = 0;
 
     string fFromVolume;
     TVector3 fGeneratorPosition;
@@ -72,6 +72,30 @@ class TRestParticleGenerator : public TRestMetadata {
         }
         return false;
     };
+    // geometric parameters
+    const std::map<string, geometricParameters> geometricParameterMap = {
+        {"size", geometricParameters::SIZE},     {"radius", geometricParameters::RADIUS},
+        {"length", geometricParameters::LENGTH}, {"lenX", geometricParameters::LENGTH_X},
+        {"lenY", geometricParameters::LENGTH_Y},
+    };
+    inline string GetGeometricParameterName(geometricParameters geometricParameter) {
+        for (auto const& pair : geometricParameterMap) {
+            if (pair.second == geometricParameter) {
+                return pair.first;
+            }
+        }
+        return "ERROR!";
+    }
+    Double_t notAssignedValueDouble = -1;  // all parameters are positive
+    std::map<geometricParameters, Double_t> geometricParameterValues = {
+        {geometricParameters::SIZE, notAssignedValueDouble},
+        {geometricParameters::RADIUS, notAssignedValueDouble},
+        {geometricParameters::LENGTH, notAssignedValueDouble},
+        {geometricParameters::LENGTH_X, notAssignedValueDouble},
+        {geometricParameters::LENGTH_Y, notAssignedValueDouble},
+    };
+    // which parameters are required for each spatial generator
+    set<geometricParameters> GetRequiredGeometricParameters(spatialGeneratorTypes) const;
 
     const std::map<string, spatialGeneratorTypes> spatialGeneratorTypesMap = {
         {"FILE", spatialGeneratorTypes::FILE},
