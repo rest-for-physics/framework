@@ -26,8 +26,8 @@ testrestG4:
   type: testMetarestG4
   script:
     - . /builds/REST_v2/install/thisREST.sh
-    - cd /builds/REST_v2/install/example/restG4template
-    - restG4 restG4.rml
+    - cd /builds/REST_v2/install/examples/01.NLDBD-PandaX-III/
+    - restG4 NLDBD.rml
   artifacts:
     paths:
       - /builds/REST_v2/install
