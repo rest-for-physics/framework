@@ -125,10 +125,10 @@ void TRestProcessRunner::BeginOfInit() {
     fRunInfo->SetCurrentEntry(firstEntry);
 
     fThreadNumber = StringToDouble(GetParameter("threadNumber", "1"));
-    fOutputItem = vector<string>();
-    if (ToUpper(GetParameter("inputAnalysis", "ON")) == "ON") fOutputItem.push_back("inputanalysis");
-    if (ToUpper(GetParameter("inputEvent", "ON")) == "ON") fOutputItem.push_back("inputevent");
-    if (ToUpper(GetParameter("outputEvent", "ON")) == "ON") fOutputItem.push_back("outputevent");
+    if (ToUpper(GetParameter("inputAnalysis", "ON")) == "ON") fOutputItem[0] = true;
+    if (ToUpper(GetParameter("inputEvent", "ON")) == "ON") fOutputItem[1] = true;
+    if (ToUpper(GetParameter("outputEvent", "ON")) == "ON") fOutputItem[2] = true;
+    fOutputItem[3] = true;
 
     // fOutputItem = Split(GetParameter("treeBranches",
     // "inputevent:outputevent:inputanalysis"), ":");
@@ -138,7 +138,6 @@ void TRestProcessRunner::BeginOfInit() {
     for (int i = 0; i < fThreadNumber; i++) {
         TRestThread* t = new TRestThread();
         t->SetProcessRunner(this);
-        t->SetBranchConfig(fOutputItem);
         t->SetVerboseLevel(fVerboseLevel);
         t->SetThreadId(i);
         fThreads.push_back(t);
@@ -287,7 +286,7 @@ void TRestProcessRunner::RunProcess() {
     bool testrun =
         ToUpper(GetParameter("testRun", "ON")) == "ON" || ToUpper(GetParameter("testRun", "ON")) == "TRUE";
     for (int i = 0; i < fThreadNumber; i++) {
-        fThreads[i]->PrepareToProcess(testrun);
+        fThreads[i]->PrepareToProcess(fOutputItem, testrun);
     }
 
     // print metadata
@@ -703,7 +702,11 @@ Int_t TRestProcessRunner::GetNextevtFunc(TRestEvent* targetevt, TRestAnalysisTre
     if (fProcessedEvents >= eventsToProcess || targetevt == NULL || fProcStatus == kStop) {
         n = -1;
     } else {
-        n = fRunInfo->GetNextEvent(targetevt, targettree);
+        if (fOutputItem[0] == false) {
+            n = fRunInfo->GetNextEvent(targetevt, NULL);
+        } else {
+            n = fRunInfo->GetNextEvent(targetevt, targettree);
+        }
     }
 
 #ifdef TIME_MEASUREMENT
