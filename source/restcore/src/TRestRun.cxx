@@ -887,6 +887,7 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
             fMetadataInfo[i]->Write(fMetadataInfo[i]->GetName(), kOverwrite);
         } else {
             debug << "IS historic" << endl;
+            fMetadataInfo[i]->SetName(("Historic_" + (string)fMetadataInfo[i]->ClassName()).c_str());
             fMetadataInfo[i]->Write(("Historic_" + (string)fMetadataInfo[i]->ClassName()).c_str(),
                                     kOverwrite);
         }

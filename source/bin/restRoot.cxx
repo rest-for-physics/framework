@@ -66,6 +66,10 @@ int main(int argc, char* argv[]) {
                     Form("new TString(run%d->GetMetadata(\"%s\")->ClassName());", Nfile, metaName.Data()));
                 TString metaType(myOutput->Data());
 
+				if (metaName.Contains("Historic")) {
+                    continue;
+				}
+
 				TString metaFixed = Replace( (string) metaName, "-", "_" );
 				metaFixed = Replace( (string) metaFixed, " ", "" );
 				metaFixed = Replace( (string) metaFixed, ".", "_" );
