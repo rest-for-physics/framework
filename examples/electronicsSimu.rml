@@ -48,7 +48,7 @@
     </addProcess>
     <addProcess type="TRestChannelGainCorrectionProcess" name="gainCorr" value="OFF" />
     <addProcess type="TRestSignalToRawSignalProcess" name="s2rs" value="ON"
-                triggerDelay="150" sampling="200ns" gain="1"
+                triggerDelay="150" sampling="200ns" gain="10"
                 verboseLevel="1"/>
     <addProcess type="TRestRawSignalShapingProcess" name="rsShaping" value="ON"
                 shapingTime="5" />
