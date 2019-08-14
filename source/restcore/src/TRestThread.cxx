@@ -243,7 +243,7 @@ bool TRestThread::TestRun(TRestAnalysisTree* tempTree) {
 ///
 /// Note: this methed runs under single thread node, so there is no conflict
 /// when creating files.
-void TRestThread::PrepareToProcess(bool testrun) {
+void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
     debug << "Entering TRestThread::PrepareToProcess( testrun=" << testrun << " )" << endl;
 
     if (fProcessChain.size() > 0) {
@@ -254,6 +254,22 @@ void TRestThread::PrepareToProcess(bool testrun) {
         fOutputFile->SetCompressionLevel(0);
 
         TRestAnalysisTree* tempTree = new TRestAnalysisTree("AnalysisTree_tmp", "anaTree_tmp");
+        if (outputConfig == NULL) {
+            outputConfig = new bool[4];
+            for (int i = 0; i < 4; i++) {
+                outputConfig[i] = true;
+            }
+        }
+        if (outputConfig[0] == true) {
+            // item: input analysis
+            if (fHostRunner->GetInputAnalysisTree() != NULL)
+                tempTree->CopyObservableList(fHostRunner->GetInputAnalysisTree(), "old_");
+        }
+        if (outputConfig[3] == false) {
+            cout << "Error! output analysis must be on!" << endl;
+            exit(1);
+        }
+
         for (unsigned int i = 0; i < fProcessChain.size(); i++) {
             fProcessChain[i]->SetAnalysisTree(tempTree);
             for (unsigned int j = 0; j < fProcessChain.size(); j++) {
@@ -317,39 +333,23 @@ void TRestThread::PrepareToProcess(bool testrun) {
         // avoid duplicated branch
         // if event type is same, we only create branch for the last of this type
         // event
-        for (int i = 0; i < fTreeBranchDef.size(); i++) {
-            if (fTreeBranchDef[i] == "inputevent") {
-                TRestEvent* evt = fInputEvent;
-                {
-                    TString BranchName = (TString)evt->GetName() + "Branch";
-                    if (branchesToAdd.size() == 0)
-                        branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
-                    else
-                        for (int j = 0; j < branchesToAdd.size(); j++) {
-                            if (branchesToAdd[j].first == BranchName)
-                                branchesToAdd[j].second = evt;
-                            else if (j == branchesToAdd.size() - 1)
-                                branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
-                        }
-                }
-                for (unsigned int i = 0; i < fProcessChain.size(); i++) {
-                    TRestEvent* evt = fProcessChain[i]->GetOutputEvent();
-                    {
-                        TString BranchName = (TString)evt->GetName() + "Branch";
-                        if (branchesToAdd.size() == 0)
+        if (outputConfig[1] == true) {
+            // item: input event
+            TRestEvent* evt = fInputEvent;
+            {
+                TString BranchName = (TString)evt->GetName() + "Branch";
+                if (branchesToAdd.size() == 0)
+                    branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
+                else
+                    for (int j = 0; j < branchesToAdd.size(); j++) {
+                        if (branchesToAdd[j].first == BranchName)
+                            branchesToAdd[j].second = evt;
+                        else if (j == branchesToAdd.size() - 1)
                             branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
-                        else
-                            for (int j = 0; j < branchesToAdd.size(); j++) {
-                                if (branchesToAdd[j].first == BranchName)
-                                    branchesToAdd[j].second = evt;
-                                else if (j == branchesToAdd.size() - 1)
-                                    branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
-                            }
                     }
-                }
             }
-            if (fTreeBranchDef[i] == "outputevent") {
-                TRestEvent* evt = fOutputEvent;
+            for (unsigned int i = 0; i < fProcessChain.size(); i++) {
+                TRestEvent* evt = fProcessChain[i]->GetOutputEvent();
                 {
                     TString BranchName = (TString)evt->GetName() + "Branch";
                     if (branchesToAdd.size() == 0)
@@ -362,12 +362,26 @@ void TRestThread::PrepareToProcess(bool testrun) {
                                 branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
                         }
                 }
-            }
-            if (fTreeBranchDef[i] == "inputanalysis") {
-                if (fHostRunner->GetInputAnalysisTree() != NULL)
-                    fAnalysisTree->CopyObservableList(fHostRunner->GetInputAnalysisTree(), "old_");
             }
         }
+
+        if (outputConfig[2] == true) {
+            // item: output event
+            TRestEvent* evt = fOutputEvent;
+            {
+                TString BranchName = (TString)evt->GetName() + "Branch";
+                if (branchesToAdd.size() == 0)
+                    branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
+                else
+                    for (int j = 0; j < branchesToAdd.size(); j++) {
+                        if (branchesToAdd[j].first == BranchName)
+                            branchesToAdd[j].second = evt;
+                        else if (j == branchesToAdd.size() - 1)
+                            branchesToAdd.push_back(pair<TString, TRestEvent*>(BranchName, evt));
+                    }
+            }
+        }
+
         auto iter = branchesToAdd.begin();
         while (iter != branchesToAdd.end()) {
             fEventTree->Branch(iter->first, iter->second->ClassName(), iter->second);
@@ -408,14 +422,17 @@ void TRestThread::PrepareToProcess(bool testrun) {
         fEventTree = new TTree((TString) "EventTree_" + ToString(fThreadId), "dummyTree");
         // fEventTree->CreateEventBranches();
 
-        for (int i = 0; i < fTreeBranchDef.size(); i++) {
-            if (fTreeBranchDef[i] == "outputevent") {
+            if (outputConfig[2] == true) {
                 TString BranchName = (TString)fInputEvent->GetName() + "Branch";
                 if (fEventTree->GetBranch(BranchName) == NULL)  // avoid duplicated branch
                     fEventTree->Branch(BranchName, fInputEvent->ClassName(), fInputEvent);
             }
+            if (outputConfig[3] == false) {
+                cout << "Error! output analysis must be on!" << endl;
+                exit(1);
+            }
             // currently external process analysis is not supported!
-        }
+        
         // if (fEventTree->GetListOfBranches()->GetLast() < 1)
         //{
         //	delete fEventTree; fEventTree = NULL;
