@@ -37,7 +37,7 @@ testMeta:
   type: testMetarestG4
   script:
     - . /builds/REST_v2/install/thisREST.sh
-    - cd /builds/REST_v2/install/example
+    - cd /builds/REST_v2/install/examples
     - restManager --c saveMetadataFile.rml --o meta.root
   artifacts:
     paths:
@@ -48,8 +48,8 @@ testProcess:
   type: testProcess
   script:
     - . /builds/REST_v2/install/thisREST.sh
-    - cd /builds/REST_v2/install/example
-    - restManager --c electronicsSimu.rml --i restG4template/example_output.root --o abc.root
+    - cd /builds/REST_v2/install/examples
+    -  restManager --c electronicsSimu.rml --i "01.NLDBD-PandaX-III/Run*_NLDBD_Test.root" --o abc.root
   artifacts:
     paths:
       - /builds/REST_v2/install
