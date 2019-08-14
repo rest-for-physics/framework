@@ -49,7 +49,7 @@ testProcess:
   script:
     - . /builds/REST_v2/install/thisREST.sh
     - cd /builds/REST_v2/install/examples
-    -  restManager --c electronicsSimu.rml --i "01.NLDBD-PandaX-III/Run*_NLDBD_Test.root" --o abc.root
+    - restManager --c electronicsSimu.rml --i "01.NLDBD-PandaX-III/Run*_NLDBD_Test.root" --o abc.root
   artifacts:
     paths:
       - /builds/REST_v2/install
