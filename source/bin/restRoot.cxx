@@ -43,16 +43,19 @@ int main(int argc, char* argv[]) {
         string opt = (string)argv[i];
         if (TRestTools::fileExists(opt) && TRestTools::isRootFile(opt)) {
             printf("\nAttaching file %s as run%i...\n", opt.c_str(), Nfile);
-            gROOT->ProcessLine(Form("TRestRun* run%i =new TRestRun(\"%s\");", Nfile, opt.c_str()));
 
             TRestRun* runTmp = new TRestRun(opt);
-            TString eventType = runTmp->GetEventTree()->GetTitle();
-            // Removing the Tree ending
-            eventType = eventType(0, eventType.Length() - 4);
+            gROOT->ProcessLine(Form("TRestRun* run%i = (TRestRun*)0x%x;", Nfile, runTmp));
 
-            printf("Attaching eventTree %s as ev%i...\n", eventType.Data(), Nfile);
-            gROOT->ProcessLine(Form("%s* ev%i =new %s();", eventType.Data(), Nfile, eventType.Data()));
-            gROOT->ProcessLine(Form("run%i->SetInputEvent( ev%i );", Nfile, Nfile));
+			if (runTmp->GetEventTree() != NULL) {
+                TString eventType = runTmp->GetEventTree()->GetTitle();
+                // Removing the Tree ending
+                eventType = eventType(0, eventType.Length() - 4);
+
+                printf("Attaching eventTree %s as ev%i...\n", eventType.Data(), Nfile);
+                gROOT->ProcessLine(Form("%s* ev%i =new %s();", eventType.Data(), Nfile, eventType.Data()));
+                gROOT->ProcessLine(Form("run%i->SetInputEvent( ev%i );", Nfile, Nfile));
+            }
 
             cout << endl;
             cout << "Attaching metadata structures..." << endl;
