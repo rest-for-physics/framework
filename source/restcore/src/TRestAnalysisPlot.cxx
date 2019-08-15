@@ -550,8 +550,13 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         }
     /* }}} */
 
-    fHistoOutputFile = ReplaceFilenameTags(fHistoOutputFile, runs[0][0]);
-    TFile* f = new TFile(fHistoOutputFile, "RECREATE");
+    TFile* f = fRun->GetOutputFile();
+    if (f == NULL) {
+        f = fRun->FormOutputFile();
+    }
+
+    //fHistoOutputFile = ReplaceFilenameTags(fHistoOutputFile, runs[0][0]);
+    //TFile* f = new TFile(fHistoOutputFile, "RECREATE");
 
     cout << "Saving histograms to ROOT file : " << fHistoOutputFile << endl;
 
@@ -794,7 +799,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
 	GetChar();
 
-    f->Close();
+	this->Write();
+    fRun->CloseFile();
 }
 
 void TRestAnalysisPlot::SavePlotToPDF(TString plotName, TString fileName) {
