@@ -13,55 +13,55 @@ build:
   type: build
   script:
     - mkdir /tmp/rest && cd /tmp/rest
-    - rm -rf /builds/REST_v2/install
-    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DINSTALL_PREFIX=/builds/REST_v2/install
-    - make install
-    - . /builds/REST_v2/install/thisREST.sh
+    - rm -rf ${CI_PROJECT_DIR}/install
+    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
+    - make install -j2
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
   artifacts:
     paths:
-      - /builds/REST_v2/install
-    expire_in: 1 week
+      - ${CI_PROJECT_DIR}/install
+    expire_in: 1 day
       
 testrestG4:
   type: testMetarestG4
   script:
-    - . /builds/REST_v2/install/thisREST.sh
-    - cd /builds/REST_v2/install/examples/01.NLDBD-PandaX-III/
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/
     - restG4 NLDBD.rml
   artifacts:
     paths:
-      - /builds/REST_v2/install
+      - ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/Run*_NLDBD_Test.root
     expire_in: 1 day
 
 testMeta:
   type: testMetarestG4
   script:
-    - . /builds/REST_v2/install/thisREST.sh
-    - cd /builds/REST_v2/install/examples
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples
     - restManager --c saveMetadataFile.rml --o meta.root
   artifacts:
     paths:
-      - /builds/REST_v2/install
+      - ${CI_PROJECT_DIR}/install/examples/meta.root
     expire_in: 1 day
       
 testProcess:
   type: testProcess
   script:
-    - . /builds/REST_v2/install/thisREST.sh
-    - cd /builds/REST_v2/install/examples
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples
     - restManager --c electronicsSimu.rml --i "01.NLDBD-PandaX-III/Run*_NLDBD_Test.root" --o abc.root
   artifacts:
     paths:
-      - /builds/REST_v2/install
-    expire_in: 1 day
+      - ${CI_PROJECT_DIR}/install/examples/abc.root
+    expire_in: 1 week
 
 deploy:
   type: deploy
   only:
     - tags
   script:
-    - . /builds/REST_v2/install/thisREST.sh
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - rest-config --welcome
   artifacts:
     paths:
-      - /builds/REST_v2/install
+      - ${CI_PROJECT_DIR}/install
