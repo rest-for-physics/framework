@@ -2,8 +2,11 @@ image: nkx1231/root6-geant4-garfield:0.2
 
 stages:
   - build
-  - testMetarestG4
-  - testProcess
+  - opening
+  - generate
+  - process1
+  - process2
+  - drawing
   - deploy
 
 before_script:
@@ -21,9 +24,18 @@ build:
     paths:
       - ${CI_PROJECT_DIR}/install
     expire_in: 1 day
-      
+     
+
+
+testOpeningOld:
+  type: opening
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+
+
+
 testrestG4:
-  type: testMetarestG4
+  type: generate
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/
@@ -35,7 +47,7 @@ testrestG4:
     expire_in: 1 day
 
 testMeta:
-  type: testMetarestG4
+  type: generate
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples
@@ -45,16 +57,67 @@ testMeta:
       - ${CI_PROJECT_DIR}/install/examples/meta.root
     expire_in: 1 day
       
-testProcess: 
-  type: testProcess
+
+
+testProcessRaw: 
+  type: process1
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples
-    - restManager --c electronicsSimu.rml --i "01.NLDBD-PandaX-III/Run00001_NLDBD_Test.root" --o abc.root
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/install/examples/abc.root
+      - ${CI_PROJECT_DIR}/install/examples/rawAna.root
     expire_in: 1 week
+
+testProcessElectronics: 
+  type: process1
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples
+    - restManager --c electronicsSimu.rml --i "01.NLDBD-PandaX-III/Run00001_NLDBD_Test.root" --o electronics.root
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/install/examples/electronics.root
+    expire_in: 1 week
+
+testProcessG4Ana: 
+  type: process1
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples
+    - restManager --c g4Analysis.rml --i "01.NLDBD-PandaX-III/Run00001_NLDBD_Test.root" --o g4Ana.root
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/install/examples/g4Ana.root
+    expire_in: 1 week
+
+
+
+testProcessRest: 
+  type: process2
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples
+    - restManager --c g4ToHits.rml --i g4Ana.root --o g4Hits.root
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/install/examples/g4Hits.root
+    expire_in: 1 week
+
+
+
+testDrawing: 
+  type: drawing
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples
+    - restManager --c g4ToHits.rml --i g4Ana.root --o g4Hits.root
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/install/examples/g4Hits.root
+    expire_in: 1 week
+
+
 
 deploy:
   type: deploy
