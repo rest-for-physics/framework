@@ -164,7 +164,8 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     AddFileFromEnv();
 
     fPlotMode = GetParameter("plotMode", "compare");
-    fHistoOutputFile = GetParameter("histoFilename", "/tmp/histos.root");
+    fHistoOutputFile = GetParameter("histoFilename", "");
+    if (fHistoOutputFile == "") fHistoOutputFile = GetParameter("outputFile", "/tmp/histos.root");
 
     position = 0;
     string canvasDefinition;
@@ -172,6 +173,9 @@ void TRestAnalysisPlot::InitFromConfigFile() {
         fCanvasSize = StringTo2DVector(GetFieldValue("size", canvasDefinition));
         fCanvasDivisions = StringTo2DVector(GetFieldValue("divide", canvasDefinition));
         fCanvasSave = GetFieldValue("save", canvasDefinition);
+        if (fCanvasSave == "Not defined") {
+            fCanvasSave = GetParameter("pdfFilename", "/tmp/restplot.pdf");
+        }
     }
 
     vector<TString> globalCuts;
@@ -483,14 +487,16 @@ void TRestAnalysisPlot::AddMissingStyles() {
 void TRestAnalysisPlot::AddFileFromExternalRun() {
     if (fHostmgr->GetRunInfo() != NULL && fNFiles == 0) {
         fRun = fHostmgr->GetRunInfo();
-        if (fRun->GetOutputFileName() != "") {
+
+        if (fHostmgr->GetProcessRunner() != NULL && fRun->GetOutputFileName() != "" ) {
             AddFile(fRun->GetOutputFileName());
             return;
-        }
-
-        auto names = fRun->GetInputFileNames();
-        for (int i = 0; i < names.size(); i++) {
-            this->AddFile(names[i]);
+        } else if (fRun->GetInputFileNames().size() != 0) {
+            auto names = fRun->GetInputFileNames();
+            for (int i = 0; i < names.size(); i++) {
+                this->AddFile(names[i]);
+            }
+            return;
         }
     }
 }
@@ -786,9 +792,9 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     fCanvasSave = ReplaceFilenameTags(fCanvasSave, runs[0][0]);
     if (fCanvasSave != "") fCombinedCanvas->Print(fCanvasSave);
 
-    f->Close();
+	GetChar();
 
-    GetChar();
+    f->Close();
 }
 
 void TRestAnalysisPlot::SavePlotToPDF(TString plotName, TString fileName) {

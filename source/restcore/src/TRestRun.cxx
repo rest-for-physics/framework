@@ -347,7 +347,7 @@ void TRestRun::EndOfInit() {
         essential << "(" << fInputFileNames.size() << " added files)" << endl;
     }
 
-    cout << "Output file: \"" << fOutputFileName << "\"" << endl;
+    //cout << "Output file: \"" << fOutputFileName << "\"" << endl;
 }
 
 ///////////////////////////////////////////////

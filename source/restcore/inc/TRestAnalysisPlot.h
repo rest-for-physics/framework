@@ -33,9 +33,9 @@ class TRestAnalysisPlot : public TRestMetadata {
     std::vector<TString> fLegendName;
 
 #ifndef __CINT__
-    TRestRun* fRun;
+    TRestRun* fRun; //!
 
-    TCanvas* fCombinedCanvas;
+    TCanvas* fCombinedCanvas; //!
 
     TString fPlotMode;
     TString fHistoOutputFile;
