@@ -44,7 +44,7 @@ testMeta:
       - ${CI_PROJECT_DIR}/install/examples/meta.root
     expire_in: 1 day
       
-testProcess:
+testProcess: 
   type: testProcess
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
