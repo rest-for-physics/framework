@@ -27,10 +27,11 @@ testrestG4:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/
+    - echo 1 > ${CI_PROJECT_DIR}/install/runNumber
     - restG4 NLDBD.rml
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/Run*_NLDBD_Test.root
+      - ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/Run00001_NLDBD_Test.root
     expire_in: 1 day
 
 testMeta:
@@ -49,7 +50,7 @@ testProcess:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples
-    - restManager --c electronicsSimu.rml --i "01.NLDBD-PandaX-III/Run*_NLDBD_Test.root" --o abc.root
+    - restManager --c electronicsSimu.rml --i "01.NLDBD-PandaX-III/Run00001_NLDBD_Test.root" --o abc.root
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install/examples/abc.root
