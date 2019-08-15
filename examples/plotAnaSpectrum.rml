@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<TRestManager name="SpecPlot" title="Example" verboseLevel="info" >
+
+  <TRestRun name="SJTU_Proto" >
+    <parameter name="runNumber" value="-1"/>//change this value to "auto" to enable database
+  </TRestRun>
+  
+  <TRestAnalysisPlot name="restplot" title="Basic Plots">
+    
+    <canvas size="(1000,800)" divide="(2,1)"/>
+
+    <globalCut name="Some_Analysis_Variable" condition="&lt;50" value="OFF" />
+
+    <plot name="Baseline" title="Baseline average" xlabel="Baseline [ADC units]" ylabel="Counts"
+            logscale="false" value="ON" >
+      <variable name="sAna_BaseLineMean" range="(0,1000)" nbins="100" />
+    </plot>
+
+    <plot name="Spectrum" title="ADC energy spectrum" xlabel="Threshold integral energy [ADC units]" ylabel="Counts"
+            logscale="true" value="ON" >
+      <variable name="sAna_ThresholdIntegral" range="(10,100000)" nbins="1000" />
+    </plot>
+
+  </TRestAnalysisPlot>
+
+  <addTask command="restplot->PlotCombinedCanvas()" value="ON"/>
+
+</TRestManager>
+
+
+<!--paramater here is accessible to all the classes-->
