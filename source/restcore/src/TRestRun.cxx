@@ -93,6 +93,7 @@ void TRestRun::Initialize() {
     fCurrentEvent = 0;
     fEventBranchLoc = -1;
     fFileProcess = NULL;
+    fSaveHistoricData = true;
 
     return;
 }
@@ -828,14 +829,9 @@ TFile* TRestRun::FormOutputFile() {
     fEventTree = new TTree("EventTree", "EventTree");
     fAnalysisTree->CreateEventBranches();
     // fEventTree->CreateEventBranches();
-    this->Write();
     fAnalysisTree->Write();
-    for (int i = 0; i < fMetadataInfo.size(); i++) {
-        fMetadataInfo[i]->Write();
-    }
-    if (fInputEvent != NULL) {
-        // in future we will add lines to create event tree
-    }
+    this->WriteWithDataBase();
+
     return fOutputFile;
 }
 
@@ -848,7 +844,7 @@ TFile* TRestRun::FormOutputFile() {
 /// not exist, it will create new if "force" is true. level>=2 : add a new file
 /// in database. run number is determined in BeginOfInit(). subrun number is 0.
 /// if not exist, it will create new if "force" is true.
-void TRestRun::WriteWithDataBase(int level, bool force) {
+void TRestRun::WriteWithDataBase() {
     TRestAnalysisTree* tree = NULL;
 
     debug << "TRestRun::WriteWithDataBase. Getting entries in analysisTree" << endl;
@@ -888,8 +884,9 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
         } else {
             debug << "IS historic" << endl;
             fMetadataInfo[i]->SetName(("Historic_" + (string)fMetadataInfo[i]->ClassName()).c_str());
-            fMetadataInfo[i]->Write(("Historic_" + (string)fMetadataInfo[i]->ClassName()).c_str(),
-                                    kOverwrite);
+            if (fSaveHistoricData)
+                fMetadataInfo[i]->Write(("Historic_" + (string)fMetadataInfo[i]->ClassName()).c_str(),
+                                        kOverwrite);
         }
     }
     // write to database
@@ -903,7 +900,7 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
         } else {
             auto db = TRestDataBase::instantiate();
             if (db != NULL) {
-                if (level == 0) {
+                /*if (level == 0) {
                     db->new_run();
                 } else if (level == 1) {
                     if (db->query_run(fRunNumber) == -1)
@@ -953,7 +950,7 @@ void TRestRun::WriteWithDataBase(int level, bool force) {
                 }
 
                 fout << "DataBase Entry Added! Run Number: " << db->getcurrentrun() << "."
-                     << db->getcurrentsubrun() << ", File ID: " << fileid << endl;
+                     << db->getcurrentsubrun() << ", File ID: " << fileid << endl;*/
 
                 delete db;
             }

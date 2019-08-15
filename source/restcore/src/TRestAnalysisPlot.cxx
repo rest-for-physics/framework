@@ -552,6 +552,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
     TFile* f = fRun->GetOutputFile();
     if (f == NULL) {
+        fRun->SetHistoricMetadataSaving(false);
         f = fRun->FormOutputFile();
     }
 
