@@ -668,6 +668,10 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
         fInputEvent = fFileProcess->ProcessEvent(NULL);
         fFileProcess->EndOfEventProcess();
         fBytesReaded = fFileProcess->GetTotalBytesReaded();
+        if (targettree != NULL) {
+            for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
+                targettree->SetObservableValue(n, fAnalysisTree->GetObservableRef(n));
+        }
         fCurrentEvent++;
     } else {
         debug << "TRestRun: getting next event from root file" << endl;
@@ -679,9 +683,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
                 fBytesReaded += fAnalysisTree->GetEntry(fCurrentEvent);
                 if (targettree != NULL) {
                     for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
-                        targettree->SetObservableValue(
-                            n, fAnalysisTree->GetObservableRef(
-                                   n));  // this is problematic if the observable is not in base type
+                        targettree->SetObservableValue(n, fAnalysisTree->GetObservableRef(n));
                 }
                 if (fEventTree != NULL) {
                     fBytesReaded += ((TBranch*)fEventTree->GetListOfBranches()->UncheckedAt(fEventBranchLoc))
@@ -827,7 +829,7 @@ TFile* TRestRun::FormOutputFile() {
     fOutputFile = new TFile(fOutputFileName, "recreate");
     fAnalysisTree = new TRestAnalysisTree("AnalysisTree", "AnalysisTree");
     fEventTree = new TTree("EventTree", "EventTree");
-    fAnalysisTree->CreateEventBranches();
+    fAnalysisTree->CreateBranches();
     // fEventTree->CreateEventBranches();
     fAnalysisTree->Write();
     this->WriteWithDataBase();
@@ -1011,7 +1013,12 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
             fInputEvent->SetTimeStamp(fStartTime);
         }
         fInputFile = NULL;
-        fAnalysisTree = NULL;
+        fAnalysisTree = new TRestAnalysisTree("externalProcessAna", "externalProcessAna");
+        p->SetAnalysisTree(fAnalysisTree);
+        p->ConfigAnalysisTree();
+
+		GetNextEvent(fInputEvent, 0);
+        fAnalysisTree->CreateBranches();
         info << "The external file process has been set! Name : " << fFileProcess->GetName() << endl;
     } else {
         if (fFileProcess != NULL) {

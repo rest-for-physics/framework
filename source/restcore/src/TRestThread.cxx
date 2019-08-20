@@ -262,8 +262,19 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
         }
         if (outputConfig[0] == true) {
             // item: input analysis
-            if (fHostRunner->GetInputAnalysisTree() != NULL)
-                tempTree->CopyObservableList(fHostRunner->GetInputAnalysisTree(), "old_");
+            // the observables from input root file or from the external process branch.
+            TRestAnalysisTree* inputana = fHostRunner->GetInputAnalysisTree();
+            if (inputana != NULL) {
+                if (inputana->IsBranchesCreated()) {
+                    tempTree->CopyObservableList(inputana, "");
+                } 
+				else if (inputana->IsConnected()) {
+                    tempTree->CopyObservableList(inputana, "old_");
+                } 
+				else {
+                    cout << "Error! input analysis tree is not ready! observables not added!" << endl;
+				}
+            }
         }
         if (outputConfig[3] == false) {
             cout << "Error! output analysis must be on!" << endl;
@@ -321,7 +332,6 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
         // create dummy tree to store branch addresses.
         debug << "Creating Analysis Tree..." << endl;
         fAnalysisTree = new TRestAnalysisTree("AnalysisTree_" + ToString(fThreadId), "dummyTree");
-        fAnalysisTree->CreateEventBranches();
         fAnalysisTree->CopyObservableList(tempTree);
         fEventTree = new TTree((TString) "EventTree_" + ToString(fThreadId), "dummyTree");
         for (unsigned int i = 0; i < fProcessChain.size(); i++) {
@@ -335,6 +345,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
         // event
         if (outputConfig[1] == true) {
             // item: input event
+            // the input events of each processes in the process chain(can be many)
             TRestEvent* evt = fInputEvent;
             {
                 TString BranchName = (TString)evt->GetName() + "Branch";
@@ -367,6 +378,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
 
         if (outputConfig[2] == true) {
             // item: output event
+            // output event of the last process in the process chain
             TRestEvent* evt = fOutputEvent;
             {
                 TString BranchName = (TString)evt->GetName() + "Branch";
@@ -394,7 +406,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
             fEventTree = NULL;
         }
 
-        fAnalysisTree->CreateObservableBranches();
+        fAnalysisTree->CreateBranches();
 
         // create output temp file for process-defined output object
 
@@ -418,26 +430,25 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
 
         debug << "Creating Analysis Tree..." << endl;
         fAnalysisTree = new TRestAnalysisTree("AnalysisTree_" + ToString(fThreadId), "dummyTree");
-        fAnalysisTree->CreateEventBranches();
         fEventTree = new TTree((TString) "EventTree_" + ToString(fThreadId), "dummyTree");
         // fEventTree->CreateEventBranches();
 
-            if (outputConfig[2] == true) {
-                TString BranchName = (TString)fInputEvent->GetName() + "Branch";
-                if (fEventTree->GetBranch(BranchName) == NULL)  // avoid duplicated branch
-                    fEventTree->Branch(BranchName, fInputEvent->ClassName(), fInputEvent);
-            }
-            if (outputConfig[3] == false) {
-                cout << "Error! output analysis must be on!" << endl;
-                exit(1);
-            }
-            // currently external process analysis is not supported!
-        
+        if (outputConfig[2] == true) {
+            TString BranchName = (TString)fInputEvent->GetName() + "Branch";
+            if (fEventTree->GetBranch(BranchName) == NULL)  // avoid duplicated branch
+                fEventTree->Branch(BranchName, fInputEvent->ClassName(), fInputEvent);
+        }
+        if (outputConfig[3] == false) {
+            cout << "Error! output analysis must be on!" << endl;
+            exit(1);
+        }
+        // currently external process analysis is not supported!
+
         // if (fEventTree->GetListOfBranches()->GetLast() < 1)
         //{
         //	delete fEventTree; fEventTree = NULL;
         //}
-        fAnalysisTree->CreateObservableBranches();
+        fAnalysisTree->CreateBranches();
     }
 }
 
