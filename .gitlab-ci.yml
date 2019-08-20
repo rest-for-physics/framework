@@ -111,10 +111,10 @@ testDrawing:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples
-    - restManager --c g4ToHits.rml --i g4Ana.root --o g4Hits.root
+    - restManager --c plotAnaSpectrum.rml --i electronics.root --o spec.root --p spec.pdf
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/install/examples/g4Hits.root
+      - ${CI_PROJECT_DIR}/install/examples/spec.pdf
     expire_in: 1 week
 
 
