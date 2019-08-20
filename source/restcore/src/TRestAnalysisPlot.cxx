@@ -399,9 +399,8 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     Int_t nPlots = (Int_t)fPlotString.size() + (Int_t)fHistoNames.size();
 
     if (nPlots > maxPlots) {
-        cout << "REST ERROR: Your canvas divisions (" << fCanvasDivisions.X() << " , "
-             << fCanvasDivisions.Y();
-        cout << ") are not enough to show " << nPlots << " plots" << endl;
+        error << "Your canvas divisions (" << fCanvasDivisions.X() << " , " << fCanvasDivisions.Y()
+              << ") are not enough to show " << nPlots << " plots" << endl;
         exit(1);
     }
 }
@@ -430,7 +429,7 @@ void TRestAnalysisPlot::AddFile(TString fileName) {
         fFileNames[0].push_back(fileName);
         fNFiles++;
     } else {
-        cout << "REST Warning. TRestAnalysisPlot : fClassifyBy not recognized" << endl;
+        warning << "TRestAnalysisPlot : fClassifyBy not recognized" << endl;
 
         fFileNames[0].push_back(fileName);
         fNFiles++;
@@ -457,7 +456,7 @@ Int_t TRestAnalysisPlot::GetPlotIndex(TString plotName) {
     for (unsigned int n = 0; n < fPlotNames.size(); n++)
         if (fPlotNames[n] == plotName) return n;
 
-    cout << "REST WARNING : GetPlotIndex. Plot name " << plotName << " not found" << endl;
+    warning << "TRestAnalysisPlot::GetPlotIndex. Plot name " << plotName << " not found" << endl;
     return -1;
 }
 
@@ -647,15 +646,14 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 }
 
                 if (trees[i][m]->Draw(plotString, fCutString[n], fPlotOption[n]) == -1) {
-                    cout << endl;
-                    cout << "REST ERROR. TRestAnalysisPlot::PlotCombinedCanvas." << endl;
-                    cout << "Plot string not properly constructed. Does the analysis "
-                            "observable exist inside the file?"
-                         << endl;
-                    cout << "Use \" restManager PrintTrees FILE.ROOT\" to get a list of "
-                            "existing observables."
-                         << endl;
-                    cout << endl;
+                    error << endl;
+                    error << "TRestAnalysisPlot::PlotCombinedCanvas. Plot string not properly constructed. "
+                             "Does the analysis observable exist inside the file?"
+                          << endl;
+                    error << "Use \" restManager PrintTrees FILE.ROOT\" to get a list of "
+                             "existing observables."
+                          << endl;
+                    error << endl;
                     exit(1);
                 }
             }
@@ -760,7 +758,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         TH1D* h = (TH1D*)runs[0][0]->GetInputFile()->Get(fHistoNames[n]);
 
         if (!h) {
-            cout << "REST ERROR. TRestAnalysisPlot. A histogram with name : " << fHistoNames[n]
+            error << "REST ERROR. TRestAnalysisPlot. A histogram with name : " << fHistoNames[n]
                  << " does not exist in input file" << endl;
             exit(1);
         }
@@ -810,7 +808,7 @@ void TRestAnalysisPlot::SavePlotToPDF(TString plotName, TString fileName) {
     if (index >= 0)
         SavePlotToPDF(index, fileName);
     else
-        cout << "Save to plot failed. Plot name " << plotName << " not found" << endl;
+        warning << "Save to plot failed. Plot name " << plotName << " not found" << endl;
 }
 
 void TRestAnalysisPlot::SavePlotToPDF(Int_t n, TString fileName) {
