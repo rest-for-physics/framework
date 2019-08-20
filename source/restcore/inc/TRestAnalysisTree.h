@@ -50,10 +50,15 @@ class TRestAnalysisTree : public TTree {
     void PrintObservable(int N);
     void ConnectEventBranches();
     void ConnectObservables();
+    void CreateEventBranches();
+    void CreateObservableBranches();
 
    protected:
    public:
     void Initialize();
+
+	bool IsConnected() { return fConnected; }
+    bool IsBranchesCreated() { return fBranchesCreated; }
 
     Int_t GetObservableID(TString obsName) {
         for (int i = 0; i < GetNumberOfObservables(); i++)
@@ -75,7 +80,7 @@ class TRestAnalysisTree : public TTree {
 
     Int_t GetNumberOfObservables() { return fNObservables; }
 
-    // we should avoid using them
+    // observable method
     TString GetObservableName(Int_t n) {
         return fObservableNames[n];
     }  // TODO implement error message in case n >= fNObservables
@@ -127,8 +132,7 @@ class TRestAnalysisTree : public TTree {
     }
     void SetObservableValue(Int_t n, any value) { value >> fObservableMemory[n]; }
 
-    void CreateEventBranches();
-    void CreateObservableBranches();
+    void CreateBranches();
 
     void CopyObservableList(TRestAnalysisTree* from, string prefix = "");
 
@@ -138,7 +142,7 @@ class TRestAnalysisTree : public TTree {
     void SetSubRunOrigin(Int_t sub_run_origin) { fSubRunOrigin = sub_run_origin; }
 
     void SetEventInfo(TRestEvent* evt);
-    Int_t FillEvent(TRestEvent* evt);
+    Int_t Fill(TRestEvent* evt=0);
 
     Int_t AddObservable(TString objName, TRestMetadata* meta, TString description = "");
     Int_t AddObservable(TString observableName, TString observableType = "double", TString description = "");
