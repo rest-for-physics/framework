@@ -153,16 +153,6 @@ void TRestAnalysisPlot::InitFromConfigFile() {
         }
     }
 
-    position = 0;
-    string addFileString;
-    while ((addFileString = GetKEYDefinition("addFile", position)) != "") {
-        TString inputfile = GetFieldValue("name", addFileString);
-
-        this->AddFile(inputfile);
-    }
-    AddFileFromExternalRun();
-    AddFileFromEnv();
-
     fPlotMode = GetParameter("plotMode", "compare");
     fHistoOutputFile = GetParameter("histoFilename", "");
     if (fHistoOutputFile == "") fHistoOutputFile = GetParameter("outputFile", "/tmp/histos.root");
@@ -514,6 +504,15 @@ void TRestAnalysisPlot::AddFileFromEnv() {
 }
 
 void TRestAnalysisPlot::PlotCombinedCanvas() {
+    TiXmlElement* ele = fElement->FirstChildElement("addFile");
+    while (ele != NULL) {
+        TString inputfile = GetParameter("name", ele);
+        this->AddFile(inputfile);
+        ele = ele->NextSiblingElement("addFile");
+    }
+    AddFileFromExternalRun();
+    AddFileFromEnv();
+
     AddMissingStyles();
 
     vector<TRestRun*> runs[REST_MAX_TAGS];
@@ -758,7 +757,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         TH1D* h = (TH1D*)runs[0][0]->GetInputFile()->Get(fHistoNames[n]);
 
         if (!h) {
-            error << "REST ERROR. TRestAnalysisPlot. A histogram with name : " << fHistoNames[n]
+            error << "TRestAnalysisPlot. A histogram with name : " << fHistoNames[n]
                  << " does not exist in input file" << endl;
             exit(1);
         }
