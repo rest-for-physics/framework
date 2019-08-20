@@ -74,22 +74,22 @@ string TRestStringOutput::FormattingPrintString(string input) {
         return string(length, input[0]);
     }
 
-    string output(length, ' ');
-
-    int Lstr = input.size();
-    int Lfmt = formatstring.size();
-
-    int startblank;
-    if (useborder || orientation == 0) {
-        startblank = (length - Lstr) / 2;
-    } else {
-        startblank = Lfmt;
-    }
-    if (startblank < 0) {
-        startblank = 0;
-    }
-
     if (useborder) {
+        string output(length, ' ');
+
+        int Lstr = input.size();
+        int Lfmt = formatstring.size();
+
+        int startblank;
+        if (useborder || orientation == 0) {
+            startblank = (length - Lstr) / 2;
+        } else {
+            startblank = Lfmt;
+        }
+        if (startblank < 0) {
+            startblank = 0;
+        }
+
         string& border = formatstring;
         for (unsigned int i = 0; i < Lfmt && i < length; i++) {
             output[i] = border[i];
@@ -105,24 +105,12 @@ string TRestStringOutput::FormattingPrintString(string input) {
             }
             output[startblank + i] = input[i];
         }
-    } else {
-        string& header = formatstring;
-        for (unsigned int i = 0; i < Lfmt && i < length; i++) {
-            output[i] = header[i];
-        }
 
-        for (int i = 0; i < Lstr; i++) {
-            if (startblank + i > length - 1) {
-                output[length - 3] = '.';
-                output[length - 2] = '.';
-                output[length - 1] = '.';
-                return output;
-            }
-            output[startblank + i] = input[i];
-        }
+        return output;
+    } 
+	else {
+        return formatstring + input;
     }
-
-    return output;
 }
 
 void TRestStringOutput::setlength(int n) {
