@@ -6,7 +6,7 @@
     <parameter name="runNumber" value="-1"/>//change this value to "auto" to enable database
   </TRestRun>
   
-  <TRestAnalysisPlot name="restplot" title="Basic Plots">
+  <TRestAnalysisPlot name="restplot" title="Basic Plots" previewPlot="false">
     
     <canvas size="(1000,800)" divide="(2,1)"/>
 

@@ -488,7 +488,7 @@ void TRestAnalysisPlot::AddFileFromExternalRun() {
     if (fHostmgr->GetRunInfo() != NULL && fNFiles == 0) {
         fRun = fHostmgr->GetRunInfo();
 
-        if (fHostmgr->GetProcessRunner() != NULL && fRun->GetOutputFileName() != "" ) {
+        if (fHostmgr->GetProcessRunner() != NULL && fRun->GetOutputFileName() != "") {
             AddFile(fRun->GetOutputFileName());
             return;
         } else if (fRun->GetInputFileNames().size() != 0) {
@@ -556,8 +556,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         f = fRun->FormOutputFile();
     }
 
-    //fHistoOutputFile = ReplaceFilenameTags(fHistoOutputFile, runs[0][0]);
-    //TFile* f = new TFile(fHistoOutputFile, "RECREATE");
+    // fHistoOutputFile = ReplaceFilenameTags(fHistoOutputFile, runs[0][0]);
+    // TFile* f = new TFile(fHistoOutputFile, "RECREATE");
 
     cout << "Saving histograms to ROOT file : " << fHistoOutputFile << endl;
 
@@ -798,9 +798,10 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     fCanvasSave = ReplaceFilenameTags(fCanvasSave, runs[0][0]);
     if (fCanvasSave != "") fCombinedCanvas->Print(fCanvasSave);
 
-	GetChar();
-
-	this->Write();
+    if (ToUpper(GetParameter("previewPlot", "TRUE")) == "TRUE") {
+        GetChar();
+    }
+    this->Write();
     fRun->CloseFile();
 }
 
