@@ -54,8 +54,8 @@
     </addProcess>
     <addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="ON" file="processes.rml"/>
     <addProcess type="TRestHitsAnalysisProcess" name="hitsAna" value="OFF" file="processes.rml" />
-    <addProcess type="TRestHitsToTrackProcess" name="hitsToTrack" value="ON"/>
-    <addProcess type="TRestTrackAnalysisProcess" name="tckAna" value="ON" />
+    <addProcess type="TRestHitsToTrackProcess" name="hitsToTrack" value="OFF"/>
+    <addProcess type="TRestTrackAnalysisProcess" name="tckAna" value="OFF" />
 
   </TRestProcessRunner>
 
