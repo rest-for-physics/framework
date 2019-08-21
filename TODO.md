@@ -6,15 +6,15 @@ Use it to discuss about options to solve a particular point, or to inform others
 
 ## A. Isolated topics
 
-* A.1 [ ] A first process, if declared as `external`, cannot access the `analysisTree`. We should override this limitation. Furthermore, it would be desirable that if the first process is `external` and the process itself does not stamp the `eventID`, `timestamp`, etc, an automatic numbering will be assigned by `TRestEventProcess`. E.g. just using the entry number on the `analysisTree`.
+* A.1 [x] A first process, if declared as `external`, cannot access the `analysisTree`. We should override this limitation. Furthermore, it would be desirable that if the first process is `external` and the process itself does not stamp the `eventID`, `timestamp`, etc, an automatic numbering will be assigned by `TRestEventProcess`. E.g. just using the entry number on the `analysisTree`.
 
 * A.2 [ ] Implement a way to define a materials.xml file common to every-one. Avoiding `materials.xml` file to propagate on different geometry setups. Instead, geometry setups will use always a common one that can be validated and maintained by REST users. In summary, find a way that the GDML file will give a reference to `REST_PATH/data/definitions/materials.xml`.
 
 * A.3 [ ] `restG4GammaTransfer` independent calculation.
 
-* A.4 [ ] Plot an analysis tree observable with different cuts using `TRestAnalysisPlot`.
+* A.4 [ ] Plot an analysis tree observable with different cuts using `TRestAnalysisPlot`. See [forum post](http://ezpc10.unizar.es/t/new-feature-to-be-implemented-in-trestanalysisplot/24)
 
-* A.5 [ ] Add `IF` condition option to `RML` files.
+* A.5 [ ] Add `IF` condition option to `RML` files. See [forum post](https://gifna.unizar.es/rest-forum/?question=adding-if-conditions-in-rml-files)
 
 * A.6 [ ] New metadata `TRestSpectrumCalibration` containing members allowing to identify different peaks in the spectrum, including energy, width, tagName, etc. Perhaps an auxiliar `TRestPeak::TObject` can be used to store those values. This metadata structure might be filled by a process `TRestMultiPeakFinderProcess` that fits a branch variable from the `analysisTree`.
 
