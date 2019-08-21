@@ -61,18 +61,23 @@
 /// \code
 /// db->exec("select * into rest_files_bk from rest_files");
 /// \endcode
-TRestDataBase* TRestDataBase::instantiate() {
-    //vector<string> list = TRestTools::GetListOfRESTLibraries();
-    //for (unsigned int n = 0; n < list.size(); n++) {
+TRestDataBase* TRestDataBase::instantiate(string name) {
+    // vector<string> list = TRestTools::GetListOfRESTLibraries();
+    // for (unsigned int n = 0; n < list.size(); n++) {
     //    gSystem->Load(list[n].c_str());
     //}
-
-    TClass* c = TClass::GetClass("TRestDataBaseImpl");
-    if (c != NULL)  // this means we have the package installed
-    {
-        return (TRestDataBase*)c->New();
+    if (name != "") {
+        TClass* c = TClass::GetClass(("TRestDataBase" + name).c_str());
+        if (c != NULL)  // this means we have the package installed
+        {
+            return (TRestDataBase*)c->New();
+        } else {
+            cout << "warning! unrecognized TRestDataBase implementation: \"" << name << "\"" << endl;
+            return new TRestDataBase();
+        }
     }
-    return NULL;
+
+    return new TRestDataBase();
 }
 
 DataBaseFileInfo::DataBaseFileInfo(string filename) {
@@ -116,4 +121,48 @@ void DataBaseFileInfo::Print() {
     cout << "quality: " << quality << endl;
     cout << "start time: " << ToDateTimeString(start) << endl;
     cout << "stop time: " << ToDateTimeString(stop) << endl;
+}
+
+TRestDataBase::TRestDataBase() {
+    auto url = getenv("REST_DBURL");
+    if (url != NULL) {
+        fURL = url;
+    }
+}
+
+int TRestDataBase::get_lastrun() {
+    int runNr;
+    string runFilename = getenv("REST_PATH") + (string) "/runNumber";
+    if (!TRestTools::fileExists(runFilename)) {
+        if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
+            TRestTools::Execute("echo 1 > " + runFilename);
+            runNr = 1;
+        }
+    } else {
+        if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
+            runNr = StringToInteger(TRestTools::Execute("cat " + runFilename));
+        } else {
+            cout << "REST WARNING: runNumber file not writable. auto run number "
+                       "increment is disabled"
+                    << endl;
+        }
+    }
+    return runNr - 1;
+}
+
+int TRestDataBase::add_run(int runnumber) {
+    int newRunNr;
+    if (runnumber == 0) {
+        newRunNr = get_lastrun() + 1;
+    } else if (runnumber > 0) {
+        newRunNr = runnumber;
+    } else {
+        return -1;
+	}
+
+	string runFilename = getenv("REST_PATH") + (string) "/runNumber";
+    if (TRestTools::isPathWritable(getenv("REST_PATH")))
+            TRestTools::Execute("echo " + ToString(newRunNr + 1) + " > " + runFilename);
+
+	return newRunNr;
 }
