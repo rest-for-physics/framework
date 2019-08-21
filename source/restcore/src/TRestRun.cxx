@@ -120,69 +120,48 @@ void TRestRun::BeginOfInit() {
     // runnumber and input file name
     fRunNumber = -1;
     fParentRunNumber = 0;
-    string runNstr = GetParameter("runNumber", "");
+    string runNstr = GetParameter("runNumber", "-1");
     string inputname = GetParameter("inputFile", "");
     inputname = TRestTools::RemoveMultipleSlash(inputname);
-    if (ToUpper(inputname) != "AUTO" && ToUpper(inputname) != "DATABASE") {
+    if (ToUpper(runNstr) == "AUTO" && ToUpper(inputname) == "AUTO") {
+        error << "TRestRun: run number and input file name cannot both be "
+                 "\"AUTO\""
+              << endl;
+        exit(1);
+    }
+
+    if (ToUpper(inputname) != "AUTO") {
         fInputFileName = inputname;
         fInputFileNames = VectorTString_cast(TRestTools::GetFilesMatchingPattern(inputname));
     }
-    if (!isANumber(runNstr) && ToUpper(runNstr) != "AUTO" && ToUpper(runNstr) != "DATABASE") runNstr = "-1";
-    if (isANumber(runNstr)) {
-        auto runN = Split(runNstr, ".");
-        fRunNumber = StringToInteger(runN[0]);
-        if (runN.size() > 1) {
-            fParentRunNumber = StringToInteger(runN[1]);
-        }
+
+    if (ToUpper(runNstr) != "AUTO") {
+        fRunNumber = atoi(runNstr.c_str());
     }
-    // we read the database to get either the runnumber or file name
-    if (ToUpper(runNstr) == "DATABASE" || ToUpper(inputname) == "DATABASE") {
-        TRestDataBase* db = TRestDataBase::instantiate();
-        if (ToUpper(runNstr) == "DATABASE" && ToUpper(inputname) == "DATABASE") {
-            error << "REST ERROR. run number and input file name cannot both be "
-                     "\"DATABASE\""
-                  << endl;
-            exit(1);
-        }
-        if (db == NULL) {
-            error << "TRestRun: The parameter \"inputFile\" is to \"DATABASE\"" << endl;
-            error << "but this REST has no access to sql database." << endl;
-            error << "We cannot find the corresponding input file!" << endl;
-            error << "Please install the package \"restDataBaseImpl\"" << endl;
-            exit(1);
-        }
-        if (ToUpper(runNstr) == "DATABASE") {
-            auto runN = db->getrunwithfilename((string)fInputFileNames[0]);
-            fRunNumber = runN.first;
-            fParentRunNumber = runN.second;
-        }
-        if (ToUpper(inputname) == "DATABASE") {
-            fInputFileName = db->query_filepattern(fRunNumber, fParentRunNumber);
-            auto a = db->query_files(fRunNumber, fParentRunNumber);
-            for (auto b : a) fInputFileNames.push_back((TString)b);
-            if (fInputFileNames.size() == 0) {
-                warning << "REST cannot find any file from database with runnumber " << fRunNumber << endl;
-            }
-        }
-        if (db != NULL) delete db;
+
+    if (ToUpper(inputname) == "AUTO") {
+        string databaseuse = GetParameter("database", "");
+        TRestDataBase* db = TRestDataBase::instantiate(databaseuse);
+        auto files = db->query_files(fRunNumber);
+        fInputFileName = db->query_filepattern(fRunNumber);
+        fInputFileNames = VectorTString_cast(files);
+        delete db;
     }
-    // we assign the runnumber as stored in file $REST_PATH/runNumber
+
     if (ToUpper(runNstr) == "AUTO") {
-        string runFilename = getenv("REST_PATH") + (string) "/runNumber";
-        if (!TRestTools::fileExists(runFilename)) {
-            if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
-                TRestTools::Execute("echo 1 > " + runFilename);
-                fRunNumber = 1;
-            }
+        string databaseuse = GetParameter("database", "");
+        TRestDataBase* db = TRestDataBase::instantiate(databaseuse);
+        auto runs = db->search_with_filepattern((string)fInputFileName);
+        if (runs.size() > 0) {
+            fRunNumber = runs[0];
         } else {
-            if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
-                fRunNumber = StringToInteger(TRestTools::Execute("cat " + runFilename));
-            } else {
-                warning << "REST WARNING: runNumber file not writable. auto run number "
-                           "increment is disabled"
-                        << endl;
-            }
+            fRunNumber = -1;
         }
+        if (fRunNumber == 0) {
+            fRunNumber = db->get_lastrun() + 1;
+        }
+
+        delete db;
     }
 
     // output file pattern
@@ -326,7 +305,7 @@ void TRestRun::EndOfInit() {
     OpenInputFile(0);
 
     if (fInputFileNames.size() == 0) {
-        essential << "ERROR! no input file added" << endl;
+        warning << "no input file added" << endl;
         // throw;
     }
     // single file, not pattern
@@ -817,7 +796,6 @@ TFile* TRestRun::FormOutputFile(vector<string> filenames, string targetfilename)
     //	fMetadataInfo[i]->Write();
     //}
 
-    debug << this->ClassName() << " Created: " << fOutputFileName << endl;
     fout << this->ClassName() << " Created: " << fOutputFileName << endl;
     debug << "fOutputFile " << fOutputFile << endl;
     return fOutputFile;
@@ -838,6 +816,7 @@ TFile* TRestRun::FormOutputFile() {
     fAnalysisTree->Write();
     this->WriteWithDataBase();
 
+	fout << this->ClassName() << " Created: " << fOutputFileName << endl;
     return fOutputFile;
 }
 
@@ -854,6 +833,7 @@ void TRestRun::WriteWithDataBase() {
     TRestAnalysisTree* tree = NULL;
 
     debug << "TRestRun::WriteWithDataBase. Getting entries in analysisTree" << endl;
+
     // record the entries saved
     fEntriesSaved = -1;
     if (fOutputFile != NULL) {
@@ -863,15 +843,16 @@ void TRestRun::WriteWithDataBase() {
         }
     }
     debug << "TRestRun::WriteWithDataBase. Entries found : " << fEntriesSaved << endl;
+
     // record the current time
     time_t timev;
     time(&timev);
     fEndTime = (Double_t)timev;
+
     // save metadata objects in file
     debug << "TRestRun::WriteWithDataBase. Calling this->Write(0,kOverWrite)" << endl;
     this->Write(0, kOverwrite);
     debug << "TRestRun::WriteWithDataBase. Succeed" << endl;
-
     debug << "TRestRun::WriteWithDataBase. fMetadataInfo.size() == " << fMetadataInfo.size() << endl;
     for (int i = 0; i < fMetadataInfo.size(); i++) {
         bool historic = false;
@@ -895,72 +876,40 @@ void TRestRun::WriteWithDataBase() {
                                         kOverwrite);
         }
     }
+
     // write to database
     debug << "TResRun::WriteWithDataBase. Run number is : " << fRunNumber << endl;
     if (fRunNumber != -1) {
-        string runNstr = GetParameter("runNumber", "");
-        if (ToUpper(runNstr) == "AUTO") {
-            string runFilename = getenv("REST_PATH") + (string) "/runNumber";
-            if (TRestTools::isPathWritable(getenv("REST_PATH")))
-                TRestTools::Execute("echo " + ToString(fRunNumber + 1) + " > " + runFilename);
-        } else {
-            auto db = TRestDataBase::instantiate();
-            if (db != NULL) {
-                /*if (level == 0) {
-                    db->new_run();
-                } else if (level == 1) {
-                    if (db->query_run(fRunNumber) == -1)
-                        if (force)
-                            db->new_run(fRunNumber);
-                        else {
-                            delete db;
-                            return;
-                        }
-                    else
-                        db->new_run(fRunNumber);
-                } else {
-                    if (db->query_subrun(fRunNumber, 0) == -1)
-                        if (force)
-                            db->new_run(fRunNumber);
-                        else {
-                            delete db;
-                            return;
-                        }
-                    else
-                        db->set_runnumber(fRunNumber);
-                }
+        string databaseuse = GetParameter("database", "");
+        TRestDataBase* db = TRestDataBase::instantiate(databaseuse);
+        fRunNumber = db->add_run(fRunNumber);
 
-                auto info = DataBaseFileInfo((string)fOutputFileName);
-                info.start = fStartTime;
-                info.stop = fEndTime;
+        auto info = DataBaseFileInfo((string)fOutputFileName);
+        info.start = fStartTime;
+        info.stop = fEndTime;
 
-                if (tree != NULL && tree->GetEntries() > 1) {
-                    int n = tree->GetEntries();
-                    tree->GetEntry(0);
-                    double t1 = tree->GetTimeStamp();
-                    tree->GetEntry(n - 1);
-                    double t2 = tree->GetTimeStamp();
-                    info.evtRate = n / (t2 - t1);
-                }
-
-                int fileid = db->new_runfile((string)fOutputFileName, info);
-
-                if (level <= 1) {
-                    db->set_description((string)fRunDescription);
-                    db->set_runend(fEndTime);
-                    db->set_runstart(fStartTime);
-                    db->set_tag((string)fRunTag);
-                    db->set_type((string)fRunType);
-                } else {
-                    db->set_runend(fEndTime);
-                }
-
-                fout << "DataBase Entry Added! Run Number: " << db->getcurrentrun() << "."
-                     << db->getcurrentsubrun() << ", File ID: " << fileid << endl;*/
-
-                delete db;
-            }
+        if (tree != NULL && tree->GetEntries() > 1) {
+            int n = tree->GetEntries();
+            tree->GetEntry(0);
+            double t1 = tree->GetTimeStamp();
+            tree->GetEntry(n - 1);
+            double t2 = tree->GetTimeStamp();
+            info.evtRate = n / (t2 - t1);
         }
+
+        int fileid = db->add_runfile(fRunNumber, (string)fOutputFileName, info);
+
+        db->set_description(fRunNumber, (string)fRunDescription);
+        db->set_runend(fRunNumber, fEndTime);
+        db->set_runstart(fRunNumber, fStartTime);
+        db->set_tag(fRunNumber, (string)fRunTag);
+        db->set_type(fRunNumber, (string)fRunType);
+
+        db->set_runend(fRunNumber, fEndTime);
+
+        fout << "DataBase Entry Added! Run Number: " << fRunNumber << ", File ID: " << fileid << endl;
+
+        delete db;
     }
 }
 
