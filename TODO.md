@@ -14,7 +14,7 @@ Use it to discuss about options to solve a particular point, or to inform others
 
 * A.4 [ ] Plot an analysis tree observable with different cuts using `TRestAnalysisPlot`. See [forum post](http://ezpc10.unizar.es/t/new-feature-to-be-implemented-in-trestanalysisplot/24)
 
-* A.5 [ ] Add `IF` condition option to `RML` files. See [forum post](https://gifna.unizar.es/rest-forum/?question=adding-if-conditions-in-rml-files)
+* A.5 [x] Add `IF` condition option to `RML` files. See [forum post](https://gifna.unizar.es/rest-forum/?question=adding-if-conditions-in-rml-files)
 
 * A.6 [ ] New metadata `TRestSpectrumCalibration` containing members allowing to identify different peaks in the spectrum, including energy, width, tagName, etc. Perhaps an auxiliar `TRestPeak::TObject` can be used to store those values. This metadata structure might be filled by a process `TRestMultiPeakFinderProcess` that fits a branch variable from the `analysisTree`.
 
