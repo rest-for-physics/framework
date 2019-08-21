@@ -73,7 +73,8 @@ class TRestManager;
 class TRestMetadata : public TNamed {
    private:
     void SetEnv(TiXmlElement* e, bool updateexisting = true);
-    void ExpandElement(TiXmlElement* e, bool recursive = false);
+    void ReadElement(TiXmlElement* e, bool recursive = false);
+    void ExpandIfSections(TiXmlElement* e);
     void ExpandForLoops(TiXmlElement* e);
     void ExpandIncludeFile(TiXmlElement* e);
 
