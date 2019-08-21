@@ -159,8 +159,8 @@ TRestEvent* TRestMultiCoBoAsAdToSignalProcess::ProcessEvent(TRestEvent* evInput)
     }
     fSignalEvent->SetTimeStamp(tSt);
     fSignalEvent->SetID(fCurrentEvent);
-    fSignalEvent->SetRunOrigin(233);
-    fSignalEvent->SetSubRunOrigin(2333);
+    fSignalEvent->SetRunOrigin(0);
+    fSignalEvent->SetSubRunOrigin(0);
 
     // cout << fSignalEvent->GetNumberOfSignals() << endl;
     // if( fSignalEvent->GetNumberOfSignals( ) == 0 ) return NULL;

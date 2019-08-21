@@ -348,7 +348,7 @@ void TRestRun::EndOfInit() {
         essential << "(" << fInputFileNames.size() << " added files)" << endl;
     }
 
-    //cout << "Output file: \"" << fOutputFileName << "\"" << endl;
+    // cout << "Output file: \"" << fOutputFileName << "\"" << endl;
 }
 
 ///////////////////////////////////////////////
@@ -676,7 +676,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
     } else {
         debug << "TRestRun: getting next event from root file" << endl;
         if (fAnalysisTree != NULL) {
-            if (fCurrentEvent >= fAnalysisTree->GetEntries()) {
+            if (fCurrentEvent >= fAnalysisTree->GetEntriesFast()) {
                 fInputEvent = NULL;
             } else {
                 fInputEvent->Initialize();
@@ -705,6 +705,10 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
     if (fInputEvent == NULL) {
         if (fFileProcess != NULL) fFileProcess->EndProcess();
         return -1;
+    }
+
+    if (fInputEvent->GetID() == 0) {
+        fInputEvent->SetID(fCurrentEvent - 1);
     }
 
     targetevt->Initialize();
@@ -1017,7 +1021,7 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
         p->SetAnalysisTree(fAnalysisTree);
         p->ConfigAnalysisTree();
 
-		GetNextEvent(fInputEvent, 0);
+        GetNextEvent(fInputEvent, 0);
         fAnalysisTree->CreateBranches();
         info << "The external file process has been set! Name : " << fFileProcess->GetName() << endl;
     } else {
