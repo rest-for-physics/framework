@@ -144,7 +144,6 @@ void TRestRun::BeginOfInit() {
         auto files = db->query_run_files(fRunNumber);
         fInputFileName = db->query_run_filepattern(fRunNumber);
         fInputFileNames = VectorTString_cast(files);
-        delete db;
     }
 
     if (ToUpper(runNstr) == "AUTO") {
@@ -158,8 +157,6 @@ void TRestRun::BeginOfInit() {
         if (fRunNumber == 0) {
             fRunNumber = db->get_lastrun() + 1;
         }
-
-        delete db;
     }
 
     // output file pattern
@@ -885,7 +882,7 @@ void TRestRun::WriteWithDataBase() {
         entry.tag = fRunTag;
         entry.type = fRunType;
         entry.version = REST_RELEASE;
-        fRunNumber = db->add_run(entry);
+        db->add_run(entry);
 
         auto info = DBFile((string)fOutputFileName);
         info.start = fStartTime;
@@ -906,8 +903,6 @@ void TRestRun::WriteWithDataBase() {
         db->set_runstart(fRunNumber, fStartTime);
 
         fout << "DataBase Entry Added! Run Number: " << fRunNumber << ", File ID: " << fileid << endl;
-
-        delete db;
     }
 }
 
