@@ -14,10 +14,8 @@ Int_t REST_DataBase(Int_t run = -1) {
         fout << "REST ERROR!! package: restDataBaseImpl not installed!" << endl;
         fout << "cannot print database record!" << endl;
     } else {
-        if (run < 0) run = db->getlastrun();
-
-        int n = db->getlastsubrun(run);
-        for (int i = 0; i <= n; i++) db->print(run, i);
+        if (run < 0) run = db->get_lastrun();
+		db->print(run);
     }
 
     return 0;
