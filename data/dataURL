@@ -1,0 +1,3 @@
+"1" "GAS" "" "" "gasfile, Xenon-TMA 1Pct 10-10E3Vcm" "2.2.12" "https://sultan.unizar.es/gasFiles/xe_99.0-n(ch3)3_1.0-E_vs_P_10.0_1000.0_nodes_20-nCol_10-maxE_400.gas"
+"2" "META_RML" "" "" "gas definition rml" "2.2.12" "https://sultan.unizar.es/gasFiles/gases.rml"
+"3" "READOUT" "" "" "Panda3 protoptye detector readout" "2.2.12" "local://home/nkx/REST_v2/examples/meta.root"

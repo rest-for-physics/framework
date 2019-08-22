@@ -66,18 +66,53 @@ TRestDataBase* TRestDataBase::instantiate(string name) {
     // for (unsigned int n = 0; n < list.size(); n++) {
     //    gSystem->Load(list[n].c_str());
     //}
+    TRestDataBase* db = NULL;
     if (name != "") {
         TClass* c = TClass::GetClass(("TRestDataBase" + name).c_str());
         if (c != NULL)  // this means we have the package installed
         {
-            return (TRestDataBase*)c->New();
+            db = (TRestDataBase*)c->New();
         } else {
             cout << "warning! unrecognized TRestDataBase implementation: \"" << name << "\"" << endl;
-            return new TRestDataBase();
+            db = new TRestDataBase();
+        }
+    } else {
+        db = new TRestDataBase();
+    }
+    db->Initialize();
+    return db;
+}
+
+void TRestDataBase::Initialize() {
+    fMetaDataFile.clear();
+    string metaFilename = getenv("REST_PATH") + (string) "/dataURL";
+    if (!TRestTools::fileExists(metaFilename)) {
+        return;
+    } else {
+        vector<int> result;
+        ifstream infile(metaFilename);
+        string s;
+        while (getline(infile, s)) {
+            cout << s << endl;
+            vector<string> items = Split(s, "\" \"", true);
+            cout << items.size() << endl;
+            if (items.size() != 7) continue;
+
+			if (items[0][0] == '\"') items[0] = items[0].substr(1, -1);
+            DBEntry info;
+            info.id = atoi(items[0].c_str());
+            info.type = items[1];
+            info.usr = items[2];
+            info.tag = items[3];
+            info.description = items[4];
+            info.version = items[5];
+            string dburl = items[6];
+
+			cout << info.id << endl;
+
+            fMetaDataFile[info] = dburl;
         }
     }
-
-    return new TRestDataBase();
 }
 
 DBFile::DBFile(string _filename) {
@@ -168,4 +203,185 @@ int TRestDataBase::add_run(DBEntry info) {
     set_run_info(newRunNr, info);
 
     return newRunNr;
+}
+
+
+
+
+
+
+
+
+int TRestDataBase::query_metadata(int id) {
+    DBEntry info;
+    info.id = id;
+
+    auto list = search_metadata_with_info(info);
+    if (list.size() == 1) return id;
+    return -1;
+}
+
+string TRestDataBase::query_metadata_fileurl(int id) {
+    auto iter = fMetaDataFile.begin();
+    while (iter != fMetaDataFile.end()) {
+        DBEntry entry = iter->first;
+        string url = iter->second;
+        if (entry.id == id) {
+            return url;
+        }
+        iter++;
+    }
+}
+DBEntry TRestDataBase::query_metadata_info(int id) {
+    auto iter = fMetaDataFile.begin();
+    while (iter != fMetaDataFile.end()) {
+        DBEntry entry = iter->first;
+        string url = iter->second;
+        if (entry.id == id) {
+            return entry;
+        }
+        iter++;
+    }
+}
+
+vector<int> TRestDataBase::search_metadata_with_fileurl(string _url) {
+    vector<int> result;
+    auto iter = fMetaDataFile.begin();
+    while (iter != fMetaDataFile.end()) {
+        DBEntry entry = iter->first;
+        string url = iter->second;
+        if (url.find(_url) != -1) {
+            result.push_back(entry.id);
+        }
+        iter++;
+    }
+    return result;
+}
+
+vector<int> TRestDataBase::search_metadata_with_info(DBEntry _info) {
+    vector<int> result;
+    auto iter = fMetaDataFile.begin();
+    while (iter != fMetaDataFile.end()) {
+        DBEntry info = iter->first;
+        string url = iter->second;
+        if (_info.id > 0 && info.id == _info.id) {
+            result.push_back(info.id);
+        } else if (_info.type != "" && info.type == _info.type) {
+            result.push_back(info.id);
+        } else if (_info.usr != "" && info.usr == _info.usr) {
+            result.push_back(info.id);
+        } else if (_info.tag != "" && info.tag == _info.tag) {
+            result.push_back(info.id);
+        } else if (_info.description != "" && info.description == _info.description) {
+            result.push_back(info.id);
+        } else if (_info.version != "" && info.version == _info.version) {
+            result.push_back(info.id);
+        }
+        iter++;
+    }
+    return result;
+}
+
+string TRestDataBase::get_metadatafile(int id) {
+    string url = query_metadata_fileurl(id);
+    if (url.find("local:") == 0) {
+        return Replace(url, "local:", "");
+    } else {
+        string purename = TRestTools::GetPureFileName(url);
+        string fullpath;
+        if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
+            fullpath = getenv("REST_PATH") + (string) "/data/download/" + purename;
+            if (DownloadRemoteFile(url, fullpath)) {
+                return fullpath;
+            } else {
+                return "";
+            }
+        } else {
+            DBEntry info = query_metadata_info(id);
+            string extension = purename.substr(purename.find_last_of("."), -1);
+            string type = info.type;
+            fullpath = "/tmp/REST_" + type + "_" + (string)getenv("USER") + "_Download" + extension;
+            if (DownloadRemoteFile(url, fullpath)) {
+                return fullpath;
+            } else {
+                return "";
+            }
+        }
+	}
+
+    return "";
+}
+
+int TRestDataBase::get_lastmetadata() {
+    auto iter = fMetaDataFile.end();
+    iter--;
+    return iter->first.id;
+}
+
+int TRestDataBase::add_metadata(DBEntry info, string url) {
+    if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
+        cout << "error" << endl;
+        return -1;
+    }
+
+    string metaFilename = getenv("REST_PATH") + (string) "/dataURL";
+
+    if (info.id == 0) {
+        info.id = get_lastmetadata();
+    }
+    fMetaDataFile[info] = url;
+
+	std::ofstream file(metaFilename, std::ios::app);
+    file << "\"" << info.id << "\" ";
+    file << "\"" << info.type << "\" ";
+    file << "\"" << info.usr << "\" ";
+    file << "\"" << info.tag << "\" ";
+    file << "\"" << info.description << "\" ";
+    file << "\"" << info.version << "\" ";
+    file << "\"" << url << "\" ";
+    file << endl;
+    file.close();
+
+	return info.id;
+}
+int TRestDataBase::set_metadatafile(int id, string url) {
+    cout << "error" << endl;
+    return 0;
+}
+int TRestDataBase::set_metadatafile(int id, string url, string urlremote) {
+    cout << "error" << endl;
+    return 0;
+}
+
+int TRestDataBase::set_metadata_info(int id, DBEntry info) {
+    cout << "error" << endl;
+    return 0;
+}
+
+///////////////////////////////////////////////
+/// \brief It will download the remote file provided in the argument using wget.
+///
+/// If it succeeds to download the file, this method will return the location of
+/// the local temporary file downloaded. If it fails, the method will invoke an
+/// exit call and print out some error.
+bool TRestDataBase::DownloadRemoteFile(string remoteFile, string localFile) {
+    if (remoteFile.find("https:") == 0 || remoteFile.find("http:") == 0) {
+        string cmd = "wget --no-check-certificate " + remoteFile + " -O " + localFile + " -q";
+
+        int a = system(cmd.c_str());
+
+        if (a == 0) {
+            return true;
+        } else {
+            cout << "-- Error : download failed!" << endl;
+            if (a == 1024) cout << "-- Error : Network connection problem?" << endl;
+            if (a == 2048) cout << "-- Error : Gas definition does NOT exist in database?" << endl;
+            cout << "Please specify a local file" << endl;
+        }
+    } else if (remoteFile.find("ssh:") == 0) {
+    } else {
+        cout << "-- Error : unknown protocol!" << endl;
+    }
+
+    return false;
 }

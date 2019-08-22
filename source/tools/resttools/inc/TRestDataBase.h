@@ -35,15 +35,41 @@ struct DBFile {
 };
 
 struct DBEntry {
+    DBEntry(){}
     int id = 0;
     string type = "";
     string usr = "";
     string tag = "";
     string description = "";
     string version = "";
+
+	bool operator<(const DBEntry& d) const {
+        if (id < d.id) {
+            return true;
+        }
+        return false;
+    }
+
+    bool operator>(const DBEntry& d) const {
+        if (id > d.id) {
+            return true;
+        }
+        return false;
+    }
+
+    bool operator==(const DBEntry& d) const {
+        if (id == d.id) {
+            return true;
+        }
+        return false;
+    }
 };
 
 class TRestDataBase {
+   private:
+    map<DBEntry, string> fRunFile;
+    map<DBEntry, string> fMetaDataFile;
+    bool DownloadRemoteFile(string remoteFile, string localFile);
    protected:
     string fConnectionString;
 
@@ -52,6 +78,7 @@ class TRestDataBase {
     ~TRestDataBase() {}
 
     static TRestDataBase* instantiate(string name = "");
+    virtual void Initialize();
     virtual void test() {}
     virtual void print(int runnumber) {}
     virtual void exec(string cmd) {}
@@ -87,20 +114,22 @@ class TRestDataBase {
     virtual int set_runend(int runnumber, double endtime) { return 0; }
 
     //////////////////////  metadata management interface  //////////////////////
-    virtual int query_metadata(int id) { return id; }
-    virtual string query_metadata_fileurl(int id) { return ""; }
-    virtual DBEntry query_metadata_info(int id) { return DBEntry(); }
+    virtual int query_metadata(int id);
+    virtual string query_metadata_fileurl(int id);
+    virtual DBEntry query_metadata_info(int id);
 
-    virtual vector<int> search_metadata_with_fileurl(string url) { return vector<int>{0}; }
-    virtual vector<int> search_metadata_with_info(DBEntry info) { return vector<int>{0}; }
+    virtual vector<int> search_metadata_with_fileurl(string url);
+    virtual vector<int> search_metadata_with_info(DBEntry info);
 
-	virtual string get_metadatafile(int id) { return ""; }
+    virtual string get_metadatafile(int id);
+    virtual int get_lastmetadata();
 
-    virtual int add_metadata(DBEntry info = DBEntry()) { return 0; }
-    virtual int add_metadatafile(int id, string url) { return 0; }
-    virtual int add_metadatafile(int id, string url, string urlremote) { return 0; }
+    virtual int add_metadata(DBEntry info = DBEntry(), string url = "");
+    virtual int set_metadatafile(int id, string url);
+    virtual int set_metadatafile(int id, string url, string urlremote);
+    virtual int set_metadata_info(int id, DBEntry info);
 
-    virtual int set_metadata_info(int id, DBEntry info) { return 0; }
+
 };
 
 #endif
