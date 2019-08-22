@@ -140,8 +140,7 @@ void TRestRun::BeginOfInit() {
     }
 
     if (ToUpper(inputname) == "AUTO") {
-        string databaseuse = GetParameter("database", "");
-        TRestDataBase* db = TRestDataBase::instantiate(databaseuse);
+        TRestDataBase* db = gDataBase;
         auto files = db->query_run_files(fRunNumber);
         fInputFileName = db->query_run_filepattern(fRunNumber);
         fInputFileNames = VectorTString_cast(files);
@@ -149,8 +148,7 @@ void TRestRun::BeginOfInit() {
     }
 
     if (ToUpper(runNstr) == "AUTO") {
-        string databaseuse = GetParameter("database", "");
-        TRestDataBase* db = TRestDataBase::instantiate(databaseuse);
+        TRestDataBase* db = gDataBase;
         auto runs = db->search_run_with_file((string)fInputFileName);
         if (runs.size() > 0) {
             fRunNumber = runs[0];
@@ -880,8 +878,7 @@ void TRestRun::WriteWithDataBase() {
     // write to database
     debug << "TResRun::WriteWithDataBase. Run number is : " << fRunNumber << endl;
     if (fRunNumber != -1) {
-        string databaseuse = GetParameter("database", "");
-        TRestDataBase* db = TRestDataBase::instantiate(databaseuse);
+        TRestDataBase* db = gDataBase;
         DBEntry entry;
         entry.id = fRunNumber;
         entry.description = fRunDescription;

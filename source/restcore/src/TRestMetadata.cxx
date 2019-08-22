@@ -426,6 +426,7 @@
 #include <TMath.h>
 #include <TSystem.h>
 #include "RmlUpdateTool.h"
+#include "TRestDataBase.h"
 #include "TRestMetadata.h"
 #include "TStreamerInfo.h"
 #include "v5/TFormula.h"
@@ -602,7 +603,13 @@ Int_t TRestMetadata::LoadSectionMetadata() {
 
     debug << "Loading Config for : " << this->ClassName() << endl;
 
-    // first set env from global section
+    // initialize database
+    if (gDataBase == NULL) {
+        string databaseuse = GetParameter("database", "");
+        TRestDataBase::instantiate(databaseuse);
+    }
+
+    // set env first from global section
     if (fElementGlobal != NULL) {
         TiXmlElement* e = fElementGlobal->FirstChildElement();
         while (e != NULL) {
@@ -626,8 +633,7 @@ Int_t TRestMetadata::LoadSectionMetadata() {
         e = e->NextSiblingElement();
     }
 
-    // then do this replacement for all child elements and expand for/include
-    // definitions
+    // look through the elements and expand for, include, etc. structures
     ReadElement(fElement);
 
     // get debug level again in case it is defined in the included file
@@ -638,7 +644,7 @@ Int_t TRestMetadata::LoadSectionMetadata() {
     if (debugStr == "debug" || debugStr == "3") fVerboseLevel = REST_Debug;
     if (debugStr == "extreme" || debugStr == "4") fVerboseLevel = REST_Extreme;
 
-    // finally fill the general metadata info: name, title, fstore
+    // fill the general metadata info: name, title, fstore
     this->SetName(GetParameter("name", "defaultName").c_str());
     this->SetTitle(GetParameter("title", "defaultTitle").c_str());
     this->SetSectionName(this->ClassName());
@@ -811,7 +817,7 @@ void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
     }
 
     int p1 = string(condition).find_first_of("=!<>");
-    int p2 = string(condition).find_first_not_of("=!<>",p1);
+    int p2 = string(condition).find_first_not_of("=!<>", p1);
 
     string v1 = "";
     bool matches = false;
@@ -972,19 +978,39 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     ReplaceElementAttributes(e);
     const char* _filetmp = e->Attribute("file");
 
-    if (_filetmp == NULL && (string)e->Value() == "TRestGas") _filetmp = "server";
-
     if (_filetmp == NULL) return;
     string _filename = _filetmp;
 
     // For the moment we only expect to have the gasFiles localed remotely.
     // I keep "server" keyword to be coherent with the one used in TRestGas
     // constructor
-    if (_filename == "server" && (string)e->Value() == "TRestGas") _filename = (string)gasesFile;
+    if (_filename == "server") {
+        string tag = e->Value();
+        DBEntry entry;
+        entry.tag = tag;
+        entry.type = "META_RML";
+        TRestDataBase* db = gDataBase;
+        auto ids = db->search_metadata_with_info(entry);
+        if (ids.size() == 1) {
+            _filename = db->get_metadatafile(ids[0]);
+            if (_filename == "") {
+                warning << "REST WARNING(expand include file): Include file \"" << _filename
+                        << "\" does not exist!" << endl;
+                warning << endl;
+                return;
+            }
+        } else {
+            warning << "remote file for " << tag << " not recorded in the database!" << endl;
+            warning << "include definition not expanded!" << endl;
+            return;
+        }
+    }
 
-    debug << "filename to expand : " << _filename << endl;
+    // if (_filename == "server" && (string)e->Value() == "TRestGas") _filename = (string)gasesFile;
 
-    if (TRestTools::isURL(_filename)) _filename = DownloadHttpFile(_filename);
+    // debug << "filename to expand : " << _filename << endl;
+
+    // if (TRestTools::isURL(_filename)) _filename = DownloadHttpFile(_filename);
 
     string filename = SearchFile(_filename);
     if (filename == "") {
