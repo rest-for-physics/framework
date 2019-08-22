@@ -782,10 +782,10 @@ void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
 /// The example IF structure:
 /// \code
 /// <TRestXXX>
-///		<if variable="HOME" condition="==/home/nkx">
+///		<if condition="${HOME}==/home/nkx">
 ///        <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" file="processes.rml"/>
 ///     </if>
-///     <if execute="date +%Y-%m-%d" condition=">2019-08-21">
+///     <if evaluate="date +%Y-%m-%d" condition=">2019-08-21">
 ///        <addProcess type = "TRestSignalToHitsProcess" name = "signalToHits" value = "ON" file =
 ///        "processes.rml" />
 ///     </if>
@@ -802,36 +802,30 @@ void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
 void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
     if ((string)e->Value() != "if") return;
 
-    const char* variable = e->Attribute("variable");
-    const char* execute = e->Attribute("execute");
-    if ((variable == NULL && execute == NULL) || (variable != NULL && execute != NULL)) {
-        warning << "Invalid \"IF\" structure!" << endl;
-        return;
-    }
+    const char* evaluate = e->Attribute("evaluate");
     const char* condition = e->Attribute("condition");
-    if (condition == NULL || string(condition).find_first_of("=!<>") != 0) {
+
+    if (condition == NULL || string(condition).find_first_of("=!<>") == -1) {
         warning << "Invalid \"IF\" structure!" << endl;
         return;
     }
 
-    string v1;
+    int p1 = string(condition).find_first_of("=!<>");
+    int p2 = string(condition).find_first_not_of("=!<>",p1);
+
+    string v1 = "";
     bool matches = false;
-    if (variable != NULL) {
-        auto val = getenv(variable);
-        if (val == NULL) {
-            warning << "In \"IF\" structure: env \"" << variable << "\" not defined!" << endl;
-            return;
-        }
-
-        v1 = val;
+    if (evaluate != NULL) {
+        v1 = TRestTools::Execute(evaluate);
+    } else if (p1 > 0) {
+        v1 = string(condition).substr(0, p1);
+    } else {
+        warning << "Invalid \"IF\" structure!" << endl;
+        return;
     }
 
-    if (execute != NULL) {
-        v1 = TRestTools::Execute(execute);
-    }
-
-    string con = string(condition).substr(0, string(condition).find_first_not_of("=!<>"));
-    string v2 = string(condition).substr(string(condition).find_first_not_of("=!<>"), -1);
+    string con = string(condition).substr(p1, p2 - p1);
+    string v2 = string(condition).substr(p2, -1);
 
     if (con == "==") {
         if (isANumber(v1) && isANumber(v2)) {
