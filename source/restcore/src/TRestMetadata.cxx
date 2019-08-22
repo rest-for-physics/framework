@@ -1194,7 +1194,7 @@ string TRestMetadata::DownloadHttpFile(string remoteFile) {
 
     debug << "Complete remote filename : " << remoteFile << endl;
 
-    TString remoteFilename = TRestTools::RemoveAbsolutePath(remoteFile);
+    TString remoteFilename = TRestTools::GetPureFileName(remoteFile);
 
     debug << "Reduced remote filename : " << remoteFilename << endl;
 
