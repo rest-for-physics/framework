@@ -80,7 +80,8 @@ TRestDataBase* TRestDataBase::instantiate(string name) {
     return new TRestDataBase();
 }
 
-DataBaseFileInfo::DataBaseFileInfo(string filename) {
+DBFile::DBFile(string _filename) {
+    filename = _filename;
     auto _fullname = TRestTools::ToAbsoluteName(filename);
 
     struct stat buf;
@@ -113,8 +114,8 @@ DataBaseFileInfo::DataBaseFileInfo(string filename) {
     }
 }
 
-void DataBaseFileInfo::Print() {
-    cout << "----DataBaseFileInfo struct----" << endl;
+void DBFile::Print() {
+    cout << "----DBFile struct----" << endl;
     cout << "size: " << fileSize << endl;
     cout << "event rate: " << evtRate << endl;
     cout << "sha1sum: " << sha1sum << endl;
@@ -126,7 +127,7 @@ void DataBaseFileInfo::Print() {
 TRestDataBase::TRestDataBase() {
     auto url = getenv("REST_DBURL");
     if (url != NULL) {
-        fURL = url;
+        fConnectionString = url;
     }
 }
 
@@ -145,12 +146,12 @@ int TRestDataBase::get_lastrun() {
     return runNr - 1;
 }
 
-int TRestDataBase::add_run(int runnumber) {
+int TRestDataBase::add_run(DBEntry info) {
     int newRunNr;
-    if (runnumber == 0) {
+    if (info.id == 0) {
         newRunNr = get_lastrun() + 1;
-    } else if (runnumber > 0) {
-        newRunNr = runnumber;
+    } else if (info.id > 0) {
+        newRunNr = info.id;
     } else {
         return -1;
     }
@@ -163,5 +164,8 @@ int TRestDataBase::add_run(int runnumber) {
                 "increment is disabled"
              << endl;
     }
+
+    set_run_runinfo(newRunNr, info);
+
     return newRunNr;
 }

@@ -142,8 +142,8 @@ void TRestRun::BeginOfInit() {
     if (ToUpper(inputname) == "AUTO") {
         string databaseuse = GetParameter("database", "");
         TRestDataBase* db = TRestDataBase::instantiate(databaseuse);
-        auto files = db->query_files(fRunNumber);
-        fInputFileName = db->query_filepattern(fRunNumber);
+        auto files = db->query_run_files(fRunNumber);
+        fInputFileName = db->query_run_filepattern(fRunNumber);
         fInputFileNames = VectorTString_cast(files);
         delete db;
     }
@@ -151,7 +151,7 @@ void TRestRun::BeginOfInit() {
     if (ToUpper(runNstr) == "AUTO") {
         string databaseuse = GetParameter("database", "");
         TRestDataBase* db = TRestDataBase::instantiate(databaseuse);
-        auto runs = db->search_with_filepattern((string)fInputFileName);
+        auto runs = db->search_run_with_file((string)fInputFileName);
         if (runs.size() > 0) {
             fRunNumber = runs[0];
         } else {
@@ -882,9 +882,15 @@ void TRestRun::WriteWithDataBase() {
     if (fRunNumber != -1) {
         string databaseuse = GetParameter("database", "");
         TRestDataBase* db = TRestDataBase::instantiate(databaseuse);
-        fRunNumber = db->add_run(fRunNumber);
+        DBEntry entry;
+        entry.id = fRunNumber;
+        entry.description = fRunDescription;
+        entry.tag = fRunTag;
+        entry.type = fRunType;
+        entry.version = REST_RELEASE;
+        fRunNumber = db->add_run(entry);
 
-        auto info = DataBaseFileInfo((string)fOutputFileName);
+        auto info = DBFile((string)fOutputFileName);
         info.start = fStartTime;
         info.stop = fEndTime;
 
@@ -899,13 +905,8 @@ void TRestRun::WriteWithDataBase() {
 
         int fileid = db->add_runfile(fRunNumber, (string)fOutputFileName, info);
 
-        db->set_description(fRunNumber, (string)fRunDescription);
         db->set_runend(fRunNumber, fEndTime);
         db->set_runstart(fRunNumber, fStartTime);
-        db->set_tag(fRunNumber, (string)fRunTag);
-        db->set_type(fRunNumber, (string)fRunType);
-
-        db->set_runend(fRunNumber, fEndTime);
 
         fout << "DataBase Entry Added! Run Number: " << fRunNumber << ", File ID: " << fileid << endl;
 

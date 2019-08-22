@@ -8,9 +8,9 @@
 
 using namespace std;
 
-class DataBaseFileInfo {
-   public:
-    DataBaseFileInfo() {
+struct DBFile {
+    DBFile() {
+        filename = "";
         fileSize = 0;
         evtRate = 0;
         for (int i = 0; i < 41; i++) {
@@ -21,10 +21,11 @@ class DataBaseFileInfo {
         stop = 0;
     }
 
-    DataBaseFileInfo(string filename);
+    DBFile(string filename);
 
     void Print();
 
+    string filename;
     long fileSize;
     double evtRate;
     char sha1sum[41];  // last bit is \0
@@ -33,9 +34,18 @@ class DataBaseFileInfo {
     time_t stop;
 };
 
+struct DBEntry {
+    int id = 0;
+    string type = "";
+    string usr = "";
+    string tag = "";
+    string description = "";
+    string version = "";
+};
+
 class TRestDataBase {
    protected:
-    string fURL;
+    string fConnectionString;
 
    public:
     TRestDataBase();
@@ -46,49 +56,48 @@ class TRestDataBase {
     virtual void print(int runnumber) {}
     virtual void exec(string cmd) {}
 
+    //////////////////////  run number management interface  //////////////////////
     virtual int query_run(int runnumber) { return runnumber; }
-    virtual vector<string> query_files(int runnumber) { return vector<string>(0); }
-    virtual string query_file(int runnumber, int fileid = 0) { return ""; }
-    virtual string query_filepattern(int runnumber) { return ""; }
-    virtual DataBaseFileInfo query_fileinfo(int runnumber, string filename = "") {
-        return DataBaseFileInfo();
-    }
-    virtual DataBaseFileInfo query_fileinfo(int runnumber, int fileid = 0) { return DataBaseFileInfo(); }
-    virtual double query_start(int runnumber) { return 0; }
-    virtual double query_end(int runnumber) { return 0; }
-    virtual string query_type(int runnumber) { return ""; }
-    virtual string query_user(int runnumber) { return ""; }
-    virtual string query_tag(int runnumber) { return ""; }
-    virtual string query_description(int runnumber) { return ""; }
-    virtual string query_version(int runnumber) { return ""; }
+    virtual vector<string> query_run_files(int runnumber) { return vector<string>(0); }
+    virtual string query_run_filepattern(int runnumber) { return ""; }
+    virtual DBEntry query_run_runinfo(int runnumber) { return DBEntry(); }
+    virtual DBFile query_run_fileinfo(int runnumber, int fileid = 0) { return DBFile(); }
+    virtual double query_run_start(int runnumber) { return 0; }
+    virtual double query_run_end(int runnumber) { return 0; }
 
-    virtual vector<int> search_with_filepattern(string filepattern) { return vector<int>{0}; }
-    virtual vector<int> search_with_timeperiod(time_t t1, time_t t2) { return vector<int>{0}; }
-    virtual vector<int> search_with_tag(string tag) { return vector<int>{0}; }
-    virtual vector<int> search_with_user(string user) { return vector<int>{0}; }
-    virtual vector<int> search_with_type(string type) { return vector<int>{0}; }
-    virtual vector<int> search_with_description(string description) { return vector<int>{0}; }
-    virtual vector<int> search_with_version(string version) { return vector<int>{0}; }
-    virtual vector<int> search_with_expression(string expresstion) { return vector<int>{0}; }
+    virtual vector<int> search_run_with_file(string filepattern) { return vector<int>{0}; }
+    virtual vector<int> search_run_with_timeperiod(time_t t1, time_t t2) { return vector<int>{0}; }
+    virtual vector<int> search_run_with_info(DBEntry info) { return vector<int>{0}; }
+    virtual vector<int> search_custom(string expresstion) { return vector<int>{0}; }
 
+    virtual int get_firstrun() { return 1; }
     virtual int get_lastrun();
 
-	//-1 --> do not add new run
-	//0  --> append a new run in run list
-	//>0 --> directly add the corresponding run.
-    virtual int add_run(int runnumber = 0);
+    // info.id =
+    //-1 --> do not add new run
+    // 0  --> append a new run in run list
+    //>0 --> directly add the corresponding run.
+    virtual int add_run(DBEntry info = DBEntry());
     virtual int add_runfile(int runnumber, string filename) { return 0; }
-    virtual int add_runfile(int runnumber, string filename, DataBaseFileInfo info) { return 0; }
+    virtual int add_runfile(int runnumber, string filename, DBFile info) { return 0; }
 
-    virtual int set_type(int runnumber, string type) { return 0; }
-    virtual int set_user(int runnumber, string user) { return 0; }
-    virtual int set_tag(int runnumber, string tag) { return 0; }
-    virtual int set_description(int runnumber, string description) { return 0; }
-    virtual int set_version(int runnumber, string version) { return 0; }
+    virtual int set_run_runinfo(int runnumber, DBEntry info) { return 0; }
+    virtual int set_run_fileinfo(int runnumber, int fileid, DBFile info) { return 0; }
     virtual int set_runstart(int runnumber, double starttime) { return 0; }
     virtual int set_runend(int runnumber, double endtime) { return 0; }
-    virtual int set_fileinfo(int runnumber, int fileid, DataBaseFileInfo info) { return 0; }
-    virtual int set_fileinfo(string filename, DataBaseFileInfo info) { return 0; }
+
+    //////////////////////  metadata management interface  //////////////////////
+    virtual int query_metadata(int id) { return id; }
+    virtual string query_metadata_fileurl(int id) { return ""; }
+    virtual DBEntry query_metadata_info(int id) { return DBEntry(); }
+
+    virtual vector<int> search_metadata_with_fileurl(string url) { return vector<int>{0}; }
+    virtual vector<int> search_metadata_with_info(DBEntry info) { return vector<int>{0}; }
+
+    virtual int add_metadata(DBEntry info) { return 0; }
+
+    virtual int set_metadata_fileurl(int id, string url) { return 0; }
+    virtual int set_metadata_info(int id, DBEntry info) { return 0; }
 };
 
 #endif
