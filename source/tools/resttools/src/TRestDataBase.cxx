@@ -139,13 +139,8 @@ int TRestDataBase::get_lastrun() {
             runNr = 1;
         }
     } else {
-        if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
-            runNr = StringToInteger(TRestTools::Execute("cat " + runFilename));
-        } else {
-            cout << "REST WARNING: runNumber file not writable. auto run number "
-                       "increment is disabled"
-                    << endl;
-        }
+        ifstream ifs(runFilename);
+        ifs >> runNr;
     }
     return runNr - 1;
 }
@@ -158,11 +153,15 @@ int TRestDataBase::add_run(int runnumber) {
         newRunNr = runnumber;
     } else {
         return -1;
-	}
+    }
 
-	string runFilename = getenv("REST_PATH") + (string) "/runNumber";
-    if (TRestTools::isPathWritable(getenv("REST_PATH")))
-            TRestTools::Execute("echo " + ToString(newRunNr + 1) + " > " + runFilename);
-
-	return newRunNr;
+    string runFilename = getenv("REST_PATH") + (string) "/runNumber";
+    if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
+        TRestTools::Execute("echo " + ToString(newRunNr + 1) + " > " + runFilename);
+    } else {
+        cout << "REST WARNING: runNumber file not writable. auto run number "
+                "increment is disabled"
+             << endl;
+    }
+    return newRunNr;
 }
