@@ -274,7 +274,7 @@ string TRestTools::RemoveMultipleSlash(string str) {
 /// e.g.
 /// Input: "/home/nkx/abc.txt", Returns: "abc.txt"
 /// Input: "/home/nkx/", Output: ""
-string TRestTools::RemoveAbsolutePath(string fullpathFileName) {
+string TRestTools::GetPureFileName(string fullpathFileName) {
     fullpathFileName = RemoveMultipleSlash(fullpathFileName);
     return SeparatePathAndName(fullpathFileName).second;
 }
