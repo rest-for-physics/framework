@@ -994,13 +994,10 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if (ids.size() == 1) {
             _filename = db->get_metadatafile(ids[0]);
             if (_filename == "") {
-                warning << "REST WARNING(expand include file): Include file \"" << _filename
-                        << "\" does not exist!" << endl;
-                warning << endl;
                 return;
             }
         } else {
-            warning << "remote file for " << tag << " not recorded in the database!" << endl;
+            warning << "remote rml definition for " << tag << " not recorded in the database!" << endl;
             warning << "include definition not expanded!" << endl;
             return;
         }
