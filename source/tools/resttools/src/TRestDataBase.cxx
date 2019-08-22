@@ -19,13 +19,11 @@
 /// be returned.
 ///
 /// Information stored in database:
-/// * run id: The index of the run. Run is usually generated from daq software.
-/// It means a pieroid of time when detector is running with constant
-/// configuration.
-/// * subrun id: The sub index of the run. Data taking run is asigned subrun id
-/// = 0, analysis run is recorded as subrun and accumulates the subrun id.
-/// * user: User name of datataking/analysis (sub)run. Generated automatically.
-/// * version: REST version of this (sub)run. Generated automatically.
+/// * (run) id: The index of the data line. During datataking/simulation, run id
+/// marks a continuous operation which is under constant configuration. For 
+/// metadata database, id is just an unique mark of the entry.
+/// * user: User name of this datataking run. Generated automatically.
+/// * version: REST version of this run. Generated automatically.
 /// * tag: A tag which makes the run easier to be found. We need to set it
 /// manually.
 /// * type: Enumerator of run type. Includes 'SW_DEBUG', 'HW_DEBUG',
@@ -33,34 +31,29 @@
 /// default data taking has type: HW_DEBUG, restG4 has type: SIMULATION,
 /// restManager has type: ANALYSIS.
 /// * description: Detailed description string. Write the run config here.
-/// * file names: a list of run output files. Added automatically.
+/// * file(s): The associated file(s) of this data taking run or metadata entry.
 ///
 /// How to use:
 /// `TRestDataBase* db = TRestDataBase::instantiate()`
 ///
 /// 1. To start a new run and add files in it:
 /// \code
-/// int runId = db->newrun();
-/// db->new_runfile("abc.graw");
+/// int runId = db->add_run()
+/// int fileId=db->add_runfile(runId,"abc.graw")
 /// \endcode
 ///
-/// 2. To append files in an existing run:
+/// 2. To view the run info:
 /// \code
-/// int runId = db->getlastrun();
-/// db->set_runnumber(runId);
-/// db->new_runfile("abc.root");
-/// \endcode
-///
-/// 3. To view the run info:
-/// \code
-/// int runId = deb->getlastrun();
+/// int runId = db->get_lastrun();
 /// db->print(runId);
 /// \endcode
 ///
-/// 4. To execute custom command. Suppose we are using pgsql database:
-/// \code
-/// db->exec("select * into rest_files_bk from rest_files");
-/// \endcode
+
+
+TRestDataBase* RestDataBase_Instance = NULL;
+TRestDataBase* TRestDataBase::GetDataBase() { return RestDataBase_Instance; }
+
+
 TRestDataBase* TRestDataBase::instantiate(string name) {
     // vector<string> list = TRestTools::GetListOfRESTLibraries();
     // for (unsigned int n = 0; n < list.size(); n++) {
@@ -80,6 +73,8 @@ TRestDataBase* TRestDataBase::instantiate(string name) {
         db = new TRestDataBase();
     }
     db->Initialize();
+    if (RestDataBase_Instance != NULL) delete RestDataBase_Instance;
+    RestDataBase_Instance = db;
     return db;
 }
 
@@ -92,13 +87,12 @@ void TRestDataBase::Initialize() {
         vector<int> result;
         ifstream infile(metaFilename);
         string s;
-        while (getline(infile, s)) {
-            cout << s << endl;
+        while (TRestTools::GetLine(infile, s)) {
             vector<string> items = Split(s, "\" \"", true);
-            cout << items.size() << endl;
             if (items.size() != 7) continue;
 
 			if (items[0][0] == '\"') items[0] = items[0].substr(1, -1);
+            if (items[6][items[6].size() - 1] == '\"') items[6] = items[6].substr(0, items[6].size() - 1);
             DBEntry info;
             info.id = atoi(items[0].c_str());
             info.type = items[1];
@@ -107,8 +101,6 @@ void TRestDataBase::Initialize() {
             info.description = items[4];
             info.version = items[5];
             string dburl = items[6];
-
-			cout << info.id << endl;
 
             fMetaDataFile[info] = dburl;
         }
@@ -260,22 +252,26 @@ vector<int> TRestDataBase::search_metadata_with_fileurl(string _url) {
 
 vector<int> TRestDataBase::search_metadata_with_info(DBEntry _info) {
     vector<int> result;
+    if (_info.id <= 0 && _info.type == "" && _info.usr == "" && _info.tag == "" && _info.description == "" &&
+        _info.version == "")
+        return result;
+
     auto iter = fMetaDataFile.begin();
     while (iter != fMetaDataFile.end()) {
         DBEntry info = iter->first;
         string url = iter->second;
         if (_info.id > 0 && info.id == _info.id) {
             result.push_back(info.id);
-        } else if (_info.type != "" && info.type == _info.type) {
-            result.push_back(info.id);
-        } else if (_info.usr != "" && info.usr == _info.usr) {
-            result.push_back(info.id);
-        } else if (_info.tag != "" && info.tag == _info.tag) {
-            result.push_back(info.id);
-        } else if (_info.description != "" && info.description == _info.description) {
-            result.push_back(info.id);
-        } else if (_info.version != "" && info.version == _info.version) {
-            result.push_back(info.id);
+        } else {
+            bool typematch = (_info.type == "" || info.type == _info.type);
+            bool usrmatch = (_info.usr == "" || info.usr == _info.usr);
+            bool tagmatch = (_info.tag == "" || info.tag == _info.tag);
+            bool descriptionmatch = (_info.description == "" || info.description == _info.description);
+            bool versionmatch = (_info.version == "" || info.version == _info.version);
+
+            if (typematch && usrmatch && tagmatch && descriptionmatch && versionmatch) {
+                result.push_back(info.id);
+            }
         }
         iter++;
     }
@@ -375,7 +371,9 @@ bool TRestDataBase::DownloadRemoteFile(string remoteFile, string localFile) {
         } else {
             cout << "-- Error : download failed!" << endl;
             if (a == 1024) cout << "-- Error : Network connection problem?" << endl;
-            if (a == 2048) cout << "-- Error : Gas definition does NOT exist in database?" << endl;
+            if (a == 2048) {cout << "Gas definition does NOT exist in database?" << endl;
+                cout << "File name: " << remoteFile << endl;
+			}
             cout << "Please specify a local file" << endl;
         }
     } else if (remoteFile.find("ssh:") == 0) {

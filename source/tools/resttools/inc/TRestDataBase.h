@@ -77,6 +77,7 @@ class TRestDataBase {
     TRestDataBase();
     ~TRestDataBase() {}
 
+	static TRestDataBase* GetDataBase();
     static TRestDataBase* instantiate(string name = "");
     virtual void Initialize();
     virtual void test() {}
@@ -131,5 +132,7 @@ class TRestDataBase {
 
 
 };
+
+#define gDataBase (TRestDataBase::GetDataBase())
 
 #endif
