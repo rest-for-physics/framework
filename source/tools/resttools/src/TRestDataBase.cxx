@@ -165,7 +165,7 @@ int TRestDataBase::add_run(DBEntry info) {
              << endl;
     }
 
-    set_run_runinfo(newRunNr, info);
+    set_run_info(newRunNr, info);
 
     return newRunNr;
 }

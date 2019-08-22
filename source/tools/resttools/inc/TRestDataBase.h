@@ -60,8 +60,8 @@ class TRestDataBase {
     virtual int query_run(int runnumber) { return runnumber; }
     virtual vector<string> query_run_files(int runnumber) { return vector<string>(0); }
     virtual string query_run_filepattern(int runnumber) { return ""; }
-    virtual DBEntry query_run_runinfo(int runnumber) { return DBEntry(); }
-    virtual DBFile query_run_fileinfo(int runnumber, int fileid = 0) { return DBFile(); }
+    virtual DBEntry query_run_info(int runnumber) { return DBEntry(); }
+    virtual DBFile query_run_info_files(int runnumber, int fileid = 0) { return DBFile(); }
     virtual double query_run_start(int runnumber) { return 0; }
     virtual double query_run_end(int runnumber) { return 0; }
 
@@ -81,8 +81,8 @@ class TRestDataBase {
     virtual int add_runfile(int runnumber, string filename) { return 0; }
     virtual int add_runfile(int runnumber, string filename, DBFile info) { return 0; }
 
-    virtual int set_run_runinfo(int runnumber, DBEntry info) { return 0; }
-    virtual int set_run_fileinfo(int runnumber, int fileid, DBFile info) { return 0; }
+    virtual int set_run_info(int runnumber, DBEntry info) { return 0; }
+    virtual int set_run_info_files(int runnumber, int fileid, DBFile info) { return 0; }
     virtual int set_runstart(int runnumber, double starttime) { return 0; }
     virtual int set_runend(int runnumber, double endtime) { return 0; }
 
@@ -94,9 +94,12 @@ class TRestDataBase {
     virtual vector<int> search_metadata_with_fileurl(string url) { return vector<int>{0}; }
     virtual vector<int> search_metadata_with_info(DBEntry info) { return vector<int>{0}; }
 
-    virtual int add_metadata(DBEntry info) { return 0; }
+	virtual string get_metadatafile(int id) { return ""; }
 
-    virtual int set_metadata_fileurl(int id, string url) { return 0; }
+    virtual int add_metadata(DBEntry info = DBEntry()) { return 0; }
+    virtual int add_metadatafile(int id, string url) { return 0; }
+    virtual int add_metadatafile(int id, string url, string urlremote) { return 0; }
+
     virtual int set_metadata_info(int id, DBEntry info) { return 0; }
 };
 
