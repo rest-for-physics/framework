@@ -101,6 +101,7 @@ class TRestTools {
     static Int_t ChecktheFile(std::string cfgFileName);
     static std::vector<string> GetFilesMatchingPattern(string pattern);
     static int ConvertVersionCode(string in);
+    static std::istream& GetLine(std::istream& is, std::string& t);
 
     ///////////////////////////////////////////////
     /// \brief Executes a shell command and returns its output in a string
