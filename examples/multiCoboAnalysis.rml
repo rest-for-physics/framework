@@ -84,6 +84,7 @@
     <searchPath value="$ENV{REST_INPUTDATA}/definitions/"/>
     <parameter name="verboseLevel" value="essential" /> %options are : silent(0), essential(1), info(2), debug(3), extreme(4)
     <parameter name="mainDataPath" value="" />
+    <parameter name="database" value=""/>
   </globals>
 
 </TRestManager>
