@@ -187,8 +187,7 @@ install(
         COMPONENT install
 )
 
-#copying pcm files
-
+#copy pcm files
 install(CODE
         "
 file(GLOB PCMFiles \"\${CMAKE_CURRENT_SOURCE_DIR}/rootdict/*.pcm\")
@@ -196,8 +195,28 @@ file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/lib)
 "
         )
 
+#create thisREST.sh
 include(thisREST)
 
-#install(CODE "chmod 744 ${CMAKE_INSTALL_PREFIX}/bin/rest-config")
+#add runNumber file and dataURL file
+install(CODE
+        "
+if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/runNumber)
+  file(COPY ${CMAKE_INSTALL_PREFIX}/data/runNumber DESTINATION ${CMAKE_INSTALL_PREFIX})
+endif()
+file(REMOVE ${CMAKE_INSTALL_PREFIX}/data/runNumber)
+
+if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/dataURL)
+  file(COPY ${CMAKE_INSTALL_PREFIX}/data/dataURL DESTINATION ${CMAKE_INSTALL_PREFIX})
+endif()
+file(REMOVE ${CMAKE_INSTALL_PREFIX}/data/dataURL)
+"
+        )
+
+
+
+#add permissions
 install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/bin/rest-config)")
 install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/scripts/restv2_1ToXml.py)")
+
+
