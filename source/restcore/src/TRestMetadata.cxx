@@ -1364,7 +1364,7 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlEleme
     } else {
         string units = GetUnits(ele, parName);
         double val = StringToDouble(a.substr(0, a.find_last_of("1234567890()") + 1));
-        return REST_Units::GetValueInRESTUnits(val, units);
+        return REST_Units::ConvertValueToRESTUnits(val, units);
     }
 
     return defaultVal;
@@ -1380,8 +1380,8 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXml
     } else {
         string unit = GetUnits(ele, parName);
         TVector2 value = StringTo2DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
-        Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unit);
-        Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unit);
+        Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
+        Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
         return TVector2(valueX, valueY);
     }
 
@@ -1398,9 +1398,9 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXml
     } else {
         string unit = GetUnits(ele, parName);
         TVector3 value = StringTo3DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
-        Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unit);
-        Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unit);
-        Double_t valueZ = REST_Units::GetValueInRESTUnits(value.Z(), unit);
+        Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
+        Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
+        Double_t valueZ = REST_Units::ConvertValueToRESTUnits(value.Z(), unit);
         return TVector3(valueX, valueY, valueZ);
     }
 
@@ -1590,7 +1590,7 @@ string TRestMetadata::GetUnits(TiXmlElement* e, string whoseunits) {
         }
     } else {
         string a = GetParameter(whoseunits, e);
-        unitstring = REST_Units::GetRESTUnitsInString(a);
+        unitstring = REST_Units::FindRESTUnitsInString(a);
 
         if (IsUnit(unitstring)) {
             return unitstring;

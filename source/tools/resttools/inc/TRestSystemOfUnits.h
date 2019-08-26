@@ -49,15 +49,24 @@ class TRestSystemOfUnits {
 
     bool IsZombie() { return fZombie; }
 
-    Double_t ToRESTUnits(Double_t value);
+    friend Double_t operator*(const Double_t& val, const TRestSystemOfUnits& units) {
+        if (units.IsZombie()) return val;
+        return val * units.fScaleCombined;
+    }
+
+    friend Double_t operator/(const Double_t& val, const TRestSystemOfUnits& units) {
+        if (units.IsZombie()) return val;
+        return val / units.fScaleCombined;
+    }
 
     void Print();
 };
 
 bool IsBasicUnit(string in);
 bool IsUnit(string in);
-string GetRESTUnitsInString(string InString);
-Double_t GetValueInRESTUnits(Double_t value, TString unitsStr);
+string FindRESTUnitsInString(string InString);
+Double_t ConvertValueToRESTUnits(Double_t value, string unitsStr);
+Double_t ConvertRESTUnitsValueToCustomUnits(Double_t value, string unitsStr);
 
 extern map<string, pair<int, double>> __ListOfRESTUnits;  // name, [unit type id, scale]
 
@@ -106,5 +115,7 @@ AddUnit(T, TRestSystemOfUnits::Magnetic, 1.);
 AddUnit(G, TRestSystemOfUnits::Magnetic, 1.e4);
 
 }  // namespace REST_Units
+
+typedef REST_Units::TRestSystemOfUnits units;
 
 #endif

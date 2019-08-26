@@ -30,7 +30,7 @@ namespace REST_Units {
 bool IsUnit(string unitsStr) { return !TRestSystemOfUnits(unitsStr).IsZombie(); }
 bool IsBasicUnit(string unitsStr) { return (__ListOfRESTUnits.count(unitsStr) == 1); }
 
-string GetRESTUnitsInString(string s) {
+string FindRESTUnitsInString(string s) {
     string unitsStr = "";
     {
         // the last of a number must be "1234567890(),"
@@ -59,9 +59,12 @@ string GetRESTUnitsInString(string s) {
     return "";
 }
 
-Double_t GetValueInRESTUnits(Double_t value, TString unitsStr) {
-    double a = TRestSystemOfUnits((string)unitsStr).ToRESTUnits(value);
-    return a;
+Double_t ConvertValueToRESTUnits(Double_t value, TString unitsStr) {
+    return value * TRestSystemOfUnits((string)unitsStr);
+}
+
+Double_t ConvertRESTUnitsValueToCustomUnits(Double_t value, string unitsStr) {
+    return value / TRestSystemOfUnits((string)unitsStr);
 }
 
 double _AddUnit(string name, int type, double scale) {
@@ -155,13 +158,6 @@ double TRestSystemOfUnits::GetUnitScale(string singleUnit) {
         return __ListOfRESTUnits[singleUnit].second;
     }
     return 1;
-}
-
-Double_t TRestSystemOfUnits::ToRESTUnits(Double_t value) {
-    if (IsZombie()) {
-        return value;
-    }
-    return value / fScaleCombined;
 }
 
 void TRestSystemOfUnits::Print() {}
