@@ -47,15 +47,15 @@ class TRestSystemOfUnits {
 
     TRestSystemOfUnits(string unitsStr);
 
-    bool IsZombie() { return fZombie; }
+    bool IsZombie() const { return fZombie; }
 
     friend Double_t operator*(const Double_t& val, const TRestSystemOfUnits& units) {
-        if (units.IsZombie()) return val;
+        if (units.fZombie) return val;
         return val * units.fScaleCombined;
     }
 
     friend Double_t operator/(const Double_t& val, const TRestSystemOfUnits& units) {
-        if (units.IsZombie()) return val;
+        if (units.fZombie) return val;
         return val / units.fScaleCombined;
     }
 

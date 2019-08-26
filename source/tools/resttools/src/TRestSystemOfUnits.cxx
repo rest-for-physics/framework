@@ -59,12 +59,12 @@ string FindRESTUnitsInString(string s) {
     return "";
 }
 
-Double_t ConvertValueToRESTUnits(Double_t value, TString unitsStr) {
-    return value * TRestSystemOfUnits((string)unitsStr);
+Double_t ConvertValueToRESTUnits(Double_t value, string unitsStr) {
+    return value / TRestSystemOfUnits((string)unitsStr);
 }
 
 Double_t ConvertRESTUnitsValueToCustomUnits(Double_t value, string unitsStr) {
-    return value / TRestSystemOfUnits((string)unitsStr);
+    return value * TRestSystemOfUnits((string)unitsStr);
 }
 
 double _AddUnit(string name, int type, double scale) {
