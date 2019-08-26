@@ -24,7 +24,7 @@ void TRestDriftVolume::Initialize() {
 void TRestDriftVolume::InitFromConfigFile() {
     fMaterial = GetParameter("material", "");
     fW = GetDblParameterWithUnits("wValue", 0.);
-    fElectricField = GetDblParameterWithUnits("electricField", 0.);
+    fElectricField = GetDblParameterWithUnits("electricField", 0.) * units("V/cm");
     fDriftVelocity = GetDblParameterWithUnits("driftVelocity", 0.);
     fElectronLifeTime = GetDblParameterWithUnits("electronLifeTime", 0.);
     fLongitudinalDiffusion = GetDblParameterWithUnits("longitudinalDiffusion", 0.);

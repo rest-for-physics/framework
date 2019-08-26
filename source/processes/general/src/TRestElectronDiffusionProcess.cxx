@@ -88,7 +88,8 @@ void TRestElectronDiffusionProcess::InitProcess() {
             fLonglDiffCoeff = fGas->GetLongitudinalDiffusion(fElectricField);  // (cm)^1/2
 
         if (fTransDiffCoeff <= 0)
-            fTransDiffCoeff = fGas->GetTransversalDiffusion(fElectricField);  // (cm)^1/2
+            fTransDiffCoeff =
+                fGas->GetTransversalDiffusion(fElectricField);  // (cm)^1/2
     }
 
     fReadout = (TRestReadout*)GetReadoutMetadata();
@@ -207,7 +208,7 @@ void TRestElectronDiffusionProcess::EndProcess() {
 void TRestElectronDiffusionProcess::InitFromConfigFile() {
     // TODO add pressure units
     fGasPressure = StringToDouble(GetParameter("gasPressure", "-1"));
-    fElectricField = GetDblParameterWithUnits("electricField", 1000);
+    fElectricField = GetDblParameterWithUnits("electricField", 100.) * units("V/cm");
     fAttachment = StringToDouble(GetParameter("attachment", "0"));
     fLonglDiffCoeff = StringToDouble(GetParameter("longitudinalDiffusionCoefficient", "0"));
     fTransDiffCoeff = StringToDouble(GetParameter("transversalDiffusionCoefficient", "0"));

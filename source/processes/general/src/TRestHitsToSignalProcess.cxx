@@ -14,8 +14,6 @@
 
 using namespace std;
 
-const double cmTomm = 10.;
-
 ClassImp(TRestHitsToSignalProcess)
     //______________________________________________________________________________
     TRestHitsToSignalProcess::TRestHitsToSignalProcess() {
@@ -106,7 +104,7 @@ void TRestHitsToSignalProcess::InitProcess() {
         else
             fGas->SetPressure(fGasPressure);
 
-        if (fDriftVelocity <= 0) fDriftVelocity = fGas->GetDriftVelocity(fElectricField) * cmTomm;
+        if (fDriftVelocity <= 0) fDriftVelocity = fGas->GetDriftVelocity(fElectricField) / units("cm/us");
     } else {
         cout << "REST_WARNING. No TRestGas found in TRestRun." << endl;
     }
@@ -221,8 +219,8 @@ void TRestHitsToSignalProcess::EndProcess() {
 void TRestHitsToSignalProcess::InitFromConfigFile() {
     fSampling = GetDblParameterWithUnits("sampling");
     fGasPressure = StringToDouble(GetParameter("gasPressure", "-1"));
-    fElectricField = GetDblParameterWithUnits("electricField");
-
-    // TODO : Still units must be implemented for velocity quantities
-    fDriftVelocity = StringToDouble(GetParameter("driftVelocity", "0")) * cmTomm;
+	//convert REST standard unit "V/mm" to "V/cm"
+    fElectricField = GetDblParameterWithUnits("electricField", 100.) * units("V/cm");
+    // DONE : velocity units are implemented with standard unit "mm/us"
+    fDriftVelocity = GetDblParameterWithUnits("driftVelocity", 1.);
 }
