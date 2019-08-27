@@ -211,6 +211,8 @@ Int_t TRestHitsToTrackProcess::FindTracks(TRestHits* hits) {
         Q.clear();
     }
 
+	delete track;
+
     return nTracksFound;
 }
 
