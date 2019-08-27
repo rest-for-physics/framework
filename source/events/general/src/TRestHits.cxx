@@ -724,7 +724,7 @@ Int_t TRestHits::GetMostEnergeticHitInRange(Int_t n, Int_t m) {
             hit = i;
         }
     }
-    if (hit == -1) cout << "REST warning : No largest hit found! No hits?" << endl;
+    //if (hit == -1) cout << "REST warning : No largest hit found! No hits?" << endl;
     return hit;
 }
 
