@@ -32,7 +32,6 @@
 #include <TVirtualPad.h>
 
 #include <TRestEvent.h>
-#include <TRestRawSignal.h>
 #include <TRestSignal.h>
 #include "TRestReadout.h"
 
@@ -83,8 +82,6 @@ class TRest2DHitsEvent : public TRestEvent {
 
     void DoHough();
     // Setters
-    void AddSignal(TRestRawSignal* s);
-
     void AddSignal(TRestSignal* s);
 
     void SetXZSignal(int zIndex, double xPosition, double energy);

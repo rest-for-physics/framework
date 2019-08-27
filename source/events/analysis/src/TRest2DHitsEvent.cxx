@@ -74,30 +74,6 @@ void TRest2DHitsEvent::Initialize() {
     fHough_YZ.clear();
 }
 
-void TRest2DHitsEvent::AddSignal(TRestRawSignal* s) {
-    if (fReadout != NULL) {
-        double x = fReadout->GetX(s->GetID());
-        double y = fReadout->GetY(s->GetID());
-        if (TMath::IsNaN(x) || TMath::IsNaN(y)) {
-            if (!TMath::IsNaN(x)) {
-                for (int i = 0; i < s->GetNumberOfPoints(); i++) {
-                    fXZHits[i][x] = s->GetData(i);
-                }
-                fXZIdPos[fNSignalx] = x;
-                fNSignalx++;
-            } else if (!TMath::IsNaN(y)) {
-                for (int i = 0; i < s->GetNumberOfPoints(); i++) {
-                    fYZHits[i][y] = s->GetData(i);
-                }
-                fYZIdPos[fNSignaly] = y;
-                fNSignaly++;
-            }
-        } else {
-            cout << "This cannot happen!" << endl;
-        }
-    }
-}
-
 void TRest2DHitsEvent::AddSignal(TRestSignal* s) {
     if (fReadout != NULL) {
         double x = fReadout->GetX(s->GetID());
