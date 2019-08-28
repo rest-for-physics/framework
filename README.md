@@ -137,7 +137,7 @@ Once you explicitly set an option, the default value of this option will be chan
 ## REST libraries
 
 The REST framework provides only the structure and support to create REST user libraries. 
-The detailed documentation can be found [here](doc/Chapters/4-the-rest-framework) 
+The detailed documentation can be found [here](doc/Chapters/4-the-rest-framework.md). 
 
 Few official REST libraries maintained by the REST team will be installed as a module and maintained in a separate Git repository.
 Additional information on the functionality provided by those libraries will be found on that repository.
