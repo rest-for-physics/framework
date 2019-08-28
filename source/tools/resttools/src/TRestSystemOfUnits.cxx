@@ -114,16 +114,19 @@ double _AddUnit(string name, int type, double scale) {
 ///
 /// Implemented operator * and /, meaning strip-off/adds the unit for a unit-embeded/unitless value
 ///
-/// Example 1: convert exposure unit "kg-yr" to "ton-day"
+/// Example 1: convert exposure unit "kg-yr" to "ton-day"  
 /// `SetExposure(24/units("kg-yr")*units("ton-day"));`
 ///
-/// Example 2: save a "unitless" value, then assign a concrete unit when using it
-/// `double field = GetDblParameterWithUnits("electricField");`
-/// `fGas->GetDriftVelocity(field*units("V/cm"));`
+/// Example 2: save a "unitless" value, then assign a concrete unit when using it  
+/// `double field = GetDblParameterWithUnits("electricField");`  
+/// `fGas->GetDriftVelocity(field*units("V/cm"));`  
 /// 
 /// Note: If the unit definition is not recognized, the object will be zombie,
 /// and the value will not be converted.
 /// Note: It doesn't support unit with numbers, e.g. m/s^2
+///
+/// \class TRestSystemOfUnits
+///
 TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
     if (unitsStr == "") {
         fZombie = true;
