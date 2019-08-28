@@ -176,9 +176,11 @@ class TRestReflector {
     operator T*() {
         return (T*)address;
     }
-
+    /// Default constructor
     TRestReflector() {}
+    /// Constructor from a certain address and a certain type.
     TRestReflector(char* address, string type);
+    /// Constructor to wrap an object
     template <class T>
     TRestReflector(const T& obj) {
         address = (char*)&obj;
@@ -191,6 +193,7 @@ class TRestReflector {
         }
         InitDictionary();
     }
+    /// Constructor to wrap an object pointer
     template <class T>
     TRestReflector(T* obj) {
         address = (char*)obj;

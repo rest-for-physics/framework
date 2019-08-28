@@ -22,7 +22,7 @@ map<string, pair<int, double>> __ListOfRESTUnits;
 /// 2017-Nov:   First concept and implementation of REST_Units namespace.
 /// \author     Javier Galan
 ///
-/// \class REST_Units
+/// \namespace REST_Units
 ///
 /// <hr>
 namespace REST_Units {
@@ -195,9 +195,7 @@ TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
     fZombie = false;
 }
 
-///////////////////////////////////////////////
-/// \brief Get the type of the units
-///
+
 int TRestSystemOfUnits::GetUnitType(string singleUnit) {
     if (IsBasicUnit(singleUnit)) {
         return __ListOfRESTUnits[singleUnit].first;
@@ -205,9 +203,7 @@ int TRestSystemOfUnits::GetUnitType(string singleUnit) {
     return -1;
 }
 
-///////////////////////////////////////////////
-/// \brief Get the scale of the unit to convert to the REST standard units
-///
+
 double TRestSystemOfUnits::GetUnitScale(string singleUnit) {
     if (IsBasicUnit(singleUnit)) {
         return __ListOfRESTUnits[singleUnit].second;
@@ -215,5 +211,4 @@ double TRestSystemOfUnits::GetUnitScale(string singleUnit) {
     return 1;
 }
 
-void TRestSystemOfUnits::Print() {}
 }  // namespace REST_Units

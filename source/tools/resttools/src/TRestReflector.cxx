@@ -13,7 +13,7 @@ map<string, TDataType*> __ListOfDataTypes = map<string, TDataType*>();
 ///
 /// Wrapper class for different type objects
 ///
-/// Supports both class objects(string, vector, TRestMetadata, etc) and basic type objects(int, double, etc)
+/// Supports both class objects(string, vector, TRestMetadata, etc) and basic type objects(int, double, etc).
 /// Implements object wrapping, type assembly, data member reflection, and memory streaming
 ///
 /// Example 1: Type assembly & Value assignment

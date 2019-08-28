@@ -14,7 +14,7 @@ using namespace std;
 /// 2019-Mar:   First concept and implementation of REST_Units namespace.
 /// \author     Javier Galan
 ///
-/// \class REST_Units
+/// \namespace REST_Physics
 ///
 /// <hr>
 namespace REST_Physics {}

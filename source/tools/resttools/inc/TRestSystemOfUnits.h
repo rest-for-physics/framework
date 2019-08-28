@@ -38,15 +38,18 @@ class TRestSystemOfUnits {
 
     double fScaleCombined;
 
+    /// Get the type of the units
     int GetUnitType(string singleUnit);
+    /// Get the scale of the unit to convert to the REST standard units
     double GetUnitScale(string singleUnit);
 
    public:
     // We use more common high energy physics unit instead of SI unit
     enum Physical_Unit { Energy, Time, Distance, Mass, Electric, Magnetic, NOT_A_UNIT = -1 };
 
+	/// Constructor from a unit string
     TRestSystemOfUnits(string unitsStr);
-
+    /// Whether this unit is zombie(invalid)
     bool IsZombie() const { return fZombie; }
 
     friend Double_t operator*(const Double_t& val, const TRestSystemOfUnits& units) {
@@ -58,8 +61,6 @@ class TRestSystemOfUnits {
         if (units.fZombie) return val;
         return val / units.fScaleCombined;
     }
-
-    void Print();
 };
 
 bool IsBasicUnit(string in);
