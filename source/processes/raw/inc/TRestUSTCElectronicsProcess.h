@@ -24,14 +24,32 @@
 #include <map>
 #include "TRestRawToSignalProcess.h"
 
-#define Long_Readout_Format
+//#define V3_Readout_Format_Long
+#define V4_Readout_Format
 //#define Incoherent_Event_Generation
 
-#ifdef Long_Readout_Format
-#define N 1048
-#else
-#define N 1040
-#endif  // Long_ReadoutFormat
+
+
+
+#ifdef V3_Readout_Format_Long
+#define DATA_SIZE 1048
+#define DATA_OFFSET (DATA_SIZE - 512 * 2 - 4)
+#define PROTOCOL_SIZE 4
+#endif  
+
+#ifdef V3_Readout_Format_Short
+#define DATA_SIZE 1040
+#define DATA_OFFSET (DATA_SIZE - 512 * 2 - 4)
+#define PROTOCOL_SIZE 4
+#endif 
+
+#ifdef V4_Readout_Format
+#define DATA_SIZE 1036
+#define DATA_OFFSET 6
+#define HEADER_SIZE 36
+#define ENDING_SIZE 16
+#define PROTOCOL_SIZE 4
+#endif
 
 struct USTCDataFrame {
     // a signal-level data frame
@@ -48,7 +66,7 @@ struct USTCDataFrame {
         evId = -1;
         signalId = 0;
     }
-    UChar_t data[N];  // the size of a signal frame
+    UChar_t data[DATA_SIZE];  // the size of a signal frame
 
     Int_t boardId;       // 0~n
     Int_t chipId;        // 0~3 aget number
@@ -67,6 +85,11 @@ class TRestUSTCElectronicsProcess : public TRestRawToSignalProcess {
 #ifndef __CINT__
     TRestRawSignalEvent* fSignalEvent;  //!
     TRestRawSignal sgnl;                //!
+
+#ifdef V4_Readout_Format
+    UChar_t fHeader[HEADER_SIZE];
+    UChar_t fEnding[ENDING_SIZE];
+#endif
 
     vector<vector<USTCDataFrame>> fEventBuffer;  //!
     int nBufferedEvent;                          //!
@@ -92,6 +115,8 @@ class TRestUSTCElectronicsProcess : public TRestRawToSignalProcess {
     bool FillBuffer();
 
     bool GetNextFrame(USTCDataFrame&);
+
+	bool OpenNextFile(USTCDataFrame&);
 
     void FixToNextFrame(FILE* f);
 
