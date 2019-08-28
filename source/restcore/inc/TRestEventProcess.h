@@ -152,6 +152,6 @@ class TRestEventProcess : public TRestMetadata {
     // Destructor
     ~TRestEventProcess();
 
-    ClassDef(TRestEventProcess, 2);  // Base class for a REST process
+    ClassDef(TRestEventProcess, 3);  // Base class for a REST process
 };
 #endif

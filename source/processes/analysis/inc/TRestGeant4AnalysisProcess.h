@@ -98,6 +98,9 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     /// threshold will be not further processed.
     Double_t fHighEnergyCut;
 
+    Bool_t fPerProcessSensitiveEnergy = false;
+    Bool_t fPerProcessSensitiveEnergyNorm = false;
+
     void InitFromConfigFile();
 
     void Initialize();
@@ -136,6 +139,6 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     TRestGeant4AnalysisProcess(char* cfgFileName);
     ~TRestGeant4AnalysisProcess();
 
-    ClassDef(TRestGeant4AnalysisProcess, 1);
+    ClassDef(TRestGeant4AnalysisProcess, 2);
 };
 #endif

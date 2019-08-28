@@ -51,74 +51,72 @@ class TRestG4Event : public TRestEvent {
 
     void AddEnergyDepositToVolume(Int_t volID, Double_t eDep);
 
-	Bool_t PerProcessEnergyInitFlag = false;
-	std::map<string, Double_t> PerProcessEnergyInSensitive;
+    Bool_t PerProcessEnergyInitFlag = false;
+    std::map<string, Double_t> PerProcessEnergyInSensitive;
 
+    void inline InitializePerProcessEnergyInSensitive() {
+        PerProcessEnergyInitFlag = true;
+        PerProcessEnergyInSensitive["photoelectric"] = 0;
+        PerProcessEnergyInSensitive["compton"] = 0;
+        PerProcessEnergyInSensitive["electron_ionization"] = 0;
+        PerProcessEnergyInSensitive["msc"] = 0;
+        PerProcessEnergyInSensitive["hadronic_ionization"] = 0;
+        PerProcessEnergyInSensitive["proton_ionization"] = 0;
+        PerProcessEnergyInSensitive["hadronic_elastic"] = 0;
+        PerProcessEnergyInSensitive["neutron_elastic"] = 0;
 
-	void inline InitizalizePerProcessEnergyInSensitive(){
-		PerProcessEnergyInitFlag = true;
-		PerProcessEnergyInSensitive["photoelectric"] = 0;
-		PerProcessEnergyInSensitive["compton"] = 0;
-		PerProcessEnergyInSensitive["electron_ionization"] = 0;
-		PerProcessEnergyInSensitive["msc"] = 0;
-		PerProcessEnergyInSensitive["hadronic_ionization"] = 0;
-		PerProcessEnergyInSensitive["proton_ionization"] = 0;
-		PerProcessEnergyInSensitive["hadronic_elastic"] = 0;
-		PerProcessEnergyInSensitive["neutron_elastic"] = 0;
+        string volume_name;
+        string process_name;
+        TRestG4Track* track;
+        TRestG4Hits* hits;
+        Double_t energy;
 
-		string volume_name;
-		string process_name;
-		Float_t energy_in_volume;
-		TRestG4Track* track;
-		TRestG4Hits * hits;
-		Double_t energy;
+        for (Int_t track_id = 0; track_id < GetNumberOfTracks(); track_id++) {
+            track = GetTrack(track_id);
 
-		for (Int_t track_id=0; track_id < GetNumberOfTracks(); track_id++){
+            if (track->GetEnergyInVolume(0) == 0) {
+                continue;
+            }
 
-			track = event->GetTrack(track_id);
+            hits = track->GetHits();
 
-			if (track->GetEnergyInVolume(0) == 0){
-				continue;
-			}
+            for (Int_t hit_id = 0; hit_id < hits->GetNumberOfHits(); hit_id++) {
+                if (hits->GetVolumeId(hit_id) != 0) {
+                    continue;
+                }
 
-			hits = track->GetHits();
+                process_name = (string)track->GetProcessName(hits->GetHitProcess(hit_id));
+                energy = hits->GetEnergy(hit_id);
+                if (process_name == "phot") {
+                    PerProcessEnergyInSensitive["photoelectric"] += energy;
+                } else if (process_name == "compt") {
+                    PerProcessEnergyInSensitive["compton"] += energy;
+                } else if (process_name == "eIoni" || process_name == "e-Step" || process_name == "e+Step") {
+                    PerProcessEnergyInSensitive["electron_ionization"] += energy;
+                } else if (process_name == "msc") {
+                    PerProcessEnergyInSensitive["msc"] += energy;
+                } else if (process_name == "hIoni") {
+                    PerProcessEnergyInSensitive["hadronic_ionization"] += energy;
+                    if (track->GetParticleName() == "proton") {
+                        PerProcessEnergyInSensitive["proton_ionization"] += energy;
+                    }
+                } else if (process_name == "hadElastic") {
+                    PerProcessEnergyInSensitive["hadronic_elastic"] += energy;
+                    if (track->GetParticleName() == "neutron") {
+                        PerProcessEnergyInSensitive["neutron_elastic"] += energy;
+                    }
+                } else if (process_name == "Transportation") {
+                    if (track->GetParticleName() == "proton") {
+                        PerProcessEnergyInSensitive["hadronic_ionization"] += energy;
+                        PerProcessEnergyInSensitive["proton_ionization"] += energy;
+                    } else if (track->GetParticleName() == "e-" || track->GetParticleName() == "e+") {
+                        PerProcessEnergyInSensitive["electron_ionization"] += energy;
+                    }
+                }
+            }
+        }
+    }
 
-			for (Int_t hit_id = 0; hit_id < hits->GetNumberOfHits(); hit_id++){
-				if (hits->GetVolumeId(hit_id) != 0){
-				continue;
-				}
-
-			    process_name=(string)track->GetProcessName(hits->GetHitProcess(hit_id));
-			    energy=hits->GetEnergy(hit_id);
-				if (process_name == "phot"){
-				PerProcessEnergyInSensitive["photoelectric"] += energy;
-				}
-				if (process_name == "compt"){
-				PerProcessEnergyInSensitive["compton"] += energy;
-				}
-				if (process_name == "eIoni" || process_name == "e-Step"  || process_name == "e+Step" ){
-				PerProcessEnergyInSensitive["electron_ionization"] += energy;
-				}
-				if (process_name == "msc"){
-				PerProcessEnergyInSensitive["msc"] += energy;
-				}
-				if (process_name == "hIoni"){
-				PerProcessEnergyInSensitive["hadronic_ionization"] += energy;
-					if(track->GetParticleName() == "proton"){
-						PerProcessEnergyInSensitive["proton_ionization"] += energy;
-					}
-				}
-				if (process_name == "hadElastic"){
-				PerProcessEnergyInSensitive["hadronic_elastic"] += energy;
-					if(track->GetParticleName() == "neutron"){
-						PerProcessEnergyInSensitive["neutron_elastic"] += energy;
-					}
-				}
-
-			}
-
-		}
-}
    protected:
 #ifndef __CINT__
 
@@ -221,13 +219,54 @@ class TRestG4Event : public TRestEvent {
     Int_t GetNumberOfTracksForParticle(TString parName);
     Int_t GetEnergyDepositedByParticle(TString parName);
 
-    Double_t GetEnergyInSensitiveFromProcessPhoto(){
-	if (!PerProcessEnergyInitFlat){
-		InitizalizePerProcessEnergyInSensitive();
-	}
-	return PerProcessEnergyInSensitive["photoelectric"];
-}
-%TODO: create the remaining
+    Double_t GetEnergyInSensitiveFromProcessPhoto() {
+        if (!PerProcessEnergyInitFlag) {
+            InitializePerProcessEnergyInSensitive();
+        }
+        return PerProcessEnergyInSensitive["photoelectric"];
+    }
+    Double_t GetEnergyInSensitiveFromProcessCompton() {
+        if (!PerProcessEnergyInitFlag) {
+            InitializePerProcessEnergyInSensitive();
+        }
+        return PerProcessEnergyInSensitive["compton"];
+    }
+    Double_t GetEnergyInSensitiveFromProcessEIoni() {
+        if (!PerProcessEnergyInitFlag) {
+            InitializePerProcessEnergyInSensitive();
+        }
+        return PerProcessEnergyInSensitive["electron_ionization"];
+    }
+    Double_t GetEnergyInSensitiveFromProcessMsc() {
+        if (!PerProcessEnergyInitFlag) {
+            InitializePerProcessEnergyInSensitive();
+        }
+        return PerProcessEnergyInSensitive["msc"];
+    }
+    Double_t GetEnergyInSensitiveFromProcessHadronIoni() {
+        if (!PerProcessEnergyInitFlag) {
+            InitializePerProcessEnergyInSensitive();
+        }
+        return PerProcessEnergyInSensitive["hadronic_ionization"];
+    }
+    Double_t GetEnergyInSensitiveFromProcessProtonIoni() {
+        if (!PerProcessEnergyInitFlag) {
+            InitializePerProcessEnergyInSensitive();
+        }
+        return PerProcessEnergyInSensitive["proton_ionization"];
+    }
+    Double_t GetEnergyInSensitiveFromProcessHadronElastic() {
+        if (!PerProcessEnergyInitFlag) {
+            InitializePerProcessEnergyInSensitive();
+        }
+        return PerProcessEnergyInSensitive["hadronic_elastic"];
+    }
+    Double_t GetEnergyInSensitiveFromProcessNeutronElastic() {
+        if (!PerProcessEnergyInitFlag) {
+            InitializePerProcessEnergyInSensitive();
+        }
+        return PerProcessEnergyInSensitive["neutron_elastic"];
+    }
 
     void SetPrimaryEventOrigin(TVector3 pos) { fPrimaryEventOrigin = pos; }
     void SetPrimaryEventDirection(TVector3 dir) { fPrimaryEventDirection.push_back(dir); }
@@ -303,12 +342,11 @@ class TRestG4Event : public TRestEvent {
         return false;
     }
 
-       Bool_t isphotonNuclear() {
+    Bool_t isphotonNuclear() {
         for (int n = 0; n < GetNumberOfTracks(); n++)
             if (GetTrack(n)->isphotonNuclear()) return true;
         return false;
     }
-
 
     Bool_t isAlpha() {
         for (int n = 0; n < GetNumberOfTracks(); n++)
@@ -433,6 +471,6 @@ class TRestG4Event : public TRestEvent {
     // Destructor
     virtual ~TRestG4Event();
 
-    ClassDef(TRestG4Event, 2);  // REST event superclass
+    ClassDef(TRestG4Event, 3);  // REST event superclass
 };
 #endif
