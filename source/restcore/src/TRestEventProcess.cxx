@@ -185,7 +185,7 @@ void TRestEventProcess::ConfigAnalysisTree() {
     if (fAnalysisTree == NULL) return;
 
     if (fOutputLevel >= Observable) ReadObservables();
-    if (fOutputLevel >= Internal_Var) fAnalysisTree->Branch(this->GetName(), this);
+    //if (fOutputLevel >= Internal_Var) fAnalysisTree->Branch(this->GetName(), this);
     if (fOutputLevel >= Full_Output)
         fAnalysisTree->Branch((this->GetName() + (string) "_evtBranch").c_str(), GetOutputEvent());
 }

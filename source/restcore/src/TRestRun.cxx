@@ -888,14 +888,14 @@ void TRestRun::WriteWithDataBase() {
         info.start = fStartTime;
         info.stop = fEndTime;
 
-        //if (tree != NULL && tree->GetEntries() > 1) {
-        //    int n = tree->GetEntries();
-        //    tree->GetEntry(0);
-        //    double t1 = tree->GetTimeStamp();
-        //    tree->GetEntry(n - 1);
-        //    double t2 = tree->GetTimeStamp();
-        //    info.evtRate = n / (t2 - t1);
-        //}
+        if (tree != NULL && tree->GetEntries() > 1) {
+            int n = tree->GetEntries();
+            tree->GetEntry(0);
+            double t1 = tree->GetTimeStamp();
+            tree->GetEntry(n - 1);
+            double t2 = tree->GetTimeStamp();
+            info.evtRate = n / (t2 - t1);
+        }
 
         int fileid = db->add_runfile(fRunNumber, (string)fOutputFileName, info);
 
