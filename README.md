@@ -132,11 +132,13 @@ Different options can be passed to the `cmake` command to personalize the REST i
 * **REST_G4** (Default: OFF) : Adds executable `restG4` which carries out simulation with [Geant4++](http://geant4.web.cern.ch/) using REST style config file.
 
 To pass the options to cmake, one need to append "-DXXX=XXX" in the cmake command, for example: `cmake .. -DREST_WELCOME=OFF -DREST_G4=ON`.
-Note: Once you explicitly set an option, the default value of this option will be changed to the new value when you run `cmake` in the next time.
+Once you explicitly set an option, the default value of this option will be changed to the new value when you run `cmake` in the next time.
 
 ## REST libraries
 
 The REST framework provides only the structure and support to create REST user libraries. 
+The detailed documentation can be found [here](doc/Chapters/4-the-rest-framework) 
+
 Few official REST libraries maintained by the REST team will be installed as a module and maintained in a separate Git repository.
 Additional information on the functionality provided by those libraries will be found on that repository.
 
