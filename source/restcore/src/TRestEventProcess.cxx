@@ -184,10 +184,7 @@ void TRestEventProcess::SetFriendProcess(TRestEventProcess* p) {
 void TRestEventProcess::ConfigAnalysisTree() {
     if (fAnalysisTree == NULL) return;
 
-    if (fOutputLevel >= Observable) ReadObservables();
-    //if (fOutputLevel >= Internal_Var) fAnalysisTree->Branch(this->GetName(), this);
-    if (fOutputLevel >= Full_Output)
-        fAnalysisTree->Branch((this->GetName() + (string) "_evtBranch").c_str(), GetOutputEvent());
+    ReadObservables();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -196,22 +193,6 @@ void TRestEventProcess::ConfigAnalysisTree() {
 ///
 Int_t TRestEventProcess::LoadSectionMetadata() {
     TRestMetadata::LoadSectionMetadata();
-
-    // load output level
-    REST_Process_Output lvl;
-    string s = GetParameter("outputLevel", "observable");
-    if (s == "nooutput" || s == "0") {
-        lvl = No_Output;
-    } else if (s == "observable" || s == "1") {
-        lvl = Observable;
-    } else if (s == "internalvar" || s == "2") {
-        lvl = Internal_Var;
-    } else if (s == "fulloutput" || s == "3") {
-        lvl = Full_Output;
-    } else {
-        warning << this->ClassName() << " : invailed output level! use default(Internal_Var)" << endl;
-    }
-    SetOutputLevel(lvl);
 
     if (ToUpper(GetParameter("observable", "")) == "ALL") {
         fDynamicObs = true;

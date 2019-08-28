@@ -61,7 +61,7 @@ class TRestEventProcess : public TRestMetadata {
     bool fReadOnly = false;          //!
     bool fDynamicObs = false;        //!
 
-    REST_Process_Output fOutputLevel;  //!
+    REST_Process_Output fOutputLevel;  //! not used
 
     vector<pair<string, TVector2>> fCuts;           //!  [name, cut range]
     map<string, int> fObservableInfo;               //!     [name, id in AnalysisTree]
@@ -125,17 +125,12 @@ class TRestEventProcess : public TRestMetadata {
     virtual void ConfigAnalysisTree();
 
     // setters
-    void SetOutputLevel(REST_Process_Output lvl) {
-        fOutputLevel = lvl;
-        if (fOutputLevel < Observable) fReadOnly = true;
-    }
     void SetAnalysisTree(TRestAnalysisTree* tree);
     void SetRunInfo(TRestRun* r) { fRunInfo = r; }
     void SetCanvasSize(Int_t x, Int_t y) { fCanvasSize = TVector2(x, y); }
     void SetFriendProcess(TRestEventProcess* p);
 
     // getters
-    REST_Process_Output GetOutputLevel() { return fOutputLevel; }
     virtual TRestEvent* GetInputEvent() { return fInputEvent; }    ///< Get pointer to input event
     virtual TRestEvent* GetOutputEvent() { return fOutputEvent; }  ///< Get pointer to output event
     virtual Long64_t GetTotalBytes() { return -1; }
