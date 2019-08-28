@@ -27,46 +27,82 @@ map<string, pair<int, double>> __ListOfRESTUnits;
 /// <hr>
 namespace REST_Units {
 
+///////////////////////////////////////////////
+/// \brief Checks if the string is a REST supported unit
+///
+///	REST supports several basic units and kinds of their combinations(multiply, divide)
+/// e.g.
+/// cm, ns, mV, kg, keV
+/// V/cm, kg-yr
+/// 
+/// Note: REST doesn't support units combination with numbers, e.g. m/s^2
 bool IsUnit(string unitsStr) { return !TRestSystemOfUnits(unitsStr).IsZombie(); }
+
+///////////////////////////////////////////////
+/// \brief Checks if the string is a REST basic unit
+///
 bool IsBasicUnit(string unitsStr) { return (__ListOfRESTUnits.count(unitsStr) == 1); }
 
+///////////////////////////////////////////////
+/// \brief Find and return the units definition in a string
+///
+/// We suppose the last of **value** before **units** must be "1234567890(),".
+/// Hence this prepority can be used to spilt the input string into value part and unit part
+/// e.g.
+/// value="(1,-13)mm"
+/// value="-3mm"
+/// value="50,units=mm"
+/// value="20 mm"
+/// can both be recoginzed
 string FindRESTUnitsInString(string s) {
     string unitsStr = "";
-    {
-        // the last of a number must be "1234567890(),"
-        // we use this prepority to spilt the input string
-        // into value part and unit part
-        // e.g.
-        // value="(1,-13)mm"
-        // value="-3mm"
-        // value="50,units=mm"
-        // value="20 mm"
-        // can both be recoginzed
-        string unitDef = s.substr(s.find_last_of("1234567890(),") + 1, -1);
 
-        if (unitDef.find("=") != -1) {
-            string def = unitDef.substr(0, unitDef.find("="));
-            if (def == "units" || def == "unit") {
-                unitsStr = unitDef.substr(unitDef.find("=") + 1, -1);
-            }
-        } else {
-            unitsStr = Replace(unitDef, " ", "", 0);
+    string unitDef = s.substr(s.find_last_of("1234567890(),") + 1, -1);
+
+    if (unitDef.find("=") != -1) {
+        string def = unitDef.substr(0, unitDef.find("="));
+        if (def == "units" || def == "unit") {
+            unitsStr = unitDef.substr(unitDef.find("=") + 1, -1);
         }
+    } else {
+        unitsStr = Replace(unitDef, " ", "", 0);
     }
+
     if (IsUnit(unitsStr)) {
         return unitsStr;
     }
     return "";
 }
 
+///////////////////////////////////////////////
+/// \brief Convert value into REST units
+///
+/// For a given value with custom units, REST will first find its equivalent REST units and 
+/// calculate the scaling factor. Then it will strip off the custom units by dividing the 
+/// value with the scaling factor.
+///
+/// e.g. REST standard unit for dimension time*mass is kg*us. When we call:
+/// `double a = ConvertValueToRESTUnits(8, "kg-yr"); // a = 2.5236593e+14`
+/// The returned value is in unit "kg-us".
+///
+/// The returned the value can be thought as "unitless". This means we don't need to care 
+/// about it when saving it. When we are going to use it, we just add the unit back. For example:
+/// `SetExposure(a*units("ton-day"));`
+/// This explictily adds the unit "ton-day" to the "unitless" value a.
 Double_t ConvertValueToRESTUnits(Double_t value, string unitsStr) {
     return value / TRestSystemOfUnits((string)unitsStr);
 }
 
+///////////////////////////////////////////////
+/// \brief Convert value with REST units into the given custom units
+///
 Double_t ConvertRESTUnitsValueToCustomUnits(Double_t value, string unitsStr) {
     return value * TRestSystemOfUnits((string)unitsStr);
 }
 
+///////////////////////////////////////////////
+/// \brief Private method of this namespace, called during __static_initialization_and_destruction_0()
+///
 double _AddUnit(string name, int type, double scale) {
     __ListOfRESTUnits[name] = {type, scale};
     return scale;
@@ -76,7 +112,17 @@ double _AddUnit(string name, int type, double scale) {
 ///
 /// Wrapper class for custom composite unit, e.g. mm/us, kg-yr, V/cm
 ///
-/// Usage: TRestSystemOfUnits("kg-yr").ToRESTUnits(300)
+/// Implemented operator * and /, meaning strip-off/adds the unit for a unit-embeded/unitless value
+///
+/// Example 1: convert exposure unit "kg-yr" to "ton-day"
+/// `SetExposure(24/units("kg-yr")*units("ton-day"));`
+///
+/// Example 2: save a "unitless" value, then assign a concrete unit when using it
+/// `double field = GetDblParameterWithUnits("electricField");`
+/// `fGas->GetDriftVelocity(field*units("V/cm"));`
+/// 
+/// Note: If the unit definition is not recognized, the object will be zombie,
+/// and the value will not be converted.
 /// Note: It doesn't support unit with numbers, e.g. m/s^2
 TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
     if (unitsStr == "") {
@@ -146,6 +192,9 @@ TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
     fZombie = false;
 }
 
+///////////////////////////////////////////////
+/// \brief Get the type of the units
+///
 int TRestSystemOfUnits::GetUnitType(string singleUnit) {
     if (IsBasicUnit(singleUnit)) {
         return __ListOfRESTUnits[singleUnit].first;
@@ -153,6 +202,9 @@ int TRestSystemOfUnits::GetUnitType(string singleUnit) {
     return -1;
 }
 
+///////////////////////////////////////////////
+/// \brief Get the scale of the unit to convert to the REST standard units
+///
 double TRestSystemOfUnits::GetUnitScale(string singleUnit) {
     if (IsBasicUnit(singleUnit)) {
         return __ListOfRESTUnits[singleUnit].second;
