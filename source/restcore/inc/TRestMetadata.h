@@ -37,7 +37,7 @@
 #include "TApplication.h"
 #include "TClass.h"
 #include "TRestPhysics.h"
-#include "TRestReflection.h"
+#include "TRestReflector.h"
 #include "TRestSystemOfUnits.h"
 #include "TStreamerElement.h"
 #include "TVirtualStreamerInfo.h"

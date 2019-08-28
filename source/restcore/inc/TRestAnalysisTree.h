@@ -19,7 +19,7 @@
 #define RestCore_TRestAnalysisTree
 
 #include "TRestEvent.h"
-#include "TRestReflection.h"
+#include "TRestReflector.h"
 
 #include "TTree.h"
 class TRestEventProcess;
