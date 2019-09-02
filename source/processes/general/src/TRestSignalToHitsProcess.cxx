@@ -281,10 +281,11 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent* evInput) {
         cout << "TRestSignalToHitsProcess. Hits total energy : " << fHitsEvent->GetEnergy() << endl;
     }
 
-    if (this->GetVerboseLevel() >= REST_Debug) {
-        fHitsEvent->PrintEvent(300);
-        GetChar();
-    }
+    if (this->GetVerboseLevel() == REST_Debug) {
+        fHitsEvent->PrintEvent(30);
+    } else if (this->GetVerboseLevel() == REST_Extreme) {
+        fHitsEvent->PrintEvent(-1);
+	}
 
     if (fHitsEvent->GetNumberOfHits() <= 0) return NULL;
 
