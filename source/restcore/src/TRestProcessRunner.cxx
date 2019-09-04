@@ -126,7 +126,7 @@ void TRestProcessRunner::BeginOfInit() {
 
     fThreadNumber = StringToDouble(GetParameter("threadNumber", "1"));
     if (ToUpper(GetParameter("inputAnalysis", "ON")) == "ON") fOutputItem[0] = true;
-    if (ToUpper(GetParameter("inputEvent", "ON")) == "ON") fOutputItem[1] = true;
+    if (ToUpper(GetParameter("inputEvent", "OFF")) == "ON") fOutputItem[1] = true;
     if (ToUpper(GetParameter("outputEvent", "ON")) == "ON") fOutputItem[2] = true;
     fOutputItem[3] = true;
 
