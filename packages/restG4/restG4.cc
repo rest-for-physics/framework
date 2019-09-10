@@ -372,7 +372,7 @@ int main(int argc, char** argv) {
     }
     restRun->GetOutputFile()->cd();
 
-    restRun->WriteWithDataBase();
+   // restRun->WriteWithDataBase();
     /*
     initialEnergySpectrum.SetName("initialEnergySpectrum");
     initialAngularDistribution.SetName("initialAngularDistribution");
