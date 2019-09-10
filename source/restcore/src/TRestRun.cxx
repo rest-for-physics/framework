@@ -154,8 +154,16 @@ void TRestRun::BeginOfInit() {
         } else {
             fRunNumber = -1;
         }
+
         if (fRunNumber == 0) {
             fRunNumber = db->get_lastrun() + 1;
+			DBEntry entry;
+            entry.id = fRunNumber;
+            entry.description = fRunDescription;
+            entry.tag = fRunTag;
+            entry.type = fRunType;
+            entry.version = REST_RELEASE;
+            db->add_run(entry);
         }
     }
 
@@ -291,11 +299,11 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
 void TRestRun::EndOfInit() {
     // Get some information
 
-    fRunUser = getenv("USER") == NULL ? "" : getenv("USER");
-    fRunType = ToUpper(GetParameter("runType", "ANALYSIS")).c_str();
-    fRunDescription = GetParameter("runDescription", "").c_str();
-    fExperimentName = GetParameter("experiment", "preserve").c_str();
-    fRunTag = GetParameter("runTag", "noTag").c_str();
+    //fRunUser = getenv("USER") == NULL ? "" : getenv("USER");
+    //fRunType = ToUpper(GetParameter("runType", "ANALYSIS")).c_str();
+    //fRunDescription = GetParameter("runDescription", "").c_str();
+    //fExperimentName = GetParameter("experiment", "preserve").c_str();
+    //fRunTag = GetParameter("runTag", "noTag").c_str();
 
     OpenInputFile(0);
 
@@ -876,14 +884,8 @@ void TRestRun::WriteWithDataBase() {
     debug << "TResRun::WriteWithDataBase. Run number is : " << fRunNumber << endl;
     if (fRunNumber != -1) {
         TRestDataBase* db = gDataBase;
-        DBEntry entry;
-        entry.id = fRunNumber;
-        entry.description = fRunDescription;
-        entry.tag = fRunTag;
-        entry.type = fRunType;
-        entry.version = REST_RELEASE;
-        db->add_run(entry);
 
+		//add file information to the run
         auto info = DBFile((string)fOutputFileName);
         info.start = fStartTime;
         info.stop = fEndTime;
