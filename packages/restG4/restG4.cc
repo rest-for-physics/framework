@@ -154,7 +154,11 @@ int main(int argc, char** argv) {
     CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine);
     time_t systime = time(NULL);
     long seed = restG4Metadata->GetSeed();
-    if (seed == 0) seed = (long)systime + restRun->GetRunNumber() * 13;
+    if (seed == 0) {
+        // seed = (long)systime + restRun->GetRunNumber() * 13;
+        seed = StringToInteger(TRestTools::Execute("echo $RANDOM")) *
+                   StringToInteger(TRestTools::Execute("echo $RANDOM"));
+    }
     CLHEP::HepRandom::setTheSeed(seed);
     restG4Metadata->SetSeed(seed);
 
@@ -372,7 +376,7 @@ int main(int argc, char** argv) {
     }
     restRun->GetOutputFile()->cd();
 
-   // restRun->WriteWithDataBase();
+    // restRun->WriteWithDataBase();
     /*
     initialEnergySpectrum.SetName("initialEnergySpectrum");
     initialAngularDistribution.SetName("initialAngularDistribution");
