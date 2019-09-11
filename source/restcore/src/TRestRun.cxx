@@ -112,7 +112,7 @@ void TRestRun::BeginOfInit() {
 
     // Get some infomation
     fRunUser = getenv("USER") == NULL ? "" : getenv("USER");
-    fRunType = ToUpper(GetParameter("runType", "ANALYSIS")).c_str();
+    fRunType = GetParameter("runType", "ANALYSIS").c_str();
     fRunDescription = GetParameter("runDescription", "").c_str();
     fExperimentName = GetParameter("experiment", "preserve").c_str();
     fRunTag = GetParameter("runTag", "noTag").c_str();
