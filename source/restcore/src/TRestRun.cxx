@@ -157,7 +157,7 @@ void TRestRun::BeginOfInit() {
 
         if (fRunNumber == 0) {
             fRunNumber = db->get_lastrun() + 1;
-			DBEntry entry;
+            DBEntry entry;
             entry.id = fRunNumber;
             entry.description = fRunDescription;
             entry.tag = fRunTag;
@@ -299,11 +299,11 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
 void TRestRun::EndOfInit() {
     // Get some information
 
-    //fRunUser = getenv("USER") == NULL ? "" : getenv("USER");
-    //fRunType = ToUpper(GetParameter("runType", "ANALYSIS")).c_str();
-    //fRunDescription = GetParameter("runDescription", "").c_str();
-    //fExperimentName = GetParameter("experiment", "preserve").c_str();
-    //fRunTag = GetParameter("runTag", "noTag").c_str();
+    // fRunUser = getenv("USER") == NULL ? "" : getenv("USER");
+    // fRunType = ToUpper(GetParameter("runType", "ANALYSIS")).c_str();
+    // fRunDescription = GetParameter("runDescription", "").c_str();
+    // fExperimentName = GetParameter("experiment", "preserve").c_str();
+    // fRunTag = GetParameter("runTag", "noTag").c_str();
 
     OpenInputFile(0);
 
@@ -735,6 +735,11 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
 
         debug << "TRestRun::FormFormat. target : " << target << endl;
         debug << "TRestRun::FormFormat. replacestr : " << replacestr << endl;
+
+        if (target == "fVersion") replacestr = (string)GetVersion();
+
+        if (target == "fCommit") replacestr = (string)GetCommit();
+
         if (replacestr != target) {
             if (target == "fRunNumber" || target == "fParentRunNumber") {
                 replacestr = Form("%05d", StringToInteger(replacestr));
@@ -798,11 +803,11 @@ TFile* TRestRun::FormOutputFile(vector<string> filenames, string targetfilename)
     // for (int i = 0; i < fMetadataInfo.size(); i++) {
     //	fMetadataInfo[i]->Write();
     //}
-	//
+    //
 
     fout << this->ClassName() << " Created ..." << endl;
-	fout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << endl;
-	fout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second << endl;
+    fout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << endl;
+    fout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second << endl;
     return fOutputFile;
 }
 
@@ -822,8 +827,8 @@ TFile* TRestRun::FormOutputFile() {
     this->WriteWithDataBase();
 
     fout << this->ClassName() << " Created." << endl;
-	fout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << endl;
-	fout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second << endl;
+    fout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << endl;
+    fout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second << endl;
     return fOutputFile;
 }
 
@@ -889,7 +894,7 @@ void TRestRun::WriteWithDataBase() {
     if (fRunNumber != -1) {
         TRestDataBase* db = gDataBase;
 
-		//add file information to the run
+        // add file information to the run
         auto info = DBFile((string)fOutputFileName);
         info.start = fStartTime;
         info.stop = fEndTime;
