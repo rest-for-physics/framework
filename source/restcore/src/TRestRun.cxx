@@ -6,7 +6,7 @@
 /// raw data file(opened with external process) or root file(opened with built-
 /// in reader). TRestRun extracts event data in the input file and wraps it
 /// into TRestEvent class, which is queried by other classes.
-///
+//
 /// \class TRestRun
 ///
 ///--------------------------------------------------------------------------
@@ -798,9 +798,11 @@ TFile* TRestRun::FormOutputFile(vector<string> filenames, string targetfilename)
     // for (int i = 0; i < fMetadataInfo.size(); i++) {
     //	fMetadataInfo[i]->Write();
     //}
+	//
 
-    fout << this->ClassName() << " Created: " << fOutputFileName << endl;
-    debug << "fOutputFile " << fOutputFile << endl;
+    fout << this->ClassName() << " Created ..." << endl;
+	fout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << endl;
+	fout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second << endl;
     return fOutputFile;
 }
 
@@ -819,7 +821,9 @@ TFile* TRestRun::FormOutputFile() {
     fAnalysisTree->Write();
     this->WriteWithDataBase();
 
-	fout << this->ClassName() << " Created: " << fOutputFileName << endl;
+    fout << this->ClassName() << " Created." << endl;
+	fout << "- Path : " << TRestTools::SeparatePathAndName((string)fOutputFileName).first << endl;
+	fout << "- Filename : " << TRestTools::SeparatePathAndName((string)fOutputFileName).second << endl;
     return fOutputFile;
 }
 
