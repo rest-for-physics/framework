@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<TRestManager name="CoBoDataAnalysis" title="Example" verboseLevel="info" >
+
+  <TRestRun name="SJTU_Proto" >
+    <parameter name="runNumber" value="-1"/>//change this value to "auto" to enable database
+    <parameter name="outputFile" value="RUN[RunNumber]_[Time]_[LastProcess].root" />
+  </TRestRun>
+
+  <TRestProcessRunner name="Processor" verboseLevel="info">
+    <parameter name="eventsToProcess" value="0" />
+    <parameter name="threadNumber" value="2"/>
+    
+    <parameter name="inputAnalysis" value="on"/>
+    <parameter name="inputEvent" value="on"/>
+    <parameter name="outputEvent" value="on"/>
+
+    <addProcess type="TRestUSTCElectronicsProcess" name="virtualDAQ" value="ON"/>
+    <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON">
+      <parameter name="pointThreshold" value="3" />
+      <parameter name="pointsOverThreshold" value="3" />
+      <parameter name="observable" value="all" />
+      /// no need for explicit observable definition if we use "observable=all"
+      <!--<observable name="baseline" value="ON" />
+      <observable name="SecondsFromStart" value="ON" />
+      <observable name="ThresholdIntegral" value="ON" />-->
+    </addProcess>
+  </TRestProcessRunner>
+
+  <addTask command="Processor->RunProcess()" value="ON"/>
+
+</TRestManager>
+
