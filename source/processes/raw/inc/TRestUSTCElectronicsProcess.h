@@ -66,7 +66,7 @@ struct USTCDataFrame {
         evId = -1;
         signalId = 0;
     }
-    UChar_t data[DATA_SIZE];  // the size of a signal frame
+    UChar_t data[1048];  // the size of a signal frame
 
     Int_t boardId;       // 0~n
     Int_t chipId;        // 0~3 aget number
@@ -86,10 +86,8 @@ class TRestUSTCElectronicsProcess : public TRestRawToSignalProcess {
     TRestRawSignalEvent* fSignalEvent;  //!
     TRestRawSignal sgnl;                //!
 
-#ifdef V4_Readout_Format
-    UChar_t fHeader[HEADER_SIZE];
-    UChar_t fEnding[ENDING_SIZE];
-#endif
+    UChar_t fHeader[64];
+    UChar_t fEnding[32];
 
     vector<vector<USTCDataFrame>> fEventBuffer;  //!
     int nBufferedEvent;                          //!
@@ -135,7 +133,7 @@ class TRestUSTCElectronicsProcess : public TRestRawToSignalProcess {
     ~TRestUSTCElectronicsProcess();
 
     ClassDef(TRestUSTCElectronicsProcess,
-             1);  // Template for a REST "event process" class inherited from
+             2);  // Template for a REST "event process" class inherited from
                   // TRestEventProcess
 };
 #endif
