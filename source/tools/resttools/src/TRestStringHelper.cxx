@@ -90,9 +90,9 @@ std::string REST_StringHelper::EvaluateExpression(std::string exp) {
         return exp;
     }
 
-    // NOTE!!! In root6 the expression like "1/2" will be computed using the input
-    // as int number, which will return 0, and cause problem. we roll back to
-    // TFormula of version 5
+// NOTE!!! In root6 the expression like "1/2" will be computed using the input
+// as int number, which will return 0, and cause problem. we roll back to
+// TFormula of version 5
 #if ROOT_VERSION_CODE < ROOT_VERSION(6, 0, 0)
     TFormula formula("tmp", exp.c_str());
 #else
@@ -116,7 +116,7 @@ std::string REST_StringHelper::EvaluateExpression(std::string exp) {
 /// not it returns 0.
 ///
 Int_t REST_StringHelper::isANumber(string in) {
-    return (in.find_first_not_of("-+0123456789.e") == std::string::npos && in.length() != 0);
+    return (in.find_first_not_of("-+0123456789.eE") == std::string::npos && in.length() != 0);
 }
 
 ///////////////////////////////////////////////
