@@ -63,11 +63,11 @@ class TRestSignalChannelActivityProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        cout << "Low signal threshold activity : " << fLowThreshold << endl;
-        cout << "High signal threshold activity : " << fHighThreshold << endl;
+        metadata << "Low signal threshold activity : " << fLowThreshold << endl;
+        metadata << "High signal threshold activity : " << fHighThreshold << endl;
 
-        cout << "Number of daq histogram channels : " << fDaqHistogramChannels << endl;
-        cout << "Number of readout histogram channels : " << fReadoutHistogramChannels << endl;
+        metadata << "Number of daq histogram channels : " << fDaqHistogramChannels << endl;
+        metadata << "Number of readout histogram channels : " << fReadoutHistogramChannels << endl;
 
         EndPrintProcess();
     }
