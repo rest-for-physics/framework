@@ -40,16 +40,16 @@ class TRestSignalChannelActivityProcess : public TRestEventProcess {
     Double_t fLowThreshold;
     Double_t fHighThreshold;
 
-    TH1D* fDaqChannelsHisto;
+    TH1D* fDaqChannelsHisto;  //!
 
-    TH1D* fReadoutChannelsHisto_OneSignal;
-    TH1D* fReadoutChannelsHisto_OneSignal_High;
-    TH1D* fReadoutChannelsHisto_TwoSignals;
-    TH1D* fReadoutChannelsHisto_TwoSignals_High;
-    TH1D* fReadoutChannelsHisto_ThreeSignals;
-    TH1D* fReadoutChannelsHisto_ThreeSignals_High;
-    TH1D* fReadoutChannelsHisto_MultiSignals;
-    TH1D* fReadoutChannelsHisto_MultiSignals_High;
+    TH1D* fReadoutChannelsHisto_OneSignal;          //!
+    TH1D* fReadoutChannelsHisto_OneSignal_High;     //!
+    TH1D* fReadoutChannelsHisto_TwoSignals;         //!
+    TH1D* fReadoutChannelsHisto_TwoSignals_High;    //!
+    TH1D* fReadoutChannelsHisto_ThreeSignals;       //!
+    TH1D* fReadoutChannelsHisto_ThreeSignals_High;  //!
+    TH1D* fReadoutChannelsHisto_MultiSignals;       //!
+    TH1D* fReadoutChannelsHisto_MultiSignals_High;  //!
 
    public:
     void InitProcess();
