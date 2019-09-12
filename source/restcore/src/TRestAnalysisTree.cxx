@@ -249,6 +249,10 @@ Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
             ConnectEventBranches();
             ConnectObservables();
         }
+        else if(fNObservables == 0){
+            ConnectEventBranches();
+            ConnectObservables();
+        }
     }
 
     return TTree::GetEntry(entry, getall);
