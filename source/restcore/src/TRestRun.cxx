@@ -428,6 +428,8 @@ void TRestRun::ReadInputFileMetadata() {
         TIter nextkey(f->GetListOfKeys());
         TKey* key;
         while ((key = (TKey*)nextkey())) {
+            debug << "Reading key with name : " << key->GetName() << endl;
+
             TRestMetadata* a = (TRestMetadata*)f->Get(key->GetName());
 
             if (!a) {
