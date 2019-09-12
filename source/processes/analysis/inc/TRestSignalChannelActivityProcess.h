@@ -24,9 +24,6 @@ class TRestSignalChannelActivityProcess : public TRestEventProcess {
 #ifndef __CINT__
     TRestSignalEvent* fSignalEvent;  //!
     TRestReadout* fReadout;          //!
-
-    Int_t fDaqHistogramChannels;      //!
-    Int_t fReadoutHistogramChannels;  //!
 #endif
     void InitFromConfigFile();
 
@@ -39,6 +36,9 @@ class TRestSignalChannelActivityProcess : public TRestEventProcess {
     //
     Double_t fLowThreshold;
     Double_t fHighThreshold;
+
+    Int_t fDaqHistogramChannels;
+    Int_t fReadoutHistogramChannels;
 
     TH1D* fDaqChannelsHisto;  //!
 
@@ -80,8 +80,6 @@ class TRestSignalChannelActivityProcess : public TRestEventProcess {
     // Destructor
     ~TRestSignalChannelActivityProcess();
 
-    ClassDef(TRestSignalChannelActivityProcess,
-             1);  // Template for a REST "event process" class inherited from
-                  // TRestEventProcess
+    ClassDef(TRestSignalChannelActivityProcess, 2);
 };
 #endif
