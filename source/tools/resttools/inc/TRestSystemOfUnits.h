@@ -15,70 +15,108 @@
 #define RestCore_TRestSystemOfUnits
 
 #include <iostream>
+#include <map>
+#include <string>
 using namespace std;
 
 #include <TString.h>
 
+#define AddUnit(name, type, scale)                                                  \
+    const double name = _AddUnit(#name, type, scale)
+
 /// This namespace defines the unit conversion for different units which are understood by REST.
 namespace REST_Units {
 
-const double meV = 1e6;
-const double eV = 1e3;
-const double keV = 1;
-const double MeV = 1e-3;
-const double GeV = 1e-6;
+class TRestSystemOfUnits {
+   private:
+    vector<string> component;
+    vector<int> type;
+    vector<double> scale;
+    vector<double> order;
 
-Bool_t isEnergy(TString unitsStr);
-Double_t GetEnergyInRESTUnits(Double_t energy, TString unitsStr);
+    Bool_t fZombie;
 
-const double ns = 1.e3;
-const double us = 1.;
-const double ms = 1.e-3;
-const double s = 1.e-6;
+    double fScaleCombined;
 
-Double_t GetTimeInRESTUnits(Double_t time, TString unitsStr);
-Bool_t isTime(TString unitsStr);
+    /// Get the type of the units
+    int GetUnitType(string singleUnit);
+    /// Get the scale of the unit to convert to the REST standard units
+    double GetUnitScale(string singleUnit);
 
-const double um = 1e3;
-const double mm = 1.;
-const double cm = 1e-1;
-const double m = 1e-3;
+   public:
+    // We use more common high energy physics unit instead of SI unit
+    enum Physical_Unit { Energy, Time, Distance, Mass, Electric, Magnetic, NOT_A_UNIT = -1 };
 
-Double_t GetDistanceInRESTUnits(Double_t distance, TString unitsStr);
-Bool_t isDistance(TString unitsStr);
+	/// Constructor from a unit string
+    TRestSystemOfUnits(string unitsStr);
+    /// Whether this unit is zombie(invalid)
+    bool IsZombie() const { return fZombie; }
 
-const double Vum = 1.e-4;
-const double Vmm = 1.e-1;
-const double Vcm = 1.;
-const double Vm = 1e2;
+    friend Double_t operator*(const Double_t& val, const TRestSystemOfUnits& units) {
+        if (units.fZombie) return val;
+        return val * units.fScaleCombined;
+    }
 
-const double kVum = 1.e-7;
-const double kVmm = 1.e-4;
-const double kVcm = 1.e-3;
-const double kVm = 1e-1;
+    friend Double_t operator/(const Double_t& val, const TRestSystemOfUnits& units) {
+        if (units.fZombie) return val;
+        return val / units.fScaleCombined;
+    }
+};
 
-Double_t GetFieldInRESTUnits(Double_t field, TString unitsStr);
-Bool_t isField(TString unitsStr);
-
-const double mV = 1.e3;
-const double V = 1.;
-const double kV = 1.e-3;
-
-Double_t GetPotentialInRESTUnits(Double_t potential, TString unitsStr);
-Bool_t isPotential(TString unitsStr);
-
-const double mT = 1.e3;
-const double T = 1.;
-const double G = 1.e4;
-
-Double_t GetMagneticFieldInRESTUnits(Double_t field, TString unitsStr);
-Bool_t isMagneticField(TString unitsStr);
-
+bool IsBasicUnit(string in);
 bool IsUnit(string in);
-string GetRESTUnitsInString(string InString);
-Double_t GetValueInRESTUnits(Double_t value, TString unitsStr);
+string FindRESTUnitsInString(string InString);
+Double_t ConvertValueToRESTUnits(Double_t value, string unitsStr);
+Double_t ConvertRESTUnitsValueToCustomUnits(Double_t value, string unitsStr);
+
+extern map<string, pair<int, double>> __ListOfRESTUnits;  // name, [unit type id, scale]
+
+double _AddUnit(string name, int type, double scale);
+
+
+// energy unit multiplier
+AddUnit(meV, TRestSystemOfUnits::Energy, 1e6);
+AddUnit(eV, TRestSystemOfUnits::Energy, 1e3);
+AddUnit(keV, TRestSystemOfUnits::Energy, 1);
+AddUnit(MeV, TRestSystemOfUnits::Energy, 1e-3);
+AddUnit(GeV, TRestSystemOfUnits::Energy, 1e-6);
+AddUnit(J, TRestSystemOfUnits::Energy, 1.60e-19);
+AddUnit(kJ, TRestSystemOfUnits::Energy, 1.60e-22);
+
+// time unit multiplier
+AddUnit(ns, TRestSystemOfUnits::Time, 1.e3);
+AddUnit(us, TRestSystemOfUnits::Time, 1.);
+AddUnit(ms, TRestSystemOfUnits::Time, 1.e-3);
+AddUnit(s, TRestSystemOfUnits::Time, 1.e-6);
+AddUnit(minu, TRestSystemOfUnits::Time, 1.67e-8);
+AddUnit(hr, TRestSystemOfUnits::Time, 2.78e-10);
+AddUnit(day, TRestSystemOfUnits::Time, 1.16e-11);
+AddUnit(mon, TRestSystemOfUnits::Time, 3.85e-13);
+AddUnit(yr, TRestSystemOfUnits::Time, 3.17e-14);
+
+// distance unit multiplier
+AddUnit(um, TRestSystemOfUnits::Distance, 1e3);
+AddUnit(mm, TRestSystemOfUnits::Distance, 1.);
+AddUnit(cm, TRestSystemOfUnits::Distance, 1e-1);
+AddUnit(m, TRestSystemOfUnits::Distance, 1e-3);
+
+// mass unit multiplier
+AddUnit(gram, TRestSystemOfUnits::Mass, 1e3);
+AddUnit(kg, TRestSystemOfUnits::Mass, 1.);
+AddUnit(ton, TRestSystemOfUnits::Mass, 1e-3);
+
+// e-potential unit multiplier
+AddUnit(mV, TRestSystemOfUnits::Electric, 1.e3);
+AddUnit(V, TRestSystemOfUnits::Electric, 1.);
+AddUnit(kV, TRestSystemOfUnits::Electric, 1.e-3);
+
+// magnetic field unit multiplier
+AddUnit(mT, TRestSystemOfUnits::Magnetic, 1.e3);
+AddUnit(T, TRestSystemOfUnits::Magnetic, 1.);
+AddUnit(G, TRestSystemOfUnits::Magnetic, 1.e4);
+
 }  // namespace REST_Units
 
-// dummy class
-class TRestSystemOfUnits {};
+typedef REST_Units::TRestSystemOfUnits units;
+
 #endif

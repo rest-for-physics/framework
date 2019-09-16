@@ -44,7 +44,6 @@ class TRestThread : public TRestMetadata {
 
 #ifndef __CINT__
     TFile* fOutputFile;             //!
-    vector<string> fTreeBranchDef;  //!
     std::thread t;                  //!
 #endif
 
@@ -53,7 +52,7 @@ class TRestThread : public TRestMetadata {
     void InitFromConfigFile() {}
 
     void AddProcess(TRestEventProcess* process);
-    void PrepareToProcess(bool testrun = true);
+    void PrepareToProcess(bool*outputConfig=0, bool testrun = true);
     bool TestRun(TRestAnalysisTree* tempTree = NULL);
     void StartProcess();
 
@@ -68,7 +67,6 @@ class TRestThread : public TRestMetadata {
 
     // getter and setter
     void SetThreadId(Int_t id);
-    void SetBranchConfig(vector<string> i) { fTreeBranchDef = i; }
     void SetOutputTree(TRestAnalysisTree* t) { fAnalysisTree = t; }
     void SetProcessRunner(TRestProcessRunner* r) { fHostRunner = r; }
     TFile* GetOutputFile() { return fOutputFile; };

@@ -77,7 +77,8 @@ void TRestUSTCElectronicsProcess::InitProcess() {
     if ((!GetNextFrame(frame)) || (!ReadFrameData(frame))) {
         FixToNextFrame(fInputFiles[fCurrentFile]);
         if ((!GetNextFrame(frame)) || (!ReadFrameData(frame))) {
-            cout << "error reading first frame in file, may be wrong input?" << endl;
+            error << "TRestUSTCElectronicsProcess: Failed to read the first data frame in file, may be wrong input?" << endl;
+            exit(1);
         }
     }
 
@@ -255,70 +256,136 @@ bool TRestUSTCElectronicsProcess::FillBuffer() {
     return true;
 }
 
+bool TRestUSTCElectronicsProcess::OpenNextFile(USTCDataFrame& frame) {
+    if (fCurrentFile < fInputFiles.size() - 1)  // try to get frame form next file
+    {
+        fCurrentFile++;
+        return GetNextFrame(frame);
+    } else {
+        return false;
+    }
+}
+
 bool TRestUSTCElectronicsProcess::GetNextFrame(USTCDataFrame& frame) {
     if (fInputFiles[fCurrentFile] == NULL) {
-        if (fCurrentFile < fInputFiles.size() - 1)  // try to get frame form next file
-        {
-            fCurrentFile++;
-            return GetNextFrame(frame);
+        return OpenNextFile(frame);
+    }
+#ifdef V4_Readout_Format
+    while (1) {
+        UChar_t Protocol[PROTOCOL_SIZE];
+        if (fread(Protocol, PROTOCOL_SIZE, 1, fInputFiles[fCurrentFile]) != 1 ||
+            feof(fInputFiles[fCurrentFile])) {
+            fclose(fInputFiles[fCurrentFile]);
+            fInputFiles[fCurrentFile] = NULL;
+            return OpenNextFile(frame);
+        }
+        totalBytesReaded += PROTOCOL_SIZE;
+
+        if (!(Protocol[0] ^ 0xac) && !(Protocol[1] ^ 0x0f)) {
+            // the first 2 bytes must be 0xac0f, otherwise it is wrong
+
+            int flag = Protocol[2] >> 5;
+            if (flag & 0x1) {
+                // this is the evt_ending frame
+                memcpy(fEnding, Protocol, PROTOCOL_SIZE);
+                if (fread(fEnding + PROTOCOL_SIZE, ENDING_SIZE - PROTOCOL_SIZE, 1,
+                          fInputFiles[fCurrentFile]) != 1 ||
+                    feof(fInputFiles[fCurrentFile])) {
+                    fclose(fInputFiles[fCurrentFile]);
+                    fInputFiles[fCurrentFile] = NULL;
+                    return OpenNextFile(frame);
+                }
+                totalBytesReaded += ENDING_SIZE;
+            } else if (flag & 0x2) {
+                // this is the evt_header frame
+                memcpy(fHeader, Protocol, PROTOCOL_SIZE);
+                if (fread(fHeader + PROTOCOL_SIZE, HEADER_SIZE - PROTOCOL_SIZE, 1,
+                          fInputFiles[fCurrentFile]) != 1 ||
+                    feof(fInputFiles[fCurrentFile])) {
+                    fclose(fInputFiles[fCurrentFile]);
+                    fInputFiles[fCurrentFile] = NULL;
+                    return OpenNextFile(frame);
+                }
+                totalBytesReaded += HEADER_SIZE;
+            } else {
+                // this is the evt_data frame
+                memcpy(frame.data, Protocol, PROTOCOL_SIZE);
+                if (fread(frame.data + PROTOCOL_SIZE, DATA_SIZE - PROTOCOL_SIZE, 1,
+                          fInputFiles[fCurrentFile]) != 1 ||
+                    feof(fInputFiles[fCurrentFile])) {
+                    fclose(fInputFiles[fCurrentFile]);
+                    fInputFiles[fCurrentFile] = NULL;
+                    return OpenNextFile(frame);
+                }
+                totalBytesReaded += DATA_SIZE;
+                return true;
+            }
         } else {
             return false;
         }
     }
-    if (fread(frame.data, N, 1, fInputFiles[fCurrentFile]) != 1 || feof(fInputFiles[fCurrentFile])) {
+#else
+    if (fread(frame.data, DATA_SIZE, 1, fInputFiles[fCurrentFile]) != 1 || feof(fInputFiles[fCurrentFile])) {
         fclose(fInputFiles[fCurrentFile]);
         fInputFiles[fCurrentFile] = NULL;
-        if (fCurrentFile < fInputFiles.size() - 1)  // try to get frame form next file
-        {
-            fCurrentFile++;
-            return GetNextFrame(frame);
-        } else {
-            return false;
-        }
+        return OpenNextFile(frame);
     }
-    totalBytesReaded += N;
+    totalBytesReaded += DATA_SIZE;
+
+    if (frame.data[0] * 0x100 + frame.data[1] != 0xEEEE) {
+        warning << "wrong header!" << endl;
+        return false;
+    }
+#endif  // V4_Readout_Format
+
     return true;
 }
 
+// it find the next flag of frame, e.g. 0xffff or 0xac0f
 void TRestUSTCElectronicsProcess::FixToNextFrame(FILE* f) {
     if (f == NULL) return;
-    UChar_t* buffer = new UChar_t[2];
+    UChar_t buffer[PROTOCOL_SIZE];
     int n = 0;
     while (1) {
-        if (fread(buffer, 2, 1, f) != 1 || feof(f)) {
-            fclose(f);
-            f = NULL;
-            break;
+        if (fread(buffer, PROTOCOL_SIZE, 1, f) != 1 || feof(f)) {
+            return;
         }
-        n += 2;
-        if ((int)(buffer[0]) * 0x100 + (int)buffer[1] == 0xFFFF) {
-            if (fread(buffer, 2, 1, f) != 1 || feof(f)) {
-                fclose(f);
-                f = NULL;
-                break;
-            }
-            n += 2;
-            if ((int)(buffer[0]) * 0x100 + (int)buffer[1] == 0xFFFF) {
+        n += PROTOCOL_SIZE;
+#ifdef V4_Readout_Format
+        if (!(buffer[0] ^ 0xac) && !(buffer[1] ^ 0x0f)) {
+            int flag = buffer[2] >> 5;
+            if (flag & 0x2) {
+                // we have meet the next event header
+                memcpy(fHeader, buffer, PROTOCOL_SIZE);
+                if (fread(fHeader + PROTOCOL_SIZE, HEADER_SIZE - PROTOCOL_SIZE, 1,
+                          fInputFiles[fCurrentFile]) != 1 ||
+                    feof(fInputFiles[fCurrentFile])) {
+                    fclose(f);
+                    f = NULL;
+                    break;
+                }
+                n += HEADER_SIZE;
                 warning << "successfully switched to next frame ( + " << n << " byte)" << endl;
                 warning << endl;
                 break;
             }
         }
+#else
+        if (!(buffer[0] ^ 0xff) && !(buffer[1] ^ 0xff) && !(buffer[2] ^ 0xff) && !(buffer[3] ^ 0xff)) {
+            warning << "successfully switched to next frame ( + " << n << " byte)" << endl;
+            warning << endl;
+            break;
+        }
+#endif
     }
     totalBytesReaded += n;
-    delete[] buffer;
 }
 
 bool TRestUSTCElectronicsProcess::ReadFrameData(USTCDataFrame& frame) {
-    if (frame.data[0] * 0x100 + frame.data[1] != 0xEEEE) {
-        warning << "wrong header!" << endl;
-        return false;
-    }
+#ifdef V3_Readout_Format_Long
 
-#ifdef Long_Readout_Format
-
-    // EEEE | E0A0 | 246C 0686 4550 504E | 0001 | 2233 4455 6677 | (A098)(A09C)...
-    // | FFFF 0~1header | 2~3board number | 4~11event time | 12~13channel id(0~63)
+    // EEEE | E0A0 | 246C 0686 4550 504E | 0001 | 2233 4455 6677 | (A098)(A09C)... | FFFF FFFF
+    // 0~1header | 2~3board number | 4~11event time | 12~13channel id(0~63)
     // | 14~19event id | [chip id + data(0~4095)]*512 | ending
     frame.boardId = frame.data[2] & 0x0F;
     frame.chipId = (frame.data[3] & 0xF0) / 16 - 10;
@@ -334,8 +401,9 @@ bool TRestUSTCElectronicsProcess::ReadFrameData(USTCDataFrame& frame) {
                                   // is too large
 
     frame.signalId = frame.boardId * 4 * 64 + frame.chipId * 64 + frame.channelId;
+#endif
 
-#else
+#ifdef V3_Readout_Format_Short
     // EEEE | E0A0 | 246C 0686 | 0001 | 2233 | (A098)(A09C)... | FFFF
     // 0~1header | 2~3board number | 4~7event time | 8~9channel id(0~63) |
     // 10~11event id | [chip id + data(0~4095)]*512 | ending
@@ -352,18 +420,49 @@ bool TRestUSTCElectronicsProcess::ReadFrameData(USTCDataFrame& frame) {
 
 #endif  // Long_Readout_Format
 
+#ifdef V4_Readout_Format
+
+    // the evt header frame
+    // AC0F        | 401C         | 0300                                     | 010A 3140 0000            |
+    // 0500 0000               | .... | .... | 8E95 B452 0~1Protocol | 2~3 010+size | 4~5:
+    // 00000011+ETYPE(2)+ST(1)+SOURCEID(5) | 6~11 time stamp(inverted) | 12~15 event id(inverted) | not used
+    // | ending
+    frame.readoutType = fHeader[5] & 0xc0;
+
+    int t_high = fHeader[10] * 0x100 + fHeader[11];
+    int t_mid = fHeader[8] * 0x100 + fHeader[9];
+    int t_low = fHeader[6] * 0x100 + fHeader[7];
+    Long64_t tmp = (Long64_t)t_high * 0x100000000 + (Long64_t)t_mid * 0x10000 + (Long64_t)t_low;
+    frame.eventTime = tmp;
+
+    int id_high = fHeader[14] * 0x100 + fHeader[15];
+    int id_low = fHeader[12] * 0x100 + fHeader[13];
+    frame.evId = id_high * 0x10000 + id_low;
+
+    // the signal frame
+    // AC0F        | 0404         | C000                               | (3163)(316C)...         | 0000 BCEB
+    // 5742 0~1Protocol | 2~3 not used | 4~5: 11+card(5)+chip(2)+channel(7) | [0011+data(0~4095)]*512 | ending
+    // event info(time, id, etc.) is in event header
+    frame.boardId = frame.data[4] & 0x3e;
+    frame.chipId = (frame.data[4] & 0x01) * 2 + (frame.data[5] >> 7);
+    frame.channelId = frame.data[5] & 0x7f;
+
+    frame.signalId = frame.boardId * 4 * 64 + frame.chipId * 68 + frame.channelId;
+#endif
+
+    // sampling point data
     for (int i = 0; i < 512; i++) {
-        int pos = i * 2 + (N - 512 * 2 - 4);
+        int pos = i * 2 + DATA_OFFSET;
         frame.dataPoint[i] = (int)((frame.data[pos] & 0x0F) * 0x100 + frame.data[pos + 1]);
     }
 
-    if (frame.data[N - 4] * 0x1000000 + frame.data[N - 3] * 0x10000 + frame.data[N - 2] * 0x100 +
-            frame.data[N - 1] !=
-        0xFFFFFFFF) {
-        warning << "wrong ending of frame! Event Id : " << frame.evId << " Channel Id : " << frame.channelId
-                << endl;
-        return false;
-    }
+    // if (frame.data[DATA_SIZE - 4] * 0x1000000 + frame.data[DATA_SIZE - 3] * 0x10000 +
+    //	frame.data[DATA_SIZE - 2] * 0x100 + frame.data[DATA_SIZE - 1] !=
+    //	0xFFFFFFFF) {
+    //	warning << "wrong ending of frame! Event Id : " << frame.evId << " Channel Id : " << frame.channelId
+    //		<< endl;
+    //	return false;
+    //}
 
     ////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////

@@ -78,19 +78,19 @@ void TRestRawToSignalProcess::InitFromConfigFile() {
     if (GetVerboseLevel() >= REST_Warning) {
         cout << "REST WARNING: TRestRawToSignalProcess::InitFromConfigFile" << endl;
         cout << "Electronic type " << fElectronicsType << " not found " << endl;
-        cout << "Loading default config" << endl;
+        // cout << "Loading default config" << endl;
     }
 
     LoadDefaultConfig();
 }
 
 void TRestRawToSignalProcess::LoadDefaultConfig() {
-    if (GetVerboseLevel() <= REST_Warning) {
-        cout << "REST WARNING: TRestRawToSignalProcess " << endl;
-        cout << "Error Loading config file " << endl;
-    }
+    // if (GetVerboseLevel() <= REST_Warning) {
+    //    cout << "REST WARNING: TRestRawToSignalProcess " << endl;
+    //    cout << "Error Loading config file " << endl;
+    //}
 
-    if (GetVerboseLevel() >= REST_Debug) GetChar();
+    // if (GetVerboseLevel() >= REST_Debug) GetChar();
 
     fElectronicsType = "SingleFeminos";
     fMinPoints = 512;
@@ -100,7 +100,7 @@ void TRestRawToSignalProcess::LoadDefaultConfig() {
 void TRestRawToSignalProcess::EndProcess() {
     // close binary file??? Already done
 
-    cout << __PRETTY_FUNCTION__ << endl;
+    debug << __PRETTY_FUNCTION__ << endl;
 }
 
 ////______________________________________________________________________________

@@ -164,7 +164,7 @@ Int_t TRestAnalysisTree::AddObservable(TString objName, TRestMetadata* meta, TSt
     if (fBranchesCreated) {
         return -1;
     }
-    REST_Reflection::AnyPtr_t ptr = REST_Reflection::GetDataMember(meta, (string)objName);
+    any ptr = REST_Reflection::GetDataMember(meta, (string)objName);
     if (ptr.IsZombie()) return -1;
 
     TString brName = meta->GetName() + (TString) "." + ptr.name;
@@ -249,6 +249,10 @@ Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
             ConnectEventBranches();
             ConnectObservables();
         }
+        else if(fNObservables == 0){
+            ConnectEventBranches();
+            ConnectObservables();
+        }
     }
 
     return TTree::GetEntry(entry, getall);
@@ -265,18 +269,26 @@ void TRestAnalysisTree::SetEventInfo(TRestEvent* evt) {
     }
 }
 
-Int_t TRestAnalysisTree::FillEvent(TRestEvent* evt) {
-    SetEventInfo(evt);
+Int_t TRestAnalysisTree::Fill(TRestEvent* evt) {
+    if (evt != NULL) {
+		SetEventInfo(evt);
+	}
 
     if (!fBranchesCreated) {
-        CreateEventBranches();
-        CreateObservableBranches();
+        CreateBranches();
     }
 
-    return this->Fill();
+    return TTree::Fill();
 }
 
 void TRestAnalysisTree::CreateEventBranches() {
+    if (fBranchesCreated) {
+        return;
+    }
+    if (GetListOfBranches()->GetEntriesFast() > 0 ) {
+        fBranchesCreated = true;
+        return;
+    }
     Branch("runOrigin", &fRunOrigin);
     Branch("subRunOrigin", &fSubRunOrigin);
     Branch("eventID", &fEventID);
@@ -287,8 +299,7 @@ void TRestAnalysisTree::CreateEventBranches() {
 
 void TRestAnalysisTree::CreateObservableBranches() {
     if (fBranchesCreated) {
-        cout << "REST ERROR : Branches have been already created" << endl;
-        exit(1);
+        return;
     }
 
     for (int n = 0; n < GetNumberOfObservables(); n++) {
@@ -320,8 +331,14 @@ void TRestAnalysisTree::CreateObservableBranches() {
     }
 
     // Branch(fObservableNames[n], fObservableMemory[n]);
+}
 
-    fBranchesCreated = true;
+void TRestAnalysisTree::CreateBranches() {
+    if (!fBranchesCreated) {
+        CreateEventBranches();
+        CreateObservableBranches();
+        fBranchesCreated = true;
+    }
 }
 
 //______________________________________________________________________________

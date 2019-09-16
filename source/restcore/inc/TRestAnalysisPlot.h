@@ -17,7 +17,7 @@
 #include "TH3D.h"
 #include "TRestAnalysisTree.h"
 
-const int REST_MAX_TAGS = 6;
+const int REST_MAX_TAGS = 15;
 
 class TRestAnalysisPlot : public TRestMetadata {
    private:
@@ -33,9 +33,9 @@ class TRestAnalysisPlot : public TRestMetadata {
     std::vector<TString> fLegendName;
 
 #ifndef __CINT__
-    TRestRun* fRun;
+    TRestRun* fRun; //!
 
-    TCanvas* fCombinedCanvas;
+    TCanvas* fCombinedCanvas; //!
 
     TString fPlotMode;
     TString fHistoOutputFile;

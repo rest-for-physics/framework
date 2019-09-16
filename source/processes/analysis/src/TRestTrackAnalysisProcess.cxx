@@ -566,10 +566,8 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
             SetObservableValue((string)fTwistWeightedHighObservables[n], fTwistWeightedHighValue[n]);
         }
 
-        obsName = this->GetName() + (TString) ".twist";
         SetObservableValue("twist", twist);
 
-        obsName = this->GetName() + (TString) ".twistWeighted";
         SetObservableValue("twistWeighted", twistWeighted);
         /* }}} */
 
@@ -689,10 +687,8 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
             SetObservableValue((string)fTwistWeightedHighObservables_X[n], fTwistWeightedHighValue_X[n]);
         }
 
-        obsName = this->GetName() + (TString) ".twist_X";
         SetObservableValue((string) "twist_X", twist_X);
 
-        obsName = this->GetName() + (TString) ".twistWeighted_X";
         SetObservableValue((string) "twistWeighted_X", twistWeighted_X);
         /* }}} */
 

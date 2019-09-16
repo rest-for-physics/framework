@@ -1216,7 +1216,7 @@ void TRestGas::PrintGasInfo() {
     if (fStatus == RESTGAS_ERROR) metadata << "Error";
     metadata << endl;
 
-    metadata << "Gas filename : " << TRestTools::RemoveAbsolutePath((string)fGasFilename) << endl;
+    metadata << "Gas filename : " << TRestTools::GetPureFileName((string)fGasFilename) << endl;
     metadata << "Pressure : " << fPressureInAtm << " atm" << endl;
     metadata << "Temperature : " << fTemperatureInK << " K" << endl;
     metadata << "W-value : " << fW << " eV" << endl;

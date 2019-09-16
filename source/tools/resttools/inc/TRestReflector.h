@@ -29,21 +29,24 @@ using namespace std;
 
 class TRestEventProcess;
 
-/// String helper classes. Declared static to be able to have direct access to the methods
+/// This namespace serves for the reflection functionality
 namespace REST_Reflection {
 
-extern map<string, TDataType*> lDataType;
+extern map<string, TDataType*> __ListOfDataTypes;
+
+/// Wrap the string type name into ROOT type identifier "TDataType"
 inline TDataType* GetDataType(string type) {
-    if (lDataType[type] == NULL) {
+    if (__ListOfDataTypes[type] == NULL) {
         TDataType* dt = new TDataType(type.c_str());
         if (dt->GetType() == -1) {
             delete dt;
         } else {
-            lDataType[type] = dt;
+            __ListOfDataTypes[type] = dt;
         }
     }
-    return lDataType[type];
+    return __ListOfDataTypes[type];
 }
+/// Get the type of a "data" object, returning the wrapped type identifier "TDataType"
 template <typename T>
 TDataType* GetDataType() {
     string type = "";
@@ -89,18 +92,18 @@ TDataType* GetDataType() {
     return GetDataType(type);
 }
 
-inline TClass* GetClass(string type) { return TClass::GetClass(type.c_str()); }
+/// Wrap the string type name into ROOT type identifier "TClass"
+inline TClass* GetClassType(string type) { return TClass::GetClass(type.c_str()); }
+/// Get the type of a "class" object, returning the wrapped type identifier "TClass"
 template <typename T>
-TClass* GetClass() {
+TClass* GetClassType() {
     return TClass::GetClass(typeid(T));
 }
 
-///////////////////////////////////////////////
-/// \brief Get the type name of an object
-///
+/// Get the type name of an object
 template <typename T>
 std::string GetTypeName() {
-    TClass* cl = GetClass<T>();
+    TClass* cl = GetClassType<T>();
     if (cl != NULL) {
         return cl->GetName();
     }
@@ -110,17 +113,18 @@ std::string GetTypeName() {
     }
     return "unknown";
 }
+/// Get the type name of an object
 template <class T>
 std::string GetTypeName(T obj) {
     return GetTypeName<T>();
 }
 
-class AnyPtr_t {
+class TRestReflector {
    private:
+    /// Prepare the ROOT dictionary for this type.
     int InitDictionary();
 
    public:
-    // basic info
     string name = "";
     string type = "";
     char* address = 0;
@@ -129,69 +133,75 @@ class AnyPtr_t {
     TClass* cl = 0;
     TDataType* dt = 0;
 
-    bool IsZombie() { return (type == "" || address == 0 || size == 0 || (cl == 0 && dt == 0)); }
-
-    void operator>>(AnyPtr_t to);
-
+	/// If this object type wrapper is invalid
+    bool IsZombie();
+    /// Streamer method of varioud types. Supports deep-cloning of custom TObject-inherited classes
+    void operator>>(TRestReflector to);
+    /// Convert the wrappered type to string
     string ToString();
-    friend ostream& operator<<(ostream& cin, AnyPtr_t ptr) { return cin << ptr.ToString(); }
-
+    /// Output overload by calling ToString();
+    friend ostream& operator<<(ostream& cin, TRestReflector ptr) { return cin << ptr.ToString(); }
+    /// Get the id of the wrapperd type. The enum used for type id is TStreamerInfo::EReadWrite
     int GetTypeID();
+    /// Get the value of the wrapped type, not recommended to use
     template <typename T>
     void GetValue(T& val, bool check = false) {
         if (check) {
             if (GetTypeName<T>() != name) {
-                cout << "In AnyPtr_t::GetValue() : type unmatch! " << endl;
+                cout << "In TRestReflector::GetValue() : type unmatch! " << endl;
                 return;
             }
         }
         val = *(T*)(address);
     }
+    /// Set the value of the wrapped type
     template <class T>
     void SetValue(const T& val, bool check = false) {
         if (check) {
             if (GetTypeName<T>() != name) {
-                cout << "In AnyPtr_t::GetValue() : type unmatch! " << endl;
+                cout << "In TRestReflector::GetValue() : type unmatch! " << endl;
                 return;
             }
         }
         *((T*)(address)) = val;
     }
-
-    // Assembly a new object, and save its address. The old object will be destroied if not null
+    /// Assembly a new object, and save its address. The old object will be destroied if not null
     void Assembly();
-    // Destroy the current object. It will make the class to be zombie.
+    /// Destroy the current object. It will make the class to be zombie.
     void Destroy();
-    // Print the Hex memory map of the wrappered object
+    /// Print the Hex memory map of the wrappered object
     void PrintMemory(int bytepreline = 16);
-
+    /// Type conversion operator
     template <class T>
     operator T*() {
         return (T*)address;
     }
-
-    AnyPtr_t() {}
-    AnyPtr_t(char* address, string type);
+    /// Default constructor
+    TRestReflector() {}
+    /// Constructor from a certain address and a certain type.
+    TRestReflector(char* address, string type);
+    /// Constructor to wrap an object
     template <class T>
-    AnyPtr_t(const T& obj) {
+    TRestReflector(const T& obj) {
         address = (char*)&obj;
         onheap = false;
-        cl = REST_Reflection::GetClass<T>();
+        cl = REST_Reflection::GetClassType<T>();
         dt = REST_Reflection::GetDataType<T>();
         if (cl == NULL && dt == NULL) {
-            cout << "In AnyPtr_t::AnyPtr_t() : unrecognized type! " << endl;
+            cout << "In TRestReflector::TRestReflector() : unrecognized type! " << endl;
             return;
         }
         InitDictionary();
     }
+    /// Constructor to wrap an object pointer
     template <class T>
-    AnyPtr_t(T* obj) {
+    TRestReflector(T* obj) {
         address = (char*)obj;
         onheap = false;
-        cl = REST_Reflection::GetClass<T>();
+        cl = REST_Reflection::GetClassType<T>();
         dt = REST_Reflection::GetDataType<T>();
         if (cl == NULL && dt == NULL) {
-            cout << "In AnyPtr_t::AnyPtr_t() : unrecognized type! " << endl;
+            cout << "In TRestReflector::TRestReflector() : unrecognized type! " << endl;
             return;
         }
         InitDictionary();
@@ -201,22 +211,56 @@ class AnyPtr_t {
 ///////////////////////////////////////////////
 /// \brief Assembly an object of type: typeName, returning the allocated memory address and size
 ///
-AnyPtr_t Assembly(string typeName);
+TRestReflector Assembly(string typeName);
 
 ///////////////////////////////////////////////
 /// \brief Wrap information an object of type: typeName, memory is not allocated
 ///
-AnyPtr_t WrapType(string typeName);
+TRestReflector WrapType(string typeName);
 
-void CloneAny(AnyPtr_t from, AnyPtr_t to);
+///////////////////////////////////////////////
+/// \brief Deep copy the content of object `from` to `to`
+///
+/// If the type is class type, it will use ROOT streamer. The class member
+/// with //! annotation will not be copied. The content of pointer class member
+/// with //-> annotation will also be copied.
+/// 
+/// If the type is base data type, it will use memcpy()
+void CloneAny(TRestReflector from, TRestReflector to);
 
-// data member reflection tools
-AnyPtr_t GetDataMember(REST_Reflection::AnyPtr_t obj, string name);
-AnyPtr_t GetDataMember(REST_Reflection::AnyPtr_t obj, int ID);
-int GetNumberOfDataMembers(REST_Reflection::AnyPtr_t obj);
+///////////////////////////////////////////////
+/// \brief Get the data member of a TObject inherited class with certain name.
+///
+/// The output is wrapped with TRestReflector.
+/// Note that the data member with //! annotation in the class definition will not 
+/// be recognized.
+TRestReflector GetDataMember(REST_Reflection::TRestReflector obj, string name);
+
+///////////////////////////////////////////////
+/// \brief Get the data member of a TObject inherited class with given index
+///
+/// The 0th data member of a class will always be its base class.
+/// 
+/// Example :
+/// \code
+///
+/// TRestRun r;
+/// cout << REST_Reflection::GetDataMember(r,0).name << endl; //prints "TRestMetadata"
+/// cout << REST_Reflection::GetDataMember(r,4).name << endl; //prints "fRunType"
+/// REST_Reflection::GetDataMember(r,4).SetValue((TString)"aaa");
+/// r->PrintMetadata();  //the run tag printed will be "aaa"
+///
+/// \endcode
+///
+///
+TRestReflector GetDataMember(REST_Reflection::TRestReflector obj, int ID);
+
+///////////////////////////////////////////////
+/// \brief Get the number of data members of a class
+int GetNumberOfDataMembers(REST_Reflection::TRestReflector obj);
 
 };  // namespace REST_Reflection
 
-typedef REST_Reflection::AnyPtr_t any;
+typedef REST_Reflection::TRestReflector any;
 
 #endif

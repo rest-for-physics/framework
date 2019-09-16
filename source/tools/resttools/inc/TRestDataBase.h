@@ -8,9 +8,9 @@
 
 using namespace std;
 
-class DataBaseFileInfo {
-   public:
-    DataBaseFileInfo() {
+struct DBFile {
+    DBFile() {
+        filename = "";
         fileSize = 0;
         evtRate = 0;
         for (int i = 0; i < 41; i++) {
@@ -21,10 +21,11 @@ class DataBaseFileInfo {
         stop = 0;
     }
 
-    DataBaseFileInfo(string filename);
+    DBFile(string filename);
 
     void Print();
 
+    string filename;
     long fileSize;
     double evtRate;
     char sha1sum[41];  // last bit is \0
@@ -33,76 +34,105 @@ class DataBaseFileInfo {
     time_t stop;
 };
 
+struct DBEntry {
+    DBEntry(){}
+    int id = 0;
+    string type = "";
+    string usr = "";
+    string tag = "";
+    string description = "";
+    string version = "";
+
+	bool operator<(const DBEntry& d) const {
+        if (id < d.id) {
+            return true;
+        }
+        return false;
+    }
+
+    bool operator>(const DBEntry& d) const {
+        if (id > d.id) {
+            return true;
+        }
+        return false;
+    }
+
+    bool operator==(const DBEntry& d) const {
+        if (id == d.id) {
+            return true;
+        }
+        return false;
+    }
+};
+
 class TRestDataBase {
+   private:
+    map<DBEntry, string> fRunFile;
+    map<DBEntry, string> fMetaDataFile;
+    bool DownloadRemoteFile(string remoteFile, string localFile);
    protected:
-    int fRunNumber = 0;
-    int fSubRunNumber = 0;
+    string fConnectionString;
 
    public:
-    TRestDataBase() {}
+    TRestDataBase();
     ~TRestDataBase() {}
 
-    static TRestDataBase* instantiate();
+	static TRestDataBase* GetDataBase();
+    static TRestDataBase* instantiate(string name = "");
+    virtual void Initialize();
     virtual void test() {}
-    virtual void print(int runnumber, int subrun = 0) {}
+    virtual void print(int runnumber) {}
     virtual void exec(string cmd) {}
 
-    virtual int query_run(int runnumber, int subrun = 0) { return runnumber; }
-    virtual int query_subrun(int runnumber, int subrun = 0) { return subrun; }
-    virtual vector<string> query_files(int runnumber, int subrun = 0) { return vector<string>(0); }
-    virtual string query_file(int runnumber, int subrun = 0, int fileid = 0) { return ""; }
-    virtual string query_filepattern(int runnumber, int subrun = 0) { return ""; }
-    virtual DataBaseFileInfo query_fileinfo(int runnumber, int subrun = 0, string filename = "") {
-        return DataBaseFileInfo();
-    }
-    virtual DataBaseFileInfo query_fileinfo(int runnumber, int subrun = 0, int fileid = 0) {
-        return DataBaseFileInfo();
-    }
-    virtual double query_start(int runnumber, int subrun = 0) { return 0; }
-    virtual double query_end(int runnumber, int subrun = 0) { return 0; }
-    virtual string query_type(int runnumber, int subrun = 0) { return ""; }
-    virtual string query_user(int runnumber, int subrun = 0) { return ""; }
-    virtual string query_tag(int runnumber, int subrun = 0) { return ""; }
-    virtual string query_description(int runnumber, int subrun = 0) { return ""; }
-    virtual string query_version(int runnumber, int subrun = 0) { return ""; }
+    //////////////////////  run number management interface  //////////////////////
+    virtual int query_run(int runnumber) { return runnumber; }
+    virtual vector<string> query_run_files(int runnumber) { return vector<string>(0); }
+    virtual string query_run_filepattern(int runnumber) { return ""; }
+    virtual DBEntry query_run_info(int runnumber) { return DBEntry(); }
+    virtual DBFile query_run_info_files(int runnumber, int fileid = 0) { return DBFile(); }
+    virtual double query_run_start(int runnumber) { return 0; }
+    virtual double query_run_end(int runnumber) { return 0; }
 
-    virtual vector<pair<int, int> > search_filepattern(string filepattern) {
-        return vector<pair<int, int> >(0);
-    }
-    virtual vector<pair<int, int> > search_withintime(time_t t1, time_t t2) {
-        return vector<pair<int, int> >(0);
-    }
-    virtual vector<pair<int, int> > search_tag(string tag) { return vector<pair<int, int> >(0); }
-    virtual vector<pair<int, int> > search_user(string user) { return vector<pair<int, int> >(0); }
-    virtual vector<pair<int, int> > search_type(string type) { return vector<pair<int, int> >(0); }
-    virtual vector<pair<int, int> > search_description(string description) {
-        return vector<pair<int, int> >(0);
-    }
-    virtual vector<pair<int, int> > search_version(string version) { return vector<pair<int, int> >(0); }
-    virtual vector<pair<int, int> > searchexp(string expresstion) { return vector<pair<int, int> >(0); }
+    virtual vector<int> search_run_with_file(string filepattern) { return vector<int>{0}; }
+    virtual vector<int> search_run_with_timeperiod(time_t t1, time_t t2) { return vector<int>{0}; }
+    virtual vector<int> search_run_with_info(DBEntry info) { return vector<int>{0}; }
+    virtual vector<int> search_custom(string expresstion) { return vector<int>{0}; }
 
-    virtual pair<int, int> getrunwithfilename(string filename) { return pair<int, int>(); }
-    virtual int getlastrun() { return 0; }
-    virtual int getlastsubrun(int runnumber) { return 0; }
-    virtual int getcurrentrun() { return fRunNumber; }
-    virtual int getcurrentsubrun() { return fSubRunNumber; }
+    virtual int get_firstrun() { return 1; }
+    virtual int get_lastrun();
 
-    virtual int new_run() { return 0; }
-    virtual int new_run(int runnumber) { return 0; }
-    virtual int new_runfile(string filename) { return new_runfile(filename, DataBaseFileInfo(filename)); }
-    virtual int new_runfile(string filename, DataBaseFileInfo info) { return 0; }
+    // info.id =
+    //-1 --> do not add new run
+    // 0  --> append a new run in run list
+    //>0 --> directly add the corresponding run.
+    virtual int add_run(DBEntry info = DBEntry());
+    virtual int add_runfile(int runnumber, string filename) { return 0; }
+    virtual int add_runfile(int runnumber, string filename, DBFile info) { return 0; }
 
-    virtual int set_runnumber(int runnumber) { return 0; }
-    virtual int set_subrun(int subrun) { return 0; }
-    virtual int set_type(string type) { return 0; }
-    virtual int set_user(string user) { return 0; }
-    virtual int set_tag(string tag) { return 0; }
-    virtual int set_description(string description) { return 0; }
-    virtual int set_version(string version) { return 0; }
-    virtual int set_runstart(double starttime) { return 0; }
-    virtual int set_runend(double endtime) { return 0; }
-    virtual int set_fileinfo(int fileid, DataBaseFileInfo info) { return 0; }
-    virtual int set_fileinfo(string filename, DataBaseFileInfo info) { return 0; }
+    virtual int set_run_info(int runnumber, DBEntry info) { return 0; }
+    virtual int set_run_info_files(int runnumber, int fileid, DBFile info) { return 0; }
+    virtual int set_runstart(int runnumber, double starttime) { return 0; }
+    virtual int set_runend(int runnumber, double endtime) { return 0; }
+
+    //////////////////////  metadata management interface  //////////////////////
+    virtual int query_metadata(int id);
+    virtual string query_metadata_fileurl(int id);
+    virtual DBEntry query_metadata_info(int id);
+
+    virtual vector<int> search_metadata_with_fileurl(string url);
+    virtual vector<int> search_metadata_with_info(DBEntry info);
+
+    virtual string get_metadatafile(int id);
+    virtual int get_lastmetadata();
+
+    virtual int add_metadata(DBEntry info = DBEntry(), string url = "");
+    virtual int set_metadatafile(int id, string url);
+    virtual int set_metadatafile(int id, string url, string urlremote);
+    virtual int set_metadata_info(int id, DBEntry info);
+
+
 };
+
+#define gDataBase (TRestDataBase::GetDataBase())
 
 #endif

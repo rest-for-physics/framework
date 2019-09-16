@@ -154,7 +154,11 @@ int main(int argc, char** argv) {
     CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine);
     time_t systime = time(NULL);
     long seed = restG4Metadata->GetSeed();
-    if (seed == 0) seed = (long)systime + restRun->GetRunNumber() * 13;
+    if (seed == 0) {
+        // seed = (long)systime + restRun->GetRunNumber() * 13;
+        seed = StringToInteger(TRestTools::Execute("echo $RANDOM")) *
+               StringToInteger(TRestTools::Execute("echo $RANDOM"));
+    }
     CLHEP::HepRandom::setTheSeed(seed);
     restG4Metadata->SetSeed(seed);
 
@@ -353,12 +357,8 @@ int main(int argc, char** argv) {
         }
     }
 
-    else  // define visualization and UI terminal for interactive mode
+    else if (N_events == 0)  // define visualization and UI terminal for interactive mode
     {
-        // cout << "The number of events to be simulated is Zero!" << endl;
-        // cout << "Make sure you did not forget the number of events entry in
-        // TRestG4Metadata." << endl; cout << endl; cout << "<parameter
-        // name=\"Nevents\" value=\"100\"/>" << endl; cout << endl;
         cout << "Entering vis mode.." << endl;
 #ifdef G4UI_USE
         G4UIExecutive* ui = new G4UIExecutive(argc, argv);
@@ -369,21 +369,37 @@ int main(int argc, char** argv) {
         ui->SessionStart();
         delete ui;
 #endif
+    } else {
+        cout << "++++++++++ ERRORRRR +++++++++" << endl;
+        cout << "++++++++++ ERRORRRR +++++++++" << endl;
+        cout << "++++++++++ ERRORRRR +++++++++" << endl;
+        cout << "The number of events to be simulated was not recongnized properly!" << endl;
+        cout << "Make sure you did not forget the number of events entry in TRestG4Metadata." << endl;
+        cout << endl;
+        cout << " ... or the parameter is properly constructed/interpreted." << endl;
+        cout << endl;
+        cout << "It should be something like : " << endl;
+        cout << endl;
+        cout << " <parameter name =\"Nevents\" value=\"100\"/>" << endl;
+        cout << "++++++++++ ERRORRRR +++++++++" << endl;
+        cout << "++++++++++ ERRORRRR +++++++++" << endl;
+        cout << "++++++++++ ERRORRRR +++++++++" << endl;
+        cout << endl;
     }
     restRun->GetOutputFile()->cd();
 
-    restRun->WriteWithDataBase(2, true);
-    /*
-    initialEnergySpectrum.SetName("initialEnergySpectrum");
-    initialAngularDistribution.SetName("initialAngularDistribution");
+// restRun->WriteWithDataBase();
+/*
+initialEnergySpectrum.SetName("initialEnergySpectrum");
+initialAngularDistribution.SetName("initialAngularDistribution");
 
-    initialEnergySpectrum.SetTitle( "Primary source energy spectrum" );
-    initialAngularDistribution.SetTitle( "Primary source Theta angular
-    distribution" );
+initialEnergySpectrum.SetTitle( "Primary source energy spectrum" );
+initialAngularDistribution.SetTitle( "Primary source Theta angular
+distribution" );
 
-    initialEnergySpectrum.Write();
-    initialAngularDistribution.Write();
-    */
+initialEnergySpectrum.Write();
+initialAngularDistribution.Write();
+*/
 
 #ifdef G4VIS_USE
     delete visManager;

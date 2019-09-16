@@ -24,8 +24,8 @@ internal values are saved.
     <parameter name="eventsToProcess" value="0" />
     <parameter name="threadNumber" value="2"/>
 
-    <parameter name="inputAnalysis" value="off"/>
-    <parameter name="inputEvent" value="off"/>
+    <parameter name="inputAnalysis" value="on"/>
+    <parameter name="inputEvent" value="on"/>
     <parameter name="outputEvent" value="on"/>
 
     // observable = all will add all NON `custom` observables 

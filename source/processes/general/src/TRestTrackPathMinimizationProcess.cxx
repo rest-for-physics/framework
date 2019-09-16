@@ -90,7 +90,6 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent(TRestEvent* evInput)
             cout << "-----------------" << endl;
             hits->PrintHits();
             cout << "-----------------" << endl;
-            GetChar();
         }
         /* }}} */
 

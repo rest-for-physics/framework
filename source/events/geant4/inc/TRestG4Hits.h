@@ -46,7 +46,7 @@ class TRestG4Hits : public TRestHits {
     TVector3 GetFirstPositionInVolume(Int_t volID);
     TVector3 GetLastPositionInVolume(Int_t volID);
 
-    // Construtor
+    // Constructor
     TRestG4Hits();
     // Destructor
     virtual ~TRestG4Hits();

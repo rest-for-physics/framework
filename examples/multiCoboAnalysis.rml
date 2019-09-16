@@ -54,18 +54,37 @@
     </addProcess>
     <addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="ON" file="processes.rml"/>
     <addProcess type="TRestHitsAnalysisProcess" name="hitsAna" value="OFF" file="processes.rml" />
-    <addProcess type="TRestHitsToTrackProcess" name="hitsToTrack" value="ON"/>
-    <addProcess type="TRestTrackAnalysisProcess" name="tckAna" value="ON" />
+    <addProcess type="TRestHitsToTrackProcess" name="hitsToTrack" value="OFF"/>
+    <addProcess type="TRestTrackAnalysisProcess" name="tckAna" value="OFF" />
 
   </TRestProcessRunner>
 
+
+  <TRestAnalysisPlot name="restplot" title="Basic Plots">
+
+    <canvas size="(1000,800)" divide="(2,1)"/>
+
+    <plot name="Baseline" title="Baseline average" xlabel="Baseline [ADC units]" ylabel="Counts"
+            logscale="false" value="ON" >
+      <variable name="sAna_BaseLineMean" range="(0,1000)" nbins="100" />
+    </plot>
+
+    <plot name="Spectrum" title="ADC energy spectrum" xlabel="Threshold integral energy [ADC units]" ylabel="Counts"
+            logscale="true" value="ON" >
+      <variable name="sAna_ThresholdIntegral" range="(10,100000)" nbins="1000" />
+    </plot>
+
+  </TRestAnalysisPlot>
+
   <addTask command="SJTU_Proto->PrintMetadata()" value="OFF"/>  
   <addTask command="Processor->RunProcess()" value="ON"/>
+  <addTask command="restplot->PlotCombinedCanvas()" value="OFF"/>
 
   <globals>
     <searchPath value="$ENV{REST_INPUTDATA}/definitions/"/>
     <parameter name="verboseLevel" value="essential" /> %options are : silent(0), essential(1), info(2), debug(3), extreme(4)
     <parameter name="mainDataPath" value="" />
+    <parameter name="database" value=""/>
   </globals>
 
 </TRestManager>

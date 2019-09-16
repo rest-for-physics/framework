@@ -426,6 +426,7 @@
 #include <TMath.h>
 #include <TSystem.h>
 #include "RmlUpdateTool.h"
+#include "TRestDataBase.h"
 #include "TRestMetadata.h"
 #include "TStreamerInfo.h"
 #include "v5/TFormula.h"
@@ -588,7 +589,7 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
 /// Preparation includes: seting the name, title and verbose level of the
 /// current class. Finding out and saving the env sections.
 ///
-/// By calling TRestMetadata::ExpandElement(), is also expands for loops and
+/// By calling TRestMetadata::ReadElement(), is also expands for loops and
 /// include definitions, and replaces env and expressions in rml config section.
 ///
 Int_t TRestMetadata::LoadSectionMetadata() {
@@ -602,7 +603,13 @@ Int_t TRestMetadata::LoadSectionMetadata() {
 
     debug << "Loading Config for : " << this->ClassName() << endl;
 
-    // first set env from global section
+    // initialize database
+    if (gDataBase == NULL) {
+        string databaseuse = GetParameter("database", "");
+        TRestDataBase::instantiate(databaseuse);
+    }
+
+    // set env first from global section
     if (fElementGlobal != NULL) {
         TiXmlElement* e = fElementGlobal->FirstChildElement();
         while (e != NULL) {
@@ -626,9 +633,8 @@ Int_t TRestMetadata::LoadSectionMetadata() {
         e = e->NextSiblingElement();
     }
 
-    // then do this replacement for all child elements and expand for/include
-    // definitions
-    ExpandElement(fElement);
+    // look through the elements and expand for, include, etc. structures
+    ReadElement(fElement);
 
     // get debug level again in case it is defined in the included file
     debugStr = GetParameter("verboseLevel", "essential");
@@ -638,7 +644,7 @@ Int_t TRestMetadata::LoadSectionMetadata() {
     if (debugStr == "debug" || debugStr == "3") fVerboseLevel = REST_Debug;
     if (debugStr == "extreme" || debugStr == "4") fVerboseLevel = REST_Extreme;
 
-    // finally fill the general metadata info: name, title, fstore
+    // fill the general metadata info: name, title, fstore
     this->SetName(GetParameter("name", "defaultName").c_str());
     this->SetTitle(GetParameter("title", "defaultTitle").c_str());
     this->SetSectionName(this->ClassName());
@@ -742,14 +748,14 @@ void TRestMetadata::SetEnv(TiXmlElement* e, bool updateexisting) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Expand for loop and include definitions in the given xml section
+/// \brief Read the given xml section, applying rml syntax(if, for, include, etc.)
 ///
 /// The expansion is done recursively except for child sections declared after
 /// "TRest". They are supposed to be a metadata class and to be doing the
 /// expansion themselves. If the argument "recursive" is true, these child
 /// sections will also be processed. Before expansion,
 /// ReplaceElementAttributes() will first be called.
-void TRestMetadata::ExpandElement(TiXmlElement* e, bool recursive) {
+void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
     debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
 
     ReplaceElementAttributes(e);
@@ -760,18 +766,125 @@ void TRestMetadata::ExpandElement(TiXmlElement* e, bool recursive) {
     } else if ((string)e->Value() == "variable" || (string)e->Value() == "myParameter" ||
                (string)e->Value() == "constant") {
         SetEnv(e);
+    } else if ((string)e->Value() == "if") {
+        ExpandIfSections(e);
     } else if (e->FirstChildElement() != NULL) {
         TiXmlElement* contentelement = e->FirstChildElement();
         // we won't expand child section unless forced recursive. The expansion of
         // this section will be executed by the resident TRestXXX class
-        if (contentelement != NULL && (recursive || ((string)contentelement->Value()).find("TRest") == -1)) {
-            debug << "into child elements of: " << e->Value() << endl;
-        }
         while (contentelement != NULL &&
                (recursive || ((string)contentelement->Value()).find("TRest") == -1)) {
+            debug << "into child elements of: " << e->Value() << endl;
             TiXmlElement* nxt = contentelement->NextSiblingElement();
-            ExpandElement(contentelement, recursive);
+            ReadElement(contentelement, recursive);
             contentelement = nxt;
+        }
+    }
+}
+
+///////////////////////////////////////////////
+/// \brief Judge the if condition and expands the elements inside it.
+///
+/// The example IF structure:
+/// \code
+/// <TRestXXX>
+///		<if condition="${HOME}==/home/nkx">
+///        <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" file="processes.rml"/>
+///     </if>
+///     <if evaluate="date +%Y-%m-%d" condition=">2019-08-21">
+///        <addProcess type = "TRestSignalToHitsProcess" name = "signalToHits" value = "ON" file =
+///        "processes.rml" />
+///     </if>
+/// </TRestXXX>
+/// \endcode
+/// "execute" specifies the shell command, the output of which is used.
+/// "variable" specifies the name of system env, "condition" specifies the comparing condition.
+/// So here if the home directory is "/home/nkx", the process "TRestSignalZeroSuppresionProcess" will be added
+/// If the current date is larger than 2019-08-21, the process "TRestSignalToHitsProcess" will be added
+///
+/// Supports condition markers: `==`, `!=`, `>`, `<`, `<=`, `>=`. Its better to escape the ">", "<" markers.
+/// Note that the `>`, `<` calculation is also valid for strings. The ordering is according to the alphabet
+///
+void TRestMetadata::ExpandIfSections(TiXmlElement* e) {
+    if ((string)e->Value() != "if") return;
+
+    const char* evaluate = e->Attribute("evaluate");
+    const char* condition = e->Attribute("condition");
+
+    if (condition == NULL || string(condition).find_first_of("=!<>") == -1) {
+        warning << "Invalid \"IF\" structure!" << endl;
+        return;
+    }
+
+    int p1 = string(condition).find_first_of("=!<>");
+    int p2 = string(condition).find_first_not_of("=!<>", p1);
+
+    string v1 = "";
+    bool matches = false;
+    if (evaluate != NULL) {
+        v1 = TRestTools::Execute(evaluate);
+    } else if (p1 > 0) {
+        v1 = string(condition).substr(0, p1);
+    } else {
+        warning << "Invalid \"IF\" structure!" << endl;
+        return;
+    }
+
+    string con = string(condition).substr(p1, p2 - p1);
+    string v2 = string(condition).substr(p2, -1);
+
+    if (con == "==") {
+        if (isANumber(v1) && isANumber(v2)) {
+            if (atof(v1.c_str()) == atof(v2.c_str())) matches = true;
+        } else {
+            if (v1 == v2) matches = true;
+        }
+    } else if (con == "!=") {
+        if (isANumber(v1) && isANumber(v2)) {
+            if (atof(v1.c_str()) != atof(v2.c_str())) matches = true;
+        } else {
+            if (v1 != v2) matches = true;
+        }
+    } else if (con == ">") {
+        if (isANumber(v1) && isANumber(v2)) {
+            if (atof(v1.c_str()) > atof(v2.c_str())) matches = true;
+        } else {
+            if (v1 > v2) matches = true;
+        }
+    } else if (con == "<") {
+        if (isANumber(v1) && isANumber(v2)) {
+            if (atof(v1.c_str()) < atof(v2.c_str())) matches = true;
+        } else {
+            if (v1 < v2) matches = true;
+        }
+    } else if (con == ">=") {
+        if (isANumber(v1) && isANumber(v2)) {
+            if (atof(v1.c_str()) >= atof(v2.c_str())) matches = true;
+        } else {
+            if (v1 >= v2) matches = true;
+        }
+    } else if (con == "<=") {
+        if (isANumber(v1) && isANumber(v2)) {
+            if (atof(v1.c_str()) <= atof(v2.c_str())) matches = true;
+        } else {
+            if (v1 <= v2) matches = true;
+        }
+    } else {
+        warning << "Invalid \"IF\" structure!" << endl;
+        return;
+    }
+
+    if (matches) {
+        TiXmlElement* parele = (TiXmlElement*)e->Parent();
+        if (parele == NULL) return;
+        TiXmlElement* contentelement = e->FirstChildElement();
+        while (contentelement != NULL) {
+            TiXmlElement* attatchedalament = (TiXmlElement*)contentelement->Clone();
+            ReadElement(attatchedalament, true);
+            // debug << *attatchedalament << endl;
+            parele->InsertBeforeChild(e, *attatchedalament);
+            delete attatchedalament;
+            contentelement = contentelement->NextSiblingElement();
         }
     }
 }
@@ -823,7 +936,7 @@ void TRestMetadata::ExpandForLoops(TiXmlElement* e) {
                     contentelement = contentelement->NextSiblingElement();
                 } else {
                     TiXmlElement* attatchedalament = (TiXmlElement*)contentelement->Clone();
-                    ExpandElement(attatchedalament, true);
+                    ReadElement(attatchedalament, true);
                     // debug << *attatchedalament << endl;
                     parele->InsertBeforeChild(e, *attatchedalament);
                     delete attatchedalament;
@@ -865,19 +978,36 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     ReplaceElementAttributes(e);
     const char* _filetmp = e->Attribute("file");
 
-    if (_filetmp == NULL && (string)e->Value() == "TRestGas") _filetmp = "server";
-
     if (_filetmp == NULL) return;
     string _filename = _filetmp;
 
     // For the moment we only expect to have the gasFiles localed remotely.
     // I keep "server" keyword to be coherent with the one used in TRestGas
     // constructor
-    if (_filename == "server" && (string)e->Value() == "TRestGas") _filename = (string)gasesFile;
+    if (_filename == "server") {
+        string tag = e->Value();
+        DBEntry entry;
+        entry.tag = tag;
+        entry.type = "META_RML";
+        TRestDataBase* db = gDataBase;
+        auto ids = db->search_metadata_with_info(entry);
+        if (ids.size() == 1) {
+            _filename = db->get_metadatafile(ids[0]);
+            if (_filename == "") {
+                return;
+            }
+        } else {
+            warning << "remote rml definition for " << tag << " not recorded in the database!" << endl;
+            warning << "include definition not expanded!" << endl;
+            return;
+        }
+    }
 
-    debug << "filename to expand : " << _filename << endl;
+    // if (_filename == "server" && (string)e->Value() == "TRestGas") _filename = (string)gasesFile;
 
-    if (TRestTools::isURL(_filename)) _filename = DownloadHttpFile(_filename);
+    // debug << "filename to expand : " << _filename << endl;
+
+    // if (TRestTools::isURL(_filename)) _filename = DownloadHttpFile(_filename);
 
     string filename = SearchFile(_filename);
     if (filename == "") {
@@ -1045,7 +1175,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
 
         ///////////////////////////////////////
         // begin inserting remote element into local element
-        ExpandElement(remoteele, true);
+        ReadElement(remoteele, true);
         int nattr = 0;
         int nele = 0;
         TiXmlAttribute* attr = remoteele->FirstAttribute();
@@ -1058,7 +1188,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         }
         TiXmlElement* ele = remoteele->FirstChildElement();
         while (ele != NULL) {
-            // ExpandElement(ele);
+            // ReadElement(ele);
             if ((string)ele->Value() != "for") {
                 localele->InsertEndChild(*ele);
                 nele++;
@@ -1087,7 +1217,7 @@ string TRestMetadata::DownloadHttpFile(string remoteFile) {
 
     debug << "Complete remote filename : " << remoteFile << endl;
 
-    TString remoteFilename = TRestTools::RemoveAbsolutePath(remoteFile);
+    TString remoteFilename = TRestTools::GetPureFileName(remoteFile);
 
     debug << "Reduced remote filename : " << remoteFilename << endl;
 
@@ -1234,7 +1364,7 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlEleme
     } else {
         string units = GetUnits(ele, parName);
         double val = StringToDouble(a.substr(0, a.find_last_of("1234567890()") + 1));
-        return REST_Units::GetValueInRESTUnits(val, units);
+        return REST_Units::ConvertValueToRESTUnits(val, units);
     }
 
     return defaultVal;
@@ -1250,8 +1380,8 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXml
     } else {
         string unit = GetUnits(ele, parName);
         TVector2 value = StringTo2DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
-        Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unit);
-        Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unit);
+        Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
+        Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
         return TVector2(valueX, valueY);
     }
 
@@ -1268,9 +1398,9 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TiXml
     } else {
         string unit = GetUnits(ele, parName);
         TVector3 value = StringTo3DVector(a.substr(0, a.find_last_of("1234567890().") + 1));
-        Double_t valueX = REST_Units::GetValueInRESTUnits(value.X(), unit);
-        Double_t valueY = REST_Units::GetValueInRESTUnits(value.Y(), unit);
-        Double_t valueZ = REST_Units::GetValueInRESTUnits(value.Z(), unit);
+        Double_t valueX = REST_Units::ConvertValueToRESTUnits(value.X(), unit);
+        Double_t valueY = REST_Units::ConvertValueToRESTUnits(value.Y(), unit);
+        Double_t valueZ = REST_Units::ConvertValueToRESTUnits(value.Z(), unit);
         return TVector3(valueX, valueY, valueZ);
     }
 
@@ -1460,7 +1590,7 @@ string TRestMetadata::GetUnits(TiXmlElement* e, string whoseunits) {
         }
     } else {
         string a = GetParameter(whoseunits, e);
-        unitstring = REST_Units::GetRESTUnitsInString(a);
+        unitstring = REST_Units::FindRESTUnitsInString(a);
 
         if (IsUnit(unitstring)) {
             return unitstring;

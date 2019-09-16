@@ -1,9 +1,13 @@
-
-#include "TRestSystemOfUnits.h"
 #include <iostream>
 #include <limits>
 #include "TRestStringHelper.h"
 using namespace std;
+
+namespace REST_Units {
+map<string, pair<int, double>> __ListOfRESTUnits;
+}
+
+#include "TRestSystemOfUnits.h"
 
 //////////////////////////////////////////////////////////////////////////
 /// TODO : Write a detailed documentation here
@@ -18,182 +22,193 @@ using namespace std;
 /// 2017-Nov:   First concept and implementation of REST_Units namespace.
 /// \author     Javier Galan
 ///
-/// \class REST_Units
+/// \namespace REST_Units
 ///
 /// <hr>
 namespace REST_Units {
 
-Double_t GetEnergyInRESTUnits(Double_t energy, TString unitsStr) {
-    if (unitsStr == "meV") return energy / meV;
-    if (unitsStr == "eV") return energy / eV;
-    if (unitsStr == "keV") return energy / keV;
-    if (unitsStr == "MeV") return energy / MeV;
-    if (unitsStr == "GeV") return energy / GeV;
+///////////////////////////////////////////////
+/// \brief Checks if the string is a REST supported unit
+///
+///	REST supports several basic units and kinds of their combinations(multiply, divide)
+/// e.g.
+/// cm, ns, mV, kg, keV
+/// V/cm, kg-yr
+/// 
+/// Note: REST doesn't support units combination with numbers, e.g. m/s^2
+bool IsUnit(string unitsStr) { return !TRestSystemOfUnits(unitsStr).IsZombie(); }
 
-    return energy;
-}
+///////////////////////////////////////////////
+/// \brief Checks if the string is a REST basic unit
+///
+bool IsBasicUnit(string unitsStr) { return (__ListOfRESTUnits.count(unitsStr) == 1); }
 
-Bool_t isEnergy(TString unitsStr) {
-    if (unitsStr == "meV") return true;
-    if (unitsStr == "eV") return true;
-    if (unitsStr == "keV") return true;
-    if (unitsStr == "MeV") return true;
-    if (unitsStr == "GeV") return true;
-
-    return false;
-}
-
-Double_t GetTimeInRESTUnits(Double_t time, TString unitsStr) {
-    if (unitsStr == "ns") return time / ns;
-    if (unitsStr == "us") return time / us;
-    if (unitsStr == "ms") return time / ms;
-    if (unitsStr == "s") return time / s;
-
-    return time;
-}
-
-Bool_t isTime(TString unitsStr) {
-    if (unitsStr == "ns") return true;
-    if (unitsStr == "us") return true;
-    if (unitsStr == "ms") return true;
-    if (unitsStr == "s") return true;
-
-    return false;
-}
-
-Double_t GetDistanceInRESTUnits(Double_t distance, TString unitsStr) {
-    if (unitsStr == "um") return distance / um;
-    if (unitsStr == "mm") return distance / mm;
-    if (unitsStr == "cm") return distance / cm;
-    if (unitsStr == "m") return distance / m;
-
-    return distance;
-}
-
-Bool_t isDistance(TString unitsStr) {
-    if (unitsStr == "um") return true;
-    if (unitsStr == "mm") return true;
-    if (unitsStr == "cm") return true;
-    if (unitsStr == "m") return true;
-
-    return false;
-}
-
-Double_t GetFieldInRESTUnits(Double_t field, TString unitsStr) {
-    if (unitsStr == "V/um") return field / Vum;
-    if (unitsStr == "V/mm") return field / Vmm;
-    if (unitsStr == "V/cm") return field / Vcm;
-    if (unitsStr == "V/m") return field / Vm;
-
-    if (unitsStr == "kV/um") return field / kVum;
-    if (unitsStr == "kV/mm") return field / kVmm;
-    if (unitsStr == "kV/cm") return field / kVcm;
-    if (unitsStr == "kV/m") return field / kVm;
-
-    return field;
-}
-
-Bool_t isField(TString unitsStr) {
-    if (unitsStr == "V/um") return true;
-    if (unitsStr == "V/mm") return true;
-    if (unitsStr == "V/cm") return true;
-    if (unitsStr == "V/m") return true;
-
-    if (unitsStr == "kV/um") return true;
-    if (unitsStr == "kV/mm") return true;
-    if (unitsStr == "kV/cm") return true;
-    if (unitsStr == "kV/m") return true;
-
-    return false;
-}
-
-Double_t GetPotentialInRESTUnits(Double_t potential, TString unitsStr) {
-    if (unitsStr == "mV") return potential / mV;
-    if (unitsStr == "V") return potential / V;
-    if (unitsStr == "kV") return potential / kV;
-
-    return potential;
-}
-
-// Return the value in Teslas
-Double_t GetMagneticFieldInRESTUnits(Double_t field, TString unitsStr) {
-    if (unitsStr == "T") return field / T;
-    if (unitsStr == "mT") return field / mT;
-    if (unitsStr == "G") return field / G;
-
-    return field;
-}
-
-Bool_t isPotential(TString unitsStr) {
-    if (unitsStr == "mV") return true;
-    if (unitsStr == "V") return true;
-    if (unitsStr == "kV") return true;
-
-    return false;
-}
-
-Bool_t isMagneticField(TString unitsStr) {
-    if (unitsStr == "T") return true;
-    if (unitsStr == "mT") return true;
-    if (unitsStr == "G") return true;
-
-    return false;
-}
-
-bool IsUnit(string unitsStr) {
-    if (isEnergy(unitsStr) || isDistance(unitsStr) || isField(unitsStr) || isTime(unitsStr) ||
-        isPotential(unitsStr)) {
-        return true;
-    }
-
-    if (isMagneticField(unitsStr)) return true;
-
-    return false;
-}
-
-string GetRESTUnitsInString(string s) {
+///////////////////////////////////////////////
+/// \brief Find and return the units definition in a string
+///
+/// We suppose the last of **value** before **units** must be "1234567890(),".
+/// Hence this prepority can be used to spilt the input string into value part and unit part
+/// e.g.
+/// value="(1,-13)mm"
+/// value="-3mm"
+/// value="50,units=mm"
+/// value="20 mm"
+/// can both be recoginzed
+string FindRESTUnitsInString(string s) {
     string unitsStr = "";
-    {
-        // the last of a number must be "1234567890(),"
-        // we use this prepority to spilt the input string
-        // into value part and unit part
-        // e.g.
-        // value="(1,-13)mm"
-        // value="-3mm"
-        // value="50,units=mm"
-        // value="20 mm"
-        // can both be recoginzed
-        string unitDef = s.substr(s.find_last_of("1234567890(),") + 1, -1);
 
-        if (unitDef.find("=") != -1) {
-            string def = unitDef.substr(0, unitDef.find("="));
-            if (def == "units" || def == "unit") {
-                unitsStr = unitDef.substr(unitDef.find("=") + 1, -1);
-            }
-        } else {
-            unitsStr = Replace(unitDef, " ", "", 0);
+    string unitDef = s.substr(s.find_last_of("1234567890(),") + 1, -1);
+
+    if (unitDef.find("=") != -1) {
+        string def = unitDef.substr(0, unitDef.find("="));
+        if (def == "units" || def == "unit") {
+            unitsStr = unitDef.substr(unitDef.find("=") + 1, -1);
         }
+    } else {
+        unitsStr = Replace(unitDef, " ", "", 0);
     }
+
     if (IsUnit(unitsStr)) {
         return unitsStr;
     }
     return "";
 }
 
-Double_t GetValueInRESTUnits(Double_t value, TString unitsStr) {
-    if (unitsStr == "") {
-        return value;
-    }
-    if (isEnergy(unitsStr)) return GetEnergyInRESTUnits(value, unitsStr);
-    if (isDistance(unitsStr)) return GetDistanceInRESTUnits(value, unitsStr);
-    if (isField(unitsStr)) return GetFieldInRESTUnits(value, unitsStr);
-    if (isTime(unitsStr)) return GetTimeInRESTUnits(value, unitsStr);
-    if (isPotential(unitsStr)) return GetPotentialInRESTUnits(value, unitsStr);
-    if (isMagneticField(unitsStr)) return GetMagneticFieldInRESTUnits(value, unitsStr);
-
-    cout << "REST WARNING (REST_Units)  Unit=[" << unitsStr << "] is not recognized" << endl;
-    cout << "returning NaN value" << endl;
-    cout << endl;
-    return (Double_t)numeric_limits<Double_t>::quiet_NaN();
+///////////////////////////////////////////////
+/// \brief Convert value into REST units
+///
+/// For a given value with custom units, REST will first find its equivalent REST units and 
+/// calculate the scaling factor. Then it will strip off the custom units by dividing the 
+/// value with the scaling factor.
+///
+/// e.g. REST standard unit for dimension time*mass is kg*us. When we call:
+/// `double a = ConvertValueToRESTUnits(8, "kg-yr"); // a = 2.5236593e+14`
+/// The returned value is in unit "kg-us".
+///
+/// The returned the value can be thought as "unitless". This means we don't need to care 
+/// about it when saving it. When we are going to use it, we just add the unit back. For example:
+/// `SetExposure(a*units("ton-day"));`
+/// This explictily adds the unit "ton-day" to the "unitless" value a.
+Double_t ConvertValueToRESTUnits(Double_t value, string unitsStr) {
+    return value / TRestSystemOfUnits((string)unitsStr);
 }
+
+///////////////////////////////////////////////
+/// \brief Convert value with REST units into the given custom units
+///
+Double_t ConvertRESTUnitsValueToCustomUnits(Double_t value, string unitsStr) {
+    return value * TRestSystemOfUnits((string)unitsStr);
+}
+
+///////////////////////////////////////////////
+/// \brief Private method of this namespace, called during __static_initialization_and_destruction_0()
+///
+double _AddUnit(string name, int type, double scale) {
+    __ListOfRESTUnits[name] = {type, scale};
+    return scale;
+}
+
+////////////////////////////////////////////////////////////////
+///
+/// Wrapper class for custom composite unit, e.g. mm/us, kg-yr, V/cm
+///
+/// Implemented operator * and /, meaning strip-off/adds the unit for a unit-embeded/unitless value
+///
+/// Example 1: convert exposure unit "kg-yr" to "ton-day"  
+/// `SetExposure(24/units("kg-yr")*units("ton-day"));`
+///
+/// Example 2: save a "unitless" value, then assign a concrete unit when using it  
+/// `double field = GetDblParameterWithUnits("electricField");`  
+/// `fGas->GetDriftVelocity(field*units("V/cm"));`  
+/// 
+/// Note: If the unit definition is not recognized, the object will be zombie,
+/// and the value will not be converted.
+/// Note: It doesn't support unit with numbers, e.g. m/s^2
+///
+/// \class TRestSystemOfUnits
+///
+TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
+    if (unitsStr == "") {
+        fZombie = true;
+        return;
+    }
+
+    if (unitsStr.find_first_of("/-*", 0) == -1) {
+        // single unit
+        if (!IsBasicUnit(unitsStr)) {
+            fZombie = true;
+            return;
+        }
+        component.push_back(unitsStr);
+        type.push_back(GetUnitType(unitsStr));
+        order.push_back(1);
+        scale.push_back(GetUnitScale(unitsStr));
+    } else {
+        int pos = -1;
+        int front = 0;
+        double nextorder = 1;
+        int lasttype = -1;
+        while (1) {
+            pos = unitsStr.find_first_of("/-*", pos + 1);
+            string sub = unitsStr.substr(front, pos - front);
+
+            if (sub != "") {
+                if (!IsBasicUnit(sub)) {
+                    fZombie = true;
+                    return;
+                }
+                auto _type = GetUnitType(sub);
+                auto _scale = GetUnitScale(sub);
+                if (_type == lasttype) {
+                    // we cannnot have units like keV/GeV
+                    fZombie = true;
+                    return;
+                }
+
+                component.push_back(sub);
+                type.push_back(_type);
+                order.push_back(nextorder);
+                scale.push_back(_scale);
+
+                if (pos != -1) {
+                    char mark = unitsStr[pos];
+                    if (mark == '-' || mark == '*') {
+                        nextorder = 1;
+                    } else if (mark == '/') {
+                        nextorder = -1;
+                    }
+                }
+                lasttype = _type;
+            }
+            front = pos + 1;
+            if (pos == -1) break;
+        }
+    }
+
+    fScaleCombined = 1;
+    for (int i = 0; i < component.size(); i++) {
+        if (order[i] == 1)
+            fScaleCombined *= scale[i];
+        else if (order[i] == -1)
+            fScaleCombined /= scale[i];
+    }
+    fZombie = false;
+}
+
+
+int TRestSystemOfUnits::GetUnitType(string singleUnit) {
+    if (IsBasicUnit(singleUnit)) {
+        return __ListOfRESTUnits[singleUnit].first;
+    }
+    return -1;
+}
+
+
+double TRestSystemOfUnits::GetUnitScale(string singleUnit) {
+    if (IsBasicUnit(singleUnit)) {
+        return __ListOfRESTUnits[singleUnit].second;
+    }
+    return 1;
+}
+
 }  // namespace REST_Units

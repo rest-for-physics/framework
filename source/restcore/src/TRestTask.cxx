@@ -27,7 +27,7 @@
 
 #include "TRestTask.h"
 #include "TRestManager.h"
-#include "TRestReflection.h"
+#include "TRestReflector.h"
 ClassImp(TRestTask);
 
 using namespace REST_Reflection;

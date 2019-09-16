@@ -115,6 +115,8 @@ Int_t TRestG4Track::GetProcessID(TString pcsName) {
         id = 51;
     else if (pcsName == "mu+Step")
         id = 52;
+    else if (pcsName == "ePairProd")
+        id = 53;
     else {
         id = -1;
         cout << "WARNING : The process " << pcsName
@@ -238,6 +240,8 @@ TString TRestG4Track::GetProcessName(Int_t id) {
         return "mu-Step";
     else if (id == 52)
         return "mu+Step";
+    else if (id == 53)
+        return "ePairProd";
     else
         cout << "WARNING : The process ID : " << id << " could not be found" << endl;
 

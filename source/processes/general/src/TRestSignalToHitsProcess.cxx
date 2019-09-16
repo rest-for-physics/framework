@@ -15,8 +15,6 @@
 #include "TRestSignalToHitsProcess.h"
 using namespace std;
 
-const double cmTomm = 10.;
-
 ClassImp(TRestSignalToHitsProcess)
     //______________________________________________________________________________
     TRestSignalToHitsProcess::TRestSignalToHitsProcess() {
@@ -128,7 +126,7 @@ void TRestSignalToHitsProcess::InitProcess() {
         else
             fGas->SetPressure(fGasPressure);
 
-        if (fDriftVelocity <= 0) fDriftVelocity = fGas->GetDriftVelocity(fElectricField) * cmTomm;
+        if (fDriftVelocity <= 0) fDriftVelocity = fGas->GetDriftVelocity(fElectricField) / units("cm/us");
     } else {
         cout << "REST_WARNING. No TRestGas found in TRestRun." << endl;
     }
@@ -283,10 +281,11 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent* evInput) {
         cout << "TRestSignalToHitsProcess. Hits total energy : " << fHitsEvent->GetEnergy() << endl;
     }
 
-    if (this->GetVerboseLevel() >= REST_Debug) {
-        fHitsEvent->PrintEvent(300);
-        GetChar();
-    }
+    if (this->GetVerboseLevel() == REST_Debug) {
+        fHitsEvent->PrintEvent(30);
+    } else if (this->GetVerboseLevel() == REST_Extreme) {
+        fHitsEvent->PrintEvent(-1);
+	}
 
     if (fHitsEvent->GetNumberOfHits() <= 0) return NULL;
 
@@ -308,8 +307,8 @@ void TRestSignalToHitsProcess::EndProcess() {
 
 //______________________________________________________________________________
 void TRestSignalToHitsProcess::InitFromConfigFile() {
-    fElectricField = GetDblParameterWithUnits("electricField");
+    fElectricField = GetDblParameterWithUnits("electricField", 100.) * units("V/cm");
     fGasPressure = StringToDouble(GetParameter("gasPressure", "-1"));
-    fDriftVelocity = StringToDouble(GetParameter("driftVelocity", "0")) * cmTomm;
+    fDriftVelocity = GetDblParameterWithUnits("driftVelocity", 1.);
     fSignalToHitMethod = GetParameter("method", "all");
 }

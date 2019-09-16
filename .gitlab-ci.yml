@@ -2,8 +2,11 @@ image: nkx1231/root6-geant4-garfield:0.2
 
 stages:
   - build
-  - testMetarestG4
-  - testProcess
+  - opening
+  - generate
+  - process1
+  - process2
+  - drawing
   - deploy
 
 before_script:
@@ -13,54 +16,116 @@ build:
   type: build
   script:
     - mkdir /tmp/rest && cd /tmp/rest
-    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DINSTALL_PREFIX=/builds/REST_v2/install
-    - make install
-    - . /builds/REST_v2/install/thisREST.sh
+    - rm -rf ${CI_PROJECT_DIR}/install
+    - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
+    - make install -j2
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
   artifacts:
     paths:
-      - /builds/REST_v2/install
-    expire_in: 1 week
-      
-testrestG4:
-  type: testMetarestG4
+      - ${CI_PROJECT_DIR}/install
+    expire_in: 1 day
+     
+
+
+testOpeningOld:
+  type: opening
   script:
-    - . /builds/REST_v2/install/thisREST.sh
-    - cd /builds/REST_v2/install/example/restG4template
-    - restG4 restG4.rml
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+
+
+
+testrestG4:
+  type: generate
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/
+    - echo 1 > ${CI_PROJECT_DIR}/install/runNumber
+    - restG4 NLDBD.rml
   artifacts:
     paths:
-      - /builds/REST_v2/install
+      - ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/Run00001_NLDBD_Test.root
     expire_in: 1 day
 
 testMeta:
-  type: testMetarestG4
+  type: generate
   script:
-    - . /builds/REST_v2/install/thisREST.sh
-    - cd /builds/REST_v2/install/example
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples
     - restManager --c saveMetadataFile.rml --o meta.root
   artifacts:
     paths:
-      - /builds/REST_v2/install
+      - ${CI_PROJECT_DIR}/install/examples/meta.root
     expire_in: 1 day
       
-testProcess:
-  type: testProcess
+
+
+testProcessRaw: 
+  type: process1
   script:
-    - . /builds/REST_v2/install/thisREST.sh
-    - cd /builds/REST_v2/install/example
-    - restManager --c electronicsSimu.rml --i restG4template/example_output.root --o abc.root
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples
   artifacts:
     paths:
-      - /builds/REST_v2/install
-    expire_in: 1 day
+      - ${CI_PROJECT_DIR}/install/examples/rawAna.root
+    expire_in: 1 week
+
+testProcessElectronics: 
+  type: process1
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples
+    - restManager --c electronicsSimu.rml --i "01.NLDBD-PandaX-III/Run00001_NLDBD_Test.root" --o electronics.root
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/install/examples/electronics.root
+    expire_in: 1 week
+
+testProcessG4Ana: 
+  type: process1
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples
+    - restManager --c g4Analysis.rml --i "01.NLDBD-PandaX-III/Run00001_NLDBD_Test.root" --o g4Ana.root
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/install/examples/g4Ana.root
+    expire_in: 1 week
+
+
+
+testProcessRest: 
+  type: process2
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples
+    - restManager --c g4ToHits.rml --i g4Ana.root --o g4Hits.root
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/install/examples/g4Hits.root
+    expire_in: 1 week
+
+
+
+testDrawing: 
+  type: drawing
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/examples
+    - restManager --c plotAnaSpectrum.rml --i electronics.root --o spec.root --p spec.pdf
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/install/examples/spec.pdf
+    expire_in: 1 week
+
+
 
 deploy:
   type: deploy
   only:
     - tags
   script:
-    - . /builds/REST_v2/install/thisREST.sh
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - rest-config --welcome
   artifacts:
     paths:
-      - /builds/REST_v2/install
+      - ${CI_PROJECT_DIR}/install
