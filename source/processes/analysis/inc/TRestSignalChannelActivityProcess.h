@@ -24,9 +24,6 @@ class TRestSignalChannelActivityProcess : public TRestEventProcess {
 #ifndef __CINT__
     TRestSignalEvent* fSignalEvent;  //!
     TRestReadout* fReadout;          //!
-
-    Int_t fDaqHistogramChannels;      //!
-    Int_t fReadoutHistogramChannels;  //!
 #endif
     void InitFromConfigFile();
 
@@ -40,16 +37,19 @@ class TRestSignalChannelActivityProcess : public TRestEventProcess {
     Double_t fLowThreshold;
     Double_t fHighThreshold;
 
-    TH1D* fDaqChannelsHisto;
+    Int_t fDaqHistogramChannels;
+    Int_t fReadoutHistogramChannels;
 
-    TH1D* fReadoutChannelsHisto_OneSignal;
-    TH1D* fReadoutChannelsHisto_OneSignal_High;
-    TH1D* fReadoutChannelsHisto_TwoSignals;
-    TH1D* fReadoutChannelsHisto_TwoSignals_High;
-    TH1D* fReadoutChannelsHisto_ThreeSignals;
-    TH1D* fReadoutChannelsHisto_ThreeSignals_High;
-    TH1D* fReadoutChannelsHisto_MultiSignals;
-    TH1D* fReadoutChannelsHisto_MultiSignals_High;
+    TH1D* fDaqChannelsHisto;  //!
+
+    TH1D* fReadoutChannelsHisto_OneSignal;          //!
+    TH1D* fReadoutChannelsHisto_OneSignal_High;     //!
+    TH1D* fReadoutChannelsHisto_TwoSignals;         //!
+    TH1D* fReadoutChannelsHisto_TwoSignals_High;    //!
+    TH1D* fReadoutChannelsHisto_ThreeSignals;       //!
+    TH1D* fReadoutChannelsHisto_ThreeSignals_High;  //!
+    TH1D* fReadoutChannelsHisto_MultiSignals;       //!
+    TH1D* fReadoutChannelsHisto_MultiSignals_High;  //!
 
    public:
     void InitProcess();
@@ -63,11 +63,11 @@ class TRestSignalChannelActivityProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        cout << "Low signal threshold activity : " << fLowThreshold << endl;
-        cout << "High signal threshold activity : " << fHighThreshold << endl;
+        metadata << "Low signal threshold activity : " << fLowThreshold << endl;
+        metadata << "High signal threshold activity : " << fHighThreshold << endl;
 
-        cout << "Number of daq histogram channels : " << fDaqHistogramChannels << endl;
-        cout << "Number of readout histogram channels : " << fReadoutHistogramChannels << endl;
+        metadata << "Number of daq histogram channels : " << fDaqHistogramChannels << endl;
+        metadata << "Number of readout histogram channels : " << fReadoutHistogramChannels << endl;
 
         EndPrintProcess();
     }
@@ -80,8 +80,6 @@ class TRestSignalChannelActivityProcess : public TRestEventProcess {
     // Destructor
     ~TRestSignalChannelActivityProcess();
 
-    ClassDef(TRestSignalChannelActivityProcess,
-             1);  // Template for a REST "event process" class inherited from
-                  // TRestEventProcess
+    ClassDef(TRestSignalChannelActivityProcess, 2);
 };
 #endif

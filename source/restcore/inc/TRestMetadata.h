@@ -273,6 +273,7 @@ class TRestMetadata : public TNamed {
     /// returning fVersion
     TString GetVersion();
 
+    /// returning fCommit
     TString GetCommit();
 
     /// returning fLibraryVersion
