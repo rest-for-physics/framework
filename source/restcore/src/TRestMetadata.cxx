@@ -558,6 +558,7 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
     if (eSectional != NULL && eGlobal != NULL) {
         // Sectional and global elements are first combined.
         theElement = (TiXmlElement*)eSectional->Clone();
+        if (eGlobal->Attribute("file") != NULL) ExpandIncludeFile(eGlobal);
         TiXmlElement* echild = eGlobal->FirstChildElement();
         while (echild != NULL) {
             theElement->LinkEndChild(echild->Clone());
@@ -770,8 +771,8 @@ void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
         ExpandIfSections(e);
     } else if (e->FirstChildElement() != NULL) {
         TiXmlElement* contentelement = e->FirstChildElement();
-        // we won't expand child section unless forced recursive. The expansion of
-        // this section will be executed by the resident TRestXXX class
+        // we won't expand child TRestXXX sections unless forced recursive. The expansion of
+        // these sections will be executed individually by the corresponding TRestXXX class
         while (contentelement != NULL &&
                (recursive || ((string)contentelement->Value()).find("TRest") == -1)) {
             debug << "into child elements of: " << e->Value() << endl;
