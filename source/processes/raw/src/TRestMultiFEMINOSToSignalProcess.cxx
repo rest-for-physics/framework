@@ -188,7 +188,7 @@ void TRestMultiFEMINOSToSignalProcess::Initialize() {
 
 //______________________________________________________________________________
 void TRestMultiFEMINOSToSignalProcess::InitProcess() {
-    cout << "TRestMultiFeminos::InitProcess" << endl;
+    debug << "TRestMultiFeminos::InitProcess" << endl;
     // Reading binary file header
 
     LoadDetectorSetupData();
@@ -220,7 +220,7 @@ void TRestMultiFEMINOSToSignalProcess::InitProcess() {
         totalBytesReaded += sizeof(int);
 
         tStart = tt;
-        printf("Timestamp : %d - %lf\n", tt, tStart);
+        debug << "Timestamp : " << tt << " - " << tStart << endl;
     }
 
     if (ORIGINAL_MCLIENT) {
