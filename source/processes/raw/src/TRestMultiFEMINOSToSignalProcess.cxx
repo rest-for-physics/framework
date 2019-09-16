@@ -188,7 +188,7 @@ void TRestMultiFEMINOSToSignalProcess::Initialize() {
 
 //______________________________________________________________________________
 void TRestMultiFEMINOSToSignalProcess::InitProcess() {
-    cout << "TRestMultiFeminos::InitProcess" << endl;
+    debug << "TRestMultiFeminos::InitProcess" << endl;
     // Reading binary file header
 
     LoadDetectorSetupData();
@@ -220,7 +220,7 @@ void TRestMultiFEMINOSToSignalProcess::InitProcess() {
         totalBytesReaded += sizeof(int);
 
         tStart = tt;
-        printf("Timestamp : %d - %lf\n", tt, tStart);
+        debug << "Timestamp : " << tt << " - " << tStart << endl;
     }
 
     if (ORIGINAL_MCLIENT) {
@@ -261,7 +261,7 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent(TRestEvent* evInput) 
         while (!done) {
             // Read one short word
             if (fread(sh, sizeof(unsigned short), 1, fInputBinFile) != 1) {
-                printf("End of file reached.\n");
+                debug << "End of file reached." << endl;
                 fOutputEvent = NULL;
                 return NULL;
             }
