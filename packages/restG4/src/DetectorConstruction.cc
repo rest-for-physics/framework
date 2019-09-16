@@ -46,26 +46,32 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
 
     // TODO : Take the name of the sensitive volume and use it here to define its
     // StepSize
-    G4LogicalVolume* gas = parser->GetVolume("gasVolume");
-    G4Material* mat = gas->GetMaterial();
-    gas->SetUserLimits(new G4UserLimits(restG4Metadata->GetMaxTargetStepSize() * mm));
-    G4cout << "Gas properties" << G4endl;
-    G4cout << "==============" << G4endl;
-    G4cout << "Gas name : " << mat->GetName() << G4endl;
-    G4cout << "Gas temperature : " << mat->GetTemperature() << G4endl;
-    G4cout << "Gas density : " << mat->GetDensity() / (g / cm3) << " g/cm3" << G4endl;
+    string SensVol = (string)restG4Metadata->GetSensitiveVolume();
+    G4VPhysicalVolume* _vol = GetPhysicalVolume(SensVol);
+    G4LogicalVolume* vol = _vol->GetLogicalVolume();
+    if (_vol != NULL) {
+        G4Material* mat = vol->GetMaterial();
+        vol->SetUserLimits(new G4UserLimits(restG4Metadata->GetMaxTargetStepSize() * mm));
+        G4cout << "Sensitivity volume properties" << G4endl;
+        G4cout << "==============" << G4endl;
+        G4cout << "Sensitivity volume name : " << mat->GetName() << G4endl;
+        G4cout << "Sensitivity volume temperature : " << mat->GetTemperature() << G4endl;
+        G4cout << "Sensitivity volume density : " << mat->GetDensity() / (g / cm3) << " g/cm3" << G4endl;
+    } else {
+        cout << "ERROR : Logical volume for sensitive \"" << SensVol << "\" not found!" << endl;
+        exit(1);
+	}
 
     // Getting generation volume
-    string volume = (string)restG4Metadata->GetGeneratedFrom();
-    cout << "Generated from volume : " << volume << endl;
+    string GenVol = (string)restG4Metadata->GetGeneratedFrom();
+    cout << "Generated from volume : " << GenVol << endl;
     string type = (string)restG4Metadata->GetGeneratorType();
     cout << "Generator type : " << type << endl;
 
     // TODO if we do not find the volume given in the config inside the geometry
     // we should RETURN error
-    if (type == "volume" && volume != "Not defined") {
-        G4VPhysicalVolume* pVol = GetPhysicalVolume(volume);
-
+    if (type == "volume" && GenVol != "Not defined") {
+        G4VPhysicalVolume* pVol = GetPhysicalVolume(GenVol);
         if (pVol == NULL) {
             cout << "ERROR : The generator volume was not found in the geometry" << endl;
             exit(1);
