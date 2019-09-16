@@ -261,7 +261,7 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent(TRestEvent* evInput) 
         while (!done) {
             // Read one short word
             if (fread(sh, sizeof(unsigned short), 1, fInputBinFile) != 1) {
-                printf("End of file reached.\n");
+                debug << "End of file reached." << endl;
                 fOutputEvent = NULL;
                 return NULL;
             }
