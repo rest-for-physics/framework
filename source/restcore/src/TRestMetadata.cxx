@@ -580,7 +580,7 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
 
     int result = LoadSectionMetadata();
     if (result == 0) InitFromConfigFile();
-    debug << "**** " << ClassName() << " has finished preparing config data ****" << endl;
+    debug << ClassName() << " has finished preparing config data" << endl;
     return result;
 }
 
