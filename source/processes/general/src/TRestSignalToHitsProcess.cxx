@@ -285,7 +285,7 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent* evInput) {
         fHitsEvent->PrintEvent(30);
     } else if (this->GetVerboseLevel() == REST_Extreme) {
         fHitsEvent->PrintEvent(-1);
-	}
+    }
 
     if (fHitsEvent->GetNumberOfHits() <= 0) return NULL;
 
