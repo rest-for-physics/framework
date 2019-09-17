@@ -171,7 +171,7 @@ void TRestRun::BeginOfInit() {
     string outputdir = (string)GetDataPath();
     if (outputdir == "") outputdir = ".";
     string outputname = GetParameter("outputFile", "default");
-    if (outputname == "default") {
+    if (ToUpper(outputname) == "DEFAULT") {
         string expName = RemoveWhiteSpaces((string)GetExperimentName());
         string runType = RemoveWhiteSpaces((string)GetRunType());
         char runParentStr[256];
@@ -191,15 +191,19 @@ void TRestRun::BeginOfInit() {
                               "_" + (TString)runNumberStr + "_" + (TString)runParentStr + "_V" +
                               REST_RELEASE + ".root";
         }
-    } else if (TRestTools::isAbsolutePath(outputname)) {
+    } else if (ToUpper(outputname) == "NULL" || outputname=="/dev/null") {
+        fOutputFileName = "/dev/null";
+	}
+	else if (TRestTools::isAbsolutePath(outputname)) {
         fOutputFileName = outputname;
+        outputdir = TRestTools::SeparatePathAndName((string)fOutputFileName).first;
     } else {
         fOutputFileName = outputdir + "/" + outputname;
     }
     // remove multiple slashes from fOutputFileName
     fOutputFileName = (TString)TRestTools::RemoveMultipleSlash((string)fOutputFileName);
 
-    if (!TRestTools::isPathWritable(TRestTools::SeparatePathAndName((string)fOutputFileName).first)) {
+    if (!TRestTools::isPathWritable(outputdir)) {
         error << "REST Error!! TRestRun." << endl;
         error << "Output path does not exist or it is not writable." << endl;
         error << "Path : " << outputdir << endl;
@@ -799,7 +803,7 @@ TFile* TRestRun::FormOutputFile(vector<string> filenames, string targetfilename)
     rename(filename.c_str(), fOutputFileName);
 
     // write metadata into the output file
-    fOutputFile = new TFile(fOutputFileName, "UPDATE");
+    fOutputFile = new TFile(fOutputFileName, "update");
     debug << "TRestRun::FormOutputFile. Calling WriteWithDataBase()" << endl;
     this->WriteWithDataBase();
     // for (int i = 0; i < fMetadataInfo.size(); i++) {

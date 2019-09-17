@@ -468,8 +468,9 @@ void TRestProcessRunner::RunProcess() {
          << " ms" << endl;
     info << "=" << endl;
 #endif
-
-    ConfigOutputFile();
+    if (fRunInfo->GetOutputFileName() == !"/dev/null") {
+        ConfigOutputFile();
+	}
 }
 
 ///////////////////////////////////////////////
