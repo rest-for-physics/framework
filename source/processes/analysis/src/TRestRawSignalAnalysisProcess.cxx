@@ -219,9 +219,6 @@ void TRestRawSignalAnalysisProcess::Initialize() {
     fFirstEventTime = -1;
     fPreviousEventTime.clear();
 
-    fReadout = NULL;
-    fChannelsHisto = NULL;
-
     time(&timeStored);
 }
 
@@ -245,12 +242,7 @@ void TRestRawSignalAnalysisProcess::LoadConfig(std::string cfgFilename, std::str
 /// \brief Process initialization.
 ///
 void TRestRawSignalAnalysisProcess::InitProcess() {
-    fSignalAnalysisObservables = TRestEventProcess::ReadObservables();
-
-    if (!fReadOnly)
-        fChannelsHisto = new TH1D("readoutChannelActivity", "readoutChannelActivity", 128, 0, 128);
-
-    fReadout = (TRestReadout*)GetReadoutMetadata();
+    // fSignalAnalysisObservables = TRestEventProcess::ReadObservables();
 }
 
 ///////////////////////////////////////////////
@@ -435,26 +427,6 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
             if (maxPeakTime < peakBin) maxPeakTime = peakBin;
 
             nGoodSignals++;
-
-            // Adding signal to the channel activity histogram
-            if (!fReadOnly && fReadout != NULL) {
-                TRestReadoutModule* mod = &(*fReadout)[0][0];
-                for (int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++) {
-                    Int_t readoutChannel = mod->DaqToReadoutChannel(fSignalEvent->GetSignal(s)->GetID());
-                    fChannelsHisto->Fill(readoutChannel);
-                }
-
-                auto x = fReadout->GetX(sgnl->GetID());
-                auto y = fReadout->GetY(sgnl->GetID());
-
-                if (TMath::IsNaN(x) || TMath::IsNaN(y)) {
-                    if (!TMath::IsNaN(x)) {
-                        xsum += sgnl->fThresholdIntegral;
-                    } else if (!TMath::IsNaN(y)) {
-                        ysum += sgnl->fThresholdIntegral;
-                    }
-                }
-            }
         }
     }
 
