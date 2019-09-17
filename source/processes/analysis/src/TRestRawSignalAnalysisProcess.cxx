@@ -169,13 +169,12 @@
 #include "TRestRawSignalAnalysisProcess.h"
 using namespace std;
 
-ClassImp(TRestRawSignalAnalysisProcess)
-    ///////////////////////////////////////////////
-    /// \brief Default constructor
-    ///
-    TRestRawSignalAnalysisProcess::TRestRawSignalAnalysisProcess() {
-    Initialize();
-}
+ClassImp(TRestRawSignalAnalysisProcess);
+
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestRawSignalAnalysisProcess::TRestRawSignalAnalysisProcess() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -196,10 +195,13 @@ TRestRawSignalAnalysisProcess::TRestRawSignalAnalysisProcess(char* cfgFileName) 
 }
 
 ///////////////////////////////////////////////
-/// \brief Function to load the default config in absence of RML input
+/// \brief Default destructor
 ///
 TRestRawSignalAnalysisProcess::~TRestRawSignalAnalysisProcess() {}
 
+///////////////////////////////////////////////
+/// \brief Function to load the default config in absence of RML input
+///
 void TRestRawSignalAnalysisProcess::LoadDefaultConfig() { SetTitle("Default config"); }
 
 ///////////////////////////////////////////////
@@ -250,12 +252,6 @@ void TRestRawSignalAnalysisProcess::InitProcess() {
 
     fReadout = (TRestReadout*)GetReadoutMetadata();
 }
-
-///////////////////////////////////////////////
-/// \brief Function to include required initialization before each event starts
-/// to process.
-///
-void TRestRawSignalAnalysisProcess::BeginOfEventProcess() {}
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
@@ -488,41 +484,6 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     SetObservableValue("MaxPeakTimeDelay", peakTimeDelay);
     SetObservableValue("AveragePeakTime", peakTimeAverage);
 
-    // Cuts. Not used anymore.
-    if (fCuts.size() > 0) {
-        auto iter = fCuts.begin();
-        while (iter != fCuts.end()) {
-            if (iter->first == "meanBaseLineCut")
-                if (baseLineMean > iter->second.Y() || baseLineMean < iter->second.X()) return NULL;
-            if (iter->first == "meanBaseLineSigmaCut")
-                if (baseLineSigma > iter->second.Y() || baseLineSigma < iter->second.X()) return NULL;
-            if (iter->first == "maxNumberOfSignalsCut")
-                if (nSignals > iter->second.Y() || nSignals < iter->second.X()) return NULL;
-            if (iter->first == "maxNumberOfGoodSignalsCut")
-                if (nGoodSignals > iter->second.Y() || nGoodSignals < iter->second.X()) return NULL;
-            if (iter->first == "fullIntegralCut")
-                if (fullIntegral > iter->second.Y() || fullIntegral < iter->second.X()) return NULL;
-            if (iter->first == "thresholdIntegralCut")
-                if (thrIntegral > iter->second.Y() || thrIntegral < iter->second.X()) return NULL;
-            if (iter->first == "peakTimeDelayCut")
-                if (peakTimeDelay > iter->second.Y() || peakTimeDelay < iter->second.X()) return NULL;
-            if (iter->first == "ADCSaturationCut")
-                if (maxeve > iter->second.Y() || maxeve < iter->second.X()) return NULL;
-
-            iter++;
-        }
-
-        // if (nSignals < fMaxNumberOfSignalsCut.X() || nSignals >
-        // fMaxNumberOfSignalsCut.Y())  return NULL; if (nGoodSignals <
-        // fMaxNumberOfGoodSignalsCut.X() || nGoodSignals >
-        // fMaxNumberOfGoodSignalsCut.Y()) return NULL; if (thrIntegral <
-        // fThresholdIntegralCut.X() || thrIntegral > fThresholdIntegralCut.Y())
-        // return NULL; if (fullIntegral < fFullIntegralCut.X() || fullIntegral >
-        // fFullIntegralCut.Y()) return NULL; if (peakTimeDelay <
-        // fPeakTimeDelayCut.X() || peakTimeDelay > fPeakTimeDelayCut.Y()) return
-        // NULL;
-    }
-
     if (GetVerboseLevel() >= REST_Debug) {
         fAnalysisTree->PrintObservables(this);
     }
@@ -531,17 +492,20 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Function to include required actions after each event has been
-/// processed.
+/// \brief Re-implementation of TRestEventProcess::EndOfEventProcess. This method
+/// is in charge of maintain an internal timestamp vector used in the process to
+/// determine, i.e., the event rate.
 ///
-void TRestRawSignalAnalysisProcess::EndOfEventProcess() {
+void TRestRawSignalAnalysisProcess::EndOfEventProcess(TRestEvent* evInput) {
+    TRestEventProcess::EndOfEventProcess(evInput);
+
     fPreviousEventTime.push_back(fSignalEvent->GetTimeStamp());
     if (fPreviousEventTime.size() > 100) fPreviousEventTime.erase(fPreviousEventTime.begin());
 }
 
 ///////////////////////////////////////////////
 /// \brief Function to include required actions after all events have been
-/// processed.
+/// processed. This method will write the channels histogram.
 ///
 void TRestRawSignalAnalysisProcess::EndProcess() {
     // Function to be executed once at the end of the process

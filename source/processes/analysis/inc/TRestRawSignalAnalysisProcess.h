@@ -69,9 +69,8 @@ class TRestRawSignalAnalysisProcess : public TRestEventProcess {
 
    public:
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
+    void EndOfEventProcess(TRestEvent* eventInput);
     void EndProcess();
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
