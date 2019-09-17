@@ -21,14 +21,14 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// 
+///
 /// ### Observables
 ///
 /// Number of signals and base line:
-/// 
+///
 /// * **NumberOfSignals**: Number of pulses recorded in an event.
 /// * **NumberOfGoodSignals**: Number of pulses recorded in an event that gets
-/// over the threshold. It counts the signal if GetIntegralWithThreshold (fSignal) > 0. 
+/// over the threshold. It counts the signal if GetIntegralWithThreshold (fSignal) > 0.
 /// * **BaseLineMean**: Average of the base line of the pulses of the event.
 /// * **BaseLineSigmaMean**: Average of the standard deviation from the base line in
 /// the pulses of the event.
@@ -87,11 +87,11 @@
 /// Peak time observables:
 ///
 /// * **MaxPeakTime**: Highest bin for the maximum point of a pulse that pass the
-/// threshold in the event.  
+/// threshold in the event.
 /// * **MinPeakTime**: Smallest bin for the maximum point of a pulse that pass the
-/// threshold in the event. 
+/// threshold in the event.
 /// * **MaxPeakTimeDelay**: MaxPeakTime-MinPeakTime. Time between the earliest peak and
-/// the latest peak between the pulses that pass the threshold in the event. 
+/// the latest peak between the pulses that pass the threshold in the event.
 /// * **AveragePeakTime**: For all pulses that pass the threshold, add the bin of their
 /// maximums and divide this amount by the number of signals that pass the threshold.
 ///
@@ -104,7 +104,7 @@
 /// the number of pulses.
 /// * **baseline**: Map the ID of each signal in the event with its base line. It
 /// computes the base line adding the samples in a certain range and dividing it by
-/// the number of samples. 
+/// the number of samples.
 /// * **baselinemean**: Add the base line of all pulses in the event and divide it by
 /// the number of pulses.
 /// * **baselinesigma**: Map the ID of each signal in the event with its base line's
@@ -114,9 +114,9 @@
 /// * **baselinesigmamean**: Add the base line's standard deviation of all pulses in
 /// the event and divide it by the number of pulses.
 /// * **ampsgn_maxmethod**: Map the ID of each signal in the event with the amplitude
-/// of its peak. Amplitude = MaxPeakValue-BaseLine. 
+/// of its peak. Amplitude = MaxPeakValue-BaseLine.
 /// * **ampeve_maxmethod**: Add the amplitude of all pulses in the event.
-/// Amplitude = MaxPeakValue-BaseLine. 
+/// Amplitude = MaxPeakValue-BaseLine.
 /// * **ampsgn_intmethod**: Map the ID of each signal in the event with the threshold
 /// integral of its peak. GetIntegralWithThreshold() adds the samples of a pulse
 /// that get over the threshold. A certain number of samples must pass the threshold
@@ -214,12 +214,9 @@ void TRestRawSignalAnalysisProcess::Initialize() {
     fOutputEvent = fSignalEvent;
     fInputEvent = fSignalEvent;
 
-    // fCutsEnabled = false;
     fFirstEventTime = -1;
     fPreviousEventTime.clear();
 
-    fDrawRefresh = 0;
-    // fCanvas = NULL;
     fReadout = NULL;
     fChannelsHisto = NULL;
 
@@ -243,7 +240,7 @@ void TRestRawSignalAnalysisProcess::LoadConfig(std::string cfgFilename, std::str
 }
 
 ///////////////////////////////////////////////
-/// \brief Process initialization. 
+/// \brief Process initialization.
 ///
 void TRestRawSignalAnalysisProcess::InitProcess() {
     fSignalAnalysisObservables = TRestEventProcess::ReadObservables();
@@ -557,6 +554,7 @@ void TRestRawSignalAnalysisProcess::EndProcess() {
     if (!fReadOnly) fChannelsHisto->Write();
 }
 
+/* Commented DrawObservables
 TPad* TRestRawSignalAnalysisProcess::DrawObservables() {
     TPad* pad = new TPad("Signal", " ", 0, 0, 1, 1);
     // fDrawingObjects.push_back( (TObject *) pad );
@@ -580,93 +578,15 @@ TPad* TRestRawSignalAnalysisProcess::DrawObservables() {
 
     return pad;
 }
-
-TPad* TRestRawSignalAnalysisProcess::DrawSignal(Int_t signal) {
-    TPad* pad = new TPad("Signal", " ", 0, 0, 1, 1);
-    pad->cd();
-
-    fDrawingObjects.push_back((TObject*)pad);
-
-    TGraph* gr = new TGraph();
-    fDrawingObjects.push_back((TObject*)gr);
-
-    TRestRawSignal* sgnl = fSignalEvent->GetSignal(signal);
-
-    for (int n = 0; n < sgnl->GetNumberOfPoints(); n++) gr->SetPoint(n, n, sgnl->GetData(n));
-
-    gr->Draw("AC*");
-
-    TGraph* gr2 = new TGraph();
-    fDrawingObjects.push_back((TObject*)gr2);
-
-    gr2->SetLineWidth(2);
-    gr2->SetLineColor(2);
-
-    for (int n = fBaseLineRange.X(); n < fBaseLineRange.Y(); n++)
-        gr2->SetPoint(n - fBaseLineRange.X(), n, sgnl->GetData(n));
-    gr2->Draw("CP");
-
-    vector<Int_t> pOver = sgnl->GetPointsOverThreshold();
-
-    TGraph* gr3[5];
-    Int_t nGraphs = 0;
-    gr3[nGraphs] = new TGraph();
-    fDrawingObjects.push_back((TObject*)gr3[nGraphs]);
-    gr3[nGraphs]->SetLineWidth(2);
-    gr3[nGraphs]->SetLineColor(3);
-    Int_t point = 0;
-    Int_t nPoints = pOver.size();
-    for (int n = 0; n < nPoints; n++) {
-        gr3[nGraphs]->SetPoint(point, pOver[n], sgnl->GetData(pOver[n]));
-        point++;
-        if (n + 1 < nPoints && pOver[n + 1] - pOver[n] > 1) {
-            gr3[nGraphs]->Draw("CP");
-            nGraphs++;
-            if (nGraphs > 4) cout << "Ngraphs : " << nGraphs << endl;
-            point = 0;
-            gr3[nGraphs] = new TGraph();
-            fDrawingObjects.push_back((TObject*)gr3[nGraphs]);
-            gr3[nGraphs]->SetLineWidth(2);
-            gr3[nGraphs]->SetLineColor(3);
-        }
-    }
-
-    if (nPoints > 0) gr3[nGraphs]->Draw("CP");
-
-    /*
-    TLegend *leg = new TLegend(.6,.7,.9,.9);
-    fDrawingObjects.push_back( (TObject *) leg );
-    leg->AddEntry( gr2, (TString) "Baseline" );
-    leg->Draw("same");
-    */
-
-    return pad;
-}
+*/
 
 ///////////////////////////////////////////////
-/// \brief Function to read input parameters. 
+/// \brief Function to read input parameters.
 ///
 void TRestRawSignalAnalysisProcess::InitFromConfigFile() {
-    fDrawRefresh = StringToDouble(GetParameter("refreshEvery", "0"));
-
     fBaseLineRange = StringTo2DVector(GetParameter("baseLineRange", "(5,55)"));
     fIntegralRange = StringTo2DVector(GetParameter("integralRange", "(10,500)"));
     fPointThreshold = StringToDouble(GetParameter("pointThreshold", "2"));
     fNPointsOverThreshold = StringToInteger(GetParameter("pointsOverThreshold", "5"));
     fSignalThreshold = StringToDouble(GetParameter("signalThreshold", "5"));
-
-    /*fMeanBaseLineCutRange = StringTo2DVector( GetParameter(
-  "meanBaseLineCutRange", "(0,4096)") ); fMeanBaseLineSigmaCutRange =
-  StringTo2DVector( GetParameter( "meanBaseLineSigmaCutRange", "(0,4096)") );
-  fMaxNumberOfSignalsCut = StringTo2DVector( GetParameter(
-  "maxNumberOfSignalsCut", "(0,20)" ) ); fMaxNumberOfGoodSignalsCut =
-  StringTo2DVector( GetParameter( "maxNumberOfGoodSignalsCut", "(0,20)" ) );
-
-  fFullIntegralCut  = StringTo2DVector( GetParameter( "fullIntegralCut",
-  "(0,100000)" ) ); fThresholdIntegralCut  = StringTo2DVector( GetParameter(
-  "thresholdIntegralCut", "(0,100000)" ) );
-
-  fPeakTimeDelayCut  = StringTo2DVector( GetParameter( "peakTimeDelayCut",
-  "(0,20)" ) ); if( GetParameter( "cutsEnabled", "false" ) == "true" )
-  fCutsEnabled = true;*/
 }
