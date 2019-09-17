@@ -261,7 +261,6 @@ TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent(TRestEvent* evInput) {
     if (GetVerboseLevel() >= REST_Debug) {
         cout << "tStart : " << tStart << " ms " << endl;
         cout << "tEnd : " << tEnd << " ms " << endl;
-        GetChar();
     }
 
     for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++) {
@@ -275,8 +274,8 @@ TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent(TRestEvent* evInput) {
             Double_t t = sgnl->GetTime(m);
             Double_t d = sgnl->GetData(m);
 
-            if (GetVerboseLevel() >= REST_Debug)
-                cout << "Sample : " << m << " T : " << t << " D : " << d << endl;
+            if (GetVerboseLevel() >= REST_Debug && n < 3 && m < 5)
+                cout << "Signal : " << n << " Sample : " << m << " T : " << t << " Data : " << d << endl;
 
             if (t > tStart && t < tEnd) {
                 // convert physical time (in us) to timeBin
