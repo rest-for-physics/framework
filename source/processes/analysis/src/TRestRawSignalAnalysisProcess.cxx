@@ -486,8 +486,6 @@ void TRestRawSignalAnalysisProcess::EndProcess() {
     // Start by calling the EndProcess function of the abstract class.
     // Comment this if you don't want it.
     // TRestEventProcess::EndProcess();
-
-    if (!fReadOnly) fChannelsHisto->Write();
 }
 
 /* Commented DrawObservables

@@ -34,7 +34,6 @@
 //! An analysis REST process to extract valuable information from RawSignal type of data.
 class TRestRawSignalAnalysisProcess : public TRestEventProcess {
    private:
-#ifndef __CINT__
     /// A pointer to the specific TRestRawSignalEvent input
     TRestRawSignalEvent* fSignalEvent;  //!
 
@@ -53,10 +52,6 @@ class TRestRawSignalAnalysisProcess : public TRestEventProcess {
     Double_t fPointThreshold;
     Double_t fSignalThreshold;
     Int_t fNPointsOverThreshold;
-
-    // analysis result(saved directly in root file)
-    TH1D* fChannelsHisto;  //!
-#endif
 
     void InitFromConfigFile();
 
