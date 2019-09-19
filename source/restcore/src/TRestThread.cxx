@@ -246,16 +246,11 @@ bool TRestThread::TestRun(TRestAnalysisTree* tempTree) {
 void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
     debug << "Entering TRestThread::PrepareToProcess( testrun=" << testrun << " )" << endl;
 
-    string threadFileName;
-    if (fHostRunner->GetTempOutputDataFile()->GetName() == "/dev/null") {
-        threadFileName = "/dev/null";
-    } else {
-        threadFileName = "/tmp/rest_thread_tmp" + ToString(this) + ".root";
-    }
-
     if (fProcessChain.size() > 0) {
-        debug << "TRestThread: Creating file : " << threadFileName << endl;
-        fOutputFile = new TFile(threadFileName.c_str(), "recreate");
+        stringstream Filename;
+        Filename << "/tmp/rest_thread_tmp" << ToString(this) << ".root";
+        debug << "Creating file : " << Filename.str() << endl;
+        fOutputFile = new TFile(Filename.str().c_str(), "recreate");
         fOutputFile->SetCompressionLevel(0);
 
         TRestAnalysisTree* tempTree = new TRestAnalysisTree("AnalysisTree_tmp", "anaTree_tmp");
@@ -427,7 +422,9 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
         string tmp = fHostRunner->GetInputEvent()->ClassName();
         fInputEvent = (TRestEvent*)TClass::GetClass(tmp.c_str())->New();
         fOutputEvent = fInputEvent;
-        fOutputFile = new TFile(threadFileName.c_str(), "recreate");
+        stringstream Filename;
+        Filename << "/tmp/rest_thread_tmp" << ToString(this) << ".root";
+        fOutputFile = new TFile(Filename.str().c_str(), "recreate");
         fOutputFile->SetCompressionLevel(0);
         fOutputFile->cd();
 
