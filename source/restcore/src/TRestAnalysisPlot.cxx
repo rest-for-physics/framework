@@ -548,12 +548,14 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         }
     /* }}} */
 
-    TFile* f = fRun->GetOutputFile();
-    if (f == NULL) {
-        fRun->SetHistoricMetadataSaving(false);
-        f = fRun->FormOutputFile();
+    TFile* fOutputRootFile = NULL;
+    if (fRun != NULL) {
+        fOutputRootFile = fRun->GetOutputFile();
+        if (fOutputRootFile == NULL) {
+            fRun->SetHistoricMetadataSaving(false);
+            fOutputRootFile = fRun->FormOutputFile();
+        }
     }
-
     // fHistoOutputFile = ReplaceFilenameTags(fHistoOutputFile, runs[0][0]);
     // TFile* f = new TFile(fHistoOutputFile, "RECREATE");
 
@@ -735,8 +737,10 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             else
                 histCollection[i]->Draw("same");
 
-            f->cd();
-            histCollection[i]->Write(hName[i]);
+            if (fRun != NULL) {
+                fOutputRootFile->cd();
+                histCollection[i]->Write(hName[i]);
+            }
         }
         if (fLegend[n]) legend->Draw("same");
 
@@ -758,7 +762,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
         if (!h) {
             error << "TRestAnalysisPlot. A histogram with name : " << fHistoNames[n]
-                 << " does not exist in input file" << endl;
+                  << " does not exist in input file" << endl;
             exit(1);
         }
 
@@ -782,8 +786,10 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
         hNew->Draw(fPlotOption[n]);
 
-        f->cd();
-        hNew->Write(fHistoNames[n]);
+        if (fRun != NULL) {
+            fOutputRootFile->cd();
+            hNew->Write(fHistoNames[n]);
+        }
 
         if (fHistoSaveToFile[n] != "Notdefined" && fHistoSaveToFile[n] != "")
             SaveHistoToPDF(hNew, n, fHistoSaveToFile[n]);
@@ -798,8 +804,11 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     if (ToUpper(GetParameter("previewPlot", "TRUE")) == "TRUE") {
         GetChar();
     }
-    this->Write();
-    fRun->CloseFile();
+
+    if (fRun != NULL) {
+        this->Write();
+        fRun->CloseFile();
+    }
 }
 
 void TRestAnalysisPlot::SavePlotToPDF(TString plotName, TString fileName) {
