@@ -408,7 +408,7 @@ void TRestProcessRunner::RunProcess() {
             break;
         }
 
-        // ConsoleHelper::disable_raw_mode();
+// ConsoleHelper::disable_raw_mode();
 
 #ifdef WIN32
         _sleep(50);
@@ -469,9 +469,10 @@ void TRestProcessRunner::RunProcess() {
          << " ms" << endl;
     info << "=" << endl;
 #endif
+
     if (fRunInfo->GetOutputFileName() != "/dev/null") {
         ConfigOutputFile();
-	}
+    }
 }
 
 ///////////////////////////////////////////////
