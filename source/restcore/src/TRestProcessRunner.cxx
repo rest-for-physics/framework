@@ -273,7 +273,8 @@ void TRestProcessRunner::ReadProcInfo() {
 ///
 void TRestProcessRunner::RunProcess() {
     debug << "Creating output File " << fRunInfo->GetOutputFileName() << endl;
-    fTempOutputDataFile = new TFile(fRunInfo->GetOutputFileName(), "recreate");
+    TString filename = fRunInfo->FormFormat(fRunInfo->GetOutputFileName());
+    fTempOutputDataFile = new TFile(filename, "recreate");
     if (!fTempOutputDataFile->IsOpen()) {
         error << "Failed to create output file: " << fTempOutputDataFile << endl;
         exit(1);

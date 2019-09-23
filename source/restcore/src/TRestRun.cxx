@@ -202,7 +202,6 @@ void TRestRun::BeginOfInit() {
     }
     // remove multiple slashes from fOutputFileName
     fOutputFileName = (TString)TRestTools::RemoveMultipleSlash((string)fOutputFileName);
-    fOutputFileName = FormFormat(fOutputFileName);
 
     if (!TRestTools::isPathWritable(outputdir)) {
         error << "REST Error!! TRestRun." << endl;
