@@ -271,6 +271,13 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
     }
 
     else if (Count(keydeclare, "TRest") > 0) {
+        if (e->Attribute("file") != NULL && TRestTools::isRootFile(e->Attribute("file"))) {
+            warning << "TRestRun: A root file is being included in section <" << keydeclare
+                    << " ! To import metadata from this file, use <addMetadata" << endl;
+            warning << "Skipping..." << endl;
+            return -1;
+		}
+
         TClass* c = TClass::GetClass(keydeclare.c_str());
         if (c == NULL) {
             warning << endl;
@@ -280,7 +287,7 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
         }
         TRestMetadata* meta = (TRestMetadata*)c->New();
         meta->SetHostmgr(fHostmgr);
-        AddMetadata(meta);
+        fMetadataInfo.push_back(meta);
         meta->LoadConfigFromFile(e, fElementGlobal);
 
         return 0;
@@ -1098,7 +1105,7 @@ void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t s
     else
         meta->DoNotStore();
 
-    AddMetadata(meta);
+    fMetadataInfo.push_back(meta);
     meta->InitFromRootFile();
     f->Close();
     delete f;
