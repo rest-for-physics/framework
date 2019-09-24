@@ -1208,42 +1208,6 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
 }
 
 ///////////////////////////////////////////////
-/// \brief It will download the remote file provided in the argument using wget.
-///
-/// If it succeeds to download the file, this method will return the location of
-/// the local temporary file downloaded. If it fails, the method will invoke an
-/// exit call and print out some error.
-string TRestMetadata::DownloadHttpFile(string remoteFile) {
-    debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
-
-    debug << "Complete remote filename : " << remoteFile << endl;
-
-    TString remoteFilename = TRestTools::GetPureFileName(remoteFile);
-
-    debug << "Reduced remote filename : " << remoteFilename << endl;
-
-    string cmd =
-        "wget --no-check-certificate " + remoteFile + " -O /tmp/REST_" + getenv("USER") + "_remote.rml -q";
-
-    info << "-- Info : Trying to download remote file from : " << remoteFile << endl;
-    int a = system(cmd.c_str());
-
-    if (a == 0) {
-        success << "-- Success : download OK!" << endl;
-
-        return (string)("/tmp/REST_" + (string)getenv("USER") + "_remote.rml");
-    } else {
-        error << "-- Error : download failed!" << endl;
-        if (a == 1024) error << "-- Error : Network connection problem?" << endl;
-        if (a == 2048) error << "-- Error : Gas definition does NOT exist in database?" << endl;
-        info << "-- Info : Please specify a local config file" << endl;
-        exit(1);
-    }
-
-    return "";
-}
-
-///////////////////////////////////////////////
 /// \brief Returns the value for the parameter name **parName** found in
 /// fElement(main data element)
 ///
