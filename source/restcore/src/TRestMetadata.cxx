@@ -1038,9 +1038,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL
-                    ? false
-                    : ((string)localele->Attribute("expanded") == "true")) {
+            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+                                                                   "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1073,9 +1072,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL
-                    ? false
-                    : ((string)localele->Attribute("expanded") == "true")) {
+            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+                                                                   "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1740,46 +1738,49 @@ string TRestMetadata::GetKEYDefinition(string keyName, size_t& fromPosition, str
 /// TiXmlElement
 ///
 std::string TRestMetadata::GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition) {
-    TiXmlElement* ele = StringToElement(definition);
-    string value = GetFieldValue(fieldName, ele);
+    TiXmlElement* ele = StringToElement(FieldNamesToUpper(definition));
+    string value = GetFieldValue(ToUpper(fieldName), ele);
     delete ele;
     return value;
 }
+
 Double_t TRestMetadata::GetDblFieldValueWithUnits(string fieldName, string definition, size_t fromPosition) {
-    TiXmlElement* ele = StringToElement(definition);
+    TiXmlElement* ele = StringToElement(FieldNamesToUpper(definition));
     TiXmlElement* e = ele->FirstChildElement();
     while (e != NULL) {
         TiXmlElement* tmp = e;
         e = e->NextSiblingElement();
         ele->RemoveChild(tmp);
     }
-    auto value = GetDblParameterWithUnits(fieldName, ele);
+    auto value = GetDblParameterWithUnits(ToUpper(fieldName), ele);
     delete ele;
     return value;
 }
+
 TVector2 TRestMetadata::Get2DVectorFieldValueWithUnits(string fieldName, string definition,
                                                        size_t fromPosition) {
-    TiXmlElement* ele = StringToElement(definition);
+    TiXmlElement* ele = StringToElement(FieldNamesToUpper(definition));
     TiXmlElement* e = ele->FirstChildElement();
     while (e != NULL) {
         TiXmlElement* tmp = e;
         e = e->NextSiblingElement();
         ele->RemoveChild(tmp);
     }
-    auto value = Get2DVectorParameterWithUnits(fieldName, ele);
+    auto value = Get2DVectorParameterWithUnits(ToUpper(fieldName), ele);
     delete ele;
     return value;
 }
+
 TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits(string fieldName, string definition,
                                                        size_t fromPosition) {
-    TiXmlElement* ele = StringToElement(definition);
+    TiXmlElement* ele = StringToElement(FieldNamesToUpper(definition));
     TiXmlElement* e = ele->FirstChildElement();
     while (e != NULL) {
         TiXmlElement* tmp = e;
         e = e->NextSiblingElement();
         ele->RemoveChild(tmp);
     }
-    auto value = Get3DVectorParameterWithUnits(fieldName, ele);
+    auto value = Get3DVectorParameterWithUnits(ToUpper(fieldName), ele);
     delete ele;
     return value;
 }
@@ -1794,13 +1795,29 @@ TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits(string fieldName, string 
 string TRestMetadata::GetParameter(string parName, size_t& pos, string inputString) {
     pos = inputString.find(parName, pos);
 
-    TiXmlElement* ele = StringToElement(inputString);
-
-    string value = GetParameter(parName, ele);
+    TiXmlElement* ele = StringToElement(FieldNamesToUpper(inputString));
+    string value = GetParameter(ToUpper(parName), ele);
 
     delete ele;
-
     return value;
+}
+
+string TRestMetadata::FieldNamesToUpper(string definition) {
+    string result = definition;
+    TiXmlElement* e = StringToElement(definition);
+    if (e == NULL) return NULL;
+
+    TiXmlAttribute* attr = e->FirstAttribute();
+    while (attr != NULL) {
+        string parName = std::string(attr->Name());
+
+        size_t pos = 0;
+        result = Replace(result, parName, ToUpper(parName), pos);
+
+        attr = attr->Next();
+    }
+
+    return result;
 }
 
 ///////////////////////////////////////////////
@@ -1822,12 +1839,10 @@ string TRestMetadata::GetParameter(string parName, size_t& pos, string inputStri
 Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, size_t& pos, std::string inputString) {
     pos = inputString.find(parName, pos);
 
-    TiXmlElement* ele = StringToElement(inputString);
-
-    double value = GetDblParameterWithUnits(parName, ele);
+    TiXmlElement* ele = StringToElement(FieldNamesToUpper(inputString));
+    double value = GetDblParameterWithUnits(ToUpper(parName), ele);
 
     delete ele;
-
     return value;
 }
 
@@ -1851,12 +1866,10 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, size_
                                                       std::string inputString) {
     pos = inputString.find(parName, pos);
 
-    TiXmlElement* ele = StringToElement(inputString);
-
-    TVector2 value = Get2DVectorParameterWithUnits(parName, ele);
+    TiXmlElement* ele = StringToElement(FieldNamesToUpper(inputString));
+    TVector2 value = Get2DVectorParameterWithUnits(ToUpper(parName), ele);
 
     delete ele;
-
     return value;
 }
 
@@ -1880,12 +1893,10 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, size_
                                                       std::string inputString) {
     pos = inputString.find(parName, pos);
 
-    TiXmlElement* ele = StringToElement(inputString);
-
-    TVector3 value = Get3DVectorParameterWithUnits(parName, ele);
+    TiXmlElement* ele = StringToElement(FieldNamesToUpper(inputString));
+    TVector3 value = Get3DVectorParameterWithUnits(ToUpper(parName), ele);
 
     delete ele;
-
     return value;
 }
 
