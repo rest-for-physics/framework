@@ -85,9 +85,6 @@ void TRestReadoutAnalysisProcess::InitProcess() {
 }
 
 //______________________________________________________________________________
-void TRestReadoutAnalysisProcess::BeginOfEventProcess() {}
-
-//______________________________________________________________________________
 TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     fSignalEvent = (TRestSignalEvent*)evInput;
     fOutputEvent = fSignalEvent;
@@ -204,9 +201,6 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     }
     return fSignalEvent;
 }
-
-//______________________________________________________________________________
-void TRestReadoutAnalysisProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestReadoutAnalysisProcess::EndProcess() {
