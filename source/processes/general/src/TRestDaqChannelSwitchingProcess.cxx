@@ -64,13 +64,13 @@ void TRestDaqChannelSwitchingProcess::InitProcess() {
 
         if (fIgnoreUndefinedModules) {
             for (int i = 0; i < fReadout->GetNumberOfReadoutPlanes(); i++) {
-                auto plane = (*fReadout)[i];
+                TRestReadoutPlane& plane = (*fReadout)[i];
 
                 for (int j = 0; j < plane.GetNumberOfModules(); j++) {
-                    auto mod = &plane[j];
-                    if (fFirstDaqChannelDef.count(mod->GetModuleID()) == 0) {
-                        for (int i = 0; i < mod->GetNumberOfChannels(); i++) {
-                            mod->GetChannel(i)->SetDaqID(-1e9);
+                    TRestReadoutModule& mod = plane[j];
+                    if (fFirstDaqChannelDef.count(mod.GetModuleID()) == 0) {
+                        for (int i = 0; i < mod.GetNumberOfChannels(); i++) {
+                            mod.GetChannel(i)->SetDaqID(-1e9);
                         }
                     }
                 }
