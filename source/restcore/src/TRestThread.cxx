@@ -293,15 +293,19 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
             fProcessChain[i]->InitProcess();
         }
 
-        fInputEvent = (TRestEvent*)fProcessChain[0]->GetInputEvent();
-        if (fInputEvent == NULL) {
-            error << "REST ERROR("
-                  << "In thread " << fThreadId << ")::Input event of the first process is not specified!"
-                  << endl;
-            GetChar();
-            exit(1);
+        TRestEvent* FirstProcessInputEvent = (TRestEvent*)fProcessChain[0]->GetInputEvent();
+        if (FirstProcessInputEvent != NULL) {
+            fInputEvent = (TRestEvent*)FirstProcessInputEvent->Clone();
+            if ((string)FirstProcessInputEvent->ClassName() != fHostRunner->GetInputEvent()->ClassName()) {
+                cout << "REST ERROR: Input event type does not match!" << endl;
+                cout << "Process input type : " << FirstProcessInputEvent->ClassName()
+                     << ", File input type:  " << fHostRunner->GetInputEvent()->ClassName() << endl;
+                exit(1);
+            }
+        } else {
+            fInputEvent = (TRestEvent*)fHostRunner->GetInputEvent()->Clone();
         }
-        fInputEvent = (TRestEvent*)fInputEvent->Clone();
+
         if (fHostRunner->GetNextevtFunc(fInputEvent, tempTree) != 0) {
             error << "REST ERROR("
                   << "In thread " << fThreadId
