@@ -282,9 +282,9 @@ void TRestEventProcess::ProcessEvent( TRestEvent *eventInput )
 */
 
 //////////////////////////////////////////////////////////////////////////
-/// \brief Implemention of BeginOfEventProcess at TRestEventProcess.
-/// If this method is re-implemented at the inhereted cass we will need
-/// to call TRestEventProcess::BeginOfEventProcess( evIn );
+/// \brief Implemention of EndOfEventProcess at TRestEventProcess.
+/// If this method is re-implemented at the inherited class we will need
+/// to call TRestEventProcess::EndOfEventProcess( evIn );
 ///
 void TRestEventProcess::EndOfEventProcess(TRestEvent* evInput) {
     debug << "Entering TRestEventProcess::EndOfEventProcess (" << ClassName() << ")" << endl;

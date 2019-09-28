@@ -558,6 +558,7 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
     if (eSectional != NULL && eGlobal != NULL) {
         // Sectional and global elements are first combined.
         theElement = (TiXmlElement*)eSectional->Clone();
+        if (eGlobal->Attribute("file") != NULL) ExpandIncludeFile(eGlobal);
         TiXmlElement* echild = eGlobal->FirstChildElement();
         while (echild != NULL) {
             theElement->LinkEndChild(echild->Clone());
@@ -579,7 +580,7 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
 
     int result = LoadSectionMetadata();
     if (result == 0) InitFromConfigFile();
-    debug << "**** " << ClassName() << " has finished preparing config data ****" << endl;
+    debug << ClassName() << " has finished preparing config data" << endl;
     return result;
 }
 
@@ -770,8 +771,8 @@ void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
         ExpandIfSections(e);
     } else if (e->FirstChildElement() != NULL) {
         TiXmlElement* contentelement = e->FirstChildElement();
-        // we won't expand child section unless forced recursive. The expansion of
-        // this section will be executed by the resident TRestXXX class
+        // we won't expand child TRestXXX sections unless forced recursive. The expansion of
+        // these sections will be executed individually by the corresponding TRestXXX class
         while (contentelement != NULL &&
                (recursive || ((string)contentelement->Value()).find("TRest") == -1)) {
             debug << "into child elements of: " << e->Value() << endl;
@@ -1037,9 +1038,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL
-                    ? false
-                    : ((string)localele->Attribute("expanded") == "true")) {
+            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+                                                                   "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1072,9 +1072,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL
-                    ? false
-                    : ((string)localele->Attribute("expanded") == "true")) {
+            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+                                                                   "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1204,42 +1203,6 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         debug << nattr << " attributes and " << nele << " xml elements added by inclusion" << endl;
         debug << "----end of expansion file----" << endl;
     }
-}
-
-///////////////////////////////////////////////
-/// \brief It will download the remote file provided in the argument using wget.
-///
-/// If it succeeds to download the file, this method will return the location of
-/// the local temporary file downloaded. If it fails, the method will invoke an
-/// exit call and print out some error.
-string TRestMetadata::DownloadHttpFile(string remoteFile) {
-    debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
-
-    debug << "Complete remote filename : " << remoteFile << endl;
-
-    TString remoteFilename = TRestTools::GetPureFileName(remoteFile);
-
-    debug << "Reduced remote filename : " << remoteFilename << endl;
-
-    string cmd =
-        "wget --no-check-certificate " + remoteFile + " -O /tmp/REST_" + getenv("USER") + "_remote.rml -q";
-
-    info << "-- Info : Trying to download remote file from : " << remoteFile << endl;
-    int a = system(cmd.c_str());
-
-    if (a == 0) {
-        success << "-- Success : download OK!" << endl;
-
-        return (string)("/tmp/REST_" + (string)getenv("USER") + "_remote.rml");
-    } else {
-        error << "-- Error : download failed!" << endl;
-        if (a == 1024) error << "-- Error : Network connection problem?" << endl;
-        if (a == 2048) error << "-- Error : Gas definition does NOT exist in database?" << endl;
-        info << "-- Info : Please specify a local config file" << endl;
-        exit(1);
-    }
-
-    return "";
 }
 
 ///////////////////////////////////////////////
@@ -1775,46 +1738,49 @@ string TRestMetadata::GetKEYDefinition(string keyName, size_t& fromPosition, str
 /// TiXmlElement
 ///
 std::string TRestMetadata::GetFieldValue(std::string fieldName, std::string definition, size_t fromPosition) {
-    TiXmlElement* ele = StringToElement(definition);
-    string value = GetFieldValue(fieldName, ele);
+    TiXmlElement* ele = StringToElement(FieldNamesToUpper(definition));
+    string value = GetFieldValue(ToUpper(fieldName), ele);
     delete ele;
     return value;
 }
+
 Double_t TRestMetadata::GetDblFieldValueWithUnits(string fieldName, string definition, size_t fromPosition) {
-    TiXmlElement* ele = StringToElement(definition);
+    TiXmlElement* ele = StringToElement(FieldNamesToUpper(definition));
     TiXmlElement* e = ele->FirstChildElement();
     while (e != NULL) {
         TiXmlElement* tmp = e;
         e = e->NextSiblingElement();
         ele->RemoveChild(tmp);
     }
-    auto value = GetDblParameterWithUnits(fieldName, ele);
+    auto value = GetDblParameterWithUnits(ToUpper(fieldName), ele);
     delete ele;
     return value;
 }
+
 TVector2 TRestMetadata::Get2DVectorFieldValueWithUnits(string fieldName, string definition,
                                                        size_t fromPosition) {
-    TiXmlElement* ele = StringToElement(definition);
+    TiXmlElement* ele = StringToElement(FieldNamesToUpper(definition));
     TiXmlElement* e = ele->FirstChildElement();
     while (e != NULL) {
         TiXmlElement* tmp = e;
         e = e->NextSiblingElement();
         ele->RemoveChild(tmp);
     }
-    auto value = Get2DVectorParameterWithUnits(fieldName, ele);
+    auto value = Get2DVectorParameterWithUnits(ToUpper(fieldName), ele);
     delete ele;
     return value;
 }
+
 TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits(string fieldName, string definition,
                                                        size_t fromPosition) {
-    TiXmlElement* ele = StringToElement(definition);
+    TiXmlElement* ele = StringToElement(FieldNamesToUpper(definition));
     TiXmlElement* e = ele->FirstChildElement();
     while (e != NULL) {
         TiXmlElement* tmp = e;
         e = e->NextSiblingElement();
         ele->RemoveChild(tmp);
     }
-    auto value = Get3DVectorParameterWithUnits(fieldName, ele);
+    auto value = Get3DVectorParameterWithUnits(ToUpper(fieldName), ele);
     delete ele;
     return value;
 }
@@ -1829,13 +1795,29 @@ TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits(string fieldName, string 
 string TRestMetadata::GetParameter(string parName, size_t& pos, string inputString) {
     pos = inputString.find(parName, pos);
 
-    TiXmlElement* ele = StringToElement(inputString);
-
-    string value = GetParameter(parName, ele);
+    TiXmlElement* ele = StringToElement(FieldNamesToUpper(inputString));
+    string value = GetParameter(ToUpper(parName), ele);
 
     delete ele;
-
     return value;
+}
+
+string TRestMetadata::FieldNamesToUpper(string definition) {
+    string result = definition;
+    TiXmlElement* e = StringToElement(definition);
+    if (e == NULL) return NULL;
+
+    TiXmlAttribute* attr = e->FirstAttribute();
+    while (attr != NULL) {
+        string parName = std::string(attr->Name());
+
+        size_t pos = 0;
+        result = Replace(result, parName, ToUpper(parName), pos);
+
+        attr = attr->Next();
+    }
+
+    return result;
 }
 
 ///////////////////////////////////////////////
@@ -1857,12 +1839,10 @@ string TRestMetadata::GetParameter(string parName, size_t& pos, string inputStri
 Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, size_t& pos, std::string inputString) {
     pos = inputString.find(parName, pos);
 
-    TiXmlElement* ele = StringToElement(inputString);
-
-    double value = GetDblParameterWithUnits(parName, ele);
+    TiXmlElement* ele = StringToElement(FieldNamesToUpper(inputString));
+    double value = GetDblParameterWithUnits(ToUpper(parName), ele);
 
     delete ele;
-
     return value;
 }
 
@@ -1886,12 +1866,10 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, size_
                                                       std::string inputString) {
     pos = inputString.find(parName, pos);
 
-    TiXmlElement* ele = StringToElement(inputString);
-
-    TVector2 value = Get2DVectorParameterWithUnits(parName, ele);
+    TiXmlElement* ele = StringToElement(FieldNamesToUpper(inputString));
+    TVector2 value = Get2DVectorParameterWithUnits(ToUpper(parName), ele);
 
     delete ele;
-
     return value;
 }
 
@@ -1915,12 +1893,10 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, size_
                                                       std::string inputString) {
     pos = inputString.find(parName, pos);
 
-    TiXmlElement* ele = StringToElement(inputString);
-
-    TVector3 value = Get3DVectorParameterWithUnits(parName, ele);
+    TiXmlElement* ele = StringToElement(FieldNamesToUpper(inputString));
+    TVector3 value = Get3DVectorParameterWithUnits(ToUpper(parName), ele);
 
     delete ele;
-
     return value;
 }
 

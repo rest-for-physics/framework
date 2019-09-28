@@ -43,45 +43,46 @@ int main(int argc, char* argv[]) {
         string opt = (string)argv[i];
         if (TRestTools::fileExists(opt) && TRestTools::isRootFile(opt)) {
             printf("\nAttaching file %s as run%i...\n", opt.c_str(), Nfile);
-            gROOT->ProcessLine(Form("TRestRun* run%i =new TRestRun(\"%s\");", Nfile, opt.c_str()));
 
             TRestRun* runTmp = new TRestRun(opt);
-            TString eventType = runTmp->GetEventTree()->GetTitle();
-            // Removing the Tree ending
-            eventType = eventType(0, eventType.Length() - 4);
+            string runcmd = Form("TRestRun* run%i = (TRestRun*)%s;", Nfile, ToString(runTmp).c_str());
+            if (debug) cout << runcmd << endl;
+            gROOT->ProcessLine(runcmd.c_str());
+            if (runTmp->GetInputEvent() != NULL) {
+                string eventType = runTmp->GetInputEvent()->ClassName();
 
-            printf("Attaching eventTree %s as ev%i...\n", eventType.Data(), Nfile);
-            gROOT->ProcessLine(Form("%s* ev%i =new %s();", eventType.Data(), Nfile, eventType.Data()));
-            gROOT->ProcessLine(Form("run%i->SetInputEvent( ev%i );", Nfile, Nfile));
+                printf("Attaching event %s as ev%i...\n", eventType.c_str(), Nfile);
+                string evcmd = Form("%s* ev%i = (%s*)%s;", eventType.c_str(), Nfile, eventType.c_str(),
+                                    ToString(runTmp->GetInputEvent()).c_str());
+                if (debug) cout << evcmd << endl;
+                gROOT->ProcessLine(evcmd.c_str());
+                runTmp->GetEntry(0);
+            }
 
             cout << endl;
             cout << "Attaching metadata structures..." << endl;
             Int_t Nmetadata = runTmp->GetNumberOfMetadataStructures();
             for (int n = 0; n < Nmetadata; n++) {
-                TString* myOutput = (TString*)gROOT->ProcessLine(
-                    Form("new TString(run%d->GetMetadataStructureNames()[%i]);", Nfile, n));
-                TString metaName(myOutput->Data());
-
-                myOutput = (TString*)gROOT->ProcessLine(
-                    Form("new TString(run%d->GetMetadata(\"%s\")->ClassName());", Nfile, metaName.Data()));
-                TString metaType(myOutput->Data());
-
-				if (metaName.Contains("Historic")) {
+                string metaName = runTmp->GetMetadataStructureNames()[n];
+                if (metaName.find("Historic") != -1) {
                     continue;
-				}
+                }
 
-				TString metaFixed = Replace( (string) metaName, "-", "_" );
-				metaFixed = Replace( (string) metaFixed, " ", "" );
-				metaFixed = Replace( (string) metaFixed, ".", "_" );
+                TRestMetadata* md = runTmp->GetMetadata(metaName);
+                string metaType = md->ClassName();
 
-                cout << "- md" << Nfile << "_" << metaFixed << " (" << metaType << ")" << endl;
+                string metaFixed = Replace(metaName, "-", "_");
+                metaFixed = Replace(metaFixed, " ", "");
+                metaFixed = Replace(metaFixed, ".", "_");
+                metaFixed = "md" + ToString(Nfile) + "_" + metaFixed;
+                cout << "- " << metaFixed << " (" << metaType << ")" << endl;
 
-				if( debug )
-					cout << Form("%s *md%i_%s = (%s *) run%d->GetMetadata(\"%s\");", metaType.Data(),
-                                        Nfile, metaFixed.Data(), metaType.Data(), Nfile, metaName.Data()) << endl;
+                string mdcmd = Form("%s* %s = (%s*)%s;", metaType.c_str(), metaFixed.c_str(),
+                                    metaType.c_str(), ToString(md).c_str());
 
-                gROOT->ProcessLine(Form("%s *md%i_%s = (%s *) run%d->GetMetadata(\"%s\");", metaType.Data(),
-                                        Nfile, metaFixed.Data(), metaType.Data(), Nfile, metaName.Data()));
+                if (debug) cout << mdcmd << endl;
+
+                gROOT->ProcessLine(mdcmd.c_str());
             }
 
             argv[i] = (char*)"";

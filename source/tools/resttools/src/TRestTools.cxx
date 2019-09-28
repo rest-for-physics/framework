@@ -480,3 +480,39 @@ std::istream& TRestTools::GetLine(std::istream& is, std::string& t) {
         }
     }
 }
+
+
+///////////////////////////////////////////////
+/// \brief It will download the remote file provided in the argument using wget.
+///
+/// If it succeeds to download the file, this method will return the location of
+/// the local temporary file downloaded. If it fails, the method will a blank string
+string TRestTools::DownloadHttpFile(string remoteFile) {
+    //cout << "Entering ... " << __PRETTY_FUNCTION__ << endl;
+
+    //cout << "Complete remote filename : " << remoteFile << endl;
+
+    TString remoteFilename = TRestTools::GetPureFileName(remoteFile);
+
+    //cout << "Reduced remote filename : " << remoteFilename << endl;
+
+    string cmd =
+        "wget --no-check-certificate " + remoteFile + " -O /tmp/REST_" + getenv("USER") + "_remote.rml -q";
+
+    //info << "-- Info : Trying to download remote file from : " << remoteFile << endl;
+    int a = system(cmd.c_str());
+
+    if (a == 0) {
+        cout << "-- Success : download OK!" << endl;
+
+        return (string)("/tmp/REST_" + (string)getenv("USER") + "_remote.rml");
+    } else {
+        cout << "-- Error : download failed!" << endl;
+        if (a == 1024) cout << "-- Error : Network connection problem?" << endl;
+        if (a == 2048) cout << "-- Error : Gas definition does NOT exist in database?" << endl;
+        cout << "-- Info : Please specify a local config file" << endl;
+        //exit(1);
+    }
+
+    return "";
+}

@@ -107,6 +107,7 @@ class TRestTools {
     /// \brief Executes a shell command and returns its output in a string
     ///
     static std::string Execute(string cmd);
+    static std::string DownloadHttpFile(string remoteFile);
 
     /// Rest tools class
     ClassDef(TRestTools, 1);

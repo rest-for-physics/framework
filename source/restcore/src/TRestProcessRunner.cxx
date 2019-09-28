@@ -273,7 +273,8 @@ void TRestProcessRunner::ReadProcInfo() {
 ///
 void TRestProcessRunner::RunProcess() {
     debug << "Creating output File " << fRunInfo->GetOutputFileName() << endl;
-    fTempOutputDataFile = new TFile(fRunInfo->GetOutputFileName(), "recreate");
+    TString filename = fRunInfo->FormFormat(fRunInfo->GetOutputFileName());
+    fTempOutputDataFile = new TFile(filename, "recreate");
     if (!fTempOutputDataFile->IsOpen()) {
         error << "Failed to create output file: " << fTempOutputDataFile << endl;
         exit(1);
@@ -407,7 +408,7 @@ void TRestProcessRunner::RunProcess() {
             break;
         }
 
-        // ConsoleHelper::disable_raw_mode();
+// ConsoleHelper::disable_raw_mode();
 
 #ifdef WIN32
         _sleep(50);
@@ -469,7 +470,9 @@ void TRestProcessRunner::RunProcess() {
     info << "=" << endl;
 #endif
 
-    ConfigOutputFile();
+    if (fRunInfo->GetOutputFileName() != "/dev/null") {
+        ConfigOutputFile();
+    }
 }
 
 ///////////////////////////////////////////////

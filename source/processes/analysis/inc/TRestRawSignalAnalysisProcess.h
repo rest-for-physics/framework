@@ -34,17 +34,13 @@
 //! An analysis REST process to extract valuable information from RawSignal type of data.
 class TRestRawSignalAnalysisProcess : public TRestEventProcess {
    private:
-#ifndef __CINT__
     /// A pointer to the specific TRestRawSignalEvent input
     TRestRawSignalEvent* fSignalEvent;  //!
-    
+
     TRestReadout* fReadout;  //!
 
     Double_t fFirstEventTime;             //!
     vector<Double_t> fPreviousEventTime;  //!
-
-    vector<TObject*> fDrawingObjects;  //!
-    Double_t fDrawRefresh;             //!
 
     time_t timeStored;  //!
 
@@ -56,21 +52,6 @@ class TRestRawSignalAnalysisProcess : public TRestEventProcess {
     Double_t fPointThreshold;
     Double_t fSignalThreshold;
     Int_t fNPointsOverThreshold;
-    // Bool_t fCutsEnabled;//!
-    // TVector2 fMeanBaseLineCutRange;//!
-    // TVector2 fMeanBaseLineSigmaCutRange;//!
-    // TVector2 fMaxNumberOfSignalsCut;//!
-    // TVector2 fMaxNumberOfGoodSignalsCut;//!
-    // TVector2 fFullIntegralCut;//!
-    // TVector2 fThresholdIntegralCut;//!
-    // TVector2 fPeakTimeDelayCut;//!
-
-    // analysis result(saved directly in root file)
-    TH1D* fChannelsHisto;  //!
-#endif
-
-    TPad* DrawSignal(Int_t signal);
-    TPad* DrawObservables();
 
     void InitFromConfigFile();
 
@@ -80,12 +61,11 @@ class TRestRawSignalAnalysisProcess : public TRestEventProcess {
 
    protected:
     // add here the members of your event process
-    
+
    public:
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
+    void EndOfEventProcess(TRestEvent* eventInput);
     void EndProcess();
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
@@ -107,11 +87,11 @@ class TRestRawSignalAnalysisProcess : public TRestEventProcess {
 
     TString GetProcessName() { return (TString) "rawSignalAnalysis"; }
 
-    TRestRawSignalAnalysisProcess(); // Constructor
+    TRestRawSignalAnalysisProcess();  // Constructor
     TRestRawSignalAnalysisProcess(char* cfgFileName);
-    ~TRestRawSignalAnalysisProcess(); // Destructor
+    ~TRestRawSignalAnalysisProcess();  // Destructor
 
-    ClassDef(TRestRawSignalAnalysisProcess, 1);  
+    ClassDef(TRestRawSignalAnalysisProcess, 1);
     // Template for a REST "event process" class inherited from TRestEventProcess
 };
 #endif

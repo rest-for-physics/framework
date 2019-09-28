@@ -129,8 +129,7 @@ class TRestMetadata : public TNamed {
     void SetEnv(string name, string value, bool overwriteexisting);
     void ClearEnv() { fElementEnv.clear(); }
     string SearchFile(string filename);
-
-    std::string DownloadHttpFile(string remoteFile);
+    string FieldNamesToUpper(string inputString);
 
     //////////////////////////////////////////////////
     /// Data members

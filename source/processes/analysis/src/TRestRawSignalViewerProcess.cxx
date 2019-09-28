@@ -1,44 +1,89 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
+
+//////////////////////////////////////////////////////////////////////////
+/// The TRestRawSignalViewerProcess allows to display on screen the pulses
+/// registered inside a TRestRawSignalEvent.
 ///
+///--------------------------------------------------------------------------
 ///
-///             RESTSoft : Software for Rare Event Searches with TPCs
+/// RESTsoft - Software for Rare Event Searches with TPCs
 ///
-///             TRestRawSignalViewerProcess.cxx
+/// History of developments:
 ///
+/// 2017-February: First implementation of Geant4 analysis process into REST_v2.
+///             Javier Galan
 ///
-///             First implementation of raw signal analysis process into REST_v2
-///             Created from TRestSignalViewerProcess
-///             Date : feb/2017
-///             Author : J. Galan
+/// \class      TRestRawSignalViewerProcess
+/// \author     Javier Galan
 ///
-///_______________________________________________________________________________
+/// <hr>
+///
+#include "TRestRawSignalViewerProcess.h"
 
 #include <TLegend.h>
 #include <TPaveText.h>
 
-#include "TRestRawSignalViewerProcess.h"
 using namespace std;
 
-ClassImp(TRestRawSignalViewerProcess)
-    //______________________________________________________________________________
-    TRestRawSignalViewerProcess::TRestRawSignalViewerProcess() {
-    Initialize();
-}
+ClassImp(TRestRawSignalViewerProcess);
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestRawSignalViewerProcess::TRestRawSignalViewerProcess() { Initialize(); }
+
+///////////////////////////////////////////////
+/// \brief Constructor loading data from a config file
+///
+/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// The default behaviour is that the config file must be specified with
+/// full path, absolute or relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+///
 TRestRawSignalViewerProcess::TRestRawSignalViewerProcess(char* cfgFileName) {
     Initialize();
 
     if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Default destructor
+///
 TRestRawSignalViewerProcess::~TRestRawSignalViewerProcess() { delete fSignalEvent; }
 
+///////////////////////////////////////////////
+/// \brief Function to load the default config in absence of RML input
+///
 void TRestRawSignalViewerProcess::LoadDefaultConfig() { SetTitle("Default config"); }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Function to initialize input/output event members and define the
+/// section name
+///
 void TRestRawSignalViewerProcess::Initialize() {
     SetSectionName(this->ClassName());
 
@@ -52,38 +97,36 @@ void TRestRawSignalViewerProcess::Initialize() {
     fSingleThreadOnly = true;
 }
 
+///////////////////////////////////////////////
+/// \brief Function to load the configuration from an external configuration
+/// file.
+///
+/// If no configuration path is defined in TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param name The name of the specific metadata. It will be used to find the
+/// correspondig TRestGeant4AnalysisProcess section inside the RML.
+///
 void TRestRawSignalViewerProcess::LoadConfig(std::string cfgFilename, std::string name) {
     if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Process initialization. It creates the canvas available in TRestEventProcess
+///
 void TRestRawSignalViewerProcess::InitProcess() { this->CreateCanvas(); }
 
-//______________________________________________________________________________
-void TRestRawSignalViewerProcess::BeginOfEventProcess() {
-    // fSignalEvent->Initialize();
-}
-
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief The main processing event function
+///
 TRestEvent* TRestRawSignalViewerProcess::ProcessEvent(TRestEvent* evInput) {
     TString obsName;
 
-    TRestRawSignalEvent* fInputSignalEvent = (TRestRawSignalEvent*)evInput;
-
-    /// Copying the signal event to the output event
-    fSignalEvent = fInputSignalEvent;
-    // fSignalEvent->SetID(fInputSignalEvent->GetID());
-    // fSignalEvent->SetSubID(fInputSignalEvent->GetSubID());
-    // fSignalEvent->SetTimeStamp(fInputSignalEvent->GetTimeStamp());
-    // fSignalEvent->SetSubEventTag(fInputSignalEvent->GetSubEventTag());
-
-    ////for( int sgnl = 0; sgnl < fInputSignalEvent->GetNumberOfSignals(); sgnl++
-    ///)
-    // Int_t N = fInputSignalEvent->GetNumberOfSignals();
-    // if (GetVerboseLevel() >= REST_Debug) N = 1;
-    // for (int sgnl = 0; sgnl < N; sgnl++)
-    //	fSignalEvent->AddSignal(*fInputSignalEvent->GetSignal(sgnl));
-    /////////////////////////////////////////////////
+    // no need for verbose copy now
+    fSignalEvent = (TRestRawSignalEvent*)evInput;
+    fOutputEvent = fSignalEvent;
 
     fCanvas->cd();
     eveCounter++;
@@ -122,7 +165,7 @@ TRestEvent* TRestRawSignalViewerProcess::ProcessEvent(TRestEvent* evInput) {
             } else if (a == 110 || a == 78)  // n
             {
                 sgnCounter++;
-                if (sgnCounter >= 0 && sgnCounter < fInputSignalEvent->GetNumberOfSignals()) {
+                if (sgnCounter >= 0 && sgnCounter < fSignalEvent->GetNumberOfSignals()) {
                     TPad* pad2 = DrawSignal(sgnCounter);
                     fCanvas->cd();
                     pad2->Draw();
@@ -133,7 +176,7 @@ TRestEvent* TRestRawSignalViewerProcess::ProcessEvent(TRestEvent* evInput) {
             } else if (a == 112 || a == 80)  // p
             {
                 sgnCounter--;
-                if (sgnCounter >= 0 && sgnCounter < fInputSignalEvent->GetNumberOfSignals()) {
+                if (sgnCounter >= 0 && sgnCounter < fSignalEvent->GetNumberOfSignals()) {
                     TPad* pad2 = DrawSignal(sgnCounter);
                     fCanvas->cd();
                     pad2->Draw();
@@ -150,10 +193,10 @@ TRestEvent* TRestRawSignalViewerProcess::ProcessEvent(TRestEvent* evInput) {
     return fSignalEvent;
 }
 
-//______________________________________________________________________________
-void TRestRawSignalViewerProcess::EndOfEventProcess() {}
-
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Function to include required actions after all events have been
+/// processed.
+///
 void TRestRawSignalViewerProcess::EndProcess() {
     // Function to be executed once at the end of the process
     // (after all events have been processed)
@@ -163,6 +206,9 @@ void TRestRawSignalViewerProcess::EndProcess() {
     // TRestEventProcess::EndProcess();
 }
 
+///////////////////////////////////////////////
+/// \brief A helper method to draw signals in a pad
+///
 TPad* TRestRawSignalViewerProcess::DrawSignal(Int_t signal) {
     TPad* pad = new TPad(this->GetName(), this->GetTitle(), 0, 0, 1, 1);
 
@@ -174,6 +220,9 @@ TPad* TRestRawSignalViewerProcess::DrawSignal(Int_t signal) {
     fDrawingObjects.push_back((TObject*)gr);
 
     TRestRawSignal* sgnl = fSignalEvent->GetSignal(signal);
+
+    info << "Drawing signal. Event ID : " << fSignalEvent->GetID() << " Signal ID : " << sgnl->GetID()
+         << endl;
 
     for (int n = 0; n < sgnl->GetNumberOfPoints(); n++) gr->SetPoint(n, n, sgnl->GetData(n));
 
@@ -220,7 +269,10 @@ TPad* TRestRawSignalViewerProcess::DrawSignal(Int_t signal) {
     return pad;
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Function to read input parameters from the RML
+/// TRestRawSignalViewerProcess metadata section
+///
 void TRestRawSignalViewerProcess::InitFromConfigFile() {
     fDrawRefresh = StringToDouble(GetParameter("refreshEvery", "0"));
 

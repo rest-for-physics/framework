@@ -58,34 +58,41 @@ void TRestSignalChannelActivityProcess::LoadConfig(std::string cfgFilename, std:
 
 //______________________________________________________________________________
 void TRestSignalChannelActivityProcess::InitProcess() {
+    fReadout = (TRestReadout*)GetReadoutMetadata();
+
+    info << "TRestSignalChannelActivityProcess::InitProcess. Readout pointer : " << fReadout << endl;
+    if (GetVerboseLevel() >= REST_Info && fReadout) fReadout->PrintMetadata();
+
     if (!fReadOnly) {
         fDaqChannelsHisto = new TH1D("daqChannelActivity", "daqChannelActivity", fDaqHistogramChannels, 0,
                                      fDaqHistogramChannels);
-        fReadoutChannelsHisto_OneSignal = new TH1D("rChannelActivity_1", "readoutChannelActivity",
-                                                   fReadoutHistogramChannels, 0, fReadoutHistogramChannels);
-        fReadoutChannelsHisto_OneSignal_High =
-            new TH1D("rChannelActivity_1H", "readoutChannelActivity", fReadoutHistogramChannels, 0,
-                     fReadoutHistogramChannels);
-        fReadoutChannelsHisto_TwoSignals = new TH1D("rChannelActivity_2", "readoutChannelActivity",
-                                                    fReadoutHistogramChannels, 0, fReadoutHistogramChannels);
-        fReadoutChannelsHisto_TwoSignals_High =
-            new TH1D("rChannelActivity_2H", "readoutChannelActivity", fReadoutHistogramChannels, 0,
-                     fReadoutHistogramChannels);
-        fReadoutChannelsHisto_ThreeSignals =
-            new TH1D("rChannelActivity_3", "readoutChannelActivity", fReadoutHistogramChannels, 0,
-                     fReadoutHistogramChannels);
-        fReadoutChannelsHisto_ThreeSignals_High =
-            new TH1D("rChannelActivity_3H", "readoutChannelActivity", fReadoutHistogramChannels, 0,
-                     fReadoutHistogramChannels);
-        fReadoutChannelsHisto_MultiSignals =
-            new TH1D("rChannelActivity_M", "readoutChannelActivity", fReadoutHistogramChannels, 0,
-                     fReadoutHistogramChannels);
-        fReadoutChannelsHisto_MultiSignals_High =
-            new TH1D("rChannelActivity_MH", "readoutChannelActivity", fReadoutHistogramChannels, 0,
-                     fReadoutHistogramChannels);
+        if (fReadout) {
+            fReadoutChannelsHisto_OneSignal =
+                new TH1D("rChannelActivity_1", "readoutChannelActivity", fReadoutHistogramChannels, 0,
+                         fReadoutHistogramChannels);
+            fReadoutChannelsHisto_OneSignal_High =
+                new TH1D("rChannelActivity_1H", "readoutChannelActivity", fReadoutHistogramChannels, 0,
+                         fReadoutHistogramChannels);
+            fReadoutChannelsHisto_TwoSignals =
+                new TH1D("rChannelActivity_2", "readoutChannelActivity", fReadoutHistogramChannels, 0,
+                         fReadoutHistogramChannels);
+            fReadoutChannelsHisto_TwoSignals_High =
+                new TH1D("rChannelActivity_2H", "readoutChannelActivity", fReadoutHistogramChannels, 0,
+                         fReadoutHistogramChannels);
+            fReadoutChannelsHisto_ThreeSignals =
+                new TH1D("rChannelActivity_3", "readoutChannelActivity", fReadoutHistogramChannels, 0,
+                         fReadoutHistogramChannels);
+            fReadoutChannelsHisto_ThreeSignals_High =
+                new TH1D("rChannelActivity_3H", "readoutChannelActivity", fReadoutHistogramChannels, 0,
+                         fReadoutHistogramChannels);
+            fReadoutChannelsHisto_MultiSignals =
+                new TH1D("rChannelActivity_M", "readoutChannelActivity", fReadoutHistogramChannels, 0,
+                         fReadoutHistogramChannels);
+            fReadoutChannelsHisto_MultiSignals_High =
+                new TH1D("rChannelActivity_MH", "readoutChannelActivity", fReadoutHistogramChannels, 0,
+                         fReadoutHistogramChannels);
+        }
     }
-
-    fReadout = (TRestReadout*)GetReadoutMetadata();
 }
 
 //______________________________________________________________________________
@@ -119,7 +126,7 @@ TRestEvent* TRestSignalChannelActivityProcess::ProcessEvent(TRestEvent* evInput)
     for (int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++) {
         TRestSignal* sgnl = fSignalEvent->GetSignal(s);
         // Adding signal to the channel activity histogram
-        if (!fReadOnly && fReadout != NULL) {
+        if (!fReadOnly && fReadout) {
             TRestReadoutModule* mod = fReadout->GetReadoutPlane(0)->GetModule(0);
             Int_t readoutChannel = mod->DaqToReadoutChannel(fSignalEvent->GetSignal(s)->GetID());
 
@@ -163,15 +170,17 @@ void TRestSignalChannelActivityProcess::EndProcess() {
 
     if (!fReadOnly) {
         fDaqChannelsHisto->Write();
-        fReadoutChannelsHisto_OneSignal->Write();
-        fReadoutChannelsHisto_TwoSignals->Write();
-        fReadoutChannelsHisto_ThreeSignals->Write();
-        fReadoutChannelsHisto_MultiSignals->Write();
+        if (fReadout) {
+            fReadoutChannelsHisto_OneSignal->Write();
+            fReadoutChannelsHisto_TwoSignals->Write();
+            fReadoutChannelsHisto_ThreeSignals->Write();
+            fReadoutChannelsHisto_MultiSignals->Write();
 
-        fReadoutChannelsHisto_OneSignal_High->Write();
-        fReadoutChannelsHisto_TwoSignals_High->Write();
-        fReadoutChannelsHisto_ThreeSignals_High->Write();
-        fReadoutChannelsHisto_MultiSignals_High->Write();
+            fReadoutChannelsHisto_OneSignal_High->Write();
+            fReadoutChannelsHisto_TwoSignals_High->Write();
+            fReadoutChannelsHisto_ThreeSignals_High->Write();
+            fReadoutChannelsHisto_MultiSignals_High->Write();
+        }
     }
 }
 

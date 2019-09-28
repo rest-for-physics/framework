@@ -171,7 +171,7 @@ void TRestRun::BeginOfInit() {
     string outputdir = (string)GetDataPath();
     if (outputdir == "") outputdir = ".";
     string outputname = GetParameter("outputFile", "default");
-    if (outputname == "default") {
+    if (ToUpper(outputname) == "DEFAULT") {
         string expName = RemoveWhiteSpaces((string)GetExperimentName());
         string runType = RemoveWhiteSpaces((string)GetRunType());
         char runParentStr[256];
@@ -191,15 +191,18 @@ void TRestRun::BeginOfInit() {
                               "_" + (TString)runNumberStr + "_" + (TString)runParentStr + "_V" +
                               REST_RELEASE + ".root";
         }
+    } else if (ToUpper(outputname) == "NULL" || outputname == "/dev/null") {
+        fOutputFileName = "/dev/null";
     } else if (TRestTools::isAbsolutePath(outputname)) {
         fOutputFileName = outputname;
+        outputdir = TRestTools::SeparatePathAndName((string)fOutputFileName).first;
     } else {
         fOutputFileName = outputdir + "/" + outputname;
     }
     // remove multiple slashes from fOutputFileName
     fOutputFileName = (TString)TRestTools::RemoveMultipleSlash((string)fOutputFileName);
 
-    if (!TRestTools::isPathWritable(TRestTools::SeparatePathAndName((string)fOutputFileName).first)) {
+    if (!TRestTools::isPathWritable(outputdir)) {
         error << "REST Error!! TRestRun." << endl;
         error << "Output path does not exist or it is not writable." << endl;
         error << "Path : " << outputdir << endl;
@@ -268,6 +271,13 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
     }
 
     else if (Count(keydeclare, "TRest") > 0) {
+        if (e->Attribute("file") != NULL && TRestTools::isRootFile(e->Attribute("file"))) {
+            warning << "TRestRun: A root file is being included in section <" << keydeclare
+                    << " ! To import metadata from this file, use <addMetadata" << endl;
+            warning << "Skipping..." << endl;
+            return -1;
+		}
+
         TClass* c = TClass::GetClass(keydeclare.c_str());
         if (c == NULL) {
             warning << endl;
@@ -277,7 +287,7 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
         }
         TRestMetadata* meta = (TRestMetadata*)c->New();
         meta->SetHostmgr(fHostmgr);
-        AddMetadata(meta);
+        fMetadataInfo.push_back(meta);
         meta->LoadConfigFromFile(e, fElementGlobal);
 
         return 0;
@@ -799,7 +809,7 @@ TFile* TRestRun::FormOutputFile(vector<string> filenames, string targetfilename)
     rename(filename.c_str(), fOutputFileName);
 
     // write metadata into the output file
-    fOutputFile = new TFile(fOutputFileName, "UPDATE");
+    fOutputFile = new TFile(fOutputFileName, "update");
     debug << "TRestRun::FormOutputFile. Calling WriteWithDataBase()" << endl;
     this->WriteWithDataBase();
     // for (int i = 0; i < fMetadataInfo.size(); i++) {
@@ -1095,7 +1105,7 @@ void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t s
     else
         meta->DoNotStore();
 
-    AddMetadata(meta);
+    fMetadataInfo.push_back(meta);
     meta->InitFromRootFile();
     f->Close();
     delete f;
