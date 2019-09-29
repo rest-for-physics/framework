@@ -46,9 +46,7 @@ class TRestReadoutAnalysisProcess : public TRestEventProcess {
 
    public:
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
     void EndProcess();
 
     void PrintMetadata() {

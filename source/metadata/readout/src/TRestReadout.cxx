@@ -390,7 +390,7 @@ TRestReadoutPlane* TRestReadout::GetReadoutPlaneWithID(int id) {
 /// readout mudules
 TRestReadoutModule* TRestReadout::GetReadoutModuleWithID(int id) {
     for (int i = 0; i < this->GetNumberOfReadoutPlanes(); i++) {
-        auto plane = fReadoutPlanes[i];
+        TRestReadoutPlane& plane = fReadoutPlanes[i];
 
         for (int j = 0; j < plane.GetNumberOfModules(); j++) {
             if (plane[j].GetModuleID() == id) {

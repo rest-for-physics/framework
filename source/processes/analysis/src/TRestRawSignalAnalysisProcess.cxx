@@ -249,8 +249,6 @@ void TRestRawSignalAnalysisProcess::InitProcess() {
 /// \brief The main processing event function
 ///
 TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
-    TString obsName;
-
     // no need for verbose copy now
     fSignalEvent = (TRestRawSignalEvent*)evInput;
     fOutputEvent = fSignalEvent;
@@ -460,19 +458,10 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         fAnalysisTree->PrintObservables(this);
     }
 
+    //fPreviousEventTime.push_back(fSignalEvent->GetTimeStamp());
+    //if (fPreviousEventTime.size() > 100) fPreviousEventTime.erase(fPreviousEventTime.begin());
+
     return fSignalEvent;
-}
-
-///////////////////////////////////////////////
-/// \brief Re-implementation of TRestEventProcess::EndOfEventProcess. This method
-/// is in charge of maintain an internal timestamp vector used in the process to
-/// determine, i.e., the event rate.
-///
-void TRestRawSignalAnalysisProcess::EndOfEventProcess(TRestEvent* evInput) {
-    TRestEventProcess::EndOfEventProcess(evInput);
-
-    fPreviousEventTime.push_back(fSignalEvent->GetTimeStamp());
-    if (fPreviousEventTime.size() > 100) fPreviousEventTime.erase(fPreviousEventTime.begin());
 }
 
 ///////////////////////////////////////////////

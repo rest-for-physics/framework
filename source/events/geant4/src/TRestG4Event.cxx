@@ -24,11 +24,34 @@
 
 using namespace std;
 
-ClassImp(TRestG4Event)
-    //______________________________________________________________________________
-    TRestG4Event::TRestG4Event() {
+ClassImp(TRestG4Event);
+//______________________________________________________________________________
+TRestG4Event::TRestG4Event() {
     fNVolumes = 0;
     // TRestG4Event default constructor
+
+    fXZHitGraph = NULL;
+    fYZHitGraph = NULL;
+    fXYHitGraph = NULL;
+
+    fXZMultiGraph = NULL;
+    fYZMultiGraph = NULL;
+    fXYMultiGraph = NULL;
+
+    fXYHisto = NULL;
+    fYZHisto = NULL;
+    fXZHisto = NULL;
+
+    fXHisto = NULL;
+    fYHisto = NULL;
+    fZHisto = NULL;
+
+    fPad = NULL;
+
+    fLegend_XY = NULL;
+    fLegend_XZ = NULL;
+    fLegend_YZ = NULL;
+
     Initialize();
 }
 
@@ -48,6 +71,8 @@ void TRestG4Event::Initialize() {
     fTrack.clear();
     fNTracks = 0;
 
+    ClearVolumes();
+
     fTotalDepositedEnergy = 0;
     fSensitiveVolumeEnergy = 0;
     fMaxSubEventID = 0;
@@ -63,30 +88,6 @@ void TRestG4Event::Initialize() {
 
     fMinEnergy = 1e20;
     fMaxEnergy = -1e20;
-
-    fXZHitGraph = NULL;
-    fYZHitGraph = NULL;
-    fXYHitGraph = NULL;
-    // fXYZHitGraph = NULL;
-
-    fXZMultiGraph = NULL;
-    fYZMultiGraph = NULL;
-    fXYMultiGraph = NULL;
-    // fXYZMultiGraph = NULL;
-
-    fXYHisto = NULL;
-    fYZHisto = NULL;
-    fXZHisto = NULL;
-
-    fXHisto = NULL;
-    fYHisto = NULL;
-    fZHisto = NULL;
-
-    fPad = NULL;
-
-    fLegend_XY = NULL;
-    fLegend_XZ = NULL;
-    fLegend_YZ = NULL;
 }
 
 void TRestG4Event::AddActiveVolume() {
@@ -168,8 +169,8 @@ TVector3 TRestG4Event::GetFirstPositionInVolume(Int_t volID) {
 ///////////////////////////////////////////////
 /// \brief Function to get the position (TVector3) of the last track that deposits energy in specified
 /// volume. If no hit is found for the volume, returns `TVector3(nan, nan, nan)` vector.
-/// If an event enters and exits a volume multiple times this will only return the last exit position, one needs to
-/// keep this in mind when using this observable.
+/// If an event enters and exits a volume multiple times this will only return the last exit position, one
+/// needs to keep this in mind when using this observable.
 ///
 ///
 /// \param volID Int_t specifying volume ID
