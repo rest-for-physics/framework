@@ -30,6 +30,26 @@ TRestG4Event::TRestG4Event() {
     fNVolumes = 0;
     // TRestG4Event default constructor
 
+    Initialize();
+}
+
+//______________________________________________________________________________
+TRestG4Event::~TRestG4Event() {
+    // TRestG4Event destructor
+}
+
+void TRestG4Event::Initialize() {
+    TRestEvent::Initialize();
+
+    fPrimaryParticleName.clear();
+    fPrimaryEventDirection.clear();
+    fPrimaryEventEnergy.clear();
+    fPrimaryEventOrigin.SetXYZ(0, 0, 0);
+
+    fTrack.clear();
+    fNTracks = 0;
+
+    // ClearVolumes();
     fXZHitGraph = NULL;
     fYZHitGraph = NULL;
     fXYHitGraph = NULL;
@@ -51,27 +71,6 @@ TRestG4Event::TRestG4Event() {
     fLegend_XY = NULL;
     fLegend_XZ = NULL;
     fLegend_YZ = NULL;
-
-    Initialize();
-}
-
-//______________________________________________________________________________
-TRestG4Event::~TRestG4Event() {
-    // TRestG4Event destructor
-}
-
-void TRestG4Event::Initialize() {
-    TRestEvent::Initialize();
-
-    fPrimaryParticleName.clear();
-    fPrimaryEventDirection.clear();
-    fPrimaryEventEnergy.clear();
-    fPrimaryEventOrigin.SetXYZ(0, 0, 0);
-
-    fTrack.clear();
-    fNTracks = 0;
-
-    ClearVolumes();
 
     fTotalDepositedEnergy = 0;
     fSensitiveVolumeEnergy = 0;
