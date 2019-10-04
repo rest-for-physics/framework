@@ -11,9 +11,13 @@
 
 bool silent = false;
 bool debug = false;
-int main(int argc, char* argv[]) {
-    setenv("REST_VERSION", REST_RELEASE, 1);
 
+// Note!
+// Don't use cout in the main fumction that calls TRint
+// This will make cout un-usable in the command line!
+int main(int argc, char* argv[]) {
+    // set the env and debug status
+    setenv("REST_VERSION", REST_RELEASE, 1);
     for (int i = 1; i < argc; i++) {
         if (ToUpper((string)argv[i]) == "--SILENT") {
             silent = true;
@@ -26,8 +30,8 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    // load rest library and macros
     TRestTools::LoadRESTLibrary(silent);
-
     auto a = TRestTools::Execute(
         "find $REST_PATH/macros | grep REST_.*.C | grep -v \"swo\" | grep -v "
         "\"CMakeLists\" | grep -v \"swp\"  | grep -v \"svn\"");
@@ -38,6 +42,7 @@ int main(int argc, char* argv[]) {
         gROOT->ProcessLine((".L " + c).c_str());
     }
 
+    // load input root file with TRestRun, initialize input event, analysis tree and metadata structures
     int Nfile = 0;
     for (int i = 1; i < argc; i++) {
         string opt = (string)argv[i];
@@ -46,7 +51,7 @@ int main(int argc, char* argv[]) {
 
             TRestRun* runTmp = new TRestRun(opt);
             string runcmd = Form("TRestRun* run%i = (TRestRun*)%s;", Nfile, ToString(runTmp).c_str());
-            if (debug) cout << runcmd << endl;
+            if (debug) printf("%s\n", runcmd.c_str());
             gROOT->ProcessLine(runcmd.c_str());
             if (runTmp->GetInputEvent() != NULL) {
                 string eventType = runTmp->GetInputEvent()->ClassName();
@@ -54,13 +59,12 @@ int main(int argc, char* argv[]) {
                 printf("Attaching event %s as ev%i...\n", eventType.c_str(), Nfile);
                 string evcmd = Form("%s* ev%i = (%s*)%s;", eventType.c_str(), Nfile, eventType.c_str(),
                                     ToString(runTmp->GetInputEvent()).c_str());
-                if (debug) cout << evcmd << endl;
+                if (debug) printf("%s\n", evcmd.c_str());
                 gROOT->ProcessLine(evcmd.c_str());
                 runTmp->GetEntry(0);
             }
 
-            cout << endl;
-            cout << "Attaching metadata structures..." << endl;
+            printf("\n%s\n", "Attaching metadata structures...");
             Int_t Nmetadata = runTmp->GetNumberOfMetadataStructures();
             for (int n = 0; n < Nmetadata; n++) {
                 string metaName = runTmp->GetMetadataStructureNames()[n];
@@ -75,12 +79,12 @@ int main(int argc, char* argv[]) {
                 metaFixed = Replace(metaFixed, " ", "");
                 metaFixed = Replace(metaFixed, ".", "_");
                 metaFixed = "md" + ToString(Nfile) + "_" + metaFixed;
-                cout << "- " << metaFixed << " (" << metaType << ")" << endl;
+                printf("- %s (%s)\n", metaFixed.c_str(), metaType.c_str());
 
                 string mdcmd = Form("%s* %s = (%s*)%s;", metaType.c_str(), metaFixed.c_str(),
                                     metaType.c_str(), ToString(md).c_str());
 
-                if (debug) cout << mdcmd << endl;
+                if (debug) printf("%s\n", mdcmd.c_str());
 
                 gROOT->ProcessLine(mdcmd.c_str());
             }
@@ -90,7 +94,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
+	//display root's command line
     TRint theApp("App", &argc, argv);
-
     theApp.Run();
 }
