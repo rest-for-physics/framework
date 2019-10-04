@@ -22,11 +22,13 @@ The following describes the contents of the data files inside the directory, con
  	- Pb212.dat--> Pb212 beta decay to Bi212
  	- Pb214.dat--> Pb214 beta decay to Bi214
 	- Tl208.dat--> Tl208 beta decay to Pb208
+
 	- Xe136bb0n.dat
 		event type: Xe136           
               0nubb(mn) 0+ -> 0+     {2n}      
               level, Elevel (MeV) =  0+       0.0000     MeV
-	- Xe136bb2n.dat
+
+	- Xe136bb2n.dat ::: REMOVED FILE leading to wrong results 29/Sep/2019. Needs regeneration and validation.
 		event type: Xe136           
               2nubb     0+ -> 0+     {2n}      
               level, Elevel (MeV) =  0+       0.0000     MeV

@@ -1287,7 +1287,7 @@ string TRestMetadata::GetParameter(std::string parName, TiXmlElement* e, TString
 /// element.
 ///
 std::string TRestMetadata::GetFieldValue(std::string parName, TiXmlElement* e) {
-    return GetParameter(parName, e, "Not defined");
+    return GetParameter(ToUpper(parName), e, "Not defined");
 }
 
 ///////////////////////////////////////////////
@@ -1332,9 +1332,11 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlEleme
 
     return defaultVal;
 }
+
 Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, Double_t defaultVal) {
     return GetDblParameterWithUnits(parName, fElement, defaultVal);
 }
+
 TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, TiXmlElement* ele,
                                                       TVector2 defaultVal) {
     string a = GetParameter(parName, ele);
@@ -1734,6 +1736,29 @@ string TRestMetadata::GetKEYDefinition(string keyName, size_t& fromPosition, str
 }
 
 ///////////////////////////////////////////////
+/// \brief This method updates all the field names inside the definition
+/// string provided by argument to make them upper case, the result will
+/// be given in the return string
+///
+string TRestMetadata::FieldNamesToUpper(string definition) {
+    string result = definition;
+    TiXmlElement* e = StringToElement(definition);
+    if (e == NULL) return NULL;
+
+    TiXmlAttribute* attr = e->FirstAttribute();
+    while (attr != NULL) {
+        string parName = std::string(attr->Name());
+
+        size_t pos = 0;
+        result = Replace(result, parName, ToUpper(parName), pos);
+
+        attr = attr->Next();
+    }
+
+    return result;
+}
+
+///////////////////////////////////////////////
 /// \brief Gets field value in an xml element string by parsing it as
 /// TiXmlElement
 ///
@@ -1795,29 +1820,11 @@ TVector3 TRestMetadata::Get3DVectorFieldValueWithUnits(string fieldName, string 
 string TRestMetadata::GetParameter(string parName, size_t& pos, string inputString) {
     pos = inputString.find(parName, pos);
 
-    TiXmlElement* ele = StringToElement(FieldNamesToUpper(inputString));
-    string value = GetParameter(ToUpper(parName), ele);
+    TiXmlElement* ele = StringToElement(inputString);
+    string value = GetParameter(parName, ele);
 
     delete ele;
     return value;
-}
-
-string TRestMetadata::FieldNamesToUpper(string definition) {
-    string result = definition;
-    TiXmlElement* e = StringToElement(definition);
-    if (e == NULL) return NULL;
-
-    TiXmlAttribute* attr = e->FirstAttribute();
-    while (attr != NULL) {
-        string parName = std::string(attr->Name());
-
-        size_t pos = 0;
-        result = Replace(result, parName, ToUpper(parName), pos);
-
-        attr = attr->Next();
-    }
-
-    return result;
 }
 
 ///////////////////////////////////////////////
@@ -1839,8 +1846,8 @@ string TRestMetadata::FieldNamesToUpper(string definition) {
 Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, size_t& pos, std::string inputString) {
     pos = inputString.find(parName, pos);
 
-    TiXmlElement* ele = StringToElement(FieldNamesToUpper(inputString));
-    double value = GetDblParameterWithUnits(ToUpper(parName), ele);
+    TiXmlElement* ele = StringToElement(inputString);
+    double value = GetDblParameterWithUnits(parName, ele);
 
     delete ele;
     return value;
@@ -1866,8 +1873,8 @@ TVector2 TRestMetadata::Get2DVectorParameterWithUnits(std::string parName, size_
                                                       std::string inputString) {
     pos = inputString.find(parName, pos);
 
-    TiXmlElement* ele = StringToElement(FieldNamesToUpper(inputString));
-    TVector2 value = Get2DVectorParameterWithUnits(ToUpper(parName), ele);
+    TiXmlElement* ele = StringToElement(inputString);
+    TVector2 value = Get2DVectorParameterWithUnits(parName, ele);
 
     delete ele;
     return value;
@@ -1893,8 +1900,8 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, size_
                                                       std::string inputString) {
     pos = inputString.find(parName, pos);
 
-    TiXmlElement* ele = StringToElement(FieldNamesToUpper(inputString));
-    TVector3 value = Get3DVectorParameterWithUnits(ToUpper(parName), ele);
+    TiXmlElement* ele = StringToElement(inputString);
+    TVector3 value = Get3DVectorParameterWithUnits(parName, ele);
 
     delete ele;
     return value;
