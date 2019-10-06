@@ -147,8 +147,12 @@ class TRestMetadata : public TNamed {
     /// The buffer where the corresponding metadata section is stored. Filled only during Write()
     std::string configBuffer;
 #ifndef __CINT__
-    /// Verbose level used to print debug info
-    REST_Verbose_Level fVerboseLevel;  //!
+    union {
+        /// Verbose level used to print debug info
+        REST_Verbose_Level fVerboseLevel;  //!
+        endl_t endl;                       //!
+    };                                     //!
+
     /// All metadata classes can be initialized and managed by TRestManager
     TRestManager* fHostmgr;  //!
     /// This variable is used to determine if the metadata structure should be stored in the ROOT file.
@@ -160,25 +164,6 @@ class TRestMetadata : public TNamed {
     /// Saving a list of environmental variables
     vector<TiXmlElement*> fElementEnv;  //!
 
-    /// formatted message output, used for print metadata
-    TRestLeveledOutput<REST_Silent> fout =
-        TRestLeveledOutput<REST_Silent>(fVerboseLevel, COLOR_BOLDBLUE, "[==", kBorderedMiddle);  //!
-    TRestLeveledOutput<REST_Silent> error =
-        TRestLeveledOutput<REST_Silent>(fVerboseLevel, COLOR_BOLDRED, "-- Error : ", kHeaderedLeft);  //!
-    TRestLeveledOutput<REST_Essential> warning = TRestLeveledOutput<REST_Essential>(
-        fVerboseLevel, COLOR_BOLDYELLOW, "-- Warning : ", kHeaderedLeft);  //!
-    TRestLeveledOutput<REST_Essential> essential =
-        TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDGREEN, "", kHeaderedMiddle);  //!
-    TRestLeveledOutput<REST_Essential> metadata =
-        TRestLeveledOutput<REST_Essential>(fVerboseLevel, COLOR_BOLDGREEN, "||", kBorderedMiddle);  //!
-    TRestLeveledOutput<REST_Info> info =
-        TRestLeveledOutput<REST_Info>(fVerboseLevel, COLOR_BLUE, "-- Info : ", kHeaderedLeft);  //!
-    TRestLeveledOutput<REST_Info> success =
-        TRestLeveledOutput<REST_Info>(fVerboseLevel, COLOR_GREEN, "-- Success : ", kHeaderedLeft);  //!
-    TRestLeveledOutput<REST_Debug> debug =
-        TRestLeveledOutput<REST_Debug>(fVerboseLevel, COLOR_RESET, "-- Debug : ", kHeaderedLeft);  //!
-    TRestLeveledOutput<REST_Extreme> extreme =
-        TRestLeveledOutput<REST_Extreme>(fVerboseLevel, COLOR_RESET, "-- Extreme : ", kHeaderedLeft);  //!
 #endif
 
    public:
@@ -306,7 +291,7 @@ class TRestMetadata : public TNamed {
     TRestMetadata(const char* cfgFileNamecfgFileName);
 
     /// Call CINT to generate streamers for this class
-    ClassDef(TRestMetadata, 4);
+    ClassDef(TRestMetadata, 5);
 };
 
 #endif
