@@ -132,7 +132,7 @@ void TRestStringOutput::setlength(int n) {
 void TRestStringOutput::flushstring() {
     if (length == -1)  // this means we are using condor
     {
-        std::cout << buf << std::endl;
+        std::cout << buf.str() << std::endl;
     } else {
         int consolewidth = ConsoleHelper::GetWidth() - 2;
         printf("\033[K");
