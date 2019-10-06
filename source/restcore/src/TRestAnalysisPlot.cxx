@@ -19,8 +19,6 @@ using namespace std;
 
 #include <ctime>
 
-const int debug = 0;
-
 ClassImp(TRestAnalysisPlot)
     //______________________________________________________________________________
     TRestAnalysisPlot::TRestAnalysisPlot() {

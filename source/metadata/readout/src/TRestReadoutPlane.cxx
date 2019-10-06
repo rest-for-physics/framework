@@ -45,8 +45,6 @@
 #include "TRestReadoutPlane.h"
 using namespace std;
 
-const int debug = 0;
-
 ClassImp(TRestReadoutPlane)
     ///////////////////////////////////////////////
     /// \brief Default TRestReadoutPlane constructor

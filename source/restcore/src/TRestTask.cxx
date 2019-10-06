@@ -301,7 +301,7 @@ TRestTask* TRestTask::GetTask(TString MacroName) {
         if (macfiles.size() == 0 || macfiles[0] == "") {
             return NULL;
         }
-        cout << "Found MacroFile " << macfiles[0] << endl;
+        std::cout << "Found MacroFile " << macfiles[0] << std::endl;
         // system("echo \"#define REST_MANAGER\" > /tmp/tmpMacro.c");
         // system(("cat " + macfiles[0] + " >> /tmp/tmpMacro.c").c_str());
         if (gInterpreter->LoadFile(macfiles[0].c_str()) != 0) {

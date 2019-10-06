@@ -9,14 +9,13 @@
 
 #include "TRestVersion.h"
 
-bool silent = false;
-bool debug = false;
-
 // Note!
 // Don't use cout in the main fumction that calls TRint
 // This will make cout un-usable in the command line!
 int main(int argc, char* argv[]) {
     // set the env and debug status
+    bool silent = false;
+    bool debug = false;
     setenv("REST_VERSION", REST_RELEASE, 1);
     for (int i = 1; i < argc; i++) {
         if (ToUpper((string)argv[i]) == "--SILENT") {
