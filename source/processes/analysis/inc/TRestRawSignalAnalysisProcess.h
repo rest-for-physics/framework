@@ -37,14 +37,10 @@ class TRestRawSignalAnalysisProcess : public TRestEventProcess {
     /// A pointer to the specific TRestRawSignalEvent input
     TRestRawSignalEvent* fSignalEvent;  //!
 
-    TRestReadout* fReadout;  //!
-
     Double_t fFirstEventTime;             //!
     vector<Double_t> fPreviousEventTime;  //!
 
     time_t timeStored;  //!
-
-    std::vector<std::string> fSignalAnalysisObservables;  //!
 
     // parameters
     TVector2 fBaseLineRange;
@@ -90,7 +86,7 @@ class TRestRawSignalAnalysisProcess : public TRestEventProcess {
     TRestRawSignalAnalysisProcess(char* cfgFileName);
     ~TRestRawSignalAnalysisProcess();  // Destructor
 
-    ClassDef(TRestRawSignalAnalysisProcess, 1);
+    ClassDef(TRestRawSignalAnalysisProcess, 2);
     // Template for a REST "event process" class inherited from TRestEventProcess
 };
 #endif
