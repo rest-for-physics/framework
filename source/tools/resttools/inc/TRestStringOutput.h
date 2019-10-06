@@ -18,9 +18,12 @@
 #ifndef __APPLE__
 #include <termio.h>
 #endif
-
 #endif  // WIN32
 
+using namespace std;
+
+//////////////////////////////////////////////////////////////////////////
+/// String identifiers for terminal colors
 #define COLOR_RESET "\033[0m"
 #define COLOR_BLACK "\033[30m"                    /* Black */
 #define COLOR_RED "\033[31m"                      /* Red */
@@ -47,8 +50,6 @@
 #define COLOR_BACKGROUNDCYAN "\033[1m\033[46m"    /* BACKGROUND Cyan */
 #define COLOR_BACKGROUNDWHITE "\033[1m\033[47m"   /* BACKGROUND White */
 
-using namespace std;
-
 //////////////////////////////////////////////////////////////////////////
 /// Enumerate of verbose level, containing five levels
 enum REST_Verbose_Level {
@@ -59,10 +60,11 @@ enum REST_Verbose_Level {
     REST_Debug,      //!< +show the defined debug messages
     REST_Extreme     //!< show everything
 };
-
-enum REST_Display_Format { kBorderedLeft, kBorderedMiddle, kHeaderedLeft, kHeaderedMiddle };
-
 #define REST_Warning REST_Essential
+
+//////////////////////////////////////////////////////////////////////////
+/// Enumerate of TRestStringOutput display format, include options for border and orientation
+enum REST_Display_Format { kBorderedLeft, kBorderedMiddle, kHeaderedLeft, kHeaderedMiddle };
 
 //////////////////////////////////////////////////////////////////////////
 /// ConsoleHelper class, providing several static methods dealing with terminal
@@ -154,108 +156,6 @@ class ConsoleHelper {
 
 #endif  // WIN32
 };
-//////////////////////////////////////////////////////////////////////////
-///
-/// This class serves as an universal string output tool, aiming at leveling,
-/// arranging, and auto saving for the output message.
-///
-/// Features of this class:
-/// 1. overloaded operator "<<"
-/// 2. inline method endl()
-/// 3. pre-defined color constants
-/// 4. output formatting methods
-///
-/// To use this tool class in the other classes, include its header file and
-/// instantiate a TRestStringOutput object(suggested name: "fout"). The fout can
-/// therefore replace the functionality of cout. The usage is the same:
-/// "fout<<"hello world"<<endl;". Setting output color, changing output border,
-/// length or orientation are all supported. In future it is also possible to
-/// save output message in a log file.
-
-class TRestStringOutput {
-   protected:
-    string color;
-    string formatstring;
-    bool useborder;
-    int orientation;  // 0->middle, 1->left, 2->right
-
-    string stringbuf;
-    int length;
-
-   public:
-    string FormattingPrintString(string input);
-    void resetstring() { stringbuf = ""; }
-    void flushstring();
-    void insertfront(string str) { stringbuf = str + stringbuf; }
-    void insertback(string str) { stringbuf = stringbuf + str; }
-    void setcolor(string colordef) { color = colordef; }
-    void setheader(string headerdef) {
-        formatstring = headerdef;
-        useborder = false;
-    }
-    void resetcolor() { color = COLOR_RESET; }
-    void resetheader() { formatstring = ""; }
-    void setborder(string b) {
-        formatstring = b;
-        useborder = true;
-    }
-    void resetborder() { formatstring = ""; }
-    void setlength(int n);
-    void setorientation(int o) { orientation = o; }
-    void resetorientation() { orientation = 0; }
-    bool CompatibilityMode() { return length == -1; }
-
-    // style options: < : orientation left, ^ : orientation middle, > :
-    // orientation right, | : use border, - : use header
-    TRestStringOutput(string _color = COLOR_RESET, string BorderOrHeader = "",
-                      REST_Display_Format style = kBorderedLeft);
-
-    template <class T>
-    TRestStringOutput& operator<<(T content) {
-        stringstream tmp;
-        tmp << content;
-        stringbuf += tmp.str();
-        return *this;
-    }
-
-    TRestStringOutput& operator<<(void (*pfunc)(TRestStringOutput&)) {
-        ((*pfunc)(*this));
-        return *this;
-    }
-};
-
-//////////////////////////////////////////////////////////////////////////
-/// Leveled string output class, won't print message if verbose level is smaller
-/// than required.
-///
-/// Usage:
-/// \code
-/// TRestLeveledOutput<REST_Debug> debug =
-/// TRestLeveledOutput<REST_Debug>(fVerboseLevel, COLOR_RESET, "", 1); \endcode
-template <REST_Verbose_Level v>
-class TRestLeveledOutput : public TRestStringOutput {
-   public:
-    TRestLeveledOutput(){};
-    TRestLeveledOutput(REST_Verbose_Level& vref, string _color = COLOR_RESET, string BorderOrHeader = "",
-                       REST_Display_Format style = kBorderedLeft)
-        : TRestStringOutput(_color, BorderOrHeader, style), verboselvlref(vref) {}
-
-    REST_Verbose_Level verbose = v;
-    REST_Verbose_Level& verboselvlref;
-
-    template <class T>
-    TRestLeveledOutput& operator<<(T content) {
-        stringstream tmp;
-        tmp << content;
-        stringbuf += tmp.str();
-        return *this;
-    }
-
-    TRestLeveledOutput& operator<<(void (*pfunc)(TRestLeveledOutput&)) {
-        ((*pfunc)(*this));
-        return *this;
-    }
-};
 
 /// \relates ConsoleHelper
 /// move up cursor by n lines. take effect immediately.
@@ -308,7 +208,6 @@ inline void clearScreen() {
 /// clear current line. take effect immediately.
 inline void clearCurrentLine() {
     printf("\033[K");
-
     fflush(stdout);
 }
 
@@ -316,34 +215,121 @@ inline void clearCurrentLine() {
 /// clear lines after the cursor. take effect immediately.
 inline void clearLinesAfterCursor() {
     printf("\033[s");
-
     for (int i = 0; i < 50; i++) {
         printf("\033[K");
         cursorDown(1);
     }
-
     printf("\033[u");
-
     fflush(stdout);
 }
+
+struct endl_t {
+    endl_t() { vref = REST_Essential; }
+    endl_t(REST_Verbose_Level v) { vref = v; }
+
+    REST_Verbose_Level vref;
+    friend ostream& operator<<(ostream& a, endl_t& et) { return (a << std::endl); }
+};
+
+//////////////////////////////////////////////////////////////////////////
+/// This class serves as an universal string output tool, aiming at leveling,
+/// arranging, and auto saving for the output message.
+///
+/// Features of this class:
+/// 1. overloaded operator "<<"
+/// 2. inline method endl()
+/// 3. pre-defined color constants
+/// 4. output formatting methods
+///
+/// To use this tool class in the other classes, include its header file and
+/// instantiate a TRestStringOutput object(suggested name: "fout"). The fout can
+/// therefore replace the functionality of cout. The usage is the same:
+/// "fout<<"hello world"<<endl;". Setting output color, changing output border,
+/// length or orientation are all supported. In future it is also possible to
+/// save output message in a log file.
+class TRestStringOutput {
+   protected:
+    string color;
+    string formatstring;
+    bool useborder;
+    int orientation;  // 0->middle, 1->left, 2->right
+
+    stringstream buf;
+    int length;
+
+    REST_Verbose_Level verbose;
+
+	void lock();
+    void unlock();
+
+   public:
+    string FormattingPrintString(string input);
+    void resetstring();
+    void flushstring();
+    void setcolor(string colordef) { color = colordef; }
+    void setheader(string headerdef) {
+        formatstring = headerdef;
+        useborder = false;
+    }
+    void resetcolor() { color = COLOR_RESET; }
+    void resetheader() { formatstring = ""; }
+    void setborder(string b) {
+        formatstring = b;
+        useborder = true;
+    }
+    void resetborder() { formatstring = ""; }
+    void setlength(int n);
+    void setorientation(int o) { orientation = o; }
+    void resetorientation() { orientation = 0; }
+    bool CompatibilityMode() { return length == -1; }
+
+    // style options: < : orientation left, ^ : orientation middle, > :
+    // orientation right, | : use border, - : use header
+    TRestStringOutput(string _color = COLOR_RESET, string BorderOrHeader = "",
+                      REST_Display_Format style = kBorderedLeft);
+
+    TRestStringOutput(REST_Verbose_Level v, string _color = COLOR_RESET, string BorderOrHeader = "",
+                      REST_Display_Format style = kBorderedLeft)
+        : TRestStringOutput(_color, BorderOrHeader, style) {
+        verbose = v;
+    }
+
+    template <class T>
+    TRestStringOutput& operator<<(T content) {
+        buf << content;
+        return *this;
+    }
+
+    TRestStringOutput& operator<<(void (*pfunc)(TRestStringOutput&)) {
+        ((*pfunc)(*this));
+        return *this;
+    }
+
+    TRestStringOutput& operator<<(endl_t et) {
+        if (et.vref >= verbose)
+            flushstring();
+        else
+            resetstring();
+        return *this;
+    }
+};
 
 /// \relates TRestStringOutput
 /// calls TRestStringOutput to flush string
 inline void endl(TRestStringOutput& input) { input.flushstring(); }
 
-/// \relates TRestLeveledOutput
-/// calls TRestLeveledOutput to flush string when the referred verbose level
-/// meets the required
-template <REST_Verbose_Level v>
-inline void endl(TRestLeveledOutput<v>& input) {
-    if (input.verboselvlref >= input.verbose)
-        input.flushstring();
-    else
-        input.resetstring();
-}
-
 /// \relates TRestStringOutput
 /// print a welcome message by calling shell script "rest-config"
 inline void PrintWelcome() { system("rest-config --welcome"); }
 
+/// formatted message output, used for print metadata
+extern TRestStringOutput fout;
+extern TRestStringOutput error;
+extern TRestStringOutput warning;
+extern TRestStringOutput essential;
+extern TRestStringOutput metadata;
+extern TRestStringOutput info;
+extern TRestStringOutput success;
+extern TRestStringOutput debug;
+extern TRestStringOutput extreme;
 #endif

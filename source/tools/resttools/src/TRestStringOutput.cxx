@@ -1,6 +1,8 @@
 
-
 #include "TRestStringOutput.h"
+#include <mutex>
+
+std::mutex mutex_stringoutput;
 
 TRestStringOutput::TRestStringOutput(string _color, string BorderOrHeader, REST_Display_Format style) {
     color = _color;
@@ -23,13 +25,19 @@ TRestStringOutput::TRestStringOutput(string _color, string BorderOrHeader, REST_
     length = 100;
     if (length > ConsoleHelper::GetWidth() - 2) length = ConsoleHelper::GetWidth() - 2;
 
-    stringbuf = "";
+    resetstring();
     if (length > 500 || length < 20)  // unsupported console, we will fall back to compatibility modes
     {
         length = -1;
     }
+
+    verbose = REST_Essential;
 }
 
+void TRestStringOutput::resetstring() {
+    buf.clear();  //清空流
+    buf.str("");  //清空流缓存
+}
 char mirrorchar(char c) {
     switch (c) {
         default:
@@ -107,8 +115,7 @@ string TRestStringOutput::FormattingPrintString(string input) {
         }
 
         return output;
-    } 
-	else {
+    } else {
         return formatstring + input;
     }
 }
@@ -125,17 +132,27 @@ void TRestStringOutput::setlength(int n) {
 void TRestStringOutput::flushstring() {
     if (length == -1)  // this means we are using condor
     {
-        cout << stringbuf << endl;
-        stringbuf = "";
+        std::cout << buf << std::endl;
     } else {
         int consolewidth = ConsoleHelper::GetWidth() - 2;
         printf("\033[K");
         if (orientation == 0) {
-            cout << color << string((consolewidth - length) / 2, ' ') << FormattingPrintString(stringbuf)
-                 << string((consolewidth - length) / 2, ' ') << COLOR_RESET << endl;
+            std::cout << color << string((consolewidth - length) / 2, ' ') << FormattingPrintString(buf.str())
+                      << string((consolewidth - length) / 2, ' ') << COLOR_RESET << std::endl;
         } else {
-            cout << color << FormattingPrintString(stringbuf) << COLOR_RESET << endl;
+            std::cout << color << FormattingPrintString(buf.str()) << COLOR_RESET << std::endl;
         }
-        stringbuf = "";
     }
+    resetstring();
 }
+
+/// formatted message output, used for print metadata
+TRestStringOutput fout(REST_Silent, COLOR_BOLDBLUE, "[==", kBorderedMiddle);
+TRestStringOutput error(REST_Silent, COLOR_BOLDRED, "-- Error : ", kHeaderedLeft);
+TRestStringOutput warning(REST_Warning, COLOR_BOLDYELLOW, "-- Warning : ", kHeaderedLeft);
+TRestStringOutput essential(REST_Essential, COLOR_BOLDGREEN, "", kHeaderedMiddle);
+TRestStringOutput metadata(REST_Essential, COLOR_BOLDGREEN, "||", kBorderedMiddle);
+TRestStringOutput info(REST_Info, COLOR_BLUE, "-- Info : ", kHeaderedLeft);
+TRestStringOutput success(REST_Info, COLOR_GREEN, "-- Success : ", kHeaderedLeft);
+TRestStringOutput debug(REST_Debug, COLOR_RESET, "-- Debug : ", kHeaderedLeft);
+TRestStringOutput extreme(REST_Extreme, COLOR_RESET, "-- Extreme : ", kHeaderedLeft);
