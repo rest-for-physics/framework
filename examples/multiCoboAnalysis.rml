@@ -42,7 +42,7 @@
       <observable name="SecondsFromStart" value="ON" />
       <observable name="ThresholdIntegral" value="ON" />-->
     </addProcess>
-    <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" sampling="0.2"/> 5MHz sampling
+    <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" sampling="0.2us"/> 5MHz sampling
     <addProcess type="TRestReadoutAnalysisProcess" name="rA" value="ON">
       <parameter name="modulesHist" value="3:6:8"/>
       <parameter name="modulesAmp" value="3-1.2:6-1.3:8-0.7"/>
