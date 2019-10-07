@@ -64,7 +64,7 @@ void TRestTriggerAnalysisProcess::InitProcess() {
         fThreshold.push_back(th);
     }
 
-    TRestGas* gas = (TRestGas*)GetGasMetadata();
+    TRestGas* gas = (TRestGas*)GetDriftMetadata();
     fW = gas->GetWvalue();
 }
 

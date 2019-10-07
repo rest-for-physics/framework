@@ -74,7 +74,7 @@ void TRestSmearingProcess::LoadConfig(string cfgFilename, string name) {
 
     PrintMetadata();
 
-    fGas = (TRestGas*)GetGasMetadata();
+    fGas = (TRestGas*)GetDriftMetadata();
 }
 
 //______________________________________________________________________________

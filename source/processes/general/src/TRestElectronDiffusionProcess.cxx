@@ -73,7 +73,7 @@ void TRestElectronDiffusionProcess::LoadConfig(string cfgFilename, string name) 
 
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::InitProcess() {
-    fGas = (TRestGas*)GetGasMetadata();
+    fGas = (TRestGas*)GetDriftMetadata();
     if (fGas == NULL) {
         warning << "Gas has not been initialized" << endl;
         if (fLonglDiffCoeff == -1 || fTransDiffCoeff == -1) {

@@ -119,7 +119,7 @@ void TRestSignalToHitsProcess::InitProcess() {
     // Comment this if you don't want it.
     // TRestEventProcess::InitProcess();
 
-    fGas = (TRestGas*)this->GetGasMetadata();
+    fGas = (TRestGas*)this->GetDriftMetadata();
     if (fGas != NULL) {
         if (fGasPressure <= 0) fGasPressure = fGas->GetPressure();
         if (fElectricField <= 0) fElectricField = fGas->GetElectricField();
