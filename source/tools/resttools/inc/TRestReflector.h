@@ -93,17 +93,17 @@ TDataType* GetDataType() {
 }
 
 /// Wrap the string type name into ROOT type identifier "TClass"
-inline TClass* GetClassType(string type) { return TClass::GetClass(type.c_str()); }
+inline TClass* GetClass(string type) { return TClass::GetClass(type.c_str()); }
 /// Get the type of a "class" object, returning the wrapped type identifier "TClass"
 template <typename T>
-TClass* GetClassType() {
+TClass* GetClass() {
     return TClass::GetClass(typeid(T));
 }
 
 /// Get the type name of an object
 template <typename T>
 std::string GetTypeName() {
-    TClass* cl = GetClassType<T>();
+    TClass* cl = GetClass<T>();
     if (cl != NULL) {
         return cl->GetName();
     }
@@ -185,7 +185,7 @@ class TRestReflector {
     TRestReflector(const T& obj) {
         address = (char*)&obj;
         onheap = false;
-        cl = REST_Reflection::GetClassType<T>();
+        cl = REST_Reflection::GetClass<T>();
         dt = REST_Reflection::GetDataType<T>();
         if (cl == NULL && dt == NULL) {
             cout << "In TRestReflector::TRestReflector() : unrecognized type! " << endl;
@@ -198,7 +198,7 @@ class TRestReflector {
     TRestReflector(T* obj) {
         address = (char*)obj;
         onheap = false;
-        cl = REST_Reflection::GetClassType<T>();
+        cl = REST_Reflection::GetClass<T>();
         dt = REST_Reflection::GetDataType<T>();
         if (cl == NULL && dt == NULL) {
             cout << "In TRestReflector::TRestReflector() : unrecognized type! " << endl;

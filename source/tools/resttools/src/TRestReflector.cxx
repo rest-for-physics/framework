@@ -44,7 +44,7 @@ map<string, TDataType*> __ListOfDataTypes = map<string, TDataType*>();
 TRestReflector::TRestReflector(char* _address, string _type) {
     address = _address;
     onheap = false;
-    cl = GetClassType(_type);
+    cl = GetClass(_type);
     dt = GetDataType(_type);
     if (cl == NULL && dt == NULL) {
         cout << "In TRestReflector::TRestReflector() : unrecognized type: \"" << _type << "\"" << endl;
@@ -407,7 +407,7 @@ int TRestReflector::InitDictionary() {
             cout << "Loading external dictionary for: \"" << type << "\":" << endl;
             cout << sofilename << endl;
             gSystem->Load(sofilename.c_str());
-            cl = GetClassType(type);  // reset the TClass after loading external library.
+            cl = GetClass(type);  // reset the TClass after loading external library.
             return 0;
         }
 
@@ -467,7 +467,7 @@ int TRestReflector::InitDictionary() {
         }
 
         gSystem->Load(Form("%s", sofilename.c_str()));
-        cl = GetClassType(type);  // reset the TClass after loading external library.
+        cl = GetClass(type);  // reset the TClass after loading external library.
     }
 
     return 0;
