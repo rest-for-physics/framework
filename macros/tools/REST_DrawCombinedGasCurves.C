@@ -27,13 +27,15 @@ int REST_DrawCombinedGasCurves() {
 
     for (int j = 0; j < nGases; j++) {
         for (int i = 0; i < nSteps; i++) {
-            driftVel[j][i] = gas[j]->GetDriftVelocity(eField[i]);
+            gas[j]->SetElectricField(eField[i]);
+
+            driftVel[j][i] = gas[j]->GetDriftVelocity();
             if (driftVel[j][i] > maxDriftVel) maxDriftVel = driftVel[j][i];
 
-            diffLong[j][i] = gas[j]->GetLongitudinalDiffusion(eField[i]);
+            diffLong[j][i] = gas[j]->GetLongitudinalDiffusion();
             if (diffLong[j][i] > maxLDiff) maxLDiff = diffLong[j][i];
 
-            diffTrans[j][i] = gas[j]->GetTransversalDiffusion(eField[i]);
+            diffTrans[j][i] = gas[j]->GetTransversalDiffusion();
             if (diffTrans[j][i] > maxTDiff) maxTDiff = diffTrans[j][i];
         }
     }
