@@ -45,7 +45,7 @@ class TRestSystemOfUnits {
 
    public:
     // We use more common high energy physics unit instead of SI unit
-    enum Physical_Unit { Energy, Time, Distance, Mass, Electric, Magnetic, NOT_A_UNIT = -1 };
+    enum Physical_Unit { Energy, Time, Distance, Mass, Electric, Magnetic, Pressure, NOT_A_UNIT = -1 };
 
 	/// Constructor from a unit string
     TRestSystemOfUnits(string unitsStr);
@@ -115,6 +115,15 @@ AddUnit(mT, TRestSystemOfUnits::Magnetic, 1.e3);
 AddUnit(T, TRestSystemOfUnits::Magnetic, 1.);
 AddUnit(G, TRestSystemOfUnits::Magnetic, 1.e4);
 
+// pressure field unit multiplier
+AddUnit(bar, TRestSystemOfUnits::Pressure, 1.);
+AddUnit(mbar, TRestSystemOfUnits::Magnetic, 1.e3);
+AddUnit(atm, TRestSystemOfUnits::Pressure, 1.);
+AddUnit(torr, TRestSystemOfUnits::Pressure, 760);
+AddUnit(MPa, TRestSystemOfUnits::Magnetic, 0.101325);
+AddUnit(kPa, TRestSystemOfUnits::Magnetic, 101.325);
+AddUnit(Pa, TRestSystemOfUnits::Magnetic, 101325);
+AddUnit(mPa, TRestSystemOfUnits::Magnetic, 10132500);
 }  // namespace REST_Units
 
 typedef REST_Units::TRestSystemOfUnits units;
