@@ -1,5 +1,4 @@
-"1" "GAS" "" "" "gasfile, Xenon-TMA 1Pct 10-10E3Vcm" "2.2.12" "https://sultan.unizar.es/gasFiles/xe_99.0-n(ch3)3_1.0-E_vs_P_10.0_1000.0_nodes_20-nCol_10-maxE_400.gas"
+"1" "GAS" "" "" "" "2.2.12" "https://sultan.unizar.es/gasFiles/"
 "2" "META_RML" "" "TRestGas" "gas definition rml" "2.2.12" "https://sultan.unizar.es/gasFiles/gases.rml"
 "3" "META_RML" "" "TRestReadout" "pre-defined readout modules" "2.2.12" "https://sultan.unizar.es/definitions/readouts.rml"
 "4" "META_RML" "" "TRestRawSignalAnalysisProcess" "pre-defined processes" "2.2.12" "https://sultan.unizar.es/definitions/processes.rml"
-"5" "READOUT" "" "" "Panda3 protoptye detector readout" "2.2.12" "local://home/nkx/REST_v2/examples/meta.root"

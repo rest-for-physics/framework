@@ -35,7 +35,15 @@ struct DBFile {
 };
 
 struct DBEntry {
-    DBEntry(){}
+    DBEntry(int _id = 0, string _type = "", string _usr = "", string _tag = "", string _description = "",
+            string _version = "") {
+        id = _id;
+        type = _type;
+        usr = _usr;
+        tag = _tag;
+        description = _description;
+        version = _version;
+	}
     int id = 0;
     string type = "";
     string usr = "";
@@ -122,7 +130,8 @@ class TRestDataBase {
     virtual vector<int> search_metadata_with_fileurl(string url);
     virtual vector<int> search_metadata_with_info(DBEntry info);
 
-    virtual string get_metadatafile(int id);
+	virtual string get_metadatafile(string url);
+    virtual string get_metadatafile(int id, string name = "");
     virtual int get_lastmetadata();
 
     virtual int add_metadata(DBEntry info = DBEntry(), string url = "");

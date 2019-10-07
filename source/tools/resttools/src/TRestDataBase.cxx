@@ -7,6 +7,7 @@
 #include "TRestStringHelper.h"
 #include "TRestTools.h"
 #include "TSystem.h"
+#include "TRestStringOutput.h"
 
 //////////////////////////////////////////////////////////////////////////
 /// Interface class of REST database accessibility.
@@ -250,6 +251,12 @@ vector<int> TRestDataBase::search_metadata_with_fileurl(string _url) {
     return result;
 }
 
+///////////////////////////////////////////////
+/// \brief Get a list of matched matadata id, according to the DBEntry's content
+///
+/// The following specification of DBEntry's content means to match **any**:
+/// id <= 0, type == "" ,usr == "" ,tag == "" ,description == "" ,version == "".
+/// If all of them mean **any**, it will return a blank list.
 vector<int> TRestDataBase::search_metadata_with_info(DBEntry _info) {
     vector<int> result;
     if (_info.id <= 0 && _info.type == "" && _info.usr == "" && _info.tag == "" && _info.description == "" &&
@@ -278,12 +285,13 @@ vector<int> TRestDataBase::search_metadata_with_info(DBEntry _info) {
     return result;
 }
 
-string TRestDataBase::get_metadatafile(int id) {
-    string url = query_metadata_fileurl(id);
+string TRestDataBase::get_metadatafile(string url) {
+    string purename = TRestTools::GetPureFileName(url);
+    if (purename == "") return "";
+
     if (url.find("local:") == 0) {
         return Replace(url, "local:", "");
     } else {
-        string purename = TRestTools::GetPureFileName(url);
         string fullpath;
         if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
             fullpath = getenv("REST_PATH") + (string) "/data/download/" + purename;
@@ -293,19 +301,29 @@ string TRestDataBase::get_metadatafile(int id) {
                 return "";
             }
         } else {
-            DBEntry info = query_metadata_info(id);
-            string extension = purename.substr(purename.find_last_of("."), -1);
-            string type = info.type;
-            fullpath = "/tmp/REST_" + type + "_" + (string)getenv("USER") + "_Download" + extension;
+            fullpath = "/tmp/REST_" + (string)getenv("USER") + "_Download_" + purename;
             if (DownloadRemoteFile(url, fullpath)) {
                 return fullpath;
             } else {
                 return "";
             }
         }
-	}
+    }
 
     return "";
+
+
+}
+
+string TRestDataBase::get_metadatafile(int id, string name) {
+    string url = query_metadata_fileurl(id);
+	string purename = TRestTools::GetPureFileName(url);
+    if (purename == "")
+        purename = name;
+    else
+        name = "";
+
+	return get_metadatafile(url + name);
 }
 
 int TRestDataBase::get_lastmetadata() {
@@ -340,15 +358,44 @@ int TRestDataBase::add_metadata(DBEntry info, string url) {
 
 	return info.id;
 }
+
+///////////////////////////////////////////////
+/// \brief Assign a new file url to this metadata entry
+///
+/// If the file is a remote url, it will directly update the database
+///
+/// If the file is a local file, it will upload it and overwrite the remote one
+/// The database will remain unchanged.
+/// 
 int TRestDataBase::set_metadatafile(int id, string url) {
     cout << "error" << endl;
+
+	string cmd = "scp " + url + " gasUser@sultan.unizar.es:./gasFiles/";
+    int a = system(cmd.c_str());
+
+    if (a != 0) {
+        error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
+        error << "-- Error : problem copying gases definitions to remote server" << endl;
+        error << "-- Error : Please report this problem at "
+                 "http://gifna.unizar.es/rest-forum/"
+              << endl;
+        return -1;
+    }
+
     return 0;
 }
+///////////////////////////////////////////////
+/// \brief It will upload the file from **url** to **urlremote**, and update the database
+///
 int TRestDataBase::set_metadatafile(int id, string url, string urlremote) {
     cout << "error" << endl;
     return 0;
 }
-
+///////////////////////////////////////////////
+/// \brief It will update the information of database
+///
+/// The following specification of DBEntry's content will not be updated:
+/// id <= 0, type == "" ,usr == "" ,tag == "" ,description == "" ,version == "".
 int TRestDataBase::set_metadata_info(int id, DBEntry info) {
     cout << "error" << endl;
     return 0;
