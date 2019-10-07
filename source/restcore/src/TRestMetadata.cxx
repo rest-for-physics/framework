@@ -987,13 +987,11 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     // constructor
     if (_filename == "server") {
         string tag = e->Value();
-        DBEntry entry;
-        entry.tag = tag;
-        entry.type = "META_RML";
-        TRestDataBase* db = gDataBase;
-        auto ids = db->search_metadata_with_info(entry);
+		//match the database, id=0(any), type="META_RML", usr=""(any), tag=<section name>
+        auto ids = gDataBase->search_metadata_with_info({0, "META_RML", "", tag});
         if (ids.size() == 1) {
-            _filename = db->get_metadatafile(ids[0]);
+            _filename = gDataBase->get_metadatafile(ids[0]);
+            info << "using remote rml config file: " << _filename << endl;
             if (_filename == "") {
                 return;
             }
