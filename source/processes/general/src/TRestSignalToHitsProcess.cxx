@@ -121,20 +121,25 @@ void TRestSignalToHitsProcess::InitProcess() {
 
     fGas = (TRestGas*)this->GetGasMetadata();
     if (fGas != NULL) {
-        if (fGasPressure <= 0)
-            fGasPressure = fGas->GetPressure();
-        else
-            fGas->SetPressure(fGasPressure);
+        if (fGasPressure <= 0) fGasPressure = fGas->GetPressure();
+        if (fElectricField <= 0) fElectricField = fGas->GetElectricField();
 
-        if (fDriftVelocity <= 0) fDriftVelocity = fGas->GetDriftVelocity(fElectricField) / units("cm/us");
+        fGas->SetPressure(fGasPressure);
+        fGas->SetElectricField(fElectricField);
+
+        if (fDriftVelocity <= 0) fDriftVelocity = fGas->GetDriftVelocity();
     } else {
-        cout << "REST_WARNING. No TRestGas found in TRestRun." << endl;
+        warning << "No TRestGas found in TRestRun." << endl;
+        if (fDriftVelocity == -1) {
+            error << "TRestHitsToSignalProcess: drift velocity is undefined in the rml file!" << endl;
+            exit(-1);
+        }
     }
 
     fReadout = (TRestReadout*)this->GetReadoutMetadata();
 
     if (fReadout == NULL) {
-        cout << "REST ERRORRRR : Readout has not been initialized" << endl;
+        error << "Readout has not been initialized" << endl;
         exit(-1);
     }
 }
@@ -307,8 +312,8 @@ void TRestSignalToHitsProcess::EndProcess() {
 
 //______________________________________________________________________________
 void TRestSignalToHitsProcess::InitFromConfigFile() {
-    fElectricField = GetDblParameterWithUnits("electricField", 100.) * units("V/cm");
-    fGasPressure = StringToDouble(GetParameter("gasPressure", "-1"));
-    fDriftVelocity = GetDblParameterWithUnits("driftVelocity", 1.);
+    fElectricField = GetDblParameterWithUnits("electricField", 100.);
+    fGasPressure = GetDblParameterWithUnits("gasPressure", -1.);
+    fDriftVelocity = GetDblParameterWithUnits("driftVelocity", -1.);
     fSignalToHitMethod = GetParameter("method", "all");
 }

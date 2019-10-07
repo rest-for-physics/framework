@@ -75,21 +75,26 @@ void TRestElectronDiffusionProcess::LoadConfig(string cfgFilename, string name) 
 void TRestElectronDiffusionProcess::InitProcess() {
     fGas = (TRestGas*)GetGasMetadata();
     if (fGas == NULL) {
-        cout << "REST WARNING : Gas has not been initialized" << endl;
+        warning << "Gas has not been initialized" << endl;
+        if (fLonglDiffCoeff == -1 || fTransDiffCoeff == -1) {
+            error << "TRestHitsToSignalProcess: diffusion parameters are not defined in the rml file!" << endl;
+            exit(-1);
+        }
     } else {
-        if (fGasPressure <= 0)
-            fGasPressure = fGas->GetPressure();
-        else
-            fGas->SetPressure(fGasPressure);
-
+        if (fGasPressure <= 0) fGasPressure = fGas->GetPressure();
+        if (fElectricField <= 0) fElectricField = fGas->GetElectricField();
         if (fWvalue <= 0) fWvalue = fGas->GetWvalue();
 
+        fGas->SetPressure(fGasPressure);
+        fGas->SetElectricField(fElectricField);
+        fGas->SetW(fWvalue);
+
         if (fLonglDiffCoeff <= 0)
-            fLonglDiffCoeff = fGas->GetLongitudinalDiffusion(fElectricField);  // (cm)^1/2
+            fLonglDiffCoeff = fGas->GetLongitudinalDiffusion();  // (cm)^1/2
 
         if (fTransDiffCoeff <= 0)
             fTransDiffCoeff =
-                fGas->GetTransversalDiffusion(fElectricField);  // (cm)^1/2
+                fGas->GetTransversalDiffusion();  // (cm)^1/2
     }
 
     fReadout = (TRestReadout*)GetReadoutMetadata();
@@ -207,11 +212,11 @@ void TRestElectronDiffusionProcess::EndProcess() {
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::InitFromConfigFile() {
     // TODO add pressure units
-    fGasPressure = StringToDouble(GetParameter("gasPressure", "-1"));
-    fElectricField = GetDblParameterWithUnits("electricField", 100.) * units("V/cm");
-    fAttachment = StringToDouble(GetParameter("attachment", "0"));
-    fLonglDiffCoeff = StringToDouble(GetParameter("longitudinalDiffusionCoefficient", "0"));
-    fTransDiffCoeff = StringToDouble(GetParameter("transversalDiffusionCoefficient", "0"));
+    fGasPressure = GetDblParameterWithUnits("gasPressure", -1.);
+    fElectricField = GetDblParameterWithUnits("electricField", -1.);
     fWvalue = GetDblParameterWithUnits("Wvalue", (double)0) * REST_Units::eV;
+    fAttachment = StringToDouble(GetParameter("attachment", "0"));
+    fLonglDiffCoeff = StringToDouble(GetParameter("longitudinalDiffusionCoefficient", "-1"));
+    fTransDiffCoeff = StringToDouble(GetParameter("transversalDiffusionCoefficient", "-1"));
     fMaxHits = StringToInteger(GetParameter("maxHits", "0"));
 }

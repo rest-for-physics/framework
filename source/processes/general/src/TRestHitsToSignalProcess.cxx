@@ -99,20 +99,25 @@ void TRestHitsToSignalProcess::InitProcess() {
 
     fGas = (TRestGas*)this->GetGasMetadata();
     if (fGas != NULL) {
-        if (fGasPressure <= 0)
-            fGasPressure = fGas->GetPressure();
-        else
-            fGas->SetPressure(fGasPressure);
+        if (fGasPressure <= 0) fGasPressure = fGas->GetPressure();
+        if (fElectricField <= 0) fElectricField = fGas->GetElectricField();
 
-        if (fDriftVelocity <= 0) fDriftVelocity = fGas->GetDriftVelocity(fElectricField) / units("cm/us");
+        fGas->SetPressure(fGasPressure);
+        fGas->SetElectricField(fElectricField);
+
+        if (fDriftVelocity <= 0) fDriftVelocity = fGas->GetDriftVelocity();
     } else {
-        cout << "REST_WARNING. No TRestGas found in TRestRun." << endl;
+        warning << "No TRestGas found in TRestRun." << endl;
+        if (fDriftVelocity == -1) {
+            error << "TRestHitsToSignalProcess: drift velocity is undefined in the rml file!" << endl;
+            exit(-1);
+		}
     }
 
     fReadout = (TRestReadout*)this->GetReadoutMetadata();
 
     if (fReadout == NULL) {
-        cout << "REST ERRORRRR : Readout has not been initialized" << endl;
+        error << "Readout has not been initialized" << endl;
         exit(-1);
     }
 }
@@ -218,9 +223,10 @@ void TRestHitsToSignalProcess::EndProcess() {
 //______________________________________________________________________________
 void TRestHitsToSignalProcess::InitFromConfigFile() {
     fSampling = GetDblParameterWithUnits("sampling");
-    fGasPressure = StringToDouble(GetParameter("gasPressure", "-1"));
+	//returned in REST standard unit: atm
+    fGasPressure = GetDblParameterWithUnits("gasPressure", -1.);
 	//convert REST standard unit "V/mm" to "V/cm"
-    fElectricField = GetDblParameterWithUnits("electricField", 100.) * units("V/cm");
+    fElectricField = GetDblParameterWithUnits("electricField", -1.);
     // DONE : velocity units are implemented with standard unit "mm/us"
-    fDriftVelocity = GetDblParameterWithUnits("driftVelocity", 1.);
+    fDriftVelocity = GetDblParameterWithUnits("driftVelocity", -1.);
 }

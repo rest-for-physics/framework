@@ -55,7 +55,7 @@ class TRestSignalToHitsProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        metadata << "Electric field : " << fElectricField << " V/cm" << endl;
+        metadata << "Electric field : " << fElectricField * units("V/cm") << " V/cm" << endl;
         metadata << "Gas pressure : " << fGasPressure << " atm" << endl;
         metadata << "Drift velocity : " << fDriftVelocity << " mm/us" << endl;
 

@@ -60,7 +60,7 @@ class TRestElectronDiffusionProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << " eField : " << fElectricField << " V/cm" << std::endl;
+        std::cout << " eField : " << fElectricField * units("V/cm") << " V/cm" << std::endl;
         std::cout << " attachment coeficient : " << fAttachment << " V/cm" << std::endl;
         std::cout << " gas pressure : " << fGasPressure << " atm" << std::endl;
         std::cout << " longitudinal diffusion coefficient : " << fLonglDiffCoeff << " cm^1/2" << std::endl;
