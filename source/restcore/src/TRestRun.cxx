@@ -276,7 +276,7 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
                     << " ! To import metadata from this file, use <addMetadata" << endl;
             warning << "Skipping..." << endl;
             return -1;
-		}
+        }
 
         TClass* c = TClass::GetClass(keydeclare.c_str());
         if (c == NULL) {
@@ -1161,7 +1161,8 @@ TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
         while ((key = (TKey*)nextkey())) {
             string kName = key->GetClassName();
 
-            if (kName == type) {
+            if (REST_Reflection::GetClass(kName.c_str()) != NULL &&
+                REST_Reflection::GetClass(kName.c_str())->InheritsFrom(type)) {
                 TRestMetadata* a = (TRestMetadata*)f->Get(key->GetName());
 
                 if (a->InheritsFrom("TRestMetadata")) {
