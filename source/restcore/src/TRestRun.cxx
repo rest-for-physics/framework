@@ -1176,7 +1176,7 @@ TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
         }
     } else {
         for (int i = 0; i < fMetadataInfo.size(); i++)
-            if ((string)fMetadataInfo[i]->ClassName() == type) return fMetadataInfo[i];
+            if (fMetadataInfo[i]->InheritsFrom(type)) return fMetadataInfo[i];
 
         if (fInputFile != NULL && this->GetVersionCode() >= TRestTools::ConvertVersionCode("2.2.1")) {
             return GetMetadataClass(type, fInputFile);
