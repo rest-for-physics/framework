@@ -63,6 +63,7 @@ class TRestSignalZeroSuppresionProcess : public TRestEventProcess {
         metadata << "Point Threshold : " << fPointThreshold << " sigmas" << endl;
         metadata << "Signal threshold : " << fSignalThreshold << " sigmas" << endl;
         metadata << "Number of points over threshold : " << fNPointsOverThreshold << endl;
+        metadata << "Sampling rate : " << 1. / fSampling << " MHz" << endl;
         metadata << "Max Number of points of flat signal tail : " << fNPointsFlatThreshold << endl;
 
         if (fBaseLineCorrection)
