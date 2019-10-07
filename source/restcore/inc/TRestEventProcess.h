@@ -71,7 +71,7 @@ class TRestEventProcess : public TRestMetadata {
     void BeginPrintProcess();
     void EndPrintProcess();
     TRestMetadata* GetMetadata(string type);
-    TRestMetadata* GetGasMetadata() { return GetMetadata("TRestGas"); }
+    TRestMetadata* GetDriftMetadata() { return GetMetadata("TRestDriftVolume"); }
     TRestMetadata* GetReadoutMetadata() { return GetMetadata("TRestReadout"); }
     TRestMetadata* GetGeant4Metadata() { return GetMetadata("TRestG4Metadata"); }
     TRestMetadata* GetDetectorSetup() { return GetMetadata("TRestDetectorSetup"); }
