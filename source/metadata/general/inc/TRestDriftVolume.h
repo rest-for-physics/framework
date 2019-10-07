@@ -42,16 +42,19 @@
 
 class TRestDriftVolume : public TRestMetadata {
    protected:
-    string fMaterial;
-    Double_t fW;
+    string fMaterial;  // material description string
+    Double_t fW;  // Work function for electron extraction, in unit eV.
 
-    Double_t fElectricField;
-    Double_t fDriftVelocity;
-    Double_t fElectronLifeTime;
-    Double_t fLongitudinalDiffusion;
-    Double_t fTransversalDiffusion;
+    Double_t fElectricField;  //in unit V/mm
+    Double_t fDriftVelocity;  //in unit mm/us
+    Double_t fElectronLifeTime; //in unit us
+    Double_t fLongitudinalDiffusion;  //in unit (cm)^1/2
+    Double_t fTransversalDiffusion;   //in unit (cm)^1/2
     Double_t fTownsendCoefficient;
     Double_t fAttachmentCoefficient;
+
+    Double_t fPressureInAtm;   // Pressure of the gas in atm.
+    Double_t fTemperatureInK;  // Temperature of the gas in K.
 
    public:
     TRestDriftVolume();
@@ -59,8 +62,9 @@ class TRestDriftVolume : public TRestMetadata {
     virtual void Initialize();
     virtual void InitFromConfigFile();
 
-    virtual TString GetMaterial() { return fMaterial; }
+    virtual string GetMaterial() { return fMaterial; }
     virtual Double_t GetW() { return fW; }
+    virtual Double_t GetWvalue() { return fW; }
     virtual Double_t GetElectricField() { return fElectricField; }
 
     virtual Double_t GetDriftVelocity() { return fDriftVelocity; }
@@ -70,10 +74,14 @@ class TRestDriftVolume : public TRestMetadata {
     virtual Double_t GetTownsendCoefficient() { return fTownsendCoefficient; }
     virtual Double_t GetAttachmentCoefficient() { return fAttachmentCoefficient; }
 
-    virtual void SetMaterial(TString value) { fMaterial = value; }
+    virtual Double_t GetPressure() { return fPressureInAtm; }
+    virtual Double_t GetTemperature() { return fTemperatureInK; }
+
+    virtual void SetMaterial(string value) { fMaterial = value; }
     virtual void SetW(double value) { fW = value; }
     virtual void SetElectricField(double value) { fElectricField = value; }
 
+	// returned drift velocity is in unit mm/us
     virtual void SetDriftVelocity(double value) { fDriftVelocity = value; }
     virtual void SetElectronLifeTime(double value) { fElectronLifeTime = value; }
     virtual void SetLongitudinalDiffusion(double value) { fLongitudinalDiffusion = value; }
@@ -81,9 +89,12 @@ class TRestDriftVolume : public TRestMetadata {
     virtual void SetTownsendCoefficient(double value) { fTownsendCoefficient = value; }
     virtual void SetAttachmentCoefficient(double value) { fAttachmentCoefficient = value; }
 
+    virtual void SetPressure(double value) { fPressureInAtm = value; }
+    virtual void SetTemperature(double value) { fTemperatureInK = value; }
+
     virtual void UpdateCondition() {}
 
-    void PrintMetadata();
+    virtual void PrintMetadata();
 
     ClassDef(TRestDriftVolume, 0);  // Gas Parameters
 };
