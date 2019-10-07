@@ -23,7 +23,7 @@
     /// from the previously saved metadata file("restManager --c saveMetadataFile.rml --o meta.root")
     <addMetadata name="PandaReadout_MxM" file="meta.root"/>
     /// we can alternatively use "addMetadata name="Xenon-TMA 1Pct 10-10E3Vcm" file="meta.root"
-    <TRestGas name="Xenon-TMA 1Pct 10-10E3Vcm" pressure="10" file="server"/>
+    <TRestGas name="Xenon-TMA 1Pct 10-10E3Vcm" pressure="10atm" electricField="1000V/cm" file="server"/>
   </TRestRun>
 
   <TRestProcessRunner name="Processor" verboseLevel="info">
@@ -36,15 +36,13 @@
 
     <addProcess type="TRestMultiCoBoAsAdToSignalProcess" name="virtualDAQ" value="ON"/>
     <addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON">
-      <parameter name="pointThreshold" value="3" />
-      <parameter name="pointsOverThreshold" value="3" />
       <parameter name="observable" value="all" />
       /// no need for explicit observable definition if we use "observable=all"
       <!--<observable name="baseline" value="ON" />
       <observable name="SecondsFromStart" value="ON" />
       <observable name="ThresholdIntegral" value="ON" />-->
     </addProcess>
-    <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" file="processes.rml"/>
+    <addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" sampling="0.2"/> 5MHz sampling
     <addProcess type="TRestReadoutAnalysisProcess" name="rA" value="ON">
       <parameter name="modulesHist" value="3:6:8"/>
       <parameter name="modulesAmp" value="3-1.2:6-1.3:8-0.7"/>
@@ -52,8 +50,8 @@
       <observable name="FirstY" value="ON" />
       <observable name="CalibratedIntegral" value="ON" />
     </addProcess>
-    <addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="ON" file="processes.rml"/>
-    <addProcess type="TRestHitsAnalysisProcess" name="hitsAna" value="OFF" file="processes.rml" />
+    <addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="ON" method="tripleMax"/>
+    <addProcess type="TRestHitsAnalysisProcess" name="hitsAna" value="OFF"/>
     <addProcess type="TRestHitsToTrackProcess" name="hitsToTrack" value="OFF"/>
     <addProcess type="TRestTrackAnalysisProcess" name="tckAna" value="OFF" />
 
@@ -85,6 +83,9 @@
     <parameter name="verboseLevel" value="essential" /> %options are : silent(0), essential(1), info(2), debug(3), extreme(4)
     <parameter name="mainDataPath" value="" />
     <parameter name="database" value=""/>
+    
+    <parameter name="pointThreshold" value="3" />
+    <parameter name="pointsOverThreshold" value="3" />
   </globals>
 
 </TRestManager>
