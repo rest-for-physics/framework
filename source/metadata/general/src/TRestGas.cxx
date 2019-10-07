@@ -225,7 +225,7 @@ ClassImp(TRestGas)
     /// \brief TRestGas default constructor
     ///
     TRestGas::TRestGas()
-    : TRestMetadata() {
+    : TRestDriftVolume() {
     Initialize();
 
     fGasGeneration = false;
@@ -243,7 +243,7 @@ ClassImp(TRestGas)
 /// section. \param name The name of the TRestGas section to be read. \param
 /// gasGeneration Parameter allowing to activate the gas generation.
 ///
-TRestGas::TRestGas(const char* cfgFileName, string name, bool gasGeneration) : TRestMetadata(cfgFileName) {
+TRestGas::TRestGas(const char* cfgFileName, string name, bool gasGeneration) : TRestDriftVolume() {
     Initialize();
 
     fGasGeneration = gasGeneration;
@@ -494,15 +494,18 @@ void TRestGas::GetGasWorkFunction() {
 /// format.
 ///
 void TRestGas::InitFromConfigFile() {
-    if (GetVerboseLevel() <= REST_Info) fVerboseLevel = REST_Info;
+    //if (GetVerboseLevel() <= REST_Info) fVerboseLevel = REST_Info;
 
     debug << "Entering ... TRestGas::InitFromConfigFile()" << endl;
 
-    fPressureInAtm = StringToDouble(GetParameter("pressure"));
-    fTemperatureInK = StringToDouble(GetParameter("temperature"));
+    //fElectricField = GetDblParameterWithUnits("electricField", 0.) * units("V/cm");
+    //fPressureInAtm = StringToDouble(GetParameter("pressure"));
+    //fTemperatureInK = StringToDouble(GetParameter("temperature"));
+    //fW = StringToDouble(GetParameter("W_value", "-1"));
+    TRestDriftVolume::InitFromConfigFile();
+
     fNCollisions = StringToInteger(GetParameter("nCollisions"));
     fMaxElectronEnergy = StringToDouble(GetParameter("maxElectronEnergy"));
-    fW = StringToDouble(GetParameter("W_value", "-1"));
 
     fGasOutputPath = GetParameter("gasOutputPath", "./");
     if (!TRestTools::isPathWritable((string)fGasOutputPath)) {
@@ -611,7 +614,7 @@ void TRestGas::InitFromRootFile() {
 
     if (fGasFileContent != "")  // use gas file content by default
     {
-        fGasFilename = "/tmp/restGasFile.gas";
+        fGasFilename = "/tmp/restGasFile_" + (string)getenv("USER") + ".gas";
         ofstream outf;
         outf.open(fGasFilename, ios::ate);
         outf << fGasFileContent << endl;
@@ -878,6 +881,17 @@ void TRestGas::SetPressure(Double_t pressure) {
     fPressureInAtm = pressure;
 #if defined USE_Garfield
     fGasMedium->SetPressure(fPressureInAtm * 760.);
+#endif
+}
+
+/////////////////////////////////////////////
+/// \brief Defines the temperature of the gas.
+void TRestGas::SetTemperature(Double_t temperature) {
+    debug << "Entering ... TRestGas::SetPressure( temperature=" << temperature << " )" << endl;
+
+    fTemperatureInK = temperature;
+#if defined USE_Garfield
+    fGasMedium->SetTemperature(temperature);
 #endif
 }
 
@@ -1157,6 +1171,7 @@ void TRestGas::PrintGasInfo() {
     metadata << "Gas filename : " << TRestTools::GetPureFileName((string)fGasFilename) << endl;
     metadata << "Pressure : " << fPressureInAtm << " atm" << endl;
     metadata << "Temperature : " << fTemperatureInK << " K" << endl;
+    metadata << "Electric Field : " << fElectricField * units("V/cm") << " V/cm " << endl;
     metadata << "W-value : " << fW << " eV" << endl;
     metadata << "Max. Electron energy : " << fMaxElectronEnergy << " eV" << endl;
     metadata << "Field grid nodes : " << fEnodes << endl;

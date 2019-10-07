@@ -37,6 +37,7 @@
 #include "TSystem.h"
 #include "TVector3.h"
 
+#include "TRestDriftVolume.h"
 #include "TRestMetadata.h"
 
 //#define USE_Garfield
@@ -59,7 +60,7 @@ const int RESTGAS_GASFILE_LOADED = 2;
 
 //! A specific metadata class to generate and read gas files using Magboltz
 //! interface
-class TRestGas : public TRestMetadata {
+class TRestGas : public TRestDriftVolume {
    private:
     MediumMagboltz* fGasMedium;  //! Pointer to Garfield::MediumMagboltz class
                                  //! giving access to gas properties
@@ -73,15 +74,11 @@ class TRestGas : public TRestMetadata {
     Int_t fNCollisions;           // Number of collisions used in the Magboltz calculation.
     Double_t fMaxElectronEnergy;  // Maximum electron energy, in eV, used in
                                   // Magboltz gas calculation.
-    Double_t fW;                  // Work function for electron extraction. This is defined by REST.
 
     std::vector<TString> fGasComponentName;       // A string vector storing the names
                                                   // of each of the gas components
     std::vector<Double_t> fGasComponentFraction;  // A double vector storing the fraction values of
                                                   // each of the gas components
-
-    Double_t fPressureInAtm;   // Pressure of the gas in atm.
-    Double_t fTemperatureInK;  // Temperature of the gas in K.
 
     Int_t fEnodes;   // Number of electric field nodes used in the gas calculation.
     Double_t fEmax;  // Minimum value of the electric field used for the gas
@@ -120,6 +117,12 @@ class TRestGas : public TRestMetadata {
 
     void UploadGasToServer(string gasFilename);
 
+    Double_t GetDriftVelocity(Double_t E);
+    Double_t GetLongitudinalDiffusion(Double_t E);
+    Double_t GetTransversalDiffusion(Double_t E);
+    Double_t GetTownsendCoefficient(Double_t E);
+    Double_t GetAttachmentCoefficient(Double_t E);
+
    public:
     TRestGas();
     TRestGas(const char* cfgFileName, string name = "", bool gasGeneration = false);
@@ -147,8 +150,6 @@ class TRestGas : public TRestMetadata {
 
     void InitFromRootFile();
 
-    Double_t GetW() { return fW; }
-
     /// Returns the maximum electron energy used by Magboltz for the gas
     /// properties calculation
     Double_t GetMaxElectronEnergy() { return fMaxElectronEnergy; }
@@ -168,11 +169,11 @@ class TRestGas : public TRestMetadata {
 
     TString GetGasMixture();
 
-    Double_t GetDriftVelocity(Double_t E);
-    Double_t GetLongitudinalDiffusion(Double_t E);
-    Double_t GetTransversalDiffusion(Double_t E);
-    Double_t GetTownsendCoefficient(Double_t E);
-    Double_t GetAttachmentCoefficient(Double_t E);
+    Double_t GetDriftVelocity() { return GetDriftVelocity(fElectricField * units("V/cm")) / units("cm/us"); }//in standard unit mm/us
+    Double_t GetLongitudinalDiffusion() { return GetLongitudinalDiffusion(fElectricField * units("V/cm")); } //in unit (cm)^1/2
+    Double_t GetTransversalDiffusion() { return GetTransversalDiffusion(fElectricField * units("V/cm")); }   //in unit (cm)^1/2
+    Double_t GetTownsendCoefficient() { return GetTownsendCoefficient(fElectricField * units("V/cm")); }
+    Double_t GetAttachmentCoefficient() { return GetAttachmentCoefficient(fElectricField * units("V/cm")); }
 
     void GetGasWorkFunction();
 
@@ -187,15 +188,6 @@ class TRestGas : public TRestMetadata {
         return fGasComponentFraction[n];
     }
 
-    /// Returns the gas pressure in atm.
-    Double_t GetPressure() { return fPressureInAtm; };
-
-    /// Returns the gas temperature in K.
-    Double_t GetTemperature() { return fTemperatureInK; };
-
-    /// Returns the gas work function in eV.
-    Double_t GetWvalue() { return fW; }
-
 #ifndef __CINT__
     /// Return pointer to Garfield::MediumGas for gas properties
     MediumMagboltz* GetGasMedium() { return fGasMedium; };
@@ -205,12 +197,10 @@ class TRestGas : public TRestMetadata {
     TString GetGDMLMaterialRef() { return fGDMLMaterialRef; };
 
     void SetPressure(Double_t pressure);
+    void SetTemperature(Double_t temperature);
 
     /// Sets the maximum electron energy to be used in gas generation.
     void SetMaxElectronEnergy(Double_t energy) { fMaxElectronEnergy = energy; }
-
-    /// Sets the value of the work funtion for the gas mixture.
-    void SetWvalue(Double_t iP) { fW = iP; }
 
     void PlotDriftVelocity(Double_t eMin, Double_t eMax, Int_t nSteps);
     void PlotLongitudinalDiffusion(Double_t eMin, Double_t eMax, Int_t nSteps);
@@ -222,7 +212,7 @@ class TRestGas : public TRestMetadata {
     /// Prints the metadata information from the gas
     void PrintMetadata() { PrintGasInfo(); }
 
-    ClassDef(TRestGas, 2);  // Gas Parameters
+    ClassDef(TRestGas, 3);  // Gas Parameters
 };
 
 #endif
