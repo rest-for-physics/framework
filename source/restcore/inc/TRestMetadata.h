@@ -147,11 +147,10 @@ class TRestMetadata : public TNamed {
     /// The buffer where the corresponding metadata section is stored. Filled only during Write()
     std::string configBuffer;
 #ifndef __CINT__
-    union {
-        /// Verbose level used to print debug info
-        REST_Verbose_Level fVerboseLevel;  //!
-        endl_t endl;                       //!
-    };                                     //!
+    /// Verbose level used to print debug info
+    REST_Verbose_Level fVerboseLevel;  //!
+	/// Terminal object flag for TRestStringOutput
+    endl_t endl;                       //!
 
     /// All metadata classes can be initialized and managed by TRestManager
     TRestManager* fHostmgr;  //!

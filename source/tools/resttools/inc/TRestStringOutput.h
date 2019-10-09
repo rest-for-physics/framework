@@ -224,10 +224,9 @@ inline void clearLinesAfterCursor() {
 }
 
 struct endl_t {
-    endl_t() { vref = REST_Essential; }
-    endl_t(REST_Verbose_Level v) { vref = v; }
+    endl_t(REST_Verbose_Level& v):vref(v) {}
 
-    REST_Verbose_Level vref;
+    REST_Verbose_Level& vref;
     friend ostream& operator<<(ostream& a, endl_t& et) { return (a << std::endl); }
 };
 

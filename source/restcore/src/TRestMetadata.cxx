@@ -453,7 +453,7 @@ ClassImp(TRestMetadata);
 ///////////////////////////////////////////////
 /// \brief TRestMetadata default constructor
 ///
-TRestMetadata::TRestMetadata() {
+TRestMetadata::TRestMetadata() : endl(fVerboseLevel) {
     fStore = true;
     fElementGlobal = NULL;
     fElement = NULL;
@@ -472,7 +472,7 @@ TRestMetadata::TRestMetadata() {
 ///////////////////////////////////////////////
 /// \brief constructor
 ///
-TRestMetadata::TRestMetadata(const char* cfgFileName) {
+TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(fVerboseLevel) {
     fStore = true;
     fElementGlobal = NULL;
     fElement = NULL;
@@ -987,7 +987,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     // constructor
     if (_filename == "server") {
         string tag = e->Value();
-		//match the database, id=0(any), type="META_RML", usr=""(any), tag=<section name>
+        // match the database, id=0(any), type="META_RML", usr=""(any), tag=<section name>
         auto ids = gDataBase->search_metadata_with_info({0, "META_RML", "", tag});
         if (ids.size() == 1) {
             _filename = gDataBase->get_metadatafile(ids[0]);
@@ -1036,8 +1036,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1070,8 +1071,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
