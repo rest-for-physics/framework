@@ -413,9 +413,7 @@ int TRestReflector::InitDictionary() {
 
         // we create a new library of dictionary for that type
         if (!TRestTools::isPathWritable(restpath)) {
-            cout
-                << "Error in CreateDictionary: cannot create dictionary, path not writeable!"
-                << endl;
+            cout << "Error in CreateDictionary: cannot create dictionary, path not writeable!" << endl;
             cout << "path: \"" << restpath << "\"" << endl;
             cout << "This is possible in case you are using public installation of REST, install one by your "
                     "own?"
@@ -473,9 +471,7 @@ int TRestReflector::InitDictionary() {
     return 0;
 }
 
-bool TRestReflector::IsZombie() {
-    return (type == "" || address == 0 || size == 0 || (cl == 0 && dt == 0));
-}
+bool TRestReflector::IsZombie() { return (type == "" || address == 0 || size == 0 || (cl == 0 && dt == 0)); }
 
 TRestReflector Assembly(string typeName) {
     TRestReflector ptr = WrapType(typeName);
@@ -483,9 +479,7 @@ TRestReflector Assembly(string typeName) {
     return ptr;
 }
 
-TRestReflector WrapType(string type) {
-    return TRestReflector(0, type);
-}
+TRestReflector WrapType(string type) { return TRestReflector(0, type); }
 
 void CloneAny(TRestReflector from, TRestReflector to) {
     if (from.IsZombie() || to.IsZombie()) {
@@ -516,8 +510,7 @@ void CloneAny(TRestReflector from, TRestReflector to) {
     }
 }
 
-TRestReflector GetDataMember(TRestReflector obj,
-                                                               string name) {
+TRestReflector GetDataMember(TRestReflector obj, string name) {
     TClass* c = obj.cl;
     if (c != NULL) {
         TVirtualStreamerInfo* vs = c->GetStreamerInfo();
@@ -526,20 +519,34 @@ TRestReflector GetDataMember(TRestReflector obj,
 
         for (int i = 0; i < n; i++) {
             TStreamerElement* ele = (TStreamerElement*)ses->At(i);
-            if ((string)ele->GetFullName() == name) {
-                char* addr = (char*)obj + ele->GetOffset();
-                string type = ele->GetTypeName();
-                if (type == "BASE") {
-                    type = ele->GetClass()->GetName();
-                }
-                if (type == obj.type) {
-                    return TRestReflector();
-                }
+            char* addr = (char*)obj + ele->GetOffset();
+            string type = ele->GetTypeName();
+            if (type == "BASE") {
+                type = ele->GetClass()->GetName();
+            }
+            if (type == obj.type) {
+                return TRestReflector();
+            }
 
+            if ((string)ele->GetFullName() == name) {
                 TRestReflector ptr(addr, type);
                 ptr.name = name;
 
                 return ptr;
+            }
+        }
+
+        // find data member also in base class.
+        for (int i = 0; i < n; i++) {
+            TStreamerElement* ele = (TStreamerElement*)ses->At(i);
+            char* addr = (char*)obj + ele->GetOffset();
+            string type = ele->GetTypeName();
+            if (type == "BASE") {
+                type = ele->GetClass()->GetName();
+                TRestReflector ptr = GetDataMember(TRestReflector(addr, type), name);
+                if (!ptr.IsZombie()) {
+                    return ptr;
+                }
             }
         }
     }
