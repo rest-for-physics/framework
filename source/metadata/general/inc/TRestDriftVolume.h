@@ -96,7 +96,7 @@ class TRestDriftVolume : public TRestMetadata {
 
     virtual void PrintMetadata();
 
-    ClassDef(TRestDriftVolume, 0);  // Gas Parameters
+    ClassDef(TRestDriftVolume, 1);  // Gas Parameters
 };
 
 #endif
