@@ -388,19 +388,25 @@ int main(int argc, char** argv) {
     }
     restRun->GetOutputFile()->cd();
 
-// restRun->WriteWithDataBase();
-/*
-initialEnergySpectrum.SetName("initialEnergySpectrum");
-initialAngularDistribution.SetName("initialAngularDistribution");
+    // restRun->WriteWithDataBase();
+    /*
+    initialEnergySpectrum.SetName("initialEnergySpectrum");
+    initialAngularDistribution.SetName("initialAngularDistribution");
 
-initialEnergySpectrum.SetTitle( "Primary source energy spectrum" );
-initialAngularDistribution.SetTitle( "Primary source Theta angular
-distribution" );
+    initialEnergySpectrum.SetTitle( "Primary source energy spectrum" );
+    initialAngularDistribution.SetTitle( "Primary source Theta angular
+    distribution" );
 
-initialEnergySpectrum.Write();
-initialAngularDistribution.Write();
-*/
+    initialEnergySpectrum.Write();
+    initialAngularDistribution.Write();
+    */
 
+    // some verification
+    if (restRun->GetEntries() <= 0) {
+        // if no events are registered we exit with error
+        cout << "ERROR: No events deposited energy in sensitive volume" << endl;
+        throw std::exception();
+    }
 #ifdef G4VIS_USE
     delete visManager;
 #endif
