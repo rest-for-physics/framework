@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <algorithm>
+#include <chrono>
 #include <cstdio>
 #include <cstring>
 #include <fstream>
@@ -77,6 +78,8 @@ char physListName[256];
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
 
 int main(int argc, char** argv) {
+    auto start_time = chrono::steady_clock::now();
+
     TRestTools::LoadRESTLibrary();
 
     // {{{ Getting by argument the simulation config file
@@ -453,6 +456,11 @@ int main(int argc, char** argv) {
         cout << "Closing file : " << Filename << endl;
         f1->Close();
     }
+
+    auto end_time = chrono::steady_clock::now();
+    cout << "Elapsed time: " << chrono::duration_cast<chrono::seconds>(end_time - start_time).count()
+         << " seconds" << endl;
+
     return 0;
 }
 
