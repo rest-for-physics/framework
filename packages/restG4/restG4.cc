@@ -405,6 +405,13 @@ int main(int argc, char** argv) {
     if (restRun->GetEntries() <= 0) {
         // if no events are registered we exit with error
         cout << "ERROR: No events deposited energy in sensitive volume" << endl;
+        // we also delete the file
+        string fileToRemove = (string)restRun->GetOutputFileName();
+        if (remove(fileToRemove.c_str()) == 0) {
+            cout << "deleted: " << fileToRemove << endl;
+        } else {
+            cout << "error deleting: " << fileToRemove << endl;
+        }
         throw std::exception();
     }
 #ifdef G4VIS_USE
