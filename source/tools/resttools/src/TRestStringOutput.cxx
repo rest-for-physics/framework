@@ -148,7 +148,7 @@ void TRestStringOutput::flushstring() {
 
 /// formatted message output, used for print metadata
 TRestStringOutput fout(REST_Silent, COLOR_BOLDBLUE, "[==", kBorderedMiddle);
-TRestStringOutput error(REST_Silent, COLOR_BOLDRED, "-- Error : ", kHeaderedLeft);
+TRestStringOutput ferr(REST_Silent, COLOR_BOLDRED, "-- Error : ", kHeaderedLeft);
 TRestStringOutput warning(REST_Warning, COLOR_BOLDYELLOW, "-- Warning : ", kHeaderedLeft);
 TRestStringOutput essential(REST_Essential, COLOR_BOLDGREEN, "", kHeaderedMiddle);
 TRestStringOutput metadata(REST_Essential, COLOR_BOLDGREEN, "||", kBorderedMiddle);
