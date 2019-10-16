@@ -24,8 +24,8 @@
 #include <TRestG4Hits.h>
 #include <TString.h>
 #include <TVector3.h>
-#include <map>
 #include "TObject.h"
+
 // Perhaps there might be need for a mother class TRestTrack (if there is future
 // need)
 class TRestG4Track : public TObject {
@@ -35,7 +35,7 @@ class TRestG4Track : public TObject {
 
     Int_t fSubEventId;
 
-    // We must change this to save space! (Might be not needed after all)
+    // We must change this to save space! (Might be not needed afterall)
     // Int_t fParticle_ID;
     TString fParticleName;
 
@@ -46,8 +46,6 @@ class TRestG4Track : public TObject {
     TRestG4Hits fHits;
 
     TVector3 fTrackOrigin;
-
-    std::map<std::string, Double_t> fDistanceInVolume;
 
    public:
     void Initialize() {
@@ -83,7 +81,7 @@ class TRestG4Track : public TObject {
     void SetTrackID(Int_t id) { fTrack_ID = id; }
     void SetParentID(Int_t id) { fParent_ID = id; }
     //       void SetParticleID( Int_t id ) { fParticle_ID = id; }
-    void SetParticleName(TString particleName) { fParticleName = particleName; }
+    void SetParticleName(TString ptcleName) { fParticleName = ptcleName; }
     void SetGlobalTrackTime(Double_t time) { fGlobalTimestamp = time; }
     void SetTrackTimeLength(Double_t time) { fTrackTimestamp = time; }
     void SetKineticEnergy(Double_t en) { fKineticEnergy = en; }
@@ -98,21 +96,6 @@ class TRestG4Track : public TObject {
         return TMath::Sqrt((v1.X() - v2.X()) * (v1.X() - v2.X()) + (v1.Y() - v2.Y()) * (v1.Y() - v2.Y()) +
                            (v1.Z() - v2.Z()) * (v1.Z() - v2.Z()));
     }
-
-    // to track distances in volumes
-    const Double_t GetDistanceInVolume(const std::string volumeName) {
-        if (fDistanceInVolume.count(volumeName) == 0) {
-            // key is not in map so we return zero
-            return 0;
-        } else {
-            return fDistanceInVolume.at(volumeName);
-        }
-    }
-    // to be called in step action
-    void AddDistanceInVolume(const std::string volumeName, const Double_t delta) {
-        fDistanceInVolume[volumeName] += delta;
-    }
-    const std::map<std::string, Double_t> GetDistanceInVolumeMap() { return fDistanceInVolume; }
 
     void RemoveHits() { fHits.RemoveHits(); }
 
@@ -148,7 +131,8 @@ class TRestG4Track : public TObject {
     }
     Bool_t isneutronInelastic() {
         for (int n = 0; n < GetHits()->GetNumberOfHits(); n++)
-            if (GetHits()->GetHitProcess(n) == 37) return true;
+            if (GetHits()->GetHitProcess(n) == 37) 
+               return true;
         return false;
     }
     Bool_t isnCapture() {
@@ -162,7 +146,7 @@ class TRestG4Track : public TObject {
             if (GetHits()->GetHitProcess(n) == 33) return true;
         return false;
     }
-    Bool_t isphotonNuclear() {
+      Bool_t isphotonNuclear() {
         for (int n = 0; n < GetHits()->GetNumberOfHits(); n++)
             if (GetHits()->GetHitProcess(n) == 42) return true;
         return false;
@@ -197,12 +181,14 @@ class TRestG4Track : public TObject {
 
     Bool_t isHadElasticInVolume(Int_t volID) {
         for (int n = 0; n < GetHits()->GetNumberOfHits(); n++)
-            if ((GetHits()->GetHitProcess(n) == 36) && (GetHits()->GetHitVolume(n)) == volID) return true;
+            if ((GetHits()->GetHitProcess(n) == 36) && (GetHits()->GetHitVolume(n)) == volID)
+                  return true;
         return false;
     }
     Bool_t isNeutronInelasticInVolume(Int_t volID) {
         for (int n = 0; n < GetHits()->GetNumberOfHits(); n++)
-            if ((GetHits()->GetHitProcess(n) == 37) && (GetHits()->GetHitVolume(n)) == volID) return true;
+            if ((GetHits()->GetHitProcess(n) == 37) && (GetHits()->GetHitVolume(n)) == volID)
+               return true;
         return false;
     }
 
@@ -262,7 +248,7 @@ class TRestG4Track : public TObject {
     // Destructor
     virtual ~TRestG4Track();
 
-    ClassDef(TRestG4Track, 2);  // REST event superclass
+    ClassDef(TRestG4Track, 1);  // REST event superclass
 };
 
 #endif
