@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <algorithm>
+#include <chrono>
 #include <cstdio>
 #include <cstring>
 #include <fstream>
@@ -77,6 +78,8 @@ char physListName[256];
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
 
 int main(int argc, char** argv) {
+    auto start_time = chrono::steady_clock::now();
+
     TRestTools::LoadRESTLibrary();
 
     // {{{ Getting by argument the simulation config file
@@ -388,19 +391,32 @@ int main(int argc, char** argv) {
     }
     restRun->GetOutputFile()->cd();
 
-// restRun->WriteWithDataBase();
-/*
-initialEnergySpectrum.SetName("initialEnergySpectrum");
-initialAngularDistribution.SetName("initialAngularDistribution");
+    // restRun->WriteWithDataBase();
+    /*
+    initialEnergySpectrum.SetName("initialEnergySpectrum");
+    initialAngularDistribution.SetName("initialAngularDistribution");
 
-initialEnergySpectrum.SetTitle( "Primary source energy spectrum" );
-initialAngularDistribution.SetTitle( "Primary source Theta angular
-distribution" );
+    initialEnergySpectrum.SetTitle( "Primary source energy spectrum" );
+    initialAngularDistribution.SetTitle( "Primary source Theta angular
+    distribution" );
 
-initialEnergySpectrum.Write();
-initialAngularDistribution.Write();
-*/
+    initialEnergySpectrum.Write();
+    initialAngularDistribution.Write();
+    */
 
+    // some verification
+    if (restRun->GetEntries() <= 0) {
+        // if no events are registered we exit with error
+        cout << "ERROR: No events deposited energy in sensitive volume" << endl;
+        // we also delete the file
+        string fileToRemove = (string)restRun->GetOutputFileName();
+        if (remove(fileToRemove.c_str()) == 0) {
+            cout << "deleted: " << fileToRemove << endl;
+        } else {
+            cout << "error deleting: " << fileToRemove << endl;
+        }
+        throw std::exception();
+    }
 #ifdef G4VIS_USE
     delete visManager;
 #endif
@@ -440,6 +456,11 @@ initialAngularDistribution.Write();
         cout << "Closing file : " << Filename << endl;
         f1->Close();
     }
+
+    auto end_time = chrono::steady_clock::now();
+    cout << "Elapsed time: " << chrono::duration_cast<chrono::seconds>(end_time - start_time).count()
+         << " seconds" << endl;
+
     return 0;
 }
 

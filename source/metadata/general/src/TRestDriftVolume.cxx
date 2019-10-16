@@ -45,7 +45,7 @@ void TRestDriftVolume::InitFromConfigFile() {
 void TRestDriftVolume::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << "Drift Volume Material : " << fMaterial << ", W-value : " << fW * eV << " eV" << endl;
+    metadata << "Drift Volume Material : " << fMaterial << ", W-value : " << fW << " eV" << endl;
     metadata << "Electric Field : " << fElectricField * V / cm << " V/cm " << endl;
     metadata << "Drift Speed : " << fDriftVelocity * mm / us << " mm/us" << endl;
     metadata << "Electron LifeTime : " << fElectronLifeTime * ns << " ns" << endl;
