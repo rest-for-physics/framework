@@ -65,8 +65,8 @@ class GdmlPreprocessor : public TRestMetadata {
             // getchar();
 
         } else {
-            error << "Filename : " << file << endl;
-            error << "REST ERROR. File does not exist. Right path/filename?" << endl;
+            ferr << "Filename : " << file << endl;
+            ferr << "File does not exist. Right path/filename?" << endl;
             exit(0);
         }
     }

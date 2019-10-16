@@ -322,8 +322,8 @@ void TRestGas::LoadGasFile() {
 #if defined USE_Garfield
     debug << "fGasFilename = " << fGasFilename << endl;
     if (!TRestTools::fileExists((string)(fGasFilename))) {
-        error << __PRETTY_FUNCTION__ << endl;
-        error << "The gas file does not exist. (name:" << fGasFilename << ")" << endl;
+        ferr << __PRETTY_FUNCTION__ << endl;
+        ferr << "The gas file does not exist. (name:" << fGasFilename << ")" << endl;
         fStatus = RESTGAS_ERROR;
         return;
     }
@@ -662,8 +662,8 @@ void TRestGas::UploadGasToServer(string gasFilename) {
     a = system(cmd.c_str());
 
     if (a != 0) {
-        error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
-        error << "-- Error : problem removing last line from " << fname << endl;
+        ferr << "-- Error : " << __PRETTY_FUNCTION__ << endl;
+        ferr << "-- Error : problem removing last line from " << fname << endl;
         return;
     }
 
@@ -700,9 +700,9 @@ void TRestGas::UploadGasToServer(string gasFilename) {
     a = system(cmd.c_str());
 
     if (a != 0) {
-        error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
-        error << "-- Error : problem removing the locally generated gas file" << endl;
-        error << "-- Error : Please report this problem at "
+        ferr << "-- Error : " << __PRETTY_FUNCTION__ << endl;
+        ferr << "-- Error : problem removing the locally generated gas file" << endl;
+        ferr << "-- Error : Please report this problem at "
                  "http://gifna.unizar.es/rest-forum/"
               << endl;
         return;

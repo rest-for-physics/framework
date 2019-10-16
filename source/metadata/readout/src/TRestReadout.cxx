@@ -646,7 +646,7 @@ TRestReadoutModule* TRestReadout::ParseModuleDefinition(string moduleString) {
         }
 
         if (pixelIDVector.size() > 0 && pixelIDVector.size() != pixelVector.size()) {
-            error << "REST error, pixel id definition may be wrong! check your "
+           ferr << "pixel id definition may be wrong! check your "
                      "readout module definition!"
                   << endl;
             exit(0);
@@ -664,7 +664,7 @@ TRestReadoutModule* TRestReadout::ParseModuleDefinition(string moduleString) {
         }
 
         if (channel.GetNumberOfPixels() != pixelVector.size()) {
-            error << "REST error, pixel id definition may be wrong! check your "
+           ferr << "pixel id definition may be wrong! check your "
                      "readout module definition!"
                   << endl;
             exit(0);
@@ -675,7 +675,7 @@ TRestReadoutModule* TRestReadout::ParseModuleDefinition(string moduleString) {
     }
 
     if (channelIDVector.size() > 0 && channelIDVector.size() != channelVector.size()) {
-        error << "REST error, channel id definition may be wrong! check your "
+       ferr << "channel id definition may be wrong! check your "
                  "readout module definition!"
               << endl;
         exit(0);
@@ -693,7 +693,7 @@ TRestReadoutModule* TRestReadout::ParseModuleDefinition(string moduleString) {
     }
 
     if (module.GetNumberOfChannels() != channelVector.size()) {
-        error << "REST error, channel id definition may be wrong! check your "
+       ferr << "REST error, channel id definition may be wrong! check your "
                  "readout module definition!"
               << endl;
         exit(0);
