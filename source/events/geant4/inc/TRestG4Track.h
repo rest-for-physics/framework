@@ -53,7 +53,6 @@ class TRestG4Track : public TObject {
     void Initialize() {
         RemoveHits();
         fSubEventId = 0.;
-        fDistanceInVolume = {};
     }
 
     TRestG4Hits* GetHits() { return &fHits; }
