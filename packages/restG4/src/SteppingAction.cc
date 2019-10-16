@@ -32,6 +32,13 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
     nom_part = aStep->GetTrack()->GetDefinition()->GetParticleName();
     ener_dep = aStep->GetTotalEnergyDeposit();
 
+    if (restTrack->GetParticleName() == "geantino") {
+        // if its a GEANTINO we assign a appropriate value of energy so the event is recorded if it passes by
+        // the sensitive volume
+        ener_dep = (restG4Metadata->GetMaximumEnergyStored() - restG4Metadata->GetMinimumEnergyStored()) *
+                   0.01 * keV;
+    }
+
     if (!aStep->GetPostStepPoint()->GetProcessDefinedStep()) {
         G4cout << endl;
         G4cout << endl;
@@ -118,8 +125,9 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
         }
 
     } else {
-        if ((G4String)restG4Metadata->GetSensitiveVolume() == nom_vol)
+        if ((G4String)restG4Metadata->GetSensitiveVolume() == nom_vol) {
             restG4Event->AddEnergyToSensitiveVolume(ener_dep / keV);
+        }
 
         // We check if the hit must be stored and keep it on restG4Track
         for (int volID = 0; volID < restG4Metadata->GetNumberOfActiveVolumes(); volID++) {
