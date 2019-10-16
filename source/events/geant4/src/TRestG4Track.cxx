@@ -262,7 +262,7 @@ TString TRestG4Track::GetProcessName(Int_t id) {
         return "alphaInelastic";
     else if (id == 55)
         return "H3Inelastic";
-    lse if (id == 56)
+    else if (id == 56)
         return "He3Inelastic";
     else if (id == 57)
         return "kaon+Inelastic";
