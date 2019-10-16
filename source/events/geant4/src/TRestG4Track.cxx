@@ -119,6 +119,20 @@ Int_t TRestG4Track::GetProcessID(TString pcsName) {
         id = 53;
     else if (pcsName == "alphaInelastic")
         id = 54;
+    else if (pcsName == "H3Inelastic")
+        id = 55;
+   else if (pcsName == "He3Inelastic")
+        id = 56;
+    else if (pcsName == "kaon+Inelastic")
+        id = 57;
+   else if (pcsName == "kaon-Inelastic")
+        id = 58;
+   else if (pcsName == "kaon0LInelastic")
+        id = 59;
+   else if (pcsName == "kaon0SInelastic")
+        id = 60;
+    else if (pcsName == "lambdaInelastic")
+        id = 61;
     else {
         id = -1;
         cout << "WARNING : The process " << pcsName
@@ -246,6 +260,21 @@ TString TRestG4Track::GetProcessName(Int_t id) {
         return "ePairProd";
     else if (id == 54)
         return "alphaInelastic";
+    else if (id == 55)
+        return "H3Inelastic";
+    lse if (id == 56)
+        return "He3Inelastic";
+    else if (id == 57)
+        return "kaon+Inelastic";
+    else if (id == 58)
+        return "kaon-Inelastic";
+    else if (id == 59)
+        return "kaon0LInelastic";
+    else if (id == 60)
+        return "kaon0SInelastic";
+    else if (id == 61)
+        return "lambdaInelastic";
+
     else
         cout << "WARNING : The process ID : " << id << " could not be found" << endl;
 
