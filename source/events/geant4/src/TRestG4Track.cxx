@@ -121,12 +121,16 @@ Int_t TRestG4Track::GetProcessID(TString pcsName) {
         id = 54;
     else if (pcsName == "H3Inelastic")
         id = 55;
-    else if (pcsName == "kaon+Inelastic")
+   else if (pcsName == "He3Inelastic")
         id = 56;
-   else if (pcsName == "kaon0LInelastic")
+    else if (pcsName == "kaon+Inelastic")
         id = 57;
-    else if (pcsName == "lambdaInelastic")
+   else if (pcsName == "kaon-Inelastic")
         id = 58;
+   else if (pcsName == "kaon0LInelastic")
+        id = 59;
+    else if (pcsName == "lambdaInelastic")
+        id = 60;
     else {
         id = -1;
         cout << "WARNING : The process " << pcsName
@@ -256,11 +260,15 @@ TString TRestG4Track::GetProcessName(Int_t id) {
         return "alphaInelastic";
     else if (id == 55)
         return "H3Inelastic";
-    else if (id == 56)
-        return "kaon+Inelastic";
+    lse if (id == 56)
+        return "He3Inelastic";
     else if (id == 57)
-        return "kaon0LInelastic";
+        return "kaon+Inelastic";
     else if (id == 58)
+        return "kaon-Inelastic";
+    else if (id == 59)
+        return "kaon0LInelastic";
+    else if (id == 60)
         return "lambdaInelastic";
 
     else
