@@ -77,7 +77,7 @@ void TRestElectronDiffusionProcess::InitProcess() {
     if (fGas == NULL) {
         warning << "Gas has not been initialized" << endl;
         if (fLonglDiffCoeff == -1 || fTransDiffCoeff == -1) {
-            error << "TRestHitsToSignalProcess: diffusion parameters are not defined in the rml file!" << endl;
+            ferr << "TRestHitsToSignalProcess: diffusion parameters are not defined in the rml file!" << endl;
             exit(-1);
         }
     } else {

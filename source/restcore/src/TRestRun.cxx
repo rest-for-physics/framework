@@ -124,7 +124,7 @@ void TRestRun::BeginOfInit() {
     string inputname = GetParameter("inputFile", "");
     inputname = TRestTools::RemoveMultipleSlash(inputname);
     if (ToUpper(runNstr) == "AUTO" && ToUpper(inputname) == "AUTO") {
-        error << "TRestRun: run number and input file name cannot both be "
+        ferr << "TRestRun: run number and input file name cannot both be "
                  "\"AUTO\""
               << endl;
         exit(1);
@@ -203,9 +203,8 @@ void TRestRun::BeginOfInit() {
     fOutputFileName = (TString)TRestTools::RemoveMultipleSlash((string)fOutputFileName);
 
     if (!TRestTools::isPathWritable(outputdir)) {
-        error << "REST Error!! TRestRun." << endl;
-        error << "Output path does not exist or it is not writable." << endl;
-        error << "Path : " << outputdir << endl;
+        ferr << "TRestRun: Output path does not exist or it is not writable." << endl;
+        ferr << "Path : " << outputdir << endl;
         exit(1);
     }
 }
@@ -248,10 +247,10 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
         }
         TClass* cl = TClass::GetClass(processType.c_str());
         if (cl == NULL) {
-            error << endl;
-            error << "Process : " << processType << " not found!!" << endl;
-            error << "This may due to a mis-spelling in the rml or mis-installation" << endl;
-            error << "of an external library. Please verify them and launch again." << endl;
+            ferr << endl;
+            ferr << "Process : " << processType << " not found!!" << endl;
+            ferr << "This may due to a mis-spelling in the rml or mis-installation" << endl;
+            ferr << "of an external library. Please verify them and launch again." << endl;
             exit(1);
             return -1;
         }
@@ -361,7 +360,7 @@ void TRestRun::OpenInputFile(int i) {
 void TRestRun::OpenInputFile(TString filename, string mode) {
     CloseFile();
     if (!TRestTools::fileExists((string)filename)) {
-        error << "REST ERROR : input file \"" << filename << "\" does not exist!" << endl;
+        ferr << "input file \"" << filename << "\" does not exist!" << endl;
         exit(1);
     }
     ReadFileInfo((string)filename);
@@ -369,8 +368,8 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
         fInputFile = new TFile(filename, mode.c_str());
 
         if (!GetMetadataClass("TRestRun", fInputFile)) {
-            error << "REST ERROR : invalid input file! TRestRun was not found!" << endl;
-            error << "filename : " << filename << endl;
+            ferr << " invalid input file! TRestRun was not found!" << endl;
+            ferr << "filename : " << filename << endl;
             exit(1);
         }
 
@@ -443,9 +442,9 @@ void TRestRun::ReadInputFileMetadata() {
             TRestMetadata* a = (TRestMetadata*)f->Get(key->GetName());
 
             if (!a) {
-                error << "TRestRun::ReadInputFileMetadata." << endl;
-                error << "Key name : " << key->GetName() << endl;
-                error << "Hidden key? Please, report this problem." << endl;
+                ferr << "TRestRun::ReadInputFileMetadata." << endl;
+                ferr << "Key name : " << key->GetName() << endl;
+                ferr << "Hidden key? Please, report this problem." << endl;
             } else if (a->InheritsFrom("TRestMetadata") && a->ClassName() != (TString) "TRestRun") {
                 /*
                 //we make sure there is no repeated class added
@@ -509,9 +508,9 @@ void TRestRun::ReadInputFileTrees() {
             //	fAnalysisTree->SetEntries(Tree2->GetEntries());
             debug << "Old REST file successfully recovered!" << endl;
         } else {
-            error << "REST ERROR (OpenInputFile) : AnalysisTree was not found" << endl;
-            error << "Inside file : " << filename << endl;
-            error << "This may be not REST output file!" << endl;
+            ferr << "(OpenInputFile) : AnalysisTree was not found" << endl;
+            ferr << "Inside file : " << filename << endl;
+            ferr << "This may be not REST output file!" << endl;
             exit(1);
         }
 
@@ -798,7 +797,7 @@ TFile* TRestRun::FormOutputFile(vector<string> filenames, string targetfilename)
         }
     } else {
         fOutputFileName = "";
-        error << "REST ERROR: (Merge files) failed to merge process files." << endl;
+        ferr << "(Merge files) failed to merge process files." << endl;
         exit(1);
     }
 
@@ -973,7 +972,7 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
         fFileProcess->InitProcess();
         fInputEvent = fFileProcess->GetOutputEvent();
         if (fInputEvent == NULL) {
-            error << "The external process \"" << p->GetName() << "\" doesn't yield any output event!"
+            ferr << "The external process \"" << p->GetName() << "\" doesn't yield any output event!"
                   << endl;
             exit(1);
         } else {
@@ -991,7 +990,7 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
         info << "The external file process has been set! Name : " << fFileProcess->GetName() << endl;
     } else {
         if (fFileProcess != NULL) {
-            error << "There can only be one file process!" << endl;
+            ferr << "There can only be one file process!" << endl;
             exit(1);
         }
         if (p == NULL) {
@@ -1066,19 +1065,19 @@ void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t s
     auto fileold = File;
     File = SearchFile(File.Data());
     if (File == "") {
-        error << "REST ERROR (ImportMetadata): The file " << fileold << " does not exist!" << endl;
-        error << endl;
+        ferr << "(ImportMetadata): The file " << fileold << " does not exist!" << endl;
+        ferr << endl;
         return;
     }
     if (!TRestTools::isRootFile(File.Data())) {
-        error << "REST ERROR (ImportMetadata) : The file " << File << " is not root file!" << endl;
+        ferr << "(ImportMetadata) : The file " << File << " is not root file!" << endl;
         return;
     }
 
     TFile* f = new TFile(File);
     // TODO give error in case we try to obtain a class that is not TRestMetadata
     if (type == "" && name == "") {
-        error << "REST ERROR (ImportMetadata) : metadata type and name is not "
+        ferr << "(ImportMetadata) : metadata type and name is not "
                  "specified!"
               << endl;
         return;

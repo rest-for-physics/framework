@@ -1009,8 +1009,8 @@ void TRestG4Metadata::PrintMetadata() {
 void TRestG4Metadata::ReadEventDataFile(TString fName) {
     string fullPathName = SearchFile((string)fName);
     if (fullPathName == "") {
-        error << "File not found : " << fName << endl;
-        error << "Decay0 generator file could not be found!!" << endl;
+        ferr << "File not found : " << fName << endl;
+        ferr << "Decay0 generator file could not be found!!" << endl;
         exit(1);
     }
 
@@ -1038,7 +1038,7 @@ Int_t TRestG4Metadata::ReadNewDecay0File(TString fileName) {
     }
 
     if (generatorEvents == 0) {
-        error << "TRestG4Metadata::ReadNewDecay0File. Problem reading generator file" << endl;
+        ferr << "TRestG4Metadata::ReadNewDecay0File. Problem reading generator file" << endl;
         exit(1);
     }
 
@@ -1137,7 +1137,7 @@ Int_t TRestG4Metadata::ReadOldDecay0File(TString fileName) {
         }
     }
     if (!headerFound) {
-        error << "TRestG4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event and "
+        ferr << "TRestG4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event and "
                  "full number of events:\" header.\n";
         abort();
     }

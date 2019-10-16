@@ -307,8 +307,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
         }
 
         if (fHostRunner->GetNextevtFunc(fInputEvent, tempTree) != 0) {
-            error << "REST ERROR("
-                  << "In thread " << fThreadId
+            ferr  << "In thread " << fThreadId
                   << ")::Failed to get the first input event, process cannot start!" << endl;
             GetChar();
             exit(1);
@@ -318,11 +317,10 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
         if (testrun) {
             debug << "Test Run..." << endl;
             if (!TestRun(tempTree)) {
-                error << "REST WARNING("
-                      << "In thread " << fThreadId << ")::test run failed!" << endl;
-                error << "One of the processes has NULL pointer fOutputEvent!" << endl;
+                ferr << "In thread " << fThreadId << ")::test run failed!" << endl;
+                ferr << "One of the processes has NULL pointer fOutputEvent!" << endl;
                 if (fVerboseLevel < REST_Debug)
-                    error << "To see more detail, turn on debug mode for "
+                    ferr << "To see more detail, turn on debug mode for "
                              "TRestProcessRunner!"
                           << endl;
                 exit(1);

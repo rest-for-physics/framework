@@ -57,7 +57,7 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
         // we parse the macro file, get the method's name and argument list
         ifstream in(TaskString);
         if (!in.is_open()) {
-            error << "Error opening file" << endl;
+            ferr << "Error opening file" << endl;
         }
         char buffer[256];
         while (!in.eof()) {
@@ -71,7 +71,7 @@ TRestTask::TRestTask(TString TaskString, REST_TASKMODE mode) {
 
                 while (line.find(')') == -1) {
                     if (in.eof()) {
-                        error << "invaild macro file!" << endl;
+                        ferr << "invaild macro file!" << endl;
                     }
                     in.getline(buffer, 256);
                     line = line + (string)buffer;
@@ -193,7 +193,7 @@ void TRestTask::ConstructCommand() {
     // check if all the arguments have been set
     for (int i = 0; i < argument.size(); i++) {
         if (argument[i] == "NOT SET") {
-            error << "TRestTask : argument " << i << " not set! Task will not run!" << endl;
+            ferr << "TRestTask : argument " << i << " not set! Task will not run!" << endl;
         }
     }
 
@@ -218,7 +218,7 @@ void TRestTask::ConstructCommand() {
 ///
 void TRestTask::RunTask(TRestManager* mgr) {
     if (methodname == "") {
-        error << "REST ERROR : no task specified for TRestTask!!!" << endl;
+        ferr << "no task specified for TRestTask!!!" << endl;
         exit(-1);
     } else {
         if (fMode == 0) {
@@ -229,15 +229,15 @@ void TRestTask::RunTask(TRestManager* mgr) {
         } else if (fMode == 1) {
             //
             if (mgr == NULL) {
-                error << "REST ERROR : no target specified for the command:" << endl;
-                error << cmdstr << endl;
+                ferr << "no target specified for the command:" << endl;
+                ferr << cmdstr << endl;
                 exit(-1);
             } else {
                 TRestMetadata* meta = mgr->GetApplicationWithName(targetname);
                 if (meta == NULL) {
-                    error << "REST ERROR : cannot file metadata: " << targetname << " in TRestManager"
+                    ferr << "cannot file metadata: " << targetname << " in TRestManager"
                           << endl;
-                    error << "command: " << cmdstr << endl;
+                    ferr << "command: " << cmdstr << endl;
                     exit(-1);
                 } else {
                     string arg;
@@ -257,21 +257,21 @@ void TRestTask::RunTask(TRestManager* mgr) {
 ///
 void TRestTask::PrintArgumentHelp() {
     if (fMode == 0) {
-        error << GetName() << "() Gets invailed input!" << endl;
-        error << "You should give the following arguments ( * : necessary input):" << endl;
+        ferr << GetName() << "() Gets invailed input!" << endl;
+        ferr << "You should give the following arguments ( * : necessary input):" << endl;
         int n = argument.size();
         for (int i = 0; i < n; i++) {
-            if (i < fNRequiredArgument) error << "*";
-            error << argumentname[i] << endl;
+            if (i < fNRequiredArgument) ferr << "*";
+            ferr << argumentname[i] << endl;
         }
     } else if (fMode == 1) {
     } else if (fMode == 2) {
-        error << "Macro class \"" << this->ClassName() << "\" gets invailed input!" << endl;
-        error << "You should give the following arguments ( * : necessary input):" << endl;
+        ferr << "Macro class \"" << this->ClassName() << "\" gets invailed input!" << endl;
+        ferr << "You should give the following arguments ( * : necessary input):" << endl;
         int n = GetNumberOfDataMembers(this);
         for (int i = 1; i < n; i++) {
-            if (i < fNRequiredArgument + 1) error << "*";
-            error << GetDataMember(this,i).name << endl;
+            if (i < fNRequiredArgument + 1) ferr << "*";
+            ferr << GetDataMember(this,i).name << endl;
         }
     }
 }

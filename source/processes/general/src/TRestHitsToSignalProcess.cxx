@@ -109,7 +109,7 @@ void TRestHitsToSignalProcess::InitProcess() {
     } else {
         warning << "No TRestGas found in TRestRun." << endl;
         if (fDriftVelocity == -1) {
-            error << "TRestHitsToSignalProcess: drift velocity is undefined in the rml file!" << endl;
+            ferr << "TRestHitsToSignalProcess: drift velocity is undefined in the rml file!" << endl;
             exit(-1);
 		}
     }
@@ -117,7 +117,7 @@ void TRestHitsToSignalProcess::InitProcess() {
     fReadout = (TRestReadout*)this->GetReadoutMetadata();
 
     if (fReadout == NULL) {
-        error << "Readout has not been initialized" << endl;
+        ferr << "Readout has not been initialized" << endl;
         exit(-1);
     }
 }
