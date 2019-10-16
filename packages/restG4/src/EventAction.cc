@@ -118,18 +118,8 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
             cout << "INFO: Energy deposited in SENSITIVE volume: " << sensitive_volume_deposited_energy
                  << " keV" << endl;
         }
-        // TODO: check why adding energy to geantino event fails in stepping action
-        Bool_t save_geantino = false;
-        if ((string)restG4Event->GetPrimaryEventParticleName(0) == "geantino") {
-            auto track_geantino = restG4Event->GetTrack(0);
-            if (track_geantino->GetTotalDepositedEnergy() > 0) {
-                save_geantino = true;
-            }
-        }
-        if (sensitive_volume_deposited_energy > 0 &&
-                sensitive_volume_deposited_energy > minimum_energy_stored &&
-                sensitive_volume_deposited_energy < maximum_energy_stored ||
-            save_geantino) {
+        if (sensitive_volume_deposited_energy > 0 && total_deposited_energy > minimum_energy_stored &&
+            total_deposited_energy < maximum_energy_stored) {
             sensitive_volume_hits_count += 1;
 
             // call `ReOrderTrackIds` which before was integrated into `FillSubEvent`
@@ -161,7 +151,7 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
         }
     }
 
-    if (restG4Metadata->GetVerboseLevel() >= REST_Info || geant4_event->GetEventID() % 10000 == 0) {
+    if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
         cout << "INFO: Events depositing energy in sensitive volume: " << sensitive_volume_hits_count << "/"
              << event_number + 1 << endl;
         cout << "INFO: End of event ID " << event_number << " (" << event_number + 1 << " of "

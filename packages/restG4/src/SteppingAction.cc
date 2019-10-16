@@ -145,13 +145,5 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
             }
         }
     }
-
-    // if a geantino, we add energy to sensitive volume if we pass by it
-    if ((G4String)restG4Metadata->GetSensitiveVolume() == nom_vol) {
-        restG4Event->AddEnergyToSensitiveVolume(1 / keV);
-        TVector3 hitPosition(x, y, z);
-        restTrack->AddG4Hit(hitPosition, 1 / keV, 0, 0);
-    }
-    restTrack->AddDistanceInVolume(nom_vol, aStep->GetStepLength());
 }
 //_____________________________________________________________________________

@@ -78,6 +78,60 @@ void RunAction::EndOfRunAction(const G4Run* run) {
     G4cout << "===========================================================";
     G4cout << G4endl;
 
+    // restG4Metadata->PrintMetadata();
+
+    /*
+
+    G4int prec = 4, wid = prec + 2;
+    G4int dfprec = G4cout.precision(prec);
+
+    //particle count
+    //
+    G4cout << " Nb of generated particles: \n" << G4endl;
+
+    std::map<G4String,G4int>::iterator it;
+    for (it = fParticleCount.begin(); it != fParticleCount.end(); it++) {
+        G4String name = it->first;
+        G4int count   = it->second;
+        G4double eMean = fEmean[name]/count;
+        G4double eMin = fEmin[name], eMax = fEmax[name];
+
+        G4cout << "  " << std::setw(13) << name << ": " << std::setw(7) << count
+            << "  Emean = " << std::setw(wid) << G4BestUnit(eMean, "Energy")
+            << "\t( "  << G4BestUnit(eMin, "Energy")
+            << " --> " << G4BestUnit(eMax, "Energy")
+            << ")" << G4endl;
+    }
+
+    //energy momentum balance
+    //
+
+    if (fDecayCount > 0) {
+        G4double Ebmean = fEkinTot[0]/fDecayCount;
+        G4double Pbmean = fPbalance[0]/fDecayCount;
+
+        G4cout << "\n   Ekin Total (Q): mean = "
+            << std::setw(wid) << G4BestUnit(Ebmean, "Energy")
+            << "\t( "  << G4BestUnit(fEkinTot[1], "Energy")
+            << " --> " << G4BestUnit(fEkinTot[2], "Energy")
+            << ")" << G4endl;
+
+        G4cout << "\n   Momentum balance (excluding gamma desexcitation): mean = "
+            << std::setw(wid) << G4BestUnit(Pbmean, "Energy")
+            << "\t( "  << G4BestUnit(fPbalance[1], "Energy")
+            << " --> " << G4BestUnit(fPbalance[2], "Energy")
+            << ")" << G4endl;
+    }
+
+    // remove all contents in fParticleCount
+    //
+    fParticleCount.clear();
+    fEmean.clear();  fEmin.clear(); fEmax.clear();
+
+    // restore default precision
+    //
+    G4cout.precision(dfprec);
+    */
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
