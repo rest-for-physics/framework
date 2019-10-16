@@ -149,7 +149,7 @@ class TRestMetadata : public TNamed {
 #ifndef __CINT__
     /// Verbose level used to print debug info
     REST_Verbose_Level fVerboseLevel;  //!
-	/// Terminal object flag for TRestStringOutput
+                                       /// Terminal object flag for TRestStringOutput
     endl_t endl;                       //!
 
     /// All metadata classes can be initialized and managed by TRestManager
@@ -166,6 +166,16 @@ class TRestMetadata : public TNamed {
 #endif
 
    public:
+    /*
+virtual string GetMemberValue(string memberName) {
+    return REST_Reflection::GetDataMember(this, memberName).ToString();
+}
+    */
+
+    string GetDataMemberValue(string memberName) {
+        return REST_Reflection::GetDataMember(any((char*)this, this->ClassName()), memberName).ToString();
+    }
+
     Int_t LoadConfigFromFile();
     Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal);
     Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal, vector<TiXmlElement*> eEnv);
