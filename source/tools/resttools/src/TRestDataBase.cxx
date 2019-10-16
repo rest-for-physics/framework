@@ -374,9 +374,9 @@ int TRestDataBase::set_metadatafile(int id, string url) {
     int a = system(cmd.c_str());
 
     if (a != 0) {
-        error << "-- Error : " << __PRETTY_FUNCTION__ << endl;
-        error << "-- Error : problem copying gases definitions to remote server" << endl;
-        error << "-- Error : Please report this problem at "
+        ferr << __PRETTY_FUNCTION__ << endl;
+        ferr << "problem copying gases definitions to remote server" << endl;
+        ferr << "Please report this problem at "
                  "http://gifna.unizar.es/rest-forum/"
               << endl;
         return -1;

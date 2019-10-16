@@ -92,14 +92,14 @@ void TRestProcessRunner::BeginOfInit() {
     if (fHostmgr != NULL) {
         fRunInfo = fHostmgr->GetRunInfo();
         if (fRunInfo == NULL) {
-            error << "File IO has not been specified, " << endl;
-            error << "please make sure the \"TRestFiles\" section is ahead of the "
+            ferr << "File IO has not been specified, " << endl;
+            ferr << "please make sure the \"TRestFiles\" section is ahead of the "
                      "\"TRestProcessRunner\" section"
                   << endl;
             exit(0);
         }
     } else {
-        error << "manager not initialized!" << endl;
+        ferr << "manager not initialized!" << endl;
         exit(0);
     }
 
@@ -226,7 +226,7 @@ void TRestProcessRunner::EndOfInit() {
         fInputEvent = fRunInfo->GetInputEvent();
     }
     if (fInputEvent == NULL) {
-        error << "Cannot determine input event, validating process chain failed!" << endl;
+        ferr << "Cannot determine input event, validating process chain failed!" << endl;
         exit(1);
     }
 
@@ -276,7 +276,7 @@ void TRestProcessRunner::RunProcess() {
     TString filename = fRunInfo->FormFormat(fRunInfo->GetOutputFileName());
     fTempOutputDataFile = new TFile(filename, "recreate");
     if (!fTempOutputDataFile->IsOpen()) {
-        error << "Failed to create output file: " << fTempOutputDataFile << endl;
+        ferr << "Failed to create output file: " << fTempOutputDataFile << endl;
         exit(1);
     }
     info << endl;
@@ -872,10 +872,10 @@ void TRestProcessRunner::ResetRunTimes() {
 TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type, TiXmlElement* ele) {
     TClass* cl = TClass::GetClass(type);
     if (cl == NULL) {
-        error << endl;
-        error << "Process : " << type << " not found!!" << endl;
-        error << "This may due to a mis-spelling in the rml or mis-installation" << endl;
-        error << "of an external library. Please verify them and launch again." << endl;
+        ferr << endl;
+        ferr << "Process : " << type << " not found!!" << endl;
+        ferr << "This may due to a mis-spelling in the rml or mis-installation" << endl;
+        ferr << "of an external library. Please verify them and launch again." << endl;
         exit(1);
         return NULL;
     }

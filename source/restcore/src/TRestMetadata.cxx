@@ -518,9 +518,9 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
         // search with value
         TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, sectionName);
         if (Sectional == NULL) {
-            error << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName << "\""
+            ferr << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName << "\""
                   << endl;
-            error << "in config file: " << fConfigFileName << endl;
+            ferr << "in config file: " << fConfigFileName << endl;
             exit(1);
         }
         TiXmlElement* Global = GetElementFromFile(fConfigFileName, "globals");
@@ -528,8 +528,8 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
         a.clear();
         return LoadConfigFromFile(Sectional, Global, a);
     } else {
-        error << "Filename : " << fConfigFileName << endl;
-        error << "REST ERROR. Config File does not exist. Right path/filename?" << endl;
+        ferr << "Filename : " << fConfigFileName << endl;
+        ferr << "Config File does not exist. Right path/filename?" << endl;
         GetChar();
         return -1;
     }
@@ -1122,7 +1122,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
                     // more than 1 elements found
                     if (eles.size() > 1) {
                         if (type != "") {
-                            warning << "REST WARNING(expand include file): find "
+                            warning << "(expand include file): find "
                                        "multiple xml "
                                        "sections with same name!"
                                     << endl;
@@ -1137,16 +1137,16 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
 
                             if (eles.size() > 1)  // still more than 1 elements found
                             {
-                                error << "REST ERROR: find multiple xml sections "
+                                ferr << "find multiple xml sections "
                                          "with same "
                                          "name and type!"
                                       << endl;
-                                error << "Check your rml file!" << endl;
-                                error << ElementToString(e) << endl;
+                                ferr << "Check your rml file!" << endl;
+                                ferr << ElementToString(e) << endl;
                                 exit(1);
                             }
                         } else {
-                            warning << "REST WARNING(expand include file): find "
+                            warning << "(expand include file): find "
                                        "multiple xml "
                                        "sections with same name!"
                                     << endl;
@@ -1160,7 +1160,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
                 }
 
                 if (remoteele == NULL) {
-                    warning << "REST WARNING: Cannot find the needed xml section in "
+                    warning << "Cannot find the needed xml section in "
                                "include file!"
                             << endl;
                     warning << "type: \"" << type << "\" , name: \"" << name << "\" . Skipping" << endl;
@@ -1399,7 +1399,7 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
         filename = TRestMetadata_UpdatedConfigFile[filename];
 
     if (!TRestTools::fileExists(filename)) {
-        error << "Config file does not exist. The file is: " << filename << endl;
+        ferr << "Config file does not exist. The file is: " << filename << endl;
         GetChar();
         exit(1);
     }
@@ -1422,14 +1422,14 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
             TRestMetadata_UpdatedConfigFile[filename] = t.GetOutputFile();
             return GetElementFromFile(t.GetOutputFile());
         } else {
-            error << "Failed to load xml file, syntax maybe wrong. The file is: " << filename << endl;
+            ferr << "Failed to load xml file, syntax maybe wrong. The file is: " << filename << endl;
             exit(1);
         }
     }
 
     rootele = doc->RootElement();
     if (rootele == NULL) {
-        error << "The rml file \"" << cfgFileName << "\" does not contain any valid elements!" << endl;
+        ferr << "The rml file \"" << cfgFileName << "\" does not contain any valid elements!" << endl;
         GetChar();
         exit(1);
     }
@@ -1461,7 +1461,7 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
     }
 
     return NULL;
-    /*error << "Cannot find xml element with name \""<< NameOrDecalre <<"\" in rml
+    /*ferr << "Cannot find xml element with name \""<< NameOrDecalre <<"\" in rml
     file \"" << cfgFileName << endl; GetChar(); exit(1);*/
 }
 
@@ -1975,8 +1975,8 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
             outputBuffer.replace(replacePos, replaceLen, sysenv);
             endPosition = 0;
         } else {
-            error << this->ClassName() << ", replace env : cannot find \"${" << expression << "}\"" << endl;
-            error << "(position: " << startPosition << ") in either system or program env, exiting..."
+            ferr << this->ClassName() << ", replace env : cannot find \"${" << expression << "}\"" << endl;
+            ferr << "(position: " << startPosition << ") in either system or program env, exiting..."
                   << endl;
             exit(1);
         }
@@ -2122,7 +2122,7 @@ void TRestMetadata::WriteConfigBuffer(string fname) {
         return;
     }
 
-    error << "-- Error : Something missing here. Call the police" << endl;
+    ferr << "Something missing here. Call the police" << endl;
 }
 
 int TRestMetadata::GetChar(string hint) {
@@ -2173,7 +2173,7 @@ TString TRestMetadata::GetCommit() { return fCommit; }
 /// allowed to update version.
 void TRestMetadata::SetVersion() {
     if (!this->InheritsFrom("TRestRun"))
-        error << "REST ERROR : version is a static value, you cannot set version "
+        ferr << "version is a static value, you cannot set version "
                  "for a class!"
               << endl;
     else {
@@ -2184,7 +2184,7 @@ void TRestMetadata::SetVersion() {
 
 void TRestMetadata::UnSetVersion() {
     if (!this->InheritsFrom("TRestRun"))
-        error << "REST ERROR : version is a static value, you cannot set version "
+        ferr << "version is a static value, you cannot set version "
                  "for a class!"
               << endl;
     else {

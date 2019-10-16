@@ -77,7 +77,7 @@ void TRestUSTCElectronicsProcess::InitProcess() {
     if ((!GetNextFrame(frame)) || (!ReadFrameData(frame))) {
         FixToNextFrame(fInputFiles[fCurrentFile]);
         if ((!GetNextFrame(frame)) || (!ReadFrameData(frame))) {
-            error << "TRestUSTCElectronicsProcess: Failed to read the first data frame in file, may be wrong input?" << endl;
+            ferr << "TRestUSTCElectronicsProcess: Failed to read the first data frame in file, may be wrong input?" << endl;
             exit(1);
         }
     }

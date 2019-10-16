@@ -387,7 +387,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     Int_t nPlots = (Int_t)fPlotString.size() + (Int_t)fHistoNames.size();
 
     if (nPlots > maxPlots) {
-        error << "Your canvas divisions (" << fCanvasDivisions.X() << " , " << fCanvasDivisions.Y()
+        ferr << "Your canvas divisions (" << fCanvasDivisions.X() << " , " << fCanvasDivisions.Y()
               << ") are not enough to show " << nPlots << " plots" << endl;
         exit(1);
     }
@@ -410,7 +410,7 @@ void TRestAnalysisPlot::AddFile(TString fileName) {
             fFileNames[index].push_back(fileName);
             fNFiles++;
         } else {
-            error << "TRestAnalysisPlot::AddFile. Maximum number of tags per plot is : " << REST_MAX_TAGS
+            ferr << "TRestAnalysisPlot::AddFile. Maximum number of tags per plot is : " << REST_MAX_TAGS
                   << endl;
         }
     } else if (fClasifyBy == "combineAll") {
@@ -645,14 +645,14 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 }
 
                 if (trees[i][m]->Draw(plotString, fCutString[n], fPlotOption[n]) == -1) {
-                    error << endl;
-                    error << "TRestAnalysisPlot::PlotCombinedCanvas. Plot string not properly constructed. "
+                    ferr << endl;
+                    ferr << "TRestAnalysisPlot::PlotCombinedCanvas. Plot string not properly constructed. "
                              "Does the analysis observable exist inside the file?"
                           << endl;
-                    error << "Use \" restManager PrintTrees FILE.ROOT\" to get a list of "
+                    ferr << "Use \" restManager PrintTrees FILE.ROOT\" to get a list of "
                              "existing observables."
                           << endl;
-                    error << endl;
+                    ferr << endl;
                     exit(1);
                 }
             }
@@ -759,7 +759,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         TH1D* h = (TH1D*)runs[0][0]->GetInputFile()->Get(fHistoNames[n]);
 
         if (!h) {
-            error << "TRestAnalysisPlot. A histogram with name : " << fHistoNames[n]
+            ferr << "TRestAnalysisPlot. A histogram with name : " << fHistoNames[n]
                   << " does not exist in input file" << endl;
             exit(1);
         }

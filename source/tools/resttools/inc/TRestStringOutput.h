@@ -323,7 +323,7 @@ inline void PrintWelcome() { system("rest-config --welcome"); }
 
 /// formatted message output, used for print metadata
 extern TRestStringOutput fout;
-extern TRestStringOutput error;
+extern TRestStringOutput ferr;
 extern TRestStringOutput warning;
 extern TRestStringOutput essential;
 extern TRestStringOutput metadata;
