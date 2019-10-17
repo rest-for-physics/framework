@@ -45,6 +45,7 @@ extern TRestG4Metadata* restG4Metadata;
 extern TRestG4Event* restG4Event;
 extern TRestG4Event* subRestG4Event;
 extern TRestG4Track* restTrack;
+extern Bool_t saveGeantino;
 
 #include <fstream>
 using namespace std;
@@ -60,6 +61,8 @@ EventAction::~EventAction() {}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void EventAction::BeginOfEventAction(const G4Event* geant4_event) {
+    saveGeantino = false;
+
     G4int event_number = geant4_event->GetEventID();
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Info) {

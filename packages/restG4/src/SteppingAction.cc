@@ -16,7 +16,7 @@
 extern TRestG4Event* restG4Event;
 extern TRestG4Metadata* restG4Metadata;
 extern TRestG4Track* restTrack;
-
+extern Bool_t saveGeantino;
 extern Int_t biasing;
 
 //_____________________________________________________________________________
@@ -32,11 +32,9 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
     nom_part = aStep->GetTrack()->GetDefinition()->GetParticleName();
     ener_dep = aStep->GetTotalEnergyDeposit();
 
-    if (restTrack->GetParticleName() == "geantino") {
-        // if its a GEANTINO we assign a appropriate value of energy so the event is recorded if it passes by
-        // the sensitive volume
-        ener_dep = (restG4Metadata->GetMaximumEnergyStored() - restG4Metadata->GetMinimumEnergyStored()) *
-                   0.01 * keV;
+    if (restTrack->GetParticleName() == "geantino" &&
+        (G4String)restG4Metadata->GetSensitiveVolume() == nom_vol) {
+        saveGeantino = true;
     }
 
     if (!aStep->GetPostStepPoint()->GetProcessDefinedStep()) {
