@@ -122,8 +122,9 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
                  << " keV" << endl;
         }
 
-        if (sensitive_volume_deposited_energy > 0 && sensitive_volume_deposited_energy > minimum_energy_stored &&
-            sensitive_volume_deposited_energy < maximum_energy_stored) {
+        if (sensitive_volume_deposited_energy > 0 && total_deposited_energy > minimum_energy_stored &&
+                total_deposited_energy < maximum_energy_stored ||
+            saveGeantino) {
             sensitive_volume_hits_count += 1;
 
             // call `ReOrderTrackIds` which before was integrated into `FillSubEvent`
