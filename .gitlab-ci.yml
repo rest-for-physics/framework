@@ -34,7 +34,7 @@ testOpeningOld:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
 
 loadRESTLibs:
-  type: loadLibs
+  type: loadRESTLibs
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - root -b -q ${CI_PROJECT_DIR}/install/macros/pipeline/loadLibraries.C
