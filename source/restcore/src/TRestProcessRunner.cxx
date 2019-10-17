@@ -94,8 +94,8 @@ void TRestProcessRunner::BeginOfInit() {
         if (fRunInfo == NULL) {
             ferr << "File IO has not been specified, " << endl;
             ferr << "please make sure the \"TRestFiles\" section is ahead of the "
-                     "\"TRestProcessRunner\" section"
-                  << endl;
+                    "\"TRestProcessRunner\" section"
+                 << endl;
             exit(0);
         }
     } else {
@@ -230,7 +230,7 @@ void TRestProcessRunner::EndOfInit() {
         exit(1);
     }
 
-    //if (fProcessNumber > 0) {
+    // if (fProcessNumber > 0) {
     //    if (fThreads[0]->ValidateInput(fInputEvent) == -1) exit(1);
     //    if (fThreads[0]->ValidateChain() == -1) exit(1);
     //}
@@ -376,28 +376,20 @@ void TRestProcessRunner::RunProcess() {
            (fRunInfo->GetInputEvent() != NULL && eventsToProcess > fProcessedEvents)) {
         PrintProcessedEvents(100);
 
-        // ConsoleHelper::enable_raw_mode();
-
-        if (fProcStatus != kIgnore && ConsoleHelper::kbhit())  // if keyboard inputs
+        if (fProcStatus == kNormal && Console::kbhit())  // if keyboard inputs
         {
-            // cout << ConsoleHelper::getch() << endl;
-            // cursorUp(1);
-            int a = ConsoleHelper::getch();  // get char
-            // if (a != '\n')
-            //	while (getchar() != '\n');//clear buffer
+            int a = Console::ReadKey();  // get char
+
             if (a == 'p') {
                 fProcStatus = kPause;
-                clearLinesAfterCursor();
-                TRestStringOutput cout;
-                cout.setcolor(COLOR_BOLDWHITE);
-                cout.setorientation(0);
-                cout.setborder("|");
+                usleep(100000);  // wait 0.1s for the processes to finish;
+                TRestStringOutput cout(REST_Silent, COLOR_BOLDWHITE, "|", kBorderedMiddle);
+                Console::ClearLinesAfterCursor();
                 cout << endl;
                 cout << "-" << endl;
                 cout << "PROCESS PAUSED!" << endl;
                 cout << "-" << endl;
                 cout << " " << endl;
-                cout << "--------------MENU--------------" << endl;
             }
         }
 
@@ -407,8 +399,6 @@ void TRestProcessRunner::RunProcess() {
         if (fProcStatus == kStop) {
             break;
         }
-
-// ConsoleHelper::disable_raw_mode();
 
 #ifdef WIN32
         _sleep(50);
@@ -421,11 +411,11 @@ void TRestProcessRunner::RunProcess() {
         // printf("%d processed events now...\r", fProcessedEvents); fflush(stdout);
     }
 
-    if (ConsoleHelper::kbhit())
+    if (Console::kbhit())
         while (getchar() != '\n')
             ;  // clear buffer
 
-    // cursorDown(4);
+    // CursorDown(4);
 
     essential << "Waiting for processes to finish ..." << endl;
 
@@ -485,11 +475,10 @@ void TRestProcessRunner::RunProcess() {
 /// 4. Print the latest processed event
 /// 5. Quit the process directly with file saved
 void TRestProcessRunner::PauseMenu() {
-    TRestStringOutput cout;
-    cout.setcolor(COLOR_BOLDWHITE);
-    cout.setorientation(0);
-    cout.setborder("|");
-    clearLinesAfterCursor();
+    TRestStringOutput cout(REST_Silent, COLOR_BOLDWHITE, "|", kBorderedMiddle);
+    Console::ClearLinesAfterCursor();
+
+    cout << "--------------MENU--------------" << endl;
     cout << "\"v\" : change the verbose level" << endl;
     cout << "\"e\" : change the number of events to process" << endl;
     cout << "\"n\" : push foward one event, then pause" << endl;
@@ -499,22 +488,20 @@ void TRestProcessRunner::PauseMenu() {
     cout << "-" << endl;
     cout << endl;
     cout << endl;
-    int mainmenuleng = 9;
+    int menuupper = 15;
+    int infobar = 11;
     while (1) {
-        cursorUp(1);
-        clearCurrentLine();
-        int b = getchar();
-        if (b != '\n')
-            while (getchar() != '\n')
-                ;
+        // Console::CursorUp(1);
+        Console::ClearCurrentLine();
+        int b = Console::ReadKey();  // no need to press enter
 
         if (b == 'v') {
-            cursorUp(mainmenuleng + 2);
+            Console::CursorUp(infobar);
             cout.setcolor(COLOR_BOLDGREEN);
             cout << "Changing verbose level for all the processes..." << endl;
             cout.setcolor(COLOR_BOLDWHITE);
-            cursorDown(1);
-            clearLinesAfterCursor();
+            Console::CursorDown(1);
+            Console::ClearLinesAfterCursor();
             cout << "type \"0\"/\"s\" to set level silent" << endl;
             cout << "type \"1\"/\"e\" to set level essential" << endl;
             cout << "type \"2\"/\"i\" to set level info" << endl;
@@ -523,12 +510,12 @@ void TRestProcessRunner::PauseMenu() {
             cout << "type other to return the pause menu" << endl;
             cout << "-" << endl;
             cout << endl;
-            int submenuleng = 8;
+            cout << endl;
             while (1) {
-                cursorUp(1);
-                int c = getchar();
+                Console::CursorUp(1);
+                int c = Console::Read();
                 if (c != '\n')
-                    while (getchar() != '\n')
+                    while (Console::Read() != '\n')
                         ;
                 REST_Verbose_Level l;
                 if (c == '0' || c == 's') {
@@ -542,11 +529,10 @@ void TRestProcessRunner::PauseMenu() {
                 } else if (c == '4' || c == 'x') {
                     l = REST_Extreme;
                 } else {
-                    cursorUp(submenuleng + 2);
+                    Console::CursorUp(infobar);
                     cout.setcolor(COLOR_BOLDYELLOW);
                     cout << "Verbose level not set!" << endl;
                     cout.setcolor(COLOR_BOLDWHITE);
-                    cursorDown(1);
                     break;
                 }
 
@@ -557,111 +543,93 @@ void TRestProcessRunner::PauseMenu() {
                         fThreads[i]->GetProcess(j)->SetVerboseLevel(l);
                     }
                 }
-                cursorUp(submenuleng + 2);
+                Console::CursorUp(infobar);
                 cout.setcolor(COLOR_BOLDGREEN);
                 cout << "Verbose level has been set to " << ToString(l) << "!" << endl;
                 cout.setcolor(COLOR_BOLDWHITE);
-                cursorDown(1);
                 break;
             }
-            clearLinesAfterCursor();
+            Console::ClearLinesAfterCursor();
             break;
         } else if (b == 'e') {
-            cursorUp(mainmenuleng + 2);
+            Console::CursorUp(infobar);
             cout.setcolor(COLOR_BOLDGREEN);
             cout << "Changing number of events to process..." << endl;
             cout.setcolor(COLOR_BOLDWHITE);
-            cursorDown(1);
-            clearLinesAfterCursor();
+            Console::CursorDown(1);
+            Console::ClearLinesAfterCursor();
             cout << "type the number you want" << endl;
             cout << "type other to return the pause menu" << endl;
+            cout << " " << endl;
+            cout << " " << endl;
+            cout << " " << endl;
+            cout << " " << endl;
             cout << "-" << endl;
             cout << endl;
-            int submenuleng = 4;
+            cout << endl;
 
             while (1) {
-                cursorUp(1);
-                int c = getchar();
-                if (c != '\n') {
-                    char buffer[10];
-                    for (int i = 0; i < 10; i++) {
-                        buffer[i] = 0;
-                    }
+                Console::CursorUp(1);
+                string a = Console::ReadLine();
 
-                    buffer[0] = c;
-                    int i = 1;
-                    int d = 0;
-                    while ((d = getchar()) != '\n') {
-                        if (i < 10) buffer[i] = d;
-                        i++;
-                    }
-
-                    int neve = StringToInteger(buffer);
-                    if (neve > 0) {
-                        eventsToProcess = neve;
-                        cursorUp(submenuleng + 2);
-                        cout.setcolor(COLOR_BOLDGREEN);
-                        cout << "Maximum number of events to process has been set to " << eventsToProcess
-                             << endl;
-                        cout.setcolor(COLOR_BOLDWHITE);
-                        cursorDown(1);
-                        break;
-                    }
-                    if (neve == 0) {
-                        int lastEntry = StringToInteger(GetParameter("lastEntry", "0"));
-                        if (lastEntry - firstEntry > 0)
-                            eventsToProcess = lastEntry - firstEntry;
-                        else
-                            eventsToProcess = REST_MAXIMUM_EVENTS;
-                        cursorUp(submenuleng + 2);
-                        cout.setcolor(COLOR_BOLDGREEN);
-                        cout << "Maximum number of events to process has been set to "
-                                "default ("
-                             << eventsToProcess << ")" << endl;
-                        cout.setcolor(COLOR_BOLDWHITE);
-                        cursorDown(1);
-                        break;
-                    }
+                int neve = StringToInteger(a);
+                if (neve > 0) {
+                    eventsToProcess = neve;
+                    Console::CursorUp(infobar);
+                    cout.setcolor(COLOR_BOLDGREEN);
+                    cout << "Maximum number of events to process has been set to " << eventsToProcess << endl;
+                    cout.setcolor(COLOR_BOLDWHITE);
+                    break;
+                }
+                if (neve == 0) {
+                    int lastEntry = StringToInteger(GetParameter("lastEntry", "0"));
+                    if (lastEntry - firstEntry > 0)
+                        eventsToProcess = lastEntry - firstEntry;
+                    else
+                        eventsToProcess = REST_MAXIMUM_EVENTS;
+                    Console::CursorUp(infobar);
+                    cout.setcolor(COLOR_BOLDGREEN);
+                    cout << "Maximum number of events to process has been set to "
+                            "default ("
+                         << eventsToProcess << ")" << endl;
+                    cout.setcolor(COLOR_BOLDWHITE);
+                    break;
                 }
 
-                cursorUp(submenuleng + 2);
+                Console::CursorUp(infobar);
                 cout.setcolor(COLOR_BOLDYELLOW);
                 cout << "N events not set!" << endl;
                 cout.setcolor(COLOR_BOLDWHITE);
-                cursorDown(1);
                 break;
             }
-            clearLinesAfterCursor();
+            Console::ClearLinesAfterCursor();
             break;
         } else if (b == 'n') {
             fProcStatus = kStep;
             break;
         } else if (b == 'l') {
-            clearScreen();
+            //Console::ClearScreen();
             fOutputEvent->PrintEvent();
-            cout << "press a key to continue..." << endl;
-            int b = getchar();
-            if (b != '\n')
-                while (getchar() != '\n')
-                    ;
-            clearScreen();
             break;
         } else if (b == 'q') {
             fProcStatus = kStop;
             break;
         } else if (b == 'p') {
-            cursorUp(mainmenuleng + 6);
-            clearLinesAfterCursor();
-            fProcStatus = kNormal;
+            Console::CursorUp(menuupper);
+            Console::ClearLinesAfterCursor();
+            if (fVerboseLevel >= REST_Debug) {
+                fProcStatus = kIgnore;
+            } else {
+                fProcStatus = kNormal;
+            }
             break;
         } else if (b == '\n') {
-            // cursorUp(1);
+            // CursorUp(1);
         } else {
-            cursorUp(mainmenuleng + 2);
+            Console::CursorUp(infobar);
             cout.setcolor(COLOR_BOLDYELLOW);
             cout << "Invailed option \"" << (char)b << "\" (key value: " << b << ") !" << endl;
             cout.setcolor(COLOR_BOLDWHITE);
-            cursorDown(mainmenuleng + 1);
         }
     }
 }
@@ -900,7 +868,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
         // cout.setcolor(COLOR_BOLDWHITE);
         // cout.setorientation(0);
         // cout.setborder("|");
-        // cursorDown(1);
+        // CursorDown(1);
 
         Long64_t bytes = 0;
         for (auto& n : bytesAdded) bytes += n;
@@ -949,7 +917,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
         if (fout.CompatibilityMode()) {
             barlength = 50;
         } else {
-            barlength = ConsoleHelper::GetWidth() - s1.size() - s2.size() - 9;
+            barlength = Console::GetWidth() - s1.size() - s2.size() - 9;
         }
         sprintf(buffer, ("%.1f%[" + MakeProgressBar(prog, barlength) + "]").c_str(), prog);
         string s3(buffer);
@@ -966,7 +934,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
             fflush(stdout);
         }
 
-        // cursorUp(4);
+        // CursorUp(4);
 
         bytesAdded[poscalculated] = fRunInfo->GetBytesReaded() - bytesReaded_last;
         bytesReaded_last = fRunInfo->GetBytesReaded();
