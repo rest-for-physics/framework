@@ -630,6 +630,7 @@ void TRestProcessRunner::PauseMenu() {
             cout.setcolor(COLOR_BOLDYELLOW);
             cout << "Invailed option \"" << (char)b << "\" (key value: " << b << ") !" << endl;
             cout.setcolor(COLOR_BOLDWHITE);
+            Console::CursorDown(infobar - 1);
         }
     }
 }
