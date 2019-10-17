@@ -67,7 +67,7 @@ enum REST_Verbose_Level {
 enum REST_Display_Format { kBorderedLeft, kBorderedMiddle, kHeaderedLeft, kHeaderedMiddle };
 
 //////////////////////////////////////////////////////////////////////////
-/// ConsoleHelper class, providing several static methods dealing with terminal
+/// Console helper class, providing several static methods dealing with terminal
 ///
 /// GetWidth: returns the width of the current treminal(how many characterics
 /// can be contained in one line)
@@ -78,153 +78,42 @@ enum REST_Display_Format { kBorderedLeft, kBorderedMiddle, kHeaderedLeft, kHeade
 ///
 /// getch: return the keyvalue if a key is pressed. won't jam the program like
 /// getchar()
-class ConsoleHelper {
+class Console {
    public:
-    static int GetWidth() {
-#ifdef WIN32
-        return 100;
-#else
-        if (isatty(fileno(stdout))) {
-            struct winsize w;
-            ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-            return w.ws_col;
-        }
-        return -1;
-#endif  // WIN32
-    }
-
-    static int GetHeight() {
-#ifdef WIN32
-        return 100;
-#else
-        if (isatty(fileno(stdout))) {
-            struct winsize w;
-            ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-            return w.ws_row;
-        }
-        return -1;
-#endif  // WIN32
-    }
-
-#ifdef WIN32
-    static int kbhit(void) { return kbhit(); }
-    static int getch(void) { return getch(); }
-    static void enable_raw_mode() {}
-    static void disable_raw_mode() {}
-#else
-    static void enable_raw_mode() {
-        termios term;
-        tcgetattr(0, &term);
-        term.c_lflag &= ~(ICANON | ECHO);  // Disable echo as well
-        tcsetattr(0, TCSANOW, &term);
-    }
-
-    static void disable_raw_mode() {
-        termios term;
-        tcgetattr(0, &term);
-        term.c_lflag |= ICANON | ECHO;
-        tcsetattr(0, TCSANOW, &term);
-    }
-
-    static bool kbhit() {
-        int byteswaiting;
-        ioctl(0, FIONREAD, &byteswaiting);
-        return byteswaiting > 0;
-    }
-
-    static int getch(void) {
-        struct termios tm, tm_old;
-        int fd = 0, ch;
-
-        if (tcgetattr(fd, &tm) < 0) {
-            return -1;
-        }
-
-        tm_old = tm;
-        cfmakeraw(&tm);
-        if (tcsetattr(fd, TCSANOW, &tm) < 0) {
-            return -1;
-        }
-
-        ch = getchar();
-        if (tcsetattr(fd, TCSANOW, &tm_old) < 0) {
-            return -1;
-        }
-
-        return ch;
-    }
-
-#endif  // WIN32
+    /// returns the width of the window
+    static int GetWidth();
+    /// returns the height of the window
+    static int GetHeight();
+    /// returns directly. true if keyboard is hit. be used together with while loop
+    static bool kbhit();
+    /// get one char from keyboard. need to press enter. (same as getchar())
+    static int Read();
+    /// get one char from keyboard. don't need to press enter.
+    static int ReadKey();
+    /// returns the whole input line in string. need to press enter.
+    static string ReadLine();
+    /// write the string to the console
+    static void WriteLine(string content);
+    /// move up cursor by n lines.
+    static void CursorUp(int n);
+    /// move down cursor by n lines. If hits buttom of the console, it won't keep moving
+    static void CursorDown(int n);
+    /// move right cursor by n characters.
+    static void CursorRight(int n);
+    /// move left cursor by n characters.
+    static void CursorLeft(int n);
+    /// move cursor to coordinate x,y. the origin is at topleft of the console
+    static void CursorToXY(int x, int y);
+    /// clear screen, and move cursor to the topleft of the console.
+    static void ClearScreen();
+    /// clear current line.
+    static void ClearCurrentLine();
+    /// clear lines after the cursor.
+    static void ClearLinesAfterCursor();
 };
 
-/// \relates ConsoleHelper
-/// move up cursor by n lines. take effect immediately.
-inline void cursorUp(int n) {
-    printf("\033[%dA", n);
-    fflush(stdout);
-}
-
-/// \relates ConsoleHelper
-/// move down cursor by n lines. take effect immediately.
-///
-/// If hits buttom of the console, it won't keep moving
-inline void cursorDown(int n) {
-    printf("\033[%dB", n);
-    fflush(stdout);
-}
-
-/// \relates ConsoleHelper
-/// move right cursor by n characters. take effect immediately.
-inline void cursorRight(int n) {
-    printf("\033[%dC", n);
-    fflush(stdout);
-}
-
-/// \relates ConsoleHelper
-/// move left cursor by n characters. take effect immediately.
-inline void cursorLeft(int n) {
-    printf("\033[%dD", n);
-    fflush(stdout);
-}
-
-/// \relates ConsoleHelper
-/// move cursor to coordinate x,y. take effect immediately.
-///
-/// the origin in at topleft of the console
-inline void cursorToXY(int x, int y) {
-    printf("\033[%d%dH", x, y);
-    fflush(stdout);
-}
-
-/// \relates ConsoleHelper
-/// clear screen, and move cursor to the topleft of the console. take effect
-/// immediately.
-inline void clearScreen() {
-    printf("\033[2J");
-    fflush(stdout);
-}
-
-/// \relates ConsoleHelper
-/// clear current line. take effect immediately.
-inline void clearCurrentLine() {
-    printf("\033[K");
-    fflush(stdout);
-}
-
-/// \relates ConsoleHelper
-/// clear lines after the cursor. take effect immediately.
-inline void clearLinesAfterCursor() {
-    printf("\033[s");
-    for (int i = 0; i < 50; i++) {
-        printf("\033[K");
-        cursorDown(1);
-    }
-    printf("\033[u");
-    fflush(stdout);
-}
-
 struct endl_t {
-    endl_t(REST_Verbose_Level& v):vref(v) {}
+    endl_t(REST_Verbose_Level& v) : vref(v) {}
 
     REST_Verbose_Level& vref;
     friend ostream& operator<<(ostream& a, endl_t& et) { return (a << std::endl); }
@@ -258,7 +147,7 @@ class TRestStringOutput {
 
     REST_Verbose_Level verbose;
 
-	void lock();
+    void lock();
     void unlock();
 
    public:
