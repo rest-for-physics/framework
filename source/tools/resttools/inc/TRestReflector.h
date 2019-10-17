@@ -147,7 +147,7 @@ class TRestReflector {
     template <typename T>
     void GetValue(T& val, bool check = false) {
         if (check) {
-            if (GetTypeName<T>() != name) {
+            if (GetTypeName<T>() != type) {
                 cout << "In TRestReflector::GetValue() : type unmatch! " << endl;
                 return;
             }
@@ -158,7 +158,7 @@ class TRestReflector {
     template <class T>
     void SetValue(const T& val, bool check = false) {
         if (check) {
-            if (GetTypeName<T>() != name) {
+            if (GetTypeName<T>() != type) {
                 cout << "In TRestReflector::GetValue() : type unmatch! " << endl;
                 return;
             }
