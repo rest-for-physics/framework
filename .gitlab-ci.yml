@@ -3,6 +3,7 @@ image: nkx1231/root6-geant4-garfield:0.2
 stages:
   - build
   - opening
+  - loadRESTLibs
   - generate
   - process1
   - process2
@@ -32,7 +33,11 @@ testOpeningOld:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
 
-
+loadRESTLibs:
+  type: loadLibs
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - root -b -q ${CI_PROJECT_DIR}/install/macros/pipeline/loadLibraries.C
 
 testrestG4:
   type: generate
