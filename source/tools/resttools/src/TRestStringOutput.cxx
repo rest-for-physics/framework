@@ -1,8 +1,152 @@
 
 #include "TRestStringOutput.h"
-#include <mutex>
 
-std::mutex mutex_stringoutput;
+int Console::GetWidth() {
+#ifdef WIN32
+    return 100;
+#else
+    if (isatty(fileno(stdout))) {
+        struct winsize w;
+        ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+        return w.ws_col;
+    }
+    return -1;
+#endif  // WIN32
+}
+
+int Console::GetHeight() {
+#ifdef WIN32
+    return 100;
+#else
+    if (isatty(fileno(stdout))) {
+        struct winsize w;
+        ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+        return w.ws_row;
+    }
+    return -1;
+#endif  // WIN32
+}
+
+bool Console::kbhit() {
+#ifdef WIN32
+    return kbhit();
+#else
+    struct termios oldt, newt;
+    int ch;
+    int oldf;
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+    ch = getchar();
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    fcntl(STDIN_FILENO, F_SETFL, oldf);
+    if (ch != EOF) {
+        ungetc(ch, stdin);
+        return 1;
+    }
+    return 0;
+
+	//int byteswaiting;
+ //   ioctl(0, FIONREAD, &byteswaiting);
+ //   return byteswaiting > 0;
+#endif
+}
+
+int Console::Read() { return getchar(); }
+
+int Console::ReadKey() {
+#ifdef WIN32
+    return getch();
+#else
+    struct termios tm, tm_old;
+    int fd = 0, ch;
+
+    if (tcgetattr(fd, &tm) < 0) {
+        return -1;
+    }
+
+    tm_old = tm;
+    cfmakeraw(&tm);
+    if (tcsetattr(fd, TCSANOW, &tm) < 0) {
+        return -1;
+    }
+
+    ch = getchar();
+    if (tcsetattr(fd, TCSANOW, &tm_old) < 0) {
+        return -1;
+    }
+
+    return ch;
+#endif
+}
+
+
+string Console::ReadLine() {
+    char a[500];
+    cin.getline(a, 500);
+    return string(a);
+}
+
+void Console::WriteLine(string content) {
+    printf(content.c_str());
+    fflush(stdout);
+}
+
+void Console::CursorUp(int n) {
+    printf("\033[%dA", n);
+    fflush(stdout);
+}
+
+void Console::CursorDown(int n) {
+    printf("\033[%dB", n);
+    fflush(stdout);
+}
+
+void Console::CursorRight(int n) {
+    printf("\033[%dC", n);
+    fflush(stdout);
+}
+
+void Console::CursorLeft(int n) {
+    printf("\033[%dD", n);
+    fflush(stdout);
+}
+
+void Console::CursorToXY(int x, int y) {
+    printf("\033[%d%dH", x, y);
+    fflush(stdout);
+}
+
+void Console::ClearScreen() {
+    printf("\033[2J");
+    fflush(stdout);
+}
+
+void Console::ClearCurrentLine() {
+    printf("\033[K");
+    fflush(stdout);
+}
+
+void Console::ClearLinesAfterCursor() {
+    printf("\033[s");
+    for (int i = 0; i < 50; i++) {
+        printf("\033[K");
+        CursorDown(1);
+    }
+    printf("\033[u");
+    fflush(stdout);
+}
+
+
+
+
+
+
+
+
 
 TRestStringOutput::TRestStringOutput(string _color, string BorderOrHeader, REST_Display_Format style) {
     color = _color;
@@ -23,7 +167,7 @@ TRestStringOutput::TRestStringOutput(string _color, string BorderOrHeader, REST_
     }
 
     length = 100;
-    if (length > ConsoleHelper::GetWidth() - 2) length = ConsoleHelper::GetWidth() - 2;
+    if (length > Console::GetWidth() - 2) length = Console::GetWidth() - 2;
 
     resetstring();
     if (length > 500 || length < 20)  // unsupported console, we will fall back to compatibility modes
@@ -122,10 +266,10 @@ string TRestStringOutput::FormattingPrintString(string input) {
 
 void TRestStringOutput::setlength(int n) {
     if (length != -1) {
-        if (n < ConsoleHelper::GetWidth() - 2)
+        if (n < Console::GetWidth() - 2)
             length = n;
         else
-            length = ConsoleHelper::GetWidth() - 2;
+            length = Console::GetWidth() - 2;
     }
 }
 
@@ -134,7 +278,7 @@ void TRestStringOutput::flushstring() {
     {
         std::cout << buf.str() << std::endl;
     } else {
-        int consolewidth = ConsoleHelper::GetWidth() - 2;
+        int consolewidth = Console::GetWidth() - 2;
         printf("\033[K");
         if (orientation == 0) {
             std::cout << color << string((consolewidth - length) / 2, ' ') << FormattingPrintString(buf.str())
