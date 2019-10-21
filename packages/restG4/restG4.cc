@@ -58,6 +58,8 @@ TRestG4Event *restG4Event, *subRestG4Event;
 TRestG4Metadata* restG4Metadata;
 TRestPhysicsLists* restPhysList;
 
+Bool_t saveGeantino;
+
 #include <TGeoVolume.h>
 
 const Int_t maxBiasingVolumes = 50;

@@ -45,6 +45,7 @@ extern TRestG4Metadata* restG4Metadata;
 extern TRestG4Event* restG4Event;
 extern TRestG4Event* subRestG4Event;
 extern TRestG4Track* restTrack;
+extern Bool_t saveGeantino;
 
 #include <fstream>
 using namespace std;
@@ -60,6 +61,8 @@ EventAction::~EventAction() {}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void EventAction::BeginOfEventAction(const G4Event* geant4_event) {
+    saveGeantino = false;
+
     G4int event_number = geant4_event->GetEventID();
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
@@ -119,8 +122,9 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
                  << " keV" << endl;
         }
 
-        if (sensitive_volume_deposited_energy > 0 && sensitive_volume_deposited_energy > minimum_energy_stored &&
-            sensitive_volume_deposited_energy < maximum_energy_stored) {
+        if (sensitive_volume_deposited_energy > 0 && total_deposited_energy > minimum_energy_stored &&
+                total_deposited_energy < maximum_energy_stored ||
+            saveGeantino) {
             sensitive_volume_hits_count += 1;
 
             // call `ReOrderTrackIds` which before was integrated into `FillSubEvent`
