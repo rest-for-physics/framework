@@ -117,13 +117,13 @@ AddUnit(G, TRestSystemOfUnits::Magnetic, 1.e4);
 
 // pressure field unit multiplier
 AddUnit(bar, TRestSystemOfUnits::Pressure, 1.);
-AddUnit(mbar, TRestSystemOfUnits::Magnetic, 1.e3);
+AddUnit(mbar, TRestSystemOfUnits::Pressure, 1.e3);
 AddUnit(atm, TRestSystemOfUnits::Pressure, 1.);
 AddUnit(torr, TRestSystemOfUnits::Pressure, 760);
-AddUnit(MPa, TRestSystemOfUnits::Magnetic, 0.101325);
-AddUnit(kPa, TRestSystemOfUnits::Magnetic, 101.325);
-AddUnit(Pa, TRestSystemOfUnits::Magnetic, 101325);
-AddUnit(mPa, TRestSystemOfUnits::Magnetic, 10132500);
+AddUnit(MPa, TRestSystemOfUnits::Pressure, 0.101325);
+AddUnit(kPa, TRestSystemOfUnits::Pressure, 101.325);
+AddUnit(Pa, TRestSystemOfUnits::Pressure, 101325);
+AddUnit(mPa, TRestSystemOfUnits::Pressure, 10132500);
 }  // namespace REST_Units
 
 typedef REST_Units::TRestSystemOfUnits units;
