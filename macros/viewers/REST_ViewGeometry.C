@@ -37,33 +37,37 @@ Int_t REST_ViewGeometry(TString fName, TString option = "") {
     if (option == "") {
         geo->GetMasterVolume()->Draw();
     } else if (ToUpper((string)option) == "EVE") {
-        TEveManager::Create();
+        TRestG4EventViewer* view = new TRestG4EventViewer();
+        view->SetGeometry(geo);
+        view->AddEvent(new TRestG4Event());
 
-        TGeoNode* node = geo->GetTopNode();
+        //TEveManager::Create();
 
-        TObjArray* arr = geo->GetListOfVolumes();
-        Int_t nVolumes = arr->GetEntries();
-        for (int i = 0; i < nVolumes; i++) geo->GetVolume(i)->SetTransparency(50);
+        //TGeoNode* node = geo->GetTopNode();
 
-        geo->CheckOverlaps(0.0000001);
-        geo->PrintOverlaps();
+        //TObjArray* arr = geo->GetListOfVolumes();
+        //Int_t nVolumes = arr->GetEntries();
+        //for (int i = 0; i < nVolumes; i++) geo->GetVolume(i)->SetTransparency(50);
 
-        TEveGeoTopNode* vol = new TEveGeoTopNode(geo, node);
+        //geo->CheckOverlaps(0.0000001);
+        //geo->PrintOverlaps();
 
-        vol->SetVisLevel(3);
+        //TEveGeoTopNode* vol = new TEveGeoTopNode(geo, node);
 
-        gEve->AddGlobalElement(vol);
+        //vol->SetVisLevel(3);
 
-        gEve->FullRedraw3D(kTRUE);
+        //gEve->AddGlobalElement(vol);
 
-        TGLViewer* v = gEve->GetDefaultGLViewer();
-        v->GetClipSet()->SetClipType((TGLClip::EType)1);
-        v->SetGuideState(TGLUtil::kAxesEdge, kTRUE, kFALSE, 0);
-        v->SetStyle(TGLRnrCtx::kOutline);
-        v->RefreshPadEditor(v);
+        //gEve->FullRedraw3D(kTRUE);
 
-        // v->CurrentCamera().RotateRad(-.7, 0.5);
-        v->DoDraw();
+        //TGLViewer* v = gEve->GetDefaultGLViewer();
+        //v->GetClipSet()->SetClipType((TGLClip::EType)1);
+        //v->SetGuideState(TGLUtil::kAxesEdge, kTRUE, kFALSE, 0);
+        //v->SetStyle(TGLRnrCtx::kOutline);
+        //v->RefreshPadEditor(v);
+
+        //// v->CurrentCamera().RotateRad(-.7, 0.5);
+        //v->DoDraw();
     }
     // when we run this macro from restManager from bash,
     // we need to call TRestMetadata::GetChar() to prevent returning,
