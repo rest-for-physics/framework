@@ -65,6 +65,7 @@ int main(int argc, char* argv[]) {
 
             printf("\n%s\n", "Attaching metadata structures...");
             Int_t Nmetadata = runTmp->GetNumberOfMetadataStructures();
+            map<string,int> metanames;
             for (int n = 0; n < Nmetadata; n++) {
                 string metaName = runTmp->GetMetadataStructureNames()[n];
                 if (metaName.find("Historic") != -1) {
@@ -78,6 +79,8 @@ int main(int argc, char* argv[]) {
                 metaFixed = Replace(metaFixed, " ", "");
                 metaFixed = Replace(metaFixed, ".", "_");
                 metaFixed = "md" + ToString(Nfile) + "_" + metaFixed;
+                if (metanames.count(metaFixed) != 0) continue;
+                metanames[metaFixed] = 0;
                 printf("- %s (%s)\n", metaFixed.c_str(), metaType.c_str());
 
                 string mdcmd = Form("%s* %s = (%s*)%s;", metaType.c_str(), metaFixed.c_str(),
