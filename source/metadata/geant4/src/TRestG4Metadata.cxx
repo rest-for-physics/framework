@@ -729,7 +729,7 @@ void TRestG4Metadata::InitFromConfigFile() {
         }
     }
 
-    Double_t defaultStep = 100 * REST_Units::um;
+    Double_t defaultStep = 100 / REST_Units::um;
     fMaxTargetStepSize = GetDblParameterWithUnits("maxTargetStepSize", defaultStep);
 
     Double_t defaultTime = 1. / REST_Units::s;
