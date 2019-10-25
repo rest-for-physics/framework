@@ -38,17 +38,15 @@ Bool_t TRestHits::areXY() {
         return false;
     }
 
-    bool result = true;
     for (int i = 0; i < GetNumberOfHits(); i++) {
         if (!IsNaN(GetX(i)) && !IsNaN(GetY(i)) && IsNaN(GetZ(i))) {
             // all hits should fit this condition to be considered XY
         } else {
-            result = false;
-            break;
+            return false;
         }
     }
     fType = XY;
-    return result;
+    return true;
 }
 
 Bool_t TRestHits::areXZ() {
@@ -57,17 +55,15 @@ Bool_t TRestHits::areXZ() {
         return false;
     }
 
-    bool result = true;
     for (int i = 0; i < GetNumberOfHits(); i++) {
         if (!IsNaN(GetZ(i)) && !IsNaN(GetX(i)) && IsNaN(GetY(i))) {
             // all hits should fit this condition to be considered XZ
         } else {
-            result = false;
-            break;
+            return false;
         }
     }
     fType = XZ;
-    return result;
+    return true;
 }
 
 Bool_t TRestHits::areYZ() {
@@ -76,17 +72,15 @@ Bool_t TRestHits::areYZ() {
         return false;
     }
 
-    bool result = true;
     for (int i = 0; i < GetNumberOfHits(); i++) {
         if (!IsNaN(GetZ(i)) && !IsNaN(GetY(i)) && IsNaN(GetX(i))) {
             // all hits should fit this condition to be considered YZ
         } else {
-            result = false;
-            break;
+            return false;
         }
     }
     fType = YZ;
-    return result;
+    return true;
 }
 
 Bool_t TRestHits::areXYZ() {
@@ -95,18 +89,16 @@ Bool_t TRestHits::areXYZ() {
         return false;
     }
 
-    bool result = true;
     for (int i = 0; i < GetNumberOfHits(); i++) {
         if (!isNaN(i) && (!IsNaN(GetX(i)) && !IsNaN(GetY(i)) && !IsNaN(GetZ(i)))) {
             // all hits should fit this condition to be considered XYZ
             // cout<<"xyz hit"<<endl;
         } else {
-            result = false;
-            break;
+            return false;
         }
     }
     fType = XYZ;
-    return result;
+    return true;
 }
 
 Bool_t TRestHits::isNaN(Int_t n) {
