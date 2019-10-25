@@ -27,11 +27,17 @@ ClassImp(TRestHits)
     TRestHits::TRestHits() {
     fNHits = 0;
     fTotEnergy = 0;
+    fType = unknown;
 }
 
 TRestHits::~TRestHits() {}
 
 Bool_t TRestHits::areXY() {
+    if (fType != unknown) {
+        if (fType == XY) return true;
+        return false;
+    }
+
     bool result = true;
     for (int i = 0; i < GetNumberOfHits(); i++) {
         if (!IsNaN(GetX(i)) && !IsNaN(GetY(i)) && IsNaN(GetZ(i))) {
@@ -41,10 +47,16 @@ Bool_t TRestHits::areXY() {
             break;
         }
     }
+    fType = XY;
     return result;
 }
 
 Bool_t TRestHits::areXZ() {
+    if (fType != unknown) {
+        if (fType == XZ) return true;
+        return false;
+    }
+
     bool result = true;
     for (int i = 0; i < GetNumberOfHits(); i++) {
         if (!IsNaN(GetZ(i)) && !IsNaN(GetX(i)) && IsNaN(GetY(i))) {
@@ -54,10 +66,16 @@ Bool_t TRestHits::areXZ() {
             break;
         }
     }
+    fType = XZ;
     return result;
 }
 
 Bool_t TRestHits::areYZ() {
+    if (fType != unknown) {
+        if (fType == YZ) return true;
+        return false;
+    }
+
     bool result = true;
     for (int i = 0; i < GetNumberOfHits(); i++) {
         if (!IsNaN(GetZ(i)) && !IsNaN(GetY(i)) && IsNaN(GetX(i))) {
@@ -67,10 +85,16 @@ Bool_t TRestHits::areYZ() {
             break;
         }
     }
+    fType = YZ;
     return result;
 }
 
 Bool_t TRestHits::areXYZ() {
+    if (fType != unknown) {
+        if (fType == XYZ) return true;
+        return false;
+    }
+
     bool result = true;
     for (int i = 0; i < GetNumberOfHits(); i++) {
         if (!isNaN(i) && (!IsNaN(GetX(i)) && !IsNaN(GetY(i)) && !IsNaN(GetZ(i)))) {
@@ -81,6 +105,7 @@ Bool_t TRestHits::areXYZ() {
             break;
         }
     }
+    fType = XYZ;
     return result;
 }
 
