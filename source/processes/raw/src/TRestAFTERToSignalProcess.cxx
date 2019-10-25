@@ -99,7 +99,6 @@ TRestEvent* TRestAFTERToSignalProcess::ProcessEvent(TRestEvent* evInput) {
         cout << " event header size " << sizeof(head) << endl;
         cout << " total rawdata size " << head.eventSize << endl;
         cout << "Payload " << payload << endl;
-        getchar();
     }
 
     fSignalEvent->SetID(head.eventNumb);
@@ -300,7 +299,6 @@ TRestEvent* TRestAFTERToSignalProcess::ProcessEvent(TRestEvent* evInput) {
 
     if (this->GetVerboseLevel() == REST_Debug) {
         cout << "End of event " << endl;
-        getchar();
     }
     // cout<<"Ev ID "<<fSignalEvent->GetID()<<" " <<endl;
 

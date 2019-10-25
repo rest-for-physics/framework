@@ -27,61 +27,78 @@ ClassImp(TRestHits)
     TRestHits::TRestHits() {
     fNHits = 0;
     fTotEnergy = 0;
+    fType = unknown;
 }
 
 TRestHits::~TRestHits() {}
 
 Bool_t TRestHits::areXY() {
-    bool result = true;
+    if (fType != unknown) {
+        if (fType == XY) return true;
+        return false;
+    }
+
     for (int i = 0; i < GetNumberOfHits(); i++) {
         if (!IsNaN(GetX(i)) && !IsNaN(GetY(i)) && IsNaN(GetZ(i))) {
             // all hits should fit this condition to be considered XY
         } else {
-            result = false;
-            break;
+            return false;
         }
     }
-    return result;
+    fType = XY;
+    return true;
 }
 
 Bool_t TRestHits::areXZ() {
-    bool result = true;
+    if (fType != unknown) {
+        if (fType == XZ) return true;
+        return false;
+    }
+
     for (int i = 0; i < GetNumberOfHits(); i++) {
         if (!IsNaN(GetZ(i)) && !IsNaN(GetX(i)) && IsNaN(GetY(i))) {
             // all hits should fit this condition to be considered XZ
         } else {
-            result = false;
-            break;
+            return false;
         }
     }
-    return result;
+    fType = XZ;
+    return true;
 }
 
 Bool_t TRestHits::areYZ() {
-    bool result = true;
+    if (fType != unknown) {
+        if (fType == YZ) return true;
+        return false;
+    }
+
     for (int i = 0; i < GetNumberOfHits(); i++) {
         if (!IsNaN(GetZ(i)) && !IsNaN(GetY(i)) && IsNaN(GetX(i))) {
             // all hits should fit this condition to be considered YZ
         } else {
-            result = false;
-            break;
+            return false;
         }
     }
-    return result;
+    fType = YZ;
+    return true;
 }
 
 Bool_t TRestHits::areXYZ() {
-    bool result = true;
+    if (fType != unknown) {
+        if (fType == XYZ) return true;
+        return false;
+    }
+
     for (int i = 0; i < GetNumberOfHits(); i++) {
         if (!isNaN(i) && (!IsNaN(GetX(i)) && !IsNaN(GetY(i)) && !IsNaN(GetZ(i)))) {
             // all hits should fit this condition to be considered XYZ
             // cout<<"xyz hit"<<endl;
         } else {
-            result = false;
-            break;
+            return false;
         }
     }
-    return result;
+    fType = XYZ;
+    return true;
 }
 
 Bool_t TRestHits::isNaN(Int_t n) {
