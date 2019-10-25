@@ -519,7 +519,7 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
         TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, sectionName);
         if (Sectional == NULL) {
             ferr << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName << "\""
-                  << endl;
+                 << endl;
             ferr << "in config file: " << fConfigFileName << endl;
             exit(1);
         }
@@ -1036,9 +1036,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL
-                    ? false
-                    : ((string)localele->Attribute("expanded") == "true")) {
+            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+                                                                   "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1071,9 +1070,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL
-                    ? false
-                    : ((string)localele->Attribute("expanded") == "true")) {
+            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+                                                                   "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1138,9 +1136,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
                             if (eles.size() > 1)  // still more than 1 elements found
                             {
                                 ferr << "find multiple xml sections "
-                                         "with same "
-                                         "name and type!"
-                                      << endl;
+                                        "with same "
+                                        "name and type!"
+                                     << endl;
                                 ferr << "Check your rml file!" << endl;
                                 ferr << ElementToString(e) << endl;
                                 exit(1);
@@ -1542,11 +1540,18 @@ string TRestMetadata::GetUnits(string whoseunits) { return GetUnits(fElement, wh
 string TRestMetadata::GetUnits(TiXmlElement* e, string whoseunits) {
     string unitstring = "";
     if (whoseunits == "") {
-        unitstring = GetParameter("units", e);
+        unitstring = GetParameter("UNITS", e);
         if (IsUnit(unitstring)) {
             debug << "Found unit definition \"" << unitstring << "\" in element " << e->Value() << endl;
             debug << endl;
             return unitstring;
+        } else if (whoseunits == "") {
+            unitstring = GetParameter("units", e);
+            if (IsUnit(unitstring)) {
+                debug << "Found unit definition \"" << unitstring << "\" in element " << e->Value() << endl;
+                debug << endl;
+                return unitstring;
+            }
         } else {
             warning << "TRestMetadata::" << ClassName() << endl;
             warning << "No units are defined in " << e->Value() << " : " << e->Attribute("name") << endl;
@@ -1976,8 +1981,7 @@ string TRestMetadata::ReplaceEnvironmentalVariables(const string buffer) {
             endPosition = 0;
         } else {
             ferr << this->ClassName() << ", replace env : cannot find \"${" << expression << "}\"" << endl;
-            ferr << "(position: " << startPosition << ") in either system or program env, exiting..."
-                  << endl;
+            ferr << "(position: " << startPosition << ") in either system or program env, exiting..." << endl;
             exit(1);
         }
     }
@@ -2174,8 +2178,8 @@ TString TRestMetadata::GetCommit() { return fCommit; }
 void TRestMetadata::SetVersion() {
     if (!this->InheritsFrom("TRestRun"))
         ferr << "version is a static value, you cannot set version "
-                 "for a class!"
-              << endl;
+                "for a class!"
+             << endl;
     else {
         fVersion = REST_RELEASE;
         fCommit = (TString)TRestTools::Execute("rest-config --commit");
@@ -2185,8 +2189,8 @@ void TRestMetadata::SetVersion() {
 void TRestMetadata::UnSetVersion() {
     if (!this->InheritsFrom("TRestRun"))
         ferr << "version is a static value, you cannot set version "
-                 "for a class!"
-              << endl;
+                "for a class!"
+             << endl;
     else {
         fVersion = -1;
         fCommit = "0";
