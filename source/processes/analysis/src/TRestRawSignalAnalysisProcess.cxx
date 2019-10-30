@@ -458,8 +458,8 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         fAnalysisTree->PrintObservables(this);
     }
 
-    //fPreviousEventTime.push_back(fSignalEvent->GetTimeStamp());
-    //if (fPreviousEventTime.size() > 100) fPreviousEventTime.erase(fPreviousEventTime.begin());
+    fPreviousEventTime.push_back(fSignalEvent->GetTimeStamp());
+    if (fPreviousEventTime.size() > 100) fPreviousEventTime.erase(fPreviousEventTime.begin());
 
     return fSignalEvent;
 }
