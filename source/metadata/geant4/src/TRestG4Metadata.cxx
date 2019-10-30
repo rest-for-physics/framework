@@ -647,14 +647,11 @@ std::map<string, angular_dist_types> angular_dist_types_map = {
 };
 }  // namespace g4_metadata_parameters
 
-ClassImp(TRestG4Metadata)
-    ///////////////////////////////////////////////
-    /// \brief Default constructor
-    ///
-    TRestG4Metadata::TRestG4Metadata()
-    : TRestMetadata() {
-    Initialize();
-}
+ClassImp(TRestG4Metadata);
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestG4Metadata::TRestG4Metadata() : TRestMetadata() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -716,9 +713,10 @@ void TRestG4Metadata::InitFromConfigFile() {
     fGeometryPath = GetParameter("geometryPath", "");
 
     string seedstr = GetParameter("seed", "0");
-    if (ToUpper(seedstr) == "RANDOM" || ToUpper(seedstr) == "RAND" || ToUpper(seedstr) == "AUTO") {
+    if (ToUpper(seedstr) == "RANDOM" || ToUpper(seedstr) == "RAND" || ToUpper(seedstr) == "AUTO" ||
+        seedstr == "0") {
         double* dd = new double();
-        fSeed = (uintptr_t)dd + (uintptr_t)this;
+        fSeed = (uintptr_t)dd + (uintptr_t) this;
         delete dd;
     } else {
         fSeed = (Long_t)StringToInteger(seedstr);
