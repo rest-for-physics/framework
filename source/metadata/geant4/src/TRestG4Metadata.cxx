@@ -715,7 +715,14 @@ void TRestG4Metadata::InitFromConfigFile() {
 
     fGeometryPath = GetParameter("geometryPath", "");
 
-    fSeed = (Long_t)StringToInteger(GetParameter("seed", "0"));
+    string seedstr = GetParameter("seed", "0");
+    if (ToUpper(seedstr) == "RANDOM" || ToUpper(seedstr) == "RAND" || ToUpper(seedstr) == "AUTO") {
+        double* dd = new double();
+        fSeed = (uintptr_t)dd + (uintptr_t)this;
+        delete dd;
+    } else {
+        fSeed = (Long_t)StringToInteger(seedstr);
+    }
 
     // if "gdml_file" is purely a file (without any path) and "geometryPath" is
     // defined, we recombine them together
@@ -1138,7 +1145,7 @@ Int_t TRestG4Metadata::ReadOldDecay0File(TString fileName) {
     }
     if (!headerFound) {
         ferr << "TRestG4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event and "
-                 "full number of events:\" header.\n";
+                "full number of events:\" header.\n";
         abort();
     }
     int tmpInt;
