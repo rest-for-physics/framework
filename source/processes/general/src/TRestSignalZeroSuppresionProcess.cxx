@@ -18,11 +18,9 @@ using namespace std;
 
 const double cmTomm = 10.;
 
-ClassImp(TRestSignalZeroSuppresionProcess)
-    //______________________________________________________________________________
-    TRestSignalZeroSuppresionProcess::TRestSignalZeroSuppresionProcess() {
-    Initialize();
-}
+ClassImp(TRestSignalZeroSuppresionProcess);
+//______________________________________________________________________________
+TRestSignalZeroSuppresionProcess::TRestSignalZeroSuppresionProcess() { Initialize(); }
 
 //______________________________________________________________________________
 TRestSignalZeroSuppresionProcess::TRestSignalZeroSuppresionProcess(char* cfgFileName) {
@@ -91,9 +89,6 @@ void TRestSignalZeroSuppresionProcess::InitProcess() {
         }
     }
 }
-
-//______________________________________________________________________________
-void TRestSignalZeroSuppresionProcess::BeginOfEventProcess() { fSignalEvent->Initialize(); }
 
 //______________________________________________________________________________
 TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent(TRestEvent* evInput) {
@@ -223,9 +218,6 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent(TRestEvent* evInput) 
 
     return fSignalEvent;
 }
-
-//______________________________________________________________________________
-void TRestSignalZeroSuppresionProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestSignalZeroSuppresionProcess::EndProcess() {
