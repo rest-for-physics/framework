@@ -39,15 +39,14 @@
 #include <TRestG4PrimaryGenerator.h>
 #include <TRestMetadata.h>
 
-/*
-------------------------------------------------------------------------------------------------------------------------
-
- * This section was added by Luis A. Obis (lobis@unizar.es) on 17/06/2019
-
-Here we add all the possible options for different configurations such as all the types of generators, etc.
-We use a structure called 'enum' and a function to clean the strings so that we can easily implement case
-insensitivity or more options such as ignoring underscores.
-*/
+//------------------------------------------------------------------------------------------------------------------------
+//
+// * This section was added by Luis A. Obis (lobis@unizar.es) on 17/06/2019
+//
+// Here we add all the possible options for different configurations such as all the types of generators, etc.
+// We use a structure called 'enum' and a function to clean the strings so that we can easily implement case
+// insensitivity or more options such as ignoring underscores.
+//
 
 namespace g4_metadata_parameters {
 string CleanString(string);
@@ -81,9 +80,7 @@ enum class angular_dist_types {
 extern std::map<string, angular_dist_types> angular_dist_types_map;
 }  // namespace g4_metadata_parameters
 
-/*
-------------------------------------------------------------------------------------------------------------------------
-*/
+//------------------------------------------------------------------------------------------------------------------------
 
 /// The main class to store the *Geant4* simulation conditions that will be used by *restG4*.
 class TRestG4Metadata : public TRestMetadata {
