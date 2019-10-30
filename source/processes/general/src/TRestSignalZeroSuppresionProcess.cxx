@@ -94,10 +94,12 @@ void TRestSignalZeroSuppresionProcess::InitProcess() {
 TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent(TRestEvent* evInput) {
     fRawSignalEvent = (TRestRawSignalEvent*)evInput;
 
-    fSignalEvent->SetID(fRawSignalEvent->GetID());
-    fSignalEvent->SetSubID(fRawSignalEvent->GetSubID());
-    fSignalEvent->SetTimeStamp(fRawSignalEvent->GetTimeStamp());
-    fSignalEvent->SetSubEventTag(fRawSignalEvent->GetSubEventTag());
+    /* I think we don't need that now, right?
+        fSignalEvent->SetID(fRawSignalEvent->GetID());
+        fSignalEvent->SetSubID(fRawSignalEvent->GetSubID());
+        fSignalEvent->SetTimeStamp(fRawSignalEvent->GetTimeStamp());
+        fSignalEvent->SetSubEventTag(fRawSignalEvent->GetSubEventTag());
+            */
 
     Int_t numberOfSignals = fRawSignalEvent->GetNumberOfSignals();
 
