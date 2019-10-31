@@ -1,43 +1,97 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestSignalZeroSuppresionProcess.cxx
-///
-///             jan 2016:  Javier Galan
-///_______________________________________________________________________________
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
-#include <TRestDetectorSetup.h>
+//////////////////////////////////////////////////////////////////////////
+/// The TRestSignalZeroSuppresionProcess identifies the points that are over
+/// threshold from a TRestRawSignalEvent. The resulting points will be
+/// transported to a TRestSignalEvent that will be returned as output event
+/// type of this process. The data points at TRestSignalEvent will be
+/// attributed physical time units related to the sampling rate of the raw
+/// signal received as input.
+///
+/// TODO Write more details here, input parameters, conditions, etc.
+///
+///
+///--------------------------------------------------------------------------
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2016-January: Conception and implementation of signal zero suppression
+/// process.
+///               Javier Galan
+///
+/// \class      TRestSignalZeroSuppresion
+/// \author     Javier Galan
+/// \author     Kaixiang Ni
+///
+/// <hr>
+///
 
-#include <numeric>
+// #include <TRestDetectorSetup.h> // Not used now but it should serve to get sampling rate of rawSignal
+
 #include "TRestSignalZeroSuppresionProcess.h"
+#include <numeric>
 using namespace std;
 
 const double cmTomm = 10.;
 
 ClassImp(TRestSignalZeroSuppresionProcess);
-//______________________________________________________________________________
+
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
 TRestSignalZeroSuppresionProcess::TRestSignalZeroSuppresionProcess() { Initialize(); }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Constructor loading data from a config file
+///
+/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// The default behaviour is that the config file must be specified with
+/// full path, absolute or relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+///
 TRestSignalZeroSuppresionProcess::TRestSignalZeroSuppresionProcess(char* cfgFileName) {
     Initialize();
 
     LoadConfig(cfgFileName);
-
-    // TRestSignalZeroSuppresionProcess default constructor
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Default destructor
+///
 TRestSignalZeroSuppresionProcess::~TRestSignalZeroSuppresionProcess() {
     delete fRawSignalEvent;
     delete fSignalEvent;
-    // TRestSignalZeroSuppresionProcess destructor
 }
 
+///////////////////////////////////////////////
+/// \brief Method to load the default config in absence of RML input
+///
 void TRestSignalZeroSuppresionProcess::LoadDefaultConfig() {
     SetName("signalZeroSuppresionProcess-Default");
     SetTitle("Default config");
@@ -52,11 +106,25 @@ void TRestSignalZeroSuppresionProcess::LoadDefaultConfig() {
     fBaseLineCorrection = false;
 }
 
+///////////////////////////////////////////////
+/// \brief Function to load the configuration from an external configuration
+/// file.
+///
+/// If no configuration path is defined in TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param name The name of the specific metadata. It will be used to find the
+/// correspondig TRestGeant4AnalysisProcess section inside the RML.
+///
 void TRestSignalZeroSuppresionProcess::LoadConfig(std::string cfgFilename, std::string name) {
     if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Input/output event types declaration and section name.
+///
 void TRestSignalZeroSuppresionProcess::Initialize() {
     SetSectionName(this->ClassName());
 
@@ -67,18 +135,25 @@ void TRestSignalZeroSuppresionProcess::Initialize() {
     fOutputEvent = fSignalEvent;
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Process initialization. It identifies if baseline has been
+/// already zero-ed by a previous process.
+///
+/// Personal note (TODO): Should be the baseline zero-ed by
+/// TRestRawSignalAnalysisProcess? It is that necessary?
+///
 void TRestSignalZeroSuppresionProcess::InitProcess() {
     // !!!!!!!!!!!! BASELINE CORRECTION !!!!!!!!!!!!!!
     // TRestRawSignalAnalysisProcess subtracts baseline. Baseline is double value,
     // but data points in TRestRawSignalAnalysisProcess is only short integer
     // type. So we need to correct this by adding decimal part back.
+
     fBaseLineCorrection = false;
     for (int i = 0; i < fFriendlyProcesses.size(); i++) {
         if ((string)fFriendlyProcesses[i]->ClassName() == "TRestRawSignalAnalysisProcess") {
             fBaseLineCorrection = true;
 
-            // setting parameters to the same as sAna
+            // setting parameters to the same as TRestRawSignalAnalysisProcess
             fBaseLineRange = StringTo2DVector(fFriendlyProcesses[i]->GetParameter("baseLineRange", "(5,55)"));
             fIntegralRange =
                 StringTo2DVector(fFriendlyProcesses[i]->GetParameter("integralRange", "(10,500)"));
@@ -90,7 +165,9 @@ void TRestSignalZeroSuppresionProcess::InitProcess() {
     }
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief The main processing event function
+///
 TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent(TRestEvent* evInput) {
     fRawSignalEvent = (TRestRawSignalEvent*)evInput;
 
@@ -221,7 +298,10 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent(TRestEvent* evInput) 
     return fSignalEvent;
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Function to include required actions after all events have been
+/// processed.
+///
 void TRestSignalZeroSuppresionProcess::EndProcess() {
     // Function to be executed once at the end of the process
     // (after all events have been processed)
@@ -231,7 +311,10 @@ void TRestSignalZeroSuppresionProcess::EndProcess() {
     // TRestEventProcess::EndProcess();
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Function to read input parameters from the RML
+/// TRestSignalZeroSuppresionProcess metadata section
+///
 void TRestSignalZeroSuppresionProcess::InitFromConfigFile() {
     // keep up with TRestRawSignalAnalysisProcess
     fBaseLineRange = StringTo2DVector(GetParameter("baseLineRange", "(5,55)"));

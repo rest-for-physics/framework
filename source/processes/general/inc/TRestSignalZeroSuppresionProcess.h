@@ -1,48 +1,75 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestSignalZeroSuppresionProcess.h
-///
-///_______________________________________________________________________________
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
 #ifndef RestCore_TRestSignalZeroSuppresionProcess
 #define RestCore_TRestSignalZeroSuppresionProcess
 
-#include <TRestGas.h>
-#include <TRestReadout.h>
+//#include <TRestGas.h>
+//#include <TRestReadout.h>
 
 #include <TRestRawSignalEvent.h>
 #include <TRestSignalEvent.h>
 
 #include "TRestEventProcess.h"
 
+//! A process to identify signal and remove baseline noise from a TRestRawSignalEvent.
+//! The resulting event is a TRestSignalEvent.
 class TRestSignalZeroSuppresionProcess : public TRestEventProcess {
    private:
-#ifndef __CINT__
+    /// A pointer to the specific TRestRawSignalEvent input
     TRestRawSignalEvent* fRawSignalEvent;  //!
-    TRestSignalEvent* fSignalEvent;        //!
 
-#endif
+    /// A pointer to the specific TRestSignalEvent output
+    TRestSignalEvent* fSignalEvent;  //!
+
+    /// The ADC range used for baseline offset definition
+    TVector2 fBaseLineRange;
+
+    /// The ADC range used for integral definition and signal identification
+    TVector2 fIntegralRange;
+
+    /// Number of sigmas over baseline fluctuation to accept a point is over threshold.
+    Double_t fPointThreshold;
+
+    /// A threshold parameter to accept or reject a pre-identified signal. See process description.
+    Double_t fSignalThreshold;
+
+    /// Number of consecutive points over threshold required to accept a signal.
+    Int_t fNPointsOverThreshold;
+
+    Int_t fNPointsFlatThreshold;
+
+    /// A parameter to determine if baseline correction has been applied by a previous process
+    bool fBaseLineCorrection;
+
+    /// The ADC sampling used to transform ADC units to physical time in the output TRestSignalEvent. Given in
+    /// us.
+    Double_t fSampling;
 
     void InitFromConfigFile();
 
     void Initialize();
 
     void LoadDefaultConfig();
-
-   protected:
-    TVector2 fBaseLineRange;
-    TVector2 fIntegralRange;
-    Double_t fPointThreshold;
-    Double_t fSignalThreshold;
-    Int_t fNPointsOverThreshold;
-    Int_t fNPointsFlatThreshold;
-    bool fBaseLineCorrection;
-    Double_t fSampling;  // us
 
    public:
     void InitProcess();
@@ -53,6 +80,7 @@ class TRestSignalZeroSuppresionProcess : public TRestEventProcess {
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
 
+    /// It prints out the process parameters stored in the metadata structure
     void PrintMetadata() {
         BeginPrintProcess();
 
@@ -72,16 +100,16 @@ class TRestSignalZeroSuppresionProcess : public TRestEventProcess {
         EndPrintProcess();
     }
 
+    /// Returns a new instance of this class
+    TRestEventProcess* Maker() { return new TRestSignalZeroSuppresionProcess; }
+
+    /// Returns the name of this process
     TString GetProcessName() { return (TString) "signalZeroSuppresion"; }
 
-    // Constructor
     TRestSignalZeroSuppresionProcess();
     TRestSignalZeroSuppresionProcess(char* cfgFileName);
-    // Destructor
     ~TRestSignalZeroSuppresionProcess();
 
-    ClassDef(TRestSignalZeroSuppresionProcess,
-             2);  // Template for a REST "event process" class inherited from
-                  // TRestEventProcess
+    ClassDef(TRestSignalZeroSuppresionProcess, 2);
 };
 #endif
