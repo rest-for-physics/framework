@@ -15,15 +15,16 @@
 ///_______________________________________________________________________________
 
 #include "TRestRawSignal.h"
+#include <numeric>
 using namespace std;
 
 #include <TF1.h>
 #include <TMath.h>
 #include <TRandom3.h>
 
-ClassImp(TRestRawSignal)
-    //______________________________________________________________________________
-    TRestRawSignal::TRestRawSignal() {
+ClassImp(TRestRawSignal);
+//______________________________________________________________________________
+TRestRawSignal::TRestRawSignal() {
     // TRestRawSignal default constructor
     fGraph = NULL;
     fSignalID = -1;
@@ -108,90 +109,80 @@ Double_t TRestRawSignal::GetIntegral(Int_t startBin, Int_t endBin) {
     return sum;
 }
 
-Double_t TRestRawSignal::GetIntegralWithThreshold(Int_t from, Int_t to, Int_t startBaseline,
-                                                  Int_t endBaseline, Double_t nSigmas,
-                                                  Int_t nPointsOverThreshold, Double_t nMinSigmas) {
-    if (startBaseline < 0) startBaseline = 0;
-    if (endBaseline <= 0 || endBaseline > GetNumberOfPoints()) endBaseline = GetNumberOfPoints();
-
-    Double_t baseLine = GetBaseLine(startBaseline, endBaseline);
-
-    Double_t pointThreshold = nSigmas * GetBaseLineSigma(startBaseline, endBaseline);
-    Double_t signalThreshold = nMinSigmas * GetBaseLineSigma(startBaseline, endBaseline);
-
-    return GetIntegralWithThreshold(from, to, baseLine, pointThreshold, nPointsOverThreshold,
-                                    signalThreshold);
-}
-
-Double_t TRestRawSignal::GetIntegralWithThreshold(Int_t from, Int_t to, Double_t baseline,
-                                                  Double_t pointThreshold, Int_t nPointsOverThreshold,
-                                                  Double_t signalThreshold) {
-    Double_t sum = 0;
-    Int_t nPoints = 0;
+void TRestRawSignal::InitializePointsOverThreshold(TVector2 blRange, TVector2 sgnlRange, TVector2 thrPar,
+                                                   Int_t nPointsOver, Int_t nPointsFlat) {
     fPointsOverThreshold.clear();
 
-    if (to > GetNumberOfPoints()) to = GetNumberOfPoints();
+    double bl = this->GetBaseLine(blRange.X(), blRange.Y());
+    double rms = this->GetBaseLineSigma(blRange.X(), blRange.Y());
 
-    // int debug = 0;
-    // if ( GetMaxPeakValue( 150, 250 ) > 20 ) debug = 1;
+    double pointTh = thrPar.X();
+    double signalTh = thrPar.Y();
 
-    Float_t maxValue = 0;
-    for (int i = from; i < to; i++) {
-        // if( debug )
-        //	cout << "point : " << i << " data : " << GetData(i) << " baseline : " <<
-        // baseline << " threshold : " << pointThreshold << endl;
-        if (GetData(i) > baseline + pointThreshold) {
-            //	if( debug )
-            //		cout << "Point over threshold" << endl;
-            if (GetData(i) > maxValue) maxValue = GetData(i);
-            nPoints++;
-        } else {
-            if (nPoints >= nPointsOverThreshold) {
-                Double_t sig = GetStandardDeviation(i - nPoints, i);
+    double threshold = bl + pointTh * rms;
 
-                // Only if the sigma of points found over threshold
-                // are found above the signal threshold defined
-                // we will add them to the integral
-                //		if( debug )
-                //			cout << "Signal : " << sig << " signal Threshold :
-                //"
-                //<< signalThreshold << endl;
-                if (sig > signalThreshold) {
-                    for (int j = i - nPoints - fHeadPoints; j < i + fTailPoints && j < GetNumberOfPoints();
-                         j++) {
-                        if (j < 0) continue;
-                        //				if( debug )
-                        //					cout << "Adding point : " <<  j << " data : "
-                        //<< GetData( j ) << endl;
-                        sum += this->GetData(j) - baseline;
-                        fPointsOverThreshold.push_back(j);
-                    }
+    for (int i = sgnlRange.X(); i < sgnlRange.Y(); i++) {
+        // Filling a pulse with consecutive points that are over threshold
+        if (this->GetData(i) > threshold) {
+            int pos = i;
+            std::vector<double> pulse;
+            pulse.push_back(this->GetData(i) - bl);
+            i++;
+
+            // If the pulse ends in a flat end above the threshold, the parameter
+            // nPointsFlat will serve to artificially end the pulse.
+            // If nPointsFlat is big enough, this parameter will not affect the
+            // decision to cut this anomalous behaviour. And all points over threshold
+            // will be added to the pulse vector.
+            int flatN = 0;
+            while (i < sgnlRange.Y() && this->GetData(i) > threshold) {
+                if (TMath::Abs(this->GetData(i) - this->GetData(i - 1)) > pointTh * rms) {
+                    flatN = 0;
+                } else {
+                    flatN++;
+                }
+
+                if (flatN < nPointsFlat) {
+                    pulse.push_back(this->GetData(i));
+                    i++;
+                } else {
+                    break;
                 }
             }
-            nPoints = 0;
-            maxValue = 0;
-        }
-    }
 
-    if (nPoints >= nPointsOverThreshold) {
-        Double_t sig = GetStandardDeviation(to - nPoints, to);
-        if (sig > signalThreshold) {
-            for (int j = to - nPoints; j < to; j++) {
-                sum += this->GetData(j);
-                fPointsOverThreshold.push_back(j);
+            if (pulse.size() >= nPointsOver) {
+                // auto stdev = TMath::StdDev(begin(pulse), end(pulse));
+                // calculate stdev
+                double mean = std::accumulate(pulse.begin(), pulse.end(), 0.0) / pulse.size();
+                double sq_sum = std::inner_product(pulse.begin(), pulse.end(), pulse.begin(), 0.0);
+                double stdev = std::sqrt(sq_sum / pulse.size() - mean * mean);
+
+                if (stdev > signalTh * rms)
+                    for (int j = pos; j < i; j++) fPointsOverThreshold.push_back(j);
             }
         }
     }
 
-    fThresholdIntegral = sum;
-    return sum;
+    InitializeThresholdIntegral(sgnlRange.X(), sgnlRange.Y(), bl);
+}
+
+void TRestRawSignal::InitializeThresholdIntegral(Int_t startBin, Int_t endBin, Double_t baseLine) {
+    if (startBin < 0) startBin = 0;
+    if (endBin <= 0 || endBin > GetNumberOfPoints()) endBin = GetNumberOfPoints();
+
+    fThresholdIntegral = 0;
+
+    for (unsigned int n = 0; n < fPointsOverThreshold.size(); n++) {
+        if (fPointsOverThreshold[n] >= startBin && fPointsOverThreshold[n] < endBin) {
+            fThresholdIntegral += GetData(fPointsOverThreshold[n]) - baseLine;
+        }
+    }
 }
 
 Double_t TRestRawSignal::GetSlopeIntegral() {
-    // cout << __PRETTY_FUNCTION__ << endl;
     if (fThresholdIntegral == -1)
         cout << "REST Warning. TRestRawSignal::GetSlopeIntegral. "
-                "GetIntegralWithThreshold should be called first."
+                "InitializePointsOverThreshold should be called first."
              << endl;
 
     Double_t sum = 0;
@@ -206,10 +197,9 @@ Double_t TRestRawSignal::GetSlopeIntegral() {
 }
 
 Double_t TRestRawSignal::GetRiseSlope() {
-    // cout << __PRETTY_FUNCTION__ << endl;
     if (fThresholdIntegral == -1)
         cout << "REST Warning. TRestRawSignal::GetRiseSlope. "
-                "GetIntegralWithThreshold should be called first."
+                "InitializePointsOverThreshold should be called first."
              << endl;
 
     if (fPointsOverThreshold.size() < 2) {
@@ -227,10 +217,9 @@ Double_t TRestRawSignal::GetRiseSlope() {
 }
 
 Int_t TRestRawSignal::GetRiseTime() {
-    // cout << __PRETTY_FUNCTION__ << endl;
     if (fThresholdIntegral == -1)
         cout << "REST Warning. TRestRawSignal::GetRiseTime. "
-                "GetIntegralWithThreshold should be called first."
+                "InitializePointsOverThreshold should be called first."
              << endl;
 
     if (fPointsOverThreshold.size() < 2) {
@@ -247,7 +236,7 @@ Double_t TRestRawSignal::GetTripleMaxIntegral(Int_t startBin, Int_t endBin) {
 
     if (fThresholdIntegral == -1) {
         cout << "REST Warning. TRestRawSignal::GetTripleMaxIntegral. "
-                "GetIntegralWithThreshold should be called first."
+                "InitializePointsOverThreshold should be called first."
              << endl;
         return 0;
     }

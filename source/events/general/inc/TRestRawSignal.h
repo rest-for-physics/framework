@@ -24,26 +24,28 @@
 #include <TGraph.h>
 #include <TObject.h>
 #include <TString.h>
+#include <TVector2.h>
 
 class TRestRawSignal : public TObject {
    private:
+    /// This method will be called each time InitializePointsOverThreshold is called to re-define the value of
+    /// fThresholdIntegral. Thats why this method is private.
+    void InitializeThresholdIntegral(Int_t startBin, Int_t endBin, Double_t baseLine);
+
    protected:
     Int_t fSignalID;
 
     std::vector<Short_t> fSignalData;  // Vector with the data of the signal
 
    public:
-#ifndef __CINT__
-
     TGraph* fGraph;  //!
 
     std::vector<Int_t> fPointsOverThreshold;  //!
 
-    Double_t fThresholdIntegral;  //!
+    Double_t fThresholdIntegral = -1;  //!
 
     Int_t fHeadPoints;  //!
     Int_t fTailPoints;  //!
-#endif
 
     // Getters
     Short_t GetData(Int_t n) { return GetSignalData(n); }
@@ -53,6 +55,9 @@ class TRestRawSignal : public TObject {
     Int_t GetNumberOfPoints() { return fSignalData.size(); }
 
     std::vector<Int_t> GetPointsOverThreshold() { return fPointsOverThreshold; }
+
+    void InitializePointsOverThreshold(TVector2 blRange, TVector2 sgnlRange, TVector2 thrPar,
+                                       Int_t nPointsOver, Int_t nPointsFlat = 512);
 
     Double_t GetMaxValue(Int_t startBin = 0, Int_t endBin = 0) { return GetMaxPeakValue(startBin, endBin); }
     Double_t GetMinValue(Int_t startBin = 0, Int_t endBin = 0) { return GetMinPeakValue(startBin, endBin); }
@@ -78,13 +83,14 @@ class TRestRawSignal : public TObject {
     void SetHeadPoints(Int_t p) { fHeadPoints = p; }
     void SetTailPoints(Int_t p) { fTailPoints = p; }
 
-    Double_t GetIntegralWithThreshold(Int_t from, Int_t to, Int_t startBaseline, Int_t endBaseline,
-                                      Double_t nSigmas, Int_t nPointsOverThreshold, Double_t nMinSigmas);
-
-    Double_t GetIntegralWithThreshold(Int_t from, Int_t to, Double_t baseline, Double_t pointThreshold,
-                                      Int_t nPointsOverThreshold, Double_t signalThreshold);
-
-    Double_t GetThresholdIntegralValue() { return fThresholdIntegral; }
+    Double_t GetIntegralWithThreshold() { return GetThresholdIntegral(); }
+    Double_t GetThresholdIntegral() {
+        if (fThresholdIntegral == -1)
+            std::cout << "TRestRawSignal::GetThresholdIntegral. InitializePointsOverThreshold should be "
+                         "called first!"
+                      << std::endl;
+        return fThresholdIntegral;
+    }
 
     Double_t GetSlopeIntegral();
     Double_t GetRiseSlope();

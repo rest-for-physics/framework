@@ -21,9 +21,9 @@
 #include "TRestStringHelper.h"
 using namespace std;
 
-ClassImp(TRestRawSignalEvent)
-    //______________________________________________________________________________
-    TRestRawSignalEvent::TRestRawSignalEvent() {
+ClassImp(TRestRawSignalEvent);
+//______________________________________________________________________________
+TRestRawSignalEvent::TRestRawSignalEvent() {
     // TRestRawSignalEvent default constructor
     Initialize();
 }
@@ -69,16 +69,10 @@ Double_t TRestRawSignalEvent::GetIntegral(Int_t startBin, Int_t endBin) {
     return sum;
 }
 
-Double_t TRestRawSignalEvent::GetIntegralWithThreshold(Int_t from, Int_t to, Int_t startBaseline,
-                                                       Int_t endBaseline, Double_t nSigmas,
-                                                       Int_t nPointsOverThreshold,
-                                                       Double_t minPeakAmplitude) {
+/// The result if this method depends on InitializePointsOverThreshold. Arguments are given there.
+Double_t TRestRawSignalEvent::GetThresholdIntegral() {
     Double_t sum = 0;
-
-    for (int i = 0; i < GetNumberOfSignals(); i++)
-        sum += fSignal[i].GetIntegralWithThreshold(from, to, startBaseline, endBaseline, nSigmas,
-                                                   nPointsOverThreshold, minPeakAmplitude);
-
+    for (int i = 0; i < GetNumberOfSignals(); i++) sum += fSignal[i].GetThresholdIntegral();
     return sum;
 }
 
@@ -112,7 +106,7 @@ Double_t TRestRawSignalEvent::GetRiseSlope() {
 
     Int_t n = 0;
     for (int i = 0; i < GetNumberOfSignals(); i++) {
-        if (fSignal[i].GetThresholdIntegralValue() > 0) {
+        if (fSignal[i].GetThresholdIntegral() > 0) {
             sum += fSignal[i].GetSlopeIntegral();
             n++;
         }
@@ -128,7 +122,7 @@ Double_t TRestRawSignalEvent::GetRiseTime() {
 
     Int_t n = 0;
     for (int i = 0; i < GetNumberOfSignals(); i++) {
-        if (fSignal[i].GetThresholdIntegralValue() > 0) {
+        if (fSignal[i].GetThresholdIntegral() > 0) {
             sum += fSignal[i].GetRiseTime();
             n++;
         }
@@ -143,8 +137,7 @@ Double_t TRestRawSignalEvent::GetTripleMaxIntegral(Int_t startBin, Int_t endBin)
     Double_t sum = 0;
 
     for (int i = 0; i < GetNumberOfSignals(); i++)
-        if (fSignal[i].GetThresholdIntegralValue() > 0)
-            sum += fSignal[i].GetTripleMaxIntegral(startBin, endBin);
+        if (fSignal[i].GetThresholdIntegral() > 0) sum += fSignal[i].GetTripleMaxIntegral(startBin, endBin);
 
     return sum;
 }
@@ -222,6 +215,9 @@ Double_t TRestRawSignalEvent::GetBaseLineSigmaAverage(Int_t startBin, Int_t endB
     return baseLineSigmaMean / GetNumberOfSignals();
 }
 
+/// Perhaps we should not substract baselines on a TRestRawSignal. Just consider it in the observables
+/// calculation if a baseline range is provided in the argument (as it is done in
+/// InitializeThresholdIntegral). This method should be probably removed.
 void TRestRawSignalEvent::SubstractBaselines(Int_t startBin, Int_t endBin) {
     for (int sgnl = 0; sgnl < GetNumberOfSignals(); sgnl++)
         GetSignal(sgnl)->SubstractBaseline(startBin, endBin);
