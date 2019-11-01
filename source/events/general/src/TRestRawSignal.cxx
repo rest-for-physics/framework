@@ -143,7 +143,7 @@ void TRestRawSignal::InitializePointsOverThreshold(TVector2 blRange, TVector2 sg
                 }
 
                 if (flatN < nPointsFlat) {
-                    pulse.push_back(this->GetData(i));
+                    pulse.push_back(this->GetData(i) - bl);
                     i++;
                 } else {
                     break;
