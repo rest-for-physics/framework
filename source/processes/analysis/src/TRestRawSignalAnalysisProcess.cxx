@@ -293,16 +293,26 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     ampeve_maxmethod = 0;
     risetimemean = 0;
     Double_t maxeve = 0;
+    Int_t nGoodSignals = 0;
     for (int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++) {
         TRestRawSignal* sgnl = fSignalEvent->GetSignal(s);
+
+        /// Important call we need to initialize the points over threshold in a TRestRawSignal
+        sgnl->InitializePointsOverThreshold(fBaseLineRange, fIntegralRange,
+                                            TVector2(fPointThreshold, fSignalThreshold),
+                                            fNPointsOverThreshold);
+
+        // We do not want that signals that are not identified as such contribute to define our
+        // observables
+        if (sgnl->GetPointsOverThreshold().size() < 2) continue;
+
+        nGoodSignals++;
 
         Double_t _bslval = sgnl->GetBaseLine(fBaseLineRange.X(), fBaseLineRange.Y());
         Double_t _bslsigma = sgnl->GetBaseLineSigma(fBaseLineRange.X(), fBaseLineRange.Y(), _bslval);
         Double_t _ampmax = sgnl->GetMaxPeakValue() - _bslval;
-        Double_t _ampint = sgnl->GetIntegralWithThreshold(
-            (Int_t)fIntegralRange.X(), (Int_t)fIntegralRange.Y(), fBaseLineRange.X(), fBaseLineRange.Y(),
-            fPointThreshold, fNPointsOverThreshold, fSignalThreshold);
-        Double_t _risetime = (sgnl->GetPointsOverThreshold().size() < 2) ? 0 : sgnl->GetRiseTime();
+        Double_t _ampint = sgnl->GetThresholdIntegral();
+        Double_t _risetime = sgnl->GetRiseTime();
 
         baseline[sgnl->GetID()] = (_bslval);
         baselinesigma[sgnl->GetID()] = (_bslsigma);
@@ -319,6 +329,10 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         Double_t value = sgnl->GetMaxValue();
         if (value > maxeve) maxeve = value;
     }
+
+    // If no good signals are identified the event will be not registered.
+    if (nGoodSignals == 0) return NULL;
+
     baselinemean /= fSignalEvent->GetNumberOfSignals();
     baselinesigmamean /= fSignalEvent->GetNumberOfSignals();
     risetimemean /= fSignalEvent->GetNumberOfSignals();
@@ -360,6 +374,7 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     Double_t nSignals = fSignalEvent->GetNumberOfSignals();
     SetObservableValue("NumberOfSignals", nSignals);
+    SetObservableValue("NumberOfGoodSignals", (Double_t)nGoodSignals);
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // SubstractBaselines
@@ -367,16 +382,18 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     // Keep in mind, to add raw signal analysis, we must write code at before
     // This is where most of the problems occur
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    fSignalEvent->SubstractBaselines(fBaseLineRange.X(), fBaseLineRange.Y());
+    // Javier: I believe we should not substract baseline in the analysis process then ...
+    // ... of course we need to consider baseline substraction for each observable. TRestRawSignal methods
+    // should do that internally. Baseline substraction will always happen when we transfer a TRestRawSignal
+    // to TRestSignal
+    // fSignalEvent->SubstractBaselines(fBaseLineRange.X(), fBaseLineRange.Y());
 
     Int_t from = (Int_t)fIntegralRange.X();
     Int_t to = (Int_t)fIntegralRange.Y();
     Double_t fullIntegral = fSignalEvent->GetIntegral(from, to);
     SetObservableValue("FullIntegral", fullIntegral);
 
-    Double_t thrIntegral =
-        fSignalEvent->GetIntegralWithThreshold(from, to, fBaseLineRange.X(), fBaseLineRange.Y(),
-                                               fPointThreshold, fNPointsOverThreshold, fSignalThreshold);
+    Double_t thrIntegral = fSignalEvent->GetThresholdIntegral();
     SetObservableValue("ThresholdIntegral", thrIntegral);
 
     Double_t riseSlope = fSignalEvent->GetRiseSlope();
@@ -406,30 +423,22 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     Double_t maxPeakTime = 0;
     Double_t peakTimeAverage = 0;
 
-    Int_t nGoodSignals = 0;
-    int xsum = 0;
-    int ysum = 0;
     for (int s = 0; s < fSignalEvent->GetNumberOfSignals(); s++) {
         TRestRawSignal* sgnl = fSignalEvent->GetSignal(s);
-        if (sgnl->GetIntegralWithThreshold(from, to, fBaseLineRange.X(), fBaseLineRange.Y(), fPointThreshold,
-                                           fNPointsOverThreshold, fSignalThreshold) > 0) {
+        if (sgnl->GetPointsOverThreshold().size() > 1) {
             Double_t value = fSignalEvent->GetSignal(s)->GetMaxValue();
+            maxValueIntegral += value;
+
             if (value > maxValue) maxValue = value;
             if (value < minValue) minValue = value;
-            maxValueIntegral += value;
 
             Double_t peakBin = sgnl->GetMaxPeakBin();
             peakTimeAverage += peakBin;
 
             if (minPeakTime > peakBin) minPeakTime = peakBin;
             if (maxPeakTime < peakBin) maxPeakTime = peakBin;
-
-            nGoodSignals++;
         }
     }
-
-    SetObservableValue("xEnergySum", xsum);
-    SetObservableValue("yEnergySum", ysum);
 
     if (nGoodSignals > 0) peakTimeAverage /= nGoodSignals;
 
@@ -437,7 +446,6 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     if (maxValueIntegral == 0) ampIntRatio = 0;
 
     SetObservableValue("AmplitudeIntegralRatio", ampIntRatio);
-    SetObservableValue("NumberOfGoodSignals", nGoodSignals);
     SetObservableValue("MinPeakAmplitude", minValue);
     SetObservableValue("MaxPeakAmplitude", maxValue);
     SetObservableValue("PeakAmplitudeIntegral", maxValueIntegral);
