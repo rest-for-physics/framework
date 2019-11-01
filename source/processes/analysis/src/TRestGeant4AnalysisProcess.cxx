@@ -409,12 +409,6 @@ void TRestGeant4AnalysisProcess::InitProcess() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Function to include required initialization before each event starts
-/// to process.
-///
-void TRestGeant4AnalysisProcess::BeginOfEventProcess() {}
-
-///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
 TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
@@ -587,12 +581,6 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     }
     return fOutputG4Event;
 }
-
-///////////////////////////////////////////////
-/// \brief Function to include required actions after each event has been
-/// processed.
-///
-void TRestGeant4AnalysisProcess::EndOfEventProcess() {}
 
 ///////////////////////////////////////////////
 /// \brief Function to include required actions after all events have been
