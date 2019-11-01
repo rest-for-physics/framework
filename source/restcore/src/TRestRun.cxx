@@ -125,8 +125,8 @@ void TRestRun::BeginOfInit() {
     inputname = TRestTools::RemoveMultipleSlash(inputname);
     if (ToUpper(runNstr) == "AUTO" && ToUpper(inputname) == "AUTO") {
         ferr << "TRestRun: run number and input file name cannot both be "
-                 "\"AUTO\""
-              << endl;
+                "\"AUTO\""
+             << endl;
         exit(1);
     }
 
@@ -972,8 +972,7 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
         fFileProcess->InitProcess();
         fInputEvent = fFileProcess->GetOutputEvent();
         if (fInputEvent == NULL) {
-            ferr << "The external process \"" << p->GetName() << "\" doesn't yield any output event!"
-                  << endl;
+            ferr << "The external process \"" << p->GetName() << "\" doesn't yield any output event!" << endl;
             exit(1);
         } else {
             fInputEvent->SetRunOrigin(fRunNumber);
@@ -1078,8 +1077,8 @@ void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t s
     // TODO give error in case we try to obtain a class that is not TRestMetadata
     if (type == "" && name == "") {
         ferr << "(ImportMetadata) : metadata type and name is not "
-                 "specified!"
-              << endl;
+                "specified!"
+             << endl;
         return;
     }
 
@@ -1141,6 +1140,7 @@ TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, TString ta
                 if (fEventTree != NULL) {
                     fEventTree->GetEntry(i);
                     fAnalysisTree->SetBranchStatus("*", true);
+                    fAnalysisTree->GetEntry(i);
                     return fInputEvent;
                 }
             }
