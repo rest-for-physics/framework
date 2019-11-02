@@ -175,6 +175,9 @@ void TRestSignalZeroSuppresionProcess::InitProcess() {
 TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent(TRestEvent* evInput) {
     fRawSignalEvent = (TRestRawSignalEvent*)evInput;
 
+    fRawSignalEvent->SetBaseLineRange(fBaseLineRange);
+    fRawSignalEvent->SetRange(fIntegralRange);
+
     Int_t numberOfSignals = fRawSignalEvent->GetNumberOfSignals();
 
     Double_t totalIntegral = 0;
@@ -182,18 +185,16 @@ TRestEvent* TRestSignalZeroSuppresionProcess::ProcessEvent(TRestEvent* evInput) 
     for (int n = 0; n < numberOfSignals; n++) {
         TRestRawSignal* s = fRawSignalEvent->GetSignal(n);
 
-        s->InitializePointsOverThreshold(fBaseLineRange, fIntegralRange,
-                                         TVector2(fPointThreshold, fSignalThreshold), fNPointsOverThreshold,
+        s->InitializePointsOverThreshold(TVector2(fPointThreshold, fSignalThreshold), fNPointsOverThreshold,
                                          fNPointsFlatThreshold);
-
-        Double_t baseline = s->GetBaseLine(fBaseLineRange.X(), fBaseLineRange.Y());
-        std::vector<Int_t> pOver = s->GetPointsOverThreshold();
 
         TRestSignal sgn;
         sgn.SetID(s->GetID());
+
+        std::vector<Int_t> pOver = s->GetPointsOverThreshold();
         for (int n = 0; n < pOver.size(); n++) {
             int j = pOver[n];
-            sgn.NewPoint(j * fSampling, (Double_t)s->GetData(j) - baseline);
+            sgn.NewPoint(j * fSampling, (Double_t)s->GetData(j));
         }
 
         if (sgn.GetNumberOfPoints() > 0) {
