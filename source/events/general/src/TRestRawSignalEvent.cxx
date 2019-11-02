@@ -52,6 +52,9 @@ void TRestRawSignalEvent::AddSignal(TRestRawSignal s) {
         return;
     }
 
+    s.CalculateBaseLine(fBaseLineRange.X(), fBaseLineRange.Y());
+    s.SetRange(fRange);
+
     fSignal.push_back(s);
 }
 
@@ -61,10 +64,10 @@ Int_t TRestRawSignalEvent::GetSignalIndex(Int_t signalID) {
     return -1;
 }
 
-Double_t TRestRawSignalEvent::GetIntegral(Int_t startBin, Int_t endBin) {
+Double_t TRestRawSignalEvent::GetIntegral() {
     Double_t sum = 0;
 
-    for (int i = 0; i < GetNumberOfSignals(); i++) sum += fSignal[i].GetIntegral(startBin, endBin);
+    for (int i = 0; i < GetNumberOfSignals(); i++) sum += fSignal[i].GetIntegral();
 
     return sum;
 }
@@ -76,14 +79,14 @@ Double_t TRestRawSignalEvent::GetThresholdIntegral() {
     return sum;
 }
 
-TRestRawSignal* TRestRawSignalEvent::GetMaxSignal(Int_t startBin, Int_t endBin) {
+TRestRawSignal* TRestRawSignalEvent::GetMaxSignal() {
     if (GetNumberOfSignals() <= 0) return NULL;
 
-    Double_t max = fSignal[0].GetIntegral(startBin, endBin);
+    Double_t max = fSignal[0].GetIntegral();
 
     Int_t sId;
     for (int i = 0; i < GetNumberOfSignals(); i++) {
-        Int_t integ = fSignal[i].GetIntegral(startBin, endBin);
+        Int_t integ = fSignal[i].GetIntegral();
         if (max < integ) {
             max = integ;
             sId = i;
@@ -133,32 +136,32 @@ Double_t TRestRawSignalEvent::GetRiseTime() {
     return sum / n;
 }
 
-Double_t TRestRawSignalEvent::GetTripleMaxIntegral(Int_t startBin, Int_t endBin) {
+Double_t TRestRawSignalEvent::GetTripleMaxIntegral() {
     Double_t sum = 0;
 
     for (int i = 0; i < GetNumberOfSignals(); i++)
-        if (fSignal[i].GetThresholdIntegral() > 0) sum += fSignal[i].GetTripleMaxIntegral(startBin, endBin);
+        if (fSignal[i].GetThresholdIntegral() > 0) sum += fSignal[i].GetTripleMaxIntegral();
 
     return sum;
 }
 
-Double_t TRestRawSignalEvent::GetBaseLineAverage(Int_t startBin, Int_t endBin) {
+Double_t TRestRawSignalEvent::GetBaseLineAverage() {
     Double_t baseLineMean = 0;
 
     for (int sgnl = 0; sgnl < GetNumberOfSignals(); sgnl++) {
-        Double_t baseline = GetSignal(sgnl)->GetBaseLine(startBin, endBin);
+        Double_t baseline = GetSignal(sgnl)->GetBaseLine();
         baseLineMean += baseline;
     }
 
     return baseLineMean / GetNumberOfSignals();
 }
 
-Int_t TRestRawSignalEvent::GetLowestWidth(Int_t startBin, Int_t endBin, Double_t minPeakAmplitude) {
+Int_t TRestRawSignalEvent::GetLowestWidth(Double_t minPeakAmplitude) {
     Int_t low = 10000000;
 
     for (int sgnl = 0; sgnl < GetNumberOfSignals(); sgnl++) {
-        if (GetSignal(sgnl)->GetMaxPeakValue(startBin, endBin) > minPeakAmplitude) {
-            Int_t lW = GetSignal(sgnl)->GetMaxPeakWidth(startBin, endBin);
+        if (GetSignal(sgnl)->GetMaxPeakValue() > minPeakAmplitude) {
+            Int_t lW = GetSignal(sgnl)->GetMaxPeakWidth();
             if (low > lW) low = lW;
         }
     }
@@ -166,12 +169,12 @@ Int_t TRestRawSignalEvent::GetLowestWidth(Int_t startBin, Int_t endBin, Double_t
     return low;
 }
 
-Double_t TRestRawSignalEvent::GetAverageWidth(Int_t startBin, Int_t endBin, Double_t minPeakAmplitude) {
+Double_t TRestRawSignalEvent::GetAverageWidth(Double_t minPeakAmplitude) {
     Double_t avg = 0;
     Int_t n = 0;
     for (int sgnl = 0; sgnl < GetNumberOfSignals(); sgnl++) {
-        if (GetSignal(sgnl)->GetMaxPeakValue(startBin, endBin) > minPeakAmplitude) {
-            avg += GetSignal(sgnl)->GetMaxPeakWidth(startBin, endBin);
+        if (GetSignal(sgnl)->GetMaxPeakValue() > minPeakAmplitude) {
+            avg += GetSignal(sgnl)->GetMaxPeakWidth();
             n++;
         }
     }
@@ -182,14 +185,12 @@ Double_t TRestRawSignalEvent::GetAverageWidth(Int_t startBin, Int_t endBin, Doub
         return avg / n;
 }
 
-Double_t TRestRawSignalEvent::GetLowAverageWidth(Int_t nSignals, Int_t startBin, Int_t endBin,
-                                                 Double_t minPeakAmplitude) {
+Double_t TRestRawSignalEvent::GetLowAverageWidth(Int_t nSignals, Double_t minPeakAmplitude) {
     std::vector<Double_t> widths;
 
-    for (int sgnl = 0; sgnl < GetNumberOfSignals(); sgnl++) {
-        if (GetSignal(sgnl)->GetMaxPeakValue(startBin, endBin) > minPeakAmplitude)
-            widths.push_back(GetSignal(sgnl)->GetMaxPeakWidth(startBin, endBin));
-    }
+    for (int sgnl = 0; sgnl < GetNumberOfSignals(); sgnl++)
+        if (GetSignal(sgnl)->GetMaxPeakValue() > minPeakAmplitude)
+            widths.push_back(GetSignal(sgnl)->GetMaxPeakWidth());
 
     if (widths.size() == 0) return 0;
 
@@ -204,11 +205,11 @@ Double_t TRestRawSignalEvent::GetLowAverageWidth(Int_t nSignals, Int_t startBin,
     return avg / nSignals;
 }
 
-Double_t TRestRawSignalEvent::GetBaseLineSigmaAverage(Int_t startBin, Int_t endBin) {
+Double_t TRestRawSignalEvent::GetBaseLineSigmaAverage() {
     Double_t baseLineSigmaMean = 0;
 
     for (int sgnl = 0; sgnl < GetNumberOfSignals(); sgnl++) {
-        Double_t baselineSigma = GetSignal(sgnl)->GetBaseLineSigma(startBin, endBin);
+        Double_t baselineSigma = GetSignal(sgnl)->GetBaseLineSigma();
         baseLineSigmaMean += baselineSigma;
     }
 
@@ -218,9 +219,8 @@ Double_t TRestRawSignalEvent::GetBaseLineSigmaAverage(Int_t startBin, Int_t endB
 /// Perhaps we should not substract baselines on a TRestRawSignal. Just consider it in the observables
 /// calculation if a baseline range is provided in the argument (as it is done in
 /// InitializeThresholdIntegral). This method should be probably removed.
-void TRestRawSignalEvent::SubstractBaselines(Int_t startBin, Int_t endBin) {
-    for (int sgnl = 0; sgnl < GetNumberOfSignals(); sgnl++)
-        GetSignal(sgnl)->SubstractBaseline(startBin, endBin);
+void TRestRawSignalEvent::SubstractBaselines() {
+    for (int sgnl = 0; sgnl < GetNumberOfSignals(); sgnl++) GetSignal(sgnl)->SubstractBaseline();
 }
 
 void TRestRawSignalEvent::AddChargeToSignal(Int_t sgnlID, Int_t bin, Short_t value) {
@@ -251,29 +251,27 @@ void TRestRawSignalEvent::PrintEvent() {
 
 // TODO: GetMaxTimeFast, GetMinTimeFast, GetMaxValueFast that return the value
 // of fMinTime, fMaxTime, etc
-void TRestRawSignalEvent::SetMaxAndMin(Int_t startBin, Int_t endBin) {
+void TRestRawSignalEvent::SetMaxAndMin() {
     fMinValue = 1E10;
     fMaxValue = -1E10;
     fMinTime = 0;
     fMaxTime = -1E10;
 
     for (int s = 0; s < GetNumberOfSignals(); s++) {
-        if (fMinValue > fSignal[s].GetMinValue(startBin, endBin))
-            fMinValue = fSignal[s].GetMinValue(startBin, endBin);
-        if (fMaxValue < fSignal[s].GetMaxValue(startBin, endBin))
-            fMaxValue = fSignal[s].GetMaxValue(startBin, endBin);
+        if (fMinValue > fSignal[s].GetMinValue()) fMinValue = fSignal[s].GetMinValue();
+        if (fMaxValue < fSignal[s].GetMaxValue()) fMaxValue = fSignal[s].GetMaxValue();
     }
 
     if (GetNumberOfSignals() > 0) fMaxTime = fSignal[0].GetNumberOfPoints();
 }
 
-Double_t TRestRawSignalEvent::GetMaxValue(Int_t startBin, Int_t endBin) {
-    SetMaxAndMin(startBin, endBin);
+Double_t TRestRawSignalEvent::GetMaxValue() {
+    SetMaxAndMin();
     return fMaxValue;
 }
 
-Double_t TRestRawSignalEvent::GetMinValue(Int_t startBin, Int_t endBin) {
-    SetMaxAndMin(startBin, endBin);
+Double_t TRestRawSignalEvent::GetMinValue() {
+    SetMaxAndMin();
     return fMinValue;
 }
 
