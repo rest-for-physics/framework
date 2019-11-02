@@ -30,7 +30,10 @@ class TRestRawSignal : public TObject {
    private:
     /// This method will be called each time InitializePointsOverThreshold is called to re-define the value of
     /// fThresholdIntegral. Thats why this method is private.
-    void InitializeThresholdIntegral(Int_t startBin, Int_t endBin, Double_t baseLine);
+    void CalculateThresholdIntegral();
+
+    /// This method is called each time we call CalculateBaseLine
+    void CalculateBaseLineSigma(Int_t startBin, Int_t endBin);
 
    protected:
     Int_t fSignalID;
@@ -47,8 +50,17 @@ class TRestRawSignal : public TObject {
     Int_t fHeadPoints;  //!
     Int_t fTailPoints;  //!
 
+    /// This baseline value will be substracted from GetData for any raw signal observable calculation.
+    Double_t fBaseLine = 0;       //!
+    Double_t fBaseLineSigma = 0;  //!
+
+    /// Any signal calculation will be restricted to the following range definition.
+    TVector2 fRange = TVector2(0, 0);  //!
+
     // Getters
-    Short_t GetData(Int_t n) { return GetSignalData(n); }
+    Double_t GetData(Int_t n) { return (Double_t)GetSignalData(n) - fBaseLine; }
+    Short_t GetSignalData(Int_t n);
+
     Int_t GetSignalID() { return fSignalID; }
     Int_t GetID() { return fSignalID; }
 
@@ -56,11 +68,10 @@ class TRestRawSignal : public TObject {
 
     std::vector<Int_t> GetPointsOverThreshold() { return fPointsOverThreshold; }
 
-    void InitializePointsOverThreshold(TVector2 blRange, TVector2 sgnlRange, TVector2 thrPar,
-                                       Int_t nPointsOver, Int_t nPointsFlat = 512);
+    void InitializePointsOverThreshold(TVector2 thrPar, Int_t nPointsOver, Int_t nPointsFlat = 512);
 
-    Double_t GetMaxValue(Int_t startBin = 0, Int_t endBin = 0) { return GetMaxPeakValue(startBin, endBin); }
-    Double_t GetMinValue(Int_t startBin = 0, Int_t endBin = 0) { return GetMinPeakValue(startBin, endBin); }
+    Double_t GetMaxValue() { return GetMaxPeakValue(); }
+    Double_t GetMinValue() { return GetMinPeakValue(); }
 
     // Setters
     void SetSignalID(Int_t sID) { fSignalID = sID; }
@@ -74,16 +85,27 @@ class TRestRawSignal : public TObject {
     void AddCharge(Short_t d);
     void AddDeposit(Short_t d);
 
-    Short_t GetSignalData(Int_t n);
-
     void IncreaseBinBy(Int_t bin, Double_t data);
-
-    Double_t GetIntegral(Int_t startBin = 0, Int_t endBin = 0);
 
     void SetHeadPoints(Int_t p) { fHeadPoints = p; }
     void SetTailPoints(Int_t p) { fTailPoints = p; }
 
+    void SetRange(TVector2 rng) { fRange = rng; }
+    void SetRange(Int_t from, Int_t to) { fRange = TVector2(from, to); }
+
+    Int_t GetHeadPoints() { return fHeadPoints; }
+    Int_t GetTailPoints() { return fTailPoints; }
+
+    Double_t GetBaseLine() { return fBaseLine; }
+    Double_t GetBaseLineSigma() { return fBaseLineSigma; }
+    TVector2 GetRange() { return fRange; }
+
+    Double_t GetIntegral();
+
+    Double_t GetIntegralInRange(Int_t startBin, Int_t endBin);
+
     Double_t GetIntegralWithThreshold() { return GetThresholdIntegral(); }
+
     Double_t GetThresholdIntegral() {
         if (fThresholdIntegral == -1)
             std::cout << "TRestRawSignal::GetThresholdIntegral. InitializePointsOverThreshold should be "
@@ -92,28 +114,30 @@ class TRestRawSignal : public TObject {
         return fThresholdIntegral;
     }
 
+    Double_t GetTripleMaxIntegral();
+
     Double_t GetSlopeIntegral();
+
     Double_t GetRiseSlope();
+
     Int_t GetRiseTime();
-    Double_t GetTripleMaxIntegral(Int_t startBin = 0, Int_t endBin = 0);
 
-    Double_t GetAverage(Int_t startBin = 0, Int_t endBin = 0);
+    Double_t GetAverageInRange(Int_t startBin, Int_t endBin);
 
-    Int_t GetMaxPeakWidth(Int_t startBin = 0, Int_t endBin = 0);
-    Double_t GetMaxPeakValue(Int_t startBin = 0, Int_t endBin = 0);
-    Int_t GetMaxPeakBin(Int_t startBin = 0, Int_t endBin = 0);
+    Int_t GetMaxPeakWidth();
+    Double_t GetMaxPeakValue();
+    Int_t GetMaxPeakBin();
 
-    Double_t GetMinPeakValue(Int_t startBin = 0, Int_t endBin = 0);
-    Int_t GetMinPeakBin(Int_t startBin = 0, Int_t endBin = 0);
+    Double_t GetMinPeakValue();
+    Int_t GetMinPeakBin();
 
     void GetDifferentialSignal(TRestRawSignal* diffSgnl, Int_t smearPoints);
     void GetSignalSmoothed(TRestRawSignal* smthSignal, Int_t averagingPoints);
     void GetWhiteNoiseSignal(TRestRawSignal* noiseSgnl, Double_t noiseLevel = 1.);
 
-    Double_t GetBaseLine(Int_t startBin, Int_t endBin);
+    void CalculateBaseLine(Int_t startBin, Int_t endBin);
     Double_t GetStandardDeviation(Int_t startBin, Int_t endBin);
-    Double_t GetBaseLineSigma(Int_t startBin, Int_t endBin, Double_t baseline = 0);
-    Double_t SubstractBaseline(Int_t startBin, Int_t endBin);
+    void SubstractBaseline();
     void AddOffset(Short_t offset);
     void SignalAddition(TRestRawSignal* inSgnl);
 

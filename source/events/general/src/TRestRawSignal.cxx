@@ -23,7 +23,7 @@ using namespace std;
 #include <TRandom3.h>
 
 ClassImp(TRestRawSignal);
-//______________________________________________________________________________
+
 TRestRawSignal::TRestRawSignal() {
     // TRestRawSignal default constructor
     fGraph = NULL;
@@ -99,34 +99,27 @@ void TRestRawSignal::IncreaseBinBy(Int_t bin, Double_t data) {
     fSignalData[bin] += data;
 }
 
-Double_t TRestRawSignal::GetIntegral(Int_t startBin, Int_t endBin) {
-    if (startBin < 0) startBin = 0;
-    if (endBin <= 0 || endBin > GetNumberOfPoints()) endBin = GetNumberOfPoints();
+void TRestRawSignal::InitializePointsOverThreshold(TVector2 thrPar, Int_t nPointsOver, Int_t nPointsFlat) {
+    if (fBaseLine == 0 && fBaseLineSigma == 0)  // If both are 0 we have not initialized the baseline
+        cout << "TRestRawSignal::InitializePointsOverThreshold. CalculateBaseLine should be called first."
+             << endl;
 
-    Double_t sum = 0;
-    for (int i = startBin; i < endBin; i++) sum += GetData(i);
+    if (fRange.X() < 0) fRange.SetX(0);
+    if (fRange.Y() <= 0) fRange.SetY(GetNumberOfPoints());
 
-    return sum;
-}
-
-void TRestRawSignal::InitializePointsOverThreshold(TVector2 blRange, TVector2 sgnlRange, TVector2 thrPar,
-                                                   Int_t nPointsOver, Int_t nPointsFlat) {
     fPointsOverThreshold.clear();
-
-    double bl = this->GetBaseLine(blRange.X(), blRange.Y());
-    double rms = this->GetBaseLineSigma(blRange.X(), blRange.Y());
 
     double pointTh = thrPar.X();
     double signalTh = thrPar.Y();
 
-    double threshold = bl + pointTh * rms;
+    double threshold = pointTh * fBaseLineSigma;
 
-    for (int i = sgnlRange.X(); i < sgnlRange.Y(); i++) {
+    for (int i = fRange.X(); i < fRange.Y(); i++) {
         // Filling a pulse with consecutive points that are over threshold
         if (this->GetData(i) > threshold) {
             int pos = i;
             std::vector<double> pulse;
-            pulse.push_back(this->GetData(i) - bl);
+            pulse.push_back(this->GetData(i));
             i++;
 
             // If the pulse ends in a flat end above the threshold, the parameter
@@ -135,15 +128,15 @@ void TRestRawSignal::InitializePointsOverThreshold(TVector2 blRange, TVector2 sg
             // decision to cut this anomalous behaviour. And all points over threshold
             // will be added to the pulse vector.
             int flatN = 0;
-            while (i < sgnlRange.Y() && this->GetData(i) > threshold) {
-                if (TMath::Abs(this->GetData(i) - this->GetData(i - 1)) > pointTh * rms) {
+            while (i < fRange.Y() && this->GetData(i) > threshold) {
+                if (TMath::Abs(this->GetData(i) - this->GetData(i - 1)) > threshold) {
                     flatN = 0;
                 } else {
                     flatN++;
                 }
 
                 if (flatN < nPointsFlat) {
-                    pulse.push_back(this->GetData(i) - bl);
+                    pulse.push_back(this->GetData(i));
                     i++;
                 } else {
                     break;
@@ -157,26 +150,44 @@ void TRestRawSignal::InitializePointsOverThreshold(TVector2 blRange, TVector2 sg
                 double sq_sum = std::inner_product(pulse.begin(), pulse.end(), pulse.begin(), 0.0);
                 double stdev = std::sqrt(sq_sum / pulse.size() - mean * mean);
 
-                if (stdev > signalTh * rms)
+                if (stdev > signalTh * fBaseLineSigma)
                     for (int j = pos; j < i; j++) fPointsOverThreshold.push_back(j);
             }
         }
     }
 
-    InitializeThresholdIntegral(sgnlRange.X(), sgnlRange.Y(), bl);
+    CalculateThresholdIntegral();
 }
 
-void TRestRawSignal::InitializeThresholdIntegral(Int_t startBin, Int_t endBin, Double_t baseLine) {
-    if (startBin < 0) startBin = 0;
-    if (endBin <= 0 || endBin > GetNumberOfPoints()) endBin = GetNumberOfPoints();
+void TRestRawSignal::CalculateThresholdIntegral() {
+    if (fRange.X() < 0) fRange.SetX(0);
+    if (fRange.Y() <= 0 || fRange.Y() > GetNumberOfPoints()) fRange.SetY(GetNumberOfPoints());
 
     fThresholdIntegral = 0;
 
     for (unsigned int n = 0; n < fPointsOverThreshold.size(); n++) {
-        if (fPointsOverThreshold[n] >= startBin && fPointsOverThreshold[n] < endBin) {
-            fThresholdIntegral += GetData(fPointsOverThreshold[n]) - baseLine;
+        if (fPointsOverThreshold[n] >= fRange.X() && fPointsOverThreshold[n] < fRange.Y()) {
+            fThresholdIntegral += GetData(fPointsOverThreshold[n]);
         }
     }
+}
+
+Double_t TRestRawSignal::GetIntegral() {
+    if (fRange.X() < 0) fRange.SetX(0);
+    if (fRange.Y() <= 0 || fRange.Y() > GetNumberOfPoints()) fRange.SetY(GetNumberOfPoints());
+
+    Double_t sum = 0;
+    for (int i = fRange.X(); i < fRange.Y(); i++) sum += GetData(i);
+    return sum;
+}
+
+Double_t TRestRawSignal::GetIntegralInRange(Int_t startBin, Int_t endBin) {
+    if (startBin < 0) startBin = 0;
+    if (endBin <= 0 || endBin > GetNumberOfPoints()) endBin = GetNumberOfPoints();
+
+    Double_t sum = 0;
+    for (int i = startBin; i < endBin; i++) sum += GetData(i);
+    return sum;
 }
 
 Double_t TRestRawSignal::GetSlopeIntegral() {
@@ -230,9 +241,9 @@ Int_t TRestRawSignal::GetRiseTime() {
     return GetMaxPeakBin() - fPointsOverThreshold[0];
 }
 
-Double_t TRestRawSignal::GetTripleMaxIntegral(Int_t startBin, Int_t endBin) {
-    if (startBin < 0) startBin = 0;
-    if (endBin <= 0 || endBin > GetNumberOfPoints()) endBin = GetNumberOfPoints();
+Double_t TRestRawSignal::GetTripleMaxIntegral() {
+    if (fRange.X() < 0) fRange.SetX(0);
+    if (fRange.Y() <= 0 || fRange.Y() > GetNumberOfPoints()) fRange.SetY(GetNumberOfPoints());
 
     if (fThresholdIntegral == -1) {
         cout << "REST Warning. TRestRawSignal::GetTripleMaxIntegral. "
@@ -248,7 +259,7 @@ Double_t TRestRawSignal::GetTripleMaxIntegral(Int_t startBin, Int_t endBin) {
         return 0;
     }
 
-    Int_t cBin = GetMaxPeakBin(startBin, endBin);
+    Int_t cBin = GetMaxPeakBin();
 
     if (cBin + 1 >= GetNumberOfPoints()) return 0;
 
@@ -259,7 +270,7 @@ Double_t TRestRawSignal::GetTripleMaxIntegral(Int_t startBin, Int_t endBin) {
     return a1 + a2 + a3;
 }
 
-Double_t TRestRawSignal::GetAverage(Int_t startBin, Int_t endBin) {
+Double_t TRestRawSignal::GetAverageInRange(Int_t startBin, Int_t endBin) {
     if (startBin < 0) startBin = 0;
     if (endBin <= 0 || endBin > GetNumberOfPoints()) endBin = GetNumberOfPoints();
 
@@ -269,8 +280,8 @@ Double_t TRestRawSignal::GetAverage(Int_t startBin, Int_t endBin) {
     return sum / (endBin - startBin + 1);
 }
 
-Int_t TRestRawSignal::GetMaxPeakWidth(Int_t startBin, Int_t endBin) {
-    Int_t mIndex = this->GetMaxPeakBin(startBin, endBin);
+Int_t TRestRawSignal::GetMaxPeakWidth() {
+    Int_t mIndex = this->GetMaxPeakBin();
     Double_t maxValue = this->GetData(mIndex);
 
     Double_t value = maxValue;
@@ -289,18 +300,16 @@ Int_t TRestRawSignal::GetMaxPeakWidth(Int_t startBin, Int_t endBin) {
     return rightIndex - leftIndex;
 }
 
-Double_t TRestRawSignal::GetMaxPeakValue(Int_t startBin, Int_t endBin) {
-    return GetData(GetMaxPeakBin(startBin, endBin));
-}
+Double_t TRestRawSignal::GetMaxPeakValue() { return GetData(GetMaxPeakBin()); }
 
-Int_t TRestRawSignal::GetMaxPeakBin(Int_t startBin, Int_t endBin) {
+Int_t TRestRawSignal::GetMaxPeakBin() {
     Double_t max = -1E10;
     Int_t index = 0;
 
-    if (endBin == 0 || endBin > GetNumberOfPoints()) endBin = GetNumberOfPoints();
-    if (startBin < 0) startBin = 0;
+    if (fRange.Y() == 0 || fRange.Y() > GetNumberOfPoints()) fRange.SetY(GetNumberOfPoints());
+    if (fRange.X() < 0) fRange.SetX(0);
 
-    for (int i = startBin; i < endBin; i++) {
+    for (int i = fRange.X(); i < fRange.Y(); i++) {
         if (this->GetData(i) > max) {
             max = GetData(i);
             index = i;
@@ -310,18 +319,16 @@ Int_t TRestRawSignal::GetMaxPeakBin(Int_t startBin, Int_t endBin) {
     return index;
 }
 
-Double_t TRestRawSignal::GetMinPeakValue(Int_t startBin, Int_t endBin) {
-    return GetData(GetMinPeakBin(startBin, endBin));
-}
+Double_t TRestRawSignal::GetMinPeakValue() { return GetData(GetMinPeakBin()); }
 
-Int_t TRestRawSignal::GetMinPeakBin(Int_t startBin, Int_t endBin) {
+Int_t TRestRawSignal::GetMinPeakBin() {
     Double_t min = 1E10;
     Int_t index = 0;
 
-    if (endBin == 0 || endBin > GetNumberOfPoints()) endBin = GetNumberOfPoints();
-    if (startBin < 0) startBin = 0;
+    if (fRange.Y() == 0 || fRange.Y() > GetNumberOfPoints()) fRange.SetY(GetNumberOfPoints());
+    if (fRange.X() < 0) fRange.SetX(0);
 
-    for (int i = startBin; i < endBin; i++) {
+    for (int i = fRange.X(); i < fRange.Y(); i++) {
         if (this->GetData(i) < min) {
             min = GetData(i);
             index = i;
@@ -346,14 +353,14 @@ void TRestRawSignal::GetDifferentialSignal(TRestRawSignal* diffSgnl, Int_t smear
 }
 
 void TRestRawSignal::GetWhiteNoiseSignal(TRestRawSignal* noiseSgnl, Double_t noiseLevel) {
-    unsigned int seed = (uintptr_t)noiseSgnl + this->GetIntegral();
+    double* dd = new double();
+    uintptr_t seed = (uintptr_t)dd + (uintptr_t) this;
+    delete dd;
     TRandom3* fRandom = new TRandom3(seed);
+
     for (int i = 0; i < GetNumberOfPoints(); i++) {
-        // cout << "i : " << i << " random : " <<  (Short_t) fRandom->Gaus(0,
-        // noiseLevel) << endl;
         noiseSgnl->AddPoint(this->GetData(i) + (Short_t)fRandom->Gaus(0, noiseLevel));
     }
-    // getchar();
     delete fRandom;
 }
 
@@ -362,7 +369,7 @@ void TRestRawSignal::GetSignalSmoothed(TRestRawSignal* smthSignal, Int_t averagi
 
     averagingPoints = (averagingPoints / 2) * 2 + 1;  // make it odd >= averagingPoints
 
-    Double_t sumAvg = GetIntegral(0, averagingPoints) / averagingPoints;
+    Double_t sumAvg = GetIntegralInRange(0, averagingPoints) / averagingPoints;
     for (int i = 0; i <= averagingPoints / 2; i++) smthSignal->AddPoint((Short_t)sumAvg);
 
     for (int i = averagingPoints / 2 + 1; i < GetNumberOfPoints() - averagingPoints / 2; i++) {
@@ -375,37 +382,26 @@ void TRestRawSignal::GetSignalSmoothed(TRestRawSignal* smthSignal, Int_t averagi
         smthSignal->AddPoint(sumAvg);
 }
 
-Double_t TRestRawSignal::GetBaseLine(Int_t startBin, Int_t endBin) {
-    if (endBin - startBin <= 0) return 0.;
+void TRestRawSignal::CalculateBaseLine(Int_t startBin, Int_t endBin) {
+    if (endBin - startBin <= 0) fBaseLine = 0.;
 
     Double_t baseLine = 0;
     for (int i = startBin; i < endBin; i++) baseLine += fSignalData[i];
 
-    return baseLine / (endBin - startBin);
+    fBaseLine = baseLine / (endBin - startBin);
+
+    CalculateBaseLineSigma(startBin, endBin);
 }
 
-Double_t TRestRawSignal::GetStandardDeviation(Int_t startBin, Int_t endBin) {
-    Double_t bL = GetBaseLine(startBin, endBin);
-    return GetBaseLineSigma(startBin, endBin, bL);
-}
-
-Double_t TRestRawSignal::GetBaseLineSigma(Int_t startBin, Int_t endBin, Double_t baseline) {
-    Double_t bL = baseline;
-    if (bL == 0) bL = GetBaseLine(startBin, endBin);
-
+void TRestRawSignal::CalculateBaseLineSigma(Int_t startBin, Int_t endBin) {
     Double_t baseLineSigma = 0;
-    for (int i = startBin; i < endBin; i++) baseLineSigma += (bL - fSignalData[i]) * (bL - fSignalData[i]);
+    for (int i = startBin; i < endBin; i++)
+        baseLineSigma += (fBaseLine - fSignalData[i]) * (fBaseLine - fSignalData[i]);
 
-    return TMath::Sqrt(baseLineSigma / (endBin - startBin));
+    fBaseLineSigma = TMath::Sqrt(baseLineSigma / (endBin - startBin));
 }
 
-Double_t TRestRawSignal::SubstractBaseline(Int_t startBin, Int_t endBin) {
-    Double_t bL = GetBaseLine(startBin, endBin);
-
-    AddOffset((Short_t)-bL);
-
-    return bL;
-}
+void TRestRawSignal::SubstractBaseline() { AddOffset((Short_t)-fBaseLine); }
 
 void TRestRawSignal::AddOffset(Short_t offset) {
     for (int i = 0; i < GetNumberOfPoints(); i++) fSignalData[i] = fSignalData[i] + offset;
