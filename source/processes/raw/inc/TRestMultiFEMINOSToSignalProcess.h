@@ -33,7 +33,7 @@ class TRestMultiFEMINOSToSignalProcess : public TRestRawToSignalProcess {
     Double_t fLastTimeStamp;
     void LoadDetectorSetupData();
 
-    Int_t fCounter = 0;
+    Int_t fCounter = 0;  //!
 
    public:
     void InitProcess();
