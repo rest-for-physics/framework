@@ -146,11 +146,9 @@ using namespace std;
 
 Int_t nChannels = 0;
 
-ClassImp(TRestMultiFEMINOSToSignalProcess)
-    //______________________________________________________________________________
-    TRestMultiFEMINOSToSignalProcess::TRestMultiFEMINOSToSignalProcess() {
-    Initialize();
-}
+ClassImp(TRestMultiFEMINOSToSignalProcess);
+//______________________________________________________________________________
+TRestMultiFEMINOSToSignalProcess::TRestMultiFEMINOSToSignalProcess() { Initialize(); }
 
 TRestMultiFEMINOSToSignalProcess::TRestMultiFEMINOSToSignalProcess(char* cfgFileName)
     : TRestRawToSignalProcess(cfgFileName) {
@@ -183,6 +181,7 @@ void TRestMultiFEMINOSToSignalProcess::LoadDetectorSetupData() {
 
     fRunInfo->AddMetadata(detector_setup);
 }
+
 //______________________________________________________________________________
 void TRestMultiFEMINOSToSignalProcess::Initialize() {
     fLastEventId = 0;
@@ -475,6 +474,15 @@ Bool_t TRestMultiFEMINOSToSignalProcess::ReadFrame(void* fr, int fr_sz) {
 
             fLastEventId = tmp;
             fLastTimeStamp = tStart + (2147483648 * r2 + 32768 * r1 + r0) * 2e-8;
+
+            // If it is the first event we use it to define the run start time
+            if (fCounter == 0) {
+                fRunInfo->SetStartTimeStamp(fLastTimeStamp);
+                fCounter++;
+            } else {
+                // and we keep updating the end run time
+                fRunInfo->SetEndTimeStamp(fLastTimeStamp);
+            }
 
             fSignalEvent->SetRunOrigin(fRunOrigin);
             fSignalEvent->SetSubRunOrigin(fSubRunOrigin);
