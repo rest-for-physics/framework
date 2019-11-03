@@ -136,6 +136,7 @@ Double_t TRestSignal::GetMaxPeakWithTime(Double_t startTime, Double_t endTime) {
     return max;
 }
 
+/* {{{
 Double_t TRestSignal::GetIntegralWithThreshold(Int_t from, Int_t to, Int_t startBaseline, Int_t endBaseline,
                                                Double_t nSigmas, Int_t nPointsOverThreshold,
                                                Double_t nMinSigmas) {
@@ -192,6 +193,7 @@ Double_t TRestSignal::GetIntegralWithThreshold(Int_t from, Int_t to, Double_t ba
 
     return sum;
 }
+}}} */
 
 Double_t TRestSignal::GetAverage(Int_t start, Int_t end) {
     this->Sort();

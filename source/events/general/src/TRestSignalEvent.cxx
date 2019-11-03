@@ -77,6 +77,7 @@ Double_t TRestSignalEvent::GetIntegralWithTime(Double_t startTime, Double_t endT
     return sum;
 }
 
+/*
 Double_t TRestSignalEvent::GetIntegralWithThreshold(Int_t from, Int_t to, Int_t startBaseline,
                                                     Int_t endBaseline, Double_t nSigmas,
                                                     Int_t nPointsOverThreshold, Double_t minPeakAmplitude) {
@@ -88,6 +89,7 @@ Double_t TRestSignalEvent::GetIntegralWithThreshold(Int_t from, Int_t to, Int_t 
 
     return sum;
 }
+*/
 
 Double_t TRestSignalEvent::GetBaseLineAverage(Int_t startBin, Int_t endBin) {
     Double_t baseLineMean = 0;
