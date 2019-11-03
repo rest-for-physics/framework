@@ -34,8 +34,8 @@ class TRestRun : public TRestMetadata {
     TString fInputFileName;
     TString fOutputFileName;
     Double_t fStartTime;  ///< Event absolute starting time/date (unix timestamp)
-    Double_t fEndTime;    ///< Event absolute starting time/date (unix timestamp)
-	Int_t fEntriesSaved;
+    Double_t fEndTime;    ///< Event absolute ending time/date (unix timestamp)
+    Int_t fEntriesSaved;
 
     // data-like metadata objects
     vector<TRestMetadata*> fMetadataInfo;   //!
@@ -51,12 +51,11 @@ class TRestRun : public TRestMetadata {
     TRestAnalysisTree* fAnalysisTree;  //!
     bool fOverwrite;                   //!
     bool fSaveHistoricData;            //!
-	TRestEventProcess* fFileProcess;  //!
-    int fCurrentEvent;                //!
-    Long64_t fBytesReaded;            //!
-    Long64_t fTotalBytes;             //!
-    int fEventBranchLoc;              //!
-
+    TRestEventProcess* fFileProcess;   //!
+    int fCurrentEvent;                 //!
+    Long64_t fBytesReaded;             //!
+    Long64_t fTotalBytes;              //!
+    int fEventBranchLoc;               //!
 
    public:
     /// REST run class
@@ -201,6 +200,7 @@ class TRestRun : public TRestMetadata {
         fRunUser = (TString)cleanUser;
     }
     void SetRunDescription(TString description) { fRunDescription = description; }
+    void SetStartTimeStamp(Double_t tStamp) { fStartTime = tStamp; }
     void SetEndTimeStamp(Double_t tStamp) { fEndTime = tStamp; }
     void SetTotalBytes(Long64_t b) { fTotalBytes = b; }
     void SetHistoricMetadataSaving(bool save) { fSaveHistoricData = save; }
