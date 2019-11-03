@@ -45,13 +45,11 @@
 #include "TRestReadoutPlane.h"
 using namespace std;
 
-ClassImp(TRestReadoutPlane)
-    ///////////////////////////////////////////////
-    /// \brief Default TRestReadoutPlane constructor
-    ///
-    TRestReadoutPlane::TRestReadoutPlane() {
-    Initialize();
-}
+ClassImp(TRestReadoutPlane);
+///////////////////////////////////////////////
+/// \brief Default TRestReadoutPlane constructor
+///
+TRestReadoutPlane::TRestReadoutPlane() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Default TRestReadoutPlane destructor
@@ -360,23 +358,19 @@ Int_t TRestReadoutPlane::GetModuleIDFromPosition(TVector3 pos) {
 ///
 void TRestReadoutPlane::Print(Int_t DetailLevel) {
     if (DetailLevel >= 0) {
-        TRestStringOutput cout;
-        cout.setborder("||");
-        cout.setorientation(1);
-        cout.setlength(100);
-        cout << "-- Readout plane : " << GetID() << endl;
-        cout << "----------------------------------------------------------------" << endl;
-        cout << "-- Position : X = " << fPosition.X() << " mm, "
-             << " Y : " << fPosition.Y() << " mm, Z : " << fPosition.Z() << " mm" << endl;
-        cout << "-- Vector : X = " << fPlaneVector.X() << " mm, "
-             << " Y : " << fPlaneVector.Y() << " mm, Z : " << fPlaneVector.Z() << " mm" << endl;
-        cout << "-- Cathode Position : X = " << fCathodePosition.X() << " mm, "
-             << " Y : " << fCathodePosition.Y() << " mm, Z : " << fCathodePosition.Z() << " mm" << endl;
-        cout << "-- Total drift distance : " << fTotalDriftDistance << " mm" << endl;
-        cout << "-- Charge collection : " << fChargeCollection << endl;
-        cout << "-- Total modules : " << GetNumberOfModules() << endl;
-        cout << "-- Total channels : " << GetNumberOfChannels() << endl;
-        cout << "----------------------------------------------------------------" << endl;
+        metadata << "-- Readout plane : " << GetID() << endl;
+        metadata << "----------------------------------------------------------------" << endl;
+        metadata << "-- Position : X = " << fPosition.X() << " mm, "
+                 << " Y : " << fPosition.Y() << " mm, Z : " << fPosition.Z() << " mm" << endl;
+        metadata << "-- Vector : X = " << fPlaneVector.X() << " mm, "
+                 << " Y : " << fPlaneVector.Y() << " mm, Z : " << fPlaneVector.Z() << " mm" << endl;
+        metadata << "-- Cathode Position : X = " << fCathodePosition.X() << " mm, "
+                 << " Y : " << fCathodePosition.Y() << " mm, Z : " << fCathodePosition.Z() << " mm" << endl;
+        metadata << "-- Total drift distance : " << fTotalDriftDistance << " mm" << endl;
+        metadata << "-- Charge collection : " << fChargeCollection << endl;
+        metadata << "-- Total modules : " << GetNumberOfModules() << endl;
+        metadata << "-- Total channels : " << GetNumberOfChannels() << endl;
+        metadata << "----------------------------------------------------------------" << endl;
 
         for (int i = 0; i < GetNumberOfModules(); i++) fReadoutModules[i].Print(DetailLevel - 1);
     }

@@ -46,13 +46,11 @@
 #include "unistd.h"
 using namespace std;
 
-ClassImp(TRestReadoutModule)
-    ///////////////////////////////////////////////
-    /// \brief Default TRestReadoutModule constructor
-    ///
-    TRestReadoutModule::TRestReadoutModule() {
-    Initialize();
-}
+ClassImp(TRestReadoutModule);
+///////////////////////////////////////////////
+/// \brief Default TRestReadoutModule constructor
+///
+TRestReadoutModule::TRestReadoutModule() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Default TRestReadoutModule destructor
@@ -543,14 +541,14 @@ void TRestReadoutModule::Draw() {}
 ///
 void TRestReadoutModule::Print(Int_t DetailLevel) {
     if (DetailLevel >= 0) {
-        cout << "-- Readout module : " << GetModuleID() << endl;
-        cout << "----------------------------------------------------------------" << endl;
-        cout << "-- Origin position : X = " << fModuleOriginX << " mm "
-             << " Y : " << fModuleOriginY << " mm" << endl;
-        cout << "-- Size : X = " << fModuleSizeX << " Y : " << fModuleSizeY << endl;
-        cout << "-- Rotation : " << fModuleRotation << " degrees" << endl;
-        cout << "-- Total channels : " << GetNumberOfChannels() << endl;
-        cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+        metadata << "-- Readout module : " << GetModuleID() << endl;
+        metadata << "----------------------------------------------------------------" << endl;
+        metadata << "-- Origin position : X = " << fModuleOriginX << " mm "
+                 << " Y : " << fModuleOriginY << " mm" << endl;
+        metadata << "-- Size : X = " << fModuleSizeX << " Y : " << fModuleSizeY << endl;
+        metadata << "-- Rotation : " << fModuleRotation << " degrees" << endl;
+        metadata << "-- Total channels : " << GetNumberOfChannels() << endl;
+        metadata << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
         for (int n = 0; n < GetNumberOfChannels(); n++) fReadoutChannel[n].Print(DetailLevel - 1, n);
     }

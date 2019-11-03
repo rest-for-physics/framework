@@ -26,6 +26,7 @@
 #include <iostream>
 
 #include "TObject.h"
+#include "TRestMetadata.h"
 
 #include "TRestReadoutPixel.h"
 

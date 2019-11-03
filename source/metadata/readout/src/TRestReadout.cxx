@@ -268,13 +268,11 @@
 using namespace std;
 bool RESTREADOUT_DECODINGFILE_ERROR = false;
 
-ClassImp(TRestReadout)
-    ///////////////////////////////////////////////
-    /// \brief TRestReadout default constructor
-    ///
-    TRestReadout::TRestReadout() {
-    Initialize();
-}
+ClassImp(TRestReadout);
+///////////////////////////////////////////////
+/// \brief TRestReadout default constructor
+///
+TRestReadout::TRestReadout() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief TRestReadout constructor loading data from a config file
@@ -646,9 +644,9 @@ TRestReadoutModule* TRestReadout::ParseModuleDefinition(string moduleString) {
         }
 
         if (pixelIDVector.size() > 0 && pixelIDVector.size() != pixelVector.size()) {
-           ferr << "pixel id definition may be wrong! check your "
-                     "readout module definition!"
-                  << endl;
+            ferr << "pixel id definition may be wrong! check your "
+                    "readout module definition!"
+                 << endl;
             exit(0);
         }
 
@@ -664,9 +662,9 @@ TRestReadoutModule* TRestReadout::ParseModuleDefinition(string moduleString) {
         }
 
         if (channel.GetNumberOfPixels() != pixelVector.size()) {
-           ferr << "pixel id definition may be wrong! check your "
-                     "readout module definition!"
-                  << endl;
+            ferr << "pixel id definition may be wrong! check your "
+                    "readout module definition!"
+                 << endl;
             exit(0);
         }
 #pragma endregion
@@ -675,9 +673,9 @@ TRestReadoutModule* TRestReadout::ParseModuleDefinition(string moduleString) {
     }
 
     if (channelIDVector.size() > 0 && channelIDVector.size() != channelVector.size()) {
-       ferr << "channel id definition may be wrong! check your "
-                 "readout module definition!"
-              << endl;
+        ferr << "channel id definition may be wrong! check your "
+                "readout module definition!"
+             << endl;
         exit(0);
     }
 
@@ -693,9 +691,9 @@ TRestReadoutModule* TRestReadout::ParseModuleDefinition(string moduleString) {
     }
 
     if (module.GetNumberOfChannels() != channelVector.size()) {
-       ferr << "REST error, channel id definition may be wrong! check your "
-                 "readout module definition!"
-              << endl;
+        ferr << "REST error, channel id definition may be wrong! check your "
+                "readout module definition!"
+             << endl;
         exit(0);
     }
 #pragma endregion
@@ -806,20 +804,19 @@ void TRestReadout::PrintMetadata(Int_t DetailLevel) {
     if (DetailLevel >= 0) {
         TRestMetadata::PrintMetadata();
 
-        TRestStringOutput cout;
-        cout.setborder("||");
-        cout.setorientation(1);
-        cout.setlength(100);
-        cout << "Number of readout planes : " << fNReadoutPlanes << endl;
-        cout << "Decoding was defined : ";
+        //       TRestStringOutput cout;
+        //       cout.setborder("||");
+        //       cout.setorientation(1);
+        //       cout.setlength(100);
+        metadata << "Number of readout planes : " << fNReadoutPlanes << endl;
+        metadata << "Decoding was defined : ";
         if (fDecoding)
-            cout << "YES" << endl;
+            metadata << "YES" << endl;
         else
-            cout << "NO" << endl;
-        cout << "-----------------------------------" << endl;
+            metadata << "NO" << endl;
+        metadata << "-----------------------------------" << endl;
         for (int p = 0; p < GetNumberOfReadoutPlanes(); p++) fReadoutPlanes[p].Print(DetailLevel - 1);
-        cout << "****************************************" << endl;
-        cout << endl;
+        metadata << "****************************************" << endl;
         cout << endl;
     }
 }

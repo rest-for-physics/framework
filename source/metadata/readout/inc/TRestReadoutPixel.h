@@ -28,6 +28,7 @@
 #include <TMath.h>
 #include <TVector2.h>
 #include "TObject.h"
+#include "TRestMetadata.h"
 
 /// A class to store the readout pixel definition used in TRestReadoutChannel.
 class TRestReadoutPixel : public TObject {

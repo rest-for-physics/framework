@@ -46,13 +46,11 @@ double delta = 1.e-6;
 #include "TRestReadoutPixel.h"
 using namespace std;
 
-ClassImp(TRestReadoutPixel)
-    ///////////////////////////////////////////////
-    /// \brief TRestReadoutPixel default constructor
-    ///
-    TRestReadoutPixel::TRestReadoutPixel() {
-    Initialize();
-}
+ClassImp(TRestReadoutPixel);
+///////////////////////////////////////////////
+/// \brief TRestReadoutPixel default constructor
+///
+TRestReadoutPixel::TRestReadoutPixel() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief TRestReadoutPixel default destructor
@@ -156,12 +154,12 @@ TVector2 TRestReadoutPixel::TransformToPixelCoordinates(TVector2 p) {
 /// \brief Prints on screen the pixel details, origin, size, rotation
 ///
 void TRestReadoutPixel::Print(int index) {
-    cout << "      ## Pixel : " << index << " position : (" << GetOriginX() << "," << GetOriginY()
-         << ") mm size : (" << GetSizeX() << "," << GetSizeY() << ") mm rotation : " << fRotation
-         << " degrees"
-         << " type : ";
+    metadata << "    ## Pixel : " << index << " position : (" << GetOriginX() << "," << GetOriginY()
+             << ") mm size : (" << GetSizeX() << "," << GetSizeY() << ") mm" << endl;
+    metadata << "       rotation : " << fRotation << " degrees"
+             << " type : ";
     if (fTriangle)
-        cout << "triangle" << endl;
+        metadata << "triangle" << endl;
     else
-        cout << "rectangle" << endl;
+        metadata << "rectangle" << endl;
 }

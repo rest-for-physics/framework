@@ -44,13 +44,11 @@
 #include "TRestReadoutChannel.h"
 using namespace std;
 
-ClassImp(TRestReadoutChannel)
-    ///////////////////////////////////////////////
-    /// \brief TRestReadoutChannel default constructor
-    ///
-    TRestReadoutChannel::TRestReadoutChannel() {
-    Initialize();
-}
+ClassImp(TRestReadoutChannel);
+///////////////////////////////////////////////
+/// \brief TRestReadoutChannel default constructor
+///
+TRestReadoutChannel::TRestReadoutChannel() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief TRestReadoutChannel default destructor
@@ -78,7 +76,7 @@ Int_t TRestReadoutChannel::isInside(Double_t x, Double_t y) {
 ///
 void TRestReadoutChannel::Print(int DetailLevel, int index) {
     if (DetailLevel >= 0) {
-        cout << "++++ Channel : " << index << " Daq channel : " << GetDaqID() << endl;
+        metadata << "++++ Channel : " << index << " Daq channel : " << GetDaqID() << endl;
 
         string typestr;
         if (GetType() == Channel_NoType)
@@ -96,8 +94,8 @@ void TRestReadoutChannel::Print(int DetailLevel, int index) {
         else if (GetType() == Channel_W)
             typestr = "W";
 
-        cout << " Total pixels : " << GetNumberOfPixels() << " Channel type : " << typestr << endl;
-        cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+        metadata << " Total pixels : " << GetNumberOfPixels() << " Channel type : " << typestr << endl;
+        metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
         if (DetailLevel - 1 >= 0)
             for (int n = 0; n < GetNumberOfPixels(); n++) {
