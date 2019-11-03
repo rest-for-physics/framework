@@ -63,7 +63,7 @@ void TRestRun::Initialize() {
     time_t timev;
     time(&timev);
     fStartTime = (Double_t)timev;
-    fEndTime = fStartTime - 1;  // So that run length will be -1 if fEndTime is not set
+    fEndTime = 0;  // We need a static value to avoid overwriting the time if another process sets the time
 
     fRunUser = getenv("USER") == NULL ? "" : getenv("USER");
     fRunNumber = 0;        // run number where input file is from and where output file
@@ -867,10 +867,12 @@ void TRestRun::WriteWithDataBase() {
     }
     debug << "TRestRun::WriteWithDataBase. Entries found : " << fEntriesSaved << endl;
 
-    // record the current time
-    time_t timev;
-    time(&timev);
-    fEndTime = (Double_t)timev;
+    // If time was not written by any other process we record the current time
+    if (fEndTime == 0) {
+        time_t timev;
+        time(&timev);
+        fEndTime = (Double_t)timev;
+    }
 
     // save metadata objects in file
     debug << "TRestRun::WriteWithDataBase. Calling this->Write(0,kOverWrite)" << endl;
