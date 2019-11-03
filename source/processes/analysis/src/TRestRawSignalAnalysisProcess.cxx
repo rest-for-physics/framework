@@ -22,6 +22,8 @@
 
 //////////////////////////////////////////////////////////////////////////
 ///
+/// THIS DOCUMENTATION NEEDS REVISION
+///
 /// ### Observables
 ///
 /// Number of signals and base line:
@@ -352,22 +354,22 @@ risetimemean += sgnl->GetRiseTime();
     // The only new observables that remain are map variables.
     // We can adopt lower case naming for map variables. But Double_t variables naming convention was already
     // fixed. In future case insensitive?
-    SetObservableValue("risetime", risetime);
+    SetObservableValue("risetime_map", risetime);
     // SetObservableValue("risetimemean", risetimemean); // Repeated observable : RiseTimeAvg
-    SetObservableValue("baseline", baseline);
+    SetObservableValue("baseline_map", baseline);
     // SetObservableValue("baselinemean", baselinemean); // Repeated observable: BaseLineMean
-    SetObservableValue("baselinesigma", baselinesigma);
+    SetObservableValue("baselinesigma_map", baselinesigma);
     // SetObservableValue("baselinesigmamean", baselinesigmamean);  //Repeated observable: BaseLineSigmaMean
 
     // A name like : max_amplitude (or max_amplitude_map) would be a name more straight forward to understand
-    SetObservableValue("ampsgn_maxmethod", ampsgn_maxmethod);
+    SetObservableValue("max_amplitude_map", ampsgn_maxmethod);
 
     // SetObservableValue("ampeve_maxmethod", ampeve_maxmethod); // Repeated : MaxPeakAmplitudeIntegral
 
     // This observable is a map of the threshold integral of each pulse. The given name is not intuitive to
     // me. It should be just something like : thr_integral  ---> then lower case tells me that is a map. If
     // not we should use some convention like : thr_integral_map
-    SetObservableValue("ampsgn_intmethod", ampsgn_intmethod);
+    SetObservableValue("thr_integral_map", ampsgn_intmethod);
 
     //   SetObservableValue("ampeve_intmethod", ampeve_intmethod);  // Repeated observable : ThresholdIntegral
 
@@ -385,8 +387,8 @@ risetimemean += sgnl->GetRiseTime();
     SetObservableValue("EventTimeDelay", evTimeDelay);
 
     Double_t meanRate = 0;
-    if (fPreviousEventTime.size() == 100)
-        meanRate = 100. / (fSignalEvent->GetTime() - fPreviousEventTime.front());
+    if (fPreviousEventTime.size() == 10)
+        meanRate = 10. / (fSignalEvent->GetTime() - fPreviousEventTime.front());
     SetObservableValue("MeanRate_InHz", meanRate);
     /* /////////////////////////////////////////////////////////////////////////////////// */
 
@@ -506,7 +508,7 @@ risetimemean += sgnl->GetRiseTime();
     }
 
     fPreviousEventTime.push_back(fSignalEvent->GetTimeStamp());
-    if (fPreviousEventTime.size() > 100) fPreviousEventTime.erase(fPreviousEventTime.begin());
+    if (fPreviousEventTime.size() > 10) fPreviousEventTime.erase(fPreviousEventTime.begin());
 
     return fSignalEvent;
 }
