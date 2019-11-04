@@ -57,9 +57,10 @@ class TRestRawSignal : public TObject {
     /// Any signal calculation will be restricted to the following range definition.
     TVector2 fRange = TVector2(0, 0);  //!
 
+    Short_t operator[](Int_t n);
+
     // Getters
-    Double_t GetData(Int_t n) { return (Double_t)GetSignalData(n) - fBaseLine; }
-    Short_t GetSignalData(Int_t n);
+    Double_t GetData(Int_t n);
 
     Int_t GetSignalID() { return fSignalID; }
     Int_t GetID() { return fSignalID; }

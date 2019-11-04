@@ -81,14 +81,15 @@ void TRestRawSignal::AddPoint(Short_t d) { fSignalData.push_back(d); }
 void TRestRawSignal::AddCharge(Short_t d) { AddPoint(d); }
 void TRestRawSignal::AddDeposit(Short_t d) { AddPoint(d); }
 
-Short_t TRestRawSignal::GetSignalData(Int_t n) {
+Short_t TRestRawSignal::operator[](Int_t n) {
     if (n >= GetNumberOfPoints()) {
         std::cout << "TRestRawSignal::GetSignalData: outside limits" << std::endl;
         return 0xFFFF;
     }
-
     return fSignalData[n];
 }
+
+Double_t TRestRawSignal::GetData(Int_t n) { return (Double_t)fSignalData[n] - fBaseLine; }
 
 void TRestRawSignal::IncreaseBinBy(Int_t bin, Double_t data) {
     if (bin >= GetNumberOfPoints()) {
@@ -100,9 +101,11 @@ void TRestRawSignal::IncreaseBinBy(Int_t bin, Double_t data) {
 }
 
 void TRestRawSignal::InitializePointsOverThreshold(TVector2 thrPar, Int_t nPointsOver, Int_t nPointsFlat) {
-    if (fBaseLine == 0 && fBaseLineSigma == 0)  // If both are 0 we have not initialized the baseline
-        cout << "TRestRawSignal::InitializePointsOverThreshold. CalculateBaseLine should be called first."
-             << endl;
+    // if (fBaseLine == 0 && fBaseLineSigma == 0)  // If both are 0 we have not initialized the baseline
+    //    cout << "TRestRawSignal::InitializePointsOverThreshold. CalculateBaseLine should be called first."
+    //         << endl;
+    // We still got the case that there is a simulated raw signal which contains no baseline. i.e. after
+    // TRestSignalToRawSignalProcess
 
     if (fRange.X() < 0) fRange.SetX(0);
     if (fRange.Y() <= 0) fRange.SetY(GetNumberOfPoints());
@@ -354,7 +357,7 @@ void TRestRawSignal::GetDifferentialSignal(TRestRawSignal* diffSgnl, Int_t smear
 
 void TRestRawSignal::GetWhiteNoiseSignal(TRestRawSignal* noiseSgnl, Double_t noiseLevel) {
     double* dd = new double();
-    uintptr_t seed = (uintptr_t)dd + (uintptr_t) this;
+    uintptr_t seed = (uintptr_t)dd + (uintptr_t)this;
     delete dd;
     TRandom3* fRandom = new TRandom3(seed);
 
@@ -383,22 +386,25 @@ void TRestRawSignal::GetSignalSmoothed(TRestRawSignal* smthSignal, Int_t averagi
 }
 
 void TRestRawSignal::CalculateBaseLine(Int_t startBin, Int_t endBin) {
-    if (endBin - startBin <= 0) fBaseLine = 0.;
-
-    Double_t baseLine = 0;
-    for (int i = startBin; i < endBin; i++) baseLine += fSignalData[i];
-
-    fBaseLine = baseLine / (endBin - startBin);
-
+    if (endBin - startBin <= 0) {
+        fBaseLine = 0.;
+    } else {
+        Double_t baseLine = 0;
+        for (int i = startBin; i < endBin; i++) baseLine += fSignalData[i];
+        fBaseLine = baseLine / (endBin - startBin);
+    }
     CalculateBaseLineSigma(startBin, endBin);
 }
 
 void TRestRawSignal::CalculateBaseLineSigma(Int_t startBin, Int_t endBin) {
-    Double_t baseLineSigma = 0;
-    for (int i = startBin; i < endBin; i++)
-        baseLineSigma += (fBaseLine - fSignalData[i]) * (fBaseLine - fSignalData[i]);
-
-    fBaseLineSigma = TMath::Sqrt(baseLineSigma / (endBin - startBin));
+    if (endBin - startBin <= 0) {
+        fBaseLineSigma = 0;
+    } else {
+        Double_t baseLineSigma = 0;
+        for (int i = startBin; i < endBin; i++)
+            baseLineSigma += (fBaseLine - fSignalData[i]) * (fBaseLine - fSignalData[i]);
+        fBaseLineSigma = TMath::Sqrt(baseLineSigma / (endBin - startBin));
+    }
 }
 
 // void TRestRawSignal::SubstractBaseline() { AddOffset((Short_t)-fBaseLine); }
