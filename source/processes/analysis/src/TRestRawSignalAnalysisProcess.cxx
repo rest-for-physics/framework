@@ -263,8 +263,6 @@ TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     // fSignalEvent->SetTimeStamp(fInputSignalEvent->GetTimeStamp());
     // fSignalEvent->SetSubEventTag(fInputSignalEvent->GetSubEventTag());
 
-    ////for( int sgnl = 0; sgnl < fInputSignalEvent->GetNumberOfSignals(); sgnl++
-    ///)
     // Int_t N = fInputSignalEvent->GetNumberOfSignals();
     // if (GetVerboseLevel() >= REST_Debug) N = 1;
     // for (int sgnl = 0; sgnl < N; sgnl++)
@@ -342,9 +340,6 @@ risetimemean += sgnl->GetRiseTime();
         //  Double_t value = sgnl->GetMaxValue();
         //  if (value > maxeve) maxeve = value; // Not used?
     }
-
-    // If no good signals are identified the event will be not registered.
-    if (nGoodSignals == 0) return NULL;
 
     // baselinemean /= fSignalEvent->GetNumberOfSignals();
     // baselinesigmamean /= fSignalEvent->GetNumberOfSignals();
@@ -509,6 +504,9 @@ risetimemean += sgnl->GetRiseTime();
 
     fPreviousEventTime.push_back(fSignalEvent->GetTimeStamp());
     if (fPreviousEventTime.size() > 10) fPreviousEventTime.erase(fPreviousEventTime.begin());
+
+    // If no good signals are identified the event will be not registered.
+    if (nGoodSignals == 0) return NULL;
 
     return fSignalEvent;
 }
