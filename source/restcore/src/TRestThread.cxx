@@ -273,7 +273,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
                 if (inputana->IsBranchesCreated()) {
                     tempTree->CopyObservableList(inputana, "");
                 } else if (inputana->IsConnected()) {
-                    tempTree->CopyObservableList(inputana, "old_");
+                    tempTree->CopyObservableList(inputana, "");
                 } else {
                     cout << "Error! input analysis tree is not ready! observables not added!" << endl;
                 }
@@ -307,8 +307,8 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
         }
 
         if (fHostRunner->GetNextevtFunc(fInputEvent, tempTree) != 0) {
-            ferr  << "In thread " << fThreadId
-                  << ")::Failed to get the first input event, process cannot start!" << endl;
+            ferr << "In thread " << fThreadId
+                 << ")::Failed to get the first input event, process cannot start!" << endl;
             GetChar();
             exit(1);
         }
@@ -321,8 +321,8 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
                 ferr << "One of the processes has NULL pointer fOutputEvent!" << endl;
                 if (fVerboseLevel < REST_Debug)
                     ferr << "To see more detail, turn on debug mode for "
-                             "TRestProcessRunner!"
-                          << endl;
+                            "TRestProcessRunner!"
+                         << endl;
                 exit(1);
             }
             debug << "Test Run complete!" << endl;
