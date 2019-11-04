@@ -99,7 +99,7 @@ class TRestRawSignalEvent : public TRestEvent {
 
     Double_t GetBaseLineAverage();
     Double_t GetBaseLineSigmaAverage();
-    void SubstractBaselines();
+    //   void SubstractBaselines();
     Double_t GetIntegral();
     Double_t GetThresholdIntegral();
 

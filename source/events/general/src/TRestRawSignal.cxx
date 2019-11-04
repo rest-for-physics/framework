@@ -401,7 +401,7 @@ void TRestRawSignal::CalculateBaseLineSigma(Int_t startBin, Int_t endBin) {
     fBaseLineSigma = TMath::Sqrt(baseLineSigma / (endBin - startBin));
 }
 
-void TRestRawSignal::SubstractBaseline() { AddOffset((Short_t)-fBaseLine); }
+// void TRestRawSignal::SubstractBaseline() { AddOffset((Short_t)-fBaseLine); }
 
 void TRestRawSignal::AddOffset(Short_t offset) {
     if (fBaseLine == 0 && fBaseLineSigma == 0) fBaseLineSigma += (Double_t)offset;

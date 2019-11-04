@@ -219,9 +219,9 @@ Double_t TRestRawSignalEvent::GetBaseLineSigmaAverage() {
 /// Perhaps we should not substract baselines on a TRestRawSignal. Just consider it in the observables
 /// calculation if a baseline range is provided in the argument (as it is done in
 /// InitializeThresholdIntegral). This method should be probably removed.
-void TRestRawSignalEvent::SubstractBaselines() {
-    for (int sgnl = 0; sgnl < GetNumberOfSignals(); sgnl++) GetSignal(sgnl)->SubstractBaseline();
-}
+// void TRestRawSignalEvent::SubstractBaselines() {
+//    for (int sgnl = 0; sgnl < GetNumberOfSignals(); sgnl++) GetSignal(sgnl)->SubstractBaseline();
+//}
 
 void TRestRawSignalEvent::AddChargeToSignal(Int_t sgnlID, Int_t bin, Short_t value) {
     Int_t sgnlIndex = GetSignalIndex(sgnlID);
