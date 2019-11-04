@@ -240,33 +240,21 @@ TRestEvent* TRestRawSignalShapingProcess::ProcessEvent(TRestEvent* evInput) {
     for (int n = 0; n < Nr; n++) rsp[n] = rsp[n] * fShapingGain / sum;
 
     for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++) {
-        TRestRawSignal* shapingSignal = new TRestRawSignal();
+        TRestRawSignal shapingSignal = TRestRawSignal();
+        TRestRawSignal inSignal = *fInputSignalEvent->GetSignal(n);
+        Int_t nBins = inSignal.GetNumberOfPoints();
 
-        TRestRawSignal* inSignal = fInputSignalEvent->GetSignal(n);
-
-        Int_t nBins = inSignal->GetNumberOfPoints();
-
-        double* in = new double[nBins];
-        for (int i = 0; i < nBins; i++) in[i] = inSignal->GetData(i);
-
-        double* out = new double[nBins];
-        for (int i = 0; i < nBins; i++) out[i] = 0;
-
+        vector<double> out(nBins);
         for (int m = 0; m < nBins; m++) {
-            if (in[m] > 0) {
-                for (int n = 0; n < Nr && m + n < nBins; n++) out[m + n] += rsp[n] * in[m];
+            if (inSignal.GetData(m) > 0) {
+                for (int n = 0; n < Nr && m + n < nBins; n++) out[m + n] += rsp[n] * inSignal.GetData(m);
             }
         }
 
-        for (int i = 0; i < nBins; i++) shapingSignal->AddPoint((Short_t)out[i]);
+        for (int i = 0; i < nBins; i++) shapingSignal.AddPoint((Short_t)out[i]);
+        shapingSignal.SetSignalID(inSignal.GetSignalID());
 
-        shapingSignal->SetSignalID(inSignal->GetSignalID());
-
-        fOutputSignalEvent->AddSignal(*shapingSignal);
-
-        delete shapingSignal;
-        delete[] in;
-        delete[] out;
+        fOutputSignalEvent->AddSignal(shapingSignal);
     }
 
     delete[] rsp;
