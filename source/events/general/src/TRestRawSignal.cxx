@@ -404,6 +404,7 @@ void TRestRawSignal::CalculateBaseLineSigma(Int_t startBin, Int_t endBin) {
 void TRestRawSignal::SubstractBaseline() { AddOffset((Short_t)-fBaseLine); }
 
 void TRestRawSignal::AddOffset(Short_t offset) {
+    if (fBaseLine == 0 && fBaseLineSigma == 0) fBaseLineSigma += (Double_t)offset;
     for (int i = 0; i < GetNumberOfPoints(); i++) fSignalData[i] = fSignalData[i] + offset;
 }
 
