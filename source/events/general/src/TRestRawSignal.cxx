@@ -1,19 +1,44 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestRawSignal.cxx
-///
-///             Event class to store signals from simulation and acquisition
-///             events
-///
-///             feb 2017:   Created from TRestSignal
-///              Javier Galan
-///_______________________________________________________________________________
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
+//////////////////////////////////////////////////////////////////////////
+/// TRestRawSignal is ... a longer description comes here
+/// The REST process using it will usually define the sampling of the TRestRawSignal binning.
+///
+/// DOCUMENTATION TO BE WRITTEN
+///
+///--------------------------------------------------------------------------
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2017-February: First concept and implementation of TRestRawSignal class.
+/// \author     Javier Galan
+///
+/// \class TRestRawSignal
+///
+/// <hr>
+///
 #include "TRestRawSignal.h"
 #include <numeric>
 using namespace std;
@@ -24,41 +49,34 @@ using namespace std;
 
 ClassImp(TRestRawSignal);
 
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
 TRestRawSignal::TRestRawSignal() {
-    // TRestRawSignal default constructor
     fGraph = NULL;
-    fSignalID = -1;
-    fSignalData.clear();
 
-    fPointsOverThreshold.clear();
-
-    fThresholdIntegral = -1;
-
-    fHeadPoints = 0;
-    fTailPoints = 0;
+    Initialize();
 }
 
+///////////////////////////////////////////////
+/// \brief Default constructor initializing fSignalData with a number of points equal to nBins.
+///
 TRestRawSignal::TRestRawSignal(Int_t nBins) {
-    // TRestRawSignal default constructor
     fGraph = NULL;
-    fSignalID = -1;
-    fSignalData.clear();
 
-    fPointsOverThreshold.clear();
+    Initialize();
 
     for (int n = 0; n < nBins; n++) fSignalData.push_back(0);
-
-    fThresholdIntegral = -1;
-
-    fHeadPoints = 0;
-    fTailPoints = 0;
 }
 
-//______________________________________________________________________________
-TRestRawSignal::~TRestRawSignal() {
-    // TRestRawSignal destructor
-}
+///////////////////////////////////////////////
+/// \brief Default destructor
+///
+TRestRawSignal::~TRestRawSignal() {}
 
+///////////////////////////////////////////////
+/// \brief Initialization of TRestRawSignal members
+///
 void TRestRawSignal::Initialize() {
     fSignalData.clear();
     fPointsOverThreshold.clear();
@@ -68,19 +86,39 @@ void TRestRawSignal::Initialize() {
 
     fHeadPoints = 0;
     fTailPoints = 0;
+
+    fBaseLine = 0;
+    fBaseLineSigma = 0;
 }
 
+///////////////////////////////////////////////
+/// \brief Initializes the existing signal data and sets it to zero while keeping the array size.
+///
 void TRestRawSignal::Reset() {
     Int_t nBins = GetNumberOfPoints();
-    fSignalData.clear();
+    Initialize();
     for (int n = 0; n < nBins; n++) fSignalData.push_back(0);
 }
 
+///////////////////////////////////////////////
+/// \brief Adds a new point to the end of the signal data array
+///
 void TRestRawSignal::AddPoint(Short_t d) { fSignalData.push_back(d); }
 
+///////////////////////////////////////////////
+/// \brief Adds a new point to the end of the signal data array. Same as AddPoint.
+///
 void TRestRawSignal::AddCharge(Short_t d) { AddPoint(d); }
+
+///////////////////////////////////////////////
+/// \brief Adds a new point to the end of the signal data array. Same as AddPoint.
+///
 void TRestRawSignal::AddDeposit(Short_t d) { AddPoint(d); }
 
+///////////////////////////////////////////////
+/// \brief It overloads the operator [] so that we can retrieve a particular point *n* in the form
+/// rawSignal[n].
+///
 Short_t TRestRawSignal::operator[](Int_t n) {
     if (n >= GetNumberOfPoints()) {
         std::cout << "TRestRawSignal::GetSignalData: outside limits" << std::endl;
@@ -89,8 +127,18 @@ Short_t TRestRawSignal::operator[](Int_t n) {
     return fSignalData[n];
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the data value of point *n* including baseline correction.
+///
+/// This method will substract the internal value of fBaseLine that is extracted from the existing data points
+/// after calling the method CalculateBaseLine. If CalculateBaseLine has not been called previously, this
+/// method will return the raw values inside fSignalData.
+///
 Double_t TRestRawSignal::GetData(Int_t n) { return (Double_t)fSignalData[n] - fBaseLine; }
 
+///////////////////////////////////////////////
+/// \brief It adds the content of data to fSignalData[bin].
+///
 void TRestRawSignal::IncreaseBinBy(Int_t bin, Double_t data) {
     if (bin >= GetNumberOfPoints()) {
         std::cout << "TRestRawSignal::IncreaseBinBy: outside limits" << std::endl;
@@ -100,13 +148,24 @@ void TRestRawSignal::IncreaseBinBy(Int_t bin, Double_t data) {
     fSignalData[bin] += data;
 }
 
+///////////////////////////////////////////////
+/// \brief It initializes the fPointsOverThreshold array with the indexes of data points that are found over
+/// threshold. The parameters provided to this method are used to identify those points.
+///
+/// \param thrPar A TVector2 defining two parameters: *pointThreshold* and *signalThreshold*. Both numbers
+/// define the number of sigmas over the baseline fluctuation, stored in fBaseLineSigma. The first parameter,
+/// *pointThreshold*, serves to identify if a single point is over threshold by satisfying the condition that
+/// is above the baseline by the number of sigmas given in *pointThreshold*. Once a certain number of
+/// consecutive points have been identified, the parameter *signalThreshold* will serve to reject the signals
+/// (consecutive points over threshold) that their standard deviation is lower that *signalThreshold* times
+/// the baseline fluctuation.
+///
+/// \param nPointsOver Only data points with at least *nPointsOver* consecutive points will be considered.
+///
+/// \param nPointsFlat It will serve to terminate the points over threshold identification in signals where
+/// we find an overshoot, being the baseline not returning to zero (or its original value) at the signal tail.
+///
 void TRestRawSignal::InitializePointsOverThreshold(TVector2 thrPar, Int_t nPointsOver, Int_t nPointsFlat) {
-    // if (fBaseLine == 0 && fBaseLineSigma == 0)  // If both are 0 we have not initialized the baseline
-    //    cout << "TRestRawSignal::InitializePointsOverThreshold. CalculateBaseLine should be called first."
-    //         << endl;
-    // We still got the case that there is a simulated raw signal which contains no baseline. i.e. after
-    // TRestSignalToRawSignalProcess
-
     if (fRange.X() < 0) fRange.SetX(0);
     if (fRange.Y() <= 0) fRange.SetY(GetNumberOfPoints());
 
@@ -162,6 +221,10 @@ void TRestRawSignal::InitializePointsOverThreshold(TVector2 thrPar, Int_t nPoint
     CalculateThresholdIntegral();
 }
 
+///////////////////////////////////////////////
+/// \brief This method will be called each time InitializePointsOverThreshold is called to re-define the value
+/// of fThresholdIntegral. This method is only used internally.
+///
 void TRestRawSignal::CalculateThresholdIntegral() {
     if (fRange.X() < 0) fRange.SetX(0);
     if (fRange.Y() <= 0 || fRange.Y() > GetNumberOfPoints()) fRange.SetY(GetNumberOfPoints());
@@ -175,6 +238,10 @@ void TRestRawSignal::CalculateThresholdIntegral() {
     }
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the integral of points found in the region defined by fRange. If fRange was not defined
+/// the integral is calculated in the full range.
+///
 Double_t TRestRawSignal::GetIntegral() {
     if (fRange.X() < 0) fRange.SetX(0);
     if (fRange.Y() <= 0 || fRange.Y() > GetNumberOfPoints()) fRange.SetY(GetNumberOfPoints());
@@ -184,6 +251,9 @@ Double_t TRestRawSignal::GetIntegral() {
     return sum;
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the integral of points found in the specific range given by (startBin,endBin).
+///
 Double_t TRestRawSignal::GetIntegralInRange(Int_t startBin, Int_t endBin) {
     if (startBin < 0) startBin = 0;
     if (endBin <= 0 || endBin > GetNumberOfPoints()) endBin = GetNumberOfPoints();
@@ -193,6 +263,22 @@ Double_t TRestRawSignal::GetIntegralInRange(Int_t startBin, Int_t endBin) {
     return sum;
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the integral of points identified over threshold. InitializePointsOverThreshold should
+/// have been called first.
+///
+Double_t TRestRawSignal::GetThresholdIntegral() {
+    if (fThresholdIntegral == -1)
+        std::cout << "TRestRawSignal::GetThresholdIntegral. InitializePointsOverThreshold should be "
+                     "called first!"
+                  << std::endl;
+    return fThresholdIntegral;
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the integral of points identified over threshold found in the first positive rise of the
+/// signal. InitializePointsOverThreshold should have been called first.
+///
 Double_t TRestRawSignal::GetSlopeIntegral() {
     if (fThresholdIntegral == -1)
         cout << "REST Warning. TRestRawSignal::GetSlopeIntegral. "
@@ -210,6 +296,10 @@ Double_t TRestRawSignal::GetSlopeIntegral() {
     return sum;
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the rate of change or slope from the points that have been identified over threshlold on
+/// the first positive rise of the signal. InitializePointsOverThreshold should have been called first.
+///
 Double_t TRestRawSignal::GetRiseSlope() {
     if (fThresholdIntegral == -1)
         cout << "REST Warning. TRestRawSignal::GetRiseSlope. "
@@ -230,6 +320,10 @@ Double_t TRestRawSignal::GetRiseSlope() {
     return (hP - lP) / (maxBin - fPointsOverThreshold[0]);
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the time required from the signal to reach the maximum.
+/// InitializePointsOverThreshold should have been called first.
+///
 Int_t TRestRawSignal::GetRiseTime() {
     if (fThresholdIntegral == -1)
         cout << "REST Warning. TRestRawSignal::GetRiseTime. "
@@ -244,6 +338,9 @@ Int_t TRestRawSignal::GetRiseTime() {
     return GetMaxPeakBin() - fPointsOverThreshold[0];
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the integral calculated using the maximum signal amplitude and its neightbour points.
+///
 Double_t TRestRawSignal::GetTripleMaxIntegral() {
     if (fRange.X() < 0) fRange.SetX(0);
     if (fRange.Y() <= 0 || fRange.Y() > GetNumberOfPoints()) fRange.SetY(GetNumberOfPoints());
@@ -273,6 +370,9 @@ Double_t TRestRawSignal::GetTripleMaxIntegral() {
     return a1 + a2 + a3;
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the average of the points found in the range (startBin, endBin)
+///
 Double_t TRestRawSignal::GetAverageInRange(Int_t startBin, Int_t endBin) {
     if (startBin < 0) startBin = 0;
     if (endBin <= 0 || endBin > GetNumberOfPoints()) endBin = GetNumberOfPoints();
@@ -283,6 +383,9 @@ Double_t TRestRawSignal::GetAverageInRange(Int_t startBin, Int_t endBin) {
     return sum / (endBin - startBin + 1);
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the temporal width of the peak with maximum amplitude inside the signal
+///
 Int_t TRestRawSignal::GetMaxPeakWidth() {
     Int_t mIndex = this->GetMaxPeakBin();
     Double_t maxValue = this->GetData(mIndex);
@@ -303,8 +406,15 @@ Int_t TRestRawSignal::GetMaxPeakWidth() {
     return rightIndex - leftIndex;
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the amplitude of the signal maximum, baseline will be corrected if CalculateBaseLine was
+/// called first.
+///
 Double_t TRestRawSignal::GetMaxPeakValue() { return GetData(GetMaxPeakBin()); }
 
+///////////////////////////////////////////////
+/// \brief It returns the bin at which the maximum peak amplitude happens
+///
 Int_t TRestRawSignal::GetMaxPeakBin() {
     Double_t max = -1E10;
     Int_t index = 0;
@@ -322,8 +432,15 @@ Int_t TRestRawSignal::GetMaxPeakBin() {
     return index;
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the amplitude of the signal minimum, baseline will be corrected if CalculateBaseLine was
+/// called first.
+///
 Double_t TRestRawSignal::GetMinPeakValue() { return GetData(GetMinPeakBin()); }
 
+///////////////////////////////////////////////
+/// \brief It returns the bin at which the minimum peak amplitude happens
+///
 Int_t TRestRawSignal::GetMinPeakBin() {
     Double_t min = 1E10;
     Int_t index = 0;
@@ -341,7 +458,15 @@ Int_t TRestRawSignal::GetMinPeakBin() {
     return index;
 }
 
+///////////////////////////////////////////////
+/// \brief It calculates the differential signal of the existing signal and it will place at the
+/// signal pointer given by argument.
+///
+/// \param smearPoints is a number bigger that 0 that serves to change the time distance of points used to
+/// obtain the diferential at a given point.
+///
 void TRestRawSignal::GetDifferentialSignal(TRestRawSignal* diffSgnl, Int_t smearPoints) {
+    if (smearPoints <= 0) smearPoints = 1;
     diffSgnl->Initialize();
 
     for (int i = 0; i < smearPoints; i++) diffSgnl->AddPoint(0);
@@ -355,9 +480,15 @@ void TRestRawSignal::GetDifferentialSignal(TRestRawSignal* diffSgnl, Int_t smear
     for (int i = GetNumberOfPoints() - smearPoints; i < GetNumberOfPoints(); i++) diffSgnl->AddPoint(0);
 }
 
+///////////////////////////////////////////////
+/// \brief It calculates an arbitrary Gaussian noise placing it at the signal pointer given by argument. The
+/// number of points defined will be the same as the existing signal.
+///
+/// \param noiseLevel It defines the amplitude of the signal noise fluctuations as its standard deviation.
+///
 void TRestRawSignal::GetWhiteNoiseSignal(TRestRawSignal* noiseSgnl, Double_t noiseLevel) {
     double* dd = new double();
-    uintptr_t seed = (uintptr_t)dd + (uintptr_t)this;
+    uintptr_t seed = (uintptr_t)dd + (uintptr_t) this;
     delete dd;
     TRandom3* fRandom = new TRandom3(seed);
 
@@ -367,6 +498,11 @@ void TRestRawSignal::GetWhiteNoiseSignal(TRestRawSignal* noiseSgnl, Double_t noi
     delete fRandom;
 }
 
+///////////////////////////////////////////////
+/// \brief It smoothes the existing signal and places it at the signal pointer given by argument.
+///
+/// \param averagingPoints It defines the number of neightbour consecutive points used to average the signal
+///
 void TRestRawSignal::GetSignalSmoothed(TRestRawSignal* smthSignal, Int_t averagingPoints) {
     smthSignal->Initialize();
 
@@ -385,6 +521,10 @@ void TRestRawSignal::GetSignalSmoothed(TRestRawSignal* smthSignal, Int_t averagi
         smthSignal->AddPoint(sumAvg);
 }
 
+///////////////////////////////////////////////
+/// \brief This method is used to determine the value of the baseline as an average of the data points found
+/// in the range defined between startBin and endBin.
+///
 void TRestRawSignal::CalculateBaseLine(Int_t startBin, Int_t endBin) {
     if (endBin - startBin <= 0) {
         fBaseLine = 0.;
@@ -396,6 +536,10 @@ void TRestRawSignal::CalculateBaseLine(Int_t startBin, Int_t endBin) {
     CalculateBaseLineSigma(startBin, endBin);
 }
 
+///////////////////////////////////////////////
+/// \brief This method is called each time we call CalculateBaseLine to determine the value of the baseline
+/// fluctuation as its standard deviation in the baseline range provided.
+///
 void TRestRawSignal::CalculateBaseLineSigma(Int_t startBin, Int_t endBin) {
     if (endBin - startBin <= 0) {
         fBaseLineSigma = 0;
@@ -407,13 +551,17 @@ void TRestRawSignal::CalculateBaseLineSigma(Int_t startBin, Int_t endBin) {
     }
 }
 
-// void TRestRawSignal::SubstractBaseline() { AddOffset((Short_t)-fBaseLine); }
-
+///////////////////////////////////////////////
+/// \brief This method adds an offset to the signal data
+///
 void TRestRawSignal::AddOffset(Short_t offset) {
     if (fBaseLine != 0 || fBaseLineSigma != 0) fBaseLineSigma += (Double_t)offset;
     for (int i = 0; i < GetNumberOfPoints(); i++) fSignalData[i] = fSignalData[i] + offset;
 }
 
+///////////////////////////////////////////////
+/// \brief This method scales the signal by a given value
+///
 void TRestRawSignal::Scale(Double_t value) {
     for (int i = 0; i < GetNumberOfPoints(); i++) {
         Double_t scaledValue = value * fSignalData[i];
@@ -421,6 +569,9 @@ void TRestRawSignal::Scale(Double_t value) {
     }
 }
 
+///////////////////////////////////////////////
+/// \brief This method adds the signal provided by argument to the existing signal.
+///
 void TRestRawSignal::SignalAddition(TRestRawSignal* inSgnl) {
     if (this->GetNumberOfPoints() != inSgnl->GetNumberOfPoints()) {
         cout << "ERROR : TRestRawSignal::SignalAddition." << endl;
@@ -431,12 +582,19 @@ void TRestRawSignal::SignalAddition(TRestRawSignal* inSgnl) {
     for (int i = 0; i < GetNumberOfPoints(); i++) fSignalData[i] += inSgnl->GetData(i);
 }
 
+///////////////////////////////////////////////
+/// \brief This method dumps to a text file the data inside fSignalData.
+///
 void TRestRawSignal::WriteSignalToTextFile(TString filename) {
+    // We should check it is writable
     FILE* fff = fopen(filename.Data(), "w");
     for (int i = 0; i < GetNumberOfPoints(); i++) fprintf(fff, "%d\t%d\n", i, GetData(i));
     fclose(fff);
 }
 
+///////////////////////////////////////////////
+/// \brief It prints the signal data on screen.
+///
 void TRestRawSignal::Print() {
     cout << "---------------------" << endl;
     cout << "Signal id : " << this->GetSignalID() << endl;
@@ -445,6 +603,9 @@ void TRestRawSignal::Print() {
     cout << "---------------------" << endl;
 }
 
+///////////////////////////////////////////////
+/// \brief It builds a TGraph object that can be used for drawing.
+///
 TGraph* TRestRawSignal::GetGraph(Int_t color) {
     if (fGraph != NULL) {
         delete fGraph;
