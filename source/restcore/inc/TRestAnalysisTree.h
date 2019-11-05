@@ -57,7 +57,7 @@ class TRestAnalysisTree : public TTree {
    public:
     void Initialize();
 
-	bool IsConnected() { return fConnected; }
+    bool IsConnected() { return fConnected; }
     bool IsBranchesCreated() { return fBranchesCreated; }
 
     Int_t GetObservableID(TString obsName) {
@@ -87,6 +87,10 @@ class TRestAnalysisTree : public TTree {
     TString GetObservableDescription(Int_t n) { return fObservableDescriptions[n]; }
     Double_t GetObservableValue(Int_t n) {
         return *(double*)fObservableMemory[n].address;
+    }  // TODO implement error message in case n >= fNObservables
+    Double_t GetObservableValue(TString obsName) {
+        Int_t id = GetObservableID(obsName);
+        return GetObservableValue(id);
     }  // TODO implement error message in case n >= fNObservables
     any GetObservableRef(Int_t n) {
         return fObservableMemory[n];
@@ -142,7 +146,7 @@ class TRestAnalysisTree : public TTree {
     void SetSubRunOrigin(Int_t sub_run_origin) { fSubRunOrigin = sub_run_origin; }
 
     void SetEventInfo(TRestEvent* evt);
-    Int_t Fill(TRestEvent* evt=0);
+    Int_t Fill(TRestEvent* evt = 0);
 
     Int_t AddObservable(TString objName, TRestMetadata* meta, TString description = "");
     Int_t AddObservable(TString observableName, TString observableType = "double", TString description = "");
