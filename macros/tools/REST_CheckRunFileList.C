@@ -44,9 +44,9 @@ Int_t REST_CheckRunFileList(TString namePattern, Int_t N = 100000) {
         }
 
         cout << "Run time (hours) : " << run->GetRunLength() / 3600. << endl;
-        totalTime += run->GetRunLength() / 3600.;
+        if (run->GetRunLength() > 0) totalTime += run->GetRunLength() / 3600.;
 
-        if (run->GetEndTimestamp() == 0) {
+        if (run->GetEndTimestamp() == 0 || run->GetRunLength() < 0) {
             filesNotWellClosed.push_back(filename);
         }
 
@@ -56,13 +56,14 @@ Int_t REST_CheckRunFileList(TString namePattern, Int_t N = 100000) {
     }
 
     if (filesNotWellClosed.size() > 0) {
+        cout << endl;
         cout << "---------------------" << endl;
         cout << "Files not well closed" << endl;
         cout << "---------------------" << endl;
         for (int i = 0; i < filesNotWellClosed.size(); i++) cout << filesNotWellClosed[i] << endl;
-        cout << "---------------------" << endl;
     }
 
+    cout << "------------------------------" << endl;
     cout << "Total runs time : " << totalTime << " hours" << endl;
 
     return 0;
