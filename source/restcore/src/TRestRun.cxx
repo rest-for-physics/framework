@@ -1155,16 +1155,47 @@ TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, TString ta
     return NULL;
 }
 
+TRestEvent* TRestRun::GetNextEventWithConditions(const string observable, const string op,
+                                                 const Double_t value) {
+    // operation has to be a valid logical operation
+    std::set<string> valid_operators = {"=", "==", "<", "<=", ">", ">="};
+    if (valid_operators.count(op) == 0) {
+        // invalid operation
+        cout << "invalid operation '" << op << "' for 'TRestRun::GetNextEventWithConditions'" << endl;
+        return nullptr;
+    }
+    // check if observable name corresponds to a valid observable on the tree
+    if (fAnalysisTree == nullptr) {
+        return nullptr;
+    }
+    Int_t nEntries = fAnalysisTree->GetEntries();
+    auto branches = fAnalysisTree->GetListOfBranches();
+    bool isObservableInTree = false;
+    for (int i = 0; i < nEntries; i++){
+        if (observable == (string)branches->At(i)->GetName()){
+            isObservableInTree = true;
+            break;
+        }
+    }
+    if (!isObservableInTree){
+        // invalid observable name, not contained in analysis tree
+        cout << "invalid observable name '" << observable << "' is not contained in Analysis Tree" << endl;
+        return nullptr;
+    }
+    // read only the necessary branches
+    fAnalysisTree->SetBranchStatus("*", false);
+}
 ///////////////////////////////////////////////
 /// \brief Load the next event that satisfies the conditions specified by a string
 ///
-/// \param conditions: string specifying conditions, supporting multiple conditions separated by ":", allowed
-/// symbols include "<", "<=", ">", ">=", "=", "==". For example "A>=2.2:B==4".
-/// \return TRestEvent
+/// \param conditions: string specifying conditions, supporting multiple conditions separated by ":",
+/// allowed symbols include "<", "<=", ">", ">=", "=", "==". For example "A>=2.2:B==4". \return TRestEvent
 TRestEvent* TRestRun::GetNextEventWithConditions(const string conditions) {
     if (fAnalysisTree == nullptr) {
         return nullptr;
     }
+    // parse condition string
+
     Int_t nEntries = fAnalysisTree->GetEntries();
     // read only the necessary branches
     fAnalysisTree->SetBranchStatus("*", false);
