@@ -159,6 +159,7 @@ class TRestRun : public TRestMetadata {
 
     TRestEvent* GetInputEvent() { return fInputEvent; }
     TRestEvent* GetEventWithID(Int_t eventID, Int_t subEventID = -1, TString tag = "");
+    TRestEvent* GetNextEventWithConditions(const string);
     TRestEventProcess* GetFileProcess() { return fFileProcess; }
     string GetFileInfo(string infoname) {
         return FileInfo.count(infoname) == 0 ? infoname : FileInfo[infoname];

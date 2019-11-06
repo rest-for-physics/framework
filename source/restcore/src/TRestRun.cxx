@@ -1155,6 +1155,28 @@ TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, TString ta
     return NULL;
 }
 
+///////////////////////////////////////////////
+/// \brief Load the next event that satisfies the conditions specified by a string
+///
+/// \param conditions: string specifying conditions, supporting multiple conditions separated by ":", allowed
+/// symbols include "<", "<=", ">", ">=", "=", "==". For example "A>=2.2:B==4".
+/// \return TRestEvent
+TRestEvent* TRestRun::GetNextEventWithConditions(const string conditions) {
+    if (fAnalysisTree == nullptr) {
+        return nullptr;
+    }
+    Int_t nEntries = fAnalysisTree->GetEntries();
+    // read only the necessary branches
+    fAnalysisTree->SetBranchStatus("*", false);
+
+    for (int i = 0; i < nEntries; i++) {
+        fAnalysisTree->GetEntry(i);
+    }
+
+    // reset branch status
+    fAnalysisTree->SetBranchStatus("*", true);
+}
+
 TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
     if (f != NULL) {
         TIter nextkey(f->GetListOfKeys());
