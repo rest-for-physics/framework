@@ -1171,19 +1171,45 @@ TRestEvent* TRestRun::GetNextEventWithConditions(const string observable, const 
     Int_t nEntries = fAnalysisTree->GetEntries();
     auto branches = fAnalysisTree->GetListOfBranches();
     bool isObservableInTree = false;
-    for (int i = 0; i < nEntries; i++){
-        if (observable == (string)branches->At(i)->GetName()){
+    for (int i = 0; i < nEntries; i++) {
+        if (observable == (string)branches->At(i)->GetName()) {
             isObservableInTree = true;
             break;
         }
     }
-    if (!isObservableInTree){
+    if (!isObservableInTree) {
         // invalid observable name, not contained in analysis tree
         cout << "invalid observable name '" << observable << "' is not contained in Analysis Tree" << endl;
         return nullptr;
     }
     // read only the necessary branches
     fAnalysisTree->SetBranchStatus("*", false);
+    fAnalysisTree->SetBranchStatus(observable.c_str(), true);
+
+    Double_t valueToCompare;
+    for (int i = 0; i < nEntries; i++) {
+        fAnalysisTree->GetEntry(i);
+        valueToCompare = fAnalysisTree->GetObservableValue(observable.c_str());
+        bool result;
+        if (op == "=" || op == "==") {
+            result = value == valueToCompare;
+        } else if (op == "<") {
+            result = value < valueToCompare;
+        } else if (op == "<=") {
+            result = value <= valueToCompare;
+        } else if (op == ">") {
+            result = value > valueToCompare;
+        } else if (op == ">=") {
+            result = value >= valueToCompare;
+        }
+        // end comparison
+        if (result == true) {
+            break;
+        }
+    }
+    // reset branch status
+    fAnalysisTree->SetBranchStatus("*", true);
+    return nullptr;
 }
 ///////////////////////////////////////////////
 /// \brief Load the next event that satisfies the conditions specified by a string
