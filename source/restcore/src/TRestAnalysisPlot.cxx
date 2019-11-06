@@ -388,22 +388,31 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 
     if (nPlots > maxPlots) {
         ferr << "Your canvas divisions (" << fCanvasDivisions.X() << " , " << fCanvasDivisions.Y()
-              << ") are not enough to show " << nPlots << " plots" << endl;
+             << ") are not enough to show " << nPlots << " plots" << endl;
         exit(1);
     }
 }
 
 void TRestAnalysisPlot::AddFile(TString fileName) {
-    TRestRun* run = new TRestRun();
-    run->OpenInputFile(fileName);
-
     debug << "TRestAnalysisPlot::AddFile. Adding file. " << endl;
     debug << "File name: " << fileName << endl;
-    if (fClasifyBy == "runTag") {
-        TString rTag = run->GetRunTag();
 
-        debug << "TRestAnalysisPlot::AddFile. Calling GetRunTagIndex. Tag = " << run->GetRunTag() << endl;
-        Int_t index = GetRunTagIndex(run->GetRunTag());
+    TFile* f = new TFile(fileName);
+    TIter nextkey(f->GetListOfKeys());
+    TKey* key;
+    TString rTag = "notFound";
+    while ((key = (TKey*)nextkey())) {
+        string kName = key->GetClassName();
+        if (kName == "TRestRun") {
+            rTag = ((TRestRun*)f->Get(key->GetName()))->GetRunTag();
+            break;
+        }
+    }
+    f->Close();
+
+    if (fClasifyBy == "runTag") {
+        debug << "TRestAnalysisPlot::AddFile. Calling GetRunTagIndex. Tag = " << rTag << endl;
+        Int_t index = GetRunTagIndex(rTag);
         debug << "Index. = " << index << endl;
 
         if (index < REST_MAX_TAGS) {
@@ -411,7 +420,7 @@ void TRestAnalysisPlot::AddFile(TString fileName) {
             fNFiles++;
         } else {
             ferr << "TRestAnalysisPlot::AddFile. Maximum number of tags per plot is : " << REST_MAX_TAGS
-                  << endl;
+                 << endl;
         }
     } else if (fClasifyBy == "combineAll") {
         fFileNames[0].push_back(fileName);
@@ -422,10 +431,6 @@ void TRestAnalysisPlot::AddFile(TString fileName) {
         fFileNames[0].push_back(fileName);
         fNFiles++;
     }
-
-    debug << "TRestAnalysisPlot::AddFile. Closing file. " << endl;
-    run->CloseFile();
-    delete run;
 }
 
 Int_t TRestAnalysisPlot::GetRunTagIndex(TString tag) {
@@ -508,6 +513,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         this->AddFile(inputfile);
         ele = ele->NextSiblingElement("addFile");
     }
+
     AddFileFromExternalRun();
     AddFileFromEnv();
 
@@ -524,6 +530,9 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
      * times */
     TRestRun* r;
     TRestAnalysisTree* anT;
+
+    /// This may require optimization. Perhaps inside TRestRun::OpenInputFile
+    /// We may need a quicker way to get a pointer to the analysisTree, without loading all TRestRun contents
     for (unsigned int i = 0; i < fLegendName.size(); i++)
         for (unsigned int n = 0; n < fFileNames[i].size(); n++) {
             r = new TRestRun();
@@ -647,11 +656,11 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 if (trees[i][m]->Draw(plotString, fCutString[n], fPlotOption[n]) == -1) {
                     ferr << endl;
                     ferr << "TRestAnalysisPlot::PlotCombinedCanvas. Plot string not properly constructed. "
-                             "Does the analysis observable exist inside the file?"
-                          << endl;
+                            "Does the analysis observable exist inside the file?"
+                         << endl;
                     ferr << "Use \" restManager PrintTrees FILE.ROOT\" to get a list of "
-                             "existing observables."
-                          << endl;
+                            "existing observables."
+                         << endl;
                     ferr << endl;
                     exit(1);
                 }
@@ -760,7 +769,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
         if (!h) {
             ferr << "TRestAnalysisPlot. A histogram with name : " << fHistoNames[n]
-                  << " does not exist in input file" << endl;
+                 << " does not exist in input file" << endl;
             exit(1);
         }
 
