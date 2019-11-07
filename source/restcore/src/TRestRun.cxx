@@ -1244,7 +1244,7 @@ std::vector<int> TRestRun::GetEventIdsWithConditions(const string cuts, int star
         fAnalysisTree->GetEntry(i);
         comparisonResult = true;
         for (int j = 0; j < observables.size(); j++) {
-            valueToCompareFrom = fAnalysisTree->GetObservableValue(observables[j].c_str());
+            valueToCompareFrom = fAnalysisTree->GetDblObservableValue(observables[j].c_str());
             if (operators[j] == "=" || operators[j] == "==") {
                 comparisonResult = comparisonResult && (valueToCompareFrom == values[j]);
             } else if (operators[j] == "<") {
