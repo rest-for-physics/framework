@@ -110,6 +110,23 @@ class TRestAnalysisTree : public TTree {
     }
 
     template <class T>
+    T GetObservableValueSafe(Int_t n) {
+        if (REST_Reflection::GetTypeName<T>() != fObservableMemory[n].type) {
+            cout << "Error! TRestAnalysisTree::GetObservableValueSafe(): unmatched type!" << endl;
+            return T();
+        }
+        return *(T*)fObservableMemory[n];
+    }
+    template <class T>
+    T GetObservableValueSafe(TString obsName) {
+        Int_t id = GetObservableID(obsName);
+        if (id == -1) {
+            return T();
+        }
+        return GetObservableValueSafe<T>(id);
+    }
+
+    template <class T>
     void SetObservableValue(Int_t n, const T& value) {
         if (!fBranchesCreated) {
             // if the observable branches are not created, we still have the chance to change
