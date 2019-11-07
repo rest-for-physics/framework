@@ -1155,62 +1155,6 @@ TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, TString ta
     return NULL;
 }
 
-TRestEvent* TRestRun::GetNextEventWithConditions(const string observable, const string op,
-                                                 const Double_t value) {
-    // operation has to be a valid logical operation
-    std::set<string> valid_operators = {"=", "==", "<", "<=", ">", ">="};
-    if (valid_operators.count(op) == 0) {
-        // invalid operation
-        cout << "invalid operation '" << op << "' for 'TRestRun::GetNextEventWithConditions'" << endl;
-        return nullptr;
-    }
-    // check if observable name corresponds to a valid observable on the tree
-    if (fAnalysisTree == nullptr) {
-        return nullptr;
-    }
-    Int_t nEntries = fAnalysisTree->GetEntries();
-    auto branches = fAnalysisTree->GetListOfBranches();
-    bool isObservableInTree = false;
-    for (int i = 0; i < nEntries; i++) {
-        if (observable == (string)branches->At(i)->GetName()) {
-            isObservableInTree = true;
-            break;
-        }
-    }
-    if (!isObservableInTree) {
-        // invalid observable name, not contained in analysis tree
-        cout << "invalid observable name '" << observable << "' is not contained in Analysis Tree" << endl;
-        return nullptr;
-    }
-    // read only the necessary branches
-    fAnalysisTree->SetBranchStatus("*", false);
-    fAnalysisTree->SetBranchStatus(observable.c_str(), true);
-
-    Double_t valueToCompare;
-    for (int i = 0; i < nEntries; i++) {
-        fAnalysisTree->GetEntry(i);
-        valueToCompare = fAnalysisTree->GetObservableValue(observable.c_str());
-        bool result;
-        if (op == "=" || op == "==") {
-            result = value == valueToCompare;
-        } else if (op == "<") {
-            result = value < valueToCompare;
-        } else if (op == "<=") {
-            result = value <= valueToCompare;
-        } else if (op == ">") {
-            result = value > valueToCompare;
-        } else if (op == ">=") {
-            result = value >= valueToCompare;
-        }
-        // end comparison
-        if (result == true) {
-            break;
-        }
-    }
-    // reset branch status
-    fAnalysisTree->SetBranchStatus("*", true);
-    return nullptr;
-}
 std::vector<int> TRestRun::GetEventIdsWithConditions(const string cuts, int startingIndex, int maxNumber) {
     std::vector<int> eventIds;
     // parsing cuts
@@ -1294,7 +1238,9 @@ std::vector<int> TRestRun::GetEventIdsWithConditions(const string cuts, int star
     // comparison code
     Double_t valueToCompareFrom;
     bool comparisonResult;
-    for (int i = startingIndex; i < nEntries; i++) {
+    int i;
+    for (int iNoOffset = 0; iNoOffset < nEntries; iNoOffset++) {
+        i = (iNoOffset + startingIndex) % nEntries;
         fAnalysisTree->GetEntry(i);
         comparisonResult = true;
         for (int j = 0; j < observables.size(); j++) {
@@ -1327,23 +1273,22 @@ std::vector<int> TRestRun::GetEventIdsWithConditions(const string cuts, int star
 /// \brief Load the next event that satisfies the conditions specified by a string
 ///
 /// \param conditions: string specifying conditions, supporting multiple conditions separated by ":",
-/// allowed symbols include "<", "<=", ">", ">=", "=", "==". For example "A>=2.2:B==4". \return TRestEvent
-TRestEvent* TRestRun::GetNextEventWithConditions(const string conditions) {
-    if (fAnalysisTree == nullptr) {
+/// allowed symbols include "<", "<=", ">", ">=", "=", "==". For example "A>=2.2:B==4".
+/// \return TRestEvent
+TRestEvent* TRestRun::GetNextEventWithConditions(const string cuts) {
+    // we retrieve only one index starting from position set by the counter and increase by one
+    if (fEventIndexCounter >= GetEntries()) {
+        fEventIndexCounter = 0;
+    }
+    auto indices = GetEventIdsWithConditions(cuts, fEventIndexCounter++, 1);
+    if (indices.size() == 0) {
+        // no events found
         return nullptr;
+    } else {
+        fAnalysisTree->GetEntry(indices[0]);
+        fEventTree->GetEntry(indices[0]);
+        return fInputEvent;
     }
-    // parse condition string
-
-    Int_t nEntries = fAnalysisTree->GetEntries();
-    // read only the necessary branches
-    fAnalysisTree->SetBranchStatus("*", false);
-
-    for (int i = 0; i < nEntries; i++) {
-        fAnalysisTree->GetEntry(i);
-    }
-
-    // reset branch status
-    fAnalysisTree->SetBranchStatus("*", true);
 }
 
 TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
