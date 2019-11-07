@@ -57,7 +57,7 @@ class TRestAnalysisTree : public TTree {
    public:
     void Initialize();
 
-	bool IsConnected() { return fConnected; }
+    bool IsConnected() { return fConnected; }
     bool IsBranchesCreated() { return fBranchesCreated; }
 
     Int_t GetObservableID(TString obsName) {
@@ -81,29 +81,32 @@ class TRestAnalysisTree : public TTree {
     Int_t GetNumberOfObservables() { return fNObservables; }
 
     // observable method
+    any GetObservable(Int_t n) {
+        return fObservableMemory[n];
+    }  // TODO implement error message in case n >= fNObservables
     TString GetObservableName(Int_t n) {
         return fObservableNames[n];
     }  // TODO implement error message in case n >= fNObservables
     TString GetObservableDescription(Int_t n) { return fObservableDescriptions[n]; }
-    Double_t GetObservableValue(Int_t n) {
-        return *(double*)fObservableMemory[n].address;
-    }  // TODO implement error message in case n >= fNObservables
-    any GetObservableRef(Int_t n) {
-        return fObservableMemory[n];
-    }  // TODO implement error message in case n >= fNObservables
     TString GetObservableType(Int_t n) {
         if (fNObservables > 0 && fObservableTypes.size() == 0) return "double";
         return fObservableTypes[n];
     }
 
+    Double_t GetDblObservableValue(TString obsName) { return GetObservableValue<double>(obsName); }
+    Double_t GetDblObservableValue(Int_t n) { return GetObservableValue<double>(n); }
+
     template <class T>
-    void GetObservableValue(Int_t n, T& obs) {
-        *(T*)fObservableMemory[n].GetValue(obs);
+    T GetObservableValue(Int_t n) {
+        return *(T*)fObservableMemory[n];
     }
     template <class T>
-    void GetObservableValue(TString obsName, T& obs) {
+    T GetObservableValue(TString obsName) {
         Int_t id = GetObservableID(obsName);
-        GetObservableValue(id, obs);
+        if (id == -1) {
+            return T();
+        }
+        return GetObservableValue<T>(id);
     }
 
     template <class T>
@@ -142,7 +145,7 @@ class TRestAnalysisTree : public TTree {
     void SetSubRunOrigin(Int_t sub_run_origin) { fSubRunOrigin = sub_run_origin; }
 
     void SetEventInfo(TRestEvent* evt);
-    Int_t Fill(TRestEvent* evt=0);
+    Int_t Fill(TRestEvent* evt = 0);
 
     Int_t AddObservable(TString objName, TRestMetadata* meta, TString description = "");
     Int_t AddObservable(TString observableName, TString observableType = "double", TString description = "");
