@@ -1155,7 +1155,8 @@ TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, TString ta
     return NULL;
 }
 
-std::vector<int> TRestRun::GetEventIdsWithConditions(const string cuts, int startingIndex, int maxNumber) {
+std::vector<int> TRestRun::GetEventEntriesWithConditions(const string cuts, int startingIndex,
+                                                         int maxNumber) {
     std::vector<int> eventIds;
     // parsing cuts
     std::vector<string> observables;
@@ -1173,17 +1174,7 @@ std::vector<int> TRestRun::GetEventIdsWithConditions(const string cuts, int star
     string cut;
     vector<string> cutsVector;
     // we get the first one
-    cut = cuts.substr(0, cuts.find(":", 0));
-    cutsVector.push_back(cut);
-    for (int i = 0; i < separatorPositions.size(); i++) {
-        if (i == separatorPositions.size() - 1) {
-            cut = cuts.substr(separatorPositions[i] + 1, string::npos);
-        } else {
-            cut =
-                cuts.substr(separatorPositions[i] + 1, separatorPositions[i + 1] - separatorPositions[i] - 1);
-        }
-        cutsVector.push_back(cut);
-    }
+    cutsVector = Split(cuts, "&&", false);
 
     for (int i = 0; i < cutsVector.size(); i++) {
         cut = cutsVector[i];
@@ -1269,6 +1260,18 @@ std::vector<int> TRestRun::GetEventIdsWithConditions(const string cuts, int star
     fAnalysisTree->SetBranchStatus("*", true);
     return eventIds;
 }
+
+std::vector<int> TRestRun::GetEventIdsWithConditions(const string cuts, int startingIndex, int maxNumber) {
+    return std::vector<int>{};
+    // TODO: find why it doesn't work
+    auto indices = GetEventIdsWithConditions(cuts, startingIndex, maxNumber);
+    std::vector<int> ids;
+    for (int i = 0; i < indices.size(); i++) {
+        GetEntry(i);
+        ids.push_back(fInputEvent->GetID());
+    }
+    return ids;
+}
 ///////////////////////////////////////////////
 /// \brief Load the next event that satisfies the conditions specified by a string
 ///
@@ -1280,7 +1283,7 @@ TRestEvent* TRestRun::GetNextEventWithConditions(const string cuts) {
     if (fEventIndexCounter >= GetEntries()) {
         fEventIndexCounter = 0;
     }
-    auto indices = GetEventIdsWithConditions(cuts, fEventIndexCounter++, 1);
+    auto indices = GetEventEntriesWithConditions(cuts, fEventIndexCounter++, 1);
     if (indices.size() == 0) {
         // no events found
         return nullptr;
