@@ -56,7 +56,7 @@ class TRestRun : public TRestMetadata {
     Long64_t fBytesReaded;             //!
     Long64_t fTotalBytes;              //!
     int fEventBranchLoc;               //!
-
+    int fEventIndexCounter = 0;        //!
    public:
     /// REST run class
     void Initialize();
@@ -159,6 +159,8 @@ class TRestRun : public TRestMetadata {
 
     TRestEvent* GetInputEvent() { return fInputEvent; }
     TRestEvent* GetEventWithID(Int_t eventID, Int_t subEventID = -1, TString tag = "");
+    std::vector<int> GetEventIdsWithConditions(const string, int startingIndex = 0, int maxNumber = -1);
+    TRestEvent* GetNextEventWithConditions(const string);
     TRestEventProcess* GetFileProcess() { return fFileProcess; }
     string GetFileInfo(string infoname) {
         return FileInfo.count(infoname) == 0 ? infoname : FileInfo[infoname];
@@ -239,7 +241,7 @@ class TRestRun : public TRestMetadata {
     TRestRun(string rootfilename);
     ~TRestRun();
 
-    ClassDef(TRestRun, 3);
+    ClassDef(TRestRun, 4);
 };
 
 #endif

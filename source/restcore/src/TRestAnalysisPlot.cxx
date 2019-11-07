@@ -19,11 +19,9 @@ using namespace std;
 
 #include <ctime>
 
-ClassImp(TRestAnalysisPlot)
-    //______________________________________________________________________________
-    TRestAnalysisPlot::TRestAnalysisPlot() {
-    Initialize();
-}
+ClassImp(TRestAnalysisPlot);
+//______________________________________________________________________________
+TRestAnalysisPlot::TRestAnalysisPlot() { Initialize(); }
 
 TRestAnalysisPlot::TRestAnalysisPlot(const char* cfgFileName, const char* name) : TRestMetadata(cfgFileName) {
     Initialize();
@@ -388,22 +386,31 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 
     if (nPlots > maxPlots) {
         ferr << "Your canvas divisions (" << fCanvasDivisions.X() << " , " << fCanvasDivisions.Y()
-              << ") are not enough to show " << nPlots << " plots" << endl;
+             << ") are not enough to show " << nPlots << " plots" << endl;
         exit(1);
     }
 }
 
 void TRestAnalysisPlot::AddFile(TString fileName) {
-    TRestRun* run = new TRestRun();
-    run->OpenInputFile(fileName);
-
     debug << "TRestAnalysisPlot::AddFile. Adding file. " << endl;
     debug << "File name: " << fileName << endl;
-    if (fClasifyBy == "runTag") {
-        TString rTag = run->GetRunTag();
 
-        debug << "TRestAnalysisPlot::AddFile. Calling GetRunTagIndex. Tag = " << run->GetRunTag() << endl;
-        Int_t index = GetRunTagIndex(run->GetRunTag());
+    TFile* f = new TFile(fileName);
+    TIter nextkey(f->GetListOfKeys());
+    TKey* key;
+    TString rTag = "notFound";
+    while ((key = (TKey*)nextkey())) {
+        string kName = key->GetClassName();
+        if (kName == "TRestRun") {
+            rTag = ((TRestRun*)f->Get(key->GetName()))->GetRunTag();
+            break;
+        }
+    }
+    f->Close();
+
+    if (fClasifyBy == "runTag") {
+        debug << "TRestAnalysisPlot::AddFile. Calling GetRunTagIndex. Tag = " << rTag << endl;
+        Int_t index = GetRunTagIndex(rTag);
         debug << "Index. = " << index << endl;
 
         if (index < REST_MAX_TAGS) {
@@ -411,7 +418,7 @@ void TRestAnalysisPlot::AddFile(TString fileName) {
             fNFiles++;
         } else {
             ferr << "TRestAnalysisPlot::AddFile. Maximum number of tags per plot is : " << REST_MAX_TAGS
-                  << endl;
+                 << endl;
         }
     } else if (fClasifyBy == "combineAll") {
         fFileNames[0].push_back(fileName);
@@ -422,10 +429,6 @@ void TRestAnalysisPlot::AddFile(TString fileName) {
         fFileNames[0].push_back(fileName);
         fNFiles++;
     }
-
-    debug << "TRestAnalysisPlot::AddFile. Closing file. " << endl;
-    run->CloseFile();
-    delete run;
 }
 
 Int_t TRestAnalysisPlot::GetRunTagIndex(TString tag) {
@@ -508,40 +511,34 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         this->AddFile(inputfile);
         ele = ele->NextSiblingElement("addFile");
     }
+
     AddFileFromExternalRun();
     AddFileFromEnv();
 
     AddMissingStyles();
 
-    vector<TRestRun*> runs[REST_MAX_TAGS];
     vector<TRestAnalysisTree*> trees[REST_MAX_TAGS];
     vector<TH3F*> histCollection;
 
     fStartTime = 0;
     fEndTime = 0;
 
-    /* {{{ We create a list of analysis trees in each run, and define start/end
-     * times */
-    TRestRun* r;
+    /* {{{ We create a list of analysis trees in each run, and define start/end times */
     TRestAnalysisTree* anT;
+
+    /// This may require optimization. Perhaps inside TRestRun::OpenInputFile
+    /// We may need a quicker way to get a pointer to the analysisTree, without loading all TRestRun contents
     for (unsigned int i = 0; i < fLegendName.size(); i++)
         for (unsigned int n = 0; n < fFileNames[i].size(); n++) {
-            r = new TRestRun();
-            runs[i].push_back(r);
-            r->OpenInputFile(fFileNames[i][n]);
-            anT = r->GetAnalysisTree();
-            anT->SetBranchStatus("*", true);
+            anT = GetAnalysisTree(fFileNames[i][n]);
 
+            anT->SetBranchStatus("*", true);
             trees[i].push_back(anT);
 
-            r->SkipEventTree();
-
-            if (r->GetEntries() < 3) continue;
-
-            r->GetEntry(1);
+            anT->GetEntry(1);
             if (fStartTime == 0 || anT->GetTimeStamp() < fStartTime) fStartTime = anT->GetTimeStamp();
 
-            r->GetEntry(r->GetEntries() - 1);
+            anT->GetEntry(anT->GetEntries() - 1);
             if (fEndTime == 0 || anT->GetTimeStamp() > fEndTime) fEndTime = anT->GetTimeStamp();
         }
     /* }}} */
@@ -647,11 +644,11 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 if (trees[i][m]->Draw(plotString, fCutString[n], fPlotOption[n]) == -1) {
                     ferr << endl;
                     ferr << "TRestAnalysisPlot::PlotCombinedCanvas. Plot string not properly constructed. "
-                             "Does the analysis observable exist inside the file?"
-                          << endl;
+                            "Does the analysis observable exist inside the file?"
+                         << endl;
                     ferr << "Use \" restManager PrintTrees FILE.ROOT\" to get a list of "
-                             "existing observables."
-                          << endl;
+                            "existing observables."
+                         << endl;
                     ferr << endl;
                     exit(1);
                 }
@@ -750,53 +747,54 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     /* {{{ Acumulating and plotting histograms present in the file */
     ////// TODO : Needs to be reviewed to WORK with the new version of runTag
     /// classification (20180620).
-    for (unsigned int n = 0; n < fHistoNames.size(); n++) {
-        cout << "Histo names : " << fHistoNames[n] << endl;
-        fCombinedCanvas->cd((Int_t)fPlotString.size() + n + 1);
+    /*
+for (unsigned int n = 0; n < fHistoNames.size(); n++) {
+    cout << "Histo names : " << fHistoNames[n] << endl;
+    fCombinedCanvas->cd((Int_t)fPlotString.size() + n + 1);
 
-        runs[0][0]->GetInputFile()->cd();
+    runs[0][0]->GetInputFile()->cd();
 
-        TH1D* h = (TH1D*)runs[0][0]->GetInputFile()->Get(fHistoNames[n]);
+    TH1D* h = (TH1D*)runs[0][0]->GetInputFile()->Get(fHistoNames[n]);
 
-        if (!h) {
-            ferr << "TRestAnalysisPlot. A histogram with name : " << fHistoNames[n]
-                  << " does not exist in input file" << endl;
-            exit(1);
-        }
-
-        Int_t nB = h->GetNbinsX();
-        Int_t bX = h->GetXaxis()->GetBinCenter(1) - 0.5;
-        Int_t bY = h->GetXaxis()->GetBinCenter(h->GetNbinsX()) + 0.5;
-
-        TH1D* hNew = new TH1D("New_" + (TString)fHistoNames[n], fHistoNames[n], nB, bX, bY);
-
-        for (unsigned int m = 0; m < fFileNames[0].size(); m++) {
-            TH1D* aHist = (TH1D*)runs[0][m]->GetInputFile()->Get(fHistoNames[n]);
-            runs[0][m]->GetInputFile()->cd();
-            hNew->Add(aHist);
-        }
-
-        if (fStats[n] == kFALSE) hNew->SetStats(kFALSE);
-
-        hNew->SetTitle(fHistoTitle[n]);
-        hNew->GetYaxis()->SetTitle(fHistoXLabel[n]);
-        hNew->GetYaxis()->SetTitle(fHistoYLabel[n]);
-
-        hNew->Draw(fPlotOption[n]);
-
-        if (fRun != NULL) {
-            fOutputRootFile->cd();
-            hNew->Write(fHistoNames[n]);
-        }
-
-        if (fHistoSaveToFile[n] != "Notdefined" && fHistoSaveToFile[n] != "")
-            SaveHistoToPDF(hNew, n, fHistoSaveToFile[n]);
-        fCombinedCanvas->Update();
+    if (!h) {
+        ferr << "TRestAnalysisPlot. A histogram with name : " << fHistoNames[n]
+             << " does not exist in input file" << endl;
+        exit(1);
     }
+
+    Int_t nB = h->GetNbinsX();
+    Int_t bX = h->GetXaxis()->GetBinCenter(1) - 0.5;
+    Int_t bY = h->GetXaxis()->GetBinCenter(h->GetNbinsX()) + 0.5;
+
+    TH1D* hNew = new TH1D("New_" + (TString)fHistoNames[n], fHistoNames[n], nB, bX, bY);
+
+    for (unsigned int m = 0; m < fFileNames[0].size(); m++) {
+        TH1D* aHist = (TH1D*)runs[0][m]->GetInputFile()->Get(fHistoNames[n]);
+        runs[0][m]->GetInputFile()->cd();
+        hNew->Add(aHist);
+    }
+
+    if (fStats[n] == kFALSE) hNew->SetStats(kFALSE);
+
+    hNew->SetTitle(fHistoTitle[n]);
+    hNew->GetYaxis()->SetTitle(fHistoXLabel[n]);
+    hNew->GetYaxis()->SetTitle(fHistoYLabel[n]);
+
+    hNew->Draw(fPlotOption[n]);
+
+    if (fRun != NULL) {
+        fOutputRootFile->cd();
+        hNew->Write(fHistoNames[n]);
+    }
+
+    if (fHistoSaveToFile[n] != "Notdefined" && fHistoSaveToFile[n] != "")
+        SaveHistoToPDF(hNew, n, fHistoSaveToFile[n]);
+    fCombinedCanvas->Update();
+} */
     /* }}} */
 
     // Saving to a PDF file
-    fCanvasSave = ReplaceFilenameTags(fCanvasSave, runs[0][0]);
+    fCanvasSave = ReplaceFilenameTags(fCanvasSave, fFileNames[0][0]);
     if (fCanvasSave != "") fCombinedCanvas->Print(fCanvasSave);
 
     if (ToUpper(GetParameter("previewPlot", "TRUE")) == "TRUE") {
@@ -856,6 +854,21 @@ void TRestAnalysisPlot::SaveHistoToPDF(TH1D* h, Int_t n, TString fileName) {
     delete c;
 }
 
-TString TRestAnalysisPlot::ReplaceFilenameTags(TString filename, TRestRun* run) {
-    return run->FormFormat(filename);
+TString TRestAnalysisPlot::ReplaceFilenameTags(TString filename, TString runFilename) {
+    TRestRun* run = new TRestRun();
+    run->OpenInputFile(runFilename);
+    TString output = run->FormFormat(filename);
+    return output;
+}
+
+TRestAnalysisTree* TRestAnalysisPlot::GetAnalysisTree(TString fileName) {
+    TFile* f = new TFile(fileName);
+    TIter nextkey(f->GetListOfKeys());
+    TKey* key;
+    while ((key = (TKey*)nextkey())) {
+        string kName = key->GetClassName();
+        if (kName == "TRestAnalysisTree") {
+            return ((TRestAnalysisTree*)f->Get(key->GetName()));
+        }
+    }
 }
