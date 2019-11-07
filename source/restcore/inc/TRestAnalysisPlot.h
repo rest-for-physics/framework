@@ -33,9 +33,9 @@ class TRestAnalysisPlot : public TRestMetadata {
     std::vector<TString> fLegendName;
 
 #ifndef __CINT__
-    TRestRun* fRun; //!
+    TRestRun* fRun;  //!
 
-    TCanvas* fCombinedCanvas; //!
+    TCanvas* fCombinedCanvas;  //!
 
     TString fPlotMode;
     TString fHistoOutputFile;
@@ -88,7 +88,7 @@ class TRestAnalysisPlot : public TRestMetadata {
 
 #endif
 
-    TString ReplaceFilenameTags(TString filename, TRestRun* run);
+    TString ReplaceFilenameTags(TString filename, TString runFilename);
     void AddMissingStyles();
     void AddFileFromExternalRun();
     void AddFileFromEnv();
@@ -125,6 +125,7 @@ class TRestAnalysisPlot : public TRestMetadata {
 
     Int_t GetPlotIndex(TString plotName);
 
+    TRestAnalysisTree* GetAnalysisTree(TString fileName);
     void PlotCombinedCanvas();
 
     // Construtor
