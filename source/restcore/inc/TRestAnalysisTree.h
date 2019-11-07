@@ -81,33 +81,49 @@ class TRestAnalysisTree : public TTree {
     Int_t GetNumberOfObservables() { return fNObservables; }
 
     // observable method
+    any GetObservable(Int_t n) {
+        return fObservableMemory[n];
+    }  // TODO implement error message in case n >= fNObservables
     TString GetObservableName(Int_t n) {
         return fObservableNames[n];
     }  // TODO implement error message in case n >= fNObservables
     TString GetObservableDescription(Int_t n) { return fObservableDescriptions[n]; }
-    Double_t GetObservableValue(Int_t n) {
-        return *(double*)fObservableMemory[n].address;
-    }  // TODO implement error message in case n >= fNObservables
-    Double_t GetObservableValue(TString obsName) {
-        Int_t id = GetObservableID(obsName);
-        return GetObservableValue(id);
-    }  // TODO implement error message in case n >= fNObservables
-    any GetObservableRef(Int_t n) {
-        return fObservableMemory[n];
-    }  // TODO implement error message in case n >= fNObservables
     TString GetObservableType(Int_t n) {
         if (fNObservables > 0 && fObservableTypes.size() == 0) return "double";
         return fObservableTypes[n];
     }
 
+    Double_t GetDblObservableValue(TString obsName) { return GetObservableValue<double>(obsName); }
+    Double_t GetDblObservableValue(Int_t n) { return GetObservableValue<double>(n); }
+
     template <class T>
-    void GetObservableValue(Int_t n, T& obs) {
-        *(T*)fObservableMemory[n].GetValue(obs);
+    T GetObservableValue(Int_t n) {
+        return *(T*)fObservableMemory[n];
     }
     template <class T>
-    void GetObservableValue(TString obsName, T& obs) {
+    T GetObservableValue(TString obsName) {
         Int_t id = GetObservableID(obsName);
-        GetObservableValue(id, obs);
+        if (id == -1) {
+            return T();
+        }
+        return GetObservableValue<T>(id);
+    }
+
+    template <class T>
+    T GetObservableValueSafe(Int_t n) {
+        if (REST_Reflection::GetTypeName<T>() != fObservableMemory[n].type) {
+            cout << "Error! TRestAnalysisTree::GetObservableValueSafe(): unmatched type!" << endl;
+            return T();
+        }
+        return *(T*)fObservableMemory[n];
+    }
+    template <class T>
+    T GetObservableValueSafe(TString obsName) {
+        Int_t id = GetObservableID(obsName);
+        if (id == -1) {
+            return T();
+        }
+        return GetObservableValueSafe<T>(id);
     }
 
     template <class T>

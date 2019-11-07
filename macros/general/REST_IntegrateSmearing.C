@@ -45,7 +45,7 @@ Int_t REST_IntegrateSmearing(TString varName, TString rootFileName, double Middl
         Int_t peak = 0;
         for (int i = 0; i < run->GetEntries(); i++) {
             run->GetAnalysisTree()->GetBranch(varName)->GetEntry(i);
-            Double_t en = run->GetAnalysisTree()->GetObservableValue(obsID);
+            Double_t en = run->GetAnalysisTree()->GetDblObservableValue(obsID);
             if (en > Qbb - 5 && en < Qbb + 5) peak++;
 
             h->Fill(en);

@@ -39,7 +39,7 @@ Int_t REST_CreateHisto(TString varName, TString rootFileName, TString histoName,
         }
         for (int i = 0; i < run->GetEntries(); i++) {
             run->GetAnalysisTree()->GetBranch(varName)->GetEntry(i);
-            Double_t val = run->GetAnalysisTree()->GetObservableValue(obsID);
+            Double_t val = run->GetAnalysisTree()->GetDblObservableValue(obsID);
             if (val >= startVal && val <= endVal) h->Fill(val);
         }
 

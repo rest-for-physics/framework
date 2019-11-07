@@ -663,7 +663,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
         fBytesReaded = fFileProcess->GetTotalBytesReaded();
         if (targettree != NULL) {
             for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
-                targettree->SetObservableValue(n, fAnalysisTree->GetObservableRef(n));
+                targettree->SetObservableValue(n, fAnalysisTree->GetObservable(n));
         }
         fCurrentEvent++;
     } else {
@@ -676,7 +676,7 @@ Int_t TRestRun::GetNextEvent(TRestEvent* targetevt, TRestAnalysisTree* targettre
                 fBytesReaded += fAnalysisTree->GetEntry(fCurrentEvent);
                 if (targettree != NULL) {
                     for (int n = 0; n < fAnalysisTree->GetNumberOfObservables(); n++)
-                        targettree->SetObservableValue(n, fAnalysisTree->GetObservableRef(n));
+                        targettree->SetObservableValue(n, fAnalysisTree->GetObservable(n));
                 }
                 if (fEventTree != NULL) {
                     fBytesReaded += ((TBranch*)fEventTree->GetListOfBranches()->UncheckedAt(fEventBranchLoc))
@@ -1244,7 +1244,7 @@ std::vector<int> TRestRun::GetEventIdsWithConditions(const string cuts, int star
         fAnalysisTree->GetEntry(i);
         comparisonResult = true;
         for (int j = 0; j < observables.size(); j++) {
-            valueToCompareFrom = fAnalysisTree->GetObservableValue(observables[j].c_str());
+            valueToCompareFrom = fAnalysisTree->GetDblObservableValue(observables[j].c_str());
             if (operators[j] == "=" || operators[j] == "==") {
                 comparisonResult = comparisonResult && (valueToCompareFrom == values[j]);
             } else if (operators[j] == "<") {
