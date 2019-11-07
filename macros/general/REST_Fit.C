@@ -45,7 +45,7 @@ Int_t REST_Fit(TString varName, TString rootFileName, double startVal, double en
         }
         for (int i = 0; i < run->GetEntries(); i++) {
             run->GetAnalysisTree()->GetBranch(varName)->GetEntry(i);
-            Double_t value = run->GetAnalysisTree()->GetObservableValue(obsID);
+            Double_t value = run->GetAnalysisTree()->GetDblObservableValue(obsID);
             if (value >= startVal && value < endVal) {
                 h->Fill(value);
             }
