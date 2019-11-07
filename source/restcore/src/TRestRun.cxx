@@ -1155,6 +1155,142 @@ TRestEvent* TRestRun::GetEventWithID(Int_t eventID, Int_t subEventID, TString ta
     return NULL;
 }
 
+std::vector<int> TRestRun::GetEventIdsWithConditions(const string cuts, int startingIndex, int maxNumber) {
+    std::vector<int> eventIds;
+    // parsing cuts
+    std::vector<string> observables;
+    std::vector<string> operators;
+    std::vector<Double_t> values;
+    // it is necessary that this vector vector is sorted from longest to shortest
+    const std::vector<string> validOperators = {"==", "<=", ">=", "=", ">", "<"};
+
+    vector<int> separatorPositions;
+    int pos = cuts.find(":", 0);
+    while (pos != string::npos) {
+        separatorPositions.push_back(pos);
+        pos = cuts.find(":", pos + 1);
+    }
+    string cut;
+    vector<string> cutsVector;
+    // we get the first one
+    cut = cuts.substr(0, cuts.find(":", 0));
+    cutsVector.push_back(cut);
+    for (int i = 0; i < separatorPositions.size(); i++) {
+        if (i == separatorPositions.size() - 1) {
+            cut = cuts.substr(separatorPositions[i] + 1, string::npos);
+        } else {
+            cut =
+                cuts.substr(separatorPositions[i] + 1, separatorPositions[i + 1] - separatorPositions[i] - 1);
+        }
+        cutsVector.push_back(cut);
+    }
+
+    for (int i = 0; i < cutsVector.size(); i++) {
+        cut = cutsVector[i];
+        for (int j = 0; j < validOperators.size(); j++) {
+            if (cut.find(validOperators[j]) != string::npos) {
+                operators.push_back(validOperators[j]);
+                observables.push_back((string)cut.substr(0, cut.find(validOperators[j])));
+                values.push_back(std::stod((string)cut.substr(
+                    cut.find(validOperators[j]) + validOperators[j].length(), string::npos)));
+                break;
+            }
+        }
+    }
+
+    // check if observable name corresponds to a valid observable on the tree
+    if (fAnalysisTree == nullptr) {
+        return eventIds;
+    }
+    Int_t nEntries = fAnalysisTree->GetEntries();
+    auto branches = fAnalysisTree->GetListOfBranches();
+    std::set<string> branchNames;
+    for (int i = 0; i < branches->GetEntries(); i++) {
+        branchNames.insert((string)branches->At(i)->GetName());
+    }
+    // verify all observables in cuts are branch names
+    for (int i = 0; i < observables.size(); i++) {
+        // verify operators
+        if (std::find(validOperators.begin(), validOperators.end(), operators[i]) == validOperators.end()) {
+            // invalid operation
+            cout << "invalid operation '" << operators[i] << "' for 'TRestRun::GetEventIdsWithConditions'"
+                 << endl;
+            return eventIds;
+        }
+        // verify observables
+        if (branchNames.count(observables[i]) == 0) {
+            // invalid observable name
+            cout << "invalid observable '" << observables[i] << "' for 'TRestRun::GetEventIdsWithConditions'"
+                 << endl;
+            cout << "valid branch names: ";
+            for (auto branchName : branchNames) {
+                cout << branchName << " ";
+            }
+            cout << endl;
+            return eventIds;
+        }
+    }
+    // read only the necessary branches
+    fAnalysisTree->SetBranchStatus("*", false);
+    for (int i = 0; i < observables.size(); i++) {
+        fAnalysisTree->SetBranchStatus(observables[i].c_str(), true);
+    }
+    // comparison code
+    Double_t valueToCompareFrom;
+    bool comparisonResult;
+    int i;
+    for (int iNoOffset = 0; iNoOffset < nEntries; iNoOffset++) {
+        i = (iNoOffset + startingIndex) % nEntries;
+        fAnalysisTree->GetEntry(i);
+        comparisonResult = true;
+        for (int j = 0; j < observables.size(); j++) {
+            valueToCompareFrom = fAnalysisTree->GetObservableValue(observables[j].c_str());
+            if (operators[j] == "=" || operators[j] == "==") {
+                comparisonResult = comparisonResult && (valueToCompareFrom == values[j]);
+            } else if (operators[j] == "<") {
+                comparisonResult = comparisonResult && (valueToCompareFrom < values[j]);
+            } else if (operators[j] == "<=") {
+                comparisonResult = comparisonResult && (valueToCompareFrom <= values[j]);
+            } else if (operators[j] == ">") {
+                comparisonResult = comparisonResult && (valueToCompareFrom > values[j]);
+            } else if (operators[j] == ">=") {
+                comparisonResult = comparisonResult && (valueToCompareFrom >= values[j]);
+            }
+        }
+        if (comparisonResult) {
+            if (eventIds.size() < maxNumber) {
+                eventIds.push_back(i);
+            } else {
+                break;
+            }
+        }
+    }
+    // reset branch status
+    fAnalysisTree->SetBranchStatus("*", true);
+    return eventIds;
+}
+///////////////////////////////////////////////
+/// \brief Load the next event that satisfies the conditions specified by a string
+///
+/// \param conditions: string specifying conditions, supporting multiple conditions separated by ":",
+/// allowed symbols include "<", "<=", ">", ">=", "=", "==". For example "A>=2.2:B==4".
+/// \return TRestEvent
+TRestEvent* TRestRun::GetNextEventWithConditions(const string cuts) {
+    // we retrieve only one index starting from position set by the counter and increase by one
+    if (fEventIndexCounter >= GetEntries()) {
+        fEventIndexCounter = 0;
+    }
+    auto indices = GetEventIdsWithConditions(cuts, fEventIndexCounter++, 1);
+    if (indices.size() == 0) {
+        // no events found
+        return nullptr;
+    } else {
+        fAnalysisTree->GetEntry(indices[0]);
+        fEventTree->GetEntry(indices[0]);
+        return fInputEvent;
+    }
+}
+
 TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
     if (f != NULL) {
         TIter nextkey(f->GetListOfKeys());
