@@ -129,7 +129,8 @@ Int_t REST_StringHelper::isANumber(string in) {
 /// Input: "abc" and "", Output: { "a", "b", "c" }
 /// Input: "abc:def" and ":", Output: { "abc", "def" }
 /// Input: "abc:def" and ":def", Output: { "abc" }
-std::vector<string> REST_StringHelper::Split(std::string in, string separator, bool allowBlankString) {
+std::vector<string> REST_StringHelper::Split(std::string in, string separator, bool allowBlankString,
+                                             bool removeWhiteSpaces) {
     std::vector<string> result;
 
     int pos = -1;
@@ -137,8 +138,9 @@ std::vector<string> REST_StringHelper::Split(std::string in, string separator, b
     while (1) {
         pos = in.find(separator.c_str(), pos + 1);
         string sub = in.substr(front, pos - front);
+        if (removeWhiteSpaces) sub = RemoveWhiteSpaces(sub);
         if (allowBlankString || sub != "") {
-            result.push_back(RemoveWhiteSpaces(sub));
+            result.push_back(sub);
         }
         front = pos + separator.size();
         if (pos == -1) break;

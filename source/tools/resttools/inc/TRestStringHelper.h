@@ -33,7 +33,8 @@ Bool_t StringToBool(std::string in);
 Long64_t StringToLong(std::string in);
 TVector3 StringTo3DVector(std::string in);
 TVector2 StringTo2DVector(std::string in);
-std::vector<string> Split(std::string in, string separator, bool allowBlankString = false);
+std::vector<string> Split(std::string in, string separator, bool allowBlankString = false,
+                          bool removeWhiteSpaces = false);
 std::string RemoveWhiteSpaces(std::string in);
 std::string Replace(std::string in, std::string thisString, std::string byThisString, size_t fromPosition = 0,
                     Int_t N = 0);
@@ -44,37 +45,35 @@ Int_t Count(std::string s, std::string sbstring);
 Int_t FindNthStringPosition(const string& in, size_t pos, const string& strToFind, size_t nth);
 template <class T>
 string ToString(T source, int length = -1, char fill = ' ') {
-	stringstream ss1;
-	ss1 << source;
-	string s = ss1.str();
-	if (length == -1) {
-		return s;
-	} else if (s.size() < length) {
-		return s + string(length - s.size(), fill);
-	} else {
-		return s.substr(0, length);
-	}
+    stringstream ss1;
+    ss1 << source;
+    string s = ss1.str();
+    if (length == -1) {
+        return s;
+    } else if (s.size() < length) {
+        return s + string(length - s.size(), fill);
+    } else {
+        return s.substr(0, length);
+    }
 }
 inline vector<TString> VectorTString_cast(vector<string> vecstring) {
-	vector<TString> result;
-	for (auto s : vecstring) {
-		result.push_back((TString)s);
-	}
-	return result;
+    vector<TString> result;
+    for (auto s : vecstring) {
+        result.push_back((TString)s);
+    }
+    return result;
 }
 inline vector<string> Vectorstring_cast(vector<TString> vecstring) {
-	vector<string> result;
-	for (auto s : vecstring) {
-		result.push_back((string)s);
-	}
-	return result;
+    vector<string> result;
+    for (auto s : vecstring) {
+        result.push_back((string)s);
+    }
+    return result;
 }
 std::string ToUpper(std::string in);
 
 };  // namespace REST_StringHelper
 using namespace REST_StringHelper;
-
-
 
 #ifdef WIN32
 inline void setenv(const char* __name, const char* __value, int __replace);
