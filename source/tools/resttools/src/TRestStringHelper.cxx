@@ -138,7 +138,7 @@ std::vector<string> REST_StringHelper::Split(std::string in, string separator, b
         pos = in.find(separator.c_str(), pos + 1);
         string sub = in.substr(front, pos - front);
         if (allowBlankString || sub != "") {
-            result.push_back(sub);
+            result.push_back(RemoveWhiteSpaces(sub));
         }
         front = pos + separator.size();
         if (pos == -1) break;
