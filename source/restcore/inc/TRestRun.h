@@ -159,6 +159,7 @@ class TRestRun : public TRestMetadata {
 
     TRestEvent* GetInputEvent() { return fInputEvent; }
     TRestEvent* GetEventWithID(Int_t eventID, Int_t subEventID = -1, TString tag = "");
+    std::vector<int> GetEventEntriesWithConditions(const string, int startingIndex = 0, int maxNumber = -1);
     std::vector<int> GetEventIdsWithConditions(const string, int startingIndex = 0, int maxNumber = -1);
     TRestEvent* GetNextEventWithConditions(const string);
     TRestEventProcess* GetFileProcess() { return fFileProcess; }
