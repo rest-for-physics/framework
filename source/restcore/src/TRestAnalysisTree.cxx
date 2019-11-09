@@ -340,6 +340,13 @@ void TRestAnalysisTree::CreateBranches() {
     }
 }
 
+///////////////////////////////////////////////
+/// \brief This method will receive a string with several analysis observables/cuts in the same fashion as
+/// used by ROOT. The string must be constructed as follows "obsName1>value1 && obsName2>value2 && ...".
+///
+/// It will evaluate the given conditions and return the result. Valid operators are "==", "<=", ">=", "!=",
+/// "=", ">" and "<".
+///
 Bool_t TRestAnalysisTree::EvaluateCuts(const string cut) {
     std::vector<string> cuts = Split(cut, "&&", false, true);
 
@@ -349,6 +356,12 @@ Bool_t TRestAnalysisTree::EvaluateCuts(const string cut) {
     return true;
 }
 
+///////////////////////////////////////////////
+/// \brief This method will evaluate a condition on one analysis *observable* constructed as
+/// "observable>value". For example, "rawAna_NumberOfSignals>10".
+///
+/// It will evaluate the given conditions and return the result. Valid operators are "==", "<=", ">=", "!=",
+/// "=", ">" and "<".
 Bool_t TRestAnalysisTree::EvaluateCut(const string cut) {
     const std::vector<string> validOperators = {"==", "<=", ">=", "!=", "=", ">", "<"};
 
@@ -380,6 +393,56 @@ Bool_t TRestAnalysisTree::EvaluateCut(const string cut) {
     return false;
 }
 
+///////////////////////////////////////////////
+/// \brief It will return a list with the names found in a string with conditions, as given in methods as
+/// EvaluateCuts. I.e. a construction as "obsName1==value1&&obsName2<=value2" will return {obsName1,obsName2}.
+///
+vector<string> TRestAnalysisTree::GetCutObservables(const string cut_str) {
+    const std::vector<string> validOperators = {"==", "<=", ">=", "!=", "=", ">", "<"};
+
+    std::vector<string> cuts = Split(cut_str, "&&", false, true);
+
+    vector<string> obsNames;
+    for (int n = 0; n < cuts.size(); n++) {
+        string oper = "", observable = "";
+        Double_t value;
+        for (int j = 0; j < validOperators.size(); j++) {
+            if (cuts[n].find(validOperators[j]) != string::npos) {
+                obsNames.push_back((string)cuts[n].substr(0, cuts[n].find(validOperators[j])));
+                break;
+            }
+        }
+    }
+    return obsNames;
+}
+
+///////////////////////////////////////////////
+/// \brief It will enable the branches given by argument
+///
+void TRestAnalysisTree::EnableBranches(vector<string> obsNames) {
+    for (int n = 0; n < obsNames.size(); n++) this->SetBranchStatus(obsNames[n].c_str(), true);
+}
+
+///////////////////////////////////////////////
+/// \brief It will disable the branches given by argument
+///
+void TRestAnalysisTree::DisableBranches(vector<string> obsNames) {
+    for (int n = 0; n < obsNames.size(); n++) this->SetBranchStatus(obsNames[n].c_str(), false);
+}
+
+///////////////////////////////////////////////
+/// \brief It will enable all branches in the tree
+///
+void TRestAnalysisTree::EnableAllBranches() { this->SetBranchStatus("*", true); }
+
+///////////////////////////////////////////////
+/// \brief It will disable all branches in the tree
+///
+void TRestAnalysisTree::DisableAllBranches() { this->SetBranchStatus("*", false); }
+
+///////////////////////////////////////////////
+/// \brief It returns a string containning all the observables that exist in the analysis tree.
+///
 TString TRestAnalysisTree::GetStringWithObservableNames() {
     Int_t nEntries = GetEntries();
     auto branches = GetListOfBranches();
@@ -392,5 +455,4 @@ TString TRestAnalysisTree::GetStringWithObservableNames() {
     return (TString)branchNames;
 }
 
-//______________________________________________________________________________
 TRestAnalysisTree::~TRestAnalysisTree() {}

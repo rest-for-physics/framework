@@ -188,12 +188,20 @@ class TRestAnalysisTree : public TTree {
         return AddObservable(observableName, REST_Reflection::GetTypeName<T>(), description);
     }
 
+    Int_t GetEntry(Long64_t entry = 0, Int_t getall = 0);
+
     Bool_t EvaluateCuts(const string expression);
     Bool_t EvaluateCut(const string expression);
 
-    Int_t GetEntry(Long64_t entry = 0, Int_t getall = 0);
-
     TString GetStringWithObservableNames();
+
+    vector<string> GetCutObservables(const string cut_str);
+
+    void EnableBranches(vector<string> obsNames);
+    void DisableBranches(vector<string> obsNames);
+
+    void EnableAllBranches();
+    void DisableAllBranches();
 
     // Construtor
     TRestAnalysisTree();
