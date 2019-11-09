@@ -575,7 +575,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         if (fLogScale[n]) fCombinedCanvas->cd(n + 1)->SetLogy();
 
         fCombinedCanvas->cd(n + 1)->SetLeftMargin(0.18);
-        fCombinedCanvas->cd(n + 1)->SetRightMargin(0.05);
+        fCombinedCanvas->cd(n + 1)->SetRightMargin(0.1);
         fCombinedCanvas->cd(n + 1)->SetBottomMargin(0.15);
         fCombinedCanvas->cd(n + 1)->SetTopMargin(0.07);
 
@@ -680,6 +680,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
             htemp->GetXaxis()->SetTitleOffset(fLabelOffsetX * htemp->GetXaxis()->GetTitleOffset());
             htemp->GetYaxis()->SetTitleOffset(fLabelOffsetY * htemp->GetYaxis()->GetTitleOffset());
+
+            htemp->GetXaxis()->SetNdivisions(-5);
 
             htemp->SetLineColor(fLineColor[i]);
             htemp->SetLineWidth(fLineWidth[i]);
