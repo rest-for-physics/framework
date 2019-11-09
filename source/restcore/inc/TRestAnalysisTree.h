@@ -193,6 +193,8 @@ class TRestAnalysisTree : public TTree {
 
     Int_t GetEntry(Long64_t entry = 0, Int_t getall = 0);
 
+    TString GetStringWithObservableNames();
+
     // Construtor
     TRestAnalysisTree();
     TRestAnalysisTree(TString name, TString title);

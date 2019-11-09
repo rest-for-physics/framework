@@ -356,18 +356,17 @@ Bool_t TRestAnalysisTree::EvaluateCut(const string cut) {
 
     string oper = "", observable = "";
     Double_t value;
-    Bool_t operFound = false;
     for (int j = 0; j < validOperators.size(); j++) {
         if (cut.find(validOperators[j]) != string::npos) {
             oper = validOperators[j];
             observable = (string)cut.substr(0, cut.find(oper));
             value = std::stod((string)cut.substr(cut.find(oper) + oper.length(), string::npos));
-            operFound = true;
             break;
         }
     }
 
-    if (!operFound) cout << "TRestAnalysisTree::EvaluateCut. Invalid operator! (" << oper << ")" << endl;
+    if (oper == "")
+        cout << "TRestAnalysisTree::EvaluateCut. Invalid operator in cut definition! " << cut << endl;
 
     Double_t val = GetDblObservableValue(observable);
     if (oper == "==" && value == val) return true;
@@ -379,6 +378,18 @@ Bool_t TRestAnalysisTree::EvaluateCut(const string cut) {
     if (oper == "<" && val < value) return true;
 
     return false;
+}
+
+TString TRestAnalysisTree::GetStringWithObservableNames() {
+    Int_t nEntries = GetEntries();
+    auto branches = GetListOfBranches();
+    std::string branchNames = "";
+    for (int i = 0; i < branches->GetEntries(); i++) {
+        if (i > 0) branchNames += " ";
+        branchNames += (string)branches->At(i)->GetName();
+    }
+
+    return (TString)branchNames;
 }
 
 //______________________________________________________________________________
