@@ -323,6 +323,8 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     SetObservableValue("zMean", meanPosition.Z());
     SetObservableValue("xy2Sigma", sigmaXY2);
+    SetObservableValue("xSigma", sigmaX);
+    SetObservableValue("ySigma", sigmaY);
     SetObservableValue("xySigmaBalance", (sigmaX - sigmaY) / (sigmaX + sigmaY));
 
     SetObservableValue("z2Sigma", sigmaZ2);
