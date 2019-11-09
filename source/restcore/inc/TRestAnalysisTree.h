@@ -88,12 +88,22 @@ class TRestAnalysisTree : public TTree {
         return fObservableNames[n];
     }  // TODO implement error message in case n >= fNObservables
     TString GetObservableDescription(Int_t n) { return fObservableDescriptions[n]; }
+
     TString GetObservableType(Int_t n) {
         if (fNObservables > 0 && fObservableTypes.size() == 0) return "double";
         return fObservableTypes[n];
     }
 
-    Double_t GetDblObservableValue(TString obsName) { return GetObservableValue<double>(obsName); }
+    TString GetObservableType(TString obsName) {
+        Int_t id = GetObservableID(obsName);
+        if (id == -1) return "NotFound";
+        return GetObservableType(id);
+    }
+
+    Double_t GetDblObservableValue(TString obsName) {
+        if (GetObservableType(obsName) == "int") return GetObservableValue<int>(obsName);
+        return GetObservableValue<double>(obsName);
+    }
     Double_t GetDblObservableValue(Int_t n) { return GetObservableValue<double>(n); }
 
     template <class T>
@@ -170,6 +180,8 @@ class TRestAnalysisTree : public TTree {
     Int_t AddObservable(TString observableName, TString description = "") {
         return AddObservable(observableName, REST_Reflection::GetTypeName<T>(), description);
     }
+
+    Bool_t EvaluateExpression(const string expression);
 
     Int_t GetEntry(Long64_t entry = 0, Int_t getall = 0);
 
