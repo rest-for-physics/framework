@@ -1165,7 +1165,7 @@ std::vector<int> TRestRun::GetEventEntriesWithConditions(const string cuts, int 
     // it is necessary that this vector vector is sorted from longest to shortest
     const std::vector<string> validOperators = {"==", "<=", ">=", "=", ">", "<"};
 
-    vector<string> cutsVector = Split(cuts, "&&", false);
+    vector<string> cutsVector = Split(cuts, "&&", false, true);
 
     for (int i = 0; i < cutsVector.size(); i++) {
         string cut = cutsVector[i];
