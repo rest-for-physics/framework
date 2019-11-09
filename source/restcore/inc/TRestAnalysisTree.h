@@ -63,6 +63,8 @@ class TRestAnalysisTree : public TTree {
     Int_t GetObservableID(TString obsName) {
         for (int i = 0; i < GetNumberOfObservables(); i++)
             if (fObservableNames[i] == obsName) return i;
+        cout << "TRestAnalysisTree::GetObservableID. Error, observable name : " << obsName << " not found!!"
+             << endl;
         return -1;
     }
 
