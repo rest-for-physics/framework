@@ -396,9 +396,9 @@ risetimemean += sgnl->GetRiseTime();
     Double_t timeDelay = fSignalEvent->GetMaxTime() - fSignalEvent->GetMinTime();
     SetObservableValue("TimeBinsLength", timeDelay);
 
-    Double_t nSignals = fSignalEvent->GetNumberOfSignals();
+    Int_t nSignals = fSignalEvent->GetNumberOfSignals();
     SetObservableValue("NumberOfSignals", nSignals);
-    SetObservableValue("NumberOfGoodSignals", (Double_t)nGoodSignals);
+    SetObservableValue("NumberOfGoodSignals", nGoodSignals);
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // SubstractBaselines
