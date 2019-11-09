@@ -101,10 +101,17 @@ class TRestAnalysisTree : public TTree {
     }
 
     Double_t GetDblObservableValue(TString obsName) {
-        if (GetObservableType(obsName) == "int") return GetObservableValue<int>(obsName);
-        return GetObservableValue<double>(obsName);
+        return GetDblObservableValue(GetObservableID(obsName));
     }
-    Double_t GetDblObservableValue(Int_t n) { return GetObservableValue<double>(n); }
+
+    Double_t GetDblObservableValue(Int_t n) {
+        if (GetObservableType(n) == "int") return GetObservableValue<int>(n);
+        if (GetObservableType(n) == "double") return GetObservableValue<double>(n);
+
+        cout << "TRestAnalysisTree::GetDblObservableValue. Type " << GetObservableType(n)
+             << " not supported! Returning zero" << endl;
+        return 0.;
+    }
 
     template <class T>
     T GetObservableValue(Int_t n) {
