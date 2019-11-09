@@ -248,8 +248,7 @@ Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
         {
             ConnectEventBranches();
             ConnectObservables();
-        }
-        else if(fNObservables == 0){
+        } else if (fNObservables == 0) {
             ConnectEventBranches();
             ConnectObservables();
         }
@@ -271,8 +270,8 @@ void TRestAnalysisTree::SetEventInfo(TRestEvent* evt) {
 
 Int_t TRestAnalysisTree::Fill(TRestEvent* evt) {
     if (evt != NULL) {
-		SetEventInfo(evt);
-	}
+        SetEventInfo(evt);
+    }
 
     if (!fBranchesCreated) {
         CreateBranches();
@@ -285,7 +284,7 @@ void TRestAnalysisTree::CreateEventBranches() {
     if (fBranchesCreated) {
         return;
     }
-    if (GetListOfBranches()->GetEntriesFast() > 0 ) {
+    if (GetListOfBranches()->GetEntriesFast() > 0) {
         fBranchesCreated = true;
         return;
     }
@@ -339,6 +338,47 @@ void TRestAnalysisTree::CreateBranches() {
         CreateObservableBranches();
         fBranchesCreated = true;
     }
+}
+
+Bool_t TRestAnalysisTree::EvaluateCuts(const string cut) {
+    std::vector<string> cuts = Split(cut, "&&", false, true);
+
+    for (int n = 0; n < cuts.size(); n++)
+        if (!EvaluateCut(cuts[n])) return false;
+
+    return true;
+}
+
+Bool_t TRestAnalysisTree::EvaluateCut(const string cut) {
+    const std::vector<string> validOperators = {"==", "<=", ">=", "!=", "=", ">", "<"};
+
+    if (cut.find("&&") != string::npos) return EvaluateCuts(cut);
+
+    string oper = "", observable = "";
+    Double_t value;
+    Bool_t operFound = false;
+    for (int j = 0; j < validOperators.size(); j++) {
+        if (cut.find(validOperators[j]) != string::npos) {
+            oper = validOperators[j];
+            observable = (string)cut.substr(0, cut.find(oper));
+            value = std::stod((string)cut.substr(cut.find(oper) + oper.length(), string::npos));
+            operFound = true;
+            break;
+        }
+    }
+
+    if (!operFound) cout << "TRestAnalysisTree::EvaluateCut. Invalid operator! (" << oper << ")" << endl;
+
+    Double_t val = GetDblObservableValue(observable);
+    if (oper == "==" && value == val) return true;
+    if (oper == "!=" && value != val) return true;
+    if (oper == "<=" && val <= value) return true;
+    if (oper == ">=" && val >= value) return true;
+    if (oper == "=" && val == value) return true;
+    if (oper == ">" && val > value) return true;
+    if (oper == "<" && val < value) return true;
+
+    return false;
 }
 
 //______________________________________________________________________________

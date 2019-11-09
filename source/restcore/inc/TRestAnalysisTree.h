@@ -28,7 +28,6 @@ class TStreamerElement;
 
 class TRestAnalysisTree : public TTree {
    private:
-#ifndef __CINT__
     Bool_t fConnected;        //!
     Bool_t fBranchesCreated;  //!
 
@@ -40,7 +39,6 @@ class TRestAnalysisTree : public TTree {
     Int_t fSubRunOrigin;    //!
 
     std::vector<any> fObservableMemory;  //!
-#endif
 
     Int_t fNObservables;
     std::vector<TString> fObservableNames;
@@ -190,7 +188,8 @@ class TRestAnalysisTree : public TTree {
         return AddObservable(observableName, REST_Reflection::GetTypeName<T>(), description);
     }
 
-    Bool_t EvaluateExpression(const string expression);
+    Bool_t EvaluateCuts(const string expression);
+    Bool_t EvaluateCut(const string expression);
 
     Int_t GetEntry(Long64_t entry = 0, Int_t getall = 0);
 
