@@ -63,6 +63,7 @@ inline vector<T2> Vector_cast(vector<T1> vecstring) {
     for (T1 s : vecstring) {
         result.push_back((T2)s);
     }
+    return result;
 }
 
 std::string ToUpper(std::string in);
