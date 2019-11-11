@@ -117,232 +117,166 @@ void TRestReflector::PrintMemory(int bytepreline) {
 
 void TRestReflector::operator>>(TRestReflector to) { CloneAny(*this, to); }
 
+typedef std::uint64_t hash_t;
+constexpr hash_t prime = 0x100000001B3ull;
+constexpr hash_t basis = 0xCBF29CE484222325ull;
+constexpr hash_t gethash(char const* str, hash_t last_value = basis) {
+    return *str ? gethash(str + 1, (*str ^ last_value) * prime) : last_value;
+}
+constexpr unsigned long long operator"" _H(char const* p, size_t) { return gethash(p); }
+
 string TRestReflector::ToString() {
     char* ladd = address;
     char* buffer = new char[500]();
 
-    int atype = GetTypeID();
-    int j;
     // assert(!((kOffsetP + kChar) <= atype && atype <= (kOffsetP + kBool) &&
     // count == 0));
-    switch (atype) {
+    switch (gethash(type.c_str())) {
             // basic types
-        case TStreamerInfo::kBool: {
+        case "bool"_H: {
             Bool_t* val = (Bool_t*)ladd;
             sprintf(buffer, "%d", *val);
             break;
         }
-        case TStreamerInfo::kChar: {
+        case "char"_H: {
             Char_t* val = (Char_t*)ladd;
             sprintf(buffer, "%d", *val);
             break;
         }
-        case TStreamerInfo::kShort: {
+        case "short"_H: {
             Short_t* val = (Short_t*)ladd;
             sprintf(buffer, "%d", *val);
             break;
         }
-        case TStreamerInfo::kInt: {
+        case "int"_H: {
             Int_t* val = (Int_t*)ladd;
             sprintf(buffer, "%d", *val);
             break;
         }
-        case TStreamerInfo::kLong: {
+        case "long"_H: {
             Long_t* val = (Long_t*)ladd;
             sprintf(buffer, "%ld", *val);
             break;
         }
-        case TStreamerInfo::kLong64: {
+        case "long long"_H: {
             Long64_t* val = (Long64_t*)ladd;
             sprintf(buffer, "%lld", *val);
             break;
         }
-        case TStreamerInfo::kFloat: {
+        case "float"_H: {
             Float_t* val = (Float_t*)ladd;
             sprintf(buffer, "%f", *val);
             break;
         }
-        case TStreamerInfo::kFloat16: {
-            Float_t* val = (Float_t*)ladd;
-            sprintf(buffer, "%f", *val);
-            break;
-        }
-        case TStreamerInfo::kDouble: {
+        case "double"_H: {
             Double_t* val = (Double_t*)ladd;
             sprintf(buffer, "%g", *val);
             break;
         }
-        case TStreamerInfo::kDouble32: {
-            Double_t* val = (Double_t*)ladd;
-            sprintf(buffer, "%g", *val);
-            break;
-        }
-        case TStreamerInfo::kUChar: {
+        case "unsigned char"_H: {
             UChar_t* val = (UChar_t*)ladd;
             sprintf(buffer, "%u", *val);
             break;
         }
-        case TStreamerInfo::kUShort: {
+        case "unsigned short"_H: {
             UShort_t* val = (UShort_t*)ladd;
             sprintf(buffer, "%u", *val);
             break;
         }
-        case TStreamerInfo::kUInt: {
+        case "unsigned int"_H: {
             UInt_t* val = (UInt_t*)ladd;
             sprintf(buffer, "%u", *val);
             break;
         }
-        case TStreamerInfo::kULong: {
+        case "unsigned long"_H: {
             ULong_t* val = (ULong_t*)ladd;
             sprintf(buffer, "%lu", *val);
             break;
         }
-        case TStreamerInfo::kULong64: {
+        case "unsigned long long"_H: {
             ULong64_t* val = (ULong64_t*)ladd;
             sprintf(buffer, "%llu", *val);
             break;
         }
-        case TStreamerInfo::kBits: {
-            UInt_t* val = (UInt_t*)ladd;
-            sprintf(buffer, "%d", *val);
-            break;
-        }
-
-        case TStreamerInfo::kCounter: {
-            Int_t* val = (Int_t*)ladd;
-            sprintf(buffer, "%d", *val);
-            break;
-        }
-            // char *
-        case TStreamerInfo::kCharStar: {
-            char** val = (char**)ladd;
-            if (*val) sprintf(buffer, "%s", *val);
-            break;
-        }
-            // Class *  derived from TObject with comment field  //->
-        case TStreamerInfo::kObjectp: {
-            TObject** obj = (TObject**)(ladd);
-            sprintf(buffer, "(%s)%lx", cl ? type.c_str() : "unknown_type", (Long_t)(*obj));
-            break;
-        }
-
-            // Class*   derived from TObject
-        case TStreamerInfo::kObjectP: {
-            TObject** obj = (TObject**)(ladd);
-            sprintf(buffer, "(%s)%lx", cl ? type.c_str() : "unknown_type", (Long_t)(*obj));
-            break;
-        }
-
-            // Class    derived from TObject
-        case TStreamerInfo::kObject: {
-            TObject* obj = (TObject*)(ladd);
-            sprintf(buffer, "%s", obj->GetName());
-            break;
-        }
-
-            // Special case TStreamerInfo::for TString, TObject, TNamed
-        case TStreamerInfo::kTString: {
+        case "TString"_H: {
             TString* st = (TString*)(ladd);
             sprintf(buffer, "%s", st->Data());
             break;
         }
-        case TStreamerInfo::kTObject: {
-            TObject* obj = (TObject*)(ladd);
-            sprintf(buffer, "%s", obj->GetName());
+        case "string"_H: {
+            string* st = (string*)(ladd);
+            sprintf(buffer, "%s", st->c_str());
             break;
         }
-        case TStreamerInfo::kTNamed: {
-            TNamed* named = (TNamed*)(ladd);
-            sprintf(buffer, "%s/%s", named->GetName(), named->GetTitle());
+        case "TVector2"_H: {
+            TVector2* vec = (TVector2*)ladd;
+            sprintf(buffer, "(%g,%g)", vec->X(), vec->Y());
             break;
         }
-
-            // Class *  not derived from TObject with comment field  //->
-        case TStreamerInfo::kAnyp: {
-            TObject** obj = (TObject**)(ladd);
-            sprintf(buffer, "%s @0x%lx", cl ? type.c_str() : "unknown_type", (Long_t)(*obj));
+        case "TVector3"_H: {
+            TVector3* vec = (TVector3*)ladd;
+            sprintf(buffer, "(%g,%g,%g)", vec->X(), vec->Y(), vec->Z());
             break;
         }
-
-            // Class*   not derived from TObject
-        case TStreamerInfo::kAnyP: {
-            TObject** obj = (TObject**)(ladd);
-            sprintf(buffer, "%s @0x%lx", cl ? type.c_str() : "unknown_type", (Long_t)(*obj));
-            break;
-        }
-            // Any Class not derived from TObject
-        case TStreamerInfo::kOffsetL + TStreamerInfo::kObjectp:
-        case TStreamerInfo::kOffsetL + TStreamerInfo::kObjectP:
-        case TStreamerInfo::kAny: {
-            sprintf(buffer, "printing kAny case TStreamerInfo::(%d)", atype);
-            //         if (aElement) {
-            //            TMemberStreamer *pstreamer = aElement->GetStreamer();
-            //            if (pstreamer == 0) {
-            //               //sprintf(buffer,"ERROR, Streamer is null\n");
-            //               //aElement->ls();
-            //               break;
-            //            }
-            //            //(*pstreamer)(b,ladd,0);
-            //         }
-            break;
-        }
-            // Base Class
-        case TStreamerInfo::kBase: {
-            sprintf(buffer, "printing kBase case TStreamerInfo::(%d)", atype);
-            // aElement->ReadBuffer(b,pointer);
-            break;
-        }
-
-        case TStreamerInfo::kOffsetL + TStreamerInfo::kObject:
-        case TStreamerInfo::kOffsetL + TStreamerInfo::kTString:
-        case TStreamerInfo::kOffsetL + TStreamerInfo::kTObject:
-        case TStreamerInfo::kOffsetL + TStreamerInfo::kTNamed:
-        case TStreamerInfo::kStreamer: {
-            sprintf(buffer, "printing kStreamer case TStreamerInfo::(%d)", atype);
-            //         TMemberStreamer *pstreamer = aElement->GetStreamer();
-            //         if (pstreamer == 0) {
-            //            //sprintf(buffer,"ERROR, Streamer is null\n");
-            //            //aElement->ls();
-            //            break;
-            //         }
-            //         //UInt_t start,count;
-            //         //b.ReadVersion(&start, &count);
-            //         //(*pstreamer)(b,ladd,0);
-            //         //b.CheckByteCount(start,count,IsA());
-            break;
-        }
-
-        case TStreamerInfo::kStreamLoop: {
-            sprintf(buffer, "printing kStreamLoop case TStreamerInfo::(%d)", atype);
-            //         TMemberStreamer *pstreamer = aElement->GetStreamer();
-            //         if (pstreamer == 0) {
-            //            //sprintf(buffer,"ERROR, Streamer is null\n");
-            //            //aElement->ls();
-            //            break;
-            //         }
-            // Int_t *counter = (Int_t*)(count);
-            // UInt_t start,count;
-            /// b.ReadVersion(&start, &count);
-            //(*pstreamer)(b,ladd,*counter);
-            // b.CheckByteCount(start,count,IsA());
-            break;
-        }
-        case TStreamerInfo::kSTL: {
-            if (cl) {
-                static TClassRef stringClass("string");
-                if (ladd && cl == stringClass) {
-                    std::string* st = (std::string*)(ladd);
-                    sprintf(buffer, "%s", st->c_str());
-                } else {
-                    sprintf(buffer, "%s @0x%lx", type.c_str(), (Long_t)(ladd));
+        case "vector<int>"_H: {
+            vector<int>* vec = (vector<int>*)(ladd);
+            stringstream ss;
+            ss << "{";
+            for (int i = 0; i < vec->size(); i++) {
+                ss << vec->at(i);
+                if (i < vec->size() - 1) {
+                    ss << ",";
                 }
-            } else {
-                sprintf(buffer, "unknown_type @0x%lx", (Long_t)(ladd));
             }
+            ss << "}";
+            sprintf(buffer, "%s", ss.str().c_str());
             break;
         }
+        case "vector<double>"_H: {
+            vector<double>* vec = (vector<double>*)(ladd);
+            stringstream ss;
+            ss << "{";
+            for (int i = 0; i < vec->size(); i++) {
+                ss << vec->at(i);
+                if (i < vec->size() - 1) {
+                    ss << ",";
+                }
+            }
+            ss << "}";
+            sprintf(buffer, "%s", ss.str().c_str());
+            break;
+        }
+        case "vector<string>"_H: {
+            vector<string>* vec = (vector<string>*)(ladd);
+            stringstream ss;
+            ss << "{";
+            for (int i = 0; i < vec->size(); i++) {
+                ss << vec->at(i);
+                if (i < vec->size() - 1) {
+                    ss << ",";
+                }
+            }
+            ss << "}";
+            sprintf(buffer, "%s", ss.str().c_str());
+            break;
+        }
+        case "vector<TString>"_H: {
+            vector<TString>* vec = (vector<TString>*)(ladd);
+            stringstream ss;
+            ss << "{";
+            for (int i = 0; i < vec->size(); i++) {
+                ss << vec->at(i).Data();
+                if (i < vec->size() - 1) {
+                    ss << ",";
+                }
+            }
+            ss << "}";
+            sprintf(buffer, "%s", ss.str().c_str());
+            break;
+        }
+
         default: {
-            buffer[0] = 0;
+            sprintf(buffer, "Type: %s, Address: 0x%x", type.c_str(), address);
         }
     }
 
