@@ -182,7 +182,8 @@ class TRestRun : public TRestMetadata {
     // Setters
     void SetInputFileName(string s) {
         fInputFileName = s;
-        fInputFileNames = VectorTString_cast(TRestTools::GetFilesMatchingPattern((string)fInputFileName));
+        fInputFileNames =
+            Vector_cast<string, TString>(TRestTools::GetFilesMatchingPattern((string)fInputFileName));
     }
     void SetExtProcess(TRestEventProcess* p);
     void SetCurrentEntry(int i) { fCurrentEvent = i; }

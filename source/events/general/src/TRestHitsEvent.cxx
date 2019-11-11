@@ -314,7 +314,7 @@ Bool_t TRestHitsEvent::allHitsInsidePrism(TVector3 x0, TVector3 x1, Double_t siz
 /// \param theta An angle in radians to rotate the face of the prism.
 ///
 Double_t TRestHitsEvent::GetEnergyInPrism(TVector3 x0, TVector3 x1, Double_t sizeX, Double_t sizeY,
-                                       Double_t theta) {
+                                          Double_t theta) {
     return fHits->GetEnergyInPrism(x0, x1, sizeX, sizeY, theta);
 }
 
@@ -581,7 +581,7 @@ Double_t TRestHitsEvent::GetClosestHitInsideDistanceToPrismBottom(TVector3 x0, T
 /// \return A pointer to the TPad where the event was drawn is returned.
 ///
 TPad* TRestHitsEvent::DrawEvent(TString option) {
-    vector<TString> optList = VectorTString_cast(TRestTools::GetOptions((string)option));
+    vector<TString> optList = Vector_cast<string, TString>(TRestTools::GetOptions((string)option));
 
     SetBoundaries();
 

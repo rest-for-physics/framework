@@ -132,7 +132,7 @@ void TRestRun::BeginOfInit() {
 
     if (ToUpper(inputname) != "AUTO") {
         fInputFileName = inputname;
-        fInputFileNames = VectorTString_cast(TRestTools::GetFilesMatchingPattern(inputname));
+        fInputFileNames = Vector_cast<string, TString>(TRestTools::GetFilesMatchingPattern(inputname));
     }
 
     if (ToUpper(runNstr) != "AUTO") {
@@ -143,7 +143,7 @@ void TRestRun::BeginOfInit() {
         TRestDataBase* db = gDataBase;
         auto files = db->query_run_files(fRunNumber);
         fInputFileName = db->query_run_filepattern(fRunNumber);
-        fInputFileNames = VectorTString_cast(files);
+        fInputFileNames = Vector_cast<string, TString>(files);
     }
 
     if (ToUpper(runNstr) == "AUTO") {
@@ -644,7 +644,7 @@ void TRestRun::ReadFileInfo(string filename) {
 void TRestRun::ResetEntry() {
     fCurrentEvent = 0;
     if (fFileProcess != NULL) {
-        fFileProcess->OpenInputFiles(Vectorstring_cast(fInputFileNames));
+        fFileProcess->OpenInputFiles(Vector_cast<TString, string>(fInputFileNames));
         fFileProcess->InitProcess();
     }
 }
@@ -973,7 +973,7 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
     if (fFileProcess == NULL && p != NULL) {
         fFileProcess = p;
 
-        fFileProcess->OpenInputFiles(Vectorstring_cast(fInputFileNames));
+        fFileProcess->OpenInputFiles(Vector_cast<TString, string>(fInputFileNames));
         fFileProcess->InitProcess();
         fInputEvent = fFileProcess->GetOutputEvent();
         if (fInputEvent == NULL) {

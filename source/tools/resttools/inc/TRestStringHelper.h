@@ -56,20 +56,15 @@ string ToString(T source, int length = -1, char fill = ' ') {
         return s.substr(0, length);
     }
 }
-inline vector<TString> VectorTString_cast(vector<string> vecstring) {
-    vector<TString> result;
-    for (auto s : vecstring) {
-        result.push_back((TString)s);
+
+template <class T1, class T2>
+inline vector<T2> Vector_cast(vector<T1> vecstring) {
+    vector<T2> result;
+    for (T1 s : vecstring) {
+        result.push_back((T2)s);
     }
-    return result;
 }
-inline vector<string> Vectorstring_cast(vector<TString> vecstring) {
-    vector<string> result;
-    for (auto s : vecstring) {
-        result.push_back((string)s);
-    }
-    return result;
-}
+
 std::string ToUpper(std::string in);
 
 };  // namespace REST_StringHelper
