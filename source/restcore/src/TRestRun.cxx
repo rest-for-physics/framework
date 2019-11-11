@@ -408,7 +408,9 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
 
         // If version is lower than 2.2.1 we do not read/transfer the metadata to
         // output file?
-        if (this->GetVersionCode() >= REST_VERSION(2, 2, 1)) {
+        // 2.2.1 and 2.2.0 is without auto schema evolution, whose metadata cannot be read
+        if (this->GetVersionCode() >= REST_VERSION(2, 2, 1) ||
+            this->GetVersionCode() <= REST_VERSION(2, 1, 8)) {
             ReadInputFileMetadata();
         } else {
             warning << "-- W : The metadata version found on input file is lower "
