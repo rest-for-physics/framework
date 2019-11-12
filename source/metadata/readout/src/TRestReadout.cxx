@@ -417,10 +417,10 @@ TRestReadoutPlane* TRestReadout::GetReadoutPlane(int p) {
     if (p < fNReadoutPlanes)
         return &fReadoutPlanes[p];
     else {
-        cout << "REST WARNING. TRestReadout::GetReadoutPlane." << endl;
-        cout << "Readout plane index exceeded." << endl;
-        cout << "Index requested : " << p << endl;
-        cout << "Number of readout planes defined : " << fNReadoutPlanes << endl;
+        warning << "TRestReadout::GetReadoutPlane." << endl;
+        warning << "Readout plane index exceeded." << endl;
+        warning << "Index requested : " << p << endl;
+        warning << "Number of readout planes defined : " << fNReadoutPlanes << endl;
     }
 
     return NULL;
@@ -502,15 +502,15 @@ void TRestReadout::InitFromConfigFile() {
                 fDecoding = true;
 
             if (fDecoding && !TRestTools::fileExists(decodingFile.c_str())) {
-                cout << "REST ERROR : The decoding file does not exist" << endl;
-                cout << "--------------------------------" << endl;
-                cout << "File : " << decodingFile << endl;
-                cout << "Default decoding will be used. readoutChannel=daqChannel" << endl;
-                cout << "To avoid this message and use the default decoding define : "
-                        "decodingFile=\"\""
-                     << endl;
-                cout << "--------------------------------" << endl;
-                cout << "Press a KEY to continue..." << endl;
+                warning << "The decoding file does not exist!" << endl;
+                warning << "--------------------------------" << endl;
+                warning << "File : " << decodingFile << endl;
+                warning << "Default decoding will be used. readoutChannel=daqChannel" << endl;
+                warning << "To avoid this message and use the default decoding define : "
+                           "decodingFile=\"\""
+                        << endl;
+                warning << "--------------------------------" << endl;
+                warning << "Press a KEY to continue..." << endl;
                 getchar();
                 fDecoding = false;
                 RESTREADOUT_DECODINGFILE_ERROR = true;
@@ -524,7 +524,7 @@ void TRestReadout::InitFromConfigFile() {
                 Int_t daq, readout;
                 while (!feof(f)) {
                     if (fscanf(f, "%d\t%d\n", &daq, &readout) <= 0) {
-                        cout << "REST Error!!. TRestReadout::InitFromConfigFile. Contact "
+                        ferr << "TRestReadout::InitFromConfigFile. Contact "
                                 "rest-dev@cern.ch"
                              << endl;
                         exit(-1);
@@ -548,7 +548,7 @@ void TRestReadout::InitFromConfigFile() {
             }
 
             if (fDecoding && (unsigned int)fModuleDefinitions[mid].GetNumberOfChannels() != rChannel.size()) {
-                cout << "REST ERROR : TRestReadout."
+                ferr << "TRestReadout."
                      << " The number of channels defined in the readout is not the same"
                      << " as the number of channels found in the decoding." << endl;
                 exit(1);
@@ -691,7 +691,7 @@ TRestReadoutModule* TRestReadout::ParseModuleDefinition(string moduleString) {
     }
 
     if (module.GetNumberOfChannels() != channelVector.size()) {
-        ferr << "REST error, channel id definition may be wrong! check your "
+        ferr << "channel id definition may be wrong! check your "
                 "readout module definition!"
              << endl;
         exit(0);
@@ -804,10 +804,6 @@ void TRestReadout::PrintMetadata(Int_t DetailLevel) {
     if (DetailLevel >= 0) {
         TRestMetadata::PrintMetadata();
 
-        //       TRestStringOutput cout;
-        //       cout.setborder("||");
-        //       cout.setorientation(1);
-        //       cout.setlength(100);
         metadata << "Number of readout planes : " << fNReadoutPlanes << endl;
         metadata << "Decoding was defined : ";
         if (fDecoding)
