@@ -43,15 +43,15 @@ TRestRun::TRestRun(string rootfilename) {
 }
 
 TRestRun::~TRestRun() {
-    if (fInputFile != NULL) {
-        fInputFile->Close();
-        delete fInputFile;
-    }
-    if (fOutputFile != NULL) {
-        fOutputFile->Close();
-        delete fOutputFile;
-    }
-    // CloseFile();
+    //if (fEventTree != NULL) {
+    //    delete fEventTree;
+    //}
+
+    //if (fAnalysisTree != NULL) {
+    //    delete fAnalysisTree;
+    //}
+
+	CloseFile();
 }
 
 ///////////////////////////////////////////////
@@ -84,6 +84,8 @@ void TRestRun::Initialize() {
     fOverwrite = true;
     fEntriesSaved = -1;
 
+	fInputMetadata.clear();
+    fMetadataInfo.clear();
     fInputFileNames.clear();
     fInputFile = NULL;
     fOutputFile = NULL;
@@ -946,12 +948,26 @@ void TRestRun::CloseFile() {
                 this->Write(0, kOverwrite);
             }
         }
+        delete fAnalysisTree;
         fAnalysisTree = NULL;
     }
 
     if (fEventTree != NULL) {
         if (fEventTree->GetEntries() > 0 && fInputFile == NULL) fEventTree->Write(0, kOverwrite);
+        delete fEventTree;
         fEventTree = NULL;
+    }
+
+	for (int i = 0; i < fMetadataInfo.size(); i++) {
+        for (int j = 0; j < fInputMetadata.size(); j++) {
+            if (fMetadataInfo[i] == fInputMetadata[j]) {
+                delete fMetadataInfo[i];
+                fMetadataInfo.erase(fMetadataInfo.begin() + i);
+                i--;
+                fInputMetadata.erase(fInputMetadata.begin() + j);
+                break;
+            }
+        }
     }
 
     if (fOutputFile != NULL) {
