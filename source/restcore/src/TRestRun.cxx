@@ -426,14 +426,17 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
             debug << "Input file version : " << this->GetVersion() << endl;
             ReadInputFileTrees();
             ResetEntry();
-            return;
-        }
-    }
+        } else {
+            fAnalysisTree = NULL;
+		}
+    } else {
+        fInputFile = NULL;
+        fAnalysisTree = NULL;
+	}
 
-    if (fFileProcess == NULL)
+    if (fAnalysisTree==NULL && fFileProcess == NULL)
         info << "Input file is not REST root file, an external process is needed!" << endl;
-    fInputFile = NULL;
-    fAnalysisTree = NULL;
+
 }
 
 void TRestRun::ReadInputFileMetadata() {
