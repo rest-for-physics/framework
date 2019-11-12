@@ -26,8 +26,41 @@ ClassImp(TRestG4PrimaryGenerator)
 }
 
 //______________________________________________________________________________
-TRestG4PrimaryGenerator::~TRestG4PrimaryGenerator() {
-    // TRestG4PrimaryGenerator destructor
+TRestG4PrimaryGenerator::~TRestG4PrimaryGenerator() { RemoveParticleCollections(); }
+
+
+    void TRestG4PrimaryGenerator::Reset() {
+    fNsources = 0;
+    fSources.clear();
+
+    RemoveParticleCollections();
+}
+
+void TRestG4PrimaryGenerator::RemoveSources() {
+    fSources.clear();
+    fNsources = 0;
+}
+
+void TRestG4PrimaryGenerator::AddSource(TRestParticleSource src) {
+    fSources.push_back(src);
+    fNsources++;
+}
+
+TRestParticleCollection* TRestG4PrimaryGenerator::GetParticleCollection(Int_t n) {
+    return fParticleCollections[n];
+}
+
+void TRestG4PrimaryGenerator::RemoveParticleCollections() {
+    for (auto c : fParticleCollections) {
+        delete c;
+    }
+    fParticleCollections.clear();
+    fNCollections = 0;
+}
+
+void TRestG4PrimaryGenerator::AddParticleCollection(TRestParticleCollection* collection) {
+    fParticleCollections.push_back(collection);
+    fNCollections++;
 }
 
 void TRestG4PrimaryGenerator::SetSourcesFromParticleCollection(Int_t n) {
