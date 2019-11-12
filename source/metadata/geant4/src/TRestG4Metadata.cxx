@@ -678,7 +678,7 @@ TRestG4Metadata::TRestG4Metadata(char* cfgFileName, string name) : TRestMetadata
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestG4Metadata::~TRestG4Metadata() {}
+TRestG4Metadata::~TRestG4Metadata() { fPrimaryGenerator.RemoveParticleCollections(); }
 
 ///////////////////////////////////////////////
 /// \brief Initialization of TRestG4Metadata members
