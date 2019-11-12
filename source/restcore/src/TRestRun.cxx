@@ -43,15 +43,15 @@ TRestRun::TRestRun(string rootfilename) {
 }
 
 TRestRun::~TRestRun() {
-    //if (fEventTree != NULL) {
+    // if (fEventTree != NULL) {
     //    delete fEventTree;
     //}
 
-    //if (fAnalysisTree != NULL) {
+    // if (fAnalysisTree != NULL) {
     //    delete fAnalysisTree;
     //}
 
-	CloseFile();
+    CloseFile();
 }
 
 ///////////////////////////////////////////////
@@ -84,7 +84,7 @@ void TRestRun::Initialize() {
     fOverwrite = true;
     fEntriesSaved = -1;
 
-	fInputMetadata.clear();
+    fInputMetadata.clear();
     fMetadataInfo.clear();
     fInputFileNames.clear();
     fInputFile = NULL;
@@ -356,8 +356,13 @@ void TRestRun::OpenInputFile(int i) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Open the file. If is root file, link the input event/analysis with
-/// input tree
+/// \brief Open the input file, read file info and the trees if it is root file.
+///
+/// TRestRun will:
+/// 1. read the file info (size, date, etc.)
+/// if it's root file from REST output, then
+/// 2. update its class's data(version, tag, user, etc.) to the same as the one stored in the input file.
+/// 3. link the input event and observables to the corresponding tree
 ///
 void TRestRun::OpenInputFile(TString filename, string mode) {
     CloseFile();
@@ -369,69 +374,66 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
     if (TRestTools::isRootFile((string)filename)) {
         fInputFile = new TFile(filename, mode.c_str());
 
-        if (!GetMetadataClass("TRestRun", fInputFile)) {
-            ferr << " invalid input file! TRestRun was not found!" << endl;
-            ferr << "filename : " << filename << endl;
-            exit(1);
+        if (GetMetadataClass("TRestRun", fInputFile)) {
+            // This should be the values in RML (if it was initialized using RML)
+            TString runTypeTmp = fRunType;
+            TString runUserTmp = fRunUser;
+            TString runTagTmp = fRunTag;
+            TString runDescriptionTmp = fRunDescription;
+            TString experimentNameTmp = fExperimentName;
+            TString outputFileNameTmp = fOutputFileName;
+            TString inputFileNameTmp = fInputFileName;
+            TString cFileNameTmp = fConfigFileName;
+
+            // We define fVersion to -1 to identify old REST files that did not have yet
+            // versioning system
+            this->UnSetVersion();
+
+            // Now we load the values in the previous run file
+            // If successfully read the input file, the version code will be changed
+            // from -1 --> certain number
+            this->Read(GetMetadataClass("TRestRun", fInputFile)->GetName());
+
+            if (inputFileNameTmp != "null") fInputFileName = inputFileNameTmp;
+            if (outputFileNameTmp != "rest_default.root") fOutputFileName = outputFileNameTmp;
+            if (cFileNameTmp != "null") fConfigFileName = cFileNameTmp;
+
+            // If the value was initialized from RML and is not preserve, we recover
+            // back the value in RML
+            if (runTypeTmp != "Null" && runTypeTmp != "preserve") fRunType = runTypeTmp;
+            if (runUserTmp != "Null" && runTypeTmp != "preserve") fRunUser = runUserTmp;
+            if (runTagTmp != "Null" && runTagTmp != "preserve") fRunTag = runTagTmp;
+            if (runDescriptionTmp != "Null" && runDescriptionTmp != "preserve")
+                fRunDescription = runDescriptionTmp;
+            if (experimentNameTmp != "Null" && experimentNameTmp != "preserve")
+                fExperimentName = experimentNameTmp;
+
+            // If version is lower than 2.2.1 we do not read/transfer the metadata to
+            // output file?
+            // Actually g4 files from v2.1.x is all compatible with the v2.2.x version
+            // Only 2.2.0 is without auto schema evolution, whose metadata cannot be read
+            if (this->GetVersionCode() >= REST_VERSION(2, 2, 1) ||
+                this->GetVersionCode() <= REST_VERSION(2, 1, 8)) {
+                ReadInputFileMetadata();
+            } else {
+                warning << "-- W : The metadata version found on input file is lower "
+                           "than 2.2.1!"
+                        << endl;
+                warning << "-- W : metadata from input file will not be read" << endl;
+            }
+
+            debug << "Initializing input file : version code : " << this->GetVersionCode() << endl;
+            debug << "Input file version : " << this->GetVersion() << endl;
+            ReadInputFileTrees();
+            ResetEntry();
+            return;
         }
-
-        // This should be the values in RML (if it was initialized using RML)
-        TString runTypeTmp = fRunType;
-        TString runUserTmp = fRunUser;
-        TString runTagTmp = fRunTag;
-        TString runDescriptionTmp = fRunDescription;
-        TString experimentNameTmp = fExperimentName;
-        TString outputFileNameTmp = fOutputFileName;
-        TString inputFileNameTmp = fInputFileName;
-        TString cFileNameTmp = fConfigFileName;
-
-        // We define fVersion to -1 to identify old REST files that did not have yet
-        // versioning system
-        this->UnSetVersion();
-
-        // Now we load the values in the previous run file
-        // If successfully read the input file, the version code will be changed
-        // from -1 --> certain number
-        this->Read(GetMetadataClass("TRestRun", fInputFile)->GetName());
-
-        if (inputFileNameTmp != "null") fInputFileName = inputFileNameTmp;
-        if (outputFileNameTmp != "rest_default.root") fOutputFileName = outputFileNameTmp;
-        if (cFileNameTmp != "null") fConfigFileName = cFileNameTmp;
-
-        // If the value was initialized from RML and is not preserve, we recover
-        // back the value in RML
-        if (runTypeTmp != "Null" && runTypeTmp != "preserve") fRunType = runTypeTmp;
-        if (runUserTmp != "Null" && runTypeTmp != "preserve") fRunUser = runUserTmp;
-        if (runTagTmp != "Null" && runTagTmp != "preserve") fRunTag = runTagTmp;
-        if (runDescriptionTmp != "Null" && runDescriptionTmp != "preserve")
-            fRunDescription = runDescriptionTmp;
-        if (experimentNameTmp != "Null" && experimentNameTmp != "preserve")
-            fExperimentName = experimentNameTmp;
-
-        // If version is lower than 2.2.1 we do not read/transfer the metadata to
-        // output file?
-        // Actually g4 files from v2.1.x is all compatible with the v2.2.x version
-        // Only 2.2.0 is without auto schema evolution, whose metadata cannot be read
-        if (this->GetVersionCode() >= REST_VERSION(2, 2, 1) ||
-            this->GetVersionCode() <= REST_VERSION(2, 1, 8)) {
-            ReadInputFileMetadata();
-        } else {
-            warning << "-- W : The metadata version found on input file is lower "
-                       "than 2.2.1!"
-                    << endl;
-            warning << "-- W : metadata from input file will not be read" << endl;
-        }
-
-        debug << "Initializing input file : version code : " << this->GetVersionCode() << endl;
-        debug << "Input file version : " << this->GetVersion() << endl;
-        ReadInputFileTrees();
-        ResetEntry();
-    } else {
-        if (fFileProcess == NULL)
-            info << "Input file is not root file, an external process is needed!" << endl;
-        fInputFile = NULL;
-        fAnalysisTree = NULL;
     }
+
+    if (fFileProcess == NULL)
+        info << "Input file is not REST root file, an external process is needed!" << endl;
+    fInputFile = NULL;
+    fAnalysisTree = NULL;
 }
 
 void TRestRun::ReadInputFileMetadata() {
@@ -958,7 +960,7 @@ void TRestRun::CloseFile() {
         fEventTree = NULL;
     }
 
-	for (int i = 0; i < fMetadataInfo.size(); i++) {
+    for (int i = 0; i < fMetadataInfo.size(); i++) {
         for (int j = 0; j < fInputMetadata.size(); j++) {
             if (fMetadataInfo[i] == fInputMetadata[j]) {
                 delete fMetadataInfo[i];
