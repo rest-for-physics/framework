@@ -381,32 +381,36 @@ vector<string> TRestTools::GetFilesMatchingPattern(string pattern) {
     std::vector<string> outputFileNames;
 
     if (pattern != "") {
-        if (pattern.find_first_of("*") >= 0 || pattern.find_first_of("?") >= 0) {
-            string a = Execute("find " + pattern);
-            auto b = Split(a, "\n");
+        vector<string> items = Split(pattern, "\n");
 
-            for (int i = 0; i < b.size(); i++) {
-                outputFileNames.push_back(b[i]);
+        for (auto item : items) {
+            if (item.find_first_of("*") >= 0 || item.find_first_of("?") >= 0) {
+                string a = Execute("find " + item);
+                auto b = Split(a, "\n");
+
+                for (int i = 0; i < b.size(); i++) {
+                    outputFileNames.push_back(b[i]);
+                }
+
+                // char command[256];
+                // sprintf(command, "find %s > /tmp/RESTTools_fileList.tmp",
+                // pattern.Data());
+
+                // system(command);
+
+                // FILE *fin = fopen("/tmp/RESTTools_fileList.tmp", "r");
+                // char str[256];
+                // while (fscanf(fin, "%s\n", str) != EOF)
+                //{
+                //	TString newFile = str;
+                //	outputFileNames.push_back(newFile);
+                //}
+                // fclose(fin);
+
+                // system("rm /tmp/RESTTools_fileList.tmp");
+            } else {
+                if (fileExists(item)) outputFileNames.push_back(item);
             }
-
-            // char command[256];
-            // sprintf(command, "find %s > /tmp/RESTTools_fileList.tmp",
-            // pattern.Data());
-
-            // system(command);
-
-            // FILE *fin = fopen("/tmp/RESTTools_fileList.tmp", "r");
-            // char str[256];
-            // while (fscanf(fin, "%s\n", str) != EOF)
-            //{
-            //	TString newFile = str;
-            //	outputFileNames.push_back(newFile);
-            //}
-            // fclose(fin);
-
-            // system("rm /tmp/RESTTools_fileList.tmp");
-        } else {
-            if (fileExists(pattern)) outputFileNames.push_back(pattern);
         }
     }
     return outputFileNames;
@@ -481,25 +485,24 @@ std::istream& TRestTools::GetLine(std::istream& is, std::string& t) {
     }
 }
 
-
 ///////////////////////////////////////////////
 /// \brief It will download the remote file provided in the argument using wget.
 ///
 /// If it succeeds to download the file, this method will return the location of
 /// the local temporary file downloaded. If it fails, the method will a blank string
 string TRestTools::DownloadHttpFile(string remoteFile) {
-    //cout << "Entering ... " << __PRETTY_FUNCTION__ << endl;
+    // cout << "Entering ... " << __PRETTY_FUNCTION__ << endl;
 
-    //cout << "Complete remote filename : " << remoteFile << endl;
+    // cout << "Complete remote filename : " << remoteFile << endl;
 
     TString remoteFilename = TRestTools::GetPureFileName(remoteFile);
 
-    //cout << "Reduced remote filename : " << remoteFilename << endl;
+    // cout << "Reduced remote filename : " << remoteFilename << endl;
 
     string cmd =
         "wget --no-check-certificate " + remoteFile + " -O /tmp/REST_" + getenv("USER") + "_remote.rml -q";
 
-    //info << "-- Info : Trying to download remote file from : " << remoteFile << endl;
+    // info << "-- Info : Trying to download remote file from : " << remoteFile << endl;
     int a = system(cmd.c_str());
 
     if (a == 0) {
@@ -511,7 +514,7 @@ string TRestTools::DownloadHttpFile(string remoteFile) {
         if (a == 1024) cout << "-- Error : Network connection problem?" << endl;
         if (a == 2048) cout << "-- Error : Gas definition does NOT exist in database?" << endl;
         cout << "-- Info : Please specify a local config file" << endl;
-        //exit(1);
+        // exit(1);
     }
 
     return "";
