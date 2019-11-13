@@ -16,64 +16,55 @@ void setenv(const char* __name, const char* __value, int __replace) {
 #endif
 
 void PrintHelp() {
-    fout.resetcolor();
+    TRestStringOutput fout(COLOR_BOLDYELLOW, "", kHeaderedLeft);
     fout << " " << endl;
-    fout << "Usage1 : ./restManager --c CONFIG_FILE [--d RUNID] [--i/f INPUT] "
-            "[--o OUTPUT]        "
+
+    fout.setheader("Usage1 : ./restManager ");
+    fout << "--c CONFIG_FILE [--i/f INPUT] [--o OUTPUT] [--j THREADS] [--e EVENTS_TO_PROCESS] [--v "
+            "VERBOSELEVEL] [--d RUNID] [--p PDF_PLOTS.pdf]"
          << endl;
-    fout << "                       [--j THREADS] [--e EVENTS_TO_PROCESS] [--v "
-            "VERBOSELEVEL]      "
-         << endl;
-    fout << "                       [--r HISTOS_FILE.root] [--p PDF_PLOTS.pdf] "
-            "[--n PLOT_NAME]    "
-         << endl;
-    fout << "Usage2 : ./restManager TASK_NAME ARG1 ARG2 ARG3                     "
-            "                 "
-         << endl;
+    fout.setheader("Usage2 : ./restManager ");
+    fout << "TASK_NAME ARG1 ARG2 ARG3" << endl;
+
+    fout.setcolor(COLOR_WHITE);
+    fout.setheader("");
     fout << " " << endl;
+    fout.setheader("CONFIG_FILE: ");
     fout << "-" << endl;
-    fout << "CONFIG_FILE: The rml configuration file. It should contain a "
-            "TRestManager section.   "
+    fout << "The rml configuration file. It should contain a TRestManager section. This "
+            "argument MUST be provided. The others can be also specified in the rml file."
          << endl;
-    fout << "This argument MUST be provided. The others can be also specified in "
-            "the rml file.    "
-         << endl;
+    fout.setheader("INPUT      : ");
     fout << "-" << endl;
-    fout << "RUNID      : Input run number. REST will automatically find the "
-            "input file with run  "
+    fout << "Input file name. If not given it will be acquired from the rml file. If you want "
+            "to use multiple input file, you can either specify the string of matching pattern with "
+            "quotation marks surrounding it, or put the file names in a .list file."
          << endl;
-    fout << "number given and INPUT_FILE not specified. Subrun number can also "
-            "be specified with  "
-         << endl;
-    fout << "a dot after runnumber ,e.g. \"--r 910.3\". It is by default 0 "
-            "meaning data takaing run "
-         << endl;
+    fout.setheader("OUTPUT     : ");
     fout << "-" << endl;
-    fout << "INPUT      : Input file name. If not given it will be acquired from "
-            "the rml file.    "
+    fout << "Output file name. It can be given as a name string (abc.root), or as an expression "
+            "with naming fields to be replaced (Run[RunNumber]_[Tag].root)."
          << endl;
-    fout << "If you want to use multiple input file, you can either specify the "
-            "string of matching"
-         << endl;
-    fout << "pattern with quotation marks surrounding it, or put the file names "
-            "in a .list file   "
-         << endl;
+    fout.setheader("THREADS    : ");
     fout << "-" << endl;
-    fout << "OUTPUT     : Output file name. It can be given as a name string "
-            "(abc.root), or as an "
+    fout << "Enable specific number of threads to run the jobs. In most time 3~6 threads are "
+            "enough to make full use of computer power. Maximum is 15."
          << endl;
-    fout << "expression for the program to replace parameters in it.             "
-            "                 "
-         << endl;
-    fout << "-" << endl;
-    fout << "THREADS    : Request specific number of threads to run the jobs. In "
-            "most time 3~6    "
-         << endl;
-    fout << "threads can squeeze out the full potential of the computer. More "
-            "may be negative     "
-         << endl;
-    fout << " " << endl;
+    fout.setheader("");
     fout << "=" << endl;
+}
+
+void ParseInputArgs(const char* argv) {
+    if (getenv("inputFile") != NULL) {
+        string input_old = getenv("inputFile");
+        input_old += "\n" + string(argv);
+
+        setenv("inputFile", input_old.c_str(), 1);
+        setenv("REST_INPUTFILE", input_old.c_str(), 1);
+    } else {
+        setenv("inputFile", argv, 1);
+        setenv("REST_INPUTFILE", argv, 1);
+    }
 }
 
 int main(int argc, char* argv[]) {
@@ -102,12 +93,10 @@ int main(int argc, char* argv[]) {
                                 setenv("runNumber", argv[i + 1], 1);
                                 break;
                             case 'f':
-                                setenv("inputFile", argv[i + 1], 1);
-                                setenv("REST_INPUTFILE", argv[i + 1], 1);
+                                ParseInputArgs(argv[i + 1]);
                                 break;
                             case 'i':
-                                setenv("inputFile", argv[i + 1], 1);
-                                setenv("REST_INPUTFILE", argv[i + 1], 1);
+                                ParseInputArgs(argv[i + 1]);
                                 break;
                             case 'o':
                                 setenv("outputFile", argv[i + 1], 1);
@@ -123,12 +112,6 @@ int main(int argc, char* argv[]) {
                                 break;
                             case 'p':
                                 setenv("pdfFilename", argv[i + 1], 1);
-                                break;
-                            case 'r':
-                                setenv("histoFilename", argv[i + 1], 1);
-                                break;
-                            case 'n':
-                                setenv("plotsectionname", argv[i + 1], 1);
                                 break;
                             // case 'help': PrintHelp(); exit(0);
                             default:
