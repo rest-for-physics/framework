@@ -94,6 +94,7 @@ class TRestProcessRunner : public TRestMetadata {
     string GetProcInfo(string infoname) {
         return ProcessInfo[infoname] == "" ? infoname : ProcessInfo[infoname];
     }
+    int GetThreadNumber() { return fThreadNumber; }
 
 
     // Construtor & Destructor
