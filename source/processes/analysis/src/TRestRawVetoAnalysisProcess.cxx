@@ -168,8 +168,8 @@ TRestEvent* TRestRawVetoAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 		fOutputRawSignalEvent->RemoveSignalWithId(fVetoSignalId);
 	}
 
-	SetObservableValue("VetoPeakTime", VetoPeakTime); //Cristina
-	SetObservableValue("VetoMaxPeakAmplitude", VetoMaxPeakAmplitude); //Cristina
+	SetObservableValue("PeakTime", VetoPeakTime); //Cristina
+	SetObservableValue("MaxPeakAmplitude", VetoMaxPeakAmplitude); //Cristina
 
 	/*
 	cout << "++++++++++++++++++++++++++" << endl;
