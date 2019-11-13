@@ -36,9 +36,8 @@ void PrintHelp() {
          << endl;
     fout.setheader("INPUT      : ");
     fout << "-" << endl;
-    fout << "Input file name. If not given it will be acquired from the rml file. If you want "
-            "to use multiple input file, you can either specify the string of matching pattern with "
-            "quotation marks surrounding it, or put the file names in a .list file."
+    fout << "Input file name(s). --i and --f options are the same. To define multiple input files, one can "
+            "either specify a string of naming pattern for them, or just put multiple --i options."
          << endl;
     fout.setheader("OUTPUT     : ");
     fout << "-" << endl;
@@ -93,10 +92,10 @@ int main(int argc, char* argv[]) {
                                 setenv("runNumber", argv[i + 1], 1);
                                 break;
                             case 'f':
-                                ParseInputArgs(argv[i + 1]);
+                                for (int n = 1; *argv[i + n] != '-'; n++) ParseInputArgs(argv[i + n]);
                                 break;
                             case 'i':
-                                ParseInputArgs(argv[i + 1]);
+                                for (int n = 1; *argv[i + n] != '-'; n++) ParseInputArgs(argv[i + n]);
                                 break;
                             case 'o':
                                 setenv("outputFile", argv[i + 1], 1);
