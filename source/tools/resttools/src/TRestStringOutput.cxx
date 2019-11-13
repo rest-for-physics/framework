@@ -226,11 +226,12 @@ string TRestStringOutput::FormattingPrintString(string input) {
         return string(length, input[0]);
     }
 
+	int Lstr = input.size();
+    int Lfmt = formatstring.size();
     if (useborder) {
         string output(length, ' ');
 
-        int Lstr = input.size();
-        int Lfmt = formatstring.size();
+
 
         int startblank;
         if (useborder || orientation == 0) {
@@ -260,6 +261,13 @@ string TRestStringOutput::FormattingPrintString(string input) {
 
         return output;
     } else {
+		//use header
+        int Lcanput = length - Lfmt + 2;
+        int nLast = Lstr % Lcanput;
+        for (int i = Lstr - nLast; i > 0; i -= Lcanput) {
+            input.insert(input.begin() + i, Lfmt, ' ');
+		}
+
         return formatstring + input;
     }
 }
