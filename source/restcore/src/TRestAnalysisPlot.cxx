@@ -150,8 +150,8 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     }
 
     fPlotMode = GetParameter("plotMode", "compare");
-    fHistoOutputFile = GetParameter("histoFilename", "");
-    if (fHistoOutputFile == "") fHistoOutputFile = GetParameter("outputFile", "/tmp/histos.root");
+    //fHistoOutputFile = GetParameter("histoFilename", "");
+    //if (fHistoOutputFile == "") fHistoOutputFile = GetParameter("outputFile", "/tmp/histos.root");
 
     position = 0;
     string canvasDefinition;
