@@ -10,7 +10,7 @@
 #include "TRestVersion.h"
 
 // Note!
-// Don't use cout in the main fumction that calls TRint
+// Don't use cout in the main function!
 // This will make cout un-usable in the command line!
 int main(int argc, char* argv[]) {
     // set the env and debug status
