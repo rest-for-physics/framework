@@ -58,6 +58,8 @@ class TRestRawSignalEvent : public TRestEvent {
     // Setters
     void AddSignal(TRestRawSignal s);
 
+	void RemoveSignalWithId(Int_t sId);
+
     void AddChargeToSignal(Int_t sgnlID, Int_t bin, Short_t value);
 
     void SetTailPoints(Int_t p) {

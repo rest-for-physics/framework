@@ -58,6 +58,20 @@ void TRestRawSignalEvent::AddSignal(TRestRawSignal s) {
     fSignal.push_back(s);
 }
 
+void TRestRawSignalEvent::RemoveSignalWithId(Int_t sId) {
+
+	Int_t index = GetSignalIndex(sId);
+
+    if ( index == -1 ) {
+        cout << "Warning. Signal ID : " << sId << " does not exist. Signal will not be removed from signal event" << endl;
+        return;
+    }
+
+
+	fSignal.erase(fSignal.begin() + sId);
+}
+
+
 Int_t TRestRawSignalEvent::GetSignalIndex(Int_t signalID) {
     for (int i = 0; i < GetNumberOfSignals(); i++)
         if (fSignal[i].GetSignalID() == signalID) return i;
