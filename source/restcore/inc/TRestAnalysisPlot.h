@@ -37,7 +37,6 @@ class TRestAnalysisPlot : public TRestMetadata {
 
     TCanvas* fCombinedCanvas;  //!
 
-    TString fPlotMode;
     TString fHistoOutputFile;
     TVector2 fCanvasSize;
     TVector2 fCanvasDivisions;

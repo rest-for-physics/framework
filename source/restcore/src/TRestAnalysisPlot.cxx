@@ -149,9 +149,8 @@ void TRestAnalysisPlot::InitFromConfigFile() {
         }
     }
 
-    fPlotMode = GetParameter("plotMode", "compare");
-    //fHistoOutputFile = GetParameter("histoFilename", "");
-    //if (fHistoOutputFile == "") fHistoOutputFile = GetParameter("outputFile", "/tmp/histos.root");
+    // fHistoOutputFile = GetParameter("histoFilename", "");
+    // if (fHistoOutputFile == "") fHistoOutputFile = GetParameter("outputFile", "/tmp/histos.root");
 
     position = 0;
     string canvasDefinition;
@@ -554,7 +553,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     // fHistoOutputFile = ReplaceFilenameTags(fHistoOutputFile, runs[0][0]);
     // TFile* f = new TFile(fHistoOutputFile, "RECREATE");
 
-    //cout << "Saving histograms to ROOT file : " << fHistoOutputFile << endl;
+    // cout << "Saving histograms to ROOT file : " << fHistoOutputFile << endl;
 
     /* {{{ Initializing canvas window */
     if (fCombinedCanvas != NULL) {
@@ -803,7 +802,7 @@ for (unsigned int n = 0; n < fHistoNames.size(); n++) {
         GetChar();
     }
 
-    if (fRun != NULL&&fOutputRootFile!=NULL) {
+    if (fRun != NULL && fOutputRootFile != NULL) {
         fOutputRootFile->cd();
         this->Write();
         fRun->CloseFile();
