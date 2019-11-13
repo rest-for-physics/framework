@@ -169,6 +169,16 @@ void TRestRun::BeginOfInit() {
         }
     }
 
+    if (fInputFileNames.size() == 0) {
+        if (fInputFileName != "") {
+            ferr << "cannot find the input file!" << endl;
+            exit(1);
+        } else {
+            warning << "no input file added" << endl;
+        }
+        // throw;
+    }
+
     // output file pattern
     string outputdir = (string)GetDataPath();
     if (outputdir == "") outputdir = ".";
@@ -318,28 +328,12 @@ void TRestRun::EndOfInit() {
 
     OpenInputFile(0);
 
-    if (fInputFileNames.size() == 0) {
-        warning << "no input file added" << endl;
-        // throw;
+    cout << "InputFile pattern: \"" << fInputFileName << "\"" << endl;
+    info << "which matches :" << endl;
+    for (int i = 0; i < fInputFileNames.size(); i++) {
+        info << fInputFileNames[i] << endl;
     }
-    // single file, not pattern
-    else if (fInputFileNames.size() == 1) {
-        cout << "Input file: \"" << fInputFileName << "\"" << endl;
-        if (!TRestTools::fileExists((string)fInputFileName)) {
-            // file does not exist
-            cout << "ERROR: Input file (" << fInputFileName << ") does not exist" << endl;
-            // throw;
-        }
-    }
-    // file pattern, more than one file
-    else {
-        cout << "InputFile pattern: \"" << fInputFileName << "\"" << endl;
-        info << "which matches :" << endl;
-        for (int i = 0; i < fInputFileNames.size(); i++) {
-            info << fInputFileNames[i] << endl;
-        }
-        essential << "(" << fInputFileNames.size() << " added files)" << endl;
-    }
+    essential << "(" << fInputFileNames.size() << " added files)" << endl;
 
     // cout << "Output file: \"" << fOutputFileName << "\"" << endl;
 }
@@ -428,15 +422,14 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
             ResetEntry();
         } else {
             fAnalysisTree = NULL;
-		}
+        }
     } else {
         fInputFile = NULL;
         fAnalysisTree = NULL;
-	}
+    }
 
-    if (fAnalysisTree==NULL && fFileProcess == NULL)
+    if (fAnalysisTree == NULL && fFileProcess == NULL)
         info << "Input file is not REST root file, an external process is needed!" << endl;
-
 }
 
 void TRestRun::ReadInputFileMetadata() {
