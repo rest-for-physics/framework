@@ -9,6 +9,7 @@ stages:
   - process2
   - drawing
   - deploy
+  - readAQS
 
 before_script:
   - export USER="test"
@@ -134,3 +135,16 @@ deploy:
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install
+
+readAQS:
+    type: readAQS
+    script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd /tmp/
+    - wget -r --no-parent https://sultan.unizar.es/rawdata/
+    - cd /tmp/sultan.unizar.es/rawdata/
+    - restManager --j 8 --c 01_raw.rml --f R01141_BackgroundRadon_Vm_445_Vd_160_Pr_6_Gain_0x1_Shape_0xF_Clock_0x4-163.aqs --o out.root
+    artifacts:
+      paths:
+        - /tmp/sultan.unizar.es/rawdata/out.root
+      expire_in: 1 week
