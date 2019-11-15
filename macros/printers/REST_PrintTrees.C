@@ -9,6 +9,8 @@ using namespace std;
 //*** Description: This macro will print on screen the contents of the event tree, analysis tree and
 //*** observable values inside the file.root given by argument.
 //*** --------------
+//*** Remark : If we specify a particular #entry, the analysisTree values of that entry will be printed.
+//*** --------------
 //*** Usage: restManager PrintTrees file.root [#entry]
 //*******************************************************************************************************
 Int_t REST_Trees(TString fName, Int_t Entry = 0) {
