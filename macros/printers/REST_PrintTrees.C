@@ -5,6 +5,12 @@ using namespace std;
 
 #include <TString.h>
 
+//*******************************************************************************************************
+//*** Description: This macro will print on screen the contents of the event tree, analysis tree and
+//*** observable values inside the file.root given by argument.
+//*** --------------
+//*** Usage: restManager PrintTrees file.root [#entry]
+//*******************************************************************************************************
 Int_t REST_Trees(TString fName, Int_t Entry = 0) {
     TRestRun* run = new TRestRun();
 
