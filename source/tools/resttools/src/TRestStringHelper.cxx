@@ -163,6 +163,19 @@ string REST_StringHelper::RemoveWhiteSpaces(string in) {
     return out;
 }
 
+ULong64_t REST_StringHelper::ToHash(string str) {
+    ULong64_t prime = 0x100000001B3ull;
+    ULong64_t basis = 0xCBF29CE484222325ull;
+    ULong64_t ret{basis};
+
+    for (int i = 0; i < str.size(); i++) {
+        ret ^= str[i];
+        ret *= prime;
+    }
+
+    return ret;
+}
+
 ///////////////////////////////////////////////
 /// \brief Counts the number of occurences of **substring** inside the input
 /// string **in**.

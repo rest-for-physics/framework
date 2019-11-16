@@ -324,6 +324,8 @@ void TRestAnalysisTree::CreateObservableBranches() {
             this->Branch(brName, (long*)ref);
         } else if (typeName == "long long") {
             this->Branch(brName, (long long*)ref);
+        } else if (typeName == "unsigned long long") {
+            this->Branch(brName, (unsigned long long*)ref);
         } else {
             this->Branch(brName, typeName, ref);
         }
