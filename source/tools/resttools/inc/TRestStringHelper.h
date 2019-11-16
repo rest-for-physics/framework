@@ -41,6 +41,7 @@ std::string Replace(std::string in, std::string thisString, std::string byThisSt
 std::string EscapeSpecialLetters(string in);
 string ToDateTimeString(time_t time);
 time_t ToTime(string time);
+ULong64_t ToHash(string str);
 Int_t Count(std::string s, std::string sbstring);
 Int_t FindNthStringPosition(const string& in, size_t pos, const string& strToFind, size_t nth);
 template <class T>
