@@ -271,6 +271,7 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
         pc->LoadConfigFromFile(e, fElementGlobal);
 
         pc->SetRunInfo(this);
+        pc->SetHostmgr(fHostmgr);
 
         if (pc->isExternal()) {
             SetExtProcess(pc);
