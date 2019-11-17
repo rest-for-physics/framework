@@ -55,6 +55,8 @@ void PrintHelp() {
 }
 
 void ParseInputArgs(const char* argv) {
+    if (argv == NULL) return;
+
     if (getenv("inputFile") != NULL) {
         string input_old = getenv("inputFile");
         input_old += "\n" + string(argv);
