@@ -68,7 +68,7 @@ void TRestDetectorSetup::InitFromConfigFile() {
     fSubRunNumber = StringToInteger(GetParameter("subRunNumber"));
     if (fHostmgr != NULL && fHostmgr->GetRunInfo() != NULL) {
         TRestRun* r = fHostmgr->GetRunInfo();
-        InitFromFileName(r->GetInputFileName(0));
+        if (r->GetInputFileNumber() > 0) InitFromFileName(r->GetInputFileName(0));
     }
     // TOBE implemented if needed
 }
