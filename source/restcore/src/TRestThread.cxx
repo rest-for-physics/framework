@@ -293,6 +293,12 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
             fProcessChain[i]->InitProcess();
         }
 
+        if (fHostRunner->GetInputEvent() == NULL) {
+            ferr << "Failed to initialize input event!" << endl;
+            ferr << "Please check your input file and file reading process" << endl;
+            exit(1);
+        }
+
         TRestEvent* FirstProcessInputEvent = (TRestEvent*)fProcessChain[0]->GetInputEvent();
         if (FirstProcessInputEvent != NULL) {
             fInputEvent = (TRestEvent*)FirstProcessInputEvent->Clone();
@@ -308,8 +314,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
 
         if (fHostRunner->GetNextevtFunc(fInputEvent, tempTree) != 0) {
             ferr << "In thread " << fThreadId
-                 << ")::Failed to get the first input event, process cannot start!" << endl;
-            GetChar();
+                 << ")::Failed to read input event, process cannot start!" << endl;
             exit(1);
         }
 
