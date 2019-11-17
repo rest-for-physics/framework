@@ -22,7 +22,12 @@ void TRestBenchMarkProcess::InitFromConfigFile() {
     fRefreshRate = StringToDouble(GetParameter("RefreshRate", "10"));
 }
 
-void TRestBenchMarkProcess::Initialize() { fCPUNumber = 0; }
+void TRestBenchMarkProcess::Initialize() {
+    fCPUNumber = get_nprocs_conf();
+    fMemNumber = get_phys_pages();
+    fPid = getpid();
+    fRefreshRate = 10;
+}
 
 void TRestBenchMarkProcess::SysMonitorFunc(int pid, double refreshrate) {
     while (fMonitorFlag == 1) {
@@ -32,8 +37,8 @@ void TRestBenchMarkProcess::SysMonitorFunc(int pid, double refreshrate) {
         fCPUUsageInPct = StringToDouble(topItems[8]);
         fMemUsageInMB =
             StringToInteger(topItems[4]) + StringToInteger(topItems[5]) + StringToInteger(topItems[6]);
-        fMemUsageInMB /= 1000;  // convert kB to MB
-        fReadingInMBs = fHostmgr->GetProcessRunner()->GetReadingSpeed();
+        fMemUsageInMB /= 1000;                                                          // convert kB to MB
+        fReadingInMBs = fHostmgr->GetProcessRunner()->GetReadingSpeed() / 1024 / 1024;  // convert byte to MB
         int Neve = fHostmgr->GetProcessRunner()->GetNProcessedEvents();
         fProcessSpeedInHz = (Neve - fLastEventNumber) * refreshrate;
 
@@ -46,9 +51,6 @@ void TRestBenchMarkProcess::InitProcess() {
         ferr << "TRestBenchMarkProcess: the process is not hosted by TRestProcessRunner!" << endl;
         exit(1);
     }
-    fCPUNumber = get_nprocs_conf();
-    fMemNumber = get_phys_pages();
-    fPid = getpid();
 
     // init external thread for system info service
     if (fMonitorThread == NULL) {
@@ -65,11 +67,11 @@ TRestEvent* TRestBenchMarkProcess::ProcessEvent(TRestEvent* eventInput) {
     fOutputEvent = eventInput;
 
     ULong64_t time = chrono::high_resolution_clock::now().time_since_epoch().count();
-    SetObservableValue("Time", (time - fStartTime)/1e9);
+    SetObservableValue("RunningTime", (time - fStartTime) / 1e9);
     SetObservableValue("EventPerSecond", fProcessSpeedInHz);
-    SetObservableValue("ReadingSpeed", fReadingInMBs);
+    SetObservableValue("ReadingSpeedMBs", fReadingInMBs);
     SetObservableValue("CPUPrecentage", fCPUUsageInPct);
-    SetObservableValue("MemoryUsed", fMemUsageInMB);
+    SetObservableValue("MemoryUsedMB", fMemUsageInMB);
 
     return fOutputEvent;
 }
@@ -89,8 +91,9 @@ void TRestBenchMarkProcess::PrintMetadata() {
     metadata << "REST pid: " << fPid << endl;
     metadata << "Number of CPUs: " << fCPUNumber << endl;
     metadata << "Total Memory: " << round((double)fMemNumber / 1024 / 1024 * 10) / 10 << " GB" << endl;
-    metadata << "System Monitoring thread: " << fMonitorThread
-             << ", ststus: " << (fMonitorFlag == 0 ? "stopped" : "running") << endl;
+    metadata << "System information refresh rate: " << fRefreshRate << " Hz" << endl;
+    metadata << "Monitoring thread: " << fMonitorThread
+             << ", status: " << (fMonitorFlag == 0 ? "stopped" : "running") << endl;
 
     EndPrintProcess();
 }
