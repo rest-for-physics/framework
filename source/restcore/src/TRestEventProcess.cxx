@@ -130,32 +130,14 @@ vector<string> TRestEventProcess::ReadObservables() {
 
         e = e->NextSiblingElement("observable");
 
-    }  // now we get a list of all observal names
-
-    // if fObservableInfo is empty, add observables.
-    // 1. observable is datamember of the process class
-    // then the address of this datamember is found, and associated to a branch
-    // it will be automatically saved at the end of each process loop
-    // 2. observable is not datamember of the process class
-    // then REST will create a new double-typed observable in analysis tree.
-    //
-    // the user is recommended to call TRestEventProcess::SetObservableValue( obsName, obsValue ) during each
-    // process
+    }  // now we get a list of all observal names, we add them into fAnalysisTree and fObservableInfo
 
     for (int i = 0; i < obsnames.size(); i++) {
-        // TStreamerElement* se = GetDataMember(obsnames[i]);
-        // if (se != NULL) {
-        //    int id = fAnalysisTree->AddObservable(obsnames[i], this, obsdesc[i]);
-        //    if (id != -1) {
-        //        fObservableInfo[(TString)GetName() + "." + obsnames[i]] = id;
-        //    }
-        //} else {
         int id = fAnalysisTree->AddObservable((this->GetName() + (string) "_" + obsnames[i]).c_str(),
                                               obstypes[i], obsdesc[i]);
         if (id != -1) {
             fObservableInfo[(string)GetName() + "_" + obsnames[i]] = id;
         }
-        /*}*/
     }
 
     return obsnames;
@@ -164,7 +146,10 @@ vector<string> TRestEventProcess::ReadObservables() {
 //////////////////////////////////////////////////////////////////////////
 /// \brief Set analysis tree of this process
 ///
-void TRestEventProcess::SetAnalysisTree(TRestAnalysisTree* tree) { fAnalysisTree = tree; }
+void TRestEventProcess::SetAnalysisTree(TRestAnalysisTree* tree) {
+    fAnalysisTree = tree;
+    ConfigAnalysisTree();
+}
 
 //////////////////////////////////////////////////////////////////////////
 /// \brief Add a process to the friendly process list.

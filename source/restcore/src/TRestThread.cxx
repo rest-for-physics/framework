@@ -342,7 +342,6 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
         for (unsigned int i = 0; i < fProcessChain.size(); i++) {
             // fProcessChain[i]->GetListOfAddedObservables().clear();
             fProcessChain[i]->SetAnalysisTree(fAnalysisTree);
-            fProcessChain[i]->ConfigAnalysisTree();
         }
         vector<pair<TString, TRestEvent*>> branchesToAdd;
         // avoid duplicated branch

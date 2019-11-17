@@ -1002,7 +1002,6 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
         fInputFile = NULL;
         fAnalysisTree = new TRestAnalysisTree("externalProcessAna", "externalProcessAna");
         p->SetAnalysisTree(fAnalysisTree);
-        p->ConfigAnalysisTree();
 
         GetNextEvent(fInputEvent, 0);
         fAnalysisTree->CreateBranches();
