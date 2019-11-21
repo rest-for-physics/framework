@@ -84,6 +84,14 @@ class TRestRawSignalEvent : public TRestEvent {
     Int_t GetNumberOfSignals() { return fSignal.size(); }
     TRestRawSignal* GetSignal(Int_t n) { return &fSignal[n]; }
 
+    void PrintSignalIds() {
+        for (int n = 0; n < GetNumberOfSignals(); n++) {
+            if (n > 0) cout << " , ";
+            cout << GetSignal(n)->GetSignalID();
+        }
+        cout << endl;
+    }
+
     TRestRawSignal* GetSignalById(Int_t sid) {
         Int_t index = GetSignalIndex(sid);
         if (index < 0) return NULL;
