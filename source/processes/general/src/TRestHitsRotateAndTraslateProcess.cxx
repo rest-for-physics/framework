@@ -43,8 +43,8 @@ TRestHitsRotateAndTraslateProcess::TRestHitsRotateAndTraslateProcess(char* cfgFi
 
 //______________________________________________________________________________
 TRestHitsRotateAndTraslateProcess::~TRestHitsRotateAndTraslateProcess() {
-    delete fHitsInputEvent;
-    delete fHitsOutputEvent;
+    delete fInputHitsEvent;
+    delete fOutputHitsEvent;
     // TRestHitsRotateAndTraslateProcess destructor
 }
 
@@ -70,11 +70,11 @@ void TRestHitsRotateAndTraslateProcess::Initialize() {
     fBeta = 0.;
     fGamma = 0.;
 
-    fHitsInputEvent = new TRestHitsEvent();
-    fHitsOutputEvent = new TRestHitsEvent();
+    fInputHitsEvent = new TRestHitsEvent();
+    fOutputHitsEvent = new TRestHitsEvent();
 
-    fOutputEvent = fHitsOutputEvent;
-    fInputEvent = fHitsInputEvent;
+    fOutputEvent = fOutputHitsEvent;
+    fInputEvent = fInputHitsEvent;
 }
 
 void TRestHitsRotateAndTraslateProcess::LoadConfig(string cfgFilename) {
@@ -96,36 +96,27 @@ void TRestHitsRotateAndTraslateProcess::InitProcess() {
 }
 
 //______________________________________________________________________________
-void TRestHitsRotateAndTraslateProcess::BeginOfEventProcess() {
-    cout << "Begin of event process" << endl;
-    fHitsOutputEvent->Initialize();
-}
-
-//______________________________________________________________________________
 TRestEvent* TRestHitsRotateAndTraslateProcess::ProcessEvent(TRestEvent* evInput) {
-    fHitsInputEvent = (TRestHitsEvent*)evInput;
-    TRestHitsEvent* proEvent = new TRestHitsEvent();
+    fInputHitsEvent = (TRestHitsEvent*)evInput;
 
-    proEvent = fHitsInputEvent;
+    *fOutputHitsEvent = *fInputHitsEvent;
 
-    TVector3 meanPosition = proEvent->GetHits()->GetMeanPosition();
+    TVector3 meanPosition = fOutputHitsEvent->GetHits()->GetMeanPosition();
 
-    for (int hit = 0; hit < fHitsInputEvent->GetNumberOfHits(); hit++) {
-        proEvent->GetHits()->RotateIn3D(hit, fAlpha, fBeta, fGamma, meanPosition);
-        proEvent->GetHits()->Translate(hit, fDeltaX, fDeltaY, fDeltaZ);
+    for (int hit = 0; hit < fOutputHitsEvent->GetNumberOfHits(); hit++) {
+        fOutputHitsEvent->GetHits()->RotateIn3D(hit, fAlpha, fBeta, fGamma, meanPosition);
+        fOutputHitsEvent->GetHits()->Translate(hit, fDeltaX, fDeltaY, fDeltaZ);
 
-        fHitsOutputEvent->AddHit(proEvent->GetX(hit), proEvent->GetY(hit), proEvent->GetZ(hit),
-                                 proEvent->GetEnergy(hit));
+        //       fOutputHitsEvent->AddHit(fOutputHitsEvent->GetX(hit), fOutputHitsEvent->GetY(hit),
+        //       fOutputHitsEvent->GetZ(hit),
+        //                                fOutputHitsEvent->GetEnergy(hit));
     }
 
-    if (fHitsOutputEvent->GetNumberOfHits() == 0) return NULL;
+    if (fOutputHitsEvent->GetNumberOfHits() == 0) return NULL;
 
-    cout << "Electrons rotated: " << fHitsInputEvent->GetNumberOfHits() << "e-s" << endl;
-    return fHitsOutputEvent;
+    cout << "Electrons rotated: " << fInputHitsEvent->GetNumberOfHits() << "e-s" << endl;
+    return fOutputHitsEvent;
 }
-
-//______________________________________________________________________________
-void TRestHitsRotateAndTraslateProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestHitsRotateAndTraslateProcess::EndProcess() {
