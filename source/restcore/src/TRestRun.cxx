@@ -110,7 +110,7 @@ void TRestRun::Initialize() {
 ///
 void TRestRun::BeginOfInit() {
     debug << "Initializing TRestRun from config file, version: " << REST_RELEASE << endl;
-    SetVersion();
+    ReSetVersion();
 
     // Get some infomation
     fRunUser = getenv("USER") == NULL ? "" : getenv("USER");
@@ -571,7 +571,7 @@ void TRestRun::ReadFileInfo(string filename) {
     // we are going to match it with inputfile:
     // run00042_cobo1_frag0000.graw
 
-    FileInfo.clear();
+    fInformationMap.clear();
 
     debug << "begin collecting file info: " << filename << endl;
     struct stat buf;
@@ -579,10 +579,10 @@ void TRestRun::ReadFileInfo(string filename) {
     fstat(fd, &buf);
 
     string datetime = ToDateTimeString(buf.st_mtime);
-    FileInfo["Time"] = Split(datetime, " ")[1];
-    FileInfo["Date"] = Split(datetime, " ")[0];
-    FileInfo["Size"] = ToString(buf.st_size) + "B";
-    FileInfo["Entries"] = ToString(GetEntries());
+    fInformationMap["Time"] = Split(datetime, " ")[1];
+    fInformationMap["Date"] = Split(datetime, " ")[0];
+    fInformationMap["Size"] = ToString(buf.st_size) + "B";
+    fInformationMap["Entries"] = ToString(GetEntries());
 
     if (TRestTools::isRootFile((string)filename)) {
         fTotalBytes = buf.st_size;
@@ -630,7 +630,7 @@ void TRestRun::ReadFileInfo(string filename) {
         // cout << formatsectionlist[i] << " " << name.substr(pos1 + 1, pos2 - pos1
         // - 1) << endl;
 
-        FileInfo[formatsectionlist[i]] = name.substr(pos1 + 1, pos2 - pos1 - 1);
+        fInformationMap[formatsectionlist[i]] = name.substr(pos1 + 1, pos2 - pos1 - 1);
 
         pos = pos2 - 1;
     }
@@ -740,9 +740,7 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
 
         string targetstr = inString.substr(pos1, pos2 - pos1 + 1);   // with []
         string target = inString.substr(pos1 + 1, pos2 - pos1 - 1);  // without []
-        string replacestr = GetFileInfo(target);
-        if (replacestr == target && fHostmgr != NULL && fHostmgr->GetProcessRunner() != NULL)
-            replacestr = fHostmgr->GetProcessRunner()->GetProcInfo(target);
+        string replacestr = GetInfo(target);
         if (replacestr == target && !REST_Reflection::GetDataMember(this, target).IsZombie())
             replacestr = REST_Reflection::GetDataMember(this, target).ToString();
         if (replacestr == target && !REST_Reflection::GetDataMember(this, "f" + target).IsZombie())
@@ -1129,7 +1127,7 @@ void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t s
 }
 
 Int_t TRestRun::Write(const char* name, Int_t option, Int_t bufsize) {
-    SetVersion();
+    ReSetVersion();
     return TRestMetadata::Write(name, option, bufsize);
 }
 
