@@ -2205,6 +2205,8 @@ void TRestMetadata::UnSetVersion() {
 ///
 void TRestMetadata::SetLibraryVersion(TString version) { fLibraryVersion = version; }
 
+Int_t TRestMetadata::GetVersionCode() { return TRestTools::ConvertVersionCode((string)GetVersion()); }
+
 ///////////////////////////////////////////////
 /// \brief Returns the section name of this class, defined at the beginning of
 /// fSectionName
