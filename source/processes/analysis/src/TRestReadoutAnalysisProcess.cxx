@@ -55,7 +55,7 @@ void TRestReadoutAnalysisProcess::InitProcess() {
                             << iter->first << " not found!" << endl;
                 } else {
                     iter->second =
-                        new TH1D((TString) "channelHisto" + ToString(iter->first),
+                        new TH1D((TString) "ChannelActivity_M" + ToString(iter->first),
                                  (TString) "Readout Channel Activity of Module " + ToString(iter->first),
                                  mod->GetNumberOfChannels(), 0, mod->GetNumberOfChannels());
                 }
@@ -72,7 +72,7 @@ void TRestReadoutAnalysisProcess::InitProcess() {
                                "module with id "
                             << iter->first << " not found!" << endl;
                 } else {
-                    iter->second = new TH2D((TString) "channelHitmap" + ToString(iter->first),
+                    iter->second = new TH2D((TString) "Hitmap_M" + ToString(iter->first),
                                             (TString) "FirstX/Y Hitmap of Module " + ToString(iter->first),
                                             mod->GetNumberOfChannels() / 2, 0, mod->GetNumberOfChannels() / 2,
                                             mod->GetNumberOfChannels() / 2, mod->GetNumberOfChannels() / 2,
@@ -208,14 +208,24 @@ void TRestReadoutAnalysisProcess::EndProcess() {
         {
             auto iter = fChannelsHistos.begin();
             while (iter != fChannelsHistos.end()) {
-                if (iter->second != NULL) iter->second->Write();
+                if (iter->second != NULL) {
+                    TH1D* histo = iter->second;
+                    histo->GetXaxis()->SetTitle("Channel ID");
+                    histo->GetYaxis()->SetTitle("Count");
+                    histo->Write();
+                }
                 iter++;
             }
         }
         {
             auto iter = fChannelsHitMaps.begin();
             while (iter != fChannelsHitMaps.end()) {
-                if (iter->second != NULL) iter->second->Write();
+                if (iter->second != NULL) {
+                    TH2D* histo = iter->second;
+                    histo->GetXaxis()->SetTitle("X Channel");
+                    histo->GetYaxis()->SetTitle("Y Channel");
+                    histo->Write();
+                }
                 iter++;
             }
         }
