@@ -23,8 +23,8 @@
 
 class TRestHitsRotateAndTraslateProcess : public TRestEventProcess {
    private:
-    TRestHitsEvent* fHitsInputEvent;   //!
-    TRestHitsEvent* fHitsOutputEvent;  //!
+    TRestHitsEvent* fInputHitsEvent;   //!
+    TRestHitsEvent* fOutputHitsEvent;  //!
 
     Double_t fDeltaX;  ///< shift in X-axis
     Double_t fDeltaY;  ///< shift in X-axis
@@ -43,9 +43,7 @@ class TRestHitsRotateAndTraslateProcess : public TRestEventProcess {
 
    public:
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
     void EndProcess();
 
     void LoadConfig(std::string cfgFilename);
