@@ -16,11 +16,10 @@
 #include "TRestElectronDiffusionProcess.h"
 using namespace std;
 
-ClassImp(TRestElectronDiffusionProcess)
-    //______________________________________________________________________________
-    TRestElectronDiffusionProcess::TRestElectronDiffusionProcess() {
-    Initialize();
-}
+ClassImp(TRestElectronDiffusionProcess);
+
+//______________________________________________________________________________
+TRestElectronDiffusionProcess::TRestElectronDiffusionProcess() { Initialize(); }
 
 //______________________________________________________________________________
 TRestElectronDiffusionProcess::TRestElectronDiffusionProcess(char* cfgFileName) {
@@ -89,12 +88,9 @@ void TRestElectronDiffusionProcess::InitProcess() {
         fGas->SetElectricField(fElectricField);
         fGas->SetW(fWvalue);
 
-        if (fLonglDiffCoeff <= 0)
-            fLonglDiffCoeff = fGas->GetLongitudinalDiffusion();  // (cm)^1/2
+        if (fLonglDiffCoeff <= 0) fLonglDiffCoeff = fGas->GetLongitudinalDiffusion();  // (cm)^1/2
 
-        if (fTransDiffCoeff <= 0)
-            fTransDiffCoeff =
-                fGas->GetTransversalDiffusion();  // (cm)^1/2
+        if (fTransDiffCoeff <= 0) fTransDiffCoeff = fGas->GetTransversalDiffusion();  // (cm)^1/2
     }
 
     fReadout = (TRestReadout*)GetReadoutMetadata();
