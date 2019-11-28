@@ -99,7 +99,8 @@ void TRestHitsRotateAndTraslateProcess::InitProcess() {
 TRestEvent* TRestHitsRotateAndTraslateProcess::ProcessEvent(TRestEvent* evInput) {
     fInputHitsEvent = (TRestHitsEvent*)evInput;
 
-    *fOutputHitsEvent = *fInputHitsEvent;
+	fOutputHitsEvent = fInputHitsEvent;
+    //fInputHitsEvent->CloneTo(fOutputHitsEvent);
 
     TVector3 meanPosition = fOutputHitsEvent->GetHits()->GetMeanPosition();
 
