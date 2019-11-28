@@ -316,7 +316,7 @@ Double_t REST_StringHelper::StringToDouble(string in) {
 Int_t REST_StringHelper::StringToInteger(string in) { return (Int_t)StringToDouble(in); }
 
 Bool_t REST_StringHelper::StringToBool(std::string in) {
-    return (in == "true" || in == "True" || in == "TRUE");
+    return (ToUpper(in) == "TRUE" || ToUpper(in) == "ON");
 }
 
 Long64_t REST_StringHelper::StringToLong(std::string in) {
