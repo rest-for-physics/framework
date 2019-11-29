@@ -154,7 +154,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
                     warning << "Please, replace by : <globalCut variable=\"var\" " << endl;
                     cout << endl;
                 }
-			}
+            }
 
             if (obsName == "") continue;
 
@@ -208,10 +208,10 @@ void TRestAnalysisPlot::InitFromConfigFile() {
                         cout << "Adding global cut : " << globalCuts[i] << endl;
                     hist.cutString += globalCuts[i];
                 }
-                // add "SAME" option
-                if (plot.histos.size() > 0) {
-                    hist.drawOption += "SAME";
-                }
+                //// add "SAME" option
+                // if (plot.histos.size() > 0) {
+                //    hist.drawOption += "SAME";
+                //}
 
                 if (hist.plotString == "") {
                     warning << "No variables or histograms defined in the plot, skipping!" << endl;
@@ -298,7 +298,7 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
     Int_t n = 0;
     TiXmlElement* cutele = histele->FirstChildElement("cut");
     while (cutele != NULL) {
-        string cutActive = GetParameter("value", cutele,"ON");
+        string cutActive = GetParameter("value", cutele, "ON");
         if (ToUpper(cutActive) == "ON") {
             string cutVariable = GetParameter("variable", cutele);
             string cutCondition = GetParameter("condition", cutele);
@@ -539,36 +539,41 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                     exit(1);
                 }
             }
-			if (drawn == false) {
+            if (drawn == false) {
                 warning << "TRestAnalysisPlot: no input file matches condition for histogram: " << hist.name
-                        <<", this histogram is empty"<< endl;
-			}
+                        << ", this histogram is empty" << endl;
+            } else {
+                // adjust the histogram
+                TH3F* htemp = (TH3F*)gPad->GetPrimitive(nameString);
+                htemp->SetTitle(plot.title.c_str());
+                htemp->SetStats(plot.staticsOn);
 
-            // adjust the histogram
-            TH3F* htemp = (TH3F*)gPad->GetPrimitive(nameString);
-            htemp->SetTitle(plot.title.c_str());
-            htemp->SetStats(plot.staticsOn);
+                htemp->GetXaxis()->SetTitle(plot.labelX.c_str());
+                htemp->GetYaxis()->SetTitle(plot.labelY.c_str());
 
-            htemp->GetXaxis()->SetTitle(plot.labelX.c_str());
-            htemp->GetYaxis()->SetTitle(plot.labelY.c_str());
+                htemp->GetXaxis()->SetLabelSize(fTicksScaleX * htemp->GetXaxis()->GetLabelSize());
+                htemp->GetYaxis()->SetLabelSize(fTicksScaleY * htemp->GetYaxis()->GetLabelSize());
+                htemp->GetXaxis()->SetTitleSize(fLabelScaleX * htemp->GetXaxis()->GetTitleSize());
+                htemp->GetYaxis()->SetTitleSize(fLabelScaleY * htemp->GetYaxis()->GetTitleSize());
+                htemp->GetXaxis()->SetTitleOffset(fLabelOffsetX * htemp->GetXaxis()->GetTitleOffset());
+                htemp->GetYaxis()->SetTitleOffset(fLabelOffsetY * htemp->GetYaxis()->GetTitleOffset());
+                htemp->GetXaxis()->SetNdivisions(-5);
 
-            htemp->GetXaxis()->SetLabelSize(fTicksScaleX * htemp->GetXaxis()->GetLabelSize());
-            htemp->GetYaxis()->SetLabelSize(fTicksScaleY * htemp->GetYaxis()->GetLabelSize());
-            htemp->GetXaxis()->SetTitleSize(fLabelScaleX * htemp->GetXaxis()->GetTitleSize());
-            htemp->GetYaxis()->SetTitleSize(fLabelScaleY * htemp->GetYaxis()->GetTitleSize());
-            htemp->GetXaxis()->SetTitleOffset(fLabelOffsetX * htemp->GetXaxis()->GetTitleOffset());
-            htemp->GetYaxis()->SetTitleOffset(fLabelOffsetY * htemp->GetYaxis()->GetTitleOffset());
-            htemp->GetXaxis()->SetNdivisions(-5);
+                htemp->SetLineColor(hist.lineColor);
+                htemp->SetLineWidth(hist.lineWidth);
+                htemp->SetLineStyle(hist.lineStyle);
+                htemp->SetFillColor(hist.fillColor);
+                htemp->SetFillStyle(hist.fillStyle);
 
-            htemp->SetLineColor(hist.lineColor);
-            htemp->SetLineWidth(hist.lineWidth);
-            htemp->SetLineStyle(hist.lineStyle);
-            htemp->SetFillColor(hist.fillColor);
-            htemp->SetFillStyle(hist.fillStyle);
+                htemp->SetDrawOption(hist.drawOption.c_str());
 
-            htemp->SetDrawOption(hist.drawOption.c_str());
+                histCollectionPlot.push_back(htemp);
+            }
+        }
 
-            histCollectionPlot.push_back(htemp);
+        if (histCollectionPlot.size() == 0) {
+            warning << "TRestAnalysisPlot: pad empty for the plot: " << plot.name << endl;
+            continue;
         }
 
         // scale the histograms
