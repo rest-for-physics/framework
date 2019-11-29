@@ -205,9 +205,7 @@ class TRestMetadata : public TNamed {
 
     std::string GetConfigBuffer();
 
-    string GetDataMemberValue(string memberName) {
-        return REST_Reflection::GetDataMember(any((char*)this, this->ClassName()), memberName).ToString();
-    }
+    string GetDataMemberValue(string memberName);
 
     TString GetVersion();
 

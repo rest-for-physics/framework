@@ -2220,6 +2220,14 @@ std::string TRestMetadata::GetSectionName() {
 /// \brief Returns the config section of this class
 std::string TRestMetadata::GetConfigBuffer() { return configBuffer; }
 
+string TRestMetadata::GetDataMemberValue(string memberName) {
+    any member = REST_Reflection::GetDataMember(any((char*)this, this->ClassName()), memberName);
+    if (!member.IsZombie()) {
+        return member.ToString();
+	}
+    return "";
+}
+
 ///////////////////////////////////////////////
 /// \brief Returns a string corresponding to current verbose level.
 ///
