@@ -266,7 +266,6 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
     string pltString = "";
     for (int i = varNames.size()-1; i >=0; i--) {
         // The draw branches are in reversed ordered in TTree::Draw()
-        cout << i << endl;
         pltString += varNames[i];
         if (i > 0) pltString += ":";
     }
