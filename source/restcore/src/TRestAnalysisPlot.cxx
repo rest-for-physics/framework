@@ -586,10 +586,10 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 maxID = i;
             }
         }
-        histCollectionPlot[maxID]->Draw();
+        histCollectionPlot[maxID]->Draw(plot.histos[maxID].drawOption.c_str());
         for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
             // draw the remaining histo
-            if (i != maxID) histCollectionPlot[i]->Draw("same");
+            if (i != maxID) histCollectionPlot[i]->Draw((plot.histos[maxID].drawOption + "same").c_str());
         }
 
         // save histogram to root file
