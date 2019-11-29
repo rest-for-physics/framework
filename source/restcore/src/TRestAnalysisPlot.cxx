@@ -539,6 +539,10 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                     exit(1);
                 }
             }
+			if (drawn == false) {
+                warning << "TRestAnalysisPlot: no input file matches condition for histogram: " << hist.name
+                        <<", this histogram is empty"<< endl;
+			}
 
             // adjust the histogram
             TH3F* htemp = (TH3F*)gPad->GetPrimitive(nameString);
