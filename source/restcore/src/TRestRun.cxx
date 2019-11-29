@@ -583,7 +583,7 @@ void TRestRun::ReadFileInfo(string filename) {
     // run00042_cobo1_frag0000.graw
 
     fInformationMap.clear();
-    fInformationMap["Name"] = filename;
+    fInformationMap["FileName"] = filename;
 
     debug << "begin collecting file info: " << filename << endl;
     struct stat buf;
