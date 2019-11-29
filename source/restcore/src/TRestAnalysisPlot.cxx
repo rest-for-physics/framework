@@ -264,7 +264,7 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
         }
     }
     string pltString = "";
-    for (int i = varNames.size()-1; i >=0; i--) {
+    for (int i = varNames.size() - 1; i >= 0; i--) {
         // The draw branches are in reversed ordered in TTree::Draw()
         pltString += varNames[i];
         if (i > 0) pltString += ":";
@@ -273,8 +273,7 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
 
     // 2. construct plot name for the hist
     string rangestr = "";
-    for (int i = ((int)bins.size()) - 1; i >= 0; i--) {
-        // The range definitions are in reversed ordered in TTree::Draw()
+    for (int i = 0; i < bins.size(); i++) {
         string binsStr = ToString(bins[i]);
         if (bins[i] == -1) binsStr = " ";
 
@@ -284,11 +283,10 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
         string rYStr = ToString(ranges[i].Y());
         if (ranges[i].Y() == -1) rYStr = " ";
 
-        if (i == (int)bins.size() - 1) rangestr += "(";
-
+        if (i == 0) rangestr += "(";
         rangestr += binsStr + " , " + rXStr + " , " + rYStr;
         if (i > 0) rangestr += ",";
-        if (i == 0) rangestr += ")";
+        if (i == bins.size() - 1) rangestr += ")";
     }
     hist.range = rangestr;
 
@@ -471,7 +469,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     for (unsigned int n = 0; n < fPlots.size(); n++) {
         Plot_Info_Set plot = fPlots[n];
 
-        TPad* targetPad = (TPad*)fCombinedCanvas->cd(n+1);
+        TPad* targetPad = (TPad*)fCombinedCanvas->cd(n + 1);
         targetPad->SetLogy(plot.logY);
         targetPad->SetLogz(plot.logZ);
         targetPad->SetLeftMargin(0.18);
@@ -501,9 +499,9 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 cout << "++++++++++++++++++++++++++++++++++++++" << endl;
             }
 
-			// draw single histo from different file
+            // draw single histo from different file
             for (unsigned int j = 0; j < fRunInputFile.size(); j++) {
-				//apply "classify" condition 
+                // apply "classify" condition
                 bool flag = true;
                 auto iter = hist.classifyMap.begin();
                 while (iter != hist.classifyMap.end()) {
@@ -537,7 +535,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 }
             }
 
-			// adjust the histogram
+            // adjust the histogram
             TH3F* htemp = (TH3F*)gPad->GetPrimitive(nameString);
             htemp->SetTitle(plot.title.c_str());
             htemp->SetStats(plot.staticsOn);
@@ -559,7 +557,9 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             htemp->SetFillColor(hist.fillColor);
             htemp->SetFillStyle(hist.fillStyle);
 
-			histCollectionPlot.push_back(htemp);
+            htemp->SetDrawOption(hist.drawOption.c_str());
+
+            histCollectionPlot.push_back(htemp);
         }
 
         // scale the histograms
@@ -573,7 +573,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             }
         }
 
-		// draw to the pad
+        // draw to the pad
         Double_t maxValue = 0;
         int maxID = 0;
         for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
@@ -589,11 +589,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         histCollectionPlot[maxID]->Draw();
         for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
             // draw the remaining histo
-            if (i != maxID)
-                histCollectionPlot[i]->Draw("same");
+            if (i != maxID) histCollectionPlot[i]->Draw("same");
         }
-
-
 
         // save histogram to root file
         for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
@@ -604,7 +601,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         }
 
         // draw legend
-		TLegend* legend = new TLegend(fLegendX1,fLegendY1,fLegendX2,fLegendY2);
+        TLegend* legend = new TLegend(fLegendX1, fLegendY1, fLegendX2, fLegendY2);
         for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
             legend->AddEntry(histCollectionPlot[i], histCollectionPlot[i]->GetName(), "lf");
         }
@@ -625,7 +622,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         GetChar();
     }
 
-	// Save this class to the root file
+    // Save this class to the root file
     if (fRun != NULL && fOutputRootFile != NULL) {
         fOutputRootFile->cd();
         this->Write();
