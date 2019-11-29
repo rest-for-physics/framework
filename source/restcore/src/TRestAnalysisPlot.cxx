@@ -143,17 +143,20 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     TiXmlElement* gCutele = fElement->FirstChildElement("globalCut");
     while (gCutele != NULL)  // general cuts
     {
-        string cutActive = GetParameter("value", gCutele);
+        string cutActive = GetParameter("value", gCutele, "ON");
 
         if (ToUpper(cutActive) == "ON") {
-            string obsName = GetParameter("name", gCutele);
-            if (obsName == "Not defined")
-                obsName = GetParameter("variable", gCutele);
-            else {
-                cout << "--W-- REST Warning. <globalCut name=\"var\" is now obsolete." << endl;
-                cout << "--W-- Please, replace by : <globalCut variable=\"var\" " << endl;
-                cout << endl;
-            }
+            string obsName = GetParameter("variable", gCutele, "");
+            if (obsName == "") {
+                obsName = GetParameter("name", gCutele, "");
+                if (obsName != "") {
+                    warning << "<globalCut name=\"var\" is now obsolete." << endl;
+                    warning << "Please, replace by : <globalCut variable=\"var\" " << endl;
+                    cout << endl;
+                }
+			}
+
+            if (obsName == "") continue;
 
             string cutCondition = GetParameter("condition", gCutele);
             string cutString = obsName + cutCondition;
@@ -295,7 +298,7 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
     Int_t n = 0;
     TiXmlElement* cutele = histele->FirstChildElement("cut");
     while (cutele != NULL) {
-        string cutActive = GetParameter("value", cutele);
+        string cutActive = GetParameter("value", cutele,"ON");
         if (ToUpper(cutActive) == "ON") {
             string cutVariable = GetParameter("variable", cutele);
             string cutCondition = GetParameter("condition", cutele);
@@ -314,7 +317,7 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
     hist.classifyMap.clear();
     TiXmlElement* classifyele = histele->FirstChildElement("classify");
     while (classifyele != NULL) {
-        string Active = GetParameter("value", classifyele);
+        string Active = GetParameter("value", classifyele, "ON");
         if (ToUpper(Active) == "ON") {
             TiXmlAttribute* attr = classifyele->FirstAttribute();
             while (attr != NULL) {
@@ -500,12 +503,13 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             }
 
             // draw single histo from different file
+            bool drawn = false;
             for (unsigned int j = 0; j < fRunInputFile.size(); j++) {
                 // apply "classify" condition
                 bool flag = true;
                 auto iter = hist.classifyMap.begin();
                 while (iter != hist.classifyMap.end()) {
-                    if (fRunInputFile[j]->GetDataMemberValue(iter->first) != iter->second) {
+                    if (fRunInputFile[j]->GetInfo(iter->first) != iter->second) {
                         flag = false;
                         break;
                     }
@@ -513,11 +517,12 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 }
                 if (!flag) continue;
 
-                TRestAnalysisTree* tree = fRunInputFile[j]->GetAnalysisTree();
+                TTree* tree = fRunInputFile[j]->GetAnalysisTree();
                 int outVal;
 
-                if (j == 0) {
+                if (!drawn) {
                     outVal = tree->Draw(plotString + ">>" + nameString + rangeString, cutString, optString);
+                    drawn = true;
                 } else {
                     outVal = tree->Draw(plotString + ">>+" + nameString, cutString, optString);
                 }
