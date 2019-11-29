@@ -163,9 +163,7 @@ class TRestRun : public TRestMetadata {
     std::vector<int> GetEventIdsWithConditions(const string, int startingIndex = 0, int maxNumber = -1);
     TRestEvent* GetNextEventWithConditions(const string);
     TRestEventProcess* GetFileProcess() { return fFileProcess; }
-    string GetInfo(string infoname) {
-        return fInformationMap.count(infoname) == 0 ? infoname : fInformationMap[infoname];
-    }
+    string GetInfo(string infoname);
     Int_t GetObservableID(TString name) { return fAnalysisTree->GetObservableID(name); }
     Bool_t ObservableExists(TString name) { return fAnalysisTree->ObservableExists(name); }
     TString GetInputEventName() { return fInputEvent->ClassName(); }

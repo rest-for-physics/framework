@@ -430,7 +430,7 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
             TIter nextkey(fInputFile->GetListOfKeys());
             TKey* key;
             while ((key = (TKey*)nextkey())) {
-                if (key->ClassName() == "TTree") {
+                if ((string)key->GetClassName()=="TTree") {
                     fAnalysisTree = (TRestAnalysisTree*)fInputFile->Get(key->GetName());
                 }
             }
@@ -583,6 +583,7 @@ void TRestRun::ReadFileInfo(string filename) {
     // run00042_cobo1_frag0000.graw
 
     fInformationMap.clear();
+    fInformationMap["Name"] = filename;
 
     debug << "begin collecting file info: " << filename << endl;
     struct stat buf;
