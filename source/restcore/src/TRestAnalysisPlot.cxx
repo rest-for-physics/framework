@@ -285,7 +285,7 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
 
         if (i == 0) rangestr += "(";
         rangestr += binsStr + " , " + rXStr + " , " + rYStr;
-        if (i > 0) rangestr += ",";
+        if (i < bins.size() - 1) rangestr += ",";
         if (i == bins.size() - 1) rangestr += ")";
     }
     hist.range = rangestr;
