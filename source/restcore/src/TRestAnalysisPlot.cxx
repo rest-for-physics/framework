@@ -183,6 +183,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             plot.title = GetParameter("title", plotele, plot.name);
             plot.logY = StringToBool(GetParameter("logscale", plotele, "false"));
             plot.logX = false;
+            plot.logZ = StringToBool(GetParameter("logZ", plotele, "false"));
             plot.normalize = StringToDouble(GetParameter("norm", plotele, ""));
             plot.labelX = GetParameter("xlabel", plotele, "");
             plot.labelY = GetParameter("ylabel", plotele, "");
@@ -263,17 +264,17 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
         }
     }
     string pltString = "";
-    for (unsigned int i = 0; i < varNames.size(); i++) {
+    for (unsigned int i = varNames.size()-1; i >=0; i--) {
+        // The draw branches are in reversed ordered in TTree::Draw()
         pltString += varNames[i];
-        if (i < varNames.size() - 1) pltString += ":";
+        if (i > 0) pltString += ":";
     }
     hist.plotString = pltString;
 
     // 2. construct plot name for the hist
     string rangestr = "";
     for (int i = ((int)bins.size()) - 1; i >= 0; i--) {
-        // The range definitions are in reversed ordered. Compared to ROOT
-        // variable definitions
+        // The range definitions are in reversed ordered in TTree::Draw()
         string binsStr = ToString(bins[i]);
         if (bins[i] == -1) binsStr = " ";
 
@@ -342,7 +343,9 @@ void TRestAnalysisPlot::AddFile(TString fileName) {
     debug << "TRestAnalysisPlot::AddFile. Adding file. " << endl;
     debug << "File name: " << fileName << endl;
 
-    TRestRun* run = new TRestRun((string)fileName);
+    TRestRun* run = new TRestRun();
+    run->SetHistoricMetadataSaving(false);
+    run->OpenInputFile((string)fileName);
     if (run->GetAnalysisTree() != NULL) {
         fRunInputFile.push_back(run);
         fNFiles++;
@@ -470,6 +473,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
         TPad* targetPad = (TPad*)fCombinedCanvas->cd(n+1);
         targetPad->SetLogy(plot.logY);
+        targetPad->SetLogz(plot.logZ);
         targetPad->SetLeftMargin(0.18);
         targetPad->SetRightMargin(0.1);
         targetPad->SetBottomMargin(0.15);

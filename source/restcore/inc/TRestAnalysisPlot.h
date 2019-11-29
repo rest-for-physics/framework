@@ -48,6 +48,7 @@ class TRestAnalysisPlot : public TRestMetadata {
         Double_t normalize;
         Bool_t logX;
         Bool_t logY;
+        Bool_t logZ;
         Bool_t staticsOn;
         Bool_t legendOn;
 

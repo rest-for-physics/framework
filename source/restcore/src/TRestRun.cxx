@@ -407,14 +407,16 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
             // output file?
             // Actually g4 files from v2.1.x is all compatible with the v2.2.x version
             // Only 2.2.0 is without auto schema evolution, whose metadata cannot be read
-            if (this->GetVersionCode() >= REST_VERSION(2, 2, 1) ||
-                this->GetVersionCode() <= REST_VERSION(2, 1, 8)) {
-                ReadInputFileMetadata();
-            } else {
-                warning << "-- W : The metadata version found on input file is lower "
-                           "than 2.2.1!"
-                        << endl;
-                warning << "-- W : metadata from input file will not be read" << endl;
+            if (fSaveHistoricData) {
+                if (this->GetVersionCode() >= REST_VERSION(2, 2, 1) ||
+                    this->GetVersionCode() <= REST_VERSION(2, 1, 8)) {
+                    ReadInputFileMetadata();
+                } else {
+                    warning << "-- W : The metadata version found on input file is lower "
+                               "than 2.2.1!"
+                            << endl;
+                    warning << "-- W : metadata from input file will not be read" << endl;
+                }
             }
 
             debug << "Initializing input file : version code : " << this->GetVersionCode() << endl;
