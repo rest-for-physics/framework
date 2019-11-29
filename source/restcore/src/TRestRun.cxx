@@ -425,6 +425,15 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
             ResetEntry();
         } else {
             fAnalysisTree = NULL;
+
+            // set its analysistree as the first TTree object in the file, if exists
+            TIter nextkey(fInputFile->GetListOfKeys());
+            TKey* key;
+            while ((key = (TKey*)nextkey())) {
+                if (key->ClassName() == "TTree") {
+                    fAnalysisTree = (TRestAnalysisTree*)fInputFile->Get(key->GetName());
+                }
+            }
         }
     } else {
         fInputFile = NULL;
@@ -743,17 +752,13 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
         string targetstr = inString.substr(pos1, pos2 - pos1 + 1);   // with []
         string target = inString.substr(pos1 + 1, pos2 - pos1 - 1);  // without []
         string replacestr = GetInfo(target);
-        if (replacestr == target && !REST_Reflection::GetDataMember(this, target).IsZombie())
-            replacestr = REST_Reflection::GetDataMember(this, target).ToString();
-        if (replacestr == target && !REST_Reflection::GetDataMember(this, "f" + target).IsZombie())
-            replacestr = REST_Reflection::GetDataMember(this, "f" + target).ToString();
 
         debug << "TRestRun::FormFormat. target : " << target << endl;
         debug << "TRestRun::FormFormat. replacestr : " << replacestr << endl;
 
-        if (target == "fVersion") replacestr = (string)GetVersion();
+        //if (target == "fVersion") replacestr = (string)GetVersion();
 
-        if (target == "fCommit") replacestr = (string)GetCommit();
+        //if (target == "fCommit") replacestr = (string)GetCommit();
 
         if (replacestr != target) {
             if (target == "fRunNumber" || target == "fParentRunNumber") {
@@ -1300,6 +1305,22 @@ TRestEvent* TRestRun::GetNextEventWithConditions(const string cuts) {
         fEventTree->GetEntry(indices[0]);
         return fInputEvent;
     }
+}
+
+string TRestRun::GetInfo(string infoname) {
+    if (fInformationMap.count(infoname) != 0) {
+        return fInformationMap[infoname];
+    }
+
+    if (GetDataMemberValue(infoname) != "") {
+        return GetDataMemberValue(infoname);
+    }
+
+    if (GetDataMemberValue("f" + infoname) != "") {
+        return GetDataMemberValue("f" + infoname);
+    }
+
+    return infoname;
 }
 
 TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
