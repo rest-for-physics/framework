@@ -36,12 +36,12 @@
 /// * **maxTrackEnergy**: Energy of the most energetic track in the event with X, Y, Z coordinates.
 /// * **maxTrack_X_Energy**: Energy of the most energetic track in the event with X, Z coordinates.
 /// * **maxTrack_Y_Energy**: Energy of the most energetic track in the event with Y, Z coordinates.
-/// * **maxTrackEnergyRatio**: (totalEnergy - tckMaxEnergy) / totalEnergy 
-/// with tckMaxEnergy = tckMaxEnX + tckMaxEnY + tckMaxEnXYZ.  
+/// * **maxTrackEnergyRatio**: (totalEnergy - tckMaxEnergy) / totalEnergy
+/// with tckMaxEnergy = tckMaxEnX + tckMaxEnY + tckMaxEnXYZ.
 ///
 /// Maximum Second Track Energy observables:
 ///
-/// * **secondTrackMaxEnergy**: Energy of the second most energetic track in the event with X,Y,Z 
+/// * **secondTrackMaxEnergy**: Energy of the second most energetic track in the event with X,Y,Z
 /// coordinates.
 /// * **secondTrackMaxEnergy_X**: Energy of the second most energetic track in the event with X,Z
 /// coordinates.
@@ -81,7 +81,7 @@
 /// and Z coord in the event.
 ///
 /// Mean position: Very similar to the previous observables, main difference all tracks (XYZ, XZ, YZ)
-/// together. 
+/// together.
 ///
 /// * **xMean**: X coordinate (if it has) in the mean position of the most energetic track in the event.
 /// * **yMean**: Y coordinate (if it has) in the mean position of the most energetic track in the event.
@@ -93,7 +93,7 @@
 /// * **MeanRate_InHz**: Rate of events in the last 100 events.
 ///
 ///______________________________________________________________________________
-///      
+///
 /// RESTsoft - Software for Rare Event Searches with TPCs
 ///
 /// History of developments:
@@ -102,7 +102,7 @@
 ///             Javier Galan
 ///
 /// 2018-May: Added twist parameters.
-///                           
+///
 /// \class      TRestTrackAnalysisProcess
 /// \author     Javier Galan
 ///
@@ -939,12 +939,21 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         x = tXYZ->GetMeanPosition().X();
         y = tXYZ->GetMeanPosition().Y();
         z = tXYZ->GetMeanPosition().Z();
-    } else if (tX != NULL) {
-        x = tX->GetMeanPosition().X();
-        z = tX->GetMeanPosition().Z();
-    } else if (tY != NULL) {
-        y = tY->GetMeanPosition().Y();
-        z = tY->GetMeanPosition().Z();
+    } else {
+        double zxz = 0;
+        int i = 0;
+        if (tX != NULL) {
+            x = tX->GetMeanPosition().X();
+            zxz += tX->GetMeanPosition().Z();
+            i++;
+        }
+        if (tY != NULL) {
+            y = tY->GetMeanPosition().Y();
+            zxz += tY->GetMeanPosition().Z();
+            i++;
+        }
+
+        z = i == 0 ? i : zxz / i;
     }
 
     SetObservableValue((string) "xMean", x);
