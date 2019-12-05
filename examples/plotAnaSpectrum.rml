@@ -7,46 +7,37 @@
     <parameter name="outputFile" value="null"/>//change this value to "auto" to enable database
   </TRestRun>
 
-  <TRestAnalysisPlot name="restplot" title="Basic Plots" previewPlot="false">
+  <TRestAnalysisPlot name="restplot" title="Basic Plots" previewPlot="true">
 
-    <canvas size="(1000,800)" divide="(2,2)"/>
+    <canvas size="(1000,800)" divide="(1,2)" save="abc.pdf"/>
 
     <globalCut name="Some_Analysis_Variable" condition="&lt;50" value="OFF" />
-
-    <plot name="Baseline average" xlabel="Baseline [ADC units]" ylabel="Counts"
-            logscale="false" value="ON" >
-      <variable name="sAna_BaseLineMean" range="(200,600)" nbins="100" />
-    </plot>
-
-    <plot name="NSignals" title="Number Of Good Signals" xlabel="Number Of Good Signals" ylabel="Counts"
-        logscale="false" value="ON" >
-      <variable name="sAna_NumberOfGoodSignals" range="(0,100)" nbins="100" />
-    </plot>
-
-    <plot name="Spectrum" title="ADC energy spectrum" 
-          xlabel="Threshold integral energy [ADC units]" ylabel="Counts" value="ON" stats="ON" >
-      <variable name="sAna_ThresholdIntegral" range="(0,6000000)" nbins="100" />
+    
+    <plot name="aaa" title="Energy vs NSignal" 
+          xlabel="Threshold integral energy [ADC units]" ylabel="Signals" value="ON" stats="ON" option="colz" >
+      <variable name="sAna_ThresholdIntegral" nbins="100" />
+      <variable name="sAna_NumberOfGoodSignals" range="(0,500)" nbins="100" />
     </plot>
 
 
 
     <plot name="Spectrum_CutImpact" title="Impact of cut on the spectrum" 
           xlabel="Threshold integral energy [ADC units]" ylabel="Counts" logscale="true"
-          legend="on">
+          legend="on" annotation="on">
 
       <histo name="noCuts">
-        <variable name="sAna_ThresholdIntegral" nbins="1000" />
+        <variable name="sAna_ThresholdIntegral" nbins="100" />
         <parameter name="lineColor" value="1"/>
       </histo>
 
       <histo name="BaseLine">
-        <variable name="sAna_ThresholdIntegral" nbins="1000" />
+        <variable name="sAna_ThresholdIntegral" nbins="100" />
         <cut variable="sAna_BaseLineSigmaMean" condition="&lt;12" value="ON" />
         <parameter name="lineColor" value="2"/>
       </histo>
 
       <histo name="BaseLine+NSig">
-        <variable name="sAna_ThresholdIntegral" nbins="1000" />
+        <variable name="sAna_ThresholdIntegral" nbins="100" />
         <cut variable="sAna_BaseLineSigmaMean" condition="&lt;12" value="ON" />
         <cut variable="sAna_NumberOfGoodSignals" condition=">35" value="ON" />
         <parameter name="lineColor" value="3"/>
