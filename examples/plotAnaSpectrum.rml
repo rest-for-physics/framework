@@ -9,7 +9,7 @@
 
   <TRestAnalysisPlot name="restplot" title="Basic Plots">
 
-    <if condition="${user}==test">
+    <if condition="${USER}==test">
       <parameter name="previewPlot" value="false"/>
     </if>
     <parameter name="previewPlot" value="true"/>
