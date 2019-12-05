@@ -12,9 +12,11 @@
 #ifndef RestCore_TRestAnalysisPlot
 #define RestCore_TRestAnalysisPlot
 
-#include <TRestRun.h>
 #include "TCanvas.h"
 #include "TH3D.h"
+#include <TLatex.h>
+
+#include <TRestRun.h>
 #include "TRestAnalysisTree.h"
 
 const int REST_MAX_TAGS = 15;
@@ -51,6 +53,7 @@ class TRestAnalysisPlot : public TRestMetadata {
         Bool_t logZ;
         Bool_t staticsOn;
         Bool_t legendOn;
+        Bool_t annotationOn;
 
         string labelX;
         string labelY;
@@ -80,7 +83,6 @@ class TRestAnalysisPlot : public TRestMetadata {
     Double_t fLabelScaleY = 1.3;
     Double_t fTicksScaleX = 1.5;
     Double_t fTicksScaleY = 1.5;
-
 
     Double_t fLegendX1 = 0.7;
     Double_t fLegendY1 = 0.75;

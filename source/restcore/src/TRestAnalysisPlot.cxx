@@ -185,13 +185,15 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             plot.name = RemoveWhiteSpaces(GetParameter("name", plotele, "plot_" + ToString(N)));
             plot.title = GetParameter("title", plotele, plot.name);
             plot.logY = StringToBool(GetParameter("logscale", plotele, "false"));
-            plot.logX = false;
+            plot.logY = plot.logY ? plot.logY : StringToBool(GetParameter("logY", plotele, "false"));
+            plot.logX = StringToBool(GetParameter("logX", plotele, "false"));
             plot.logZ = StringToBool(GetParameter("logZ", plotele, "false"));
             plot.normalize = StringToDouble(GetParameter("norm", plotele, ""));
             plot.labelX = GetParameter("xlabel", plotele, "");
             plot.labelY = GetParameter("ylabel", plotele, "");
             plot.legendOn = StringToBool(GetParameter("legend", plotele, "OFF"));
             plot.staticsOn = StringToBool(GetParameter("stats", plotele, "OFF"));
+            plot.annotationOn = StringToBool(GetParameter("annotation", plotele, "OFF"));
             plot.save = RemoveWhiteSpaces(GetParameter("save", plotele, ""));
 
             TiXmlElement* histele = plotele->FirstChildElement("histo");
@@ -208,10 +210,10 @@ void TRestAnalysisPlot::InitFromConfigFile() {
                         cout << "Adding global cut : " << globalCuts[i] << endl;
                     hist.cutString += globalCuts[i];
                 }
-                //// add "SAME" option
-                // if (plot.histos.size() > 0) {
-                //    hist.drawOption += "SAME";
-                //}
+                // add "SAME" option
+                 if (plot.histos.size() > 0) {
+                    hist.drawOption += "SAME";
+                }
 
                 if (hist.plotString == "") {
                     warning << "No variables or histograms defined in the plot, skipping!" << endl;
@@ -542,6 +544,8 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             if (drawn == false) {
                 warning << "TRestAnalysisPlot: no input file matches condition for histogram: " << hist.name
                         << ", this histogram is empty" << endl;
+                plot.histos.erase(plot.histos.begin() + i);
+                i--;
             } else {
                 // adjust the histogram
                 TH3F* htemp = (TH3F*)gPad->GetPrimitive(nameString);
@@ -588,19 +592,21 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         }
 
         // draw to the pad
-        Double_t maxValue = 0;
+        Double_t maxValue_Pad = 0;
         int maxID = 0;
         for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
             // need to draw the max histogram first, in order to prevent peak hidden problem
             Double_t value = histCollectionPlot[i]->GetBinContent(histCollectionPlot[i]->GetMaximumBin());
             if (i == 0) {
-                maxValue = value;
-            } else if (value > maxValue) {
-                maxValue = value;
+                maxValue_Pad = value;
+            } else if (value > maxValue_Pad) {
+                maxValue_Pad = value;
                 maxID = i;
             }
         }
         histCollectionPlot[maxID]->Draw(plot.histos[maxID].drawOption.c_str());
+        if (((string)histCollectionPlot[maxID]->ClassName()).find("TH1") != -1)
+            histCollectionPlot[maxID]->GetYaxis()->SetRangeUser(plot.logY, maxValue_Pad * 1.2);
         for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
             // draw the remaining histo
             if (i != maxID) histCollectionPlot[i]->Draw((plot.histos[maxID].drawOption + "same").c_str());
@@ -620,6 +626,108 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             legend->AddEntry(histCollectionPlot[i], histCollectionPlot[i]->GetName(), "lf");
         }
         if (plot.legendOn) legend->Draw("same");
+
+        // draw annotation, mainly the cut string
+        vector<pair<double, double>> plotted_text_Y;
+        if (plot.annotationOn) {
+            for (int i = 0; i < histCollectionPlot.size(); i++) {
+                // place annotation only for 1D histograms
+                TH3F* htemp = histCollectionPlot[i];
+                if (((string)htemp->ClassName()).find("TH1") != -1) {
+                    // annotation for the cut, it will be like: sAna_NumberOfGoodSignals>30 && ...
+                    string cutannotation = plot.histos[i].cutString;
+                    // annotation for file classifying, it will be like: FileName: run123.root
+                    string classifyannotation = "";
+                    auto iter = plot.histos[i].classifyMap.begin();
+                    while (iter != plot.histos[i].classifyMap.end()) {
+                        classifyannotation += iter->first + ": " + iter->second;
+                        iter++;
+                        if (iter != plot.histos[i].classifyMap.end()) classifyannotation += ", ";
+                    }
+
+                    string annotation = cutannotation != "" ? cutannotation : classifyannotation;
+                    if (annotation == "") annotation = "no cut";
+
+                    // calculate x start position of the annotation, according to the max bin of the histogram
+                    int maxbin = htemp->GetMaximumBin();
+                    int Nbins = htemp->GetNbinsX();
+                    double maxval_hist = htemp->GetBinContent(maxbin);
+
+                    double size = 0.04;
+                    double x_pos_relative = plot.logX ? log(maxbin) / log(Nbins) : maxbin / (double)Nbins;
+                    double y_pos_relative = plot.logY ? log(maxval_hist) / log(maxValue_Pad * 1.2)
+                                                      : maxval_hist / (maxValue_Pad * 1.2);
+
+                    int align = 0;
+                    int nCharacterPreLine;
+                    if (x_pos_relative > 0.5) {
+                        align = kHAlignRight + kVAlignCenter;
+                        x_pos_relative -= 0.01;
+                        nCharacterPreLine =
+                            x_pos_relative * fCanvasSize.X() / fCanvasDivisions.X() / size / 400;
+                    } else {
+                        align = kHAlignLeft + kVAlignCenter;
+                        x_pos_relative += 0.01;
+                        nCharacterPreLine =
+                            (1 - x_pos_relative) * fCanvasSize.X() / fCanvasDivisions.X() / size / 400;
+                    }
+
+                    double xpos = plot.logX ? htemp->GetBinCenter(exp(x_pos_relative * log(Nbins)))
+                                            : x_pos_relative * htemp->GetBinCenter(Nbins);
+
+                    // split the long annotation
+                    vector<string> annotation_multi_text;
+                    for (int j = 0; j < annotation.size(); j += nCharacterPreLine) {
+                        annotation_multi_text.push_back(annotation.substr(j, nCharacterPreLine));
+                    }
+
+                    // adjust y position to avoid overlap
+                    double yup = y_pos_relative + size;
+                    double ydown = yup - size * annotation_multi_text.size();
+
+                    double shift_value;
+                    for (double shift = 0; shift < 0.5; shift += size) {
+                        bool overlap = false;
+                        shift_value = yup > 0.5 ? -shift : shift;
+                        for (int j = 0; j < plotted_text_Y.size(); j++) {
+                            if (yup + shift > plotted_text_Y[j].second &&
+                                yup + shift < plotted_text_Y[j].first) {
+                                overlap = true;
+                                break;
+                            }
+                            if (ydown + shift > plotted_text_Y[j].second &&
+                                ydown + shift < plotted_text_Y[j].first) {
+                                overlap = true;
+                                break;
+                            }
+                            if (ydown + shift == plotted_text_Y[j].second &&
+                                yup + shift == plotted_text_Y[j].first) {
+                                overlap = true;
+                                break;
+                            }
+                        }
+                        if (!overlap) {
+                            break;
+                        }
+                    }
+                    yup += shift_value;
+                    ydown += shift_value;
+                    plotted_text_Y.push_back({yup, ydown});
+
+                    // draw
+                    for (int j = 0; j < annotation_multi_text.size(); j++) {
+                        double yy = plot.logY ? exp((yup - (j + 1) * size) * log(maxValue_Pad * 1.2))
+                                              : (yup - (j + 1) * size) * maxValue_Pad * 1.2;
+
+                        TLatex* text = new TLatex(xpos, yy, annotation_multi_text[j].c_str());
+                        text->SetTextAlign(align);
+                        text->SetTextSize(size);
+                        text->SetTextColor(plot.histos[i].lineColor);
+                        text->Draw("same");
+                    }
+                }
+            }
+        }
 
         // save pad
         targetPad->Update();
