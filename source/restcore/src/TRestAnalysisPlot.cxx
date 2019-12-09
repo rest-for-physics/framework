@@ -605,11 +605,14 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             }
         }
         histCollectionPlot[maxID]->Draw(plot.histos[maxID].drawOption.c_str());
-        if (((string)histCollectionPlot[maxID]->ClassName()).find("TH1") != -1)
+        if (((string)histCollectionPlot[maxID]->ClassName()).find("TH1") != -1) {
             histCollectionPlot[maxID]->GetYaxis()->SetRangeUser(plot.logY, maxValue_Pad * 1.2);
+        }
         for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
             // draw the remaining histo
-            if (i != maxID) histCollectionPlot[i]->Draw((plot.histos[maxID].drawOption + "same").c_str());
+            if (i != maxID) {
+                histCollectionPlot[i]->Draw((plot.histos[maxID].drawOption + "same").c_str());
+            }
         }
 
         // save histogram to root file
@@ -621,11 +624,13 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         }
 
         // draw legend
-        TLegend* legend = new TLegend(fLegendX1, fLegendY1, fLegendX2, fLegendY2);
-        for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
-            legend->AddEntry(histCollectionPlot[i], histCollectionPlot[i]->GetName(), "lf");
+        if (plot.legendOn) {
+            TLegend* legend = new TLegend(fLegendX1, fLegendY1, fLegendX2, fLegendY2);
+            for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
+                legend->AddEntry(histCollectionPlot[i], histCollectionPlot[i]->GetName(), "lf");
+            }
+            legend->Draw("same");
         }
-        if (plot.legendOn) legend->Draw("same");
 
         // draw annotation, mainly the cut string
         vector<pair<double, double>> plotted_text_Y;
