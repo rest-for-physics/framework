@@ -745,7 +745,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     fCanvasSave = fRunInputFile[0]->FormFormat(fCanvasSave);
     if (fCanvasSave != "") fCombinedCanvas->Print(fCanvasSave);
 
-    if (ToUpper(GetParameter("previewPlot", "TRUE")) == "TRUE") {
+    if (StringToBool(GetParameter("previewPlot", "TRUE"))) {
         GetChar();
     }
 
