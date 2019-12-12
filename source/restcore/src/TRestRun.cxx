@@ -407,14 +407,16 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
             // output file?
             // Actually g4 files from v2.1.x is all compatible with the v2.2.x version
             // Only 2.2.0 is without auto schema evolution, whose metadata cannot be read
-            if (this->GetVersionCode() >= REST_VERSION(2, 2, 1) ||
-                this->GetVersionCode() <= REST_VERSION(2, 1, 8)) {
-                ReadInputFileMetadata();
-            } else {
-                warning << "-- W : The metadata version found on input file is lower "
-                           "than 2.2.1!"
-                        << endl;
-                warning << "-- W : metadata from input file will not be read" << endl;
+            if (fSaveHistoricData) {
+                if (this->GetVersionCode() >= REST_VERSION(2, 2, 1) ||
+                    this->GetVersionCode() <= REST_VERSION(2, 1, 8)) {
+                    ReadInputFileMetadata();
+                } else {
+                    warning << "-- W : The metadata version found on input file is lower "
+                               "than 2.2.1!"
+                            << endl;
+                    warning << "-- W : metadata from input file will not be read" << endl;
+                }
             }
 
             debug << "Initializing input file : version code : " << this->GetVersionCode() << endl;
@@ -423,6 +425,15 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
             ResetEntry();
         } else {
             fAnalysisTree = NULL;
+
+            // set its analysistree as the first TTree object in the file, if exists
+            TIter nextkey(fInputFile->GetListOfKeys());
+            TKey* key;
+            while ((key = (TKey*)nextkey())) {
+                if ((string)key->GetClassName()=="TTree") {
+                    fAnalysisTree = (TRestAnalysisTree*)fInputFile->Get(key->GetName());
+                }
+            }
         }
     } else {
         fInputFile = NULL;
@@ -572,6 +583,7 @@ void TRestRun::ReadFileInfo(string filename) {
     // run00042_cobo1_frag0000.graw
 
     fInformationMap.clear();
+    fInformationMap["FileName"] = filename;
 
     debug << "begin collecting file info: " << filename << endl;
     struct stat buf;
@@ -741,17 +753,13 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
         string targetstr = inString.substr(pos1, pos2 - pos1 + 1);   // with []
         string target = inString.substr(pos1 + 1, pos2 - pos1 - 1);  // without []
         string replacestr = GetInfo(target);
-        if (replacestr == target && !REST_Reflection::GetDataMember(this, target).IsZombie())
-            replacestr = REST_Reflection::GetDataMember(this, target).ToString();
-        if (replacestr == target && !REST_Reflection::GetDataMember(this, "f" + target).IsZombie())
-            replacestr = REST_Reflection::GetDataMember(this, "f" + target).ToString();
 
         debug << "TRestRun::FormFormat. target : " << target << endl;
         debug << "TRestRun::FormFormat. replacestr : " << replacestr << endl;
 
-        if (target == "fVersion") replacestr = (string)GetVersion();
+        //if (target == "fVersion") replacestr = (string)GetVersion();
 
-        if (target == "fCommit") replacestr = (string)GetCommit();
+        //if (target == "fCommit") replacestr = (string)GetCommit();
 
         if (replacestr != target) {
             if (target == "fRunNumber" || target == "fParentRunNumber") {
@@ -1298,6 +1306,22 @@ TRestEvent* TRestRun::GetNextEventWithConditions(const string cuts) {
         fEventTree->GetEntry(indices[0]);
         return fInputEvent;
     }
+}
+
+string TRestRun::GetInfo(string infoname) {
+    if (fInformationMap.count(infoname) != 0) {
+        return fInformationMap[infoname];
+    }
+
+    if (GetDataMemberValue(infoname) != "") {
+        return GetDataMemberValue(infoname);
+    }
+
+    if (GetDataMemberValue("f" + infoname) != "") {
+        return GetDataMemberValue("f" + infoname);
+    }
+
+    return infoname;
 }
 
 TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {

@@ -37,20 +37,6 @@ void TRestAnalysisPlot::Initialize() {
     fNFiles = 0;
 
     fCombinedCanvas = NULL;
-
-    fStartTime = 0;
-    fEndTime = 0;
-
-    fClasifyBy = "runTag";
-
-    fLabelOffsetX = 1.1;
-    fLabelOffsetY = 1.3;
-
-    fLabelScaleX = 1.2;
-    fLabelScaleY = 1.3;
-
-    fTicksScaleX = 1.5;
-    fTicksScaleY = 1.5;
 }
 
 //______________________________________________________________________________
@@ -61,26 +47,12 @@ TRestAnalysisPlot::~TRestAnalysisPlot() {
 //______________________________________________________________________________
 void TRestAnalysisPlot::InitFromConfigFile() {
     size_t position = 0;
-
-    position = 0;
-    string styleString;
-    while ((styleString = GetKEYDefinition("style", position)) != "") {
-        Int_t lineColor = StringToInteger(GetFieldValue("lineColor", styleString));
-        if (lineColor != -1) fLineColor.push_back(lineColor);
-
-        Int_t lineWidth = StringToInteger(GetFieldValue("lineWidth", styleString));
-        if (lineWidth != -1) fLineWidth.push_back(lineWidth);
-
-        Int_t lineStyle = StringToInteger(GetFieldValue("lineStyle", styleString));
-        if (lineStyle != -1) fLineStyle.push_back(lineStyle);
-
-        Int_t fillStyle = StringToInteger(GetFieldValue("fillStyle", styleString));
-        if (fillStyle != -1) fFillStyle.push_back(fillStyle);
-
-        Int_t fillColor = StringToInteger(GetFieldValue("fillColor", styleString));
-        if (fillColor != -1) fFillColor.push_back(fillColor);
+    if (fHostmgr->GetRunInfo() != NULL) {
+        fRun = fHostmgr->GetRunInfo();
     }
 
+#pragma region ReadLabels
+    debug << "TRestAnalysisPlot: Reading canvas settings" << endl;
     position = 0;
     string formatDefinition;
     if ((formatDefinition = GetKEYDefinition("labels", position)) != "") {
@@ -119,7 +91,9 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             if (GetVerboseLevel() >= REST_Extreme) GetChar();
         }
     }
+#pragma endregion
 
+#pragma region ReadLegend
     position = 0;
     string legendDefinition;
     if ((legendDefinition = GetKEYDefinition("legendPosition", position)) != "") {
@@ -148,10 +122,9 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             if (GetVerboseLevel() >= REST_Extreme) GetChar();
         }
     }
+#pragma endregion
 
-    // fHistoOutputFile = GetParameter("histoFilename", "");
-    // if (fHistoOutputFile == "") fHistoOutputFile = GetParameter("outputFile", "/tmp/histos.root");
-
+#pragma region ReadCanvas
     position = 0;
     string canvasDefinition;
     if ((canvasDefinition = GetKEYDefinition("canvas", position)) != "") {
@@ -162,325 +135,270 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             fCanvasSave = GetParameter("pdfFilename", "/tmp/restplot.pdf");
         }
     }
+#pragma endregion
 
-    vector<TString> globalCuts;
-
-    position = 0;
-    string globalCutString;
-    while ((globalCutString = GetKEYDefinition("globalCut", position)) != "")  // general cuts
+#pragma region ReadGlobalCuts
+    debug << "TRestAnalysisPlot: Reading global cuts" << endl;
+    vector<string> globalCuts;
+    TiXmlElement* gCutele = fElement->FirstChildElement("globalCut");
+    while (gCutele != NULL)  // general cuts
     {
-        TString cutActive = GetFieldValue("value", globalCutString);
+        string cutActive = GetParameter("value", gCutele, "ON");
 
-        if (cutActive == "on" || cutActive == "ON" || cutActive == "On" || cutActive == "oN") {
-            TString obsName = GetFieldValue("name", globalCutString);
-            if (obsName == "Not defined")
-                obsName = GetFieldValue("variable", globalCutString);
-            else {
-                cout << "--W-- REST Warning. <globalCut name=\"var\" is now obsolete." << endl;
-                cout << "--W-- Please, replace by : <globalCut variable=\"var\" " << endl;
-                cout << endl;
-            }
-
-            TString cutCondition = GetFieldValue("condition", globalCutString);
-            TString cutString = obsName + cutCondition;
-
-            globalCuts.push_back(cutString);
-        }
-    }
-
-    position = 0;
-    string addPlotString;
-    while ((addPlotString = GetKEYStructure("plot", position)) != "NotFound")  // general cuts
-    {
-        TString plotActive = GetFieldValue("value", addPlotString);
-
-        if (plotActive == "on" || plotActive == "ON" || plotActive == "On" || plotActive == "oN") {
-            TString plotName = RemoveWhiteSpaces(GetFieldValue("name", addPlotString));
-            fPlotNames.push_back(plotName);
-
-            TString saveName = RemoveWhiteSpaces(GetFieldValue("save", addPlotString));
-            fPlotSaveToFile.push_back(saveName);
-
-            TString logScale = GetFieldValue("logscale", addPlotString);
-
-            if (logScale == "true")
-                fLogScale.push_back(true);
-            else
-                fLogScale.push_back(false);
-
-            string normStr = GetFieldValue("norm", addPlotString);
-
-            if (normStr == "NotDefined" || !isANumber(normStr)) normStr = "0";
-
-            fNormalize.push_back(StringToInteger(normStr));
-
-            TString xLabel = GetFieldValue("xlabel", addPlotString);
-            fPlotXLabel.push_back(xLabel);
-
-            TString yLabel = GetFieldValue("ylabel", addPlotString);
-            fPlotYLabel.push_back(yLabel);
-
-            TString title = GetFieldValue("title", addPlotString);
-            fPlotTitle.push_back(title);
-
-            TString option = RemoveWhiteSpaces(GetFieldValue("option", addPlotString));
-
-            if (option == "Notdefined") option = "colz";
-
-            if (RemoveWhiteSpaces(GetFieldValue("stats", addPlotString)) == "OFF")
-                fStats.push_back(kFALSE);
-            else
-                fStats.push_back(kTRUE);
-
-            if (RemoveWhiteSpaces(GetFieldValue("legend", addPlotString)) == "OFF")
-                fLegend.push_back(kFALSE);
-            else
-                fLegend.push_back(kTRUE);
-
-            fPlotOption.push_back(option);
-
-            // scale to be implemented
-
-            vector<TString> varNames;
-            vector<TVector2> ranges;
-            vector<TVector2> yRanges;
-            vector<Int_t> bins;
-
-            TVector2 yRange(0, 0);
-            string variableDefinition;
-            size_t pos = 0;
-            while ((variableDefinition = GetKEYDefinition("variable", pos, addPlotString)) != "") {
-                varNames.push_back(GetFieldValue("name", (string)variableDefinition));
-
-                string rangeStr = GetFieldValue("range", variableDefinition);
-                rangeStr = Replace(rangeStr, "unixTime", std::to_string(std::time(nullptr)));
-                rangeStr = Replace(rangeStr, "days", "24*3600");
-
-                ranges.push_back(StringTo2DVector(rangeStr));
-
-                bins.push_back(StringToInteger(GetFieldValue("nbins", variableDefinition)));
-
-                rangeStr = GetFieldValue("yRange", variableDefinition);
-                yRange = StringTo2DVector(rangeStr);
-                if (yRange.X() == -1 && yRange.Y() == -1) yRange = TVector2(0, 0);
-            }
-
-            // When we have 2 variables 2D histogram. We define the range of second
-            // variable as the yRange
-            if (ranges.size() == 2)
-                fYRangeUser.push_back(ranges[0]);
-            else
-                fYRangeUser.push_back(yRange);
-
-            TString pltString = "";
-            for (unsigned int i = 0; i < varNames.size(); i++) {
-                pltString += varNames[i];
-                if (i < varNames.size() - 1) pltString += ":";
-            }
-
-            if (GetVerboseLevel() >= REST_Debug) {
-                for (unsigned int n = 0; n < bins.size(); n++) {
-                    cout << "Variable " << varNames[n] << endl;
-                    cout << "------------------------------------------" << endl;
-                    cout << "Plot range : ( " << ranges.back().X() << " , " << ranges.back().Y() << " ) "
-                         << endl;
-                    cout << "bins : " << bins.back() << endl;
+        if (ToUpper(cutActive) == "ON") {
+            string obsName = GetParameter("variable", gCutele, "");
+            if (obsName == "") {
+                obsName = GetParameter("name", gCutele, "");
+                if (obsName != "") {
+                    warning << "<globalCut name=\"var\" is now obsolete." << endl;
+                    warning << "Please, replace by : <globalCut variable=\"var\" " << endl;
                     cout << endl;
                 }
             }
 
-            pltString += " >>" + plotName;
+            if (obsName == "") continue;
 
-            // The range definitions are in reversed ordered. Compared to ROOT
-            // variable definitions
-            for (int i = ((int)bins.size()) - 1; i >= 0; i--) {
-                TString binsStr;
-                binsStr.Form("%d", bins[i]);
-                if (bins[i] == -1) binsStr = " ";
+            string cutCondition = GetParameter("condition", gCutele);
+            string cutString = obsName + cutCondition;
 
-                TString rXStr;
-                rXStr.Form("%f", ranges[i].X());
-                if (ranges[i].X() == -1) rXStr = " ";
-
-                TString rYStr;
-                rYStr.Form("%f", ranges[i].Y());
-                if (ranges[i].Y() == -1) rYStr = " ";
-
-                if (i == (int)bins.size() - 1) pltString += "(";
-
-                pltString += binsStr + " , " + rXStr + " , " + rYStr;
-                if (i > 0) pltString += ",";
-                if (i == 0) pltString += ")";
-            }
-
-            fPlotString.push_back(pltString);
-
-            pos = 0;
-            string addCutString;
-
-            if (GetVerboseLevel() >= REST_Debug) {
-                cout << endl;
-                cout << "Plot string : " << pltString << endl;
-            }
-
-            TString cutString = "";
-            Int_t n = 0;
-            while ((addCutString = GetKEYDefinition("cut", pos, addPlotString)) != "") {
-                TString cutActive = GetFieldValue("value", addCutString);
-
-                if (cutActive == "on" || cutActive == "ON" || cutActive == "On" || cutActive == "oN") {
-                    TString cutVariable = GetFieldValue("variable", addCutString);
-                    TString cutCondition = GetFieldValue("condition", addCutString);
-
-                    if (n > 0) cutString += " && ";
-
-                    if (GetVerboseLevel() >= REST_Debug)
-                        cout << "Adding local cut : " << cutVariable << cutCondition << endl;
-
-                    cutString += cutVariable + cutCondition;
-                    n++;
-                }
-            }
-
-            for (unsigned int i = 0; i < globalCuts.size(); i++) {
-                if (i > 0 || cutString != "") cutString += " && ";
-                if (GetVerboseLevel() >= REST_Debug) cout << "Adding global cut : " << globalCuts[i] << endl;
-                cutString += globalCuts[i];
-            }
-
-            fCutString.push_back(cutString);
-
-            if (GetVerboseLevel() >= REST_Debug) {
-                cout << "-------------------------------" << endl;
-            }
+            globalCuts.push_back(cutString);
         }
+
+        gCutele = gCutele->NextSiblingElement("globalCut");
     }
+#pragma endregion
 
-    position = 0;
-    while ((addPlotString = GetKEYStructure("histo", position)) != "NotFound")  // general cuts
-    {
-        TString histoActive = GetFieldValue("value", addPlotString);
-
-        if (histoActive == "on" || histoActive == "ON" || histoActive == "On" || histoActive == "oN") {
-            TString histoName = RemoveWhiteSpaces(GetFieldValue("name", addPlotString));
-            fHistoNames.push_back(histoName);
-
-            TString xLabel = GetFieldValue("xlabel", addPlotString);
-            fHistoXLabel.push_back(xLabel);
-
-            TString yLabel = GetFieldValue("ylabel", addPlotString);
-            fHistoYLabel.push_back(yLabel);
-
-            TString title = GetFieldValue("title", addPlotString);
-            fHistoTitle.push_back(title);
-
-            TString saveName = RemoveWhiteSpaces(GetFieldValue("save", addPlotString));
-            fHistoSaveToFile.push_back(saveName);
-        }
-    }
-
+#pragma region ReadPlot
+    debug << "TRestAnalysisPlot: Reading plot sections" << endl;
     Int_t maxPlots = (Int_t)fCanvasDivisions.X() * (Int_t)fCanvasDivisions.Y();
+    TiXmlElement* plotele = fElement->FirstChildElement("plot");
+    while (plotele != NULL) {
+        string active = GetParameter("value", plotele, "ON");
+        if (ToUpper(active) == "ON") {
+            int N = fPlots.size();
+            if (N >= maxPlots) {
+                ferr << "Your canvas divisions (" << fCanvasDivisions.X() << " , " << fCanvasDivisions.Y()
+                     << ") are not enough to show " << N + 1 << " plots" << endl;
+                exit(1);
+            }
+            Plot_Info_Set plot;
+            plot.name = RemoveWhiteSpaces(GetParameter("name", plotele, "plot_" + ToString(N)));
+            plot.title = GetParameter("title", plotele, plot.name);
+            plot.logY = StringToBool(GetParameter("logscale", plotele, "false"));
+            plot.logY = plot.logY ? plot.logY : StringToBool(GetParameter("logY", plotele, "false"));
+            plot.logX = StringToBool(GetParameter("logX", plotele, "false"));
+            plot.logZ = StringToBool(GetParameter("logZ", plotele, "false"));
+            plot.normalize = StringToDouble(GetParameter("norm", plotele, ""));
+            plot.labelX = GetParameter("xlabel", plotele, "");
+            plot.labelY = GetParameter("ylabel", plotele, "");
+            plot.legendOn = StringToBool(GetParameter("legend", plotele, "OFF"));
+            plot.staticsOn = StringToBool(GetParameter("stats", plotele, "OFF"));
+            plot.annotationOn = StringToBool(GetParameter("annotation", plotele, "OFF"));
+            plot.save = RemoveWhiteSpaces(GetParameter("save", plotele, ""));
 
-    Int_t nPlots = (Int_t)fPlotString.size() + (Int_t)fHistoNames.size();
+            TiXmlElement* histele = plotele->FirstChildElement("histo");
+            if (histele == NULL) {
+                // in case for single-hist plot, variables are added directly inside the <plot section
+                histele = plotele;
+            }
+            while (histele != NULL) {
+                Histo_Info_Set hist = SetupHistogramFromConfigFile(histele, plot);
+                // add global cut
+                for (unsigned int i = 0; i < globalCuts.size(); i++) {
+                    if (i > 0 || hist.cutString != "") hist.cutString += " && ";
+                    if (GetVerboseLevel() >= REST_Debug)
+                        cout << "Adding global cut : " << globalCuts[i] << endl;
+                    hist.cutString += globalCuts[i];
+                }
+                // add "SAME" option
+                 if (plot.histos.size() > 0) {
+                    hist.drawOption += "SAME";
+                }
 
-    if (nPlots > maxPlots) {
-        ferr << "Your canvas divisions (" << fCanvasDivisions.X() << " , " << fCanvasDivisions.Y()
-             << ") are not enough to show " << nPlots << " plots" << endl;
-        exit(1);
+                if (hist.plotString == "") {
+                    warning << "No variables or histograms defined in the plot, skipping!" << endl;
+                } else {
+                    plot.histos.push_back(hist);
+                }
+
+                if (histele == plotele) {
+                    break;
+                }
+                histele = histele->NextSiblingElement("histo");
+            }
+
+            fPlots.push_back(plot);
+            plotele = plotele->NextSiblingElement("plot");
+        }
     }
+
+#pragma endregion
+}
+
+TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFile(TiXmlElement* histele,
+                                                                                  Plot_Info_Set plot) {
+    Histo_Info_Set hist;
+    hist.name = RemoveWhiteSpaces(GetParameter("name", histele, plot.name));
+    hist.drawOption = GetParameter("option", histele, "colz");
+
+    // 1. construct plot variables for the hist
+    // read variables
+    vector<string> varNames;
+    vector<TVector2> ranges;
+    vector<Int_t> bins;
+    TiXmlElement* varele = histele->FirstChildElement("variable");
+    while (varele != NULL) {
+        varNames.push_back(GetParameter("name", varele));
+
+        string rangeStr = GetParameter("range", varele);
+        rangeStr = Replace(rangeStr, "unixTime", std::to_string(std::time(nullptr)));
+        rangeStr = Replace(rangeStr, "days", "24*3600");
+        ranges.push_back(StringTo2DVector(rangeStr));
+
+        bins.push_back(StringToInteger(GetParameter("nbins", varele)));
+
+        varele = varele->NextSiblingElement("variable");
+    }
+    if (GetVerboseLevel() >= REST_Debug) {
+        for (unsigned int n = 0; n < bins.size(); n++) {
+            cout << "Variable " << varNames[n] << endl;
+            cout << "------------------------------------------" << endl;
+            cout << "Plot range : ( " << ranges.back().X() << " , " << ranges.back().Y() << " ) " << endl;
+            cout << "bins : " << bins.back() << endl;
+            cout << endl;
+        }
+    }
+    string pltString = "";
+    for (int i = varNames.size() - 1; i >= 0; i--) {
+        // The draw branches are in reversed ordered in TTree::Draw()
+        pltString += varNames[i];
+        if (i > 0) pltString += ":";
+    }
+    hist.plotString = pltString;
+
+    // 2. construct plot name for the hist
+    string rangestr = "";
+    for (int i = 0; i < bins.size(); i++) {
+        string binsStr = ToString(bins[i]);
+        if (bins[i] == -1) binsStr = " ";
+
+        string rXStr = ToString(ranges[i].X());
+        if (ranges[i].X() == -1) rXStr = " ";
+
+        string rYStr = ToString(ranges[i].Y());
+        if (ranges[i].Y() == -1) rYStr = " ";
+
+        if (i == 0) rangestr += "(";
+        rangestr += binsStr + " , " + rXStr + " , " + rYStr;
+        if (i < bins.size() - 1) rangestr += ",";
+        if (i == bins.size() - 1) rangestr += ")";
+    }
+    hist.range = rangestr;
+
+    // 3. read cuts
+    string cutString = "";
+    Int_t n = 0;
+    TiXmlElement* cutele = histele->FirstChildElement("cut");
+    while (cutele != NULL) {
+        string cutActive = GetParameter("value", cutele, "ON");
+        if (ToUpper(cutActive) == "ON") {
+            string cutVariable = GetParameter("variable", cutele);
+            string cutCondition = GetParameter("condition", cutele);
+            if (n > 0) cutString += " && ";
+            if (GetVerboseLevel() >= REST_Debug)
+                cout << "Adding local cut : " << cutVariable << cutCondition << endl;
+
+            cutString += cutVariable + cutCondition;
+            n++;
+        }
+        cutele = cutele->NextSiblingElement("cut");
+    }
+    hist.cutString = cutString;
+
+    // 4. read classify condition
+    hist.classifyMap.clear();
+    TiXmlElement* classifyele = histele->FirstChildElement("classify");
+    while (classifyele != NULL) {
+        string Active = GetParameter("value", classifyele, "ON");
+        if (ToUpper(Active) == "ON") {
+            TiXmlAttribute* attr = classifyele->FirstAttribute();
+            while (attr != NULL) {
+                if (attr->Value() != NULL && string(attr->Value()) != "") {
+                    hist.classifyMap[attr->Name()] = attr->Value();
+                }
+                attr = attr->Next();
+            }
+        }
+        classifyele = classifyele->NextSiblingElement("classify");
+    }
+
+    // 5. read draw style(line color, width, fill style, etc.)
+    hist.lineColor = StringToInteger(GetParameter("lineColor", histele));
+    hist.lineWidth = StringToInteger(GetParameter("lineWidth", histele));
+    hist.lineStyle = StringToInteger(GetParameter("lineStyle", histele));
+    hist.fillStyle = StringToInteger(GetParameter("fillStyle", histele));
+    hist.fillColor = StringToInteger(GetParameter("fillColor", histele));
+
+    return hist;
 }
 
 void TRestAnalysisPlot::AddFile(TString fileName) {
     debug << "TRestAnalysisPlot::AddFile. Adding file. " << endl;
     debug << "File name: " << fileName << endl;
 
-    TFile* f = new TFile(fileName);
-    TIter nextkey(f->GetListOfKeys());
-    TKey* key;
-    TString rTag = "notFound";
-    while ((key = (TKey*)nextkey())) {
-        string kName = key->GetClassName();
-        if (kName == "TRestRun") {
-            rTag = ((TRestRun*)f->Get(key->GetName()))->GetRunTag();
-            break;
-        }
-    }
-    f->Close();
-
-    if (fClasifyBy == "runTag") {
-        debug << "TRestAnalysisPlot::AddFile. Calling GetRunTagIndex. Tag = " << rTag << endl;
-        Int_t index = GetRunTagIndex(rTag);
-        debug << "Index. = " << index << endl;
-
-        if (index < REST_MAX_TAGS) {
-            fFileNames[index].push_back(fileName);
-            fNFiles++;
-        } else {
-            ferr << "TRestAnalysisPlot::AddFile. Maximum number of tags per plot is : " << REST_MAX_TAGS
-                 << endl;
-        }
-    } else if (fClasifyBy == "combineAll") {
-        fFileNames[0].push_back(fileName);
-        fNFiles++;
-    } else {
-        warning << "TRestAnalysisPlot : fClassifyBy not recognized" << endl;
-
-        fFileNames[0].push_back(fileName);
+    TRestRun* run = new TRestRun();
+    run->SetHistoricMetadataSaving(false);
+    run->OpenInputFile((string)fileName);
+    if (run->GetAnalysisTree() != NULL) {
+        fRunInputFile.push_back(run);
         fNFiles++;
     }
-}
 
-Int_t TRestAnalysisPlot::GetRunTagIndex(TString tag) {
-    Int_t index = 0;
-    for (unsigned int n = 0; n < fLegendName.size(); n++) {
-        if (fLegendName[n] == tag) return index;
-        index++;
-    }
+    // TFile* f = new TFile(fileName);
+    // TIter nextkey(f->GetListOfKeys());
+    // TKey* key;
+    // TString rTag = "notFound";
+    // while ((key = (TKey*)nextkey())) {
+    //    string kName = key->GetClassName();
+    //    if (kName == "TRestRun") {
+    //        rTag = ((TRestRun*)f->Get(key->GetName()))->GetRunTag();
+    //        break;
+    //    }
+    //}
+    // f->Close();
 
-    fLegendName.push_back(tag);
+    // if (fClasifyBy == "runTag") {
+    //    debug << "TRestAnalysisPlot::AddFile. Calling GetRunTagIndex. Tag = " << rTag << endl;
+    //    Int_t index = GetRunTagIndex(rTag);
+    //    debug << "Index. = " << index << endl;
 
-    return index;
-}
+    //    if (index < REST_MAX_TAGS) {
+    //        fFileNames[index].push_back(fileName);
+    //        fNFiles++;
+    //    } else {
+    //        ferr << "TRestAnalysisPlot::AddFile. Maximum number of tags per plot is : " << REST_MAX_TAGS
+    //             << endl;
+    //    }
+    //} else if (fClasifyBy == "combineAll") {
+    //    fFileNames[0].push_back(fileName);
+    //    fNFiles++;
+    //} else {
+    //    warning << "TRestAnalysisPlot : fClassifyBy not recognized" << endl;
 
-Int_t TRestAnalysisPlot::GetPlotIndex(TString plotName) {
-    for (unsigned int n = 0; n < fPlotNames.size(); n++)
-        if (fPlotNames[n] == plotName) return n;
-
-    warning << "TRestAnalysisPlot::GetPlotIndex. Plot name " << plotName << " not found" << endl;
-    return -1;
-}
-
-void TRestAnalysisPlot::AddMissingStyles() {
-    if (fLegendName.size() > fLineStyle.size()) {
-        for (unsigned int n = fLineStyle.size(); n < fLegendName.size(); n++) fLineStyle.push_back(1);
-    }
-
-    if (fLegendName.size() > fLineColor.size()) {
-        for (unsigned int n = fLineColor.size(); n < fLegendName.size(); n++) fLineColor.push_back(1);
-    }
-
-    if (fLegendName.size() > fLineWidth.size()) {
-        for (unsigned int n = fLineWidth.size(); n < fLegendName.size(); n++) fLineWidth.push_back(1);
-    }
-
-    if (fLegendName.size() > fFillColor.size()) {
-        for (unsigned int n = fFillColor.size(); n < fLegendName.size(); n++) fFillColor.push_back(1);
-    }
-
-    if (fLegendName.size() > fFillStyle.size()) {
-        for (unsigned int n = fFillStyle.size(); n < fLegendName.size(); n++) fFillStyle.push_back(0);
-    }
+    //    fFileNames[0].push_back(fileName);
+    //    fNFiles++;
+    //}
 }
 
 // we can add input file from process's output file
 void TRestAnalysisPlot::AddFileFromExternalRun() {
-    if (fHostmgr->GetRunInfo() != NULL && fNFiles == 0) {
-        fRun = fHostmgr->GetRunInfo();
-
+    if (fRun != NULL && fNFiles == 0) {
         if (fHostmgr->GetProcessRunner() != NULL && fRun->GetOutputFileName() != "") {
+            // if we have a TRestProcessRunner before head, we use its output file
             AddFile(fRun->GetOutputFileName());
             return;
         } else if (fRun->GetInputFileNames().size() != 0) {
+            // if we have only TRestRun, we ask for its input file list
             auto names = fRun->GetInputFileNames();
             for (int i = 0; i < names.size(); i++) {
                 this->AddFile(names[i]);
@@ -503,45 +421,33 @@ void TRestAnalysisPlot::AddFileFromEnv() {
     }
 }
 
+Int_t TRestAnalysisPlot::GetPlotIndex(TString plotName) {
+    for (unsigned int n = 0; n < fPlots.size(); n++)
+        if (fPlots[n].name == plotName) return n;
+
+    warning << "TRestAnalysisPlot::GetPlotIndex. Plot name " << plotName << " not found" << endl;
+    return -1;
+}
+
 void TRestAnalysisPlot::PlotCombinedCanvas() {
+    // Add files, first use <addFile section definition
     TiXmlElement* ele = fElement->FirstChildElement("addFile");
     while (ele != NULL) {
         TString inputfile = GetParameter("name", ele);
         this->AddFile(inputfile);
         ele = ele->NextSiblingElement("addFile");
     }
+    // try to add files from external TRestRun handler
+    if (fNFiles == 0) AddFileFromExternalRun();
+    // try to add files from env "inputFile", which is set by --i argument
+    if (fNFiles == 0) AddFileFromEnv();
 
-    AddFileFromExternalRun();
-    AddFileFromEnv();
+    if (fNFiles == 0) {
+        ferr << "TRestAnalysisPlot: No input files are added!" << endl;
+        exit(1);
+    }
 
-    AddMissingStyles();
-
-    vector<TRestAnalysisTree*> trees[REST_MAX_TAGS];
-    vector<TH3F*> histCollection;
-
-    fStartTime = 0;
-    fEndTime = 0;
-
-    /* {{{ We create a list of analysis trees in each run, and define start/end times */
-    TRestAnalysisTree* anT;
-
-    /// This may require optimization. Perhaps inside TRestRun::OpenInputFile
-    /// We may need a quicker way to get a pointer to the analysisTree, without loading all TRestRun contents
-    for (unsigned int i = 0; i < fLegendName.size(); i++)
-        for (unsigned int n = 0; n < fFileNames[i].size(); n++) {
-            anT = GetAnalysisTree(fFileNames[i][n]);
-
-            anT->SetBranchStatus("*", true);
-            trees[i].push_back(anT);
-
-            anT->GetEntry(1);
-            if (fStartTime == 0 || anT->GetTimeStamp() < fStartTime) fStartTime = anT->GetTimeStamp();
-
-            anT->GetEntry(anT->GetEntries() - 1);
-            if (fEndTime == 0 || anT->GetTimeStamp() > fEndTime) fEndTime = anT->GetTimeStamp();
-        }
-    /* }}} */
-
+    // initialize output root file if we have TRestRun running
     TFile* fOutputRootFile = NULL;
     if (fRun != NULL) {
         fOutputRootFile = fRun->GetOutputFile();
@@ -550,97 +456,80 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
             fOutputRootFile = fRun->FormOutputFile();
         }
     }
-    // fHistoOutputFile = ReplaceFilenameTags(fHistoOutputFile, runs[0][0]);
-    // TFile* f = new TFile(fHistoOutputFile, "RECREATE");
 
-    // cout << "Saving histograms to ROOT file : " << fHistoOutputFile << endl;
-
-    /* {{{ Initializing canvas window */
+    // Initializing canvas window
     if (fCombinedCanvas != NULL) {
         delete fCombinedCanvas;
         fCombinedCanvas = NULL;
     }
-
     fCombinedCanvas = new TCanvas("combined", "combined", 0, 0, fCanvasSize.X(), fCanvasSize.Y());
-
     fCombinedCanvas->Divide((Int_t)fCanvasDivisions.X(), (Int_t)fCanvasDivisions.Y());
-    /* }}} */
 
+    // Setting up TStyle
     TStyle* st = new TStyle();
     st->SetPalette(1);
 
-    for (unsigned int n = 0; n < fPlotString.size(); n++) {
-        fCombinedCanvas->cd(n + 1);
-        if (fLogScale[n]) fCombinedCanvas->cd(n + 1)->SetLogy();
+    // start drawing
+    vector<TH3F*> histCollectionAll;
+    for (unsigned int n = 0; n < fPlots.size(); n++) {
+        Plot_Info_Set plot = fPlots[n];
 
-        fCombinedCanvas->cd(n + 1)->SetLeftMargin(0.18);
-        fCombinedCanvas->cd(n + 1)->SetRightMargin(0.1);
-        fCombinedCanvas->cd(n + 1)->SetBottomMargin(0.15);
-        fCombinedCanvas->cd(n + 1)->SetTopMargin(0.07);
+        TPad* targetPad = (TPad*)fCombinedCanvas->cd(n + 1);
+        targetPad->SetLogy(plot.logY);
+        targetPad->SetLogz(plot.logZ);
+        targetPad->SetLeftMargin(0.18);
+        targetPad->SetRightMargin(0.1);
+        targetPad->SetBottomMargin(0.15);
+        targetPad->SetTopMargin(0.07);
 
-        histCollection.clear();
+        // draw to a new histogram
+        vector<TH3F*> histCollectionPlot;
+        for (unsigned int i = 0; i < plot.histos.size(); i++) {
+            Histo_Info_Set hist = plot.histos[i];
 
-        std::vector<TString> hName;
-        for (unsigned int i = 0; i < fLegendName.size(); i++) {
-            TString plotString = fPlotString[n];
+            TString plotString = hist.plotString;
+            TString nameString = hist.name;
+            TString rangeString = hist.range;
+            TString cutString = hist.cutString;
+            TString optString = hist.drawOption;
 
-            size_t varStart = FindNthStringPosition((string)fPlotString[n], 0, ">>", 0);
-            size_t varEnd = FindNthStringPosition((string)fPlotString[n], varStart, "(", 0);
+            if (GetVerboseLevel() >= REST_Debug) {
+                cout << endl;
+                cout << "--------------------------------------" << endl;
+                cout << "Plot string : " << plotString << endl;
+                cout << "Plot name : " << nameString << endl;
+                cout << "Plot range : " << rangeString << endl;
+                cout << "Cut : " << cutString << endl;
+                cout << "Plot option : " << optString << endl;
+                cout << "++++++++++++++++++++++++++++++++++++++" << endl;
+            }
 
-            TString varName = fPlotString[n](varStart, varEnd - varStart);
-
-            hName.push_back(varName + "_" + fLegendName[i]);
-            plotString = Replace((string)plotString, (string)varName, (string)hName[i], 0, 1);
-            hName[i].Remove(0, 2);
-
-            for (unsigned int m = 0; m < fFileNames[i].size(); m++) {
-                /* {{{ Constructing plotString for time plots (TO BE REIMPLEMENTED!!)
-                if( fPlotXLabel[n].Contains("Time") ||  fPlotXLabel[n].Contains("time")
-                )
-                {
-                    size_t first = FindNthStringPosition( (string) fPlotString[n], 0,
-                ",", 0 ); size_t second = FindNthStringPosition( (string)
-                fPlotString[n], 0, ",", 1 ); size_t third = FindNthStringPosition(
-                (string) fPlotString[n], 0, ",", 2 );
-
-                    TString xStr = fPlotString[n]( first + 1 ,second - first - 1 );
-                    string xstr = trim( (string) xStr );
-
-                    if( xstr == "" )
-                    {
-                        string startTimeStr = std::to_string( fStartTime);
-                        plotString.Insert( second -1, startTimeStr );
+            // draw single histo from different file
+            bool drawn = false;
+            for (unsigned int j = 0; j < fRunInputFile.size(); j++) {
+                // apply "classify" condition
+                bool flag = true;
+                auto iter = hist.classifyMap.begin();
+                while (iter != hist.classifyMap.end()) {
+                    if (fRunInputFile[j]->GetInfo(iter->first) != iter->second) {
+                        flag = false;
+                        break;
                     }
-
-                    TString yStr = fPlotString[n]( second + 1 ,third- second - 1 );
-                    string ystr = trim( (string) yStr );
-
-                    if( ystr == "" )
-                    {
-                        string endTimeStr = std::to_string( fEndTime);
-                        third = FindNthStringPosition( (string) plotString, 0, ",", 2 );
-                        plotString.Insert( third -1, endTimeStr );
-                    }
+                    iter++;
                 }
-                 }}} */
+                if (!flag) continue;
 
-                if (m == 1) {
-                    plotString = Replace((string)plotString, ">>", ">>+", 0, 1);
-                    size_t start = FindNthStringPosition((string)plotString, 0, ">>+", 0);
-                    plotString = plotString(0, FindNthStringPosition((string)plotString, start, "(", 0));
+                TTree* tree = fRunInputFile[j]->GetAnalysisTree();
+                int outVal;
+
+                if (!drawn) {
+                    outVal = tree->Draw(plotString + ">>" + nameString + rangeString, cutString, optString);
+                    drawn = true;
+                } else {
+                    outVal = tree->Draw(plotString + ">>+" + nameString, cutString, optString);
                 }
 
-                if (GetVerboseLevel() >= REST_Debug) {
-                    cout << endl;
-                    cout << "--------------------------------------" << endl;
-                    cout << "Plot name : " << fPlotNames[n] << endl;
-                    cout << "Plot string : " << plotString << endl;
-                    cout << "Cut string : " << fCutString[n] << endl;
-                    cout << "Plot option : " << fPlotOption[n] << endl;
-                    cout << "++++++++++++++++++++++++++++++++++++++" << endl;
-                }
-
-                if (trees[i][m]->Draw(plotString, fCutString[n], fPlotOption[n]) == -1) {
+                if (outVal == -1) {
                     ferr << endl;
                     ferr << "TRestAnalysisPlot::PlotCombinedCanvas. Plot string not properly constructed. "
                             "Does the analysis observable exist inside the file?"
@@ -652,156 +541,215 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                     exit(1);
                 }
             }
+            if (drawn == false) {
+                warning << "TRestAnalysisPlot: no input file matches condition for histogram: " << hist.name
+                        << ", this histogram is empty" << endl;
+                plot.histos.erase(plot.histos.begin() + i);
+                i--;
+            } else {
+                // adjust the histogram
+                TH3F* htemp = (TH3F*)gPad->GetPrimitive(nameString);
+                htemp->SetTitle(plot.title.c_str());
+                htemp->SetStats(plot.staticsOn);
 
-            histCollection.push_back((TH3F*)gPad->GetPrimitive(hName[i]));
+                htemp->GetXaxis()->SetTitle(plot.labelX.c_str());
+                htemp->GetYaxis()->SetTitle(plot.labelY.c_str());
+
+                htemp->GetXaxis()->SetLabelSize(fTicksScaleX * htemp->GetXaxis()->GetLabelSize());
+                htemp->GetYaxis()->SetLabelSize(fTicksScaleY * htemp->GetYaxis()->GetLabelSize());
+                htemp->GetXaxis()->SetTitleSize(fLabelScaleX * htemp->GetXaxis()->GetTitleSize());
+                htemp->GetYaxis()->SetTitleSize(fLabelScaleY * htemp->GetYaxis()->GetTitleSize());
+                htemp->GetXaxis()->SetTitleOffset(fLabelOffsetX * htemp->GetXaxis()->GetTitleOffset());
+                htemp->GetYaxis()->SetTitleOffset(fLabelOffsetY * htemp->GetYaxis()->GetTitleOffset());
+                htemp->GetXaxis()->SetNdivisions(-5);
+
+                htemp->SetLineColor(hist.lineColor);
+                htemp->SetLineWidth(hist.lineWidth);
+                htemp->SetLineStyle(hist.lineStyle);
+                htemp->SetFillColor(hist.fillColor);
+                htemp->SetFillStyle(hist.fillStyle);
+
+                htemp->SetDrawOption(hist.drawOption.c_str());
+
+                histCollectionPlot.push_back(htemp);
+            }
         }
 
-        Double_t maxValue = 0;
-        for (unsigned int i = 0; i < fLegendName.size(); i++) {
-            Double_t value = histCollection[i]->GetBinContent(histCollection[i]->GetMaximumBin());
-            if (i == 0)
-                maxValue = value;
-            else if (value > maxValue)
-                maxValue = value;
-
-            TH3F* htemp = histCollection[i];
-            htemp->SetStats(fStats[n]);
-
-            htemp->SetTitle(fPlotTitle[n]);
-            htemp->GetXaxis()->SetTitle(fPlotXLabel[n]);
-            htemp->GetYaxis()->SetTitle(fPlotYLabel[n]);
-
-            htemp->GetXaxis()->SetLabelSize(fTicksScaleX * htemp->GetXaxis()->GetLabelSize());
-            htemp->GetYaxis()->SetLabelSize(fTicksScaleY * htemp->GetYaxis()->GetLabelSize());
-
-            htemp->GetXaxis()->SetTitleSize(fLabelScaleX * htemp->GetXaxis()->GetTitleSize());
-            htemp->GetYaxis()->SetTitleSize(fLabelScaleY * htemp->GetYaxis()->GetTitleSize());
-
-            htemp->GetXaxis()->SetTitleOffset(fLabelOffsetX * htemp->GetXaxis()->GetTitleOffset());
-            htemp->GetYaxis()->SetTitleOffset(fLabelOffsetY * htemp->GetYaxis()->GetTitleOffset());
-
-            htemp->GetXaxis()->SetNdivisions(-5);
-
-            htemp->SetLineColor(fLineColor[i]);
-            htemp->SetLineWidth(fLineWidth[i]);
-            htemp->SetLineStyle(fLineStyle[i]);
-            htemp->SetFillColor(fFillColor[i]);
-            htemp->SetFillStyle(fFillStyle[i]);
-
-            /*
-            if( fPlotXLabel[n].Contains("Time") ||  fPlotXLabel[n].Contains("time") )
-            {
-                Double_t hours = (fEndTime-fStartTime)/3600.;
-                htemp->GetXaxis()->SetTimeOffset( 0, "gmt" );
-                if( hours < 24 )
-                    htemp->GetXaxis()->SetTimeFormat("%Hh %Mm");
-                else
-                    htemp->GetXaxis()->SetTimeFormat("%Hh %d/%b");
-                htemp->GetXaxis()->SetTimeDisplay(1);
-            }
-            */
+        if (histCollectionPlot.size() == 0) {
+            warning << "TRestAnalysisPlot: pad empty for the plot: " << plot.name << endl;
+            continue;
         }
 
-        TLegend* legend = new TLegend(fLegendX1, fLegendY1, fLegendX2, fLegendY2);
-        for (unsigned int i = 0; i < fLegendName.size(); i++) {
-            legend->AddEntry(histCollection[i], fLegendName[i], "lf");
-
-            histCollection[i]->SetStats(fStats[n]);
-
-            Double_t scale = 1.;
-
-            if (fNormalize[n] > 0) {
-                scale = fNormalize[n] / (histCollection[i]->Integral());
-                histCollection[i]->Scale(scale);
+        // scale the histograms
+        if (plot.normalize > 0) {
+            for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
+                Double_t scale = 1.;
+                if (histCollectionPlot[i]->Integral() > 0) {
+                    scale = plot.normalize / histCollectionPlot[i]->Integral();
+                    histCollectionPlot[i]->Scale(scale);
+                }
             }
+        }
 
-            Double_t yMin = fYRangeUser[n].X();
-            Double_t yMax = fYRangeUser[n].Y();
-
-            if (yMin == 0 && yMax == 0) {
-                yMin = 0.1 * scale;
-                yMax = 1.1 * maxValue * scale;
+        // draw to the pad
+        Double_t maxValue_Pad = 0;
+        int maxID = 0;
+        for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
+            // need to draw the max histogram first, in order to prevent peak hidden problem
+            Double_t value = histCollectionPlot[i]->GetBinContent(histCollectionPlot[i]->GetMaximumBin());
+            if (i == 0) {
+                maxValue_Pad = value;
+            } else if (value > maxValue_Pad) {
+                maxValue_Pad = value;
+                maxID = i;
             }
+        }
+        histCollectionPlot[maxID]->Draw(plot.histos[maxID].drawOption.c_str());
+        if (((string)histCollectionPlot[maxID]->ClassName()).find("TH1") != -1) {
+            histCollectionPlot[maxID]->GetYaxis()->SetRangeUser(plot.logY, maxValue_Pad * 1.2);
+        }
+        for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
+            // draw the remaining histo
+            if (i != maxID) {
+                histCollectionPlot[i]->Draw((plot.histos[maxID].drawOption + "same").c_str());
+            }
+        }
 
-            debug << "++++++++++++++" << endl;
-            debug << "yMin : " << yMin << " yMax : " << yMax << endl;
-            debug << "++++++++++++++" << endl;
-            histCollection[i]->GetYaxis()->SetRangeUser(yMin, yMax);
-
-            if (i == 0)
-                histCollection[i]->Draw(fPlotOption[n]);
-            else
-                histCollection[i]->Draw("same");
-
+        // save histogram to root file
+        for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
             if (fRun != NULL) {
                 fOutputRootFile->cd();
-                histCollection[i]->Write(hName[i]);
+                histCollectionPlot[i]->Write();
             }
         }
-        if (fLegend[n]) legend->Draw("same");
 
-        if (fPlotSaveToFile[n] != "Notdefined" && fPlotSaveToFile[n] != "")
-            SavePlotToPDF(fPlotNames[n], fPlotSaveToFile[n]);
+        // draw legend
+        if (plot.legendOn) {
+            TLegend* legend = new TLegend(fLegendX1, fLegendY1, fLegendX2, fLegendY2);
+            for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
+                legend->AddEntry(histCollectionPlot[i], histCollectionPlot[i]->GetName(), "lf");
+            }
+            legend->Draw("same");
+        }
+
+        // draw annotation, mainly the cut string
+        vector<pair<double, double>> plotted_text_Y;
+        if (plot.annotationOn) {
+            for (int i = 0; i < histCollectionPlot.size(); i++) {
+                // place annotation only for 1D histograms
+                TH3F* htemp = histCollectionPlot[i];
+                if (((string)htemp->ClassName()).find("TH1") != -1) {
+                    // annotation for the cut, it will be like: sAna_NumberOfGoodSignals>30 && ...
+                    string cutannotation = plot.histos[i].cutString;
+                    // annotation for file classifying, it will be like: FileName: run123.root
+                    string classifyannotation = "";
+                    auto iter = plot.histos[i].classifyMap.begin();
+                    while (iter != plot.histos[i].classifyMap.end()) {
+                        classifyannotation += iter->first + ": " + iter->second;
+                        iter++;
+                        if (iter != plot.histos[i].classifyMap.end()) classifyannotation += ", ";
+                    }
+
+                    string annotation = cutannotation != "" ? cutannotation : classifyannotation;
+                    if (annotation == "") annotation = "no cut";
+
+                    // calculate x start position of the annotation, according to the max bin of the histogram
+                    int maxbin = htemp->GetMaximumBin();
+                    int Nbins = htemp->GetNbinsX();
+                    double maxval_hist = htemp->GetBinContent(maxbin);
+
+                    double size = 0.04;
+                    double x_pos_relative = plot.logX ? log(maxbin) / log(Nbins) : maxbin / (double)Nbins;
+                    double y_pos_relative = plot.logY ? log(maxval_hist) / log(maxValue_Pad * 1.2)
+                                                      : maxval_hist / (maxValue_Pad * 1.2);
+
+                    int align = 0;
+                    int nCharacterPreLine;
+                    if (x_pos_relative > 0.5) {
+                        align = kHAlignRight + kVAlignCenter;
+                        x_pos_relative -= 0.01;
+                        nCharacterPreLine =
+                            x_pos_relative * fCanvasSize.X() / fCanvasDivisions.X() / size / 400;
+                    } else {
+                        align = kHAlignLeft + kVAlignCenter;
+                        x_pos_relative += 0.01;
+                        nCharacterPreLine =
+                            (1 - x_pos_relative) * fCanvasSize.X() / fCanvasDivisions.X() / size / 400;
+                    }
+
+                    double xpos = plot.logX ? htemp->GetBinCenter(exp(x_pos_relative * log(Nbins)))
+                                            : x_pos_relative * htemp->GetBinCenter(Nbins);
+
+                    // split the long annotation
+                    vector<string> annotation_multi_text;
+                    for (int j = 0; j < annotation.size(); j += nCharacterPreLine) {
+                        annotation_multi_text.push_back(annotation.substr(j, nCharacterPreLine));
+                    }
+
+                    // adjust y position to avoid overlap
+                    double yup = y_pos_relative + size;
+                    double ydown = yup - size * annotation_multi_text.size();
+
+                    double shift_value;
+                    for (double shift = 0; shift < 0.5; shift += size) {
+                        bool overlap = false;
+                        shift_value = yup > 0.5 ? -shift : shift;
+                        for (int j = 0; j < plotted_text_Y.size(); j++) {
+                            if (yup + shift > plotted_text_Y[j].second &&
+                                yup + shift < plotted_text_Y[j].first) {
+                                overlap = true;
+                                break;
+                            }
+                            if (ydown + shift > plotted_text_Y[j].second &&
+                                ydown + shift < plotted_text_Y[j].first) {
+                                overlap = true;
+                                break;
+                            }
+                            if (ydown + shift == plotted_text_Y[j].second &&
+                                yup + shift == plotted_text_Y[j].first) {
+                                overlap = true;
+                                break;
+                            }
+                        }
+                        if (!overlap) {
+                            break;
+                        }
+                    }
+                    yup += shift_value;
+                    ydown += shift_value;
+                    plotted_text_Y.push_back({yup, ydown});
+
+                    // draw
+                    for (int j = 0; j < annotation_multi_text.size(); j++) {
+                        double yy = plot.logY ? exp((yup - (j + 1) * size) * log(maxValue_Pad * 1.2))
+                                              : (yup - (j + 1) * size) * maxValue_Pad * 1.2;
+
+                        TLatex* text = new TLatex(xpos, yy, annotation_multi_text[j].c_str());
+                        text->SetTextAlign(align);
+                        text->SetTextSize(size);
+                        text->SetTextColor(plot.histos[i].lineColor);
+                        text->Draw("same");
+                    }
+                }
+            }
+        }
+
+        // save pad
+        targetPad->Update();
+        if (plot.save != "") SavePlotToPDF(plot.save, n + 1);
+
         fCombinedCanvas->Update();
     }
 
-    /* {{{ Acumulating and plotting histograms present in the file */
-    ////// TODO : Needs to be reviewed to WORK with the new version of runTag
-    /// classification (20180620).
-    /*
-for (unsigned int n = 0; n < fHistoNames.size(); n++) {
-    cout << "Histo names : " << fHistoNames[n] << endl;
-    fCombinedCanvas->cd((Int_t)fPlotString.size() + n + 1);
-
-    runs[0][0]->GetInputFile()->cd();
-
-    TH1D* h = (TH1D*)runs[0][0]->GetInputFile()->Get(fHistoNames[n]);
-
-    if (!h) {
-        ferr << "TRestAnalysisPlot. A histogram with name : " << fHistoNames[n]
-             << " does not exist in input file" << endl;
-        exit(1);
-    }
-
-    Int_t nB = h->GetNbinsX();
-    Int_t bX = h->GetXaxis()->GetBinCenter(1) - 0.5;
-    Int_t bY = h->GetXaxis()->GetBinCenter(h->GetNbinsX()) + 0.5;
-
-    TH1D* hNew = new TH1D("New_" + (TString)fHistoNames[n], fHistoNames[n], nB, bX, bY);
-
-    for (unsigned int m = 0; m < fFileNames[0].size(); m++) {
-        TH1D* aHist = (TH1D*)runs[0][m]->GetInputFile()->Get(fHistoNames[n]);
-        runs[0][m]->GetInputFile()->cd();
-        hNew->Add(aHist);
-    }
-
-    if (fStats[n] == kFALSE) hNew->SetStats(kFALSE);
-
-    hNew->SetTitle(fHistoTitle[n]);
-    hNew->GetYaxis()->SetTitle(fHistoXLabel[n]);
-    hNew->GetYaxis()->SetTitle(fHistoYLabel[n]);
-
-    hNew->Draw(fPlotOption[n]);
-
-    if (fRun != NULL) {
-        fOutputRootFile->cd();
-        hNew->Write(fHistoNames[n]);
-    }
-
-    if (fHistoSaveToFile[n] != "Notdefined" && fHistoSaveToFile[n] != "")
-        SaveHistoToPDF(hNew, n, fHistoSaveToFile[n]);
-    fCombinedCanvas->Update();
-} */
-    /* }}} */
-
-    // Saving to a PDF file
-    fCanvasSave = ReplaceFilenameTags(fCanvasSave, fFileNames[0][0]);
+    // Save canvas to a PDF file
+    fCanvasSave = fRunInputFile[0]->FormFormat(fCanvasSave);
     if (fCanvasSave != "") fCombinedCanvas->Print(fCanvasSave);
 
-    if (ToUpper(GetParameter("previewPlot", "TRUE")) == "TRUE") {
+    if (StringToBool(GetParameter("previewPlot", "TRUE"))) {
         GetChar();
     }
 
+    // Save this class to the root file
     if (fRun != NULL && fOutputRootFile != NULL) {
         fOutputRootFile->cd();
         this->Write();
@@ -809,68 +757,55 @@ for (unsigned int n = 0; n < fHistoNames.size(); n++) {
     }
 }
 
-void TRestAnalysisPlot::SavePlotToPDF(TString plotName, TString fileName) {
-    Int_t index = GetPlotIndex(plotName);
-    if (index >= 0)
-        SavePlotToPDF(index, fileName);
-    else
-        warning << "Save to plot failed. Plot name " << plotName << " not found" << endl;
-}
+void TRestAnalysisPlot::SaveCanvasToPDF(TString fileName) { fCombinedCanvas->Print(fileName); }
 
-void TRestAnalysisPlot::SavePlotToPDF(Int_t n, TString fileName) {
-    gErrorIgnoreLevel = 10;
+void TRestAnalysisPlot::SavePlotToPDF(TString fileName, Int_t n) {
+    // gErrorIgnoreLevel = 10;
 
-    TCanvas* c = new TCanvas(fPlotNames[n], fPlotNames[n], 800, 600);
-
-    TRestRun* run = new TRestRun();
-    run->OpenInputFile(fFileNames[0][0]);
-
-    TRestAnalysisTree* anTree = run->GetAnalysisTree();
-    anTree->Draw(fPlotString[n], fCutString[n], fPlotOption[n], anTree->GetEntries(), 0);
-
-    TH3F* htemp = (TH3F*)gPad->GetPrimitive(fPlotNames[n]);
-    htemp->SetTitle(fPlotTitle[n]);
-    htemp->GetXaxis()->SetTitle(fPlotXLabel[n]);
-    htemp->GetYaxis()->SetTitle(fPlotYLabel[n]);
-    htemp->SetStats(fStats[n]);
-
-    c->Print(fileName);
-
-    delete c;
-}
-
-void TRestAnalysisPlot::SaveHistoToPDF(TH1D* h, Int_t n, TString fileName) {
-    gErrorIgnoreLevel = 10;
-
-    TCanvas* c = new TCanvas(h->GetName(), h->GetTitle(), 800, 600);
-
-    h->Draw("colz");
-
-    h->SetTitle(fHistoTitle[n]);
-    h->GetXaxis()->SetTitle(fHistoXLabel[n]);
-    h->GetYaxis()->SetTitle(fHistoYLabel[n]);
-
-    h->Draw("colz");
-    c->Print(fileName);
-
-    delete c;
-}
-
-TString TRestAnalysisPlot::ReplaceFilenameTags(TString filename, TString runFilename) {
-    TRestRun* run = new TRestRun();
-    run->OpenInputFile(runFilename);
-    TString output = run->FormFormat(filename);
-    return output;
-}
-
-TRestAnalysisTree* TRestAnalysisPlot::GetAnalysisTree(TString fileName) {
-    TFile* f = new TFile(fileName);
-    TIter nextkey(f->GetListOfKeys());
-    TKey* key;
-    while ((key = (TKey*)nextkey())) {
-        string kName = key->GetClassName();
-        if (kName == "TRestAnalysisTree") {
-            return ((TRestAnalysisTree*)f->Get(key->GetName()));
-        }
+    if (n == 0) {
+        fCombinedCanvas->Print(fileName);
+        return;
     }
+
+    TPad* pad = (TPad*)fCombinedCanvas->GetPad(n);
+
+    TCanvas* c = new TCanvas(fPlots[n].name.c_str(), fPlots[n].name.c_str(), 800, 600);
+    pad->DrawClone();
+
+    c->Print(fileName);
+
+    delete c;
+    return;
 }
+
+void TRestAnalysisPlot::SaveHistoToPDF(TString fileName, Int_t nPlot, Int_t nHisto) {
+    string name = fPlots[nPlot].histos[nHisto].name;
+    TH3F* hist = (TH3F*)gPad->GetPrimitive(name.c_str());
+
+    TCanvas* c = new TCanvas(name.c_str(), name.c_str(), 800, 600);
+
+    hist->Draw();
+
+    c->Print(fileName);
+
+    delete c;
+    return;
+}
+
+//
+// void TRestAnalysisPlot::SaveHistoToPDF(TH1D* h, Int_t n, TString fileName) {
+//    gErrorIgnoreLevel = 10;
+//
+//    TCanvas* c = new TCanvas(h->GetName(), h->GetTitle(), 800, 600);
+//
+//    h->Draw("colz");
+//
+//    h->SetTitle(fHistoTitle[n]);
+//    h->GetXaxis()->SetTitle(fHistoXLabel[n]);
+//    h->GetYaxis()->SetTitle(fHistoYLabel[n]);
+//
+//    h->Draw("colz");
+//    c->Print(fileName);
+//
+//    delete c;
+//}
