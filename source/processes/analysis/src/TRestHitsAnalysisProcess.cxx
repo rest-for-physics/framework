@@ -185,8 +185,6 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         fOutputHitsEvent->AddHit(x, y, z, eDep);
     }
 
-    if (fOutputHitsEvent->GetNumberOfHits() == 0) return NULL;
-
     Double_t energy = fOutputHitsEvent->GetEnergy();
     TVector3 meanPosition = fOutputHitsEvent->GetMeanPosition();
     Double_t sigmaX = fOutputHitsEvent->GetSigmaX();
@@ -210,7 +208,7 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     SetObservableValue("nHitsY", nHitsY);
 
-    SetObservableValue("balanceXYnHits", (nHitsX - nHitsY) / (nHitsX + nHitsY));
+    SetObservableValue("balanceXYnHits", (nHitsX - nHitsY) / double(nHitsX + nHitsY));
 
     if ((nHits == nHitsX) || (nHits == nHitsY))
         SetObservableValue("nHitsSizeXY", nHits);
@@ -336,6 +334,8 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         fOutputHitsEvent->PrintEvent(1000);
         GetChar();
     }
+
+    if (fOutputHitsEvent->GetNumberOfHits() == 0) return NULL;
 
     return fOutputHitsEvent;
 }
