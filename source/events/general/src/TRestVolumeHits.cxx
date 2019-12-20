@@ -30,20 +30,49 @@ TRestVolumeHits::~TRestVolumeHits() {
     // TRestVolumeHits destructor
 }
 
-void TRestVolumeHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t sigmax,
-                             Double_t sigmay, Double_t sigmaz) {
-    TRestHits::AddHit(x, y, z, en);
+void TRestVolumeHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t time,
+                             REST_HitType type, Double_t sigmax, Double_t sigmay, Double_t sigmaz) {
+    if (fType.size() > 0 && type != fType[0]) {
+        cout << "Error! Cannot add different typed hits into TRestVolumeHits!" << endl;
+        return;
+    }
+
+    TRestHits::AddHit(x, y, z, en, time, type);
     fSigmaX.push_back((Float_t)sigmax);
     fSigmaY.push_back((Float_t)sigmay);
     fSigmaZ.push_back((Float_t)sigmaz);
 }
 
-void TRestVolumeHits::AddHit(TVector3 pos, Double_t en, TVector3 sigma) {
-    TRestHits::AddHit(pos, en);
+void TRestVolumeHits::AddHit(TVector3 pos, Double_t en, Double_t time, REST_HitType type, TVector3 sigma) {
+    if (fType.size() > 0 && type != fType[0]) {
+        cout << "Error! Cannot add different typed hits into TRestVolumeHits!" << endl;
+        return;
+    }
 
+    TRestHits::AddHit(pos, en, time, type);
     fSigmaX.push_back((Float_t)sigma.X());
     fSigmaY.push_back((Float_t)sigma.Y());
     fSigmaZ.push_back((Float_t)sigma.Z());
+}
+
+void TRestVolumeHits::AddHit(TRestVolumeHits& hits, Int_t n) {
+    Double_t x = hits.GetX(n);
+    Double_t y = hits.GetY(n);
+    Double_t z = hits.GetZ(n);
+    Double_t t = hits.GetTime(n);
+    Double_t en = hits.GetEnergy(n);
+    REST_HitType type = hits.GetType(n);
+
+    Double_t sx = hits.GetSigmaX(n);
+    Double_t sy = hits.GetSigmaY(n);
+    Double_t sz = hits.GetSigmaZ(n);
+
+    if (fType.size() > 0 && type != fType[0]) {
+        cout << "Error! Cannot add different typed hits into TRestVolumeHits!" << endl;
+        return;
+    }
+
+    AddHit(x, y, z, en, t, type, sx, sy, sz);
 }
 
 void TRestVolumeHits::RemoveHits() {
@@ -52,6 +81,31 @@ void TRestVolumeHits::RemoveHits() {
     fSigmaX.clear();
     fSigmaY.clear();
     fSigmaZ.clear();
+}
+
+Bool_t TRestVolumeHits::areXY() {
+    if (fType.size() == 0)
+        return TMath::IsNaN(fZ[0]) && !TMath::IsNaN(fX[0]) && !TMath::IsNaN(fY[0]);
+    else
+        return fType[0] == XY;
+}
+Bool_t TRestVolumeHits::areXZ() {
+    if (fType.size() == 0)
+        return !TMath::IsNaN(fZ[0]) && !TMath::IsNaN(fX[0]) && TMath::IsNaN(fY[0]);
+    else
+        return fType[0] == XZ;
+}
+Bool_t TRestVolumeHits::areYZ() {
+    if (fType.size() == 0)
+        return !TMath::IsNaN(fZ[0]) && TMath::IsNaN(fX[0]) && !TMath::IsNaN(fY[0]);
+    else
+        return fType[0] == YZ;
+}
+Bool_t TRestVolumeHits::areXYZ() {
+    if (fType.size() == 0)
+        return !TMath::IsNaN(fZ[0]) && !TMath::IsNaN(fX[0]) && !TMath::IsNaN(fY[0]);
+    else
+        return fType[0] == XYZ;
 }
 
 void TRestVolumeHits::MergeHits(Int_t n, Int_t m) {
