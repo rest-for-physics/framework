@@ -193,7 +193,7 @@ Int_t TRestHitsToTrackProcess::FindTracks(TRestHits* hits) {
             TVector3 pos(x, y, z);
             TVector3 sigma(0., 0., 0.);
 
-            volHit.AddHit(pos, en, sigma);
+            volHit.AddHit(pos, en, 0, hits->GetType(Q[nhit]), sigma);
 
             hits->RemoveHit(Q[nhit]);
         }
