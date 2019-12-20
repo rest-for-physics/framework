@@ -73,8 +73,8 @@ class TRestHitsEvent : public TRestEvent {
     TRestHits* fHits;  //->
 
    public:
-    void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0);
-    void AddHit(TVector3 pos, Double_t en, Double_t t = 0);
+    void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
+    void AddHit(TVector3 pos, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
 
     void RemoveHits();
 
@@ -95,6 +95,8 @@ class TRestHitsEvent : public TRestEvent {
 
     /// Returns the Z-coordinate of hit entry `n` in mm.
     Double_t GetZ(int n) { return fHits->GetZ(n); }
+
+    REST_HitType GetType(int n) { return fHits->GetType(n); }
 
     /// Returns the squared distance between hits `n` and `m`.
     Double_t GetDistance2(int n, int m) { return fHits->GetDistance2(n, m); }
