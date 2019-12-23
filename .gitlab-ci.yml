@@ -121,8 +121,10 @@ testDrawing:
 
 testProcesses:
     type: processes
+    variables:
+        arg1: ${CI_PROJECT_DIR}/source/processes/
     script:
-        - python ${CI_PROJECT_DIR}/macros/pipeline/validateProcesses.py
+        - python ${CI_PROJECT_DIR}/macros/pipeline/validateProcesses.py $arg1
 
 deploy:
   type: deploy
