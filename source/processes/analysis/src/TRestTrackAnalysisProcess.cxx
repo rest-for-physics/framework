@@ -399,11 +399,6 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     SetObservableValue((string) "nTracks_XYZ", nTracksXYZ);
     /* }}} */
 
-    if (fCutsEnabled) {
-        if (nTracksX < fNTracksXCut.X() || nTracksX > fNTracksXCut.Y()) return NULL;
-        if (nTracksY < fNTracksYCut.X() || nTracksY > fNTracksYCut.Y()) return NULL;
-    }
-
     /* {{{ Producing nTracks above/below threshold ( nTracks_LE/HE_XXX ) */
     for (unsigned int n = 0; n < nTracks_HE.size(); n++) nTracks_HE[n] = 0;
 
@@ -973,6 +968,11 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     if (fPreviousEventTime.size() == 100)
         meanRate = 100. / (fInputTrackEvent->GetTime() - fPreviousEventTime.front());
     SetObservableValue((string) "MeanRate_InHz", meanRate);
+
+    if (fCutsEnabled) {
+        if (nTracksX < fNTracksXCut.X() || nTracksX > fNTracksXCut.Y()) return NULL;
+        if (nTracksY < fNTracksYCut.X() || nTracksY > fNTracksYCut.Y()) return NULL;
+    }
 
     //   if( GetVerboseLevel() >= REST_Info )
     //   {
