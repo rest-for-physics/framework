@@ -20,7 +20,7 @@ def validateProcess( className ):
         data = data[data.find( "ProcessEvent" ):]
 
         data = getMethodDefinition( data )
-        nullPos = data.rfind("RETURN NULL")
+        nullPos = data.find("RETURN ")
         if nullPos != -1:
             lastObsValue = data.rfind( "SETOBSERVABLEVALUE" )
             if lastObsValue > nullPos:
