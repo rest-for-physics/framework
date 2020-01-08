@@ -539,9 +539,8 @@ void TRestRun::ReadInputFileTrees() {
                 TBranch* br = (TBranch*)branches->At(branches->GetLast());
 
                 if (Count(br->GetName(), "EventBranch") == 0) {
-                    warning << "REST WARNING (OpenInputFile) : No event branch inside file : " << filename
-                            << endl;
-                    warning << "This file may be a pure analysis file" << endl;
+                    info << "No event branch inside file : " << filename << endl;
+                    info << "This file may be a pure analysis file" << endl;
                 } else {
                     string type = Replace(br->GetName(), "Branch", "", 0);
                     fInputEvent = (TRestEvent*)TClass::GetClass(type.c_str())->New();
