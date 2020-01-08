@@ -94,8 +94,6 @@ TRestEvent* TRestTriggerAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     Int_t maxT = fSignalEvent->GetMaxTime();
     Int_t minT = fSignalEvent->GetMinTime();
 
-    if (fSignalEvent->GetNumberOfSignals() <= 0) return fSignalEvent;
-
     Int_t triggerStarts = 0;
 
     unsigned int counter = 0;
@@ -124,6 +122,8 @@ TRestEvent* TRestTriggerAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     SetObservableValue("RawIntegral", full);
     SetObservableValue("TriggerStarts", triggerStarts);
+
+    if (fSignalEvent->GetNumberOfSignals() <= 0) return fSignalEvent;
 
     return fSignalEvent;
 }
