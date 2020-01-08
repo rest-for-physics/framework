@@ -8,6 +8,7 @@ stages:
   - process1
   - process2
   - drawing
+  - processes
   - deploy
 
 before_script:
@@ -25,8 +26,6 @@ build:
     paths:
       - ${CI_PROJECT_DIR}/install
     expire_in: 1 day
-     
-
 
 testOpeningOld:
   type: opening
@@ -61,8 +60,6 @@ testMeta:
     paths:
       - ${CI_PROJECT_DIR}/install/examples/meta.root
     expire_in: 1 day
-      
-
 
 testProcessRaw: 
   type: process1
@@ -122,7 +119,12 @@ testDrawing:
       - ${CI_PROJECT_DIR}/install/examples/spec.pdf
     expire_in: 1 week
 
-
+testProcesses:
+    type: processes
+    variables:
+        arg1: ${CI_PROJECT_DIR}/source/processes/
+    script:
+        - python ${CI_PROJECT_DIR}/macros/pipeline/validateProcesses.py $arg1
 
 deploy:
   type: deploy

@@ -426,9 +426,6 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         ;
     }
 
-    if (energy < fLowEnergyCut) return NULL;
-    if (fHighEnergyCut > 0 && energy > fHighEnergyCut) return NULL;
-
     /* {{{ Event origin variables */
     Double_t xOrigin = fOutputG4Event->GetPrimaryEventOrigin().X();
     SetObservableValue((string) "xOriginPrimary", xOrigin);
@@ -579,6 +576,11 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         cout << "G4 Tracks : " << fOutputG4Event->GetNumberOfTracks() << endl;
         cout << "----------------------------" << endl;
     }
+
+    // These cuts should be in another process or eliminated?!!
+    if (energy < fLowEnergyCut) return NULL;
+    if (fHighEnergyCut > 0 && energy > fHighEnergyCut) return NULL;
+
     return fOutputG4Event;
 }
 
