@@ -65,12 +65,15 @@ void EventAction::BeginOfEventAction(const G4Event* geant4_event) {
 
     G4int event_number = geant4_event->GetEventID();
 
-    if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
-        cout << "INFO: Start of event ID " << event_number << " (" << event_number + 1 << " of "
+    restG4Metadata->GetVerboseLevel();
+
+    if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
+        cout << "DEBUG: Start of event ID " << event_number << " (" << event_number + 1 << " of "
              << restG4Metadata->GetNumberOfEvents() << ")" << endl;
-    } else if (geant4_event->GetEventID() % 10000 == 0) {
+    } else if (restG4Metadata->GetVerboseLevel() >= REST_Info && geant4_event->GetEventID() % 10000 == 0) {
         cout << "INFO: Start of event ID " << event_number << " (" << event_number + 1 << " of "
-             << restG4Metadata->GetNumberOfEvents() << ")" << endl;
+             << restG4Metadata->GetNumberOfEvents() << ")" << endl
+             << endl;
     }
 
     restTrack->Initialize();
@@ -106,6 +109,8 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
 
     SetTrackSubeventIDs();
 
+    Bool_t is_sensitive = false;
+
     for (int subId = 0; subId < restG4Event->GetNumberOfSubEventIDTracks(); subId++) {
         FillSubEvent(subId);
 
@@ -115,16 +120,28 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
         if (minimum_energy_stored < 0) minimum_energy_stored = 0;
         if (maximum_energy_stored == 0) maximum_energy_stored = total_deposited_energy + 1.;
 
+        is_sensitive = sensitive_volume_deposited_energy > 0 &&
+                           total_deposited_energy > minimum_energy_stored &&
+                           total_deposited_energy < maximum_energy_stored ||
+                       saveGeantino;
+
         if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
-            cout << "INFO: Energy deposited in ACTIVE and SENSITIVE volumes: " << total_deposited_energy
-                 << " keV" << endl;
-            cout << "INFO: Energy deposited in SENSITIVE volume: " << sensitive_volume_deposited_energy
-                 << " keV" << endl;
+            string debug_level = "INFO";
+            if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
+                debug_level = "DEBUG";
+            }
+
+            if (is_sensitive || restG4Metadata->GetVerboseLevel() >= REST_Debug) {
+                cout << debug_level
+                     << ": Energy deposited in ACTIVE and SENSITIVE volumes: " << total_deposited_energy
+                     << " keV" << endl;
+                cout << debug_level
+                     << ": Energy deposited in SENSITIVE volume: " << sensitive_volume_deposited_energy
+                     << " keV" << endl;
+            }
         }
 
-        if (sensitive_volume_deposited_energy > 0 && total_deposited_energy > minimum_energy_stored &&
-                total_deposited_energy < maximum_energy_stored ||
-            saveGeantino) {
+        if (is_sensitive) {
             sensitive_volume_hits_count += 1;
 
             // call `ReOrderTrackIds` which before was integrated into `FillSubEvent`
@@ -157,11 +174,19 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
     }
 
     if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
-        cout << "INFO: Events depositing energy in sensitive volume: " << sensitive_volume_hits_count << "/"
-             << event_number + 1 << endl;
-        cout << "INFO: End of event ID " << event_number << " (" << event_number + 1 << " of "
-             << restG4Metadata->GetNumberOfEvents() << ")" << endl;
-        cout << endl;
+        string debug_level = "INFO";
+        if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
+            debug_level = "DEBUG";
+        }
+
+        if (is_sensitive || restG4Metadata->GetVerboseLevel() >= REST_Debug) {
+            cout << debug_level
+                 << ": Events depositing energy in sensitive volume: " << sensitive_volume_hits_count << "/"
+                 << event_number + 1 << endl;
+            cout << debug_level << ": End of event ID " << event_number << " (" << event_number + 1 << " of "
+                 << restG4Metadata->GetNumberOfEvents() << ")" << endl;
+            cout << endl;
+        }
     }
 }
 
