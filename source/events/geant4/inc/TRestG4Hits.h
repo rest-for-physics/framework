@@ -34,7 +34,6 @@ class TRestG4Hits : public TRestHits {
     Int_t GetProcess(int n) { return fProcessID[n]; }
 
     void AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process, Int_t volume);
-    void AddG4Hit(Double_t X, Double_t Y, Double_t Z, Double_t en, Int_t process, Int_t volume);
     void RemoveG4Hits();
 
     Int_t GetHitProcess(int n) { return fProcessID[n]; }
