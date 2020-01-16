@@ -43,6 +43,8 @@ class TRestTriggerAnalysisProcess : public TRestEventProcess {
     //
 
     Double_t fW;
+    Double_t fSampling;
+    Int_t fADCLength;
 
    public:
     void InitProcess();

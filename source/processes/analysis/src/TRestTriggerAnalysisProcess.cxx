@@ -91,21 +91,23 @@ TRestEvent* TRestTriggerAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     for (unsigned int i = 0; i < fIntegralObservables.size(); i++) integral.push_back(0);
 
-    Int_t maxT = fSignalEvent->GetMaxTime();
-    Int_t minT = fSignalEvent->GetMinTime();
+    Int_t maxT = fSignalEvent->GetMaxTime() / fSampling;  // convert to time bin
+    Int_t minT = fSignalEvent->GetMinTime() / fSampling;
+
+    // cout << maxT << " " << minT << endl;
 
     Int_t triggerStarts = 0;
 
     unsigned int counter = 0;
     unsigned int nObs = fIntegralObservables.size();
-    for (int i = minT - 256; i <= maxT && counter < nObs; i++) {
-        Double_t en = fSignalEvent->GetIntegralWithTime(i, i + 256);
+    for (int i = minT - fADCLength / 2; i <= maxT && counter < nObs; i++) {
+        Double_t en = fSignalEvent->GetIntegralWithTime(i * fSampling, (i + fADCLength / 2) * fSampling);
 
         for (unsigned int n = 0; n < nObs; n++)
             if (integral[n] == 0 && en > fThreshold[n]) {
                 // We define the trigger start only for the first threshold definition
                 if (n == 0) triggerStarts = i;
-                integral[n] = fSignalEvent->GetIntegralWithTime(i, i + 512);
+                integral[n] = fSignalEvent->GetIntegralWithTime(i * fSampling, (i + fADCLength) * fSampling);
             }
 
         // Break condition
@@ -118,7 +120,7 @@ TRestEvent* TRestTriggerAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         SetObservableValue(fIntegralObservables[i], integral[i]);
     }
 
-    Double_t full = fSignalEvent->GetIntegralWithTime(minT - 1, maxT + 1);
+    Double_t full = fSignalEvent->GetIntegralWithTime(minT * fSampling - 1, maxT * fSampling + 1);
 
     SetObservableValue("RawIntegral", full);
     SetObservableValue("TriggerStarts", triggerStarts);
@@ -142,4 +144,7 @@ void TRestTriggerAnalysisProcess::EndProcess() {
 }
 
 //______________________________________________________________________________
-void TRestTriggerAnalysisProcess::InitFromConfigFile() {}
+void TRestTriggerAnalysisProcess::InitFromConfigFile() {
+    fSampling = GetDblParameterWithUnits("sampling", 0.2 * units("us"));
+    fADCLength = StringToInteger(GetParameter("ADCLength", "512"));
+}
