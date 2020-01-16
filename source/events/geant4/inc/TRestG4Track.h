@@ -248,7 +248,7 @@ class TRestG4Track : public TObject {
     // Destructor
     virtual ~TRestG4Track();
 
-    ClassDef(TRestG4Track, 1);  // REST event superclass
+    ClassDef(TRestG4Track, 2);  // REST event superclass
 };
 
 #endif
