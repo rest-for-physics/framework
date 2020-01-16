@@ -16,14 +16,15 @@
 #ifndef RestCore_TRestG4Track
 #define RestCore_TRestG4Track
 
-#include <iostream>
-#include <vector>
-
 #include <TArrayI.h>
 #include <TColor.h>
 #include <TRestG4Hits.h>
 #include <TString.h>
 #include <TVector3.h>
+
+#include <iostream>
+#include <vector>
+
 #include "TObject.h"
 
 // Perhaps there might be need for a mother class TRestTrack (if there is future
@@ -88,7 +89,9 @@ class TRestG4Track : public TObject {
     void SetTrackOrigin(TVector3 pos) { fTrackOrigin = pos; }
     void SetTrackOrigin(Double_t x, Double_t y, Double_t z) { fTrackOrigin.SetXYZ(x, y, z); }
 
-    void AddG4Hit(TVector3 pos, Double_t en, Int_t pcs, Int_t vol) { fHits.AddG4Hit(pos, en, pcs, vol); }
+    void AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t pcs, Int_t vol) {
+        fHits.AddG4Hit(pos, en, hit_global_time, pcs, vol);
+    }
 
     Double_t GetTrackLength();
 
@@ -131,8 +134,7 @@ class TRestG4Track : public TObject {
     }
     Bool_t isneutronInelastic() {
         for (int n = 0; n < GetHits()->GetNumberOfHits(); n++)
-            if (GetHits()->GetHitProcess(n) == 37) 
-               return true;
+            if (GetHits()->GetHitProcess(n) == 37) return true;
         return false;
     }
     Bool_t isnCapture() {
@@ -146,7 +148,7 @@ class TRestG4Track : public TObject {
             if (GetHits()->GetHitProcess(n) == 33) return true;
         return false;
     }
-      Bool_t isphotonNuclear() {
+    Bool_t isphotonNuclear() {
         for (int n = 0; n < GetHits()->GetNumberOfHits(); n++)
             if (GetHits()->GetHitProcess(n) == 42) return true;
         return false;
@@ -181,14 +183,12 @@ class TRestG4Track : public TObject {
 
     Bool_t isHadElasticInVolume(Int_t volID) {
         for (int n = 0; n < GetHits()->GetNumberOfHits(); n++)
-            if ((GetHits()->GetHitProcess(n) == 36) && (GetHits()->GetHitVolume(n)) == volID)
-                  return true;
+            if ((GetHits()->GetHitProcess(n) == 36) && (GetHits()->GetHitVolume(n)) == volID) return true;
         return false;
     }
     Bool_t isNeutronInelasticInVolume(Int_t volID) {
         for (int n = 0; n < GetHits()->GetNumberOfHits(); n++)
-            if ((GetHits()->GetHitProcess(n) == 37) && (GetHits()->GetHitVolume(n)) == volID)
-               return true;
+            if ((GetHits()->GetHitProcess(n) == 37) && (GetHits()->GetHitVolume(n)) == volID) return true;
         return false;
     }
 
