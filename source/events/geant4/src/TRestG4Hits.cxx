@@ -28,28 +28,13 @@ ClassImp(TRestG4Hits)
 TRestG4Hits::~TRestG4Hits() {
     // TRestG4Hits destructor
 }
-void TRestG4Hits::AddG4Hit(TVector3 pos, Double_t en, Int_t process, Int_t volume) {
+void TRestG4Hits::AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process, Int_t volume) {
     AddHit(pos, en);
-
     fProcessID.Set(fNHits);
-
     fProcessID[fNHits - 1] = process;
-
     fVolumeID.Set(fNHits);
-
     fVolumeID[fNHits - 1] = volume;
-}
-
-void TRestG4Hits::AddG4Hit(Double_t X, Double_t Y, Double_t Z, Double_t en, Int_t process, Int_t volume) {
-    AddHit(X, Y, Z, en);
-
-    fProcessID.Set(fNHits);
-
-    fProcessID[fNHits - 1] = process;
-
-    fVolumeID.Set(fNHits);
-
-    fVolumeID[fNHits - 1] = volume;
+    fT[fNHits - 1] = hit_global_time;
 }
 
 void TRestG4Hits::RemoveG4Hits() {
