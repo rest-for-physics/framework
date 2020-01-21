@@ -25,13 +25,13 @@
 /// <hr>
 //////////////////////////////////////////////////////////////////////////
 
-#include "TRestVersion.h"
+#include "TRestRun.h"
 
 #include "GdmlPreprocessor.h"
 #include "TRestDataBase.h"
 #include "TRestEventProcess.h"
 #include "TRestManager.h"
-#include "TRestRun.h"
+#include "TRestVersion.h"
 
 ClassImp(TRestRun);
 
@@ -430,7 +430,7 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
             TIter nextkey(fInputFile->GetListOfKeys());
             TKey* key;
             while ((key = (TKey*)nextkey())) {
-                if ((string)key->GetClassName()=="TTree") {
+                if ((string)key->GetClassName() == "TTree") {
                     fAnalysisTree = (TRestAnalysisTree*)fInputFile->Get(key->GetName());
                 }
             }
@@ -539,9 +539,8 @@ void TRestRun::ReadInputFileTrees() {
                 TBranch* br = (TBranch*)branches->At(branches->GetLast());
 
                 if (Count(br->GetName(), "EventBranch") == 0) {
-                    warning << "REST WARNING (OpenInputFile) : No event branch inside file : " << filename
-                            << endl;
-                    warning << "This file may be a pure analysis file" << endl;
+                    info << "No event branch inside file : " << filename << endl;
+                    info << "This file may be a pure analysis file" << endl;
                 } else {
                     string type = Replace(br->GetName(), "Branch", "", 0);
                     fInputEvent = (TRestEvent*)TClass::GetClass(type.c_str())->New();
@@ -757,9 +756,9 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
         debug << "TRestRun::FormFormat. target : " << target << endl;
         debug << "TRestRun::FormFormat. replacestr : " << replacestr << endl;
 
-        //if (target == "fVersion") replacestr = (string)GetVersion();
+        // if (target == "fVersion") replacestr = (string)GetVersion();
 
-        //if (target == "fCommit") replacestr = (string)GetCommit();
+        // if (target == "fCommit") replacestr = (string)GetCommit();
 
         if (replacestr != target) {
             if (target == "fRunNumber" || target == "fParentRunNumber") {
@@ -1276,13 +1275,11 @@ std::vector<int> TRestRun::GetEventEntriesWithConditions(const string cuts, int 
 }
 
 std::vector<int> TRestRun::GetEventIdsWithConditions(const string cuts, int startingIndex, int maxNumber) {
-    return std::vector<int>{};
-    // TODO: find why it doesn't work
-    auto indices = GetEventIdsWithConditions(cuts, startingIndex, maxNumber);
+    auto indices = GetEventEntriesWithConditions(cuts, startingIndex, maxNumber);
     std::vector<int> ids;
     for (int i = 0; i < indices.size(); i++) {
-        GetEntry(i);
-        ids.push_back(fInputEvent->GetID());
+        GetEntry(indices[i]);
+        ids.push_back(fAnalysisTree->GetEventID());
     }
     return ids;
 }

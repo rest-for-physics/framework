@@ -126,6 +126,6 @@ class TRestAnalysisPlot : public TRestMetadata {
     // Destructor
     virtual ~TRestAnalysisPlot();
 
-    ClassDef(TRestAnalysisPlot, 2);
+    ClassDefOverride(TRestAnalysisPlot, 2);
 };
 #endif

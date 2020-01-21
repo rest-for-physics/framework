@@ -1,17 +1,17 @@
 #include "SteppingAction.hh"
-#include "G4SteppingManager.hh"
-
-#include "G4UnitsTable.hh"
-#include "globals.hh"
-
-#include <G4SystemOfUnits.hh>
-#include "G4DynamicParticle.hh"
-#include "G4ParticleDefinition.hh"
-#include "G4ParticleTable.hh"
 
 #include <TRestG4Event.h>
 #include <TRestG4Metadata.h>
 #include <TRestG4Track.h>
+
+#include <G4SystemOfUnits.hh>
+
+#include "G4DynamicParticle.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4ParticleTable.hh"
+#include "G4SteppingManager.hh"
+#include "G4UnitsTable.hh"
+#include "globals.hh"
 
 extern TRestG4Event* restG4Event;
 extern TRestG4Metadata* restG4Metadata;
@@ -145,8 +145,9 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
                     Int_t pcsID = restTrack->GetProcessID(nom_proc);
 
                     TVector3 hitPosition(x, y, z);
+                    Double_t hit_global_time = aStep->GetPreStepPoint()->GetGlobalTime() / second;
 
-                    restTrack->AddG4Hit(hitPosition, ener_dep / keV, pcsID, volID);
+                    restTrack->AddG4Hit(hitPosition, ener_dep / keV, hit_global_time, pcsID, volID);
                 }
             }
         }
