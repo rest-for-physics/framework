@@ -48,8 +48,16 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     // StepSize
     string SensVol = (string)restG4Metadata->GetSensitiveVolume();
     G4VPhysicalVolume* _vol = GetPhysicalVolume(SensVol);
-    G4LogicalVolume* vol = _vol->GetLogicalVolume();
+    if (!_vol) {
+        G4cout << "RESTG4 error. Sensitive volume  " << SensVol << " does not exist in geomtry!!" << G4endl;
+        G4cout << "RESTG4 error. Please, review geometry! Presh a key to crash!!" << G4endl;
+        getchar();
+        // We need to produce a clean exit at this point
+        exit(1);
+    }
+
     if (_vol != NULL) {
+        G4LogicalVolume* vol = _vol->GetLogicalVolume();
         G4Material* mat = vol->GetMaterial();
         vol->SetUserLimits(new G4UserLimits(restG4Metadata->GetMaxTargetStepSize() * mm));
         G4cout << "Sensitivity volume properties" << G4endl;
@@ -59,8 +67,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         G4cout << "Sensitivity volume density : " << mat->GetDensity() / (g / cm3) << " g/cm3" << G4endl;
     } else {
         cout << "ERROR : Logical volume for sensitive \"" << SensVol << "\" not found!" << endl;
-        exit(1);
-	}
+    }
 
     // Getting generation volume
     string GenVol = (string)restG4Metadata->GetGeneratedFrom();
