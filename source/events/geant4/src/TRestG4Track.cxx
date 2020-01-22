@@ -18,9 +18,9 @@
 #include "TRestG4Track.h"
 using namespace std;
 
-ClassImp(TRestG4Track)
-    //______________________________________________________________________________
-    TRestG4Track::TRestG4Track() {
+ClassImp(TRestG4Track);
+//______________________________________________________________________________
+TRestG4Track::TRestG4Track() {
     // TRestG4Track default constructor
 }
 
@@ -121,15 +121,15 @@ Int_t TRestG4Track::GetProcessID(TString pcsName) {
         id = 54;
     else if (pcsName == "H3Inelastic")
         id = 55;
-   else if (pcsName == "He3Inelastic")
+    else if (pcsName == "He3Inelastic")
         id = 56;
     else if (pcsName == "kaon+Inelastic")
         id = 57;
-   else if (pcsName == "kaon-Inelastic")
+    else if (pcsName == "kaon-Inelastic")
         id = 58;
-   else if (pcsName == "kaon0LInelastic")
+    else if (pcsName == "kaon0LInelastic")
         id = 59;
-   else if (pcsName == "kaon0SInelastic")
+    else if (pcsName == "kaon0SInelastic")
         id = 60;
     else if (pcsName == "lambdaInelastic")
         id = 61;
@@ -310,7 +310,8 @@ void TRestG4Track::PrintTrack(int maxHits) {
         cout << "Hit " << i << " process : " << GetProcessName(hits->GetHitProcess(i))
              << " volume : " << hits->GetHitVolume(i) << " X : " << hits->GetX(i) << " Y : " << hits->GetY(i)
              << " Z : " << hits->GetZ(i) << " mm"
-             << " Edep : " << hits->GetEnergy(i) << " keV" << endl;
+             << " Edep : " << hits->GetEnergy(i) << " keV Ekin : " << hits->GetKineticEnergy(i) << " keV"
+             << endl;
     }
     cout.precision(2);
 }

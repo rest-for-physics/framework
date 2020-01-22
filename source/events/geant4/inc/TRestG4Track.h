@@ -89,8 +89,8 @@ class TRestG4Track : public TObject {
     void SetTrackOrigin(TVector3 pos) { fTrackOrigin = pos; }
     void SetTrackOrigin(Double_t x, Double_t y, Double_t z) { fTrackOrigin.SetXYZ(x, y, z); }
 
-    void AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t pcs, Int_t vol) {
-        fHits.AddG4Hit(pos, en, hit_global_time, pcs, vol);
+    void AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t pcs, Int_t vol, Double_t eKin) {
+        fHits.AddG4Hit(pos, en, hit_global_time, pcs, vol, eKin);
     }
 
     Double_t GetTrackLength();

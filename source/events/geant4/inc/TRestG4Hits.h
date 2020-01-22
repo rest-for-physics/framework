@@ -18,27 +18,31 @@
 #ifndef RestCore_TRestG4Hits
 #define RestCore_TRestG4Hits
 
+#include <iostream>
+
+#include <TArrayF.h>
 #include <TArrayI.h>
 #include <TRestHits.h>
-
-#include <iostream>
 
 #include "TObject.h"
 
 class TRestG4Hits : public TRestHits {
    protected:
     TArrayI fVolumeID;
-    TArrayI fProcessID;  // [fNHits]
+    TArrayI fProcessID;      // [fNHits]
+    TArrayF fKineticEnergy;  // [fNHits]
 
    public:
     Int_t GetProcess(int n) { return fProcessID[n]; }
 
-    void AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process, Int_t volume);
+    void AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process, Int_t volume,
+                  Double_t eKin);
     void RemoveG4Hits();
 
     Int_t GetHitProcess(int n) { return fProcessID[n]; }
     Int_t GetHitVolume(int n) { return fVolumeID[n]; }
     Int_t GetVolumeId(int n) { return fVolumeID[n]; }
+    Double_t GetKineticEnergy(int n) { return fKineticEnergy[n]; }
 
     Double_t GetEnergyInVolume(Int_t volID);
 
