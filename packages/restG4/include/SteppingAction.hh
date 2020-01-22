@@ -32,7 +32,7 @@ class SteppingAction : public G4UserSteppingAction {
 
    private:
     G4String nom_vol, nom_part, nom_proc;
-    G4double dif_ener, ener_dep, ener;
+    G4double dif_ener, ener_dep, ener, eKin;
     G4int trackID, parentID;
 
     TH1D* fBiasingSpectrum;

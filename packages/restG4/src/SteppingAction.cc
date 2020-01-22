@@ -30,7 +30,9 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
     // Variables that describe a step are taken.
     nom_vol = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName();
     nom_part = aStep->GetTrack()->GetDefinition()->GetParticleName();
+
     ener_dep = aStep->GetTotalEnergyDeposit();
+    eKin = aStep->GetTrack()->GetKineticEnergy() / keV;
 
     if (restTrack->GetParticleName() == "geantino" &&
         (G4String)restG4Metadata->GetSensitiveVolume() == nom_vol) {
@@ -147,7 +149,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
                     TVector3 hitPosition(x, y, z);
                     Double_t hit_global_time = aStep->GetPreStepPoint()->GetGlobalTime() / second;
 
-                    restTrack->AddG4Hit(hitPosition, ener_dep / keV, hit_global_time, pcsID, volID);
+                    restTrack->AddG4Hit(hitPosition, ener_dep / keV, hit_global_time, pcsID, volID, eKin);
                 }
             }
         }
