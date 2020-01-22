@@ -277,7 +277,7 @@ Bool_t TRestHits::isHitNInsideSphere(Int_t n, Double_t x0, Double_t y0, Double_t
     return kFALSE;
 }
 
-void TRestHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t, Short_t mod, Short_t ch) {
+void TRestHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t) {
     fNHits++;
     fX.push_back((Float_t)(x));
     fY.push_back((Float_t)(y));
@@ -288,7 +288,7 @@ void TRestHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t
     fTotEnergy += en;
 }
 
-void TRestHits::AddHit(TVector3 pos, Double_t en, Double_t t, Short_t mod, Short_t ch) {
+void TRestHits::AddHit(TVector3 pos, Double_t en, Double_t t) {
     fNHits++;
 
     fX.push_back((Float_t)(pos.X()));
