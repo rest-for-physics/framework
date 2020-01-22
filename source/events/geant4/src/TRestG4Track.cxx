@@ -293,8 +293,7 @@ void TRestG4Track::PrintTrack(int maxHits) {
     cout << " Particle : " << GetParticleName() << " Time track length : " << GetTrackTimeLength() << " us"
          << endl;
     cout << " Origin : X = " << GetTrackOrigin().X() << "mm Y = " << GetTrackOrigin().Y()
-         << "mm Z = " << GetTrackOrigin().Z() << "mm" << endl;
-    cout << " Ekin : " << GetKineticEnergy() << " keV" << endl;
+         << "mm Z = " << GetTrackOrigin().Z() << "mm  Ekin : " << GetKineticEnergy() << " keV" << endl;
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
             "++++++++++++"
          << endl;
@@ -307,11 +306,12 @@ void TRestG4Track::PrintTrack(int maxHits) {
 
     TRestG4Hits* hits = GetHits();
     for (int i = 0; i < nHits; i++) {
-        cout << "Hit " << i << " process : " << GetProcessName(hits->GetHitProcess(i))
+        cout << " # Hit " << i << " # process : " << GetProcessName(hits->GetHitProcess(i))
              << " volume : " << hits->GetHitVolume(i) << " X : " << hits->GetX(i) << " Y : " << hits->GetY(i)
              << " Z : " << hits->GetZ(i) << " mm" << endl;
         cout << " Edep : " << hits->GetEnergy(i) << " keV Ekin : " << hits->GetKineticEnergy(i) << " keV"
              << " Global time : " << hits->GetTime(i) << " us" << endl;
     }
+    cout << endl;
     cout.precision(2);
 }
