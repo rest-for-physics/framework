@@ -309,9 +309,9 @@ void TRestG4Track::PrintTrack(int maxHits) {
     for (int i = 0; i < nHits; i++) {
         cout << "Hit " << i << " process : " << GetProcessName(hits->GetHitProcess(i))
              << " volume : " << hits->GetHitVolume(i) << " X : " << hits->GetX(i) << " Y : " << hits->GetY(i)
-             << " Z : " << hits->GetZ(i) << " mm"
-             << " Edep : " << hits->GetEnergy(i) << " keV Ekin : " << hits->GetKineticEnergy(i) << " keV"
-             << endl;
+             << " Z : " << hits->GetZ(i) << " mm" << endl;
+        cout << " Edep : " << hits->GetEnergy(i) << " keV Ekin : " << hits->GetKineticEnergy(i) << " keV"
+             << " Global time : " << hits->GetTime(i) << " us" << endl;
     }
     cout.precision(2);
 }
