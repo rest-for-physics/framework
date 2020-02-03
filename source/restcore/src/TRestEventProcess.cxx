@@ -381,7 +381,7 @@ Double_t TRestEventProcess::GetDoubleParameterFromClassWithUnits(string classNam
 
 TRestAnalysisTree* TRestEventProcess::GetFullAnalysisTree(){
     if(fHostmgr != NULL && fHostmgr->GetProcessRunner() != NULL)
-        return fHostmgr->GetProcessRunner()->GetAnalysisTree();
+        return fHostmgr->GetProcessRunner()->GetOutputAnalysisTree();
     return NULL;
 }
 
