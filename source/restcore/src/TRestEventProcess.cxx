@@ -51,6 +51,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "TRestEventProcess.h"
+#include "TRestManager.h"
 #include "TBuffer.h"
 #include "TClass.h"
 #include "TDataMember.h"
@@ -376,6 +377,12 @@ Double_t TRestEventProcess::GetDoubleParameterFromClassWithUnits(string classNam
             return fFriendlyProcesses[i]->GetDblParameterWithUnits((string)parName);
 
     return PARAMETER_NOT_FOUND_DBL;
+}
+
+TRestAnalysisTree* TRestEventProcess::GetFullAnalysisTree(){
+    if(fHostmgr != NULL && fHostmgr->GetProcessRunner() != NULL)
+        return fHostmgr->GetProcessRunner()->GetAnalysisTree();
+    return NULL;
 }
 
 std::vector<string> TRestEventProcess::GetListOfAddedObservables() {
