@@ -77,7 +77,6 @@ class TRestProcessRunner : public TRestMetadata {
     void PauseMenu();
     Int_t GetNextevtFunc(TRestEvent* targetevt, TRestAnalysisTree* targettree);
     void FillThreadEventFunc(TRestThread* t);
-    void WriteThreadFileFunc(TRestThread* t);
     void ConfigOutputFile();
 
     // tools

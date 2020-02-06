@@ -748,27 +748,6 @@ void TRestProcessRunner::FillThreadEventFunc(TRestThread* t) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Calling back the WriteFile() method in TRestThread.
-///
-/// This method is locked by mutex. There can never be two of it running
-/// simultaneously in two threads. As a result threads will not write their
-/// files together, thus preventing segmentaion violation.
-void TRestProcessRunner::WriteThreadFileFunc(TRestThread* t) {
-    cout << "writing files" << endl;
-    mutexx.lock();
-#ifdef TIME_MEASUREMENT
-    high_resolution_clock::time_point t5 = high_resolution_clock::now();
-#endif
-    t->WriteFile();
-
-#ifdef TIME_MEASUREMENT
-    high_resolution_clock::time_point t6 = high_resolution_clock::now();
-    writeTime += (int)duration_cast<microseconds>(t6 - t5).count();
-#endif
-    mutexx.unlock();
-}
-
-///////////////////////////////////////////////
 /// \brief Forming an output file
 ///
 /// It first saves process metadata in to the main output file, then calls
