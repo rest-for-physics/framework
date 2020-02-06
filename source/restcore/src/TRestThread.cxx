@@ -470,7 +470,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
 ///
 /// Note: The methods GetNextevtFunc() and FillThreadEventFunc() are all from
 /// TRestProcessRunner. The later two will call back the method FillEvent(),
-/// WriteFile() in this class. The idea to do so is to make a unified
+/// EndProcess() in this class. The idea to do so is to make a unified
 /// managemenet of these i-o related methods. In TRestRun the three methods are
 /// mutex locked. They will be paused until the host run allows it to run. This
 /// prevents segmentation violation due to simultaneously read/write.
@@ -591,7 +591,7 @@ void TRestThread::ProcessEvent() {
 ///
 /// This method is called back at the end of TRestProcessRunner::RunProcess() in
 /// TRestProcessRunner.
-void TRestThread::WriteFile() {
+void TRestThread::EndProcess() {
     info << "TRestThread : Writing temp file" << endl;
 
     if (fOutputFile == NULL) return;

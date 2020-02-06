@@ -58,7 +58,7 @@ class TRestThread : public TRestMetadata {
 
     void ProcessEvent();
     // void FillEvent();
-    void WriteFile();
+    void EndProcess();
 
     void StartThread();
 

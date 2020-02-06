@@ -433,7 +433,7 @@ void TRestProcessRunner::RunProcess() {
     }
 
     for (int i = 0; i < fThreadNumber; i++) {
-        fThreads[i]->WriteFile();
+        fThreads[i]->EndProcess();
     }
 
 #ifdef TIME_MEASUREMENT
