@@ -110,21 +110,23 @@ void TRestAnalysisTree::ConnectObservables() {
         }
 
         TTree::GetEntry(0);
-        // cout << "Connecting observables..." << endl;
 
         for (int i = 0; i < GetNumberOfObservables(); i++) {
             TBranch* branch = GetBranch(fObservableNames[i]);
             if (branch != NULL) {
-                // cout << fObservableNames[i];
                 if (branch->GetAddress() != NULL) {
-                    fObservableMemory[i].address = *(char**)branch->GetAddress();
-                    // cout << " --> ";
+                    if ((string)branch->ClassName() != "TBranch") {
+                        // for TBranchElement the saved address is char**
+                        fObservableMemory[i].address = *(char**)branch->GetAddress();
+                    }
+                    else {
+                        // for TBranch the saved address is char*
+                        fObservableMemory[i].address = branch->GetAddress();
+                    }
                 } else {
                     fObservableMemory[i].Assembly();
                     branch->SetAddress(fObservableMemory[i].address);
-                    // cout << " ==> ";
                 }
-                // cout << static_cast<const void*>(branch->GetAddress()) << endl;
             }
         }
         fConnected = true;
@@ -242,16 +244,13 @@ void TRestAnalysisTree::PrintObservable(int n) {
 
 Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
     if (!fConnected && !fBranchesCreated) {
-        if (fNObservables > 0 &&
-            fObservableMemory.size() ==
-                0)  // the object is just retrieved from root file, we connect the branches
-        {
-            ConnectEventBranches();
-            ConnectObservables();
-        } else if (fNObservables == 0) {
-            ConnectEventBranches();
-            ConnectObservables();
-        }
+        ConnectEventBranches();
+        ConnectObservables();
+    }
+    else if (fNObservables != fObservableMemory.size()) {
+        // the object is just retrieved from root file, we connect the branches
+        ConnectEventBranches();
+        ConnectObservables();
     }
 
     return TTree::GetEntry(entry, getall);
@@ -284,10 +283,7 @@ void TRestAnalysisTree::CreateEventBranches() {
     if (fBranchesCreated) {
         return;
     }
-    if (GetListOfBranches()->GetEntriesFast() > 0) {
-        fBranchesCreated = true;
-        return;
-    }
+
     Branch("runOrigin", &fRunOrigin);
     Branch("subRunOrigin", &fSubRunOrigin);
     Branch("eventID", &fEventID);
@@ -336,6 +332,10 @@ void TRestAnalysisTree::CreateObservableBranches() {
 
 void TRestAnalysisTree::CreateBranches() {
     if (!fBranchesCreated) {
+        if (GetListOfBranches()->GetEntriesFast() > 0) {
+            fBranchesCreated = true;
+            return;
+        }
         CreateEventBranches();
         CreateObservableBranches();
         fBranchesCreated = true;

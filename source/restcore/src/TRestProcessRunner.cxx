@@ -432,6 +432,7 @@ void TRestProcessRunner::RunProcess() {
         if (finish) break;
     }
 
+    fAnalysisTree->GetEntry(fAnalysisTree->GetEntries() - 1);
     for (int i = 0; i < fThreadNumber; i++) {
         fThreads[i]->EndProcess();
     }
