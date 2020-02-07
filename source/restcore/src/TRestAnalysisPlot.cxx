@@ -211,7 +211,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
                     hist.cutString += globalCuts[i];
                 }
                 // add "SAME" option
-                 if (plot.histos.size() > 0) {
+                if (plot.histos.size() > 0) {
                     hist.drawOption += "SAME";
                 }
 
@@ -298,12 +298,27 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
     // 3. read cuts
     string cutString = "";
     Int_t n = 0;
+
     TiXmlElement* cutele = histele->FirstChildElement("cut");
     while (cutele != NULL) {
         string cutActive = GetParameter("value", cutele, "ON");
         if (ToUpper(cutActive) == "ON") {
             string cutVariable = GetParameter("variable", cutele);
+            if (cutVariable == "NO_SUCH_PARA") {
+                ferr << "Variable was not found! There is a problem inside <cut definition. Check it."
+                     << endl;
+                cout << "Contents of entire <histo definition : " << ElementToString(histele) << endl;
+                cout << endl;
+            }
+
             string cutCondition = GetParameter("condition", cutele);
+            if (cutCondition == "NO_SUCH_PARA") {
+                ferr << "Condition was not found! There is a problem inside <cut definition. Check it."
+                     << endl;
+                cout << "Contents of entire <histo definition : " << ElementToString(histele) << endl;
+                cout << endl;
+            }
+
             if (n > 0) cutString += " && ";
             if (GetVerboseLevel() >= REST_Debug)
                 cout << "Adding local cut : " << cutVariable << cutCondition << endl;
