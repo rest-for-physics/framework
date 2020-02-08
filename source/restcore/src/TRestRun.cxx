@@ -1283,6 +1283,7 @@ std::vector<int> TRestRun::GetEventIdsWithConditions(const string cuts, int star
     }
     return ids;
 }
+
 ///////////////////////////////////////////////
 /// \brief Load the next event that satisfies the conditions specified by a string
 ///
@@ -1398,6 +1399,36 @@ std::vector<std::string> TRestRun::GetMetadataStructureTitles() {
     for (int n = 0; n < GetNumberOfMetadataStructures(); n++) strings.push_back(fMetadataInfo[n]->GetTitle());
 
     return strings;
+}
+
+///////////////////////////////////////////////
+/// \brief It will replace the data members contained inside the string given as input. The data members in
+/// the input string should be written using the following format <<MetadataClass::fDataMember>>.
+///
+/// \return TRestEvent The string with data members replaced
+string TRestRun::ReplaceMetadataMembers(const string instr) {
+    string outstring = instr;
+
+    int startPosition = 0;
+    int endPosition = 0;
+    while ((startPosition = outstring.find("<<", endPosition)) != (int)string::npos) {
+        endPosition = outstring.find(">>", startPosition + 1);
+        if (endPosition == (int)string::npos) break;
+
+        string expressionToReplace = outstring.substr(startPosition + 2, endPosition - startPosition - 2);
+
+        vector<string> results = Split(expressionToReplace, "::", false, true);
+
+        if (results.size() == 2) {
+            string value = this->GetMetadataClass(results[0])->GetDataMemberValue(results[1]);
+            outstring.replace(startPosition, endPosition - startPosition + 2, value);
+            endPosition = 0;
+
+        } else
+            ferr << "TRestRun::ReplaceMetadata. Wrong number of elements found" << endl;
+    }
+
+    return outstring;
 }
 
 // Printers
