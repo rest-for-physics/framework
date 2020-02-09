@@ -12,16 +12,14 @@
 #ifndef RestCore_TRestAnalysisPlot
 #define RestCore_TRestAnalysisPlot
 
+#include <TLatex.h>
 #include "TCanvas.h"
 #include "TH3D.h"
-#include <TLatex.h>
 
 #include <TRestRun.h>
 #include "TRestAnalysisTree.h"
 
 const int REST_MAX_TAGS = 15;
-
-
 
 class TRestAnalysisPlot : public TRestMetadata {
    public:
@@ -66,6 +64,15 @@ class TRestAnalysisPlot : public TRestMetadata {
         vector<Histo_Info_Set> histos;
     };
 
+    struct Panel_Info {
+        Float_t font_size;
+
+        vector<Float_t> posX;
+        vector<Float_t> posY;
+
+        vector<string> label;
+    };
+
    private:
     void InitFromConfigFile() override;
     Histo_Info_Set SetupHistogramFromConfigFile(TiXmlElement* ele, Plot_Info_Set info);
@@ -91,6 +98,7 @@ class TRestAnalysisPlot : public TRestMetadata {
 
     // plots information
     vector<Plot_Info_Set> fPlots;
+    vector<Panel_Info> fPanels;
 
 #ifndef __CINT__
     TRestRun* fRun;                        //! TRestRun to handle output file
@@ -126,6 +134,6 @@ class TRestAnalysisPlot : public TRestMetadata {
     // Destructor
     virtual ~TRestAnalysisPlot();
 
-    ClassDefOverride(TRestAnalysisPlot, 2);
+    ClassDefOverride(TRestAnalysisPlot, 3);
 };
 #endif
