@@ -526,21 +526,29 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     st->SetPalette(1);
 
     /*** Draft code
-TPad* targetPad = (TPad*)fCombinedCanvas->cd(3);
-TLatex* texxt = new TLatex(0.5, 0.5, "HELLO");
-// texxt->SetTextColor(1);
-texxt->Draw("same");
 
 string outstring = fRunInputFile[0]->ReplaceMetadataMembers(
     "Pressure : <<TRestDetectorSetup::fDetectorPressure>> bar, Run number : <<TRestRun::fRunNumber>>");
 cout << outstring << endl;
     ****/
+
+    for (unsigned int n = 0; n < fPanels.size(); n++) {
+        TPad* targetPad = (TPad*)fCombinedCanvas->cd(n + 1);
+        for (unsigned int m = 0; m < fPanels[n].posX.size(); m++) {
+            string label = fRunInputFile[0]->ReplaceMetadataMembers(fPanels[n].label[m]);
+            TLatex* texxt = new TLatex(fPanels[n].posX[m], fPanels[n].posY[m], label.c_str());
+            texxt->SetTextColor(1);
+            texxt->SetTextSize(fPanels[n].font_size);
+            texxt->Draw("same");
+        }
+    }
+
     // start drawing plots
     vector<TH3F*> histCollectionAll;
     for (unsigned int n = 0; n < fPlots.size(); n++) {
         Plot_Info_Set plot = fPlots[n];
 
-        TPad* targetPad = (TPad*)fCombinedCanvas->cd(n + 1);
+        TPad* targetPad = (TPad*)fCombinedCanvas->cd(n + 1 + fPanels.size());
         targetPad->SetLogy(plot.logY);
         targetPad->SetLogz(plot.logZ);
         targetPad->SetLeftMargin(0.18);
