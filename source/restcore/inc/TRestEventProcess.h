@@ -139,6 +139,7 @@ class TRestEventProcess : public TRestMetadata {
     Bool_t isExternal() { return fIsExternal; }
     TRestRun* GetRunInfo() { return fRunInfo; }
     TRestAnalysisTree* GetAnalysisTree() { return fAnalysisTree; }
+    TRestAnalysisTree* GetFullAnalysisTree();
     TCanvas* GetCanvas() { return fCanvas; }
     std::vector<string> GetListOfAddedObservables();
 

@@ -40,8 +40,8 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() { delete fParticleGun; }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* geant4_event) {
-    if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
-        cout << "INFO: Primary generation" << endl;
+    if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
+        cout << "DEBUG: Primary generation" << endl;
     }
     // We have to initialize here and not in start of the event because
     // GeneratePrimaries is called first, and we want to store event origin and

@@ -464,9 +464,6 @@ TRestMetadata::TRestMetadata() : endl(fVerboseLevel) {
     fConfigFileName = "null";
     configBuffer = "";
     metadata.setlength(100);
-
-    fVersion = REST_RELEASE;
-    fCommit = (TString)TRestTools::Execute("rest-config --commit");
 }
 
 ///////////////////////////////////////////////
@@ -483,9 +480,6 @@ TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(fVerboseLevel) {
     fConfigFileName = cfgFileName;
     configBuffer = "";
     metadata.setlength(100);
-
-    fVersion = REST_RELEASE;
-    fCommit = (TString)TRestTools::Execute("rest-config --commit");
 }
 
 ///////////////////////////////////////////////
@@ -1036,8 +1030,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1070,8 +1065,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -2173,19 +2169,26 @@ TString TRestMetadata::GetVersion() { return fVersion; }
 TString TRestMetadata::GetCommit() { return fCommit; }
 
 ///////////////////////////////////////////////
+/// \brief Returns the REST libraty version stored in fLibraryVersion
+///
+TString TRestMetadata::GetLibraryVersion() { return fLibraryVersion; }
+
+///////////////////////////////////////////////
 /// \brief Resets the version of TRestRun to REST_RELEASE. Only TRestRun is
 /// allowed to update version.
-void TRestMetadata::SetVersion() {
+void TRestMetadata::ReSetVersion() {
     if (!this->InheritsFrom("TRestRun"))
         ferr << "version is a static value, you cannot set version "
                 "for a class!"
              << endl;
     else {
         fVersion = REST_RELEASE;
-        fCommit = (TString)TRestTools::Execute("rest-config --commit");
     }
 }
 
+///////////////////////////////////////////////
+/// \brief Resets the version of TRestRun to -1, in case the file is old REST file. 
+/// Only TRestRun is allowed to update version.
 void TRestMetadata::UnSetVersion() {
     if (!this->InheritsFrom("TRestRun"))
         ferr << "version is a static value, you cannot set version "
@@ -2193,9 +2196,16 @@ void TRestMetadata::UnSetVersion() {
              << endl;
     else {
         fVersion = -1;
-        fCommit = "0";
+        fCommit = -1;
     }
 }
+
+///////////////////////////////////////////////
+/// \brief Set the library version of this metadata class
+///
+void TRestMetadata::SetLibraryVersion(TString version) { fLibraryVersion = version; }
+
+Int_t TRestMetadata::GetVersionCode() { return TRestTools::ConvertVersionCode((string)GetVersion()); }
 
 ///////////////////////////////////////////////
 /// \brief Returns the section name of this class, defined at the beginning of
@@ -2209,6 +2219,14 @@ std::string TRestMetadata::GetSectionName() {
 ///////////////////////////////////////////////
 /// \brief Returns the config section of this class
 std::string TRestMetadata::GetConfigBuffer() { return configBuffer; }
+
+string TRestMetadata::GetDataMemberValue(string memberName) {
+    any member = REST_Reflection::GetDataMember(any((char*)this, this->ClassName()), memberName);
+    if (!member.IsZombie()) {
+        return member.ToString();
+	}
+    return "";
+}
 
 ///////////////////////////////////////////////
 /// \brief Returns a string corresponding to current verbose level.

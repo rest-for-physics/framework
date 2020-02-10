@@ -86,8 +86,6 @@ void TRestSignalTo2DHitsProcess::InitProcess() {
 TRestEvent* TRestSignalTo2DHitsProcess::ProcessEvent(TRestEvent* evInput) {
     fInputSignalEvent = (TRestSignalEvent*)evInput;
 
-    if (fInputSignalEvent->GetNumberOfSignals() <= 0) return NULL;
-
     fOutput2DHitsEvent->Initialize();
     fOutput2DHitsEvent->SetEventInfo(fInputSignalEvent);
     fOutput2DHitsEvent->SetSubEventTag("general");
@@ -130,6 +128,7 @@ TRestEvent* TRestSignalTo2DHitsProcess::ProcessEvent(TRestEvent* evInput) {
     //{
     //	return NULL;
     //}
+    if (fInputSignalEvent->GetNumberOfSignals() <= 0) return NULL;
 
     return fOutput2DHitsEvent;
 }

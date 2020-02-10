@@ -12,119 +12,120 @@
 #ifndef RestCore_TRestAnalysisPlot
 #define RestCore_TRestAnalysisPlot
 
-#include <TRestRun.h>
+#include <TLatex.h>
 #include "TCanvas.h"
 #include "TH3D.h"
+
+#include <TRestRun.h>
 #include "TRestAnalysisTree.h"
 
 const int REST_MAX_TAGS = 15;
 
 class TRestAnalysisPlot : public TRestMetadata {
-   private:
-    void InitFromConfigFile();
+   public:
+    struct Histo_Info_Set {
+        string name;   // will be shown in the legend
+        string range;  // output histo string for TTree::Draw(), e.g. name+range = htemp(100,0,1000)
+        Bool_t status;
 
-    Int_t GetRunTagIndex(TString tag);
+        string plotString;                // draw string for TTree::Draw()
+        string cutString;                 // cut string for TTree::Draw()
+        map<string, string> classifyMap;  // select the input files to draw the histogram, if their
+                                          // TRestRun::Get() returns the assumed string
+        string drawOption;                // draw option for TTree::Draw()
+
+        Int_t lineColor;
+        Int_t lineWidth;
+        Int_t lineStyle;
+        Int_t fillColor;
+        Int_t fillStyle;
+    };
+
+    struct Plot_Info_Set {
+        string name;
+        string title;
+
+        Double_t normalize;
+        Bool_t logX;
+        Bool_t logY;
+        Bool_t logZ;
+        Bool_t staticsOn;
+        Bool_t legendOn;
+        Bool_t annotationOn;
+
+        string labelX;
+        string labelY;
+
+        TVector2 rangeX;  // absolute x range(e.g. 1000~3000 keV), same as SetRangeUser()
+        TVector2 rangeY;  // absolute y range(e.g. 1000~3000 keV), same as SetRangeUser()
+
+        string save;
+
+        vector<Histo_Info_Set> histos;
+    };
+
+    struct Panel_Info {
+        Float_t font_size;
+
+        vector<Float_t> posX;
+        vector<Float_t> posY;
+
+        vector<string> label;
+    };
+
+   private:
+    void InitFromConfigFile() override;
+    Histo_Info_Set SetupHistogramFromConfigFile(TiXmlElement* ele, Plot_Info_Set info);
 
     Int_t fNFiles;
-    std::vector<TString> fFileNames[REST_MAX_TAGS];
-
-    TString fClasifyBy;
-
-    std::vector<TString> fLegendName;
-
-#ifndef __CINT__
-    TRestRun* fRun;  //!
-
-    TCanvas* fCombinedCanvas;  //!
-
-    TString fHistoOutputFile;
+    // canvas option
     TVector2 fCanvasSize;
     TVector2 fCanvasDivisions;
     TString fCanvasSave;
-    std::vector<TString> fPlotNames;
-    std::vector<TString> fHistoNames;
-    std::vector<TString> fHistoXLabel;
-    std::vector<TString> fHistoYLabel;
-    std::vector<TString> fHistoTitle;
-    std::vector<TString> fHistoSaveToFile;
-    std::vector<TString> fPlotSaveToFile;
-    std::vector<TString> fPlotXLabel;
-    std::vector<TString> fPlotYLabel;
-    std::vector<Bool_t> fLogScale;
-    std::vector<Double_t> fNormalize;
-    std::vector<TString> fPlotTitle;
-    std::vector<TString> fPlotOption;
-    std::vector<TString> fPlotString;
-    std::vector<TString> fCutString;
 
-    std::vector<Int_t> fLineColor;
-    std::vector<Int_t> fLineWidth;
-    std::vector<Int_t> fLineStyle;
-    std::vector<Int_t> fFillColor;
-    std::vector<Int_t> fFillStyle;
+    Int_t fLabelFont;
+    Double_t fLabelOffsetX = 1.1;
+    Double_t fLabelOffsetY = 1.3;
+    Double_t fLabelScaleX = 1.2;
+    Double_t fLabelScaleY = 1.3;
+    Double_t fTicksScaleX = 1.5;
+    Double_t fTicksScaleY = 1.5;
 
-    std::vector<TVector2> fYRangeUser;
+    Double_t fLegendX1 = 0.7;
+    Double_t fLegendY1 = 0.75;
+    Double_t fLegendX2 = 0.88;
+    Double_t fLegendY2 = 0.88;
 
-    Double_t fLabelOffsetX;
-    Double_t fLabelOffsetY;
+    // plots information
+    vector<Plot_Info_Set> fPlots;
+    vector<Panel_Info> fPanels;
 
-    Double_t fLabelScaleX;
-    Double_t fLabelScaleY;
-
-    Double_t fTicksScaleX;
-    Double_t fTicksScaleY;
-
-    Double_t fLegendX1;
-    Double_t fLegendY1;
-    Double_t fLegendX2;
-    Double_t fLegendY2;
-
-    Double_t fStartTime;
-    Double_t fEndTime;
-
-    std::vector<Bool_t> fStats;
-    std::vector<Bool_t> fLegend;
-
+#ifndef __CINT__
+    TRestRun* fRun;                        //! TRestRun to handle output file
+    std::vector<TRestRun*> fRunInputFile;  //! TRestRun to handle input file
+    TCanvas* fCombinedCanvas;              //! Output canvas
 #endif
 
-    TString ReplaceFilenameTags(TString filename, TString runFilename);
-    void AddMissingStyles();
+    void AddFile(TString fileName);
     void AddFileFromExternalRun();
     void AddFileFromEnv();
 
    protected:
    public:
-    void Initialize();
+    void Initialize() override;
 
-    void PrintMetadata() {}
+    void PrintMetadata() override {}
+
+    void SaveCanvasToPDF(TString fileName);
+    void SavePlotToPDF(TString fileName, Int_t n = 0);
+    void SaveHistoToPDF(TString fileName, Int_t nPlot = 0, Int_t nHisto = 0);
 
     void SetOutputPlotsFilename(TString fname) { fCanvasSave = fname; }
-    void SetOutputHistosFilename(TString fname) { fHistoOutputFile = fname; }
-
-    void AddFile(TString fileName);
-
-    void PrintFiles() {
-        cout << "++++++++++++++++++++++++++++++++++++++" << endl;
-        cout << "Relation of files included in the plot" << endl;
-        cout << "++++++++++++++++++++++++++++++++++++++" << endl;
-        for (unsigned int i = 0; i < fLegendName.size(); i++) {
-            cout << "Legend : " << fLegendName[i] << endl;
-            cout << "---------------------------" << endl;
-            for (unsigned int n = 0; n < fFileNames[i].size(); n++) {
-                cout << fFileNames[i][n] << endl;
-            }
-        }
-
-        cout << "++++++++++++++++++++++++++++++++++++++" << endl;
-    }
-
-    void SavePlotToPDF(TString plotName, TString fileName);
-    void SavePlotToPDF(Int_t n, TString fileName);
-    void SaveHistoToPDF(TH1D* h, Int_t n, TString fileName);
 
     Int_t GetPlotIndex(TString plotName);
+    TVector2 GetCanvasSize() { return fCanvasSize; }
+    TVector2 GetCanvasDivisions() { return fCanvasDivisions; }
 
-    TRestAnalysisTree* GetAnalysisTree(TString fileName);
     void PlotCombinedCanvas();
 
     // Construtor
@@ -133,6 +134,6 @@ class TRestAnalysisPlot : public TRestMetadata {
     // Destructor
     virtual ~TRestAnalysisPlot();
 
-    ClassDef(TRestAnalysisPlot, 1);
+    ClassDefOverride(TRestAnalysisPlot, 3);
 };
 #endif

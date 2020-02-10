@@ -432,8 +432,9 @@ void TRestProcessRunner::RunProcess() {
         if (finish) break;
     }
 
+    fAnalysisTree->GetEntry(fAnalysisTree->GetEntries() - 1);
     for (int i = 0; i < fThreadNumber; i++) {
-        fThreads[i]->WriteFile();
+        fThreads[i]->EndProcess();
     }
 
 #ifdef TIME_MEASUREMENT
@@ -608,7 +609,7 @@ void TRestProcessRunner::PauseMenu() {
             fProcStatus = kStep;
             break;
         } else if (b == 'l') {
-            //Console::ClearScreen();
+            // Console::ClearScreen();
             fOutputEvent->PrintEvent();
             break;
         } else if (b == 'q') {
@@ -832,8 +833,16 @@ TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type, TiXmlEle
     pc->LoadConfigFromFile(ele, fElementGlobal);
 
     pc->SetRunInfo(this->fRunInfo);
+    pc->SetHostmgr(fHostmgr);
 
     return pc;
+}
+
+double TRestProcessRunner::GetReadingSpeed() {
+    Long64_t bytes = 0;
+    for (auto& n : bytesAdded) bytes += n;
+    double speedbyte = bytes / (double)printInterval * (double)1000000 / ncalculated;
+    return speedbyte;
 }
 
 ///////////////////////////////////////////////
@@ -850,9 +859,7 @@ void TRestProcessRunner::PrintProcessedEvents(Int_t rateE) {
         // cout.setborder("|");
         // CursorDown(1);
 
-        Long64_t bytes = 0;
-        for (auto& n : bytesAdded) bytes += n;
-        double speedbyte = bytes / (double)printInterval * (double)1000000 / ncalculated;
+        double speedbyte = GetReadingSpeed();
 
         double progsum = 0;
         for (auto& n : progAdded) progsum += n;

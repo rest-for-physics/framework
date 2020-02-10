@@ -25,13 +25,13 @@
 /// <hr>
 //////////////////////////////////////////////////////////////////////////
 
-#include "TRestVersion.h"
+#include "TRestRun.h"
 
 #include "GdmlPreprocessor.h"
 #include "TRestDataBase.h"
 #include "TRestEventProcess.h"
 #include "TRestManager.h"
-#include "TRestRun.h"
+#include "TRestVersion.h"
 
 ClassImp(TRestRun);
 
@@ -110,7 +110,7 @@ void TRestRun::Initialize() {
 ///
 void TRestRun::BeginOfInit() {
     debug << "Initializing TRestRun from config file, version: " << REST_RELEASE << endl;
-    SetVersion();
+    ReSetVersion();
 
     // Get some infomation
     fRunUser = getenv("USER") == NULL ? "" : getenv("USER");
@@ -271,6 +271,7 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
         pc->LoadConfigFromFile(e, fElementGlobal);
 
         pc->SetRunInfo(this);
+        pc->SetHostmgr(fHostmgr);
 
         if (pc->isExternal()) {
             SetExtProcess(pc);
@@ -406,14 +407,16 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
             // output file?
             // Actually g4 files from v2.1.x is all compatible with the v2.2.x version
             // Only 2.2.0 is without auto schema evolution, whose metadata cannot be read
-            if (this->GetVersionCode() >= REST_VERSION(2, 2, 1) ||
-                this->GetVersionCode() <= REST_VERSION(2, 1, 8)) {
-                ReadInputFileMetadata();
-            } else {
-                warning << "-- W : The metadata version found on input file is lower "
-                           "than 2.2.1!"
-                        << endl;
-                warning << "-- W : metadata from input file will not be read" << endl;
+            if (fSaveHistoricData) {
+                if (this->GetVersionCode() >= REST_VERSION(2, 2, 1) ||
+                    this->GetVersionCode() <= REST_VERSION(2, 1, 8)) {
+                    ReadInputFileMetadata();
+                } else {
+                    warning << "-- W : The metadata version found on input file is lower "
+                               "than 2.2.1!"
+                            << endl;
+                    warning << "-- W : metadata from input file will not be read" << endl;
+                }
             }
 
             debug << "Initializing input file : version code : " << this->GetVersionCode() << endl;
@@ -422,6 +425,15 @@ void TRestRun::OpenInputFile(TString filename, string mode) {
             ResetEntry();
         } else {
             fAnalysisTree = NULL;
+
+            // set its analysistree as the first TTree object in the file, if exists
+            TIter nextkey(fInputFile->GetListOfKeys());
+            TKey* key;
+            while ((key = (TKey*)nextkey())) {
+                if ((string)key->GetClassName() == "TTree") {
+                    fAnalysisTree = (TRestAnalysisTree*)fInputFile->Get(key->GetName());
+                }
+            }
         }
     } else {
         fInputFile = NULL;
@@ -527,9 +539,8 @@ void TRestRun::ReadInputFileTrees() {
                 TBranch* br = (TBranch*)branches->At(branches->GetLast());
 
                 if (Count(br->GetName(), "EventBranch") == 0) {
-                    warning << "REST WARNING (OpenInputFile) : No event branch inside file : " << filename
-                            << endl;
-                    warning << "This file may be a pure analysis file" << endl;
+                    info << "No event branch inside file : " << filename << endl;
+                    info << "This file may be a pure analysis file" << endl;
                 } else {
                     string type = Replace(br->GetName(), "Branch", "", 0);
                     fInputEvent = (TRestEvent*)TClass::GetClass(type.c_str())->New();
@@ -570,7 +581,8 @@ void TRestRun::ReadFileInfo(string filename) {
     // we are going to match it with inputfile:
     // run00042_cobo1_frag0000.graw
 
-    FileInfo.clear();
+    fInformationMap.clear();
+    fInformationMap["FileName"] = filename;
 
     debug << "begin collecting file info: " << filename << endl;
     struct stat buf;
@@ -578,10 +590,10 @@ void TRestRun::ReadFileInfo(string filename) {
     fstat(fd, &buf);
 
     string datetime = ToDateTimeString(buf.st_mtime);
-    FileInfo["Time"] = Split(datetime, " ")[1];
-    FileInfo["Date"] = Split(datetime, " ")[0];
-    FileInfo["Size"] = ToString(buf.st_size) + "B";
-    FileInfo["Entries"] = ToString(GetEntries());
+    fInformationMap["Time"] = Split(datetime, " ")[1];
+    fInformationMap["Date"] = Split(datetime, " ")[0];
+    fInformationMap["Size"] = ToString(buf.st_size) + "B";
+    fInformationMap["Entries"] = ToString(GetEntries());
 
     if (TRestTools::isRootFile((string)filename)) {
         fTotalBytes = buf.st_size;
@@ -629,7 +641,7 @@ void TRestRun::ReadFileInfo(string filename) {
         // cout << formatsectionlist[i] << " " << name.substr(pos1 + 1, pos2 - pos1
         // - 1) << endl;
 
-        FileInfo[formatsectionlist[i]] = name.substr(pos1 + 1, pos2 - pos1 - 1);
+        fInformationMap[formatsectionlist[i]] = name.substr(pos1 + 1, pos2 - pos1 - 1);
 
         pos = pos2 - 1;
     }
@@ -739,20 +751,14 @@ TString TRestRun::FormFormat(TString FilenameFormat) {
 
         string targetstr = inString.substr(pos1, pos2 - pos1 + 1);   // with []
         string target = inString.substr(pos1 + 1, pos2 - pos1 - 1);  // without []
-        string replacestr = GetFileInfo(target);
-        if (replacestr == target && fHostmgr != NULL && fHostmgr->GetProcessRunner() != NULL)
-            replacestr = fHostmgr->GetProcessRunner()->GetProcInfo(target);
-        if (replacestr == target && !REST_Reflection::GetDataMember(this, target).IsZombie())
-            replacestr = REST_Reflection::GetDataMember(this, target).ToString();
-        if (replacestr == target && !REST_Reflection::GetDataMember(this, "f" + target).IsZombie())
-            replacestr = REST_Reflection::GetDataMember(this, "f" + target).ToString();
+        string replacestr = GetInfo(target);
 
         debug << "TRestRun::FormFormat. target : " << target << endl;
         debug << "TRestRun::FormFormat. replacestr : " << replacestr << endl;
 
-        if (target == "fVersion") replacestr = (string)GetVersion();
+        // if (target == "fVersion") replacestr = (string)GetVersion();
 
-        if (target == "fCommit") replacestr = (string)GetCommit();
+        // if (target == "fCommit") replacestr = (string)GetCommit();
 
         if (replacestr != target) {
             if (target == "fRunNumber" || target == "fParentRunNumber") {
@@ -1001,7 +1007,6 @@ void TRestRun::SetExtProcess(TRestEventProcess* p) {
         fInputFile = NULL;
         fAnalysisTree = new TRestAnalysisTree("externalProcessAna", "externalProcessAna");
         p->SetAnalysisTree(fAnalysisTree);
-        p->ConfigAnalysisTree();
 
         GetNextEvent(fInputEvent, 0);
         fAnalysisTree->CreateBranches();
@@ -1129,7 +1134,7 @@ void TRestRun::ImportMetadata(TString File, TString name, TString type, Bool_t s
 }
 
 Int_t TRestRun::Write(const char* name, Int_t option, Int_t bufsize) {
-    SetVersion();
+    ReSetVersion();
     return TRestMetadata::Write(name, option, bufsize);
 }
 
@@ -1270,16 +1275,15 @@ std::vector<int> TRestRun::GetEventEntriesWithConditions(const string cuts, int 
 }
 
 std::vector<int> TRestRun::GetEventIdsWithConditions(const string cuts, int startingIndex, int maxNumber) {
-    return std::vector<int>{};
-    // TODO: find why it doesn't work
-    auto indices = GetEventIdsWithConditions(cuts, startingIndex, maxNumber);
+    auto indices = GetEventEntriesWithConditions(cuts, startingIndex, maxNumber);
     std::vector<int> ids;
     for (int i = 0; i < indices.size(); i++) {
-        GetEntry(i);
-        ids.push_back(fInputEvent->GetID());
+        GetEntry(indices[i]);
+        ids.push_back(fAnalysisTree->GetEventID());
     }
     return ids;
 }
+
 ///////////////////////////////////////////////
 /// \brief Load the next event that satisfies the conditions specified by a string
 ///
@@ -1300,6 +1304,22 @@ TRestEvent* TRestRun::GetNextEventWithConditions(const string cuts) {
         fEventTree->GetEntry(indices[0]);
         return fInputEvent;
     }
+}
+
+string TRestRun::GetInfo(string infoname) {
+    if (fInformationMap.count(infoname) != 0) {
+        return fInformationMap[infoname];
+    }
+
+    if (GetDataMemberValue(infoname) != "") {
+        return GetDataMemberValue(infoname);
+    }
+
+    if (GetDataMemberValue("f" + infoname) != "") {
+        return GetDataMemberValue("f" + infoname);
+    }
+
+    return infoname;
 }
 
 TRestMetadata* TRestRun::GetMetadataClass(TString type, TFile* f) {
@@ -1379,6 +1399,36 @@ std::vector<std::string> TRestRun::GetMetadataStructureTitles() {
     for (int n = 0; n < GetNumberOfMetadataStructures(); n++) strings.push_back(fMetadataInfo[n]->GetTitle());
 
     return strings;
+}
+
+///////////////////////////////////////////////
+/// \brief It will replace the data members contained inside the string given as input. The data members in
+/// the input string should be written using the following format <<MetadataClass::fDataMember>>.
+///
+/// \return The string with data members replaced
+string TRestRun::ReplaceMetadataMembers(const string instr) {
+    string outstring = instr;
+
+    int startPosition = 0;
+    int endPosition = 0;
+    while ((startPosition = outstring.find("<<", endPosition)) != (int)string::npos) {
+        endPosition = outstring.find(">>", startPosition + 1);
+        if (endPosition == (int)string::npos) break;
+
+        string expressionToReplace = outstring.substr(startPosition + 2, endPosition - startPosition - 2);
+
+        vector<string> results = Split(expressionToReplace, "::", false, true);
+
+        if (results.size() == 2) {
+            string value = this->GetMetadataClass(results[0])->GetDataMemberValue(results[1]);
+            outstring.replace(startPosition, endPosition - startPosition + 2, value);
+            endPosition = 0;
+
+        } else
+            ferr << "TRestRun::ReplaceMetadata. Wrong number of elements found" << endl;
+    }
+
+    return outstring;
 }
 
 // Printers

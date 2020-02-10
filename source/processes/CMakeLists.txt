@@ -1,3 +1,3 @@
-set(contents analysis general raw signal)
+set(contents analysis general raw signal util)
 
 COMPILEDIR(RestProcesses)

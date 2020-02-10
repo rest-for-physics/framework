@@ -58,7 +58,7 @@ class TRestRawSignalEvent : public TRestEvent {
     // Setters
     void AddSignal(TRestRawSignal s);
 
-	void RemoveSignalWithId(Int_t sId);
+    void RemoveSignalWithId(Int_t sId);
 
     void AddChargeToSignal(Int_t sgnlID, Int_t bin, Short_t value);
 
@@ -73,7 +73,7 @@ class TRestRawSignalEvent : public TRestEvent {
         for (int n = 0; n < GetNumberOfSignals(); n++) fSignal[n].CalculateBaseLine(from, to);
     }
 
-    void SetRange(TVector2 range) { SetRange(fRange.X(), fRange.Y()); }
+    void SetRange(TVector2 range) { SetRange(range.X(), range.Y()); }
 
     void SetRange(Int_t from, Int_t to) {
         fRange = TVector2(from, to);
@@ -83,6 +83,14 @@ class TRestRawSignalEvent : public TRestEvent {
     // Getters
     Int_t GetNumberOfSignals() { return fSignal.size(); }
     TRestRawSignal* GetSignal(Int_t n) { return &fSignal[n]; }
+
+    void PrintSignalIds() {
+        for (int n = 0; n < GetNumberOfSignals(); n++) {
+            if (n > 0) cout << " , ";
+            cout << GetSignal(n)->GetSignalID();
+        }
+        cout << endl;
+    }
 
     TRestRawSignal* GetSignalById(Int_t sid) {
         Int_t index = GetSignalIndex(sid);

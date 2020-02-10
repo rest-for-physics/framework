@@ -45,6 +45,7 @@
 const int PARAMETER_NOT_FOUND_INT = -99999999;
 const double PARAMETER_NOT_FOUND_DBL = -99999999;
 const std::string PARAMETER_NOT_FOUND_STR = "NO_SUCH_PARA";
+const string gCommit = TRestTools::Execute("rest-config --commit");
 
 /* We keep using REST_RELEASE, REST_VERSION(2,X,Y) and REST_VERSION_CODE
    to determine the installed REST version and avoid too much prototyping
@@ -79,9 +80,9 @@ class TRestMetadata : public TNamed {
     void ExpandIncludeFile(TiXmlElement* e);
 
     /// REST version string, only used for archive and retrieve
-    TString fVersion;               //<
-    TString fCommit = "0";          //<
-    TString fLibraryVersion = "0";  //<
+    TString fVersion = REST_RELEASE;  //<
+    TString fCommit = gCommit;        //<
+    TString fLibraryVersion = "0";    //<
 
    protected:
     // new xml utilities
@@ -138,8 +139,6 @@ class TRestMetadata : public TNamed {
     /// see more detail in
     /// https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html#automatically-generated-streamers
 
-    // Name;(Derived from TNamed)
-    // Title;(Derived from TNamed)
     /// Full name of rml file
     std::string fConfigFileName;
     /// Section name given in the constructor of the derived metadata class
@@ -149,9 +148,8 @@ class TRestMetadata : public TNamed {
 #ifndef __CINT__
     /// Verbose level used to print debug info
     REST_Verbose_Level fVerboseLevel;  //!
-                                       /// Terminal object flag for TRestStringOutput
-    endl_t endl;                       //!
-
+    /// Termination flag object for TRestStringOutput
+    endl_t endl;  //!
     /// All metadata classes can be initialized and managed by TRestManager
     TRestManager* fHostmgr;  //!
     /// This variable is used to determine if the metadata structure should be stored in the ROOT file.
@@ -166,23 +164,12 @@ class TRestMetadata : public TNamed {
 #endif
 
    public:
-    /*
-virtual string GetMemberValue(string memberName) {
-    return REST_Reflection::GetDataMember(this, memberName).ToString();
-}
-    */
-
-    string GetDataMemberValue(string memberName) {
-        return REST_Reflection::GetDataMember(any((char*)this, this->ClassName()), memberName).ToString();
-    }
-
     Int_t LoadConfigFromFile();
     Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal);
     Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal, vector<TiXmlElement*> eEnv);
     Int_t LoadConfigFromFile(string cfgFileName, string sectionName = "");
 
-    // virtual Int_t LoadSectionMetadata(string section, string cfgFileName, string name) {
-    // LoadSectionMetadata(); return 0; }
+    /// Load global setting for the rml section, e.g., name, title.
     virtual Int_t LoadSectionMetadata();
 
     ///  To make settings from rml file. This method must be implemented in the derived class.
@@ -215,17 +202,18 @@ virtual string GetMemberValue(string memberName) {
 
     // getters and setters
     std::string GetSectionName();
+
     std::string GetConfigBuffer();
 
-    /// set the section name, clear the section content
-    void SetSectionName(std::string sName) { fSectionName = sName; }
+    string GetDataMemberValue(string memberName);
 
-    /// set config file path from external
-    void SetConfigFile(std::string cfgFileName) { fConfigFileName = cfgFileName; }
+    TString GetVersion();
 
-    /// Set the hoster manager for this class.
-    void SetHostmgr(TRestManager* m) { fHostmgr = m; }
+    TString GetCommit();
 
+    TString GetLibraryVersion();
+
+    Int_t GetVersionCode();
     /// Returns a string with the path used for data storage
     TString GetDataPath() { return GetParameter("mainDataPath", ""); }
 
@@ -244,56 +232,43 @@ virtual string GetMemberValue(string memberName) {
     std::string GetParameter(std::string parName, TString defaultValue = PARAMETER_NOT_FOUND_STR);
 
     Double_t GetDblParameterWithUnits(std::string parName, Double_t defaultValue = PARAMETER_NOT_FOUND_DBL);
+
     Double_t GetDoubleParameterWithUnits(std::string parName,
                                          Double_t defaultValue = PARAMETER_NOT_FOUND_DBL) {
         return GetDblParameterWithUnits(parName, defaultValue);
     }
 
     TVector2 Get2DVectorParameterWithUnits(string parName, TVector2 defaultValue = TVector2(-1, -1));
+
     TVector3 Get3DVectorParameterWithUnits(string parName, TVector3 defaultValue = TVector3(-1, -1, -1));
-
-    /// sets the verboselevel
-    void SetVerboseLevel(REST_Verbose_Level v) { fVerboseLevel = v; }
-
     /// If this method is called the metadata information will **not** be stored in disk. I/O is handled by
     /// TRestRun.
     void DoNotStore() { fStore = false; }
-
     /// If this method is called the metadata information will be stored in disk. This is the default
     /// behaviour.
     void Store() { fStore = true; }
 
-    /// returning fVersion
-    TString GetVersion();
+    void ReSetVersion();
 
-    /// returning fCommit
-    TString GetCommit();
-
-    /// returning fLibraryVersion
-    TString GetLibraryVersion() { return fLibraryVersion; }
-
-    /// returning fLibraryVersion
-    TString GetVersionLibrary() { return fLibraryVersion; }
-
-    /// sets the version to REST_RELEASE if the class is TRestRun
-    void SetVersion();
-
-    /// sets the library version. Needs to be called by each REST library.
-    void SetLibraryVersion(TString version) { fLibraryVersion = version; }
-
-    /// sets the library version. Needs to be called by each REST library.
-    void SetVersionLibrary(TString version) { fLibraryVersion = version; }
-
-    /// sets the version to -1 if the class is TRestRun
     void UnSetVersion();
 
-    /// returning the version code
-    Int_t GetVersionCode() { return TRestTools::ConvertVersionCode((string)GetVersion()); }
+    void SetLibraryVersion(TString version);
+    /// set the section name, clear the section content
+    void SetSectionName(std::string sName) { fSectionName = sName; }
+    /// set config file path from external
+    void SetConfigFile(std::string cfgFileName) { fConfigFileName = cfgFileName; }
+    /// Set the hoster manager for this class.
+    void SetHostmgr(TRestManager* m) { fHostmgr = m; }
+    /// sets the verboselevel
+    void SetVerboseLevel(REST_Verbose_Level v) { fVerboseLevel = v; }
+
+	void SetDataMemberValFromConfig();
+
 
     /// overwriting the write() method with fStore considered
     virtual Int_t Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
 
-    void SetDataMemberValFromConfig();
+
 
     TRestMetadata();
     ~TRestMetadata();

@@ -6,22 +6,67 @@
     <parameter name="runNumber" value="-1"/>//change this value to "auto" to enable database
     <parameter name="outputFile" value="null"/>//change this value to "auto" to enable database
   </TRestRun>
-  
-  <TRestAnalysisPlot name="restplot" title="Basic Plots" previewPlot="false">
-    
-    <canvas size="(1000,800)" divide="(2,1)"/>
+
+  <TRestAnalysisPlot name="restplot" title="Basic Plots">
+
+    <if condition="${USER}==test">
+      <parameter name="previewPlot" value="false"/>
+    </if>
+    <parameter name="previewPlot" value="true"/>
+
+    <canvas size="(1000,800)" divide="(1,2)" save="abc.pdf"/>
 
     <globalCut name="Some_Analysis_Variable" condition="&lt;50" value="OFF" />
-
-    <plot name="Baseline" title="Baseline average" xlabel="Baseline [ADC units]" ylabel="Counts"
-            logscale="false" value="ON" >
-      <variable name="sAna_BaseLineMean" range="(-1,1)" nbins="100" />
+    
+    <plot name="Energy-NSig" title="Energy vs NSignal" 
+          xlabel="Threshold integral energy [ADC units]" ylabel="Signals" value="ON" stats="ON" option="colz" >
+      <variable name="sAna_ThresholdIntegral" nbins="100" />
+      <variable name="sAna_NumberOfGoodSignals" range="(0,500)" nbins="100" />
     </plot>
 
-    <plot name="Spectrum" title="ADC energy spectrum" xlabel="Threshold integral energy [ADC units]" ylabel="Counts"
-            logscale="true" value="ON" >
-      <variable name="sAna_ThresholdIntegral" range="(0,50000)" nbins="1000" />
+
+
+    <plot name="Spectrum_CutImpact" title="Impact of cut on the spectrum" 
+          xlabel="Threshold integral energy [ADC units]" ylabel="Counts" logscale="true"
+          legend="on" annotation="on">
+
+      <histo name="noCuts">
+        <variable name="sAna_ThresholdIntegral" nbins="100" />
+        <parameter name="lineColor" value="1"/>
+      </histo>
+
+      <histo name="BaseLine">
+        <variable name="sAna_ThresholdIntegral" nbins="100" />
+        <cut variable="sAna_BaseLineSigmaMean" condition="&lt;12" value="ON" />
+        <parameter name="lineColor" value="2"/>
+      </histo>
+
+      <histo name="BaseLine+NSig">
+        <variable name="sAna_ThresholdIntegral" nbins="100" />
+        <cut variable="sAna_BaseLineSigmaMean" condition="&lt;12" value="ON" />
+        <cut variable="sAna_NumberOfGoodSignals" condition=">35" value="ON" />
+        <parameter name="lineColor" value="3"/>
+      </histo>
     </plot>
+
+
+
+    <!--<plot name="ABC" title="" xlabel="Track energy ratio" legend="on" logy="on">
+      <histo name="0vbb" fillColor="xxx" lineColor="xxx">
+        <variable name="TrackEnergyRatio"/>
+        <classify runTag="NLDBD"/>
+      </histo>
+
+      <histo name="micromegas Th232" fillColor="xxx" lineColor="xxx">
+        <variable name="TrackEnergyRatio"/>
+        <classify runTag="Th232"/>
+      </histo>
+
+      <histo name="micromegas U238" fillColor="xxx" lineColor="xxx">
+        <variable name="TrackEnergyRatio"/>
+        <classify runTag="U238"/>
+      </histo>
+    </plot>-->
 
   </TRestAnalysisPlot>
 

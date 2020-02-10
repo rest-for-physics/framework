@@ -214,7 +214,7 @@ TPad* TRestSignalEvent::DrawEvent(TString option) {
 
     TMultiGraph* mg = new TMultiGraph();
     mg->SetTitle(title);
-    mg->GetXaxis()->SetTitle("Drift time [us]");
+    mg->GetXaxis()->SetTitle("Time [us]");
     mg->GetXaxis()->SetTitleOffset(1.1);
     mg->GetYaxis()->SetTitle("Energy [keV]");
     mg->GetYaxis()->SetTitleOffset(0.8);

@@ -293,6 +293,12 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
             fProcessChain[i]->InitProcess();
         }
 
+        if (fHostRunner->GetInputEvent() == NULL) {
+            ferr << "Failed to initialize input event!" << endl;
+            ferr << "Please check your input file and file reading process" << endl;
+            exit(1);
+        }
+
         TRestEvent* FirstProcessInputEvent = (TRestEvent*)fProcessChain[0]->GetInputEvent();
         if (FirstProcessInputEvent != NULL) {
             fInputEvent = (TRestEvent*)FirstProcessInputEvent->Clone();
@@ -308,8 +314,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
 
         if (fHostRunner->GetNextevtFunc(fInputEvent, tempTree) != 0) {
             ferr << "In thread " << fThreadId
-                 << ")::Failed to get the first input event, process cannot start!" << endl;
-            GetChar();
+                 << ")::Failed to read input event, process cannot start!" << endl;
             exit(1);
         }
 
@@ -342,7 +347,6 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
         for (unsigned int i = 0; i < fProcessChain.size(); i++) {
             // fProcessChain[i]->GetListOfAddedObservables().clear();
             fProcessChain[i]->SetAnalysisTree(fAnalysisTree);
-            fProcessChain[i]->ConfigAnalysisTree();
         }
         vector<pair<TString, TRestEvent*>> branchesToAdd;
         // avoid duplicated branch
@@ -466,7 +470,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
 ///
 /// Note: The methods GetNextevtFunc() and FillThreadEventFunc() are all from
 /// TRestProcessRunner. The later two will call back the method FillEvent(),
-/// WriteFile() in this class. The idea to do so is to make a unified
+/// EndProcess() in this class. The idea to do so is to make a unified
 /// managemenet of these i-o related methods. In TRestRun the three methods are
 /// mutex locked. They will be paused until the host run allows it to run. This
 /// prevents segmentation violation due to simultaneously read/write.
@@ -587,7 +591,7 @@ void TRestThread::ProcessEvent() {
 ///
 /// This method is called back at the end of TRestProcessRunner::RunProcess() in
 /// TRestProcessRunner.
-void TRestThread::WriteFile() {
+void TRestThread::EndProcess() {
     info << "TRestThread : Writing temp file" << endl;
 
     if (fOutputFile == NULL) return;

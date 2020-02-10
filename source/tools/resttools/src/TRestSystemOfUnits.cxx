@@ -6,6 +6,7 @@ using namespace std;
 namespace REST_Units {
 map<string, pair<int, double>> __ListOfRESTUnits;
 }
+#define REST_UnitsAdd_Caller
 
 #include "TRestSystemOfUnits.h"
 

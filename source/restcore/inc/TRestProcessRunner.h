@@ -89,12 +89,15 @@ class TRestProcessRunner : public TRestMetadata {
     // getters and setters
     TRestEvent* GetInputEvent();
     TRestAnalysisTree* GetInputAnalysisTree();
+    TRestAnalysisTree* GetOutputAnalysisTree() { return fAnalysisTree; }
     TFile* GetTempOutputDataFile() { return fTempOutputDataFile; }
     string GetProcInfo(string infoname) {
         return ProcessInfo[infoname] == "" ? infoname : ProcessInfo[infoname];
     }
-    int GetThreadNumber() { return fThreadNumber; }
-
+    int GetNThreads() { return fThreadNumber; }
+    int GetNProcesses() { return fProcessNumber; }
+    int GetNProcessedEvents() { return fProcessedEvents; }
+    double GetReadingSpeed();
 
     // Construtor & Destructor
     TRestProcessRunner();

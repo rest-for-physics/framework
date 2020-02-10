@@ -277,7 +277,7 @@ Bool_t TRestHits::isHitNInsideSphere(Int_t n, Double_t x0, Double_t y0, Double_t
     return kFALSE;
 }
 
-void TRestHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t, Short_t mod, Short_t ch) {
+void TRestHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t) {
     fNHits++;
     fX.push_back((Float_t)(x));
     fY.push_back((Float_t)(y));
@@ -288,7 +288,7 @@ void TRestHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t
     fTotEnergy += en;
 }
 
-void TRestHits::AddHit(TVector3 pos, Double_t en, Double_t t, Short_t mod, Short_t ch) {
+void TRestHits::AddHit(TVector3 pos, Double_t en, Double_t t) {
     fNHits++;
 
     fX.push_back((Float_t)(pos.X()));
@@ -327,11 +327,8 @@ void TRestHits::Translate(Int_t n, double x, double y, double z) {
 }
 
 void TRestHits::RotateIn3D(Int_t n, Double_t alpha, Double_t beta, Double_t gamma, TVector3 vMean) {
-    TVector3 vHit;
-
-    vHit[0] = fX[n] - vMean[0];
-    vHit[1] = fY[n] - vMean[1];
-    vHit[2] = fZ[n] - vMean[2];
+    TVector3 position = GetPosition(n);
+    TVector3 vHit = position - vMean;
 
     vHit.RotateZ(gamma);
     vHit.RotateY(beta);
@@ -474,6 +471,7 @@ Double_t TRestHits::GetMeanPositionX() {
         }
     }
 
+    if (totalEnergy == 0) return 0;
     meanX /= totalEnergy;
 
     return meanX;
@@ -489,6 +487,7 @@ Double_t TRestHits::GetMeanPositionY() {
         }
     }
 
+    if (totalEnergy == 0) return 0;
     meanY /= totalEnergy;
 
     return meanY;
@@ -504,6 +503,7 @@ Double_t TRestHits::GetMeanPositionZ() {
         }
     }
 
+    if (totalEnergy == 0) return 0;
     meanZ /= totalEnergy;
 
     return meanZ;
@@ -741,7 +741,7 @@ Int_t TRestHits::GetMostEnergeticHitInRange(Int_t n, Int_t m) {
             hit = i;
         }
     }
-    //if (hit == -1) cout << "REST warning : No largest hit found! No hits?" << endl;
+    // if (hit == -1) cout << "REST warning : No largest hit found! No hits?" << endl;
     return hit;
 }
 

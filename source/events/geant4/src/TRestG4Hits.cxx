@@ -17,10 +17,10 @@
 
 #include "TRestG4Hits.h"
 
-ClassImp(TRestG4Hits)
-    //______________________________________________________________________________
-    TRestG4Hits::TRestG4Hits()
-    : TRestHits() {
+ClassImp(TRestG4Hits);
+
+//______________________________________________________________________________
+TRestG4Hits::TRestG4Hits() : TRestHits() {
     // TRestG4Hits default constructor
 }
 
@@ -28,28 +28,19 @@ ClassImp(TRestG4Hits)
 TRestG4Hits::~TRestG4Hits() {
     // TRestG4Hits destructor
 }
-void TRestG4Hits::AddG4Hit(TVector3 pos, Double_t en, Int_t process, Int_t volume) {
-    AddHit(pos, en);
+
+void TRestG4Hits::AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process, Int_t volume,
+                           Double_t eKin) {
+    AddHit(pos, en, hit_global_time);
 
     fProcessID.Set(fNHits);
-
     fProcessID[fNHits - 1] = process;
 
     fVolumeID.Set(fNHits);
-
     fVolumeID[fNHits - 1] = volume;
-}
 
-void TRestG4Hits::AddG4Hit(Double_t X, Double_t Y, Double_t Z, Double_t en, Int_t process, Int_t volume) {
-    AddHit(X, Y, Z, en);
-
-    fProcessID.Set(fNHits);
-
-    fProcessID[fNHits - 1] = process;
-
-    fVolumeID.Set(fNHits);
-
-    fVolumeID[fNHits - 1] = volume;
+    fKineticEnergy.Set(fNHits);
+    fKineticEnergy[fNHits - 1] = eKin;
 }
 
 void TRestG4Hits::RemoveG4Hits() {
@@ -58,6 +49,8 @@ void TRestG4Hits::RemoveG4Hits() {
     fProcessID.Set(0);
 
     fVolumeID.Set(0);
+
+    fKineticEnergy.Set(0);
 }
 
 Double_t TRestG4Hits::GetEnergyInVolume(Int_t volID) {
@@ -105,3 +98,4 @@ TVector3 TRestG4Hits::GetLastPositionInVolume(Int_t volID) {
     Double_t nan = TMath::QuietNaN();
     return TVector3(nan, nan, nan);
 }
+
