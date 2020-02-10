@@ -16,7 +16,7 @@
 extern TRestG4Event* restG4Event;
 extern TRestG4Metadata* restG4Metadata;
 extern TRestG4Track* restTrack;
-extern Bool_t saveGeantino;
+extern Bool_t saveAllEvents;
 extern Int_t biasing;
 
 //_____________________________________________________________________________
@@ -36,7 +36,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
 
     if (restTrack->GetParticleName() == "geantino" &&
         (G4String)restG4Metadata->GetSensitiveVolume() == nom_vol) {
-        saveGeantino = true;
+        saveAllEvents = true;
     }
 
     if (!aStep->GetPostStepPoint()->GetProcessDefinedStep()) {

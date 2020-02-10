@@ -45,7 +45,7 @@ extern TRestG4Metadata* restG4Metadata;
 extern TRestG4Event* restG4Event;
 extern TRestG4Event* subRestG4Event;
 extern TRestG4Track* restTrack;
-extern Bool_t saveGeantino;
+extern Bool_t saveAllEvents;
 
 #include <fstream>
 using namespace std;
@@ -61,7 +61,7 @@ EventAction::~EventAction() {}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void EventAction::BeginOfEventAction(const G4Event* geant4_event) {
-    saveGeantino = false;
+    saveAllEvents = restG4Metadata->GetSaveAllEvents();
 
     G4int event_number = geant4_event->GetEventID();
 
@@ -123,7 +123,7 @@ void EventAction::EndOfEventAction(const G4Event* geant4_event) {
         is_sensitive = sensitive_volume_deposited_energy > 0 &&
                            total_deposited_energy > minimum_energy_stored &&
                            total_deposited_energy < maximum_energy_stored ||
-                       saveGeantino;
+                       saveAllEvents;
 
         if (restG4Metadata->GetVerboseLevel() >= REST_Info) {
             string debug_level = "INFO";
