@@ -231,9 +231,50 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             plotele = plotele->NextSiblingElement("plot");
         }
     }
-
 #pragma endregion
+
+#pragma region ReadPanel
+    debug << "TRestAnalysisPlot: Reading panel sections" << endl;
+    maxPlots -= fPlots.size();  // remaining spaces on canvas
+    TiXmlElement* panelele = fElement->FirstChildElement("panel");
+    while (panelele != NULL) {
+        string active = GetParameter("value", panelele, "ON");
+        if (ToUpper(active) == "ON") {
+            int N = fPanels.size();
+            if (N >= maxPlots) {
+                ferr << "Your canvas divisions (" << fCanvasDivisions.X() << " , " << fCanvasDivisions.Y()
+                     << ") are not enough to show " << fPlots.size() << " plots, and " << N + 1
+                     << " info panels" << endl;
+                exit(1);
+            }
+
+            Panel_Info panel;
+            panel.font_size = StringToDouble(GetParameter("font_size", panelele, "0.1"));
+
+            TiXmlElement* labelele = panelele->FirstChildElement("label");
+            while (labelele != NULL) {
+                panel.label.push_back(GetParameter("value", labelele, "Error. Label value not defined"));
+                panel.posX.push_back(StringToDouble(GetParameter("x", labelele, "0.1")));
+                panel.posY.push_back(StringToDouble(GetParameter("y", labelele, "0.1")));
+
+                labelele = labelele->NextSiblingElement("label");
+            }
+
+            fPanels.push_back(panel);
+            panelele = panelele->NextSiblingElement("panel");
+        }
+    }
+
+    for (int n = 0; n < fPanels.size(); n++) {
+        debug << "Panel " << n << " with font size : " << fPanels[n].font_size << endl;
+        for (int m = 0; m < fPanels[n].posX.size(); m++) {
+            debug << "Label : " << fPanels[n].label[m] << endl;
+            debug << "Pos X : " << fPanels[n].posX[m] << endl;
+            debug << "Pos Y : " << fPanels[n].posY[m] << endl;
+        }
+    }
 }
+#pragma endregion
 
 TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFile(TiXmlElement* histele,
                                                                                   Plot_Info_Set plot) {
@@ -484,12 +525,30 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     TStyle* st = new TStyle();
     st->SetPalette(1);
 
-    // start drawing
+    /*** Draft code
+
+string outstring = fRunInputFile[0]->ReplaceMetadataMembers(
+    "Pressure : <<TRestDetectorSetup::fDetectorPressure>> bar, Run number : <<TRestRun::fRunNumber>>");
+cout << outstring << endl;
+    ****/
+
+    for (unsigned int n = 0; n < fPanels.size(); n++) {
+        TPad* targetPad = (TPad*)fCombinedCanvas->cd(n + 1);
+        for (unsigned int m = 0; m < fPanels[n].posX.size(); m++) {
+            string label = fRunInputFile[0]->ReplaceMetadataMembers(fPanels[n].label[m]);
+            TLatex* texxt = new TLatex(fPanels[n].posX[m], fPanels[n].posY[m], label.c_str());
+            texxt->SetTextColor(1);
+            texxt->SetTextSize(fPanels[n].font_size);
+            texxt->Draw("same");
+        }
+    }
+
+    // start drawing plots
     vector<TH3F*> histCollectionAll;
     for (unsigned int n = 0; n < fPlots.size(); n++) {
         Plot_Info_Set plot = fPlots[n];
 
-        TPad* targetPad = (TPad*)fCombinedCanvas->cd(n + 1);
+        TPad* targetPad = (TPad*)fCombinedCanvas->cd(n + 1 + fPanels.size());
         targetPad->SetLogy(plot.logY);
         targetPad->SetLogz(plot.logZ);
         targetPad->SetLeftMargin(0.18);

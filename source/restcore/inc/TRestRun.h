@@ -40,7 +40,7 @@ class TRestRun : public TRestMetadata {
     // data-like metadata objects
     vector<TRestMetadata*> fMetadataInfo;   //!
     vector<TRestMetadata*> fInputMetadata;  //!
-    map<string, string> fInformationMap;      //!
+    map<string, string> fInformationMap;    //!
 
     // temp data member
     vector<TString> fInputFileNames;   //!
@@ -176,6 +176,8 @@ class TRestRun : public TRestMetadata {
     std::vector<std::string> GetMetadataStructureNames();
     std::vector<std::string> GetMetadataStructureTitles();
     int GetNumberOfMetadataStructures() { return fMetadataInfo.size(); }
+
+    string ReplaceMetadataMembers(string instr);
 
     // Setters
     void SetInputFileName(string s) {
