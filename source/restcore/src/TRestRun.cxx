@@ -1405,7 +1405,7 @@ std::vector<std::string> TRestRun::GetMetadataStructureTitles() {
 /// \brief It will replace the data members contained inside the string given as input. The data members in
 /// the input string should be written using the following format <<MetadataClass::fDataMember>>.
 ///
-/// \return TRestEvent The string with data members replaced
+/// \return The string with data members replaced
 string TRestRun::ReplaceMetadataMembers(const string instr) {
     string outstring = instr;
 
