@@ -194,6 +194,8 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             plot.legendOn = StringToBool(GetParameter("legend", plotele, "OFF"));
             plot.staticsOn = StringToBool(GetParameter("stats", plotele, "OFF"));
             plot.annotationOn = StringToBool(GetParameter("annotation", plotele, "OFF"));
+            plot.xOffset = StringToDouble(GetParameter("xOffset", plotele, "0"));
+            plot.yOffset = StringToDouble(GetParameter("yOffset", plotele, "0"));
             plot.save = RemoveWhiteSpaces(GetParameter("save", plotele, ""));
 
             TiXmlElement* histele = plotele->FirstChildElement("histo");
@@ -798,7 +800,8 @@ cout << outstring << endl;
                         double yy = plot.logY ? exp((yup - (j + 1) * size) * log(maxValue_Pad * 1.2))
                                               : (yup - (j + 1) * size) * maxValue_Pad * 1.2;
 
-                        TLatex* text = new TLatex(xpos, yy, annotation_multi_text[j].c_str());
+                        TLatex* text = new TLatex(xpos + plot.xOffset, yy + plot.yOffset,
+                                                  annotation_multi_text[j].c_str());
                         text->SetTextAlign(align);
                         text->SetTextSize(size);
                         text->SetTextColor(plot.histos[i].lineColor);

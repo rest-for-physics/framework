@@ -53,6 +53,9 @@ class TRestAnalysisPlot : public TRestMetadata {
         Bool_t legendOn;
         Bool_t annotationOn;
 
+        Double_t xOffset;
+        Double_t yOffset;
+
         string labelX;
         string labelY;
 
