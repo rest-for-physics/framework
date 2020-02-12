@@ -91,6 +91,7 @@ Description: it contains a normalized distribution of the neutrons coming form r
 
     - EvaporationNeutrons : "Evaporation" spectra from 0 to 10 GeV --> bin size is 0.01 GeV
                             LSC Flux ~ 3.82E-2 neutrons/m2 s
+			    Data for LSC Hall A (13.8+-1.4)E-" neutrons/m2 s (erratum)Astroparticle Physics 42 (2013)1-6
                             The angle should be isotropic
 ---------------------------------------------------------------------------
 
