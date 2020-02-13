@@ -12,6 +12,7 @@
 
 #include "TRestAnalysisPlot.h"
 #include "TRestManager.h"
+#include "TRestTools.h"
 using namespace std;
 
 #include <TLegend.h>
@@ -694,6 +695,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
                 if (plot.timeDisplay) htemp->GetXaxis()->SetTimeDisplay(1);
 
                 histCollectionPlot.push_back(htemp);
+                histCollectionAll.push_back(htemp);
             }
         }
 
@@ -868,6 +870,14 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     // Save canvas to a PDF file
     fCanvasSave = fRunInputFile[0]->FormFormat(fCanvasSave);
     if (fCanvasSave != "") fCombinedCanvas->Print(fCanvasSave);
+
+    // If the extension of the canvas save file is ROOT we store also the histograms
+    if (TRestTools::isRootFile((string)fCanvasSave)) {
+        TFile* f = new TFile(fCanvasSave, "UPDATE");
+        f->cd();
+        for (unsigned int n = 0; n < histCollectionAll.size(); n++) histCollectionAll[n]->Write();
+        f->Close();
+    }
 
     if (StringToBool(GetParameter("previewPlot", "TRUE"))) {
         GetChar();
