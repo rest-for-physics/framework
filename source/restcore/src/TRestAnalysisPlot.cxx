@@ -268,11 +268,11 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     }
 
     for (int n = 0; n < fPanels.size(); n++) {
-        debug << "Panel " << n << " with font size : " << fPanels[n].font_size << endl;
+        extreme << "Panel " << n << " with font size : " << fPanels[n].font_size << endl;
         for (int m = 0; m < fPanels[n].posX.size(); m++) {
-            debug << "Label : " << fPanels[n].label[m] << endl;
-            debug << "Pos X : " << fPanels[n].posX[m] << endl;
-            debug << "Pos Y : " << fPanels[n].posY[m] << endl;
+            extreme << "Label : " << fPanels[n].label[m] << endl;
+            extreme << "Pos X : " << fPanels[n].posX[m] << endl;
+            extreme << "Pos Y : " << fPanels[n].posY[m] << endl;
         }
     }
 }
@@ -290,6 +290,7 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
     vector<TVector2> ranges;
     vector<Int_t> bins;
     TiXmlElement* varele = histele->FirstChildElement("variable");
+
     while (varele != NULL) {
         varNames.push_back(GetParameter("name", varele));
 
@@ -311,6 +312,7 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
             cout << endl;
         }
     }
+
     string pltString = "";
     for (int i = varNames.size() - 1; i >= 0; i--) {
         // The draw branches are in reversed ordered in TTree::Draw()
@@ -326,10 +328,16 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
         if (bins[i] == -1) binsStr = " ";
 
         string rXStr = ToString(ranges[i].X());
-        if (ranges[i].X() == -1) rXStr = " ";
+        if (ranges[i].X() == -1) {
+            rXStr = " ";
+            if (varNames[i] == "timeStamp") rXStr = "MIN_TIME";
+        }
 
         string rYStr = ToString(ranges[i].Y());
-        if (ranges[i].Y() == -1) rYStr = " ";
+        if (ranges[i].Y() == -1) {
+            rYStr = " ";
+            if (varNames[i] == "timeStamp") rYStr = "MAX_TIME";
+        }
 
         if (i == 0) rangestr += "(";
         rangestr += binsStr + " , " + rXStr + " , " + rYStr;
@@ -527,13 +535,6 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     TStyle* st = new TStyle();
     st->SetPalette(1);
 
-    /*** Draft code
-
-string outstring = fRunInputFile[0]->ReplaceMetadataMembers(
-    "Pressure : <<TRestDetectorSetup::fDetectorPressure>> bar, Run number : <<TRestRun::fRunNumber>>");
-cout << outstring << endl;
-    ****/
-
     for (unsigned int n = 0; n < fPanels.size(); n++) {
         TPad* targetPad = (TPad*)fCombinedCanvas->cd(n + 1);
         for (unsigned int m = 0; m < fPanels[n].posX.size(); m++) {
@@ -543,6 +544,20 @@ cout << outstring << endl;
             texxt->SetTextSize(fPanels[n].font_size);
             texxt->Draw("same");
         }
+    }
+
+    Double_t startTime = 0;
+    Double_t endTime = 0;
+    for (unsigned int n = 0; n < fRunInputFile.size(); n++) {
+        // We get the lowest/highest run time stamps.
+        if (!startTime || startTime > fRunInputFile[n]->GetEndTimestamp())
+            startTime = fRunInputFile[n]->GetEndTimestamp();
+        if (!startTime || startTime > fRunInputFile[n]->GetStartTimestamp())
+            startTime = fRunInputFile[n]->GetStartTimestamp();
+        if (!endTime || endTime < fRunInputFile[n]->GetStartTimestamp())
+            endTime = fRunInputFile[n]->GetStartTimestamp();
+        if (!endTime || endTime < fRunInputFile[n]->GetStartTimestamp())
+            endTime = fRunInputFile[n]->GetStartTimestamp();
     }
 
     // start drawing plots
@@ -568,6 +583,10 @@ cout << outstring << endl;
             TString rangeString = hist.range;
             TString cutString = hist.cutString;
             TString optString = hist.drawOption;
+
+            size_t pos = 0;
+            rangeString = Replace((string)rangeString, "MIN_TIME", (string)Form("%9f", startTime), pos);
+            rangeString = Replace((string)rangeString, "MAX_TIME", (string)Form("%9f", endTime), pos);
 
             if (GetVerboseLevel() >= REST_Debug) {
                 cout << endl;
@@ -647,6 +666,8 @@ cout << outstring << endl;
 
                 htemp->SetDrawOption(hist.drawOption.c_str());
 
+                //               htemp->GetXaxis()->SetTimeDisplay(1);
+
                 histCollectionPlot.push_back(htemp);
             }
         }
@@ -684,6 +705,7 @@ cout << outstring << endl;
         if (((string)histCollectionPlot[maxID]->ClassName()).find("TH1") != -1) {
             histCollectionPlot[maxID]->GetYaxis()->SetRangeUser(plot.logY, maxValue_Pad * 1.2);
         }
+
         for (unsigned int i = 0; i < histCollectionPlot.size(); i++) {
             // draw the remaining histo
             if (i != maxID) {
