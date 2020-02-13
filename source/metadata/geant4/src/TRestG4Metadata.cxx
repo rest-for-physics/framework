@@ -716,7 +716,7 @@ void TRestG4Metadata::InitFromConfigFile() {
     if (ToUpper(seedstr) == "RANDOM" || ToUpper(seedstr) == "RAND" || ToUpper(seedstr) == "AUTO" ||
         seedstr == "0") {
         double* dd = new double();
-        fSeed = (uintptr_t)dd + (uintptr_t) this;
+        fSeed = (uintptr_t)dd + (uintptr_t)this;
         delete dd;
     } else {
         fSeed = (Long_t)StringToInteger(seedstr);
@@ -743,6 +743,7 @@ void TRestG4Metadata::InitFromConfigFile() {
     fNEvents = StringToInteger(GetParameter("Nevents"));
     // fActivity = StringToDouble( GetParameter( "activity" ) );
     // fMass = StringToDouble( GetParameter( "mass" ) );
+    fSaveAllEvents = (Bool_t)GetDblParameterWithUnits("saveAllEvents");
 
     ReadGenerator();
 

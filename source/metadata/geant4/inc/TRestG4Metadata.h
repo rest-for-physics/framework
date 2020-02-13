@@ -180,6 +180,10 @@ class TRestG4Metadata : public TRestMetadata {
     /// its value will be assigned using the system timestamp.
     Long_t fSeed = 0;
 
+    /// If this parameter is set to 'true' it will save all events even if they leave no energy in the
+    /// sensitive volume (used for debugging pourposes). It is set to 'false' by default.
+    Bool_t fSaveAllEvents = 0;
+
    public:
     /// Returns the random seed that was used to generate the corresponding
     /// geant4 dataset.
@@ -256,10 +260,13 @@ class TRestG4Metadata : public TRestMetadata {
     /// decay products (sometimes with years time delays) into independent events.
     Double_t GetSubEventTimeDelay() { return fSubEventTimeDelay; }
 
+    Bool_t GetSaveAllEvents() const { return fSaveAllEvents; }
+
     /// Used exclusively by restG4 to set the value of the random seed used on
     /// Geant4 simulation.
     void SetSeed(Long_t seed) { fSeed = seed; }
 
+    void SetSaveAllEvents(const Bool_t value) { fSaveAllEvents = value; }
     /// Sets the value of the Geant4 version
     void SetGeant4Version(TString g4Version) { fGeant4Version = g4Version; }
 
