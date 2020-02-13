@@ -56,6 +56,8 @@ class TRestAnalysisPlot : public TRestMetadata {
         Double_t xOffset;
         Double_t yOffset;
 
+        Bool_t timeDisplay;
+
         string labelX;
         string labelY;
 

@@ -196,6 +196,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
             plot.annotationOn = StringToBool(GetParameter("annotation", plotele, "OFF"));
             plot.xOffset = StringToDouble(GetParameter("xOffset", plotele, "0"));
             plot.yOffset = StringToDouble(GetParameter("yOffset", plotele, "0"));
+            plot.timeDisplay = StringToBool(GetParameter("timeDisplay", plotele, "OFF"));
             plot.save = RemoveWhiteSpaces(GetParameter("save", plotele, ""));
 
             TiXmlElement* histele = plotele->FirstChildElement("histo");
@@ -330,13 +331,13 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
         string rXStr = ToString(ranges[i].X());
         if (ranges[i].X() == -1) {
             rXStr = " ";
-            if (varNames[i] == "timeStamp") rXStr = "MIN_TIME";
+            if (varNames[i] == "timeStamp" || plot.timeDisplay) rXStr = "MIN_TIME";
         }
 
         string rYStr = ToString(ranges[i].Y());
         if (ranges[i].Y() == -1) {
             rYStr = " ";
-            if (varNames[i] == "timeStamp") rYStr = "MAX_TIME";
+            if (varNames[i] == "timeStamp" || plot.timeDisplay) rYStr = "MAX_TIME";
         }
 
         if (i == 0) rangestr += "(";
@@ -535,29 +536,53 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
     TStyle* st = new TStyle();
     st->SetPalette(1);
 
+    Double_t startTime = 0;
+    Double_t endTime = 0;
+    Double_t runLength = 0;
+    Int_t totalEntries = 0;
+    for (unsigned int n = 0; n < fRunInputFile.size(); n++) {
+        Double_t endTimeStamp = fRunInputFile[n]->GetEndTimestamp();
+        Double_t startTimeStamp = fRunInputFile[n]->GetStartTimestamp();
+
+        // We get the lowest/highest run time stamps.
+        if (!startTime || startTime > endTimeStamp) startTime = endTimeStamp;
+        if (!startTime || startTime > startTimeStamp) startTime = startTimeStamp;
+
+        if (!endTime || endTime < startTimeStamp) endTime = startTimeStamp;
+        if (!endTime || endTime < endTimeStamp) endTime = endTimeStamp;
+
+        if (endTimeStamp - startTimeStamp > 0) {
+            runLength += endTimeStamp - startTimeStamp;
+            totalEntries += fRunInputFile[n]->GetEntries();
+        }
+    }
+    Double_t meanRate = totalEntries / runLength;
+
+    runLength /= 3600.;
+
     for (unsigned int n = 0; n < fPanels.size(); n++) {
         TPad* targetPad = (TPad*)fCombinedCanvas->cd(n + 1);
         for (unsigned int m = 0; m < fPanels[n].posX.size(); m++) {
-            string label = fRunInputFile[0]->ReplaceMetadataMembers(fPanels[n].label[m]);
+            string label = fPanels[n].label[m];
+
+            size_t pos = 0;
+            label = Replace(label, "<<startTime>>", ToDateTimeString(startTime), pos);
+            pos = 0;
+            label = Replace(label, "<<endTime>>", ToDateTimeString(endTime), pos);
+            pos = 0;
+            label = Replace(label, "<<entries>>", Form("%d", totalEntries), pos);
+            pos = 0;
+            label = Replace(label, "<<runLength>>", Form("%5.2lf", runLength), pos);
+            pos = 0;
+            label = Replace(label, "<<meanRate>>", Form("%5.2lf", meanRate), pos);
+
+            label = fRunInputFile[0]->ReplaceMetadataMembers(label);
+
             TLatex* texxt = new TLatex(fPanels[n].posX[m], fPanels[n].posY[m], label.c_str());
             texxt->SetTextColor(1);
             texxt->SetTextSize(fPanels[n].font_size);
             texxt->Draw("same");
         }
-    }
-
-    Double_t startTime = 0;
-    Double_t endTime = 0;
-    for (unsigned int n = 0; n < fRunInputFile.size(); n++) {
-        // We get the lowest/highest run time stamps.
-        if (!startTime || startTime > fRunInputFile[n]->GetEndTimestamp())
-            startTime = fRunInputFile[n]->GetEndTimestamp();
-        if (!startTime || startTime > fRunInputFile[n]->GetStartTimestamp())
-            startTime = fRunInputFile[n]->GetStartTimestamp();
-        if (!endTime || endTime < fRunInputFile[n]->GetStartTimestamp())
-            endTime = fRunInputFile[n]->GetStartTimestamp();
-        if (!endTime || endTime < fRunInputFile[n]->GetStartTimestamp())
-            endTime = fRunInputFile[n]->GetStartTimestamp();
     }
 
     // start drawing plots
@@ -666,7 +691,7 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
 
                 htemp->SetDrawOption(hist.drawOption.c_str());
 
-                //               htemp->GetXaxis()->SetTimeDisplay(1);
+                if (plot.timeDisplay) htemp->GetXaxis()->SetTimeDisplay(1);
 
                 histCollectionPlot.push_back(htemp);
             }
