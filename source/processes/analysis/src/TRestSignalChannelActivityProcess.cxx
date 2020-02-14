@@ -127,8 +127,10 @@ TRestEvent* TRestSignalChannelActivityProcess::ProcessEvent(TRestEvent* evInput)
         TRestSignal* sgnl = fSignalEvent->GetSignal(s);
         // Adding signal to the channel activity histogram
         if (!fReadOnly && fReadout) {
-            TRestReadoutModule* mod = fReadout->GetReadoutPlane(0)->GetModule(0);
-            Int_t readoutChannel = mod->DaqToReadoutChannel(fSignalEvent->GetSignal(s)->GetID());
+            Int_t signalID = fSignalEvent->GetSignal(s)->GetID();
+
+            Int_t p, m, readoutChannel;
+            fReadout->GetPlaneModuleChannel(signalID, p, m, readoutChannel);
 
             if (sgnl->GetMaxValue() > fLowThreshold) {
                 if (Nlow == 1) fReadoutChannelsHisto_OneSignal->Fill(readoutChannel);
