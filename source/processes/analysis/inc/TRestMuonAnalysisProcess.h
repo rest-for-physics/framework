@@ -30,10 +30,17 @@ class TRestMuonAnalysisProcess : public TRestEventProcess {
     TH1D* hdiffz;  //!
     TF1* fdiffz;   //!
 
-    int X1;  //!
-    int X2;  //!
-    int Y1;  //!
-    int Y2;  //!
+    vector<TVector3> fHough_XZ;  // y=ax+b, vertical line angle 牟, length 老,
+                                 // [id][老,牟,weight]
+    vector<TVector3> fHough_YZ;  // y=ax+b, vertical line angle 牟, length 老,
+                                 // [id][老,牟,weight]
+
+    int X1;    //!
+    int X2;    //!
+    int Y1;    //!
+    int Y2;    //!
+    TF1* fxz;  //!
+    TF1* fyz;  //!
 
     int nummudeposxz;  //!
     int nummudeposyz;  //!
@@ -47,6 +54,9 @@ class TRestMuonAnalysisProcess : public TRestEventProcess {
 
     TH2D* muhitmap;  //!
     TH2D* muhitdir;  //!
+
+    Double_t fHoughSigmaLimit;
+    Double_t fPeakPointRateLimit;  
 
     map<int, vector<double>> musmearxy;       // [z index][single strip ene]
     map<int, pair<double, double>> musmearz;  // [z index][sigma, chi2]
@@ -70,10 +80,15 @@ class TRestMuonAnalysisProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << "A dummy Process parameter : " << fMyDummyParameter << std::endl;
+        metadata << "Hough sigma threshold for muon tracks: " << fHoughSigmaLimit << endl;
+        metadata << "Peak point rate limit: " << fPeakPointRateLimit << endl;
 
         EndPrintProcess();
     }
+
+    TRest2DHitsEvent* MakeTag();
+
+    void MuDepos(TRest2DHitsEvent* eve);
 
     double ProjectionToCenter(double x, double y, double xzthe, double yzthe);
 
@@ -88,7 +103,7 @@ class TRestMuonAnalysisProcess : public TRestEventProcess {
     ~TRestMuonAnalysisProcess();
 
     ClassDef(TRestMuonAnalysisProcess,
-             1);  // Template for a REST "event process" class inherited from
+             2);  // Template for a REST "event process" class inherited from
                   // TRestEventProcess
 };
 #endif
