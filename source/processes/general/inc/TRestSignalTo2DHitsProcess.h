@@ -33,34 +33,6 @@ class TRestSignalTo2DHitsProcess : public TRestEventProcess {
     // int fNoiseReductionLevel;//0: no reduction, 1: subtract baseline, 2:
     // subtract baseline plus threshold
 
-    string fSelection;  // 0: uses all, 1: muon, 2: strong electron, 3: weak
-                        // electron, 4: firing, 5: abnormal, 6: pile up, 9: other
-
-    Double_t fHoughSigmaLimit;     
-    Double_t fPeakPointRateLimit;  
-
-    vector<TVector3> fHough_XZ;  // y=ax+b, vertical line angle 牟, length 老,
-                                 // [id][老,牟,weight]
-    vector<TVector3> fHough_YZ;  // y=ax+b, vertical line angle 牟, length 老,
-                                 // [id][老,牟,weight]
-
-    // int longmunumxz;//!
-    // int longmunumyz;//!
-    // TH1D* mudeposxz;//!
-    // TH1D* mudeposyz;//!
-
-    TH1D* hxzt;  //!
-    TH1D* hyzt;  //!
-    TH1D* hxzr;  //!
-    TH1D* hyzr;  //!
-    TF1* fxz;    //!
-    TF1* fyz;    //!
-
-    int X1;  //!
-    int X2;  //!
-    int Y1;  //!
-    int Y2;  //!
-
    protected:
    public:
     void InitProcess();
@@ -78,13 +50,6 @@ class TRestSignalTo2DHitsProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        metadata << "Hough sigma threshold for muon tracks: " << fHoughSigmaLimit << endl;
-        metadata << endl;
-        metadata << "Event selection: " << fSelection << endl;
-        metadata << "0: uses all, 1: muon, 2: strong electron, 3: weak electron, "
-                    "4: firing, 5: abnormal, 9: other"
-                 << endl;
-
         EndPrintProcess();
     }
 
@@ -94,7 +59,7 @@ class TRestSignalTo2DHitsProcess : public TRestEventProcess {
     ~TRestSignalTo2DHitsProcess();
 
     ClassDef(TRestSignalTo2DHitsProcess,
-             1);  // Template for a REST "event process" class inherited from
+             2);  // Template for a REST "event process" class inherited from
                   // TRestEventProcess
 };
 #endif

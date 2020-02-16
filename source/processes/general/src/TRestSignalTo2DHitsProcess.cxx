@@ -34,6 +34,8 @@
 
 using namespace std;
 
+#define CLUSTER_XSPAN 2
+
 ClassImp(TRestSignalTo2DHitsProcess)
     //______________________________________________________________________________
     TRestSignalTo2DHitsProcess::TRestSignalTo2DHitsProcess() {
@@ -65,21 +67,6 @@ void TRestSignalTo2DHitsProcess::Initialize() {
 void TRestSignalTo2DHitsProcess::InitProcess() {
     fReadout = (TRestReadout*)GetReadoutMetadata();
     if (fReadout != NULL) fOutput2DHitsEvent->SetReadout(fReadout);
-
-    fOutput2DHitsEvent->SetROIX(TVector2(X1, X2));
-    fOutput2DHitsEvent->SetROIY(TVector2(Y1, Y2));
-
-    // longmunumxz = 0;
-    // longmunumyz = 0;
-    // mudeposxz = new TH1D("mudeposxzup", "muonXZenergydepos", 512, 0., 512.);
-    // mudeposyz = new TH1D("mudeposyzup", "muonYZenergydepos", 512, 0., 512.);
-
-    hxzt = new TH1D((TString) "hxzt" + ToString(this), "hh", 200, 0, 3.14);
-    hxzr = new TH1D((TString) "hxzr" + ToString(this), "hh", 200, -(X2 - X1), (X2 - X1));
-    fxz = new TF1((TString) "fxz" + ToString(this), "gaus");
-    hyzt = new TH1D((TString) "hyzt" + ToString(this), "hh", 200, 0, 3.14);
-    hyzr = new TH1D((TString) "hyzr" + ToString(this), "hh", 200, -(Y2 - Y1), (Y2 - Y1));
-    fyz = new TF1((TString) "fyz" + ToString(this), "gaus");
 }
 
 //______________________________________________________________________________
@@ -97,6 +84,7 @@ TRestEvent* TRestSignalTo2DHitsProcess::ProcessEvent(TRestEvent* evInput) {
     }
 
     fOutput2DHitsEvent->RemoveSeparateZ();
+    MakeCluster();
 
     // the analysis
     double zlen = fOutput2DHitsEvent->GetZRange().Y() - fOutput2DHitsEvent->GetZRange().X();
@@ -549,181 +537,170 @@ TRestEvent* TRestSignalTo2DHitsProcess::ProcessEvent(TRestEvent* evInput) {
 //
 //}
 
-//void TRestSignalTo2DHitsProcess::MakeCluster() {
-//    vector<double> xzz;
-//    vector<double> xzx;
-//    vector<double> xze;
-//
-//    if (fOutput2DHitsEvent->GetNumberOfXZSignals() > 3) {
-//        double baselinemean = 0;
-//        double baselinermsmean = 0;
-//        // we first make cluster along z(same x)
-//        for (int i = 0; i < fOutput2DHitsEvent->GetNumberOfXZSignals(); i++) {
-//            auto s = fOutput2DHitsEvent->GetXZSignal(i);
-//            auto x = fOutput2DHitsEvent->GetX(i);
-//            double baseline = TMath::Mean(s.begin() + fBaseLineRange.X(), s.begin() + fBaseLineRange.Y());
-//            double baselinerms =
-//                TMath::StdDev(s.begin() + fBaseLineRange.X(), s.begin() + fBaseLineRange.Y());
-//            baselinemean += baseline / fOutput2DHitsEvent->GetNumberOfXZSignals();
-//            baselinermsmean += baselinerms / fOutput2DHitsEvent->GetNumberOfXZSignals();
-//
-//            for (int j = fBaseLineRange.Y(); j < s.size(); j++) {
-//                if (s[j] > baseline + fSignalThreshold * baselinerms) {
-//                    int pos = j;
-//                    vector<double> pulse;
-//                    pulse.push_back(s[j]);
-//                    j++;
-//                    while (j < s.size() && s[j] > baseline + fSignalThreshold * baselinerms) {
-//                        pulse.push_back(s[j]);
-//                        j++;
-//                    }
-//                    if (pulse.size() > fNPointsOverThreshold) {
-//                        auto _e = max_element(begin(pulse), end(pulse));
-//                        if (*_e > fSignalThreshold * baselinerms) {
-//                            xzz.push_back((double)(distance(std::begin(pulse), _e) + pos));
-//                            xzx.push_back(x);
-//                            xze.push_back(*_e);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        // then make cluster along x(same z)
-//        int a = fOutput2DHitsEvent->GetZRange().X();
-//        int b = fOutput2DHitsEvent->GetZRange().Y();
-//        for (int i = a; i <= b;
-//             i += (int)(5 * gRandom->Rndm((Long64_t)this) + 10))  // we sample every 15 points
-//        {
-//            auto hits = fOutput2DHitsEvent->GetXZHitsWithZ(i);
-//            map<double, double>::iterator iter = hits.begin();
-//            while (iter != hits.end()) {
-//                if (iter->second > baselinemean + fSignalThreshold * baselinermsmean) {
-//                    double pos = iter->first;
-//                    double ene = iter->second;
-//                    vector<double> pulse;
-//                    pulse.push_back(iter->second);
-//                    iter++;
-//                    while (iter != hits.end() &&
-//                           iter->second > baselinemean + fSignalThreshold * baselinermsmean) {
-//                        pulse.push_back(iter->second);
-//                        if (iter->second > ene) {
-//                            ene = iter->second;
-//                            pos = iter->first;
-//                        }
-//                        iter++;
-//                    }
-//                    iter--;
-//                    if (!TMath::IsNaN(pos)) {
-//                        xzz.push_back((double)i);
-//                        xzx.push_back(pos);
-//                        xze.push_back(ene);
-//                    }
-//                }
-//                iter++;
-//            }
-//        }
-//
-//        for (int i = 0; i < xzz.size(); i++) {
-//            fOutput2DHitsEvent->AddXZCluster(xzx[i], xzz[i], xze[i]);
-//        }
-//
-//        // tag firing event
-//        if (xzz.size() > 10 &&
-//            (*max_element(begin(xzz), end(xzz)) - *min_element(begin(xzz), end(xzz))) /
-//                    (*max_element(begin(xzx), end(xzx)) - *min_element(begin(xzx), end(xzx))) <
-//                0.1) {
-//            fOutput2DHitsEvent->SetSubEventTag("firing");
-//        }
-//    }
-//
-//    vector<double> yzz;
-//    vector<double> yzy;
-//    vector<double> yze;
-//
-//    if (fOutput2DHitsEvent->GetNumberOfYZSignals() > 3) {
-//        double baselinemean = 0;
-//        double baselinermsmean = 0;
-//        // we first make cluster along z(same y)
-//        for (int i = 0; i < fOutput2DHitsEvent->GetNumberOfYZSignals(); i++) {
-//            auto s = fOutput2DHitsEvent->GetYZSignal(i);
-//            auto y = fOutput2DHitsEvent->GetY(i);
-//            double baseline = TMath::Mean(s.begin() + fBaseLineRange.X(), s.begin() + fBaseLineRange.Y());
-//            double baselinerms =
-//                TMath::StdDev(s.begin() + fBaseLineRange.X(), s.begin() + fBaseLineRange.Y());
-//            baselinemean += baseline / fOutput2DHitsEvent->GetNumberOfYZSignals();
-//            baselinermsmean += baselinerms / fOutput2DHitsEvent->GetNumberOfYZSignals();
-//
-//            for (int j = fBaseLineRange.Y(); j < s.size(); j++) {
-//                if (s[j] > baseline + fSignalThreshold * baselinerms) {
-//                    int pos = j;
-//                    vector<double> pulse;
-//                    pulse.push_back(s[j]);
-//                    j++;
-//                    while (j < s.size() && s[j] > baseline + fSignalThreshold * baselinerms) {
-//                        pulse.push_back(s[j]);
-//                        j++;
-//                    }
-//                    if (pulse.size() > fNPointsOverThreshold) {
-//                        auto _e = max_element(begin(pulse), end(pulse));
-//                        if (*_e > fSignalThreshold * baselinerms) {
-//                            yzz.push_back((double)(distance(std::begin(pulse), _e) + pos));
-//                            yzy.push_back(y);
-//                            yze.push_back(*_e);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        // then make cluster along y(same z)
-//        int a = fOutput2DHitsEvent->GetZRange().X();
-//        int b = fOutput2DHitsEvent->GetZRange().Y();
-//        for (int i = a; i <= b;
-//             i += (int)(5 * gRandom->Rndm((Long64_t)this) + 10))  // we sample every 15 points
-//        {
-//            auto hits = fOutput2DHitsEvent->GetYZHitsWithZ(i);
-//            map<double, double>::iterator iter = hits.begin();
-//            while (iter != hits.end()) {
-//                if (iter->second > baselinemean + fSignalThreshold * baselinermsmean) {
-//                    double pos = iter->first;
-//                    double ene = iter->second;
-//                    vector<double> pulse;
-//                    pulse.push_back(iter->second);
-//                    iter++;
-//                    while (iter != hits.end() &&
-//                           iter->second > baselinemean + fSignalThreshold * baselinermsmean) {
-//                        pulse.push_back(iter->second);
-//                        if (iter->second > ene) {
-//                            ene = iter->second;
-//                            pos = iter->first;
-//                        }
-//                        iter++;
-//                    }
-//                    iter--;
-//                    if (!TMath::IsNaN(pos)) {
-//                        yzz.push_back((double)i);
-//                        yzy.push_back(pos);
-//                        yze.push_back(ene);
-//                    }
-//                }
-//                iter++;
-//            }
-//        }
-//
-//        for (int i = 0; i < yzz.size(); i++) {
-//            fOutput2DHitsEvent->AddYZCluster(yzy[i], yzz[i], yze[i]);
-//        }
-//
-//        // tag firing event
-//        if (yzz.size() > 10 &&
-//            (*max_element(begin(yzz), end(yzz)) - *min_element(begin(yzz), end(yzz))) /
-//                    (*max_element(begin(yzy), end(yzy)) - *min_element(begin(yzy), end(yzy))) <
-//                0.1) {
-//            fOutput2DHitsEvent->SetSubEventTag("firing");
-//        }
-//    }
-//}
+
+void TRestSignalTo2DHitsProcess::MakeCluster() {
+    vector<double> xzz;
+    vector<double> xzx;
+    vector<double> xze;
+
+    if (fOutput2DHitsEvent->GetNumberOfXZSignals() > 3) {
+        double baselinemean = 0;
+        double baselinermsmean = 0;
+        // we first make cluster along z(same x)
+        for (int i = 0; i < fOutput2DHitsEvent->GetNumberOfXZSignals(); i++) {
+            auto s = fOutput2DHitsEvent->GetXZSignal(i);
+            auto x = fOutput2DHitsEvent->GetX(i);
+
+            for (int j = 0; j < s.size(); j++) {
+                if (s[j] > 0) {
+                    int pos = j;
+                    vector<double> pulse;
+                    pulse.push_back(s[j]);
+                    j++;
+                    while (j < s.size() && s[j] > 0) {
+                        pulse.push_back(s[j]);
+                        j++;
+                    }
+                    if (pulse.size() >= CLUSTER_XSPAN) {
+                        auto _e = max_element(begin(pulse), end(pulse));
+                        if (*_e > 0) {
+                            xzz.push_back((double)(distance(std::begin(pulse), _e) + pos));
+                            xzx.push_back(x);
+                            xze.push_back(*_e);
+                        }
+                    }
+                }
+            }
+        }
+
+        // then make cluster along x(same z)
+        int a = fOutput2DHitsEvent->GetZRange().X();
+        int b = fOutput2DHitsEvent->GetZRange().Y();
+        for (int i = a; i <= b;
+             i += (int)(5 * gRandom->Rndm((Long64_t)this) + 10))  // we sample every 15 points
+        {
+            auto hits = fOutput2DHitsEvent->GetXZHitsWithZ(i);
+            map<double, double>::iterator iter = hits.begin();
+            while (iter != hits.end()) {
+                if (iter->second > 0) {
+                    double pos = iter->first;
+                    double ene = iter->second;
+                    vector<double> pulse;
+                    pulse.push_back(iter->second);
+                    iter++;
+                    while (iter != hits.end() && iter->second > 0) {
+                        pulse.push_back(iter->second);
+                        if (iter->second > ene) {
+                            ene = iter->second;
+                            pos = iter->first;
+                        }
+                        iter++;
+                    }
+                    iter--;
+                    if (!TMath::IsNaN(pos)) {
+                        xzz.push_back((double)i);
+                        xzx.push_back(pos);
+                        xze.push_back(ene);
+                    }
+                }
+                iter++;
+            }
+        }
+
+        for (int i = 0; i < xzz.size(); i++) {
+            fOutput2DHitsEvent->AddXZCluster(xzx[i], xzz[i], xze[i]);
+        }
+
+        // tag sparking event
+        if (xzz.size() > 10 &&
+            (*max_element(begin(xzz), end(xzz)) - *min_element(begin(xzz), end(xzz))) /
+                    (*max_element(begin(xzx), end(xzx)) - *min_element(begin(xzx), end(xzx))) <
+                0.1) {
+            fOutput2DHitsEvent->SetSubEventTag("sparking");
+        }
+    }
+
+    vector<double> yzz;
+    vector<double> yzy;
+    vector<double> yze;
+
+    if (fOutput2DHitsEvent->GetNumberOfYZSignals() > 3) {
+        double baselinemean = 0;
+        double baselinermsmean = 0;
+        // we first make cluster along z(same y)
+        for (int i = 0; i < fOutput2DHitsEvent->GetNumberOfYZSignals(); i++) {
+            auto s = fOutput2DHitsEvent->GetYZSignal(i);
+            auto y = fOutput2DHitsEvent->GetY(i);
+
+            for (int j = 0; j < s.size(); j++) {
+                if (s[j] > 0) {
+                    int pos = j;
+                    vector<double> pulse;
+                    pulse.push_back(s[j]);
+                    j++;
+                    while (j < s.size() && s[j] > 0) {
+                        pulse.push_back(s[j]);
+                        j++;
+                    }
+                    if (pulse.size() >= CLUSTER_XSPAN) {
+                        auto _e = max_element(begin(pulse), end(pulse));
+                        if (*_e > 0) {
+                            yzz.push_back((double)(distance(std::begin(pulse), _e) + pos));
+                            yzy.push_back(y);
+                            yze.push_back(*_e);
+                        }
+                    }
+                }
+            }
+        }
+
+        // then make cluster along y(same z)
+        int a = fOutput2DHitsEvent->GetZRange().X();
+        int b = fOutput2DHitsEvent->GetZRange().Y();
+        for (int i = a; i <= b;
+             i += (int)(5 * gRandom->Rndm((Long64_t)this) + 10))  // we sample every 15 points
+        {
+            auto hits = fOutput2DHitsEvent->GetYZHitsWithZ(i);
+            map<double, double>::iterator iter = hits.begin();
+            while (iter != hits.end()) {
+                if (iter->second > 0) {
+                    double pos = iter->first;
+                    double ene = iter->second;
+                    vector<double> pulse;
+                    pulse.push_back(iter->second);
+                    iter++;
+                    while (iter != hits.end() && iter->second > 0) {
+                        pulse.push_back(iter->second);
+                        if (iter->second > ene) {
+                            ene = iter->second;
+                            pos = iter->first;
+                        }
+                        iter++;
+                    }
+                    iter--;
+                    if (!TMath::IsNaN(pos)) {
+                        yzz.push_back((double)i);
+                        yzy.push_back(pos);
+                        yze.push_back(ene);
+                    }
+                }
+                iter++;
+            }
+        }
+
+        for (int i = 0; i < yzz.size(); i++) {
+            fOutput2DHitsEvent->AddYZCluster(yzy[i], yzz[i], yze[i]);
+        }
+
+        // tag sparking event
+        if (yzz.size() > 10 &&
+            (*max_element(begin(yzz), end(yzz)) - *min_element(begin(yzz), end(yzz))) /
+                    (*max_element(begin(yzy), end(yzy)) - *min_element(begin(yzy), end(yzy))) <
+                0.1) {
+            fOutput2DHitsEvent->SetSubEventTag("sparking");
+        }
+    }
+}
 //
 //TRest2DHitsEvent* TRestSignalTo2DHitsProcess::SelectTag() {
 //    if (fOutput2DHitsEvent->GetSubEventTag() == "general")  // if no tags
@@ -1017,16 +994,4 @@ void TRestSignalTo2DHitsProcess::EndProcess() {
 void TRestSignalTo2DHitsProcess::InitFromConfigFile() {
     // fNoiseReductionLevel = StringToInteger(GetParameter("noiseReduction",
     // "0"));
-    fSelection = GetParameter("selection", "0");
-
-    fHoughSigmaLimit = StringToDouble(GetParameter("houghSigmaLimit", "0.05"));
-    fPeakPointRateLimit = StringToDouble(GetParameter("peakPointRateLimit", "0.9"));
-
-    TVector2 XROI = StringTo2DVector(GetParameter("XROI", "(-100,100)"));
-    TVector2 YROI = StringTo2DVector(GetParameter("YROI", "(-100,100)"));
-
-    X1 = XROI.X();
-    X2 = XROI.Y();
-    Y1 = YROI.X();
-    Y2 = YROI.Y();
 }
