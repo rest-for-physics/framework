@@ -149,24 +149,6 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
                     Double_t hit_global_time = aStep->GetPreStepPoint()->GetGlobalTime() / second;
 
                     restTrack->AddG4Hit(hitPosition, ener_dep / keV, hit_global_time, pcsID, volID, eKin);
-
-                    // begin TRestG4Event TransportationInfo
-                    if (nom_proc == "Transportation") {
-                        Int_t trackID = restTrack->GetTrackID();
-                        string fromVolume = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName();
-                        string toVolume = aStep->GetPostStepPoint()->GetPhysicalVolume()->GetName();
-                        string particleName = aStep->GetTrack()->GetDefinition()->GetParticleName();
-                        G4ThreeVector position = aStep->GetPreStepPoint()->GetPosition();
-                        G4ThreeVector momentum = aStep->GetPreStepPoint()->GetMomentumDirection();
-                        Double_t globalTime = hit_global_time;
-                        Double_t kineticEnergy = eKin;  // KE
-
-                        restG4Event->AddTransportationInfo(trackID, fromVolume, toVolume, particleName,
-                                                           TVector3(position.X, position.Y, position.Z),
-                                                           TVector3(momentum.X, momentum.Y, momentum.Z),
-                                                           globalTime, kineticEnergy);
-                    }
-                    // end TRestG4Event TransportationInfo
                 }
             }
         }
