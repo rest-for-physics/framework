@@ -196,6 +196,19 @@ Int_t TRestG4Event::GetNumberOfHits() {
     return hits;
 }
 
+void TRestG4Event::AddTransportationInfo(const int trackID, const string fromVolume, const string toVolume,
+                                         const string particleName, const TVector3 position,
+                                         const TVector3 momentum, const Double_t globalTime,
+                                         const Double_t KE) {
+    fTransportationTrackID.push_back(trackID);
+    fTransportationFromVolume.push_back(fromVolume);
+    fTransportationToVolume.push_back(toVolume);
+    fTransportationParticleName.push_back(particleName);
+    fTransportationGlobalTime.push_back(globalTime);
+    fTransportationPosition.push_back(position);
+    fTransportationMomentum.push_back(momentum);
+    fTransportationKE.push_back(KE);
+}
 TRestHits TRestG4Event::GetHits() {
     TRestHits hits;
     for (int t = 0; t < fNTracks; t++) {

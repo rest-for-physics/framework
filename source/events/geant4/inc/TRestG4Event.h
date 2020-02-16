@@ -186,10 +186,41 @@ class TRestG4Event : public TRestEvent {
 
     Int_t fMaxSubEventID;
 
+    // begin 'TransportationInfo'
+    std::vector<Int_t> fTransportationTrackID;
+    std::vector<string> fTransportationFromVolume;
+    std::vector<string> fTransportationToVolume;
+    std::vector<string> fTransportationParticleName;
+    std::vector<Double_t> fTransportationGlobalTime;
+    std::vector<TVector3> fTransportationPosition;
+    std::vector<TVector3> fTransportationMomentum;
+    std::vector<Double_t> fTransportationKE;
+    // end 'TransportationInfo'
    public:
+    Int_t GetTransportationEntries() { return (Int_t)fTransportationTrackID.size(); }
+    Int_t GetTransportationTrackID(Int_t n) { return fTransportationTrackID[n]; }
+    string GetTransportationFromVolume(Int_t n) { return fTransportationFromVolume[n]; }
+    string GetTransportationToVolume(Int_t n) { return fTransportationToVolume[n]; }
+    string GetTransportationParticleName(Int_t n) { return fTransportationParticleName[n]; }
+    Double_t GetTransportationGlobalTime(Int_t n) { return fTransportationGlobalTime[n]; }
+    TVector3 GetTransportationPosition(Int_t n) { return fTransportationPosition[n]; }
+    TVector3 GetTransportationMomentum(Int_t n) { return fTransportationMomentum[n]; }
+    Double_t GetTransportationKE(Int_t n) { return fTransportationKE[n]; }
+
+    void AddTransportationInfo(const int trackID, const string fromVolume, const string toVolume,
+                               const string particleName, const TVector3 position, const TVector3 momentum,
+                               const Double_t globalTime, const Double_t KE);
     TString GetPrimaryEventParticleName(int n) {
         if (fPrimaryParticleName.size() > n) return fPrimaryParticleName[n];
         return "Not defined";
+    }
+    void PrintTransportationInfo() {
+        cout << "Transportation info (" << fTransportationTrackID.size() << " recorded)" << endl;
+        for (int i = 0; i < fTransportationTrackID.size(); i++) {
+            cout << "(trackID: " << fTransportationTrackID[i] << ") from " << fTransportationFromVolume[i]
+                 << " to " << fTransportationToVolume[i] << " particle: " << fTransportationParticleName[i]
+                 << " KE (keV): " << fTransportationKE[i] << endl;
+        }
     }
 
     TVector3 GetPrimaryEventDirection(int n) { return fPrimaryEventDirection[n]; }
@@ -466,11 +497,11 @@ class TRestG4Event : public TRestEvent {
 
     TPad* DrawEvent(TString option = "");
 
-    // Construtor
+    // Constructor
     TRestG4Event();
     // Destructor
     virtual ~TRestG4Event();
 
-    ClassDef(TRestG4Event, 3);  // REST event superclass
+    ClassDef(TRestG4Event, 4);  // REST event superclass
 };
 #endif
