@@ -14,12 +14,12 @@
 ///_______________________________________________________________________________
 
 #include "TRestAnalysisTree.h"
+
 #include "TBranchElement.h"
+#include "TObjArray.h"
 #include "TRestEventProcess.h"
 #include "TRestMetadata.h"
 #include "TStreamerInfo.h"
-
-#include "TObjArray.h"
 
 using namespace std;
 
@@ -118,8 +118,7 @@ void TRestAnalysisTree::ConnectObservables() {
                     if ((string)branch->ClassName() != "TBranch") {
                         // for TBranchElement the saved address is char**
                         fObservableMemory[i].address = *(char**)branch->GetAddress();
-                    }
-                    else {
+                    } else {
                         // for TBranch the saved address is char*
                         fObservableMemory[i].address = branch->GetAddress();
                     }
@@ -246,8 +245,7 @@ Int_t TRestAnalysisTree::GetEntry(Long64_t entry, Int_t getall) {
     if (!fConnected && !fBranchesCreated) {
         ConnectEventBranches();
         ConnectObservables();
-    }
-    else if (fNObservables != fObservableMemory.size()) {
+    } else if (fNObservables != fObservableMemory.size()) {
         // the object is just retrieved from root file, we connect the branches
         ConnectEventBranches();
         ConnectObservables();
@@ -325,6 +323,8 @@ void TRestAnalysisTree::CreateObservableBranches() {
         } else {
             this->Branch(brName, typeName, ref);
         }
+
+        this->GetBranch(brName)->SetTitle("(" + typeName + ") " + fObservableDescriptions[n]);
     }
 
     // Branch(fObservableNames[n], fObservableMemory[n]);
