@@ -30,7 +30,7 @@ TRestG4Hits::~TRestG4Hits() {
 }
 
 void TRestG4Hits::AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process, Int_t volume,
-                           Double_t eKin) {
+                           Double_t eKin, TVector3 momentumDirection) {
     AddHit(pos, en, hit_global_time);
 
     fProcessID.Set(fNHits);
@@ -41,6 +41,8 @@ void TRestG4Hits::AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, 
 
     fKineticEnergy.Set(fNHits);
     fKineticEnergy[fNHits - 1] = eKin;
+
+    fMomentumDirection.push_back(momentumDirection.Unit());
 }
 
 void TRestG4Hits::RemoveG4Hits() {

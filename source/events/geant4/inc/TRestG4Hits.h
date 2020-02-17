@@ -32,11 +32,15 @@ class TRestG4Hits : public TRestHits {
     TArrayI fProcessID;      // [fNHits]
     TArrayF fKineticEnergy;  // [fNHits]
 
+    std::vector<TVector3> fMomentumDirection;
+
    public:
+    TVector3 GetMomentumDirection(int n) { return fMomentumDirection[n]; }
+
     Int_t GetProcess(int n) { return fProcessID[n]; }
 
     void AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process, Int_t volume,
-                  Double_t eKin);
+                  Double_t eKin, TVector3 momentumDirection);
     void RemoveG4Hits();
 
     Int_t GetHitProcess(int n) { return fProcessID[n]; }
@@ -55,6 +59,6 @@ class TRestG4Hits : public TRestHits {
     // Destructor
     virtual ~TRestG4Hits();
 
-    ClassDef(TRestG4Hits, 4);  // REST event superclass
+    ClassDef(TRestG4Hits, 5);  // REST event superclass
 };
 #endif

@@ -148,7 +148,13 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
                     TVector3 hitPosition(x, y, z);
                     Double_t hit_global_time = aStep->GetPreStepPoint()->GetGlobalTime() / second;
 
-                    restTrack->AddG4Hit(hitPosition, ener_dep / keV, hit_global_time, pcsID, volID, eKin);
+                    TVector3 momentumDirection = TVector3(0, 0, 0);
+                    if (nom_proc == "Transportation") {
+                        G4ThreeVector momentum = aStep->GetPreStepPoint()->GetMomentumDirection();
+                        momentumDirection = TVector3(momentum.x(), momentum.y(), momentum.z()).Unit();
+                    }
+                    restTrack->AddG4Hit(hitPosition, ener_dep / keV, hit_global_time, pcsID, volID, eKin,
+                                        momentumDirection);
                 }
             }
         }
