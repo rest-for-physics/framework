@@ -32,10 +32,14 @@ class TRestG4Hits : public TRestHits {
     TArrayI fProcessID;      // [fNHits]
     TArrayF fKineticEnergy;  // [fNHits]
 
-    std::vector<TVector3> fMomentumDirection;
-
    public:
-    TVector3 GetMomentumDirection(int n) { return fMomentumDirection[n]; }
+    std::vector<Float_t> fMomentumDirectionX;
+    std::vector<Float_t> fMomentumDirectionY;
+    std::vector<Float_t> fMomentumDirectionZ;
+
+    TVector3 GetMomentumDirection(int n) {
+        return TVector3(fMomentumDirectionX[n], fMomentumDirectionY[n], fMomentumDirectionZ[n]);
+    }
 
     Int_t GetProcess(int n) { return fProcessID[n]; }
 
