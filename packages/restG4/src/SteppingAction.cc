@@ -27,7 +27,7 @@ SteppingAction::~SteppingAction() {}
 //_____________________________________________________________________________
 void SteppingAction::UserSteppingAction(const G4Step* aStep) {
     // Variables that describe a step are taken.
-    nom_vol = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName();
+   	 nom_vol = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName();
     nom_part = aStep->GetTrack()->GetDefinition()->GetParticleName();
 
     ener_dep = aStep->GetTotalEnergyDeposit();
@@ -148,7 +148,17 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
                     TVector3 hitPosition(x, y, z);
                     Double_t hit_global_time = aStep->GetPreStepPoint()->GetGlobalTime() / second;
 
-                    restTrack->AddG4Hit(hitPosition, ener_dep / keV, hit_global_time, pcsID, volID, eKin);
+  //                  TVector3 momentumDirection(0, 0, 0);
+                    G4ThreeVector momentum = aStep->GetPreStepPoint()->GetMomentumDirection();
+                    TVector3 momentumDirection = TVector3(momentum.x(), momentum.y(), momentum.z());  //.Unit();
+						/*
+                    if (nom_proc == "Transportation") {
+                        G4ThreeVector momentum = aStep->GetPreStepPoint()->GetMomentumDirection();
+                        momentumDirection = TVector3(momentum.x(), momentum.y(), momentum.z());  //.Unit();
+                    }
+					*/
+					restTrack->AddG4Hit(hitPosition, ener_dep / keV, hit_global_time, pcsID, volID, eKin, momentumDirection);
+	 //                                     );
                 }
             }
         }

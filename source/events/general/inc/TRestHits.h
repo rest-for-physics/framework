@@ -183,7 +183,7 @@ class TRestHits : public TObject {
 
     virtual void PrintHits(Int_t nHits = -1);
 
-    // Construtor
+    // Constructor
     TRestHits();
     // Destructor
     ~TRestHits();
