@@ -291,21 +291,19 @@ in it.
 
 ### REST data format
 
-REST saves an event tree, an analysis tree, some metadata or application objects, and some ROOT analysis 
-objects in a same output file of the analysis run, as shown in the figure.
+REST saves an event tree, an analysis tree, some metadata objects, and additional analysis output
+objects in extended root format. The file can be opened by root after loading REST libraries. We 
+first observe the file structure in TBrowser.
 
 ![alt](Image/datafile.png)
 
-The trees are of the type TRestAnalysisTree, which is typically a ROOT tree plus a list of observables. Inside 
-these trees there are six branches saving some 
+The `EventTree` is typically a ROOT tree saving branches of event classes, i.e. `TRestRawSignalEvent`, 
+`TRestSignalEvent`, `TRestHitsEvent` in the figure. These pre-defined data types are saved by the 
+default ROOT logic, with sub-branches created in shape of class inheritance. We don't usually plot and 
+analyze data directly on that tree.
 
-The event tree is purely TTree. The event branches inside it are C++ object branches with a same structure 
-as the class definition. Here in the figure we can see three event branches are saved: 
-TRestRawSignalEventBranch, TRestSignalEventBranch, and TRestHitsEventBranch. In TBrowser we can open them
-and draw their data members by double clicking on it.
-
-For the analysis tree, we first save six event branches(in the first red circle). The event branches contains
-basic information of one event, they are:
+The `AnalysisTree` are in type `TRestAnalysisTree`, which is inherited from ROOT tree in convenience for
+managing observables. Inside this tree there are six branches saving some basic event information: 
 
 * run ID
 * sub run ID
@@ -314,25 +312,28 @@ basic information of one event, they are:
 * time stamp
 * event tag
 
-Then we save process branches(in the second red circle). They are the snapshot of data member of each 
-processes. In the figure there are four process branches called "sAna", "zS", "signalToHits" and "hitsAna".
-If we open them, we can see some leaves corresponding to the processes' data member. 
+The **observable** is a kind of analysis result saved in the tree. We will talk about it in 
+section [7.3.2](7-base-class-interface-reference.md#using-observables-to-save-the-result). 
+To look the data we just do the same as we do in ROOT, like typing `AnalysisTree->Draw("XXXX")`
+in the prompt or directly double click the item.
 
-Finally there is observable branches(in the thrid red circle). Observable is a concept in REST which means
-"direct analysis result". They are of double type and put directly in the analysis tree. Each process
-can yield observable. They are named after the process's name.
+The naming of observables are conventional. The process name and the observable name is connected 
+with an undermark. For example the branches "rA_FirstX", "bM_CPUPercentage" in the figure follows
+that convention. 
 
-AnalysisTree is separated from the EventTree for the convenience of drawing. Usually event tree 
-contains large amount of data and we needs to go through all the entries when drawing some thing.
-As a result, drawing objects in AnalysisTree can be much faster than drawing in EventTree.
+The data type of observables are not fixed. In most cases we do analysis in `double` to have best
+precision, and the observables are double. Sometimes we want to save disk space, then `float` is 
+better. To express descrete values, we may also use `int`. In special cases there are multiple 
+values to save for a event, then we need to use **stl containers**. `vector` or `map` may both 
+occur in the tree. 
 
 Several metadata and application objects are also saved in file. They are used for recovering the setup
-of that analysis run. For example, REST can read the saved TRestRawSignalAnalysisProcess object (here named 
-"sAna") and get the parameters used at that time. For metadata objects, REST can directly use them again in 
-the next run.
+of that analysis run. For example, when one gets a REST file from others, he can quickly know the 
+parameters used by `TRestRawSignalAnalysisProcess` (here named "sAna") at that time, by printing its 
+information.
 
-In addition, REST allows processes to save some ROOT analysis objects in the file. Here the TH1D
-"readoutChannelActivity" is saved by the process "sAna" (of type TRestRawSignalAnalysisProcess). We can 
+Finally, REST allows processes to save some ROOT analysis objects in the file. Here the TH1D
+"ChannelActivity_M3" is saved by the process "rA" (of type TRestReadoutAnalysisProcess). We can 
 directly draw it.
 
 ### Browsing and viewing events
@@ -350,86 +351,112 @@ and will be free to operate this event.
 
 By default TRestBrowser extracts the last event in file, and draws it in the canvas by using the viewer
 class TRestGenericEventViewer. This viewer just calls the default method TRestEvent::Draw(). Other viewers
-like TRestHitsEventViewer or TRestG4EventViewer are also available. Some pre-defined ROOT scripts can be 
-used to draw these events in differently. The commands like: "restViewEvents abc.root", 
-"restManager ViewHitsEvents hits.root", "REST_Viewer_LinearTrackEvent("track.root")" and 
-"restManager --c Viewabc.rml" shall all work.
+like TRestHitsEventViewer or TRestG4EventViewer are also available. Some pre-defined bash alias and ROOT 
+scripts can be used to draw these events in differently. In bash, we can directly start a event viewer 
+window with commands: "restViewEvents abc.root", "restManager ViewHitsEvents hits.root". In restRoot 
+prompt, we can call the function: "REST_ViewEvents("abc.root")" to start the event viewer.
 
 Here for example, we use the generated file in [example](process-a-raw-data-file), and call the command 
 `restViewEvents abc.root`. The last event is TRestRawSignalEvent type in this file, and a TRestBrowser
-window will show up with some observable values on prompt.
+window will show up drawing the waveforms. In the command line it will print observable values.
 
 ![alt](Image/restViewEvents.png)
 
-In the right side it shows a combined plot of the event, which consists from many individual signals. 
-In the left side we have a control panel which helps to switch next/previous/specific event/signal 
-and open a new file. Different event viewers will define different interfaces of the control panel 
-and the plot window.
+In the TRestBrowser window, on the right side there is a combined plot of the event, which contains 
+several individual signal waveforms. In the left side we have a control panel. The arrow buttoms and the 
+text box in upper area helps to switch next/previous/specific event. The browser also supports plot 
+options. If we click on the lower buttoms, for TRestRawSignalEvent it will plot next/previous/specific
+signals inside the current event.
 
 Some viewer processes are also available in REST. The user can have a view of the events during 
 the process. All the viewer processes are single thread only, and TRestProcessRunner will automatically
 roll back to single thread mode with a viewer process in process chain. 
 
-### Plot the analysis result (may be incorrect)
+### Plot the analysis result
 
 It is also allowed to plot histograms for observables in output file. REST has an application class 
 called TRestAnalysisPlot. It generates plot string according to an rml config file and calls the 
 TTree::Draw() method to draw the histogram. It can also save the plots to a pdf file or ROOT file afterwards.
 
 To use it, a "TRestAnalysisPlot" section is needed in "TRestManager" section. The template of rml config file 
-for TRestAnalysisPlot can also be found in ./examples. It shall follow the rules below. The command calling it
-is like:  
-`restManager --c plots.rml --i abc.root --p ouput.pdf`  
+for TRestAnalysisPlot can be found in ./examples/plotAnaSpectrum.rml. It shall follow the rules below. The 
+command to call for plotting is like:  
+`restManager --c plotAnaSpectrum.rml --i abc.root --p ouput.pdf`  
 
-#### add input file and set plot mode
+#### add input file
 
-To add input files just use a section like: `<addFile name="filename.root" />` in the "TRestAnalysisPlot"
-section. Multiple input file is allowed. If the "addFile" section does not exist, TRestAnalysisPlot will
-ask the sibling TRestRun object for its output or input file as the input file. 
+The input file of analysis plot is given in a same way as process chain. One can either write `--i XXX.root`
+in the command line, or to write a TRestRun section, and define parameter input file inside it. Multiple
+input files are supported.
 
-In most cases REST saves a single output file in an analysis run. So these multiple files are from different 
-runs, or analysis with different configurations. Usually we are interested in the difference of one observable 
-between different runs. In this case we just set the plot mode to "compare" with section:
-`<parameter name="plotMode" value="compare" />`. Then REST will plot these same-observable-from-different-file
-in a same figure with different color. The "compare" plot mode is also the default plot mode.
+Sometimes we want to run a process chain and see the result on analysis plot at once. Then we just need to 
+add the `<TRestAnalysisPlot` section after `<TRestProcessRunner` section. REST will automatically use the 
+output file of processes as the input file as analysis plot.
 
-In rare cases the multiple files are from a same run with same analysis configuration, then we need to set 
-plot mode to "add". This will make REST plot the observables into a single histogram.
 
-#### define a canvas
+#### defining plot and histo
 
-It is needed to define a canvas for TRestAnalysisPlot. Use a section like:  
+The definition of plot objects inside the rml file follows the section hierarchy:
+
+* TRestAnalysisPlot
+* plot
+* histo
+
+![alt](Image/plot_hierarchy.png)
+
+At each level we have different parameters to set. Under the main TRestAnalysisPlot section, we first add 
+a section like:  
 `<canvas size="(1000,800)" divide="(2,2)" save="plot.pdf" />`  
-to define it. The canvas can be devided into several sub-canvas and each of them will contain a plot figure.
-It can also be saved into a file. Most of the common figure formats are supported, as REST calls 
-TCanvas::Print() method to make the save. The list of supported file formats shall be found in ROOT website. 
-
-#### add a plot with cut
-
-Now we define and add a plot in "TRestAnalysis" plot section.
-
-`<plot name="Baseline" title="Baseline average" value="ON" >`  
-&emsp;`<parameter name="xlabel" value="BaselineRms [ADC units]" />`  
-&emsp;`<parameter name="ylabel" value="Counts" />`  
-&emsp;`<parameter name="logscale" value="false" />`  
-&emsp;`<parameter name="option" value="" />`  
-&emsp;`<source name="sAna_BaseLineSigmaMean" range="(0,1000)" nbins="100" />`  
-&emsp;`<cut source="sAna_NumberOfGoodSignals" condition="&gt;1" value="ON" />`
+This defines the canvas and divide it into several pads. Each pads is configured by the following `<plot` 
+section:  
+`<plot name="Spectrum_CutImpact" title="Impact of cut on the spectrum" xlabel="Threshold integral energy [ADC units]" ylabel="Counts" logscale="true" legend="on" annotation="on">`  
+...  
 `</plot>`
+This sets the axis title and switch the log scale. We can also call to add additional objects on the plot,
+i.e., legend and annotation.
 
-Here we can set xlabel, ylabel and logscale with corresponding parameters. We can also add additional
-options with parameter "option". 
+Under the plot we need to add histo. It is possible to add multiple histograms on a same plot for 
+convenience of comparing. The histo section is like:  
+`<histo name="noCuts">`  
+&emsp;`<variable name="sAna_ThresholdIntegral" nbins="100" />`   
+&emsp;`<parameter name="lineColor" value="1"/>`  
+`</histo>`  
+, where we define the used variables and the drawing style. The variable is same as "observable" in
+AnalysisTree in input file. If we add one variable, then it draws a TH1. If we add two variables, 
+it draws a TH2, whose X axis is the first added variable. Number of bins and range of variable can 
+both be set.
 
-Then we add the source of the plot. Its name is "sAna_BaseLineSigmaMean", which is an observable in the analysis
-tree. Here we got a TH1 histogram of this observable. We can also define the region of this histogram, just
-as the template shows. TH2 and TH3 are also supported, by adding more lines of this kind of "source" section.
+Note that if there is only one histogram, the content inside `<histo` section can also be put inside 
+`<plot` section, in order to reduce the code.
 
-We also add cut for the plot. Here in the "plot" section we add a cut that the observable
-"sAna_NumberOfGoodSignals" should be greater than 1. Note that standard xml needs escape string to express
-the symbol `>`. Though this symbol still works out of some reason, we suggest using `&gt;` instead of `>` 
-for a good habit.
+#### cuts and file selection
 
-Finally with an "addTask" section in "TRestManager" section, we can make a plot like below
+Now we define another histogram with some cuts:  
+`<histo name="BaseLine">`  
+&emsp;`<variable name="sAna_ThresholdIntegral" nbins="100" />`   
+&emsp;`<cut variable="sAna_BaseLineSigmaMean" condition="&lt;12" value="ON" />`  
+&emsp;`<parameter name="lineColor" value="2"/>`  
+`</histo>`  
+
+In this example we add a cut that the observable "sAna_NumberOfGoodSignals" should be greater than 1. 
+Note that standard xml needs escape string to express the symbol `>`. Though this symbol still works 
+out of some reason, we suggest using `&gt;` instead of `>` for a good habit.
+
+REST supports multiple input files for analysis plot, also by inputing quoted file name pattern in the `--i` 
+argument. All the files will contribute to the plotted histogram. Sometimes we want to draw two histograms 
+from two different files to compare, then a **filter** for the files is needed. We can add a `<classify`
+section under this `<histo` section. For example, `<classify runTag="NLDBD"/>` selects only the files 
+with run tag equals to "NLDBD". The run tag is a TRestRun data member saved in file. Despite TRestRun 
+information, other supported fields of classification include FileName, Date, Size, etc.
+
+#### add annotations
+
+
+
+#### beautify
+
+
+
 
 ![alt](Image/plot.png)
 

@@ -410,7 +410,7 @@ The method EndProcess() is a method to be called after all the events are finish
 can be done here. For example, we can show a message about the process status in this method. Or, we can
 call saving for a TH1D object to the output file.
 
-#### observable and internal variable
+#### using observables to save the result
 
 There are two ways to save analysis result of a process: creating observables and saving internal 
 variables. They both have advantages and shortcomings.
