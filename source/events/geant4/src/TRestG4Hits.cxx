@@ -42,11 +42,20 @@ void TRestG4Hits::AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, 
     fKineticEnergy.Set(fNHits);
     fKineticEnergy[fNHits - 1] = eKin;
 
-    //fMomentumDirection.push_back(momentumDirection.Unit());
     momentumDirection = momentumDirection.Unit();
-    fMomentumDirectionX.push_back(momentumDirection.x());
-    fMomentumDirectionY.push_back(momentumDirection.y());
-    fMomentumDirectionZ.push_back(momentumDirection.z());
+
+	Float_t x = momentumDirection.X();
+	Float_t y = momentumDirection.Y();
+	Float_t z = momentumDirection.Z();
+
+    fMomentumDirectionX.Set(fNHits);
+    fMomentumDirectionX[fNHits-1] = x;
+
+    fMomentumDirectionY.Set(fNHits);
+    fMomentumDirectionY[fNHits-1] = y;
+
+    fMomentumDirectionZ.Set(fNHits);
+	fMomentumDirectionZ[fNHits-1] = z;
 
 }
 

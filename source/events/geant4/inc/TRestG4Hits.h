@@ -33,9 +33,9 @@ class TRestG4Hits : public TRestHits {
     TArrayF fKineticEnergy;  // [fNHits]
 
    public:
-    std::vector<Float_t> fMomentumDirectionX;
-    std::vector<Float_t> fMomentumDirectionY;
-    std::vector<Float_t> fMomentumDirectionZ;
+    TArrayF fMomentumDirectionX;
+    TArrayF fMomentumDirectionY;
+    TArrayF fMomentumDirectionZ;
 
     TVector3 GetMomentumDirection(int n) {
         return TVector3(fMomentumDirectionX[n], fMomentumDirectionY[n], fMomentumDirectionZ[n]);
