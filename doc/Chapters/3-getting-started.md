@@ -2,7 +2,7 @@
 
 The main executable of REST is restManager and restRoot. By typing directly `restManager` it will show 
 its usage. By typing restRoot the user can access to REST libraries and macros inside ROOT prompt. We 
-have some example files for restManager in the directory ./example. We first switch to that 
+have some example files for restManager in the directory `$REST_PATH/example`. We first switch to that 
 directory.
 
 ### Save a metadata file
@@ -10,12 +10,12 @@ directory.
 We generate here a matadata file saving several definitions of the detector's readout and gas metadata. 
 The readout metadata includes readout plane geometry, daq channel mapping, strip gain, etc. The gas 
 metadata includes infomation of gas component, pressure, diffusion and drift speed. This file will be 
-very important for running the processes. Generate it by typing :
+very important for running processes later on. Generate it by typing :
 
 `restManager --c saveMetadata.rml --o meta.root`
 
 This command will make REST to save two TRestGas classes and one TRestReadout class to the file 
-"meta.root". This file can be used in the later data analysis work. The content of gas and readout 
+"meta.root", which will be used in the later data analysis work. The content of gas and readout 
 definition can be observed the rml file. Later we will explain what it did. 
 
 ### Process a raw data file
@@ -77,20 +77,40 @@ or **key structure**, the element value is also called **declare**, the element 
 **field value**, the first line of xml element is also called **key definition**.
 
 
+#### sections with classes
+
+The root section in an rml file should be `<TRestManager`. Inside it we define several `<TRestXXX` sections
+and `<addTask` setions. For each `<TRestXXX` section we instantiate the corresponding REST class and 
+give the content of this section for its setup. For example in plotAnaSpectrum.rml we first define a
+TRestRun section for file input/output. Then we add a TRestAnalysisPlot section and define several 
+components to be plotted. Behind it we have a `<addTask` section. This tells REST what to do after
+initialization of the previous classes, i.e. do the plot.
+
 #### definition of parameter
 
-In REST xml attributes can also be written in a child section declared with **parameter**. In the template 
-if we add an attribute `parName="parVal"` in the fifth line, this is equivalent to the sixth line: 
-`<parameter name="parName" value="parVal" />`.
+Parameter is the most frequently used configuration. They are usually written as an xml section 
+containing name and value attribute. Then these parameter sections will setup their parent sections.
+For example:  
+`<TRestRun name="Test_Run">`  
+&emsp;`<parameter name="runNumber" value="-1"/>`  
+`</TRestRun>`  
+This sets parameter "runNumber" to "-1" for TRestRun target. Note that the previously defined 
+parameter will overwrite the later one with same name.
+
+Alternativally, the xml attributes at same section level can also be the parameter. In the previous 
+example, if we write:  
+`<TRestRun name="Test_Run" runNumber="-1">`  
+`</TRestRun>`  
+This is equivalent to the former definition.
 
 #### variable and myParameter
 
-The xml sections valued **variable** and **myParameter** are for the keyword replacement. They are defined with a line
-like: 
+The xml sections valued **variable** and **myParameter** are for the keyword replacement. They are defined 
+with a line like: 
 
 `<variable name="PITCH" value="3" overwrite="false" />`
 
-xml sections with same or lower hierarchy than this definition section will know this variable. If this 
+xml sections with same or higher hierarchy than this definition section will know this variable. If this 
 definition section is in the "globals" section, then all xml sections in the file can see it. To mark 
 "variable" for REST to replace, we must use keyword `${}`. For "myParameter" we don't need to add any 
 mark. For example, we add a line after the previous "variable" definition: 
@@ -105,9 +125,10 @@ Finally what the program see will be:
 
 `<addPixel id="0" origin="(3,3.75)" size="(20,20)" rotation="45" />`
 
-REST works together with system environmental variable. By switching true or false for the "overwrite" attribute,
-a variable definition will use the text defined vale or the system environmental variable. By marking the keyword
-with `$ENV{}` REST will search for system environmental variable to replace it. 
+REST works together with system environmental variable. The `${}` marked variable reference will also 
+be replaced by system env, if the variable definition section is not found. If we add an `overwrite="false"` 
+attribute to the variable definition section, then the system env will be used first if exist. By marking 
+the variable reference with `$ENV{}`, REST will search only the system env to replace it. 
 
 #### include definition
 
@@ -130,7 +151,7 @@ Another include definition is "raw include". REST will parse all the lines in th
 and insert them inside the local section. We use like:
 
 `<addProcess type="TRestRawSignalAnalysisProcess" name="sAna" value="ON">`  
-&emsp;`<include file = "processes.rml" />`  
+&emsp;`<include file="processes.rml" />`  
 `</addProcess>`  
 
 #### for loop expansion
@@ -145,12 +166,12 @@ TRestReadout.
 The for loop definition is as follows, where *pitch* and *nChannels* are previously 
 defined myParameters, and *nCh* and *nPix* are the *for* loop iteration variables.
 
-`<for variable = "nCh" from = "0" to = "nChannels-2" step = "1" >`  
-&emsp;`<readoutChannel id = "${nCh}" >`  
-&emsp;&emsp;`<for variable = "nPix" from = "0" to = "nChannels-1" step = "1" >`  
-&emsp;&emsp;&emsp;`<addPixel id = "${nPix}" origin = "((1+${nCh})*pitch,pitch/4+${nPix}*pitch)" size = "(pixelSize,pixelSize)" rotation = "45" />`  
+`<for variable="nCh" from="0" to="nChannels-2" step="1" >`  
+&emsp;`<readoutChannel id="${nCh}" >`  
+&emsp;&emsp;`<for variable="nPix" from="0" to="nChannels-1" step="1" >`  
+&emsp;&emsp;&emsp;`<addPixel id="${nPix}" origin="((1+${nCh})*pitch,pitch/4+${nPix}*pitch)" size="(pixelSize,pixelSize)" rotation="45" />`  
 &emsp;&emsp;`</for>`  
-&emsp;&emsp;`<addPixel id = "nChannels" origin = "(${nCh}*pitch,pitch/4+(nChannels-1)*pitch+pitch/2)" size = "(pitch+pitch/2,pitch/2)" rotation = "0" />`  
+&emsp;&emsp;`<addPixel id="nChannels" origin="(${nCh}*pitch,pitch/4+(nChannels-1)*pitch+pitch/2)" size="(pitch+pitch/2,pitch/2)" rotation="0" />`  
 &emsp;`</readoutChannel>`  
 `</for>`  
 
@@ -160,29 +181,49 @@ to replace values of the loop content. During the loop, REST will add the new co
 front of the for loop element(add a new sibling). After the loop, REST will delete the for loop element, leaving
 purely the loop content.
 
+#### if expression
+
+We can add `<if` sections to make rml to respond differently under different system condition. A "condition" 
+attribute must be added in the if section. REST will parse the condition formula. If matches, the child 
+sections inside if section will be seen. For example:  
+`<if condition="${HOME}==/home/nkx">`  
+&emsp;`<addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON" file="processes.rml"/>`  
+`</if>`  
+Here ${HOME} is a variable and will be replaced first under variable logic. So REST is just comparing two 
+strings, only if the home directly is "/home/nkx", the `<addProcess` section is valid. Sometimes we need 
+to use more complex conditions. Then we can add another attribute "evaluate". For example:  
+`<if evaluate="date +%Y-%m-%d" condition=">2019-08-21">`  
+&emsp;`<addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="ON" file="processes.rml" />`  
+`</if>`  
+Here REST will call for execution of shell command `date +%Y-%m-%d`, the output of which is used for
+comparing.
+
 #### an example
 
-We used generateReadoutFile.rml in the ./example directory to generate a readout file. We now open it and see what
-it did.
+Previously we used saveMetadata.rml in the ./example directory to generate a readout file. We now open it and see what
+it did. Its overall structure is like:
 
 `...`
 `<TRestManager ...>`  
 &emsp;`<globals>...</globals>`  
 &emsp;`<TRestRun>...</TRestRun>`  
 &emsp;`<addTask .../>`  
-&emsp;`<addTask .../>`  
 `</TRestManager>` 
 
 The root section is declared "TRestManager". It contains a scetion declared "globals", a scetion declared 
-"TRestRun" and two sections declared "addTask". This section has a corresponding class in REST with same class name. 
+"TRestRun" and a section declared "addTask".
 
-In the "TRestManager" section, obviously, the "globals" section are providing some global setting for 
-others. The "TRestRun" section has also a corresponding class in REST. This class mainly deals with file IO
-and data transmission. So we are adding TRestRun class inside TRestManager class. Lets see what's in it.
+The "globals" section provids global setting for others, whose child sections will be expanded to others.
+The "TRestRun" section has a corresponding class in REST. This class mainly deals with file IO and data 
+transmission. So we are adding TRestRun class inside TRestManager class. Lets see what's in it:
 
-`<TRestRun ...>`  
-&emsp;`<TRestReadout ...>`  
-&emsp;&emsp;`<readoutModule .../>`  
+`<TRestRun name="readoutrun">`  
+&emsp;`<TRestGas ... file="XXX" />`  
+&emsp;`<TRestGas ... file="XXX" />`  
+&emsp;`<TRestReadout ... file="XXX" />`  
+&emsp;`<TRestReadout ...>`   
+&emsp;&emsp;`(some parameters)`  
+&emsp;&emsp;`<readoutModule ... file="XXX"/>`  
 &emsp;&emsp;`<readoutPlane ...>`  
 &emsp;&emsp;&emsp;`<addReadoutModule .../>`  
 &emsp;&emsp;&emsp;`<addReadoutModule .../>`  
@@ -192,17 +233,20 @@ and data transmission. So we are adding TRestRun class inside TRestManager class
 &emsp;`</TRestReadout>`  
 `</TRestRun>`  
 
-Its easy guess that we are adding a TRestReadout class inside TRestRun class. This class is what contains
-real readout definition. Inside its section, there are several operations. First we define a readout module,
-which in our experiment is the MicroMegas. And then we define a readoutplane, adding several of this kind of
-readout module in it, giving their physical position and some other infomation. All together they form 
-an one-plane readout system. This TRestReadout class is now saved inside TRestRun class.
+Its comprehensive that we are adding two TRestGas classes and two TRestReadout classes inside TRestRun class. 
+The first three objects are using include definitions since they have a "file" attribute. In the last 
+TRestReadout section, we first define a readout module template from external include file. Then we add the
+pieces onto a readout plane. All together they form an one-plane readout system. This TRestReadout class is
+also saved to TRestRun class.
 
 Previous work is done within the initialization of these classes. Now these classes are ready and we need 
-to tell REST what to do. So finally, in "addTask" section, we give the command readoutrun->FormOutputFile().
-and readoutrun->CloseFile(). Here "readoutrun" is the name(not class name) of the previously defind TRestRun 
-class. Obviously here we are telling REST to "save file and close". The two lines of command are actually
-a method in the class TRestRun which TRestManager will invoke.
+to tell REST what to do. Finally we have: 
+
+`<addTask command="readoutrun->FormOutputFile()" value="ON"/>`  
+
+, where we invoke the method FormOutputFile() from TRestRun object. Here "readoutrun" is the name
+(not class name) of the previously defind TRestRun object. With the execution of this actual command, 
+REST saves data to the output file.
 
 [**prev**](2-installing-rest.md)
 [**contents**](0-contents.md)

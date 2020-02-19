@@ -792,8 +792,8 @@ void TRestMetadata::ReadElement(TiXmlElement* e, bool recursive) {
 ///     </if>
 /// </TRestXXX>
 /// \endcode
-/// "execute" specifies the shell command, the output of which is used.
-/// "variable" specifies the name of system env, "condition" specifies the comparing condition.
+/// "evaluate" specifies the shell command, the output of which is used.
+/// "condition" specifies the comparing condition.
 /// So here if the home directory is "/home/nkx", the process "TRestSignalZeroSuppresionProcess" will be added
 /// If the current date is larger than 2019-08-21, the process "TRestSignalToHitsProcess" will be added
 ///

@@ -69,11 +69,11 @@ or a string value.
 
 level | number | string | Description
 -------------|------------|-----------------|------------
-REST_Silent       | 0      | silent           | show minimized information of the software, as well as error messages
-REST_Essential    | 1      | essential        | +show some essential information, as well as warnings
-REST_Info         | 2      | info             | +show most of the infomation
-REST_Debug        | 3      | debug            | +show the debug messages, pause at each processes to show the details
-REST_Extreme      | 4      | extreme          | show everything
+REST_Silent       | 0      | silent           | Show minimized information of the software, as well as error messages
+REST_Essential    | 1      | essential        | +Show some essential information, as well as warnings
+REST_Info         | 2      | info             | +Show most of the infomation. Print some values during the process
+REST_Debug        | 3      | debug            | +Show debug messages. Print detailed values and pause at each event during the process. multithread is disabled
+REST_Extreme      | 4      | extreme          | Show everything. Pause at each process to show the details
 
 The default verbose level for a TRestMetadata inherited class is silent/info before/after
 loading the rml file(calling the method "LoadConfigFromFile()").
