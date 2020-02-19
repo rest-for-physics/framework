@@ -22,23 +22,23 @@
 
 #ifndef RestCore_TRestGas
 #define RestCore_TRestGas
+#include <TROOT.h>
 #include <stdlib.h>
+
 #include <fstream>
 #include <iostream>
 
-#include <TROOT.h>
 #include "TApplication.h"
 #include "TArrayI.h"
 #include "TAxis.h"
 #include "TCanvas.h"
 #include "TGraph.h"
 #include "TNamed.h"
+#include "TRestDriftVolume.h"
+#include "TRestMetadata.h"
 #include "TString.h"
 #include "TSystem.h"
 #include "TVector3.h"
-
-#include "TRestDriftVolume.h"
-#include "TRestMetadata.h"
 
 //#define USE_Garfield
 #if defined USE_Garfield
@@ -117,12 +117,6 @@ class TRestGas : public TRestDriftVolume {
 
     void UploadGasToServer(string gasFilename);
 
-    Double_t GetDriftVelocity(Double_t E);
-    Double_t GetLongitudinalDiffusion(Double_t E);
-    Double_t GetTransversalDiffusion(Double_t E);
-    Double_t GetTownsendCoefficient(Double_t E);
-    Double_t GetAttachmentCoefficient(Double_t E);
-
    public:
     TRestGas();
     TRestGas(const char* cfgFileName, string name = "", bool gasGeneration = false);
@@ -169,9 +163,21 @@ class TRestGas : public TRestDriftVolume {
 
     TString GetGasMixture();
 
-    Double_t GetDriftVelocity() { return GetDriftVelocity(fElectricField * units("V/cm")) / units("cm/us"); }//in standard unit mm/us
-    Double_t GetLongitudinalDiffusion() { return GetLongitudinalDiffusion(fElectricField * units("V/cm")); } //in unit (cm)^1/2
-    Double_t GetTransversalDiffusion() { return GetTransversalDiffusion(fElectricField * units("V/cm")); }   //in unit (cm)^1/2
+    Double_t GetDriftVelocity(Double_t E);
+    Double_t GetLongitudinalDiffusion(Double_t E);
+    Double_t GetTransversalDiffusion(Double_t E);
+    Double_t GetTownsendCoefficient(Double_t E);
+    Double_t GetAttachmentCoefficient(Double_t E);
+
+    Double_t GetDriftVelocity() {
+        return GetDriftVelocity(fElectricField * units("V/cm")) / units("cm/us");
+    }  // in standard unit mm/us
+    Double_t GetLongitudinalDiffusion() {
+        return GetLongitudinalDiffusion(fElectricField * units("V/cm"));
+    }  // in unit (cm)^1/2
+    Double_t GetTransversalDiffusion() {
+        return GetTransversalDiffusion(fElectricField * units("V/cm"));
+    }  // in unit (cm)^1/2
     Double_t GetTownsendCoefficient() { return GetTownsendCoefficient(fElectricField * units("V/cm")); }
     Double_t GetAttachmentCoefficient() { return GetAttachmentCoefficient(fElectricField * units("V/cm")); }
 
