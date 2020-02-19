@@ -1,13 +1,15 @@
 #include "TRestDataBase.h"
+
 #include <errno.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+
 #include "TClass.h"
 #include "TRestStringHelper.h"
+#include "TRestStringOutput.h"
 #include "TRestTools.h"
 #include "TSystem.h"
-#include "TRestStringOutput.h"
 
 //////////////////////////////////////////////////////////////////////////
 /// Interface class of REST database accessibility.
@@ -21,7 +23,7 @@
 ///
 /// Information stored in database:
 /// * (run) id: The index of the data line. During datataking/simulation, run id
-/// marks a continuous operation which is under constant configuration. For 
+/// marks a continuous operation which is under constant configuration. For
 /// metadata database, id is just an unique mark of the entry.
 /// * user: User name of this datataking run. Generated automatically.
 /// * version: REST version of this run. Generated automatically.
@@ -50,10 +52,8 @@
 /// \endcode
 ///
 
-
 TRestDataBase* RestDataBase_Instance = NULL;
 TRestDataBase* TRestDataBase::GetDataBase() { return RestDataBase_Instance; }
-
 
 TRestDataBase* TRestDataBase::instantiate(string name) {
     // vector<string> list = TRestTools::GetListOfRESTLibraries();
@@ -92,7 +92,7 @@ void TRestDataBase::Initialize() {
             vector<string> items = Split(s, "\" \"", true);
             if (items.size() != 7) continue;
 
-			if (items[0][0] == '\"') items[0] = items[0].substr(1, -1);
+            if (items[0][0] == '\"') items[0] = items[0].substr(1, -1);
             if (items[6][items[6].size() - 1] == '\"') items[6] = items[6].substr(0, items[6].size() - 1);
             DBEntry info;
             info.id = atoi(items[0].c_str());
@@ -197,13 +197,6 @@ int TRestDataBase::add_run(DBEntry info) {
 
     return newRunNr;
 }
-
-
-
-
-
-
-
 
 int TRestDataBase::query_metadata(int id) {
     DBEntry info;
@@ -311,19 +304,17 @@ string TRestDataBase::get_metadatafile(string url) {
     }
 
     return "";
-
-
 }
 
 string TRestDataBase::get_metadatafile(int id, string name) {
     string url = query_metadata_fileurl(id);
-	string purename = TRestTools::GetPureFileName(url);
+    string purename = TRestTools::GetPureFileName(url);
     if (purename == "")
         purename = name;
     else
         name = "";
 
-	return get_metadatafile(url + name);
+    return get_metadatafile(url + name);
 }
 
 int TRestDataBase::get_lastmetadata() {
@@ -345,7 +336,7 @@ int TRestDataBase::add_metadata(DBEntry info, string url) {
     }
     fMetaDataFile[info] = url;
 
-	std::ofstream file(metaFilename, std::ios::app);
+    std::ofstream file(metaFilename, std::ios::app);
     file << "\"" << info.id << "\" ";
     file << "\"" << info.type << "\" ";
     file << "\"" << info.usr << "\" ";
@@ -356,7 +347,7 @@ int TRestDataBase::add_metadata(DBEntry info, string url) {
     file << endl;
     file.close();
 
-	return info.id;
+    return info.id;
 }
 
 ///////////////////////////////////////////////
@@ -366,19 +357,19 @@ int TRestDataBase::add_metadata(DBEntry info, string url) {
 ///
 /// If the file is a local file, it will upload it and overwrite the remote one
 /// The database will remain unchanged.
-/// 
+///
 int TRestDataBase::set_metadatafile(int id, string url) {
     cout << "error" << endl;
 
-	string cmd = "scp " + url + " gasUser@sultan.unizar.es:./gasFiles/";
+    string cmd = "scp " + url + " gasUser@sultan.unizar.es:./gasFiles/";
     int a = system(cmd.c_str());
 
     if (a != 0) {
         ferr << __PRETTY_FUNCTION__ << endl;
         ferr << "problem copying gases definitions to remote server" << endl;
         ferr << "Please report this problem at "
-                 "http://gifna.unizar.es/rest-forum/"
-              << endl;
+                "http://gifna.unizar.es/rest-forum/"
+             << endl;
         return -1;
     }
 
@@ -416,12 +407,23 @@ bool TRestDataBase::DownloadRemoteFile(string remoteFile, string localFile) {
         if (a == 0) {
             return true;
         } else {
-            cout << "-- Error : download failed!" << endl;
+            cout << "-- Error : download failed! (" << remoteFile << ")" << endl;
             if (a == 1024) cout << "-- Error : Network connection problem?" << endl;
-            if (a == 2048) {cout << "Gas definition does NOT exist in database?" << endl;
-                cout << "File name: " << remoteFile << endl;
-			}
-            cout << "Please specify a local file" << endl;
+            if (a == 2048) cout << "Gas definition does NOT exist in database?" << endl;
+
+            bool localfileexist = false;
+            struct stat statbuf;
+            if (stat(localFile.c_str(), &statbuf) == 0) {
+                if (statbuf.st_size > 0) {
+                    localfileexist = true;
+                    // we don't remove the existing file if download failed
+                } else {
+                    remove(localFile.c_str());
+                    // we remove the empty file created by wget if download failed
+                }
+            }
+            if (!localfileexist) cout << "Please specify a local file" << endl;
+            else cout << "You can use the already existed local file" << endl;
         }
     } else if (remoteFile.find("ssh:") == 0) {
     } else {
