@@ -180,7 +180,7 @@ TString TRestG4Track::GetProcessName(Int_t id) {
     if (id == 0)
         return "initStep";
     else if (id == 1)
-        return "TRansportation";
+        return "Transportation";
     else if (id == 2)
         return "ionIoni";
     else if (id == 3)
