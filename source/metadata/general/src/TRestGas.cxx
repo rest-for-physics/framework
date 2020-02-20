@@ -578,6 +578,7 @@ void TRestGas::InitFromConfigFile() {
         warning << "TRestGas gasFile generation is enabled, but the "
                    "gasFile already exists!!"
                 << endl;
+        warning << "Filename : " << fGasFilename << endl;
         warning << "fGasGeneration should be disabled to remove this "
                    "warning."
                 << endl;
