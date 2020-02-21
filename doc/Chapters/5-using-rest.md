@@ -327,7 +327,7 @@ better. To express descrete values, we may also use `int`. In special cases ther
 values to save for a event, then we need to use **stl containers**. `vector` or `map` may both 
 occur in the tree. 
 
-Several metadata and application objects are also saved in file. They are used for recovering the setup
+Several metadata and core class objects are also saved in file. They are used for recovering the setup
 of that analysis run. For example, when one gets a REST file from others, he can quickly know the 
 parameters used by `TRestRawSignalAnalysisProcess` (here named "sAna") at that time, by printing its 
 information.
@@ -374,7 +374,7 @@ roll back to single thread mode with a viewer process in process chain.
 
 ### Plot the analysis result
 
-It is also allowed to plot histograms for observables in output file. REST has an application class 
+It is also allowed to plot histograms for observables in output file. REST has an core class 
 called TRestAnalysisPlot. It generates plot string according to an rml config file and calls the 
 TTree::Draw() method to draw the histogram. It can also save the plots to a pdf file or ROOT file afterwards.
 
