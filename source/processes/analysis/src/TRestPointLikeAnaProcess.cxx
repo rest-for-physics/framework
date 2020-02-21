@@ -75,7 +75,7 @@ void TRestPointLikeAnaProcess::LoadConfig(string cfgFilename) {
 void TRestPointLikeAnaProcess::InitProcess() {
     TRestEventProcess::ReadObservables();
 
-    fReadout = (TRestReadout*)GetReadoutMetadata();
+    fReadout = GetMetadata<TRestReadout>();
 
     if (fReadout == NULL) cout << "REST ERRORRRR : Readout has not been initialized" << endl;
     cout << __PRETTY_FUNCTION__ << endl;

@@ -149,7 +149,7 @@ void TRestRawSignalRecoverChannelsProcess::LoadConfig(string cfgFilename, string
 /// TRestReadout.
 ///
 void TRestRawSignalRecoverChannelsProcess::InitProcess() {
-    fReadout = (TRestReadout*)this->GetReadoutMetadata();
+    fReadout = GetMetadata<TRestReadout>();
 
     if (fReadout == NULL) {
         cout << "REST ERRORRRR : Readout has not been initialized" << endl;

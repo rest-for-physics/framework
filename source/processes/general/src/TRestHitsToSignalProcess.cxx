@@ -65,7 +65,7 @@ void TRestHitsToSignalProcess::LoadConfig(string cfgFilename, string name) {
     // electronDiffusionProcess
     if (fElectricField == PARAMETER_NOT_FOUND_DBL) {
         fElectricField =
-            this->GetDoubleParameterFromClassWithUnits("TRestElectronDiffusionProcess", "electricField");
+            this->GetDoubleParameterFromFriendsWithUnits("TRestElectronDiffusionProcess", "electricField");
         if (fElectricField != PARAMETER_NOT_FOUND_DBL) {
             cout << "Getting electric field from electronDiffusionProcess : " << fElectricField << " V/cm"
                  << endl;
@@ -97,7 +97,7 @@ void TRestHitsToSignalProcess::InitProcess() {
     // Comment this if you don't want it.
     // TRestEventProcess::InitProcess();
 
-    fGas = (TRestGas*)this->GetDriftMetadata();
+    fGas = GetMetadata<TRestGas>();
     if (fGas != NULL) {
         if (fGasPressure <= 0) fGasPressure = fGas->GetPressure();
         if (fElectricField <= 0) fElectricField = fGas->GetElectricField();
@@ -114,7 +114,7 @@ void TRestHitsToSignalProcess::InitProcess() {
 		}
     }
 
-    fReadout = (TRestReadout*)this->GetReadoutMetadata();
+    fReadout = GetMetadata<TRestReadout>();
 
     if (fReadout == NULL) {
         ferr << "Readout has not been initialized" << endl;

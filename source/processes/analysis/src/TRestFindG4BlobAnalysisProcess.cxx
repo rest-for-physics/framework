@@ -69,7 +69,7 @@ void TRestFindG4BlobAnalysisProcess::InitProcess() {
         fQ2_Radius.push_back(r2);
     }
 
-    fG4Metadata = (TRestG4Metadata*)GetGeant4Metadata();
+    fG4Metadata = GetMetadata<TRestG4Metadata>();
 }
 
 //______________________________________________________________________________

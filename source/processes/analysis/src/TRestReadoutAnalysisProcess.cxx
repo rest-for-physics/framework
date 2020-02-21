@@ -43,7 +43,7 @@ void TRestReadoutAnalysisProcess::Initialize() {
 
 //______________________________________________________________________________
 void TRestReadoutAnalysisProcess::InitProcess() {
-    fReadout = (TRestReadout*)GetReadoutMetadata();
+    fReadout = GetMetadata<TRestReadout>();
     if (fReadout != NULL) {
         {
             auto iter = fChannelsHistos.begin();

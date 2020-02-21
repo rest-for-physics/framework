@@ -122,7 +122,7 @@ void TRestGarfieldDriftProcess::InitProcess() {
     // TRestEventProcess::InitProcess();
 
     // Getting gas data
-    fGas = (TRestGas*)this->GetDriftMetadata();
+    fGas = GetMetadata<TRestGas>();
     if (fGas != NULL) {
         if (fGasPressure <= 0)
             fGasPressure = fGas->GetPressure();
@@ -134,7 +134,7 @@ void TRestGarfieldDriftProcess::InitProcess() {
     }
 
     // Getting readout data
-    fReadout = (TRestReadout*)this->GetReadoutMetadata();
+    fReadout = GetMetadata<TRestReadout>();
     if (fReadout == NULL) {
         cout << "REST ERRORRRR : Readout has not been initialized" << endl;
         exit(-1);
