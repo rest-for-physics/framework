@@ -12,7 +12,7 @@ Use it to discuss about options to solve a particular point, or to inform others
 
 * A.3 [ ] `restG4GammaTransfer` independent calculation.
 
-* A.4 [ ] Plot an analysis tree observable with different cuts using `TRestAnalysisPlot`. See [forum post](http://ezpc10.unizar.es/t/new-feature-to-be-implemented-in-trestanalysisplot/24)
+* A.4 [x] Plot an analysis tree observable with different cuts using `TRestAnalysisPlot`. See [forum post](http://ezpc10.unizar.es/t/new-feature-to-be-implemented-in-trestanalysisplot/24)
 
 * A.5 [x] Add `IF` condition option to `RML` files. See [forum post](https://gifna.unizar.es/rest-forum/?question=adding-if-conditions-in-rml-files)
 
