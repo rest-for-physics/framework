@@ -185,6 +185,9 @@ class TRestRun : public TRestMetadata {
         fInputFileNames =
             Vector_cast<string, TString>(TRestTools::GetFilesMatchingPattern((string)fInputFileName));
     }
+    void SetOutputFileName(string s) {
+        fOutputFileName = s;
+    }
     void SetExtProcess(TRestEventProcess* p);
     void SetCurrentEntry(int i) { fCurrentEvent = i; }
     // void AddFileTask(TRestFileTask* t) { fFileTasks.push_back(t); }
