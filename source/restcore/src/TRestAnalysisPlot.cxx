@@ -867,6 +867,11 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         fCombinedCanvas->Update();
     }
 
+    // Preview plot. User can make some changed before saving
+    if (StringToBool(GetParameter("previewPlot", "TRUE"))) {
+        GetChar();
+    }
+
     // Save canvas to a PDF file
     fCanvasSave = fRunInputFile[0]->FormFormat(fCanvasSave);
     if (fCanvasSave != "") fCombinedCanvas->Print(fCanvasSave);
@@ -877,10 +882,6 @@ void TRestAnalysisPlot::PlotCombinedCanvas() {
         f->cd();
         for (unsigned int n = 0; n < histCollectionAll.size(); n++) histCollectionAll[n]->Write();
         f->Close();
-    }
-
-    if (StringToBool(GetParameter("previewPlot", "TRUE"))) {
-        GetChar();
     }
 
     // Save this class to the root file
