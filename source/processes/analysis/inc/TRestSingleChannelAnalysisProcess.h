@@ -42,12 +42,13 @@ class TRestSingleChannelAnalysisProcess : public TRestEventProcess {
     bool fCreateGainMap;
     TVector2 fThrIntegralCutRange;
     TVector2 fAmpIntegralCutRange;
+    string fOutputCalibrationFileName;
 
     // temp data
     map<int, unsigned long long> fChannelThrIntegralSum;  //! [channel id, sum]
     map<int, unsigned long long> fChannelAmpIntegralSum;  //! [channel id, sum]
     map<int, int> fChannelCounts;                         //! [channel id, trigger counts]
-    bool calculateself = false;
+    bool calculateself = false;                           //
 
     // analysis result(saved directly in root file)
     map<int, double> fChannelGain;  //! [MM id, channel gain]
@@ -59,13 +60,13 @@ class TRestSingleChannelAnalysisProcess : public TRestEventProcess {
 
     void PrintMetadata() {
         BeginPrintProcess();
-
+        
         metadata << "the mode is:" << endl;
-        metadata << (fApplyGainCorrection ? "¡Ì" : " ") << "Apply correction channel by channel" << endl;
-        metadata << (fCreateGainMap ? "¡Ì" : " ") << "Create new correction map for each channel" << endl;
+        metadata << (fApplyGainCorrection ? ">   " : "    ") << "Apply channel correction map for spectrum " << endl;
+        metadata << (fCreateGainMap       ? ">   " : "    ") << "Create new correction map for each channel" << endl;
         metadata << "Energy cut for Threshold integral: " << any(fThrIntegralCutRange).ToString() << endl;
         metadata << "Energy cut for max amplitude integral: " << any(fAmpIntegralCutRange).ToString() << endl;
-        metadata << "channel spectrum by: " << (calculateself ? "self calculation" : "saved observables")
+        metadata << "draw channel spectrum by: " << (calculateself ? "self calculation" : "saved observables")
                  << endl;
 
         EndPrintProcess();

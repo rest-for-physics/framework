@@ -57,7 +57,7 @@ void TRestSingleChannelAnalysisProcess::InitProcess() {
                 }
             }
         }
-    } 
+    }
 
     if (fApplyGainCorrection) {
         if (fCalib != NULL) {
@@ -186,10 +186,15 @@ void TRestSingleChannelAnalysisProcess::EndProcess() {
         map<int, double> fChannelAverage;
         auto iter2 = fChannelThrIntegralSum.begin();
         while (iter2 != fChannelThrIntegralSum.end()) {
-            double avechannel = (double)iter2->second / fChannelCounts[iter2->first];
-            fChannelAverage[iter2->first] = avechannel;
-            sum += avechannel;
-            n++;
+            if (fChannelCounts[iter2->first] > GetFullAnalysisTree()->GetEntries() / 1000) {
+                // otherwise it may be a dead channel
+                double avechannel = (double)iter2->second / fChannelCounts[iter2->first];
+                fChannelAverage[iter2->first] = avechannel;
+                // cout << iter2->first << " " << avechannel << ", sum and counts: " <<iter2->second << " " <<
+                // fChannelCounts[iter2->first] << endl;
+                sum += avechannel;
+                n++;
+            }
             iter2++;
         }
 
@@ -197,18 +202,25 @@ void TRestSingleChannelAnalysisProcess::EndProcess() {
         auto iter = fChannelAverage.begin();
         while (iter != fChannelAverage.end()) {
             fChannelGain[iter->first] = aveall / iter->second;
+            if (fVerboseLevel >= REST_Info) {
+                cout << "channel: " << iter->first << ", gain(relative): " << fChannelGain[iter->first]
+                     << endl;
+            }
             iter++;
         }
 
         fCalib = new TRestCalibration();
         fCalib->fChannelGain = fChannelGain;
         fCalib->SetName("ChannelCalibration");
-        fCalib->Write();
 
         TRestRun* r = new TRestRun();
+        r->SetOutputFileName(fOutputCalibrationFileName);
         r->AddMetadata(fCalib);
-       
         r->FormOutputFile();
+
+        delete fCalib;
+        fCalib = NULL;
+        delete r;
     }
 }
 
@@ -234,4 +246,5 @@ void TRestSingleChannelAnalysisProcess::InitFromConfigFile() {
 
     fThrIntegralCutRange = StringTo2DVector(GetParameter("thrEnergyRange", "(0,1e9)"));
     fAmpIntegralCutRange = StringTo2DVector(GetParameter("ampEnergyRange", "(0,0)"));
+    fOutputCalibrationFileName = GetParameter("calibOutput", "calib.root");
 }
