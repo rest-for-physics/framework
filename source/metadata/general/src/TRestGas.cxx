@@ -495,14 +495,14 @@ void TRestGas::GetGasWorkFunction() {
 /// format.
 ///
 void TRestGas::InitFromConfigFile() {
-    //if (GetVerboseLevel() <= REST_Info) fVerboseLevel = REST_Info;
+    // if (GetVerboseLevel() <= REST_Info) fVerboseLevel = REST_Info;
 
     debug << "Entering ... TRestGas::InitFromConfigFile()" << endl;
 
-    //fElectricField = GetDblParameterWithUnits("electricField", 0.) * units("V/cm");
-    //fPressureInAtm = StringToDouble(GetParameter("pressure"));
-    //fTemperatureInK = StringToDouble(GetParameter("temperature"));
-    //fW = StringToDouble(GetParameter("W_value", "-1"));
+    // fElectricField = GetDblParameterWithUnits("electricField", 0.) * units("V/cm");
+    // fPressureInAtm = StringToDouble(GetParameter("pressure"));
+    // fTemperatureInK = StringToDouble(GetParameter("temperature"));
+    // fW = StringToDouble(GetParameter("W_value", "-1"));
     TRestDriftVolume::InitFromConfigFile();
 
     fNCollisions = StringToInteger(GetParameter("nCollisions"));
@@ -578,6 +578,7 @@ void TRestGas::InitFromConfigFile() {
         warning << "TRestGas gasFile generation is enabled, but the "
                    "gasFile already exists!!"
                 << endl;
+        warning << "Filename : " << fGasFilename << endl;
         warning << "fGasGeneration should be disabled to remove this "
                    "warning."
                 << endl;
@@ -653,7 +654,7 @@ void TRestGas::UploadGasToServer(string gasFilename) {
     auto ids = gDataBase->search_metadata_with_info({0, "META_RML", "", "TRestGas"});
     string fname = gDataBase->get_metadatafile(ids[0]);
 
-    // We remove the last line. I.e. the enclosing </gases> in the original file
+// We remove the last line. I.e. the enclosing </gases> in the original file
 #ifdef __APPLE__
     cmd = "sed -i '' -e '$ d' " + fname;
 #else
@@ -704,8 +705,8 @@ void TRestGas::UploadGasToServer(string gasFilename) {
         ferr << "-- Error : " << __PRETTY_FUNCTION__ << endl;
         ferr << "-- Error : problem removing the locally generated gas file" << endl;
         ferr << "-- Error : Please report this problem at "
-                 "http://gifna.unizar.es/rest-forum/"
-              << endl;
+                "http://gifna.unizar.es/rest-forum/"
+             << endl;
         return;
     }
 
@@ -734,7 +735,7 @@ string TRestGas::FindGasFile(string name) {
 
     string absoluteName = "";
 
-    if (fGasServer != "none") {
+    if (!fGasGeneration && fGasServer != "none") {
         absoluteName = gDataBase->get_metadatafile((string)fGasServer + _name);
         absoluteName = Replace(absoluteName, "\\(", "(", 0);
         absoluteName = Replace(absoluteName, "\\)", ")", 0);
