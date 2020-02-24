@@ -105,8 +105,14 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         this->SetObservableValue("LastX", nan);
         this->SetObservableValue("LastY", nan);
 
+        set<int> TriggeredModuleId;
+
         for (int i = 0; i < fSignalEvent->GetNumberOfSignals(); i++) {
             TRestSignal* sgnl = fSignalEvent->GetSignal(i);
+
+            int p, m, c;
+            fReadout->GetPlaneModuleChannel(sgnl->GetID(), p, m, c);
+            TriggeredModuleId.insert(m);
 
             if (sgnl->GetMaxPeakTime() < firstX_t) {
                 if (!TMath::IsNaN(fReadout->GetX(sgnl->GetID()))) {
@@ -134,6 +140,9 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
                 }
             }
         }
+
+        this->SetObservableValue("NmodulesTriggered", (int)TriggeredModuleId.size());
+        this->SetObservableValue("TriggeredModuleId", TriggeredModuleId);
 
         if (firstX_id > -1 && firstY_id > -1) {
             double firstx = fReadout->GetX(firstX_id);
