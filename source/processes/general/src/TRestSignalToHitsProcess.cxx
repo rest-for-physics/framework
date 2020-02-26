@@ -53,7 +53,7 @@ void TRestSignalToHitsProcess::LoadConfig(std::string cfgFilename, std::string n
     // If the parameters have no value it tries to obtain it from detector setup
 
     if (fElectricField == PARAMETER_NOT_FOUND_DBL) {
-        TRestDetectorSetup* detSetup = (TRestDetectorSetup*)this->GetDetectorSetup();
+        TRestDetectorSetup* detSetup = GetMetadata<TRestDetectorSetup>();
         if (detSetup != NULL) {
             fElectricField = detSetup->GetFieldInVPerCm();
             cout << "SignalToHitsProcess : Obtainning electric field from detector "
@@ -119,7 +119,7 @@ void TRestSignalToHitsProcess::InitProcess() {
     // Comment this if you don't want it.
     // TRestEventProcess::InitProcess();
 
-    fGas = (TRestGas*)this->GetDriftMetadata();
+    fGas = GetMetadata<TRestGas>();
     if (fGas != NULL) {
         if (fGasPressure <= 0) fGasPressure = fGas->GetPressure();
         if (fElectricField <= 0) fElectricField = fGas->GetElectricField();
@@ -136,7 +136,7 @@ void TRestSignalToHitsProcess::InitProcess() {
         }
     }
 
-    fReadout = (TRestReadout*)this->GetReadoutMetadata();
+    fReadout = GetMetadata<TRestReadout>();
 
     if (fReadout == NULL) {
         ferr << "Readout has not been initialized" << endl;

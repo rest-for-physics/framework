@@ -72,7 +72,7 @@ void TRestElectronDiffusionProcess::LoadConfig(string cfgFilename, string name) 
 
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::InitProcess() {
-    fGas = (TRestGas*)GetDriftMetadata();
+    fGas = GetMetadata<TRestGas>();
     if (fGas == NULL) {
         warning << "Gas has not been initialized" << endl;
         if (fLonglDiffCoeff == -1 || fTransDiffCoeff == -1) {
@@ -93,7 +93,7 @@ void TRestElectronDiffusionProcess::InitProcess() {
         if (fTransDiffCoeff <= 0) fTransDiffCoeff = fGas->GetTransversalDiffusion();  // (cm)^1/2
     }
 
-    fReadout = (TRestReadout*)GetReadoutMetadata();
+    fReadout = GetMetadata<TRestReadout>();
     if (fReadout == NULL) {
         cout << "REST ERRORRRR : Readout has not been initialized" << endl;
         exit(-1);

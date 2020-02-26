@@ -35,33 +35,33 @@ we also define two basic attritubes: verbose level and storage. They controls th
 screen and whether the class should be saved, respectively. All those will automatically be set from the rml 
 config file.
 
-One major type of the inherited class is called "metadata". They contain data of, for example, the geometry 
+One major type of the inherited class is called **metadata**. They contain data of, for example, the geometry 
 of a simulation, the properties of a gas, the readout pattern used to "pixelize" data, etc. Usually 
 we will first instantiate and save a metadata class with an rml file. In pratical use, we can just read 
 it from the saved ROOT file.
 
-Another family of TRestMetadata inherited class is called "application". Their rml file gives, for example,
+Another family of TRestMetadata inherited class is called **core class**. Their rml file gives, for example,
 the parameters of an analysis, the targets of a plot, the processes to load of an analysis, etc.
-Application can do specific jobs according to the configuration.
+core class can do specific jobs according to the configuration.
 
 TRestMetadata also provides some utilities for the inherited class. The most commonly used methods are: 
 GetParameter(), GetElement(), GetChar(), GetDataMemberWithName(), etc. It also defines leveled string output 
 tools: fout, essential, info, debug, etc. See them in the REST class reference page.
 
-### TRestManager : managing REST applications
+### TRestManager : managing REST core classes
 
-This class, as its name suggests, manages all other REST applications, including TRestRun, TRestProcessRunner,
-and so on. A REST application has a poniter to its manager, thus it can easily get access to its sibling
-applications. For example, a process class can get access to its sibling TRestRun, and acquires matadata in it.
+This class, as its name suggests, manages all other REST core classes, including TRestRun, TRestProcessRunner,
+and so on. A REST core class has a poniter to its manager, thus it can easily get access to its sibling
+core classes. For example, a process class can get access to its sibling TRestRun, and acquires matadata in it.
 
-TRestManager performs initialization for its managed applications by a strategy called sequential start up.
+TRestManager performs initialization for its managed core classes by a strategy called sequential start up.
 For example, inside the rml configuration file, there is a section declared as "TRestManager". And in this
-section there is some child sections declared by different application names(here we have "TRestRun", 
-"TRestProcessRunner"). TRestManager will try to instantiate objects of corresponding applications by calling
-the method TClass::GetClass(). Then it call the applications' LoadConfigFromFile() method giving them the 
-defined child sections. If the application also contains TRestMetadata-inherited class which can be initialized 
+section there is some child sections declared by different core class names(here we have "TRestRun", 
+"TRestProcessRunner"). TRestManager will try to instantiate objects of corresponding core classes by calling
+the method TClass::GetClass(). Then it call the core classes' LoadConfigFromFile() method giving them the 
+defined child sections. If the core class also contains TRestMetadata-inherited class which can be initialized 
 through rml file/sections, its section will have its own child section(here we have "TRestReadout"). 
-And this grandchild section is given to the grand-resident class in that application. This is sequential startup.
+And this grandchild section is given to the grand-resident class in that core class. This is sequential startup.
 
 `<TRestManager ... >`  
 &emsp;`<TRestRun ... >`  
@@ -78,31 +78,15 @@ And this grandchild section is given to the grand-resident class in that applica
 &emsp;`</globals>`  
 `</TRestManager>`  
 
-In short, we perform sequential startup by constructing a same hierarchy in rml file with REST classes. This 
-helps to make the code and conifig file easier to read. 
-
-An xml section declared as "globals" is also in the TRestManager section, the content of it will be expanded 
-into all other sections in the same level. They will not override the one which are already defined.
-
-There is also an xml section declared as "addTask". This line actually tells TRestManager the real work
-with those initialized applications. "addTask" section can either be a pre-defined action, a macro name,
-or be a C++ style command for TRestManager to invoke. For example, we can use: 
-
-`<addTask command="TemplateEventProcess->RunProcess()" value="ON"/>`,
-
-and TRestManager will invoke the method "RunProcess()" in the application named "TemplateEventProcess". This 
-application should be defined in previous sections. This is same to the V2.1.6 usage:
-
-`<addTask type="processEvents" value="ON"/>`,
-
-where "processEvents" is a pre-defined action calling same method "RunProcess()".
+In short, we perform sequential startup by constructing a same hierarchy in rml file with REST classes, providing
+a more readable text for both codes and configurations.
 
 ### TRestRun : operating files and handling data
 
-TRestRun is an application class hosting REST metadata classes and operating files.
-Usually, when REST is running, an instantiated TRestRun object opens a saved ROOT file to provides the metadata 
-and eventdata. When the framework finishes its run, this object in turn helps to create output file and save 
-the result data. As a result, TRestRun is a data handler among the whole framework, which is very important.
+TRestRun is a core class hosting REST metadata classes and operating files. Usually, when REST is running, an 
+instantiated TRestRun object opens a saved ROOT file to provide metadata and event data. When the framework finishes 
+its run, TRestRun in turn serves for creating output file to save analysis result. In all, TRestRun plays the 
+role of data IO among the whole framework.
 
 Some methods are frequently called by other classes to get event/meta data: GetNextEvent(), GetEntry(), 
 ImportMetadata(), GetMetadata(), etc. There are also some methods for file operation: OpenInputFile(), FormFormat(), 
@@ -116,8 +100,10 @@ to import a metadata object from saved ROOT file.
 
 ### TRestEvent & TRestEventProcess : data and analysis
 
-TRestEventProcess is another important application class. It is a base class for all REST pre-defined processes.
-TRestEvent is directly inherited from TObject. It is a base class for all REST pre-defined event types.
+TRestEventProcess and TRestEvent carry on the duty of the actual data analysis work. TRestEventProcess 
+is a abstract core class inherited from TRestMetadata, whose derived classes are called **process**. 
+On the other hand, TRestEvent is directly inherited from TObject. It is also a base class for all REST 
+pre-defined **event** types, storing different event data such as hit positions or channel waveforms.
 
 Besides the functionality of reading configuration from file, TRestEventProcess defines extra interfaces for 
 its inherited class to do the job. The method InitProcess() and EndProcess() are used as preparation/completion 
@@ -155,14 +141,13 @@ physical truth.
 ### TRestProcessRunner : running analysis in an efficient way
 
 All TRestEventProcess objects are managed by TRestProcessRunner, which enables multi-threading, chain 
-validation, output handling, etc. This application class makes several copies of the process chain and keeps 
+validation, output handling, etc. This core class makes several copies of the process chain and keeps 
 each of them in a thread. Any number of threads are supported with siginificant improvement of process 
 efficiency. During the event process, the thread first asks TRestProcessRunner for an input event, which
 in term asks its sibling TRestRun object for the next event from input file. After processing, the thread
 will ask TRestProcessRunner to make a save for its output event. The runner copies the thread's tree's 
-branch address to its own tree, and call TTree::Fill() afterwards. However, REST deals with data files with 
-usually very large size, so heavy IO stress are exerted on disk. As a result, too much threads will not be helpful
-to the higher efficiency.
+branch address to its own tree, and call TTree::Fill() afterwards. Limited by the CPU and memory bandwidth, 
+the processing speed usually hits the boundary with 8 or higher threads.
 
 TRestProcessRunner is able to save a snapshot of the values of the class members for each managed TRestEventProcess 
 objects in a corresponding branch. This is regarded as an alternative of saving observables as analysis result. 

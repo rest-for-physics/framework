@@ -50,7 +50,7 @@ void TRestCoBoAsAdToSignalProcess::Initialize() {
 void TRestCoBoAsAdToSignalProcess::InitProcess() {}
 
 Bool_t TRestCoBoAsAdToSignalProcess::OpenInputCoBoAsAdBinFile(TString fName) {
-    TRestDetectorSetup* det = (TRestDetectorSetup*)this->GetDetectorSetup();
+    TRestDetectorSetup* det = GetMetadata<TRestDetectorSetup>();
 
     if (det != NULL) {
         fRunOrigin = det->GetRunNumber();

@@ -51,10 +51,11 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "TRestEventProcess.h"
-#include "TRestManager.h"
+
 #include "TBuffer.h"
 #include "TClass.h"
 #include "TDataMember.h"
+#include "TRestManager.h"
 #include "TRestRun.h"
 using namespace std;
 
@@ -224,6 +225,19 @@ TRestMetadata* TRestEventProcess::GetMetadata(string name) {
     return m;
 }
 
+Bool_t TRestEventProcess::HasFriend(string nameortype) {
+    if (GetMetadata(nameortype) != NULL) {
+        return true;
+    }
+    for (int i = 0; i < fFriendlyProcesses.size(); i++) {
+        if ((string)fFriendlyProcesses[i]->GetName() == nameortype ||
+            (string)fFriendlyProcesses[i]->ClassName() == nameortype) {
+            return true;
+        }
+    }
+    return false;
+}
+
 /*
 //______________________________________________________________________________
 void TRestEventProcess::InitProcess()
@@ -356,7 +370,7 @@ void TRestEventProcess::EndPrintProcess() {
 /// \param className string with name of metadata class to access
 /// \param parName  string with name of parameter to retrieve
 ///
-Double_t TRestEventProcess::GetDoubleParameterFromClass(string className, string parName) {
+Double_t TRestEventProcess::GetDoubleParameterFromFriends(string className, string parName) {
     for (size_t i = 0; i < fFriendlyProcesses.size(); i++)
         if ((string)fFriendlyProcesses[i]->ClassName() == (string)className)
             return StringToDouble(fFriendlyProcesses[i]->GetParameter((string)parName));
@@ -371,7 +385,7 @@ Double_t TRestEventProcess::GetDoubleParameterFromClass(string className, string
 /// \param className string with name of metadata class to access
 /// \param parName  string with name of parameter to retrieve
 ///
-Double_t TRestEventProcess::GetDoubleParameterFromClassWithUnits(string className, string parName) {
+Double_t TRestEventProcess::GetDoubleParameterFromFriendsWithUnits(string className, string parName) {
     for (size_t i = 0; i < fFriendlyProcesses.size(); i++)
         if ((string)fFriendlyProcesses[i]->ClassName() == (string)className)
             return fFriendlyProcesses[i]->GetDblParameterWithUnits((string)parName);
@@ -379,8 +393,8 @@ Double_t TRestEventProcess::GetDoubleParameterFromClassWithUnits(string classNam
     return PARAMETER_NOT_FOUND_DBL;
 }
 
-TRestAnalysisTree* TRestEventProcess::GetFullAnalysisTree(){
-    if(fHostmgr != NULL && fHostmgr->GetProcessRunner() != NULL)
+TRestAnalysisTree* TRestEventProcess::GetFullAnalysisTree() {
+    if (fHostmgr != NULL && fHostmgr->GetProcessRunner() != NULL)
         return fHostmgr->GetProcessRunner()->GetOutputAnalysisTree();
     return NULL;
 }

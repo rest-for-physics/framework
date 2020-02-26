@@ -56,7 +56,7 @@ void TRestFiducializationProcess::LoadConfig(string cfgFilename, string name) {
 
 //______________________________________________________________________________
 void TRestFiducializationProcess::InitProcess() {
-    fReadout = (TRestReadout*)GetReadoutMetadata();
+    fReadout = GetMetadata<TRestReadout>();
     if (fReadout == NULL) {
         cout << "REST ERRORRRR : Readout has not been initialized" << endl;
         exit(-1);

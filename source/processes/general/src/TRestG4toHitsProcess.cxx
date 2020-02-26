@@ -63,7 +63,7 @@ void TRestG4toHitsProcess::LoadConfig(std::string cfgFilename, std::string name)
 void TRestG4toHitsProcess::InitProcess() {
     //    TRestEventProcess::ReadObservables();
 
-    fG4Metadata = (TRestG4Metadata*)GetGeant4Metadata();
+    fG4Metadata = GetMetadata<TRestG4Metadata>();
 
     for (unsigned int n = 0; n < fVolumeSelection.size(); n++) {
         if (fG4Metadata->GetActiveVolumeID(fVolumeSelection[n]) >= 0)

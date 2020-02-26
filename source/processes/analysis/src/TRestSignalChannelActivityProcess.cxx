@@ -58,7 +58,7 @@ void TRestSignalChannelActivityProcess::LoadConfig(std::string cfgFilename, std:
 
 //______________________________________________________________________________
 void TRestSignalChannelActivityProcess::InitProcess() {
-    fReadout = (TRestReadout*)GetReadoutMetadata();
+    fReadout = GetMetadata<TRestReadout>();
 
     info << "TRestSignalChannelActivityProcess::InitProcess. Readout pointer : " << fReadout << endl;
     if (GetVerboseLevel() >= REST_Info && fReadout) fReadout->PrintMetadata();

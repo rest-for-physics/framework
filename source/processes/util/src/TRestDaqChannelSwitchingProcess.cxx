@@ -40,7 +40,7 @@ void TRestDaqChannelSwitchingProcess::Initialize() {
 
 //______________________________________________________________________________
 void TRestDaqChannelSwitchingProcess::InitProcess() {
-    fReadout = (TRestReadout*)GetReadoutMetadata();
+    fReadout = GetMetadata<TRestReadout>();
     if (fReadout != NULL) {
         auto iter = fFirstDaqChannelDef.begin();
         while (iter != fFirstDaqChannelDef.end()) {

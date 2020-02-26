@@ -65,7 +65,7 @@ void TRestSignalTo2DHitsProcess::Initialize() {
 }
 
 void TRestSignalTo2DHitsProcess::InitProcess() {
-    fReadout = (TRestReadout*)GetReadoutMetadata();
+    fReadout = GetMetadata<TRestReadout>();
     if (fReadout != NULL) fOutput2DHitsEvent->SetReadout(fReadout);
 }
 

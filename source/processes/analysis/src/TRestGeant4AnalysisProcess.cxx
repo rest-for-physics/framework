@@ -284,7 +284,7 @@ void TRestGeant4AnalysisProcess::LoadConfig(std::string cfgFilename, std::string
 /// observables defined in TRestGeant4AnalysisProcess are filled at this stage.
 ///
 void TRestGeant4AnalysisProcess::InitProcess() {
-    fG4Metadata = (TRestG4Metadata*)GetGeant4Metadata();
+    fG4Metadata = GetMetadata<TRestG4Metadata>();
 
     std::vector<string> fObservables;
     fObservables = TRestEventProcess::ReadObservables();

@@ -25,16 +25,10 @@
 
 #include "TCanvas.h"
 #include "TNamed.h"
-
 #include "TRestAnalysisTree.h"
 #include "TRestEvent.h"
 #include "TRestMetadata.h"
 #include "TRestRun.h"
-
-class TRestGas;
-class TRestReadout;
-class TRestG4Metadata;
-class TRestDetectorSetup;
 
 /// A base class for any REST event process
 class TRestEventProcess : public TRestMetadata {
@@ -70,13 +64,15 @@ class TRestEventProcess : public TRestMetadata {
     // utils
     void BeginPrintProcess();
     void EndPrintProcess();
-    TRestMetadata* GetMetadata(string type);
-    TRestMetadata* GetDriftMetadata() { return GetMetadata("TRestDriftVolume"); }
-    TRestMetadata* GetReadoutMetadata() { return GetMetadata("TRestReadout"); }
-    TRestMetadata* GetGeant4Metadata() { return GetMetadata("TRestG4Metadata"); }
-    TRestMetadata* GetDetectorSetup() { return GetMetadata("TRestDetectorSetup"); }
-    Double_t GetDoubleParameterFromClass(string className, string parName);
-    Double_t GetDoubleParameterFromClassWithUnits(string className, string parName);
+    template <class T>
+    T* GetMetadata() {
+        string type = REST_Reflection::GetTypeName<T>();
+        return (T*)GetMetadata(type);
+    }
+    TRestMetadata* GetMetadata(string nameortype);
+    Bool_t HasFriend(string nameortype);
+    Double_t GetDoubleParameterFromFriends(string className, string parName);
+    Double_t GetDoubleParameterFromFriendsWithUnits(string className, string parName);
 
     //////////////////////////////////////////////////////////////////////////
     /// \brief Set observable value for analysistree.
