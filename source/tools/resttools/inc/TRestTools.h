@@ -86,6 +86,7 @@ class TRestTools {
     /// `data` will be cleared in this method.
     ///
     static int ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data);
+    static int PrintTable(std::vector<std::vector<Double_t>> data, Int_t start = 0, Int_t end = 0);
 
     static bool fileExists(const std::string& filename);
     static bool isRootFile(const std::string& filename);
