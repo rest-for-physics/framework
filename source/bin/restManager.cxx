@@ -1,8 +1,8 @@
 #include <TApplication.h>
-#include <TSystem.h>
-
 #include <TRestManager.h>
 #include <TRestTools.h>
+#include <TSystem.h>
+
 #include "TRestStringOutput.h"
 //#include <REST_General_CreateHisto.hh>
 
@@ -54,7 +54,7 @@ void PrintHelp() {
     fout << "=" << endl;
 }
 
-void ParseInputArgs(const char* argv) {
+void ParseInputFileArgs(const char* argv) {
     if (argv == NULL) return;
 
     if (getenv("inputFile") != NULL) {
@@ -70,57 +70,88 @@ void ParseInputArgs(const char* argv) {
 }
 
 int main(int argc, char* argv[]) {
+    // global envs
     setenv("REST_VERSION", REST_RELEASE, 1);
-    TApplication app("app", NULL, NULL);
-    TRestTools::LoadRESTLibrary(true);
-    gInterpreter->ProcessLine("#define REST_MANAGER");
 
-    if (argc <= 1) {
+    // preprocess arguments
+    vector<string> args;
+    for (int i = 0; i < argc; i++) args.push_back(argv[i]);
+
+    // TApplication arguments
+    int argCApp = 1;
+    char* argVApp[3];
+    char batch[64], appName[64];
+    sprintf(appName, "restManager");
+    sprintf(batch, "%s", "-b");
+    argVApp[0] = appName;
+    argVApp[1] = batch;
+    {
+        // handle special arguments like "--batch"
+        for (int i = 1; i < args.size(); i++) {
+            if (args[i] == "--batch") {
+                cout << "you are in batch mode, all displays off" << endl;
+                argCApp = 2;
+                args.erase(args.begin() + i);
+            }
+        }
+        if (fout.CompatibilityMode()) {
+            cout << "you are in batch mode, all displays off" << endl;
+            argCApp = 2;
+        }
+    }
+    TApplication app("app", &argCApp, argVApp);
+
+    // print help
+    if (args.size() <= 1) {
         PrintHelp();
         exit(1);
     }
 
-    if (argc >= 2) {
-        if (*argv[1] == '-') {  // usage1
-            for (int i = 1; i < argc; i++) {
-                if (*argv[i] == '-') {
-                    argv[i]++;
-                    if (*argv[i] == '-') argv[i]++;
-                    {
-                        switch (*argv[i]) {
-                            case 'c':
-                                sprintf(cfgFileName, "%s", argv[i + 1]);
-                                break;
-                            case 'd':
-                                setenv("runNumber", argv[i + 1], 1);
-                                break;
-                            case 'f':
-                                ParseInputArgs(argv[i + 1]);
-                                break;
-                            case 'i':
-                                ParseInputArgs(argv[i + 1]);
-                                break;
-                            case 'o':
-                                setenv("outputFile", argv[i + 1], 1);
-                                break;
-                            case 'j':
-                                setenv("threadNumber", argv[i + 1], 1);
-                                break;
-                            case 'e':
-                                setenv("eventsToProcess", argv[i + 1], 1);
-                                break;
-                            case 'v':
-                                setenv("verboseLevel", argv[i + 1], 1);
-                                break;
-                            case 'p':
-                                setenv("pdfFilename", argv[i + 1], 1);
-                                break;
-                            // case 'help': PrintHelp(); exit(0);
-                            default:
-                                fout << endl;
-                                PrintHelp();
-                                return 0;
-                        }
+    // Load libraries
+    TRestTools::LoadRESTLibrary(true);
+    gInterpreter->ProcessLine("#define REST_MANAGER");
+
+    // read arguments
+    if (args.size() >= 2) {
+        if (args[1][0] == '-') {  // usage1
+            for (int i = 1; i < args.size(); i++) {
+                char* c = &args[i][0];
+                if (*c == '-') {
+                    c++;
+                    if (*c == '-') c++;
+                    switch (*c) {
+                        case 'c':
+                            sprintf(cfgFileName, "%s", args[i + 1].c_str());
+                            break;
+                        case 'd':
+                            setenv("runNumber", args[i + 1].c_str(), 1);
+                            break;
+                        case 'f':
+                            ParseInputFileArgs(args[i + 1].c_str());
+                            break;
+                        case 'i':
+                            ParseInputFileArgs(args[i + 1].c_str());
+                            break;
+                        case 'o':
+                            setenv("outputFile", args[i + 1].c_str(), 1);
+                            break;
+                        case 'j':
+                            setenv("threadNumber", args[i + 1].c_str(), 1);
+                            break;
+                        case 'e':
+                            setenv("eventsToProcess", args[i + 1].c_str(), 1);
+                            break;
+                        case 'v':
+                            setenv("verboseLevel", args[i + 1].c_str(), 1);
+                            break;
+                        case 'p':
+                            setenv("pdfFilename", args[i + 1].c_str(), 1);
+                            break;
+                        // case 'help': PrintHelp(); exit(0);
+                        default:
+                            fout << endl;
+                            PrintHelp();
+                            return 0;
                     }
                 }
             }
@@ -145,11 +176,10 @@ int main(int argc, char* argv[]) {
         } else  // usage2
         {
             vector<string> argumentlist;
-            for (int i = 2; i < argc; i++) {
-                string a = argv[i];
-                argumentlist.push_back(a);
+            for (int i = 2; i < args.size(); i++) {
+                argumentlist.push_back(args[i]);
             }
-            string type = (argv[1]);
+            string type = (args[1]);
             fout << "Initializing " << type << endl;
             TRestManager* a = new TRestManager();
             a->InitFromTask(type, argumentlist);
