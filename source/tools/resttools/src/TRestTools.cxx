@@ -133,6 +133,15 @@ void TRestTools::LoadRESTLibrary(bool silent) {
     }
 }
 
+int TRestTools::PrintTable(std::vector<std::vector<Double_t>> data, Int_t start, Int_t end) {
+    Int_t size = data.size();
+    if (end > 0 && size > end) size = end;
+    for (int n = 0; n < size; n++) {
+        for (int m = 0; m < data[n].size(); m++) cout << data[n][m] << "\t";
+        cout << endl;
+    }
+}
+
 int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data) {
     if (!TRestTools::fileExists((string)fName)) {
         cout << "TRestTools::ReadASCIITable. Error" << endl;

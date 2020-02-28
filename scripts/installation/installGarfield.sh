@@ -45,7 +45,7 @@ echo checkout the code...
 #svn co http://svn.cern.ch/guest/garfield/tags/v1r0 $GARFIELD_HOME
 git clone https://gitlab.cern.ch/garfield/garfieldpp.git $GARFIELD_HOME
 cd $GARFIELD_HOME
-git checkout c84002f1
+git checkout 21891449
 
 #cp garfield6/CMakeLists.txt $GARFIELD_HOME/CMakeLists.txt
 
@@ -58,8 +58,11 @@ cmake -DWITH_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=$GARFIELD_HOME ../
 make -j2
 mkdir ../lib -p
 
-cp lib/* ../lib 
-cp rootdict/*.pcm ../lib
+cp lib/* ../lib
+
+# I add || true so that the script continues in case the pcm is not inside
+# rootdict/. As it is the case in some Garfield versions, as it is already in lib/.
+cp rootdict/*.pcm ../lib || true
 
 cd $WP
 
@@ -68,6 +71,7 @@ echo "----------------------------------------------------------------------"
 echo ""
 echo "Garfield has been installed at $GARFIELD_HOME"
 echo ""
+echo " -- Few lines were added to your .bashrc. Check them out! "
 echo "----------------------------------------------------------------------"
 echo ""
 
