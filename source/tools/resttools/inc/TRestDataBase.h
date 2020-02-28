@@ -43,7 +43,7 @@ struct DBEntry {
         tag = _tag;
         description = _description;
         version = _version;
-	}
+    }
     int id = 0;
     string type = "";
     string usr = "";
@@ -51,7 +51,7 @@ struct DBEntry {
     string description = "";
     string version = "";
 
-	bool operator<(const DBEntry& d) const {
+    bool operator<(const DBEntry& d) const {
         if (id < d.id) {
             return true;
         }
@@ -78,6 +78,7 @@ class TRestDataBase {
     map<DBEntry, string> fRunFile;
     map<DBEntry, string> fMetaDataFile;
     bool DownloadRemoteFile(string remoteFile, string localFile);
+
    protected:
     string fConnectionString;
 
@@ -85,7 +86,7 @@ class TRestDataBase {
     TRestDataBase();
     ~TRestDataBase() {}
 
-	static TRestDataBase* GetDataBase();
+    static TRestDataBase* GetDataBase();
     static TRestDataBase* instantiate(string name = "");
     virtual void Initialize();
     virtual void test() {}
@@ -130,16 +131,14 @@ class TRestDataBase {
     virtual vector<int> search_metadata_with_fileurl(string url);
     virtual vector<int> search_metadata_with_info(DBEntry info);
 
-	virtual string get_metadatafile(string url);
+    virtual string get_metadatafile(string url);
     virtual string get_metadatafile(int id, string name = "");
     virtual int get_lastmetadata();
 
     virtual int add_metadata(DBEntry info = DBEntry(), string url = "");
-    virtual int set_metadatafile(int id, string url);
-    virtual int set_metadatafile(int id, string url, string urlremote);
+    virtual int set_metadatafile(int id, string url, string rename = "");
+    //   virtual int set_metadatafile(int id, string url, string urlremote, string rename = "");
     virtual int set_metadata_info(int id, DBEntry info);
-
-
 };
 
 #define gDataBase (TRestDataBase::GetDataBase())

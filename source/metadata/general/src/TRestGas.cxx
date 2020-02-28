@@ -689,7 +689,7 @@ void TRestGas::UploadGasToServer(string gasFilename) {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // We transfer the new gas definitions to the gasServer
-    gDataBase->set_metadatafile(ids[0], fname);
+    gDataBase->set_metadatafile(ids[0], fname, "gases.rml");
 
     // We transfer the gasFile to the gasServer
     string _name = Replace(gasFilename, "(", "\\(", 0);

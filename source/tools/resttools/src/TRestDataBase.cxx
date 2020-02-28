@@ -358,10 +358,10 @@ int TRestDataBase::add_metadata(DBEntry info, string url) {
 /// If the file is a local file, it will upload it and overwrite the remote one
 /// The database will remain unchanged.
 ///
-int TRestDataBase::set_metadatafile(int id, string url) {
+int TRestDataBase::set_metadatafile(int id, string url, string rename) {
     cout << "error" << endl;
 
-    string cmd = "scp " + url + " gasUser@sultan.unizar.es:./gasFiles/";
+    string cmd = "scp " + url + " gasUser@sultan.unizar.es:./gasFiles/" + rename;
     int a = system(cmd.c_str());
 
     if (a != 0) {
@@ -378,10 +378,11 @@ int TRestDataBase::set_metadatafile(int id, string url) {
 ///////////////////////////////////////////////
 /// \brief It will upload the file from **url** to **urlremote**, and update the database
 ///
-int TRestDataBase::set_metadatafile(int id, string url, string urlremote) {
+/*
+int TRestDataBase::set_metadatafile(int id, string url, string urlremote, string rename) {
     cout << "error" << endl;
     return 0;
-}
+}*/
 ///////////////////////////////////////////////
 /// \brief It will update the information of database
 ///
@@ -422,8 +423,10 @@ bool TRestDataBase::DownloadRemoteFile(string remoteFile, string localFile) {
                     // we remove the empty file created by wget if download failed
                 }
             }
-            if (!localfileexist) cout << "Please specify a local file" << endl;
-            else cout << "You can use the already existed local file" << endl;
+            if (!localfileexist)
+                cout << "Please specify a local file" << endl;
+            else
+                cout << "You can use the already existed local file" << endl;
         }
     } else if (remoteFile.find("ssh:") == 0) {
     } else {
