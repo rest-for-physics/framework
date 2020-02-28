@@ -1,4 +1,4 @@
-"1" "GAS" "" "" "" "2.2.12" "https://sultan.unizar.es/gasFiles/"
-"2" "META_RML" "" "TRestGas" "gas definition rml" "2.2.12" "https://sultan.unizar.es/gasFiles/gases.rml"
-"3" "META_RML" "" "TRestReadout" "pre-defined readout modules" "2.2.12" "https://sultan.unizar.es/definitions/readouts.rml"
-"4" "META_RML" "" "TRestRawSignalAnalysisProcess" "pre-defined processes" "2.2.12" "https://sultan.unizar.es/definitions/processes.rml"
+"1" "GAS_SERVER" "" "" "2.2.12" "https://sultan.unizar.es/gasFiles/"
+"2" "META_RML" "TRestGas" "gas definition rml" "2.2.12" "https://sultan.unizar.es/gasFiles/gases.rml"
+"3" "META_RML" "TRestReadout" "pre-defined readout modules" "2.2.12" "https://sultan.unizar.es/definitions/readouts.rml"
+"4" "META_RML" "TRestRawSignalAnalysisProcess" "pre-defined processes" "2.2.12" "https://sultan.unizar.es/definitions/processes.rml"

@@ -10,6 +10,7 @@
 #include "TRestStringOutput.h"
 #include "TRestTools.h"
 #include "TSystem.h"
+#include "TUrl.h"
 
 //////////////////////////////////////////////////////////////////////////
 /// Interface class of REST database accessibility.
@@ -79,6 +80,14 @@ TRestDataBase* TRestDataBase::instantiate(string name) {
     return db;
 }
 
+DBEntry::DBEntry(vector<string> items) {
+    this->id = atoi(items[0].c_str());
+    this->type = items[1];
+    this->tag = items[2];
+    this->description = items[3];
+    this->version = items[4];
+}
+
 void TRestDataBase::Initialize() {
     fMetaDataFile.clear();
     string metaFilename = getenv("REST_PATH") + (string) "/dataURL";
@@ -90,20 +99,12 @@ void TRestDataBase::Initialize() {
         string s;
         while (TRestTools::GetLine(infile, s)) {
             vector<string> items = Split(s, "\" \"", true);
-            if (items.size() != 7) continue;
-
+            if (items.size() != 6) continue;
             if (items[0][0] == '\"') items[0] = items[0].substr(1, -1);
-            if (items[6][items[6].size() - 1] == '\"') items[6] = items[6].substr(0, items[6].size() - 1);
-            DBEntry info;
-            info.id = atoi(items[0].c_str());
-            info.type = items[1];
-            info.usr = items[2];
-            info.tag = items[3];
-            info.description = items[4];
-            info.version = items[5];
-            string dburl = items[6];
+            if (items[5][items[5].size() - 1] == '\"') items[5] = items[5].substr(0, items[5].size() - 1);
 
-            fMetaDataFile[info] = dburl;
+            DBEntry info(items);
+            fMetaDataFile[info] = items[5];
         }
     }
 }
@@ -252,7 +253,7 @@ vector<int> TRestDataBase::search_metadata_with_fileurl(string _url) {
 /// If all of them mean **any**, it will return a blank list.
 vector<int> TRestDataBase::search_metadata_with_info(DBEntry _info) {
     vector<int> result;
-    if (_info.id <= 0 && _info.type == "" && _info.usr == "" && _info.tag == "" && _info.description == "" &&
+    if (_info.id <= 0 && _info.type == "" && _info.tag == "" && _info.description == "" &&
         _info.version == "")
         return result;
 
@@ -264,12 +265,11 @@ vector<int> TRestDataBase::search_metadata_with_info(DBEntry _info) {
             result.push_back(info.id);
         } else {
             bool typematch = (_info.type == "" || info.type == _info.type);
-            bool usrmatch = (_info.usr == "" || info.usr == _info.usr);
             bool tagmatch = (_info.tag == "" || info.tag == _info.tag);
             bool descriptionmatch = (_info.description == "" || info.description == _info.description);
             bool versionmatch = (_info.version == "" || info.version == _info.version);
 
-            if (typematch && usrmatch && tagmatch && descriptionmatch && versionmatch) {
+            if (typematch && tagmatch && descriptionmatch && versionmatch) {
                 result.push_back(info.id);
             }
         }
@@ -278,9 +278,24 @@ vector<int> TRestDataBase::search_metadata_with_info(DBEntry _info) {
     return result;
 }
 
-string TRestDataBase::get_metadatafile(string url) {
+///////////////////////////////////////////////
+/// \brief Get the file on database with entry = **id**
+///
+/// The file is downloaded to the local directory $REST_PATH/data/download/
+/// If the filename is given, it will be added to the end of the remote path
+string TRestDataBase::get_metadatafile(int id, string name) {
+    string url = query_metadata_fileurl(id);
     string purename = TRestTools::GetPureFileName(url);
-    if (purename == "") return "";
+    if (purename == "") {
+        url += name;
+        purename = TRestTools::GetPureFileName(url);
+        if (purename == "") {
+            cout << "error! entry " << id << " in the database is recorded as a file path" << endl;
+            cout << "please specify a concrete file name in this path" << endl;
+            cout << "url: " << url << endl;
+            return "";
+        }
+    }
 
     if (url.find("local:") == 0) {
         return Replace(url, "local:", "");
@@ -306,17 +321,6 @@ string TRestDataBase::get_metadatafile(string url) {
     return "";
 }
 
-string TRestDataBase::get_metadatafile(int id, string name) {
-    string url = query_metadata_fileurl(id);
-    string purename = TRestTools::GetPureFileName(url);
-    if (purename == "")
-        purename = name;
-    else
-        name = "";
-
-    return get_metadatafile(url + name);
-}
-
 int TRestDataBase::get_lastmetadata() {
     auto iter = fMetaDataFile.end();
     iter--;
@@ -325,7 +329,7 @@ int TRestDataBase::get_lastmetadata() {
 
 int TRestDataBase::add_metadata(DBEntry info, string url) {
     if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
-        cout << "error" << endl;
+        cout << "error! path not writable" << endl;
         return -1;
     }
 
@@ -339,7 +343,6 @@ int TRestDataBase::add_metadata(DBEntry info, string url) {
     std::ofstream file(metaFilename, std::ios::app);
     file << "\"" << info.id << "\" ";
     file << "\"" << info.type << "\" ";
-    file << "\"" << info.usr << "\" ";
     file << "\"" << info.tag << "\" ";
     file << "\"" << info.description << "\" ";
     file << "\"" << info.version << "\" ";
@@ -351,44 +354,56 @@ int TRestDataBase::add_metadata(DBEntry info, string url) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Assign a new file url to this metadata entry
+/// \brief Update the entry's metadata file on remote server with local file.
 ///
-/// If the file is a remote url, it will directly update the database
+/// The remote file name will not be changed. If the remote metadata file is a 
+/// path, it will add the local file to this path
 ///
-/// If the file is a local file, it will upload it and overwrite the remote one
-/// The database will remain unchanged.
-///
-int TRestDataBase::set_metadatafile(int id, string url) {
-    cout << "error" << endl;
-
-    string cmd = "scp " + url + " gasUser@sultan.unizar.es:./gasFiles/";
-    int a = system(cmd.c_str());
-
-    if (a != 0) {
-        ferr << __PRETTY_FUNCTION__ << endl;
-        ferr << "problem copying gases definitions to remote server" << endl;
-        ferr << "Please report this problem at "
-                "http://gifna.unizar.es/rest-forum/"
-             << endl;
+int TRestDataBase::update_metadatafile(int id, string filelocal, string method, int port, string user) {
+    if (!TRestTools::fileExists(filelocal)) {
+        cout << "error! local file not exist!" << endl;
         return -1;
     }
+    string _url = query_metadata_fileurl(id);
+    // construct path
+    // [proto://][user[:passwd]@]host[:port]/file.ext[#anchor][?options]
+    TUrl url(_url.c_str());
+    if (method != "") url.SetProtocol(method.c_str());
+    if (port != 0) url.SetPort(port);
+    if (user != "") url.SetUser(user.c_str());
 
+    if ((string)url.GetProtocol() == "https" || (string)url.GetProtocol() == "http") {
+        // maybe we use curl to upload to http in future
+    }
+    else if ((string)url.GetProtocol() == "ssh") {
+        string cmd = "scp -P " + ToString(url.GetPort() == 0 ? 22 : url.GetPort()) + " " + filelocal +" " + url.GetUser() +
+                     "@" + url.GetHost() + ":" +
+                     url.GetFile();
+        cout << cmd << endl;
+        int a = system(cmd.c_str());
+
+        if (a != 0) {
+            ferr << __PRETTY_FUNCTION__ << endl;
+            ferr << "problem copying gases definitions to remote server" << endl;
+            ferr << "Please report this problem at "
+                    "http://gifna.unizar.es/rest-forum/"
+                 << endl;
+            return -1;
+        }
+
+        return 0;
+    }
     return 0;
+
 }
+
 ///////////////////////////////////////////////
-/// \brief It will upload the file from **url** to **urlremote**, and update the database
-///
-int TRestDataBase::set_metadatafile(int id, string url, string urlremote) {
-    cout << "error" << endl;
-    return 0;
-}
-///////////////////////////////////////////////
-/// \brief It will update the information of database
+/// \brief It will update the information of database for the specified entry
 ///
 /// The following specification of DBEntry's content will not be updated:
 /// id <= 0, type == "" ,usr == "" ,tag == "" ,description == "" ,version == "".
-int TRestDataBase::set_metadata_info(int id, DBEntry info) {
-    cout << "error" << endl;
+int TRestDataBase::update_metadata(int id, DBEntry info) {
+    cout << "error! not implemented" << endl;
     return 0;
 }
 
@@ -399,9 +414,11 @@ int TRestDataBase::set_metadata_info(int id, DBEntry info) {
 /// the local temporary file downloaded. If it fails, the method will invoke an
 /// exit call and print out some error.
 bool TRestDataBase::DownloadRemoteFile(string remoteFile, string localFile) {
-    if (remoteFile.find("https:") == 0 || remoteFile.find("http:") == 0) {
-        string cmd = "wget --no-check-certificate " + remoteFile + " -O " + localFile + " -q";
+    TUrl url(remoteFile.c_str());
 
+    if ((string)url.GetProtocol() == "https" || (string)url.GetProtocol() == "http") {
+        string cmd = "wget --no-check-certificate " + remoteFile + " -O " + localFile + " -q";
+        cout << cmd << endl;
         int a = system(cmd.c_str());
 
         if (a == 0) {
@@ -409,7 +426,7 @@ bool TRestDataBase::DownloadRemoteFile(string remoteFile, string localFile) {
         } else {
             cout << "-- Error : download failed! (" << remoteFile << ")" << endl;
             if (a == 1024) cout << "-- Error : Network connection problem?" << endl;
-            if (a == 2048) cout << "Gas definition does NOT exist in database?" << endl;
+            if (a == 2048) cout << "File does NOT exist in database?" << endl;
 
             bool localfileexist = false;
             struct stat statbuf;
@@ -422,10 +439,19 @@ bool TRestDataBase::DownloadRemoteFile(string remoteFile, string localFile) {
                     // we remove the empty file created by wget if download failed
                 }
             }
-            if (!localfileexist) cout << "Please specify a local file" << endl;
-            else cout << "You can use the already existed local file" << endl;
+            if (!localfileexist)
+                cout << "Please specify a local file" << endl;
+            else
+                cout << "You can use the already existed local file" << endl;
         }
-    } else if (remoteFile.find("ssh:") == 0) {
+    } else if ((string)url.GetProtocol() == "ssh") {
+        string cmd = "scp -P " + ToString(url.GetPort() == 0 ? 22 : url.GetPort()) + " " + url.GetUser() +
+                     "@" + url.GetHost() + ":" + url.GetFile() + " " + localFile;
+        cout << cmd << endl;
+        int a = system(cmd.c_str());
+        if (a == 0) {
+            return true;
+        }
     } else {
         cout << "-- Error : unknown protocol!" << endl;
     }

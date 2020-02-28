@@ -2,6 +2,7 @@
 #define RestCore_TRestDataBase
 
 #include <time.h>
+
 #include <iostream>
 #include <map>
 #include <vector>
@@ -39,19 +40,18 @@ struct DBEntry {
             string _version = "") {
         id = _id;
         type = _type;
-        usr = _usr;
         tag = _tag;
         description = _description;
         version = _version;
-	}
+    }
+    DBEntry(vector<string> defs);
     int id = 0;
     string type = "";
-    string usr = "";
     string tag = "";
     string description = "";
     string version = "";
 
-	bool operator<(const DBEntry& d) const {
+    bool operator<(const DBEntry& d) const {
         if (id < d.id) {
             return true;
         }
@@ -78,6 +78,7 @@ class TRestDataBase {
     map<DBEntry, string> fRunFile;
     map<DBEntry, string> fMetaDataFile;
     bool DownloadRemoteFile(string remoteFile, string localFile);
+
    protected:
     string fConnectionString;
 
@@ -85,7 +86,7 @@ class TRestDataBase {
     TRestDataBase();
     ~TRestDataBase() {}
 
-	static TRestDataBase* GetDataBase();
+    static TRestDataBase* GetDataBase();
     static TRestDataBase* instantiate(string name = "");
     virtual void Initialize();
     virtual void test() {}
@@ -130,16 +131,13 @@ class TRestDataBase {
     virtual vector<int> search_metadata_with_fileurl(string url);
     virtual vector<int> search_metadata_with_info(DBEntry info);
 
-	virtual string get_metadatafile(string url);
+    // virtual string get_metadatafile(string url);
     virtual string get_metadatafile(int id, string name = "");
     virtual int get_lastmetadata();
 
     virtual int add_metadata(DBEntry info = DBEntry(), string url = "");
-    virtual int set_metadatafile(int id, string url);
-    virtual int set_metadatafile(int id, string url, string urlremote);
-    virtual int set_metadata_info(int id, DBEntry info);
-
-
+    virtual int update_metadata(int id, DBEntry info);
+    virtual int update_metadatafile(int id, string localfile, string method = "", int port = 0, string user="");
 };
 
 #define gDataBase (TRestDataBase::GetDataBase())
