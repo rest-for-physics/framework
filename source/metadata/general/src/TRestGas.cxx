@@ -214,10 +214,11 @@
 /// <hr>
 
 #include "TRestGas.h"
+
 #include "TRestDataBase.h"
 using namespace std;
 
-const char* defaultServer = "https://sultan.unizar.es/gasFiles/";
+// const char* defaultServer = "https://sultan.unizar.es/gasFiles/";
 
 ClassImp(TRestGas)
 
@@ -738,7 +739,8 @@ string TRestGas::FindGasFile(string name) {
     string absoluteName = "";
 
     if (!fGasGeneration && fGasServer != "none") {
-        absoluteName = gDataBase->get_metadatafile(gDataBase->search_metadata_with_info({0, "GAS_SERVER"})[0],  _name);
+        absoluteName =
+            gDataBase->get_metadatafile(gDataBase->search_metadata_with_info({0, "GAS_SERVER"})[0], _name);
         absoluteName = Replace(absoluteName, "\\(", "(", 0);
         absoluteName = Replace(absoluteName, "\\)", ")", 0);
     }

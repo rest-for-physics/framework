@@ -356,7 +356,7 @@ int TRestDataBase::add_metadata(DBEntry info, string url) {
 ///////////////////////////////////////////////
 /// \brief Update the entry's metadata file on remote server with local file.
 ///
-/// The remote file name will not be changed. If the remote metadata file is a 
+/// The remote file name will not be changed. If the remote metadata file is a
 /// path, it will add the local file to this path
 ///
 int TRestDataBase::update_metadatafile(int id, string filelocal, string method, int port, string user) {
@@ -374,11 +374,9 @@ int TRestDataBase::update_metadatafile(int id, string filelocal, string method, 
 
     if ((string)url.GetProtocol() == "https" || (string)url.GetProtocol() == "http") {
         // maybe we use curl to upload to http in future
-    }
-    else if ((string)url.GetProtocol() == "ssh") {
-        string cmd = "scp -P " + ToString(url.GetPort() == 0 ? 22 : url.GetPort()) + " " + filelocal +" " + url.GetUser() +
-                     "@" + url.GetHost() + ":" +
-                     url.GetFile();
+    } else if ((string)url.GetProtocol() == "ssh") {
+        string cmd = "scp -P " + ToString(url.GetPort() == 0 ? 22 : url.GetPort()) + " " + filelocal + " " +
+                     url.GetUser() + "@" + url.GetHost() + ":" + url.GetFile();
         cout << cmd << endl;
         int a = system(cmd.c_str());
 
@@ -394,7 +392,6 @@ int TRestDataBase::update_metadatafile(int id, string filelocal, string method, 
         return 0;
     }
     return 0;
-
 }
 
 ///////////////////////////////////////////////

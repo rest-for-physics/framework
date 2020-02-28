@@ -137,7 +137,8 @@ class TRestDataBase {
 
     virtual int add_metadata(DBEntry info = DBEntry(), string url = "");
     virtual int update_metadata(int id, DBEntry info);
-    virtual int update_metadatafile(int id, string localfile, string method = "", int port = 0, string user="");
+    virtual int update_metadatafile(int id, string localfile, string method = "", int port = 0,
+                                    string user = "");
 };
 
 #define gDataBase (TRestDataBase::GetDataBase())

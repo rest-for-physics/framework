@@ -421,13 +421,15 @@
 /// <hr>
 ///
 
-#include <iomanip>
+#include "TRestMetadata.h"
 
 #include <TMath.h>
 #include <TSystem.h>
+
+#include <iomanip>
+
 #include "RmlUpdateTool.h"
 #include "TRestDataBase.h"
-#include "TRestMetadata.h"
 #include "TStreamerInfo.h"
 #include "v5/TFormula.h"
 
@@ -444,7 +446,8 @@ using namespace REST_Physics;
 
 // We introduce the gases file here.
 // But, should we have a corner somewhere to define hard-coded globals?
-const char* gasesFile = "https://sultan.unizar.es/gasFiles/gases.rml";
+// nkx, 20200228: We now define the global data servers in database file
+// const char* gasesFile = "https://sultan.unizar.es/gasFiles/gases.rml";
 
 map<string, string> TRestMetadata_UpdatedConfigFile;
 
@@ -2187,7 +2190,7 @@ void TRestMetadata::ReSetVersion() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Resets the version of TRestRun to -1, in case the file is old REST file. 
+/// \brief Resets the version of TRestRun to -1, in case the file is old REST file.
 /// Only TRestRun is allowed to update version.
 void TRestMetadata::UnSetVersion() {
     if (!this->InheritsFrom("TRestRun"))
@@ -2224,7 +2227,7 @@ string TRestMetadata::GetDataMemberValue(string memberName) {
     any member = REST_Reflection::GetDataMember(any((char*)this, this->ClassName()), memberName);
     if (!member.IsZombie()) {
         return member.ToString();
-	}
+    }
     return "";
 }
 
