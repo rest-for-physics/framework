@@ -517,8 +517,8 @@ void TRestGas::InitFromConfigFile() {
 
     fGDMLMaterialRef = GetParameter("GDMLMaterialRef", "");
 
-    // match the database, id=0(any), type="GAS"
-    auto ids = gDataBase->search_metadata_with_info({0, "GAS"});
+    // match the database, id=0(any), type="GAS_SERVER"
+    auto ids = gDataBase->search_metadata_with_info({0, "GAS_SERVER"});
     if (ids.size() > 0)
         fGasServer = gDataBase->query_metadata_fileurl(ids[0]);
     else
@@ -631,7 +631,9 @@ void TRestGas::InitFromRootFile() {
     }
 }
 
-void TRestGas::UploadGasToServer(string gasFilename) {
+void TRestGas::UploadGasToServer(string absoluteGasFilename) {
+    essential << "uploading gas file and gas definition rmls" << endl;
+
     if (fMaxElectronEnergy < 400 || fNCollisions < 10 || fEnodes < 20) {
         warning << "-- Warning : The gas file does not fulfill the requirements "
                    "for being uploaded to the gasServer"
@@ -689,13 +691,13 @@ void TRestGas::UploadGasToServer(string gasFilename) {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // We transfer the new gas definitions to the gasServer
-    gDataBase->set_metadatafile(ids[0], fname);
+    gDataBase->update_metadatafile(ids[0], fname, "ssh", 22, "gasUser");
 
     // We transfer the gasFile to the gasServer
-    string _name = Replace(gasFilename, "(", "\\(", 0);
+    string _name = Replace(absoluteGasFilename, "(", "\\(", 0);
     _name = Replace(_name, ")", "\\)", 0);
-    ids = gDataBase->search_metadata_with_info({0, "GAS"});
-    gDataBase->set_metadatafile(ids[0], _name);
+    ids = gDataBase->search_metadata_with_info({0, "GAS_SERVER"});
+    gDataBase->update_metadatafile(ids[0], _name, "ssh", 22, "gasUser");
 
     // We remove the local file (afterwards, the remote copy will be used)
     cmd = "rm " + _name;
@@ -736,7 +738,7 @@ string TRestGas::FindGasFile(string name) {
     string absoluteName = "";
 
     if (!fGasGeneration && fGasServer != "none") {
-        absoluteName = gDataBase->get_metadatafile((string)fGasServer + _name);
+        absoluteName = gDataBase->get_metadatafile(gDataBase->search_metadata_with_info({0, "GAS_SERVER"})[0],  _name);
         absoluteName = Replace(absoluteName, "\\(", "(", 0);
         absoluteName = Replace(absoluteName, "\\)", ")", 0);
     }
