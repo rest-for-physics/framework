@@ -43,9 +43,9 @@ TRestMesh::TRestMesh(TVector3 size, TVector3 position, Int_t nx, Int_t ny, Int_t
     fNetSizeZ = size.Z();
 
     // We will divide the grid in intervals not nodes.
-    fNodesX = nx - 1;
-    fNodesY = ny - 1;
-    fNodesZ = nz - 1;
+    fNodesX = nx;
+    fNodesY = ny;
+    fNodesZ = nz;
 
     fNetOrigin = position;
 }
@@ -56,13 +56,13 @@ TRestMesh::~TRestMesh() {
 }
 
 //! Gets the X position of node (i,j)
-Double_t TRestMesh::GetX(Int_t nX) { return fNetOrigin.X() + (fNetSizeX / fNodesX) * nX; }
+Double_t TRestMesh::GetX(Int_t nX) { return fNetOrigin.X() + (fNetSizeX / (fNodesX - 1)) * nX; }
 
 //! Gets the Y position of node (i,j)
-Double_t TRestMesh::GetY(Int_t nY) { return fNetOrigin.Y() + (fNetSizeY / fNodesY) * nY; }
+Double_t TRestMesh::GetY(Int_t nY) { return fNetOrigin.Y() + (fNetSizeY / (fNodesY - 1)) * nY; }
 
 //! Gets the Z position of node (i,j)
-Double_t TRestMesh::GetZ(Int_t nZ) { return fNetOrigin.Z() + (fNetSizeZ / fNodesZ) * nZ; }
+Double_t TRestMesh::GetZ(Int_t nZ) { return fNetOrigin.Z() + (fNetSizeZ / (fNodesZ - 1)) * nZ; }
 
 //! Gets the nodeX index corresponding to the x coordinate
 Int_t TRestMesh::GetNodeX(Double_t x) {
@@ -70,7 +70,7 @@ Int_t TRestMesh::GetNodeX(Double_t x) {
 
     if (x > fNetSizeX + fNetOrigin.X()) {
         cout << "REST WARNING (TRestMesh) : X node (" << x
-             << ") outside boundaries. Setting it to : " << fNodesX - 1 << endl;
+             << ") outside boundaries. Setting it to : " << fNodesX << endl;
         return fNodesX - 1;
     }
 
@@ -80,7 +80,7 @@ Int_t TRestMesh::GetNodeX(Double_t x) {
         return 0;
     }
 
-    Int_t nX = (Int_t)(((x - fNetOrigin.X()) * fNodesX / fNetSizeX));
+    Int_t nX = (Int_t)(((x - fNetOrigin.X()) * (fNodesX - 1) / fNetSizeX));
 
     return nX;
 }
@@ -101,7 +101,7 @@ Int_t TRestMesh::GetNodeY(Double_t y) {
         return 0;
     }
 
-    Int_t nY = (Int_t)(((y - fNetOrigin.Y()) / fNetSizeY) * fNodesY);
+    Int_t nY = (Int_t)(((y - fNetOrigin.Y()) / fNetSizeY) * (fNodesY - 1));
 
     return nY;
 }
@@ -122,7 +122,7 @@ Int_t TRestMesh::GetNodeZ(Double_t z) {
         return 0;
     }
 
-    Int_t nZ = (Int_t)(((z - fNetOrigin.Z()) / fNetSizeZ) * fNodesZ);
+    Int_t nZ = (Int_t)(((z - fNetOrigin.Z()) / fNetSizeZ) * (fNodesZ - 1));
 
     return nZ;
 }
@@ -255,9 +255,9 @@ void TRestMesh::SetSize(Double_t sX, Double_t sY, Double_t sZ) {
 }
 
 void TRestMesh::SetNodes(Int_t nX, Int_t nY, Int_t nZ) {
-    fNodesX = nX - 1;
-    fNodesY = nY - 1;
-    fNodesZ = nZ - 1;
+    fNodesX = nX;
+    fNodesY = nY;
+    fNodesZ = nZ;
     // TODO instead of removing nodes we might need just to re-translate the
     // existing nodes
     RemoveNodes();

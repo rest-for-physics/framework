@@ -84,9 +84,9 @@ class TRestMesh : public TObject {
 
     void SetNodes(Int_t nX, Int_t nY, Int_t nZ);
 
-    Int_t GetNodesX() { return fNodesX; }
-    Int_t GetNodesY() { return fNodesY; }
-    Int_t GetNodesZ() { return fNodesZ; }
+    Int_t GetNodesX() { return fNodesX + 1; }
+    Int_t GetNodesY() { return fNodesY + 1; }
+    Int_t GetNodesZ() { return fNodesZ + 1; }
 
     void AddNode(Double_t x, Double_t y, Double_t z);
 
