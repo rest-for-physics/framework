@@ -5,21 +5,28 @@
 #include "TRestReadout.h"
 #include "TStyle.h"
 #include "TView.h"
+#include "TLegend.h"
 
 ClassImp(TRestGainMap);
 
 void TRestGainMap::DrawChannelGainMap(TRestReadoutModule* mod) {
     if (mod == NULL) {
-        vector<double> id;
-        vector<double> gain;
+        int min = 1e9;
+        int max = 0;
         auto iter = fChannelGain.begin();
         while (iter != fChannelGain.end()) {
-            id.push_back(iter->first);
-            gain.push_back(iter->second);
+            if (max < iter->first) max = iter->first;
+            if (min > iter->first) min = iter->first;
             iter++;
         }
-        TGraph* gr = new TGraph(id.size(), &id[0], &gain[0]);
-        gr->Draw();
+
+        TH1D* h = new TH1D("GainMap", "GainMap", max - min + 2, min - 1, max + 1);
+        iter = fChannelGain.begin();
+        while (iter != fChannelGain.end()) {
+            h->SetBinContent(h->FindBin(iter->first), iter->second);
+            iter++;
+        }
+        h->Draw();
     } else {
         double xmin = 0, xmax = mod->GetModuleSizeX(), ymin = 0, ymax = mod->GetModuleSizeY();
         cout << xmin << " " << xmax << " " << ymin << " " << ymax << endl;
