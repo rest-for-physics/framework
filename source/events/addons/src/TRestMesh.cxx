@@ -17,9 +17,9 @@
 using namespace std;
 using namespace TMath;
 
-ClassImp(TRestMesh)
-    //______________________________________________________________________________
-    TRestMesh::TRestMesh() {
+ClassImp(TRestMesh);
+//______________________________________________________________________________
+TRestMesh::TRestMesh() {
     // TRestMesh default constructor
 }
 
@@ -29,11 +29,25 @@ TRestMesh::TRestMesh(Double_t size, Int_t nodes) {
     fNetSizeY = size;
     fNetSizeZ = size;
 
-    fNodesX = nodes;
-    fNodesY = nodes;
-    fNodesZ = nodes;
+    // We will divide the grid in intervals not nodes.
+    fNodesX = nodes - 1;
+    fNodesY = nodes - 1;
+    fNodesZ = nodes - 1;
 
     fNetOrigin = TVector3(0, 0, 0);
+}
+
+TRestMesh::TRestMesh(TVector3 size, TVector3 position, Int_t nx, Int_t ny, Int_t nz) {
+    fNetSizeX = size.X();
+    fNetSizeY = size.Y();
+    fNetSizeZ = size.Z();
+
+    // We will divide the grid in intervals not nodes.
+    fNodesX = nx;
+    fNodesY = ny;
+    fNodesZ = nz;
+
+    fNetOrigin = position;
 }
 
 //______________________________________________________________________________
@@ -42,31 +56,32 @@ TRestMesh::~TRestMesh() {
 }
 
 //! Gets the X position of node (i,j)
-Double_t TRestMesh::GetX(Int_t nX) { return fNetOrigin.X() + (fNetSizeX / fNodesX) * nX; }
+Double_t TRestMesh::GetX(Int_t nX) { return fNetOrigin.X() + (fNetSizeX / (fNodesX - 1)) * nX; }
 
 //! Gets the Y position of node (i,j)
-Double_t TRestMesh::GetY(Int_t nY) { return fNetOrigin.Y() + (fNetSizeY / fNodesY) * nY; }
+Double_t TRestMesh::GetY(Int_t nY) { return fNetOrigin.Y() + (fNetSizeY / (fNodesY - 1)) * nY; }
 
 //! Gets the Z position of node (i,j)
-Double_t TRestMesh::GetZ(Int_t nZ) { return fNetOrigin.Z() + (fNetSizeZ / fNodesZ) * nZ; }
+Double_t TRestMesh::GetZ(Int_t nZ) { return fNetOrigin.Z() + (fNetSizeZ / (fNodesZ - 1)) * nZ; }
 
 //! Gets the nodeX index corresponding to the x coordinate
 Int_t TRestMesh::GetNodeX(Double_t x) {
     if (IsNaN(x)) return 0;
 
-    Int_t nX = (Int_t)(((x - fNetOrigin.X()) / fNetSizeX) * fNodesX);
+    if (x > fNetSizeX + fNetOrigin.X()) {
+        cout << "REST WARNING (TRestMesh) : X node (" << x
+             << ") outside boundaries. Setting it to : " << fNodesX << endl;
+        return fNodesX - 1;
+    }
 
-    if (nX < 0) {
+    if (x < fNetOrigin.X()) {
         cout << "REST WARNING (TRestMesh) : X node (" << x << ") outside boundaries. Setting it to : " << 0
              << endl;
         return 0;
     }
 
-    if (nX >= fNodesX) {
-        cout << "REST WARNING (TRestMesh) : X node (" << x
-             << ") outside boundaries. Setting it to : " << fNodesX - 1 << endl;
-        return fNodesX - 1;
-    }
+    Int_t nX = (Int_t)(((x - fNetOrigin.X()) * (fNodesX - 1) / fNetSizeX));
+
     return nX;
 }
 
@@ -74,19 +89,19 @@ Int_t TRestMesh::GetNodeX(Double_t x) {
 Int_t TRestMesh::GetNodeY(Double_t y) {
     if (IsNaN(y)) return 0;
 
-    Int_t nY = (Int_t)(((y - fNetOrigin.Y()) / fNetSizeY) * fNodesY);
+    if (y > fNetSizeY + fNetOrigin.Y()) {
+        cout << "REST WARNING (TRestMesh) : Y node (" << y
+             << ") outside boundaries. Setting it to : " << fNodesY - 1 << endl;
+        return fNodesY - 1;
+    }
 
-    if (nY < 0) {
+    if (y < fNetOrigin.Y()) {
         cout << "REST WARNING (TRestMesh) : Y node (" << y << ") outside boundaries. Setting it to : " << 0
              << endl;
         return 0;
     }
 
-    if (nY >= fNodesY) {
-        cout << "REST WARNING (TRestMesh) : Y node (" << y
-             << ") outside boundaries. Setting it to : " << fNodesY - 1 << endl;
-        return fNodesY - 1;
-    }
+    Int_t nY = (Int_t)(((y - fNetOrigin.Y()) / fNetSizeY) * (fNodesY - 1));
 
     return nY;
 }
@@ -94,15 +109,21 @@ Int_t TRestMesh::GetNodeY(Double_t y) {
 //! Gets the nodeY index corresponding to the x coordinate
 Int_t TRestMesh::GetNodeZ(Double_t z) {
     if (IsNaN(z)) return 0;
-    Int_t nZ = (Int_t)(((z - fNetOrigin.Z()) / fNetSizeZ) * fNodesZ);
-    if (nZ < 0) {
-        cout << "REST WARNING : Z node outside boundaries. Setting it to : " << 0 << endl;
+
+    if (z > fNetSizeZ + fNetOrigin.Z()) {
+        cout << "REST WARNING (TRestMesh) : Z node (" << z
+             << ") outside boundaries. Setting it to : " << fNodesZ - 1 << endl;
         return fNodesZ - 1;
     }
-    if (nZ >= fNodesZ) {
-        cout << "REST WARNING : Z node outside boundaries. Setting it to : " << fNodesZ - 1 << endl;
-        return fNodesZ - 1;
+
+    if (z < fNetOrigin.Z()) {
+        cout << "REST WARNING (TRestMesh) : Z node (" << z << ") outside boundaries. Setting it to : " << 0
+             << endl;
+        return 0;
     }
+
+    Int_t nZ = (Int_t)(((z - fNetOrigin.Z()) / fNetSizeZ) * (fNodesZ - 1));
+
     return nZ;
 }
 
