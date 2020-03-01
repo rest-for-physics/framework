@@ -21,7 +21,7 @@
 #include <TRestReadout.h>
 #include <TRestSignalEvent.h>
 
-#include "TRestCalibration.h"
+#include "TRestGainMap.h"
 #include "TRestEventProcess.h"
 
 class TRestSingleChannelAnalysisProcess : public TRestEventProcess {
@@ -31,7 +31,7 @@ class TRestSingleChannelAnalysisProcess : public TRestEventProcess {
 
     TRestReadout* fReadout;  //!
 
-    TRestCalibration* fCalib;  //!
+    TRestGainMap* fCalib;  //!
 #endif
 
     void InitFromConfigFile();

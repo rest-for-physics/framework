@@ -44,7 +44,7 @@ void TRestSingleChannelAnalysisProcess::Initialize() {
 //______________________________________________________________________________
 void TRestSingleChannelAnalysisProcess::InitProcess() {
     fReadout = GetMetadata<TRestReadout>();
-    fCalib = GetMetadata<TRestCalibration>();
+    fCalib = GetMetadata<TRestGainMap>();
     if (fReadout != NULL) {
         auto readout = *fReadout;
         for (int i = 0; i < readout.GetNumberOfReadoutPlanes(); i++) {
@@ -72,7 +72,7 @@ void TRestSingleChannelAnalysisProcess::InitProcess() {
             }
 
         } else {
-            ferr << "You must set a TRestCalibration metadata object to apply gain correction!" << endl;
+            ferr << "You must set a TRestGainMap metadata object to apply gain correction!" << endl;
             abort();
         }
     }
@@ -209,13 +209,14 @@ void TRestSingleChannelAnalysisProcess::EndProcess() {
             iter++;
         }
 
-        fCalib = new TRestCalibration();
+        fCalib = new TRestGainMap();
         fCalib->fChannelGain = fChannelGain;
         fCalib->SetName("ChannelCalibration");
 
         TRestRun* r = new TRestRun();
         r->SetOutputFileName(fOutputCalibrationFileName);
         r->AddMetadata(fCalib);
+        r->AddMetadata(fReadout);
         r->FormOutputFile();
 
         delete fCalib;

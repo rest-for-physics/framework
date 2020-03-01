@@ -43,7 +43,7 @@
 class TRestReadoutModule;
 class TRestReadout;
 
-class TRestCalibration : public TRestMetadata {
+class TRestGainMap : public TRestMetadata {
    public:
     bool relative;
     map<int, double> fChannelGain;  // [channel id, gain]
@@ -57,8 +57,8 @@ class TRestCalibration : public TRestMetadata {
     void ReadGainText(string filename) {}
 
     void DrawChannelGainMap(TRestReadoutModule* mod = 0);
-    void DrawModuleGainMap(TRestReadout* r = 0);
+    void DrawModuleGainMap(TRestReadout* r = 0) {}
 
-    ClassDef(TRestCalibration, 1);  // Gas Parameters
+    ClassDef(TRestGainMap, 1);  // Gas Parameters
 };
 #endif

@@ -1,4 +1,4 @@
-#include "TRestCalibration.h"
+#include "TRestGainMap.h"
 
 #include "TGraph2D.h"
 #include "TRandom.h"
@@ -6,9 +6,9 @@
 #include "TStyle.h"
 #include "TView.h"
 
-ClassImp(TRestCalibration);
+ClassImp(TRestGainMap);
 
-void TRestCalibration::DrawChannelGainMap(TRestReadoutModule* mod) {
+void TRestGainMap::DrawChannelGainMap(TRestReadoutModule* mod) {
     if (mod == NULL) {
         vector<double> id;
         vector<double> gain;
