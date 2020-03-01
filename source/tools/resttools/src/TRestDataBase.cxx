@@ -165,6 +165,7 @@ int TRestDataBase::get_lastrun() {
     string runFilename = getenv("REST_PATH") + (string) "/runNumber";
     if (!TRestTools::fileExists(runFilename)) {
         if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
+            // we fix the "runNumber" file
             TRestTools::Execute("echo 1 > " + runFilename);
             runNr = 1;
         }
@@ -172,9 +173,16 @@ int TRestDataBase::get_lastrun() {
         ifstream ifs(runFilename);
         ifs >> runNr;
     }
+    // the number recorded in "runNumber" file is for the next run, we subtract 1 to get the latest run.
     return runNr - 1;
 }
 
+///////////////////////////////////////////////
+// runs are added according to info.id:
+// -1 --> do not add new run
+// 0  --> append a new run in run list
+// >0 --> write this run in run list, may overwrite the existing run
+// write to the "runNumber" file if it is writable
 int TRestDataBase::add_run(DBEntry info) {
     int newRunNr;
     if (info.id == 0) {
@@ -246,8 +254,6 @@ vector<int> TRestDataBase::search_metadata_with_fileurl(string _url) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Get a list of matched matadata id, according to the DBEntry's content
-///
 /// The following specification of DBEntry's content means to match **any**:
 /// id <= 0, type == "" ,usr == "" ,tag == "" ,description == "" ,version == "".
 /// If all of them mean **any**, it will return a blank list.
@@ -279,8 +285,6 @@ vector<int> TRestDataBase::search_metadata_with_info(DBEntry _info) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Get the file on database with entry = **id**
-///
 /// The file is downloaded to the local directory $REST_PATH/data/download/
 /// If the filename is given, it will be added to the end of the remote path
 string TRestDataBase::get_metadatafile(int id, string name) {
@@ -354,10 +358,9 @@ int TRestDataBase::add_metadata(DBEntry info, string url) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Update the entry's metadata file on remote server with local file.
-///
 /// The remote file name will not be changed. If the remote metadata file is a
-/// path, it will add the local file to this path
+/// path, it will add the local file to this path. If the remote metadata file
+/// is a file, it will upload and rename to overwrite the remote file.
 ///
 int TRestDataBase::update_metadatafile(int id, string filelocal, string method, int port, string user) {
     if (!TRestTools::fileExists(filelocal)) {
@@ -395,8 +398,6 @@ int TRestDataBase::update_metadatafile(int id, string filelocal, string method, 
 }
 
 ///////////////////////////////////////////////
-/// \brief It will update the information of database for the specified entry
-///
 /// The following specification of DBEntry's content will not be updated:
 /// id <= 0, type == "" ,usr == "" ,tag == "" ,description == "" ,version == "".
 int TRestDataBase::update_metadata(int id, DBEntry info) {
@@ -405,11 +406,10 @@ int TRestDataBase::update_metadata(int id, DBEntry info) {
 }
 
 ///////////////////////////////////////////////
-/// \brief It will download the remote file provided in the argument using wget.
+/// \brief download the remote file to the given local address.
 ///
-/// If it succeeds to download the file, this method will return the location of
-/// the local temporary file downloaded. If it fails, the method will invoke an
-/// exit call and print out some error.
+/// The file name is given in url format, and is parsed by TUrl. Various methods
+/// will be used, including scp, wget. returns true if succeed.
 bool TRestDataBase::DownloadRemoteFile(string remoteFile, string localFile) {
     TUrl url(remoteFile.c_str());
 
