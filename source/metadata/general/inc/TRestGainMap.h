@@ -23,25 +23,27 @@
 
 #ifndef RestCore_TRestCalibration
 #define RestCore_TRestCalibration
+#include <TROOT.h>
 #include <stdlib.h>
+
 #include <fstream>
 #include <iostream>
 
-#include <TROOT.h>
 #include "TApplication.h"
 #include "TArrayI.h"
 #include "TAxis.h"
 #include "TCanvas.h"
 #include "TGraph.h"
 #include "TNamed.h"
+#include "TRestMetadata.h"
 #include "TString.h"
 #include "TSystem.h"
 #include "TVector3.h"
 
-#include "TRestMetadata.h"
+class TRestReadoutModule;
+class TRestReadout;
 
-
-class TRestCalibration : public TRestMetadata {
+class TRestGainMap : public TRestMetadata {
    public:
     bool relative;
     map<int, double> fChannelGain;  // [channel id, gain]
@@ -54,6 +56,9 @@ class TRestCalibration : public TRestMetadata {
     void SaveToText(string filename) {}
     void ReadGainText(string filename) {}
 
-    ClassDef(TRestCalibration, 1);  // Gas Parameters
+    void DrawChannelGainMap(TRestReadoutModule* mod = 0);
+    void DrawModuleGainMap(TRestReadout* r = 0) {}
+
+    ClassDef(TRestGainMap, 1);  // Gas Parameters
 };
 #endif

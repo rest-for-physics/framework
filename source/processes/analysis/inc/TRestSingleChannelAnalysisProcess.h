@@ -21,7 +21,7 @@
 #include <TRestReadout.h>
 #include <TRestSignalEvent.h>
 
-#include "TRestCalibration.h"
+#include "TRestGainMap.h"
 #include "TRestEventProcess.h"
 
 class TRestSingleChannelAnalysisProcess : public TRestEventProcess {
@@ -31,7 +31,7 @@ class TRestSingleChannelAnalysisProcess : public TRestEventProcess {
 
     TRestReadout* fReadout;  //!
 
-    TRestCalibration* fCalib;  //!
+    TRestGainMap* fCalib;  //!
 #endif
 
     void InitFromConfigFile();
@@ -41,17 +41,19 @@ class TRestSingleChannelAnalysisProcess : public TRestEventProcess {
     bool fApplyGainCorrection;
     bool fCreateGainMap;
     TVector2 fThrIntegralCutRange;
-    TVector2 fAmpIntegralCutRange;
+    TVector2 fNGoodSignalsCutRange;
     string fOutputCalibrationFileName;
+    string fMethod;
 
     // temp data
-    map<int, unsigned long long> fChannelThrIntegralSum;  //! [channel id, sum]
-    map<int, unsigned long long> fChannelAmpIntegralSum;  //! [channel id, sum]
-    map<int, int> fChannelCounts;                         //! [channel id, trigger counts]
-    bool calculateself = false;                           //
+    map<int, double> fChannelThrIntegralSum;  //! [channel id, sum]
+    map<int, int> fChannelCounts;                         //! [channel id, trigger counts]          
+    TH2D* fAreaThrIntegralSum;               //!
+    TH2D* fAreaCounts;               //!
 
     // analysis result(saved directly in root file)
     map<int, double> fChannelGain;  //! [MM id, channel gain]
+    TH2D* fAreaGainMap;             //!
 
    public:
     void InitProcess();
@@ -64,10 +66,10 @@ class TRestSingleChannelAnalysisProcess : public TRestEventProcess {
         metadata << "the mode is:" << endl;
         metadata << (fApplyGainCorrection ? ">   " : "    ") << "Apply channel correction map for spectrum " << endl;
         metadata << (fCreateGainMap       ? ">   " : "    ") << "Create new correction map for each channel" << endl;
+        metadata << "method: " << fMethod << endl;
+        metadata << "output mapping file: " << fOutputCalibrationFileName << endl;
         metadata << "Energy cut for Threshold integral: " << any(fThrIntegralCutRange).ToString() << endl;
-        metadata << "Energy cut for max amplitude integral: " << any(fAmpIntegralCutRange).ToString() << endl;
-        metadata << "draw channel spectrum by: " << (calculateself ? "self calculation" : "saved observables")
-                 << endl;
+        metadata << "Energy cut for NGoodSignals: " << any(fNGoodSignalsCutRange).ToString() << endl;
 
         EndPrintProcess();
     }

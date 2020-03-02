@@ -107,12 +107,26 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
         set<int> TriggeredModuleId;
 
+        double XEnergySum = 0;
+        double XEnergyPosSum = 0;
+        double YEnergySum = 0;
+        double YEnergyPosSum = 0;
+
         for (int i = 0; i < fSignalEvent->GetNumberOfSignals(); i++) {
             TRestSignal* sgnl = fSignalEvent->GetSignal(i);
 
             int p, m, c;
             fReadout->GetPlaneModuleChannel(sgnl->GetID(), p, m, c);
             TriggeredModuleId.insert(m);
+
+            if (!TMath::IsNaN(fReadout->GetX(sgnl->GetID()))) {
+                XEnergySum += sgnl->GetIntegral();
+                XEnergyPosSum += fReadout->GetX(sgnl->GetID()) * sgnl->GetIntegral();
+            }
+            if (!TMath::IsNaN(fReadout->GetY(sgnl->GetID()))) {
+                YEnergySum += sgnl->GetIntegral();
+                YEnergyPosSum += fReadout->GetY(sgnl->GetID()) * sgnl->GetIntegral();
+            }
 
             if (sgnl->GetMaxPeakTime() < firstX_t) {
                 if (!TMath::IsNaN(fReadout->GetX(sgnl->GetID()))) {
@@ -141,6 +155,8 @@ TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
             }
         }
 
+        this->SetObservableValue("MeanX", XEnergySum == 0 ? nan : XEnergyPosSum / XEnergySum);
+        this->SetObservableValue("MeanY", YEnergySum == 0 ? nan : YEnergyPosSum / YEnergySum);
         this->SetObservableValue("NmodulesTriggered", (int)TriggeredModuleId.size());
         this->SetObservableValue("TriggeredModuleId", TriggeredModuleId);
 
