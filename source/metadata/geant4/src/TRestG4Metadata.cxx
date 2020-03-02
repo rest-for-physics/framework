@@ -716,7 +716,7 @@ void TRestG4Metadata::InitFromConfigFile() {
     if (ToUpper(seedstr) == "RANDOM" || ToUpper(seedstr) == "RAND" || ToUpper(seedstr) == "AUTO" ||
         seedstr == "0") {
         double* dd = new double();
-        fSeed = (uintptr_t)dd + (uintptr_t)this;
+        fSeed = (uintptr_t)dd + (uintptr_t) this;
         delete dd;
     } else {
         fSeed = (Long_t)StringToInteger(seedstr);
@@ -938,19 +938,13 @@ void TRestG4Metadata::ReadStorage() {
 void TRestG4Metadata::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    /*
-        TRestStringOutput cout;
-        metadata.setborder("||");
-        metadata.setorientation(1);
-        metadat.setlength(100);
-    */
-
     metadata << "Geant 4 version : " << GetGeant4Version() << endl;
     metadata << "Random seed : " << GetSeed() << endl;
     metadata << "Geometry File : " << Get_GDML_Filename() << endl;
     metadata << "Geometry Path : " << GetGeometryPath() << endl;
     metadata << "Max. Step size : " << GetMaxTargetStepSize() << " mm" << endl;
     metadata << "Sub-event time delay : " << GetSubEventTimeDelay() << " us" << endl;
+    if (fSaveAllEvents) metadata << "Save all events was enabled!" << endl;
     metadata << "**********Generator**********" << endl;
     TString generatorType = GetGeneratorType();
     metadata << "Number of generated events : " << GetNumberOfEvents() << endl;
