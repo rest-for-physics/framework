@@ -88,9 +88,15 @@ class TRestMesh : public TObject {
     Int_t GetNodesY() { return fNodesY + 1; }
     Int_t GetNodesZ() { return fNodesZ + 1; }
 
+    Double_t GetNetSizeX() { return fNetSizeX; }
+    Double_t GetNetSizeY() { return fNetSizeY; }
+    Double_t GetNetSizeZ() { return fNetSizeZ; }
+
     void AddNode(Double_t x, Double_t y, Double_t z);
 
     void RemoveNodes();
+
+    Bool_t IsInside(TVector3 pos);
 
     void Print();
 
