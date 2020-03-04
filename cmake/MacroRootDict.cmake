@@ -130,7 +130,7 @@ MACRO( GEN_ROOT_DICT_SOURCE _dict_src_filename )
     STRING( REGEX REPLACE "^(.*)\\.(.*)$" "\\1.h" _dict_hdr_file "${_dict_src_file}" )
     ADD_CUSTOM_COMMAND(
         OUTPUT  ${_dict_src_file}
-        COMMAND ${ROOT_CINT_WRAPPER} -f "${_dict_src_file}" -c ${_dict_includes} ${ROOT_DICT_INPUT_HEADERS}
+        COMMAND ${ROOT_CINT_WRAPPER} -f "${_dict_src_file}" ${_dict_includes} ${ROOT_DICT_INPUT_HEADERS}
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         DEPENDS ${ROOT_DICT_INPUT_HEADERS} ${_input_depend}
         COMMENT "generating: ${_dict_src_file} with ${ROOT_DICT_INPUT_HEADERS}"
