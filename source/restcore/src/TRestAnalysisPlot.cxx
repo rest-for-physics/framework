@@ -38,6 +38,8 @@ void TRestAnalysisPlot::Initialize() {
     fNFiles = 0;
 
     fCombinedCanvas = NULL;
+
+    fPlotNamesCheck.clear();
 }
 
 //______________________________________________________________________________
@@ -285,6 +287,16 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
     Histo_Info_Set hist;
     hist.name = RemoveWhiteSpaces(GetParameter("name", histele, plot.name));
     hist.drawOption = GetParameter("option", histele, "colz");
+
+    for (int n = 0; n < fPlotNamesCheck.size(); n++)
+        if (hist.name == fPlotNamesCheck[n]) {
+            ferr << "Repeated plot/histo names were found! Please, use different names for different plots!"
+                 << endl;
+            ferr << "<plot/histo name=\"" << hist.name << "\" already defined!" << endl;
+            exit(1);
+        }
+
+    fPlotNamesCheck.push_back(hist.name);
 
     // 1. construct plot variables for the hist
     // read variables
