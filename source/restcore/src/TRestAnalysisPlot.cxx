@@ -908,9 +908,11 @@ void TRestAnalysisPlot::SaveCanvasToPDF(TString fileName) { fCombinedCanvas->Pri
 
 void TRestAnalysisPlot::SavePlotToPDF(TString fileName, Int_t n) {
     // gErrorIgnoreLevel = 10;
+    fCombinedCanvas->SetBatch(kTRUE);
 
     if (n == 0) {
         fCombinedCanvas->Print(fileName);
+        fCombinedCanvas->SetBatch(kFALSE);
         return;
     }
 
@@ -922,6 +924,9 @@ void TRestAnalysisPlot::SavePlotToPDF(TString fileName, Int_t n) {
     c->Print(fileName);
 
     delete c;
+
+    fCombinedCanvas->SetBatch(kFALSE);
+
     return;
 }
 
