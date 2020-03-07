@@ -105,6 +105,8 @@ class TRestAnalysisPlot : public TRestMetadata {
     vector<Plot_Info_Set> fPlots;
     vector<Panel_Info> fPanels;
 
+    vector<string> fPlotNamesCheck;  //!
+
 #ifndef __CINT__
     TRestRun* fRun;                        //! TRestRun to handle output file
     std::vector<TRestRun*> fRunInputFile;  //! TRestRun to handle input file

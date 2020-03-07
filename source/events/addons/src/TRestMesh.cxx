@@ -303,6 +303,14 @@ void TRestMesh::RemoveNodes() {
     fNumberOfGroups = 0;
 }
 
+Bool_t TRestMesh::IsInside(TVector3 pos) {
+    if (pos.X() < fNetOrigin.X() || pos.X() > fNetOrigin.X() + fNetSizeX) return false;
+    if (pos.Y() < fNetOrigin.Y() || pos.Y() > fNetOrigin.Y() + fNetSizeY) return false;
+    if (pos.Z() < fNetOrigin.Z() || pos.Z() > fNetOrigin.Z() + fNetSizeZ) return false;
+
+    return true;
+}
+
 void TRestMesh::Print() {
     std::cout << "Mesh. Number of nodes : " << GetNumberOfNodes()
               << " Number of groups : " << GetNumberOfGroups() << std::endl;
