@@ -39,6 +39,8 @@
 #include "TString.h"
 #include "TSystem.h"
 #include "TVector3.h"
+#include "TH3.h"
+#include "TH2.h"
 
 class TRestReadoutModule;
 class TRestReadout;
@@ -47,7 +49,8 @@ class TRestGainMap : public TRestMetadata {
    public:
     bool relative;
     map<int, double> fChannelGain;  // [channel id, gain]
-    map<int, double> fModuleGain;   // [module id, gain]
+    TH2F* f2DGainMapping = 0;       //->
+    TH3F* f3DGainMapping = 0;       //->
 
     void InitFromConfigFile() {
         // read config from rml section
@@ -57,7 +60,6 @@ class TRestGainMap : public TRestMetadata {
     void ReadGainText(string filename) {}
 
     void DrawChannelGainMap(TRestReadoutModule* mod = 0);
-    void DrawModuleGainMap(TRestReadout* r = 0) {}
 
     ClassDef(TRestGainMap, 1);  // Gas Parameters
 };
