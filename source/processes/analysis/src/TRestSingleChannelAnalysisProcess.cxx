@@ -16,9 +16,11 @@
 
 #include "TRestSingleChannelAnalysisProcess.h"
 
+#include <TFitResult.h>
 #include <TLegend.h>
 #include <TPaveText.h>
 #include <TRandom.h>
+#include <TSpectrum.h>
 using namespace std;
 
 ClassImp(TRestSingleChannelAnalysisProcess)
@@ -47,10 +49,6 @@ void TRestSingleChannelAnalysisProcess::InitProcess() {
     fReadout = GetMetadata<TRestReadout>();
     fCalib = GetMetadata<TRestGainMap>();
     if (fReadout == NULL) {
-        if (fCreateGainMap && fMethod == "area") {
-            ferr << "You must set a TRestReadout metadata object to create gain map!" << endl;
-            abort();
-        }
     } else {
         auto readout = *fReadout;
         for (int i = 0; i < readout.GetNumberOfReadoutPlanes(); i++) {
@@ -59,29 +57,24 @@ void TRestSingleChannelAnalysisProcess::InitProcess() {
                 auto mod = plane[j];
                 for (int k = 0; k < mod.GetNumberOfChannels(); k++) {
                     auto channel = mod[k];
-                    fChannelGain[channel.GetDaqID()] = 1;
+                    fChannelGain[channel.GetDaqID()] = 1;       // default correction factor is 1
+                    fChannelGainError[channel.GetDaqID()] = 1;  // relative error
+                    fChannelThrIntegral[channel.GetDaqID()] =
+                        new TH1D(Form("h%i", channel.GetDaqID()), Form("h%i", channel.GetDaqID()), 100, 0,
+                                 fSpecFitRange.Y() * 1.5);
                 }
             }
         }
-
-        double xmin, xmax, ymin, ymax;
-        fReadout->GetReadoutPlane(0)->GetBoundaries(xmin, xmax, ymin, ymax);
-        fAreaGainMap = new TH2D("areaGainMap", "areaGainMap", 100, xmin, xmax, 100, ymin, ymax);
-        fAreaCounts = new TH2D("areaCounts", "areaCounts", 100, xmin, xmax, 100, ymin, ymax);
-        fAreaThrIntegralSum =
-            new TH2D("areaThrIntegralSum", "areaThrIntegralSum", 100, xmin, xmax, 100, ymin, ymax);
     }
 
     if (fApplyGainCorrection) {
         if (fCalib != NULL) {
-            auto iter = fChannelGain.begin();
-            while (iter != fChannelGain.end()) {
+            for (auto iter = fChannelGain.begin(); iter != fChannelGain.end(); iter++) {
                 if (fCalib->fChannelGain.count(iter->first) == 0) {
                     ferr << "in consistent gain mapping and readout definition!" << endl;
                     ferr << "channel: " << iter->first << " not fount in mapping file!" << endl;
                     abort();
                 }
-                iter++;
             }
 
         } else {
@@ -115,8 +108,7 @@ TRestEvent* TRestSingleChannelAnalysisProcess::ProcessEvent(TRestEvent* evInput)
     Double_t sAna_PeakAmplitudeIntegral =
         fAnalysisTree->GetObservableValue<Double_t>("sAna_PeakAmplitudeIntegral");
     Double_t sAna_ThresholdIntegral = fAnalysisTree->GetObservableValue<Double_t>("sAna_ThresholdIntegral");
-    Double_t sAna_NumberOfGoodSignals =
-        fAnalysisTree->GetObservableValue<int>("sAna_NumberOfGoodSignals");
+    Double_t sAna_NumberOfGoodSignals = fAnalysisTree->GetObservableValue<int>("sAna_NumberOfGoodSignals");
     Double_t rA_MeanX = fAnalysisTree->GetObservableValue<Double_t>("rA_MeanX");
     Double_t rA_MeanY = fAnalysisTree->GetObservableValue<Double_t>("rA_MeanY");
 
@@ -127,60 +119,30 @@ TRestEvent* TRestSingleChannelAnalysisProcess::ProcessEvent(TRestEvent* evInput)
              sAna_NumberOfGoodSignals < fNGoodSignalsCutRange.Y())) {
             // if within energy cut range
 
-            if (fMethod == "singleInt") {
-                // use the sum of the channel's waveform to draw single channel spectrum
-                int n = 0;
-                auto iter = sAna_thr_integral_map.begin();
-                while (iter != sAna_thr_integral_map.end()) {
-                    fChannelThrIntegralSum[iter->first] += iter->second;
-                    fChannelCounts[iter->first]++;
-                    n++;
-                    iter++;
+            for (auto iter = sAna_thr_integral_map.begin(); iter != sAna_thr_integral_map.end(); iter++) {
+                if (fChannelThrIntegral[iter->first] == NULL) {
+                    fChannelThrIntegral[iter->first] = new TH1D(
+                        Form("h%i", iter->first), Form("h%i", iter->first), 100, 0, fSpecFitRange.Y() * 1.5);
                 }
 
-            } else if (fMethod == "invInt") {
-                // use sAna_ThresholdIntegral to draw single channel spectrum
-                int n = 0;
-                auto iter = sAna_thr_integral_map.begin();
-                while (iter != sAna_thr_integral_map.end()) {
-                    fChannelThrIntegralSum[iter->first] += sAna_ThresholdIntegral;
-                    fChannelCounts[iter->first]++;
-                    n++;
-                    iter++;
-                }
-            } else if (fMethod == "area") {
-                // Draw spectrum for different small areas. decode the area gain map in the end of the process
-                int bin = fAreaThrIntegralSum->FindBin(rA_MeanX, rA_MeanY);
-                fAreaThrIntegralSum->SetBinContent(
-                    bin, fAreaThrIntegralSum->GetBinContent(bin) + sAna_ThresholdIntegral);
-                fAreaCounts->SetBinContent(bin, fAreaCounts->GetBinContent(bin) + 1);
-            } else {
-                ferr << "unknown method!" << endl;
-                abort();
+                fChannelThrIntegral[iter->first]->Fill(iter->second);
             }
         }
-
-        new_PeakAmplitudeIntegral = sAna_PeakAmplitudeIntegral;
-        new_ThresholdIntegral = sAna_ThresholdIntegral;
     }
 
     else if (fApplyGainCorrection) {
-        auto iter1 = sAna_max_amplitude_map.begin();
-        while (iter1 != sAna_max_amplitude_map.end()) {
-            if (fCalib->fChannelGain.count(iter1->first)) {
-                iter1->second *= fCalib->fChannelGain[iter1->first];
+        for (auto iter = sAna_max_amplitude_map.begin(); iter != sAna_max_amplitude_map.end(); iter++) {
+            if (fCalib->fChannelGain.count(iter->first)) {
+                iter->second *= fCalib->fChannelGain[iter->first];
             }
-            new_PeakAmplitudeIntegral += iter1->second;
-            iter1++;
+            new_PeakAmplitudeIntegral += iter->second;
         }
 
-        auto iter2 = sAna_thr_integral_map.begin();
-        while (iter2 != sAna_thr_integral_map.end()) {
-            if (fCalib->fChannelGain.count(iter2->first)) {
-                iter2->second *= fCalib->fChannelGain[iter2->first];
+        for (auto iter = sAna_thr_integral_map.begin(); iter != sAna_thr_integral_map.end(); iter++) {
+            if (fCalib->fChannelGain.count(iter->first)) {
+                iter->second *= fCalib->fChannelGain[iter->first];
             }
-            new_ThresholdIntegral += iter2->second;
-            iter2++;
+            new_ThresholdIntegral += iter->second;
         }
     }
 
@@ -193,103 +155,108 @@ TRestEvent* TRestSingleChannelAnalysisProcess::ProcessEvent(TRestEvent* evInput)
 //______________________________________________________________________________
 void TRestSingleChannelAnalysisProcess::EndProcess() {
     if (fCreateGainMap) {
-        if (fMethod == "area") {
-            // Calculate the mean of each bin's spectrum
-            double sum = 0;
-            double n = 0;
-            map<int, double> fChannelGainSum;
-            for (int i = 1; i <= fAreaGainMap->GetNbinsX(); i++) {
-                for (int j = 1; j <= fAreaGainMap->GetNbinsY(); j++) {
-                    if (fAreaCounts->GetBinContent(i, j) > 20) {
-                        double avebin =
-                            fAreaThrIntegralSum->GetBinContent(i, j) / fAreaCounts->GetBinContent(i, j);
-                        fAreaGainMap->SetBinContent(i, j, avebin);
-                        sum += avebin;
-                        n++;
-                    }
-                }
-            }
-
-            // normalize the bins to around 1, fill empty bins to 1
-            fAreaGainMap->Scale(n / sum);
-            for (int i = 1; i <= fAreaGainMap->GetNbinsX(); i++) {
-                for (int j = 1; j <= fAreaGainMap->GetNbinsY(); j++) {
-                    if (fAreaGainMap->GetBinContent(i, j) == 0) {
-                        fAreaGainMap->SetBinContent(i, j, 1);
-                    }
-                }
-            }
-
-            // throw points randomly to both histogram and readout
-            for (int i = 0; i < 100000; i++) {
-                double xmin, xmax, ymin, ymax;
-                fReadout->GetReadoutPlane(0)->GetBoundaries(xmin, xmax, ymin, ymax);
-                double xx = gRandom->Rndm() * (xmax - xmin) + xmin;
-                double yy = gRandom->Rndm() * (ymax - ymin) + ymin;
-                int p, m, c;
-                int channel = fReadout->GetHitsDaqChannel(TVector3(xx, yy, 0.1), p, m, c);
-                if (channel != -1) {
-                    fChannelGainSum[channel] += fAreaGainMap->GetBinContent(fAreaGainMap->FindBin(xx, yy));
-                    fChannelCounts[channel]++;
-                }
-            }
-
-            // now each channel gain is the sum of several area gains, we take average
-            auto iter = fChannelGainSum.begin();
-            while (iter != fChannelGainSum.end()) {
-                fChannelGain[iter->first] = fChannelCounts[iter->first] / iter->second;
-                if (fVerboseLevel >= REST_Info) {
-                    cout << "channel: " << iter->first << ", gain(relative): " << fChannelGain[iter->first]
-                         << endl;
-                }
-                iter++;
-            }
-
-        } else {
-            double sum = 0;
-            double n = 0;
-            map<int, double> fChannelThrIntegralAverage;
-            auto iter2 = fChannelThrIntegralSum.begin();
-            while (iter2 != fChannelThrIntegralSum.end()) {
-                if (fChannelCounts[iter2->first] > GetFullAnalysisTree()->GetEntries() / 2000) {
-                    // otherwise it may be a dead channel
-                    double avechannel = (double)iter2->second / fChannelCounts[iter2->first];
-                    fChannelThrIntegralAverage[iter2->first] = avechannel;
-                    // cout << iter2->first << " " << avechannel << ", sum and counts: " <<iter2->second << "
-                    // " << fChannelCounts[iter2->first] << endl;
-                    sum += avechannel;
-                    n++;
-                }
-                iter2++;
-            }
-
-            double aveall = sum / n;
-            auto iter = fChannelThrIntegralAverage.begin();
-            while (iter != fChannelThrIntegralAverage.end()) {
-                fChannelGain[iter->first] = aveall / iter->second;
-                if (fVerboseLevel >= REST_Info) {
-                    cout << "channel: " << iter->first << ", gain(relative): " << fChannelGain[iter->first]
-                         << endl;
-                }
-                iter++;
-            }
-        }
-
-        fCalib = new TRestGainMap();
-        fCalib->fChannelGain = fChannelGain;
-        fCalib->SetName("ChannelCalibration");
-
-        TRestRun* r = new TRestRun();
-        r->SetOutputFileName(fOutputCalibrationFileName);
-        r->AddMetadata(fCalib);
-        r->AddMetadata(fReadout);
-        r->FormOutputFile();
-        if (fAreaGainMap != NULL) fAreaGainMap->Write();
-
-        delete fCalib;
-        fCalib = NULL;
-        delete r;
+        FitChannelGain();
+        SaveGainMetadata(fCalibSave);
     }
+}
+
+void TRestSingleChannelAnalysisProcess::FitChannelGain() {
+    cout << "TRestSingleChannelAnalysisProcess: fitting channel gain..." << endl;
+
+    map<int, double> channelFitMean;
+    double channelFitMeanSum = 0;
+
+    for (auto iter = fChannelThrIntegral.begin(); iter != fChannelThrIntegral.end(); iter++) {
+        TH1D* h = iter->second;
+        if (h->GetEntries() > GetFullAnalysisTree()->GetEntries() / 2000) {
+            TFitResultPtr r = h->Fit("gaus", "QS", "", fSpecFitRange.X(), fSpecFitRange.Y());
+            if (r != -1) {
+                const double* results = r->GetParams();
+                double constant = results[0];
+                double mean = results[1];
+                double sigma = results[2];
+
+                if (mean > fSpecFitRange.X() && mean < fSpecFitRange.Y() && sigma / mean < 0.5) {
+                    channelFitMean[iter->first] = mean;
+                    channelFitMeanSum += mean;
+                    fChannelGainError[iter->first] = sigma / mean;
+                    cout << iter->first << ", mean: " << mean << ", error: " << sigma / mean << endl;
+                    continue;
+                }
+            }
+
+            // if fit with gaus failed, we use TSpectrum to find the peak
+            TSpectrum spc;
+            int n = spc.Search(h);
+            double* peaks = spc.GetPositionX();
+            double min = 1e9;
+            int minpos = 0;
+            for (int i = 0; i < n; i++) {
+                double dist = abs(peaks[i] - (fSpecFitRange.X() + fSpecFitRange.Y()) / 2);
+                if ( dist < min) {
+                    min = dist;
+                    minpos = i;
+                }
+            }
+            channelFitMean[iter->first] = peaks[minpos];
+            channelFitMeanSum += peaks[minpos];
+            fChannelGainError[iter->first] = 1;
+            cout << iter->first << ", peak position: " << peaks[minpos] << ", total peaks: "<< n << endl;
+
+        }
+    }
+
+    double meanmean = channelFitMeanSum / channelFitMean.size();
+
+    cout << meanmean << endl;
+
+    for (auto iter = fChannelGain.begin(); iter != fChannelGain.end(); iter++) {
+        if (channelFitMean.count(iter->first) == 0) {
+            iter->second = 1;
+        } else {
+            iter->second = meanmean / channelFitMean[iter->first];
+        }
+    }
+}
+
+void TRestSingleChannelAnalysisProcess::SaveGainMetadata(string filename) {
+    cout << "TRestSingleChannelAnalysisProcess: saving result..." << endl;
+
+    // for (auto iter = fChannelGain.begin(); iter != fChannelGain.end(); iter++) {
+    //    cout << iter->first << " " << iter->second << endl;
+    //}
+
+    fCalib = new TRestGainMap();
+    fCalib->fChannelGain = fChannelGain;
+    fCalib->SetName("ChannelCalibration");
+
+    TRestRun* r = new TRestRun();
+    r->SetOutputFileName(filename);
+    r->AddMetadata(fCalib);
+    r->AddMetadata(fReadout);
+    r->AddMetadata(this);
+    r->FormOutputFile();
+}
+
+TH1D* TRestSingleChannelAnalysisProcess::GetChannelSpectrum(int id) {
+    if (fChannelThrIntegral.count(id) != 0) return fChannelThrIntegral[id];
+    return NULL;
+}
+
+void TRestSingleChannelAnalysisProcess::PrintChannelSpectrums(string filename) {
+    TCanvas* c = new TCanvas();
+    
+    c->Print((filename + ".pdf[").c_str());
+    for (auto iter = fChannelThrIntegral.begin(); iter != fChannelThrIntegral.end(); iter++) {
+        if (iter->second != NULL && iter->second->GetEntries() > 0) {
+            cout << "Drawing: " << iter->first << endl;
+            iter->second->Draw();
+            c->Print((filename + ".pdf").c_str());
+        }
+    }
+    c->Clear();
+    c->Print((filename + ".pdf]").c_str());
+    delete c;
 }
 
 //______________________________________________________________________________
@@ -312,8 +279,8 @@ void TRestSingleChannelAnalysisProcess::InitFromConfigFile() {
         abort();
     }
 
-    fMethod = GetParameter("method", "singleInt");
     fThrIntegralCutRange = StringTo2DVector(GetParameter("thrEnergyRange", "(0,1e9)"));
     fNGoodSignalsCutRange = StringTo2DVector(GetParameter("nGoodSignalsRange", "(4,14)"));
-    fOutputCalibrationFileName = GetParameter("calibOutput", "calib.root");
+    fSpecFitRange = StringTo2DVector(GetParameter("specFitRange", "(1e4,2e4)"));
+    fCalibSave = GetParameter("save", "calib.root");
 }

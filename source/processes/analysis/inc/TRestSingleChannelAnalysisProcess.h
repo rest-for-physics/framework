@@ -42,23 +42,22 @@ class TRestSingleChannelAnalysisProcess : public TRestEventProcess {
     bool fCreateGainMap;
     TVector2 fThrIntegralCutRange;
     TVector2 fNGoodSignalsCutRange;
-    string fOutputCalibrationFileName;
-    string fMethod;
+    TVector2 fSpecFitRange;
+    string fCalibSave;
 
-    // temp data
-    map<int, double> fChannelThrIntegralSum;  //! [channel id, sum]
-    map<int, int> fChannelCounts;                         //! [channel id, trigger counts]          
-    TH2D* fAreaThrIntegralSum;               //!
-    TH2D* fAreaCounts;               //!
-
-    // analysis result(saved directly in root file)
-    map<int, double> fChannelGain;  //! [MM id, channel gain]
-    TH2D* fAreaGainMap;             //!
+    // analysis result
+    map<int, TH1D*> fChannelThrIntegral;  //-> [channel id, sum]
+    map<int, double> fChannelGain;        // [MM id, channel gain]
+    map<int, double> fChannelGainError;   // [MM id, channel gain]
 
    public:
+    void FitChannelGain();
+    void SaveGainMetadata(string filename);
     void InitProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
     void EndProcess();
+    TH1D* GetChannelSpectrum(int id);
+    void PrintChannelSpectrums(string filename);
 
     void PrintMetadata() {
         BeginPrintProcess();
@@ -66,10 +65,10 @@ class TRestSingleChannelAnalysisProcess : public TRestEventProcess {
         metadata << "the mode is:" << endl;
         metadata << (fApplyGainCorrection ? ">   " : "    ") << "Apply channel correction map for spectrum " << endl;
         metadata << (fCreateGainMap       ? ">   " : "    ") << "Create new correction map for each channel" << endl;
-        metadata << "method: " << fMethod << endl;
-        metadata << "output mapping file: " << fOutputCalibrationFileName << endl;
+        metadata << "output mapping file: " << fCalibSave << endl;
         metadata << "Energy cut for Threshold integral: " << any(fThrIntegralCutRange).ToString() << endl;
         metadata << "Energy cut for NGoodSignals: " << any(fNGoodSignalsCutRange).ToString() << endl;
+        metadata << "Fit range for the spectrums: " << any(fSpecFitRange).ToString() << endl;
 
         EndPrintProcess();
     }
