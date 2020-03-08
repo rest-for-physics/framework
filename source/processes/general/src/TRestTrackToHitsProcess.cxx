@@ -66,7 +66,8 @@ TRestEvent* TRestTrackToHitsProcess::ProcessEvent(TRestEvent* evInput) {
             TRestHits* hits = fInputTrackEvent->GetTrack(n)->GetHits();
 
             for (int h = 0; h < hits->GetNumberOfHits(); h++)
-                fOutputHitsEvent->AddHit(hits->GetX(h), hits->GetY(h), hits->GetZ(h), hits->GetEnergy(h));
+                fOutputHitsEvent->AddHit(hits->GetX(h), hits->GetY(h), hits->GetZ(h), hits->GetEnergy(h),
+                                         hits->GetTime(h), hits->GetType(h));
         }
 
     return fOutputHitsEvent;
