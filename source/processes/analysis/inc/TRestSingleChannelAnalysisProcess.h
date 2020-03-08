@@ -47,8 +47,9 @@ class TRestSingleChannelAnalysisProcess : public TRestEventProcess {
 
     // analysis result
     map<int, TH1D*> fChannelThrIntegral;  //-> [channel id, sum]
+    map<int, double> fChannelFitMean;     // [MM id, fitted position]
     map<int, double> fChannelGain;        // [MM id, channel gain]
-    map<int, double> fChannelGainError;   // [MM id, channel gain]
+    map<int, double> fChannelGainError;   // [MM id, channel gain error]
 
    public:
     void FitChannelGain();

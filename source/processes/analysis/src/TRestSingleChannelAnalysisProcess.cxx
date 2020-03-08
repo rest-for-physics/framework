@@ -21,6 +21,7 @@
 #include <TPaveText.h>
 #include <TRandom.h>
 #include <TSpectrum.h>
+#include <TLatex.h>
 using namespace std;
 
 ClassImp(TRestSingleChannelAnalysisProcess)
@@ -131,6 +132,7 @@ TRestEvent* TRestSingleChannelAnalysisProcess::ProcessEvent(TRestEvent* evInput)
     }
 
     else if (fApplyGainCorrection) {
+        // calculate updated ThresholdIntegral and PeakAmplitudeIntegral applying correction map
         for (auto iter = sAna_max_amplitude_map.begin(); iter != sAna_max_amplitude_map.end(); iter++) {
             if (fCalib->fChannelGain.count(iter->first)) {
                 iter->second *= fCalib->fChannelGain[iter->first];
@@ -143,6 +145,20 @@ TRestEvent* TRestSingleChannelAnalysisProcess::ProcessEvent(TRestEvent* evInput)
                 iter->second *= fCalib->fChannelGain[iter->first];
             }
             new_ThresholdIntegral += iter->second;
+        }
+
+        // update charge value in output event
+        for (int i = 0; i < fSignalEvent->GetNumberOfSignals(); i++) {
+            TRestSignal* sgn = fSignalEvent->GetSignal(i);
+            if (fCalib->fChannelGain.count(sgn->GetID()) == 0 || fCalib->fChannelGain[sgn->GetID()]==0) {
+                cout << "warning! unrecorded gain for channel: " << sgn->GetID() << endl;
+                continue;
+            }
+            double gain = fCalib->fChannelGain[sgn->GetID()];
+            for (int j = 0; j < sgn->GetNumberOfPoints(); j++) {
+                auto timecharge = sgn->GetPoint(j);
+                sgn->SetPoint(j, timecharge.X(), timecharge.Y() * gain);
+            }
         }
     }
 
@@ -163,12 +179,14 @@ void TRestSingleChannelAnalysisProcess::EndProcess() {
 void TRestSingleChannelAnalysisProcess::FitChannelGain() {
     cout << "TRestSingleChannelAnalysisProcess: fitting channel gain..." << endl;
 
-    map<int, double> channelFitMean;
     double channelFitMeanSum = 0;
 
     for (auto iter = fChannelThrIntegral.begin(); iter != fChannelThrIntegral.end(); iter++) {
         TH1D* h = iter->second;
-        if (h->GetEntries() > GetFullAnalysisTree()->GetEntries() / 2000) {
+        if (h->GetEntries() > 100 ) {
+            //direct fit
+            double middle = (fSpecFitRange.X() + fSpecFitRange.Y()) / 2;
+            double range = (fSpecFitRange.Y() - fSpecFitRange.X()) / 2;
             TFitResultPtr r = h->Fit("gaus", "QS", "", fSpecFitRange.X(), fSpecFitRange.Y());
             if (r != -1) {
                 const double* results = r->GetParams();
@@ -176,8 +194,8 @@ void TRestSingleChannelAnalysisProcess::FitChannelGain() {
                 double mean = results[1];
                 double sigma = results[2];
 
-                if (mean > fSpecFitRange.X() && mean < fSpecFitRange.Y() && sigma / mean < 0.5) {
-                    channelFitMean[iter->first] = mean;
+                if (mean > middle - range / 1.2 && mean < middle + range / 1.2 && sigma / mean < 0.5) {
+                    fChannelFitMean[iter->first] = mean;
                     channelFitMeanSum += mean;
                     fChannelGainError[iter->first] = sigma / mean;
                     cout << iter->first << ", mean: " << mean << ", error: " << sigma / mean << endl;
@@ -192,29 +210,36 @@ void TRestSingleChannelAnalysisProcess::FitChannelGain() {
             double min = 1e9;
             int minpos = 0;
             for (int i = 0; i < n; i++) {
-                double dist = abs(peaks[i] - (fSpecFitRange.X() + fSpecFitRange.Y()) / 2);
+                double dist = abs(peaks[i] - middle);
                 if ( dist < min) {
                     min = dist;
                     minpos = i;
                 }
             }
-            channelFitMean[iter->first] = peaks[minpos];
-            channelFitMeanSum += peaks[minpos];
-            fChannelGainError[iter->first] = 1;
-            cout << iter->first << ", peak position: " << peaks[minpos] << ", total peaks: "<< n << endl;
+            if (min < range * 2) {
+                fChannelFitMean[iter->first] = peaks[minpos];
+                channelFitMeanSum += peaks[minpos];
+                fChannelGainError[iter->first] = 1;
+                cout << iter->first << ", peak position: " << peaks[minpos] << ", total peaks: " << n << endl;
+                continue;
+            }
 
+
+            // it is very bad channel, we prompt a warning
+            cout << iter->first << ", too bad to fit" << endl;
         }
     }
 
-    double meanmean = channelFitMeanSum / channelFitMean.size();
+    double meanmean = channelFitMeanSum / fChannelFitMean.size();
 
     cout << meanmean << endl;
 
+    //normalize and fill the result
     for (auto iter = fChannelGain.begin(); iter != fChannelGain.end(); iter++) {
-        if (channelFitMean.count(iter->first) == 0) {
+        if (fChannelFitMean.count(iter->first) == 0) {
             iter->second = 1;
         } else {
-            iter->second = meanmean / channelFitMean[iter->first];
+            iter->second = meanmean / fChannelFitMean[iter->first];
         }
     }
 }
@@ -236,6 +261,8 @@ void TRestSingleChannelAnalysisProcess::SaveGainMetadata(string filename) {
     r->AddMetadata(fReadout);
     r->AddMetadata(this);
     r->FormOutputFile();
+
+    PrintChannelSpectrums(filename);
 }
 
 TH1D* TRestSingleChannelAnalysisProcess::GetChannelSpectrum(int id) {
@@ -245,12 +272,27 @@ TH1D* TRestSingleChannelAnalysisProcess::GetChannelSpectrum(int id) {
 
 void TRestSingleChannelAnalysisProcess::PrintChannelSpectrums(string filename) {
     TCanvas* c = new TCanvas();
-    
+    TLatex pText;
+    pText.SetTextColor(kBlack);
+    pText.SetTextFont(132);
+    pText.SetTextSize(0.05);
+    TLine pLine;
+    pLine.SetLineColor(1);
+    pLine.SetLineWidth(1);
+    pLine.SetLineColor(1);
+
     c->Print((filename + ".pdf[").c_str());
     for (auto iter = fChannelThrIntegral.begin(); iter != fChannelThrIntegral.end(); iter++) {
         if (iter->second != NULL && iter->second->GetEntries() > 0) {
             cout << "Drawing: " << iter->first << endl;
+            c->Clear();
             iter->second->Draw();
+            pText.DrawLatex(fChannelFitMean[iter->first], iter->second->GetMaximum(),
+                            Form("Relative gain: %.3f", fChannelGain[iter->first]));
+            pText.DrawLatex(fChannelFitMean[iter->first], iter->second->GetMaximum() * 0.9,
+                            Form("Error: %.2f", fChannelGainError[iter->first]));
+            pLine.DrawLine(fChannelFitMean[iter->first], 0, fChannelFitMean[iter->first],
+                           iter->second->GetMaximum() * 0.9);
             c->Print((filename + ".pdf").c_str());
         }
     }
