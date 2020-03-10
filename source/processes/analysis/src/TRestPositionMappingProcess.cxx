@@ -67,7 +67,6 @@ void TRestPositionMappingProcess::InitProcess() {
             abort();
         }
     }
-
 }
 
 //______________________________________________________________________________
@@ -88,15 +87,15 @@ TRestEvent* TRestPositionMappingProcess::ProcessEvent(TRestEvent* evInput) {
     double e = fHitsEvent->GetEnergy();
     double n = fHitsEvent->GetNumberOfHits();
 
-    //cout << x << " " << y << " " << e << " " << n << endl;
+    // cout << x << " " << y << " " << e << " " << n << endl;
 
     if (TMath::IsNaN(x) || TMath::IsNaN(y)) {
         return fHitsEvent;
     }
 
     if (fCreateGainMap) {
-        if (e > fEnergyCutRange.X() && e < fEnergyCutRange.Y() &&
-            n > fNHitsCutRange.X() &&  n < fNHitsCutRange.Y()) {
+        if (e > fEnergyCutRange.X() && e < fEnergyCutRange.Y() && n > fNHitsCutRange.X() &&
+            n < fNHitsCutRange.Y()) {
             // Calculate mean energy for different small areas as the area gain
             int bin = fAreaThrIntegralSum->FindBin(x, y);
             fAreaThrIntegralSum->AddBinContent(bin, e);
@@ -106,9 +105,13 @@ TRestEvent* TRestPositionMappingProcess::ProcessEvent(TRestEvent* evInput) {
 
     else if (fApplyGainCorrection) {
         double correction = GetCorrection2(x, y);
-        //correction *= GetCorrection3(x, y, z);
+        correction *= GetCorrection3(x, y, z);
 
         newEnergy = e * correction;
+
+        for (int i = 0; i < fHitsEvent->GetNumberOfHits(); i++) {
+            // fHitsEvent->SetEnergy();
+        }
     }
 
     SetObservableValue("AreaCorrEnergy", newEnergy);
@@ -123,7 +126,7 @@ double TRestPositionMappingProcess::GetCorrection2(double x, double y) {
 
 double TRestPositionMappingProcess::GetCorrection3(double x, double y, double z) {
     double result = 1;
-    if (fCalib->f3DGainMapping != NULL) {
+    if (fCalib->f3DGainMapping != NULL && fCalib->f3DGainMapping->GetEntries() > 0) {
         int bin = fCalib->f3DGainMapping->FindBin(x, y, z);
         result *= fCalib->f2DGainMapping->GetBinContent(bin);
     }
@@ -166,7 +169,9 @@ void TRestPositionMappingProcess::EndProcess() {
             }
         }
 
-        fCalib = new TRestGainMap();
+        if (fCalib == NULL) {
+            fCalib = new TRestGainMap();
+        }
         fCalib->f2DGainMapping = fAreaGainMap;
         fCalib->SetName("PositionCalibration");
 
@@ -176,10 +181,6 @@ void TRestPositionMappingProcess::EndProcess() {
         r->AddMetadata(fReadout);
         r->FormOutputFile();
         if (fAreaGainMap != NULL) fAreaGainMap->Write();
-
-        delete fCalib;
-        fCalib = NULL;
-        delete r;
     }
 }
 
