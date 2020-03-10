@@ -84,7 +84,7 @@ void TRestSingleChannelAnalysisProcess::InitProcess() {
         }
     }
 
-    if (!HasFriend("TRestRawSignalAnalysisProcess") || !HasFriend("TRestReadoutAnalysisProcess")) {
+    if (!HasFriend("TRestRawSignalAnalysisProcess")) {
         ferr << "please add friend process TRestRawSignalAnalysisProcess and TRestReadoutAnalysisProcess "
                 "and turn on all their observables!"
              << endl;
@@ -110,8 +110,6 @@ TRestEvent* TRestSingleChannelAnalysisProcess::ProcessEvent(TRestEvent* evInput)
         fAnalysisTree->GetObservableValue<Double_t>("sAna_PeakAmplitudeIntegral");
     Double_t sAna_ThresholdIntegral = fAnalysisTree->GetObservableValue<Double_t>("sAna_ThresholdIntegral");
     Double_t sAna_NumberOfGoodSignals = fAnalysisTree->GetObservableValue<int>("sAna_NumberOfGoodSignals");
-    Double_t rA_MeanX = fAnalysisTree->GetObservableValue<Double_t>("rA_MeanX");
-    Double_t rA_MeanY = fAnalysisTree->GetObservableValue<Double_t>("rA_MeanY");
 
     if (fCreateGainMap) {
         if ((sAna_ThresholdIntegral > fThrIntegralCutRange.X() &&
