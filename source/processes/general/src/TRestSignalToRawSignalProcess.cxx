@@ -112,14 +112,12 @@
 #include "TRestSignalToRawSignalProcess.h"
 using namespace std;
 
-ClassImp(TRestSignalToRawSignalProcess)
+ClassImp(TRestSignalToRawSignalProcess);
 
-    ///////////////////////////////////////////////
-    /// \brief Default constructor
-    ///
-    TRestSignalToRawSignalProcess::TRestSignalToRawSignalProcess() {
-    Initialize();
-}
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestSignalToRawSignalProcess::TRestSignalToRawSignalProcess() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
