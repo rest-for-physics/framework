@@ -237,12 +237,10 @@ directly to the development branch.
 
 Steps to increase the version of REST in the development branch.
 
-1. increase the tag to the next minor revision e.g. from v2.2.1 to v2.2.2. Using git tag -a v2.2.2 -m "Update to version 2.2.2".
-2. generate a new `TRestVersion.h` header, and overwrite the one in `restcore`.
-3. push the changes to the remote development branch, `git push --tags`.
-4. Enter to the Gitlab website and document the changes on the **tags** section.
-5. Create a merge request to master of the development branch with the new updated version.
-
+1. Execute the script "REST_v2/scripts/generateVersionHeader.py"
+2. Follow instructions shown in screen.
+3. Enter to the Gitlab website and document the changes on the **tags** section.
+4. Merge the development branch to master.
 
 ### Using the version number
 
