@@ -27,56 +27,78 @@ ClassImp(TRestHits)
     TRestHits::TRestHits() {
     fNHits = 0;
     fTotEnergy = 0;
+    fType = unknown;
 }
 
 TRestHits::~TRestHits() {}
 
 Bool_t TRestHits::areXY() {
+    if (fType != unknown) {
+        if (fType == XY) return true;
+        return false;
+    }
+
     for (int i = 0; i < GetNumberOfHits(); i++) {
-        if (fType[i] != XY) {
+        if (!IsNaN(GetX(i)) && !IsNaN(GetY(i)) && IsNaN(GetZ(i))) {
             // all hits should fit this condition to be considered XY
+        } else {
             return false;
-        } else if (i == GetNumberOfHits() - 1) {
-            return true;
         }
     }
-    return false;
+    fType = XY;
+    return true;
 }
 
 Bool_t TRestHits::areXZ() {
+    if (fType != unknown) {
+        if (fType == XZ) return true;
+        return false;
+    }
+
     for (int i = 0; i < GetNumberOfHits(); i++) {
-        if (fType[i] != XZ) {
-            // all hits should fit this condition to be considered XY
+        if (!IsNaN(GetZ(i)) && !IsNaN(GetX(i)) && IsNaN(GetY(i))) {
+            // all hits should fit this condition to be considered XZ
+        } else {
             return false;
-        } else if (i == GetNumberOfHits() - 1) {
-            return true;
         }
     }
-    return false;
+    fType = XZ;
+    return true;
 }
 
 Bool_t TRestHits::areYZ() {
+    if (fType != unknown) {
+        if (fType == YZ) return true;
+        return false;
+    }
+
     for (int i = 0; i < GetNumberOfHits(); i++) {
-        if (fType[i] != YZ) {
-            // all hits should fit this condition to be considered XY
+        if (!IsNaN(GetZ(i)) && !IsNaN(GetY(i)) && IsNaN(GetX(i))) {
+            // all hits should fit this condition to be considered YZ
+        } else {
             return false;
-        } else if (i == GetNumberOfHits() - 1) {
-            return true;
         }
     }
-    return false;
+    fType = YZ;
+    return true;
 }
 
 Bool_t TRestHits::areXYZ() {
+    if (fType != unknown) {
+        if (fType == XYZ) return true;
+        return false;
+    }
+
     for (int i = 0; i < GetNumberOfHits(); i++) {
-        if (fType[i] != XYZ) {
-            // all hits should fit this condition to be considered XY
+        if (!isNaN(i) && (!IsNaN(GetX(i)) && !IsNaN(GetY(i)) && !IsNaN(GetZ(i)))) {
+            // all hits should fit this condition to be considered XYZ
+            // cout<<"xyz hit"<<endl;
+        } else {
             return false;
-        } else if (i == GetNumberOfHits() - 1) {
-            return true;
         }
     }
-    return false;
+    fType = XYZ;
+    return true;
 }
 
 Bool_t TRestHits::isNaN(Int_t n) {
@@ -255,19 +277,18 @@ Bool_t TRestHits::isHitNInsideSphere(Int_t n, Double_t x0, Double_t y0, Double_t
     return kFALSE;
 }
 
-void TRestHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t, REST_HitType type) {
+void TRestHits::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t) {
     fNHits++;
     fX.push_back((Float_t)(x));
     fY.push_back((Float_t)(y));
     fZ.push_back((Float_t)(z));
     fT.push_back((Float_t)t);
     fEnergy.push_back((Float_t)(en));
-    fType.push_back(type);
 
     fTotEnergy += en;
 }
 
-void TRestHits::AddHit(TVector3 pos, Double_t en, Double_t t, REST_HitType type) {
+void TRestHits::AddHit(TVector3 pos, Double_t en, Double_t t) {
     fNHits++;
 
     fX.push_back((Float_t)(pos.X()));
@@ -275,7 +296,6 @@ void TRestHits::AddHit(TVector3 pos, Double_t en, Double_t t, REST_HitType type)
     fZ.push_back((Float_t)(pos.Z()));
     fT.push_back((Float_t)t);
     fEnergy.push_back((Float_t)(en));
-    fType.push_back(type);
 
     fTotEnergy += en;
 }
@@ -286,9 +306,8 @@ void TRestHits::AddHit(TRestHits& hits, Int_t n) {
     Double_t z = hits.GetZ(n);
     Double_t en = hits.GetEnergy(n);
     Double_t t = hits.GetTime(n);
-    REST_HitType type = hits.GetType(n);
 
-    AddHit(x, y, z, en, t, type);
+    AddHit(x, y, z, en, t);
 }
 
 void TRestHits::RemoveHits() {
@@ -298,7 +317,6 @@ void TRestHits::RemoveHits() {
     fZ.clear();
     fT.clear();
     fEnergy.clear();
-    fType.clear();
     fTotEnergy = 0;
 }
 
@@ -364,7 +382,6 @@ void TRestHits::MergeHits(int n, int m) {
     fZ.erase(fZ.begin() + m);
     fT.erase(fT.begin() + m);
     fEnergy.erase(fEnergy.begin() + m);
-    fType.erase(fType.begin() + m);
     fNHits--;
 }
 
@@ -373,7 +390,6 @@ void TRestHits::SwapHits(Int_t i, Int_t j) {
     iter_swap(fY.begin() + i, fY.begin() + j);
     iter_swap(fZ.begin() + i, fZ.begin() + j);
     iter_swap(fEnergy.begin() + i, fEnergy.begin() + j);
-    iter_swap(fType.begin() + i, fType.begin() + j);
     iter_swap(fT.begin() + i, fT.begin() + j);
 }
 
@@ -391,17 +407,13 @@ void TRestHits::RemoveHit(int n) {
     fZ.erase(fZ.begin() + n);
     fT.erase(fT.begin() + n);
     fEnergy.erase(fEnergy.begin() + n);
-    fType.erase(fType.begin() + n);
     fNHits--;
 }
 
 TVector3 TRestHits::GetPosition(int n) {
-    if ((fType.size() == 0 ? !IsNaN(fX[n]) : fType[n] == XY))
-        return TVector3(((Double_t)fX[n]), ((Double_t)fY[n]), 0);
-    if ((fType.size() == 0 ? !IsNaN(fX[n]) : fType[n] == XZ))
-        return TVector3(((Double_t)fX[n]), 0, ((Double_t)fZ[n]));
-    if ((fType.size() == 0 ? !IsNaN(fX[n]) : fType[n] == YZ))
-        return TVector3(0, ((Double_t)fY[n]), ((Double_t)fZ[n]));
+    if (IsNaN(GetZ(n))) return TVector3(((Double_t)fX[n]), ((Double_t)fY[n]), 0);
+    if (IsNaN(GetY(n))) return TVector3(((Double_t)fX[n]), 0, ((Double_t)fZ[n]));
+    if (IsNaN(GetX(n))) return TVector3(0, ((Double_t)fY[n]), ((Double_t)fZ[n]));
     return TVector3(((Double_t)fX[n]), ((Double_t)fY[n]), ((Double_t)fZ[n]));
 }
 
@@ -414,7 +426,7 @@ Int_t TRestHits::GetNumberOfHitsX() {
     Int_t nHitsX = 0;
 
     for (int n = 0; n < GetNumberOfHits(); n++)
-        if ((fType.size() == 0 ? !IsNaN(fX[n]) : fType[n] % X == 0)) nHitsX++;
+        if (!IsNaN(fX[n])) nHitsX++;
 
     return nHitsX;
 }
@@ -423,7 +435,7 @@ Int_t TRestHits::GetNumberOfHitsY() {
     Int_t nHitsY = 0;
 
     for (int n = 0; n < GetNumberOfHits(); n++)
-        if ((fType.size() == 0 ? !IsNaN(fY[n]) : fType[n] % Y == 0)) nHitsY++;
+        if (!IsNaN(fY[n])) nHitsY++;
 
     return nHitsY;
 }
@@ -431,7 +443,7 @@ Int_t TRestHits::GetNumberOfHitsY() {
 Double_t TRestHits::GetEnergyX() {
     Double_t totalEnergy = 0;
     for (int n = 0; n < GetNumberOfHits(); n++) {
-        if ((fType.size() == 0 ? !IsNaN(fX[n]) : fType[n] % X == 0)) {
+        if (!IsNaN(fX[n])) {
             totalEnergy += fEnergy[n];
         }
     }
@@ -442,7 +454,7 @@ Double_t TRestHits::GetEnergyX() {
 Double_t TRestHits::GetEnergyY() {
     Double_t totalEnergy = 0;
     for (int n = 0; n < GetNumberOfHits(); n++) {
-        if ((fType.size() == 0 ? !IsNaN(fY[n]) : fType[n] % Y == 0)) {
+        if (!IsNaN(fY[n])) {
             totalEnergy += fEnergy[n];
         }
     }
@@ -453,7 +465,7 @@ Double_t TRestHits::GetMeanPositionX() {
     Double_t meanX = 0;
     Double_t totalEnergy = 0;
     for (int n = 0; n < GetNumberOfHits(); n++) {
-        if ((fType.size() == 0 ? !IsNaN(fX[n]) : fType[n] % X == 0)) {
+        if (!IsNaN(fX[n])) {
             meanX += fX[n] * fEnergy[n];
             totalEnergy += fEnergy[n];
         }
@@ -469,7 +481,7 @@ Double_t TRestHits::GetMeanPositionY() {
     Double_t meanY = 0;
     Double_t totalEnergy = 0;
     for (int n = 0; n < GetNumberOfHits(); n++) {
-        if ((fType.size() == 0 ? !IsNaN(fY[n]) : fType[n] % Y == 0)) {
+        if (!IsNaN(fY[n])) {
             meanY += fY[n] * fEnergy[n];
             totalEnergy += fEnergy[n];
         }
@@ -508,10 +520,8 @@ Double_t TRestHits::GetSigmaXY2() {
     Double_t meanX = this->GetMeanPositionX();
     Double_t meanY = this->GetMeanPositionY();
     for (int n = 0; n < GetNumberOfHits(); n++) {
-        if ((fType.size() == 0 ? !IsNaN(fY[n]) : fType[n] % Y == 0))
-            sigmaXY2 += fEnergy[n] * (meanY - fY[n]) * (meanY - fY[n]);
-        if ((fType.size() == 0 ? !IsNaN(fX[n]) : fType[n] % X == 0))
-            sigmaXY2 += fEnergy[n] * (meanX - fX[n]) * (meanX - fX[n]);
+        if (!IsNaN(fY[n])) sigmaXY2 += fEnergy[n] * (meanY - fY[n]) * (meanY - fY[n]);
+        if (!IsNaN(fX[n])) sigmaXY2 += fEnergy[n] * (meanX - fX[n]) * (meanX - fX[n]);
     }
     return sigmaXY2 /= totalEnergy;
 }
@@ -523,8 +533,7 @@ Double_t TRestHits::GetSigmaX() {
     Double_t meanX = this->GetMeanPositionX();
 
     for (int n = 0; n < GetNumberOfHits(); n++) {
-        if ((fType.size() == 0 ? !IsNaN(fX[n]) : fType[n] % X == 0))
-            sigmaX2 += fEnergy[n] * (meanX - fX[n]) * (meanX - fX[n]);
+        if (!IsNaN(fX[n])) sigmaX2 += fEnergy[n] * (meanX - fX[n]) * (meanX - fX[n]);
     }
     sigmaX2 /= totalEnergy;
 
@@ -538,8 +547,7 @@ Double_t TRestHits::GetSigmaY() {
     Double_t meanY = this->GetMeanPositionY();
 
     for (int n = 0; n < GetNumberOfHits(); n++) {
-        if ((fType.size() == 0 ? !IsNaN(fY[n]) : fType[n] % Y == 0))
-            sigmaY2 += fEnergy[n] * (meanY - fY[n]) * (meanY - fY[n]);
+        if (!IsNaN(fY[n])) sigmaY2 += fEnergy[n] * (meanY - fY[n]) * (meanY - fY[n]);
     }
     sigmaY2 /= totalEnergy;
 
@@ -553,10 +561,8 @@ Double_t TRestHits::GetSkewXY() {
     Double_t meanX = this->GetMeanPositionX();
     Double_t meanY = this->GetMeanPositionY();
     for (int n = 0; n < GetNumberOfHits(); n++) {
-        if ((fType.size() == 0 ? !IsNaN(fY[n]) : fType[n] % Y == 0))
-            skewXY += fEnergy[n] * (meanY - fY[n]) * (meanY - fY[n]) * (meanY - fY[n]);
-        if ((fType.size() == 0 ? !IsNaN(fX[n]) : fType[n] % X == 0))
-            skewXY += fEnergy[n] * (meanX - fX[n]) * (meanX - fX[n]) * (meanX - fX[n]);
+        if (!IsNaN(fY[n])) skewXY += fEnergy[n] * (meanY - fY[n]) * (meanY - fY[n]) * (meanY - fY[n]);
+        if (!IsNaN(fX[n])) skewXY += fEnergy[n] * (meanX - fX[n]) * (meanX - fX[n]) * (meanX - fX[n]);
     }
     return skewXY /= (totalEnergy * sigmaXY * sigmaXY * sigmaXY);
 }
@@ -589,8 +595,7 @@ Double_t TRestHits::GetMeanPositionXInPrism(TVector3 x0, TVector3 x1, Double_t s
     Double_t meanX = 0;
     Double_t totalEnergy = 0;
     for (int n = 0; n < GetNumberOfHits(); n++) {
-        if (((fType.size() == 0 ? !IsNaN(fX[n]) : fType[n] % X == 0) &&
-             (isHitNInsidePrism(n, x0, x1, sizeX, sizeY, theta)))) {
+        if ((!IsNaN(fX[n]) && (isHitNInsidePrism(n, x0, x1, sizeX, sizeY, theta)))) {
             meanX += fX[n] * fEnergy[n];
             totalEnergy += fEnergy[n];
         }
@@ -606,8 +611,7 @@ Double_t TRestHits::GetMeanPositionYInPrism(TVector3 x0, TVector3 x1, Double_t s
     Double_t meanY = 0;
     Double_t totalEnergy = 0;
     for (int n = 0; n < GetNumberOfHits(); n++) {
-        if (((fType.size() == 0 ? !IsNaN(fY[n]) : fType[n] % Y == 0) &&
-             (isHitNInsidePrism(n, x0, x1, sizeX, sizeY, theta)))) {
+        if ((!IsNaN(fY[n]) && (isHitNInsidePrism(n, x0, x1, sizeX, sizeY, theta)))) {
             meanY += fY[n] * fEnergy[n];
             totalEnergy += fEnergy[n];
         }
@@ -645,8 +649,7 @@ Double_t TRestHits::GetMeanPositionXInCylinder(TVector3 x0, TVector3 x1, Double_
     Double_t meanX = 0;
     Double_t totalEnergy = 0;
     for (int n = 0; n < GetNumberOfHits(); n++) {
-        if (((fType.size() == 0 ? !IsNaN(fX[n]) : fType[n] % X == 0) &&
-             (isHitNInsideCylinder(n, x0, x1, radius)))) {
+        if ((!IsNaN(fX[n]) && (isHitNInsideCylinder(n, x0, x1, radius)))) {
             meanX += fX[n] * fEnergy[n];
             totalEnergy += fEnergy[n];
         }
@@ -661,8 +664,7 @@ Double_t TRestHits::GetMeanPositionYInCylinder(TVector3 x0, TVector3 x1, Double_
     Double_t meanY = 0;
     Double_t totalEnergy = 0;
     for (int n = 0; n < GetNumberOfHits(); n++) {
-        if (((fType.size() == 0 ? !IsNaN(fY[n]) : fType[n] % Y == 0) &&
-             (isHitNInsideCylinder(n, x0, x1, radius)))) {
+        if ((!IsNaN(fY[n]) && (isHitNInsideCylinder(n, x0, x1, radius)))) {
             meanY += fY[n] * fEnergy[n];
             totalEnergy += fEnergy[n];
         }

@@ -8,8 +8,7 @@
 ///             TRestVolumeHits.h
 ///
 ///             Event class to store signals form simulation and acquisition
-///             events. We should make sure that all the hit points in it is 
-///             with same type. e.g. all XZ hits
+///             events
 ///
 ///             oct 2015:   First concept
 ///                 Created as part of the conceptualization of existing REST
@@ -33,10 +32,20 @@ class TRestVolumeHits : public TRestHits {
     std::vector<Float_t> fSigmaZ;  // [fNHits] Sigma on Z axis for each volume hit (units microms)
 
    public:
-    void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t time, REST_HitType type, Double_t sigmax, Double_t sigmay,
+    void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t sigmax, Double_t sigmay,
                 Double_t sigmaz);
-    void AddHit(TVector3 pos, Double_t en, Double_t time, REST_HitType type, TVector3 sigma);
-    void AddHit(TRestVolumeHits& hits, Int_t n);
+    void AddHit(TVector3 pos, Double_t en, TVector3 sigma);
+    void AddHit(TRestVolumeHits& hits, Int_t n) {
+        Double_t x = hits.GetX(n);
+        Double_t y = hits.GetY(n);
+        Double_t z = hits.GetZ(n);
+        Double_t en = hits.GetEnergy(n);
+        Double_t sx = hits.GetSigmaX(n);
+        Double_t sy = hits.GetSigmaY(n);
+        Double_t sz = hits.GetSigmaZ(n);
+
+        AddHit(x, y, z, en, sx, sy, sz);
+    }
 
     void RemoveHits();
     void MergeHits(Int_t n, Int_t m);
@@ -44,13 +53,6 @@ class TRestVolumeHits : public TRestHits {
     void RemoveHit(int n);
     void SortByEnergy();
     void SwapHits(Int_t i, Int_t j);
-
-
-    Bool_t areXY();
-    Bool_t areXZ();
-    Bool_t areYZ();
-    Bool_t areXYZ();
-
     // Setters
 
     // Getters
@@ -72,6 +74,6 @@ class TRestVolumeHits : public TRestHits {
     // Destructor
     ~TRestVolumeHits();
 
-    ClassDef(TRestVolumeHits, 2);
+    ClassDef(TRestVolumeHits, 1);
 };
 #endif

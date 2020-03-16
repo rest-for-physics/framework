@@ -38,7 +38,6 @@
 /// <hr>
 ///
 #include "TRestHitsEvent.h"
-
 #include "TRestStringHelper.h"
 #include "TRestTools.h"
 #include "TStyle.h"
@@ -101,8 +100,8 @@ TRestHitsEvent::~TRestHitsEvent() { delete fHits; }
 ///
 /// It adds a new hit with coordinates `x`,`y`,`z` in mm, and energy `en` in keV, to this TRestHitsEvent
 /// structure. Additionaly a time delay value in `us` may be added to the hits.
-void TRestHitsEvent::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t, REST_HitType type) {
-    fHits->AddHit(x, y, z, en, t, type);
+void TRestHitsEvent::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t) {
+    fHits->AddHit(x, y, z, en, t);
 }
 
 ///////////////////////////////////////////////
@@ -110,9 +109,7 @@ void TRestHitsEvent::AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Dou
 ///
 /// It adds a new hit with position `pos` in mm, and energy `en` in keV, to this TRestHitsEvent
 /// structure. Additionaly a time delay value in `us` may be added to the hits.
-void TRestHitsEvent::AddHit(TVector3 pos, Double_t en, Double_t t, REST_HitType type) {
-    fHits->AddHit(pos, en, t, type);
-}
+void TRestHitsEvent::AddHit(TVector3 pos, Double_t en, Double_t t) { fHits->AddHit(pos, en, t); }
 
 ///////////////////////////////////////////////
 /// \brief Removes all hits from this event, and clears all auxiliar variables.
@@ -173,9 +170,8 @@ TRestHits* TRestHitsEvent::GetXZHits() {
     fXZHits->RemoveHits();
 
     for (int i = 0; i < this->GetNumberOfHits(); i++)
-        if (GetType(i) == XZ)
-            fXZHits->AddHit(this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i), this->GetTime(i),
-                            XZ);
+        if (IsNaN(this->GetY(i)) && !IsNaN(this->GetX(i)) && !IsNaN(this->GetZ(i)))
+            fXZHits->AddHit(this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i), 0);
 
     return fXZHits;
 }
@@ -191,9 +187,8 @@ TRestHits* TRestHitsEvent::GetYZHits() {
     fYZHits->RemoveHits();
 
     for (int i = 0; i < this->GetNumberOfHits(); i++)
-        if (GetType(i) == YZ)
-            fYZHits->AddHit(this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i), this->GetTime(i),
-                            YZ);
+        if (IsNaN(this->GetX(i)) && !IsNaN(this->GetY(i)) && !IsNaN(this->GetZ(i)))
+            fYZHits->AddHit(this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i), 0);
 
     return fYZHits;
 }
@@ -208,9 +203,8 @@ TRestHits* TRestHitsEvent::GetXYZHits() {
     fXYZHits->RemoveHits();
 
     for (int i = 0; i < this->GetNumberOfHits(); i++)
-        if (GetType(i) == XYZ)
-            fXYZHits->AddHit(this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i),
-                             this->GetTime(i), XYZ);
+        if (!IsNaN(this->GetX(i)) && !IsNaN(this->GetY(i)) && !IsNaN(this->GetZ(i)))
+            fXYZHits->AddHit(this->GetX(i), this->GetY(i), this->GetZ(i), this->GetEnergy(i), 0);
 
     return fXYZHits;
 }

@@ -128,11 +128,8 @@ Int_t TRestMesh::GetNodeZ(Double_t z) {
 }
 
 void TRestMesh::SetNodesFromHits(TRestHits* hits) {
-    double nan = numeric_limits<double>::quiet_NaN();
     for (int hit = 0; hit < hits->GetNumberOfHits(); hit++) {
-        REST_HitType type = hits->GetType(hit);
-        this->AddNode(type == YZ ? nan : hits->GetX(hit), type == XZ ? nan : hits->GetY(hit),
-                      hits->GetZ(hit));
+        this->AddNode(hits->GetX(hit), hits->GetY(hit), hits->GetZ(hit));
     }
 
     Regrouping();

@@ -67,9 +67,15 @@ void TRestHitsReductionProcess::BeginOfEventProcess() { fOutputHitsEvent->Initia
 //______________________________________________________________________________
 TRestEvent* TRestHitsReductionProcess::ProcessEvent(TRestEvent* evInput) {
     fInputHitsEvent = (TRestHitsEvent*)evInput;
-    fOutputHitsEvent = fInputHitsEvent;
 
-    Int_t initialHits = fOutputHitsEvent->GetNumberOfHits();
+    // Copying the input hits event to the output hits event
+    for (int h = 0; h < fInputHitsEvent->GetNumberOfHits(); h++) {
+        Double_t x = fInputHitsEvent->GetX(h);
+        Double_t y = fInputHitsEvent->GetY(h);
+        Double_t z = fInputHitsEvent->GetZ(h);
+        Double_t en = fInputHitsEvent->GetEnergy(h);
+        fOutputHitsEvent->AddHit(x, y, z, en);
+    }
 
     // Reducing the hits
     TRestHits* hits = fOutputHitsEvent->GetHits();
@@ -91,6 +97,7 @@ TRestEvent* TRestHitsReductionProcess::ProcessEvent(TRestEvent* evInput) {
         distance *= fDistanceFactor;
     }
 
+    Int_t initialHits = fInputHitsEvent->GetNumberOfHits();
     Int_t finalHits = fOutputHitsEvent->GetNumberOfHits();
 
     if (this->GetVerboseLevel() == REST_Debug) {

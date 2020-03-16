@@ -63,7 +63,15 @@ void TRestHitsShuffleProcess::BeginOfEventProcess() { fOutputHitsEvent->Initiali
 //______________________________________________________________________________
 TRestEvent* TRestHitsShuffleProcess::ProcessEvent(TRestEvent* evInput) {
     fInputHitsEvent = (TRestHitsEvent*)evInput;
-    fOutputHitsEvent = fInputHitsEvent;
+    fOutputHitsEvent->SetEventInfo(fInputHitsEvent);
+    // Copying the input hits event to the output hits event
+    for (int h = 0; h < fInputHitsEvent->GetNumberOfHits(); h++) {
+        Double_t x = fInputHitsEvent->GetX(h);
+        Double_t y = fInputHitsEvent->GetY(h);
+        Double_t z = fInputHitsEvent->GetZ(h);
+        Double_t en = fInputHitsEvent->GetEnergy(h);
+        fOutputHitsEvent->AddHit(x, y, z, en);
+    }
 
     TRestHits* hits = fOutputHitsEvent->GetHits();
 

@@ -30,12 +30,12 @@
 #include "TMatrixD.h"
 #include "TObject.h"
 
-
-    enum REST_HitType { unknown = -1, X = 2, Y = 3, Z = 5, XY = 6, XZ = 10, YZ = 15, XYZ = 30 };
 //! It let save an event as a set of punctual deposition.
 //! It saves a 3-coordinate position and an energy for each punctual deposition.
 class TRestHits : public TObject {
    private:
+    enum REST_HitType { unknown = -1, XZ = 1, YZ = 2, XY = 3, XYZ = 0 };
+
    public:
     Int_t fNHits;         ///< Number of punctual energy depositions, it is the lenght
                           ///< for all the array
@@ -51,7 +51,7 @@ class TRestHits : public TObject {
                                    // (units us, 0 is time of decay)
     std::vector<Float_t> fEnergy;  // [fNHits] Energy deposited at each
                                    // 3-coordinate position (units keV)
-    std::vector <REST_HitType> fType;  //
+    REST_HitType fType;            //!
     //! Changes the origin of the Cartesian coordinate system
     void Translate(Int_t n, Double_t x, Double_t y, Double_t z);
     /// Event is rotated in XYZ.
@@ -63,8 +63,8 @@ class TRestHits : public TObject {
                 TVector3 vMean);  // vMean is the mean position of the event from
                                   // GetMeanPosition()
 
-    void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
-    void AddHit(TVector3 pos, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
+    void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0);
+    void AddHit(TVector3 pos, Double_t en, Double_t t = 0);
     void AddHit(TRestHits& hits, Int_t n);
 
     void RemoveHits();
@@ -78,10 +78,10 @@ class TRestHits : public TObject {
     virtual void SwapHits(Int_t i, Int_t j);
     virtual void RemoveHit(int n);
 
-    virtual Bool_t areXY();
-    virtual Bool_t areXZ();
-    virtual Bool_t areYZ();
-    virtual Bool_t areXYZ();
+    Bool_t areXY();
+    Bool_t areXZ();
+    Bool_t areYZ();
+    Bool_t areXYZ();
 
     Bool_t isNaN(Int_t n);
 
@@ -103,7 +103,6 @@ class TRestHits : public TObject {
     Double_t GetY(int n) { return ((Double_t)fY[n]); }     // return value in mm
     Double_t GetZ(int n) { return ((Double_t)fZ[n]); }     // return value in mm
     Double_t GetTime(int n) { return ((Double_t)fT[n]); }  // return value in us
-    REST_HitType GetType(int n) { return fType[n]; }
 
     TVector3 GetPosition(int n);
     TVector3 GetVector(int i, int j);
@@ -184,11 +183,11 @@ class TRestHits : public TObject {
 
     virtual void PrintHits(Int_t nHits = -1);
 
-    // Construtor
+    // Constructor
     TRestHits();
     // Destructor
     ~TRestHits();
 
-    ClassDef(TRestHits, 5);
+    ClassDef(TRestHits, 4);
 };
 #endif

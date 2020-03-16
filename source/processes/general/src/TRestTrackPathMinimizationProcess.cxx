@@ -293,7 +293,7 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent(TRestEvent* evInput)
             Double_t sZ = hits->GetSigmaZ(n);
             Double_t energy = hits->GetEnergy(n);
 
-            bestHitsOrder.AddHit(x, y, z, energy, 0, hits->GetType(n), sX, sY, sZ);
+            bestHitsOrder.AddHit(x, y, z, energy, sX, sY, sZ);
         }
 
         // TODO We must also copy other track info here

@@ -91,8 +91,7 @@ TRestEvent* TRestHitsNormalizationProcess::ProcessEvent(TRestEvent* evInput) {
 
     for (int hit = 0; hit < fHitsInputEvent->GetNumberOfHits(); hit++)
         fHitsOutputEvent->AddHit(fHitsInputEvent->GetX(hit), fHitsInputEvent->GetY(hit),
-                                 fHitsInputEvent->GetZ(hit), fHitsInputEvent->GetEnergy(hit) * fFactor,
-                                 fHitsInputEvent->GetTime(hit), fHitsInputEvent->GetType(hit));
+                                 fHitsInputEvent->GetZ(hit), fHitsInputEvent->GetEnergy(hit) * fFactor);
 
     if (this->GetVerboseLevel() >= REST_Debug) {
         cout << "TRestHitsNormalizationProcess. Hits added : " << fHitsOutputEvent->GetNumberOfHits() << endl;

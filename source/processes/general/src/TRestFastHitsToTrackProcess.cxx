@@ -155,21 +155,17 @@ Int_t TRestFastHitsToTrackProcess::FindTracks(TRestHits* hits) {
     TRestTrack track[nTracksFound];
     TRestVolumeHits volHit[nTracksFound];
 
-    double nan = numeric_limits<double>::quiet_NaN();
     for (int h = 0; h < hits->GetNumberOfHits(); h++) {
         Double_t x = hits->GetX(h);
         Double_t y = hits->GetY(h);
         Double_t z = hits->GetZ(h);
-        Double_t time = hits->GetTime(h);
-        REST_HitType type = hits->GetType(h);
         Double_t en = hits->GetEnergy(h);
 
         TVector3 pos(x, y, z);
         TVector3 sigma(0, 0, 0);
 
-        Int_t gId = mesh->GetGroupId(type == YZ ? nan : hits->GetX(h), type == XZ ? nan : hits->GetY(h),
-                                     hits->GetZ(h));
-        volHit[gId].AddHit(pos, en, time, type, sigma);
+        Int_t gId = mesh->GetGroupId(hits->GetX(h), hits->GetY(h), hits->GetZ(h));
+        volHit[gId].AddHit(pos, en, sigma);
     }
 
     for (int tckID = 0; tckID < nTracksFound; tckID++) {
