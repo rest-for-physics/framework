@@ -24,6 +24,16 @@ Int_t ValidateTrees() {
 
         if ((*vr).size() != (*vV).size()) {
             cout << "Vectors are different size at entry " << n << "!!" << endl;
+            cout << "results.root vector size : " << (*vr).size() << endl;
+            cout << "validation.root vector size : " << (*vV).size() << endl;
+
+            cout << "Validation vector contents: " << endl;
+            for (int m = 0; m < (*vV).size(); m++) cout << (*vV)[m] << "\t";
+            cout << endl;
+
+            cout << "Results vector contents: " << endl;
+            for (int m = 0; m < (*vr).size(); m++) cout << (*vr)[m] << "\t";
+            cout << endl;
             return 2;
         }
 
