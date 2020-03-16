@@ -240,6 +240,7 @@ Steps to increase the version of REST in the development branch.
 1. Execute the script "REST_v2/scripts/generateVersionHeader.py"
 2. Follow instructions shown in screen.
 3. Enter to the Gitlab website and document the changes on the **tags** section.
+4. Merge the development branch to master.
 
 ### Using the version number
 
