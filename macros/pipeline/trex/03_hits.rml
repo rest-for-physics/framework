@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<TRestManager>
+
+	<globals file="globals.xml"/>
+	<globals>
+		<variable name="RUN_TYPE" value="Hits" overwrite="false" />
+	</globals>
+
+	<TRestRun file="run.xml" />
+
+	<TRestProcessRunner name="Signals" title="REST Manager. Raw To Track Analysis (analysis without intermediate output)." verboseLevel="silent"> 
+
+		<parameter name="eventsToProcess" value="0" />
+		<parameter name="outputEvent" value="ON" />
+
+		<addProcess type="TRestSignalToHitsProcess" name="signalToHits" value="ON" verboseLevel="silent" 
+			sampling="${SAMPLING}"
+			electricField="${PRESSURE}*${DRIFT_FIELD}"
+			gasPressure="${PRESSURE}"
+			driftVelocity="2" 
+			observable="all"
+			method="tripleMax" />
+
+		<addProcess type="TRestHitsAnalysisProcess" name="hitsAna" value="ON" verboseLevel="silent" >
+			<observable name="energy" value="ON" />
+			<observable name="energyX" value="ON" />
+			<observable name="energyY" value="ON" />
+			<observable name="balanceXYenergy" value="ON" />
+
+			<observable name="nHits" value="ON" />
+			<observable name="nHitsX" value="ON" />
+			<observable name="nHitsY" value="ON" />
+			<observable name="nHitsSizeXY" value="ON" />
+
+			<observable name="maxHitEnergy" value="ON" />
+			<observable name="minHitEnergy" value="ON" />
+			<observable name="meanHitEnergy" value="ON" />
+
+			<observable name="xMean" value="ON" />
+			<observable name="yMean" value="ON" />
+			<observable name="zMean" value="ON" />
+
+			<observable name="xSigma" value="ON" />
+			<observable name="ySigma" value="ON" />
+			<observable name="xy2Sigma" value="ON" />
+			<observable name="xySigmaBalance" value="ON" />
+			<observable name="z2Sigma" value="ON" />
+			<observable name="xySkew" value="ON" />
+			<observable name="zSkew" value="ON" />
+		</addProcess>
+
+	</TRestProcessRunner>
+
+	<addTask type="processEvents" value="ON" />
+    
+</TRestManager>

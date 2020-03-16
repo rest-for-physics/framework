@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<TRestManager>
+
+	<globals file="globals.xml"/>
+
+	<globals>
+		<variable name="RUN_TYPE" value="RawData" overwrite="false" />
+	</globals>
+
+	<TRestRun file="run.xml"/>
+
+	<TRestProcessRunner name="RawSignals" title="Raw processing and analysis" verboseLevel="silent"> 
+
+		<parameter name="eventsToProcess" value="100" />
+
+		<addProcess type="TRestMultiFEMINOSToSignalProcess" name="virtualDAQ" value="ON" verboseLevel="silent">
+			<parameter name="pedScript" value="ped"/>
+			<parameter name="runScript" value="run"/>
+			<parameter name="electronics" value="TCMFeminos"/>
+		</addProcess>
+
+		<addProcess type="TRestRawSignalAnalysisProcess" name="rawAna" value="ON"
+			baseLineRange="(${BL_MIN},${BL_MAX})" integralRange="(${INT_MIN},${INT_MAX})"
+			pointThreshold="${POINT_TH}" pointsOverThreshold="${NPOINTS}" signalThreshold="${SGNL_TH}"
+			verboseLevel="silent" observable="all" >
+		<!--
+			<observable name="NumberOfSignals" value="ON" />
+			<observable name="NumberOfGoodSignals" value="ON" />
+		-->
+		</addProcess>
+
+
+	</TRestProcessRunner>
+
+	<addTask type="processEvents" value="ON" />
+    
+</TRestManager>

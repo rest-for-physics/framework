@@ -1,0 +1,33 @@
+<globals>
+	<!--
+    <variable name="AUTO_DAQ_PATH" value="${HOME}/quickAnaREST" overwrite="false" /> 
+    <variable name="READOUT_FILE" value="readouts.root" overwrite="false" /> 
+    <variable name="READOUT_NAME" value="SingleModule" overwrite="false" /> 
+    <variable name="GAS_NAME" value="Neon-Isobutane 2Pct 10-10E3Vcm" overwrite="false" />
+    <variable name="PRESSURE" value="1" overwrite="false" /> 
+    <variable name="ELECTRONICS" value="MultiFEMINOS" overwrite="false" />
+
+    <parameter name="gasDataPath" value="${REST_PATH}/inputData/gasFiles/" />
+
+    <searchPath value="$ENV{REST_INPUTDATA}/definitions/"/>
+	-->
+
+    <variable name="RUN_TYPE" value="Test" overwrite="false" />
+
+    <parameter name="mainDataPath" value="." />
+    <parameter name="verboseLevel" value="silent" /> %options are : silent, warning, info, silent
+
+    <variable name="BL_MIN" value="20" overwrite="false" /> 
+    <variable name="BL_MAX" value="150" overwrite="false" /> 
+
+    <variable name="INT_MIN" value="150" overwrite="false" /> 
+    <variable name="INT_MAX" value="450" overwrite="false" /> 
+
+    <variable name="NPOINTS" value="7" overwrite="false" /> 
+    <variable name="POINT_TH" value="3.5" overwrite="false" /> 
+    <variable name="SGNL_TH" value="3.5" overwrite="false" /> 
+
+    <variable name="SAMPLING" value="80ns" overwrite="false" />
+    <variable name="PRESSURE" value="6" overwrite="false" />
+    <variable name="DRIFT_FIELD" value="160" overwrite="false" />
+    </globals>

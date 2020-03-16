@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<TRestManager>
+
+	<globals file="globals.xml"/>
+	<globals>
+	    <variable name="RUN_TYPE" value="Signals" overwrite="false" />
+	</globals>
+
+	<TRestRun file="run.xml" />
+
+	<TRestProcessRunner name="Signals" title="REST Manager. Raw To Track Analysis (analysis without intermediate output)." verboseLevel="silent"> 
+
+		<parameter name="eventsToProcess" value="0" />
+
+		<addProcess type="TRestSignalZeroSuppresionProcess" name="zS" value="ON"
+			baseLineRange="(${BL_MIN},${BL_MAX})"
+			integralRange="(${INT_MIN},${INT_MAX})"
+			pointThreshold="${POINT_TH}"
+			pointsOverThreshold="${NPOINTS}"
+			sampling="${SAMPLING}"
+			signalThreshold="${SGNL_TH}"
+			observable="all"
+			verboseLevel="silent"	/>
+
+		<addProcess type="TRestSignalChannelActivityProcess" name="chActivity" value="ON" verboseLevel="info" observable="all" >
+		    <parameter name="daqChannels" value="72*4*4" />
+		    <parameter name="readoutChannels" value="256*2*2" />
+		</addProcess>
+
+	</TRestProcessRunner>
+
+	<addTask type="processEvents" value="ON" />
+    
+</TRestManager>

@@ -1,0 +1,16 @@
+<TRestRun name="TREX-DM" title="TREX-DM test data analysis" verboseLevel="silent">
+	<parameter name="experiment" value="TREXDM_LSC"/>
+	<parameter name="runNumber" value="auto"/>
+	<parameter name="runTag" value="preserve"/>
+	<parameter name="runType" value="${RUN_TYPE}"/>
+	<parameter name="runDescription" value=""/>
+	<parameter name="user" value="${USER}"/>
+	<parameter name="verboseLevel" value="0"/>
+	<parameter name="overwrite" value="on" />
+	<parameter name="outputFile" value="[fRunType].root" />
+	<parameter name="readOnly" value="false" />
+
+	<addMetadata type="TRestReadout" name="TREXDM_Nov2018" file="readouts.root" store="false" />
+
+	<TRestGas name="Neon-Isobutane 2Pct 10-10E3Vcm" pressure="6" file="server" />
+</TRestRun>
