@@ -7,6 +7,7 @@ stages:
   - generate
   - process1
   - process2
+  - trex
   - drawing
   - processes
   - deploy
@@ -104,6 +105,18 @@ testProcessRest:
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install/examples/g4Hits.root
+    expire_in: 1 week
+
+testTREXdata: 
+  type: trex
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/install/macros/pipeline/trex
+    - source ${CI_PROJECT_DIR}/install/macros/pipeline/trex/generateBasicTree.sh
+    - root -b -q ${CI_PROJECT_DIR}/install/macros/pipeline/trex/ValidateTrees.C
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/install/macros/pipeline/trex/results.root
     expire_in: 1 week
 
 
