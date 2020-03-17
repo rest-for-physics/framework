@@ -30,7 +30,7 @@ git clone git@lfna.unizar.es:rest-development/REST_v2.git
 
 If you are asked for a password, this is because you did not add your local computer account public ssh key to your Gitlab account. 
 Check the following [instructions](https://git-scm.com/book/en/v2/Git-on-the-Server-Generating-Your-SSH-Public-Key) to generate your key.
-Then, paste the key into your GitLab account, inside "settings", and "ssh keys".
+Then, paste the key into your GitLab account (top-right icon of Gitlab site), go to "settings", and access the "ssh keys" in the left menu.
 
 As soon as REST is under strong development phase the repository will be private, and access to the REST repository will be only granted on demand.
 Before granting access, an account must be registered at the [Unizar Gitlab site](https://lfna.unizar.es). 
@@ -38,7 +38,7 @@ Then, you will need to contact the authors to request access to the code.
 
 ### Prerequisites
 
-The only mandatory prerequisite of REST is ROOT6. Details on the installation of ROOT will be found at the [ROOT's official site](root.cern.ch). 
+The only mandatory prerequisite of REST is ROOT6. Details on the installation of ROOT will be found at the [ROOT's official site](https://root.cern.ch). 
 One may directly find binary distributions on its [download page](https://root.cern.ch/downloading-root). 
 If not, try to compile and install it manually.
 
