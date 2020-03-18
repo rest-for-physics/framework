@@ -741,9 +741,9 @@ void TRestG4Metadata::InitFromConfigFile() {
     fSubEventTimeDelay = GetDblParameterWithUnits("subEventTimeDelay", defaultTime);
 
     fNEvents = StringToInteger(GetParameter("Nevents"));
-    // fActivity = StringToDouble( GetParameter( "activity" ) );
-    // fMass = StringToDouble( GetParameter( "mass" ) );
-    fSaveAllEvents = (Bool_t)GetDblParameterWithUnits("saveAllEvents");
+
+    fSaveAllEvents = ToUpper(GetParameter("saveAllEvents", "false")) == "TRUE" ||
+                     ToUpper(GetParameter("saveAllEvents", "off")) == "ON";
 
     ReadGenerator();
 
