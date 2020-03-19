@@ -208,7 +208,7 @@ void TRestTrackReconnectionProcess::BreakTracks(TRestVolumeHits* hits, vector<TR
             subHits.RemoveHits();
         }
 
-        subHits.AddHit(x, y, z, energy, sX, sY, sZ);
+        subHits.AddHit(x, y, z, energy, 0, hits->GetType(n), sX, sY, sZ);
 
         if (GetVerboseLevel() >= REST_Debug)
             cout << "H : " << n << " X : " << x << " Y : " << y << " Z : " << z << endl;
