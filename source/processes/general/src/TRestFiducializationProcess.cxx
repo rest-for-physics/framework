@@ -81,11 +81,14 @@ TRestEvent* TRestFiducializationProcess::ProcessEvent(TRestEvent* evInput) {
         const Double_t y = hits->GetY(n);
         const Double_t z = hits->GetZ(n);
 
+        const Double_t t = hits->GetTime(n);
+        auto type = hits->GetType(n);
+
         for (int p = 0; p < fReadout->GetNumberOfReadoutPlanes(); p++) {
             TRestReadoutPlane* plane = fReadout->GetReadoutPlane(p);
 
             if (plane->GetModuleIDFromPosition(TVector3(x, y, z)) >= 0)
-                fOutputHitsEvent->AddHit(x, y, z, eDep);
+                fOutputHitsEvent->AddHit(x, y, z, eDep, t, type);
         }
     }
 
