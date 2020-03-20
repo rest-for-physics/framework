@@ -26,6 +26,9 @@
 #include "TRestEventProcess.h"
 #include "TRestRawSignalEvent.h"
 
+#undef REST_SKIP_EVENT
+#define REST_TERMINAL_EVENT NULL
+
 class TRestRawToSignalProcess : public TRestEventProcess {
    protected:
     void InitFromConfigFile();
