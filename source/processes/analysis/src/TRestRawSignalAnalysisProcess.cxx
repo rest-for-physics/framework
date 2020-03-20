@@ -506,7 +506,7 @@ risetimemean += sgnl->GetRiseTime();
     if (fPreviousEventTime.size() > 10) fPreviousEventTime.erase(fPreviousEventTime.begin());
 
     // If no good signals are identified the event will be not registered.
-    if (nGoodSignals == 0) return NULL;
+    if (nGoodSignals == 0) return REST_SKIP_EVENT;
 
     return fSignalEvent;
 }
