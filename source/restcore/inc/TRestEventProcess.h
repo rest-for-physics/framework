@@ -30,8 +30,6 @@
 #include "TRestMetadata.h"
 #include "TRestRun.h"
 
-#define REST_SKIP_EVENT NULL
-
 /// A base class for any REST event process
 class TRestEventProcess : public TRestMetadata {
    protected:

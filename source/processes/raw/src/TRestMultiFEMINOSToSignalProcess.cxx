@@ -266,7 +266,9 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent(TRestEvent* evInput) 
                 if (fread(sh, sizeof(unsigned short), 1, fInputBinFile) != 1) {
                     debug << "End of file reached." << endl;
                     fOutputEvent = NULL;
-                    return REST_TERMINAL_EVENT;
+
+                    // The processing thread will be finished when return NULL is reached
+                    return NULL;
                 }
                 totalBytesReaded += sizeof(unsigned short);
 
@@ -360,11 +362,12 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent(TRestEvent* evInput) 
         if (fSignalEvent->GetNumberOfSignals() != 0) {
             return fSignalEvent;
         } else {
-            warning << "blank event "<< fSignalEvent->GetID() <<"! skipping..." << endl;
+            warning << "blank event " << fSignalEvent->GetID() << "! skipping..." << endl;
         }
     }
 
-    return REST_TERMINAL_EVENT;
+    // The processing thread will be finished if return NULL is reached
+    return NULL;
 }
 
 Bool_t TRestMultiFEMINOSToSignalProcess::ReadFrame(void* fr, int fr_sz) {
