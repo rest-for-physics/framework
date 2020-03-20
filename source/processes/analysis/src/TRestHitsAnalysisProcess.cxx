@@ -182,7 +182,10 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         Double_t y = hits->GetY(n);
         Double_t z = hits->GetZ(n);
 
-        fOutputHitsEvent->AddHit(x, y, z, eDep);
+        auto time = hits->GetTime(n);
+        auto type = hits->GetType(n);
+
+        fOutputHitsEvent->AddHit(x, y, z, eDep, time, type);
     }
 
     Double_t energy = fOutputHitsEvent->GetEnergy();

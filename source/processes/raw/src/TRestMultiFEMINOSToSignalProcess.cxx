@@ -243,122 +243,131 @@ void TRestMultiFEMINOSToSignalProcess::InitProcess() {
 TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent(TRestEvent* evInput) {
     if (GetVerboseLevel() >= REST_Debug) cout << "TRestMultiFEMINOSToSignalProcess::ProcessEvent" << endl;
 
-    unsigned short* sh;
-    sh = (unsigned short*)&(cur_fr[2]);
-    unsigned int nb_sh;
-    int fr_sz;
-    int fr_offset;
-    int done;
+    while (1) {
+        unsigned short* sh;
+        sh = (unsigned short*)&(cur_fr[2]);
+        unsigned int nb_sh;
+        int fr_sz;
+        int fr_offset;
+        int done;
 
-    nChannels = 0;
-    Bool_t endOfEvent = false;
+        nChannels = 0;
+        Bool_t endOfEvent = false;
 
-    fSignalEvent->Initialize();
+        fSignalEvent->Initialize();
 
-    fSignalEvent->SetRunOrigin(fRunOrigin);
-    fSignalEvent->SetSubRunOrigin(fSubRunOrigin);
+        fSignalEvent->SetRunOrigin(fRunOrigin);
+        fSignalEvent->SetSubRunOrigin(fSubRunOrigin);
 
-    while (!endOfEvent) {
-        done = 0;
-        while (!done) {
-            // Read one short word
-            if (fread(sh, sizeof(unsigned short), 1, fInputBinFile) != 1) {
-                debug << "End of file reached." << endl;
-                fOutputEvent = NULL;
-                return NULL;
-            }
-            totalBytesReaded += sizeof(unsigned short);
-
-            if ((*sh & PFX_0_BIT_CONTENT_MASK) == PFX_START_OF_BUILT_EVENT) {
-                if (GetVerboseLevel() >= REST_Debug) printf("***** Start of Built Event *****\n");
-                if (GetVerboseLevel() >= REST_Debug) GetChar();
-            } else if ((*sh & PFX_0_BIT_CONTENT_MASK) == PFX_END_OF_BUILT_EVENT) {
-                if (GetVerboseLevel() >= REST_Debug) printf("***** End of Built Event *****\n\n");
-                if (GetVerboseLevel() >= REST_Debug) GetChar();
-                endOfEvent = true;
-                done = 1;
-            } else if ((*sh & PFX_0_BIT_CONTENT_MASK) == PFX_SOBE_SIZE) {
-                // Read two short words to get the size of the event
-                if (fread((sh + 1), sizeof(unsigned short), 2, fInputBinFile) != 2) {
-                    printf("Error: could not read two short words.\n");
-                    exit(1);
-                }
-                totalBytesReaded += sizeof(unsigned short) * 2;
-
-                // Get the size of the event in bytes
-                fr_sz = (int)(((*(sh + 2)) << 16) | (*(sh + 1)));
-
-                // Compute the number of short words to read for the complete event
-                nb_sh = fr_sz / 2;  // number of short words is half the event size in bytes
-                nb_sh -= 3;         // we have already read three short words from this event
-                fr_offset = 8;
-
-                done = 1;
-            } else if (((*sh & PFX_9_BIT_CONTENT_MASK) == PFX_START_OF_DFRAME) ||
-                       ((*sh & PFX_9_BIT_CONTENT_MASK) == PFX_START_OF_CFRAME) ||
-                       ((*sh & PFX_9_BIT_CONTENT_MASK) == PFX_START_OF_MFRAME)) {
+        while (!endOfEvent) {
+            done = 0;
+            while (!done) {
                 // Read one short word
-                if (fread((sh + 1), sizeof(unsigned short), 1, fInputBinFile) != 1) {
-                    printf("Error: could not read short word.\n");
-                    exit(1);
+                if (fread(sh, sizeof(unsigned short), 1, fInputBinFile) != 1) {
+                    debug << "End of file reached." << endl;
+                    fOutputEvent = NULL;
+
+                    // The processing thread will be finished when return NULL is reached
+                    return NULL;
                 }
                 totalBytesReaded += sizeof(unsigned short);
 
-                // Get the size of the event in bytes
-                fr_sz = (int)*(sh + 1);
+                if ((*sh & PFX_0_BIT_CONTENT_MASK) == PFX_START_OF_BUILT_EVENT) {
+                    if (GetVerboseLevel() >= REST_Debug) printf("***** Start of Built Event *****\n");
+                    if (GetVerboseLevel() >= REST_Debug) GetChar();
+                } else if ((*sh & PFX_0_BIT_CONTENT_MASK) == PFX_END_OF_BUILT_EVENT) {
+                    if (GetVerboseLevel() >= REST_Debug) printf("***** End of Built Event *****\n\n");
+                    if (GetVerboseLevel() >= REST_Debug) GetChar();
+                    endOfEvent = true;
+                    done = 1;
+                } else if ((*sh & PFX_0_BIT_CONTENT_MASK) == PFX_SOBE_SIZE) {
+                    // Read two short words to get the size of the event
+                    if (fread((sh + 1), sizeof(unsigned short), 2, fInputBinFile) != 2) {
+                        printf("Error: could not read two short words.\n");
+                        exit(1);
+                    }
+                    totalBytesReaded += sizeof(unsigned short) * 2;
 
-                // Compute the number of short word to read for this frame
-                nb_sh = fr_sz / 2;  // number of short words is half the frame size in bytes
-                nb_sh -= 2;         // we have already read two short words from this frame
-                fr_offset = 6;
+                    // Get the size of the event in bytes
+                    fr_sz = (int)(((*(sh + 2)) << 16) | (*(sh + 1)));
 
-                done = 1;
-            } else {
-                printf("Error: cannot interpret short word 0x%x\n", *sh);
-                exit(1);
+                    // Compute the number of short words to read for the complete event
+                    nb_sh = fr_sz / 2;  // number of short words is half the event size in bytes
+                    nb_sh -= 3;         // we have already read three short words from this event
+                    fr_offset = 8;
+
+                    done = 1;
+                } else if (((*sh & PFX_9_BIT_CONTENT_MASK) == PFX_START_OF_DFRAME) ||
+                           ((*sh & PFX_9_BIT_CONTENT_MASK) == PFX_START_OF_CFRAME) ||
+                           ((*sh & PFX_9_BIT_CONTENT_MASK) == PFX_START_OF_MFRAME)) {
+                    // Read one short word
+                    if (fread((sh + 1), sizeof(unsigned short), 1, fInputBinFile) != 1) {
+                        printf("Error: could not read short word.\n");
+                        exit(1);
+                    }
+                    totalBytesReaded += sizeof(unsigned short);
+
+                    // Get the size of the event in bytes
+                    fr_sz = (int)*(sh + 1);
+
+                    // Compute the number of short word to read for this frame
+                    nb_sh = fr_sz / 2;  // number of short words is half the frame size in bytes
+                    nb_sh -= 2;         // we have already read two short words from this frame
+                    fr_offset = 6;
+
+                    done = 1;
+                } else {
+                    printf("Error: cannot interpret short word 0x%x\n", *sh);
+                    exit(1);
+                }
+            }
+
+            // Read binary frame
+            if (!endOfEvent) {
+                if (fread(&(cur_fr[fr_offset]), sizeof(unsigned short), nb_sh, fInputBinFile) != nb_sh) {
+                    printf("Error: could not read %d bytes.\n", (nb_sh * 2));
+                    exit(1);
+                }
+                totalBytesReaded += sizeof(unsigned short) * nb_sh;
+
+                // Zero the first two bytes because these are no longer used to specify
+                // the size of the frame
+                cur_fr[0] = 0x00;
+                cur_fr[1] = 0x00;
+
+                endOfEvent = ReadFrame((void*)&(cur_fr[2]), fr_sz);
             }
         }
 
-        // Read binary frame
-        if (!endOfEvent) {
-            if (fread(&(cur_fr[fr_offset]), sizeof(unsigned short), nb_sh, fInputBinFile) != nb_sh) {
-                printf("Error: could not read %d bytes.\n", (nb_sh * 2));
-                exit(1);
+        if (fSignalEvent->GetID() == 0 && fLastEventId != 0) {
+            fSignalEvent->SetID(fLastEventId);
+            fSignalEvent->SetTime(fLastTimeStamp);
+            fLastEventId = 0;
+        }
+
+        if (GetVerboseLevel() >= REST_Info) {
+            cout << "------------------------------------------" << endl;
+            cout << "Event ID : " << fSignalEvent->GetID() << endl;
+            cout << "Time stamp : " << fSignalEvent->GetTimeStamp() << endl;
+            cout << "Number of Signals : " << fSignalEvent->GetNumberOfSignals() << endl;
+            cout << "------------------------------------------" << endl;
+
+            if (GetVerboseLevel() >= REST_Debug) {
+                for (Int_t n = 0; n < fSignalEvent->GetNumberOfSignals(); n++)
+                    cout << "Signal N : " << n << " daq id : " << fSignalEvent->GetSignal(n)->GetID() << endl;
+                GetChar();
             }
-            totalBytesReaded += sizeof(unsigned short) * nb_sh;
+        }
 
-            // Zero the first two bytes because these are no longer used to specify
-            // the size of the frame
-            cur_fr[0] = 0x00;
-            cur_fr[1] = 0x00;
-
-            endOfEvent = ReadFrame((void*)&(cur_fr[2]), fr_sz);
+        if (fSignalEvent->GetNumberOfSignals() != 0) {
+            return fSignalEvent;
+        } else {
+            warning << "blank event " << fSignalEvent->GetID() << "! skipping..." << endl;
         }
     }
 
-    if (fSignalEvent->GetID() == 0 && fLastEventId != 0) {
-        fSignalEvent->SetID(fLastEventId);
-        fSignalEvent->SetTime(fLastTimeStamp);
-        fLastEventId = 0;
-    }
-
-    if (GetVerboseLevel() >= REST_Info) {
-        cout << "------------------------------------------" << endl;
-        cout << "Event ID : " << fSignalEvent->GetID() << endl;
-        cout << "Time stamp : " << fSignalEvent->GetTimeStamp() << endl;
-        cout << "Number of Signals : " << fSignalEvent->GetNumberOfSignals() << endl;
-        cout << "------------------------------------------" << endl;
-
-        if (GetVerboseLevel() >= REST_Debug) {
-            for (Int_t n = 0; n < fSignalEvent->GetNumberOfSignals(); n++)
-                cout << "Signal N : " << n << " daq id : " << fSignalEvent->GetSignal(n)->GetID() << endl;
-            GetChar();
-        }
-    }
-
-    if (fSignalEvent->GetNumberOfSignals() == 0) return NULL;
-
-    return fSignalEvent;
+    // The processing thread will be finished if return NULL is reached
+    return NULL;
 }
 
 Bool_t TRestMultiFEMINOSToSignalProcess::ReadFrame(void* fr, int fr_sz) {
