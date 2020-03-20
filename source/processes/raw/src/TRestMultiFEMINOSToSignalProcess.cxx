@@ -356,7 +356,8 @@ TRestEvent* TRestMultiFEMINOSToSignalProcess::ProcessEvent(TRestEvent* evInput) 
         }
     }
 
-    if (fSignalEvent->GetNumberOfSignals() == 0) return NULL;
+    // We comment out this line for the moment. We will accept now events with zero signals
+    // if (fSignalEvent->GetNumberOfSignals() == 0) return NULL;
 
     return fSignalEvent;
 }
