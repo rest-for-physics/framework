@@ -230,10 +230,9 @@ void TRestProcessRunner::EndOfInit() {
         exit(1);
     }
 
-    // if (fProcessNumber > 0) {
-    //    if (fThreads[0]->ValidateInput(fInputEvent) == -1) exit(1);
-    //    if (fThreads[0]->ValidateChain() == -1) exit(1);
-    //}
+     if (fProcessNumber > 0) {
+        if (fThreads[0]->ValidateChain(fInputEvent) == -1) exit(1);
+    }
 
     ReadProcInfo();
 }
