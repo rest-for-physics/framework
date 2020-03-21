@@ -95,8 +95,11 @@ class TRestG4Metadata : public TRestMetadata {
     void ReadBiasing();
 
     void ReadEventDataFile(TString fName);
+
     Int_t ReadNewDecay0File(TString fileName);
+
     Int_t ReadOldDecay0File(TString fileName);
+
     void ReadParticleSource(TString definition);
 
     /// The version of Geant4 used to generate the data
@@ -123,73 +126,73 @@ class TRestG4Metadata : public TRestMetadata {
     /// virtualCircleWall and virtualCylinder generators.
     TVector3 fGenRotation;
 
-    /// The primary length of the virtual generator. I.e. the radius of a virtual
+    /// \brief The primary length of the virtual generator. I.e. the radius of a virtual
     /// sphere, or the X-side size of a virtual wall.
     Double_t fGenDimension1;
 
-    /// An additional dimension required by some virtual generators. I.e. the
+    /// \brief An additional dimension required by some virtual generators. I.e. the
     /// lenght of a virtual cylinder or the Y-side size of a virtual wall.
     Double_t fGenDimension2;
 
-    /// The name of a Decay0 generated file used to produce a collection of
+    /// \brief The name of a Decay0 generated file used to produce a collection of
     /// primary sources, definning energy, momentum, particle type.
     TString fGeneratorFile;
 
-    /// A 2d-vector storing the energy range, in keV, to decide if a particular
+    /// \brief A 2d-vector storing the energy range, in keV, to decide if a particular
     /// event should be written to disk or not.
     TVector2 fEnergyRangeStored;
 
-    /// A vector to store the names of the active volumes.
+    /// \brief A vector to store the names of the active volumes.
     std::vector<TString> fActiveVolumes;
 
-    /// A vector to store the probability value to write to disk the hits in a
+    /// \brief A vector to store the probability value to write to disk the hits in a
     /// particular event.
     std::vector<Double_t> fChance;
 
-    /// It the defines the primary source properties, particle type, momentum,
+    /// \brief It the defines the primary source properties, particle type, momentum,
     /// energy, etc.
     TRestG4PrimaryGenerator fPrimaryGenerator;
 
-    /// The number of biasing volumes used in the simulation. If zero, no biasing
+    /// \brief The number of biasing volumes used in the simulation. If zero, no biasing
     /// technique is used.
     Int_t fNBiasingVolumes;
 
     /// A vector containning the biasing volume properties.
     std::vector<TRestBiasingVolume> fBiasingVolumes;
 
-    /// The maximum target step size, in mm, allowed in Geant4 for the target
+    /// \brief The maximum target step size, in mm, allowed in Geant4 for the target
     /// volume (usually the gas volume).
     Double_t fMaxTargetStepSize;
 
-    /// A time gap, in us, determinning if an energy hit should be considered (and
+    /// \brief A time gap, in us, determinning if an energy hit should be considered (and
     /// stored) as an independent event.
     Double_t fSubEventTimeDelay;
 
-    /// Defines if a radioactive isotope decay is simulated in full chain
+    /// \brief Defines if a radioactive isotope decay is simulated in full chain
     /// (fFullChain=true), or just a single decay (fFullChain=false).
     Bool_t fFullChain;
 
-    /// The volume that serves as trigger for data storage. Only events that
+    /// \brief The volume that serves as trigger for data storage. Only events that
     /// deposit a non-zero energy on this volume will be registered.
     TString fSensitiveVolume;
 
     /// The number of events simulated, or to be simulated.
     Int_t fNEvents;
 
-    /// The seed value used for Geant4 random event generator. If it is zero
+    /// \brief The seed value used for Geant4 random event generator. If it is zero
     /// its value will be assigned using the system timestamp.
     Long_t fSeed = 0;
 
-    /// If this parameter is set to 'true' it will save all events even if they leave no energy in the
+    /// \brief If this parameter is set to 'true' it will save all events even if they leave no energy in the
     /// sensitive volume (used for debugging pourposes). It is set to 'false' by default.
     Bool_t fSaveAllEvents = 0;
 
    public:
-    /// Returns the random seed that was used to generate the corresponding
+    /// \brief Returns the random seed that was used to generate the corresponding
     /// geant4 dataset.
     Long_t GetSeed() { return fSeed; }
 
-    /// Returns a string with the version of Geant4 used on the event data
+    /// \brief Returns a string with the version of Geant4 used on the event data
     /// simulation
     TString GetGeant4Version() { return fGeant4Version; }
 
@@ -199,7 +202,7 @@ class TRestG4Metadata : public TRestMetadata {
     /// Returns the main filename of the GDML geometry
     TString Get_GDML_Filename() { return fGDML_Filename; }
 
-    /// Returns a string specifying the generator type (volume, surface, point,
+    /// \brief Returns a string specifying the generator type (volume, surface, point,
     /// virtualWall, etc )
     TString GetGeneratorType() { return fGenType; }
 
@@ -260,21 +263,24 @@ class TRestG4Metadata : public TRestMetadata {
     /// decay products (sometimes with years time delays) into independent events.
     Double_t GetSubEventTimeDelay() { return fSubEventTimeDelay; }
 
+    /// It returns true if save all events is active
     Bool_t GetSaveAllEvents() const { return fSaveAllEvents; }
 
-    /// Used exclusively by restG4 to set the value of the random seed used on
+    /// \brief Used exclusively by restG4 to set the value of the random seed used on
     /// Geant4 simulation.
     void SetSeed(Long_t seed) { fSeed = seed; }
 
+    /// Enables or disables the save all events feature
     void SetSaveAllEvents(const Bool_t value) { fSaveAllEvents = value; }
+
     /// Sets the value of the Geant4 version
     void SetGeant4Version(TString g4Version) { fGeant4Version = g4Version; }
 
-    ///  Sets the generator type. I.e. volume, surface, point, virtualWall,
+    ///  \brief Sets the generator type. I.e. volume, surface, point, virtualWall,
     ///  virtualCylinder, etc.
     void SetGeneratorType(TString type) { fGenType = type; }
 
-    ///  Sets the generator main spatial dimension. In a virtual generator is the
+    ///  \brief Sets the generator main spatial dimension. In a virtual generator is the
     ///  radius of cylinder, size of wall, etc.
     void SetGeneratorSize(Double_t size) { fGenDimension1 = size; }
 
@@ -308,7 +314,7 @@ class TRestG4Metadata : public TRestMetadata {
     /// Returns the name of the particle source with index n (Geant4 based names).
     TRestParticleSource GetParticleSource(int n) { return fPrimaryGenerator.GetParticleSource(n); }
 
-    /// Returns the primary generator object containning information about
+    /// \brief Returns the primary generator object containning information about
     /// particle sources.
     TRestG4PrimaryGenerator GetPrimaryGenerator() { return fPrimaryGenerator; }
 
@@ -334,7 +340,7 @@ class TRestG4Metadata : public TRestMetadata {
     /// Return the biasing volume with index n
     TRestBiasingVolume GetBiasingVolume(int n) { return fBiasingVolumes[n]; }
 
-    /// Returns the number of biasing volumes defined. If 0 the biasing technique
+    /// \brief Returns the number of biasing volumes defined. If 0 the biasing technique
     /// is not being used.
     Int_t isBiasingActive() { return fBiasingVolumes.size(); }
 
@@ -345,7 +351,7 @@ class TRestG4Metadata : public TRestMetadata {
     void SetSensitiveVolume(TString sensVol) { fSensitiveVolume = sensVol; }
     ///////////////////////////////////////////////////////////
 
-    /// Returns the probability per event to register (write to disk) hits in the
+    /// \brief Returns the probability per event to register (write to disk) hits in the
     /// storage volume with index n.
     Double_t GetStorageChance(Int_t n) { return fChance[n]; }
 
@@ -359,7 +365,7 @@ class TRestG4Metadata : public TRestMetadata {
     /// Returns the maximum event energy required for an event to be stored.
     Double_t GetMaximumEnergyStored() { return fEnergyRangeStored.Y(); }
 
-    /// Returns the number of active volumes, or geometry volumes that have been
+    /// \brief Returns the number of active volumes, or geometry volumes that have been
     /// selected for data storage.
     Int_t GetNumberOfActiveVolumes() { return fActiveVolumes.size(); }
 
