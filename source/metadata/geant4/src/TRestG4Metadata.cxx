@@ -44,12 +44,15 @@
 /// \code
 ///
 /// // We must, as usual, define the location where the REST output files will
-/// be stored <globals>
+/// // be stored
+/// <globals>
 ///    <parameter name="mainDataPath" value="${REST_DATAPATH}" />
+///    <searchPath value="/path/to/geometry" />
 /// </globals>
 ///
 /// // A TRestRun section to define few run parameters with a general run
-/// description. <TRestRun>
+/// // description.
+/// <TRestRun>
 ///     ...
 /// </TRestRun>
 ///
@@ -112,12 +115,11 @@
 /// primaries, as for example when launching full decay chain simulations, where
 /// different isotope decays are stored in different events.
 ///
-/// * **geometryPath**: The local path where the geometry files are stored.
-///
 /// [GDML]: https://gdml.web.cern.ch/GDML/
-/// * **gdml_file**: The name of the main GDML file. In principle, the user has
-/// full freedom to create any detector setup geometry using a [GDML][GDML]
-/// description.
+/// * **gdml_file**: The path and name of the main GDML file. In principle, the
+/// user has full freedom to create any detector setup geometry using a
+/// [GDML][GDML] description.
+///
 /// \warning The only requirement is that the gas logical volume (implemented
 /// in a single physical volume on the geometry) must be named `gasVolume`.
 ///
@@ -143,12 +145,10 @@
 /// parameters.
 ///
 /// \code
-///    <parameter name="Nevents" value="100" />
-///    <parameter name="geometryPath"
-///    value="${REST_PATH}/config/template/geometry/" /> <parameter
-///    name="gdml_file" value="mySetupTemplate.gdml"/> <parameter
-///    name="maxTargetStepSize" value="200" units="um" /> <parameter
-///    name="subEventTimeDelay" value="100" units="us" />
+///		<parameter name="Nevents" value="100" />
+///		<parameter name="gdml_file" value="/path/to/mySetupTemplate.gdml"/>
+///		<parameter name="maxTargetStepSize" value="200" units="um" />
+///		<parameter name="subEventTimeDelay" value="100" units="us" />
 /// \endcode
 ///
 /// ## 2. The primary particle generator section
@@ -166,8 +166,7 @@
 ///
 ///     <source use="geant4" particle="particleName" ... >
 ///         <angularDist type="angularDistribution" />
-///         <energyDist type="energyDistribution" energy="energyValues"
-///         units="MeV" />
+///         <energyDist type="energyDistribution" energy="energyValues" units="MeV" />
 ///     </source>
 ///
 ///     <source particle="particleName" ... >
@@ -310,7 +309,7 @@
 /// * and the traditional geant4 particle description integrated in REST.
 /// \code
 ///    // 3. geant4 internal
-///    <source use = "geant4" particle = "Na22" excitedLevel = "0.0" fullChain = "on">
+///    <source use="geant4" particle="Na22" excitedLevel="0.0" fullChain="on">
 ///		    <angularDist type="isotropic" />
 ///			<energyDist type="mono" energy="0.0" units="MeV" />
 ///	   </source>
