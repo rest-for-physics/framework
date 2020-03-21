@@ -62,8 +62,7 @@ class TRestThread : public TRestMetadata {
 
     void StartThread();
 
-    Int_t ValidateInput(TRestEvent* input);
-    Int_t ValidateChain();
+    Int_t ValidateChain(TRestEvent* input);
 
     // getter and setter
     void SetThreadId(Int_t id);

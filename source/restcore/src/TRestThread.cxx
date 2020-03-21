@@ -50,121 +50,71 @@ void TRestThread::Initialize() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Check if the output of **input** matches the input event of process
-/// chain.
-///
-/// Sometimes there is an external process ahead of the threaded processes. We
-/// need to check if the event type matches.
-///
-Int_t TRestThread::ValidateInput(TRestEvent* input) {
-    if (input == NULL && fProcessChain[0]->GetInputEvent() != NULL) {
-        cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-                "++++++++++"
-             << endl;
-        cout << "REST ERROR (ValidateInput): Given input event is null!" << endl;
-        cout << "If you have a external process, make sure its output event is "
-                "instantiated"
-             << endl;
-        cout << "in the Initialize() function." << endl;
-        cout << "If you are using rest file as imput, make sure its contains event "
-                "tree."
-             << endl;
-        cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-                "++++++++++"
-             << endl;
-        GetChar();
-        return -1;
-    }
-    // general event input is accepted
-    if ((string)fProcessChain[0]->GetInputEvent()->ClassName() == "TRestEvent") return 0;
-    if (input->ClassName() != fProcessChain[0]->GetInputEvent()->ClassName()) {
-        cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-                "++++++++++"
-             << endl;
-        cout << "REST ERROR (ValidateInput): Input event type does not match the "
-                "input of the "
-             << endl;
-        cout << "first non-external process in the chain!" << endl;
-        cout << "The gievn input type: " << input->ClassName() << endl;
-        cout << "Input of the first non-external process in the chain: "
-             << fProcessChain[0]->GetInputEvent()->ClassName() << endl;
-        cout << "No events will be processed. Please correct event process "
-                "input/output."
-             << endl;
-        cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-                "++++++++++"
-             << endl;
-        GetChar();
-        return -1;
-    }
-    return 0;
-}
-
-///////////////////////////////////////////////
 /// \brief Check if the input/output of each process in the process chain
 /// matches
 ///
-/// The outevent of the previous process should be of the same type as the input
+/// Input event of the whole process chain(i.e., the input event of first process)
+/// should match the one read from input file.
+///
+/// Outevent of the previous process should be of the same type as the input
 /// event of the later process. Both of them cannot be null.
 ///
-Int_t TRestThread::ValidateChain() {
-    for (unsigned int i = 0; i < fProcessChain.size() - 1; i++) {
+Int_t TRestThread::ValidateChain(TRestEvent* input) {
+    info << "thread " << fThreadId << ": validating process chain" << endl;
+
+    // add the non-general processes to list for validation
+    vector<TRestEventProcess*> processes;
+    for (unsigned int i = 0; i < fProcessChain.size(); i++) {
+        TRestEvent* inEvent = fProcessChain[i]->GetInputEvent();
         TRestEvent* outEvent = fProcessChain[i]->GetOutputEvent();
-        TRestEvent* inEvent = fProcessChain[i + 1]->GetInputEvent();
+
+        if (outEvent == NULL && inEvent == NULL) {
+            info << "general process: " << fProcessChain[i]->GetName() << endl;
+            continue;
+        }
+
+        if (inEvent == NULL) {
+            ferr << "input event of process: " << fProcessChain[i]->GetName() << "not initialized!" << endl;
+            return -1;
+        }
 
         if (outEvent == NULL) {
-            cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-                    "++++++++++++"
-                 << endl;
-            cout << "REST ERROR : output Event of " << fProcessChain[i]->GetName()
-                 << " has not been initialized!" << endl;
-            cout << "You should instantiate the i-o event into type of TRestEvent in "
-                    "the Initialize() function"
-                 << endl;
-            cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-                    "++++++++++++"
-                 << endl;
-            GetChar();
+            ferr << "output event of process: " << fProcessChain[i]->GetName() << "not initialized!" << endl;
             return -1;
         }
-        if (inEvent == NULL) {
-            cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-                    "++++++++++++"
-                 << endl;
-            cout << "REST ERROR : input Event of " << fProcessChain[i + 1]->GetName()
-                 << " has not been initialized!" << endl;
-            cout << "You should instantiate the i-o event into type of TRestEvent in "
-                    "the Initialize() function"
-                 << endl;
-            cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-                    "++++++++++++"
-                 << endl;
-            GetChar();
-            return -1;
-        }
-        TString outEventType = outEvent->ClassName();
-        TString inEventType = inEvent->ClassName();
-        // general input type
-        if (inEventType == "TRestEvent" || outEventType == "TRestEvent") return 0;
-        if (outEventType != inEventType) {
-            cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-                    "++++++++++++"
-                 << endl;
-            cout << "REST ERROR : Event process input/output does not match" << endl;
-            cout << "The event output for process " << fProcessChain[i]->GetName() << " is " << outEventType
-                 << endl;
-            cout << "The event input for process " << fProcessChain[i + 1]->GetName() << " is " << inEventType
-                 << endl;
+
+        processes.push_back(fProcessChain[i]);
+    }
+
+    // verify that the input event of first process is OK
+    if (input != NULL) {
+        if (input->ClassName() != processes[0]->GetInputEvent()->ClassName()) {
+            ferr << "(ValidateChain): Input event type does not match!" << endl;
+            cout << "Input type of the first non-external process in chain: "
+                 << fProcessChain[0]->GetInputEvent()->ClassName() << endl;
+            cout << "The event type from file: " << input->ClassName() << endl;
             cout << "No events will be processed. Please correct event process "
                     "input/output."
                  << endl;
-            cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-                    "++++++++++++"
+        }
+    }
+
+    // verify that the output event type is good to be the input event of the next process
+    for (int i = 0; i < processes.size() - 1; i++) {
+        TString outEventType = processes[i]->GetOutputEvent()->ClassName();
+        TString nextinEventType = processes[i + 1]->GetInputEvent()->ClassName();
+        if (outEventType != nextinEventType) {
+            ferr << "(ValidateChain): Event process input/output does not match" << endl;
+            ferr << "The event output for process " << processes[i]->GetName() << " is " << outEventType
                  << endl;
+            ferr << "The event input for process " << processes[i + 1]->GetName() << " is " << nextinEventType
+                 << endl;
+            ferr << "No events will be processed. Please correctly connect the process chain!" << endl;
             GetChar();
             return -1;
         }
     }
+
     return 0;
 }
 
@@ -313,8 +263,8 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
         }
 
         if (fHostRunner->GetNextevtFunc(fInputEvent, tempTree) != 0) {
-            ferr << "In thread " << fThreadId
-                 << ")::Failed to read input event, process cannot start!" << endl;
+            ferr << "In thread " << fThreadId << ")::Failed to read input event, process cannot start!"
+                 << endl;
             exit(1);
         }
 
