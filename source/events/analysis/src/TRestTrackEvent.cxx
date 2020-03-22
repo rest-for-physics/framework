@@ -19,6 +19,7 @@
 ///_______________________________________________________________________________
 
 #include "TRestTrackEvent.h"
+
 #include "TRestTools.h"
 
 using namespace std;
@@ -525,6 +526,9 @@ TPad* TRestTrackEvent::DrawEvent(TString option) {
             Double_t y = hits->GetY(nhit);
             Double_t z = hits->GetZ(nhit);
             Double_t en = hits->GetEnergy(nhit);
+            auto type = hits->GetType(nhit);
+
+            //cout << x << " " << y << " " << z << " " << type << endl;
 
             /* {{{ Hit size definition (radius) */
             Double_t m = (maxRadiusSize) / (maxHitEnergy - meanHitEnergy);
@@ -561,7 +565,7 @@ TPad* TRestTrackEvent::DrawEvent(TString option) {
                 tckXYZ++;
             }
 
-            if (x != 0 && y != 0) {
+            if (type == XY) {
                 if (tckXY == 0) nTckXY++;
                 fXYTrack[nTckXY - 1].SetPoint(tckXY, x, y);
                 if (isTopLevel) drawLinesXY[nTckXY - 1] = 1;
@@ -578,7 +582,7 @@ TPad* TRestTrackEvent::DrawEvent(TString option) {
                 countXY++;
             }
 
-            if (x != 0 && z != 0) {
+            if (type == XZ) {
                 if (tckXZ == 0) nTckXZ++;
                 fXZTrack[nTckXZ - 1].SetPoint(tckXZ, x, z);
                 if (isTopLevel) drawLinesXZ[nTckXZ - 1] = 1;
@@ -595,7 +599,7 @@ TPad* TRestTrackEvent::DrawEvent(TString option) {
                 countXZ++;
             }
 
-            if (y != 0 && z != 0) {
+            if (type == YZ) {
                 if (tckYZ == 0) nTckYZ++;
                 fYZTrack[nTckYZ - 1].SetPoint(tckYZ, y, z);
                 if (isTopLevel) drawLinesYZ[nTckYZ - 1] = 1;
