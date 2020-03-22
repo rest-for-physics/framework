@@ -318,12 +318,12 @@ typedef struct CCptrworld {
     CCbigchunkptr* chunklist;
 } CCptrworld;
 
-void *CCutil_allocrus(size_t size), *CCutil_reallocrus(void*ptr, size_t size), CCutil_freerus(void*p),
-    CCutil_bigchunkfree(CCbigchunkptr*bp), CCptrworld_init(CCptrworld*world),
-    CCptrworld_add(CCptrworld*world), CCptrworld_delete(CCptrworld*world);
+void *CCutil_allocrus(size_t size), *CCutil_reallocrus(void *ptr, size_t size), CCutil_freerus(void *p),
+    CCutil_bigchunkfree(CCbigchunkptr *bp), CCptrworld_init(CCptrworld *world),
+    CCptrworld_add(CCptrworld *world), CCptrworld_delete(CCptrworld *world);
 
-int CCutil_reallocrus_scale(void**pptr, int*pnnum, int count, double scale, size_t size),
-    CCutil_reallocrus_count(void**pptr, int count, size_t size);
+int CCutil_reallocrus_scale(void **pptr, int *pnnum, int count, double scale, size_t size),
+    CCutil_reallocrus_count(void **pptr, int count, size_t size);
 
 CCbigchunkptr* CCutil_bigchunkalloc(void);
 
@@ -351,11 +351,12 @@ typedef struct CCdheap {
     int size;
 } CCdheap;
 
-void CCutil_dheap_free(CCdheap*h), CCutil_dheap_delete(CCdheap*h, int i),
-    CCutil_dheap_changekey(CCdheap*h, int i, double newkey);
+void CCutil_dheap_free(CCdheap *h), CCutil_dheap_delete(CCdheap *h, int i),
+    CCutil_dheap_changekey(CCdheap *h, int i, double newkey);
 
-int CCutil_dheap_init(CCdheap*h, int k), CCutil_dheap_resize(CCdheap*h, int newsize),
-    CCutil_dheap_findmin(CCdheap*h), CCutil_dheap_deletemin(CCdheap*h), CCutil_dheap_insert(CCdheap*h, int i);
+int CCutil_dheap_init(CCdheap *h, int k), CCutil_dheap_resize(CCdheap *h, int newsize),
+    CCutil_dheap_findmin(CCdheap *h), CCutil_dheap_deletemin(CCdheap *h),
+    CCutil_dheap_insert(CCdheap *h, int i);
 
 /****************************************************************************/
 /*                                                                          */
@@ -387,13 +388,13 @@ typedef struct CCelistlw {
     double* weight;
 } CCelistlw;
 
-void CCelist_init(CCelist*elist), CCelistl_init(CCelistl*elist), CCelistw_init(CCelistw*elist),
-    CCelistlw_init(CCelistlw*elist), CCelist_free(CCelist*elist), CCelistl_free(CCelistl*elist),
-    CCelistw_free(CCelistw*elist), CCelistlw_free(CCelistlw*elist);
+void CCelist_init(CCelist *elist), CCelistl_init(CCelistl *elist), CCelistw_init(CCelistw *elist),
+    CCelistlw_init(CCelistlw *elist), CCelist_free(CCelist *elist), CCelistl_free(CCelistl *elist),
+    CCelistw_free(CCelistw *elist), CCelistlw_free(CCelistlw *elist);
 
-int CCelist_alloc(CCelist*elist, int ecount), CCelistl_alloc(CCelistl*elist, int ecount),
-    CCelistw_alloc(CCelistw*elist, int ecount), CCelistlw_alloc(CCelistlw*elist, int ecount),
-    CCutil_edge_to_cycle(int ncount, int*elist, int*yesno, int*cyc);
+int CCelist_alloc(CCelist *elist, int ecount), CCelistl_alloc(CCelistl *elist, int ecount),
+    CCelistw_alloc(CCelistw *elist, int ecount), CCelistlw_alloc(CCelistlw *elist, int ecount),
+    CCutil_edge_to_cycle(int ncount, int *elist, int *yesno, int *cyc);
 
 /****************************************************************************/
 /*                                                                          */
@@ -460,9 +461,9 @@ int CCutil_dat_edgelen(int i, int j, CCdatagroup* dat);
 
 int CCutil_dat_setnorm(CCdatagroup* dat, int norm);
 
-void CCutil_dat_getnorm(CCdatagroup*dat, int*norm),
-    CCutil_dsjrand_init(CCdatagroup*dat, int maxdist, int seed), CCutil_init_datagroup(CCdatagroup*dat),
-    CCutil_freedatagroup(CCdatagroup*dat);
+void CCutil_dat_getnorm(CCdatagroup *dat, int *norm),
+    CCutil_dsjrand_init(CCdatagroup *dat, int maxdist, int seed), CCutil_init_datagroup(CCdatagroup *dat),
+    CCutil_freedatagroup(CCdatagroup *dat);
 
 #define CC_KD_NORM_TYPE 128   /* Kdtrees work      */
 #define CC_X_NORM_TYPE 256    /* Old nearest works */
@@ -532,14 +533,14 @@ typedef struct CCutil_edgehash {
     unsigned int mult;
 } CCutil_edgehash;
 
-int CCutil_edgehash_init(CCutil_edgehash*h, int size),
-    CCutil_edgehash_add(CCutil_edgehash*h, int end1, int end2, int val),
-    CCutil_edgehash_set(CCutil_edgehash*h, int end1, int end2, int val),
-    CCutil_edgehash_del(CCutil_edgehash*h, int end1, int end2),
-    CCutil_edgehash_find(CCutil_edgehash*h, int end1, int end2, int*val),
-    CCutil_edgehash_getall(CCutil_edgehash*h, int*ecount, int**elist, int**elen);
+int CCutil_edgehash_init(CCutil_edgehash *h, int size),
+    CCutil_edgehash_add(CCutil_edgehash *h, int end1, int end2, int val),
+    CCutil_edgehash_set(CCutil_edgehash *h, int end1, int end2, int val),
+    CCutil_edgehash_del(CCutil_edgehash *h, int end1, int end2),
+    CCutil_edgehash_find(CCutil_edgehash *h, int end1, int end2, int *val),
+    CCutil_edgehash_getall(CCutil_edgehash *h, int *ecount, int **elist, int **elen);
 
-void CCutil_edgehash_delall(CCutil_edgehash*h), CCutil_edgehash_free(CCutil_edgehash*h);
+void CCutil_edgehash_delall(CCutil_edgehash *h), CCutil_edgehash_free(CCutil_edgehash *h);
 
 /****************************************************************************/
 /*                                                                          */
@@ -584,25 +585,25 @@ typedef struct CCgenhash_iter {
     struct CCgenhash_elem* next;
 } CCgenhash_iter;
 
-int CCutil_genhash_init(CCgenhash*h, int size, int (*hcmp)(void*key1, void*key2, void*u_data),
-                        unsigned int (*hfunc)(void*key, void*u_data), void*u_data, double maxdensity,
+int CCutil_genhash_init(CCgenhash *h, int size, int (*hcmp)(void *key1, void *key2, void *u_data),
+                        unsigned int (*hfunc)(void *key, void *u_data), void *u_data, double maxdensity,
                         double lowdensity),
-    CCutil_genhash_insert(CCgenhash*h, void*key, void*data),
-    CCutil_genhash_insert_h(CCgenhash*h, unsigned int hashval, void*key, void*data),
-    CCutil_genhash_replace(CCgenhash*h, void*key, void*data),
-    CCutil_genhash_replace_h(CCgenhash*h, unsigned int hashval, void*key, void*data),
-    CCutil_genhash_delete(CCgenhash*h, void*key),
-    CCutil_genhash_delete_h(CCgenhash*h, unsigned int hashval, void*key);
+    CCutil_genhash_insert(CCgenhash *h, void *key, void *data),
+    CCutil_genhash_insert_h(CCgenhash *h, unsigned int hashval, void *key, void *data),
+    CCutil_genhash_replace(CCgenhash *h, void *key, void *data),
+    CCutil_genhash_replace_h(CCgenhash *h, unsigned int hashval, void *key, void *data),
+    CCutil_genhash_delete(CCgenhash *h, void *key),
+    CCutil_genhash_delete_h(CCgenhash *h, unsigned int hashval, void *key);
 
 unsigned int CCutil_genhash_hash(CCgenhash* h, void* key);
 
-void *CCutil_genhash_lookup(CCgenhash*h, void*key),
-    *CCutil_genhash_lookup_h(CCgenhash*h, unsigned int hashval, void*key),
-    *CCutil_genhash_next(CCgenhash*h, CCgenhash_iter*iter, void**key, int*keysize);
+void *CCutil_genhash_lookup(CCgenhash *h, void *key),
+    *CCutil_genhash_lookup_h(CCgenhash *h, unsigned int hashval, void *key),
+    *CCutil_genhash_next(CCgenhash *h, CCgenhash_iter *iter, void **key, int *keysize);
 
-void CCutil_genhash_u_data(CCgenhash*h, void*u_data),
-    CCutil_genhash_free(CCgenhash*h, void (*freefunc)(void*key, void*data, void*u_data)),
-    CCutil_genhash_start(CCgenhash*h, CCgenhash_iter*iter);
+void CCutil_genhash_u_data(CCgenhash *h, void *u_data),
+    CCutil_genhash_free(CCgenhash *h, void (*freefunc)(void *key, void *data, void *u_data)),
+    CCutil_genhash_start(CCgenhash *h, CCgenhash_iter *iter);
 
 /****************************************************************************/
 /*                                                                          */
@@ -615,39 +616,41 @@ void CCutil_genhash_u_data(CCgenhash*h, void*u_data),
 
 void CCutil_cycle_len(int ncount, CCdatagroup* dat, int* cycle, double* len);
 
-int CCutil_getdata(char*datname, int binary_in, int innorm, int*ncount, CCdatagroup*dat, int gridsize,
-                   int allow_dups, CCrandstate*rstate),
-    CCutil_writedata(char*datname, int binary_out, int ncount, CCdatagroup*dat),
-    CCutil_putmaster(char*mastername, int ncount, CCdatagroup*dat, int*perm),
-    CCutil_writemaster(CC_SFILE*out, int ncount, CCdatagroup*dat, int*perm),
-    CCutil_getmaster(char*mastername, int*ncount, CCdatagroup*dat, int**perm),
-    CCutil_readmaster(CC_SFILE*in, int*ncount, CCdatagroup*dat, int**perm),
-    CCutil_getnodeweights(char*weightname, int ncount, int weight_limit, double**wcoord, CCrandstate*rstate),
-    CCutil_gettsplib(char*datname, int*ncount, CCdatagroup*dat),
-    CCutil_writetsplib(const char*fname, int ncount, CCdatagroup*dat),
-    CCutil_datagroup_perm(int ncount, CCdatagroup*dat, int*perm),
-    CCutil_copy_datagroup(int ncount, CCdatagroup*indat, CCdatagroup*outdat),
-    CCutil_getedgelist(int ncount, char*fname, int*ecount, int**elist, int**elen, int binary_in),
-    CCutil_getedgelist_n(int*ncount, char*fname, int*ecount, int**elist, int**elen, int binary_in),
-    CCutil_genedgelist(int ncount, int ecount, int**elist, int**elen, CCdatagroup*dat, int maxlen,
-                       CCrandstate*rstate),
-    CCutil_getcycle_tsplib(int ncount, char*cyclename, int*outcycle),
-    CCutil_getcycle_edgelist(int ncount, char*cyclename, int*outcycle, int binary_in),
-    CCutil_getcycle(int ncount, char*cyclename, int*outcycle, int binary_in),
-    CCutil_getedges_double(int*ncount, char*fname, int*ecount, int**elist, double**elen, int binary_in),
-    CCutil_writeedges(int ncount, char*outedgename, int ecount, int*elist, CCdatagroup*dat, int binary_out),
-    CCutil_writecycle_edgelist(int ncount, char*outedgename, int*cycle, CCdatagroup*dat, int binary_out),
-    CCutil_writecycle(int ncount, char*outcyclename, int*cycle, int binary_out),
-    CCutil_writeedges_int(int ncount, char*outedgename, int ecount, int*elist, int*elen, int binary_out),
-    CCutil_writeedges_double(int ncount, char*outedgename, int ecount, int*elist, double*elen,
+int CCutil_getdata(char *datname, int binary_in, int innorm, int *ncount, CCdatagroup *dat, int gridsize,
+                   int allow_dups, CCrandstate *rstate),
+    CCutil_writedata(char *datname, int binary_out, int ncount, CCdatagroup *dat),
+    CCutil_putmaster(char *mastername, int ncount, CCdatagroup *dat, int *perm),
+    CCutil_writemaster(CC_SFILE *out, int ncount, CCdatagroup *dat, int *perm),
+    CCutil_getmaster(char *mastername, int *ncount, CCdatagroup *dat, int **perm),
+    CCutil_readmaster(CC_SFILE *in, int *ncount, CCdatagroup *dat, int **perm),
+    CCutil_getnodeweights(char *weightname, int ncount, int weight_limit, double **wcoord,
+                          CCrandstate *rstate),
+    CCutil_gettsplib(char *datname, int *ncount, CCdatagroup *dat),
+    CCutil_writetsplib(const char *fname, int ncount, CCdatagroup *dat),
+    CCutil_datagroup_perm(int ncount, CCdatagroup *dat, int *perm),
+    CCutil_copy_datagroup(int ncount, CCdatagroup *indat, CCdatagroup *outdat),
+    CCutil_getedgelist(int ncount, char *fname, int *ecount, int **elist, int **elen, int binary_in),
+    CCutil_getedgelist_n(int *ncount, char *fname, int *ecount, int **elist, int **elen, int binary_in),
+    CCutil_genedgelist(int ncount, int ecount, int **elist, int **elen, CCdatagroup *dat, int maxlen,
+                       CCrandstate *rstate),
+    CCutil_getcycle_tsplib(int ncount, char *cyclename, int *outcycle),
+    CCutil_getcycle_edgelist(int ncount, char *cyclename, int *outcycle, int binary_in),
+    CCutil_getcycle(int ncount, char *cyclename, int *outcycle, int binary_in),
+    CCutil_getedges_double(int *ncount, char *fname, int *ecount, int **elist, double **elen, int binary_in),
+    CCutil_writeedges(int ncount, char *outedgename, int ecount, int *elist, CCdatagroup *dat,
+                      int binary_out),
+    CCutil_writecycle_edgelist(int ncount, char *outedgename, int *cycle, CCdatagroup *dat, int binary_out),
+    CCutil_writecycle(int ncount, char *outcyclename, int *cycle, int binary_out),
+    CCutil_writeedges_int(int ncount, char *outedgename, int ecount, int *elist, int *elen, int binary_out),
+    CCutil_writeedges_double(int ncount, char *outedgename, int ecount, int *elist, double *elen,
                              int binary_out),
-    CCutil_tri2dat(int ncount, int*elen, CCdatagroup*dat),
-    CCutil_graph2dat_matrix(int ncount, int ecount, int*elist, int*elen, int defaultlen, CCdatagroup*dat),
-    CCutil_graph2dat_sparse(int ncount, int ecount, int*elist, int*elen, int defaultlen, CCdatagroup*dat),
-    CCutil_get_sparse_dat_edges(int ncount, CCdatagroup*dat, int*ecount, int**elist, int**elen),
-    CCutil_sparse_strip_edges(CCdatagroup*dat, int in_ecount, int*in_elist, int*in_elen, int*ecount,
-                              int**elist, int**elen),
-    CCutil_sparse_real_tour(int ncount, CCdatagroup*dat, int*cyc, int*yesno);
+    CCutil_tri2dat(int ncount, int *elen, CCdatagroup *dat),
+    CCutil_graph2dat_matrix(int ncount, int ecount, int *elist, int *elen, int defaultlen, CCdatagroup *dat),
+    CCutil_graph2dat_sparse(int ncount, int ecount, int *elist, int *elen, int defaultlen, CCdatagroup *dat),
+    CCutil_get_sparse_dat_edges(int ncount, CCdatagroup *dat, int *ecount, int **elist, int **elen),
+    CCutil_sparse_strip_edges(CCdatagroup *dat, int in_ecount, int *in_elist, int *in_elen, int *ecount,
+                              int **elist, int **elen),
+    CCutil_sparse_real_tour(int ncount, CCdatagroup *dat, int *cyc, int *yesno);
 
 /****************************************************************************/
 /*                                                                          */
@@ -665,13 +668,13 @@ typedef struct CCpriority {
     int freelist;
 } CCpriority;
 
-void CCutil_priority_free(CCpriority*pri), CCutil_priority_delete(CCpriority*pri, int handle),
-    CCutil_priority_changekey(CCpriority*pri, int handle, double newkey),
-    *CCutil_priority_findmin(CCpriority*pri, double*keyval),
-    *CCutil_priority_deletemin(CCpriority*pri, double*keyval);
+void CCutil_priority_free(CCpriority *pri), CCutil_priority_delete(CCpriority *pri, int handle),
+    CCutil_priority_changekey(CCpriority *pri, int handle, double newkey),
+    *CCutil_priority_findmin(CCpriority *pri, double *keyval),
+    *CCutil_priority_deletemin(CCpriority *pri, double *keyval);
 
-int CCutil_priority_init(CCpriority*pri, int k),
-    CCutil_priority_insert(CCpriority*pri, void*data, double keyval);
+int CCutil_priority_init(CCpriority *pri, int k),
+    CCutil_priority_insert(CCpriority *pri, void *data, double keyval);
 
 /****************************************************************************/
 /*                                                                          */
@@ -682,21 +685,21 @@ int CCutil_priority_init(CCpriority*pri, int k),
 CC_SFILE
 *CCutil_sopen(const char* f, const char* s), *CCutil_sdopen(int d, const char* s);
 
-int CCutil_swrite(CC_SFILE*f, char*buf, int size), CCutil_swrite_bits(CC_SFILE*f, int x, int xbits),
-    CCutil_swrite_ubits(CC_SFILE*f, unsigned int x, int xbits), CCutil_swrite_char(CC_SFILE*f, char x),
-    CCutil_swrite_string(CC_SFILE*f, const char*x), CCutil_swrite_short(CC_SFILE*f, short x),
-    CCutil_swrite_ushort(CC_SFILE*f, unsigned short x), CCutil_swrite_int(CC_SFILE*f, int x),
-    CCutil_swrite_uint(CC_SFILE*f, unsigned int x), CCutil_swrite_double(CC_SFILE*f, double x),
-    CCutil_sread(CC_SFILE*f, char*buf, int size), CCutil_sread_bits(CC_SFILE*f, int*x, int xbits),
-    CCutil_sread_ubits(CC_SFILE*f, unsigned int*x, int xbits), CCutil_sread_char(CC_SFILE*f, char*x),
-    CCutil_sread_string(CC_SFILE*f, char*x, int maxlen), CCutil_sread_short(CC_SFILE*f, short*x),
-    CCutil_sread_ushort(CC_SFILE*f, unsigned short*x), CCutil_sread_short_r(CC_SFILE*f, short*x),
-    CCutil_sread_int(CC_SFILE*f, int*x), CCutil_sread_uint(CC_SFILE*f, unsigned int*x),
-    CCutil_sread_int_r(CC_SFILE*f, int*x), CCutil_sread_double(CC_SFILE*f, double*x),
-    CCutil_sread_double_r(CC_SFILE*f, double*x), CCutil_sflush(CC_SFILE*f), CCutil_stell(CC_SFILE*f),
-    CCutil_sseek(CC_SFILE*f, int offset), CCutil_srewind(CC_SFILE*f), CCutil_sclose(CC_SFILE*f),
-    CCutil_sbits(unsigned int x), CCutil_sdelete_file(const char*fname),
-    CCutil_sdelete_file_backup(const char*fname);
+int CCutil_swrite(CC_SFILE *f, char *buf, int size), CCutil_swrite_bits(CC_SFILE *f, int x, int xbits),
+    CCutil_swrite_ubits(CC_SFILE *f, unsigned int x, int xbits), CCutil_swrite_char(CC_SFILE *f, char x),
+    CCutil_swrite_string(CC_SFILE *f, const char *x), CCutil_swrite_short(CC_SFILE *f, short x),
+    CCutil_swrite_ushort(CC_SFILE *f, unsigned short x), CCutil_swrite_int(CC_SFILE *f, int x),
+    CCutil_swrite_uint(CC_SFILE *f, unsigned int x), CCutil_swrite_double(CC_SFILE *f, double x),
+    CCutil_sread(CC_SFILE *f, char *buf, int size), CCutil_sread_bits(CC_SFILE *f, int *x, int xbits),
+    CCutil_sread_ubits(CC_SFILE *f, unsigned int *x, int xbits), CCutil_sread_char(CC_SFILE *f, char *x),
+    CCutil_sread_string(CC_SFILE *f, char *x, int maxlen), CCutil_sread_short(CC_SFILE *f, short *x),
+    CCutil_sread_ushort(CC_SFILE *f, unsigned short *x), CCutil_sread_short_r(CC_SFILE *f, short *x),
+    CCutil_sread_int(CC_SFILE *f, int *x), CCutil_sread_uint(CC_SFILE *f, unsigned int *x),
+    CCutil_sread_int_r(CC_SFILE *f, int *x), CCutil_sread_double(CC_SFILE *f, double *x),
+    CCutil_sread_double_r(CC_SFILE *f, double *x), CCutil_sflush(CC_SFILE *f), CCutil_stell(CC_SFILE *f),
+    CCutil_sseek(CC_SFILE *f, int offset), CCutil_srewind(CC_SFILE *f), CCutil_sclose(CC_SFILE *f),
+    CCutil_sbits(unsigned int x), CCutil_sdelete_file(const char *fname),
+    CCutil_sdelete_file_backup(const char *fname);
 
 #ifdef CC_NETREADY
 CC_SFILE
@@ -770,9 +773,9 @@ void CCutil_signal_init(void), CCutil_handler_fatal(int signum), CCutil_handler_
 /*                                                                          */
 /****************************************************************************/
 
-void CCutil_int_array_quicksort(int*len, int n), CCutil_int_perm_quicksort(int*perm, int*len, int n),
-    CCutil_double_perm_quicksort(int*perm, double*len, int n),
-    CCutil_rselect(int*arr, int l, int r, int m, double*coord, CCrandstate*rstate);
+void CCutil_int_array_quicksort(int *len, int n), CCutil_int_perm_quicksort(int *perm, int *len, int n),
+    CCutil_double_perm_quicksort(int *perm, double *len, int n),
+    CCutil_rselect(int *arr, int l, int r, int m, double *coord, CCrandstate *rstate);
 
 char* CCutil_linked_radixsort(char* data, char* datanext, char* dataval, int valsize);
 
@@ -804,15 +807,15 @@ typedef struct CCsubdiv_lkh {
     int status;
 } CCsubdiv_lkh;
 
-int CCutil_karp_partition(int ncount, CCdatagroup*dat, int partsize, int*p_scount, CCsubdiv**p_slist,
-                          int***partlist, CCrandstate*rstate),
-    CCutil_write_subdivision_index(char*problabel, int ncount, int scount, CCsubdiv*slist),
-    CCutil_read_subdivision_index(char*index_name, char**p_problabel, int*p_ncount, int*p_scount,
-                                  CCsubdiv**p_slist),
-    CCutil_write_subdivision_lkh_index(char*problabel, int ncount, int scount, CCsubdiv_lkh*slist,
+int CCutil_karp_partition(int ncount, CCdatagroup *dat, int partsize, int *p_scount, CCsubdiv **p_slist,
+                          int ***partlist, CCrandstate *rstate),
+    CCutil_write_subdivision_index(char *problabel, int ncount, int scount, CCsubdiv *slist),
+    CCutil_read_subdivision_index(char *index_name, char **p_problabel, int *p_ncount, int *p_scount,
+                                  CCsubdiv **p_slist),
+    CCutil_write_subdivision_lkh_index(char *problabel, int ncount, int scount, CCsubdiv_lkh *slist,
                                        double tourlen),
-    CCutil_read_subdivision_lkh_index(char*index_name, char**p_problabel, int*p_ncount, int*p_scount,
-                                      CCsubdiv_lkh**p_slist, double*p_tourlen);
+    CCutil_read_subdivision_lkh_index(char *index_name, char **p_problabel, int *p_ncount, int *p_scount,
+                                      CCsubdiv_lkh **p_slist, double *p_tourlen);
 
 /****************************************************************************/
 /*                                                                          */
@@ -842,16 +845,16 @@ double CCutil_normrand(CCrandstate* r);
 /*                                                                          */
 /****************************************************************************/
 
-char *CCutil_strchr(char*s, int c), *CCutil_strrchr(char*s, int c), *CCutil_strdup(const char*s),
-    *CCutil_strdup2(const char*s);
+char *CCutil_strchr(char *s, int c), *CCutil_strrchr(char *s, int c), *CCutil_strdup(const char *s),
+    *CCutil_strdup2(const char *s);
 
-const char *CCutil_strchr_c(const char*s, int c), *CCutil_strrchr_c(const char*s, int c);
+const char *CCutil_strchr_c(const char *s, int c), *CCutil_strrchr_c(const char *s, int c);
 
 unsigned int CCutil_nextprime(unsigned int x);
 
-int CCutil_our_gcd(int a, int b), CCutil_our_lcm(int a, int b), CCutil_print_command(int ac, char**av);
+int CCutil_our_gcd(int a, int b), CCutil_our_lcm(int a, int b), CCutil_print_command(int ac, char **av);
 
-void CCutil_readstr(FILE*f, char*s, int len), CCutil_printlabel(void);
+void CCutil_readstr(FILE *f, char *s, int len), CCutil_printlabel(void);
 
 /****************************************************************************/
 /*                                                                          */
@@ -866,10 +869,10 @@ typedef struct CCutil_timer {
     int count;
 } CCutil_timer;
 
-double CCutil_zeit(void), CCutil_real_zeit(void), CCutil_stop_timer(CCutil_timer*t, int printit),
-    CCutil_total_timer(CCutil_timer*t, int printit);
+double CCutil_zeit(void), CCutil_real_zeit(void), CCutil_stop_timer(CCutil_timer *t, int printit),
+    CCutil_total_timer(CCutil_timer *t, int printit);
 
-void CCutil_init_timer(CCutil_timer*t, const char*name), CCutil_start_timer(CCutil_timer*t),
-    CCutil_suspend_timer(CCutil_timer*t), CCutil_resume_timer(CCutil_timer*t);
+void CCutil_init_timer(CCutil_timer *t, const char *name), CCutil_start_timer(CCutil_timer *t),
+    CCutil_suspend_timer(CCutil_timer *t), CCutil_resume_timer(CCutil_timer *t);
 
 #endif /* __UTIL_H */

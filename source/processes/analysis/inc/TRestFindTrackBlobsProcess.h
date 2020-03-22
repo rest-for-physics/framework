@@ -120,8 +120,7 @@ class TRestFindTrackBlobsProcess : public TRestEventProcess {
     // Destructor
     ~TRestFindTrackBlobsProcess();
 
-    ClassDef(TRestFindTrackBlobsProcess,
-             1);  // Template for a REST "event process" class inherited from
-                  // TRestEventProcess
+    ClassDef(TRestFindTrackBlobsProcess, 1);  // Template for a REST "event process" class inherited from
+                                              // TRestEventProcess
 };
 #endif

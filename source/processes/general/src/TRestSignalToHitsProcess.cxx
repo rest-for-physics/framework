@@ -220,7 +220,6 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent* evInput) {
             type = XZ;
         }
 
-
         if (fSignalToHitMethod == "onlyMax") {
             Double_t time = sgnl->GetMaxPeakTime();
             Double_t distanceToPlane = time * fDriftVelocity;

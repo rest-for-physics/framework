@@ -86,8 +86,7 @@ class TRestElectronDiffusionProcess : public TRestEventProcess {
     // Destructor
     ~TRestElectronDiffusionProcess();
 
-    ClassDef(TRestElectronDiffusionProcess,
-             1);  // Template for a REST "event process" class inherited from
-                  // TRestEventProcess
+    ClassDef(TRestElectronDiffusionProcess, 1);  // Template for a REST "event process" class inherited from
+                                                 // TRestEventProcess
 };
 #endif

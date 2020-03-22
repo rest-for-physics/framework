@@ -133,7 +133,7 @@ class TRestReflector {
     TClass* cl = 0;
     TDataType* dt = 0;
 
-	/// If this object type wrapper is invalid
+    /// If this object type wrapper is invalid
     bool IsZombie();
     /// Streamer method of varioud types. Supports deep-cloning of custom TObject-inherited classes
     void operator>>(TRestReflector to);
@@ -224,7 +224,7 @@ TRestReflector WrapType(string typeName);
 /// If the type is class type, it will use ROOT streamer. The class member
 /// with //! annotation will not be copied. The content of pointer class member
 /// with //-> annotation will also be copied.
-/// 
+///
 /// If the type is base data type, it will use memcpy()
 void CloneAny(TRestReflector from, TRestReflector to);
 
@@ -232,7 +232,7 @@ void CloneAny(TRestReflector from, TRestReflector to);
 /// \brief Get the data member of a TObject inherited class with certain name.
 ///
 /// The output is wrapped with TRestReflector.
-/// Note that the data member with //! annotation in the class definition will not 
+/// Note that the data member with //! annotation in the class definition will not
 /// be recognized.
 TRestReflector GetDataMember(REST_Reflection::TRestReflector obj, string name);
 
@@ -240,7 +240,7 @@ TRestReflector GetDataMember(REST_Reflection::TRestReflector obj, string name);
 /// \brief Get the data member of a TObject inherited class with given index
 ///
 /// The 0th data member of a class will always be its base class.
-/// 
+///
 /// Example :
 /// \code
 ///

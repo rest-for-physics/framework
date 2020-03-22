@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
 
             printf("\n%s\n", "Attaching metadata structures...");
             Int_t Nmetadata = runTmp->GetNumberOfMetadataStructures();
-            map<string,int> metanames;
+            map<string, int> metanames;
             for (int n = 0; n < Nmetadata; n++) {
                 string metaName = runTmp->GetMetadataStructureNames()[n];
                 if (metaName.find("Historic") != -1) {
@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-	//display root's command line
+    // display root's command line
     TRint theApp("App", &argc, argv);
     theApp.Run();
 }

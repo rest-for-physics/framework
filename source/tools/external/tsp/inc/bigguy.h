@@ -74,6 +74,6 @@ CCbigguy CCbigguy_itobigguy(int d), CCbigguy_dtobigguy(double d), CCbigguy_ceil(
 #define CCbigguy_add(x, y) (CCbigguy_addmult(x, y, 1))
 #define CCbigguy_sub(x, y) (CCbigguy_addmult(x, y, -1))
 
-int CCbigguy_swrite(CC_SFILE*f, CCbigguy x), CCbigguy_sread(CC_SFILE*f, CCbigguy*x);
+int CCbigguy_swrite(CC_SFILE *f, CCbigguy x), CCbigguy_sread(CC_SFILE *f, CCbigguy *x);
 
 #endif /* __BIGGUY_H */

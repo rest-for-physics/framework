@@ -33,25 +33,25 @@
 class TRestBenchMarkProcess : public TRestEventProcess {
    private:
     int fCPUNumber;
-    int fMemNumber;      // in kB
+    int fMemNumber;  // in kB
     pid_t fPid;
 
-    double fRefreshRate; // in Hz
+    double fRefreshRate;  // in Hz
 
-    static thread*   fMonitorThread;              //!
-    static int       fMonitorFlag;       //!   //0: return, 1: run
-    static float     fCPUUsageInPct;          //!
-    static float     fMemUsageInMB;           //!
-    static float     fReadingInMBs;      //!
-    static float     fProcessSpeedInHz;  //!
-    static int       fLastEventNumber;   //!
-    static ULong64_t fStartTime;         //!
+    static thread* fMonitorThread;   //!
+    static int fMonitorFlag;         //!   //0: return, 1: run
+    static float fCPUUsageInPct;     //!
+    static float fMemUsageInMB;      //!
+    static float fReadingInMBs;      //!
+    static float fProcessSpeedInHz;  //!
+    static int fLastEventNumber;     //!
+    static ULong64_t fStartTime;     //!
 
     void InitFromConfigFile();
 
     void Initialize();
 
-    void SysMonitorFunc(int pid, double refreshrate=1);
+    void SysMonitorFunc(int pid, double refreshrate = 1);
 
    protected:
    public:

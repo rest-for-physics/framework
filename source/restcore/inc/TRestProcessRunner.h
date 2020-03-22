@@ -45,7 +45,8 @@ class TRestProcessRunner : public TRestMetadata {
     Int_t eventsToProcess;
     Int_t fProcessedEvents;
     map<string, string> ProcessInfo;
-    bool fOutputItem[4] = {false};     // the on/off status for item: inputAnalysis, inputEvent, outputEvent, outputAnalysis
+    bool fOutputItem[4] = {
+        false};  // the on/off status for item: inputAnalysis, inputEvent, outputEvent, outputAnalysis
 
    public:
     /// REST run class

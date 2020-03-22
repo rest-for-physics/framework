@@ -1,8 +1,8 @@
 #ifndef RestCore_TRestTask
 #define RestCore_TRestTask
 
-#include <string>
 #include <iostream>
+#include <string>
 
 #include "TCanvas.h"
 #include "TF1.h"

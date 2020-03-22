@@ -344,11 +344,11 @@ static _WDIR* _wopendir(const wchar_t* dirname) {
         dirp->patt = NULL;
         dirp->cached = 0;
 
-        /* Compute the length of full path plus zero terminator
-         *
-         * Note that on WinRT there's no way to convert relative paths
-         * into absolute paths, so just assume it is an absolute path.
-         */
+/* Compute the length of full path plus zero terminator
+ *
+ * Note that on WinRT there's no way to convert relative paths
+ * into absolute paths, so just assume it is an absolute path.
+ */
 #if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
         n = wcslen(dirname);
 #else
@@ -358,14 +358,14 @@ static _WDIR* _wopendir(const wchar_t* dirname) {
         /* Allocate room for absolute directory name and search pattern */
         dirp->patt = (wchar_t*)malloc(sizeof(wchar_t) * n + 16);
         if (dirp->patt) {
-            /*
-             * Convert relative directory name to an absolute one.  This
-             * allows rewinddir() to function correctly even when current
-             * working directory is changed between opendir() and rewinddir().
-             *
-             * Note that on WinRT there's no way to convert relative paths
-             * into absolute paths, so just assume it is an absolute path.
-             */
+/*
+ * Convert relative directory name to an absolute one.  This
+ * allows rewinddir() to function correctly even when current
+ * working directory is changed between opendir() and rewinddir().
+ *
+ * Note that on WinRT there's no way to convert relative paths
+ * into absolute paths, so just assume it is an absolute path.
+ */
 #if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
             wcsncpy_s(dirp->patt, n + 1, dirname, n);
 #else

@@ -75,14 +75,14 @@ int CCchunk_localcuts(CCtsp_lpcut_in** clist, int* cutcount, int ncount, int eco
                       double eps, CCchunk_flag flags, CCchunk_localcut_timer* timer, int silent,
                       CCrandstate* rstate);
 
-void CCchunk_init_separate_timer(CCchunk_separate_timer*timer),
-    CCchunk_init_find_timer(CCchunk_find_timer*timer), CCchunk_init_lift_timer(CCchunk_lift_timer*timer),
-    CCchunk_init_oracle_timer(CCchunk_oracle_timer*timer),
-    CCchunk_init_localcut_timer(CCchunk_localcut_timer*timer),
-    CCchunk_print_separate_timer(CCchunk_separate_timer*timer),
-    CCchunk_print_find_timer(CCchunk_find_timer*timer), CCchunk_print_lift_timer(CCchunk_lift_timer*timer),
-    CCchunk_print_oracle_timer(CCchunk_oracle_timer*timer),
-    CCchunk_print_localcut_timer(CCchunk_localcut_timer*timer);
+void CCchunk_init_separate_timer(CCchunk_separate_timer *timer),
+    CCchunk_init_find_timer(CCchunk_find_timer *timer), CCchunk_init_lift_timer(CCchunk_lift_timer *timer),
+    CCchunk_init_oracle_timer(CCchunk_oracle_timer *timer),
+    CCchunk_init_localcut_timer(CCchunk_localcut_timer *timer),
+    CCchunk_print_separate_timer(CCchunk_separate_timer *timer),
+    CCchunk_print_find_timer(CCchunk_find_timer *timer), CCchunk_print_lift_timer(CCchunk_lift_timer *timer),
+    CCchunk_print_oracle_timer(CCchunk_oracle_timer *timer),
+    CCchunk_print_localcut_timer(CCchunk_localcut_timer *timer);
 
 typedef struct CCchunklp {
     CClp* lp;
@@ -97,10 +97,10 @@ typedef struct CCchunklp {
 #define CC_CHUNK_LPFEASIBLE 0
 #define CC_CHUNK_LPINFEASIBLE 1
 
-int CCchunk_lpinit(CCchunklp**lp_p, const char*lp_name, int lp_nrows, double*xstar),
-    CCchunk_lpaddcol(CCchunklp*lp, double*x), CCchunk_lprelaxrow(CCchunklp*lp, int del_row),
-    CCchunk_lpsolve(CCchunklp*lp, int*lpstatus_p, double*c, double*alpha_p),
-    CCchunk_lpbasis(CCchunklp*lp, int ncols, int*basis);
+int CCchunk_lpinit(CCchunklp **lp_p, const char *lp_name, int lp_nrows, double *xstar),
+    CCchunk_lpaddcol(CCchunklp *lp, double *x), CCchunk_lprelaxrow(CCchunklp *lp, int del_row),
+    CCchunk_lpsolve(CCchunklp *lp, int *lpstatus_p, double *c, double *alpha_p),
+    CCchunk_lpbasis(CCchunklp *lp, int ncols, int *basis);
 
 void CCchunk_lpfree(CCchunklp** lp_p);
 
@@ -148,17 +148,17 @@ typedef struct CCchunk_cut_callback {
 #define CC_CHUNK_ORACLE_SEARCHLIMITEXCEEDED (1)
 #define CC_CHUNK_ORACLE_INFEASIBLE (2)
 
-int CCchunk_finder(int ncount, int ecount, int*elist, double*elen, double eps, CCchunk_flag flags,
-                   CCchunk_find_timer*timer, CCchunk_chunk_callback*callback, CCrandstate*rstate),
-    CCchunk_separate(CCchunk_graph*chunk, CCchunk_separate_timer*timer, CCchunk_fault_callback*callback),
-    CCchunk_lift(CCchunk_graph*chunk, CCchunk_fault*fault, CCchunk_lift_timer*timer,
-                 CCchunk_cut_callback*callback),
-    CCchunk_ineq_to_lpcut_in(int nnodes, int ecount, int*elist, int*ecoef, int rhs, CCtsp_lpcut_in*c),
-    CCchunk_ineq_to_cut(int nnodes, int ecount, int*elist, int*ecoef, int rhs, int outside,
-                        CCchunk_cut_callback*callback),
-    CCchunk_oracle(CCchunk_graph*ch, CCchunk_ineq*c, int*xsol, int*objval, int rhsvalid, int effort_limit,
-                   CCchunk_oracle_timer*timer),
-    CCchunk_verify(CCchunk_graph*ch, CCchunk_ineq*c);
+int CCchunk_finder(int ncount, int ecount, int *elist, double *elen, double eps, CCchunk_flag flags,
+                   CCchunk_find_timer *timer, CCchunk_chunk_callback *callback, CCrandstate *rstate),
+    CCchunk_separate(CCchunk_graph *chunk, CCchunk_separate_timer *timer, CCchunk_fault_callback *callback),
+    CCchunk_lift(CCchunk_graph *chunk, CCchunk_fault *fault, CCchunk_lift_timer *timer,
+                 CCchunk_cut_callback *callback),
+    CCchunk_ineq_to_lpcut_in(int nnodes, int ecount, int *elist, int *ecoef, int rhs, CCtsp_lpcut_in *c),
+    CCchunk_ineq_to_cut(int nnodes, int ecount, int *elist, int *ecoef, int rhs, int outside,
+                        CCchunk_cut_callback *callback),
+    CCchunk_oracle(CCchunk_graph *ch, CCchunk_ineq *c, int *xsol, int *objval, int rhsvalid, int effort_limit,
+                   CCchunk_oracle_timer *timer),
+    CCchunk_verify(CCchunk_graph *ch, CCchunk_ineq *c);
 
 CCchunk_graph* CCchunk_graph_alloc(int ncount, int ecount);
 
@@ -190,11 +190,11 @@ typedef struct CCchunk_intmat {
 
 /* Exported functions */
 
-int CCchunk_intmat_build(CCchunk_intmat*mat_p, int ncols),
-    CCchunk_intmat_addrow(CCchunk_intmat*mat_p, int*row),
-    CCchunk_intmat_ortho(CCchunk_intmat*mat_p, int*ortho, int*pcol_p, int*taboo);
+int CCchunk_intmat_build(CCchunk_intmat *mat_p, int ncols),
+    CCchunk_intmat_addrow(CCchunk_intmat *mat_p, int *row),
+    CCchunk_intmat_ortho(CCchunk_intmat *mat_p, int *ortho, int *pcol_p, int *taboo);
 
-void CCchunk_intmat_init(CCchunk_intmat*mat_p), CCchunk_intmat_free(CCchunk_intmat*mat_p),
-    CCchunk_intmat_dellastrows(CCchunk_intmat*mat_p, int ndel);
+void CCchunk_intmat_init(CCchunk_intmat *mat_p), CCchunk_intmat_free(CCchunk_intmat *mat_p),
+    CCchunk_intmat_dellastrows(CCchunk_intmat *mat_p, int ndel);
 
 #endif /* __LOCALCUT_H_ */

@@ -35,7 +35,7 @@ namespace REST_Units {
 /// e.g.
 /// cm, ns, mV, kg, keV
 /// V/cm, kg-yr
-/// 
+///
 /// Note: REST doesn't support units combination with numbers, e.g. m/s^2
 bool IsUnit(string unitsStr) { return !TRestSystemOfUnits(unitsStr).IsZombie(); }
 
@@ -78,15 +78,15 @@ string FindRESTUnitsInString(string s) {
 ///////////////////////////////////////////////
 /// \brief Convert value into REST units
 ///
-/// For a given value with custom units, REST will first find its equivalent REST units and 
-/// calculate the scaling factor. Then it will strip off the custom units by dividing the 
+/// For a given value with custom units, REST will first find its equivalent REST units and
+/// calculate the scaling factor. Then it will strip off the custom units by dividing the
 /// value with the scaling factor.
 ///
 /// e.g. REST standard unit for dimension time*mass is kg*us. When we call:
 /// `double a = ConvertValueToRESTUnits(8, "kg-yr"); // a = 2.5236593e+14`
 /// The returned value is in unit "kg-us".
 ///
-/// The returned the value can be thought as "unitless". This means we don't need to care 
+/// The returned the value can be thought as "unitless". This means we don't need to care
 /// about it when saving it. When we are going to use it, we just add the unit back. For example:
 /// `SetExposure(a*units("ton-day"));`
 /// This explictily adds the unit "ton-day" to the "unitless" value a.
@@ -115,13 +115,13 @@ double _AddUnit(string name, int type, double scale) {
 ///
 /// Implemented operator * and /, meaning strip-off/adds the unit for a unit-embeded/unitless value
 ///
-/// Example 1: convert exposure unit "kg-yr" to "ton-day"  
+/// Example 1: convert exposure unit "kg-yr" to "ton-day"
 /// `SetExposure(24/units("kg-yr")*units("ton-day"));`
 ///
-/// Example 2: save a "unitless" value, then assign a concrete unit when using it  
-/// `double field = GetDblParameterWithUnits("electricField");`  
-/// `fGas->GetDriftVelocity(field*units("V/cm"));`  
-/// 
+/// Example 2: save a "unitless" value, then assign a concrete unit when using it
+/// `double field = GetDblParameterWithUnits("electricField");`
+/// `fGas->GetDriftVelocity(field*units("V/cm"));`
+///
 /// Note: If the unit definition is not recognized, the object will be zombie,
 /// and the value will not be converted.
 /// Note: It doesn't support unit with numbers, e.g. m/s^2
@@ -196,14 +196,12 @@ TRestSystemOfUnits::TRestSystemOfUnits(string unitsStr) {
     fZombie = false;
 }
 
-
 int TRestSystemOfUnits::GetUnitType(string singleUnit) {
     if (IsBasicUnit(singleUnit)) {
         return __ListOfRESTUnits[singleUnit].first;
     }
     return -1;
 }
-
 
 double TRestSystemOfUnits::GetUnitScale(string singleUnit) {
     if (IsBasicUnit(singleUnit)) {

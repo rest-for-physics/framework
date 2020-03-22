@@ -103,17 +103,14 @@ TRestEvent* TRestPointLikeTrackAnaProcess::ProcessEvent(TRestEvent* evInput) {
     Double_t clusterSizeBalance = maxClusterSize / totSize;
 
     // A new value for each observable is added
-    SetObservableValue("nTracks", nTracks);        // Total number of tracks of the event
-    SetObservableValue("nTotalHits", nTotalHits);  // Total number of hits of the event
-    SetObservableValue("totalEnergy", totEnergy);  // Total number of hits of the event
-    SetObservableValue("clusterEnergyBalance",
-                                      clusterEnergyBalance);  // cluster energy balance
-    SetObservableValue("clusterLengthBalance",
-                                      clusterLengthBalance);        // cluster length balance
-    SetObservableValue("hitsBalance", hitsBalance);  // cluster number of hits balance
-    SetObservableValue("size", totSize);             // size of the track with more energy
-    SetObservableValue("sizeBalance",
-                                      clusterSizeBalance);  // size balance
+    SetObservableValue("nTracks", nTracks);                            // Total number of tracks of the event
+    SetObservableValue("nTotalHits", nTotalHits);                      // Total number of hits of the event
+    SetObservableValue("totalEnergy", totEnergy);                      // Total number of hits of the event
+    SetObservableValue("clusterEnergyBalance", clusterEnergyBalance);  // cluster energy balance
+    SetObservableValue("clusterLengthBalance", clusterLengthBalance);  // cluster length balance
+    SetObservableValue("hitsBalance", hitsBalance);                    // cluster number of hits balance
+    SetObservableValue("size", totSize);                               // size of the track with more energy
+    SetObservableValue("sizeBalance", clusterSizeBalance);             // size balance
 
     return fTrackEvent;
 }

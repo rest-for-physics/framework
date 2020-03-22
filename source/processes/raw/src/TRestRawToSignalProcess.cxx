@@ -174,8 +174,7 @@ Bool_t TRestRawToSignalProcess::OpenInputFiles(vector<string> files) {
     if (nFiles > 0) {
         fInputBinFile = fInputFiles[0];
     } else {
-        ferr << "No input file is opened, in process: " << this->ClassName() << "!"
-              << endl;
+        ferr << "No input file is opened, in process: " << this->ClassName() << "!" << endl;
         exit(1);
     }
 

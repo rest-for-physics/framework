@@ -23,13 +23,13 @@
 #define CC_LK_CLOSE_KICK (2)
 #define CC_LK_WALK_KICK (3)
 
-int CClinkern_tour(int ncount, CCdatagroup*dat, int ecount, int*elist, int stallcount, int repeatcount,
-                   int*incycle, int*outcycle, double*val, int silent, double time_bound, double length_bound,
-                   char*saveit_name, int kicktype, CCrandstate*rstate),
-    CClinkern_path(int ncount, CCdatagroup*dat, int ecount, int*elist, int nkicks, int*inpath, int*outpath,
-                   double*val, int silent, CCrandstate*rstate),
-    CClinkern_fixed(int ncount, CCdatagroup*dat, int ecount, int*elist, int nkicks, int*incycle, int*outcycle,
-                    double*val, int fcount, int*flist, int silent, CCrandstate*rstate);
+int CClinkern_tour(int ncount, CCdatagroup *dat, int ecount, int *elist, int stallcount, int repeatcount,
+                   int *incycle, int *outcycle, double *val, int silent, double time_bound,
+                   double length_bound, char *saveit_name, int kicktype, CCrandstate *rstate),
+    CClinkern_path(int ncount, CCdatagroup *dat, int ecount, int *elist, int nkicks, int *inpath,
+                   int *outpath, double *val, int silent, CCrandstate *rstate),
+    CClinkern_fixed(int ncount, CCdatagroup *dat, int ecount, int *elist, int nkicks, int *incycle,
+                    int *outcycle, double *val, int fcount, int *flist, int silent, CCrandstate *rstate);
 
 #endif /* __LINKERN_H */
 
@@ -66,10 +66,10 @@ typedef struct CClk_flipper {
     int split_cutoff;
 } CClk_flipper;
 
-int CClinkern_flipper_init(CClk_flipper*f, int ncount, int*cyc),
-    CClinkern_flipper_next(CClk_flipper*f, int x), CClinkern_flipper_prev(CClk_flipper*f, int x),
-    CClinkern_flipper_sequence(CClk_flipper*f, int x, int y, int z);
-void CClinkern_flipper_flip(CClk_flipper*F, int x, int y), CClinkern_flipper_cycle(CClk_flipper*F, int*x),
-    CClinkern_flipper_finish(CClk_flipper*F);
+int CClinkern_flipper_init(CClk_flipper *f, int ncount, int *cyc),
+    CClinkern_flipper_next(CClk_flipper *f, int x), CClinkern_flipper_prev(CClk_flipper *f, int x),
+    CClinkern_flipper_sequence(CClk_flipper *f, int x, int y, int z);
+void CClinkern_flipper_flip(CClk_flipper *F, int x, int y), CClinkern_flipper_cycle(CClk_flipper *F, int *x),
+    CClinkern_flipper_finish(CClk_flipper *F);
 
 #endif /* __FLIPPER_H */

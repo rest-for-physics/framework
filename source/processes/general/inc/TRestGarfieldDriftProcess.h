@@ -106,8 +106,7 @@ class TRestGarfieldDriftProcess : public TRestEventProcess {
     // Destructor
     ~TRestGarfieldDriftProcess();
 #endif
-    ClassDef(TRestGarfieldDriftProcess,
-             1);  // Template for a REST "event process" class inherited from
-                  // TRestEventProcess
+    ClassDef(TRestGarfieldDriftProcess, 1);  // Template for a REST "event process" class inherited from
+                                             // TRestEventProcess
 };
 #endif

@@ -21,16 +21,16 @@
 #include <TRestReadout.h>
 #include <TRestSignalEvent.h>
 
-#include "TRestGainMap.h"
 #include "TRestEventProcess.h"
+#include "TRestGainMap.h"
 
 class TRestPositionMappingProcess : public TRestEventProcess {
    private:
 #ifndef __CINT__
     TRestHitsEvent* fHitsEvent;  //!
-    TRestReadout* fReadout;  //!
-    TRestGainMap* fCalib;  //!
-    TRestGas* fGas;   //!
+    TRestReadout* fReadout;      //!
+    TRestGainMap* fCalib;        //!
+    TRestGas* fGas;              //!
 #endif
 
     void InitFromConfigFile();
@@ -48,11 +48,11 @@ class TRestPositionMappingProcess : public TRestEventProcess {
     double fNBinsZ;
 
     // temp data
-    TH2D* fAreaThrIntegralSum;               //!
-    TH2D* fAreaCounts;               //!
+    TH2D* fAreaThrIntegralSum;  //!
+    TH2D* fAreaCounts;          //!
 
     // analysis result
-    TH2F* fAreaGainMap;             //!
+    TH2F* fAreaGainMap;  //!
 
    public:
     void InitProcess();
@@ -64,10 +64,12 @@ class TRestPositionMappingProcess : public TRestEventProcess {
 
     void PrintMetadata() {
         BeginPrintProcess();
-        
+
         metadata << "the mode is:" << endl;
-        metadata << (fApplyGainCorrection ? ">   " : "    ") << "Apply position correction map for spectrum " << endl;
-        metadata << (fCreateGainMap       ? ">   " : "    ") << "Create new correction map for each position" << endl;
+        metadata << (fApplyGainCorrection ? ">   " : "    ") << "Apply position correction map for spectrum "
+                 << endl;
+        metadata << (fCreateGainMap ? ">   " : "    ") << "Create new correction map for each position"
+                 << endl;
         metadata << "output mapping file: " << fMappingSave << endl;
         metadata << "Energy cut for Threshold integral: " << any(fEnergyCutRange).ToString() << endl;
         metadata << "Energy cut for NGoodSignals: " << any(fNHitsCutRange).ToString() << endl;
@@ -84,8 +86,7 @@ class TRestPositionMappingProcess : public TRestEventProcess {
     // Destructor
     ~TRestPositionMappingProcess();
 
-    ClassDef(TRestPositionMappingProcess,
-             1);  // Template for a REST "event process" class inherited from
-                  // TRestEventProcess
+    ClassDef(TRestPositionMappingProcess, 1);  // Template for a REST "event process" class inherited from
+                                               // TRestEventProcess
 };
 #endif

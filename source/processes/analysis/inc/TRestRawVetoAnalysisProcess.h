@@ -23,22 +23,20 @@
 #ifndef RestCore_TRestRawVetoAnalysisProcess
 #define RestCore_TRestRawVetoAnalysisProcess
 
-#include "TRestRawSignalEvent.h"
 #include "TRestEventProcess.h"
+#include "TRestRawSignalEvent.h"
 
 //! A template process to serve as an example to create new TRestRawSignalEventProcess
 class TRestRawVetoAnalysisProcess : public TRestEventProcess {
    private:
+    /// The daq channel id that will be considered as a veto signal
+    Int_t fVetoSignalId;  //<
 
-	/// The daq channel id that will be considered as a veto signal
-	Int_t fVetoSignalId; //<
+    /// The range used to calculate the baseline parameters from the veto signal
+    TVector2 fBaseLineRange;  //<
 
-	/// The range used to calculate the baseline parameters from the veto signal
-    TVector2 fBaseLineRange; //<
-
-
-	/// The range used to calculate the veto signal parameters
-    TVector2 fRange; //<
+    /// The range used to calculate the veto signal parameters
+    TVector2 fRange;  //<
 
     /// A pointer to the specific TRestRawSignalEvent
     TRestRawSignalEvent* fInputRawSignalEvent;   //!
@@ -53,7 +51,6 @@ class TRestRawVetoAnalysisProcess : public TRestEventProcess {
     void LoadDefaultConfig();
 
    protected:
-
    public:
     TRestEvent* ProcessEvent(TRestEvent* evInput);
 

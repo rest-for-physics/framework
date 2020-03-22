@@ -252,9 +252,8 @@ void TRestGarfieldDriftProcess::InitProcess() {
                            (fGeometry->GetDriftElecNode()->GetMatrix()->GetTranslation()[2] - planeZpos);
             ComponentConstant* cmp = new ComponentConstant();
             //         cmp->SetElectricField(0, 0, fElectricField);  // assuming V/cm
-            cmp->SetElectricField(0, 0, field);  // assuming V/cm
-            cmp->SetPotential(0, 0, planeZpos / 10.,
-                              0);  // potential at readout level set to 0
+            cmp->SetElectricField(0, 0, field);           // assuming V/cm
+            cmp->SetPotential(0, 0, planeZpos / 10., 0);  // potential at readout level set to 0
             cmp->SetWeightingField(0, 0, planeZvec, "m");
             fGeometry->AddGfComponent(cmp);
             cout << "add component field " << field << " planeZpos " << planeZpos << " planeZvec "

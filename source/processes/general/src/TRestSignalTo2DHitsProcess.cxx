@@ -105,9 +105,9 @@ TRestEvent* TRestSignalTo2DHitsProcess::ProcessEvent(TRestEvent* evInput) {
 
     // mutanthe = numeric_limits<double>::quiet_NaN();
 
-    //TRest2DHitsEvent* eve = SelectTag();
+    // TRest2DHitsEvent* eve = SelectTag();
 
-    //if (eve != NULL) MuDepos(eve);
+    // if (eve != NULL) MuDepos(eve);
 
     // if (eve!=NULL && eve->GetNumberOfSignals() > 12 && eve->GetZRange().Y() -
     // eve->GetZRange().X() > 200) { 	return eve;
@@ -537,7 +537,6 @@ TRestEvent* TRestSignalTo2DHitsProcess::ProcessEvent(TRestEvent* evInput) {
 //
 //}
 
-
 void TRestSignalTo2DHitsProcess::MakeCluster() {
     vector<double> xzz;
     vector<double> xzx;
@@ -577,7 +576,7 @@ void TRestSignalTo2DHitsProcess::MakeCluster() {
         int a = fOutput2DHitsEvent->GetZRange().X();
         int b = fOutput2DHitsEvent->GetZRange().Y();
         for (int i = a; i <= b;
-             i += (int)(5 * gRandom->Rndm((Long64_t)this) + 10))  // we sample every 15 points
+             i += (int)(5 * gRandom->Rndm((Long64_t) this) + 10))  // we sample every 15 points
         {
             auto hits = fOutput2DHitsEvent->GetXZHitsWithZ(i);
             map<double, double>::iterator iter = hits.begin();
@@ -658,7 +657,7 @@ void TRestSignalTo2DHitsProcess::MakeCluster() {
         int a = fOutput2DHitsEvent->GetZRange().X();
         int b = fOutput2DHitsEvent->GetZRange().Y();
         for (int i = a; i <= b;
-             i += (int)(5 * gRandom->Rndm((Long64_t)this) + 10))  // we sample every 15 points
+             i += (int)(5 * gRandom->Rndm((Long64_t) this) + 10))  // we sample every 15 points
         {
             auto hits = fOutput2DHitsEvent->GetYZHitsWithZ(i);
             map<double, double>::iterator iter = hits.begin();
@@ -702,7 +701,7 @@ void TRestSignalTo2DHitsProcess::MakeCluster() {
     }
 }
 //
-//TRest2DHitsEvent* TRestSignalTo2DHitsProcess::SelectTag() {
+// TRest2DHitsEvent* TRestSignalTo2DHitsProcess::SelectTag() {
 //    if (fOutput2DHitsEvent->GetSubEventTag() == "general")  // if no tags
 //    {
 //        if (fOutput2DHitsEvent->GetNumberOfSignals() < 6 && zlen < 50)
@@ -832,7 +831,8 @@ void TRestSignalTo2DHitsProcess::MakeCluster() {
 //        }
 //        if (Count(fSelection, "3") != 0) {
 //            if (fOutput2DHitsEvent->GetSubEventTag() == "weak") {
-//                info << "selecting event from calibration source, id " << fOutput2DHitsEvent->GetID() << endl;
+//                info << "selecting event from calibration source, id " << fOutput2DHitsEvent->GetID() <<
+//                endl;
 //                return fOutput2DHitsEvent;
 //            }
 //        }
@@ -872,7 +872,7 @@ void TRestSignalTo2DHitsProcess::MakeCluster() {
 //    return fOutput2DHitsEvent;
 //}
 //
-//void TRestSignalTo2DHitsProcess::MuDepos(TRest2DHitsEvent* eve) {
+// void TRestSignalTo2DHitsProcess::MuDepos(TRest2DHitsEvent* eve) {
 //    // if (eve->GetSubEventTag() == "muon")
 //    //{
 //    //	double firstx = 9999;

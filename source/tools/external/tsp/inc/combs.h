@@ -41,12 +41,12 @@ typedef struct CC_GCgraph {
     CC_GCedge* edgespace;
 } CC_GCgraph;
 
-int CCcombs_find_blocks(int ncount, int ecount, int*elist, double*x, int*nblocks, int**blockcnts,
-                        int***blocks, int*ncutnodes, int**cutnodes),
-    CCcombs_greedy_cut(CC_GCgraph*g, int*setsize, int*set, int mark_fixed, int forced_moves, int bad_moves,
-                       int fixed_moves, int*moves_done, double*cut_val),
-    CCcombs_GC_build_graph(CC_GCgraph*G, int ncount, int ecount, int*elist, double*x);
+int CCcombs_find_blocks(int ncount, int ecount, int *elist, double *x, int *nblocks, int **blockcnts,
+                        int ***blocks, int *ncutnodes, int **cutnodes),
+    CCcombs_greedy_cut(CC_GCgraph *g, int *setsize, int *set, int mark_fixed, int forced_moves, int bad_moves,
+                       int fixed_moves, int *moves_done, double *cut_val),
+    CCcombs_GC_build_graph(CC_GCgraph *G, int ncount, int ecount, int *elist, double *x);
 
-void CCcombs_GC_init_graph(CC_GCgraph*G), CCcombs_GC_free_graph(CC_GCgraph*G);
+void CCcombs_GC_init_graph(CC_GCgraph *G), CCcombs_GC_free_graph(CC_GCgraph *G);
 
 #endif /* __COMBS_H */

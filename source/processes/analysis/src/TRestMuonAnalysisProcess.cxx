@@ -12,8 +12,8 @@
 ///_______________________________________________________________________________
 
 #include "TRestMuonAnalysisProcess.h"
-#include "TRandom.h"
 #include <numeric>
+#include "TRandom.h"
 using namespace std;
 
 ClassImp(TRestMuonAnalysisProcess)
@@ -468,10 +468,7 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     return fOutputEvent;
 }
 
-
-
 TRest2DHitsEvent* TRestMuonAnalysisProcess::MakeTag() {
-
     double zlen = fAnaEvent->GetZRange().Y() - fAnaEvent->GetZRange().X();
 
     if (fAnaEvent->GetSubEventTag() == "general")  // if no tags
@@ -493,7 +490,7 @@ TRest2DHitsEvent* TRestMuonAnalysisProcess::MakeTag() {
     fHough_XZ.clear();
     fHough_YZ.clear();
     if (fAnaEvent->GetSubEventTag() == "general") {
-        //MakeCluster();
+        // MakeCluster();
         fAnaEvent->DoHough();
         fHough_XZ = fAnaEvent->GetHoughXZ();
         fHough_YZ = fAnaEvent->GetHoughYZ();
@@ -593,7 +590,7 @@ TRest2DHitsEvent* TRestMuonAnalysisProcess::MakeTag() {
 
     //// 0: uses all, 1: muon, 2: strong electron, 3: weak electron, 4: sparking, 5:
     //// abnormal, 9: other
-    //if (Count(fSelection, "0") == 0) {
+    // if (Count(fSelection, "0") == 0) {
     //    if (Count(fSelection, "4") != 0) {
     //        if (fAnaEvent->GetSubEventTag() == "sparking") {
     //            info << "selecting sparking event, id " << fAnaEvent->GetID() << endl;
@@ -641,8 +638,6 @@ TRest2DHitsEvent* TRestMuonAnalysisProcess::MakeTag() {
     //}
     return fAnaEvent;
 }
-
-
 
 void TRestMuonAnalysisProcess::EndProcess() {
     mutanthe->Write();

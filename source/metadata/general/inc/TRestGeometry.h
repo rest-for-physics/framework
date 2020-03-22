@@ -116,8 +116,7 @@ class TRestGeometry : public TGeoManager {
 
     /// Get Gf Medium at position
     Garfield::Medium* GetGfMedium(double x, double y, double z) {
-        FindNode(x / 10., y / 10.,
-                 z / 10.);  // needed due to a bug in TGeoNavigator
+        FindNode(x / 10., y / 10., z / 10.);  // needed due to a bug in TGeoNavigator
         return fGfGeometry->GetMedium(x / 10., y / 10., z / 10.);
     }  // mm to cm
 #endif

@@ -80,9 +80,9 @@ void TRestDaqChannelSwitchingProcess::InitProcess() {
 }
 
 //______________________________________________________________________________
-TRestEvent* TRestDaqChannelSwitchingProcess::ProcessEvent(TRestEvent* eventInput) { 
-	fOutputEvent = eventInput;
-	return eventInput; 
+TRestEvent* TRestDaqChannelSwitchingProcess::ProcessEvent(TRestEvent* eventInput) {
+    fOutputEvent = eventInput;
+    return eventInput;
 }
 
 //______________________________________________________________________________

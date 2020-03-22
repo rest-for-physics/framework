@@ -166,7 +166,7 @@ void TRestTask::InitFromConfigFile() {
 
     } else if (fMode == TASK_CLASS) {
         // load config for the inherited task class
-		SetDataMemberValFromConfig();
+        SetDataMemberValFromConfig();
     }
 }
 
@@ -182,7 +182,7 @@ void TRestTask::SetArgumentValue(vector<string> arg) {
     }
     argument = arg;
     if (fMode == TASK_CLASS) {
-		SetDataMemberValFromConfig();
+        SetDataMemberValFromConfig();
     }
 }
 
@@ -235,8 +235,7 @@ void TRestTask::RunTask(TRestManager* mgr) {
             } else {
                 TRestMetadata* meta = mgr->GetApplicationWithName(targetname);
                 if (meta == NULL) {
-                    ferr << "cannot file metadata: " << targetname << " in TRestManager"
-                          << endl;
+                    ferr << "cannot file metadata: " << targetname << " in TRestManager" << endl;
                     ferr << "command: " << cmdstr << endl;
                     exit(-1);
                 } else {
@@ -271,7 +270,7 @@ void TRestTask::PrintArgumentHelp() {
         int n = GetNumberOfDataMembers(this);
         for (int i = 1; i < n; i++) {
             if (i < fNRequiredArgument + 1) ferr << "*";
-            ferr << GetDataMember(this,i).name << endl;
+            ferr << GetDataMember(this, i).name << endl;
         }
     }
 }
@@ -295,7 +294,7 @@ TRestTask* TRestTask::GetTask(TString MacroName) {
 
     if (c == NULL) {
         string macfilelists =
-			TRestTools::Execute("find $REST_PATH/macros -name *" + (string)MacroName + (string) ".*");
+            TRestTools::Execute("find $REST_PATH/macros -name *" + (string)MacroName + (string) ".*");
         auto macfiles = Split(macfilelists, "\n");
 
         if (macfiles.size() == 0 || macfiles[0] == "") {

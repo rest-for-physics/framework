@@ -90,12 +90,12 @@ typedef struct CCpq_tree {
 #define CCpq_add_leaflist(T, i) ((T)->elems[(i)].next = (T)->leaflist, (T)->leaflist = &((T)->elems[(i)]))
 #define CCpq_set_leaflist(T, l) ((T)->leaflist = l)
 
-void CCpq_tree_init(CCpq_tree*T), CCpq_tree_free(CCpq_tree*T), CCpq_describe_solution(CCpq_tree*T),
-    CCpq_dump_solution(CCpq_tree*T);
+void CCpq_tree_init(CCpq_tree *T), CCpq_tree_free(CCpq_tree *T), CCpq_describe_solution(CCpq_tree *T),
+    CCpq_dump_solution(CCpq_tree *T);
 
-int CCpq_check(CCpq_tree*T, int*status), CCpq_apply(CCpq_tree*T, int*status),
-    CCpq_tree_trivial(CCpq_tree*T, int nodecount, int extern_node),
-    CCpq_cuttree_to_pq(struct CCtsp_cuttree*ct, CCpq_tree*pqT);
+int CCpq_check(CCpq_tree *T, int *status), CCpq_apply(CCpq_tree *T, int *status),
+    CCpq_tree_trivial(CCpq_tree *T, int nodecount, int extern_node),
+    CCpq_cuttree_to_pq(struct CCtsp_cuttree *ct, CCpq_tree *pqT);
 
 CCpq_node* CCpq_find_root(CCpq_tree* T);
 

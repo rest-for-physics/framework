@@ -21,11 +21,11 @@
 #include "TRestStringOutput.h"
 using namespace std;
 
-//REST_Verbose_Level fLevel = REST_Essential;  //!
+// REST_Verbose_Level fLevel = REST_Essential;  //!
 ////	TRestLeveledOutput(REST_Verbose_Level& vref, string _color =
 //// COLOR_RESET, string BorderOrHeader = "", REST_Display_Format style =
 //// kBorderedLeft)
-//TRestLeveledOutput<REST_Essential> metadata =
+// TRestLeveledOutput<REST_Essential> metadata =
 //    TRestLeveledOutput<REST_Essential>(fLevel, COLOR_BOLDGREEN, "||",
 //                                       (REST_Display_Format)kBorderedMiddle);  //!
 

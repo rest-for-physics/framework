@@ -49,9 +49,9 @@ bool Console::kbhit() {
     }
     return 0;
 
-	//int byteswaiting;
- //   ioctl(0, FIONREAD, &byteswaiting);
- //   return byteswaiting > 0;
+// int byteswaiting;
+//   ioctl(0, FIONREAD, &byteswaiting);
+//   return byteswaiting > 0;
 #endif
 }
 
@@ -82,7 +82,6 @@ int Console::ReadKey() {
     return ch;
 #endif
 }
-
 
 string Console::ReadLine() {
     char a[500];
@@ -139,14 +138,6 @@ void Console::ClearLinesAfterCursor() {
     printf("\033[u");
     fflush(stdout);
 }
-
-
-
-
-
-
-
-
 
 TRestStringOutput::TRestStringOutput(string _color, string BorderOrHeader, REST_Display_Format style) {
     color = _color;

@@ -287,7 +287,6 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {
 
     TString obsName;
 
-    
     SetObservableValue("x1", x1);
     SetObservableValue("y1", y1);
     SetObservableValue("z1", z1);
