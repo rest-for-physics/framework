@@ -99,7 +99,8 @@ TRestEvent* TRestTrackDetachIsolatedNodesProcess::ProcessEvent(TRestEvent* evInp
         TRestVolumeHits connectedHits;
         TRestVolumeHits isolatedHit;
 
-        connectedHits.AddHit(hits->GetPosition(0), hits->GetEnergy(0),0,hits->GetType(0), hits->GetSigma(0));
+        connectedHits.AddHit(hits->GetPosition(0), hits->GetEnergy(0), 0, hits->GetType(0),
+                             hits->GetSigma(0));
 
         for (int n = 1; n < nHits - 1; n++) {
             TVector3 x0, x1, pos0, pos1;
@@ -145,8 +146,8 @@ TRestEvent* TRestTrackDetachIsolatedNodesProcess::ProcessEvent(TRestEvent* evInp
             }
         }
 
-        connectedHits.AddHit(hits->GetPosition(nHits - 1), hits->GetEnergy(nHits - 1), 0, hits->GetType(nHits-1),
-                             hits->GetSigma(nHits - 1));
+        connectedHits.AddHit(hits->GetPosition(nHits - 1), hits->GetEnergy(nHits - 1), 0,
+                             hits->GetType(nHits - 1), hits->GetSigma(nHits - 1));
 
         TRestTrack connectedTrack;
         connectedTrack.SetTrackID(fOutputTrackEvent->GetNumberOfTracks() + 1);

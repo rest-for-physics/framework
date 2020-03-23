@@ -76,8 +76,7 @@ class TRestSignalViewerProcess : public TRestEventProcess {
     // Destructor
     ~TRestSignalViewerProcess();
 
-    ClassDef(TRestSignalViewerProcess,
-             1);  // Template for a REST "event process" class inherited from
-                  // TRestEventProcess
+    ClassDef(TRestSignalViewerProcess, 1);  // Template for a REST "event process" class inherited from
+                                            // TRestEventProcess
 };
 #endif

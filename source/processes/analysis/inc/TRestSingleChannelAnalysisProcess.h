@@ -21,8 +21,8 @@
 #include <TRestReadout.h>
 #include <TRestSignalEvent.h>
 
-#include "TRestGainMap.h"
 #include "TRestEventProcess.h"
+#include "TRestGainMap.h"
 
 class TRestSingleChannelAnalysisProcess : public TRestEventProcess {
    private:
@@ -62,10 +62,12 @@ class TRestSingleChannelAnalysisProcess : public TRestEventProcess {
 
     void PrintMetadata() {
         BeginPrintProcess();
-        
+
         metadata << "the mode is:" << endl;
-        metadata << (fApplyGainCorrection ? ">   " : "    ") << "Apply channel correction map for spectrum " << endl;
-        metadata << (fCreateGainMap       ? ">   " : "    ") << "Create new correction map for each channel" << endl;
+        metadata << (fApplyGainCorrection ? ">   " : "    ") << "Apply channel correction map for spectrum "
+                 << endl;
+        metadata << (fCreateGainMap ? ">   " : "    ") << "Create new correction map for each channel"
+                 << endl;
         metadata << "output mapping file: " << fCalibSave << endl;
         metadata << "Energy cut for Threshold integral: " << any(fThrIntegralCutRange).ToString() << endl;
         metadata << "Energy cut for NGoodSignals: " << any(fNGoodSignalsCutRange).ToString() << endl;

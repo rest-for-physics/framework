@@ -25,15 +25,15 @@
 #define CC_TINYTSP_MAXIMIZE (-1)
 #define CC_TINYTSP_MINIMIZE (1)
 
-int CCtiny_bnc_tsp(int ncount, CCdatagroup*dat, double*upbound, double*optval, int nodelimit),
-    CCtiny_bnc_msp(int ncount, int ecount, int*elist, int*elen, int depot, int*lower, int*upper,
-                   double*upperbound, int objsense, double*optval, int*xsol, int checkresult,
+int CCtiny_bnc_tsp(int ncount, CCdatagroup *dat, double *upbound, double *optval, int nodelimit),
+    CCtiny_bnc_msp(int ncount, int ecount, int *elist, int *elen, int depot, int *lower, int *upper,
+                   double *upperbound, int objsense, double *optval, int *xsol, int checkresult,
                    int searchlimit),
-    CCtiny_bnb_tsp(int nnodes, int nedges, int*elist, int*weight, int*lbound, int*ubound, double*objlimit,
-                   int objdir, double*objval, int*xsol, int searchlimit),
-    CCtiny_bnb_msp(int nnodes, int nedges, int*elist, int*weight, int depot, int*lbound, int*ubound,
-                   double*objlimit, int objdir, double*objval, int*xsol, int searchlimit),
-    CCtiny_benttsp_elist(int ncount, int ecount, int*elist, int*elen, double*upbound, double*optval,
-                         int*foundtour, int anytour, int searchlimit, int silent);
+    CCtiny_bnb_tsp(int nnodes, int nedges, int *elist, int *weight, int *lbound, int *ubound,
+                   double *objlimit, int objdir, double *objval, int *xsol, int searchlimit),
+    CCtiny_bnb_msp(int nnodes, int nedges, int *elist, int *weight, int depot, int *lbound, int *ubound,
+                   double *objlimit, int objdir, double *objval, int *xsol, int searchlimit),
+    CCtiny_benttsp_elist(int ncount, int ecount, int *elist, int *elen, double *upbound, double *optval,
+                         int *foundtour, int anytour, int searchlimit, int silent);
 
 #endif /* __TINYTSP_H */

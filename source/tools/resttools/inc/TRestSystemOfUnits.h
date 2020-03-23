@@ -22,11 +22,9 @@ using namespace std;
 #include <TString.h>
 
 #ifdef REST_UnitsAdd_Caller
-#define AddUnit(name, type, scale)                                                  \
-    const double name = _AddUnit(#name, type, scale)
+#define AddUnit(name, type, scale) const double name = _AddUnit(#name, type, scale)
 #else
-#define AddUnit(name, type, scale)                                                  \
-    const double name = scale
+#define AddUnit(name, type, scale) const double name = scale
 #endif
 
 /// This namespace defines the unit conversion for different units which are understood by REST.
@@ -52,7 +50,7 @@ class TRestSystemOfUnits {
     // We use more common high energy physics unit instead of SI unit
     enum Physical_Unit { Energy, Time, Distance, Mass, Electric, Magnetic, Pressure, NOT_A_UNIT = -1 };
 
-	/// Constructor from a unit string
+    /// Constructor from a unit string
     TRestSystemOfUnits(string unitsStr);
     /// Whether this unit is zombie(invalid)
     bool IsZombie() const { return fZombie; }
@@ -77,7 +75,6 @@ Double_t ConvertRESTUnitsValueToCustomUnits(Double_t value, string unitsStr);
 extern map<string, pair<int, double>> __ListOfRESTUnits;  // name, [unit type id, scale]
 
 double _AddUnit(string name, int type, double scale);
-
 
 // energy unit multiplier
 AddUnit(meV, TRestSystemOfUnits::Energy, 1e6);

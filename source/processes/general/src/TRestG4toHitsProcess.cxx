@@ -1,50 +1,112 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestG4toHitsProcess.cxx
-///
-///
-///             Simple process to convert a TRestG4Event class into a
-///    		    TRestHitsEvent, that is, we just "extract" the hits
-///    information
-///             Date : oct/2016
-///             Author : I. G. Irastorza
-///
-///_______________________________________________________________________________
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
+//////////////////////////////////////////////////////////////////////////
+/// This process allows to select the GDML geometry volumes (defined in
+/// TRestG4Metadata) that will be transferred to the TRestHitsEvent by
+/// using the `<addVolume` key inside the process definition.
+///
+/// The following example shows how to include the process into
+/// `TRestProcessRunner` RML definition. In this particular example we
+/// extract hits from `gas` and `vessel` volumes defined in the geometry.
+/// Any other hits will be ignored.
+///
+/// \code
+///
+/// <addProcess type="TRestG4toHitsProcess" name="g4ToHits" value="ON">
+///     <addVolume name="gas" />
+///     <addVolume name="vessel" />
+/// \endcode
+///
+/// If no volumes are defined using the `<addVolume` key, **all volumes will
+/// be active**, and all hits will be transferred to the TRestHitsEvent output.
+///
+///--------------------------------------------------------------------------
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2016-October First implementation of TRestG4Event to TRestHitsEvent
+///              Igor Irastorza
+///
+/// 2017-October: Added the possibility to extract hits only from selected geometrical volumes
+///               Javier Galan
+///
+/// \class      TRestG4toHitsProcess
+/// \author     Igor Irastorza
+/// \author     Javier Galan
+///
+/// <hr>
+///
 #include "TRestG4toHitsProcess.h"
 using namespace std;
 
-ClassImp(TRestG4toHitsProcess)
-    //______________________________________________________________________________
-    TRestG4toHitsProcess::TRestG4toHitsProcess() {
-    Initialize();
-}
+ClassImp(TRestG4toHitsProcess);
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestG4toHitsProcess::TRestG4toHitsProcess() { Initialize(); }
+
+///////////////////////////////////////////////
+/// \brief Constructor loading data from a config file
+///
+/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// The default behaviour is that the config file must be specified with
+/// full path, absolute or relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+///
 TRestG4toHitsProcess::TRestG4toHitsProcess(char* cfgFileName) {
     Initialize();
 
     if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Default destructor
+///
 TRestG4toHitsProcess::~TRestG4toHitsProcess() {
     delete fG4Event;
     delete fHitsEvent;
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Function to load the default config in absence of RML input
+///
 void TRestG4toHitsProcess::LoadDefaultConfig() {
     SetTitle("Default config");
 
     cout << "G4 to hits metadata not found. Loading default values" << endl;
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Function to initialize input/output event members and define the
+/// section name
+///
 void TRestG4toHitsProcess::Initialize() {
     SetSectionName(this->ClassName());
 
@@ -55,14 +117,27 @@ void TRestG4toHitsProcess::Initialize() {
     fInputEvent = fG4Event;
 }
 
+///////////////////////////////////////////////
+/// \brief Function to load the configuration from an external configuration
+/// file.
+///
+/// If no configuration path is defined in TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param name The name of the specific metadata. It will be used to find the
+/// correspondig TRestG4toHitsProcess section inside the RML.
+///
 void TRestG4toHitsProcess::LoadConfig(std::string cfgFilename, std::string name) {
     if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Process initialization. This process accesses the information inside
+/// TRestG4Metadata to identify the geometry volume ids associated to the hits.
+///
 void TRestG4toHitsProcess::InitProcess() {
-    //    TRestEventProcess::ReadObservables();
-
     fG4Metadata = GetMetadata<TRestG4Metadata>();
 
     for (unsigned int n = 0; n < fVolumeSelection.size(); n++) {
@@ -110,10 +185,9 @@ void TRestG4toHitsProcess::InitProcess() {
     /* }}} */
 }
 
-//______________________________________________________________________________
-void TRestG4toHitsProcess::BeginOfEventProcess() { fHitsEvent->Initialize(); }
-
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief The main processing event function
+///
 TRestEvent* TRestG4toHitsProcess::ProcessEvent(TRestEvent* evInput) {
     fG4Event = (TRestG4Event*)evInput;
 
@@ -163,24 +237,26 @@ TRestEvent* TRestG4toHitsProcess::ProcessEvent(TRestEvent* evInput) {
     return fHitsEvent;
 }
 
-//______________________________________________________________________________
-void TRestG4toHitsProcess::EndOfEventProcess() {}
-
-//______________________________________________________________________________
-void TRestG4toHitsProcess::EndProcess() {
-    // Function to be executed once at the end of the process
-    // (after all events have been processed)
-
-    // Start by calling the EndProcess function of the abstract class.
-    // Comment this if you don't want it.
-    // TRestEventProcess::EndProcess();
-}
-
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Function to read input parameters from the RML
+/// TRestG4toHitsProcess metadata section
+///
 void TRestG4toHitsProcess::InitFromConfigFile() {
     size_t position = 0;
     string addVolumeDefinition;
 
     while ((addVolumeDefinition = GetKEYDefinition("addVolume", position)) != "")
         fVolumeSelection.push_back(GetFieldValue("name", addVolumeDefinition));
+}
+
+///////////////////////////////////////////////
+/// \brief It prints on screen relevant data members from this class
+///
+void TRestG4toHitsProcess::PrintMetadata() {
+    BeginPrintProcess();
+
+    for (unsigned int n = 0; n < fVolumeSelection.size(); n++)
+        std::cout << "Volume added : " << fVolumeSelection[n] << std::endl;
+
+    EndPrintProcess();
 }

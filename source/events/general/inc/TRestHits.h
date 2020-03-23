@@ -30,8 +30,7 @@
 #include "TMatrixD.h"
 #include "TObject.h"
 
-
-    enum REST_HitType { unknown = -1, X = 2, Y = 3, Z = 5, XY = 6, XZ = 10, YZ = 15, XYZ = 30 };
+enum REST_HitType { unknown = -1, X = 2, Y = 3, Z = 5, XY = 6, XZ = 10, YZ = 15, XYZ = 30 };
 //! It let save an event as a set of punctual deposition.
 //! It saves a 3-coordinate position and an energy for each punctual deposition.
 class TRestHits : public TObject {
@@ -41,17 +40,17 @@ class TRestHits : public TObject {
                           ///< for all the array
     Double_t fTotEnergy;  ///< Event total energy
 
-    std::vector<Float_t> fX;       // [fNHits] Position on X axis for each punctual
-                                   // deposition (units mm)
-    std::vector<Float_t> fY;       // [fNHits] Position on Y axis for each punctual
-                                   // deposition (units mm)
-    std::vector<Float_t> fZ;       // [fNHits] Position on Z axis for each punctual
-                                   // deposition (units mm)
-    std::vector<Float_t> fT;       // [fNHits] Absolute time information for each punctual deposition
-                                   // (units us, 0 is time of decay)
-    std::vector<Float_t> fEnergy;  // [fNHits] Energy deposited at each
-                                   // 3-coordinate position (units keV)
-    std::vector <REST_HitType> fType;  //
+    std::vector<Float_t> fX;          // [fNHits] Position on X axis for each punctual
+                                      // deposition (units mm)
+    std::vector<Float_t> fY;          // [fNHits] Position on Y axis for each punctual
+                                      // deposition (units mm)
+    std::vector<Float_t> fZ;          // [fNHits] Position on Z axis for each punctual
+                                      // deposition (units mm)
+    std::vector<Float_t> fT;          // [fNHits] Absolute time information for each punctual deposition
+                                      // (units us, 0 is time of decay)
+    std::vector<Float_t> fEnergy;     // [fNHits] Energy deposited at each
+                                      // 3-coordinate position (units keV)
+    std::vector<REST_HitType> fType;  //
     //! Changes the origin of the Cartesian coordinate system
     void Translate(Int_t n, Double_t x, Double_t y, Double_t z);
     /// Event is rotated in XYZ.

@@ -43,13 +43,13 @@
 class TRestDriftVolume : public TRestMetadata {
    protected:
     string fMaterial;  // material description string
-    Double_t fW;  // Work function for electron extraction, in unit eV.
+    Double_t fW;       // Work function for electron extraction, in unit eV.
 
-    Double_t fElectricField;  //in unit V/mm
-    Double_t fDriftVelocity;  //in unit mm/us
-    Double_t fElectronLifeTime; //in unit us
-    Double_t fLongitudinalDiffusion;  //in unit (cm)^1/2
-    Double_t fTransversalDiffusion;   //in unit (cm)^1/2
+    Double_t fElectricField;          // in unit V/mm
+    Double_t fDriftVelocity;          // in unit mm/us
+    Double_t fElectronLifeTime;       // in unit us
+    Double_t fLongitudinalDiffusion;  // in unit (cm)^1/2
+    Double_t fTransversalDiffusion;   // in unit (cm)^1/2
     Double_t fTownsendCoefficient;
     Double_t fAttachmentCoefficient;
 
@@ -81,7 +81,7 @@ class TRestDriftVolume : public TRestMetadata {
     virtual void SetW(double value) { fW = value; }
     virtual void SetElectricField(double value) { fElectricField = value; }
 
-	// returned drift velocity is in unit mm/us
+    // returned drift velocity is in unit mm/us
     virtual void SetDriftVelocity(double value) { fDriftVelocity = value; }
     virtual void SetElectronLifeTime(double value) { fElectronLifeTime = value; }
     virtual void SetLongitudinalDiffusion(double value) { fLongitudinalDiffusion = value; }

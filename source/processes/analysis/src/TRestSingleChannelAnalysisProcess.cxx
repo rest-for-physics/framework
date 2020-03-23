@@ -17,11 +17,11 @@
 #include "TRestSingleChannelAnalysisProcess.h"
 
 #include <TFitResult.h>
+#include <TLatex.h>
 #include <TLegend.h>
 #include <TPaveText.h>
 #include <TRandom.h>
 #include <TSpectrum.h>
-#include <TLatex.h>
 using namespace std;
 
 ClassImp(TRestSingleChannelAnalysisProcess)
@@ -148,7 +148,7 @@ TRestEvent* TRestSingleChannelAnalysisProcess::ProcessEvent(TRestEvent* evInput)
         // update charge value in output event
         for (int i = 0; i < fSignalEvent->GetNumberOfSignals(); i++) {
             TRestSignal* sgn = fSignalEvent->GetSignal(i);
-            if (fCalib->fChannelGain.count(sgn->GetID()) == 0 || fCalib->fChannelGain[sgn->GetID()]==0) {
+            if (fCalib->fChannelGain.count(sgn->GetID()) == 0 || fCalib->fChannelGain[sgn->GetID()] == 0) {
                 cout << "warning! unrecorded gain for channel: " << sgn->GetID() << endl;
                 continue;
             }
@@ -181,8 +181,8 @@ void TRestSingleChannelAnalysisProcess::FitChannelGain() {
 
     for (auto iter = fChannelThrIntegral.begin(); iter != fChannelThrIntegral.end(); iter++) {
         TH1D* h = iter->second;
-        if (h->GetEntries() > 100 ) {
-            //direct fit
+        if (h->GetEntries() > 100) {
+            // direct fit
             double middle = (fSpecFitRange.X() + fSpecFitRange.Y()) / 2;
             double range = (fSpecFitRange.Y() - fSpecFitRange.X()) / 2;
             TFitResultPtr r = h->Fit("gaus", "QS", "", fSpecFitRange.X(), fSpecFitRange.Y());
@@ -209,7 +209,7 @@ void TRestSingleChannelAnalysisProcess::FitChannelGain() {
             int minpos = 0;
             for (int i = 0; i < n; i++) {
                 double dist = abs(peaks[i] - middle);
-                if ( dist < min) {
+                if (dist < min) {
                     min = dist;
                     minpos = i;
                 }
@@ -222,7 +222,6 @@ void TRestSingleChannelAnalysisProcess::FitChannelGain() {
                 continue;
             }
 
-
             // it is very bad channel, we prompt a warning
             cout << iter->first << ", too bad to fit" << endl;
         }
@@ -232,7 +231,7 @@ void TRestSingleChannelAnalysisProcess::FitChannelGain() {
 
     cout << meanmean << endl;
 
-    //normalize and fill the result
+    // normalize and fill the result
     for (auto iter = fChannelGain.begin(); iter != fChannelGain.end(); iter++) {
         if (fChannelFitMean.count(iter->first) == 0) {
             iter->second = 1;

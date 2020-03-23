@@ -43,8 +43,8 @@ class TRestThread : public TRestMetadata {
     vector<TRestEventProcess*> fProcessChain;  //!
 
 #ifndef __CINT__
-    TFile* fOutputFile;             //!
-    std::thread t;                  //!
+    TFile* fOutputFile;  //!
+    std::thread t;       //!
 #endif
 
    public:
@@ -52,7 +52,7 @@ class TRestThread : public TRestMetadata {
     void InitFromConfigFile() {}
 
     void AddProcess(TRestEventProcess* process);
-    void PrepareToProcess(bool*outputConfig=0, bool testrun = true);
+    void PrepareToProcess(bool* outputConfig = 0, bool testrun = true);
     bool TestRun(TRestAnalysisTree* tempTree = NULL);
     void StartProcess();
 

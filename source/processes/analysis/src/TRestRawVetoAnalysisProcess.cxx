@@ -122,7 +122,7 @@ void TRestRawVetoAnalysisProcess::InitProcess() {
 ///
 void TRestRawVetoAnalysisProcess::Initialize() {
     SetSectionName(this->ClassName());
-    //SetLibraryVersion(LIBRARY_VERSION);
+    // SetLibraryVersion(LIBRARY_VERSION);
 
     fInputRawSignalEvent = new TRestRawSignalEvent();
     fOutputRawSignalEvent = new TRestRawSignalEvent();
@@ -139,48 +139,43 @@ TRestEvent* TRestRawVetoAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     *fOutputRawSignalEvent = *fInputRawSignalEvent;
 
+    /*
+    cout << "I am in process " << GetProcessName() << endl;
 
-	/*
-	cout << "I am in process " << GetProcessName() << endl;
+    cout << "With event ID : " << fOutputRawSignalEvent->GetID() << endl;
 
-	cout << "With event ID : " << fOutputRawSignalEvent->GetID() << endl;
+    fOutputRawSignalEvent->PrintEvent();
+    GetChar();
+    */
 
-	fOutputRawSignalEvent->PrintEvent();
-	GetChar();
-	*/
-
-
-    Double_t VetoPeakTime = 0; //Cristina
-    Double_t VetoMaxPeakAmplitude = 0; //Cristina
+    Double_t VetoPeakTime = 0;          // Cristina
+    Double_t VetoMaxPeakAmplitude = 0;  // Cristina
 
     fOutputRawSignalEvent->SetBaseLineRange(fBaseLineRange);
     fOutputRawSignalEvent->SetRange(fRange);
 
-	if( fOutputRawSignalEvent->GetSignalIndex( fVetoSignalId ) != -1 )
-	{
-		// We extract the parameters from the veto signal
-		TRestRawSignal *sgnl = fOutputRawSignalEvent->GetSignalById( fVetoSignalId );
+    if (fOutputRawSignalEvent->GetSignalIndex(fVetoSignalId) != -1) {
+        // We extract the parameters from the veto signal
+        TRestRawSignal* sgnl = fOutputRawSignalEvent->GetSignalById(fVetoSignalId);
 
-	    VetoPeakTime = sgnl->GetMaxPeakBin( );
-	    VetoMaxPeakAmplitude = sgnl->GetMaxPeakValue( );
+        VetoPeakTime = sgnl->GetMaxPeakBin();
+        VetoMaxPeakAmplitude = sgnl->GetMaxPeakValue();
 
-		// And at the end we remove the signal from the event
-		fOutputRawSignalEvent->RemoveSignalWithId(fVetoSignalId);
-	}
+        // And at the end we remove the signal from the event
+        fOutputRawSignalEvent->RemoveSignalWithId(fVetoSignalId);
+    }
 
-	SetObservableValue("PeakTime", VetoPeakTime); //Cristina
-	SetObservableValue("MaxPeakAmplitude", VetoMaxPeakAmplitude); //Cristina
+    SetObservableValue("PeakTime", VetoPeakTime);                  // Cristina
+    SetObservableValue("MaxPeakAmplitude", VetoMaxPeakAmplitude);  // Cristina
 
-	/*
-	cout << "++++++++++++++++++++++++++" << endl;
-	cout << "Signal removed" << endl;
-	fOutputRawSignalEvent->PrintEvent();
-	cout << "Signal removed" << endl;
-	cout << "++++++++++++++++++++++++++" << endl;
-	GetChar();
-	*/
-
-
+    /*
+    cout << "++++++++++++++++++++++++++" << endl;
+    cout << "Signal removed" << endl;
+    fOutputRawSignalEvent->PrintEvent();
+    cout << "Signal removed" << endl;
+    cout << "++++++++++++++++++++++++++" << endl;
+    GetChar();
+    */
 
     if (GetVerboseLevel() >= REST_Debug) {
         fOutputRawSignalEvent->PrintEvent();
@@ -195,9 +190,8 @@ TRestEvent* TRestRawVetoAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 /// \brief Function reading input parameters from the RML
 /// TRestRawVetoAnalysisProcess section
 ///
-void TRestRawVetoAnalysisProcess::InitFromConfigFile() 
-{
-	fVetoSignalId = StringToInteger( GetParameter("vetoSignalId", "-1") );
+void TRestRawVetoAnalysisProcess::InitFromConfigFile() {
+    fVetoSignalId = StringToInteger(GetParameter("vetoSignalId", "-1"));
     fBaseLineRange = StringTo2DVector(GetParameter("baseLineRange", "(5,55)"));
     fRange = StringTo2DVector(GetParameter("range", "(10,500)"));
 }
@@ -207,11 +201,11 @@ void TRestRawVetoAnalysisProcess::InitFromConfigFile()
 /// metadata structure
 ///
 void TRestRawVetoAnalysisProcess::PrintMetadata() {
-	BeginPrintProcess();
+    BeginPrintProcess();
 
-	// Print output metadata using, metadata << endl;
+    // Print output metadata using, metadata << endl;
 
-	metadata << "Veto signal id : " << fVetoSignalId << endl;
+    metadata << "Veto signal id : " << fVetoSignalId << endl;
 
-	EndPrintProcess();
+    EndPrintProcess();
 }

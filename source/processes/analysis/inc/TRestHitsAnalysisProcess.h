@@ -93,8 +93,7 @@ class TRestHitsAnalysisProcess : public TRestEventProcess {
     // Destructor
     ~TRestHitsAnalysisProcess();
 
-    ClassDef(TRestHitsAnalysisProcess,
-             1);  // Template for a REST "event process" class inherited from
-                  // TRestEventProcess
+    ClassDef(TRestHitsAnalysisProcess, 1);  // Template for a REST "event process" class inherited from
+                                            // TRestEventProcess
 };
 #endif

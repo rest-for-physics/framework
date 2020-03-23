@@ -34,13 +34,13 @@
 #include "TAxis.h"
 #include "TCanvas.h"
 #include "TGraph.h"
+#include "TH2.h"
+#include "TH3.h"
 #include "TNamed.h"
 #include "TRestMetadata.h"
 #include "TString.h"
 #include "TSystem.h"
 #include "TVector3.h"
-#include "TH3.h"
-#include "TH2.h"
 
 class TRestReadoutModule;
 class TRestReadout;

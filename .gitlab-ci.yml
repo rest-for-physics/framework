@@ -1,6 +1,7 @@
 image: nkx1231/root6-geant4-garfield:0.2
 
 stages:
+  - pre-build
   - build
   - opening
   - loadRESTLibs
@@ -14,6 +15,16 @@ stages:
 
 before_script:
   - export USER="test"
+
+clang-format:
+    stage: pre-build
+    script:
+        - cd ${CI_PROJECT_DIR}/
+        - ./macros/pipeline/clangformattest.sh
+    before_script:
+        - apt-get update -y && apt-get upgrade -y
+        - apt-get install -y cmake git findutils clang-format
+
 
 build:
   type: build

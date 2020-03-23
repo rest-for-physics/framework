@@ -28,8 +28,8 @@ class TRestDaqChannelSwitchingProcess : public TRestEventProcess {
 #ifndef __CINT__
     TRestReadout* fReadout;  //!
 #endif
-    std::map<int, int> fFirstDaqChannelDef; //[module id, first daq id]
-    bool               fIgnoreUndefinedModules; 
+    std::map<int, int> fFirstDaqChannelDef;  //[module id, first daq id]
+    bool fIgnoreUndefinedModules;
 
     void InitFromConfigFile();
 
@@ -46,7 +46,7 @@ class TRestDaqChannelSwitchingProcess : public TRestEventProcess {
         metadata << "module's daq channel re-definition: " << endl;
         auto iter = fFirstDaqChannelDef.begin();
         while (iter != fFirstDaqChannelDef.end()) {
-            metadata << "module id: "<< iter->first << " first daq channel: " << iter->second << endl;
+            metadata << "module id: " << iter->first << " first daq channel: " << iter->second << endl;
             iter++;
         }
         metadata << endl;
@@ -59,8 +59,7 @@ class TRestDaqChannelSwitchingProcess : public TRestEventProcess {
     // Destructor
     ~TRestDaqChannelSwitchingProcess();
 
-    ClassDef(TRestDaqChannelSwitchingProcess,
-             1);  // Template for a REST "event process" class inherited from
-                  // TRestEventProcess
+    ClassDef(TRestDaqChannelSwitchingProcess, 1);  // Template for a REST "event process" class inherited from
+                                                   // TRestEventProcess
 };
 #endif

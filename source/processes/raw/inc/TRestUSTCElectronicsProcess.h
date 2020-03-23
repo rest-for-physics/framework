@@ -28,20 +28,17 @@
 #define V4_Readout_Format
 //#define Incoherent_Event_Generation
 
-
-
-
 #ifdef V3_Readout_Format_Long
 #define DATA_SIZE 1048
 #define DATA_OFFSET (DATA_SIZE - 512 * 2 - 4)
 #define PROTOCOL_SIZE 4
-#endif  
+#endif
 
 #ifdef V3_Readout_Format_Short
 #define DATA_SIZE 1040
 #define DATA_OFFSET (DATA_SIZE - 512 * 2 - 4)
 #define PROTOCOL_SIZE 4
-#endif 
+#endif
 
 #ifdef V4_Readout_Format
 #define DATA_SIZE 1036
@@ -114,7 +111,7 @@ class TRestUSTCElectronicsProcess : public TRestRawToSignalProcess {
 
     bool GetNextFrame(USTCDataFrame&);
 
-	bool OpenNextFile(USTCDataFrame&);
+    bool OpenNextFile(USTCDataFrame&);
 
     void FixToNextFrame(FILE* f);
 
@@ -132,8 +129,7 @@ class TRestUSTCElectronicsProcess : public TRestRawToSignalProcess {
     // Destructor
     ~TRestUSTCElectronicsProcess();
 
-    ClassDef(TRestUSTCElectronicsProcess,
-             2);  // Template for a REST "event process" class inherited from
-                  // TRestEventProcess
+    ClassDef(TRestUSTCElectronicsProcess, 2);  // Template for a REST "event process" class inherited from
+                                               // TRestEventProcess
 };
 #endif

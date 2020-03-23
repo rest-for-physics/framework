@@ -422,42 +422,28 @@ TRestEvent* TRestPointLikeAnaProcess::ProcessEvent(TRestEvent* evInput) {
     // getchar();
 
     // A new value for each observable is added
-    SetObservableValue("eventCharge",
-                       totcharge);  // Event charge in ADC
-    SetObservableValue("eventAmplitude",
-                       amplitude);  // Event amplitude in ADC
-                                    // Observables in X
-    SetObservableValue("xCharge",
-                       xcharge);  // Charge in X direction in ADC
-    SetObservableValue("xzBins",
-                       xbins);  // Multiplicity in x direction
-    SetObservableValue("xMean",
-                       xmean);  // Mean position in x direction
-    SetObservableValue("z1Mean",
-                       z1mean);            // Mean position in z1 direction
-    SetObservableValue("xSigma", xsigma);  // Sigma in x direction
-    SetObservableValue("z1Sigma",
-                       z1sigma);         // Sigma in z1 direction
-    SetObservableValue("xskew", xskew);  // Skew in x direction
-                                         // Observables in Y
-    SetObservableValue("yCharge",
-                       ycharge);  // Charge in Y direction in ADC
-    SetObservableValue("yzBins",
-                       ybins);  // Multiplicity in y direction
-    SetObservableValue("yMean",
-                       ymean);  // Mean position in y direction
-    SetObservableValue("z2Mean",
-                       z1mean);            // Mean position in z2 direction
-    SetObservableValue("ySigma", ysigma);  // Sigma in y direction
-    SetObservableValue("z2Sigma",
-                       z2sigma);           // Sigma in z2 direction
-    SetObservableValue("yskew", yskew);    // Skew in y direction
-                                           // General observables
-    SetObservableValue("energy", energy);  // Energy in keV
-    SetObservableValue("z1Bins",
-                       z1bins);  // Number of bins in Z1 direction
-    SetObservableValue("z2Bins",
-                       z2bins);                        // Number of bins in Z2 direction
+    SetObservableValue("eventCharge", totcharge);      // Event charge in ADC
+    SetObservableValue("eventAmplitude", amplitude);   // Event amplitude in ADC
+                                                       // Observables in X
+    SetObservableValue("xCharge", xcharge);            // Charge in X direction in ADC
+    SetObservableValue("xzBins", xbins);               // Multiplicity in x direction
+    SetObservableValue("xMean", xmean);                // Mean position in x direction
+    SetObservableValue("z1Mean", z1mean);              // Mean position in z1 direction
+    SetObservableValue("xSigma", xsigma);              // Sigma in x direction
+    SetObservableValue("z1Sigma", z1sigma);            // Sigma in z1 direction
+    SetObservableValue("xskew", xskew);                // Skew in x direction
+                                                       // Observables in Y
+    SetObservableValue("yCharge", ycharge);            // Charge in Y direction in ADC
+    SetObservableValue("yzBins", ybins);               // Multiplicity in y direction
+    SetObservableValue("yMean", ymean);                // Mean position in y direction
+    SetObservableValue("z2Mean", z1mean);              // Mean position in z2 direction
+    SetObservableValue("ySigma", ysigma);              // Sigma in y direction
+    SetObservableValue("z2Sigma", z2sigma);            // Sigma in z2 direction
+    SetObservableValue("yskew", yskew);                // Skew in y direction
+                                                       // General observables
+    SetObservableValue("energy", energy);              // Energy in keV
+    SetObservableValue("z1Bins", z1bins);              // Number of bins in Z1 direction
+    SetObservableValue("z2Bins", z2bins);              // Number of bins in Z2 direction
     SetObservableValue("zsize", zsize);                // Size in z direction
     SetObservableValue("totalTimeLength", timeDelay);  // Total time length of the event
 

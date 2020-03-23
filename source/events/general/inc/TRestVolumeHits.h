@@ -8,7 +8,7 @@
 ///             TRestVolumeHits.h
 ///
 ///             Event class to store signals form simulation and acquisition
-///             events. We should make sure that all the hit points in it is 
+///             events. We should make sure that all the hit points in it is
 ///             with same type. e.g. all XZ hits
 ///
 ///             oct 2015:   First concept
@@ -33,8 +33,8 @@ class TRestVolumeHits : public TRestHits {
     std::vector<Float_t> fSigmaZ;  // [fNHits] Sigma on Z axis for each volume hit (units microms)
 
    public:
-    void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t time, REST_HitType type, Double_t sigmax, Double_t sigmay,
-                Double_t sigmaz);
+    void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t time, REST_HitType type,
+                Double_t sigmax, Double_t sigmay, Double_t sigmaz);
     void AddHit(TVector3 pos, Double_t en, Double_t time, REST_HitType type, TVector3 sigma);
     void AddHit(TRestVolumeHits& hits, Int_t n);
 
@@ -44,7 +44,6 @@ class TRestVolumeHits : public TRestHits {
     void RemoveHit(int n);
     void SortByEnergy();
     void SwapHits(Int_t i, Int_t j);
-
 
     Bool_t areXY();
     Bool_t areXZ();

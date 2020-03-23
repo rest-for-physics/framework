@@ -68,8 +68,7 @@ class TRestFastHitsToTrackProcess : public TRestEventProcess {
     // Destructor
     ~TRestFastHitsToTrackProcess();
 
-    ClassDef(TRestFastHitsToTrackProcess,
-             1);  // Template for a REST "event process" class inherited from
-                  // TRestEventProcess
+    ClassDef(TRestFastHitsToTrackProcess, 1);  // Template for a REST "event process" class inherited from
+                                               // TRestEventProcess
 };
 #endif

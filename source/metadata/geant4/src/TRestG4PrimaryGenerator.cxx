@@ -26,10 +26,9 @@ ClassImp(TRestG4PrimaryGenerator)
 }
 
 //______________________________________________________________________________
-TRestG4PrimaryGenerator::~TRestG4PrimaryGenerator() { }
+TRestG4PrimaryGenerator::~TRestG4PrimaryGenerator() {}
 
-
-    void TRestG4PrimaryGenerator::Reset() {
+void TRestG4PrimaryGenerator::Reset() {
     fNsources = 0;
     fSources.clear();
 

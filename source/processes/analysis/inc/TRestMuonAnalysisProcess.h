@@ -56,7 +56,7 @@ class TRestMuonAnalysisProcess : public TRestEventProcess {
     TH2D* muhitdir;  //!
 
     Double_t fHoughSigmaLimit;
-    Double_t fPeakPointRateLimit;  
+    Double_t fPeakPointRateLimit;
 
     map<int, vector<double>> musmearxy;       // [z index][single strip ene]
     map<int, pair<double, double>> musmearz;  // [z index][sigma, chi2]
@@ -102,8 +102,7 @@ class TRestMuonAnalysisProcess : public TRestEventProcess {
     // Destructor
     ~TRestMuonAnalysisProcess();
 
-    ClassDef(TRestMuonAnalysisProcess,
-             2);  // Template for a REST "event process" class inherited from
-                  // TRestEventProcess
+    ClassDef(TRestMuonAnalysisProcess, 2);  // Template for a REST "event process" class inherited from
+                                            // TRestEventProcess
 };
 #endif

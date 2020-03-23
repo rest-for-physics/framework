@@ -44,19 +44,18 @@ void TRestG4Hits::AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, 
 
     momentumDirection = momentumDirection.Unit();
 
-	Float_t x = momentumDirection.X();
-	Float_t y = momentumDirection.Y();
-	Float_t z = momentumDirection.Z();
+    Float_t x = momentumDirection.X();
+    Float_t y = momentumDirection.Y();
+    Float_t z = momentumDirection.Z();
 
     fMomentumDirectionX.Set(fNHits);
-    fMomentumDirectionX[fNHits-1] = x;
+    fMomentumDirectionX[fNHits - 1] = x;
 
     fMomentumDirectionY.Set(fNHits);
-    fMomentumDirectionY[fNHits-1] = y;
+    fMomentumDirectionY[fNHits - 1] = y;
 
     fMomentumDirectionZ.Set(fNHits);
-	fMomentumDirectionZ[fNHits-1] = z;
-
+    fMomentumDirectionZ[fNHits - 1] = z;
 }
 
 void TRestG4Hits::RemoveG4Hits() {
@@ -114,4 +113,3 @@ TVector3 TRestG4Hits::GetLastPositionInVolume(Int_t volID) {
     Double_t nan = TMath::QuietNaN();
     return TVector3(nan, nan, nan);
 }
-

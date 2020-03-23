@@ -1,19 +1,24 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
-///
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestG4toHitsProcess.cxx
-///
-///
-///             Simple process to convert a TRestG4Event class into a
-///             TRestHitsEvent, that is, we just "extract" the hits information
-///             Date : oct/2016
-///             Author : I. G. Irastorza
-///
-///_______________________________________________________________________________
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
 #ifndef RestCore_TRestG4toHitsProcess
 #define RestCore_TRestG4toHitsProcess
@@ -25,16 +30,22 @@
 
 #include "TRestEventProcess.h"
 
+/// A process to transform a *TRestG4Event* into a *TRestHitsEvent*.
 class TRestG4toHitsProcess : public TRestEventProcess {
    private:
-#ifndef __CINT__
-    TRestG4Event* fG4Event;        //!
+    /// A pointer to the input TRestG4Event
+    TRestG4Event* fG4Event;  //!
+
+    /// A pointer to the Geant4 simulation conditions stored in TRestG4Metadata
     TRestG4Metadata* fG4Metadata;  //!
-    TRestHitsEvent* fHitsEvent;    //!
 
+    /// A pointer to the output TRestHitsEvent
+    TRestHitsEvent* fHitsEvent;  //!
+
+    /// The volume ids from the volumes selected for transfer to TRestHitsEvent
     vector<Int_t> fVolumeId;  //!
-#endif
 
+    /// The geometry volume names to be transferred to TRestHitsEvent
     vector<TString> fVolumeSelection;
 
     void InitFromConfigFile();
@@ -48,22 +59,14 @@ class TRestG4toHitsProcess : public TRestEventProcess {
 
    public:
     void InitProcess();
-    void BeginOfEventProcess();
+
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
-    void EndProcess();
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
 
-    void PrintMetadata() {
-        BeginPrintProcess();
+    void PrintMetadata();
 
-        for (unsigned int n = 0; n < fVolumeSelection.size(); n++)
-            std::cout << "Volume added : " << fVolumeSelection[n] << std::endl;
-
-        EndPrintProcess();
-    }
-
+    /// Returns the name of this process
     TString GetProcessName() { return (TString) "g4toHitsEvent"; }
 
     // Constructor

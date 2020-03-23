@@ -44,12 +44,15 @@
 /// \code
 ///
 /// // We must, as usual, define the location where the REST output files will
-/// be stored <globals>
+/// // be stored
+/// <globals>
 ///    <parameter name="mainDataPath" value="${REST_DATAPATH}" />
+///    <searchPath value="/path/to/geometry" />
 /// </globals>
 ///
 /// // A TRestRun section to define few run parameters with a general run
-/// description. <TRestRun>
+/// // description.
+/// <TRestRun>
 ///     ...
 /// </TRestRun>
 ///
@@ -112,12 +115,11 @@
 /// primaries, as for example when launching full decay chain simulations, where
 /// different isotope decays are stored in different events.
 ///
-/// * **geometryPath**: The local path where the geometry files are stored.
-///
 /// [GDML]: https://gdml.web.cern.ch/GDML/
-/// * **gdml_file**: The name of the main GDML file. In principle, the user has
-/// full freedom to create any detector setup geometry using a [GDML][GDML]
-/// description.
+/// * **gdml_file**: The path and name of the main GDML file. In principle, the
+/// user has full freedom to create any detector setup geometry using a
+/// [GDML][GDML] description.
+///
 /// \warning The only requirement is that the gas logical volume (implemented
 /// in a single physical volume on the geometry) must be named `gasVolume`.
 ///
@@ -134,16 +136,19 @@
 /// registered as a fully independent event. Therefore, the total number of
 /// registered events could be higher than the initial number of events.
 ///
+/// * **saveAllEvents**: If active, this parameter will ignore the *activeVolumes*
+/// and the energy range definition in the *storage* section. In future, this
+/// parameter would be better implemented inside `<storage` definition.
+///
+///
 /// The following example illustrates the definition of the common simulation
 /// parameters.
 ///
 /// \code
-///    <parameter name="Nevents" value="100" />
-///    <parameter name="geometryPath"
-///    value="${REST_PATH}/config/template/geometry/" /> <parameter
-///    name="gdml_file" value="mySetupTemplate.gdml"/> <parameter
-///    name="maxTargetStepSize" value="200" units="um" /> <parameter
-///    name="subEventTimeDelay" value="100" units="us" />
+///		<parameter name="Nevents" value="100" />
+///		<parameter name="gdml_file" value="/path/to/mySetupTemplate.gdml"/>
+///		<parameter name="maxTargetStepSize" value="200" units="um" />
+///		<parameter name="subEventTimeDelay" value="100" units="us" />
 /// \endcode
 ///
 /// ## 2. The primary particle generator section
@@ -159,10 +164,9 @@
 /// \code
 /// <generator type="generatorType" ... >
 ///
-///     <source particle="particleName" ... >
+///     <source use="geant4" particle="particleName" ... >
 ///         <angularDist type="angularDistribution" />
-///         <energyDist type="energyDistribution" energy="energyValues"
-///         units="MeV" />
+///         <energyDist type="energyDistribution" energy="energyValues" units="MeV" />
 ///     </source>
 ///
 ///     <source particle="particleName" ... >
@@ -287,14 +291,28 @@
 ///
 /// ### The source definition
 ///
-/// We can define any number of sources inside our generator. A source is
-/// defined using the following structure
+/// Three type of source definitions can be used to generate primary particles
+/// in our simulation. The different types are introduced through the parameter `use`.
 ///
+/// * A pre-generated decay0 file,
 /// \code
-///     <source particle="particleName" ... >
-///       <energyDist type="energyDistType" ... />
-///       <angularDist type="angularDistType" ... />
-///     </source>
+///     // 1. generator file
+///     <source use="Xe136bb0n.dat" />
+/// \endcode
+///
+/// * the in-simulation decay0 generator package
+/// \code
+///    // 2. decay0 package
+///    <source use="decay0" particle="Xe136" decayMode="0vbb" daughterLevel="3" />
+/// \endcode
+///
+/// * and the traditional geant4 particle description integrated in REST.
+/// \code
+///    // 3. geant4 internal
+///    <source use="geant4" particle="Na22" excitedLevel="0.0" fullChain="on">
+///		    <angularDist type="isotropic" />
+///			<energyDist type="mono" energy="0.0" units="MeV" />
+///	   </source>
 /// \endcode
 ///
 /// [leptons]:
@@ -302,8 +320,9 @@
 /// [ions]:
 /// http://geant4-userdoc.web.cern.ch/geant4-userdoc/UsersGuides/ForApplicationDeveloper/html/TrackingAndPhysics/AllResources/TrackingAndPhysics/particleList.src/ions/index.html
 ///
-/// In the particle field we can use any pre-defined particle name existing in
-/// Geant4, as [leptons][leptons] or [ions][ions]. Additionally, we can define
+/// For the third case, which is the default if `use` field is not defined, we
+/// can define any pre-defined particle name existing in *Geant4* in the `particle`
+/// field, as [leptons][leptons] or [ions][ions]. Additionally, we can define
 /// any radioactive isotope by using the element name symbol and the number of
 /// nucleons (i.e. Rn222, Co60, U238 ). For the radioactive decays we can also
 /// define an additional field `fullchain="on/off"`. This parameter specifies if
@@ -887,7 +906,6 @@ void TRestG4Metadata::ReadGenerator() {
             if (particleCollection != NULL) {
                 particleCollection->SetParticleModel(sourceString);
                 fPrimaryGenerator.AddParticleCollection(particleCollection);
-                // cout << 111 << endl;
                 fPrimaryGenerator.SetSourcesFromParticleCollection(0);
             }
         }
@@ -1020,6 +1038,12 @@ void TRestG4Metadata::ReadEventDataFile(TString fName) {
     if (!ReadOldDecay0File(fullPathName)) ReadNewDecay0File(fullPathName);
 }
 
+///////////////////////////////////////////////
+/// \brief Reads particle information using the file format from newer Decay0 versions.
+///
+/// This is an auxiliar method used in TRestG4Metadata::ReadEventDataFile that will read the Decay0 files
+/// produced with the newer Decay0 versions.
+///
 Int_t TRestG4Metadata::ReadNewDecay0File(TString fileName) {
     ifstream infile;
     infile.open(fileName);
@@ -1117,6 +1141,12 @@ Int_t TRestG4Metadata::ReadNewDecay0File(TString fileName) {
     return 1;
 }
 
+///////////////////////////////////////////////
+/// \brief Reads particle information using the file format from older Decay0 versions.
+///
+/// This is an auxiliar method used in TRestG4Metadata::ReadEventDataFile that will read the Decay0 files
+/// produced with the newer Decay0 versions.
+///
 Int_t TRestG4Metadata::ReadOldDecay0File(TString fileName) {
     ifstream infile;
     infile.open(fileName);
@@ -1220,6 +1250,9 @@ Int_t TRestG4Metadata::ReadOldDecay0File(TString fileName) {
     return 1;
 }
 
+///////////////////////////////////////////////
+/// \brief It reads the <source definition given by argument
+///
 void TRestG4Metadata::ReadParticleSource(TString definition) {
     string sourceString = (string)definition;
     string sourceDefinition = GetKEYDefinition("source", sourceString);

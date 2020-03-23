@@ -57,8 +57,7 @@ class TRestFiducializationProcess : public TRestEventProcess {
     // Destructor
     ~TRestFiducializationProcess();
 
-    ClassDef(TRestFiducializationProcess,
-             1);  // Template for a REST "event process" class inherited from
-                  // TRestEventProcess
+    ClassDef(TRestFiducializationProcess, 1);  // Template for a REST "event process" class inherited from
+                                               // TRestEventProcess
 };
 #endif

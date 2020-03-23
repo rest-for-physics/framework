@@ -132,7 +132,7 @@ string TRestReflector::ToString() {
     // assert(!((kOffsetP + kChar) <= atype && atype <= (kOffsetP + kBool) &&
     // count == 0));
     switch (gethash(type.c_str())) {
-            // basic types
+        // basic types
         case "bool"_H: {
             Bool_t* val = (Bool_t*)ladd;
             sprintf(buffer, "%d", *val);
@@ -275,9 +275,7 @@ string TRestReflector::ToString() {
             break;
         }
 
-        default: {
-            sprintf(buffer, "Type: %s, Address: 0x%x", type.c_str(), address);
-        }
+        default: { sprintf(buffer, "Type: %s, Address: 0x%x", type.c_str(), address); }
     }
 
     string result(buffer);

@@ -111,7 +111,7 @@ void TRestHitsToSignalProcess::InitProcess() {
         if (fDriftVelocity == -1) {
             ferr << "TRestHitsToSignalProcess: drift velocity is undefined in the rml file!" << endl;
             exit(-1);
-		}
+        }
     }
 
     fReadout = GetMetadata<TRestReadout>();
@@ -223,9 +223,9 @@ void TRestHitsToSignalProcess::EndProcess() {
 //______________________________________________________________________________
 void TRestHitsToSignalProcess::InitFromConfigFile() {
     fSampling = GetDblParameterWithUnits("sampling");
-	//returned in REST standard unit: atm
+    // returned in REST standard unit: atm
     fGasPressure = GetDblParameterWithUnits("gasPressure", -1.);
-	//convert REST standard unit "V/mm" to "V/cm"
+    // convert REST standard unit "V/mm" to "V/cm"
     fElectricField = GetDblParameterWithUnits("electricField", -1.);
     // DONE : velocity units are implemented with standard unit "mm/us"
     fDriftVelocity = GetDblParameterWithUnits("driftVelocity", -1.);

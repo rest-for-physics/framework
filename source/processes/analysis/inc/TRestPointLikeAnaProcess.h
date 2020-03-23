@@ -75,8 +75,7 @@ class TRestPointLikeAnaProcess : public TRestEventProcess {
     // Destructor
     ~TRestPointLikeAnaProcess();
 
-    ClassDef(TRestPointLikeAnaProcess,
-             1);  // Template for a REST "event process" class inherited from
-                  // TRestEventProcess
+    ClassDef(TRestPointLikeAnaProcess, 1);  // Template for a REST "event process" class inherited from
+                                            // TRestEventProcess
 };
 #endif

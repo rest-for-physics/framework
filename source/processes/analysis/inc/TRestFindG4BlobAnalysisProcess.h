@@ -62,8 +62,7 @@ class TRestFindG4BlobAnalysisProcess : public TRestEventProcess {
     // Destructor
     ~TRestFindG4BlobAnalysisProcess();
 
-    ClassDef(TRestFindG4BlobAnalysisProcess,
-             1);  // Template for a REST "event process" class inherited from
-                  // TRestEventProcess
+    ClassDef(TRestFindG4BlobAnalysisProcess, 1);  // Template for a REST "event process" class inherited from
+                                                  // TRestEventProcess
 };
 #endif

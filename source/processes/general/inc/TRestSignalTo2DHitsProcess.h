@@ -58,8 +58,7 @@ class TRestSignalTo2DHitsProcess : public TRestEventProcess {
     // Destructor
     ~TRestSignalTo2DHitsProcess();
 
-    ClassDef(TRestSignalTo2DHitsProcess,
-             2);  // Template for a REST "event process" class inherited from
-                  // TRestEventProcess
+    ClassDef(TRestSignalTo2DHitsProcess, 2);  // Template for a REST "event process" class inherited from
+                                              // TRestEventProcess
 };
 #endif
