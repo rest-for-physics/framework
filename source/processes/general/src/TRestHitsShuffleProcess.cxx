@@ -26,8 +26,7 @@ TRestHitsShuffleProcess::TRestHitsShuffleProcess(char* cfgFileName) {
 
 //______________________________________________________________________________
 TRestHitsShuffleProcess::~TRestHitsShuffleProcess() {
-    delete fInputHitsEvent;
-    delete fOutputHitsEvent;
+    // delete fHitsEvent;
 }
 
 void TRestHitsShuffleProcess::LoadDefaultConfig() {
@@ -41,11 +40,11 @@ void TRestHitsShuffleProcess::LoadDefaultConfig() {
 void TRestHitsShuffleProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fInputHitsEvent = new TRestHitsEvent();
-    fOutputHitsEvent = new TRestHitsEvent();
+    fHitsEvent = new TRestHitsEvent();
+    fHitsEvent = new TRestHitsEvent();
 
-    fOutputEvent = fOutputHitsEvent;
-    fInputEvent = fInputHitsEvent;
+    fOutputEvent = fHitsEvent;
+    fInputEvent = fHitsEvent;
 
     fRandom = new TRandom3(0);
 }
@@ -58,14 +57,14 @@ void TRestHitsShuffleProcess::LoadConfig(std::string cfgFilename, std::string na
 void TRestHitsShuffleProcess::InitProcess() { cout << __PRETTY_FUNCTION__ << endl; }
 
 //______________________________________________________________________________
-void TRestHitsShuffleProcess::BeginOfEventProcess() { fOutputHitsEvent->Initialize(); }
+void TRestHitsShuffleProcess::BeginOfEventProcess() {}
 
 //______________________________________________________________________________
 TRestEvent* TRestHitsShuffleProcess::ProcessEvent(TRestEvent* evInput) {
-    fInputHitsEvent = (TRestHitsEvent*)evInput;
-    fOutputHitsEvent = fInputHitsEvent;
+    fHitsEvent = (TRestHitsEvent*)evInput;
+    fOutputEvent = fHitsEvent;
 
-    TRestHits* hits = fOutputHitsEvent->GetHits();
+    TRestHits* hits = fHitsEvent->GetHits();
 
     Int_t nHits = hits->GetNumberOfHits();
     if (nHits >= 2) {
@@ -76,7 +75,7 @@ TRestEvent* TRestHitsShuffleProcess::ProcessEvent(TRestEvent* evInput) {
             hits->SwapHits(hit1, hit2);
         }
     }
-    return fOutputHitsEvent;
+    return fHitsEvent;
 }
 
 //______________________________________________________________________________
