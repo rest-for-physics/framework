@@ -12,15 +12,15 @@
 #ifndef RestCore_TRestHitsShuffleProcess
 #define RestCore_TRestHitsShuffleProcess
 
-#include <TRestHitsEvent.h>
-#include "TRestEventProcess.h"
-
 #include <TRandom3.h>
+#include <TRestHitsEvent.h>
+
+#include "TRestEventProcess.h"
 
 class TRestHitsShuffleProcess : public TRestEventProcess {
    private:
 #ifndef __CINT__
-    TRestHitsEvent* fHitsEvent;   //!
+    TRestHitsEvent* fHitsEvent;  //!
 
     TRandom3* fRandom;  //!
 #endif
