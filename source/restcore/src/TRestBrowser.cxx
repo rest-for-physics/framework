@@ -53,6 +53,7 @@ TRestBrowser::~TRestBrowser() {
 
 void TRestBrowser::Initialize(TString opt) {
     pureAnalysis = kFALSE;
+    fCurrentEvent = 0;
 
     r = new TRestRun();
 
