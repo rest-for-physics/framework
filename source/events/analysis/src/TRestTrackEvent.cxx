@@ -528,7 +528,7 @@ TPad* TRestTrackEvent::DrawEvent(TString option) {
             Double_t en = hits->GetEnergy(nhit);
             auto type = hits->GetType(nhit);
 
-            //cout << x << " " << y << " " << z << " " << type << endl;
+            // cout << x << " " << y << " " << z << " " << type << endl;
 
             /* {{{ Hit size definition (radius) */
             Double_t m = (maxRadiusSize) / (maxHitEnergy - meanHitEnergy);
