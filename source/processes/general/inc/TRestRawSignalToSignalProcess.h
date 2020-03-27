@@ -65,9 +65,9 @@ class TRestRawSignalToSignalProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << "Sampling time : " << fSampling << " us" << std::endl;
-        std::cout << "Trigger starts : " << fTriggerStarts << " us" << std::endl;
-        std::cout << "Gain : " << fGain << std::endl;
+        metadata << "Sampling time : " << fSampling << " us" << endl;
+        metadata << "Trigger starts : " << fTriggerStarts << " us" << endl;
+        metadata << "Gain : " << fGain << endl;
 
         EndPrintProcess();
     }

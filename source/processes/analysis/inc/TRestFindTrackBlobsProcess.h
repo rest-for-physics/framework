@@ -107,7 +107,7 @@ class TRestFindTrackBlobsProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << " Hits to check factor : " << fHitsToCheckFraction << std::endl;
+        metadata << " Hits to check factor : " << fHitsToCheckFraction << endl;
 
         EndPrintProcess();
     }

@@ -17,11 +17,9 @@ using namespace std;
 
 #include <TFile.h>
 
-ClassImp(TRestRawSignalAddNoiseProcess)
-    //______________________________________________________________________________
-    TRestRawSignalAddNoiseProcess::TRestRawSignalAddNoiseProcess() {
-    Initialize();
-}
+ClassImp(TRestRawSignalAddNoiseProcess);
+//______________________________________________________________________________
+TRestRawSignalAddNoiseProcess::TRestRawSignalAddNoiseProcess() { Initialize(); }
 
 //______________________________________________________________________________
 TRestRawSignalAddNoiseProcess::TRestRawSignalAddNoiseProcess(char* cfgFileName) {

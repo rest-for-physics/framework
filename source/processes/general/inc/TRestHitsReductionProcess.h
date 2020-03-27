@@ -44,10 +44,10 @@ class TRestHitsReductionProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << " Starting distance : " << fStartingDistance << std::endl;
-        std::cout << " Minimum distance : " << fMinimumDistance << std::endl;
-        std::cout << " Distance step factor : " << fDistanceFactor << std::endl;
-        std::cout << " Maximum number of nodes : " << fMaxNodes << std::endl;
+        metadata << " Starting distance : " << fStartingDistance << endl;
+        metadata << " Minimum distance : " << fMinimumDistance << endl;
+        metadata << " Distance step factor : " << fDistanceFactor << endl;
+        metadata << " Maximum number of nodes : " << fMaxNodes << endl;
 
         EndPrintProcess();
     }

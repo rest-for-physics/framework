@@ -51,11 +51,11 @@ class TRestFastHitsToTrackProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << " Cell resolution : " << fCellResolution << " mm " << std::endl;
-        std::cout << " Net size : " << fNetSize << " mm " << std::endl;
-        std::cout << " Net origin : ( " << fNetOrigin.X() << " , " << fNetOrigin.Y() << " , "
-                  << fNetOrigin.Z() << " ) mm " << std::endl;
-        std::cout << " Number of nodes (per axis) : " << fNodes << std::endl;
+        metadata << " Cell resolution : " << fCellResolution << " mm " << endl;
+        metadata << " Net size : " << fNetSize << " mm " << endl;
+        metadata << " Net origin : ( " << fNetOrigin.X() << " , " << fNetOrigin.Y() << " , " << fNetOrigin.Z()
+                 << " ) mm " << endl;
+        metadata << " Number of nodes (per axis) : " << fNodes << endl;
 
         EndPrintProcess();
     }

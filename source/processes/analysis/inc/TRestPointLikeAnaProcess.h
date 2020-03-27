@@ -55,12 +55,12 @@ class TRestPointLikeAnaProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << "Calibration File Name : " << fGainFilename << std::endl;
+        metadata << "Calibration File Name : " << fGainFilename << endl;
 
-        std::cout << "Selection threshold : " << fThreshold << " ADC units" << std::endl;
-        std::cout << "Pedestal level : " << fPedLevel << " ADC units" << std::endl;
-        std::cout << "Number of channels: " << fNChannels << " ADC units" << std::endl;
-        std::cout << "Readout pitch: " << fPitch << " mm" << std::endl;
+        metadata << "Selection threshold : " << fThreshold << " ADC units" << endl;
+        metadata << "Pedestal level : " << fPedLevel << " ADC units" << endl;
+        metadata << "Number of channels: " << fNChannels << " ADC units" << endl;
+        metadata << "Readout pitch: " << fPitch << " mm" << endl;
 
         EndPrintProcess();
     }

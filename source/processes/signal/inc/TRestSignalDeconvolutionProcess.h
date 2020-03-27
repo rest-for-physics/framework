@@ -60,17 +60,17 @@ class TRestSignalDeconvolutionProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << "Response filename : " << fResponseFilename << std::endl;
-        std::cout << "Frequency 1 : " << fFreq1 << std::endl;
-        std::cout << "Frequency 2 : " << fFreq2 << std::endl;
-        std::cout << "Cut frequency : " << fCutFrequency << std::endl;
+        metadata << "Response filename : " << fResponseFilename << endl;
+        metadata << "Frequency 1 : " << fFreq1 << endl;
+        metadata << "Frequency 2 : " << fFreq2 << endl;
+        metadata << "Cut frequency : " << fCutFrequency << endl;
 
-        std::cout << "Smoothing points : " << fSmoothingPoints << std::endl;
-        std::cout << "Smearing points : " << fSmearingPoints << std::endl;
+        metadata << "Smoothing points : " << fSmoothingPoints << endl;
+        metadata << "Smearing points : " << fSmearingPoints << endl;
 
-        std::cout << "Baseline range : ( " << fBaseLineStart << " , " << fBaseLineEnd << " ) " << std::endl;
-        std::cout << "FFT remove beginning points : " << fFFTStart << std::endl;
-        std::cout << "FFT remove end points : " << fFFTEnd << std::endl;
+        metadata << "Baseline range : ( " << fBaseLineStart << " , " << fBaseLineEnd << " ) " << endl;
+        metadata << "FFT remove beginning points : " << fFFTStart << endl;
+        metadata << "FFT remove end points : " << fFFTEnd << endl;
 
         EndPrintProcess();
     }

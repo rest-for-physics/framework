@@ -37,7 +37,7 @@ TRestElectronDiffusionProcess::~TRestElectronDiffusionProcess() {
 void TRestElectronDiffusionProcess::LoadDefaultConfig() {
     SetTitle("Default config");
 
-    fElectricField = 1000;
+    fElectricField = 2000;
     fAttachment = 0;
     fGasPressure = 1;
 }
@@ -178,8 +178,6 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent(TRestEvent* evInput) {
             }
         }
     }
-
-    if (fOutputHitsEvent->GetNumberOfHits() == 0) return NULL;
 
     if (this->GetVerboseLevel() >= REST_Debug) {
         cout << "TRestElectronDiffusionProcess. Input hits energy : " << inputHitsEvent->GetEnergy() << endl;

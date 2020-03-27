@@ -35,6 +35,7 @@
 /// <addProcess type="TRestG4toHitsProcess" name="g4ToHits" value="ON">
 ///     <addVolume name="gas" />
 ///     <addVolume name="vessel" />
+/// </addProcess>
 /// \endcode
 ///
 /// If no volumes are defined using the `<addVolume` key, **all volumes will

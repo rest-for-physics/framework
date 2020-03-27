@@ -51,12 +51,12 @@ class TRestHitsRotateAndTraslateProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << " delta x : " << fDeltaX << std::endl;
-        std::cout << " delta y : " << fDeltaY << std::endl;
-        std::cout << " delta z : " << fDeltaZ << std::endl;
-        std::cout << " alpha : " << fAlpha << std::endl;
-        std::cout << " beta : " << fBeta << std::endl;
-        std::cout << " gamma : " << fGamma << std::endl;
+        metadata << " delta x : " << fDeltaX << endl;
+        metadata << " delta y : " << fDeltaY << endl;
+        metadata << " delta z : " << fDeltaZ << endl;
+        metadata << " alpha : " << fAlpha << endl;
+        metadata << " beta : " << fBeta << endl;
+        metadata << " gamma : " << fGamma << endl;
 
         EndPrintProcess();
     }

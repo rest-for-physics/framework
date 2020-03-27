@@ -65,13 +65,13 @@ class TRestRawSignalShapingProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << "Shaping type : " << fShapingType << std::endl;
+        metadata << "Shaping type : " << fShapingType << endl;
 
-        std::cout << "Shaping time : " << fShapingTime << std::endl;
+        metadata << "Shaping time : " << fShapingTime << endl;
 
-        std::cout << "Amplitude gain : " << fShapingGain << std::endl;
+        metadata << "Amplitude gain : " << fShapingGain << endl;
 
-        if (fShapingType == "responseFile") std::cout << "Response file : " << fResponseFilename << std::endl;
+        if (fShapingType == "responseFile") metadata << "Response file : " << fResponseFilename << endl;
 
         EndPrintProcess();
     }

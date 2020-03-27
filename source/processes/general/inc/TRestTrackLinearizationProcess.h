@@ -48,8 +48,8 @@ class TRestTrackLinearizationProcess : public TRestEventProcess {
 
     void PrintMetadata() {
         BeginPrintProcess();
-        std::cout << "Lenght resolution : " << fLengthResolution << " mm" << std::endl;
-        std::cout << "Transversal resolution : " << fTransversalResolution << " mm" << std::endl;
+        metadata << "Lenght resolution : " << fLengthResolution << " mm" << endl;
+        metadata << "Transversal resolution : " << fTransversalResolution << " mm" << endl;
         EndPrintProcess();
     }
 

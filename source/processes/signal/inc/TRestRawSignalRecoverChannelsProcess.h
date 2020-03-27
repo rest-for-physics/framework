@@ -65,7 +65,7 @@ class TRestRawSignalRecoverChannelsProcess : public TRestEventProcess {
         BeginPrintProcess();
 
         for (unsigned int n = 0; n < fChannelIds.size(); n++)
-            std::cout << "Channel id to recover : " << fChannelIds[n] << std::endl;
+            metadata << "Channel id to recover : " << fChannelIds[n] << endl;
 
         EndPrintProcess();
     }

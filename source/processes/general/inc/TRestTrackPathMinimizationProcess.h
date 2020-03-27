@@ -54,9 +54,9 @@ class TRestTrackPathMinimizationProcess : public TRestEventProcess {
         //           fMaxNodes << endl;
 
         if (fWeightHits)
-            std::cout << "Weight hits : enabled" << std::endl;
+            metadata << "Weight hits : enabled" << endl;
         else
-            std::cout << "Weight hits : disabled" << std::endl;
+            metadata << "Weight hits : disabled" << endl;
 
         EndPrintProcess();
     }

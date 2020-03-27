@@ -74,11 +74,11 @@ class TRestSignalToRawSignalProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << "Sampling time : " << fSampling << " us" << std::endl;
-        std::cout << "Points per channel : " << fNPoints << std::endl;
-        std::cout << "Trigger mode : " << fTriggerMode << std::endl;
-        std::cout << "Trigger delay : " << fTriggerDelay << " time units" << std::endl;
-        std::cout << "ADC gain : " << fGain << std::endl;
+        metadata << "Sampling time : " << fSampling << " us" << endl;
+        metadata << "Points per channel : " << fNPoints << endl;
+        metadata << "Trigger mode : " << fTriggerMode << endl;
+        metadata << "Trigger delay : " << fTriggerDelay << " time units" << endl;
+        metadata << "ADC gain : " << fGain << endl;
 
         EndPrintProcess();
     }

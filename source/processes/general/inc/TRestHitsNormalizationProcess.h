@@ -50,7 +50,7 @@ class TRestHitsNormalizationProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << " Renormalization factor : " << fFactor << std::endl;
+        metadata << " Renormalization factor : " << fFactor << endl;
 
         EndPrintProcess();
     }
