@@ -32,6 +32,8 @@
 #include "TObject.h"
 #include "TRestTools.h"
 
+class TRestRun;
+
 /// A base class for any REST event
 class TRestEvent : public TObject {
    protected:
@@ -82,6 +84,7 @@ class TRestEvent : public TObject {
     Bool_t isOk() { return fOk; }
 
     virtual void Initialize() = 0;
+    virtual void InitializeWithMetadata(TRestRun* r);
 
     virtual void PrintEvent();
 
