@@ -270,7 +270,7 @@ class TRestG4Metadata : public TRestMetadata {
     Bool_t GetSaveAllEvents() const { return fSaveAllEvents; }
 
     /// It returns true if `printProgress` parameter was set to true
-    Bool_t PrintProgress() const { return fSaveAllEvents; }
+    Bool_t PrintProgress() const { return fPrintProgress; }
 
     /// \brief Used exclusively by restG4 to set the value of the random seed used on
     /// Geant4 simulation.
