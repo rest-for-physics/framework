@@ -67,7 +67,8 @@ void EventAction::BeginOfEventAction(const G4Event* geant4_event) {
     if (restG4Metadata->GetVerboseLevel() >= REST_Debug) {
         cout << "DEBUG: Start of event ID " << event_number << " (" << event_number + 1 << " of "
              << restG4Metadata->GetNumberOfEvents() << ")" << endl;
-    } else if (restG4Metadata->GetVerboseLevel() >= REST_Info && geant4_event->GetEventID() % 10000 == 0) {
+    } else if ((restG4Metadata->PrintProgress() || restG4Metadata->GetVerboseLevel() >= REST_Info) &&
+               geant4_event->GetEventID() % 10000 == 0) {
         cout << "INFO: Start of event ID " << event_number << " (" << event_number + 1 << " of "
              << restG4Metadata->GetNumberOfEvents() << ")" << endl
              << endl;
