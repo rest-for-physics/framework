@@ -108,7 +108,7 @@ int main(int argc, char** argv) {
     restRun = new TRestRun();
     restRun->LoadConfigFromFile(inputConfigFile);
     restRun->SetRunTag(restG4Metadata->GetTitle());
-    restRun->SetRunType("SIMULATION");
+    restRun->SetRunType("restG4");
 
     restRun->AddMetadata(restG4Metadata);
     restRun->AddMetadata(restPhysList);
