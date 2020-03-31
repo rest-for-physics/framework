@@ -430,6 +430,7 @@ throw std::exception();
     TString Filename = restRun->GetOutputFileName();
 
     restRun->CloseFile();
+    restRun->PrintMetadata();
     delete restRun;
 
     delete restG4Event;
