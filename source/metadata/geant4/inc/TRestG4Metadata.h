@@ -187,6 +187,9 @@ class TRestG4Metadata : public TRestMetadata {
     /// sensitive volume (used for debugging pourposes). It is set to 'false' by default.
     Bool_t fSaveAllEvents = 0;
 
+    /// If this parameter is set to 'true' it will print out on screen every time 10k events are reached.
+    Bool_t fPrintProgress = 0;  //!
+
    public:
     /// \brief Returns the random seed that was used to generate the corresponding
     /// geant4 dataset.
@@ -265,6 +268,9 @@ class TRestG4Metadata : public TRestMetadata {
 
     /// It returns true if save all events is active
     Bool_t GetSaveAllEvents() const { return fSaveAllEvents; }
+
+    /// It returns true if `printProgress` parameter was set to true
+    Bool_t PrintProgress() const { return fSaveAllEvents; }
 
     /// \brief Used exclusively by restG4 to set the value of the random seed used on
     /// Geant4 simulation.
