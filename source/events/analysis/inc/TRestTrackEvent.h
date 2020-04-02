@@ -19,18 +19,18 @@
 #ifndef RestDAQ_TRestTrackEvent
 #define RestDAQ_TRestTrackEvent
 
-#include <iostream>
-
 #include <TAxis.h>
 #include <TGraph.h>
 #include <TGraph2D.h>
 #include <TMultiGraph.h>
 #include <TObject.h>
-#include <TVirtualPad.h>
-
 #include <TRestEvent.h>
 #include <TRestTrack.h>
+#include <TVirtualPad.h>
 
+#include <iostream>
+
+class TRestReadout;
 class TRestTrackEvent : public TRestEvent {
    protected:
     Int_t fNtracks;
@@ -42,15 +42,15 @@ class TRestTrackEvent : public TRestEvent {
 #ifndef __CINT__
     // TODO These graphs should be placed in TRestTrack?
     // (following GetGraph implementation in TRestSignal)
-    TGraph* fXYHit;       //!
-    TGraph* fXZHit;       //!
-    TGraph* fYZHit;       //!
-    TGraph2D* fXYZHit;    //!
-    TGraph* fXYTrack;     //!
-    TGraph* fXZTrack;     //!
-    TGraph* fYZTrack;     //!
-    TGraph2D* fXYZTrack;  //!
-    TRestReadout* fReadout; //!
+    TGraph* fXYHit;          //!
+    TGraph* fXZHit;          //!
+    TGraph* fYZHit;          //!
+    TGraph2D* fXYZHit;       //!
+    TGraph* fXYTrack;        //!
+    TGraph* fXZTrack;        //!
+    TGraph* fYZTrack;        //!
+    TGraph2D* fXYZTrack;     //!
+    TRestReadout* fReadout;  //!
 
     Bool_t fPrintHitsWarning;  //!
 #endif
