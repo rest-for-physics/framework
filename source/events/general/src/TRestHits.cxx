@@ -864,3 +864,73 @@ void TRestHits::PrintHits(Int_t nHits) {
         cout << endl;
     }
 }
+
+///////////////////////
+// Iterator methods
+
+TRestHits::TRestHits_Iterator::TRestHits_Iterator(TRestHits* h, int _index) {
+    fHits = h;
+    index = _index;
+    maxindex = fHits->GetNumberOfHits();
+    if (index < 0) index = 0;
+    if (index >= maxindex) index = maxindex;
+}
+
+void TRestHits::TRestHits_Iterator::toaccessor() {
+    _x = x();
+    _y = y();
+    _z = z();
+    _t = t();
+    _e = e();
+    _type = type();
+    isaccessor = true;
+}
+
+TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator*() {
+    TRestHits_Iterator i(*this);
+    i.toaccessor();
+    return i;
+}
+
+TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator++() {
+    index++;
+    if (index >= maxindex) index = maxindex;
+    return *this;
+}
+
+TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator+(const int& n) {
+    if (index + n >= maxindex) {
+        return TRestHits_Iterator(fHits, maxindex);
+    } else {
+        return TRestHits_Iterator(fHits, index + n);
+    }
+}
+
+TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator--() {
+    index--;
+    if (index < 0) index = 0;
+    return *this;
+}
+
+TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator-(const int& n) {
+    if (index - n <= 0) {
+        return TRestHits_Iterator(fHits, 0);
+    } else {
+        return TRestHits_Iterator(fHits, index - n);
+    }
+}
+
+TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator=(const TRestHits_Iterator& iter) {
+    if (isaccessor) {
+        (fHits ? fHits->fX[index] : x()) = iter.x();
+        (fHits ? fHits->fY[index] : y()) = iter.y();
+        (fHits ? fHits->fZ[index] : z()) = iter.z();
+        (fHits ? fHits->fEnergy[index] : e()) = iter.e();
+        (fHits ? fHits->fT[index] : t()) = iter.t();
+        (fHits ? fHits->fType[index] : type()) = iter.type();
+    } else {
+        fHits = iter.fHits;
+        index = iter.index;
+    }
+    return *this;
+}
