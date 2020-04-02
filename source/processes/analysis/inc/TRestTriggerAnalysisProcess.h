@@ -58,7 +58,7 @@ class TRestTriggerAnalysisProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << " W : " << fW << std::endl;
+        metadata << " W : " << fW << endl;
 
         EndPrintProcess();
     }

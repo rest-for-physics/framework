@@ -45,7 +45,7 @@ class TRestHitsShuffleProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << " Iterations : " << fIterations << std::endl;
+        metadata << " Iterations : " << fIterations << endl;
 
         EndPrintProcess();
     }

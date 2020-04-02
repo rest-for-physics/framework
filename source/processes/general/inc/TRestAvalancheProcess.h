@@ -50,9 +50,9 @@ class TRestAvalancheProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << " reference energy (Eref): " << fEnergyRef << std::endl;
-        std::cout << " resolution at Eref : " << fResolutionAtEref << std::endl;
-        std::cout << " detector gain : " << fDetectorGain << std::endl;
+        metadata << " reference energy (Eref): " << fEnergyRef << endl;
+        metadata << " resolution at Eref : " << fResolutionAtEref << endl;
+        metadata << " detector gain : " << fDetectorGain << endl;
 
         EndPrintProcess();
     }

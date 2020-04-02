@@ -56,10 +56,10 @@ class TRestHitsToSignalProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << "Sampling : " << fSampling << " us" << std::endl;
-        std::cout << "Electric field : " << fElectricField * units("V/cm") << " V/cm" << std::endl;
-        std::cout << "Gas pressure : " << fGasPressure << " atm" << std::endl;
-        std::cout << "Drift velocity : " << fDriftVelocity << " mm/us" << std::endl;
+        metadata << "Sampling : " << fSampling << " us" << endl;
+        metadata << "Electric field : " << fElectricField * units("V/cm") << " V/cm" << endl;
+        metadata << "Gas pressure : " << fGasPressure << " atm" << endl;
+        metadata << "Drift velocity : " << fDriftVelocity << " mm/us" << endl;
 
         EndPrintProcess();
     }

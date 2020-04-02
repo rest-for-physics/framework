@@ -60,14 +60,14 @@ class TRestElectronDiffusionProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << " eField : " << fElectricField * units("V/cm") << " V/cm" << std::endl;
-        std::cout << " attachment coeficient : " << fAttachment << " V/cm" << std::endl;
-        std::cout << " gas pressure : " << fGasPressure << " atm" << std::endl;
-        std::cout << " longitudinal diffusion coefficient : " << fLonglDiffCoeff << " cm^1/2" << std::endl;
-        std::cout << " transversal diffusion coefficient : " << fTransDiffCoeff << " cm^1/2" << std::endl;
-        std::cout << " W value : " << fWvalue << " eV" << std::endl;
+        metadata << " eField : " << fElectricField * units("V/cm") << " V/cm" << endl;
+        metadata << " attachment coeficient : " << fAttachment << " V/cm" << endl;
+        metadata << " gas pressure : " << fGasPressure << " atm" << endl;
+        metadata << " longitudinal diffusion coefficient : " << fLonglDiffCoeff << " cm^1/2" << endl;
+        metadata << " transversal diffusion coefficient : " << fTransDiffCoeff << " cm^1/2" << endl;
+        metadata << " W value : " << fWvalue << " eV" << endl;
 
-        std::cout << " Maximum number of hits : " << fMaxHits << endl;
+        metadata << " Maximum number of hits : " << fMaxHits << endl;
 
         EndPrintProcess();
     }

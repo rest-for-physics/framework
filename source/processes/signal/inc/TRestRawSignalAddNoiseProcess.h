@@ -44,7 +44,7 @@ class TRestRawSignalAddNoiseProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << "Noise Level : " << fNoiseLevel << std::endl;
+        metadata << "Noise Level : " << fNoiseLevel << endl;
 
         EndPrintProcess();
     }

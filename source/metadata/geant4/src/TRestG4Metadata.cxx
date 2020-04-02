@@ -667,6 +667,7 @@ std::map<string, angular_dist_types> angular_dist_types_map = {
 }  // namespace g4_metadata_parameters
 
 ClassImp(TRestG4Metadata);
+
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
@@ -763,6 +764,9 @@ void TRestG4Metadata::InitFromConfigFile() {
 
     fSaveAllEvents = ToUpper(GetParameter("saveAllEvents", "false")) == "TRUE" ||
                      ToUpper(GetParameter("saveAllEvents", "off")) == "ON";
+
+    fPrintProgress = ToUpper(GetParameter("printProgress", "false")) == "TRUE" ||
+                     ToUpper(GetParameter("printProgress", "off")) == "ON";
 
     ReadGenerator();
 

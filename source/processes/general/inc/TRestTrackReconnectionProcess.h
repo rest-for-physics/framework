@@ -48,13 +48,13 @@ class TRestTrackReconnectionProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << "Split track : ";
+        metadata << "Split track : ";
         if (fSplitTrack)
-            std::cout << " enabled" << std::endl;
+            metadata << " enabled" << endl;
         else
-            std::cout << " disabled" << std::endl;
+            metadata << " disabled" << endl;
 
-        std::cout << "Number of sigmas to defined a branch : " << fNSigmas << std::endl;
+        metadata << "Number of sigmas to defined a branch : " << fNSigmas << endl;
 
         EndPrintProcess();
     }

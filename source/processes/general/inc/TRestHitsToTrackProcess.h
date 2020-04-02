@@ -46,7 +46,7 @@ class TRestHitsToTrackProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << " cluster-distance : " << fClusterDistance << " mm " << std::endl;
+        metadata << " cluster-distance : " << fClusterDistance << " mm " << endl;
 
         EndPrintProcess();
     }

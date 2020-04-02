@@ -57,8 +57,8 @@ class TRestSmearingProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
-        std::cout << " reference energy (Eref): " << fEnergyRef << std::endl;
-        std::cout << " resolution at Eref : " << fResolutionAtEref << std::endl;
+        metadata << " reference energy (Eref): " << fEnergyRef << endl;
+        metadata << " resolution at Eref : " << fResolutionAtEref << endl;
 
         EndPrintProcess();
     }

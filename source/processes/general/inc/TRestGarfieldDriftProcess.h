@@ -85,11 +85,11 @@ class TRestGarfieldDriftProcess : public TRestEventProcess {
         BeginPrintProcess();
 
         //             std::cout << "Electric field : " << fElectricField << " V/cm"
-        //             << std::endl;
-        std::cout << "Drift electrode potential : " << fDriftPotential << " V" << std::endl;
-        std::cout << "Gas pressure : " << fGasPressure << " atm" << std::endl;
-        std::cout << "Electron reduction factor : " << fPEReduction << std::endl;
-        std::cout << "Drift stop distance : " << fStopDistance << " mm" << std::endl;
+        //             << endl;
+        metadata << "Drift electrode potential : " << fDriftPotential << " V" << endl;
+        metadata << "Gas pressure : " << fGasPressure << " atm" << endl;
+        metadata << "Electron reduction factor : " << fPEReduction << endl;
+        metadata << "Drift stop distance : " << fStopDistance << " mm" << endl;
 
         EndPrintProcess();
     }
