@@ -6,17 +6,13 @@
 
 #include "TArrayI.h"
 #include "TAxis.h"
+#include "TGraph2D.h"
+#include "TH2F.h"
 #include "TMath.h"
 #include "TObject.h"
-
-#include <TGraph.h>
-#include <TGraph2D.h>
-#include "TH2F.h"
-
-#include "TVector3.h"
-
 #include "TRestEvent.h"
 #include "TRestHits.h"
+#include "TVector3.h"
 
 //! An event data type that register a vector of TRestHits,
 //! allowing us to save a 3-coordinate position and energy.
@@ -77,12 +73,9 @@ class TRestHitsEvent : public TRestEvent {
     void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
     void AddHit(TVector3 pos, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
 
-    void RemoveHits();
-
-    void MergeHits(int n, int m);
-    void RemoveHit(int n);
-
     void SetBoundaries();
+    void Sort(bool(comparecondition)(const TRestHits::iterator& hit1, const TRestHits::iterator& hit2) = 0);
+    void Shuffle(int NLoop);
 
     Int_t GetNumberOfHits() { return fHits->GetNumberOfHits(); }
 

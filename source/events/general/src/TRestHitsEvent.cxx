@@ -39,11 +39,12 @@
 ///
 #include "TRestHitsEvent.h"
 
+#include "TCanvas.h"
+#include "TRandom.h"
 #include "TRestStringHelper.h"
 #include "TRestTools.h"
 #include "TStyle.h"
 #include "TView.h"
-#include "TCanvas.h"
 
 using namespace std;
 using namespace TMath;
@@ -122,7 +123,7 @@ void TRestHitsEvent::AddHit(TVector3 pos, Double_t en, Double_t t, REST_HitType 
 void TRestHitsEvent::Initialize() {
     TRestEvent::Initialize();
 
-    RemoveHits();
+    fHits->RemoveHits();
 
     if (fXZHits) {
         delete fXZHits;
@@ -149,20 +150,30 @@ void TRestHitsEvent::Initialize() {
     fMaxZ = 0;
 }
 
-///////////////////////////////////////////////
-/// \brief Merges hits `n` and `m` recalculating the weighted position.
-///
-void TRestHitsEvent::MergeHits(int n, int m) { fHits->MergeHits(n, m); }
+void TRestHitsEvent::Sort(bool(comparecondition)(const TRestHits::iterator& hit1,
+                                                 const TRestHits::iterator& hit2)) {
+    if (comparecondition == 0) {
+        // default sort logic: z from smaller to greater
+        std::sort(fHits->begin(), fHits->end(),
+                  [](const TRestHits::iterator& hit1, const TRestHits::iterator& hit2) -> bool {
+                      return hit1.z() < hit2.z();
+                  });
+    } else {
+        std::sort(fHits->begin(), fHits->end(), comparecondition);
+    }
+}
 
-///////////////////////////////////////////////
-/// \brief Removes the hit `n`.
-///
-void TRestHitsEvent::RemoveHit(int n) { fHits->RemoveHit(n); }
+void TRestHitsEvent::Shuffle(int NLoop) {
+    Int_t nHits = fHits->GetNumberOfHits();
+    if (nHits >= 2) {
+        for (int n = 0; n < NLoop; n++) {
+            Int_t hit1 = (Int_t)(nHits * gRandom->Uniform(0, 1));
+            Int_t hit2 = (Int_t)(nHits * gRandom->Uniform(0, 1));
 
-///////////////////////////////////////////////
-/// \brief Removes all the hits inside the event.
-///
-void TRestHitsEvent::RemoveHits() { fHits->RemoveHits(); }
+            fHits->SwapHits(hit1, hit2);
+        }
+    }
+}
 
 ///////////////////////////////////////////////
 /// \brief This method collects all hits which are compatible with a XZ-projected hit.
@@ -735,7 +746,6 @@ void TRestHitsEvent::DrawGraphs() {
     }
 
     cout << xz[0].size() << " " << yz[0].size() << " " << xyz[0].size() << endl;
-
 
     if (xyz[0].size() > 0) fXYZHitGraph = new TGraph2D(xyz[0].size(), &xyz[0][0], &xyz[1][0], &xyz[2][0]);
 
