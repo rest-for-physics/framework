@@ -19,7 +19,8 @@
 ///_______________________________________________________________________________
 
 #include "TRestTrackEvent.h"
-
+#include "TRestRun.h"
+#include "TRestReadout.h"
 #include "TRestTools.h"
 
 using namespace std;
@@ -41,6 +42,7 @@ ClassImp(TRestTrackEvent)
     fPad = NULL;
     fLevels = -1;
 
+    fReadout = NULL;
     fPrintHitsWarning = true;
 }
 
@@ -57,25 +59,32 @@ void TRestTrackEvent::Initialize() {
     TRestEvent::Initialize();
 }
 
+void TRestTrackEvent::InitializeWithMetadata(TRestRun* run) {
+    if (run != NULL) {
+        fReadout = (TRestReadout*)run->GetMetadataClass("TRestReadout");
+    }
+    TRestEvent::InitializeWithMetadata(run);
+}
+
 void TRestTrackEvent::AddTrack(TRestTrack* c) {
     if (c->GetParentID() > 0) {
         TRestTrack* pTrack = GetTrackById(c->GetParentID());
 
-        if (pTrack->isXZ()) {
-            TRestVolumeHits* vHits = c->GetVolumeHits();
+        // if (pTrack->isXZ()) {
+        //    TRestVolumeHits* vHits = c->GetVolumeHits();
 
-            Float_t NaN = std::numeric_limits<Float_t>::quiet_NaN();
+        //    Float_t NaN = std::numeric_limits<Float_t>::quiet_NaN();
 
-            vHits->InitializeYArray(NaN);
-        }
+        //    vHits->InitializeYArray(NaN);
+        //}
 
-        if (pTrack->isYZ()) {
-            TRestVolumeHits* vHits = c->GetVolumeHits();
+        // if (pTrack->isYZ()) {
+        //    TRestVolumeHits* vHits = c->GetVolumeHits();
 
-            Float_t NaN = std::numeric_limits<Float_t>::quiet_NaN();
+        //    Float_t NaN = std::numeric_limits<Float_t>::quiet_NaN();
 
-            vHits->InitializeXArray(NaN);
-        }
+        //    vHits->InitializeXArray(NaN);
+        //}
     }
 
     if (c->isXZ()) fNtracksX++;
@@ -503,7 +512,7 @@ TPad* TRestTrackEvent::DrawEvent(TString option) {
         */
 
         Bool_t isTopLevel = this->isTopLevel(tck);
-        if (isTopLevel) tckColor++;
+        // if (isTopLevel) tckColor++;
         Int_t level = this->GetLevel(tck);
 
         if (!isTopLevel && maxLevel > 0 && level > maxLevel) continue;
@@ -528,6 +537,12 @@ TPad* TRestTrackEvent::DrawEvent(TString option) {
             Double_t en = hits->GetEnergy(nhit);
             auto type = hits->GetType(nhit);
 
+            int colorLayer = 0;
+            if (fReadout != NULL) {
+                int plane, moduleid, channel;
+                int daq = fReadout->GetHitsDaqChannel(TVector3(x, y, z), plane, moduleid, channel);
+                if (daq >= 0) colorLayer = moduleid;
+            }
             // cout << x << " " << y << " " << z << " " << type << endl;
 
             /* {{{ Hit size definition (radius) */
@@ -588,10 +603,10 @@ TPad* TRestTrackEvent::DrawEvent(TString option) {
                 if (isTopLevel) drawLinesXZ[nTckXZ - 1] = 1;
                 fXZHit[countXZ].SetPoint(0, x, z);
 
-                if (!isTopLevel)
-                    fXZHit[countXZ].SetMarkerColor(level + 11);
-                else
-                    fXZHit[countXZ].SetMarkerColor(tckColor);
+                // if (!isTopLevel)
+                //    fXZHit[countXZ].SetMarkerColor(level + 11);
+                // else
+                fXZHit[countXZ].SetMarkerColor(tckColor + colorLayer);
 
                 fXZHit[countXZ].SetMarkerSize(radius);
                 fXZHit[countXZ].SetMarkerStyle(20);
@@ -605,10 +620,10 @@ TPad* TRestTrackEvent::DrawEvent(TString option) {
                 if (isTopLevel) drawLinesYZ[nTckYZ - 1] = 1;
                 fYZHit[countYZ].SetPoint(countYZ, y, z);
 
-                if (!isTopLevel)
-                    fYZHit[countYZ].SetMarkerColor(level + 11);
-                else
-                    fYZHit[countYZ].SetMarkerColor(tckColor);
+                // if (!isTopLevel)
+                //    fYZHit[countYZ].SetMarkerColor(level + 11);
+                // else
+                fYZHit[countYZ].SetMarkerColor(tckColor + colorLayer);
 
                 fYZHit[countYZ].SetMarkerSize(radius);
                 fYZHit[countYZ].SetMarkerStyle(20);

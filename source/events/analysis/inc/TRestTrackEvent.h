@@ -50,6 +50,7 @@ class TRestTrackEvent : public TRestEvent {
     TGraph* fXZTrack;     //!
     TGraph* fYZTrack;     //!
     TGraph2D* fXYZTrack;  //!
+    TRestReadout* fReadout; //!
 
     Bool_t fPrintHitsWarning;  //!
 #endif
@@ -102,6 +103,7 @@ class TRestTrackEvent : public TRestEvent {
 
     void SetNumberOfXTracks(Int_t x) { fNtracksX = x; }
     void SetNumberOfYTracks(Int_t y) { fNtracksY = y; }
+    void SetReadout(TRestReadout* r) { fReadout = r; }
 
     // Getters
     Int_t GetNumberOfTracks(TString option = "");
@@ -109,6 +111,7 @@ class TRestTrackEvent : public TRestEvent {
     Int_t GetTotalHits();
 
     void Initialize();
+    void InitializeWithMetadata(TRestRun* r);
 
     void PrintOnlyTracks();
     void PrintEvent(Bool_t fullInfo = false);
