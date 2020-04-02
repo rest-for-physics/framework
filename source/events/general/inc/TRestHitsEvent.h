@@ -10,6 +10,7 @@
 #include "TObject.h"
 
 #include <TGraph.h>
+#include <TGraph2D.h>
 #include "TH2F.h"
 
 #include "TVector3.h"
@@ -49,11 +50,11 @@ class TRestHitsEvent : public TRestEvent {
     // (following similar GetGraph implementation in TRestSignal)
 
     /// An auxiliar TGraph pointer to visualize hits on XY-projection.
-    TGraph* fXYHitGraph;  //!
+    TGraph2D* fXYZHitGraph;  //!
     /// An auxiliar TGraph pointer to visualize hits on XZ-projection.
-    TGraph* fXZHitGraph;  //!
+    TGraph2D* fXZHitGraph;  //!
     /// An auxiliar TGraph pointer to visualize hits on YZ-projection.
-    TGraph* fYZHitGraph;  //!
+    TGraph2D* fYZHitGraph;  //!
 
     /// An auxiliar TH2F histogram to visualize hits on XY-projection.
     TH2F* fXYHisto;  //!
@@ -171,8 +172,8 @@ class TRestHitsEvent : public TRestEvent {
                                                       Double_t sizeY, Double_t theta);
 
     TPad* DrawEvent(TString option = "");
-    void DrawHistograms(Int_t& column, Double_t pitch = 3, TString histOption = "");
-    void DrawGraphs(Int_t& column);
+    void DrawHistograms(Double_t pitch = 3, TString histOption = "");
+    void DrawGraphs();
 
     // Construtor
     TRestHitsEvent();
