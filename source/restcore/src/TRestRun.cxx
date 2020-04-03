@@ -42,6 +42,11 @@ TRestRun::TRestRun(string rootfilename) {
     OpenInputFile(rootfilename);
 }
 
+TRestRun::TRestRun(TString rootfilename) {
+    Initialize();
+    OpenInputFile((string)rootfilename);
+}
+
 TRestRun::~TRestRun() {
     // if (fEventTree != NULL) {
     //    delete fEventTree;
