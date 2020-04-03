@@ -242,6 +242,7 @@ class TRestRun : public TRestMetadata {
     // Construtor & Destructor
     TRestRun();
     TRestRun(string rootfilename);
+    TRestRun(TString rootfilename);
     ~TRestRun();
 
     ClassDef(TRestRun, 4);
