@@ -223,5 +223,6 @@ file(REMOVE ${CMAKE_INSTALL_PREFIX}/data/dataURL)
 #add permissions
 install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/bin/rest-config)")
 install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/scripts/restv2_1ToXml.py)")
-
+install(CODE "execute_process(COMMAND chmod 777 ${CMAKE_INSTALL_PREFIX})")
+install(CODE "execute_process(COMMAND chmod 666 ${CMAKE_INSTALL_PREFIX}/runNumber)")
 
