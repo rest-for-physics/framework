@@ -21,9 +21,10 @@
 #ifndef TRestSoft_TRestHits
 #define TRestSoft_TRestHits
 
+#include <TVector3.h>
+
 #include <iostream>
 
-#include <TVector3.h>
 #include "TArrayD.h"
 #include "TArrayI.h"
 #include "TMath.h"
@@ -183,6 +184,78 @@ class TRestHits : public TObject {
 
     virtual void PrintHits(Int_t nHits = -1);
 
+    class TRestHits_Iterator : public std::iterator<std::random_access_iterator_tag, TRestHits_Iterator> {
+       private:
+        int maxindex = 0;
+        int index = 0;
+        TRestHits* fHits = 0;
+        bool isaccessor = false;
+        float _x;
+        float _y;
+        float _z;
+        float _t;
+        float _e;
+        REST_HitType _type;
+
+       public:
+        float& x() { return isaccessor ? _x : fHits->fX[index]; }
+        float& y() { return isaccessor ? _y : fHits->fY[index]; }
+        float& z() { return isaccessor ? _z : fHits->fZ[index]; }
+        float& t() { return isaccessor ? _t : fHits->fT[index]; }
+        float& e() { return isaccessor ? _e : fHits->fEnergy[index]; }
+        REST_HitType& type() { return isaccessor ? _type : fHits->fType[index]; }
+
+        float x() const { return isaccessor ? _x : fHits->fX[index]; }
+        float y() const { return isaccessor ? _y : fHits->fY[index]; }
+        float z() const { return isaccessor ? _z : fHits->fZ[index]; }
+        float t() const { return isaccessor ? _t : fHits->fT[index]; }
+        float e() const { return isaccessor ? _e : fHits->fEnergy[index]; }
+        REST_HitType type() const { return isaccessor ? _type : fHits->fType[index]; }
+
+        void toaccessor();
+
+        TRestHits_Iterator operator*();
+        TRestHits_Iterator& operator++();
+        TRestHits_Iterator operator+(const int& n);
+        TRestHits_Iterator& operator--();
+        TRestHits_Iterator operator-(const int& n);
+        TRestHits_Iterator& operator=(const TRestHits_Iterator& iter);
+
+        friend int operator-(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
+            return i1.index - i2.index;
+        }
+        friend bool operator==(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
+            return i1.fHits == i2.fHits && i1.index == i2.index;
+        }
+        friend bool operator!=(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
+            return i1.fHits != i2.fHits || i1.index != i2.index;
+        }
+        friend bool operator>(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
+            // default comparsion logic
+            return i1.index > i2.index;
+        }
+        friend bool operator>=(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
+            // default comparsion logic
+            return i1.index >= i2.index;
+        }
+        friend bool operator<(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
+            return i1.index < i2.index;
+        }
+        friend bool operator<=(const TRestHits_Iterator& i1, const TRestHits_Iterator& i2) {
+            return i1.index <= i2.index;
+        }
+        friend void swap(TRestHits::TRestHits_Iterator i1, TRestHits::TRestHits_Iterator i2) {
+            if (i1.fHits == i2.fHits) {
+                i1.fHits->SwapHits(i1.index, i2.index);
+            }
+        }
+
+        TRestHits_Iterator(TRestHits* h, int _index);
+    };
+    TRestHits_Iterator begin() { return TRestHits_Iterator(this, 0); }
+    TRestHits_Iterator end() { return TRestHits_Iterator(this, fNHits); }
+    typedef TRestHits_Iterator iterator;
+
     // Construtor
     TRestHits();
     // Destructor
@@ -190,4 +263,5 @@ class TRestHits : public TObject {
 
     ClassDef(TRestHits, 5);
 };
+
 #endif

@@ -168,6 +168,8 @@ void TRestEvent::RestartPad(Int_t nElements) {
     fPad->Draw();
 }
 
+void TRestEvent::InitializeWithMetadata(TRestRun* r) { Initialize(); }
+
 //////////////////////////////////////////////////////////////////////////
 /// Run to print event data info on console
 /// To be re-implemented in derived class.

@@ -544,6 +544,7 @@ void TRestRun::ReadInputFileTrees() {
                 } else {
                     string type = Replace(br->GetName(), "Branch", "", 0);
                     fInputEvent = (TRestEvent*)TClass::GetClass(type.c_str())->New();
+                    fInputEvent->InitializeWithMetadata(this);
                     fEventTree->SetBranchAddress(br->GetName(), &fInputEvent);
                     fEventBranchLoc = branches->GetLast();
                     debug << "found event branch of event type: " << fInputEvent->ClassName() << endl;

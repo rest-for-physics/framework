@@ -6,16 +6,13 @@
 
 #include "TArrayI.h"
 #include "TAxis.h"
+#include "TGraph2D.h"
+#include "TH2F.h"
 #include "TMath.h"
 #include "TObject.h"
-
-#include <TGraph.h>
-#include "TH2F.h"
-
-#include "TVector3.h"
-
 #include "TRestEvent.h"
 #include "TRestHits.h"
+#include "TVector3.h"
 
 //! An event data type that register a vector of TRestHits,
 //! allowing us to save a 3-coordinate position and energy.
@@ -49,11 +46,11 @@ class TRestHitsEvent : public TRestEvent {
     // (following similar GetGraph implementation in TRestSignal)
 
     /// An auxiliar TGraph pointer to visualize hits on XY-projection.
-    TGraph* fXYHitGraph;  //!
+    TGraph2D* fXYZHitGraph;  //!
     /// An auxiliar TGraph pointer to visualize hits on XZ-projection.
-    TGraph* fXZHitGraph;  //!
+    TGraph2D* fXZHitGraph;  //!
     /// An auxiliar TGraph pointer to visualize hits on YZ-projection.
-    TGraph* fYZHitGraph;  //!
+    TGraph2D* fYZHitGraph;  //!
 
     /// An auxiliar TH2F histogram to visualize hits on XY-projection.
     TH2F* fXYHisto;  //!
@@ -76,12 +73,9 @@ class TRestHitsEvent : public TRestEvent {
     void AddHit(Double_t x, Double_t y, Double_t z, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
     void AddHit(TVector3 pos, Double_t en, Double_t t = 0, REST_HitType type = XYZ);
 
-    void RemoveHits();
-
-    void MergeHits(int n, int m);
-    void RemoveHit(int n);
-
     void SetBoundaries();
+    void Sort(bool(comparecondition)(const TRestHits::iterator& hit1, const TRestHits::iterator& hit2) = 0);
+    void Shuffle(int NLoop);
 
     Int_t GetNumberOfHits() { return fHits->GetNumberOfHits(); }
 
@@ -171,8 +165,8 @@ class TRestHitsEvent : public TRestEvent {
                                                       Double_t sizeY, Double_t theta);
 
     TPad* DrawEvent(TString option = "");
-    void DrawHistograms(Int_t& column, Double_t pitch = 3, TString histOption = "");
-    void DrawGraphs(Int_t& column);
+    void DrawHistograms(Double_t pitch = 3, TString histOption = "");
+    void DrawGraphs();
 
     // Construtor
     TRestHitsEvent();
