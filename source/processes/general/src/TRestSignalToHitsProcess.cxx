@@ -10,9 +10,9 @@
 ///             jan 2016:  Javier Galan
 ///_______________________________________________________________________________
 
-#include <TRestDetectorSetup.h>
-
 #include "TRestSignalToHitsProcess.h"
+
+#include <TRestDetectorSetup.h>
 using namespace std;
 
 ClassImp(TRestSignalToHitsProcess)
@@ -213,10 +213,12 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent* evInput) {
         REST_HitType type = XYZ;
         TRestReadoutModule* mod = plane->GetModuleByID(readoutModule);
         if (TMath::IsNaN(x)) {
-            x = mod->GetPhysicalCoordinates(TVector2(mod->GetModuleSizeX(), mod->GetModuleSizeY())).X();
+            x = mod->GetPhysicalCoordinates(TVector2(mod->GetModuleSizeX() / 2, mod->GetModuleSizeY() / 2))
+                    .X();
             type = YZ;
         } else if (TMath::IsNaN(y)) {
-            y = mod->GetPhysicalCoordinates(TVector2(mod->GetModuleSizeX(), mod->GetModuleSizeY())).Y();
+            y = mod->GetPhysicalCoordinates(TVector2(mod->GetModuleSizeX() / 2, mod->GetModuleSizeY() / 2))
+                    .Y();
             type = XZ;
         }
 
