@@ -145,7 +145,7 @@ class TRestMetadata : public TNamed {
     std::string fSectionName;
     /// The buffer where the corresponding metadata section is stored. Filled only during Write()
     std::string configBuffer;
-#ifndef __CINT__
+
     /// Verbose level used to print debug info
     REST_Verbose_Level fVerboseLevel;  //!
     /// Termination flag object for TRestStringOutput
@@ -161,7 +161,33 @@ class TRestMetadata : public TNamed {
     /// Saving a list of environmental variables
     vector<TiXmlElement*> fElementEnv;  //!
 
-#endif
+    /// It can be used as a way to identify that something went wrong using SetError method.
+    Bool_t fError = false;  //!
+
+    /// A string to store an optional error message through method SetError.
+    TString fErrorMessage = "";  //!
+
+    /// A metadata class may use this method to signal that something went wrong
+    void SetError(TString message = "") {
+        fError = true;
+        fErrorMessage = message;
+    }
+
+    /// It allows to modify the error message. Only if SetError was called previously.
+    void SetErrorMessage(TString message) {
+        if (Error()) fErrorMessage = message;
+    }
+
+    /// It returns true if an error was identified by a derived metadata class
+    Bool_t Error() { return fError; }
+
+    /// Returns a string containing the error message
+    TString GetErrorMessage() {
+        if (Error())
+            return fErrorMessage;
+        else
+            return "No error!";
+    }
 
    public:
     Int_t LoadConfigFromFile();
