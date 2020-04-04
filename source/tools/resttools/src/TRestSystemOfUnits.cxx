@@ -59,13 +59,8 @@ bool IsBasicUnit(string unitsStr) { return (__ListOfRESTUnits.count(unitsStr) ==
 string FindRESTUnitsInString(string s) {
     string unitsStr = "";
 
-    // ss will be the string after we clean all units
-    string ss = s;
-    map<string, pair<int, double>>::iterator it;
-    for (it = __ListOfRESTUnits.begin(); it != __ListOfRESTUnits.end(); ++it)
-        ss = ss.substr(0, s.find_first_of(it->first));
-
-    string unitDef = s.substr(ss.find_last_of("1234567890(),") + 1, -1);
+    size_t l = RemoveUnitsFromString(s).length();
+    string unitDef = s.substr(l, -1);
 
     if (unitDef.find("=") != -1) {
         string def = unitDef.substr(0, unitDef.find("="));
