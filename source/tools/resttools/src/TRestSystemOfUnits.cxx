@@ -93,6 +93,16 @@ string RemoveUnitsFromString(string s) {
 }
 
 ///////////////////////////////////////////////
+/// \brief It scales a physics measurement with its units into a REST default units value.
+///
+/// For example, string in = "35.V/cm"
+Double_t GetValueInRESTUnits(string in) {
+    string units = FindRESTUnitsInString(in);
+    double val = StringToDouble(RemoveUnitsFromString(in));
+    return ConvertValueToRESTUnits(val, units);
+}
+
+///////////////////////////////////////////////
 /// \brief Convert value into REST units
 ///
 /// For a given value with custom units, REST will first find its equivalent REST units and
