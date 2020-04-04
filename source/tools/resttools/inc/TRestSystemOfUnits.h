@@ -48,7 +48,17 @@ class TRestSystemOfUnits {
 
    public:
     // We use more common high energy physics unit instead of SI unit
-    enum Physical_Unit { Energy, Time, Distance, Mass, Electric, Magnetic, Pressure, NOT_A_UNIT = -1 };
+    enum Physical_Unit {
+        Energy,
+        Time,
+        Distance,
+        Mass,
+        Electric,
+        Magnetic,
+        Pressure,
+        Volume,
+        NOT_A_UNIT = -1
+    };
 
     /// Constructor from a unit string
     TRestSystemOfUnits(string unitsStr);
@@ -69,6 +79,7 @@ class TRestSystemOfUnits {
 bool IsBasicUnit(string in);
 bool IsUnit(string in);
 string FindRESTUnitsInString(string InString);
+string RemoveUnitsFromString(string s);
 Double_t ConvertValueToRESTUnits(Double_t value, string unitsStr);
 Double_t ConvertRESTUnitsValueToCustomUnits(Double_t value, string unitsStr);
 
@@ -102,8 +113,15 @@ AddUnit(mm, TRestSystemOfUnits::Distance, 1.);
 AddUnit(cm, TRestSystemOfUnits::Distance, 1e-1);
 AddUnit(m, TRestSystemOfUnits::Distance, 1e-3);
 
+// volume unit multiplier
+AddUnit(mm3, TRestSystemOfUnits::Volume, 1.);
+AddUnit(cm3, TRestSystemOfUnits::Volume, 1e-3);
+AddUnit(dm3, TRestSystemOfUnits::Volume, 1e-6);
+AddUnit(m3, TRestSystemOfUnits::Volume, 1e-9);
+
 // mass unit multiplier
 AddUnit(gram, TRestSystemOfUnits::Mass, 1e3);
+AddUnit(g, TRestSystemOfUnits::Mass, 1e3);
 AddUnit(kg, TRestSystemOfUnits::Mass, 1.);
 AddUnit(ton, TRestSystemOfUnits::Mass, 1e-3);
 
@@ -126,6 +144,7 @@ AddUnit(MPa, TRestSystemOfUnits::Pressure, 0.101325);
 AddUnit(kPa, TRestSystemOfUnits::Pressure, 101.325);
 AddUnit(Pa, TRestSystemOfUnits::Pressure, 101325);
 AddUnit(mPa, TRestSystemOfUnits::Pressure, 10132500);
+
 }  // namespace REST_Units
 
 typedef REST_Units::TRestSystemOfUnits units;
