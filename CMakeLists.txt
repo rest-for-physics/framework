@@ -58,7 +58,7 @@ set(ROOT_FIND_REQUIRED true)
 set(CMAKE_MACOSX_RPATH 1)
 include(FindROOT)
 set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
-set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit -lMathMore -lSpectrum)
+set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit -lSpectrum)
 
 
 #find garfield libs and includes
