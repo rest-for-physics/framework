@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
 #include <cstdio>
 #include <cstring>
 #include <fstream>
@@ -113,7 +114,7 @@ class Console {
 };
 
 struct endl_t {
-    endl_t(REST_Verbose_Level& v,string& s) : vref(v), sref(s) {}
+    endl_t(REST_Verbose_Level& v, string& s) : vref(v), sref(s) {}
 
     REST_Verbose_Level& vref;
     string& sref;
