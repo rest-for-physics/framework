@@ -456,7 +456,7 @@ ClassImp(TRestMetadata);
 ///////////////////////////////////////////////
 /// \brief TRestMetadata default constructor
 ///
-TRestMetadata::TRestMetadata() : endl(fVerboseLevel) {
+TRestMetadata::TRestMetadata() : endl(fVerboseLevel, messageBuffer) {
     fStore = true;
     fElementGlobal = NULL;
     fElement = NULL;
@@ -472,7 +472,7 @@ TRestMetadata::TRestMetadata() : endl(fVerboseLevel) {
 ///////////////////////////////////////////////
 /// \brief constructor
 ///
-TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(fVerboseLevel) {
+TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(fVerboseLevel, messageBuffer) {
     fStore = true;
     fElementGlobal = NULL;
     fElement = NULL;
@@ -1033,8 +1033,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1067,8 +1068,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -2125,6 +2127,8 @@ void TRestMetadata::WriteConfigBuffer(string fname) {
 
     ferr << "Something missing here. Call the police" << endl;
 }
+
+void TRestMetadata::PrintMessageBuffer() { cout << messageBuffer << endl; }
 
 int TRestMetadata::GetChar(string hint) {
     if (gApplication != NULL && !gApplication->IsRunning()) {

@@ -145,6 +145,8 @@ class TRestMetadata : public TNamed {
     std::string fSectionName;
     /// The buffer where the corresponding metadata section is stored. Filled only during Write()
     std::string configBuffer;
+    /// The buffer to store the output message through TRestStringOutput in this class
+    std::string messageBuffer;
 
     /// Verbose level used to print debug info
     REST_Verbose_Level fVerboseLevel;  //!
@@ -222,6 +224,9 @@ class TRestMetadata : public TNamed {
     /// Writes the config buffer to a file in append mode
     void WriteConfigBuffer(string fname);
 
+    /// Print the buffered message
+    void PrintMessageBuffer();  // *MENU*
+
     /// helps to pause the program, printing a message before pausing.
     /// ROOT GUI won't be jammed during this pause
     int GetChar(string hint = "Press a KEY to continue ...");
@@ -298,7 +303,7 @@ class TRestMetadata : public TNamed {
     TRestMetadata(const char* cfgFileNamecfgFileName);
 
     /// Call CINT to generate streamers for this class
-    ClassDef(TRestMetadata, 5);
+    ClassDef(TRestMetadata, 6);
 };
 
 #endif
