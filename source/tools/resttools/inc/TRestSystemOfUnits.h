@@ -122,6 +122,7 @@ AddUnit(dm3, TRestSystemOfUnits::Volume, 1e-6);
 AddUnit(m3, TRestSystemOfUnits::Volume, 1e-9);
 
 // mass unit multiplier
+AddUnit(mg, TRestSystemOfUnits::Mass, 1e6);
 AddUnit(gram, TRestSystemOfUnits::Mass, 1e3);
 AddUnit(g, TRestSystemOfUnits::Mass, 1e3);
 AddUnit(kg, TRestSystemOfUnits::Mass, 1.);
