@@ -58,7 +58,7 @@ set(ROOT_FIND_REQUIRED true)
 set(CMAKE_MACOSX_RPATH 1)
 include(FindROOT)
 set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
-set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit -lMathMore -lSpectrum)
+set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit -lSpectrum)
 
 
 #find garfield libs and includes
@@ -225,4 +225,7 @@ install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/bin/rest
 install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/scripts/restv2_1ToXml.py)")
 install(CODE "execute_process(COMMAND chmod 777 ${CMAKE_INSTALL_PREFIX})")
 install(CODE "execute_process(COMMAND chmod 666 ${CMAKE_INSTALL_PREFIX}/runNumber)")
+install(CODE "execute_process(COMMAND chmod 777 ${CMAKE_INSTALL_PREFIX}/data/download/)")
+install(CODE "execute_process(COMMAND touch ${CMAKE_INSTALL_PREFIX}/data/download/gases.rml)")
+install(CODE "execute_process(COMMAND chmod 666 ${CMAKE_INSTALL_PREFIX}/data/download/gases.rml)")
 

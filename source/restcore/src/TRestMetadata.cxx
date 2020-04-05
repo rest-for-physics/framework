@@ -1527,7 +1527,14 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
 /// element.
 ///
 /// It calls the method GetUnits(TiXmlElement,string) with the current elemnet.
-string TRestMetadata::GetUnits(string whoseunits) { return GetUnits(fElement, whoseunits); }
+string TRestMetadata::GetUnits(string whoseunits) {
+    if (!fElement)
+        return GetUnits(fElement, whoseunits);
+    else {
+        ferr << "TRestMetadata::GetUnits(" << whoseunits << "). fElement is NULL" << endl;
+        return "";
+    }
+}
 
 ///////////////////////////////////////////////
 /// \brief Returns a string with the unit name given in the given xml element

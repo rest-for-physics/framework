@@ -1,7 +1,9 @@
 #include "TRestBenchMarkProcess.h"
 #include "TRestManager.h"
 #include "TRestProcessRunner.h"
+#ifndef __APPLE__
 #include "sys/sysinfo.h"
+#endif
 #include "sys/wait.h"
 
 ClassImp(TRestBenchMarkProcess);
@@ -23,8 +25,14 @@ void TRestBenchMarkProcess::InitFromConfigFile() {
 }
 
 void TRestBenchMarkProcess::Initialize() {
+#ifndef __APPLE__
     fCPUNumber = get_nprocs_conf();
     fMemNumber = get_phys_pages();
+#else
+    fCPUNumber = 0;
+    fMemNumber = 0;
+    ferr << "TRestBenchMarkProcess is not available yet on MACOS!!" << endl;
+#endif
     fPid = getpid();
     fRefreshRate = 10;
 }
