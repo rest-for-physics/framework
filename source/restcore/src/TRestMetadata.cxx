@@ -1528,7 +1528,7 @@ TiXmlElement* TRestMetadata::GetElementWithName(std::string eleDeclare, std::str
 ///
 /// It calls the method GetUnits(TiXmlElement,string) with the current elemnet.
 string TRestMetadata::GetUnits(string whoseunits) {
-    if (!fElement)
+    if (fElement != NULL)
         return GetUnits(fElement, whoseunits);
     else {
         ferr << "TRestMetadata::GetUnits(" << whoseunits << "). fElement is NULL" << endl;
@@ -1546,6 +1546,7 @@ string TRestMetadata::GetUnits(string whoseunits) {
 string TRestMetadata::GetUnits(TiXmlElement* e, string whoseunits) {
     string unitstring = "";
     if (whoseunits == "") {
+        // units are directly defined as field value in the section
         unitstring = GetParameter("UNITS", e);
         if (IsUnit(unitstring)) {
             debug << "Found unit definition \"" << unitstring << "\" in element " << e->Value() << endl;
@@ -1565,6 +1566,7 @@ string TRestMetadata::GetUnits(TiXmlElement* e, string whoseunits) {
             return "";
         }
     } else {
+        // units are embeded inside value string
         string a = GetParameter(whoseunits, e);
         unitstring = REST_Units::FindRESTUnitsInString(a);
 

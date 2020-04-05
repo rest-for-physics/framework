@@ -23,14 +23,11 @@
 #ifndef RestCore_TRestMetadata
 #define RestCore_TRestMetadata
 
-#include "TRestVersion.h"
-
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
 #include "TRestTools.h"
+#include "TRestVersion.h"
 #define TIXML_USE_STL
-#include "tinyxml.h"
-
 #include <mutex>
 #include <thread>
 
@@ -41,6 +38,7 @@
 #include "TRestSystemOfUnits.h"
 #include "TStreamerElement.h"
 #include "TVirtualStreamerInfo.h"
+#include "tinyxml.h"
 
 const int PARAMETER_NOT_FOUND_INT = -99999999;
 const double PARAMETER_NOT_FOUND_DBL = -99999999;
