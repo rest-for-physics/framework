@@ -898,6 +898,15 @@ TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator++() {
     return *this;
 }
 
+TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator+=(const int& n) {
+    if (index + n >= maxindex) {
+        index = maxindex;
+    } else {
+        index += n;
+    }
+    return *this;
+}
+
 TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator+(const int& n) {
     if (index + n >= maxindex) {
         return TRestHits_Iterator(fHits, maxindex);
@@ -908,7 +917,16 @@ TRestHits::TRestHits_Iterator TRestHits::TRestHits_Iterator::operator+(const int
 
 TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator--() {
     index--;
-    if (index < 0) index = 0;
+    if (index <= 0) index = 0;
+    return *this;
+}
+
+TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator-=(const int& n) {
+    if (index - n <= 0 ) {
+        index = 0;
+    } else {
+        index -= n;
+    }
     return *this;
 }
 

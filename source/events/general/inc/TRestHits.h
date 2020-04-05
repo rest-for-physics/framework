@@ -216,8 +216,10 @@ class TRestHits : public TObject {
 
         TRestHits_Iterator operator*();
         TRestHits_Iterator& operator++();
+        TRestHits_Iterator& operator+=(const int& n);
         TRestHits_Iterator operator+(const int& n);
         TRestHits_Iterator& operator--();
+        TRestHits_Iterator& operator-=(const int& n);
         TRestHits_Iterator operator-(const int& n);
         TRestHits_Iterator& operator=(const TRestHits_Iterator& iter);
 
