@@ -3,9 +3,13 @@
 #define RestTools_REST_StringHelper
 #pragma once
 
+#include <TFormula.h>
+#include <TVector2.h>
+#include <TVector3.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
@@ -13,10 +17,6 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-
-#include <TFormula.h>
-#include <TVector2.h>
-#include <TVector3.h>
 
 using namespace std;
 

@@ -1,4 +1,5 @@
 #include "TRestStringHelper.h"
+
 #include "Rtypes.h"
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(6, 0, 0)
