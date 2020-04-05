@@ -86,8 +86,9 @@ string RemoveUnitsFromString(string s) {
     // ss will be the string after we clean all units
     string ss = s;
     map<string, pair<int, double>>::iterator it;
-    for (it = __ListOfRESTUnits.begin(); it != __ListOfRESTUnits.end(); ++it)
-        ss = ss.substr(0, s.find_first_of(it->first));
+    for (it = __ListOfRESTUnits.begin(); it != __ListOfRESTUnits.end(); ++it) {
+        ss = ss.substr(0, ss.find(it->first));
+    }
 
     return s.substr(0, ss.find_last_of("1234567890(),") + 1);
 }
