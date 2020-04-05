@@ -113,9 +113,10 @@ class Console {
 };
 
 struct endl_t {
-    endl_t(REST_Verbose_Level& v) : vref(v) {}
+    endl_t(REST_Verbose_Level& v,string& s) : vref(v), sref(s) {}
 
     REST_Verbose_Level& vref;
+    string& sref;
     friend ostream& operator<<(ostream& a, endl_t& et) { return (a << std::endl); }
 };
 
@@ -188,18 +189,9 @@ class TRestStringOutput {
         return *this;
     }
 
-    TRestStringOutput& operator<<(void (*pfunc)(TRestStringOutput&)) {
-        ((*pfunc)(*this));
-        return *this;
-    }
+    TRestStringOutput& operator<<(void (*pfunc)(TRestStringOutput&));
 
-    TRestStringOutput& operator<<(endl_t et) {
-        if (et.vref >= verbose)
-            flushstring();
-        else
-            resetstring();
-        return *this;
-    }
+    TRestStringOutput& operator<<(endl_t et);
 };
 
 /// \relates TRestStringOutput

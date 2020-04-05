@@ -281,6 +281,28 @@ void TRestStringOutput::flushstring() {
     resetstring();
 }
 
+TRestStringOutput& TRestStringOutput::operator<<(void (*pfunc)(TRestStringOutput&)) {
+    ((*pfunc)(*this));
+    return *this;
+}
+
+TRestStringOutput& TRestStringOutput::operator<<(endl_t et) {
+    if (et.vref <= REST_Info) {
+        et.sref += buf.str() + "\n";
+        if (et.sref.size() > 1000) {
+            et.sref.erase(0, et.sref.size() - 1000);
+        }
+    }
+
+    if (et.vref >= verbose) {
+        flushstring();
+    } else {
+        resetstring();
+    }
+
+    return *this;
+}
+
 /// formatted message output, used for print metadata
 TRestStringOutput fout(REST_Silent, COLOR_BOLDBLUE, "[==", kBorderedMiddle);
 TRestStringOutput ferr(REST_Silent, COLOR_BOLDRED, "-- Error : ", kHeaderedLeft);
