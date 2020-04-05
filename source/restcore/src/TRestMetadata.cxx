@@ -1320,9 +1320,7 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlEleme
     if (a == PARAMETER_NOT_FOUND_STR) {
         return defaultVal;
     } else {
-        string units = GetUnits(ele, parName);
-        double val = StringToDouble(a.substr(0, a.find_last_of("1234567890()") + 1));
-        return REST_Units::ConvertValueToRESTUnits(val, units);
+        return GetValueInRESTUnits(a);
     }
 
     return defaultVal;
