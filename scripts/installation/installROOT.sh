@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
-WP=$PWD
+
+CURRENT_DIR=$PWD
 
 unameOut="$(uname -s)"
 case "${unameOut}" in
@@ -11,12 +12,11 @@ case "${unameOut}" in
     *)          machine="UNKNOWN:${unameOut}"
 esac
 
-ROOT_VERSION=6.10.06
+ROOT_VERSION=6.20.00
+ROOT_DIR=$HOME/apps/root-$ROOT_VERSION
 
-t=$HOME/apps/root-$ROOT_VERSION
-mkdir -p $t
-
-cd $t
+mkdir -p ${ROOT_DIR}
+cd ${ROOT_DIR}
 
 f=root_v$ROOT_VERSION.source.tar.gz
 
@@ -34,20 +34,19 @@ tar -xvzf $f
 rm -rf source
 mv root-$ROOT_VERSION source
 
-mkdir -p $HOME/apps/root-$ROOT_VERSION/build
-cd $HOME/apps/root-$ROOT_VERSION/build
+mkdir -p ${ROOT_DIR}/build
+cd ${ROOT_DIR}/build
 
-cmake -Dgdml=ON -DCMAKE_INSTALL_PREFIX=$HOME/apps/root-$ROOT_VERSION/install  ../source
+cmake -Dgdml=ON -DCMAKE_INSTALL_PREFIX=${ROOT_DIR}/install  ../source
 make -j4
 make install
 
-cd $WP
+cd ${CURRENT_DIR}
 
 echo ""
-echo "The following line was added to your .bashrc file"
+echo "The following lines were added to your .bashrc file"
 echo ""
 echo "#Added by REST installROOT.sh script to setup ROOT environment" >> ~/.bashrc
-echo "source \$HOME/apps/root-$ROOT_VERSION/install/bin/thisroot.sh"
-echo "source \$HOME/apps/root-$ROOT_VERSION/install/bin/thisroot.sh" >> ~/.bashrc
+echo "source ${ROOT_DIR}/install/bin/thisroot.sh"
+echo "source ${ROOT_DIR}/install/bin/thisroot.sh" >> ~/.bashrc
 echo ""
-
