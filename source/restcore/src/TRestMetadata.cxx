@@ -2274,14 +2274,19 @@ TString TRestMetadata::GetVerboseLevelString() {
 /// file search tool, see TRestMetadata::SearchFile().
 TString TRestMetadata::GetSearchPath() {
     string result = "";
-    TiXmlElement* e = fElement;
-    TiXmlElement* ele = e->FirstChildElement("searchPath");
-    while (ele != NULL) {
-        if (ele->Attribute("value") != NULL) {
-            result += (string)ele->Attribute("value") + ":";
+
+    // If fElement=0 we haven't initialized the class from RML.
+    // Then we skip adding user paths
+    if (fElement) {
+        TiXmlElement* ele = fElement->FirstChildElement("searchPath");
+        while (ele != NULL) {
+            if (ele->Attribute("value") != NULL) {
+                result += (string)ele->Attribute("value") + ":";
+            }
+            ele = ele->NextSiblingElement("searchPath");
         }
-        ele = ele->NextSiblingElement("searchPath");
     }
+
     if (getenv("configPath")) result += getenv("configPath") + (string) ":";
     result += getenv("REST_PATH") + (string) "/data/:";
     if (result.back() == ':') result.erase(result.size() - 1);
