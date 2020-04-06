@@ -80,7 +80,7 @@ Int_t TRestMesh::GetNodeX(Double_t x) {
         return 0;
     }
 
-    Int_t nX = (Int_t)round(((x - fNetOrigin.X()) * (fNodesX - 1) / fNetSizeX));
+    Int_t nX = (Int_t)((x - fNetOrigin.X()) * (fNodesX - 1) / fNetSizeX);
 
     return nX;
 }
@@ -101,7 +101,7 @@ Int_t TRestMesh::GetNodeY(Double_t y) {
         return 0;
     }
 
-    Int_t nY = (Int_t)round(((y - fNetOrigin.Y()) / fNetSizeY) * (fNodesY - 1));
+    Int_t nY = (Int_t)((y - fNetOrigin.Y()) * (fNodesY - 1) / fNetSizeY);
 
     return nY;
 }
@@ -122,7 +122,7 @@ Int_t TRestMesh::GetNodeZ(Double_t z) {
         return 0;
     }
 
-    Int_t nZ = (Int_t)round(((z - fNetOrigin.Z()) / fNetSizeZ) * (fNodesZ - 1));
+    Int_t nZ = (Int_t)((z - fNetOrigin.Z()) * (fNodesZ - 1) / fNetSizeZ);
 
     return nZ;
 }
