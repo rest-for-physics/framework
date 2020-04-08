@@ -78,11 +78,14 @@
 ///     triggerThreshold method. This parameter is not used otherwise.
 ///
 ///
-/// ![An ilustration of the integralThreshold trigger definition for a NLDBD
+/// \htmlonly <style>div.image img[src="trigger.png"]{width:500px;}</style> \endhtmlonly
+///
+/// The following figure shows the integralThreshold trigger definition for a NLDBD
 /// event. tStart and tEnd define the acquision window, centered on the time
 /// when the signal integral is above the threshold defined. tStart has been
-/// shifted by a triggerDelay = 60samples*200ns](trigger.png)
+/// shifted by a triggerDelay = 60 samples * 200ns
 ///
+/// ![An ilustration of the trigger definition](trigger.png)
 ///
 /// * **triggerDelay**: The time start obtained by the trigger mode
 /// definition can be shifted using this parameter. The shift is
@@ -257,8 +260,8 @@ TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent(TRestEvent* evInput) {
     }
 
     if (GetVerboseLevel() >= REST_Debug) {
-        cout << "tStart : " << tStart << " ms " << endl;
-        cout << "tEnd : " << tEnd << " ms " << endl;
+        cout << "tStart : " << tStart << " us " << endl;
+        cout << "tEnd : " << tEnd << " us " << endl;
     }
 
     for (int n = 0; n < fInputSignalEvent->GetNumberOfSignals(); n++) {
@@ -285,6 +288,7 @@ TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent(TRestEvent* evInput) {
                         timeBin = 0;
                     }
 
+                debug << "Adding data : " << sgnl->GetData(m) << " to Time Bin : " << timeBin << endl;
                 sData[timeBin] += fGain * sgnl->GetData(m);
             }
         }
@@ -303,9 +307,13 @@ TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent(TRestEvent* evInput) {
             rSgnl.AddPoint(value);
         }
 
+        if (GetVerboseLevel() >= REST_Debug) rSgnl.Print();
+        debug << "Adding signal to raw signal event" << endl;
         fOutputRawSignalEvent->AddSignal(rSgnl);
     }
 
+    debug << "TRestSignalToRawSignalProcess. Returning event with N signals "
+          << fOutputRawSignalEvent->GetNumberOfSignals() << endl;
     return fOutputRawSignalEvent;
 }
 
