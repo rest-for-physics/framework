@@ -103,6 +103,17 @@ void TRestProcessRunner::BeginOfInit() {
         exit(0);
     }
 
+    // Exiting as soon as possible in order to avoid seg.fault at TRestThread.
+    // And sometimes gets stuck - probably a thread not closed? - and the execution
+    // of restManager does not end even if TRestThread calls exit(1)
+    // I believe it is risky to exit() at TRestThread without closing threads.
+    // It is a guess (J.G.)
+    if (!fRunInfo->GetFileProcess() && fRunInfo->GetEntries() == 0) {
+        ferr << "TRestProcessRunner::BeginOfInit. The input file is a valid REST file but entries are 0!"
+             << endl;
+        exit(1);
+    }
+
     firstEntry = StringToInteger(GetParameter("firstEntry", "0"));
     int lastEntry = StringToInteger(GetParameter("lastEntry", "0"));
     eventsToProcess = StringToInteger(GetParameter("eventsToProcess", "0"));
@@ -272,6 +283,7 @@ void TRestProcessRunner::ReadProcInfo() {
 ///
 void TRestProcessRunner::RunProcess() {
     debug << "Creating output File " << fRunInfo->GetOutputFileName() << endl;
+
     TString filename = fRunInfo->FormFormat(fRunInfo->GetOutputFileName());
     fTempOutputDataFile = new TFile(filename, "recreate");
     if (!fTempOutputDataFile->IsOpen()) {
@@ -280,7 +292,6 @@ void TRestProcessRunner::RunProcess() {
     }
     info << endl;
     info << "TRestProcessRunner : preparing threads..." << endl;
-
     fRunInfo->ResetEntry();
     fRunInfo->SetCurrentEntry(firstEntry);
     bool testrun =
