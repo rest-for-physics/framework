@@ -27,10 +27,11 @@ using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
 ///
-/// This class is a collection of physics constants and basic methods that
-/// can be accessed using the REST_Physics:: namespace.
+/// The methods and physics constants in this class can be accessed using the
+/// REST_Physics:: namespace.
 ///
-/// We include basic geometrical operations that transform space coordinates.
+/// We include basic geometrical operations that transform space coordinates
+/// or implement vector transportation.
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -50,11 +51,10 @@ namespace REST_Physics {
 /// \brief This method will translate the vector with direction `dir` starting at position `pos` to the plane
 /// defined by the normal vector plane, `n` that contains the point `a` in the plane.
 ///
+/// If the vector is parallel to the plane the position `pos` will not be translated.
+///
 TVector3 MoveToPlane(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a) {
-    if (n * dir == 0) {
-        cout << "MoveToPlane. The vector is parallel to the plane!!" << endl;
-        cout << "Position will not be translated" << endl;
-    } else {
+    if (n * dir != 0) {
         Double_t t = (n * a - n * pos) / (n * dir);
 
         return pos + t * dir;
