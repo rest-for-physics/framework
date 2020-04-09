@@ -57,6 +57,9 @@ const double naturalElectron = 0.302822120214353;
 TVector3 MoveToPlane(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a);
 TVector3 MoveByDistance(TVector3 pos, TVector3 dir, Double_t d);
 TVector3 GetPlaneVectorIntersection(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a);
+
+Double_t GetDistance(TVector3 v1, TVector3 v2);
+Double_t GetDistance2(TVector3 v1, TVector3 v2);
 }  // namespace REST_Physics
 
 // dummy class
