@@ -451,11 +451,13 @@ void TRestRun::ReadInputFileMetadata() {
 
         TIter nextkey(f->GetListOfKeys());
         TKey* key;
+        // we should make sure the input metadata has unique names
+        set<string> addednames;
         while ((key = (TKey*)nextkey())) {
             debug << "Reading key with name : " << key->GetName() << endl;
+            if (addednames.count(key->GetName()) != 0) continue;
 
             TRestMetadata* a = (TRestMetadata*)f->Get(key->GetName());
-
             if (!a) {
                 ferr << "TRestRun::ReadInputFileMetadata." << endl;
                 ferr << "Key name : " << key->GetName() << endl;
@@ -479,9 +481,9 @@ void TRestRun::ReadInputFileMetadata() {
                 fInputMetadata.push_back(a);
                 }
                  */
-
                 fInputMetadata.push_back(a);
                 fMetadataInfo.push_back(a);
+                addednames.insert(key->GetName());
             }
         }
     }
