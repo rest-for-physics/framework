@@ -100,7 +100,7 @@ class TRestMesh : public TObject {
 
     Bool_t IsInside(TVector3 pos);
 
-    std::vector<TVector3> GetTrackBoundaries(TVector3 pos, TVector3 dir);
+    std::vector<TVector3> GetTrackBoundaries(TVector3 pos, TVector3 dir, Bool_t particle = true);
 
     void Print();
 

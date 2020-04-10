@@ -325,7 +325,17 @@ TVector3 TRestMesh::GetNetCenter() {
 ///
 /// It is done by searching for the points where the particle trajectory intersects the boundary planes of
 /// that region.
-std::vector<TVector3> TRestMesh::GetTrackBoundaries(TVector3 pos, TVector3 dir) {
+///
+/// If the optional parameter `particle` is true (which is the default behaviour) this method will
+/// return the found boundaries only if the particle is moving towards the volume. On top of that it
+/// will be assured that the first boundary element corresponds with the boundary closer to the position
+/// of the particle.
+///
+/// If the `particle` parameter is false, valid boundaries will be returned as soon as the track crosses
+/// the volume without being crosschecked the relative positions of the boundaries respect to the particle
+/// position.
+///
+std::vector<TVector3> TRestMesh::GetTrackBoundaries(TVector3 pos, TVector3 dir, Bool_t particle) {
     TVector3 netCenter = this->GetNetCenter();
 
     Double_t xH = netCenter.X() + GetNetSizeX() / 2.;
@@ -373,6 +383,25 @@ std::vector<TVector3> TRestMesh::GetTrackBoundaries(TVector3 pos, TVector3 dir) 
     posAtPlane = REST_Physics::MoveToPlane(pos, dir, TVector3(1, 0, 0), planePosition_TopX);
     if (posAtPlane.Y() > yL && posAtPlane.Y() < yH && posAtPlane.Z() > zL && posAtPlane.Z() < zH)
         boundaries.push_back(posAtPlane);
+
+    if (boundaries.size() == 2) {
+        TVector3 center = 0.5 * (boundaries[0] + boundaries[1]);
+        Double_t product_1 = (boundaries[0] - center) * dir;
+        Double_t product_2 = (boundaries[1] - center) * dir;
+
+        if (particle) {
+            // d1 and d2 is the signed distance to the volume boundaries
+            Double_t d1 = (boundaries[0] - pos) * dir;
+            Double_t d2 = (boundaries[1] - pos) * dir;
+
+            // Both should be positive so that the particle is approaching the volume
+            if (d1 < 0 || d2 < 0) boundaries.clear();
+
+            // The first boundary will be always related to the closer IN boundary
+            // If it is no the case we exchange them.
+            if (d1 > d2) iter_swap(boundaries.begin(), boundaries.begin() + 1);
+        }
+    }
 
     return boundaries;
 }
