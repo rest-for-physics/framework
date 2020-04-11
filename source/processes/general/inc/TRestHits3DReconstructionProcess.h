@@ -29,6 +29,7 @@ class TRestHits3DReconstructionProcess : public TRestEventProcess {
     Double_t fZRange;
     bool fDraw;
     double fDrawThres;
+    bool fDoEnergyScaling;
 
     void InitFromConfigFile();
 

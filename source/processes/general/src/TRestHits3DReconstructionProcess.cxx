@@ -183,8 +183,6 @@ void TRestHits3DReconstructionProcess::Initialize() {
 
 //______________________________________________________________________________
 void TRestHits3DReconstructionProcess::InitProcess() {
-    cout << __PRETTY_FUNCTION__ << endl;
-
     if (fDraw) {
         htemp = new TH2D("hhits", "hhits", 100, -PlaneMaxX, PlaneMaxX, 100, -PlaneMaxY, PlaneMaxY);
         CreateCanvas();
@@ -512,6 +510,15 @@ TRestEvent* TRestHits3DReconstructionProcess::ProcessEvent(TRestEvent* evInput) 
         }
     }
 
+    // scale the total energy
+    if (fDoEnergyScaling) {
+        double e1 = fInputHitsEvent->GetEnergy();
+        double e2 = fOutputHitsEvent->GetEnergy();
+        for (auto h : *fOutputHitsEvent->GetHits()) {
+            h.e() = h.e() / e2 * e1;
+        }
+    }
+
     SetObservableValue("MeanAmbiguity", totalambiguity / Nlayers);
     SetObservableValue("DiffRecon", numeric_limits<double>::quiet_NaN());
     if (fCompareProc != NULL && fOutputHitsEvent->GetNumberOfHits() > 0 &&
@@ -554,6 +561,7 @@ int TRestHits3DReconstructionProcess::Ambiguity(const int& n, const int& m) {
     if (n <= 0 || m <= 0) return 0;
     if (n == 1 || m == 1) return 1;
     if (n > 5 && m > 5) return 1e9;
+    if (n > 8 || m > 8) return 1e9;
 
     int N = min({n, m});
     int M = max({n, m});
@@ -588,5 +596,7 @@ void TRestHits3DReconstructionProcess::InitFromConfigFile() {
     fDraw = StringToBool(GetParameter("draw", "false"));
     if (fDraw) fSingleThreadOnly = true;
     fDrawThres = StringToDouble(GetParameter("drawThreshold", "3"));
+    fDoEnergyScaling = StringToBool(GetParameter("scaleE", "true"));
+
     fCanvasSize = StringTo2DVector(GetParameter("canvasSize", "(800,600)"));
 }
