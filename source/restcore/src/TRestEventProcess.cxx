@@ -217,25 +217,53 @@ Int_t TRestEventProcess::LoadSectionMetadata() {
 }
 
 //////////////////////////////////////////////////////////////////////////
-/// \brief Get a metadata object from friendly TRestRun object
+/// \brief Get a metadata object from the host TRestRun
 ///
+/// Either name or type as input argument is accepted. For example,
+/// GetMetadata("TRestReadout"), GetMetadata("readout_140")
 TRestMetadata* TRestEventProcess::GetMetadata(string name) {
     TRestMetadata* m = fRunInfo->GetMetadata(name);
     if (m == NULL) m = fRunInfo->GetMetadataClass(name);
     return m;
 }
 
-Bool_t TRestEventProcess::HasFriend(string nameortype) {
-    if (GetMetadata(nameortype) != NULL) {
-        return true;
+//////////////////////////////////////////////////////////////////////////
+/// \brief Get friendly TRestEventProcess object
+///
+/// Either name or type as input argument is accepted. For example,
+/// GetFriend("TRestSignalZeroSupressionProcess"), GetFriend("zS").
+/// Both lively process(in the process chain) and metadata process
+/// (retrieved from input file) are searched.
+///
+/// With this method, processes can know what's the process chain is like,
+/// and acts differently according to the added friends. For example, we can
+/// retrieve some common parameters from the friend process. We can also re-use
+/// the input/output event to compare the difference.
+TRestEventProcess* TRestEventProcess::GetFriend(string nameortype) {
+    TRestEventProcess* proc = GetFriendLive(nameortype);
+    if (proc == NULL) {
+        TRestMetadata* friendfromfile = GetMetadata(nameortype);
+        if (friendfromfile != NULL && friendfromfile->InheritsFrom("TRestEventProcess")) {
+            return (TRestEventProcess*)friendfromfile;
+        }
+        return NULL;
+    } else {
+        return proc;
     }
+}
+
+//////////////////////////////////////////////////////////////////////////
+/// \brief Get friendly TRestEventProcess object
+///
+/// Only lively process(in the process chain) is searched.
+TRestEventProcess* TRestEventProcess::GetFriendLive(string nameortype) {
     for (int i = 0; i < fFriendlyProcesses.size(); i++) {
         if ((string)fFriendlyProcesses[i]->GetName() == nameortype ||
             (string)fFriendlyProcesses[i]->ClassName() == nameortype) {
-            return true;
+            return fFriendlyProcesses[i];
         }
     }
-    return false;
+    return NULL;
 }
 
 /*
@@ -340,7 +368,7 @@ void TRestEventProcess::BeginPrintProcess() {
 /// \brief Pre-defined printer, can be used at the ending in the implementation
 /// of PrintMetadata()
 ///
-/// Prints several separators
+/// Prints several separators. Prints cuts.
 void TRestEventProcess::EndPrintProcess() {
     if (fCuts.size() > 0) {
         metadata << "Cuts enabled" << endl;
@@ -363,35 +391,35 @@ void TRestEventProcess::EndPrintProcess() {
     metadata.setlength(10000);
 }
 
-//////////////////////////////////////////////////////////////////////////
-/// \brief Retrieve parameter with name "parName" from friendly process
-/// "className"
-///
-/// \param className string with name of metadata class to access
-/// \param parName  string with name of parameter to retrieve
-///
-Double_t TRestEventProcess::GetDoubleParameterFromFriends(string className, string parName) {
-    for (size_t i = 0; i < fFriendlyProcesses.size(); i++)
-        if ((string)fFriendlyProcesses[i]->ClassName() == (string)className)
-            return StringToDouble(fFriendlyProcesses[i]->GetParameter((string)parName));
-
-    return PARAMETER_NOT_FOUND_DBL;
-}
-
-//////////////////////////////////////////////////////////////////////////
-/// \brief Retrieve parameter with name "parName" from friendly process
-/// "className", with units
-///
-/// \param className string with name of metadata class to access
-/// \param parName  string with name of parameter to retrieve
-///
-Double_t TRestEventProcess::GetDoubleParameterFromFriendsWithUnits(string className, string parName) {
-    for (size_t i = 0; i < fFriendlyProcesses.size(); i++)
-        if ((string)fFriendlyProcesses[i]->ClassName() == (string)className)
-            return fFriendlyProcesses[i]->GetDblParameterWithUnits((string)parName);
-
-    return PARAMETER_NOT_FOUND_DBL;
-}
+////////////////////////////////////////////////////////////////////////////
+///// \brief Retrieve parameter with name "parName" from friendly process
+///// "className"
+/////
+///// \param className string with name of metadata class to access
+///// \param parName  string with name of parameter to retrieve
+/////
+// Double_t TRestEventProcess::GetDoubleParameterFromFriends(string className, string parName) {
+//    for (size_t i = 0; i < fFriendlyProcesses.size(); i++)
+//        if ((string)fFriendlyProcesses[i]->ClassName() == (string)className)
+//            return StringToDouble(fFriendlyProcesses[i]->GetParameter((string)parName));
+//
+//    return PARAMETER_NOT_FOUND_DBL;
+//}
+//
+////////////////////////////////////////////////////////////////////////////
+///// \brief Retrieve parameter with name "parName" from friendly process
+///// "className", with units
+/////
+///// \param className string with name of metadata class to access
+///// \param parName  string with name of parameter to retrieve
+/////
+// Double_t TRestEventProcess::GetDoubleParameterFromFriendsWithUnits(string className, string parName) {
+//    for (size_t i = 0; i < fFriendlyProcesses.size(); i++)
+//        if ((string)fFriendlyProcesses[i]->ClassName() == (string)className)
+//            return fFriendlyProcesses[i]->GetDblParameterWithUnits((string)parName);
+//
+//    return PARAMETER_NOT_FOUND_DBL;
+//}
 
 TRestAnalysisTree* TRestEventProcess::GetFullAnalysisTree() {
     if (fHostmgr != NULL && fHostmgr->GetProcessRunner() != NULL)
