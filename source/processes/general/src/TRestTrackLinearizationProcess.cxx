@@ -59,11 +59,7 @@ void TRestTrackLinearizationProcess::LoadConfig(string cfgFilename) {
     PrintMetadata();
 }
 
-void TRestTrackLinearizationProcess::InitProcess() {
-    cout << __PRETTY_FUNCTION__ << endl;
-
-    TRestEventProcess::ReadObservables();
-}
+void TRestTrackLinearizationProcess::InitProcess() { TRestEventProcess::ReadObservables(); }
 
 TRestEvent* TRestTrackLinearizationProcess::ProcessEvent(TRestEvent* evInput) {
     fInputTrackEvent = (TRestTrackEvent*)evInput;

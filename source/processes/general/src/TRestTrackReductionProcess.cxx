@@ -56,7 +56,7 @@ void TRestTrackReductionProcess::LoadConfig(std::string cfgFilename, std::string
 }
 
 //______________________________________________________________________________
-void TRestTrackReductionProcess::InitProcess() { cout << __PRETTY_FUNCTION__ << endl; }
+void TRestTrackReductionProcess::InitProcess() {}
 
 //______________________________________________________________________________
 void TRestTrackReductionProcess::BeginOfEventProcess() { fOutputTrackEvent->Initialize(); }

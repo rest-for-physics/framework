@@ -57,11 +57,7 @@ void TRestTrackReconnectionProcess::LoadConfig(std::string cfgFilename, std::str
 }
 
 //______________________________________________________________________________
-void TRestTrackReconnectionProcess::InitProcess() {
-    TRestEventProcess::ReadObservables();
-
-    cout << __PRETTY_FUNCTION__ << endl;
-}
+void TRestTrackReconnectionProcess::InitProcess() { TRestEventProcess::ReadObservables(); }
 
 //______________________________________________________________________________
 void TRestTrackReconnectionProcess::BeginOfEventProcess() { fOutputTrackEvent->Initialize(); }

@@ -94,8 +94,6 @@ void TRestAvalancheProcess::InitProcess() {
     // TRestEventProcess::InitProcess();
 
     if (fGas == NULL) cout << "REST ERRORRRR : Gas has not been initialized" << endl;
-
-    cout << __PRETTY_FUNCTION__ << endl;
 }
 
 //______________________________________________________________________________

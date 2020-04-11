@@ -59,7 +59,7 @@ void TRestHitsReductionProcess::LoadConfig(std::string cfgFilename, std::string 
 }
 
 //______________________________________________________________________________
-void TRestHitsReductionProcess::InitProcess() { cout << __PRETTY_FUNCTION__ << endl; }
+void TRestHitsReductionProcess::InitProcess() {}
 
 //______________________________________________________________________________
 void TRestHitsReductionProcess::BeginOfEventProcess() { fOutputHitsEvent->Initialize(); }
