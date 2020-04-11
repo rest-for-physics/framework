@@ -84,7 +84,7 @@ void TRestSingleChannelAnalysisProcess::InitProcess() {
         }
     }
 
-    if (!HasFriend("TRestRawSignalAnalysisProcess")) {
+    if (GetFriend("TRestRawSignalAnalysisProcess") == NULL) {
         ferr << "please add friend process TRestRawSignalAnalysisProcess and TRestReadoutAnalysisProcess "
                 "and turn on all their observables!"
              << endl;
