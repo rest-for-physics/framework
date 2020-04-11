@@ -59,18 +59,18 @@ void TRestHitsToSignalProcess::LoadDefaultConfig() {
 }
 
 void TRestHitsToSignalProcess::LoadConfig(string cfgFilename, string name) {
-    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
+    // if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 
-    // If the parameters have no value it tries to obtain it from
-    // electronDiffusionProcess
-    if (fElectricField == PARAMETER_NOT_FOUND_DBL) {
-        fElectricField =
-            this->GetDoubleParameterFromFriendsWithUnits("TRestElectronDiffusionProcess", "electricField");
-        if (fElectricField != PARAMETER_NOT_FOUND_DBL) {
-            cout << "Getting electric field from electronDiffusionProcess : " << fElectricField << " V/cm"
-                 << endl;
-        }
-    }
+    //// If the parameters have no value it tries to obtain it from
+    //// electronDiffusionProcess
+    // if (fElectricField == PARAMETER_NOT_FOUND_DBL) {
+    //    fElectricField =
+    //        this->GetDoubleParameterFromFriendsWithUnits("TRestElectronDiffusionProcess", "electricField");
+    //    if (fElectricField != PARAMETER_NOT_FOUND_DBL) {
+    //        cout << "Getting electric field from electronDiffusionProcess : " << fElectricField << " V/cm"
+    //             << endl;
+    //    }
+    //}
 }
 
 //______________________________________________________________________________
