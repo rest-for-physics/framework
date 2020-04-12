@@ -381,7 +381,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
         debug << "Thread " << fThreadId << " Ready!" << endl;
     } else {
         string tmp = fHostRunner->GetInputEvent()->ClassName();
-        fInputEvent = (TRestEvent*)TClass::GetClass(tmp.c_str())->New();
+        fInputEvent = REST_Reflection::Assembly(tmp);
         fOutputEvent = fInputEvent;
         fOutputFile = new TFile(threadFileName.c_str(), "recreate");
         fOutputFile->SetCompressionLevel(0);
