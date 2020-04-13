@@ -176,9 +176,15 @@ void TRestHits3DReconstructionProcess::Initialize() {
 
     fInputHitsEvent = new TRestHitsEvent();
     fOutputHitsEvent = new TRestHitsEvent();
+}
 
-    fInputEvent = fInputHitsEvent;
-    fOutputEvent = fOutputHitsEvent;
+void TRestHits3DReconstructionProcess::PrintMetadata() {
+    BeginPrintProcess();
+    /////////////
+    // write here the information to print
+
+    ////////////
+    EndPrintProcess();
 }
 
 //______________________________________________________________________________
@@ -193,8 +199,6 @@ void TRestHits3DReconstructionProcess::InitProcess() {
 
 //______________________________________________________________________________
 TRestEvent* TRestHits3DReconstructionProcess::ProcessEvent(TRestEvent* evInput) {
-    Int_t trackBranches = 0;
-
     fInputHitsEvent = (TRestHitsEvent*)evInput;
 
     // sort with z from small to large
