@@ -14,6 +14,7 @@
 ///_______________________________________________________________________________
 
 #include "TRestMesh.h"
+#include "TRestPhysics.h"
 using namespace std;
 using namespace TMath;
 
@@ -312,6 +313,97 @@ Bool_t TRestMesh::IsInside(TVector3 pos) {
     if (pos.Z() < fNetOrigin.Z() || pos.Z() > fNetOrigin.Z() + fNetSizeZ) return false;
 
     return true;
+}
+
+TVector3 TRestMesh::GetNetCenter() {
+    return (TVector3)(fNetOrigin + TVector3(fNetSizeX / 2., fNetSizeY / 2., fNetSizeZ / 2.));
+}
+
+///////////////////////////////////////////////
+/// \brief Finds the intersection of the straight line (track defined by the input arguments given,
+/// a position `pos` and direction `dir`) with the boundary box defined by the mesh.
+///
+/// It is done by searching for the points where the particle trajectory intersects the boundary planes of
+/// that region.
+///
+/// If the optional parameter `particle` is true (which is the default behaviour) this method will
+/// return the found boundaries only if the particle is moving towards the volume. On top of that it
+/// will be assured that the first boundary element corresponds with the boundary closer to the position
+/// of the particle.
+///
+/// If the `particle` parameter is false, valid boundaries will be returned as soon as the track crosses
+/// the volume without being crosschecked the relative positions of the boundaries respect to the particle
+/// position.
+///
+std::vector<TVector3> TRestMesh::GetTrackBoundaries(TVector3 pos, TVector3 dir, Bool_t particle) {
+    TVector3 netCenter = this->GetNetCenter();
+
+    Double_t xH = netCenter.X() + GetNetSizeX() / 2.;
+    Double_t xL = netCenter.X() - GetNetSizeX() / 2.;
+
+    Double_t yH = netCenter.Y() + GetNetSizeY() / 2.;
+    Double_t yL = netCenter.Y() - GetNetSizeY() / 2.;
+
+    Double_t zH = netCenter.Z() + GetNetSizeZ() / 2.;
+    Double_t zL = netCenter.Z() - GetNetSizeZ() / 2.;
+
+    TVector3 posAtPlane;
+    std::vector<TVector3> boundaries;
+    boundaries.clear();
+
+    // We move the vector position at each of the planes defined by the bounding box.
+    // Then we check if it is within the face limits.
+
+    TVector3 planePosition_BottomZ = TVector3(0, 0, -GetNetSizeZ() / 2.) + netCenter;
+    posAtPlane = REST_Physics::MoveToPlane(pos, dir, TVector3(0, 0, 1), planePosition_BottomZ);
+    if (posAtPlane.X() > xL && posAtPlane.X() < xH && posAtPlane.Y() > yL && posAtPlane.Y() < yH)
+        boundaries.push_back(posAtPlane);
+
+    TVector3 planePosition_TopZ = TVector3(0, 0, GetNetSizeZ() / 2.) + netCenter;
+    posAtPlane = REST_Physics::MoveToPlane(pos, dir, TVector3(0, 0, 1), planePosition_TopZ);
+    if (posAtPlane.X() > xL && posAtPlane.X() < xH && posAtPlane.Y() > yL && posAtPlane.Y() < yH)
+        boundaries.push_back(posAtPlane);
+
+    TVector3 planePosition_BottomY = TVector3(0, -GetNetSizeY() / 2., 0) + netCenter;
+    posAtPlane = REST_Physics::MoveToPlane(pos, dir, TVector3(0, 1, 0), planePosition_BottomY);
+    if (posAtPlane.X() > xL && posAtPlane.X() < xH && posAtPlane.Z() > zL && posAtPlane.Z() < zH)
+        boundaries.push_back(posAtPlane);
+
+    TVector3 planePosition_TopY = TVector3(0, GetNetSizeY() / 2., 0) + netCenter;
+    posAtPlane = REST_Physics::MoveToPlane(pos, dir, TVector3(0, 1, 0), planePosition_TopY);
+    if (posAtPlane.X() > xL && posAtPlane.X() < xH && posAtPlane.Z() > zL && posAtPlane.Z() < zH)
+        boundaries.push_back(posAtPlane);
+
+    TVector3 planePosition_BottomX = TVector3(-GetNetSizeX() / 2., 0, 0) + netCenter;
+    posAtPlane = REST_Physics::MoveToPlane(pos, dir, TVector3(1, 0, 0), planePosition_BottomX);
+    if (posAtPlane.Y() > yL && posAtPlane.Y() < yH && posAtPlane.Z() > zL && posAtPlane.Z() < zH)
+        boundaries.push_back(posAtPlane);
+
+    TVector3 planePosition_TopX = TVector3(GetNetSizeX() / 2., 0, 0) + netCenter;
+    posAtPlane = REST_Physics::MoveToPlane(pos, dir, TVector3(1, 0, 0), planePosition_TopX);
+    if (posAtPlane.Y() > yL && posAtPlane.Y() < yH && posAtPlane.Z() > zL && posAtPlane.Z() < zH)
+        boundaries.push_back(posAtPlane);
+
+    if (boundaries.size() == 2) {
+        TVector3 center = 0.5 * (boundaries[0] + boundaries[1]);
+        Double_t product_1 = (boundaries[0] - center) * dir;
+        Double_t product_2 = (boundaries[1] - center) * dir;
+
+        if (particle) {
+            // d1 and d2 is the signed distance to the volume boundaries
+            Double_t d1 = (boundaries[0] - pos) * dir;
+            Double_t d2 = (boundaries[1] - pos) * dir;
+
+            // Both should be positive so that the particle is approaching the volume
+            if (d1 < 0 || d2 < 0) boundaries.clear();
+
+            // The first boundary will be always related to the closer IN boundary
+            // If it is no the case we exchange them.
+            if (d1 > d2) iter_swap(boundaries.begin(), boundaries.begin() + 1);
+        }
+    }
+
+    return boundaries;
 }
 
 void TRestMesh::Print() {

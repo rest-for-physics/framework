@@ -413,9 +413,12 @@ int TRestDataBase::update_metadata(int id, DBEntry info) {
 bool TRestDataBase::DownloadRemoteFile(string remoteFile, string localFile) {
     TUrl url(remoteFile.c_str());
 
+    info << "Downloading remote file : " << remoteFile << endl;
+    info << "To local file : " << localFile << endl;
+
     if ((string)url.GetProtocol() == "https" || (string)url.GetProtocol() == "http") {
         string cmd = "wget --no-check-certificate " + remoteFile + " -O " + localFile + " -q";
-        cout << cmd << endl;
+        debug << cmd << endl;
         int a = system(cmd.c_str());
 
         if (a == 0) {

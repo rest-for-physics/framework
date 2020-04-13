@@ -92,11 +92,15 @@ class TRestMesh : public TObject {
     Double_t GetNetSizeY() { return fNetSizeY; }
     Double_t GetNetSizeZ() { return fNetSizeZ; }
 
+    TVector3 GetNetCenter();
+
     void AddNode(Double_t x, Double_t y, Double_t z);
 
     void RemoveNodes();
 
     Bool_t IsInside(TVector3 pos);
+
+    std::vector<TVector3> GetTrackBoundaries(TVector3 pos, TVector3 dir, Bool_t particle = true);
 
     void Print();
 
