@@ -77,6 +77,12 @@ TVector3 GetPlaneVectorIntersection(TVector3 pos, TVector3 dir, TVector3 n, TVec
 TVector3 MoveByDistance(TVector3 pos, TVector3 dir, Double_t d) { return pos + d * dir.Unit(); }
 
 ///////////////////////////////////////////////
+/// \brief This method transports a position `pos` by a distance `d` in the direction defined by `dir`.
+/// This method assumes the vector `dir` is unitary!
+///
+TVector3 MoveByDistanceFast(TVector3 pos, TVector3 dir, Double_t d) { return pos + d * dir; }
+
+///////////////////////////////////////////////
 /// \brief This method returns the cartesian distance between vector v2 and v1.
 ///
 Double_t GetDistance(TVector3 v1, TVector3 v2) { return (v2 - v1).Mag(); }
