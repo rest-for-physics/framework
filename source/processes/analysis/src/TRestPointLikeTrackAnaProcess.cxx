@@ -46,11 +46,7 @@ void TRestPointLikeTrackAnaProcess::LoadConfig(string cfgFilename) {
 }
 
 //______________________________________________________________________________
-void TRestPointLikeTrackAnaProcess::InitProcess() {
-    TRestEventProcess::ReadObservables();
-
-    cout << __PRETTY_FUNCTION__ << endl;
-}
+void TRestPointLikeTrackAnaProcess::InitProcess() { TRestEventProcess::ReadObservables(); }
 
 //______________________________________________________________________________
 void TRestPointLikeTrackAnaProcess::BeginOfEventProcess() {}

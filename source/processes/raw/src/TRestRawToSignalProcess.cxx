@@ -20,6 +20,7 @@
 ///_______________________________________________________________________________
 
 #include "TRestRawToSignalProcess.h"
+
 #include <sys/stat.h>
 using namespace std;
 #include "TTimeStamp.h"
@@ -99,8 +100,6 @@ void TRestRawToSignalProcess::LoadDefaultConfig() {
 //______________________________________________________________________________
 void TRestRawToSignalProcess::EndProcess() {
     // close binary file??? Already done
-
-    debug << __PRETTY_FUNCTION__ << endl;
 }
 
 ////______________________________________________________________________________

@@ -78,7 +78,6 @@ void TRestPointLikeAnaProcess::InitProcess() {
     fReadout = GetMetadata<TRestReadout>();
 
     if (fReadout == NULL) cout << "REST ERRORRRR : Readout has not been initialized" << endl;
-    cout << __PRETTY_FUNCTION__ << endl;
 
     /*
         // Get the gain factor from a file

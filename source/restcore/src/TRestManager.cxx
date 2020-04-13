@@ -27,6 +27,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "TRestManager.h"
+
 #include "TInterpreter.h"
 #include "TRestTask.h"
 #include "TSystem.h"
@@ -88,14 +89,7 @@ Int_t TRestManager::ReadConfig(string keydeclare, TiXmlElement* e) {
     // cout << "----------- " << gROOT->FindObject("SJTU_Proto") << endl;
 
     if (Count(keydeclare, "TRest") > 0) {
-        TClass* c = TClass::GetClass(keydeclare.c_str());
-        if (c == NULL) {
-            cout << " " << endl;
-            cout << "REST ERROR. Class : " << keydeclare << " not found!!" << endl;
-            cout << "This class will be skipped." << endl;
-            return -1;
-        }
-        TRestMetadata* meta = (TRestMetadata*)c->New();
+        TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
         meta->SetHostmgr(this);
         fMetaObjects.push_back(meta);
         meta->SetConfigFile(fConfigFileName);

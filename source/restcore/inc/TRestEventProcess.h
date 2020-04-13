@@ -70,9 +70,10 @@ class TRestEventProcess : public TRestMetadata {
         return (T*)GetMetadata(type);
     }
     TRestMetadata* GetMetadata(string nameortype);
-    Bool_t HasFriend(string nameortype);
-    Double_t GetDoubleParameterFromFriends(string className, string parName);
-    Double_t GetDoubleParameterFromFriendsWithUnits(string className, string parName);
+    TRestEventProcess* GetFriend(string nameortype);
+    TRestEventProcess* GetFriendLive(string nameortype);
+    // Double_t GetDoubleParameterFromFriends(string className, string parName);
+    // Double_t GetDoubleParameterFromFriendsWithUnits(string className, string parName);
 
     //////////////////////////////////////////////////////////////////////////
     /// \brief Set observable value for analysistree.

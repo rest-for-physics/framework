@@ -26,6 +26,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "TRestTask.h"
+
 #include "TRestManager.h"
 #include "TRestReflector.h"
 ClassImp(TRestTask);
@@ -289,31 +290,27 @@ void TRestTask::PrintArgumentHelp() {
 /// corresponding macro file and calls gInterpreter to load it, and then
 /// instaintiates a TRestTask class wrapping this file.
 TRestTask* TRestTask::GetTask(TString MacroName) {
-    TClass* c = TClass::GetClass(MacroName);
-    if (c == NULL) c = TClass::GetClass("REST_" + MacroName);
+    string macfilelists =
+        TRestTools::Execute("find $REST_PATH/macros -name *" + (string)MacroName + (string) ".*");
+    auto macfiles = Split(macfilelists, "\n");
 
-    if (c == NULL) {
-        string macfilelists =
-            TRestTools::Execute("find $REST_PATH/macros -name *" + (string)MacroName + (string) ".*");
-        auto macfiles = Split(macfilelists, "\n");
-
-        if (macfiles.size() == 0 || macfiles[0] == "") {
-            return NULL;
-        }
+    if (macfiles.size() != 0 && macfiles[0] != "") {
         std::cout << "Found MacroFile " << macfiles[0] << std::endl;
         // system("echo \"#define REST_MANAGER\" > /tmp/tmpMacro.c");
         // system(("cat " + macfiles[0] + " >> /tmp/tmpMacro.c").c_str());
-        if (gInterpreter->LoadFile(macfiles[0].c_str()) != 0) {
-            return NULL;
+        if (gInterpreter->LoadFile(macfiles[0].c_str()) == 0) {
+            auto tsk = new TRestTask(macfiles[0].c_str(), TASK_MACRO);
+            // system("rm /tmp/tmpMacro.c");
+            return tsk;
         }
 
-        auto tsk = new TRestTask(macfiles[0].c_str(), TASK_MACRO);
-        // system("rm /tmp/tmpMacro.c");
-        return tsk;
-    } else if (c->InheritsFrom("TRestTask")) {
-        auto tsk = (TRestTask*)c->New();
-        tsk->SetMode(TASK_CLASS);
-        return tsk;
+    } else {
+        // initialize from a class which is inherited from TRestTask
+        TRestTask* tsk = REST_Reflection::Assembly((string)MacroName);
+        if (tsk != NULL && tsk->InheritsFrom("TRestTask")) {
+            tsk->SetMode(TASK_CLASS);
+            return tsk;
+        }
     }
     return NULL;
 }

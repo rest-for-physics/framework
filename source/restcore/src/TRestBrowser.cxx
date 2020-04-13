@@ -93,13 +93,9 @@ void TRestBrowser::SetViewer(TRestEventViewer* eV) {
 
 void TRestBrowser::SetViewer(TString viewerName) {
     if (Count((string)viewerName, "Viewer") > 0) {
-        TClass* cl = TClass::GetClass(viewerName);
-        if (cl == NULL) {
-            cout << "cannot find viewer: " << viewerName << " !" << endl;
-        } else {
-            TObject* obj = (TObject*)cl->New();
-
-            SetViewer((TRestEventViewer*)obj);
+        TRestEventViewer* viewer = REST_Reflection::Assembly((string)viewerName);
+        if (viewer != NULL) {
+            SetViewer(viewer);
         }
     } else {
         cout << "illegal viewer : " << viewerName << endl;

@@ -257,16 +257,7 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
             warning << "Event process " << processType << " has no name, it will be skipped" << endl;
             return -1;
         }
-        TClass* cl = TClass::GetClass(processType.c_str());
-        if (cl == NULL) {
-            ferr << endl;
-            ferr << "Process : " << processType << " not found!!" << endl;
-            ferr << "This may due to a mis-spelling in the rml or mis-installation" << endl;
-            ferr << "of an external library. Please verify them and launch again." << endl;
-            exit(1);
-            return -1;
-        }
-        TRestEventProcess* pc = (TRestEventProcess*)cl->New();
+        TRestEventProcess* pc = REST_Reflection::Assembly(processType);
 
         pc->LoadConfigFromFile(e, fElementGlobal);
 
@@ -290,14 +281,7 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
             return -1;
         }
 
-        TClass* c = TClass::GetClass(keydeclare.c_str());
-        if (c == NULL) {
-            warning << endl;
-            warning << "Class : " << keydeclare << " not found!!" << endl;
-            warning << "This class will be skipped." << endl;
-            return -1;
-        }
-        TRestMetadata* meta = (TRestMetadata*)c->New();
+        TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
         meta->SetHostmgr(fHostmgr);
         fMetadataInfo.push_back(meta);
         meta->LoadConfigFromFile(e, fElementGlobal);
@@ -451,11 +435,13 @@ void TRestRun::ReadInputFileMetadata() {
 
         TIter nextkey(f->GetListOfKeys());
         TKey* key;
+        // we should make sure the input metadata has unique names
+        set<string> addednames;
         while ((key = (TKey*)nextkey())) {
             debug << "Reading key with name : " << key->GetName() << endl;
+            if (addednames.count(key->GetName()) != 0) continue;
 
             TRestMetadata* a = (TRestMetadata*)f->Get(key->GetName());
-
             if (!a) {
                 ferr << "TRestRun::ReadInputFileMetadata." << endl;
                 ferr << "Key name : " << key->GetName() << endl;
@@ -479,9 +465,9 @@ void TRestRun::ReadInputFileMetadata() {
                 fInputMetadata.push_back(a);
                 }
                  */
-
                 fInputMetadata.push_back(a);
                 fMetadataInfo.push_back(a);
+                addednames.insert(key->GetName());
             }
         }
     }
@@ -543,7 +529,7 @@ void TRestRun::ReadInputFileTrees() {
                     info << "This file may be a pure analysis file" << endl;
                 } else {
                     string type = Replace(br->GetName(), "Branch", "", 0);
-                    fInputEvent = (TRestEvent*)TClass::GetClass(type.c_str())->New();
+                    fInputEvent = REST_Reflection::Assembly(type);
                     fInputEvent->InitializeWithMetadata(this);
                     fEventTree->SetBranchAddress(br->GetName(), &fInputEvent);
                     fEventBranchLoc = branches->GetLast();

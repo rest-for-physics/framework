@@ -53,7 +53,7 @@ void TRestTrackToHitsProcess::LoadConfig(std::string cfgFilename, std::string na
 }
 
 //______________________________________________________________________________
-void TRestTrackToHitsProcess::InitProcess() { cout << __PRETTY_FUNCTION__ << endl; }
+void TRestTrackToHitsProcess::InitProcess() {}
 
 //______________________________________________________________________________
 TRestEvent* TRestTrackToHitsProcess::ProcessEvent(TRestEvent* evInput) {

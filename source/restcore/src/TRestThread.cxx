@@ -152,6 +152,8 @@ bool TRestThread::TestRun(TRestAnalysisTree* tempTree) {
         debug << "Test run " << i << " : Input Event ---- " << fInputEvent->ClassName() << "(" << fInputEvent
               << ")" << endl;
         for (unsigned int j = 0; j < fProcessChain.size(); j++) {
+            essential << "t" << fThreadId << "p" << j << ": " << fProcessChain[j]->ClassName() << endl;
+
             fProcessChain[j]->BeginOfEventProcess(ProcessedEvent);
             fProcessChain[j]->ProcessEvent(ProcessedEvent);
             ProcessedEvent = fProcessChain[j]->GetOutputEvent();
@@ -379,7 +381,7 @@ void TRestThread::PrepareToProcess(bool* outputConfig, bool testrun) {
         debug << "Thread " << fThreadId << " Ready!" << endl;
     } else {
         string tmp = fHostRunner->GetInputEvent()->ClassName();
-        fInputEvent = (TRestEvent*)TClass::GetClass(tmp.c_str())->New();
+        fInputEvent = REST_Reflection::Assembly(tmp);
         fOutputEvent = fInputEvent;
         fOutputFile = new TFile(threadFileName.c_str(), "recreate");
         fOutputFile->SetCompressionLevel(0);

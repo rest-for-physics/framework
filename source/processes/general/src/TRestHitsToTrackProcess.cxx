@@ -72,8 +72,6 @@ void TRestHitsToTrackProcess::InitProcess() {
     // Start by calling the InitProcess function of the abstract class.
     // Comment this if you don't want it.
     // TRestEventProcess::InitProcess();
-
-    cout << __PRETTY_FUNCTION__ << endl;
 }
 
 //______________________________________________________________________________

@@ -54,7 +54,7 @@ void TRestHitsShuffleProcess::LoadConfig(std::string cfgFilename, std::string na
 }
 
 //______________________________________________________________________________
-void TRestHitsShuffleProcess::InitProcess() { cout << __PRETTY_FUNCTION__ << endl; }
+void TRestHitsShuffleProcess::InitProcess() {}
 
 //______________________________________________________________________________
 void TRestHitsShuffleProcess::BeginOfEventProcess() {}

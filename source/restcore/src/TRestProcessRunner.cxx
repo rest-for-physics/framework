@@ -230,7 +230,7 @@ void TRestProcessRunner::EndOfInit() {
     } else {
         if (fThreads[0]->GetProcessnum() > 0 && fThreads[0]->GetProcess(0)->GetInputEvent() != NULL) {
             string name = fThreads[0]->GetProcess(0)->GetInputEvent()->ClassName();
-            auto a = (TRestEvent*)TClass::GetClass(name.c_str())->New();
+            TRestEvent* a = REST_Reflection::Assembly(name);
             a->Initialize();
             fRunInfo->SetInputEvent(a);
         }
@@ -829,16 +829,8 @@ void TRestProcessRunner::ResetRunTimes() {
 /// type name. Then it asks the process object to LoadConfigFromFile() with an
 /// xml section.
 TRestEventProcess* TRestProcessRunner::InstantiateProcess(TString type, TiXmlElement* ele) {
-    TClass* cl = TClass::GetClass(type);
-    if (cl == NULL) {
-        ferr << endl;
-        ferr << "Process : " << type << " not found!!" << endl;
-        ferr << "This may due to a mis-spelling in the rml or mis-installation" << endl;
-        ferr << "of an external library. Please verify them and launch again." << endl;
-        exit(1);
-        return NULL;
-    }
-    TRestEventProcess* pc = (TRestEventProcess*)cl->New();
+    TRestEventProcess* pc = REST_Reflection::Assembly((string)type);
+    if (pc == NULL) return NULL;
 
     pc->LoadConfigFromFile(ele, fElementGlobal);
 
