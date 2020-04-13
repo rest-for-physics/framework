@@ -1033,9 +1033,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL
-                    ? false
-                    : ((string)localele->Attribute("expanded") == "true")) {
+            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+                                                                   "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1068,9 +1067,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL
-                    ? false
-                    : ((string)localele->Attribute("expanded") == "true")) {
+            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+                                                                   "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1322,9 +1320,7 @@ Double_t TRestMetadata::GetDblParameterWithUnits(std::string parName, TiXmlEleme
     if (a == PARAMETER_NOT_FOUND_STR) {
         return defaultVal;
     } else {
-        string units = GetUnits(ele, parName);
-        double val = StringToDouble(a.substr(0, a.find_last_of("1234567890()") + 1));
-        return REST_Units::ConvertValueToRESTUnits(val, units);
+        return GetValueInRESTUnits(a);
     }
 
     return defaultVal;
@@ -2278,14 +2274,19 @@ TString TRestMetadata::GetVerboseLevelString() {
 /// file search tool, see TRestMetadata::SearchFile().
 TString TRestMetadata::GetSearchPath() {
     string result = "";
-    TiXmlElement* e = fElement;
-    TiXmlElement* ele = e->FirstChildElement("searchPath");
-    while (ele != NULL) {
-        if (ele->Attribute("value") != NULL) {
-            result += (string)ele->Attribute("value") + ":";
+
+    // If fElement=0 we haven't initialized the class from RML.
+    // Then we skip adding user paths
+    if (fElement) {
+        TiXmlElement* ele = fElement->FirstChildElement("searchPath");
+        while (ele != NULL) {
+            if (ele->Attribute("value") != NULL) {
+                result += (string)ele->Attribute("value") + ":";
+            }
+            ele = ele->NextSiblingElement("searchPath");
         }
-        ele = ele->NextSiblingElement("searchPath");
     }
+
     if (getenv("configPath")) result += getenv("configPath") + (string) ":";
     result += getenv("REST_PATH") + (string) "/data/:";
     if (result.back() == ':') result.erase(result.size() - 1);

@@ -922,7 +922,7 @@ TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator--() {
 }
 
 TRestHits::TRestHits_Iterator& TRestHits::TRestHits_Iterator::operator-=(const int& n) {
-    if (index - n <= 0 ) {
+    if (index - n <= 0) {
         index = 0;
     } else {
         index -= n;
