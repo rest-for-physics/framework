@@ -31,9 +31,9 @@ TRestMesh::TRestMesh(Double_t size, Int_t nodes) {
     fNetSizeZ = size;
 
     // We will divide the grid in intervals not nodes.
-    fNodesX = nodes - 1;
-    fNodesY = nodes - 1;
-    fNodesZ = nodes - 1;
+    fNodesX = nodes;
+    fNodesY = nodes;
+    fNodesZ = nodes;
 
     fNetOrigin = TVector3(0, 0, 0);
 }
