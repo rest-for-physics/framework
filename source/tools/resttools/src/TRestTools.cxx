@@ -143,7 +143,7 @@ int TRestTools::PrintTable(std::vector<std::vector<Double_t>> data, Int_t start,
 }
 
 int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data) {
-    if (!TRestTools::fileExists((string)fName)) {
+    if (!TRestTools::isValidFile((string)fName)) {
         cout << "TRestTools::ReadASCIITable. Error" << endl;
         cout << "Cannot open file : " << fName << endl;
         return 0;
@@ -179,6 +179,18 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
 ///////////////////////////////////////////////
 /// \brief Returns true if the file with path filename exists.
 ///
+Int_t TRestTools::isValidFile(const string& path) {
+    struct stat buffer;
+    stat(path.c_str(), &buffer);
+    return S_ISREG(buffer.st_mode);
+}
+
+///////////////////////////////////////////////
+/// \brief Returns true if the file (or directory) with path filename exists.
+///
+/// This method will return true even if it is a pure path.
+/// We should call `isValidFile` to check if we will be able to open it without
+/// problems.
 bool TRestTools::fileExists(const string& filename) {
     struct stat buffer;
     return (stat(filename.c_str(), &buffer) == 0);
