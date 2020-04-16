@@ -77,9 +77,7 @@ TRestDummyToDetectorHitsProcess::TRestDummyToDetectorHitsProcess(char* cfgFileNa
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestDummyToDetectorHitsProcess::~TRestDummyToDetectorHitsProcess() {
-    delete fHitsEvent;
-}
+TRestDummyToDetectorHitsProcess::~TRestDummyToDetectorHitsProcess() { delete fHitsEvent; }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
