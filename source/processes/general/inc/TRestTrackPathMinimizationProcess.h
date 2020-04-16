@@ -38,10 +38,11 @@ class TRestTrackPathMinimizationProcess : public TRestEventProcess {
     Bool_t fWeightHits;
 
    public:
+    any GetInputEvent() { return fInputTrackEvent; }
+    any GetOutputEvent() { return fOutputTrackEvent; }
+
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
     void EndProcess();
     void LoadDefaultConfig();
 

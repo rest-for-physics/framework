@@ -26,7 +26,6 @@ TRestTrackReductionProcess::TRestTrackReductionProcess(char* cfgFileName) {
 
 //______________________________________________________________________________
 TRestTrackReductionProcess::~TRestTrackReductionProcess() {
-    delete fInputTrackEvent;
     delete fOutputTrackEvent;
 }
 
@@ -44,11 +43,8 @@ void TRestTrackReductionProcess::LoadDefaultConfig() {
 void TRestTrackReductionProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fInputTrackEvent = new TRestTrackEvent();
+    fInputTrackEvent = NULL;
     fOutputTrackEvent = new TRestTrackEvent();
-
-    fOutputEvent = fOutputTrackEvent;
-    fInputEvent = fInputTrackEvent;
 }
 
 void TRestTrackReductionProcess::LoadConfig(std::string cfgFilename, std::string name) {
@@ -57,9 +53,6 @@ void TRestTrackReductionProcess::LoadConfig(std::string cfgFilename, std::string
 
 //______________________________________________________________________________
 void TRestTrackReductionProcess::InitProcess() {}
-
-//______________________________________________________________________________
-void TRestTrackReductionProcess::BeginOfEventProcess() { fOutputTrackEvent->Initialize(); }
 
 //______________________________________________________________________________
 TRestEvent* TRestTrackReductionProcess::ProcessEvent(TRestEvent* evInput) {
@@ -144,9 +137,6 @@ TRestEvent* TRestTrackReductionProcess::ProcessEvent(TRestEvent* evInput) {
     fOutputTrackEvent->SetLevels();
     return fOutputTrackEvent;
 }
-
-//______________________________________________________________________________
-void TRestTrackReductionProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestTrackReductionProcess::EndProcess() {}

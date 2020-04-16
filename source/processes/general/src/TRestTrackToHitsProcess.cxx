@@ -26,7 +26,6 @@ TRestTrackToHitsProcess::TRestTrackToHitsProcess(char* cfgFileName) {
 
 //______________________________________________________________________________
 TRestTrackToHitsProcess::~TRestTrackToHitsProcess() {
-    delete fInputTrackEvent;
     delete fOutputHitsEvent;
 }
 
@@ -41,11 +40,8 @@ void TRestTrackToHitsProcess::LoadDefaultConfig() {
 void TRestTrackToHitsProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fInputTrackEvent = new TRestTrackEvent();
+    fInputTrackEvent = NULL;
     fOutputHitsEvent = new TRestHitsEvent();
-
-    fOutputEvent = fOutputHitsEvent;
-    fInputEvent = fInputTrackEvent;
 }
 
 void TRestTrackToHitsProcess::LoadConfig(std::string cfgFilename, std::string name) {
@@ -72,9 +68,6 @@ TRestEvent* TRestTrackToHitsProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fOutputHitsEvent;
 }
-
-//______________________________________________________________________________
-void TRestTrackToHitsProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestTrackToHitsProcess::EndProcess() {}

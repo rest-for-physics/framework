@@ -31,9 +31,11 @@ class TRestTrackToHitsProcess : public TRestEventProcess {
     Int_t fTrackLevel;
 
    public:
+    any GetInputEvent() { return fInputTrackEvent; }
+    any GetOutputEvent() { return fOutputHitsEvent; }
+
     void InitProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
     void EndProcess();
     void LoadDefaultConfig();
 

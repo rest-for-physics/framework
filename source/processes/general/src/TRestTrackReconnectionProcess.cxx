@@ -28,7 +28,6 @@ TRestTrackReconnectionProcess::TRestTrackReconnectionProcess(char* cfgFileName) 
 
 //______________________________________________________________________________
 TRestTrackReconnectionProcess::~TRestTrackReconnectionProcess() {
-    delete fInputTrackEvent;
     delete fOutputTrackEvent;
 }
 
@@ -41,11 +40,8 @@ void TRestTrackReconnectionProcess::LoadDefaultConfig() {
 void TRestTrackReconnectionProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fInputTrackEvent = new TRestTrackEvent();
+    fInputTrackEvent = NULL;
     fOutputTrackEvent = new TRestTrackEvent();
-
-    fOutputEvent = fOutputTrackEvent;
-    fInputEvent = fInputTrackEvent;
 
     fSplitTrack = false;
 }
@@ -58,9 +54,6 @@ void TRestTrackReconnectionProcess::LoadConfig(std::string cfgFilename, std::str
 
 //______________________________________________________________________________
 void TRestTrackReconnectionProcess::InitProcess() { TRestEventProcess::ReadObservables(); }
-
-//______________________________________________________________________________
-void TRestTrackReconnectionProcess::BeginOfEventProcess() { fOutputTrackEvent->Initialize(); }
 
 //______________________________________________________________________________
 TRestEvent* TRestTrackReconnectionProcess::ProcessEvent(TRestEvent* evInput) {
@@ -388,9 +381,6 @@ Int_t TRestTrackReconnectionProcess::GetTrackBranches(TRestHits& h, Double_t nSi
         if (h.GetDistance(n - 1, n) > fMeanDistance + nSigma * fSigma) breaks++;
     return breaks;
 }
-
-//______________________________________________________________________________
-void TRestTrackReconnectionProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestTrackReconnectionProcess::EndProcess() {}

@@ -29,7 +29,6 @@ TRestTrackPathMinimizationProcess::TRestTrackPathMinimizationProcess(char* cfgFi
 
 //______________________________________________________________________________
 TRestTrackPathMinimizationProcess::~TRestTrackPathMinimizationProcess() {
-    delete fInputTrackEvent;
     delete fOutputTrackEvent;
 }
 
@@ -42,11 +41,8 @@ void TRestTrackPathMinimizationProcess::LoadDefaultConfig() {
 void TRestTrackPathMinimizationProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fInputTrackEvent = new TRestTrackEvent();
+    fInputTrackEvent = NULL;
     fOutputTrackEvent = new TRestTrackEvent();
-
-    fOutputEvent = fOutputTrackEvent;
-    fInputEvent = fInputTrackEvent;
 }
 
 void TRestTrackPathMinimizationProcess::LoadConfig(std::string cfgFilename, std::string name) {
@@ -57,9 +53,6 @@ void TRestTrackPathMinimizationProcess::LoadConfig(std::string cfgFilename, std:
 
 //______________________________________________________________________________
 void TRestTrackPathMinimizationProcess::InitProcess() {}
-
-//______________________________________________________________________________
-void TRestTrackPathMinimizationProcess::BeginOfEventProcess() { fOutputTrackEvent->Initialize(); }
 
 //______________________________________________________________________________
 TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent(TRestEvent* evInput) {
@@ -309,9 +302,6 @@ TRestEvent* TRestTrackPathMinimizationProcess::ProcessEvent(TRestEvent* evInput)
 
     return fOutputTrackEvent;
 }
-
-//______________________________________________________________________________
-void TRestTrackPathMinimizationProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestTrackPathMinimizationProcess::EndProcess() {}
