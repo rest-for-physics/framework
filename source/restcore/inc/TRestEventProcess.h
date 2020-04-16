@@ -41,9 +41,12 @@ class TRestEventProcess : public TRestMetadata {
         Full_Output,   //!< +saving output event as another branch. branch name is process name+"_evtBranch"
     };
 
+   private:
+    // unused datamember, set as private
     TRestEvent* fInputEvent = NULL;   //!///< Pointer to input event
     TRestEvent* fOutputEvent = NULL;  //!///< Pointer to output event
 
+   protected:
     TCanvas* fCanvas = NULL;  //!
     TVector2 fCanvasSize;     //!
 
@@ -55,8 +58,10 @@ class TRestEventProcess : public TRestMetadata {
     bool fReadOnly = false;          //!
     bool fDynamicObs = false;        //!
 
+   private:
     REST_Process_Output fOutputLevel;  //! not used
 
+   protected:
     vector<pair<string, TVector2>> fCuts;           //!  [name, cut range]
     map<string, int> fObservableInfo;               //!     [name, id in AnalysisTree]
     vector<TRestEventProcess*> fFriendlyProcesses;  //!
@@ -128,8 +133,8 @@ class TRestEventProcess : public TRestMetadata {
     void SetFriendProcess(TRestEventProcess* p);
 
     // getters
-    virtual TRestEvent* GetInputEvent() { return fInputEvent; }    ///< Get pointer to input event
-    virtual TRestEvent* GetOutputEvent() { return fOutputEvent; }  ///< Get pointer to output event
+    virtual any GetInputEvent() = 0;   ///< Get pointer to input event
+    virtual any GetOutputEvent() = 0;  ///< Get pointer to output event
     virtual Long64_t GetTotalBytes() { return -1; }
     virtual Long64_t GetTotalBytesReaded() { return 0; }
     Bool_t singleThreadOnly() { return fSingleThreadOnly; }
