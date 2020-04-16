@@ -239,7 +239,6 @@ TRestGeant4AnalysisProcess::TRestGeant4AnalysisProcess(char* cfgFileName) {
 ///
 TRestGeant4AnalysisProcess::~TRestGeant4AnalysisProcess() {
     delete fOutputG4Event;
-    delete fInputG4Event;
 }
 
 ///////////////////////////////////////////////
@@ -255,7 +254,7 @@ void TRestGeant4AnalysisProcess::Initialize() {
     fG4Metadata = NULL;
     SetSectionName(this->ClassName());
 
-    fInputG4Event = new TRestG4Event();
+    fInputG4Event = NULL;
     fOutputG4Event = new TRestG4Event();
 }
 
@@ -409,6 +408,7 @@ void TRestGeant4AnalysisProcess::InitProcess() {
 /// \brief The main processing event function
 ///
 TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
+    fInputG4Event = (TRestG4Event*)evInput;
     *fOutputG4Event = *((TRestG4Event*)evInput);
 
     TString obsName;

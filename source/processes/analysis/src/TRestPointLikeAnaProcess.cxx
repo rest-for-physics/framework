@@ -28,7 +28,6 @@ TRestPointLikeAnaProcess::TRestPointLikeAnaProcess(char* cfgFileName) {
 
 //______________________________________________________________________________
 TRestPointLikeAnaProcess::~TRestPointLikeAnaProcess() {
-    delete fSignalEvent;
     if (fReadout != NULL) {
         delete fReadout;
         fReadout = NULL;

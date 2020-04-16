@@ -25,7 +25,7 @@ TRestPointLikeTrackAnaProcess::TRestPointLikeTrackAnaProcess(char* cfgFileName) 
 }
 
 //______________________________________________________________________________
-TRestPointLikeTrackAnaProcess::~TRestPointLikeTrackAnaProcess() { delete fTrackEvent; }
+TRestPointLikeTrackAnaProcess::~TRestPointLikeTrackAnaProcess() {}
 
 void TRestPointLikeTrackAnaProcess::LoadDefaultConfig() { SetTitle("Default config"); }
 

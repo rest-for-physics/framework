@@ -23,7 +23,7 @@ ClassImp(TRestMuonAnalysisProcess)
 }
 
 //______________________________________________________________________________
-TRestMuonAnalysisProcess::~TRestMuonAnalysisProcess() { delete fAnaEvent; }
+TRestMuonAnalysisProcess::~TRestMuonAnalysisProcess() {}
 
 //______________________________________________________________________________
 void TRestMuonAnalysisProcess::Initialize() {
