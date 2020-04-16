@@ -283,17 +283,18 @@ cout << GetName() << ": Process initialization..." << endl;
 ///
 void TRestEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
     debug << "Entering " << ClassName() << "::BeginOfEventProcess, Initializing output event..." << endl;
-    if (inEv != NULL && fOutputEvent != NULL && fOutputEvent != inEv) {
-        fOutputEvent->Initialize();
+    if (inEv != NULL && GetOutputEvent().address != NULL && (TRestEvent*)GetOutputEvent() != inEv) {
+        TRestEvent* outEv = GetOutputEvent();
+        outEv->Initialize();
 
-        fOutputEvent->SetID(inEv->GetID());
-        fOutputEvent->SetSubID(inEv->GetSubID());
-        fOutputEvent->SetSubEventTag(inEv->GetSubEventTag());
+        outEv->SetID(inEv->GetID());
+        outEv->SetSubID(inEv->GetSubID());
+        outEv->SetSubEventTag(inEv->GetSubEventTag());
 
-        fOutputEvent->SetRunOrigin(inEv->GetRunOrigin());
-        fOutputEvent->SetSubRunOrigin(inEv->GetSubRunOrigin());
+        outEv->SetRunOrigin(inEv->GetRunOrigin());
+        outEv->SetSubRunOrigin(inEv->GetSubRunOrigin());
 
-        fOutputEvent->SetTime(inEv->GetTime());
+        outEv->SetTime(inEv->GetTime());
     }
 
     // TODO if fIsExternal and we already have defined the fAnalysisTree run#,
