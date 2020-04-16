@@ -36,7 +36,6 @@ TRestFindResponseSignalProcess::TRestFindResponseSignalProcess(char* cfgFileName
 //______________________________________________________________________________
 TRestFindResponseSignalProcess::~TRestFindResponseSignalProcess() {
     delete fOutputSignalEvent;
-    delete fInputSignalEvent;
     // TRestFindResponseSignalProcess destructor
 }
 
@@ -49,11 +48,8 @@ void TRestFindResponseSignalProcess::LoadDefaultConfig() {
 void TRestFindResponseSignalProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fInputSignalEvent = new TRestRawSignalEvent();
+    fInputSignalEvent = NULL;
     fOutputSignalEvent = new TRestRawSignalEvent();
-
-    fInputEvent = fInputSignalEvent;
-    fOutputEvent = fOutputSignalEvent;
 }
 
 void TRestFindResponseSignalProcess::LoadConfig(string cfgFilename, string name) {
@@ -69,9 +65,6 @@ void TRestFindResponseSignalProcess::InitProcess() {
     // Comment this if you don't want it.
     // TRestEventProcess::InitProcess();
 }
-
-//______________________________________________________________________________
-void TRestFindResponseSignalProcess::BeginOfEventProcess() { fOutputSignalEvent->Initialize(); }
 
 //______________________________________________________________________________
 TRestEvent* TRestFindResponseSignalProcess::ProcessEvent(TRestEvent* evInput) {
@@ -113,9 +106,6 @@ TRestEvent* TRestFindResponseSignalProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fOutputSignalEvent;
 }
-
-//______________________________________________________________________________
-void TRestFindResponseSignalProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestFindResponseSignalProcess::EndProcess() {

@@ -102,7 +102,6 @@ TRestRawSignalRecoverChannelsProcess::TRestRawSignalRecoverChannelsProcess(char*
 ///
 TRestRawSignalRecoverChannelsProcess::~TRestRawSignalRecoverChannelsProcess() {
     delete fOutputSignalEvent;
-    delete fInputSignalEvent;
 }
 
 ///////////////////////////////////////////////
@@ -120,11 +119,8 @@ void TRestRawSignalRecoverChannelsProcess::LoadDefaultConfig() {
 void TRestRawSignalRecoverChannelsProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fInputSignalEvent = new TRestRawSignalEvent();
+    fInputSignalEvent = NULL;
     fOutputSignalEvent = new TRestRawSignalEvent();
-
-    fInputEvent = fInputSignalEvent;
-    fOutputEvent = fOutputSignalEvent;
 }
 
 ///////////////////////////////////////////////
@@ -156,12 +152,6 @@ void TRestRawSignalRecoverChannelsProcess::InitProcess() {
         exit(-1);
     }
 }
-
-///////////////////////////////////////////////
-/// \brief Function including required initialization before each event starts
-/// to process.
-///
-void TRestRawSignalRecoverChannelsProcess::BeginOfEventProcess() { fOutputSignalEvent->Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function

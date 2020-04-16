@@ -53,10 +53,11 @@ class TRestRawSignalShapingProcess : public TRestEventProcess {
     Double_t fShapingGain;
 
    public:
+    any GetInputEvent() { return fInputSignalEvent; }
+    any GetOutputEvent() { return fOutputSignalEvent; }
+
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
     void EndProcess();
 
     void LoadConfig(std::string cfgFilename, std::string name = "");

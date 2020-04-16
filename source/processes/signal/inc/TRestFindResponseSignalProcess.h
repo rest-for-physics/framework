@@ -31,10 +31,11 @@ class TRestFindResponseSignalProcess : public TRestEventProcess {
     // add here the members of your event process
 
    public:
+    any GetInputEvent() { return fInputSignalEvent; }
+    any GetOutputEvent() { return fOutputSignalEvent; }
+
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
     void EndProcess();
 
     void LoadConfig(std::string cfgFilename, string name = "");

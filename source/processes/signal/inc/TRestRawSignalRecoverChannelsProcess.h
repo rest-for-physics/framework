@@ -54,7 +54,9 @@ class TRestRawSignalRecoverChannelsProcess : public TRestEventProcess {
     std::vector<Int_t> fChannelIds;
 
    public:
-    void BeginOfEventProcess();
+    any GetInputEvent() { return fInputSignalEvent; }
+    any GetOutputEvent() { return fOutputSignalEvent; }
+
     void InitProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
 

@@ -41,7 +41,6 @@ TRestSignalDeconvolutionProcess::TRestSignalDeconvolutionProcess(char* cfgFileNa
 //______________________________________________________________________________
 TRestSignalDeconvolutionProcess::~TRestSignalDeconvolutionProcess() {
     delete fOutputSignalEvent;
-    delete fInputSignalEvent;
     // TRestSignalDeconvolutionProcess destructor
 
     //   delete cleanFFT;
@@ -78,12 +77,9 @@ void TRestSignalDeconvolutionProcess::LoadDefaultConfig() {
 //______________________________________________________________________________
 void TRestSignalDeconvolutionProcess::Initialize() {
     SetSectionName(this->ClassName());
-    fInputSignalEvent = new TRestSignalEvent();
 
+    fInputSignalEvent = NULL;
     fOutputSignalEvent = new TRestSignalEvent();
-
-    fInputEvent = fInputSignalEvent;
-    fOutputEvent = fOutputSignalEvent;
 
     responseFFT = new TRestFFT();
     // cleanFFT = new TRestFFT();
@@ -161,9 +157,6 @@ void TRestSignalDeconvolutionProcess::InitProcess() {
 }
 
 //______________________________________________________________________________
-void TRestSignalDeconvolutionProcess::BeginOfEventProcess() { fOutputSignalEvent->Initialize(); }
-
-//______________________________________________________________________________
 TRestEvent* TRestSignalDeconvolutionProcess::ProcessEvent(TRestEvent* evInput) {
     fInputSignalEvent = (TRestSignalEvent*)evInput;
 
@@ -237,9 +230,6 @@ TRestEvent* TRestSignalDeconvolutionProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fOutputSignalEvent;
 }
-
-//______________________________________________________________________________
-void TRestSignalDeconvolutionProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestSignalDeconvolutionProcess::EndProcess() {

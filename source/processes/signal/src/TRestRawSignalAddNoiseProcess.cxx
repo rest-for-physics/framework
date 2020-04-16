@@ -34,7 +34,6 @@ TRestRawSignalAddNoiseProcess::TRestRawSignalAddNoiseProcess(char* cfgFileName) 
 //______________________________________________________________________________
 TRestRawSignalAddNoiseProcess::~TRestRawSignalAddNoiseProcess() {
     delete fOutputSignalEvent;
-    delete fInputSignalEvent;
     // TRestRawSignalAddNoiseProcess destructor
 }
 
@@ -51,11 +50,8 @@ void TRestRawSignalAddNoiseProcess::Initialize() {
 
     fNoiseLevel = 1;
 
-    fInputSignalEvent = new TRestRawSignalEvent();
+    fInputSignalEvent = NULL;
     fOutputSignalEvent = new TRestRawSignalEvent();
-
-    fInputEvent = fInputSignalEvent;
-    fOutputEvent = fOutputSignalEvent;
 }
 
 void TRestRawSignalAddNoiseProcess::LoadConfig(string cfgFilename, string name) {
@@ -71,9 +67,6 @@ void TRestRawSignalAddNoiseProcess::InitProcess() {
     // Comment this if you don't want it.
     // TRestEventProcess::InitProcess();
 }
-
-//______________________________________________________________________________
-void TRestRawSignalAddNoiseProcess::BeginOfEventProcess() { fOutputSignalEvent->Initialize(); }
 
 //______________________________________________________________________________
 TRestEvent* TRestRawSignalAddNoiseProcess::ProcessEvent(TRestEvent* evInput) {
@@ -96,9 +89,6 @@ TRestEvent* TRestRawSignalAddNoiseProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fOutputSignalEvent;
 }
-
-//______________________________________________________________________________
-void TRestRawSignalAddNoiseProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestRawSignalAddNoiseProcess::EndProcess() {

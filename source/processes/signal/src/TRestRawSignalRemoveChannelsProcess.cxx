@@ -92,7 +92,6 @@ TRestRawSignalRemoveChannelsProcess::TRestRawSignalRemoveChannelsProcess(char* c
 ///
 TRestRawSignalRemoveChannelsProcess::~TRestRawSignalRemoveChannelsProcess() {
     delete fOutputSignalEvent;
-    delete fInputSignalEvent;
 }
 
 ///////////////////////////////////////////////
@@ -110,11 +109,8 @@ void TRestRawSignalRemoveChannelsProcess::LoadDefaultConfig() {
 void TRestRawSignalRemoveChannelsProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fInputSignalEvent = new TRestRawSignalEvent();
+    fInputSignalEvent = NULL;
     fOutputSignalEvent = new TRestRawSignalEvent();
-
-    fInputEvent = fInputSignalEvent;
-    fOutputEvent = fOutputSignalEvent;
 }
 
 ///////////////////////////////////////////////
@@ -132,12 +128,6 @@ void TRestRawSignalRemoveChannelsProcess::Initialize() {
 void TRestRawSignalRemoveChannelsProcess::LoadConfig(string cfgFilename, string name) {
     if (LoadConfigFromFile(cfgFilename, name) == -1) LoadDefaultConfig();
 }
-
-///////////////////////////////////////////////
-/// \brief Function including required initialization before each event starts
-/// to process.
-///
-void TRestRawSignalRemoveChannelsProcess::BeginOfEventProcess() { fOutputSignalEvent->Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function

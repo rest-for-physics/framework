@@ -48,7 +48,9 @@ class TRestRawSignalRemoveChannelsProcess : public TRestEventProcess {
     std::vector<Int_t> fChannelIds;
 
    public:
-    void BeginOfEventProcess();
+    any GetInputEvent() { return fInputSignalEvent; }
+    any GetOutputEvent() { return fOutputSignalEvent; }
+
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
 
     void LoadConfig(std::string cfgFilename, string name = "");

@@ -102,7 +102,6 @@ TRestRawSignalShapingProcess::TRestRawSignalShapingProcess(char* cfgFileName) {
 ///
 TRestRawSignalShapingProcess::~TRestRawSignalShapingProcess() {
     delete fOutputSignalEvent;
-    delete fInputSignalEvent;
 }
 
 ///////////////////////////////////////////////
@@ -120,11 +119,8 @@ void TRestRawSignalShapingProcess::LoadDefaultConfig() {
 void TRestRawSignalShapingProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fInputSignalEvent = new TRestRawSignalEvent();
+    fInputSignalEvent = NULL;
     fOutputSignalEvent = new TRestRawSignalEvent();
-
-    fInputEvent = fInputSignalEvent;
-    fOutputEvent = fOutputSignalEvent;
 }
 
 ///////////////////////////////////////////////
@@ -184,12 +180,6 @@ void TRestRawSignalShapingProcess::InitProcess() {
     }
     */
 }
-
-///////////////////////////////////////////////
-/// \brief Function to include required initialization before each event starts
-/// to process.
-///
-void TRestRawSignalShapingProcess::BeginOfEventProcess() { fOutputSignalEvent->Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
@@ -261,12 +251,6 @@ TRestEvent* TRestRawSignalShapingProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fOutputSignalEvent;
 }
-
-///////////////////////////////////////////////
-/// \brief Function to include required actions after each event has been
-/// processed.
-///
-void TRestRawSignalShapingProcess::EndOfEventProcess() {}
 
 ///////////////////////////////////////////////
 /// \brief Function to include required actions after all events have been
