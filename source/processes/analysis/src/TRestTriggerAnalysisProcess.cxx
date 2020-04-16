@@ -40,9 +40,6 @@ void TRestTriggerAnalysisProcess::Initialize() {
 
     fSignalEvent = new TRestSignalEvent();
 
-    fOutputEvent = fSignalEvent;
-    fInputEvent = fSignalEvent;
-
     fW = 0;
 }
 
@@ -67,9 +64,6 @@ void TRestTriggerAnalysisProcess::InitProcess() {
     TRestGas* gas = GetMetadata<TRestGas>();
     fW = gas->GetWvalue();
 }
-
-//______________________________________________________________________________
-void TRestTriggerAnalysisProcess::BeginOfEventProcess() { fSignalEvent->Initialize(); }
 
 //______________________________________________________________________________
 TRestEvent* TRestTriggerAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
@@ -129,9 +123,6 @@ TRestEvent* TRestTriggerAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fSignalEvent;
 }
-
-//______________________________________________________________________________
-void TRestTriggerAnalysisProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestTriggerAnalysisProcess::EndProcess() {

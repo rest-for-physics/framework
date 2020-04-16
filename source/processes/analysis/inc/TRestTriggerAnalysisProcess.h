@@ -47,10 +47,11 @@ class TRestTriggerAnalysisProcess : public TRestEventProcess {
     Int_t fADCLength;
 
    public:
+    any GetInputEvent() { return fSignalEvent; }
+    any GetOutputEvent() { return fSignalEvent; }
+
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
     void EndProcess();
 
     void LoadConfig(std::string cfgFilename, std::string name = "");

@@ -52,6 +52,9 @@ class TRestRawVetoAnalysisProcess : public TRestEventProcess {
 
    protected:
    public:
+    any GetInputEvent() { return fInputRawSignalEvent; }
+    any GetOutputEvent() { return fOutputRawSignalEvent; }
+
     TRestEvent* ProcessEvent(TRestEvent* evInput);
 
     void LoadConfig(std::string cfgFilename, std::string name = "");

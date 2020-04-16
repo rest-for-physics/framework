@@ -213,10 +213,7 @@ void TRestRawSignalAnalysisProcess::LoadDefaultConfig() { SetTitle("Default conf
 void TRestRawSignalAnalysisProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fSignalEvent = new TRestRawSignalEvent();
-
-    fOutputEvent = fSignalEvent;
-    fInputEvent = fSignalEvent;
+    fSignalEvent = NULL;
 
     fFirstEventTime = -1;
     fPreviousEventTime.clear();
@@ -253,7 +250,6 @@ void TRestRawSignalAnalysisProcess::InitProcess() {
 TRestEvent* TRestRawSignalAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     // no need for verbose copy now
     fSignalEvent = (TRestRawSignalEvent*)evInput;
-    fOutputEvent = fSignalEvent;
 
     ///////////////////previous usage/////////////////////////
     // fSignalEvent->Initialize();

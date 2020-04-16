@@ -55,6 +55,9 @@ class TRestPositionMappingProcess : public TRestEventProcess {
     TH2F* fAreaGainMap;  //!
 
    public:
+    any GetInputEvent() { return fHitsEvent; }
+    any GetOutputEvent() { return fHitsEvent; }
+
     void InitProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
     void EndProcess();

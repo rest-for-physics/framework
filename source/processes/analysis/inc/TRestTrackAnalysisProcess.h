@@ -139,10 +139,11 @@ class TRestTrackAnalysisProcess : public TRestEventProcess {
     Double_t fDeltaEnergy;
 
    public:
+    any GetInputEvent() { return fInputTrackEvent; }
+    any GetOutputEvent() { return fOutputTrackEvent; }
+
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
     void EndProcess();
 
     void LoadConfig(std::string cfgFilename, std::string name = "");

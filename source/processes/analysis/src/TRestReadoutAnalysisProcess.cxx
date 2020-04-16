@@ -33,10 +33,7 @@ TRestReadoutAnalysisProcess::~TRestReadoutAnalysisProcess() {}
 void TRestReadoutAnalysisProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fSignalEvent = new TRestSignalEvent();
-
-    fOutputEvent = fSignalEvent;
-    fInputEvent = fSignalEvent;
+    fSignalEvent = NULL;
 
     fReadout = NULL;
 }
@@ -87,7 +84,6 @@ void TRestReadoutAnalysisProcess::InitProcess() {
 //______________________________________________________________________________
 TRestEvent* TRestReadoutAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     fSignalEvent = (TRestSignalEvent*)evInput;
-    fOutputEvent = fSignalEvent;
     if (fReadout != NULL) {
         Double_t firstX_id = -1.;
         Double_t firstY_id = -1.;

@@ -37,10 +37,7 @@ TRestSingleChannelAnalysisProcess::~TRestSingleChannelAnalysisProcess() {}
 void TRestSingleChannelAnalysisProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fSignalEvent = new TRestSignalEvent();
-
-    fOutputEvent = fSignalEvent;
-    fInputEvent = fSignalEvent;
+    fSignalEvent = NULL;
 
     fReadout = NULL;
 }
@@ -95,7 +92,6 @@ void TRestSingleChannelAnalysisProcess::InitProcess() {
 //______________________________________________________________________________
 TRestEvent* TRestSingleChannelAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     fSignalEvent = (TRestSignalEvent*)evInput;
-    fOutputEvent = fSignalEvent;
 
     double nan = numeric_limits<double>::quiet_NaN();
 

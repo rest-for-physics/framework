@@ -52,6 +52,9 @@ class TRestSingleChannelAnalysisProcess : public TRestEventProcess {
     map<int, double> fChannelGainError;   // [MM id, channel gain error]
 
    public:
+    any GetInputEvent() { return fSignalEvent; }
+    any GetOutputEvent() { return fSignalEvent; }
+
     void FitChannelGain();
     void SaveGainMetadata(string filename);
     void InitProcess();

@@ -128,7 +128,6 @@ TRestTrackAnalysisProcess::TRestTrackAnalysisProcess(char* cfgFileName) {
 
 //______________________________________________________________________________
 TRestTrackAnalysisProcess::~TRestTrackAnalysisProcess() {
-    delete fInputTrackEvent;
     delete fOutputTrackEvent;
 }
 
@@ -138,11 +137,8 @@ void TRestTrackAnalysisProcess::LoadDefaultConfig() { SetTitle("Default config")
 void TRestTrackAnalysisProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fInputTrackEvent = new TRestTrackEvent();
+    fInputTrackEvent = NULL;
     fOutputTrackEvent = new TRestTrackEvent();
-
-    fInputEvent = fInputTrackEvent;
-    fOutputEvent = fOutputTrackEvent;
 
     fCutsEnabled = false;
 
@@ -367,11 +363,8 @@ void TRestTrackAnalysisProcess::InitProcess() {
 }
 
 //______________________________________________________________________________
-void TRestTrackAnalysisProcess::BeginOfEventProcess() { fOutputTrackEvent->Initialize(); }
-
-//______________________________________________________________________________
 TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
-    TRestTrackEvent* fInputTrackEvent = (TRestTrackEvent*)evInput;
+    fInputTrackEvent = (TRestTrackEvent*)evInput;
 
     // Copying the input tracks to the output track
     for (int tck = 0; tck < fInputTrackEvent->GetNumberOfTracks(); tck++)
@@ -986,11 +979,11 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     return fOutputTrackEvent;
 }
 
-//______________________________________________________________________________
-void TRestTrackAnalysisProcess::EndOfEventProcess() {
-    fPreviousEventTime.push_back(fInputTrackEvent->GetTimeStamp());
-    if (fPreviousEventTime.size() > 100) fPreviousEventTime.erase(fPreviousEventTime.begin());
-}
+////______________________________________________________________________________
+//void TRestTrackAnalysisProcess::EndOfEventProcess() {
+//    fPreviousEventTime.push_back(fInputTrackEvent->GetTimeStamp());
+//    if (fPreviousEventTime.size() > 100) fPreviousEventTime.erase(fPreviousEventTime.begin());
+//}
 
 //______________________________________________________________________________
 void TRestTrackAnalysisProcess::EndProcess() {

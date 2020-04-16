@@ -45,6 +45,9 @@ class TRestReadoutAnalysisProcess : public TRestEventProcess {
     map<int, TH2D*> fChannelsHitMaps;  //! [MM id, channel activity]
 
    public:
+    any GetInputEvent() { return fSignalEvent; }
+    any GetOutputEvent() { return fSignalEvent; }
+
     void InitProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
     void EndProcess();

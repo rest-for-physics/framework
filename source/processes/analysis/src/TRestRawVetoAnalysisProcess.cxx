@@ -79,7 +79,6 @@ TRestRawVetoAnalysisProcess::TRestRawVetoAnalysisProcess(char* cfgFileName) {
 /// \brief Default destructor
 ///
 TRestRawVetoAnalysisProcess::~TRestRawVetoAnalysisProcess() {
-    delete fInputRawSignalEvent;
     delete fOutputRawSignalEvent;
 }
 
@@ -124,11 +123,8 @@ void TRestRawVetoAnalysisProcess::Initialize() {
     SetSectionName(this->ClassName());
     // SetLibraryVersion(LIBRARY_VERSION);
 
-    fInputRawSignalEvent = new TRestRawSignalEvent();
+    fInputRawSignalEvent = NULL;
     fOutputRawSignalEvent = new TRestRawSignalEvent();
-
-    fInputEvent = fInputRawSignalEvent;
-    fOutputEvent = fOutputRawSignalEvent;
 }
 
 ///////////////////////////////////////////////
@@ -183,7 +179,7 @@ TRestEvent* TRestRawVetoAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         if (GetVerboseLevel() >= REST_Extreme) GetChar();
     }
 
-    return fOutputEvent;
+    return fOutputRawSignalEvent;
 }
 
 ///////////////////////////////////////////////

@@ -47,9 +47,6 @@ void TRestSignalChannelActivityProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fSignalEvent = new TRestSignalEvent();
-
-    fOutputEvent = fSignalEvent;
-    fInputEvent = fSignalEvent;
 }
 
 void TRestSignalChannelActivityProcess::LoadConfig(std::string cfgFilename, std::string name) {
@@ -94,9 +91,6 @@ void TRestSignalChannelActivityProcess::InitProcess() {
         }
     }
 }
-
-//______________________________________________________________________________
-void TRestSignalChannelActivityProcess::BeginOfEventProcess() { fSignalEvent->Initialize(); }
 
 //______________________________________________________________________________
 TRestEvent* TRestSignalChannelActivityProcess::ProcessEvent(TRestEvent* evInput) {
@@ -157,9 +151,6 @@ TRestEvent* TRestSignalChannelActivityProcess::ProcessEvent(TRestEvent* evInput)
 
     return fSignalEvent;
 }
-
-//______________________________________________________________________________
-void TRestSignalChannelActivityProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestSignalChannelActivityProcess::EndProcess() {

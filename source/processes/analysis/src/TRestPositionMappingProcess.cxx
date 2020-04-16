@@ -34,10 +34,7 @@ TRestPositionMappingProcess::~TRestPositionMappingProcess() {}
 void TRestPositionMappingProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fHitsEvent = new TRestHitsEvent();
-
-    fOutputEvent = fHitsEvent;
-    fInputEvent = fHitsEvent;
+    fHitsEvent = NULL;
 
     fReadout = NULL;
 }
@@ -72,7 +69,6 @@ void TRestPositionMappingProcess::InitProcess() {
 //______________________________________________________________________________
 TRestEvent* TRestPositionMappingProcess::ProcessEvent(TRestEvent* evInput) {
     fHitsEvent = (TRestHitsEvent*)evInput;
-    fOutputEvent = fHitsEvent;
 
     double nan = numeric_limits<double>::quiet_NaN();
 
