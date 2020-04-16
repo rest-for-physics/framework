@@ -33,10 +33,11 @@ class TRestHitsShuffleProcess : public TRestEventProcess {
     Int_t fIterations;
 
    public:
+    any GetInputEvent() { return fHitsEvent; }
+    any GetOutputEvent() { return fHitsEvent; }
+
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
     void EndProcess();
     void LoadDefaultConfig();
 

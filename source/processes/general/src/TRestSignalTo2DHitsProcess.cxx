@@ -45,7 +45,6 @@ ClassImp(TRestSignalTo2DHitsProcess)
 //______________________________________________________________________________
 TRestSignalTo2DHitsProcess::~TRestSignalTo2DHitsProcess() {
     delete fOutput2DHitsEvent;
-    delete fInputSignalEvent;
 }
 
 //______________________________________________________________________________
@@ -54,12 +53,8 @@ void TRestSignalTo2DHitsProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     // We create the input/output specific event data
-    fInputSignalEvent = new TRestSignalEvent();
+    fInputSignalEvent = NULL;
     fOutput2DHitsEvent = new TRest2DHitsEvent();
-
-    // We connect the TRestEventProcess input/output event pointers
-    fInputEvent = fInputSignalEvent;
-    fOutputEvent = fOutput2DHitsEvent;
 
     // TVirtualFitter::SetDefaultFitter("Minuit2");
 }

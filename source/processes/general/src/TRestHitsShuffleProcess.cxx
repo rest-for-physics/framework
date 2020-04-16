@@ -40,11 +40,7 @@ void TRestHitsShuffleProcess::LoadDefaultConfig() {
 void TRestHitsShuffleProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fHitsEvent = new TRestHitsEvent();
-    fHitsEvent = new TRestHitsEvent();
-
-    fOutputEvent = fHitsEvent;
-    fInputEvent = fHitsEvent;
+    fHitsEvent = NULL;
 
     fRandom = new TRandom3(0);
 }
@@ -57,12 +53,8 @@ void TRestHitsShuffleProcess::LoadConfig(std::string cfgFilename, std::string na
 void TRestHitsShuffleProcess::InitProcess() {}
 
 //______________________________________________________________________________
-void TRestHitsShuffleProcess::BeginOfEventProcess() {}
-
-//______________________________________________________________________________
 TRestEvent* TRestHitsShuffleProcess::ProcessEvent(TRestEvent* evInput) {
     fHitsEvent = (TRestHitsEvent*)evInput;
-    fOutputEvent = fHitsEvent;
 
     TRestHits* hits = fHitsEvent->GetHits();
 
@@ -77,9 +69,6 @@ TRestEvent* TRestHitsShuffleProcess::ProcessEvent(TRestEvent* evInput) {
     }
     return fHitsEvent;
 }
-
-//______________________________________________________________________________
-void TRestHitsShuffleProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestHitsShuffleProcess::EndProcess() {}

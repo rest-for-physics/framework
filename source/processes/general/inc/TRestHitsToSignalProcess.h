@@ -45,10 +45,11 @@ class TRestHitsToSignalProcess : public TRestEventProcess {
     Double_t fDriftVelocity;  // mm/us
 
    public:
+    any GetInputEvent() { return fHitsEvent; }
+    any GetOutputEvent() { return fSignalEvent; }
+
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
     void EndProcess();
 
     void LoadConfig(std::string cfgFilename, std::string name = "");

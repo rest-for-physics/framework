@@ -43,8 +43,6 @@ TRestHitsRotateAndTraslateProcess::TRestHitsRotateAndTraslateProcess(char* cfgFi
 
 //______________________________________________________________________________
 TRestHitsRotateAndTraslateProcess::~TRestHitsRotateAndTraslateProcess() {
-    delete fInputHitsEvent;
-    delete fOutputHitsEvent;
     // TRestHitsRotateAndTraslateProcess destructor
 }
 
@@ -70,11 +68,8 @@ void TRestHitsRotateAndTraslateProcess::Initialize() {
     fBeta = 0.;
     fGamma = 0.;
 
-    fInputHitsEvent = new TRestHitsEvent();
-    fOutputHitsEvent = new TRestHitsEvent();
-
-    fOutputEvent = fOutputHitsEvent;
-    fInputEvent = fInputHitsEvent;
+    fInputHitsEvent = NULL;
+    fOutputHitsEvent = NULL;
 }
 
 void TRestHitsRotateAndTraslateProcess::LoadConfig(string cfgFilename) {

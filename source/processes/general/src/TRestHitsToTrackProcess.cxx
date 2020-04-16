@@ -34,7 +34,6 @@ TRestHitsToTrackProcess::TRestHitsToTrackProcess(char* cfgFileName) {
 
 //______________________________________________________________________________
 TRestHitsToTrackProcess::~TRestHitsToTrackProcess() {
-    delete fHitsEvent;
     delete fTrackEvent;
     // TRestHitsToTrackProcess destructor
 }
@@ -52,11 +51,8 @@ void TRestHitsToTrackProcess::Initialize() {
 
     fClusterDistance = 1.;
 
-    fHitsEvent = new TRestHitsEvent();
+    fHitsEvent = NULL;
     fTrackEvent = new TRestTrackEvent();
-
-    fOutputEvent = fTrackEvent;
-    fInputEvent = fHitsEvent;
 }
 
 //______________________________________________________________________________
@@ -73,9 +69,6 @@ void TRestHitsToTrackProcess::InitProcess() {
     // Comment this if you don't want it.
     // TRestEventProcess::InitProcess();
 }
-
-//______________________________________________________________________________
-void TRestHitsToTrackProcess::BeginOfEventProcess() { fTrackEvent->Initialize(); }
 
 //______________________________________________________________________________
 TRestEvent* TRestHitsToTrackProcess::ProcessEvent(TRestEvent* evInput) {
@@ -213,9 +206,6 @@ Int_t TRestHitsToTrackProcess::FindTracks(TRestHits* hits) {
 
     return nTracksFound;
 }
-
-//______________________________________________________________________________
-void TRestHitsToTrackProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestHitsToTrackProcess::EndProcess() {

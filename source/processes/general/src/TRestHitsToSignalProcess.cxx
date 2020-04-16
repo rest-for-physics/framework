@@ -42,7 +42,6 @@ TRestHitsToSignalProcess::TRestHitsToSignalProcess(char* cfgFileName) {
 TRestHitsToSignalProcess::~TRestHitsToSignalProcess() {
     if (fReadout != NULL) delete fReadout;
 
-    delete fHitsEvent;
     delete fSignalEvent;
     // TRestHitsToSignalProcess destructor
 }
@@ -80,12 +79,8 @@ void TRestHitsToSignalProcess::Initialize() {
     fReadout = NULL;
     fGas = NULL;
 
-    fHitsEvent = new TRestHitsEvent();
-
+    fHitsEvent = NULL;
     fSignalEvent = new TRestSignalEvent();
-
-    fInputEvent = fHitsEvent;
-    fOutputEvent = fSignalEvent;
 }
 
 //______________________________________________________________________________
@@ -122,11 +117,6 @@ void TRestHitsToSignalProcess::InitProcess() {
     }
 }
 
-//______________________________________________________________________________
-void TRestHitsToSignalProcess::BeginOfEventProcess() {
-    // cout << "Begin of event process" << endl;
-    fSignalEvent->Initialize();
-}
 
 Int_t TRestHitsToSignalProcess::FindModule(Int_t readoutPlane, Double_t x, Double_t y) {
     // TODO verify this
@@ -206,9 +196,6 @@ TRestEvent* TRestHitsToSignalProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fSignalEvent;
 }
-
-//______________________________________________________________________________
-void TRestHitsToSignalProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestHitsToSignalProcess::EndProcess() {

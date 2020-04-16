@@ -56,7 +56,9 @@ class TRestRawSignalToSignalProcess : public TRestEventProcess {
     Double_t fGain;
 
    public:
-    void BeginOfEventProcess();
+    any GetInputEvent() { return fInputSignalEvent; }
+    any GetOutputEvent() { return fOutputSignalEvent; }
+
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
 
     void LoadConfig(std::string cfgFilename, string name = "");

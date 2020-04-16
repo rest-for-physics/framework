@@ -35,6 +35,9 @@ class TRestSignalTo2DHitsProcess : public TRestEventProcess {
 
    protected:
    public:
+    any GetInputEvent() { return fInputSignalEvent; }
+    any GetOutputEvent() { return fOutput2DHitsEvent; }
+
     void InitProcess();
 
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
