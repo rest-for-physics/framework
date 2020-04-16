@@ -71,15 +71,13 @@ TRestDummyToDetectorHitsProcess::TRestDummyToDetectorHitsProcess() { Initialize(
 ///
 TRestDummyToDetectorHitsProcess::TRestDummyToDetectorHitsProcess(char* cfgFileName) {
     Initialize();
-
-    if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
+    LoadConfigFromFile(cfgFileName)
 }
 
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
 TRestDummyToDetectorHitsProcess::~TRestDummyToDetectorHitsProcess() {
-    delete fDummyEvent;
     delete fHitsEvent;
 }
 
@@ -100,15 +98,8 @@ void TRestDummyToDetectorHitsProcess::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
-    fDummyEvent = new TRestDummyEvent();
+    fDummyEvent = NULL;
     fHitsEvent = new TRestHitsEvent();
-
-    fOutputEvent = fHitsEvent;
-    fInputEvent = fDummyEvent;
-}
-
-void TRestDummyToDetectorHitsProcess::LoadConfig(std::string cfgFilename, std::string name) {
-    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
@@ -130,6 +121,8 @@ TRestEvent* TRestDummyToDetectorHitsProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fHitsEvent;
 }
+
+void TRestDummyToDetectorHitsProcess::EndProcess() {}
 
 ///////////////////////////////////////////////
 /// \brief Function reading input parameters from the RML

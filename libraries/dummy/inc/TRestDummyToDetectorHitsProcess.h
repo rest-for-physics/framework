@@ -23,31 +23,36 @@
 #ifndef RestCore_TRestDummyToDetectorHitsProcess
 #define RestCore_TRestDummyToDetectorHitsProcess
 
+#include "TH2D.h"
+
 #include "TRestDummyEvent.h"
 #include "TRestEventProcess.h"
 #include "TRestHitsEvent.h"
 
 class TRestDummyToDetectorHitsProcess : public TRestEventProcess {
-   private:
-#ifndef __CINT__
+   protected:
+    // input/output event with concrete type
     TRestDummyEvent* fDummyEvent;  //!
     TRestHitsEvent* fHitsEvent;    //!
-#endif
-    void InitProcess();
+
+    // unsaved parameters and temporary data members, add //! to not store
+    // TH2D* htemp = NULL;  //!
+    // int dummyMember;     //!
+
+    // process parameters, saved as metadata
+    // double fZRange;
+    // double fSize;
 
     void InitFromConfigFile();
-
     void Initialize();
 
-    void LoadDefaultConfig();
-
-   protected:
-    // add here the members of your event process
-
    public:
-    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    TRestEvent* GetInputEvent() { return fDummyEvent; }
+    TRestEvent* GetOutputEvent() { return fHitsEvent; }
 
-    void LoadConfig(std::string cfgFilename, std::string name = "");
+    void InitProcess();
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    void EndProcess();
 
     void PrintMetadata() {
         BeginPrintProcess();
@@ -56,8 +61,6 @@ class TRestDummyToDetectorHitsProcess : public TRestEventProcess {
 
         EndPrintProcess();
     }
-
-    TString GetProcessName() { return (TString) "dummyToDetectorHitsEvent"; }
 
     // Constructor
     TRestDummyToDetectorHitsProcess();
