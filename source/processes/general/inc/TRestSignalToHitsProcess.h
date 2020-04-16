@@ -44,8 +44,8 @@ class TRestSignalToHitsProcess : public TRestEventProcess {
     TString fSignalToHitMethod;
 
    public:
-    any GetInputEvent() { return fHitsEvent; }
-    any GetOutputEvent() { return fSignalEvent; }
+    any GetInputEvent() { return fSignalEvent; }
+    any GetOutputEvent() { return fHitsEvent; }
 
     void InitProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
