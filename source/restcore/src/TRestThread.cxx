@@ -71,9 +71,15 @@ Int_t TRestThread::ValidateChain(TRestEvent* input) {
         if (outEvent.type == "TRestEvent" && inEvent.type == "TRestEvent") {
             info << "general process: " << fProcessChain[i]->GetName() << endl;
             continue;
+        } else if (outEvent.cl && outEvent.cl->InheritsFrom("TRestEvent") && inEvent.cl &&
+                   inEvent.cl->InheritsFrom("TRestEvent")) {
+            processes.push_back(fProcessChain[i]);
+        } else {
+            ferr << "Process: " << fProcessChain[i]->ClassName()
+                 << " not properly written, the input/output event is illegal!" << endl;
+            ferr << "Hint: they must be inherited from TRestEvent" << endl;
+            abort();
         }
-
-        processes.push_back(fProcessChain[i]);
     }
 
     if (processes.size() > 0) {
@@ -94,7 +100,8 @@ Int_t TRestThread::ValidateChain(TRestEvent* input) {
         for (int i = 0; i < processes.size() - 1; i++) {
             string outEventType = processes[i]->GetOutputEvent().type;
             string nextinEventType = processes[i + 1]->GetInputEvent().type;
-            if (outEventType != nextinEventType) {
+            if (outEventType != nextinEventType && outEventType != "TRestEvent" &&
+                nextinEventType != "TRestEvent") {
                 ferr << "(ValidateChain): Event process input/output does not match" << endl;
                 ferr << "The event output for process " << processes[i]->GetName() << " is " << outEventType
                      << endl;
