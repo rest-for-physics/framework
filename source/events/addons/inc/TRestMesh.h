@@ -92,7 +92,15 @@ class TRestMesh : public TObject {
     Double_t GetNetSizeY() { return fNetSizeY; }
     Double_t GetNetSizeZ() { return fNetSizeZ; }
 
+    TVector3 GetOrigin() { return fNetOrigin; }
+    TVector3 GetNetSize() { return TVector3(fNetSizeX, fNetSizeY, fNetSizeZ); }
     TVector3 GetNetCenter();
+    TVector3 GetVertex(Int_t id);
+
+    /// It returns the bottom boundary vertex
+    TVector3 GetBottomVertex() { return GetVertex(0); }
+    /// It returns the top boundary vertex
+    TVector3 GetTopVertex() { return GetVertex(1); }
 
     void AddNode(Double_t x, Double_t y, Double_t z);
 

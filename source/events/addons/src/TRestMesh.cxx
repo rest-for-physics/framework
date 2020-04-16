@@ -315,8 +315,21 @@ Bool_t TRestMesh::IsInside(TVector3 pos) {
     return true;
 }
 
+//////////////////////////////////////////////
+/// \brief It returns the position of the mesh center.
+///
 TVector3 TRestMesh::GetNetCenter() {
     return (TVector3)(fNetOrigin + TVector3(fNetSizeX / 2., fNetSizeY / 2., fNetSizeZ / 2.));
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the position of both boundary vertex, bottom vertex identified with id = 0 and top
+/// vertex identified with id = 1.
+///
+TVector3 TRestMesh::GetVertex(Int_t id) {
+    if (id == 0) return fNetOrigin;
+    if (id == 1) return fNetOrigin + TVector3(fNetSizeX, fNetSizeY, fNetSizeZ);
+    return TVector3(0, 0, 0);
 }
 
 ///////////////////////////////////////////////
