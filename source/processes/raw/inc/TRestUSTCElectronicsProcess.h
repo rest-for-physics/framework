@@ -80,7 +80,6 @@ struct USTCDataFrame {
 class TRestUSTCElectronicsProcess : public TRestRawToSignalProcess {
    private:
 #ifndef __CINT__
-    TRestRawSignalEvent* fSignalEvent;  //!
     TRestRawSignal sgnl;                //!
 
     UChar_t fHeader[64];
