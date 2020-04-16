@@ -84,9 +84,7 @@ TRestSignalZeroSuppresionProcess::TRestSignalZeroSuppresionProcess(char* cfgFile
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestSignalZeroSuppresionProcess::~TRestSignalZeroSuppresionProcess() {
-    delete fSignalEvent;
-}
+TRestSignalZeroSuppresionProcess::~TRestSignalZeroSuppresionProcess() { delete fSignalEvent; }
 
 ///////////////////////////////////////////////
 /// \brief Method to load the default config in absence of RML input

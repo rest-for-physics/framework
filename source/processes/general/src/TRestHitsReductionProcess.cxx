@@ -28,8 +28,7 @@ TRestHitsReductionProcess::TRestHitsReductionProcess(char* cfgFileName) {
 }
 
 //______________________________________________________________________________
-TRestHitsReductionProcess::~TRestHitsReductionProcess() {
-}
+TRestHitsReductionProcess::~TRestHitsReductionProcess() {}
 
 void TRestHitsReductionProcess::LoadDefaultConfig() {
     SetName("hitsReductionProcess");

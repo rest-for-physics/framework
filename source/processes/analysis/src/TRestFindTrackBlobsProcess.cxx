@@ -30,9 +30,7 @@ TRestFindTrackBlobsProcess::TRestFindTrackBlobsProcess(char* cfgFileName) {
 }
 
 //______________________________________________________________________________
-TRestFindTrackBlobsProcess::~TRestFindTrackBlobsProcess() {
-    delete fOutputTrackEvent;
-}
+TRestFindTrackBlobsProcess::~TRestFindTrackBlobsProcess() { delete fOutputTrackEvent; }
 
 void TRestFindTrackBlobsProcess::LoadDefaultConfig() { SetTitle("Default config"); }
 
@@ -183,7 +181,6 @@ void TRestFindTrackBlobsProcess::InitProcess() {
         fQratio_Y_Radius.push_back(r2);
     }
 }
-
 
 //______________________________________________________________________________
 TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {

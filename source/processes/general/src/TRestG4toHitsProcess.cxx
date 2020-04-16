@@ -90,9 +90,7 @@ TRestG4toHitsProcess::TRestG4toHitsProcess(char* cfgFileName) {
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestG4toHitsProcess::~TRestG4toHitsProcess() {
-    delete fHitsEvent;
-}
+TRestG4toHitsProcess::~TRestG4toHitsProcess() { delete fHitsEvent; }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input

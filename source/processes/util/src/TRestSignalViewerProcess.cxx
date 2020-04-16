@@ -58,7 +58,6 @@ void TRestSignalViewerProcess::LoadConfig(std::string cfgFilename, std::string n
 //______________________________________________________________________________
 void TRestSignalViewerProcess::InitProcess() { this->CreateCanvas(); }
 
-
 //______________________________________________________________________________
 TRestEvent* TRestSignalViewerProcess::ProcessEvent(TRestEvent* evInput) {
     TString obsName;

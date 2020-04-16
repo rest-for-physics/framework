@@ -28,9 +28,7 @@ TRestTrackDetachIsolatedNodesProcess::TRestTrackDetachIsolatedNodesProcess(char*
 }
 
 //______________________________________________________________________________
-TRestTrackDetachIsolatedNodesProcess::~TRestTrackDetachIsolatedNodesProcess() {
-    delete fOutputTrackEvent;
-}
+TRestTrackDetachIsolatedNodesProcess::~TRestTrackDetachIsolatedNodesProcess() { delete fOutputTrackEvent; }
 
 void TRestTrackDetachIsolatedNodesProcess::LoadDefaultConfig() {
     SetName("trackDetachIsolatedNodesProcess");

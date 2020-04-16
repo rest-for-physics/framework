@@ -25,9 +25,7 @@ TRestTrackToHitsProcess::TRestTrackToHitsProcess(char* cfgFileName) {
 }
 
 //______________________________________________________________________________
-TRestTrackToHitsProcess::~TRestTrackToHitsProcess() {
-    delete fOutputHitsEvent;
-}
+TRestTrackToHitsProcess::~TRestTrackToHitsProcess() { delete fOutputHitsEvent; }
 
 void TRestTrackToHitsProcess::LoadDefaultConfig() {
     SetName("trackToHitsProcess");

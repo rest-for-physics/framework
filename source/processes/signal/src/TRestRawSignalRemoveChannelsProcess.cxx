@@ -90,9 +90,7 @@ TRestRawSignalRemoveChannelsProcess::TRestRawSignalRemoveChannelsProcess(char* c
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestRawSignalRemoveChannelsProcess::~TRestRawSignalRemoveChannelsProcess() {
-    delete fOutputSignalEvent;
-}
+TRestRawSignalRemoveChannelsProcess::~TRestRawSignalRemoveChannelsProcess() { delete fOutputSignalEvent; }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input

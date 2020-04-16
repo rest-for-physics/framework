@@ -43,9 +43,7 @@ ClassImp(TRestSignalTo2DHitsProcess)
 }
 
 //______________________________________________________________________________
-TRestSignalTo2DHitsProcess::~TRestSignalTo2DHitsProcess() {
-    delete fOutput2DHitsEvent;
-}
+TRestSignalTo2DHitsProcess::~TRestSignalTo2DHitsProcess() { delete fOutput2DHitsEvent; }
 
 //______________________________________________________________________________
 void TRestSignalTo2DHitsProcess::Initialize() {

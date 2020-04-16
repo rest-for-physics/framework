@@ -25,9 +25,7 @@ TRestTrackReductionProcess::TRestTrackReductionProcess(char* cfgFileName) {
 }
 
 //______________________________________________________________________________
-TRestTrackReductionProcess::~TRestTrackReductionProcess() {
-    delete fOutputTrackEvent;
-}
+TRestTrackReductionProcess::~TRestTrackReductionProcess() { delete fOutputTrackEvent; }
 
 void TRestTrackReductionProcess::LoadDefaultConfig() {
     SetName("trackReductionProcess");

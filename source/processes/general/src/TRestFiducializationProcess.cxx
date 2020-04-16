@@ -30,9 +30,7 @@ TRestFiducializationProcess::TRestFiducializationProcess(char* cfgFileName) {
 }
 
 //______________________________________________________________________________
-TRestFiducializationProcess::~TRestFiducializationProcess() {
-    delete fOutputHitsEvent;
-}
+TRestFiducializationProcess::~TRestFiducializationProcess() { delete fOutputHitsEvent; }
 
 void TRestFiducializationProcess::LoadDefaultConfig() { SetTitle("Default config"); }
 

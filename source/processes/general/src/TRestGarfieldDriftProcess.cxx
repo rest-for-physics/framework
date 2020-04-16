@@ -327,7 +327,6 @@ void TRestGarfieldDriftProcess::InitProcess() {
     // }
 }
 
-
 //------------------------------------------------------------------------------
 
 Int_t TRestGarfieldDriftProcess::FindModule(Int_t readoutPlane, Double_t x, Double_t y) {

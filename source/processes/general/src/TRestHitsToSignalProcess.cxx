@@ -117,7 +117,6 @@ void TRestHitsToSignalProcess::InitProcess() {
     }
 }
 
-
 Int_t TRestHitsToSignalProcess::FindModule(Int_t readoutPlane, Double_t x, Double_t y) {
     // TODO verify this
     TRestReadoutPlane* plane = &(*fReadout)[readoutPlane];

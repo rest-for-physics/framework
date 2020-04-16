@@ -28,9 +28,7 @@ TRestTrackPathMinimizationProcess::TRestTrackPathMinimizationProcess(char* cfgFi
 }
 
 //______________________________________________________________________________
-TRestTrackPathMinimizationProcess::~TRestTrackPathMinimizationProcess() {
-    delete fOutputTrackEvent;
-}
+TRestTrackPathMinimizationProcess::~TRestTrackPathMinimizationProcess() { delete fOutputTrackEvent; }
 
 void TRestTrackPathMinimizationProcess::LoadDefaultConfig() {
     SetName("trackPathMinimizationProcess");

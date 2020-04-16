@@ -26,7 +26,7 @@
 class TRestDaqChannelSwitchingProcess : public TRestEventProcess {
    private:
 #ifndef __CINT__
-    TRestEvent* fEvent;  //!
+    TRestEvent* fEvent;      //!
     TRestReadout* fReadout;  //!
 #endif
     std::map<int, int> fFirstDaqChannelDef;  //[module id, first daq id]

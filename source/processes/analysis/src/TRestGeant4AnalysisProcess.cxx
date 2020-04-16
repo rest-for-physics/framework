@@ -237,9 +237,7 @@ TRestGeant4AnalysisProcess::TRestGeant4AnalysisProcess(char* cfgFileName) {
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestGeant4AnalysisProcess::~TRestGeant4AnalysisProcess() {
-    delete fOutputG4Event;
-}
+TRestGeant4AnalysisProcess::~TRestGeant4AnalysisProcess() { delete fOutputG4Event; }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input

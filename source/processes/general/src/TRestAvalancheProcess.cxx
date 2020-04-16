@@ -70,7 +70,6 @@ void TRestAvalancheProcess::Initialize() {
 
     fHitsInputEvent = NULL;
     fHitsOutputEvent = new TRestHitsEvent();
-
 }
 
 void TRestAvalancheProcess::LoadConfig(string cfgFilename) {
@@ -92,7 +91,6 @@ void TRestAvalancheProcess::InitProcess() {
 
     if (fGas == NULL) cout << "REST ERRORRRR : Gas has not been initialized" << endl;
 }
-
 
 //______________________________________________________________________________
 TRestEvent* TRestAvalancheProcess::ProcessEvent(TRestEvent* evInput) {

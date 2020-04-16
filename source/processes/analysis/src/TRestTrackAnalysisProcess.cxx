@@ -127,9 +127,7 @@ TRestTrackAnalysisProcess::TRestTrackAnalysisProcess(char* cfgFileName) {
 }
 
 //______________________________________________________________________________
-TRestTrackAnalysisProcess::~TRestTrackAnalysisProcess() {
-    delete fOutputTrackEvent;
-}
+TRestTrackAnalysisProcess::~TRestTrackAnalysisProcess() { delete fOutputTrackEvent; }
 
 void TRestTrackAnalysisProcess::LoadDefaultConfig() { SetTitle("Default config"); }
 
@@ -980,7 +978,7 @@ TRestEvent* TRestTrackAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 }
 
 ////______________________________________________________________________________
-//void TRestTrackAnalysisProcess::EndOfEventProcess() {
+// void TRestTrackAnalysisProcess::EndOfEventProcess() {
 //    fPreviousEventTime.push_back(fInputTrackEvent->GetTimeStamp());
 //    if (fPreviousEventTime.size() > 100) fPreviousEventTime.erase(fPreviousEventTime.begin());
 //}

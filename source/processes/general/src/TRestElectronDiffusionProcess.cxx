@@ -29,9 +29,7 @@ TRestElectronDiffusionProcess::TRestElectronDiffusionProcess(char* cfgFileName) 
 }
 
 //______________________________________________________________________________
-TRestElectronDiffusionProcess::~TRestElectronDiffusionProcess() {
-    delete fOutputHitsEvent;
-}
+TRestElectronDiffusionProcess::~TRestElectronDiffusionProcess() { delete fOutputHitsEvent; }
 
 void TRestElectronDiffusionProcess::LoadDefaultConfig() {
     SetTitle("Default config");

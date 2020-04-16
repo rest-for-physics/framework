@@ -58,7 +58,6 @@ void TRestFastHitsToTrackProcess::Initialize() {
 
     fHitsEvent = NULL;
     fTrackEvent = new TRestTrackEvent();
-
 }
 
 void TRestFastHitsToTrackProcess::LoadConfig(std::string cfgFilename, std::string name) {

@@ -33,9 +33,7 @@ TRestAnalysisHistogramViewerProcess::TRestAnalysisHistogramViewerProcess(char* c
 }
 
 //______________________________________________________________________________
-TRestAnalysisHistogramViewerProcess::~TRestAnalysisHistogramViewerProcess() {
-    delete fOutputTrackEvent;
-}
+TRestAnalysisHistogramViewerProcess::~TRestAnalysisHistogramViewerProcess() { delete fOutputTrackEvent; }
 
 void TRestAnalysisHistogramViewerProcess::LoadDefaultConfig() { SetTitle("Default config"); }
 

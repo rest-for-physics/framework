@@ -107,9 +107,7 @@ TRestRawSignalToSignalProcess::TRestRawSignalToSignalProcess(char* cfgFileName) 
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestRawSignalToSignalProcess::~TRestRawSignalToSignalProcess() {
-    delete fOutputSignalEvent;
-}
+TRestRawSignalToSignalProcess::~TRestRawSignalToSignalProcess() { delete fOutputSignalEvent; }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input

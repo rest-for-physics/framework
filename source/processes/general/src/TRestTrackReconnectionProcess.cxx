@@ -27,9 +27,7 @@ TRestTrackReconnectionProcess::TRestTrackReconnectionProcess(char* cfgFileName) 
 }
 
 //______________________________________________________________________________
-TRestTrackReconnectionProcess::~TRestTrackReconnectionProcess() {
-    delete fOutputTrackEvent;
-}
+TRestTrackReconnectionProcess::~TRestTrackReconnectionProcess() { delete fOutputTrackEvent; }
 
 void TRestTrackReconnectionProcess::LoadDefaultConfig() {
     SetName("trackReconnectionProcess");

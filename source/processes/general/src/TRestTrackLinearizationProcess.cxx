@@ -25,9 +25,7 @@ TRestTrackLinearizationProcess::TRestTrackLinearizationProcess(char* cfgFileName
     PrintMetadata();
 }
 
-TRestTrackLinearizationProcess::~TRestTrackLinearizationProcess() {
-    delete fOutputLinearTrackEvent;
-}
+TRestTrackLinearizationProcess::~TRestTrackLinearizationProcess() { delete fOutputLinearTrackEvent; }
 
 void TRestTrackLinearizationProcess::LoadDefaultConfig() {
     SetName("trackLinearizationProcess");

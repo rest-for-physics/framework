@@ -137,9 +137,7 @@ TRestHitsAnalysisProcess::TRestHitsAnalysisProcess(char* cfgFileName) {
 }
 
 //______________________________________________________________________________
-TRestHitsAnalysisProcess::~TRestHitsAnalysisProcess() {
-    delete fOutputHitsEvent;
-}
+TRestHitsAnalysisProcess::~TRestHitsAnalysisProcess() { delete fOutputHitsEvent; }
 
 void TRestHitsAnalysisProcess::LoadDefaultConfig() { SetTitle("Default config"); }
 
