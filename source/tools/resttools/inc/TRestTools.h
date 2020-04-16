@@ -88,6 +88,7 @@ class TRestTools {
     static int ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data);
     static int PrintTable(std::vector<std::vector<Double_t>> data, Int_t start = 0, Int_t end = 0);
 
+    static Int_t isValidFile(const string& path);
     static bool fileExists(const std::string& filename);
     static bool isRootFile(const std::string& filename);
     static bool isURL(const std::string& filename);

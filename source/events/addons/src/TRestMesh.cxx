@@ -31,9 +31,9 @@ TRestMesh::TRestMesh(Double_t size, Int_t nodes) {
     fNetSizeZ = size;
 
     // We will divide the grid in intervals not nodes.
-    fNodesX = nodes - 1;
-    fNodesY = nodes - 1;
-    fNodesZ = nodes - 1;
+    fNodesX = nodes;
+    fNodesY = nodes;
+    fNodesZ = nodes;
 
     fNetOrigin = TVector3(0, 0, 0);
 }
@@ -315,8 +315,21 @@ Bool_t TRestMesh::IsInside(TVector3 pos) {
     return true;
 }
 
+//////////////////////////////////////////////
+/// \brief It returns the position of the mesh center.
+///
 TVector3 TRestMesh::GetNetCenter() {
     return (TVector3)(fNetOrigin + TVector3(fNetSizeX / 2., fNetSizeY / 2., fNetSizeZ / 2.));
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the position of both boundary vertex, bottom vertex identified with id = 0 and top
+/// vertex identified with id = 1.
+///
+TVector3 TRestMesh::GetVertex(Int_t id) {
+    if (id == 0) return fNetOrigin;
+    if (id == 1) return fNetOrigin + TVector3(fNetSizeX, fNetSizeY, fNetSizeZ);
+    return TVector3(0, 0, 0);
 }
 
 ///////////////////////////////////////////////
