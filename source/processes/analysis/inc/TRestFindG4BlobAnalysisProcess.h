@@ -40,10 +40,11 @@ class TRestFindG4BlobAnalysisProcess : public TRestEventProcess {
     // add here the members of your event process
 
    public:
+    any GetInputEvent() { return fG4Event; }
+    any GetOutputEvent() { return fG4Event; }
+
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
     void EndProcess();
 
     void LoadConfig(std::string cfgFilename, std::string name = "");

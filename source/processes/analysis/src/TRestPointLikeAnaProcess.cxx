@@ -57,10 +57,7 @@ void TRestPointLikeAnaProcess::Initialize() {
     fGainFilename = "gain.txt";
     fCalGain = 100.;
 
-    fSignalEvent = new TRestSignalEvent();
-
-    fOutputEvent = fSignalEvent;
-    fInputEvent = fSignalEvent;
+    fSignalEvent = NULL;
 
     fReadout = NULL;
 }
@@ -108,9 +105,6 @@ void TRestPointLikeAnaProcess::InitProcess() {
 
     cout << "Gain factor " << fCalGain << endl;
 }
-
-//______________________________________________________________________________
-void TRestPointLikeAnaProcess::BeginOfEventProcess() {}
 
 //______________________________________________________________________________
 TRestEvent* TRestPointLikeAnaProcess::ProcessEvent(TRestEvent* evInput) {
@@ -448,9 +442,6 @@ TRestEvent* TRestPointLikeAnaProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fSignalEvent;
 }
-
-//______________________________________________________________________________
-void TRestPointLikeAnaProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestPointLikeAnaProcess::EndProcess() {

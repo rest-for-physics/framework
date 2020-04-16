@@ -31,7 +31,6 @@ TRestFindTrackBlobsProcess::TRestFindTrackBlobsProcess(char* cfgFileName) {
 
 //______________________________________________________________________________
 TRestFindTrackBlobsProcess::~TRestFindTrackBlobsProcess() {
-    delete fInputTrackEvent;
     delete fOutputTrackEvent;
 }
 
@@ -41,11 +40,8 @@ void TRestFindTrackBlobsProcess::LoadDefaultConfig() { SetTitle("Default config"
 void TRestFindTrackBlobsProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fInputTrackEvent = new TRestTrackEvent();
+    fInputTrackEvent = NULL;
     fOutputTrackEvent = new TRestTrackEvent();
-
-    fOutputEvent = fOutputTrackEvent;
-    fInputEvent = fInputTrackEvent;
 
     fHitsToCheckFraction = 0.2;
 }
@@ -188,8 +184,6 @@ void TRestFindTrackBlobsProcess::InitProcess() {
     }
 }
 
-//______________________________________________________________________________
-void TRestFindTrackBlobsProcess::BeginOfEventProcess() { fOutputTrackEvent->Initialize(); }
 
 //______________________________________________________________________________
 TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {
@@ -485,9 +479,6 @@ TRestEvent* TRestFindTrackBlobsProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fOutputTrackEvent;
 }
-
-//______________________________________________________________________________
-void TRestFindTrackBlobsProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestFindTrackBlobsProcess::EndProcess() {

@@ -71,10 +71,11 @@ class TRestMuonAnalysisProcess : public TRestEventProcess {
 
    protected:
    public:
+    any GetInputEvent() { return fAnaEvent; }
+    any GetOutputEvent() { return fAnaEvent; }
+
     void InitProcess();
-
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-
     void EndProcess();
 
     void PrintMetadata() {

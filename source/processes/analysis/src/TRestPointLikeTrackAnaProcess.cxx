@@ -33,10 +33,7 @@ void TRestPointLikeTrackAnaProcess::LoadDefaultConfig() { SetTitle("Default conf
 void TRestPointLikeTrackAnaProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fTrackEvent = new TRestTrackEvent();
-
-    fOutputEvent = fTrackEvent;
-    fInputEvent = fTrackEvent;
+    fTrackEvent = NULL;
 }
 
 void TRestPointLikeTrackAnaProcess::LoadConfig(string cfgFilename) {
@@ -47,9 +44,6 @@ void TRestPointLikeTrackAnaProcess::LoadConfig(string cfgFilename) {
 
 //______________________________________________________________________________
 void TRestPointLikeTrackAnaProcess::InitProcess() { TRestEventProcess::ReadObservables(); }
-
-//______________________________________________________________________________
-void TRestPointLikeTrackAnaProcess::BeginOfEventProcess() {}
 
 //______________________________________________________________________________
 TRestEvent* TRestPointLikeTrackAnaProcess::ProcessEvent(TRestEvent* evInput) {
@@ -110,9 +104,6 @@ TRestEvent* TRestPointLikeTrackAnaProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fTrackEvent;
 }
-
-//______________________________________________________________________________
-void TRestPointLikeTrackAnaProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestPointLikeTrackAnaProcess::EndProcess() {

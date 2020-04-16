@@ -44,10 +44,11 @@ class TRestPointLikeAnaProcess : public TRestEventProcess {
     TRestReadout* fReadout;
 
    public:
+    any GetInputEvent() { return fSignalEvent; }
+    any GetOutputEvent() { return fSignalEvent; }
+
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
     void EndProcess();
 
     void LoadConfig(std::string cfgFilename);

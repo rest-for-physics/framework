@@ -31,11 +31,7 @@ void TRestMuonAnalysisProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     // We create the input/output specific event data
-    fAnaEvent = new TRest2DHitsEvent;
-
-    // We connect the TRestEventProcess input/output event pointers
-    fInputEvent = fAnaEvent;
-    fOutputEvent = fAnaEvent;
+    fAnaEvent = NULL;
 }
 
 void TRestMuonAnalysisProcess::InitProcess() {
@@ -68,7 +64,6 @@ void TRestMuonAnalysisProcess::InitProcess() {
 //______________________________________________________________________________
 TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     fAnaEvent = (TRest2DHitsEvent*)evInput;
-    fOutputEvent = evInput;
 
     fAnaEvent->SetROIX(TVector2(X1, X2));
     fAnaEvent->SetROIY(TVector2(Y1, Y2));
@@ -165,7 +160,7 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
                     double t = xlen / zlen;
                     thexz = atan(t);
                 } else if (zlen < 80) {
-                    return fOutputEvent;
+                    return fAnaEvent;
                 }
             }
 
@@ -183,7 +178,7 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
                     double t = ylen / zlen;
                     theyz = atan(t);
                 } else if (zlen < 80) {
-                    return fOutputEvent;
+                    return fAnaEvent;
                 }
             }
 
@@ -465,7 +460,7 @@ TRestEvent* TRestMuonAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         }
     }
 
-    return fOutputEvent;
+    return fAnaEvent;
 }
 
 TRest2DHitsEvent* TRestMuonAnalysisProcess::MakeTag() {

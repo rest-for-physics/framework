@@ -96,10 +96,11 @@ class TRestFindTrackBlobsProcess : public TRestEventProcess {
     // add here the members of your event process
 
    public:
+    any GetInputEvent() { return fInputTrackEvent; }
+    any GetOutputEvent() { return fOutputTrackEvent; }
+
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
     void EndProcess();
 
     void LoadConfig(std::string cfgFilename, std::string name = "");

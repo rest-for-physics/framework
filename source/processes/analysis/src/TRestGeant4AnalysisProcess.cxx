@@ -257,9 +257,6 @@ void TRestGeant4AnalysisProcess::Initialize() {
 
     fInputG4Event = new TRestG4Event();
     fOutputG4Event = new TRestG4Event();
-
-    fOutputEvent = fOutputG4Event;
-    fInputEvent = fInputG4Event;
 }
 
 ///////////////////////////////////////////////

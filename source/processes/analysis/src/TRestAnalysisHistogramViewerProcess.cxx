@@ -34,7 +34,6 @@ TRestAnalysisHistogramViewerProcess::TRestAnalysisHistogramViewerProcess(char* c
 
 //______________________________________________________________________________
 TRestAnalysisHistogramViewerProcess::~TRestAnalysisHistogramViewerProcess() {
-    delete fInputTrackEvent;
     delete fOutputTrackEvent;
 }
 
@@ -44,11 +43,8 @@ void TRestAnalysisHistogramViewerProcess::LoadDefaultConfig() { SetTitle("Defaul
 void TRestAnalysisHistogramViewerProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fInputTrackEvent = new TRestTrackEvent();
+    fInputTrackEvent = NULL;
     fOutputTrackEvent = new TRestTrackEvent();
-
-    fInputEvent = fInputTrackEvent;
-    fOutputEvent = fOutputTrackEvent;
 }
 
 void TRestAnalysisHistogramViewerProcess::LoadConfig(std::string cfgFilename, std::string name) {
@@ -64,9 +60,6 @@ void TRestAnalysisHistogramViewerProcess::InitProcess() {
 
     fPlotString = "sAna.TripleMaxIntegral>>(1000,0,1000)";
 }
-
-//______________________________________________________________________________
-void TRestAnalysisHistogramViewerProcess::BeginOfEventProcess() { fOutputTrackEvent->Initialize(); }
 
 //______________________________________________________________________________
 TRestEvent* TRestAnalysisHistogramViewerProcess::ProcessEvent(TRestEvent* evInput) {
@@ -93,9 +86,6 @@ TRestEvent* TRestAnalysisHistogramViewerProcess::ProcessEvent(TRestEvent* evInpu
 
     return fOutputTrackEvent;
 }
-
-//______________________________________________________________________________
-void TRestAnalysisHistogramViewerProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestAnalysisHistogramViewerProcess::EndProcess() {

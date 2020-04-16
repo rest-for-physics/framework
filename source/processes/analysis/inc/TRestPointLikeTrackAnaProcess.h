@@ -34,10 +34,11 @@ class TRestPointLikeTrackAnaProcess : public TRestEventProcess {
     // add here the members of your event process
 
    public:
+    any GetInputEvent() { return fTrackEvent; }
+    any GetOutputEvent() { return fTrackEvent; }
+
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
     void EndProcess();
 
     void LoadConfig(std::string cfgFilename);

@@ -138,7 +138,6 @@ TRestHitsAnalysisProcess::TRestHitsAnalysisProcess(char* cfgFileName) {
 
 //______________________________________________________________________________
 TRestHitsAnalysisProcess::~TRestHitsAnalysisProcess() {
-    delete fInputHitsEvent;
     delete fOutputHitsEvent;
 }
 
@@ -148,11 +147,8 @@ void TRestHitsAnalysisProcess::LoadDefaultConfig() { SetTitle("Default config");
 void TRestHitsAnalysisProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fInputHitsEvent = new TRestHitsEvent();
+    fInputHitsEvent = NULL;
     fOutputHitsEvent = new TRestHitsEvent();
-
-    fOutputEvent = fOutputHitsEvent;
-    fInputEvent = fInputHitsEvent;
 
     fPrismFiducial = false;
     fCylinderFiducial = false;
@@ -164,9 +160,6 @@ void TRestHitsAnalysisProcess::LoadConfig(std::string cfgFilename, std::string n
 
 //______________________________________________________________________________
 void TRestHitsAnalysisProcess::InitProcess() { TRestEventProcess::ReadObservables(); }
-
-//______________________________________________________________________________
-void TRestHitsAnalysisProcess::BeginOfEventProcess() { fOutputHitsEvent->Initialize(); }
 
 //______________________________________________________________________________
 TRestEvent* TRestHitsAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
@@ -342,9 +335,6 @@ TRestEvent* TRestHitsAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fOutputHitsEvent;
 }
-
-//______________________________________________________________________________
-void TRestHitsAnalysisProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestHitsAnalysisProcess::EndProcess() {

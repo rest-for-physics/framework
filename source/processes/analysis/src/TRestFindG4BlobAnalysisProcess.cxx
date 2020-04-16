@@ -40,9 +40,6 @@ void TRestFindG4BlobAnalysisProcess::Initialize() {
 
     fG4Event = new TRestG4Event();
     /// fOutputG4Event = new TRestG4Event();
-
-    fOutputEvent = fG4Event;
-    fInputEvent = fG4Event;
 }
 
 void TRestFindG4BlobAnalysisProcess::LoadConfig(std::string cfgFilename, std::string name) {
@@ -71,9 +68,6 @@ void TRestFindG4BlobAnalysisProcess::InitProcess() {
 
     fG4Metadata = GetMetadata<TRestG4Metadata>();
 }
-
-//______________________________________________________________________________
-void TRestFindG4BlobAnalysisProcess::BeginOfEventProcess() {}
 
 //______________________________________________________________________________
 TRestEvent* TRestFindG4BlobAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
@@ -192,9 +186,6 @@ TRestEvent* TRestFindG4BlobAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fG4Event;
 }
-
-//______________________________________________________________________________
-void TRestFindG4BlobAnalysisProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestFindG4BlobAnalysisProcess::EndProcess() {
