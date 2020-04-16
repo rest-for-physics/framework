@@ -29,8 +29,6 @@ TRestHitsReductionProcess::TRestHitsReductionProcess(char* cfgFileName) {
 
 //______________________________________________________________________________
 TRestHitsReductionProcess::~TRestHitsReductionProcess() {
-    delete fInputHitsEvent;
-    delete fOutputHitsEvent;
 }
 
 void TRestHitsReductionProcess::LoadDefaultConfig() {
@@ -47,11 +45,8 @@ void TRestHitsReductionProcess::LoadDefaultConfig() {
 void TRestHitsReductionProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fInputHitsEvent = new TRestHitsEvent();
-    fOutputHitsEvent = new TRestHitsEvent();
-
-    fOutputEvent = fOutputHitsEvent;
-    fInputEvent = fInputHitsEvent;
+    fInputHitsEvent = NULL;
+    fOutputHitsEvent = NULL;
 }
 
 void TRestHitsReductionProcess::LoadConfig(std::string cfgFilename, std::string name) {
@@ -60,9 +55,6 @@ void TRestHitsReductionProcess::LoadConfig(std::string cfgFilename, std::string 
 
 //______________________________________________________________________________
 void TRestHitsReductionProcess::InitProcess() {}
-
-//______________________________________________________________________________
-void TRestHitsReductionProcess::BeginOfEventProcess() { fOutputHitsEvent->Initialize(); }
 
 //______________________________________________________________________________
 TRestEvent* TRestHitsReductionProcess::ProcessEvent(TRestEvent* evInput) {
@@ -111,9 +103,6 @@ TRestEvent* TRestHitsReductionProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fOutputHitsEvent;
 }
-
-//______________________________________________________________________________
-void TRestHitsReductionProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestHitsReductionProcess::EndProcess() {}

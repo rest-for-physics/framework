@@ -38,8 +38,8 @@ class TRestHits3DReconstructionProcess : public TRestEventProcess {
     void Initialize();
 
    public:
-    TRestEvent* GetInputEvent() { return fInputHitsEvent; }
-    TRestEvent* GetOutputEvent() { return fOutputHitsEvent; }
+    any GetInputEvent() { return fInputHitsEvent; }
+    any GetOutputEvent() { return fOutputHitsEvent; }
 
     void InitProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);

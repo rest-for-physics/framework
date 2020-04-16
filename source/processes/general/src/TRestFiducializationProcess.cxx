@@ -32,7 +32,6 @@ TRestFiducializationProcess::TRestFiducializationProcess(char* cfgFileName) {
 //______________________________________________________________________________
 TRestFiducializationProcess::~TRestFiducializationProcess() {
     delete fOutputHitsEvent;
-    delete fInputHitsEvent;
 }
 
 void TRestFiducializationProcess::LoadDefaultConfig() { SetTitle("Default config"); }
@@ -42,10 +41,7 @@ void TRestFiducializationProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fOutputHitsEvent = new TRestHitsEvent();
-    fInputHitsEvent = new TRestHitsEvent();
-
-    fOutputEvent = fOutputHitsEvent;
-    fInputEvent = fInputHitsEvent;
+    fInputHitsEvent = NULL;
 
     fReadout = NULL;
 }
@@ -64,16 +60,13 @@ void TRestFiducializationProcess::InitProcess() {
 }
 
 //______________________________________________________________________________
-void TRestFiducializationProcess::BeginOfEventProcess() { fOutputHitsEvent->Initialize(); }
-
-//______________________________________________________________________________
 TRestEvent* TRestFiducializationProcess::ProcessEvent(TRestEvent* evInput) {
-    TRestHitsEvent* inputHitsEvent = (TRestHitsEvent*)evInput;
+    fInputHitsEvent = (TRestHitsEvent*)evInput;
 
-    Int_t nHits = inputHitsEvent->GetNumberOfHits();
+    Int_t nHits = fInputHitsEvent->GetNumberOfHits();
     if (nHits <= 0) return NULL;
 
-    TRestHits* hits = inputHitsEvent->GetHits();
+    TRestHits* hits = fInputHitsEvent->GetHits();
     for (int n = 0; n < nHits; n++) {
         Double_t eDep = hits->GetEnergy(n);
 
@@ -101,9 +94,6 @@ TRestEvent* TRestFiducializationProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fOutputHitsEvent;
 }
-
-//______________________________________________________________________________
-void TRestFiducializationProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestFiducializationProcess::EndProcess() {

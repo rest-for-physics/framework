@@ -174,7 +174,7 @@ TRestHits3DReconstructionProcess::~TRestHits3DReconstructionProcess() { delete f
 void TRestHits3DReconstructionProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fInputHitsEvent = new TRestHitsEvent();
+    fInputHitsEvent = NULL;
     fOutputHitsEvent = new TRestHitsEvent();
 }
 

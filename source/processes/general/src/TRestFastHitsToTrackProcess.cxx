@@ -33,7 +33,6 @@ TRestFastHitsToTrackProcess::TRestFastHitsToTrackProcess(char* cfgFileName) {
 
 //______________________________________________________________________________
 TRestFastHitsToTrackProcess::~TRestFastHitsToTrackProcess() {
-    delete fHitsEvent;
     delete fTrackEvent;
     // TRestFastHitsToTrackProcess destructor
 }
@@ -57,11 +56,9 @@ void TRestFastHitsToTrackProcess::Initialize() {
     fNetOrigin = TVector3(-500, -500, -500);
     fNodes = (Int_t)(fNetSize / fCellResolution);
 
-    fHitsEvent = new TRestHitsEvent();
+    fHitsEvent = NULL;
     fTrackEvent = new TRestTrackEvent();
 
-    fOutputEvent = fTrackEvent;
-    fInputEvent = fHitsEvent;
 }
 
 void TRestFastHitsToTrackProcess::LoadConfig(std::string cfgFilename, std::string name) {
@@ -79,14 +76,10 @@ void TRestFastHitsToTrackProcess::InitProcess() {
 }
 
 //______________________________________________________________________________
-void TRestFastHitsToTrackProcess::BeginOfEventProcess() { fTrackEvent->Initialize(); }
-
-//______________________________________________________________________________
 TRestEvent* TRestFastHitsToTrackProcess::ProcessEvent(TRestEvent* evInput) {
     /* Time measurement
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
     */
-
     fHitsEvent = (TRestHitsEvent*)evInput;
 
     fTrackEvent->SetID(fHitsEvent->GetID());
@@ -181,9 +174,6 @@ Int_t TRestFastHitsToTrackProcess::FindTracks(TRestHits* hits) {
 
     return nTracksFound;
 }
-
-//______________________________________________________________________________
-void TRestFastHitsToTrackProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestFastHitsToTrackProcess::EndProcess() {

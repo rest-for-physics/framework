@@ -85,7 +85,6 @@ TRestSignalZeroSuppresionProcess::TRestSignalZeroSuppresionProcess(char* cfgFile
 /// \brief Default destructor
 ///
 TRestSignalZeroSuppresionProcess::~TRestSignalZeroSuppresionProcess() {
-    delete fRawSignalEvent;
     delete fSignalEvent;
 }
 
@@ -128,11 +127,8 @@ void TRestSignalZeroSuppresionProcess::LoadConfig(std::string cfgFilename, std::
 void TRestSignalZeroSuppresionProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fRawSignalEvent = new TRestRawSignalEvent();
+    fRawSignalEvent = NULL;
     fSignalEvent = new TRestSignalEvent();
-
-    fInputEvent = fRawSignalEvent;
-    fOutputEvent = fSignalEvent;
 }
 
 ///////////////////////////////////////////////

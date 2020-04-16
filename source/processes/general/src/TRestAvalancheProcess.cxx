@@ -46,7 +46,6 @@ TRestAvalancheProcess::TRestAvalancheProcess(char* cfgFileName) {
 TRestAvalancheProcess::~TRestAvalancheProcess() {
     if (fGas != NULL) delete fGas;
 
-    delete fHitsInputEvent;
     delete fHitsOutputEvent;
     // TRestAvalancheProcess destructor
 }
@@ -69,11 +68,9 @@ void TRestAvalancheProcess::Initialize() {
     fResolutionAtEref = 15.0;
     fDetectorGain = 8000.0;
 
-    fHitsInputEvent = new TRestHitsEvent();
+    fHitsInputEvent = NULL;
     fHitsOutputEvent = new TRestHitsEvent();
 
-    fOutputEvent = fHitsOutputEvent;
-    fInputEvent = fHitsInputEvent;
 }
 
 void TRestAvalancheProcess::LoadConfig(string cfgFilename) {
@@ -96,11 +93,6 @@ void TRestAvalancheProcess::InitProcess() {
     if (fGas == NULL) cout << "REST ERRORRRR : Gas has not been initialized" << endl;
 }
 
-//______________________________________________________________________________
-void TRestAvalancheProcess::BeginOfEventProcess() {
-    cout << "Begin of event process" << endl;
-    fHitsOutputEvent->Initialize();
-}
 
 //______________________________________________________________________________
 TRestEvent* TRestAvalancheProcess::ProcessEvent(TRestEvent* evInput) {
@@ -137,9 +129,6 @@ TRestEvent* TRestAvalancheProcess::ProcessEvent(TRestEvent* evInput) {
          << " e-s : " << endl;
     return fHitsOutputEvent;
 }
-
-//______________________________________________________________________________
-void TRestAvalancheProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestAvalancheProcess::EndProcess() {

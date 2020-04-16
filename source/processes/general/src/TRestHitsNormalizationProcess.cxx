@@ -41,7 +41,6 @@ TRestHitsNormalizationProcess::TRestHitsNormalizationProcess(char* cfgFileName) 
 
 //______________________________________________________________________________
 TRestHitsNormalizationProcess::~TRestHitsNormalizationProcess() {
-    delete fHitsInputEvent;
     delete fHitsOutputEvent;
     // TRestHitsNormalizationProcess destructor
 }
@@ -58,11 +57,8 @@ void TRestHitsNormalizationProcess::Initialize() {
 
     fFactor = 1.;
 
-    fHitsInputEvent = new TRestHitsEvent();
+    fHitsInputEvent = NULL;
     fHitsOutputEvent = new TRestHitsEvent();
-
-    fOutputEvent = fHitsOutputEvent;
-    fInputEvent = fHitsInputEvent;
 }
 
 void TRestHitsNormalizationProcess::LoadConfig(string cfgFilename, string name) {
@@ -82,9 +78,6 @@ void TRestHitsNormalizationProcess::InitProcess() {
 }
 
 //______________________________________________________________________________
-void TRestHitsNormalizationProcess::BeginOfEventProcess() { fHitsOutputEvent->Initialize(); }
-
-//______________________________________________________________________________
 TRestEvent* TRestHitsNormalizationProcess::ProcessEvent(TRestEvent* evInput) {
     fHitsInputEvent = (TRestHitsEvent*)evInput;
     fHitsOutputEvent->SetEventInfo(fHitsInputEvent);
@@ -102,9 +95,6 @@ TRestEvent* TRestHitsNormalizationProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fHitsOutputEvent;
 }
-
-//______________________________________________________________________________
-void TRestHitsNormalizationProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestHitsNormalizationProcess::EndProcess() {

@@ -31,7 +31,6 @@ TRestElectronDiffusionProcess::TRestElectronDiffusionProcess(char* cfgFileName) 
 //______________________________________________________________________________
 TRestElectronDiffusionProcess::~TRestElectronDiffusionProcess() {
     delete fOutputHitsEvent;
-    delete fInputHitsEvent;
 }
 
 void TRestElectronDiffusionProcess::LoadDefaultConfig() {
@@ -55,10 +54,7 @@ void TRestElectronDiffusionProcess::Initialize() {
     fWvalue = 0;
 
     fOutputHitsEvent = new TRestHitsEvent();
-    fInputHitsEvent = new TRestHitsEvent();
-
-    fOutputEvent = fOutputHitsEvent;
-    fInputEvent = fInputHitsEvent;
+    fInputHitsEvent = NULL;
 
     fGas = NULL;
     fReadout = NULL;
@@ -101,26 +97,23 @@ void TRestElectronDiffusionProcess::InitProcess() {
 }
 
 //______________________________________________________________________________
-void TRestElectronDiffusionProcess::BeginOfEventProcess() { fOutputHitsEvent->Initialize(); }
-
-//______________________________________________________________________________
 TRestEvent* TRestElectronDiffusionProcess::ProcessEvent(TRestEvent* evInput) {
-    TRestHitsEvent* inputHitsEvent = (TRestHitsEvent*)evInput;
-    fOutputHitsEvent->SetEventInfo(inputHitsEvent);
+    fInputHitsEvent = (TRestHitsEvent*)evInput;
+    fOutputHitsEvent->SetEventInfo(fInputHitsEvent);
 
-    Int_t nHits = inputHitsEvent->GetNumberOfHits();
+    Int_t nHits = fInputHitsEvent->GetNumberOfHits();
     if (nHits <= 0) return NULL;
 
     Int_t isAttached;
 
-    Int_t totalElectrons = inputHitsEvent->GetEnergy() * REST_Units::eV / fWvalue;
+    Int_t totalElectrons = fInputHitsEvent->GetEnergy() * REST_Units::eV / fWvalue;
 
     Double_t wValue = fWvalue;
     if (fMaxHits > 0 && totalElectrons > fMaxHits)
-        wValue = inputHitsEvent->GetEnergy() * REST_Units::eV / fMaxHits;
+        wValue = fInputHitsEvent->GetEnergy() * REST_Units::eV / fMaxHits;
 
     for (int n = 0; n < nHits; n++) {
-        TRestHits* hits = inputHitsEvent->GetHits();
+        TRestHits* hits = fInputHitsEvent->GetHits();
 
         Double_t eDep = hits->GetEnergy(n);
 
@@ -180,7 +173,7 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent(TRestEvent* evInput) {
     }
 
     if (this->GetVerboseLevel() >= REST_Debug) {
-        cout << "TRestElectronDiffusionProcess. Input hits energy : " << inputHitsEvent->GetEnergy() << endl;
+        cout << "TRestElectronDiffusionProcess. Input hits energy : " << fInputHitsEvent->GetEnergy() << endl;
         cout << "TRestElectronDiffusionProcess. Hits added : " << fOutputHitsEvent->GetNumberOfHits() << endl;
         cout << "TRestElectronDiffusionProcess. Hits total energy : " << fOutputHitsEvent->GetEnergy()
              << endl;
@@ -189,9 +182,6 @@ TRestEvent* TRestElectronDiffusionProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fOutputHitsEvent;
 }
-
-//______________________________________________________________________________
-void TRestElectronDiffusionProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestElectronDiffusionProcess::EndProcess() {

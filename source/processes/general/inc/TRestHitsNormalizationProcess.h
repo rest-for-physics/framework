@@ -39,10 +39,11 @@ class TRestHitsNormalizationProcess : public TRestEventProcess {
     Double_t fFactor;
 
    public:
+    any GetInputEvent() { return fHitsInputEvent; }
+    any GetOutputEvent() { return fHitsOutputEvent; }
+
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
     void EndProcess();
 
     void LoadConfig(std::string cfgFilename, std::string name = "");

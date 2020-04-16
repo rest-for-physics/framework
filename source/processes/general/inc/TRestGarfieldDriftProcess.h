@@ -70,13 +70,13 @@ class TRestGarfieldDriftProcess : public TRestEventProcess {
 
 #endif
    public:
+    any GetInputEvent() { return fInputHitsEvent; }
+    any GetOutputEvent() { return fOutputHitsEvent; }
+
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
 
 #if defined USE_Garfield
     void InitProcess();
-    void BeginOfEventProcess();
-
-    void EndOfEventProcess();
     void EndProcess();
 
     void LoadConfig(std::string cfgFilename, std::string name = "");

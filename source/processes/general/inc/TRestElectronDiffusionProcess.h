@@ -49,10 +49,11 @@ class TRestElectronDiffusionProcess : public TRestEventProcess {
     Int_t fMaxHits;
 
    public:
+    any GetInputEvent() { return fInputHitsEvent; }
+    any GetOutputEvent() { return fOutputHitsEvent; }
+
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
     void EndProcess();
 
     void LoadConfig(std::string cfgFilename, std::string name = "");

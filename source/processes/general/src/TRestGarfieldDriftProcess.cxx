@@ -67,7 +67,6 @@ TRestGarfieldDriftProcess::~TRestGarfieldDriftProcess() {
     if (fGeometry) delete fGeometry;
     fGeometry = NULL;
 
-    delete fInputHitsEvent;
     delete fOutputHitsEvent;
 }
 
@@ -96,7 +95,7 @@ void TRestGarfieldDriftProcess::Initialize() {
     SetSectionName(ClassName());
 
     fRandom = new TRandom3(0);
-    fInputHitsEvent = new TRestHitsEvent();
+    fInputHitsEvent = NULL;
     fOutputHitsEvent = new TRestHitsEvent();
 
 #if defined USE_Garfield
@@ -105,9 +104,6 @@ void TRestGarfieldDriftProcess::Initialize() {
     fGeometry = NULL;
     fPEReduction = 1.;
     fStopDistance = 2;  // default distance from readout to stop drift set to 2mm
-
-    fInputEvent = fInputHitsEvent;
-    fOutputEvent = fOutputHitsEvent;
 #endif
 }
 
@@ -331,12 +327,6 @@ void TRestGarfieldDriftProcess::InitProcess() {
     // }
 }
 
-//______________________________________________________________________________
-
-void TRestGarfieldDriftProcess::BeginOfEventProcess() {
-    // cout  <<  "Begin of event process"  <<  endl;
-    fOutputHitsEvent->Initialize();
-}
 
 //------------------------------------------------------------------------------
 
@@ -441,16 +431,14 @@ TRestEvent* TRestGarfieldDriftProcess::ProcessEvent(TRestEvent* evInput) {
     return fOutputHitsEvent;
 #else
     fInputHitsEvent = (TRestHitsEvent*)evInput;
+    fOutputHitsEvent = fInputHitsEvent;
     debug << "null process" << endl;
     return evInput;
 
 #endif
 }
 
-//______________________________________________________________________________
 #if defined USE_Garfield
-
-void TRestGarfieldDriftProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 

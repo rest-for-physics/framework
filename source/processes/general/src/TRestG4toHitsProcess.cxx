@@ -91,7 +91,6 @@ TRestG4toHitsProcess::TRestG4toHitsProcess(char* cfgFileName) {
 /// \brief Default destructor
 ///
 TRestG4toHitsProcess::~TRestG4toHitsProcess() {
-    delete fG4Event;
     delete fHitsEvent;
 }
 
@@ -111,11 +110,8 @@ void TRestG4toHitsProcess::LoadDefaultConfig() {
 void TRestG4toHitsProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fG4Event = new TRestG4Event();
+    fG4Event = NULL;
     fHitsEvent = new TRestHitsEvent();
-
-    fOutputEvent = fHitsEvent;
-    fInputEvent = fG4Event;
 }
 
 ///////////////////////////////////////////////

@@ -58,6 +58,9 @@ class TRestG4toHitsProcess : public TRestEventProcess {
     // add here the members of your event process
 
    public:
+    any GetInputEvent() { return fG4Event; }
+    any GetOutputEvent() { return fHitsEvent; }
+
     void InitProcess();
 
     TRestEvent* ProcessEvent(TRestEvent* eventInput);

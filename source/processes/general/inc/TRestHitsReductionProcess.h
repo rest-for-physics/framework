@@ -32,10 +32,11 @@ class TRestHitsReductionProcess : public TRestEventProcess {
     Double_t fMaxNodes;
 
    public:
+    any GetInputEvent() { return fInputHitsEvent; }
+    any GetOutputEvent() { return fOutputHitsEvent; }
+
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
     void EndProcess();
     void LoadDefaultConfig();
 

@@ -39,10 +39,11 @@ class TRestFastHitsToTrackProcess : public TRestEventProcess {
     Int_t fNodes;
 
    public:
+    any GetInputEvent() { return fHitsEvent; }
+    any GetOutputEvent() { return fTrackEvent; }
+
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
     void EndProcess();
     void LoadDefaultConfig();
 

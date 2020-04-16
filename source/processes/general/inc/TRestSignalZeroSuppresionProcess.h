@@ -72,10 +72,11 @@ class TRestSignalZeroSuppresionProcess : public TRestEventProcess {
     void LoadDefaultConfig();
 
    public:
+    any GetInputEvent() { return fRawSignalEvent; }
+    any GetOutputEvent() { return fSignalEvent; }
+
     void InitProcess();
-    void BeginOfEventProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndOfEventProcess();
     void EndProcess();
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
