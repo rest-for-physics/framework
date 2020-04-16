@@ -40,6 +40,7 @@ TRestRawToSignalProcess::TRestRawToSignalProcess(char* cfgFileName) {
 //______________________________________________________________________________
 TRestRawToSignalProcess::~TRestRawToSignalProcess() {
     // TRestRawToSignalProcess destructor
+    if (fSignalEvent) delete fSignalEvent;
 }
 
 void TRestRawToSignalProcess::LoadConfig(string cfgFilename, string name) {
@@ -52,10 +53,10 @@ void TRestRawToSignalProcess::LoadConfig(string cfgFilename, string name) {
 //______________________________________________________________________________
 void TRestRawToSignalProcess::Initialize() {
     SetSectionName(this->ClassName());
+
+    if (fSignalEvent) delete fSignalEvent;
     fSignalEvent = new TRestRawSignalEvent();
 
-    fInputEvent = NULL;
-    fOutputEvent = fSignalEvent;
     fInputBinFile = NULL;
 
     fMinPoints = 512;

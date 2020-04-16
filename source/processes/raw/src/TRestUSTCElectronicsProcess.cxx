@@ -44,10 +44,6 @@ void TRestUSTCElectronicsProcess::Initialize() {
     TRestRawToSignalProcess::Initialize();
 
     SetSectionName(this->ClassName());
-
-    fSignalEvent = new TRestRawSignalEvent();
-
-    fOutputEvent = fSignalEvent;
 }
 
 void TRestUSTCElectronicsProcess::InitProcess() {
@@ -68,7 +64,6 @@ void TRestUSTCElectronicsProcess::InitProcess() {
     }
 
     fRunOrigin = fRunInfo->GetRunNumber();
-    fOutputEvent = fSignalEvent;
     fCurrentFile = 0;
     fCurrentBuffer = 0;
     totalBytesReaded = 0;
@@ -96,7 +91,6 @@ void TRestUSTCElectronicsProcess::InitProcess() {
 TRestEvent* TRestUSTCElectronicsProcess::ProcessEvent(TRestEvent* evInput) {
     while (1) {
         if (EndReading()) {
-            fOutputEvent = NULL;
             return NULL;
         }
         if (!FillBuffer()) {

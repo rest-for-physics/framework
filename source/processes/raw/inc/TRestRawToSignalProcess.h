@@ -38,7 +38,7 @@ class TRestRawToSignalProcess : public TRestEventProcess {
     Long64_t totalBytesReaded;
     Long64_t totalBytes;
 
-    TRestRawSignalEvent* fSignalEvent;  //!
+    TRestRawSignalEvent* fSignalEvent = 0;  //!
 #ifndef __CINT__
     FILE* fInputBinFile;  //!
 
@@ -55,6 +55,9 @@ class TRestRawToSignalProcess : public TRestEventProcess {
     void LoadDefaultConfig();
 
    public:
+    any GetInputEvent() { return any((TRestEvent*)NULL); }
+    any GetOutputEvent() { return fSignalEvent; }
+
     virtual void Initialize();
     virtual void InitProcess() = 0;
     virtual TRestEvent* ProcessEvent(TRestEvent* evInput) = 0;

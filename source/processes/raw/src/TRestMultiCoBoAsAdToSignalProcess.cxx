@@ -44,10 +44,6 @@ void TRestMultiCoBoAsAdToSignalProcess::Initialize() {
     TRestRawToSignalProcess::Initialize();
 
     SetSectionName(this->ClassName());
-
-    fSignalEvent = new TRestRawSignalEvent();
-
-    fOutputEvent = fSignalEvent;
 }
 
 Bool_t TRestMultiCoBoAsAdToSignalProcess::InitializeStartTimeStampFromFilename(TString fName) {
@@ -97,7 +93,6 @@ void TRestMultiCoBoAsAdToSignalProcess::InitProcess() {
     }
 
     fRunOrigin = fRunInfo->GetRunNumber();
-    fOutputEvent = fSignalEvent;
     fCurrentEvent = -1;
 
     totalBytesReaded = 0;
@@ -106,7 +101,6 @@ void TRestMultiCoBoAsAdToSignalProcess::InitProcess() {
 TRestEvent* TRestMultiCoBoAsAdToSignalProcess::ProcessEvent(TRestEvent* evInput) {
     fSignalEvent->Initialize();
     if (EndReading()) {
-        fOutputEvent = NULL;
         return NULL;
     }
 

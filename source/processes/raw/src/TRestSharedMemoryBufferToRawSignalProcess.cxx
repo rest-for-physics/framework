@@ -203,9 +203,6 @@ void TRestSharedMemoryBufferToRawSignalProcess::Initialize() {
 
     fOutputRawSignalEvent = new TRestRawSignalEvent();
 
-    fInputEvent = NULL;
-    fOutputEvent = fOutputRawSignalEvent;
-
     fReset = true;
 }
 

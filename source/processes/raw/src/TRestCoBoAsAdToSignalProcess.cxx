@@ -129,7 +129,6 @@ TRestEvent* TRestCoBoAsAdToSignalProcess::ProcessEvent(TRestEvent* evInput) {
 
     if (fread(frameHeader, 256, 1, fInputBinFile) != 1 || feof(fInputBinFile)) {
         fclose(fInputBinFile);
-        fOutputEvent = NULL;
         cout << "file end" << endl;
         return NULL;
     }
@@ -210,7 +209,6 @@ TRestEvent* TRestCoBoAsAdToSignalProcess::ProcessEvent(TRestEvent* evInput) {
             for (i = 0; i * 512 < nItems; i++) {
                 if ((fread(frameDataP, 2048, 1, fInputBinFile)) != 1 || feof(fInputBinFile)) {
                     fclose(fInputBinFile);
-                    fOutputEvent = NULL;
                     cout << "file end 2" << endl;
                     return NULL;
                 }
@@ -335,7 +333,6 @@ TRestEvent* TRestCoBoAsAdToSignalProcess::ProcessEvent(TRestEvent* evInput) {
 
             if (fread(frameDataF, 2048, 136, fInputBinFile) != 136 || feof(fInputBinFile)) {
                 fclose(fInputBinFile);
-                fOutputEvent = NULL;
                 cout << "file end 2" << endl;
                 return NULL;
             }
@@ -401,7 +398,6 @@ TRestEvent* TRestCoBoAsAdToSignalProcess::ProcessEvent(TRestEvent* evInput) {
 
     } else {
         fclose(fInputBinFile);
-        fOutputEvent = NULL;
         cout << "file type error!" << endl;
         return NULL;
     }
