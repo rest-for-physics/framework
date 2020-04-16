@@ -73,7 +73,7 @@ TRestRawSignalViewerProcess::TRestRawSignalViewerProcess(char* cfgFileName) {
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestRawSignalViewerProcess::~TRestRawSignalViewerProcess() { delete fSignalEvent; }
+TRestRawSignalViewerProcess::~TRestRawSignalViewerProcess() {}
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
@@ -87,10 +87,7 @@ void TRestRawSignalViewerProcess::LoadDefaultConfig() { SetTitle("Default config
 void TRestRawSignalViewerProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fSignalEvent = new TRestRawSignalEvent();
-
-    fOutputEvent = fSignalEvent;
-    fInputEvent = fSignalEvent;
+    fSignalEvent = NULL;
 
     fDrawRefresh = 0;
 
@@ -126,7 +123,6 @@ TRestEvent* TRestRawSignalViewerProcess::ProcessEvent(TRestEvent* evInput) {
 
     // no need for verbose copy now
     fSignalEvent = (TRestRawSignalEvent*)evInput;
-    fOutputEvent = fSignalEvent;
 
     fCanvas->cd();
     eveCounter++;

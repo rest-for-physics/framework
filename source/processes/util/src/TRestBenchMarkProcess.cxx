@@ -25,6 +25,7 @@ void TRestBenchMarkProcess::InitFromConfigFile() {
 }
 
 void TRestBenchMarkProcess::Initialize() {
+    fEvent = NULL;
 #ifndef __APPLE__
     fCPUNumber = get_nprocs_conf();
     fMemNumber = get_phys_pages();
@@ -72,7 +73,7 @@ void TRestBenchMarkProcess::InitProcess() {
 }
 
 TRestEvent* TRestBenchMarkProcess::ProcessEvent(TRestEvent* eventInput) {
-    fOutputEvent = eventInput;
+    fEvent = eventInput;
 
     ULong64_t time = chrono::high_resolution_clock::now().time_since_epoch().count();
     SetObservableValue("RunningTime", (time - fStartTime) / 1e9);
@@ -81,7 +82,7 @@ TRestEvent* TRestBenchMarkProcess::ProcessEvent(TRestEvent* eventInput) {
     SetObservableValue("CPUPrecentage", fCPUUsageInPct);
     SetObservableValue("MemoryUsedMB", fMemUsageInMB);
 
-    return fOutputEvent;
+    return fEvent;
 }
 
 void TRestBenchMarkProcess::EndProcess() {

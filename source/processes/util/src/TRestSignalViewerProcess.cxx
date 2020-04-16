@@ -36,7 +36,7 @@ TRestSignalViewerProcess::TRestSignalViewerProcess(char* cfgFileName) {
 }
 
 //______________________________________________________________________________
-TRestSignalViewerProcess::~TRestSignalViewerProcess() { delete fSignalEvent; }
+TRestSignalViewerProcess::~TRestSignalViewerProcess() {}
 
 void TRestSignalViewerProcess::LoadDefaultConfig() { SetTitle("Default config"); }
 
@@ -44,10 +44,7 @@ void TRestSignalViewerProcess::LoadDefaultConfig() { SetTitle("Default config");
 void TRestSignalViewerProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fSignalEvent = new TRestSignalEvent();
-
-    fOutputEvent = fSignalEvent;
-    fInputEvent = fSignalEvent;
+    fSignalEvent = NULL;
 
     fDrawRefresh = 0;
 
@@ -61,10 +58,6 @@ void TRestSignalViewerProcess::LoadConfig(std::string cfgFilename, std::string n
 //______________________________________________________________________________
 void TRestSignalViewerProcess::InitProcess() { this->CreateCanvas(); }
 
-//______________________________________________________________________________
-void TRestSignalViewerProcess::BeginOfEventProcess() {
-    // fSignalEvent->Initialize();
-}
 
 //______________________________________________________________________________
 TRestEvent* TRestSignalViewerProcess::ProcessEvent(TRestEvent* evInput) {
@@ -152,9 +145,6 @@ TRestEvent* TRestSignalViewerProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fSignalEvent;
 }
-
-//______________________________________________________________________________
-void TRestSignalViewerProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestSignalViewerProcess::EndProcess() {

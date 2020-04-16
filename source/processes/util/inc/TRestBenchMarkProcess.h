@@ -32,6 +32,8 @@
 //! A system performance monitor process for event flow rate, reading speed, cpu stress, etc
 class TRestBenchMarkProcess : public TRestEventProcess {
    private:
+    TRestEvent* fEvent;  //!
+
     int fCPUNumber;
     int fMemNumber;  // in kB
     pid_t fPid;
@@ -55,6 +57,9 @@ class TRestBenchMarkProcess : public TRestEventProcess {
 
    protected:
    public:
+    any GetInputEvent() { return fEvent; }
+    any GetOutputEvent() { return fEvent; }
+
     void InitProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
     void EndProcess();

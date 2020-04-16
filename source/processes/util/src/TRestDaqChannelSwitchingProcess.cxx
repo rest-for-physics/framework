@@ -36,6 +36,7 @@ void TRestDaqChannelSwitchingProcess::Initialize() {
     fFirstDaqChannelDef.clear();
     fIgnoreUndefinedModules = false;
     fReadout = NULL;
+    fEvent = NULL;
 }
 
 //______________________________________________________________________________
@@ -81,7 +82,7 @@ void TRestDaqChannelSwitchingProcess::InitProcess() {
 
 //______________________________________________________________________________
 TRestEvent* TRestDaqChannelSwitchingProcess::ProcessEvent(TRestEvent* eventInput) {
-    fOutputEvent = eventInput;
+    fEvent = eventInput;
     return eventInput;
 }
 
