@@ -87,7 +87,7 @@ struct CoBoHeaderFrame {
 class TRestMultiCoBoAsAdToSignalProcess : public TRestRawToSignalProcess {
    private:
 #ifndef __CINT__
-    TRestRawSignal sgnl;                //!
+    TRestRawSignal sgnl;  //!
 
     UChar_t frameDataP[2048];    //!///for partial readout data frame
     UChar_t frameDataF[278528];  //!///for full readout data frame
