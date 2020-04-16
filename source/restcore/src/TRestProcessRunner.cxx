@@ -228,8 +228,8 @@ void TRestProcessRunner::EndOfInit() {
     if (fRunInfo->GetFileProcess() != NULL) {
         fInputEvent = fRunInfo->GetFileProcess()->GetOutputEvent();
     } else {
-        if (fThreads[0]->GetProcessnum() > 0 && fThreads[0]->GetProcess(0)->GetInputEvent() != NULL) {
-            string name = fThreads[0]->GetProcess(0)->GetInputEvent()->ClassName();
+        if (fThreads[0]->GetProcessnum() > 0 && fThreads[0]->GetProcess(0)->GetInputEvent().address != NULL) {
+            string name = fThreads[0]->GetProcess(0)->GetInputEvent().type;
             TRestEvent* a = REST_Reflection::Assembly(name);
             a->Initialize();
             fRunInfo->SetInputEvent(a);

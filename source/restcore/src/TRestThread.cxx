@@ -65,56 +65,47 @@ Int_t TRestThread::ValidateChain(TRestEvent* input) {
     // add the non-general processes to list for validation
     vector<TRestEventProcess*> processes;
     for (unsigned int i = 0; i < fProcessChain.size(); i++) {
-        TRestEvent* inEvent = fProcessChain[i]->GetInputEvent();
-        TRestEvent* outEvent = fProcessChain[i]->GetOutputEvent();
+        any inEvent = fProcessChain[i]->GetInputEvent();
+        any outEvent = fProcessChain[i]->GetOutputEvent();
 
-        if (outEvent == NULL && inEvent == NULL) {
+        if (outEvent.type == "TRestEvent" && inEvent.type == "TRestEvent") {
             info << "general process: " << fProcessChain[i]->GetName() << endl;
             continue;
-        }
-
-        if (inEvent == NULL) {
-            ferr << "input event of process: " << fProcessChain[i]->GetName() << "not initialized!" << endl;
-            return -1;
-        }
-
-        if (outEvent == NULL) {
-            ferr << "output event of process: " << fProcessChain[i]->GetName() << "not initialized!" << endl;
-            return -1;
         }
 
         processes.push_back(fProcessChain[i]);
     }
 
-    // verify that the input event of first process is OK
-    if (input != NULL) {
-        if (input->ClassName() != processes[0]->GetInputEvent()->ClassName()) {
-            ferr << "(ValidateChain): Input event type does not match!" << endl;
-            cout << "Input type of the first non-external process in chain: "
-                 << fProcessChain[0]->GetInputEvent()->ClassName() << endl;
-            cout << "The event type from file: " << input->ClassName() << endl;
-            cout << "No events will be processed. Please correct event process "
-                    "input/output."
-                 << endl;
+    if (processes.size() > 0) {
+        // verify that the input event of first process is OK
+        if (input != NULL) {
+            if ((string)input->ClassName() != processes[0]->GetInputEvent().type) {
+                ferr << "(ValidateChain): Input event type does not match!" << endl;
+                cout << "Input type of the first non-external process in chain: "
+                     << processes[0]->GetInputEvent().type << endl;
+                cout << "The event type from file: " << input->ClassName() << endl;
+                cout << "No events will be processed. Please correct event process "
+                        "input/output."
+                     << endl;
+            }
+        }
+
+        // verify that the output event type is good to be the input event of the next process
+        for (int i = 0; i < processes.size() - 1; i++) {
+            string outEventType = processes[i]->GetOutputEvent().type;
+            string nextinEventType = processes[i + 1]->GetInputEvent().type;
+            if (outEventType != nextinEventType) {
+                ferr << "(ValidateChain): Event process input/output does not match" << endl;
+                ferr << "The event output for process " << processes[i]->GetName() << " is " << outEventType
+                     << endl;
+                ferr << "The event input for process " << processes[i + 1]->GetName() << " is "
+                     << nextinEventType << endl;
+                ferr << "No events will be processed. Please correctly connect the process chain!" << endl;
+                GetChar();
+                return -1;
+            }
         }
     }
-
-    // verify that the output event type is good to be the input event of the next process
-    for (int i = 0; i < processes.size() - 1; i++) {
-        TString outEventType = processes[i]->GetOutputEvent()->ClassName();
-        TString nextinEventType = processes[i + 1]->GetInputEvent()->ClassName();
-        if (outEventType != nextinEventType) {
-            ferr << "(ValidateChain): Event process input/output does not match" << endl;
-            ferr << "The event output for process " << processes[i]->GetName() << " is " << outEventType
-                 << endl;
-            ferr << "The event input for process " << processes[i + 1]->GetName() << " is " << nextinEventType
-                 << endl;
-            ferr << "No events will be processed. Please correctly connect the process chain!" << endl;
-            GetChar();
-            return -1;
-        }
-    }
-
     return 0;
 }
 
