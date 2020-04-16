@@ -55,8 +55,8 @@ class TRestRawToSignalProcess : public TRestEventProcess {
     void LoadDefaultConfig();
 
    public:
-    any GetInputEvent() { return any((TRestEvent*)NULL); }
-    any GetOutputEvent() { return fSignalEvent; }
+    virtual any GetInputEvent() { return any((TRestEvent*)NULL); }
+    virtual any GetOutputEvent() { return fSignalEvent; }
 
     virtual void Initialize();
     virtual void InitProcess() = 0;
