@@ -41,7 +41,6 @@ TRestSmearingProcess::TRestSmearingProcess(char* cfgFileName) {
 
 //______________________________________________________________________________
 TRestSmearingProcess::~TRestSmearingProcess() {
-    delete fHitsInputEvent;
     delete fHitsOutputEvent;
     // TRestSmearingProcess destructor
 }
@@ -60,11 +59,8 @@ void TRestSmearingProcess::Initialize() {
     fEnergyRef = 5.9;
     fResolutionAtEref = 15.0;
 
-    fHitsInputEvent = new TRestHitsEvent();
+    fHitsInputEvent = NULL;
     fHitsOutputEvent = new TRestHitsEvent();
-
-    fOutputEvent = fHitsOutputEvent;
-    fInputEvent = fHitsInputEvent;
 
     fRandom = new TRandom3(0);
 }
@@ -88,9 +84,6 @@ void TRestSmearingProcess::InitProcess() {
 }
 
 //______________________________________________________________________________
-void TRestSmearingProcess::BeginOfEventProcess() { fHitsOutputEvent->Initialize(); }
-
-//______________________________________________________________________________
 TRestEvent* TRestSmearingProcess::ProcessEvent(TRestEvent* evInput) {
     fHitsInputEvent = (TRestHitsEvent*)evInput;
     fHitsOutputEvent->SetEventInfo(fHitsInputEvent);
@@ -106,9 +99,6 @@ TRestEvent* TRestSmearingProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fHitsOutputEvent;
 }
-
-//______________________________________________________________________________
-void TRestSmearingProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestSmearingProcess::EndProcess() {

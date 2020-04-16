@@ -29,7 +29,6 @@ TRestTrackDetachIsolatedNodesProcess::TRestTrackDetachIsolatedNodesProcess(char*
 
 //______________________________________________________________________________
 TRestTrackDetachIsolatedNodesProcess::~TRestTrackDetachIsolatedNodesProcess() {
-    delete fInputTrackEvent;
     delete fOutputTrackEvent;
 }
 
@@ -42,11 +41,8 @@ void TRestTrackDetachIsolatedNodesProcess::LoadDefaultConfig() {
 void TRestTrackDetachIsolatedNodesProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fInputTrackEvent = new TRestTrackEvent();
+    fInputTrackEvent = NULL;
     fOutputTrackEvent = new TRestTrackEvent();
-
-    fOutputEvent = fOutputTrackEvent;
-    fInputEvent = fInputTrackEvent;
 }
 
 void TRestTrackDetachIsolatedNodesProcess::LoadConfig(std::string cfgFilename, std::string name) {
@@ -57,9 +53,6 @@ void TRestTrackDetachIsolatedNodesProcess::LoadConfig(std::string cfgFilename, s
 
 //______________________________________________________________________________
 void TRestTrackDetachIsolatedNodesProcess::InitProcess() {}
-
-//______________________________________________________________________________
-void TRestTrackDetachIsolatedNodesProcess::BeginOfEventProcess() { fOutputTrackEvent->Initialize(); }
 
 //______________________________________________________________________________
 TRestEvent* TRestTrackDetachIsolatedNodesProcess::ProcessEvent(TRestEvent* evInput) {
@@ -168,9 +161,6 @@ TRestEvent* TRestTrackDetachIsolatedNodesProcess::ProcessEvent(TRestEvent* evInp
 
     return fOutputTrackEvent;
 }
-
-//______________________________________________________________________________
-void TRestTrackDetachIsolatedNodesProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestTrackDetachIsolatedNodesProcess::EndProcess() {}

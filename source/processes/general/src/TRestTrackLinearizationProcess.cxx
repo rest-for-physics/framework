@@ -26,7 +26,6 @@ TRestTrackLinearizationProcess::TRestTrackLinearizationProcess(char* cfgFileName
 }
 
 TRestTrackLinearizationProcess::~TRestTrackLinearizationProcess() {
-    delete fInputTrackEvent;
     delete fOutputLinearTrackEvent;
 }
 
@@ -41,11 +40,8 @@ void TRestTrackLinearizationProcess::LoadDefaultConfig() {
 void TRestTrackLinearizationProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fInputTrackEvent = new TRestTrackEvent();
+    fInputTrackEvent = NULL;
     fOutputLinearTrackEvent = new TRestLinearTrackEvent();
-
-    fOutputEvent = fOutputLinearTrackEvent;
-    fInputEvent = fInputTrackEvent;
 
     fTransversalResolution = .1;
     fLengthResolution = 1;

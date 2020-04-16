@@ -65,7 +65,9 @@ class TRestSignalToRawSignalProcess : public TRestEventProcess {
     Double_t fIntegralThreshold;
 
    public:
-    void BeginOfEventProcess();
+    any GetInputEvent() { return fInputSignalEvent; }
+    any GetOutputEvent() { return fOutputRawSignalEvent; }
+
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
 
     void LoadConfig(std::string cfgFilename, std::string name = "");

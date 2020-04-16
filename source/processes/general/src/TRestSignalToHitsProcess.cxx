@@ -33,7 +33,6 @@ TRestSignalToHitsProcess::TRestSignalToHitsProcess(char* cfgFileName) {
 //______________________________________________________________________________
 TRestSignalToHitsProcess::~TRestSignalToHitsProcess() {
     delete fHitsEvent;
-    delete fSignalEvent;
     // TRestSignalToHitsProcess destructor
 }
 
@@ -101,10 +100,7 @@ void TRestSignalToHitsProcess::Initialize() {
     SetSectionName(this->ClassName());
 
     fHitsEvent = new TRestHitsEvent();
-    fSignalEvent = new TRestSignalEvent();
-
-    fInputEvent = fSignalEvent;
-    fOutputEvent = fHitsEvent;
+    fSignalEvent = 0;
 
     fGas = NULL;
     fReadout = NULL;
@@ -143,9 +139,6 @@ void TRestSignalToHitsProcess::InitProcess() {
         exit(-1);
     }
 }
-
-//______________________________________________________________________________
-void TRestSignalToHitsProcess::BeginOfEventProcess() { fHitsEvent->Initialize(); }
 
 //______________________________________________________________________________
 TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent* evInput) {
@@ -308,9 +301,6 @@ TRestEvent* TRestSignalToHitsProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fHitsEvent;
 }
-
-//______________________________________________________________________________
-void TRestSignalToHitsProcess::EndOfEventProcess() {}
 
 //______________________________________________________________________________
 void TRestSignalToHitsProcess::EndProcess() {

@@ -144,7 +144,6 @@ TRestSignalToRawSignalProcess::TRestSignalToRawSignalProcess(char* cfgFileName) 
 /// \brief Default destructor
 ///
 TRestSignalToRawSignalProcess::~TRestSignalToRawSignalProcess() {
-    delete fInputSignalEvent;
     delete fOutputRawSignalEvent;
 }
 
@@ -186,18 +185,9 @@ void TRestSignalToRawSignalProcess::LoadConfig(std::string cfgFilename, std::str
 void TRestSignalToRawSignalProcess::Initialize() {
     SetSectionName(this->ClassName());
 
-    fInputSignalEvent = new TRestSignalEvent();
+    fInputSignalEvent = NULL;
     fOutputRawSignalEvent = new TRestRawSignalEvent();
-
-    fInputEvent = fInputSignalEvent;
-    fOutputEvent = fOutputRawSignalEvent;
 }
-
-///////////////////////////////////////////////
-/// \brief Function including required initialization before each event starts
-/// to process.
-///
-void TRestSignalToRawSignalProcess::BeginOfEventProcess() { fOutputRawSignalEvent->Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
