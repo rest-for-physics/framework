@@ -72,9 +72,9 @@ class TRestSingleChannelAnalysisProcess : public TRestEventProcess {
         metadata << (fCreateGainMap ? ">   " : "    ") << "Create new correction map for each channel"
                  << endl;
         metadata << "output mapping file: " << fCalibSave << endl;
-        metadata << "Energy cut for Threshold integral: " << any(fThrIntegralCutRange).ToString() << endl;
-        metadata << "Energy cut for NGoodSignals: " << any(fNGoodSignalsCutRange).ToString() << endl;
-        metadata << "Fit range for the spectrums: " << any(fSpecFitRange).ToString() << endl;
+        metadata << "Energy cut for Threshold integral: " << any(fThrIntegralCutRange) << endl;
+        metadata << "Energy cut for NGoodSignals: " << any(fNGoodSignalsCutRange) << endl;
+        metadata << "Fit range for the spectrums: " << any(fSpecFitRange) << endl;
 
         EndPrintProcess();
     }

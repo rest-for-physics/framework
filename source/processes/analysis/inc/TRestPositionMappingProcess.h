@@ -74,8 +74,8 @@ class TRestPositionMappingProcess : public TRestEventProcess {
         metadata << (fCreateGainMap ? ">   " : "    ") << "Create new correction map for each position"
                  << endl;
         metadata << "output mapping file: " << fMappingSave << endl;
-        metadata << "Energy cut for Threshold integral: " << any(fEnergyCutRange).ToString() << endl;
-        metadata << "Energy cut for NGoodSignals: " << any(fNHitsCutRange).ToString() << endl;
+        metadata << "Energy cut for Threshold integral: " << any(fEnergyCutRange) << endl;
+        metadata << "Energy cut for NGoodSignals: " << any(fNHitsCutRange) << endl;
         metadata << "Binning: " << fNBinsX << ", " << fNBinsY << ", " << fNBinsZ << endl;
 
         EndPrintProcess();

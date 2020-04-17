@@ -234,7 +234,7 @@ void TRestAnalysisTree::PrintObservable(int n) {
     }
     if (fConnected || fBranchesCreated) {
         std::cout << "Observable : " << ToString(fObservableNames[n], 30)
-                  << "    Value : " << fObservableMemory[n].ToString() << std::endl;
+                  << "    Value : " << fObservableMemory[n] << std::endl;
 
     } else {
         std::cout << "Observable : " << ToString(fObservableNames[n], 30) << "    Value : ???" << std::endl;
