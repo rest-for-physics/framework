@@ -59,19 +59,19 @@
 #include "TRestRun.h"
 using namespace std;
 
-ClassImp(TRestEventProcess)
+ClassImp(TRestEventProcess);
 
-    //////////////////////////////////////////////////////////////////////////
-    /// TRestEventProcess default constructor
-
-    TRestEventProcess::TRestEventProcess() {
+//////////////////////////////////////////////////////////////////////////
+/// TRestEventProcess default constructor
+///
+TRestEventProcess::TRestEventProcess() {
     fObservableInfo.clear();
     fSingleThreadOnly = false;
 }
 
 //////////////////////////////////////////////////////////////////////////
 /// TRestEventProcess destructor
-
+///
 TRestEventProcess::~TRestEventProcess() {}
 
 //////////////////////////////////////////////////////////////////////////

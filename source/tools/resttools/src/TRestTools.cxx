@@ -191,6 +191,7 @@ Int_t TRestTools::isValidFile(const string& path) {
 /// This method will return true even if it is a pure path.
 /// We should call `isValidFile` to check if we will be able to open it without
 /// problems.
+///
 bool TRestTools::fileExists(const string& filename) {
     struct stat buffer;
     return (stat(filename.c_str(), &buffer) == 0);
