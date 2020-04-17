@@ -268,9 +268,7 @@ string TRestReflector::ToString() {
             break;
         }
 
-        default: {
-            sprintf(buffer, "Type: %s, Address: 0x%x", type.c_str(), address);
-        }
+        default: { sprintf(buffer, "Type: %s, Address: 0x%x", type.c_str(), address); }
     }
 
     string result(buffer);
