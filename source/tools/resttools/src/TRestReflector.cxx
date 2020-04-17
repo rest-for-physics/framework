@@ -14,29 +14,42 @@ map<string, TDataType*> __ListOfDataTypes = map<string, TDataType*>();
 ///
 /// Wrapper class for different type objects
 ///
-/// Supports both class objects(string, vector, TRestMetadata, etc) and basic type objects(int, double, etc).
-/// Implements object wrapping, type assembly, data member reflection, and memory streaming
+/// Supports both class objects(string, vector, TRestMetadata, etc.) and basic type objects(int, double,
+/// etc.).
+/// Implements object wrapping, type assembly, data member reflection, memory streaming, and string
+/// conversion.
+/// We set a type alias `any` for this class.
 ///
 /// Example 1: Type assembly & Value assignment
 /// \code
 ///
-/// any obj = REST_Reflection::Assembly("TRestRawSignalAnalysisProcess");
-/// ((TRestEventProcess*)obj)->PrintMetadata();
+/// TRestEventProcess* proc = REST_Reflection::Assembly("TRestRawSignalAnalysisProcess");
+/// proc->PrintMetadata();
 /// any member = REST_Reflection::GetDataMember(obj, "fIntegralRange");
 /// TVector2 v(10, 50);
 /// member.SetValue(v);
-/// ((TRestEventProcess*)obj)->PrintMetadata();
+/// proc->PrintMetadata();
 ///
 /// \endcode
 ///
-/// Example 1: Object wrapping & Memory streaming
+/// Example 2: Object wrapping & Memory streaming
 /// \code
 ///
 /// map<int, double> a{{6, 1.4}, {7, 1.23}};
 /// map<int, double> b;
-/// any(a).ToString();    // returns string: "map<int,double> @0x7f2b03ff0038"
+/// ToString(any(a));    // returns string: "map<int,double> @0x7f2b03ff0038"
 /// any(a) >> any(b);     // copy a's data to b
-/// cout << b[6] << endl; // we can get value 1.4
+/// b[6]; // we can get value 1.4
+///
+/// \endcode
+///
+/// Example 3: Convert to string
+/// \code
+///
+/// TVector2 a(1,3);
+/// ToString(a);          // shows the string "(1,3)"
+/// vector<int> b{3,5,7,9,2};
+/// cout << any(b) << endl;   // prints the content of b in string: "{3,5,7,9,2}"
 ///
 /// \endcode
 ///

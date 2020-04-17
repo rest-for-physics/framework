@@ -122,18 +122,25 @@ std::string GetTypeName(T obj) {
 
 class TRestReflector {
    private:
-    /// Prepare the ROOT dictionary for this type.
+    /// Prepare the ROOT dictionary for this type
     int InitDictionary();
     /// Convert the wrappered type to string
     string ToString();
 
    public:
+    /// Name field
     string name = "";
+    /// Type of the wrapped object
     string type = "";
+    /// Address of the wrapped object
     char* address = 0;
+    /// If on heap, we can call Destroy() to TRestReflector. True only when initailized from Assembly()
     bool onheap = false;
+    /// Size of the object
     int size = 0;
+    /// Pointer to the corresponding TClass helper, if the wrapped object is in class type
     TClass* cl = 0;
+    /// Pointer to the corresponding TDataType helper, if the wrapped object is in data type
     TDataType* dt = 0;
 
     /// If this object type wrapper is invalid
@@ -172,7 +179,9 @@ class TRestReflector {
     void Destroy();
     /// Print the Hex memory map of the wrappered object
     void PrintMemory(int bytepreline = 16);
-    /// Type conversion operator
+    /// Type conversion operator. With this, one can implicitly convert TRestReflector object to
+    /// pointer of certain type. For example, `TRestEvent* eve =
+    /// REST_Reflection::Assembly("TRestRawSignalEvent");`
     template <class T>
     operator T*() {
         return (T*)address;
@@ -181,7 +190,7 @@ class TRestReflector {
     TRestReflector() {}
     /// Constructor from a certain address and a certain type.
     TRestReflector(char* address, string type);
-    /// Constructor to wrap an object
+    /// Constructor to wrap an object. Any typed object can be revieved as argument.
     template <class T>
     TRestReflector(const T& obj) {
         address = (char*)&obj;
@@ -194,7 +203,7 @@ class TRestReflector {
         }
         InitDictionary();
     }
-    /// Constructor to wrap an object pointer
+    /// Constructor to wrap an object pointer.
     template <class T>
     TRestReflector(T* obj) {
         address = (char*)obj;
