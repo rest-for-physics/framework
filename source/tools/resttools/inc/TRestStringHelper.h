@@ -42,6 +42,9 @@ std::string EscapeSpecialLetters(string in);
 string ToDateTimeString(time_t time);
 time_t ToTime(string time);
 ULong64_t ToHash(string str);
+constexpr ULong64_t ToHash(const char* str, ULong64_t last_value = 0xCBF29CE484222325ull) {
+    return *str ? ToHash(str + 1, (*str ^ last_value) * 0x100000001B3ull) : last_value;
+}
 Int_t Count(std::string s, std::string sbstring);
 Int_t FindNthStringPosition(const string& in, size_t pos, const string& strToFind, size_t nth);
 template <class T>
