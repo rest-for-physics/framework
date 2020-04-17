@@ -1,9 +1,13 @@
 #ifndef RestTools_REST_Reflection
 #define RestTools_REST_Reflection
 
+#include <TFormula.h>
+#include <TVector2.h>
+#include <TVector3.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
@@ -12,9 +16,6 @@
 #include <iostream>
 #include <sstream>
 
-#include <TFormula.h>
-#include <TVector2.h>
-#include <TVector3.h>
 #include "Strlen.h"
 #include "TBuffer.h"
 #include "TBufferFile.h"
@@ -123,6 +124,8 @@ class TRestReflector {
    private:
     /// Prepare the ROOT dictionary for this type.
     int InitDictionary();
+    /// Convert the wrappered type to string
+    string ToString();
 
    public:
     string name = "";
@@ -137,8 +140,6 @@ class TRestReflector {
     bool IsZombie();
     /// Streamer method of varioud types. Supports deep-cloning of custom TObject-inherited classes
     void operator>>(TRestReflector to);
-    /// Convert the wrappered type to string
-    string ToString();
     /// Output overload by calling ToString();
     friend ostream& operator<<(ostream& cin, TRestReflector ptr) { return cin << ptr.ToString(); }
     /// Get the id of the wrapperd type. The enum used for type id is TStreamerInfo::EReadWrite

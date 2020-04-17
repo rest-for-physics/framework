@@ -1,4 +1,5 @@
 #include "TRestReflector.h"
+
 #include "TEmulatedCollectionProxy.h"
 #include "TRestStringHelper.h"
 #include "TRestTools.h"
@@ -117,108 +118,100 @@ void TRestReflector::PrintMemory(int bytepreline) {
 
 void TRestReflector::operator>>(TRestReflector to) { CloneAny(*this, to); }
 
-typedef std::uint64_t hash_t;
-constexpr hash_t prime = 0x100000001B3ull;
-constexpr hash_t basis = 0xCBF29CE484222325ull;
-constexpr hash_t gethash(char const* str, hash_t last_value = basis) {
-    return *str ? gethash(str + 1, (*str ^ last_value) * prime) : last_value;
-}
-constexpr unsigned long long operator"" _H(char const* p, size_t) { return gethash(p); }
-
 string TRestReflector::ToString() {
     char* ladd = address;
     char* buffer = new char[500]();
 
     // assert(!((kOffsetP + kChar) <= atype && atype <= (kOffsetP + kBool) &&
     // count == 0));
-    switch (gethash(type.c_str())) {
+    switch (ToHash(type.c_str())) {
         // basic types
-        case "bool"_H: {
+        case ToHash("bool"): {
             Bool_t* val = (Bool_t*)ladd;
             sprintf(buffer, "%d", *val);
             break;
         }
-        case "char"_H: {
+        case ToHash("char"): {
             Char_t* val = (Char_t*)ladd;
             sprintf(buffer, "%d", *val);
             break;
         }
-        case "short"_H: {
+        case ToHash("short"): {
             Short_t* val = (Short_t*)ladd;
             sprintf(buffer, "%d", *val);
             break;
         }
-        case "int"_H: {
+        case ToHash("int"): {
             Int_t* val = (Int_t*)ladd;
             sprintf(buffer, "%d", *val);
             break;
         }
-        case "long"_H: {
+        case ToHash("long"): {
             Long_t* val = (Long_t*)ladd;
             sprintf(buffer, "%ld", *val);
             break;
         }
-        case "long long"_H: {
+        case ToHash("long long"): {
             Long64_t* val = (Long64_t*)ladd;
             sprintf(buffer, "%lld", *val);
             break;
         }
-        case "float"_H: {
+        case ToHash("float"): {
             Float_t* val = (Float_t*)ladd;
             sprintf(buffer, "%f", *val);
             break;
         }
-        case "double"_H: {
+        case ToHash("double"): {
             Double_t* val = (Double_t*)ladd;
             sprintf(buffer, "%g", *val);
             break;
         }
-        case "unsigned char"_H: {
+        case ToHash("unsigned char"): {
             UChar_t* val = (UChar_t*)ladd;
             sprintf(buffer, "%u", *val);
             break;
         }
-        case "unsigned short"_H: {
+        case ToHash("unsigned short"): {
             UShort_t* val = (UShort_t*)ladd;
             sprintf(buffer, "%u", *val);
             break;
         }
-        case "unsigned int"_H: {
+        case ToHash("unsigned int"): {
             UInt_t* val = (UInt_t*)ladd;
             sprintf(buffer, "%u", *val);
             break;
         }
-        case "unsigned long"_H: {
+        case ToHash("unsigned long"): {
             ULong_t* val = (ULong_t*)ladd;
             sprintf(buffer, "%lu", *val);
             break;
         }
-        case "unsigned long long"_H: {
+        case ToHash("unsigned long long"): {
             ULong64_t* val = (ULong64_t*)ladd;
             sprintf(buffer, "%llu", *val);
             break;
         }
-        case "TString"_H: {
+        case ToHash("TString"): {
             TString* st = (TString*)(ladd);
             sprintf(buffer, "%s", st->Data());
             break;
         }
-        case "string"_H: {
+        case ToHash("string"): {
             string* st = (string*)(ladd);
             sprintf(buffer, "%s", st->c_str());
             break;
         }
-        case "TVector2"_H: {
+        case ToHash("TVector2"): {
             TVector2* vec = (TVector2*)ladd;
             sprintf(buffer, "(%g,%g)", vec->X(), vec->Y());
             break;
         }
-        case "TVector3"_H: {
+        case ToHash("TVector3"): {
             TVector3* vec = (TVector3*)ladd;
             sprintf(buffer, "(%g,%g,%g)", vec->X(), vec->Y(), vec->Z());
             break;
         }
-        case "vector<int>"_H: {
+        case ToHash("vector<int>"): {
             vector<int>* vec = (vector<int>*)(ladd);
             stringstream ss;
             ss << "{";
@@ -232,7 +225,7 @@ string TRestReflector::ToString() {
             sprintf(buffer, "%s", ss.str().c_str());
             break;
         }
-        case "vector<double>"_H: {
+        case ToHash("vector<double>"): {
             vector<double>* vec = (vector<double>*)(ladd);
             stringstream ss;
             ss << "{";
@@ -246,7 +239,7 @@ string TRestReflector::ToString() {
             sprintf(buffer, "%s", ss.str().c_str());
             break;
         }
-        case "vector<string>"_H: {
+        case ToHash("vector<string>"): {
             vector<string>* vec = (vector<string>*)(ladd);
             stringstream ss;
             ss << "{";
@@ -260,7 +253,7 @@ string TRestReflector::ToString() {
             sprintf(buffer, "%s", ss.str().c_str());
             break;
         }
-        case "vector<TString>"_H: {
+        case ToHash("vector<TString>"): {
             vector<TString>* vec = (vector<TString>*)(ladd);
             stringstream ss;
             ss << "{";
@@ -275,7 +268,9 @@ string TRestReflector::ToString() {
             break;
         }
 
-        default: { sprintf(buffer, "Type: %s, Address: 0x%x", type.c_str(), address); }
+        default: {
+            sprintf(buffer, "Type: %s, Address: 0x%x", type.c_str(), address);
+        }
     }
 
     string result(buffer);
