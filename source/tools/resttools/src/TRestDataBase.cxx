@@ -160,6 +160,12 @@ TRestDataBase::TRestDataBase() {
     }
 }
 
+///////////////////////////////////////////////
+/// \brief get the latest run in database
+///
+/// Get the latest run in database, by reading the file: $REST_PATH/runNumber.
+/// Note that this file saves run number of the **next** run. So it returns
+/// The run number -1.
 int TRestDataBase::get_lastrun() {
     int runNr;
     string runFilename = getenv("REST_PATH") + (string) "/runNumber";
@@ -178,11 +184,17 @@ int TRestDataBase::get_lastrun() {
 }
 
 ///////////////////////////////////////////////
-// runs are added according to info.id:
-// -1 --> do not add new run
-// 0  --> append a new run in run list
-// >0 --> write this run in run list, may overwrite the existing run
-// write to the "runNumber" file if it is writable
+/// \brief add a new run, with run info as struct DBEntry. returns the added run id
+///
+/// runs are added according to info.id of input DBEntry object:
+/// -1 --> do not add
+/// 0  --> append a new run in run list
+/// >0 --> directly use this run number
+///
+/// It will write to the file: $REST_PATH/runNumber is writable. The number written will be
+/// the **next** run number
+///
+/// The method in derived class shall follow this rule.
 int TRestDataBase::add_run(DBEntry info) {
     int newRunNr;
     if (info.id == 0) {
