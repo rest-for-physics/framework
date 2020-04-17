@@ -145,9 +145,6 @@ vector<string> TRestEventProcess::ReadObservables() {
     return obsnames;
 }
 
-//////////////////////////////////////////////////////////////////////////
-/// \brief Set analysis tree of this process
-///
 void TRestEventProcess::SetAnalysisTree(TRestAnalysisTree* tree) {
     fAnalysisTree = tree;
     ConfigAnalysisTree();
@@ -166,13 +163,17 @@ void TRestEventProcess::SetFriendProcess(TRestEventProcess* p) {
 }
 
 //////////////////////////////////////////////////////////////////////////
-/// \brief Set branches for analysis tree according to the output level
+/// \brief Set branches for analysis tree according to the output level, read observables.
 ///
 void TRestEventProcess::ConfigAnalysisTree() {
     if (fAnalysisTree == NULL) return;
 
     ReadObservables();
 }
+
+//////////////////////////////////////////////////////////////////////////
+/// Interface to external file reading, open input file. To be implemented in external processes.
+Bool_t TRestEventProcess::OpenInputFiles(vector<string> files) { return false; }
 
 //////////////////////////////////////////////////////////////////////////
 /// \brief Load extra section metadata: outputlevel after calling
@@ -277,10 +278,11 @@ cout << GetName() << ": Process initialization..." << endl;
 */
 
 //////////////////////////////////////////////////////////////////////////
-/// \brief Implemention of BeginOfEventProcess at TRestEventProcess.
-/// If this method is re-implemented at the inhereted cass we will need
-/// to call TRestEventProcess::BeginOfEventProcess( evIn );
+/// \brief Begin of event process, preparation work. Called right before ProcessEvent()
 ///
+/// This method is called before calling ProcessEvent(). We initialize the process's output event if not null
+/// and not same as input event. The event's basic info (ID, timestamp, etc.) will also be set to the same as
+/// input event
 void TRestEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
     debug << "Entering " << ClassName() << "::BeginOfEventProcess, Initializing output event..." << endl;
     if (inEv != NULL && GetOutputEvent().address != NULL && (TRestEvent*)GetOutputEvent() != inEv) {
@@ -311,10 +313,7 @@ void TRestEventProcess::ProcessEvent( TRestEvent *eventInput )
 */
 
 //////////////////////////////////////////////////////////////////////////
-/// \brief Implemention of EndOfEventProcess at TRestEventProcess.
-/// If this method is re-implemented at the inherited class we will need
-/// to call TRestEventProcess::EndOfEventProcess( evIn );
-///
+/// \brief End of event process. Nothing to do. Called directly after ProcessEvent()
 void TRestEventProcess::EndOfEventProcess(TRestEvent* evInput) {
     debug << "Entering TRestEventProcess::EndOfEventProcess (" << ClassName() << ")" << endl;
 }
@@ -422,12 +421,16 @@ void TRestEventProcess::EndPrintProcess() {
 //    return PARAMETER_NOT_FOUND_DBL;
 //}
 
+//////////////////////////////////////////////////////////////////////////
+/// Get the full analysis tree from TRestRun, with non-empty entries.
 TRestAnalysisTree* TRestEventProcess::GetFullAnalysisTree() {
     if (fHostmgr != NULL && fHostmgr->GetProcessRunner() != NULL)
         return fHostmgr->GetProcessRunner()->GetOutputAnalysisTree();
     return NULL;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// Get list of observables, convert map to vector.
 std::vector<string> TRestEventProcess::GetListOfAddedObservables() {
     vector<string> list;
     auto iter = fObservableInfo.begin();

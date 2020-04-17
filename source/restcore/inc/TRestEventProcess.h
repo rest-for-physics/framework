@@ -43,32 +43,61 @@ class TRestEventProcess : public TRestMetadata {
 
    private:
     // unused datamember, set as private
-    TRestEvent* fInputEvent = NULL;   //!///< Pointer to input event
-    TRestEvent* fOutputEvent = NULL;  //!///< Pointer to output event
+    ///< not used, keep for compatibility
+    TRestEvent* fInputEvent = NULL;  //!
+    ///< not used, keep for compatibility
+    TRestEvent* fOutputEvent = NULL;  //!
 
    protected:
+    ///< Canvas for some viewer event
     TCanvas* fCanvas = NULL;  //!
-    TVector2 fCanvasSize;     //!
-
-    TRestAnalysisTree* fAnalysisTree = NULL;  //!///< Pointer to analysis tree where to store the observables.
-    TRestRun* fRunInfo = NULL;                //!
-
-    bool fIsExternal = false;  //!///< It defines if the process reads event data from an external source.
-    bool fSingleThreadOnly = false;  //!///< It defines if the process can run only under single thread
-    bool fReadOnly = false;          //!
-    bool fDynamicObs = false;        //!
+    /// Canvas size
+    TVector2 fCanvasSize;  //!
+    ///< Pointer to the analysis tree where to store observable definitions and values.
+    /// Note that this tree does not write data to disk. It only keeps a list of observables
+    /// and their addresses. It is the one from TRestRun that reads this tree's structure,
+    /// calls Fill() method, and writes data to disk. In other words, this tree is dummy and
+    /// has zero entries. To get the real one, use GetFullAnalysisTree()
+    TRestAnalysisTree* fAnalysisTree = NULL;  //!
+    ///< Pointer to TRestRun object where to find metadata.
+    TRestRun* fRunInfo = NULL;  //!
+    /// It defines if the process reads event data from an external source.
+    bool fIsExternal = false;  //!
+    /// It defines if the process can run only under single thread mode. If true, the whole process
+    /// chain will not use multithread. Useful for processes with viewing functionality. Always true for
+    /// external processes.
+    bool fSingleThreadOnly = false;  //!
+    /// not used, keep for compatibility
+    bool fReadOnly = false;  //!
+    /// It defines whether to use added observables only or all the observables appear in the code.
+    bool fDynamicObs = false;  //!
 
    private:
-    REST_Process_Output fOutputLevel;  //! not used
+    /// not used, keep for compatibility
+    REST_Process_Output fOutputLevel;  //!/// not used
 
    protected:
-    vector<pair<string, TVector2>> fCuts;           //!  [name, cut range]
-    map<string, int> fObservableInfo;               //!     [name, id in AnalysisTree]
+    /// Stores cut definitions. Any listed observables should be in the range.
+    vector<pair<string, TVector2>> fCuts;  //!  [name, cut range]
+    /// Stores the list of process observables and they position inside AnalysisTree.
+    /// It will be faster to find the observable from map, thus the speed of
+    /// `TRestEventProcess::SetObservableValue()` will be faster than
+    /// `TRestAnalysisTree::SetObservableValue()`
+    map<string, int> fObservableInfo;  //!     [name, id in AnalysisTree]
+    /// Stores a list of friendly processes. Sometimes the process may behave differently
+    /// according to the friend processes added. It can also get parameter or output event
+    /// from friend processes
     vector<TRestEventProcess*> fFriendlyProcesses;  //!
 
     // utils
     void BeginPrintProcess();
     void EndPrintProcess();
+    //////////////////////////////////////////////////////////////////////////
+    /// \brief Get a metadata object from the host TRestRun
+    ///
+    /// Directly input the type as template argument. This helps to simplify the code and prevents
+    /// mis-spelling. For example: `fReadout = GetMetadata<TRestReadout>();`. No need for type
+    /// conversion.
     template <class T>
     T* GetMetadata() {
         string type = REST_Reflection::GetTypeName<T>();
@@ -77,13 +106,11 @@ class TRestEventProcess : public TRestMetadata {
     TRestMetadata* GetMetadata(string nameortype);
     TRestEventProcess* GetFriend(string nameortype);
     TRestEventProcess* GetFriendLive(string nameortype);
-    // Double_t GetDoubleParameterFromFriends(string className, string parName);
-    // Double_t GetDoubleParameterFromFriendsWithUnits(string className, string parName);
 
     //////////////////////////////////////////////////////////////////////////
     /// \brief Set observable value for analysistree.
     ///
-    /// recommended as it is more efficienct than calling
+    /// recommended since it is more efficienct than calling
     /// fAnalysisTree->SetObservableValue( obsName, obsValue )
     template <class T>
     void SetObservableValue(string name, const T& value) {
@@ -102,46 +129,60 @@ class TRestEventProcess : public TRestMetadata {
         }
     }
 
+    /// Create the canvas
     void CreateCanvas() {
         if (fCanvas != NULL) return;
-
         fCanvas = new TCanvas(this->GetName(), this->GetTitle(), fCanvasSize.X(), fCanvasSize.Y());
     }
 
    public:
     Int_t LoadSectionMetadata();
     vector<string> ReadObservables();
-
-    virtual Bool_t OpenInputFiles(vector<string> files) { return false; }
-
-    virtual void InitProcess() {}  ///< To be executed at the beginning of the run
-
-    void BeginOfEventProcess(TRestEvent* evInput = NULL);  ///< To be executed before processing event
-
-    virtual TRestEvent* ProcessEvent(TRestEvent* evInput) = 0;  ///< Process one event
-
-    void EndOfEventProcess(TRestEvent* evInput = NULL);  ///< To be executed after processing event
-
-    virtual void EndProcess() {}  ///< To be executed at the end of the run
-
     virtual void ConfigAnalysisTree();
+    virtual Bool_t OpenInputFiles(vector<string> files);
+
+    // process running methods
+    /// To be executed at the beginning of the run (outside event loop)
+    virtual void InitProcess() {}
+    /// Begin of event process, preparation work. Called right before ProcessEvent()
+    void BeginOfEventProcess(TRestEvent* evInput = NULL);
+    /// Process one event
+    virtual TRestEvent* ProcessEvent(TRestEvent* evInput) = 0;
+    /// End of event process. Nothing to do. Called directly after ProcessEvent()
+    void EndOfEventProcess(TRestEvent* evInput = NULL);
+    /// To be executed at the end of the run (outside event loop)
+    virtual void EndProcess() {}
 
     // setters
+    /// Set analysis tree of this process, then configure it by adding observables to it
     void SetAnalysisTree(TRestAnalysisTree* tree);
+    /// Set TRestRun for this process
     void SetRunInfo(TRestRun* r) { fRunInfo = r; }
+    /// Set canvas size
     void SetCanvasSize(Int_t x, Int_t y) { fCanvasSize = TVector2(x, y); }
+    /// Add friendly process to this process
     void SetFriendProcess(TRestEventProcess* p);
 
     // getters
-    virtual any GetInputEvent() = 0;   ///< Get pointer to input event
-    virtual any GetOutputEvent() = 0;  ///< Get pointer to output event
+    /// Get pointer to input event. Must be implemented in the derived class
+    virtual any GetInputEvent() = 0;
+    /// Get pointer to output event. Must be implemented in the derived class
+    virtual any GetOutputEvent() = 0;
+    /// Interface to external file reading, get the total bytes of input binary file. To be implemented in
+    /// external processes.
     virtual Long64_t GetTotalBytes() { return -1; }
+    /// Interface to external file reading, get the readed bytes. To be implemented in external processes.
     virtual Long64_t GetTotalBytesReaded() { return 0; }
+    /// Return whether this process is single thread only
     Bool_t singleThreadOnly() { return fSingleThreadOnly; }
+    /// Return whether this process is external process
     Bool_t isExternal() { return fIsExternal; }
+    /// Return the pointer of the hosting TRestRun object
     TRestRun* GetRunInfo() { return fRunInfo; }
+    /// Return the local analysis tree (dummy)
     TRestAnalysisTree* GetAnalysisTree() { return fAnalysisTree; }
     TRestAnalysisTree* GetFullAnalysisTree();
+    /// Get canvas
     TCanvas* GetCanvas() { return fCanvas; }
     std::vector<string> GetListOfAddedObservables();
 
