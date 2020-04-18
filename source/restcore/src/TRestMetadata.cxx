@@ -489,8 +489,9 @@ TRestMetadata::TRestMetadata(const char* cfgFileName) : endl(fVerboseLevel, mess
 /// \brief TRestMetadata default destructor
 ///
 TRestMetadata::~TRestMetadata() {
-    // delete fElementGlobal;
-    // delete fElementSectional;
+    if (fElementGlobal) delete fElementGlobal;
+    if (fElement) delete fElement;
+    for (auto e : fElementEnv) delete e;
 }
 
 ///////////////////////////////////////////////
@@ -521,9 +522,10 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
             exit(1);
         }
         TiXmlElement* Global = GetElementFromFile(fConfigFileName, "globals");
-        vector<TiXmlElement*> a;
-        a.clear();
-        return LoadConfigFromFile(Sectional, Global, a);
+        int result = LoadConfigFromFile(Sectional, Global, {});
+        delete Sectional;
+        if (Global) delete Global;
+        return result;
     } else {
         ferr << "Filename : " << fConfigFileName << endl;
         ferr << "Config File does not exist. Right path/filename?" << endl;
@@ -536,9 +538,7 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
 /// \brief Calling the main starter
 ///
 Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal) {
-    vector<TiXmlElement*> a;
-    a.clear();
-    return LoadConfigFromFile(eSectional, eGlobal, a);
+    return LoadConfigFromFile(eSectional, eGlobal, {});
 }
 
 ///////////////////////////////////////////////
@@ -561,19 +561,19 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
             theElement->LinkEndChild(echild->Clone());
             echild = echild->NextSiblingElement();
         }
-        for (int i = 0; i < eEnv.size(); i++) {
-            theElement->LinkEndChild(eEnv[i]->Clone());
-        }
+        // for (int i = 0; i < eEnv.size(); i++) {
+        //    theElement->LinkEndChild(eEnv[i]->Clone());
+        //}
     } else if (eSectional != NULL) {
-        theElement = eSectional;
+        theElement = (TiXmlElement*)eSectional->Clone();
     } else if (eGlobal != NULL) {
-        theElement = eGlobal;
+        theElement = (TiXmlElement*)eGlobal->Clone();
     } else {
         return 0;
     }
     fElement = theElement;
-    fElementGlobal = eGlobal;
-    fElementEnv = eEnv;
+    fElementGlobal = (TiXmlElement*)eGlobal->Clone();
+    for (auto e : eEnv) fElementEnv.push_back((TiXmlElement*)e->Clone());
 
     int result = LoadSectionMetadata();
     if (result == 0) InitFromConfigFile();
@@ -1113,45 +1113,16 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
                         }
                         ele = ele->NextSiblingElement();
                     }
-
                     // more than 1 elements found
                     if (eles.size() > 1) {
-                        if (type != "") {
-                            warning << "(expand include file): find "
-                                       "multiple xml "
-                                       "sections with same name!"
-                                    << endl;
-                            warning << "Trying to filter them with type" << endl;
-                            for (int i = 0; i < eles.size(); i++) {
-                                auto ele = eles[i];
-                                if ((string)ele->Value() != type) {
-                                    eles.erase(eles.begin() + i);
-                                    i--;
-                                }
-                            }
-
-                            if (eles.size() > 1)  // still more than 1 elements found
-                            {
-                                ferr << "find multiple xml sections "
-                                        "with same "
-                                        "name and type!"
-                                     << endl;
-                                ferr << "Check your rml file!" << endl;
-                                ferr << ElementToString(e) << endl;
-                                exit(1);
-                            }
-                        } else {
-                            warning << "(expand include file): find "
-                                       "multiple xml "
-                                       "sections with same name!"
-                                    << endl;
-                            warning << "Using the first one!" << endl;
-                        }
+                        warning << "(expand include file): find multiple xml sections with same name!"
+                                << endl;
+                        warning << "Using the first one!" << endl;
                     }
 
-                    if (eles.size() > 0) remoteele = eles[0];
+                    if (eles.size() > 0) remoteele = (TiXmlElement*)eles[0]->Clone();
                 } else if (type != "") {
-                    remoteele = GetElement(type, rootele);
+                    remoteele = (TiXmlElement*)GetElement(type, rootele)->Clone();
                 }
 
                 if (remoteele == NULL) {
@@ -1162,6 +1133,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
                     warning << endl;
                     return;
                 }
+                delete rootele;
             }
         }
 
@@ -1195,6 +1167,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
             localele->Print(stdout, 0);
             cout << endl;
         }
+        delete remoteele;
         debug << nattr << " attributes and " << nele << " xml elements added by inclusion" << endl;
         debug << "----end of expansion file----" << endl;
     }
@@ -1384,7 +1357,7 @@ TVector3 TRestMetadata::Get3DVectorParameterWithUnits(std::string parName, TVect
 /// syntax. Returns NULL if no element matches NameOrDecalre
 ///
 TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::string NameOrDecalre) {
-    TiXmlDocument* doc = new TiXmlDocument();
+    TiXmlDocument doc;
     TiXmlElement* rootele;
 
     string filename = cfgFileName;
@@ -1396,7 +1369,7 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
         GetChar();
         exit(1);
     }
-    if (!doc->LoadFile(filename.c_str())) {
+    if (!doc.LoadFile(filename.c_str())) {
         RmlUpdateTool t(filename, true);
         if (t.UpdateSucceed()) {
             TRestStringOutput cout;
@@ -1420,34 +1393,34 @@ TiXmlElement* TRestMetadata::GetElementFromFile(std::string cfgFileName, std::st
         }
     }
 
-    rootele = doc->RootElement();
+    rootele = doc.RootElement();
     if (rootele == NULL) {
         ferr << "The rml file \"" << cfgFileName << "\" does not contain any valid elements!" << endl;
         GetChar();
         exit(1);
     }
     if (NameOrDecalre == "") {
-        return rootele;
+        return (TiXmlElement*)rootele->Clone();
     }
     // search with either name or declare in either root element or sub-root
     // element
     while (rootele != NULL) {
         if (rootele->Value() != NULL && (string)rootele->Value() == NameOrDecalre) {
-            return rootele;
+            return (TiXmlElement*)rootele->Clone();
         }
 
         if (rootele->Attribute("name") != NULL && (string)rootele->Attribute("name") == NameOrDecalre) {
-            return rootele;
+            return (TiXmlElement*)rootele->Clone();
         }
 
         TiXmlElement* etemp = GetElement(NameOrDecalre, rootele);
         if (etemp != NULL) {
-            return etemp;
+            return (TiXmlElement*)etemp->Clone();
         }
 
         etemp = GetElementWithName("", NameOrDecalre, rootele);
         if (etemp != NULL) {
-            return etemp;
+            return (TiXmlElement*)etemp->Clone();
         }
 
         rootele = rootele->NextSiblingElement();
