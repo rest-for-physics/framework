@@ -3,14 +3,10 @@ image: nkx1231/root6-geant4-garfield:0.2
 stages:
   - pre-build
   - build
-  - opening
   - loadRESTLibs
   - generate
-  - process1
-  - process2
-  - trex
+  - process
   - drawing
-  - processes
   - deploy
 
 before_script:
@@ -25,6 +21,10 @@ clang-format:
         - apt-get update -y && apt-get upgrade -y
         - apt-get install -y cmake git findutils clang-format
 
+validateCode:
+    stage: pre-build
+    script:
+        - python ${CI_PROJECT_DIR}/macros/pipeline/validateProcesses.py ${CI_PROJECT_DIR}/source/processes/
 
 build:
   type: build
@@ -38,11 +38,6 @@ build:
     paths:
       - ${CI_PROJECT_DIR}/install
     expire_in: 1 day
-
-testOpeningOld:
-  type: opening
-  script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
 
 loadRESTLibs:
   type: loadRESTLibs
@@ -73,18 +68,27 @@ testMeta:
       - ${CI_PROJECT_DIR}/install/examples/meta.root
     expire_in: 1 day
 
-testProcessRaw: 
-  type: process1
+
+testProcessTREX: 
+  type: process
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/install/examples
+    - cd ${CI_PROJECT_DIR}/install/macros/pipeline/trex
+    - restManager --c 01_raw.rml --f data.aqs
+    - restManager --c 02_signal.rml --f RawData.root
+    - restManager --c 03_hits.rml --f Signals.root
+    - restRoot -b -q MakeBasicTree.C
+    - rm RawData.root
+    - rm Signals.root
+    - rm Hits.root
+    - root -b -q ${CI_PROJECT_DIR}/install/macros/pipeline/trex/ValidateTrees.C
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/install/examples/rawAna.root
+      - ${CI_PROJECT_DIR}/install/macros/pipeline/trex/results.root
     expire_in: 1 week
 
 testProcessElectronics: 
-  type: process1
+  type: process
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples
@@ -95,42 +99,17 @@ testProcessElectronics:
     expire_in: 1 week
 
 testProcessG4Ana: 
-  type: process1
+  type: process
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples
     - restManager --c g4Analysis.rml --i "01.NLDBD-PandaX-III/Run00001_NLDBD_Test.root" --o g4Ana.root
-  artifacts:
-    paths:
-      - ${CI_PROJECT_DIR}/install/examples/g4Ana.root
-    expire_in: 1 week
-
-
-
-testProcessRest: 
-  type: process2
-  script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/install/examples
     - restManager --c g4ToHits.rml --i g4Ana.root --o g4Hits.root
   artifacts:
     paths:
+      - ${CI_PROJECT_DIR}/install/examples/g4Ana.root
       - ${CI_PROJECT_DIR}/install/examples/g4Hits.root
     expire_in: 1 week
-
-testTREXdata: 
-  type: trex
-  script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/install/macros/pipeline/trex
-    - source ${CI_PROJECT_DIR}/install/macros/pipeline/trex/generateBasicTree.sh
-    - root -b -q ${CI_PROJECT_DIR}/install/macros/pipeline/trex/ValidateTrees.C
-  artifacts:
-    paths:
-      - ${CI_PROJECT_DIR}/install/macros/pipeline/trex/results.root
-    expire_in: 1 week
-
-
 
 testDrawing: 
   type: drawing
@@ -142,13 +121,6 @@ testDrawing:
     paths:
       - ${CI_PROJECT_DIR}/install/examples/spec.pdf
     expire_in: 1 week
-
-testProcesses:
-    type: processes
-    variables:
-        arg1: ${CI_PROJECT_DIR}/source/processes/
-    script:
-        - python ${CI_PROJECT_DIR}/macros/pipeline/validateProcesses.py $arg1
 
 deploy:
   type: deploy
