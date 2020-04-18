@@ -93,7 +93,7 @@ class Console {
     static int ReadKey();
     /// returns the whole input line in string. need to press enter.
     static string ReadLine();
-    /// write the string to the console
+    /// write the string to the console. doesn't append line ending mark.
     static void WriteLine(string content);
     /// move up cursor by n lines.
     static void CursorUp(int n);
@@ -113,6 +113,13 @@ class Console {
     static void ClearLinesAfterCursor();
 };
 
+//////////////////////////////////////////////////////////////////////////
+/// This class serves as an end-line mark for TRestStringOutput in TRestMetadata class.
+///
+/// It keeps a reference of the metadata class's verbose level and string buffer.
+/// When calling `fout<<"hello world"<<endl;` inside metadata class, this class is
+/// passed to TRestStringOutput, who compares the verbose level to dicide whether to
+/// print, and saves the printed string to metadata class's string buffer.
 struct endl_t {
     endl_t(REST_Verbose_Level& v, string& s) : vref(v), sref(s) {}
 
@@ -123,20 +130,13 @@ struct endl_t {
 
 //////////////////////////////////////////////////////////////////////////
 /// This class serves as an universal string output tool, aiming at leveling,
-/// arranging, and auto saving for the output message.
+/// rendering, and auto saving for the output message.
 ///
-/// Features of this class:
-/// 1. overloaded operator "<<"
-/// 2. inline method endl()
-/// 3. pre-defined color constants
-/// 4. output formatting methods
-///
-/// To use this tool class in the other classes, include its header file and
-/// instantiate a TRestStringOutput object(suggested name: "fout"). The fout can
-/// therefore replace the functionality of cout. The usage is the same:
-/// "fout<<"hello world"<<endl;". Setting output color, changing output border,
-/// length or orientation are all supported. In future it is also possible to
-/// save output message in a log file.
+/// To use this tool class in the other classes, include this header file.
+/// You will get several global output objects: fout, info, essential, debug, etc.
+/// they works similarly as cout: `fout<<"hello world"<<endl;`. It is also possible
+/// to initialize a local TRestStringOutput object. Then one can costomize output color,
+/// border and orientation on that.
 class TRestStringOutput {
    protected:
     string color;
@@ -195,8 +195,15 @@ class TRestStringOutput {
     TRestStringOutput& operator<<(endl_t et);
 };
 
+//////////////////////////////////////////////////////////////////////////
 /// \relates TRestStringOutput
-/// calls TRestStringOutput to flush string
+/// This method serves as an end-line mark for TRestStringOutput.
+///
+/// Calls TRestStringOutput to flushstring().
+///
+/// When calling `fout<<"hello world"<<endl;` outside metadata class, the pointer of
+/// method is passed to TRestStringOutput, who calls back to this method giving its
+/// reference. This logic is same as std::endl.
 inline void endl(TRestStringOutput& input) { input.flushstring(); }
 
 /// \relates TRestStringOutput
