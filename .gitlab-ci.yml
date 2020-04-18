@@ -1,4 +1,4 @@
-image: nkx1231/root6-geant4-garfield:0.2
+image: nkx1231/root6-geant4-garfield:0.3
 
 stages:
   - pre-build
@@ -17,9 +17,6 @@ clang-format:
     script:
         - cd ${CI_PROJECT_DIR}/
         - ./macros/pipeline/clangformattest.sh
-    before_script:
-        - apt-get update -y && apt-get upgrade -y
-        - apt-get install -y cmake git findutils clang-format
 
 validateCode:
     stage: pre-build
