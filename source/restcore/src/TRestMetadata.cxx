@@ -513,7 +513,7 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
             sectionName = this->ClassName();
         }
 
-        // search with value
+        // find the xml section corresponding to the sectionName
         TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, sectionName);
         if (Sectional == NULL) {
             ferr << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName << "\""
@@ -521,10 +521,26 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
             ferr << "in config file: " << fConfigFileName << endl;
             exit(1);
         }
-        TiXmlElement* Global = GetElementFromFile(fConfigFileName, "globals");
+
+        // find the "globals" section. Multiple sections are supported.
+        TiXmlElement* rootEle = GetElementFromFile(fConfigFileName);
+        TiXmlElement* Global = GetElement("globals", rootEle);
+        if (Global!=NULL && Global->NextSiblingElement("globals") != NULL) {
+            TiXmlElement* ele = Global->NextSiblingElement("globals");
+            while (ele != NULL) {
+                TiXmlElement* e = ele->FirstChildElement();
+                while (e != NULL) {
+                    Global->InsertEndChild(*e);
+                    e = e->NextSiblingElement();
+                }
+                ele = ele->NextSiblingElement("globals");
+            }
+        }
+
+        // call the real loading method
         int result = LoadConfigFromFile(Sectional, Global, {});
         delete Sectional;
-        if (Global) delete Global;
+        delete rootEle;
         return result;
     } else {
         ferr << "Filename : " << fConfigFileName << endl;
@@ -1033,8 +1049,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1067,8 +1084,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
