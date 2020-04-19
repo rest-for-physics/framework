@@ -1,3 +1,46 @@
+/******************** REST disclaimer ***********************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
+
+//////////////////////////////////////////////////////////////////////////
+/// TRestTools is a class that defines static methods that might be handy
+/// when accessing files or system utilities, or other basic methods that
+/// do not fit in a specialized class, and are generic enought to be
+/// considered a REST tool.
+///
+///--------------------------------------------------------------------------
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2016-December: First concept.
+///				   Javier Galan
+///
+/// \class      TRestTools
+/// \author     Javier Galan <javier.galan@unizar.es>
+/// \author     Kaixiang Ni
+///
+/// <hr>
+///
 #include <dirent.h>
 #include <iostream>
 #include <limits>
@@ -27,83 +70,21 @@ struct _REST_STARTUP_CHECK {
 const _REST_STARTUP_CHECK __check;
 
 ClassImp(TRestTools);
-//
-// std::vector<string> TRestTools::GetListOfRESTLibraries() {
-//    vector<string> libraryList;
-//
-//    vector<string> libraryPathList;
-//
-//#ifdef WIN32
-//    libraryPathList.push_back(get_current_dir_name() + "/../");
-//#else
-//	char* _env = getenv("LD_LIBRARY_PATH");
-//	string env = _env == nullptr ? "" : _env;
-//	libraryPathList = Split(env, ":");
-//#endif
-//
-//    for (unsigned int n = 0; n < libraryPathList.size(); n++) {
-//        // cout << "Getting libraries in directory : " << libraryPathList[n] <<
-//        // endl;
-//        vector<string> list = GetRESTLibrariesInDirectory(libraryPathList[n]);
-//        for (unsigned int i = 0; i < list.size(); i++) libraryList.push_back(list[i]);
-//    }
-//
-//    return libraryList;
-//}
-//
-// std::vector<string> TRestTools::GetListOfPathsInEnvVariable(string envVariable) {
-//    vector<string> pathList;
-//
-//    string p(getenv(envVariable.Data()));
-//
-//    while (p.Length() > 0) {
-//        string path = GetFirstPath(p);
-//
-//        if (path.Length() > 0) pathList.push_back(path);
-//    }
-//
-//    return pathList;
-//}
 
+///////////////////////////////////////////////
+/// \brief Returns all the options in an option string
+///
+/// This method gives string to the method GetFirstOption().
+/// And then adds the result to the list.
+///
 std::vector<string> TRestTools::GetOptions(string optionsStr) { return Split(optionsStr, ":"); }
 
-// string TRestTools::GetFirstOption(string& path) { return GetFirstPath(path); }
-//
-// string TRestTools::GetFirstPath(string& path) {
-//    string resultPath;
-//
-//    if (path.First(":") >= 0) {
-//        resultPath = path(0, path.First(":"));
-//
-//        path = path(path.First(":") + 1, path.Length());
-//    } else {
-//        resultPath = path;
-//        path = "";
-//    }
-//
-//    return resultPath;
-//}
-
-// std::vector<string> TRestTools::GetRESTLibrariesInDirectory(string path) {
-//    vector<string> fileList;
-//    DIR* dir;
-//    struct dirent* ent;
-//    if ((dir = opendir(path.c_str())) != nullptr) {
-//        /* print all the files and directories within directory */
-//        while ((ent = readdir(dir)) != nullptr) {
-//            string fName(ent->d_name);
-//            if ((fName.find("REST") != -1 || fName.find("Rest") != -1))
-//                if (fName.find(".dylib") != -1 || fName.find(".so") != -1) fileList.push_back(fName);
-//        }
-//        closedir(dir);
-//    } else {
-//        /* could not open directory */
-//        perror("");
-//    }
-//
-//    return fileList;
-//}
-
+///////////////////////////////////////////////
+/// \brief Calls gSystem to load REST library.
+///
+/// After this we can use reflection methods TClass::GetClass() and
+/// TRestMetadata::GetDataMemberRef()
+///
 void TRestTools::LoadRESTLibrary(bool silent) {
     char* _ldpath = getenv("LD_LIBRARY_PATH");
     if (_ldpath == nullptr) {
@@ -126,22 +107,99 @@ void TRestTools::LoadRESTLibrary(bool silent) {
         }
     }
 
-    // load the finded REST libraries
+    // load the found REST libraries
     for (unsigned int n = 0; n < fileList.size(); n++) {
         if (!silent) cout << "Loading library : " << fileList[n] << endl;
         gSystem->Load(fileList[n].c_str());
     }
 }
 
-int TRestTools::PrintTable(std::vector<std::vector<Double_t>> data, Int_t start, Int_t end) {
+///////////////////////////////////////////////
+/// \brief Prints the contents of the vector table given as argument in screen.
+/// Allowed types are Int_t, Float_t and Double_t.
+///
+/// The printed out data can be restricted to the row lines between `start`
+/// and `end` parameters given by argument.
+///
+template <class T>
+int TRestTools::PrintTable(std::vector<std::vector<T>> data, Int_t start, Int_t end) {
+    cout.precision(10);
     Int_t size = data.size();
     if (end > 0 && size > end) size = end;
-    for (int n = 0; n < size; n++) {
+    for (int n = start; n < size; n++) {
         for (int m = 0; m < data[n].size(); m++) cout << data[n][m] << "\t";
         cout << endl;
     }
 }
 
+template int TRestTools::PrintTable<Int_t>(std::vector<std::vector<Int_t>> data, Int_t start, Int_t end);
+template int TRestTools::PrintTable<Float_t>(std::vector<std::vector<Float_t>> data, Int_t start, Int_t end);
+template int TRestTools::PrintTable<Double_t>(std::vector<std::vector<Double_t>> data, Int_t start,
+                                              Int_t end);
+
+///////////////////////////////////////////////
+/// \brief Reads a binary file containning a fixed-columns table with values
+///
+/// This method will open the file fName. This file should contain a
+/// table with numeric values of the type specified inside the syntax < >.
+///
+/// For example, a float number table with 6-columns would be read as follows:
+///
+/// \code
+/// std::vector<std::vector <Float_t> > fvec;
+/// ReadBinaryFile( "myfile.bin", fvec, 6);
+/// \endcode
+///
+/// The values on the table will be loaded in the matrix provided through the
+/// argument `data`. The content of `data` will be cleared in this method.
+///
+template <class T>
+int TRestTools::ReadBinaryTable(string fName, std::vector<std::vector<T>>& data, Int_t columns) {
+    cout << "Size of : " << sizeof(T) << endl;
+    if (!TRestTools::isValidFile((string)fName)) {
+        cout << "TRestTools::ReadBinaryTable. Error." << endl;
+        cout << "Cannot open file : " << fName << endl;
+        return 0;
+    }
+
+    std::ifstream fin(fName, std::ios::binary);
+    fin.seekg(0, std::ios::end);
+    const size_t num_elements = fin.tellg() / sizeof(T);
+    fin.seekg(0, std::ios::beg);
+
+    if (num_elements % columns != 0) {
+        cout << "TRestTools::ReadBinaryTable. Error." << endl;
+        cout << "Number of elements : " << num_elements
+             << " is not compatible with the number of columns : " << columns << endl;
+        fin.close();
+        return 0;
+    }
+
+    std::vector<T> dataArray(columns);
+    while (fin.good()) {
+        fin.read(reinterpret_cast<char*>(&dataArray[0]), columns * sizeof(T));
+        data.push_back(dataArray);
+    }
+    return 1;
+}
+
+template int TRestTools::ReadBinaryTable<Int_t>(string fName, std::vector<std::vector<Int_t>>& data,
+                                                Int_t columns);
+template int TRestTools::ReadBinaryTable<Float_t>(string fName, std::vector<std::vector<Float_t>>& data,
+                                                  Int_t columns);
+template int TRestTools::ReadBinaryTable<Double_t>(string fName, std::vector<std::vector<Double_t>>& data,
+                                                   Int_t columns);
+
+///////////////////////////////////////////////
+/// \brief Reads an ASCII file containning a table with values
+///
+/// This method will open the file fName. This file should contain a tabulated
+/// ASCII table containning numeric values. The values on the table will be
+/// loaded in the matrix provided through the argument `data`. The content of
+/// `data` will be cleared in this method.
+///
+/// Only works with Double_t vector since we use StringToDouble method.
+///
 int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data) {
     if (!TRestTools::isValidFile((string)fName)) {
         cout << "TRestTools::ReadASCIITable. Error" << endl;
@@ -252,6 +310,7 @@ bool TRestTools::isAbsolutePath(const string& path) {
 /// Input: "/home/nkx/abc.txt" and ":def", Output: { "/home/nkx/", "abc.txt" }
 /// Input: "abc.txt" and ":", Output: { ".", "abc.txt" }
 /// Input: "/home/nkx/" and ":", Output: { "/home/nkx/", "" }
+///
 std::pair<string, string> TRestTools::SeparatePathAndName(string fullname) {
     fullname = RemoveMultipleSlash(fullname);
     pair<string, string> result;
@@ -278,6 +337,7 @@ std::pair<string, string> TRestTools::SeparatePathAndName(string fullname) {
 ///
 /// \param str: input path string (e.g. "///home///test/")
 /// \return path string without multiple slashes (e.g. "/home/test/")
+///
 string TRestTools::RemoveMultipleSlash(string str) {
     // we replace multiple appearances of "/" (slash) by a single "/"
     string to_replace = "//";
@@ -296,11 +356,17 @@ string TRestTools::RemoveMultipleSlash(string str) {
 /// e.g.
 /// Input: "/home/nkx/abc.txt", Returns: "abc.txt"
 /// Input: "/home/nkx/", Output: ""
+///
 string TRestTools::GetPureFileName(string fullpathFileName) {
     fullpathFileName = RemoveMultipleSlash(fullpathFileName);
     return SeparatePathAndName(fullpathFileName).second;
 }
 
+///////////////////////////////////////////////
+/// \brief It takes a filename and adds it a full path based on
+/// the directory the system is at the moment of the method call,
+/// through the PWD system variable.
+///
 string TRestTools::ToAbsoluteName(string filename) {
     string result = filename;
     if (filename[0] == '~') {
@@ -315,9 +381,12 @@ string TRestTools::ToAbsoluteName(string filename) {
 ///////////////////////////////////////////////
 /// \brief It lists all the subdirectories inside path and adds
 /// them to the result vector.
-/// if recursion is 0, then list only the subdirectory of this directory
-/// if recursion is < 0, then list subdirectories recursively
+///
+/// If recursion is 0, then list only the subdirectory of this directory
+/// If recursion is < 0, then list subdirectories recursively
+///
 /// Otherwise recurse only certain times.
+///
 vector<string> TRestTools::GetSubdirectories(const string& path, int recursion) {
     vector<string> result;
     if (auto dir = opendir(path.c_str())) {
@@ -461,6 +530,9 @@ int TRestTools::ConvertVersionCode(string in) {
     return -1;
 }
 
+///////////////////////////////////////////////
+/// \brief Executes a shell command and returns its output in a string
+///
 string TRestTools::Execute(string cmd) {
     std::array<char, 128> buffer;
     string result;
@@ -477,6 +549,10 @@ string TRestTools::Execute(string cmd) {
     return result;
 }
 
+///////////////////////////////////////////////
+/// \brief It reads the next line from the incoming istream and puts it
+/// in the string argument `t`. The remaining istream is returned.
+///
 std::istream& TRestTools::GetLine(std::istream& is, std::string& t) {
     t.clear();
 
@@ -512,6 +588,7 @@ std::istream& TRestTools::GetLine(std::istream& is, std::string& t) {
 ///
 /// If it succeeds to download the file, this method will return the location of
 /// the local temporary file downloaded. If it fails, the method will a blank string
+///
 string TRestTools::DownloadHttpFile(string remoteFile) {
     // cout << "Entering ... " << __PRETTY_FUNCTION__ << endl;
 

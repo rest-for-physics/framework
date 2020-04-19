@@ -1,16 +1,29 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///
-///
-///             Some useful tools in system level. It is obslete now.
-///
-///             Dec 2016:   First concept
-///                 author: Javier Galan
-///_______________________________________________________________________________
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
 #ifndef RestCore_TRestTools
 #define RestCore_TRestTools
 
+//#include <iostream>
 #include <string>
 #include <vector>
 
@@ -20,73 +33,20 @@ using namespace std;
 
 #define UNUSED(x) (void)x
 
+/// A generic class with useful static methods.
 class TRestTools {
    public:
-    ///////////////////////////////////////////////
-    /// \brief Returns the list of rest libraries.
-    ///
-    /// This method finds the rest library in system env "LD_LIBRARY_PATH",
-    /// calling the method GetRESTLibrariesInDirectory(). This requests rest being
-    /// installed correctly.
-    ///
-    // static std::vector<string> GetListOfRESTLibraries();
-
-    ///////////////////////////////////////////////
-    /// \brief Returns all paths in an env variable.
-    ///
-    /// This method gives the env variable string to the method GetFirstPath().
-    /// And then adds the result to the list.
-    ///
-    // static std::vector<string> GetListOfPathsInEnvVariable(string envVariable);
-
-    ///////////////////////////////////////////////
-    /// \brief Returns the first sub string spilt by ":" in a string
-    ///
-    /// The sub string will be removed from the input string. As a result calling
-    /// this method repeatedly will get all the substring in the input string.
-    /// Actually it does not return path, but any sub string spilt by ":"
-    ///
-    // static TString GetFirstPath(TString& path);
-
-    ///////////////////////////////////////////////
-    /// \brief Returns the list of rest librarys found in a path.
-    ///
-    /// It just finds the files with name containing "REST" or "Rest" in that
-    /// path.
-    ///
-    // static std::vector<string> GetRESTLibrariesInDirectory(string path);
-
-    ///////////////////////////////////////////////
-    /// \brief Returns all the options in an option string
-    ///
-    /// This method gives string to the method GetFirstOption().
-    /// And then adds the result to the list.
-    ///
     static std::vector<string> GetOptions(string optionsStr);
 
-    ///////////////////////////////////////////////
-    /// \brief Returns the first option of the string
-    ///
-    // static TString GetFirstOption(TString& path);
-
-    ///////////////////////////////////////////////
-    /// \brief Calls gSystem to load REST library.
-    ///
-    /// After this we can use reflection methods TClass::GetClass() and
-    /// TRestMetadata::GetDataMemberRef()
-    ///
     static void LoadRESTLibrary(bool silent = false);
 
-    ///////////////////////////////////////////////
-    /// \brief Reads an ASCII file containning a table with values
-    ///
-    /// This method will open the file fName. This file should contain a tabulated
-    /// ASCII table containning numeric values. The values on the table will be
-    /// loaded in the matrix provided through the argument `data`. The content of
-    /// `data` will be cleared in this method.
-    ///
     static int ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data);
-    static int PrintTable(std::vector<std::vector<Double_t>> data, Int_t start = 0, Int_t end = 0);
+
+    template <typename T>
+    static int ReadBinaryTable(string fName, std::vector<std::vector<T>>& data, Int_t columns);
+
+    template <typename T>
+    static int PrintTable(std::vector<std::vector<T>> data, Int_t start = 0, Int_t end = 0);
 
     static Int_t isValidFile(const string& path);
     static bool fileExists(const std::string& filename);
@@ -105,9 +65,6 @@ class TRestTools {
     static int ConvertVersionCode(string in);
     static std::istream& GetLine(std::istream& is, std::string& t);
 
-    ///////////////////////////////////////////////
-    /// \brief Executes a shell command and returns its output in a string
-    ///
     static std::string Execute(string cmd);
     static std::string DownloadHttpFile(string remoteFile);
 
