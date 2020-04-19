@@ -589,7 +589,7 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
         return 0;
     }
     fElement = theElement;
-    fElementGlobal = (TiXmlElement*)eGlobal->Clone();
+    fElementGlobal = eGlobal ? (TiXmlElement*)eGlobal->Clone() : NULL;
     for (auto e : eEnv) fElementEnv.push_back((TiXmlElement*)e->Clone());
 
     int result = LoadSectionMetadata();
