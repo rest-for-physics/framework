@@ -525,8 +525,10 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
         // find the "globals" section. Multiple sections are supported.
         TiXmlElement* rootEle = GetElementFromFile(fConfigFileName);
         TiXmlElement* Global = GetElement("globals", rootEle);
-        if (Global!=NULL && Global->NextSiblingElement("globals") != NULL) {
+        if (Global != NULL) ReadElement(Global);
+        if (Global != NULL && Global->NextSiblingElement("globals") != NULL) {
             TiXmlElement* ele = Global->NextSiblingElement("globals");
+            if (ele != NULL) ReadElement(ele);
             while (ele != NULL) {
                 TiXmlElement* e = ele->FirstChildElement();
                 while (e != NULL) {
@@ -571,7 +573,6 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
     if (eSectional != NULL && eGlobal != NULL) {
         // Sectional and global elements are first combined.
         theElement = (TiXmlElement*)eSectional->Clone();
-        if (eGlobal->Attribute("file") != NULL) ExpandIncludeFile(eGlobal);
         TiXmlElement* echild = eGlobal->FirstChildElement();
         while (echild != NULL) {
             theElement->LinkEndChild(echild->Clone());
@@ -1049,9 +1050,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL
-                    ? false
-                    : ((string)localele->Attribute("expanded") == "true")) {
+            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+                                                                   "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1084,9 +1084,8 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL
-                    ? false
-                    : ((string)localele->Attribute("expanded") == "true")) {
+            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
+                                                                   "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
