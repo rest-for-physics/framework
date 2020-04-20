@@ -629,6 +629,10 @@
 #include "TRestG4Metadata.h"
 using namespace std;
 
+#include <TGeoManager.h>
+
+#include "GdmlPreprocessor.h"
+
 namespace g4_metadata_parameters {
 string CleanString(string s) {
     // transform the string to lowercase
@@ -736,7 +740,7 @@ void TRestG4Metadata::InitFromConfigFile() {
     if (ToUpper(seedstr) == "RANDOM" || ToUpper(seedstr) == "RAND" || ToUpper(seedstr) == "AUTO" ||
         seedstr == "0") {
         double* dd = new double();
-        fSeed = (uintptr_t)dd + (uintptr_t) this;
+        fSeed = (uintptr_t)dd + (uintptr_t)this;
         delete dd;
     } else {
         fSeed = (Long_t)StringToInteger(seedstr);
@@ -943,13 +947,37 @@ void TRestG4Metadata::ReadStorage() {
     size_t pos = 0;
     fEnergyRangeStored = Get2DVectorParameterWithUnits("energyRange", pos, storageString);
 
+    GdmlPreprocessor* preprocesor = new GdmlPreprocessor();
+    preprocesor->Load((string)Get_GDML_Filename());
+
+    TGeoManager::Import(Get_GDML_Filename() + "_");
+    std::set<std::string> geometryVolumes = {"World_PV"};  // we include the world volume
+    for (auto node : gGeoManager->GetTopVolume()->GetNodes()[0]) {
+        string name = node->GetName();
+        geometryVolumes.insert(name);
+    }
+
     pos = 0;
     string volumeDefinition;
     while ((volumeDefinition = GetKEYDefinition("activeVolume", pos, storageString)) != "") {
         Double_t chance = StringToDouble(GetFieldValue("chance", volumeDefinition));
         TString name = GetFieldValue("name", volumeDefinition);
-        SetActiveVolume(name, chance);
-        cout << "Adding active volume" << endl;
+        // first we verify its in the list of valid volumes
+        if (geometryVolumes.find((string)name) == geometryVolumes.end()) {
+            // it is not on the container
+            cout << "WARNING: volume '" << name
+                 << "' is not a valid volume name and it won't be added, check RML or GDML file." << endl;
+            continue;
+        } else {
+            SetActiveVolume(name, chance);
+            cout << "Adding active volume from RML: '" << name << "' with chance: " << chance << endl;
+            geometryVolumes.erase((string)name);
+        }
+    }
+    // we add them automatically with chance=1 if they are not on the RML
+    for (auto& name : geometryVolumes) {
+        SetActiveVolume(name, 1);
+        cout << "Automatically adding active volume: '" << name << "' with chance: " << 1 << endl;
     }
 }
 
