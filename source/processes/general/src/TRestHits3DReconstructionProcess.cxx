@@ -18,7 +18,7 @@
 using namespace std;
 #define XWidth 96.7
 #define YWidth 96.3
-#define PITCH 3.2
+#define PITCH 6.2
 #define PlaneMaxX 800
 #define PlaneMaxY 800
 struct regionhit {
@@ -251,6 +251,12 @@ TRestEvent* TRestHits3DReconstructionProcess::ProcessEvent(TRestEvent* evInput) 
                     stripehits.push_back(h);
                 }
             }
+        }
+
+        if (stripehits.size() > 50) {
+            warning << "(TRestHits3DReconstructionProcess) event id: " << fInputHitsEvent->GetID()
+                    << ", z: " << z << ", bad frame, too much hits! (" << stripehits.size() << ")" << endl;
+            continue;
         }
 
         if (fVerboseLevel >= REST_Extreme) {

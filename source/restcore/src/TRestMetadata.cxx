@@ -513,7 +513,7 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
             sectionName = this->ClassName();
         }
 
-        // search with value
+        // find the xml section corresponding to the sectionName
         TiXmlElement* Sectional = GetElementFromFile(fConfigFileName, sectionName);
         if (Sectional == NULL) {
             ferr << "cannot find xml section \"" << ClassName() << "\" with name \"" << sectionName << "\""
@@ -521,10 +521,28 @@ Int_t TRestMetadata::LoadConfigFromFile(string cfgFileName, string sectionName) 
             ferr << "in config file: " << fConfigFileName << endl;
             exit(1);
         }
-        TiXmlElement* Global = GetElementFromFile(fConfigFileName, "globals");
+
+        // find the "globals" section. Multiple sections are supported.
+        TiXmlElement* rootEle = GetElementFromFile(fConfigFileName);
+        TiXmlElement* Global = GetElement("globals", rootEle);
+        if (Global != NULL) ReadElement(Global);
+        if (Global != NULL && Global->NextSiblingElement("globals") != NULL) {
+            TiXmlElement* ele = Global->NextSiblingElement("globals");
+            if (ele != NULL) ReadElement(ele);
+            while (ele != NULL) {
+                TiXmlElement* e = ele->FirstChildElement();
+                while (e != NULL) {
+                    Global->InsertEndChild(*e);
+                    e = e->NextSiblingElement();
+                }
+                ele = ele->NextSiblingElement("globals");
+            }
+        }
+
+        // call the real loading method
         int result = LoadConfigFromFile(Sectional, Global, {});
         delete Sectional;
-        if (Global) delete Global;
+        delete rootEle;
         return result;
     } else {
         ferr << "Filename : " << fConfigFileName << endl;
@@ -555,7 +573,6 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
     if (eSectional != NULL && eGlobal != NULL) {
         // Sectional and global elements are first combined.
         theElement = (TiXmlElement*)eSectional->Clone();
-        if (eGlobal->Attribute("file") != NULL) ExpandIncludeFile(eGlobal);
         TiXmlElement* echild = eGlobal->FirstChildElement();
         while (echild != NULL) {
             theElement->LinkEndChild(echild->Clone());
@@ -572,7 +589,7 @@ Int_t TRestMetadata::LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* 
         return 0;
     }
     fElement = theElement;
-    fElementGlobal = (TiXmlElement*)eGlobal->Clone();
+    fElementGlobal = eGlobal ? (TiXmlElement*)eGlobal->Clone() : NULL;
     for (auto e : eEnv) fElementEnv.push_back((TiXmlElement*)e->Clone());
 
     int result = LoadSectionMetadata();
