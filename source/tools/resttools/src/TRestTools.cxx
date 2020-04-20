@@ -123,7 +123,6 @@ void TRestTools::LoadRESTLibrary(bool silent) {
 ///
 template <class T>
 int TRestTools::PrintTable(std::vector<std::vector<T>> data, Int_t start, Int_t end) {
-    cout.precision(10);
     Int_t size = data.size();
     if (end > 0 && size > end) size = end;
     for (int n = start; n < size; n++) {
@@ -155,7 +154,6 @@ template int TRestTools::PrintTable<Double_t>(std::vector<std::vector<Double_t>>
 ///
 template <class T>
 int TRestTools::ReadBinaryTable(string fName, std::vector<std::vector<T>>& data, Int_t columns) {
-    cout << "Size of : " << sizeof(T) << endl;
     if (!TRestTools::isValidFile((string)fName)) {
         cout << "TRestTools::ReadBinaryTable. Error." << endl;
         cout << "Cannot open file : " << fName << endl;
