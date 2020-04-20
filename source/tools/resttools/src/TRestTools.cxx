@@ -233,6 +233,50 @@ int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Double_t>>&
 }
 
 ///////////////////////////////////////////////
+/// \brief Reads an ASCII file containning a table with values
+///
+/// This method will open the file fName. This file should contain a tabulated
+/// ASCII table containning numeric values. The values on the table will be
+/// loaded in the matrix provided through the argument `data`. The content of
+/// `data` will be cleared in this method.
+///
+/// This version works with Float_t vector since we use StringToFloat method.
+///
+int TRestTools::ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& data) {
+    if (!TRestTools::isValidFile((string)fName)) {
+        cout << "TRestTools::ReadASCIITable. Error" << endl;
+        cout << "Cannot open file : " << fName << endl;
+        return 0;
+    }
+
+    data.clear();
+
+    std::ifstream fin(fName);
+
+    // First we create a table with string values
+    std::vector<std::vector<string>> values;
+
+    for (string line; std::getline(fin, line);) {
+        std::istringstream in(line);
+        values.push_back(
+            std::vector<string>(std::istream_iterator<string>(in), std::istream_iterator<string>()));
+    }
+
+    // Filling the float values table (TODO error handling in case ToFloat
+    // conversion fails)
+    for (int n = 0; n < values.size(); n++) {
+        std::vector<Float_t> dblTmp;
+        dblTmp.clear();
+
+        for (int m = 0; m < values[n].size(); m++) dblTmp.push_back(StringToFloat(values[n][m]));
+
+        data.push_back(dblTmp);
+    }
+
+    return 1;
+}
+
+///////////////////////////////////////////////
 /// \brief Returns true if the file with path filename exists.
 ///
 Int_t TRestTools::isValidFile(const string& path) {

@@ -41,6 +41,7 @@ class TRestTools {
     static void LoadRESTLibrary(bool silent = false);
 
     static int ReadASCIITable(string fName, std::vector<std::vector<Double_t>>& data);
+    static int ReadASCIITable(string fName, std::vector<std::vector<Float_t>>& data);
 
     template <typename T>
     static int ReadBinaryTable(string fName, std::vector<std::vector<T>>& data, Int_t columns);
