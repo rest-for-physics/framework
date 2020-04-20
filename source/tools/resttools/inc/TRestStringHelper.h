@@ -27,6 +27,7 @@ Int_t isANumber(std::string in);
 Int_t isAExpression(std::string in);
 std::string ReplaceMathematicalExpressions(std::string buffer);
 std::string EvaluateExpression(std::string exp);
+Float_t StringToFloat(std::string in);
 Double_t StringToDouble(std::string in);
 Int_t StringToInteger(std::string in);
 Bool_t StringToBool(std::string in);
