@@ -171,6 +171,25 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     }
 #pragma endregion
 
+#pragma region ReadGlobalCutStrings
+    debug << "TRestAnalysisPlot: Reading global cut strings" << endl;
+    TiXmlElement* gCutStrele = fElement->FirstChildElement("globalCutString");
+    while (gCutele != NULL)  // general cuts
+    {
+        string cutActive = GetParameter("value", gCutStrele, "ON");
+
+        if (ToUpper(cutActive) == "ON") {
+            string cutString = GetParameter("string", gCutStrele, "");
+            cutString = "(" + cutString + ")";
+            if (cutString == "") continue;
+
+            globalCuts.push_back(cutString);
+        }
+
+        gCutStrele = gCutStrele->NextSiblingElement("globalCutString");
+    }
+#pragma endregion
+
 #pragma region ReadPlot
     debug << "TRestAnalysisPlot: Reading plot sections" << endl;
     Int_t maxPlots = (Int_t)fCanvasDivisions.X() * (Int_t)fCanvasDivisions.Y();
