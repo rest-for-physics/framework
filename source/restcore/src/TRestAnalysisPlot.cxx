@@ -174,7 +174,7 @@ void TRestAnalysisPlot::InitFromConfigFile() {
 #pragma region ReadGlobalCutStrings
     debug << "TRestAnalysisPlot: Reading global cut strings" << endl;
     TiXmlElement* gCutStrele = fElement->FirstChildElement("globalCutString");
-    while (gCutele != NULL)  // general cuts
+    while (gCutStrele != NULL)  // general cuts
     {
         string cutActive = GetParameter("value", gCutStrele, "ON");
 
