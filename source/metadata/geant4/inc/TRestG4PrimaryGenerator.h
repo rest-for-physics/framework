@@ -46,15 +46,16 @@ class TRestG4PrimaryGenerator : public TObject {
     Int_t GetNumberOfCollections() { return fNCollections; }
     Int_t GetNumberOfSources() { return fNsources; }
     TRestParticleSource GetParticleSource(int i) { return fSources[i]; }
+    TRestParticleCollection* GetParticleCollection(Int_t n);
 
     void Reset();
     void RemoveSources();
-    void AddSource(TRestParticleSource src);
-
-    TRestParticleCollection* GetParticleCollection(Int_t n);
     void RemoveParticleCollections();
+    void AddSource(TRestParticleSource src);
     void AddParticleCollection(TRestParticleCollection* collection);
-    void SetSourcesFromParticleCollection(Int_t n);
+
+    // 
+    void UpdateSourcesFromParticleCollection(Int_t n);
 
     // Construtor
     TRestG4PrimaryGenerator();

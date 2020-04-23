@@ -914,7 +914,7 @@ void TRestG4Metadata::ReadGenerator() {
             if (particleCollection != NULL) {
                 particleCollection->SetParticleModel(sourceString);
                 fPrimaryGenerator.AddParticleCollection(particleCollection);
-                fPrimaryGenerator.SetSourcesFromParticleCollection(0);
+                fPrimaryGenerator.UpdateSourcesFromParticleCollection(0);
             }
         }
     }
@@ -1168,7 +1168,7 @@ Int_t TRestG4Metadata::ReadNewDecay0File(TString fileName) {
         fPrimaryGenerator.AddParticleCollection(particleCollection);
     }
 
-    fPrimaryGenerator.SetSourcesFromParticleCollection(0);
+    fPrimaryGenerator.UpdateSourcesFromParticleCollection(0);
 
     return 1;
 }
@@ -1277,7 +1277,7 @@ Int_t TRestG4Metadata::ReadOldDecay0File(TString fileName) {
         fPrimaryGenerator.AddParticleCollection(particleCollection);
     }
 
-    fPrimaryGenerator.SetSourcesFromParticleCollection(0);
+    fPrimaryGenerator.UpdateSourcesFromParticleCollection(0);
 
     return 1;
 }
