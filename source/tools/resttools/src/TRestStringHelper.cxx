@@ -312,6 +312,17 @@ Double_t REST_StringHelper::StringToDouble(string in) {
 }
 
 ///////////////////////////////////////////////
+/// \brief Gets a float from a string.
+///
+Float_t REST_StringHelper::StringToFloat(string in) {
+    if (isANumber(in)) {
+        return stof(in);
+    } else {
+        return -1;
+    }
+}
+
+///////////////////////////////////////////////
 /// \brief Gets an integer from a string.
 ///
 Int_t REST_StringHelper::StringToInteger(string in) { return (Int_t)StringToDouble(in); }

@@ -171,6 +171,25 @@ void TRestAnalysisPlot::InitFromConfigFile() {
     }
 #pragma endregion
 
+#pragma region ReadGlobalCutStrings
+    debug << "TRestAnalysisPlot: Reading global cut strings" << endl;
+    TiXmlElement* gCutStrele = fElement->FirstChildElement("globalCutString");
+    while (gCutStrele != NULL)  // general cuts
+    {
+        string cutActive = GetParameter("value", gCutStrele, "ON");
+
+        if (ToUpper(cutActive) == "ON") {
+            string cutString = GetParameter("string", gCutStrele, "");
+            cutString = "(" + cutString + ")";
+            if (cutString == "") continue;
+
+            globalCuts.push_back(cutString);
+        }
+
+        gCutStrele = gCutStrele->NextSiblingElement("globalCutString");
+    }
+#pragma endregion
+
 #pragma region ReadPlot
     debug << "TRestAnalysisPlot: Reading plot sections" << endl;
     Int_t maxPlots = (Int_t)fCanvasDivisions.X() * (Int_t)fCanvasDivisions.Y();
@@ -362,7 +381,6 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
 
     // 3. read cuts
     string cutString = "";
-    Int_t n = 0;
 
     TiXmlElement* cutele = histele->FirstChildElement("cut");
     while (cutele != NULL) {
@@ -384,14 +402,32 @@ TRestAnalysisPlot::Histo_Info_Set TRestAnalysisPlot::SetupHistogramFromConfigFil
                 cout << endl;
             }
 
-            if (n > 0) cutString += " && ";
-            if (GetVerboseLevel() >= REST_Debug)
-                cout << "Adding local cut : " << cutVariable << cutCondition << endl;
+            if (cutString.length() > 0) cutString += " && ";
+            debug << "Adding local cut : " << cutVariable << cutCondition << endl;
 
             cutString += cutVariable + cutCondition;
-            n++;
         }
         cutele = cutele->NextSiblingElement("cut");
+    }
+
+    TiXmlElement* cutstrele = histele->FirstChildElement("cutString");
+    while (cutstrele != NULL) {
+        string cutActive = GetParameter("value", cutstrele, "ON");
+        if (ToUpper(cutActive) == "ON") {
+            string cutStr = GetParameter("string", cutstrele);
+            if (cutStr == "NO_SUCH_PARA") {
+                ferr << "Cut string was not found! There is a problem inside <cutString definition. Check it."
+                     << endl;
+                cout << "Contents of entire <histo definition : " << ElementToString(histele) << endl;
+                cout << endl;
+            }
+
+            if (cutString.length() > 0) cutString += " && ";
+            debug << "Adding local cut : " << cutStr << endl;
+
+            cutString += "(" + cutStr + ")";
+        }
+        cutstrele = cutstrele->NextSiblingElement("cutString");
     }
     hist.cutString = cutString;
 
