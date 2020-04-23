@@ -16,14 +16,14 @@
 #ifndef RestCore_TRestG4PrimaryGenerator
 #define RestCore_TRestG4PrimaryGenerator
 
-#include <iostream>
-
-#include <TString.h>
-#include <TVector3.h>
-#include "TObject.h"
-
 #include <TRestParticleCollection.h>
 #include <TRestParticleSource.h>
+#include <TString.h>
+#include <TVector3.h>
+
+#include <iostream>
+
+#include "TObject.h"
 
 class TRestG4PrimaryGenerator : public TObject {
    protected:
@@ -54,7 +54,8 @@ class TRestG4PrimaryGenerator : public TObject {
     void AddSource(TRestParticleSource src);
     void AddParticleCollection(TRestParticleCollection* collection);
 
-    // 
+    /// Read n-th collection in fParticleCollections, and set fSources
+    /// accordingly. Used in TRestG4Metadata::ReadParticleCollection
     void UpdateSourcesFromParticleCollection(Int_t n);
 
     // Construtor
