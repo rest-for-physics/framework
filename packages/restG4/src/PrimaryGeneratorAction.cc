@@ -2,6 +2,9 @@
 
 #include "PrimaryGeneratorAction.hh"
 
+#include <TRestG4Event.h>
+#include <TRestG4Metadata.h>
+
 #include "G4Event.hh"
 #include "G4Geantino.hh"
 #include "G4IonTable.hh"
@@ -10,9 +13,6 @@
 #include "G4SystemOfUnits.hh"
 #include "G4UnitsTable.hh"
 #include "Randomize.hh"
-
-#include <TRestG4Event.h>
-#include <TRestG4Metadata.h>
 
 extern TRestG4Metadata* restG4Metadata;
 extern TRestG4Event* restG4Event;
@@ -130,21 +130,23 @@ G4ParticleDefinition* PrimaryGeneratorAction::SetParticleDefinition(int n) {
     G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
     G4ParticleDefinition* particle = particleTable->FindParticle(particle_name);
 
-   if ((particle == nullptr)) {
+    if ((particle == nullptr)) {
         // There might be a better way to do this
         for (int Z = 1; Z <= 110; Z++)
             for (int A = 2 * Z; A <= 3 * Z; A++) {
-                              if (particle_name == G4IonTable::GetIonTable()->GetIonName(Z, A)) {
-                     cout << "particle : " << G4IonTable::GetIonTable()->GetIonName ( Z, A, excited_energy ) << endl;
-                    particle = G4IonTable::GetIonTable()->GetIon(Z, A, excited_energy); 
-                     particle_name = G4IonTable::GetIonTable()->GetIonName(Z, A, excited_energy);
+                if (particle_name == G4IonTable::GetIonTable()->GetIonName(Z, A)) {
+                    cout << "particle : " << G4IonTable::GetIonTable()->GetIonName(Z, A, excited_energy)
+                         << endl;
+                    particle = G4IonTable::GetIonTable()->GetIon(Z, A, excited_energy);
+                    particle_name = G4IonTable::GetIonTable()->GetIonName(Z, A, excited_energy);
                     fParticleGun->SetParticleCharge(charge);
-                  //  cout << "Found ion: " << particle_name << " Z " << Z << " A " << A << " excited energy "<< excited_energy << endl;
+                    //  cout << "Found ion: " << particle_name << " Z " << Z << " A " << A << " excited energy
+                    //  "<< excited_energy << endl;
                 }
             }
     }
 
-    fParticleGun->SetParticleDefinition(particle);    
+    fParticleGun->SetParticleDefinition(particle);
 
     restG4Event->SetPrimaryEventParticleName(particle_name);
 
