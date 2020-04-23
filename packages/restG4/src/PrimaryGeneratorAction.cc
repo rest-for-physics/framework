@@ -87,7 +87,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* geant4_event) {
         } else
             rndCollection = (Int_t)(G4UniformRand() * nCollections);
 
-        restG4Metadata->SetParticleCollection(rndCollection);
+        restG4Metadata->ReadParticleCollection(rndCollection);
     }
 
     Int_t nParticles = restG4Metadata->GetNumberOfPrimaries();
