@@ -121,7 +121,7 @@ void TRestTools::LoadRESTLibrary(bool silent) {
 /// The printed out data can be restricted to the row lines between `start`
 /// and `end` parameters given by argument.
 ///
-template <class T>
+template <typename T>
 int TRestTools::PrintTable(std::vector<std::vector<T>> data, Int_t start, Int_t end) {
     Int_t size = data.size();
     if (end > 0 && size > end) size = end;
@@ -152,7 +152,7 @@ template int TRestTools::PrintTable<Double_t>(std::vector<std::vector<Double_t>>
 /// The values on the table will be loaded in the matrix provided through the
 /// argument `data`. The content of `data` will be cleared in this method.
 ///
-template <class T>
+template <typename T>
 int TRestTools::ReadBinaryTable(string fName, std::vector<std::vector<T>>& data, Int_t columns) {
     if (!TRestTools::isValidFile((string)fName)) {
         cout << "TRestTools::ReadBinaryTable. Error." << endl;
@@ -187,6 +187,80 @@ template int TRestTools::ReadBinaryTable<Float_t>(string fName, std::vector<std:
                                                   Int_t columns);
 template int TRestTools::ReadBinaryTable<Double_t>(string fName, std::vector<std::vector<Double_t>>& data,
                                                    Int_t columns);
+
+///////////////////////////////////////////////
+/// \brief It returns the maximum value for a particular `column` from the table given by argument.
+///
+/// This method is available for tables of type Float_t, Double_t and Int_t.
+///
+template <typename T>
+T TRestTools::GetMaxValueFromTable(std::vector<std::vector<T>> data, Int_t column) {
+    if (data.size() == 0 || data[0].size() <= column) return 0;
+    T maxValue = data[0][column];
+    for (int n = 0; n < data.size(); n++)
+        if (maxValue < data[n][column]) maxValue = data[n][column];
+    return maxValue;
+}
+
+template Int_t TRestTools::GetMaxValueFromTable<Int_t>(std::vector<std::vector<Int_t>> data, Int_t column);
+
+template Float_t TRestTools::GetMaxValueFromTable<Float_t>(std::vector<std::vector<Float_t>> data,
+                                                           Int_t column);
+
+template Double_t TRestTools::GetMaxValueFromTable<Double_t>(std::vector<std::vector<Double_t>> data,
+                                                             Int_t column);
+
+///////////////////////////////////////////////
+/// \brief It returns the minimum value for a particular `column` from the table given by argument.
+///
+/// This method is available for tables of type Float_t, Double_t and Int_t.
+///
+template <typename T>
+T TRestTools::GetMinValueFromTable(std::vector<std::vector<T>> data, Int_t column) {
+    if (data.size() == 0 || data[0].size() <= column) return 0;
+    T minValue = data[0][column];
+    for (int n = 0; n < data.size(); n++)
+        if (minValue > data[n][column]) minValue = data[n][column];
+    return minValue;
+}
+
+template Int_t TRestTools::GetMinValueFromTable<Int_t>(std::vector<std::vector<Int_t>> data, Int_t column);
+
+template Float_t TRestTools::GetMinValueFromTable<Float_t>(std::vector<std::vector<Float_t>> data,
+                                                           Int_t column);
+
+template Double_t TRestTools::GetMinValueFromTable<Double_t>(std::vector<std::vector<Double_t>> data,
+                                                             Int_t column);
+
+///////////////////////////////////////////////
+/// \brief It returns the lowest increase, different from zero, between the elements of a particular `column`
+/// from the table given by argument.
+///
+/// This method is available for tables of type Float_t, Double_t and Int_t.
+///
+/// \warning This method will not check every possible column element difference. It will only look for
+/// consecutive elements steps.
+///
+template <typename T>
+T TRestTools::GetLowestIncreaseFromTable(std::vector<std::vector<T>> data, Int_t column) {
+    if (data.size() == 0 || data[0].size() <= column) return 0;
+    T lowestIncrease = abs(data[0][column] - data[1][column]);
+    for (int n = 1; n < data.size(); n++) {
+        T value = abs(data[n - 1][column] - data[n][column]);
+        if (lowestIncrease == 0) lowestIncrease = value;
+        if (value > 0 && value < lowestIncrease) lowestIncrease = value;
+    }
+    return lowestIncrease;
+}
+
+template Int_t TRestTools::GetLowestIncreaseFromTable<Int_t>(std::vector<std::vector<Int_t>> data,
+                                                             Int_t column);
+
+template Float_t TRestTools::GetLowestIncreaseFromTable<Float_t>(std::vector<std::vector<Float_t>> data,
+                                                                 Int_t column);
+
+template Double_t TRestTools::GetLowestIncreaseFromTable<Double_t>(std::vector<std::vector<Double_t>> data,
+                                                                   Int_t column);
 
 ///////////////////////////////////////////////
 /// \brief Reads an ASCII file containning a table with values

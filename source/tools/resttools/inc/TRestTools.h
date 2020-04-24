@@ -47,6 +47,15 @@ class TRestTools {
     static int ReadBinaryTable(string fName, std::vector<std::vector<T>>& data, Int_t columns);
 
     template <typename T>
+    static T GetMaxValueFromTable(std::vector<std::vector<T>> data, Int_t column);
+
+    template <typename T>
+    static T GetMinValueFromTable(std::vector<std::vector<T>> data, Int_t column);
+
+    template <typename T>
+    static T GetLowestIncreaseFromTable(std::vector<std::vector<T>> data, Int_t column);
+
+    template <typename T>
     static int PrintTable(std::vector<std::vector<T>> data, Int_t start = 0, Int_t end = 0);
 
     static Int_t isValidFile(const string& path);
