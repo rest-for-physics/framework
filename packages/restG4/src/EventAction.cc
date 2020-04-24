@@ -211,7 +211,7 @@ void EventAction::FillSubEvent(Int_t subId) {
     }
 
     for (int n = 0; n < restG4Event->GetNumberOfActiveVolumes(); n++) {
-        subRestG4Event->AddActiveVolume();
+        subRestG4Event->AddActiveVolume((string)restG4Metadata->GetActiveVolumeName(n));
         if (restG4Event->isVolumeStored(n))
             subRestG4Event->ActivateVolumeForStorage(n);
         else

@@ -179,6 +179,7 @@ class TRestG4Event : public TRestEvent {
 
     Int_t fNVolumes;
     std::vector<Int_t> fVolumeStored;
+    std::vector<string> fVolumeStoredNames;
     std::vector<Double_t> fVolumeDepositedEnergy;
 
     Int_t fNTracks;
@@ -187,6 +188,7 @@ class TRestG4Event : public TRestEvent {
     Int_t fMaxSubEventID;
 
    public:
+
     TString GetPrimaryEventParticleName(int n) {
         if (fPrimaryParticleName.size() > n) return fPrimaryParticleName[n];
         return "Not defined";
@@ -275,7 +277,7 @@ class TRestG4Event : public TRestEvent {
     void ActivateVolumeForStorage(Int_t n) { fVolumeStored[n] = 1; }
     void DisableVolumeForStorage(Int_t n) { fVolumeStored[n] = 0; }
 
-    void AddActiveVolume();
+    void AddActiveVolume(const string& volumeName);
     void ClearVolumes();
     void AddEnergyToSensitiveVolume(Double_t en) { fSensitiveVolumeEnergy += en; }
 
@@ -471,6 +473,6 @@ class TRestG4Event : public TRestEvent {
     // Destructor
     virtual ~TRestG4Event();
 
-    ClassDef(TRestG4Event, 3);  // REST event superclass
+    ClassDef(TRestG4Event, 4);  // REST event superclass
 };
 #endif

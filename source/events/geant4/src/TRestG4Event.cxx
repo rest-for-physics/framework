@@ -89,15 +89,17 @@ void TRestG4Event::Initialize() {
     fMaxEnergy = -1e20;
 }
 
-void TRestG4Event::AddActiveVolume() {
+void TRestG4Event::AddActiveVolume(const string& volumeName) {
     fNVolumes++;
     fVolumeStored.push_back(1);
+    fVolumeStoredNames.push_back(volumeName);
     fVolumeDepositedEnergy.push_back(0);
 }
 
 void TRestG4Event::ClearVolumes() {
     fNVolumes = 0;
     fVolumeStored.clear();
+    fVolumeStoredNames.clear();
     fVolumeDepositedEnergy.clear();
 }
 
@@ -1010,11 +1012,11 @@ void TRestG4Event::PrintEvent(int maxTracks, int maxHits) {
     cout << "Number of active volumes : " << GetNumberOfActiveVolumes() << endl;
     for (int i = 0; i < GetNumberOfActiveVolumes(); i++) {
         if (isVolumeStored(i)) {
-            cout << "Active volume " << i << " has been stored." << endl;
-            cout << "Total energy deposit in volume " << i << " : " << fVolumeDepositedEnergy[i] << " keV"
+            cout << "Active volume " << i << ":" << fVolumeStoredNames[i] << " has been stored." << endl;
+            cout << "Total energy deposit in volume " << i << ":" << fVolumeStoredNames[i] << " : " << fVolumeDepositedEnergy[i] << " keV"
                  << endl;
         } else
-            cout << "Active volume " << i << " has not been stored" << endl;
+            cout << "Active volume " << i << ":" << fVolumeStoredNames[i] << " has not been stored" << endl;
     }
 
     cout << "--------------------------------------------------------------------"
