@@ -329,7 +329,7 @@ class TRestG4Metadata : public TRestMetadata {
     /// randomly a primary source definition from a pre-generated sources
     /// collection. The particle collection needs to be previously populated using
     /// i.e. an input Decay0 file.
-    void SetParticleCollection(Int_t n) { fPrimaryGenerator.SetSourcesFromParticleCollection(n); }
+    void ReadParticleCollection(Int_t n) { fPrimaryGenerator.UpdateSourcesFromParticleCollection(n); }
 
     /// Removes all the sources from fPrimaryGenerator.
     void RemoveSources() { fPrimaryGenerator.RemoveSources(); }

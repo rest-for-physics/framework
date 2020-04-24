@@ -62,7 +62,7 @@ void TRestG4PrimaryGenerator::AddParticleCollection(TRestParticleCollection* col
     fNCollections++;
 }
 
-void TRestG4PrimaryGenerator::SetSourcesFromParticleCollection(Int_t n) {
+void TRestG4PrimaryGenerator::UpdateSourcesFromParticleCollection(Int_t n) {
     RemoveSources();
 
     Int_t pCollectionID = n % fNCollections;
