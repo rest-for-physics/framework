@@ -1,4 +1,5 @@
 #include <iostream>
+
 #include "GdmlPreprocessor.h"
 #include "TRestBrowser.h"
 #include "TRestG4EventViewer.h"
@@ -41,33 +42,33 @@ Int_t REST_ViewGeometry(TString fName, TString option = "") {
         view->SetGeometry(geo);
         view->AddEvent(new TRestG4Event());
 
-        //TEveManager::Create();
+        // TEveManager::Create();
 
-        //TGeoNode* node = geo->GetTopNode();
+        // TGeoNode* node = geo->GetTopNode();
 
-        //TObjArray* arr = geo->GetListOfVolumes();
-        //Int_t nVolumes = arr->GetEntries();
-        //for (int i = 0; i < nVolumes; i++) geo->GetVolume(i)->SetTransparency(50);
+        // TObjArray* arr = geo->GetListOfVolumes();
+        // Int_t nVolumes = arr->GetEntries();
+        // for (int i = 0; i < nVolumes; i++) geo->GetVolume(i)->SetTransparency(50);
 
-        //geo->CheckOverlaps(0.0000001);
-        //geo->PrintOverlaps();
+        // geo->CheckOverlaps(0.0000001);
+        // geo->PrintOverlaps();
 
-        //TEveGeoTopNode* vol = new TEveGeoTopNode(geo, node);
+        // TEveGeoTopNode* vol = new TEveGeoTopNode(geo, node);
 
-        //vol->SetVisLevel(3);
+        // vol->SetVisLevel(3);
 
-        //gEve->AddGlobalElement(vol);
+        // gEve->AddGlobalElement(vol);
 
-        //gEve->FullRedraw3D(kTRUE);
+        // gEve->FullRedraw3D(kTRUE);
 
-        //TGLViewer* v = gEve->GetDefaultGLViewer();
-        //v->GetClipSet()->SetClipType((TGLClip::EType)1);
-        //v->SetGuideState(TGLUtil::kAxesEdge, kTRUE, kFALSE, 0);
-        //v->SetStyle(TGLRnrCtx::kOutline);
-        //v->RefreshPadEditor(v);
+        // TGLViewer* v = gEve->GetDefaultGLViewer();
+        // v->GetClipSet()->SetClipType((TGLClip::EType)1);
+        // v->SetGuideState(TGLUtil::kAxesEdge, kTRUE, kFALSE, 0);
+        // v->SetStyle(TGLRnrCtx::kOutline);
+        // v->RefreshPadEditor(v);
 
         //// v->CurrentCamera().RotateRad(-.7, 0.5);
-        //v->DoDraw();
+        // v->DoDraw();
     }
     // when we run this macro from restManager from bash,
     // we need to call TRestMetadata::GetChar() to prevent returning,

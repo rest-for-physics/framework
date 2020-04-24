@@ -16,11 +16,12 @@
 ///_______________________________________________________________________________
 
 #include "TRestG4Event.h"
-#include "TRestStringHelper.h"
-#include "TRestTools.h"
 
 #include <TFrame.h>
 #include <TStyle.h>
+
+#include "TRestStringHelper.h"
+#include "TRestTools.h"
 
 using namespace std;
 
@@ -995,8 +996,8 @@ void TRestG4Event::PrintActiveVolumes() {
     for (int i = 0; i < fVolumeStoredNames.size(); i++) {
         if (isVolumeStored(i)) {
             cout << "Active volume " << i << ":" << fVolumeStoredNames[i] << " has been stored." << endl;
-            cout << "Total energy deposit in volume " << i << ":" << fVolumeStoredNames[i] << " : " << fVolumeDepositedEnergy[i] << " keV"
-                 << endl;
+            cout << "Total energy deposit in volume " << i << ":" << fVolumeStoredNames[i] << " : "
+                 << fVolumeDepositedEnergy[i] << " keV" << endl;
         } else
             cout << "Active volume " << i << ":" << fVolumeStoredNames[i] << " has not been stored" << endl;
     }
@@ -1022,11 +1023,13 @@ void TRestG4Event::PrintEvent(int maxTracks, int maxHits) {
     cout << "Number of active volumes : " << GetNumberOfActiveVolumes() << endl;
     for (int i = 0; i < GetNumberOfActiveVolumes(); i++) {
         if (isVolumeStored(i)) {
-            cout << "Active volume " << i << ":" << " has been stored." << endl;
-            cout << "Total energy deposit in volume " << i << ":" << " : " << fVolumeDepositedEnergy[i] << " keV"
-                 << endl;
+            cout << "Active volume " << i << ":"
+                 << " has been stored." << endl;
+            cout << "Total energy deposit in volume " << i << ":"
+                 << " : " << fVolumeDepositedEnergy[i] << " keV" << endl;
         } else
-            cout << "Active volume " << i << ":" << " has not been stored" << endl;
+            cout << "Active volume " << i << ":"
+                 << " has not been stored" << endl;
     }
 
     cout << "--------------------------------------------------------------------"

@@ -6,27 +6,24 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+#include "DetectorConstruction.hh"
+#include "EventAction.hh"
+#include "G4RunManager.hh"
+#include "G4SystemOfUnits.hh"
+#include "G4UImanager.hh"
+#include "GdmlPreprocessor.h"
+#include "PhysicsList.hh"
+#include "PrimaryGeneratorAction.hh"
+#include "Randomize.hh"
+#include "RunAction.hh"
+#include "SteppingAction.hh"
 #include "TRestG4Event.h"
 #include "TRestG4Metadata.h"
 #include "TRestG4Track.h"
 #include "TRestGeometry.h"
 #include "TRestPhysicsLists.h"
 #include "TRestRun.h"
-
-#include "G4RunManager.hh"
-#include "G4UImanager.hh"
-#include "Randomize.hh"
-
-#include "DetectorConstruction.hh"
-#include "EventAction.hh"
-#include "G4SystemOfUnits.hh"
-#include "PhysicsList.hh"
-#include "PrimaryGeneratorAction.hh"
-#include "RunAction.hh"
-#include "SteppingAction.hh"
 #include "TrackingAction.hh"
-
-#include "GdmlPreprocessor.h"
 
 #ifdef G4VIS_USE
 #include "G4VisExecutive.hh"
@@ -38,6 +35,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
@@ -46,10 +44,9 @@
 #include <iostream>
 using namespace std;
 
-#include "string"
-
 #include "TH1D.h"
 #include "TH2D.h"
+#include "string"
 
 // We define rest objects that will be used in Geant4
 TRestRun* restRun;

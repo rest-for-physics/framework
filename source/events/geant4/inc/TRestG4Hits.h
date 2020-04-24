@@ -18,11 +18,11 @@
 #ifndef RestCore_TRestG4Hits
 #define RestCore_TRestG4Hits
 
-#include <iostream>
-
 #include <TArrayF.h>
 #include <TArrayI.h>
 #include <TRestHits.h>
+
+#include <iostream>
 
 #include "TObject.h"
 

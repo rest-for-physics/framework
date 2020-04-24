@@ -33,12 +33,12 @@
 
 #include "EventAction.hh"
 
-#include <iomanip>
-#include "G4Event.hh"
-
-#include "Randomize.hh"
-
 #include <TRestRun.h>
+
+#include <iomanip>
+
+#include "G4Event.hh"
+#include "Randomize.hh"
 
 extern TRestRun* restRun;
 extern TRestG4Metadata* restG4Metadata;

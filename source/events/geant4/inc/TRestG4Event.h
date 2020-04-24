@@ -23,8 +23,6 @@
 #ifndef RestCore_TRestG4Event
 #define RestCore_TRestG4Event
 
-#include <iostream>
-
 #include <TGraph.h>
 #include <TGraph2D.h>
 #include <TH1D.h>
@@ -35,6 +33,8 @@
 #include <TRestEvent.h>
 #include <TRestG4Track.h>
 #include <TVector3.h>
+
+#include <iostream>
 #include <map>
 
 /// An event class to store geant4 generated event information
@@ -188,7 +188,6 @@ class TRestG4Event : public TRestEvent {
     Int_t fMaxSubEventID;
 
    public:
-
     TString GetPrimaryEventParticleName(int n) {
         if (fPrimaryParticleName.size() > n) return fPrimaryParticleName[n];
         return "Not defined";
