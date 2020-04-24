@@ -464,6 +464,7 @@ class TRestG4Event : public TRestEvent {
     void Initialize();
 
     /// maxTracks : number of tracks to print, 0 = all
+    void PrintActiveVolumes();
     void PrintEvent(int maxTracks = 0, int maxHits = 0);
 
     TPad* DrawEvent(TString option = "");
