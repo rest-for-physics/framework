@@ -78,6 +78,16 @@ else
 		echo $f
 		git diff $f
 	done
+
+	#We now repair commiting
+	git config --global user.email "j.a.galan.81@gmail.com"
+	git config --global user.name "Javier Galan"
+	git config --global push.default simple
+	git add -u
+	git commit -m "CI Pipeline clang-format executed"
+	git config --global http.sslverify "false"
+	git push origin HEAD:$CI_COMMIT_REF_NAME
+	exit 0;
 fi
 
 # cleanup changes in git
