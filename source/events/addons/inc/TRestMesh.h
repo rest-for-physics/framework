@@ -46,6 +46,8 @@ class TRestMesh : public TObject {
     std::vector<Int_t> nodeY;
     std::vector<Int_t> nodeZ;
 
+    Bool_t fIsCylindrical = false;
+
    public:
     // Getters
     Int_t GetNumberOfNodes() { return fNumberOfNodes; }
@@ -58,6 +60,8 @@ class TRestMesh : public TObject {
     Int_t GetNodeX(Double_t x);
     Int_t GetNodeY(Double_t y);
     Int_t GetNodeZ(Double_t z);
+
+    Bool_t IsCylindrical() { return fIsCylindrical; }
 
     TVector3 GetNodeByIndex(Int_t index) {
         TVector3 node(nodeX[index], nodeY[index], nodeZ[index]);
@@ -83,6 +87,8 @@ class TRestMesh : public TObject {
     void SetSize(Double_t sX, Double_t sY, Double_t sZ);
 
     void SetNodes(Int_t nX, Int_t nY, Int_t nZ);
+
+    void SetCylindrical(Bool_t v) { fIsCylindrical = v; }
 
     Int_t GetNodesX() { return fNodesX; }
     Int_t GetNodesY() { return fNodesY; }
@@ -120,6 +126,6 @@ class TRestMesh : public TObject {
     // Destructor
     ~TRestMesh();
 
-    ClassDef(TRestMesh, 1);
+    ClassDef(TRestMesh, 2);
 };
 #endif
