@@ -80,14 +80,20 @@ else
 	done
 
 	#We now repair commiting
-	git config --global user.email "j.a.galan.81@gmail.com"
-	git config --global user.name "Javier Galan"
+	git config --global user.email "runner@lfna.unizar.es"
+	git config --global user.name "runner"
 	git config --global push.default simple
+	#git remote set-url --push origin git@lfna.unizar.es:rest-development/REST_v2.git
+	git remote set-url --push origin https://runner:uwh7Ui*087@lfna.unizar.es/rest-development/REST_v2.git
 	git add -u
-	git commit -m "CI Pipeline clang-format executed"
+	git commit -m "Pipeline clang-format automatic execution"
+	git status
 	git config --global http.sslverify "false"
+    echo "git push origin HEAD:$CI_COMMIT_REF_NAME"
 	git push origin HEAD:$CI_COMMIT_REF_NAME
-	exit 0;
+	echo "Clang-format will generate a commit to fix code formatting"
+	echo "This build will stop here. But it should be solved in the next try."
+	exit 1;
 fi
 
 # cleanup changes in git
