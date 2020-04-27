@@ -70,9 +70,9 @@ Int_t REST_ViewGeometry(TString fName, TString option = "") {
         //// v->CurrentCamera().RotateRad(-.7, 0.5);
         // v->DoDraw();
     }
-    // when we run this macro from restManager from bash,
-    // we need to call TRestMetadata::GetChar() to prevent returning,
-    // while keeping GUI alive.
+// when we run this macro from restManager from bash,
+// we need to call TRestMetadata::GetChar() to prevent returning,
+// while keeping GUI alive.
 #ifdef REST_MANAGER
     TRestRun* run = new TRestRun();
     run->GetChar("Running...\nPress a key to exit");
