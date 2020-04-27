@@ -402,33 +402,45 @@ std::vector<TVector3> TRestMesh::GetTrackBoundaries(TVector3 pos, TVector3 dir, 
 
     TVector3 planePosition_BottomZ = TVector3(0, 0, -GetNetSizeZ() / 2.) + netCenter;
     posAtPlane = REST_Physics::MoveToPlane(pos, dir, TVector3(0, 0, 1), planePosition_BottomZ);
-    if (posAtPlane.X() > xL && posAtPlane.X() < xH && posAtPlane.Y() > yL && posAtPlane.Y() < yH)
+    if (pos != posAtPlane && posAtPlane.X() > xL && posAtPlane.X() < xH && posAtPlane.Y() > yL &&
+        posAtPlane.Y() < yH) {
         boundaries.push_back(posAtPlane);
+    }
 
     TVector3 planePosition_TopZ = TVector3(0, 0, GetNetSizeZ() / 2.) + netCenter;
     posAtPlane = REST_Physics::MoveToPlane(pos, dir, TVector3(0, 0, 1), planePosition_TopZ);
-    if (posAtPlane.X() > xL && posAtPlane.X() < xH && posAtPlane.Y() > yL && posAtPlane.Y() < yH)
+    if (pos != posAtPlane && posAtPlane.X() > xL && posAtPlane.X() < xH && posAtPlane.Y() > yL &&
+        posAtPlane.Y() < yH) {
         boundaries.push_back(posAtPlane);
+    }
 
     TVector3 planePosition_BottomY = TVector3(0, -GetNetSizeY() / 2., 0) + netCenter;
     posAtPlane = REST_Physics::MoveToPlane(pos, dir, TVector3(0, 1, 0), planePosition_BottomY);
-    if (posAtPlane.X() > xL && posAtPlane.X() < xH && posAtPlane.Z() > zL && posAtPlane.Z() < zH)
+    if (pos != posAtPlane && posAtPlane.X() > xL && posAtPlane.X() < xH && posAtPlane.Z() > zL &&
+        posAtPlane.Z() < zH) {
         boundaries.push_back(posAtPlane);
+    }
 
     TVector3 planePosition_TopY = TVector3(0, GetNetSizeY() / 2., 0) + netCenter;
     posAtPlane = REST_Physics::MoveToPlane(pos, dir, TVector3(0, 1, 0), planePosition_TopY);
-    if (posAtPlane.X() > xL && posAtPlane.X() < xH && posAtPlane.Z() > zL && posAtPlane.Z() < zH)
+    if (pos != posAtPlane && posAtPlane.X() > xL && posAtPlane.X() < xH && posAtPlane.Z() > zL &&
+        posAtPlane.Z() < zH) {
         boundaries.push_back(posAtPlane);
+    }
 
     TVector3 planePosition_BottomX = TVector3(-GetNetSizeX() / 2., 0, 0) + netCenter;
     posAtPlane = REST_Physics::MoveToPlane(pos, dir, TVector3(1, 0, 0), planePosition_BottomX);
-    if (posAtPlane.Y() > yL && posAtPlane.Y() < yH && posAtPlane.Z() > zL && posAtPlane.Z() < zH)
+    if (pos != posAtPlane && posAtPlane.Y() > yL && posAtPlane.Y() < yH && posAtPlane.Z() > zL &&
+        posAtPlane.Z() < zH) {
         boundaries.push_back(posAtPlane);
+    }
 
     TVector3 planePosition_TopX = TVector3(GetNetSizeX() / 2., 0, 0) + netCenter;
     posAtPlane = REST_Physics::MoveToPlane(pos, dir, TVector3(1, 0, 0), planePosition_TopX);
-    if (posAtPlane.Y() > yL && posAtPlane.Y() < yH && posAtPlane.Z() > zL && posAtPlane.Z() < zH)
+    if (pos != posAtPlane && posAtPlane.Y() > yL && posAtPlane.Y() < yH && posAtPlane.Z() > zL &&
+        posAtPlane.Z() < zH) {
         boundaries.push_back(posAtPlane);
+    }
 
     if (boundaries.size() == 2) {
         TVector3 center = 0.5 * (boundaries[0] + boundaries[1]);
