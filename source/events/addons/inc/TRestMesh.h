@@ -57,9 +57,9 @@ class TRestMesh : public TObject {
     Double_t GetY(Int_t nY);
     Double_t GetZ(Int_t nZ);
 
-    Int_t GetNodeX(Double_t x);
-    Int_t GetNodeY(Double_t y);
-    Int_t GetNodeZ(Double_t z);
+    Int_t GetNodeX(Double_t x, Bool_t relative = false);
+    Int_t GetNodeY(Double_t y, Bool_t relative = false);
+    Int_t GetNodeZ(Double_t z, Bool_t relative = false);
 
     Bool_t IsCylindrical() { return fIsCylindrical; }
 

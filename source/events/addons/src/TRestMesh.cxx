@@ -65,65 +65,88 @@ Double_t TRestMesh::GetY(Int_t nY) { return fNetOrigin.Y() + (fNetSizeY / (fNode
 //! Gets the Z position of node (i,j)
 Double_t TRestMesh::GetZ(Int_t nZ) { return fNetOrigin.Z() + (fNetSizeZ / (fNodesZ - 1)) * nZ; }
 
-//! Gets the nodeX index corresponding to the x coordinate
-Int_t TRestMesh::GetNodeX(Double_t x) {
+///////////////////////////////////////////////
+/// \brief Gets the node index corresponding to the x-coordinate.
+///
+/// If relative it is true it means the x-coordinate is already relative to the origin of the mesh.
+/// By default the x-coordinate is given in absolute coordinates, i.e. relative=false.
+///
+Int_t TRestMesh::GetNodeX(Double_t x, Bool_t relative) {
     if (IsNaN(x)) return 0;
 
-    if (x > fNetSizeX + fNetOrigin.X()) {
+    Double_t xInside = x - fNetOrigin.X();
+    if (relative) xInside = x;
+
+    if (xInside > fNetSizeX) {
         cout << "REST WARNING (TRestMesh) : X node (" << x
-             << ") outside boundaries. Setting it to : " << fNodesX << endl;
+             << ") outside boundaries. Setting it to : " << fNodesX - 1 << endl;
         return fNodesX - 1;
     }
 
-    if (x < fNetOrigin.X()) {
+    if (xInside < 0) {
         cout << "REST WARNING (TRestMesh) : X node (" << x << ") outside boundaries. Setting it to : " << 0
              << endl;
         return 0;
     }
 
-    Int_t nX = (Int_t)((x - fNetOrigin.X()) * (fNodesX - 1) / fNetSizeX);
+    Int_t nX = (Int_t)(xInside * (fNodesX - 1) / fNetSizeX);
 
     return nX;
 }
 
-//! Gets the nodeY index corresponding to the x coordinate
-Int_t TRestMesh::GetNodeY(Double_t y) {
+///////////////////////////////////////////////
+/// \brief Gets the node index corresponding to the y-coordinate.
+///
+/// If relative it is true it means the y-coordinate is already relative to the origin of the mesh.
+/// By default the y-coordinate is given in absolute coordinates, i.e. relative=false.
+///
+Int_t TRestMesh::GetNodeY(Double_t y, Bool_t relative) {
     if (IsNaN(y)) return 0;
 
-    if (y > fNetSizeY + fNetOrigin.Y()) {
+    Double_t yInside = y - fNetOrigin.Y();
+    if (relative) yInside = y;
+
+    if (yInside > fNetSizeY) {
         cout << "REST WARNING (TRestMesh) : Y node (" << y
              << ") outside boundaries. Setting it to : " << fNodesY - 1 << endl;
         return fNodesY - 1;
     }
 
-    if (y < fNetOrigin.Y()) {
+    if (yInside < 0) {
         cout << "REST WARNING (TRestMesh) : Y node (" << y << ") outside boundaries. Setting it to : " << 0
              << endl;
         return 0;
     }
 
-    Int_t nY = (Int_t)((y - fNetOrigin.Y()) * (fNodesY - 1) / fNetSizeY);
+    Int_t nY = (Int_t)(yInside * (fNodesY - 1) / fNetSizeY);
 
     return nY;
 }
 
-//! Gets the nodeY index corresponding to the x coordinate
-Int_t TRestMesh::GetNodeZ(Double_t z) {
+///////////////////////////////////////////////
+/// \brief Gets the node index corresponding to the z-coordinate.
+///
+/// If relative it is true it means the z-coordinate is already relative to the origin of the mesh.
+/// By default the z-coordinate must be given in absolute coordinates, i.e. relative=false.
+///
+Int_t TRestMesh::GetNodeZ(Double_t z, Bool_t relative) {
     if (IsNaN(z)) return 0;
 
-    if (z > fNetSizeZ + fNetOrigin.Z()) {
+    Double_t zInside = z - fNetOrigin.Z();
+    if (relative) zInside = z;
+    if (zInside > fNetSizeZ) {
         cout << "REST WARNING (TRestMesh) : Z node (" << z
-             << ") outside boundaries. Setting it to : " << fNodesZ - 1 << endl;
-        return fNodesZ - 1;
+             << ") outside boundaries. Setting it to : " << fNodesZ << endl;
+        return fNodesX - 1;
     }
 
-    if (z < fNetOrigin.Z()) {
+    if (zInside < 0) {
         cout << "REST WARNING (TRestMesh) : Z node (" << z << ") outside boundaries. Setting it to : " << 0
              << endl;
         return 0;
     }
 
-    Int_t nZ = (Int_t)((z - fNetOrigin.Z()) * (fNodesZ - 1) / fNetSizeZ);
+    Int_t nZ = (Int_t)(zInside * (fNodesZ - 1) / fNetSizeZ);
 
     return nZ;
 }
