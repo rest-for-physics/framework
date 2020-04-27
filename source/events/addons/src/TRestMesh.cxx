@@ -331,9 +331,19 @@ void TRestMesh::RemoveNodes() {
 }
 
 Bool_t TRestMesh::IsInside(TVector3 pos) {
-    if (pos.X() < fNetOrigin.X() || pos.X() > fNetOrigin.X() + fNetSizeX) return false;
-    if (pos.Y() < fNetOrigin.Y() || pos.Y() > fNetOrigin.Y() + fNetSizeY) return false;
     if (pos.Z() < fNetOrigin.Z() || pos.Z() > fNetOrigin.Z() + fNetSizeZ) return false;
+
+    if (IsCylindrical()) {
+        // By definition we use X coordinate to define cylinder radius
+        Double_t R2 = fNetSizeX * fNetSizeX / 4.;
+        TVector3 relPos = GetNetCenter() - pos;
+        Double_t radius2 = relPos.X() * relPos.X() + relPos.Y() * relPos.Y();
+
+        if (radius2 > R2) return false;
+    } else {
+        if (pos.X() < fNetOrigin.X() || pos.X() > fNetOrigin.X() + fNetSizeX) return false;
+        if (pos.Y() < fNetOrigin.Y() || pos.Y() > fNetOrigin.Y() + fNetSizeY) return false;
+    }
 
     return true;
 }
