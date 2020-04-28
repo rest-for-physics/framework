@@ -382,6 +382,8 @@ TVector3 TRestMesh::GetVertex(Int_t id) {
 /// position.
 ///
 std::vector<TVector3> TRestMesh::GetTrackBoundaries(TVector3 pos, TVector3 dir, Bool_t particle) {
+    if (IsCylindrical()) return GetTrackBoundariesCylinder(pos, dir, particle);
+
     TVector3 netCenter = this->GetNetCenter();
 
     Double_t xH = netCenter.X() + GetNetSizeX() / 2.;
@@ -459,6 +461,82 @@ std::vector<TVector3> TRestMesh::GetTrackBoundaries(TVector3 pos, TVector3 dir, 
             // If it is no the case we exchange them.
             if (d1 > d2) iter_swap(boundaries.begin(), boundaries.begin() + 1);
         }
+    }
+
+    return boundaries;
+}
+
+std::vector<TVector3> TRestMesh::GetTrackBoundariesCylinder(TVector3 pos, TVector3 dir, Bool_t particle) {
+    TVector3 netCenter = this->GetNetCenter();
+
+    std::vector<TVector3> boundaries;
+    boundaries.clear();
+
+    // By definition we take the first component as the radius of the cylinder
+    Double_t R2 = fNetSizeX * fNetSizeX / 4.;
+
+    TVector3 pos2D = TVector3(pos.X() - netCenter.X(), pos.Y() - netCenter.Y(), 0);
+    TVector3 dir2D = TVector3(dir.X(), dir.Y(), 0);
+
+    Double_t product = pos2D * dir2D;
+    Double_t product2 = product * product;
+
+    Double_t dirMag2 = dir2D.Mag2();
+    Double_t posMag2 = pos2D.Mag2();
+    Double_t root = product2 - dirMag2 * (posMag2 - R2);
+
+    // For simplicity we ignore tangencial tracks. Those that produce 1-solution.
+    // If root < 0 there is no real solution to the intersection
+    if (root > 0) {
+        Double_t t1 = (-product - TMath::Sqrt(root)) / dirMag2;
+        Double_t t2 = (-product + TMath::Sqrt(root)) / dirMag2;
+
+        TVector3 firstVertex = pos + t1 * dir;
+        TVector3 secondVertex = pos + t2 * dir;
+
+        if (firstVertex.Z() >= GetVertex(0).Z() && firstVertex.Z() <= GetVertex(1).Z())
+            boundaries.push_back(firstVertex);
+        if (secondVertex.Z() >= GetVertex(0).Z() && secondVertex.Z() <= GetVertex(1).Z())
+            boundaries.push_back(secondVertex);
+
+        if (boundaries.size() == 2) {
+            if (particle)
+                if (t1 > 0 && t2 > t1)
+                    return boundaries;
+                else
+                    boundaries.clear();
+            return boundaries;
+        }
+    }
+
+    TVector3 posAtPlane;
+
+    // We check if the track is entering through one of the cylinder covers.
+    TVector3 planePosition_BottomZ = TVector3(0, 0, -GetNetSizeZ() / 2.) + netCenter;
+    posAtPlane = REST_Physics::MoveToPlane(pos, dir, TVector3(0, 0, 1), planePosition_BottomZ);
+    TVector3 relPosBottom = posAtPlane - netCenter;
+    relPosBottom.SetZ(0);
+    // fNetSizeX is used to define the radius of the cylinder
+    if (relPosBottom.Mag2() < fNetSizeX * fNetSizeX) boundaries.push_back(posAtPlane);
+
+    TVector3 planePosition_TopZ = TVector3(0, 0, GetNetSizeZ() / 2.) + netCenter;
+    posAtPlane = REST_Physics::MoveToPlane(pos, dir, TVector3(0, 0, 1), planePosition_TopZ);
+    TVector3 relPosTop = posAtPlane - netCenter;
+    relPosTop.SetZ(0);
+    // fNetSizeX is used to define the radius of the cylinder
+    if (relPosTop.Mag2() < fNetSizeX * fNetSizeX) boundaries.push_back(posAtPlane);
+
+    if (boundaries.size() == 2 && particle) {
+        // d1 and d2 is the signed distance to the volume boundaries
+        Double_t d1 = (boundaries[0] - pos) * dir;
+        Double_t d2 = (boundaries[1] - pos) * dir;
+
+        // Both should be positive so that the particle is approaching the volume
+        if (d1 < 0 || d2 < 0) boundaries.clear();
+
+        // The first boundary will be always related to the closer IN boundary
+        // If it is no the case we exchange them.
+        if (d1 > d2) iter_swap(boundaries.begin(), boundaries.begin() + 1);
     }
 
     return boundaries;
