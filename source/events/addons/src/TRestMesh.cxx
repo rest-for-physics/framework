@@ -136,7 +136,7 @@ Int_t TRestMesh::GetNodeZ(Double_t z, Bool_t relative) {
     if (relative) zInside = z;
     if (zInside > fNetSizeZ) {
         cout << "REST WARNING (TRestMesh) : Z node (" << z
-             << ") outside boundaries. Setting it to : " << fNodesZ -1 << endl;
+             << ") outside boundaries. Setting it to : " << fNodesZ - 1 << endl;
         return fNodesZ - 1;
     }
 
