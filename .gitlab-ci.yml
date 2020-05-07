@@ -23,6 +23,7 @@ build:
     - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
     - make install -j2
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - echo ${CI_SERVER_HOST}
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install
