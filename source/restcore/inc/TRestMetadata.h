@@ -167,6 +167,7 @@ class TRestMetadata : public TNamed {
     /// A string to store an optional error message through method SetError.
     TString fErrorMessage = "";  //!
 
+   public:
     /// A metadata class may use this method to signal that something went wrong
     void SetError(TString message = "") {
         fError = true;
@@ -189,7 +190,6 @@ class TRestMetadata : public TNamed {
             return "No error!";
     }
 
-   public:
     Int_t LoadConfigFromFile();
     Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal);
     Int_t LoadConfigFromFile(TiXmlElement* eSectional, TiXmlElement* eGlobal, vector<TiXmlElement*> eEnv);
