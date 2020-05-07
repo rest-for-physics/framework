@@ -17,6 +17,10 @@ clang-format:
     script:
         - cd ${CI_PROJECT_DIR}/
         - ./macros/pipeline/clangformattest.sh
+          # We execute only at SJTU Gitlab runner where this var is not defined
+    except:
+        variables:
+            - $CI_SERVER_HOST
 
 validateCode:
     stage: pre-build
@@ -32,6 +36,7 @@ build:
     - make install -j2
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - echo ${CI_SERVER_HOST}
+    - echo "**${CI_SERVER_HOST}**"
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install
