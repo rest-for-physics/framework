@@ -83,8 +83,8 @@ else
 	git config --global user.email "runner@lfna.unizar.es"
 	git config --global user.name "runner"
 	git config --global push.default simple
-	#git remote set-url --push origin git@lfna.unizar.es:rest-development/REST_v2.git
-	git remote set-url --push origin https://runner:uwh7Ui*087@lfna.unizar.es/rest-development/REST_v2.git
+	git remote set-url --push origin git@lfna.unizar.es:rest-development/REST_v2.git
+	#git remote set-url --push origin https://runner:uwh7Ui*087@lfna.unizar.es/rest-development/REST_v2.git
 	git add -u
 	git commit -m "Pipeline clang-format automatic execution"
 	git status

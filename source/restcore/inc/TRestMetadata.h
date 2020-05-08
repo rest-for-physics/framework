@@ -167,7 +167,6 @@ class TRestMetadata : public TNamed {
     /// A string to store an optional error message through method SetError.
     TString fErrorMessage = "";  //!
 
-   public:
     /// A metadata class may use this method to signal that something went wrong
     void SetError(TString message = "") {
         fError = true;
@@ -176,15 +175,16 @@ class TRestMetadata : public TNamed {
 
     /// It allows to modify the error message. Only if SetError was called previously.
     void SetErrorMessage(TString message) {
-        if (Error()) fErrorMessage = message;
+        if (GetError()) fErrorMessage = message;
     }
 
+   public:
     /// It returns true if an error was identified by a derived metadata class
-    Bool_t Error() { return fError; }
+    Bool_t GetError() { return fError; }
 
     /// Returns a string containing the error message
     TString GetErrorMessage() {
-        if (Error())
+        if (GetError())
             return fErrorMessage;
         else
             return "No error!";

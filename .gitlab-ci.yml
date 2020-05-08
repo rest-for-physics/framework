@@ -15,8 +15,14 @@ before_script:
 clang-format:
     stage: pre-build
     script:
+        - apt -y install ssh-askpass
+        - ssh-keyscan -t rsa lfna.unizar.es >> ~/.ssh/known_hosts
         - cd ${CI_PROJECT_DIR}/
         - ./macros/pipeline/clangformattest.sh
+          # We execute only at SJTU Gitlab runner where this var is not defined
+    except:
+        variables:
+            - $CI_SERVER_HOST
 
 validateCode:
     stage: pre-build
@@ -31,6 +37,8 @@ build:
     - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
     - make install -j2
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - echo ${CI_SERVER_HOST}
+    - echo "**${CI_SERVER_HOST}**"
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install
