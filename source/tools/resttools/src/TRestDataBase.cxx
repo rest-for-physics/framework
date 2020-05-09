@@ -297,8 +297,8 @@ vector<int> TRestDataBase::search_metadata_with_info(DBEntry _info) {
 }
 
 ///////////////////////////////////////////////
-/// In base class of database, we suppose the value of metadata entry is a file url. 
-/// So we directly download them, to the local directory $REST_PATH/data/download/. 
+/// In base class of database, we suppose the value of metadata entry is a file url.
+/// So we directly download them, to the local directory $REST_PATH/data/download/.
 /// If the "name" is given, it will replace the file name from metadata value
 string TRestDataBase::query_metadata_valuefile(int id, string name) {
     string url = query_metadata_value(id);
@@ -371,7 +371,6 @@ int TRestDataBase::add_metadata(DBEntry info, string url) {
 
     return info.runNr;
 }
-
 
 ///////////////////////////////////////////////
 /// The following specification of DBEntry's content will not be updated:
