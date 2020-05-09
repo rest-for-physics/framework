@@ -75,9 +75,8 @@ struct DBEntry {
 
 class TRestDataBase {
    private:
-    map<DBEntry, string> fRunFile;
-    map<DBEntry, string> fMetaDataFile;
-    bool DownloadRemoteFile(string remoteFile, string localFile);
+    map<DBEntry, string> fMetaDataValues;
+
 
    protected:
     string fConnectionString;
@@ -147,28 +146,26 @@ class TRestDataBase {
     ///////////////////////  metadata management interface  //////////////////////
     /// return the id of the metadata database entry. If not exist, return 0
     virtual int query_metadata(int id);
-    /// return the file url of the metadata database entry
-    virtual string query_metadata_fileurl(int id);
+    /// return the value of the metadata database entry
+    virtual string query_metadata_value(int id);
+    /// return a file containing the value string of the entry
+    virtual string query_metadata_valuefile(int id, string name = "");
     /// return the information of the metadata database entry
     virtual DBEntry query_metadata_info(int id);
 
-    /// search metadata according to the file url. return a list of entry ids
-    virtual vector<int> search_metadata_with_fileurl(string url);
+    /// search metadata according to the value. return a list of entry ids
+    virtual vector<int> search_metadata_with_value(string url);
     /// search metadata according to the entry information. return a list of entry ids
     virtual vector<int> search_metadata_with_info(DBEntry info);
 
-    /// get the specified metadata file. return the local file path
-    virtual string get_metadatafile(int id, string name = "");
-    /// get the last metadata file. return the local file path
+    /// get the id of the last metadata.
     virtual int get_lastmetadata();
 
-    /// add a new record of metadata file in database, entry information and remote url should be given
-    virtual int add_metadata(DBEntry info, string url);
+    /// add a new record of metadata in database, entry information and remote url should be given
+    virtual int add_metadata(DBEntry info, string value);
     /// update entry information for the specified entry
     virtual int update_metadata(int id, DBEntry info);
-    /// update remote file for the specified entry. file url will not be updated
-    virtual int update_metadatafile(int id, string localfile, string method = "", int port = 0,
-                                    string user = "");
+
 };
 
 #define gDataBase (TRestDataBase::GetDataBase())

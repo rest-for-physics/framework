@@ -1004,7 +1004,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // match the database, id=0(any), type="META_RML", usr=""(any), tag=<section name>
         auto ids = gDataBase->search_metadata_with_info(DBEntry(0, "META_RML", tag));
         if (ids.size() == 1) {
-            _filename = gDataBase->get_metadatafile(ids[0]);
+            _filename = gDataBase->query_metadata_valuefile(ids[0]);
             info << "using remote rml config file: " << _filename << endl;
             if (_filename == "") {
                 return;
