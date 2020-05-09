@@ -322,14 +322,14 @@ string TRestDataBase::query_metadata_valuefile(int id, string name) {
         string fullpath;
         if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
             fullpath = getenv("REST_PATH") + (string) "/data/download/" + purename;
-            if (TRestTools::DownloadRemoteFile(url, fullpath)) {
+            if (TRestTools::DownloadRemoteFile(url, fullpath) == 0) {
                 return fullpath;
             } else {
                 return "";
             }
         } else {
             fullpath = "/tmp/REST_" + (string)getenv("USER") + "_Download_" + purename;
-            if (TRestTools::DownloadRemoteFile(url, fullpath)) {
+            if (TRestTools::DownloadRemoteFile(url, fullpath) == 0) {
                 return fullpath;
             } else {
                 return "";
