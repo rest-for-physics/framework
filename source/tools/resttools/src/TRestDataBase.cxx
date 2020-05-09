@@ -281,7 +281,7 @@ vector<int> TRestDataBase::search_metadata_with_info(DBEntry _info) {
         string url = iter->second;
         if (_info.runNr > 0 && info.runNr == _info.runNr) {
             result.push_back(info.runNr);
-        } else {
+        } else if (_info.runNr <= 0) {
             bool typematch = (_info.type == "" || info.type == _info.type);
             bool tagmatch = (_info.tag == "" || info.tag == _info.tag);
             bool descriptionmatch = (_info.description == "" || info.description == _info.description);
