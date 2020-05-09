@@ -48,8 +48,10 @@
 
 #include "TClass.h"
 #include "TSystem.h"
+#include "TUrl.h"
 
 #include "TRestStringHelper.h"
+#include "TRestStringOutput.h"
 #include "TRestTools.h"
 
 struct _REST_STARTUP_CHECK {
@@ -700,37 +702,99 @@ std::istream& TRestTools::GetLine(std::istream& is, std::string& t) {
 }
 
 ///////////////////////////////////////////////
-/// \brief It will download the remote file provided in the argument using wget.
+/// \brief download the remote file to the given local address.
 ///
-/// If it succeeds to download the file, this method will return the location of
-/// the local temporary file downloaded. If it fails, the method will a blank string
-///
-string TRestTools::DownloadHttpFile(string remoteFile) {
-    // cout << "Entering ... " << __PRETTY_FUNCTION__ << endl;
+/// The file name is given in url format, and is parsed by TUrl. Various methods
+/// will be used, including scp, wget. returns 0 if succeed.
+int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
+    TUrl url(remoteFile.c_str());
 
-    // cout << "Complete remote filename : " << remoteFile << endl;
+    info << "Downloading remote file : " << remoteFile << endl;
+    info << "To local file : " << localFile << endl;
 
-    TString remoteFilename = TRestTools::GetPureFileName(remoteFile);
+    if ((string)url.GetProtocol() == "https" || (string)url.GetProtocol() == "http") {
+        string cmd = "wget --no-check-certificate " + remoteFile + " -O " + localFile + " -q";
+        debug << cmd << endl;
+        int a = system(cmd.c_str());
 
-    // cout << "Reduced remote filename : " << remoteFilename << endl;
+        if (a == 0) {
+            return 0;
+        } else {
+            ferr << "download failed! (" << remoteFile << ")" << endl;
+            if (a == 1024) ferr << "Network connection problem?" << endl;
+            if (a == 2048) ferr << "File does NOT exist in database?" << endl;
 
-    string cmd =
-        "wget --no-check-certificate " + remoteFile + " -O /tmp/REST_" + getenv("USER") + "_remote.rml -q";
-
-    // info << "-- Info : Trying to download remote file from : " << remoteFile << endl;
-    int a = system(cmd.c_str());
-
-    if (a == 0) {
-        cout << "-- Success : download OK!" << endl;
-
-        return (string)("/tmp/REST_" + (string)getenv("USER") + "_remote.rml");
+            bool localfileexist = false;
+            struct stat statbuf;
+            if (stat(localFile.c_str(), &statbuf) == 0) {
+                if (statbuf.st_size > 0) {
+                    localfileexist = 0;
+                    // we don't remove the existing file if download failed
+                } else {
+                    remove(localFile.c_str());
+                    // we remove the empty file created by wget if download failed
+                }
+            }
+            if (!localfileexist)
+                cout << "Please specify a local file" << endl;
+            else
+                cout << "You can use the already existed local file" << endl;
+        }
+    } else if ((string)url.GetProtocol() == "ssh") {
+        string cmd = "scp -P " + ToString(url.GetPort() == 0 ? 22 : url.GetPort()) + " " + url.GetUser() +
+                     "@" + url.GetHost() + ":" + url.GetFile() + " " + localFile;
+        cout << cmd << endl;
+        int a = system(cmd.c_str());
+        if (a == 0) {
+            return 0;
+        }
     } else {
-        cout << "-- Error : download failed!" << endl;
-        if (a == 1024) cout << "-- Error : Network connection problem?" << endl;
-        if (a == 2048) cout << "-- Error : Gas definition does NOT exist in database?" << endl;
-        cout << "-- Info : Please specify a local config file" << endl;
-        // exit(1);
+        ferr << "unknown protocol!" << endl;
     }
 
-    return "";
+    return -1;
+}
+
+
+///////////////////////////////////////////////
+/// Upload the local file to remote file, method url will overwrite the login information
+/// inside remotefile.
+///
+/// Example: UploadToServer("/home/nkx/abc.txt", "https://sultan.unizar.es/gasFiles/gases.rml",
+/// "ssh://nkx:M123456@:8322") Then, the local file abc.txt will be uploaded to the server, renamed to
+/// gases.rml and overwrite it
+int TRestTools::UploadToServer(string filelocal, string remotefile, string methodurl) {
+    if (!TRestTools::fileExists(filelocal)) {
+        cout << "error! local file not exist!" << endl;
+        return -1;
+    }
+    // construct path
+    // [proto://][user[:passwd]@]host[:port]/file.ext[#anchor][?options]
+    TUrl url(remotefile.c_str());
+    TUrl method(methodurl.c_str());
+    if (method.GetProtocol() != "") url.SetProtocol(method.GetProtocol());
+    if (method.GetPort() != 0) url.SetPort(method.GetPort());
+    if (method.GetUser() != "") url.SetUser(method.GetUser());
+    if (method.GetPasswd() != "") url.SetPasswd(method.GetPasswd());
+
+    if ((string)url.GetProtocol() == "https" || (string)url.GetProtocol() == "http") {
+        // maybe we use curl to upload to http in future
+    } else if ((string)url.GetProtocol() == "ssh") {
+        string cmd = "scp -P " + ToString(url.GetPort() == 0 ? 22 : url.GetPort()) + " " + filelocal + " " +
+                     url.GetUser() + "@" + url.GetHost() + ":" + url.GetFile();
+        cout << cmd << endl;
+        int a = system(cmd.c_str());
+
+        if (a != 0) {
+            ferr << __PRETTY_FUNCTION__ << endl;
+            ferr << "problem copying gases definitions to remote server" << endl;
+            ferr << "Please report this problem at "
+                    "http://gifna.unizar.es/rest-forum/"
+                 << endl;
+            return -1;
+        }
+
+        return 0;
+    }
+    return 0;
 }

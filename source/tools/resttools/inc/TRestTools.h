@@ -78,6 +78,9 @@ class TRestTools {
     static std::string Execute(string cmd);
     static std::string DownloadHttpFile(string remoteFile);
 
+    static int DownloadRemoteFile(string remoteFile, string localFile);
+    static int UploadToServer(string localfile, string remotefile, string methodurl = "");
+
     /// Rest tools class
     ClassDef(TRestTools, 1);
 };
