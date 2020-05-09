@@ -1,3 +1,0 @@
-[submodule "libraries/axion"]
-	path = libraries/axion
-	url = git@lfna.unizar.es:iaxo/RestAxionLib.git
