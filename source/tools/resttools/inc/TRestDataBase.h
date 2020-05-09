@@ -36,7 +36,7 @@ struct DBFile {
 };
 
 struct DBEntry {
-    DBEntry(int _id = 0, string _type = "", string _usr = "", string _tag = "", string _description = "",
+    DBEntry(int _id = 0, string _type = "", string _tag = "", string _description = "",
             string _version = "") {
         id = _id;
         type = _type;

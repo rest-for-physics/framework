@@ -510,7 +510,7 @@ void TRestGas::InitFromConfigFile() {
     }
 
     // match the database, id=0(any), type="GAS_SERVER"
-    auto ids = gDataBase->search_metadata_with_info({0, "GAS_SERVER"});
+    auto ids = gDataBase->search_metadata_with_info(DBEntry(0, "GAS_SERVER"));
     if (ids.size() > 0)
         fGasServer = gDataBase->query_metadata_fileurl(ids[0]);
     else
@@ -654,7 +654,7 @@ void TRestGas::UploadGasToServer(string absoluteGasFilename) {
     string cmd;
     int a;
     // We download (probably again) the original version
-    auto ids = gDataBase->search_metadata_with_info({0, "META_RML", "", "TRestGas"});
+    auto ids = gDataBase->search_metadata_with_info(DBEntry(0, "META_RML", "TRestGas"));
     string fname = gDataBase->get_metadatafile(ids[0]);
 
 // We remove the last line. I.e. the enclosing </gases> in the original file
@@ -697,7 +697,7 @@ void TRestGas::UploadGasToServer(string absoluteGasFilename) {
     // We transfer the gasFile to the gasServer
     string _name = Replace(absoluteGasFilename, "(", "\\(", 0);
     _name = Replace(_name, ")", "\\)", 0);
-    ids = gDataBase->search_metadata_with_info({0, "GAS_SERVER"});
+    ids = gDataBase->search_metadata_with_info(DBEntry(0, "GAS_SERVER"));
     gDataBase->update_metadatafile(ids[0], _name, "ssh", 22, "gasUser");
 
     // We remove the local file (afterwards, the remote copy will be used)
@@ -739,8 +739,8 @@ string TRestGas::FindGasFile(string name) {
     string absoluteName = "";
 
     if (!fGasGeneration && fGasServer != "none") {
-        absoluteName =
-            gDataBase->get_metadatafile(gDataBase->search_metadata_with_info({0, "GAS_SERVER"})[0], _name);
+        absoluteName = gDataBase->get_metadatafile(
+            gDataBase->search_metadata_with_info(DBEntry(0, "GAS_SERVER"))[0], _name);
         absoluteName = Replace(absoluteName, "\\(", "(", 0);
         absoluteName = Replace(absoluteName, "\\)", ")", 0);
     }
