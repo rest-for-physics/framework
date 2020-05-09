@@ -36,37 +36,49 @@ struct DBFile {
 };
 
 struct DBEntry {
-    DBEntry(int _id = 0, string _type = "", string _tag = "", string _description = "",
+    DBEntry(int _runNr = 0, string _type = "", string _tag = "", string _description = "",
             string _version = "") {
-        id = _id;
+        runNr = _runNr;
         type = _type;
         tag = _tag;
         description = _description;
         version = _version;
     }
     DBEntry(vector<string> defs);
-    int id = 0;
+    int runNr = 0;
     string type = "";
     string tag = "";
     string description = "";
     string version = "";
 
     bool operator<(const DBEntry& d) const {
-        if (id < d.id) {
+        if (runNr < d.runNr) {
+            return true;
+        }
+        if (runNr == d.runNr && type < d.type) {
+            return true;
+        }
+        if (runNr == d.runNr && type == d.type && tag < d.tag) {
             return true;
         }
         return false;
     }
 
     bool operator>(const DBEntry& d) const {
-        if (id > d.id) {
+        if (runNr > d.runNr) {
+            return true;
+        }
+        if (runNr == d.runNr && type > d.type) {
+            return true;
+        }
+        if (runNr == d.runNr && type == d.type && tag > d.tag) {
             return true;
         }
         return false;
     }
 
     bool operator==(const DBEntry& d) const {
-        if (id == d.id) {
+        if (runNr == d.runNr && type == d.type && tag == d.tag) {
             return true;
         }
         return false;

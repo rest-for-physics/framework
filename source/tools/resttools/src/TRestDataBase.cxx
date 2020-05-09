@@ -81,7 +81,7 @@ TRestDataBase* TRestDataBase::instantiate(string name) {
 }
 
 DBEntry::DBEntry(vector<string> items) {
-    this->id = atoi(items[0].c_str());
+    this->runNr = atoi(items[0].c_str());
     this->type = items[1];
     this->tag = items[2];
     this->description = items[3];
@@ -197,10 +197,10 @@ int TRestDataBase::get_lastrun() {
 /// The method in derived class shall follow this rule.
 int TRestDataBase::add_run(DBEntry info) {
     int newRunNr;
-    if (info.id == 0) {
+    if (info.runNr == 0) {
         newRunNr = get_lastrun() + 1;
-    } else if (info.id > 0) {
-        newRunNr = info.id;
+    } else if (info.runNr > 0) {
+        newRunNr = info.runNr;
     } else {
         return -1;
     }
@@ -221,7 +221,7 @@ int TRestDataBase::add_run(DBEntry info) {
 
 int TRestDataBase::query_metadata(int id) {
     DBEntry info;
-    info.id = id;
+    info.runNr = id;
 
     auto list = search_metadata_with_info(info);
     if (list.size() == 1) return id;
@@ -233,7 +233,7 @@ string TRestDataBase::query_metadata_value(int id) {
     while (iter != fMetaDataValues.end()) {
         DBEntry entry = iter->first;
         string url = iter->second;
-        if (entry.id == id) {
+        if (entry.runNr == id) {
             return url;
         }
         iter++;
@@ -244,7 +244,7 @@ DBEntry TRestDataBase::query_metadata_info(int id) {
     while (iter != fMetaDataValues.end()) {
         DBEntry entry = iter->first;
         string url = iter->second;
-        if (entry.id == id) {
+        if (entry.runNr == id) {
             return entry;
         }
         iter++;
@@ -258,7 +258,7 @@ vector<int> TRestDataBase::search_metadata_with_value(string _url) {
         DBEntry entry = iter->first;
         string url = iter->second;
         if (url.find(_url) != -1) {
-            result.push_back(entry.id);
+            result.push_back(entry.runNr);
         }
         iter++;
     }
@@ -271,7 +271,7 @@ vector<int> TRestDataBase::search_metadata_with_value(string _url) {
 /// If all of them mean **any**, it will return a blank list.
 vector<int> TRestDataBase::search_metadata_with_info(DBEntry _info) {
     vector<int> result;
-    if (_info.id <= 0 && _info.type == "" && _info.tag == "" && _info.description == "" &&
+    if (_info.runNr <= 0 && _info.type == "" && _info.tag == "" && _info.description == "" &&
         _info.version == "")
         return result;
 
@@ -279,8 +279,8 @@ vector<int> TRestDataBase::search_metadata_with_info(DBEntry _info) {
     while (iter != fMetaDataValues.end()) {
         DBEntry info = iter->first;
         string url = iter->second;
-        if (_info.id > 0 && info.id == _info.id) {
-            result.push_back(info.id);
+        if (_info.runNr > 0 && info.runNr == _info.runNr) {
+            result.push_back(info.runNr);
         } else {
             bool typematch = (_info.type == "" || info.type == _info.type);
             bool tagmatch = (_info.tag == "" || info.tag == _info.tag);
@@ -288,7 +288,7 @@ vector<int> TRestDataBase::search_metadata_with_info(DBEntry _info) {
             bool versionmatch = (_info.version == "" || info.version == _info.version);
 
             if (typematch && tagmatch && descriptionmatch && versionmatch) {
-                result.push_back(info.id);
+                result.push_back(info.runNr);
             }
         }
         iter++;
@@ -343,7 +343,7 @@ string TRestDataBase::query_metadata_valuefile(int id, string name) {
 int TRestDataBase::get_lastmetadata() {
     auto iter = fMetaDataValues.end();
     iter--;
-    return iter->first.id;
+    return iter->first.runNr;
 }
 
 int TRestDataBase::add_metadata(DBEntry info, string url) {
@@ -354,13 +354,13 @@ int TRestDataBase::add_metadata(DBEntry info, string url) {
 
     string metaFilename = getenv("REST_PATH") + (string) "/dataURL";
 
-    if (info.id == 0) {
-        info.id = get_lastmetadata();
+    if (info.runNr == 0) {
+        info.runNr = get_lastmetadata();
     }
     fMetaDataValues[info] = url;
 
     std::ofstream file(metaFilename, std::ios::app);
-    file << "\"" << info.id << "\" ";
+    file << "\"" << info.runNr << "\" ";
     file << "\"" << info.type << "\" ";
     file << "\"" << info.tag << "\" ";
     file << "\"" << info.description << "\" ";
@@ -369,7 +369,7 @@ int TRestDataBase::add_metadata(DBEntry info, string url) {
     file << endl;
     file.close();
 
-    return info.id;
+    return info.runNr;
 }
 
 
