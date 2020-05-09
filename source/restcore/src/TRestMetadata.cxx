@@ -2220,12 +2220,25 @@ std::string TRestMetadata::GetSectionName() {
 /// \brief Returns the config section of this class
 std::string TRestMetadata::GetConfigBuffer() { return configBuffer; }
 
+///////////////////////////////////////////////
+/// \brief Get the value of datamember as string. 
+///
+/// Note that only streamed datamembers can be read, others will just
+/// return an empty string.
 string TRestMetadata::GetDataMemberValue(string memberName) {
     any member = REST_Reflection::GetDataMember(any((char*)this, this->ClassName()), memberName);
     if (!member.IsZombie()) {
         return ToString(member);
     }
     return "";
+}
+
+///////////////////////////////////////////////
+/// \brief Operator to access datamember value with method GetDataMemberValue()
+string TRestMetadata::operator[](string memberName) {
+    string result = GetDataMemberValue(memberName);
+    if (result == "") result = GetDataMemberValue("f" + memberName);
+    return result;
 }
 
 ///////////////////////////////////////////////

@@ -236,6 +236,8 @@ class TRestMetadata : public TNamed {
 
     string GetDataMemberValue(string memberName);
 
+    string operator[](string memberName);
+
     TString GetVersion();
 
     TString GetCommit();
