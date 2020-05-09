@@ -216,6 +216,8 @@
 #include "TRestGas.h"
 
 #include "TRestDataBase.h"
+
+#include <algorithm>
 using namespace std;
 
 // const char* defaultServer = "https://sultan.unizar.es/gasFiles/";
@@ -500,23 +502,12 @@ void TRestGas::InitFromConfigFile() {
 
     debug << "Entering ... TRestGas::InitFromConfigFile()" << endl;
 
-    // fElectricField = GetDblParameterWithUnits("electricField", 0.) * units("V/cm");
-    // fPressureInAtm = StringToDouble(GetParameter("pressure"));
-    // fTemperatureInK = StringToDouble(GetParameter("temperature"));
-    // fW = StringToDouble(GetParameter("W_value", "-1"));
+    // read config parameters of base class
     TRestDriftVolume::InitFromConfigFile();
-
-    fNCollisions = StringToInteger(GetParameter("nCollisions"));
-    fMaxElectronEnergy = StringToDouble(GetParameter("maxElectronEnergy"));
-
-    fGasOutputPath = GetParameter("gasOutputPath", "./");
-    if (!TRestTools::isPathWritable((string)fGasOutputPath)) {
-        warning << "-- Warning : The specified gasOutputPath is not writable!" << endl;
-        warning << "-- Warning : The output path will be changed to ./" << endl;
-        fGasOutputPath = "./";
+    if (fW == -1) {
+        fW = 21.9;
+        cout << "Setting default W-value : " << fW << endl;
     }
-
-    fGDMLMaterialRef = GetParameter("GDMLMaterialRef", "");
 
     // match the database, id=0(any), type="GAS_SERVER"
     auto ids = gDataBase->search_metadata_with_info({0, "GAS_SERVER"});
@@ -526,15 +517,8 @@ void TRestGas::InitFromConfigFile() {
         fGasServer = "none";
     fGasServer = GetParameter("gasServer", fGasServer);
 
-    if (fMaxElectronEnergy == -1) {
-        fMaxElectronEnergy = 40;
-        cout << "Setting default maxElectronEnergy to : " << fMaxElectronEnergy << endl;
-    }
-    if (fW == -1) {
-        fW = 21.9;
-        cout << "Setting default W-value : " << fW << endl;
-    }
 
+    // add gas component
     string gasComponentString;
     size_t position = 0;
     while ((gasComponentString = GetKEYDefinition("gasComponent", position)) != "") {
@@ -543,33 +527,50 @@ void TRestGas::InitFromConfigFile() {
 
         AddGasComponent(gasName, gasFraction);
     }
-
-    string eFieldString = GetKEYDefinition("eField");
-
-    fEmax = StringToDouble(GetFieldValue("Emax", eFieldString));
-    fEmin = StringToDouble(GetFieldValue("Emin", eFieldString));
-    fEnodes = StringToInteger(GetFieldValue("nodes", eFieldString));
-
-    if (ToUpper(GetParameter("generate")) == "ON" || ToUpper(GetParameter("generate")) == "TRUE")
-        fGasGeneration = true;
-
+    if (fNofGases == 0 && fMaterial != "") {
+        vector<string> componentsdef = Split(fMaterial, " ");
+        for (auto componentdef : componentsdef) {
+            vector<string> componentdefpair = Split(componentdef, ":");
+            if (componentdefpair.size() != 2) {
+                continue;
+            }
+            AddGasComponent(componentdefpair[0], StringToDouble(componentdefpair[1]));
+        }
+    }
+    if (fNofGases == 0) {
+        ferr << "TRestGas: No gas components added!" << endl;
+    }
     double sum = 0;
     for (int i = 0; i < fNofGases; i++) sum += GetGasComponentFraction(i);
-
     if (sum - 1 < 1.e12)
         fStatus = RESTGAS_CFG_LOADED;
     else {
-        warning << "REST WARNING : TRestGas : The total gas fractions is NOT 1." << endl;
+        warning << "TRestGas : The total gas fractions is NOT 1." << endl;
         fStatus = RESTGAS_ERROR;
         return;
     }
 
+    // setup e-field calculation range and gas file generation parameters
+    string eFieldString = GetKEYDefinition("eField");
+    fEmax = StringToDouble(GetFieldValue("Emax", eFieldString));
+    fEmin = StringToDouble(GetFieldValue("Emin", eFieldString));
+    fEnodes = StringToInteger(GetFieldValue("nodes", eFieldString));
+    fNCollisions = StringToInteger(GetParameter("nCollisions"));
+    fMaxElectronEnergy = StringToDouble(GetParameter("maxElectronEnergy", "40"));
+    if (ToUpper(GetParameter("generate")) == "ON" || ToUpper(GetParameter("generate")) == "TRUE")
+        fGasGeneration = true;
+    fGasOutputPath = GetParameter("gasOutputPath", "./");
+    if (!TRestTools::isPathWritable((string)fGasOutputPath)) {
+        warning << "-- Warning : The specified gasOutputPath is not writable!" << endl;
+        warning << "-- Warning : The output path will be changed to ./" << endl;
+        fGasOutputPath = "./";
+    }
+    fGDMLMaterialRef = GetParameter("GDMLMaterialRef", "");
+
+    // construct the gas file name and try to find it, either locally or from gas server
     fGasFilename = ConstructFilename();
-
     debug << "TRestGas::InitFromConfigFile. ConstructFilename. fGasFilename = " << fGasFilename << endl;
-
     fGasFilename = FindGasFile((string)fGasFilename);
-
     debug << "TRestGas::InitFromConfigFile. FindGasFile. fGasFilename = " << fGasFilename << endl;
 
     // If we found the gasFile then obviously we disable the gas generation
@@ -590,10 +591,10 @@ void TRestGas::InitFromConfigFile() {
                    "SearchPath."
                 << endl;
     }
-
     fStatus = RESTGAS_CFG_LOADED;
 
 #if defined USE_Garfield
+    // calling garfield, either to generate gas file or load existing gas file
     if (fGasGeneration) {
         info << "Starting gas generation" << endl;
 
@@ -604,7 +605,6 @@ void TRestGas::InitFromConfigFile() {
         LoadGasFile();
         fGasMedium->SetPressure(fPressureInAtm);
     }
-
     if (fGasMedium && fGasMedium->GetW() == 0.)
         fGasMedium->SetW(fW);  // as it is probably not computed by Magboltz
 #endif
