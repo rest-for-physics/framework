@@ -15,8 +15,8 @@ before_script:
 clang-format:
     stage: pre-build
     script:
-        - apt -y install ssh-askpass
-        - ssh-keyscan -t rsa lfna.unizar.es >> ~/.ssh/known_hosts
+        #        - apt -y install ssh-askpass
+        #   - ssh-keyscan -t rsa lfna.unizar.es >> ~/.ssh/known_hosts
         - cd ${CI_PROJECT_DIR}/
         - ./macros/pipeline/clangformattest.sh
           # We execute only at SJTU Gitlab runner where this var is not defined
