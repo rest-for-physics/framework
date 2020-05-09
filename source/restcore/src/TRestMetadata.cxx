@@ -996,13 +996,13 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     if (_filetmp == NULL) return;
     string _filename = _filetmp;
 
-    // For the moment we only expect to have the gasFiles localed remotely.
-    // I keep "server" keyword to be coherent with the one used in TRestGas
-    // constructor
     if (_filename == "server") {
-        string tag = e->Value();
-        // match the database, id=0(any), type="META_RML", usr=""(any), tag=<section name>
-        auto ids = gDataBase->search_metadata_with_info(DBEntry(0, "META_RML", tag));
+        // Let TRestRun to retrieve data according to run number later-on
+        if ((string)this->ClassName() == "TRestRun")
+            return;
+
+        // match the database, runNumber=0(default data), type="META_RML", tag=<section name>
+        auto ids = gDataBase->search_metadata_with_info(DBEntry(0, "META_RML", e->Value()));
         if (ids.size() == 1) {
             _filename = gDataBase->query_metadata_valuefile(ids[0]);
             info << "using remote rml config file: " << _filename << endl;
@@ -1010,17 +1010,11 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
                 return;
             }
         } else {
-            warning << "remote rml definition for " << tag << " not recorded in the database!" << endl;
-            warning << "include definition not expanded!" << endl;
+            warning << "Failed to expand remote rml components for " << e->Value() << endl;
+            warning << "Default config file not found!" << endl;
             return;
         }
     }
-
-    // if (_filename == "server" && (string)e->Value() == "TRestGas") _filename = (string)gasesFile;
-
-    // debug << "filename to expand : " << _filename << endl;
-
-    // if (TRestTools::isURL(_filename)) _filename = DownloadHttpFile(_filename);
 
     string filename = SearchFile(_filename);
     if (filename == "") {

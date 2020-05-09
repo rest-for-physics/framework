@@ -73,9 +73,7 @@ class TRestMetadata : public TNamed {
    private:
     void SetEnv(TiXmlElement* e, bool updateexisting = true);
     void ReadElement(TiXmlElement* e, bool recursive = false);
-    void ExpandIfSections(TiXmlElement* e);
-    void ExpandForLoops(TiXmlElement* e);
-    void ExpandIncludeFile(TiXmlElement* e);
+    string FieldNamesToUpper(string inputString);
 
     /// REST version string, only used for archive and retrieve
     TString fVersion = REST_RELEASE;  //<
@@ -128,7 +126,11 @@ class TRestMetadata : public TNamed {
     void SetEnv(string name, string value, bool overwriteexisting);
     void ClearEnv() { fElementEnv.clear(); }
     string SearchFile(string filename);
-    string FieldNamesToUpper(string inputString);
+
+    // tiny xml element utils
+    void ExpandIfSections(TiXmlElement* e);
+    void ExpandForLoops(TiXmlElement* e);
+    void ExpandIncludeFile(TiXmlElement* e);
 
     //////////////////////////////////////////////////
     /// Data members

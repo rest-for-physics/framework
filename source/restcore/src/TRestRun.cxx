@@ -160,7 +160,7 @@ void TRestRun::BeginOfInit() {
         if (fRunNumber == 0) {
             fRunNumber = db->get_lastrun() + 1;
             DBEntry entry;
-            entry.id = fRunNumber;
+            entry.runNr = fRunNumber;
             entry.description = fRunDescription;
             entry.tag = fRunTag;
             entry.type = fRunType;
@@ -279,6 +279,19 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
                     << " ! To import metadata from this file, use <addMetadata" << endl;
             warning << "Skipping..." << endl;
             return -1;
+        }
+        if (e->Attribute("file") != NULL && (string)e->Attribute("file") == "server") {
+            // read meta-sections from database
+            auto ids = gDataBase->search_metadata_with_info(DBEntry(fRunNumber, "META_RML", e->Value()));
+            if (ids.size() > 0) {
+                string file = gDataBase->query_metadata_valuefile(ids[0]);
+                e->SetAttribute("file", file.c_str());
+                ExpandIncludeFile(e);
+            } else {
+                warning << "Failed to expand remote rml components for " << e->Value() << endl;
+                warning << "Config file for run " << fRunNumber << " not found!" << endl;
+                warning << "trying to use default config" << endl;
+            }
         }
 
         TRestMetadata* meta = REST_Reflection::Assembly(keydeclare);
