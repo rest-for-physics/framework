@@ -76,8 +76,8 @@ TRestDummyNameProcess::TRestDummyNameProcess(char* cfgFileName) {
 /// \brief Default destructor
 ///
 TRestDummyNameProcess::~TRestDummyNameProcess() {
-    delete fInputDummyEvent;
-    delete fOutputDummyEvent;
+    delete fDummyEvent;
+    delete fDummyEvent;
 }
 
 ///////////////////////////////////////////////
@@ -121,28 +121,24 @@ void TRestDummyNameProcess::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
-    fInputDummyEvent = new TRestDummyEvent();
-    fOutputDummyEvent = new TRestDummyEvent();
-
-    fInputEvent = fInputDummyEvent;
-    fOutputEvent = fOutputDummyEvent;
+    fDummyEvent = new TRestDummyEvent();
 }
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
 TRestEvent* TRestDummyNameProcess::ProcessEvent(TRestEvent* evInput) {
-    fInputDummyEvent = (TRestDummyEvent*)evInput;
+    fDummyEvent = (TRestDummyEvent*)evInput;
 
-    *fOutputDummyEvent = *fInputDummyEvent;
+    // We transform here fDummyEvent if necessary
 
     if (GetVerboseLevel() >= REST_Debug) {
-        fOutputDummyEvent->PrintEvent();
+        fDummyEvent->PrintEvent();
 
         if (GetVerboseLevel() >= REST_Extreme) GetChar();
     }
 
-    return fOutputEvent;
+    return fDummyEvent;
 }
 
 ///////////////////////////////////////////////
