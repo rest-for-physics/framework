@@ -44,11 +44,14 @@ class TRestDummyToDetectorHitsProcess : public TRestEventProcess {
     // double fSize;
 
     void InitFromConfigFile();
+
     void Initialize();
 
+    void LoadDefaultConfig();
+
    public:
-    TRestEvent* GetInputEvent() { return fDummyEvent; }
-    TRestEvent* GetOutputEvent() { return fHitsEvent; }
+    any GetInputEvent() { return fDummyEvent; }
+    any GetOutputEvent() { return fHitsEvent; }
 
     void InitProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);

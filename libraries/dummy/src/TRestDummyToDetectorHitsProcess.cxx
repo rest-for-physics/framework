@@ -71,13 +71,16 @@ TRestDummyToDetectorHitsProcess::TRestDummyToDetectorHitsProcess() { Initialize(
 ///
 TRestDummyToDetectorHitsProcess::TRestDummyToDetectorHitsProcess(char* cfgFileName) {
     Initialize();
-    LoadConfigFromFile(cfgFileName)
+    LoadConfigFromFile(cfgFileName);
 }
 
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestDummyToDetectorHitsProcess::~TRestDummyToDetectorHitsProcess() { delete fHitsEvent; }
+TRestDummyToDetectorHitsProcess::~TRestDummyToDetectorHitsProcess() {
+    delete fHitsEvent;
+    delete fDummyEvent;
+}
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
@@ -96,7 +99,7 @@ void TRestDummyToDetectorHitsProcess::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
-    fDummyEvent = NULL;
+    fDummyEvent = new TRestDummyEvent();
     fHitsEvent = new TRestHitsEvent();
 }
 

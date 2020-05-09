@@ -30,8 +30,7 @@
 class TRestDummyNameProcess : public TRestEventProcess {
    private:
     /// A pointer to the specific TRestDummyEvent
-    TRestDummyEvent* fInputDummyEvent;   //!
-    TRestDummyEvent* fOutputDummyEvent;  //!
+    TRestDummyEvent* fDummyEvent;  //!
 
     void InitProcess();
 
@@ -43,6 +42,9 @@ class TRestDummyNameProcess : public TRestEventProcess {
 
    protected:
    public:
+    any GetInputEvent() { return fDummyEvent; }
+    any GetOutputEvent() { return fDummyEvent; }
+
     TRestEvent* ProcessEvent(TRestEvent* evInput);
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
