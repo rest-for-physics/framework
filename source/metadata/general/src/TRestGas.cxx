@@ -517,7 +517,6 @@ void TRestGas::InitFromConfigFile() {
         fGasServer = "none";
     fGasServer = GetParameter("gasServer", fGasServer);
 
-
     // add gas component
     string gasComponentString;
     size_t position = 0;

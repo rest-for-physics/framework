@@ -998,8 +998,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
 
     if (_filename == "server") {
         // Let TRestRun to retrieve data according to run number later-on
-        if ((string)this->ClassName() == "TRestRun")
-            return;
+        if ((string) this->ClassName() == "TRestRun") return;
 
         // match the database, runNumber=0(default data), type="META_RML", tag=<section name>
         auto ids = gDataBase->search_metadata_with_info(DBEntry(0, "META_RML", e->Value()));
@@ -2215,7 +2214,7 @@ std::string TRestMetadata::GetSectionName() {
 std::string TRestMetadata::GetConfigBuffer() { return configBuffer; }
 
 ///////////////////////////////////////////////
-/// \brief Get the value of datamember as string. 
+/// \brief Get the value of datamember as string.
 ///
 /// Note that only streamed datamembers can be read, others will just
 /// return an empty string.

@@ -89,7 +89,6 @@ class TRestDataBase {
    private:
     map<DBEntry, string> fMetaDataValues;
 
-
    protected:
     string fConnectionString;
 
@@ -177,7 +176,6 @@ class TRestDataBase {
     virtual int add_metadata(DBEntry info, string value);
     /// update entry information for the specified entry
     virtual int update_metadata(int id, DBEntry info);
-
 };
 
 #define gDataBase (TRestDataBase::GetDataBase())
