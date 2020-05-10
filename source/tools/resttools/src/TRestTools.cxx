@@ -755,7 +755,6 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
     return -1;
 }
 
-
 ///////////////////////////////////////////////
 /// Upload the local file to remote file, method url will overwrite the login information
 /// inside remotefile.

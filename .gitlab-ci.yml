@@ -15,19 +15,25 @@ before_script:
 clang-format:
     stage: pre-build
     script:
-        - apt -y install ssh-askpass
-        - ssh-keyscan -t rsa lfna.unizar.es >> ~/.ssh/known_hosts
+        #        - apt -y install ssh-askpass
+        #   - ssh-keyscan -t rsa lfna.unizar.es >> ~/.ssh/known_hosts
         - cd ${CI_PROJECT_DIR}/
         - ./macros/pipeline/clangformattest.sh
           # We execute only at SJTU Gitlab runner where this var is not defined
     except:
         variables:
             - $CI_SERVER_HOST
+    only:
+        variables:
+            - $CRONJOB
 
 validateCode:
     stage: pre-build
     script:
         - python ${CI_PROJECT_DIR}/macros/pipeline/validateProcesses.py ${CI_PROJECT_DIR}/source/processes/
+    except:
+        variables:
+            - $CRONJOB
 
 build:
   type: build
@@ -39,6 +45,9 @@ build:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - echo ${CI_SERVER_HOST}
     - echo "**${CI_SERVER_HOST}**"
+  except:
+      variables:
+        - $CRONJOB
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install
@@ -49,6 +58,9 @@ loadRESTLibs:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - root -b -q ${CI_PROJECT_DIR}/install/macros/pipeline/loadLibraries.C
+  except:
+      variables:
+        - $CRONJOB
 
 testrestG4:
   type: generate
@@ -61,6 +73,9 @@ testrestG4:
     paths:
       - ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/Run00001_NLDBD_Test.root
     expire_in: 1 day
+  except:
+      variables:
+        - $CRONJOB
 
 testMeta:
   type: generate
@@ -72,6 +87,9 @@ testMeta:
     paths:
       - ${CI_PROJECT_DIR}/install/examples/meta.root
     expire_in: 1 day
+  except:
+      variables:
+        - $CRONJOB
 
 
 testProcessTREX: 
@@ -91,6 +109,9 @@ testProcessTREX:
     paths:
       - ${CI_PROJECT_DIR}/install/macros/pipeline/trex/results.root
     expire_in: 1 week
+  except:
+      variables:
+        - $CRONJOB
 
 testProcessElectronics: 
   type: process
@@ -102,6 +123,9 @@ testProcessElectronics:
     paths:
       - ${CI_PROJECT_DIR}/install/examples/electronics.root
     expire_in: 1 week
+  except:
+      variables:
+        - $CRONJOB
 
 testProcessG4Ana: 
   type: process
@@ -115,6 +139,9 @@ testProcessG4Ana:
       - ${CI_PROJECT_DIR}/install/examples/g4Ana.root
       - ${CI_PROJECT_DIR}/install/examples/g4Hits.root
     expire_in: 1 week
+  except:
+      variables:
+        - $CRONJOB
 
 testDrawing: 
   type: drawing
@@ -126,6 +153,9 @@ testDrawing:
     paths:
       - ${CI_PROJECT_DIR}/install/examples/spec.pdf
     expire_in: 1 week
+  except:
+      variables:
+        - $CRONJOB
 
 deploy:
   type: deploy
@@ -137,3 +167,6 @@ deploy:
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install
+  except:
+      variables:
+        - $CRONJOB
