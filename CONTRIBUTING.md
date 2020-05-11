@@ -6,7 +6,7 @@ The Git system is an efficient way to track changes to the code in the repositor
 The history of the code repository will be digested into **commits**. Being a commit a minimum change to
 the code of the repository. Usually involving **no more than 2-3 files**. 
 
-The code can be independently developed into **branches** where we add *commit*. The main branch or 
+The code can be independently developed into **branches** where we add *commits*. The main branch or 
 **master branch** is the branch where we should finally merge the definitive changes of any parallel **development branch**.
 
 You may refer to the [Git website](https://git-scm.com/book/en/v2/Getting-Started-Git-Basics) for details on basic git usage. See also basic [CERN Gitlab tutorials](https://gitlab.cern.ch/help/gitlab-basics/README.md).
@@ -17,36 +17,36 @@ A branch can be contributed by several users at the same time. The REST reposito
 least **one main `development` branch** that can be contributed by anyone with developer access (while 
 any user can create his own branch for personal testing and/or future merging to the *development branch*).
 
-The name of the main development branch will be the latest REST version followed by `_dev`, e.g. `v2.2.1_dev`.
-
 You can place yourself in the development branch by updating your local repository index `git fetch` and using `git checkout`
 
 ```
 git fetch
-git checkout v2.2.XX_dev
+git checkout development
 ```
-
-where XX is the minor version of the existing development branch.
 
 Use `git status` at any time in the command line to get information of the **branch name** you are working on,
 and the files you have modified.
 
-The *development* branch is intended for obvious bug fixes or contributions that have been previously discussed in the forum or marked as minor issue. 
-Major contributions or experimental updates should be placed in independent branches. User or dedicated branches may be named `experimental` branches.
-While the *development* branch will be merged to master in the short term, experimental branches might not be finally merged to master, 
-and are in principle considered temporary branches that might be removed at any time once they got stalled. Therefore, small changes to the code, i.e. bug fixes, new class methods, new processes, etc, can be directly pushed
- to the `development branch`. While major changes taking place in longer development periods, i.e. days or weeks, should be contributed in an independent branch for future merge to the **main development branch**.
+The *development* branch is intended for obvious bug fixes or marked as minor issue. It is recommended that new contributions and functionalities added to REST have been previously discussed in [the forum](https://ezpc10.unizar.es/).
 
-For details on branches usage refer to the [branches section](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell) 
-at the Git documentation.
+Major contributions or experimental updates should be placed in independent branches. User or dedicated branches that we name here`experimental` branches. 
+While the *development* branch will be merged to master in the short term, experimental branches might not be finally merged to master, and are in principle considered temporary branches that might be removed at any time once they got stalled.
+Therefore, small changes to the code, i.e. bug fixes, new class methods, new processes, etc, can be directly pushed to the `development branch`.
+While major changes taking place in longer development periods, i.e. days or weeks, should be contributed in an independent branch for future merge to the **main development branch**.
+
+For details on branches usage refer to the [branches section](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell) at the Git documentation.
 
 ### Documenting new methods or classes added to the repository
 
 TODO : Explain doxygen formatting, tutorials, where official doc is located. ETC.
 
+### Pipeline validation tests
+
+TODO : Explain how pipeline validation tests should be implemented
+
 ### REST forum. Communication of updates to the code and discussion on development topics.
 
-TODO : describe how changes should be discussed at REST forum. Bug report, report on changes, encourage discussion, user support, etc.
+TODO : describe how changes should be discussed at REST forum. Bug report, report on changes, encourage discussion, user support, etc. Not defined yet.
 
 ### Adding a new commit to the development branch
 
@@ -56,7 +56,7 @@ historical changes that may produce a future conflict identified much later on i
 The changes introduced to any single file added to the **commit** should be minimal, i.e. avoiding to upload a 
 file with temporary debugging code or comments used during the code development and testing process.
 
-Only the files involved in a particular change should be included in the **commit**.
+Only the files involved in a particular change, delimited by the commit message, should be included in the **commit**.
 
 In order to check the differences introduced in the **local copy** of a particular file we can use `git diff`,
 
@@ -155,7 +155,8 @@ number shall be provided together with published or internal results. Moreover, 
 the data file, we will always be able to recover the version used to generate those results.
 
 A change in REST version serves to mark down an important step or a timeline in the evolution
-of the code. The version **might be increased** in at the following scenarios:
+of the code. The version **might be increased** in the following scenarios:
+
 1. When new features are added.
 2. When changes or modifications affect the behaviour of the framework.
 3. To fix a REST version release to produce data in a experiment physics run.
@@ -170,14 +171,7 @@ REST core libraries change the behaviour and may lead to different results:
 
 ### Git tagging system and its relation to REST versioning system
 
-The basics of tagging in Git are described at the following site: [Git Tagging](https://git-scm.com/book/en/v2/Git-Basics-Tagging)
-
-REST needs to tag the state of the code using `git tag` command in order to identify the latest version.
-
-For example using:
-
-`git tag -a v2.2.2 -m "A small step for REST but a big step for humanity"`
-
+REST identifies each version to a Git tag. The process to increase a new REST version goes through creating a new `TRestVersion.h` header, commit it and associate the commit to a new tag that is named following the version number.
 
 In order to generate a new REST version just go to `scripts/` directory, execute
 
@@ -185,9 +179,9 @@ In order to generate a new REST version just go to `scripts/` directory, execute
 ./generateVersionHeader.py TRestVersion.h
 ```
 
-and then follow the detailed instructions given on screen to push the new version to the development branch where you are.
+and follow, step by step, the detailed instructions given on screen to push the new version to the development branch where you are, then request a merge to master.
 
-The contents of the generated file will look like this
+The contents of the generated file will look something like this
 ```c++
 #ifndef REST_Version
 #define REST_Version
@@ -226,21 +220,15 @@ contains information about version, version number, commit id, date, etc.. (see 
 with the result generated inside `TRestVersion.h` you may update the REST version by overwritting the `TRestVersion.h`
 found under `source/restcore/inc/`.
 
-Tags may be created (leading to an update of REST version) at any time. We reserve that for the main development
-branch, that will be at some point merged to master, and the only one that will be merged to master.
-
-All the development work shall be within individual branches. The development branches should be named after 
-the version from which they are checked out. e.g. `v2.2.1_dev` or `v2.2.3_trackAnalysisNew`. Whenever the 
-developer verifies himself that the modification is working, she can **make a merge request to the development 
-branch, v2.2.11_dev**. Minor bug fixes, or non harming updates, such as adding new methods to a class may be added
-directly to the development branch.
-
-Steps to increase the version of REST in the development branch.
+Therefore the steps to increase the version of REST in the development branch.
 
 1. Execute the script "REST_v2/scripts/generateVersionHeader.py"
 2. Follow instructions shown in screen.
 3. Enter to the Gitlab website and document the changes on the **tags** section.
 4. Merge the development branch to master.
+
+Tags may be created (leading to an update of REST version) at any time. We reserve that for the main development
+branch, that will be at some point merged to master, and the *only one* that will be merged to master.
 
 ### Using the version number
 
