@@ -90,7 +90,7 @@ DBEntry::DBEntry(vector<string> items) {
 
 void TRestDataBase::Initialize() {
     fMetaDataValues.clear();
-    string metaFilename = getenv("REST_PATH") + (string) "/dataURL";
+    string metaFilename = REST_PATH + (string) "/dataURL";
     if (!TRestTools::fileExists(metaFilename)) {
         return;
     } else {
@@ -168,9 +168,9 @@ TRestDataBase::TRestDataBase() {
 /// The run number -1.
 int TRestDataBase::get_lastrun() {
     int runNr;
-    string runFilename = getenv("REST_PATH") + (string) "/runNumber";
+    string runFilename = REST_PATH + "/runNumber";
     if (!TRestTools::fileExists(runFilename)) {
-        if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
+        if (TRestTools::isPathWritable(REST_PATH)) {
             // we fix the "runNumber" file
             TRestTools::Execute("echo 1 > " + runFilename);
             runNr = 1;
@@ -205,8 +205,8 @@ int TRestDataBase::add_run(DBEntry info) {
         return -1;
     }
 
-    string runFilename = getenv("REST_PATH") + (string) "/runNumber";
-    if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
+    string runFilename = REST_PATH + "/runNumber";
+    if (TRestTools::isPathWritable(REST_PATH)) {
         TRestTools::Execute("echo " + ToString(newRunNr + 1) + " > " + runFilename);
     } else {
         cout << "REST WARNING: runNumber file not writable. auto run number "
@@ -297,15 +297,15 @@ string TRestDataBase::query_metadata_valuefile(int id, string name) {
         return Replace(url, "local:", "");
     } else {
         string fullpath;
-        if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
-            fullpath = getenv("REST_PATH") + (string) "/data/download/" + purename;
+        if (TRestTools::isPathWritable(REST_PATH)) {
+            fullpath = REST_PATH + "/data/download/" + purename;
             if (TRestTools::DownloadRemoteFile(url, fullpath) == 0) {
                 return fullpath;
             } else {
                 return "";
             }
         } else {
-            fullpath = "/tmp/REST_" + (string)getenv("USER") + "_Download_" + purename;
+            fullpath = "/tmp/REST_" + REST_USER + "_Download_" + purename;
             if (TRestTools::DownloadRemoteFile(url, fullpath) == 0) {
                 return fullpath;
             } else {
@@ -320,12 +320,12 @@ string TRestDataBase::query_metadata_valuefile(int id, string name) {
 int TRestDataBase::get_lastmetadata() { return fMetaDataValues.size() - 1; }
 
 int TRestDataBase::add_metadata(DBEntry info, string url) {
-    if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
+    if (TRestTools::isPathWritable(REST_PATH)) {
         cout << "error! path not writable" << endl;
         return -1;
     }
 
-    string metaFilename = getenv("REST_PATH") + (string) "/dataURL";
+    string metaFilename = REST_PATH + "/dataURL";
 
     if (info.runNr == 0) {
         info.runNr = get_lastmetadata();

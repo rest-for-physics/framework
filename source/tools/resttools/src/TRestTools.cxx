@@ -54,19 +54,26 @@
 #include "TRestStringOutput.h"
 #include "TRestTools.h"
 
+string REST_PATH;
+string REST_USER;
 struct _REST_STARTUP_CHECK {
    public:
     _REST_STARTUP_CHECK() {
-        if (getenv("REST_PATH") == nullptr) {
+        char* _REST_PATH = getenv("REST_PATH");
+        char* _REST_USER = getenv("USER");
+
+        if (_REST_PATH == nullptr) {
             cout << "REST ERROR!! Lacking system env \"REST_PATH\"! Cannot start!" << endl;
             cout << "You need to source \"thisREST.sh\" first" << endl;
             exit(1);
         }
-        if (getenv("USER") == nullptr) {
+        REST_PATH = _REST_PATH;
+        if (_REST_USER == nullptr) {
             cout << "REST ERROR!! Lacking system env \"USER\"! Cannot start!" << endl;
             cout << "You need to source \"thisREST.sh\" first" << endl;
             exit(1);
         }
+        REST_USER = _REST_USER;
     }
 };
 const _REST_STARTUP_CHECK __check;
@@ -90,7 +97,7 @@ std::vector<string> TRestTools::GetOptions(string optionsStr) { return Split(opt
 void TRestTools::LoadRESTLibrary(bool silent) {
     char* _ldpath = getenv("LD_LIBRARY_PATH");
     if (_ldpath == nullptr) {
-        _ldpath = Form("%s/lib/", getenv("REST_PATH"));
+        _ldpath = Form("%s/lib/", REST_PATH.c_str());
     }
     vector<string> ldpaths = Split(_ldpath, ":");
 

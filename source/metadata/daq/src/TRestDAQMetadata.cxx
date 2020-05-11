@@ -74,7 +74,7 @@ void TRestDAQMetadata::PrintMetadata() {
 }
 
 void TRestDAQMetadata::SetScriptsBuffer() {
-    TString folder = getenv("REST_PATH");
+    TString folder = REST_PATH;
     folder.Append("data/acquisition/");
 
     TString fName;
