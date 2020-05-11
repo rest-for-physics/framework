@@ -104,7 +104,7 @@ void TRestDataBase::Initialize() {
             if (items[5][items[5].size() - 1] == '\"') items[5] = items[5].substr(0, items[5].size() - 1);
 
             DBEntry info(items);
-            fMetaDataValues[info] = items[5];
+            fMetaDataValues.push_back({info, items[5]});
         }
     }
 }
@@ -220,47 +220,22 @@ int TRestDataBase::add_run(DBEntry info) {
 }
 
 int TRestDataBase::query_metadata(int id) {
-    DBEntry info;
-    info.runNr = id;
-
-    auto list = search_metadata_with_info(info);
-    if (list.size() == 1) return id;
+    if (fMetaDataValues.size() > id) return id;
     return -1;
 }
 
-string TRestDataBase::query_metadata_value(int id) {
-    auto iter = fMetaDataValues.begin();
-    while (iter != fMetaDataValues.end()) {
-        DBEntry entry = iter->first;
-        string url = iter->second;
-        if (entry.runNr == id) {
-            return url;
-        }
-        iter++;
-    }
-}
-DBEntry TRestDataBase::query_metadata_info(int id) {
-    auto iter = fMetaDataValues.begin();
-    while (iter != fMetaDataValues.end()) {
-        DBEntry entry = iter->first;
-        string url = iter->second;
-        if (entry.runNr == id) {
-            return entry;
-        }
-        iter++;
-    }
-}
+string TRestDataBase::query_metadata_value(int id) { return fMetaDataValues[id].second; }
 
-vector<int> TRestDataBase::search_metadata_with_value(string _url) {
+DBEntry TRestDataBase::query_metadata_info(int id) { return fMetaDataValues[id].first; }
+
+vector<int> TRestDataBase::search_metadata_with_value(string _val) {
     vector<int> result;
-    auto iter = fMetaDataValues.begin();
-    while (iter != fMetaDataValues.end()) {
-        DBEntry entry = iter->first;
-        string url = iter->second;
-        if (url.find(_url) != -1) {
-            result.push_back(entry.runNr);
+    for (int i = 0; i < fMetaDataValues.size(); i++) {
+        DBEntry info = fMetaDataValues[i].first;
+        string val = fMetaDataValues[i].second;
+        if (val.find(_val) != -1) {
+            result.push_back(i);
         }
-        iter++;
     }
     return result;
 }
@@ -276,19 +251,21 @@ vector<int> TRestDataBase::search_metadata_with_info(DBEntry _info) {
         return result;
 
     auto iter = fMetaDataValues.begin();
-    while (iter != fMetaDataValues.end()) {
-        DBEntry info = iter->first;
-        string url = iter->second;
+    for (int i = 0; i < fMetaDataValues.size(); i++) {
+        DBEntry info = fMetaDataValues[i].first;
+        string val = fMetaDataValues[i].second;
         if (_info.runNr > 0 && info.runNr == _info.runNr) {
+            // match runNr only
             result.push_back(info.runNr);
-        } else if (_info.runNr <= 0) {
+        } else if (_info.runNr <= 0 || (_info.runNr > 0 && info.runNr == 0)) {
+            // we match other items instead of runNr
             bool typematch = (_info.type == "" || info.type == _info.type);
             bool tagmatch = (_info.tag == "" || info.tag == _info.tag);
             bool descriptionmatch = (_info.description == "" || info.description == _info.description);
             bool versionmatch = (_info.version == "" || info.version == _info.version);
 
             if (typematch && tagmatch && descriptionmatch && versionmatch) {
-                result.push_back(info.runNr);
+                result.push_back(i);
             }
         }
         iter++;
@@ -340,11 +317,7 @@ string TRestDataBase::query_metadata_valuefile(int id, string name) {
     return "";
 }
 
-int TRestDataBase::get_lastmetadata() {
-    auto iter = fMetaDataValues.end();
-    iter--;
-    return iter->first.runNr;
-}
+int TRestDataBase::get_lastmetadata() { return fMetaDataValues.size() - 1; }
 
 int TRestDataBase::add_metadata(DBEntry info, string url) {
     if (TRestTools::isPathWritable(getenv("REST_PATH"))) {
@@ -357,7 +330,7 @@ int TRestDataBase::add_metadata(DBEntry info, string url) {
     if (info.runNr == 0) {
         info.runNr = get_lastmetadata();
     }
-    fMetaDataValues[info] = url;
+    fMetaDataValues.push_back({info, url});
 
     std::ofstream file(metaFilename, std::ios::app);
     file << "\"" << info.runNr << "\" ";

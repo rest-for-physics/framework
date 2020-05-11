@@ -87,7 +87,7 @@ struct DBEntry {
 
 class TRestDataBase {
    private:
-    map<DBEntry, string> fMetaDataValues;
+    vector<pair<DBEntry, string>> fMetaDataValues;
 
    protected:
     string fConnectionString;
