@@ -1,0 +1,3 @@
+[submodule "packages/restSQL"]
+	path = packages/restSQL
+	url = git@lfna.unizar.es:rest-development/restsql.git
