@@ -616,7 +616,7 @@ void TRestGas::InitFromRootFile() {
 
     if (fGasFileContent != "")  // use gas file content by default
     {
-        fGasFilename = "/tmp/restGasFile_" + (string)getenv("USER") + ".gas";
+        fGasFilename = "/tmp/restGasFile_" + REST_USER + ".gas";
         ofstream outf;
         outf.open(fGasFilename, ios::ate);
         outf << fGasFileContent << endl;
@@ -676,7 +676,7 @@ void TRestGas::UploadGasToServer(string absoluteGasFilename) {
     ofstream outf;
     outf.open(fname, ios::app);
     outf << endl;
-    outf << "//------- User : " << getenv("USER") << " ---- REST version : " << REST_RELEASE
+    outf << "//------- User : " << REST_USER << " ---- REST version : " << REST_RELEASE
          << " ---------------------------" << endl;
     outf.close();
 

@@ -65,7 +65,7 @@ void TRestRun::Initialize() {
     fStartTime = (Double_t)timev;
     fEndTime = 0;  // We need a static value to avoid overwriting the time if another process sets the time
 
-    fRunUser = getenv("USER") == NULL ? "" : getenv("USER");
+    fRunUser = REST_USER;
     fRunNumber = 0;        // run number where input file is from and where output file
                            // will be saved
     fParentRunNumber = 0;  // subrun number where input file is from
@@ -113,7 +113,7 @@ void TRestRun::BeginOfInit() {
     ReSetVersion();
 
     // Get some infomation
-    fRunUser = getenv("USER") == NULL ? "" : getenv("USER");
+    fRunUser = REST_USER;
     fRunType = GetParameter("runType", "ANALYSIS").c_str();
     fRunDescription = GetParameter("runDescription", "").c_str();
     fExperimentName = GetParameter("experiment", "preserve").c_str();

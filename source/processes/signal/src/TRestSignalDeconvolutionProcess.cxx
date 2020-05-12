@@ -96,7 +96,7 @@ void TRestSignalDeconvolutionProcess::InitProcess() {
 
     TRestSignal* responseSignal = new TRestSignal();
 
-    TString fullPathName = (TString)getenv("REST_PATH") + "/data/signal/" + fResponseFilename;
+    TString fullPathName = REST_PATH + "/data/signal/" + fResponseFilename;
 
     TFile* f = new TFile(fullPathName);
 
