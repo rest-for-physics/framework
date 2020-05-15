@@ -113,6 +113,7 @@ class TRestMesh : public TObject {
     void RemoveNodes();
 
     Bool_t IsInside(TVector3 pos);
+    Bool_t IsInsideBoundingBox(TVector3 pos);
 
     std::vector<TVector3> GetTrackBoundaries(TVector3 pos, TVector3 dir, Bool_t particle = true);
     std::vector<TVector3> GetTrackBoundariesCylinder(TVector3 pos, TVector3 dir, Bool_t particle = true);

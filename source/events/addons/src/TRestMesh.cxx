@@ -348,6 +348,14 @@ Bool_t TRestMesh::IsInside(TVector3 pos) {
     return true;
 }
 
+Bool_t TRestMesh::IsInsideBoundingBox(TVector3 pos) {
+    if (pos.Z() < fNetOrigin.Z() || pos.Z() > fNetOrigin.Z() + fNetSizeZ) return false;
+    if (pos.X() < fNetOrigin.X() || pos.X() > fNetOrigin.X() + fNetSizeX) return false;
+    if (pos.Y() < fNetOrigin.Y() || pos.Y() > fNetOrigin.Y() + fNetSizeY) return false;
+
+    return true;
+}
+
 //////////////////////////////////////////////
 /// \brief It returns the position of the mesh center.
 ///
@@ -500,11 +508,13 @@ std::vector<TVector3> TRestMesh::GetTrackBoundariesCylinder(TVector3 pos, TVecto
             boundaries.push_back(secondVertex);
 
         if (boundaries.size() == 2) {
-            if (particle)
-                if (t1 > 0 && t2 > t1)
+            if (particle) {
+                if (t1 > 0 && t2 > t1) {
                     return boundaries;
-                else
+                } else {
                     boundaries.clear();
+                }
+            }
             return boundaries;
         }
     }
