@@ -60,7 +60,6 @@ include(FindROOT)
 set(external_include_dirs ${external_include_dirs} ${ROOT_INCLUDE_DIRS})
 set(external_libs ${external_libs} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit -lSpectrum)
 
-
 #find garfield libs and includes
 IF( NOT DEFINED REST_GARFIELD )
    set(REST_GARFIELD OFF)
@@ -79,6 +78,17 @@ if (${REST_GARFIELD} MATCHES "ON")
 else ()
     set(REST_GARFIELD OFF)
 endif (${REST_GARFIELD} MATCHES "ON")
+
+if (${REST_SQL} MATCHES "ON" )
+	add_definitions(-DUSE_SQL)
+	include(FindSQL)
+	set(external_include_dirs ${external_include_dirs} ${SQL_INCLUDE_DIR})
+	set(external_libs ${external_libs} ${SQL_LIBRARIES})
+	message(STATUS "MySQL: " ${SQL_INCLUDE_DIR})
+	set(REST_SQL ON)
+else()
+	set(REST_SQL OFF)
+endif (${REST_SQL} MATCHES "ON" )
 
 
 #include dir for compilation
@@ -133,6 +143,11 @@ endif (${REST_G4} MATCHES "ON")
 IF (NOT DEFINED REST_PSQL)
     set(REST_PSQL OFF)
 ENDIF ()
+
+IF (NOT DEFINED REST_SQL)
+    set(REST_SQL OFF)
+ENDIF ()
+
 if (${REST_PSQL} MATCHES "ON")
     add_subdirectory(packages/restDataBasePSQL)
 endif (${REST_PSQL} MATCHES "ON")
@@ -146,18 +161,15 @@ endif (${REST_DECAY0} MATCHES "ON")
 
 #begin installation
 message("")
-message("=============================")
 message("REST will be installed in : ${CMAKE_INSTALL_PREFIX}")
-message("Version: ${GIT_TAG}")
+message("=============================")
 message("System is : ${CMAKE_SYSTEM_NAME}")
-if (${REST_GARFIELD} MATCHES "ON")
-    message("Garfield is : ${REST_GARFIELD}")
-else ()
-    message("Garfield is : ${REST_GARFIELD}. To enable run cmake adding : -DREST_GARFIELD=ON")
-endif ()
+message("Garfield is : ${REST_GARFIELD}")
 message("Geant4 is : ${REST_G4}")
 message("PSQLDataBase is : ${REST_PSQL}")
+message("SQL is : ${REST_SQL}")
 message("=============================")
+message("Check main project README.md to see all available compilation options")
 message("")
 
 file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h")

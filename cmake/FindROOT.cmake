@@ -12,9 +12,6 @@
 # First search for ROOTConfig.cmake on the path defined via user setting 
 # ROOT_DIR
 
-
-
-
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
   if(DEFINED ENV{ROOTSYS})
