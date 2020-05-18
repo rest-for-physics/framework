@@ -132,11 +132,11 @@ Different options can be passed to the `cmake` command to personalize the REST i
 
 * **INSTALL_PREFIX** : Allows to define the destination of the final REST install directory. The default value is either "REST_v2/install/" (if you haven't installed REST) or the current REST path (if you already installed REST).
 * **REST_WELCOME** (Default: ON) : If dissabled no message will be displayed each time we call thisREST.sh.
-* **REST_GARFIELD** (Default: OFF) : Enables access to [Garfield++](https://garfieldpp.web.cern.ch/garfieldpp/) libraries in REST.
+* **REST_GARFIELD** (Default: OFF) : Enables access to [Garfield++](https://garfieldpp.web.cern.ch/garfieldpp/) libraries in REST. Garfield code inside REST will be encapsulated inside `#if defined USE_Garfield` statements.
 * **REST_G4** (Default: OFF) : Adds executable `restG4` which carries out simulation with [Geant4++](http://geant4.web.cern.ch/) using REST style config file.
+* **REST_SQL** (Default: OFF) : Enables the use of mysql libraries in REST. SQL code inside REST will be encapsulated inside `#if defined USE_SQL`.
 
-To pass the options to cmake, one need to append "-DXXX=XXX" in the cmake command, for example: `cmake .. -DREST_WELCOME=OFF -DREST_G4=ON`.
-Once you explicitly set an option, the default value of this option will be changed to the new value when you run `cmake` in the next time.
+To pass the options to cmake, one need to append "-DXXX=XXX" in the cmake command, for example: `cmake .. -DREST_WELCOME=OFF -DREST_G4=ON`. Once you explicitly set an option, your option choice will become the default choice for future `cmake` executions.
 
 ## REST libraries
 
@@ -179,7 +179,9 @@ See also the list of [contributors]() who participated in this project.
 
 ## Publications
 
-`TOBE written`
+- PandaX-III: Searching for neutrinoless double beta decay with high pressure 136Xe gas time projection chambers. [X. Chen et al., Science China Physics, Mechanics & Astronomy 60, 061011 (2017)](https://doi.org/10.1007/s11433-017-9028-0) [arXiv:1610.08883](https://arxiv.org/abs/1610.08883).
+- Background assessment for the TREX Dark Matter experiment. [Castel, J., Cebrián, S., Coarasa, I. et al. Eur. Phys. J. C 79, 782 (2019)](https://doi.org/10.1140/epjc/s10052-019-7282-6). [arXiv:1812.04519](https://arxiv.org/abs/1812.04519).
+- Topological background discrimination in the PandaX-III neutrinoless double beta decay experiment. [J Galan et al 2020 J. Phys. G: Nucl. Part. Phys. 47 045108](https://doi.org/10.1088/1361-6471/ab4dbe). [arxiv:1903.03979]( https://arxiv.org/abs/1903.03979).
 
 ## License
 
