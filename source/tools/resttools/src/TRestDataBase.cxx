@@ -168,9 +168,15 @@ TRestDataBase::TRestDataBase() {
 /// The run number -1.
 int TRestDataBase::get_lastrun() {
     int runNr;
-    string runFilename = REST_PATH + "/runNumber";
+
+    string restUserPath = (string)getenv("HOME") + "/.rest/";
+    string runFilename = restUserPath + "runNumber";
     if (!TRestTools::fileExists(runFilename)) {
-        if (TRestTools::isPathWritable(REST_PATH)) {
+        if (!TRestTools::fileExists(restUserPath)) {
+            mkdir(restUserPath.c_str(), S_IRWXU);
+        }
+
+        if (TRestTools::isPathWritable(restUserPath)) {
             // we fix the "runNumber" file
             TRestTools::Execute("echo 1 > " + runFilename);
             runNr = 1;
@@ -306,7 +312,7 @@ string TRestDataBase::query_metadata_valuefile(int id, string name) {
 
         if (TRestTools::DownloadRemoteFile(url, fullpath) == 0) {
             return fullpath;
-        } else if(TRestTools::fileExists(fullpath)){
+        } else if (TRestTools::fileExists(fullpath)) {
             return fullpath;
         } else {
             return "";
