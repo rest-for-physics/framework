@@ -141,7 +141,6 @@ void TRestMySQLToAnalysisProcess::LoadConfig(std::string cfgFilename, std::strin
 /// to process the event
 ///
 void TRestMySQLToAnalysisProcess::InitProcess() {
-#if defined USE_SQL
     fStartTimestamp = fRunInfo->GetStartTimestamp();
     fEndTimestamp = fRunInfo->GetEndTimestamp();
 
@@ -152,9 +151,6 @@ void TRestMySQLToAnalysisProcess::InitProcess() {
                 << endl;
         warning << "This process will do nothing!" << endl;
     }
-#else
-    warning << "REST was not linked to SQL libraries. Run cmake using -DREST_SQL=ON" << endl;
-#endif
 }
 
 ///////////////////////////////////////////////
@@ -250,6 +246,7 @@ void TRestMySQLToAnalysisProcess::PrintMetadata() {
 /// This method will also initialize the value of the fMinValues and fMaxValues vectors.
 ///
 void TRestMySQLToAnalysisProcess::FillDBArrays() {
+#if defined USE_SQL
     MYSQL* conn = mysql_init(NULL);
     if (conn == NULL) {
         ferr << "TRestMySQLToAnalysisProcess::InitProcess. mysql_init() failed" << endl;
@@ -369,6 +366,9 @@ void TRestMySQLToAnalysisProcess::FillDBArrays() {
     if (GetVerboseLevel() >= REST_Debug) TRestTools::PrintTable(fDBdata, 0, 5);
 
     mysql_close(conn);
+#else
+    warning << "REST was not linked to SQL libraries. Run cmake using -DREST_SQL=ON" << endl;
+#endif
 }
 
 ///////////////////////////////////////////////
