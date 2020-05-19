@@ -991,31 +991,29 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     debug << "Entering ... " << __PRETTY_FUNCTION__ << endl;
 
     ReplaceElementAttributes(e);
-    const char* _filetmp = e->Attribute("file");
+    const char* _filename = e->Attribute("file");
+    if (_filename == NULL) return;
 
-    if (_filetmp == NULL) return;
-    string _filename = _filetmp;
-
-    if (_filename == "server") {
+    string filename;
+    if (string(_filename) == "server") {
         // Let TRestRun to retrieve data according to run number later-on
         if ((string) this->ClassName() == "TRestRun") return;
 
         // match the database, runNumber=0(default data), type="META_RML", tag=<section name>
         auto ids = gDataBase->search_metadata_with_info(DBEntry(0, "META_RML", e->Value()));
         if (ids.size() == 1) {
-            _filename = gDataBase->query_metadata_valuefile(ids[0]);
-            info << "using remote rml config file: " << _filename << endl;
-            if (_filename == "") {
-                return;
-            }
+            filename = gDataBase->query_metadata_valuefile(ids[0]);
+            info << "using remote rml config file: " << filename << endl;
         } else {
             warning << "Failed to expand remote rml components for " << e->Value() << endl;
             warning << "Default config file not found!" << endl;
             return;
         }
+    } else {
+        filename = SearchFile(_filename);
     }
 
-    string filename = SearchFile(_filename);
+
     if (filename == "") {
         warning << "REST WARNING(expand include file): Include file \"" << _filename << "\" does not exist!"
                 << endl;
