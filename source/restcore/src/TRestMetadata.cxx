@@ -2218,12 +2218,33 @@ std::string TRestMetadata::GetConfigBuffer() { return configBuffer; }
 ///
 /// Note that only streamed datamembers can be read, others will just
 /// return an empty string.
+///
 string TRestMetadata::GetDataMemberValue(string memberName) {
     any member = REST_Reflection::GetDataMember(any((char*)this, this->ClassName()), memberName);
     if (!member.IsZombie()) {
         return ToString(member);
     }
     return "";
+}
+
+///////////////////////////////////////////////
+/// \brief Get the value of datamember as a vector of strings.
+///
+/// If the datamember specified in the argument is a vector with several
+/// elements, those elements will be assigned to the std::vector. If the
+/// argument requests a data member that is not a vector in nature, this
+/// method will still return a valid vector string with a single element.
+///
+/// Note that only streamed datamembers can be read, others will just
+/// return an empty string.
+///
+std::vector<string> TRestMetadata::GetDataMemberValues(string memberName) {
+    string result = GetDataMemberValue(memberName);
+
+    result = Replace(result, "{", "");
+    result = Replace(result, "}", "");
+
+    return Split(result, ",");
 }
 
 ///////////////////////////////////////////////

@@ -238,6 +238,8 @@ class TRestMetadata : public TNamed {
 
     string GetDataMemberValue(string memberName);
 
+    std::vector<string> GetDataMemberValues(string memberName);
+
     string operator[](string memberName);
 
     TString GetVersion();
@@ -274,7 +276,8 @@ class TRestMetadata : public TNamed {
     TVector2 Get2DVectorParameterWithUnits(string parName, TVector2 defaultValue = TVector2(-1, -1));
 
     TVector3 Get3DVectorParameterWithUnits(string parName, TVector3 defaultValue = TVector3(-1, -1, -1));
-    /// If this method is called the metadata information will **not** be stored in disk. I/O is handled by
+    /// If this method is called the metadata information will **not** be stored in disk. I/O is handled
+    /// by
     /// TRestRun.
     void DoNotStore() { fStore = false; }
     /// If this method is called the metadata information will be stored in disk. This is the default
