@@ -719,40 +719,28 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
     info << "Downloading remote file : " << remoteFile << endl;
     info << "To local file : " << localFile << endl;
 
+    string localFiletmp = localFile + ".tmp";
     if ((string)url.GetProtocol() == "https" || (string)url.GetProtocol() == "http") {
-        string cmd = "wget --no-check-certificate " + remoteFile + " -O " + localFile + " -q";
+        string cmd = "wget --no-check-certificate " + EscapeSpecialLetters(remoteFile) + " -O " +
+                     EscapeSpecialLetters(localFiletmp) + " -q";
         debug << cmd << endl;
         int a = system(cmd.c_str());
 
         if (a == 0) {
+            rename(localFiletmp.c_str(), localFile.c_str());
             return 0;
         } else {
             ferr << "download failed! (" << remoteFile << ")" << endl;
             if (a == 1024) ferr << "Network connection problem?" << endl;
-            if (a == 2048) ferr << "File does NOT exist in database?" << endl;
-
-            bool localfileexist = false;
-            struct stat statbuf;
-            if (stat(localFile.c_str(), &statbuf) == 0) {
-                if (statbuf.st_size > 0) {
-                    localfileexist = 0;
-                    // we don't remove the existing file if download failed
-                } else {
-                    remove(localFile.c_str());
-                    // we remove the empty file created by wget if download failed
-                }
-            }
-            if (!localfileexist)
-                cout << "Please specify a local file" << endl;
-            else
-                cout << "You can use the already existed local file" << endl;
+            if (a == 2048) ferr << "File does NOT exist in remotely?" << endl;
         }
     } else if ((string)url.GetProtocol() == "ssh") {
         string cmd = "scp -P " + ToString(url.GetPort() == 0 ? 22 : url.GetPort()) + " " + url.GetUser() +
-                     "@" + url.GetHost() + ":" + url.GetFile() + " " + localFile;
+                     "@" + url.GetHost() + ":" + EscapeSpecialLetters(url.GetFile()) + " " + localFiletmp;
         cout << cmd << endl;
         int a = system(cmd.c_str());
         if (a == 0) {
+            rename(localFiletmp.c_str(), localFile.c_str());
             return 0;
         }
     } else {
@@ -787,7 +775,7 @@ int TRestTools::UploadToServer(string filelocal, string remotefile, string metho
         // maybe we use curl to upload to http in future
     } else if ((string)url.GetProtocol() == "ssh") {
         string cmd = "scp -P " + ToString(url.GetPort() == 0 ? 22 : url.GetPort()) + " " + filelocal + " " +
-                     url.GetUser() + "@" + url.GetHost() + ":" + url.GetFile();
+                     url.GetUser() + "@" + url.GetHost() + ":" + EscapeSpecialLetters(url.GetFile());
         cout << cmd << endl;
         int a = system(cmd.c_str());
 
