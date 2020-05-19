@@ -695,23 +695,21 @@ void TRestGas::UploadGasToServer(string absoluteGasFilename) {
     TRestTools::UploadToServer(remoteurl, fname, "ssh://gasUser@:22");
 
     // We transfer the gasFile to the gasServer
-    string _name = Replace(absoluteGasFilename, "(", "\\(", 0);
-    _name = Replace(_name, ")", "\\)", 0);
     ids = gDataBase->search_metadata_with_info(DBEntry(0, "GAS_SERVER"));
-    TRestTools::UploadToServer(remoteurl, _name, "ssh://gasUser@:22");
+    TRestTools::UploadToServer(remoteurl, absoluteGasFilename, "ssh://gasUser@:22");
 
     // We remove the local file (afterwards, the remote copy will be used)
-    cmd = "rm " + _name;
-    a = system(cmd.c_str());
+    //cmd = "rm " + _name;
+    //a = system(cmd.c_str());
 
-    if (a != 0) {
-        ferr << "-- Error : " << __PRETTY_FUNCTION__ << endl;
-        ferr << "-- Error : problem removing the locally generated gas file" << endl;
-        ferr << "-- Error : Please report this problem at "
-                "http://gifna.unizar.es/rest-forum/"
-             << endl;
-        return;
-    }
+    //if (a != 0) {
+    //    ferr << "-- Error : " << __PRETTY_FUNCTION__ << endl;
+    //    ferr << "-- Error : problem removing the locally generated gas file" << endl;
+    //    ferr << "-- Error : Please report this problem at "
+    //            "http://gifna.unizar.es/rest-forum/"
+    //         << endl;
+    //    return;
+    //}
 
     success << "-- Sucess : Gasfile server database was updated sucessfully!!" << endl;
 }
@@ -733,16 +731,11 @@ void TRestGas::UploadGasToServer(string absoluteGasFilename) {
 string TRestGas::FindGasFile(string name) {
     debug << "Entering ... TRestGas::FindGasFile( name=" << name << " )" << endl;
 
-    string _name = Replace(name, "(", "\\(", 0);
-    _name = Replace(_name, ")", "\\)", 0);
-
     string absoluteName = "";
 
     if (!fGasGeneration && fGasServer != "none") {
         absoluteName = gDataBase->query_metadata_valuefile(
-            gDataBase->search_metadata_with_info(DBEntry(0, "GAS_SERVER"))[0], _name);
-        absoluteName = Replace(absoluteName, "\\(", "(", 0);
-        absoluteName = Replace(absoluteName, "\\)", ")", 0);
+            gDataBase->search_metadata_with_info(DBEntry(0, "GAS_SERVER"))[0], name);
     }
 
     if (absoluteName == "") {

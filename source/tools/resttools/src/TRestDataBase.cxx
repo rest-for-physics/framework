@@ -299,18 +299,17 @@ string TRestDataBase::query_metadata_valuefile(int id, string name) {
         string fullpath;
         if (TRestTools::isPathWritable(REST_PATH)) {
             fullpath = REST_PATH + "/data/download/" + purename;
-            if (TRestTools::DownloadRemoteFile(url, fullpath) == 0) {
-                return fullpath;
-            } else {
-                return "";
-            }
+
         } else {
             fullpath = "/tmp/REST_" + REST_USER + "_Download_" + purename;
-            if (TRestTools::DownloadRemoteFile(url, fullpath) == 0) {
-                return fullpath;
-            } else {
-                return "";
-            }
+        }
+
+        if (TRestTools::DownloadRemoteFile(url, fullpath) == 0) {
+            return fullpath;
+        } else if(TRestTools::fileExists(fullpath)){
+            return fullpath;
+        } else {
+            return "";
         }
     }
 
