@@ -50,39 +50,12 @@ struct DBEntry {
     string tag = "";
     string description = "";
     string version = "";
+};
 
-    bool operator<(const DBEntry& d) const {
-        if (runNr < d.runNr) {
-            return true;
-        }
-        if (runNr == d.runNr && type < d.type) {
-            return true;
-        }
-        if (runNr == d.runNr && type == d.type && tag < d.tag) {
-            return true;
-        }
-        return false;
-    }
-
-    bool operator>(const DBEntry& d) const {
-        if (runNr > d.runNr) {
-            return true;
-        }
-        if (runNr == d.runNr && type > d.type) {
-            return true;
-        }
-        if (runNr == d.runNr && type == d.type && tag > d.tag) {
-            return true;
-        }
-        return false;
-    }
-
-    bool operator==(const DBEntry& d) const {
-        if (runNr == d.runNr && type == d.type && tag == d.tag) {
-            return true;
-        }
-        return false;
-    }
+struct DBTable : public vector<vector<string>> {
+    vector<string> headerline;
+    int rows() { return size(); }
+    int columns() { return headerline.size(); }
 };
 
 class TRestDataBase {
@@ -105,8 +78,8 @@ class TRestDataBase {
     /// default: read the dataURL file
     virtual void Initialize();
     virtual void test() {}
-    virtual void print(int runnumber) {}
-    virtual void exec(string cmd) {}
+    virtual void print(string cmd) {}
+    virtual DBTable exec(string cmd) { return DBTable(); }
 
     ///////////////////////  run number management interface  //////////////////////
     /// return the run number of the run. If not exist, return 0
