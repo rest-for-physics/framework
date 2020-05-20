@@ -34,21 +34,26 @@ void TRestDataBasePSQL::test() {
         int runid = atoi(items[0].c_str());
         if (runid <= 0) continue;
 
-        // fileid
         int fileid = atoi(items[1].c_str());
-
-        // runtime
         string runtime = items[2];
-
-        // filename
         string filename = items[3];
+        string MMs_activestr = items[5];
+        int Gas_driftvoltage = items[4] == "" ? 0 : atoi(items[4].c_str());
+        string MMs_HV_Meshstr = items[6];
+        string MMs_HV_IRstr = items[7];
+        string MMs_HV_ERstr = items[8];
+        string MMs_HV_DRstr = items[9];
+        string DAQ_threshold = items[10];
+        int DAQ_samplingrate = items[11] == "" ? 5 : atoi(items[11].c_str());
+        int DAQ_triggerdalay = items[12] == "" ? 150 : atoi(items[12].c_str());
+        string description = items[13];
 
         // file time, file size
         struct stat _stat;
         time_t filetime;
         long long filesize;
         if (stat(filename.c_str(), &_stat) == 0) {
-            filetime = _stat.st_mtime;
+            filetime = _stat.st_ctime;
             filesize = _stat.st_size;
         }
 
@@ -60,15 +65,9 @@ void TRestDataBasePSQL::test() {
             exec(
                 Form("insert into rest_runs (run_id, run_start) values (%i, '%s');", runid, runtime.c_str()));
 
-            string MMs_activestr = items[5];
             if (MMs_activestr != "") {
-                // we read run information
-
-                // drift
-                int Gas_driftvoltage = items[4] == "" ? 0 : atoi(items[4].c_str());
-
-                // MMs
-                string MMs_tag = "Prototype_7MM";
+                // set MMs active list
+                string MMs_layout = "Prototype_7MM";
                 vector<int> MMs_idlist{0, 2, 3, 4, 6, 8, 9};
                 vector<int> MMs_active;
                 int MMs_nactive = 0;
@@ -80,16 +79,13 @@ void TRestDataBasePSQL::test() {
                         MMs_active.push_back(0);
                     }
                 }
-                string MMs_HV_Meshstr = items[6];
+
                 vector<string> MMs_HV_Meshstrs = Split(MMs_HV_Meshstr, ",", false, true);
                 vector<int> MMs_HV_Mesh(MMs_idlist.size());
-                string MMs_HV_IRstr = items[7];
                 vector<string> MMs_HV_IRstrs = Split(MMs_HV_IRstr, ",", false, true);
                 vector<int> MMs_HV_IR(MMs_idlist.size());
-                string MMs_HV_ERstr = items[8];
                 vector<string> MMs_HV_ERstrs = Split(MMs_HV_ERstr, ",", false, true);
                 vector<int> MMs_HV_ER(MMs_idlist.size());
-                string MMs_HV_DRstr = items[9];
                 vector<string> MMs_HV_DRstrs = Split(MMs_HV_DRstr, ",", false, true);
                 vector<int> MMs_HV_DR(MMs_idlist.size());
                 for (int i = 0; i < MMs_active.size(); i++) {
@@ -146,13 +142,7 @@ void TRestDataBasePSQL::test() {
                         MMs_HV_DR[i] = atoi(MMs_HV_DRstrs[indexinstrs - 1].c_str());
                 }
 
-                // DAQ
-                string DAQ_threshold = items[10];
-                int DAQ_samplingrate = items[11] == "" ? 5 : atoi(items[11].c_str());
-                int DAQ_triggerdalay = items[12] == "" ? 150 : atoi(items[12].c_str());
-
                 // description
-                string description = items[13];
                 description = Replace(description, "'", "''");
                 description = Replace(description, "\r", "");
                 if (description.size() > 2 && description[0] == '\"' &&
@@ -166,23 +156,23 @@ void TRestDataBasePSQL::test() {
                           runid));
                 exec(Form("update rest_runs set type = 'HW_DEBUG' where run_id=%i;", runid));
 
-                exec(Form("insert into rest_metadata (run_id, MMs_tag) values (%i, '%s');", runid,
-                          MMs_tag.c_str()));
-                exec(Form("update rest_metadata set MMs_idlist = '%s' where run_id=%i;",
+                exec(Form("insert into rest_metadata (run_id, MMs_layout) values (%i, '%s');", runid,
+                          MMs_layout.c_str()));
+                exec(Form("update rest_metadata set MMs_id = '%s' where run_id=%i;",
                           ToString(any(MMs_idlist)).c_str(), runid));
                 exec(Form("update rest_metadata set MMs_active = '%s' where run_id=%i;",
                           ToString(any(MMs_active)).c_str(), runid));
-                exec(Form("update rest_metadata set MMs_HV_mesh = '%s' where run_id=%i;",
+                exec(Form("update rest_metadata set DAQ_HVmesh = '%s' where run_id=%i;",
                           ToString(any(MMs_HV_Mesh)).c_str(), runid));
-                exec(Form("update rest_metadata set MMs_HV_internalrim = '%s' where run_id=%i;",
+                exec(Form("update rest_metadata set DAQ_HVinternalrim = '%s' where run_id=%i;",
                           ToString(any(MMs_HV_IR)).c_str(), runid));
-                exec(Form("update rest_metadata set MMs_HV_externalrim = '%s' where run_id=%i;",
+                exec(Form("update rest_metadata set DAQ_HVexternalrim = '%s' where run_id=%i;",
                           ToString(any(MMs_HV_ER)).c_str(), runid));
-                exec(Form("update rest_metadata set MMs_AGET_boardid = '{2,1,2,1,0,3,0}' where run_id=%i;",
+                exec(Form("update rest_metadata set MMs_board = '{2,1,2,1,0,3,0}' where run_id=%i;",
                           runid));
-                exec(Form("update rest_metadata set MMs_AGET_chipid = '{3,12,12,3,12,6,3}' where run_id=%i;",
+                exec(Form("update rest_metadata set MMs_slot = '{3,12,12,3,12,6,3}' where run_id=%i;",
                           runid));
-                exec(Form("update rest_metadata set MMs_AGET_dynamicrange = '%s' where run_id=%i;",
+                exec(Form("update rest_metadata set DAQ_dynamicrange = '%s' where run_id=%i;",
                           ToString(any(MMs_HV_DR)).c_str(), runid));
 
                 exec(Form("update rest_metadata set DAQ_threshold = '%s' where run_id=%i;",
