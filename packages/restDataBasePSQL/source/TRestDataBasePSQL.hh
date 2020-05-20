@@ -5,6 +5,8 @@
 using namespace std;
 
 class TRestDataBasePSQL : public TRestDataBase {
+   private:
+    int AddDataEntryUnique(DBEntry info);
    public:
     TRestDataBasePSQL();
     ~TRestDataBasePSQL();

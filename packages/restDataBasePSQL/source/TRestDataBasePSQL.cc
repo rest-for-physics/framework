@@ -34,6 +34,17 @@ void TRestDataBasePSQL::Initialize() {
     }
 }
 
+int TRestDataBasePSQL::AddDataEntryUnique(DBEntry entry) {
+    auto search = TRestDataBase::search_data(entry);
+    if (search.size() > 0) {
+        return search[0];
+    } else {
+        fDataEntries.push_back(entry);
+        return fDataEntries.size() - 1;
+    }
+
+}
+
 void TRestDataBasePSQL::print(string cmd) {
     // if (ToUpper(cmd).find("DROP") != -1) {
     //    cout << "ERROR!!!FORBIDDEN OPERATION!!!" << endl;
@@ -113,6 +124,7 @@ DBEntry TRestDataBasePSQL::query_run(int runnumber) {
         info.tstart = ToTime(q[0][5]);
         info.tend = ToTime(q[0][6]);
 
+        // extract file pattern
         vector<string> files = Vector_cast<DBFile, string>(query_run_files(runnumber));
         if (files.size() == 0) {
             info.value = "";
@@ -224,6 +236,11 @@ int TRestDataBasePSQL::set_runfile(int runnumber, string filename) {
     if (!TRestTools::fileExists(filename)) {
         return -1;
     }
+    if (TRestTools::isRootFile(filename)) {
+        // maybe in future we will keep root file together as run file
+        return -1;
+    }
+
     filename = TRestTools::ToAbsoluteName(filename);
 
     bool create = true;
@@ -308,13 +325,7 @@ vector<int> TRestDataBasePSQL::search_data(DBEntry info) {
                 entry.tag = table.headerline[i];
                 entry.value = table[0][i];
 
-                auto search = TRestDataBase::search_data(entry);
-                if (search.size() > 0) {
-                    result.push_back(search[0]);
-                } else {
-                    fDataEntries.push_back(entry);
-                    result.push_back(fDataEntries.size() - 1);
-                }
+                result.push_back(AddDataEntryUnique(entry));
             }
         }
     }
@@ -325,15 +336,19 @@ vector<int> TRestDataBasePSQL::search_data(DBEntry info) {
 int TRestDataBasePSQL::get_lastdata() { return fDataEntries.size() - 1; }
 
 int TRestDataBasePSQL::set_data(DBEntry info, bool overwrite) {
-    auto search = TRestDataBase::search_data(info);
-    if (search.size() > 0) {
+    bool exists = exec(Form("select run_id from rest_metadata where run_id=%i", info.runNr)).rows();
+    if (exists) {
         if (overwrite) {
-            fDataEntries[search[0]] = info;
+            AddDataEntryUnique(info);
+            cout << Form("update rest_metadata set %s = '%s' where run_id=%i;", info.tag.c_str(),
+                         info.value.c_str(), info.runNr)
+                 << endl;
             exec(Form("update rest_metadata set %s = '%s' where run_id=%i;", info.tag.c_str(),
                       info.value.c_str(), info.runNr));
         }
     } else {
         fDataEntries.push_back(info);
+        cout << Form("insert into rest_metadata (run_id) values (%i);", info.runNr) << endl;
         exec(Form("insert into rest_metadata (run_id) values (%i);", info.runNr));
         exec(Form("update rest_metadata set %s = '%s' where run_id=%i;", info.tag.c_str(), info.value.c_str(),
                   info.runNr));
