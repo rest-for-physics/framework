@@ -92,19 +92,21 @@ struct _REST_STARTUP_CHECK {
                 mkdir(restUserPath.c_str(), S_IRWXU);
             }
             // check the runNumber file
-            if (!TRestTools::fileExists(restUserPath+"/runNumber")) {
+            if (!TRestTools::fileExists(restUserPath + "/runNumber")) {
                 TRestTools::Execute("echo 1 > " + restUserPath + "/runNumber");
             }
             // check the dataURL file
-            if (!TRestTools::fileExists(restUserPath+"/dataURL")) {
+            if (!TRestTools::fileExists(restUserPath + "/dataURL")) {
                 TRestTools::Execute("cp " + REST_PATH + "/data/dataURL " + restUserPath);
+            }
+            // check the download directory
+            if (!TRestTools::fileExists(restUserPath + "/download")) {
+                mkdir((restUserPath + "/download").c_str(), S_IRWXU);
             }
 
             // now we don't need to check write accessibility in other methods in REST
             REST_USER_PATH = restUserPath;
         }
-
-
     }
 };
 const _REST_STARTUP_CHECK __check;
@@ -756,7 +758,7 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
     if ((string)url.GetProtocol() == "https" || (string)url.GetProtocol() == "http") {
         string path = TRestTools::SeparatePathAndName(localFiletmp).first;
         if (!TRestTools::fileExists(path)) {
-            system(("mkdir " + path).c_str());
+            system(("mkdir -p " + path).c_str());
         }
 
         string cmd = "wget --no-check-certificate " + EscapeSpecialLetters(remoteFile) + " -O " +
