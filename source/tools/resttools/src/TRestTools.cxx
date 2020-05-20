@@ -754,6 +754,11 @@ int TRestTools::DownloadRemoteFile(string remoteFile, string localFile) {
 
     string localFiletmp = localFile + ".tmp";
     if ((string)url.GetProtocol() == "https" || (string)url.GetProtocol() == "http") {
+        string path = TRestTools::SeparatePathAndName(localFiletmp).first;
+        if (!TRestTools::fileExists(path)) {
+            system(("mkdir " + path).c_str());
+        }
+
         string cmd = "wget --no-check-certificate " + EscapeSpecialLetters(remoteFile) + " -O " +
                      EscapeSpecialLetters(localFiletmp) + " -q";
         debug << cmd << endl;
