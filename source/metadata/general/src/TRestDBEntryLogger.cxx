@@ -73,7 +73,7 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
     string version = entry.version;
 
     string txtfilename = "/tmp/REST_" + REST_USER + "_tempDBLog.txt";
-    ofstream ofs(txtfilename);
+    ofstream ofs(txtfilename, ios::ate);
     ofs << (create ? "-- creating" : "-- updating") << " run in database, id: " << run_id
         << ", version: " << version << ". Delete this line to cancel." << endl;
     ofs << "type: " << type << endl;
@@ -95,13 +95,15 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
     string s;
     bool valid = false;
     while (getline(ifs, s)) {
-        if (!valid && s[0] != '-') {
-            warning << "TRestDBEntryLogger: DataBase writting cancelled" << endl;
-            ifs.close();
-            return;
-        } else {
-            valid = true;
-            continue;
+        if (!valid) {
+            if (s[0] != '-') {
+                warning << "TRestDBEntryLogger: DataBase writting cancelled" << endl;
+                ifs.close();
+                return;
+            } else {
+                valid = true;
+                continue;
+            }
         }
 
         auto infopair = Split(s, ":");
@@ -121,6 +123,8 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
         else
             fMetainfo[infopair[0]] = infopair[1];
     }
+    ifs.close();
+
     fRun->SetRunType(type);
     fRun->SetRunDescription(description);
     fRun->SetRunTag(tag);
@@ -178,11 +182,14 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
     for (auto iter : fMetainfo) {
         //gDataBase->exec(Form("update rest_metadata set %s = '%s' where run_id=%i;", iter.first.c_str(),
         //                     iter.second.c_str(), run_id));
-        DBEntry dataentry;
-        dataentry.runNr = run_id;
-        dataentry.type = iter.first;
-        dataentry.value = iter.second;
-        gDataBase->set_data(dataentry, true);
+        if (iter.second != "" && iter.first != "") {
+            DBEntry dataentry;
+            dataentry.runNr = run_id;
+            dataentry.type = "DB_COLUMN";
+            dataentry.tag = iter.first;
+            dataentry.value = iter.second;
+            gDataBase->set_data(dataentry, true);
+        }
     }
 
     fout << "TRestDBEntryLogger: DataBase writting successful" << endl;
