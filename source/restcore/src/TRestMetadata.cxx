@@ -2271,7 +2271,6 @@ TString TRestMetadata::GetVerboseLevelString() {
 /// precedence:
 ///  1) in sections "searchPath",
 ///  2) in "configPath"（the path of main rml file）,
-///  3) default data path: "$REST_PATH/data/"
 ///
 /// To add a searchPath, use:
 /// \code
@@ -2303,8 +2302,6 @@ TString TRestMetadata::GetSearchPath() {
     }
 
     if (getenv("configPath")) result += getenv("configPath") + (string) ":";
-    result += REST_PATH + "/data/:";
-    result += REST_PATH + "/data/download/:";
     if (result.back() == ':') result.erase(result.size() - 1);
 
     return ReplaceEnvironmentalVariables(result);
