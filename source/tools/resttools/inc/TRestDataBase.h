@@ -148,9 +148,7 @@ class TRestDataBase {
     virtual int get_lastmetadata();
 
     /// add a new record of metadata in database, entry information and remote url should be given
-    virtual int add_metadata(DBEntry info, string value);
-    /// update entry information for the specified entry
-    virtual int update_metadata(int id, DBEntry info);
+    virtual int add_metadata(DBEntry info, string value, bool overwrite = true) { return 0; }
 };
 
 #define gDataBase (TRestDataBase::GetDataBase())

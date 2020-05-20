@@ -189,7 +189,7 @@ int TRestDataBase::get_lastrun() {
 /// runs are added according to info.id of input DBEntry object:
 /// -1 --> do not add
 /// 0  --> append a new run in run list
-/// >0 --> directly use this run number
+/// >0 --> directly use this run number, overwrite existing
 ///
 /// It will write to the file: $REST_USER_PATH/runNumber is writable. The number written will be
 /// the **next** run number
@@ -312,36 +312,29 @@ string TRestDataBase::query_metadata_valuefile(int id, string name) {
 
 int TRestDataBase::get_lastmetadata() { return fMetaDataValues.size() - 1; }
 
-int TRestDataBase::add_metadata(DBEntry info, string url) {
-    if (TRestTools::isPathWritable(REST_USER_PATH)) {
-        cout << "error! path not writable" << endl;
-        return -1;
-    }
-
-    string metaFilename = REST_USER_PATH + "/dataURL";
-
-    if (info.runNr == 0) {
-        info.runNr = get_lastmetadata();
-    }
-    fMetaDataValues.push_back({info, url});
-
-    std::ofstream file(metaFilename, std::ios::app);
-    file << "\"" << info.runNr << "\" ";
-    file << "\"" << info.type << "\" ";
-    file << "\"" << info.tag << "\" ";
-    file << "\"" << info.description << "\" ";
-    file << "\"" << info.version << "\" ";
-    file << "\"" << url << "\" ";
-    file << endl;
-    file.close();
-
-    return info.runNr;
-}
-
-///////////////////////////////////////////////
-/// The following specification of DBEntry's content will not be updated:
-/// id <= 0, type == "" ,usr == "" ,tag == "" ,description == "" ,version == "".
-int TRestDataBase::update_metadata(int id, DBEntry info) {
-    cout << "error! not implemented" << endl;
-    return 0;
-}
+//int TRestDataBase::add_metadata(DBEntry info, string url, bool overwrite) {
+//    if (TRestTools::isPathWritable(REST_USER_PATH)) {
+//        cout << "error! path not writable" << endl;
+//        return -1;
+//    }
+//
+//    string metaFilename = REST_USER_PATH + "/dataURL";
+//
+//    if (info.runNr == 0) {
+//        info.runNr = get_lastmetadata();
+//    }
+//    fMetaDataValues.push_back({info, url});
+//
+//    std::ofstream file(metaFilename, std::ios::app);
+//    file << "\"" << info.runNr << "\" ";
+//    file << "\"" << info.type << "\" ";
+//    file << "\"" << info.tag << "\" ";
+//    file << "\"" << info.description << "\" ";
+//    file << "\"" << info.version << "\" ";
+//    file << "\"" << url << "\" ";
+//    file << endl;
+//    file.close();
+//
+//    return info.runNr;
+//}
+//
