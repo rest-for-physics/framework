@@ -165,6 +165,7 @@ void TRestMySQLToAnalysisProcess::Initialize() { SetSectionName(this->ClassName(
 TRestEvent* TRestMySQLToAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     fEvent = evInput;
 
+#if defined USE_SQL
     debug << "TRestMySQLToAnalysisProcess. Ev ID : " << fEvent->GetID() << endl;
     debug << "TRestMySQLToAnalysisProcess. Get timestamp : " << fEvent->GetTime() << endl;
     for (int n = 0; n < fAnaTreeVariables.size(); n++)
@@ -175,6 +176,23 @@ TRestEvent* TRestMySQLToAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     for (int n = 0; n < fAnaTreeVariables.size(); n++)
         SetObservableValue((string)fAnaTreeVariables[n], GetDBValueAtTimestamp(n, fEvent->GetTime()));
+#else
+    if (fCheckSQL) {
+        warning << "REST was not linked to SQL libraries. Run cmake using -DREST_SQL=ON" << endl;
+        warning << "Clearing process metadata info." << endl;
+        warning << "Please, remove this process from the data chain or enable support for MySQL." << endl;
+
+        fAnaTreeVariables.clear();
+        fSQLVariables.clear();
+        fDBServerName = "";
+        fDBName = "";
+        fDBUserName = "";
+        fDBUserPass = "";
+        fDBTable = "";
+
+        fCheckSQL = false;
+    }
+#endif
 
     return fEvent;
 }
