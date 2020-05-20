@@ -54,19 +54,24 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
         run_id = gDataBase->get_lastrun() + 1;
         create = true;
     }
-    int lastvalirrun =
-        atoi(gDataBase->exec(Form("select max(run_id) from rest_runs where type!='OTHER' and run_id<=%i;",
-                                  run_id))[0][0]
-                 .c_str());
 
-    auto infolist = gDataBase->exec(Form("select * from rest_metadata where run_id=%i", lastvalirrun));
-    auto runquery =
-        gDataBase->exec(Form("select type,tag,description from rest_runs where run_id=%i", run_id));
+    //auto infolist = gDataBase->exec(Form("select * from rest_metadata where run_id=%i", lastvalirrun));
 
-    string type = runquery[0][0];
-    string tag = runquery[0][1];
-    string description = runquery[0][2];
-    string version = REST_RELEASE;
+    // search metadata, run number=this run, metadata type = any
+    auto ids = gDataBase->search_metadata_with_info({(create ? run_id - 1 : run_id), ""});
+    map<string, string> infolist;
+    for (auto id : ids) {
+        auto name = gDataBase->query_metadata_info(id).type;
+        auto value = gDataBase->query_metadata_value(id);
+        infolist[name] = value;
+    }
+
+    DBEntry entry = gDataBase->query_run_info(create ? run_id - 1 : run_id);
+
+    string type = entry.type;
+    string tag = entry.tag;
+    string description = entry.description;
+    string version = entry.version;
 
     string txtfilename = "/tmp/REST_" + REST_USER + "_tempDBLog.txt";
     ofstream ofs(txtfilename);
@@ -76,16 +81,12 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
     ofs << "tag: " << tag << endl;
     ofs << "description: " << description << endl;
 
-    if (infolist.rows() == 1) {
-        for (int i = 1; i < infolist.columns(); i++) {
+    if (infolist.size() > 0) {
+        for (auto info:infolist) {
             // i=0 --> run_id, we skip it
-            ofs << infolist.headerline[i] << ": " << infolist[0][i] << endl;
+            ofs << info.first << ": " << info.second << endl;
         }
-    } else {
-        for (int i = 1; i < infolist.columns(); i++) {
-            ofs << infolist.headerline[i] << ": " << endl;
-        }
-    }
+    } 
     ofs.flush();
     ofs.close();
     system((fTextOpenCommand + " " + txtfilename).c_str());
@@ -127,7 +128,15 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
 
     if (create) {
         // add entry
-        cout << Form(
+        DBEntry runentry;
+        runentry.runNr = run_id;
+        runentry.type = type;
+        runentry.tag = tag;
+        runentry.description = description;
+        runentry.version = version;
+        gDataBase->add_run(runentry);
+
+       /* cout << Form(
                     "insert into rest_runs (run_id, type, tag, description, version) values (%i, '%s', '%s', "
                     "'%s', "
                     "'%s');",
@@ -136,7 +145,7 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
         gDataBase->exec(Form(
             "insert into rest_runs (run_id, type, tag, description, version) values (%i, '%s', '%s', '%s', "
             "'%s');",
-            run_id, type.c_str(), tag.c_str(), description.c_str(), version.c_str()));
+            run_id, type.c_str(), tag.c_str(), description.c_str(), version.c_str()));*/
 
         // add run file
         vector<string> files = Vector_cast<TString, string>(fRun->GetInputFileNames());
@@ -150,23 +159,34 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
                 filesize = _stat.st_size;
             }
 
-            gDataBase->exec(
+            DBFile afile;
+            afile.filename = files[i];
+            afile.fileSize = filesize;
+            afile.start = filetime;
+            gDataBase->add_runfile(run_id, files[i], afile);
+            /*gDataBase->exec(
                 Form("insert into rest_files (run_id,file_id,file_name,file_size,start_time) values "
                      "(%i,%i,'%s',%i,'%s');",
-                     run_id, fileid, files[i].c_str(), filesize, ToDateTimeString(filetime).c_str()));
+                     run_id, fileid, files[i].c_str(), filesize, ToDateTimeString(filetime).c_str()));*/
             if (i == 0) {
-                gDataBase->exec(Form("update rest_runs set run_start = '%s' where run_id=%i;",
-                                     ToDateTimeString(filetime).c_str(), run_id));
+                //gDataBase->exec(Form("update rest_runs set run_start = '%s' where run_id=%i;",
+                //                     ToDateTimeString(filetime).c_str(), run_id));
+                gDataBase->set_runstart(run_id, filetime);
             }
         }
 
         // add run metadata
-        gDataBase->exec(Form("insert into rest_metadata (run_id) values (%i);", run_id));
+        //gDataBase->exec(Form("insert into rest_metadata (run_id) values (%i);", run_id));
+
     }
 
     for (auto iter : fMetainfo) {
-        gDataBase->exec(Form("update rest_metadata set %s = '%s' where run_id=%i;", iter.first.c_str(),
-                             iter.second.c_str(), run_id));
+        //gDataBase->exec(Form("update rest_metadata set %s = '%s' where run_id=%i;", iter.first.c_str(),
+        //                     iter.second.c_str(), run_id));
+        DBEntry metaentry;
+        metaentry.runNr = run_id;
+        metaentry.type = iter.first;
+        gDataBase->add_metadata(metaentry, iter.second);
     }
 
     fout << "TRestDBEntryLogger: DataBase writting successful" << endl;
