@@ -332,7 +332,7 @@ int TRestReflector::InitDictionary() {
         typeformatted = Replace(typeformatted, ",", "_");
         typeformatted = RemoveWhiteSpaces(typeformatted);
 
-        string sofilename = REST_PATH + (string) "/lib/AddonDict/Dict_" + typeformatted + ".so";
+        string sofilename = REST_USER_PATH + (string) "/AddonDict/Dict_" + typeformatted + ".so";
 
         // we directly load the dictionary if it exists
         if (TRestTools::fileExists(sofilename)) {
@@ -344,17 +344,17 @@ int TRestReflector::InitDictionary() {
         }
 
         // we create a new library of dictionary for that type
-        if (!TRestTools::isPathWritable(REST_PATH)) {
+        if (!TRestTools::isPathWritable(REST_USER_PATH)) {
             cout << "Error in CreateDictionary: cannot create dictionary, path not writeable!" << endl;
-            cout << "path: \"" << REST_PATH << "\"" << endl;
+            cout << "path: \"" << REST_USER_PATH << "\"" << endl;
             cout << "This is possible in case you are using public installation of REST, install one by your "
                     "own?"
                  << endl;
             return -1;
         }
-        system(Form("mkdir -p %s/lib/AddonDict", REST_PATH.c_str()));
+        system(Form("mkdir -p %s/lib/AddonDict", REST_USER_PATH.c_str()));
 
-        string linkdeffilename = REST_PATH + (string) "/lib/AddonDict/LinkDef.h";
+        string linkdeffilename = REST_USER_PATH + (string) "/AddonDict/LinkDef.h";
         ofstream ofs(linkdeffilename);
         ofs << "#include <map>" << endl;
         ofs << "#include <vector>" << endl;
@@ -367,7 +367,7 @@ int TRestReflector::InitDictionary() {
         ofs << "#endif" << endl;
         ofs.close();
 
-        string cxxfilename = REST_PATH + (string) "/lib/AddonDict/" + typeformatted + ".cxx";
+        string cxxfilename = REST_USER_PATH + (string) "/AddonDict/" + typeformatted + ".cxx";
 
         cout << "Creating external dictionary for: \"" << type << "\":" << endl;
         cout << sofilename << endl;
