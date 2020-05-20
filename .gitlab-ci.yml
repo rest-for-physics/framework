@@ -73,6 +73,7 @@ testrestG4:
       #    - mkdir -p /root/.rest
       #    - echo 1 > /root/.rest/runNumber
     - restG4 NLDBD.rml
+    - rm -rf $HOME/.rest
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/Run00001_NLDBD_Test.root
