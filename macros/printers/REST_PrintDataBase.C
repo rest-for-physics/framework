@@ -15,8 +15,9 @@ Int_t REST_DataBase(Int_t run = -1) {
         fout << "cannot print database record!" << endl;
     } else {
         if (run < 0) run = db->get_lastrun();
-		db->print(run);
+        db->print(run);
+        return 0;
     }
 
-    return 0;
+    return 1;
 }
