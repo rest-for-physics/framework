@@ -67,8 +67,9 @@ testrestG4:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/
-    - mkdir -p /root/.rest
-    - echo 1 > /root/.rest/runNumber
+      # This should not be done manually. It should be created directly by REST
+      #    - mkdir -p /root/.rest
+      #    - echo 1 > /root/.rest/runNumber
     - restG4 NLDBD.rml
   artifacts:
     paths:
