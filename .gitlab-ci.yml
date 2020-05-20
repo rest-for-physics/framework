@@ -134,6 +134,9 @@ testProcessG4Ana:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples
+    - ls
+    - pwd
+    - ls 01.NLDBD-PandaX-III/Run00001_NLDBD_Test.root
     - restManager --c g4Analysis.rml --i "01.NLDBD-PandaX-III/Run00001_NLDBD_Test.root" --o g4Ana.root
     - restManager --c g4ToHits.rml --i g4Ana.root --o g4Hits.root
   artifacts:
