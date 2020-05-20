@@ -90,7 +90,7 @@ DBEntry::DBEntry(vector<string> items) {
 
 void TRestDataBase::Initialize() {
     fMetaDataValues.clear();
-    string metaFilename = REST_PATH + (string) "/dataURL";
+    string metaFilename = REST_USER_PATH + (string) "/dataURL";
     if (!TRestTools::fileExists(metaFilename)) {
         return;
     } else {
@@ -163,20 +163,14 @@ TRestDataBase::TRestDataBase() {
 ///////////////////////////////////////////////
 /// \brief get the latest run in database
 ///
-/// Get the latest run in database, by reading the file: $REST_PATH/runNumber.
+/// Get the latest run in database, by reading the file: $REST_USER_PATH/runNumber.
 /// Note that this file saves run number of the **next** run. So it returns
 /// The run number -1.
 int TRestDataBase::get_lastrun() {
     int runNr;
-
-    string restUserPath = (string)getenv("HOME") + "/.rest/";
-    string runFilename = restUserPath + "runNumber";
+    string runFilename = REST_USER_PATH + "/runNumber";
     if (!TRestTools::fileExists(runFilename)) {
-        if (!TRestTools::fileExists(restUserPath)) {
-            mkdir(restUserPath.c_str(), S_IRWXU);
-        }
-
-        if (TRestTools::isPathWritable(restUserPath)) {
+        if (TRestTools::isPathWritable(REST_USER_PATH)) {
             // we fix the "runNumber" file
             TRestTools::Execute("echo 1 > " + runFilename);
             runNr = 1;
@@ -197,7 +191,7 @@ int TRestDataBase::get_lastrun() {
 /// 0  --> append a new run in run list
 /// >0 --> directly use this run number
 ///
-/// It will write to the file: $REST_PATH/runNumber is writable. The number written will be
+/// It will write to the file: $REST_USER_PATH/runNumber is writable. The number written will be
 /// the **next** run number
 ///
 /// The method in derived class shall follow this rule.
@@ -211,8 +205,8 @@ int TRestDataBase::add_run(DBEntry info) {
         return -1;
     }
 
-    string runFilename = REST_PATH + "/runNumber";
-    if (TRestTools::isPathWritable(REST_PATH)) {
+    string runFilename = REST_USER_PATH + "/runNumber";
+    if (TRestTools::isPathWritable(REST_USER_PATH)) {
         TRestTools::Execute("echo " + ToString(newRunNr + 1) + " > " + runFilename);
     } else {
         cout << "REST WARNING: runNumber file not writable. auto run number "
@@ -281,7 +275,7 @@ vector<int> TRestDataBase::search_metadata_with_info(DBEntry _info) {
 
 ///////////////////////////////////////////////
 /// In base class of database, we suppose the value of metadata entry is a file url.
-/// So we directly download them, to the local directory $REST_PATH/data/download/.
+/// So we directly download them, to the local directory $REST_USER_PATH/data/download/.
 /// If the "name" is given, it will replace the file name from metadata value
 string TRestDataBase::query_metadata_valuefile(int id, string name) {
     string url = query_metadata_value(id);
@@ -302,13 +296,7 @@ string TRestDataBase::query_metadata_valuefile(int id, string name) {
     if (url.find("local:") == 0) {
         return Replace(url, "local:", "");
     } else {
-        string fullpath;
-        if (TRestTools::isPathWritable(REST_PATH)) {
-            fullpath = REST_PATH + "/data/download/" + purename;
-
-        } else {
-            fullpath = "/tmp/REST_" + REST_USER + "_Download_" + purename;
-        }
+        string fullpath = REST_USER_PATH + "/download/" + purename;
 
         if (TRestTools::DownloadRemoteFile(url, fullpath) == 0) {
             return fullpath;
@@ -325,12 +313,12 @@ string TRestDataBase::query_metadata_valuefile(int id, string name) {
 int TRestDataBase::get_lastmetadata() { return fMetaDataValues.size() - 1; }
 
 int TRestDataBase::add_metadata(DBEntry info, string url) {
-    if (TRestTools::isPathWritable(REST_PATH)) {
+    if (TRestTools::isPathWritable(REST_USER_PATH)) {
         cout << "error! path not writable" << endl;
         return -1;
     }
 
-    string metaFilename = REST_PATH + "/dataURL";
+    string metaFilename = REST_USER_PATH + "/dataURL";
 
     if (info.runNr == 0) {
         info.runNr = get_lastmetadata();
