@@ -89,7 +89,7 @@ DBEntry::DBEntry(vector<string> items) {
 }
 
 void TRestDataBase::Initialize() {
-    fMetaDataValues.clear();
+    fDataEntries.clear();
     string metaFilename = REST_USER_PATH + (string) "/dataURL";
     if (!TRestTools::fileExists(metaFilename)) {
         return;
@@ -99,8 +99,8 @@ void TRestDataBase::Initialize() {
         string s;
         while (TRestTools::GetLine(infile, s)) {
             DBEntry info;
-            string value;
             vector<string> items = Split(s, "\t", true);
+            if (items.size() <= 2 ) continue;
             for (auto item : items) {
                 vector<string> pair = Split(item, "=", true);
                 if (pair.size() == 2) {
@@ -108,54 +108,48 @@ void TRestDataBase::Initialize() {
                         info.runNr = atoi(pair[1].c_str());
                     else if (pair[0] == "type")
                         info.type = pair[1];
-                    else if (pair[0] == "tag") 
+                    else if (pair[0] == "tag")
                         info.tag = pair[1];
                     else if (pair[0] == "description")
                         info.description = pair[1];
                     else if (pair[0] == "version")
                         info.version = pair[1];
                     else if (pair[0] == "value")
-                        value = pair[1];
+                        info.value = pair[1];
                 }
             }
 
-            fMetaDataValues.push_back({info, value});
+            fDataEntries.push_back(info);
         }
     }
 }
 
-DBFile::DBFile(string _filename) {
-    filename = _filename;
-    auto _fullname = TRestTools::ToAbsoluteName(filename);
+DBFile DBFile::ParseFile(string _filename) {
+    DBFile file;
+    file.filename = _filename;
+    auto _fullname = TRestTools::ToAbsoluteName(_filename);
 
     struct stat buf;
     int result = stat(_fullname.c_str(), &buf);
 
     if (result != 0) {
         cout << "Failed to load file \"" << _fullname << "\"!" << endl;
-        fileSize = 0;
-        evtRate = 0;
-        quality = true;
-        start = 0;
-        stop = 0;
-        for (int i = 0; i < 41; i++) {
-            sha1sum[i] = 0;
-        }
     } else {
-        fileSize = buf.st_size;
-        evtRate = 0;
-        quality = true;
-        start = buf.st_ctime;
-        stop = buf.st_mtime;
+        file.fileSize = buf.st_size;
+        file.evtRate = 0;
+        file.quality = true;
+        file.start = buf.st_ctime;
+        file.stop = buf.st_mtime;
         string sha1result = TRestTools::Execute("sha1sum " + _fullname);
         string sha1 = Split(sha1result, " ")[0];
         if (sha1.size() == 40) {
             for (int i = 0; i < 40; i++) {
-                sha1sum[i] = sha1[i];
+                file.sha1sum[i] = sha1[i];
             }
-            sha1sum[40] = 0;
+            file.sha1sum[40] = 0;
         }
     }
+    return file;
 }
 
 void DBFile::Print() {
@@ -210,7 +204,7 @@ int TRestDataBase::get_lastrun() {
 /// the **next** run number
 ///
 /// The method in derived class shall follow this rule.
-int TRestDataBase::add_run(DBEntry info) {
+int TRestDataBase::set_run(DBEntry info, bool overwrite) {
     int newRunNr;
     if (info.runNr == 0) {
         newRunNr = get_lastrun() + 1;
@@ -229,60 +223,39 @@ int TRestDataBase::add_run(DBEntry info) {
              << endl;
     }
 
-    set_run_info(newRunNr, info);
-
     return newRunNr;
 }
 
-int TRestDataBase::query_metadata(int id) {
-    if (fMetaDataValues.size() > id) return id;
-    return -1;
-}
-
-string TRestDataBase::query_metadata_value(int id) { return fMetaDataValues[id].second; }
-
-DBEntry TRestDataBase::query_metadata_info(int id) { return fMetaDataValues[id].first; }
-
-vector<int> TRestDataBase::search_metadata_with_value(string _val) {
-    vector<int> result;
-    for (int i = 0; i < fMetaDataValues.size(); i++) {
-        DBEntry info = fMetaDataValues[i].first;
-        string val = fMetaDataValues[i].second;
-        if (val.find(_val) != -1) {
-            result.push_back(i);
-        }
-    }
-    return result;
+DBEntry TRestDataBase::query_data(int id) {
+    if (fDataEntries.size() > id) return fDataEntries[id];
+    return DBEntry();
 }
 
 ///////////////////////////////////////////////
 /// The following specification of DBEntry's content means to match **any**:
 /// id <= 0, type == "" ,usr == "" ,tag == "" ,description == "" ,version == "".
 /// If all of them mean **any**, it will return a blank list.
-vector<int> TRestDataBase::search_metadata_with_info(DBEntry _info) {
+vector<int> TRestDataBase::search_data(DBEntry _info) {
     vector<int> result;
     if (_info.runNr <= 0 && _info.type == "" && _info.tag == "" && _info.description == "" &&
         _info.version == "")
         return result;
 
-    auto iter = fMetaDataValues.begin();
-    for (int i = 0; i < fMetaDataValues.size(); i++) {
-        DBEntry info = fMetaDataValues[i].first;
-        string val = fMetaDataValues[i].second;
-        if (_info.runNr > 0 && info.runNr == _info.runNr) {
-            // match runNr only
-            result.push_back(info.runNr);
-        } else if (_info.runNr <= 0 || (_info.runNr > 0 && info.runNr == 0)) {
-            // we match other items instead of runNr
-            bool typematch = (_info.type == "" || info.type == _info.type);
-            bool tagmatch = (_info.tag == "" || info.tag == _info.tag);
-            bool descriptionmatch = (_info.description == "" || info.description == _info.description);
-            bool versionmatch = (_info.version == "" || info.version == _info.version);
+    auto iter = fDataEntries.begin();
+    for (int i = 0; i < fDataEntries.size(); i++) {
+        DBEntry info = fDataEntries[i];
 
-            if (typematch && tagmatch && descriptionmatch && versionmatch) {
-                result.push_back(i);
-            }
+        bool runmatch = (_info.runNr == 0 || info.runNr == 0 || info.runNr == _info.type);
+        bool typematch = (_info.type == "" || info.type == _info.type);
+        bool tagmatch = (_info.tag == "" || info.tag == _info.tag);
+        bool descriptionmatch = (_info.description == "" || info.description == _info.description);
+        bool versionmatch = (_info.version == "" || info.version == _info.version);
+        bool valuematch = (_info.value == "" || info.value == _info.value);
+
+        if (runmatch && typematch && tagmatch && descriptionmatch && versionmatch && valuematch) {
+            result.push_back(i);
         }
+
         iter++;
     }
     return result;
@@ -292,9 +265,13 @@ vector<int> TRestDataBase::search_metadata_with_info(DBEntry _info) {
 /// In base class of database, we suppose the value of metadata entry is a file url.
 /// So we directly download them, to the local directory $REST_USER_PATH/data/download/.
 /// If the "name" is given, it will replace the file name from metadata value
-string TRestDataBase::query_metadata_valuefile(int id, string name) {
-    string url = query_metadata_value(id);
+DBFile TRestDataBase::wrap_data(DBEntry data, string name) {
+    if (data.IsZombie()) {
+        cout << "Error! Zombie data cannot be wrapped into file!" << endl;
+        abort();
+    }
 
+    string url = data.value;
     if (name != "") {
         int pos = url.find_last_of('/', -1);
         url.replace(url.begin() + pos + 1, url.end(), name);
@@ -302,10 +279,11 @@ string TRestDataBase::query_metadata_valuefile(int id, string name) {
 
     string purename = TRestTools::GetPureFileName(url);
     if (purename == "") {
-        cout << "error! entry " << id << " in the database is recorded as a file path" << endl;
+        cout << "error! (data entry: " << data.runNr << ", type: " << data.type
+             << ") is recorded as a file path" << endl;
         cout << "please specify a concrete file name in this path" << endl;
         cout << "url: " << url << endl;
-        return "";
+        return DBFile();
     }
 
     if (url.find("local:") == 0) {
@@ -314,20 +292,20 @@ string TRestDataBase::query_metadata_valuefile(int id, string name) {
         string fullpath = REST_USER_PATH + "/download/" + purename;
 
         if (TRestTools::DownloadRemoteFile(url, fullpath) == 0) {
-            return fullpath;
+            return DBFile(fullpath);
         } else if (TRestTools::fileExists(fullpath)) {
-            return fullpath;
+            return DBFile(fullpath);
         } else {
-            return "";
+            return DBFile();
         }
     }
 
-    return "";
+    return DBFile();
 }
 
-int TRestDataBase::get_lastmetadata() { return fMetaDataValues.size() - 1; }
+int TRestDataBase::get_lastdata() { return fDataEntries.size() - 1; }
 
-//int TRestDataBase::add_metadata(DBEntry info, string url, bool overwrite) {
+// int TRestDataBase::add_metadata(DBEntry info, string url, bool overwrite) {
 //    if (TRestTools::isPathWritable(REST_USER_PATH)) {
 //        cout << "error! path not writable" << endl;
 //        return -1;
@@ -338,7 +316,7 @@ int TRestDataBase::get_lastmetadata() { return fMetaDataValues.size() - 1; }
 //    if (info.runNr == 0) {
 //        info.runNr = get_lastmetadata();
 //    }
-//    fMetaDataValues.push_back({info, url});
+//    fDataEntries.push_back({info, url});
 //
 //    std::ofstream file(metaFilename, std::ios::app);
 //    file << "\"" << info.runNr << "\" ";

@@ -144,8 +144,8 @@ void TRestRun::BeginOfInit() {
     if (ToUpper(inputname) == "AUTO") {
         TRestDataBase* db = gDataBase;
         auto files = db->query_run_files(fRunNumber);
-        fInputFileName = db->query_run_filepattern(fRunNumber);
-        fInputFileNames = Vector_cast<string, TString>(files);
+        fInputFileName = db->query_run(fRunNumber).value; // run entry value is file pattern
+        fInputFileNames = Vector_cast<DBFile, TString>(files);
     }
 
     if (ToUpper(runNstr) == "AUTO") {
@@ -165,7 +165,7 @@ void TRestRun::BeginOfInit() {
             entry.tag = fRunTag;
             entry.type = fRunType;
             entry.version = REST_RELEASE;
-            db->add_run(entry);
+            db->set_run(entry);
         }
     }
 
@@ -282,9 +282,9 @@ Int_t TRestRun::ReadConfig(string keydeclare, TiXmlElement* e) {
         }
         if (e->Attribute("file") != NULL && (string)e->Attribute("file") == "server") {
             // read meta-sections from database
-            auto ids = gDataBase->search_metadata_with_info(DBEntry(fRunNumber, "META_RML", e->Value()));
+            auto ids = gDataBase->search_data(DBEntry(fRunNumber, "META_RML", e->Value()));
             if (ids.size() > 0) {
-                string file = gDataBase->query_metadata_valuefile(ids[0]);
+                string file = gDataBase->wrap_data(gDataBase->query_data(ids[0]));
                 e->SetAttribute("file", file.c_str());
                 ExpandIncludeFile(e);
             } else {
@@ -914,27 +914,7 @@ void TRestRun::WriteWithDataBase() {
     // write to database
     debug << "TResRun::WriteWithDataBase. Run number is : " << fRunNumber << endl;
     if (fRunNumber != -1) {
-        TRestDataBase* db = gDataBase;
-
-        // add file information to the run
-        auto info = DBFile((string)fOutputFileName);
-        info.start = fStartTime;
-        info.stop = fEndTime;
-
-        if (tree != NULL && tree->GetEntries() > 1) {
-            int n = tree->GetEntries();
-            tree->GetEntry(0);
-            double t1 = tree->GetTimeStamp();
-            tree->GetEntry(n - 1);
-            double t2 = tree->GetTimeStamp();
-            info.evtRate = n / (t2 - t1);
-        }
-
-        int fileid = db->add_runfile(fRunNumber, (string)fOutputFileName, info);
-
-        db->set_runend(fRunNumber, fEndTime);
-        db->set_runstart(fRunNumber, fStartTime);
-
+        int fileid = gDataBase->set_runfile(fRunNumber, (string)fOutputFileName);
         fout << "DataBase Entry Added! Run Number: " << fRunNumber << ", File ID: " << fileid << endl;
     }
 }

@@ -28,7 +28,7 @@ void TRestDBEntryLogger::InitFromConfigFile() {
     //}
 
     // parameters
-    fSkipIfNotEmpty = StringToBool(GetParameter("skipIfNotEmpty", false));
+    fSkipIfNotEmpty = StringToBool(GetParameter("skipIfNotEmpty", "false"));
     fTextOpenCommand = GetParameter("editWith", "vim");
 
     fRun = fHostmgr->GetRunInfo();
@@ -36,13 +36,10 @@ void TRestDBEntryLogger::InitFromConfigFile() {
         auto runs = gDataBase->search_run_with_file(fRun->GetInputFileName(0));
         if (runs.size() == 0) {
             AskForFilling(0);
+        } else if (!fSkipIfNotEmpty) {
+            AskForFilling(runs[0]);
         } else {
-            auto runtype = gDataBase->query_run_info(runs[0]).type;
-            if (ToUpper(runtype == "")) {
-                AskForFilling(runs[0]);
-            } else if (!fSkipIfNotEmpty) {
-                AskForFilling(runs[0]);
-            }
+            fout << "TRestDBEntryLogger: skipping existing run" << endl;
         }
     }
 }
@@ -58,23 +55,22 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
     //auto infolist = gDataBase->exec(Form("select * from rest_metadata where run_id=%i", lastvalirrun));
 
     // search metadata, run number=this run, metadata type = any
-    auto ids = gDataBase->search_metadata_with_info({(create ? run_id - 1 : run_id), ""});
+    auto ids = gDataBase->search_data({(create ? run_id - 1 : run_id), "DB_COLUMN"});
     map<string, string> infolist;
     for (auto id : ids) {
-        auto name = gDataBase->query_metadata_info(id).type;
-        auto value = gDataBase->query_metadata_value(id);
-        infolist[name] = value;
+        auto info = gDataBase->query_data(id);
+        infolist[info.tag] = info.value;
     }
 
-    DBEntry entry = gDataBase->query_run_info(create ? run_id - 1 : run_id);
+    DBEntry entry = gDataBase->query_run(create ? run_id - 1 : run_id);
 
     string type = entry.type;
     string tag = entry.tag;
     string description = entry.description;
     string version = entry.version;
 
-    string txtfilename = "/tmp/REST_" + REST_USER + "_tempDBLog.txt";
-    ofstream ofs(txtfilename);
+    string txtfilename = REST_USER_PATH + "/tempDBLog.txt";
+    ofstream ofs(txtfilename, ios::ate);
     ofs << (create ? "-- creating" : "-- updating") << " run in database, id: " << run_id
         << ", version: " << version << ". Delete this line to cancel." << endl;
     ofs << "type: " << type << endl;
@@ -96,13 +92,15 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
     string s;
     bool valid = false;
     while (getline(ifs, s)) {
-        if (!valid && s[0] != '-') {
-            fout << "TRestDBEntryLogger: DataBase writting successful" << endl;
-            ifs.close();
-            return;
-        } else {
-            valid = true;
-            continue;
+        if (!valid) {
+            if (s[0] != '-') {
+                warning << "TRestDBEntryLogger: DataBase writting cancelled" << endl;
+                ifs.close();
+                return;
+            } else {
+                valid = true;
+                continue;
+            }
         }
 
         auto infopair = Split(s, ":");
@@ -122,6 +120,8 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
         else
             fMetainfo[infopair[0]] = infopair[1];
     }
+    ifs.close();
+
     fRun->SetRunType(type);
     fRun->SetRunDescription(description);
     fRun->SetRunTag(tag);
@@ -134,7 +134,7 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
         runentry.tag = tag;
         runentry.description = description;
         runentry.version = version;
-        gDataBase->add_run(runentry);
+        gDataBase->set_run(runentry);
 
        /* cout << Form(
                     "insert into rest_runs (run_id, type, tag, description, version) values (%i, '%s', '%s', "
@@ -150,20 +150,7 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
         // add run file
         vector<string> files = Vector_cast<TString, string>(fRun->GetInputFileNames());
         for (int i = 0; i < files.size(); i++) {
-            int fileid = i;
-            struct stat _stat;
-            time_t filetime;
-            long long filesize;
-            if (stat(files[i].c_str(), &_stat) == 0) {
-                filetime = _stat.st_ctime;  // creation time
-                filesize = _stat.st_size;
-            }
-
-            DBFile afile;
-            afile.filename = files[i];
-            afile.fileSize = filesize;
-            afile.start = filetime;
-            gDataBase->add_runfile(run_id, files[i], afile);
+            gDataBase->set_runfile(run_id, files[i]);
             /*gDataBase->exec(
                 Form("insert into rest_files (run_id,file_id,file_name,file_size,start_time) values "
                      "(%i,%i,'%s',%i,'%s');",
@@ -171,7 +158,16 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
             if (i == 0) {
                 //gDataBase->exec(Form("update rest_runs set run_start = '%s' where run_id=%i;",
                 //                     ToDateTimeString(filetime).c_str(), run_id));
-                gDataBase->set_runstart(run_id, filetime);
+                struct stat _stat;
+                time_t filetime;
+                long long filesize;
+                if (stat(files[i].c_str(), &_stat) == 0) {
+                    filetime = _stat.st_ctime;  // creation time
+                    filesize = _stat.st_size;
+                }
+
+                runentry.tstart = filetime;
+                gDataBase->set_run(runentry, true);
             }
         }
 
@@ -183,10 +179,14 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
     for (auto iter : fMetainfo) {
         //gDataBase->exec(Form("update rest_metadata set %s = '%s' where run_id=%i;", iter.first.c_str(),
         //                     iter.second.c_str(), run_id));
-        DBEntry metaentry;
-        metaentry.runNr = run_id;
-        metaentry.type = iter.first;
-        gDataBase->add_metadata(metaentry, iter.second);
+        if (iter.second != "" && iter.first != "") {
+            DBEntry dataentry;
+            dataentry.runNr = run_id;
+            dataentry.type = "DB_COLUMN";
+            dataentry.tag = iter.first;
+            dataentry.value = iter.second;
+            gDataBase->set_data(dataentry, true);
+        }
     }
 
     fout << "TRestDBEntryLogger: DataBase writting successful" << endl;
