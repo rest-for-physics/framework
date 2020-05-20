@@ -219,8 +219,3 @@ include(thisREST)
 install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/bin/rest-config)")
 install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/scripts/restv2_1ToXml.py)")
 install(CODE "execute_process(COMMAND chmod 777 ${CMAKE_INSTALL_PREFIX})")
-install(CODE "execute_process(COMMAND chmod 666 ${CMAKE_INSTALL_PREFIX}/runNumber)")
-install(CODE "execute_process(COMMAND chmod 777 ${CMAKE_INSTALL_PREFIX}/data/download/)")
-install(CODE "execute_process(COMMAND touch ${CMAKE_INSTALL_PREFIX}/data/download/gases.rml)")
-install(CODE "execute_process(COMMAND chmod 666 ${CMAKE_INSTALL_PREFIX}/data/download/gases.rml)")
-
