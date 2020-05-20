@@ -35,6 +35,8 @@ struct DBFile {
     time_t stop;
 };
 
+// Contains basic information of the row. These information also appears in TRestRun
+// 
 struct DBEntry {
     DBEntry(int _runNr = 0, string _type = "", string _tag = "", string _description = "",
             string _version = "") {
@@ -48,8 +50,11 @@ struct DBEntry {
     int runNr = 0;
     string type = "";
     string tag = "";
+    string user = "";
     string description = "";
     string version = "";
+    time_t tstart = 0;
+    time_t tend = 0;
 };
 
 struct DBTable : public vector<vector<string>> {
@@ -142,7 +147,9 @@ class TRestDataBase {
     /// search metadata according to the entry information. return a list of entry ids
     virtual vector<int> search_metadata_with_info(DBEntry info);
     /// some kinds of metadata may not be run-dependent(e.g. slow control data), we search with time
-    virtual vector<int> search_metadata_with_time(time_t t1, time_t t2) { return vector<int>(); }
+    virtual vector<int> search_metadata_with_time(DBEntry info, time_t t1, time_t t2) {
+        return vector<int>();
+    }
 
     /// get the id of the last metadata.
     virtual int get_lastmetadata();

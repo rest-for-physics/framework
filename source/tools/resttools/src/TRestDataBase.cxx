@@ -98,13 +98,28 @@ void TRestDataBase::Initialize() {
         ifstream infile(metaFilename);
         string s;
         while (TRestTools::GetLine(infile, s)) {
-            vector<string> items = Split(s, "\" \"", true);
-            if (items.size() != 6) continue;
-            if (items[0][0] == '\"') items[0] = items[0].substr(1, -1);
-            if (items[5][items[5].size() - 1] == '\"') items[5] = items[5].substr(0, items[5].size() - 1);
+            DBEntry info;
+            string value;
+            vector<string> items = Split(s, "\t", true);
+            for (auto item : items) {
+                vector<string> pair = Split(item, "=", true);
+                if (pair.size() == 2) {
+                    if (pair[0] == "run")
+                        info.runNr = atoi(pair[1].c_str());
+                    else if (pair[0] == "type")
+                        info.type = pair[1];
+                    else if (pair[0] == "tag") 
+                        info.tag = pair[1];
+                    else if (pair[0] == "description")
+                        info.description = pair[1];
+                    else if (pair[0] == "version")
+                        info.version = pair[1];
+                    else if (pair[0] == "value")
+                        value = pair[1];
+                }
+            }
 
-            DBEntry info(items);
-            fMetaDataValues.push_back({info, items[5]});
+            fMetaDataValues.push_back({info, value});
         }
     }
 }

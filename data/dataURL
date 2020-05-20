@@ -1,3 +1,3 @@
-"0" "GAS_SERVER" "" "" "2.2.12" "https://sultan.unizar.es/gasFiles/"
-"0" "META_RML" "TRestGas" "gas definition rml" "2.2.12" "https://sultan.unizar.es/gasFiles/gases.rml"
-"0" "META_RML" "TRestReadout" "pre-defined readout modules" "2.2.12" "https://sultan.unizar.es/definitions/readouts.rml"
+run=0	type=GAS_SERVER	version=2.2.12	value=https://sultan.unizar.es/gasFiles/
+run=0	type=META_RML	tag=TRestGas	description=gas definition rml version=2.2.12	value=https://sultan.unizar.es/gasFiles/gases.rml
+run=0	type=META_RML	tag=TRestReadout	description=pre-defined readout modules	version=2.2.12	value=https://sultan.unizar.es/definitions/readouts.rml
