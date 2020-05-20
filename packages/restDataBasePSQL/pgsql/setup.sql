@@ -46,19 +46,21 @@ create table rest_metadata (
        run_id serial not null,
        constraint runids foreign key (run_id) REFERENCES rest_runs (run_id),
        primary key (run_id),
-       MMs_tag text,                 -- Prototype_7MM (name of the readout plane)
-       MMs_idlist int[],             -- 0 2 3 4 6 8 9 
+       MMs_layout text,              -- Prototype_7MM (name of the readout plane)
+       MMs_id int[],                 -- 0 2 3 4 6 8 9 
        MMs_active bool[],            -- 1 0 1 1 1 1 1 (bool)
-       MMs_HV_mesh int[],            -- 340 340 360 360 370 370 360 (V)
-       MMs_HV_internalrim int[],     -- 700 700 700 700 700 700 700 (V)
-       MMs_HV_externalrim int[],     -- 0 0 0 0 0 0 0
-       MMs_AGET_boardid int[],        -- 2 1 2 1 0 3 0
-       MMs_AGET_chipid int[],        -- 3(01) 12(23) 12(23) 3(01) 12(23) 6(12) 3(01)
-       MMs_AGET_dynamicrange int[],  -- 120 120 120 120 120 120 120 (fc)
+       MMs_board int[],              -- 2 1 2 1 0 3 0
+       MMs_slot int[],               -- 3(01) 12(23) 12(23) 3(01) 12(23) 6(12) 3(01)
+       DAQ_HVmesh int[],             -- 340 340 360 360 370 370 360 (V)
+       DAQ_HVinternalrim int[],      -- 700 700 700 700 700 700 700 (V)
+       DAQ_HVexternalrim int[],      -- 0 0 0 0 0 0 0
+       DAQ_dynamicrange int[],       -- 120 120 120 120 120 120 120 (fc)
        DAQ_threshold text,           -- 2-0
        DAQ_samplingrate integer,     -- 5 (MHz)
        DAQ_triggerdelay integer,     -- 361
        DAQ_shappingtime integer,     -- 1 (us)
+       DAQ_baseline integer          -- 380+20
+       DAQ_readoutmode text          -- full readout / partial readout
        Gas_material text,            -- xe:0.99, n(ch3)3:0.01
        Gas_pressure FLOAT4,          -- 8.5 (bar)
        Gas_temperature FLOAT4,       -- 300 (K)
