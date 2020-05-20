@@ -97,4 +97,6 @@ untyped_result_set query(connection_t con, const std::string& text, ArgTypes ...
 
 #include "pg-impl.hh"
 
+extern std::shared_ptr<PGconn> conn;
+
 #endif /* PG_H */

@@ -11,8 +11,8 @@ class TRestDataBasePSQL : public TRestDataBase {
 
     virtual void Initialize();
     void test();
-    void print(int runnumber);
-    void exec(string cmd);
+    void print(string cmd);
+    DBTable exec(string cmd);
 
     ///////////////////////  run number management interface  //////////////////////
     /// return the run number of the run. If not exist, return 0

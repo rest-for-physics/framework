@@ -35,7 +35,7 @@ void TRestDataBasePSQL::Initialize() {
     }
 }
 
-void TRestDataBasePSQL::exec(string cmd) {
+void TRestDataBasePSQL::print(string cmd) {
     //if (ToUpper(cmd).find("DROP") != -1) {
     //    cout << "ERROR!!!FORBIDDEN OPERATION!!!" << endl;
     //    return;
@@ -82,8 +82,22 @@ void TRestDataBasePSQL::exec(string cmd) {
     }
 }
 
-void TRestDataBasePSQL::print(int runnumber) {
-    exec(Form("select * from rest_runs where run_id = %d", runnumber));
+DBTable TRestDataBasePSQL::exec(string cmd) {
+    auto qresult = query(conn, cmd);
+    DBTable result;
+
+    if (qresult.rows() > 0) {
+        for (int column = 0; column < qresult[-1].size(); column++) {
+            result.headerline.push_back(qresult[-1][column]);
+        }
+        for (int row = 0; row < qresult.rows(); row++) {
+            result.push_back(vector<string>());
+            for (int column = 0; column < qresult[row].size(); column++) {
+                result[row].push_back(qresult[row][column]);
+            }
+        }
+    }
+    return result;
 }
 
 
@@ -185,7 +199,7 @@ vector<int> TRestDataBasePSQL::search_run_with_file(string filepattern) {
     for (int i = 0; i < files.size(); i++) {
         auto q =
             pg::query(conn, Form("select run_id from rest_files where file_name='%s';", files[i].c_str()));
-        if (q.rows() == 1) {
+        if (q.rows() >= 1) {
             runids.insert(atoi(q[0][0].c_str()));        
         }
     }
