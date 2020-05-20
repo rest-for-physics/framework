@@ -34,6 +34,7 @@ using namespace std;
 #define UNUSED(x) (void)x
 extern string REST_PATH;
 extern string REST_USER;
+extern string REST_USER_PATH;
 
 /// A generic class with useful static methods.
 class TRestTools {
