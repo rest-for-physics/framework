@@ -43,6 +43,8 @@ struct DBEntry {
     time_t tend = 0;
 
     string value = "";
+
+    bool IsZombie() { return runNr == 0 && type == "" && value == ""; }
 };
 
 struct DBFile {

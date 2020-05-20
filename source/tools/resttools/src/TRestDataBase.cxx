@@ -100,6 +100,7 @@ void TRestDataBase::Initialize() {
         while (TRestTools::GetLine(infile, s)) {
             DBEntry info;
             vector<string> items = Split(s, "\t", true);
+            if (items.size() <= 2 ) continue;
             for (auto item : items) {
                 vector<string> pair = Split(item, "=", true);
                 if (pair.size() == 2) {
@@ -226,7 +227,7 @@ int TRestDataBase::set_run(DBEntry info, bool overwrite) {
 }
 
 DBEntry TRestDataBase::query_data(int id) {
-    if (fMetadataEntries.size() > id) fMetadataEntries[id];
+    if (fMetadataEntries.size() > id) return fMetadataEntries[id];
     return DBEntry();
 }
 
@@ -268,8 +269,12 @@ vector<int> TRestDataBase::search_data(DBEntry _info) {
 /// So we directly download them, to the local directory $REST_USER_PATH/data/download/.
 /// If the "name" is given, it will replace the file name from metadata value
 DBFile TRestDataBase::wrap_data(DBEntry data, string name) {
-    string url = data.value;
+    if (data.IsZombie()) {
+        cout << "Error! Zombie data cannot be wrapped into file!" << endl;
+        abort();
+    }
 
+    string url = data.value;
     if (name != "") {
         int pos = url.find_last_of('/', -1);
         url.replace(url.begin() + pos + 1, url.end(), name);
