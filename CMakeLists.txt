@@ -215,23 +215,6 @@ file(COPY \${PCMFiles} DESTINATION \${CMAKE_INSTALL_PREFIX}/lib)
 #create thisREST.sh
 include(thisREST)
 
-#add runNumber file and dataURL file
-install(CODE
-        "
-if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/runNumber)
-  file(COPY ${CMAKE_INSTALL_PREFIX}/data/runNumber DESTINATION ${CMAKE_INSTALL_PREFIX})
-endif()
-file(REMOVE ${CMAKE_INSTALL_PREFIX}/data/runNumber)
-
-#if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/dataURL)
-  file(COPY ${CMAKE_INSTALL_PREFIX}/data/dataURL DESTINATION ${CMAKE_INSTALL_PREFIX})
-#endif()
-file(REMOVE ${CMAKE_INSTALL_PREFIX}/data/dataURL)
-"
-        )
-
-
-
 #add permissions
 install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/bin/rest-config)")
 install(CODE "execute_process(COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/scripts/restv2_1ToXml.py)")
