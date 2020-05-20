@@ -146,10 +146,6 @@ class TRestDataBase {
     virtual vector<int> search_metadata_with_value(string url);
     /// search metadata according to the entry information. return a list of entry ids
     virtual vector<int> search_metadata_with_info(DBEntry info);
-    /// some kinds of metadata may not be run-dependent(e.g. slow control data), we search with time
-    virtual vector<int> search_metadata_with_time(DBEntry info, time_t t1, time_t t2) {
-        return vector<int>();
-    }
 
     /// get the id of the last metadata.
     virtual int get_lastmetadata();
