@@ -249,7 +249,7 @@ int TRestDataBasePSQL::set_runfile(int runnumber, string filename) {
     for (int i = 0; i < files.size(); i++) {
         if (files[i].filename == filename) {
             warning << "file: " << filename << " already exists in run: " << runnumber << endl;
-            warning << "file info updated" << endl;
+            warning << "updating file info" << endl;
             create = false;
             fileid = i;
             break;
@@ -316,6 +316,9 @@ vector<int> TRestDataBasePSQL::search_data(DBEntry info) {
                 }
             } else {
                 // In future we can query slow control data from here
+                // ...
+
+                // table = exec...
             }
 
             for (int i = 0; i < table.columns(); i++) {
