@@ -18,5 +18,5 @@ Int_t REST_DataBase(Int_t run = -1) {
         db->print(Form("select * from rest_runs where run_id=%i", run));
     }
 
-    return 0;
+    return 1;
 }
