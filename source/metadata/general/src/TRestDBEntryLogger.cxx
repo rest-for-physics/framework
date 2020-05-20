@@ -17,15 +17,15 @@ void TRestDBEntryLogger::InitFromConfigFile() {
         abort();
     }
 
-    if (ToUpper(GetParameter("database", "")) != "PSQL") {
-        ferr << "TRestDBEntryLogger: the used database by REST (" << any(gDataBase).type
-             << ") is not supported" << endl;
-        ferr << "hint: you need to switch to PSQL in your rml:" << endl;
-        ferr << "<globals>" << endl;
-        ferr << "  <parameter name=\"database\" value=\"PSQL\"/>" << endl;
-        ferr << "</globals>" << endl;
-        abort();
-    }
+    //if (ToUpper(GetParameter("database", "")) != "PSQL") {
+    //    ferr << "TRestDBEntryLogger: the used database by REST (" << any(gDataBase).type
+    //         << ") is not supported" << endl;
+    //    ferr << "hint: you need to switch to PSQL in your rml:" << endl;
+    //    ferr << "<globals>" << endl;
+    //    ferr << "  <parameter name=\"database\" value=\"PSQL\"/>" << endl;
+    //    ferr << "</globals>" << endl;
+    //    abort();
+    //}
 
     // parameters
     fSkipIfNotEmpty = StringToBool(GetParameter("skipIfNotEmpty", false));
