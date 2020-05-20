@@ -58,11 +58,11 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
     //auto infolist = gDataBase->exec(Form("select * from rest_metadata where run_id=%i", lastvalirrun));
 
     // search metadata, run number=this run, metadata type = any
-    auto ids = gDataBase->search_data({(create ? run_id - 1 : run_id), ""});
+    auto ids = gDataBase->search_data({(create ? run_id - 1 : run_id), "DB_COLUMN"});
     map<string, string> infolist;
     for (auto id : ids) {
         auto info = gDataBase->query_data(id);
-        infolist[info.type] = info.value;
+        infolist[info.tag] = info.value;
     }
 
     DBEntry entry = gDataBase->query_run(create ? run_id - 1 : run_id);
@@ -149,20 +149,7 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
         // add run file
         vector<string> files = Vector_cast<TString, string>(fRun->GetInputFileNames());
         for (int i = 0; i < files.size(); i++) {
-            int fileid = i;
-            struct stat _stat;
-            time_t filetime;
-            long long filesize;
-            if (stat(files[i].c_str(), &_stat) == 0) {
-                filetime = _stat.st_ctime;  // creation time
-                filesize = _stat.st_size;
-            }
-
-            DBFile afile;
-            afile.filename = files[i];
-            afile.fileSize = filesize;
-            afile.start = filetime;
-            gDataBase->set_runfile(run_id, files[i], afile);
+            gDataBase->set_runfile(run_id, files[i]);
             /*gDataBase->exec(
                 Form("insert into rest_files (run_id,file_id,file_name,file_size,start_time) values "
                      "(%i,%i,'%s',%i,'%s');",
@@ -170,6 +157,14 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
             if (i == 0) {
                 //gDataBase->exec(Form("update rest_runs set run_start = '%s' where run_id=%i;",
                 //                     ToDateTimeString(filetime).c_str(), run_id));
+                struct stat _stat;
+                time_t filetime;
+                long long filesize;
+                if (stat(files[i].c_str(), &_stat) == 0) {
+                    filetime = _stat.st_ctime;  // creation time
+                    filesize = _stat.st_size;
+                }
+
                 runentry.tstart = filetime;
                 gDataBase->set_run(runentry, true);
             }

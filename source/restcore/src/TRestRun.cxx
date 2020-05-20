@@ -914,24 +914,7 @@ void TRestRun::WriteWithDataBase() {
     // write to database
     debug << "TResRun::WriteWithDataBase. Run number is : " << fRunNumber << endl;
     if (fRunNumber != -1) {
-        TRestDataBase* db = gDataBase;
-
-        // add file information to the run
-        auto info = DBFile((string)fOutputFileName);
-        info.start = fStartTime;
-        info.stop = fEndTime;
-
-        if (tree != NULL && tree->GetEntries() > 1) {
-            int n = tree->GetEntries();
-            tree->GetEntry(0);
-            double t1 = tree->GetTimeStamp();
-            tree->GetEntry(n - 1);
-            double t2 = tree->GetTimeStamp();
-            info.evtRate = n / (t2 - t1);
-        }
-
-        int fileid = db->set_runfile(fRunNumber, (string)fOutputFileName, info);
-
+        int fileid = gDataBase->set_runfile(fRunNumber, (string)fOutputFileName);
         fout << "DataBase Entry Added! Run Number: " << fRunNumber << ", File ID: " << fileid << endl;
     }
 }
