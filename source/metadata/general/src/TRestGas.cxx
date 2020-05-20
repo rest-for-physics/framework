@@ -215,9 +215,9 @@
 
 #include "TRestGas.h"
 
-#include "TRestDataBase.h"
-
 #include <algorithm>
+
+#include "TRestDataBase.h"
 using namespace std;
 
 // const char* defaultServer = "https://sultan.unizar.es/gasFiles/";
@@ -510,9 +510,9 @@ void TRestGas::InitFromConfigFile() {
     }
 
     // match the database, id=0(any), type="GAS_SERVER"
-    auto ids = gDataBase->search_metadata_with_info(DBEntry(0, "GAS_SERVER"));
+    auto ids = gDataBase->search_data(DBEntry(0, "GAS_SERVER"));
     if (ids.size() > 0)
-        fGasServer = gDataBase->query_metadata_value(ids[0]);
+        fGasServer = gDataBase->query_data(ids[0]).value;
     else
         fGasServer = "none";
     fGasServer = GetParameter("gasServer", fGasServer);
@@ -653,8 +653,8 @@ void TRestGas::UploadGasToServer(string absoluteGasFilename) {
     string cmd;
     int a;
     // We download (probably again) the original version
-    auto ids = gDataBase->search_metadata_with_info(DBEntry(0, "META_RML", "TRestGas"));
-    string fname = gDataBase->query_metadata_valuefile(ids[0]);
+    auto ids = gDataBase->search_data(DBEntry(0, "META_RML", "TRestGas"));
+    string fname = gDataBase->wrap_data(gDataBase->query_data(ids[0]));
 
 // We remove the last line. I.e. the enclosing </gases> in the original file
 #ifdef __APPLE__
@@ -691,18 +691,18 @@ void TRestGas::UploadGasToServer(string absoluteGasFilename) {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // We transfer the new gas definitions to the gasServer
-    string remoteurl = gDataBase->query_metadata_value(ids[0]);
+    ids = gDataBase->search_data(DBEntry(0, "GAS_SERVER"));
+    string remoteurl = gDataBase->query_data(ids[0]).value;
     TRestTools::UploadToServer(remoteurl, fname, "ssh://gasUser@:22");
 
     // We transfer the gasFile to the gasServer
-    ids = gDataBase->search_metadata_with_info(DBEntry(0, "GAS_SERVER"));
     TRestTools::UploadToServer(remoteurl, absoluteGasFilename, "ssh://gasUser@:22");
 
     // We remove the local file (afterwards, the remote copy will be used)
-    //cmd = "rm " + _name;
-    //a = system(cmd.c_str());
+    // cmd = "rm " + _name;
+    // a = system(cmd.c_str());
 
-    //if (a != 0) {
+    // if (a != 0) {
     //    ferr << "-- Error : " << __PRETTY_FUNCTION__ << endl;
     //    ferr << "-- Error : problem removing the locally generated gas file" << endl;
     //    ferr << "-- Error : Please report this problem at "
@@ -734,8 +734,8 @@ string TRestGas::FindGasFile(string name) {
     string absoluteName = "";
 
     if (!fGasGeneration && fGasServer != "none") {
-        absoluteName = gDataBase->query_metadata_valuefile(
-            gDataBase->search_metadata_with_info(DBEntry(0, "GAS_SERVER"))[0], name);
+        absoluteName = gDataBase->wrap_data(
+            gDataBase->query_data(gDataBase->search_data(DBEntry(0, "GAS_SERVER"))[0]), name);
     }
 
     if (absoluteName == "") {

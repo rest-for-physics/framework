@@ -1000,9 +1000,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)this->ClassName() == "TRestRun") return;
 
         // match the database, runNumber=0(default data), type="META_RML", tag=<section name>
-        auto ids = gDataBase->search_metadata_with_info(DBEntry(0, "META_RML", e->Value()));
+        auto ids = gDataBase->search_data(DBEntry(0, "META_RML", e->Value()));
         if (ids.size() == 1) {
-            filename = gDataBase->query_metadata_valuefile(ids[0]);
+            filename = gDataBase->wrap_data(gDataBase->query_data(ids[0]));
             info << "using remote rml config file: " << filename << endl;
         } else {
             warning << "Failed to expand remote rml components for " << e->Value() << endl;

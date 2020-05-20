@@ -28,7 +28,7 @@ void TRestDBEntryLogger::InitFromConfigFile() {
     //}
 
     // parameters
-    fSkipIfNotEmpty = StringToBool(GetParameter("skipIfNotEmpty", false));
+    fSkipIfNotEmpty = StringToBool(GetParameter("skipIfNotEmpty", "false"));
     fTextOpenCommand = GetParameter("editWith", "vim");
 
     fRun = fHostmgr->GetRunInfo();
@@ -37,7 +37,7 @@ void TRestDBEntryLogger::InitFromConfigFile() {
         if (runs.size() == 0) {
             AskForFilling(0);
         } else {
-            auto runtype = gDataBase->query_run_info(runs[0]).type;
+            auto runtype = gDataBase->query_run(runs[0]).type;
             if (ToUpper(runtype == "")) {
                 AskForFilling(runs[0]);
             } else if (!fSkipIfNotEmpty) {
@@ -58,15 +58,14 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
     //auto infolist = gDataBase->exec(Form("select * from rest_metadata where run_id=%i", lastvalirrun));
 
     // search metadata, run number=this run, metadata type = any
-    auto ids = gDataBase->search_metadata_with_info({(create ? run_id - 1 : run_id), ""});
+    auto ids = gDataBase->search_data({(create ? run_id - 1 : run_id), ""});
     map<string, string> infolist;
     for (auto id : ids) {
-        auto name = gDataBase->query_metadata_info(id).type;
-        auto value = gDataBase->query_metadata_value(id);
-        infolist[name] = value;
+        auto info = gDataBase->query_data(id);
+        infolist[info.type] = info.value;
     }
 
-    DBEntry entry = gDataBase->query_run_info(create ? run_id - 1 : run_id);
+    DBEntry entry = gDataBase->query_run(create ? run_id - 1 : run_id);
 
     string type = entry.type;
     string tag = entry.tag;
@@ -134,7 +133,7 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
         runentry.tag = tag;
         runentry.description = description;
         runentry.version = version;
-        gDataBase->add_run(runentry);
+        gDataBase->set_run(runentry);
 
        /* cout << Form(
                     "insert into rest_runs (run_id, type, tag, description, version) values (%i, '%s', '%s', "
@@ -163,7 +162,7 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
             afile.filename = files[i];
             afile.fileSize = filesize;
             afile.start = filetime;
-            gDataBase->add_runfile(run_id, files[i], afile);
+            gDataBase->set_runfile(run_id, files[i], afile);
             /*gDataBase->exec(
                 Form("insert into rest_files (run_id,file_id,file_name,file_size,start_time) values "
                      "(%i,%i,'%s',%i,'%s');",
@@ -171,7 +170,8 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
             if (i == 0) {
                 //gDataBase->exec(Form("update rest_runs set run_start = '%s' where run_id=%i;",
                 //                     ToDateTimeString(filetime).c_str(), run_id));
-                gDataBase->set_runstart(run_id, filetime);
+                runentry.tstart = filetime;
+                gDataBase->set_run(runentry, true);
             }
         }
 
@@ -183,10 +183,11 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
     for (auto iter : fMetainfo) {
         //gDataBase->exec(Form("update rest_metadata set %s = '%s' where run_id=%i;", iter.first.c_str(),
         //                     iter.second.c_str(), run_id));
-        DBEntry metaentry;
-        metaentry.runNr = run_id;
-        metaentry.type = iter.first;
-        gDataBase->add_metadata(metaentry, iter.second);
+        DBEntry dataentry;
+        dataentry.runNr = run_id;
+        dataentry.type = iter.first;
+        dataentry.value = iter.second;
+        gDataBase->set_data(dataentry, true);
     }
 
     fout << "TRestDBEntryLogger: DataBase writting successful" << endl;
