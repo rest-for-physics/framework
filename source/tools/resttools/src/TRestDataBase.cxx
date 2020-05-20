@@ -89,7 +89,7 @@ DBEntry::DBEntry(vector<string> items) {
 }
 
 void TRestDataBase::Initialize() {
-    fMetadataEntries.clear();
+    fDataEntries.clear();
     string metaFilename = REST_USER_PATH + (string) "/dataURL";
     if (!TRestTools::fileExists(metaFilename)) {
         return;
@@ -119,7 +119,7 @@ void TRestDataBase::Initialize() {
                 }
             }
 
-            fMetadataEntries.push_back(info);
+            fDataEntries.push_back(info);
         }
     }
 }
@@ -227,7 +227,7 @@ int TRestDataBase::set_run(DBEntry info, bool overwrite) {
 }
 
 DBEntry TRestDataBase::query_data(int id) {
-    if (fMetadataEntries.size() > id) return fMetadataEntries[id];
+    if (fDataEntries.size() > id) return fDataEntries[id];
     return DBEntry();
 }
 
@@ -241,9 +241,9 @@ vector<int> TRestDataBase::search_data(DBEntry _info) {
         _info.version == "")
         return result;
 
-    auto iter = fMetadataEntries.begin();
-    for (int i = 0; i < fMetadataEntries.size(); i++) {
-        DBEntry info = fMetadataEntries[i];
+    auto iter = fDataEntries.begin();
+    for (int i = 0; i < fDataEntries.size(); i++) {
+        DBEntry info = fDataEntries[i];
         if (_info.runNr > 0 && info.runNr == _info.runNr) {
             // match runNr only
             result.push_back(info.runNr);
@@ -306,7 +306,7 @@ DBFile TRestDataBase::wrap_data(DBEntry data, string name) {
     return DBFile();
 }
 
-int TRestDataBase::get_lastdata() { return fMetadataEntries.size() - 1; }
+int TRestDataBase::get_lastdata() { return fDataEntries.size() - 1; }
 
 // int TRestDataBase::add_metadata(DBEntry info, string url, bool overwrite) {
 //    if (TRestTools::isPathWritable(REST_USER_PATH)) {
@@ -319,7 +319,7 @@ int TRestDataBase::get_lastdata() { return fMetadataEntries.size() - 1; }
 //    if (info.runNr == 0) {
 //        info.runNr = get_lastmetadata();
 //    }
-//    fMetadataEntries.push_back({info, url});
+//    fDataEntries.push_back({info, url});
 //
 //    std::ofstream file(metaFilename, std::ios::app);
 //    file << "\"" << info.runNr << "\" ";

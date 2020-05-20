@@ -82,10 +82,8 @@ struct DBTable : public vector<vector<string>> {
 };
 
 class TRestDataBase {
-   private:
-    vector<DBEntry> fMetadataEntries;
-
    protected:
+    vector<DBEntry> fDataEntries;
     string fConnectionString;
 
    public:
@@ -130,8 +128,6 @@ class TRestDataBase {
     virtual int set_run(DBEntry info, bool overwrite = true);
     /// add/update a runfile to the specified run
     virtual int set_runfile(int runnumber, string filename) { return 0; }
-    /// add/update a runfile to the specified run, set the file info together
-    virtual int set_runfile(int runnumber, string filename, DBFile info) { return 0; }
 
     ///////////////////////  metadata management interface  //////////////////////
     /// return the piece of data in fMetadataEntries
