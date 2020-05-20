@@ -23,22 +23,8 @@
 #ifndef RestCore_TRestDataQualityProcess
 #define RestCore_TRestDataQualityProcess
 
+#include "TRestDataQualityRules.h"
 #include "TRestEventProcess.h"
-
-/// A structure to define the rules inside a quality number inside TRestDataQualityProcess
-struct DataQualityRules {
-    /// The rule type. I.e. obsAverage, metadata, ...
-    std::vector<TString> types;
-
-    /// The value of the rule. I.e. observable name, metadata member, ...
-    std::vector<TString> values;
-
-    /// The range where it should be found the value of the rule to enable the corresponding bit.
-    std::vector<TVector2> ranges;
-
-    /// The bit position for the corresponding rule
-    std::vector<Int_t> bits;
-};
 
 //! A process to define and store quality numbers
 class TRestDataQualityProcess : public TRestEventProcess {
@@ -50,7 +36,7 @@ class TRestDataQualityProcess : public TRestEventProcess {
     std::vector<TString> fQualityTag;  //<
 
     /// A vector with the rule definitions for each quality number
-    std::vector<DataQualityRules> fRules;  //<
+    std::vector<TRestDataQualityRules> fRules;  //<
 
     TRestEvent* fEvent = NULL;  //!
 

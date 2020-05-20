@@ -137,20 +137,20 @@ void TRestDataQualityProcess::EndProcess() {
     /// We loop to each quality number definition
     for (int n = 0; n < fQualityNumber.size(); n++) {
         /// We loop to each rule from the quality definition
-        for (int r = 0; r < fRules[n].types.size(); r++) {
+        for (int r = 0; r < fRules[n].GetNumberOfRules(); r++) {
             // We implement metadata-based quality numbers
-            if (fRules[n].types[r] == "metadata") {
-                if (EvaluateMetadataRule(fRules[n].values[r], fRules[n].ranges[r]))
-                    EnableBit(fQualityNumber[n], fRules[n].bits[r]);
+            if (fRules[n].GetType(r) == "metadata") {
+                if (EvaluateMetadataRule(fRules[n].GetValue(r), fRules[n].GetRange(r)))
+                    EnableBit(fQualityNumber[n], fRules[n].GetBit(r));
                 else
-                    DisableBit(fQualityNumber[n], fRules[n].bits[r]);
+                    DisableBit(fQualityNumber[n], fRules[n].GetBit(r));
             }
 
-            if (fRules[n].types[r] == "obsAverage") {
+            if (fRules[n].GetType(r) == "obsAverage") {
                 // TODO implementation
             }
 
-            if (fRules[n].types[r] == "obsMax") {
+            if (fRules[n].GetType(r) == "obsMax") {
                 // TODO implementation
             }
         }
@@ -185,7 +185,7 @@ void TRestDataQualityProcess::InitFromConfigFile() {
 
         fQualityNumber.push_back(0);
 
-        DataQualityRules rules;
+        TRestDataQualityRules rules;
 
         debug << "Quality number tag : " << name << endl;
         debug << "------------------" << endl;
@@ -211,12 +211,9 @@ void TRestDataQualityProcess::InitFromConfigFile() {
             // If don't we output a warning << and do not push_back the values into rules
 
             // If everything in TODO is ok we push the rule!
-            rules.types.push_back(type);
-            rules.ranges.push_back(range);
-            rules.values.push_back(value);
-            rules.bits.push_back(bit);
+            rules.AddRule(type, value, range, bit);
 
-            debug << "Rule " << rules.types.size() << endl;
+            debug << "Rule " << rules.GetNumberOfRules() << endl;
             debug << "+++++++++++" << endl;
             debug << "Type : " << type << endl;
             debug << "Value : " << value << endl;
@@ -245,10 +242,10 @@ void TRestDataQualityProcess::PrintMetadata() {
         metadata << "Rules that have been found in range:" << endl;
         metadata << "  -----------------  " << endl;
         Int_t rulesInRange = 0;
-        for (int r = 0; r < fRules[n].types.size(); r++)
-            if (isBitEnabled(fQualityNumber[n], fRules[n].bits[r])) {
-                metadata << fRules[n].values[r] << " is in range (" << fRules[n].ranges[r].X() << ", "
-                         << fRules[n].ranges[r].Y() << ")" << endl;
+        for (int r = 0; r < fRules[n].GetNumberOfRules(); r++)
+            if (isBitEnabled(fQualityNumber[n], fRules[n].GetBit(r))) {
+                metadata << fRules[n].GetValue(r) << " is in range (" << fRules[n].GetRange(r).X() << ", "
+                         << fRules[n].GetRange(r).Y() << ")" << endl;
                 rulesInRange++;
             }
         if (!rulesInRange) metadata << "No rules found in range!" << endl;
@@ -257,10 +254,10 @@ void TRestDataQualityProcess::PrintMetadata() {
         metadata << "Rules that have NOT been found in range:" << endl;
         metadata << "  -----------------  " << endl;
         Int_t rulesOutRange = 0;
-        for (int r = 0; r < fRules[n].types.size(); r++)
-            if (!isBitEnabled(fQualityNumber[n], fRules[n].bits[r])) {
-                metadata << fRules[n].values[r] << " is NOT in range (" << fRules[n].ranges[r].X() << ", "
-                         << fRules[n].ranges[r].Y() << ")" << endl;
+        for (int r = 0; r < fRules[n].GetNumberOfRules(); r++)
+            if (!isBitEnabled(fQualityNumber[n], fRules[n].GetBit(r))) {
+                metadata << fRules[n].GetValue(r) << " is NOT in range (" << fRules[n].GetRange(r).X() << ", "
+                         << fRules[n].GetRange(r).Y() << ")" << endl;
                 rulesOutRange++;
             }
         if (!rulesOutRange) metadata << "No rules found outside range!" << endl;
@@ -275,6 +272,12 @@ Bool_t TRestDataQualityProcess::EvaluateMetadataRule(TString value, TVector2 ran
     if (results.size() == 2) {
         if (fRunInfo->GetMetadataClass(results[0])) {
             string val = fRunInfo->GetMetadataClass(results[0])->GetDataMemberValue(results[1]);
+            Double_t dblVal = StringToDouble(val);
+
+            // If the metadata value is in range we return true
+            if (dblVal >= range.X() && dblVal <= range.Y()) return true;
+        } else if (GetFriend(results[0])) {
+            string val = GetFriend(results[0])->GetDataMemberValue(results[1]);
             Double_t dblVal = StringToDouble(val);
 
             // If the metadata value is in range we return true
