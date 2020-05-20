@@ -244,21 +244,18 @@ vector<int> TRestDataBase::search_data(DBEntry _info) {
     auto iter = fDataEntries.begin();
     for (int i = 0; i < fDataEntries.size(); i++) {
         DBEntry info = fDataEntries[i];
-        if (_info.runNr > 0 && info.runNr == _info.runNr) {
-            // match runNr only
-            result.push_back(info.runNr);
-        } else if (_info.runNr <= 0 || (_info.runNr > 0 && info.runNr == 0)) {
-            // we match other items instead of runNr
-            bool typematch = (_info.type == "" || info.type == _info.type);
-            bool tagmatch = (_info.tag == "" || info.tag == _info.tag);
-            bool descriptionmatch = (_info.description == "" || info.description == _info.description);
-            bool versionmatch = (_info.version == "" || info.version == _info.version);
-            bool valuematch = (_info.value == "" || info.value == _info.value);
 
-            if (typematch && tagmatch && descriptionmatch && versionmatch && valuematch) {
-                result.push_back(i);
-            }
+        bool runmatch = (_info.runNr == 0 || info.runNr == 0 || info.runNr == _info.type);
+        bool typematch = (_info.type == "" || info.type == _info.type);
+        bool tagmatch = (_info.tag == "" || info.tag == _info.tag);
+        bool descriptionmatch = (_info.description == "" || info.description == _info.description);
+        bool versionmatch = (_info.version == "" || info.version == _info.version);
+        bool valuematch = (_info.value == "" || info.value == _info.value);
+
+        if (runmatch && typematch && tagmatch && descriptionmatch && versionmatch && valuematch) {
+            result.push_back(i);
         }
+
         iter++;
     }
     return result;
