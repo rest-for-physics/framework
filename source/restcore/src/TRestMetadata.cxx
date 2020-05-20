@@ -2305,7 +2305,6 @@ TString TRestMetadata::GetSearchPath() {
 
     if (getenv("configPath")) result += getenv("configPath") + (string) ":";
     result += REST_PATH + "/data/:";
-    result += REST_PATH + "/data/download/:";
     if (result.back() == ':') result.erase(result.size() - 1);
 
     return ReplaceEnvironmentalVariables(result);
