@@ -997,7 +997,7 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     string filename;
     if (string(_filename) == "server") {
         // Let TRestRun to retrieve data according to run number later-on
-        if ((string) this->ClassName() == "TRestRun") return;
+        if ((string)this->ClassName() == "TRestRun") return;
 
         // match the database, runNumber=0(default data), type="META_RML", tag=<section name>
         auto ids = gDataBase->search_metadata_with_info(DBEntry(0, "META_RML", e->Value()));
@@ -1012,7 +1012,6 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
     } else {
         filename = SearchFile(_filename);
     }
-
 
     if (filename == "") {
         warning << "REST WARNING(expand include file): Include file \"" << _filename << "\" does not exist!"
@@ -1041,8 +1040,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         if ((string)e->Value() == "include") {
             localele = (TiXmlElement*)e->Parent();
             if (localele == NULL) return;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -1075,8 +1075,9 @@ void TRestMetadata::ExpandIncludeFile(TiXmlElement* e) {
         // overwrites "type"
         else {
             localele = e;
-            if (localele->Attribute("expanded") == NULL ? false : ((string)localele->Attribute("expanded") ==
-                                                                   "true")) {
+            if (localele->Attribute("expanded") == NULL
+                    ? false
+                    : ((string)localele->Attribute("expanded") == "true")) {
                 debug << "----already expanded----" << endl;
                 return;
             }
@@ -2271,6 +2272,7 @@ TString TRestMetadata::GetVerboseLevelString() {
 /// precedence:
 ///  1) in sections "searchPath",
 ///  2) in "configPath"（the path of main rml file）,
+///  3) default data path: "$REST_PATH/data/"
 ///
 /// To add a searchPath, use:
 /// \code
@@ -2302,6 +2304,8 @@ TString TRestMetadata::GetSearchPath() {
     }
 
     if (getenv("configPath")) result += getenv("configPath") + (string) ":";
+    result += REST_PATH + "/data/:";
+    result += REST_PATH + "/data/download/:";
     if (result.back() == ':') result.erase(result.size() - 1);
 
     return ReplaceEnvironmentalVariables(result);
