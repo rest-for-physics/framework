@@ -36,13 +36,10 @@ void TRestDBEntryLogger::InitFromConfigFile() {
         auto runs = gDataBase->search_run_with_file(fRun->GetInputFileName(0));
         if (runs.size() == 0) {
             AskForFilling(0);
+        } else if (!fSkipIfNotEmpty) {
+            AskForFilling(runs[0]);
         } else {
-            auto runtype = gDataBase->query_run(runs[0]).type;
-            if (ToUpper(runtype == "")) {
-                AskForFilling(runs[0]);
-            } else if (!fSkipIfNotEmpty) {
-                AskForFilling(runs[0]);
-            }
+            fout << "TRestDBEntryLogger: skipping existing run" << endl;
         }
     }
 }
@@ -72,7 +69,7 @@ void TRestDBEntryLogger::AskForFilling(int run_id) {
     string description = entry.description;
     string version = entry.version;
 
-    string txtfilename = "/tmp/REST_" + REST_USER + "_tempDBLog.txt";
+    string txtfilename = REST_USER_PATH + "/tempDBLog.txt";
     ofstream ofs(txtfilename, ios::ate);
     ofs << (create ? "-- creating" : "-- updating") << " run in database, id: " << run_id
         << ", version: " << version << ". Delete this line to cancel." << endl;
