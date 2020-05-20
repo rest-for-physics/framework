@@ -108,7 +108,7 @@ void TRestDataBase::Initialize() {
                         info.runNr = atoi(pair[1].c_str());
                     else if (pair[0] == "type")
                         info.type = pair[1];
-                    else if (pair[0] == "tag")
+                    else if (pair[0] == "tag") 
                         info.tag = pair[1];
                     else if (pair[0] == "description")
                         info.description = pair[1];
@@ -183,13 +183,6 @@ TRestDataBase::TRestDataBase() {
 /// The run number -1.
 int TRestDataBase::get_lastrun() {
     int runNr;
-
-    // We need to verify the directory really exists. I believe restG4 does not
-    // initialize the directories if they do not exist.
-    if (!TRestTools::fileExists(REST_USER_PATH)) {
-        mkdir(REST_USER_PATH.c_str(), S_IRWXU);
-    }
-
     string runFilename = REST_USER_PATH + "/runNumber";
     if (!TRestTools::fileExists(runFilename)) {
         if (TRestTools::isPathWritable(REST_USER_PATH)) {
@@ -334,7 +327,7 @@ string TRestDataBase::query_metadata_valuefile(int id, string name) {
 
 int TRestDataBase::get_lastmetadata() { return fMetaDataValues.size() - 1; }
 
-// int TRestDataBase::add_metadata(DBEntry info, string url, bool overwrite) {
+//int TRestDataBase::add_metadata(DBEntry info, string url, bool overwrite) {
 //    if (TRestTools::isPathWritable(REST_USER_PATH)) {
 //        cout << "error! path not writable" << endl;
 //        return -1;
