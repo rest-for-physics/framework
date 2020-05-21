@@ -213,8 +213,18 @@ void TRestElectronDiffusionProcess::InitFromConfigFile() {
     fWvalue = GetDblParameterWithUnits("Wvalue", (double)0) * REST_Units::eV;
     fAttachment = StringToDouble(GetParameter("attachment", "0"));
     fLonglDiffCoeff = StringToDouble(GetParameter("longitudinalDiffusionCoefficient", "-1"));
-    if (fLonglDiffCoeff == -1) fLonglDiffCoeff = StringToDouble(GetParameter("longDiff", "-1"));
+    if (fLonglDiffCoeff == -1)
+        fLonglDiffCoeff = StringToDouble(GetParameter("longDiff", "-1"));
+    else {
+        ferr << "longitudinalDiffusionCoeffient is now OBSOLETE! It will soon dissapear." ferr
+             << " Please use the shorter form of this parameter : longDiff" << endl;
+    }
+
     fTransDiffCoeff = StringToDouble(GetParameter("transversalDiffusionCoefficient", "-1"));
+    else {
+        ferr << "transversalDiffusionCoeffient is now OBSOLETE! It will soon dissapear." ferr
+             << " Please use the shorter form of this parameter : transDiff" << endl;
+    }
     if (fTransDiffCoeff == -1) fTransDiffCoeff = StringToDouble(GetParameter("transDiff", "-1"));
     fMaxHits = StringToInteger(GetParameter("maxHits", "0"));
 }
