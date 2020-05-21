@@ -203,7 +203,7 @@ TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent(TRestEvent* evInput) {
     fOutputRawSignalEvent->SetSubEventTag(fInputSignalEvent->GetSubEventTag());
 
     // The time event window is defined (tStart, tEnd)
-    Double_t tStart = 0;
+    Double_t tStart = std::numeric_limits<double>::quiet_NaN();
     Double_t tEnd = 10000;
     if (fTriggerMode == "firstDeposit") {
         tStart = fInputSignalEvent->GetMinTime() - fTriggerDelay * fSampling;
@@ -215,7 +215,7 @@ TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent(TRestEvent* evInput) {
         for (Double_t t = minT - fNPoints * fSampling; t <= maxT + fNPoints * fSampling; t = t + 0.5) {
             Double_t en = fInputSignalEvent->GetIntegralWithTime(t, t + (fSampling * fNPoints) / 2.);
 
-            if (tStart == 0 && en > fIntegralThreshold) {
+            if ( en > fIntegralThreshold) {
                 tStart = t - fTriggerDelay * fSampling;
                 tEnd = t + (fNPoints - fTriggerDelay) * fSampling;
             }
@@ -234,7 +234,7 @@ TRestEvent* TRestSignalToRawSignalProcess::ProcessEvent(TRestEvent* evInput) {
         tEnd = fInputSignalEvent->GetMinTime() + (fNPoints - fTriggerDelay) * fSampling;
     }
 
-    if (tStart == 0) {
+    if (std::isnan(tStart)) {
         if (GetVerboseLevel() >= REST_Warning) {
             cout << endl;
             cout << "REST WARNING. TRestSignalToRawSignalProcess. tStart was not "
