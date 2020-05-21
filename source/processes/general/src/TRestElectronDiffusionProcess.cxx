@@ -74,6 +74,12 @@ void TRestElectronDiffusionProcess::InitProcess() {
                  << endl;
             exit(-1);
         }
+        if (fWvalue == -1) {
+            warning << "Gas has not been initialized" << endl;
+            ferr << "TRestElectronDiffusionProcess: gas work function has not been defined in the rml file!"
+                 << endl;
+            exit(-1);
+        }
     } else {
 #ifndef USE_Garfield
         ferr << "A TRestGas definition was found but REST was not linked to Garfield libraries." << endl;
@@ -207,6 +213,8 @@ void TRestElectronDiffusionProcess::InitFromConfigFile() {
     fWvalue = GetDblParameterWithUnits("Wvalue", (double)0) * REST_Units::eV;
     fAttachment = StringToDouble(GetParameter("attachment", "0"));
     fLonglDiffCoeff = StringToDouble(GetParameter("longitudinalDiffusionCoefficient", "-1"));
+    if (fLonglDiffCoeff == -1) fLonglDiffCoeff = StringToDouble(GetParameter("longDiff", "-1"));
     fTransDiffCoeff = StringToDouble(GetParameter("transversalDiffusionCoefficient", "-1"));
+    if (fTransDiffCoeff == -1) fTransDiffCoeff = StringToDouble(GetParameter("transDiff", "-1"));
     fMaxHits = StringToInteger(GetParameter("maxHits", "0"));
 }
