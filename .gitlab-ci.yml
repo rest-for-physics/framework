@@ -16,11 +16,8 @@ before_script:
 clang-format:
     stage: pre-build
     script:
-        #        - apt -y install ssh-askpass
-        #   - ssh-keyscan -t rsa lfna.unizar.es >> ~/.ssh/known_hosts
         - cd ${CI_PROJECT_DIR}/
         - ./macros/pipeline/clangformattest.sh
-          # We execute only at SJTU Gitlab runner where this var is not defined
     except:
         variables:
             - $CI_SERVER_HOST
@@ -44,7 +41,6 @@ build:
     - cmake ${CI_PROJECT_DIR} -DREST_WELCOME=OFF -DREST_GARFIELD=ON -DREST_G4=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
     - make install -j2
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - echo ${CI_SERVER_HOST}
     - echo "**${CI_SERVER_HOST}**"
   except:
       variables:
@@ -69,11 +65,7 @@ testrestG4:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/
-      # This should not be done manually. It should be created directly by REST
-      #    - mkdir -p /root/.rest
-      #    - echo 1 > /root/.rest/runNumber
     - restG4 NLDBD.rml
-    - rm -rf $HOME/.rest
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install/examples/01.NLDBD-PandaX-III/Run00001_NLDBD_Test.root
