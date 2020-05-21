@@ -216,15 +216,16 @@ void TRestElectronDiffusionProcess::InitFromConfigFile() {
     if (fLonglDiffCoeff == -1)
         fLonglDiffCoeff = StringToDouble(GetParameter("longDiff", "-1"));
     else {
-        ferr << "longitudinalDiffusionCoeffient is now OBSOLETE! It will soon dissapear." ferr
-             << " Please use the shorter form of this parameter : longDiff" << endl;
+        warning << "longitudinalDiffusionCoeffient is now OBSOLETE! It will soon dissapear." << endl;
+        warning << " Please use the shorter form of this parameter : longDiff" << endl;
     }
 
     fTransDiffCoeff = StringToDouble(GetParameter("transversalDiffusionCoefficient", "-1"));
+    if (fTransDiffCoeff == -1)
+        fTransDiffCoeff = StringToDouble(GetParameter("transDiff", "-1"));
     else {
-        ferr << "transversalDiffusionCoeffient is now OBSOLETE! It will soon dissapear." ferr
-             << " Please use the shorter form of this parameter : transDiff" << endl;
+        warning << "transversalDiffusionCoeffient is now OBSOLETE! It will soon dissapear." << endl;
+        warning << " Please use the shorter form of this parameter : transDiff" << endl;
     }
-    if (fTransDiffCoeff == -1) fTransDiffCoeff = StringToDouble(GetParameter("transDiff", "-1"));
     fMaxHits = StringToInteger(GetParameter("maxHits", "0"));
 }
